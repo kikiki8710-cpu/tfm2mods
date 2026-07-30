@@ -1,0 +1,2883 @@
+scout:scout_ui {
+  width: 1600px;
+  height: 968px;
+
+  x: 32px;
+  y: 24px;
+
+  #tabs:color {
+    visible: true;
+    width: 1128px;
+    height: 39px;
+
+    padding: {
+      left: 4px;
+      right: 4px;
+      top: 4px;
+      bottom: 4px;
+    }
+
+    color: #4a4c56ff;
+    stroke: 1;
+    back_color: #00000000;
+
+    child_type: LeftToRight {
+      spacing: 0px;
+    }
+
+    rounding: Uniform {
+      rounding: 8;
+    }
+
+    #contract:color_selectable {
+      @"asset/base/style/main#strategy_option";
+
+      width: 176px;
+      height: 32px;
+
+      label: {
+        size: 16;
+      }
+
+      selected_label: {
+        size: 16;
+      }
+
+      text: "#asset/base/text/ui?scout.contract";
+    }
+
+    #contract_all:color_selectable {
+      @"asset/base/style/main#strategy_option";
+
+      width: 220px;
+      height: 32px;
+
+      label: {
+        size: 16;
+      }
+
+      selected_label: {
+        size: 16;
+      }
+
+      text: "#asset/base/text/ui?scout.contract_all";
+    }
+
+    #search:color_selectable {
+      @"asset/base/style/main#strategy_option";
+      width: 176px;
+      height: 32px;
+
+      label: {
+        size: 16;
+      }
+
+      selected_label: {
+        size: 16;
+      }
+
+      text: "#asset/base/text/ui?scout.search";
+    }
+
+    #search_list:color_selectable {
+      @"asset/base/style/main#strategy_option";
+
+      width: 176px;
+      height: 32px;
+
+      label: {
+        size: 16;
+      }
+
+      selected_label: {
+        size: 16;
+      }
+
+      text: "#asset/base/text/ui?scout.list_tab";
+    }
+
+    #interested:color_selectable {
+      @"asset/base/style/main#strategy_option";
+
+      width: 132px;
+      height: 32px;
+
+      label: {
+        size: 16;
+      }
+
+      selected_label: {
+        size: 16;
+      }
+
+      text: "#asset/base/text/ui?scout.sub_tab.interested";
+    }
+
+    #released:color_selectable {
+      @"asset/base/style/main#strategy_option";
+
+      width: 132px;
+      height: 32px;
+
+      label: {
+        size: 16;
+      }
+
+      selected_label: {
+        size: 16;
+      }
+
+      text: "#asset/base/text/ui?scout.sub_tab.released";
+    }
+
+    #all_players:color_selectable {
+      @"asset/base/style/main#strategy_option";
+
+      width: 108px;
+      height: 32px;
+
+      label: {
+        size: 16;
+      }
+
+      selected_label: {
+        size: 16;
+      }
+
+      text: "#asset/base/text/ui?scout.sub_tab.all_players";
+    }
+  }
+
+  #filter_bar:empty {
+    visible: false;
+    width: 304px;
+    height: 39px;
+
+    anchor_x: 1;
+    pivot_x: 1;
+
+    padding: {
+      top: 2px;
+    }
+
+    #filter_btn:color_icon_button {
+      @"asset/base/style/main#tertiary_button";
+      anchor_x: 1;
+      pivot_x: 1;
+      width: 128px;
+      height: 36px;
+
+      centering: {
+        x: 0;
+        y: 0;
+        w: 128;
+        h: 36;
+      }
+      centering_left: true;
+
+      icon: {
+        source: "asset/base/ui/icons/filter";
+        rect: {
+          x: 14;
+          y: 8;
+          w: 20;
+          h: 20;
+        }
+      }
+
+      text: {
+        text: "#asset/base/text/ui?scout.filter.btn";
+        size: 16;
+        align_x: Center;
+        align_y: Center;
+      }
+    }
+
+    #filter_clear_btn:color_icon_button {
+      @"asset/base/style/main#secondary_button";
+      anchor_x: 1;
+      pivot_x: 1;
+      x: -136px;
+      width: 168px;
+      height: 36px;
+      visible: false;
+
+      centering: {
+        x: 0;
+        y: 0;
+        w: 168;
+        h: 36;
+      }
+      centering_left: true;
+
+      icon: {
+        source: "asset/base/ui/icons/filter_in";
+        rect: {
+          x: 14;
+          y: 8;
+          w: 20;
+          h: 20;
+        }
+      }
+
+      text: {
+        text: "#asset/base/text/ui?scout.filter.clear";
+        size: 16;
+        align_x: Center;
+        align_y: Center;
+      }
+    }
+  }
+
+  #search_list_bulk_delete_btn:color_icon_button {
+    @"asset/base/style/main#tertiary_button";
+    visible: false;
+    anchor_x: 1;
+    pivot_x: 1;
+    y: 2px;
+    width: 128px;
+    height: 36px;
+
+    centering: {
+      x: 0;
+      y: 0;
+      w: 128;
+      h: 36;
+    }
+    centering_left: true;
+
+    icon: {
+      source: "asset/base/ui/icons/delete";
+      rect: {
+        x: 8;
+        y: 6;
+        w: 24;
+        h: 24;
+      }
+    }
+
+    text: {
+      text: "#asset/base/text/ui?scout.list.delete_all";
+      size: 16;
+      align_x: Center;
+      align_y: Center;
+    }
+  }
+
+  #recr_ability_btn:color_icon_button {
+    @"asset/base/style/main#tertiary_button";
+    visible: false;
+    x: 1136px;
+    y: 2px;
+    width: 40px;
+    height: 36px;
+    icon: {
+      source: "asset/base/ui/icons/swap";
+      rect: { x: 10; y: 8; w: 20; h: 20; }
+    }
+
+    #icon:image {
+      ignore_event: true;
+      x: 10px;
+      y: 8px;
+      width: 20px;
+      height: 20px;
+      source: "asset/base/ui/icons/swap";
+      color: #d7dbe4ff;
+    }
+
+    #icon_off:image {
+      ignore_event: true;
+      x: 10px;
+      y: 8px;
+      width: 20px;
+      height: 20px;
+      source: "asset/base/ui/icons/swap";
+      color: #5a5e68ff;
+      visible: false;
+    }
+  }
+  #league:dropdown {
+    @"asset/base/style/main#dropdown";
+    width: 306px;
+    height: 40px;
+
+    anchor_x: 1;
+    pivot_x: 1;
+
+    text: {
+      size: 18;
+    }
+
+    item_text: {
+      size: 18;
+    }
+
+    text_layout: {
+      x: 14px;
+      y: 6px;
+      width: 100%;
+      height: 28px;
+    }
+
+    item_layout: {
+      height: 40px;
+      width: 302px;
+      x: 14px;
+    }
+
+    item_text_layout: {
+      y: 6px;
+      width: 288px;
+      height: 28px;
+    }
+  }
+  
+  #contents:empty {
+    y: 52px;
+    width: 1600px;
+    height: 916px;
+
+    #player_staff_toggle:empty {
+      width: 1600px;
+      height: 70px;
+
+      #inner:empty {
+        anchor_x: 0.5;
+        pivot_x: 0.5;
+        width: 300px;
+        height: 70px;
+
+        #left:color_icon_button {
+          @"asset/base/style/main#tertiary_button";
+          anchor_y: 0.5;
+          pivot_y: 0.5;
+          width: 40px;
+          height: 40px;
+          icon: {
+            source: "asset/base/ui/icons/left";
+            rect: {
+              x: 17.47;
+              y: 15.61;
+              w: 5.06;
+              h: 8.78;
+            }
+          }
+        }
+
+        #text:label {
+          @"asset/base/style/main#bold_label";
+          anchor_x: 0.5;
+          pivot_x: 0.5;
+          anchor_y: 0.5;
+          pivot_y: 0.5;
+          color: #ffffffff;
+          size: 18;
+          width: 200px;
+          height: 40px;
+          align_x: Center;
+          align_y: Center;
+          text: "#asset/base/text/ui?scout.view_mode.player";
+        }
+
+        #right:color_icon_button {
+          @"asset/base/style/main#tertiary_button";
+          anchor_x: 1;
+          pivot_x: 1;
+          anchor_y: 0.5;
+          pivot_y: 0.5;
+          width: 40px;
+          height: 40px;
+          icon: {
+            source: "asset/base/ui/icons/right";
+            rect: {
+              x: 17.47;
+              y: 15.61;
+              w: 5.06;
+              h: 8.78;
+            }
+          }
+        }
+      }
+
+      #bulk_delete_btn:color_icon_button {
+        @"asset/base/style/main#tertiary_button";
+        visible: false;
+        anchor_x: 1;
+        pivot_x: 1;
+        anchor_y: 0.5;
+        pivot_y: 0.5;
+        width: 128px;
+        height: 36px;
+
+        centering: {
+          x: 0;
+          y: 0;
+          w: 128;
+          h: 36;
+        }
+        centering_left: true;
+
+        icon: {
+          source: "asset/base/ui/icons/delete";
+          rect: {
+            x: 8;
+            y: 6;
+            w: 24;
+            h: 24;
+          }
+        }
+
+        text: {
+          text: "#asset/base/text/ui?scout.list.delete_all";
+          size: 16;
+          align_x: Center;
+          align_y: Center;
+        }
+      }
+    }
+
+    #contract:color {
+      y: 70px;
+      width: 100%;
+      height: 846px;
+
+      child_type: TopToBottom {
+        spacing: 0px;
+      }
+
+      color: #161721ff;
+      rounding: Uniform {
+        rounding: 12;
+      }
+
+      #header:color {
+        color: #0f1016ff;
+        rounding: Individual {
+          top_left: 12;
+          top_right: 12;
+        }
+        child_type: LeftToRight {
+          spacing: 0px;
+        }
+
+        width: 100%;
+        height: 56px;
+
+        #position:empty {
+          width: 173px;
+          height: 56px;
+
+          #text:label {
+            @"asset/base/style/main#label";
+            x: 44px;
+            y: 18px;
+            width: 118px;
+            height: 20px;
+            align_y: Center;
+
+            text: "#asset/base/text/ui?strategy.position";
+            size: 16;
+          }
+        }
+
+        #name:empty {
+          width: 173px;
+          height: 56px;
+
+          #text:label {
+            @"asset/base/style/main#label";
+            x: 20px;
+            y: 18px;
+            width: 142px;
+            height: 20px;
+            align_y: Center;
+
+            text: "#asset/base/text/ui?strategy.name";
+            size: 16;
+          }
+        }
+
+        #team:empty {
+          width: 177px;
+          height: 56px;
+
+          #text:label {
+            @"asset/base/style/main#label";
+            x: 46px;
+            y: 18px;
+            width: 120px;
+            height: 20px;
+            align_y: Center;
+
+            text: "#asset/base/text/ui?player_detail.contract.team";
+            size: 16;
+          }
+        }
+
+        #contract:empty {
+          width: 213px;
+          height: 56px;
+
+          #text:label {
+            @"asset/base/style/main#label";
+            x: 20px;
+            y: 18px;
+            width: 182px;
+            height: 20px;
+            align_y: Center;
+
+            text: "#asset/base/text/ui?player_detail.contract.period";
+            size: 16;
+          }
+        }
+
+        #salary:empty {
+          width: 120px;
+          height: 56px;
+
+          #text:label {
+            @"asset/base/style/main#label";
+            x: 20px;
+            y: 18px;
+            width: 89px;
+            height: 20px;
+            align_y: Center;
+
+            text: "#asset/base/text/ui?player_detail.salary.header";
+            size: 16;
+          }
+        }
+
+        #transfer_fee:empty {
+          width: 120px;
+          height: 56px;
+
+          #text:label {
+            @"asset/base/style/main#label";
+            x: 20px;
+            y: 18px;
+            width: 89px;
+            height: 20px;
+            align_y: Center;
+
+            text: "#asset/base/text/ui?player_detail.transfer_fee";
+            size: 16;
+          }
+        }
+
+        #squad_status:empty {
+          width: 160px;
+          height: 56px;
+
+          #text:label {
+            @"asset/base/style/main#label";
+            x: 20px;
+            y: 18px;
+            width: 129px;
+            height: 20px;
+            align_y: Center;
+
+            text: "#asset/base/text/athlete?squad_status.desc";
+            size: 16;
+          }
+        }
+
+        #contract_state:empty {
+          width: 155px;
+          height: 56px;
+
+          #text:label {
+            @"asset/base/style/main#label";
+            x: 20px;
+            y: 18px;
+            width: 124px;
+            height: 20px;
+            align_y: Center;
+
+            text: "#asset/base/text/ui?scout.contract_state.header";
+            size: 16;
+          }
+        }
+
+        #contract_limit:empty {
+          width: 155px;
+          height: 56px;
+
+          #text:label {
+            @"asset/base/style/main#label";
+            x: 20px;
+            y: 18px;
+            width: 124px;
+            height: 20px;
+            align_y: Center;
+
+            text: "#asset/base/text/ui?scout.contract_limit";
+            size: 16;
+          }
+        }
+
+        #action:empty {
+          width: 161px;
+          height: 56px;
+
+          #text:label {
+            width: 100%;
+            height: 100%;
+            @"asset/base/style/main#label";
+            align_x: Center;
+            align_y: Center;
+
+            text: "#asset/base/text/ui?scout.contract_action";
+            size: 16;
+          }
+        }
+      }
+
+      #list:scroll_view {
+        width: 1600px;
+        height: 100%;
+
+        speed: 100;
+        bar_width: 4;
+        bar: {
+          source: "asset/base/sprite/white";
+          color: #37d5b3ff;
+
+          hover: {
+          color: #ecfbf8ff;
+          }
+        }
+
+        back: {
+          source: "asset/base/sprite/white";
+          color: #4a4c56ff;
+        }
+
+        #contents:empty {
+          width: 1600px;
+          height: 900px;
+          
+          child_type: TopToBottom {
+            spacing: 0px;
+          }
+        }
+      }
+    }
+
+    #contract_all:color {
+      y: 70px;
+      width: 100%;
+      height: 846px;
+
+      color: #161721ff;
+      rounding: Uniform {
+        rounding: 12;
+      }
+
+      child_type: TopToBottom {
+        spacing: 0px;
+      }
+
+      #header:color {
+        color: #0f1016ff;
+        rounding: Individual {
+          top_left: 12;
+          top_right: 12;
+        }
+        child_type: LeftToRight {
+          spacing: 0px;
+        }
+
+        width: 100%;
+        height: 56px;
+
+        #position:empty {
+          width: 198px;
+          height: 56px;
+
+          #text:label {
+            @"asset/base/style/main#label";
+            x: 44px;
+            y: 18px;
+            width: 143px;
+            height: 20px;
+            align_y: Center;
+
+            text: "#asset/base/text/ui?strategy.position";
+            size: 16;
+          }
+        }
+
+        #name:empty {
+          width: 198px;
+          height: 56px;
+
+          #text:label {
+            @"asset/base/style/main#label";
+            x: 20px;
+            y: 18px;
+            width: 167px;
+            height: 20px;
+            align_y: Center;
+
+            text: "#asset/base/text/ui?strategy.name";
+            size: 16;
+          }
+        }
+
+        #team:empty {
+          width: 449px;
+          height: 56px;
+
+          #text:label {
+            @"asset/base/style/main#label";
+            x: 46px;
+            y: 18px;
+            width: 392px;
+            height: 20px;
+            align_y: Center;
+
+            text: "#asset/base/text/ui?player_detail.contract.team";
+            size: 16;
+          }
+        }
+
+        #contract:empty {
+          width: 213px;
+          height: 56px;
+
+          #text:label {
+            @"asset/base/style/main#label";
+            x: 20px;
+            y: 18px;
+            width: 182px;
+            height: 20px;
+            align_y: Center;
+
+            text: "#asset/base/text/ui?player_detail.contract.period";
+            size: 16;
+          }
+        }
+
+        #salary:empty {
+          width: 120px;
+          height: 56px;
+
+          #text:label {
+            @"asset/base/style/main#label";
+            x: 20px;
+            y: 18px;
+            width: 89px;
+            height: 20px;
+            align_y: Center;
+
+            text: "#asset/base/text/ui?player_detail.salary.header";
+            size: 16;
+          }
+        }
+
+        #transfer_fee:empty {
+          width: 120px;
+          height: 56px;
+
+          #text:label {
+            @"asset/base/style/main#label";
+            x: 20px;
+            y: 18px;
+            width: 89px;
+            height: 20px;
+            align_y: Center;
+
+            text: "#asset/base/text/ui?player_detail.transfer_fee";
+            size: 16;
+          }
+        }
+
+        #squad_status:empty {
+          width: 154px;
+          height: 56px;
+
+          #text:label {
+            @"asset/base/style/main#label";
+            x: 20px;
+            y: 18px;
+            width: 123px;
+            height: 20px;
+            align_y: Center;
+
+            text: "#asset/base/text/athlete?squad_status.desc";
+            size: 16;
+          }
+        }
+
+        #contract_state:empty {
+          width: 155px;
+          height: 56px;
+
+          #text:label {
+            @"asset/base/style/main#label";
+            x: 20px;
+            y: 18px;
+            width: 124px;
+            height: 20px;
+            align_y: Center;
+
+            text: "#asset/base/text/ui?scout.contract_state.header";
+            size: 16;
+          }
+        }
+      }
+
+      #list:scroll_view {
+        width: 1600px;
+        height: 100%;
+
+        speed: 100;
+        bar_width: 4;
+        bar: {
+          source: "asset/base/sprite/white";
+          color: #37d5b3ff;
+
+          hover: {
+          color: #ecfbf8ff;
+          }
+        }
+
+        back: {
+          source: "asset/base/sprite/white";
+          color: #4a4c56ff;
+        }
+
+        #contents:empty {
+          width: 1600px;
+          height: 900px;
+
+          child_type: TopToBottom {
+            spacing: 0px;
+          }
+        }
+      }
+    }
+
+    #search:empty {
+      width: 100%;
+      height: 100%;
+
+      child_type: LeftToRight {
+        spacing: 15px;
+      }
+
+      #conditions:color {
+        width: 1042px;
+        height: 916px;
+        color: #161721ff;
+
+        rounding: Uniform {
+          rounding: 12;
+        }
+
+        #header:label {
+          @"asset/base/style/main#bold_label";
+          x: 24px;
+          y: 24px;
+          width: 300px;
+          height: 28px;
+          size: 20;
+          align_y: Center;
+          text: "#asset/base/text/ui?scout.dispatch.conditions_header";
+        }
+
+        #list:empty {
+          x: 24px;
+          y: 72px;
+          width: 994px;
+          height: 800px;
+
+          child_type: TopToBottom {
+            spacing: 16px;
+          }
+
+          #region:empty {
+            width: 994px;
+            height: 40px;
+
+            #label:label {
+              @"asset/base/style/main#label";
+              width: 200px;
+              height: 40px;
+              align_y: Center;
+              size: 16;
+              text: "#asset/base/text/ui?scout.dispatch.region";
+            }
+
+            #value:dropdown {
+              @"asset/base/style/main#dropdown";
+              x: 200px;
+              width: 400px;
+              height: 40px;
+
+              text: {
+                size: 16;
+              }
+
+              item_text: {
+                size: 16;
+              }
+
+              text_layout: {
+                x: 14px;
+                y: 6px;
+                width: 100%;
+                height: 28px;
+              }
+
+              item_layout: {
+                height: 40px;
+                width: 396px;
+                x: 14px;
+              }
+
+              item_text_layout: {
+                y: 6px;
+                width: 396px;
+                height: 28px;
+              }
+            }
+          }
+
+          #age_min:empty {
+            width: 994px;
+            height: 40px;
+
+            #label:label {
+              @"asset/base/style/main#label";
+              width: 200px;
+              height: 40px;
+              align_y: Center;
+              size: 16;
+              text: "#asset/base/text/ui?scout.dispatch.age_min";
+            }
+
+            #minus:color_icon_button {
+              @"asset/base/style/main#tertiary_button";
+              x: 200px;
+              width: 40px;
+              height: 40px;
+
+              icon: {
+                source: "asset/base/ui/icons/minus";
+                rect: {
+                  x: 8;
+                  y: 8;
+                  w: 24;
+                  h: 24;
+                }
+              }
+            }
+
+            #value:dropdown {
+              @"asset/base/style/main#dropdown";
+              x: 250px;
+              width: 150px;
+              height: 40px;
+
+              text: {
+                size: 16;
+              }
+
+              item_text: {
+                size: 16;
+              }
+
+              text_layout: {
+                x: 14px;
+                y: 6px;
+                width: 100%;
+                height: 28px;
+              }
+
+              item_layout: {
+                height: 40px;
+                width: 146px;
+                x: 14px;
+              }
+
+              item_text_layout: {
+                y: 6px;
+                width: 146px;
+                height: 28px;
+              }
+            }
+
+            #plus:color_icon_button {
+              @"asset/base/style/main#tertiary_button";
+              x: 410px;
+              width: 40px;
+              height: 40px;
+
+              icon: {
+                source: "asset/base/ui/icons/plus";
+                rect: {
+                  x: 8;
+                  y: 8;
+                  w: 24;
+                  h: 24;
+                }
+              }
+            }
+          }
+
+          #age_max:empty {
+            width: 994px;
+            height: 40px;
+
+            #label:label {
+              @"asset/base/style/main#label";
+              width: 200px;
+              height: 40px;
+              align_y: Center;
+              size: 16;
+              text: "#asset/base/text/ui?scout.dispatch.age_max";
+            }
+
+            #minus:color_icon_button {
+              @"asset/base/style/main#tertiary_button";
+              x: 200px;
+              width: 40px;
+              height: 40px;
+
+              icon: {
+                source: "asset/base/ui/icons/minus";
+                rect: {
+                  x: 8;
+                  y: 8;
+                  w: 24;
+                  h: 24;
+                }
+              }
+            }
+
+            #value:dropdown {
+              @"asset/base/style/main#dropdown";
+              x: 250px;
+              width: 150px;
+              height: 40px;
+
+              text: {
+                size: 16;
+              }
+
+              item_text: {
+                size: 16;
+              }
+
+              text_layout: {
+                x: 14px;
+                y: 6px;
+                width: 100%;
+                height: 28px;
+              }
+
+              item_layout: {
+                height: 40px;
+                width: 146px;
+                x: 14px;
+              }
+
+              item_text_layout: {
+                y: 6px;
+                width: 146px;
+                height: 28px;
+              }
+            }
+
+            #plus:color_icon_button {
+              @"asset/base/style/main#tertiary_button";
+              x: 410px;
+              width: 40px;
+              height: 40px;
+
+              icon: {
+                source: "asset/base/ui/icons/plus";
+                rect: {
+                  x: 8;
+                  y: 8;
+                  w: 24;
+                  h: 24;
+                }
+              }
+            }
+          }
+
+          #position:empty {
+            width: 994px;
+            height: 40px;
+
+            #label:label {
+              @"asset/base/style/main#label";
+              width: 200px;
+              height: 40px;
+              align_y: Center;
+              size: 16;
+              text: "#asset/base/text/ui?scout.dispatch.position";
+            }
+
+            #value:dropdown {
+              @"asset/base/style/main#dropdown";
+              x: 200px;
+              width: 300px;
+              height: 40px;
+
+              text: {
+                size: 16;
+              }
+
+              item_text: {
+                size: 16;
+              }
+
+              selected_item_icon_layout: {
+                x: 0px;
+                y: 0px;
+                width: 0px;
+                height: 0px;
+              }
+
+              item_icon_layout: {
+                y: 11px;
+                width: 18px;
+                height: 18px;
+              }
+
+              text_layout: {
+                x: 14px;
+                y: 6px;
+                width: 100%;
+                height: 28px;
+              }
+
+              item_layout: {
+                height: 40px;
+                width: 296px;
+                x: 14px;
+              }
+
+              item_text_layout: {
+                x: 26px;
+                y: 6px;
+                width: 270px;
+                height: 28px;
+              }
+            }
+          }
+
+          #max_salary:empty {
+            width: 994px;
+            height: 40px;
+
+            #label:label {
+              @"asset/base/style/main#label";
+              width: 200px;
+              height: 40px;
+              align_y: Center;
+              size: 16;
+              text: "#asset/base/text/ui?scout.dispatch.max_salary";
+            }
+
+            #value:dropdown {
+              @"asset/base/style/main#dropdown";
+              x: 200px;
+              width: 300px;
+              height: 40px;
+
+              text: {
+                size: 16;
+              }
+
+              item_text: {
+                size: 16;
+              }
+
+              text_layout: {
+                x: 14px;
+                y: 6px;
+                width: 100%;
+                height: 28px;
+              }
+
+              item_layout: {
+                height: 40px;
+                width: 296px;
+                x: 14px;
+              }
+
+              item_text_layout: {
+                y: 6px;
+                width: 296px;
+                height: 28px;
+              }
+            }
+          }
+
+          #max_transfer_fee:empty {
+            width: 994px;
+            height: 40px;
+
+            #label:label {
+              @"asset/base/style/main#label";
+              width: 200px;
+              height: 40px;
+              align_y: Center;
+              size: 16;
+              text: "#asset/base/text/ui?scout.dispatch.max_transfer_fee";
+            }
+
+            #value:dropdown {
+              @"asset/base/style/main#dropdown";
+              x: 200px;
+              width: 300px;
+              height: 40px;
+
+              text: {
+                size: 16;
+              }
+
+              item_text: {
+                size: 16;
+              }
+
+              text_layout: {
+                x: 14px;
+                y: 6px;
+                width: 100%;
+                height: 28px;
+              }
+
+              item_layout: {
+                height: 40px;
+                width: 296px;
+                x: 14px;
+              }
+
+              item_text_layout: {
+                y: 6px;
+                width: 296px;
+                height: 28px;
+              }
+            }
+          }
+
+          #player_type:empty {
+            width: 994px;
+            height: 40px;
+
+            #label:label {
+              @"asset/base/style/main#label";
+              width: 200px;
+              height: 40px;
+              align_y: Center;
+              size: 16;
+              text: "#asset/base/text/ui?scout.dispatch.player_type";
+            }
+
+            #value:dropdown {
+              @"asset/base/style/main#dropdown";
+              x: 200px;
+              width: 400px;
+              height: 40px;
+
+              text: {
+                size: 16;
+              }
+
+              item_text: {
+                size: 16;
+              }
+
+              text_layout: {
+                x: 14px;
+                y: 6px;
+                width: 100%;
+                height: 28px;
+              }
+
+              item_layout: {
+                height: 40px;
+                width: 396px;
+                x: 14px;
+              }
+
+              item_text_layout: {
+                y: 6px;
+                width: 396px;
+                height: 28px;
+              }
+            }
+          }
+
+        }
+
+        #reset_btn:color_icon_button {
+          @"asset/base/style/main#tertiary_button";
+          x: 24px;
+          y: 852px;
+          width: 120px;
+          height: 40px;
+
+          text: {
+            text: "#asset/base/text/ui?scout.filter.reset";
+            size: 16;
+            align_x: Center;
+            align_y: Center;
+          }
+        }
+
+        #page_buttons:empty {
+          width: 190px;
+          height: 40px;
+          anchor_x: 0.5;
+          pivot_x: 0.5;
+          y: 852px;
+
+          child_type: LeftToRight {
+            spacing: 10px;
+          }
+
+          #left:color_icon_button {
+            @"asset/base/style/main#pagination_arrow_button";
+            width: 40px;
+            height: 40px;
+
+            icon: {
+              source: "asset/base/ui/icons/left";
+              rect: {
+                x: 17.47;
+                y: 15.61;
+                w: 5.06;
+                h: 8.78;
+              }
+            }
+          }
+
+          #page0:color_icon_button {
+            @"asset/base/style/main#pagination_page_button";
+            width: 40px;
+            height: 40px;
+
+            text: {
+              rect: {
+                x: 0;
+                y: 0;
+                w: 40;
+                h: 40;
+              }
+              font: "asset/base/font/set/bold";
+              align_x: Center;
+              align_y: Center;
+              text: "1";
+              size: 18;
+            }
+          }
+
+          #page1:color_icon_button {
+            @"asset/base/style/main#pagination_page_button";
+            width: 40px;
+            height: 40px;
+
+            text: {
+              rect: {
+                x: 0;
+                y: 0;
+                w: 40;
+                h: 40;
+              }
+              font: "asset/base/font/set/bold";
+              align_x: Center;
+              align_y: Center;
+              text: "2";
+              size: 18;
+            }
+          }
+
+          #right:color_icon_button {
+            @"asset/base/style/main#pagination_arrow_button";
+            width: 40px;
+            height: 40px;
+
+            icon: {
+              source: "asset/base/ui/icons/right";
+              rect: {
+                x: 17.47;
+                y: 15.61;
+                w: 5.06;
+                h: 8.78;
+              }
+            }
+          }
+        }
+      }
+
+      #status:color {
+        width: 551px;
+        height: 916px;
+        color: #161721ff;
+
+        rounding: Uniform {
+          rounding: 12;
+        }
+
+        #header:label {
+          @"asset/base/style/main#bold_label";
+          x: 24px;
+          y: 24px;
+          width: 300px;
+          height: 28px;
+          size: 20;
+          align_y: Center;
+          text: "#asset/base/text/ui?scout.dispatch.status_header";
+        }
+
+        #info:empty {
+          x: 24px;
+          y: 72px;
+          width: 503px;
+          height: 756px;
+
+          child_type: TopToBottom {
+            spacing: 12px;
+          }
+
+          #region:empty {
+            width: 503px;
+            height: 24px;
+
+            #label:label {
+              @"asset/base/style/main#label";
+              width: 150px;
+              height: 24px;
+              align_y: Center;
+              size: 16;
+              color: #a5a5abff;
+              text: "#asset/base/text/ui?scout.dispatch.region";
+            }
+
+            #value:label {
+              @"asset/base/style/main#label";
+              x: 150px;
+              width: 353px;
+              height: 24px;
+              align_y: Center;
+              size: 16;
+              text: "-";
+            }
+          }
+
+          #age:empty {
+            width: 503px;
+            height: 24px;
+
+            #label:label {
+              @"asset/base/style/main#label";
+              width: 150px;
+              height: 24px;
+              align_y: Center;
+              size: 16;
+              color: #a5a5abff;
+              text: "#asset/base/text/ui?scout.dispatch.age_range";
+            }
+
+            #value:label {
+              @"asset/base/style/main#label";
+              x: 150px;
+              width: 353px;
+              height: 24px;
+              align_y: Center;
+              size: 16;
+              text: "-";
+            }
+          }
+
+          #position:empty {
+            width: 503px;
+            height: 24px;
+
+            #label:label {
+              @"asset/base/style/main#label";
+              width: 150px;
+              height: 24px;
+              align_y: Center;
+              size: 16;
+              color: #a5a5abff;
+              text: "#asset/base/text/ui?scout.dispatch.position";
+            }
+
+            #value:label {
+              @"asset/base/style/main#label";
+              x: 150px;
+              width: 353px;
+              height: 24px;
+              align_y: Center;
+              size: 16;
+              text: "-";
+            }
+          }
+
+          #max_salary:empty {
+            width: 503px;
+            height: 24px;
+
+            #label:label {
+              @"asset/base/style/main#label";
+              width: 150px;
+              height: 24px;
+              align_y: Center;
+              size: 16;
+              color: #a5a5abff;
+              text: "#asset/base/text/ui?scout.dispatch.max_salary";
+            }
+
+            #value:label {
+              @"asset/base/style/main#label";
+              x: 150px;
+              width: 353px;
+              height: 24px;
+              align_y: Center;
+              size: 16;
+              text: "-";
+            }
+          }
+
+          #max_transfer_fee:empty {
+            width: 503px;
+            height: 24px;
+
+            #label:label {
+              @"asset/base/style/main#label";
+              width: 150px;
+              height: 24px;
+              align_y: Center;
+              size: 16;
+              color: #a5a5abff;
+              text: "#asset/base/text/ui?scout.dispatch.max_transfer_fee";
+            }
+
+            #value:label {
+              @"asset/base/style/main#label";
+              x: 150px;
+              width: 353px;
+              height: 24px;
+              align_y: Center;
+              size: 16;
+              text: "-";
+            }
+          }
+
+          #player_type:empty {
+            width: 503px;
+            height: 24px;
+
+            #label:label {
+              @"asset/base/style/main#label";
+              width: 150px;
+              height: 24px;
+              align_y: Center;
+              size: 16;
+              color: #a5a5abff;
+              text: "#asset/base/text/ui?scout.dispatch.player_type";
+            }
+
+            #value:label {
+              @"asset/base/style/main#label";
+              x: 150px;
+              width: 353px;
+              height: 24px;
+              align_y: Center;
+              size: 16;
+              text: "-";
+            }
+          }
+
+          #stat_conditions:empty {
+            width: 503px;
+            height: 24px;
+
+            #label:label {
+              @"asset/base/style/main#label";
+              width: 150px;
+              height: 24px;
+              align_y: Center;
+              size: 16;
+              color: #a5a5abff;
+              text: "#asset/base/text/ui?scout.dispatch.player_stats";
+            }
+
+            #value:scroll_view {
+              x: 150px;
+              width: 353px;
+              height: 24px;
+
+              speed: 80;
+              bar_width: 4;
+              bar: {
+                source: "asset/base/sprite/white";
+                color: #37d5b3ff;
+
+                hover: {
+                  color: #ecfbf8ff;
+                }
+              }
+
+              back: {
+                source: "asset/base/sprite/white";
+                color: #4a4c56ff;
+              }
+
+              #contents:empty {
+                width: 343px;
+                height: 24px;
+
+                child_type: TopToBottom {
+                  spacing: 4px;
+                }
+
+                #none:label {
+                  @"asset/base/style/main#label";
+                  width: 343px;
+                  height: 24px;
+                  align_y: Center;
+                  size: 16;
+                  text: "#asset/base/text/ui?scout.filter.no_condition";
+                }
+
+                #stat_0:label {
+                  @"asset/base/style/main#label";
+                  width: 343px;
+                  height: 24px;
+                  align_y: Center;
+                  size: 16;
+                  text: "";
+                }
+
+                #stat_1:label {
+                  @"asset/base/style/main#label";
+                  width: 343px;
+                  height: 24px;
+                  align_y: Center;
+                  size: 16;
+                  text: "";
+                }
+
+                #stat_2:label {
+                  @"asset/base/style/main#label";
+                  width: 343px;
+                  height: 24px;
+                  align_y: Center;
+                  size: 16;
+                  text: "";
+                }
+
+                #stat_3:label {
+                  @"asset/base/style/main#label";
+                  width: 343px;
+                  height: 24px;
+                  align_y: Center;
+                  size: 16;
+                  text: "";
+                }
+
+                #stat_4:label {
+                  @"asset/base/style/main#label";
+                  width: 343px;
+                  height: 24px;
+                  align_y: Center;
+                  size: 16;
+                  text: "";
+                }
+
+                #stat_5:label {
+                  @"asset/base/style/main#label";
+                  width: 343px;
+                  height: 24px;
+                  align_y: Center;
+                  size: 16;
+                  text: "";
+                }
+
+                #stat_6:label {
+                  @"asset/base/style/main#label";
+                  width: 343px;
+                  height: 24px;
+                  align_y: Center;
+                  size: 16;
+                  text: "";
+                }
+
+                #stat_7:label {
+                  @"asset/base/style/main#label";
+                  width: 343px;
+                  height: 24px;
+                  align_y: Center;
+                  size: 16;
+                  text: "";
+                }
+
+                #stat_8:label {
+                  @"asset/base/style/main#label";
+                  width: 343px;
+                  height: 24px;
+                  align_y: Center;
+                  size: 16;
+                  text: "";
+                }
+
+                #stat_9:label {
+                  @"asset/base/style/main#label";
+                  width: 343px;
+                  height: 24px;
+                  align_y: Center;
+                  size: 16;
+                  text: "";
+                }
+
+                #stat_10:label {
+                  @"asset/base/style/main#label";
+                  width: 343px;
+                  height: 24px;
+                  align_y: Center;
+                  size: 16;
+                  text: "";
+                }
+
+                #stat_11:label {
+                  @"asset/base/style/main#label";
+                  width: 343px;
+                  height: 24px;
+                  align_y: Center;
+                  size: 16;
+                  text: "";
+                }
+              }
+            }
+          }
+
+          #dispatch_cost:empty {
+            width: 503px;
+            height: 24px;
+
+            #label:label {
+              @"asset/base/style/main#label";
+              width: 150px;
+              height: 24px;
+              align_y: Center;
+              size: 16;
+              color: #a5a5abff;
+              text: "#asset/base/text/ui?scout.dispatch.weekly_cost";
+            }
+
+            #value:label {
+              @"asset/base/style/main#label";
+              x: 150px;
+              width: 353px;
+              height: 24px;
+              align_y: Center;
+              size: 16;
+              text: "-";
+            }
+          }
+
+          #transfer_budget:empty {
+            width: 503px;
+            height: 24px;
+
+            #label:label {
+              @"asset/base/style/main#label";
+              width: 150px;
+              height: 24px;
+              align_y: Center;
+              size: 16;
+              color: #a5a5abff;
+              text: "#asset/base/text/ui?team.transfer_fee";
+            }
+
+            #value:label {
+              @"asset/base/style/main#label";
+              x: 150px;
+              width: 353px;
+              height: 24px;
+              align_y: Center;
+              size: 16;
+              text: "-";
+            }
+          }
+
+          #salary_budget:empty {
+            width: 503px;
+            height: 24px;
+
+            #label:label {
+              @"asset/base/style/main#label";
+              width: 150px;
+              height: 24px;
+              align_y: Center;
+              size: 16;
+              color: #a5a5abff;
+              text: "#asset/base/text/ui?team.salary";
+            }
+
+            #value:label {
+              @"asset/base/style/main#label";
+              x: 150px;
+              width: 353px;
+              height: 24px;
+              align_y: Center;
+              size: 16;
+              text: "-";
+            }
+          }
+
+          #dispatch_status:empty {
+            width: 503px;
+            height: 24px;
+
+            #label:label {
+              @"asset/base/style/main#label";
+              width: 150px;
+              height: 24px;
+              align_y: Center;
+              size: 16;
+              color: #a5a5abff;
+              text: "#asset/base/text/ui?scout.dispatch.status";
+            }
+
+            #value:label {
+              @"asset/base/style/main#label";
+              x: 150px;
+              width: 353px;
+              height: 24px;
+              align_y: Center;
+              size: 16;
+              text: "-";
+            }
+          }
+        }
+
+        #dispatch_btn:color_icon_button {
+          @"asset/base/style/main#secondary_button";
+          x: 24px;
+          y: 852px;
+
+          width: 503px;
+          height: 40px;
+
+          text: {
+            font: "asset/base/font/set/bold";
+            text: "#asset/base/text/ui?scout.dispatch.dispatch";
+            size: 18;
+            align_x: Center;
+            align_y: Center;
+          }
+        }
+      }
+    }
+
+    #search_list:color {
+      width: 100%;
+      height: 100%;
+
+      color: #161721ff;
+      rounding: Uniform {
+        rounding: 12;
+      }
+
+      child_type: TopToBottom {
+        spacing: 0px;
+      }
+
+      #header:color {
+        color: #0f1016ff;
+        rounding: Individual {
+          top_left: 12;
+          top_right: 12;
+        }
+        child_type: LeftToRight {
+          spacing: 0px;
+        }
+
+        width: 100%;
+        height: 56px;
+
+        #name:empty {
+          width: 220px;
+          height: 56px;
+
+          #text:label {
+            @"asset/base/style/main#label";
+            x: 20px;
+            y: 18px;
+            width: 189px;
+            height: 20px;
+            align_y: Center;
+
+            text: "#asset/base/text/ui?scout.list.player";
+            size: 16;
+          }
+        }
+
+        #age:empty {
+          width: 60px;
+          height: 56px;
+
+          #text:label {
+            width: 100%;
+            height: 100%;
+            @"asset/base/style/main#label";
+            align_x: Center;
+            align_y: Center;
+
+            text: "#asset/base/text/ui?scout.list.age";
+            size: 16;
+          }
+        }
+
+        #position:empty {
+          width: 100px;
+          height: 56px;
+
+          #text:label {
+            width: 100%;
+            height: 100%;
+            @"asset/base/style/main#label";
+            align_x: Center;
+            align_y: Center;
+
+            text: "#asset/base/text/ui?strategy.position";
+            size: 16;
+          }
+        }
+
+        #team:empty {
+          width: 240px;
+          height: 56px;
+
+          #text:label {
+            @"asset/base/style/main#label";
+            x: 46px;
+            y: 18px;
+            width: 183px;
+            height: 20px;
+            align_y: Center;
+
+            text: "#asset/base/text/ui?player_detail.contract.team";
+            size: 16;
+          }
+        }
+
+        #contract:empty {
+          width: 120px;
+          height: 56px;
+
+          #text:label {
+            @"asset/base/style/main#label";
+            x: 20px;
+            y: 18px;
+            width: 89px;
+            height: 20px;
+            align_y: Center;
+
+            text: "#asset/base/text/ui?player_detail.contract.period";
+            size: 16;
+          }
+        }
+
+        #squad_status:empty {
+          width: 100px;
+          height: 56px;
+
+          #text:label {
+            width: 100%;
+            height: 100%;
+            @"asset/base/style/main#label";
+            align_x: Center;
+            align_y: Center;
+
+            text: "#asset/base/text/athlete?squad_status.desc";
+            size: 16;
+          }
+        }
+
+        #potential:empty {
+          width: 120px;
+          height: 56px;
+
+          #text:label {
+            width: 100%;
+            height: 100%;
+            @"asset/base/style/main#label";
+            align_x: Center;
+            align_y: Center;
+
+            text: "#asset/base/text/ui?scout.list.potential";
+            size: 16;
+          }
+        }
+
+        #salary:empty {
+          width: 120px;
+          height: 56px;
+
+          #text:label {
+            @"asset/base/style/main#label";
+            x: 20px;
+            y: 18px;
+            width: 89px;
+            height: 20px;
+            align_y: Center;
+
+            text: "#asset/base/text/ui?player_detail.salary.header";
+            size: 16;
+          }
+        }
+
+        #transfer_fee:empty {
+          width: 120px;
+          height: 56px;
+
+          #text:label {
+            @"asset/base/style/main#label";
+            x: 20px;
+            y: 18px;
+            width: 89px;
+            height: 20px;
+            align_y: Center;
+
+            text: "#asset/base/text/ui?player_detail.transfer_fee";
+            size: 16;
+          }
+        }
+
+        #league:empty {
+          width: 100px;
+          height: 56px;
+
+          #text:label {
+            @"asset/base/style/main#label";
+            x: 20px;
+            y: 18px;
+            width: 69px;
+            height: 20px;
+            align_y: Center;
+
+            text: "#asset/base/text/ui?scout.list.league";
+            size: 16;
+          }
+        }
+
+        #recommendation:empty {
+          width: 120px;
+          height: 56px;
+
+          #text:label {
+            width: 100%;
+            height: 100%;
+            @"asset/base/style/main#label";
+            align_x: Center;
+            align_y: Center;
+
+            text: "#asset/base/text/ui?scout.list.recommendation";
+            size: 16;
+          }
+        }
+
+        #report_date:empty {
+          width: 130px;
+          height: 56px;
+
+          #text:label {
+            @"asset/base/style/main#label";
+            x: 20px;
+            y: 18px;
+            width: 99px;
+            height: 20px;
+            align_y: Center;
+
+            text: "#asset/base/text/ui?scout.list.report_date";
+            size: 16;
+          }
+        }
+
+        #sab_hdr:empty {
+          visible: false;
+          width: 930px;
+          height: 56px;
+          child_type: LeftToRight { spacing: 0; }
+          #sab_h0:color_icon_button { btn: { color: #00000000; } width: 77px; height: 56px; #text:label { @"asset/base/style/main#label"; width: 77px; height: 56px; size: 13; align_x: Center; align_y: Center; text: "#asset/base/text/athlete?stat.last_hit"; } }
+          #sab_h1:color_icon_button { btn: { color: #00000000; } width: 77px; height: 56px; #text:label { @"asset/base/style/main#label"; width: 77px; height: 56px; size: 13; align_x: Center; align_y: Center; text: "#asset/base/text/athlete?stat.skill_avoid"; } }
+          #sab_h2:color_icon_button { btn: { color: #00000000; } width: 77px; height: 56px; #text:label { @"asset/base/style/main#label"; width: 77px; height: 56px; size: 13; align_x: Center; align_y: Center; text: "#asset/base/text/athlete?stat.skill_hit"; } }
+          #sab_h3:color_icon_button { btn: { color: #00000000; } width: 77px; height: 56px; #text:label { @"asset/base/style/main#label"; width: 77px; height: 56px; size: 13; align_x: Center; align_y: Center; text: "#asset/base/text/athlete?stat.control_speed"; } }
+          #sab_h4:color_icon_button { btn: { color: #00000000; } width: 77px; height: 56px; #text:label { @"asset/base/style/main#label"; width: 77px; height: 56px; size: 13; align_x: Center; align_y: Center; text: "#asset/base/text/athlete?stat.positioning"; } }
+          #sab_h5:color_icon_button { btn: { color: #00000000; } width: 77px; height: 56px; #text:label { @"asset/base/style/main#label"; width: 77px; height: 56px; size: 13; align_x: Center; align_y: Center; text: "#asset/base/text/athlete?stat.judgement"; } }
+          #sab_h6:color_icon_button { btn: { color: #00000000; } width: 77px; height: 56px; #text:label { @"asset/base/style/main#label"; width: 77px; height: 56px; size: 13; align_x: Center; align_y: Center; text: "#asset/base/text/athlete?stat.mental"; } }
+          #sab_h7:color_icon_button { btn: { color: #00000000; } width: 77px; height: 56px; #text:label { @"asset/base/style/main#label"; width: 77px; height: 56px; size: 13; align_x: Center; align_y: Center; text: "#asset/base/text/athlete?stat.concentration"; } }
+          #sab_h8:color_icon_button { btn: { color: #00000000; } width: 77px; height: 56px; #text:label { @"asset/base/style/main#label"; width: 77px; height: 56px; size: 13; align_x: Center; align_y: Center; text: "#asset/base/text/athlete?stat.order"; } }
+          #sab_h9:color_icon_button { btn: { color: #00000000; } width: 77px; height: 56px; #text:label { @"asset/base/style/main#label"; width: 77px; height: 56px; size: 13; align_x: Center; align_y: Center; text: "#asset/base/text/athlete?stat.roaming"; } }
+          #sab_h10:color_icon_button { btn: { color: #00000000; } width: 77px; height: 56px; #text:label { @"asset/base/style/main#label"; width: 77px; height: 56px; size: 13; align_x: Center; align_y: Center; text: "#asset/base/text/athlete?stat.aggressive"; } }
+          #sab_h11:color_icon_button { btn: { color: #00000000; } width: 77px; height: 56px; #text:label { @"asset/base/style/main#label"; width: 77px; height: 56px; size: 13; align_x: Center; align_y: Center; text: "#asset/base/text/athlete?stat.ego"; } }
+        }
+        #delete:empty {
+          width: 38px;
+          height: 56px;
+        }
+      }
+
+      #list:scroll_view {
+        width: 1600px;
+        height: 100%;
+
+        speed: 100;
+        bar_width: 4;
+        bar: {
+          source: "asset/base/sprite/white";
+          color: #37d5b3ff;
+
+          hover: {
+          color: #ecfbf8ff;
+          }
+        }
+
+        back: {
+          source: "asset/base/sprite/white";
+          color: #4a4c56ff;
+        }
+
+        #contents:empty {
+          width: 1600px;
+          height: 900px;
+
+          child_type: TopToBottom {
+            spacing: 0px;
+          }
+        }
+      }
+    }
+
+    #interested:color {
+      y: 70px;
+      width: 100%;
+      height: 846px;
+
+      color: #161721ff;
+      rounding: Uniform {
+        rounding: 12;
+      }
+
+      child_type: TopToBottom {
+        spacing: 0px;
+      }
+
+      #header:color {
+        color: #0f1016ff;
+        rounding: Individual {
+          top_left: 12;
+          top_right: 12;
+        }
+        child_type: LeftToRight {
+          spacing: 0px;
+        }
+
+        width: 100%;
+        height: 56px;
+
+        #position:empty {
+          width: 173px;
+          height: 56px;
+
+          #text:label {
+            @"asset/base/style/main#label";
+            x: 44px;
+            y: 18px;
+            width: 118px;
+            height: 20px;
+            align_y: Center;
+
+            text: "#asset/base/text/ui?strategy.position";
+            size: 16;
+          }
+        }
+
+        #name:empty {
+          width: 220px;
+          height: 56px;
+
+          #text:label {
+            @"asset/base/style/main#label";
+            x: 20px;
+            y: 18px;
+            width: 189px;
+            height: 20px;
+            align_y: Center;
+
+            text: "#asset/base/text/ui?strategy.name";
+            size: 16;
+          }
+        }
+
+        #team:empty {
+          width: 240px;
+          height: 56px;
+
+          #text:label {
+            @"asset/base/style/main#label";
+            x: 46px;
+            y: 18px;
+            width: 183px;
+            height: 20px;
+            align_y: Center;
+
+            text: "#asset/base/text/ui?player_detail.contract.team";
+            size: 16;
+          }
+        }
+
+        #contract:empty {
+          width: 155px;
+          height: 56px;
+
+          #text:label {
+            @"asset/base/style/main#label";
+            x: 20px;
+            y: 18px;
+            width: 124px;
+            height: 20px;
+            align_y: Center;
+
+            text: "#asset/base/text/ui?player_detail.contract.period";
+            size: 16;
+          }
+        }
+
+        #salary:empty {
+          width: 140px;
+          height: 56px;
+
+          #text:label {
+            @"asset/base/style/main#label";
+            x: 20px;
+            y: 18px;
+            width: 109px;
+            height: 20px;
+            align_y: Center;
+
+            text: "#asset/base/text/ui?player_detail.salary.header";
+            size: 16;
+          }
+        }
+
+        #transfer_fee:empty {
+          width: 140px;
+          height: 56px;
+
+          #text:label {
+            @"asset/base/style/main#label";
+            x: 20px;
+            y: 18px;
+            width: 109px;
+            height: 20px;
+            align_y: Center;
+
+            text: "#asset/base/text/ui?player_detail.transfer_fee";
+            size: 16;
+          }
+        }
+
+        #recommendation:empty {
+          width: 170px;
+          height: 56px;
+
+          #text:label {
+            width: 100%;
+            height: 100%;
+            @"asset/base/style/main#label";
+            align_x: Center;
+            align_y: Center;
+
+            text: "#asset/base/text/ui?scout.list.recommendation";
+            size: 16;
+          }
+        }
+
+        #potential:empty {
+          width: 170px;
+          height: 56px;
+
+          #text:label {
+            width: 100%;
+            height: 100%;
+            @"asset/base/style/main#label";
+            align_x: Center;
+            align_y: Center;
+
+            text: "#asset/base/text/ui?scout.list.potential";
+            size: 16;
+          }
+        }
+
+        #spacer:empty {
+          width: 138px;
+          height: 56px;
+        }
+
+        #sab_hdr:empty {
+          visible: false;
+          width: 813px;
+          height: 56px;
+          child_type: LeftToRight { spacing: 0; }
+          #sab_h0:color_icon_button { btn: { color: #00000000; } width: 67px; height: 56px; #text:label { @"asset/base/style/main#label"; width: 67px; height: 56px; size: 12; align_x: Center; align_y: Center; text: "#asset/base/text/athlete?stat.last_hit"; } }
+          #sab_h1:color_icon_button { btn: { color: #00000000; } width: 67px; height: 56px; #text:label { @"asset/base/style/main#label"; width: 67px; height: 56px; size: 12; align_x: Center; align_y: Center; text: "#asset/base/text/athlete?stat.skill_avoid"; } }
+          #sab_h2:color_icon_button { btn: { color: #00000000; } width: 67px; height: 56px; #text:label { @"asset/base/style/main#label"; width: 67px; height: 56px; size: 12; align_x: Center; align_y: Center; text: "#asset/base/text/athlete?stat.skill_hit"; } }
+          #sab_h3:color_icon_button { btn: { color: #00000000; } width: 67px; height: 56px; #text:label { @"asset/base/style/main#label"; width: 67px; height: 56px; size: 12; align_x: Center; align_y: Center; text: "#asset/base/text/athlete?stat.control_speed"; } }
+          #sab_h4:color_icon_button { btn: { color: #00000000; } width: 67px; height: 56px; #text:label { @"asset/base/style/main#label"; width: 67px; height: 56px; size: 12; align_x: Center; align_y: Center; text: "#asset/base/text/athlete?stat.positioning"; } }
+          #sab_h5:color_icon_button { btn: { color: #00000000; } width: 67px; height: 56px; #text:label { @"asset/base/style/main#label"; width: 67px; height: 56px; size: 12; align_x: Center; align_y: Center; text: "#asset/base/text/athlete?stat.judgement"; } }
+          #sab_h6:color_icon_button { btn: { color: #00000000; } width: 67px; height: 56px; #text:label { @"asset/base/style/main#label"; width: 67px; height: 56px; size: 12; align_x: Center; align_y: Center; text: "#asset/base/text/athlete?stat.mental"; } }
+          #sab_h7:color_icon_button { btn: { color: #00000000; } width: 67px; height: 56px; #text:label { @"asset/base/style/main#label"; width: 67px; height: 56px; size: 12; align_x: Center; align_y: Center; text: "#asset/base/text/athlete?stat.concentration"; } }
+          #sab_h8:color_icon_button { btn: { color: #00000000; } width: 67px; height: 56px; #text:label { @"asset/base/style/main#label"; width: 67px; height: 56px; size: 12; align_x: Center; align_y: Center; text: "#asset/base/text/athlete?stat.order"; } }
+          #sab_h9:color_icon_button { btn: { color: #00000000; } width: 67px; height: 56px; #text:label { @"asset/base/style/main#label"; width: 67px; height: 56px; size: 12; align_x: Center; align_y: Center; text: "#asset/base/text/athlete?stat.roaming"; } }
+          #sab_h10:color_icon_button { btn: { color: #00000000; } width: 67px; height: 56px; #text:label { @"asset/base/style/main#label"; width: 67px; height: 56px; size: 12; align_x: Center; align_y: Center; text: "#asset/base/text/athlete?stat.aggressive"; } }
+          #sab_h11:color_icon_button { btn: { color: #00000000; } width: 67px; height: 56px; #text:label { @"asset/base/style/main#label"; width: 67px; height: 56px; size: 12; align_x: Center; align_y: Center; text: "#asset/base/text/athlete?stat.ego"; } }
+        }
+        #sab_hdr_staff:empty {
+          visible: false;
+          width: 1153px;
+          height: 56px;
+          child_type: LeftToRight { spacing: 0; }
+          #sab_hs0:color_icon_button { btn: { color: #00000000; } width: 115px; height: 56px; #text:label { @"asset/base/style/main#label"; width: 115px; height: 56px; size: 14; align_x: Center; align_y: Center; text: "#asset/base/text/ui?staff.stat.banpick"; } }
+          #sab_hs1:color_icon_button { btn: { color: #00000000; } width: 115px; height: 56px; #text:label { @"asset/base/style/main#label"; width: 115px; height: 56px; size: 14; align_x: Center; align_y: Center; text: "#asset/base/text/ui?staff.stat.strategy"; } }
+          #sab_hs2:color_icon_button { btn: { color: #00000000; } width: 115px; height: 56px; #text:label { @"asset/base/style/main#label"; width: 115px; height: 56px; size: 14; align_x: Center; align_y: Center; text: "#asset/base/text/ui?staff.stat.negotiation"; } }
+          #sab_hs3:color_icon_button { btn: { color: #00000000; } width: 115px; height: 56px; #text:label { @"asset/base/style/main#label"; width: 115px; height: 56px; size: 14; align_x: Center; align_y: Center; text: "#asset/base/text/ui?staff.stat.judge_ability"; } }
+          #sab_hs4:color_icon_button { btn: { color: #00000000; } width: 115px; height: 56px; #text:label { @"asset/base/style/main#label"; width: 115px; height: 56px; size: 14; align_x: Center; align_y: Center; text: "#asset/base/text/ui?staff.stat.judge_potential"; } }
+          #sab_hs5:color_icon_button { btn: { color: #00000000; } width: 115px; height: 56px; #text:label { @"asset/base/style/main#label"; width: 115px; height: 56px; size: 14; align_x: Center; align_y: Center; text: "#asset/base/text/ui?staff.stat.feedback"; } }
+          #sab_hs6:color_icon_button { btn: { color: #00000000; } width: 115px; height: 56px; #text:label { @"asset/base/style/main#label"; width: 115px; height: 56px; size: 14; align_x: Center; align_y: Center; text: "#asset/base/text/ui?staff.stat.power_analysis"; } }
+          #sab_hs7:color_icon_button { btn: { color: #00000000; } width: 115px; height: 56px; #text:label { @"asset/base/style/main#label"; width: 115px; height: 56px; size: 14; align_x: Center; align_y: Center; text: "#asset/base/text/ui?staff.stat.control_coaching"; } }
+          #sab_hs8:color_icon_button { btn: { color: #00000000; } width: 115px; height: 56px; #text:label { @"asset/base/style/main#label"; width: 115px; height: 56px; size: 14; align_x: Center; align_y: Center; text: "#asset/base/text/ui?staff.stat.judgment_coaching"; } }
+          #sab_hs9:color_icon_button { btn: { color: #00000000; } width: 115px; height: 56px; #text:label { @"asset/base/style/main#label"; width: 115px; height: 56px; size: 14; align_x: Center; align_y: Center; text: "#asset/base/text/ui?staff.stat.mental_coaching"; } }
+        }
+        #delete:empty {
+          width: 38px;
+          height: 56px;
+        }
+      }
+
+      #list:scroll_view {
+        width: 1600px;
+        height: 100%;
+
+        speed: 100;
+        bar_width: 4;
+        bar: {
+          source: "asset/base/sprite/white";
+          color: #37d5b3ff;
+
+          hover: {
+          color: #ecfbf8ff;
+          }
+        }
+
+        back: {
+          source: "asset/base/sprite/white";
+          color: #4a4c56ff;
+        }
+
+        #contents:empty {
+          width: 1600px;
+          height: 0px;
+
+          child_type: TopToBottom {
+            spacing: 0px;
+          }
+        }
+      }
+    }
+
+    #released:color {
+      y: 70px;
+      width: 100%;
+      height: 846px;
+
+      color: #161721ff;
+      rounding: Uniform {
+        rounding: 12;
+      }
+
+      child_type: TopToBottom {
+        spacing: 0px;
+      }
+
+      #header:color {
+        color: #0f1016ff;
+        rounding: Individual {
+          top_left: 12;
+          top_right: 12;
+        }
+        child_type: LeftToRight {
+          spacing: 0px;
+        }
+
+        width: 100%;
+        height: 56px;
+
+        #position:empty {
+          width: 173px;
+          height: 56px;
+
+          #text:label {
+            @"asset/base/style/main#label";
+            x: 44px;
+            y: 18px;
+            width: 118px;
+            height: 20px;
+            align_y: Center;
+
+            text: "#asset/base/text/ui?strategy.position";
+            size: 16;
+          }
+        }
+
+        #name:empty {
+          width: 220px;
+          height: 56px;
+
+          #text:label {
+            @"asset/base/style/main#label";
+            x: 20px;
+            y: 18px;
+            width: 189px;
+            height: 20px;
+            align_y: Center;
+
+            text: "#asset/base/text/ui?strategy.name";
+            size: 16;
+          }
+        }
+
+        #team:empty {
+          width: 240px;
+          height: 56px;
+
+          #text:label {
+            @"asset/base/style/main#label";
+            x: 46px;
+            y: 18px;
+            width: 183px;
+            height: 20px;
+            align_y: Center;
+
+            text: "#asset/base/text/ui?player_detail.contract.team";
+            size: 16;
+          }
+        }
+
+        #contract:empty {
+          width: 155px;
+          height: 56px;
+
+          #text:label {
+            @"asset/base/style/main#label";
+            x: 20px;
+            y: 18px;
+            width: 124px;
+            height: 20px;
+            align_y: Center;
+
+            text: "#asset/base/text/ui?player_detail.contract.period";
+            size: 16;
+          }
+        }
+
+        #salary:empty {
+          width: 140px;
+          height: 56px;
+
+          #text:label {
+            @"asset/base/style/main#label";
+            x: 20px;
+            y: 18px;
+            width: 109px;
+            height: 20px;
+            align_y: Center;
+
+            text: "#asset/base/text/ui?player_detail.salary.header";
+            size: 16;
+          }
+        }
+
+        #transfer_fee:empty {
+          width: 140px;
+          height: 56px;
+
+          #text:label {
+            @"asset/base/style/main#label";
+            x: 20px;
+            y: 18px;
+            width: 109px;
+            height: 20px;
+            align_y: Center;
+
+            text: "#asset/base/text/ui?player_detail.transfer_fee";
+            size: 16;
+          }
+        }
+
+        #recommendation:empty {
+          width: 170px;
+          height: 56px;
+
+          #text:label {
+            width: 100%;
+            height: 100%;
+            @"asset/base/style/main#label";
+            align_x: Center;
+            align_y: Center;
+
+            text: "#asset/base/text/ui?scout.list.recommendation";
+            size: 16;
+          }
+        }
+
+        #potential:empty {
+          width: 170px;
+          height: 56px;
+
+          #text:label {
+            width: 100%;
+            height: 100%;
+            @"asset/base/style/main#label";
+            align_x: Center;
+            align_y: Center;
+
+            text: "#asset/base/text/ui?scout.list.potential";
+            size: 16;
+          }
+        }
+
+        #spacer:empty {
+          width: 138px;
+          height: 56px;
+        }
+
+        #sab_hdr:empty {
+          visible: false;
+          width: 813px;
+          height: 56px;
+          child_type: LeftToRight { spacing: 0; }
+          #sab_h0:color_icon_button { btn: { color: #00000000; } width: 67px; height: 56px; #text:label { @"asset/base/style/main#label"; width: 67px; height: 56px; size: 12; align_x: Center; align_y: Center; text: "#asset/base/text/athlete?stat.last_hit"; } }
+          #sab_h1:color_icon_button { btn: { color: #00000000; } width: 67px; height: 56px; #text:label { @"asset/base/style/main#label"; width: 67px; height: 56px; size: 12; align_x: Center; align_y: Center; text: "#asset/base/text/athlete?stat.skill_avoid"; } }
+          #sab_h2:color_icon_button { btn: { color: #00000000; } width: 67px; height: 56px; #text:label { @"asset/base/style/main#label"; width: 67px; height: 56px; size: 12; align_x: Center; align_y: Center; text: "#asset/base/text/athlete?stat.skill_hit"; } }
+          #sab_h3:color_icon_button { btn: { color: #00000000; } width: 67px; height: 56px; #text:label { @"asset/base/style/main#label"; width: 67px; height: 56px; size: 12; align_x: Center; align_y: Center; text: "#asset/base/text/athlete?stat.control_speed"; } }
+          #sab_h4:color_icon_button { btn: { color: #00000000; } width: 67px; height: 56px; #text:label { @"asset/base/style/main#label"; width: 67px; height: 56px; size: 12; align_x: Center; align_y: Center; text: "#asset/base/text/athlete?stat.positioning"; } }
+          #sab_h5:color_icon_button { btn: { color: #00000000; } width: 67px; height: 56px; #text:label { @"asset/base/style/main#label"; width: 67px; height: 56px; size: 12; align_x: Center; align_y: Center; text: "#asset/base/text/athlete?stat.judgement"; } }
+          #sab_h6:color_icon_button { btn: { color: #00000000; } width: 67px; height: 56px; #text:label { @"asset/base/style/main#label"; width: 67px; height: 56px; size: 12; align_x: Center; align_y: Center; text: "#asset/base/text/athlete?stat.mental"; } }
+          #sab_h7:color_icon_button { btn: { color: #00000000; } width: 67px; height: 56px; #text:label { @"asset/base/style/main#label"; width: 67px; height: 56px; size: 12; align_x: Center; align_y: Center; text: "#asset/base/text/athlete?stat.concentration"; } }
+          #sab_h8:color_icon_button { btn: { color: #00000000; } width: 67px; height: 56px; #text:label { @"asset/base/style/main#label"; width: 67px; height: 56px; size: 12; align_x: Center; align_y: Center; text: "#asset/base/text/athlete?stat.order"; } }
+          #sab_h9:color_icon_button { btn: { color: #00000000; } width: 67px; height: 56px; #text:label { @"asset/base/style/main#label"; width: 67px; height: 56px; size: 12; align_x: Center; align_y: Center; text: "#asset/base/text/athlete?stat.roaming"; } }
+          #sab_h10:color_icon_button { btn: { color: #00000000; } width: 67px; height: 56px; #text:label { @"asset/base/style/main#label"; width: 67px; height: 56px; size: 12; align_x: Center; align_y: Center; text: "#asset/base/text/athlete?stat.aggressive"; } }
+          #sab_h11:color_icon_button { btn: { color: #00000000; } width: 67px; height: 56px; #text:label { @"asset/base/style/main#label"; width: 67px; height: 56px; size: 12; align_x: Center; align_y: Center; text: "#asset/base/text/athlete?stat.ego"; } }
+        }
+        #sab_hdr_staff:empty {
+          visible: false;
+          width: 1153px;
+          height: 56px;
+          child_type: LeftToRight { spacing: 0; }
+          #sab_hs0:color_icon_button { btn: { color: #00000000; } width: 115px; height: 56px; #text:label { @"asset/base/style/main#label"; width: 115px; height: 56px; size: 14; align_x: Center; align_y: Center; text: "#asset/base/text/ui?staff.stat.banpick"; } }
+          #sab_hs1:color_icon_button { btn: { color: #00000000; } width: 115px; height: 56px; #text:label { @"asset/base/style/main#label"; width: 115px; height: 56px; size: 14; align_x: Center; align_y: Center; text: "#asset/base/text/ui?staff.stat.strategy"; } }
+          #sab_hs2:color_icon_button { btn: { color: #00000000; } width: 115px; height: 56px; #text:label { @"asset/base/style/main#label"; width: 115px; height: 56px; size: 14; align_x: Center; align_y: Center; text: "#asset/base/text/ui?staff.stat.negotiation"; } }
+          #sab_hs3:color_icon_button { btn: { color: #00000000; } width: 115px; height: 56px; #text:label { @"asset/base/style/main#label"; width: 115px; height: 56px; size: 14; align_x: Center; align_y: Center; text: "#asset/base/text/ui?staff.stat.judge_ability"; } }
+          #sab_hs4:color_icon_button { btn: { color: #00000000; } width: 115px; height: 56px; #text:label { @"asset/base/style/main#label"; width: 115px; height: 56px; size: 14; align_x: Center; align_y: Center; text: "#asset/base/text/ui?staff.stat.judge_potential"; } }
+          #sab_hs5:color_icon_button { btn: { color: #00000000; } width: 115px; height: 56px; #text:label { @"asset/base/style/main#label"; width: 115px; height: 56px; size: 14; align_x: Center; align_y: Center; text: "#asset/base/text/ui?staff.stat.feedback"; } }
+          #sab_hs6:color_icon_button { btn: { color: #00000000; } width: 115px; height: 56px; #text:label { @"asset/base/style/main#label"; width: 115px; height: 56px; size: 14; align_x: Center; align_y: Center; text: "#asset/base/text/ui?staff.stat.power_analysis"; } }
+          #sab_hs7:color_icon_button { btn: { color: #00000000; } width: 115px; height: 56px; #text:label { @"asset/base/style/main#label"; width: 115px; height: 56px; size: 14; align_x: Center; align_y: Center; text: "#asset/base/text/ui?staff.stat.control_coaching"; } }
+          #sab_hs8:color_icon_button { btn: { color: #00000000; } width: 115px; height: 56px; #text:label { @"asset/base/style/main#label"; width: 115px; height: 56px; size: 14; align_x: Center; align_y: Center; text: "#asset/base/text/ui?staff.stat.judgment_coaching"; } }
+          #sab_hs9:color_icon_button { btn: { color: #00000000; } width: 115px; height: 56px; #text:label { @"asset/base/style/main#label"; width: 115px; height: 56px; size: 14; align_x: Center; align_y: Center; text: "#asset/base/text/ui?staff.stat.mental_coaching"; } }
+        }
+        #delete:empty {
+          width: 38px;
+          height: 56px;
+        }
+      }
+
+      #list:scroll_view {
+        width: 1600px;
+        height: 100%;
+
+        speed: 100;
+        bar_width: 4;
+        bar: {
+          source: "asset/base/sprite/white";
+          color: #37d5b3ff;
+
+          hover: {
+          color: #ecfbf8ff;
+          }
+        }
+
+        back: {
+          source: "asset/base/sprite/white";
+          color: #4a4c56ff;
+        }
+
+        #contents:empty {
+          width: 1600px;
+          height: 0px;
+
+          child_type: TopToBottom {
+            spacing: 0px;
+          }
+        }
+      }
+    }
+
+    #all_players:color {
+      y: 70px;
+      width: 100%;
+      height: 846px;
+
+      color: #161721ff;
+      rounding: Uniform {
+        rounding: 12;
+      }
+
+      child_type: TopToBottom {
+        spacing: 0px;
+      }
+
+      #header:color {
+        color: #0f1016ff;
+        rounding: Individual {
+          top_left: 12;
+          top_right: 12;
+        }
+        child_type: LeftToRight {
+          spacing: 0px;
+        }
+
+        width: 100%;
+        height: 56px;
+
+        #position:empty {
+          width: 173px;
+          height: 56px;
+
+          #text:label {
+            @"asset/base/style/main#label";
+            x: 44px;
+            y: 18px;
+            width: 118px;
+            height: 20px;
+            align_y: Center;
+
+            text: "#asset/base/text/ui?strategy.position";
+            size: 16;
+          }
+        }
+
+        #name:empty {
+          width: 220px;
+          height: 56px;
+
+          #text:label {
+            @"asset/base/style/main#label";
+            x: 20px;
+            y: 18px;
+            width: 189px;
+            height: 20px;
+            align_y: Center;
+
+            text: "#asset/base/text/ui?strategy.name";
+            size: 16;
+          }
+        }
+
+        #team:empty {
+          width: 240px;
+          height: 56px;
+
+          #text:label {
+            @"asset/base/style/main#label";
+            x: 46px;
+            y: 18px;
+            width: 183px;
+            height: 20px;
+            align_y: Center;
+
+            text: "#asset/base/text/ui?player_detail.contract.team";
+            size: 16;
+          }
+        }
+
+        #contract:empty {
+          width: 155px;
+          height: 56px;
+
+          #text:label {
+            @"asset/base/style/main#label";
+            x: 20px;
+            y: 18px;
+            width: 124px;
+            height: 20px;
+            align_y: Center;
+
+            text: "#asset/base/text/ui?player_detail.contract.period";
+            size: 16;
+          }
+        }
+
+        #salary:empty {
+          width: 140px;
+          height: 56px;
+
+          #text:label {
+            @"asset/base/style/main#label";
+            x: 20px;
+            y: 18px;
+            width: 109px;
+            height: 20px;
+            align_y: Center;
+
+            text: "#asset/base/text/ui?player_detail.salary.header";
+            size: 16;
+          }
+        }
+
+        #transfer_fee:empty {
+          width: 140px;
+          height: 56px;
+
+          #text:label {
+            @"asset/base/style/main#label";
+            x: 20px;
+            y: 18px;
+            width: 109px;
+            height: 20px;
+            align_y: Center;
+
+            text: "#asset/base/text/ui?player_detail.transfer_fee";
+            size: 16;
+          }
+        }
+
+        #recommendation:empty {
+          width: 170px;
+          height: 56px;
+
+          #text:label {
+            width: 100%;
+            height: 100%;
+            @"asset/base/style/main#label";
+            align_x: Center;
+            align_y: Center;
+
+            text: "#asset/base/text/ui?scout.list.recommendation";
+            size: 16;
+          }
+        }
+
+        #potential:empty {
+          width: 170px;
+          height: 56px;
+
+          #text:label {
+            width: 100%;
+            height: 100%;
+            @"asset/base/style/main#label";
+            align_x: Center;
+            align_y: Center;
+
+            text: "#asset/base/text/ui?scout.list.potential";
+            size: 16;
+          }
+        }
+
+        #spacer:empty {
+          width: 138px;
+          height: 56px;
+        }
+
+        #sab_hdr:empty {
+          visible: false;
+          width: 813px;
+          height: 56px;
+          child_type: LeftToRight { spacing: 0; }
+          #sab_h0:color_icon_button { btn: { color: #00000000; } width: 67px; height: 56px; #text:label { @"asset/base/style/main#label"; width: 67px; height: 56px; size: 12; align_x: Center; align_y: Center; text: "#asset/base/text/athlete?stat.last_hit"; } }
+          #sab_h1:color_icon_button { btn: { color: #00000000; } width: 67px; height: 56px; #text:label { @"asset/base/style/main#label"; width: 67px; height: 56px; size: 12; align_x: Center; align_y: Center; text: "#asset/base/text/athlete?stat.skill_avoid"; } }
+          #sab_h2:color_icon_button { btn: { color: #00000000; } width: 67px; height: 56px; #text:label { @"asset/base/style/main#label"; width: 67px; height: 56px; size: 12; align_x: Center; align_y: Center; text: "#asset/base/text/athlete?stat.skill_hit"; } }
+          #sab_h3:color_icon_button { btn: { color: #00000000; } width: 67px; height: 56px; #text:label { @"asset/base/style/main#label"; width: 67px; height: 56px; size: 12; align_x: Center; align_y: Center; text: "#asset/base/text/athlete?stat.control_speed"; } }
+          #sab_h4:color_icon_button { btn: { color: #00000000; } width: 67px; height: 56px; #text:label { @"asset/base/style/main#label"; width: 67px; height: 56px; size: 12; align_x: Center; align_y: Center; text: "#asset/base/text/athlete?stat.positioning"; } }
+          #sab_h5:color_icon_button { btn: { color: #00000000; } width: 67px; height: 56px; #text:label { @"asset/base/style/main#label"; width: 67px; height: 56px; size: 12; align_x: Center; align_y: Center; text: "#asset/base/text/athlete?stat.judgement"; } }
+          #sab_h6:color_icon_button { btn: { color: #00000000; } width: 67px; height: 56px; #text:label { @"asset/base/style/main#label"; width: 67px; height: 56px; size: 12; align_x: Center; align_y: Center; text: "#asset/base/text/athlete?stat.mental"; } }
+          #sab_h7:color_icon_button { btn: { color: #00000000; } width: 67px; height: 56px; #text:label { @"asset/base/style/main#label"; width: 67px; height: 56px; size: 12; align_x: Center; align_y: Center; text: "#asset/base/text/athlete?stat.concentration"; } }
+          #sab_h8:color_icon_button { btn: { color: #00000000; } width: 67px; height: 56px; #text:label { @"asset/base/style/main#label"; width: 67px; height: 56px; size: 12; align_x: Center; align_y: Center; text: "#asset/base/text/athlete?stat.order"; } }
+          #sab_h9:color_icon_button { btn: { color: #00000000; } width: 67px; height: 56px; #text:label { @"asset/base/style/main#label"; width: 67px; height: 56px; size: 12; align_x: Center; align_y: Center; text: "#asset/base/text/athlete?stat.roaming"; } }
+          #sab_h10:color_icon_button { btn: { color: #00000000; } width: 67px; height: 56px; #text:label { @"asset/base/style/main#label"; width: 67px; height: 56px; size: 12; align_x: Center; align_y: Center; text: "#asset/base/text/athlete?stat.aggressive"; } }
+          #sab_h11:color_icon_button { btn: { color: #00000000; } width: 67px; height: 56px; #text:label { @"asset/base/style/main#label"; width: 67px; height: 56px; size: 12; align_x: Center; align_y: Center; text: "#asset/base/text/athlete?stat.ego"; } }
+        }
+        #sab_hdr_staff:empty {
+          visible: false;
+          width: 1153px;
+          height: 56px;
+          child_type: LeftToRight { spacing: 0; }
+          #sab_hs0:color_icon_button { btn: { color: #00000000; } width: 115px; height: 56px; #text:label { @"asset/base/style/main#label"; width: 115px; height: 56px; size: 14; align_x: Center; align_y: Center; text: "#asset/base/text/ui?staff.stat.banpick"; } }
+          #sab_hs1:color_icon_button { btn: { color: #00000000; } width: 115px; height: 56px; #text:label { @"asset/base/style/main#label"; width: 115px; height: 56px; size: 14; align_x: Center; align_y: Center; text: "#asset/base/text/ui?staff.stat.strategy"; } }
+          #sab_hs2:color_icon_button { btn: { color: #00000000; } width: 115px; height: 56px; #text:label { @"asset/base/style/main#label"; width: 115px; height: 56px; size: 14; align_x: Center; align_y: Center; text: "#asset/base/text/ui?staff.stat.negotiation"; } }
+          #sab_hs3:color_icon_button { btn: { color: #00000000; } width: 115px; height: 56px; #text:label { @"asset/base/style/main#label"; width: 115px; height: 56px; size: 14; align_x: Center; align_y: Center; text: "#asset/base/text/ui?staff.stat.judge_ability"; } }
+          #sab_hs4:color_icon_button { btn: { color: #00000000; } width: 115px; height: 56px; #text:label { @"asset/base/style/main#label"; width: 115px; height: 56px; size: 14; align_x: Center; align_y: Center; text: "#asset/base/text/ui?staff.stat.judge_potential"; } }
+          #sab_hs5:color_icon_button { btn: { color: #00000000; } width: 115px; height: 56px; #text:label { @"asset/base/style/main#label"; width: 115px; height: 56px; size: 14; align_x: Center; align_y: Center; text: "#asset/base/text/ui?staff.stat.feedback"; } }
+          #sab_hs6:color_icon_button { btn: { color: #00000000; } width: 115px; height: 56px; #text:label { @"asset/base/style/main#label"; width: 115px; height: 56px; size: 14; align_x: Center; align_y: Center; text: "#asset/base/text/ui?staff.stat.power_analysis"; } }
+          #sab_hs7:color_icon_button { btn: { color: #00000000; } width: 115px; height: 56px; #text:label { @"asset/base/style/main#label"; width: 115px; height: 56px; size: 14; align_x: Center; align_y: Center; text: "#asset/base/text/ui?staff.stat.control_coaching"; } }
+          #sab_hs8:color_icon_button { btn: { color: #00000000; } width: 115px; height: 56px; #text:label { @"asset/base/style/main#label"; width: 115px; height: 56px; size: 14; align_x: Center; align_y: Center; text: "#asset/base/text/ui?staff.stat.judgment_coaching"; } }
+          #sab_hs9:color_icon_button { btn: { color: #00000000; } width: 115px; height: 56px; #text:label { @"asset/base/style/main#label"; width: 115px; height: 56px; size: 14; align_x: Center; align_y: Center; text: "#asset/base/text/ui?staff.stat.mental_coaching"; } }
+        }
+        #delete:empty {
+          width: 38px;
+          height: 56px;
+        }
+      }
+
+      #list:scroll_view {
+        width: 1600px;
+        height: 778px;
+
+        speed: 100;
+        bar_width: 4;
+        bar: {
+          source: "asset/base/sprite/white";
+          color: #37d5b3ff;
+
+          hover: {
+          color: #ecfbf8ff;
+          }
+        }
+
+        back: {
+          source: "asset/base/sprite/white";
+          color: #4a4c56ff;
+        }
+
+        #contents:empty {
+          width: 1584px;
+          height: 900px;
+
+          child_type: TopToBottom {
+            spacing: 0px;
+          }
+        }
+      }
+    }
+  }
+
+  #popup_container:empty {
+    width: 1920px;
+    height: 1080px;
+    x: -296px;
+    y: -24px;
+    z: 200;
+  }
+}

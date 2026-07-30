@@ -1,0 +1,11 @@
+#zz_probe_root:empty {
+  width: 10px;
+  height: 10px;
+  visible: false;
+  #zz_probe_label:label {
+    @"asset/base/style/main#label";
+    width: 10px;
+    height: 10px;
+    text: "probe";
+  }
+}

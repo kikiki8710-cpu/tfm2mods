@@ -1,0 +1,139 @@
+{
+ "no_stamina_cost": {
+  "new": 25128772,
+  "orig": "05",
+  "fixed": "00",
+  "grade": "OK",
+  "score": 8,
+  "cands": [
+   "0x17f6f41",
+   "0x17ed791",
+   "0x17e02f9"
+  ]
+ },
+ "daily_inc_gate": {
+  "new": 25109404,
+  "orig": "04",
+  "fixed": "7f",
+  "grade": "OK",
+  "score": 10,
+  "cands": [
+   "0x17f2399",
+   "0x18026ac",
+   "0x1802723",
+   "0x17e040d"
+  ]
+ },
+ "server_dedup_real": {
+  "new": 25366000,
+  "orig": "0f 85 d4 00 00 00",
+  "fixed": "66 0f 1f 44 00 00",
+  "grade": "OK",
+  "score": 11,
+  "cands": [
+   "0x1830df0",
+   "0x183097c",
+   "0x1830a8a",
+   "0x1830add"
+  ]
+ },
+ "allow_dup_players": {
+  "new": 26100865,
+  "orig": "75 47",
+  "fixed": "66 90",
+  "grade": "OK",
+  "score": 4,
+  "cands": [
+   "0x18e4481",
+   "0x18e4473",
+   "0x18e43a5",
+   "0x18e43e8"
+  ]
+ },
+ "server_dedup": {
+  "new": 25093276,
+  "orig": "75 10",
+  "fixed": "75 10",
+  "grade": "OK",
+  "score": 11,
+  "cands": [
+   "0x17ee49c",
+   "0x17e3533",
+   "0x17ee485",
+   "0x17eebad"
+  ]
+ },
+ "btn5v5_roster_min_a": {
+  "new": 26781767,
+  "orig": "49 83 fc 30 0f 84 0b 08",
+  "fixed": "49 83 fc 30 0f 84 0b 08",
+  "grade": "AMBIG",
+  "score": 2,
+  "cands": [
+   "0x198a847",
+   "0x198b0b0"
+  ]
+ },
+ "btn5v5_warn_text": {
+  "new": 26772352,
+  "orig": "48 83 fb 30 0f 84 c5 03",
+  "fixed": "48 83 fb 30 0f 84 c5 03",
+  "grade": "OK",
+  "score": 3,
+  "cands": [
+   "0x1988380",
+   "0x1987e64",
+   "0x198c553"
+  ]
+ },
+ "roster_count_gate": {
+  "new": 26154155,
+  "orig": "0f 83 5e 01 00 00",
+  "fixed": "66 0f 1f 44 00 00",
+  "grade": "OK",
+  "score": 4,
+  "cands": [
+   "0x18f14ab",
+   "0x18f142e"
+  ]
+ },
+ "collected_gate": {
+  "new": 26154143,
+  "orig": "75 10",
+  "fixed": "66 90",
+  "grade": "OK",
+  "score": 7,
+  "cands": [
+   "0x18f149f",
+   "0x18f15a2",
+   "0x18f17ed",
+   "0x18f1b75"
+  ]
+ },
+ "collect_err_gate": {
+  "new": 26154116,
+  "orig": "74 50",
+  "fixed": "66 90",
+  "grade": "OK",
+  "score": 6,
+  "cands": [
+   "0x18f1484",
+   "0x18f1283",
+   "0x18f1a89",
+   "0x18f12e0"
+  ]
+ },
+ "run_push_gate": {
+  "new": 26155925,
+  "orig": "0f 84 15 fa ff ff",
+  "fixed": "66 0f 1f 44 00 00",
+  "grade": "OK",
+  "score": 8,
+  "cands": [
+   "0x18f1b95",
+   "0x18f1226",
+   "0x18f12b3",
+   "0x18f12c6"
+  ]
+ }
+}

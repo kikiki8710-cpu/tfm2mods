@@ -1,0 +1,366 @@
+[
+ {
+  "line": 684,
+  "old": 28914852,
+  "new": 14601472,
+  "grade": "OK?",
+  "cmt": "dn_nexus_hp #1 orig 0x32 (64bit div \uacbd\ub85c)"
+ },
+ {
+  "line": 685,
+  "old": 28914864,
+  "new": 14601484,
+  "grade": "OK?",
+  "cmt": "dn_nexus_hp #2 orig 0x32 (32bit div \uacbd\ub85c) \u2605\ub458 \ub2e4 \ud544\uc218"
+ },
+ {
+  "line": 686,
+  "old": 28914924,
+  "new": null,
+  "grade": "MISS",
+  "cmt": "dn_hp_low  orig 0x1f  ([rbp-0x28]=HP%)"
+ },
+ {
+  "line": 687,
+  "old": 28914972,
+  "new": null,
+  "grade": "MISS",
+  "cmt": "dn_hp_crit orig 0x15  (0.5.2\uc5d4 1\uacf3\ubfd0=\ubcd1\ud569)"
+ },
+ {
+  "line": 688,
+  "old": 28913708,
+  "new": 14600353,
+  "grade": "OK?",
+  "cmt": "dn_near_dist #1 orig 0x35a4e9001 (=120000\u00b2+1)"
+ },
+ {
+  "line": 689,
+  "old": 28914002,
+  "new": 14600653,
+  "grade": "OK?",
+  "cmt": "dn_near_dist #2 orig 0x35a4e9001"
+ },
+ {
+  "line": 690,
+  "old": 28914648,
+  "new": 14601272,
+  "grade": "OK",
+  "cmt": "\u2605dn_near_dist #3 orig 0x35a4e9000 (**+1 \uc5c6\uc74c** = sq0 / movabs "
+ },
+ {
+  "line": 692,
+  "old": 29207589,
+  "new": 14652581,
+  "grade": "OK",
+  "cmt": "dn_pred_dist  orig 0xd693a4001 (=240000\u00b2+1, exe \uc804\uc5ed \uc720\uc77c)"
+ },
+ {
+  "line": 693,
+  "old": 29207701,
+  "new": null,
+  "grade": "MISS",
+  "cmt": "dn_lane_margin orig 0x78 (add r14,imm8)"
+ },
+ {
+  "line": 695,
+  "old": 37187206,
+  "new": null,
+  "grade": "MISS",
+  "cmt": "an_cull_dist orig 0x5f5e0 (\u2605cmp **r10**, 0.5.1\uc740 r8)"
+ },
+ {
+  "line": 696,
+  "old": 37189630,
+  "new": 14246120,
+  "grade": "OK?",
+  "cmt": "an_finish_hp #1 orig 0x38 (64bit div \uacbd\ub85c)"
+ },
+ {
+  "line": 697,
+  "old": 37189642,
+  "new": 14246132,
+  "grade": "OK?",
+  "cmt": "an_finish_hp #2 orig 0x38 (32bit div \uacbd\ub85c) \u26050.5.1\uc740 #1\ub9cc \ud328\uce58=\uacb0\ud568\uc774\uc5c8"
+ },
+ {
+  "line": 719,
+  "old": 34761443,
+  "new": null,
+  "grade": "NOCONT",
+  "cmt": "add rsi, imm32"
+ },
+ {
+  "line": 778,
+  "old": 36382037,
+  "new": 14708258,
+  "grade": "OK",
+  "cmt": "\uadfc\uc811\ubc18\uacbd\u00b2  orig 0x249f0"
+ },
+ {
+  "line": 779,
+  "old": 36383909,
+  "new": null,
+  "grade": "MISS",
+  "cmt": "\ub77c\uc778range\u00b2 orig 0x3d090 (\u2605disp 0x180\u21920x1b0)"
+ },
+ {
+  "line": 780,
+  "old": 36383665,
+  "new": null,
+  "grade": "MISS",
+  "cmt": "\ud569\ub958max\uac70\ub9ac\u00b2(\uc9c0\ubc30) orig 0xd693a401 (\u2605\uc778\ucf54\ub529 mov r8d\ub85c \ubcc0\uacbd)"
+ },
+ {
+  "line": 781,
+  "old": 36395181,
+  "new": 14721832,
+  "grade": "OK",
+  "cmt": "\ub77c\uc778\uc555\ubc15 HP%<30"
+ },
+ {
+  "line": 783,
+  "old": 37323586,
+  "new": null,
+  "grade": "NOCONT",
+  "cmt": "\uc6b4\uc601\uc9c4\uc785 phase>30 (\u2605rbx\u2192r14)"
+ },
+ {
+  "line": 784,
+  "old": 37326579,
+  "new": null,
+  "grade": "NOCONT",
+  "cmt": "\uac70\uc810\ubc18\uacbd\u00b2 #1 (\u2605disp 0x10\u21920x18)"
+ },
+ {
+  "line": 785,
+  "old": 37326652,
+  "new": null,
+  "grade": "NOCONT",
+  "cmt": "\uac70\uc810\ubc18\uacbd\u00b2 #2 (\u2605prefix \ubcc0\uacbd\u00b7off 9)"
+ },
+ {
+  "line": 788,
+  "old": 37411287,
+  "new": 13488231,
+  "grade": "OK",
+  "cmt": "reach cap\u00b2 #1(\u2264)"
+ },
+ {
+  "line": 789,
+  "old": 37464307,
+  "new": null,
+  "grade": "NOCONT",
+  "cmt": "reach cap\u00b2 #2(<, +1\uacbd\uacc4)"
+ },
+ {
+  "line": 790,
+  "old": 36389806,
+  "new": 14714968,
+  "grade": "OK",
+  "cmt": "reach margin"
+ },
+ {
+  "line": 833,
+  "old": 36584671,
+  "new": 13439039,
+  "grade": "OK",
+  "cmt": "tr>49"
+ },
+ {
+  "line": 834,
+  "old": 36584688,
+  "new": 13439056,
+  "grade": "OK",
+  "cmt": "hp%>65 (rcx)"
+ },
+ {
+  "line": 835,
+  "old": 36584694,
+  "new": 13439062,
+  "grade": "OK",
+  "cmt": "tr>29"
+ },
+ {
+  "line": 836,
+  "old": 36584704,
+  "new": 13439072,
+  "grade": "OK",
+  "cmt": "hp%>40"
+ },
+ {
+  "line": 837,
+  "old": 36584710,
+  "new": 13439078,
+  "grade": "OK",
+  "cmt": "tr>17"
+ },
+ {
+  "line": 838,
+  "old": 36584720,
+  "new": 13439088,
+  "grade": "OK",
+  "cmt": "hp%>25"
+ },
+ {
+  "line": 839,
+  "old": 36584726,
+  "new": 13439094,
+  "grade": "OK",
+  "cmt": "tr>9"
+ },
+ {
+  "line": 840,
+  "old": 36584747,
+  "new": 13439115,
+  "grade": "OK",
+  "cmt": "\ud560\uc778 shift (sar rax,imm8)"
+ },
+ {
+  "line": 841,
+  "old": 36584751,
+  "new": 13439119,
+  "grade": "OK",
+  "cmt": "\ud560\uc778 cap \ube44\uad50"
+ },
+ {
+  "line": 842,
+  "old": 36584755,
+  "new": 13439123,
+  "grade": "OK",
+  "cmt": "\ud560\uc778 cap \uac12 (mov ebx,imm32)"
+ },
+ {
+  "line": 844,
+  "old": 36625247,
+  "new": null,
+  "grade": "NOCONT",
+  "cmt": "tr>49"
+ },
+ {
+  "line": 845,
+  "old": 36625253,
+  "new": null,
+  "grade": "NOCONT",
+  "cmt": "hp%>65 (r8)"
+ },
+ {
+  "line": 846,
+  "old": 36625259,
+  "new": null,
+  "grade": "NOCONT",
+  "cmt": "tr>29"
+ },
+ {
+  "line": 847,
+  "old": 36625265,
+  "new": null,
+  "grade": "NOCONT",
+  "cmt": "hp%>40"
+ },
+ {
+  "line": 848,
+  "old": 36625275,
+  "new": null,
+  "grade": "NOCONT",
+  "cmt": "tr>17"
+ },
+ {
+  "line": 850,
+  "old": 36634623,
+  "new": 13454447,
+  "grade": "OK",
+  "cmt": "tr>49"
+ },
+ {
+  "line": 851,
+  "old": 36634629,
+  "new": 13454453,
+  "grade": "OK",
+  "cmt": "hp%>65 (rcx)"
+ },
+ {
+  "line": 852,
+  "old": 36634635,
+  "new": 13454459,
+  "grade": "OK",
+  "cmt": "tr>29"
+ },
+ {
+  "line": 853,
+  "old": 36634641,
+  "new": 13454465,
+  "grade": "OK",
+  "cmt": "hp%>40"
+ },
+ {
+  "line": 854,
+  "old": 36634647,
+  "new": 13454471,
+  "grade": "OK",
+  "cmt": "tr>17"
+ },
+ {
+  "line": 855,
+  "old": 36634653,
+  "new": 13454477,
+  "grade": "OK?",
+  "cmt": "hp%>25"
+ },
+ {
+  "line": 856,
+  "old": 36634659,
+  "new": 13454483,
+  "grade": "OK",
+  "cmt": "tr>9"
+ },
+ {
+  "line": 858,
+  "old": 37358625,
+  "new": 13115940,
+  "grade": "OK",
+  "cmt": "tr>49"
+ },
+ {
+  "line": 859,
+  "old": 37358631,
+  "new": 13115946,
+  "grade": "OK",
+  "cmt": "hp%>65 (r8)"
+ },
+ {
+  "line": 860,
+  "old": 37358637,
+  "new": 13115952,
+  "grade": "OK",
+  "cmt": "tr>29"
+ },
+ {
+  "line": 861,
+  "old": 37358643,
+  "new": 13115958,
+  "grade": "OK",
+  "cmt": "hp%>40"
+ },
+ {
+  "line": 862,
+  "old": 37358649,
+  "new": 13115964,
+  "grade": "OK",
+  "cmt": "tr>17"
+ },
+ {
+  "line": 863,
+  "old": 37358657,
+  "new": 13115972,
+  "grade": "OK",
+  "cmt": "hp%>25"
+ },
+ {
+  "line": 864,
+  "old": 37358663,
+  "new": 13115978,
+  "grade": "OK",
+  "cmt": "tr>=10 (jb = tr3+1 \uc778\ucf54\ub529)"
+ }
+]

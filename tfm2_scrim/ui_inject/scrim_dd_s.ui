@@ -1,0 +1,23 @@
+scrim_dd_s:empty {
+  width: 100%; height: 100%; visible: false;
+  #scrim_dds_close:color_icon_button { width:100%; height:100%; btn:{ color:#00000000; } }
+  #scrim_dds_panel:color {
+    anchor_x:0; pivot_x:0; anchor_y:0; pivot_y:0;
+    x:100px; y:100px;
+    width: 304px; height: 284px;
+    color:#4a4c56ff; stroke:1; back_color:#1d1f2cff; rounding: Uniform { rounding:8; }
+    #scrim_dds_block:button { width:100%; height:100%; }
+    #scrim_dds_list:scroll_view { anchor_x:0.5; pivot_x:0.5; y:10px; width:292px; height:264px; speed:100; bar_width:4; bar:{ source:"asset/base/sprite/white"; color:#37d5b3ff; hover:{ color:#ecfbf8ff; } } back:{ source:"asset/base/sprite/white"; color:#00000000; }
+    #scrim_dds_contents:empty { anchor_x:0.5; pivot_x:0.5; width:280px; height:960px; child_type: TopToBottom { spacing:6px; }
+    #scrim_dds_00:color_selectable { @"asset/base/style/main#strategy_option"; width:100%; height:40px; label:{ size:18; } selected_label:{ size:18; } visible:false; }
+    #scrim_dds_01:color_selectable { @"asset/base/style/main#strategy_option"; width:100%; height:40px; label:{ size:18; } selected_label:{ size:18; } visible:false; }
+    #scrim_dds_02:color_selectable { @"asset/base/style/main#strategy_option"; width:100%; height:40px; label:{ size:18; } selected_label:{ size:18; } visible:false; }
+    #scrim_dds_03:color_selectable { @"asset/base/style/main#strategy_option"; width:100%; height:40px; label:{ size:18; } selected_label:{ size:18; } visible:false; }
+    #scrim_dds_04:color_selectable { @"asset/base/style/main#strategy_option"; width:100%; height:40px; label:{ size:18; } selected_label:{ size:18; } visible:false; }
+    #scrim_dds_05:color_selectable { @"asset/base/style/main#strategy_option"; width:100%; height:40px; label:{ size:18; } selected_label:{ size:18; } visible:false; }
+    #scrim_dds_06:color_selectable { @"asset/base/style/main#strategy_option"; width:100%; height:40px; label:{ size:18; } selected_label:{ size:18; } visible:false; }
+    #scrim_dds_07:color_selectable { @"asset/base/style/main#strategy_option"; width:100%; height:40px; label:{ size:18; } selected_label:{ size:18; } visible:false; }
+    }
+    }
+  }
+}

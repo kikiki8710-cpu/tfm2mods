@@ -1,0 +1,515 @@
+main:main_ui {
+  width: 100%;
+  height: 100%;
+
+  #bg:color {
+    width: 100%;
+    height: 100%;
+
+    color: #07080bff;
+  }
+
+  #bottom:empty {
+    width: 1600px;
+    height: 40px;
+
+    anchor_x: 1;
+    pivot_x: 1;
+    anchor_y: 1;
+    pivot_y: 1;
+
+    y: -24px;
+    x: -24px;
+
+    #undo_scene:color_icon_button {
+      @"asset/base/style/main#icon_button";
+      x: 0px;
+
+      width: 40px;
+      height: 40px;
+
+      icon: {
+        source: "asset/base/ui/icons/left";
+        rect: {
+          x: 17.47;
+          y: 15.61;
+          w: 5.06;
+          h: 8.78;
+        }
+      }
+    }
+
+    #redo_scene:color_icon_button {
+      @"asset/base/style/main#icon_button";
+      x: 56px;
+
+      width: 40px;
+      height: 40px;
+
+      icon: {
+        source: "asset/base/ui/icons/right";
+        rect: {
+          x: 17.47;
+          y: 15.61;
+          w: 5.06;
+          h: 8.78;
+        }
+      }
+    }
+
+    #save_status:empty {
+      x: 111px;
+      y: 0px;
+      width: 360px;
+      height: 40px;
+      visible: false;
+      ignore_event: true;
+
+      #text:label {
+        @"asset/base/style/main#bold_label";
+
+        width: 360px;
+        height: 40px;
+
+        align_x: Left;
+        align_y: Center;
+        size: 16;
+        text: "";
+      }
+    }
+
+    #mark_all_news_read:color_icon_button {
+      @"asset/base/style/main#tertiary_button";
+      x: 111px;
+
+      width: 376px;
+      height: 40px;
+
+      visible: false;
+
+      text: {
+        text: "#asset/base/text/ui?main.mark_all_news_read";
+        font: "asset/base/font/set/bold";
+        size: 16;
+        align_x: Center;
+        align_y: Center;
+      }
+    }
+
+    #close_transfer:color_icon_button {
+      @"asset/base/style/main#secondary_button";
+      width: 173px;
+      height: 40px;
+
+      pivot_y: 0.5;
+      anchor_y: 0.5;
+
+      pivot_x: 1;
+      anchor_x: 1;
+      x: -196px;
+
+      visible: false;
+
+      text: {
+        text: "#asset/base/text/ui?main.close_transfer";
+        font: "asset/base/font/set/bold";
+        size: 16;
+        align_x: Center;
+        align_y: Center;
+      }
+    }
+
+    #skip_intl_break:color_icon_button {
+      @"asset/base/style/main#secondary_button";
+      width: 173px;
+      height: 40px;
+
+      pivot_y: 0.5;
+      anchor_y: 0.5;
+
+      pivot_x: 1;
+      anchor_x: 1;
+      x: -196px;
+
+      visible: false;
+
+      text: {
+        text: "#asset/base/text/ui?main.skip_intl_break";
+        font: "asset/base/font/set/bold";
+        size: 16;
+        align_x: Center;
+        align_y: Center;
+      }
+    }
+
+    #finish_tutorial:color_icon_button {
+      @"asset/base/style/main#secondary_button";
+      width: 173px;
+      height: 40px;
+
+      pivot_y: 0.5;
+      anchor_y: 0.5;
+
+      pivot_x: 1;
+      anchor_x: 1;
+      x: -196px;
+
+      visible: false;
+
+      text: {
+        text: "#asset/base/text/ui?main.finish_tutorial";
+        font: "asset/base/font/set/bold";
+        size: 16;
+        align_x: Center;
+        align_y: Center;
+      }
+    }
+
+    #proceed:icon_slide_color_icon_button {
+      @"asset/base/style/main#primary_icon_button";
+      width: 176px;
+      height: 40px;
+
+      pivot_y: 0.5;
+      anchor_y: 0.5;
+
+      pivot_x: 1;
+      anchor_x: 1;
+      disable: true;
+      centering: {
+        x: 5;
+        y: 5;
+        w: 166;
+        h: 30;
+      }
+
+      text: {
+        text: "#asset/base/text/ui?main.proceed";
+        rect: {
+          x: 12.5;
+          y: 10;
+          w: 118;
+          h: 20;
+        }
+
+        font: "asset/base/font/set/bold";
+        align_x: Center;
+        align_y: Center;
+        size: 18;
+      }
+
+      icon: {
+        source: "asset/base/ui/icons/proceed";
+        rect: {
+          x: 134.5;
+          y: 10;
+          w: 20;
+          h: 20;
+        }
+      }
+
+      effect: {
+        slide_distance: 10;
+        slide_time: 0.3;
+        return_time: 0.7;
+      }
+
+      #power:button {
+        anchor_x: 0;
+        pivot_x: 1;
+        x: -221px;
+        anchor_y: 0.5;
+        pivot_y: 0.5;
+        width: 24px;
+        height: 24px;
+
+        source: "asset/base/ui/icons/power";
+        hover_sound: "asset/base/sound/sfx/UI_mouse_hover";
+        click_sound: "asset/base/sound/sfx/UI_mouse_click";
+        color: #a5a5abff;
+
+        hover: {
+          color: #e8e8e8ff;
+        }
+
+        active: {
+          color: #e8e8e8ff;
+        }
+      }
+
+      #chat_btn:button {
+        anchor_x: 0;
+        pivot_x: 1;
+        x: -189px;
+        anchor_y: 0.5;
+        pivot_y: 0.5;
+        width: 24px;
+        height: 24px;
+
+        visible: false;
+
+        source: "asset/base/ui/icons/chat";
+        hover_sound: "asset/base/sound/sfx/UI_mouse_hover";
+        click_sound: "asset/base/sound/sfx/UI_mouse_click";
+        color: #a5a5abff;
+
+        hover: {
+          color: #e8e8e8ff;
+        }
+
+        active: {
+          color: #e8e8e8ff;
+        }
+
+        #chat_red_dot:color {
+          width: 12px;
+          height: 12px;
+
+          anchor_x: 1;
+          pivot_x: 0.5;
+          x: -2px;
+
+          anchor_y: 0;
+          pivot_y: 0.5;
+          y: 2px;
+
+          ignore_event: true;
+          visible: false;
+
+          color: #eb3d4dff;
+
+          rounding: Uniform {
+            rounding: 6;
+          }
+        }
+      }
+    }
+
+    #time:color {
+      anchor_x: 0.5;
+      pivot_x: 0.5;
+      anchor_y: 0.5;
+      pivot_y: 0.5;
+
+      width: 280px;
+      height: 40px;
+
+      back_color: #1d1f2cff;
+      color: #4a4c56ff;
+      stroke: 1;
+      mouse_hover_effect: true;
+
+      rounding: Uniform {
+        rounding: 8;
+      }
+
+      hover: {
+        back_color: #2a2f3cff;
+        color: #dfe5efff;
+      }
+
+      active: {
+        back_color: #2a2f3cff;
+        color: #dfe5efff;
+      }
+
+      #text:label {
+        @"asset/base/style/main#label";
+        width: 240px;
+        height: 40px;
+        x: 20px;
+        align_x: Center;
+        align_y: Center;
+        font: "asset/base/font/set/bold";
+        size: 20;
+        text: "";
+      }
+    }
+  }
+
+  #top:empty {
+    width: 100%;
+    height: 992px;
+
+    child_type: LeftToRight {
+      spacing: 0px;
+    }
+
+    #left:color {
+      width: 264px;
+      height: 1080px;
+
+      color: #161721ff;
+
+      child_type: TopToBottom {
+        spacing: 3px;
+      }
+
+      #news_category:empty {
+        width: 100%;
+        height: 48px;
+        y: 16px;
+
+        child_type: TopToBottom {
+          spacing: 4px;
+        }
+      }
+
+      #bar1:color {
+        anchor_x: 0.5;
+        pivot_x: 0.5;
+
+        width: 215px;
+        height: 1px;
+
+        color: #a6a6a6ff;
+      }
+
+      #team_category:empty {
+        width: 100%;
+        height: 152px;
+
+        child_type: TopToBottom {
+          spacing: 4px;
+        }
+      }
+      
+      #bar2:color {
+        anchor_x: 0.5;
+        pivot_x: 0.5;
+
+        width: 215px;
+        height: 1px;
+
+        color: #a6a6a6ff;
+      }
+
+      #schedule_category:empty {
+        width: 100%;
+        height: 100px;
+
+        child_type: TopToBottom {
+          spacing: 4px;
+        }
+      }
+      
+      #bar3:color {
+        anchor_x: 0.5;
+        pivot_x: 0.5;
+
+        width: 215px;
+        height: 1px;
+
+        color: #a6a6a6ff;
+      }
+
+      #recruit_category:empty {
+        width: 100%;
+        height: 100px;
+
+        child_type: TopToBottom {
+          spacing: 4px;
+        }
+      }
+
+      #bar4:color {
+        anchor_x: 0.5;
+        pivot_x: 0.5;
+
+        width: 215px;
+        height: 1px;
+
+        color: #a6a6a6ff;
+      }
+
+      #info_category:empty {
+        width: 100%;
+        height: 152px;
+
+        child_type: TopToBottom {
+          spacing: 4px;
+        }
+      }
+
+      #bar5:color {
+        anchor_x: 0.5;
+        pivot_x: 0.5;
+
+        width: 215px;
+        height: 1px;
+
+        color: #a6a6a6ff;
+      }
+
+      #etc_category:empty {
+        width: 100%;
+        height: 152px;
+
+        child_type: TopToBottom {
+          spacing: 4px;
+        }
+      }
+      
+      #bar6:color {
+        anchor_x: 0.5;
+        pivot_x: 0.5;
+
+        width: 215px;
+        height: 1px;
+
+        color: #a6a6a6ff;
+      }
+
+      #house_category:empty {
+        width: 100%;
+        height: 48px;
+
+        child_type: TopToBottom {
+          spacing: 4px;
+        }
+      }
+
+      #home:empty {
+        width: 100%;
+        height: 48px;
+        anchor_y: 1;
+        pivot_y: 1;
+      }
+    }
+
+    #right:empty {
+      width: 1656px;
+      height: 100%;
+    }
+  }
+
+  #tooltip:color {
+    ignore_event: true;
+    width: 100px;
+    height: 24px;
+
+    back_color: #161721ff;
+    color: #4a4c56ff;
+
+    visible: false;
+
+    rounding: Uniform {
+      rounding: 8;
+    }
+
+    #text:label {
+      @"asset/base/style/main#label";
+
+      anchor_x: 0.5;
+      pivot_x: 0.5;
+
+      width: 100px;
+      height: 24px;
+
+      size: 16;
+
+      align_x: Center;
+      align_y: Center;
+    }
+  }
+}

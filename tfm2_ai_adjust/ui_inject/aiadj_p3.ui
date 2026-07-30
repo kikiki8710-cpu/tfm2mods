@@ -1,0 +1,31 @@
+aiadj_p3:empty {
+  x: 1300px;
+  anchor_y: 0.5;
+  pivot_y: 0.5;
+  width: 130px;
+  height: 40px;
+
+  #aiadj_btn3:color_icon_button {
+    width: 130px;
+    height: 40px;
+    hover_sound: "asset/base/sound/sfx/UI_mouse_hover";
+    click_sound: "asset/base/sound/sfx/UI_mouse_click";
+    color: #c8ccd8ff;
+    hover: { color: #ffffffff; }
+    active: { color: #ffffffff; }
+    btn: {
+      color: #2a2d3aff;
+      hover: { color: #3a3f52ff; }
+      active: { color: #4a4f62ff; }
+      rounding: Uniform { rounding: 8; }
+    }
+    text: {
+      text: "AI";
+      rect: { x: 0; y: 11; w: 130; h: 18; }
+      font: "asset/base/font/set/regular";
+      size: 15;
+      align_x: Center;
+      align_y: Center;
+    }
+  }
+}

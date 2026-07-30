@@ -1,0 +1,765 @@
+aiadj_modal:empty {
+  width: 100%; height: 100%; visible: false;
+  #aiadj_dim:color_icon_button { width: 100%; height: 100%; btn: { color: #000000cc; } }
+  #aiadj_panel:color {
+    anchor_x: 0.5; pivot_x: 0.5; anchor_y: 0.5; pivot_y: 0.5;
+    width: 900px; height: 660px; color: #161721ff; rounding: Uniform { rounding: 12; }
+    #aiadj_title:label { @"asset/base/style/main#label"; x: 32px; y: 22px; width: 620px; height: 32px; align_y: Center; size: 22; text: "AI"; }
+    #aiadj_close:color_icon_button {
+      anchor_x: 1.0; pivot_x: 1.0; x: -22px; y: 20px; width: 44px; height: 40px;
+      color: #c8ccd8ff; hover: { color: #ffffffff; }
+      btn: { color: #3a3f52ff; hover: { color: #4a4f62ff; } rounding: Uniform { rounding: 8; } }
+      text: { text: "X"; rect: { x: 0; y: 10; w: 44; h: 20; } align_x: Center; align_y: Center; size: 18; font: "asset/base/font/set/regular"; }
+    }
+    #aiadj_scroll:scroll_view {
+      x: 30px; y: 74px; width: 840px; height: 486px; speed: 120; bar_width: 5;
+      bar: { source: "asset/base/sprite/white"; color: #37d5b3ff; }
+      #aiadj_list:empty { width: 820px; height: 5692px; child_type: TopToBottom { spacing: 4px; }
+    #hdr_0:label { @"asset/base/style/main#label"; width: 820px; height: 32px; align_y: Center; size: 16; color: #37d5b3ff; text: "§ 전체 성향 다이얼"; }
+    #kbrow_0:empty {
+      width: 820px; height: 38px;
+      #kl_0:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "t_engage"; }
+      #aiadj_f0:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
+      #aiadj_r0:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
+    }
+    #kbrow_1:empty {
+      width: 820px; height: 38px;
+      #kl_1:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "t_ttd"; }
+      #aiadj_f1:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
+      #aiadj_r1:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
+    }
+    #kbrow_2:empty {
+      width: 820px; height: 38px;
+      #kl_2:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "t_recall"; }
+      #aiadj_f2:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
+      #aiadj_r2:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
+    }
+    #kbrow_3:empty {
+      width: 820px; height: 38px;
+      #kl_3:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "t_gb"; }
+      #aiadj_f3:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
+      #aiadj_r3:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
+    }
+    #hdr_1:label { @"asset/base/style/main#label"; width: 820px; height: 32px; align_y: Center; size: 16; color: #37d5b3ff; text: "§ 신규: 적 포탑 회피"; }
+    #kbrow_4:empty {
+      width: 820px; height: 38px;
+      #kl_4:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "tower_threat"; }
+      #aiadj_f4:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
+      #aiadj_r4:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
+    }
+    #kbrow_5:empty {
+      width: 820px; height: 38px;
+      #kl_5:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "tower_range"; }
+      #aiadj_f5:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
+      #aiadj_r5:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
+    }
+    #kbrow_6:empty {
+      width: 820px; height: 38px;
+      #kl_6:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "tower_dps"; }
+      #aiadj_f6:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
+      #aiadj_r6:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
+    }
+    #hdr_2:label { @"asset/base/style/main#label"; width: 820px; height: 32px; align_y: Center; size: 16; color: #37d5b3ff; text: "§ 신규: 교전판단 (한타)"; }
+    #kbrow_7:empty {
+      width: 820px; height: 38px;
+      #kl_7:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "numbers_threat"; }
+      #aiadj_f7:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
+      #aiadj_r7:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
+    }
+    #kbrow_8:empty {
+      width: 820px; height: 38px;
+      #kl_8:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "numbers_range"; }
+      #aiadj_f8:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
+      #aiadj_r8:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
+    }
+    #kbrow_9:empty {
+      width: 820px; height: 38px;
+      #kl_9:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "ally_tower_hp"; }
+      #aiadj_f9:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
+      #aiadj_r9:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
+    }
+    #kbrow_10:empty {
+      width: 820px; height: 38px;
+      #kl_10:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "ally_tower_dps"; }
+      #aiadj_f10:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
+      #aiadj_r10:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
+    }
+    #kbrow_11:empty {
+      width: 820px; height: 38px;
+      #kl_11:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "ally_tower_range"; }
+      #aiadj_f11:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
+      #aiadj_r11:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
+    }
+    #kbrow_12:empty {
+      width: 820px; height: 38px;
+      #kl_12:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "numbers_min_enemy"; }
+      #aiadj_f12:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
+      #aiadj_r12:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
+    }
+    #hdr_3:label { @"asset/base/style/main#label"; width: 820px; height: 32px; align_y: Center; size: 16; color: #37d5b3ff; text: "§ 신규: 교전판단 (라인전, -1=한타값)"; }
+    #kbrow_13:empty {
+      width: 820px; height: 38px;
+      #kl_13:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "numbers_threat_move"; }
+      #aiadj_f13:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
+      #aiadj_r13:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
+    }
+    #kbrow_14:empty {
+      width: 820px; height: 38px;
+      #kl_14:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "numbers_range_move"; }
+      #aiadj_f14:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
+      #aiadj_r14:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
+    }
+    #kbrow_15:empty {
+      width: 820px; height: 38px;
+      #kl_15:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "ally_tower_hp_move"; }
+      #aiadj_f15:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
+      #aiadj_r15:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
+    }
+    #kbrow_16:empty {
+      width: 820px; height: 38px;
+      #kl_16:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "ally_tower_dps_move"; }
+      #aiadj_f16:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
+      #aiadj_r16:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
+    }
+    #kbrow_17:empty {
+      width: 820px; height: 38px;
+      #kl_17:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "ally_tower_range_move"; }
+      #aiadj_f17:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
+      #aiadj_r17:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
+    }
+    #kbrow_18:empty {
+      width: 820px; height: 38px;
+      #kl_18:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "numbers_min_enemy_move"; }
+      #aiadj_f18:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
+      #aiadj_r18:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
+    }
+    #hdr_4:label { @"asset/base/style/main#label"; width: 820px; height: 32px; align_y: Center; size: 16; color: #37d5b3ff; text: "§ 넥서스 방어 성향 (disc19 위협/후퇴 — 순수화 완료)"; }
+    #kbrow_19:empty {
+      width: 820px; height: 38px;
+      #kl_19:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "d19_threat_mult"; }
+      #aiadj_f19:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
+      #aiadj_r19:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
+    }
+    #kbrow_20:empty {
+      width: 820px; height: 38px;
+      #kl_20:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "d19_retreat_hp"; }
+      #aiadj_f20:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
+      #aiadj_r20:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
+    }
+    #kbrow_21:empty {
+      width: 820px; height: 38px;
+      #kl_21:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "d19_range_atkme"; }
+      #aiadj_f21:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
+      #aiadj_r21:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
+    }
+    #kbrow_22:empty {
+      width: 820px; height: 38px;
+      #kl_22:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "d19_range_bld"; }
+      #aiadj_f22:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
+      #aiadj_r22:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
+    }
+    #kbrow_23:empty {
+      width: 820px; height: 38px;
+      #kl_23:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "d19_range_other"; }
+      #aiadj_f23:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
+      #aiadj_r23:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
+    }
+    #kbrow_24:empty {
+      width: 820px; height: 38px;
+      #kl_24:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "d19_range_idle"; }
+      #aiadj_f24:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
+      #aiadj_r24:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
+    }
+    #hdr_5:label { @"asset/base/style/main#label"; width: 820px; height: 32px; align_y: Center; size: 16; color: #37d5b3ff; text: "§ 넥서스 값튜닝: 수비(disc19 계열) — oi_enable=1 필요"; }
+    #kbrow_25:empty {
+      width: 820px; height: 38px;
+      #kl_25:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "oi_enable"; }
+      #aiadj_f25:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
+      #aiadj_r25:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
+    }
+    #kbrow_26:empty {
+      width: 820px; height: 38px;
+      #kl_26:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "oi_dn_count_gate"; }
+      #aiadj_f26:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
+      #aiadj_r26:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
+    }
+    #kbrow_27:empty {
+      width: 820px; height: 38px;
+      #kl_27:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "oi_dn_nexus_hp"; }
+      #aiadj_f27:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
+      #aiadj_r27:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
+    }
+    #kbrow_28:empty {
+      width: 820px; height: 38px;
+      #kl_28:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "oi_dn_hp_crit"; }
+      #aiadj_f28:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
+      #aiadj_r28:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
+    }
+    #kbrow_29:empty {
+      width: 820px; height: 38px;
+      #kl_29:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "oi_dn_hp_low"; }
+      #aiadj_f29:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
+      #aiadj_r29:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
+    }
+    #kbrow_30:empty {
+      width: 820px; height: 38px;
+      #kl_30:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "oi_dn_near_dist"; }
+      #aiadj_f30:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
+      #aiadj_r30:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
+    }
+    #kbrow_31:empty {
+      width: 820px; height: 38px;
+      #kl_31:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "oi_dn_pred_dist"; }
+      #aiadj_f31:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
+      #aiadj_r31:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
+    }
+    #kbrow_32:empty {
+      width: 820px; height: 38px;
+      #kl_32:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "oi_dn_lane_margin"; }
+      #aiadj_f32:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
+      #aiadj_r32:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
+    }
+    #hdr_6:label { @"asset/base/style/main#label"; width: 820px; height: 32px; align_y: Center; size: 16; color: #37d5b3ff; text: "§ 넥서스 값튜닝: 공격(disc18 계열)"; }
+    #kbrow_33:empty {
+      width: 820px; height: 38px;
+      #kl_33:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "oi_an_count_gate"; }
+      #aiadj_f33:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
+      #aiadj_r33:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
+    }
+    #kbrow_34:empty {
+      width: 820px; height: 38px;
+      #kl_34:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "oi_an_finish_hp"; }
+      #aiadj_f34:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
+      #aiadj_r34:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
+    }
+    #kbrow_35:empty {
+      width: 820px; height: 38px;
+      #kl_35:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "oi_an_cull_dist"; }
+      #aiadj_f35:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
+      #aiadj_r35:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
+    }
+    #hdr_7:label { @"asset/base/style/main#label"; width: 820px; height: 32px; align_y: Center; size: 16; color: #37d5b3ff; text: "§ 신규: 성향 반영"; }
+    #kbrow_36:empty {
+      width: 820px; height: 38px;
+      #kl_36:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "stat_influence"; }
+      #aiadj_f36:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
+      #aiadj_r36:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
+    }
+    #hdr_8:label { @"asset/base/style/main#label"; width: 820px; height: 32px; align_y: Center; size: 16; color: #37d5b3ff; text: "§ 시야 (사라진 적 기억)"; }
+    #kbrow_37:empty {
+      width: 820px; height: 38px;
+      #kl_37:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "vis_window"; }
+      #aiadj_f37:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
+      #aiadj_r37:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
+    }
+    #kbrow_38:empty {
+      width: 820px; height: 38px;
+      #kl_38:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "dd_lane_margin"; }
+      #aiadj_f38:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
+      #aiadj_r38:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
+    }
+    #hdr_9:label { @"asset/base/style/main#label"; width: 820px; height: 32px; align_y: Center; size: 16; color: #37d5b3ff; text: "§ 교전 (Engage)"; }
+    #kbrow_39:empty {
+      width: 820px; height: 38px;
+      #kl_39:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "eng_role4"; }
+      #aiadj_f39:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
+      #aiadj_r39:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
+    }
+    #kbrow_40:empty {
+      width: 820px; height: 38px;
+      #kl_40:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "eng_role3"; }
+      #aiadj_f40:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
+      #aiadj_r40:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
+    }
+    #kbrow_41:empty {
+      width: 820px; height: 38px;
+      #kl_41:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "eng_role2"; }
+      #aiadj_f41:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
+      #aiadj_r41:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
+    }
+    #kbrow_42:empty {
+      width: 820px; height: 38px;
+      #kl_42:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "eng_role_def"; }
+      #aiadj_f42:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
+      #aiadj_r42:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
+    }
+    #hdr_10:label { @"asset/base/style/main#label"; width: 820px; height: 32px; align_y: Center; size: 16; color: #37d5b3ff; text: "§ 갱킹/처치 (TTD)"; }
+    #kbrow_43:empty {
+      width: 820px; height: 38px;
+      #kl_43:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "d4_dmg_scale"; }
+      #aiadj_f43:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
+      #aiadj_r43:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
+    }
+    #kbrow_44:empty {
+      width: 820px; height: 38px;
+      #kl_44:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "d4_div_base"; }
+      #aiadj_f44:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
+      #aiadj_r44:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
+    }
+    #kbrow_45:empty {
+      width: 820px; height: 38px;
+      #kl_45:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "d4_coef_scale"; }
+      #aiadj_f45:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
+      #aiadj_r45:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
+    }
+    #kbrow_46:empty {
+      width: 820px; height: 38px;
+      #kl_46:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "d4_coef_min"; }
+      #aiadj_f46:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
+      #aiadj_r46:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
+    }
+    #kbrow_47:empty {
+      width: 820px; height: 38px;
+      #kl_47:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "d4_coef_clamp"; }
+      #aiadj_f47:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
+      #aiadj_r47:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
+    }
+    #kbrow_48:empty {
+      width: 820px; height: 38px;
+      #kl_48:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "d4_coord_dist"; }
+      #aiadj_f48:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
+      #aiadj_r48:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
+    }
+    #kbrow_49:empty {
+      width: 820px; height: 38px;
+      #kl_49:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "d4_ttd_scale"; }
+      #aiadj_f49:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
+      #aiadj_r49:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
+    }
+    #hdr_11:label { @"asset/base/style/main#label"; width: 820px; height: 32px; align_y: Center; size: 16; color: #37d5b3ff; text: "§ 복귀 (Recall) - 체력기반"; }
+    #kbrow_50:empty {
+      width: 820px; height: 38px;
+      #kl_50:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "rc_u21_init"; }
+      #aiadj_f50:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
+      #aiadj_r50:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
+    }
+    #kbrow_51:empty {
+      width: 820px; height: 38px;
+      #kl_51:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "rc_ehp_t1"; }
+      #aiadj_f51:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
+      #aiadj_r51:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
+    }
+    #kbrow_52:empty {
+      width: 820px; height: 38px;
+      #kl_52:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "rc_ehp_t2"; }
+      #aiadj_f52:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
+      #aiadj_r52:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
+    }
+    #kbrow_53:empty {
+      width: 820px; height: 38px;
+      #kl_53:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "rc_ehp_t3"; }
+      #aiadj_f53:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
+      #aiadj_r53:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
+    }
+    #kbrow_54:empty {
+      width: 820px; height: 38px;
+      #kl_54:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "rc_ehp_v1"; }
+      #aiadj_f54:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
+      #aiadj_r54:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
+    }
+    #kbrow_55:empty {
+      width: 820px; height: 38px;
+      #kl_55:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "rc_ehp_v2"; }
+      #aiadj_f55:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
+      #aiadj_r55:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
+    }
+    #kbrow_56:empty {
+      width: 820px; height: 38px;
+      #kl_56:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "rc_norp_bonus"; }
+      #aiadj_f56:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
+      #aiadj_r56:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
+    }
+    #kbrow_57:empty {
+      width: 820px; height: 38px;
+      #kl_57:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "rc_ed_near"; }
+      #aiadj_f57:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
+      #aiadj_r57:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
+    }
+    #kbrow_58:empty {
+      width: 820px; height: 38px;
+      #kl_58:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "rc_ed_mid"; }
+      #aiadj_f58:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
+      #aiadj_r58:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
+    }
+    #kbrow_59:empty {
+      width: 820px; height: 38px;
+      #kl_59:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "rc_ed_far"; }
+      #aiadj_f59:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
+      #aiadj_r59:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
+    }
+    #kbrow_60:empty {
+      width: 820px; height: 38px;
+      #kl_60:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "rc_ed_near_pen"; }
+      #aiadj_f60:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
+      #aiadj_r60:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
+    }
+    #kbrow_61:empty {
+      width: 820px; height: 38px;
+      #kl_61:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "rc_ed_far_bonus"; }
+      #aiadj_f61:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
+      #aiadj_r61:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
+    }
+    #kbrow_62:empty {
+      width: 820px; height: 38px;
+      #kl_62:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "rc_ed_vfar_bonus"; }
+      #aiadj_f62:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
+      #aiadj_r62:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
+    }
+    #kbrow_63:empty {
+      width: 820px; height: 38px;
+      #kl_63:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "rc_ahp_t1"; }
+      #aiadj_f63:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
+      #aiadj_r63:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
+    }
+    #kbrow_64:empty {
+      width: 820px; height: 38px;
+      #kl_64:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "rc_ahp_t2"; }
+      #aiadj_f64:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
+      #aiadj_r64:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
+    }
+    #kbrow_65:empty {
+      width: 820px; height: 38px;
+      #kl_65:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "rc_u13_bonus"; }
+      #aiadj_f65:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
+      #aiadj_r65:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
+    }
+    #kbrow_66:empty {
+      width: 820px; height: 38px;
+      #kl_66:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "rc_ahp2_pen"; }
+      #aiadj_f66:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
+      #aiadj_r66:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
+    }
+    #kbrow_67:empty {
+      width: 820px; height: 38px;
+      #kl_67:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "rc_ad_near"; }
+      #aiadj_f67:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
+      #aiadj_r67:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
+    }
+    #kbrow_68:empty {
+      width: 820px; height: 38px;
+      #kl_68:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "rc_ad_mid"; }
+      #aiadj_f68:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
+      #aiadj_r68:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
+    }
+    #kbrow_69:empty {
+      width: 820px; height: 38px;
+      #kl_69:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "rc_ad_near_bonus"; }
+      #aiadj_f69:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
+      #aiadj_r69:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
+    }
+    #kbrow_70:empty {
+      width: 820px; height: 38px;
+      #kl_70:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "rc_ad_far_pen"; }
+      #aiadj_f70:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
+      #aiadj_r70:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
+    }
+    #kbrow_71:empty {
+      width: 820px; height: 38px;
+      #kl_71:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "rc_mult_bonus"; }
+      #aiadj_f71:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
+      #aiadj_r71:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
+    }
+    #kbrow_72:empty {
+      width: 820px; height: 38px;
+      #kl_72:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "rc_ally_hp_min"; }
+      #aiadj_f72:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
+      #aiadj_r72:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
+    }
+    #hdr_12:label { @"asset/base/style/main#label"; width: 820px; height: 32px; align_y: Center; size: 16; color: #37d5b3ff; text: "§ 복귀 - 합류 이득 (rc_join_weight=0=끔)"; }
+    #kbrow_73:empty {
+      width: 820px; height: 38px;
+      #kl_73:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "rc_join_weight"; }
+      #aiadj_f73:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
+      #aiadj_r73:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
+    }
+    #kbrow_74:empty {
+      width: 820px; height: 38px;
+      #kl_74:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "rc_join_adv"; }
+      #aiadj_f74:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
+      #aiadj_r74:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
+    }
+    #kbrow_75:empty {
+      width: 820px; height: 38px;
+      #kl_75:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "rc_join_rescue"; }
+      #aiadj_f75:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
+      #aiadj_r75:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
+    }
+    #kbrow_76:empty {
+      width: 820px; height: 38px;
+      #kl_76:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "rc_join_dnear"; }
+      #aiadj_f76:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
+      #aiadj_r76:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
+    }
+    #kbrow_77:empty {
+      width: 820px; height: 38px;
+      #kl_77:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "rc_join_dmid"; }
+      #aiadj_f77:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
+      #aiadj_r77:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
+    }
+    #kbrow_78:empty {
+      width: 820px; height: 38px;
+      #kl_78:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "rc_join_obj_mult"; }
+      #aiadj_f78:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
+      #aiadj_r78:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
+    }
+    #hdr_13:label { @"asset/base/style/main#label"; width: 820px; height: 32px; align_y: Center; size: 16; color: #37d5b3ff; text: "§ 운영전환 (GenericBuild)"; }
+    #kbrow_79:empty {
+      width: 820px; height: 38px;
+      #kl_79:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "gb_rbx_div"; }
+      #aiadj_f79:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
+      #aiadj_r79:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
+    }
+    #kbrow_80:empty {
+      width: 820px; height: 38px;
+      #kl_80:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "gb_r15_div"; }
+      #aiadj_f80:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
+      #aiadj_r80:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
+    }
+    #kbrow_81:empty {
+      width: 820px; height: 38px;
+      #kl_81:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "gb_r14_num"; }
+      #aiadj_f81:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
+      #aiadj_r81:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
+    }
+    #hdr_14:label { @"asset/base/style/main#label"; width: 820px; height: 32px; align_y: Center; size: 16; color: #37d5b3ff; text: "§ 라인전 (dd7700)"; }
+    #kbrow_82:empty {
+      width: 820px; height: 38px;
+      #kl_82:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "dd_frontier_mult"; }
+      #aiadj_f82:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
+      #aiadj_r82:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
+    }
+    #kbrow_83:empty {
+      width: 820px; height: 38px;
+      #kl_83:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "dd_cover_count"; }
+      #aiadj_f83:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
+      #aiadj_r83:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
+    }
+    #kbrow_84:empty {
+      width: 820px; height: 38px;
+      #kl_84:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "dd_ratio_thr"; }
+      #aiadj_f84:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
+      #aiadj_r84:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
+    }
+    #kbrow_85:empty {
+      width: 820px; height: 38px;
+      #kl_85:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "dd_facet_thr"; }
+      #aiadj_f85:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
+      #aiadj_r85:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
+    }
+    #kbrow_86:empty {
+      width: 820px; height: 38px;
+      #kl_86:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "dd_near_dist"; }
+      #aiadj_f86:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
+      #aiadj_r86:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
+    }
+    #kbrow_87:empty {
+      width: 820px; height: 38px;
+      #kl_87:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "dd_main_near_dist"; }
+      #aiadj_f87:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
+      #aiadj_r87:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
+    }
+    #kbrow_88:empty {
+      width: 820px; height: 38px;
+      #kl_88:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "dd_gatee_dist"; }
+      #aiadj_f88:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
+      #aiadj_r88:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
+    }
+    #kbrow_89:empty {
+      width: 820px; height: 38px;
+      #kl_89:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "dd_ivar2_thr"; }
+      #aiadj_f89:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
+      #aiadj_r89:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
+    }
+    #kbrow_90:empty {
+      width: 820px; height: 38px;
+      #kl_90:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "dd_n_thr"; }
+      #aiadj_f90:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
+      #aiadj_r90:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
+    }
+    #kbrow_91:empty {
+      width: 820px; height: 38px;
+      #kl_91:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "dd_survivor_thr"; }
+      #aiadj_f91:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
+      #aiadj_r91:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
+    }
+    #hdr_15:label { @"asset/base/style/main#label"; width: 820px; height: 32px; align_y: Center; size: 16; color: #37d5b3ff; text: "§ 견제 (Poke)"; }
+    #kbrow_92:empty {
+      width: 820px; height: 38px;
+      #kl_92:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "pf_edge_margin"; }
+      #aiadj_f92:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
+      #aiadj_r92:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
+    }
+    #kbrow_93:empty {
+      width: 820px; height: 38px;
+      #kl_93:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "pf_center_band"; }
+      #aiadj_f93:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
+      #aiadj_r93:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
+    }
+    #kbrow_94:empty {
+      width: 820px; height: 38px;
+      #kl_94:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "pf_diag_far"; }
+      #aiadj_f94:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
+      #aiadj_r94:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
+    }
+    #kbrow_95:empty {
+      width: 820px; height: 38px;
+      #kl_95:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "pf_diag_near"; }
+      #aiadj_f95:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
+      #aiadj_r95:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
+    }
+    #kbrow_96:empty {
+      width: 820px; height: 38px;
+      #kl_96:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "pf_band_width"; }
+      #aiadj_f96:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
+      #aiadj_r96:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
+    }
+    #kbrow_97:empty {
+      width: 820px; height: 38px;
+      #kl_97:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "pk_home_lo"; }
+      #aiadj_f97:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
+      #aiadj_r97:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
+    }
+    #kbrow_98:empty {
+      width: 820px; height: 38px;
+      #kl_98:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "pk_home_hi"; }
+      #aiadj_f98:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
+      #aiadj_r98:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
+    }
+    #kbrow_99:empty {
+      width: 820px; height: 38px;
+      #kl_99:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "pk_home_x1"; }
+      #aiadj_f99:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
+      #aiadj_r99:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
+    }
+    #kbrow_100:empty {
+      width: 820px; height: 38px;
+      #kl_100:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "pk_home_y1"; }
+      #aiadj_f100:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
+      #aiadj_r100:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
+    }
+    #kbrow_101:empty {
+      width: 820px; height: 38px;
+      #kl_101:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "pk_hp_main"; }
+      #aiadj_f101:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
+      #aiadj_r101:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
+    }
+    #kbrow_102:empty {
+      width: 820px; height: 38px;
+      #kl_102:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "pk_hp_retreat"; }
+      #aiadj_f102:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
+      #aiadj_r102:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
+    }
+    #kbrow_103:empty {
+      width: 820px; height: 38px;
+      #kl_103:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "pk_smallact_split"; }
+      #aiadj_f103:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
+      #aiadj_r103:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
+    }
+    #kbrow_104:empty {
+      width: 820px; height: 38px;
+      #kl_104:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "pk_threat_mult"; }
+      #aiadj_f104:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
+      #aiadj_r104:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
+    }
+    #kbrow_105:empty {
+      width: 820px; height: 38px;
+      #kl_105:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "pk_zone_hp"; }
+      #aiadj_f105:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
+      #aiadj_r105:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
+    }
+    #kbrow_106:empty {
+      width: 820px; height: 38px;
+      #kl_106:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "pk_engage_dist"; }
+      #aiadj_f106:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
+      #aiadj_r106:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
+    }
+    #kbrow_107:empty {
+      width: 820px; height: 38px;
+      #kl_107:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "pk_obj_hp"; }
+      #aiadj_f107:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
+      #aiadj_r107:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
+    }
+    #hdr_16:label { @"asset/base/style/main#label"; width: 820px; height: 32px; align_y: Center; size: 16; color: #37d5b3ff; text: "§ EpicPoke 수비값 (disc14, 실명 — 구 오라벨 DefenseNexus)"; }
+    #kbrow_108:empty {
+      width: 820px; height: 38px;
+      #kl_108:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "ep_nexus_hp"; }
+      #aiadj_f108:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
+      #aiadj_r108:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
+    }
+    #kbrow_109:empty {
+      width: 820px; height: 38px;
+      #kl_109:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "ep_home_lo"; }
+      #aiadj_f109:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
+      #aiadj_r109:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
+    }
+    #kbrow_110:empty {
+      width: 820px; height: 38px;
+      #kl_110:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "ep_home_hi"; }
+      #aiadj_f110:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
+      #aiadj_r110:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
+    }
+    #kbrow_111:empty {
+      width: 820px; height: 38px;
+      #kl_111:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "ep_home_x1"; }
+      #aiadj_f111:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
+      #aiadj_r111:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
+    }
+    #kbrow_112:empty {
+      width: 820px; height: 38px;
+      #kl_112:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "ep_home_y1"; }
+      #aiadj_f112:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
+      #aiadj_r112:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
+    }
+    #kbrow_113:empty {
+      width: 820px; height: 38px;
+      #kl_113:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "ep_hp_crit"; }
+      #aiadj_f113:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
+      #aiadj_r113:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
+    }
+    #hdr_17:label { @"asset/base/style/main#label"; width: 820px; height: 32px; align_y: Center; size: 16; color: #37d5b3ff; text: "§ 기타"; }
+    #kbrow_114:empty {
+      width: 820px; height: 38px;
+      #kl_114:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "d8_slot_thr"; }
+      #aiadj_f114:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
+      #aiadj_r114:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
+    }
+    #kbrow_115:empty {
+      width: 820px; height: 38px;
+      #kl_115:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "bt_home_lo"; }
+      #aiadj_f115:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
+      #aiadj_r115:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
+    }
+    #kbrow_116:empty {
+      width: 820px; height: 38px;
+      #kl_116:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "bt_home_hi"; }
+      #aiadj_f116:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
+      #aiadj_r116:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
+    }
+    #kbrow_117:empty {
+      width: 820px; height: 38px;
+      #kl_117:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "bt_home_x1"; }
+      #aiadj_f117:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
+      #aiadj_r117:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
+    }
+    #kbrow_118:empty {
+      width: 820px; height: 38px;
+      #kl_118:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "bt_home_y1"; }
+      #aiadj_f118:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
+      #aiadj_r118:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
+    }
+    #kbrow_119:empty {
+      width: 820px; height: 38px;
+      #kl_119:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "bt_hp_retreat"; }
+      #aiadj_f119:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
+      #aiadj_r119:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
+    }
+      }
+    }
+    #aiadj_hint:label { @"asset/base/style/main#label"; x: 30px; y: 584px; width: 690px; height: 66px; size: 14; line_height: 19; color: #b8bcc8ff; text: "빈칸=전역 따름 · 항목에 마우스 올리면 여기에 설명"; }
+    #aiadj_save:color_icon_button {
+      anchor_x: 1.0; pivot_x: 1.0; anchor_y: 1.0; pivot_y: 1.0; x: -30px; y: -18px; width: 150px; height: 44px; color: #ffffffff;
+      btn: { color: #1f6f4aff; hover: { color: #2a8f5aff; } rounding: Uniform { rounding: 8; } }
+      text: { text: "SAVE"; rect: { x: 0; y: 12; w: 150; h: 20; } align_x: Center; align_y: Center; size: 17; font: "asset/base/font/set/regular"; }
+    }
+  }
+}

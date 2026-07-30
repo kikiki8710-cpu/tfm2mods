@@ -1,0 +1,36 @@
+ie_edit:empty {
+  width: 100%; height: 100%; visible: false;
+  #ie_edit_dim:color_icon_button { width: 100%; height: 100%; btn: { color: #000000d0; } }
+  #ie_edit_panel:color {
+    anchor_x: 0.5; pivot_x: 0.5; anchor_y: 0.5; pivot_y: 0.5;
+    width: 528px; height: 532px; color: #1b1d28ff;
+    rounding: Uniform { rounding: 12; }
+    #ie_edit_title:label { @"asset/base/style/main#bold_label"; x: 28px; y: 22px; width: 472px; height: 30px; align_y: Center; size: 20; ignore_event: true; text: "편집"; }
+    #ie_edit_name:label { @"asset/base/style/main#label"; x: 28px; y: 52px; width: 472px; height: 26px; align_y: Center; size: 16; ignore_event: true; text: ""; }
+    #ie_lbl_price:label { @"asset/base/style/main#label"; x:28px; y:84px; width:130px; height:46px; align_x:Left; align_y:Center; size:16; ignore_event:true; text:"가격"; }
+    #ie_in_price:text_edit { @"asset/base/style/main#text_edit"; x:170px; y:84px; width:330px; height:46px; size:17; align_y:Center; padding:{ left:15px; top:5px; right:15px; bottom:5px; } }
+    #ie_lbl_atk:label { @"asset/base/style/main#label"; x:28px; y:144px; width:130px; height:46px; align_x:Left; align_y:Center; size:16; ignore_event:true; text:"공격력"; }
+    #ie_in_atk:text_edit { @"asset/base/style/main#text_edit"; x:170px; y:144px; width:330px; height:46px; size:17; align_y:Center; padding:{ left:15px; top:5px; right:15px; bottom:5px; } }
+    #ie_lbl_mag:label { @"asset/base/style/main#label"; x:28px; y:204px; width:130px; height:46px; align_x:Left; align_y:Center; size:16; ignore_event:true; text:"주문력"; }
+    #ie_in_mag:text_edit { @"asset/base/style/main#text_edit"; x:170px; y:204px; width:330px; height:46px; size:17; align_y:Center; padding:{ left:15px; top:5px; right:15px; bottom:5px; } }
+    #ie_lbl_def:label { @"asset/base/style/main#label"; x:28px; y:264px; width:130px; height:46px; align_x:Left; align_y:Center; size:16; ignore_event:true; text:"방어력"; }
+    #ie_in_def:text_edit { @"asset/base/style/main#text_edit"; x:170px; y:264px; width:330px; height:46px; size:17; align_y:Center; padding:{ left:15px; top:5px; right:15px; bottom:5px; } }
+    #ie_lbl_hp:label { @"asset/base/style/main#label"; x:28px; y:324px; width:130px; height:46px; align_x:Left; align_y:Center; size:16; ignore_event:true; text:"체력"; }
+    #ie_in_hp:text_edit { @"asset/base/style/main#text_edit"; x:170px; y:324px; width:330px; height:46px; size:17; align_y:Center; padding:{ left:15px; top:5px; right:15px; bottom:5px; } }
+    #ie_lbl_mr:label { @"asset/base/style/main#label"; x:28px; y:384px; width:130px; height:46px; align_x:Left; align_y:Center; size:16; ignore_event:true; text:"마저"; }
+    #ie_in_mr:text_edit { @"asset/base/style/main#text_edit"; x:170px; y:384px; width:330px; height:46px; size:17; align_y:Center; padding:{ left:15px; top:5px; right:15px; bottom:5px; } }
+
+    #ie_confirm_box:color {
+      x: 28px; y: 456px; width: 230px; height: 52px;
+      back_color: #1f6f5cff; color: #2aa784ff; stroke: 1; rounding: Uniform { rounding: 8; }
+      #ie_confirm_t:label { @"asset/base/style/main#label"; width:100%; height:100%; align_x:Center; align_y:Center; size:17; ignore_event:true; text:"확인 (적용)"; }
+      #ie_confirm:button { width:100%; height:100%; hover_sound:"asset/base/sound/sfx/UI_mouse_hover"; }
+    }
+    #ie_cancel_box:color {
+      x: 270px; y: 456px; width: 230px; height: 52px;
+      back_color: #2a2c3aff; color: #4a4c56ff; stroke: 1; rounding: Uniform { rounding: 8; }
+      #ie_cancel_t:label { @"asset/base/style/main#label"; width:100%; height:100%; align_x:Center; align_y:Center; size:17; ignore_event:true; text:"취소"; }
+      #ie_cancel:button { width:100%; height:100%; hover_sound:"asset/base/sound/sfx/UI_mouse_hover"; }
+    }
+  }
+}

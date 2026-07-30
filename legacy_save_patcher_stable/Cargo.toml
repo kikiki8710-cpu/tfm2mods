@@ -1,0 +1,18 @@
+[package]
+name = "legacy_save_patcher"
+version = "0.6.0"
+edition = "2021"
+
+# stable ABI 포팅본(2026-07-30) — 원본 = C:\Users\dev\Desktop\claude\tfm2\tfm2-mods-main\legacy_save_patcher (daram2, 클래식 SDK).
+# 게임 API 무접촉 모드라 100% 무손실 포팅 대상 1호. 아무 툴체인으로 cargo build --release.
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+mod-api-stable = { path = 'C:\Program Files (x86)\Steam\steamapps\common\Teamfight Manager2\mod-sdk-stable\mod-api-stable' }
+# 순수 Rust gzip(C 백엔드 없음) — 원본과 동일 의존.
+flate2 = { version = "1", default-features = false, features = ["rust_backend"] }
+
+# 상위 폴더가 다른 Cargo 워크스페이스로 잡히는 걸 방지(독립 패키지로 빌드).
+[workspace]

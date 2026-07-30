@@ -1,0 +1,11 @@
+[package]
+name = "tfm2_meta_item_delegate"
+version = "0.2.6"
+edition = "2021"
+
+[lib]
+name = "tfm2_meta_item_delegate"
+crate-type = ["cdylib"]
+
+[profile.release]
+codegen-units = 1

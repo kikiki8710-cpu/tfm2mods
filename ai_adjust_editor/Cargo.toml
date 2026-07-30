@@ -1,0 +1,19 @@
+[package]
+name = "ai_adjust_editor"
+version = "1.0.0"
+edition = "2021"
+description = "tfm2_ai_adjust 설정 편집기 (egui 네이티브, 무의존 단일 exe)"
+
+[[bin]]
+name = "ai_adjust_editor"
+path = "src/main.rs"
+
+[dependencies]
+eframe = { version = "0.34", default-features = true }
+
+[profile.release]
+opt-level = "z"
+lto = true
+codegen-units = 1
+strip = true
+panic = "abort"

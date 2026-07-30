@@ -1,0 +1,733 @@
+[
+ {
+  "rva": 5307520,
+  "base": "tfm2_0.5.0_3",
+  "offs": {
+   "24": 1,
+   "32": 5,
+   "40": 10,
+   "48": 65,
+   "56": 92,
+   "72": 30,
+   "80": 100,
+   "88": 93,
+   "96": 49,
+   "104": 124,
+   "112": 128,
+   "120": 83,
+   "128": 103,
+   "136": 93,
+   "144": 107,
+   "152": 18,
+   "160": 75,
+   "168": 104,
+   "176": 102,
+   "184": 42,
+   "192": 107,
+   "200": 87,
+   "208": 17,
+   "216": 35,
+   "248": 78,
+   "256": 4,
+   "304": 46,
+   "312": 83,
+   "320": 5,
+   "336": 67,
+   "344": 86,
+   "64": 28,
+   "352": 4
+  },
+  "tot": 2071,
+  "skel": "xor eax, eax | ret",
+  "human": "xor eax, eax; ret",
+  "cands": {
+   "643744": 2440
+  }
+ },
+ {
+  "rva": 5511328,
+  "base": "tfm2_0.5.0_3",
+  "offs": {
+   "40": 2,
+   "56": 4,
+   "80": 2,
+   "96": 1,
+   "120": 11,
+   "128": 3,
+   "136": 21,
+   "192": 46,
+   "200": 67,
+   "208": 26,
+   "312": 1,
+   "336": 12,
+   "64": 1
+  },
+  "tot": 197,
+  "skel": "mov al, I | ret",
+  "human": "mov al, 1; ret",
+  "cands": {
+   "787696": 193
+  }
+ },
+ {
+  "rva": 10097200,
+  "base": "tfm2_0.5.0_3",
+  "offs": {
+   "152": 90,
+   "160": 18,
+   "168": 38,
+   "176": 24,
+   "184": 2
+  },
+  "tot": 172,
+  "skel": "mov eax, I | ret",
+  "human": "mov eax, 1; ret",
+  "cands": {
+   "16011408": 62,
+   "15734720": 23,
+   "15605328": 10,
+   "16740432": 9,
+   "15607552": 16
+  }
+ },
+ {
+  "rva": 10258512,
+  "base": "tfm2_0.5.0_3",
+  "offs": {
+   "72": 79,
+   "80": 17,
+   "96": 86,
+   "104": 17
+  },
+  "tot": 199,
+  "skel": "mov rax, rcx | mov qword ptr [rcx], I | ret",
+  "human": "mov rax, rcx; mov qword ptr [rcx], 0; ret",
+  "cands": {
+   "16011728": 219
+  }
+ },
+ {
+  "rva": 11543728,
+  "base": "tfm2_0.5.0_3",
+  "offs": {
+   "152": 2
+  },
+  "tot": 2,
+  "skel": "mov rax, qword ptr [rcx] | ret",
+  "human": "mov rax, qword ptr [rcx]; ret",
+  "cands": {
+   "16740784": 2
+  }
+ },
+ {
+  "rva": 27181760,
+  "base": "tfm2_0.5.0_3",
+  "offs": {
+   "120": 9
+  },
+  "tot": 9,
+  "skel": "push rsi | push rdi | sub rsp, I | mov rdx, qword ptr [rcx + I] | mov rcx, qword ptr [rcx + I] | shl rcx, I | nop word ptr cs:[rax + rax] | mov rsi, rcx | test rcx, rcx | je I | lea rdi, [rdx + I] | mov rax, qword ptr [rdx] | mov rdx, qword ptr [rdx + I] | mov rcx, qword ptr [rdx + I] | dec rcx | and rcx, I | add rcx, rax | add rcx, I | call qword ptr [rdx + I] | lea rcx, [rsi - I] | mov rdx, rdi | test al, al | je I | test rsi, rsi",
+  "human": "push rsi; push rdi; sub rsp, 0x28; mov rdx, qword ptr [rcx + 8]; mov rcx, qword ptr [rcx + 0x10]; shl rcx, 4; nop word ptr cs:[rax + rax]; mov rsi, rcx; test rcx, rcx; je 0x19ec313; lea rdi, [rdx + 0x10]; mov rax, qword ptr [rdx]; mov rdx, qword ptr [rdx + 8]; mov rcx, qword ptr [rdx + 0x10]; dec rcx; and rcx, 0xfffffffffffffff0; add rcx, rax; add rcx, 0x10; call qword ptr [rdx + 0x78]; lea rcx, [rsi - 0x10]; mov rdx, rdi; test al, al; je 0x19ec2e0; test rsi, rsi",
+  "cands": {}
+ },
+ {
+  "rva": 27185744,
+  "base": "tfm2_0.5.0_3",
+  "offs": {
+   "152": 5
+  },
+  "tot": 5,
+  "skel": "mov rax, qword ptr [rcx + I] | ret",
+  "human": "mov rax, qword ptr [rcx + 0x18]; ret",
+  "cands": {
+   "16667184": 13,
+   "15738304": 3,
+   "16669728": 5,
+   "15738320": 1
+  }
+ },
+ {
+  "rva": 27185760,
+  "base": "tfm2_0.5.0_3",
+  "offs": {
+   "136": 2,
+   "152": 13
+  },
+  "tot": 15,
+  "skel": "mov rax, qword ptr [rcx + I] | ret",
+  "human": "mov rax, qword ptr [rcx + 0x20]; ret",
+  "cands": {
+   "194624": 22,
+   "16667184": 15,
+   "15738304": 3,
+   "16669728": 5,
+   "15738320": 1
+  }
+ },
+ {
+  "rva": 27209568,
+  "base": "tfm2_0.5.0_3",
+  "offs": {
+   "144": 9
+  },
+  "tot": 9,
+  "skel": "mov rax, qword ptr [rcx + I] | ret",
+  "human": "mov rax, qword ptr [rcx + 0x30]; ret",
+  "cands": {
+   "15734752": 13,
+   "15606976": 9,
+   "15753328": 8,
+   "19308128": 2,
+   "15734768": 2,
+   "15614256": 1
+  }
+ },
+ {
+  "rva": 27344048,
+  "base": "tfm2_0.5.0_3",
+  "offs": {
+   "96": 2,
+   "136": 22
+  },
+  "tot": 24,
+  "skel": "mov rax, qword ptr [rcx + I] | ret",
+  "human": "mov rax, qword ptr [rcx + 0x28]; ret",
+  "cands": {
+   "193392": 2,
+   "194624": 24,
+   "195728": 2,
+   "16667184": 2
+  }
+ },
+ {
+  "rva": 27501120,
+  "base": "tfm2_0.5.0_3",
+  "offs": {
+   "152": 3
+  },
+  "tot": 3,
+  "skel": "mov rax, qword ptr [rcx + I] | ret",
+  "human": "mov rax, qword ptr [rcx + 8]; ret",
+  "cands": {
+   "16667184": 13,
+   "15738304": 3,
+   "16669728": 5,
+   "15738320": 1
+  }
+ },
+ {
+  "rva": 27651680,
+  "base": "tfm2_0.5.1",
+  "offs": {
+   "40": 16
+  },
+  "tot": 16,
+  "skel": "push r15 | push r14 | push r13 | push r12 | push rsi | push rdi | push rbx | sub rsp, I | mov r12, qword ptr [rcx + I] | test r12, r12 | je I | mov rsi, r9 | mov rdi, r8 | mov rbx, rdx | mov r13, qword ptr [rcx + I] | add r13, I | xor r14d, r14d | xor r15d, r15d | nop | mov rax, qword ptr [r13 - I] | mov r10, qword ptr [r13] | mov rcx, qword ptr [r10 + I] | dec rcx | and rcx, I",
+  "human": "push r15; push r14; push r13; push r12; push rsi; push rdi; push rbx; sub rsp, 0x20; mov r12, qword ptr [rcx + 0x28]; test r12, r12; je 0x1a5eec8; mov rsi, r9; mov rdi, r8; mov rbx, rdx; mov r13, qword ptr [rcx + 0x20]; add r13, 8; xor r14d, r14d; xor r15d, r15d; nop; mov rax, qword ptr [r13 - 8]; mov r10, qword ptr [r13]; mov rcx, qword ptr [r10 + 0x10]; dec rcx; and rcx, 0xfffffffffffffff0",
+  "cands": {
+   "18939680": 6,
+   "17375536": 14,
+   "18865616": 5,
+   "18887568": 5,
+   "18867584": 20
+  }
+ },
+ {
+  "rva": 27685344,
+  "base": "tfm2_0.5.1",
+  "offs": {
+   "88": 6,
+   "272": 6
+  },
+  "tot": 12,
+  "skel": "push rsi | push rdi | push rbx | sub rsp, I | mov rsi, rcx | mov rcx, qword ptr [rcx + I] | mov rax, qword ptr [rsi + I] | shl rax, I | lea rdi, [rax + rax*I] | nop word ptr [rax + rax] | test rdi, rdi | je I | lea rbx, [rcx + I] | mov rax, qword ptr [rcx] | mov rdx, qword ptr [rcx + I] | mov rcx, qword ptr [rdx + I] | dec rcx | and rcx, I | add rcx, rax | add rcx, I | call qword ptr [rdx + I] | add rdi, -I | mov rcx, rbx | test al, al",
+  "human": "push rsi; push rdi; push rbx; sub rsp, 0x20; mov rsi, rcx; mov rcx, qword ptr [rcx + 0x50]; mov rax, qword ptr [rsi + 0x58]; shl rax, 3; lea rdi, [rax + rax*2]; nop word ptr [rax + rax]; test rdi, rdi; je 0x1a67234; lea rbx, [rcx + 0x18]; mov rax, qword ptr [rcx]; mov rdx, qword ptr [rcx + 8]; mov rcx, qword ptr [rdx + 0x10]; dec rcx; and rcx, 0xfffffffffffffff0; add rcx, rax; add rcx, 0x10; call qword ptr [rdx + 0x58]; add rdi, -0x18; mov rcx, rbx; test al, al",
+  "cands": {
+   "15736816": 18
+  }
+ },
+ {
+  "rva": 29090752,
+  "base": null
+ },
+ {
+  "rva": 30281840,
+  "base": "tfm2_0.5.1",
+  "offs": {
+   "80": 2
+  },
+  "tot": 2,
+  "skel": "cmp qword ptr [rcx + I], I | je I | cmp qword ptr [rcx + I], I | setne al | ret",
+  "human": "cmp qword ptr [rcx + 0x18], 0; je 0x1ce1080; cmp qword ptr [rcx + 0x10], 0; setne al; ret",
+  "cands": {
+   "16661744": 5
+  }
+ },
+ {
+  "rva": 30281872,
+  "base": "tfm2_0.5.1",
+  "offs": {
+   "72": 1
+  },
+  "tot": 1,
+  "skel": "mov r9, qword ptr [rdx + I] | test r9, r9 | je I | mov r8, qword ptr [rdx + I] | mov rax, r8 | or rax, r9 | shr rax, I | je I | mov rax, r8 | xor edx, edx | div r9 | jmp I",
+  "human": "mov r9, qword ptr [rdx + 0x18]; test r9, r9; je 0x1ce10b3; mov r8, qword ptr [rdx + 0x28]; mov rax, r8; or rax, r9; shr rax, 0x20; je 0x1ce10bc; mov rax, r8; xor edx, edx; div r9; jmp 0x1ce10c4",
+  "cands": {
+   "16661776": 3,
+   "19222064": 3
+  }
+ },
+ {
+  "rva": 30281968,
+  "base": "tfm2_0.5.1",
+  "offs": {
+   "72": 2
+  },
+  "tot": 2,
+  "skel": "mov r9, qword ptr [rdx + I] | test r9, r9 | je I | mov r8, qword ptr [rdx + I] | mov rax, r8 | or rax, r9 | shr rax, I | je I | mov rax, r8 | xor edx, edx | div r9 | jmp I",
+  "human": "mov r9, qword ptr [rdx + 0x18]; test r9, r9; je 0x1ce1113; mov r8, qword ptr [rdx + 0x20]; mov rax, r8; or rax, r9; shr rax, 0x20; je 0x1ce111c; mov rax, r8; xor edx, edx; div r9; jmp 0x1ce1124",
+  "cands": {
+   "16661776": 3,
+   "19222064": 3
+  }
+ },
+ {
+  "rva": 30535024,
+  "base": "tfm2_0.5.1",
+  "offs": {
+   "88": 4,
+   "272": 4
+  },
+  "tot": 8,
+  "skel": "push rsi | push rdi | sub rsp, I | mov rdx, qword ptr [rcx + I] | mov rax, qword ptr [rcx + I] | shl rax, I | lea rcx, [rax + rax*I] | nop word ptr cs:[rax + rax] | mov rsi, rcx | test rcx, rcx | je I | lea rdi, [rdx + I] | mov rax, qword ptr [rdx] | mov rdx, qword ptr [rdx + I] | mov rcx, qword ptr [rdx + I] | dec rcx | and rcx, I | add rcx, rax | add rcx, I | call qword ptr [rdx + I] | lea rcx, [rsi - I] | mov rdx, rdi | test al, al | je I",
+  "human": "push rsi; push rdi; sub rsp, 0x28; mov rdx, qword ptr [rcx + 0x50]; mov rax, qword ptr [rcx + 0x58]; shl rax, 3; lea rcx, [rax + rax*2]; nop word ptr cs:[rax + rax]; mov rsi, rcx; test rcx, rcx; je 0x1d1edc3; lea rdi, [rdx + 0x18]; mov rax, qword ptr [rdx]; mov rdx, qword ptr [rdx + 8]; mov rcx, qword ptr [rdx + 0x10]; dec rcx; and rcx, 0xfffffffffffffff0; add rcx, rax; add rcx, 0x10; call qword ptr [rdx + 0x58]; lea rcx, [rsi - 0x18]; mov rdx, rdi; test al, al; je 0x1d1ed90",
+  "cands": {
+   "18940144": 8
+  }
+ },
+ {
+  "rva": 30535120,
+  "base": "tfm2_0.5.1",
+  "offs": {
+   "120": 7
+  },
+  "tot": 7,
+  "skel": "push r14 | push rsi | push rdi | push rbx | sub rsp, I | mov rbx, qword ptr [rcx + I] | mov rax, qword ptr [rcx + I] | shl rax, I | lea rdi, [rax + rax*I] | add rbx, I | xor esi, esi | nop | test rdi, rdi | je I | mov rax, qword ptr [rbx - I] | mov rdx, qword ptr [rbx] | mov rcx, qword ptr [rdx + I] | dec rcx | and rcx, I | add rcx, rax | add rcx, I | call qword ptr [rdx + I] | add rbx, I | add rdi, -I",
+  "human": "push r14; push rsi; push rdi; push rbx; sub rsp, 0x28; mov rbx, qword ptr [rcx + 0x50]; mov rax, qword ptr [rcx + 0x58]; shl rax, 3; lea rdi, [rax + rax*2]; add rbx, 8; xor esi, esi; nop; test rdi, rdi; je 0x1d1ee87; mov rax, qword ptr [rbx - 8]; mov rdx, qword ptr [rbx]; mov rcx, qword ptr [rdx + 0x10]; dec rcx; and rcx, 0xfffffffffffffff0; add rcx, rax; add rcx, 0x10; call qword ptr [rdx + 0x78]; add rbx, 0x18; add rdi, -0x18",
+  "cands": {
+   "18940240": 6,
+   "19215504": 13,
+   "18887792": 5
+  }
+ },
+ {
+  "rva": 30537264,
+  "base": "tfm2_0.5.1",
+  "offs": {
+   "40": 1
+  },
+  "tot": 1,
+  "skel": "push r15 | push r14 | push r13 | push r12 | push rsi | push rdi | push rbp | push rbx | sub rsp, I | mov rsi, r9 | mov rdi, r8 | mov rbx, rdx | mov r14, rcx | mov r15, qword ptr [rcx + I] | test r15, r15 | je I | mov rbp, qword ptr [r14 + I] | add rbp, I | xor r12d, r12d | xor r13d, r13d | nop word ptr [rax + rax] | mov rax, qword ptr [rbp - I] | mov r10, qword ptr [rbp] | mov rcx, qword ptr [r10 + I]",
+  "human": "push r15; push r14; push r13; push r12; push rsi; push rdi; push rbp; push rbx; sub rsp, 0x28; mov rsi, r9; mov rdi, r8; mov rbx, rdx; mov r14, rcx; mov r15, qword ptr [rcx + 0x70]; test r15, r15; je 0x1d1f709; mov rbp, qword ptr [r14 + 0x68]; add rbp, 8; xor r12d, r12d; xor r13d, r13d; nop word ptr [rax + rax]; mov rax, qword ptr [rbp - 8]; mov r10, qword ptr [rbp]; mov rcx, qword ptr [r10 + 0x10]",
+  "cands": {
+   "15736304": 9
+  }
+ },
+ {
+  "rva": 30540992,
+  "base": "tfm2_0.5.1",
+  "offs": {
+   "40": 2
+  },
+  "tot": 2,
+  "skel": "push r15 | push r14 | push r13 | push r12 | push rsi | push rdi | push rbx | sub rsp, I | mov r12, qword ptr [rcx + I] | test r12, r12 | je I | mov rsi, r9 | mov rdi, r8 | mov rbx, rdx | mov r13, qword ptr [rcx + I] | add r13, I | xor r14d, r14d | xor r15d, r15d | nop | mov rax, qword ptr [r13 - I] | mov r10, qword ptr [r13] | mov rcx, qword ptr [r10 + I] | dec rcx | and rcx, I",
+  "human": "push r15; push r14; push r13; push r12; push rsi; push rdi; push rbx; sub rsp, 0x20; mov r12, qword ptr [rcx + 0x10]; test r12, r12; je 0x1d20528; mov rsi, r9; mov rdi, r8; mov rbx, rdx; mov r13, qword ptr [rcx + 8]; add r13, 8; xor r14d, r14d; xor r15d, r15d; nop; mov rax, qword ptr [r13 - 8]; mov r10, qword ptr [r13]; mov rcx, qword ptr [r10 + 0x10]; dec rcx; and rcx, 0xfffffffffffffff0",
+  "cands": {
+   "18939680": 6,
+   "17375536": 14,
+   "18865616": 5,
+   "18887568": 5,
+   "18867584": 20
+  }
+ },
+ {
+  "rva": 30615776,
+  "base": null
+ },
+ {
+  "rva": 31252944,
+  "base": null
+ },
+ {
+  "rva": 31873664,
+  "base": "tfm2_0.5.0_2",
+  "offs": {
+   "24": 1
+  },
+  "tot": 1,
+  "skel": "sub rsp, I | mov rax, rdx | mov qword ptr [rsp + I], rcx | lea rcx, [rip + I] | mov qword ptr [rsp + I], rcx | lea rcx, [rsp + I] | mov qword ptr [rsp + I], rcx | mov qword ptr [rsp + I], I | lea rdx, [rip + I] | lea r9, [rip + I] | mov r8d, I | mov rcx, rax | call I | nop | add rsp, I | ret",
+  "human": "sub rsp, 0x48; mov rax, rdx; mov qword ptr [rsp + 0x40], rcx; lea rcx, [rip + 0x19e2d25]; mov qword ptr [rsp + 0x30], rcx; lea rcx, [rsp + 0x40]; mov qword ptr [rsp + 0x28], rcx; mov qword ptr [rsp + 0x20], 7; lea rdx, [rip + 0x19e8b1a]; lea r9, [rip + 0x19e87f0]; mov r8d, 0xd; mov rcx, rax; call 0x25d27c0; nop; add rsp, 0x48; ret",
+  "cands": {}
+ },
+ {
+  "rva": 31878976,
+  "base": "tfm2_0.5.0_3",
+  "offs": {
+   "120": 1
+  },
+  "tot": 1,
+  "skel": "push rsi | push rdi | sub rsp, I | mov rdx, qword ptr [rcx + I] | mov rax, qword ptr [rcx + I] | shl rax, I | lea rcx, [rax + rax*I] | nop word ptr cs:[rax + rax] | mov rsi, rcx | test rcx, rcx | je I | lea rdi, [rdx + I] | mov rax, qword ptr [rdx] | mov rdx, qword ptr [rdx + I] | mov rcx, qword ptr [rdx + I] | dec rcx | and rcx, I | add rcx, rax | add rcx, I | call qword ptr [rdx + I] | lea rcx, [rsi - I] | mov rdx, rdi | test al, al | je I",
+  "human": "push rsi; push rdi; sub rsp, 0x28; mov rdx, qword ptr [rcx + 0x50]; mov rax, qword ptr [rcx + 0x58]; shl rax, 3; lea rcx, [rax + rax*2]; nop word ptr cs:[rax + rax]; mov rsi, rcx; test rcx, rcx; je 0x1e66f93; lea rdi, [rdx + 0x18]; mov rax, qword ptr [rdx]; mov rdx, qword ptr [rdx + 8]; mov rcx, qword ptr [rdx + 0x10]; dec rcx; and rcx, 0xfffffffffffffff0; add rcx, rax; add rcx, 0x10; call qword ptr [rdx + 0x78]; lea rcx, [rsi - 0x18]; mov rdx, rdi; test al, al; je 0x1e66f60",
+  "cands": {}
+ },
+ {
+  "rva": 32003392,
+  "base": "tfm2_0.5.0_3",
+  "offs": {
+   "144": 2
+  },
+  "tot": 2,
+  "skel": "mov rax, qword ptr [rcx + I] | ret",
+  "human": "mov rax, qword ptr [rcx + 0x170]; ret",
+  "cands": {
+   "15734752": 13,
+   "15606976": 9,
+   "15753328": 8,
+   "19308128": 2,
+   "15734768": 2,
+   "15614256": 1
+  }
+ },
+ {
+  "rva": 32164864,
+  "base": "tfm2_0.5.0_3",
+  "offs": {
+   "120": 1
+  },
+  "tot": 1,
+  "skel": "mov rax, qword ptr [rcx] | mov rdx, qword ptr [rcx + I] | mov rcx, qword ptr [rdx + I] | dec rcx | and rcx, I | add rcx, rax | add rcx, I | jmp qword ptr [rdx + I]",
+  "human": "mov rax, qword ptr [rcx]; mov rdx, qword ptr [rcx + 8]; mov rcx, qword ptr [rdx + 0x10]; dec rcx; and rcx, 0xfffffffffffffff0; add rcx, rax; add rcx, 0x10; jmp qword ptr [rdx + 0x78]",
+  "cands": {}
+ },
+ {
+  "rva": 32650880,
+  "base": "tfm2_0.5.1",
+  "offs": {
+   "200": 6
+  },
+  "tot": 6,
+  "skel": "push rsi | push rdi | sub rsp, I | mov rdx, qword ptr [rcx + I] | mov rcx, qword ptr [rcx + I] | shl rcx, I | nop word ptr cs:[rax + rax] | mov rsi, rcx | test rcx, rcx | je I | lea rdi, [rdx + I] | mov rax, qword ptr [rdx] | mov rdx, qword ptr [rdx + I] | mov rcx, qword ptr [rdx + I] | dec rcx | and rcx, I | add rcx, rax | add rcx, I | call qword ptr [rdx + I] | lea rcx, [rsi - I] | mov rdx, rdi | test al, al | je I | test rsi, rsi",
+  "human": "push rsi; push rdi; sub rsp, 0x28; mov rdx, qword ptr [rcx + 8]; mov rcx, qword ptr [rcx + 0x10]; shl rcx, 4; nop word ptr cs:[rax + rax]; mov rsi, rcx; test rcx, rcx; je 0x1f236d6; lea rdi, [rdx + 0x10]; mov rax, qword ptr [rdx]; mov rdx, qword ptr [rdx + 8]; mov rcx, qword ptr [rdx + 0x10]; dec rcx; and rcx, 0xfffffffffffffff0; add rcx, rax; add rcx, 0x10; call qword ptr [rdx + 0xc8]; lea rcx, [rsi - 0x10]; mov rdx, rdi; test al, al; je 0x1f236a0; test rsi, rsi",
+  "cands": {
+   "18867200": 7
+  }
+ },
+ {
+  "rva": 32650992,
+  "base": "tfm2_0.5.1",
+  "offs": {
+   "216": 6
+  },
+  "tot": 6,
+  "skel": "push r15 | push r14 | push rsi | push rdi | push rbx | sub rsp, I | mov r15, qword ptr [rcx + I] | test r15, r15 | je I | mov rsi, r8 | mov rdi, rdx | mov rbx, qword ptr [rcx + I] | mov rax, qword ptr [rbx] | mov r9, qword ptr [rbx + I] | mov rcx, qword ptr [r9 + I] | dec rcx | and rcx, I | add rcx, rax | add rcx, I | call qword ptr [r9 + I] | cmp r15, I | je I | dec r15 | movabs r14, I",
+  "human": "push r15; push r14; push rsi; push rdi; push rbx; sub rsp, 0x20; mov r15, qword ptr [rcx + 0x10]; test r15, r15; je 0x1f2378b; mov rsi, r8; mov rdi, rdx; mov rbx, qword ptr [rcx + 8]; mov rax, qword ptr [rbx]; mov r9, qword ptr [rbx + 8]; mov rcx, qword ptr [r9 + 0x10]; dec rcx; and rcx, 0xfffffffffffffff0; add rcx, rax; add rcx, 0x10; call qword ptr [r9 + 0xd8]; cmp r15, 1; je 0x1f2378d; dec r15; movabs r14, 0xfffffffffffffff",
+  "cands": {
+   "22384400": 7
+  }
+ },
+ {
+  "rva": 32651872,
+  "base": "tfm2_0.5.1",
+  "offs": {
+   "40": 16
+  },
+  "tot": 16,
+  "skel": "push r15 | push r14 | push r13 | push r12 | push rsi | push rdi | push rbx | sub rsp, I | mov r12, qword ptr [rcx + I] | test r12, r12 | je I | mov rsi, r9 | mov rdi, r8 | mov rbx, rdx | mov r13, qword ptr [rcx + I] | add r13, I | xor r14d, r14d | xor r15d, r15d | nop | mov rax, qword ptr [r13 - I] | mov r10, qword ptr [r13] | mov rcx, qword ptr [r10 + I] | dec rcx | and rcx, I",
+  "human": "push r15; push r14; push r13; push r12; push rsi; push rdi; push rbx; sub rsp, 0x20; mov r12, qword ptr [rcx + 0x10]; test r12, r12; je 0x1f23ac8; mov rsi, r9; mov rdi, r8; mov rbx, rdx; mov r13, qword ptr [rcx + 8]; add r13, 8; xor r14d, r14d; xor r15d, r15d; nop; mov rax, qword ptr [r13 - 8]; mov r10, qword ptr [r13]; mov rcx, qword ptr [r10 + 0x10]; dec rcx; and rcx, 0xfffffffffffffff0",
+  "cands": {
+   "18939680": 6,
+   "17375536": 14,
+   "18865616": 5,
+   "18887568": 5,
+   "18867584": 20
+  }
+ },
+ {
+  "rva": 32652592,
+  "base": "tfm2_0.5.1",
+  "offs": {
+   "144": 6
+  },
+  "tot": 6,
+  "skel": "push rsi | sub rsp, I | mov rax, r8 | mov rsi, rcx | mov rcx, qword ptr [rsp + I] | mov r10, qword ptr [rdx + I] | mov r8, qword ptr [rdx + I] | shl r8, I | add r8, r10 | mov qword ptr [rsp + I], rcx | mov qword ptr [rsp + I], r9 | mov rcx, rsi | mov rdx, r10 | mov r9, rax | call I | mov rax, rsi | add rsp, I | pop rsi | ret",
+  "human": "push rsi; sub rsp, 0x30; mov rax, r8; mov rsi, rcx; mov rcx, qword ptr [rsp + 0x60]; mov r10, qword ptr [rdx + 8]; mov r8, qword ptr [rdx + 0x10]; shl r8, 4; add r8, r10; mov qword ptr [rsp + 0x28], rcx; mov qword ptr [rsp + 0x20], r9; mov rcx, rsi; mov rdx, r10; mov r9, rax; call 0x1ec2490; mov rax, rsi; add rsp, 0x30; pop rsi; ret",
+  "cands": {
+   "18868048": 22,
+   "18865888": 5
+  }
+ },
+ {
+  "rva": 32652656,
+  "base": "tfm2_0.5.1",
+  "offs": {
+   "88": 10
+  },
+  "tot": 10,
+  "skel": "push rsi | push rdi | sub rsp, I | mov rdx, qword ptr [rcx + I] | mov rcx, qword ptr [rcx + I] | shl rcx, I | nop word ptr cs:[rax + rax] | mov rsi, rcx | test rcx, rcx | je I | lea rdi, [rdx + I] | mov rax, qword ptr [rdx] | mov rdx, qword ptr [rdx + I] | mov rcx, qword ptr [rdx + I] | dec rcx | and rcx, I | add rcx, rax | add rcx, I | call qword ptr [rdx + I] | lea rcx, [rsi - I] | mov rdx, rdi | test al, al | je I | test rsi, rsi",
+  "human": "push rsi; push rdi; sub rsp, 0x28; mov rdx, qword ptr [rcx + 8]; mov rcx, qword ptr [rcx + 0x10]; shl rcx, 4; nop word ptr cs:[rax + rax]; mov rsi, rcx; test rcx, rcx; je 0x1f23dc3; lea rdi, [rdx + 0x10]; mov rax, qword ptr [rdx]; mov rdx, qword ptr [rdx + 8]; mov rcx, qword ptr [rdx + 0x10]; dec rcx; and rcx, 0xfffffffffffffff0; add rcx, rax; add rcx, 0x10; call qword ptr [rdx + 0x58]; lea rcx, [rsi - 0x10]; mov rdx, rdi; test al, al; je 0x1f23d90; test rsi, rsi",
+  "cands": {
+   "18868112": 13
+  }
+ },
+ {
+  "rva": 32652752,
+  "base": "tfm2_0.5.1",
+  "offs": {
+   "80": 10
+  },
+  "tot": 10,
+  "skel": "push rsi | push rdi | sub rsp, I | mov rdx, qword ptr [rcx + I] | mov rcx, qword ptr [rcx + I] | shl rcx, I | nop word ptr cs:[rax + rax] | mov rsi, rcx | test rcx, rcx | je I | lea rdi, [rdx + I] | mov rax, qword ptr [rdx] | mov rdx, qword ptr [rdx + I] | mov rcx, qword ptr [rdx + I] | dec rcx | and rcx, I | add rcx, rax | add rcx, I | call qword ptr [rdx + I] | lea rcx, [rsi - I] | mov rdx, rdi | test al, al | je I | test rsi, rsi",
+  "human": "push rsi; push rdi; sub rsp, 0x28; mov rdx, qword ptr [rcx + 8]; mov rcx, qword ptr [rcx + 0x10]; shl rcx, 4; nop word ptr cs:[rax + rax]; mov rsi, rcx; test rcx, rcx; je 0x1f23e23; lea rdi, [rdx + 0x10]; mov rax, qword ptr [rdx]; mov rdx, qword ptr [rdx + 8]; mov rcx, qword ptr [rdx + 0x10]; dec rcx; and rcx, 0xfffffffffffffff0; add rcx, rax; add rcx, 0x10; call qword ptr [rdx + 0x50]; lea rcx, [rsi - 0x10]; mov rdx, rdi; test al, al; je 0x1f23df0; test rsi, rsi",
+  "cands": {
+   "18868208": 13
+  }
+ },
+ {
+  "rva": 32652976,
+  "base": "tfm2_0.5.1",
+  "offs": {
+   "120": 18
+  },
+  "tot": 18,
+  "skel": "push rsi | push rdi | push rbx | sub rsp, I | mov rdi, qword ptr [rcx + I] | mov rax, qword ptr [rcx + I] | mov rsi, rax | shl rsi, I | add rsi, rdi | test rax, rax | je I | add rdi, I | nop word ptr cs:[rax + rax] | mov rax, qword ptr [rdi - I] | mov rdx, qword ptr [rdi - I] | mov rcx, qword ptr [rdx + I] | dec rcx | and rcx, I | add rcx, rax | add rcx, I | call qword ptr [rdx + I] | test al, I | jne I | lea rax, [rdi - I]",
+  "human": "push rsi; push rdi; push rbx; sub rsp, 0x20; mov rdi, qword ptr [rcx + 8]; mov rax, qword ptr [rcx + 0x10]; mov rsi, rax; shl rsi, 4; add rsi, rdi; test rax, rax; je 0x1f23f17; add rdi, 0x10; nop word ptr cs:[rax + rax]; mov rax, qword ptr [rdi - 0x10]; mov rdx, qword ptr [rdi - 8]; mov rcx, qword ptr [rdx + 0x10]; dec rcx; and rcx, 0xfffffffffffffff0; add rcx, rax; add rcx, 0x10; call qword ptr [rdx + 0x78]; test al, 1; jne 0x1f23f19; lea rax, [rdi - 0x10]",
+  "cands": {
+   "18868432": 22,
+   "18865952": 5
+  }
+ },
+ {
+  "rva": 32653200,
+  "base": "tfm2_0.5.1",
+  "offs": {
+   "72": 8
+  },
+  "tot": 8,
+  "skel": "push rsi | push rdi | push rbx | sub rsp, I | mov rsi, rcx | mov rax, qword ptr [rdx + I] | mov rdi, qword ptr [rdx + I] | shl rdi, I | nop word ptr cs:[rax + rax] | test rdi, rdi | je I | lea rbx, [rax + I] | mov rcx, qword ptr [rax] | mov rax, qword ptr [rax + I] | mov rdx, qword ptr [rax + I] | dec rdx | and rdx, I | add rdx, rcx | add rdx, I | mov rcx, rsi | call qword ptr [rax + I] | add rdi, -I | cmp byte ptr [rsi], I | mov rax, rbx",
+  "human": "push rsi; push rdi; push rbx; sub rsp, 0x20; mov rsi, rcx; mov rax, qword ptr [rdx + 8]; mov rdi, qword ptr [rdx + 0x10]; shl rdi, 4; nop word ptr cs:[rax + rax]; test rdi, rdi; je 0x1f23fe6; lea rbx, [rax + 0x10]; mov rcx, qword ptr [rax]; mov rax, qword ptr [rax + 8]; mov rdx, qword ptr [rax + 0x10]; dec rdx; and rdx, 0xfffffffffffffff0; add rdx, rcx; add rdx, 0x10; mov rcx, rsi; call qword ptr [rax + 0x48]; add rdi, -0x10; cmp byte ptr [rsi], 0; mov rax, rbx",
+  "cands": {
+   "18868656": 9
+  }
+ },
+ {
+  "rva": 32996912,
+  "base": "tfm2_0.5.1",
+  "offs": {
+   "272": 8
+  },
+  "tot": 8,
+  "skel": "push r15 | push r14 | push rsi | push rdi | push rbx | sub rsp, I | mov r14, qword ptr [rcx + I] | mov rdi, qword ptr [rcx + I] | mov rsi, rdi | shl rsi, I | mov rcx, r14 | nop dword ptr [rax] | test rsi, rsi | je I | lea rbx, [rcx + I] | mov rax, qword ptr [rcx] | mov rdx, qword ptr [rcx + I] | mov rcx, qword ptr [rdx + I] | dec rcx | and rcx, I | add rcx, rax | add rcx, I | call qword ptr [rdx + I] | add rsi, -I",
+  "human": "push r15; push r14; push rsi; push rdi; push rbx; sub rsp, 0x40; mov r14, qword ptr [rcx + 8]; mov rdi, qword ptr [rcx + 0x10]; mov rsi, rdi; shl rsi, 4; mov rcx, r14; nop dword ptr [rax]; test rsi, rsi; je 0x1f77e82; lea rbx, [rcx + 0x10]; mov rax, qword ptr [rcx]; mov rdx, qword ptr [rcx + 8]; mov rcx, qword ptr [rdx + 0x10]; dec rcx; and rcx, 0xfffffffffffffff0; add rcx, rax; add rcx, 0x10; call qword ptr [rdx + 0x50]; add rsi, -0x10",
+  "cands": {
+   "19038560": 9
+  }
+ },
+ {
+  "rva": 33205376,
+  "base": "tfm2_0.5.1",
+  "offs": {
+   "88": 2,
+   "272": 5
+  },
+  "tot": 7,
+  "skel": "cmp qword ptr [rcx + I], I | setne al | ret",
+  "human": "cmp qword ptr [rcx + 0x18], 0; setne al; ret",
+  "cands": {
+   "16661712": 10
+  }
+ },
+ {
+  "rva": 33209024,
+  "base": "tfm2_0.5.1",
+  "offs": {
+   "72": 1
+  },
+  "tot": 1,
+  "skel": "mov rax, rcx | mov rcx, qword ptr [rdx + I] | mov rdx, qword ptr [rdx + I] | imul rdx, rcx | mov qword ptr [rax + I], rcx | mov qword ptr [rax + I], rdx | mov qword ptr [rax], I | ret",
+  "human": "mov rax, rcx; mov rcx, qword ptr [rdx + 0x20]; mov rdx, qword ptr [rdx + 0x18]; imul rdx, rcx; mov qword ptr [rax + 8], rcx; mov qword ptr [rax + 0x10], rdx; mov qword ptr [rax], 1; ret",
+  "cands": {
+   "16661888": 2
+  }
+ },
+ {
+  "rva": 33495408,
+  "base": "tfm2_0.5.1",
+  "offs": {
+   "80": 1
+  },
+  "tot": 1,
+  "skel": "mov rax, rcx | mov rcx, qword ptr [rdx] | mov qword ptr [rax + I], I | mov qword ptr [rax + I], rcx | mov qword ptr [rax], I | ret",
+  "human": "mov rax, rcx; mov rcx, qword ptr [rdx]; mov qword ptr [rax + 8], 0; mov qword ptr [rax + 0x10], rcx; mov qword ptr [rax], 1; ret",
+  "cands": {
+   "19388832": 1
+  }
+ },
+ {
+  "rva": 34166992,
+  "base": "tfm2_0.5.1",
+  "offs": {
+   "216": 1
+  },
+  "tot": 1,
+  "skel": "cmp qword ptr [rdx + I], I | jb I | mov r9, qword ptr [r8 + I] | imul rdx, qword ptr [r8 + I], I | xor eax, eax | nop dword ptr [rax + rax] | test rdx, rdx | je I | add rdx, -I | cmp byte ptr [r9 + I], I | lea r9, [r9 + I] | jne I | mov rax, qword ptr [rcx + I] | ret",
+  "human": "cmp qword ptr [rdx + 0x5b0], 3; jb 0x2095909; mov r9, qword ptr [r8 + 0x280]; imul rdx, qword ptr [r8 + 0x288], 0x38; xor eax, eax; nop dword ptr [rax + rax]; test rdx, rdx; je 0x2095908; add rdx, -0x38; cmp byte ptr [r9 + 0x34], 1; lea r9, [r9 + 0x38]; jne 0x20958f0; mov rax, qword ptr [rcx + 0x40]; ret",
+  "cands": {}
+ },
+ {
+  "rva": 36246896,
+  "base": "tfm2_0.5.1",
+  "offs": {
+   "120": 7
+  },
+  "tot": 7,
+  "skel": "push r15 | push r14 | push r12 | push rsi | push rdi | push rbx | sub rsp, I | mov r14, qword ptr [rcx + I] | mov rax, qword ptr [rcx + I] | mov rbx, qword ptr [rcx + I] | mov r15, qword ptr [rcx + I] | lea rcx, [r15 + r15*I] | lea rsi, [rbx + rcx*I] | shl rax, I | lea rdi, [rax + rax*I] | add r14, I | nop word ptr cs:[rax + rax] | test rdi, rdi | je I | mov rax, qword ptr [r14 - I] | mov rdx, qword ptr [r14] | mov rcx, qword ptr [rdx + I] | dec rcx | and rcx, I",
+  "human": "push r15; push r14; push r12; push rsi; push rdi; push rbx; sub rsp, 0x28; mov r14, qword ptr [rcx + 0x50]; mov rax, qword ptr [rcx + 0x58]; mov rbx, qword ptr [rcx + 0x68]; mov r15, qword ptr [rcx + 0x70]; lea rcx, [r15 + r15*2]; lea rsi, [rbx + rcx*8]; shl rax, 3; lea rdi, [rax + rax*2]; add r14, 8; nop word ptr cs:[rax + rax]; test rdi, rdi; je 0x2291654; mov rax, qword ptr [r14 - 8]; mov rdx, qword ptr [r14]; mov rcx, qword ptr [rdx + 0x10]; dec rcx; and rcx, 0xfffffffffffffff0",
+  "cands": {
+   "19700304": 6
+  }
+ },
+ {
+  "rva": 37374448,
+  "base": "tfm2_0.5.1",
+  "offs": {
+   "144": 12
+  },
+  "tot": 12,
+  "skel": "push rsi | sub rsp, I | mov rax, r8 | mov rsi, rcx | mov rcx, qword ptr [rsp + I] | mov r10, qword ptr [rdx + I] | mov r8, qword ptr [rdx + I] | shl r8, I | add r8, r10 | mov qword ptr [rsp + I], rcx | mov qword ptr [rsp + I], r9 | mov rcx, rsi | mov rdx, r10 | mov r9, rax | call I | mov rax, rsi | add rsp, I | pop rsi | ret",
+  "human": "push rsi; sub rsp, 0x30; mov rax, r8; mov rsi, rcx; mov rcx, qword ptr [rsp + 0x60]; mov r10, qword ptr [rdx + 8]; mov r8, qword ptr [rdx + 0x10]; shl r8, 4; add r8, r10; mov qword ptr [rsp + 0x28], rcx; mov qword ptr [rsp + 0x20], r9; mov rcx, rsi; mov rdx, r10; mov r9, rax; call 0x1ec2490; mov rax, rsi; add rsp, 0x30; pop rsi; ret",
+  "cands": {
+   "18868048": 22,
+   "18865888": 5
+  }
+ },
+ {
+  "rva": 37375376,
+  "base": "tfm2_0.5.1",
+  "offs": {
+   "40": 1
+  },
+  "tot": 1,
+  "skel": "push r14 | push rsi | push rdi | push rbx | sub rsp, I | mov rsi, r9 | mov rdi, r8 | mov rbx, rdx | mov r14, rcx | mov rdx, qword ptr [rcx + I] | mov r8, qword ptr [rcx + I] | mov rcx, rdi | call qword ptr [r9 + I] | xor ecx, ecx | test rax, rax | setne cl | shl ecx, I | mov rax, qword ptr [r14 + rcx + I] | mov rcx, qword ptr [r14 + rcx + I] | mov rdx, qword ptr [rcx + I] | mov r10, qword ptr [rcx + I] | dec rdx | and rdx, I | lea rcx, [rax + rdx]",
+  "human": "push r14; push rsi; push rdi; push rbx; sub rsp, 0x28; mov rsi, r9; mov rdi, r8; mov rbx, rdx; mov r14, rcx; mov rdx, qword ptr [rcx + 8]; mov r8, qword ptr [rcx + 0x10]; mov rcx, rdi; call qword ptr [r9 + 0x48]; xor ecx, ecx; test rax, rax; setne cl; shl ecx, 4; mov rax, qword ptr [r14 + rcx + 0x18]; mov rcx, qword ptr [r14 + rcx + 0x20]; mov rdx, qword ptr [rcx + 0x10]; mov r10, qword ptr [rcx + 0x28]; dec rdx; and rdx, 0xfffffffffffffff0; lea rcx, [rax + rdx]",
+  "cands": {}
+ },
+ {
+  "rva": 37375840,
+  "base": "tfm2_0.5.1",
+  "offs": {
+   "88": 1
+  },
+  "tot": 1,
+  "skel": "mov rax, qword ptr [rcx + I] | mov rdx, qword ptr [rcx + I] | mov rcx, qword ptr [rdx + I] | dec rcx | and rcx, I | add rcx, rax | add rcx, I | jmp qword ptr [rdx + I]",
+  "human": "mov rax, qword ptr [rcx + 0x18]; mov rdx, qword ptr [rcx + 0x20]; mov rcx, qword ptr [rdx + 0x10]; dec rcx; and rcx, 0xfffffffffffffff0; add rcx, rax; add rcx, 0x10; jmp qword ptr [rdx + 0x58]",
+  "cands": {}
+ },
+ {
+  "rva": 37375872,
+  "base": "tfm2_0.5.1",
+  "offs": {
+   "80": 1
+  },
+  "tot": 1,
+  "skel": "mov rax, qword ptr [rcx + I] | mov rdx, qword ptr [rcx + I] | mov rcx, qword ptr [rdx + I] | dec rcx | and rcx, I | add rcx, rax | add rcx, I | jmp qword ptr [rdx + I]",
+  "human": "mov rax, qword ptr [rcx + 0x18]; mov rdx, qword ptr [rcx + 0x20]; mov rcx, qword ptr [rdx + 0x10]; dec rcx; and rcx, 0xfffffffffffffff0; add rcx, rax; add rcx, 0x10; jmp qword ptr [rdx + 0x50]",
+  "cands": {}
+ },
+ {
+  "rva": 37376128,
+  "base": "tfm2_0.5.1",
+  "offs": {
+   "72": 1
+  },
+  "tot": 1,
+  "skel": "mov rax, qword ptr [rdx + I] | mov rdx, qword ptr [rdx + I] | mov r8, qword ptr [rdx + I] | mov r9, qword ptr [rdx + I] | dec r8 | and r8, I | lea rdx, [rax + r8] | add rdx, I | jmp r9",
+  "human": "mov rax, qword ptr [rdx + 0x18]; mov rdx, qword ptr [rdx + 0x20]; mov r8, qword ptr [rdx + 0x10]; mov r9, qword ptr [rdx + 0x48]; dec r8; and r8, 0xfffffffffffffff0; lea rdx, [rax + r8]; add rdx, 0x10; jmp r9",
+  "cands": {}
+ },
+ {
+  "rva": 37443440,
+  "base": "tfm2_0.5.1",
+  "offs": {
+   "88": 2
+  },
+  "tot": 2,
+  "skel": "mov rax, qword ptr [rcx] | mov rdx, qword ptr [rcx + I] | mov rcx, qword ptr [rdx + I] | dec rcx | and rcx, I | add rcx, rax | add rcx, I | jmp qword ptr [rdx + I]",
+  "human": "mov rax, qword ptr [rcx]; mov rdx, qword ptr [rcx + 8]; mov rcx, qword ptr [rdx + 0x10]; dec rcx; and rcx, 0xfffffffffffffff0; add rcx, rax; add rcx, 0x10; jmp qword ptr [rdx + 0x58]",
+  "cands": {
+   "18939056": 1
+  }
+ },
+ {
+  "rva": 37443472,
+  "base": "tfm2_0.5.1",
+  "offs": {
+   "80": 2
+  },
+  "tot": 2,
+  "skel": "mov rax, qword ptr [rcx] | mov rdx, qword ptr [rcx + I] | mov rcx, qword ptr [rdx + I] | dec rcx | and rcx, I | add rcx, rax | add rcx, I | jmp qword ptr [rdx + I]",
+  "human": "mov rax, qword ptr [rcx]; mov rdx, qword ptr [rcx + 8]; mov rcx, qword ptr [rdx + 0x10]; dec rcx; and rcx, 0xfffffffffffffff0; add rcx, rax; add rcx, 0x10; jmp qword ptr [rdx + 0x50]",
+  "cands": {
+   "18939088": 1
+  }
+ },
+ {
+  "rva": 37443728,
+  "base": "tfm2_0.5.1",
+  "offs": {
+   "72": 2
+  },
+  "tot": 2,
+  "skel": "mov rax, qword ptr [rdx] | mov rdx, qword ptr [rdx + I] | mov r8, qword ptr [rdx + I] | mov r9, qword ptr [rdx + I] | dec r8 | and r8, I | lea rdx, [rax + r8] | add rdx, I | jmp r9",
+  "human": "mov rax, qword ptr [rdx]; mov rdx, qword ptr [rdx + 8]; mov r8, qword ptr [rdx + 0x10]; mov r9, qword ptr [rdx + 0x48]; dec r8; and r8, 0xfffffffffffffff0; lea rdx, [rax + r8]; add rdx, 0x10; jmp r9",
+  "cands": {
+   "18939344": 1
+  }
+ },
+ {
+  "rva": 37475184,
+  "base": "tfm2_0.5.1",
+  "offs": {
+   "272": 1
+  },
+  "tot": 1,
+  "skel": "push rsi | push rdi | push rbx | sub rsp, I | mov rax, qword ptr [rcx + I] | mov rdi, qword ptr [rcx + I] | mov rcx, qword ptr [rdi + I] | dec rcx | and rcx, I | lea rsi, [rax + rcx] | add rsi, I | mov rcx, rsi | call qword ptr [rdi + I] | mov bl, I | test al, al | jne I | mov rcx, rsi | call qword ptr [rdi + I] | test al, al | jne I | lea rcx, [rsp + I] | mov rdx, rsi | call qword ptr [rdi + I] | movzx ebx, byte ptr [rsp + I]",
+  "human": "push rsi; push rdi; push rbx; sub rsp, 0x40; mov rax, qword ptr [rcx + 0x18]; mov rdi, qword ptr [rcx + 0x20]; mov rcx, qword ptr [rdi + 0x10]; dec rcx; and rcx, 0xfffffffffffffff0; lea rsi, [rax + rcx]; add rsi, 0x10; mov rcx, rsi; call qword ptr [rdi + 0x50]; mov bl, 1; test al, al; jne 0x23bd3b8; mov rcx, rsi; call qword ptr [rdi + 0x58]; test al, al; jne 0x23bd3b8; lea rcx, [rsp + 0x28]; mov rdx, rsi; call qword ptr [rdi + 0x48]; movzx ebx, byte ptr [rsp + 0x28]",
+  "cands": {}
+ },
+ {
+  "rva": 37475280,
+  "base": "tfm2_0.5.1",
+  "offs": {
+   "272": 2
+  },
+  "tot": 2,
+  "skel": "push rsi | push rdi | push rbx | sub rsp, I | mov rax, qword ptr [rcx] | mov rdi, qword ptr [rcx + I] | mov rcx, qword ptr [rdi + I] | dec rcx | and rcx, I | lea rsi, [rax + rcx] | add rsi, I | mov rcx, rsi | call qword ptr [rdi + I] | mov bl, I | test al, al | jne I | mov rcx, rsi | call qword ptr [rdi + I] | test al, al | jne I | lea rcx, [rsp + I] | mov rdx, rsi | call qword ptr [rdi + I] | movzx ebx, byte ptr [rsp + I]",
+  "human": "push rsi; push rdi; push rbx; sub rsp, 0x40; mov rax, qword ptr [rcx]; mov rdi, qword ptr [rcx + 8]; mov rcx, qword ptr [rdi + 0x10]; dec rcx; and rcx, 0xfffffffffffffff0; lea rsi, [rax + rcx]; add rsi, 0x10; mov rcx, rsi; call qword ptr [rdi + 0x50]; mov bl, 1; test al, al; jne 0x23bd417; mov rcx, rsi; call qword ptr [rdi + 0x58]; test al, al; jne 0x23bd417; lea rcx, [rsp + 0x28]; mov rdx, rsi; call qword ptr [rdi + 0x48]; movzx ebx, byte ptr [rsp + 0x28]",
+  "cands": {
+   "19038896": 1
+  }
+ },
+ {
+  "rva": 37475376,
+  "base": "tfm2_0.5.1",
+  "offs": {
+   "272": 2
+  },
+  "tot": 2,
+  "skel": "push r14 | push rsi | push rdi | push rbx | sub rsp, I | mov rdi, qword ptr [rcx + I] | mov rsi, qword ptr [rcx + I] | mov rbx, rsi | shl rbx, I | mov rcx, rdi | nop dword ptr [rax + rax] | test rbx, rbx | je I | lea r14, [rcx + I] | mov rax, qword ptr [rcx] | mov rdx, qword ptr [rcx + I] | mov rcx, qword ptr [rdx + I] | dec rcx | and rcx, I | add rcx, rax | add rcx, I | call qword ptr [rdx + I] | add rbx, -I | mov rcx, r14",
+  "human": "push r14; push rsi; push rdi; push rbx; sub rsp, 0x28; mov rdi, qword ptr [rcx + 8]; mov rsi, qword ptr [rcx + 0x10]; mov rbx, rsi; shl rbx, 4; mov rcx, rdi; nop dword ptr [rax + rax]; test rbx, rbx; je 0x23bd484; lea r14, [rcx + 0x10]; mov rax, qword ptr [rcx]; mov rdx, qword ptr [rcx + 8]; mov rcx, qword ptr [rdx + 0x10]; dec rcx; and rcx, 0xfffffffffffffff0; add rcx, rax; add rcx, 0x10; call qword ptr [rdx + 0x50]; add rbx, -0x10; mov rcx, r14",
+  "cands": {
+   "19038992": 4
+  }
+ }
+]

@@ -1,0 +1,1171 @@
+{
+  "_doc": "effect 노드 vtable RVA -> DataEffectDef 타입 스키마. 열쇠=각 vtable의 Debug::fmt 슬롯(derive(Debug)가 타입명+필드명+오프셋 방출). 디코더는 이름 아닌 vtable RVA로 키잉(병렬 2중 구현: vanilla-impl vs data-impl 동일 타입명이 다른 vtable). 2026-07-08 ghidra-re 규명. fields=Debug 방출 순서(=오프셋 순서). 수치는 champion_info_sheet에서 채우고, 이 스키마는 트리 구조/타입/타겟 결정용.",
+  "_finishers": {
+    "1": "0x234a340",
+    "2": "0x234a3f0",
+    "4": "0x234a5f0",
+    "N": "0x234a8a0",
+    "3": "0x234a4e0",
+    "5": "0x234a730"
+  },
+  "_shapes": "Shape1(leaf 전투 effect)=Debug@+0xd0,clone@+0x48,size@+0x08 / Shape2(VM 디스패치)=Debug@+0x18,apply@+0xd0->VM 0x203a3b0",
+  "_type_str_to_disc_parser": "0x566020",
+  "vtables": {
+    "0x35a85c0": {
+      "type": "BackToCasterLinearProjectileEffect",
+      "disc": 28,
+      "size": "0x48",
+      "fmt": "0x1cddd30",
+      "fmt_slot": "0xd0",
+      "fields": [
+        "penetrate",
+        "shape",
+        "speed",
+        "name",
+        "range",
+        "applyed_target",
+        "applyed_effect",
+        "end_effect"
+      ]
+    },
+    "0x3582708": {
+      "type": "ApAttackEffect",
+      "disc": 1,
+      "size": "0x48",
+      "fmt": "0x1c46220",
+      "fmt_slot": "0xd0",
+      "fields": [
+        "damage",
+        "attack_ratio",
+        "hp_ratio",
+        "cc_damage",
+        "cc_damage_attack_ratio",
+        "ty",
+        "is_dot"
+      ],
+      "val_start": "0x10"
+    },
+    "0x35827c0": {
+      "type": "FixedAttackEffect",
+      "disc": 2,
+      "size": "0x40",
+      "fmt": "0x1c522c0",
+      "fmt_slot": "0xd0",
+      "fields": [
+        "damage",
+        "attack_ratio",
+        "hp_ratio",
+        "target_hp_ratio",
+        "cc_damage",
+        "cc_damage_attack_ratio",
+        "ty",
+        "shared"
+      ],
+      "val_start": "0x10",
+      "note": "shared@+0x00"
+    },
+    "0x360aa00": {
+      "type": "AddBuffEffect",
+      "disc": 40,
+      "size": "0x48",
+      "fmt": "0x21081d0",
+      "fmt_slot": "0xd0",
+      "fields": [
+        "buff_state"
+      ]
+    },
+    "0x35846a8": {
+      "type": "DelayedEffect",
+      "disc": 45,
+      "size": "0x18",
+      "fmt": "0x1c4d020",
+      "fmt_slot": "0xd0",
+      "fields": [
+        "effect",
+        "tick"
+      ],
+      "note": "effect Box@+0x00, tick i32@+0x18"
+    },
+    "0x3584030": {
+      "type": "ApplyInProjectileEffect",
+      "disc": 36,
+      "size": "0x98",
+      "fmt": "0x1c4c5a0",
+      "fmt_slot": "0xd0",
+      "fields": [
+        "shape",
+        "name",
+        "follow_caster",
+        "tick",
+        "applyed_target",
+        "applyed_effect"
+      ]
+    },
+    "0x3576a48": {
+      "type": "AddCastedEffect",
+      "disc": 43,
+      "size": "0x48",
+      "fmt": "0x1bb5f40",
+      "fmt_slot": "0xd0",
+      "impl": "data",
+      "fields": [
+        "effects",
+        "duration",
+        "start_timing",
+        "cancelable",
+        "attack_type",
+        "period",
+        "bleed",
+        "bleed_ratio",
+        "bleed_duration",
+        "bleed_tick",
+        "casted_type"
+      ],
+      "note": "effects@+0/duration,start_timing,cancelable,attack_type@+0x18/period,bleed*@+0x20/casted_type@+0x28"
+    },
+    "0x35447b8": {
+      "type": "AddCastedEffect",
+      "disc": 43,
+      "size": "0x48",
+      "fmt": "0x19abf70",
+      "fmt_slot": "0xd0",
+      "impl": "vanilla"
+    },
+    "0x35a9a58": {
+      "type": "CasterSfxEffect",
+      "disc": 51,
+      "size": "0x30",
+      "fmt": "0x1cda950",
+      "fmt_slot": "0xd0",
+      "fields": [
+        "name"
+      ],
+      "note": "KB ViewEffect 오류정정"
+    },
+    "0x35465a0": {
+      "type": "CasterAnimationEffect",
+      "disc": 52,
+      "size": "0x28",
+      "fmt": "0x1953d00",
+      "fmt_slot": "0xd0",
+      "fields": [
+        "name",
+        "tick"
+      ],
+      "note": "tick@+0x18"
+    },
+    "0x3577490": {
+      "type": "TeleportEffect",
+      "disc": 21,
+      "size": "0x18",
+      "fmt": "0x1b97a40",
+      "fmt_slot": "0xd0",
+      "fields": []
+    },
+    "0x3544600": {
+      "type": "CombineEffect",
+      "disc": 44,
+      "size": "0x18",
+      "fmt": "0x19ac7e0",
+      "fmt_slot": "0x18",
+      "impl": "vanilla",
+      "fields": [
+        "effects"
+      ]
+    },
+    "0x360ca58": {
+      "type": "CombineEffect",
+      "disc": 44,
+      "size": "0x18",
+      "fmt": "0x2114310",
+      "fmt_slot": "0x18",
+      "fields": [
+        "effects"
+      ]
+    },
+    "0x3544fc8": {
+      "type": "LinearProjectileEffect",
+      "disc": 27,
+      "size": "0x98",
+      "fmt": "0x1953e60",
+      "fmt_slot": "0x18",
+      "impl": "vanilla"
+    },
+    "0x35a8e00": {
+      "type": "LinearProjectileEffect",
+      "disc": 27,
+      "size": "0x98",
+      "fmt": "0x1cda810",
+      "fmt_slot": "0x18",
+      "impl": "data"
+    },
+    "0x35a8498": {
+      "type": "RangePeriodProjectileEffect",
+      "disc": 35,
+      "size": "0x98",
+      "fmt": "0x1cee4f0",
+      "fmt_slot": "0x18",
+      "impl": "data"
+    },
+    "0x35aa2f8": {
+      "type": "CharmEffect",
+      "disc": 11,
+      "size": "0x8",
+      "fmt": "0x1cddfc0",
+      "fmt_slot": "0x18",
+      "fields": [
+        "tick"
+      ]
+    },
+    "0x3573f68": {
+      "type": "InquisitorSkill2Effect",
+      "size": "0x50",
+      "fmt": "0x1bc6cd0",
+      "fmt_slot": "0x18",
+      "note": "챔프 하드코딩 액션, apply 0x2128550->VM"
+    },
+    "0x3589f20": {
+      "type": "PyromancerUltEffect",
+      "size": "0x50",
+      "fmt_slot": "0x18",
+      "note": "챔프 하드코딩, apply 0x2128550->VM"
+    },
+    "0x35a65c8": {
+      "type": "ChampActionWrapper",
+      "size": "0x78",
+      "note": "apply 0x21286c0->VM, 자식 트리 재귀 디코드"
+    },
+    "0x35914f8": {
+      "type": "DataChampEffect",
+      "size": "0x170",
+      "note": "합성 wrapper, apply 0x1c90c20->VM, 자식 트리 재귀"
+    },
+    "0x588230": {
+      "type": "?",
+      "note": "실제로는 effect vtable 아님 = no-op 함수 `xor eax,eax; ret`(0x588230). effect_dump가 fn-ptr를 vtable로 오기록. 과거 no-op 판정이 실제로 정확"
+    },
+    "0x35893b0": {
+      "type": "PyromancerUltAction",
+      "fmt": "0x1c74b80",
+      "fmt_slot": "0x38",
+      "note": "챔프 하드코딩 ult action wrapper. Debug@+0x38, apply dispatch @+0xd0/+0xf8. 타입명만(자식트리 재귀디코드 대상)"
+    },
+    "0x3538c00": {
+      "type": "HitmanUltAction",
+      "fmt": "0x1923d70",
+      "fmt_slot": "0x38",
+      "note": "챔프 하드코딩 ult action wrapper. Debug@+0x38, apply dispatch @+0xd0/+0xf8. 타입명만(자식트리 재귀디코드 대상)"
+    },
+    "0x3543d58": {
+      "type": "ArcherUltAction",
+      "fmt": "0x19bd240",
+      "fmt_slot": "0x38",
+      "note": "챔프 하드코딩 ult action wrapper. Debug@+0x38, apply dispatch @+0xd0/+0xf8. 타입명만(자식트리 재귀디코드 대상)"
+    },
+    "0x35441c0": {
+      "type": "DarkMageUltAction",
+      "fmt": "0x19c70a0",
+      "fmt_slot": "0x38",
+      "note": "챔프 하드코딩 ult action wrapper. Debug@+0x38, apply dispatch @+0xd0/+0xf8. 타입명만(자식트리 재귀디코드 대상)"
+    },
+    "0x3575090": {
+      "type": "LancerUltAction",
+      "fmt": "0x1bc67e0",
+      "fmt_slot": "0x38",
+      "note": "챔프 하드코딩 ult action wrapper. Debug@+0x38, apply dispatch @+0xd0/+0xf8. 타입명만(자식트리 재귀디코드 대상)"
+    },
+    "0x358e040": {
+      "type": "SwordmanUltAction",
+      "fmt": "0x1c79660",
+      "fmt_slot": "0x38",
+      "note": "챔프 하드코딩 ult action wrapper. Debug@+0x38, apply dispatch @+0xd0/+0xf8. 타입명만(자식트리 재귀디코드 대상)"
+    },
+    "0x360bad8": {
+      "type": "GunnerUltAction",
+      "fmt": "0x2126930",
+      "fmt_slot": "0x38",
+      "note": "챔프 하드코딩 ult action wrapper. Debug@+0x38, apply dispatch @+0xd0/+0xf8. 타입명만(자식트리 재귀디코드 대상)"
+    },
+    "0x3541d78": {
+      "type": "ExecutionerUltAction",
+      "fmt": "0x19bd060",
+      "fmt_slot": "0x38",
+      "note": "챔프 하드코딩 ult action wrapper. Debug@+0x38, apply dispatch @+0xd0/+0xf8. 타입명만(자식트리 재귀디코드 대상)"
+    },
+    "0x358b7a0": {
+      "type": "BarrierMagicianUltAction",
+      "fmt": "0x1c7bbf0",
+      "fmt_slot": "0x38",
+      "note": "챔프 하드코딩 ult action wrapper. Debug@+0x38, apply dispatch @+0xd0/+0xf8. 타입명만(자식트리 재귀디코드 대상)"
+    },
+    "0x3542900": {
+      "type": "ShadowmancerUltAction",
+      "fmt": "0x19c1990",
+      "fmt_slot": "0x38",
+      "note": "챔프 하드코딩 ult action wrapper. Debug@+0x38, apply dispatch @+0xd0/+0xf8. 타입명만(자식트리 재귀디코드 대상)"
+    },
+    "0x358d658": {
+      "type": "VampireUltAction",
+      "fmt": "0x1c87e10",
+      "fmt_slot": "0x38",
+      "note": "챔프 하드코딩 ult action wrapper. Debug@+0x38, apply dispatch @+0xd0/+0xf8. 타입명만(자식트리 재귀디코드 대상)"
+    },
+    "0x35a6e08": {
+      "type": "BomberUltAction",
+      "fmt": "0x1cfd400",
+      "fmt_slot": "0x38",
+      "note": "챔프 하드코딩 ult action wrapper. Debug@+0x38, apply dispatch @+0xd0/+0xf8. 타입명만(자식트리 재귀디코드 대상)"
+    },
+    "0x35a6348": {
+      "type": "WhiteMageUltAction",
+      "fmt": "0x1cfb810",
+      "fmt_slot": "0x38",
+      "note": "챔프 하드코딩 ult action wrapper. Debug@+0x38, apply dispatch @+0xd0/+0xf8. 타입명만(자식트리 재귀디코드 대상)"
+    },
+    "0x358caa8": {
+      "type": "HunterUltAction",
+      "fmt": "0x1c8c450",
+      "fmt_slot": "0x38",
+      "note": "챔프 하드코딩 ult action wrapper. Debug@+0x38, apply dispatch @+0xd0/+0xf8. 타입명만(자식트리 재귀디코드 대상)"
+    },
+    "0x3542358": {
+      "type": "IllusionistUltAction",
+      "fmt": "0x19c8810",
+      "fmt_slot": "0x38",
+      "note": "챔프 하드코딩 ult action wrapper. Debug@+0x38, apply dispatch @+0xd0/+0xf8. 타입명만(자식트리 재귀디코드 대상)"
+    },
+    "0x35754f8": {
+      "type": "AndroidUltAction",
+      "fmt": "0x1bc83b0",
+      "fmt_slot": "0x38",
+      "note": "챔프 하드코딩 ult action wrapper. Debug@+0x38, apply dispatch @+0xd0/+0xf8. 타입명만(자식트리 재귀디코드 대상)"
+    },
+    "0x358a2f0": {
+      "type": "MagicKnightUltAction",
+      "fmt": "0x1c78360",
+      "fmt_slot": "0x38",
+      "note": "챔프 하드코딩 ult action wrapper. Debug@+0x38, apply dispatch @+0xd0/+0xf8. 타입명만(자식트리 재귀디코드 대상)"
+    },
+    "0x360b310": {
+      "type": "JiangshiUltAction",
+      "fmt": "0x21239f0",
+      "fmt_slot": "0x38",
+      "note": "챔프 하드코딩 ult action wrapper. Debug@+0x38, apply dispatch @+0xd0/+0xf8. 타입명만(자식트리 재귀디코드 대상)"
+    },
+    "0x3589ca0": {
+      "type": "WhipMasterUltAction",
+      "fmt": "0x1c4fa30",
+      "fmt_slot": "0x38",
+      "note": "챔프 하드코딩 ult action wrapper. Debug@+0x38, apply dispatch @+0xd0/+0xf8. 타입명만(자식트리 재귀디코드 대상)"
+    },
+    "0x3575960": {
+      "type": "FighterUltAction",
+      "fmt": "0x1bc6910",
+      "fmt_slot": "0x38",
+      "note": "챔프 하드코딩 ult action wrapper. Debug@+0x38, apply dispatch @+0xd0/+0xf8. 타입명만(자식트리 재귀디코드 대상)"
+    },
+    "0x35a7980": {
+      "type": "GamblerUltAction",
+      "fmt": "0x1cfd6d0",
+      "fmt_slot": "0x38",
+      "note": "챔프 하드코딩 ult action wrapper. Debug@+0x38, apply dispatch @+0xd0/+0xf8. 타입명만(자식트리 재귀디코드 대상)"
+    },
+    "0x3575dc8": {
+      "type": "HammererUltAction",
+      "fmt": "0x1bc8ba0",
+      "fmt_slot": "0x38",
+      "note": "챔프 하드코딩 ult action wrapper. Debug@+0x38, apply dispatch @+0xd0/+0xf8. 타입명만(자식트리 재귀디코드 대상)"
+    },
+    "0x35f94b0": {
+      "type": "OgreUltAction",
+      "fmt": "0x2006300",
+      "fmt_slot": "0x38",
+      "note": "챔프 하드코딩 ult action wrapper. Debug@+0x38, apply dispatch @+0xd0/+0xf8. 타입명만(자식트리 재귀디코드 대상)"
+    },
+    "0x3539928": {
+      "type": "TargetProjectileEffect",
+      "fmt": "0x18e4150",
+      "fmt_slot": "0xd0",
+      "size": "0x48",
+      "fields": [
+        "y_offset",
+        "speed",
+        "name",
+        "applyed_target",
+        "applyed_effect"
+      ],
+      "note": "호밍/타겟 투사체. Debug순=선언순. off: name@+0x00, applyed_effect@+0x18(Box), y_offset@+0x30, speed@+0x38, applyed_target@+0x40. fields_finish=FUN_14234a730"
+    },
+    "0x35d5158": {
+      "type": "MonkUltAction",
+      "fmt": "0x1ea4ab0",
+      "fmt_slot": "0x38",
+      "note": "챔프 하드코딩 ult action wrapper. Debug@+0x38, apply dispatch @+0xd0/+0xf8. 타입명만(자식트리 재귀디코드 대상)"
+    },
+    "0x35c6f68": {
+      "type": "KnightUltAction",
+      "fmt": "0x1dfb4a0",
+      "fmt_slot": "0x38",
+      "note": "챔프 하드코딩 ult action wrapper. Debug@+0x38, apply dispatch @+0xd0/+0xf8. 타입명만(자식트리 재귀디코드 대상)"
+    },
+    "0x3576230": {
+      "type": "PrisonerUltAction",
+      "fmt": "0x1bcd420",
+      "fmt_slot": "0x38",
+      "note": "챔프 하드코딩 ult action wrapper. Debug@+0x38, apply dispatch @+0xd0/+0xf8. 타입명만(자식트리 재귀디코드 대상)"
+    },
+    "0x35a88f0": {
+      "type": "BardUltAction",
+      "fmt": "0x1d07890",
+      "fmt_slot": "0x38",
+      "note": "챔프 하드코딩 ult action wrapper. Debug@+0x38, apply dispatch @+0xd0/+0xf8. 타입명만(자식트리 재귀디코드 대상)"
+    },
+    "0x35746f8": {
+      "type": "CircusBladeUltAction",
+      "fmt": "0x1bccc50",
+      "fmt_slot": "0x38",
+      "note": "챔프 하드코딩 ult action wrapper. Debug@+0x38, apply dispatch @+0xd0/+0xf8. 타입명만(자식트리 재귀디코드 대상)"
+    },
+    "0x35d55c0": {
+      "type": "PriestUltAction",
+      "fmt": "0x1ea7770",
+      "fmt_slot": "0x38",
+      "note": "챔프 하드코딩 ult action wrapper. Debug@+0x38, apply dispatch @+0xd0/+0xf8. 타입명만(자식트리 재귀디코드 대상)"
+    },
+    "0x3569640": {
+      "type": "IceMageUltAction",
+      "fmt": "0x1b4f890",
+      "fmt_slot": "0x38",
+      "note": "챔프 하드코딩 ult action wrapper. Debug@+0x38, apply dispatch @+0xd0/+0xf8. 타입명만(자식트리 재귀디코드 대상)"
+    },
+    "0x35a7e70": {
+      "type": "SoldierUltAction",
+      "fmt": "0x1cfc5b0",
+      "fmt_slot": "0x38",
+      "note": "챔프 하드코딩 ult action wrapper. Debug@+0x38, apply dispatch @+0xd0/+0xf8. 타입명만(자식트리 재귀디코드 대상)"
+    },
+    "0x3576698": {
+      "type": "WerewolfUltAction",
+      "fmt": "0x1bc6a00",
+      "fmt_slot": "0x38",
+      "note": "챔프 하드코딩 ult action wrapper. Debug@+0x38, apply dispatch @+0xd0/+0xf8. 타입명만(자식트리 재귀디코드 대상)"
+    },
+    "0x35d4710": {
+      "type": "ShieldBearerUltAction",
+      "fmt": "0x1ea4980",
+      "fmt_slot": "0x38",
+      "note": "챔프 하드코딩 ult action wrapper. Debug@+0x38, apply dispatch @+0xd0/+0xf8. 타입명만(자식트리 재귀디코드 대상)"
+    },
+    "0x1953529": {
+      "type": "?",
+      "note": "effect vtable 아님 = .text 코드 중간주소(미정렬, test rax,rax; jz). effect_dump 오기록"
+    },
+    "0x358b0a8": {
+      "type": "CavalryKnightUltAction",
+      "fmt": "0x1c878b0",
+      "fmt_slot": "0x38",
+      "note": "챔프 하드코딩 ult action wrapper. Debug@+0x38, apply dispatch @+0xd0/+0xf8. 타입명만(자식트리 재귀디코드 대상)"
+    },
+    "0x360ad68": {
+      "type": "DokkaebiUltAction",
+      "fmt": "0x2125780",
+      "fmt_slot": "0x38",
+      "note": "챔프 하드코딩 ult action wrapper. Debug@+0x38, apply dispatch @+0xd0/+0xf8. 타입명만(자식트리 재귀디코드 대상)"
+    },
+    "0x35433f0": {
+      "type": "PoisonDartHunterUltAction",
+      "fmt": "0x19c8f50",
+      "fmt_slot": "0x38",
+      "note": "챔프 하드코딩 ult action wrapper. Debug@+0x38, apply dispatch @+0xd0/+0xf8. 타입명만(자식트리 재귀디코드 대상)"
+    },
+    "0x35a73f8": {
+      "type": "DancerUltAction",
+      "fmt": "0x1d07620",
+      "fmt_slot": "0x38",
+      "note": "챔프 하드코딩 ult action wrapper. Debug@+0x38, apply dispatch @+0xd0/+0xf8. 타입명만(자식트리 재귀디코드 대상)"
+    },
+    "0x3574c28": {
+      "type": "NinjaUltAction",
+      "fmt": "0x1bc66e0",
+      "fmt_slot": "0x38",
+      "note": "챔프 하드코딩 ult action wrapper. Debug@+0x38, apply dispatch @+0xd0/+0xf8. 타입명만(자식트리 재귀디코드 대상)"
+    },
+    "0x1950a30": {
+      "type": "?",
+      "note": "effect vtable 아님 = .text 함수(accessor, mov rax,rcx; mov rcx,[rdx+8]...). effect_dump 오기록"
+    },
+    "0x1950a50": {
+      "type": "?",
+      "note": "effect vtable 아님 = .text 함수 프롤로그(push r15/r14...). effect_dump 오기록"
+    },
+    "0xa2e460": {
+      "type": "?",
+      "note": "effect vtable 아님 = no-op 함수 `xor eax,eax; xor edx,edx; ret`(0xa2e460)"
+    },
+    "0x35390a0": {
+      "type": "PythonessUltAction",
+      "fmt": "0x1923ea0",
+      "fmt_slot": "0x38",
+      "note": "챔프 하드코딩 ult action wrapper. Debug@+0x38, apply dispatch @+0xd0/+0xf8. 타입명만(자식트리 재귀디코드 대상)"
+    },
+    "0x35b66c0": {
+      "type": "DemonUltAction",
+      "fmt": "0x1d54300",
+      "fmt_slot": "0x38",
+      "note": "챔프 하드코딩 ult action wrapper. Debug@+0x38, apply dispatch @+0xd0/+0xf8. 타입명만(자식트리 재귀디코드 대상)"
+    },
+    "0x358a758": {
+      "type": "PoleWarriorUltAction",
+      "fmt": "0x1c751f0",
+      "fmt_slot": "0x38",
+      "note": "챔프 하드코딩 ult action wrapper. Debug@+0x38, apply dispatch @+0xd0/+0xf8. 타입명만(자식트리 재귀디코드 대상)"
+    },
+    "0x356c9d0": {
+      "type": "BerserkerUltAction",
+      "fmt": "0x1b54c50",
+      "fmt_slot": "0x38",
+      "note": "챔프 하드코딩 ult action wrapper. Debug@+0x38, apply dispatch @+0xd0/+0xf8. 타입명만(자식트리 재귀디코드 대상)"
+    },
+    "0x35576a0": {
+      "type": "ExorcistUltAction",
+      "fmt": "0x1a67950",
+      "fmt_slot": "0x38",
+      "note": "챔프 하드코딩 ult action wrapper. Debug@+0x38, apply dispatch @+0xd0/+0xf8. 타입명만(자식트리 재귀디코드 대상)"
+    },
+    "0x35c4bd0": {
+      "type": "BaseItemInfo",
+      "fmt": "0x1df7180",
+      "fmt_slot": "0x20",
+      "note": "아이템 정보 struct(effect 아님). effect_dump 혼입"
+    },
+    "0x3574290": {
+      "type": "DualBladerUltAction",
+      "fmt": "0x1bc65d0",
+      "fmt_slot": "0x38",
+      "note": "챔프 하드코딩 ult action wrapper. Debug@+0x38, apply dispatch @+0xd0/+0xf8. 타입명만(자식트리 재귀디코드 대상)"
+    },
+    "0x3538658": {
+      "type": "LightningMageUltAction",
+      "fmt": "0x1921ee0",
+      "fmt_slot": "0x38",
+      "note": "챔프 하드코딩 ult action wrapper. Debug@+0x38, apply dispatch @+0xd0/+0xf8. 타입명만(자식트리 재귀디코드 대상)"
+    },
+    "0x35c746c": {
+      "type": "?",
+      "note": "단일 effect vtable 아님 = .rdata 함수포인터 배열(0x140588220/0x14097c1a0/0x1418e14e0/0x140588230/0x140585770x2/0x141e07780/0x141dc2370...). 미정렬 시작=0x35c7468"
+    },
+    "0x3573ce8": {
+      "type": "InquisitorUltAction",
+      "fmt": "0x1bd0920",
+      "fmt_slot": "0x38",
+      "note": "챔프 하드코딩 ult action wrapper. Debug@+0x38, apply dispatch @+0xd0/+0xf8. 타입명만(자식트리 재귀디코드 대상)"
+    },
+    "0x3542e20": {
+      "type": "VoodooShamanUltAction",
+      "fmt": "0x19c1ad0",
+      "fmt_slot": "0x38",
+      "note": "챔프 하드코딩 ult action wrapper. Debug@+0x38, apply dispatch @+0xd0/+0xf8. 타입명만(자식트리 재귀디코드 대상)"
+    },
+    "0x35d7d98": {
+      "type": "EntityStatBuffPassiveRunner",
+      "fmt": "0x1e74350",
+      "fmt_slot": "0x18",
+      "note": "스탯버프 패시브 러너(버프 표시/적용). fin=field1"
+    },
+    "0x35c6280": {
+      "type": "SpiritCallerUltAction",
+      "fmt": "0x1dfb5d0",
+      "fmt_slot": "0x38",
+      "note": "챔프 하드코딩 ult action wrapper. Debug@+0x38, apply dispatch @+0xd0/+0xf8. 타입명만(자식트리 재귀디코드 대상)"
+    },
+    "0x3603c40": {
+      "type": "WindMageUltAction",
+      "fmt": "0x2079820",
+      "fmt_slot": "0x38",
+      "note": "챔프 하드코딩 ult action wrapper. Debug@+0x38, apply dispatch @+0xd0/+0xf8. 타입명만(자식트리 재귀디코드 대상)"
+    },
+    "0x35570f8": {
+      "type": "ChefUltAction",
+      "fmt": "0x1a666d0",
+      "fmt_slot": "0x38",
+      "note": "챔프 하드코딩 ult action wrapper. Debug@+0x38, apply dispatch @+0xd0/+0xf8. 타입명만(자식트리 재귀디코드 대상)"
+    },
+    "0x3603698": {
+      "type": "EnchanterUltAction",
+      "fmt": "0x2078ef0",
+      "fmt_slot": "0x38",
+      "note": "챔프 하드코딩 ult action wrapper. Debug@+0x38, apply dispatch @+0xd0/+0xf8. 타입명만(자식트리 재귀디코드 대상)"
+    },
+    "0x35c73d0": {
+      "type": "TaoistUltAction",
+      "fmt": "0x1dfca20",
+      "fmt_slot": "0x38",
+      "note": "챔프 하드코딩 ult action wrapper. Debug@+0x38, apply dispatch @+0xd0/+0xf8. 타입명만(자식트리 재귀디코드 대상)"
+    },
+    "0x35d4bb0": {
+      "type": "GuardianSpiritUltAction",
+      "fmt": "0x1ea7430",
+      "fmt_slot": "0x38",
+      "note": "챔프 하드코딩 ult action wrapper. Debug@+0x38, apply dispatch @+0xd0/+0xf8. 타입명만(자식트리 재귀디코드 대상)"
+    },
+    "0x3569098": {
+      "type": "NecromancerUltAction",
+      "fmt": "0x1b50e00",
+      "fmt_slot": "0x38",
+      "note": "챔프 하드코딩 ult action wrapper. Debug@+0x38, apply dispatch @+0xd0/+0xf8. 타입명만(자식트리 재귀디코드 대상)"
+    },
+    "0x35c68f8": {
+      "type": "GhostUltAction",
+      "fmt": "0x1dfd660",
+      "fmt_slot": "0x38",
+      "note": "챔프 하드코딩 ult action wrapper. Debug@+0x38, apply dispatch @+0xd0/+0xf8. 타입명만(자식트리 재귀디코드 대상)"
+    },
+    "0x358bf88": {
+      "type": "ClownUltAction",
+      "fmt": "0x1c8a710",
+      "fmt_slot": "0x38",
+      "note": "챔프 하드코딩 ult action wrapper. Debug@+0x38, apply dispatch @+0xd0/+0xf8. 타입명만(자식트리 재귀디코드 대상)"
+    },
+    "0x35b6258": {
+      "type": "SiegeBreakerUltAction",
+      "fmt": "0x1d54210",
+      "fmt_slot": "0x38",
+      "note": "챔프 하드코딩 ult action wrapper. Debug@+0x38, apply dispatch @+0xd0/+0xf8. 타입명만(자식트리 재귀디코드 대상)"
+    },
+    "0x35a68f0": {
+      "type": "BoomerangHunterUltAction",
+      "fmt": "0x1d05e30",
+      "fmt_slot": "0x38",
+      "note": "챔프 하드코딩 ult action wrapper. Debug@+0x38, apply dispatch @+0xd0/+0xf8. 타입명만(자식트리 재귀디코드 대상)"
+    },
+    "0x360c6b0": {
+      "type": "TowerAttackEffect",
+      "fmt": "0x2104020",
+      "fmt_slot": "0xd0",
+      "fields": [
+        "damage",
+        "attack_ratio"
+      ],
+      "note": "damage@+0, attack_ratio@+8. fin=field2"
+    },
+    "0x35a9080": {
+      "type": "DelayedEffect",
+      "fmt": "0x1cee6b0",
+      "fmt_slot": "0xd0",
+      "fields": [
+        "effect",
+        "tick"
+      ],
+      "note": "effect Box@+0, tick@+0x18. 기등록 DelayedEffect 다른 vtable"
+    },
+    "0x35399e0": {
+      "type": "TargetProjectileEffect",
+      "fmt": "0x18e4150",
+      "fmt_slot": "0x18"
+    },
+    "0x35848d0": {
+      "type": "SwitchByLevel3Effect",
+      "fmt": "0x1c1b1f0",
+      "fmt_slot": "0xd0",
+      "fields": [
+        "effect_start",
+        "effect_level3"
+      ],
+      "note": "effect_start@+0, effect_level3@+0x10. fin=field2. 레벨3 분기 selector"
+    },
+    "0x360ab70": {
+      "type": "GunnerAttackProjectileEffect",
+      "fmt": "0x211d950",
+      "fmt_slot": "0x18",
+      "fields": [
+        "y_offset",
+        "speed",
+        "name",
+        "applyed_target",
+        "applyed_effect",
+        "applyed_stack3_effect"
+      ],
+      "note": "fields_finish. 거너 공격 투사체"
+    },
+    "0x35aa1e0": {
+      "type": "DancerAttackEffect",
+      "fmt": "0x1d05460",
+      "fmt_slot": "0x18",
+      "fields": [
+        "y_offset",
+        "speed",
+        "attack",
+        "attack_ratio",
+        "damage_reduce_ratio",
+        "damage_min_ratio",
+        "max_count",
+        "projectile_delay",
+        "applyed_target"
+      ],
+      "note": "fields_finish. 댄서 공격"
+    },
+    "0x3546398": {
+      "type": "PoisonDartHunterBaseAttackEffect",
+      "fmt": "0x19c5480",
+      "fmt_slot": "0x18",
+      "fields": [
+        "y_offset",
+        "speed",
+        "name",
+        "poison_range",
+        "applyed_target",
+        "applyed_effect"
+      ],
+      "note": "fields_finish. 독침 평타"
+    },
+    "0x3569ea8": {
+      "type": "AttackEffect",
+      "fmt": "0x1b365d0",
+      "fmt_slot": "0x18",
+      "fields": [
+        "damage",
+        "attack_ratio",
+        "hp_ratio",
+        "target_hp_ratio",
+        "cc_damage",
+        "cc_damage_attack_ratio",
+        "ty",
+        "shared"
+      ],
+      "note": "fields_finish. val off +0x10/+0x18/+0x20/+0x28/+0x30/+0x38/+0x40, shared@+0"
+    },
+    "0x360c000": {
+      "type": "RangeEffect",
+      "fmt": "0x21140d0",
+      "fmt_slot": "0x18",
+      "fields": [
+        "shape",
+        "target",
+        "effects",
+        "apply_type"
+      ],
+      "note": "shape@+0x10, effects@+0x40(Vec), target@+0x58, apply_type@+0. fin=field4"
+    },
+    "0x360d078": {
+      "type": "ApAttackEffect",
+      "fmt": "0x210d650",
+      "fmt_slot": "0x18"
+    },
+    "0x360cc28": {
+      "type": "EffectApplyedInfo",
+      "fmt": "0x1b2c2d0",
+      "fmt_slot": "0xd0",
+      "fields": [
+        "range",
+        "radius",
+        "time"
+      ],
+      "note": "*param_1 뒤 struct. range@+0,radius@+8,time@+0x10. fin=field3. 적용범위 info"
+    },
+    "0x353af88": {
+      "type": "TargetProjectileFromProjectileEffect",
+      "fmt": "0x18e7cc0",
+      "fmt_slot": "0xd0",
+      "fields": [
+        "y_offset",
+        "speed",
+        "name",
+        "applyed_target",
+        "applyed_effect"
+      ],
+      "note": "name@+0, applyed_effect@+0x18, y_offset@+0x30, speed@+0x38, applyed_target@+0x40. fields_finish. 투사체발 파생투사체"
+    },
+    "0x353aed0": {
+      "type": "CombineEffect",
+      "fmt": "0x1908750",
+      "fmt_slot": "0xd0"
+    },
+    "0x35431c0": {
+      "type": "PoisonDartHunterPassiveSkill2Runner",
+      "fmt": "0x19c86b0",
+      "fmt_slot": "0x18",
+      "note": "챔프 패시브/스킬 러너(상태표시·적용). 타입명만"
+    },
+    "0x3590388": {
+      "type": "AddEffectBuffEffect",
+      "fmt": "0x1c71400",
+      "fmt_slot": "0x18",
+      "fields": [
+        "buff_state"
+      ],
+      "note": "buff_state@+0(enum DataEffectDef variant). fin=field1"
+    },
+    "0x3590c70": {
+      "type": "CavalryKnightUltRoadEffect",
+      "fmt": "0x1c8b650",
+      "fmt_slot": "0x18",
+      "note": "챔프 하드코딩 스킬/패시브 effect wrapper. 타입명만"
+    },
+    "0x35d7130": {
+      "type": "TargetAttackAction",
+      "fmt": "0x2104240",
+      "fmt_slot": "0xd0",
+      "fields": [
+        "action_name",
+        "attack_ratio",
+        "attack",
+        "range",
+        "cooltime",
+        "duration",
+        "start_timing",
+        "cancelable",
+        "attack_type"
+      ],
+      "note": "fields_finish. 타겟 공격 액션"
+    },
+    "0x3539700": {
+      "type": "KnockbackEffect",
+      "fmt": "0x1909000",
+      "fmt_slot": "0xd0",
+      "fields": [
+        "speed",
+        "tick"
+      ],
+      "note": "speed@+0, tick@+8. fin=field2"
+    },
+    "0x35a8d48": {
+      "type": "LinearProjectileEffect",
+      "fmt": "0x1cda810",
+      "fmt_slot": "0xd0"
+    },
+    "0x35a83e0": {
+      "type": "RangePeriodProjectileEffect",
+      "fmt": "0x1cee4f0",
+      "fmt_slot": "0xd0"
+    },
+    "0x35a8328": {
+      "type": "AddBuffEffect",
+      "fmt": "0x1ce3670",
+      "fmt_slot": "0xd0"
+    },
+    "0x3539d70": {
+      "type": "ViewEffect",
+      "fmt": "0x18e40d0",
+      "fmt_slot": "0xd0",
+      "fields": [
+        "name",
+        "info"
+      ],
+      "note": "name@+0, info@+0x18. fin=field2. 연출"
+    },
+    "0x35c8da8": {
+      "type": "CasterSfxEffect",
+      "fmt": "0x1dba940",
+      "fmt_slot": "0xd0"
+    },
+    "0x35d5aa0": {
+      "type": "ApplyInProjectileEffect",
+      "fmt": "0x1e9e460",
+      "fmt_slot": "0xd0"
+    },
+    "0x3547080": {
+      "type": "PoisonDartHunterUltBuff",
+      "fmt": "0x19c9c90",
+      "fmt_slot": "0x18",
+      "note": "챔프 하드코딩 스킬/패시브 effect wrapper. 타입명만"
+    },
+    "0x35a71a8": {
+      "type": "DancerPassiveRunner",
+      "fmt": "0x1cf11c0",
+      "fmt_slot": "0x18",
+      "note": "챔프 패시브/스킬 러너(상태표시·적용). 타입명만"
+    },
+    "0x35a9eb8": {
+      "type": "EffectApplyedInfo",
+      "fmt": "0x1b2c2d0",
+      "fmt_slot": "0xd0",
+      "fields": [
+        "range",
+        "radius",
+        "time"
+      ],
+      "note": "*param_1 뒤 struct. range@+0,radius@+8,time@+0x10. fin=field3. 적용범위 info"
+    },
+    "0x3544b78": {
+      "type": "ViewEffect",
+      "fmt": "0x1957e30",
+      "fmt_slot": "0xd0",
+      "fields": [
+        "name",
+        "info"
+      ],
+      "note": "name@+0, info@+0x18. fin=field2. 연출"
+    },
+    "0x353b040": {
+      "type": "RandomTargetEffect",
+      "fmt": "0x1907cf0",
+      "fmt_slot": "0xd0",
+      "fields": [
+        "range",
+        "casting_target",
+        "effects",
+        "from_projectile"
+      ],
+      "note": "range@+0x18, casting_target@+0x20, effects@+0(Vec), from_projectile@+0x24. fin=field4"
+    },
+    "0x3544c30": {
+      "type": "ViewEffect",
+      "fmt": "0x1957e30",
+      "fmt_slot": "0x18",
+      "fields": [
+        "name",
+        "info"
+      ],
+      "note": "name@+0, info@+0x18. fin=field2. 연출"
+    },
+    "0x35d6b48": {
+      "type": "TauntBuff",
+      "fmt": "0x1e73d10",
+      "fmt_slot": "0x18",
+      "fields": [
+        "caster_id",
+        "target_id",
+        "tick",
+        "taunt_duration"
+      ],
+      "note": "+0/+8/+0x10/+0x18. fin=field4. CC buff"
+    },
+    "0x3544f10": {
+      "type": "LinearProjectileEffect",
+      "fmt": "0x1953e60",
+      "fmt_slot": "0xd0"
+    },
+    "0x35c4e20": {
+      "type": "HpRegenItemInfo",
+      "fmt": "0x1dd1660",
+      "fmt_slot": "0x20",
+      "note": "아이템 정보 struct(effect 아님)"
+    },
+    "0x35c4cf8": {
+      "type": "ImpregableFortressItemInfo",
+      "fmt": "0x1dd1950",
+      "fmt_slot": "0x20",
+      "note": "아이템 정보 struct(effect 아님)"
+    },
+    "0x3546c18": {
+      "type": "AddEffectBuffEffect",
+      "fmt": "0x19bc400",
+      "fmt_slot": "0x18",
+      "fields": [
+        "buff_state"
+      ],
+      "note": "buff_state@+0(enum DataEffectDef variant). fin=field1"
+    },
+    "0x35a8678": {
+      "type": "BoomeranghunterSkill2Effect",
+      "fmt": "0x1cfb940",
+      "fmt_slot": "0xd0",
+      "note": "챔프 하드코딩 스킬/패시브 effect wrapper. 타입명만"
+    },
+    "0x3544870": {
+      "type": "AddBuffEffect",
+      "fmt": "0x1976910",
+      "fmt_slot": "0xd0"
+    },
+    "0x35b6e70": {
+      "type": "RangeEffect",
+      "fmt": "0x1d507b0",
+      "fmt_slot": "0xd0",
+      "fields": [
+        "shape",
+        "target",
+        "effects",
+        "apply_type"
+      ],
+      "note": "shape@+0x10, effects@+0x40(Vec), target@+0x58, apply_type@+0. fin=field4"
+    },
+    "0x3578848": {
+      "type": "FixedAttackEffect",
+      "fmt": "0x1bb7c00",
+      "fmt_slot": "0x18"
+    },
+    "0x35f9830": {
+      "type": "OgrePassiveRunner",
+      "fmt": "0x2001d40",
+      "fmt_slot": "0x18",
+      "note": "챔프 패시브/스킬 러너(상태표시·적용). 타입명만"
+    },
+    "0x35c7900": {
+      "type": "CombineEffect",
+      "fmt": "0x1ded580",
+      "fmt_slot": "0xd0"
+    },
+    "0x3546040": {
+      "type": "RangeEffect",
+      "fmt": "0x19abd60",
+      "fmt_slot": "0x18",
+      "fields": [
+        "shape",
+        "target",
+        "effects",
+        "apply_type"
+      ],
+      "note": "shape@+0x10, effects@+0x40(Vec), target@+0x58, apply_type@+0. fin=field4"
+    },
+    "0x35b7c98": {
+      "type": "DelayedEffect",
+      "fmt": "0x1d508e0",
+      "fmt_slot": "0xd0",
+      "fields": [
+        "effect",
+        "tick"
+      ],
+      "note": "effect Box@+0, tick@+0x18. 기등록 DelayedEffect 다른 vtable"
+    },
+    "0x3546a18": {
+      "type": "CasterViewEffect",
+      "fmt": "0x196fdb0",
+      "fmt_slot": "0x18",
+      "fields": [
+        "name"
+      ],
+      "note": "name@+0. fin=field1. 연출"
+    },
+    "0x35f9dd8": {
+      "type": "AddStatScaledBuffEffect",
+      "fmt": "0x2005ac0",
+      "fmt_slot": "0x18",
+      "fields": [
+        "buff_state",
+        "scale",
+        "target"
+      ],
+      "note": "buff_state@+0, scale@+0x120, target@+0x14c. fin=field3"
+    },
+    "0x360bf78": {
+      "type": "GunnerPassive",
+      "fmt": "0x211fe20",
+      "fmt_slot": "0x18",
+      "note": "챔프 하드코딩 스킬/패시브 effect wrapper. 타입명만"
+    },
+    "0x3590e30": {
+      "type": "VampireSkill2Effect",
+      "fmt": "0x1c818d0",
+      "fmt_slot": "0x18",
+      "note": "챔프 하드코딩 스킬/패시브 effect wrapper. 타입명만"
+    },
+    "0x35b6f28": {
+      "type": "RangeEffect",
+      "fmt": "0x1d507b0",
+      "fmt_slot": "0x18",
+      "fields": [
+        "shape",
+        "target",
+        "effects",
+        "apply_type"
+      ],
+      "note": "shape@+0x10, effects@+0x40(Vec), target@+0x58, apply_type@+0. fin=field4"
+    },
+    "0x35d5cb8": {
+      "type": "AddBuffEffect",
+      "fmt": "0x1e78340",
+      "fmt_slot": "0xd0"
+    },
+    "0x35779f8": {
+      "type": "ShieldEffect",
+      "fmt": "0x1bb6e60",
+      "fmt_slot": "0xd0",
+      "fields": [
+        "amount",
+        "attack_ratio",
+        "ap_ratio",
+        "hp_ratio",
+        "tick",
+        "buff",
+        "end_effect",
+        "with_self"
+      ],
+      "note": "fields_finish. off +0x138/+0x140/+0x148/+0x150/+0x158/+0x18/+0x160, with_self@+0"
+    },
+    "0x35d5a30": {
+      "type": "DamageShareEffect",
+      "fmt": "0x1e73df0",
+      "fmt_slot": "0x18",
+      "fields": [
+        "caster_id",
+        "tick",
+        "range",
+        "damage_share_ratio",
+        "slow_ratio",
+        "slow_defence_ratio",
+        "slow_duration"
+      ],
+      "note": "fields_finish. off +8/+0x10/+0x18/+0x20/+0x28/+0x30, caster_id@+0"
+    },
+    "0x35b7478": {
+      "type": "FearEffect",
+      "fmt": "0x1d44ed0",
+      "fmt_slot": "0x18",
+      "fields": [
+        "tick"
+      ],
+      "note": "tick@+0. fin=field1. CC"
+    },
+    "0x3579330": {
+      "type": "TauntEffect",
+      "fmt": "0x1bb6e10",
+      "fmt_slot": "0x18",
+      "fields": [
+        "duration"
+      ],
+      "note": "duration@+0(i32). fin=field1. CC"
+    },
+    "0x3578d28": {
+      "type": "RushTimeEffect",
+      "fmt": "0x1bb7580",
+      "fmt_slot": "0xd0",
+      "fields": [
+        "casting_target",
+        "speed",
+        "tick",
+        "range",
+        "applyed_effect",
+        "penetrate"
+      ],
+      "note": "fields_finish. off +0x30/+0x18/+0x20/+0x28/+0x34, penetrate@+0. harpy RushTime 계열"
+    },
+    "0x35aa5b0": {
+      "type": "BardSkill2Effect",
+      "fmt": "0x1d057d0",
+      "fmt_slot": "0x18",
+      "note": "챔프 하드코딩 스킬/패시브 effect wrapper. 타입명만"
+    },
+    "0x358d9f8": {
+      "type": "VampirePassiveRunner",
+      "fmt": "0x1c55d40",
+      "fmt_slot": "0x18",
+      "note": "챔프 패시브/스킬 러너(상태표시·적용). 타입명만"
+    },
+    "0x35845f0": {
+      "type": "CombineEffect",
+      "fmt": "0x1c4cfd0",
+      "fmt_slot": "0xd0"
+    },
+    "0x3577940": {
+      "type": "RangeEffect",
+      "fmt": "0x1bb5770",
+      "fmt_slot": "0xd0",
+      "fields": [
+        "shape",
+        "target",
+        "effects",
+        "apply_type"
+      ],
+      "note": "shape@+0x10, effects@+0x40(Vec), target@+0x58, apply_type@+0. fin=field4"
+    },
+    "0x3584af8": {
+      "type": "CasterViewEffect",
+      "fmt": "0x1c1fde0",
+      "fmt_slot": "0xd0",
+      "fields": [
+        "name"
+      ],
+      "note": "name@+0. fin=field1. 연출"
+    }
+  }
+}

@@ -1,0 +1,9 @@
+{
+ "dn_hp_low": "0xdecd48",
+ "dn_hp_crit": "0xdecd78",
+ "dn_lane_margin": "0xdf9513",
+ "an_cull_dist": null,
+ "gb_far": "0xe07610",
+ "gb_pred": "0xe075c9",
+ "vis_window": null
+}

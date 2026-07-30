@@ -1,0 +1,713 @@
+{
+ "v052": [
+  {
+   "name": "",
+   "lea": 29377484,
+   "entry": 29377425,
+   "join": 29377653,
+   "span": 228,
+   "ban_reg": "r8",
+   "rule_src": [
+    "reg",
+    "cl"
+   ],
+   "total_src": [
+    "reg",
+    "rdx"
+   ],
+   "out_reg": "cl",
+   "clobber_vol": [
+    "r8",
+    "r9",
+    "rax",
+    "rcx",
+    "rdx"
+   ],
+   "container": 29376960
+  },
+  {
+   "name": "",
+   "lea": 29381492,
+   "entry": 29381433,
+   "join": 29381624,
+   "span": 191,
+   "ban_reg": "rdx",
+   "rule_src": [
+    "mem",
+    "rbp",
+    368
+   ],
+   "total_src": [
+    "reg",
+    "r13"
+   ],
+   "out_reg": "cl",
+   "clobber_vol": [
+    "r10",
+    "r8",
+    "rcx",
+    "rdx"
+   ],
+   "container": 29381024
+  },
+  {
+   "name": "",
+   "lea": 29381908,
+   "entry": 29381819,
+   "join": 29382162,
+   "span": 343,
+   "ban_reg": "rax",
+   "rule_src": [
+    "mem",
+    "rbp",
+    368
+   ],
+   "total_src": [
+    "reg",
+    "r13"
+   ],
+   "out_reg": "al",
+   "clobber_vol": [
+    "r10",
+    "r8",
+    "r9",
+    "rax",
+    "rcx",
+    "rdx"
+   ],
+   "container": 29381024
+  },
+  {
+   "name": "",
+   "lea": 29391235,
+   "entry": 29391176,
+   "join": 29391369,
+   "span": 193,
+   "ban_reg": "rdx",
+   "rule_src": [
+    "mem",
+    "rbp",
+    264
+   ],
+   "total_src": [
+    "reg",
+    "rcx"
+   ],
+   "out_reg": "al",
+   "clobber_vol": [
+    "r8",
+    "rax",
+    "rcx",
+    "rdx"
+   ],
+   "container": 29390976
+  },
+  {
+   "lea": 29393267,
+   "err": "no-dispatcher"
+  },
+  {
+   "name": "",
+   "lea": 30249937,
+   "entry": 30249889,
+   "join": 30250059,
+   "span": 170,
+   "ban_reg": "r8",
+   "rule_src": [
+    "mem",
+    "rcx",
+    249
+   ],
+   "total_src": [
+    "reg",
+    "rdx"
+   ],
+   "out_reg": "al",
+   "clobber_vol": [
+    "r8",
+    "rax",
+    "rcx",
+    "rdx"
+   ],
+   "container": null
+  },
+  {
+   "name": "",
+   "lea": 30425427,
+   "entry": 30425376,
+   "join": 30425549,
+   "span": 173,
+   "ban_reg": "r8",
+   "rule_src": [
+    "reg",
+    "dl"
+   ],
+   "total_src": [
+    "reg",
+    "rcx"
+   ],
+   "out_reg": "al",
+   "clobber_vol": [
+    "r8",
+    "rax",
+    "rcx",
+    "rdx"
+   ],
+   "container": null
+  },
+  {
+   "lea": 30439709,
+   "err": "no-dispatcher"
+  },
+  {
+   "name": "",
+   "lea": 30440931,
+   "entry": 30440876,
+   "join": 30441167,
+   "span": 291,
+   "ban_reg": "rax",
+   "rule_src": [
+    "mem",
+    "r9",
+    -7
+   ],
+   "total_src": [
+    "reg",
+    "r8"
+   ],
+   "out_reg": null,
+   "clobber_vol": [
+    "r10",
+    "r8",
+    "r9",
+    "rax",
+    "rdx"
+   ],
+   "container": null
+  },
+  {
+   "lea": 37097362,
+   "err": "no-dispatcher"
+  },
+  {
+   "lea": 37103082,
+   "err": "no-dispatcher"
+  }
+ ],
+ "v053": [
+  {
+   "name": "",
+   "lea": 17433893,
+   "entry": 17433834,
+   "join": 17434096,
+   "span": 262,
+   "ban_reg": "r8",
+   "rule_src": [
+    "reg",
+    "cl"
+   ],
+   "total_src": [
+    "reg",
+    "rdx"
+   ],
+   "out_reg": "cl",
+   "clobber_vol": [
+    "r8",
+    "r9",
+    "rax",
+    "rcx",
+    "rdx"
+   ],
+   "container": 17433376
+  },
+  {
+   "name": "",
+   "lea": 17438224,
+   "entry": 17438161,
+   "join": 17438362,
+   "span": 201,
+   "ban_reg": "rdx",
+   "rule_src": [
+    "mem",
+    "rbp",
+    384
+   ],
+   "total_src": [
+    "reg",
+    "rdi"
+   ],
+   "out_reg": "cl",
+   "clobber_vol": [
+    "r8",
+    "rcx",
+    "rdx"
+   ],
+   "container": 17437744
+  },
+  {
+   "name": "",
+   "lea": 17438759,
+   "entry": 17438691,
+   "join": 17438976,
+   "span": 285,
+   "ban_reg": "rax",
+   "rule_src": [
+    "mem",
+    "rbp",
+    384
+   ],
+   "total_src": [
+    "reg",
+    "rdi"
+   ],
+   "out_reg": "al",
+   "clobber_vol": [
+    "rax",
+    "rcx",
+    "rdx"
+   ],
+   "container": 17437744
+  },
+  {
+   "name": "",
+   "lea": 17448259,
+   "entry": 17448200,
+   "join": 17448393,
+   "span": 193,
+   "ban_reg": "rdx",
+   "rule_src": [
+    "mem",
+    "rbp",
+    264
+   ],
+   "total_src": [
+    "reg",
+    "rcx"
+   ],
+   "out_reg": "al",
+   "clobber_vol": [
+    "r8",
+    "rax",
+    "rcx",
+    "rdx"
+   ],
+   "container": 17448000
+  },
+  {
+   "lea": 17450779,
+   "err": "no-dispatcher"
+  },
+  {
+   "name": "",
+   "lea": 23043091,
+   "entry": 23043037,
+   "join": 23043851,
+   "span": 814,
+   "ban_reg": "r8",
+   "rule_src": null,
+   "total_src": [
+    "reg",
+    "r9"
+   ],
+   "out_reg": null,
+   "clobber_vol": [
+    "r10",
+    "r8",
+    "r9",
+    "rax",
+    "rcx",
+    "rdx"
+   ],
+   "container": 23041968
+  },
+  {
+   "name": "",
+   "lea": 23048644,
+   "entry": 23048590,
+   "join": 23049406,
+   "span": 816,
+   "ban_reg": "r8",
+   "rule_src": null,
+   "total_src": [
+    "reg",
+    "r9"
+   ],
+   "out_reg": null,
+   "clobber_vol": [
+    "r10",
+    "r8",
+    "r9",
+    "rax",
+    "rcx",
+    "rdx"
+   ],
+   "container": 23047504
+  },
+  {
+   "name": "",
+   "lea": 23576851,
+   "entry": 23576800,
+   "join": 23576973,
+   "span": 173,
+   "ban_reg": "r8",
+   "rule_src": [
+    "reg",
+    "dl"
+   ],
+   "total_src": [
+    "reg",
+    "rcx"
+   ],
+   "out_reg": "al",
+   "clobber_vol": [
+    "r8",
+    "rax",
+    "rcx",
+    "rdx"
+   ],
+   "container": null
+  },
+  {
+   "lea": 23593245,
+   "err": "no-dispatcher"
+  },
+  {
+   "name": "",
+   "lea": 23594483,
+   "entry": 23594428,
+   "join": 23594719,
+   "span": 291,
+   "ban_reg": "rax",
+   "rule_src": [
+    "mem",
+    "r9",
+    -7
+   ],
+   "total_src": [
+    "reg",
+    "r8"
+   ],
+   "out_reg": null,
+   "clobber_vol": [
+    "r10",
+    "r8",
+    "r9",
+    "rax",
+    "rdx"
+   ],
+   "container": null
+  },
+  {
+   "name": "",
+   "lea": 25330270,
+   "entry": 25330209,
+   "join": 25329983,
+   "span": -226,
+   "ban_reg": "rax",
+   "rule_src": [
+    "mem",
+    "rbp",
+    23905
+   ],
+   "total_src": [
+    "reg",
+    "rdx"
+   ],
+   "out_reg": null,
+   "clobber_vol": [],
+   "container": 25329152
+  },
+  {
+   "lea": 25748020,
+   "err": "no-dispatcher"
+  },
+  {
+   "name": "",
+   "lea": 25748526,
+   "entry": 25748455,
+   "join": 25749174,
+   "span": 719,
+   "ban_reg": "r10",
+   "rule_src": [
+    "reg",
+    "r12b"
+   ],
+   "total_src": [
+    "reg",
+    "rcx"
+   ],
+   "out_reg": "al",
+   "clobber_vol": [
+    "r10",
+    "r8",
+    "r9",
+    "rax",
+    "rcx",
+    "rdx"
+   ],
+   "container": 25746736
+  },
+  {
+   "lea": 25753541,
+   "err": "no-dispatcher"
+  },
+  {
+   "lea": 25757220,
+   "err": "no-dispatcher"
+  },
+  {
+   "name": "",
+   "lea": 25757455,
+   "entry": 25757392,
+   "join": 25757759,
+   "span": 367,
+   "ban_reg": "rsi",
+   "rule_src": [
+    "mem",
+    "rbp",
+    408
+   ],
+   "total_src": [
+    "reg",
+    "rcx"
+   ],
+   "out_reg": "al",
+   "clobber_vol": [
+    "r8",
+    "rax",
+    "rcx",
+    "rdx"
+   ],
+   "container": 25756752
+  },
+  {
+   "lea": 25759971,
+   "err": "no-dispatcher"
+  },
+  {
+   "name": "",
+   "lea": 26457187,
+   "entry": 26457116,
+   "join": 26457456,
+   "span": 340,
+   "ban_reg": "rcx",
+   "rule_src": [
+    "mem",
+    "rbp",
+    41209
+   ],
+   "total_src": [
+    "reg",
+    "rax"
+   ],
+   "out_reg": "sil",
+   "clobber_vol": [
+    "r8",
+    "rax",
+    "rcx",
+    "rdx"
+   ],
+   "container": 26454336
+  },
+  {
+   "name": "",
+   "lea": 29157690,
+   "entry": 29157642,
+   "join": 29157813,
+   "span": 171,
+   "ban_reg": "rcx",
+   "rule_src": [
+    "mem",
+    "rcx",
+    206
+   ],
+   "total_src": [
+    "reg",
+    "rdx"
+   ],
+   "out_reg": "al",
+   "clobber_vol": [
+    "r8",
+    "rax",
+    "rcx",
+    "rdx"
+   ],
+   "container": null
+  },
+  {
+   "lea": 29178894,
+   "err": "no-dispatcher"
+  },
+  {
+   "name": "",
+   "lea": 29179627,
+   "entry": 29179575,
+   "join": 29179650,
+   "span": 75,
+   "ban_reg": "rax",
+   "rule_src": null,
+   "total_src": [
+    "reg",
+    "r8"
+   ],
+   "out_reg": null,
+   "clobber_vol": [
+    "rax",
+    "rcx",
+    "rdx"
+   ],
+   "container": 29178208
+  },
+  {
+   "lea": 29310513,
+   "err": "no-dispatcher"
+  },
+  {
+   "name": "",
+   "lea": 29728980,
+   "entry": 29728929,
+   "join": 29729396,
+   "span": 467,
+   "ban_reg": "r10",
+   "rule_src": [
+    "mem",
+    "r15",
+    206
+   ],
+   "total_src": [
+    "reg",
+    "r9"
+   ],
+   "out_reg": null,
+   "clobber_vol": [
+    "r10",
+    "r11",
+    "r8",
+    "r9",
+    "rax",
+    "rcx",
+    "rdx"
+   ],
+   "container": 29709056
+  },
+  {
+   "name": "",
+   "lea": 29730272,
+   "entry": 29730216,
+   "join": 29731083,
+   "span": 867,
+   "ban_reg": "rdx",
+   "rule_src": [
+    "mem",
+    "rsi",
+    206
+   ],
+   "total_src": [
+    "reg",
+    "rcx"
+   ],
+   "out_reg": "al",
+   "clobber_vol": [
+    "r8",
+    "r9",
+    "rax",
+    "rcx",
+    "rdx"
+   ],
+   "container": 29709056
+  },
+  {
+   "name": "",
+   "lea": 29731283,
+   "entry": 29731232,
+   "join": 29731662,
+   "span": 430,
+   "ban_reg": "rcx",
+   "rule_src": [
+    "mem",
+    "rcx",
+    206
+   ],
+   "total_src": [
+    "reg",
+    "rsi"
+   ],
+   "out_reg": null,
+   "clobber_vol": [
+    "r10",
+    "r11",
+    "r8",
+    "r9",
+    "rax",
+    "rcx",
+    "rdx"
+   ],
+   "container": 29709056
+  },
+  {
+   "lea": 29731512,
+   "err": "no-dispatcher"
+  },
+  {
+   "name": "",
+   "lea": 29778060,
+   "entry": 29777996,
+   "join": 29778723,
+   "span": 727,
+   "ban_reg": "rbx",
+   "rule_src": [
+    "reg",
+    "sil"
+   ],
+   "total_src": [
+    "reg",
+    "rcx"
+   ],
+   "out_reg": "r14b",
+   "clobber_vol": [
+    "r8",
+    "r9",
+    "rax",
+    "rcx",
+    "rdx"
+   ],
+   "container": 29709056
+  },
+  {
+   "lea": 29778844,
+   "err": "no-dispatcher"
+  },
+  {
+   "name": "",
+   "lea": 29817667,
+   "entry": 29817605,
+   "join": 29820168,
+   "span": 2563,
+   "ban_reg": "r10",
+   "rule_src": [
+    "mem",
+    "r15",
+    206
+   ],
+   "total_src": [
+    "reg",
+    "rax"
+   ],
+   "out_reg": null,
+   "clobber_vol": [
+    "r10",
+    "r11",
+    "r8",
+    "r9",
+    "rax",
+    "rcx",
+    "rdx"
+   ],
+   "container": 29709056
+  },
+  {
+   "lea": 38166010,
+   "err": "no-dispatcher"
+  }
+ ]
+}

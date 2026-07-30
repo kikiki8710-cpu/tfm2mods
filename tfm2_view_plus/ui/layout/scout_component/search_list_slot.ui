@@ -1,0 +1,290 @@
+slot:button {
+  width: 1608px;
+  height: 44px;
+
+  source: "asset/base/sprite/white";
+  color: #161721ff;
+
+  hover: {
+    color: #1d1f2cff;
+  }
+
+  active: {
+    color: #1d1f2cff;
+  }
+
+  child_type: LeftToRight {
+    spacing: 0px;
+  }
+
+  hover_sound: "asset/base/sound/sfx/UI_mouse_hover";
+  click_sound: "asset/base/sound/sfx/UI_mouse_click";
+
+  #name:empty {
+    width: 220px;
+    height: 44px;
+
+    padding: {
+      left: 20px;
+    }
+
+    #text:label {
+      x: 29px;
+      width: 171px;
+      height: 100%;
+      @"asset/base/style/main#label";
+      align_x: Left;
+      align_y: Center;
+
+      text: "Player";
+      size: 18;
+      fit_width: true;
+    }
+  }
+
+  #age:empty {
+    width: 60px;
+    height: 44px;
+
+    #text:label {
+      width: 100%;
+      height: 100%;
+      @"asset/base/style/main#label";
+      align_x: Center;
+      align_y: Center;
+
+      text: "20";
+      size: 18;
+    }
+  }
+
+  #position:empty {
+    width: 100px;
+    height: 44px;
+
+    #icon:image {
+      anchor_x: 0.5;
+      pivot_x: 0.5;
+      anchor_y: 0.5;
+      pivot_y: 0.5;
+
+      width: 18px;
+      height: 18px;
+
+      source: "asset/base/ui/icons/top";
+    }
+  }
+
+  #team:empty {
+    width: 240px;
+    height: 44px;
+
+    padding: {
+      left: 20px;
+    }
+
+    #icon:image {
+      anchor_y: 0.5;
+      pivot_y: 0.5;
+
+      width: 20px;
+      height: 20px;
+
+      source: "asset/base/aseprite_resources/team_logo";
+      rect_tag: "0_0";
+    }
+
+    #text:label {
+      width: 100%;
+      height: 100%;
+      x: 26px;
+      @"asset/base/style/main#label";
+      align_x: Left;
+      align_y: Center;
+
+      text: "Team";
+      size: 18;
+    }
+  }
+
+  #contract:empty {
+    width: 120px;
+    height: 44px;
+
+    padding: {
+      left: 20px;
+    }
+
+    #text:label {
+      width: 100%;
+      height: 100%;
+      @"asset/base/style/main#label";
+      align_x: Left;
+      align_y: Center;
+
+      text: "2024-2026";
+      size: 18;
+    }
+  }
+
+  #squad_status:empty {
+    width: 100px;
+    height: 44px;
+
+    #text:label {
+      width: 100%;
+      height: 100%;
+      @"asset/base/style/main#label";
+      align_x: Center;
+      align_y: Center;
+
+      text: "-";
+      size: 18;
+    }
+  }
+
+  #potential:empty {
+    width: 120px;
+    height: 44px;
+
+    #text:label {
+      width: 100%;
+      height: 100%;
+      @"asset/base/style/main#label";
+      align_x: Center;
+      align_y: Center;
+
+      text: "15";
+      size: 18;
+    }
+  }
+
+  #salary:empty {
+    width: 120px;
+    height: 44px;
+
+    padding: {
+      left: 20px;
+    }
+
+    #text:label {
+      width: 100%;
+      height: 100%;
+      @"asset/base/style/main#label";
+      align_x: Left;
+      align_y: Center;
+
+      text: "0";
+      size: 18;
+    }
+  }
+
+  #transfer_fee:empty {
+    width: 120px;
+    height: 44px;
+
+    padding: {
+      left: 20px;
+    }
+
+    #text:label {
+      width: 100%;
+      height: 100%;
+      @"asset/base/style/main#label";
+      align_x: Left;
+      align_y: Center;
+
+      text: "0";
+      size: 18;
+    }
+  }
+
+  #league:empty {
+    width: 100px;
+    height: 44px;
+
+    padding: {
+      left: 20px;
+    }
+
+    #text:label {
+      width: 100%;
+      height: 100%;
+      @"asset/base/style/main#label";
+      align_x: Left;
+      align_y: Center;
+
+      text: "LCK";
+      size: 18;
+    }
+  }
+
+  #recommendation:empty {
+    width: 120px;
+    height: 44px;
+
+    #text:label {
+      width: 100%;
+      height: 100%;
+      @"asset/base/style/main#label";
+      align_x: Center;
+      align_y: Center;
+
+      text: "85";
+      size: 18;
+    }
+  }
+
+  #report_date:empty {
+    width: 130px;
+    height: 44px;
+
+    padding: {
+      left: 20px;
+    }
+
+    #text:label {
+      width: 100%;
+      height: 100%;
+      @"asset/base/style/main#label";
+      align_x: Left;
+      align_y: Center;
+
+      text: "-";
+      size: 18;
+    }
+  }
+
+  #sab_spacer:empty {
+    visible: false;
+    width: 930px;
+    height: 44px;
+  }
+
+  #delete:empty {
+    width: 38px;
+    height: 44px;
+
+    #btn:color_icon_button {
+      @"asset/base/style/main#tertiary_button";
+
+      width: 32px;
+      height: 32px;
+
+      anchor_x: 0.5;
+      pivot_x: 0.5;
+      anchor_y: 0.5;
+      pivot_y: 0.5;
+
+      icon: {
+        source: "asset/base/ui/icons/delete";
+        rect: {
+          x: 6;
+          y: 6;
+          w: 20;
+          h: 20;
+        }
+      }
+    }
+  }
+}

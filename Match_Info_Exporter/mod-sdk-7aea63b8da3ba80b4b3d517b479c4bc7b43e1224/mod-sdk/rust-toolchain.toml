@@ -1,0 +1,5 @@
+[toolchain]
+channel = "nightly"
+# Built with rustc 1.98.0-nightly
+# Modders MUST use the exact same nightly version for ABI compatibility.
+# Install with: rustup install nightly

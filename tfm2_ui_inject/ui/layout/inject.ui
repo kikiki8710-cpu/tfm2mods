@@ -1,0 +1,17 @@
+uinj_btn:color {
+  width: 100%;
+  height: 48px;
+  back_color: #1d2740ff;
+  color: #4a6c9aff;
+  stroke: 1;
+  rounding: Uniform { rounding: 6; }
+  #uinj_btn_label:label {
+    @"asset/base/style/main#label";
+    width: 100%;
+    height: 100%;
+    align_x: Center;
+    align_y: Center;
+    size: 16;
+    text: "★ 주입 버튼";
+  }
+}

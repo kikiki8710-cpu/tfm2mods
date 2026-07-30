@@ -1,0 +1,74 @@
+# ══════════════════════════════════════════════════════════
+#  화이트리스트 방식 — 기본은 전부 무시하고, 소스·문서·도구만 담는다.
+#  이유: 이 폴더는 31GB 이고 그 대부분이 SDK(~11G)·빌드산출물(target/)·
+#        게임 에셋 추출(bundle_*)·구세대 아카이브(5.1G)다. 전부 재취득·재생성 가능.
+# ══════════════════════════════════════════════════════════
+
+# 1) 일단 전부 무시
+*
+
+# 2) 디렉토리는 탐색 허용(안쪽 화이트리스트를 보기 위해)
+!*/
+
+# 3) 담을 것 — 소스·도구·문서·설정
+!*.rs
+!*.toml
+!*.py
+!*.ps1
+!*.md
+!*.ui
+!*.json
+!*.cfg
+!.gitignore
+!.gitattributes
+# ⚠`*.txt` 는 담지 않는다 — 이 프로젝트의 txt 는 대부분 **런타임 덤프·진단 로그**다
+#   (실측: 전체 8,054개 / `sylas_hijack\effect_dump.txt` 3.8MB 등). 이력 가치가 없고 매 실행 갱신된다.
+#   특정 txt 가 필요하면 아래처럼 개별 허용할 것:  !경로/파일.txt
+
+# 4) ★위 확장자라도 제외 — 용량·재생성 가능·런타임 산출물
+#    (마지막에 와야 3)의 허용을 덮는다)
+sdk_*/
+mod_sdk/
+bundle_*/
+_dl/
+_archive/
+_tmp_*/
+_scratch/
+release/
+target/
+__pycache__/
+node_modules/
+
+# 빌드·링크 산출물(확장자 무관)
+*.o
+*.obj
+*.rcgu.*
+nul.*
+
+# 런타임 로그·크래시·백업 (텍스트지만 이력 가치 없음)
+*.log
+_crash/
+crash_log.txt
+panic_log.txt
+*.bak
+*.bak_*
+*.backup
+*.devbak*
+*.diagbak*
+*.pre_*
+*.A_off_*
+*.tuned_bak*
+
+# 도구가 뱉는 대용량 캐시·중간산물
+*.pkl
+_rva_catalog.json
+_rva_final_053.json
+_anchor_*.json
+
+# 별도 git 저장소가 들어있는 폴더(embedded repo — 서브모듈로 잡히면 곤란)
+TeamfightManager2Mod/
+TFM2.gg-upstream/
+
+# 리팩터 전 소스 백업(현행 소스가 정본)
+*_backup_pre_*/
+_daram2_originals/

@@ -1,0 +1,700 @@
+pick_slot:color_icon_button {
+  width: 300px;
+  height: 174px;
+
+  btn: {
+    color: #00000000;
+    stroke: 1;
+    back_color: #1d1f2cff;
+    rounding: Uniform {
+      rounding: 8;
+    }
+  }
+  
+  hover: {
+    btn: {
+      color: #e8e8e8ff;
+    }
+  }
+
+  hover_sound: "asset/base/sound/sfx/UI_mouse_hover";
+  click_sound: "asset/base/sound/sfx/UI_mouse_click";
+
+  #wait:empty {
+    x: 0px;
+
+    width: 300px;
+    height: 174px;
+
+
+    #bpi_illust:image {
+      source: "asset/tfm2_banpick_illust/illust/knight";
+      x: 0px;
+      y: 0px;
+      width: 300px;
+      height: 174px;
+      visible: false;
+      ignore_event: true;
+      rounding: Uniform {
+        rounding: 8;
+      }
+    }
+
+    #bpi_dim:color {
+      x: 0px;
+      y: 114px;
+      width: 300px;
+      height: 60px;
+      color: #23252fa6;
+      visible: false;
+      ignore_event: true;
+      rounding: Individual {
+        top_left: 0;
+        top_right: 0;
+        bottom_left: 8;
+        bottom_right: 8;
+      }
+    }
+
+    #bar:color {
+      color: #5873ffff;
+      width: 8px;
+      anchor_y: 0.5;
+      pivot_y: 0.5;
+      height: 172px;
+      ignore_event: true;
+    }
+
+    #position:image {
+      x: 268px;
+      y: 117px;
+
+      source: "asset/base/ui/icons/top";
+
+      width: 22px;
+      height: 22px;
+      ignore_event: true;
+    }
+
+    #proficiency_top:empty {
+      x: 10px;
+      y: 140px;
+
+      width: 124px;
+      height: 30px;
+      visible: false;
+      ignore_event: true;
+
+      #background:color {
+        width: 30px;
+        height: 30px;
+        color: #161721ff;
+        ignore_event: true;
+
+        rounding: Uniform {
+          rounding: 6;
+        }
+      }
+
+      #icon:image {
+        width: 26px;
+        height: 26px;
+        ignore_event: true;
+      }
+
+      #label:label {
+        @"asset/base/style/main#bold_label";
+        width: 78px;
+        height: 18px;
+        size: 12;
+        align_x: Center;
+        align_y: Center;
+        text: "";
+        visible: false;
+        ignore_event: true;
+      }
+    }
+
+    #name:label {
+      @"asset/base/style/main#bold_label";
+      x: 194px;
+      width: 96px;
+      height: 28px;
+
+
+      anchor_x: 0;
+      pivot_x: 0;
+      y: 145px;
+      align_x: Right;
+      align_y: Center;
+      color: #e8e8e8ff;
+      size: 16;
+      text: "ABCD";
+    }
+  }
+
+  #in_turn:empty {
+    x: 0px;
+
+    width: 300px;
+    height: 174px;
+
+
+    #bpi_illust:image {
+      source: "asset/tfm2_banpick_illust/illust/knight";
+      x: 0px;
+      y: 0px;
+      width: 300px;
+      height: 174px;
+      visible: false;
+      ignore_event: true;
+      rounding: Uniform {
+        rounding: 8;
+      }
+    }
+
+    #bpi_dim:color {
+      x: 0px;
+      y: 114px;
+      width: 300px;
+      height: 60px;
+      color: #23252fa6;
+      visible: false;
+      ignore_event: true;
+      rounding: Individual {
+        top_left: 0;
+        top_right: 0;
+        bottom_left: 8;
+        bottom_right: 8;
+      }
+    }
+
+    #turn_outline:color {
+      x: 2px;
+      y: 2px;
+      width: 296px;
+      height: 170px;
+      color: #5b73ffff;
+      stroke: 3;
+      back_color: #00000000;
+      rounding: Uniform { rounding: 7; }
+      ignore_event: true;
+      visible: false;
+    }
+
+    #bar:color {
+      color: #e8e8e8ff;
+      width: 8px;
+      anchor_y: 0.5;
+      pivot_y: 0.5;
+      height: 172px;
+      ignore_event: true;
+    }
+
+    #position:image {
+      x: 268px;
+      y: 117px;
+
+      source: "asset/base/ui/icons/top";
+
+      width: 22px;
+      height: 22px;
+      ignore_event: true;
+    }
+
+    #proficiency_top:empty {
+      x: 10px;
+      y: 140px;
+
+      width: 124px;
+      height: 30px;
+      visible: false;
+      ignore_event: true;
+
+      #background:color {
+        width: 30px;
+        height: 30px;
+        color: #161721ff;
+        ignore_event: true;
+
+        rounding: Uniform {
+          rounding: 6;
+        }
+      }
+
+      #icon:image {
+        width: 26px;
+        height: 26px;
+        ignore_event: true;
+      }
+
+      #label:label {
+        @"asset/base/style/main#bold_label";
+        width: 78px;
+        height: 18px;
+        size: 12;
+        align_x: Center;
+        align_y: Center;
+        text: "";
+        visible: false;
+        ignore_event: true;
+      }
+    }
+
+    #name:label {
+      @"asset/base/style/main#bold_label";
+      x: 194px;
+      width: 96px;
+      height: 28px;
+
+      anchor_x: 0;
+      pivot_x: 0;
+      y: 145px;
+      align_x: Right;
+      align_y: Center;
+      color: #e8e8e8ff;
+      size: 16;
+      text: "ABCD";
+    }
+  }
+
+  #done:empty {
+    x: 0px;
+
+    width: 300px;
+    height: 174px;
+
+
+    #bpi_illust:image {
+      source: "asset/tfm2_banpick_illust/illust/knight";
+      x: 0px;
+      y: 0px;
+      width: 300px;
+      height: 174px;
+      visible: false;
+      ignore_event: true;
+      rounding: Uniform {
+        rounding: 8;
+      }
+    }
+
+    #bpi_dim:color {
+      x: 0px;
+      y: 114px;
+      width: 300px;
+      height: 60px;
+      color: #23252fa6;
+      visible: false;
+      ignore_event: true;
+      rounding: Individual {
+        top_left: 0;
+        top_right: 0;
+        bottom_left: 8;
+        bottom_right: 8;
+      }
+    }
+
+    #bar:color {
+      color: #5873ffff;
+      width: 8px;
+      anchor_y: 0.5;
+      pivot_y: 0.5;
+      height: 172px;
+      ignore_event: true;
+    }
+
+    #position:image {
+      x: 268px;
+      y: 117px;
+
+      source: "asset/base/ui/icons/top";
+
+      width: 22px;
+      height: 22px;
+      ignore_event: true;
+    }
+
+    #proficiency_badge_title:label {
+      @"asset/base/style/main#label";
+      x: 100px;
+      y: 121px;
+      width: 110px;
+      height: 18px;
+      size: 13;
+      align_x: Center;
+      align_y: Center;
+      color: #e8e8e8ff;
+      text: "#asset/base/text/ui?banpick.proficiency_bonus_label";
+      visible: false;
+      ignore_event: true;
+    }
+
+    #proficiency_badge:empty {
+      x: 161px;
+      y: 148px;
+
+      width: 30px;
+      height: 30px;
+      visible: false;
+      ignore_event: true;
+
+      #background:color {
+        width: 30px;
+        height: 30px;
+        color: #1d1f2cff;
+        ignore_event: true;
+
+        rounding: Uniform {
+          rounding: 6;
+        }
+      }
+
+      #icon:image {
+        width: 30px;
+        height: 30px;
+        ignore_event: true;
+      }
+
+      #label:label {
+      y: 0px;
+      x: 0px;
+        @"asset/base/style/main#bold_label";
+      width: 100%;
+      height: 100%;
+        size: 12;
+      align_x: Center;
+      align_y: Center;
+        text: "";
+        visible: false;
+        ignore_event: true;
+      }
+    }
+
+    #proficiency_top:empty {
+      x: 10px;
+      y: 140px;
+      width: 124px;
+      height: 30px;
+      visible: false;
+      ignore_event: true;
+
+      #background:color {
+        width: 30px;
+        height: 30px;
+        color: #161721ff;
+        ignore_event: true;
+
+        rounding: Uniform {
+          rounding: 6;
+        }
+      }
+
+      #icon:image {
+        width: 26px;
+        height: 26px;
+        ignore_event: true;
+      }
+    }
+    
+    #name:label {
+      @"asset/base/style/main#bold_label";
+      width: 96px;
+      height: 28px;
+      x: 194px;
+      y: 145px;
+      align_x: Right;
+      align_y: Center;
+      color: #e8e8e8ff;
+      size: 16;
+      text: "ABCD";
+    }
+
+    #center:color {
+      x: 156px;
+      y: 20px;
+
+      width: 2px;
+      height: 134px;
+
+      color: #4a4c56ff;
+
+      ignore_event: true;
+    }
+
+    #champion:empty {
+      width: 137px;
+      height: 184px;
+      x: 160px;
+      y: -10px;
+
+      #icon:image {
+        width: 137px;
+        height: 172px;
+
+        ignore_event: true;
+      }
+    }
+  }
+
+  #player_tooltip:color {
+    anchor_x: 1;
+    pivot_x: 0;
+    anchor_y: 0;
+    pivot_y: 1;
+    x: 15px;
+    y: -8px;
+    width: 466px;
+    height: 34px;
+    visible: false;
+    ignore_event: true;
+
+    back_color: #161721ff;
+    color: #4a4c56ff;
+    stroke: 1;
+
+    rounding: Uniform {
+      rounding: 8;
+    }
+
+    #position_row:empty {
+      width: 100%;
+      height: 22px;
+      y: 4px;
+
+      #icon:image {
+        width: 18px;
+        height: 18px;
+        source: "asset/base/ui/icons/top";
+        x: 8px;
+        anchor_y: 0.5;
+        pivot_y: 0.5;
+        ignore_event: true;
+      }
+
+      #text:label {
+        @"asset/base/style/main#label";
+        x: 30px;
+        width: 780px;
+        height: 100%;
+        anchor_y: 0.5;
+        pivot_y: 0.5;
+        size: 14;
+        align_y: Center;
+      }
+    }
+
+    #proficiency_header:empty {
+      width: 100%;
+      height: 26px;
+      y: 26px;
+      visible: false;
+
+      #text:label {
+        @"asset/base/style/main#bold_label";
+        x: 12px;
+        width: 780px;
+        height: 100%;
+        anchor_y: 0.5;
+        pivot_y: 0.5;
+        size: 16;
+        color: #e8e8e8ff;
+        align_y: Center;
+        text: "#asset/base/text/ui?banpick.proficiency_chart_header";
+      }
+    }
+
+    #most_row:empty {
+      width: 100%;
+      height: 34px;
+      y: 26px;
+      visible: false;
+
+      #bar:color {
+        x: 12px;
+        width: 96px;
+        height: 10px;
+        anchor_y: 0.5;
+        pivot_y: 0.5;
+        color: #0f1016ff;
+        rounding: Uniform {
+          rounding: 5;
+        }
+        ignore_event: true;
+
+        #fill:color {
+          width: 50%;
+          height: 100%;
+          color: #37d5b3ff;
+          rounding: Uniform {
+            rounding: 5;
+          }
+          ignore_event: true;
+        }
+      }
+
+      #slot:color {
+        width: 34px;
+        height: 34px;
+        x: 122px;
+        anchor_y: 0.5;
+        pivot_y: 0.5;
+
+        color: #1d1f2cff;
+
+        rounding: Uniform {
+          rounding: 4;
+        }
+
+        ignore_event: true;
+
+        #icon:image {
+          width: 34px;
+          height: 34px;
+          ignore_event: true;
+
+          rounding: Uniform {
+            rounding: 4;
+          }
+        }
+      }
+
+      #text:label {
+        @"asset/base/style/main#label";
+        x: 164px;
+        width: 780px;
+        height: 100%;
+        anchor_y: 0.5;
+        pivot_y: 0.5;
+        size: 16;
+        align_y: Center;
+        visible: false;
+      }
+
+      #name:label {
+        @"asset/base/style/main#bold_label";
+        x: 164px;
+        width: 138px;
+        height: 100%;
+        anchor_y: 0.5;
+        pivot_y: 0.5;
+        size: 16;
+        align_y: Center;
+        color: #e8e8e8ff;
+      }
+
+      #prof:label {
+        @"asset/base/style/main#bold_label";
+        x: 310px;
+        width: 46px;
+        height: 100%;
+        anchor_y: 0.5;
+        pivot_y: 0.5;
+        size: 16;
+        align_x: Right;
+        align_y: Center;
+        color: #f9c80eff;
+      }
+
+      #bonus:label {
+        @"asset/base/style/main#bold_label";
+        x: 368px;
+        width: 76px;
+        height: 100%;
+        anchor_y: 0.5;
+        pivot_y: 0.5;
+        size: 16;
+        align_x: Right;
+        align_y: Center;
+        color: #37d5b3ff;
+      }
+    }
+  }
+
+  #champion_position_tooltip:color {
+    anchor_x: 1;
+    pivot_x: 0;
+    anchor_y: 0;
+    pivot_y: 1;
+    x: 15px;
+    y: -8px;
+    width: 130px;
+    height: 50px;
+    visible: false;
+    ignore_event: true;
+
+    back_color: #161721ff;
+    color: #4a4c56ff;
+    stroke: 1;
+
+    rounding: Uniform {
+      rounding: 8;
+    }
+
+    #header:label {
+      @"asset/base/style/main#label";
+      width: 100%;
+      height: 20px;
+      x: 8px;
+      y: 4px;
+      size: 12;
+      color: #8a8c96ff;
+      align_y: Center;
+    }
+
+    #row1:empty {
+      width: 100%;
+      height: 22px;
+      y: 24px;
+      visible: false;
+
+      #icon:image {
+        width: 18px;
+        height: 18px;
+        source: "asset/base/ui/icons/mid";
+        x: 8px;
+        anchor_y: 0.5;
+        pivot_y: 0.5;
+        ignore_event: true;
+      }
+
+      #text:label {
+        @"asset/base/style/main#label";
+        width: 80px;
+        height: 100%;
+        x: 30px;
+        anchor_y: 0.5;
+        pivot_y: 0.5;
+        size: 14;
+        align_y: Center;
+      }
+    }
+
+    #row2:empty {
+      width: 100%;
+      height: 22px;
+      y: 46px;
+      visible: false;
+
+      #icon:image {
+        width: 18px;
+        height: 18px;
+        source: "asset/base/ui/icons/mid";
+        x: 8px;
+        anchor_y: 0.5;
+        pivot_y: 0.5;
+        ignore_event: true;
+      }
+
+      #text:label {
+        @"asset/base/style/main#label";
+        width: 80px;
+        height: 100%;
+        x: 30px;
+        anchor_y: 0.5;
+        pivot_y: 0.5;
+        size: 14;
+        align_y: Center;
+      }
+    }
+  }
+}

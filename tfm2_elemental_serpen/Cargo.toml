@@ -1,0 +1,12 @@
+[package]
+name = "tfm2_elemental_serpen"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+# mod-api 는 빌드 시 SDK/업로더가 주입 — 여기 추가하지 말 것.
+
+[workspace]

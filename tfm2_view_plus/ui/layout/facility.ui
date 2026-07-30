@@ -1,0 +1,1281 @@
+facility:facility_ui {
+  width: 1600px;
+  height: 968px;
+  x: 32px;
+  y: 24px;
+  anchor_x: 0;
+  pivot_x: 0;
+  anchor_y: 0;
+  pivot_y: 0;
+  #header:label {
+    @"asset/base/style/main#bold_label";
+    text: "#asset/base/text/ui?main.facility";
+    width: 1200px;
+    height: 32px;
+    visible: false;
+    align_x: Left;
+    align_y: Center;
+    size: 24;
+    color: #e8e8e8ff;
+  }
+  #contents:empty {
+    y: 0px;
+    width: 1600px;
+    height: 968px;
+    child_type: Table {
+      spacing_x: 15px;
+      spacing_y: 15px;
+    }
+    #gaming_house:color {
+      width: 792.5px;
+      height: 201px;
+      color: #161721ff;
+      rounding: Uniform {
+        rounding: 12;
+      }
+      #panel_icon:image {
+        x: 20px;
+        y: 20px;
+        width: 20px;
+        height: 20px;
+        source: "asset/base/ui/icons/facility_house";
+        ignore_event: true;
+      }
+      #panel_header:label {
+        @"asset/base/style/main#label";
+        x: 46px;
+        y: 20px;
+        width: 300px;
+        height: 24px;
+        size: 18;
+        color: #e8e8e8ff;
+        text: "#asset/base/text/ui?facility.training_facility";
+      }
+      #grade_label:label {
+        @"asset/base/style/main#label";
+        x: 20px;
+        y: 65px;
+        width: 280px;
+        height: 24px;
+        size: 16;
+        color: #a3a9b6ff;
+        text: "#asset/base/text/ui?team_data.training_facility_grade_label";
+      }
+      #grade_value:label {
+        @"asset/base/style/main#label";
+        x: 320px;
+        y: 65px;
+        width: 150px;
+        height: 24px;
+        size: 18;
+        color: #e8e8e8ff;
+        text: "";
+      }
+      #efficiency_label:label {
+        @"asset/base/style/main#label";
+        x: 20px;
+        y: 105px;
+        width: 280px;
+        height: 24px;
+        size: 16;
+        color: #a3a9b6ff;
+        text: "#asset/base/text/ui?team_data.training_efficiency_label";
+      }
+      #efficiency_value:label {
+        @"asset/base/style/main#label";
+        x: 320px;
+        y: 105px;
+        width: 150px;
+        height: 24px;
+        size: 18;
+        color: #e8e8e8ff;
+        text: "";
+      }
+      #maintenance_label:label {
+        @"asset/base/style/main#label";
+        x: 20px;
+        y: 145px;
+        width: 280px;
+        height: 24px;
+        size: 16;
+        color: #a3a9b6ff;
+        text: "#asset/base/text/ui?team_data.training_maintenance_label";
+      }
+      #maintenance_value:label {
+        @"asset/base/style/main#label";
+        x: 320px;
+        y: 145px;
+        width: 220px;
+        height: 24px;
+        size: 18;
+        color: #e8e8e8ff;
+        text: "";
+      }
+      #upgrade_btn:color_icon_button {
+        @"asset/base/style/main#tertiary_button";
+        anchor_x: 1;
+        pivot_x: 1;
+        anchor_y: 0;
+        pivot_y: 0;
+        x: -20px;
+        y: 20px;
+        width: 216px;
+        height: 40px;
+        text: {
+          text: "#asset/base/text/ui?facility.upgrade_btn";
+          font: "asset/base/font/set/bold";
+          size: 18;
+          align_x: Center;
+          align_y: Center;
+        }
+      }
+      #upgrade_cost:label {
+        @"asset/base/style/main#bold_label";
+        anchor_x: 1;
+        pivot_x: 1;
+        anchor_y: 0;
+        pivot_y: 0;
+        x: -20px;
+        y: 68px;
+        width: 216px;
+        height: 24px;
+        size: 18;
+        color: #e8e8e8ff;
+        align_x: Center;
+        text: "";
+      }
+      #budget_warning:label {
+        @"asset/base/style/main#label";
+        anchor_x: 1;
+        pivot_x: 1;
+        anchor_y: 0;
+        pivot_y: 0;
+        x: -20px;
+        y: 96px;
+        width: 216px;
+        height: 20px;
+        size: 14;
+        color: #ff4444ff;
+        align_x: Center;
+        visible: false;
+        text: "#asset/base/text/ui?facility.budget_warning";
+      }
+    }
+    #home_stadium:color {
+      width: 792.5px;
+      height: 201px;
+      color: #161721ff;
+      rounding: Uniform {
+        rounding: 12;
+      }
+      #panel_icon:image {
+        x: 20px;
+        y: 20px;
+        width: 20px;
+        height: 20px;
+        source: "asset/base/ui/icons/facility_stadium";
+        ignore_event: true;
+      }
+      #panel_header:label {
+        @"asset/base/style/main#label";
+        x: 46px;
+        y: 20px;
+        width: 240px;
+        height: 24px;
+        size: 18;
+        color: #e8e8e8ff;
+        text: "#asset/base/text/ui?facility.home_stadium";
+      }
+      #stadium_name:label {
+        @"asset/base/style/main#label";
+        x: 310px;
+        y: 20px;
+        width: 230px;
+        height: 24px;
+        size: 18;
+        color: #a3a9b6ff;
+        text: "";
+      }
+      #stadium_grade_label:label {
+        @"asset/base/style/main#label";
+        x: 20px;
+        y: 65px;
+        width: 280px;
+        height: 24px;
+        size: 16;
+        color: #a3a9b6ff;
+        text: "#asset/base/text/ui?stadium_grade.header";
+      }
+      #stadium_grade_value:label {
+        @"asset/base/style/main#label";
+        x: 320px;
+        y: 65px;
+        width: 150px;
+        height: 24px;
+        size: 18;
+        color: #e8e8e8ff;
+        text: "";
+      }
+      #stadium_capacity_label:label {
+        @"asset/base/style/main#label";
+        x: 20px;
+        y: 105px;
+        width: 280px;
+        height: 24px;
+        size: 16;
+        color: #a3a9b6ff;
+        text: "#asset/base/text/ui?stadium_grade.capacity";
+      }
+      #stadium_capacity_value:label {
+        @"asset/base/style/main#label";
+        x: 320px;
+        y: 105px;
+        width: 150px;
+        height: 24px;
+        size: 18;
+        color: #e8e8e8ff;
+        text: "";
+      }
+      #stadium_maintenance_label:label {
+        @"asset/base/style/main#label";
+        x: 20px;
+        y: 145px;
+        width: 280px;
+        height: 24px;
+        size: 16;
+        color: #a3a9b6ff;
+        text: "#asset/base/text/ui?team_data.training_maintenance_label";
+      }
+      #stadium_maintenance_value:label {
+        @"asset/base/style/main#label";
+        x: 320px;
+        y: 145px;
+        width: 220px;
+        height: 24px;
+        size: 18;
+        color: #e8e8e8ff;
+        text: "";
+      }
+      #stadium_upgrade_btn:color_icon_button {
+        @"asset/base/style/main#tertiary_button";
+        anchor_x: 1;
+        pivot_x: 1;
+        anchor_y: 0;
+        pivot_y: 0;
+        x: -20px;
+        y: 20px;
+        width: 216px;
+        height: 40px;
+        text: {
+          text: "#asset/base/text/ui?facility.stadium_upgrade_btn";
+          font: "asset/base/font/set/bold";
+          size: 18;
+          align_x: Center;
+          align_y: Center;
+        }
+      }
+      #stadium_upgrade_cost:label {
+        @"asset/base/style/main#bold_label";
+        anchor_x: 1;
+        pivot_x: 1;
+        anchor_y: 0;
+        pivot_y: 0;
+        x: -20px;
+        y: 68px;
+        width: 216px;
+        height: 24px;
+        size: 18;
+        color: #e8e8e8ff;
+        align_x: Center;
+        text: "";
+      }
+      #stadium_budget_warning:label {
+        @"asset/base/style/main#label";
+        anchor_x: 1;
+        pivot_x: 1;
+        anchor_y: 0;
+        pivot_y: 0;
+        x: -20px;
+        y: 96px;
+        width: 216px;
+        height: 20px;
+        size: 14;
+        color: #ff4444ff;
+        align_x: Center;
+        visible: false;
+        text: "#asset/base/text/ui?facility.budget_warning";
+      }
+    }
+    #merchandise:color {
+      width: 1600px;
+      height: 752px;
+      color: #161721ff;
+      rounding: Uniform {
+        rounding: 12;
+      }
+      #panel_icon:image {
+        x: 20px;
+        y: 20px;
+        width: 20px;
+        height: 20px;
+        source: "asset/base/ui/icons/facility_goods";
+        ignore_event: true;
+      }
+      #panel_header:label {
+        @"asset/base/style/main#label";
+        x: 46px;
+        y: 20px;
+        width: 300px;
+        height: 24px;
+        size: 18;
+        color: #e8e8e8ff;
+        text: "#asset/base/text/ui?facility.merchandise_production";
+      }
+      #merch_grade_label:label {
+        @"asset/base/style/main#label";
+        x: 20px;
+        y: 65px;
+        width: 280px;
+        height: 24px;
+        size: 16;
+        color: #a3a9b6ff;
+        text: "#asset/base/text/ui?merchandise_facility.grade_label";
+      }
+      #merch_grade_value:label {
+        @"asset/base/style/main#label";
+        x: 320px;
+        y: 65px;
+        width: 150px;
+        height: 24px;
+        size: 18;
+        color: #e8e8e8ff;
+        text: "";
+      }
+      #merch_cost_reduction_label:label {
+        @"asset/base/style/main#label";
+        x: 20px;
+        y: 105px;
+        width: 280px;
+        height: 24px;
+        size: 16;
+        color: #a3a9b6ff;
+        text: "#asset/base/text/ui?merchandise_facility.cost_reduction_label";
+      }
+      #merch_cost_reduction_value:label {
+        @"asset/base/style/main#label";
+        x: 320px;
+        y: 105px;
+        width: 150px;
+        height: 24px;
+        size: 18;
+        color: #e8e8e8ff;
+        text: "";
+      }
+      #merch_upgrade_btn:color_icon_button {
+        @"asset/base/style/main#tertiary_button";
+        anchor_x: 1;
+        pivot_x: 1;
+        x: -20px;
+        y: 20px;
+        width: 216px;
+        height: 40px;
+        text: {
+          text: "#asset/base/text/ui?facility.merchandise_upgrade_btn";
+          font: "asset/base/font/set/bold";
+          size: 18;
+          align_x: Center;
+          align_y: Center;
+        }
+      }
+      #merch_upgrade_cost:label {
+        @"asset/base/style/main#bold_label";
+        anchor_x: 1;
+        pivot_x: 1;
+        x: -20px;
+        y: 68px;
+        width: 216px;
+        height: 24px;
+        size: 18;
+        color: #e8e8e8ff;
+        align_x: Center;
+        text: "";
+      }
+      #merch_budget_warning:label {
+        @"asset/base/style/main#label";
+        anchor_x: 1;
+        pivot_x: 1;
+        x: -20px;
+        y: 96px;
+        width: 216px;
+        height: 20px;
+        size: 14;
+        color: #ff4444ff;
+        align_x: Center;
+        visible: false;
+        text: "#asset/base/text/ui?facility.budget_warning";
+      }
+      #merch_table:empty {
+        x: 20px;
+        y: 150px;
+        width: 1560px;
+        height: 476px;
+        #table_header:color {
+          width: 1560px;
+          height: 56px;
+          color: #0f1016ff;
+          rounding: Individual {
+            top_left: 8;
+            top_right: 8;
+          }
+          child_type: LeftToRight {
+            spacing: 0px;
+          }
+          #col_product:empty {
+            width: 190px;
+            height: 56px;
+            #text:label {
+              @"asset/base/style/main#label";
+              x: 10px;
+              y: 18px;
+              width: 170px;
+              height: 20px;
+              align_y: Center;
+              text: "#asset/base/text/ui?merchandise_facility.header_product";
+              size: 16;
+              color: #ffffffff;
+            }
+          }
+          #col_stock:empty {
+            width: 120px;
+            height: 56px;
+            #text:label {
+              @"asset/base/style/main#label";
+              x: 10px;
+              y: 18px;
+              width: 100px;
+              height: 20px;
+              align_y: Center;
+              text: "#asset/base/text/ui?merchandise_facility.header_stock";
+              size: 16;
+              color: #ffffffff;
+            }
+          }
+          #col_dev_cost:empty {
+            width: 130px;
+            height: 56px;
+            #text:label {
+              @"asset/base/style/main#label";
+              x: 10px;
+              y: 18px;
+              width: 110px;
+              height: 20px;
+              align_y: Center;
+              text: "#asset/base/text/ui?merchandise_facility.header_dev_cost";
+              size: 16;
+              color: #ffffffff;
+            }
+          }
+          #col_unit_cost:empty {
+            width: 150px;
+            height: 56px;
+            #text:label {
+              @"asset/base/style/main#label";
+              x: 10px;
+              y: 18px;
+              width: 130px;
+              height: 20px;
+              align_y: Center;
+              text: "#asset/base/text/ui?merchandise_facility.header_unit_cost";
+              size: 16;
+              color: #ffffffff;
+            }
+          }
+          #col_sell_price:empty {
+            width: 130px;
+            height: 56px;
+            #text:label {
+              @"asset/base/style/main#label";
+              x: 10px;
+              y: 18px;
+              width: 110px;
+              height: 20px;
+              align_y: Center;
+              text: "#asset/base/text/ui?merchandise_facility.header_sell_price";
+              size: 16;
+              color: #ffffffff;
+            }
+          }
+          #col_yearly_sales:empty {
+            width: 180px;
+            height: 56px;
+            #text:label {
+              @"asset/base/style/main#label";
+              x: 10px;
+              y: 18px;
+              width: 160px;
+              height: 20px;
+              align_y: Center;
+              text: "#asset/base/text/ui?merchandise_facility.header_yearly_sales";
+              size: 16;
+              color: #ffffffff;
+            }
+          }
+          #col_yearly_revenue:empty {
+            width: 180px;
+            height: 56px;
+            #text:label {
+              @"asset/base/style/main#label";
+              x: 10px;
+              y: 18px;
+              width: 160px;
+              height: 20px;
+              align_y: Center;
+              text: "#asset/base/text/ui?merchandise_facility.header_yearly_revenue";
+              size: 16;
+              color: #ffffffff;
+            }
+          }
+          #col_total_sales:empty {
+            width: 140px;
+            height: 56px;
+            #text:label {
+              @"asset/base/style/main#label";
+              x: 10px;
+              y: 18px;
+              width: 120px;
+              height: 20px;
+              align_y: Center;
+              text: "#asset/base/text/ui?merchandise_facility.header_total_sales";
+              size: 16;
+              color: #ffffffff;
+            }
+          }
+          #col_total_revenue:empty {
+            width: 160px;
+            height: 56px;
+            #text:label {
+              @"asset/base/style/main#label";
+              x: 10px;
+              y: 18px;
+              width: 140px;
+              height: 20px;
+              align_y: Center;
+              text: "#asset/base/text/ui?merchandise_facility.header_total_revenue";
+              size: 16;
+              color: #ffffffff;
+            }
+          }
+          #col_action:empty {
+            width: 180px;
+            height: 56px;
+          }
+        }
+        #rows:empty {
+          y: 56px;
+          width: 1560px;
+          height: 420px;
+          child_type: TopToBottom {
+            spacing: 0px;
+          }
+        }
+      }
+      #restock_panel:color {
+        anchor_x: 0.5;
+        pivot_x: 0.5;
+        x: 0px;
+        y: 196px;
+        width: 580px;
+        height: 264px;
+        color: #181a24ff;
+        rounding: Uniform { rounding: 12; }
+        visible: false;
+        #fvp_border:color { ignore_event: true; width: 100%; height: 100%; color: #a78bffff; stroke: 2; back_color: #00000000; rounding: Uniform { rounding: 12; } }
+        #fvp_title:label {
+          @"asset/base/style/main#bold_label";
+          x: 24px; y: 18px; width: 320px; height: 28px;
+          size: 20; color: #ffffffff;
+          text: "#asset/base/text/ui?facility_view_plus.popup_title";
+        }
+        #fvp_desc:label {
+          @"asset/base/style/main#label";
+          x: 24px; y: 48px; width: 532px; height: 22px;
+          size: 14; color: #9a92b5ff;
+          text: "#asset/base/text/ui?facility_view_plus.popup_desc";
+        }
+        #fvp_close:color_icon_button {
+          @"asset/base/style/main#tertiary_button";
+          anchor_x: 1; pivot_x: 1; x: -14px; y: 14px; width: 34px; height: 34px;
+          text: { text: "X"; font: "asset/base/font/set/bold"; size: 16; align_x: Center; align_y: Center; }
+        }
+        #fvp_qlabel:label {
+          @"asset/base/style/main#label";
+          x: 28px; y: 86px; width: 64px; height: 42px;
+          size: 16; color: #c9c2e0ff; align_y: Center;
+          text: "#asset/base/text/ui?facility_view_plus.quantity";
+        }
+        #fvp_dec500:color_icon_button {
+          @"asset/base/style/main#tertiary_button";
+          x: 96px; y: 86px; width: 66px; height: 42px;
+          text: { text: "-500"; font: "asset/base/font/set/bold"; size: 15; align_x: Center; align_y: Center; }
+        }
+        #fvp_dec100:color_icon_button {
+          @"asset/base/style/main#tertiary_button";
+          x: 166px; y: 86px; width: 66px; height: 42px;
+          text: { text: "-100"; font: "asset/base/font/set/bold"; size: 15; align_x: Center; align_y: Center; }
+        }
+        #fvp_inc100:color_icon_button {
+          @"asset/base/style/main#tertiary_button";
+          x: 348px; y: 86px; width: 66px; height: 42px;
+          text: { text: "+100"; font: "asset/base/font/set/bold"; size: 15; align_x: Center; align_y: Center; }
+        }
+        #fvp_inc500:color_icon_button {
+          @"asset/base/style/main#tertiary_button";
+          x: 418px; y: 86px; width: 66px; height: 42px;
+          text: { text: "+500"; font: "asset/base/font/set/bold"; size: 15; align_x: Center; align_y: Center; }
+        }
+        #fvp_price_row:empty {
+          x: 0px; y: 140px; width: 580px; height: 40px;
+          visible: false;
+          #fvp_price_label:label {
+            @"asset/base/style/main#label";
+            x: 28px; y: 0px; width: 64px; height: 40px;
+            size: 16; color: #c9c2e0ff; align_y: Center;
+            text: "#asset/base/text/ui?facility_view_plus.price_label";
+          }
+          #fvp_price_min:color_icon_button {
+            @"asset/base/style/main#tertiary_button";
+            x: 96px; y: 2px; width: 120px; height: 36px;
+            text: { text: "#asset/base/text/ui?facility_view_plus.price_min"; font: "asset/base/font/set/bold"; size: 15; align_x: Center; align_y: Center; }
+          }
+          #fvp_price_rec:color_icon_button {
+            @"asset/base/style/main#tertiary_button";
+            x: 222px; y: 2px; width: 120px; height: 36px;
+            text: { text: "#asset/base/text/ui?facility_view_plus.price_rec"; font: "asset/base/font/set/bold"; size: 15; align_x: Center; align_y: Center; }
+          }
+          #fvp_price_max:color_icon_button {
+            @"asset/base/style/main#tertiary_button";
+            x: 348px; y: 2px; width: 120px; height: 36px;
+            text: { text: "#asset/base/text/ui?facility_view_plus.price_max"; font: "asset/base/font/set/bold"; size: 15; align_x: Center; align_y: Center; }
+          }
+          #fvp_pm_hl_0:color { ignore_event: true; x: 96px; y: 2px; width: 120px; height: 36px; color: #a78bffff; stroke: 2; back_color: #00000000; rounding: Uniform { rounding: 6; } visible: false; }
+          #fvp_pm_hl_1:color { ignore_event: true; x: 222px; y: 2px; width: 120px; height: 36px; color: #a78bffff; stroke: 2; back_color: #00000000; rounding: Uniform { rounding: 6; } visible: true; }
+          #fvp_pm_hl_2:color { ignore_event: true; x: 348px; y: 2px; width: 120px; height: 36px; color: #a78bffff; stroke: 2; back_color: #00000000; rounding: Uniform { rounding: 6; } visible: false; }
+        }
+        #fvp_cancel:color_icon_button {
+          @"asset/base/style/main#tertiary_button";
+          x: 28px; y: 208px; width: 256px; height: 44px;
+          text: { text: "#asset/base/text/ui?facility_view_plus.cancel"; font: "asset/base/font/set/bold"; size: 18; align_x: Center; align_y: Center; }
+        }
+        #fvp_confirm:color_icon_button {
+          @"asset/base/style/main#secondary_button";
+          x: 296px; y: 208px; width: 256px; height: 44px;
+          text: { text: "#asset/base/text/ui?facility_view_plus.confirm"; font: "asset/base/font/set/bold"; size: 18; align_x: Center; align_y: Center; }
+        }
+        #fvp_q_1:label { @"asset/base/style/main#bold_label"; x: 240px; y: 86px; width: 100px; height: 42px; size: 24; color: #ffffffff; align_x: Center; align_y: Center; visible: false; text: "100"; }
+        #fvp_q_2:label { @"asset/base/style/main#bold_label"; x: 240px; y: 86px; width: 100px; height: 42px; size: 24; color: #ffffffff; align_x: Center; align_y: Center; visible: false; text: "200"; }
+        #fvp_q_3:label { @"asset/base/style/main#bold_label"; x: 240px; y: 86px; width: 100px; height: 42px; size: 24; color: #ffffffff; align_x: Center; align_y: Center; visible: false; text: "300"; }
+        #fvp_q_4:label { @"asset/base/style/main#bold_label"; x: 240px; y: 86px; width: 100px; height: 42px; size: 24; color: #ffffffff; align_x: Center; align_y: Center; visible: false; text: "400"; }
+        #fvp_q_5:label { @"asset/base/style/main#bold_label"; x: 240px; y: 86px; width: 100px; height: 42px; size: 24; color: #ffffffff; align_x: Center; align_y: Center; visible: false; text: "500"; }
+        #fvp_q_6:label { @"asset/base/style/main#bold_label"; x: 240px; y: 86px; width: 100px; height: 42px; size: 24; color: #ffffffff; align_x: Center; align_y: Center; visible: false; text: "600"; }
+        #fvp_q_7:label { @"asset/base/style/main#bold_label"; x: 240px; y: 86px; width: 100px; height: 42px; size: 24; color: #ffffffff; align_x: Center; align_y: Center; visible: false; text: "700"; }
+        #fvp_q_8:label { @"asset/base/style/main#bold_label"; x: 240px; y: 86px; width: 100px; height: 42px; size: 24; color: #ffffffff; align_x: Center; align_y: Center; visible: false; text: "800"; }
+        #fvp_q_9:label { @"asset/base/style/main#bold_label"; x: 240px; y: 86px; width: 100px; height: 42px; size: 24; color: #ffffffff; align_x: Center; align_y: Center; visible: false; text: "900"; }
+        #fvp_q_10:label { @"asset/base/style/main#bold_label"; x: 240px; y: 86px; width: 100px; height: 42px; size: 24; color: #ffffffff; align_x: Center; align_y: Center; visible: false; text: "1,000"; }
+        #fvp_q_11:label { @"asset/base/style/main#bold_label"; x: 240px; y: 86px; width: 100px; height: 42px; size: 24; color: #ffffffff; align_x: Center; align_y: Center; visible: false; text: "1,100"; }
+        #fvp_q_12:label { @"asset/base/style/main#bold_label"; x: 240px; y: 86px; width: 100px; height: 42px; size: 24; color: #ffffffff; align_x: Center; align_y: Center; visible: false; text: "1,200"; }
+        #fvp_q_13:label { @"asset/base/style/main#bold_label"; x: 240px; y: 86px; width: 100px; height: 42px; size: 24; color: #ffffffff; align_x: Center; align_y: Center; visible: false; text: "1,300"; }
+        #fvp_q_14:label { @"asset/base/style/main#bold_label"; x: 240px; y: 86px; width: 100px; height: 42px; size: 24; color: #ffffffff; align_x: Center; align_y: Center; visible: false; text: "1,400"; }
+        #fvp_q_15:label { @"asset/base/style/main#bold_label"; x: 240px; y: 86px; width: 100px; height: 42px; size: 24; color: #ffffffff; align_x: Center; align_y: Center; visible: false; text: "1,500"; }
+        #fvp_q_16:label { @"asset/base/style/main#bold_label"; x: 240px; y: 86px; width: 100px; height: 42px; size: 24; color: #ffffffff; align_x: Center; align_y: Center; visible: false; text: "1,600"; }
+        #fvp_q_17:label { @"asset/base/style/main#bold_label"; x: 240px; y: 86px; width: 100px; height: 42px; size: 24; color: #ffffffff; align_x: Center; align_y: Center; visible: false; text: "1,700"; }
+        #fvp_q_18:label { @"asset/base/style/main#bold_label"; x: 240px; y: 86px; width: 100px; height: 42px; size: 24; color: #ffffffff; align_x: Center; align_y: Center; visible: false; text: "1,800"; }
+        #fvp_q_19:label { @"asset/base/style/main#bold_label"; x: 240px; y: 86px; width: 100px; height: 42px; size: 24; color: #ffffffff; align_x: Center; align_y: Center; visible: false; text: "1,900"; }
+        #fvp_q_20:label { @"asset/base/style/main#bold_label"; x: 240px; y: 86px; width: 100px; height: 42px; size: 24; color: #ffffffff; align_x: Center; align_y: Center; visible: false; text: "2,000"; }
+        #fvp_q_21:label { @"asset/base/style/main#bold_label"; x: 240px; y: 86px; width: 100px; height: 42px; size: 24; color: #ffffffff; align_x: Center; align_y: Center; visible: false; text: "2,100"; }
+        #fvp_q_22:label { @"asset/base/style/main#bold_label"; x: 240px; y: 86px; width: 100px; height: 42px; size: 24; color: #ffffffff; align_x: Center; align_y: Center; visible: false; text: "2,200"; }
+        #fvp_q_23:label { @"asset/base/style/main#bold_label"; x: 240px; y: 86px; width: 100px; height: 42px; size: 24; color: #ffffffff; align_x: Center; align_y: Center; visible: false; text: "2,300"; }
+        #fvp_q_24:label { @"asset/base/style/main#bold_label"; x: 240px; y: 86px; width: 100px; height: 42px; size: 24; color: #ffffffff; align_x: Center; align_y: Center; visible: false; text: "2,400"; }
+        #fvp_q_25:label { @"asset/base/style/main#bold_label"; x: 240px; y: 86px; width: 100px; height: 42px; size: 24; color: #ffffffff; align_x: Center; align_y: Center; visible: false; text: "2,500"; }
+        #fvp_q_26:label { @"asset/base/style/main#bold_label"; x: 240px; y: 86px; width: 100px; height: 42px; size: 24; color: #ffffffff; align_x: Center; align_y: Center; visible: false; text: "2,600"; }
+        #fvp_q_27:label { @"asset/base/style/main#bold_label"; x: 240px; y: 86px; width: 100px; height: 42px; size: 24; color: #ffffffff; align_x: Center; align_y: Center; visible: false; text: "2,700"; }
+        #fvp_q_28:label { @"asset/base/style/main#bold_label"; x: 240px; y: 86px; width: 100px; height: 42px; size: 24; color: #ffffffff; align_x: Center; align_y: Center; visible: false; text: "2,800"; }
+        #fvp_q_29:label { @"asset/base/style/main#bold_label"; x: 240px; y: 86px; width: 100px; height: 42px; size: 24; color: #ffffffff; align_x: Center; align_y: Center; visible: false; text: "2,900"; }
+        #fvp_q_30:label { @"asset/base/style/main#bold_label"; x: 240px; y: 86px; width: 100px; height: 42px; size: 24; color: #ffffffff; align_x: Center; align_y: Center; visible: false; text: "3,000"; }
+        #fvp_q_31:label { @"asset/base/style/main#bold_label"; x: 240px; y: 86px; width: 100px; height: 42px; size: 24; color: #ffffffff; align_x: Center; align_y: Center; visible: false; text: "3,100"; }
+        #fvp_q_32:label { @"asset/base/style/main#bold_label"; x: 240px; y: 86px; width: 100px; height: 42px; size: 24; color: #ffffffff; align_x: Center; align_y: Center; visible: false; text: "3,200"; }
+        #fvp_q_33:label { @"asset/base/style/main#bold_label"; x: 240px; y: 86px; width: 100px; height: 42px; size: 24; color: #ffffffff; align_x: Center; align_y: Center; visible: false; text: "3,300"; }
+        #fvp_q_34:label { @"asset/base/style/main#bold_label"; x: 240px; y: 86px; width: 100px; height: 42px; size: 24; color: #ffffffff; align_x: Center; align_y: Center; visible: false; text: "3,400"; }
+        #fvp_q_35:label { @"asset/base/style/main#bold_label"; x: 240px; y: 86px; width: 100px; height: 42px; size: 24; color: #ffffffff; align_x: Center; align_y: Center; visible: false; text: "3,500"; }
+        #fvp_q_36:label { @"asset/base/style/main#bold_label"; x: 240px; y: 86px; width: 100px; height: 42px; size: 24; color: #ffffffff; align_x: Center; align_y: Center; visible: false; text: "3,600"; }
+        #fvp_q_37:label { @"asset/base/style/main#bold_label"; x: 240px; y: 86px; width: 100px; height: 42px; size: 24; color: #ffffffff; align_x: Center; align_y: Center; visible: false; text: "3,700"; }
+        #fvp_q_38:label { @"asset/base/style/main#bold_label"; x: 240px; y: 86px; width: 100px; height: 42px; size: 24; color: #ffffffff; align_x: Center; align_y: Center; visible: false; text: "3,800"; }
+        #fvp_q_39:label { @"asset/base/style/main#bold_label"; x: 240px; y: 86px; width: 100px; height: 42px; size: 24; color: #ffffffff; align_x: Center; align_y: Center; visible: false; text: "3,900"; }
+        #fvp_q_40:label { @"asset/base/style/main#bold_label"; x: 240px; y: 86px; width: 100px; height: 42px; size: 24; color: #ffffffff; align_x: Center; align_y: Center; visible: false; text: "4,000"; }
+        #fvp_q_41:label { @"asset/base/style/main#bold_label"; x: 240px; y: 86px; width: 100px; height: 42px; size: 24; color: #ffffffff; align_x: Center; align_y: Center; visible: false; text: "4,100"; }
+        #fvp_q_42:label { @"asset/base/style/main#bold_label"; x: 240px; y: 86px; width: 100px; height: 42px; size: 24; color: #ffffffff; align_x: Center; align_y: Center; visible: false; text: "4,200"; }
+        #fvp_q_43:label { @"asset/base/style/main#bold_label"; x: 240px; y: 86px; width: 100px; height: 42px; size: 24; color: #ffffffff; align_x: Center; align_y: Center; visible: false; text: "4,300"; }
+        #fvp_q_44:label { @"asset/base/style/main#bold_label"; x: 240px; y: 86px; width: 100px; height: 42px; size: 24; color: #ffffffff; align_x: Center; align_y: Center; visible: false; text: "4,400"; }
+        #fvp_q_45:label { @"asset/base/style/main#bold_label"; x: 240px; y: 86px; width: 100px; height: 42px; size: 24; color: #ffffffff; align_x: Center; align_y: Center; visible: false; text: "4,500"; }
+        #fvp_q_46:label { @"asset/base/style/main#bold_label"; x: 240px; y: 86px; width: 100px; height: 42px; size: 24; color: #ffffffff; align_x: Center; align_y: Center; visible: false; text: "4,600"; }
+        #fvp_q_47:label { @"asset/base/style/main#bold_label"; x: 240px; y: 86px; width: 100px; height: 42px; size: 24; color: #ffffffff; align_x: Center; align_y: Center; visible: false; text: "4,700"; }
+        #fvp_q_48:label { @"asset/base/style/main#bold_label"; x: 240px; y: 86px; width: 100px; height: 42px; size: 24; color: #ffffffff; align_x: Center; align_y: Center; visible: false; text: "4,800"; }
+        #fvp_q_49:label { @"asset/base/style/main#bold_label"; x: 240px; y: 86px; width: 100px; height: 42px; size: 24; color: #ffffffff; align_x: Center; align_y: Center; visible: false; text: "4,900"; }
+        #fvp_q_50:label { @"asset/base/style/main#bold_label"; x: 240px; y: 86px; width: 100px; height: 42px; size: 24; color: #ffffffff; align_x: Center; align_y: Center; visible: false; text: "5,000"; }
+        #fvp_q_51:label { @"asset/base/style/main#bold_label"; x: 240px; y: 86px; width: 100px; height: 42px; size: 24; color: #ffffffff; align_x: Center; align_y: Center; visible: false; text: "5,100"; }
+        #fvp_q_52:label { @"asset/base/style/main#bold_label"; x: 240px; y: 86px; width: 100px; height: 42px; size: 24; color: #ffffffff; align_x: Center; align_y: Center; visible: false; text: "5,200"; }
+        #fvp_q_53:label { @"asset/base/style/main#bold_label"; x: 240px; y: 86px; width: 100px; height: 42px; size: 24; color: #ffffffff; align_x: Center; align_y: Center; visible: false; text: "5,300"; }
+        #fvp_q_54:label { @"asset/base/style/main#bold_label"; x: 240px; y: 86px; width: 100px; height: 42px; size: 24; color: #ffffffff; align_x: Center; align_y: Center; visible: false; text: "5,400"; }
+        #fvp_q_55:label { @"asset/base/style/main#bold_label"; x: 240px; y: 86px; width: 100px; height: 42px; size: 24; color: #ffffffff; align_x: Center; align_y: Center; visible: false; text: "5,500"; }
+        #fvp_q_56:label { @"asset/base/style/main#bold_label"; x: 240px; y: 86px; width: 100px; height: 42px; size: 24; color: #ffffffff; align_x: Center; align_y: Center; visible: false; text: "5,600"; }
+        #fvp_q_57:label { @"asset/base/style/main#bold_label"; x: 240px; y: 86px; width: 100px; height: 42px; size: 24; color: #ffffffff; align_x: Center; align_y: Center; visible: false; text: "5,700"; }
+        #fvp_q_58:label { @"asset/base/style/main#bold_label"; x: 240px; y: 86px; width: 100px; height: 42px; size: 24; color: #ffffffff; align_x: Center; align_y: Center; visible: false; text: "5,800"; }
+        #fvp_q_59:label { @"asset/base/style/main#bold_label"; x: 240px; y: 86px; width: 100px; height: 42px; size: 24; color: #ffffffff; align_x: Center; align_y: Center; visible: false; text: "5,900"; }
+        #fvp_q_60:label { @"asset/base/style/main#bold_label"; x: 240px; y: 86px; width: 100px; height: 42px; size: 24; color: #ffffffff; align_x: Center; align_y: Center; visible: false; text: "6,000"; }
+        #fvp_q_61:label { @"asset/base/style/main#bold_label"; x: 240px; y: 86px; width: 100px; height: 42px; size: 24; color: #ffffffff; align_x: Center; align_y: Center; visible: false; text: "6,100"; }
+        #fvp_q_62:label { @"asset/base/style/main#bold_label"; x: 240px; y: 86px; width: 100px; height: 42px; size: 24; color: #ffffffff; align_x: Center; align_y: Center; visible: false; text: "6,200"; }
+        #fvp_q_63:label { @"asset/base/style/main#bold_label"; x: 240px; y: 86px; width: 100px; height: 42px; size: 24; color: #ffffffff; align_x: Center; align_y: Center; visible: false; text: "6,300"; }
+        #fvp_q_64:label { @"asset/base/style/main#bold_label"; x: 240px; y: 86px; width: 100px; height: 42px; size: 24; color: #ffffffff; align_x: Center; align_y: Center; visible: false; text: "6,400"; }
+        #fvp_q_65:label { @"asset/base/style/main#bold_label"; x: 240px; y: 86px; width: 100px; height: 42px; size: 24; color: #ffffffff; align_x: Center; align_y: Center; visible: false; text: "6,500"; }
+        #fvp_q_66:label { @"asset/base/style/main#bold_label"; x: 240px; y: 86px; width: 100px; height: 42px; size: 24; color: #ffffffff; align_x: Center; align_y: Center; visible: false; text: "6,600"; }
+        #fvp_q_67:label { @"asset/base/style/main#bold_label"; x: 240px; y: 86px; width: 100px; height: 42px; size: 24; color: #ffffffff; align_x: Center; align_y: Center; visible: false; text: "6,700"; }
+        #fvp_q_68:label { @"asset/base/style/main#bold_label"; x: 240px; y: 86px; width: 100px; height: 42px; size: 24; color: #ffffffff; align_x: Center; align_y: Center; visible: false; text: "6,800"; }
+        #fvp_q_69:label { @"asset/base/style/main#bold_label"; x: 240px; y: 86px; width: 100px; height: 42px; size: 24; color: #ffffffff; align_x: Center; align_y: Center; visible: false; text: "6,900"; }
+        #fvp_q_70:label { @"asset/base/style/main#bold_label"; x: 240px; y: 86px; width: 100px; height: 42px; size: 24; color: #ffffffff; align_x: Center; align_y: Center; visible: false; text: "7,000"; }
+        #fvp_q_71:label { @"asset/base/style/main#bold_label"; x: 240px; y: 86px; width: 100px; height: 42px; size: 24; color: #ffffffff; align_x: Center; align_y: Center; visible: false; text: "7,100"; }
+        #fvp_q_72:label { @"asset/base/style/main#bold_label"; x: 240px; y: 86px; width: 100px; height: 42px; size: 24; color: #ffffffff; align_x: Center; align_y: Center; visible: false; text: "7,200"; }
+        #fvp_q_73:label { @"asset/base/style/main#bold_label"; x: 240px; y: 86px; width: 100px; height: 42px; size: 24; color: #ffffffff; align_x: Center; align_y: Center; visible: false; text: "7,300"; }
+        #fvp_q_74:label { @"asset/base/style/main#bold_label"; x: 240px; y: 86px; width: 100px; height: 42px; size: 24; color: #ffffffff; align_x: Center; align_y: Center; visible: false; text: "7,400"; }
+        #fvp_q_75:label { @"asset/base/style/main#bold_label"; x: 240px; y: 86px; width: 100px; height: 42px; size: 24; color: #ffffffff; align_x: Center; align_y: Center; visible: false; text: "7,500"; }
+        #fvp_q_76:label { @"asset/base/style/main#bold_label"; x: 240px; y: 86px; width: 100px; height: 42px; size: 24; color: #ffffffff; align_x: Center; align_y: Center; visible: false; text: "7,600"; }
+        #fvp_q_77:label { @"asset/base/style/main#bold_label"; x: 240px; y: 86px; width: 100px; height: 42px; size: 24; color: #ffffffff; align_x: Center; align_y: Center; visible: false; text: "7,700"; }
+        #fvp_q_78:label { @"asset/base/style/main#bold_label"; x: 240px; y: 86px; width: 100px; height: 42px; size: 24; color: #ffffffff; align_x: Center; align_y: Center; visible: false; text: "7,800"; }
+        #fvp_q_79:label { @"asset/base/style/main#bold_label"; x: 240px; y: 86px; width: 100px; height: 42px; size: 24; color: #ffffffff; align_x: Center; align_y: Center; visible: false; text: "7,900"; }
+        #fvp_q_80:label { @"asset/base/style/main#bold_label"; x: 240px; y: 86px; width: 100px; height: 42px; size: 24; color: #ffffffff; align_x: Center; align_y: Center; visible: false; text: "8,000"; }
+        #fvp_q_81:label { @"asset/base/style/main#bold_label"; x: 240px; y: 86px; width: 100px; height: 42px; size: 24; color: #ffffffff; align_x: Center; align_y: Center; visible: false; text: "8,100"; }
+        #fvp_q_82:label { @"asset/base/style/main#bold_label"; x: 240px; y: 86px; width: 100px; height: 42px; size: 24; color: #ffffffff; align_x: Center; align_y: Center; visible: false; text: "8,200"; }
+        #fvp_q_83:label { @"asset/base/style/main#bold_label"; x: 240px; y: 86px; width: 100px; height: 42px; size: 24; color: #ffffffff; align_x: Center; align_y: Center; visible: false; text: "8,300"; }
+        #fvp_q_84:label { @"asset/base/style/main#bold_label"; x: 240px; y: 86px; width: 100px; height: 42px; size: 24; color: #ffffffff; align_x: Center; align_y: Center; visible: false; text: "8,400"; }
+        #fvp_q_85:label { @"asset/base/style/main#bold_label"; x: 240px; y: 86px; width: 100px; height: 42px; size: 24; color: #ffffffff; align_x: Center; align_y: Center; visible: false; text: "8,500"; }
+        #fvp_q_86:label { @"asset/base/style/main#bold_label"; x: 240px; y: 86px; width: 100px; height: 42px; size: 24; color: #ffffffff; align_x: Center; align_y: Center; visible: false; text: "8,600"; }
+        #fvp_q_87:label { @"asset/base/style/main#bold_label"; x: 240px; y: 86px; width: 100px; height: 42px; size: 24; color: #ffffffff; align_x: Center; align_y: Center; visible: false; text: "8,700"; }
+        #fvp_q_88:label { @"asset/base/style/main#bold_label"; x: 240px; y: 86px; width: 100px; height: 42px; size: 24; color: #ffffffff; align_x: Center; align_y: Center; visible: false; text: "8,800"; }
+        #fvp_q_89:label { @"asset/base/style/main#bold_label"; x: 240px; y: 86px; width: 100px; height: 42px; size: 24; color: #ffffffff; align_x: Center; align_y: Center; visible: false; text: "8,900"; }
+        #fvp_q_90:label { @"asset/base/style/main#bold_label"; x: 240px; y: 86px; width: 100px; height: 42px; size: 24; color: #ffffffff; align_x: Center; align_y: Center; visible: false; text: "9,000"; }
+        #fvp_q_91:label { @"asset/base/style/main#bold_label"; x: 240px; y: 86px; width: 100px; height: 42px; size: 24; color: #ffffffff; align_x: Center; align_y: Center; visible: false; text: "9,100"; }
+        #fvp_q_92:label { @"asset/base/style/main#bold_label"; x: 240px; y: 86px; width: 100px; height: 42px; size: 24; color: #ffffffff; align_x: Center; align_y: Center; visible: false; text: "9,200"; }
+        #fvp_q_93:label { @"asset/base/style/main#bold_label"; x: 240px; y: 86px; width: 100px; height: 42px; size: 24; color: #ffffffff; align_x: Center; align_y: Center; visible: false; text: "9,300"; }
+        #fvp_q_94:label { @"asset/base/style/main#bold_label"; x: 240px; y: 86px; width: 100px; height: 42px; size: 24; color: #ffffffff; align_x: Center; align_y: Center; visible: false; text: "9,400"; }
+        #fvp_q_95:label { @"asset/base/style/main#bold_label"; x: 240px; y: 86px; width: 100px; height: 42px; size: 24; color: #ffffffff; align_x: Center; align_y: Center; visible: false; text: "9,500"; }
+        #fvp_q_96:label { @"asset/base/style/main#bold_label"; x: 240px; y: 86px; width: 100px; height: 42px; size: 24; color: #ffffffff; align_x: Center; align_y: Center; visible: false; text: "9,600"; }
+        #fvp_q_97:label { @"asset/base/style/main#bold_label"; x: 240px; y: 86px; width: 100px; height: 42px; size: 24; color: #ffffffff; align_x: Center; align_y: Center; visible: false; text: "9,700"; }
+        #fvp_q_98:label { @"asset/base/style/main#bold_label"; x: 240px; y: 86px; width: 100px; height: 42px; size: 24; color: #ffffffff; align_x: Center; align_y: Center; visible: false; text: "9,800"; }
+        #fvp_q_99:label { @"asset/base/style/main#bold_label"; x: 240px; y: 86px; width: 100px; height: 42px; size: 24; color: #ffffffff; align_x: Center; align_y: Center; visible: false; text: "9,900"; }
+        #fvp_q_100:label { @"asset/base/style/main#bold_label"; x: 240px; y: 86px; width: 100px; height: 42px; size: 24; color: #ffffffff; align_x: Center; align_y: Center; visible: false; text: "10,000"; }
+      }
+      #produce_new_btn:color_icon_button {
+        @"asset/base/style/main#secondary_button";
+        anchor_x: 1;
+        pivot_x: 1;
+        x: -364px;
+        y: 701px;
+        width: 190px;
+        height: 40px;
+        text: {
+          text: "#asset/base/text/ui?facility_view_plus.produce_new_btn";
+          font: "asset/base/font/set/bold";
+          size: 17;
+          align_x: Center;
+          align_y: Center;
+        }
+      }
+      #restock_all_btn:color_icon_button {
+        @"asset/base/style/main#secondary_button";
+        anchor_x: 1;
+        pivot_x: 1;
+        x: -192px;
+        y: 701px;
+        width: 162px;
+        height: 40px;
+        text: {
+          text: "#asset/base/text/ui?facility_view_plus.addprod_btn";
+          font: "asset/base/font/set/bold";
+          size: 18;
+          align_x: Center;
+          align_y: Center;
+        }
+      }
+      #add_product_btn:color_icon_button {
+        @"asset/base/style/main#secondary_button";
+        anchor_x: 1;
+        pivot_x: 1;
+        x: -20px;
+        y: 701px;
+        width: 162px;
+        height: 40px;
+        text: {
+          text: "#asset/base/text/ui?facility.add_product_btn";
+          font: "asset/base/font/set/bold";
+          size: 18;
+          align_x: Center;
+          align_y: Center;
+        }
+      }
+      #pagination:empty {
+        width: 340px;
+        height: 40px;
+        anchor_x: 0.5;
+        pivot_x: 0.5;
+        y: 701px;
+        child_type: LeftToRight {
+          spacing: 10px;
+        }
+        #left:color_icon_button {
+          @"asset/base/style/main#pagination_arrow_button";
+          width: 40px;
+          height: 40px;
+          icon: {
+            source: "asset/base/ui/icons/left";
+            rect: { x: 17.47; y: 15.61; w: 5.06; h: 8.78; }
+          }
+        }
+        #page0:color_icon_button {
+          @"asset/base/style/main#pagination_page_button";
+          width: 40px;
+          height: 40px;
+          text: {
+            rect: { x: 0; y: 0; w: 40; h: 40; }
+            font: "asset/base/font/set/bold";
+            align_x: Center;
+            align_y: Center;
+            text: "1";
+            size: 18;
+          }
+        }
+        #page1:color_icon_button {
+          @"asset/base/style/main#pagination_page_button";
+          width: 40px;
+          height: 40px;
+          text: {
+            rect: { x: 0; y: 0; w: 40; h: 40; }
+            font: "asset/base/font/set/bold";
+            align_x: Center;
+            align_y: Center;
+            text: "1";
+            size: 18;
+          }
+        }
+        #page2:color_icon_button {
+          @"asset/base/style/main#pagination_page_button";
+          width: 40px;
+          height: 40px;
+          text: {
+            rect: { x: 0; y: 0; w: 40; h: 40; }
+            font: "asset/base/font/set/bold";
+            align_x: Center;
+            align_y: Center;
+            text: "1";
+            size: 18;
+          }
+        }
+        #page3:color_icon_button {
+          @"asset/base/style/main#pagination_page_button";
+          width: 40px;
+          height: 40px;
+          text: {
+            rect: { x: 0; y: 0; w: 40; h: 40; }
+            font: "asset/base/font/set/bold";
+            align_x: Center;
+            align_y: Center;
+            text: "1";
+            size: 18;
+          }
+        }
+        #page4:color_icon_button {
+          @"asset/base/style/main#pagination_page_button";
+          width: 40px;
+          height: 40px;
+          text: {
+            rect: { x: 0; y: 0; w: 40; h: 40; }
+            font: "asset/base/font/set/bold";
+            align_x: Center;
+            align_y: Center;
+            text: "1";
+            size: 18;
+          }
+        }
+        #right:color_icon_button {
+          @"asset/base/style/main#pagination_arrow_button";
+          width: 40px;
+          height: 40px;
+          icon: {
+            source: "asset/base/ui/icons/right";
+            rect: { x: 17.47; y: 15.61; w: 5.06; h: 8.78; }
+          }
+        }
+      }
+    }
+  }
+  #popup_layer:empty {
+    width: 1920px;
+    height: 1080px;
+    x: -296px;
+    y: -24px;
+    z: 1000;
+    anchor_x: 0;
+    pivot_x: 0;
+    anchor_y: 0;
+    pivot_y: 0;
+    visible: false;
+    #fade:color_icon_button {
+      width: 100%;
+      height: 100%;
+      btn: {
+        color: #60708540;
+      }
+    }
+    #upgrade_popup:color {
+      width: 720px;
+      height: 390px;
+      anchor_x: 0.5;
+      pivot_x: 0.5;
+      anchor_y: 0.5;
+      pivot_y: 0.5;
+      color: #161721ff;
+      rounding: Uniform {
+        rounding: 12;
+      }
+      #popup_header:label {
+        @"asset/base/style/main#bold_label";
+        x: 24px;
+        y: 20px;
+        width: 400px;
+        height: 28px;
+        size: 18;
+        align_y: Center;
+        text: "#asset/base/text/ui?facility.upgrade_popup_header";
+      }
+      #popup_cancel:button {
+        width: 16px;
+        height: 16px;
+        anchor_x: 1;
+        pivot_x: 1;
+        x: -24px;
+        y: 24px;
+        source: "asset/base/ui/icons/cross";
+        color: #c2c6ceff;
+        hover: { color: #e8e8e8ff; }
+        active: { color: #e8e8e8ff; }
+      }
+      #info_box:color {
+        anchor_x: 0.5;
+        pivot_x: 0.5;
+        y: 60px;
+        width: 672px;
+        height: 246px;
+        color: #4a4c56ff;
+        stroke: 1;
+        back_color: #00000000;
+        rounding: Uniform { rounding: 8; }
+        #line_grade_label:label {
+          @"asset/base/style/main#label";
+          x: 20px; y: 20px; width: 180px; height: 24px; size: 16; color: #a3a9b6ff;
+          text: "#asset/base/text/ui?team_data.training_facility_grade_label";
+        }
+        #line_grade_cur:label {
+          @"asset/base/style/main#label";
+          x: 210px; y: 20px; width: 80px; height: 24px; size: 16; color: #e8e8e8ff; text: "";
+        }
+        #line_grade_arrow:label {
+          @"asset/base/style/main#label";
+          x: 290px; y: 20px; width: 30px; height: 24px; size: 16; color: #a3a9b6ff; text: "<f#asset/base/font/set/symbol>→<f>";
+        }
+        #line_grade_next:label {
+          @"asset/base/style/main#label";
+          x: 320px; y: 20px; width: 80px; height: 24px; size: 16; color: #e8e8e8ff; text: "";
+        }
+        #line_efficiency_label:label {
+          @"asset/base/style/main#label";
+          x: 20px; y: 60px; width: 180px; height: 24px; size: 16; color: #a3a9b6ff;
+          text: "#asset/base/text/ui?team_data.training_efficiency_label";
+        }
+        #line_efficiency_value:label {
+          @"asset/base/style/main#label";
+          x: 210px; y: 60px; width: 442px; height: 24px; size: 16; color: #e8e8e8ff; text: "";
+        }
+        #line_maintenance_label:label {
+          @"asset/base/style/main#label";
+          x: 20px; y: 100px; width: 180px; height: 24px; size: 16; color: #a3a9b6ff;
+          text: "#asset/base/text/ui?team_data.training_maintenance_label";
+        }
+        #line_maintenance_value:label {
+          @"asset/base/style/main#label";
+          x: 210px; y: 100px; width: 442px; height: 24px; size: 16; color: #e8e8e8ff; text: "";
+        }
+        #line_cost_label:label {
+          @"asset/base/style/main#label";
+          x: 20px; y: 140px; width: 180px; height: 24px; size: 16; color: #a3a9b6ff;
+          text: "#asset/base/text/ui?facility.upgrade_cost_label";
+        }
+        #line_cost_value:label {
+          @"asset/base/style/main#bold_label";
+          x: 210px; y: 140px; width: 442px; height: 24px; size: 16; color: #e8e8e8ff; text: "";
+        }
+        #confirm_text:label {
+          @"asset/base/style/main#label";
+          x: 20px; y: 190px; width: 632px; height: 24px; size: 16; color: #e8e8e8ff;
+          align_x: Center;
+          text: "#asset/base/text/ui?facility.upgrade_confirm_text";
+        }
+      }
+      #no:color_icon_button {
+        @"asset/base/style/main#tertiary_button";
+        x: 24px; y: 326px; width: 330px; height: 40px;
+        text: { text: "#asset/base/text/ui?common.cancel"; font: "asset/base/font/set/bold"; size: 18; align_x: Center; align_y: Center; }
+      }
+      #yes:color_icon_button {
+        @"asset/base/style/main#tertiary_button";
+        x: 366px; y: 326px; width: 330px; height: 40px;
+        text: { text: "#asset/base/text/ui?common.ok"; font: "asset/base/font/set/bold"; size: 18; align_x: Center; align_y: Center; }
+      }
+    }
+  }
+  #stadium_popup_layer:empty {
+    width: 1920px;
+    height: 1080px;
+    x: -296px;
+    y: -24px;
+    z: 1000;
+    anchor_x: 0;
+    pivot_x: 0;
+    anchor_y: 0;
+    pivot_y: 0;
+    visible: false;
+    #stadium_fade:color_icon_button {
+      width: 100%;
+      height: 100%;
+      btn: {
+        color: #60708540;
+      }
+    }
+    #stadium_upgrade_popup:color {
+      width: 720px;
+      height: 390px;
+      anchor_x: 0.5;
+      pivot_x: 0.5;
+      anchor_y: 0.5;
+      pivot_y: 0.5;
+      color: #161721ff;
+      rounding: Uniform {
+        rounding: 12;
+      }
+      #popup_header:label {
+        @"asset/base/style/main#bold_label";
+        x: 24px;
+        y: 20px;
+        width: 400px;
+        height: 28px;
+        size: 18;
+        align_y: Center;
+        text: "#asset/base/text/ui?facility.stadium_upgrade_popup_header";
+      }
+      #popup_cancel:button {
+        width: 16px;
+        height: 16px;
+        anchor_x: 1;
+        pivot_x: 1;
+        x: -24px;
+        y: 24px;
+        source: "asset/base/ui/icons/cross";
+        color: #c2c6ceff;
+        hover: { color: #e8e8e8ff; }
+        active: { color: #e8e8e8ff; }
+      }
+      #info_box:color {
+        anchor_x: 0.5;
+        pivot_x: 0.5;
+        y: 60px;
+        width: 672px;
+        height: 246px;
+        color: #4a4c56ff;
+        stroke: 1;
+        back_color: #00000000;
+        rounding: Uniform { rounding: 8; }
+        #line_grade_label:label {
+          @"asset/base/style/main#label";
+          x: 20px; y: 20px; width: 180px; height: 24px; size: 16; color: #a3a9b6ff;
+          text: "#asset/base/text/ui?stadium_grade.header";
+        }
+        #line_grade_cur:label {
+          @"asset/base/style/main#label";
+          x: 210px; y: 20px; width: 80px; height: 24px; size: 16; color: #e8e8e8ff; text: "";
+        }
+        #line_grade_arrow:label {
+          @"asset/base/style/main#label";
+          x: 290px; y: 20px; width: 30px; height: 24px; size: 16; color: #a3a9b6ff; text: "<f#asset/base/font/set/symbol>→<f>";
+        }
+        #line_grade_next:label {
+          @"asset/base/style/main#label";
+          x: 320px; y: 20px; width: 80px; height: 24px; size: 16; color: #e8e8e8ff; text: "";
+        }
+        #line_capacity_label:label {
+          @"asset/base/style/main#label";
+          x: 20px; y: 60px; width: 180px; height: 24px; size: 16; color: #a3a9b6ff;
+          text: "#asset/base/text/ui?stadium_grade.capacity";
+        }
+        #line_capacity_value:label {
+          @"asset/base/style/main#label";
+          x: 210px; y: 60px; width: 442px; height: 24px; size: 16; color: #e8e8e8ff; text: "";
+        }
+        #line_maintenance_label:label {
+          @"asset/base/style/main#label";
+          x: 20px; y: 100px; width: 180px; height: 24px; size: 16; color: #a3a9b6ff;
+          text: "#asset/base/text/ui?team_data.training_maintenance_label";
+        }
+        #line_maintenance_value:label {
+          @"asset/base/style/main#label";
+          x: 210px; y: 100px; width: 442px; height: 24px; size: 16; color: #e8e8e8ff; text: "";
+        }
+        #line_cost_label:label {
+          @"asset/base/style/main#label";
+          x: 20px; y: 140px; width: 180px; height: 24px; size: 16; color: #a3a9b6ff;
+          text: "#asset/base/text/ui?facility.upgrade_cost_label";
+        }
+        #line_cost_value:label {
+          @"asset/base/style/main#bold_label";
+          x: 210px; y: 140px; width: 442px; height: 24px; size: 16; color: #e8e8e8ff; text: "";
+        }
+        #confirm_text:label {
+          @"asset/base/style/main#label";
+          x: 20px; y: 190px; width: 632px; height: 24px; size: 16; color: #e8e8e8ff;
+          align_x: Center;
+          text: "#asset/base/text/ui?facility.stadium_upgrade_confirm_text";
+        }
+      }
+      #no:color_icon_button {
+        @"asset/base/style/main#tertiary_button";
+        x: 24px; y: 326px; width: 330px; height: 40px;
+        text: { text: "#asset/base/text/ui?common.cancel"; font: "asset/base/font/set/bold"; size: 18; align_x: Center; align_y: Center; }
+      }
+      #yes:color_icon_button {
+        @"asset/base/style/main#tertiary_button";
+        x: 366px; y: 326px; width: 330px; height: 40px;
+        text: { text: "#asset/base/text/ui?common.ok"; font: "asset/base/font/set/bold"; size: 18; align_x: Center; align_y: Center; }
+      }
+    }
+  }
+  #merch_popup_layer:empty {
+    width: 1920px;
+    height: 1080px;
+    x: -296px;
+    y: -24px;
+    z: 1000;
+    anchor_x: 0;
+    pivot_x: 0;
+    anchor_y: 0;
+    pivot_y: 0;
+    visible: false;
+    #merch_fade:color_icon_button {
+      width: 100%;
+      height: 100%;
+      btn: {
+        color: #60708540;
+      }
+    }
+    #merch_upgrade_popup:color {
+      width: 720px;
+      height: 350px;
+      anchor_x: 0.5;
+      pivot_x: 0.5;
+      anchor_y: 0.5;
+      pivot_y: 0.5;
+      color: #161721ff;
+      rounding: Uniform {
+        rounding: 12;
+      }
+      #popup_header:label {
+        @"asset/base/style/main#bold_label";
+        x: 24px;
+        y: 20px;
+        width: 400px;
+        height: 28px;
+        size: 18;
+        align_y: Center;
+        text: "#asset/base/text/ui?facility.merchandise_upgrade_popup_header";
+      }
+      #popup_cancel:button {
+        width: 16px;
+        height: 16px;
+        anchor_x: 1;
+        pivot_x: 1;
+        x: -24px;
+        y: 24px;
+        source: "asset/base/ui/icons/cross";
+        color: #c2c6ceff;
+        hover: { color: #e8e8e8ff; }
+        active: { color: #e8e8e8ff; }
+      }
+      #info_box:color {
+        anchor_x: 0.5;
+        pivot_x: 0.5;
+        y: 60px;
+        width: 672px;
+        height: 206px;
+        color: #4a4c56ff;
+        stroke: 1;
+        back_color: #00000000;
+        rounding: Uniform { rounding: 8; }
+        #line_grade_label:label {
+          @"asset/base/style/main#label";
+          x: 20px; y: 20px; width: 180px; height: 24px; size: 16; color: #a3a9b6ff;
+          text: "#asset/base/text/ui?merchandise_facility.grade_label";
+        }
+        #line_grade_cur:label {
+          @"asset/base/style/main#label";
+          x: 210px; y: 20px; width: 80px; height: 24px; size: 16; color: #e8e8e8ff; text: "";
+        }
+        #line_grade_arrow:label {
+          @"asset/base/style/main#label";
+          x: 290px; y: 20px; width: 30px; height: 24px; size: 16; color: #a3a9b6ff; text: "<f#asset/base/font/set/symbol>→<f>";
+        }
+        #line_grade_next:label {
+          @"asset/base/style/main#label";
+          x: 320px; y: 20px; width: 80px; height: 24px; size: 16; color: #e8e8e8ff; text: "";
+        }
+        #line_cost_reduction_label:label {
+          @"asset/base/style/main#label";
+          x: 20px; y: 60px; width: 180px; height: 24px; size: 16; color: #a3a9b6ff;
+          text: "#asset/base/text/ui?merchandise_facility.cost_reduction_label";
+        }
+        #line_cost_reduction_value:label {
+          @"asset/base/style/main#label";
+          x: 210px; y: 60px; width: 442px; height: 24px; size: 16; color: #e8e8e8ff; text: "";
+        }
+        #line_cost_label:label {
+          @"asset/base/style/main#label";
+          x: 20px; y: 100px; width: 180px; height: 24px; size: 16; color: #a3a9b6ff;
+          text: "#asset/base/text/ui?facility.upgrade_cost_label";
+        }
+        #line_cost_value:label {
+          @"asset/base/style/main#bold_label";
+          x: 210px; y: 100px; width: 442px; height: 24px; size: 16; color: #e8e8e8ff; text: "";
+        }
+        #confirm_text:label {
+          @"asset/base/style/main#label";
+          x: 20px; y: 150px; width: 632px; height: 24px; size: 16; color: #e8e8e8ff;
+          align_x: Center;
+          text: "#asset/base/text/ui?facility.merchandise_upgrade_confirm_text";
+        }
+      }
+      #no:color_icon_button {
+        @"asset/base/style/main#tertiary_button";
+        x: 24px; y: 286px; width: 330px; height: 40px;
+        text: { text: "#asset/base/text/ui?common.cancel"; font: "asset/base/font/set/bold"; size: 18; align_x: Center; align_y: Center; }
+      }
+      #yes:color_icon_button {
+        @"asset/base/style/main#tertiary_button";
+        x: 366px; y: 286px; width: 330px; height: 40px;
+        text: { text: "#asset/base/text/ui?common.ok"; font: "asset/base/font/set/bold"; size: 18; align_x: Center; align_y: Center; }
+      }
+    }
+  }
+}

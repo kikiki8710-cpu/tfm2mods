@@ -1,0 +1,351 @@
+squad:squad_ui {
+  width: 1600px;
+  height: 968px;
+
+  x: 32px;
+  y: 24px;
+
+  #data:color {
+    y: 0px;
+    width: 1600px;
+    height: 968px;
+
+    color: #00000000;
+    back_color: #00000000;
+    rounding: Uniform {
+      rounding: 12;
+    }
+
+    #category:empty {
+      y: 20px;
+      width: 1600px;
+      height: 20px;
+
+      child_type: LeftToRight {
+        spacing: 20px;
+      }
+
+      #selected_position:label {
+        @"asset/base/style/main#label";
+        size: 16;
+        width: 154px;
+        height: 20px;
+
+        align_y: Center;
+        x: 30px;
+        text: "#asset/base/text/ui?lineup.selected_position";
+      }
+
+      
+      #name:label {
+        @"asset/base/style/main#label";
+        size: 16;
+        width: 208px;
+        height: 20px;
+
+        align_y: Center;
+        text: "#asset/base/text/ui?strategy.name";
+      }
+
+      #age:label {
+        @"asset/base/style/main#label";
+        size: 16;
+        width: 84px;
+        height: 20px;
+
+        align_y: Center;
+        text: "#asset/base/text/ui?player_detail.age";
+      }
+
+      #salary:label {
+        @"asset/base/style/main#label";
+        size: 16;
+        width: 94px;
+        height: 20px;
+
+        align_y: Center;
+        text: "#asset/base/text/ui?player_detail.salary.header";
+      }
+
+      #position:label {
+        @"asset/base/style/main#label";
+        size: 16;
+        width: 137px;
+        height: 20px;
+
+        align_y: Center;
+        text: "#asset/base/text/ui?strategy.position";
+      }
+
+      #game:label {
+        @"asset/base/style/main#label";
+        size: 16;
+        width: 104px;
+        height: 20px;
+
+        align_y: Center;
+        text: "#asset/base/text/ui?statistics.game";
+      }
+
+      #kill:label {
+        @"asset/base/style/main#label";
+        size: 16;
+        width: 120px;
+        height: 20px;
+
+        align_y: Center;
+        text: "#asset/base/text/ui?statistics.avr_kill";
+      }
+
+      #death:label {
+        @"asset/base/style/main#label";
+        size: 16;
+        width: 120px;
+        height: 20px;
+
+        align_y: Center;
+        text: "#asset/base/text/ui?statistics.avr_death";
+      }
+
+      #assist:label {
+        @"asset/base/style/main#label";
+        size: 16;
+        width: 120px;
+        height: 20px;
+
+        align_y: Center;
+        text: "#asset/base/text/ui?statistics.avr_assist";
+      }
+
+      #level:label {
+        @"asset/base/style/main#label";
+        size: 16;
+        width: 120px;
+        height: 20px;
+
+        align_y: Center;
+        text: "#asset/base/text/ui?statistics.avr_level";
+      }
+
+      #rating:label {
+        @"asset/base/style/main#label";
+        size: 16;
+        width: 120px;
+        height: 20px;
+
+        align_y: Center;
+        text: "#asset/base/text/ui?statistics.avr_rating";
+      }
+
+      #sab_hdr:empty {
+        visible: false;
+        width: 1188px;
+        height: 20px;
+        child_type: LeftToRight { spacing: 0; }
+        #sab_h0:color_icon_button { btn: { color: #00000000; } width: 99px; height: 20px; #text:label { @"asset/base/style/main#label"; width: 99px; height: 20px; size: 16; align_x: Center; align_y: Center; text: "#asset/base/text/athlete?stat.last_hit"; } }
+        #sab_h1:color_icon_button { btn: { color: #00000000; } width: 99px; height: 20px; #text:label { @"asset/base/style/main#label"; width: 99px; height: 20px; size: 16; align_x: Center; align_y: Center; text: "#asset/base/text/athlete?stat.skill_avoid"; } }
+        #sab_h2:color_icon_button { btn: { color: #00000000; } width: 99px; height: 20px; #text:label { @"asset/base/style/main#label"; width: 99px; height: 20px; size: 16; align_x: Center; align_y: Center; text: "#asset/base/text/athlete?stat.skill_hit"; } }
+        #sab_h3:color_icon_button { btn: { color: #00000000; } width: 99px; height: 20px; #text:label { @"asset/base/style/main#label"; width: 99px; height: 20px; size: 16; align_x: Center; align_y: Center; text: "#asset/base/text/athlete?stat.control_speed"; } }
+        #sab_h4:color_icon_button { btn: { color: #00000000; } width: 99px; height: 20px; #text:label { @"asset/base/style/main#label"; width: 99px; height: 20px; size: 16; align_x: Center; align_y: Center; text: "#asset/base/text/athlete?stat.positioning"; } }
+        #sab_h5:color_icon_button { btn: { color: #00000000; } width: 99px; height: 20px; #text:label { @"asset/base/style/main#label"; width: 99px; height: 20px; size: 16; align_x: Center; align_y: Center; text: "#asset/base/text/athlete?stat.judgement"; } }
+        #sab_h6:color_icon_button { btn: { color: #00000000; } width: 99px; height: 20px; #text:label { @"asset/base/style/main#label"; width: 99px; height: 20px; size: 16; align_x: Center; align_y: Center; text: "#asset/base/text/athlete?stat.mental"; } }
+        #sab_h7:color_icon_button { btn: { color: #00000000; } width: 99px; height: 20px; #text:label { @"asset/base/style/main#label"; width: 99px; height: 20px; size: 16; align_x: Center; align_y: Center; text: "#asset/base/text/athlete?stat.concentration"; } }
+        #sab_h8:color_icon_button { btn: { color: #00000000; } width: 99px; height: 20px; #text:label { @"asset/base/style/main#label"; width: 99px; height: 20px; size: 16; align_x: Center; align_y: Center; text: "#asset/base/text/athlete?stat.order"; } }
+        #sab_h9:color_icon_button { btn: { color: #00000000; } width: 99px; height: 20px; #text:label { @"asset/base/style/main#label"; width: 99px; height: 20px; size: 16; align_x: Center; align_y: Center; text: "#asset/base/text/athlete?stat.roaming"; } }
+        #sab_h10:color_icon_button { btn: { color: #00000000; } width: 99px; height: 20px; #text:label { @"asset/base/style/main#label"; width: 99px; height: 20px; size: 16; align_x: Center; align_y: Center; text: "#asset/base/text/athlete?stat.aggressive"; } }
+        #sab_h11:color_icon_button { btn: { color: #00000000; } width: 99px; height: 20px; #text:label { @"asset/base/style/main#label"; width: 99px; height: 20px; size: 16; align_x: Center; align_y: Center; text: "#asset/base/text/athlete?stat.ego"; } }
+      }
+    }
+
+    #contents:empty {
+      y: 50px;
+      width: 1600px;
+      height: 830px;
+
+      child_type: TopToBottom {
+        spacing: 10px;
+      }
+    }
+
+    #delegate_starting_to_coach:color_icon_button {
+      @"asset/base/style/main#tertiary_button";
+      x: 0px;
+      y: 928px;
+      width: 300px;
+      height: 40px;
+      text: {
+        font: "asset/base/font/set/bold";
+        text: "#asset/base/text/ui?lineup.delegate_starting_to_coach";
+        size: 14;
+        align_x: Center;
+        align_y: Center;
+      }
+    }
+
+    #squad_ability_btn:color_icon_button {
+      @"asset/base/style/main#tertiary_button";
+      x: 320px;
+      y: 928px;
+      width: 40px;
+      height: 40px;
+      icon: {
+        source: "asset/base/ui/icons/swap";
+        rect: { x: 10; y: 10; w: 20; h: 20; }
+      }
+
+      #icon:image {
+        ignore_event: true;
+        x: 10px;
+        y: 10px;
+        width: 20px;
+        height: 20px;
+        source: "asset/base/ui/icons/swap";
+        color: #d7dbe4ff;
+      }
+
+      #icon_off:image {
+        ignore_event: true;
+        x: 10px;
+        y: 10px;
+        width: 20px;
+        height: 20px;
+        source: "asset/base/ui/icons/swap";
+        color: #5a5e68ff;
+        visible: false;
+      }
+    }
+
+    #pagination:empty {
+      visible: false;
+      width: 340px;
+      height: 40px;
+      anchor_x: 0.5;
+      pivot_x: 0.5;
+      y: 928px;
+
+      child_type: LeftToRight {
+        spacing: 10px;
+      }
+
+      #left:color_icon_button {
+        @"asset/base/style/main#pagination_arrow_button";
+        width: 40px;
+        height: 40px;
+        icon: {
+          source: "asset/base/ui/icons/left";
+          rect: { x: 17.47; y: 15.61; w: 5.06; h: 8.78; }
+        }
+      }
+
+      #page0:color_icon_button {
+        @"asset/base/style/main#pagination_page_button";
+        width: 40px;
+        height: 40px;
+        text: {
+          rect: { x: 0; y: 0; w: 40; h: 40; }
+          font: "asset/base/font/set/bold";
+          align_x: Center;
+          align_y: Center;
+          text: "1";
+          size: 18;
+        }
+      }
+
+      #page1:color_icon_button {
+        @"asset/base/style/main#pagination_page_button";
+        width: 40px;
+        height: 40px;
+        text: {
+          rect: { x: 0; y: 0; w: 40; h: 40; }
+          font: "asset/base/font/set/bold";
+          align_x: Center;
+          align_y: Center;
+          text: "1";
+          size: 18;
+        }
+      }
+
+      #page2:color_icon_button {
+        @"asset/base/style/main#pagination_page_button";
+        width: 40px;
+        height: 40px;
+        text: {
+          rect: { x: 0; y: 0; w: 40; h: 40; }
+          font: "asset/base/font/set/bold";
+          align_x: Center;
+          align_y: Center;
+          text: "1";
+          size: 18;
+        }
+      }
+
+      #page3:color_icon_button {
+        @"asset/base/style/main#pagination_page_button";
+        width: 40px;
+        height: 40px;
+        text: {
+          rect: { x: 0; y: 0; w: 40; h: 40; }
+          font: "asset/base/font/set/bold";
+          align_x: Center;
+          align_y: Center;
+          text: "1";
+          size: 18;
+        }
+      }
+
+      #page4:color_icon_button {
+        @"asset/base/style/main#pagination_page_button";
+        width: 40px;
+        height: 40px;
+        text: {
+          rect: { x: 0; y: 0; w: 40; h: 40; }
+          font: "asset/base/font/set/bold";
+          align_x: Center;
+          align_y: Center;
+          text: "1";
+          size: 18;
+        }
+      }
+
+      #right:color_icon_button {
+        @"asset/base/style/main#pagination_arrow_button";
+        width: 40px;
+        height: 40px;
+        icon: {
+          source: "asset/base/ui/icons/right";
+          rect: { x: 17.47; y: 15.61; w: 5.06; h: 8.78; }
+        }
+      }
+    }
+
+    #disabled_tooltip:color {
+      z: 101;
+      visible: false;
+      ignore_event: true;
+      height: 42px;
+      width: 550px;
+      back_color: #161721ff;
+      color: #4a4c56ff;
+      stroke: 1;
+
+      rounding: Uniform {
+        rounding: 8;
+      }
+
+      padding: {
+        left: 10px;
+        right: 10px;
+        top: 5px;
+        bottom: 5px;
+      }
+
+      #text:label {
+        @"asset/base/style/main#label";
+        z: 101;
+        size: 18;
+        text: "";
+        align_y: Center;
+      }
+    }
+  }
+}

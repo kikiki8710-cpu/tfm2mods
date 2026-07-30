@@ -1,0 +1,462 @@
+﻿schedule:schedule_ui {
+  width: 1600px;
+  height: 968px;
+
+  x: 32px;
+  y: 24px;
+
+  #panel:color {
+    width: 1600px;
+    height: 968px;
+    y: 0px;
+
+    color: #161721ff;
+
+    rounding: Uniform {
+      rounding: 12;
+    }
+
+    #header:empty {
+      width: 1600px;
+      height: 72px;
+
+      #today:color_icon_button {
+        @"asset/base/style/main#tertiary_button";
+        width: 310px;
+        height: 40px;
+
+        x: 24px;
+        y: 16px;
+
+        text: {
+          font: "asset/base/font/set/bold";
+          align_x: Center;
+          align_y: Center;
+          size: 18;
+          text: "#asset/base/text/ui?schedule.today";
+        }
+      }
+
+      #today_match:color_icon_button {
+        @"asset/base/style/main#tertiary_button";
+        width: 220px;
+        height: 40px;
+
+        x: 349px;
+        y: 16px;
+
+        text: {
+          font: "asset/base/font/set/bold";
+          align_x: Center;
+          align_y: Center;
+          size: 18;
+          text: "#asset/base/text/ui?today_match.header";
+        }
+      }
+
+      #date_header:empty {
+        x: 584px;
+        y: 16px;
+        width: 404px;
+        height: 40px;
+
+        #year:dropdown {
+          @"asset/base/style/main#dropdown";
+          width: 150px;
+          height: 40px;
+
+          text: {
+            size: 16;
+          }
+
+          item_text: {
+            size: 16;
+          }
+
+          text_layout: {
+            x: 14px;
+            y: 6px;
+            width: 100%;
+            height: 28px;
+          }
+
+          item_layout: {
+            height: 40px;
+            width: 146px;
+            x: 14px;
+          }
+
+          item_text_layout: {
+            y: 6px;
+            width: 146px;
+            height: 28px;
+          }
+        }
+
+        #prev_month:color_icon_button {
+          @"asset/base/style/main#tertiary_button";
+          x: 158px;
+          width: 40px;
+          height: 40px;
+
+          icon: {
+            source: "asset/base/ui/icons/left";
+            rect: {
+              x: 17;
+              y: 16;
+              w: 6;
+              h: 8;
+            }
+          }
+        }
+
+        #month:dropdown {
+          @"asset/base/style/main#dropdown";
+          x: 206px;
+          width: 150px;
+          height: 40px;
+
+          text: {
+            size: 16;
+          }
+
+          item_text: {
+            size: 16;
+          }
+
+          text_layout: {
+            x: 14px;
+            y: 6px;
+            width: 100%;
+            height: 28px;
+          }
+
+          item_layout: {
+            height: 40px;
+            width: 146px;
+            x: 14px;
+          }
+
+          item_text_layout: {
+            y: 6px;
+            width: 146px;
+            height: 28px;
+          }
+        }
+
+        #next_month:color_icon_button {
+          @"asset/base/style/main#tertiary_button";
+          x: 364px;
+          width: 40px;
+          height: 40px;
+
+          icon: {
+            source: "asset/base/ui/icons/right";
+            rect: {
+              x: 17;
+              y: 16;
+              w: 6;
+              h: 8;
+            }
+          }
+        }
+      }
+
+      #options:color {
+        x: 1018px;
+        y: 16px;
+        width: 566px;
+        height: 40px;
+
+        padding: {
+          left: 4px;
+          right: 4px;
+          top: 4px;
+          bottom: 4px;
+        }
+
+        color: #4a4c56ff;
+        stroke: 1;
+        back_color: #00000000;
+
+        child_type: LeftToRight {
+          spacing: 0px;
+        }
+
+        rounding: Uniform {
+          rounding: 8;
+        }
+
+        #list:color_selectable {
+          @"asset/base/style/main#strategy_option";
+          width: 279px;
+          height: 32px;
+
+          label: {
+            size: 18;
+          }
+
+          selected_label: {
+            size: 18;
+          }
+
+          text: "#asset/base/text/ui?schedule.list";
+        }
+
+        #calendar:color_selectable {
+          @"asset/base/style/main#strategy_option";
+          width: 279px;
+          height: 32px;
+
+          label: {
+            size: 18;
+          }
+
+          selected_label: {
+            size: 18;
+          }
+
+          text: "#asset/base/text/ui?schedule.calendar";
+        }
+      }
+    }
+
+    #calendar:empty {
+      width: 1600px;
+      height: 896px;
+      y: 72px;
+
+      #header:empty {
+        width: 1598px;
+        height: 50px;
+        x: 1px;
+
+        child_type: LeftToRight {
+          spacing: 0px;
+        }
+
+        #sunday_card:color {
+          back_color: #00000000;
+          color: #1d1f2cff;
+
+          stroke: 1;
+
+          width: 228.2857px;
+          height: 50px;
+
+          #text:label {
+            @"asset/base/style/main#label";
+            width: 228.2857px;
+            height: 50px;
+
+            size: 16;
+            text: "#asset/base/text/ui?weekday.sun";
+
+            align_y: Center;
+            align_x: Center;
+            color: #858d9dff;
+          }
+        }
+
+        #monday_card:color {
+          back_color: #00000000;
+          color: #1d1f2cff;
+
+          stroke: 1;
+
+          width: 228.2857px;
+          height: 50px;
+
+          #text:label {
+            @"asset/base/style/main#label";
+            width: 228.2857px;
+            height: 50px;
+
+            size: 16;
+            text: "#asset/base/text/ui?weekday.mon";
+
+            align_y: Center;
+            align_x: Center;
+            color: #858d9dff;
+          }
+        }
+
+        #tuesday_card:color {
+          back_color: #00000000;
+          color: #1d1f2cff;
+
+          stroke: 1;
+
+          width: 228.2857px;
+          height: 50px;
+
+          #text:label {
+            @"asset/base/style/main#label";
+            width: 228.2857px;
+            height: 50px;
+
+            size: 16;
+            text: "#asset/base/text/ui?weekday.tue";
+
+            align_y: Center;
+            align_x: Center;
+            color: #858d9dff;
+          }
+        }
+
+        #wednesday_card:color {
+          back_color: #00000000;
+          color: #1d1f2cff;
+
+          stroke: 1;
+
+          width: 228.2857px;
+          height: 50px;
+
+          #text:label {
+            @"asset/base/style/main#label";
+            width: 228.2857px;
+            height: 50px;
+
+            size: 16;
+            text: "#asset/base/text/ui?weekday.wed";
+
+            align_y: Center;
+            align_x: Center;
+            color: #858d9dff;
+          }
+        }
+
+        #thursday_card:color {
+          back_color: #00000000;
+          color: #1d1f2cff;
+
+          stroke: 1;
+
+          width: 228.2857px;
+          height: 50px;
+
+          #text:label {
+            @"asset/base/style/main#label";
+            width: 228.2857px;
+            height: 50px;
+
+            size: 16;
+            text: "#asset/base/text/ui?weekday.thu";
+
+            align_y: Center;
+            align_x: Center;
+            color: #858d9dff;
+          }
+        }
+
+        #friday_card:color {
+          back_color: #00000000;
+          color: #1d1f2cff;
+
+          stroke: 1;
+
+          width: 228.2857px;
+          height: 50px;
+
+          #text:label {
+            @"asset/base/style/main#label";
+            width: 228.2857px;
+            height: 50px;
+
+            size: 16;
+            text: "#asset/base/text/ui?weekday.fri";
+
+            align_y: Center;
+            align_x: Center;
+            color: #858d9dff;
+          }
+        }
+
+        #saturday_card:color {
+          back_color: #00000000;
+          color: #1d1f2cff;
+
+          stroke: 1;
+
+          width: 228.2857px;
+          height: 50px;
+
+          #text:label {
+            @"asset/base/style/main#label";
+            width: 228.2857px;
+            height: 50px;
+
+            size: 16;
+            text: "#asset/base/text/ui?weekday.sat";
+
+            align_y: Center;
+            align_x: Center;
+            color: #858d9dff;
+          }
+        }
+      }
+
+      #line_container:empty {
+        width: 1598px;
+        height: 846px;
+        x: 1px;
+        y: 50px;
+        child_type: Table {
+          spacing_x: 0px;
+          spacing_y: 0px;
+        }
+      }
+
+      #container:empty {
+        width: 1598px;
+        height: 846px;
+        x: 1px;
+        y: 50px;
+
+        child_type: Table {
+          spacing_x: 0px;
+          spacing_y: 0px;
+        }
+      }
+    }
+
+    #list:scroll_view {
+      width: 1600px;
+      height: 896px;
+      y: 72px;
+
+      speed: 100;
+
+      rounding: Individual {
+        top_left: 0;
+        top_right: 0;
+        bottom_left: 12;
+        bottom_right: 12;
+      }
+
+      bar_width: 4;
+      bar: {
+        source: "asset/base/sprite/white";
+        color: #37d5b3ff;
+
+        hover: {
+        color: #ecfbf8ff;
+        }
+      }
+
+      back: {
+        source: "asset/base/sprite/white";
+        color: #4a4c56ff;
+      }
+
+      #contents:empty {
+        width: 1600px;
+        
+        child_type: TopToBottom {
+          spacing: 0px;
+        }
+      }
+    }
+  }
+}
