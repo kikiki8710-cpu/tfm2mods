@@ -26,6 +26,7 @@ const UI_INJECT_ON: bool = false;
 #[path = "knobs.rs"] mod knobs;   // ★자동생성: 편집기 항목 KNOBS 배열
 #[path = "../../ui_kit/ui_kit.rs"] mod ui_kit;   // ★UI 조작(textedit/find_mut/set_visible)
 use std::sync::Mutex;
+
 use std::time::{Instant, SystemTime, UNIX_EPOCH};
 include!("gb_kit.rs");
 include!("rva_053.rs");   // ★0.5.3 마이그(2026-07-29): rva_052.rs → rva_053.rs. 구파일은 이력용 보존(참조 없음).
@@ -1794,6 +1795,11 @@ fn load_cfg(force: bool) -> bool {
     CFG_GEN.fetch_add(1, Ordering::Relaxed);   // ★[07-16] 실리로드 세대+1 → retreat 핫패스 apply체인 1회 재실행
     let txt = match fs::read_to_string(&p) { Ok(t) => t, Err(_) => return false };
     let mut new_tune: TuneMap = HashMap::default();   // ★lock-free + FNV 해셔: 파싱 누적 후 일괄 게시
+    // ★[수정 07-31] subplan별 임계는 "키가 있을 때만" 덮어써서 **한 번 설정하면 되돌릴 수 없었다**
+    //   (줄을 지우거나 -1로 바꿔도 구값·ANY=true가 게임 재시작까지 잔존 = 핫리로드 무효).
+    //   txt를 이미 읽은 뒤라 여기서 초기화해도 실패 경로로 새는 일 없음. 매 리로드 = 파일 내용 그대로 재구성.
+    for a in NUMBERS_THREAT_SP.iter() { a.store(-1, Ordering::Relaxed); }
+    NUMBERS_THREAT_SP_ANY.store(false, Ordering::Relaxed);
     for line in txt.lines() {
         let line = line.trim();
         if line.is_empty() || line.starts_with('#') { continue; }
@@ -1990,6 +1996,12 @@ fn load_cfg(force: bool) -> bool {
                 "adv_prof_seg" => { if let Ok(n)=v.parse() { ADV_PROF_SEG.store(n, Ordering::Relaxed); } }
                 "read_bench" => { if v=="1"||v.eq_ignore_ascii_case("true") { unsafe { bench_reads(); } } }   // ★읽기경로 직접벤치 1회 → readbench.txt (per-read ns ground-truth)
                 "log" => { LOG_ON.store(v=="1"||v.eq_ignore_ascii_case("true"), Ordering::Relaxed); }   // ★진단/로그 파일출력 마스터(기본 off=배포 깨끗). 1=plan_reimpl.txt·perf.txt·*cmp.txt 등 기록
+                // ★[07-31] subplan별 후퇴 발동 누적 측정. `log`과 **독립** — 여러 판 연속 측정 시 mpcmp 등 무거운 로깅을 안 켜도 되게.
+                "sp_seen" => { SP_SEEN_ON.store(v=="1"||v.eq_ignore_ascii_case("true"), Ordering::Relaxed); }
+                // ★조합 테스트 결과가 DB 어디에 저장되는지 추적(스냅샷 diff). 찾고 나면 0으로.
+                "ct_hunt" => { CT_HUNT.store(v=="1"||v.eq_ignore_ascii_case("true"), Ordering::Relaxed); }
+                // ★구간 라벨(전술 이름 등). 값이 바뀌는 순간 직전 구간이 sp_seen_hist.txt 에 한 줄로 확정된다.
+                "sp_seen_tag" => { *SP_TAG_CFG.lock().unwrap_or_else(|e| e.into_inner()) = v.trim().to_string(); }
                 "call_ablate" => { CALL_ABLATE.store(v=="1"||v.eq_ignore_ascii_case("true"), Ordering::Relaxed); }   // ★오더 콜(0xb) 제거 ablation: 1=콜차단(retreat_engage 2 push nop), 0=원본복원. 콜 영향 검증용
                 "lane_gate" => { if let Ok(n)=v.trim().parse::<u8>() { LANE_GATE.store(n.min(2), Ordering::Relaxed); } }   // ★오더 라인후보 게이트 ablation: 0=원본/1=OFF(후보0개)/2=ALL(후보다). 매크로 영향 검증용
                 "type3_ablate" => { TYPE3_ABLATE.store(v=="1"||v.eq_ignore_ascii_case("true"), Ordering::Relaxed); }   // ★오더 transition type3 콜 차단: 1=차단(jae→jmp), 0=원본. 매크로 subplan 전환 영향 검증
@@ -4253,7 +4265,249 @@ static NUMBERS_THREAT: AtomicI64 = AtomicI64::new(0);     // ★cfg numbers_thre
 // ★subplan별 개별 임계: cfg numbers_threat_sp<N>(N=0..15, N=런타임 disc값). -1=미설정→폴백 numbers_threat. 실명(§11.8): 2=LineDefense / 3=LineAttack(라인전) / 4=LineSafe(정글) / 7=Recall / 8=Jungle / 9=Battle / 11=Hide / 13=EpicHunt / 14=EpicPoke. (구라벨 ForcePassive/PassiveLine/PassiveJungle/LineGanker/Cover/EpicHunt/SerpenHunt/AttackNexus/DefenseNexus=0.4.14 유산 오라벨)
 static NUMBERS_THREAT_SP: [AtomicI64; 18] = [const { AtomicI64::new(-1) }; 18];   // ★[수정 07-16] 16→18: sp16/17(SerpenHunt/Poke) idx가 배열 초과로 저장/read 불가였음
 static NUMBERS_THREAT_SP_ANY: AtomicBool = AtomicBool::new(false);   // subplan별 임계 하나라도 설정됨 → dd7700 호출 게이트 활성
-static SP_SEEN: [AtomicU64; 16] = [const { AtomicU64::new(0) }; 16];   // (구 subplan진단, dead — entity+0x500=빈필드라 무용)
+// ★[수정 07-31] 16→18: `apply_numbers_sp`가 `.min(15)`로 클램프해 **disc15/16/17 발동이 슬롯15에 뭉개져** 있었다
+//   (실측 sp_seen.txt `subplan 15 = 4127` = 세르펜 3종 합계). NUMBERS_THREAT_SP와 같은 18칸으로 맞춰 disc별 분리.
+//   ※진단 전용(게임 동작 무영향) — 주석의 "dead"는 오기였다(apply_numbers_sp가 실제로 쓴다).
+static SP_SEEN: [AtomicU64; 18] = [const { AtomicU64::new(0) }; 18];
+static SP_SEEN_FRAME: AtomicU64 = AtomicU64::new(0);   // post_update 프레임 스로틀 카운터
+static SP_SEEN_LAST: AtomicU64 = AtomicU64::new(0);    // 직전 덤프 시점의 총합(변화 없으면 재기록 생략)
+// ★★[2026-07-31 확장] **장기 누적 측정 모드** — 유저가 팀전술을 바꿔가며 여러 판을 연속으로 돌리는 용도.
+//   설계 요점 4가지:
+//    ① **`log` 와 분리된 전용 키 `sp_seen`** — `log=1` 은 mpcmp append 등 무거운 로깅까지 같이 켜서
+//       수십 판 연속 측정엔 부담이다. 이 지표만 필요하면 `sp_seen=1` 하나면 된다(write도 LOG_ON 무관 직접).
+//    ② **게임 재시작에도 누적 유지** — 프로세스 statics는 0으로 시작하므로 `sp_seen_acc.txt` 에서 이전 총계를
+//       읽어 `SP_BASE` 로 이어붙인다. 표시 총계 = BASE + 이번 실행분.
+//    ③ **`sp_seen_tag` 로 구간 분리** — 전술을 바꿀 때 이 값을 바꾸면, 직전 구간이 `sp_seen_hist.txt` 에
+//       한 줄로 확정되고 카운터가 리베이스된다 ⟹ **전술별 비교표**가 자동으로 쌓인다.
+//       (씬 전환으로 경기 경계를 추측하지 않는다 — 배경 sim도 카운터를 올리므로 추측은 틀린다. 라벨은 유저가 준다.)
+//    ④ detour는 여전히 **원자 카운터만** 올린다(파일IO 금지 규칙 유지).
+static SP_SEEN_ON: AtomicBool = AtomicBool::new(false);          // cfg sp_seen (log과 독립)
+static SP_BASE: [AtomicU64; 18] = [const { AtomicU64::new(0) }; 18];   // 이전 실행들에서 이어받은 누적
+static SP_SEG: [AtomicU64; 18] = [const { AtomicU64::new(0) }; 18];    // 현재 태그 구간 시작 시점의 SP_SEEN 스냅샷
+static SP_ACC_LOADED: AtomicBool = AtomicBool::new(false);
+static SP_SEG_LOADED: AtomicBool = AtomicBool::new(false);   // acc 파일에 구간 시작점(s<N>)이 있었는가
+static SP_RUNS: AtomicU64 = AtomicU64::new(0);                   // 게임 실행(프로세스) 횟수
+static SP_LABELS: [&str; 18] = ["라인전0","라인전1","LineDefense","라인전3","LineSafe정글","귀환5","교전6","Recall이동",
+    "갱커버","Battle견제","오브배틀","Hide견제","EpicCheck","EpicHunt","EpicPoke","SerpenCheck","SerpenHunt","SerpenPoke"];
+fn sp_tag_cfg() -> String { SP_TAG_CFG.lock().unwrap_or_else(|e| e.into_inner()).clone() }
+fn sp_tag_cur() -> String { SP_TAG_CUR.lock().unwrap_or_else(|e| e.into_inner()).clone() }
+static SP_TAG_CFG: Mutex<String> = Mutex::new(String::new());   // cfg sp_seen_tag (유저가 적는 전술 라벨 / "auto"=인게임 팀전술 자동)
+static SP_TAG_CUR: Mutex<String> = Mutex::new(String::new());   // 현재 진행 중인 구간의 라벨
+// ★★[07-31 5차] **조합 테스트 결과 저장처 추적기** (cfg `ct_hunt=1`)
+//   전제: 인게임에서 조합 테스트 **리플레이를 볼 수 있다** ⟹ 어딘가에는 반드시 저장된다.
+//   지금까지 배제된 곳: `MatchType::Practice`(0건) · `MatchInfo.is_practice/is_room_practice`(전부 false)
+//                     · `Team.strategy`(화면과 7/12 불일치) · `match_replays` 최대 id(리그 경기만 잡힘).
+//   ⚠"최대 id = 최신"이라는 가정 자체가 미검증이다 — 조합 테스트가 **고정 슬롯을 덮어쓰거나** 낮은 키를 쓰면 그 방식으론 영원히 못 본다.
+//   ⟹ 추측을 접고 **스냅샷 diff**로 간다: 조합 테스트 실행 전후로 DB를 비교해 **무엇이 새로 생기거나 바뀌었는지**를 그대로 보고.
+//      (어느 컨테이너인지 모르는 상태에서 "변한 것"만 잡아내는 방식이라 저장처를 몰라도 답이 나온다.)
+static CT_HUNT: AtomicBool = AtomicBool::new(false);
+static CT_TICK: AtomicU64 = AtomicU64::new(0);
+static CT_SEEN_REPLAYS: Mutex<Option<std::collections::HashSet<u64>>> = Mutex::new(None);
+static CT_SEEN_SIGS: Mutex<Option<HashMap<u64, String>>> = Mutex::new(None);   // id → blue/red 전술 서명(값 변경 감지)
+static CT_LAST_COUNTS: Mutex<Option<(usize, usize)>> = Mutex::new(None);       // (matches, match_replays)
+static CT_LOG_N: AtomicU64 = AtomicU64::new(0);
+
+fn ct_hunt_scan(r: &ClientDatabase) {
+    let mut out = String::new();
+    // ① MatchType 변종 분포 — 조합 테스트 전용 variant 가 있는지 확인(최초 1회만 기록)
+    if CT_LOG_N.fetch_add(1, Ordering::Relaxed) == 0 {
+        let mut kinds: HashMap<String, u32> = HashMap::new();
+        for (mt, _mi) in r.matches.iter() {
+            let d = format!("{:?}", mt);
+            let name = d.split(|c: char| c == ' ' || c == '{' || c == '(').next().unwrap_or("?").to_string();
+            *kinds.entry(name).or_insert(0) += 1;
+        }
+        let mut ks: Vec<_> = kinds.into_iter().collect();
+        ks.sort_by(|a, b| b.1.cmp(&a.1));
+        out.push_str("=== 조합테스트 저장처 추적 (ct_hunt) ===\n[최초 스캔] MatchType 분포:\n");
+        for (k, v) in ks { out.push_str(&format!("   {:<28} {}\n", k, v)); }
+        out.push_str("\n이후로는 '변화'만 기록합니다. 조합 테스트를 한 판 돌리세요.\n\n");
+    }
+
+    // ② 현재 replay 집합 + 각 replay 의 전술 서명
+    let mut cur: std::collections::HashSet<u64> = std::collections::HashSet::new();
+    let mut sigs: HashMap<u64, String> = HashMap::new();
+    for (_k, rep) in r.match_replays.iter() {
+        let id = rep.id as u64;
+        cur.insert(id);
+        sigs.insert(id, format!("B[{}] R[{}]", sp_strat_sig(&rep.blue_strategy), sp_strat_sig(&rep.red_strategy)));
+    }
+    let counts = (r.matches.len(), r.match_replays.len());
+
+    let mut prev_keys = CT_SEEN_REPLAYS.lock().unwrap_or_else(|e| e.into_inner());
+    let mut prev_sigs = CT_SEEN_SIGS.lock().unwrap_or_else(|e| e.into_inner());
+    let mut prev_cnt = CT_LAST_COUNTS.lock().unwrap_or_else(|e| e.into_inner());
+
+    if let (Some(pk), Some(ps), Some(pc)) = (prev_keys.as_ref(), prev_sigs.as_ref(), prev_cnt.as_ref()) {
+        if *pc != counts {
+            out.push_str(&format!("[개수변화] matches {}→{} · match_replays {}→{}\n", pc.0, counts.0, pc.1, counts.1));
+        }
+        // 새로 생긴 replay
+        for id in cur.difference(pk) {
+            out.push_str(&format!("[★새 replay] id={}\n     {}\n", id, sigs.get(id).map(|s| s.as_str()).unwrap_or("?")));
+        }
+        // 사라진 replay
+        for id in pk.difference(&cur) { out.push_str(&format!("[사라짐] id={}\n", id)); }
+        // ★기존 id인데 내용이 바뀐 것 = "고정 슬롯 덮어쓰기" 가설의 결정적 증거
+        for (id, s) in sigs.iter() {
+            if let Some(old) = ps.get(id) {
+                if old != s { out.push_str(&format!("[★내용변경] id={} (같은 슬롯을 덮어씀!)\n     이전 {}\n     이후 {}\n", id, old, s)); }
+            }
+        }
+    }
+    *prev_keys = Some(cur); *prev_sigs = Some(sigs); *prev_cnt = Some(counts);
+
+    if !out.is_empty() {
+        if let Some(p) = pth("ct_hunt.txt") {
+            if let Ok(mut f) = fs::OpenOptions::new().create(true).append(true).open(&p) { let _ = write!(f, "{}", out); }
+        }
+    }
+}
+
+static SP_STRAT_SIG: Mutex<String> = Mutex::new(String::new());   // 인게임 팀전술 12필드 서명(자동 라벨용)
+static SP_STRAT_RAW: Mutex<String> = Mutex::new(String::new());   // 검증용: Team+0x318 원시 24B hex + 해독
+
+// ★[신설 07-31] **인게임 팀전술(Strategy)을 읽어 구간 라벨을 자동 생성**.
+//   소스 = `Team+0x318`(현재 전술 24B·`+0x300`=직전). 12 서브필드 byte 오프셋은 기존 `STRAT_OFFS_ROT` 와 동일 매핑을 재사용.
+//   ⚠이 오프셋은 0.4.14 실측 유래다 — 0.5.3 유효성은 **런타임 자가검증**으로 확인한다:
+//     각 필드가 `STRAT_VC` 범위(2~3)를 넘으면 `범위초과` 로 표시해 오프셋 오류를 즉시 드러낸다.
+//     원시 24B hex도 같이 기록하므로, 유저가 인게임에서 전술을 바꿨을 때 어느 바이트가 움직이는지 대조할 수 있다.
+//   ⚠★알려진 RE 결론: **sim 판단함수는 Strategy를 읽지 않는다**([[tfm2-team-strategy-tactics]] 확정).
+//     ⟹ 전술을 바꿔도 아래 분포가 안 변하는 것이 "예상되는" 결과이고, 이 측정은 그 결론의 라이브 검증이 된다.
+const STRAT_FIELD_NAMES: [&str; 12] = ["foc","jng","srp","srt","bld","bat","mor","twr","def","fin","wav","end"];
+// ★★[07-31 2차] **소스 정정** — 유저가 바꾸는 것은 관리팀 Strategy가 아니라 **연습경기 블루/레드 전술**이었다
+//   (스크린샷 = 블루/레드 12개 드롭다운 = practice match 설정). 그 자리는 `MatchReplayData` 의 blue@+0x78 / red@+0x90.
+//   ⚠단 그 오프셋은 0.4.14 유래이고 **0.5.0에서 구조 stride가 바뀐 뒤 재검증이 안 됐다**(메모리에 명시된 미검증 항목).
+//   ⟹ 추측으로 또 틀리지 않도록, 확정 전까지는 **원시 바이트를 넓게 덤프**해서 인게임 화면과 직접 대조한다.
+//   판별 지문: 유저 화면에서 블루와 레드가 **초반세르펜(srp) 한 필드만** 다르다(블루=되도록포기 / 레드=무조건시도)
+//   ⟹ 두 24B 블록이 **정확히 1바이트만 다른** 지점을 찾으면 그게 blue/red strategy 쌍이다.
+static SP_PROBE_DONE: AtomicBool = AtomicBool::new(false);
+static SP_PROBE_TRY: AtomicU64 = AtomicU64::new(0);   // 120프레임(≈2초)마다 1회만 재시도
+
+// ★★★[07-31 3차·확정] **원시 오프셋 추적은 애초에 불필요했다.**
+//   rustc 프로버(E0027)로 SDK 타입을 직접 물어보니 전부 공개 필드였다:
+//     `MatchReplayData { id, blue_team_id, red_team_id, blue_ban, red_ban, blue_team, red_team,
+//                        blue_strategy, red_strategy, seed, blue_team_win, game_tick, is_brief, … }`
+//     `game_core::Strategy { focused, early_jungle, early_serpen, early_serpen_top, object_buildup,
+//                            object_battle, morgard_use, tower_press, morgard_defense, object_finish,
+//                            minion_wave, game_finish }`  ← 인게임 12개 드롭다운과 1:1
+//   ⟹ `+0x78/+0x90` 하드코딩·24B 해독·바이트 덤프 전부 폐기하고 **SDK 필드 직독**으로 간다
+//      (버전이 올라가도 오프셋 재핀이 필요 없다 = 마이그 부담 0).
+//   ⚠또한 `MatchInfo` 에는 `is_practice`/`is_room_practice` **불리언**이 따로 있다 —
+//     구 필터 `MatchType::Practice{..}` 로 0건이 나온 원인이 이것일 수 있다(맵 키 타입과 별개 플래그).
+fn sp_strat_sig(s: &game_core::Strategy) -> String {
+    format!("foc{:?}/jng{:?}/srp{:?}/srt{:?}/bld{:?}/bat{:?}/mor{:?}/twr{:?}/def{:?}/fin{:?}/wav{:?}/end{:?}",
+        s.focused, s.early_jungle, s.early_serpen, s.early_serpen_top, s.object_buildup, s.object_battle,
+        s.morgard_use, s.tower_press, s.morgard_defense, s.object_finish, s.minion_wave, s.game_finish)
+}
+// MatchReplayData 앞부분을 통째로 떠서 blue/red strategy 후보를 자동 탐색한다.
+const O_TEAM_STRAT: usize = 0x318;   // Team+0x318 = 현재 Strategy(24B)
+// 누적 파일 로드: `d<N>=<v>` / `runs=<n>` / `tag=<s>` 줄만 읽는다(포맷 단순 = 손으로 편집·초기화 가능).
+fn sp_acc_load() {
+    if SP_ACC_LOADED.swap(true, Ordering::Relaxed) { return; }
+    if let Some(p) = pth("sp_seen_acc.txt") {
+        if let Ok(t) = fs::read_to_string(&p) {
+            for line in t.lines() {
+                let line = line.trim();
+                let (k, v) = match line.split_once('=') { Some(kv) => kv, None => continue };
+                let (k, v) = (k.trim(), v.trim());
+                if let Some(n) = k.strip_prefix('d') {
+                    if let (Ok(i), Ok(val)) = (n.parse::<usize>(), v.parse::<u64>()) {
+                        if i < 18 { SP_BASE[i].store(val, Ordering::Relaxed); }
+                    }
+                } else if let Some(n) = k.strip_prefix('s') {
+                    // ★구간 시작점도 영속화 — 없으면 재시작할 때마다 "이번구간"이 0부터 다시 세어져
+                    //   전술 하나를 여러 세션에 걸쳐 돌릴 때 구간 통계가 쪼개진다.
+                    if let (Ok(i), Ok(val)) = (n.parse::<usize>(), v.parse::<u64>()) {
+                        if i < 18 { SP_SEG[i].store(val, Ordering::Relaxed); SP_SEG_LOADED.store(true, Ordering::Relaxed); }
+                    }
+                } else if k == "runs" {
+                    if let Ok(n) = v.parse::<u64>() { SP_RUNS.store(n, Ordering::Relaxed); }
+                } else if k == "tag" {
+                    *SP_TAG_CUR.lock().unwrap_or_else(|e| e.into_inner()) = v.to_string();
+                }
+            }
+        }
+    }
+    // 구간 시작점 기록이 없던 파일(구 포맷)·최초 실행이면 "지금까지의 누적"을 구간 시작점으로 잡는다.
+    if !SP_SEG_LOADED.load(Ordering::Relaxed) {
+        for d in 0..18usize { SP_SEG[d].store(SP_BASE[d].load(Ordering::Relaxed), Ordering::Relaxed); }
+    }
+    SP_RUNS.fetch_add(1, Ordering::Relaxed);   // 이번 프로세스 = 1회 실행
+    if sp_tag_cur().is_empty() { *SP_TAG_CUR.lock().unwrap_or_else(|e| e.into_inner()) = sp_tag_cfg(); }
+}
+
+// 구간 확정: 현재 태그 구간의 델타를 sp_seen_hist.txt 에 한 줄 append 하고 리베이스.
+fn sp_seg_close(tag: &str) {
+    let mut body = String::new();
+    let mut tot = 0u64;
+    for d in 0..18usize {
+        let cur = SP_BASE[d].load(Ordering::Relaxed) + SP_SEEN[d].load(Ordering::Relaxed);
+        let seg = cur.saturating_sub(SP_SEG[d].load(Ordering::Relaxed));
+        SP_SEG[d].store(cur, Ordering::Relaxed);   // 리베이스
+        tot += seg;
+        if seg > 0 { body.push_str(&format!(" sp{}={}", d, seg)); }
+    }
+    if tot == 0 { return; }   // 빈 구간은 기록하지 않음
+    if let Some(p) = pth("sp_seen_hist.txt") {
+        let line = format!("[{}] 합계={}{}\n", if tag.is_empty() { "(라벨없음)" } else { tag }, tot, body);
+        if let Ok(mut f) = fs::OpenOptions::new().create(true).append(true).open(&p) { let _ = write!(f, "{}", line); }
+    }
+}
+
+fn sp_seen_flush() {
+    if !SP_SEEN_ON.load(Ordering::Relaxed) { return; }
+    if SP_SEEN_FRAME.fetch_add(1, Ordering::Relaxed) % 300 != 0 { return; }
+    sp_acc_load();
+    // ★태그가 바뀌었으면(=유저가 전술을 교체했으면) 직전 구간을 확정하고 새 구간 시작
+    //   cfg가 비었거나 "auto" 면 **인게임 팀전술 서명**을 라벨로 쓴다 ⟹ 유저는 게임에서 전술만 바꾸면 된다.
+    //   ⛔[07-31 4차] `auto`(=DB replay 전술로 자동 구간 분리)는 **조합 테스트에 대해 무효**다.
+    //     조합 테스트 경기는 `match_replays` 에 저장되지 않아 항상 리그 경기의 전술만 읽히고,
+    //     그러면 유저가 전술을 바꿔도 라벨이 안 바뀌어 **구간이 통째로 뭉개진다**(실제로 1차 측정 25만건이 그렇게 날아갔다).
+    //     ⟹ auto 는 "(auto-무효)" 고정 라벨로 떨어뜨려 조용히 잘못 나뉘는 일이 없게 한다. 구간 분리는 수동 라벨이 정본.
+    let cfg_tag = sp_tag_cfg();
+    let want = if cfg_tag.is_empty() || cfg_tag.eq_ignore_ascii_case("auto") {
+        "(auto-무효·sp_seen_tag에 전술이름을 직접 적으세요)".to_string()
+    } else { cfg_tag };
+    let cur = sp_tag_cur();
+    if want != cur {
+        sp_seg_close(&cur);
+        *SP_TAG_CUR.lock().unwrap_or_else(|e| e.into_inner()) = want;
+    }
+    let mut total = 0u64;
+    let mut seg_total = 0u64;
+    let mut rows = String::new();
+    let mut acc = String::new();
+    for d in 0..18usize {
+        let run = SP_SEEN[d].load(Ordering::Relaxed);
+        let cum = SP_BASE[d].load(Ordering::Relaxed) + run;
+        let seg = cum.saturating_sub(SP_SEG[d].load(Ordering::Relaxed));
+        total += cum; seg_total += seg;
+        acc.push_str(&format!("d{}={}\ns{}={}\n", d, cum, d, SP_SEG[d].load(Ordering::Relaxed)));
+        if cum > 0 {
+            rows.push_str(&format!("  sp{:<2} {:<12} 누적 {:>9}   이번구간 {:>9}   이번실행 {:>9}\n",
+                d, SP_LABELS[d], cum, seg, run));
+        }
+    }
+    if total == 0 || total == SP_SEEN_LAST.swap(total, Ordering::Relaxed) { return; }
+    let tag = sp_tag_cur();
+    let s = format!("=== numbers_sp 후퇴발동 누적 측정 ===\n\
+        게임 실행 횟수 = {}회 | 현재 구간 라벨 = {}\n\
+        ※구간은 cfg `sp_seen_tag` 로 나눕니다 — 전술을 바꿀 때 이 값을 바꾸면 직전 구간이 sp_seen_hist.txt 에 확정됩니다.\n\
+        ※'누적'=게임 재시작 포함 전체 / '이번구간'=라벨을 바꾼 뒤 / '이번실행'=이번 게임 실행분\n\n\
+        {}\n  {:<16} 누적 {:>9}   이번구간 {:>9}\n\n\
+        ── 참고: DB 최신 replay 의 전술(리그 경기) ──\n  {}\n\
+        ⚠**조합 테스트로 돌린 경기는 여기 안 잡힙니다**(match_replays 에는 리그 경기만 쌓임).\n\
+          따라서 이 줄로 조합 테스트의 전술을 판단하지 마세요 — 구간 구분은 위 `sp_seen_tag` 수동 라벨을 쓰세요.\n",
+        SP_RUNS.load(Ordering::Relaxed), if tag.is_empty() { "(없음)" } else { &tag },
+        rows, "합계", total, seg_total,
+        SP_STRAT_RAW.lock().unwrap_or_else(|e| e.into_inner()).clone());
+    if let Some(p) = pth("sp_seen.txt") { let _ = fs::write(p, &s); }   // ★LOG_ON 무관 직접 write(측정 자가완결·perf.txt와 동일 방침)
+    if let Some(p) = pth("sp_seen_acc.txt") {
+        let _ = fs::write(p, format!("# 누적 카운터(자동 생성). 초기화하려면 이 파일을 지우세요.\nruns={}\ntag={}\n{}",
+            SP_RUNS.load(Ordering::Relaxed), tag, acc));
+    }
+}
 // ★dd7700 출력코드(게임 판단)별 임계 — code 2(Move/라인워크)만 따로. -1=폴백(numbers_threat=지금과 동일).
 //   dd7700이 PassiveLine 전용이라 subplan으론 라인전↔딜교/갱 구분불가 → 게임이 내는 출력 code(2=라인워크 / 4·6·7=교전·귀환)로 구분.
 static NUMBERS_THREAT_MOVE: AtomicI64 = AtomicI64::new(0);   // ★기본 0=라인워크 보존(cfg에 키 없어도). numbers_threat=0이면 무관(원본보존).
@@ -6953,16 +7207,21 @@ unsafe extern "C" fn mp_capture(saved: usize, entry_rsp: usize) -> i64 {
                     }));
                     }
                     // ③ ★base output code 존중 후퇴: 게임이 낸 out code(p1) 읽고 Move(2)=라인워크면 numbers_threat_move, 교전/귀환(4/6/7)이면 numbers_threat.
-                    if TOWER_THREAT.load(Ordering::Relaxed) > 0 || NUMBERS_THREAT.load(Ordering::Relaxed) > 0 || NUMBERS_THREAT_MOVE.load(Ordering::Relaxed) >= 0 || NUMBERS_MARGIN.load(Ordering::Relaxed) > 0 || CLASS_ANY.load(Ordering::Relaxed) || POS_PROBE.load(Ordering::Relaxed) || CLASS_PROBE.load(Ordering::Relaxed) {
+                    // ★[수정 07-31] 게이트에 `NUMBERS_THREAT_SP_ANY` 추가 — 구 게이트는 전역 numbers/tower 키가 하나도 없으면 닫혀서
+                    //   **`numbers_threat_sp0/1/3`만 설정한 유저는 라인전 경로가 통째로 미실행**이었다(apply_numbers_sp 게이트와 불일치).
+                    if TOWER_THREAT.load(Ordering::Relaxed) > 0 || NUMBERS_THREAT.load(Ordering::Relaxed) > 0 || NUMBERS_THREAT_MOVE.load(Ordering::Relaxed) >= 0 || NUMBERS_MARGIN.load(Ordering::Relaxed) > 0 || NUMBERS_THREAT_SP_ANY.load(Ordering::Relaxed) || CLASS_ANY.load(Ordering::Relaxed) || POS_PROBE.load(Ordering::Relaxed) || CLASS_PROBE.load(Ordering::Relaxed) {
                         let _ = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
                             let base_code = rd_u8(p1);
                             let l80 = rd_u64(r15).unwrap_or(0) as usize;
                             let sim = rd_u64(l80).unwrap_or(0) as usize;
                             let side = rd_i64(r14 + 0x820).unwrap_or(-1);   // ★07-10: 0.5.0 오프셋(구 0x6a8=0.4.x)
                             let selfe = dd7_slot128(sim, rd_u64(r14 + 0x818).unwrap_or(0));   // ★07-10: 0.5.0 핸들(구 0x6a0)
-                            if ptr_ok(selfe) && laner_should_retreat(r15, side, selfe, r14, base_code, 3) {
+                            // ★[수정 07-31] disc 하드코딩 `3` → 실제 `disc`. 이 아암은 disc **0/1/3** 공용인데 항상 3으로 넘겨
+                            //   `numbers_threat_sp0`·`sp1`이 영구 무반영이었고 진단 집계도 전부 슬롯3에 뭉개졌다.
+                            //   ※현행 cfg·default.txt에 `sp0/1/3` 줄이 없어(전부 -1=폴백) **오늘 시점 동작 변화는 0**.
+                            if ptr_ok(selfe) && laner_should_retreat(r15, side, selfe, r14, base_code, disc as i64) {
                                 std::ptr::write_unaligned(p1 as *mut u64, 7u64);
-                                SP_SEEN[3].fetch_add(1, Ordering::Relaxed);
+                                SP_SEEN[(disc as usize).min(17)].fetch_add(1, Ordering::Relaxed);
                             }
                         }));
                     }
@@ -7417,6 +7676,7 @@ impl ModExtension for CfgExt {
     }
     fn post_update(&self, _s: &mut Scene, u: &mut GameUI, _a: &mut Assets, _dt: f32) {
         if UI_INJECT_ON { unsafe { uinj::tick(u); } }   // ★UI 조각 주입(mods/*/ui_inject.txt 스캔) + 모달 배경차단. scrim이 이미 후킹했으면 무동작(그쪽이 주입).
+        sp_seen_flush();   // ★[07-31] subplan별 후퇴 발동 덤프(log=1일 때만·300프레임 스로틀). detour에서 옮겨온 것 — 위 함수 주석 참조.
         // ★Phase3: 선발 athlete_id(row N = last_starting[N]) 추출 → 편집기. panic=post_update크래시라 catch_unwind로 격리.
         let _ = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
             let mut ath = [-1i64; 5];
@@ -7424,6 +7684,9 @@ impl ModExtension for CfgExt {
                 let db = data.db();
                 if let Some(team) = db.try_player_team() {   // 관리팀 없는 씬서 panic 회피
                     for (i, slot) in team.last_starting.iter().take(5).enumerate() { ath[i] = match slot { Some(a) => *a as i64, None => -1 }; }
+                    // ⛔[07-31 폐기] 구 `sp_strat_read(team+0x318)` raw 판독 제거 —
+                    //   ①오프셋이 오답이었고(사진 대조 5필드 불일치) ②SDK에 `Team.strategy` 공개 필드가 있어 불필요하며
+                    //   ③SP_STRAT_RAW 슬롯을 SDK 판독본과 번갈아 덮어써 출력이 섞였다. 판독은 아래 전술 상태 블록 1곳으로 일원화.
                 }
                 // ★모달 열림 → 선택 선수 챔피언 클래스 계산(전역 프리필/색/기본값이 클래스오버라이드 반영)
                 if AIADJ_MODAL_OPEN.load(Ordering::Relaxed) {
@@ -7459,6 +7722,66 @@ impl ModExtension for CfgExt {
         // ★클래스 검증 덤프(class_verify=1): ~120프레임마다 class_verify.txt 갱신(라이브)
         if CLASS_VERIFY.load(Ordering::Relaxed) && CLASS_VFLUSH.fetch_add(1, Ordering::Relaxed) % 120 == 0 {
             flush_class_verify();
+        }
+        // ★★[07-31 3차] 연습경기 전술을 **SDK 필드로 직독** → sp_seen 구간 자동 라벨.
+        //   구 방식(원시 24B + 오프셋 가정 + 바이트 덤프)은 전량 폐기 — `MatchReplayData.blue_strategy`가 그냥 공개 필드였다.
+        //   경기가 진행될수록 replay가 늘어나므로 **가장 최근(game_tick이 살아있는) 연습경기 replay**를 라벨 소스로 삼는다.
+        // ★조합테스트 저장처 추적 — 30프레임(≈0.5초)마다 스냅샷 비교. 경기 직후 변화를 놓치지 않게 촘촘히.
+        if CT_HUNT.load(Ordering::Relaxed) && CT_TICK.fetch_add(1, Ordering::Relaxed) % 30 == 0 {
+            if let Scene::InGame { data } = _s {
+                let _ = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+                    ct_hunt_scan(&*data.db());
+                }));
+            }
+        }
+        if SP_SEEN_ON.load(Ordering::Relaxed) && SP_PROBE_TRY.fetch_add(1, Ordering::Relaxed) % 60 == 0 {
+            let mut why = String::from("=== 연습경기 전술 판독 상태 ===\n");
+            if let Scene::InGame { data } = _s {
+                let r: &ClientDatabase = &*data.db();
+                // ★★[07-31 4차·접근 전환] UI가 전술을 **어디에 쓰는지** 쫓는 것을 포기한다.
+                //   실패한 후보: `MatchType::Practice`(0건) · `MatchInfo.is_practice/is_room_practice`(0건) ·
+                //                `Team.strategy`(화면과 12개 중 7개 불일치) ⟹ 그 화면은 이 셋 중 어디에도 안 쓴다.
+                //   대신 **경기가 끝나면 생기는 `match_replays` 를 직접 훑어 가장 최근 것**을 본다.
+                //   근거: 그 안의 `blue_strategy/red_strategy` = **sim 이 실제로 소비한 전술**이므로,
+                //         "유저가 UI에서 뭘 눌렀는가"보다 오히려 정확한 라벨이다(중간 변환이 있어도 결과값을 본다).
+                //   ⟹ 매치 타입 필터 자체가 불필요해지고, 저장 위치 RE 없이 목적(전술별 구간 분리)이 달성된다.
+                let n_match = r.matches.len() as u32;
+                let n_prac = r.match_replays.len() as u32;   // 재해석: 전체 replay 수
+                let mut n_hit = 0u32;
+                let mut best: Option<(u64, String, String)> = None;   // (id, blue_sig, red_sig)
+                for (_k, rep) in r.match_replays.iter() {
+                    n_hit += 1;
+                    let id = rep.id as u64;
+                    if best.as_ref().map_or(true, |b| id >= b.0) {
+                        best = Some((id, sp_strat_sig(&rep.blue_strategy), sp_strat_sig(&rep.red_strategy)));
+                    }
+                }
+                why.push_str(&format!("Scene=InGame  matches={} match_replays={} 훑음={}\n", n_match, n_prac, n_hit));
+                // ★★유저 질문("다시보기에만 있으면 의미 없다")에 대한 직접 실험 —
+                //   후보 2곳을 **동시에** 찍어서, 전술 창에서 드롭다운을 하나 바꿨을 때 **어느 쪽이 움직이는지** 본다.
+                //   ①팀 영속 전술: `Team.strategy` / `Team.last_strategy` (SDK 필드 — 구 raw `+0x318` 은 오답이었다)
+                //   ②경기 입력: `MatchReplayData.blue_strategy` / `.red_strategy`
+                //   RE 메모리는 "②가 라이브+리플레이 공통 sim 입력"이라 하지만 0.5.3 재검증은 없다 ⟹ 추측 대신 관측한다.
+                if let Some(team) = r.try_player_team() {
+                    why.push_str(&format!("\n[①팀 영속] Team.strategy      {}\n           Team.last_strategy {}\n",
+                        sp_strat_sig(&team.strategy), sp_strat_sig(&team.last_strategy)));
+                } else {
+                    why.push_str("\n[①팀 영속] player_team 없음(관리팀 미확정 씬)\n");
+                }
+                why.push_str("\n[②경기 입력] match_replays 중 id 최대(=가장 최근) 것\n");
+                if let Some((id, b, rd)) = best {
+                    why.push_str(&format!("replay id={}\n  BLUE {}\n  RED  {}\n", id, b, rd));
+                    // ★이 값이 sim 이 실제 소비한 전술 ⟹ sp_seen 구간 라벨 소스로 사용.
+                    *SP_STRAT_SIG.lock().unwrap_or_else(|e| e.into_inner()) = format!("B[{}] R[{}]", b, rd);
+                    *SP_STRAT_RAW.lock().unwrap_or_else(|e| e.into_inner()) = format!("BLUE {}\n  RED  {}", b, rd);
+                    SP_PROBE_DONE.store(true, Ordering::Relaxed);
+                } else {
+                    why.push_str("⚠match_replays 가 비어 있음 — 경기를 한 번 돌리면 잡힙니다.\n");
+                }
+            } else {
+                why.push_str("Scene≠InGame (메인메뉴 등)\n");
+            }
+            if let Some(p) = pth("sp_strat_probe_status.txt") { let _ = fs::write(p, &why); }
         }
         // ★시드 회전: 메뉴 프레임에서만(AI 갭>60) practice replay seed 덮어씀 → 경기중엔 동결되어 CUR_SEED=sim 실제시드. 끄면 복원.
         let ai_gap = READY_TICKS.load(Ordering::Relaxed).wrapping_sub(LAST_AI_FRAME.load(Ordering::Relaxed));

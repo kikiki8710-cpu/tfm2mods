@@ -1548,12 +1548,13 @@ unsafe fn apply_numbers_sp(disc: i64, entry_rsp: usize, p1: usize) {
         }
         if fired {
             std::ptr::write_unaligned(p1 as *mut u64, 7u64);
-            let c = SP_SEEN[(disc as usize).min(15)].fetch_add(1, Ordering::Relaxed);   // ★진단: 어느 subplan서 numbers 후퇴 발동
-            if c % 20 == 0 {   // 20발동마다 sp_seen.txt 덤프(log=1 필요)
-                let mut s = String::from("=== numbers_sp 후퇴발동 (subplan별 누적) ===\n2=강제수동 3=라인 4=정글 5=귀환 6=교전 7=갱실행 8=갱커버 9/11=오브견제 10/12=오브배틀 13=넥공 14=넥수비\n");
-                for d in 0..16usize { let v = SP_SEEN[d].load(Ordering::Relaxed); if v > 0 { s.push_str(&format!("subplan {:2} = {}\n", d, v)); } }
-                write_named("sp_seen.txt", &s);
-            }
+            // ★[수정 07-31] `.min(15)` → `.min(17)`: 구 클램프는 disc15/16/17을 슬롯15 하나에 합산해
+            //   "세르펜 사냥/견제에서 실제로 후퇴가 걸렸는지"를 볼 수 없게 만들고 있었다(numbers_threat_sp16/17 死 오판정의 배경).
+            // ★★[수정 07-31] **덤프를 여기서 제거** — 구 코드는 20발동마다 `write_named`(동기 fs::write)를 **detour 안에서** 했다.
+            //   disc3만 실측 88,393회 발동 ⟹ `log=1` 이면 rayon 워커들이 수천 번 동기 파일IO = ⛔DONE.md 등재 크래시 원인
+            //   ("detour 내 동기 파일IO 금지 — rayon 폭주→크래시"). 여기선 **원자 카운터만** 올리고,
+            //   실제 파일 쓰기는 메인스레드 `post_update`의 `sp_seen_flush()`가 프레임 스로틀로 담당한다.
+            SP_SEEN[(disc as usize).min(17)].fetch_add(1, Ordering::Relaxed);   // ★진단: 어느 subplan서 numbers 후퇴 발동
         }
     }));
 }
