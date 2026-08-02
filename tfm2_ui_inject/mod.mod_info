@@ -1,0 +1,11 @@
+{
+  "mod_id": "tfm2_ui_inject",
+  "name": "tfm2_ui_inject",
+  "author": "local",
+  "version": "0.1.0",
+  "description": "범용 UI 가산-주입 프레임워크 (에셋 로더 후킹). Phase1=훅 검증.",
+  "dependencies": [
+    { "mod_id": "base", "version": ">=0.1.0" }
+  ],
+  "last_updated": "2026-06-17"
+}

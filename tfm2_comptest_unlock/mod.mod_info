@@ -1,0 +1,14 @@
+{
+  "name": "tfm2_comptest_unlock",
+  "mod_id": "tfm2_comptest_unlock",
+  "author": "tfm2mods",
+  "version": "0.2.1",
+  "description": "조합 테스트(comp_test) 제약 해제. 같은 선수 중복 배치 허용 + 하루 횟수 제한(5회) 해제로 소모 없이 무제한 사용 + 5v5 버튼 로스터 조건 10명→5명 완화 + 아이템칸 모드아이템 지정(comptest_items.cfg 파일 지정 — 인게임 드롭다운은 tfm2_item_tactics 단독 관리). 챔프 중복은 게임이 원래 허용. 서버/클라 바이트패치 13곳 + 훅. 게임 0.5.2 대응.",
+  "last_updated": "2026-07-22",
+  "dependencies": [
+    {
+      "mod_id": "base",
+      "version": ">=0.5.0, <0.6.0"
+    }
+  ]
+}

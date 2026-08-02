@@ -1,0 +1,14 @@
+{
+  "name": "tfm2_rush_guard",
+  "mod_id": "tfm2_rush_guard",
+  "author": "local",
+  "version": "0.1.0",
+  "description": "RushMoveToBack None-패닉 가드. 대시 대상이 apply 직전 사망 시 엔진이 패닉→백그라운드 sim(일정넘김) 멈추는 버그 수정. 패닉 분기를 형제 resolve의 스킵 경로로 돌림(크래시 케이스만 변경, 정상 무영향). squirrel/tale 등 RushMoveToBack 챔프.",
+  "last_updated": "2026-07-08",
+  "dependencies": [
+    {
+      "mod_id": "base",
+      "version": ">=0.4.14, <0.5.0"
+    }
+  ]
+}

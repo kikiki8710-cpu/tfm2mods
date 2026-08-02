@@ -21,6 +21,11 @@
 !*.cfg
 !.gitignore
 !.gitattributes
+# ★2026-08-02 추가 — 릴리스 사실(version·deps·override)이 담긴 파일이라 반드시 추적한다.
+#   확장자가 `.mod_info`/`.override_info` 라 위 `!*.json` 에 안 걸려 통째로 빠져 있었다
+#   ⟹ "배포된 v0.4.3 의 deps 가 뭐였나"를 git 으로 답할 수 없었다(릴리스 zip 안에만 존재).
+!*.mod_info
+!*.override_info
 # ⚠`*.txt` 는 담지 않는다 — 이 프로젝트의 txt 는 대부분 **런타임 덤프·진단 로그**다
 #   (실측: 전체 8,054개 / `sylas_hijack\effect_dump.txt` 3.8MB 등). 이력 가치가 없고 매 실행 갱신된다.
 #   특정 txt 가 필요하면 아래처럼 개별 허용할 것:  !경로/파일.txt
@@ -72,3 +77,6 @@ TFM2.gg-upstream/
 # 리팩터 전 소스 백업(현행 소스가 정본)
 *_backup_pre_*/
 _daram2_originals/
+# ★2026-08-02 — 위 `!*.mod_info` 화이트리스트가 백업·스테이징 폴더까지 끌어오는 것을 차단
+*_bak_*/
+_dist_rel/

@@ -1,0 +1,11 @@
+{
+  "mod_id": "tfm2_inj_probe",
+  "name": "tfm2_inj_probe",
+  "author": "local",
+  "version": "0.1.0",
+  "description": "UI injection mechanism probe (diagnostic)",
+  "dependencies": [
+    { "mod_id": "base", "version": ">=0.1.0" }
+  ],
+  "last_updated": "2026-06-17"
+}

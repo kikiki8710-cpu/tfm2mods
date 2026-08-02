@@ -1,0 +1,11 @@
+{
+  "mod_id": "tfm2_fog",
+  "name": "tfm2_fog",
+  "author": "local",
+  "version": "0.1.0",
+  "description": "맵 안개 오버레이 — 경기 화면에서 캐릭터 위에 그려지는 안개 효과. 카메라 시점 이동/줌에 따라 월드에 고정된 안개가 함께 움직인다. fog.cfg 로 제어.",
+  "dependencies": [
+    { "mod_id": "base", "version": ">=0.1.0" }
+  ],
+  "last_updated": "2026-07-04"
+}

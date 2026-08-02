@@ -1,0 +1,14 @@
+{
+  "mod_id": "sylas",
+  "name": "Sylas, the Unshackled",
+  "author": "tfm2mods",
+  "version": "1.0.0",
+  "last_updated": "2026-06-29",
+  "description": "League of Legends의 '사슬의 광인' 사일러스를 팀파이트 매니저 2로 데려왔습니다. 페트리사이트 사슬을 휘두르는 근접 AP 격투가로, 궁극기 '강탈'로 적 챔피언의 힘을 빼앗습니다.\n\n- 기본 공격(페트리사이트 폭발): 스킬 시전 후 다음 공격이 사슬을 휘둘러 주변에 마법 피해\n- 스킬 Q(사슬 채찍): 직선 사슬 공격 + 둔화, 잠시 뒤 2차 폭발\n- 스킬 E(강제 연행): 적 챔피언에게 도약해 띄우고 회복\n- 궁극기 R(강탈): 적 챔피언을 사슬로 끌어와 기절시키고 스킬을 봉인(=궁 강탈), 자신은 힘을 얻음\n\nFan project. League of Legends / Sylas are property of Riot Games.",
+  "dependencies": [
+    {
+      "mod_id": "base",
+      "version": ">=0.4.0"
+    }
+  ]
+}

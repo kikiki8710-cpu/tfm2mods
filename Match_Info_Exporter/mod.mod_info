@@ -1,0 +1,11 @@
+{
+  "mod_id": "Match_Info_Exporter",
+  "name": "Match_Info_Exporter",
+  "author": "SUB",
+  "version": "0.1.0",
+  "description": "Exports league/match data to JSON.",
+  "dependencies": [
+    { "mod_id": "base", "version": ">=0.1.0" }
+  ],
+  "last_updated": "2026-06-28"
+}

@@ -1,0 +1,11 @@
+{
+  "mod_id": "UI_Probe",
+  "name": "UI_Probe",
+  "author": "SUB",
+  "version": "0.1.0",
+  "description": "UI_Probe",
+  "dependencies": [
+    { "mod_id": "base", "version": ">=0.1.0" }
+  ],
+  "last_updated": "2026-06-07"
+}

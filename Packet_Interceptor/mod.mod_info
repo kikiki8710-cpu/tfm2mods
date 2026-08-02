@@ -1,0 +1,14 @@
+{
+  "name": "packet_interceptor",
+  "mod_id": "packet_interceptor",
+  "author": "local",
+  "version": "1.0.0",
+  "description": "로컬 서버 ClientPacket 가로채기(MITM) — 패킷 로깅 + 규칙 기반 값 변조/통과. F8 로깅, F9 규칙리로드, F10 변조토글.",
+  "last_updated": "2026-06-15",
+  "dependencies": [
+    {
+      "mod_id": "base",
+      "version": ">=0.4.12"
+    }
+  ]
+}

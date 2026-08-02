@@ -1,0 +1,14 @@
+{
+  "mod_id": "tfm2_itemnet_tune",
+  "name": "Item Build Network Tuner",
+  "author": "tfm2mods",
+  "version": "0.1.0",
+  "last_updated": "2026-07-31",
+  "description": "아이템 빌드 추천 신경망(LogisticSGD)의 학습 계수를 cfg로 조절합니다. 망각 속도(decay)·학습률·구매시점 가중·라벨 스무딩·탐색 노이즈를 각각 설정할 수 있어, 게임 패치 주기나 모드 아이템 수에 맞게 메타 갱신 속도를 맞출 수 있습니다. 상수 참조를 리다이렉트하는 방식이라 재시작 없이 값이 반영됩니다.",
+  "dependencies": [
+    {
+      "mod_id": "base",
+      "version": ">=0.5.3, <0.5.4"
+    }
+  ]
+}

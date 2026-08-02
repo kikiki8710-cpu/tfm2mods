@@ -1,0 +1,14 @@
+{
+  "name": "tfm2_ai_adjust_2",
+  "mod_id": "tfm2_ai_adjust_2",
+  "author": "local",
+  "version": "0.1.0",
+  "description": "TFM2 인-매치 AI 조정 모드 v2 (린 재설계). 게임 원본 판단을 그대로 실행하고 필요한 곳만 개입: [A] 원본 상수 byte-patch(objective/disc19/vis_window) [B] 신규 후퇴판단(포탑회피/전력승산/성향스탯)은 판단 완료 후 출력만 덧칠 [C] recall 점수식만 재현. 원본 tfm2_ai_adjust와 동시 활성 금지.",
+  "last_updated": "2026-07-19",
+  "dependencies": [
+    {
+      "mod_id": "base",
+      "version": ">=0.5.0, <0.6.0"
+    }
+  ]
+}

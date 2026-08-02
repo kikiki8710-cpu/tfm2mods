@@ -1,0 +1,14 @@
+{
+  "name": "tfm2_move_guard",
+  "mod_id": "tfm2_move_guard",
+  "author": "local",
+  "version": "0.1.0",
+  "description": "이동/변위 이펙트 None-패닉 가드. 데이터 챔프(모드)의 대시/이동 스킬(RushMoveToBack/MoveTo/MoveBack/RushTime/Airborne)이 대상 사망 시 엔진이 패닉→백그라운드 sim(일정넘김) 멈추는 버그 수정. 패닉 분기를 형제 resolve의 스킵 경로로 돌림(크래시 케이스만 변경, 정상·쿨타임 무영향).",
+  "last_updated": "2026-07-08",
+  "dependencies": [
+    {
+      "mod_id": "base",
+      "version": ">=0.5.0, <0.6.0"
+    }
+  ]
+}

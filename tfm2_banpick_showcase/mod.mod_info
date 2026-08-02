@@ -1,0 +1,11 @@
+{
+  "mod_id": "tfm2_banpick_showcase",
+  "name": "TFM2 밴픽 쇼케이스 카드 일러스트",
+  "author": "tfm2mods",
+  "version": "0.1.0",
+  "description": "밴픽 셀렉트 연출 카드(밴 취소선/픽 비행 카드)에 아트팩 일러스트 적용. 아트 = tfm2_banpick_illust의 illust 폴더 참조.",
+  "dependencies": [
+    { "mod_id": "base", "version": ">=0.1.0" }
+  ],
+  "last_updated": "2026-07-25"
+}

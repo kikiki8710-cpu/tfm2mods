@@ -1,0 +1,11 @@
+{
+  "mod_id": "Spectator_Chat",
+  "name": "Spectator_Chat",
+  "author": "tfm2mods",
+  "version": "1.1.1",
+  "description": "관전 화면에 가짜 관중 채팅을 띄웁니다. 킬/CC/딸피 생존/궁 사용 등 경기 상황에 반응. 다시보기와 결과 즉시보기 모두 지원. 채팅창은 드래그로 이동, 가장자리를 잡아 크기 조절이 되고 세로로 늘리면 더 많은 줄이 표시됩니다.",
+  "dependencies": [
+    { "mod_id": "base", "version": ">=0.5.3, <0.5.4" }
+  ],
+  "last_updated": "2026-07-30"
+}

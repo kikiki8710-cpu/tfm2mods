@@ -1,0 +1,14 @@
+{
+  "name": "tfm2_match_seed_probe",
+  "mod_id": "tfm2_match_seed_probe",
+  "author": "local",
+  "version": "1.0.0",
+  "description": "현재경기 레코드(mgmt+0x1cd88->+8, 0x268) seed/team_id 채움시점 관측 + 런처 seed 타임라인. read-only.",
+  "last_updated": "2026-07-27",
+  "dependencies": [
+    {
+      "mod_id": "base",
+      "version": ">=0.5.2"
+    }
+  ]
+}

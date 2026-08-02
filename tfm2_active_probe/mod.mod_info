@@ -1,0 +1,11 @@
+{
+  "mod_id": "tfm2_active_probe",
+  "name": "tfm2_active_probe",
+  "author": "local",
+  "version": "0.1.0",
+  "description": "진단 전용 — 현재 게임에 '활성'으로 병합된 아이템 리스트(바닐라 + 활성 모드 아이템)를 mods\\tfm2_active_probe\\tfm2_active_probe.txt 로 덤프. 게임 메모리(Database mod_items Vec)를 직접 읽어 활성 판정. 게임값 변경/저장 없음.",
+  "dependencies": [
+    { "mod_id": "base", "version": ">=0.1.0" }
+  ],
+  "last_updated": "2026-07-05"
+}

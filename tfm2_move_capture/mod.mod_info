@@ -1,0 +1,11 @@
+{
+  "name": "tfm2_move_capture",
+  "mod_id": "tfm2_move_capture",
+  "author": "local",
+  "version": "0.1.0",
+  "description": "진단: RushMoveToBack 이동 이펙트 진입에서 대상 핸들(param_6)을 실측 로깅. 무효 핸들의 정체(-1 무타겟 / 제거된 슬롯 / foreign)를 tfm2_move_capture.txt에 기록. move_guard 켠 채로 돌려도 됨(멈춤 없이 수집).",
+  "last_updated": "2026-07-08",
+  "dependencies": [
+    { "mod_id": "base", "version": ">=0.4.14, <0.5.0" }
+  ]
+}

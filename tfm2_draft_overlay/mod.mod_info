@@ -1,0 +1,11 @@
+{
+  "mod_id": "tfm2_draft_overlay",
+  "name": "TFM2 밴픽 분석 오버레이",
+  "author": "local",
+  "version": "0.1.0",
+  "description": "밴픽 화면에 TFM2.gg 메타 분석을 오버레이로 표시. 구조주입=tfm2_scrim 프레임워크(banpick).",
+  "dependencies": [
+    { "mod_id": "base", "version": ">=0.1.0" }
+  ],
+  "last_updated": "2026-07-07"
+}

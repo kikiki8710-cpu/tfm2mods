@@ -1,0 +1,12 @@
+{
+  "mod_id": "sylas_hijack",
+  "name": "Sylas Hijack (Real Ult Steal)",
+  "author": "tfm2mods",
+  "version": "0.1.0",
+  "last_updated": "2026-06-29",
+  "description": "사일러스 궁극기 '강탈'을 엔진 네이티브로 구현: 사일러스가 적 챔피언의 실제 궁극기를 그대로 시전한다. 네이티브 트램폴린 디투어로 ACTIONSET ult 블록(+0x4e8)을 런타임 스왑. 데이터 챔피언 'sylas'(비주얼/Q/E)와 함께 사용.",
+  "dependencies": [
+    { "mod_id": "base", "version": ">=0.4.0" },
+    { "mod_id": "sylas", "version": ">=1.0.0" }
+  ]
+}

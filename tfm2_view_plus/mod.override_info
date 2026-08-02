@@ -1,0 +1,50 @@
+{
+  "asset/base/ui/layout/banpick/layout": {
+    "remapping": "asset/tfm2_view_plus/ui/layout/banpick/layout",
+    "type": "override"
+  },
+  "asset/base/ui/layout/banpick/blue_pick_slot": {
+    "remapping": "asset/tfm2_view_plus/ui/layout/banpick/blue_pick_slot",
+    "type": "override"
+  },
+  "asset/base/ui/layout/banpick/red_pick_slot": {
+    "remapping": "asset/tfm2_view_plus/ui/layout/banpick/red_pick_slot",
+    "type": "override"
+  },
+  "asset/base/ui/layout/staff/layout": {
+    "remapping": "asset/tfm2_view_plus/ui/layout/staff/layout",
+    "type": "override"
+  },
+  "asset/base/ui/layout/staff/staff": {
+    "remapping": "asset/tfm2_view_plus/ui/layout/staff/staff",
+    "type": "override"
+  },
+  "asset/base/ui/layout/facility": {
+    "remapping": "asset/tfm2_view_plus/ui/layout/facility",
+    "type": "override"
+  },
+  "asset/base/ui/layout/scout": {
+    "remapping": "asset/tfm2_view_plus/ui/layout/scout",
+    "type": "override"
+  },
+  "asset/base/ui/layout/scout_component/search_list_slot": {
+    "remapping": "asset/tfm2_view_plus/ui/layout/scout_component/search_list_slot",
+    "type": "override"
+  },
+  "asset/base/ui/layout/scout_component/all_players_slot": {
+    "remapping": "asset/tfm2_view_plus/ui/layout/scout_component/all_players_slot",
+    "type": "override"
+  },
+  "asset/base/ui/layout/squad/layout": {
+    "remapping": "asset/tfm2_view_plus/ui/layout/squad/layout",
+    "type": "override"
+  },
+  "asset/base/ui/layout/statistics": {
+    "remapping": "asset/tfm2_view_plus/ui/layout/statistics",
+    "type": "override"
+  },
+  "asset/base/text/ui": {
+    "remapping": "asset/tfm2_view_plus/text/vp",
+    "type": "merge"
+  }
+}

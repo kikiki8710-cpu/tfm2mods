@@ -1,0 +1,14 @@
+{
+  "name": "tfm2_tactics_probe",
+  "mod_id": "tfm2_tactics_probe",
+  "author": "local",
+  "version": "1.0.0",
+  "description": "신규전술(상황별 공격성) 학습훅 프로브 — apply_to_match(경기완료 결과집계)에 detour 걸어 team_id/승패/백그라운드발화 실측. 순수 캡처(AI/결과 무영향).",
+  "last_updated": "2026-07-02",
+  "dependencies": [
+    {
+      "mod_id": "base",
+      "version": ">=0.4.12"
+    }
+  ]
+}
