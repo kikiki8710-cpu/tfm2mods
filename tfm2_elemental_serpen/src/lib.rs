@@ -21,7 +21,7 @@ use mod_api::*;
 mod ui_kit;
 use std::fs;
 use std::path::PathBuf;
-use std::sync::atomic::{AtomicBool, AtomicI32, AtomicU32, AtomicU64, AtomicUsize, Ordering};
+use std::sync::atomic::{AtomicBool, AtomicI32, AtomicPtr, AtomicU32, AtomicU64, AtomicUsize, Ordering};
 use std::sync::Mutex;
 use std::collections::HashMap;
 use std::time::{SystemTime, UNIX_EPOCH};
@@ -388,8 +388,25 @@ const VANILLA_ATTR: i32 = -2; // 이 웨이브는 색·버프 없음(바닐라).
 static CFG_ELEMENTAL: AtomicBool = AtomicBool::new(true); // 원소 세르펜(색+버프) 사용
 static CFG_ELDER: AtomicBool = AtomicBool::new(true);     // 장로 세르펜(색+버프+처형) 사용
 
-static POOL: Mutex<Vec<Attr>> = Mutex::new(Vec::new());   // 일반 속성 풀 (랜덤 배정 대상)
-static ELDER: Mutex<Option<Attr>> = Mutex::new(None);     // 장로
+// ★2026-08-02: 속성 풀/장로 = `Mutex` → **불변 스냅샷 + AtomicPtr(락 없음)**.
+//   이 둘은 `load_attrs()` 에서만 세팅되고 그 뒤로는 읽기 전용인데, 매 틱 detour(8 sim 워커)와
+//   매 프레임 렌더 경로(`keyres_swap`)가 각각 Mutex 를 잡아 서로 경합했다 —
+//   외부 샘플러 실측에서 park 대기(전체 busy 샘플의 15~21%)의 최대 호출자가 이 모드였다.
+//   교체본은 읽기가 **원자 load 1회**뿐이라 경합이 구조적으로 사라진다.
+//   ⚠구 스냅샷은 **의도적으로 leak** 한다 — detour 가 `&'static` 로 들고 있을 수 있어 안전한 해제
+//     시점을 알 수 없고, 재발행은 초기화/cfg 재적용에 한정되어 누수량이 유한하다(수 KB 단위).
+//   ⚠이 전환으로 기존 락 순서(POOL→ELDER→WORLDS→…)에서 앞 두 항목이 소멸한다(데드락 표면 감소).
+struct AttrSnap { pool: Vec<Attr>, elder: Option<Attr> }
+static ATTR_SNAP: AtomicPtr<AttrSnap> = AtomicPtr::new(core::ptr::null_mut());
+#[inline]
+fn attrs() -> Option<&'static AttrSnap> {
+    let p = ATTR_SNAP.load(Ordering::Acquire);
+    if p.is_null() { None } else { Some(unsafe { &*p }) }
+}
+fn publish_attrs(pool: Vec<Attr>, elder: Option<Attr>) {
+    let b: &'static mut AttrSnap = Box::leak(Box::new(AttrSnap { pool, elder }));
+    ATTR_SNAP.store(b as *mut AttrSnap, Ordering::Release);
+}
 static ELDER_AFTER: AtomicU32 = AtomicU32::new(3); // 내부 0-based(=config 4번째부터). config에서 1-based로 입력.
 // ★★키 = (seed, fp) 파티션 (07-24 버그수정): 게임이 Bo 시리즈 세트들에 같은 seed를 재사용함이
 //   실측 확정(같은 seed 웨이브 스폰 24204/28703 이중 타임라인·같은 웨이브 팀 뒤집힘 킬·킬재기록 3948회).
@@ -900,9 +917,31 @@ struct ExceptionRecord { code: u32, flags: u32, rec: usize, addr: usize, nparams
 struct ExceptionPointers { rec: *mut ExceptionRecord, ctx: *mut core::ffi::c_void }
 type VehHandler = extern "system" fn(*mut ExceptionPointers) -> i32;
 
-static mut SEH: [u64; 8] = [0u64; 8];
+// ★2026-08-02 전환: 전역 `SEH[8]` + `SEH_BUSY` 스핀락 → **스레드별 TLS**.
+//   구: safe_copy 가 전역 상태 하나를 공유하느라 `while SEH_BUSY.swap(true) { spin_loop() }` 로
+//   **모든 rayon 워커를 직렬화**했다. 일정넘김은 배경 경기 sim이 8스레드로 도는데 세르펜 detour가
+//   매 틱 safe_read/safe_write 를 수십 회 부르므로 이 스핀락이 곧 모드 최대 비용원이었다
+//   (외부 샘플러 실측: sim 워커 CPU 샘플의 24~37%가 이 모드 호출 체인).
+//   VEH 핸들러는 **폴트난 바로 그 스레드 위에서** 실행되므로 자기 TLS를 읽으면 된다
+//   ⇒ 락 불필요 + tid 대조도 불필요(TLS 자체가 스레드 스코프라 구조적으로 보장).
+//   ⚠VEH 안전 4요건 유지 = Cell 배열 + `const` 초기화 + **Drop 없음** + `try_with`
+//     ⇒ 핸들러 안에 할당·락·패닉 경로가 없다. CLAUDE.md §3 / [[tfm2-mod-safety]] §2 정정.
+//   ⚠§4 "후킹 경로 thread_local 금지"와 의도적으로 다른 판단(§2가 명시한 예외). 참조 구현 =
+//     `tfm2_item_tactics\src\lib.rs` L195~277 (2026-07-22 전환·프로덕션 검증본)을 그대로 이식.
+//   레이아웃은 구 [u64;8]과 동일(asm 오프셋 그대로). idx1(구 tid)은 미사용으로 남긴다.
+#[repr(C)]
+struct SehTls { v: [core::cell::Cell<u64>; 8] }
+thread_local! {
+    static SEH_T: SehTls = const { SehTls { v: [const { core::cell::Cell::new(0) }; 8] } };
+}
+#[inline(always)]
+fn seh_ptr() -> *mut u64 {
+    // Cell<u64>는 repr(transparent) → [Cell<u64>;8]과 [u64;8]은 레이아웃 동일.
+    SEH_T.with(|s| s.v.as_ptr() as *mut u64)
+}
 static SEH_INSTALLED: AtomicBool = AtomicBool::new(false);
-static SEH_BUSY: AtomicBool = AtomicBool::new(false);
+// 구 SEH[7](전역 배열 슬롯)의 대체 — TLS 전환으로 폴트 카운터가 스레드별이 되므로 합산은 여기서.
+static SEH_FAULTS: AtomicU64 = AtomicU64::new(0);
 
 extern "system" fn seh_veh(p: *mut ExceptionPointers) -> i32 {
     const CONTINUE_EXECUTION: i32 = -1;
@@ -911,9 +950,10 @@ extern "system" fn seh_veh(p: *mut ExceptionPointers) -> i32 {
         if p.is_null() { return CONTINUE_SEARCH; }
         let rec = (*p).rec;
         if rec.is_null() || (*rec).code != 0xC0000005 { return CONTINUE_SEARCH; }
-        let g = core::ptr::addr_of!(SEH) as *const u64;
+        // ★TLS 전환: 이 핸들러는 폴트난 그 스레드에서 도므로 자기 TLS가 곧 그 스레드의 상태
+        //   (구 tid 대조 불필요). try_with = TLS 소멸중이면 조용히 패스(패닉 금지 요건).
+        let Ok(g) = SEH_T.try_with(|s| s.v.as_ptr() as *mut u64) else { return CONTINUE_SEARCH; };
         if *g.add(0) == 0 { return CONTINUE_SEARCH; }
-        if *g.add(1) != GetCurrentThreadId() as u64 { return CONTINUE_SEARCH; }
         let ctx = (*p).ctx as usize;
         if ctx == 0 { return CONTINUE_SEARCH; }
         let rip = *((ctx + 0xF8) as *const u64);
@@ -921,8 +961,7 @@ extern "system" fn seh_veh(p: *mut ExceptionPointers) -> i32 {
         *((ctx + 0xF8) as *mut u64) = *g.add(2);
         *((ctx + 0x98) as *mut u64) = *g.add(3);
         *((ctx + 0xA0) as *mut u64) = *g.add(4);
-        let gm = core::ptr::addr_of_mut!(SEH) as *mut u64;
-        *gm.add(7) += 1;
+        SEH_FAULTS.fetch_add(1, Ordering::Relaxed);   // 원자 증가 = 할당·락 없음(VEH 안전)
         CONTINUE_EXECUTION
     }
 }
@@ -933,9 +972,8 @@ fn seh_install() {
 #[inline(never)]
 unsafe fn safe_copy(dst: *mut u8, src: *const u8, len: usize) -> bool {
     if !SEH_INSTALLED.load(Ordering::Relaxed) { return false; }
-    while SEH_BUSY.swap(true, Ordering::Acquire) { core::hint::spin_loop(); }
-    let g = core::ptr::addr_of_mut!(SEH) as *mut u64;
-    *g.add(1) = GetCurrentThreadId() as u64;
+    // ★락 없음: 상태가 스레드별이라 워커끼리 경합하지 않는다(구 SEH_BUSY 스핀락 제거).
+    let g = seh_ptr();
     let ok: u64;
     core::arch::asm!(
         "lea rax, [rip + 200f]",
@@ -964,7 +1002,6 @@ unsafe fn safe_copy(dst: *mut u8, src: *const u8, len: usize) -> bool {
         inout("rsi") src => _,
         out("rax") _,
     );
-    SEH_BUSY.store(false, Ordering::Release);
     ok != 0
 }
 unsafe fn safe_read_u64(addr: usize) -> Option<u64> {
@@ -975,12 +1012,22 @@ unsafe fn safe_read_i32(addr: usize) -> Option<i32> {
     let mut b = [0u8; 4];
     if safe_copy(b.as_mut_ptr(), addr as *const u8, 4) { Some(i32::from_le_bytes(b)) } else { None }
 }
+// ★2026-08-02: 기본 경로에서 VirtualProtect 제거.
+//   이 함수의 실제 대상은 전부 **게임 힙**(엔티티 템플릿 스탯·스프라이트 이름 ptr/len·툴팁 문자열
+//   슬롯)이라 이미 쓰기 가능하다. 그런데 write 1회마다 VirtualProtect 2회(=시스템콜 2회)를 돌았고,
+//   매 틱 32스탯 루프가 이걸 곱해 **틱당 ~64 시스템콜**이 됐다. 페이지 보호 변경은 프로세스 전역 +
+//   타 코어 TLB 무효화라 **다른 sim 스레드까지 같이 느려진다**
+//   (외부 샘플러 실측: NtProtectVirtualMemory 가 busy CPU 샘플의 7.9%, 그 호출자가 이 모드).
+//   ⇒ 먼저 그냥 쓰고(SEH 보호), **실패했을 때만** VirtualProtect 후 재시도하고 원복한다.
+//     읽기전용 페이지에 쓰는 호출자가 나중에 생겨도 동작은 그대로다(폴백이 받아냄).
 unsafe fn safe_write_bytes(addr: usize, data: &[u8]) -> bool {
     if data.is_empty() || data.len() > 4096 || addr < 0x10000 { return false; }
+    if safe_copy(addr as *mut u8, data.as_ptr(), data.len()) { return true; }
     let mut old = 0u32;
-    let changed = VirtualProtect(addr, data.len(), PAGE_READWRITE, &mut old) != 0;
+    if VirtualProtect(addr, data.len(), PAGE_READWRITE, &mut old) == 0 { return false; }
     let ok = safe_copy(addr as *mut u8, data.as_ptr(), data.len());
-    if changed { let mut o2 = 0u32; VirtualProtect(addr, data.len(), old, &mut o2); }
+    let mut o2 = 0u32;
+    VirtualProtect(addr, data.len(), old, &mut o2);
     ok
 }
 unsafe fn safe_write_i32(addr: usize, v: i32) -> bool { safe_write_bytes(addr, &v.to_le_bytes()) }
@@ -1013,7 +1060,8 @@ fn log_push(s: String) {
 }
 fn probe_flush() {
     // ★ flush는 항상 (진입 로그는 CFG_PROBE_LOG 게이트지만, 속성/config 로그는 무조건 기록)
-    // ⚠락 순서 = detour와 동일(POOL→ELDER→WORLDS→PROBE_LOG). 역전하면 데드락.
+    // ⚠락 순서 = detour와 동일(WORLDS→PROBE_LOG). 역전하면 데드락.
+    //   ★2026-08-02: POOL/ELDER는 무락 스냅샷(ATTR_SNAP)이 되어 락 순서에서 빠졌다.
     let now = now_ms();
     // ★성능: 스로틀을 덤프 생성 "앞"으로 옮김(2026-07-19). 이전엔 거대한 진단 문자열(락 3개 +
     //   format! 수십 개 + 경기목록 순회)을 **매 프레임** 만들고 파일 쓰기만 1초로 걸러서,
@@ -1023,10 +1071,12 @@ fn probe_flush() {
         if n == 0 { return; }
         if n == LOG_FLUSHED_LEN.load(Ordering::Relaxed)
             && now.saturating_sub(LAST_FLUSH_MS.load(Ordering::Relaxed)) < 1000 { return; }
-    } // ⚠guard drop 필수 — 아래에서 POOL→…→PROBE_LOG 순으로 다시 잡는다(중첩 시 락순서 역전).
+    } // ⚠guard drop 필수 — 아래에서 WORLDS→PROBE_LOG 순으로 다시 잡는다(중첩 시 락순서 역전).
     let dump = {
-        let pool = POOL.lock().unwrap_or_else(|e| e.into_inner());
-        let elder = ELDER.lock().unwrap_or_else(|e| e.into_inner());
+        // ★2026-08-02: POOL/ELDER 락 → 무락 스냅샷(ATTR_SNAP). 미발행(=cfg 로드 전)이면 빈 값으로 표기.
+        let sn = attrs();
+        let pool: &[Attr] = sn.map(|s| s.pool.as_slice()).unwrap_or(&[]);
+        let elder: Option<&Attr> = sn.and_then(|s| s.elder.as_ref());
         let mut wg = WORLDS.lock().unwrap_or_else(|e| e.into_inner());
         let lp = LIVE_PROVIDER.load(Ordering::Relaxed);
         let lt = LIVE_TID.load(Ordering::Relaxed);
@@ -1197,9 +1247,9 @@ fn probe_flush() {
         && now.saturating_sub(LAST_FLUSH_MS.load(Ordering::Relaxed)) < 1000 { return; }
     LOG_FLUSHED_LEN.store(n, Ordering::Relaxed);
     LAST_FLUSH_MS.store(now, Ordering::Relaxed);
-    let head = format!("enter_count={} seh_faults={}\n{}", ENTER_COUNT.load(Ordering::Relaxed), unsafe {
-        *(core::ptr::addr_of!(SEH) as *const u64).add(7)
-    }, dump);
+    // seh_faults = 구 전역 SEH[7] → TLS 전환(2026-08-02)으로 전 스레드 합산 카운터에서 읽는다.
+    let head = format!("enter_count={} seh_faults={}\n{}",
+        ENTER_COUNT.load(Ordering::Relaxed), SEH_FAULTS.load(Ordering::Relaxed), dump);
     write_log("serpen_probe.txt", &(head + &v.join("\n")));
 }
 static LAST_FLUSH_MS: AtomicU64 = AtomicU64::new(0);
@@ -1487,8 +1537,7 @@ fn load_attrs() {
     let names: Vec<&str> = pool.iter().map(|a| a.name.as_str()).collect();
     log_push(format!("[{}ms] config 로드: 풀 {}종={:?} 장로={} elder_after={}",
         now_ms(), pool.len(), names, elder.is_some(), ELDER_AFTER.load(Ordering::Relaxed)));
-    *POOL.lock().unwrap_or_else(|e| e.into_inner()) = pool;
-    *ELDER.lock().unwrap_or_else(|e| e.into_inner()) = elder;
+    publish_attrs(pool, elder);   // ★락 없는 스냅샷 발행(구본은 leak — ATTR_SNAP 주석 참조)
     *WORLDS.lock().unwrap_or_else(|e| e.into_inner()) = Some(HashMap::new());
 }
 
@@ -2002,12 +2051,13 @@ unsafe fn keyres_swap(out: usize, ent: usize) {
     if cur == -2 { return; }                    // 바닐라 유지
     let idx = entity_pinned_attr(ent, cur);     // 그 개체가 처음 보일 때의 속성으로 고정
     if idx == -2 { return; }
-    let pool = POOL.lock().unwrap_or_else(|e| e.into_inner());
-    let elder = ELDER.lock().unwrap_or_else(|e| e.into_inner());
+    // ★2026-08-02: 렌더 스레드가 매 프레임 POOL/ELDER Mutex를 잡던 자리 — 무락 스냅샷으로 교체
+    //   (sim 워커 8개와 같은 락을 두고 경합해 렌더 히치까지 유발하던 경로).
+    let Some(sn) = attrs() else { return };
     let attr: &Attr = if idx == ELDER_IDX {
-        match elder.as_ref() { Some(a) => a, None => return }
+        match sn.elder.as_ref() { Some(a) => a, None => return }
     } else {
-        match pool.get(idx as usize) { Some(a) => a, None => return }
+        match sn.pool.get(idx as usize) { Some(a) => a, None => return }
     };
     let k = attr.short_key.as_bytes();
     if k.is_empty() || k.len() > cap { return; }
@@ -2089,8 +2139,11 @@ unsafe fn serpen_apply_attr(rcx: u64, rdx: u64, a5: u64) {
     if safe_read_i32(ent + O_SERPEN_TEMPLATE) != Some(21) { return; }
 
     let elder_after = ELDER_AFTER.load(Ordering::Relaxed);
-    let pool = POOL.lock().unwrap_or_else(|e| e.into_inner());
-    let elder = ELDER.lock().unwrap_or_else(|e| e.into_inner());
+    // ★2026-08-02: 여기서 POOL/ELDER Mutex 2개를 잡고 **함수 끝까지 들고 있었다**(가드 스코프=함수 전체).
+    //   8 sim 워커 + 렌더 스레드가 매 틱 같은 락을 두고 경합 → 락 슬로우패스 park 가 이 모드 최대 비용원.
+    //   ⇒ 무락 스냅샷(&'static)으로 교체. attr 참조가 'static 이라 가드 수명 문제도 사라진다.
+    let Some(sn) = attrs() else { GATE_N[0].fetch_add(1, Ordering::Relaxed); return; };
+    let (pool, elder) = (&sn.pool, &sn.elder);
     // ⚠구: `pool.is_empty()`만 보고 return → **원소 cfg가 없거나 비면 장로 버프까지 같이 죽었다**
     //   (장로만 쓰는 사용자에게 "스택은 쌓이는데 능력치가 안 붙는" 증상으로 나타남).
     //   둘 다 없을 때만 바닐라 유지한다.
@@ -2134,7 +2187,7 @@ unsafe fn serpen_apply_attr(rcx: u64, rdx: u64, a5: u64) {
             let a = if use_elder && wave_idx >= elder_after as u64 && elder.is_some() {
                 ELDER_IDX
             } else if use_ele && !pool.is_empty() {
-                weighted_pick(&pool, splitmix64(seed ^ spawn_tick.wrapping_mul(0x9E3779B97F4A7C15)))
+                weighted_pick(pool, splitmix64(seed ^ spawn_tick.wrapping_mul(0x9E3779B97F4A7C15)))
             } else {
                 VANILLA_ATTR // 원소 off & (장로 off 또는 비장로 웨이브) → 색/버프 없음(바닐라)
             };
@@ -2180,13 +2233,21 @@ unsafe fn serpen_apply_attr(rcx: u64, rdx: u64, a5: u64) {
     }
 
     // 배정된 속성으로 템플릿 덮기 (매 틱). VANILLA_ATTR/무효면 스탯 안 씀(바닐라 유지).
-    let attr: &Attr = if ws.current == ELDER_IDX {
+    let cur_attr_idx = ws.current;
+    // ★2026-08-02: 아래 write 검증 로그의 "이번에 찍을 차례인가" 판정과 마스크 갱신만 락 안에서 끝낸다
+    //   (실제 로그 생성은 stat_read 32회 + format! 이라 락 밖으로 뺀다 = 아래 rb_log).
+    let rb_log = ws.rb_mask & (1u64 << wave_idx.min(63)) == 0 && seed == LIVE_SEED.load(Ordering::Relaxed);
+    if rb_log { ws.rb_mask |= 1u64 << wave_idx.min(63); }
+    // ★★WORLDS 가드 해제 지점 — 여기서부터는 공유 상태를 안 만진다(템플릿 write는 이 경기 엔티티 전용).
+    //   구조: 가드가 함수 끝까지 살아 있어서 32회 write + 검증 로그까지 전역 락 안에서 돌았다.
+    drop(wg);
+    let attr: &Attr = if cur_attr_idx == ELDER_IDX {
         match elder.as_ref() { Some(a) => a, None => return }
-    } else if ws.current == VANILLA_ATTR {
+    } else if cur_attr_idx == VANILLA_ATTR {
         GATE_N[2].fetch_add(1, Ordering::Relaxed);
         return; // 바닐라 웨이브 — 색/버프 없음
     } else {
-        match pool.get(ws.current as usize) { Some(a) => a, None => return }
+        match pool.get(cur_attr_idx as usize) { Some(a) => a, None => return }
     };
     // ★스탯블록 물리 배치 (2026-07-18 RE 확정, ghidra 합산함수 FUN_141f097b0/09500):
     //   블록 = 이펙트엔트리+0x58(=ent+0x108=ts). idx0~14 = i32(연속 4B). entry+0x94 = 4B 패딩.
@@ -2195,10 +2256,18 @@ unsafe fn serpen_apply_attr(rcx: u64, rdx: u64, a5: u64) {
     //   확증 앵커: range(idx21)=entry+0xc8=block+0x70, crit(idx29)=entry+0x108=block+0xb0.
     let ts = ent + TMPL_STAT_OFF;
     if !CFG_STAT_WRITE.load(Ordering::Relaxed) { return; } // 대조실험: sim 개입 억제(배정·기록은 위에서 완료)
+    // ★2026-08-02: **값이 다를 때만 쓴다**(read-compare-skip). 최종 메모리 상태는 구현과 동일하고,
+    //   게임이 템플릿을 되돌리면 다음 틱에 차이가 감지돼 다시 쓰이므로 "매 틱 무조건"의 의도도 유지된다.
+    //   정상 상태(이미 우리 값)에서 write 32회가 0회가 된다.
     for i in 0..NUM_STATS {
         let v = attr.stats[i];
-        if stat_is_i32(i) { let _ = safe_write_i32(ts + stat_off(i), v); }      // idx0~14, 27~29
-        else { let _ = safe_write_u64(ts + stat_off(i), v as i64 as u64); }     // idx15~26, 30~31
+        let a = ts + stat_off(i);
+        if stat_is_i32(i) {                                                     // idx0~14, 27~29
+            if safe_read_i32(a) != Some(v) { let _ = safe_write_i32(a, v); }
+        } else {                                                                // idx15~26, 30~31
+            let w = v as i64 as u64;
+            if safe_read_u64(a) != Some(w) { let _ = safe_write_u64(a, w); }
+        }
         // ⚠0xa0(cc_immune)·0xc0(undying)·0xc1(ignore_wall)은 절대 건드리지 않는다 — 불리언이라
         //   숫자를 흘려넣으면 CC면역·불사가 몰래 켜진다(구 공식의 실제 부작용).
     }
@@ -2208,8 +2277,8 @@ unsafe fn serpen_apply_attr(rcx: u64, rdx: u64, a5: u64) {
     //   ⚠구 게이트 = 전역 RB_LAST_WAVE 하나 → 배경경기 30~40개가 교차 진입하면 swap이 매 호출
     //   달라져 매 틱 로그 = 링버퍼 즉시 만석(07-24 발견, 진단 로그 전멸의 원인) → per-경기 필드로 교체.
     //   07-24 2차: 배경경기 write검증(경기당 웨이브수×3줄)도 버퍼를 삼킴 → 화면경기만 + 웨이브 비트마스크.
-    if ws.rb_mask & (1u64 << wave_idx.min(63)) == 0 && seed == LIVE_SEED.load(Ordering::Relaxed) {
-        ws.rb_mask |= 1u64 << wave_idx.min(63);
+    //   ★2026-08-02: 판정·마스크 갱신은 위(락 안)에서 끝냈고 여기선 rb_log 만 본다 = 락 밖 실행.
+    if rb_log {
         let nz: Vec<String> = (0..NUM_STATS)
             .filter_map(|i| stat_read(ts, i).filter(|v| *v != 0).map(|v| format!("{}={}", STAT_KEYS[i].0, v)))
             .collect();
@@ -2237,24 +2306,30 @@ unsafe fn serpen_apply_attr(rcx: u64, rdx: u64, a5: u64) {
     // ⚠여기서 CURRENT_ATTR(화면 색)을 정하면 안 된다 — sim은 이미 앞서 계산 중이고 화면은 과거
     //   프레임을 재생하므로 색이 어긋난다(실측: 뒤로감기 시 불일치). 화면 색은 post_update가
     //   played_tick으로 waves 타임라인을 조회해 결정한다(resolve_color_from_played).
-    let lp = LIVE_PROVIDER.load(Ordering::Relaxed);
-    let lt = LIVE_TID.load(Ordering::Relaxed);
-    let ls = LIVE_SEED.load(Ordering::Relaxed);
-    let cur_tid = unsafe { GetCurrentThreadId() } as u64;
-    let is_live = ls != 0 && seed == ls;
     // detour 로그 총량 제한(전역 카운터) — SKIA key/SWAP·스폰 로그가 링버퍼서 밀리지 않게. cur_tid vs rt 대조 포함.
-    let ln = LOG_N.fetch_add(1, Ordering::Relaxed);
-    if ln < 12 { // 07-24 2차: 60줄이 버퍼 낭비 → 12
-        log_push(format!("[{}ms] serpen rcx={:#x} cur_tid={} lp={:#x} lt={} is_live={} spawn_n={} → CUR={}",
-            now_ms(), rcx, cur_tid, lp, lt, is_live, SPAWN_CAP_N.load(Ordering::Relaxed),
-            CURRENT_ATTR.load(Ordering::Relaxed)));
+    // ★2026-08-02: 구현은 **매 호출 fetch_add**(8스레드가 같은 캐시라인을 튕기는 RMW)였다. 상한 12줄을
+    //   넘긴 뒤에는 읽기만으로 걸러 RMW 자체를 없앤다(로그 개수 의미는 동일).
+    if LOG_N.load(Ordering::Relaxed) < 12 {
+        let ln = LOG_N.fetch_add(1, Ordering::Relaxed);
+        if ln < 12 { // 07-24 2차: 60줄이 버퍼 낭비 → 12
+            let lp = LIVE_PROVIDER.load(Ordering::Relaxed);
+            let lt = LIVE_TID.load(Ordering::Relaxed);
+            let ls = LIVE_SEED.load(Ordering::Relaxed);
+            let cur_tid = unsafe { GetCurrentThreadId() } as u64;
+            let is_live = ls != 0 && seed == ls;
+            log_push(format!("[{}ms] serpen rcx={:#x} cur_tid={} lp={:#x} lt={} is_live={} spawn_n={} → CUR={}",
+                now_ms(), rcx, cur_tid, lp, lt, is_live, SPAWN_CAP_N.load(Ordering::Relaxed),
+                CURRENT_ATTR.load(Ordering::Relaxed)));
+        }
     }
 
     // 스프라이트 이름 교체: 세르펜 엔티티+0x250 (ptr,len)을 "serpen_<attr>_monster"로 → 속성별 이미지.
     //   name_buf는 POOL/ELDER의 Attr에 상주(프로그램 수명) → ptr 안정. 매 틱 무조건(게임 리셋 대비).
+    //   ★2026-08-02: 여기도 read-compare-skip — 이미 우리 ptr/len이면 write 안 한다(게임이 되돌리면 재기록).
     if CFG_NAME_SWAP.load(Ordering::Relaxed) && !attr.name_buf.is_empty() {
-        let _ = safe_write_u64(ent + O_SPRITE_NAME_PTR, attr.name_buf.as_ptr() as u64);
-        let _ = safe_write_u64(ent + O_SPRITE_NAME_LEN, attr.name_buf.len() as u64);
+        let (p, l) = (attr.name_buf.as_ptr() as u64, attr.name_buf.len() as u64);
+        if safe_read_u64(ent + O_SPRITE_NAME_PTR) != Some(p) { let _ = safe_write_u64(ent + O_SPRITE_NAME_PTR, p); }
+        if safe_read_u64(ent + O_SPRITE_NAME_LEN) != Some(l) { let _ = safe_write_u64(ent + O_SPRITE_NAME_LEN, l); }
     }
 }
 
@@ -2407,8 +2482,9 @@ fn build_tooltip_text(team: u64) -> String {
     let played = PLAYED_TICK.load(Ordering::Relaxed);
     let ls = LIVE_SEED.load(Ordering::Relaxed);
     if ls == 0 { TIP_FAIL.store(1, Ordering::Relaxed); return String::new(); } // 화면 경기 미확보
-    let pool = POOL.lock().unwrap_or_else(|e| e.into_inner());
-    let elder = ELDER.lock().unwrap_or_else(|e| e.into_inner());
+    // ★2026-08-02: POOL/ELDER 락 → 무락 스냅샷(ATTR_SNAP).
+    let Some(sn) = attrs() else { TIP_FAIL.store(1, Ordering::Relaxed); return String::new(); };
+    let (pool, elder) = (&sn.pool, &sn.elder);
     let wg = WORLDS.lock().unwrap_or_else(|e| e.into_inner());
     let Some(ws) = wg.as_ref().and_then(|w| pick_live(w, ls)) else {
         TIP_FAIL.store(2, Ordering::Relaxed); return String::new(); // WORLDS에 그 경기 없음/파티션 모호
@@ -2801,7 +2877,8 @@ static ELDER_GT_SEED: AtomicU64 = AtomicU64::new(0);
 //   순간에만 append — sim 클론들의 ws.kills(마지막 기록자 복불복·팀 뒤집힘 오염)와 완전 절연.
 //   ki = 전역 처치순번(= append 시점 len) = 웨이브idx (화면 기준 1:1). 되감기로 카운터가 줄면 truncate,
 //   세트 전환(ls^fp 변화)이면 clear. 툴팁·장로버프 팀 귀속의 유일 소스.
-//   ⚠락 순서: POOL→ELDER→WORLDS→ELDER_GT_BY_KI→SCREEN_KILLS→PROBE_LOG (역전 금지).
+//   ⚠락 순서: WORLDS→ELDER_GT_BY_KI→SCREEN_KILLS→PROBE_LOG (역전 금지).
+//     ★2026-08-02: POOL/ELDER는 무락 스냅샷(ATTR_SNAP)으로 바뀌어 락 순서에서 제외됐다.
 static SCREEN_KILLS: Mutex<Option<Vec<(u64, u64, u64)>>> = Mutex::new(None);
 static SK_KEY: AtomicU64 = AtomicU64::new(0);
 // 레드팀 모르가드 버프(게임 원본 노드)를 오른쪽 5px 이동 — item_tactics 검증 패턴
