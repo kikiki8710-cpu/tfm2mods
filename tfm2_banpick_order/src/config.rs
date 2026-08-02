@@ -51,6 +51,13 @@ pub struct Cfg {
     pub ai_w_cnt: f32,
     /// 보정 상한(네이티브 점수를 뒤엎지 않도록).
     pub ai_cap: f32,
+    /// ★모든 경기에 커스텀 순서 적용(기본 ON, 유저 요청 2026-08-01).
+    /// ON  = 내 밴픽 화면이 없는 **백그라운드 AI 경기**도 같은 순서로 진행한다.
+    /// OFF = 밴픽 화면일 때만 커스텀, 백그라운드는 게임 기본 순서(구 동작).
+    /// ⚠이 값은 **진행 축 훅 전체**(phase·턴 오라클·커밋·AI 밴 파리티)에 한꺼번에 적용돼야
+    /// 한다. 일부만 커스텀이면 서로 다른 순서를 기준으로 움직여 그 경기가 밴 단계를 못
+    /// 빠져나오고 커밋만 반복한다(= 시즌 일정 정지, 2026-08-01 실사고).
+    pub apply_all: bool,
     /// [rule 0..4][팀당 밴 수 0..=MAX_BAN] → 검증 통과한 phase 시퀀스.
     /// rule: 0=2v2 1=3v3 2=4v4 3=5v5 (MatchSetInfo+0xf9 값 그대로).
     pub seqs: Vec<Vec<Option<Box<[u8]>>>>,
@@ -71,6 +78,7 @@ impl Cfg {
             ai_w_syn: 1.0,
             ai_w_cnt: 1.0,
             ai_cap: 1.5,
+            apply_all: true,
             seqs: vec![(0..=MAX_BAN).map(|_| None).collect(); 4],
             load_log: Vec::new(),
         }
@@ -113,6 +121,12 @@ seq_5v5_ban4 = B1 B2 B1 B2 P1 P2 P2 P1 P1 P2 B2 B1 B2 B1 P2 P1 P1 P2
 
 # 5v5 · 팀당 밴3: 밴2씩 → 픽6 → 밴1씩 → 픽4
 #seq_5v5_ban3 = B1 B2 B1 B2 P1 P2 P2 P1 P1 P2 B2 B1 P2 P1 P1 P2
+
+# ── 적용 범위 ─────────────────────────────────────────────
+# 1 = 내가 보지 않는 AI끼리의 경기도 같은 순서로 밴픽합니다(기본).
+# 0 = 내 밴픽 화면에서만 커스텀, 나머지는 게임 기본 순서.
+# 일정이 멈추는 등 이상이 있으면 0으로 두고 확인해 보세요.
+apply_all = 1
 
 # ── 밴픽 AI 보정 ──────────────────────────────────────────
 # 게임 기본 밴 AI는 이미 확정된 픽을 보지 않습니다.
@@ -201,6 +215,7 @@ pub fn load() {
             "hl_force_off" => cfg.hl_force_off = v != "0",
             "drbp" => cfg.drbp = v != "0",
             "ai_ban_context" => cfg.ai_ban_context = v != "0",
+            "apply_all" => cfg.apply_all = v != "0",
             "ai_w_syn" => cfg.ai_w_syn = v.parse().unwrap_or(1.0),
             "ai_w_cnt" => cfg.ai_w_cnt = v.parse().unwrap_or(1.0),
             "ai_cap" => cfg.ai_cap = v.parse().unwrap_or(1.5),

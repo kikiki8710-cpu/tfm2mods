@@ -26,8 +26,9 @@
 //! ===========================================================================
 #![allow(dead_code)]
 
-use std::sync::atomic::{AtomicBool, AtomicU64, Ordering};
-use std::sync::Mutex;
+use std::collections::HashMap;
+use std::sync::atomic::{AtomicU64, Ordering};
+use std::sync::{OnceLock, RwLock};
 
 /// 챔프 한 마리의 판단용 능력치(Lv1 기준 + 성장 반영 대략값).
 #[derive(Clone, Copy, Default, Debug)]
@@ -59,9 +60,16 @@ impl Attr {
     }
 }
 
-/// 챔프 테이블: 인덱스(ctx candidate id) → (id 문자열, 능력치).
-static TABLE: Mutex<Vec<(String, Attr)>> = Mutex::new(Vec::new());
-static TABLE_READY: AtomicBool = AtomicBool::new(false);
+/// 챔프 테이블: 인덱스(ctx candidate id) → (id 문자열, 능력치) + 이름 역인덱스.
+///
+/// ★한 번 채워지면 끝까지 불변이라 **락이 필요 없다**(`OnceLock`). 구 구현은 `Mutex<Vec<..>>` 라
+/// 밴 후보 하나를 볼 때마다 락을 잡았고, 백그라운드 시뮬은 rayon 병렬이라 워커 전원이 이 락
+/// 하나에서 직렬화됐다(= 일정 넘기기가 느려진 원인). 이름 조회도 선형 탐색 → HashMap.
+struct Table {
+    by_idx: Vec<(String, Attr)>,
+    by_name: HashMap<String, Attr>,
+}
+static TABLE: OnceLock<Table> = OnceLock::new();
 
 /// 현재 드래프트 스냅샷 — phase 훅이 매 턴 갱신.
 #[derive(Clone, Default)]
@@ -75,7 +83,19 @@ pub struct Snapshot {
     pub acting_t1: bool,
     pub valid: bool,
 }
-static SNAP: Mutex<Option<Snapshot>> = Mutex::new(None);
+/// 스냅샷 + **미리 계산한 조합 요약**.
+/// ★`summarize` 결과는 후보와 무관하게 턴마다 한 번만 바뀌는데 구 구현은 밴 후보마다 다시
+/// 계산했다(후보 100개 → 같은 요약 100번 + 조합 챔프마다 락·선형탐색). 갱신 시 1회 계산해
+/// 캐시하고, 읽기는 `RwLock` 이라 워커들이 동시에 통과한다.
+/// ⚠`ally`/`enemy` 는 **행동 팀 기준으로 정렬된 픽** 요약이다(= `compute_ban_bias` 와 같은 기준).
+/// 테이블이 아직 안 채워진 시점의 갱신이면 None 이고, 그때는 소비 측에서 그 자리 계산으로
+/// 폴백한다(결과 동일 · 캐시는 순수 성능 장치).
+struct SnapCache {
+    snap: Snapshot,
+    ally: Option<Comp>,
+    enemy: Option<Comp>,
+}
+static SNAP: RwLock<Option<SnapCache>> = RwLock::new(None);
 
 pub static CNT_BAN_ADJ: AtomicU64 = AtomicU64::new(0);
 pub static CNT_BAN_PASS: AtomicU64 = AtomicU64::new(0);
@@ -86,41 +106,54 @@ pub fn capture_table<F>(fill: F)
 where
     F: FnOnce(&mut Vec<(String, Attr)>),
 {
-    if TABLE_READY.load(Ordering::Relaxed) {
+    if TABLE.get().is_some() {
         return;
     }
-    if let Ok(mut t) = TABLE.lock() {
-        if t.is_empty() {
-            fill(&mut t);
-            if !t.is_empty() {
-                TABLE_READY.store(true, Ordering::Relaxed);
-            }
-        }
+    let mut v: Vec<(String, Attr)> = Vec::new();
+    fill(&mut v);
+    if v.is_empty() {
+        return; // 아직 db 준비 전 — 다음 기회에 다시 시도(OnceLock 은 비워둔 채로).
     }
+    // ⚠`collect` 로 만들면 이름이 겹칠 때 **마지막** 값이 남는다. 구 구현은 선형 탐색의
+    // **첫 매치**를 썼으므로 `or_insert` 로 첫 값을 유지해야 결과가 동일하다.
+    let mut by_name: HashMap<String, Attr> = HashMap::with_capacity(v.len());
+    for (n, a) in &v {
+        by_name.entry(n.clone()).or_insert(*a);
+    }
+    // 경합으로 이미 채워졌으면 set 이 실패하는데, 내용이 같으므로 무시해도 안전하다.
+    let _ = TABLE.set(Table { by_idx: v, by_name });
 }
 
 pub fn table_len() -> usize {
-    TABLE.lock().map(|t| t.len()).unwrap_or(0)
+    TABLE.get().map(|t| t.by_idx.len()).unwrap_or(0)
 }
 
 /// phase 훅이 매 AI턴 직전에 호출 — 현재 밴/픽 상태를 기록.
+/// ★조합 요약도 **여기서 한 번만** 계산한다(후보마다 재계산하지 않도록).
 pub fn set_snapshot(s: Snapshot) {
-    if let Ok(mut g) = SNAP.lock() {
-        *g = Some(s);
+    let (ally_pick, enemy_pick) = if s.acting_t1 {
+        (&s.t1_pick, &s.t2_pick)
+    } else {
+        (&s.t2_pick, &s.t1_pick)
+    };
+    let ally = summarize(ally_pick);
+    let enemy = summarize(enemy_pick);
+    if let Ok(mut g) = SNAP.write() {
+        *g = Some(SnapCache { ally, enemy, snap: s });
     }
 }
 
 fn attr_of_name(name: &str) -> Option<Attr> {
-    let t = TABLE.lock().ok()?;
-    t.iter().find(|(n, _)| n == name).map(|(_, a)| *a)
+    TABLE.get()?.by_name.get(name).copied()
 }
 
-fn attr_of_idx(i: usize) -> Option<(String, Attr)> {
-    let t = TABLE.lock().ok()?;
-    t.get(i).cloned()
+fn attr_of_idx(i: usize) -> Option<(&'static str, Attr)> {
+    let (n, a) = TABLE.get()?.by_idx.get(i)?;
+    Some((n.as_str(), *a))
 }
 
 /// 조합 요약(빈 조합이면 None).
+#[derive(Clone, Copy)]
 struct Comp {
     n: f32,
     ad: f32,
@@ -153,9 +186,22 @@ fn summarize(names: &[String]) -> Option<Comp> {
 /// enemy = 상대(=밴하는 팀의 적) 픽, ally = 내 픽.
 /// 반환 = (보정치, 사유코드) — 사유는 debug 로그용.
 pub fn ban_bias(cand: &Attr, enemy: &[String], ally: &[String], w_syn: f32, w_cnt: f32, cap: f32) -> (f32, f32, f32) {
+    ban_bias_comp(cand, summarize(enemy), summarize(ally), w_syn, w_cnt, cap)
+}
+
+/// `ban_bias` 본체 — 조합 요약을 **이미 계산된 상태로** 받는다(후보마다 재계산 금지).
+/// 계산식은 구 구현과 동일하다(요약 인자화 외 변경 없음).
+fn ban_bias_comp(
+    cand: &Attr,
+    enemy: Option<Comp>,
+    ally: Option<Comp>,
+    w_syn: f32,
+    w_cnt: f32,
+    cap: f32,
+) -> (f32, f32, f32) {
     // ① 상대 시너지: 상대 조합의 빈 곳을 c가 메우는 정도.
     let mut syn = 0.0f32;
-    if let Some(e) = summarize(enemy) {
+    if let Some(e) = enemy {
         // 딜 타입 균형 — 상대가 한쪽으로 쏠려 있고 c가 반대면 그들이 원할 카드.
         let e_axis = if e.ad + e.ap > 0.0 { (e.ad - e.ap) / (e.ad + e.ap) } else { 0.0 };
         let c_axis = cand.dmg_axis();
@@ -170,7 +216,7 @@ pub fn ban_bias(cand: &Attr, enemy: &[String], ally: &[String], w_syn: f32, w_cn
 
     // ② 내 조합 위협: c가 내 조합을 잘 때리는 정도(내 저항이 약한 축의 딜).
     let mut cnt = 0.0f32;
-    if let Some(a) = summarize(ally) {
+    if let Some(a) = ally {
         let avg_def = a.def / a.n;
         let avg_mr = a.mr / a.n;
         // 내 방어가 낮으면 물리 위협이 크고, 마저가 낮으면 마법 위협이 크다.
@@ -197,10 +243,11 @@ pub fn compute_ban_bias(
     w_syn: f32,
     w_cnt: f32,
     cap: f32,
-) -> Option<(f32, String, f32, f32)> {
+) -> Option<(f32, &'static str, f32, f32)> {
     let (name, attr) = attr_of_idx(cand_idx)?;
-    let g = SNAP.lock().ok()?;
-    let s = g.as_ref()?;
+    let g = SNAP.read().ok()?;
+    let c = g.as_ref()?;
+    let s = &c.snap;
     if !s.valid {
         return None;
     }
@@ -218,6 +265,10 @@ pub fn compute_ban_bias(
     if ally_pick.is_empty() && enemy_pick.is_empty() {
         return None;
     }
-    let (bias, syn, cnt) = ban_bias(&attr, enemy_pick, ally_pick, w_syn, w_cnt, cap);
+    // 요약은 set_snapshot 이 계산해 둔 것을 쓴다. 그 시점에 테이블이 없었으면(None) 여기서
+    // 계산해 폴백 — 결과는 구 구현과 동일하고, 정상 경로에서는 후보마다의 재계산이 사라진다.
+    let enemy_comp = c.enemy.or_else(|| summarize(enemy_pick));
+    let ally_comp = c.ally.or_else(|| summarize(ally_pick));
+    let (bias, syn, cnt) = ban_bias_comp(&attr, enemy_comp, ally_comp, w_syn, w_cnt, cap);
     Some((bias, name, syn, cnt))
 }

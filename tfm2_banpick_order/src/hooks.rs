@@ -105,6 +105,22 @@ static CNT_SCALAR: AtomicU64 = AtomicU64::new(0);
 static CNT_APPLIER: AtomicU64 = AtomicU64::new(0);
 static CNT_FORCED_PICK: AtomicU64 = AtomicU64::new(0);
 static FRAME: AtomicU64 = AtomicU64::new(0);
+/// 턴 오라클(D′)이 "행동할 팀 없음"으로 빠진 사유별 카운터 — 진행 정지 진단용.
+/// 전체 대체라 여기서 거절하면 그 경기의 밴픽이 영구 정지한다(2026-07-31 사고).
+static REJ_RLEN: AtomicU64 = AtomicU64::new(0);
+static REJ_STATE: AtomicU64 = AtomicU64::new(0);
+/// 관측된 최대 레코드 개수 — 구 상한(64)이 실제로 초과되는지 확인용.
+static MAX_RLEN: AtomicU64 = AtomicU64::new(0);
+/// AI 밴 스코어러 파리티 훅 호출 수 / 그중 커스텀 팀비트를 돌려준 수.
+/// ⚠커스텀 수가 밴픽 화면 밖에서 늘면 게이트 비대칭 = 백그라운드 경기 정지의 원인.
+static CNT_AIBAN: AtomicU64 = AtomicU64::new(0);
+static CNT_AIBAN_CUSTOM: AtomicU64 = AtomicU64::new(0);
+/// 커밋 거부(반환 0) 수 · "같은 경기·같은 진행수"에서 커밋이 연속으로 반복된 최대 횟수.
+/// 후자가 크게 튀면 그 경기는 제자리를 맴돌고 있다(= 일정 정지의 직접 지문).
+static CNT_COMMIT_REJ: AtomicU64 = AtomicU64::new(0);
+static LAST_COMMIT_KEY: AtomicU64 = AtomicU64::new(0);
+static SAME_COMMIT_RUN: AtomicU64 = AtomicU64::new(0);
+static MAX_SAME_COMMIT: AtomicU64 = AtomicU64::new(0);
 
 // ── 재귀 폭주 가드 ──────────────────────────────────────────────────────────
 // 가설: 밴↔픽 인터리브에서 AI 시뮬이 phase 함수를 재귀 폭주 호출 → 스택 오버플로
@@ -191,11 +207,23 @@ fn vanilla_phase(total: u64, rule: u8, ban: u64) -> u8 {
         .unwrap_or(0xFF)
 }
 
+/// ★진행 축(phase·턴 오라클·커밋·AI 밴 파리티)의 **단일 게이트**.
+/// 이 넷은 반드시 같은 판단을 써야 한다 — 하나라도 다른 순서를 기준으로 움직이면 그 경기가
+/// 밴 단계를 못 빠져나오고 커밋만 반복해 시즌 일정이 멈춘다(2026-08-01 실사고).
+///
+/// `apply_all`(기본 ON) = 밴픽 화면 여부와 무관하게 **모든 경기**(백그라운드 AI 경기 포함)에
+/// 커스텀 순서 적용. OFF면 구 동작(화면이 있을 때만).
+/// ⚠구 IN_BANPICK 게이트의 근거였던 "백그라운드 커스텀 적용 = 로스터 오염 크래시"(2026-07-26)는
+/// **오진으로 판명**됐다(진범 = `0x11cedb0` unwrap(None) → 훅 E로 해결, 메모리 §10).
+#[inline]
+fn custom_ctx() -> bool {
+    CUSTOM_ACTIVE.load(Ordering::Relaxed)
+        && (config::get().apply_all || IN_BANPICK.load(Ordering::Relaxed))
+}
+
 #[inline]
 fn phase_of(total: u64, rule: u8, ban: u64) -> u8 {
-    // IN_BANPICK 게이트: 밴픽 화면일 때만 커스텀. 경기 진행/시뮬/재구성 컨텍스트에선
-    // 바닐라 폴백(원본 비트동일) — 로스터 오염 크래시 방지(2026-07-26).
-    if IN_BANPICK.load(Ordering::Relaxed) && CUSTOM_ACTIVE.load(Ordering::Relaxed) {
+    if custom_ctx() {
         if let Some(seq) = config::get().seq_for(rule, ban) {
             // 검증 통과 시퀀스는 길이 == 2*ban + 2*(rule+2) 보장 → 종료판정 자동 일치
             return seq.get(total as usize).copied().unwrap_or(0xFF);
@@ -813,10 +841,17 @@ unsafe fn my_record(rmi: usize) -> Option<(usize, u64, u64, u8, usize)> {
     }
     let rlen = ru64(rmi + 0x10) as usize;
     let rptr = ru64(rmi + 8) as usize;
-    if rlen == 0 || rlen > 64 || !addr_ok(rptr) {
+    // ⚠레코드 개수 상한을 두면 안 된다 — 원본 턴 오라클(0x1680500)은 `rlen == 0` 만 거르고
+    // 상한이 없다. 구 `rlen > 64` 가드는 레코드가 64개를 넘는 경기(다전제 등 액션이 누적된
+    // 매치)를 통째로 탈락시켜, 그 경기의 커스텀 순서가 조용히 죽었다(2026-07-31).
+    // 안전은 상한이 아니라 **산출된 주소의 유효성**으로 확보한다.
+    if rlen == 0 || !addr_ok(rptr) {
         return None;
     }
-    let last = rptr + (rlen - 1) * 0x100;
+    let last = rptr.wrapping_add((rlen - 1).wrapping_mul(0x100));
+    if !addr_ok(last) {
+        return None;
+    }
     if core::ptr::read((last + 0xc0) as *const u32) != 9 {
         return None;
     }
@@ -898,6 +933,35 @@ unsafe fn team_id(rmi: usize, i: usize) -> u64 {
     ru64(rmi + 0x140 + 8 * (i & 1))
 }
 
+/// 커밋 결과 관측 — 거부 수와 "제자리 맴돎"을 센다(진행 정지 진단).
+/// 같은 (rmi, total) 조합으로 커밋이 연속 호출되면 그 경기는 앞으로 나아가지 못하고 있다.
+unsafe fn observe_commit(rmi: usize, r: u8) {
+    if r == 0 {
+        CNT_COMMIT_REJ.fetch_add(1, Ordering::Relaxed);
+    }
+    let mut tot = u64::MAX;
+    if addr_ok(rmi) {
+        let rlen = ru64(rmi + 0x10) as usize;
+        let rptr = ru64(rmi + 8) as usize;
+        if rlen != 0 && addr_ok(rptr) {
+            let last = rptr.wrapping_add((rlen - 1).wrapping_mul(0x100));
+            if addr_ok(last) {
+                tot = ru64(last + 0x40)
+                    .wrapping_add(ru64(last + 0x58))
+                    .wrapping_add(ru64(last + 0x70))
+                    .wrapping_add(ru64(last + 0x88));
+            }
+        }
+    }
+    let key = (rmi as u64).rotate_left(16) ^ tot;
+    if LAST_COMMIT_KEY.swap(key, Ordering::Relaxed) == key {
+        let n = SAME_COMMIT_RUN.fetch_add(1, Ordering::Relaxed) + 1;
+        MAX_SAME_COMMIT.fetch_max(n, Ordering::Relaxed);
+    } else {
+        SAME_COMMIT_RUN.store(0, Ordering::Relaxed);
+    }
+}
+
 // ── 훅 F 본체: 커밋 직전 ban_count 유도 ────────────────────────────────────
 unsafe extern "win64" fn hook_commit(rmi: usize, acting_team: usize, champ: usize) -> u8 {
     CNT_COMMIT.fetch_add(1, Ordering::Relaxed);
@@ -910,7 +974,7 @@ unsafe extern "win64" fn hook_commit(rmi: usize, acting_team: usize, champ: usiz
     // (ban_field_addr, new_ban, required_team, side_override(addr,val)) — None이면 원본 그대로.
     let mut plan: Option<(usize, u64, usize, Option<(usize, u8)>)> = None;
     let _ = catch_unwind(AssertUnwindSafe(|| {
-        if !IN_BANPICK.load(Ordering::Relaxed) || !CUSTOM_ACTIVE.load(Ordering::Relaxed) {
+        if !custom_ctx() {
             return;
         }
         let Some((last, total, ban, rule, side)) = my_record(rmi) else { return };
@@ -977,10 +1041,12 @@ unsafe extern "win64" fn hook_commit(rmi: usize, acting_team: usize, champ: usiz
                     }
                 }));
             }
+            observe_commit(rmi, r);
             r
         }
         None => {
             let r = orig(rmi, acting_team, champ);
+            observe_commit(rmi, r);
             if config::get().debug {
                 let _ = catch_unwind(AssertUnwindSafe(|| {
                     if addr_ok(rmi) {
@@ -1018,11 +1084,23 @@ unsafe extern "win64" fn turn_impl(rmi: usize, out_team: *mut u64) -> u64 {
         }
         let rlen = ru64(rmi + 0x10) as usize;
         let rptr = ru64(rmi + 8) as usize;
-        if rlen == 0 || rlen > 64 || !addr_ok(rptr) {
+        // ★★이 함수는 원본 미실행 **전체 대체**라, 여기서 ok=0 을 반환하면 그 경기는
+        // "행동할 팀 없음" = 밴픽이 영원히 진행되지 않는다(내 경기뿐 아니라 **모든 경기**).
+        // 원본(0x1680500)은 `rlen == 0` 만 거르고 개수 상한이 없으므로 상한을 두면 안 된다 —
+        // 구 `rlen > 64` 가드가 레코드 64개 초과 경기를 정지시켜 시즌 일정이 안 넘어갔다
+        // (2026-07-31 유저 보고 · 원본 디스어셈블 대조로 확정).
+        MAX_RLEN.fetch_max(rlen as u64, Ordering::Relaxed);
+        if rlen == 0 || !addr_ok(rptr) {
+            REJ_RLEN.fetch_add(1, Ordering::Relaxed);
             return;
         }
-        let last = rptr + (rlen - 1) * 0x100;
+        let last = rptr.wrapping_add((rlen - 1).wrapping_mul(0x100));
+        if !addr_ok(last) {
+            REJ_RLEN.fetch_add(1, Ordering::Relaxed);
+            return;
+        }
         if core::ptr::read((last + 0xc0) as *const u32) != 9 {
+            REJ_STATE.fetch_add(1, Ordering::Relaxed);
             return;
         }
         let total = ru64(last + 0x40)
@@ -1035,8 +1113,8 @@ unsafe extern "win64" fn turn_impl(rmi: usize, out_team: *mut u64) -> u64 {
         let r = (rule & 3) as usize;
         let npicks = 2 * (r as u64 + 2);
 
-        // 커스텀: 내 매치 + seq 범위 내면 seq의 팀비트로 결정.
-        if IN_BANPICK.load(Ordering::Relaxed) && CUSTOM_ACTIVE.load(Ordering::Relaxed) {
+        // 커스텀: seq 범위 내면 seq의 팀비트로 결정(apply_all=1 이면 백그라운드 경기도 포함).
+        if custom_ctx() {
             if my_record(rmi).is_some() {
                 if let Some(seq) = config::get().seq_for(rule, ban) {
                     match seq.get(total as usize) {
@@ -1341,13 +1419,22 @@ unsafe fn install_turn(base: usize) -> Result<(), &'static str> {
 /// 인덱싱하면 안 되고, **seq에서 (bans_done+1)번째 밴 토큰**을 찾아 그 팀비트를 돌려준다.
 /// 바닐라 폴백 = `2 | (bans_done & 1)`(밴 T1부터 교대) — 원본과 비트동일.
 unsafe extern "win64" fn ai_ban_phase(bans_done: usize, rule: usize, ban: usize) -> u8 {
+    CNT_AIBAN.fetch_add(1, Ordering::Relaxed);
     let mut out = 2u8 | ((bans_done as u8) & 1);
     let _ = catch_unwind(AssertUnwindSafe(|| {
+        // ★★게이트는 `phase_of` 와 **반드시 같아야** 한다(2026-08-01 일정 정지 진범).
+        // 여기만 게이트가 없어서, 백그라운드 경기가 **진행은 바닐라 순서 · AI 밴 판정만
+        // 커스텀**이 되어 서로 다른 팀을 기준으로 움직였다 → 밴 단계를 못 빠져나오고 커밋만
+        // 반복 → 일정 정지. (현행 seq 는 7번째 밴부터 바닐라와 팀비트가 다르다.)
+        if !custom_ctx() {
+            return;
+        }
         if let Some(seq) = config::get().seq_for(rule as u8, ban as u64) {
             let mut n = 0usize;
             for &ph in seq.iter() {
                 if ph & 2 != 0 {
                     if n == bans_done {
+                        CNT_AIBAN_CUSTOM.fetch_add(1, Ordering::Relaxed);
                         out = ph;
                         return;
                     }
@@ -2066,6 +2153,17 @@ pub fn tick() {
                 CNT_LINEUP_SKIP.load(Ordering::Relaxed),
                 CNT_COMMIT_CUSTOM.load(Ordering::Relaxed),
                 CNT_COMMIT.load(Ordering::Relaxed),
+            ));
+            // 턴 오라클 거절 사유 — rej_rlen/rej_state 가 늘면 그 경기는 진행이 멈춘다.
+            config::dlog(&format!(
+                "turn: rej_rlen={} rej_state={} max_rlen={} | aiban={}/{} commit_rej={} same_run={}",
+                REJ_RLEN.load(Ordering::Relaxed),
+                REJ_STATE.load(Ordering::Relaxed),
+                MAX_RLEN.load(Ordering::Relaxed),
+                CNT_AIBAN_CUSTOM.load(Ordering::Relaxed),
+                CNT_AIBAN.load(Ordering::Relaxed),
+                CNT_COMMIT_REJ.load(Ordering::Relaxed),
+                MAX_SAME_COMMIT.load(Ordering::Relaxed),
             ));
         }
     }
