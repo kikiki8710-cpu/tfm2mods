@@ -3426,6 +3426,9 @@ impl ModServerExtension for ItemTacticsServerExt {
         PLAYER_SIDE.store(u64::MAX, Ordering::Relaxed);
         SIDE_CACHE.lock().unwrap_or_else(|e| e.into_inner()).clear();
         probe_db(ctx); install_replace_4th(); // resolver=mode 3·4 공통 (멱등)
+        // ★측정 전용: `dump_builds.trigger` 파일이 있을 때만 1회 실행(평소 비용 = exists() 1회).
+        //   관리틱은 sim 중엔 안 돌므로 forward shadow-call 이 sim 과 레이스하지 않는다.
+        unsafe { maybe_dump_builds(); }
     }
 }
 static NETSCAN_DONE: AtomicBool = AtomicBool::new(false);
@@ -3652,6 +3655,188 @@ fn auto_cands() -> std::sync::Arc<Vec<u64>> {
     *AUTO_CANDS.lock().unwrap_or_else(|e| e.into_inner()) = Some(arc.clone());
     arc
 }
+
+// ===========================================================================
+//  아이템 빌드 덤프 (측정 전용 · 파일 트리거 · 평소 완전 비활성)
+// ===========================================================================
+// 목적 = 학습된 신경망이 "지금" 각 챔피언에게 어떤 4칸 빌드를 추천하는지 그대로 뽑아낸다.
+//   경기 기록을 집계하는 방식(표본이 적으면 안 보임)과 달리, **추천망을 직접 채점**하므로
+//   시즌 1회만 돌려도 완전한 순위가 나온다. A/B 비교(모드 OFF 시즌 ↔ ON 시즌)용.
+//
+// 쓰는 법: 모드 폴더에 `dump_builds.trigger` 파일을 아무 내용으로 만들어 두고 **관리 화면으로
+//   진입**하면(=관리틱 1회) 실행되고, 끝나면 트리거 파일을 지운다. 결과 = `item_builds_<ms>.csv`.
+//   ⚠경기 중이 아니라 관리 화면에서 돌린다(관리틱은 sim 중엔 안 돈다 = 레이스 없음).
+//
+// ⚠★노이즈를 반드시 끄고 돌릴 것 — forward 안에는 탐색 노이즈(U[0,1)*0.2−0.1 = ±0.1)가 있어
+//   그냥 돌리면 점수가 매번 흔들린다. `tfm2_itemnet_tune` 의 cfg 에서
+//   `noise_range = 0` / `noise_offset = 0` 으로 두면 결정론이 된다.
+//   (아래 자가진단이 같은 빌드를 두 번 채점해 흔들리면 CSV 머리말에 경고를 박는다.)
+//
+// ⚠모드 챔피언은 나오지 않는다 — CHAMP_SHEET(시트 인덱스 0~60)에 없어 cid 를 못 만든다.
+//   (쓰레기 ctx 로 forward 하면 전원 동일 답이 나오므로 아예 제외한다.)
+const DUMP_TRIGGER: &str = "dump_builds.trigger";
+const DUMP_BEAM_WIDTH: usize = 32;
+/// 완전탐색 총 forward 호출 상한. 넘으면 beam 으로 폴백하고 **CSV 에 그 사실을 명시**한다.
+const DUMP_MAX_EXHAUSTIVE: u64 = 1_500_000;
+static DUMP_RUNNING: AtomicBool = AtomicBool::new(false);
+
+/// 아이템 라벨. 모드템은 실제 키, 바닐라는 `v<카테고리>_t<티어>`(id = cat*5 + tier).
+fn dump_item_label(id: u64, modmap: &HashMap<u64, String>) -> String {
+    if let Some(n) = modmap.get(&id) { return n.clone(); }
+    if id < 30 { format!("v{}_t{}", id / 5, id % 5) } else { format!("id{}", id) }
+}
+
+/// 상위 3개만 유지하는 삽입 정렬.
+#[inline]
+fn dump_push_top3(top: &mut Vec<(f32, Vec<u64>)>, s: f32, b: Vec<u64>) {
+    if top.len() == 3 && s <= top[2].0 { return; }
+    let at = top.iter().position(|(t, _)| s > *t).unwrap_or(top.len());
+    top.insert(at, (s, b));
+    top.truncate(3);
+}
+
+/// 한 (챔프, 포지션) 에 대해 4칸 빌드 상위 3개를 구한다.
+/// 후보가 적으면 완전탐색, 많으면 beam(깊이 4). 반환 = (top3, forward 호출수).
+unsafe fn dump_top3_for(net: usize, ctx: &[u64; 11], cands: &[u64], exhaustive: bool)
+    -> (Vec<(f32, Vec<u64>)>, u64)
+{
+    let n = cands.len();
+    let mut top: Vec<(f32, Vec<u64>)> = Vec::with_capacity(4);
+    let mut calls = 0u64;
+    if exhaustive {
+        for i in 0..n { for j in (i + 1)..n { for k in (j + 1)..n { for l in (k + 1)..n {
+            let b = vec![cands[i], cands[j], cands[k], cands[l]];
+            let s = itemnet_forward(net, ctx, &b);
+            calls += 1;
+            if s == f32::MIN { continue; } // net stale = 스킵
+            dump_push_top3(&mut top, s, b);
+        }}}}
+    } else {
+        // beam: 빈 빌드에서 시작해 한 칸씩 늘린다(게임 beam 과 같은 모양, 깊이만 4).
+        let mut beam: Vec<Vec<u64>> = vec![Vec::new()];
+        for depth in 0..4 {
+            let mut next: Vec<(f32, Vec<u64>)> = Vec::new();
+            for e in beam.iter() {
+                for &c in cands.iter() {
+                    if e.contains(&c) { continue; }
+                    // 조합 중복 방지 = 오름차순으로만 확장
+                    if let Some(&last) = e.last() { if c <= last { continue; } }
+                    let mut b = e.clone();
+                    b.push(c);
+                    let s = itemnet_forward(net, ctx, &b);
+                    calls += 1;
+                    if s == f32::MIN { continue; }
+                    next.push((s, b));
+                }
+            }
+            next.sort_by(|a, b| b.0.partial_cmp(&a.0).unwrap_or(std::cmp::Ordering::Equal));
+            next.truncate(DUMP_BEAM_WIDTH);
+            if depth == 3 { for (s, b) in next.iter() { dump_push_top3(&mut top, *s, b.clone()); } }
+            beam = next.into_iter().map(|(_, b)| b).collect();
+            if beam.is_empty() { break; }
+        }
+    }
+    (top, calls)
+}
+
+/// 트리거 파일이 있으면 덤프를 1회 수행한다. 관리틱(=sim 미가동)에서만 호출할 것.
+unsafe fn maybe_dump_builds() {
+    let dir = match mod_dir() { Some(d) => d, None => return };
+    let trig = dir.join(DUMP_TRIGGER);
+    if !trig.exists() { return; }
+    if DUMP_RUNNING.swap(true, Ordering::SeqCst) { return; } // 재진입 방지
+    let t0 = now_ms();
+
+    let net = ITEM_NET_ADDR.load(Ordering::Relaxed) as usize;
+    let mut out = String::new();
+    let mut header_warn = String::new();
+
+    if net == 0 || !itemnet_addr_valid() {
+        let _ = fs::write(dir.join(format!("item_builds_FAILED_{}.txt", t0)),
+            format!("net 미확보 (net={:#x}, fwd_valid={}) — 경기를 한 번 치른 뒤 다시 시도하세요.\n",
+                    net, itemnet_addr_valid()));
+        let _ = fs::remove_file(&trig);
+        DUMP_RUNNING.store(false, Ordering::SeqCst);
+        return;
+    }
+
+    let cands_arc = auto_cands();
+    let cands: Vec<u64> = cands_arc.iter().copied().collect();
+    let modmap: HashMap<u64, String> = mod_final_opts().into_iter().collect();
+    let n = cands.len();
+    if n < 4 {
+        let _ = fs::write(dir.join(format!("item_builds_FAILED_{}.txt", t0)),
+            format!("최종템 후보가 {}개뿐 — 4칸 빌드를 만들 수 없습니다.\n", n));
+        let _ = fs::remove_file(&trig);
+        DUMP_RUNNING.store(false, Ordering::SeqCst);
+        return;
+    }
+
+    // ── 노이즈 자가진단: 같은 빌드를 두 번 채점해 값이 흔들리는지 ──
+    let mut pctx = [0u64; 11];
+    for k in 0..10 { pctx[k] = 9999; }
+    pctx[0] = 0; pctx[10] = 0;
+    let pb = vec![cands[0], cands[1], cands[2], cands[3]];
+    let s1 = itemnet_forward(net, &pctx, &pb);
+    let s2 = itemnet_forward(net, &pctx, &pb);
+    if (s1 - s2).abs() > 1e-6 {
+        header_warn.push_str(&format!(
+            "# ⚠ 탐색 노이즈가 켜져 있습니다(같은 빌드 2회 채점 = {} vs {}). 점수·순위가 흔들립니다.\n\
+             #   tfm2_itemnet_tune cfg 에서 noise_range=0 / noise_offset=0 으로 두고 다시 뽑으세요.\n",
+            s1, s2));
+    }
+
+    // ── 완전탐색 가능 여부 ──
+    let champs: Vec<usize> = (0..CHAMP_SHEET.len()).filter(|&i| CHAMP_SHEET[i] != "mod_champions").collect();
+    let cells = (champs.len() * 5) as u64;
+    let combos = { // C(n,4)
+        let nn = n as u64;
+        if nn < 4 { 0 } else { nn * (nn - 1) * (nn - 2) * (nn - 3) / 24 }
+    };
+    let exhaustive = combos.saturating_mul(cells) <= DUMP_MAX_EXHAUSTIVE;
+
+    out.push_str(&format!(
+        "# tfm2_item_tactics 아이템 빌드 덤프 (신경망 직접 채점)\n\
+         # 시각(ms)={} / 후보 최종템={}개(바닐라 {} + 모드 {}) / 챔피언={} / 포지션=5\n\
+         # 탐색={} / C(n,4)={} / 셀={}\n\
+         # ctx = 본인 챔프만 배치, 나머지 아군·적군 전부 9999(중립). A/B 비교용 고정 컨텍스트.\n\
+         # ⚠모드 챔피언은 시트 인덱스가 없어 제외됩니다.\n{}\
+         champion,position,rank,score,id0,id1,id2,id3,item0,item1,item2,item3\n",
+        t0, n, VANILLA_FINAL.len(), n - VANILLA_FINAL.len(), champs.len(),
+        if exhaustive { "완전탐색" } else { "beam(폭 32) — 후보가 많아 완전탐색 상한 초과" },
+        combos, cells, header_warn));
+
+    let mut total_calls = 0u64;
+    let mut scored_cells = 0u64;
+    for &ci in champs.iter() {
+        for pos in 0..5usize {
+            let mut ctx = [9999u64; 11];
+            ctx[ci_slot(pos)] = ci as u64; // 본인 = 아군 슬롯 중 자기 포지션 자리
+            ctx[10] = pos as u64;
+            let (top, calls) = dump_top3_for(net, &ctx, &cands, exhaustive);
+            total_calls += calls;
+            if top.is_empty() { continue; }
+            scored_cells += 1;
+            for (rank, (s, b)) in top.iter().enumerate() {
+                out.push_str(&format!("{},{},{},{:.6},{},{},{},{},{},{},{},{}\n",
+                    CHAMP_SHEET[ci], pos, rank + 1, s,
+                    b[0], b[1], b[2], b[3],
+                    dump_item_label(b[0], &modmap), dump_item_label(b[1], &modmap),
+                    dump_item_label(b[2], &modmap), dump_item_label(b[3], &modmap)));
+            }
+        }
+    }
+    let dt = now_ms().saturating_sub(t0);
+    out.push_str(&format!("# 완료: forward {}회 / 채점된 셀 {}/{} / {}ms\n",
+                          total_calls, scored_cells, cells, dt));
+    let _ = fs::write(dir.join(format!("item_builds_{}.csv", t0)), out);
+    let _ = fs::remove_file(&trig);
+    append_log("4items.txt", &format!("[{}ms] build dump 완료: forward {}회 {}ms", now_ms(), total_calls, dt));
+    DUMP_RUNNING.store(false, Ordering::SeqCst);
+}
+
+/// ctx 의 아군 5칸 중 이 포지션이 쓰는 슬롯. (ctx[0..5] = 아군 5포지션, self = ctx[position])
+#[inline] fn ci_slot(pos: usize) -> usize { pos.min(4) }
 
 // ── 로스터 배열(SimState+0x840, stride 0x8d0)에서 그 경기 진짜 라인업 ctx 복원 ──
 //   athlete = 배열 원소. team=+0x820(0/1), champion name=+0x420. 병렬 경기는 각기 다른 배열이라
