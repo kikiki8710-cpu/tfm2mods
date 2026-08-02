@@ -116,7 +116,12 @@ if ($DryRun) {
 }
 
 # ⚠BOM 없는 UTF-8 로 써야 커밋 메시지 한글이 깨지지 않는다
-$tmp = Join-Path $env:TEMP "relcommit_$ModId.msg"
+# ⚠$env:TEMP 가 비어 있는 실행 환경이 있다(자동화·샌드박스 셸에서 실측 2026-08-03).
+#   그대로 Join-Path 하면 빈 경로가 되어 "Empty path name is not legal" 로 죽는다.
+$tmpDir = $env:TEMP
+if ([string]::IsNullOrWhiteSpace($tmpDir)) { $tmpDir = [System.IO.Path]::GetTempPath() }
+if ([string]::IsNullOrWhiteSpace($tmpDir)) { $tmpDir = $REPO }
+$tmp = Join-Path $tmpDir "relcommit_$ModId.msg"
 [System.IO.File]::WriteAllText($tmp, $msg, (New-Object System.Text.UTF8Encoding($false)))
 git commit -F $tmp | Write-Host
 Remove-Item $tmp -Force -ErrorAction SilentlyContinue
