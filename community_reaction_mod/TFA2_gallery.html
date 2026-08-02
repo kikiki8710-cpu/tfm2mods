@@ -1274,7 +1274,12 @@ ${prevHeadlines ? `\n[이미 나온 이슈들 - 제목·소재가 겹치면 절�
             });
             if (typeof latestMatchData !== 'undefined') {
                 // 대진표는 새 데이터가 올 때마다 자동 갱신(반응 생성과 무관)
-                try { localStorage.setItem('tfm2_vb_summary', latestMatchData.summary || ''); vbShow(latestMatchData.summary); } catch (e) {}
+                // ⚠빈 summary 로는 캐시를 덮지 않는다 — 이 캐시가 목록 복귀·페이지 로드의 복원 경로라서,
+                //   한 번 빈 값으로 덮이면 새로고침해도 대진표가 안 돌아온다.
+                try {
+                    if (latestMatchData.summary) localStorage.setItem('tfm2_vb_summary', latestMatchData.summary);
+                    vbShow(latestMatchData.summary);
+                } catch (e) {}
                 // ★ 자동 반응생성: "완료됐고 아직 생성 안 한 시리즈"면 발동(series_id 변화 여부 무관).
                 //   구 버전은 (series_id 변화 && 완료) 동시성립을 요구 → 시리즈 바뀌는 순간엔 미완료,
                 //   완료되는 순간엔 series_id 그대로라 두 조건이 동시에 참인 폴링이 없어 놓쳤다.
@@ -1613,16 +1618,28 @@ ${prevHeadlines ? `\n[이미 나온 이슈들 - 제목·소재가 겹치면 절�
     function vbParseBracket(summary) {
         if (!summary) return null;
         const text = String(summary);
-        const bracket = vbParseMatchBlock(text, /^\[플레이오프 대진표\]/);
+        let bracket = vbParseMatchBlock(text, /^\[플레이오프 대진표\]/);
         if (bracket) bkStructMerge(bracket.ms);
-        const promo = vbParseMatchBlock(text, /^\[승강전 대진표\]/); // 0.5.2 신규
+        let promo = vbParseMatchBlock(text, /^\[승강전 대진표\]/); // 0.5.2 신규
         if (promo) bkStructMerge(promo.ms);
         const swMs = vbParseMatchBlock(text, /^\[스위스 라운드 매치\]/);
         const swBuckets = vbParseSwissBuckets(text);
-        const swiss = (swMs || swBuckets) ? { fmt: swMs ? swMs.fmt : '', ms: swMs ? swMs.ms : [], buckets: swBuckets || [] } : null;
-        const groups = swiss ? null : vbParseGroupTables(text);
+        let swiss = (swMs || swBuckets) ? { fmt: swMs ? swMs.fmt : '', ms: swMs ? swMs.ms : [], buckets: swBuckets || [] } : null;
+        let groups = swiss ? null : vbParseGroupTables(text);
         const gubun = text.match(/경기 구분:\s*([^\n]+)/);
-        if (gubun && /정규\s*시즌/.test(gubun[1])) return null; // 정규시즌은 대진표 숨김
+        // 정규시즌 처리 — ⚠"정규 시즌"과 "플옵 진행 중"은 배타적이지 않다.
+        //   dll 은 시즌 대진표를 상시 export 하고 `경기 구분`은 그때 잡힌 메인 매치를 따르므로,
+        //   플옵 기간에도 정규시즌 경기가 메인으로 잡히는 폴링이 생긴다. 구 버전은 이 문자열만 보고
+        //   무조건 숨겨서, 5초 폴링이 그 순간을 만나면 대진표가 사라졌다(유저 제보 2026-08-03).
+        //   ⟹ 아직 안 끝난 경기가 남은 대진표만 살리고, 지난 시즌 잔상(전부 종료)은 그대로 숨긴다.
+        if (gubun && /정규\s*시즌/.test(gubun[1])) {
+            const alive = b => !!(b && b.ms && b.ms.length && b.ms.some(m => !/^종료/.test(m.state)));
+            if (!alive(bracket)) bracket = null;
+            if (!alive(promo)) promo = null;
+            if (!alive(swiss)) swiss = null;
+            groups = null; // 조별 순위표는 정규시즌엔 계속 숨김(기존 동작 유지)
+            if (!bracket && !promo && !swiss) return null;
+        }
         // 승강전 경기 중이면 승강전 대진표를 우선 표시(플옵 대진표가 함께 실려와도 지금 걸린 판을 보여줌)
         const isPromo = !!(gubun && /승강전/.test(gubun[1]));
         const mainBk = (isPromo && promo) ? promo : (bracket || promo);
