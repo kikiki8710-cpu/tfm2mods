@@ -26,6 +26,11 @@
 #   ⟹ "배포된 v0.4.3 의 deps 가 뭐였나"를 git 으로 답할 수 없었다(릴리스 zip 안에만 존재).
 !*.mod_info
 !*.override_info
+# ★2026-08-03 추가 — html 이 본체의 일부인 모드가 있다(community_reaction_mod 의 TFA2_gallery.html
+#   = 갤러리 UI + 반응 생성 프롬프트 전부, 169KB). 화이트리스트에 없어 통째로 빠져 있었고,
+#   정본이 게임 설치 폴더에만 존재해 이력·백업이 전혀 없었다(mod_info 와 같은 구멍).
+#   ⚠빌드 산출물 html 은 4) 의 `build/` 로 제외한다(fanim_editor 의 xref 1.2MB).
+!*.html
 # ⚠`*.txt` 는 담지 않는다 — 이 프로젝트의 txt 는 대부분 **런타임 덤프·진단 로그**다
 #   (실측: 전체 8,054개 / `sylas_hijack\effect_dump.txt` 3.8MB 등). 이력 가치가 없고 매 실행 갱신된다.
 #   특정 txt 가 필요하면 아래처럼 개별 허용할 것:  !경로/파일.txt
@@ -41,6 +46,7 @@ _tmp_*/
 _scratch/
 release/
 target/
+build/
 __pycache__/
 node_modules/
 
