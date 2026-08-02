@@ -1,0 +1,1930 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>팀 파이트 아레나 2 갤러리 - dcinside</title>
+    <style>
+        body { font-family: 'Malgun Gothic', sans-serif; font-size: 12px; color: #333; margin: 0; padding: 0; background-color: #f2f2f2; }
+        .gallery-title { width: 950px; margin: 20px auto 10px; background-color: #ffffff; padding: 15px 20px; box-sizing: border-box; border-bottom: 2px solid #3b4890; display: flex; justify-content: space-between; align-items: center; }
+        .gallery-title h2 { margin: 0; font-size: 18px; color: #333; display: flex; align-items: center; }
+        .gallery-title span { font-size: 11px; color: #666; margin-left: 10px; }
+        
+        main { width: 950px; margin: 0 auto; background-color: #ffffff; min-height: 800px; padding: 20px; box-sizing: border-box; position: relative; }
+        
+        .settings-btn { background: #3b4890; color: #fff; border: none; padding: 6px 12px; cursor: pointer; border-radius: 3px; font-size: 11px; font-weight: bold; }
+        .settings-panel { display: none; position: absolute; top: 20px; right: 20px; width: 340px; background: #fff; border: 2px solid #3b4890; padding: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.15); z-index: 1000; border-radius: 4px; }
+        .settings-panel h3 { margin-top: 0; font-size: 14px; border-bottom: 1px solid #ddd; padding-bottom: 5px; color: #3b4890; }
+        .settings-panel label { display: block; margin: 8px 0 4px; font-weight: bold; }
+        .settings-panel input, .settings-panel select, .settings-panel textarea { width: 100%; padding: 6px; box-sizing: border-box; margin-bottom: 8px; border: 1px solid #ccc; font-size: 11px; font-family: inherit; }
+        
+        .sort-bar { display: flex; justify-content: flex-end; gap: 12px; margin-bottom: 8px; font-size: 11px; color: #666; }
+        .sort-link { cursor: pointer; user-select: none; }
+        .sort-link.active { font-weight: bold; color: #3b4890; text-decoration: underline; }
+
+        .board-list { width: 100%; border-collapse: collapse; margin-top: 5px; }
+        .board-list th { background-color: #f9f9fa; border-top: 1px solid #3b4890; border-bottom: 1px solid #ddd; padding: 8px; font-weight: bold; color: #333; }
+        .board-list th.sortable { cursor: pointer; user-select: none; }
+        .board-list th.sortable:hover { background-color: #f0f1f5; }
+        .board-list td { border-bottom: 1px solid #eee; padding: 8px; text-align: center; }
+        .board-list .title-td { text-align: left; padding-left: 15px; cursor: pointer; }
+        .board-list .title-td:hover { text-decoration: underline; color: #3b4890; }
+        .board-list .concept-row { background: #fff9f9; }
+        
+        .post-view { display: none; margin-top: 20px; border: 1px solid #ddd; background: #fff; padding: 20px; }
+        .post-view-header { border-bottom: 1px solid #eee; padding-bottom: 10px; margin-bottom: 15px; }
+        .post-view-title { font-size: 18px; font-weight: bold; color: #333; margin: 0 0 8px 0; }
+        .post-view-info { font-size: 11px; color: #666; display: flex; justify-content: space-between; }
+        .post-view-content { font-size: 13px; line-height: 1.6; min-height: 180px; padding: 10px 5px; white-space: pre-wrap; word-break: break-all; }
+        
+        /* 실시간 AI 짤방 생성 레이아웃 */
+        .dc-real-image-container { margin: 15px 0; text-align: left; max-width: 500px; background: #fafafa; border: 1px solid #ddd; padding: 10px; border-radius: 4px; }
+        .dc-real-image-container img { max-width: 100%; height: auto; border: 1px solid #eee; display: block; margin-bottom: 8px; border-radius: 3px; background: #eee; }
+        .dc-real-image-container .img-filename { font-size: 11px; color: #3b4890; font-weight: bold; margin-bottom: 4px; }
+        .dc-real-image-container .img-prompt-info { font-size: 10px; color: #777; line-height: 1.3; font-style: italic; background: #fff; padding: 6px; border-left: 3px solid #3b4890; }
+
+        .recom-container { display: flex; justify-content: center; gap: 15px; margin: 40px 0; padding-bottom: 20px; border-bottom: 1px solid #eee; }
+        .recom-btn { display: flex; flex-direction: column; align-items: center; justify-content: center; width: 84px; height: 84px; border: 1px solid #ddd; background: #fff; cursor: pointer; border-radius: 4px; box-sizing: border-box; }
+        .recom-btn:hover { border-color: #3b4890; background: #fbfcfe; }
+        .recom-btn.up { color: #ef5350; border-color: #ef5350; }
+        .recom-btn.up:hover { background: #fff8f8; }
+        .recom-btn.down { color: #3b4890; border-color: #3b4890; }
+        .recom-btn.down:hover { background: #f4f6fc; }
+        .recom-btn .num { font-size: 16px; font-weight: bold; margin-top: 3px; }
+        .recom-btn .label { font-size: 11px; font-weight: bold; }
+
+        .comment-section { margin-top: 20px; background: #fafafa; padding: 15px; border: 1px solid #ddd; border-radius: 3px; }
+        .comment-section h4 { margin: 0 0 10px 0; font-size: 12px; color: #3b4890; border-bottom: 1px solid #eee; padding-bottom: 5px; }
+        .comment-item-container { border-bottom: 1px dashed #eee; padding: 8px 0; }
+        .comment-item { font-size: 11px; display: flex; align-items: flex-start; padding: 4px 0; }
+        .comment-author { font-weight: bold; width: 120px; color: #555; word-break: break-all; padding-right: 10px; }
+        .comment-body { flex-grow: 1; color: #333; word-break: break-all; line-height: 1.4; }
+        .comment-date { color: #999; width: 80px; text-align: right; }
+        .comment-actions { width: 40px; text-align: right; margin-left: 5px; }
+        .comment-actions span { cursor: pointer; color: #3b4890; font-size: 10px; font-weight: bold; }
+        
+        .sub-comment-list { background: #f4f4f4; margin-left: 30px; border-left: 2px solid #ccc; padding-left: 10px; }
+        .sub-comment-item { font-size: 11px; display: flex; align-items: flex-start; padding: 6px 0; border-bottom: 1px dashed #e5e5e5; }
+        .sub-comment-item:last-child { border-bottom: none; }
+        .sub-comment-prefix { color: #999; font-weight: bold; margin-right: 5px; font-family: monospace; }
+
+        .reply-write-form { display: none; margin: 5px 0 5px 30px; background: #fff; border: 1px solid #ddd; padding: 8px; border-radius: 2px; }
+        
+        .cmt-write-form { margin-top: 15px; display: flex; flex-direction: column; gap: 8px; background: #fff; border: 1px solid #ccc; padding: 12px; border-radius: 3px; }
+        .cmt-meta-inputs { display: flex; gap: 8px; }
+        .cmt-meta-inputs input { padding: 5px 8px; border: 1px solid #ccc; font-size: 11px; border-radius: 2px; width: 110px; }
+        .cmt-write-area { display: flex; gap: 8px; }
+        .cmt-write-area textarea { flex-grow: 1; height: 54px; padding: 6px; border: 1px solid #ccc; font-size: 12px; resize: none; border-radius: 2px; font-family: inherit; }
+        .cmt-write-area button { background: #3b4890; color: #fff; border: none; padding: 0 15px; font-weight: bold; cursor: pointer; border-radius: 2px; font-size: 12px; }
+        .cmt-write-area button:hover { background: #2f3a75; }
+
+        .action-bar { margin-top: 15px; display: flex; justify-content: space-between; align-items: center; }
+        .tournament-bar { margin: 8px 0 4px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+        .tour-badge { display: inline-flex; align-items: center; gap: 6px; background: #eef1fb; border: 1px solid #c4cdf0; color: #3b4890; font-size: 12px; font-weight: bold; padding: 5px 12px; border-radius: 4px; }
+        .tour-badge .league { color: #2f3a75; }
+        .tour-badge .stage { background: #3b4890; color: #fff; padding: 1px 8px; border-radius: 3px; font-size: 11px; }
+        body.dark .tour-badge { background: #26262d; border-color: #45454f; color: #8fa0ff; }
+        body.dark .tour-badge .league { color: #a9b4ff; }
+        body.dark .tour-badge .stage { background: #5b6ac4; color: #fff; }
+        .btn-refresh { background-color: #ff5e5e; color: #fff; border: none; padding: 8px 16px; cursor: pointer; font-weight: bold; border-radius: 2px; }
+        .btn-download { background-color: #28a745; color: #fff; border: none; padding: 6px 12px; cursor: pointer; font-weight: bold; border-radius: 3px; font-size: 11px; margin-left: 6px; }
+
+        .pagination-container { display: flex; justify-content: center; gap: 5px; margin-top: 20px; }
+        .page-btn { padding: 6px 12px; border: 1px solid #ddd; background: #fff; cursor: pointer; font-size: 11px; border-radius: 3px; font-weight: bold; color: #555; }
+        .page-btn.active { background: #3b4890; color: #fff; border-color: #3b4890; }
+        .page-btn:hover:not(.active) { background: #f2f2f2; }
+
+        /* ===== 첨부 이미지 텍스트 박스 ===== */
+        .attach-box { display:inline-block; background:#f4f4f4; border:1px solid #ddd; color:#888; font-size:11px; padding:9px 16px; border-radius:3px; margin:8px 0 14px; }
+
+        /* ===== 다크모드 (디시 다크 테마 스타일) ===== */
+        body.dark { background-color: #141418; color: #cfcfd4; }
+        body.dark .gallery-title { background-color: #1e1e24; border-bottom-color: #5b6ac4; }
+        body.dark .gallery-title h2 { color: #e8e8ec; }
+        body.dark .gallery-title span { color: #8d8d96; }
+        body.dark main { background-color: #1e1e24; }
+        body.dark .settings-panel { background: #24242b; border-color: #5b6ac4; }
+        body.dark .settings-panel h3 { color: #8fa0ff; border-bottom-color: #3a3a44; }
+        body.dark .settings-panel input, body.dark .settings-panel select, body.dark .settings-panel textarea { background: #2c2c34; border-color: #45454f; color: #dcdce0; }
+        body.dark .sort-bar { color: #8d8d96; }
+        body.dark .sort-link.active { color: #8fa0ff; }
+        body.dark .board-list th { background-color: #26262d; border-top-color: #5b6ac4; border-bottom-color: #3a3a44; color: #d5d5da; }
+        body.dark .board-list th.sortable:hover { background-color: #2c2c34; }
+        body.dark .board-list td { border-bottom-color: #2c2c34; color: #c5c5cc; }
+        body.dark .board-list .title-td:hover { color: #8fa0ff; }
+        body.dark .board-list .concept-row { background: #272028; }
+        body.dark .post-view { background: #1e1e24; border-color: #3a3a44; }
+        body.dark .post-view-header { border-bottom-color: #33333c; }
+        body.dark .post-view-title { color: #e8e8ec; }
+        body.dark .post-view-info { color: #8d8d96; }
+        body.dark .post-view-content { color: #d0d0d6; }
+        body.dark .attach-box { background: #26262d; border-color: #3a3a44; color: #9a9aa2; }
+        body.dark .recom-container { border-bottom-color: #33333c; }
+        body.dark .recom-btn { background: #24242b; border-color: #45454f; }
+        body.dark .comment-section { background: #232329; border-color: #3a3a44; }
+        body.dark .comment-section h4 { color: #8fa0ff; border-bottom-color: #33333c; }
+        body.dark .comment-item-container { border-bottom-color: #2e2e36; }
+        body.dark .comment-author { color: #a9a9b2; }
+        body.dark .comment-body { color: #d0d0d6; }
+        body.dark .comment-date { color: #6d6d76; }
+        body.dark .comment-actions span { color: #8fa0ff; }
+        body.dark .sub-comment-list { background: #1c1c22; border-left-color: #45454f; }
+        body.dark .sub-comment-item { border-bottom-color: #2a2a32; }
+        body.dark .sub-comment-prefix { color: #6d6d76; }
+        body.dark .reply-write-form, body.dark .cmt-write-form { background: #24242b; border-color: #45454f; }
+        body.dark .cmt-meta-inputs input, body.dark .cmt-write-area textarea { background: #2c2c34; border-color: #45454f; color: #dcdce0; }
+        body.dark .page-btn { background: #24242b; border-color: #45454f; color: #b5b5bd; }
+        body.dark .page-btn:hover:not(.active) { background: #2c2c34; }
+        body.dark .page-btn.active { background: #5b6ac4; border-color: #5b6ac4; }
+
+        /* ===== 좌우 레이아웃 & 이슈 패널 ===== */
+        .layout-wrap { width: 1515px; max-width: 100%; margin: 0 auto; display: flex; gap: 18px; align-items: flex-start; }
+        .standings-panel { width: 262px; flex-shrink: 0; background: #fff; border: 1px solid #ddd; border-top: 2px solid #3b4890; margin-top: 20px; position: sticky; top: 20px; box-sizing: border-box; border-radius: 3px; max-height: calc(100vh - 40px); overflow-y: auto; }
+        .stand-head { font-size: 13px; font-weight: bold; color: #3b4890; padding: 10px 12px; border-bottom: 1px solid #eee; }
+        .stand-sub { font-size: 11px; color: #666; padding: 6px 12px 2px; font-weight: bold; }
+        .stand-badge { display: inline-block; font-size: 10px; background: #3b4890; color: #fff; padding: 1px 7px; border-radius: 3px; margin-left: 4px; }
+        table.stand-table { width: 100%; border-collapse: collapse; font-size: 11px; }
+        table.stand-table th { background: #f9f9fa; color: #555; font-weight: bold; padding: 5px 3px; border-bottom: 1px solid #ddd; }
+        table.stand-table td { padding: 5px 3px; border-bottom: 1px solid #f0f0f0; text-align: center; }
+        table.stand-table td.tname { text-align: left; padding-left: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 120px; }
+        table.stand-table tr.rank-1 td { background: #fff8e8; font-weight: bold; }
+        table.stand-table tr.rank-1 .rk { color: #e0a800; }
+        table.stand-table tr.rank-2 .rk, table.stand-table tr.rank-3 .rk { color: #3b4890; font-weight: bold; }
+        table.stand-table tr.myteam td { background: #eef5ff; }
+        .stand-empty { padding: 20px 12px; color: #999; font-size: 11px; text-align: center; }
+        body.dark .standings-panel { background: #1e1e24; border-color: #3a3a44; border-top-color: #5b6ac4; }
+        body.dark .stand-head { color: #8fa0ff; border-bottom-color: #33333c; }
+        body.dark .stand-sub { color: #b5b5bd; }
+        body.dark table.stand-table th { background: #26262d; color: #b5b5bd; border-bottom-color: #3a3a44; }
+        body.dark table.stand-table td { border-bottom-color: #2a2a32; color: #c5c5cc; }
+        body.dark table.stand-table tr.rank-1 td { background: #2e2a1c; }
+        body.dark table.stand-table tr.myteam td { background: #24303f; }
+        .main-col { width: 950px; flex-shrink: 0; }
+        .main-col .gallery-title { width: 100%; margin: 20px 0 10px; }
+        .main-col main { width: 100%; margin: 0; }
+        .issue-panel { width: 265px; background: #fff; border: 1px solid #ddd; border-top: 2px solid #3b4890; margin-top: 20px; position: sticky; top: 20px; box-sizing: border-box; border-radius: 3px; }
+        .issue-head { font-size: 13px; font-weight: bold; color: #3b4890; padding: 10px 12px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; }
+        .issue-refresh { cursor: pointer; color: #999; font-size: 14px; }
+        .issue-refresh:hover { color: #3b4890; }
+        .issue-panel ul { list-style: none; margin: 0; padding: 4px 0; }
+        .issue-panel li { padding: 8px 12px; border-bottom: 1px dashed #eee; cursor: pointer; font-size: 11px; line-height: 1.45; color: #333; }
+        .issue-panel li:last-child { border-bottom: none; }
+        .issue-panel li:hover { background: #f7f8fc; color: #3b4890; }
+        .issue-cat-badge { display: inline-block; font-size: 9px; font-weight: bold; color: #fff; background: #3b4890; padding: 1px 5px; border-radius: 2px; margin-right: 5px; vertical-align: 1px; }
+        .issue-cat-badge.scandal { background: #d64545; }
+        .issue-cat-badge.transfer { background: #2a9d5c; }
+        .issue-cat-badge.broadcast { background: #b8862d; }
+        .issue-empty { color: #999 !important; cursor: default !important; text-align: center; padding: 20px 12px !important; }
+        .issue-empty:hover { background: none !important; }
+
+        #issueModal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.55); z-index: 3000; }
+        .issue-modal-box { width: 560px; max-height: 75vh; overflow-y: auto; background: #fff; margin: 10vh auto 0; padding: 24px 28px; border-radius: 5px; border-top: 3px solid #3b4890; box-sizing: border-box; }
+        .issue-modal-cat { margin-bottom: 8px; }
+        .issue-modal-title { font-size: 19px; margin: 0 0 6px; color: #222; line-height: 1.4; }
+        .issue-modal-date { font-size: 11px; color: #999; margin-bottom: 14px; border-bottom: 1px solid #eee; padding-bottom: 10px; }
+        .issue-modal-content { font-size: 13px; line-height: 1.75; color: #333; white-space: pre-wrap; }
+
+        .sub-reply-btn { cursor: pointer; color: #3b4890; font-size: 10px; font-weight: bold; margin-left: 8px; white-space: nowrap; }
+
+        body.dark .issue-panel { background: #1e1e24; border-color: #3a3a44; border-top-color: #5b6ac4; }
+        body.dark .issue-head { color: #8fa0ff; border-bottom-color: #33333c; }
+        body.dark .issue-panel li { color: #c5c5cc; border-bottom-color: #2e2e36; }
+        body.dark .issue-panel li:hover { background: #26262d; color: #8fa0ff; }
+        body.dark .issue-modal-box { background: #1e1e24; border-top-color: #5b6ac4; }
+        body.dark .issue-modal-title { color: #e8e8ec; }
+        body.dark .issue-modal-content { color: #d0d0d6; }
+        body.dark .issue-modal-date { border-bottom-color: #33333c; }
+        body.dark .sub-reply-btn { color: #8fa0ff; }
+
+        /* 글쓰기 버튼 & 폼 */
+        .btn-write { background-color: #3b4890; color: #fff; border: none; padding: 8px 16px; cursor: pointer; font-weight: bold; border-radius: 2px; margin-left: 8px; }
+        .btn-write:hover { background-color: #2f3a75; }
+        .write-panel { display: none; margin: 12px 0; border: 1px solid #3b4890; background: #fff; padding: 16px; border-radius: 4px; }
+        .write-panel input.wp-title { width: 100%; padding: 8px; box-sizing: border-box; border: 1px solid #ccc; font-size: 13px; margin-bottom: 8px; border-radius: 2px; }
+        .write-panel textarea.wp-body { width: 100%; height: 160px; padding: 8px; box-sizing: border-box; border: 1px solid #ccc; font-size: 13px; resize: vertical; border-radius: 2px; font-family: inherit; }
+        .wp-toolbar { display: flex; gap: 8px; margin: 8px 0; align-items: center; flex-wrap: wrap; }
+        .wp-meta { display: flex; gap: 8px; margin-bottom: 8px; }
+        .wp-meta input { padding: 6px 8px; border: 1px solid #ccc; font-size: 11px; border-radius: 2px; width: 120px; }
+        .btn-con { background: #eef1fb; border: 1px solid #c4cdf0; color: #3b4890; font-weight: bold; font-size: 12px; padding: 6px 12px; border-radius: 3px; cursor: pointer; }
+        .btn-con:hover { background: #e0e6f8; }
+
+        /* 롤갤콘(특수문자) 팔레트 모달 */
+        #conModal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 4000; }
+        .con-box { width: 620px; max-width: 92vw; max-height: 80vh; background: #fff; margin: 8vh auto 0; border-radius: 6px; border-top: 3px solid #3b4890; display: flex; flex-direction: column; overflow: hidden; }
+        .con-head { padding: 12px 18px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; }
+        .con-head h3 { margin: 0; font-size: 15px; color: #3b4890; }
+        .con-close { cursor: pointer; font-size: 18px; color: #999; background: none; border: none; }
+        .con-tabs { display: flex; gap: 4px; padding: 8px 18px 0; flex-wrap: wrap; border-bottom: 1px solid #eee; }
+        .con-tab { font-size: 12px; padding: 5px 12px; cursor: pointer; border: 1px solid transparent; border-bottom: none; border-radius: 4px 4px 0 0; color: #666; }
+        .con-tab.active { background: #eef1fb; color: #3b4890; font-weight: bold; border-color: #c4cdf0; }
+        .con-grid { padding: 14px 18px; overflow-y: auto; display: flex; flex-wrap: wrap; gap: 6px; align-content: flex-start; }
+        .con-item { min-width: 40px; height: 40px; padding: 0 6px; display: inline-flex; align-items: center; justify-content: center; font-size: 20px; border: 1px solid #e2e2e8; border-radius: 5px; cursor: pointer; background: #fafafa; line-height: 1; }
+        .con-item:hover { background: #eef1fb; border-color: #3b4890; transform: scale(1.08); }
+
+        body.dark .write-panel { background: #1e1e24; border-color: #5b6ac4; }
+        body.dark .write-panel input.wp-title, body.dark .write-panel textarea.wp-body, body.dark .wp-meta input { background: #2c2c34; border-color: #45454f; color: #dcdce0; }
+        body.dark .btn-con { background: #26262d; border-color: #45454f; color: #8fa0ff; }
+        body.dark .con-box { background: #1e1e24; border-top-color: #5b6ac4; }
+        body.dark .con-head { border-bottom-color: #33333c; }
+        body.dark .con-head h3 { color: #8fa0ff; }
+        body.dark .con-tabs { border-bottom-color: #33333c; }
+        body.dark .con-tab { color: #b5b5bd; }
+        body.dark .con-tab.active { background: #26262d; color: #8fa0ff; border-color: #45454f; }
+        body.dark .con-item { background: #26262d; border-color: #3a3a44; color: #dcdce0; }
+        body.dark .con-item:hover { background: #2f3a75; border-color: #5b6ac4; }
+
+        /* ===== 플레이오프 대진표 (게임 브래킷 스타일, 항상 다크) ===== */
+        #bracketPanel { margin: 10px 0 14px; border: 1px solid #2c2c34; border-radius: 6px; overflow: hidden; background: #141419; }
+        .bracket-head { padding: 9px 14px; font-size: 12px; font-weight: bold; color: #dfe3ff; background: #1d1d25; cursor: pointer; display: flex; align-items: center; gap: 8px; user-select: none; }
+        .bracket-head .bk-meta { font-weight: normal; color: #8d93b8; font-size: 11px; }
+        .bracket-head .bk-arrow { margin-left: auto; color: #8d93b8; }
+        .bracket-body { overflow-x: auto; padding: 14px 16px 18px; }
+        .bracket-canvas { position: relative; }
+        .bk-roundhead { position: absolute; top: 0; height: 30px; line-height: 30px; text-align: center; background: #1d1d25; border: 1px solid #33333e; border-radius: 6px; color: #cfd3ec; font-size: 12px; font-weight: bold; box-sizing: border-box; }
+        .bk-match { position: absolute; width: 190px; box-sizing: border-box; }
+        .bk-title { font-size: 11px; color: #b9bed9; margin-bottom: 3px; display: flex; justify-content: space-between; font-weight: bold; }
+        .bk-title .bk-date { color: #71779c; font-weight: normal; }
+        .bk-box { background: #232330; border: 1px solid #3a3a48; border-radius: 8px; overflow: hidden; }
+        .bk-team { display: flex; justify-content: space-between; align-items: center; padding: 7px 10px; font-size: 12px; color: #d6d8e8; border-bottom: 1px solid #2c2c38; white-space: nowrap; overflow: hidden; }
+        .bk-team:last-child { border-bottom: none; }
+        .bk-team .nm { overflow: hidden; text-overflow: ellipsis; }
+        .bk-team .sc { color: #8d93b8; font-weight: bold; margin-left: 8px; }
+        .bk-team.win { color: #ffd76a; } .bk-team.win .sc { color: #ffd76a; }
+        .bk-team.myteam { color: #58e08c; font-weight: bold; }
+        .bk-team.tbd { color: #70738c; font-style: italic; }
+        .bk-state { font-size: 10px; margin-top: 3px; color: #9aa0c4; }
+        .bk-state .live { color: #ff6b6b; font-weight: bold; }
+        svg.bk-lines { position: absolute; left: 0; top: 0; pointer-events: none; }
+    </style>
+</head>
+<body>
+
+<div class="layout-wrap">
+<aside class="standings-panel" id="standingsPanel">
+    <div class="stand-head">📊 리그 순위</div>
+    <div class="stand-empty" id="standEmpty">반응 불러오기를 하면<br>리그 순위가 표시됩니다.</div>
+    <div id="standContent"></div>
+</aside>
+<div class="main-col">
+<div class="gallery-title">
+    <h2>팀 파이트 아레나 2 갤러리 <span>마이너 갤러리</span></h2>
+    <div>
+        <button class="settings-btn" id="themeToggleBtn" onclick="toggleTheme()" style="background:#555;">🌙 다크모드</button>
+        <button class="settings-btn" onclick="toggleSettings()">⚙ 설정창 열기</button>
+        <button class="btn-download" onclick="downloadThisFile()">💾 파일 다운로드</button>
+    </div>
+</div>
+
+<main>
+    <div class="settings-panel" id="settingsPanel">
+        <h3>설정</h3>
+
+        <label>AI 엔진 선택</label>
+        <select id="aiProvider" onchange="onProviderChange(this.value)">
+            <option value="cerebras">Cerebras (기본, 빠름)</option>
+            <option value="gemini">Google Gemini</option>
+        </select>
+
+        <div id="cerebrasBox">
+            <label>Cerebras API Key</label>
+            <input type="password" id="apiKey" placeholder="csk-...">
+
+            <label>호출 모델 선택</label>
+            <select id="modelSelect" onchange="onModelSelectChange(this.value)">
+                <option value="gemma-4-31b">gemma-4-31b</option>
+                <option value="custom">직접 입력...</option>
+            </select>
+
+            <label>호출할 모델명</label>
+            <input type="text" id="modelName" placeholder="모델명...">
+        </div>
+
+        <div id="geminiBox" style="display:none;">
+            <label>Gemini API Key</label>
+            <input type="password" id="geminiKey" placeholder="AIza...">
+
+            <label>Gemini 모델명</label>
+            <select id="geminiModel">
+                <option value="gemini-3.5-flash">gemini-3.5-flash (빠름, 추천)</option>
+                <option value="gemini-3.1-pro-preview">gemini-3.1-pro-preview (고품질)</option>
+                <option value="gemini-2.5-flash">gemini-2.5-flash</option>
+                <option value="gemini-2.0-flash">gemini-2.0-flash</option>
+            </select>
+            <span style="font-size:11px; color:#888;">키 발급: aistudio.google.com/apikey</span>
+        </div>
+
+        <label>내 팀 이름 (리그 순위표에서 강조 표시)</label>
+        <input type="text" id="myTeam" placeholder="예: 게이트웨이 코리아">
+        <span style="font-size:11px; color:#888;">순위표에 표시되는 팀 이름과 똑같이 입력하세요 (한글이면 한글, 영어면 영어 그대로). 예: 순위표에 "T1"이면 T1, "게이트웨이 코리아"면 그대로.</span>
+
+        <label>갤러리 배경 서사 (응원팀/이적/라이벌/대회 메모)</label>
+        <textarea id="loreMemo" rows="4" style="resize:vertical;" placeholder="예) 내 응원팀은 OO / 선수 XX가 우리팀에서 YY팀으로 이적함 / OO vs YY는 라이벌전 / 이번 경기는 결승전"></textarea>
+
+        <label>시스템 프롬프트 (콘셉트 가이드)</label>
+        <textarea id="customPrompt" rows="8" style="resize:vertical;" placeholder="콘셉트 가이드"></textarea>
+
+        <label>데이터 파일 업로드 (latest_match.js)</label>
+        <input type="file" id="dataFilePicker" accept=".js" onchange="loadLocalFile(event)">
+
+        <button class="settings-btn" style="width: 100%; margin-top: 10px;" onclick="saveSettings()">설정 저장</button>
+        <button class="btn-refresh" style="width: 100%; margin-top: 10px; background-color: #666;" onclick="clearGallery()">갤러리 글 전체 초기화</button>
+    </div>
+
+    <div class="tournament-bar" id="tournamentBar" style="display:none;"></div>
+
+    <div id="bracketPanel" style="display:none;">
+        <div class="bracket-head" onclick="toggleBracket()">🏆 플레이오프 대진표 <span class="bk-meta" id="bracketMeta"></span><span class="bk-arrow" id="bracketArrow">▲</span></div>
+        <div class="bracket-body" id="bracketBody" style="display:none;"><div class="bracket-canvas" id="bracketCanvas"></div></div>
+    </div>
+
+    <div class="action-bar" id="actionBar">
+        <div>
+            <button class="btn-refresh" onclick="fetchAndGenerate()">반응 불러오기</button>
+            <button class="btn-write" onclick="toggleWritePanel()">✏️ 글쓰기</button>
+        </div>
+        <div style="font-size: 11px; color: #666;" id="statusMsg">
+            [반응 불러오기] 버튼을 눌러주세요.
+        </div>
+    </div>
+
+    <div class="write-panel" id="writePanel">
+        <div class="wp-meta">
+            <input type="text" id="wpAuthor" placeholder="닉네임" value="ㅇㅇ">
+            <input type="password" id="wpPassword" placeholder="비밀번호" value="1234">
+        </div>
+        <input type="text" class="wp-title" id="wpTitle" placeholder="제목을 입력하세요">
+        <textarea class="wp-body" id="wpBody" placeholder="내용을 입력하세요"></textarea>
+        <div class="wp-toolbar">
+            <button class="btn-con" onclick="openConPicker('wpBody')">🎨 롤갤콘</button>
+            <span style="font-size:11px; color:#888;">롤갤콘 버튼으로 특수문자 이모티콘을 넣을 수 있어요</span>
+        </div>
+        <div style="display:flex; gap:8px; justify-content:flex-end;">
+            <button class="btn-refresh" style="background:#888;" onclick="toggleWritePanel()">취소</button>
+            <button class="btn-write" onclick="submitUserPost()">등록</button>
+        </div>
+    </div>
+
+    <div class="sort-bar" id="sortBar" style="display:none;">
+        <span class="sort-link active" id="sort-date" onclick="sortBoard('date')">최신순</span>
+        <span class="sort-link" id="sort-views" onclick="sortBoard('views')">조회순</span>
+        <span class="sort-link" id="sort-likes" onclick="sortBoard('likes')">추천순</span>
+    </div>
+
+    <table class="board-list" id="boardList">
+        <thead>
+            <tr>
+                <th width="80">번호</th>
+                <th>제목</th>
+                <th width="120">글쓴이</th>
+                <th width="80" class="sortable" onclick="sortBoard('date')">작성일</th>
+                <th width="60" class="sortable" onclick="sortBoard('views')">조회</th>
+                <th width="50" class="sortable" onclick="sortBoard('likes')">추천</th>
+            </tr>
+        </thead>
+        <tbody id="boardBody">
+            <tr>
+                <td colspan="6" style="padding: 40px; color:#888;">아직 게시글이 없습니다.</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div id="pagination" class="pagination-container"></div>
+
+    <div class="post-view" id="postView">
+        <div style="margin-bottom: 12px;">
+            <button class="settings-btn" onclick="closePost()">◀ 목록으로 돌아가기</button>
+        </div>
+        <div class="post-view-header">
+            <h3 class="post-view-title" id="viewTitle">글 제목</h3>
+            <div class="post-view-info">
+                <div>
+                    <span id="viewAuthor" style="font-weight: bold;">ㅇㅇ</span>
+                    <span style="color: #ccc; margin: 0 10px;">|</span>
+                    <span id="viewDate" style="color: #666;">2026.06.08 22:56:05</span>
+                </div>
+                <div>
+                    <span style="margin-right: 15px;">조회수 <span id="viewClicks" style="font-weight: bold;">0</span></span>
+                    <span>추천수 <span id="viewLikes" style="font-weight: bold; color: #ff5e5e;">0</span></span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="post-view-content">
+            <div id="viewImageArea"></div>
+            <div id="viewContent">글 본문 영역</div>
+        </div>
+
+        <div class="recom-container">
+            <button class="recom-btn up" onclick="upvotePost()">
+                <span class="label">추천</span>
+                <span class="num" id="recomUpCount">0</span>
+            </button>
+            <button class="recom-btn down" onclick="downvotePost()">
+                <span class="label">비추천</span>
+                <span class="num" id="recomDownCount">0</span>
+            </button>
+        </div>
+        
+        <div class="comment-section">
+            <h4>댓글 <span id="commentCount">0</span></h4>
+            <div id="commentList"></div>
+            
+            <div class="cmt-write-form">
+                <div class="cmt-meta-inputs">
+                    <input type="text" id="cmtAuthor" placeholder="닉네임" value="ㅇㅇ">
+                    <input type="password" id="cmtPassword" placeholder="비밀번호" value="1234">
+                </div>
+                <div class="cmt-write-area">
+                    <textarea id="cmtContent" placeholder="타인의 권리를 침해하거나 명예를 훼손하는 댓글은 삭제될 수 있습니다."></textarea>
+                    <div style="display:flex; flex-direction:column; gap:4px;">
+                        <button class="btn-con" style="padding:4px 8px;" onclick="openConPicker('cmtContent')">🎨</button>
+                        <button onclick="submitComment()">등록</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+            </div>
+</main>
+</div>
+
+<aside class="issue-panel">
+    <div class="issue-head">🔥 팀파 이슈 <span class="issue-refresh" onclick="generateIssues(true)" title="이슈 새로고침">↻</span></div>
+    <ul id="issueList"><li class="issue-empty">아직 이슈가 없습니다.<br>반응 불러오기를 하면 자동 생성됩니다.</li></ul>
+</aside>
+</div>
+
+<div id="issueModal" onclick="if(event.target===this) closeIssue()">
+    <div class="issue-modal-box">
+        <div class="issue-modal-cat" id="issueModalCat"></div>
+        <h2 class="issue-modal-title" id="issueModalTitle"></h2>
+        <div class="issue-modal-date" id="issueModalDate"></div>
+        <div class="issue-modal-content" id="issueModalContent"></div>
+        <button class="settings-btn" style="margin-top:15px;" onclick="closeIssue()">닫기</button>
+    </div>
+</div>
+
+<div id="conModal" onclick="if(event.target===this) closeConPicker()">
+    <div class="con-box">
+        <div class="con-head">
+            <h3>🎨 롤갤콘 선택</h3>
+            <button class="con-close" onclick="closeConPicker()">✕</button>
+        </div>
+        <div class="con-tabs" id="conTabs"></div>
+        <div class="con-grid" id="conGrid"></div>
+    </div>
+</div>
+
+<script>
+
+    // ===== 롤갤콘: 특수문자 이모티콘 팔레트 (snskeyboard 참고, 카테고리별 선별) =====
+    const rolgalCon = {
+        "얼굴": ["㋡","ツ","ッ","☺︎","☻","🥺","ᵔᴥᵔ","·͜·","◡̈","⍤","⍥","ꐦ","ꐠ","×͜×","(ꔷ̥̑.̮ꔷ̥̑)","꒰⍢꒱","·८·","˙ꈊ˙","웃","유","ヅ","☹︎","ꉂ","ᯅ̈","꒰⍥꒱","(´･ω･`)","ಠ_ಠ","ಥ_ಥ","¯\\_(ツ)_/¯"],
+        "하트": ["♥","♡","❤︎","💕","💖","💔","💘","❣","🖤","🤍","♡̷̷","ღ","დ","ᯓᡣ𐭩","♡⃛","꒰♡꒱","˗ˋ ♡ ˎˊ˗","-`♡´-","🩷","🧡","💛","💚","💙","💜","🤎","💓","💞"],
+        "별/꽃": ["★","☆","✩","✧","✦","⭐","🌟","✨","❀","✿","❁","❃","✾","♻","꒰✿꒱","⋆","˚","☘︎","❈","☀︎","☾","☽","𓇼","ᯓ★","彡★","✵","✷","𓆸","𓋼"],
+        "화살표": ["→","←","↑","↓","↔","⇒","⇐","⇔","➤","➜","➡","↪","↩","⤴","⤵","↵","»","«","➔","➨","➙","↝","⇝","➳","➲","⟶","⟵"],
+        "체크/기호": ["✓","✔","✗","✘","☓","※","★","♨","☎","✉","✂","☞","☜","☝","☟","♠","♣","♥","♦","♤","♧","☑","☒","⚠","☠","☢","♞","♟"],
+        "손": ["👍","👎","👏","🙌","👊","✊","✋","✌","🤙","🤘","🤝","👌","👇","👈","👉","☝","🖐","🤛","🤜","🖕","🙏","👐","🤞"],
+        "괄호/장식": ["『』","「」","【】","〔〕","《》","〈〉","♡⃝","꒰꒱","⸜⸝","⋆⸜⸝⋆","•.\\/.•","︵","︶","˚₊·","༄","࿐","꒷꒦","⊹","˒˒","⌒","‧₊˚","⋆｡°✩"],
+        "번호/원": ["①","②","③","④","⑤","⑥","⑦","⑧","⑨","⑩","❶","❷","❸","➊","➋","➌","㉠","㉡","㉢","Ⅰ","Ⅱ","Ⅲ","Ⅳ","Ⅴ","◉","○","●","◐","◑","◯"],
+        "수학/기타": ["∞","√","π","±","×","÷","≠","≒","≥","≤","∴","∵","∫","Σ","∆","°","℃","℉","%","‰","№","㏇","㉾","㈜","℡","㊗","㊙","㉿"]
+    };
+    let conTargetId = null;
+
+    function openConPicker(targetId) {
+        conTargetId = targetId;
+        const tabs = document.getElementById('conTabs');
+        const grid = document.getElementById('conGrid');
+        const cats = Object.keys(rolgalCon);
+        tabs.innerHTML = cats.map((c, i) => `<span class="con-tab ${i===0?'active':''}" onclick="switchConTab('${c}', this)">${c}</span>`).join('');
+        renderConGrid(cats[0]);
+        document.getElementById('conModal').style.display = 'block';
+    }
+    function switchConTab(cat, el) {
+        document.querySelectorAll('.con-tab').forEach(t => t.classList.remove('active'));
+        el.classList.add('active');
+        renderConGrid(cat);
+    }
+    function renderConGrid(cat) {
+        const grid = document.getElementById('conGrid');
+        grid.innerHTML = rolgalCon[cat].map(ch => `<span class="con-item" onclick="insertCon('${ch.replace(/\\/g,'\\\\').replace(/'/g,"\\'")}')">${ch}</span>`).join('');
+    }
+    function insertCon(ch) {
+        const el = document.getElementById(conTargetId);
+        if (!el) return;
+        const start = el.selectionStart ?? el.value.length;
+        const end = el.selectionEnd ?? el.value.length;
+        el.value = el.value.slice(0, start) + ch + el.value.slice(end);
+        // 커서를 삽입한 문자 뒤로
+        const pos = start + ch.length;
+        el.focus();
+        el.setSelectionRange(pos, pos);
+    }
+    function closeConPicker() {
+        document.getElementById('conModal').style.display = 'none';
+        conTargetId = null;
+    }
+
+    // ===== 유저 직접 글쓰기 =====
+    function toggleWritePanel() {
+        const p = document.getElementById('writePanel');
+        p.style.display = p.style.display === 'block' ? 'none' : 'block';
+        if (p.style.display === 'block') document.getElementById('wpTitle').focus();
+    }
+
+    function submitUserPost() {
+        const title = document.getElementById('wpTitle').value.trim();
+        const body = document.getElementById('wpBody').value.trim();
+        const author = document.getElementById('wpAuthor').value.trim() || 'ㅇㅇ';
+        if (!title) { alert('제목을 입력하세요.'); return; }
+        if (!body) { alert('내용을 입력하세요.'); return; }
+
+        const now = new Date();
+        const y = now.getFullYear(), mo = now.getMonth()+1, d = now.getDate();
+        const hh = String(now.getHours()).padStart(2,'0'), mm = String(now.getMinutes()).padStart(2,'0');
+        const newPost = {
+            title: title,
+            author: author + '(' + (Math.floor(Math.random()*223)+1) + '.' + (Math.floor(Math.random()*254)+1) + ')',
+            content: body,
+            date: `${y}. ${mo}. ${d}. ${hh}:${mm}`,
+            views: 1 + Math.floor(Math.random() * 4),
+            likes: 0,
+            dislikes: 0,
+            is_concept: false,
+            has_image: false,
+            image_desc: '',
+            img_prompt_en: '',
+            comments: [],
+            _userWritten: true
+        };
+        if (archivedPages.length === 0) { archivedPages.unshift([]); pageTournaments.unshift(null); }
+        archivedPages[currentPageIndex].unshift(newPost);
+        localStorage.setItem('dc_gallery_pages', JSON.stringify(archivedPages));
+
+        // 초기화 + 닫기
+        document.getElementById('wpTitle').value = '';
+        document.getElementById('wpBody').value = '';
+        toggleWritePanel();
+        renderBoard();
+
+        // 내가 쓴 글에 갤러들이 반응 (AI 댓글)
+        generateAiRepliesForPost(newPost);
+    }
+
+    // 메인 매치의 대진·세트 스코어·시리즈 승자를 대진 순서 고정으로 집계해 명시.
+    // summary 원문엔 세트별 승자만 있고 시리즈 승자가 없어, 모델이 직접 세다 승패를 뒤집는 사고 방지용.
+    function mainSeriesResultLines(summary, seriesFinished) {
+        const lines = String(summary || '').split('\n');
+        let matchup = '', inMain = false, sawSet = false;
+        const wins = {};
+        for (const ln of lines) {
+            if (/\[\d+세트\].*\[주목도/.test(ln) || /^메인 매치 \[\d+세트\]/.test(ln)) { inMain = /^메인 매치/.test(ln); sawSet = sawSet || inMain; continue; }
+            if (!inMain) continue;
+            if (!matchup) { const m = ln.match(/^대진:\s*(.+)$/); if (m) { matchup = m[1].trim(); continue; } }
+            const wm = ln.match(/^승자\(Winner\):\s*(.+)$/);
+            if (wm) { const w = wm[1].trim(); wins[w] = (wins[w] || 0) + 1; }
+        }
+        if (!sawSet) return [];
+        const out = [];
+        if (matchup) out.push('대진: ' + matchup);
+        const vs = matchup.split(' vs ').map(t => t.trim());
+        if (vs.length === 2 && (wins[vs[0]] || wins[vs[1]])) {
+            const a = wins[vs[0]] || 0, b = wins[vs[1]] || 0;
+            out.push(`세트 스코어: ${vs[0]} ${a} : ${b} ${vs[1]}`);
+            if (a !== b) out.push((seriesFinished ? '시리즈 최종 승자: ' : '현재 세트 스코어 우세: ') + (a > b ? vs[0] : vs[1]) + ` (${Math.max(a, b)}:${Math.min(a, b)})`);
+        } else {
+            const ts = Object.keys(wins);
+            if (ts.length) out.push('세트별 승리 집계: ' + ts.map(t => `${t} ${wins[t]}승`).join(' / '));
+        }
+        return out;
+    }
+
+    // 댓글 AI에게 넘길 경기 데이터 다이제스트.
+    // summary 원문은 챔피언 티어표(약 3300자)로 시작하므로 단순 slice(0,3000)은 세트별 밴카드·선수 픽을 전부 잘라먹는다.
+    // → 세트별 밴픽/픽/성적을 먼저 담고, 남는 예산에만 티어표를 뒤에 붙인다.
+    function buildReplyMatchDigest(summary, maxLen, seriesFinished) {
+        const s = String(summary || '');
+        if (!s) return '';
+        maxLen = maxLen || 9000;
+        const lines = s.split('\n');
+        const setLines = [], tierLines = [];
+        let division = '', rivalry = '';
+        let curSet = null, isMain = false, needOtherMatchup = false, curBlue = '', curRed = '';
+        for (const ln of lines) {
+            const setM = ln.match(/^(.+?)\s*\[(\d+)세트\].*\[주목도/) || ln.match(/^메인 매치 \[(\d+)세트\]/);
+            if (setM) {
+                curSet = setM[2] || setM[1];
+                isMain = /^메인 매치/.test(ln);
+                needOtherMatchup = !isMain;
+                curBlue = ''; curRed = '';
+                setLines.push(isMain ? `\n[${curSet}세트]` : `\n[다른 경기 ${curSet}세트]`);
+                continue;
+            }
+            if (/\[([SABCD])\]티어 \| 밴 /.test(ln)) { tierLines.push(ln.trim()); continue; }
+            if (!division) { const m = ln.match(/^경기 구분:\s*(.+)$/); if (m) { division = m[1]; continue; } }
+            if (!rivalry && /^vs .+ 상대 전적:/.test(ln)) { rivalry = ln.trim(); continue; }
+            if (!curSet) continue;
+            const btm = ln.match(/^\[(블루|레드) 팀:\s*(.+?)\s*정보\]/);
+            if (btm) { if (btm[1] === '블루') curBlue = btm[2]; else curRed = btm[2]; continue; }
+            const dm = ln.match(/^대진:\s*(.+)$/);
+            if (dm) {
+                if (needOtherMatchup) { setLines.push('대진: ' + dm[1]); needOtherMatchup = false; }
+                continue;
+            }
+            const wm = ln.match(/^승자\(Winner\):\s*(.+)$/);
+            if (wm) { setLines.push('승자: ' + wm[1].trim()); continue; }
+            const bm = ln.match(/^(블루|레드) 밴카드:\s*(.+)$/);
+            if (bm) { const tn = bm[1] === '블루' ? curBlue : curRed; setLines.push(`${bm[1]}${tn ? '(' + tn + ')' : ''} 밴카드: ${bm[2]}`); continue; }
+            const tm = ln.match(/^<(.+?)> 선수별 인게임 데이터/);
+            if (tm) { setLines.push(`<${tm[1]}> 픽/성적:`); continue; }
+            const pm = ln.match(/^\s*-\s*\[(\w+)\]\s*(.+?)\s*\((.+?)\)\s*\|\s*K\/D\/A:\s*([\d/]+).*?딜량:\s*(\d+)\s*\|\s*받은피해:\s*(\d+)\s*\|\s*힐량:\s*(\d+)/);
+            if (pm) { setLines.push(` - [${pm[1]}] ${pm[2]} 픽:${pm[3]} | KDA ${pm[4]} | 딜 ${pm[5]} | 받피 ${pm[6]} | 힐 ${pm[7]}`); continue; }
+            const pog = ln.match(/^선정 선수:\s*(.+)$/);
+            if (pog) { setLines.push('세트 POG: ' + pog[1].trim()); continue; }
+        }
+        if (!setLines.length) return s.slice(0, maxLen); // 포맷이 바뀌어 파싱 실패 시 구 동작 폴백
+        const head = mainSeriesResultLines(s, seriesFinished);
+        if (division) head.push('경기 구분: ' + division);
+        if (rivalry) head.push(rivalry);
+        let digest = head.join('\n') + '\n' + setLines.join('\n');
+        if (tierLines.length && digest.length < maxLen - 200) {
+            digest += '\n\n[시즌 챔피언 통계(참고용 — 이번 세트 픽/밴은 위의 세트별 데이터가 정답)]\n'
+                + tierLines.join('\n').slice(0, maxLen - digest.length - 100);
+        }
+        return digest.slice(0, maxLen);
+    }
+
+    // 유저가 쓴 게시글에 갤러들이 새 댓글을 다는 시스템
+    async function generateAiRepliesForPost(post) {
+        if (!hasAiKey()) return;
+        if (isReplying) return;
+        isReplying = true;
+        const md = (activeGameData && activeGameData.summary) ? String(activeGameData.summary) : (localStorage.getItem('tfm2_last_match') || '');
+        const loreMemo = (localStorage.getItem('tfm2_lore_memo') || '').trim();
+
+        const prompt = `${GAME_IDENTITY}
+너는 디시인사이드 '팀 파이트 아레나 2 갤러리' 유저 여러 명이다. 방금 어떤 갤러가 아래 새 게시글을 올렸다. 이 글에 달릴 댓글들을 생성하라.
+
+[게시글 제목] ${post.title}
+[게시글 본문] ${post.content}
+${loreMemo ? '[갤러리 배경 서사] ' + loreMemo : ''}
+${md ? '[실제 경기 데이터 - 세트별 밴카드·선수 픽 챔피언·성적 포함. 반박/팩폭 시 이 수치를 근거로 인용하라]\n' + buildReplyMatchDigest(md, 0, activeGameData ? !!activeGameData.is_series_finished : undefined) : ''}
+
+[작성 규칙]
+- 반드시 JSON 배열만 출력. 형식: [{"author": "ㅇㅇ(123.45)", "content": "댓글", "sub_comments": []}]
+- 댓글 3~8개. 실제 디시 말투(반말, ㅋㅋㅋ, ㄹㅇ, ㅇㅈ, ~노 등).
+- [다양성 필수] 모든 댓글이 "욕 + 팩폭" 한 공식으로만 가면 절대 안 된다. 댓글마다 톤을 다르게 섞어라: 짧은 무성의 반응("ㅋㅋㅋㅋ", "ㄹㅇ", "레전드"), 진지한 분석, 동의/공감, 딴소리 드립, 질문, 자기 경험담, 순수 감탄/찬양, 근거 있는 반박. 문장 시작을 욕으로만 시작하지 마라.
+- 욕 강도도 섞어라: 욕 없는 순한 댓글, 가벼운 비꼼, 센 댓글이 공존해야 한다. 전부 세게 가면 부자연스럽다.
+- 같은 단어("실화냐", "병신아", "ㅅㅂ") 여러 댓글에 중복 금지. 겹치면 다른 표현으로 바꿔라.
+- 무조건 비하 금지: 까는 댓글, 쉴드 댓글, 중립 댓글, 딴소리 댓글이 공존해야 진짜 갤이다.
+- 잡담글(저녁메뉴, 일상 등)이면 경기/밴픽/승률 억지로 우겨넣지 말고 잡담으로 답하라(저녁메뉴 글엔 진짜 메뉴 추천).
+- 글쓴이 주장이 맞으면 "ㅇㅈ 이게 맞지", "팩트라 개추" 동조. 실제 경기 데이터와 명백히 어긋나는 틀린 주장이면 그 수치를 근거로 반박. 어그로면 맞받아치기.
+- [금지] 롤 챔피언/구단/선수 이름(베이가, T1, 페이커 등)이 나와도 그건 이 게임(팀파2)의 요소다. "그건 롤 아니냐", "롤갤 아니다", "딴 게임 얘기냐"는 반응 절대 금지. 이름 출처 따지지 말고 우리 게임 얘기로 받아라.
+- 일부 댓글엔 sub_comments로 대댓글 1~3개를 달아 티키타카를 연출하라(@닉네임 태그 활용).
+- 과한 욕설/혐오/패드립은 금지. 욕은 경기력과 상황을 향해서만.`;
+
+        try {
+            document.getElementById('statusMsg').innerText = '💬 갤러들이 니 글 보는 중...';
+            const aiText = await callAI(prompt, { maxTokens: 2500, temperature: 0.95, maxRetries: 2 });
+            let raw = aiText.replace(/```json|```/g, '').trim();
+            const st = raw.indexOf('['), en = raw.lastIndexOf(']');
+            if (st === -1 || en === -1) throw new Error('parse fail');
+            const cmts = JSON.parse(raw.slice(st, en + 1));
+            // 시간차를 두고 하나씩 등록
+            let delay = 2000 + Math.random()*2500;
+            cmts.slice(0, 8).forEach(c => {
+                if (!c || !c.content) return;
+                setTimeout(() => {
+                    const now = new Date();
+                    if (!post.comments) post.comments = [];
+                    post.comments.push({
+                        author: c.author || 'ㅇㅇ',
+                        content: c.content,
+                        date: `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`,
+                        sub_comments: Array.isArray(c.sub_comments) ? c.sub_comments.map(sc => ({author: sc.author||'ㅇㅇ', content: sc.content||'', date: `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`})) : []
+                    });
+                    // 댓글이 달리면 조회수도 그에 비례해 자연스럽게 증가 (댓글 1개당 조회 20~45)
+                    if (typeof post.views !== 'number') post.views = parseInt(post.views) || 1;
+                    const subCnt = Array.isArray(c.sub_comments) ? c.sub_comments.length : 0;
+                    post.views += 20 + Math.floor(Math.random() * 26) + subCnt * (5 + Math.floor(Math.random() * 8));
+                    // 가끔(약 40%) 추천도 1~2씩 오름
+                    if (typeof post.likes !== 'number') post.likes = parseInt(post.likes) || 0;
+                    if (Math.random() < 0.4) post.likes += 1 + Math.floor(Math.random() * 2);
+                    localStorage.setItem('dc_gallery_pages', JSON.stringify(archivedPages));
+                    if (currentPostIndex !== null && archivedPages[currentPageIndex][currentPostIndex] === post) { renderComments(); document.getElementById('viewClicks').innerText = post.views; document.getElementById('viewLikes').innerText = post.likes; }
+                    renderBoard();
+                }, delay);
+                delay += 3000 + Math.random()*5000;
+            });
+            document.getElementById('statusMsg').innerText = '인게임 데이터 연동 준비 완료';
+        } catch(e) {
+            console.error('유저글 반응 생성 실패:', e);
+            const rl = String(e.message||'').startsWith('RATE_LIMIT');
+            document.getElementById('statusMsg').innerText = rl ? '⚠ 요청 한도 초과. 1~2분 후 다시 시도해 주세요.' : '인게임 데이터 연동 준비 완료';
+        } finally { isReplying = false; }
+    }
+
+    let activeGameData = null;
+    let archivedPages = [];
+    let pageTournaments = [];
+    let currentPageIndex = 0;
+    // ===== AI 공용 호출: Cerebras/Gemini 자동 분기 + 429/5xx 지수 백오프 재시도 =====
+    // 반환값: 모델이 생성한 텍스트(string). 프롬프트 하나만 넘기면 됨.
+    function getAiProvider() { return localStorage.getItem('tfm2_ai_provider') || 'cerebras'; }
+
+    async function callAI(prompt, opts) {
+        opts = opts || {};
+        const maxTokens = opts.maxTokens ?? 4000;
+        const temperature = opts.temperature ?? 0.85;
+        const maxRetries = opts.maxRetries ?? 4;
+        const statusEl = document.getElementById('statusMsg');
+        const provider = getAiProvider();
+
+        // 요청 정보 구성
+        let url, headers, body, keyMissing;
+        if (provider === 'gemini') {
+            const gKey = localStorage.getItem('tfm2_gemini_key') || '';
+            const gModel = localStorage.getItem('tfm2_gemini_model') || 'gemini-3.5-flash';
+            keyMissing = !gKey;
+            url = `https://generativelanguage.googleapis.com/v1beta/models/${gModel}:generateContent`;
+            headers = { 'Content-Type': 'application/json', 'x-goog-api-key': gKey };
+            body = { contents: [{ role: 'user', parts: [{ text: prompt }] }], generationConfig: { temperature: temperature, maxOutputTokens: maxTokens } };
+        } else {
+            const cKey = localStorage.getItem('tfm2_cerebras_api_key') || '';
+            const cModel = localStorage.getItem('tfm2_cerebras_model_name') || 'gemma-4-31b';
+            keyMissing = !cKey;
+            url = 'https://api.cerebras.ai/v1/chat/completions';
+            headers = { 'Content-Type': 'application/json', 'Authorization': `Bearer ${cKey}` };
+            body = { model: cModel, messages: [{ role: 'user', content: prompt }], max_completion_tokens: maxTokens, temperature: temperature, stream: false };
+        }
+        if (keyMissing) throw new Error('NO_KEY');
+
+        let attempt = 0;
+        while (true) {
+            let response;
+            try {
+                response = await fetch(url, { method: 'POST', headers: headers, body: JSON.stringify(body) });
+            } catch (netErr) {
+                if (attempt >= maxRetries) throw netErr;
+            }
+            if (response && response.ok) {
+                const data = await response.json();
+                // 응답 포맷 통일: 텍스트만 추출
+                if (provider === 'gemini') {
+                    const parts = data?.candidates?.[0]?.content?.parts || [];
+                    return parts.map(p => p.text || '').join('');
+                } else {
+                    return data?.choices?.[0]?.message?.content || '';
+                }
+            }
+            const status = response ? response.status : 0;
+            if ((status === 429 || status >= 500 || status === 0) && attempt < maxRetries) {
+                let waitSec = 0;
+                if (response) { const ra = response.headers.get('retry-after'); if (ra && !isNaN(parseFloat(ra))) waitSec = parseFloat(ra); }
+                if (!waitSec) waitSec = Math.pow(2, attempt + 1) + Math.random();
+                attempt++;
+                if (statusEl) statusEl.innerText = `⏳ 요청이 많아 ${Math.ceil(waitSec)}초 후 자동 재시도 (${attempt}/${maxRetries})...`;
+                await new Promise(r => setTimeout(r, waitSec * 1000));
+                continue;
+            }
+            if (status === 429) throw new Error('RATE_LIMIT: 요청 한도 초과(429). 잠시 후 다시 시도해 주세요.');
+            throw new Error(`API 오류 (HTTP ${status})`);
+        }
+    }
+
+    function hasAiKey() {
+        return getAiProvider() === 'gemini'
+            ? !!(localStorage.getItem('tfm2_gemini_key'))
+            : !!(localStorage.getItem('tfm2_cerebras_api_key'));
+    }
+    function aiKeyName() { return getAiProvider() === 'gemini' ? 'Gemini API Key' : 'Cerebras API Key'; }
+
+    let isGenerating = false;
+
+    let isReplying = false;
+    function setRefreshBtn(enabled) {
+        document.querySelectorAll('.btn-refresh').forEach(b => {
+            if (b.getAttribute('onclick') && b.getAttribute('onclick').includes('fetchAndGenerate')) {
+                b.disabled = !enabled;
+                b.style.opacity = enabled ? '1' : '0.5';
+                b.style.cursor = enabled ? 'pointer' : 'not-allowed';
+                b.innerText = enabled ? '반응 불러오기' : '생성 중...';
+            }
+        });
+    }
+    let currentPostIndex = null;
+    let lastObservedSeriesId = null;
+    let currentSortKey = 'date'; 
+    let sortOrders = { date: 'desc', views: 'desc', likes: 'desc' };
+
+    // 모든 프롬프트 앞에 붙는 게임 정체성 고정 안내 (롤/LoL 오인 방지)
+    const GAME_IDENTITY = `[게임 세계관 - 매우 중요, 반드시 숙지하고 절대 어기지 마라]
+- 이곳은 '팀 파이트 아레나 2'(약칭 팀파, 팀파매2)라는 e스포츠 시뮬레이션 게임의 팬 갤러리다.
+- 【핵심 규칙】 이 게임 세계관 안에서는 '리그 오브 레전드(롤/LoL)'의 챔피언, 구단, 프로선수가 곧 '팀 파이트 아레나 2'의 챔피언, 구단, 선수와 완전히 동일한 존재다. 둘은 같은 것이다. 유저가 창작마당에서 롤 챔피언/구단/실제 선수를 가져와 쓰기 때문이다.
+- 따라서 베이가(Veigar), 미스포츈, T1, 젠지, 페이커, 쇼메이커 같은 '롤'스러운 이름이 나와도, 그것들은 전부 '이 게임(팀파2) 안의 챔피언/구단/선수'다. 롤 얘기가 아니라 우리 게임 얘기다.
+- 【절대 금지】 "베이가는 롤 챔피언인데 왜 여기서 말하냐", "그건 롤 아니냐", "여긴 롤갤 아니다", "딴 게임 얘기하냐"는 식의 반응은 절대 하지 마라. 이 갤러리에서 롤 챔피언/선수/구단 이름은 100% 정상적인 우리 게임의 요소다. 이걸 롤이라고 지적하는 순간 완전히 틀린 반응이 된다.
+- 어떤 챔피언/선수/구단 이름이 나오든(롤에서 왔든, 처음 보는 이름이든) 전부 이 게임에 실재하는 것으로 자연스럽게 취급하고 대화하라. 그 이름의 출처를 따지거나 "원래 어느 게임 거냐"를 언급하지 마라.
+
+[데이터 수치 정의 - 절대 혼동 금지]
+- 데이터의 각 선수 지표는 다음과 같이 명확히 구분된다. 서로 절대 바꿔 부르지 마라:
+  * 딜량 = 그 선수가 상대에게 '가한' 피해량 (공격력 지표)
+  * 받은피해 = 그 선수가 상대로부터 '받은' 피해량 (탱킹 지표)
+  * 힐량 = 그 선수가 '회복시킨' 양 (힐/서포팅 지표)
+  * K/D/A = 킬/데스/어시스트
+- 예: "딜량: 44753 | 힐량: 13328"이면 → 딜량은 44753, 힐량은 13328이다. 딜량 수치를 힐량이라고 말하거나 그 반대로 말하는 것은 명백한 오류다.
+- 선수를 평가할 때 반드시 올바른 지표를 인용하라. 딜러의 '딜량'을 '힐량'이라 하거나, 탱커의 '받은피해'를 '딜량'이라 하지 마라.
+`;
+
+    const defaultPromptBase = `너는 디시인사이드 '팀 파이트 아레나 2' 마이너 갤러리의 유저 집단 전체다. 제공된 [게임 정체성]을 반드시 지켜라. 제공된 경기 데이터를 완벽히 분석하여 현실성 넘치는 디시인사이드 개념글 및 일반글 JSON 배열 20개를 생성하라.
+
+[★ 하이라이트 발굴 규칙 - 이것이 이 갤러리의 핵심이다. 최우선으로 지켜라]
+- 절대 최종 스코어나 POG만 보고 뭉뚱그려 쓰지 마라. 제공된 세트별/선수별 인게임 데이터(K/D/A, 딜량, 받은피해, 힐량, 골드, 픽밴, 오브젝트, 골드리드)를 실제로 읽고, 그 안에서 극적인 '장면'을 발굴해 구체적으로 언급하라.
+- 매 게시글과 댓글은 아래 같은 실제 데이터 근거를 최소 1개 이상 콕 집어야 한다:
+  * 하드캐리/펜타 각: 특정 세트에서 압도적 KDA나 딜량을 낸 선수 (예: "3세트 그 강시 16/1/9 평점 25 실화냐? 혼자 게임 터뜨렸네")
+  * 폭발한 딜량/미친 지표: 딜량 1위, 비정상적으로 높은 힐량/받은피해 (예: "최성 딜량 44753 찍었는데 팀은 짐 ㅋㅋ 이게 무슨 의미가 있냐")
+  * 선수 기복 서사: 세트마다 폼이 출렁인 선수 (예: "재성 1세트 1/3/1 발려놓고 3세트 8/3/3? 각성했노")
+  * 캐리 실패/한타 붕괴: 딜은 넣었는데 데스가 많거나, 골드리드를 못 살린 경우
+  * 픽밴 심리전: 특정 챔프 연속 밴, 저평가 픽이 터진 경우, OP픽 가져간 팀
+  * 오브젝트 운영: 세르펜/모르가드 선취 싸움, 골드 리드하고도 진 경우
+  * POG 논란: POG 평점과 실제 기여도가 안 맞아 보일 때
+- 선수 이름, 챔프 이름, 세트 번호, 정확한 수치를 그대로 인용해 현장감을 살려라. 두루뭉술한 "잘했다/못했다" 금지.
+- '실황/직관 후기 글'과 '선수 저격/찬양 글'은 반드시 특정 세트의 특정 장면을 중계하듯 묘사하라.
+
+[★ 대회 단계 반영 규칙]
+- 제공된 '이번 경기 대회 정보'가 있으면, 최소 3~5개 게시글의 제목이나 본문에 그 대회 단계를 정확히 언급하라. (예: 제공값이 "결승전"이면 "결승", "플레이오프 2경기"면 그대로 "플옵 2경기", "8강"이면 "8강")
+- 대회 단계에 맞는 긴장감을 반영하라: 결승/4강 등 상위 라운드일수록 조회수·추천·댓글이 폭발하고, 경기 전 긴장글·직관글·응원글이 많아진다. 단순 정규리그 경기면 담백한 분석과 일상 반응 위주.
+- 절대 대회 단계를 임의로 지어내지 마라. 제공된 값이 없으면 대회 단계를 언급하지 말 것.
+
+[★ 게시글 유형 다양성 규칙 - 필수 할당. 매번 아래 유형을 골고루 섞고, 같은 유형끼리도 완전히 다른 각도로 써라]
+1. 상황극/대화체 드립글 2~3개: "???: 야 도란, 너 왜 지고 POG 받아?"처럼 선수들의 가상 대화나 속마음을 대본 형식으로 재구성하고 마지막에 한 줄 촌평. (예: "도란: (씨발 개새끼들...) / 존나 애처롭다 도란!!! ㅋㅋㅋㅋ")
+2. "~.txt" / "~한 진짜 이유" 어그로 제목 글 2~3개: "정글 광대 픽 한 진짜 이유.txt"처럼 제목으로 낚고 본문에서 뇌피셜 서사를 그럴듯하게 풀어라.
+3. 데이터 분석글 1~2개: "★ 현 패치 폼 최고 선수 순위 TOP5 ★", "챔프/전술 티어 총정리 (현 메타 필독)" 같은 분석노트 스타일. 경기 데이터의 실제 수치(킬/데스/딜량/승패)를 근거로 순위와 티어를 매기고 그럴듯한 승률 수치를 붙여 팩트만 나열하듯 써라. 닉네임은 "분석노트", "프로토스" 같은 고정닉 느낌. 마지막에 "개추 눌러라 냄글 가게 ㅋㅋㅋ".
+4. 실황/직관 후기 글 2~3개: 경기 보면서 실시간으로 갈긴 듯한 글. 명장면 타임라인, "방금 그 한타 뭐냐 ㅅㅂ", 직관러의 현장 분위기 전달.
+5. 키배 유발 떡밥글 2~3개: 억까 vs 억빠가 정면충돌할 주제를 던져라 (POG 선정 논란, 연봉값 논쟁, 감독 밴픽 책임론, 에이스 의존도). 이런 글의 댓글에는 반드시 실제 키배가 폭발해야 한다.
+6. 서사글 2~3개: 이적/라이벌/대회 관련 (아래 서사 반영 규칙 참조). 배경 서사가 없으면 팀 간 과거 전적이나 상성 떡밥으로 대체.
+7. 선수 개인 저격/찬양 글 2~3개: 특정 선수의 스탯을 콕 집어 극단적 저격("ShLaYa 0/0/0 가드 스피릿 ㅋㅋㅋ / 킬 0 데스 0 어시 0 수준... 그냥 맵에 가구 하나 세워둔거랑 뭐가 다름?") 또는 극단적 찬양.
+8. 갤 일상+경기 연계 글 1~2개: "내일 출근해야 되는데 싱글벙글 웃다가 잠 다 깸 ㄹㅇ" 같이 유저 일상과 경기가 섞인 글.
+9. 이적시장/방출/유망주 반응글 1~3개 [제공된 이슈에 이적/방출/신인 관련 내용이 있거나, 배경 서사에 이적 정보가 있을 때]: 선수 이동에 얽힌 갤러들의 격한 반응글.
+   * 헐값 방출 후회: "우승 이끈 캐리라인을 저 돈에 팔았다고? ㅋㅋ 프런트 대가리 총맞았네" — 팀 공적을 세운 선수를 싸게 보낸 것에 대한 분노/후회글.
+   * 벤치 멤버의 역대급 성장: "우리 팀 벤치나 달구던 애가 딴 데 가서 리그 1황 됐다는데 배아파 죽겠다 ㅋㅋ" — 방출/이적한 후보 선수가 새 팀에서 대활약해 배아파하는 글.
+   * 유망주 떡상: "17살 신인이 데뷔전부터 이 스탯? 괴물 나왔다" — 신예/유망주의 폭발적 성장에 흥분하는 글. 반대로 기대주가 망하면 "재능 뻥튀기였네" 실망글.
+   * FA 대박/먹튀: 큰돈 주고 데려온 선수가 못하면 "저 연봉 받고 이거임? 먹튀 확정" 저격.
+   실제 데이터의 연봉·스탯 수치를 근거로 삼아라. 댓글은 프런트 욕파 vs 어쩔수없었다 쉴드파로 갈려 키배.
+10. 이슈 스크랩 반응글 2~3개 [제공된 '현재 팀파 이슈'가 있을 때 필수]: 뉴스/이슈를 갤러가 퍼와서 반응하는 글. 아래 형식을 지켜라:
+   * 제목에 이슈를 언급하고, 본문 첫 줄은 "[이슈 스크랩] {이슈 헤드라인}" 형태로 원문 헤드라인을 인용한 뒤 한 줄 띄우고 갤러 본인 의견을 붙여라.
+   * 이슈 성격에 따라 글의 방향을 나눠라: (a) 토론 유도글 - "이거 어케 생각함? 난 ~라고 봄" (b) 반박/저격글 - "기레기 소설 오지네 ㅋㅋ 이게 왜 이적설임" 근거를 들어 반박 (c) 옹호/지지글 - "ㄹㅇ 이건 팩트임 진작 나왔어야 할 소식" (d) 음모론/확대해석글 - "이거 사실 ~때문 아니냐?"
+   * 스캔들/이적설/루머 이슈일수록 댓글에서 사실이라는 파와 소설이라는 파가 격하게 키배를 떠야 한다. 확정 사실(경기결과) 이슈는 담백한 분석 토론으로.
+
+[★ 서사 반영 규칙 - 갤러리 배경 서사와 최근 게시글 흐름이 제공되면 최우선으로 반영하라]
+- 이적 선수가 친정팀(전 소속팀)을 상대하는 경기면 반드시 크게 다뤄라: 이적생이 잘하면 "친정사냥 ㅋㅋㅋ 씨발 저걸 왜 팔았냐" 배신감 + 프런트 욕, 못하면 "역시 내보내길 잘했다 ㅋㅋ" 조롱. 댓글에서는 배신자 취급파 vs 여전히 응원파가 키배를 떠라.
+- 라이벌전이면 조회수/추천수/댓글수를 평소의 2~3배로 폭발시키고, 상대팀 갤러가 원정 어그로 끌러 온 글과 그걸 두들겨 패는 댓글도 연출하라.
+- 결승/플레이오프/큰 대회면 경기 전 긴장글("숨쉬기 힘들다"), 실황글, 직관글을 섞고, 끝난 후엔 우승 축제 or 초상집 분위기를 극단적으로 연출하라.
+- 최근 게시글 흐름이 제공되면 이어지는 서사로 써라: 연승 중이면 연승 서사 지속, 지난번에 저격당한 선수가 이번에 잘했으면 "저번에 욕하던 새끼들 다 어디감?" 역주행 글을 써라.
+- 이적시장 서사: 데이터의 선수 연봉과 스탯을 대조해 이적/방출 떡밥을 만들어라. 저연봉인데 하드캐리한 선수는 "이 가격에 이 폼? 딴 팀들 침 흘리겠다 뺏기기 전에 잡아라", 고연봉인데 부진하면 "저 돈 받고 이 경기력? 방출 각". 팀에 크게 기여한 선수가 팔릴 위기면 "우승 공신을 팔면 팬심 다 떠난다" 반발.
+- 유망주/신인 서사: 팬 수가 적거나 신예로 보이는 선수가 좋은 스탯을 내면 "이 신인 물건이다 떡상각", 반대로 기대주가 망하면 실망 반응.
+
+[★ 민심 균형 규칙 - 부정 일변도 금지, 현실 갤은 훨씬 다층적이다]
+- 20개의 글 전체가 억까/저격/조롱으로만 구성되면 절대 안 된다. 경기 결과와 무관하게 아래 긍정 계열 글을 반드시 섞어라:
+  * 선수/팀 찬양글 2~3개: 스탯을 근거로 한 진심 어린 찬양 ("이 새끼 폼 미쳤다 ㄹㅇ 리그 1황 인정해라", "오늘 그 슈퍼플레이 다시 봐도 소름돋네").
+  * 훈훈글/감동글 1~2개: 선수 인터뷰 명언, 팀워크 미담, "이 맛에 응원한다", 부진하던 선수의 부활 서사에 대한 응원. 이런 글엔 "개추", "ㅠㅠ 눈물난다", "우리 애들 고생했다" 같은 훈훈한 댓글이 달린다.
+  * 냉정한 옹호/쉴드 글 1~2개: 저격당하는 선수를 데이터로 변호하는 글 ("데스만 보지 말고 시야점수 봐라 이 새끼들아"). 댓글에서 억까파와 쉴드파가 논쟁하되, 논리가 맞으면 "듣고 보니 ㅇㅈ" 하고 수긍하는 갤러도 나온다.
+- 이긴 경기면 갤 전체 분위기가 축제여야 한다: 승리 찬양, 명장면 복기, 신나서 쓴 드립글이 다수. 억까는 소수의 "그래도 이건 고쳐야 함" 지적글 정도.
+- 진 경기도 100% 초상집은 아니다: 분노글이 다수여도 "그래도 이 선수는 할 만큼 했다" 쉴드글, "다음 경기 보자" 다독임 글이 소수 섞인다.
+
+[★ 경기 성적 및 순위별 민심 반영 규칙]
+- 리그 1위를 달리고 있거나 대량 연승(예: 13승 1패, 10연승 등) 중인 최상위권 강팀이 이번 한 경기 졌을 때:
+  * 무지성으로 "팀 해체해라", "방 빼라"는 식의 무맥락 쌍욕 글은 절대 쓰지 마라. 대단히 비현실적이다.
+  * 주류 반응은 "와 이게 지네;; 실화냐 충격이다", "상대팀 오늘 전술이랑 밴픽 솔직히 지렸다 인정함", "큰 무대 가기 전에 예방주사 잘 맞았다" 같은 당혹감, 충격, 상대 리스펙트, 아쉬움 섞인 격려여야 한다.
+- 반대로 만년 꼴찌팀이나 연패 중인 팀이 또 졌을 때:
+  * 이때 비로소 "이새끼들 사람새끼들이냐?", "걍 단체로 방 빼라" 같은 무지성 폭발, 극대노 억까 드립을 폭발시켜라.
+
+[★ 댓글 양과 대댓글(답글) 구조 규칙]
+- 댓글의 총 개수는 글의 조회수("views")와 추천수("likes")에 철저히 비례해야 한다.
+- 댓글 하위의 대댓글("sub_comments")은 무작위성을 지켜라. (완전 빈 배열 [] 60%, 1~3개 무작위 30%, 키배 폭발 4~7개 10%)
+- 키배 스레드에서는 같은 유동닉이 여러 번 재출몰하며 물고 늘어지고, "@닉네임" 태그로 서로 저격하는 대댓글 체인을 만들어라.
+- 댓글이 전부 반박/조롱이면 안 된다. 논리적으로 맞는 말에는 "ㅇㅈ", "이게 맞지", "팩트라 개추 박음", "듣고 보니 그러네" 같은 동조 반응이 현실적 비율로 섞여야 한다. 좋은 글에는 "개추", "냄져라(개념글 보내라)" 댓글이 달린다.
+- 같은 유동닉(같은 IP)이 서로 다른 글 여러 개에 출몰하면 갤 특유의 생동감이 산다. 2~3명 정도는 배치 전체를 관통하는 단골 유동으로 설정하라.
+
+[★ 말투 및 수위 규칙]
+- 말투는 실제 디시인사이드 그대로 거칠게 써라. ㅅㅂ, 시발, 존나, 개같이, 지랄, 미친, 좆같네, ~노, 꼬우면 같은 욕설과 비속어를 자연스럽게 섞어라.
+- 조롱, 어그로, 비꼬기, 팩폭, 실력 저격("쟤 손 왜 저럼?", "발로 해도 저것보단 하겠다")을 자유롭게 사용하라. 억까와 억빠가 키배 뜨는 살벌한 분위기도 좋다.
+- 착하고 정중한 말투는 금지. "~인 것 같아요" 대신 "~인데 ㅋㅋ 반박불가"처럼 단정적으로 내리꽂아라.
+- 단, 패드립(가족 관련 드립), 특정 지역/성별/집단 혐오 표현, 성적인 표현은 절대 쓰지 마라. 욕은 경기력과 상황을 향해서만 해라.
+
+[★ 댓글 다양성 규칙 - 매우 중요, 레퍼토리 반복 금지]
+- 모든 댓글이 "욕 + 팩폭" 한 가지 공식으로만 쓰이면 절대 안 된다. 실제 갤 댓글은 훨씬 다양하다. 한 게시글의 댓글들에 아래 유형을 골고루 섞어라(전부 다 넣으란 게 아니라 매번 다른 조합으로):
+  * 짧은 무성의 반응: "ㅋㅋㅋㅋㅋ", "ㄹㅇ", "ㅇㅈ", "�no", "레전드", "미친"
+  * 진지한 분석/의견: 욕 없이 데이터로 조목조목 따지는 댓글
+  * 동의/공감: "이거 맞말이지", "나도 그렇게 봄", "형 말이 맞다"
+  * 딴소리/드립: 본문과 살짝 벗어난 농담, 갑자기 딴 선수 얘기, 밈 드립
+  * 질문: "어 근데 그 경기 몇세트임?", "그 선수 폼 요즘 어떰?"
+  * 자기 경험담: "나 어제 그 챔프 했다가 개터짐"
+  * 반박: 근거 들어 조목조목 반박 (욕 있을 수도 없을 수도)
+  * 순수 감탄/찬양: "와 이건 진짜 잘했다", "폼 미쳤네 ㄷㄷ"
+- 문장 시작을 다양하게: 모든 댓글이 욕으로 시작하지 마라. 어떤 건 감탄사로, 어떤 건 바로 본론으로, 어떤 건 질문으로 시작.
+- 욕의 강도도 다양하게: 순한 댓글(욕 없음), 중간(ㅋㅋ 섞인 가벼운 비꼼), 센 댓글(직접적 욕)이 섞여야 한다. 전부 다 세게 가면 부자연스럽다.
+- 같은 단어 반복 금지: 한 게시글 안에서 "실화냐", "병신아", "ㅅㅂ"이 여러 댓글에 중복되면 안 된다. 겹치면 다른 표현으로 바꿔라.
+- 무조건적 비하 금지: 모든 댓글이 대상을 까기만 하면 안 된다. 까는 댓글, 쉴드 치는 댓글, 중립 댓글, 딴소리 댓글이 공존해야 진짜 갤이다.
+- 잡담글(저녁메뉴, 일상 등)에는 경기/밴픽/승률 얘기를 억지로 우겨넣지 마라. 잡담엔 잡담으로 답하라. 저녁메뉴 글엔 진짜 메뉴 추천이 나와야 한다.
+
+[★ 드립 참신성 규칙]
+- 뻔한 표현("충격이다", "실화냐"만 반복) 금지. 매 배치마다 새로운 밈 구조를 최소 1개 창조하라. (예: 특정 문장 형식이 여러 글/댓글에서 변형되며 반복되는 유행어, "꼴 찌 딱 꼴 찌 딱 신나는 노래~" 같은 개사 밈)
+- 제목 자체가 드립이어야 한다. "오늘 경기 후기" 같은 무미건조한 제목 금지.
+- 감탄사 나열 대신 구체적 상황 묘사로 웃겨라. ("근데 왜 맨날 아이어 멸망하듯이 지냐고 아 ㅋㅋㅋ 밴픽 꼬라지 봐라")
+- 비유는 참신하게: "맵에 가구 하나 세워둔거랑 뭐가 다름?", "바람술사 픽한 거 보고 바로 채널 돌림" 수준의 구체적 비유를 매번 새로 만들어라.
+
+[★ 짤방 파일명 생성 규칙]
+- 개념글이나 드립글 성격의 글 6~8개에는 "has_image": true를 설정하고 "image_desc"에 짤방의 한국어 파일명을 채워라. (예: "충격받은 에노쉬.jpg", "연승 깨지고 멍때리는 감독.jpg") 상황이 눈에 그려지는 구체적이고 웃긴 파일명일수록 좋다.
+- 실제 이미지는 표시되지 않으며 파일명 텍스트만 노출된다. "img_prompt_en"은 빈 문자열로 두어라.
+- 이미지가 없는 평범한 글은 "has_image": false.`;
+
+    window.onload = function() {
+        applySavedTheme();
+        const savedProvider = localStorage.getItem('tfm2_ai_provider') || 'cerebras';
+        document.getElementById('aiProvider').value = savedProvider;
+        document.getElementById('geminiKey').value = localStorage.getItem('tfm2_gemini_key') || '';
+        document.getElementById('geminiModel').value = localStorage.getItem('tfm2_gemini_model') || 'gemini-3.5-flash';
+        onProviderChange(savedProvider);
+        document.getElementById('apiKey').value = localStorage.getItem('tfm2_cerebras_api_key') || '';
+        const savedModel = localStorage.getItem('tfm2_cerebras_model_name') || 'gemma-4-31b';
+        document.getElementById('modelName').value = savedModel;
+
+        document.getElementById('customPrompt').value = localStorage.getItem('tfm2_custom_prompt') || defaultPromptBase;
+        document.getElementById('loreMemo').value = localStorage.getItem('tfm2_lore_memo') || '';
+        document.getElementById('myTeam').value = localStorage.getItem('tfm2_my_team') || '';
+
+        const selectElement = document.getElementById('modelSelect');
+        if (savedModel === 'gemma-4-31b') selectElement.value = savedModel;
+        else selectElement.value = 'custom';
+        
+        archivedPages = JSON.parse(localStorage.getItem('dc_gallery_pages')) || [];
+        pageTournaments = JSON.parse(localStorage.getItem('tfm2_page_tours') || '[]');
+        try { const sd = JSON.parse(localStorage.getItem('tfm2_standings') || 'null'); if (sd) renderStandings(sd); } catch(e){}
+        try { const bd = JSON.parse(localStorage.getItem('tfm2_bracket') || 'null'); if (bd) renderBracket(bd); } catch(e){}
+        issueList = JSON.parse(localStorage.getItem('tfm2_issues') || '[]');
+        renderIssues();
+        if (archivedPages.length > 0) {
+            currentPageIndex = 0;
+            renderBoard();
+            document.getElementById('statusMsg').innerText = `인게임 데이터 연동 준비 완료`;
+        }
+        checkMatchAutoTransition();
+        setInterval(checkMatchAutoTransition, 5000);
+    }
+
+    function onProviderChange(provider) {
+        const cerebrasBox = document.getElementById('cerebrasBox');
+        const geminiBox = document.getElementById('geminiBox');
+        if (provider === 'gemini') { cerebrasBox.style.display = 'none'; geminiBox.style.display = 'block'; }
+        else { cerebrasBox.style.display = 'block'; geminiBox.style.display = 'none'; }
+    }
+
+    function onModelSelectChange(val) {
+        if (val !== 'custom') document.getElementById('modelName').value = val;
+        else { document.getElementById('modelName').value = ''; document.getElementById('modelName').focus(); }
+    }
+
+    // ===== 팀파 이슈 패널: 뉴스 스타일 이슈 생성/표시 =====
+    let issueList = [];
+
+    async function generateIssues(manual) {
+        if (!hasAiKey()) { if (manual) alert('설정창에서 ' + aiKeyName() + '를 먼저 입력하세요.'); return; }
+        const loreMemo = (localStorage.getItem('tfm2_lore_memo') || '').trim();
+        const recentTitles = archivedPages.slice(0, 2).flat().slice(0, 20).map(p => `- ${p.title}`).join('\n');
+        const prevHeadlines = issueList.slice(0, 8).map(i => `- ${i.headline}`).join('\n');
+
+        const prompt = `${GAME_IDENTITY}
+너는 e스포츠 전문 매체 기자 겸 디시 이슈 큐레이터다. '팀 파이트 아레나 2'의 전 세계 모든 리그(한국/중국/유럽/북미/국제대회 등)를 통틀어, 지금 가장 임팩트 있고 화제성 높은 이슈/뉴스 딱 6개만 엄선해서 생성하라.
+
+[최근 경기 데이터]
+${activeGameData ? JSON.stringify(activeGameData) : '(데이터 없음 - 리그 일반 이슈로 생성)'}
+${loreMemo ? `\n[리그 배경 서사 - 최우선 반영]\n${loreMemo}` : ''}
+${recentTitles ? `\n[갤러리 최근 여론 흐름]\n${recentTitles}` : ''}
+${prevHeadlines ? `\n[이미 보도된 이슈 - 중복 금지, 후속보도는 가능]\n${prevHeadlines}` : ''}
+
+[생성 규칙]
+- 반드시 JSON 배열만 출력. 형식: [{"headline": "제목", "category": "카테고리", "content": "본문", "date": "MM.DD"}]
+- category는 다음 중 하나: "리그", "이적설", "스캔들", "방송", "전력분석", "루머"
+- 딱 6개만. 전 세계 리그를 통틀어 가장 파급력·화제성 큰 순서로 엄선하라. 사소한 소식보다 판을 흔드는 대형 이슈 우선(대형 이적, 우승, 감독 경질, 대형 스캔들, 신인 돌풍 등).
+- 6개는 카테고리가 겹치지 않게 다양하게: 경기 결과 분석, 선수 이적설/FA 루머, 감독-선수 불화 스캔들, 선수 예능/방송 출연, 파워랭킹/전력분석, 팬덤 사건사고 등을 섞어라.
+- 한 지역 리그에만 쏠리지 말고 여러 리그(한국/중국/유럽/북미/국제)를 골고루 다뤄라. 헤드라인에 리그/지역을 드러내면 좋다.
+- headline은 실제 e스포츠 기사처럼: "[단독]", "[오피셜]", "[루머]" 말머리 활용. 어그로성 제목 환영.
+- '전력분석'/'리그' 기사는 반드시 제공된 인게임 데이터의 실제 수치(특정 선수의 딜량, KDA, 하드캐리 세트, 픽밴 경향)를 근거로 삼아라. "OO 선수가 3세트 강시로 16킬 1데스 하드캐리하며 시리즈를 끝냈다" 같이 구체적 장면을 인용하라.
+- content는 8~15문장의 기사 본문. 기자 문체로 쓰되 익명 관계자 인용("팀 사정에 정통한 관계자에 따르면..."), 갤러리 여론 인용("커뮤니티에서는 ~라는 반응이 지배적이다")을 섞어 현실감을 살려라.
+- 배경 서사의 이적/라이벌/대회 정보가 있으면 반드시 관련 후속 기사를 포함하라.
+- 확정 사실(경기 결과)과 루머(이적설, 불화설)를 구분하라. 루머는 "~인 것으로 알려졌다", "~라는 후문이다" 식으로.`;
+
+        try {
+            document.getElementById('issueList').innerHTML = '<li class="issue-empty">이슈 취재 중... 📰</li>';
+            const aiText = await callAI(prompt, { maxTokens: 4000, temperature: 0.85 });
+            let raw = aiText.replace(/```json|```/g, '').trim();
+            const st = raw.indexOf('['), en = raw.lastIndexOf(']');
+            if (st === -1 || en === -1) throw new Error('JSON 파싱 실패');
+            const newIssues = JSON.parse(raw.slice(st, en + 1));
+            issueList = newIssues.slice(0, 6); // 항상 최신 6개만 유지 (누적 X)
+            localStorage.setItem('tfm2_issues', JSON.stringify(issueList));
+            renderIssues();
+        } catch (e) {
+            console.error('이슈 생성 실패:', e);
+            // 이슈는 부가 기능이므로 실패해도 조용히 넘어감 (게시글 생성은 계속 진행)
+            renderIssues();
+        }
+    }
+
+    function catClass(cat) {
+        if (cat === '스캔들' || cat === '루머') return 'scandal';
+        if (cat === '이적설') return 'transfer';
+        if (cat === '방송') return 'broadcast';
+        return '';
+    }
+
+    function renderIssues() {
+        const ul = document.getElementById('issueList');
+        if (!issueList.length) {
+            ul.innerHTML = '<li class="issue-empty">아직 이슈가 없습니다.<br>반응 불러오기를 하면 자동 생성됩니다.</li>';
+            return;
+        }
+        ul.innerHTML = issueList.map((it, i) =>
+            `<li onclick="viewIssue(${i})"><span class="issue-cat-badge ${catClass(it.category)}">${it.category}</span>${it.headline}</li>`
+        ).join('');
+    }
+
+    function viewIssue(i) {
+        const it = issueList[i];
+        if (!it) return;
+        document.getElementById('issueModalCat').innerHTML = `<span class="issue-cat-badge ${catClass(it.category)}">${it.category}</span>`;
+        document.getElementById('issueModalTitle').innerText = it.headline;
+        document.getElementById('issueModalDate').innerText = `팀파이트 아레나 2 이슈 | ${it.date || ''}`;
+        document.getElementById('issueModalContent').innerText = it.content;
+        document.getElementById('issueModal').style.display = 'block';
+    }
+
+    function closeIssue() {
+        document.getElementById('issueModal').style.display = 'none';
+    }
+
+    function toggleTheme() {
+        const isDark = document.body.classList.toggle('dark');
+        localStorage.setItem('tfm2_theme', isDark ? 'dark' : 'light');
+        document.getElementById('themeToggleBtn').innerText = isDark ? '☀️ 라이트모드' : '🌙 다크모드';
+    }
+
+    function applySavedTheme() {
+        if (localStorage.getItem('tfm2_theme') === 'dark') {
+            document.body.classList.add('dark');
+            document.getElementById('themeToggleBtn').innerText = '☀️ 라이트모드';
+        }
+    }
+
+    function toggleSettings() {
+        const panel = document.getElementById('settingsPanel');
+        panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
+    }
+
+    function saveSettings() {
+        localStorage.setItem('tfm2_ai_provider', document.getElementById('aiProvider').value);
+        localStorage.setItem('tfm2_cerebras_api_key', document.getElementById('apiKey').value);
+        localStorage.setItem('tfm2_cerebras_model_name', document.getElementById('modelName').value);
+        localStorage.setItem('tfm2_gemini_key', document.getElementById('geminiKey').value);
+        localStorage.setItem('tfm2_gemini_model', document.getElementById('geminiModel').value);
+        localStorage.setItem('tfm2_custom_prompt', document.getElementById('customPrompt').value);
+        localStorage.setItem('tfm2_lore_memo', document.getElementById('loreMemo').value.trim());
+        localStorage.setItem('tfm2_my_team', document.getElementById('myTeam').value.trim());
+        try { const sd = JSON.parse(localStorage.getItem('tfm2_standings') || 'null'); if (sd) renderStandings(sd); } catch(e){}
+        alert('설정이 저장되었습니다.');
+        toggleSettings();
+    }
+
+    function loadLocalFile(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                const fileContent = e.target.result.trim();
+                let jsonText = fileContent;
+                if (fileContent.includes('{') && fileContent.includes('}')) {
+                    const firstBrace = fileContent.indexOf('{');
+                    const lastBrace = fileContent.lastIndexOf('}');
+                    if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) jsonText = fileContent.substring(firstBrace, lastBrace + 1);
+                }
+                activeGameData = (new Function(`return ${jsonText}`))();
+                document.getElementById('statusMsg').innerText = `수동 데이터 업로드 성공`;
+                fetchAndGenerate();
+            } catch (err) { alert('파일 파싱 오류가 발생했습니다.'); }
+        };
+        reader.readAsText(file);
+    }
+
+    function clearGallery() {
+        if (confirm("정말로 갤러리의 모든 글을 초기화하시겠습니까?")) {
+            localStorage.removeItem('dc_gallery_pages');
+            localStorage.removeItem('tfm2_page_tours');
+            archivedPages = []; pageTournaments = []; currentPageIndex = 0; renderBoard();
+            document.getElementById('statusMsg').innerText = "갤러리 글 전체가 초기화되었습니다.";
+            toggleSettings();
+        }
+    }
+
+    function parseDateToVal(dateStr) {
+        if (!dateStr) return 0;
+        if (dateStr.includes('방금') || dateStr.includes('전')) return 9999;
+        const parts = dateStr.trim().split(' ');
+        if (parts.length > 0) {
+            const lastPart = parts[parts.length - 1];
+            const timeParts = lastPart.split(':');
+            if (timeParts.length >= 2) {
+                const h = parseInt(timeParts[0], 10); const m = parseInt(timeParts[1], 10);
+                if (!isNaN(h) && !isNaN(m)) return h * 60 + m;
+            }
+        }
+        return 0;
+    }
+
+    function extractTimeOnly(dateStr) {
+        if (!dateStr) return "00:00";
+        const clean = dateStr.trim();
+        const parts = clean.split(' ');
+        if (parts.length > 0) {
+            const lastPart = parts[parts.length - 1];
+            const timeParts = lastPart.split(':');
+            if (timeParts.length >= 2) return `${timeParts[0]}:${timeParts[1]}`;
+        }
+        return clean;
+    }
+
+    function formatDateForPostView(dateStr) {
+        if (!dateStr) return "2026. 06. 08 00:00:00";
+        let clean = dateStr.trim();
+        const colons = (clean.match(/:/g) || []).length;
+        if (colons === 1) {
+            const randSec = String(Math.floor(Math.random() * 60)).padStart(2, '0');
+            clean = `${clean}:${randSec}`;
+        }
+        return clean;
+    }
+
+    function sortBoard(key) {
+        if (archivedPages.length === 0) return;
+        if (currentSortKey === key) sortOrders[key] = sortOrders[key] === 'desc' ? 'asc' : 'desc';
+        else currentSortKey = key;
+        const order = sortOrders[key];
+        document.querySelectorAll('.sort-link').forEach(el => el.classList.remove('active'));
+        const activeLink = document.getElementById(`sort-${key}`);
+        if(activeLink) activeLink.classList.add('active');
+
+        const currentActivePosts = archivedPages[currentPageIndex];
+        currentActivePosts.sort((a, b) => {
+            let valA = a[key], valB = b[key];
+            if (key === 'date') { valA = parseDateToVal(a.date); valB = parseDateToVal(b.date); }
+            else if (key === 'views' || key === 'likes') { valA = parseInt(a[key]) || 0; valB = parseInt(b[key]) || 0; }
+            return order === 'desc' ? valB - valA : valA - valB;
+        });
+        renderBoard();
+    }
+
+    async function checkMatchAutoTransition() {
+        if (isGenerating) return;
+        try {
+            await new Promise((resolve, reject) => {
+                const oldScript = document.getElementById('match-data-auto-checker');
+                if (oldScript) oldScript.remove();
+                const script = document.createElement('script');
+                script.id = 'match-data-auto-checker';
+                script.src = 'latest_match.js?v=' + Date.now();
+                script.onload = () => typeof latestMatchData !== 'undefined' ? resolve() : reject();
+                script.onerror = () => reject();
+                document.body.appendChild(script);
+            });
+            if (typeof latestMatchData !== 'undefined') {
+                // 대진표는 새 데이터가 올 때마다 자동 갱신 (반응 생성과 무관). 정규시즌이면 숨김.
+                try { const bd = parseBracket(latestMatchData.summary); if (bd) { renderBracket(bd); localStorage.setItem('tfm2_bracket', JSON.stringify(bd)); } else { renderBracket(null); localStorage.removeItem('tfm2_bracket'); } } catch (e) {}
+                if (lastObservedSeriesId === null) { lastObservedSeriesId = latestMatchData.series_id; return; }
+                if (latestMatchData.series_id !== lastObservedSeriesId && latestMatchData.is_series_finished) {
+                    lastObservedSeriesId = latestMatchData.series_id; activeGameData = latestMatchData; fetchAndGenerate();
+                }
+            }
+        } catch (e) {}
+    }
+
+    // ===== 리그 순위 파싱 & 렌더링 =====
+    function parseStandings(summary) {
+        if (!summary) return null;
+        const text = String(summary);
+        const league = (text.match(/리그\s*명칭\s*[:：]\s*(.+)/) || [])[1]?.trim() || '';
+        const format = (text.match(/대회\s*형태\s*[:：]\s*(.+)/) || [])[1]?.trim() || '';
+        const matches = (text.match(/이번 리그 현재 경기 수\s*[:：]\s*(.+)/) || [])[1]?.trim() || '';
+        const rows = [];
+        const re = /-\s*(\d+)위\s*[:：]\s*(.+?)\s*\((\d+)\s*승\s*(\d+)\s*패\s*\|\s*세트득실\s*[:：]\s*([+\-]?\d+)\)/g;
+        let m;
+        while ((m = re.exec(text)) !== null) {
+            rows.push({ rank: parseInt(m[1],10), team: m[2].trim(), win: parseInt(m[3],10), loss: parseInt(m[4],10), diff: parseInt(m[5],10) });
+        }
+        if (rows.length === 0) return null;
+        return { league, format, matches, rows };
+    }
+
+    function renderStandings(data) {
+        const empty = document.getElementById('standEmpty');
+        const content = document.getElementById('standContent');
+        if (!empty || !content) return;
+        if (!data || !data.rows || !data.rows.length) {
+            empty.style.display = 'block'; content.innerHTML = ''; return;
+        }
+        empty.style.display = 'none';
+        const myTeam = (localStorage.getItem('tfm2_my_team') || '').trim();
+        let html = '';
+        html += `<div class="stand-sub">${data.league || '리그'}${data.matches ? ` <span style="font-weight:normal;color:#999;">(${data.matches})</span>` : ''}</div>`;
+        html += `<table class="stand-table"><thead><tr><th style="width:26px;">순위</th><th class="tname" style="text-align:left;">팀</th><th style="width:24px;">승</th><th style="width:24px;">패</th><th style="width:36px;">득실</th></tr></thead><tbody>`;
+        data.rows.forEach(r => {
+            const isMy = myTeam && r.team.includes(myTeam);
+            html += `<tr class="rank-${r.rank <= 3 ? r.rank : 'n'} ${isMy ? 'myteam' : ''}"><td class="rk">${r.rank}</td><td class="tname" title="${r.team}">${r.team}</td><td>${r.win}</td><td>${r.loss}</td><td>${r.diff >= 0 ? '+' : ''}${r.diff}</td></tr>`;
+        });
+        html += `</tbody></table>`;
+        if (data.format && !/정규|리그전/.test(data.format)) {
+            html += `<div class="stand-sub" style="margin-top:10px; border-top:1px solid #eee; padding-top:8px;">🏆 현재 대회 단계</div>`;
+            html += `<div style="padding:4px 12px 12px; font-size:12px;"><span class="stand-badge">${data.format}</span></div>`;
+        }
+        content.innerHTML = html;
+    }
+
+    // 경기 데이터 summary에서 리그 명칭과 대회 형태(8강/플옵/결승 등)를 그대로 추출
+    function parseTournamentInfo(summary) {
+        if (!summary) return null;
+        const text = String(summary);
+        const leagueMatch = text.match(/리그\s*명칭\s*[:：]\s*(.+)/);
+        const formatMatch = text.match(/대회\s*형태\s*[:：]\s*(.+)/);
+        const league = leagueMatch ? leagueMatch[1].trim() : '';
+        const stage = formatMatch ? formatMatch[1].trim() : '';
+        if (!league && !stage) return null;
+        return { league, stage };
+    }
+
+    function renderTournamentBar(info) {
+        const bar = document.getElementById('tournamentBar');
+        if (!info || (!info.league && !info.stage)) { bar.style.display = 'none'; return; }
+        bar.style.display = 'flex';
+        bar.innerHTML = `<span class="tour-badge">🏆 <span class="league">${info.league || '리그'}</span>${info.stage ? `<span class="stage">${info.stage}</span>` : ''}</span>`;
+    }
+
+    // ===== 플레이오프 대진표 파싱 & 렌더링 (모드 확장 섹션 [M{n}] 라인 → 게임 브래킷 그림) =====
+    // 간선 구조 캐시: 게임은 승자 확정 시 WinnerOf/LoserOf 참조를 확정 팀으로 덮어써 간선이 소실됨.
+    // 참조가 살아있을 때(정규시즌 포함) 미리 저장해두고, 소실된 슬롯에 복원해 레이아웃에 쓴다.
+    function bkStructMerge(ms) {
+        const structKey = ms.length + '|' + (ms[0].date || '');
+        let sc = null;
+        try { sc = JSON.parse(localStorage.getItem('tfm2_bracket_struct') || 'null'); } catch (e) {}
+        if (!sc || sc.key !== structKey) sc = { key: structKey, map: {} };
+        ms.forEach(x => {
+            const c = sc.map[x.n] || (sc.map[x.n] = {});
+            [['s1','a'], ['s2','b']].forEach(([sk, ck]) => {
+                const s = x[sk];
+                if (s.ref) c[ck] = { ref: s.ref, kind: s.kind };
+                else if (c[ck] && c[ck].ref) { s.ref = c[ck].ref; s.kind = c[ck].kind; }
+            });
+        });
+        try { localStorage.setItem('tfm2_bracket_struct', JSON.stringify(sc)); } catch (e) {}
+    }
+    function parseBracket(summary) {
+        if (!summary) return null;
+        const text = String(summary);
+        const head = text.match(/\[플레이오프 대진표\]\s*형식:\s*(.+?)\s*\|\s*구조:\s*(.+)/);
+        const re = /\[M(\d+)\]\s*([\d\-]+)\s*\|\s*BO(\d+)\s*\|\s*(.+?)\s+vs\s+(.+?)\s*\|\s*([^\n]+)/g;
+        const ms = []; let m;
+        while ((m = re.exec(text)) !== null) {
+            ms.push({ n: parseInt(m[1],10), date: m[2], bo: parseInt(m[3],10), s1: parseBkSlot(m[4]), s2: parseBkSlot(m[5]), state: m[6].trim() });
+        }
+        if (!ms.length) return null;
+        bkStructMerge(ms); // 정규시즌(숨김)에도 간선은 미리 수확
+        // 정규시즌 경기면 대진표 숨김 (플레이오프/국제전일 때만 표시)
+        const gubun = text.match(/경기 구분:\s*([^\n]+)/);
+        if (gubun && /정규\s*시즌/.test(gubun[1])) return null;
+        return { fmt: head ? head[1].trim().replace(/\s*\[raw[^\]]*\]\s*/,'') : '', shape: head ? head[2].trim() : '', ms };
+    }
+    function parseBkSlot(s) {
+        s = s.trim();
+        let m = s.match(/^M(\d+)\s*승자\((.+)\)$/); if (m) return { ref: +m[1], kind: 'winner', name: m[2] === '미정' ? null : m[2] };
+        m = s.match(/^M(\d+)\s*패자\((.+)\)$/); if (m) return { ref: +m[1], kind: 'loser', name: m[2] === '미정' ? null : m[2] };
+        m = s.match(/^(?:정규|리그)\s*(\d+)위 시드(?:\((.+)\))?$/); if (m) return { seed: +m[1], name: m[2] || null };
+        return { name: s };
+    }
+    function bkSlotLabel(s) {
+        if (s.name) return s.name;
+        if (s.ref) return `${s.ref}경기 ${s.kind === 'winner' ? '승자' : '패자'}`;
+        if (s.seed) return `정규 ${s.seed}위`;
+        return '미정';
+    }
+    function renderBracket(data) {
+        const panel = document.getElementById('bracketPanel');
+        const canvas = document.getElementById('bracketCanvas');
+        if (!panel || !canvas) return;
+        if (!data || !data.ms || !data.ms.length) { panel.style.display = 'none'; canvas.innerHTML = ''; return; }
+        panel.style.display = 'block';
+        document.getElementById('bracketMeta').innerText = [data.fmt, data.shape].filter(Boolean).join(' · ');
+        const ms = data.ms.slice().sort((a,b) => a.n - b.n);
+        const byN = {}; ms.forEach(x => byN[x.n] = x);
+        bkStructMerge(ms); // localStorage 복원 렌더 등 파싱을 안 거친 경로 대비
+        // 라운드(컬럼) = WinnerOf 간선 깊이. LoserOf 간선은 같은 라운드 취급 (게임 UI 배치와 동일)
+        const depth = {};
+        function calcD(n, seen) {
+            if (depth[n] !== undefined) return depth[n];
+            if (seen[n]) return 0; seen[n] = 1;
+            const x = byN[n]; let d = 0;
+            [x.s1, x.s2].forEach(s => {
+                if (s.ref && byN[s.ref]) {
+                    const rd = calcD(s.ref, seen) + (s.kind === 'winner' ? 1 : 0);
+                    if (rd > d) d = rd;
+                }
+            });
+            depth[n] = d; return d;
+        }
+        ms.forEach(x => calcD(x.n, {}));
+        // 라운드 보정 ①: 리그 더블엘리 8매치 고정 구조 (간선 전부 소실돼도 게임 UI와 동일 배치)
+        if (ms.length === 8) {
+            const fixed8 = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 1, 6: 1, 7: 2, 8: 3 };
+            ms.forEach(x => { if (fixed8[x.n] !== undefined && fixed8[x.n] > depth[x.n]) depth[x.n] = fixed8[x.n]; });
+        }
+        // 라운드 보정 ②: 경기 날짜 클러스터 (2일 이상 벌어지면 다음 라운드로 간주)
+        {
+            const dayOf = d => { const t = Date.parse(d); return isNaN(t) ? null : Math.round(t / 86400000); };
+            const byDate = ms.slice().sort((a, b) => (dayOf(a.date) || 0) - (dayOf(b.date) || 0));
+            let dr = 0, prevD = null;
+            byDate.forEach(x => {
+                const v = dayOf(x.date);
+                if (prevD !== null && v !== null && v - prevD >= 2) dr++;
+                if (v !== null) prevD = v;
+                if (dr > depth[x.n]) depth[x.n] = dr;
+            });
+        }
+        // 라운드 보정 ③: 승자 간선은 반드시 원본보다 오른쪽 컬럼
+        for (let pass = 0; pass < 8; pass++) {
+            let ch = false;
+            ms.forEach(x => [x.s1, x.s2].forEach(s => {
+                if (s.ref && s.kind === 'winner' && byN[s.ref] && depth[x.n] <= depth[s.ref]) { depth[x.n] = depth[s.ref] + 1; ch = true; }
+            }));
+            if (!ch) break;
+        }
+        const maxD = Math.max.apply(null, ms.map(x => depth[x.n]));
+        const BOXW = 190, COLW = 240, ROWH = 104, TOP = 44;
+        // y좌표: 참조 매치들의 평균, 없으면 위에서부터 스택. 같은 컬럼 충돌 시 아래로.
+        const pos = {};
+        for (let c = 0; c <= maxD; c++) {
+            const col = ms.filter(x => depth[x.n] === c);
+            let stackY = TOP;
+            col.forEach(x => {
+                const refs = [x.s1, x.s2].filter(s => s.ref && pos[s.ref]);
+                let y = refs.length ? refs.reduce((a, s) => a + pos[s.ref].y, 0) / refs.length : stackY;
+                let moved = true;
+                while (moved) {
+                    moved = false;
+                    col.forEach(o => { if (o !== x && pos[o.n] !== undefined && Math.abs(pos[o.n].y - y) < ROWH) { y = pos[o.n].y + ROWH; moved = true; } });
+                }
+                pos[x.n] = { x: 20 + c * COLW, y: y };
+                stackY = Math.max(stackY, y + ROWH);
+            });
+        }
+        const H = Math.max.apply(null, ms.map(x => pos[x.n].y)) + 110;
+        const W = 20 + (maxD + 1) * COLW;
+        canvas.style.width = W + 'px'; canvas.style.height = H + 'px';
+        const myTeam = (localStorage.getItem('tfm2_my_team') || '').trim();
+        // 연결선 (패자 간선 = 점선)
+        let svg = `<svg class="bk-lines" width="${W}" height="${H}">`;
+        ms.forEach(x => {
+            [x.s1, x.s2].forEach((s, si) => {
+                if (!s.ref || !pos[s.ref]) return;
+                const a = pos[s.ref], b = pos[x.n];
+                const sy = a.y + 52;                          // 소스 박스 세로 중앙
+                const dy = b.y + 20 + (si === 0 ? 15 : 47);   // 대상 슬롯 행 중앙
+                const mx = b.x - 18;
+                const dash = s.kind === 'loser' ? ' stroke-dasharray="4 3"' : '';
+                const color = s.kind === 'loser' ? '#7c5b5b' : '#4d5470';
+                svg += `<path d="M ${a.x + BOXW} ${sy} H ${mx} V ${dy} H ${b.x}" fill="none" stroke="${color}" stroke-width="1.5"${dash}/>`;
+            });
+        });
+        svg += '</svg>';
+        let html = svg;
+        for (let c = 0; c <= maxD; c++) {
+            html += `<div class="bk-roundhead" style="left:${20 + c * COLW}px; width:${BOXW}px;">Round ${c + 1}</div>`;
+        }
+        // 아무도 참조하지 않는 최종 라운드 매치 = 결승전
+        const referenced = new Set(); ms.forEach(x => [x.s1, x.s2].forEach(s => { if (s.ref) referenced.add(s.ref); }));
+        ms.forEach(x => {
+            const p = pos[x.n];
+            let sc1 = '-', sc2 = '-', win1 = false, win2 = false, stateHtml = '';
+            const end = x.state.match(/종료\s*(\d+):(\d+)\s*→\s*승자\s*(.+)/);
+            if (end) {
+                sc1 = end[1]; sc2 = end[2];
+                const w = end[3].trim();
+                if ((x.s1.name || '') === w) win1 = true;
+                else if ((x.s2.name || '') === w) win2 = true;
+                else if (+sc1 > +sc2) win1 = true; else if (+sc2 > +sc1) win2 = true;
+                stateHtml = `승자 ${w}`;
+            } else if (/진행중/.test(x.state)) { stateHtml = '<span class="live">● LIVE</span>'; }
+            const isFinal = !referenced.has(x.n) && depth[x.n] === maxD;
+            const mk = (s, win) => {
+                const cls = (win ? ' win' : '') + (s.name ? '' : ' tbd') + (myTeam && s.name && s.name.includes(myTeam) ? ' myteam' : '');
+                return { cls: cls, label: bkSlotLabel(s) };
+            };
+            const r1 = mk(x.s1, win1), r2 = mk(x.s2, win2);
+            html += `<div class="bk-match" style="left:${p.x}px; top:${p.y}px;">`
+                + `<div class="bk-title"><span>${isFinal ? '🏆 결승전' : x.n + '경기'}</span><span class="bk-date">${(x.date || '').slice(5).replace('-', '/')} · BO${x.bo}</span></div>`
+                + `<div class="bk-box">`
+                + `<div class="bk-team${r1.cls}"><span class="nm">${r1.label}</span><span class="sc">${sc1}</span></div>`
+                + `<div class="bk-team${r2.cls}"><span class="nm">${r2.label}</span><span class="sc">${sc2}</span></div>`
+                + `</div>`
+                + (stateHtml ? `<div class="bk-state">${stateHtml}</div>` : '')
+                + `</div>`;
+        });
+        canvas.innerHTML = html;
+    }
+    function toggleBracket() {
+        const b = document.getElementById('bracketBody');
+        const open = b.style.display !== 'none';
+        b.style.display = open ? 'none' : 'block';
+        document.getElementById('bracketArrow').innerText = open ? '▲' : '▼';
+    }
+
+    async function fetchAndGenerate() {
+        if (isGenerating) { alert("반응을 불러오는 중입니다. 잠시만 기다려 주세요."); return; }
+        setRefreshBtn(false);
+        if (!hasAiKey()) { document.getElementById('statusMsg').innerText = "설정창을 열어 " + aiKeyName() + "를 입력하세요."; return; }
+
+        isGenerating = true;
+        document.getElementById('statusMsg').innerText = '경기 결과 데이터 동기화 중...';
+
+        try {
+            if (!activeGameData) {
+                await new Promise((resolve, reject) => {
+                    const oldScript = document.getElementById('match-data-script-loader');
+                    if (oldScript) oldScript.remove();
+                    const script = document.createElement('script');
+                    script.id = 'match-data-script-loader';
+                    script.src = 'latest_match.js?v=' + Date.now();
+                    script.onload = () => typeof latestMatchData !== 'undefined' ? (activeGameData = latestMatchData, resolve()) : reject(new Error("누락"));
+                    script.onerror = () => reject(new Error("실패"));
+                    document.body.appendChild(script);
+                });
+            }
+
+            // 새 경기 데이터인지 확인: 같은 경기(series_id)로 이미 반응을 뽑았으면 안내 후 진행 여부 확인
+            const curSid = activeGameData?.series_id;
+            const lastGenSid = localStorage.getItem('tfm2_last_gen_series');
+            if (curSid !== undefined && curSid !== null && String(curSid) === String(lastGenSid)) {
+                const proceed = confirm('⚠ 새 경기 데이터가 없습니다.\n\n마지막에 불러온 것과 같은 경기입니다. 게임에서 새 경기를 치른 뒤 다시 불러오면 새 반응이 나옵니다.\n\n그래도 이 경기로 반응을 다시 생성할까요?');
+                if (!proceed) {
+                    document.getElementById('statusMsg').innerText = '💡 게임에서 새 경기를 치른 뒤 다시 불러와 주세요.';
+                    isGenerating = false; activeGameData = null; setRefreshBtn(true);
+                    return;
+                }
+            }
+
+            // 먼저 이슈(뉴스)를 취재해두면 게시글이 이를 스크랩해 반응글을 쓸 수 있다
+            document.getElementById('statusMsg').innerText = '📰 이슈 취재 중...';
+            await generateIssues(false);
+
+            document.getElementById('statusMsg').innerText = '반응 생성 중...';
+
+            let matchYear = 2026, matchMonth = 6, matchDay = 8;
+            if (activeGameData?.date && activeGameData.date !== "알 수 없음") {
+                const parts = activeGameData.date.split('T')[0].split('-');
+                if (parts.length === 3) { matchYear = parseInt(parts[0], 10); matchMonth = parseInt(parts[1], 10); matchDay = parseInt(parts[2], 10); }
+            }
+
+            const userPromptBase = document.getElementById('customPrompt').value;
+
+            // 대회 정보 추출(리그명 + 대회형태). 데이터 원문 그대로 사용 → 8강/플옵/결승 등 정확 표시
+            const tourInfo = parseTournamentInfo(activeGameData?.summary);
+            renderTournamentBar(tourInfo);
+            // 직관 하이라이트 추출 → 명장면 언급 게시글 유도 블록
+            const hlText = (() => {
+                const m = String(activeGameData?.summary || '').match(/--- 경기 하이라이트[^\n]*---\n([\s\S]*?)(?=\n---|\n====)/);
+                return m ? m[1].trim() : '';
+            })();
+            const hlBlock = hlText ? `\n[직관 하이라이트 - 경기를 직접 본 갤러들이 목격한 명장면 목록]\n${hlText.slice(0, 1500)}\n(위 하이라이트 장면들을 직관한 갤러 시점에서 생생하게 언급하는 게시글을 반드시 1~2개 포함하라. "n세트 그 4인궁 봤냐", "포탑에 잡힌 거 실화냐", "그 역전 소름" 식으로 구체 장면·선수명·세트 번호를 인용하고, 댓글에서도 자연스럽게 회자되게 하라. 시간표기 [mm:ss]는 경기 내 시간이다.)\n` : '';
+            const standData = parseStandings(activeGameData?.summary);
+            if (standData) { renderStandings(standData); localStorage.setItem('tfm2_standings', JSON.stringify(standData)); }
+            const brData = parseBracket(activeGameData?.summary);
+            if (brData) { renderBracket(brData); localStorage.setItem('tfm2_bracket', JSON.stringify(brData)); }
+            else { renderBracket(null); localStorage.removeItem('tfm2_bracket'); }
+            const tourBlock = tourInfo ? `\n[이번 경기 대회 정보 - 게시글 말머리와 내용에 반드시 정확히 반영]\n리그: ${tourInfo.league}\n대회 단계: ${tourInfo.stage}\n(이 대회 단계 표현을 그대로 써라. 임의로 8강/4강 등을 지어내지 말고 위 '대회 단계' 값만 사용할 것)\n` : '';
+            // 매치 최종 결과 명시 블록 — 세트별 승자만 주면 모델이 직접 집계하다 승패를 뒤집는 사고가 남
+            const seriesLines = mainSeriesResultLines(activeGameData?.summary, activeGameData?.is_series_finished);
+            const resultBlock = seriesLines.length ? `\n[이번 매치 결과 공식 집계 - 승패·스코어 서술은 반드시 이 집계와 일치시켜라]\n${seriesLines.map(l => '  ' + l).join('\n')}\n` : '';
+
+            // 배경 서사 + 최근 게시글 흐름을 컨텍스트로 주입 (서사 연속성)
+            const loreMemo = (localStorage.getItem('tfm2_lore_memo') || '').trim();
+            const loreBlock = loreMemo ? `\n[갤러리 배경 서사 - 최우선 반영]\n${loreMemo}\n` : '';
+            const recentTitles = archivedPages.slice(0, 2).flat().slice(0, 25).map(p => `- ${p.title}`).join('\n');
+            const historyBlock = recentTitles ? `\n[갤러리 최근 게시글 흐름 - 이어지는 서사로 활용]\n${recentTitles}\n` : '';
+            // 현재 팀파 이슈(뉴스)를 주입 → 유저가 이슈를 스크랩해 토론/반박/옹호글을 쓰게 함
+            const issueDigest = issueList.slice(0, 6).map(it => `- [${it.category}] ${it.headline} :: ${String(it.content).slice(0, 120)}...`).join('\n');
+            const issueBlock = issueDigest ? `\n[현재 팀파 이슈(뉴스) - 이 중 중요한 이슈는 갤러가 스크랩해 반응글로 다룬다]\n${issueDigest}\n` : '';
+
+            const prompt = `${GAME_IDENTITY}
+${userPromptBase}
+${resultBlock}${tourBlock}${hlBlock}${loreBlock}${historyBlock}${issueBlock}
+데이터 가이드:
+${JSON.stringify(activeGameData)}
+
+출력 데이터는 오직 순수 JSON 배열 포맷만 완벽히 지켜서 반환하라:
+[
+  {
+    "title": "글 제목",
+    "author": "ㅇㅇ(124.50)",
+    "content": "오늘 경기 솔직히 충격적이긴 하네.. 연승 깨진 건 아쉽는데 상대팀 오늘 준비를 너무 잘해옴",
+    "date": "${matchYear}. ${matchMonth}. ${matchDay}. 16:40",
+    "views": 144,
+    "likes": 32,
+    "is_concept": true,
+    "has_image": true,
+    "image_desc": "연승 깨지고 멍때리는 팀 마스코트 짤방.jpg",
+    "img_prompt_en": "",
+    "comments": [
+      {
+        "author": "ㅇㅇ(220.76)",
+        "content": "진짜 상대 오늘 전술 다 이겼음 인정할건 인정하자",
+        "date": "16:41",
+        "sub_comments": []
+      }
+    ]
+  }
+]`;
+
+            const aiText = await callAI(prompt, { maxTokens: 8192, temperature: 0.9 });
+            let cleanText = (aiText || '').trim();
+            if (cleanText.startsWith("```")) cleanText = cleanText.replace(/^```[a-zA-Z]*\s*/, "").replace(/\s*```$/, "").trim();
+            const firstBracket = cleanText.indexOf('['), lastBracket = cleanText.lastIndexOf(']');
+            if (firstBracket !== -1 && lastBracket !== -1) cleanText = cleanText.substring(firstBracket, lastBracket + 1);
+
+            const newPosts = JSON.parse(cleanText);
+            // 페이지 단위로 대회 정보를 함께 보관 (배열이지만 비열거 속성으로 메타 저장)
+            if (tourInfo) newPosts._tournament = tourInfo;
+            archivedPages.unshift(newPosts);
+            pageTournaments.unshift(tourInfo || null);
+            localStorage.setItem('dc_gallery_pages', JSON.stringify(archivedPages));
+            localStorage.setItem('tfm2_page_tours', JSON.stringify(pageTournaments));
+            if (activeGameData && activeGameData.summary) localStorage.setItem('tfm2_last_match', String(activeGameData.summary)); // 댓글 AI가 참조할 경기 데이터 보존
+
+            if (activeGameData?.series_id !== undefined && activeGameData?.series_id !== null) {
+                localStorage.setItem('tfm2_last_gen_series', String(activeGameData.series_id));
+            }
+            currentPageIndex = 0; currentSortKey = 'date';
+            renderBoard();
+            document.getElementById('statusMsg').innerText = `반응 불러오기 성공`;
+        } catch (err) {
+            console.error(err);
+            const rl = String(err.message||'').startsWith('RATE_LIMIT');
+            document.getElementById('statusMsg').innerText = rl ? '⚠ 요청 한도 초과(429). 1~2분 후 다시 눌러 주세요.' : `에러: ${err.message}`;
+        } finally { isGenerating = false; activeGameData = null; setRefreshBtn(true); }
+    }
+
+    function countTotalComments(post) {
+        let total = post.comments.length;
+        post.comments.forEach(cmt => { if (cmt.sub_comments) total += cmt.sub_comments.length; });
+        return total;
+    }
+
+    function renderBoard() {
+        renderTournamentBar(pageTournaments[currentPageIndex] || null);
+        const tbody = document.getElementById('boardBody'); tbody.innerHTML = '';
+        const pagination = document.getElementById('pagination'); if (pagination) pagination.innerHTML = '';
+
+        if (archivedPages.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="6" style="padding: 40px; color:#888;">아직 게시글이 없습니다.</td></tr>`;
+            document.getElementById('sortBar').style.display = 'none'; return;
+        }
+
+        document.getElementById('sortBar').style.display = 'flex';
+        const currentActivePosts = archivedPages[currentPageIndex];
+        let olderPagesPostsCount = 0;
+        for (let i = currentPageIndex; i < archivedPages.length; i++) olderPagesPostsCount += archivedPages[i].length;
+
+        currentActivePosts.forEach((post, index) => {
+            const tr = document.createElement('tr');
+            let displayConcept = post.is_concept;
+            if (parseInt(post.likes) >= 30) displayConcept = true;
+            if (displayConcept) tr.className = 'concept-row';
+            
+            const postNum = olderPagesPostsCount - index;
+            const totalCmtCount = countTotalComments(post);
+
+            tr.innerHTML = `
+                <td>${displayConcept ? '<b>개념</b>' : postNum}</td>
+                <td class="title-td" onclick="viewPost(${index})">${post.title} <b style="color: #ff5e5e; font-size:11px;">[${totalCmtCount}]</b></td>
+                <td>${post.author}</td>
+                <td>${extractTimeOnly(post.date)}</td>
+                <td>${post.views}</td>
+                <td>${post.likes}</td>
+            `;
+            tbody.appendChild(tr);
+        });
+
+        renderPagination();
+        if (currentPostIndex === null) {
+            document.getElementById('boardList').style.display = 'table';
+            document.getElementById('actionBar').style.display = 'flex';
+            document.getElementById('postView').style.display = 'none';
+            document.getElementById('sortBar').style.display = 'flex';
+            if (pagination) pagination.style.display = 'flex';
+        }
+    }
+
+    function renderPagination() {
+        const container = document.getElementById('pagination'); if (!container) return;
+        container.innerHTML = '';
+        const total = archivedPages.length;
+        if (total <= 1) return;
+
+        const WINDOW = 10; // 한 번에 보이는 페이지 번호 수
+        // 현재 페이지가 속한 블록 계산 (0-based)
+        const block = Math.floor(currentPageIndex / WINDOW);
+        const start = block * WINDOW;
+        const end = Math.min(start + WINDOW, total);
+
+        const mkBtn = (label, targetIdx, opts) => {
+            opts = opts || {};
+            const btn = document.createElement('button');
+            btn.className = `page-btn ${opts.active ? 'active' : ''}`;
+            btn.innerText = label;
+            if (opts.disabled) { btn.disabled = true; btn.style.opacity = '0.4'; btn.style.cursor = 'default'; }
+            else btn.onclick = () => { currentPageIndex = targetIdx; renderBoard(); };
+            container.appendChild(btn);
+        };
+
+        // 맨앞 «  / 이전블록 ‹
+        mkBtn('«', 0, { disabled: currentPageIndex === 0 });
+        mkBtn('‹', Math.max(0, start - 1), { disabled: start === 0 });
+        // 현재 블록의 페이지 번호 10개
+        for (let i = start; i < end; i++) {
+            mkBtn(String(i + 1), i, { active: i === currentPageIndex });
+        }
+        // 다음블록 › / 맨끝 »
+        mkBtn('›', Math.min(total - 1, end), { disabled: end >= total });
+        mkBtn('»', total - 1, { disabled: currentPageIndex === total - 1 });
+    }
+
+    function viewPost(index) {
+        currentPostIndex = index;
+        const post = archivedPages[currentPageIndex][index];
+        if (post.dislikes === undefined) post.dislikes = 0;
+        if (typeof post.views !== 'number') post.views = parseInt(post.views) || 1;
+        // 글을 열 때마다 조회수 증가 (실제 갤처럼 1~3씩)
+        post.views += 1 + Math.floor(Math.random() * 3);
+        localStorage.setItem('dc_gallery_pages', JSON.stringify(archivedPages));
+
+        document.getElementById('boardList').style.display = 'none';
+        document.getElementById('actionBar').style.display = 'none';
+        document.getElementById('sortBar').style.display = 'none';
+        document.getElementById('tournamentBar').style.display = 'none';
+        document.getElementById('bracketPanel').style.display = 'none';
+        document.getElementById('writePanel').style.display = 'none';
+        document.getElementById('postView').style.display = 'block';
+        if (document.getElementById('pagination')) document.getElementById('pagination').style.display = 'none';
+
+        document.getElementById('viewTitle').innerText = post.title;
+        document.getElementById('viewAuthor').innerText = post.author;
+        document.getElementById('viewClicks').innerText = post.views;
+        document.getElementById('viewLikes').innerText = post.likes;
+        document.getElementById('viewDate').innerText = formatDateForPostView(post.date);
+        document.getElementById('recomUpCount').innerText = post.likes;
+        document.getElementById('recomDownCount').innerText = post.dislikes;
+
+        // 짤방 영역: 이미지 없이 디시 모바일 이미지 필터링 스타일의 텍스트 박스만 표시
+        const imgArea = document.getElementById('viewImageArea');
+        imgArea.innerHTML = '';
+        if (post.has_image && (post.image_desc || post.img_prompt_en)) {
+            const fileName = post.image_desc || 'meme.jpg';
+            imgArea.innerHTML = `<div class="attach-box">🖼 [첨부 이미지: ${fileName}]</div>`;
+        }
+
+        document.getElementById('viewContent').innerText = post.content;
+        renderComments();
+    }
+
+    function renderComments() {
+        if (currentPostIndex === null) return;
+        const post = archivedPages[currentPageIndex][currentPostIndex];
+        const commentList = document.getElementById('commentList'); commentList.innerHTML = '';
+        document.getElementById('commentCount').innerText = countTotalComments(post);
+        
+        post.comments.forEach((cmt, cmtIdx) => {
+            const container = document.createElement('div');
+            container.className = 'comment-item-container';
+
+            const cmtDiv = document.createElement('div');
+            cmtDiv.className = 'comment-item';
+            cmtDiv.innerHTML = `
+                <div class="comment-author">${cmt.author}</div>
+                <div class="comment-body">${cmt.content}</div>
+                <div class="comment-date">${cmt.date || '방금전'}</div>
+                <div class="comment-actions"><span onclick="toggleReplyForm(${cmtIdx})">답글</span></div>
+            `;
+            container.appendChild(cmtDiv);
+
+            const subListDiv = document.createElement('div');
+            subListDiv.className = 'sub-comment-list';
+            
+            if (cmt.sub_comments && cmt.sub_comments.length > 0) {
+                cmt.sub_comments.forEach(sub => {
+                    const subDiv = document.createElement('div');
+                    subDiv.className = 'sub-comment-item';
+                    subDiv.innerHTML = `
+                        <div class="sub-comment-prefix">└</div>
+                        <div class="comment-author">${sub.author}</div>
+                        <div class="comment-body">${sub.content}</div>
+                        <div class="comment-date">${sub.date || '방금전'}</div>
+                        <span class="sub-reply-btn" onclick="openTaggedReply(${cmtIdx}, '${String(sub.author).replace(/'/g, "\\'")}')">답글</span>
+                    `;
+                    subListDiv.appendChild(subDiv);
+                });
+            }
+            container.appendChild(subListDiv);
+
+            const replyForm = document.createElement('div');
+            replyForm.className = 'reply-write-form'; replyForm.id = `reply-form-${cmtIdx}`;
+            replyForm.innerHTML = `
+                <div class="cmt-meta-inputs" style="margin-bottom:5px;">
+                    <input type="text" id="reply-author-${cmtIdx}" value="ㅇㅇ" style="width:90px;">
+                    <input type="password" value="1234" style="width:90px;">
+                </div>
+                <div class="cmt-write-area">
+                    <textarea id="reply-content-${cmtIdx}" placeholder="답글 입력..." style="height:36px;"></textarea>
+                    <button onclick="submitSubComment(${cmtIdx})" style="font-size:11px; padding:0 10px;">등록</button>
+                </div>
+            `;
+            container.appendChild(replyForm);
+            commentList.appendChild(container);
+        });
+    }
+
+    // 대댓글의 "답글" 클릭: 같은 스레드 폼을 열고 @닉네임을 자동 입력 (디시식 태그 체인)
+    function openTaggedReply(cmtIdx, targetAuthor) {
+        const form = document.getElementById(`reply-form-${cmtIdx}`);
+        if (!form) return;
+        form.style.display = 'block';
+        const ta = document.getElementById(`reply-content-${cmtIdx}`);
+        ta.value = `@${targetAuthor} `;
+        ta.focus();
+    }
+
+    function toggleReplyForm(cmtIdx) {
+        const form = document.getElementById(`reply-form-${cmtIdx}`);
+        if(form) form.style.display = form.style.display === 'block' ? 'none' : 'block';
+    }
+
+    function submitComment() {
+        if (currentPostIndex === null) return;
+        const author = document.getElementById('cmtAuthor').value.trim() || 'ㅇㅇ';
+        const content = document.getElementById('cmtContent').value.trim();
+        if (!content) return;
+        
+        const post = archivedPages[currentPageIndex][currentPostIndex];
+        const now = new Date();
+        post.comments.push({ 
+            author: author, 
+            content: content, 
+            date: `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`, 
+            sub_comments: [] 
+        });
+        document.getElementById('cmtContent').value = '';
+        renderComments(); localStorage.setItem('dc_gallery_pages', JSON.stringify(archivedPages)); renderBoard();
+        // 유저 댓글에 AI 갤러들이 답글로 반응
+        generateAiReplies(post, post.comments.length - 1, author, content);
+    }
+
+    function submitSubComment(cmtIdx) {
+        if (currentPostIndex === null) return;
+        const author = document.getElementById(`reply-author-${cmtIdx}`).value.trim() || 'ㅇㅇ';
+        const content = document.getElementById(`reply-content-${cmtIdx}`).value.trim();
+        if (!content) return;
+
+        const post = archivedPages[currentPageIndex][currentPostIndex];
+        const now = new Date();
+        if (!post.comments[cmtIdx].sub_comments) post.comments[cmtIdx].sub_comments = [];
+        post.comments[cmtIdx].sub_comments.push({ 
+            author: author, 
+            content: content, 
+            date: `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}` 
+        });
+
+        document.getElementById(`reply-content-${cmtIdx}`).value = '';
+        renderComments(); localStorage.setItem('dc_gallery_pages', JSON.stringify(archivedPages)); renderBoard();
+        // @태그 대상이 있으면 그 유저가 직접 대답하도록 AI에 전달 (1:1 티키타카)
+        const tagMatch = content.match(/^@(\S+)/);
+        generateAiReplies(post, cmtIdx, author, content, tagMatch ? tagMatch[1] : null);
+    }
+
+    // [신규] AI 갤러 실시간 댓글 반응 시스템: 유저가 댓글을 달면 갤러 1~3명이 시간차를 두고 답글을 단다
+    async function generateAiReplies(post, cmtIdx, userAuthor, userContent, targetAuthor) {
+        if (!hasAiKey()) return;
+        if (isReplying) return; // 연타 방지: 이전 답글 생성 중이면 무시
+        isReplying = true;
+
+        const thread = post.comments.map(c => {
+            let t = `- ${c.author}: ${c.content}`;
+            (c.sub_comments || []).forEach(sc => { t += `\n  ㄴ ${sc.author}: ${sc.content}`; });
+            return t;
+        }).join('\n');
+
+        const prompt = `${GAME_IDENTITY}
+너는 디시인사이드 '팀 파이트 아레나 2 갤러리'의 유저 여러 명이다. 아래 게시글에 방금 "${userAuthor}" 유저가 새 댓글을 달았다. 갤러리 유저 1~3명이 이 새 댓글에 반응하는 답글을 작성하라.
+
+[게시글 제목] ${post.title}
+[게시글 본문] ${post.content}
+${(localStorage.getItem('tfm2_lore_memo') || '').trim() ? '[갤러리 배경 서사] ' + localStorage.getItem('tfm2_lore_memo').trim() : ''}
+${(function(){ const md = (activeGameData && activeGameData.summary) ? String(activeGameData.summary) : (localStorage.getItem('tfm2_last_match') || ''); return md ? '[실제 경기 데이터 - 세트별 밴카드·선수 픽 챔피언·성적 포함. 반박/팩폭 시 이 수치를 근거로 인용하라]\n' + buildReplyMatchDigest(md, 0, activeGameData ? !!activeGameData.is_series_finished : undefined) : ''; })()}
+[기존 댓글 스레드]
+${thread}
+[방금 달린 새 댓글] ${userAuthor}: ${userContent}
+${targetAuthor ? `[중요] 이 댓글은 "@${targetAuthor}"를 콕 집어 향한 답글이다. 반드시 첫 번째 답글은 "${targetAuthor}" 본인이 같은 닉네임 그대로 직접 대답해야 한다. 그 뒤에 구경하던 다른 갤러 0~2명이 껴들어 참전하거나 관전평("둘이 싸우는거 개꿀잼 ㅋㅋ 팝콘각")을 남길 수 있다.` : ''}
+
+[작성 규칙]
+- 반드시 JSON 배열만 출력하라. 다른 설명, 마크다운 백틱 절대 금지.
+- 형식: [{"author": "닉네임", "content": "답글 내용"}]
+- 답글은 1~3개. 새 댓글 내용에 직접 반응하되 실제 디시 말투 그대로 써라. 반말, ㅋㅋㅋ, ㄹㅇ, ㅇㅈ, ~노를 자연스럽게 섞어라.
+- [다양성 필수] 모든 답글이 "욕 + 팩폭" 한 공식으로만 가지 마라. 답글마다 톤을 다르게: 어떤 건 짧은 무성의 반응("ㅋㅋㅋㅋ", "ㄹㅇ"), 어떤 건 진지한 반박, 어떤 건 동의/공감, 어떤 건 딴소리 드립, 어떤 건 질문. 문장 시작도 욕으로만 시작하지 말고 다양하게.
+- 욕의 강도도 섞어라: 욕 없는 순한 답글, 가벼운 비꼼, 센 답글이 공존해야 자연스럽다. 전부 세게 가지 마라.
+- 같은 단어("실화냐", "병신아", "ㅅㅂ") 반복 금지. 겹치면 다른 표현으로.
+- 새 댓글의 내용을 먼저 판단하고 현실적으로 반응하라:
+  * 논리적으로 맞는 말이나 좋은 분석이면 → 다수는 동조하라: "ㅇㅈ 이게 맞지", "팩트라 개추", "오 이 관점은 못 봤네 ㄹㅇ", "듣고 보니 그러네". 삐딱하게 트집 잡는 소수 1명 정도는 있어도 된다.
+  * 어그로나 억까면 → 맞받아치고 팩폭으로 눌러라.
+  * 실제 경기 데이터와 명백히 어긋나는 틀린 주장(예: 데이터엔 A선수가 딜 1위인데 "A선수 딜 꼴찌"라고 우김)이면 → 그 수치를 들이밀며 반박하라: "딜량 표 다시 보고 와라 A가 1위인데?", "경기 안 보고 쓴 티 난다". 단, 여러 명이 몰아치는 조리돌림은 정말 명백히 틀렸을 때만. 애매하면 1~2명이 지적하는 선에서 끝내라.
+  * [금지] 롤 챔피언/구단/선수 이름(베이가, T1, 페이커 등)이 나와도 그건 이 게임(팀파2)의 챔피언/구단/선수다. "그건 롤 아니냐", "롤갤 아니다", "딴 게임 얘기냐"는 반응은 절대 금지. 이름 출처를 따지지 말고 우리 게임 요소로 자연스럽게 대화하라.
+  * 갑론을박 여지가 있는 애매한 주장이면 → 동조파와 반박파가 갈려서 티키타카하라.
+- 조롱, 비꼬기, 팩폭 환영하되 무지성 반박봇처럼 굴지 마라. 착하고 정중한 존댓말은 금지지만, 거친 말투로 하는 동조와 칭찬("ㅅㅂ 이건 인정할 수밖에 없네")은 매우 디시답다.
+- 닉네임은 기존 스레드에 등장한 유저를 재사용하거나 디시 스타일 유동닉(예: ㅇㅇ(118.235), 팀갤러4)을 사용하라.
+- 첫 답글은 "@${userAuthor}" 태그로 시작해도 좋다. 새 댓글이 질문이면 갤러 특유의 아는 척과 티키타카로 답하라.
+- 게시글과 경기 맥락에 맞는 내용이어야 한다.
+- 단, 패드립(가족 관련 드립), 특정 지역/성별/집단 혐오 표현, 성적인 표현은 절대 금지. 욕은 경기력과 상황을 향해서만 해라.`;
+
+        try {
+            document.getElementById('statusMsg').innerText = '💬 갤러들이 댓글을 확인하는 중...';
+            const aiText = await callAI(prompt, { maxTokens: 1500, temperature: 0.95, maxRetries: 2 });
+            let raw = aiText.replace(/```json|```/g, '').trim();
+            const start = raw.indexOf('['); const end = raw.lastIndexOf(']');
+            if (start === -1 || end === -1) throw new Error('JSON 파싱 실패');
+            const replies = JSON.parse(raw.slice(start, end + 1));
+
+            // 실제 갤러처럼 시간차를 두고 하나씩 등록
+            let delay = 2500 + Math.random() * 3500;
+            replies.slice(0, 3).forEach(r => {
+                if (!r || !r.content) return;
+                setTimeout(() => {
+                    const now = new Date();
+                    if (!post.comments[cmtIdx]) return;
+                    if (!post.comments[cmtIdx].sub_comments) post.comments[cmtIdx].sub_comments = [];
+                    post.comments[cmtIdx].sub_comments.push({
+                        author: r.author || 'ㅇㅇ',
+                        content: r.content,
+                        date: `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`
+                    });
+                    // 대댓글이 달려도 조회수 소폭 증가 (댓글보다는 적게 5~15)
+                    if (typeof post.views !== 'number') post.views = parseInt(post.views) || 1;
+                    post.views += 5 + Math.floor(Math.random() * 11);
+                    localStorage.setItem('dc_gallery_pages', JSON.stringify(archivedPages));
+                    // 유저가 아직 이 글을 보고 있을 때만 화면 갱신
+                    if (archivedPages[currentPageIndex] && archivedPages[currentPageIndex][currentPostIndex] === post) { renderComments(); const vc = document.getElementById('viewClicks'); if (vc) vc.innerText = post.views; }
+                    renderBoard();
+                }, delay);
+                delay += 3500 + Math.random() * 6000;
+            });
+            document.getElementById('statusMsg').innerText = '인게임 데이터 연동 준비 완료';
+        } catch (e) {
+            console.error('AI 답글 생성 실패:', e);
+            const rl = String(e.message||'').startsWith('RATE_LIMIT');
+            document.getElementById('statusMsg').innerText = rl ? '⚠ 요청 한도 초과. 1~2분 후 다시 시도해 주세요.' : '인게임 데이터 연동 준비 완료';
+        } finally { isReplying = false; }
+    }
+
+    function upvotePost() {
+        if (currentPostIndex === null) return;
+        const post = archivedPages[currentPageIndex][currentPostIndex]; post.likes++;
+        document.getElementById('viewLikes').innerText = post.likes; document.getElementById('recomUpCount').innerText = post.likes;
+        localStorage.setItem('dc_gallery_pages', JSON.stringify(archivedPages)); renderBoard();
+    }
+
+    function downvotePost() {
+        if (currentPostIndex === null) return;
+        const post = archivedPages[currentPageIndex][currentPostIndex];
+        if (post.dislikes === undefined) post.dislikes = 0;
+        post.dislikes++; document.getElementById('recomDownCount').innerText = post.dislikes;
+        localStorage.setItem('dc_gallery_pages', JSON.stringify(archivedPages));
+    }
+
+    function closePost() {
+        currentPostIndex = null;
+        document.getElementById('boardList').style.display = 'table'; document.getElementById('actionBar').style.display = 'flex';
+        document.getElementById('postView').style.display = 'none'; document.getElementById('sortBar').style.display = 'flex';
+        if (document.getElementById('pagination')) document.getElementById('pagination').style.display = 'flex';
+        try { const bd = JSON.parse(localStorage.getItem('tfm2_bracket') || 'null'); if (bd) renderBracket(bd); } catch(e){}
+        renderBoard();
+    }
+
+    function downloadThisFile() {
+        const hCode = document.documentElement.outerHTML;
+        const blob = new Blob(["<!DOCTYPE html>\n" + hCode], { type: "text/html;charset=utf-8;" });
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob); a.download = "TFA2_gallery.html";
+        document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    }
+</script>
+</body>
+</html>
