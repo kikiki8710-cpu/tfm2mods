@@ -2,47 +2,50 @@
 //! ===========================================================================
 //! RE 근거·FFI 계약 정본 = `C:\tfm2mods\tfm2_banpick_showcase\FFI_CONTRACT.md` (0.5.2).
 //! 구조:
-//!   훅 A 0x11e2370(연출 상태 세팅) = 진영/모드/챔프 스태시 → 원본 (관찰만)
-//!   훅 B 0x11f9030(카드 드로우 헬퍼) = 가로형 커스텀 레이아웃 전체 대체 (아트/idle 폴백),
+//!   훅 A RVA_FX_SET(연출 상태 세팅) = 진영/모드/챔프 스태시 → 원본 (관찰만)
+//!   훅 B RVA_CARD_DRAW(카드 드로우 헬퍼) = 가로형 커스텀 레이아웃 전체 대체 (아트/idle 폴백),
 //!        미정(스태시 없음)·설치 실패 시 원본 트램폴린 폴백
-//!   훅 C 0xfdabe0(밴픽 일러 에셋 조회) = 카드 크기 게이트 하 리다이렉트 (훅 B 실패 시 안전망)
+//!   훅 C RVA_ILLUST_GET(밴픽 일러 에셋 조회) = 카드 크기 게이트 하 리다이렉트 (훅 B 실패 시 안전망)
+//!   ※구 0.5.2 주소 표기(0x11e2370/0x11f9030/0xfdabe0)는 폐기 — 실제 값은 아래 const 참조.
 //!   기하패치 12사이트 = 밴 분할 연출(스냅샷 타깃·컷·취소선)을 360x480→520x408 확대
 //! 아트 해석 = crate::keys::illust_key 재사용(진영 폴백·타모드 아트·flip 판정 포함).
 //! 안전수칙: detour 본문 catch_unwind, 포인터 range 가드, 게임이 free하는 String은
-//!   게임 alloc(0x8b7f80) 사용, 훅·패치 1회 설치(재설치 금지), 사전검증 실패 시 전체 스킵.
+//!   게임 alloc(RVA_GAME_ALLOC) 사용, 훅·패치 1회 설치(재설치 금지), 사전검증 실패 시 전체 스킵.
 //! ===========================================================================
 #![allow(dead_code)]
 use crate::{config, keys};
 use std::sync::atomic::{AtomicBool, AtomicU8, AtomicU32, AtomicUsize, Ordering};
 
-// ── 0.5.2 RVA (패치 시 migrate_rva.py 대상 — MIGRATION §7.2-B) ──────────────
-// ★0.5.3 재핀(2026-07-29) — 방법 = 앵커맵(0.5.2↔0.5.3 함수쌍 25,862) 콜러-대응 **양방향 투표**.
-//   검증: 알려진 정답 LOADER 0x5ac950→0x2e1550 이 정방향 193/194·역방향 순도 98% 로 재현됨.
-//   각 값의 역방향 순도(0.5.3 후보의 콜러를 0.5.2 로 되돌렸을 때 원 함수를 부르는 비율)를 주석에 표기.
-//   ⚠_MIGRATE_053.md 표의 "확정" 2건이 실측과 달랐다(IMG_COLOR·TEXT_BUILD) — 표보다 이 값이 정본.
-const RVA_FX_SET: usize = 0x1bd8e50; // 훅 A: 연출 상태 세팅 (진영 스태시) — 역순도 100%(1/1)
-const RVA_CARD_DRAW: usize = 0x1bee8e0; // 훅 B: 카드 드로우 헬퍼 — 역순도 100%(1/1)
-const RVA_ILLUST_GET: usize = 0x1e91400; // 훅 C: 밴픽 일러 에셋 조회 — 역순도 100%(3/3)
-const RVA_SUBMIT: usize = 0x1859f0; // (list, &cmd) 일반 제출 — 역순도 100%(40/40)
-const RVA_SUBMIT_TEXT: usize = 0x185c70; // (list, &cmd) 텍스트 전용 — 역순도 100%(9/9)
-const RVA_IMG_BUILD: usize = 0x187110; // (&cmd, key, len, x, y, layer, w, h, 0,0,0,0) — 역순도 94%(17/18)
-const RVA_IMG_UV: usize = 0x186f70; // (&out, &in, &uv) — 역순도 100%(41/41)
-const RVA_IMG_FLAG: usize = 0x187420; // (&out, &in, 샘플링: 1=nearest) — 역순도 100%(5/5)
-const RVA_IMG_COLOR: usize = 0x23b8150; // (&out, &in, "color", 5, &rgba) — 역순도 100%(10/10) ⚠표값 0x1875b0=오답
-const RVA_IMG_SHADER: usize = 0x188a20; // (&out, &in, shader_key, len) — 역순도 100%(16/16)
-const RVA_TEXT_BUILD: usize = 0x186600; // (...) 텍스트 cmd — 역순도 100%(3/3) ⚠표값 0x1165380=오답
-const RVA_NAME_GET: usize = 0x1c19520; // 챔프 표시명 String — 역순도 100%(3/3)
-// ★asset-get clone family(진입 24B 가 449개 함수와 동일 = 바이트로 형제 구별 불가)는 양방향 투표로 확정:
-//   ASSET_GET 0x99c860 → 0x143d50(정방향 38/39·역방향 순도 100%(38/38)·콜러 67→65)
-//   ANIM_GET  0x5ab7d0 → 0x888fd0(정방향 43/45·역방향 순도 100%(43/43)·콜러 77→73)
-//   두 함수는 서로의 2위(같은 콜러가 텍스처+애님을 함께 조회) — 1위/순도 100% 가 교차하지 않아 확정.
-const RVA_ASSET_GET: usize = 0x143d50; // 키→텍스처 에셋 (obj,vtbl) 엔트리 주소
-const RVA_ANIM_GET: usize = 0x888fd0; // 키→애님 리소스 (참조 반환) = draft_overlay ANIM_GET_RVA 와 동일 함수
-const RVA_SPRITE_CALC: usize = 0x1c1e4e0; // idle 시트키+UV+크기 계산기(무부작용) — 역순도 100%(3/3)
-// 0.5.3: 범용 __rust_alloc 이 align별 심 + impl 로 분해 ⟹ impl 직접호출 **3인자**가 전 모드 정본.
-//   실측 = 0x28f7df0 은 `GetProcessHeap()` → `HeapAlloc(heap, flags, size)` tail-jmp 래퍼이고,
-//   exe 전체에서 HeapAlloc 을 참조하는 함수는 **이것 하나뿐**(콜러 32,890) = 신원 확정.
-const RVA_GAME_ALLOC: usize = 0x28f7df0; // (무시, flags, size) → ptr / 실패 시 0
+// ── 게임 함수 RVA (패치 시 재핀 대상 — MIGRATION §7.2-B) ────────────────────
+// ★0.5.4 재핀(2026-08-05) — 방법 2종 교차검증:
+//   ①CARD_DRAW 호출시퀀스 정렬(27/27 콜이 **동일 상대오프셋**)로 12함수 일괄 도출
+//   ②전함수 구조지문(skel = imm/disp 정규화 명령열 해시) 완전일치 + **NEW 전역 유일**
+//   ILLUST_GET 은 추가로 문자열 xref("asset/base/ui/banpick/illustrations") 로 독립 확인.
+//   0.5.3 값 → 0.5.4 값을 각 줄 끝 주석에 남긴다.
+const RVA_FX_SET: usize = 0x1d92980; // 훅 A: 연출 상태 세팅 (진영 스태시) — skel유일+콜러 0x1d92750 정렬 7/7  ⟵0.5.3 0x1bd8e50
+const RVA_CARD_DRAW: usize = 0x1da8410; // 훅 B: 카드 드로우 헬퍼 — skel유일+size 2979 동일, 콜시퀀스 27/27  ⟵0.5.3 0x1bee8e0
+const RVA_ILLUST_GET: usize = 0x1ffd970; // 훅 C: 밴픽 일러 에셋 조회 — 문자열 xref + skel유일  ⟵0.5.3 0x1e91400
+const RVA_SUBMIT: usize = 0x181400; // (list, &cmd) 일반 제출 — CARD_DRAW 콜슬롯 1/2/3/11/23/24 + skel유일  ⟵0.5.3 0x1859f0
+const RVA_SUBMIT_TEXT: usize = 0x181680; // (list, &cmd) 텍스트 전용 — 콜슬롯 26 + skel유일  ⟵0.5.3 0x185c70
+const RVA_IMG_BUILD: usize = 0x182b20; // (&cmd, key, len, x, y, layer, w, h, 0,0,0,0) — 콜슬롯 5/17 + skel유일  ⟵0.5.3 0x187110
+const RVA_IMG_UV: usize = 0x182980; // (&out, &in, &uv) — 콜슬롯 6/18 + skel유일  ⟵0.5.3 0x186f70
+const RVA_IMG_FLAG: usize = 0x182e30; // (&out, &in, 샘플링: 1=nearest) — 콜슬롯 7/19 + skel유일  ⟵0.5.3 0x187420
+const RVA_IMG_COLOR: usize = 0x1c2f8d0; // (&out, &in, "color", 5, &rgba) — ⚠본문 변경(skel 불일치), 콜슬롯 8/20 + 콜러 10개/38콜 다중집합 동일  ⟵0.5.3 0x23b8150
+const RVA_IMG_SHADER: usize = 0x184430; // (&out, &in, shader_key, len) — 콜슬롯 9/21 + skel유일  ⟵0.5.3 0x188a20
+const RVA_TEXT_BUILD: usize = 0x182010; // (...) 텍스트 cmd — 콜슬롯 25 + skel유일  ⟵0.5.3 0x186600
+const RVA_NAME_GET: usize = 0x1dd4240; // 챔프 표시명 String — ⚠본문 축소 457→331(폴백이 키 복사로 변경), ABI(sret GStr,ctx,key,len) 동일 = 디컴 확인  ⟵0.5.3 0x1c19520
+// ★asset-get clone family(구조지문이 33개 함수와 동일 = skel 로 형제 구별 불가)는
+//   0.5.4 에서 **콜슬롯 정렬**로 확정했다(투표 불요):
+//     ASSET_GET  ILLUST_GET(0x1ffd970) 콜슬롯 1@+0x13 · SPRITE_CALC(0x1dd9170) 콜슬롯 5@+0x1d1
+//                → 둘 다 0x143d50 = **0.5.3 과 동일 주소**(저번지 .text 구간 미이동)
+//     ANIM_GET   CARD_DRAW 콜슬롯 14@+0x472 · SPRITE_CALC 콜슬롯 3@+0x74 → 0x74c010 (콜러 60→60)
+const RVA_ASSET_GET: usize = 0x143d50; // 키→텍스처 에셋 (obj,vtbl) — **주소 불변**, ILLUST_GET/SPRITE_CALC 콜슬롯 2건 정렬  ⟵0.5.3 0x143d50
+const RVA_ANIM_GET: usize = 0x74c010; // 키→애님 리소스 — CARD_DRAW 콜슬롯 14 + SPRITE_CALC 콜슬롯 3  ⟵0.5.3 0x888fd0
+const RVA_SPRITE_CALC: usize = 0x1dd9170; // idle 시트키+UV+크기 계산기(무부작용) — 콜슬롯 16 + skel유일  ⟵0.5.3 0x1c1e4e0
+// 0.5.3~: 범용 __rust_alloc 이 align별 심 + impl 로 분해 ⟹ impl 직접호출 **3인자**가 전 모드 정본.
+//   0.5.4 실측 = 0x29bb920 은 `GetProcessHeap()` → `HeapAlloc(heap, flags, size)` tail-jmp 래퍼이고
+//   0.5.3 0x28f7df0 과 **IAT disp 2개만 다른 바이트 동일 본문**(60B) + 콜러 33,708 = 신원 확정.
+const RVA_GAME_ALLOC: usize = 0x29bb920; // (무시, flags, size) → ptr / GetProcessHeap→HeapAlloc tail-jmp 래퍼(바이트 동일)  ⟵0.5.3 0x28f7df0
 // ⛔RVA_GAME_FREE 폐지 — 0.5.3 에서 `__rust_dealloc` 범용 함수는 **인라인화로 소멸**했다
 //   (HeapFree 참조 함수가 전부 Box/Vec drop 인라인이고 0.5.2 dealloc(0x25c4d90) 형태는 부재).
 //   0.5.2 dealloc 본문 = `HeapFree(GetProcessHeap(), 0, align>16 ? ptr-8 : ptr)` 였고 우리는 항상
@@ -52,17 +55,17 @@ const RVA_GAME_ALLOC: usize = 0x28f7df0; // (무시, flags, size) → ptr / 실�
 /// 쇼케이스 이름 텍스트 z층 — patchviz 이름 색칠 제외 기준(카드 이름은 기본색 유지).
 pub(crate) const Z_NAME_TEXT: u32 = 0x4be;
 
-// ── 진입부 검증/재배치 상수 (0.5.2 실측) — 전부 rip-rel·chkstk 없음 ──────────
+// ── 진입부 검증/재배치 상수 (★0.5.4 전건 재실측 2026-08-05) — 전부 rip-rel·chkstk 없음 ─
 const FX_SET_ORIG_LEN: usize = 12;
 const FX_SET_PROLOGUE: &[u8] =
     &[0x55, 0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x53];
 const CARD_DRAW_ORIG_LEN: usize = 12;
 const CARD_DRAW_PROLOGUE: &[u8] =
     &[0x55, 0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x53];
-// ★0.5.3 변경(2026-07-29 실측): 프롤로그가 push4 → **push6** 로 바뀌며 명령경계가 이동했다.
-//   0.5.2: 55 56 57 53 | 48 81 EC 98.. | 48 8D AC 24 80.. → 12B 이상 최소경계 = **19**
-//   0.5.3: 55 41 56 56 57 53 | 48 81 EC 80.. → 12B 이상 최소경계 = **13**
-//   ⚠구 19 를 그대로 두면 명령 한복판을 절단해 **즉사**(ai_adjust MOVEPRI 와 동일 함정).
+// ★0.5.3 변경(2026-07-29 실측): 프롤로그가 push4 → **push6** 로 바뀌며 명령경계가 이동했었다
+//   (0.5.2 = 19 → 0.5.3 = 13). ⚠구 19 를 그대로 두면 명령 한복판을 절단해 **즉사**.
+// ★0.5.4(2026-08-05 재실측): 훅 3종 모두 진입 20B·명령경계 **완전 동일** ⟹ 12/12/13 유지.
+//   0.5.4 ILLUST_GET 진입 = 55 41 56 56 57 53 48 81 EC 80 00 00 00 (경계 1,3,4,5,6,13,21,26).
 const ILLUST_GET_ORIG_LEN: usize = 13;
 const ILLUST_GET_PROLOGUE: &[u8] = &[
     0x55, 0x41, 0x56, 0x56, 0x57, 0x53, 0x48, 0x81, 0xEC, 0x80, 0x00, 0x00, 0x00,
@@ -72,29 +75,34 @@ const ILLUST_GET_PROLOGUE: &[u8] = &[
 const GEOM_W: f32 = 520.0;
 const GEOM_H: f32 = 408.0;
 const GEOM_CUT: f32 = 60.0;
-// ★0.5.3 재핀(2026-07-29): .rdata 상수 블록이 **통째로 델타 -0x4898b0 이동**했다(6/6 일관).
-//   도출 = 0.5.2 의 원본 float 바이트열을 0.5.3 .rdata 에서 검색(대부분 유일 매치).
-//   교차검증 = ZIG 명령의 rip 타겟도 0x3731410 → 0x32a7b60 으로 같은 델타 = 블록 이동 확정.
-const RVA_C_CARD_RECT: usize = 0x32a7ad0; // {-180,-240,360,480} 카드 로컬 rect(밴·픽 공용)
-const RVA_C_SNAP_RECT: usize = 0x32a7b00; // {0,0,360,480} 스냅샷 내부 rect(좌상단 원점)
-const RVA_C_LINE_DIR: usize = 0x32a7b30; // {360,340} 취소선 방향
-const RVA_C_LINE_START: usize = 0x32a7b40; // {-180,170} 취소선 시작
-const RVA_C_LINE_ANCHOR: usize = 0x32a7b50; // {0,170} 앵커
-const RVA_C_NORMAL: usize = 0x32a7b10; // {0.6866,0.727} 분리 법선
+// ★0.5.4 재핀(2026-08-05): .rdata 상수 블록이 **통째로 델타 +0xe39b0 이동**했다(6/6 일관).
+//   도출 = 0.5.3 의 원본 float 바이트열을 0.5.4 .rdata 에서 검색(5/6 유일 매치, NORMAL 만 3후보인데
+//   그 중 델타 일치분이 정답). 블록 내부 상대배치(0/0x30/0x40/0x60/0x70/0x80)는 그대로고,
+//   0.5.3 에서 0 이던 패딩 dword 몇 개가 새 상수로 채워졌을 뿐이다.
+//   교차검증 = ZIG 명령의 rip 타겟도 0x32a7b60 → 0x338b510 으로 **같은 +0xe39b0** = 블록 이동 확정.
+const RVA_C_CARD_RECT: usize = 0x338b480; // {-180,-240,360,480} 카드 로컬 rect(밴·픽 공용)  ⟵0.5.3 0x32a7ad0
+const RVA_C_SNAP_RECT: usize = 0x338b4b0; // {0,0,360,480} 스냅샷 내부 rect(좌상단 원점)  ⟵0.5.3 0x32a7b00
+const RVA_C_LINE_DIR: usize = 0x338b4e0; // {360,340} 취소선 방향  ⟵0.5.3 0x32a7b30
+const RVA_C_LINE_START: usize = 0x338b4f0; // {-180,170} 취소선 시작  ⟵0.5.3 0x32a7b40
+const RVA_C_LINE_ANCHOR: usize = 0x338b500; // {0,170} 앵커  ⟵0.5.3 0x32a7b50
+const RVA_C_NORMAL: usize = 0x338b4c0; // {0.6866,0.727} 분리 법선  ⟵0.5.3 0x32a7b10
 // ★mid-func = 명령 시작이 아니라 **필드(imm4/disp4) 위치**다. 오프셋 이식 금지 —
-//   컨테이너(0x124db10→0x1c52950 / 0x1201d90→0x1bf89a0) 안에서 "같은 니모닉 + 같은 타겟 float"
-//   명령을 찾아 필드 위치를 재산출했다. 4건은 컨테이너 내 유일.
-const RVA_I_SNAP_H: usize = 0x1c531d0; // mov dword [rsp+0x20], 480.0 의 imm4 (스냅샷 타깃 높이)
-const RVA_D_SNAP_W: usize = 0x1c531e6; // disp4 → 360.0 (스냅샷 폭, 광공유)
-const RVA_D_CUT_LO: usize = 0x1bf8a28; // disp4 → -70.0 (컨테이너 0x1bf89a0 하단 컷)
-const RVA_D_CUT_HI: usize = 0x1bf8a36; // disp4 → +70.0 (〃 상단 컷)
+//   컨테이너(0x1c52950→**0x1e16c90**, 8149B / 0x1bf89a0→**0x1db2370**, 1062B) 안에서
+//   "같은 니모닉 + 같은 타겟 float" 명령을 찾아 필드 위치를 재산출. 4건은 컨테이너 내 유일.
+//   ★0.5.4 는 6건 전부 **컨테이너 내 상대오프셋 Δ=0**(+0x87c/+0x892/+0x83/+0x91/+0x16de/+0x1dbc).
+//   컨테이너 매핑 근거: 0x1e16c90 = ILLUST_GET 콜러 3개 대응(size 8149·콜리 27·총콜 78 동일),
+//                       0x1db2370 = 그 컨테이너의 콜리(size 1062·콜러 1·콜리 7/12 동일).
+const RVA_I_SNAP_H: usize = 0x1e17510; // mov dword [rsp+0x20], 480.0 의 imm4 (스냅샷 타깃 높이)  ⟵0.5.3 0x1c531d0
+const RVA_D_SNAP_W: usize = 0x1e17526; // disp4 → 360.0 (스냅샷 폭, 광공유)  ⟵0.5.3 0x1c531e6
+const RVA_D_CUT_LO: usize = 0x1db23f8; // disp4 → -70.0 (컨테이너 0x1db2370 하단 컷)  ⟵0.5.3 0x1bf8a28
+const RVA_D_CUT_HI: usize = 0x1db2406; // disp4 → +70.0 (〃 상단 컷)  ⟵0.5.3 0x1bf8a36
 // ZIG 2건은 컨테이너 안에 -180.0 참조가 정확히 2곳(0.5.2 와 동수)이고 **둘 다 slots+12 로 리타겟**
 //   하므로 X1/X2 배정 순서가 결과에 영향을 주지 않는다(주소 순으로 배정).
-const RVA_D_ZIG_X1: usize = 0x1c54032; // disp4 → -180.0 (지그재그 x)
-const RVA_D_ZIG_X2: usize = 0x1c54710; // disp4 → -180.0 (〃 두 번째 블록)
-// 0.5.3 .rdata 최장 0런 = 0x3f10294..0x3f27950(96,284B) 내부의 16B 정렬 지점.
+const RVA_D_ZIG_X1: usize = 0x1e18372; // disp4 → -180.0 (지그재그 x)  ⟵0.5.3 0x1c54032
+const RVA_D_ZIG_X2: usize = 0x1e18a50; // disp4 → -180.0 (〃 두 번째 블록)  ⟵0.5.3 0x1c54710
+// 0.5.4 .rdata 최장 0런 = **0x3fe10fc..0x3ff9560(99,428B)** 내부의 4K 정렬 지점(±64B 전부 0 실측).
 //   precheck 가 "슬롯 4개 전부 0.0" 을 요구하므로 오염 시 자동 SKIP(안전).
-const RVA_SLOTS: usize = 0x3f11000; // .rdata 패딩 슬롯 [w, cut_lo, cut_hi, zig_x]
+const RVA_SLOTS: usize = 0x3fe2000; // .rdata 패딩 슬롯 [w, cut_lo, cut_hi, zig_x]  ⟵0.5.3 0x3f11000
 static GEOM_PATCHED: AtomicBool = AtomicBool::new(false);
 
 // ── 상태 ──
@@ -204,7 +212,7 @@ struct GStr {
     ptr: usize,
     len: usize,
 }
-/// 0xfdabe0 out (0x28B): 키 String + cover UV. cap=-1 = 없음 센티널.
+/// RVA_ILLUST_GET out (0x28B): 키 String + cover UV. cap=-1 = 없음 센티널.
 #[repr(C)]
 struct IllustOut {
     cap: usize,
@@ -215,7 +223,7 @@ struct IllustOut {
     uw: f32,
     vh: f32,
 }
-/// 0x121aca0 out (0x30B): 시트 키 String + UV + 그릴 크기. cap=-1 = 실패.
+/// RVA_SPRITE_CALC out (0x30B): 시트 키 String + UV + 그릴 크기. cap=-1 = 실패.
 #[repr(C)]
 struct SpriteOut {
     cap: usize,
@@ -404,7 +412,7 @@ unsafe fn draw_idle_sprite(
     true
 }
 
-// ── 훅 A: 0x11e2370 — 진영/모드 스태시 후 원본 ─────────────────────────────
+// ── 훅 A: RVA_FX_SET — 진영/모드 스태시 후 원본 ───────────────────────────
 unsafe extern "win64" fn hook_fx_set(
     self_: usize,
     ui_ctx: usize,
@@ -431,7 +439,7 @@ unsafe extern "win64" fn hook_fx_set(
     }
 }
 
-// ── 훅 C: 0xfdabe0 — 일러 에셋 리다이렉트 (훅 B 실패 시 안전망) ─────────────
+// ── 훅 C: RVA_ILLUST_GET — 일러 에셋 리다이렉트 (훅 B 실패 시 안전망) ───────
 unsafe extern "win64" fn hook_illust_get(
     out: *mut IllustOut,
     store: usize,
@@ -445,7 +453,7 @@ unsafe extern "win64" fn hook_illust_get(
             return false;
         }
         // ★카드 경로만 (iw/ih = rect 파생: 바닐라 304x356 / 기하패치 464x284).
-        //   슬롯 위젯(0x1220a70)·미니 아이콘 콜러는 제외 — 슬롯 일러(bpi_illust)와
+        //   슬롯 위젯·미니 아이콘 콜러는 제외 — 슬롯 일러(bpi_illust)와
         //   이중 표시 + 사이드 스태시 타이밍 불일치 방지.
         let is_card = ((iw - 304.0).abs() < 0.5 && (ih - 356.0).abs() < 0.5)
             || ((iw - (GEOM_W - 56.0)).abs() < 0.5 && (ih - (GEOM_H - 124.0)).abs() < 0.5);
@@ -497,7 +505,7 @@ unsafe extern "win64" fn hook_illust_get(
     }
 }
 
-// ── 훅 B: 0x11f9030 — 카드 가로형 커스텀 레이아웃 (밴·픽 공용) ──────────────
+// ── 훅 B: RVA_CARD_DRAW — 카드 가로형 커스텀 레이아웃 (밴·픽 공용) ─────────
 unsafe extern "win64" fn hook_card_draw(
     store: usize,
     list: usize,
