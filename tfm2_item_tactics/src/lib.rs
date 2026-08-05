@@ -2839,10 +2839,14 @@ fn is_known_item_key(k: &str) -> bool {
     ITEMS.contains(&k) || k.starts_with("radiant_") || k.contains("_blade") || k.contains("sword")
         || k.contains("_armor") || k.contains("_plate")
 }
-// champion String 위치로 로스터 원소 검증. ★0.5.0_3: champ name @ +0x420 (ath_champ_name과 정합).
+// champion String 위치로 로스터 원소 검증. ★0.5.4: champ String = cap +0x408 / **ptr +0x410** / len +0x418
+//   (ath_champ_name 과 정합). ~~0.5.0_3~~0.5.3까지는 ptr +0x420 / len +0x428 이었다(athlete −0x10 시프트).
 //   ⚠구 +0x388~0x3b0 유산 오프셋만 보면 0.5.0 athlete를 인식 못해 find_view_by_scan 실패→LIVE_ARR=0(팀게이트 붕괴).
+//   ⚠★**현재 호출부 0개(dead code)**. `#![allow(dead_code)]` 때문에 컴파일 경고도 안 뜬다 —
+//     그래서 0.5.4 마이그(2026-08-05)에서 이 한 줄만 구 오프셋(+0x420)으로 남아 있었다.
+//     되살릴 때 오프셋을 반드시 재확인할 것. 살아 있었다면 전 athlete 에서 false → 팀게이트 붕괴였다.
 unsafe fn valid_ps_elem(elem: usize) -> bool {
-    if read_str_try(elem + 0x420).is_some() { return true; } // 0.5.0_3 정위치
+    if read_str_try(elem + 0x410).is_some() { return true; } // 0.5.4 champ String ptr 정위치
     let mut o = 0x388usize; // 폴백(구버전/레이아웃 변형 대비)
     while o <= 0x3b0 { if read_str_try(elem + o).is_some() { return true; } o += 8; }
     false
@@ -3856,7 +3860,7 @@ unsafe fn athlete_lineup_at(p: usize) -> Option<(u64, u64)> {
     let cid = champ_id_of(&name)? as u64;
     Some((team, cid))
 }
-// ★ athlete의 champion name 읽기(+0x420 ptr / +0x428 len, 0.5.0_3 확정). SEL/PT 매칭용.
+// ★ athlete의 champion name 읽기(**0.5.4: +0x410 ptr / +0x418 len**, ~~0.5.3까지 +0x420/+0x428~~). SEL/PT 매칭용.
 unsafe fn ath_champ_name(p: usize) -> Option<String> {
     if p < 0x10000 { return None; }
     let nptr = safe_read_u64(p + 0x410)? as usize;
