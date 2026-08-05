@@ -144,7 +144,10 @@ fn ensure_rt_scan() {
 //   정답 도출 = 앵커맵 콜러-대응 양방향 투표: 0.5.2 애님게터 0x5ab7d0 → 0.5.3 0x888fd0
 //   (정방향 43표/45·역방향 순도 100%(43/43)·콜러 77→73). 같은 절차로 알려진 정답 LOADER
 //   0x5ac950→0x2e1550 이 193/194 로 재현돼 방법이 검증됨. banpick_illust RVA_ANIM_GET 과 동일 함수.
-const ANIM_GET_RVA: usize = 0x888fd0;    // FUN(Assets, key_ptr, key_len) -> #anim map ptr
+// 0.5.4(2026-08-05 재핀): ~~0.5.3 0x888fd0~~ → **0x74c010**. 근거 ①clone family(33원) 콜러수 지문
+//   73→73 + 블록내 index 보존 ②'.../champions/priest#anim' 등 #anim 전체리터럴 lea→직후 call 2/2 수렴
+//   (같은 절차가 0.5.3 에서 0x888fd0 을 재현 = 방법 검증됨).
+const ANIM_GET_RVA: usize = 0x74c010;    // FUN(Assets, key_ptr, key_len) -> #anim map ptr
 const RT_UV_ENABLED: bool = true;        // 크래시 시 false 로 끔
 static ASSETS_PTR: AtomicUsize = AtomicUsize::new(0);
 // id → Option<(u0,v0,너비uv,높이uv, 프레임픽셀너비, 프레임픽셀높이)>. 얼굴=정사각크롭 재계산, 전신=종횡비 세팅.
@@ -365,7 +368,10 @@ unsafe fn set_face_image(node: &mut Node, row_i: usize, champ_id: &str) -> bool 
 //   ⟹ 0.5.2 에서 이 훅은 애초에 안 걸려 있었다(= "밴픽 asset-get copy 재확인" 잔여의 실체).
 //   정답 = 문자열-xref 확정: 'asset/base/ui/layout/{main,strategy,training,banpick}' lea 직후 call 이
 //   0x2e1550 로 만장일치(main×17·banpick×19). 0.5.2 에 같은 절차 → 알려진 정답 0x5ac950 재현.
-const LOADER_RVA: usize = 0x2e1550; // 에셋 게터 FUN(am, path, len) -> NodeTemplate*
+// 0.5.4(2026-08-05 재핀): ~~0.5.3 0x2e1550~~ → **0x2e35d0**. 근거 ①'asset/base/ui/layout/{main,banpick,
+//   strategy,training}' lea→직후 call 이 17/19/2/12 로 0.5.3 과 **완전히 같은 표수**로 수렴
+//   (특히 주입 대상 'asset/base/ui/layout/banpick/layout' 단일 리터럴 → 1/1) ②콜러수 511→511.
+const LOADER_RVA: usize = 0x2e35d0; // 에셋 게터 FUN(am, path, len) -> NodeTemplate*
 // ~~★밴픽 화면 전용 asset-get copy #2 (0.5.1 모노모픽 분화)~~
 // ⛔0.5.3(2026-07-29): **copy #2 는 없다 — 0 = 미사용**. 실측으로 밴픽 레이아웃 문자열
 //   "asset/base/ui/layout/banpick..." 의 lea 직후 call 이 copy #1 과 **같은 0x2e1550 으로 ×19 수렴**
@@ -376,11 +382,15 @@ const BANPICK_LOADER_RVA: usize = 0;
 // 0.5.3(2026-07-29 실측): ~~0.5.1 0x24b4590~~ → **0x1a6530**. 구값은 0.5.2 시점에 이미 stale
 //   (0.5.2 정답은 0x24b5a00 이었고 이 파일만 갱신 누락). 3인자 계약·노드 stride 0x90 유지.
 //   = comptest_unlock / ai_adjust 세션 실측 확정값과 동일 함수.
-const PARSER_RVA: usize = 0x1a6530; // .ui 텍스트 → NodeTemplate
+// 0.5.4(2026-08-05): ~~0.5.3 0x1a6530~~ → **0x1a3ce0**. 마스크 전체본문(2192B, 고정 1789B) 유일매치
+//   + 콜러수 5→5. 본문이 바이트동일 ⟹ 3인자 계약·노드 stride 0x90 그대로.
+const PARSER_RVA: usize = 0x1a3ce0; // .ui 텍스트 → NodeTemplate
 // 0.5.3(2026-07-29): 범용 __rust_alloc(size, align) 이 **align별 심 + impl 로 분해**됐다.
 //   전 모드 정본 = impl 직접호출 0x28f7df0 · **3인자** (rcx=무시, rdx=flags(0), r8=size) -> rax,
 //   실패 시 0 반환. ⛔align8 심(0xbb2bd0)은 OOM 시 abort 라 미채택. ⚠2인자로 두면 랜덤 크래시.
-const ALLOC_RVA: usize = 0x28f7df0;  // 게임 alloc impl(_, flags, size) -> ptr
+// 0.5.4(2026-08-05): ~~0.5.3 0x28f7df0~~ → **0x29bb920**. 마스크 전체본문(60B) 유일매치 + 콜러수
+//   32890→33708(전역 alloc impl). 본문 바이트동일 ⟹ 3인자 계약(rcx무시/rdx=flags/r8=size) 유지.
+const ALLOC_RVA: usize = 0x29bb920;  // 게임 alloc impl(_, flags, size) -> ptr
 const NT_SIZE: usize = 0x90;
 // 밴픽 화면 팝업 조각(컴파일타임 임베드). 접미사 매칭으로 banpick_view_plus 리매핑도 대응.
 const POPUP_UI: &str = include_str!("../ui_inject/draft_popup.ui");
@@ -643,8 +653,8 @@ unsafe fn find_tmpl(node: usize, target: &[u8], depth: usize) -> usize {
 
 // 체이닝 install: 진입부 현재 12B(원본 프롤로그 or 다른모드 jmp패치) 저장 → 앞에 끼움. 멱등.
 // 두 asset-get copy 를 모두 후킹(0.5.1 모노모픽 분화 대응).
-//   copy #1 = LOADER_RVA(0x40f3d0)  : main/player_info/wide 계열
-//   copy #2 = BANPICK_LOADER_RVA(0xeb17d0) : ★밴픽 화면(= 우리 주입 대상) + strategy 공용
+//   copy #1 = LOADER_RVA  : main/player_info/wide/banpick/strategy/training 전부 (0.5.3~0.5.4 단일 copy)
+//   copy #2 = BANPICK_LOADER_RVA = 0 (폐지 — 0.5.3부터 없음, 0.5.4 재확인: banpick 문자열 19표 전부 copy#1)
 // ★★1회만 설치(INSTALLED 게이트) — 절대 매프레임 재설치로 바꾸지 말 것.
 //   [2026-07-18 먹통 사고] 재체인을 매프레임으로 돌렸다가 게임 hang 제보. 원인 = 상호 체인 사이클:
 //     ①draft 설치(entry=draft_stub) → ②item_tactics 가 1회 설치하며 draft_stub 12B 를 자기 tramp 에 담음
