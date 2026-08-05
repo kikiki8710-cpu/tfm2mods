@@ -1,7 +1,7 @@
 # tfm2_item_tree_probe 전용 빌드 — build_inj.ps1 과 동일하되 game_core/serde_json extern 추가.
 param([string]$Src = "C:\tfm2mods\tfm2_dashboard_probe\src\lib.rs")
 $ModId = "TFM2_Meta_Dashboard"
-$SDK  = "C:\tfm2mods\sdk_053\mod-sdk"   # ★0.5.3 SDK (게임 크레이트 rlib 236개 전원 DIFF → RVA 0 모드도 재빌드 필수)
+$SDK  = "C:\tfm2mods\sdk_054\mod-sdk"   # ★0.5.3 SDK (게임 크레이트 rlib 236개 전원 DIFF → RVA 0 모드도 재빌드 필수)
 $DEPS = "$SDK\deps"; $NAT = "$SDK\native"
 $MODAPI = (Get-ChildItem "$DEPS\libmod_api-*.rlib")[0].FullName
 $EUI    = (Get-ChildItem "$DEPS\libengine_ui-*.rlib")[0].FullName

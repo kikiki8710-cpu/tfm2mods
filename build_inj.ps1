@@ -30,7 +30,11 @@ param(
 #    toolchain은 nightly-2026-05-24로 051과 동일.)
 #   (0.5.3 전환 2026-07-29: sdk_053. 게임 rlib 236개 전원 내용 DIFF(전면 재컴파일) + libgame_ai 크레이트 신설
 #    ⟹ RVA 0 모드 포함 **전 모드 재빌드 필수**. toolchain은 nightly-2026-05-24로 051/052와 동일.)
-$SDK  = "C:\tfm2mods\sdk_053\mod-sdk"
+#   (0.5.4 전환 2026-08-05: sdk_054. rlib 파일 수 154개로 053과 동일하고 파일명(StableCrateId)도 동일하나
+#    mod_api/game_core/game_view/game_ai/engine_ui/engine_core 6종 전부 내용 해시 DIFF
+#    ⟹ "RVA 무영향 ≠ 재빌드 불요" 원칙대로 **RVA 0 모드 포함 전 모드 재빌드 필수**.
+#    toolchain은 nightly-2026-05-24로 051~053과 동일(rust-toolchain.toml 실측) = 재설치 불요.)
+$SDK  = "C:\tfm2mods\sdk_054\mod-sdk"
 $DEPS = "$SDK\deps"; $NAT = "$SDK\native"
 $MODAPI = (Get-ChildItem "$DEPS\libmod_api-*.rlib")[0].FullName
 $EUI    = (Get-ChildItem "$DEPS\libengine_ui-*.rlib")[0].FullName
