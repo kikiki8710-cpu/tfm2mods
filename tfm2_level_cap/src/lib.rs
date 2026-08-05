@@ -2,18 +2,20 @@
 // =====================================================================================
 // 배경 (RE 2026-07-23 @0.5.2 buildid 24310934 / 재핀 2026-07-31 @0.5.3 buildid 24451609):
 //   인게임 최대 레벨 = `need_exp.len() + 1`. exe에 하드코딩 상한 상수는 **없다**.
-//   레벨업 함수 0.5.3 `0x12c56d0`(구 0.5.2 `0x22d3c60`) 내부:
-//     0x12c5b3c  mov r14,[r12+0x880]   ; level (u64, 초기 1)   [0.5.2: rdi,[r13+0x880]]
-//     0x12c5b44  mov rdx,[rax+0xd10]   ; need_exp.len   ← ★여기를 후킹
-//     0x12c5b4b  cmp r14,rdx
-//     0x12c5b4e  ja  ...               ; level > len → 조용히 return (패닉 아님)
-//     0x12c5b58  cmp rcx,rdx / jae ... ; Rust bounds panic (위 ja 때문에 도달불가=가드)
-//     0x12c5b61  mov rdx,[rax+0xd08]   ; need_exp.ptr
-//     0x12c5b70  sub rcx,[rdx+r14*8-8] ; exp -= need_exp[level-1]
+//   레벨업 함수 0.5.4 `0x14ec9e0`(0.5.3 `0x12c56d0` / 0.5.2 `0x22d3c60`) 내부:
+//     0x14ece4c  mov r14,[r12+0x870]   ; level (u64, 초기 1)   [0.5.3: +0x880 / 0.5.2: rdi,[r13+0x880]]
+//     0x14ece54  mov rdx,[rax+0xd10]   ; need_exp.len   ← ★여기를 후킹
+//     0x14ece5b  cmp r14,rdx
+//     0x14ece5e  ja  ...               ; level > len → 조용히 return (패닉 아님)
+//     0x14ece68  cmp rcx,rdx / jae ... ; Rust bounds panic (위 ja 때문에 도달불가=가드)
+//     0x14ece71  mov rdx,[rax+0xd08]   ; need_exp.ptr
+//     0x14ece80  sub rcx,[rdx+r14*8-8] ; exp -= need_exp[level-1]
 //   ★0.5.3 변화 = **GameSetting 베이스 레지스터 r14 → rax**(level 홀더도 r13 → r12).
 //     ⟹ 레벨업 스텁은 rax를 파괴하면 안 된다(구 스텁은 rax를 스크래치로 썼음 = 그대로 쓰면 즉사).
 //     UI 스텁은 0.5.2와 동일하게 rax 베이스라 무수정.
-//   GameSetting: +0xd00=cap / +0xd08=ptr / +0xd10=len (0.5.2 = 0.5.3 **불변 실측**)
+//   0.5.4 변화 = **레지스터 할당 무변화**(rax/r14/r12/rcx 그대로, 명령 바이트도 동일).
+//     바뀐 것은 챔프 구조체 필드 오프셋뿐 = level +0x880→+0x870 / exp +0x870→+0x860 (스텁 무관).
+//   GameSetting: +0xd00=cap / +0xd08=ptr / +0xd10=len (0.5.2 = 0.5.3 = 0.5.4 **불변 실측**)
 //
 // ⛔ 하면 안 되는 것: `ja @0x22d3ff4`를 NOP으로 뭉개는 바이트패치. 가드가 사라지면 바로 뒤
 //   `jae @0x22d4001` bounds panic이 실제 발화 → ud2 하드크래시. len만 늘리는 것도 동일(ptr이
@@ -78,7 +80,9 @@ const MAX_LEVEL_LIMIT: u64 = 500;   // sanity 상한 (스탯은 레벨당 선형
 static mut TABLE_PTR: u64 = 0;
 static mut TABLE_LEN: u64 = 0;
 
-// ── 후킹 지점 (0.5.3 buildid 24451609, 재핀 2026-07-31) ──
+// ── 후킹 지점 (0.5.4, 재핀 2026-08-05 / 직전 0.5.3 buildid 24451609) ──
+// ★0.5.4 재핀도 아래 ①②를 그대로 돌려 **양 버전 각 1건**만 나왔다(0.5.3 재현 = 방법 검증).
+//   GameSetting +0xd00/+0xd08/+0xd10 = 0.5.4 에서도 그대로 실측 확인.
 // ★GameSetting은 시뮬마다 복제된다(로그 실측: patched 카운터가 계속 증가). 따라서 "한 번 고치고 끝"이
 //   아니라, need_exp를 읽는 **각 경로에서 매번** 원본(len=11) 인스턴스를 잡아 교체해야 한다.
 //   need_exp를 인덱싱하는 지점은 .text 전체에 2곳뿐이고(전수 스캔 확인), 둘 다 여기서 처리한다.
@@ -87,14 +91,19 @@ static mut TABLE_LEN: u64 = 0;
 //      → 0.5.2 1건(=기지 정답 0x22d3fea) / 0.5.3 1건(0x12c5b44).
 //   ② `cmp r,[reg+0xd10]` → 양 버전 .text 전체에 각 1건뿐(0x80ae73 / 0x95a359).
 //   교차검증 = 둘 다 _MIGRATE_053.md의 컨테이너 후보 body 범위 내(0x12c56d0-0x12c5e69 / 0x952170-0x95b682).
-const RVA_LEN_LOAD: usize = 0x12c5b44;   // 레벨업 함수 0x12c56d0 내 (구 0.5.2 0x22d3fea)
+// 0.5.4(2026-08-05 재핀): ~~0.5.3 0x12c5b44~~ → **0x14ece54**(컨테이너 0x14ec9e0-0x14ed17a, 크기 0x79a
+//   ·함수내 오프셋 0x474 모두 0.5.3 과 동일). ★레지스터 무변화 = rax=GameSetting / r14=level / r12=챔프.
+//   (챔프 구조체만 level +0x880→+0x870 · exp +0x870→+0x860 로 이동 — 스텁은 안 건드림)
+const RVA_LEN_LOAD: usize = 0x14ece54;   // 레벨업 함수 0x14ec9e0 내 (구 0.5.3 0x12c5b44 / 0.5.2 0x22d3fea)
 const ORIG_LEN_LOAD: [u8; 7] = [0x48, 0x8b, 0x90, 0x10, 0x0d, 0x00, 0x00]; // mov rdx,[rax+0xd10]
 
 // UI 경험치 바 경로. 여기를 놓치면 레벨은 오르는데 경험치 막대가 깨진다(레벨 13+에서
 //   원본 11칸 테이블을 보고 len 가드에 걸림). 뒤따르는 `mov rax,[rax+0xd08]`가 같은
 //   인스턴스에서 ptr을 읽으므로, 앞선 이 지점에서 교체하면 인덱싱도 함께 따라온다.
 // 0.5.3에서 **명령 바이트·주변 코드 모두 0.5.2와 동일**(rax=GameSetting, rcx=index 유지) = 스텁 무수정.
-const RVA_UI_CMP: usize = 0x95a359;      // UI 함수 0x952170 내 (구 0.5.2 0x80ae73)
+// 0.5.4(2026-08-05 재핀): ~~0.5.3 0x95a359~~ → **0xa99c29**. 사이트 전후 0x50B 바이트 완전동일,
+//   rax=GameSetting·rcx=index 유지, 뒤따르는 `mov rax,[rax+0xd08]` 까지 거리 0x912 도 동일.
+const RVA_UI_CMP: usize = 0xa99c29;      // UI 함수 0xa91a30 내 (구 0.5.3 0x95a359 / 0.5.2 0x80ae73)
 const ORIG_UI_CMP: [u8; 7] = [0x48, 0x3b, 0x88, 0x10, 0x0d, 0x00, 0x00];   // cmp rcx,[rax+0xd10]
 
 // GameSetting 오프셋
@@ -421,7 +430,7 @@ fn init(_ctx: &GameCtx) -> ModRegistration {
         TABLE_LEN = leaked.len() as u64;
     }
 
-    log(&format!("\n[{}ms] === {} INIT (0.5.3 buildid 24451609) ===\n", now_ms(), MOD_ID));
+    log(&format!("\n[{}ms] === {} INIT (0.5.4) ===\n", now_ms(), MOD_ID));
     log(&format!("[cfg] {}\n", note));
     log(&format!("[cfg] 최대 레벨 {} / need_exp({}개, 앞 {}개는 바닐라) = {:?}\n",
                  max_level, leaked.len(), VANILLA.len().min(leaked.len()), leaked));
