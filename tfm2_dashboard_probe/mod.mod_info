@@ -1,9 +1,9 @@
 {
-  "author": "KMK",
+  "author": "tfm2mods",
   "dependencies": [
     {
       "mod_id": "base",
-      "version": ">=0.5.2, <0.6.0"
+      "version": ">=0.5.4, <0.5.5"
     }
   ],
   "description": "Local dashboard for Teamfight Manager 2 save and replay meta analysis. Run TFM2MetaDashboard.exe from this folder. The bundled DLL only records the in-game item upgrade tree into the save's mod data so the dashboard can tell components apart from completed items; it never changes teams, athletes or match simulation.",
