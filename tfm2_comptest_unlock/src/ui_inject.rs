@@ -33,11 +33,11 @@ use std::sync::atomic::{AtomicBool, AtomicUsize, Ordering};
 //   ('asset/base/ui/layout/{main,strategy,training,banpick}' lea 직후 call 이 만장일치로 수렴).
 //   ⛔자동매칭 표의 "확정 0x91ab0" 은 **오답**(clone family 형제 혼동) — 0.5.3 은 진입 24B 가 449개
 //   함수와 동일해 바이트로 형제를 못 가른다. 결정적 지문 = 콜러 수(0.5.2 507 ↔ 0.5.3 511 vs 오답 2).
-const LOADER_RVA: usize = 0x2e1550;        // 0.5.3 단일 asset-get copy(0.5.2=0x5ac950)
-const PARSER_RVA: usize = 0x1a6530;        // 0.5.3(0.5.2=0x24b5a00) 실측 확정·3인자 계약·노드 stride 0x90 유지
+const LOADER_RVA: usize = 0x2e35d0;        // ★0.5.4(구0.5.3=0x2e1550) 문자열-xref 31표 만장일치·콜사이트 511=511
+const PARSER_RVA: usize = 0x1a3ce0;        // ★0.5.4(구0.5.3=0x1a6530) 내부시그 59/59표·크기 2192B 동일·콜사이트 5=5 // 0.5.3(0.5.2=0x24b5a00) 실측 확정·3인자 계약·노드 stride 0x90 유지
 // 0.5.3: __rust_alloc 이 align별 심 + impl 로 분해 ⟹ impl 직접호출 **3인자**가 전 모드 정본.
 //   (rcx 무시, rdx=flags(0), r8=size) -> rax, 실패 시 0. ⛔align8 심은 OOM 시 abort 라 미채택.
-const ALLOC_RVA: usize = 0x28f7df0;        // 0.5.3(0.5.2=0x25c4d30) HeapAlloc 래퍼 = exe 내 유일
+const ALLOC_RVA: usize = 0x29bb920;        // ★0.5.4(구0.5.3=0x28f7df0) 내부시그 14/14표·60B 동일·GetProcessHeap IAT 확인 // 0.5.3(0.5.2=0x25c4d30) HeapAlloc 래퍼 = exe 내 유일
 const NT_SIZE: usize = 0x90;               // NodeTemplate 크기 — 0.5.2 struct 오프셋 불변(CASE-불변)이라 유지
 
 const PATH_TRAIN: &[u8] = b"asset/base/ui/layout/training";

@@ -45,7 +45,10 @@ use std::time::{SystemTime, UNIX_EPOCH, Duration};
 
 const MOD_ID: &str = "tfm2_comptest_unlock";
 
-// ── 패치 테이블(**0.5.3**, image_base 0x140000000) ──
+// ── 패치 테이블(**0.5.4**, image_base 0x140000000) ──
+// ★0.5.4 재핀(2026-08-05): 마스크 시그(rip-rel/분기 rel 와일드카드) 전역 유일 + 컨테이너 대응 투표 2방법 교차.
+//   ⚠orig 바이트가 바뀐 사이트 6건: server_dedup_real(d4→d3)·roster_count_gate(5e→4d)·collected_gate(10→17)
+//   ·collect_err_gate(50→57)·run_push_gate(15→12)·★server_roster_min(명령 자체가 lea 4B→add/mov 3+3B 로 교체).
 // ★0.5.3 재핀(2026-07-30): 컨테이너(앵커맵 25,862쌍) → 컨테이너 안에서 **명령 형태 + 문맥 ±5 유사도**로
 //   사이트 재도출. ⚠오프셋 이식 금지(0.5.3 함수는 2~10% 커짐) · ⚠orig 바이트도 바뀐다
 //   (점프 거리·레지스터 할당 변경) ⟹ orig/fixed 를 실측 바이트로 **재생성**했다.
@@ -61,7 +64,7 @@ const PATCHES: &[Patch] = &[
     //   sub rax,5 @0xf3411a(imm8 +3)·+0x710 stamina 되쓰기 유일확정·orig 05 실측MATCH.
     // 0.5.2: ~~0.5.1 0xf3411d~~ → 0xe93b2d. 컨테이너(서버핸들러) 0xf1d2c0→0xe7ccd0(cos=1.0000·align=0.9994·
     //   28056→28038 instr·big-fn 유일후보) 후 명령어 difflib 정렬 instr#17396→#17396, `sub rax,5` 동일·orig 05 실측 MATCH.
-    Patch { name: "no_stamina_cost", rva: 0x17f6f44,   // 0.5.3(구0.5.2=0xe93b2d) `sub rax,5` imm·문맥 8/11
+    Patch { name: "no_stamina_cost", rva: 0x20ecf0c,   // ★0.5.4(구0.5.3=0x17f6f44 / 0.5.2=0xe93b2d) `sub rax,5` imm·문맥 8/11
             orig: &[0x05], fixed: &[0x00] },
     // (2a) 일일 무제한 [서버+클라 공유]: 잔여계산 함수(remaining=max(0,5-count))를 통째
     //     `mov eax,5; ret`로 대체 → 항상 5회 남음. 클라 UI게이트 + 서버 재검사#1 동시통과.
@@ -81,19 +84,19 @@ const PATCHES: &[Patch] = &[
     //   레코드 write(reset/increment) 경로는 0x9d67a3/0x9d6c9b/0x9d6cb4 별도 주소 = 카운터 기록 무영향.
     //   서버 권위 게이트는 daily_inc_gate(아래)가 담당 — 0x17f239c 실측 재검증 PASS(cmp rax,4·+0x1d0/+0x1dc 문맥).
     // 사이트 A: 클러스터 0x18d9411~(추정: comp_test 팝업/툴팁), cmove @0x18d9436.
-    Patch { name: "dr_inline_a", rva: 0x18d9436,   // 0.5.3 신규(구 daily_remaining 0x1f14090 인라인 분산)
+    Patch { name: "dr_inline_a", rva: 0x2306164,   // ★0.5.4 재핀(구0.5.3=0x18d9436)   // 0.5.3 신규(구 daily_remaining 0x1f14090 인라인 분산)
             orig: &[0x4c, 0x0f, 0x44, 0xe2],       // cmove r12,rdx
             fixed: &[0x0f, 0x1f, 0x40, 0x00] },    // 4B nop → used=0(xor r12d 선행)
     // 사이트 B: ★진짜 클라 게이트(2차 스윕 디컴 확정) — `if(4<count && rec_id==outer_id) ok=0` 후
     //   `[node+0x261]=!ok`(run 버튼)·`[open_tactics+0x261]`에 같은 r13b 공유 → 한 방에 둘 다 해제.
-    Patch { name: "dr_inline_b", rva: 0x18e3fd6,
+    Patch { name: "dr_inline_b", rva: 0x2310c86,   // ★0.5.4 재핀(구0.5.3=0x18e3fd6)
             orig: &[0x41, 0x20, 0xc5],             // and r13b,al (exhausted 플래그 합성)
             fixed: &[0x45, 0x30, 0xed] },          // xor r13b,r13b → exhausted=0, 직후 je 항상 taken
     // ~~사이트 C: RUN 핸들러 0x18f18c7 cmove~~ → ★제거(2026-07-30 2차 스윕): 게이트가 아니라
     //   클라가 요청 페이로드에 넣는 **시드 성분**(seed = (used|X<<32) ^ epoch_ms)이었음.
     //   서버는 자기 레코드로 판정하므로 무의미 + 시드 변화 부작용 회피 위해 원본 유지.
     // 사이트 D: 버튼 빌더A 컨테이너 0x19866f0(앵커) 내부, cmove @0x1987a3d — 버튼 회색화의 실체.
-    Patch { name: "dr_inline_d", rva: 0x1987a3d,
+    Patch { name: "dr_inline_d", rva: 0x23ce6bc,   // ★0.5.4 재핀(구0.5.3=0x1987a3d)
             orig: &[0x4c, 0x0f, 0x44, 0xf8],       // cmove r15,rax
             fixed: &[0x0f, 0x1f, 0x40, 0x00] },
     // (2b) 일일 무제한 [서버 증가게이트]: `cmp rax,4`(count) 의 imm8을 4→127 → 카운터가 5 이상이어도
@@ -107,7 +110,7 @@ const PATCHES: &[Patch] = &[
     //   cmp rax,imm8은 sign-extend라 ff=-1=unsigned max ⟹ jbe(unsigned) 항상 taken = 진짜 무제한.
     //   사이트 검증(2차): 명령 시작 0x17f2399 `48 83 f8 04`, imm8=+3=0x17f239c·전역 시퀀스 1히트(클론 없음)·
     //   no_stamina_cost와 같은 pdata 함수 0x17e0240..0x180924f = 라이브 확정.
-    Patch { name: "daily_inc_gate", rva: 0x17f239c,   // 0.5.3(구0.5.2=0xe8cb20) `cmp rax,4` imm·문맥 10/11
+    Patch { name: "daily_inc_gate", rva: 0x20e8246,   // ★0.5.4(구0.5.3=0x17f239c / 0.5.2=0xe8cb20) `cmp rax,4` imm·문맥 10/11
             orig: &[0x04], fixed: &[0xff] },
     // ★★(2b-2) 서버 **사전거부 게이트** [game_core] — 0.5.3 일일제한 잔존의 진범(2026-07-30 2차 스윕).
     //   서버 핸들러엔 daily 게이트가 **2개**: ①위 inc_gate(카운터 증가 지점) ②이 pre-gate(수락 판정).
@@ -117,7 +120,7 @@ const PATCHES: &[Patch] = &[
     //   = 유저가 본 "오늘은 더 이상…" 안내문구의 실체. code 1 생산지는 exe 전체 이 2곳뿐(둘 다 daily 직후).
     //   전체 명령 실측: `48 83 b8 d0 01 00 00 04 | 0f 86 05 2d 00 00`(전역 1히트·클론 없음).
     //   imm8 ff(-1, sign-extend) → jbe 항상 taken = 무제한. inc_gate와 같은 라이브 함수 내.
-    Patch { name: "server_pregate", rva: 0x17ef5f6,   // 0.5.3 신규 — `cmp qword [rax+0x1d0],4` imm8
+    Patch { name: "server_pregate", rva: 0x20e5471,   // ★0.5.4 재핀(구0.5.3=0x17ef5f6)   // 0.5.3 신규 — `cmp qword [rax+0x1d0],4` imm8
             orig: &[0x04], fixed: &[0xff] },
     // (3) 선수 중복 허용 [클라]: setup 게이트 내 athlete_id HashSet dedup(len!=count) →
     //     duplicate_players 거부 jne를 NOP. 서버는 중복 무검증(6차). 이게 되면 로스터"10명 이상"
@@ -141,12 +144,12 @@ const PATCHES: &[Patch] = &[
     //   (`mov [rbp-0x60],r15; cmp qword[rbp+0x50],0; je ...` — 스택슬롯 -0x58→-0x60 프레임 시프트만).
     //   ⇒ 0.5.1에서 인게임 검증(07-20)된 그 게이트가 맞음. fixed(6B nop)는 무변경.
     // 0.5.3(2026-07-30): 컨테이너 0xec71b0→0x1830900, 문맥점수 11/11 만점. ⚠점프 거리 cd→d4 변경.
-    Patch { name: "server_dedup_real", rva: 0x1830df0,   // 0.5.3(구0.5.2=0xec7758)
-            orig: &[0x0f, 0x85, 0xd4, 0x00, 0x00, 0x00],
+    Patch { name: "server_dedup_real", rva: 0x2126f73,   // ★0.5.4(구0.5.3=0x1830df0 / 0.5.2=0xec7758)
+            orig: &[0x0f, 0x85, 0xd3, 0x00, 0x00, 0x00],
             fixed: &[0x66, 0x0f, 0x1f, 0x44, 0x00, 0x00] },
     // 0.5.2: ~~0.5.1 0x1615495~~ → 0xd00ee5. 컨테이너 0x1615030→0xd00a80 = **L1-UNIQUE(스켈레톤 바이트동일
     //   ·357→357 instr·align=1.0000)** ⇒ 함수 내부 오프셋 전부 보존, instr#291→#291·orig 75 76 실측 MATCH.
-    Patch { name: "allow_dup_players", rva: 0x18e4481,   // 0.5.3(구0.5.2=0xd00ee5) ⚠점프 거리 76→47
+    Patch { name: "allow_dup_players", rva: 0x2311131,   // ★0.5.4(구0.5.3=0x18e4481 / 0.5.2=0xd00ee5) ⚠점프 거리 76→47
             orig: &[0x75, 0x47], fixed: &[0x90, 0x90] },
     // (5) ★서버 dedup [game_core] — 선수중복 최종 열쇠: 서버 comp_test 핸들러(0x13d4af0) 로스터
     //     빌드 루프의 참가자 유일-필터. 0x13e376b `HashSet.insert(id)` → 0x13e3773 `jne`(75 10)가
@@ -162,7 +165,7 @@ const PATCHES: &[Patch] = &[
     //   진짜 등록 dedup = 위 server_dedup_real 0xf67b91 (패치 완료·인게임 검증). 이 주소는 기록용으로만 유지.
     // 0.5.2: ~~0.5.1 0xf2bbea~~ → 0xe8b5fa(서버핸들러 컨테이너 정렬 instr#11112→#11112·orig 75 10 MATCH).
     //   ★기록용 no-op(orig==fixed)이라 동작 무관하지만, 주소를 맞춰 둬야 "이 사이트는 여기"라는 기록이 유효.
-    Patch { name: "server_dedup", rva: 0x17ee49c,   // 0.5.3(구0.5.2=0xe8b5fa) 문맥 11/11·no-op 유지
+    Patch { name: "server_dedup", rva: 0x20e42d1,   // ★0.5.4(구0.5.3=0x17ee49c / 0.5.2=0xe8b5fa) 문맥 11/11·no-op 유지
             orig: &[0x75, 0x10], fixed: &[0x75, 0x10] },
     // ★(10) 훈련탭 "조합 테스트 5v5" 버튼 활성 조건 = 로스터 보유인원 ≥10 → **≥5로 완화** (2026-07-20).
     //   disabled = (로스터수 < 10) OR (일일잔여 == 0). 로스터수 = FUN_1415fc8e0 반환 Vec<u64>.len
@@ -182,7 +185,7 @@ const PATCHES: &[Patch] = &[
     //   warn `cmp rbx,0xa`→`cmp rdi,0xa`. 후속 명령열(mov eax,1 / mov eax,0x38; mov ecx,0x32; cmovb)로
     //   동일 사이트임을 확인(컨테이너 0xd95450→0x19866f0 안에서 유일).
     //   ⛔주의: imm 을 정규화한 자동매칭은 `cmp r12,0x30` 을 오답으로 집었다 — imm 0xa 고정이 필수.
-    Patch { name: "btn5v5_roster_min_a", rva: 0x1987e64,     // 0.5.3(구0.5.2=0xd967cf) cmp rbx,0xa → 5
+    Patch { name: "btn5v5_roster_min_a", rva: 0x23ceae4,     // ★0.5.4(구0.5.3=0x1987e64 / 0.5.2=0xd967cf) cmp rbx,0xa → 5
             orig:  &[0x48, 0x83, 0xfb, 0x0a, 0x0f, 0xb6, 0xf9, 0xb8],
             fixed: &[0x48, 0x83, 0xfb, 0x05, 0x0f, 0xb6, 0xf9, 0xb8] },
     // ⛔0.5.3 미해결: `cmp r13,0xa; setb r13b` 사이트가 0.5.3 에 없다(레지스터·형태 모두 변경 추정).
@@ -191,7 +194,7 @@ const PATCHES: &[Patch] = &[
     Patch { name: "btn5v5_roster_min_b", rva: 0,             // ⬜0.5.3 미해결(구0.5.2=0xcf7b68)
             orig:  &[0x49, 0x83, 0xfd, 0x0a, 0x41, 0x0f, 0x92, 0xc5],
             fixed: &[0x49, 0x83, 0xfd, 0x05, 0x41, 0x0f, 0x92, 0xc5] },
-    Patch { name: "btn5v5_warn_text",    rva: 0x1987a7d,     // 0.5.3(구0.5.2=0xd9662c) cmp rdi,0xa → 5
+    Patch { name: "btn5v5_warn_text",    rva: 0x23ce6fc,     // ★0.5.4(구0.5.3=0x1987a7d / 0.5.2=0xd9662c) cmp rdi,0xa → 5
             orig:  &[0x48, 0x83, 0xff, 0x0a, 0xb8, 0x38, 0x00, 0x00],
             fixed: &[0x48, 0x83, 0xff, 0x05, 0xb8, 0x38, 0x00, 0x00] },
     // ★(11) ★★진짜 벽(2026-07-23 규명) = **서버측 로스터 인원 게이트** [game_core].
@@ -221,9 +224,9 @@ const PATCHES: &[Patch] = &[
     //   레지스터가 r15→rsi, reason 이 dil→bl 로 바뀌었다. 컨테이너 0xec71b0→0x1830900 안에서
     //   `lea r?,[r?+r?]` 직후 `cmp rdx,rax; jb` 인 사이트가 **유일**(0x1830d2e) ⟹ 확정.
     //   패치도 그에 맞춰 재작성: `lea rax,[rsi+rsi]`(4B) → `mov rax,rsi`(3B) + nop.
-    Patch { name: "server_roster_min", rva: 0x1830d2e,  // 0.5.3(구0.5.2=0xec768e) 필요치 2×N → 1×N
-            orig:  &[0x48, 0x8d, 0x04, 0x36],           // lea rax,[rsi+rsi]
-            fixed: &[0x48, 0x89, 0xf0, 0x90] },         // mov rax,rsi ; nop
+    Patch { name: "server_roster_min", rva: 0x2126ed0,  // ★0.5.4(구0.5.3=0x1830d2e / 0.5.2=0xec768e) 필요치 2×N → 1×N
+            orig:  &[0x48, 0x01, 0xdb],                 // 0.5.4 `add rbx,rbx` (0.5.3=`lea rax,[rsi+rsi]` 4B)
+            fixed: &[0x0f, 0x1f, 0x00] },               // nop3 → 직후 `mov rax,rbx` 가 rax=1×N 로 남김
     // (7) ★★진짜 벽 = "5v5 인원부족" 게이트 [클라]: run 핸들러 제출빌드 진입 직전 0x101c33c
     //     `jae 0x14101c48c`(slot_count>=required면 build). slot_count(+0x1bf0 리스트 len)<10이면
     //     fall-through→roster abort(문구는 디스패처훅으로 억제=조용한 실패). 이게 "5v5 하려면 10명"의 실체.
@@ -235,23 +238,23 @@ const PATCHES: &[Patch] = &[
     //   (jae→jmp 변환 rel32 재계산도 불필요: orig 변위가 그대로 0x14a라 fixed `e9 4b 01 00 00 90` 유효.)
     // 0.5.3(2026-07-30): RUN 컨테이너 0xd0a440→0x18f1180. ⚠jae 변위가 0x14a→0x15e 로 바뀌어
     //   fixed 의 jmp rel32 도 재계산했다: 타겟 0x18f160f - 명령끝 0x18f14b0 = 0x15f.
-    Patch { name: "roster_count_gate", rva: 0x18f14ab,   // 0.5.3(구0.5.2=0xd0a74c)
-            orig: &[0x0f, 0x83, 0x5e, 0x01, 0x00, 0x00],
-            fixed: &[0xe9, 0x5f, 0x01, 0x00, 0x00, 0x90] },
+    Patch { name: "roster_count_gate", rva: 0x231e155,   // ★0.5.4(구0.5.3=0x18f14ab / 0.5.2=0xd0a74c)
+            orig: &[0x0f, 0x83, 0x4d, 0x01, 0x00, 0x00],
+            fixed: &[0xe9, 0x4e, 0x01, 0x00, 0x00, 0x90] },
     // (8) collected != required 게이트 [클라]: 0x101c330 `jne →abort`. collect 반환 len != required면 abort.
     //     collect 무-dedup(중복10개 push)이면 ==여야 하나, 실측 막힘 → 이 게이트가 실제 abort일 가능성. NOP.
-    Patch { name: "collected_gate", rva: 0x18f149f,  // 0.5.3(구0.5.2=0xd0a740) 문맥 7/11·orig 75 10 불변
-            orig: &[0x75, 0x10], fixed: &[0x90, 0x90] },
+    Patch { name: "collected_gate", rva: 0x231e142,  // ★0.5.4(구0.5.3=0x18f149f / 0.5.2=0xd0a740) 문맥 7/11·orig 75 10 불변
+            orig: &[0x75, 0x17], fixed: &[0x90, 0x90] },
     // (9) ⚠collect==-1 게이트 [클라, 위험]: 0x101c318 `je →abort`. collect가 슬롯서 -1(미선택) 반환시 abort.
     //     NOP=무효슬롯도 진행→garbage build→서버 크래시 위험. 판정용: 크래시=drop커밋 -1 확정(근본).
-    Patch { name: "collect_err_gate", rva: 0x18f1484,  // 0.5.3(구0.5.2=0xd0a728) ⚠점프 거리 6a→50
-            orig: &[0x74, 0x50], fixed: &[0x90, 0x90] },
+    Patch { name: "collect_err_gate", rva: 0x231e127,  // ★0.5.4(구0.5.3=0x18f1484 / 0.5.2=0xd0a728) ⚠점프 거리 6a→50
+            orig: &[0x74, 0x57], fixed: &[0x90, 0x90] },
     // (6) run 핸들러 r15 게이트 [클라]: 0x101c9e1 `cmp r15,-1; je 0x14101c453` (r15=빌드산출물).
     //     — r15(빌드산출물 [rbp+0x1a50])==-1이면 메일박스 push 전 조용히 abort(서버 미전송).
     //     je NOP → r15==-1여도 push 강행(서버 전송). ⚠무효 빌드면 서버가 깨진 0x19c0 메시지 받아
     //     크래시 위험(세이브 백업됨). 실험: sim진입=성공 / 크래시=빌드 진짜무효.
-    Patch { name: "run_push_gate", rva: 0x18f1b95,  // 0.5.3(구0.5.2=0xd0adf1) ⚠변위 6cfaffff→15faffff
-            orig: &[0x0f, 0x84, 0x15, 0xfa, 0xff, 0xff],
+    Patch { name: "run_push_gate", rva: 0x231e838,  // ★0.5.4(구0.5.3=0x18f1b95 / 0.5.2=0xd0adf1) ⚠변위 6cfaffff→15faffff
+            orig: &[0x0f, 0x84, 0x12, 0xfa, 0xff, 0xff],
             fixed: &[0x90, 0x90, 0x90, 0x90, 0x90, 0x90] },
     // (4) 챔프 중복: 서버·클라 둘 다 존재성만 검사, 중복 reject 없음 = 이미 허용. 패치 없음(기록용).
     // 로스터 인원조건: 별도 패치 불필요(위 (3) dedup으로 자동해소, 서버 재검증 없음).
@@ -424,10 +427,10 @@ const INSERT_PROLOGUE: [u8; 14] = [0x41, 0x57, 0x41, 0x56, 0x56, 0x57, 0x53, 0x4
 //     — 0.5.1 RUN=0x161eab0은 이 범위 **밖**이라 in_client가 상시 false였다)~~ →
 //     0.5.2 **0xcf0000..0xda0000**(RUN 0xd0a440·COLLECT 0xd0bd80·SLOT 0xd1acf0·LOADING 0xd186f0·
 //     btn5v5 빌더 0xcf7970/0xd95450 전부 포함).
-const CT_REGION_LO: usize = 0x17e0240;       // 0.5.2(구0.5.1환산 0xf1d2c0, 컨테이너 매칭 HIGH)
-const CT_REGION_HI: usize = 0x180920f;       // 0.5.2(= LO + pdata 크기 0x25675)
-const CT_CLIENT_LO: usize = 0x18c0000;       // 0.5.2(~~0xf50000~~ = 0.5.1서 이미 무효였던 범위)
-const CT_CLIENT_HI: usize = 0x19a0000;       // 0.5.2(~~0xf80000~~)
+const CT_REGION_LO: usize = 0x20d5bf0;   // ★0.5.4(구0.5.3=0x17e0240) .pdata 함수 시작       // 0.5.2(구0.5.1환산 0xf1d2c0, 컨테이너 매칭 HIGH)
+const CT_REGION_HI: usize = 0x20ff156;   // ★0.5.4(구0.5.3=0x180920f) = .pdata 함수 끝       // 0.5.2(= LO + pdata 크기 0x25675)
+const CT_CLIENT_LO: usize = 0x2300000;   // ★0.5.4(구0.5.3=0x18c0000) 클라 사이트 0x2306164~0x23ceae4 포괄       // 0.5.2(~~0xf50000~~ = 0.5.1서 이미 무효였던 범위)
+const CT_CLIENT_HI: usize = 0x23e0000;   // ★0.5.4(구0.5.3=0x19a0000)       // 0.5.2(~~0xf80000~~)
 static INSERT_TRAMP: AtomicUsize = AtomicUsize::new(0);
 static INSERT_CALLER: AtomicUsize = AtomicUsize::new(0);   // shim이 [rsp](리턴주소) 저장
 static PROBE_LOGS: AtomicU64 = AtomicU64::new(0);          // region 로깅 횟수(상한)
@@ -586,7 +589,7 @@ unsafe fn install_enq_hook() -> Result<String, String> {
 // ── (8) [진단] run/서버 핸들러 진입 훅 — 제출이 서버까지 가는지 판정 ────────────────
 // run 핸들러(제출) 0x101c030, 서버 핸들러(comp_test arm) 0x13d4af0. 둘 다 push8개 12B 프롤로그.
 //   START시 서버 핸들러 발화 O = 제출 서버도달(서버 arm abort 범인) / X = 클라 멈춤(클라 게이트 범인).
-const RUN_RVA: usize = 0x18f1180; // 0.5.2(구0.5.1=0x161eab0, **L1-UNIQUE 스켈레톤 바이트동일**·628 instr·PROL-OK push8 12B)
+const RUN_RVA: usize = 0x231de30;   // ★0.5.4(구0.5.3=0x18f1180) HOOK_PROLOGUE12 실측 MATCH // 0.5.2(구0.5.1=0x161eab0, **L1-UNIQUE 스켈레톤 바이트동일**·628 instr·PROL-OK push8 12B)
 // ⛔SRV_RVA = **죽은 상수**(0.5.0_3부터 STALE). 어차피 `let _ = (SRV_RVA,...)`로 훅 비활성(크래시 방지).
 //   0.5.1·0.5.2 모두 이 주소는 함수시작 아님 = inert. 참고: 0.5.2 서버핸들러 실주소는 CT_REGION_LO(0xe7ccd0).
 const SRV_RVA: usize = 0x13d4af0; // ⬜미확정(죽은 상수·훅 비활성·0.5.1값 유지)
