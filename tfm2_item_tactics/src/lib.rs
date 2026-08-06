@@ -2333,6 +2333,33 @@ static MY_ATHLETES: AtomicPtr<std::collections::HashSet<u64>> = AtomicPtr::new(c
 static MY_ATH_PREV: AtomicPtr<std::collections::HashSet<u64>> = AtomicPtr::new(core::ptr::null_mut());
 static MY_ATH_N: AtomicU64 = AtomicU64::new(0); // 게시된 선발 인원수(0=미확보)
 static ROSTER_TICK: AtomicU64 = AtomicU64::new(0);
+// ★★2026-08-06 신설(유저 제보 "가끔 지정 빌드를 안 따른다" 실측 대응) ─────────────────────
+//   실측 근거 = `buy_report.txt` 의 `MY_ATHLETES 게시 보류 : 5회`.
+//   이 세이브는 pid=0(비0 관측 0회)이라 `trust` 가 `PID_ZERO_CLEAN >= 600` 에만 의존했고,
+//   `PID_ZERO_CLEAN` 은 **InGame 프레임에서만** 증가한다 ⟹ 게임을 켜고 처음 들어간 경기의
+//   **첫 600프레임(≈10초) 동안 팀 게이트가 통째로 닫혀** 지정이 하나도 주입되지 않았다.
+//   게시 시도 자체도 120프레임 격자에서만 일어나 최대 2초가 더 붙는다(보류 5회 = 0/120/…/480).
+//   그 사이에 산 슬롯은 `if owned > si { continue }`(buy_replace_ctx) 때문에 **그 경기 내내 복구 불가**다.
+static CT_EVER_SEEN: AtomicU64 = AtomicU64::new(0); // 이 세션에서 조합테스트 컨텍스트를 한 번이라도 봤나
+static ROSTER_FORCE: AtomicBool = AtomicBool::new(false); // 다음 기회에 격자 무시하고 재게시(pid 정정 시)
+static ROSTER_SIG: AtomicU64 = AtomicU64::new(0);   // 게시된 선발 집합 지문(무변경 재게시 억제)
+// 내 팀 로스터를 게시해도 되는가. `known != 0` 이면 무조건 OK.
+// pid=0 은 07-30 에 "조합테스트 컨텍스트가 만들어낸 가짜 0"일 수 있다는 이유로 600틱 관측을 요구했는데,
+// **그 오염원(조합테스트)을 이 세션에서 한 번도 안 봤다면 기다릴 이유가 없다.** 방어의 의도는 보존하고
+// 대기만 없앤다 ⟹ 조합테스트를 먼저 한 세션에서는 기존대로 600틱 규칙이 그대로 걸린다.
+fn roster_trust(known: u64) -> bool {
+    known != 0
+        || CT_EVER_SEEN.load(Ordering::Relaxed) == 0
+        || PID_ZERO_CLEAN.load(Ordering::Relaxed) >= 600
+}
+// 선발 집합 지문(정렬 FNV) — 무변경이면 재게시하지 않는다(publish_my_athletes 는 Box leak 세대교체 패턴).
+fn roster_sig(my: &std::collections::HashSet<u64>) -> u64 {
+    let mut v: Vec<u64> = my.iter().copied().collect();
+    v.sort_unstable();
+    let mut h: u64 = 0xcbf2_9ce4_8422_2325;
+    for id in v { h = (h ^ id).wrapping_mul(0x100000001b3); }
+    h
+}
 static SPAWN_AID_OK: AtomicU64 = AtomicU64::new(0);   // 진단: 스폰시 athlete_id(+0x810) 유효(≠0·≠MAX)
 static SPAWN_AID_ZERO: AtomicU64 = AtomicU64::new(0); // 진단: 스폰시 aid=0 (=스폰시점 미기입 → 이 경로 불가)
 static SP4_NOBUILD: AtomicU64 = AtomicU64::new(0); // ④진단: build Vec(+0x498/+0x4a0) 무효
@@ -3272,6 +3299,7 @@ impl ModExtension for ItemTacticsExt {
             //   (실측: 0 관측 2416 중 1592 만 차단, 나머지 824 가 이 구간). ⟹ 조합테스트 팝업이 열려
             //   있는 동안(`CT_OPEN`)도 같은 컨텍스트로 보고 0 을 무시한다.
             let ct_ctx = in_comptest || CT_OPEN.load(Ordering::Relaxed);
+            if ct_ctx { CT_EVER_SEEN.store(1, Ordering::Relaxed); } // ★08-06: 600틱 규칙의 발동 조건
             if pu == 0 {
                 PID_OBS_ZERO.fetch_add(1, Ordering::Relaxed);
                 if ct_ctx { PID_SKIP_CT.fetch_add(1, Ordering::Relaxed); }
@@ -3279,7 +3307,10 @@ impl ModExtension for ItemTacticsExt {
             } else if pu != u64::MAX && pu < 10000 { PID_OBS_NONZERO.fetch_add(1, Ordering::Relaxed); }
             if pu != u64::MAX && pu < 10000 && !(pu == 0 && ct_ctx) {
                 if pu != 0 {
-                    PLAYER_TEAM_ID.store(pu, Ordering::Relaxed);
+                    // ★08-06: pid 가 실제로 바뀌면 **다음 프레임에 격자 무시하고 즉시 재게시**한다.
+                    //   위 `roster_trust` 완화로 pid=0 을 일찍 믿게 됐으므로, 나중에 진짜 pid 가
+                    //   나타났을 때 낡은 team(0) 로스터가 최대 120프레임 더 남는 일을 막는다.
+                    if PLAYER_TEAM_ID.swap(pu, Ordering::Relaxed) != pu { ROSTER_FORCE.store(true, Ordering::Relaxed); }
                     PID_NONZERO_SEEN.store(1, Ordering::Relaxed);
                 } else if PID_NONZERO_SEEN.load(Ordering::Relaxed) == 0 {
                     PLAYER_TEAM_ID.store(0, Ordering::Relaxed);
@@ -3293,7 +3324,11 @@ impl ModExtension for ItemTacticsExt {
                 const ROSTER_POLL: u64 = 120; // 프레임
                 let n = ROSTER_TICK.fetch_add(1, Ordering::Relaxed);
                 let known = PLAYER_TEAM_ID.load(Ordering::Relaxed);
-                if n % ROSTER_POLL == 0 && known != u64::MAX && known < 10000 {
+                // ★★08-06 수정 — **미게시/강제 상태에서는 120격자를 무시하고 매 프레임 시도**한다.
+                //   구 코드는 `n % 120 == 0` 뿐이라, trust 가 성립한 프레임 뒤에도 최대 2초를 더 기다렸다.
+                //   경기 시작 직후의 `owned==0` buy 를 놓치면 그 슬롯은 그 경기 내내 되돌릴 수 없다.
+                let force = ROSTER_FORCE.swap(false, Ordering::Relaxed) || MY_ATH_N.load(Ordering::Relaxed) == 0;
+                if (force || n % ROSTER_POLL == 0) && known != u64::MAX && known < 10000 {
                     let mut my: std::collections::HashSet<u64> = std::collections::HashSet::new();
                     let mut pt_n = 0usize;
                     if let Some(team) = db.team(known as _) {
@@ -3311,8 +3346,15 @@ impl ModExtension for ItemTacticsExt {
                     //   = 팀 게이트를 안전측으로 닫음). 단 **조합테스트와 무관한 InGame 에서 0 을 충분히
                     //   (600틱≈10초) 관측**했다면 진짜 팀 id 가 0 인 세이브로 인정해 게시한다.
                     //   ⟹ 조합테스트만 한 세션에서는 절대 게시되지 않고, 일반 경기를 하면 실 pid 가 잡힌다.
-                    let trust = known != 0 || PID_ZERO_CLEAN.load(Ordering::Relaxed) >= 600;
-                    if !my.is_empty() && trust { publish_my_athletes(my); }
+                    // ★08-06: `trust` 판정을 `roster_trust()` 단일 창구로 이관(관리 틱과 규칙 공유).
+                    //   구 식 `known != 0 || PID_ZERO_CLEAN >= 600` 에 "조합테스트 미관측 세션" 예외가 추가됐다.
+                    let trust = roster_trust(known);
+                    if !my.is_empty() && trust {
+                        let sig = roster_sig(&my);
+                        if ROSTER_SIG.swap(sig, Ordering::Relaxed) != sig || MY_ATH_N.load(Ordering::Relaxed) == 0 {
+                            publish_my_athletes(my);
+                        }
+                    }
                     else if !trust { MY_TRUST_SKIP.fetch_add(1, Ordering::Relaxed); }
                 }
                 perf::rec(perf::S_POST_ROSTER, __rt);
@@ -3430,12 +3472,35 @@ impl ModServerExtension for ItemTacticsServerExt {
         PLAYER_SIDE.store(u64::MAX, Ordering::Relaxed);
         SIDE_CACHE.lock().unwrap_or_else(|e| e.into_inner()).clear();
         probe_db(ctx); install_replace_4th(); // resolver=mode 3·4 공통 (멱등)
+        refresh_roster_management(ctx); // ★08-06: 선발 변경을 경기 진입 전에 반영(경기 밖 유일 갱신점)
         // ★측정 전용: `dump_builds.trigger` 파일이 있을 때만 1회 실행(평소 비용 = exists() 1회).
         //   관리틱은 sim 중엔 안 돌므로 forward shadow-call 이 sim 과 레이스하지 않는다.
         unsafe { maybe_dump_builds(); }
     }
 }
 static NETSCAN_DONE: AtomicBool = AtomicBool::new(false);
+// ★★2026-08-06 신설 — **관리 틱(경기 밖)에서도 내 팀 선발 로스터를 갱신한다.**
+//   왜: 게시 사이트가 `Scene::InGame` 안에만 있어서, **선발 변경은 관리 화면에서 일어나는데 갱신은
+//   경기 중에만** 됐다. 선발을 바꾸고 경기에 들어가지 않은 채 일정을 넘기면 그 배경 sim 은 **직전
+//   경기 때의 낡은 선발 5명**으로 팀 판정을 해서, 새 선발의 지정이 통째로 미적용된다.
+//   (기존 코드 주석 자신이 "관리 화면에서는 이 블록이 안 돌아 교정 기회가 없다"고 한계를 적고 있었다.)
+//   pid 는 InGame 에서만 읽히므로 여기서는 **이미 잡아둔 `PLAYER_TEAM_ID`** 만 쓴다(새로 판정하지 않음).
+//   무변경이면 재게시하지 않는다 — `publish_my_athletes` 는 Box 세대교체라 매 틱 호출하면 낭비다.
+fn refresh_roster_management(ctx: &mut ServerModContext) {
+    let known = PLAYER_TEAM_ID.load(Ordering::Relaxed);
+    if known == u64::MAX || known >= 10000 { return; }
+    if !roster_trust(known) { return; }
+    let Some(team) = ctx.database.teams.get(known as usize) else { return; }; // ⚠teams=SlotMap류(핸들 인자, &키 아님)
+    let mut my: std::collections::HashSet<u64> = std::collections::HashSet::new();
+    for slot in team.last_starting.iter() {
+        if let Some(aid) = slot { my.insert(*aid as u64); }
+    }
+    if my.is_empty() { return; }
+    let sig = roster_sig(&my);
+    if ROSTER_SIG.swap(sig, Ordering::Relaxed) == sig && MY_ATH_N.load(Ordering::Relaxed) != 0 { return; }
+    publish_my_athletes(my);
+}
+
 fn probe_db(ctx: &mut ServerModContext) {
     // Database 시작 = champion_patch_statistics(@Database+0x16698) 절대주소 − 0x16698.
     let cps = &ctx.database.champion_patch_statistics as *const _ as usize;
@@ -3495,6 +3560,29 @@ fn probe_db(ctx: &mut ServerModContext) {
     append_log("item_tactics.txt", &format!("[{}ms] probe_db: db={:#x} 모드템 {}개 최종 {}개", now_ms(), db,
         MOD_REGISTRY.lock().unwrap_or_else(|e| e.into_inner()).len(),
         MOD_FINALS.lock().unwrap_or_else(|e| e.into_inner()).len()));
+    // ★★진단 산출물(LOG_ENABLED 무관 · 세션당 1회) — 2026-08-06 신설, 프로덕션 상주.
+    //   경위: 프로덕션은 `LOG_ENABLED=false` 라 `dump_mod_items` 가 실패해도 파일이 하나도 안 남는다.
+    //   그런데 이 함수는 **실패해도 `MODITEMS_DONE` 을 세워 재시도하지 않으므로**(dump_mod_items L1)
+    //   이 1회 결과가 곧 그 세션의 결론이고, 레지스트리가 비면 **모드템 지정이 전부 조용히 무시**된다.
+    //   같은 함정을 2026-07-25 제보("모드템이 드롭다운에 안 뜸") 때 원격진단 불가로 이미 겪었다.
+    //   ⟹ 이 한 줄 요약만은 항상 남긴다. 비용 = 세션당 write 1회.
+    {
+        let reg = MOD_REGISTRY.lock().unwrap_or_else(|e| e.into_inner()).len();
+        let fin = MOD_FINALS.lock().unwrap_or_else(|e| e.into_inner()).len();
+        let (act_n, act_tot) = { let a = MOD_ACTIVE.lock().unwrap_or_else(|e| e.into_inner());
+                                 (a.iter().filter(|&&x| x).count(), a.len()) };
+        let net = ITEM_NET_ADDR.load(Ordering::Relaxed);
+        let mut s = format!("[{}ms] item_tactics 레지스트리/신경망 프로브 결과 (세션 1회)\n\n", now_ms());
+        s.push_str(&format!("  db base       = {:#x}  (= &champion_patch_statistics − 0x16698)\n", db));
+        s.push_str(&format!("  MOD_REGISTRY  = {}개   {}\n", reg,
+            if reg == 0 { "★FAIL — 모드템 지정이 전부 미적용된다(SEL_PENDING 행). 상세=item_tactics_moditems.txt(LOG_ENABLED 필요)" } else { "OK" }));
+        s.push_str(&format!("  MOD_ACTIVE    = {}/{} 활성\n", act_n, act_tot));
+        s.push_str(&format!("  MOD_FINALS    = {}개   {}\n", fin,
+            if fin == 0 { "★FAIL — 드롭다운 모드템 목록이 비고 지정 해석 불가" } else { "OK" }));
+        s.push_str(&format!("  ITEM_NET_ADDR = {:#x}  {}\n", net,
+            if net == 0 { "★FAIL — 신경망 미발견. 미지정 슬롯의 4번째가 바닐라 FNV 폴백으로 떨어진다 + 관리틱마다 0x18000 전범위 재스캔(성능)" } else { "OK" }));
+        if let Some(d) = mod_dir() { let _ = fs::create_dir_all(&d); let _ = fs::write(d.join("item_tactics_registry.txt"), s); }
+    }
 }
 
 // ══ athlete→champion 매핑 프로브 (buy_item r8=athlete 스캔) ══════════════════
@@ -4186,7 +4274,10 @@ static SLOT012_LOG: Mutex<Vec<String>> = Mutex::new(Vec::new());
 //    ④실제 write ⑤게임이 실제 산 것. → mods\tfm2_item_tactics\buy_report.txt 로 출력.
 //    read-only 관찰(주입 로직 무변경). ⚠프로덕션 배포 시 false 로 끌 것(진단 파일 write 방지).
 // ═══════════════════════════════════════════════════════════════════════════
-const BUY_REPORT: bool = false; // ★프로덕션 OFF(2026-07-30 검증 완료 후 복귀): buy_report.txt write + per-buy
+const BUY_REPORT: bool = false; // ★프로덕션 OFF 복귀(2026-08-06, 팀 게이트 수정 검증 완료 후).
+                                //   08-06 회차에 임시 ON 으로 원인을 확정했다 — 판정 지표는 `★MY_ATHLETES 게시 보류`
+                                //   (수정 전 5회 → 수정 후 0회). 재검증이 필요하면 여기만 true 로.
+                                // ↓이하 이력: ★프로덕션 OFF(2026-07-30 검증 완료 후 복귀): buy_report.txt write + per-buy
                                 // 진단 전부 봉인. 주입/식별 기능은 이 게이트 바깥이라 무영향. (재검증 시 true)
 // ★★출력 덮어쓰기(ghidra-re 확정): 리졸버 출력 RDX(살 아이템 컬렉션 인덱스)를 목표로 강제 → 정확한 아이템 구매.
 //   build[] 입력조작이 리졸버 스킵/RNG에 무시되던 근본문제 우회. saved[1]=RDX·saved[6]=RAX(=1) 쓰고 HANDLED 반환.
