@@ -2496,6 +2496,13 @@ unsafe extern "C" fn cap_launcher(saved: *mut u64, _e: usize) -> u64 {
     let __lt = perf::tsc();
     if saved.is_null() { perf::rec(perf::S_LAUNCHER, __lt); return 0; }
     let seed = *saved.add(2);      // r8 = arg3 = seed
+    // ★★2026-08-07 신설 — **rcx = Game 객체**(지금까지 버리고 있던 인자).
+    //   근거(0.5.4 exe): launcher 가 이 포인터(→rsi)에 쓰는 필드가 spawn·buy 가 읽는 Game 필드와 정확히 일치 —
+    //   `[rsi+0x1dc0]`/`+0x1dc8`/`+0x1dd0`/`+0x1dd8`(provider 계열) · `+0x1fc8`/`+0x1fd8`(카탈로그 Vec) · `+0x2060`.
+    //   ⚠**이 포인터가 매치 내내 유효한지는 미확정** — 콜사이트가 `lea rcx,[rbp+0x35fb0]` = **호출자 스택**이라
+    //     launcher 가 거기 Game 을 "생성"하는 것이고, 이후 영속 위치로 옮겨질 수 있다(Rust move).
+    //     ⟹ 지금은 **관측만** 한다. buy 시점 Game 과 대조해 stale 여부를 실측한 뒤에 쓸 것.
+    let game_arg = *saved;         // rcx = arg1 = Game (검증중)
     let retaddr = *saved.add(10);  // 콜사이트 retaddr(스텁 push 10개 위)
     let base = GetModuleHandleW(core::ptr::null()) as u64;
     if base == 0 || retaddr < base { perf::rec(perf::S_LAUNCHER, __lt); return 0; }
@@ -2531,6 +2538,9 @@ unsafe extern "C" fn cap_launcher(saved: *mut u64, _e: usize) -> u64 {
         COMPTEST_MATCH.store(is_comptest, Ordering::Relaxed);
         LAUNCH_RENDER_N.fetch_add(1, Ordering::Relaxed);
         LAUNCH_RENDER_RA.store(rva, Ordering::Relaxed);
+        LIVE_GAME.store(game_arg, Ordering::Relaxed); // ★08-07: 화면 경기 Game 후보(유효성 검증중)
+        BUY_GAME.store(0, Ordering::Relaxed);         // 새 매치 → buy 측 관측 리셋
+        GAME_PROBE_DONE.store(false, Ordering::Relaxed);
     }
     // 진단: 고유 콜러 rva 수집(원자 CAS, 24슬롯)
     for k in 0..24 {
@@ -2619,6 +2629,19 @@ const SEEDCTOR_PROLOGUE: [u8; 12] = [0x55, 0x41,0x57, 0x41,0x56, 0x41,0x55, 0x41
 const SEEDCTOR_ORIG_LEN: usize = 12; // 8push만 재배치(chkstk call 제외). jmp가 fn+12=mov eax에 착지→프레임 정상세팅
 static SEEDCTOR_INSTALLED: AtomicU64 = AtomicU64::new(0);
 static RENDER_PROVIDER: AtomicU64 = AtomicU64::new(0); // ★렌더 sim provider 포인터(is_live 주력 게이트)
+// ★★08-07 신설 — "클라가 쥔 핸들을 우리도 쥔다" 검증용 3종.
+static LIVE_GAME: AtomicU64 = AtomicU64::new(0);       // launcher rcx = Game (화면 경기)
+static BUY_GAME: AtomicU64 = AtomicU64::new(0);        // buy 시점 Game([rsp_entry+0x30]) — 위와 같으면 유효
+static GAME_PROBE_DONE: AtomicBool = AtomicBool::new(false);
+static GAME_SCAN_DONE: AtomicBool = AtomicBool::new(false); // 디투어 내 1회 스캔 게이트
+static GAME_SCAN_OK: AtomicU64 = AtomicU64::new(0);         // 0=미실행 1=스캔함 2=readable 실패
+static GAME_HIT_N: AtomicU64 = AtomicU64::new(0);
+static GAME_HIT: [AtomicU64; 4] = [const { AtomicU64::new(u64::MAX) }; 4]; // 최상위비트=u32쌍 표시
+static GATE_AGREE: AtomicU64 = AtomicU64::new(0);      // scene side 판정 == is_my_athlete 판정
+static GATE_DIFF: AtomicU64 = AtomicU64::new(0);       // ★갈린 횟수(0이어야 전환이 안전)
+static GATE_SAMPLE: AtomicU64 = AtomicU64::new(0);     // 교차검증 샘플러(1/256)
+// (팀 id 탐색 키 `SCENE_T1`/`SCENE_T2` 는 아래쪽 기존 선언 재사용 — 원래 writer 가 없어 死 상태였던 것을
+//  `quick_scene_side` 에서 채우도록 되살렸다.)
 static LIVE_SEED: AtomicU64 = AtomicU64::new(0);      // ★내 경기 시드(launcher 훅 r8 캡처). v13 값대조 키.
 static PROV_HIT: AtomicU64 = AtomicU64::new(0);       // is_live(v13 provider/seed 매칭) 발화수
 static VT_OK: AtomicU64 = AtomicU64::new(0);          // 그중 seed 값대조 발화수
@@ -2668,7 +2691,20 @@ fn install_seed_ctor_hook() {
 //     ①프롤로그: 7push+mov eax+chkstk → **8push(12B) + sub rsp,0xf8**(chkstk 없음) ⟹ ORIG_LEN=12·rax 보존 불요(generic 가능).
 //     ②인자계약: r8=&descriptor → **r8/r9 = descriptor 2워드 쌍**(콜러가 빌더를 전역 함수포인터 0x144531340 간접호출로 변경).
 //        rcx=Game, rdx=athlete 스택사본(0x8b8)은 유지. 직접 콜러 15곳 = 단일 초크포인트 성격 유지.
-const SPAWN_RVA: usize = 0x13bca10; // 0.5.3(구0.5.2=0x1d9e0e0, 구0.5.1=0x2060280). ⚠SPAWN_INJECT_ENABLED=false라 detour 미설치=무영향.
+// ★★0.5.4 재핀 검증 완료(2026-08-07, exe↔exe 6항목 교차대조) — **갈아끼울 값 없음. 아래 상수 그대로 유효.**
+//   0.5.4 마이그(08-05)가 이미 `0xebfe50 → 0x13bca10` 으로 갱신해 뒀는데 주석 라벨만 "0.5.3" 으로 남아 있었다.
+//   ①본문 지문: Game 필드 4개가 **같은 순서로 대응** — `[rcx+0x1dc0]/[rcx+0x1dc8]`·`[rsi+0x1dd0]/[rsi+0x1dd8]`
+//     → 0.5.4 는 `[rsi+…]` 로 통일(`mov rsi,rcx` 는 양쪽 동일 위치).
+//   ②★결정적: athlete 필드가 정확히 **−0x10 시프트** — `[rdx+0x888]→[rdx+0x878]`(gold) · `[rdx+0x598]→[rdx+0x588]`(plan).
+//     0.5.4 athlete 구조체 시프트와 정합 ⟹ **rdx=athlete 계약 유지 확정**(rcx=Game 도 유지).
+//   ③인자: r8/r9 둘 다 스택 저장 = descriptor 2워드 쌍 계약 유지(0.5.3 과 동일).
+//   ④**직접 콜러 15곳 ↔ 15곳 완전 일치**(e8 rel32 바이트 스캔) = 단일 초크포인트 성격 유지.
+//     ⚠Ghidra xref 는 1곳만 보고했다(분석 커버리지 구멍) — **콜러 수는 바이트 스캔이 정본**.
+//   ⑤프롤로그 12B(8push) 바이트 동일 ⟹ `SPAWN_PROLOGUE`·`SPAWN_ORIG_LEN=12` 무수정.
+//     (프레임은 `sub rsp,0xf8`→`0x978`, 함수 크기 0x4b2→0x763 로 커졌으나 **재배치 구간 12B 밖**이라 무관.)
+//   ⑥카탈로그 `Game+0x1fc8` Vec: `lea rcx,[r12/rsi/rbp+0x1fc8]` 사이트가 레지스터·순서까지 대응 = 오프셋 불변.
+//   ⟹ 0.5.3 주석의 "재활성 시 2가지 변경 필요"는 **0.5.2→0.5.3 얘기였고 이미 반영됨**. 0.5.3→0.5.4 추가 변경 없음.
+const SPAWN_RVA: usize = 0x13bca10; // ★0.5.4 검증완(구0.5.3=0xebfe50, 구0.5.2=0x1d9e0e0, 구0.5.1=0x2060280). ⚠SPAWN_INJECT_ENABLED=false라 detour 미설치=무영향.
 const SPAWN_PROLOGUE: [u8; 12] = [0x55, 0x41,0x57, 0x41,0x56, 0x41,0x55, 0x41,0x54, 0x56, 0x57, 0x53]; // 0.5.3: 8push(12B) + sub rsp,0xf8 (구0.5.2=7push+mov eax,0x4d20)
 const SPAWN_ORIG_LEN: usize = 12; // 0.5.3: push8만 재배치(12B=정확히 명령경계) ⟹ 재활성 시 install_detour_r11 불요(generic으로 충분).
 const SPAWN_INJECT_ENABLED: bool = false; // ★게이트 OFF 유지(0.5.3에서 **인자계약이 실제로 바뀌었음**이 확인됨 = 위 ② — 배선 전에 재검토 필수). ↓0.5.2 이력: 게이트 OFF(로직변경 미확인) — 구 0.5.1=true. ~~재개(07-19)~~ 봉인 사유 '스폰시 카탈로그 부재'가 오프셋 오류로 판명.
@@ -2705,14 +2741,15 @@ unsafe extern "C" fn cap_spawn(saved: *mut u64, _e: usize) -> u64 {
                        if SPAWN_AID_SAMPLE[k].compare_exchange(0, aid, Ordering::Relaxed, Ordering::Relaxed).is_ok() { break; } } }
         }
         // ── ② 지정 챔프인가 ──
-        if !readable(athlete, 0x8b8) { return; }
+        if !readable(athlete, 0x8a8) { return; } // ★0.5.4: athlete 스택사본 0x8b8→**0x8a8**(구조체 −0x10 시프트, stride 0x8c0)
         let cptr = rd_u64(athlete + 0x410) as usize;
         let clen = rd_u64(athlete + 0x418) as usize;
         if cptr < 0x10000 || clen == 0 || clen > 48 || !readable(cptr, clen) { return; }
         let champ_cow = String::from_utf8_lossy(std::slice::from_raw_parts(cptr as *const u8, clen));
         let champ: &str = champ_cow.as_ref();
         if !is_champ_designated(champ) { return; }
-        // ── ③ 내 팀인가 (v15): athlete_id(+0x810) ∈ 내 팀 선발 = scene tag9 불필요 → 스폰 시점에 성립.
+        // ── ③ 내 팀인가 (v15): athlete_id(**0.5.4 = +0x800**, `O_ATHLETE_ID`) ∈ 내 팀 선발 → 스폰 시점에 성립.
+        //     ⚠구 주석의 "+0x810" 은 0.5.3 라벨 — 0.5.4 에서 +0x810 은 **team** 이다(코드는 상수를 쓰므로 정상).
         //     ⚠A2 정적확정으로 sim엔 team_id가 없으므로 이 멤버십이 유일한 결정적 경로.
         //     로스터 미확보(관리화면 방문 전)면 판정보류 → 주입 스킵(적팀 오염 방지 > 커버리지). buy 경로가 커버.
         //     폴백으로 scene side도 병행(로스터는 있으나 aid 미기입인 초기 프레임 대비).
@@ -3358,7 +3395,14 @@ impl ModExtension for ItemTacticsExt {
                     else if !trust { MY_TRUST_SKIP.fetch_add(1, Ordering::Relaxed); }
                 }
                 // ★08-06: itemnet 재시도(경기 중). 같은 120프레임 스로틀에 얹는다 — 후보 3개 검사뿐이라 저비용.
-                if n % ROSTER_POLL == 0 { itemnet_retry(); }
+                if n % ROSTER_POLL == 0 {
+                    itemnet_retry();
+                    game_team_probe();
+                    // ★08-07: 경기 중에도 registry 갱신(구: probe_db 에서만 → 경기 전 스냅샷이 굳었다).
+                    //   무변경이면 write 생략이라 비용 0.
+                    let sdb = SERVER_DB.load(Ordering::Relaxed) as usize;
+                    if sdb >= 0x10000 { write_registry_status(sdb); }
+                }
                 perf::rec(perf::S_POST_ROSTER, __rt);
             }
             // ★★lean(07-18): 관전 식별 = launcher(LIVE_SEED)+seed-ctor(RENDER_PROVIDER)+buy r9 대조(v13).
@@ -3624,6 +3668,54 @@ unsafe fn net_sig_at(a: usize) -> bool {
     // 가중치 ptr 검증(lookalike 배제 — 이게 없으면 forward 내부 +0x44a 에서 deref AV)
     w >= 0x10000 && readable(w, 16384 * 4)
 }
+// ★★2026-08-07 신설 — **"매치 생성 시점에 쥔 Game 을 계속 들고 있을 수 있는가 + 거기 팀 정보가 있는가"**
+//   를 실측으로 답한다. 정적 RE 로는 호출자가 92KB 패킷 디스패처라 제어흐름 추적 비용이 크다.
+//   ①stale 여부 = launcher 가 잡은 Game 과 buy 가 받는 Game(`[rsp_entry+0x30]`)이 같은 포인터인가.
+//   ②팀 정보 = 같다면, 그 Game 안에 scene 이 아는 팀 id 쌍(t1,t2)이 **인접**해 있는가.
+//     인접쌍으로 찾는 이유: team id 는 작은 정수라 단일 값 스캔은 오탐투성이다.
+//   ⚠안전: `readable()` 1회로 영역 전체를 검증한 뒤 평범한 읽기만 한다(08-06 가드페이지 사고 재발 방지).
+//     범위도 Game 이 실제로 쓰는 대역(+0x2090 까지 launcher 가 기록)에 맞춘 0x2100 으로 **좁게** 고정.
+fn game_team_probe() {
+    if GAME_PROBE_DONE.load(Ordering::Relaxed) { return; }
+    let lg = LIVE_GAME.load(Ordering::Relaxed) as usize;
+    let bg = BUY_GAME.load(Ordering::Relaxed) as usize;
+    if lg < 0x10000 || bg < 0x10000 { return; }
+    let (t1, t2) = (SCENE_T1.load(Ordering::Relaxed), SCENE_T2.load(Ordering::Relaxed));
+    if t1 == u64::MAX || t2 == u64::MAX { return; }
+    GAME_PROBE_DONE.store(true, Ordering::Relaxed);
+    // ★08-07 2차 수정 — 스캔 대상을 **buy Game(bg)** 으로 고정한다.
+    //   1차에선 `lg == bg` 일 때만 스캔했는데, 실측 결과 둘이 다르다(launcher rcx = 임시).
+    //   그런데 우리가 알고 싶은 "Game 이 팀을 아는가"의 대상은 **경기 중 살아있는 Game = bg** 다.
+    //   핸들 일치 여부와 팀필드 유무는 별개 질문인데 하나로 묶어 게이팅한 게 오류였다.
+    let same = lg == bg;
+    let mut s = format!("[{}ms] Game 핸들·팀필드 프로브\n\n", now_ms());
+    s.push_str(&format!("  launcher rcx (매치 생성 시점) = {:#x}\n", lg));
+    s.push_str(&format!("  buy [rsp+0x30] (경기 중)      = {:#x}\n", bg));
+    s.push_str(&format!("  ★같은 핸들인가 = {}\n", if same { "예 — 매치 생성 시점에 쥐면 계속 쓸 수 있다" }
+                                                   else { "아니오 — launcher rcx 는 임시(이후 이동됨) = 들고 있으면 stale" }));
+    s.push_str(&format!("  scene 팀 id: t1={} t2={} | LIVE_PID={}\n\n", t1, t2, LIVE_PID.load(Ordering::Relaxed)));
+    // ★스캔 자체는 buy 디투어 안에서 이미 끝났다(Game 은 스택 상주라 여기선 못 읽는다) — 여기선 결과만 출력.
+    match GAME_SCAN_OK.load(Ordering::Relaxed) {
+        0 => s.push_str("  [팀필드 스캔] 미실행 — 화면 경기 buy 가 아직 없었거나 scene 팀 id 미확보\n"),
+        2 => s.push_str("  [팀필드 스캔] ⚠readable=false — 디투어 시점에도 Game 영역을 못 읽었다\n"),
+        _ => {
+            let n = GAME_HIT_N.load(Ordering::Relaxed);
+            if n == 0 {
+                s.push_str("  [팀필드 스캔] ★팀 id 쌍 없음 — **Game 은 팀을 모른다**\n\
+                            \x20   (sim 계층 team_id 부재 확정과 정합) ⟹ 팀 판정은 scene side 가 최선.\n");
+            } else {
+                for k in 0..(n as usize).min(4) {
+                    let v = GAME_HIT[k].load(Ordering::Relaxed);
+                    let (off, kind) = (v & 0x7fff_ffff, if v & 0x8000_0000 != 0 { "u32쌍" } else { "u64쌍" });
+                    s.push_str(&format!("  ★팀 id 쌍 발견({}) : Game+{:#06x}\n", kind, off));
+                }
+                s.push_str("  ⟹ 이 오프셋이 매치마다 재현되면 **스폰 시점(rcx=Game)에 팀 확정 가능**.\n");
+            }
+        }
+    }
+    if let Some(d) = mod_dir() { let _ = fs::create_dir_all(&d); let _ = fs::write(d.join("item_tactics_gameprobe.txt"), s); }
+}
+
 fn itemnet_retry() {
     NETRETRY_N.fetch_add(1, Ordering::Relaxed);
     if ITEM_NET_ADDR.load(Ordering::Relaxed) != 0 { return; }
@@ -3709,7 +3801,16 @@ fn write_registry_status(db: usize) {
         let net = ITEM_NET_ADDR.load(Ordering::Relaxed);
         let tries = NETSCAN_TRIES.load(Ordering::Relaxed);
         // 상태 지문 — 바뀐 게 없으면 write 하지 않는다(관리틱마다 도는 자리라 무조건 write 는 낭비).
+        // ⚠★08-07 3차 수정 — **지문에 런타임 카운터를 포함**시킨다.
+        //   이 파일이 `probe_db`(= on_server_start + 관리틱)에서만 쓰이는데, 경기 중에 변하는 값
+        //   (게이트 카운터·Game 핸들)을 지문에 안 넣어서 **경기 시작 전 스냅샷이 그대로 굳었다.**
+        //   같은 "진단이 너무 이른 시점에 고정" 실수를 이 세션에서 세 번 했다(레지스트리 0개·itemnet 미발견·이번).
+        //   ⟹ 지문에 넣고, 아래 `registry_tick()` 으로 **경기 중에도 갱신**한다.
         let sig = (reg as u64) ^ ((fin as u64) << 12) ^ ((act_n as u64) << 24) ^ net.rotate_left(17)
+                  ^ GATE_AGREE.load(Ordering::Relaxed).min(1).rotate_left(33)
+                  ^ GATE_DIFF.load(Ordering::Relaxed).min(1).rotate_left(35)
+                  ^ LIVE_GAME.load(Ordering::Relaxed).rotate_left(7)
+                  ^ BUY_GAME.load(Ordering::Relaxed).rotate_left(11)
                   ^ if net == 0 { (tries.min(64) << 40) ^ (NETWIDE_TRIES.load(Ordering::Relaxed).min(9) << 52) } else { 0 };
         if REG_LAST_SIG.swap(sig, Ordering::Relaxed) == sig { return; }
         let mut s = format!("[{}ms] item_tactics 레지스트리/신경망 프로브 결과 (상태 변화 시 갱신)\n\n", now_ms());
@@ -3763,6 +3864,11 @@ fn write_registry_status(db: usize) {
         //   ⟹ 후보 자리의 **실제 메모리 내용**과 **재시도가 실제로 돌았는지**를 같이 찍어 한 번에 가른다.
         //     · 값이 그럴듯한 다른 데이터 = base 가 틀림   · 전부 0 = 망 미초기화(새 커리어)
         //     · 읽기실패 = 그 주소가 매핑조차 안 됨       · retry=0 = 재시도 자체가 안 돎(내 배선 문제)
+        // ★08-07 전환 안전성: scene side 게이트 ↔ 구 athlete_id 게이트가 갈린 횟수. **DIFF 는 0이어야 한다.**
+        s.push_str(&format!("\n  [팀게이트 전환] scene==athlete_id 일치={} · ★불일치={} (0이어야 정상)\n",
+            GATE_AGREE.load(Ordering::Relaxed), GATE_DIFF.load(Ordering::Relaxed)));
+        s.push_str(&format!("  [Game 핸들] launcher rcx={:#x} · buy Game={:#x}\n",
+            LIVE_GAME.load(Ordering::Relaxed), BUY_GAME.load(Ordering::Relaxed)));
         s.push_str(&format!("\n  [원시값] retry호출={} 광역스캔={}회(상한8)\n",
             NETRETRY_N.load(Ordering::Relaxed), NETWIDE_TRIES.load(Ordering::Relaxed)));
         for (tag, base) in [("신", DB_DIRECT.load(Ordering::Relaxed) as usize), ("구", db)] {
@@ -4819,13 +4925,71 @@ unsafe extern "C" fn buy_replace_ctx(saved: *mut u64, rsp_entry: usize) -> u64 {
         //   의 **is_live AND 가 함께 떨어져 나간 것**이 원인. 조합테스트 본경기·기록 다시보기는 둘 다
         //   화면 경기(launcher 가 LIVE_SEED 를 심음)라 is_live 로 걸러도 기능은 그대로다.
         let is_comptest_live = COMPTEST_MATCH.load(Ordering::Relaxed) && is_live;
+        // ★★★2026-08-07 — **화면 경기는 scene side 로 판정한다(로스터 의존 제거).**
+        //   경위: 08-06 결함(pid=0 세이브에서 세션 첫 ~10초간 `MY_ATHLETES` 미게시 → 지정 전량 미주입)의
+        //   근본 원인은 팀 판정이 **비동기 게시(로스터)** 에 의존한 것이었다. 반면 scene 은 매치 단위로
+        //   두 팀 team_id + is_team1_blue 를 **상주**시킨다(`quick_scene_side`) ⟹ 게시를 기다릴 필요가 없고
+        //   `LIVE_PID` 는 첫 InGame 프레임에 잡히므로 600틱 trust 게이트도 안 거친다.
+        //   ★근거(08-07 실측 buy_report): 화면 경기 buy 28건 중 scene 판정 성립 20건, 그 20건 전부
+        //     scene side 판정과 `is_my_athlete` 판정이 **100% 일치**(내 선수 side0 / 적 side1 양방향).
+        //   ⟹ 결과는 같고 의존성만 줄어든다. scene 미성립(관전 아님·tag9 전·리그 외 형태)이면 기존 경로로 폴백.
+        //   ⚠배경 sim 은 scene 이 없으므로 계속 `is_my_athlete`(FIXB) — "관전==확정 수렴" 성질 보존.
+        // ★★08-07 정정 — `[rsp_entry+0x30]` 은 **Game 이 아니라 ctx** 다(1차에서 오라벨).
+        //   근거: ctx 빌더가 `ctx+0x30 = &(Game+0x1fc8)`(카탈로그 Vec 의 주소)을 넣는다 ⟹ **Game = *(ctx+0x30) − 0x1fc8**.
+        //   그리고 Game 은 **스택 상주**(launcher rcx·buy 쪽 둘 다 `0x7a30…` 대역)라, post_update 같은 다른
+        //   프레임/스레드에서 읽으면 `readable=false` 가 난다 ⟹ **살아있는 디투어 안에서 1회만** 훑는다.
+        //   비용: 1회 한정(`GAME_SCAN_DONE`), `readable()` 1회 + 평범한 읽기 1,056회. 파일 IO 없음(원자값만).
+        if is_live {
+            let ctxp = rd_u64(rsp_entry + 0x30) as usize;
+            if ctxp >= 0x10000 && readable(ctxp, 0x38) {
+                let g = rd_u64(ctxp + 0x30).wrapping_sub(0x1fc8) as usize;
+                if g >= 0x10000 {
+                    if BUY_GAME.load(Ordering::Relaxed) == 0 { BUY_GAME.store(g as u64, Ordering::Relaxed); }
+                    let (t1, t2) = (SCENE_T1.load(Ordering::Relaxed), SCENE_T2.load(Ordering::Relaxed));
+                    if t1 != u64::MAX && t2 != u64::MAX && !GAME_SCAN_DONE.swap(true, Ordering::Relaxed) {
+                        if !readable(g, 0x2100) { GAME_SCAN_OK.store(2, Ordering::Relaxed); }
+                        else {
+                            GAME_SCAN_OK.store(1, Ordering::Relaxed);
+                            let mut n = 0usize;
+                            let mut o = 0usize;
+                            while o + 16 <= 0x2100 && n < 4 {   // u64 인접쌍
+                                let (a, b) = (rd_u64(g + o), rd_u64(g + o + 8));
+                                if (a == t1 && b == t2) || (a == t2 && b == t1) {
+                                    GAME_HIT[n].store(o as u64, Ordering::Relaxed); n += 1;
+                                }
+                                o += 8;
+                            }
+                            let mut o = 0usize;
+                            while o + 8 <= 0x2100 && n < 4 {    // u32 인접쌍(팀 id 가 32비트인 경우)
+                                let w = rd_u64(g + o);
+                                let (a, b) = (w & 0xffff_ffff, w >> 32);
+                                if (a == t1 && b == t2) || (a == t2 && b == t1) {
+                                    GAME_HIT[n].store((o as u64) | 0x8000_0000, Ordering::Relaxed); n += 1;
+                                }
+                                o += 4;
+                            }
+                            GAME_HIT_N.store(n as u64, Ordering::Relaxed);
+                        }
+                    }
+                }
+            }
+        }
+        let scene_gate: Option<bool> = if is_live && side <= 1 { scene_ps.map(|ps| side == ps) } else { None };
         let is_player = if is_comptest_live {
             true                        // 조합테스트 = 양 진영 다 유저 구성 → 팀 게이트 우회
-        } else if FIXB {
-            matches!(is_my_athlete(athlete), Some(true))
+        } else if let Some(sg) = scene_gate {
+            // ★화면 경기 = scene side(로스터 불요). 전환 검증 완료 = 08-07 실측 **15,624건 불일치 0**
+            //   ⟹ 평시엔 `is_my_athlete` 호출 자체를 생략한다(VEH 읽기 + HashSet 조회를 buy 마다 하던 것).
+            //   단 **1/256 샘플로 교차검증은 유지** — 회귀(scene 오프셋 변화 등)를 조용히 넘기지 않기 위한 트립와이어.
+            if (GATE_SAMPLE.fetch_add(1, Ordering::Relaxed) & 0xff) == 0 {
+                if sg == matches!(is_my_athlete(athlete), Some(true)) { GATE_AGREE.fetch_add(1, Ordering::Relaxed); }
+                else { GATE_DIFF.fetch_add(1, Ordering::Relaxed); }
+            }
+            sg
         } else {
-            is_live && by_scene
+            matches!(is_my_athlete(athlete), Some(true)) // 배경 sim · scene 미성립 = athlete_id 멤버십
         };
+        let _ = by_scene; // (구 경로 — scene_gate 로 대체됨. 진단 출력에서만 사용)
         // ★★SEL 스코프 결정(2026-07-30): 조합테스트면 그 선수의 진영(블루/레드) 스코프로 지정을 읽는다.
         //   조합테스트가 아니면 Scope::Plain = 예전과 동일한 조회 ⟹ 리그·관전·배경 동작 무변경.
         //   이걸로 "양 진영에 같은 챔프를 놓으면 지정이 하나로 합쳐지는" 문제와 "조합테스트 지정이
@@ -5279,6 +5443,8 @@ unsafe fn quick_scene_side(db: usize, pid: u64) -> Option<u64> {
     if t1_tag != 0 || t2_tag != 0 { return None; } // Normal(team_id)만
     let t1 = safe_read_u64(db + 0x17A8)?;
     let t2 = safe_read_u64(db + 0x17C8)?;
+    SCENE_T1.store(t1, Ordering::Relaxed); // ★08-07: Game 프로브 탐색 키로 공개
+    SCENE_T2.store(t2, Ordering::Relaxed);
     let blue_b = safe_read_u64(db + 0x1900)? & 0xff;
     let t1_blue = blue_b != 0;
     let (blue, red) = if t1_blue { (t1, t2) } else { (t2, t1) };
