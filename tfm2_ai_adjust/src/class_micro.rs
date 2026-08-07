@@ -154,8 +154,13 @@ unsafe extern "C" fn class_micro_value(idx: u64, a: usize, b: usize) -> u64 {
         // 캐시 미스: CUR_CLASS 를 세워 tune() 이 클래스별 값을 보게 한다(판단 문맥 재현).
         let prev = cur_class();
         set_cur_class(cls);
-        let v = tune(site.key, site.orig);
+        let raw = tune(site.key, site.orig);
         set_cur_class(prev);
+        // ★프로젝트 공통 규약 "-1 = 원본 유지"([[tfm2-knob-default-minus1-rule]]).
+        //   기존 바이트패치는 `b1/b4(v, orig)` 가 이 변환을 해줬는데, 콜백은 tune() 을 직접 읽으므로
+        //   여기서 같은 변환을 해야 한다. 빠뜨리면 `-1` 이 그대로 상수로 박혀 동작이 망가진다
+        //   (예: `cs_lead_attack = -1` 은 "원본 30" 인데 사거리 판정에 0xFFFFFFFF 가 들어간다).
+        let v = if raw < 0 { site.orig } else { raw };
         if v != site.orig { MICRO_OVHIT[i].fetch_add(1, Ordering::Relaxed); }
         MICRO_VAL[i][slot].store(v, Ordering::Relaxed);
         v
