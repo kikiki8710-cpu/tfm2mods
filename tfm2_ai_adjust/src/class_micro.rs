@@ -341,16 +341,22 @@ pub(crate) unsafe fn install_class_micro() {
         }
         core::ptr::copy_nonoverlapping(stub_code.as_ptr(), stub as *mut u8, stub_code.len());
         FlushInstructionCache(GetCurrentProcess(), stub, stub_code.len());
-        // 창 = E9 rel32 + 나머지 NOP
-        let mut patch = vec![0x90u8; n];
-        patch[0] = 0xe9;
-        patch[1..5].copy_from_slice(&(rel as i32).to_le_bytes());
+        // ★쓰는 것은 **앞 5바이트(E9 rel32)뿐**이다. 나머지(창이 5보다 길면 그 명령의 남은 오퍼랜드
+        //   바이트)는 E9 가 자리잡는 순간 도달 불가가 되므로 NOP 로 덮을 필요가 없다.
+        //   ⚠왜 굳이 안 덮나 = **실행 중인 스레드와의 경쟁을 줄이려고.** 게임은 이 함수들을 rayon 워커에서
+        //   동시에 돌린다. 두 번 쓰면 그 사이에 낀 스레드가 "원본 첫 명령 + 반쯤 덮인 둘째 명령"을 실행할
+        //   수 있다. 한 번만 쓰면, E9 직전에 원본 명령을 이미 페치한 스레드는 **원본 시퀀스를 그대로 완주**한다
+        //   (뒷바이트가 손대지 않은 원본 그대로이기 때문). 남는 경쟁은 5바이트 단일 store 하나뿐이다.
+        //   ⚠전제 = 창 안으로 뛰어드는 분기 타깃이 없어야 한다(사이트 등록 시 RE 로 확인).
+        let mut e9 = [0x90u8; 5];
+        e9[0] = 0xe9;
+        e9[1..5].copy_from_slice(&(rel as i32).to_le_bytes());
         let mut old: u32 = 0;
         if VirtualProtect(addr, n, 0x40, &mut old) == 0 {
             report.push_str(&format!("FAIL  {:<22} VirtualProtect 실패\n", site.key));
             continue;
         }
-        core::ptr::copy_nonoverlapping(patch.as_ptr(), addr as *mut u8, n);
+        core::ptr::copy_nonoverlapping(e9.as_ptr(), addr as *mut u8, 5);
         VirtualProtect(addr, n, old, &mut old);
         FlushInstructionCache(GetCurrentProcess(), addr, n);
         MICRO_TAKEN[i].store(true, Ordering::Relaxed);
