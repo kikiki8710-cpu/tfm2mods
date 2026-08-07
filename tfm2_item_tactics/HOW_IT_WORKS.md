@@ -67,6 +67,9 @@ So the injection is exactly one thing — **overwriting the goal build array** �
 
 ## 5. TN — the tournament background match descriptor (mapped v2.7.4–v2.8.0)
 
+> **TN is short for "TourNament".** It is the prefix used by this feature's code symbols
+> (`TN_ENABLED`, `TN_GATE`, `TN_TAB_*`, `tourn_capture`, …), and this document reuses it.
+
 Tournament (league) background matches are launched by a rayon worker. The **match execution record
 lives in the caller's stack frame**:
 
