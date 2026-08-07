@@ -651,7 +651,7 @@ const SCENES = [
   { name: '전체', main: null, match: null },
   { name: '데모', main: 'ui/layout/title.ui', match: /^ui\/layout\/((title|disclaimer|prologue|prologue_first|new_game|team_select)\.ui|new_game_component\/)/ },
   { name: '관리', main: 'ui/layout/home.ui', match: /^ui\/layout\/((main|home|schedule|lineup|scout|news|finance|facility|training|team_data|records|rank|statistics|solo_rank|locker_room|gaming_house_bg|transfer_offer|staff_offer|staff_view_detail|today_match|recruit_offer|team_detail|team_detail_squad|view_detail|view_detail_backup|champion_info|item_info|game_rules_info|patch_history_info)\.ui|(home|schedule|lineup|scout|news|finance|facility|training|team_data|records|rank|statistics|solo_rank|locker_room|gaming_house|transfer|recruit|staff|main_button|today_match|player_detail|team_detail|champion_info|item_info|game_rules_info|patch_history_info|mods)_component\/|player_detail\/|main_button\/)/ },
-  { name: '밴픽', main: 'ui/layout/banpick/layout.ui', match: /banpick|enemy_lineup|side_select_popup|pick_button/ },
+  { name: '밴픽', main: '(프리셋)/밴픽 - 슬롯 채움', match: /banpick|enemy_lineup|side_select_popup|pick_button|\(프리셋\)\/밴픽/ },
   { name: '전술', main: 'ui/layout/strategy.ui', match: /strategy/ },
   { name: '관전', main: '(프리셋)/관전 - 일반 HUD', match: /^(ui\/layout\/((ingame|loading|spectate_lineup_waiting|stadium_entrance|log)\.ui|(ingame|loading)_component\/)|\(프리셋\)\/관전)/ },
   { name: '결과', main: 'ui/layout/match_result.ui', match: /match_result|^ui\/layout\/pick\.ui/ },
@@ -677,7 +677,8 @@ const FLOW = {
   [L('today_match.ui')]: { nodes: {}, links: [['경기장 입장', L('stadium_entrance.ui')], ['로딩 → 밴픽', L('loading.ui')]] },
   [L('stadium_entrance.ui')]: { nodes: {}, links: [['로딩', L('loading.ui')]] },
   [L('loading.ui')]: { nodes: {}, links: [['밴픽', L('banpick/layout.ui')]] },
-  [L('banpick/layout.ui')]: { nodes: {}, links: [['(밴픽 완료) → 경기 관전', L('ingame.ui')], ['진영 선택 팝업', L('side_select_popup.ui')], ['상대 라인업', L('enemy_lineup.ui')], ['밴픽 채팅 팝업', L('banpick/chat_popup.ui')], ['밴픽 통계 팝업', L('banpick/stats_popup.ui')]] },
+  [L('banpick/layout.ui')]: { nodes: {}, links: [['슬롯 채움 프리셋', '(프리셋)/밴픽 - 슬롯 채움'], ['(밴픽 완료) → 경기 관전', '(프리셋)/관전 - 일반 HUD'], ['진영 선택 팝업', L('side_select_popup.ui')], ['상대 라인업', L('enemy_lineup.ui')], ['밴픽 채팅 팝업', L('banpick/chat_popup.ui')], ['밴픽 통계 팝업', L('banpick/stats_popup.ui')]] },
+  '(프리셋)/밴픽 - 슬롯 채움': { nodes: {}, links: [['(밴픽 완료) → 경기 관전', '(프리셋)/관전 - 일반 HUD'], ['빈 밴픽(원본)', L('banpick/layout.ui')], ['밴픽 채팅 팝업', L('banpick/chat_popup.ui')], ['밴픽 통계 팝업', L('banpick/stats_popup.ui')]] },
   [L('ingame.ui')]: { nodes: {}, links: [['관전(일반 HUD)', '(프리셋)/관전 - 일반 HUD'], ['관전(전체보기)', '(프리셋)/관전 - 전체보기'], ['(경기 종료) → 결과', L('match_result.ui')], ['일시정지', L('pause.ui')]] },
   '(프리셋)/관전 - 일반 HUD': { nodes: {}, links: [['전체보기로 전환', '(프리셋)/관전 - 전체보기'], ['(경기 종료) → 결과', L('match_result.ui')], ['일시정지', L('pause.ui')]] },
   '(프리셋)/관전 - 전체보기': { nodes: {}, links: [['일반 HUD로 전환', '(프리셋)/관전 - 일반 HUD'], ['(경기 종료) → 결과', L('match_result.ui')], ['일시정지', L('pause.ui')]] },
@@ -708,6 +709,7 @@ const MENU_LAYOUT = [ // main.ui #left 카테고리 → [라벨, 대상화면] (
 const PRESETS = {
   '(프리셋)/관전 - 일반 HUD': { base: L('ingame.ui'), mode: 'compact' },
   '(프리셋)/관전 - 전체보기': { base: L('ingame.ui'), mode: 'wide' },
+  '(프리셋)/밴픽 - 슬롯 채움': { base: L('banpick/layout.ui'), mode: 'banpick' },
 };
 function baseKeyOf(key) { return PRESETS[key] ? PRESETS[key].base : key; }
 function cloneTpl(t) { return JSON.parse(JSON.stringify(t)); }
@@ -779,6 +781,60 @@ function composeSpectate(baseRoot, mode) {
       if (row) for (let i = 0; i < 5; i++) { const r2 = cloneTpl(row); r2.id = 'row' + i; host.children.push(r2); }
     }
   }
+  return root;
+}
+function composeBanpick(baseRoot) {
+  const root = cloneTpl(baseRoot);
+  const POSITIONS = ['top', 'jungle', 'mid', 'bottom', 'support'];
+  function tplOf(file) {
+    if (!_rowCache[file]) _rowCache[file] = getParsedRoot(file);
+    return _rowCache[file];
+  }
+  function inject(ids, file, count, perInstance) {
+    const host = findTplByIds(root, ids);
+    const tpl = tplOf(L('banpick/' + file));
+    if (!host || !tpl) return;
+    for (let i = 0; i < count; i++) {
+      const c = cloneTpl(tpl);
+      c.id = file.replace('.ui', '') + i;
+      if (perInstance) perInstance(c, i);
+      host.children.push(c);
+    }
+  }
+  function show(ids) { const t = findTplByIds(root, ids); if (t) t.props.visible = 'true'; }
+  // 중앙 챔피언 그리드 (1272px Table — 132.44px 슬롯 9열 × 3줄)
+  inject(['champions', 'contents'], 'champion_slot.ui', 27, (c, i) => {
+    walkTpl(c, n => {
+      if (n.id === 'name' && n.type === 'label') n.props.text = '"챔피언 ' + (i + 1) + '"';
+      if (n.id === 'ban' && i % 9 === 4) n.props.visible = 'true'; // 줄마다 하나는 밴 표시
+    });
+  });
+  // 밴 슬롯 5 + 세트 3 (양측)
+  inject(['bottom', 'blue_side', 'bans'], 'ban_slot.ui', 5);
+  inject(['bottom', 'red_side', 'bans'], 'ban_slot.ui', 5);
+  inject(['bottom', 'blue_side', 'sets'], 'set_slot.ui', 3, (c, i) => { if (i === 0) c.props.color = '#37d5b3ff'; });
+  inject(['bottom', 'red_side', 'sets'], 'set_slot.ui', 3);
+  // 픽 슬롯 5 (포지션 아이콘 top/jungle/mid/bottom/support)
+  const setPos = (c, i) => walkTpl(c, n => {
+    if (n.id === 'position' && n.type === 'image') n.props.source = '"asset/base/ui/icons/' + POSITIONS[i] + '"';
+  });
+  inject(['blue_picks'], 'blue_pick_slot.ui', 5, setPos);
+  inject(['red_picks'], 'red_pick_slot.ui', 5, setPos);
+  // 하단 챔피언 풀 (양측)
+  show(['blue_pool']); show(['red_pool']);
+  inject(['blue_pool', 'data'], 'pool_slot.ui', 5);
+  inject(['red_pool', 'data'], 'pool_slot.ui', 5);
+  // 팀명·헤더 문구
+  const bn = findTplByIds(root, ['bottom', 'blue_side', 'name']);
+  if (bn) bn.props.text = '"BLUE TEAM"';
+  const rn = findTplByIds(root, ['bottom', 'red_side', 'name']);
+  if (rn) rn.props.text = '"RED TEAM"';
+  const mu = findTplByIds(root, ['bottom', 'matchup']);
+  if (mu) mu.props.text = '"BLUE TEAM vs RED TEAM"';
+  const desc = findTplByIds(root, ['header', 'desc']);
+  if (desc) desc.props.text = '"BLUE 밴 차례"';
+  const step = findTplByIds(root, ['header', 'step']);
+  if (step) step.props.text = '"밴 페이즈 1/2"';
   return root;
 }
 function isManageContent(root) {
@@ -1072,13 +1128,6 @@ function renderLayout(st, parentEl, stack, fileKey) {
     });
   } else if (t === 'canvas') {
     el.style.background = 'repeating-linear-gradient(-45deg,#ffffff0a 0 6px,transparent 6px 12px)';
-    el.style.outline = '1px dashed #ffffff22';
-    if (st.w > 60 && st.h > 20) {
-      const nm = document.createElement('div');
-      nm.textContent = 'canvas';
-      nm.style.cssText = 'position:absolute;left:4px;top:2px;font-size:10px;color:#ffffff44;';
-      el.appendChild(nm);
-    }
   } else if (t === 'checkbox') {
     el.style.background = pColor('#1d1f2cff');
     el.style.border = '1px solid ' + pColor('#4a4c56ff');
@@ -1086,6 +1135,15 @@ function renderLayout(st, parentEl, stack, fileKey) {
   } else {
     // empty / *_ui / 미지의 러너 = 컨테이너
     if (typeof P.color === 'string' && colorAlpha(P.color) > 0) el.style.background = pColor(P.color);
+    // game-view 커스텀 버튼류(banpick_champion_slot 등): base{back_color} + primitive rounding
+    const baseBlk = blockProps(P.base);
+    if (baseBlk && typeof baseBlk.back_color === 'string') {
+      el.style.background = pColor(baseBlk.back_color);
+      const lw = pNum(P.line_width, 0);
+      const lc = blockProps(P.line_color);
+      if (lw > 0) el.style.border = `${lw}px solid ${pColor(lc && typeof lc.normal === 'string' ? lc.normal : '#4a4c56ff')}`;
+    }
+    if (typeof P.rounding === 'string' && /^\d+(\.\d+)?$/.test(P.rounding)) el.style.borderRadius = pNum(P.rounding, 0) + 'px';
   }
 
   // hover/press 시뮬레이션
@@ -1239,8 +1297,8 @@ function rebuild() {
   // ---- 합성 ----
   const preset = PRESETS[currentKey];
   if (root && preset) {
-    root = composeSpectate(root, preset.mode);
-    composed = '관전 합성(' + (preset.mode === 'wide' ? '전체보기' : '일반 HUD') + ')';
+    if (preset.mode === 'banpick') { root = composeBanpick(root); composed = '밴픽 합성(슬롯 채움)'; }
+    else { root = composeSpectate(root, preset.mode); composed = '관전 합성(' + (preset.mode === 'wide' ? '전체보기' : '일반 HUD') + ')'; }
   } else if (root && SHELL_ON && isManageContent(root) && currentKey !== L('main.ui') && FILES.has(L('main.ui'))) {
     root = composeShell(root);
     composed = 'main.ui 셸 합성';
