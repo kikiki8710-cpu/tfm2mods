@@ -2497,7 +2497,13 @@ impl eframe::App for App {
               let pos = self.active_class as usize;
               let pk = format!("{}_class_{}", k, CLASS_EN[pos]);
               let was = self.model.map.contains_key(&pk);
-              let gval = cur.clone();                 // 전역 현재값(상속 대상)
+              // ★[08-07] 상속칸이 **공백으로 보이던 문제**. 전역 모드는 `shown_val()` 로
+              //   "cfg 에 줄이 없거나 -1(=원본 유지)" 일 때 **게임 원본값을 대신 보여주는데**,
+              //   여기만 `cur`(=cfg 원문)을 그대로 써서 빈칸이 나왔다(교전 진입·합류 탭처럼
+              //   cfg 에 줄이 없는 항목이 많은 탭에서 전부 빈칸).
+              //   ⚠더 위험했던 건 아래 '기본 따름' 해제 시 초깃값 — 빈칸이면 **"0" 을 넣고** 있었다.
+              //   0 은 게임 원본이 아니라 그냥 0 이라, 체크만 풀어도 회피계수 0 같은 값이 저장된다.
+              let gval = shown_val(k, &cur);          // 전역 현재값(없으면 원본값으로 폴백)
               let mut inherit = !was;
               let mut new_val: Option<String> = None;
               ui.horizontal(|ui| {
@@ -2507,8 +2513,9 @@ impl eframe::App for App {
                   ui.add_enabled(false, egui::TextEdit::singleline(&mut gv)
                     .desired_width(COL2_W - 96.0).font(egui::TextStyle::Monospace));
                 } else {
-                  let mut v = if was { self.get_val(&pk) }
-                              else if gval.is_empty() { "0".to_string() } else { gval.clone() };
+                  // ★체크를 막 푼 순간의 초깃값 = **상속받던 그 값**(위 gval, 원본값 폴백 포함).
+                  //   예전엔 gval 이 비면 "0" 을 넣어, 체크만 풀어도 원본과 무관한 0 이 저장됐다.
+                  let mut v = if was { self.get_val(&pk) } else { gval.clone() };
                   let resp = ui.add_sized([COL2_W - 96.0, 24.0],
                     egui::TextEdit::singleline(&mut v).font(egui::TextStyle::Monospace));
                   if resp.changed() || !was { new_val = Some(v.trim().to_string()); }
