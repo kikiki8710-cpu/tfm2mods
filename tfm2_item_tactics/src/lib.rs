@@ -3357,6 +3357,8 @@ impl ModExtension for ItemTacticsExt {
                     }
                     else if !trust { MY_TRUST_SKIP.fetch_add(1, Ordering::Relaxed); }
                 }
+                // ★08-06: itemnet 재시도(경기 중). 같은 120프레임 스로틀에 얹는다 — 후보 3개 검사뿐이라 저비용.
+                if n % ROSTER_POLL == 0 { itemnet_retry(); }
                 perf::rec(perf::S_POST_ROSTER, __rt);
             }
             // ★★lean(07-18): 관전 식별 = launcher(LIVE_SEED)+seed-ctor(RENDER_PROVIDER)+buy r9 대조(v13).
@@ -3505,6 +3507,17 @@ fn probe_db(ctx: &mut ServerModContext) {
     // Database 시작 = champion_patch_statistics(@Database+0x16698) 절대주소 − 0x16698.
     let cps = &ctx.database.champion_patch_statistics as *const _ as usize;
     let db = cps.wrapping_sub(0x16698);
+    // ★★2026-08-07 — **Database 구조체 시작 주소를 하드코딩 없이 직접 취득한다.**
+    //   구 코드는 `db = cps − 0x16698` 로 역산했는데, 그 `0x16698`(= champion_patch_statistics 의
+    //   구조체 내 오프셋)이 0.5.4 에서 유효한지는 **한 번도 검증된 적이 없다**. 그런데 exe 대조로
+    //   net = GameData+0x1558 은 0.5.4 에서도 불변인데 런타임 `db+0x1558` 이 계속 빗나갔다
+    //   ⟹ 의심할 것은 오프셋이 아니라 base 다.
+    //   `ctx.database` 는 참조이므로 `addr_of!(*ctx.database)` 가 곧 구조체 base = exe 의 `r13` 후보.
+    //   ⟹ 이제 `0x16698` 없이 정확한 base 를 얻는다(다음 패치에도 안 썩는다).
+    let dbase = core::ptr::addr_of!(*ctx.database) as usize;
+    DB_DIRECT.store(dbase as u64, Ordering::Relaxed);
+    SERVER_DB.store(db as u64, Ordering::Relaxed);   // ★08-06: 경기 중 itemnet 재시도용(probe_db 가 1회뿐일 수 있음)
+    SERVER_CPS.store(cps as u64, Ordering::Relaxed); // ★08-06: 구 역산 base 와의 대조용
     // ── 아이템 신경망 probe + 자가검증(16384/16384/1) ──
     //   ★0.5.0_3 실측: db+0xd30 (구 0xda0에서 -0x70 이동, netscan 진단 HIT). 후보 순차 + 윈도우 스캔 폴백(패치 견고).
     if ITEM_NET_ADDR.load(Ordering::Relaxed) == 0 {
@@ -3514,12 +3527,24 @@ fn probe_db(ctx: &mut ServerModContext) {
             let sig_ok = |a: usize| readable(a, 0x20) && rd_u64(a) == 16384 && rd_u64(a + 0x10) == 16384 && rd_u64(a + 0x18) == 1
                 && { let w = rd_u64(a + 0x8) as usize; w >= 0x10000 && readable(w, 16384 * 4) };
             let mut found = 0usize;
-            for &off in &[0x1558usize, 0xd30, 0xda0] { // ★0.5.1: 게임 실제 net=GameData+0x1558(ghidra-re 확정, 양버전 동일) 우선. db==GameData베이스.
-                if sig_ok(db + off) { found = db + off; break; }
+            // ★08-07: **직접 취득한 base(dbase) 를 1순위**, 구 역산 base(db) 를 2순위로 시도한다.
+            //   net=GameData+0x1558 은 0.5.3·0.5.4 exe 대조 확정(둘 다 beam 의 net 인자 `lea …,[r13+0x1558]`).
+            'outer: for &base in &[dbase, db] {
+                for &off in &[0x1558usize, 0xd30, 0xda0] {
+                    if sig_ok(base + off) { found = base + off; break 'outer; }
+                }
             }
-            if found == 0 { // 윈도우 자동탐색(향후 패치서 또 이동해도 자가복구)
+            // 윈도우 자동탐색(향후 패치서 또 이동해도 자가복구).
+            // ★08-06 상한 신설: `sig_ok` 는 readable()=VirtualQuery 커널호출이라 1회 스캔이 12,288 호출이다.
+            //   `ITEM_NET_ADDR==0` 인 동안 **관리틱마다** 이게 돌면 순수 낭비 ⟹ 시도 횟수를 제한한다.
+            //   후보 3개 직접검사는 싸므로 상한 이후에도 계속 돈다(늦게 할당되는 경우를 계속 잡는다).
+            if found == 0 && NETSCAN_TRIES.fetch_add(1, Ordering::Relaxed) < 64 {
+                // ⚠좁은 창(96KB)·`sig_ok`(=readable 선행) 유지 — 08-06 가드페이지 크래시의 재발 방지선.
                 let mut o = 0usize;
-                while o < 0x18000 { let a = db + o; if sig_ok(a) { found = a; break; } o += 8; }
+                'w: for &base in &[dbase, db] {
+                    o = 0;
+                    while o < 0x18000 { let a = base + o; if sig_ok(a) { found = a; break 'w; } o += 8; }
+                }
             }
             if found != 0 {
                 ITEM_NET_ADDR.store(found as u64, Ordering::Relaxed);
@@ -3555,12 +3580,122 @@ fn probe_db(ctx: &mut ServerModContext) {
             }
         }
     }
-    if MODITEMS_DONE.load(Ordering::Relaxed) { return; }
-    unsafe { dump_mod_items(db); }
-    append_log("item_tactics.txt", &format!("[{}ms] probe_db: db={:#x} 모드템 {}개 최종 {}개", now_ms(), db,
-        MOD_REGISTRY.lock().unwrap_or_else(|e| e.into_inner()).len(),
-        MOD_FINALS.lock().unwrap_or_else(|e| e.into_inner()).len()));
-    // ★★진단 산출물(LOG_ENABLED 무관 · 세션당 1회) — 2026-08-06 신설, 프로덕션 상주.
+    // ★08-06 정정 — 이 write 를 `MODITEMS_DONE` early-return **앞**으로 옮긴다.
+    //   ⚠구현 실수 경위: 처음엔 이 블록이 early-return 뒤에 있어 **세션 최초 probe_db 1회만** 기록됐다.
+    //   그 시점은 GameData 가 아직 다 안 채워졌을 수 있는 가장 이른 순간이라, `ITEM_NET_ADDR=0` 이
+    //   "끝내 실패"가 아니라 "아직 못 찾음"인데도 **★FAIL 로 단정 보고**하게 만들었다(실제로 오보했다).
+    //   itemnet 은 관리틱마다 재시도되므로 **상태가 바뀌면 다시 쓴다**(무변경이면 write 생략 = 비용 0).
+    if !MODITEMS_DONE.load(Ordering::Relaxed) {
+        // ★08-07: 구 역산 base(`db`) 대신 **직접 base(`dbase`)** 를 쓴다.
+        //   실측으로 `0x16698` 이 STALE 확정(실제 = `0x16ec0`, 두 base 차 −0x828)이므로 구 base 는
+        //   구조체 시작보다 0x828 뒤에서 스캔을 시작하고 있었다. 지금까지 123개를 찾아낸 건
+        //   스캔 창(0x60000)이 넓어서였을 뿐 = 운. 검증은 이 파일의 `MOD_REGISTRY` 줄로 즉시 된다.
+        unsafe { dump_mod_items(dbase); }
+        append_log("item_tactics.txt", &format!("[{}ms] probe_db: db={:#x} 모드템 {}개 최종 {}개", now_ms(), db,
+            MOD_REGISTRY.lock().unwrap_or_else(|e| e.into_inner()).len(),
+            MOD_FINALS.lock().unwrap_or_else(|e| e.into_inner()).len()));
+    }
+    write_registry_status(db); // ★항상 **마지막** — dump 결과가 반영된 상태를 기록해야 판독이 된다
+}
+
+// ★★08-06 신설 — 경기 중에도 itemnet 재시도.
+//   경위: `probe_db` 는 `on_server_start` 1회 + `before_management_tick` 에서만 돈다. 그런데
+//   **management tick 은 "일정 넘김" 때만 발생**하지 관리 화면에 머무는 동안 도는 게 아니다.
+//   ⟹ 유저가 세이브 로드 → 곧장 경기로 가면 **세션 전체에서 probe_db 가 단 1회**뿐이고,
+//   그 1회에 아직 할당 전이던 net 은 영영 못 잡는다(08-06 실측: 파일이 `윈도우 스캔 1/64회` 로 멈춰 있었다).
+//   비용 = 후보 3개 직접검사(readable 3회)뿐 — 전범위 윈도우 스캔은 하지 않는다.
+static SERVER_DB: AtomicU64 = AtomicU64::new(0);
+static SERVER_CPS: AtomicU64 = AtomicU64::new(0);
+static DB_DIRECT: AtomicU64 = AtomicU64::new(0); // ★08-07: addr_of!(*ctx.database) = 하드코딩 없는 진짜 base
+static NETWIDE_TRIES: AtomicU64 = AtomicU64::new(0);
+static NETRETRY_N: AtomicU64 = AtomicU64::new(0); // itemnet_retry 호출 수(배선이 살아있는지 증명용)
+// net 시그 검사.
+// ⛔★★2026-08-06 사고 — 여기서 `readable()` 을 생략하고 `safe_read_u64` 로 바로 읽었다가
+//   **게임을 크래시시켰다**(`code=0x80000001` = STATUS_GUARD_PAGE_VIOLATION, 세이브 로드 중).
+//   `readable()` 은 `mbi.protect & (PAGE_NOACCESS|PAGE_GUARD)` 를 걸러낸다(L153) — 즉 **가드 페이지를
+//   피하는 유일한 장치가 그 VirtualQuery 였다.** VEH 는 AV 는 잡아도 가드페이지 위반을 삼키면
+//   스레드 스택 자동증가 메커니즘이 깨져 프로세스가 죽는다.
+//   ⟹ **임의 주소를 만지기 전 `readable()` 은 생략 불가.** "커널호출이 비싸다"는 최적화 동기로
+//     이걸 빼는 것은 재시도 금지(= DONE.md 등재).
+unsafe fn net_sig_at(a: usize) -> bool {
+    if !readable(a, 0x20) { return false; }   // ⛔ 이 줄을 절대 지우지 말 것(위 사고 경위)
+    if rd_u64(a) != 16384 || rd_u64(a + 0x10) != 16384 || rd_u64(a + 0x18) != 1 { return false; }
+    let w = rd_u64(a + 8) as usize;
+    // 가중치 ptr 검증(lookalike 배제 — 이게 없으면 forward 내부 +0x44a 에서 deref AV)
+    w >= 0x10000 && readable(w, 16384 * 4)
+}
+fn itemnet_retry() {
+    NETRETRY_N.fetch_add(1, Ordering::Relaxed);
+    if ITEM_NET_ADDR.load(Ordering::Relaxed) != 0 { return; }
+    let db = SERVER_DB.load(Ordering::Relaxed) as usize;
+    if db < 0x10000 { return; }
+    // 재시도가 돌았다는 사실 자체를 파일에 반영(광역스캔 카운트가 sig 에 들어있어 자동 갱신된다)
+    if NETRETRY_N.load(Ordering::Relaxed) <= 12 { write_registry_status(db); }
+    unsafe {
+        // ★08-07: 직접 base 1순위, 구 역산 base 2순위. 0x1558 = 0.5.4 exe 대조로 확인된 GameData 내 정위치.
+        for &base in &[DB_DIRECT.load(Ordering::Relaxed) as usize, db] {
+            if base < 0x10000 { continue; }
+            for &off in &[0x1558usize, 0xd30, 0xda0] {
+                let a = base + off;
+                if net_sig_at(a) { ITEM_NET_ADDR.store(a as u64, Ordering::Relaxed); write_registry_status(db); return; }
+            }
+        }
+        // ⛔★★2026-08-06 폐기 — **cps 기준 광역 메모리 스캔은 재시도 금지.**
+        //   시도했던 것: cps ± 수백KB 를 8바이트 간격으로 훑어 net 시그를 찾고 db 를 역산.
+        //   결과: **게임 크래시**(`code=0x80000001` STATUS_GUARD_PAGE_VIOLATION, 세이브 이어하기 중).
+        //   근본원인: 넓은 창을 훑으면 언젠가 **다른 스레드의 스택 가드 페이지**를 밟는다. 가드페이지
+        //   위반은 "AV 를 VEH 로 삼키면 된다" 가 통하지 않는다 — 삼키는 순간 스택 자동증가가 깨진다.
+        //   ⟹ 임의 주소 광역 스캔 자체가 잘못된 접근. 다음 수단은 **beam(0.5.4 `0x145b090`) 진입부에
+        //     캡처 훅을 걸어 rdx(=net) 를 그대로 받는 것** — 오프셋 가정이 0이고 스캔도 없다.
+        let _ = &NETWIDE_TRIES; // (구 스캔 카운터 — 유지만, 미사용)
+        #[cfg(any())]
+        {
+        // ↓이하 폐기된 구현(참고용, 컴파일 제외)
+        //   근거: exe 대조로 net = GameData+0x1558 은 0.5.4 에서도 불변인데(0.5.3 `lea rsi,[r13+0x1558]`
+        //   ↔ 0.5.4 `lea r15,[r13+0x1558]`, 둘 다 beam 의 net 인자), 런타임 `db+0x1558` 이 경기 한 판을
+        //   다 돌리도록 계속 빗나갔다 ⟹ **`db`(= cps − 0x16698) 가 GameData 가 아니다 = `0x16698` 이 stale.**
+        //   ⟹ 하드코딩 오프셋을 믿지 말고 **cps 로부터 net 을 직접 찾아 db 를 역산**한다.
+        //   net 은 GameData 안에서 cps(+0x16698 자리)보다 **앞**에 있으므로 뒤쪽을 넓게 본다.
+        //   ⚠비용: VEH 읽기만 사용(커널호출 없음). 시도 8회 상한 · 120프레임 간격.
+        if NETWIDE_TRIES.fetch_add(1, Ordering::Relaxed) >= 8 { return; }
+        let cps = SERVER_CPS.load(Ordering::Relaxed) as usize;
+        if cps < 0x10000 { return; }
+        // ★08-06 4차: 범위 확대(구 −0x40000/+0x8000 에서 무결과). VEH 읽기라 커널호출 0 = 확대 비용 낮음.
+        let lo = cps.saturating_sub(0x100000);
+        let hi = cps + 0x20000;
+        let mut a = lo & !7usize;
+        while a < hi {
+            if net_sig_at(a) {
+                ITEM_NET_ADDR.store(a as u64, Ordering::Relaxed);
+                // db 역산: net 이 GameData+0x1558 이므로 GameData = net − 0x1558.
+                let real_db = a.wrapping_sub(0x1558);
+                let cps_off = cps.wrapping_sub(real_db);
+                let s = format!(
+                    "[{}ms] ★itemnet 광역 탐색 성공 — db base 하드코딩이 틀렸다는 증거\n\n\
+                     \x20 cps(&champion_patch_statistics) = {:#x}\n\
+                     \x20 net 실제 위치                    = {:#x}\n\
+                     \x20 역산 GameData(= net − 0x1558)    = {:#x}\n\
+                     \x20 ★역산 cps 오프셋                = {:#x}   (소스 하드코딩 = 0x16698)\n\
+                     \x20 소스가 쓰던 db(= cps − 0x16698)  = {:#x}   (차이 = {}{:#x})\n\n\
+                     \x20 ⟹ `probe_db` 의 `0x16698` 을 위 '역산 cps 오프셋' 으로 교체할 것.\n\
+                     \x20 ⟹ 이 값은 `dump_mod_items(db)` 도 함께 쓰므로 그쪽 스캔 정확도도 같이 올라간다.\n",
+                    now_ms(), cps, a, real_db, cps_off, db,
+                    if real_db >= db { "+" } else { "−" },
+                    if real_db >= db { real_db - db } else { db - real_db });
+                if let Some(dd) = mod_dir() { let _ = fs::create_dir_all(&dd); let _ = fs::write(dd.join("item_tactics_netfind.txt"), s); }
+                write_registry_status(db);
+                return;
+            }
+            a += 8;
+        }
+        } // #[cfg(any())] 폐기 블록 끝
+    }
+}
+
+static NETSCAN_TRIES: AtomicU64 = AtomicU64::new(0);   // 윈도우 전범위 스캔 시도 수(상한 64)
+static REG_LAST_SIG: AtomicU64 = AtomicU64::new(u64::MAX); // 마지막으로 기록한 상태 지문(무변경 write 억제)
+fn write_registry_status(db: usize) {
+    // ★★진단 산출물(LOG_ENABLED 무관 · **상태 변화 시에만** write) — 2026-08-06 신설, 프로덕션 상주.
     //   경위: 프로덕션은 `LOG_ENABLED=false` 라 `dump_mod_items` 가 실패해도 파일이 하나도 안 남는다.
     //   그런데 이 함수는 **실패해도 `MODITEMS_DONE` 을 세워 재시도하지 않으므로**(dump_mod_items L1)
     //   이 1회 결과가 곧 그 세션의 결론이고, 레지스트리가 비면 **모드템 지정이 전부 조용히 무시**된다.
@@ -3572,15 +3707,82 @@ fn probe_db(ctx: &mut ServerModContext) {
         let (act_n, act_tot) = { let a = MOD_ACTIVE.lock().unwrap_or_else(|e| e.into_inner());
                                  (a.iter().filter(|&&x| x).count(), a.len()) };
         let net = ITEM_NET_ADDR.load(Ordering::Relaxed);
-        let mut s = format!("[{}ms] item_tactics 레지스트리/신경망 프로브 결과 (세션 1회)\n\n", now_ms());
-        s.push_str(&format!("  db base       = {:#x}  (= &champion_patch_statistics − 0x16698)\n", db));
+        let tries = NETSCAN_TRIES.load(Ordering::Relaxed);
+        // 상태 지문 — 바뀐 게 없으면 write 하지 않는다(관리틱마다 도는 자리라 무조건 write 는 낭비).
+        let sig = (reg as u64) ^ ((fin as u64) << 12) ^ ((act_n as u64) << 24) ^ net.rotate_left(17)
+                  ^ if net == 0 { (tries.min(64) << 40) ^ (NETWIDE_TRIES.load(Ordering::Relaxed).min(9) << 52) } else { 0 };
+        if REG_LAST_SIG.swap(sig, Ordering::Relaxed) == sig { return; }
+        let mut s = format!("[{}ms] item_tactics 레지스트리/신경망 프로브 결과 (상태 변화 시 갱신)\n\n", now_ms());
+        s.push_str(&format!("  db base(구·역산) = {:#x}  (= &champion_patch_statistics − 0x16698)\n", db));
+        {   // ★08-07: 하드코딩 없이 직접 얻은 Database base 와 대조 — 0x16698 유효성 판정
+            let dd = DB_DIRECT.load(Ordering::Relaxed) as usize;
+            let cp = SERVER_CPS.load(Ordering::Relaxed) as usize;
+            if dd != 0 {
+                s.push_str(&format!("  db base(신·직접) = {:#x}  (= addr_of!(*ctx.database))\n", dd));
+                if cp != 0 {
+                    let real_off = cp.wrapping_sub(dd);
+                    s.push_str(&format!("  ★실제 cps 오프셋 = {:#x}   (하드코딩 = 0x16698 → {})\n",
+                        real_off, if real_off == 0x16698 { "일치 = 0x16698 유효" } else { "★불일치 = 0x16698 이 STALE" }));
+                }
+                s.push_str(&format!("  두 base 차이     = {}{:#x}\n",
+                    if dd >= db { "+" } else { "−" }, if dd >= db { dd - db } else { db - dd }));
+            }
+        }
         s.push_str(&format!("  MOD_REGISTRY  = {}개   {}\n", reg,
             if reg == 0 { "★FAIL — 모드템 지정이 전부 미적용된다(SEL_PENDING 행). 상세=item_tactics_moditems.txt(LOG_ENABLED 필요)" } else { "OK" }));
         s.push_str(&format!("  MOD_ACTIVE    = {}/{} 활성\n", act_n, act_tot));
         s.push_str(&format!("  MOD_FINALS    = {}개   {}\n", fin,
             if fin == 0 { "★FAIL — 드롭다운 모드템 목록이 비고 지정 해석 불가" } else { "OK" }));
+        // ⚠★판독 주의(08-06 오보 방지): net 은 **관리틱마다 재시도**된다. `0x0` 은 "그 시점까지 못 찾음"이지
+        //   "끝내 실패"가 아니다. 윈도우 스캔 상한(64회)을 다 쓴 뒤에도 0 이어야 비로소 FAIL 로 읽을 것.
         s.push_str(&format!("  ITEM_NET_ADDR = {:#x}  {}\n", net,
-            if net == 0 { "★FAIL — 신경망 미발견. 미지정 슬롯의 4번째가 바닐라 FNV 폴백으로 떨어진다 + 관리틱마다 0x18000 전범위 재스캔(성능)" } else { "OK" }));
+            if net != 0 { "OK".to_string() }
+            else if tries < 64 { format!("아직 못 찾음(윈도우 스캔 {}/64회 — 재시도 중, FAIL 아님)", tries) }
+            else { "★FAIL — 스캔 상한 소진. 미지정 슬롯의 4번째가 바닐라 FNV 폴백으로 떨어진다".to_string() }));
+        // ★★08-07 신설 — **버킷 확장 감지.** 2026-08-06~07 에 이 한 줄이 없어서 반나절을 태웠다.
+        //   `tfm2_itemnet_tune` 의 `itemnet_expand.py` 가 세이브의 해시 버킷을 16384 → 524288 로
+        //   무손실 확장하면(`w_new[j]=w_old[j%16384]`, 세이브에 직렬화 = 커리어 영구), 헤더가 더 이상
+        //   16384 가 아니라 **우리 시그 체크(`==16384`)가 조용히 실패**한다. net 은 멀쩡히 살아 있는데.
+        //   → 그 상태를 "0.5.4 마이그 누락"으로 오진했다. 이제 헤더를 읽어 그 사실을 직접 말하게 한다.
+        //   (정본 = `REPORT\tfm2_itemnet_tune\03_시행착오.md` 모드 상호작용 표)
+        if net == 0 {
+            let dd = DB_DIRECT.load(Ordering::Relaxed) as usize;
+            let a = if dd != 0 { dd + 0x1558 } else { db + 0x1558 };
+            if unsafe { readable(a, 0x20) } {
+                let (n0, n1, n3) = unsafe { (rd_u64(a), rd_u64(a + 0x10), rd_u64(a + 0x18)) };
+                if n0 == n1 && n3 == 1 && n0 != 16384 && n0 >= 1024 && n0 <= (1 << 22) {
+                    s.push_str(&format!(
+                        "  ⚠★버킷 확장 감지: +0x1558 헤더 = {} (바닐라 16384) — net 은 **살아 있고** 위치도 맞다.\n\
+                         \x20    원인 = `tfm2_itemnet_tune` 의 버킷 확장(세이브에 직렬화 = 그 커리어 영구).\n\
+                         \x20    AUTO4 는 16384 세이브에서만 동작한다 ⟹ 되살리려면 itemnet_tune 비활성 + **새 세이브**.\n", n0));
+                }
+            }
+        }
+        // ★★08-06 4차 — **추론 중단, 원시값 직접 표시.** 이 건에서 "오프셋이 죽었다"→"안 죽었다"→
+        //   "base 가 틀렸다" 로 판정을 세 번 뒤집었다. 전부 간접 증거(스캔 실패)만 보고 내린 결론이었다.
+        //   ⟹ 후보 자리의 **실제 메모리 내용**과 **재시도가 실제로 돌았는지**를 같이 찍어 한 번에 가른다.
+        //     · 값이 그럴듯한 다른 데이터 = base 가 틀림   · 전부 0 = 망 미초기화(새 커리어)
+        //     · 읽기실패 = 그 주소가 매핑조차 안 됨       · retry=0 = 재시도 자체가 안 돎(내 배선 문제)
+        s.push_str(&format!("\n  [원시값] retry호출={} 광역스캔={}회(상한8)\n",
+            NETRETRY_N.load(Ordering::Relaxed), NETWIDE_TRIES.load(Ordering::Relaxed)));
+        for (tag, base) in [("신", DB_DIRECT.load(Ordering::Relaxed) as usize), ("구", db)] {
+            if base == 0 { continue; }
+            for &off in &[0x1558usize, 0xd30, 0xda0] {
+                let a = base + off;
+                // ⛔`readable()` 선행 필수 — 이걸 빼고 바로 읽었다가 가드페이지 크래시를 냈다(net_sig_at 주석 참조).
+                if !unsafe { readable(a, 0x20) } {
+                    s.push_str(&format!("    [{}]base+{:#06x}: 매핑없음/보호됨(readable=false)\n", tag, off));
+                    continue;
+                }
+                let f = |o: usize| -> String { format!("{:#x}", unsafe { rd_u64(a + o) }) };
+                s.push_str(&format!("    [{}]base+{:#06x}: [0]={} [8]={} [0x10]={} [0x18]={}   (기대 16384 / ptr / 16384 / 1)\n",
+                    tag, off, f(0), f(8), f(0x10), f(0x18)));
+            }
+        }
+        s.push_str(&format!("\n  ※net 오프셋은 0.5.4 에서도 GameData+0x1558 로 불변임을 exe 로 확인했다\n\
+                               \x20   (0.5.3 `lea rsi,[r13+0x1558]` @0x182d4be ↔ 0.5.4 `lea r15,[r13+0x1558]` @0x2123733,\n\
+                               \x20    둘 다 beam(0.5.3 0x10591f0 / 0.5.4 0x145b090) 의 net 인자).\n\
+                               \x20   따라서 0 이 지속되면 의심할 곳은 **오프셋이 아니라 db base(0x16698) 또는 프로브 시점**이다.\n"));
         if let Some(d) = mod_dir() { let _ = fs::create_dir_all(&d); let _ = fs::write(d.join("item_tactics_registry.txt"), s); }
     }
 }
