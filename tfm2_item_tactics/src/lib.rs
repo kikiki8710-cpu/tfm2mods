@@ -692,7 +692,8 @@ unsafe fn dump_mod_items(db: usize) {
         write_log("item_tactics_moditems.txt", &s);
         // ★08-07 구멍3 — 실패했으면 재시도 가능하게 되돌린다(구: 첫 줄에서 DONE 을 세워 **세션 내내 재시도 없음**
         //   ⟹ 스캔이 한 번 어긋나면 모드템 지정이 전부 조용히 사망). 상한 10회로 비용 제한.
-        if MODITEMS_TRIES.fetch_add(1, Ordering::Relaxed) < 10 { MODITEMS_DONE.store(false, Ordering::Relaxed); }
+        MODITEMS_FAIL_WHY.store(1, Ordering::Relaxed);
+        if MODITEMS_TRIES.fetch_add(1, Ordering::Relaxed) < 500 { MODITEMS_DONE.store(false, Ordering::Relaxed); }
         return;
     }
     found.sort_by(|x, y| y.1.cmp(&x.1));
@@ -770,7 +771,8 @@ unsafe fn dump_mod_items(db: usize) {
         s.push_str("  ✗ 아이템 트리(next_tier) 가진 배열 없음 → 아이템 모드 미로드/미인식 의심\n");
         s.push_str(&diag);
         write_log("item_tactics_moditems.txt", &s);
-        if MODITEMS_TRIES.fetch_add(1, Ordering::Relaxed) < 10 { MODITEMS_DONE.store(false, Ordering::Relaxed); } // ★08-07 구멍3
+        MODITEMS_FAIL_WHY.store(2, Ordering::Relaxed);
+        if MODITEMS_TRIES.fetch_add(1, Ordering::Relaxed) < 500 { MODITEMS_DONE.store(false, Ordering::Relaxed); } // ★08-07 구멍3(상한 10→500: 관리틱이 빨라 병합 전 소진)
         return;
     };
     let cnt = keys.len();
@@ -2656,6 +2658,7 @@ static GATE_ROSTER: AtomicU64 = AtomicU64::new(0);
 static GATE_NONE: AtomicU64 = AtomicU64::new(0);   // ★결함 지표: 지정챔프인데 **판정 불가(None)** 로 막힘
 static GATE_BLOCK_OK: AtomicU64 = AtomicU64::new(0); // 정상 차단: 확정 타팀(적 지정챔프) — 결함 아님
 static MODITEMS_TRIES: AtomicU64 = AtomicU64::new(0);
+static MODITEMS_FAIL_WHY: AtomicU64 = AtomicU64::new(0); // 1=비바닐라 배열 못찾음 2=next_tier 없음
 static SCAN_NEG_PURGE: AtomicU64 = AtomicU64::new(0);
 // ★구멍2 — `last_starting` 에 없는 선수(교체·부상 출전)는 멤버십에서 빠져 영구 미주입된다.
 //   해결: **그 매치 로스터에 내 선발이 한 명이라도 있으면 그 side 전체를 내 팀으로 인정**한다.
@@ -3983,6 +3986,12 @@ fn write_registry_status(db: usize) {
                 GATE_BLOCK_OK.load(Ordering::Relaxed)));
             s.push_str(&format!("  게이트 교차검증(1/256): 일치={} · ★불일치={}\n",
                 GATE_AGREE.load(Ordering::Relaxed), GATE_DIFF.load(Ordering::Relaxed)));
+            {   // ★08-08 실패 사유 — 새 세이브는 **저장 후 재시작**해야 모드템이 DB 에 병합된다(실측).
+                let w = MODITEMS_FAIL_WHY.load(Ordering::Relaxed);
+                if w != 0 { s.push_str(&format!("  ★레지스트리 실패 사유 = {}
+",
+                    if w == 1 { "비바닐라 item-struct 배열 못 찾음 — ★새 세이브는 저장 후 게임 재시작 필요" }
+                    else { "next_tier 가진 배열 없음 — 아이템 모드 미로드/미인식" })); } }
             s.push_str(&format!("  레지스트리 스캔 재시도={}회 · 스캔 음성캐시 정리={}건\n",
                 MODITEMS_TRIES.load(Ordering::Relaxed), SCAN_NEG_PURGE.load(Ordering::Relaxed)));
             s.push_str("  판독: pid 미확보 또는 로스터 0명 → 구멍1 / **판정불가** 막힘>0 → 구멍2 계열\n");
