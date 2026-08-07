@@ -462,6 +462,13 @@ const LAUNCHER_RET_B: usize = 0x9e6feb; // 0.5.4 (구0.5.3=0x9a7b03) 화면 경�
 //   런처 콜사이트 0x1555210 + 5(E8 rel32) = retaddr. 이 게이트로 리플레이도 화면 경기 seed를 확정한다.
 //   (ghidra-re 2026-07-26: World 생성은 런처 0x1d96870을 반드시 경유·간접호출 전무 → 콜사이트+5=retaddr)
 const LAUNCHER_RET_C: usize = 0x1d147e4; // 0.5.4 (구0.5.3=0x229ad94) 리플레이 경로 = 콜사이트 0x1d147df+5 (핸들러 0x1d13e60 +0x97f, 크기 5272=5272)
+// ★comp_test(조합테스트) 다시보기 경로 D — comp_test는 정규 리플레이 핸들러(0x1d13e60)를 타지 않고
+//   전용 재생 빌더 0x2323aa0(training_ui.rs, CompTestHistoryEntry의 seed로 재시뮬)을 탄다.
+//   경로: comp_test 팝업 다시보기 버튼 → 0x2326820 → 0x2323aa0 → 런처 콜사이트 0x2323ff9(+5=retaddr).
+//   (ghidra-re 2026-08-08: 런처 콜사이트 exe 바이트스캔 전수 9건 중 유일한 comp_test 화면 재생 경로.
+//    ⚠0x235c382는 comp_test 백그라운드 sim 본체 추정 = 화이트리스트 금지.
+//    전문 = REPORT\tfm2_elemental_serpen\RE\2026-08-08_comptest-다시보기-런처콜사이트.md)
+const LAUNCHER_RET_D: usize = 0x2323ffe; // 0.5.4 comp_test 다시보기 = 콜사이트 0x2323ff9+5 (재생 빌더 0x2323aa0 +0x559)
 static RENDER_SEED: AtomicU64 = AtomicU64::new(0);   // ★화면 경기 seed (이게 정답 게이트)
 static LAUNCH_N: AtomicU64 = AtomicU64::new(0);      // 런처 총 발화수
 static LAUNCH_HIT: AtomicU64 = AtomicU64::new(0);    // 그중 화면 경기(retaddr 일치)
@@ -746,9 +753,9 @@ unsafe extern "C" fn cap_launcher(saved: *mut u64, _rsp: usize) -> u64 {
         // ◆진단(07-24 제보): 신규 retaddr 최초 발화 타임스탬프 — 세트 진입 시각과 대조해 미커버 경로 식별
         if new_rva && CFG_PROBE_LOG.load(Ordering::Relaxed) {
             log_push(format!("[{}ms] ◆런처 신규 retaddr rva={:#x} seed={:#x}{}", now_ms(), rva, seed,
-                if rva == LAUNCHER_RET_A || rva == LAUNCHER_RET_B || rva == LAUNCHER_RET_C { " ★게이트" } else { "" }));
+                if rva == LAUNCHER_RET_A || rva == LAUNCHER_RET_B || rva == LAUNCHER_RET_C || rva == LAUNCHER_RET_D { " ★게이트" } else { "" }));
         }
-        if rva == LAUNCHER_RET_A || rva == LAUNCHER_RET_B || rva == LAUNCHER_RET_C {
+        if rva == LAUNCHER_RET_A || rva == LAUNCHER_RET_B || rva == LAUNCHER_RET_C || rva == LAUNCHER_RET_D {
             RENDER_SEED.store(seed, Ordering::Relaxed); // ★화면에 재생할 경기 확정
             LIVE_SEED.store(seed, Ordering::Relaxed);   // 사이드테이블 게이트도 이걸로(3-deref 불필요)
             // ★(07-24) 화면 세트 fp 도출용: rcx=out Game 저장 + fp 미확정으로 리셋. 런처가 리턴해 Game이
@@ -1212,7 +1219,7 @@ fn probe_flush() {
             let g = LAUNCH_RVAS.lock().unwrap_or_else(|e| e.into_inner());
             let list: Vec<String> = g.as_ref().map(|v| v.iter()
                 .map(|(r, c)| format!("{:#x}×{}{}", r, c,
-                    if *r == LAUNCHER_RET_A as u64 || *r == LAUNCHER_RET_B as u64 || *r == LAUNCHER_RET_C as u64 { "★게이트" } else { "" }))
+                    if *r == LAUNCHER_RET_A as u64 || *r == LAUNCHER_RET_B as u64 || *r == LAUNCHER_RET_C as u64 || *r == LAUNCHER_RET_D as u64 { "★게이트" } else { "" }))
                 .collect()).unwrap_or_default();
             s.push_str(&format!("[런처호출처] {}\n", if list.is_empty() { "없음".into() } else { list.join(" ") }));
         }
