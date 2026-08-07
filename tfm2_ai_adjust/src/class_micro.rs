@@ -707,7 +707,24 @@ pub(crate) static MICRO_SITES: &[MicroSite] = &[
         a: Src::Stack(0x180), b: Src::None, resolve: Resolve::Direct,
         note: "self=[진입rsp+0x180] 재로드(rbp 는 덮임)",
     },
-    // ⑥~ 진입부 훅으로 여는 자리는 `ENTRY_SITES` 등록 후 `Resolve::FromEntry(n)` 으로 붙인다.
+    // ⑥ sf_margin — "지금 이 대상을 치러 가도 안전한가"의 안전 여유(위협 반경에 얹는 값).
+    //    ★지난 판정은 "사이트에서 self 미도달 = 불가"였는데 **오판**이었다 — self 를 `rdi`(=4번째 인자
+    //    = 공격 **대상**)로 오인했다. 실제 self 는 **3번째 인자 p3**이고 프롤로그가 `[rsp+0x50]` 에 보존한다
+    //    (write 1회 0xdb3af3 · read 6회 · 재정의 없음 · rsp 는 프롤로그/에필로그 외 불변).
+    //    확증 3중 = ①콜러 0xdbcab8 이 넘기는 값이 이미 확정된 self(r14) ②exe 가 스스로
+    //    champions[myside][*] 중 자기 자신을 제외하는 코드(0xdb448c) ③피해 추정의 피해자가 p3.
+    //    ⚠발화는 **경기 초반 한정**(`현재틱 < [[p1+8]+0x13f8]` 분기 안) — 후반에 발화=0 이어도 정상.
+    //    근거 = RE\2026-08-07_sf_margin-재조사-self는-3번째인자.md
+    MicroSite {
+        key: "sf_margin", orig: 15000, rva: 0xdb3f1b,
+        win: &[0x48, 0x05, 0x98, 0x3a, 0x00, 0x00],        // add rax,0x3a98
+        pre: &[], tail: &[],
+        op: MOp::AddR64 { dst: reg::RAX },
+        imm_off: 2, imm_w: 4,
+        a: Src::Stack(0x50), b: Src::None, resolve: Resolve::Direct,
+        note: "self=p3(3번째 인자)=[진입rsp+0x50] 재로드",
+    },
+    // ⑦~ 진입부 훅으로 여는 자리는 `ENTRY_SITES` 등록 후 `Resolve::FromEntry(n)` 으로 붙인다.
     // ⑤ ex_think_min — 재판단 간격 하한. 사이트엔 self 포인터가 없고 **재료 두 개**로 만든다:
     //    r12(=진입 rdx, 판단 컨텍스트)에서 side/role, champions 홀더는 [rbp+0x2c8](진입부 0xe76c4f 세팅).
     //    원본 = `lea rcx,[rax+rax*2+400]` ⟹ pre 로 `lea rcx,[rax+rax*2]` 실행 후 값을 더한다.

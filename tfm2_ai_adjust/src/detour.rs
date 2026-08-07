@@ -1621,7 +1621,9 @@ unsafe fn apply_db_imm() {
     p!(base + 0xe29cab, &[0x48,0x83,0xfa], 3, 1, b1(ds2l, 3));   // ←0.5.3 daf9ab
     p!(base + 0xe29ccf, &[0x48,0x83,0xfa], 3, 1, b1(dulv, 5));   // ←0.5.3 daf9cf
     // ── ⑥ 안전판정 `0xc8b560` — 위 값들과 같이 안 바꾸면 효과가 상쇄된다 ──
+    if !micro_taken("sf_margin") {   // ★[08-07] 마이크로 디투어와 상호배타
     p!(base + 0xdb3f1b, &[0x48,0x05], 2, 4, b4(dsm, 15_000));   // ←0.5.3 c8b99b
+    }
     // ★[08-05 감사] 3곳 → **5곳**(같은 함수의 5슬롯 언롤). 짝인 `sf_mem`이 5/5인 것과 대조해 확정.
     for a in [0xdb4079usize, 0xdb4166, 0xdb4242, 0xdb431e, 0xdb43fa] {
         p!(base + a, &[0x48,0xb8], 2, 8, sq(dsr, 0x3_5A4E_9000));  // 120000²

@@ -2,7 +2,7 @@
 //   기준 = tune() 호출이 apply_*(바이트패치 적용 함수) 밖에 있는가. 클래스 조회는 CUR_CLASS(판단 진입
 //   RAII)가 세팅된 동안만 동작하므로, 바이트패치 안에서만 읽히는 노브는 클래스별 값이 원리상 안 먹는다.
 //   ⚠이 목록에 없는 노브에 _class_ 를 걸면 **아무 효과 없이** skip_untuned 최적화만 꺼졌다(08-06 멈춤 사고).
-pub static CLASS_CAPABLE: [&str; 120] = [
+pub static CLASS_CAPABLE: [&str; 121] = [
     "cs_lead_attack", "d13_engage_hp_pct", "d15_engage_hp_pct", "d4_close_hp", "d4_coef_clamp", "d4_coef_min",
     "d4_coef_scale", "d4_coord_dist", "d4_div_base", "d4_dmg_scale", "d4_engage_r2", "d4_pathlen_thr",
     "d4_ref_dist2", "d4_threat_min", "d4_ttd_scale", "d4_ward_dist2", "d4_wcast_thr", "d7_hp_normal",
@@ -21,6 +21,7 @@ pub static CLASS_CAPABLE: [&str; 120] = [
     "rc_ehp_t2", "rc_ehp_t3", "rc_ehp_v1", "rc_ehp_v2", "rc_join_adv", "rc_join_dmid",
     "rc_join_dnear", "rc_join_obj_mult", "rc_join_rescue", "rc_join_weight", "rc_mult_bonus", "rc_norp_bonus",
     "rc_rng_a_base", "rc_rng_center", "rc_rng_spread_div", "rc_score_div", "rc_u13_bonus", "rc_u21_init",
-    "sn_home_hi", "sn_home_lo", "sn_home_x1", "sn_home_y1", "sn_hp_crit", "sn_self_hp",
-    "stat_judg_ref", "stat_neutral", "stat_noise_shift", "stat_pos_div", "tower_dps", "vis_window",
+    "sf_margin", "sn_home_hi", "sn_home_lo", "sn_home_x1", "sn_home_y1", "sn_hp_crit",
+    "sn_self_hp", "stat_judg_ref", "stat_neutral", "stat_noise_shift", "stat_pos_div", "tower_dps",
+    "vis_window",
 ];

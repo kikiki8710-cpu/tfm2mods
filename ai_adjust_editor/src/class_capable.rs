@@ -18,6 +18,7 @@ pub const CLASS_CAPABLE: &[&str] = &[
     "rc_ehp_t2", "rc_ehp_t3", "rc_ehp_v1", "rc_ehp_v2", "rc_join_adv", "rc_join_dmid",
     "rc_join_dnear", "rc_join_obj_mult", "rc_join_rescue", "rc_join_weight", "rc_mult_bonus", "rc_norp_bonus",
     "rc_rng_a_base", "rc_rng_center", "rc_rng_spread_div", "rc_score_div", "rc_u13_bonus", "rc_u21_init",
-    "sn_home_hi", "sn_home_lo", "sn_home_x1", "sn_home_y1", "sn_hp_crit", "sn_self_hp",
-    "stat_judg_ref", "stat_neutral", "stat_noise_shift", "stat_pos_div", "tower_dps", "vis_window",
+    "sf_margin", "sn_home_hi", "sn_home_lo", "sn_home_x1", "sn_home_y1", "sn_hp_crit",
+    "sn_self_hp", "stat_judg_ref", "stat_neutral", "stat_noise_shift", "stat_pos_div", "tower_dps",
+    "vis_window",
 ];
