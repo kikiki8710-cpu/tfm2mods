@@ -10,7 +10,10 @@ EXC_SUB = ("_log.txt", "_crash", "debug.txt", ".bak_")
 
 mod, base = sys.argv[1], sys.argv[2]
 src = os.path.join(G, "release", base, mod + ".zip")
-out = os.path.join(G, "release", "0.5.3", mod + ".zip")
+# 출력 버전 = argv[3](생략 시 기준버전과 동일). 구판은 0.5.3 하드코딩이라 패치 후 스테일 지뢰였다(08-08 수정).
+out_ver = sys.argv[3] if len(sys.argv) > 3 else base
+out = os.path.join(G, "release", out_ver, mod + ".zip")
+os.makedirs(os.path.dirname(out), exist_ok=True)
 live = os.path.join(G, mod)
 z = zipfile.ZipFile(src)
 ents = [i for i in z.infolist() if not i.filename.endswith("/")]
