@@ -1,0 +1,1172 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>TFM2 UI 시뮬레이터</title>
+<style>
+  :root {
+    --bg: #0d0e14; --panel: #161721; --panel2: #1d1f2c; --line: #2a2d3a;
+    --fg: #e8e8e8; --dim: #a5a5ab; --accent: #37d5b3; --err: #ef6471; --warn: #f0a030;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body {
+    background: var(--bg); color: var(--fg);
+    font-family: 'Segoe UI', 'Malgun Gothic', sans-serif; font-size: 13px;
+    display: flex; flex-direction: column; overflow: hidden;
+  }
+  /* ---------- toolbar ---------- */
+  #toolbar {
+    display: flex; align-items: center; gap: 8px; padding: 6px 10px;
+    background: var(--panel); border-bottom: 1px solid var(--line); flex: 0 0 auto;
+  }
+  #toolbar .title { font-weight: 700; color: var(--accent); margin-right: 6px; white-space: nowrap; }
+  #toolbar .ver { color: var(--dim); font-size: 11px; margin-right: 10px; }
+  button, select, input[type=text] {
+    background: var(--panel2); color: var(--fg); border: 1px solid var(--line);
+    border-radius: 6px; padding: 4px 10px; font-size: 12px; cursor: pointer;
+  }
+  button:hover { border-color: var(--accent); }
+  button.on { background: #124f43; border-color: var(--accent); }
+  input[type=text] { cursor: text; }
+  label.chk { display: inline-flex; align-items: center; gap: 4px; color: var(--dim); font-size: 12px; cursor: pointer; user-select: none; white-space: nowrap; }
+  /* ---------- main layout ---------- */
+  #main { display: flex; flex: 1 1 auto; min-height: 0; }
+  #sidebar {
+    width: 250px; flex: 0 0 auto; background: var(--panel); border-right: 1px solid var(--line);
+    display: flex; flex-direction: column; min-height: 0;
+  }
+  #search { margin: 8px; }
+  #filelist { flex: 1 1 auto; overflow-y: auto; padding-bottom: 12px; }
+  #filelist .grp { padding: 6px 10px 2px; color: var(--accent); font-size: 11px; font-weight: 700; position: sticky; top: 0; background: var(--panel); }
+  #filelist .f { padding: 3px 10px 3px 18px; cursor: pointer; color: var(--dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  #filelist .f:hover { color: var(--fg); background: var(--panel2); }
+  #filelist .f.sel { color: var(--accent); background: var(--panel2); }
+  #filelist .f.edited::after { content: " ●"; color: var(--warn); }
+  /* ---------- center ---------- */
+  #center { flex: 1 1 auto; display: flex; flex-direction: column; min-width: 0; min-height: 0; }
+  #stagewrap {
+    flex: 1 1 auto; overflow: auto; min-height: 0; position: relative;
+    background: repeating-conic-gradient(#101118 0% 25%, #14151d 0% 50%) 0 0 / 24px 24px;
+  }
+  #stageouter { padding: 24px; display: inline-block; }
+  #stage {
+    position: relative; background: #07080b; outline: 1px solid var(--line);
+    transform-origin: 0 0; overflow: hidden;
+  }
+  .nd { position: absolute; }
+  .nd.hidden-ghost { opacity: 0.25; outline: 1px dashed #f0a03088 !important; }
+  .nd.outlined { outline: 1px solid #37d5b322; }
+  .nd.sel-hl { outline: 2px solid var(--accent) !important; z-index: 99999; }
+  .nd.hover-hl { outline: 1px solid #37d5b399 !important; }
+  .lbl { display: flex; overflow: hidden; white-space: pre-wrap; word-break: break-word; line-height: 1.15; }
+  .imgph { display: flex; align-items: center; justify-content: center; overflow: hidden; }
+  .imgph .nm { font-size: 9px; color: #ffffff99; text-shadow: 0 1px 2px #000; overflow: hidden; white-space: nowrap; max-width: 100%; padding: 0 2px; }
+  .i18n { opacity: 0.85; font-style: italic; }
+  #statusbar {
+    flex: 0 0 auto; display: flex; gap: 16px; padding: 3px 10px; font-size: 11px;
+    color: var(--dim); background: var(--panel); border-top: 1px solid var(--line);
+    white-space: nowrap; overflow: hidden;
+  }
+  #statusbar .err { color: var(--err); }
+  #statusbar .ok { color: var(--accent); }
+  /* ---------- right panel ---------- */
+  #right {
+    width: 300px; flex: 0 0 auto; background: var(--panel); border-left: 1px solid var(--line);
+    display: flex; flex-direction: column; min-height: 0;
+  }
+  #rtabs { display: flex; border-bottom: 1px solid var(--line); flex: 0 0 auto; }
+  #rtabs div { flex: 1; text-align: center; padding: 6px; cursor: pointer; color: var(--dim); font-size: 12px; }
+  #rtabs div.on { color: var(--accent); border-bottom: 2px solid var(--accent); }
+  #tree, #inspector { flex: 1 1 auto; overflow: auto; padding: 6px 0; display: none; }
+  #tree.show, #inspector.show { display: block; }
+  .tn { white-space: nowrap; cursor: pointer; padding: 1px 6px; color: var(--dim); font-size: 12px; }
+  .tn:hover { background: var(--panel2); }
+  .tn.sel { color: var(--accent); background: var(--panel2); }
+  .tn .ty { color: #6f7788; }
+  .tn .invis { color: #f0a03099; }
+  #inspector { padding: 10px; font-size: 12px; }
+  #inspector h4 { color: var(--accent); font-size: 12px; margin: 10px 0 4px; }
+  #inspector table { width: 100%; border-collapse: collapse; }
+  #inspector td { padding: 2px 4px; vertical-align: top; border-bottom: 1px solid #20222e; }
+  #inspector td.k { color: var(--dim); width: 40%; }
+  #inspector .sw { display: inline-block; width: 10px; height: 10px; border-radius: 2px; vertical-align: middle; margin-right: 4px; border: 1px solid #00000055; }
+  /* ---------- editor ---------- */
+  #editorpane {
+    flex: 0 0 auto; height: 34%; display: none; flex-direction: column;
+    border-top: 1px solid var(--line); background: var(--panel);
+  }
+  #editorpane.show { display: flex; }
+  #edhead { display: flex; align-items: center; gap: 8px; padding: 4px 10px; flex: 0 0 auto; }
+  #edhead .fn { color: var(--accent); font-size: 12px; flex: 1 1 auto; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  #edbody { display: flex; flex: 1 1 auto; min-height: 0; }
+  #editor {
+    flex: 1 1 auto; background: #0b0c12; color: #d6dae4; border: none; outline: none; resize: none;
+    font-family: Consolas, 'D2Coding', monospace; font-size: 12px; line-height: 1.45;
+    padding: 8px 10px; white-space: pre; overflow: auto; tab-size: 2;
+  }
+  #problems {
+    width: 300px; flex: 0 0 auto; overflow: auto; border-left: 1px solid var(--line);
+    padding: 6px 8px; font-size: 11px;
+  }
+  #problems .p { margin-bottom: 6px; cursor: pointer; }
+  #problems .p.e { color: var(--err); }
+  #problems .p.w { color: var(--warn); }
+  #problems .p:hover { text-decoration: underline; }
+  #problems .none { color: var(--accent); }
+  #problems h5 { color: var(--dim); margin-bottom: 6px; font-size: 11px; }
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-thumb { background: #2a2d3a; border-radius: 5px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  #droptip {
+    position: fixed; inset: 0; display: none; align-items: center; justify-content: center;
+    background: #000000aa; z-index: 1000; font-size: 20px; color: var(--accent);
+    border: 3px dashed var(--accent); pointer-events: none;
+  }
+</style>
+</head>
+<body>
+<div id="toolbar">
+  <span class="title">TFM2 UI 시뮬레이터</span>
+  <span class="ver" id="bundlever"></span>
+  <button id="btnOpen" title=".ui 파일/폴더를 드래그해서 놓아도 됩니다">파일 열기…</button>
+  <input type="file" id="fileInput" multiple accept=".ui,.style" style="display:none">
+  <button id="btnNew" title="주입 조각 템플릿으로 새 파일">새 조각</button>
+  <button id="btnEditor">편집기</button>
+  <button id="btnSave" title="현재 파일 다운로드">저장(다운로드)</button>
+  <span style="flex:1"></span>
+  <label class="chk"><input type="checkbox" id="chkHidden"> 숨김 노드 표시</label>
+  <label class="chk"><input type="checkbox" id="chkOutline"> 아웃라인</label>
+  <label class="chk"><input type="checkbox" id="chkHover" checked> hover 시뮬</label>
+  <select id="zoom">
+    <option value="fit">맞춤</option>
+    <option value="0.5">50%</option>
+    <option value="0.75">75%</option>
+    <option value="1" selected>100%</option>
+    <option value="1.5">150%</option>
+    <option value="2">200%</option>
+  </select>
+</div>
+<div id="main">
+  <div id="sidebar">
+    <input type="text" id="search" placeholder="파일 검색… (288개)">
+    <div id="filelist"></div>
+  </div>
+  <div id="center">
+    <div id="stagewrap"><div id="stageouter"><div id="stage"></div></div></div>
+    <div id="statusbar"><span id="stFile"></span><span id="stRoot"></span><span id="stParse"></span><span id="stSel"></span></div>
+  </div>
+  <div id="right">
+    <div id="rtabs"><div id="tabTree" class="on">노드 트리</div><div id="tabInsp">검사기</div></div>
+    <div id="tree" class="show"></div>
+    <div id="inspector"></div>
+  </div>
+</div>
+<div id="editorpane">
+  <div id="edhead">
+    <span class="fn" id="edFn"></span>
+    <button id="btnRevert" title="게임 원본 내용으로 되돌리기">원본 복원</button>
+    <span style="color:var(--dim);font-size:11px">수정하면 즉시 미리보기에 반영됩니다 (게임 파서 규칙 검사 포함)</span>
+  </div>
+  <div id="edbody">
+    <textarea id="editor" spellcheck="false" wrap="off"></textarea>
+    <div id="problems"></div>
+  </div>
+</div>
+<div id="droptip">.ui / .style 파일을 놓으세요</div>
+
+<script id="bundle-data" type="application/json">/*__BUNDLE_JSON__*/</script>
+<script>
+'use strict';
+/* =====================================================================
+ * TFM2 .ui DSL 파서
+ * 문법 근거 = ANA\tfm2-ui-dsl-reference.md §8 (0.5.0_3 파서 디컴 확정):
+ *   root  = ident ':' ident '{' item* '}'
+ *   item  = '#' root(자식)  |  '@"path";'  |  ident ':' value
+ *   value = primitive ';'  |  '{' item* '}'  |  Ident '{' item* '}'
+ *   ★ primitive 값 = ';' 필수 / 블록 값 = ';' 금지 / 주석 없음 / 루트에 '#' 금지
+ * 시뮬레이터는 관용적으로 계속 파싱하되, 게임 파서 기준 에러를 전부 보고한다.
+ * ===================================================================== */
+function parseUi(src, opts) {
+  opts = opts || {};
+  const errors = [], warnings = [];
+  let pos = 0;
+  const n = src.length;
+  function lineOf(p) { let l = 1; for (let i = 0; i < p && i < n; i++) if (src[i] === '\n') l++; return l; }
+  function err(p, msg) { errors.push({ line: lineOf(p), msg }); }
+  function warn(p, msg) { warnings.push({ line: lineOf(p), msg }); }
+  function ws() {
+    for (;;) {
+      while (pos < n && (src[pos] === ' ' || src[pos] === '\t' || src[pos] === '\n' || src[pos] === '\r')) pos++;
+      if (src[pos] === '/' && src[pos + 1] === '/') {           // 게임 파서엔 없음 → 에러 보고 후 관용 스킵
+        err(pos, '주석(//)은 게임 파서가 지원하지 않음 → 파스 에러');
+        while (pos < n && src[pos] !== '\n') pos++;
+      } else if (src[pos] === '/' && src[pos + 1] === '*') {
+        err(pos, '주석(/* */)은 게임 파서가 지원하지 않음 → 파스 에러');
+        pos += 2; while (pos < n && !(src[pos] === '*' && src[pos + 1] === '/')) pos++; pos += 2;
+      } else break;
+    }
+  }
+  function ident() {
+    ws();
+    const s = pos;
+    while (pos < n && /[A-Za-z0-9_]/.test(src[pos])) pos++;
+    return src.slice(s, pos);
+  }
+  // primitive: ';' 까지. 따옴표 문자열 안의 ';'는 값의 일부.
+  function primitive() {
+    ws();
+    const s = pos;
+    let out = '';
+    for (;;) {
+      if (pos >= n) { err(s, 'primitive 값 뒤 ";" 누락 (게임 파스 에러)'); break; }
+      const c = src[pos];
+      if (c === '"') {
+        out += c; pos++;
+        while (pos < n && src[pos] !== '"') { out += src[pos]; pos++; }
+        out += '"'; pos++;
+      } else if (c === ';') { pos++; break; }
+      else if (c === '}' || c === '\n') {
+        err(s, 'primitive 값 뒤 ";" 누락 (게임 파스 에러): ' + out.trim().slice(0, 40));
+        break;
+      } else { out += c; pos++; }
+    }
+    return out.trim();
+  }
+  function block() { // '{' 이미 확인된 상태에서 호출; '{' 소비 포함
+    ws(); pos++; // '{'
+    const props = {};
+    items(props, null);
+    ws();
+    if (src[pos] === '}') pos++;
+    else err(pos, '"}" 누락');
+    ws();
+    if (src[pos] === ';') { err(pos, '블록 값 뒤 ";" (게임 파스 에러 — 블록엔 세미콜론 금지)'); pos++; }
+    return props;
+  }
+  function value() {
+    ws();
+    if (src[pos] === '{') return { __block: true, props: block() };
+    // Ident '{' → 태그 블록
+    const save = pos;
+    if (/[A-Za-z_]/.test(src[pos])) {
+      const id = ident();
+      ws();
+      if (src[pos] === '{') {
+        const props = block();
+        return { __block: true, __type: id, props };
+      }
+      pos = save; // 태그 블록 아님 → primitive로
+    }
+    return primitive();
+  }
+  // items: props 채우기. childrenTarget이 있으면 '#'자식/스타일도 받음(노드 본문), 없으면 순수 블록.
+  function items(props, node) {
+    for (;;) {
+      ws();
+      if (pos >= n || src[pos] === '}') return;
+      if (src[pos] === '#') {
+        pos++;
+        const child = nodeBody(true);
+        if (node) node.children.push(child);
+        else warn(pos, '블록 안의 "#" 자식은 무시됨');
+        continue;
+      }
+      if (src[pos] === '@') {
+        pos++; ws();
+        if (src[pos] === '"') {
+          pos++;
+          const s = pos;
+          while (pos < n && src[pos] !== '"') pos++;
+          const ref = src.slice(s, pos); pos++;
+          ws();
+          if (src[pos] === ';') pos++;
+          else err(pos, '@"스타일" 뒤 ";" 누락 (게임 파스 에러)');
+          if (node) node.styleRefs.push(ref);
+        } else err(pos, '@ 뒤 "경로" 필요');
+        continue;
+      }
+      const startP = pos;
+      const key = ident();
+      if (!key) { err(pos, '알 수 없는 토큰: "' + src[pos] + '"'); pos++; continue; }
+      ws();
+      if (src[pos] !== ':') { err(pos, '"' + key + '" 뒤 ":" 필요'); continue; }
+      pos++;
+      props[key] = value();
+      props['__line_' + key] = lineOf(startP);
+    }
+  }
+  function nodeBody(isChild) { // (#는 소비된 상태) id ':' type '{' ... '}'
+    const startP = pos;
+    const id = ident();
+    ws();
+    let type = 'empty';
+    if (src[pos] === ':') { pos++; type = ident(); }
+    else err(pos, '노드 "' + id + '" 뒤 ":타입" 필요');
+    ws();
+    const node = { id, type, props: {}, styleRefs: [], children: [], line: lineOf(startP) };
+    if (src[pos] === '{') {
+      pos++;
+      items(node.props, node);
+      ws();
+      if (src[pos] === '}') pos++;
+      else err(pos, '노드 "' + id + '" 의 "}" 누락');
+    } else err(pos, '노드 "' + id + '" 의 "{" 누락');
+    return node;
+  }
+  // ---- 루트 ----
+  ws();
+  let root = null;
+  if (pos < n) {
+    if (src[pos] === '#') {
+      err(pos, '루트 노드에 "#" 금지 (게임 파스 에러) — 루트는 "이름:타입 {" 형식');
+      pos++;
+    }
+    root = nodeBody(false);
+    ws();
+    if (pos < n - 1 && src.slice(pos).trim().length > 0) {
+      warn(pos, '루트 "}" 이후 내용 존재 — 게임은 두 번째 루트를 조용히 버림');
+    }
+  }
+  return { root, errors, warnings };
+}
+
+/* .style 파일 파서: name: { ... } 의 나열 */
+function parseStyleFile(src) {
+  const out = {};
+  const r = parseUiStyleTop(src);
+  for (const k in r) out[k] = r[k];
+  return out;
+  function parseUiStyleTop(text) {
+    // 트릭: "root:empty{ ...본문... }" 로 감싸 노드 파서 재활용은 불가(스타일 루트가 name:{)라 직접 처리
+    const presets = {};
+    let p = 0; const n2 = text.length;
+    function skipws() { while (p < n2 && /\s/.test(text[p])) p++; }
+    while (true) {
+      skipws();
+      if (p >= n2) break;
+      const s = p;
+      while (p < n2 && /[A-Za-z0-9_]/.test(text[p])) p++;
+      const name = text.slice(s, p);
+      skipws();
+      if (text[p] !== ':') break;
+      p++; skipws();
+      if (text[p] !== '{') break;
+      // 균형 잡힌 블록 추출 (따옴표 감안)
+      let depth = 0; const bs = p;
+      while (p < n2) {
+        const c = text[p];
+        if (c === '"') { p++; while (p < n2 && text[p] !== '"') p++; }
+        else if (c === '{') depth++;
+        else if (c === '}') { depth--; if (depth === 0) { p++; break; } }
+        p++;
+      }
+      const body = text.slice(bs + 1, p - 1);
+      const fake = parseUi('x:empty {' + body + '}');
+      if (fake.root) presets[name] = fake.root.props;
+    }
+    return presets;
+  }
+}
+
+/* =====================================================================
+ * 값 해석 유틸
+ * ===================================================================== */
+function pLen(v) { // -> {px} | {pct} | null
+  if (v == null || typeof v !== 'string' || v === '') return null;
+  if (v.endsWith('%')) { const f = parseFloat(v); return isNaN(f) ? null : { pct: f / 100 }; }
+  const f = parseFloat(v);
+  return isNaN(f) ? null : { px: f };
+}
+function resolveLen(v, base) { const l = pLen(v); if (!l) return null; return l.pct != null ? l.pct * base : l.px; }
+function pNum(v, d) { const f = parseFloat(v); return isNaN(f) ? d : f; }
+function pBool(v) { return v === 'true'; }
+function pColor(v) { // #rrggbbaa -> css rgba
+  if (typeof v !== 'string') return null;
+  const m = v.match(/^#([0-9a-fA-F]{8})$/);
+  if (!m) { const m6 = v.match(/^#([0-9a-fA-F]{6})$/); return m6 ? '#' + m6[1] : null; }
+  const h = m[1];
+  const r = parseInt(h.slice(0, 2), 16), g = parseInt(h.slice(2, 4), 16),
+        b = parseInt(h.slice(4, 6), 16), a = parseInt(h.slice(6, 8), 16) / 255;
+  return `rgba(${r},${g},${b},${a.toFixed(3)})`;
+}
+function colorAlpha(v) {
+  if (typeof v !== 'string') return 0;
+  const m = v.match(/^#[0-9a-fA-F]{6}([0-9a-fA-F]{2})$/);
+  return m ? parseInt(m[1], 16) : (v.match(/^#[0-9a-fA-F]{6}$/) ? 255 : 0);
+}
+function unq(v) { return typeof v === 'string' && v.startsWith('"') && v.endsWith('"') ? v.slice(1, -1) : v; }
+function blockProps(v) { return v && v.__block ? v.props : null; }
+function deepMerge(base, over) { // over 우선, 블록은 재귀 병합
+  const out = {};
+  for (const k in base) out[k] = base[k];
+  for (const k in over) {
+    const b = out[k], o = over[k];
+    if (b && o && b.__block && o.__block) out[k] = { __block: true, __type: o.__type || b.__type, props: deepMerge(b.props, o.props) };
+    else out[k] = o;
+  }
+  return out;
+}
+function roundingCss(v) {
+  const bp = blockProps(v);
+  if (!bp) return null;
+  if (v.__type === 'Uniform') { const r = pNum(bp.rounding, 0); return r + 'px'; }
+  if (v.__type === 'Individual') {
+    return `${pNum(bp.top_left,0)}px ${pNum(bp.top_right,0)}px ${pNum(bp.bottom_right,0)}px ${pNum(bp.bottom_left,0)}px`;
+  }
+  const r = pNum(bp.rounding, 0); return r ? r + 'px' : null;
+}
+function fontCss(fontPath, boldFlag) {
+  let w = 400;
+  if (typeof fontPath === 'string') {
+    const f = unq(fontPath);
+    if (f.includes('bold')) w = 700;
+    else if (f.includes('light')) w = 300;
+  }
+  if (boldFlag) w = 700;
+  return w;
+}
+function i18nText(t) { // -> {text, isKey}
+  if (typeof t !== 'string') return { text: '', isKey: false };
+  const s = unq(t);
+  if (s.startsWith('#asset/')) {
+    const q = s.indexOf('?');
+    return { text: q >= 0 ? s.slice(q + 1) : s, isKey: true };
+  }
+  return { text: s, isKey: false };
+}
+/* 인라인 마크업: <#rrggbbaa>텍스트<>  ·  <i경로:태그> */
+function renderMarkup(el, text) {
+  const re = /<#([0-9a-fA-F]{8}|[0-9a-fA-F]{6})>|<>|<i([^>]*)>/g;
+  let last = 0, m, cur = el;
+  while ((m = re.exec(text)) !== null) {
+    if (m.index > last) cur.appendChild(document.createTextNode(text.slice(last, m.index)));
+    last = re.lastIndex;
+    if (m[0] === '<>') cur = el;
+    else if (m[1]) {
+      const sp = document.createElement('span');
+      sp.style.color = pColor('#' + m[1]) || '#fff';
+      el.appendChild(sp); cur = sp;
+    } else if (m[2] != null) {
+      const ic = document.createElement('span');
+      ic.style.cssText = 'display:inline-block;width:1em;height:1em;background:#ffffff33;border:1px solid #ffffff55;border-radius:2px;vertical-align:-0.1em;';
+      ic.title = m[2];
+      cur.appendChild(ic);
+    }
+  }
+  if (last < text.length) cur.appendChild(document.createTextNode(text.slice(last)));
+}
+
+/* =====================================================================
+ * 스타일 시스템
+ * ===================================================================== */
+const STYLE_FILES = {}; // "asset/base/style/main" -> presets
+function resolveStyles(node) {
+  // @"asset/base/style/main#bold_label" → 프리셋 props를 base로, 노드 props를 override로
+  let merged = {};
+  for (const ref of node.styleRefs) {
+    const h = ref.indexOf('#');
+    if (h < 0) continue;
+    const file = ref.slice(0, h), name = ref.slice(h + 1);
+    const presets = STYLE_FILES[file];
+    if (presets && presets[name]) merged = deepMerge(merged, presets[name]);
+  }
+  return deepMerge(merged, node.props);
+}
+
+/* =====================================================================
+ * 레이아웃 엔진
+ * anchor/pivot: "부모의 anchor 지점에 내 pivot 지점을 맞춘다" + x/y 오프셋
+ * left/right 동시 지정 = 스트레치. child_type = 흐름 배치(LeftToRight/TopToBottom/Table)
+ * ===================================================================== */
+const measureCtx = document.createElement('canvas').getContext('2d');
+function measureText(text, size, weight) {
+  measureCtx.font = `${weight} ${size}px 'Segoe UI','Malgun Gothic',sans-serif`;
+  return measureCtx.measureText(text).width;
+}
+function layoutNode(node, pw, ph, depth) {
+  if (depth > 60) return null;
+  const P = resolveStyles(node);
+  const st = { node, props: P, children: [], x: 0, y: 0, w: 0, h: 0, visible: P.visible !== 'false' };
+
+  // ----- 크기 -----
+  const left = resolveLen(P.left, pw), right = resolveLen(P.right, pw);
+  const top = resolveLen(P.top, ph), bottom = resolveLen(P.bottom, ph);
+  let w = resolveLen(P.width, pw);
+  let h = resolveLen(P.height, ph);
+  if (w == null && left != null && right != null) w = pw - left - right;
+  if (h == null && top != null && bottom != null) h = ph - top - bottom;
+
+  // 라벨 자동 크기
+  const isLabel = node.type === 'label';
+  const textInfo = i18nText(P.text != null ? P.text : (blockProps(P.text) ? '' : ''));
+  const fsize = pNum(P.size, 14);
+  const fweight = fontCss(P.font, pBool(P.bold));
+  if (isLabel) {
+    if (w == null) w = measureText(textInfo.text.replace(/<[^>]*>/g, ''), fsize, fweight) + 2;
+    if (h == null) h = pNum(P.line_height, fsize * 1.3);
+  }
+  const autoW = (w == null), autoH = (h == null);
+  if (autoW) w = 0;
+  if (autoH) h = 0;
+
+  // ----- 자식 콘텐츠 박스 (padding) -----
+  const pad = blockProps(P.padding) || {};
+  const padL = resolveLen(pad.left, w) || 0, padR = resolveLen(pad.right, w) || 0;
+  const padT = resolveLen(pad.top, h) || 0, padB = resolveLen(pad.bottom, h) || 0;
+  const cw = Math.max(0, (autoW ? pw : w) - padL - padR);
+  const ch = Math.max(0, (autoH ? ph : h) - padT - padB);
+
+  // ----- 자식 레이아웃 -----
+  const flow = P.child_type && P.child_type.__block ? P.child_type : null;
+  const flowType = flow ? flow.__type : null;
+  const fp = flow ? flow.props : {};
+  const spacing = resolveLen(fp.spacing, 0) || 0;
+  const spacingX = resolveLen(fp.spacing_x, 0) || 0;
+  const spacingY = resolveLen(fp.spacing_y, 0) || 0;
+
+  let cursorX = 0, cursorY = 0, rowH = 0, maxX = 0, maxY = 0;
+  for (const c of node.children) {
+    const cl = layoutNode(c, cw, ch, depth + 1);
+    if (!cl) continue;
+    const CP = cl.props;
+    const offX = resolveLen(CP.x, cw) || 0;
+    const offY = resolveLen(CP.y, ch) || 0;
+    const ax = pNum(CP.anchor_x, 0), ay = pNum(CP.anchor_y, 0);
+    const px_ = pNum(CP.pivot_x, 0), py_ = pNum(CP.pivot_y, 0);
+    const cLeft = resolveLen(CP.left, cw), cTop = resolveLen(CP.top, ch);
+    const cRight = resolveLen(CP.right, cw), cBottom = resolveLen(CP.bottom, ch);
+
+    if (flowType === 'LeftToRight') {
+      cl.x = cursorX + offX;
+      cl.y = ay * ch - py_ * cl.h + offY;
+      cursorX += cl.w + spacing + (resolveLen(fp.x, cw) || 0);
+    } else if (flowType === 'TopToBottom') {
+      cl.x = ax * cw - px_ * cl.w + offX;
+      cl.y = cursorY + offY;
+      cursorY += cl.h + spacing + (resolveLen(fp.y, ch) || 0);
+    } else if (flowType === 'Table') {
+      if (cursorX > 0 && cursorX + cl.w > cw + 0.5) { cursorX = 0; cursorY += rowH + spacingY; rowH = 0; }
+      cl.x = cursorX + offX; cl.y = cursorY + offY;
+      cursorX += cl.w + spacingX;
+      rowH = Math.max(rowH, cl.h);
+    } else {
+      // 절대 배치
+      if (cLeft != null && cRight != null) cl.x = cLeft;
+      else if (cLeft != null) cl.x = cLeft + offX * 0;
+      else cl.x = ax * cw - px_ * cl.w + offX;
+      if (cTop != null && cBottom != null) cl.y = cTop;
+      else cl.y = ay * ch - py_ * cl.h + offY;
+      // 한쪽 가장자리 고정
+      if (cLeft != null && cRight == null && CP.x == null) cl.x = cLeft;
+      if (cRight != null && cLeft == null && CP.x == null) cl.x = cw - cRight - cl.w;
+      if (cTop != null && cBottom == null && CP.y == null) cl.y = cTop;
+      if (cBottom != null && cTop == null && CP.y == null) cl.y = ch - cBottom - cl.h;
+    }
+    cl.x += padL; cl.y += padT;
+    maxX = Math.max(maxX, cl.x + cl.w);
+    maxY = Math.max(maxY, cl.y + cl.h);
+    st.children.push(cl);
+  }
+  if (autoW) w = maxX + padR;
+  if (autoH) h = maxY + padB;
+  st.w = Math.max(0, w); st.h = Math.max(0, h);
+  return st;
+}
+
+/* =====================================================================
+ * 렌더러
+ * ===================================================================== */
+const BTN_TYPES = new Set(['color_icon_button', 'bouncing_color_icon_button', 'icon_slide_color_icon_button', 'icon_button']);
+let SHOW_HIDDEN = false, SHOW_OUTLINE = false, HOVER_SIM = true;
+let selPath = null; // 선택된 노드 경로 문자열
+
+function nodePath(stack) { return stack.join('/'); }
+
+function bgStyleFrom(props) {
+  // color 계열: stroke>0 → color=테두리, back_color=배경 / else color=배경
+  const stroke = pNum(props.stroke, 0);
+  const col = typeof props.color === 'string' ? props.color : null;
+  const back = typeof props.back_color === 'string' ? props.back_color : null;
+  const gTop = typeof props.gradient_top === 'string' ? props.gradient_top : null;
+  const gBot = typeof props.gradient_bottom === 'string' ? props.gradient_bottom : null;
+  const s = {};
+  if (gTop && gBot) s.background = `linear-gradient(${pColor(gTop)}, ${pColor(gBot)})`;
+  else if (stroke > 0) {
+    if (back) s.background = pColor(back);
+    if (col) s.border = `${stroke}px solid ${pColor(col)}`;
+  } else if (col) s.background = pColor(col);
+  return s;
+}
+function applyCss(el, s) { for (const k in s) el.style[k] = s[k]; }
+
+function renderLayout(st, parentEl, stack, fileKey) {
+  const node = st.node, P = st.props;
+  const path = nodePath(stack.concat([node.id]));
+  if (!st.visible && !SHOW_HIDDEN) return;
+
+  const el = document.createElement('div');
+  el.className = 'nd';
+  el.style.left = st.x + 'px';
+  el.style.top = st.y + 'px';
+  el.style.width = st.w + 'px';
+  el.style.height = st.h + 'px';
+  const z = pNum(P.z, 0);
+  if (z) el.style.zIndex = z;
+  if (!st.visible) el.classList.add('hidden-ghost');
+  if (SHOW_OUTLINE) el.classList.add('outlined');
+  el.dataset.path = path;
+  el.dataset.line = node.line;
+  el.dataset.file = fileKey;
+
+  const t = node.type;
+  const rounding = roundingCss(P.rounding);
+  if (rounding) el.style.borderRadius = rounding;
+
+  let normalCss = {}, hoverCss = null;
+
+  if (t === 'color' || t === 'color_selectable' || t === 'draggable_popup') {
+    normalCss = bgStyleFrom(P);
+    const hv = blockProps(P.hover);
+    if (hv) hoverCss = bgStyleFrom(deepMerge(P, hv));
+    applyCss(el, normalCss);
+    if (t === 'color_selectable') {
+      // label{} + text 렌더
+      const lb = blockProps(P.label) || {};
+      const ti = i18nText(P.text);
+      if (ti.text) {
+        const sp = mkLabel(ti, deepMerge(lb, { size: P.size != null ? P.size : lb.size }), st.w, st.h);
+        sp.style.position = 'absolute'; sp.style.inset = '0';
+        el.appendChild(sp);
+      }
+    }
+  } else if (t === 'label') {
+    el.classList.add('lbl');
+    const ti = i18nText(P.text);
+    styleLabelEl(el, P, ti);
+  } else if (t === 'image' || t === 'svg' || t === 'animation' || t === 'aseprite' || t === 'fanim' || t === 'sprite_sheet') {
+    el.classList.add('imgph');
+    const src = unq(P.source || '') || '';
+    const col = typeof P.color === 'string' ? P.color : null;
+    const base = src ? src.split('/').pop() : t;
+    if (col && colorAlpha(col) > 0) {
+      // 단색 틴트 아이콘: 색 실루엣으로 표현
+      el.style.background = pColor(col);
+      el.style.opacity = '0.9';
+      el.style.borderRadius = rounding || '2px';
+      el.style.maskImage = 'radial-gradient(circle at 50% 50%, #000 60%, #00000088 100%)';
+    } else {
+      el.style.background = 'repeating-linear-gradient(45deg,#ffffff14 0 4px,#ffffff08 4px 8px)';
+      el.style.outline = '1px dashed #ffffff2e';
+    }
+    if (st.w >= 34 && st.h >= 12) {
+      const nm = document.createElement('div');
+      nm.className = 'nm'; nm.textContent = base;
+      el.appendChild(nm);
+    }
+    el.title = src;
+  } else if (BTN_TYPES.has(t) || t === 'button') {
+    const btn = blockProps(P.btn) || {};
+    const btnCss = bgStyleFrom(Object.keys(btn).length ? btn : P);
+    const br = roundingCss(btn.rounding) || rounding;
+    if (br) el.style.borderRadius = br;
+    applyCss(el, btnCss);
+    normalCss = btnCss;
+    const hv = blockProps(P.hover);
+    if (hv) {
+      const hbtn = blockProps(hv.btn);
+      hoverCss = bgStyleFrom(hbtn ? deepMerge(btn, hbtn) : deepMerge(Object.keys(btn).length ? btn : P, hv));
+    }
+    // 아이콘
+    const ic = blockProps(P.icon);
+    if (ic) {
+      const icel = document.createElement('div');
+      const r = blockProps(ic.rect);
+      let iw = 16, ih = 16, ix = null, iy = null;
+      if (r) { iw = pNum(r.w, 16); ih = pNum(r.h, 16); ix = pNum(r.x, null); iy = pNum(r.y, null); }
+      icel.style.cssText = `position:absolute;width:${iw}px;height:${ih}px;border-radius:2px;`;
+      const icol = typeof ic.color === 'string' ? ic.color : '#e8e8e8ff';
+      icel.style.background = pColor(icol) || '#e8e8e8';
+      if (ix != null) { icel.style.left = ix + 'px'; icel.style.top = (iy || 0) + 'px'; }
+      else { icel.style.left = '50%'; icel.style.top = '50%'; icel.style.transform = 'translate(-50%,-50%)'; }
+      icel.title = unq(ic.source || '');
+      el.appendChild(icel);
+    }
+    // 텍스트
+    const tx = blockProps(P.text);
+    if (tx) {
+      const ti = i18nText(tx.text);
+      if (ti.text) {
+        const sp = mkLabel(ti, tx, st.w, st.h);
+        sp.style.position = 'absolute'; sp.style.inset = '0';
+        el.appendChild(sp);
+      }
+    } else if (typeof P.text === 'string') {
+      const ti = i18nText(P.text);
+      if (ti.text) {
+        const sp = mkLabel(ti, P, st.w, st.h);
+        sp.style.position = 'absolute'; sp.style.inset = '0';
+        el.appendChild(sp);
+      }
+    }
+  } else if (t === 'dropdown') {
+    const bg = blockProps(P.background) || { color: '#4a4c56ff', back_color: '#1d1f2cff', stroke: '1' };
+    applyCss(el, bgStyleFrom(bg));
+    const br = roundingCss(bg.rounding) || rounding || '8px';
+    el.style.borderRadius = br;
+    // 선택 텍스트 자리
+    const tx = blockProps(P.text) || {};
+    const tl = blockProps(P.text_layout) || {};
+    const sp = document.createElement('div');
+    sp.textContent = '항목 ▾';
+    const tsz = pNum(tx.size, 14);
+    sp.style.cssText = `position:absolute;color:${pColor(typeof tx.color==='string'?tx.color:'#e8e8e8ff')};font-size:${tsz}px;display:flex;align-items:center;`;
+    sp.style.left = (resolveLen(tl.x, st.w) != null ? resolveLen(tl.x, st.w) : 10) + 'px';
+    sp.style.top = '0'; sp.style.bottom = '0';
+    el.appendChild(sp);
+    // 화살표
+    const ar = document.createElement('div');
+    ar.textContent = '▾';
+    ar.style.cssText = 'position:absolute;right:10px;top:50%;transform:translateY(-50%);color:#a5a5ab;font-size:11px;';
+    el.appendChild(ar);
+  } else if (t === 'text_edit') {
+    applyCss(el, bgStyleFrom(deepMerge({ color: '#4a4c56ff', back_color: '#1d1f2cff', stroke: '1' }, P)));
+    el.style.borderRadius = rounding || '8px';
+    const ph2 = i18nText(P.placeholder);
+    const sp = document.createElement('div');
+    sp.textContent = ph2.text || '';
+    sp.style.cssText = `position:absolute;left:10px;top:0;bottom:0;display:flex;align-items:center;color:${pColor('#a5a5abff')};font-size:${pNum(P.size,14)}px;`;
+    if (ph2.isKey) sp.classList.add('i18n');
+    el.appendChild(sp);
+  } else if (t === 'scroll_view') {
+    el.style.overflow = 'hidden';
+    // 스크롤바 표현
+    const bar = blockProps(P.bar);
+    const bw = pNum(P.bar_width, 4);
+    const be = document.createElement('div');
+    const bcol = bar && typeof bar.color === 'string' ? bar.color : '#37d5b3ff';
+    be.style.cssText = `position:absolute;right:2px;top:8px;width:${bw}px;height:30%;background:${pColor(bcol)};border-radius:${bw/2}px;z-index:9999;opacity:.85;`;
+    el.appendChild(be);
+  } else if (t === 'slider') {
+    const bg = blockProps(P.background) || {};
+    applyCss(el, bgStyleFrom(Object.keys(bg).length ? bg : { color: '#171820ff' }));
+    el.style.borderRadius = rounding || (st.h / 2) + 'px';
+    const fg = blockProps(P.foreground) || {};
+    const fill = document.createElement('div');
+    const ratio = Math.min(1, Math.max(0, pNum(P.ratio, 0.5)));
+    fill.style.cssText = `position:absolute;left:0;top:0;bottom:0;width:${ratio*100}%;background:${pColor(typeof fg.color==='string'?fg.color:'#37d5b3ff')};border-radius:inherit;`;
+    el.appendChild(fill);
+  } else if (t === 'canvas') {
+    el.style.background = 'repeating-linear-gradient(-45deg,#ffffff0a 0 6px,transparent 6px 12px)';
+    el.style.outline = '1px dashed #ffffff22';
+    if (st.w > 60 && st.h > 20) {
+      const nm = document.createElement('div');
+      nm.textContent = 'canvas';
+      nm.style.cssText = 'position:absolute;left:4px;top:2px;font-size:10px;color:#ffffff44;';
+      el.appendChild(nm);
+    }
+  } else if (t === 'checkbox') {
+    el.style.background = pColor('#1d1f2cff');
+    el.style.border = '1px solid ' + pColor('#4a4c56ff');
+    el.style.borderRadius = rounding || '4px';
+  } else {
+    // empty / *_ui / 미지의 러너 = 컨테이너
+    if (typeof P.color === 'string' && colorAlpha(P.color) > 0) el.style.background = pColor(P.color);
+  }
+
+  // hover 시뮬레이션
+  if (HOVER_SIM && hoverCss) {
+    const nCss = JSON.stringify(normalCss), hCss2 = hoverCss;
+    el.addEventListener('mouseenter', e => { if (!HOVER_SIM) return; el.style.background = ''; el.style.border = ''; applyCss(el, hCss2); e.stopPropagation(); });
+    el.addEventListener('mouseleave', () => { el.style.background = ''; el.style.border = ''; applyCss(el, JSON.parse(nCss)); });
+  }
+
+  // 검사기 연결
+  el.addEventListener('click', e => { e.stopPropagation(); selectNode(path, node, st, P); });
+  el.addEventListener('mousemove', e => { e.stopPropagation(); hoverStatus(path, st); });
+
+  // 자식
+  for (const c of st.children) renderLayout(c, el, stack.concat([node.id]), fileKey);
+  parentEl.appendChild(el);
+}
+function styleLabelEl(el, P, ti) {
+  const size = pNum(P.size, 14);
+  const w = fontCss(P.font, pBool(P.bold));
+  el.style.fontSize = size + 'px';
+  el.style.fontWeight = w;
+  el.style.color = pColor(typeof P.color === 'string' ? P.color : '#e8e8e8ff') || '#e8e8e8';
+  const ax = P.align_x || 'Left', ay = P.align_y || 'Top';
+  el.style.justifyContent = ax === 'Center' ? 'center' : ax === 'Right' ? 'flex-end' : 'flex-start';
+  el.style.alignItems = ay === 'Center' ? 'center' : ay === 'Bottom' ? 'flex-end' : 'flex-start';
+  el.style.textAlign = ax === 'Center' ? 'center' : ax === 'Right' ? 'right' : 'left';
+  if (P.line_height) el.style.lineHeight = pNum(P.line_height, size * 1.3) + 'px';
+  const ol = pNum(P.outline, 0);
+  if (ol > 0) el.style.textShadow = `0 0 ${ol}px ${pColor(typeof P.outline_color==='string'?P.outline_color:'#000000ff')}`;
+  if (ti.isKey) el.classList.add('i18n');
+  renderMarkup(el, ti.text);
+}
+function mkLabel(ti, props, w, h) {
+  const sp = document.createElement('div');
+  sp.className = 'lbl';
+  styleLabelEl(sp, props, ti);
+  return sp;
+}
+
+/* =====================================================================
+ * 앱 상태 · 파일 관리
+ * ===================================================================== */
+const BUNDLE = JSON.parse(document.getElementById('bundle-data').textContent);
+const FILES = new Map();      // key -> 원본 내용
+const EDITS = new Map();      // key -> 수정 내용
+let currentKey = null;
+let currentParse = null;
+let currentLayout = null;
+
+function fileContent(key) { return EDITS.has(key) ? EDITS.get(key) : FILES.get(key); }
+
+function initBundle() {
+  document.getElementById('bundlever').textContent = BUNDLE.version || '';
+  for (const p in BUNDLE.styles) {
+    const key = p.replace(/\.style$/, '');
+    STYLE_FILES['asset/base/style/' + key.split('/').pop()] = parseStyleFile(BUNDLE.styles[p]);
+  }
+  const paths = Object.keys(BUNDLE.files).sort();
+  for (const p of paths) FILES.set(p, BUNDLE.files[p]);
+  buildFileList();
+}
+function buildFileList(filter) {
+  const list = document.getElementById('filelist');
+  list.innerHTML = '';
+  const groups = new Map();
+  for (const key of FILES.keys()) {
+    if (filter && !key.toLowerCase().includes(filter)) continue;
+    const parts = key.split('/');
+    const grp = parts.length > 1 ? parts.slice(0, -1).join('/') : '(루트)';
+    if (!groups.has(grp)) groups.set(grp, []);
+    groups.get(grp).push(key);
+  }
+  for (const [grp, keys] of [...groups.entries()].sort()) {
+    const g = document.createElement('div');
+    g.className = 'grp'; g.textContent = grp;
+    list.appendChild(g);
+    for (const key of keys) {
+      const d = document.createElement('div');
+      d.className = 'f' + (key === currentKey ? ' sel' : '') + (EDITS.has(key) ? ' edited' : '');
+      d.textContent = key.split('/').pop();
+      d.title = key;
+      d.onclick = () => openFile(key);
+      list.appendChild(d);
+    }
+  }
+}
+function openFile(key) {
+  currentKey = key;
+  buildFileList(document.getElementById('search').value.trim().toLowerCase() || undefined);
+  document.getElementById('edFn').textContent = key;
+  document.getElementById('editor').value = fileContent(key) || '';
+  rebuild();
+}
+function rebuild() {
+  const src = fileContent(currentKey);
+  if (src == null) return;
+  currentParse = parseUi(src);
+  renderProblems();
+  const stage = document.getElementById('stage');
+  stage.innerHTML = '';
+  selPath = null;
+  document.getElementById('stSel').textContent = '';
+  const root = currentParse.root;
+  const stFile = document.getElementById('stFile');
+  stFile.textContent = currentKey;
+  const stParse = document.getElementById('stParse');
+  const ec = currentParse.errors.length;
+  stParse.innerHTML = ec ? `<span class="err">게임 파서 에러 ${ec}건</span>` : `<span class="ok">파서 OK</span>`;
+  if (!root) { document.getElementById('tree').innerHTML = ''; return; }
+  // 루트 크기: 선언값(px) 우선, %/미지정이면 1920×1080
+  const P = resolveStyles(root);
+  let rw = resolveLen(P.width, 1920), rh = resolveLen(P.height, 1080);
+  if (rw == null || (typeof P.width === 'string' && P.width.endsWith('%'))) rw = 1920;
+  if (rh == null || (typeof P.height === 'string' && P.height.endsWith('%'))) rh = 1080;
+  currentLayout = layoutNode(root, rw, rh, 0);
+  currentLayout.w = rw; currentLayout.h = rh; currentLayout.x = 0; currentLayout.y = 0;
+  stage.style.width = rw + 'px';
+  stage.style.height = rh + 'px';
+  document.getElementById('stRoot').textContent = `${root.id}:${root.type} ${Math.round(rw)}×${Math.round(rh)}`;
+  // 루트 자체 배경
+  const rootEl = document.createElement('div');
+  rootEl.className = 'nd';
+  rootEl.style.cssText = `left:0;top:0;width:${rw}px;height:${rh}px;`;
+  if (typeof P.color === 'string' && colorAlpha(P.color) > 0) rootEl.style.background = pColor(P.color);
+  rootEl.dataset.path = root.id;
+  rootEl.dataset.line = root.line;
+  rootEl.addEventListener('click', e => { e.stopPropagation(); selectNode(root.id, root, currentLayout, P); });
+  for (const c of currentLayout.children) renderLayout(c, rootEl, [root.id], currentKey);
+  stage.appendChild(rootEl);
+  buildTree();
+  applyZoom();
+}
+/* ---------- 트리 ---------- */
+function buildTree() {
+  const tr = document.getElementById('tree');
+  tr.innerHTML = '';
+  if (!currentLayout) return;
+  walk(currentLayout, 0, [ ]);
+  function walk(st, depth, stack) {
+    const node = st.node;
+    const path = nodePath(stack.concat([node.id]));
+    const d = document.createElement('div');
+    d.className = 'tn' + (path === selPath ? ' sel' : '');
+    d.style.paddingLeft = (8 + depth * 14) + 'px';
+    d.innerHTML = `${depth ? '#' : ''}${escapeHtml(node.id)}<span class="ty">:${escapeHtml(node.type)}</span>` +
+      (st.visible ? '' : ' <span class="invis">(숨김)</span>');
+    d.dataset.path = path;
+    d.onclick = () => selectNode(path, node, st, st.props);
+    tr.appendChild(d);
+    for (const c of st.children) walk(c, depth + 1, stack.concat([node.id]));
+  }
+}
+function escapeHtml(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;'); }
+/* ---------- 검사기 ---------- */
+function selectNode(path, node, st, P) {
+  selPath = path;
+  document.querySelectorAll('.nd.sel-hl').forEach(e => e.classList.remove('sel-hl'));
+  document.querySelectorAll(`.nd[data-path="${CSS.escape(path)}"]`).forEach(e => e.classList.add('sel-hl'));
+  document.querySelectorAll('.tn').forEach(e => e.classList.toggle('sel', e.dataset.path === path));
+  const tn = document.querySelector(`.tn[data-path="${CSS.escape(path)}"]`);
+  if (tn) tn.scrollIntoView({ block: 'nearest' });
+  showTab('insp');
+  const ins = document.getElementById('inspector');
+  let html = `<h4>#${escapeHtml(node.id)} <span style="color:#6f7788">:${escapeHtml(node.type)}</span></h4>`;
+  html += `<div style="color:var(--dim);font-size:11px;margin-bottom:6px">${escapeHtml(path)} · ${node.line}행</div>`;
+  html += `<h4>계산된 rect</h4><table>`;
+  html += `<tr><td class="k">x, y</td><td>${st.x.toFixed(1)}, ${st.y.toFixed(1)}</td></tr>`;
+  html += `<tr><td class="k">w × h</td><td>${st.w.toFixed(1)} × ${st.h.toFixed(1)}</td></tr>`;
+  html += `</table>`;
+  if (node.styleRefs.length) {
+    html += `<h4>스타일 상속</h4><table>` + node.styleRefs.map(r => `<tr><td colspan=2>@${escapeHtml(r)}</td></tr>`).join('') + `</table>`;
+  }
+  html += `<h4>속성 (스타일 병합 후)</h4><table>`;
+  for (const k in P) {
+    if (k.startsWith('__line_')) continue;
+    const v = P[k];
+    let vs;
+    if (v && v.__block) vs = (v.__type || '{}') + ' { ' + Object.keys(v.props).filter(x => !x.startsWith('__line_')).join(', ') + ' }';
+    else vs = String(v);
+    let sw = '';
+    if (typeof v === 'string' && /^#[0-9a-fA-F]{6,8}$/.test(v)) sw = `<span class="sw" style="background:${pColor(v)}"></span>`;
+    html += `<tr><td class="k">${escapeHtml(k)}</td><td>${sw}${escapeHtml(vs)}</td></tr>`;
+  }
+  html += `</table>`;
+  html += `<div style="margin-top:10px"><button onclick="gotoLine(${node.line})">편집기에서 보기 (${node.line}행)</button></div>`;
+  ins.innerHTML = html;
+  document.getElementById('stSel').textContent = `선택: ${path} (${st.w.toFixed(0)}×${st.h.toFixed(0)} @ ${st.x.toFixed(0)},${st.y.toFixed(0)})`;
+}
+function hoverStatus(path, st) {
+  document.getElementById('stSel').textContent =
+    (selPath ? `선택: ${selPath} · ` : '') + `호버: ${path} (${st.w.toFixed(0)}×${st.h.toFixed(0)})`;
+}
+window.gotoLine = function (line) {
+  const pane = document.getElementById('editorpane');
+  if (!pane.classList.contains('show')) toggleEditor(true);
+  const ed = document.getElementById('editor');
+  const lines = ed.value.split('\n');
+  let chpos = 0;
+  for (let i = 0; i < line - 1 && i < lines.length; i++) chpos += lines[i].length + 1;
+  ed.focus();
+  ed.setSelectionRange(chpos, chpos + (lines[line - 1] || '').length);
+  const lh = 12 * 1.45;
+  ed.scrollTop = Math.max(0, (line - 6) * lh);
+};
+/* ---------- 문제 패널 ---------- */
+function renderProblems() {
+  const pr = document.getElementById('problems');
+  const { errors, warnings } = currentParse;
+  let html = '<h5>게임 파서 규칙 검사</h5>';
+  if (!errors.length && !warnings.length) html += '<div class="none">문제 없음 — 게임 파서 통과 가능</div>';
+  for (const e of errors) html += `<div class="p e" onclick="gotoLine(${e.line})">✕ ${e.line}행: ${escapeHtml(e.msg)}</div>`;
+  for (const w of warnings) html += `<div class="p w" onclick="gotoLine(${w.line})">⚠ ${w.line}행: ${escapeHtml(w.msg)}</div>`;
+  pr.innerHTML = html;
+}
+/* ---------- 줌 ---------- */
+function applyZoom() {
+  const sel = document.getElementById('zoom').value;
+  const stage = document.getElementById('stage');
+  const outer = document.getElementById('stageouter');
+  let z = 1;
+  if (sel === 'fit') {
+    const wrap = document.getElementById('stagewrap');
+    const aw = wrap.clientWidth - 48, ah = wrap.clientHeight - 48;
+    const sw = parseFloat(stage.style.width) || 1920, sh = parseFloat(stage.style.height) || 1080;
+    z = Math.min(aw / sw, ah / sh, 1);
+  } else z = parseFloat(sel);
+  stage.style.transform = `scale(${z})`;
+  const sw = parseFloat(stage.style.width) || 0, sh = parseFloat(stage.style.height) || 0;
+  outer.style.width = (sw * z + 48) + 'px';
+  outer.style.height = (sh * z + 48) + 'px';
+}
+/* ---------- 편집기 ---------- */
+let edTimer = null;
+function toggleEditor(force) {
+  const pane = document.getElementById('editorpane');
+  const on = force != null ? force : !pane.classList.contains('show');
+  pane.classList.toggle('show', on);
+  document.getElementById('btnEditor').classList.toggle('on', on);
+  applyZoom();
+}
+document.getElementById('editor').addEventListener('input', () => {
+  clearTimeout(edTimer);
+  edTimer = setTimeout(() => {
+    const v = document.getElementById('editor').value;
+    if (v === FILES.get(currentKey)) EDITS.delete(currentKey);
+    else EDITS.set(currentKey, v);
+    buildFileList(document.getElementById('search').value.trim().toLowerCase() || undefined);
+    rebuild();
+  }, 350);
+});
+document.getElementById('btnRevert').onclick = () => {
+  if (!currentKey || !FILES.has(currentKey)) return;
+  EDITS.delete(currentKey);
+  document.getElementById('editor').value = FILES.get(currentKey);
+  buildFileList();
+  rebuild();
+};
+/* ---------- 툴바 ---------- */
+document.getElementById('btnEditor').onclick = () => toggleEditor();
+document.getElementById('zoom').onchange = applyZoom;
+window.addEventListener('resize', applyZoom);
+document.getElementById('chkHidden').onchange = e => { SHOW_HIDDEN = e.target.checked; rebuild(); };
+document.getElementById('chkOutline').onchange = e => { SHOW_OUTLINE = e.target.checked; rebuild(); };
+document.getElementById('chkHover').onchange = e => { HOVER_SIM = e.target.checked; rebuild(); };
+document.getElementById('search').addEventListener('input', e => buildFileList(e.target.value.trim().toLowerCase() || undefined));
+document.getElementById('tabTree').onclick = () => showTab('tree');
+document.getElementById('tabInsp').onclick = () => showTab('insp');
+function showTab(t) {
+  document.getElementById('tabTree').classList.toggle('on', t === 'tree');
+  document.getElementById('tabInsp').classList.toggle('on', t === 'insp');
+  document.getElementById('tree').classList.toggle('show', t === 'tree');
+  document.getElementById('inspector').classList.toggle('show', t === 'insp');
+}
+document.getElementById('btnSave').onclick = () => {
+  if (!currentKey) return;
+  const blob = new Blob([fileContent(currentKey)], { type: 'text/plain;charset=utf-8' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = currentKey.split('/').pop();
+  a.click();
+};
+const NEW_TEMPLATE = `my_fragment:empty {
+  width: 100%;
+  height: 100%;
+
+  #panel:color {
+    anchor_x: 0.5;
+    pivot_x: 0.5;
+    anchor_y: 0.5;
+    pivot_y: 0.5;
+    width: 420px;
+    height: 320px;
+    color: #161721ff;
+    rounding: Uniform {
+      rounding: 8;
+    }
+    z: 300;
+
+    #header:color {
+      width: 100%;
+      height: 44px;
+      color: #0f1016ff;
+      ignore_event: true;
+      rounding: Individual {
+        top_left: 8;
+        top_right: 8;
+      }
+
+      #title:label {
+        @"asset/base/style/main#bold_label";
+        x: 18px;
+        anchor_y: 0.5;
+        pivot_y: 0.5;
+        width: 240px;
+        height: 28px;
+        size: 17;
+        align_y: Center;
+        color: #37d5b3ff;
+        text: "제목";
+      }
+    }
+
+    #body:label {
+      @"asset/base/style/main#label";
+      x: 18px;
+      y: 60px;
+      width: 384px;
+      height: 200px;
+      size: 14;
+      color: #d6dae4ff;
+      text: "내용";
+    }
+
+    #ok:color_icon_button {
+      @"asset/base/style/main#primary_button";
+      anchor_x: 0.5;
+      pivot_x: 0.5;
+      anchor_y: 1;
+      pivot_y: 1;
+      y: -14px;
+      width: 120px;
+      height: 36px;
+
+      text: {
+        text: "확인";
+        size: 14;
+        align_x: Center;
+        align_y: Center;
+      }
+    }
+  }
+}
+`;
+let newCount = 0;
+document.getElementById('btnNew').onclick = () => {
+  const key = `(내 파일)/fragment${++newCount}.ui`;
+  FILES.set(key, NEW_TEMPLATE);
+  buildFileList();
+  openFile(key);
+  toggleEditor(true);
+};
+/* ---------- 파일 열기 / 드래그&드롭 ---------- */
+document.getElementById('btnOpen').onclick = () => document.getElementById('fileInput').click();
+document.getElementById('fileInput').addEventListener('change', e => loadFileObjects([...e.target.files]));
+function loadFileObjects(files) {
+  let firstKey = null;
+  let pending = files.length;
+  if (!pending) return;
+  for (const f of files) {
+    const rd = new FileReader();
+    rd.onload = () => {
+      const key = '(내 파일)/' + f.name;
+      if (f.name.endsWith('.style')) {
+        STYLE_FILES['asset/base/style/' + f.name.replace(/\.style$/, '')] = parseStyleFile(rd.result);
+      } else {
+        FILES.set(key, rd.result);
+        if (!firstKey) firstKey = key;
+      }
+      if (--pending === 0) { buildFileList(); if (firstKey) openFile(firstKey); }
+    };
+    rd.readAsText(f, 'utf-8');
+  }
+}
+window.addEventListener('dragover', e => { e.preventDefault(); document.getElementById('droptip').style.display = 'flex'; });
+window.addEventListener('dragleave', e => { if (!e.relatedTarget) document.getElementById('droptip').style.display = 'none'; });
+window.addEventListener('drop', e => {
+  e.preventDefault();
+  document.getElementById('droptip').style.display = 'none';
+  const files = [...e.dataTransfer.files].filter(f => f.name.endsWith('.ui') || f.name.endsWith('.style'));
+  loadFileObjects(files);
+});
+/* ---------- 시작 ---------- */
+initBundle();
+openFile(FILES.has('ui/layout/banpick/pool_slot.ui') ? 'ui/layout/banpick/pool_slot.ui' : [...FILES.keys()][0]);
+</script>
+</body>
+</html>
