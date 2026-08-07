@@ -1013,8 +1013,9 @@ unsafe fn apply_exec_imm() {
     let b1 = |v: i64, orig: u64| if v < 0 { orig } else { (v.max(0).min(0x7f)) as u64 };
     let b4 = |v: i64, orig: u64| if v < 0 { orig } else { (v.max(0) as u64) & 0xffff_ffff };
     let sq1 = |d: i64| { let d = d.max(0) as u64; d.wrapping_mul(d).wrapping_add(1) };
-    let mut ok = 0u32;
+    let mut ok = 0u32; let mut tot = 0u32;
     // ── ① 판단력 오판 게이트 (line_defense) ──
+    tot += 3;
     ok += patch_imm_bytes(base + 0xd792e7, &[0x48,0x83,0xfa], 3, 1, b1(jcap, 100)) as u32;   // cmp rdx,100
     ok += patch_imm_bytes(base + 0xd792f4, &[0x6b,0xc0], 2, 1, b1(jslp, 85)) as u32;         // imul eax,eax,85
     ok += patch_imm_bytes(base + 0xd79303, &[0x05], 1, 4, b4(jflr, 150)) as u32;             // add eax,150
@@ -1025,15 +1026,21 @@ unsafe fn apply_exec_imm() {
     //    ⟹ lw_* 를 정본으로 두고 여기선 패치하지 않는다. ex_wait_* 는 알리아스로 계속 동작한다.
     // ── ③ 오더 유지 최소 경과 (lib.rs 유닛 AI 틱) ──
     // ★[08-07] 마이크로 디투어와 상호배타.
-    if !micro_taken("ex_order_hold") {
-    ok += patch_imm_bytes(base + 0xe747e3, &[0x48,0x83,0xc0], 3, 1, b1(hold, 10)) as u32;    // add rax,10
+    // ★★[08-07] 분모를 **동적으로** 센다. 예전엔 `applied={}/4` 로 하드코딩돼 있었는데,
+    //   마이크로 디투어가 이 사이트를 가져가면 `3/4` 가 되어 **정상인데 "1곳 실패"처럼 보였다**.
+    //   오늘만 세 번 걸린 그 함정("지표가 진실을 말해주지 않는다")과 같은 계열이라 여기서 끊는다.
+    let taken = micro_taken("ex_order_hold");
+    if !taken {
+        tot += 1;
+        ok += patch_imm_bytes(base + 0xe747e3, &[0x48,0x83,0xc0], 3, 1, b1(hold, 10)) as u32;    // add rax,10
     }
     EXECIMM_SIG.store(sig, Ordering::Relaxed);
     if let Some(p) = pth("exec_imm.txt") {
         // ⛔[08-07] wait=[dist back] 제거 — 그 두 사이트(0xe721d3·0xe727c4)는 lw_wait_dist / lw_back
         //   소관으로 일원화됐다(중복 패치였다). 적용 수도 6 → 4.
-        let _ = fs::write(p, format!("applied={}/4 judge=[cap{} slope{} floor{}] order_hold={} (-1=원본: 100/85/150/10) @base{:#x}\n",
-            ok, jcap, jslp, jflr, hold, base));
+        let _ = fs::write(p, format!("applied={}/{} judge=[cap{} slope{} floor{}] order_hold={}{} (-1=원본: 100/85/150/10) @base{:#x}\n",
+            ok, tot, jcap, jslp, jflr, hold,
+            if taken { " (클래스별 마이크로 디투어가 담당 — 여기선 미패치가 정상)" } else { "" }, base));
     }
 }
 
