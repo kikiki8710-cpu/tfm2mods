@@ -2600,6 +2600,41 @@ static TN_VOTE_OK: AtomicU64 = AtomicU64::new(0);    // ★v2.7.6: 실측 side =
 static TN_VOTE_NG: AtomicU64 = AtomicU64::new(0);    // 실측 side != 예측 (0이어야 매핑식 확정 유지)
 static TN_LAST_S0: AtomicU64 = AtomicU64::new(0);    // ★v2.7.6 매핑 적용: side0(blue) 팀 id = rec+0x140+(sb^1)*8
 static TN_LAST_S1: AtomicU64 = AtomicU64::new(0);    // side1(red) 팀 id = rec+0x140+sb*8
+// ═══ ★v2.8.0 TN 게이트(유저 지시 08-08 "여러 군데 중 하나만 걸려도 주입") ═══
+//   launcher 캡처마다 (seed → side0팀, side1팀)을 링 테이블에 게시하고, buy 시점에 provider seed 로
+//   조회해 "이 sim 에서 내 팀 side"를 확정한다. 기존 aid 멤버십(is_my_athlete)과 **OR 결합** —
+//   멤버십이 놓친 내 선수(교체 출전·aid 미기입)도 TN 이 걸리면 주입. TN 은 **추가 승인만** 하고
+//   차단에는 쓰지 않는다(음성 오판 리스크 0 — 기존 동작의 순수 상위집합).
+//   발행 순서: seed=0 → s0/s1 → seed=real(Release) ⟹ 독자는 완전 발행된 엔트리만 매치(반쯤 쓴 엔트리 무해).
+const TN_GATE: bool = true;
+static TN_TAB_SEED: [AtomicU64; 16] = [const { AtomicU64::new(0) }; 16];
+static TN_TAB_S0: [AtomicU64; 16] = [const { AtomicU64::new(0) }; 16];
+static TN_TAB_S1: [AtomicU64; 16] = [const { AtomicU64::new(0) }; 16];
+static TN_TAB_W: AtomicU64 = AtomicU64::new(0);       // 링 쓰기 커서
+static TN_TAB_ANY: AtomicBool = AtomicBool::new(false); // 테이블 비면 핫패스 즉시 스킵(원자 1로드)
+static TN_GATE_EARLY: AtomicU64 = AtomicU64::new(0);  // 조기탈출에서 TN 구제 수
+static TN_GATE_HIT: AtomicU64 = AtomicU64::new(0);    // is_player 판정에서 TN 승인 수
+static TN_GATE_NEG: AtomicU64 = AtomicU64::new(0);    // TN이 "내 매치 아님" 확정한 조회 수(관측·차단엔 미사용)
+// buy 핫패스용 — 원자 로드 + VEH 읽기 1회 + 16슬롯 스캔뿐(락/할당/커널호출 없음).
+unsafe fn tn_my_side(provider: usize) -> Option<u64> {
+    if !TN_GATE || !TN_TAB_ANY.load(Ordering::Relaxed) { return None; }
+    let pid = PLAYER_TEAM_ID.load(Ordering::Relaxed);
+    if pid == u64::MAX { return None; }
+    if provider < 0x10000 || provider >= 0x0000_8000_0000_0000 { return None; }
+    let seed = safe_read_u64(provider.wrapping_add(O_PROVIDER_SEED))?;
+    if seed == 0 { return None; }
+    for k in 0..16 {
+        if TN_TAB_SEED[k].load(Ordering::Acquire) == seed {
+            let s0 = TN_TAB_S0[k].load(Ordering::Relaxed);
+            let s1 = TN_TAB_S1[k].load(Ordering::Relaxed);
+            if s0 == pid { return Some(0); }
+            if s1 == pid { return Some(1); }
+            TN_GATE_NEG.fetch_add(1, Ordering::Relaxed);
+            return None;
+        }
+    }
+    None
+}
 // ⚠cap_launcher 최소 디투어 제약 상속 — VEH 보호 읽기 + 원자연산만(format!/fs/락/할당/catch_unwind 금지).
 //   대회 retaddr 에서만 호출(경기 시작당 1회)·스캔 상한 mask<0x1000 ⟹ 핫패스 아님.
 unsafe fn tourn_capture(saved: *mut u64, seed: u64) {
@@ -2665,6 +2700,15 @@ unsafe fn tourn_capture(saved: *mut u64, seed: u64) {
                 let (s0, s1) = if sb == 1 { (ta, tb) } else { (tb, ta) };
                 TN_LAST_S0.store(s0, Ordering::Relaxed);
                 TN_LAST_S1.store(s1, Ordering::Relaxed);
+                // ★v2.8.0 TN 게이트 테이블 게시(모든 히트 — 내 팀 매치만이 아님). 발행 순서 규약은 선언부 주석.
+                if TN_GATE && seed != 0 {
+                    let k = (TN_TAB_W.fetch_add(1, Ordering::Relaxed) % 16) as usize;
+                    TN_TAB_SEED[k].store(0, Ordering::Release);
+                    TN_TAB_S0[k].store(s0, Ordering::Relaxed);
+                    TN_TAB_S1[k].store(s1, Ordering::Relaxed);
+                    TN_TAB_SEED[k].store(seed, Ordering::Release);
+                    TN_TAB_ANY.store(true, Ordering::Relaxed);
+                }
                 let pid = PLAYER_TEAM_ID.load(Ordering::Relaxed);
                 if pid != u64::MAX && (ta == pid || tb == pid) {
                     let slot = u64::from(ta != pid);
@@ -4151,6 +4195,12 @@ fn write_registry_status(db: usize) {
             }}
             s.push_str("\n\x20   판독: ①스캔성공+miss스캔 합 = 런처발화여야 정상. ★miss스캔>0 = set_end 슬롯 무효 경로 실재\n\
                 \x20         ②투표가 (slot,sb) 조합별로 한쪽 side 에 쏠리면 = +0x140/+0x148 의 side 대응 확정 근거\n");
+            // ★v2.8.0 — TN 게이트(연결됨) 지표
+            s.push_str(&format!("\x20   ★TN 게이트(v2.8.0 연결): 조기탈출 구제={} · is_player 승인={} · 내매치아님 확정조회={}\n\
+                \x20     판독: 구제/승인 = aid 멤버십이 놓친 내 선수를 TN 이 잡아 주입한 수(0이어도 정상 — 멤버십이 다 잡으면 TN 차례가 없다)\n\
+                \x20           NG(위 매핑검증)>0 이면 TN 게이트를 의심할 것. 내매치아님은 관측 전용(차단엔 미사용)\n",
+                TN_GATE_EARLY.load(Ordering::Relaxed), TN_GATE_HIT.load(Ordering::Relaxed),
+                TN_GATE_NEG.load(Ordering::Relaxed)));
         }
         s.push_str(&format!("\n  [원시값] retry호출={} 광역스캔={}회(상한8)\n",
             NETRETRY_N.load(Ordering::Relaxed), NETWIDE_TRIES.load(Ordering::Relaxed)));
@@ -5120,12 +5170,19 @@ unsafe extern "C" fn buy_replace_ctx(saved: *mut u64, rsp_entry: usize) -> u64 {
                 Some(ms) => match safe_read_u64(athlete + 0x810) { Some(s) => s == ms, None => false },
                 None => false,
             };
-            if !rescued {
+            // ★v2.8.0 TN 게이트(유저 지시 "하나만 걸려도 주입"): 대회 디스크립터가 이 sim(seed)의 내 팀
+            //   side 를 확정하면, aid 멤버십이 놓친 내 선수(교체 출전·aid 미기입)도 구제. 추가 승인 전용.
+            let tn_rescued = !rescued && match tn_my_side(provider_now as usize) {
+                Some(ms) => matches!(safe_read_u64(athlete + 0x810), Some(s) if s == ms),
+                None => false,
+            };
+            if !(rescued || tn_rescued) {
                 if BUY_REPORT { BR_TOTAL.fetch_add(1, Ordering::Relaxed); }
                 perf::rec_tl(perf::T_BUY_EARLY, __bt);
                 return 0;
             }
-            MYSIDE_HIT.fetch_add(1, Ordering::Relaxed);
+            if rescued { MYSIDE_HIT.fetch_add(1, Ordering::Relaxed); }
+            if tn_rescued { TN_GATE_EARLY.fetch_add(1, Ordering::Relaxed); }
         }
         // ── 여기부터는 관전 경기 buy(전체 소수) + 배경의 내 선수 buy(5명)만 도달 ──
         // ★athlete 유효성 검사(VirtualQuery)는 여기서 1회 — 위 재정렬 주석 참조.
@@ -5300,7 +5357,11 @@ unsafe extern "C" fn buy_replace_ctx(saved: *mut u64, rsp_entry: usize) -> u64 {
             // ★08-07 구멍2: 멤버십 밖이어도 그 매치에서 내 side 가 확정되면 인정(교체선수 구제)
             match my_side_in_match(provider_now, athlete) {
                 Some(ms) if side == ms => { GATE_ROSTER.fetch_add(1, Ordering::Relaxed); true }
-                _ => false,
+                // ★v2.8.0 TN 게이트: 대회 디스크립터 확정 내 side 일치 → 승인(멤버십·side전파 다음의 3번째 소스)
+                _ => match unsafe { tn_my_side(provider_now as usize) } {
+                    Some(ms) if side == ms => { TN_GATE_HIT.fetch_add(1, Ordering::Relaxed); true }
+                    _ => false,
+                },
             }
         };
         // ★★08-07 지표 정정 — 구 정의 `champ_designated && !is_player` 는 **적팀 선수(정상 차단)까지 세서**
@@ -5338,6 +5399,8 @@ unsafe extern "C" fn buy_replace_ctx(saved: *mut u64, rsp_entry: usize) -> u64 {
             if is_player && !is_live {
                 if matches!(is_my_athlete(athlete), Some(true)) {
                     BR_BG_MINE.fetch_add(1, Ordering::Relaxed);    // 정상(FIXB 의도)
+                } else if matches!(tn_my_side(provider_now as usize), Some(ms) if side == ms) {
+                    BR_BG_MINE.fetch_add(1, Ordering::Relaxed);    // ★v2.8.0 정상: TN 게이트 구제(내 팀 확정)
                 } else {
                     BR_BG_PLAYER.fetch_add(1, Ordering::Relaxed);  // ★결함: 내 선수가 아닌데 배경에 주입
                 }
