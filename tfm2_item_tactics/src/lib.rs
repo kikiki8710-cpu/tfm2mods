@@ -689,7 +689,11 @@ unsafe fn dump_mod_items(db: usize) {
     }
     if found.is_empty() {
         s.push_str("  ✗ 비바닐라 item-struct 배열 못 찾음 (모드 아이템 미적용?)\n");
-        write_log("item_tactics_moditems.txt", &s); return;
+        write_log("item_tactics_moditems.txt", &s);
+        // ★08-07 구멍3 — 실패했으면 재시도 가능하게 되돌린다(구: 첫 줄에서 DONE 을 세워 **세션 내내 재시도 없음**
+        //   ⟹ 스캔이 한 번 어긋나면 모드템 지정이 전부 조용히 사망). 상한 10회로 비용 제한.
+        if MODITEMS_TRIES.fetch_add(1, Ordering::Relaxed) < 10 { MODITEMS_DONE.store(false, Ordering::Relaxed); }
+        return;
     }
     found.sort_by(|x, y| y.1.cmp(&x.1));
     let key_of_elem = |elem: usize| -> Option<String> {
@@ -766,6 +770,7 @@ unsafe fn dump_mod_items(db: usize) {
         s.push_str("  ✗ 아이템 트리(next_tier) 가진 배열 없음 → 아이템 모드 미로드/미인식 의심\n");
         s.push_str(&diag);
         write_log("item_tactics_moditems.txt", &s);
+        if MODITEMS_TRIES.fetch_add(1, Ordering::Relaxed) < 10 { MODITEMS_DONE.store(false, Ordering::Relaxed); } // ★08-07 구멍3
         return;
     };
     let cnt = keys.len();
@@ -2640,6 +2645,52 @@ static GAME_HIT: [AtomicU64; 4] = [const { AtomicU64::new(u64::MAX) }; 4]; // �
 static GATE_AGREE: AtomicU64 = AtomicU64::new(0);      // scene side 판정 == is_my_athlete 판정
 static GATE_DIFF: AtomicU64 = AtomicU64::new(0);       // ★갈린 횟수(0이어야 전환이 안전)
 static GATE_SAMPLE: AtomicU64 = AtomicU64::new(0);     // 교차검증 샘플러(1/256)
+// ★★2026-08-07 "경우의 수 닫기" — 제보자 환경 재현 불가 대응. 아래 4구멍 + 자가진단.
+//   전제 정정: 08-06 에 고친 600틱 창은 `roster_trust` 의 `known != 0` 때문에 **pid≠0 세이브엔 존재하지 않는다**
+//   ⟹ 그건 pid=0 세이브(개발자 본인) 전용 결함이었고 **제보자 원인은 따로 있다**.
+static PID_SRC: AtomicU64 = AtomicU64::new(0);     // 0=미확보 1=InGame 2=server_state(관리틱)
+static MYSIDE_TAB: [(AtomicU64, AtomicU64); 8] = [const { (AtomicU64::new(0), AtomicU64::new(u64::MAX)) }; 8];
+static MYSIDE_HIT: AtomicU64 = AtomicU64::new(0);  // side 전파로 구제된 buy(=교체선수 등)
+static GATE_SCENE: AtomicU64 = AtomicU64::new(0);  // 게이트 통과 경로 분포
+static GATE_ROSTER: AtomicU64 = AtomicU64::new(0);
+static GATE_NONE: AtomicU64 = AtomicU64::new(0);   // ★결함 지표: 지정챔프인데 **판정 불가(None)** 로 막힘
+static GATE_BLOCK_OK: AtomicU64 = AtomicU64::new(0); // 정상 차단: 확정 타팀(적 지정챔프) — 결함 아님
+static MODITEMS_TRIES: AtomicU64 = AtomicU64::new(0);
+static SCAN_NEG_PURGE: AtomicU64 = AtomicU64::new(0);
+// ★구멍2 — `last_starting` 에 없는 선수(교체·부상 출전)는 멤버십에서 빠져 영구 미주입된다.
+//   해결: **그 매치 로스터에 내 선발이 한 명이라도 있으면 그 side 전체를 내 팀으로 인정**한다.
+//   휴리스틱(지정챔프 다수결)이 아니라 athlete_id 멤버십 기반이라 결정적이다.
+//   캐시는 provider 키의 lock-free 8칸 — rayon 병렬 디투어에서 Mutex 경합을 피한다.
+// ⛔★★2026-08-07 실측으로 **기본 OFF 확정**(재활성 전 아래 경위 필독).
+//   켜고 한 판 돌린 결과: `side전파 구제 = 1,676,944` > 멤버십 통과 `1,675,164`
+//   = **배경 sim 의 거의 모든 buy 를 통과**시켰다 = 팀 게이트가 사실상 열렸다.
+//   원인: 이 세이브의 `MY_ATHLETES = {0,1,2,3,4}` 인데 배경 sim 은 **athlete_id 미기입(0)** 이라
+//   그 집합에 걸린다 ⟹ 아무 배경 매치에서나 "내 선발 발견" 판정 → 그 side 전체를 내 팀으로 인정.
+//   07-30 에 잡았던 배경오염을 side 단위로 증폭시킨 꼴이다.
+//   ⟹ **교체선수 구제라는 목적 자체는 유효하나, aid 기반 발견만으로는 판별력이 없다.**
+//     재활성하려면 최소한 ①동일 side 에서 **서로 다른** my-aid 2개 이상 ②aid=0 은 근거에서 제외
+//     ③배경오염 지표(비-내선수 주입)를 함께 계측 — 셋 다 충족해야 한다.
+const SIDE_PROPAGATE: bool = false;
+unsafe fn my_side_in_match(provider: u64, athlete: usize) -> Option<u64> {
+    if !SIDE_PROPAGATE { return None; }
+    if MY_ATH_N.load(Ordering::Relaxed) == 0 { return None; }
+    let slot = (provider >> 4) as usize & 7;
+    let (pk, pv) = (&MYSIDE_TAB[slot].0, &MYSIDE_TAB[slot].1);
+    if pk.load(Ordering::Relaxed) == provider {
+        let v = pv.load(Ordering::Relaxed);
+        return if v <= 1 { Some(v) } else { None };
+    }
+    let mut found = u64::MAX;
+    for k in -9i64..=9 {
+        let a = athlete.wrapping_add((k.wrapping_mul(ATH_STRIDE as i64)) as usize);
+        if matches!(is_my_athlete(a), Some(true)) {
+            if let Some(s) = safe_read_u64(a + 0x810) { if s <= 1 { found = s; break; } }
+        }
+    }
+    pv.store(found, Ordering::Relaxed);
+    pk.store(provider, Ordering::Relaxed);
+    if found <= 1 { Some(found) } else { None }
+}
 // (팀 id 탐색 키 `SCENE_T1`/`SCENE_T2` 는 아래쪽 기존 선언 재사용 — 원래 writer 가 없어 死 상태였던 것을
 //  `quick_scene_side` 에서 채우도록 되살렸다.)
 static LIVE_SEED: AtomicU64 = AtomicU64::new(0);      // ★내 경기 시드(launcher 훅 r8 캡처). v13 값대조 키.
@@ -3343,6 +3394,7 @@ impl ModExtension for ItemTacticsExt {
                 else { PID_ZERO_CLEAN.fetch_add(1, Ordering::Relaxed); } // 조합테스트와 무관한 0 관측
             } else if pu != u64::MAX && pu < 10000 { PID_OBS_NONZERO.fetch_add(1, Ordering::Relaxed); }
             if pu != u64::MAX && pu < 10000 && !(pu == 0 && ct_ctx) {
+                PID_SRC.store(1, Ordering::Relaxed); // ★08-07: pid 출처 = InGame
                 if pu != 0 {
                     // ★08-06: pid 가 실제로 바뀌면 **다음 프레임에 격자 무시하고 즉시 재게시**한다.
                     //   위 `roster_trust` 완화로 pid=0 을 일찍 믿게 됐으므로, 나중에 진짜 pid 가
@@ -3398,6 +3450,22 @@ impl ModExtension for ItemTacticsExt {
                 if n % ROSTER_POLL == 0 {
                     itemnet_retry();
                     game_team_probe();
+                    // ★08-07 구멍4 — **음성 캐시(-1)를 주기적으로 비운다.**
+                    //   `scan_idx_cached` 는 실패를 영구 캐시하는데, 실패는 일시적일 수 있다
+                    //   (카탈로그 미완성·레시피 미로드 시점에 조회되면 그 아이템이 그 컬렉션에서 영영 미발견).
+                    //   양성 캐시는 유지 = 성능 목적 그대로, 실패만 10초마다 재도전.
+                    if (n / ROSTER_POLL) % 5 == 0 {
+                        let mut g = SCAN_CACHE.lock().unwrap_or_else(|e| e.into_inner());
+                        if let Some(outer) = g.as_mut() {
+                            let mut purged = 0u64;
+                            for (_b, m) in outer.iter_mut() {
+                                let before = m.len();
+                                m.retain(|_k, v| *v >= 0);
+                                purged += (before - m.len()) as u64;
+                            }
+                            if purged > 0 { SCAN_NEG_PURGE.fetch_add(purged, Ordering::Relaxed); }
+                        }
+                    }
                     // ★08-07: 경기 중에도 registry 갱신(구: probe_db 에서만 → 경기 전 스냅샷이 굳었다).
                     //   무변경이면 write 생략이라 비용 0.
                     let sdb = SERVER_DB.load(Ordering::Relaxed) as usize;
@@ -3533,6 +3601,32 @@ static NETSCAN_DONE: AtomicBool = AtomicBool::new(false);
 //   pid 는 InGame 에서만 읽히므로 여기서는 **이미 잡아둔 `PLAYER_TEAM_ID`** 만 쓴다(새로 판정하지 않음).
 //   무변경이면 재게시하지 않는다 — `publish_my_athletes` 는 Box 세대교체라 매 틱 호출하면 낭비다.
 fn refresh_roster_management(ctx: &mut ServerModContext) {
+    // ★★08-07 구멍1 — **`pid` 를 관리틱에서도 확보한다.**
+    //   구조: `player_team_id()` 는 `Scene::InGame` 에서만 읽혔다 ⟹ **게임을 켜고 경기를 한 번도
+    //   관전/진행하지 않은 채 일정만 넘기면 pid 가 영영 안 잡히고**, `MY_ATHLETES` 미게시 →
+    //   배경 sim 조기탈출이 전량 발동 → **그 세션 주입 전멸**. 재현이 안 되는 제보의 1순위 후보다
+    //   (관전을 자주 하는 환경에서는 절대 안 나타난다).
+    //   해결: 서버측 `ctx.server_state.players` 의 team_id 를 쓴다(`tfm2_meta_item_delegate` 가 쓰는 소스).
+    //   ⚠멀티플레이 대비 — **distinct team_id 가 정확히 1개일 때만** 채택한다.
+    if PLAYER_TEAM_ID.load(Ordering::Relaxed) == u64::MAX {
+        let mut only: Option<u64> = None;
+        let mut multi = false;
+        for (_k, p) in ctx.server_state.players.iter() {
+            let t = p.team_id as u64;
+            match only { None => only = Some(t), Some(v) if v != t => multi = true, _ => {} }
+        }
+        if !multi {
+            if let Some(t) = only {
+                if t < 10000 {
+                    PLAYER_TEAM_ID.store(t, Ordering::Relaxed);
+                    if t != 0 { PID_NONZERO_SEEN.store(1, Ordering::Relaxed); }
+                    PID_EVER_VALID.store(1, Ordering::Relaxed);
+                    PID_SRC.store(2, Ordering::Relaxed);
+                    ROSTER_FORCE.store(true, Ordering::Relaxed);
+                }
+            }
+        }
+    }
     let known = PLAYER_TEAM_ID.load(Ordering::Relaxed);
     if known == u64::MAX || known >= 10000 { return; }
     if !roster_trust(known) { return; }
@@ -3869,6 +3963,32 @@ fn write_registry_status(db: usize) {
             GATE_AGREE.load(Ordering::Relaxed), GATE_DIFF.load(Ordering::Relaxed)));
         s.push_str(&format!("  [Game 핸들] launcher rcx={:#x} · buy Game={:#x}\n",
             LIVE_GAME.load(Ordering::Relaxed), BUY_GAME.load(Ordering::Relaxed)));
+        // ★★08-07 신설 — **제보자 자가진단 블록.** 재현 못 하는 제보를 "이 파일 보내주세요"로 끝내기 위한 것.
+        //   판독 규칙을 파일 자체에 박아둔다(보내는 사람도, 받는 사람도 해석이 필요 없게).
+        {
+            let pid = PLAYER_TEAM_ID.load(Ordering::Relaxed);
+            let src = match PID_SRC.load(Ordering::Relaxed) { 1 => "InGame", 2 => "server_state(관리틱)", _ => "★미확보" };
+            let n_my = MY_ATH_N.load(Ordering::Relaxed);
+            let blocked = GATE_NONE.load(Ordering::Relaxed);
+            s.push_str("\n  ═══ 팀 판정 자가진단 (아이템 주입 실패 제보 시 이 블록을 보내면 됩니다) ═══\n");
+            s.push_str(&format!("  pid = {}  (출처 {})\n",
+                if pid == u64::MAX { "미확보".to_string() } else { pid.to_string() }, src));
+            s.push_str(&format!("  내 팀 선발 로스터 = {}명   {}\n", n_my,
+                if n_my == 0 { "★FAIL — 게시 안 됨. 배경 sim(일정 넘김) 주입이 전량 스킵된다" } else { "OK" }));
+            s.push_str(&format!("  게이트 통과: scene(화면경기)={} · roster(배경sim)={} · side전파 구제={}\n",
+                GATE_SCENE.load(Ordering::Relaxed), GATE_ROSTER.load(Ordering::Relaxed), MYSIDE_HIT.load(Ordering::Relaxed)));
+            s.push_str(&format!("  ★판정불가로 막힌 지정챔프 = {}   {}\n", blocked,
+                if blocked == 0 { "OK — 판정 못 해 스킵된 적 없음" } else { "★이게 주입 실패의 직접 원인이다" }));
+            s.push_str(&format!("  (참고) 확정 타팀이라 막힘 = {}   ← 정상 동작, 결함 아님\n",
+                GATE_BLOCK_OK.load(Ordering::Relaxed)));
+            s.push_str(&format!("  게이트 교차검증(1/256): 일치={} · ★불일치={}\n",
+                GATE_AGREE.load(Ordering::Relaxed), GATE_DIFF.load(Ordering::Relaxed)));
+            s.push_str(&format!("  레지스트리 스캔 재시도={}회 · 스캔 음성캐시 정리={}건\n",
+                MODITEMS_TRIES.load(Ordering::Relaxed), SCAN_NEG_PURGE.load(Ordering::Relaxed)));
+            s.push_str("  판독: pid 미확보 또는 로스터 0명 → 구멍1 / **판정불가** 막힘>0 → 구멍2 계열\n");
+            s.push_str("        (참고) 줄은 적팀 정상 차단이라 값이 커도 무시할 것\n");
+            s.push_str("        MOD_REGISTRY 0 → 구멍3 / 재시도>0 이면 첫 스캔이 실패했다는 뜻\n");
+        }
         s.push_str(&format!("\n  [원시값] retry호출={} 광역스캔={}회(상한8)\n",
             NETRETRY_N.load(Ordering::Relaxed), NETWIDE_TRIES.load(Ordering::Relaxed)));
         for (tag, base) in [("신", DB_DIRECT.load(Ordering::Relaxed) as usize), ("구", db)] {
@@ -4829,10 +4949,20 @@ unsafe extern "C" fn buy_replace_ctx(saved: *mut u64, rsp_entry: usize) -> u64 {
         //   무거운 readable(=VirtualQuery 커널호출) 전에 싼 VEH읽기(+0x810)+HashSet 대조로 즉시 passthrough.
         //   07-22가 없앤 배경 조기탈출을 fix와 양립하게 복원(배경 buy ~94%가 여기서 빠짐). None(로스터 미확보)=
         //   주입안함=조기탈출(옛 동작 동일). 관전(is_live)은 항상 통과(by_scene 판정 필요).
+        // ★08-07 구멍2 보강 — 멤버십에서 빠진 내 팀 선수(교체·부상 출전)를 **매치 내 side 전파**로 구제한다.
+        //   구: `is_my_athlete != Some(true)` 면 무조건 조기탈출 ⟹ 선발 외 출전 선수는 영구 미주입.
+        //   신: 그 매치에 내 선발이 한 명이라도 있으면 그 side 전체 인정(provider 키 lock-free 캐시).
         if FIXB && !is_live && !matches!(is_my_athlete(athlete), Some(true)) {
-            if BUY_REPORT { BR_TOTAL.fetch_add(1, Ordering::Relaxed); }
-            perf::rec_tl(perf::T_BUY_EARLY, __bt);
-            return 0;
+            let rescued = match my_side_in_match(provider_now, athlete) {
+                Some(ms) => match safe_read_u64(athlete + 0x810) { Some(s) => s == ms, None => false },
+                None => false,
+            };
+            if !rescued {
+                if BUY_REPORT { BR_TOTAL.fetch_add(1, Ordering::Relaxed); }
+                perf::rec_tl(perf::T_BUY_EARLY, __bt);
+                return 0;
+            }
+            MYSIDE_HIT.fetch_add(1, Ordering::Relaxed);
         }
         // ── 여기부터는 관전 경기 buy(전체 소수) + 배경의 내 선수 buy(5명)만 도달 ──
         // ★athlete 유효성 검사(VirtualQuery)는 여기서 1회 — 위 재정렬 주석 참조.
@@ -4986,9 +5116,27 @@ unsafe extern "C" fn buy_replace_ctx(saved: *mut u64, rsp_entry: usize) -> u64 {
                 else { GATE_DIFF.fetch_add(1, Ordering::Relaxed); }
             }
             sg
+        } else if matches!(is_my_athlete(athlete), Some(true)) {
+            GATE_ROSTER.fetch_add(1, Ordering::Relaxed); true       // 배경 sim = athlete_id 멤버십
         } else {
-            matches!(is_my_athlete(athlete), Some(true)) // 배경 sim · scene 미성립 = athlete_id 멤버십
+            // ★08-07 구멍2: 멤버십 밖이어도 그 매치에서 내 side 가 확정되면 인정(교체선수 구제)
+            match my_side_in_match(provider_now, athlete) {
+                Some(ms) if side == ms => { GATE_ROSTER.fetch_add(1, Ordering::Relaxed); true }
+                _ => false,
+            }
         };
+        // ★★08-07 지표 정정 — 구 정의 `champ_designated && !is_player` 는 **적팀 선수(정상 차단)까지 세서**
+        //   실측 5,340 을 찍었다. 지정 챔프가 105개라 상대 로스터 대부분이 여기 걸린다 = 정상 동작인데 결함처럼 보인다.
+        //   07-30 교훈("지표는 **결함일 때만** 증가하는 조건으로 정의할 것")을 그대로 반복했다.
+        //   ⟹ 진짜 결함 = "**내 선수인지 판정조차 못 해서** 막힌 것" = `is_my_athlete()` 가 `None`.
+        //     `Some(false)`(확정 타팀)는 정상 차단이므로 따로 센다.
+        if champ_designated && !is_player {
+            match is_my_athlete(athlete) {
+                None => { GATE_NONE.fetch_add(1, Ordering::Relaxed); }        // ★결함: 판정 불가로 스킵
+                _    => { GATE_BLOCK_OK.fetch_add(1, Ordering::Relaxed); }    // 정상: 확정 타팀
+            }
+        }
+        if let Some(_) = scene_gate { GATE_SCENE.fetch_add(1, Ordering::Relaxed); }
         let _ = by_scene; // (구 경로 — scene_gate 로 대체됨. 진단 출력에서만 사용)
         // ★★SEL 스코프 결정(2026-07-30): 조합테스트면 그 선수의 진영(블루/레드) 스코프로 지정을 읽는다.
         //   조합테스트가 아니면 Scope::Plain = 예전과 동일한 조회 ⟹ 리그·관전·배경 동작 무변경.
