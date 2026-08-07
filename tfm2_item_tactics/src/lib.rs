@@ -2579,7 +2579,10 @@ const RA_TOURN_054: u64 = 0x239f242; // 0.5.4 worker.rs 대회 배경 launcher r
 static TN_SEEN: AtomicU64 = AtomicU64::new(0);       // 대회 retaddr 런처 발화 수
 static TN_HIT: AtomicU64 = AtomicU64::new(0);        // 레코드 스캔 성공
 static TN_MISS_FRAME: AtomicU64 = AtomicU64::new(0); // 프레임 슬롯 읽기 실패/포인터 무효
-static TN_MISS_DB: AtomicU64 = AtomicU64::new(0);    // 검증① db 불일치
+static TN_MISS_DB: AtomicU64 = AtomicU64::new(0);    // 검증① db 불일치(LIVE_DB·DB_DIRECT 둘 다 아님 — ★08-08 관측 강등)
+static TN_DB_SEEN: AtomicU64 = AtomicU64::new(0);    // ★관측: [rbp+0x1cde8] 마지막 값(정체 규명용)
+static TN_DB_EQ_LIVE: AtomicU64 = AtomicU64::new(0);   // 관측: seen == LIVE_DB(scene db)
+static TN_DB_EQ_DIRECT: AtomicU64 = AtomicU64::new(0); // 관측: seen == DB_DIRECT(addr_of!(*ctx.database))
 static TN_MISS_SCAN: AtomicU64 = AtomicU64::new(0);  // 두 맵 전체 스캔 miss(검증항목 ①의 핵심 지표)
 static TN_V3_NG: AtomicU64 = AtomicU64::new(0);      // 검증③ 탈락(키불일치/완료플래그/맵바이트)
 static TN_LAST_A: AtomicU64 = AtomicU64::new(0);     // 마지막 히트 팀A id(rec+0x140)
@@ -2603,9 +2606,16 @@ unsafe fn tourn_capture(saved: *mut u64, seed: u64) {
         safe_read_u64(rbp.wrapping_add(0x1cdc0)),   // cfg(배경 sim 상태 구조체)
         safe_read_u64(rbp.wrapping_add(0x1cce0)),   // 현재 세트블록 끝 포인터
     ) else { TN_MISS_FRAME.fetch_add(1, Ordering::Relaxed); return; };
-    // 검증① — db 포인터 대조(LIVE_DB 미확보면 대조 생략 — ②·③이 남는다)
+    // 검증① — db 포인터 대조. ★08-08 첫 실측(런처발화 47 전건 db불일치·프레임읽기 실패 0)으로 **관측 강등**:
+    //   [rbp+0x1cde8]은 LIVE_DB(scene db)와 다른 객체였다(서버측 db 추정 — registry 의 base 2종 공존과 정합).
+    //   레코드 특정은 ②(set_end 세트Vec 포함판정)+③(키 자기일치·미완료·맵바이트)만으로 충분히 특이적이라
+    //   하드 거부를 없애고, seen 값·일치 상대를 계수해 정체를 규명한다(확정되면 ①을 그 대상으로 복원).
+    TN_DB_SEEN.store(db, Ordering::Relaxed);
     let kdb = LIVE_DB.load(Ordering::Relaxed);
-    if kdb != 0 && db != kdb { TN_MISS_DB.fetch_add(1, Ordering::Relaxed); return; }
+    let ddb = DB_DIRECT.load(Ordering::Relaxed);
+    if kdb != 0 && db == kdb { TN_DB_EQ_LIVE.fetch_add(1, Ordering::Relaxed); }
+    else if ddb != 0 && db == ddb { TN_DB_EQ_DIRECT.fetch_add(1, Ordering::Relaxed); }
+    else { TN_MISS_DB.fetch_add(1, Ordering::Relaxed); }
     let (cfg, set_end) = (cfg as usize, set_end as usize);
     if cfg < 0x10000 || set_end < 0x10000 { TN_MISS_FRAME.fetch_add(1, Ordering::Relaxed); return; }
     let map_b = *saved.add(1) & 0xff;            // dl = launcher arg2 = 맵 바이트
@@ -4100,10 +4110,15 @@ fn write_registry_status(db: usize) {
         // ★08-08 — 대회(리그) 배경 디스크립터 보험 관측(관측 전용·게이트 미연결. RE 레시피 런타임 실측 2건용).
         if TN_ENABLED {
             s.push_str(&format!("\n  [대회 디스크립터 보험 (08-08 RE·worker ret 0x239f242·관측 전용)]\n\
-                \x20   런처발화={} 스캔성공={} · miss: 프레임={} db불일치={} 스캔={} · 검증③탈락={}\n",
+                \x20   런처발화={} 스캔성공={} · miss: 프레임={} 스캔={} · 검증③탈락={}\n",
                 TN_SEEN.load(Ordering::Relaxed), TN_HIT.load(Ordering::Relaxed),
-                TN_MISS_FRAME.load(Ordering::Relaxed), TN_MISS_DB.load(Ordering::Relaxed),
+                TN_MISS_FRAME.load(Ordering::Relaxed),
                 TN_MISS_SCAN.load(Ordering::Relaxed), TN_V3_NG.load(Ordering::Relaxed)));
+            s.push_str(&format!("\x20   db관측(검증①→관측 강등): seen={:#x} · ==LIVE_DB {}회 · ==DB_DIRECT {}회 · 둘다아님 {}회\n\
+                \x20     (참조: LIVE_DB={:#x} DB_DIRECT={:#x} — seen 의 정체 확정 후 ① 복원 여부 결정)\n",
+                TN_DB_SEEN.load(Ordering::Relaxed), TN_DB_EQ_LIVE.load(Ordering::Relaxed),
+                TN_DB_EQ_DIRECT.load(Ordering::Relaxed), TN_MISS_DB.load(Ordering::Relaxed),
+                LIVE_DB.load(Ordering::Relaxed), DB_DIRECT.load(Ordering::Relaxed)));
             s.push_str(&format!("\x20   마지막 히트: 팀A(+0x140)={} 팀B(+0x148)={} key={} map=+{:#x} set꼬리={:#06x}\n",
                 TN_LAST_A.load(Ordering::Relaxed), TN_LAST_B.load(Ordering::Relaxed),
                 TN_LAST_KEY.load(Ordering::Relaxed), TN_LAST_MAP.load(Ordering::Relaxed),
