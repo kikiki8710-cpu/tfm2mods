@@ -33,6 +33,7 @@ include!("rva_054.rs");   // ★0.5.4 마이그(2026-08-05): rva_053.rs → rva_
 include!("mem_safety.rs");
 include!("detour.rs");
 include!("class_micro.rs");   // ★[08-07] 바이트패치 노브를 클래스별로 여는 마이크로 디투어(설계 = RE 부록 B)
+include!("nexus_emg.rs");     // ★[08-08] "넥서스 비상" 발동 조건(쌍둥이 타워·2차 타워) 노브
 include!("probe.rs");   // ★[08-04] 런타임 진단 프로브(probe=0 기본 OFF) — 정적 분석으로 안 뚫린 6건 계측
 include!("serpen.rs");
 include!("disc19_repro.rs");
@@ -2437,6 +2438,7 @@ unsafe extern "C" fn retreat_capture(saved: usize, entry_rsp: usize) -> u64 {
         apply_rt_imm();
             apply_lt_imm();
             apply_nx_imm();
+            apply_nxe();      // ★[08-08 신설] "넥서스 비상" 발동 조건 — 남은 구조물 N개 이하 / 2차 타워 파괴 (기본 -1=원본)
             apply_hd_imm();
             apply_d4_imm();
             apply_c3_imm();
