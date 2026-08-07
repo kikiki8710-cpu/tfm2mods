@@ -29,14 +29,21 @@ for f in sorted(glob.glob(os.path.join(SRC, '*.rs'))):
 # ★[08-07] 마이크로 디투어로 연 노브(class_micro.rs MICRO_SITES)도 "먹음"이다.
 #   그 노브들은 apply_*_imm 안에서도 tune() 이 불리지만, 실제 상수는 디투어가 클래스별로 공급한다.
 #   콜백이 tune(site.key, ...) 를 **변수로** 부르므로 위 스캔에 안 잡힌다 → 표를 직접 읽는다.
+# ⚠구현은 `MICRO_SITES: &[...] = &[` **이후**만 스캔했는데, 사이트를 macro_rules 로 만들기 시작하자
+#   매크로 정의(배열보다 **앞**에 온다) 안의 key 를 통째로 놓쳤다 — `bt_vision_mem` 11사이트가
+#   조용히 목록에서 빠졌고, 그러면 설치는 되는데 로그는 "무시됨"이라고 찍히는 모순이 생긴다.
+#   ⟹ **파일 전체**에서 `key: "..."` 를 걷는다(이 파일에서 `key` 필드는 MicroSite 에만 있다).
+#   진입부 훅으로 여는 노브는 `knobs: &["a","b"]` 에 적히므로 그것도 함께 걷는다.
 MICRO = re.compile(r'key:\s*"([a-zA-Z0-9_]+)"')
+KNOBS = re.compile(r'knobs:\s*&\[([^\]]*)\]')
+STR = re.compile(r'"([a-zA-Z0-9_]+)"')
 micro = set()
 mpath = os.path.join(SRC, 'class_micro.rs')
 if os.path.exists(mpath):
     body = io.open(mpath, encoding='utf-8').read()
-    tbl = body.split('MICRO_SITES: &[MicroSite] = &[', 1)
-    if len(tbl) == 2:
-        micro = set(MICRO.findall(tbl[1]))
+    micro = set(MICRO.findall(body))
+    for grp in KNOBS.findall(body):
+        micro |= set(STR.findall(grp))
 
 capable = sorted(judge | micro)            # 판단 본문에서 읽힘 or 마이크로 디투어로 열림
 imm_only = sorted(imm - judge - micro)

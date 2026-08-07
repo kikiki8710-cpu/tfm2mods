@@ -245,7 +245,11 @@ unsafe extern "C" fn class_micro_value(idx: u64, a: usize, b: usize) -> u64 {
         //   기존 바이트패치는 `b1/b4(v, orig)` 가 이 변환을 해줬는데, 콜백은 tune() 을 직접 읽으므로
         //   여기서 같은 변환을 해야 한다. 빠뜨리면 `-1` 이 그대로 상수로 박혀 동작이 망가진다
         //   (예: `cs_lead_attack = -1` 은 "원본 30" 인데 사거리 판정에 0xFFFFFFFF 가 들어간다).
-        let v = if raw < 0 { site.orig } else { raw };
+        // ★상한 클램프 — 이 값들 중 일부는 게임에서 **틱에 더해진다**(`마지막목격틱 + 120`).
+        //   터무니없이 큰 값을 넣으면 덧셈이 넘쳐 부호가 뒤집히고 판정이 **정반대**가 된다.
+        //   원본 imm8/imm32 자리는 애초에 그럴 수 없었지만, 마이크로 디투어는 64비트 슬롯이라 가능해졌다
+        //   — 표현력이 늘면 넣을 수 있는 잘못된 값도 는다.
+        let v = if raw < 0 { site.orig } else { raw.min(1_000_000_000) };
         MICRO_CLSHIT[i][slot].store(cls_specific, Ordering::Relaxed);
         MICRO_VAL[i][slot].store(v, Ordering::Relaxed);
         (v, slot)
@@ -503,23 +507,17 @@ pub(crate) unsafe fn install_class_micro() {
     let mut report = String::from("=== 클래스별 마이크로 디투어 설치 결과 ===\n\
         # 설치된 사이트만 클래스별 값이 먹는다. 값 변경은 재설치 없이 반영되지만,\n\
         # 설치/해제 자체는 게임 재시작이 필요하다(실행 중 코드 교체 경쟁 방지).\n");
+
+    // ── 1차: 사이트별 "설치 가능한가" 판정 (아직 아무것도 쓰지 않는다) ──
+    let mut feasible = [false; MICRO_MAX];
+    let mut why: [&'static str; MICRO_MAX] = [""; MICRO_MAX];
     for (i, site) in MICRO_SITES.iter().enumerate() {
         if i >= MICRO_MAX { break; }
-        if !has_class_override(site.key) {
-            report.push_str(&format!("skip  {:<22} 클래스 오버라이드 없음(기존 바이트패치 유지)\n", site.key));
-            continue;
-        }
-        MICRO_TRIED.fetch_add(1, Ordering::Relaxed);
+        if !has_class_override(site.key) { why[i] = "클래스 오버라이드 없음(기존 바이트패치 유지)"; continue; }
         let addr = base + site.rva;
         let n = site.win.len();
-        if n < 5 {
-            report.push_str(&format!("FAIL  {:<22} 창이 5바이트 미만({})\n", site.key, n));
-            continue;
-        }
-        if !readable(addr, n) {
-            report.push_str(&format!("FAIL  {:<22} rva={:#x} 읽기 불가\n", site.key, site.rva));
-            continue;
-        }
+        if n < 5 { why[i] = "창이 5바이트 미만"; continue; }
+        if !readable(addr, n) { why[i] = "읽기 불가"; continue; }
         // ★원본 대조(게임 패치 방어) — 단 **상수 필드는 건너뛴다**(위 imm_off/imm_w 주석 참조).
         //   명령의 골격(opcode·ModRM·레지스터)이 내가 아는 그대로일 때만 설치한다.
         let mut ok = true;
@@ -527,11 +525,33 @@ pub(crate) unsafe fn install_class_micro() {
             if k >= site.imm_off && k < site.imm_off + site.imm_w { continue; }   // 상수 자리 = 무시
             if rd_u8(addr + k) != b { ok = false; break; }
         }
-        if !ok {
-            report.push_str(&format!("BLOCK {:<22} rva={:#x} 명령 골격 불일치 — 이 자리는 내가 아는 그 자리가 아니다\n",
-                                     site.key, site.rva));
+        if !ok { why[i] = "명령 골격 불일치 — 이 자리는 내가 아는 그 자리가 아니다"; continue; }
+        feasible[i] = true;
+    }
+
+    // ── 2차: **키 단위 all-or-nothing** ──
+    // ★한 노브가 여러 사이트에 흩어져 있으면(`bt_vision_mem` = 11곳) 일부만 설치하는 순간
+    //   **반쪽 노브**가 된다 — 어떤 경로는 클래스별, 어떤 경로는 전역. 그건 값이 안 먹는 것보다 나쁘다
+    //   (증상이 경로에 따라 갈려 진단이 거의 불가능해진다). 전부 되거나, 하나도 안 하거나.
+    let mut go = [false; MICRO_MAX];
+    for (i, site) in MICRO_SITES.iter().enumerate() {
+        if i >= MICRO_MAX || !feasible[i] { continue; }
+        let all = MICRO_SITES.iter().enumerate()
+            .filter(|(j, s)| *j < MICRO_MAX && s.key == site.key)
+            .all(|(j, _)| feasible[j]);
+        if all { go[i] = true; } else { why[i] = "같은 노브의 다른 사이트가 불가 — 반쪽 설치 방지로 전체 보류"; }
+    }
+
+    for (i, site) in MICRO_SITES.iter().enumerate() {
+        if i >= MICRO_MAX { break; }
+        if !go[i] {
+            let tag = if feasible[i] || why[i].starts_with("클래스") { "skip " } else { "BLOCK" };
+            report.push_str(&format!("{} {:<22} rva={:#x} {}\n", tag, site.key, site.rva, why[i]));
             continue;
         }
+        MICRO_TRIED.fetch_add(1, Ordering::Relaxed);
+        let addr = base + site.rva;
+        let n = site.win.len();
         let stub_code = build_micro_stub(i, site, addr + n, cb);
         let stub = micro_alloc(addr, stub_code.len());
         if stub == 0 {
@@ -663,6 +683,20 @@ pub(crate) fn micro_summary() -> String {
 //      ★"**A 방식(사이트에서 self 즉시 복원) 한정** 불가" — self 신원 역산은 별도 심층 RE 로 열릴 수 있다.
 //    · `bt_vision_mem` 11곳    — 로드값이 `[목격틱테이블 + 적side*0x2e8 + 대상role*8 + 0x1e0]` = **전역 목격
 //      테이블의 스칼라**이지 self 가 아니다(부록 D 오탐 정정과 정합). 교체창도 4B.
+macro_rules! bt_vis {
+    ($rva:expr, $win:expr, $dst:expr, $tail:expr) => {
+        MicroSite {
+            key: "bt_vision_mem", orig: 120, rva: $rva,
+            win: $win, pre: &[], tail: $tail,
+            op: MOp::AddR64 { dst: $dst },
+            imm_off: 3, imm_w: 1,
+            a: Src::Mem(reg::RBP, 0x610), b: Src::Mem(reg::RBP, 0x560),
+            resolve: Resolve::Champions,
+            note: "self=champions[[rbp+0x560]][side,role of [rbp+0x610]]",
+        }
+    };
+}
+
 pub(crate) static MICRO_SITES: &[MicroSite] = &[
     // ① cs_lead_attack — 평타 선행예측 틱. self 가 r14 에 그대로 살아 있는 가장 깨끗한 자리.
     //    0xdb867b `mov r14,[rbx+rax*8]` = champions[myside][myrole] 이후 사이트까지 r14 write 없음.
@@ -724,7 +758,22 @@ pub(crate) static MICRO_SITES: &[MicroSite] = &[
         a: Src::Stack(0x50), b: Src::None, resolve: Resolve::Direct,
         note: "self=p3(3번째 인자)=[진입rsp+0x50] 재로드",
     },
-    // ⑦~ 진입부 훅으로 여는 자리는 `ENTRY_SITES` 등록 후 `Resolve::FromEntry(n)` 으로 붙인다.
+    // ⑦ ex_order_hold — "오더를 낸 지 N틱 안이면 재고하지 않는다" = 그 챔프의 고집.
+    //    ★지난 판정 2건이 다 뒤집혔다: ⓐ창 4B → 뒤 `cmp rsi,rax` 를 tail 로 흡수해 **7B**
+    //    ⓑ"팀 오더 컨텍스트라 조건② 불만족" → `r14`(arg2)는 팀이 아니라 **챔프별 AI 브레인**이다
+    //    (크기 0x2950 트레이트 객체 · 현재 플랜 1바이트만 보유 ⟹ 팀 공유 불가).
+    //    `+0x28c0` = 그 챔프가 오더를 낸 틱(`0xe7600f` 에서 write). `ex_think_min` 이 같은 구조체의
+    //    인접 필드 `+0x28b8` 을 쓰고 이미 승인된 것과 정합.
+    //    근거 = RE\2026-08-07_bt_vision_mem-ex_order_hold-재조사-둘다가능.md §B
+    MicroSite {
+        key: "ex_order_hold", orig: 10, rva: 0xe747e3,
+        win: &[0x48, 0x83, 0xc0, 0x0a, 0x48, 0x39, 0xc6],   // add rax,0xa ; cmp rsi,rax
+        pre: &[], tail: &[0x48, 0x39, 0xc6],                 // ★tail 이 최종 플래그 생산자 = 원본과 동일
+        op: MOp::AddR64 { dst: reg::RAX },
+        imm_off: 3, imm_w: 1,
+        a: Src::Mem(reg::RBP, 0x110), b: Src::Reg(reg::R12), resolve: Resolve::Champions,
+        note: "self=champions[r12][side,role of [rbp+0x110]=arg4]",
+    },
     // ⑤ ex_think_min — 재판단 간격 하한. 사이트엔 self 포인터가 없고 **재료 두 개**로 만든다:
     //    r12(=진입 rdx, 판단 컨텍스트)에서 side/role, champions 홀더는 [rbp+0x2c8](진입부 0xe76c4f 세팅).
     //    원본 = `lea rcx,[rax+rax*2+400]` ⟹ pre 로 `lea rcx,[rax+rax*2]` 실행 후 값을 더한다.
@@ -736,9 +785,39 @@ pub(crate) static MICRO_SITES: &[MicroSite] = &[
         tail: &[],
         imm_off: 4, imm_w: 4,
         op: MOp::LeaAdd { dst: reg::RCX },
-        a: Src::Reg(reg::R12), b: Src::Mem(reg::RBP, 0x2c8), resolve: Resolve::Champions,
-        note: "self=champions[[rbp+0x2c8]][side,role of r12]",
+        // ★★[08-07 오배선 수정] ~~`Src::Reg(r12)`~~ → **`rdi`**. 사이트 시점의 side/role 소스는 r12 가
+        //   아니라 **rdi(=4번째 인자)** 다. 사이트 **뒤**에서 `0xe76d2f mov r12,rdi` 로 r12 가 스왑되는데,
+        //   앞선 RE 가 그 뒤의 `0xe76dd6 mov r15,r12` 만 보고 "r12 = arg2" 로 읽은 것이 원인.
+        //   교차 확증 = 콜리 `0xe742a0` 도 `[rbp+0x110](=arg4)` 로만 0x810/0x8a0 을 읽고,
+        //   브레인 구조체(arg2)는 그 오프셋을 아예 접근하지 않는다.
+        //   ⚠증상은 **크래시가 아니라 조용한 무효**였다 — `[브레인+0x810]` 을 side 로 읽어 범위 밖 →
+        //   self=0 → 전역값 폴백. `class_verify.txt` 의 `self확보%` 가 0% 면 이 계열 오배선이다.
+        a: Src::Reg(reg::RDI), b: Src::Mem(reg::RBP, 0x2c8), resolve: Resolve::Champions,
+        note: "self=champions[[rbp+0x2c8]][side,role of rdi=4번째 인자]",
     },
+   // ⑧ `bt_vision_mem` 11사이트 — "적을 마지막으로 본 지 N틱 안이면 아직 기억한다".
+   //
+   // ★지난 판정("전역 목격틱 테이블이라 self 귀속 아님")은 **읽는 값**과 **상수의 주인**을 혼동한 것이었다.
+   //   테이블이 팀 공유인 건 맞다. 그러나 이 함수는 진입부에서 self 를 **한 명으로 확정**하고 그 한 명의
+   //   SubPlan 을 평가한다(적 5명 순회는 *대상* 루프일 뿐). ⟹ "내가 놓친 적을 얼마나 오래 경계하는가"
+   //   = 한 챔프의 성향 ⟹ 조건② 만족. **갈라지는 것은 임계값뿐이고 목격 기록 자체는 팀 공유 그대로다.**
+   // self 재료는 11곳 공통 = `[rbp+0x610]`(arg5, 함수 전체 write 0회) + `[rbp+0x560]`(holder, write 1회).
+   // 근거 = 같은 RE 문서 §A.
+    // r15 ×5
+    bt_vis!(0xda4625, &[0x49,0x83,0xc7,0x78,0x49,0x39,0xc7], reg::R15, &[0x49,0x39,0xc7]),
+    bt_vis!(0xda80e7, &[0x49,0x83,0xc7,0x78,0x49,0x39,0xc7], reg::R15, &[0x49,0x39,0xc7]),
+    bt_vis!(0xda816f, &[0x49,0x83,0xc7,0x78,0x49,0x39,0xc7], reg::R15, &[0x49,0x39,0xc7]),
+    bt_vis!(0xda81f7, &[0x49,0x83,0xc7,0x78,0x49,0x39,0xc7], reg::R15, &[0x49,0x39,0xc7]),
+    bt_vis!(0xda8d32, &[0x49,0x83,0xc7,0x78,0x49,0x39,0xc7], reg::R15, &[0x49,0x39,0xc7]),
+    // rdi ×1  ★이 자리가 기존 전역 imm 패치의 prefix 목록에서 빠져 있던 곳이다(08-07 결함 수정분)
+    bt_vis!(0xda5234, &[0x48,0x83,0xc7,0x78,0x48,0x39,0xc7], reg::RDI, &[0x48,0x39,0xc7]),
+    // r14 ×1
+    bt_vis!(0xda5dae, &[0x49,0x83,0xc6,0x78,0x49,0x39,0xc6], reg::R14, &[0x49,0x39,0xc6]),
+    // rsi ×4
+    bt_vis!(0xda791b, &[0x48,0x83,0xc6,0x78,0x48,0x39,0xc6], reg::RSI, &[0x48,0x39,0xc6]),
+    bt_vis!(0xda79a3, &[0x48,0x83,0xc6,0x78,0x48,0x39,0xc6], reg::RSI, &[0x48,0x39,0xc6]),
+    bt_vis!(0xda7a2b, &[0x48,0x83,0xc6,0x78,0x48,0x39,0xc6], reg::RSI, &[0x48,0x39,0xc6]),
+    bt_vis!(0xda8c8e, &[0x48,0x83,0xc6,0x78,0x48,0x39,0xc6], reg::RSI, &[0x48,0x39,0xc6]),
 ];
 
 // ════════════════════════════════════════════════════════════════════════════

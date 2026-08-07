@@ -1024,7 +1024,10 @@ unsafe fn apply_exec_imm() {
     //    한쪽 값을 바꿔도 다른 쪽이 덮으면 조용히 무효가 됐다(applied=N/N 이라 지표로 안 드러남).
     //    ⟹ lw_* 를 정본으로 두고 여기선 패치하지 않는다. ex_wait_* 는 알리아스로 계속 동작한다.
     // ── ③ 오더 유지 최소 경과 (lib.rs 유닛 AI 틱) ──
+    // ★[08-07] 마이크로 디투어와 상호배타.
+    if !micro_taken("ex_order_hold") {
     ok += patch_imm_bytes(base + 0xe747e3, &[0x48,0x83,0xc0], 3, 1, b1(hold, 10)) as u32;    // add rax,10
+    }
     EXECIMM_SIG.store(sig, Ordering::Relaxed);
     if let Some(p) = pth("exec_imm.txt") {
         // ⛔[08-07] wait=[dist back] 제거 — 그 두 사이트(0xe721d3·0xe727c4)는 lw_wait_dist / lw_back
@@ -2479,6 +2482,9 @@ unsafe fn apply_auction_imm() {
     //   **rdi×1(`48 83 c7`)**. 목록엔 rdi 가 없고 대신 **아무 사이트도 안 쓰는 r13(`49 83 c5`)** 이 들어 있었다.
     //   ⟹ `applied=10/11` 이었는데 `ok += done` 집계만 보면 알 수 없다(같은 계열 사고 3번째 — 08-03 "7곳 중 4곳",
     //   08-07 "알리아스 중복 사이트"). ★교훈 = **prefix 목록은 짐작이 아니라 exe 실측으로 채운다.**
+    // ★[08-07] 마이크로 디투어가 11곳을 통째로 가져갔으면 여기선 건드리지 않는다(상호배타).
+    //   그쪽은 **키 단위 all-or-nothing** 이라 "일부만 가져간" 중간 상태가 없다.
+    if !micro_taken("bt_vision_mem") {
     for a in [0xda4625usize, 0xda5234, 0xda5dae, 0xda791b, 0xda79a3, 0xda7a2b, 0xda8c8e,
               0xda80e7, 0xda816f, 0xda81f7, 0xda8d32] {
         tot += 1;
@@ -2488,6 +2494,7 @@ unsafe fn apply_auction_imm() {
         }
         ok += done as u32;
     }
+    }   // ← micro_taken("bt_vision_mem") 가드 끝
     // ── ③ line_defense 2회차 평가 구간 ──
     // ★★[08-03 버그 수정] `0xc62377`·`0xc6242d`는 **+0xb 어긋난 주소**였다. 그 자리는
     //   `mov [rbp+0x4a0], 5`(접근 유지 시간)이고, prefix(48 c7 85)가 우연히 같아 **패치는 성공했다** —
