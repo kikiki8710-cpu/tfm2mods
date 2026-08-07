@@ -78,6 +78,11 @@ pub(crate) enum Resolve {
     /// a = athlete/판단 컨텍스트(side=`[a+0x810]`, role=`[a+0x8a0]`), b = champions 홀더.
     /// self = `[b + side*0x28 + role*8 + 0x1e0]` — `slot_in_world` 와 같은 로스터 배치.
     Champions,
+    /// ★사이트에서 self 가 안 잡히는 자리용 — **함수 진입부 훅**이 미리 담아둔 값을 쓴다(`ENTRY_SELF[n]`).
+    ///   사이트에 도달했다는 것 자체가 "그 함수 안"이라는 뜻이므로, 그 스레드의 최근 진입값이 곧 이 판단의 self 다.
+    ///   ⚠전제 = 그 함수가 **재귀·재진입하지 않을 것**(안쪽 프레임이 끝난 뒤 바깥 사이트가 안쪽 값을 볼 수 있다).
+    ///   등록 전 RE 로 재귀 여부를 확인한다.
+    FromEntry(usize),
 }
 
 /// 마이크로 디투어 사이트 1개.
@@ -113,6 +118,82 @@ pub(crate) struct MicroSite {
 }
 
 pub(crate) const MICRO_MAX: usize = 24;
+pub(crate) const ENTRY_MAX: usize = 8;
+
+// ════════════════════════════════════════════════════════════════════════════
+//  함수 진입부 훅 — "사이트에서 self 가 안 잡히는" 자리를 여는 두 번째 열쇠
+//
+//  ★왜 필요한가: 상수가 박힌 자리에 판단 주체가 항상 살아 있는 건 아니다(레지스터가 이미 덮였거나,
+//    self 로드가 그 자리보다 뒤에 있거나). 그런 자리는 사이트만 봐서는 "누구의 값이냐"를 못 정한다.
+//    그러나 **함수에 들어올 때** self 를 알 수 있다면, 그 함수 안 어느 자리든 답이 정해진다.
+//    모드가 이미 판단 진입부에서 `CUR_CLASS` 를 세우는 것(`pos_enter_*`)과 같은 발상이다.
+//
+//  ★수명: 스레드별 슬롯에 담고 **복원하지 않는다**. 사이트에 도달했다는 건 그 함수 안이라는 뜻이고,
+//    그 함수에 들어오려면 반드시 이 훅을 지나므로 최근값이 곧 정답이다(리턴 훅이 필요 없다).
+//    ⚠단 **재귀 함수면 이 논리가 깨진다** — 등록 전 RE 로 확인한다.
+// ════════════════════════════════════════════════════════════════════════════
+
+/// 함수 진입부 훅 1개.
+pub(crate) struct ClassEntrySite {
+    /// 진단용 이름(보통 이 함수가 담당하는 판단).
+    pub name: &'static str,
+    /// 함수 진입 RVA.
+    pub rva: usize,
+    /// 옮겨 실행할 프롤로그 바이트(≥12, rip-상대·분기 없음). **전수 일치할 때만 설치**.
+    pub prologue: &'static [u8],
+    /// self 재료(진입 시점 레지스터/스택 기준. `Src::Stack` 은 5번째 인자 = `[rsp+0x28]`).
+    pub a: Src,
+    pub b: Src,
+    pub resolve: Resolve,
+    /// 이 함수 안에서 열리는 노브들 — 그중 하나라도 `_class_` 오버라이드가 있어야 설치한다.
+    pub knobs: &'static [&'static str],
+    pub note: &'static str,
+}
+
+// 스레드별 "지금 이 함수가 처리 중인 self 엔티티". Cell = 소멸자 없음 ⟹ 디투어에서 접근 안전(§3).
+thread_local! {
+    static ENTRY_SELF: [std::cell::Cell<usize>; ENTRY_MAX] =
+        [const { std::cell::Cell::new(0) }; ENTRY_MAX];
+}
+#[inline] fn entry_self_get(i: usize) -> usize {
+    if i >= ENTRY_MAX { return 0; }
+    ENTRY_SELF.with(|s| s[i].get())
+}
+#[inline] fn entry_self_set(i: usize, v: usize) {
+    if i < ENTRY_MAX { ENTRY_SELF.with(|s| s[i].set(v)); }
+}
+
+static ENTRY_TAKEN: [AtomicBool; ENTRY_MAX] = [const { AtomicBool::new(false) }; ENTRY_MAX];
+static ENTRY_HITS: [AtomicU64; ENTRY_MAX] = [const { AtomicU64::new(0) }; ENTRY_MAX];
+static ENTRY_RESOLVED: [AtomicU64; ENTRY_MAX] = [const { AtomicU64::new(0) }; ENTRY_MAX];   // self 를 실제로 구한 횟수
+
+/// 진입 훅 스텁이 부르는 콜백. self 를 계산해 스레드 슬롯에 담아둔다.
+unsafe extern "C" fn class_entry_set(idx: u64, a: usize, b: usize) {
+    let i = idx as usize;
+    if i >= ENTRY_MAX || i >= ENTRY_SITES.len() { return; }
+    ENTRY_HITS[i].fetch_add(1, Ordering::Relaxed);
+    // ★패닉이 게임 콜스택으로 새면 UB(§3). 실패하면 0(=미상)으로 두면 전역값 폴백이라 동작 불변.
+    let _ = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+        let selfe = resolve_self(ENTRY_SITES[i].resolve, a, b);
+        entry_self_set(i, selfe);
+        if selfe != 0 { ENTRY_RESOLVED[i].fetch_add(1, Ordering::Relaxed); }
+    }));
+}
+
+/// 재료 → self 엔티티. ★전부 fault-safe read — 스테일 포인터여도 0(전역 폴백)이지 크래시가 아니다.
+unsafe fn resolve_self(r: Resolve, a: usize, b: usize) -> usize {
+    match r {
+        Resolve::Direct => a,
+        Resolve::FromEntry(n) => entry_self_get(n),
+        Resolve::Champions => {
+            if !ptr_ok(a) || !ptr_ok(b) { return 0; }
+            let side = rd_i64(a + 0x810).unwrap_or(-1);
+            let role = rd_i64(a + 0x8a0).unwrap_or(-1) & 0xffff_ffff;   // dword 필드
+            if !(0..2).contains(&side) || !(0..5).contains(&role) { return 0; }
+            rd_u64(b + side as usize * 0x28 + role as usize * 8 + 0x1e0).unwrap_or(0) as usize
+        }
+    }
+}
 
 // ── 설치 상태 / 진단 ──
 static MICRO_INSTALLED: AtomicUsize = AtomicUsize::new(0);      // 설치 성공 사이트 수
@@ -136,18 +217,8 @@ unsafe extern "C" fn class_micro_value(idx: u64, a: usize, b: usize) -> u64 {
     if i >= MICRO_MAX || i >= MICRO_SITES.len() { return 0; }
     let site = &MICRO_SITES[i];
     MICRO_HITS[i].fetch_add(1, Ordering::Relaxed);
-    // self 산출. ★전부 fault-safe read — 스테일 포인터면 -1(전역 폴백)이 되고 크래시하지 않는다.
-    let selfe = match site.resolve {
-        Resolve::Direct => a,
-        Resolve::Champions => {
-            if !ptr_ok(a) || !ptr_ok(b) { 0 } else {
-                let side = rd_i64(a + 0x810).unwrap_or(-1);
-                let role = rd_i64(a + 0x8a0).unwrap_or(-1) & 0xffff_ffff;   // dword 필드
-                if !(0..2).contains(&side) || !(0..5).contains(&role) { 0 }
-                else { rd_u64(b + side as usize * 0x28 + role as usize * 8 + 0x1e0).unwrap_or(0) as usize }
-            }
-        }
-    };
+    // self 산출. ★전부 fault-safe read — 스테일 포인터면 0(전역 폴백)이 되고 크래시하지 않는다.
+    let selfe = resolve_self(site.resolve, a, b);
     // ★패닉이 게임 콜스택으로 새면 UB(§3). 어떤 실패든 원본값으로 조용히 폴백한다.
     let (v, slot) = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
         // cfg 세대가 바뀌었으면 캐시 무효화(한 스레드만 수행).
@@ -295,6 +366,81 @@ fn build_micro_stub(idx: usize, site: &MicroSite, ret_addr: usize, cb: usize) ->
     s
 }
 
+/// 진입 훅 스텁: self 를 슬롯에 담고 → 원본 프롤로그 실행 → 함수 본문으로 복귀.
+/// 스택 배치는 사이트 스텁과 같되 **값 슬롯이 없다**(반환값을 쓰지 않으므로).
+fn build_entry_stub(idx: usize, site: &ClassEntrySite, ret_addr: usize, cb: usize) -> Vec<u8> {
+    let mut s: Vec<u8> = Vec::with_capacity(224);
+    // 함수 진입 직후의 플래그는 규약상 죽은 값이지만, 프롤로그가 무엇을 하든 원본과 같게 보이도록 보존한다.
+    s.push(0x9c);                                                  // pushfq
+    for b in [0x50u8, 0x51, 0x52, 0x41, 0x50, 0x41, 0x51, 0x41, 0x52, 0x41, 0x53, 0x55] { s.push(b); }
+    //         push rax  rcx   rdx   r8          r9          r10         r11         rbp
+    s.extend_from_slice(&[0x48, 0x8d, 0xa4, 0x24, 0xa0, 0xff, 0xff, 0xff]);   // lea rsp,[rsp-0x60]
+    for k in 0..6u8 { s.extend_from_slice(&[0x0f, 0x11, 0x44 | ((k & 7) << 3), 0x24, k * 16]); }
+    // ★재료는 게임 레지스터를 건드리기 전에 읽는다. 이 시점 rsp = 진입 rsp − delta.
+    let delta = 8i32 + 64 + 0x60;                                  // 플래그 + 8푸시 + xmm
+    emit_load(&mut s, reg::RDX, site.a, delta);
+    emit_load(&mut s, reg::R8, site.b, delta);
+    s.extend_from_slice(&[0x48, 0x89, 0xe5]);                      // mov rbp, rsp   (앵커)
+    s.extend_from_slice(&[0x48, 0x8d, 0x64, 0x24, 0xd0]);          // lea rsp,[rsp-0x30]
+    s.extend_from_slice(&[0x48, 0x83, 0xe4, 0xf0]);                // and rsp,-16
+    s.push(0xb9); s.extend_from_slice(&(idx as u32).to_le_bytes()); // mov ecx, idx
+    s.extend_from_slice(&[0x48, 0xb8]); s.extend_from_slice(&cb.to_le_bytes());
+    s.extend_from_slice(&[0xff, 0xd0]);                            // call rax
+    s.extend_from_slice(&[0x48, 0x89, 0xec]);                      // mov rsp, rbp
+    for k in 0..6u8 { s.extend_from_slice(&[0x0f, 0x10, 0x44 | ((k & 7) << 3), 0x24, k * 16]); }
+    s.extend_from_slice(&[0x48, 0x8d, 0x64, 0x24, 0x60]);          // lea rsp,[rsp+0x60]
+    for b in [0x5du8, 0x41, 0x5b, 0x41, 0x5a, 0x41, 0x59, 0x41, 0x58, 0x5a, 0x59, 0x58] { s.push(b); }
+    s.push(0x9d);                                                  // popfq
+    s.extend_from_slice(site.prologue);                            // 옮겨온 원본 프롤로그
+    s.extend_from_slice(&[0xff, 0x25, 0x00, 0x00, 0x00, 0x00]);    // jmp [rip+0]
+    s.extend_from_slice(&ret_addr.to_le_bytes());
+    s
+}
+
+/// 진입 훅 설치. 프롤로그 전수 대조 후 `E9 rel32` 로 스텁에 보낸다.
+unsafe fn install_class_entries(base: usize, cb: usize, report: &mut String) {
+    if ENTRY_SITES.is_empty() { return; }
+    report.push_str("\n[함수 진입부 훅] — 사이트에서 self 가 안 잡히는 자리를 여는 열쇠\n");
+    for (i, site) in ENTRY_SITES.iter().enumerate() {
+        if i >= ENTRY_MAX { break; }
+        if !site.knobs.iter().any(|k| has_class_override(k)) {
+            report.push_str(&format!("  skip  {:<20} 이 함수의 노브에 클래스 오버라이드 없음\n", site.name));
+            continue;
+        }
+        let addr = base + site.rva;
+        let n = site.prologue.len();
+        if n < 5 { report.push_str(&format!("  FAIL  {:<20} 프롤로그가 5바이트 미만\n", site.name)); continue; }
+        if !readable(addr, n) { report.push_str(&format!("  FAIL  {:<20} 읽기 불가\n", site.name)); continue; }
+        let mut ok = true;
+        for (k, &b) in site.prologue.iter().enumerate() { if rd_u8(addr + k) != b { ok = false; break; } }
+        if !ok {
+            report.push_str(&format!("  BLOCK {:<20} rva={:#x} 프롤로그 불일치 — 게임이 바뀌었다\n", site.name, site.rva));
+            continue;
+        }
+        let code = build_entry_stub(i, site, addr + n, cb);
+        let stub = micro_alloc(addr, code.len());
+        if stub == 0 { report.push_str(&format!("  FAIL  {:<20} 스텁 할당 실패\n", site.name)); continue; }
+        let rel = stub as i64 - (addr as i64 + 5);
+        if !(-0x7fff_0000..=0x7fff_0000).contains(&rel) {
+            report.push_str(&format!("  FAIL  {:<20} rel32 범위 밖\n", site.name)); continue;
+        }
+        core::ptr::copy_nonoverlapping(code.as_ptr(), stub as *mut u8, code.len());
+        FlushInstructionCache(GetCurrentProcess(), stub, code.len());
+        let mut e9 = [0x90u8; 5];
+        e9[0] = 0xe9; e9[1..5].copy_from_slice(&(rel as i32).to_le_bytes());
+        let mut old: u32 = 0;
+        if VirtualProtect(addr, n, 0x40, &mut old) == 0 {
+            report.push_str(&format!("  FAIL  {:<20} VirtualProtect 실패\n", site.name)); continue;
+        }
+        core::ptr::copy_nonoverlapping(e9.as_ptr(), addr as *mut u8, 5);
+        VirtualProtect(addr, n, old, &mut old);
+        FlushInstructionCache(GetCurrentProcess(), addr, n);
+        ENTRY_TAKEN[i].store(true, Ordering::Relaxed);
+        report.push_str(&format!("  OK    {:<20} rva={:#x} 프롤로그 {}B 스텁={:#x}  {}\n",
+                                 site.name, site.rva, n, stub, site.note));
+    }
+}
+
 /// cfg 에 이 노브의 클래스 오버라이드가 하나라도 있는가.
 fn has_class_override(key: &str) -> bool {
     let p = TUNE_PTR.load(Ordering::Acquire);
@@ -424,6 +570,8 @@ pub(crate) unsafe fn install_class_micro() {
     }
     report.push_str(&format!("\n설치 {}/{} (시도 {})\n",
         MICRO_INSTALLED.load(Ordering::Relaxed), MICRO_SITES.len(), MICRO_TRIED.load(Ordering::Relaxed)));
+    // ★진입부 훅은 사이트 설치 **뒤에** 건다 — 순서 자체는 무관하지만(다른 주소), 보고서를 한 파일에 모은다.
+    install_class_entries(base, class_entry_set as *const () as usize, &mut report);
     if let Some(p) = pth("class_micro.txt") { let _ = fs::write(p, report); }
 }
 
@@ -490,6 +638,18 @@ pub(crate) fn micro_summary() -> String {
     s.push_str("  ※ '클래스전용값' = 그 판단이 cfg 의 `키_class_<클래스>` 값을 실제로 읽은 횟수.\n\
                 \x20    전역값(클래스 구분 없는 값)만 튜닝한 경우는 여기 안 잡힌다 — 이 칸이 묻는 건\n\
                 \x20    '클래스별로 갈라졌는가' 뿐이다. 0 이면 그 클래스 챔프가 안 나왔거나 키가 없는 것.\n");
+    let mut any = false;
+    for (i, e) in ENTRY_SITES.iter().enumerate() {
+        if i >= ENTRY_MAX || !ENTRY_TAKEN[i].load(Ordering::Relaxed) { continue; }
+        if !any { s.push_str("\n[함수 진입부 훅] 진입 / 그중 self 를 실제로 구한 횟수\n"); any = true; }
+        let hit = ENTRY_HITS[i].load(Ordering::Relaxed);
+        let ok = ENTRY_RESOLVED[i].load(Ordering::Relaxed);
+        let pct = if hit > 0 { ok * 100 / hit } else { 0 };
+        s.push_str(&format!("  {:<20} 진입={:<10} self확보={:<10} ({}%)\n", e.name, hit, ok, pct));
+    }
+    if any {
+        s.push_str("  ※ self확보 0% = 재료 해석이 틀린 것(그 함수의 사이트는 전역값으로 폴백된다).\n");
+    }
     s
 }
 
@@ -547,6 +707,7 @@ pub(crate) static MICRO_SITES: &[MicroSite] = &[
         a: Src::Stack(0x180), b: Src::None, resolve: Resolve::Direct,
         note: "self=[진입rsp+0x180] 재로드(rbp 는 덮임)",
     },
+    // ⑥~ 진입부 훅으로 여는 자리는 `ENTRY_SITES` 등록 후 `Resolve::FromEntry(n)` 으로 붙인다.
     // ⑤ ex_think_min — 재판단 간격 하한. 사이트엔 self 포인터가 없고 **재료 두 개**로 만든다:
     //    r12(=진입 rdx, 판단 컨텍스트)에서 side/role, champions 홀더는 [rbp+0x2c8](진입부 0xe76c4f 세팅).
     //    원본 = `lea rcx,[rax+rax*2+400]` ⟹ pre 로 `lea rcx,[rax+rax*2]` 실행 후 값을 더한다.
@@ -562,3 +723,9 @@ pub(crate) static MICRO_SITES: &[MicroSite] = &[
         note: "self=champions[[rbp+0x2c8]][side,role of r12]",
     },
 ];
+
+// ════════════════════════════════════════════════════════════════════════════
+//  함수 진입부 훅 표 — ★RE 로 ①진입부 self 도달 ②프롤로그 안전 ③비재귀 를 확인한 함수만 등록.
+//  등록하면 그 함수 안 사이트는 `Resolve::FromEntry(인덱스)` 로 self 를 받아온다.
+// ════════════════════════════════════════════════════════════════════════════
+pub(crate) static ENTRY_SITES: &[ClassEntrySite] = &[];
