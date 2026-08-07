@@ -40,32 +40,36 @@ unsafe fn apply_disc19_imm() {
     let b1 = |v: i64| (v.max(0).min(0x7f)) as u64;   // imm8 sign-safe clamp
     // enable=cfg(경계변환 적용) / disable=게임 원본 imm 복원
     let (p_sr0,p_sr1,p_sr2,p_sr3,p_sh1,p_sh2,p_sh3,p_ah,p_rhb) = if enable {
-        (b1(sr0), b1(sr1), b1(sr2), b1(sr3+1), b1(sh1-1), b1(sh2-1), b1(sh3-1), b1(ah), b1(rh+1))
+        (b1(sr0), b1(sr1), b1(sr2), b1(sr3+1), b1(sh1-1), b1(sh2-1), b1(sh3-1), b1(ah), b1(rh))
     } else {
-        (0x31, 0x1d, 0x11, 0x0a, 0x41, 0x28, 0x19, 0x32, 0x2e)
+        (0x31, 0x1d, 0x11, 0x0a, 0x41, 0x28, 0x19, 0x32, 0x2d)   // ★0.5.4: retreat 원본 0x2e→**0x2d**
     };
     let _ = (pt, pa);   // ⛔0.5.2 대응 게이트 소멸 = 패치 사이트 없음(로그 표시용으로만 유지)
     let mut ok = 0u32;
-    // ★[0.5.3 마이그 2026-07-29] disc19 본체=**0xdece30**(was 0.5.2 0x2380820). severity 인라인 블록 시작=**0xded46f**(was 0x2380e16).
+    // ★[0.5.3 마이그 2026-07-29] disc19 본체=**0xdece30**(was 0.5.2 0x2380820). severity 인라인 블록 시작=**0xdacc9b**(was 0x2380e16).
     //   10사이트 전량 재핀 = 컨테이너 안에서 "prefix+원본imm" 시그 재탐색(오프셋 이전 금지 — 0.5.3은 함수가 커져 함수내 오프셋 비보존).
-    //   ⚠ally #1/#2는 시그가 동일해 문맥으로 판별: **`div rcx`(64bit) 직후 = #1(0xded4d3) / `div ecx`(32bit) 직후 = #2(0xded4df)**.
+    //   ⚠ally #1/#2는 시그가 동일해 문맥으로 판별: **`div rcx`(64bit) 직후 = #1(0xdacd12) / `div ecx`(32bit) 직후 = #2(0xdacd3e)**.
     //     자동 문맥점수는 이 둘을 뒤집어 판정했다(실측으로 정정) — 쌍둥이 사이트는 반드시 앞 명령을 눈으로 확인할 것.
+    //   ★★[0.5.4] hp_pct RSI→**RDI**(48 83 ff)이고, HP 3사이트 주소가 tr 사이트와 **겹쳐 있었다**
+    //     (일괄 치환 사고 — 값이 서로 덮어썼다). 정정: hp=dacca1/daccad/daccb9, retreat=dacd54.
+    //     retreat 는 `setae`(≥46) → `jbe`(>45) 로 **극성이 뒤집혀** 원본·인코딩이 −1 이다.
     //   ★[0.5.2 이력] hp_pct R15→RSI(48 83 fe). tr/ally는 RAX(48 83 f8) 불변.
     //   전 사이트 width=1·imm_off=3. 아래 imm 기대값은 ghidra-re가 3자 exe(0.5.1/0.5.2백업/라이브)로 대조확인한 실바이트.
     // 위협비율표 (RAX=tr, 48 83 f8) — 각 1인스턴스
-    ok += patch_imm_bytes(base + 0xded46f, &[0x48,0x83,0xf8], 3, 1, p_sr0) as u32;   // tr>49  orig 0x31 (ja)
-    ok += patch_imm_bytes(base + 0xded47b, &[0x48,0x83,0xf8], 3, 1, p_sr1) as u32;   // tr>29  orig 0x1d
-    ok += patch_imm_bytes(base + 0xded487, &[0x48,0x83,0xf8], 3, 1, p_sr2) as u32;   // tr>17  orig 0x11
-    ok += patch_imm_bytes(base + 0xded495, &[0x48,0x83,0xf8], 3, 1, p_sr3) as u32;   // tr>9   orig 0x0a (jc, 인코딩 +1)
+    ok += patch_imm_bytes(base + 0xdacc9b, &[0x48,0x83,0xf8], 3, 1, p_sr0) as u32;   // tr>49  orig 0x31 (ja)
+    ok += patch_imm_bytes(base + 0xdacca7, &[0x48,0x83,0xf8], 3, 1, p_sr1) as u32;   // tr>29  orig 0x1d
+    ok += patch_imm_bytes(base + 0xdaccb3, &[0x48,0x83,0xf8], 3, 1, p_sr2) as u32;   // tr>17  orig 0x11
+    ok += patch_imm_bytes(base + 0xdaccbf, &[0x48,0x83,0xf8], 3, 1, p_sr3) as u32;   // tr>9   orig 0x0a (jc, 인코딩 +1)
     // HP단계 경계 (★RSI=hp_pct, 48 83 fe ← 0.5.1 R15 49 83 ff) — 인코딩 V-1
-    ok += patch_imm_bytes(base + 0xded475, &[0x48,0x83,0xfe], 3, 1, p_sh1) as u32;   // hp<66  orig 0x41
-    ok += patch_imm_bytes(base + 0xded481, &[0x48,0x83,0xfe], 3, 1, p_sh2) as u32;   // hp<41  orig 0x28
-    ok += patch_imm_bytes(base + 0xded48f, &[0x48,0x83,0xfe], 3, 1, p_sh3) as u32;   // hp<26  orig 0x19 (앞에 xor ebx,ebx 2B 삽입 → 간격 8)
+    ok += patch_imm_bytes(base + 0xdacca1, &[0x48,0x83,0xff], 3, 1, p_sh1) as u32;   // hp<66  orig 0x41
+    ok += patch_imm_bytes(base + 0xdaccad, &[0x48,0x83,0xff], 3, 1, p_sh2) as u32;   // hp<41  orig 0x28
+    ok += patch_imm_bytes(base + 0xdaccb9, &[0x48,0x83,0xff], 3, 1, p_sh3) as u32;   // hp<26  orig 0x19 (앞에 xor ebx,ebx 2B 삽입 → 간격 8)
     // ally넥서스 위기 HP% (RAX 48 83 f8) — 2곳 동일값
-    ok += patch_imm_bytes(base + 0xded4d3, &[0x48,0x83,0xf8], 3, 1, p_ah) as u32;    // ally>50 #1 orig 0x32 (64bit div rcx @0x2380e8f)
-    ok += patch_imm_bytes(base + 0xded4df, &[0x48,0x83,0xf8], 3, 1, p_ah) as u32;    // ally>50 #2 orig 0x32 (32bit div ecx @0x2380ebe)
+    ok += patch_imm_bytes(base + 0xdacd12, &[0x48,0x83,0xf8], 3, 1, p_ah) as u32;    // ally>50 #1 orig 0x32 (64bit div rcx @0x2380e8f)
+    ok += patch_imm_bytes(base + 0xdacd3e, &[0x48,0x83,0xf8], 3, 1, p_ah) as u32;    // ally>50 #2 orig 0x32 (32bit div ecx @0x2380ebe)
     // retreat_hp (★RSI 48 83 fe) — ⛔0.5.2엔 rhA 소멸, rhB 1곳뿐(+1 인코딩)
-    ok += patch_imm_bytes(base + 0xded527, &[0x48,0x83,0xfe], 3, 1, p_rhb) as u32;   // hp>=46 orig 0x2e (setnc cl + or cl,al)
+    ok += patch_imm_bytes(base + 0xdacd54, &[0x48,0x83,0xff], 3, 1, p_rhb) as u32;   // ★0.5.4: 인코딩이 뒤집혔다 — 053 `cmp rsi,0x2e; setae`(≥46) → 054 `cmp rdi,0x2d; jbe`(>45).
+    //   ⟹ **기대값·기록값이 −1**(0x2e→0x2d). 값만 옮기면 임계가 1 어긋난다.
     // ⛔phase 진입 게이트 4곳(pt·pa#1/2/3) = 0.5.2에서 게임이 전부 삭제 → 패치 사이트 없음(상단 주석 ③).
     // ★LOG_ON 무관 직접 write(설치확증 — itemnet_guard와 동일). write_named은 LOG_ON 게이트라 미확인됐었음.
     if let Some(p) = pth("d19_imm.txt") {
@@ -98,20 +102,26 @@ unsafe fn dump_disc_commands(disc: u32, sret: usize) {
     if let Some(p) = pth("disc1819cap.txt") { if let Ok(mut f) = fs::OpenOptions::new().create(true).append(true).open(&p) { let _ = write!(f, "{}", s); } }
 }
 
-unsafe extern "C" fn disc18_capture(sret: usize, p2: usize, p3: usize, p4: usize, p5: usize, p6: usize, p7: usize) -> usize {
+// ⚠인자 수 12로 과선언 — 이유·근거는 아래 `subplan_dispatch_capture` 주석 참조(과소선언 = AV).
+unsafe extern "C" fn disc18_capture(sret: usize, p2: usize, p3: usize, p4: usize, p5: usize, p6: usize,
+                                    p7: usize, p8: usize, p9: usize, p10: usize, p11: usize, p12: usize) -> usize {
     let orig = ORIG_DISC18.load(Ordering::Relaxed);
-    let f: extern "C" fn(usize,usize,usize,usize,usize,usize,usize) -> usize = core::mem::transmute(orig);
-    let ret = f(sret, p2, p3, p4, p5, p6, p7);   // game 원본 실행 → sret 채워짐
+    let f: extern "C" fn(usize,usize,usize,usize,usize,usize,usize,usize,usize,usize,usize,usize) -> usize
+        = core::mem::transmute(orig);
+    let ret = f(sret, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12);   // game 원본 실행 → sret 채워짐
     let _ = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| dump_disc_commands(18, sret)));
     // ★my_disc18 병렬계산 → game sret와 대조(disc18cmp.txt). game 것 안 건드리고 별도 scratch Vec에 계산(관찰 전용).
     let _ = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| disc18_dcmp(sret, p2, p3, p4, p5, p6, p7)));
     ret
 }
 
-unsafe extern "C" fn disc19_capture(sret: usize, p2: usize, p3: usize, p4: usize, p5: usize, p6: usize, p7: usize) -> usize {
+// ⚠인자 수 12로 과선언 — 이유·근거는 아래 `subplan_dispatch_capture` 주석 참조(과소선언 = AV).
+unsafe extern "C" fn disc19_capture(sret: usize, p2: usize, p3: usize, p4: usize, p5: usize, p6: usize,
+                                    p7: usize, p8: usize, p9: usize, p10: usize, p11: usize, p12: usize) -> usize {
     let orig = ORIG_DISC19.load(Ordering::Relaxed);
-    let f: extern "C" fn(usize,usize,usize,usize,usize,usize,usize) -> usize = core::mem::transmute(orig);
-    let ret = f(sret, p2, p3, p4, p5, p6, p7);   // game 원본 실행 → sret 채워짐(훼손 금지)
+    let f: extern "C" fn(usize,usize,usize,usize,usize,usize,usize,usize,usize,usize,usize,usize) -> usize
+        = core::mem::transmute(orig);
+    let ret = f(sret, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12);   // game 원본 실행 → sret 채워짐(훼손 금지)
     let _ = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| dump_disc_commands(19, sret)));
     // ★my_disc19 병렬계산 → game sret와 대조(disc19cmp.txt). game 것 안 건드리고 별도 scratch Vec에 계산.
     let _ = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| disc19_dcmp(sret, p2, p3, p4, p5, p6, p7)));
@@ -125,16 +135,39 @@ unsafe extern "C" fn disc19_capture(sret: usize, p2: usize, p3: usize, p4: usize
 //   계약: `rdx`(=두 번째 인자 p2) = SubPlan 구조체 포인터, `[rdx]` = 판별자.
 //   ⚠**read-only 카운터만** 쓴다. 파일 IO·lock·alloc 금지 — 07-22 에 매 호출 append 로 게임을 죽인 전례가 있다
 //     (rayon 워커가 family A/B sim 을 병렬 처리 → 초당 수만 회). 덤프는 post_update(단일 스레드)에서 1줄만.
-unsafe extern "C" fn subplan_dispatch_capture(p1: usize, p2: usize, p3: usize, p4: usize, p5: usize, p6: usize, p7: usize) -> usize {
+//   ★★[08-05 크래시 원인 확정 → 수정] 이 래퍼는 **7인자**로 선언돼 있었는데, 디스패처가 그대로 넘겨주는
+//     `0xca8a10`(battle.rs)은 실제로 **인자 9개**다. 7인자 래퍼는 `[rsp+0x30/0x38/0x40]`(arg7/8/9)을 채우지 않으므로
+//     **arg8 = `&TeamPlan`이 래퍼 스택의 잔류값(대개 0)** 이 되고 → `0xca927e`가 그걸 `[rbp+0x390]`에 실어
+//     → `0xc421b0`이 `r15=0`으로 `cmp qword [0+0],0` → **AV(faultAddr=0x0, RIP=exe+0xc4225e)**.
+//     RE\2026-08-05_battle.rs-JT3개... 참조(모드 로그의 RIP/faultAddr/caller 3개와 명령 단위 일치).
+//   ★인자 수를 **12로 과선언**한다. Win64에서 과선언은 항상 안전하다 — 콜리가 7개만 받으면 슬롯 8~12를
+//     읽지 않고, 우리가 채우는 곳은 우리 자신의 outgoing 영역이다. 반대로 **과소선언은 이 크래시를 낳는다**.
+//     같은 이유로 아래 disc18/disc19 래퍼도 12인자로 통일했다(대상 함수 실제 인자 수 미검증 상태에서의 안전판).
+/// ★0.5.4 `TeamPlan.version` 관측용. 0~7 은 개별 카운트, 그 밖은 SP_VER_BIG.
+static SP_VER_HIST: [AtomicU64; 8] = [
+    AtomicU64::new(0), AtomicU64::new(0), AtomicU64::new(0), AtomicU64::new(0),
+    AtomicU64::new(0), AtomicU64::new(0), AtomicU64::new(0), AtomicU64::new(0)];
+static SP_VER_BIG: AtomicU64 = AtomicU64::new(0);
+
+unsafe extern "C" fn subplan_dispatch_capture(p1: usize, p2: usize, p3: usize, p4: usize, p5: usize, p6: usize,
+                                              p7: usize, p8: usize, p9: usize, p10: usize, p11: usize, p12: usize) -> usize {
     if ptr_ok(p2) {
         let sp = rd_u64(p2).unwrap_or(u64::MAX);
         SP_TOTAL.fetch_add(1, Ordering::Relaxed);
         if (sp as usize) < SP_HIST.len() { SP_HIST[sp as usize].fetch_add(1, Ordering::Relaxed); }
         else { SP_OTHER.fetch_add(1, Ordering::Relaxed); }
     }
+    // ★[0.5.4 프로브] p3 = `TeamPlan.version`(경매 eacf10 의 3번째 인자가 여기까지 그대로 내려온다).
+    //   0.5.4 신규 필드이고 `>=2` 게이트가 exe 전역 8곳에 있는데 **런타임 값을 모른다**
+    //   (팩토리 e8c020 이 정적 호출 0건이라 정적으로는 못 밝혔다).
+    //   값 분포만 알면 "경매 강제귀환"·"점수식 넥서스 게이트" 노브의 설명·기본값이 확정된다.
+    //   ⚠읽기만 한다 — 게임 동작에 영향 없음. 배포본에서도 켜 둔다(비용 = 원자 증가 1회).
+    if p3 < SP_VER_HIST.len() { SP_VER_HIST[p3].fetch_add(1, Ordering::Relaxed); }
+    else { SP_VER_BIG.fetch_add(1, Ordering::Relaxed); }
     let orig = ORIG_SPDISP.load(Ordering::Relaxed);
-    let f: extern "C" fn(usize,usize,usize,usize,usize,usize,usize) -> usize = core::mem::transmute(orig);
-    f(p1, p2, p3, p4, p5, p6, p7)   // 원본 항상 실행 = passthrough(기능 무영향)
+    let f: extern "C" fn(usize,usize,usize,usize,usize,usize,usize,usize,usize,usize,usize,usize) -> usize
+        = core::mem::transmute(orig);
+    f(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12)   // 원본 항상 실행 = passthrough(기능 무영향)
 }
 
 
@@ -1062,7 +1095,7 @@ unsafe fn d19_abil_block(out: usize, g0: usize, other: usize, self_u: usize, src
                 let visible = if geom_vt68(sim_obj, side, id) { true } else {
                     let rec = geom_vtc0(sim_obj, id);
                     if rec != 0 {
-                        let idx2 = rd_u32(rec + 0x8b0) as usize;
+                        let idx2 = rd_u32(rec + 0x8a0) as usize;//  ★0.5.4 오프셋 이동 반영
                         let last_seen = rd_i64(geom2 + 0x1e0 + other * 0x2e8 + idx2 * 8).unwrap_or(i64::MIN);
                         geom_vt28(sim_obj) <= last_seen.wrapping_add(0x78)
                     } else { false }
@@ -1703,7 +1736,7 @@ unsafe fn d19_cand_main(g0: usize, sim_obj: usize, geom2: usize, side: usize,
         } else {
             let rec = geom_vtc0(sim_obj, id);
             if rec != 0 {
-                let idx2 = rd_u32(rec + 0x8b0) as usize;
+                let idx2 = rd_u32(rec + 0x8a0) as usize;//  ★0.5.4 오프셋 이동 반영
                 let last_seen = rd_i64(geom2 + 0x1e0 + other * 0x2e8 + idx2 * 8).unwrap_or(i64::MIN);
                 let ok = geom_vt28(sim_obj) <= last_seen.wrapping_add(0x78);      // 현재틱 ≤ 마지막목격+0x78(시야유예)
                 if ok { a2(6); }
@@ -1846,7 +1879,7 @@ unsafe fn d19_score_gate(g0: usize, sim_obj: usize, geom2: usize, game: usize,
             else {
                 let rec = geom_vtc0(sim_obj, eid);
                 if rec != 0 {
-                    let idx2 = rd_u32(rec + 0x8b0) as usize;
+                    let idx2 = rd_u32(rec + 0x8a0) as usize;//  ★0.5.4 오프셋 이동 반영
                     let thr = rd_i64(geom2 + other * 0x2e8 + 0x1e0 + idx2 * 8).unwrap_or(i64::MIN);
                     if geom_vt28(sim_obj) <= thr.wrapping_add(0x78) { cnt += 1; }
                 }
@@ -1899,7 +1932,7 @@ unsafe fn d19_g2_vis(world: usize, geom2: usize, team: usize, other: usize, e: u
     if geom_vt68(world, team, eid) { return true; }
     let a = geom_vtc0(world, eid);
     if a == 0 { return false; }
-    let idx = rd_u32(a + 0x8b0) as usize;
+    let idx = rd_u32(a + 0x8a0) as usize;//  ★0.5.4 오프셋 이동 반영
     let thr = rd_i64(geom2 + other * 0x2e8 + 0x1e0 + idx * 8).unwrap_or(i64::MIN);   // ★other
     geom_vt28(world) <= thr.wrapping_add(0x78)
 }
@@ -2610,7 +2643,7 @@ unsafe fn d19_cf_castrange(u: usize, pad: i64) -> i64 {
     if !ptr_ok(g0) || !ptr_ok(go) || !ptr_ok(nexus) { return (0, 0); }
     let side = 1 - other;
     // ★[07-12 RE확정] collector teamIdx = *(p5+0x820) (state=param_3=p5). 진단대조용.
-    let tidx = if ptr_ok(p5) { rd_i64(p5 + 0x820).unwrap_or(-1) } else { -1 };
+    let tidx = if ptr_ok(p5) { rd_i64(p5 + 0x810).unwrap_or(-1) } else { -1 };//  ★0.5.4 오프셋 이동 반영
     let refkey = rd_u64(nexus + 0x5a8).unwrap_or(0);
     let (qxi, qyi) = (qx as i64, qy as i64);
     let d2q = |u: usize| -> u64 {
@@ -2645,7 +2678,7 @@ unsafe fn d19_cf_castrange(u: usize, pad: i64) -> i64 {
         let accept = if geom_vt68(go, side, key) { true } else {
             let r = geom_vtc0(go, key);
             if r == 0 { false } else {
-                let lane = rd_u64(r + 0x8b0).unwrap_or(0) as usize;   // ★[07-12] lane*8·t+0x78 wrapping(garbage lane/t시 overflow panic 방지 — 기존 plain산술이 stage65 panic 원인)
+                let lane = rd_u64(r + 0x8a0).unwrap_or(0) as usize;   // ★[07-12] lane*8·t+0x78 wrapping(garbage lane/t시 overflow panic 방지 — 기존 plain산술이 stage65 panic 원인)  ★0.5.4 오프셋 이동 반영
                 let addr = mblk.wrapping_add(other * 0x2e8).wrapping_add(0x1e0).wrapping_add(lane.wrapping_mul(8));
                 let t = rd_i64(addr).unwrap_or(0);
                 t.wrapping_add(0x78) >= geom_vt28(go)
@@ -2803,7 +2836,7 @@ unsafe fn d19_cf_castrange(u: usize, pad: i64) -> i64 {
             let rel = if geom_vt68(go, side, key) { true } else {
                 let r = geom_vtc0(go, key);
                 if r == 0 { false } else {
-                    let lane = rd_u64(r + 0x8b0).unwrap_or(0) as usize;   // ★[07-12] wrapping(overflow panic 방지, list_b와 동일)
+                    let lane = rd_u64(r + 0x8a0).unwrap_or(0) as usize;   // ★[07-12] wrapping(overflow panic 방지, list_b와 동일)  ★0.5.4 오프셋 이동 반영
                     let addr = mblk.wrapping_add(other * 0x2e8).wrapping_add(0x1e0).wrapping_add(lane.wrapping_mul(8));
                     rd_i64(addr).unwrap_or(0).wrapping_add(0x78) >= tick
                 }
@@ -2990,7 +3023,7 @@ unsafe fn d19_gate1(p5: usize, p6: usize, p7: usize, g0: usize, nexus: usize,
     D19_BR_R.store(-1, Ordering::Relaxed); D19_BR_BK.store(-1, Ordering::Relaxed); D19_BR_BST.store(-1, Ordering::Relaxed); D19_BR_BID.store(-1, Ordering::Relaxed);
     D19_STAGE.store(1, Ordering::Relaxed);   // 진입
     if !ptr_ok(out) || !ptr_ok(p5_sim) || !ptr_ok(p6_pair) { return -99; }
-    let side = rd_u64(p5_sim + 0x820).unwrap_or(2);
+    let side = rd_u64(p5_sim + 0x810).unwrap_or(2);//  ★0.5.4 오프셋 이동 반영
     if side > 1 { return -99; }
     let (side_u, other) = (side as usize, (1 - side) as usize);
     let self_h = rd_u64(p5_sim + 0x818).unwrap_or(0);
@@ -3340,7 +3373,7 @@ unsafe fn my_disc18(out: usize, _p2: usize, p3_band: usize, _p4: usize,
     D18_INRANGE.store(-1, Ordering::Relaxed); D18_F0.store(-1, Ordering::Relaxed);
     D18_F1.store(-1, Ordering::Relaxed); D18_BAND.store(-1, Ordering::Relaxed);
     if !ptr_ok(out) || !ptr_ok(p5_sim) || !ptr_ok(p6_pair) { return -99; }
-    let side = rd_u64(p5_sim + 0x820).unwrap_or(2);
+    let side = rd_u64(p5_sim + 0x810).unwrap_or(2);//  ★0.5.4 오프셋 이동 반영
     if side > 1 { return -99; }
     let (side_u, other) = (side as usize, (1 - side) as usize);
     let self_h = rd_u64(p5_sim + 0x818).unwrap_or(0);
@@ -3485,7 +3518,7 @@ unsafe fn disc18_dcmp_inner(sret: usize, p2: usize, p3: usize, p4: usize, p5: us
     let gchild = rd_u64(g0).unwrap_or(0) as usize;
     let gvt = rd_u64(g0 + 8).unwrap_or(0) as usize;
     if !ptr_ok(gchild) || !ptr_ok(gvt) { return -99; }
-    let side = rd_u64(sim + 0x820).unwrap_or(2);
+    let side = rd_u64(sim + 0x810).unwrap_or(2);//  ★0.5.4 오프셋 이동 반영
     if side > 1 { return -99; }
     let s = side as usize;
     let selfe = dd7_slot128(gchild, rd_u64(sim + 0x818).unwrap_or(0));
@@ -3512,7 +3545,7 @@ unsafe fn disc18_dcmp_inner(sret: usize, p2: usize, p3: usize, p4: usize, p5: us
 
 // FUN_141c8fd60 근접 위협 predicate 재현(1차; 2차 FUN_142076da0 병합은 미구현 — DIFF시 추가).
 unsafe fn disc17_pred(gchild: usize, gvt: usize, g0: usize, geom2: usize, sim: usize) -> bool {
-    let side = rd_u64(sim + 0x820).unwrap_or(2);
+    let side = rd_u64(sim + 0x810).unwrap_or(2);//  ★0.5.4 오프셋 이동 반영
     if side > 1 { return false; }
     let s = side as usize;
     let refp = rd_u64(g0 + s * 8 + 0x170).unwrap_or(0) as usize;
@@ -3526,11 +3559,11 @@ unsafe fn disc17_pred(gchild: usize, gvt: usize, g0: usize, geom2: usize, sim: u
         let r = dd7_slot_a8(gchild, h);
         let ok = geom_vt68(gchild, s, h);
         let pass = ok || (r != 0 && {
-            let rlane = rd_u32(r + 0x8b0) as usize;
+            let rlane = rd_u32(r + 0x8a0) as usize;//  ★0.5.4 오프셋 이동 반영
             let box2 = geom2 + (1 - s) * 0x2e8 + 0x1e0 + rlane * 8;
             tick <= rd_i64(box2 + 0x78).unwrap_or(i64::MAX)
         });
-        if pass && sqd(rd_u64(e + 0x648).unwrap_or(0), rd_u64(e + 0x650).unwrap_or(0), rx, ry) < (tune("disc17_pred_dist", 0xd693a4001) as u64) {
+        if pass && sqd(rd_u64(e + 0x648).unwrap_or(0), rd_u64(e + 0x650).unwrap_or(0), rx, ry) < (tune("nxd_pred_dist", 0xd693a4001) as u64) {
             return true;
         }
     }
@@ -3560,7 +3593,7 @@ unsafe fn my_disc17(out: usize, _subplan: usize, param3: u64, sim: usize, geom: 
     let gchild = rd_u64(g0).unwrap_or(0) as usize;
     let gvt = rd_u64(g0 + 8).unwrap_or(0) as usize;
     if !ptr_ok(gchild) || !ptr_ok(gvt) { return -99; }
-    let side = rd_u64(sim + 0x820).unwrap_or(2);
+    let side = rd_u64(sim + 0x810).unwrap_or(2);//  ★0.5.4 오프셋 이동 반영
     if side > 1 { return -99; }
     let s = side as usize;
     let tgt = dd7_slot128(gchild, rd_u64(sim + 0x818).unwrap_or(0));
@@ -3583,7 +3616,7 @@ unsafe fn my_disc17(out: usize, _subplan: usize, param3: u64, sim: usize, geom: 
     let near_flag = |active: bool, handle: u64| -> bool {
         if !active { return false; }
         let e = geom_resolve150(gchild, handle);
-        e != 0 && sqd(rd_u64(e + 0x648).unwrap_or(0), rd_u64(e + 0x650).unwrap_or(0), rx, ry) < (tune("disc17_near_dist", 0x35a4e9001) as u64)
+        e != 0 && sqd(rd_u64(e + 0x648).unwrap_or(0), rd_u64(e + 0x650).unwrap_or(0), rx, ry) < (tune("nxd_near_dist", 0x35a4e9001) as u64)
     };
     let near = [
         near_flag(rd_u8(es) != 0, rd_u64(es + 8).unwrap_or(0)),
@@ -3596,20 +3629,20 @@ unsafe fn my_disc17(out: usize, _subplan: usize, param3: u64, sim: usize, geom: 
     let mut region_near = false;
     for k in 0..5usize {
         let e = rd_u64(g0 + (1 - s) * 0x28 + 0x1e0 + k * 8).unwrap_or(0) as usize;
-        if e != 0 && sqd(rd_u64(e + 0x648).unwrap_or(0), rd_u64(e + 0x650).unwrap_or(0), rx, ry) < (tune("disc17_near_dist", 0x35a4e9001) as u64) { region_near = true; break; }
+        if e != 0 && sqd(rd_u64(e + 0x648).unwrap_or(0), rd_u64(e + 0x650).unwrap_or(0), rx, ry) < (tune("nxd_near_dist", 0x35a4e9001) as u64) { region_near = true; break; }
     }
-    let p3big = param3 > (tune("disc17_p3_gate", 0x26) as u64);
+    let p3big = param3 > (tune("nxd_p3_gate", 0x26) as u64);
     // early13: param3>0x26 && ref풀피<=50% && predicate
     if p3big {
         let rd = rd_i64(refp + 0x610).unwrap_or(1).max(1);
         let refprog = rd_i64(refp + 0x658).unwrap_or(0).wrapping_mul(100) / rd;
-        if refprog <= tune("disc17_ref_hp", 50) && disc17_pred(gchild, gvt, g0, geom2, sim) { wr_u64(out, 0x13); return 0x13; }
+        if refprog <= tune("nxd_ref_hp", 50) && disc17_pred(gchild, gvt, g0, geom2, sim) { wr_u64(out, 0x13); return 0x13; }
     }
     let mut threat = role_ok && region_near;
     if p3big { threat = threat || disc17_pred(gchild, gvt, g0, geom2, sim); }
     let code: i64 = if threat {
-        if progress < tune("disc17_prog_crit", 21) && !inbox { 7 } else { 0x13 }
-    } else if progress < tune("disc17_prog_low", 31) {
+        if progress < tune("nxd_prog_crit", 21) && !inbox { 7 } else { 0x13 }
+    } else if progress < tune("nxd_prog_low", 31) {
         7
     } else if num < denom && inbox {
         7
@@ -3636,7 +3669,7 @@ unsafe fn my_disc17(out: usize, _subplan: usize, param3: u64, sim: usize, geom: 
     let gchild = rd_u64(g0).unwrap_or(0) as usize;
     let gvt = rd_u64(g0 + 8).unwrap_or(0) as usize;
     if !ptr_ok(gchild) || !ptr_ok(gvt) { return -99; }
-    let side = rd_u64(sim + 0x820).unwrap_or(2);
+    let side = rd_u64(sim + 0x810).unwrap_or(2);//  ★0.5.4 오프셋 이동 반영
     if side > 1 { return -99; }
     let s = side as usize;
     let selfe = dd7_slot128(gchild, rd_u64(sim + 0x818).unwrap_or(0));
@@ -3684,7 +3717,7 @@ unsafe fn my_disc17(out: usize, _subplan: usize, param3: u64, sim: usize, geom: 
     let gchild = rd_u64(g0).unwrap_or(0) as usize;
     let gvt = rd_u64(g0 + 8).unwrap_or(0) as usize;
     if !ptr_ok(gchild) || !ptr_ok(gvt) { return -99; }
-    let side = rd_u64(sim + 0x820).unwrap_or(2);
+    let side = rd_u64(sim + 0x810).unwrap_or(2);//  ★0.5.4 오프셋 이동 반영
     if side > 1 { return -99; }
     let s = side as usize;
     let selfe = dd7_slot128(gchild, rd_u64(sim + 0x818).unwrap_or(0));
@@ -3800,7 +3833,7 @@ unsafe fn my_disc7(r15: usize, r14: usize, subp: usize) -> i64 {
     let world = rd_u64(r15 + 8).unwrap_or(0) as usize;      // ctxpair[8] = world
     if !ptr_ok(gchild) || !ptr_ok(rvt) || !ptr_ok(world) { return d7_mark(2, 8); }
     let self_h = rd_u64(r14 + 0x818).unwrap_or(0);
-    let side = rd_u64(r14 + 0x820).unwrap_or(2) as usize;
+    let side = rd_u64(r14 + 0x810).unwrap_or(2) as usize;//  ★0.5.4 오프셋 이동 반영
     // ★★[07-23 stale 수정] ~~`vt_call2(rvt, 0x138, ...)`~~ → **`dd7_slot128` 순수재현**.
     //   0.5.2에서 구 슬롯 `0x138`은 **`0x1a0`으로 시프트**(≥0x50 슬롯 일괄 +0x68). 구 번호로 부르면 `0x2306870`
     //   (roster를 side/lane으로 선형탐색, r8 미정의)이라는 **엉뚱한 함수**가 불린다 = 값 오염(읽기전용이라 크래시는 없음).

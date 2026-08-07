@@ -35,11 +35,20 @@ const RVA_FC59A0: usize = 0xe168d0;  // ★0.5.3(was 0.5.2 0x1bdb3e0). 실측: �
 const RVA_TABLE_A: usize = 0x31c0168;  // ★0.5.3(was 0.5.2 0x3828818). .rdata 값지문 매칭: 선두 32B(=[0,1,3,2] 4엔트리 u64) OLD 3건 == NEW 3건 → 주소순 순서대응 #1. ⚠3건 모두 **앞 4엔트리 값이 동일**하고 소스는 p1<4만 읽으므로 셋 중 어느 것이든 기능 등가(오답 리스크 실질 0). 48B 이상으로는 NEW 매칭 0 = 뒤쪽 엔트리는 변경됨. // ★0.5.2(was 0.5.1 0x384ea20). r15 threshold 인덱스 변환표
 
 // ── 영역 D 출력검증(gb_region_d): mid-func 캡처 detour 지점 ──
-const RVA_GB_REGIOND_HOOK: usize = 0x22dafea;  // ⏸stale 유지=차단(0.5.1부터 보류 지속). 클린14B슬롯 부재 + RBP 전면재배치 재도출 필요 + 진단전용 이중게이트 ⟹ 억지 재핀은 크래시 위험. MIG_GB_CHANGED=true로 SKIP.
+// ★2026-08-04 RE 정정 (RE\2026-08-04_gb영역D-재핀-단일진입0xe09f3e-클린슬롯229개-0.5.3.md)
+//   ~~"클린14B슬롯 부재 ⟹ 억지 재핀은 크래시 위험"~~ → **0.5.3에선 클린 ≥12B 런이 영역 D에만 229개.** 슬롯 부재가 아니었다.
+//   실제 보류 사유 = **gbrd_capture 본문이 0.5.0_3 RBP 맵(out@0x2b8) 기준이라 0.5.3 맵(out@0x510)으로 재작성 필요.**
+//   "RBP 전면재배치"는 사실 — 프레임 0x338→0x5b8, xmm6 [rbp+0x2a0]→[rbp+0x520], out [rbp+0x2b8]→[rbp+0x510].
+//     ⚠out 구조체는 균일 시프트가 아님(0x80→0xb0, 0x88→0xbe, 0x8d→0xc6). 단 kind/arg/Vec(0x58/0x60/0x68/0x70/0x78)은 불변.
+//   0.5.3 좌표: generic_build 본체 0xe06c10~0xe0c4fb / 영역D 단일진입 **0xe09f3e**(클린런 79B) / funnel **0xe085fc**(in-deg 31)
+//              / 에필로그 0xe08654(클린런 26B·유일 ret 경로·레지스터 전부 dead) — 관찰용 최우선 슬롯은 0xe08654.
+//   ⚠구 상수 2개는 **명령 경계조차 아닌 무관 함수 내부**라 절대 쓰면 안 된다(0x22dbc4e는 14B 안에 rel32 call + rip-rel lea = 패치 시 즉사).
+//   ★패치 폼 개선 권고: `48 b8 <stub> ff e0`(rax 파괴) 대신 **`ff 25 00 00 00 00` + .quad stub(정확히 14B)** 를 쓰면 레지스터 무파괴.
+const RVA_GB_REGIOND_HOOK: usize = 0x22dafea;  // ⏸SKIP 유지(=차단). 값 자체는 **무효 확정** — 재활성 시 위 0xe09f3e/0xe08654 중 택일. MIG_GB_CHANGED=true로 SKIP.
 
-const ORIG_LEN_GB_REGIOND: usize = 14;         // (REGIOND_HOOK이 SKIP이라 미사용)
+const ORIG_LEN_GB_REGIOND: usize = 14;         // (REGIOND_HOOK이 SKIP이라 미사용) — 위 ff25 폼이 정확히 14B라 그대로 유효
 
-const RVA_GB_FUNNEL: usize = 0x22dbc4e;           // ⏸stale 유지=inert. region D 공통출구·gbskip jump 타겟. 재활성 시 재핀 필요.
+const RVA_GB_FUNNEL: usize = 0x22dbc4e;           // ⏸SKIP 유지=inert. 값 **무효 확정** — 0.5.3 실제 funnel = **0xe085fc**(클린런 10B라 12B 절대점프 불가, 5B rel32는 가능).
 
 // facet#1 condgate(목표커밋 bool). 프롤로그 push3+sub0x40+mov = 15B 클린. rcx=subplan_ctx(*=disc), r9=reg
 const RVA_CONDGATE: usize = 0xc550b0;   // ★0.5.3(was 0.5.2 0x21338d0). 실측: 선두 15B `56 57 53 48 83 ec 40 4c 8b 9c 24 90 00 00 00` **바이트 완전동일**·orig_len 15 경계정확·rip-rel無 ⟹ 최고신뢰. // ★0.5.2(was 0.5.1 0x1cbb8b0). facet#1 목표커밋 bool

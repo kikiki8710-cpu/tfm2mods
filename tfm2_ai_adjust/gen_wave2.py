@@ -1,0 +1,228 @@
+# 2026-08-04 2차 배선: RE 4건에서 남은 튜닝 지점을 exe에 대고 검증한 뒤 Rust 코드를 생성.
+# 사용법: python gen_wave2.py         (검증만)
+#         python gen_wave2.py --emit  (검증 통과 시 detour 코드 조각 출력)
+import struct, sys
+from collections import Counter
+
+EXE = r"C:\Program Files (x86)\Steam\steamapps\common\Teamfight Manager2\TeamfightManager2.exe"
+D = open(EXE, "rb").read()
+p = struct.unpack_from("<I", D, 0x3c)[0]
+n = struct.unpack_from("<H", D, p + 6)[0]; o = struct.unpack_from("<H", D, p + 20)[0]
+S = []
+for i in range(n):
+    q = p + 24 + o + i * 40
+    vsz, va, rsz, ra = struct.unpack_from("<IIII", D, q + 8)
+    S.append((va, max(vsz, rsz), ra, rsz))
+
+def f(r):
+    for va, vsz, ra, rsz in S:
+        if va <= r < va + vsz and r - va < rsz: return ra + r - va
+
+def rd(r, k):
+    x = f(r); return D[x:x+k] if x is not None else None
+
+def imm(r, off, w):
+    b = rd(r + off, w)
+    return int.from_bytes(b, "little") if b and len(b) == w else None
+
+# ── 후보 prefix 자동 판별: 주소에서 시작하는 바이트열이 어느 prefix인지 찾아 imm 확인
+def resolve(rva, cands, w, want):
+    """cands = [(prefix_list, off), ...] → 맞는 것 반환"""
+    for pre, off in cands:
+        g = rd(rva, len(pre))
+        if g is not None and list(g) == pre and imm(rva, off, w) == want:
+            return (pre, off)
+    return None
+
+def scan_imm8(lo, hi, val, prefixes):
+    tgt = val.to_bytes(8, "little"); out = []
+    a, b = f(lo), f(hi); blob = D[a:b]; i = 0
+    while True:
+        j = blob.find(tgt, i)
+        if j < 0: break
+        i = j + 1
+        rva = lo + j
+        for pre in prefixes:
+            g = rd(rva - len(pre), len(pre))
+            if g is not None and list(g) == pre:
+                out.append((rva - len(pre), pre)); break
+    return out
+
+def scan_bytes(lo, hi, pat):
+    a, b = f(lo), f(hi); blob = D[a:b]; out = []; i = 0
+    while True:
+        j = blob.find(pat, i)
+        if j < 0: break
+        i = j + 1; out.append(lo + j)
+    return out
+
+PRE8 = [[0x48,0xb8],[0x48,0xb9],[0x48,0xba],[0x48,0xbb],[0x48,0xbf],
+        [0x49,0xb8],[0x49,0xb9],[0x49,0xba],[0x49,0xbb]]
+
+# ═══════════════════════════════════════════════════════
+# 그룹 정의: (키, 폭, 원본값, [(rva, [(prefix, off), ...]), ...])
+# ═══════════════════════════════════════════════════════
+GROUPS = {}
+
+def g(name, key, w, orig, sites):
+    GROUPS.setdefault(name, []).append((key, w, orig, sites))
+
+C7 = lambda *disp: ([0x48,0xc7,0x85] + list(disp), 7)
+CMP1 = lambda r: ([0x48,0x83,r], 3)
+
+# ── A. line_total (disc5) ──
+g("lt", "lt_ally_join", 4, 0x9502f9, [(0xc57dcf, [([0x49,0x81,0xf8], 3)])])
+g("lt", "lt_around_radius", 4, 0x13880,
+  [(a, [([0x48,0xc7,0x85,0xf0,0x00,0x00,0x00], 7)]) for a in (0xc57ed3, 0xc5816c, 0xc58296)])
+g("lt", "lt_phase_mask", 4, 0x1a1, [(0xc5763d, [([0xba], 1)])])
+
+# ── B. nexus 미배선 ──
+g("nx", "nx_cull_dist19", 4, 0x5f5e1,
+  [(a, [([0x49,0x81,0xf8], 3)]) for a in (0xdee222, 0xdee2b1, 0xdee335)])
+g("nx", "nx_around_atk", 4, 0x13880,
+  [(0xd95316, [([0x48,0xc7,0x85,0xa8,0x00,0x00,0x00], 7)])])
+g("nx", "nx_around_def", 4, 0x13880,
+  [(a, [([0x48,0xc7,0x85,0x08,0x01,0x00,0x00], 7)]) for a in (0xdedabf, 0xdedd0a, 0xdeddf7, 0xdede9f)])
+
+# ── C. hide (노브 0개였던 핸들러) ──
+g("hd", "hd_bush_near", 8, 100000**2, [(a, [([0x48,0xb8], 2)]) for a in (0xca46b7, 0xca4812)])
+g("hd", "hd_path_radius", 4, 0xea60,
+  [(a, [([0x48,0xc7,0x44,0x24,0x20], 5)]) for a in (0xca46e3, 0xca483e)])
+g("hd", "hd_around_radius", 4, 0x13880,
+  [(a, [([0x48,0xc7,0x45,0x08], 4)]) for a in (0xca471f, 0xca487a)])
+g("hd", "hd_detect_max", 8, 250000**2 + 1, [(0xca4ae1, [([0x48,0xba], 2)])])
+g("hd", "hd_fight_cut", 8, 150000**2, [(0xca50fa, [([0x48,0xb8], 2)])])
+_hd = scan_imm8(0xca5900, 0xca6e40, 150000**2 + 1, PRE8)
+g("hd", "hd_cand_select", 8, 150000**2 + 1, [(a, [(list(pre), 2)]) for a, pre in _hd])
+g("hd", "hd_trace_leash", 4, 0x3a98, [(0xca6df5, [([0x48,0xc7,0x45,0x18], 4)])])
+g("hd", "hd_vision_mem", 1, 120, [(0xca4b65, [([0x49,0x83,0xc7], 3)])])
+
+# ── D. plan4 매퍼 (0xd71630) ──
+_d4a = [(a, [([0x49,0x81,0xf9], 3)]) for a in (0xd71cd3, 0xd71d98, 0xd71e58, 0xd71f18, 0xd71fdb)]
+g("d4", "d4_ally_radius_a", 4, 0x53d1ac0, _d4a)
+_d4b_pre = [([0x49,0x81,0xfc],3), ([0x49,0x81,0xfb],3), ([0x49,0x81,0xfd],3),
+            ([0x48,0x81,0xfa],3), ([0x48,0x3d],2), ([0x49,0x81,0xf9],3), ([0x48,0x81,0xf9],3)]
+g("d4", "d4_ally_radius_b", 4, 0x53d1ac1,
+  [(a, _d4b_pre) for a in (0xd72296, 0xd722d0, 0xd72332, 0xd7236d, 0xd723ce,
+                            0xd72409, 0xd7246a, 0xd724a5, 0xd72500, 0xd72542)])
+g("d4", "d4_early_leave", 4, 0x6ba9301, [(0xd72791, [([0x48,0x3d], 2)])])
+g("d4", "d4_partner_dist", 8, 200000**2, [(0xd71bbf, [([0x48,0xb9], 2)])])
+g("d4", "d4_hp_safe", 1, 51, [(0xd71a64, [([0x48,0x83,0xf8], 3)])])
+g("d4", "d4_from_mid", 4, 1000, [(0xd71a58, [([0x49,0x81,0x7c,0x08,0x60], 5)])])
+g("d4", "d4_from_mid_mode", 4, 2001, [(0xd720d5, [([0x48,0x81,0x78,0x10], 4)])])
+g("d4", "d4_ally_cnt", 1, 3,
+  [(a, [([0x48,0x83,0xbc,0x24,0x88,0x00,0x00,0x00], 8)]) for a in (0xd728f6, 0xd72934)])
+g("d4", "d4_minion_cnt", 1, 2, [(0xd7290a, [([0x83,0xfe], 2)])])
+g("d4", "d4_gather_radius", 4, 150000, [(0xd721c7, [([0x48,0xc7,0x44,0x24,0x40], 5)])])
+
+# ── E. c3a3a0 계열(지원스킬 낭비방지 필터) ──
+_c3_0 = ["c3b6f5 c3b790 c3b820 c3b8b0 c3b937 c3bc41 c3bcdc c3bd6c c3bdfc c3be83 c3c192 c3c22d c3c2bd c3c34d c3c3d4 c3c9c6",
+         "c3aa44 c3aade c3ab6e c3abfe c3ac85 c3ae8e c3af28 c3afb8 c3b048 c3b0cf c3b2d5 c3b36f c3b3ff c3b48f c3b516",
+         "c3c794 c3c92d"]
+_c3_1 = ["c3c5a3 c3c611 c3ca96", "c3baf5 c3c041", "c3ad8e c3b1d8",
+         "c3b61a c3bb61 c3c0ad c3c678 c3c811", "c3c736 c3c8cf c3cb55"]
+_ALL8 = [(pp, 2) for pp in PRE8]
+g("c3", "c3_enemy_near_a", 8, 120000**2,
+  [(int(x, 16), _ALL8) for s in _c3_0 for x in s.split()])
+g("c3", "c3_enemy_near_b", 8, 120000**2 + 1,
+  [(int(x, 16), _ALL8) for s in _c3_1 for x in s.split()])
+g("c3", "c3_minion_near", 8, 120000**2 + 1,
+  [(a, [([0x49,0xba], 2)]) for a in (0xd90bfd, 0xd90c86, 0xd90d0e)])
+_c3hp = [0xc3a629, 0xc3a77f, 0xc3a8d5, 0xc3b637, 0xc3bb83, 0xc3c0cf]
+_HPC = [([0x48,0x83,0xf8],3), ([0x48,0x83,0xf9],3), ([0x48,0x83,0xfa],3),
+        ([0x49,0x83,0xf8],3), ([0x49,0x83,0xf9],3), ([0x48,0x3d],2),
+        ([0x49,0x81,0xf8],3), ([0x48,0x81,0xf8],3), ([0x48,0x83,0xfb],3),
+        ([0x49,0x83,0xfb],3), ([0x48,0x83,0xfe],3), ([0x48,0x83,0xff],3)]
+g("c3", "c3_ally_hp", 1, 79, [(a, _HPC) for a in _c3hp])
+g("c3", "c3_minion_margin", 4, 64000, [(0xe2321a, [([0x48,0x05], 2)])])
+_cc = [0xcc7d38, 0xcc7dfa, 0xcc7eb1, 0xcc7f68, 0xcc8019]
+_CCP = [([0x48,0x6b,0x97,0x58,0x06,0x00,0x00],7), ([0x48,0x6b,0x96,0x58,0x06,0x00,0x00],7),
+        ([0x49,0x6b,0x8b,0x58,0x06,0x00,0x00],7), ([0x48,0x6b,0x8f,0x58,0x06,0x00,0x00],7),
+        ([0x49,0x6b,0x88,0x58,0x06,0x00,0x00],7), ([0x48,0x6b,0x81,0x58,0x06,0x00,0x00],7),
+        ([0x49,0x6b,0x83,0x58,0x06,0x00,0x00],7), ([0x48,0x6b,0x86,0x58,0x06,0x00,0x00],7),
+        ([0x4d,0x6b,0x8b,0x58,0x06,0x00,0x00],7), ([0x4c,0x6b,0x8b,0x58,0x06,0x00,0x00],7)]
+g("c3", "c3_hurt_scale", 1, 100, [(a, _CCP) for a in _cc])
+
+# ── F. 레벨 게이트 추가 사이트 (기존 ex_skill2_level / ex_ult_level 확장) ──
+g("lv", "ex_ult_level_x", 1, 5,
+  [(a, [([0x49,0x83,0xff], 3)]) for a in (0xfdb9ed, 0xfdba95, 0xfdbb6d)]
+  + [(0xc8ab0a, [([0x49,0x83,0xbe,0xb0,0x05,0x00,0x00], 7)])]
+  + [(0xc3a7db, [([0x49,0x83,0xbd,0xb0,0x05,0x00,0x00], 7)])])
+g("lv", "ex_skill2_level_x", 1, 3,
+  [(a, [([0x49,0x83,0xff], 3)]) for a in (0xfcb9ad, 0xfcba4e, 0xfcbb1d)]
+  + [(0xc8aae4, [([0x49,0x83,0xbe,0xb0,0x05,0x00,0x00], 7)])])
+
+# ── G. epic/serpen hunt (K1~K33 중 의미 명확분, EPIC+SERP 쌍) ──
+g("eh", "eh_flee_clear_hp", 1, 29,
+  [(a, [([0x48,0x83,0xf8], 3)]) for a in (0xc68992, 0xc68a7f, 0xda0825, 0xda08c5)])
+g("eh", "eh_reach_margin", 4, 25000,
+  [(a, [([0x41,0xb8], 2)]) for a in (0xc6a83d, 0xda253e)]
+  + [(a, [([0x48,0xc7,0x44,0x24,0x30], 5)]) for a in (0xc6d3b5, 0xda4fc3)])
+g("eh", "eh_recall_radius", 4, 60000,
+  [(a, [([0x48,0xc7,0x44,0x24,0x20], 5)]) for a in (0xc69fd5, 0xda1ce2)])
+g("eh", "eh_around_radius", 4, 80000,
+  [(0xc6a026, [([0x48,0xc7,0x85,0xf8,0x04,0x00,0x00], 7)]),
+   (0xda1d33, [([0x48,0xc7,0x85,0xf8,0x04,0x00,0x00], 7),
+               ([0x48,0xc7,0x85,0x08,0x05,0x00,0x00], 7)])])
+_TR = [([0x48,0xc7,0x85,0x08,0x05,0x00,0x00],7), ([0x48,0xc7,0x85,0x18,0x05,0x00,0x00],7)]
+g("eh", "eh_trace_arrive", 4, 15000,
+  [(a, _TR) for a in (0xc6a349, 0xc6aaff, 0xc6ac5d, 0xc6acf9, 0xc6ba21,
+                      0xda2049, 0xda2837, 0xda28cf, 0xda2967, 0xda366b)])
+g("eh", "eh_band_low", 4, 12000,
+  [(a, [([0xb9], 1)]) for a in (0xc6b3a1, 0xda300a)]
+  + [(a, [([0xbe], 1)]) for a in (0xc6b3eb, 0xda305b)]
+  + [(0xc6b3f5, [([0x48,0xc7,0x85,0xa0,0x04,0x00,0x00], 7)]),
+     (0xda3065, [([0x48,0xc7,0x85,0xb0,0x04,0x00,0x00], 7)])])
+g("eh", "eh_band_low_cmp", 4, 12001,
+  [(a, [([0x48,0x3d], 2)]) for a in (0xc6b39b, 0xda3004)])
+g("eh", "eh_band_high", 4, 45000,
+  [(a, [([0x48,0x81,0xf9], 3)]) for a in (0xc6b3aa, 0xda3013)]
+  + [(a, [([0xbb], 1)]) for a in (0xc6b3b1, 0xda301a)])
+g("eh", "eh_commit_hp", 1, 50,
+  [(0xc6bcb8, [([0x48,0x83,0xbd,0x98,0x05,0x00,0x00], 7)]),
+   (0xda3924, [([0x48,0x83,0xbd,0x90,0x05,0x00,0x00], 7),
+               ([0x48,0x83,0xbd,0x98,0x05,0x00,0x00], 7)])])
+g("eh", "eh_commit_r_low", 4, 70000, [(a, [([0xb8], 1)]) for a in (0xc6bcc0, 0xda392c)])
+g("eh", "eh_commit_r_high", 4, 40000,
+  [(0xc6bcc5, [([0x41,0xbc], 2)]), (0xda3931, [([0x41,0xbe], 2), ([0x41,0xbc], 2)])])
+g("eh", "eh_abort_hp", 1, 44,
+  [(0xc6bd5d, [([0x48,0x83,0xbd,0x98,0x05,0x00,0x00], 7)]),
+   (0xda39c2, [([0x48,0x83,0xbd,0x90,0x05,0x00,0x00], 7),
+               ([0x48,0x83,0xbd,0x98,0x05,0x00,0x00], 7)])])
+g("eh", "eh_abort_dist", 4, 220000,
+  [(0xc6bd6b, [([0x48,0x81,0xbd,0x38,0x03,0x00,0x00], 7)]),
+   (0xda39d0, [([0x48,0x81,0xbd,0x48,0x03,0x00,0x00], 7),
+               ([0x48,0x81,0xbd,0x38,0x03,0x00,0x00], 7)])])
+_K20 = [([0x48,0x3d],2), ([0x41,0xb8],2), ([0xba],1), ([0xb9],1), ([0x41,0xb9],2), ([0xb8],1)]
+g("eh", "eh_score_norm", 4, 320000,
+  [(a, _K20) for a in (0xc6c145, 0xc6c14b, 0xc6c191, 0xc6c45e, 0xc6c464, 0xc6c4ea,
+                       0xda3d96, 0xda3d9c, 0xda3de2, 0xda409e, 0xda40a4, 0xda412a)])
+
+# ═══════════════════════════════════════════════════════
+ok, fails, resolved = 0, [], {}
+for grp, entries in GROUPS.items():
+    for key, w, orig, sites in entries:
+        rr = []
+        for rva, cands in sites:
+            hit = resolve(rva, cands, w, orig)
+            if hit: ok += 1; rr.append((rva, hit[0], hit[1]))
+            else:
+                raw = rd(rva, 14)
+                fails.append((grp, key, rva, orig, raw.hex(' ') if raw else '?'))
+        resolved[key] = (grp, w, orig, rr)
+
+tot = ok + len(fails)
+print(f"=== 2차 배선 정적 검증: {ok}/{tot} PASS ===")
+if fails:
+    print(f"\n--- FAIL {len(fails)}건 ---")
+    for grp, key, rva, orig, raw in fails:
+        print(f"  [{grp}] {key:20s} @0x{rva:x}  기대 {orig}")
+        print(f"       실제: {raw}")
+
+if "--emit" in sys.argv and not fails:
+    import json
+    out = {k: {"grp": v[0], "w": v[1], "orig": v[2],
+               "sites": [[a, pre, off] for a, pre, off in v[3]]}
+           for k, v in resolved.items()}
+    open("wave2_sites.json", "w", encoding="utf-8").write(json.dumps(out, indent=1))
+    print(f"\nwave2_sites.json 기록: {len(out)}키 / {ok}사이트")

@@ -4,8 +4,8 @@ pub const KNOBS: [&str; 120] = [
     "tower_dps", "numbers_threat", "numbers_range", "ally_tower_hp", "ally_tower_dps", "ally_tower_range",
     "numbers_min_enemy", "numbers_threat_move", "numbers_range_move", "ally_tower_hp_move", "ally_tower_dps_move", "ally_tower_range_move",
     "numbers_min_enemy_move", "d19_threat_mult", "d19_retreat_hp", "d19_range_atkme", "d19_range_bld", "d19_range_other",
-    "d19_range_idle", "oi_enable", "oi_dn_count_gate", "oi_dn_nexus_hp", "oi_dn_hp_crit", "oi_dn_hp_low",
-    "oi_dn_near_dist", "oi_dn_pred_dist", "oi_dn_lane_margin", "oi_an_count_gate", "oi_an_finish_hp", "oi_an_cull_dist",
+    "d19_range_idle", "nx_enable", "nx_dn_count_gate", "nx_dn_nexus_hp", "nx_dn_hp_crit", "nx_dn_hp_low",
+    "nx_dn_near_dist", "nx_dn_pred_dist", "nx_dn_vision_mem", "nx_an_count_gate", "nx_an_finish_hp", "nx_an_cull_dist",
     "stat_influence", "vis_window", "dd_lane_margin", "eng_role4", "eng_role3", "eng_role2",
     "eng_role_def", "d4_dmg_scale", "d4_div_base", "d4_coef_scale", "d4_coef_min", "d4_coef_clamp",
     "d4_coord_dist", "d4_ttd_scale", "rc_u21_init", "rc_ehp_t1", "rc_ehp_t2", "rc_ehp_t3",
@@ -18,7 +18,7 @@ pub const KNOBS: [&str; 120] = [
     "dd_n_thr", "dd_survivor_thr", "pf_edge_margin", "pf_center_band", "pf_diag_far", "pf_diag_near",
     "pf_band_width", "pk_home_lo", "pk_home_hi", "pk_home_x1", "pk_home_y1", "pk_hp_main",
     "pk_hp_retreat", "pk_smallact_split", "pk_threat_mult", "pk_zone_hp", "pk_engage_dist", "pk_obj_hp",
-    "ep_nexus_hp", "ep_home_lo", "ep_home_hi", "ep_home_x1", "ep_home_y1", "ep_hp_crit",
+    "sn_self_hp", "sn_home_lo", "sn_home_hi", "sn_home_x1", "sn_home_y1", "sn_hp_crit",
     "d8_slot_thr", "bt_home_lo", "bt_home_hi", "bt_home_x1", "bt_home_y1", "bt_hp_retreat",
 ];
 // 항목 설명(호버 도움말). DESCS[i] = KNOBS[i] 설명.
@@ -42,7 +42,7 @@ pub const DESCS: [&str; 120] = [
     "★신규. 위 포탑DPS 가중치의 라인전 전용 값. -1=폴백(한타값 따름), 0=라인전선 미반영. 기본 -1",
     "★신규. 위 포탑 인식범위의 라인전 전용 값. -1=폴백(한타값 ally_tower_range 따름). 기본 -1",
     "★신규. 위 머릿수 게이트의 라인전 전용 값. -1=폴백(한타값 numbers_min_enemy 따름), N=라인전선 적 N명+일때만 후퇴. 기본 -1",
-    "⚠[은퇴] 은퇴한 my_disc19 재현부(dcap-gated)에서만 read. d19thr=1 켜도 실제 게임 판단이 아니라 disc19cmp.txt 대조값만 바뀜(게임 행동 무영향). 실제 넥서스 방어 튜닝은 d19_retreat_hp(byte-patch·항상반영)·oi_dn_*(oi_enable=1). (넥서스 방어 위협점수 배수%.) 기본 100",
+    "⚠[은퇴] 은퇴한 my_disc19 재현부(dcap-gated)에서만 read. d19thr=1 켜도 실제 게임 판단이 아니라 disc19cmp.txt 대조값만 바뀜(게임 행동 무영향). 실제 넥서스 방어 튜닝은 d19_retreat_hp(byte-patch·항상반영)·oi_dn_*(nx_enable=1). (넥서스 방어 위협점수 배수%.) 기본 100",
     "✅게이트무관 항상반영. 넥서스 후퇴 HP%문턱. 위협이 애매할 때 넥서스HP%가 이 값 이하면 후퇴. ↑=높은 HP에도 후퇴(수비적), ↓=저HP까지 안 후퇴(공격적). 원본 45",
     "⚠[은퇴] 은퇴 my_disc19 재현부(disc19cmp 대조값)만 read=게임 행동 무영향. '넥서스(나)를 직접 공격중' 적 위협 가중. 원본 100",
     "⚠[은퇴] disc19cmp 대조값만=게임 무영향. '내 다른 건물 공격중' 적 위협 가중. 원본 60",
