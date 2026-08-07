@@ -118,6 +118,17 @@
   ::-webkit-scrollbar { width: 10px; height: 10px; }
   ::-webkit-scrollbar-thumb { background: #2a2d3a; border-radius: 5px; }
   ::-webkit-scrollbar-track { background: transparent; }
+  #scenebar { display: flex; flex-wrap: wrap; gap: 4px; padding: 8px 8px 0; }
+  #scenebar button { padding: 3px 8px; font-size: 11px; }
+  #flowbar {
+    display: flex; flex-wrap: wrap; align-items: center; gap: 6px; padding: 6px 10px;
+    background: var(--panel); border-bottom: 1px solid var(--line); flex: 0 0 auto;
+  }
+  #flowbar .fl-cap { color: var(--dim); font-size: 11px; }
+  #flowbar .fl-link { border-color: #124f43; }
+  #flowbar .fl-link:hover { border-color: var(--accent); background: #124f43; }
+  .nd.flow-link { outline: 2px solid #37d5b3aa !important; cursor: pointer; }
+  .lbl { font-family: TFM2Roboto, 'Segoe UI', 'Malgun Gothic', sans-serif; }
   #droptip {
     position: fixed; inset: 0; display: none; align-items: center; justify-content: center;
     background: #000000aa; z-index: 1000; font-size: 20px; color: var(--accent);
@@ -138,6 +149,7 @@
   <label class="chk"><input type="checkbox" id="chkHidden"> 숨김 노드 표시</label>
   <label class="chk"><input type="checkbox" id="chkOutline"> 아웃라인</label>
   <label class="chk"><input type="checkbox" id="chkHover" checked> hover 시뮬</label>
+  <button id="btnFlow" title="화면 이동 흐름 시뮬레이션 (수동 매핑 근사)">플로우</button>
   <select id="zoom">
     <option value="fit">맞춤</option>
     <option value="0.5">50%</option>
@@ -149,10 +161,12 @@
 </div>
 <div id="main">
   <div id="sidebar">
+    <div id="scenebar"></div>
     <input type="text" id="search" placeholder="파일 검색… (288개)">
     <div id="filelist"></div>
   </div>
   <div id="center">
+    <div id="flowbar" style="display:none"></div>
     <div id="stagewrap"><div id="stageouter"><div id="stage"></div></div></div>
     <div id="statusbar"><span id="stFile"></span><span id="stRoot"></span><span id="stParse"></span><span id="stSel"></span></div>
   </div>
@@ -426,6 +440,51 @@ function fontCss(fontPath, boldFlag) {
   if (boldFlag) w = 700;
   return w;
 }
+/* ---------- 이미지 에셋 (번들 내장) ---------- */
+let IMAGES = {}, SHEETS = {};
+function imageUrl(path) {
+  const im = IMAGES[path];
+  if (!im) return null;
+  if (im.__url) return im.__url;
+  const blob = im.t === 'svg'
+    ? new Blob([im.d], { type: 'image/svg+xml' })
+    : new Blob([Uint8Array.from(atob(im.d), c => c.charCodeAt(0))], { type: 'image/png' });
+  im.__url = URL.createObjectURL(blob);
+  return im.__url;
+}
+function resolveImage(source) { // -> {url, tags|null, base} | null
+  if (!source) return null;
+  if (IMAGES[source]) return { url: imageUrl(source), tags: SHEETS[source] || null, base: source };
+  if (IMAGES[source + '#sheet']) return { url: imageUrl(source + '#sheet'), tags: SHEETS[source] || null, base: source };
+  return null;
+}
+/* 이미지 표시: 틴트색 지정 시 CSS mask + 배경색(게임의 곱연산 틴트 근사), 아니면 원본.
+   rect_tag = #data의 정규화 UV 크롭 → background/mask position·size 환산 */
+function applyImage(el, res, tint, rectTag) {
+  let posSize = 'position:0 0;size:100% 100%';
+  let px = '0%', py = '0%', sx = 100, sy = 100;
+  if (rectTag && res.tags && res.tags[rectTag]) {
+    const [x, y, w, h] = res.tags[rectTag];
+    sx = 100 / w; sy = 100 / h;
+    px = (w >= 1 ? 0 : x / (1 - w) * 100) + '%';
+    py = (h >= 1 ? 0 : y / (1 - h) * 100) + '%';
+  }
+  const useTint = tint && colorAlpha(tint) > 0 && tint.toLowerCase() !== '#ffffffff';
+  if (useTint) {
+    el.style.background = pColor(tint);
+    el.style.webkitMaskImage = `url("${res.url}")`;
+    el.style.maskImage = `url("${res.url}")`;
+    el.style.webkitMaskRepeat = el.style.maskRepeat = 'no-repeat';
+    el.style.webkitMaskSize = el.style.maskSize = `${sx}% ${sy}%`;
+    el.style.webkitMaskPosition = el.style.maskPosition = `${px} ${py}`;
+  } else {
+    el.style.backgroundImage = `url("${res.url}")`;
+    el.style.backgroundRepeat = 'no-repeat';
+    el.style.backgroundSize = `${sx}% ${sy}%`;
+    el.style.backgroundPosition = `${px} ${py}`;
+    if (tint && colorAlpha(tint) === 0) el.style.opacity = '0';
+  }
+}
 function i18nText(t) { // -> {text, isKey}
   if (typeof t !== 'string') return { text: '', isKey: false };
   const s = unq(t);
@@ -481,7 +540,7 @@ function resolveStyles(node) {
  * ===================================================================== */
 const measureCtx = document.createElement('canvas').getContext('2d');
 function measureText(text, size, weight) {
-  measureCtx.font = `${weight} ${size}px 'Segoe UI','Malgun Gothic',sans-serif`;
+  measureCtx.font = `${weight} ${size}px TFM2Roboto,'Segoe UI','Malgun Gothic',sans-serif`;
   return measureCtx.measureText(text).width;
 }
 function layoutNode(node, pw, ph, depth) {
@@ -578,8 +637,81 @@ function layoutNode(node, pw, ph, depth) {
  * 렌더러
  * ===================================================================== */
 const BTN_TYPES = new Set(['color_icon_button', 'bouncing_color_icon_button', 'icon_slide_color_icon_button', 'icon_button']);
-let SHOW_HIDDEN = false, SHOW_OUTLINE = false, HOVER_SIM = true;
+let SHOW_HIDDEN = false, SHOW_OUTLINE = false, HOVER_SIM = true, FLOW_ON = false;
 let selPath = null; // 선택된 노드 경로 문자열
+let flowHistory = [];
+
+/* =====================================================================
+ * 씬 카탈로그 + 화면 플로우 (수동 매핑 — ⚠근사치)
+ * 화면 전환 로직은 .ui가 아니라 게임 코드에 있어서 자동 추출이 불가능하다.
+ * 아래는 게임 플레이 지식 기반의 대표 흐름 매핑이다.
+ * ===================================================================== */
+const SCENES = [
+  { name: '전체', main: null, match: null },
+  { name: '데모', main: 'ui/layout/title.ui', match: /^ui\/layout\/((title|disclaimer|prologue|prologue_first|new_game|team_select)\.ui|new_game_component\/)/ },
+  { name: '관리', main: 'ui/layout/home.ui', match: /^ui\/layout\/((main|home|schedule|lineup|scout|news|finance|facility|training|team_data|records|rank|statistics|solo_rank|locker_room|gaming_house_bg|transfer_offer|staff_offer|staff_view_detail|today_match|recruit_offer|team_detail|team_detail_squad|view_detail|view_detail_backup|champion_info|item_info|game_rules_info|patch_history_info)\.ui|(home|schedule|lineup|scout|news|finance|facility|training|team_data|records|rank|statistics|solo_rank|locker_room|gaming_house|transfer|recruit|staff|main_button|today_match|player_detail|team_detail|champion_info|item_info|game_rules_info|patch_history_info|mods)_component\/|player_detail\/|main_button\/)/ },
+  { name: '밴픽', main: 'ui/layout/banpick/layout.ui', match: /banpick|enemy_lineup|side_select_popup|pick_button/ },
+  { name: '전술', main: 'ui/layout/strategy.ui', match: /strategy/ },
+  { name: '관전', main: 'ui/layout/ingame.ui', match: /^ui\/layout\/((ingame|loading|spectate_lineup_waiting|stadium_entrance|log)\.ui|(ingame|loading)_component\/)/ },
+  { name: '결과', main: 'ui/layout/match_result.ui', match: /match_result|^ui\/layout\/pick\.ui/ },
+];
+let currentScene = SCENES[0];
+const L = p => 'ui/layout/' + p;
+const FLOW = {
+  [L('title.ui')]: {
+    nodes: { new_game: L('new_game.ui'), continue: L('home.ui'), load: L('home.ui'), options: L('option.ui'), database_edit: L('database_edit.ui'), multiplayer: L('lobby.ui') },
+    links: [['새 게임', L('new_game.ui')], ['이어하기(세이브 로드) → 홈', L('home.ui')], ['옵션', L('option.ui')], ['멀티플레이 로비', L('lobby.ui')], ['DB 에디터', L('database_edit.ui')]],
+  },
+  [L('new_game.ui')]: {
+    nodes: { start: L('prologue_first.ui'), to_title: L('title.ui'), cancel: L('title.ui') },
+    links: [['게임 시작 → 프롤로그', L('prologue_first.ui')], ['(프롤로그 스킵) → 홈', L('home.ui')], ['타이틀로', L('title.ui')]],
+  },
+  [L('prologue_first.ui')]: { nodes: {}, links: [['프롤로그 계속', L('prologue.ui')], ['완료 → 홈', L('home.ui')]] },
+  [L('prologue.ui')]: { nodes: {}, links: [['완료 → 홈', L('home.ui')]] },
+  [L('home.ui')]: {
+    nodes: {},
+    links: [['일정', L('schedule.ui')], ['오늘의 경기', L('today_match.ui')], ['라인업', L('lineup.ui')], ['전술', L('strategy.ui')], ['스카우트', L('scout.ui')], ['뉴스', L('news.ui')], ['재정', L('finance.ui')], ['시설', L('facility.ui')], ['훈련', L('training.ui')], ['팀 데이터', L('team_data.ui')], ['기록', L('records.ui')], ['순위', L('rank.ui')], ['통계', L('statistics.ui')], ['솔로랭크', L('solo_rank.ui')], ['락커룸', L('locker_room.ui')], ['숙소', L('gaming_house_bg.ui')], ['일시정지 메뉴', L('pause.ui')]],
+  },
+  [L('schedule.ui')]: { nodes: { today_match: L('today_match.ui') }, links: [['오늘의 경기', L('today_match.ui')]] },
+  [L('today_match.ui')]: { nodes: {}, links: [['경기장 입장', L('stadium_entrance.ui')], ['로딩 → 밴픽', L('loading.ui')]] },
+  [L('stadium_entrance.ui')]: { nodes: {}, links: [['로딩', L('loading.ui')]] },
+  [L('loading.ui')]: { nodes: {}, links: [['밴픽', L('banpick/layout.ui')]] },
+  [L('banpick/layout.ui')]: { nodes: {}, links: [['(밴픽 완료) → 경기 관전', L('ingame.ui')], ['진영 선택 팝업', L('side_select_popup.ui')], ['상대 라인업', L('enemy_lineup.ui')], ['밴픽 채팅 팝업', L('banpick/chat_popup.ui')], ['밴픽 통계 팝업', L('banpick/stats_popup.ui')]] },
+  [L('ingame.ui')]: { nodes: {}, links: [['(경기 종료) → 결과', L('match_result.ui')], ['일시정지', L('pause.ui')]] },
+  [L('match_result.ui')]: { nodes: {}, links: [['픽 화면', L('pick.ui')], ['홈으로', L('home.ui')]] },
+  [L('pause.ui')]: { nodes: { to_title: L('title.ui'), option: L('option.ui') }, links: [['옵션', L('option.ui')], ['타이틀로', L('title.ui')]] },
+  [L('lobby.ui')]: { nodes: {}, links: [['방', L('room.ui')]] },
+  [L('room.ui')]: { nodes: {}, links: [['(시작) → 밴픽', L('banpick/layout.ui')]] },
+  [L('strategy.ui')]: { nodes: {}, links: [['홈으로', L('home.ui')]] },
+};
+function flowTargetFor(fileKey, nodeId) {
+  const f = FLOW[fileKey];
+  return f && f.nodes && f.nodes[nodeId] ? f.nodes[nodeId] : null;
+}
+function flowNavigate(target) {
+  if (!FILES.has(target)) return;
+  flowHistory.push(currentKey);
+  openFile(target);
+}
+function flowBack() {
+  if (!flowHistory.length) return;
+  openFile(flowHistory.pop());
+}
+function renderFlowBar() {
+  const bar = document.getElementById('flowbar');
+  if (!FLOW_ON) { bar.style.display = 'none'; return; }
+  bar.style.display = 'flex';
+  const f = FLOW[currentKey];
+  let html = `<button onclick="flowBack()" ${flowHistory.length ? '' : 'disabled'}>← 뒤로</button><span class="fl-cap">화면 이동(근사 흐름):</span>`;
+  if (f && f.links.length) {
+    for (const [label, target] of f.links) {
+      html += `<button class="fl-link" onclick="flowNavigate('${target}')">${escapeHtml(label)}</button>`;
+    }
+  } else html += `<span class="fl-cap">이 화면의 매핑 없음 — 좌측 목록에서 선택</span>`;
+  bar.innerHTML = html;
+}
+window.flowNavigate = flowNavigate;
+window.flowBack = flowBack;
 
 function nodePath(stack) { return stack.join('/'); }
 
@@ -623,22 +755,41 @@ function renderLayout(st, parentEl, stack, fileKey) {
   const rounding = roundingCss(P.rounding);
   if (rounding) el.style.borderRadius = rounding;
 
-  let normalCss = {}, hoverCss = null;
+  let normalCss = {}, hoverCss = null, activeCss = null;
+  let childHost = el;
 
   if (t === 'color' || t === 'color_selectable' || t === 'draggable_popup') {
     normalCss = bgStyleFrom(P);
     const hv = blockProps(P.hover);
     if (hv) hoverCss = bgStyleFrom(deepMerge(P, hv));
+    const av = blockProps(P.active);
+    if (av) activeCss = bgStyleFrom(deepMerge(P, av));
     applyCss(el, normalCss);
     if (t === 'color_selectable') {
-      // label{} + text 렌더
+      // label{} + text 렌더 · 클릭 = 선택 토글(selected_image/selected_label)
       const lb = blockProps(P.label) || {};
       const ti = i18nText(P.text);
+      let sp = null;
       if (ti.text) {
-        const sp = mkLabel(ti, deepMerge(lb, { size: P.size != null ? P.size : lb.size }), st.w, st.h);
+        sp = mkLabel(ti, deepMerge(lb, { size: P.size != null ? P.size : lb.size }), st.w, st.h);
         sp.style.position = 'absolute'; sp.style.inset = '0';
         el.appendChild(sp);
       }
+      const selImg = blockProps(P.selected_image), selLb = blockProps(P.selected_label);
+      const img = blockProps(P.image);
+      el.addEventListener('click', () => {
+        const on = el.dataset.selOn === '1';
+        el.dataset.selOn = on ? '0' : '1';
+        if (!on) {
+          if (selImg && typeof selImg.color === 'string') { el.style.border = ''; el.style.background = pColor(selImg.color); }
+          if (sp && selLb && typeof selLb.color === 'string') sp.style.color = pColor(selLb.color);
+        } else {
+          el.style.background = ''; el.style.border = '';
+          applyCss(el, img ? bgStyleFrom(img) : normalCss);
+          if (sp) { const c = (lb && typeof lb.color === 'string') ? lb.color : '#e8e8e8ff'; sp.style.color = pColor(c); }
+        }
+      });
+      if (img) applyCss(el, bgStyleFrom(img));
     }
   } else if (t === 'label') {
     el.classList.add('lbl');
@@ -648,9 +799,11 @@ function renderLayout(st, parentEl, stack, fileKey) {
     el.classList.add('imgph');
     const src = unq(P.source || '') || '';
     const col = typeof P.color === 'string' ? P.color : null;
-    const base = src ? src.split('/').pop() : t;
-    if (col && colorAlpha(col) > 0) {
-      // 단색 틴트 아이콘: 색 실루엣으로 표현
+    const res = resolveImage(src);
+    if (res) {
+      applyImage(el, res, col, unq(P.rect_tag || '') || null);
+    } else if (col && colorAlpha(col) > 0) {
+      // 에셋 미내장: 색 실루엣 플레이스홀더
       el.style.background = pColor(col);
       el.style.opacity = '0.9';
       el.style.borderRadius = rounding || '2px';
@@ -659,9 +812,9 @@ function renderLayout(st, parentEl, stack, fileKey) {
       el.style.background = 'repeating-linear-gradient(45deg,#ffffff14 0 4px,#ffffff08 4px 8px)';
       el.style.outline = '1px dashed #ffffff2e';
     }
-    if (st.w >= 34 && st.h >= 12) {
+    if (!res && st.w >= 34 && st.h >= 12) {
       const nm = document.createElement('div');
-      nm.className = 'nm'; nm.textContent = base;
+      nm.className = 'nm'; nm.textContent = src ? src.split('/').pop() : t;
       el.appendChild(nm);
     }
     el.title = src;
@@ -677,6 +830,11 @@ function renderLayout(st, parentEl, stack, fileKey) {
       const hbtn = blockProps(hv.btn);
       hoverCss = bgStyleFrom(hbtn ? deepMerge(btn, hbtn) : deepMerge(Object.keys(btn).length ? btn : P, hv));
     }
+    const av = blockProps(P.active);
+    if (av) {
+      const abtn = blockProps(av.btn);
+      activeCss = bgStyleFrom(abtn ? deepMerge(btn, abtn) : deepMerge(Object.keys(btn).length ? btn : P, av));
+    }
     // 아이콘
     const ic = blockProps(P.icon);
     if (ic) {
@@ -684,9 +842,11 @@ function renderLayout(st, parentEl, stack, fileKey) {
       const r = blockProps(ic.rect);
       let iw = 16, ih = 16, ix = null, iy = null;
       if (r) { iw = pNum(r.w, 16); ih = pNum(r.h, 16); ix = pNum(r.x, null); iy = pNum(r.y, null); }
-      icel.style.cssText = `position:absolute;width:${iw}px;height:${ih}px;border-radius:2px;`;
+      icel.style.cssText = `position:absolute;width:${iw}px;height:${ih}px;`;
       const icol = typeof ic.color === 'string' ? ic.color : '#e8e8e8ff';
-      icel.style.background = pColor(icol) || '#e8e8e8';
+      const ires = resolveImage(unq(ic.source || ''));
+      if (ires) applyImage(icel, ires, icol, unq(ic.rect_tag || '') || null);
+      else { icel.style.background = pColor(icol) || '#e8e8e8'; icel.style.borderRadius = '2px'; }
       if (ix != null) { icel.style.left = ix + 'px'; icel.style.top = (iy || 0) + 'px'; }
       else { icel.style.left = '50%'; icel.style.top = '50%'; icel.style.transform = 'translate(-50%,-50%)'; }
       icel.title = unq(ic.source || '');
@@ -718,7 +878,7 @@ function renderLayout(st, parentEl, stack, fileKey) {
     const tx = blockProps(P.text) || {};
     const tl = blockProps(P.text_layout) || {};
     const sp = document.createElement('div');
-    sp.textContent = '항목 ▾';
+    sp.textContent = '항목 1';
     const tsz = pNum(tx.size, 14);
     sp.style.cssText = `position:absolute;color:${pColor(typeof tx.color==='string'?tx.color:'#e8e8e8ff')};font-size:${tsz}px;display:flex;align-items:center;`;
     sp.style.left = (resolveLen(tl.x, st.w) != null ? resolveLen(tl.x, st.w) : 10) + 'px';
@@ -729,24 +889,65 @@ function renderLayout(st, parentEl, stack, fileKey) {
     ar.textContent = '▾';
     ar.style.cssText = 'position:absolute;right:10px;top:50%;transform:translateY(-50%);color:#a5a5ab;font-size:11px;';
     el.appendChild(ar);
+    // 클릭 = 펼침 시뮬레이션 (item_layout·item_text·max_items_height 반영)
+    el.addEventListener('click', () => {
+      const old = el.querySelector('.dd-items');
+      if (old) { old.remove(); return; }
+      const il = blockProps(P.item_layout) || {};
+      const it = blockProps(P.item_text) || {};
+      const itemH = resolveLen(il.height, st.h) || st.h;
+      const maxH = pNum(P.max_items_height, 280);
+      const list = document.createElement('div');
+      list.className = 'dd-items';
+      list.style.cssText = `position:absolute;left:0;top:${st.h}px;width:100%;max-height:${maxH}px;overflow:hidden;z-index:100000;border-radius:${br};`;
+      applyCss(list, bgStyleFrom(bg));
+      for (let i = 1; i <= 5; i++) {
+        const row = document.createElement('div');
+        row.textContent = '항목 ' + i;
+        row.style.cssText = `height:${itemH}px;display:flex;align-items:center;padding-left:${resolveLen(blockProps(P.item_text_layout||{__block:1,props:{}}).x||il.x, st.w) || 10}px;color:${pColor(typeof it.color==='string'?it.color:'#a3a9b6ff')};font-size:${pNum(it.size, tsz)}px;cursor:pointer;`;
+        row.onmouseenter = () => { row.style.color = pColor('#e8e8e8ff'); };
+        row.onmouseleave = () => { row.style.color = pColor(typeof it.color==='string'?it.color:'#a3a9b6ff'); };
+        row.onclick = e2 => { e2.stopPropagation(); sp.textContent = row.textContent; list.remove(); };
+        list.appendChild(row);
+      }
+      el.appendChild(list);
+    });
   } else if (t === 'text_edit') {
     applyCss(el, bgStyleFrom(deepMerge({ color: '#4a4c56ff', back_color: '#1d1f2cff', stroke: '1' }, P)));
     el.style.borderRadius = rounding || '8px';
     const ph2 = i18nText(P.placeholder);
     const sp = document.createElement('div');
     sp.textContent = ph2.text || '';
-    sp.style.cssText = `position:absolute;left:10px;top:0;bottom:0;display:flex;align-items:center;color:${pColor('#a5a5abff')};font-size:${pNum(P.size,14)}px;`;
+    sp.contentEditable = 'true';
+    sp.spellcheck = false;
+    sp.dataset.ph = '1';
+    sp.style.cssText = `position:absolute;left:10px;right:6px;top:0;bottom:0;display:flex;align-items:center;color:${pColor('#a5a5abff')};font-size:${pNum(P.size,14)}px;outline:none;white-space:nowrap;overflow:hidden;`;
     if (ph2.isKey) sp.classList.add('i18n');
+    sp.addEventListener('focus', () => { if (sp.dataset.ph === '1') { sp.textContent = ''; sp.dataset.ph = '0'; sp.classList.remove('i18n'); sp.style.color = pColor(typeof P.text_color === 'string' ? P.text_color : '#e8e8e8ff'); } });
     el.appendChild(sp);
   } else if (t === 'scroll_view') {
     el.style.overflow = 'hidden';
-    // 스크롤바 표현
+    // 실제 스크롤: 자식을 inner에 담고 wheel로 이동
+    const inner = document.createElement('div');
+    inner.style.cssText = 'position:absolute;left:0;top:0;width:100%;height:100%;';
+    el.appendChild(inner);
+    childHost = inner;
     const bar = blockProps(P.bar);
     const bw = pNum(P.bar_width, 4);
     const be = document.createElement('div');
     const bcol = bar && typeof bar.color === 'string' ? bar.color : '#37d5b3ff';
     be.style.cssText = `position:absolute;right:2px;top:8px;width:${bw}px;height:30%;background:${pColor(bcol)};border-radius:${bw/2}px;z-index:9999;opacity:.85;`;
     el.appendChild(be);
+    let sy2 = 0;
+    el.addEventListener('wheel', e => {
+      e.preventDefault(); e.stopPropagation();
+      let contentH = 0;
+      for (const c of inner.children) contentH = Math.max(contentH, c.offsetTop + c.offsetHeight);
+      const maxScroll = Math.max(0, contentH - st.h);
+      sy2 = Math.min(maxScroll, Math.max(0, sy2 + (e.deltaY > 0 ? 60 : -60)));
+      inner.style.top = -sy2 + 'px';
+      if (maxScroll > 0) be.style.top = (8 + (st.h - st.h * 0.3 - 16) * (sy2 / maxScroll)) + 'px';
+    }, { passive: false });
   } else if (t === 'slider') {
     const bg = blockProps(P.background) || {};
     applyCss(el, bgStyleFrom(Object.keys(bg).length ? bg : { color: '#171820ff' }));
@@ -756,6 +957,18 @@ function renderLayout(st, parentEl, stack, fileKey) {
     const ratio = Math.min(1, Math.max(0, pNum(P.ratio, 0.5)));
     fill.style.cssText = `position:absolute;left:0;top:0;bottom:0;width:${ratio*100}%;background:${pColor(typeof fg.color==='string'?fg.color:'#37d5b3ff')};border-radius:inherit;`;
     el.appendChild(fill);
+    // 드래그로 값 변경
+    const setRatio = e2 => {
+      const r2 = el.getBoundingClientRect();
+      const v = Math.min(1, Math.max(0, (e2.clientX - r2.left) / r2.width));
+      fill.style.width = (v * 100) + '%';
+    };
+    el.addEventListener('mousedown', e2 => {
+      e2.stopPropagation(); setRatio(e2);
+      const mv = e3 => setRatio(e3);
+      const up = () => { window.removeEventListener('mousemove', mv); window.removeEventListener('mouseup', up); };
+      window.addEventListener('mousemove', mv); window.addEventListener('mouseup', up);
+    });
   } else if (t === 'canvas') {
     el.style.background = 'repeating-linear-gradient(-45deg,#ffffff0a 0 6px,transparent 6px 12px)';
     el.style.outline = '1px dashed #ffffff22';
@@ -774,19 +987,31 @@ function renderLayout(st, parentEl, stack, fileKey) {
     if (typeof P.color === 'string' && colorAlpha(P.color) > 0) el.style.background = pColor(P.color);
   }
 
-  // hover 시뮬레이션
-  if (HOVER_SIM && hoverCss) {
-    const nCss = JSON.stringify(normalCss), hCss2 = hoverCss;
-    el.addEventListener('mouseenter', e => { if (!HOVER_SIM) return; el.style.background = ''; el.style.border = ''; applyCss(el, hCss2); e.stopPropagation(); });
-    el.addEventListener('mouseleave', () => { el.style.background = ''; el.style.border = ''; applyCss(el, JSON.parse(nCss)); });
+  // hover/press 시뮬레이션
+  if (HOVER_SIM && (hoverCss || activeCss)) {
+    const reset = () => { el.style.background = ''; el.style.border = ''; };
+    el.addEventListener('mouseenter', e => { if (!HOVER_SIM) return; reset(); applyCss(el, hoverCss || normalCss); e.stopPropagation(); });
+    el.addEventListener('mouseleave', () => { reset(); applyCss(el, normalCss); });
+    if (activeCss) {
+      el.addEventListener('mousedown', () => { if (!HOVER_SIM) return; reset(); applyCss(el, activeCss); });
+      el.addEventListener('mouseup', () => { if (!HOVER_SIM) return; reset(); applyCss(el, hoverCss || normalCss); });
+    }
   }
 
-  // 검사기 연결
-  el.addEventListener('click', e => { e.stopPropagation(); selectNode(path, node, st, P); });
+  // 검사기 연결 + 플로우 모드 내비게이션
+  el.addEventListener('click', e => {
+    e.stopPropagation();
+    if (FLOW_ON) {
+      const target = flowTargetFor(fileKey, node.id);
+      if (target) { flowNavigate(target); return; }
+    }
+    selectNode(path, node, st, P);
+  });
   el.addEventListener('mousemove', e => { e.stopPropagation(); hoverStatus(path, st); });
+  if (FLOW_ON && flowTargetFor(fileKey, node.id)) { el.classList.add('flow-link'); el.title = '→ ' + flowTargetFor(fileKey, node.id); }
 
   // 자식
-  for (const c of st.children) renderLayout(c, el, stack.concat([node.id]), fileKey);
+  for (const c of st.children) renderLayout(c, childHost, stack.concat([node.id]), fileKey);
   parentEl.appendChild(el);
 }
 function styleLabelEl(el, P, ti) {
@@ -826,12 +1051,37 @@ function fileContent(key) { return EDITS.has(key) ? EDITS.get(key) : FILES.get(k
 
 function initBundle() {
   document.getElementById('bundlever').textContent = BUNDLE.version || '';
+  IMAGES = BUNDLE.images || {};
+  SHEETS = BUNDLE.sheets || {};
   for (const p in BUNDLE.styles) {
     const key = p.replace(/\.style$/, '');
     STYLE_FILES['asset/base/style/' + key.split('/').pop()] = parseStyleFile(BUNDLE.styles[p]);
   }
   const paths = Object.keys(BUNDLE.files).sort();
   for (const p of paths) FILES.set(p, BUNDLE.files[p]);
+  // 게임 폰트(Roboto — 라틴; 한글은 시스템 폴백)
+  const fonts = BUNDLE.fonts || {};
+  const loads = [];
+  for (const w in fonts) {
+    const buf = Uint8Array.from(atob(fonts[w]), c => c.charCodeAt(0)).buffer;
+    const ff = new FontFace('TFM2Roboto', buf, { weight: w });
+    loads.push(ff.load().then(f => document.fonts.add(f)).catch(() => {}));
+  }
+  if (loads.length) Promise.all(loads).then(() => { if (currentKey) rebuild(); });
+  // 씬 탭
+  const sb = document.getElementById('scenebar');
+  for (const sc of SCENES) {
+    const b = document.createElement('button');
+    b.textContent = sc.name;
+    b.onclick = () => {
+      currentScene = sc;
+      [...sb.children].forEach(x => x.classList.toggle('on', x === b));
+      buildFileList(document.getElementById('search').value.trim().toLowerCase() || undefined);
+      if (sc.main && FILES.has(sc.main)) openFile(sc.main);
+    };
+    if (sc === currentScene) b.classList.add('on');
+    sb.appendChild(b);
+  }
   buildFileList();
 }
 function buildFileList(filter) {
@@ -840,6 +1090,7 @@ function buildFileList(filter) {
   const groups = new Map();
   for (const key of FILES.keys()) {
     if (filter && !key.toLowerCase().includes(filter)) continue;
+    if (currentScene.match && !currentScene.match.test(key) && !key.startsWith('(내 파일)')) continue;
     const parts = key.split('/');
     const grp = parts.length > 1 ? parts.slice(0, -1).join('/') : '(루트)';
     if (!groups.has(grp)) groups.set(grp, []);
@@ -881,6 +1132,7 @@ function rebuild() {
   const stParse = document.getElementById('stParse');
   const ec = currentParse.errors.length;
   stParse.innerHTML = ec ? `<span class="err">게임 파서 에러 ${ec}건</span>` : `<span class="ok">파서 OK</span>`;
+  renderFlowBar();
   if (!root) { document.getElementById('tree').innerHTML = ''; return; }
   // 루트 크기: 선언값(px) 우선, %/미지정이면 1920×1080
   const P = resolveStyles(root);
@@ -1037,6 +1289,12 @@ window.addEventListener('resize', applyZoom);
 document.getElementById('chkHidden').onchange = e => { SHOW_HIDDEN = e.target.checked; rebuild(); };
 document.getElementById('chkOutline').onchange = e => { SHOW_OUTLINE = e.target.checked; rebuild(); };
 document.getElementById('chkHover').onchange = e => { HOVER_SIM = e.target.checked; rebuild(); };
+document.getElementById('btnFlow').onclick = () => {
+  FLOW_ON = !FLOW_ON;
+  document.getElementById('btnFlow').classList.toggle('on', FLOW_ON);
+  if (FLOW_ON && !FLOW[currentKey] && FILES.has('ui/layout/title.ui')) { flowHistory = []; openFile('ui/layout/title.ui'); }
+  else rebuild();
+};
 document.getElementById('search').addEventListener('input', e => buildFileList(e.target.value.trim().toLowerCase() || undefined));
 document.getElementById('tabTree').onclick = () => showTab('tree');
 document.getElementById('tabInsp').onclick = () => showTab('insp');
