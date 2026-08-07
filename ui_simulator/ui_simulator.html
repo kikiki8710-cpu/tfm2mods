@@ -148,6 +148,7 @@
   <span style="flex:1"></span>
   <label class="chk"><input type="checkbox" id="chkHidden"> 숨김 노드 표시</label>
   <label class="chk"><input type="checkbox" id="chkOutline"> 아웃라인</label>
+  <label class="chk" title="관리 화면(1600×968)을 main.ui 셸(좌측 메뉴+하단 바) 안에 합성"><input type="checkbox" id="chkShell" checked> 셸 합성</label>
   <label class="chk"><input type="checkbox" id="chkHover" checked> hover 시뮬</label>
   <button id="btnFlow" title="화면 이동 흐름 시뮬레이션 (수동 매핑 근사)">플로우</button>
   <select id="zoom">
@@ -652,7 +653,7 @@ const SCENES = [
   { name: '관리', main: 'ui/layout/home.ui', match: /^ui\/layout\/((main|home|schedule|lineup|scout|news|finance|facility|training|team_data|records|rank|statistics|solo_rank|locker_room|gaming_house_bg|transfer_offer|staff_offer|staff_view_detail|today_match|recruit_offer|team_detail|team_detail_squad|view_detail|view_detail_backup|champion_info|item_info|game_rules_info|patch_history_info)\.ui|(home|schedule|lineup|scout|news|finance|facility|training|team_data|records|rank|statistics|solo_rank|locker_room|gaming_house|transfer|recruit|staff|main_button|today_match|player_detail|team_detail|champion_info|item_info|game_rules_info|patch_history_info|mods)_component\/|player_detail\/|main_button\/)/ },
   { name: '밴픽', main: 'ui/layout/banpick/layout.ui', match: /banpick|enemy_lineup|side_select_popup|pick_button/ },
   { name: '전술', main: 'ui/layout/strategy.ui', match: /strategy/ },
-  { name: '관전', main: 'ui/layout/ingame.ui', match: /^ui\/layout\/((ingame|loading|spectate_lineup_waiting|stadium_entrance|log)\.ui|(ingame|loading)_component\/)/ },
+  { name: '관전', main: '(프리셋)/관전 - 일반 HUD', match: /^(ui\/layout\/((ingame|loading|spectate_lineup_waiting|stadium_entrance|log)\.ui|(ingame|loading)_component\/)|\(프리셋\)\/관전)/ },
   { name: '결과', main: 'ui/layout/match_result.ui', match: /match_result|^ui\/layout\/pick\.ui/ },
 ];
 let currentScene = SCENES[0];
@@ -677,19 +678,119 @@ const FLOW = {
   [L('stadium_entrance.ui')]: { nodes: {}, links: [['로딩', L('loading.ui')]] },
   [L('loading.ui')]: { nodes: {}, links: [['밴픽', L('banpick/layout.ui')]] },
   [L('banpick/layout.ui')]: { nodes: {}, links: [['(밴픽 완료) → 경기 관전', L('ingame.ui')], ['진영 선택 팝업', L('side_select_popup.ui')], ['상대 라인업', L('enemy_lineup.ui')], ['밴픽 채팅 팝업', L('banpick/chat_popup.ui')], ['밴픽 통계 팝업', L('banpick/stats_popup.ui')]] },
-  [L('ingame.ui')]: { nodes: {}, links: [['(경기 종료) → 결과', L('match_result.ui')], ['일시정지', L('pause.ui')]] },
+  [L('ingame.ui')]: { nodes: {}, links: [['관전(일반 HUD)', '(프리셋)/관전 - 일반 HUD'], ['관전(전체보기)', '(프리셋)/관전 - 전체보기'], ['(경기 종료) → 결과', L('match_result.ui')], ['일시정지', L('pause.ui')]] },
+  '(프리셋)/관전 - 일반 HUD': { nodes: {}, links: [['전체보기로 전환', '(프리셋)/관전 - 전체보기'], ['(경기 종료) → 결과', L('match_result.ui')], ['일시정지', L('pause.ui')]] },
+  '(프리셋)/관전 - 전체보기': { nodes: {}, links: [['일반 HUD로 전환', '(프리셋)/관전 - 일반 HUD'], ['(경기 종료) → 결과', L('match_result.ui')], ['일시정지', L('pause.ui')]] },
   [L('match_result.ui')]: { nodes: {}, links: [['픽 화면', L('pick.ui')], ['홈으로', L('home.ui')]] },
   [L('pause.ui')]: { nodes: { to_title: L('title.ui'), option: L('option.ui') }, links: [['옵션', L('option.ui')], ['타이틀로', L('title.ui')]] },
   [L('lobby.ui')]: { nodes: {}, links: [['방', L('room.ui')]] },
   [L('room.ui')]: { nodes: {}, links: [['(시작) → 밴픽', L('banpick/layout.ui')]] },
   [L('strategy.ui')]: { nodes: {}, links: [['홈으로', L('home.ui')]] },
 };
+/* =====================================================================
+ * 합성(컴포즈) 시스템
+ *  - 관리 화면(1600×968 콘텐츠)은 게임에서 main.ui 셸(#top/#right) 안에 꽂힌다
+ *    → "셸 합성" ON이면 main.ui + 콘텐츠 + 좌측 메뉴(런타임 생성분 근사)를 합성해 보여준다
+ *  - 관전 프리셋 2종: ingame.ui의 컴팩트 스코어보드(#player_info)와
+ *    전체보기(#wide_data)에 각각 player_info.ui / wide_player_info.ui 5행을 주입
+ * ===================================================================== */
+let SHELL_ON = true;
+const MENU_LAYOUT = [ // main.ui #left 카테고리 → [라벨, 대상화면] (⚠근사 — 실제 메뉴 구성은 게임 코드가 생성)
+  ['news_category', [['뉴스', L('news.ui')]]],
+  ['team_category', [['라인업', L('lineup.ui')], ['전술', L('strategy.ui')], ['훈련', L('training.ui')]]],
+  ['schedule_category', [['일정', L('schedule.ui')], ['순위', L('rank.ui')]]],
+  ['recruit_category', [['스카우트', L('scout.ui')], ['이적 시장', L('transfer_offer.ui')]]],
+  ['info_category', [['재정', L('finance.ui')], ['시설', L('facility.ui')], ['팀 데이터', L('team_data.ui')]]],
+  ['etc_category', [['기록', L('records.ui')], ['통계', L('statistics.ui')], ['솔로랭크', L('solo_rank.ui')]]],
+  ['house_category', [['숙소', L('gaming_house_bg.ui')]]],
+  ['home', [['홈', L('home.ui')]]],
+];
+const PRESETS = {
+  '(프리셋)/관전 - 일반 HUD': { base: L('ingame.ui'), mode: 'compact' },
+  '(프리셋)/관전 - 전체보기': { base: L('ingame.ui'), mode: 'wide' },
+};
+function baseKeyOf(key) { return PRESETS[key] ? PRESETS[key].base : key; }
+function cloneTpl(t) { return JSON.parse(JSON.stringify(t)); }
+function findTplByIds(root, ids) {
+  let cur = root;
+  for (const id of ids) {
+    cur = (cur.children || []).find(c => c.id === id);
+    if (!cur) return null;
+  }
+  return cur;
+}
+function walkTpl(t, fn) { fn(t); (t.children || []).forEach(c => walkTpl(c, fn)); }
+let _shellCache = null, _lbCache = null, _rowCache = {};
+function clearComposeCaches() { _shellCache = null; _lbCache = null; _rowCache = {}; }
+function getParsedRoot(fileKey) {
+  if (!FILES.has(fileKey)) return null;
+  const r = parseUi(fileContent(fileKey));
+  return r.root;
+}
+function composeShell(innerRoot) {
+  if (!_shellCache) {
+    _shellCache = getParsedRoot(L('main.ui'));
+    if (!_shellCache) return innerRoot;
+  }
+  const shell = cloneTpl(_shellCache);
+  // 좌측 메뉴 채우기 (런타임 생성 근사)
+  if (!_lbCache) _lbCache = getParsedRoot(L('main_button/left_button.ui'));
+  if (_lbCache) {
+    for (const [cat, items] of MENU_LAYOUT) {
+      const host = findTplByIds(shell, ['top', 'left', cat]);
+      if (!host) continue;
+      for (const [label, target] of items) {
+        const b = cloneTpl(_lbCache);
+        b.id = 'menu_' + label;
+        b.props.__flow = target;
+        walkTpl(b, n => {
+          if (n.id === 'text' && n.type === 'label') n.props.text = '"' + label + '"';
+          if (n.id === 'lock' || n.id === 'unread') n.props.visible = 'false';
+          if (n.id === 'icon') n.props.visible = 'false';
+        });
+        host.children.push(b);
+      }
+    }
+  }
+  const slot = findTplByIds(shell, ['top', 'right']);
+  if (!slot) return innerRoot;
+  const inner = cloneTpl(innerRoot);
+  inner.props.x = '24px';
+  inner.props.y = '24px';
+  slot.children.push(inner);
+  return shell;
+}
+function composeSpectate(baseRoot, mode) {
+  const root = cloneTpl(baseRoot);
+  const rowKey = mode === 'wide' ? L('ingame_component/wide_player_info.ui') : L('ingame_component/player_info.ui');
+  if (!_rowCache[rowKey]) _rowCache[rowKey] = getParsedRoot(rowKey);
+  const row = _rowCache[rowKey];
+  if (mode === 'wide') {
+    const wd = findTplByIds(root, ['wide_data']);
+    if (wd) wd.props.visible = 'true';
+    const wi = findTplByIds(root, ['wide_info']);
+    if (wi) wi.props.visible = 'true';
+    const host = findTplByIds(root, ['wide_data', 'player_info']);
+    if (host && row) for (let i = 0; i < 5; i++) { const r2 = cloneTpl(row); r2.id = 'row' + i; host.children.push(r2); }
+  } else {
+    const host = findTplByIds(root, ['player_info']);
+    if (host) {
+      host.props.visible = 'true';
+      if (row) for (let i = 0; i < 5; i++) { const r2 = cloneTpl(row); r2.id = 'row' + i; host.children.push(r2); }
+    }
+  }
+  return root;
+}
+function isManageContent(root) {
+  const P = root ? root.props : null;
+  return !!(P && P.width === '1600px' && P.height === '968px');
+}
 function flowTargetFor(fileKey, nodeId) {
   const f = FLOW[fileKey];
   return f && f.nodes && f.nodes[nodeId] ? f.nodes[nodeId] : null;
 }
 function flowNavigate(target) {
-  if (!FILES.has(target)) return;
+  if (!FILES.has(target) && !PRESETS[target]) return;
   flowHistory.push(currentKey);
   openFile(target);
 }
@@ -1001,12 +1102,14 @@ function renderLayout(st, parentEl, stack, fileKey) {
   // 검사기 연결 + 플로우 모드 내비게이션
   el.addEventListener('click', e => {
     e.stopPropagation();
+    if (typeof P.__flow === 'string') { flowNavigate(P.__flow); return; }
     if (FLOW_ON) {
       const target = flowTargetFor(fileKey, node.id);
       if (target) { flowNavigate(target); return; }
     }
     selectNode(path, node, st, P);
   });
+  if (typeof P.__flow === 'string') el.style.cursor = 'pointer';
   el.addEventListener('mousemove', e => { e.stopPropagation(); hoverStatus(path, st); });
   if (FLOW_ON && flowTargetFor(fileKey, node.id)) { el.classList.add('flow-link'); el.title = '→ ' + flowTargetFor(fileKey, node.id); }
 
@@ -1047,7 +1150,10 @@ let currentKey = null;
 let currentParse = null;
 let currentLayout = null;
 
-function fileContent(key) { return EDITS.has(key) ? EDITS.get(key) : FILES.get(key); }
+function fileContent(key) {
+  const base = baseKeyOf(key);
+  return EDITS.has(base) ? EDITS.get(base) : FILES.get(base);
+}
 
 function initBundle() {
   document.getElementById('bundlever').textContent = BUNDLE.version || '';
@@ -1088,7 +1194,8 @@ function buildFileList(filter) {
   const list = document.getElementById('filelist');
   list.innerHTML = '';
   const groups = new Map();
-  for (const key of FILES.keys()) {
+  const allKeys = [...Object.keys(PRESETS), ...FILES.keys()];
+  for (const key of allKeys) {
     if (filter && !key.toLowerCase().includes(filter)) continue;
     if (currentScene.match && !currentScene.match.test(key) && !key.startsWith('(내 파일)')) continue;
     const parts = key.split('/');
@@ -1113,22 +1220,33 @@ function buildFileList(filter) {
 function openFile(key) {
   currentKey = key;
   buildFileList(document.getElementById('search').value.trim().toLowerCase() || undefined);
-  document.getElementById('edFn').textContent = key;
+  document.getElementById('edFn').textContent = PRESETS[key] ? key + '  (원본: ' + baseKeyOf(key) + ')' : key;
   document.getElementById('editor').value = fileContent(key) || '';
   rebuild();
 }
 function rebuild() {
   const src = fileContent(currentKey);
   if (src == null) return;
+  clearComposeCaches();
   currentParse = parseUi(src);
   renderProblems();
   const stage = document.getElementById('stage');
   stage.innerHTML = '';
   selPath = null;
   document.getElementById('stSel').textContent = '';
-  const root = currentParse.root;
+  let root = currentParse.root;
+  let composed = '';
+  // ---- 합성 ----
+  const preset = PRESETS[currentKey];
+  if (root && preset) {
+    root = composeSpectate(root, preset.mode);
+    composed = '관전 합성(' + (preset.mode === 'wide' ? '전체보기' : '일반 HUD') + ')';
+  } else if (root && SHELL_ON && isManageContent(root) && currentKey !== L('main.ui') && FILES.has(L('main.ui'))) {
+    root = composeShell(root);
+    composed = 'main.ui 셸 합성';
+  }
   const stFile = document.getElementById('stFile');
-  stFile.textContent = currentKey;
+  stFile.textContent = currentKey + (composed ? '  [' + composed + ']' : '');
   const stParse = document.getElementById('stParse');
   const ec = currentParse.errors.length;
   stParse.innerHTML = ec ? `<span class="err">게임 파서 에러 ${ec}건</span>` : `<span class="ok">파서 OK</span>`;
@@ -1289,6 +1407,7 @@ window.addEventListener('resize', applyZoom);
 document.getElementById('chkHidden').onchange = e => { SHOW_HIDDEN = e.target.checked; rebuild(); };
 document.getElementById('chkOutline').onchange = e => { SHOW_OUTLINE = e.target.checked; rebuild(); };
 document.getElementById('chkHover').onchange = e => { HOVER_SIM = e.target.checked; rebuild(); };
+document.getElementById('chkShell').onchange = e => { SHELL_ON = e.target.checked; rebuild(); };
 document.getElementById('btnFlow').onclick = () => {
   FLOW_ON = !FLOW_ON;
   document.getElementById('btnFlow').classList.toggle('on', FLOW_ON);
