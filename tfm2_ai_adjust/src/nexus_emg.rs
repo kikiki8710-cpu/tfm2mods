@@ -77,44 +77,84 @@ static NXE_HITS: AtomicU64 = AtomicU64::new(0);   // 판정 횟수
 static NXE_EMG: AtomicU64 = AtomicU64::new(0);    // 그중 비상으로 본 횟수
 static NXE_BY: [AtomicU64; 8] = [const { AtomicU64::new(0) }; 8];   // 어느 상황이 채택됐나
 
-/// 스텁이 부르는 판정 콜백. 반환 1 = 비상(원본의 "조건① 통과" 경로로).
+// ── ② 마진(강도) 사이트 ──────────────────────────────────────────────────
+// `0xe097b5` = `test eax,0x100` + `je e097f5` (7B). **여기를 잡아야 술어 B 경로만** 조절된다.
+// ⚠바로 아래 감산 블록(`0xe097bc`)에는 **진입 경로가 5개**나 합류한다(HP>45% 경로 포함) —
+//   거기에 손대면 비상과 무관한 **정상 플레이 전반**이 바뀐다. 그래서 한 단계 위를 잡는다.
+const NXM_RVA: usize = 0xe097b5;
+const NXM_WIN: [u8; 7] = [0xa9, 0x00, 0x01, 0x00, 0x00, 0x74, 0x39];   // test eax,0x100 ; je +0x39
+const NXM_PLAIN_RVA: usize = 0xe097f5;   // 비상 아님 → 평범 경로
+const NXM_AFTER_RVA: usize = 0xe097db;   // 감산 블록 다음(우리가 감산을 대신 수행하고 여기로)
+const NXM_BASE_MARGIN_SLOT: usize = 0x880;   // [rbp+0x880] = dist(나, 최근접 적)
+const O_REG_SLOT: i32 = 0x8d0;   // [rbp+0x8d0] = reg   (프롤로그에서 1회만 기록)
+const O_SIDE_SLOT: i32 = 0x8c0;  // [rbp+0x8c0] = side  (〃)
+/// 게임 원본 마진(월드 유닛). 맵 폭 ≈960,000 기준 3.1%.
+const NXE_BASE_MARGIN: u64 = 30_000;
+static NXM_ON: AtomicBool = AtomicBool::new(false);
+static NXE_MHITS: AtomicU64 = AtomicU64::new(0);    // 마진 콜백 발화
+static NXE_LAST_M: AtomicI64 = AtomicI64::new(-1);  // 마지막으로 공급한 마진
+
+/// 지금 상황의 **적극도**를 구한다. 0 = 비상 아님. 두 콜백이 공유한다.
+/// ★전부 fault-safe read — 못 읽으면 **보수적 기본값**(쌍둥이 2기·타워 생존)이라 함부로 발동하지 않는다.
+unsafe fn nxe_level(reg: usize, side: u64, count: bool) -> i64 {
+    if !ptr_ok(reg) || side > 1 { return 0; }
+    let s = side as usize;
+    let twin = rd_u64(reg + O_TWIN_LEN + s * 0x20).unwrap_or(2) as i64;
+    let mut c1 = 0i64;
+    let mut c2 = 0i64;
+    for k in 0..3usize {
+        if rd_u64(reg + O_T1[k] + s * 8).unwrap_or(1) == 0 { c1 += 1; }
+        if rd_u64(reg + O_T2[k] + s * 8).unwrap_or(1) == 0 { c2 += 1; }
+    }
+    // ★해당되는 상황들 중 **가장 높은 적극도**를 쓴다(유저 지시).
+    //   조건이 "이하 / 이상"이라 여러 개가 동시에 해당된다.
+    let cond = [
+        twin <= 0, twin <= 1,
+        c2 >= 1, c2 >= 2, c2 >= 3,
+        c1 >= 1, c1 >= 2, c1 >= 3,
+    ];
+    let mut best = 0i64;
+    let mut who = usize::MAX;
+    for i in 0..8usize {
+        if !cond[i] { continue; }
+        let l = NXE_LV[i].load(Ordering::Relaxed);
+        if l > best { best = l; who = i; }
+    }
+    if count && best > 0 {
+        NXE_EMG.fetch_add(1, Ordering::Relaxed);
+        if who < 8 { NXE_BY[who].fetch_add(1, Ordering::Relaxed); }
+    }
+    best
+}
+
+/// 스텁①이 부르는 **비상 여부** 콜백. 반환 1 = 비상(원본의 "조건① 통과" 경로로).
 ///
-/// ★게임의 원래 판정(쌍둥이 0기)도 `nxe_twin0` 으로 표현된다 — 기본값 1 이라 **끄지 않는 한 원본과 같다**.
+/// ★게임의 원래 판정(쌍둥이 0기)도 `nxe_twin0` 으로 표현된다 — 기본 100 이라 **끄지 않는 한 원본과 같다**.
 unsafe extern "C" fn nxe_judge(reg: usize, side: u64) -> u64 {
     NXE_HITS.fetch_add(1, Ordering::Relaxed);
     // ★패닉이 게임 콜스택으로 새면 UB(§3). 어떤 실패든 "비상 아님"으로 폴백한다.
-    let v = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
-        if !ptr_ok(reg) || side > 1 { return 0i64; }
-        let s = side as usize;
-        // 살아있는 쌍둥이 타워 수. 못 읽으면 2(=원본 상태)로 봐서 함부로 발동하지 않는다.
-        let twin = rd_u64(reg + O_TWIN_LEN + s * 0x20).unwrap_or(2) as i64;
-        // 파괴된 1·2차 타워 수. 슬롯이 null 이면 파괴 — 못 읽으면 1(=살아있음)로 봐서 보수적으로.
-        let mut c1 = 0i64;
-        let mut c2 = 0i64;
-        for k in 0..3usize {
-            if rd_u64(reg + O_T1[k] + s * 8).unwrap_or(1) == 0 { c1 += 1; }
-            if rd_u64(reg + O_T2[k] + s * 8).unwrap_or(1) == 0 { c2 += 1; }
-        }
-        // ★해당되는 상황들 중 **가장 높은 적극도**를 쓴다(유저 지시).
-        let cond = [
-            twin <= 0, twin <= 1,
-            c2 >= 1, c2 >= 2, c2 >= 3,
-            c1 >= 1, c1 >= 2, c1 >= 3,
-        ];
-        let mut best = 0i64;
-        let mut who = usize::MAX;
-        for i in 0..8usize {
-            if !cond[i] { continue; }
-            let l = NXE_LV[i].load(Ordering::Relaxed);
-            if l > best { best = l; who = i; }
-        }
-        if best > 0 {
-            NXE_EMG.fetch_add(1, Ordering::Relaxed);
-            if who < 8 { NXE_BY[who].fetch_add(1, Ordering::Relaxed); }
-        }
-        best
-    })).unwrap_or(0);
+    let v = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| nxe_level(reg, side, true)))
+        .unwrap_or(0);
     if v > 0 { 1 } else { 0 }
+}
+
+/// 스텁②가 부르는 **마진** 콜백. 반환 = 전환 판정에서 뺄 거리(월드 유닛).
+///
+/// ★★부호에 주의 — 이 값은 "수비하러 오는 거리"가 아니라 **전환 히스테리시스 마진**이다.
+///   `dist(지킬곳, 넥서스) <= dist(나, 넥서스) − M` 형태로 쓰이므로 **M 이 클수록 전환이 어렵다**
+///   = 덜 온다. 그래서 적극도와 **반비례**로 매핑한다(적극도 100 = 원본 30,000).
+///     100 → 30,000(원본) · 200 → 15,000 · 300 → 10,000 · 아주 크게 → 0(마진 없음 = 최대 적극)
+///     50  → 60,000(원본보다 소극적)
+unsafe extern "C" fn nxe_margin(reg: usize, side: u64) -> u64 {
+    NXE_MHITS.fetch_add(1, Ordering::Relaxed);
+    std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+        // count=false — 여기서 또 세면 비상 횟수가 두 배로 잡힌다(같은 판정을 두 지점이 본다).
+        let lv = nxe_level(reg, side, false);
+        if lv <= 0 { return NXE_BASE_MARGIN; }        // 비상 아님 → 원본 그대로
+        let m = NXE_BASE_MARGIN as i64 * 100 / lv.clamp(1, 3_000_000);
+        NXE_LAST_M.store(m, Ordering::Relaxed);
+        m.clamp(0, 0x7fff_ffff) as u64
+    })).unwrap_or(NXE_BASE_MARGIN)
 }
 
 /// 넥서스 비상 조건 노브 적용. apply 체인에서 부른다.
@@ -123,7 +163,7 @@ pub(crate) unsafe fn apply_nxe() {
     //   ⟹ cfg 를 안 건드리면 원본과 똑같이 동작한다.
     let mut lv = [0i64; 8];
     for i in 0..8usize {
-        let d = if i == 0 { 1 } else { 0 };
+        let d = if i == 0 { 100 } else { 0 };   // ★적극도 = 퍼센트. 100 = 게임 원본
         let v = tune(NXE_KEYS[i], d);
         lv[i] = if v < 0 { d } else { v };
     }
@@ -140,7 +180,7 @@ pub(crate) unsafe fn apply_nxe() {
     for i in 0..8usize { NXE_LV[i].store(lv[i], Ordering::Relaxed); }
 
     // 원본과 다른 설정이 하나라도 있을 때만 디투어를 건다(기본 상태에선 게임을 아예 안 건드린다).
-    let need = lv[0] != 1 || lv[1..].iter().any(|&x| x > 0);
+    let need = lv[0] != 100 || lv[1..].iter().any(|&x| x > 0);
     let mut rep = String::from(
         "=== 넥서스 비상 수비 — 상황별 적극도 ===\n\
          # 게임 원본 = \"쌍둥이 타워가 하나도 안 남았고 + 넥서스가 실제로 맞는 중\" 이면 비상.\n\
@@ -155,9 +195,17 @@ pub(crate) unsafe fn apply_nxe() {
         match install_nxe_detour(base) {
             Ok(stub) => {
                 NXE_DETOUR_ON.store(true, Ordering::Relaxed);
-                rep.push_str(&format!("\n설치: OK  스텁={:#x}\n", stub));
+                rep.push_str(&format!("\n설치① 비상 판정   : OK  스텁={:#x}\n", stub));
             }
-            Err(e) => rep.push_str(&format!("\n★설치 실패: {} — 게임 원본 동작 그대로다\n", e)),
+            Err(e) => rep.push_str(&format!("\n★설치① 실패: {} — 게임 원본 동작 그대로다\n", e)),
+        }
+        // ②는 ①이 실패해도 따로 시도한다(서로 독립된 자리다).
+        match install_nxm_detour(base) {
+            Ok(stub) => {
+                NXM_ON.store(true, Ordering::Relaxed);
+                rep.push_str(&format!("설치② 적극도 강도 : OK  스텁={:#x}\n", stub));
+            }
+            Err(e) => rep.push_str(&format!("★설치② 실패: {} — 강도는 원본(30,000) 고정\n", e)),
         }
     } else if !need {
         rep.push_str("\n설치: 안 함(설정이 전부 원본과 같음 — 게임을 건드리지 않는다)\n");
@@ -198,7 +246,90 @@ pub(crate) fn nxe_summary() -> String {
         if n > 0 { s.push_str(&format!("  {:<12} 로 발동 {}회\n", NXE_KEYS[i], n)); }
     }
     s.push_str("  ※ '로 발동' = 그 상황의 적극도가 가장 높아 채택된 횟수.\n");
+    if NXM_ON.load(Ordering::Relaxed) {
+        let m = NXE_LAST_M.load(Ordering::Relaxed);
+        s.push_str(&format!("  강도 콜백 발화={} · 마지막 마진={} (원본 {})\n",
+            NXE_MHITS.load(Ordering::Relaxed),
+            if m < 0 { "—".to_string() } else { m.to_string() }, NXE_BASE_MARGIN));
+        s.push_str("  ※ 마진이 작을수록 수비 전환이 쉬워진다(= 더 적극적). 적극도와 반비례.\n");
+    }
     s
+}
+
+/// ② 마진 사이트 설치 — 술어 B 가 참일 때 감산할 값을 **적극도에 맞춰** 공급한다.
+///
+/// 원본은 `test eax,0x100` / `je 평범` 뒤에 `sub r13,30000` `cmovb` `mov rcx,[rbp+0x880]`
+/// `sub rcx,30000` `cmovb` 를 실행한다. 우리는 그 블록을 **M 으로 재현**하고 그 다음(`0xe097db`)으로 간다.
+unsafe fn install_nxm_detour(base: usize) -> Result<usize, &'static str> {
+    let addr = base + NXM_RVA;
+    if !readable(addr, NXM_WIN.len()) { return Err("마진 사이트 읽기 불가"); }
+    for (i, &b) in NXM_WIN.iter().enumerate() {
+        if rd_u8(addr + i) != b { return Err("마진 사이트 골격 불일치 — 게임이 바뀌었다"); }
+    }
+
+    let cb = nxe_margin as *const () as usize;
+    let mut s: Vec<u8> = Vec::with_capacity(224);
+    let mut fix_body: Vec<usize> = Vec::new();
+
+    // ★비상이 아니면 아무것도 저장하지 않고 곧장 평범 경로로 — 가장 흔한 경로를 최단으로.
+    s.extend_from_slice(&[0xa9, 0x00, 0x01, 0x00, 0x00]);          // test eax, 0x100
+    s.extend_from_slice(&[0x75, 0x00]); fix_body.push(s.len() - 1); // jnz .body
+    s.extend_from_slice(&[0xff, 0x25, 0x00, 0x00, 0x00, 0x00]);     // jmp [rip+0] → 평범
+    s.extend_from_slice(&(base + NXM_PLAIN_RVA).to_le_bytes());
+    let body_off = s.len();
+
+    // ── .body : 마진 M 을 구해 원본 감산 블록을 재현 ──
+    // 스택(높은→낮은): [M 8B] [rax rcx rdx r8 r9 r10 r11 rbp] [xmm0~5]
+    s.extend_from_slice(&[0x48, 0x8d, 0x64, 0x24, 0xf8]);          // lea rsp,[rsp-8]  (M 슬롯)
+    for b in [0x50u8, 0x51, 0x52, 0x41, 0x50, 0x41, 0x51, 0x41, 0x52, 0x41, 0x53, 0x55] { s.push(b); }
+    s.extend_from_slice(&[0x48, 0x8d, 0xa4, 0x24, 0xa0, 0xff, 0xff, 0xff]);   // lea rsp,[rsp-0x60]
+    for k in 0..6u8 { s.extend_from_slice(&[0x0f, 0x11, 0x44 | ((k & 7) << 3), 0x24, k * 16]); }
+    // ★rbp 는 아직 게임 프레임 — 앵커를 세우기 **전에** reg·side 를 읽는다.
+    s.extend_from_slice(&[0x48, 0x8b, 0x8d]); s.extend_from_slice(&O_REG_SLOT.to_le_bytes());   // mov rcx,[rbp+0x8d0]
+    s.extend_from_slice(&[0x48, 0x8b, 0x95]); s.extend_from_slice(&O_SIDE_SLOT.to_le_bytes());  // mov rdx,[rbp+0x8c0]
+    s.extend_from_slice(&[0x48, 0x89, 0xe5]);                      // mov rbp, rsp   (앵커)
+    s.extend_from_slice(&[0x48, 0x8d, 0x64, 0x24, 0xd0]);          // lea rsp,[rsp-0x30]
+    s.extend_from_slice(&[0x48, 0x83, 0xe4, 0xf0]);                // and rsp,-16
+    s.extend_from_slice(&[0x48, 0xb8]); s.extend_from_slice(&cb.to_le_bytes());
+    s.extend_from_slice(&[0xff, 0xd0]);                            // call rax  → rax = M
+    s.extend_from_slice(&[0x48, 0x89, 0x85]); s.extend_from_slice(&0xa0u32.to_le_bytes()); // mov [rbp+0xa0],rax
+    s.extend_from_slice(&[0x48, 0x89, 0xec]);                      // mov rsp, rbp
+    for k in 0..6u8 { s.extend_from_slice(&[0x0f, 0x10, 0x44 | ((k & 7) << 3), 0x24, k * 16]); }
+    s.extend_from_slice(&[0x48, 0x8d, 0x64, 0x24, 0x60]);          // lea rsp,[rsp+0x60]
+    for b in [0x5du8, 0x41, 0x5b, 0x41, 0x5a, 0x41, 0x59, 0x41, 0x58, 0x5a, 0x59, 0x58] { s.push(b); }
+    // 여기서 rsp = M 슬롯. 원본 블록을 M 으로 재현한다(순서·의미 동일).
+    s.extend_from_slice(&[0x31, 0xc0]);                            // xor eax,eax      (포화용 0)
+    s.extend_from_slice(&[0x4c, 0x2b, 0x2c, 0x24]);                // sub r13,[rsp]
+    s.extend_from_slice(&[0x4c, 0x0f, 0x42, 0xe8]);                // cmovb r13,rax
+    s.extend_from_slice(&[0x48, 0x8b, 0x8d]);
+    s.extend_from_slice(&(NXM_BASE_MARGIN_SLOT as u32).to_le_bytes());   // mov rcx,[rbp+0x880]
+    s.extend_from_slice(&[0x48, 0x2b, 0x0c, 0x24]);                // sub rcx,[rsp]
+    s.extend_from_slice(&[0x48, 0x0f, 0x42, 0xc8]);                // cmovb rcx,rax
+    s.extend_from_slice(&[0x48, 0x8d, 0x64, 0x24, 0x08]);          // lea rsp,[rsp+8]  (플래그 무영향)
+    s.extend_from_slice(&[0xff, 0x25, 0x00, 0x00, 0x00, 0x00]);    // jmp [rip+0] → 감산 블록 다음
+    s.extend_from_slice(&(base + NXM_AFTER_RVA).to_le_bytes());
+    for &pos in fix_body.iter() {
+        let d = body_off as i64 - (pos as i64 + 1);
+        if !(0..=127).contains(&d) { return Err("마진 스텁 분기 rel8 범위 초과"); }
+        s[pos] = d as u8;
+    }
+
+    let stub = micro_alloc(addr, s.len());
+    if stub == 0 { return Err("마진 스텁 할당 실패"); }
+    let rel = stub as i64 - (addr as i64 + 5);
+    if !(-0x7fff_0000..=0x7fff_0000).contains(&rel) { return Err("마진 스텁이 rel32 범위 밖"); }
+    core::ptr::copy_nonoverlapping(s.as_ptr(), stub as *mut u8, s.len());
+    FlushInstructionCache(GetCurrentProcess(), stub, s.len());
+
+    let mut e9 = [0x90u8; 5];
+    e9[0] = 0xe9;
+    e9[1..5].copy_from_slice(&(rel as i32).to_le_bytes());
+    let mut old: u32 = 0;
+    if VirtualProtect(addr, NXM_WIN.len(), 0x40, &mut old) == 0 { return Err("VirtualProtect 실패"); }
+    core::ptr::copy_nonoverlapping(e9.as_ptr(), addr as *mut u8, 5);
+    VirtualProtect(addr, NXM_WIN.len(), old, &mut old);
+    FlushInstructionCache(GetCurrentProcess(), addr, NXM_WIN.len());
+    Ok(stub)
 }
 
 /// 창 전수 대조 후 `E9` 로 우리 스텁에 보낸다.
