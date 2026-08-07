@@ -150,7 +150,7 @@ unsafe extern "C" fn class_micro_value(idx: u64, a: usize, b: usize) -> u64 {
         let cls = class_from_entity(selfe);          // -1 = 미상(전역값 폴백)
         let slot = if (0..5).contains(&cls) { cls as usize } else { 5 };
         let c = MICRO_VAL[i][slot].load(Ordering::Relaxed);
-        if c != i64::MIN { return c; }
+        if c != i64::MIN { return c; }   // ★캐시 히트. 적용 카운트는 이 클로저 **밖**에서 센다(아래 주석)
         // 캐시 미스: CUR_CLASS 를 세워 tune() 이 클래스별 값을 보게 한다(판단 문맥 재현).
         let prev = cur_class();
         set_cur_class(cls);
@@ -161,10 +161,13 @@ unsafe extern "C" fn class_micro_value(idx: u64, a: usize, b: usize) -> u64 {
         //   여기서 같은 변환을 해야 한다. 빠뜨리면 `-1` 이 그대로 상수로 박혀 동작이 망가진다
         //   (예: `cs_lead_attack = -1` 은 "원본 30" 인데 사거리 판정에 0xFFFFFFFF 가 들어간다).
         let v = if raw < 0 { site.orig } else { raw };
-        if v != site.orig { MICRO_OVHIT[i].fetch_add(1, Ordering::Relaxed); }
         MICRO_VAL[i][slot].store(v, Ordering::Relaxed);
         v
     })).unwrap_or(site.orig);
+    // ★적용 카운트는 **매 호출** 센다. 캐시 미스 때만 세면 클래스당 1회씩(사이트당 최대 5)만 잡혀
+    //   "이 값이 실제로 쓰이고 있는가"를 답하지 못한다 — 08-06 사고의 교훈이 정확히 그것이었다
+    //   ("설정했다 ≠ 먹는다"를 말해주는 지표가 없었다).
+    if v != site.orig { MICRO_OVHIT[i].fetch_add(1, Ordering::Relaxed); }
     v as u64
 }
 
