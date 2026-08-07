@@ -1,111 +1,168 @@
-// nexus_emg.rs — "넥서스 비상" 발동 조건을 유저가 조절하게 여는 노브 묶음. (2026-08-08 신설)
+// nexus_emg.rs — "넥서스 비상 수비"를 **상황별 적극도**로 여는 노브 묶음. (2026-08-08 신설)
 //
-// ★무엇을 여는가
-//   0.5.4 가 새로 넣은 술어 B(`0xce3be0`)는 "**쌍둥이 타워 2기가 모두 파괴됐고** + **넥서스가 실제로
-//   맞는 중**"이면 참이 된다. 참이 되면 넥서스 수비 후보의 −9,999,999 하드리젝트가 면제되어
-//   **맵 어디에 있든 수비하러 온다**(+ 경매 강제귀환이 취소되어 도망가지 않는다).
+// ★게임의 원래 동작 (0.5.4 신규 술어 B `0xce3be0`)
+//   "**쌍둥이 타워 2기가 모두 파괴됐고** + **넥서스가 실제로 맞는 중**" 이면 '비상'으로 본다.
+//   비상이면 넥서스 수비 후보의 −9,999,999 하드리젝트가 면제되어 **맵 어디에 있든 수비하러 오고**,
+//   경매 강제귀환(죽을 것 같으면 빠지는 동작)이 취소되어 도망가지 않는다.
 //   즉 이게 "쌍둥이 포탑이 사라지면 적극적으로 넥서스를 지킨다"의 실체다.
 //
 // ★"쌍둥이 타워"인 것은 **확정**이다(추정 아님) — AI 월드뷰 빌더 `0x14e2c50` 이 `entity+0x128`
 //   (TowerType, 8변형)로 점프테이블 분기하는데 **TwinA(3)·TwinB(4)만 이 Vec 에 push** 되고
-//   레인 6종은 각자 고정 슬롯(`0x180`Top `0x190`Top2 `0x1a0`Mid `0x1b0`Mid2 `0x1c0`Bot `0x1d0`Bot2)
-//   에 저장된다. 팀당 쌍둥이 = 2기(`init_twin_tower 0x13ae180` 이 등록 4회 = 2기×2팀).
+//   레인 6종은 각자 고정 슬롯에 저장된다. 팀당 쌍둥이 = 2기.
 //   ⟹ **레인 타워가 남아 있어도 쌍둥이만 다 부서지면 발동한다.**
 //   근거 = REPORT\tfm2_ai_adjust\RE\2026-08-08_쌍둥이타워-Vec정체-확정.md
 //
-//   원본은 "쌍둥이 타워가 **하나도 안 남았을 때**"만 발동한다. 이 파일은 그 문턱을 두 축으로 연다:
-//     ① `nxe_twin_max` — 쌍둥이 타워가 **N기 이하** 남았으면 발동 (0=원본 / 1=하나 남아도 / 2=둘 다 있어도)
-//     ② `nxe_t2_lost`    — **어느 한 라인이라도 2차 타워가 파괴**됐으면 쌍둥이가 멀쩡해도 발동
-//   두 축은 OR 이다. ②는 게임에 없던 조건이라 우리가 직접 판정한다.
+// ★이 파일이 여는 것 — 상황 8가지에 **각각 적극도**를 주고, 겹치면 **가장 높은 값**을 쓴다
+//   ```
+//   nxe_twin0      쌍둥이 0기 남음        (게임이 원래 발동하던 상황)
+//   nxe_twin1      쌍둥이 1기 이하 남음
+//   nxe_t2_1/2/3   2차 타워가 1/2/3개 이상 파괴됨
+//   nxe_t1_1/2/3   1차 타워가 1/2/3개 이상 파괴됨
+//   ```
+//   각 값 = **적극도**. `0` = 그 상황은 비상 아님 / `1 이상` = 비상.
+//   조건이 "이하 / 이상"이라 여러 개가 동시에 해당된다 — 예: 2차가 3개 부서지면 `t2_1`·`t2_2`·`t2_3`
+//   이 전부 해당되고, 그중 **최댓값**을 쓴다(유저 지시 "적극도가 제일 높은 것 우선").
+//
+//   ⚠**지금 적극도는 "0인가 아닌가"까지만 반영된다.** 술어 B 자체가 참/거짓뿐이라 그 이상을 표현할
+//   수 없다. 숫자 크기까지 살리려면 소비처(예: `0xe097b5` 의 거리 30,000 감산)를 함께 열어야 한다.
+//   그때까지 1 과 100 은 동작이 같다. 다른 것은 **0 뿐**이다.
 //
 // ★개입 지점 (RE\2026-08-08_넥서스수비-술어B-단계노브-개입점확정.md)
 //   ```
-//   0xce3c18  48 83 BC 03 48 01 00 00 00   cmp qword [rbx+rax+0x148], 0   ; rbx=reg, rax=side*0x20
+//   0xce3c18  48 83 BC 03 48 01 00 00 00   cmp qword [rbx+rax+0x148], 0   ; rbx=reg, rcx=side
 //   0xce3c21  74 13                        je  0xce3c36                   ; 통과 → 조건② 검사로
 //   0xce3c23  31 c0                        xor eax,eax                    ; 실패 → 0 반환
 //   ```
-//   · ①만 쓸 때 = **2바이트 imm 패치**(값 `00`→N, 분기 `74` je→`76` jbe). 회귀 위험 0.
-//     ⚠반드시 세트다. 값만 바꾸면 "정확히 N개일 때만"이 되어 엉뚱하게 동작한다.
-//   · ②도 쓸 때 = **11바이트 마이크로 디투어**(창 = cmp 9B + je 2B). 우리가 직접 판정해 분기시킨다.
-//   두 경로는 **상호배타** — 같은 바이트를 다투면 나중 것이 이겨 조용히 무효가 된다(08-07 알리아스 사고).
+//   창 11B 를 `E9 rel32` 로 우리 스텁에 보낸다. 스텁은 `reg`·`side` 를 넘겨 **Rust 콜백**이 판정하게 하고,
+//   그 결과로 원본의 두 경로 중 하나로 되돌아간다(원본 흐름을 벗어나지 않는다).
+//   ※조건②("넥서스가 실제로 맞는 중")는 **건드리지 않는다** — 그게 빠지면 아무 일 없을 때도 전원이
+//     넥서스로 모여 라인이 빈다. 우리가 여는 것은 조건①(구조물 상태)뿐이다.
 //
 // ★안전 근거 (전부 RE 관측)
 //   · 창 안으로 뛰어드는 분기 **0건**(.text 전역 rel8/rel32/jcc + 점프테이블 스캔).
-//   · 복귀 지점 둘 다 플래그·RAX 를 소비하지 않는다 ⟹ **플래그 보존 불요**.
-//   · 사이트 시점 `rbx`=reg · `rcx`=side · `rax`=side*0x20 생존. `rax`·`r8~r11` 은 dead.
-//   · 1·2차 타워는 파괴되면 **슬롯이 null** 이 된다(수집 함수 `0x14e87d0` 이 슬롯마다 null 분기).
+//   · 복귀 지점 둘 다 플래그·RAX 를 소비하지 않는다 ⟹ 플래그 보존 불요.
+//   · 사이트 시점 `rbx`=reg · `rcx`=side 생존.
+//   · 1·2차 타워는 파괴되면 **슬롯이 null** 이 된다(수집 함수 `0x14e87d0` 이 슬롯마다 null 분기)
 //     ⟹ HP 를 볼 필요 없이 `== 0` 하나로 판정.
+//   · 이 술어는 **틱·엔티티 단위로 메모(캐시)** 되므로(`0xc797c0`) 콜백 호출 빈도가 낮다.
 //
-// ⚠부작용 (RE §5 — 술어 B 를 자주 참으로 만들면 같이 따라오는 것)
-//   · `0xd8e0b2` : B 가 참이면 어떤 액션을 −99,999 로 **억제**한다(방향은 수비 적극화와 같지만 강하다).
-//   · `0xda365d` : B 를 교전 판단 입력으로 저장한다(효과 방향 **미확정**).
-//   둘 다 중화 노브를 뒀다(`nxe_supp_off` · `nxe_battle_off`). 체감이 이상하면 켜서 분리해 볼 것.
+// ⚠부작용 (RE §5 — 비상을 자주 켜면 같이 따라오는 것)
+//   · `0xd8e0b2` : 비상이면 어떤 액션을 −99,999 로 **억제**한다(방향은 같지만 강하다).
+//   · `0xda365d` : 비상 플래그를 교전 판단 입력으로 저장한다(효과 방향 **미확정**).
+//   둘 다 끄는 노브를 뒀다(`nxe_supp_off` · `nxe_battle_off`).
 
 // 술어 B 조건① 사이트 (0.5.4)
 const NXE_RVA: usize = 0xce3c18;
 /// 창 11B = `cmp qword [rbx+rax+0x148], 0` (9B) + `je +0x13` (2B).
 const NXE_WIN: [u8; 11] = [0x48, 0x83, 0xBC, 0x03, 0x48, 0x01, 0x00, 0x00, 0x00, 0x74, 0x13];
-const NXE_IMM_OFF: usize = 8;    // 창 안에서 imm8(=0) 위치  → 0xce3c20
-const NXE_JCC_OFF: usize = 9;    // 창 안에서 je(0x74) 위치   → 0xce3c21
-const NXE_FAIL_RVA: usize = 0xce3c23;   // 조건① 실패 → 0 반환
-const NXE_PASS_RVA: usize = 0xce3c36;   // 조건① 통과 → 조건② 검사로
+const NXE_FAIL_RVA: usize = 0xce3c23;   // 비상 아님 → 0 반환
+const NXE_PASS_RVA: usize = 0xce3c36;   // 비상 → 조건②(넥서스가 맞는 중) 검사로
 
-// 디투어가 매번 읽는 값(콜백 없이 스텁이 직접 메모리를 읽는다 — 호출이 없어 비용 거의 0).
-static NXE_MAX: AtomicI64 = AtomicI64::new(0);      // 남은 쌍둥이 타워 허용 개수(팀당 2기)
-static NXE_T2: AtomicI64 = AtomicI64::new(0);       // 0=off, 1=어느 라인이든 2차 파괴 시 발동
+// 월드뷰 구조체 오프셋 (RE 2026-08-08 확정)
+const O_TWIN_LEN: usize = 0x148;                  // + side*0x20 — 살아있는 쌍둥이 타워 수
+const O_T1: [usize; 3] = [0x180, 0x1a0, 0x1c0];   // 1차 Top/Mid/Bottom (+ side*8)
+const O_T2: [usize; 3] = [0x190, 0x1b0, 0x1d0];   // 2차 Top/Mid/Bottom (+ side*8)
+
+/// 상황별 적극도. 순서 = `NXE_KEYS` 와 1:1.
+static NXE_LV: [AtomicI64; 8] = [const { AtomicI64::new(0) }; 8];
+const NXE_KEYS: [&str; 8] = [
+    "nxe_twin0", "nxe_twin1",
+    "nxe_t2_1", "nxe_t2_2", "nxe_t2_3",
+    "nxe_t1_1", "nxe_t1_2", "nxe_t1_3",
+];
 static NXE_DETOUR_ON: AtomicBool = AtomicBool::new(false);
 static NXE_SIG: AtomicU64 = AtomicU64::new(u64::MAX);
+// 진단
+static NXE_HITS: AtomicU64 = AtomicU64::new(0);   // 판정 횟수
+static NXE_EMG: AtomicU64 = AtomicU64::new(0);    // 그중 비상으로 본 횟수
+static NXE_BY: [AtomicU64; 8] = [const { AtomicU64::new(0) }; 8];   // 어느 상황이 채택됐나
+
+/// 스텁이 부르는 판정 콜백. 반환 1 = 비상(원본의 "조건① 통과" 경로로).
+///
+/// ★게임의 원래 판정(쌍둥이 0기)도 `nxe_twin0` 으로 표현된다 — 기본값 1 이라 **끄지 않는 한 원본과 같다**.
+unsafe extern "C" fn nxe_judge(reg: usize, side: u64) -> u64 {
+    NXE_HITS.fetch_add(1, Ordering::Relaxed);
+    // ★패닉이 게임 콜스택으로 새면 UB(§3). 어떤 실패든 "비상 아님"으로 폴백한다.
+    let v = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+        if !ptr_ok(reg) || side > 1 { return 0i64; }
+        let s = side as usize;
+        // 살아있는 쌍둥이 타워 수. 못 읽으면 2(=원본 상태)로 봐서 함부로 발동하지 않는다.
+        let twin = rd_u64(reg + O_TWIN_LEN + s * 0x20).unwrap_or(2) as i64;
+        // 파괴된 1·2차 타워 수. 슬롯이 null 이면 파괴 — 못 읽으면 1(=살아있음)로 봐서 보수적으로.
+        let mut c1 = 0i64;
+        let mut c2 = 0i64;
+        for k in 0..3usize {
+            if rd_u64(reg + O_T1[k] + s * 8).unwrap_or(1) == 0 { c1 += 1; }
+            if rd_u64(reg + O_T2[k] + s * 8).unwrap_or(1) == 0 { c2 += 1; }
+        }
+        // ★해당되는 상황들 중 **가장 높은 적극도**를 쓴다(유저 지시).
+        let cond = [
+            twin <= 0, twin <= 1,
+            c2 >= 1, c2 >= 2, c2 >= 3,
+            c1 >= 1, c1 >= 2, c1 >= 3,
+        ];
+        let mut best = 0i64;
+        let mut who = usize::MAX;
+        for i in 0..8usize {
+            if !cond[i] { continue; }
+            let l = NXE_LV[i].load(Ordering::Relaxed);
+            if l > best { best = l; who = i; }
+        }
+        if best > 0 {
+            NXE_EMG.fetch_add(1, Ordering::Relaxed);
+            if who < 8 { NXE_BY[who].fetch_add(1, Ordering::Relaxed); }
+        }
+        best
+    })).unwrap_or(0);
+    if v > 0 { 1 } else { 0 }
+}
 
 /// 넥서스 비상 조건 노브 적용. apply 체인에서 부른다.
 pub(crate) unsafe fn apply_nxe() {
-    let smax = tune("nxe_twin_max", -1);   // 쌍둥이 N기 이하 남았으면 발동(-1=원본=0기 / 0~2)
-    let t2 = tune("nxe_t2_lost", -1);        // 1 = 어느 라인이든 2차 타워 파괴 시 발동(-1/0=원본)
+    // ★`nxe_twin0` 기본 1 = **게임 원본 동작**(쌍둥이 0기면 비상). 나머지는 기본 0 = 추가 발동 없음.
+    //   ⟹ cfg 를 안 건드리면 원본과 똑같이 동작한다.
+    let mut lv = [0i64; 8];
+    for i in 0..8usize {
+        let d = if i == 0 { 1 } else { 0 };
+        let v = tune(NXE_KEYS[i], d);
+        lv[i] = if v < 0 { d } else { v };
+    }
     let supp = tune("nxe_supp_off", -1);     // 1 = 비상일 때 다른 액션을 −99,999 로 죽이는 조항 해제
     let batt = tune("nxe_battle_off", -1);   // 1 = 교전 판단이 이 플래그를 무시
 
     let mut sig = 0u64;
-    for v in [smax, t2, supp, batt] { sig = sig.wrapping_mul(0x100000001b3) ^ (v as u64); }
+    for v in lv.iter().chain([supp, batt].iter()) { sig = sig.wrapping_mul(0x100000001b3) ^ (*v as u64); }
     if sig == NXE_SIG.load(Ordering::Relaxed) { return; }
     let base = exe_base();
     if base == 0 || READY_TICKS.load(Ordering::Relaxed) < READY_MIN { return; }
 
-    // 값은 디투어가 매 판정마다 읽으므로, 설치돼 있으면 여기 갱신만으로 즉시 반영된다.
-    NXE_MAX.store(if smax < 0 { 0 } else { smax.min(127) }, Ordering::Relaxed);
-    NXE_T2.store(if t2 > 0 { 1 } else { 0 }, Ordering::Relaxed);
+    // 값은 콜백이 매 판정마다 읽는다 ⟹ 설치 후엔 여기 갱신만으로 즉시 반영(재설치 불요).
+    for i in 0..8usize { NXE_LV[i].store(lv[i], Ordering::Relaxed); }
 
-    let want_detour = t2 > 0;                       // ②를 쓰면 디투어가 필요하다
-    let mut rep = String::from("=== 넥서스 비상 발동 조건 ===\n\
-        # 원본 = \"쌍둥이 타워가 하나도 안 남았을 때\"만 발동.\n\
-        # nxe_twin_max = 쌍둥이 N기 이하 남았으면 발동 (0=원본 / 1=하나 남아도 / 2=둘 다 있어도)\n\
-        # nxe_t2_lost    = 1이면 어느 라인이든 2차 타워가 깨졌을 때도 발동(구조물 상태와 무관)\n");
+    // 원본과 다른 설정이 하나라도 있을 때만 디투어를 건다(기본 상태에선 게임을 아예 안 건드린다).
+    let need = lv[0] != 1 || lv[1..].iter().any(|&x| x > 0);
+    let mut rep = String::from(
+        "=== 넥서스 비상 수비 — 상황별 적극도 ===\n\
+         # 게임 원본 = \"쌍둥이 타워가 하나도 안 남았고 + 넥서스가 실제로 맞는 중\" 이면 비상.\n\
+         # 비상이면 멀리 있어도 수비 후보가 살아남고(맵 어디서든 달려옴), 강제귀환이 취소된다.\n\
+         # 아래 상황 중 해당되는 것들의 **가장 높은 적극도**를 쓴다. 0 = 그 상황은 비상 아님.\n\
+         # ⚠지금은 적극도의 '크기'가 아니라 '0인가 아닌가'만 반영된다(술어가 참/거짓뿐이라).\n");
+    for i in 0..8usize {
+        rep.push_str(&format!("  {:<12} = {}\n", NXE_KEYS[i], lv[i]));
+    }
 
-    let addr = base + NXE_RVA;
-    let installed = NXE_DETOUR_ON.load(Ordering::Relaxed);
-
-    if want_detour && !installed {
+    if need && !NXE_DETOUR_ON.load(Ordering::Relaxed) {
         match install_nxe_detour(base) {
             Ok(stub) => {
                 NXE_DETOUR_ON.store(true, Ordering::Relaxed);
-                rep.push_str(&format!("경로: 마이크로 디투어(2차 타워 조건 포함)  스텁={:#x}\n", stub));
+                rep.push_str(&format!("\n설치: OK  스텁={:#x}\n", stub));
             }
-            Err(e) => rep.push_str(&format!("★디투어 설치 실패: {} — 2차 타워 조건은 적용되지 않는다\n", e)),
+            Err(e) => rep.push_str(&format!("\n★설치 실패: {} — 게임 원본 동작 그대로다\n", e)),
         }
-    }
-
-    if NXE_DETOUR_ON.load(Ordering::Relaxed) {
-        // 디투어가 그 자리를 가졌으면 imm 패치는 **절대** 하지 않는다(E9 를 덮으면 엉뚱한 주소로 점프).
-        rep.push_str(&format!("경로: 마이크로 디투어  ·  쌍둥이 {}기 이하 / 2차타워 조건 {}\n",
-            NXE_MAX.load(Ordering::Relaxed),
-            if NXE_T2.load(Ordering::Relaxed) != 0 { "켬" } else { "끔" }));
-    } else if smax >= 0 {
-        // ①만 쓰는 경로 — 2바이트 imm 패치. **값 먼저, 분기 나중**(중간 상태가 안전한 쪽).
-        let n = smax.min(127) as u8;
-        let ok_v = patch_raw_bytes(addr + NXE_IMM_OFF, &[n]);
-        let ok_j = patch_raw_bytes(addr + NXE_JCC_OFF, &[0x76]);   // je → jbe (부호없는 <=)
-        rep.push_str(&format!("경로: 2바이트 패치  ·  쌍둥이 {}기 이하  (값 {} / 분기 {})\n",
-            n, if ok_v { "OK" } else { "실패" }, if ok_j { "OK" } else { "실패" }));
+    } else if !need {
+        rep.push_str("\n설치: 안 함(설정이 전부 원본과 같음 — 게임을 건드리지 않는다)\n");
     } else {
-        rep.push_str("경로: 무개입(원본 그대로 — 쌍둥이가 하나도 안 남아야 발동)\n");
+        rep.push_str("\n설치: 이미 됨(값만 갱신 — 재시작 불요)\n");
     }
 
     // ── 부작용 중화(각 1사이트, 순수 imm) ──
@@ -129,86 +186,70 @@ pub(crate) unsafe fn apply_nxe() {
     if let Some(p) = pth("nxe.txt") { let _ = fs::write(p, rep); }
 }
 
-/// 창 전수 대조 후 raw 바이트 쓰기. `patch_imm_bytes` 는 prefix+imm 규약이라 여기선 못 쓴다
-/// (우리는 **분기 opcode** 도 바꾸기 때문). 대신 창 11B 를 통째로 확인해 안전을 보장한다.
-unsafe fn patch_raw_bytes(addr: usize, bytes: &[u8]) -> bool {
-    if !readable(addr, bytes.len()) { return false; }
-    let mut old: u32 = 0;
-    if VirtualProtect(addr, bytes.len(), 0x40, &mut old) == 0 { return false; }
-    core::ptr::copy_nonoverlapping(bytes.as_ptr(), addr as *mut u8, bytes.len());
-    VirtualProtect(addr, bytes.len(), old, &mut old);
-    FlushInstructionCache(GetCurrentProcess(), addr, bytes.len());
-    true
+/// 런타임 확인용 요약(`class_verify=1` 일 때 class_verify.txt 에 덧붙는다).
+pub(crate) fn nxe_summary() -> String {
+    if !NXE_DETOUR_ON.load(Ordering::Relaxed) { return String::new(); }
+    let hits = NXE_HITS.load(Ordering::Relaxed);
+    let emg = NXE_EMG.load(Ordering::Relaxed);
+    let mut s = format!("\n[넥서스 비상 수비] 판정={} 비상={} ({}%)\n",
+        hits, emg, if hits > 0 { emg * 100 / hits } else { 0 });
+    for i in 0..8usize {
+        let n = NXE_BY[i].load(Ordering::Relaxed);
+        if n > 0 { s.push_str(&format!("  {:<12} 로 발동 {}회\n", NXE_KEYS[i], n)); }
+    }
+    s.push_str("  ※ '로 발동' = 그 상황의 적극도가 가장 높아 채택된 횟수.\n");
+    s
 }
 
-/// 조건①+② 를 우리가 직접 판정하는 스텁을 깔고, 사이트를 그리로 보낸다.
-///
-/// 스텁은 **함수 호출을 하지 않는다** — `NXE_MAX`/`NXE_T2` 를 메모리에서 직접 읽고 비교만 한다.
-/// 그래서 shadow space·정렬·xmm 보존이 전부 불필요하고, 비용이 원본 `cmp` 몇 개 수준이다.
+/// 창 전수 대조 후 `E9` 로 우리 스텁에 보낸다.
 unsafe fn install_nxe_detour(base: usize) -> Result<usize, &'static str> {
     let addr = base + NXE_RVA;
     if !readable(addr, NXE_WIN.len()) { return Err("사이트 읽기 불가"); }
     // ★원본 전수 대조 — 한 바이트라도 다르면 설치하지 않는다(게임 패치 방어).
-    //   ⚠단 imm8 자리는 건너뛴다. ①만 쓰던 상태에서 ②를 켜면 그 자리에 이미 N 이 들어가 있다.
     for (i, &b) in NXE_WIN.iter().enumerate() {
-        if i == NXE_IMM_OFF { continue; }
-        // 분기 자리는 je(원본) 또는 jbe(①패치 뒤) 둘 다 허용.
-        if i == NXE_JCC_OFF {
-            let cur = rd_u8(addr + i);
-            if cur != 0x74 && cur != 0x76 { return Err("분기 opcode 불일치"); }
-            continue;
-        }
         if rd_u8(addr + i) != b { return Err("명령 골격 불일치 — 게임이 바뀌었다"); }
     }
 
-    let mut s: Vec<u8> = Vec::with_capacity(128);
-    // ★분기 rel8 은 **자리를 기록해 두고 나중에 채운다.** 손으로 오프셋을 세면 반드시 틀린다
-    //   (한 바이트만 어긋나도 명령 중간으로 뛰어 즉사한다).
-    let mut fix_take: Vec<usize> = Vec::new();   // `.take` 로 가는 jcc 의 rel8 바이트 위치
-    let mut fix_skip: Vec<usize> = Vec::new();   // `.skip` 으로 가는 jcc
+    let cb = nxe_judge as *const () as usize;
+    let mut s: Vec<u8> = Vec::with_capacity(224);
+    let mut fix_take: Vec<usize> = Vec::new();
 
-    // 게임 레지스터 보존: 우리가 건드리는 것은 rdx·r8 뿐(rax 는 사이트 직후 재정의되는 dead 값이지만
-    // 굳이 아끼지 않고 그대로 둔다). 플래그는 복귀 지점이 소비하지 않으므로 보존 불요.
-    s.push(0x52);                                              // push rdx
-    s.extend_from_slice(&[0x41, 0x50]);                        // push r8
-    // ── 조건① : 살아있는 쌍둥이 타워 수 <= NXE_MAX ──
-    s.extend_from_slice(&[0x48, 0x8b, 0x94, 0x03]);            // mov rdx,[rbx+rax+0x148]
-    s.extend_from_slice(&0x148u32.to_le_bytes());
-    s.extend_from_slice(&[0x49, 0xb8]);                        // movabs r8, &NXE_MAX
-    s.extend_from_slice(&(core::ptr::addr_of!(NXE_MAX) as usize).to_le_bytes());
-    s.extend_from_slice(&[0x49, 0x3b, 0x10]);                  // cmp rdx,[r8]
-    s.extend_from_slice(&[0x76, 0x00]); fix_take.push(s.len() - 1);   // jbe .take
-    // ── 조건② : 어느 한 라인이라도 2차 타워가 파괴(슬롯 null) ──
-    s.extend_from_slice(&[0x49, 0xb8]);                        // movabs r8, &NXE_T2
-    s.extend_from_slice(&(core::ptr::addr_of!(NXE_T2) as usize).to_le_bytes());
-    s.extend_from_slice(&[0x49, 0x83, 0x38, 0x00]);            // cmp qword [r8],0
-    s.extend_from_slice(&[0x74, 0x00]); fix_skip.push(s.len() - 1);   // je .skip  (조건② 꺼짐)
-    for disp in [0x190u32, 0x1b0, 0x1d0] {                     // lane0/1/2 의 2차 타워
-        s.extend_from_slice(&[0x48, 0x83, 0xbc, 0xcb]);        // cmp qword [rbx+rcx*8+disp],0
-        s.extend_from_slice(&disp.to_le_bytes());
-        s.push(0x00);                                          //   imm8 = 0
-        s.extend_from_slice(&[0x74, 0x00]); fix_take.push(s.len() - 1);   // je .take (파괴됨)
-    }
-    // .skip : 원본의 "조건① 실패" 경로로
-    let skip_off = s.len();
-    s.extend_from_slice(&[0x41, 0x58]);                        // pop r8
-    s.push(0x5a);                                              // pop rdx
-    s.extend_from_slice(&[0xff, 0x25, 0x00, 0x00, 0x00, 0x00]); // jmp [rip+0]
+    // ── 게임 레지스터 보존 (class_micro 스텁과 같은 배치) ──
+    // 스택(높은→낮은): [판정결과 8B] [rax rcx rdx r8 r9 r10 r11 rbp] [xmm0~5]
+    // 플래그는 복귀 지점이 소비하지 않으므로 보존하지 않는다.
+    s.extend_from_slice(&[0x48, 0x8d, 0x64, 0x24, 0xf8]);          // lea rsp,[rsp-8]  (결과 슬롯)
+    for b in [0x50u8, 0x51, 0x52, 0x41, 0x50, 0x41, 0x51, 0x41, 0x52, 0x41, 0x53, 0x55] { s.push(b); }
+    s.extend_from_slice(&[0x48, 0x8d, 0xa4, 0x24, 0xa0, 0xff, 0xff, 0xff]);   // lea rsp,[rsp-0x60]
+    for k in 0..6u8 { s.extend_from_slice(&[0x0f, 0x11, 0x44 | ((k & 7) << 3), 0x24, k * 16]); }
+    // ★인자: arg1=reg(rbx), arg2=side(rcx). **rdx 를 먼저** 채운다 — rcx 를 먼저 덮으면 side 가 사라진다.
+    s.extend_from_slice(&[0x48, 0x89, 0xca]);                      // mov rdx, rcx   (side)
+    s.extend_from_slice(&[0x48, 0x89, 0xd9]);                      // mov rcx, rbx   (reg)
+    s.extend_from_slice(&[0x48, 0x89, 0xe5]);                      // mov rbp, rsp   (앵커)
+    s.extend_from_slice(&[0x48, 0x8d, 0x64, 0x24, 0xd0]);          // lea rsp,[rsp-0x30]
+    s.extend_from_slice(&[0x48, 0x83, 0xe4, 0xf0]);                // and rsp,-16
+    s.extend_from_slice(&[0x48, 0xb8]); s.extend_from_slice(&cb.to_le_bytes());   // movabs rax, cb
+    s.extend_from_slice(&[0xff, 0xd0]);                            // call rax
+    s.extend_from_slice(&[0x48, 0x89, 0x85]); s.extend_from_slice(&0xa0u32.to_le_bytes()); // mov [rbp+0xa0],rax
+    s.extend_from_slice(&[0x48, 0x89, 0xec]);                      // mov rsp, rbp
+    for k in 0..6u8 { s.extend_from_slice(&[0x0f, 0x10, 0x44 | ((k & 7) << 3), 0x24, k * 16]); }
+    s.extend_from_slice(&[0x48, 0x8d, 0x64, 0x24, 0x60]);          // lea rsp,[rsp+0x60]
+    for b in [0x5du8, 0x41, 0x5b, 0x41, 0x5a, 0x41, 0x59, 0x41, 0x58, 0x5a, 0x59, 0x58] { s.push(b); }
+    // 여기서 rsp = 결과 슬롯.
+    s.extend_from_slice(&[0x48, 0x83, 0x3c, 0x24, 0x00]);          // cmp qword [rsp], 0
+    s.extend_from_slice(&[0x48, 0x8d, 0x64, 0x24, 0x08]);          // lea rsp,[rsp+8]  (LEA=플래그 무영향)
+    s.extend_from_slice(&[0x75, 0x00]); fix_take.push(s.len() - 1); // jne .take
+    // .skip : 원본의 "비상 아님" 경로
+    s.extend_from_slice(&[0xff, 0x25, 0x00, 0x00, 0x00, 0x00]);
     s.extend_from_slice(&(base + NXE_FAIL_RVA).to_le_bytes());
-    // .take : 원본의 "조건① 통과" 경로로
     let take_off = s.len();
-    s.extend_from_slice(&[0x41, 0x58]);                        // pop r8
-    s.push(0x5a);                                              // pop rdx
-    s.extend_from_slice(&[0xff, 0x25, 0x00, 0x00, 0x00, 0x00]); // jmp [rip+0]
+    // .take : 원본의 "비상" 경로(조건② 검사로)
+    s.extend_from_slice(&[0xff, 0x25, 0x00, 0x00, 0x00, 0x00]);
     s.extend_from_slice(&(base + NXE_PASS_RVA).to_le_bytes());
-
-    // ── rel8 채우기 (rel8 기준점 = 그 바이트 **다음** 주소) ──
-    for (list, target) in [(&fix_take, take_off), (&fix_skip, skip_off)] {
-        for &pos in list.iter() {
-            let d = target as i64 - (pos as i64 + 1);
-            if !(0..=127).contains(&d) { return Err("분기 rel8 범위 초과"); }
-            s[pos] = d as u8;
-        }
+    // ★분기 rel8 은 자리를 기록해 두고 채운다 — 손으로 세면 한 바이트만 어긋나도 명령 중간으로 뛴다.
+    for &pos in fix_take.iter() {
+        let d = take_off as i64 - (pos as i64 + 1);
+        if !(0..=127).contains(&d) { return Err("분기 rel8 범위 초과"); }
+        s[pos] = d as u8;
     }
 
     let stub = micro_alloc(addr, s.len());
@@ -218,7 +259,7 @@ unsafe fn install_nxe_detour(base: usize) -> Result<usize, &'static str> {
     core::ptr::copy_nonoverlapping(s.as_ptr(), stub as *mut u8, s.len());
     FlushInstructionCache(GetCurrentProcess(), stub, s.len());
 
-    // ★앞 5바이트만 쓴다 — 뒤 6B 는 E9 가 자리잡는 순간 도달 불가가 되므로 덮을 필요가 없고,
+    // ★앞 5바이트만 쓴다 — 뒤 6B 는 E9 가 자리잡는 순간 도달 불가가 되고,
     //   두 번 쓰면 그 사이에 낀 스레드가 반쯤 덮인 명령을 실행할 수 있다(class_micro 와 같은 규칙).
     let mut e9 = [0x90u8; 5];
     e9[0] = 0xe9;

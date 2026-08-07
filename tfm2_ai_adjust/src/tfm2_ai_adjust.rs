@@ -813,6 +813,7 @@ fn flush_class_verify() {
     s.push_str("\n※ 적용횟수>0 = 그 클래스 챔프가 cfg의 _class_ 값을 실제 사용 중(=적용 확인). 0 = 그 클래스에 _class_ 키 없음 or 해당 클래스 챔프 미등장.\n");
     // ★[08-07] 마이크로 디투어로 연 노브는 판단 재현을 거치지 않으므로 위 카운터에 안 잡힌다 — 따로 붙인다.
     s.push_str(&micro_summary());
+    s.push_str(&nxe_summary());   // ★[08-08] 넥서스 비상 수비 — 판정/발동 횟수와 어느 상황이 채택됐는지
     if let Some(pp) = pth("class_verify.txt") { let _ = fs::write(pp, s.as_bytes()); }
 }
 // post_update서 typed로 빌드. cfg class_sheet=1이면 class_sheet.txt 덤프.
