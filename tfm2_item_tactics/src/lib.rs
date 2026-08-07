@@ -2593,8 +2593,13 @@ static TN_LAST_SB: AtomicU64 = AtomicU64::new(0);    // 마지막 히트 set 꼬
 static TN_MY_N: AtomicU64 = AtomicU64::new(0);       // 내 팀(PLAYER_TEAM_ID) 매치 히트 수
 static TN_MY_SLOT: AtomicU64 = AtomicU64::new(0);    // 내 팀 슬롯(0=+0x140/1=+0x148)
 static TN_MY_SB: AtomicU64 = AtomicU64::new(0);      // 그 세트의 side 바이트
+static TN_MY_PRED: AtomicU64 = AtomicU64::new(0);    // ★v2.7.6: 매핑식 예측 내 팀 side = slot^sb^1
 static TN_MY_SEED: AtomicU64 = AtomicU64::new(0);    // ★buy측 상관 키(마지막 store = 게시 완료 표식)
 static TN_VOTE: [AtomicU64; 8] = [const { AtomicU64::new(0) }; 8]; // [slot*4+sb*2+ath_side] 투표
+static TN_VOTE_OK: AtomicU64 = AtomicU64::new(0);    // ★v2.7.6: 실측 side == 예측(TN_MY_PRED)
+static TN_VOTE_NG: AtomicU64 = AtomicU64::new(0);    // 실측 side != 예측 (0이어야 매핑식 확정 유지)
+static TN_LAST_S0: AtomicU64 = AtomicU64::new(0);    // ★v2.7.6 매핑 적용: side0(blue) 팀 id = rec+0x140+(sb^1)*8
+static TN_LAST_S1: AtomicU64 = AtomicU64::new(0);    // side1(red) 팀 id = rec+0x140+sb*8
 // ⚠cap_launcher 최소 디투어 제약 상속 — VEH 보호 읽기 + 원자연산만(format!/fs/락/할당/catch_unwind 금지).
 //   대회 retaddr 에서만 호출(경기 시작당 1회)·스캔 상한 mask<0x1000 ⟹ 핫패스 아님.
 unsafe fn tourn_capture(saved: *mut u64, seed: u64) {
@@ -2606,16 +2611,16 @@ unsafe fn tourn_capture(saved: *mut u64, seed: u64) {
         safe_read_u64(rbp.wrapping_add(0x1cdc0)),   // cfg(배경 sim 상태 구조체)
         safe_read_u64(rbp.wrapping_add(0x1cce0)),   // 현재 세트블록 끝 포인터
     ) else { TN_MISS_FRAME.fetch_add(1, Ordering::Relaxed); return; };
-    // 검증① — db 포인터 대조. ★08-08 첫 실측(런처발화 47 전건 db불일치·프레임읽기 실패 0)으로 **관측 강등**:
-    //   [rbp+0x1cde8]은 LIVE_DB(scene db)와 다른 객체였다(서버측 db 추정 — registry 의 base 2종 공존과 정합).
-    //   레코드 특정은 ②(set_end 세트Vec 포함판정)+③(키 자기일치·미완료·맵바이트)만으로 충분히 특이적이라
-    //   하드 거부를 없애고, seen 값·일치 상대를 계수해 정체를 규명한다(확정되면 ①을 그 대상으로 복원).
+    // 검증① — db 포인터 대조. 경위: v2.7.4가 LIVE_DB(scene db)와 대조해 전건 오탐 차단(47/47) → v2.7.5 관측
+    //   강등 → 2판째 실측 **seen==DB_DIRECT 28/28**(=addr_of!(*ctx.database), 서버 db)로 정체 확정 →
+    //   ★v2.7.6 ①복원: 대조 대상 = DB_DIRECT. 미게시(0)면 대조 생략(②③이 남는다). 03_시행착오 08-08 참조.
     TN_DB_SEEN.store(db, Ordering::Relaxed);
     let kdb = LIVE_DB.load(Ordering::Relaxed);
     let ddb = DB_DIRECT.load(Ordering::Relaxed);
     if kdb != 0 && db == kdb { TN_DB_EQ_LIVE.fetch_add(1, Ordering::Relaxed); }
     else if ddb != 0 && db == ddb { TN_DB_EQ_DIRECT.fetch_add(1, Ordering::Relaxed); }
     else { TN_MISS_DB.fetch_add(1, Ordering::Relaxed); }
+    if ddb != 0 && db != ddb { return; } // ★복원된 하드 검증①(DB_DIRECT 대조)
     let (cfg, set_end) = (cfg as usize, set_end as usize);
     if cfg < 0x10000 || set_end < 0x10000 { TN_MISS_FRAME.fetch_add(1, Ordering::Relaxed); return; }
     let map_b = *saved.add(1) & 0xff;            // dl = launcher arg2 = 맵 바이트
@@ -2653,11 +2658,20 @@ unsafe fn tourn_capture(saved: *mut u64, seed: u64) {
                 TN_LAST_KEY.store(key, Ordering::Relaxed);
                 TN_LAST_MAP.store(map_off as u64, Ordering::Relaxed);
                 TN_LAST_SB.store(wtail & 0xffff, Ordering::Relaxed);
+                // ★v2.7.6 매핑식(정적 확정 + 실측 정합 — RE\2026-08-08_세트side-팀슬롯-매핑.md):
+                //   side0(blue) 팀 = rec+0x140+(sb^1)*8 · side1 = rec+0x140+sb*8 (sb = set+0xf8).
+                //   근거 = 주입 함수 0x13cf550 내부 mov [rsi+0x810],rax(5번째 인자=side)까지 명령 단위 연결.
+                let sb = wtail & 1;
+                let (s0, s1) = if sb == 1 { (ta, tb) } else { (tb, ta) };
+                TN_LAST_S0.store(s0, Ordering::Relaxed);
+                TN_LAST_S1.store(s1, Ordering::Relaxed);
                 let pid = PLAYER_TEAM_ID.load(Ordering::Relaxed);
                 if pid != u64::MAX && (ta == pid || tb == pid) {
+                    let slot = u64::from(ta != pid);
                     TN_MY_N.fetch_add(1, Ordering::Relaxed);
-                    TN_MY_SLOT.store(u64::from(ta != pid), Ordering::Relaxed);
-                    TN_MY_SB.store(wtail & 1, Ordering::Relaxed);
+                    TN_MY_SLOT.store(slot, Ordering::Relaxed);
+                    TN_MY_SB.store(sb, Ordering::Relaxed);
+                    TN_MY_PRED.store(slot ^ sb ^ 1, Ordering::Relaxed); // 예측 내 팀 side
                     TN_MY_SEED.store(seed, Ordering::Relaxed); // 마지막 store = buy측 투표 게이트 오픈
                 }
                 return;
@@ -4119,13 +4133,16 @@ fn write_registry_status(db: usize) {
                 TN_DB_SEEN.load(Ordering::Relaxed), TN_DB_EQ_LIVE.load(Ordering::Relaxed),
                 TN_DB_EQ_DIRECT.load(Ordering::Relaxed), TN_MISS_DB.load(Ordering::Relaxed),
                 LIVE_DB.load(Ordering::Relaxed), DB_DIRECT.load(Ordering::Relaxed)));
-            s.push_str(&format!("\x20   마지막 히트: 팀A(+0x140)={} 팀B(+0x148)={} key={} map=+{:#x} set꼬리={:#06x}\n",
+            s.push_str(&format!("\x20   마지막 히트: 팀A(+0x140)={} 팀B(+0x148)={} → ★side0(blue)={} side1(red)={} · key={} map=+{:#x} set꼬리={:#06x}\n",
                 TN_LAST_A.load(Ordering::Relaxed), TN_LAST_B.load(Ordering::Relaxed),
+                TN_LAST_S0.load(Ordering::Relaxed), TN_LAST_S1.load(Ordering::Relaxed),
                 TN_LAST_KEY.load(Ordering::Relaxed), TN_LAST_MAP.load(Ordering::Relaxed),
                 TN_LAST_SB.load(Ordering::Relaxed)));
-            s.push_str(&format!("\x20   내팀 매치 히트={}회 (slot={} sidebyte={} seed={:#x})\n",
+            s.push_str(&format!("\x20   내팀 매치 히트={}회 (slot={} sidebyte={} 예측side={} seed={:#x}) · ★매핑검증 OK={} NG={} (NG=0 필수)\n",
                 TN_MY_N.load(Ordering::Relaxed), TN_MY_SLOT.load(Ordering::Relaxed),
-                TN_MY_SB.load(Ordering::Relaxed), TN_MY_SEED.load(Ordering::Relaxed)));
+                TN_MY_SB.load(Ordering::Relaxed), TN_MY_PRED.load(Ordering::Relaxed),
+                TN_MY_SEED.load(Ordering::Relaxed),
+                TN_VOTE_OK.load(Ordering::Relaxed), TN_VOTE_NG.load(Ordering::Relaxed)));
             s.push_str("\x20   side 투표 (slot,sb)→ath_side0:side1 = ");
             for sl in 0..2usize { for sb in 0..2usize {
                 s.push_str(&format!("({},{})={}:{}  ", sl, sb,
@@ -5174,6 +5191,9 @@ unsafe extern "C" fn buy_replace_ctx(saved: *mut u64, rsp_entry: usize) -> u64 {
                 let idx = (TN_MY_SLOT.load(Ordering::Relaxed) as usize & 1) * 4
                     + (TN_MY_SB.load(Ordering::Relaxed) as usize & 1) * 2 + (side as usize & 1);
                 TN_VOTE[idx].fetch_add(1, Ordering::Relaxed);
+                // ★v2.7.6: 매핑식 예측 대조(NG=0 이어야 매핑 확정 유지)
+                if side == TN_MY_PRED.load(Ordering::Relaxed) { TN_VOTE_OK.fetch_add(1, Ordering::Relaxed); }
+                else { TN_VOTE_NG.fetch_add(1, Ordering::Relaxed); }
             }
         }
         // ★side 판별: scene 직독(SCENE_SIDE, 메인스레드 갱신) 우선 → 미정이면 LIVE_DB로 즉석 판정(owned=0 주입창 보호).
