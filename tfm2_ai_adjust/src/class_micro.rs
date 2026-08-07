@@ -124,6 +124,10 @@ static MICRO_OVHIT: [AtomicU64; MICRO_MAX] = [const { AtomicU64::new(0) }; MICRO
 static MICRO_VAL: [[AtomicI64; 6]; MICRO_MAX] =
     [const { [const { AtomicI64::new(i64::MIN) }; 6] }; MICRO_MAX];
 static MICRO_VAL_GEN: AtomicU64 = AtomicU64::new(u64::MAX);
+// 그 값이 `_class_` 키에서 온 것인가(= 클래스 전용값). 값 자체가 원본과 같아도 참일 수 있고,
+// 전역 튜닝으로 원본과 달라도 거짓이다 — 이 구분이 없으면 지표가 "전역 튜닝했다"를 "클래스별로 먹는다"로 오독한다.
+static MICRO_CLSHIT: [[AtomicBool; 6]; MICRO_MAX] =
+    [const { [const { AtomicBool::new(false) }; 6] }; MICRO_MAX];
 
 /// 스텁이 호출하는 콜백. `idx`=사이트 번호, `a`·`b`=self 를 만들 재료(사이트별 규약).
 /// 반환 = 그 자리에 쓸 값(클래스 오버라이드 없으면 원본값 = 동작 불변).
@@ -145,7 +149,7 @@ unsafe extern "C" fn class_micro_value(idx: u64, a: usize, b: usize) -> u64 {
         }
     };
     // ★패닉이 게임 콜스택으로 새면 UB(§3). 어떤 실패든 원본값으로 조용히 폴백한다.
-    let v = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+    let (v, slot) = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
         // cfg 세대가 바뀌었으면 캐시 무효화(한 스레드만 수행).
         let gen = CFG_GEN.load(Ordering::Relaxed);
         if MICRO_VAL_GEN.load(Ordering::Relaxed) != gen {
@@ -156,10 +160,14 @@ unsafe extern "C" fn class_micro_value(idx: u64, a: usize, b: usize) -> u64 {
         let cls = class_from_entity(selfe);          // -1 = 미상(전역값 폴백)
         let slot = if (0..5).contains(&cls) { cls as usize } else { 5 };
         let c = MICRO_VAL[i][slot].load(Ordering::Relaxed);
-        if c != i64::MIN { return c; }   // ★캐시 히트. 적용 카운트는 이 클로저 **밖**에서 센다(아래 주석)
+        if c != i64::MIN { return (c, slot); }   // ★캐시 히트. 적용 카운트는 이 클로저 **밖**에서 센다
         // 캐시 미스: CUR_CLASS 를 세워 tune() 이 클래스별 값을 보게 한다(판단 문맥 재현).
         let prev = cur_class();
         set_cur_class(cls);
+        // ★"이 값이 `_class_` 키에서 온 것인가"를 따로 본다. `값 != 원본` 으로 세면 **전역 튜닝까지**
+        //   클래스 적용으로 잡힌다(첫 검증에서 `ex_think_min` 이 전역 300 때문에 100%로 찍혔다).
+        //   지표가 묻는 질문은 "클래스별 값이 실제로 쓰이는가" 이므로 출처를 봐야 한다.
+        let cls_specific = tune_class_lookup(site.key).is_some();
         let raw = tune(site.key, site.orig);
         set_cur_class(prev);
         // ★프로젝트 공통 규약 "-1 = 원본 유지"([[tfm2-knob-default-minus1-rule]]).
@@ -167,13 +175,14 @@ unsafe extern "C" fn class_micro_value(idx: u64, a: usize, b: usize) -> u64 {
         //   여기서 같은 변환을 해야 한다. 빠뜨리면 `-1` 이 그대로 상수로 박혀 동작이 망가진다
         //   (예: `cs_lead_attack = -1` 은 "원본 30" 인데 사거리 판정에 0xFFFFFFFF 가 들어간다).
         let v = if raw < 0 { site.orig } else { raw };
+        MICRO_CLSHIT[i][slot].store(cls_specific, Ordering::Relaxed);
         MICRO_VAL[i][slot].store(v, Ordering::Relaxed);
-        v
-    })).unwrap_or(site.orig);
+        (v, slot)
+    })).unwrap_or((site.orig, 5));
     // ★적용 카운트는 **매 호출** 센다. 캐시 미스 때만 세면 클래스당 1회씩(사이트당 최대 5)만 잡혀
     //   "이 값이 실제로 쓰이고 있는가"를 답하지 못한다 — 08-06 사고의 교훈이 정확히 그것이었다
     //   ("설정했다 ≠ 먹는다"를 말해주는 지표가 없었다).
-    if v != site.orig { MICRO_OVHIT[i].fetch_add(1, Ordering::Relaxed); }
+    if MICRO_CLSHIT[i][slot].load(Ordering::Relaxed) { MICRO_OVHIT[i].fetch_add(1, Ordering::Relaxed); }
     v as u64
 }
 
@@ -469,13 +478,18 @@ unsafe fn micro_alloc(near: usize, size: usize) -> usize {
 
 /// 런타임 확인용 요약(class_verify=1 일 때 class_verify.txt 에 덧붙는다).
 pub(crate) fn micro_summary() -> String {
-    let mut s = String::from("\n[마이크로 디투어] 사이트별 발화/클래스적용\n");
+    let mut s = String::from("\n[마이크로 디투어] 사이트별 발화 / 그중 클래스 전용값이 쓰인 횟수\n");
     for (i, site) in MICRO_SITES.iter().enumerate() {
         if i >= MICRO_MAX { break; }
         if !MICRO_TAKEN[i].load(Ordering::Relaxed) { continue; }
-        s.push_str(&format!("  {:<22} 발화={} 클래스적용={}\n", site.key,
-            MICRO_HITS[i].load(Ordering::Relaxed), MICRO_OVHIT[i].load(Ordering::Relaxed)));
+        let hit = MICRO_HITS[i].load(Ordering::Relaxed);
+        let ov = MICRO_OVHIT[i].load(Ordering::Relaxed);
+        let pct = if hit > 0 { ov * 100 / hit } else { 0 };
+        s.push_str(&format!("  {:<22} 발화={:<10} 클래스전용값={:<10} ({}%)\n", site.key, hit, ov, pct));
     }
+    s.push_str("  ※ '클래스전용값' = 그 판단이 cfg 의 `키_class_<클래스>` 값을 실제로 읽은 횟수.\n\
+                \x20    전역값(클래스 구분 없는 값)만 튜닝한 경우는 여기 안 잡힌다 — 이 칸이 묻는 건\n\
+                \x20    '클래스별로 갈라졌는가' 뿐이다. 0 이면 그 클래스 챔프가 안 나왔거나 키가 없는 것.\n");
     s
 }
 
