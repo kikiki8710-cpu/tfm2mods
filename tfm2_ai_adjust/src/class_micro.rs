@@ -96,6 +96,12 @@ pub(crate) struct MicroSite {
     pub tail: &'static [u8],
     /// 값 op.
     pub op: MOp,
+    /// 창 안에서 **상수(imm/disp) 필드가 시작하는 오프셋**과 폭.
+    /// ★원본 대조에서 이 구간은 **건너뛴다** — 기존 imm 패치가 먼저 값을 써 놓았을 수 있는데,
+    ///   우리는 명령 전체를 대체하며 값을 직접 공급하므로 그 자리의 현재 값은 아무 상관이 없다.
+    ///   (이걸 안 건너뛰면 "전역값을 튜닝한 유저"에게만 설치가 조용히 실패한다.)
+    pub imm_off: usize,
+    pub imm_w: usize,
     /// self 를 만들 첫 번째 재료(RE 로 생존 확인된 것만).
     pub a: Src,
     /// 두 번째 재료(`Resolve::Champions` 일 때 champions 홀더).
@@ -291,12 +297,39 @@ fn has_class_override(key: &str) -> bool {
 /// 마이크로 디투어 설치(1회 확정). 클래스 오버라이드가 걸린 사이트만 설치한다.
 /// ★기존 imm 패치와 **상호배타**: 설치된 사이트는 `micro_taken()` 이 참을 돌려주어 apply_* 가 건드리지 않는다.
 pub(crate) unsafe fn install_class_micro() {
-    if MICRO_DONE.load(Ordering::Relaxed) { return; }
-    if READY_TICKS.load(Ordering::Relaxed) < READY_MIN { return; }
+    // ★[08-07] 게이트 계측 — 첫 인게임 확인에서 `class_micro.txt` 가 **아예 안 생겨서** 어느 관문에서
+    //   되돌아갔는지 알 수 없었다. 조용한 조기반환은 진단이 불가능하다(08-06 교훈 "조용한 무시가 가장 비싸다").
+    //   ⟹ 관문을 통과 못 해도 그 사실과 값을 남긴다. 비용 = 체인당 1회 파일 쓰기.
+    let ready = READY_TICKS.load(Ordering::Relaxed);
     let base = exe_base();
-    if base == 0 { return; }
-    // cfg 가 아직 안 올라왔으면 다음 기회에(오버라이드 판정을 빈 테이블로 하면 영구 미설치가 된다).
-    if TUNE_PTR.load(Ordering::Acquire).is_null() { return; }
+    let tune_null = TUNE_PTR.load(Ordering::Acquire).is_null();
+    let done = MICRO_DONE.load(Ordering::Relaxed);
+    macro_rules! bail { ($why:expr) => {{
+        if let Some(p) = pth("class_micro.txt") {
+            let _ = fs::write(p, format!(
+                "=== 클래스별 마이크로 디투어 — 설치 보류 ===\n\
+                 사유: {}\n\n\
+                 게이트 값: ready_ticks={} (필요 {}) · exe_base={:#x} · tune_table={} · 설치완료플래그={}\n\
+                 사이트 표에 등록된 노브 {}개.\n\
+                 ※ 이 파일이 '보류'로 남아 있으면 클래스별 값은 안 먹고 기존 바이트패치가 그대로 걸린다.\n",
+                $why, ready, READY_MIN, base,
+                if tune_null { "아직 없음" } else { "있음" }, done, MICRO_SITES.len()));
+        }
+        return;
+    }}; }
+    if done { return; }                       // 이미 처리됨 — 덮어쓰지 않는다(설치 결과 보존)
+    // ★재시도 상한 — 아래 관문이 영영 안 열리는 상황(예: cfg 파일이 없다)에서 체인을 무한 재실행하지 않는다.
+    if MICRO_ATTEMPTS.fetch_add(1, Ordering::Relaxed) > 600 {
+        MICRO_DONE.store(true, Ordering::Relaxed);
+        bail!("재시도 상한 초과 — 준비 관문이 끝내 안 열렸다");
+    }
+    if ready < READY_MIN { bail!("게임이 아직 준비 전(ready_ticks 부족)"); }
+    if base == 0 { bail!("exe base 를 못 구했다"); }
+    // ★cfg 가 아직 안 올라왔으면 **다음 기회에**. 오버라이드 판정을 빈 테이블로 하면 "오버라이드 없음"으로
+    //   오판해 영구 미설치가 된다. 이 경로는 실제로 밟혔다(첫 인게임 확인에서 설치가 통째로 누락) —
+    //   `CFG_GEN` 은 cfg **파싱 시작**에 올라가는데 `tune_publish` 는 파싱 **끝**이라, 그 사이에
+    //   체인이 돌면 여기서 튕긴다. 그래서 `micro_settled()` 로 체인이 다시 오게 만든다(아래).
+    if tune_null { bail!("cfg 튜닝 테이블이 아직 게시 전"); }
     MICRO_DONE.store(true, Ordering::Relaxed);
 
     let cb = class_micro_value as *const () as usize;
@@ -320,11 +353,15 @@ pub(crate) unsafe fn install_class_micro() {
             report.push_str(&format!("FAIL  {:<22} rva={:#x} 읽기 불가\n", site.key, site.rva));
             continue;
         }
-        // ★원본 전수 대조 — 한 바이트라도 다르면 설치하지 않는다(게임 패치 방어).
+        // ★원본 대조(게임 패치 방어) — 단 **상수 필드는 건너뛴다**(위 imm_off/imm_w 주석 참조).
+        //   명령의 골격(opcode·ModRM·레지스터)이 내가 아는 그대로일 때만 설치한다.
         let mut ok = true;
-        for (k, &b) in site.win.iter().enumerate() { if rd_u8(addr + k) != b { ok = false; break; } }
+        for (k, &b) in site.win.iter().enumerate() {
+            if k >= site.imm_off && k < site.imm_off + site.imm_w { continue; }   // 상수 자리 = 무시
+            if rd_u8(addr + k) != b { ok = false; break; }
+        }
         if !ok {
-            report.push_str(&format!("BLOCK {:<22} rva={:#x} 원본 바이트 불일치 — 이 자리는 내가 아는 그 자리가 아니다\n",
+            report.push_str(&format!("BLOCK {:<22} rva={:#x} 명령 골격 불일치 — 이 자리는 내가 아는 그 자리가 아니다\n",
                                      site.key, site.rva));
             continue;
         }
@@ -370,6 +407,12 @@ pub(crate) unsafe fn install_class_micro() {
 }
 
 static MICRO_TAKEN: [AtomicBool; MICRO_MAX] = [const { AtomicBool::new(false) }; MICRO_MAX];
+static MICRO_ATTEMPTS: AtomicU64 = AtomicU64::new(0);
+
+/// 설치 시도가 **끝났는가**(성공이든 실패든). 거짓이면 아직 준비 관문에서 튕기는 중이다.
+/// ★apply 체인이 이걸 보고 "이번 세대 완료" 마킹을 미룬다 — 안 그러면 한 번 튕긴 설치가
+///   `APPLY_GEN` 이 저장되는 순간 **영영 재시도되지 않는다**(첫 인게임 확인에서 실제로 그렇게 누락됐다).
+#[inline] pub(crate) fn micro_settled() -> bool { MICRO_DONE.load(Ordering::Relaxed) }
 
 // ── 스텁 전용 블록 할당기 ──
 // `alloc_near` 를 사이트마다 부르면 사이트당 64KB(VirtualAlloc 예약 단위)를 잡고 스텁 인벤토리(STUB_MAX=24)도
@@ -440,6 +483,7 @@ pub(crate) static MICRO_SITES: &[MicroSite] = &[
         key: "cs_lead_attack", orig: 30, rva: 0xdb869a,
         win: &[0xb8, 0x1e, 0x00, 0x00, 0x00],            // mov eax,0x1e
         pre: &[], tail: &[],
+        imm_off: 1, imm_w: 4,
         op: MOp::MovR32 { dst: reg::RAX },
         a: Src::Reg(reg::R14), b: Src::None, resolve: Resolve::Direct,
         note: "self=r14 생존(0xdb867b 로드)",
@@ -449,6 +493,7 @@ pub(crate) static MICRO_SITES: &[MicroSite] = &[
         key: "mv2_avoid_coef", orig: 400, rva: 0xe58cf1,
         win: &[0x48, 0x69, 0xc1, 0x90, 0x01, 0x00, 0x00],  // imul rax,rcx,0x190
         pre: &[], tail: &[],
+        imm_off: 3, imm_w: 4,
         op: MOp::ImulR64 { dst: reg::RAX, src: reg::RCX },
         a: Src::Reg(reg::RBP), b: Src::None, resolve: Resolve::Direct,
         note: "self=rbp 생존(0xe58816 [rsp+0x180] 로드)",
@@ -458,6 +503,7 @@ pub(crate) static MICRO_SITES: &[MicroSite] = &[
         key: "mv2_avoid_margin", orig: 6000, rva: 0xe58d45,
         win: &[0x48, 0x05, 0x70, 0x17, 0x00, 0x00],        // add rax,0x1770
         pre: &[], tail: &[],
+        imm_off: 2, imm_w: 4,
         op: MOp::AddR64 { dst: reg::RAX },
         a: Src::Reg(reg::RBP), b: Src::None, resolve: Resolve::Direct,
         note: "self=rbp 생존(②와 동일 경로)",
@@ -469,6 +515,7 @@ pub(crate) static MICRO_SITES: &[MicroSite] = &[
         key: "mv2_avoid_bias", orig: 1500, rva: 0xe5919f,
         win: &[0x48, 0x3d, 0xdc, 0x05, 0x00, 0x00],        // cmp rax,0x5dc
         pre: &[], tail: &[],
+        imm_off: 2, imm_w: 4,
         op: MOp::CmpR64 { dst: reg::RAX },
         a: Src::Stack(0x180), b: Src::None, resolve: Resolve::Direct,
         note: "self=[진입rsp+0x180] 재로드(rbp 는 덮임)",
@@ -482,6 +529,7 @@ pub(crate) static MICRO_SITES: &[MicroSite] = &[
         win: &[0x48, 0x8d, 0x8c, 0x40, 0x90, 0x01, 0x00, 0x00],   // lea rcx,[rax+rax*2+0x190]
         pre: &[0x48, 0x8d, 0x0c, 0x40],                            // lea rcx,[rax+rax*2]
         tail: &[],
+        imm_off: 4, imm_w: 4,
         op: MOp::LeaAdd { dst: reg::RCX },
         a: Src::Reg(reg::R12), b: Src::Mem(reg::RBP, 0x2c8), resolve: Resolve::Champions,
         note: "self=champions[[rbp+0x2c8]][side,role of r12]",

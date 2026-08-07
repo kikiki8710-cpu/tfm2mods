@@ -2450,7 +2450,12 @@ unsafe extern "C" fn retreat_capture(saved: usize, entry_rsp: usize) -> u64 {
         //   SDK 콜백을 관통해 unwind되어 게임이 죽는다(실제로 한 번 그렇게 죽였다).
         let _ = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| apply_probe()));
         write_guard_summary();   // ★[#26] 원본값 가드 결과 — blocked>0 이면 배선 주소가 틀린 것
-        if exe_base() != 0 && READY_TICKS.load(Ordering::Relaxed) >= READY_MIN {
+        // ★[08-07] `micro_settled()` 추가 — 마이크로 디투어 설치가 아직 준비 관문에서 튕기는 중이면
+        //   이 세대를 완료로 찍지 않는다. 안 그러면 체인이 다시 오지 않아 **설치가 영영 누락된다**:
+        //   `CFG_GEN` 은 cfg 파싱 **시작**에 +1 되는데 `tune_publish` 는 파싱 **끝**이라, 그 틈에 체인이
+        //   돌면 설치는 빈 튜닝 테이블을 보고 튕기는데 apply_*_imm 들은 (기본값으로) 정상 완료돼
+        //   `APPLY_GEN` 이 저장돼 버린다. 첫 인게임 확인에서 실제로 이렇게 통째로 누락됐다.
+        if exe_base() != 0 && READY_TICKS.load(Ordering::Relaxed) >= READY_MIN && micro_settled() {
             APPLY_GEN.store(cfg_gen, Ordering::Relaxed);   // READY 상태서 체인 완주 = 이 세대 완료
         }
         APPLY_LOCK.store(false, Ordering::Release);   // ★[08-06] 락 해제 — 실패해도 반드시 푼다
