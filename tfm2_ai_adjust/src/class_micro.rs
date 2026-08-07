@@ -299,37 +299,49 @@ fn has_class_override(key: &str) -> bool {
 pub(crate) unsafe fn install_class_micro() {
     // ★[08-07] 게이트 계측 — 첫 인게임 확인에서 `class_micro.txt` 가 **아예 안 생겨서** 어느 관문에서
     //   되돌아갔는지 알 수 없었다. 조용한 조기반환은 진단이 불가능하다(08-06 교훈 "조용한 무시가 가장 비싸다").
-    //   ⟹ 관문을 통과 못 해도 그 사실과 값을 남긴다. 비용 = 체인당 1회 파일 쓰기.
+    //   ⚠단 이 함수는 **retreat 훅 = 핫패스**에서 불린다(프레임당 여러 번). 매번 쓰면 핫패스 파일 IO 금지
+    //   규칙 위반이다(08-07 `ct_hunt` 가 정확히 그래서 한 판에 20MB 를 썼다) ⟹ **사유가 바뀔 때만** 쓴다.
     let ready = READY_TICKS.load(Ordering::Relaxed);
     let base = exe_base();
     let tune_null = TUNE_PTR.load(Ordering::Acquire).is_null();
     let done = MICRO_DONE.load(Ordering::Relaxed);
-    macro_rules! bail { ($why:expr) => {{
-        if let Some(p) = pth("class_micro.txt") {
-            let _ = fs::write(p, format!(
-                "=== 클래스별 마이크로 디투어 — 설치 보류 ===\n\
-                 사유: {}\n\n\
-                 게이트 값: ready_ticks={} (필요 {}) · exe_base={:#x} · tune_table={} · 설치완료플래그={}\n\
-                 사이트 표에 등록된 노브 {}개.\n\
-                 ※ 이 파일이 '보류'로 남아 있으면 클래스별 값은 안 먹고 기존 바이트패치가 그대로 걸린다.\n",
-                $why, ready, READY_MIN, base,
-                if tune_null { "아직 없음" } else { "있음" }, done, MICRO_SITES.len()));
+    macro_rules! bail { ($code:expr, $why:expr) => {{
+        if MICRO_BAIL_CODE.swap($code, Ordering::Relaxed) != $code {   // 사유가 바뀐 첫 1회만 기록
+            if let Some(p) = pth("class_micro.txt") {
+                let _ = fs::write(p, format!(
+                    "=== 클래스별 마이크로 디투어 — 설치 보류 ===\n\
+                     사유: {}\n\n\
+                     게이트 값: ready_ticks={} (필요 {}) · exe_base={:#x} · tune_table={} · 설치완료플래그={}\n\
+                     사이트 표에 등록된 노브 {}개.\n\
+                     ※ 이 파일이 '보류'로 남아 있으면 클래스별 값은 안 먹고 기존 바이트패치가 그대로 걸린다.\n\
+                     ※ ready_ticks 는 게임 프레임마다 1 오른다 — 아직 작으면 그냥 더 기다리면 된다.\n",
+                    $why, ready, READY_MIN, base,
+                    if tune_null { "아직 없음" } else { "있음" }, done, MICRO_SITES.len()));
+            }
         }
         return;
     }}; }
     if done { return; }                       // 이미 처리됨 — 덮어쓰지 않는다(설치 결과 보존)
-    // ★재시도 상한 — 아래 관문이 영영 안 열리는 상황(예: cfg 파일이 없다)에서 체인을 무한 재실행하지 않는다.
-    if MICRO_ATTEMPTS.fetch_add(1, Ordering::Relaxed) > 600 {
-        MICRO_DONE.store(true, Ordering::Relaxed);
-        bail!("재시도 상한 초과 — 준비 관문이 끝내 안 열렸다");
-    }
-    if ready < READY_MIN { bail!("게임이 아직 준비 전(ready_ticks 부족)"); }
-    if base == 0 { bail!("exe base 를 못 구했다"); }
+    // ★준비 대기는 **횟수로 재지 않는다.** 08-07 첫 수정에서 "재시도 600회 상한"을 뒀다가,
+    //   이 함수가 프레임당 여러 번 불리는 바람에 `ready_ticks=23`(필요 200)에서 상한을 다 써버려
+    //   설치가 또 통째로 누락됐다. `READY_TICKS` 는 프레임마다 단조 증가하므로 **그냥 기다리면 열린다**
+    //   — 호출 횟수는 경과 시간의 척도가 아니다.
+    if ready < READY_MIN { bail!(1, "게임이 아직 준비 전 — 프레임이 더 지나면 자동으로 열린다"); }
+    if base == 0 { bail!(2, "exe base 를 못 구했다"); }
     // ★cfg 가 아직 안 올라왔으면 **다음 기회에**. 오버라이드 판정을 빈 테이블로 하면 "오버라이드 없음"으로
     //   오판해 영구 미설치가 된다. 이 경로는 실제로 밟혔다(첫 인게임 확인에서 설치가 통째로 누락) —
     //   `CFG_GEN` 은 cfg **파싱 시작**에 올라가는데 `tune_publish` 는 파싱 **끝**이라, 그 사이에
     //   체인이 돌면 여기서 튕긴다. 그래서 `micro_settled()` 로 체인이 다시 오게 만든다(아래).
-    if tune_null { bail!("cfg 튜닝 테이블이 아직 게시 전"); }
+    if tune_null {
+        // ★여기만 상한을 둔다 — READY 가 이미 열렸는데도 테이블이 안 올라오는 건 정상 상황이 아니다
+        //   (cfg 파일이 없거나 파싱이 계속 실패). 그때까지 체인을 영원히 재실행하지 않도록 끊는다.
+        //   READY 이후로만 세므로 위 사고(준비 전에 상한 소진)는 재발하지 않는다.
+        if MICRO_ATTEMPTS.fetch_add(1, Ordering::Relaxed) > 20_000 {
+            MICRO_DONE.store(true, Ordering::Relaxed);
+            bail!(4, "준비 후에도 cfg 튜닝 테이블이 끝내 게시되지 않았다(상한 초과)");
+        }
+        bail!(3, "cfg 튜닝 테이블이 아직 게시 전 — 곧 열린다");
+    }
     MICRO_DONE.store(true, Ordering::Relaxed);
 
     let cb = class_micro_value as *const () as usize;
@@ -408,6 +420,7 @@ pub(crate) unsafe fn install_class_micro() {
 
 static MICRO_TAKEN: [AtomicBool; MICRO_MAX] = [const { AtomicBool::new(false) }; MICRO_MAX];
 static MICRO_ATTEMPTS: AtomicU64 = AtomicU64::new(0);
+static MICRO_BAIL_CODE: AtomicU8 = AtomicU8::new(0);   // 마지막으로 기록한 보류 사유(0=없음) — 같은 사유 반복 기록 차단
 
 /// 설치 시도가 **끝났는가**(성공이든 실패든). 거짓이면 아직 준비 관문에서 튕기는 중이다.
 /// ★apply 체인이 이걸 보고 "이번 세대 완료" 마킹을 미룬다 — 안 그러면 한 번 튕긴 설치가
