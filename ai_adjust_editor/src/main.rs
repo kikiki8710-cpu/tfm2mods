@@ -1488,6 +1488,9 @@ struct App {
  model: Model,
  active_tab: usize,
  active_class: i8, // -1 = 기본(전역) / 0..4 = 클래스(melee/range/magician/util/assassin)
+ // ★[08-07] 클래스 편집 중일 때 **지정 불가 항목까지 볼지**. 기본 꺼짐 = 가능한 것만 보인다.
+ //   불가 항목이 332개라 다 늘어놓으면 정작 손댈 수 있는 123개를 찾기가 어렵다.
+ class_show_all: bool,
  config_list: Vec<String>,
  selected_config: String,
  show_save_as: bool,
@@ -1532,6 +1535,7 @@ impl App {
  model: Model::default(),
  active_tab: 0,
  active_class: -1,
+ class_show_all: false,
  config_list: Vec::new(),
  selected_config: ACTIVE_NAME.to_string(),
  show_save_as: false,
@@ -2340,8 +2344,22 @@ impl eframe::App for App {
       ui.add_space(2.0);
       // ★탭이 많아 창이 작으면 아래쪽이 잘린다 → 목록 자체를 스크롤 영역으로.
       egui::ScrollArea::vertical().auto_shrink([false, false]).show(ui, |ui| {
+        // ★[08-07] 클래스 편집 중에는 **그 탭에서 지정할 수 있는 항목 수**를 함께 보여준다.
+        //   없는 탭은 흐리게 — 들어가 봐야 비어 있는 걸 아는 헛클릭을 막는다.
+        let cls_mode = self.active_class >= 0 && !self.class_show_all;
         for (i, t) in TABS.iter().enumerate() {
-          if ui.selectable_label(self.active_tab == i, html_to_text(t.title)).clicked() {
+          let title = html_to_text(t.title);
+          let label = if cls_mode {
+            let n = t.keys.iter().filter(|k| !k.starts_with('§') && class_capable(k)).count();
+            if n == 0 {
+              egui::RichText::new(format!("{}  ·", title)).weak()
+            } else {
+              egui::RichText::new(format!("{}  {}", title, n))
+            }
+          } else {
+            egui::RichText::new(title)
+          };
+          if ui.selectable_label(self.active_tab == i, label).clicked() {
             self.active_tab = i;
           }
         }
@@ -2366,17 +2384,61 @@ impl eframe::App for App {
               ui.label(egui::RichText::new(html_to_text(tab.note)).color(egui::Color32::from_rgb(0x9a,0xa3,0xb2)));
             });
         });
+      // ★[08-07] 클래스 편집 중에는 **지정할 수 있는 항목만** 보여준다.
+      //   불가 항목(게임 코드 상수를 직접 고치는 방식이라 선수별로 못 나눔)이 332개나 되어,
+      //   전부 늘어놓으면 정작 손댈 수 있는 123개를 찾을 수가 없다.
+      //   §머리글은 그 아래에 보여줄 항목이 하나라도 있을 때만 남긴다(빈 머리글 방지).
+      let vis: Vec<&str> = if self.active_class < 0 || self.class_show_all {
+        tab.keys.to_vec()
+      } else {
+        let mut out: Vec<&str> = Vec::new();
+        for (i, &k) in tab.keys.iter().enumerate() {
+          if k.starts_with('§') {
+            let has = tab.keys[i + 1..].iter()
+              .take_while(|x| !x.starts_with('§'))
+              .any(|x| class_capable(x));
+            if has { out.push(k); }
+          } else if class_capable(k) {
+            out.push(k);
+          }
+        }
+        out
+      };
+      let hidden = tab.keys.iter().filter(|k| !k.starts_with('§')).count()
+                 - vis.iter().filter(|k| !k.starts_with('§')).count();
+
       if self.active_class >= 0 {
         ui.add_space(4.0);
-        ui.label(egui::RichText::new(format!(
-          "▶ '{}' 클래스 편집 중 — 항목의 '기본 따름'을 끄면 그 항목만 이 클래스 전용 값. (켜짐=전역값 상속, 저장 안 됨)",
-          CLASS_KR[self.active_class as usize])).color(GREEN));
+        ui.horizontal(|ui| {
+          ui.label(egui::RichText::new(format!(
+            "▶ '{}' 클래스 편집 중 — 항목의 '기본 따름'을 끄면 그 항목만 이 클래스 전용 값. (켜짐=전역값 상속, 저장 안 됨)",
+            CLASS_KR[self.active_class as usize])).color(GREEN));
+          if hidden > 0 || self.class_show_all {
+            ui.checkbox(&mut self.class_show_all, "지정 불가 항목도 보기")
+              .on_hover_text("이 클래스에서 값을 줄 수 없는 항목까지 함께 표시합니다(읽기 전용으로 보입니다).");
+          }
+        });
+        if hidden > 0 && !self.class_show_all {
+          ui.label(egui::RichText::new(format!(
+            "   이 탭에서 클래스별로 지정할 수 있는 항목만 보이는 중입니다 (지정 불가 {}개 숨김).", hidden))
+            .small().weak());
+        }
       }
       ui.add_space(8.0);
 
+      if self.active_class >= 0 && vis.iter().all(|k| k.starts_with('§')) {
+        ui.add_space(12.0);
+        ui.label(egui::RichText::new("이 탭에는 클래스별로 지정할 수 있는 항목이 없습니다.")
+          .color(egui::Color32::from_rgb(150, 150, 150)));
+        ui.label(egui::RichText::new(
+          "여기 있는 값들은 게임 코드의 상수를 직접 고치는 방식이라, 선수마다 다른 값을 줄 수 없습니다.\n\
+           '기본(전역)' 탭에서 전체 공통 값으로는 바꿀 수 있습니다.").small().weak());
+        return;
+      }
+
       egui::ScrollArea::vertical().auto_shrink([false, false]).show(ui, |ui| {
         egui::Grid::new("fields").num_columns(3).striped(true).spacing([14.0, 8.0]).show(ui, |ui| {
-          for &k in tab.keys {
+          for &k in &vis {
             if let Some(h) = k.strip_prefix('§') {
               // ★위 간격용 빈 행 (Grid 셀 내 add_space는 같은 행이라 안 벌어짐 → 별도 행으로)
               ui.add_space(18.0);
