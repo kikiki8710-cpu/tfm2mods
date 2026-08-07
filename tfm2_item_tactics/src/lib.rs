@@ -2549,6 +2549,8 @@ unsafe extern "C" fn cap_launcher(saved: *mut u64, _e: usize) -> u64 {
         BUY_GAME.store(0, Ordering::Relaxed);         // 새 매치 → buy 측 관측 리셋
         GAME_PROBE_DONE.store(false, Ordering::Relaxed);
     }
+    // ★08-08 대회(리그) 배경 경기 — 디스크립터 보험 캡처(아래 tourn_capture 참조. 최소 디투어 제약 준수).
+    if TN_ENABLED && rva == RA_TOURN_054 { tourn_capture(saved, seed); }
     // 진단: 고유 콜러 rva 수집(원자 CAS, 24슬롯)
     for k in 0..24 {
         let s = LAUNCH_RVAS[k].load(Ordering::Relaxed);
@@ -2557,6 +2559,103 @@ unsafe extern "C" fn cap_launcher(saved: *mut u64, _e: usize) -> u64 {
     }
     perf::rec(perf::S_LAUNCHER, __lt);
     0
+}
+
+// ═══ ★2026-08-08 대회(리그) 배경 경기 디스크립터 보험 ═══
+//   정적 RE 정본 = REPORT\tfm2_item_tactics\RE\2026-08-08_대회배경-실행레코드-팀id-레시피.md (0.5.4).
+//   worker.rs 콜러(0x2392ed0, launcher ret rva 0x239f242)의 프레임에서 실행 레코드
+//   (cfg+0x2a0/+0x2d0 hashbrown 맵, 엔트리 0x160=키8+값0x158)를 역스캔해 두 팀 id(+0x140/+0x148)를
+//   경기 "생성 시점"에 획득한다 — 로스터(is_my_athlete) 판정의 두 번째 보험(유저 지시 08-08).
+//   ⚠launcher r8 시드는 레코드에 없다(worker가 콜 직전 TLS PRNG 즉석 생성 = 시드 대조 자기검증 불가·DONE.md)
+//   ⟹ 3중 자기검증: ①[rbp+0x1cde8]==LIVE_DB ②[rbp+0x1cce0](set_end)이 레코드 세트Vec 범위 내·0x100 정렬
+//     ③rec+0x151==dl(맵 바이트)·rec+0x138==엔트리키·rec+0x150==0(미완료). 스캔 miss = 대회 아님 폴백(안전).
+//   ⛔팀키 프레임 슬롯([rbp+0x1cdc8]/[rbp+0x1cdd8]) 직독 금지 — launcher 시점 클로버(DONE.md).
+//   ⬜런타임 실측 2건(registry [대회 디스크립터 보험] 블록으로 판독):
+//     ①스캔 성공률(TN_MISS_SCAN>0 = set_end 슬롯이 무효인 경로 존재) ②+0x140/+0x148 의 side0(blue) 대응
+//       — 내 팀 매치의 buy 에서 (레코드 슬롯, 세트 side 바이트) ↔ 실제 athlete side(+0x810) 투표로 확정.
+//   현 단계 = 관측 전용(팀 게이트 판정에 사용하지 않음). 실측 확정 후 게이트 연결을 별도 결정.
+const TN_ENABLED: bool = true;
+const RA_TOURN_054: u64 = 0x239f242; // 0.5.4 worker.rs 대회 배경 launcher retaddr(콜 0x239f23d)
+static TN_SEEN: AtomicU64 = AtomicU64::new(0);       // 대회 retaddr 런처 발화 수
+static TN_HIT: AtomicU64 = AtomicU64::new(0);        // 레코드 스캔 성공
+static TN_MISS_FRAME: AtomicU64 = AtomicU64::new(0); // 프레임 슬롯 읽기 실패/포인터 무효
+static TN_MISS_DB: AtomicU64 = AtomicU64::new(0);    // 검증① db 불일치
+static TN_MISS_SCAN: AtomicU64 = AtomicU64::new(0);  // 두 맵 전체 스캔 miss(검증항목 ①의 핵심 지표)
+static TN_V3_NG: AtomicU64 = AtomicU64::new(0);      // 검증③ 탈락(키불일치/완료플래그/맵바이트)
+static TN_LAST_A: AtomicU64 = AtomicU64::new(0);     // 마지막 히트 팀A id(rec+0x140)
+static TN_LAST_B: AtomicU64 = AtomicU64::new(0);     // 마지막 히트 팀B id(rec+0x148)
+static TN_LAST_KEY: AtomicU64 = AtomicU64::new(0);   // 마지막 히트 매치키
+static TN_LAST_MAP: AtomicU64 = AtomicU64::new(0);   // 마지막 히트 맵 오프셋(0x2a0/0x2d0)
+static TN_LAST_SB: AtomicU64 = AtomicU64::new(0);    // 마지막 히트 set 꼬리 2바이트(+0xf8 side·+0xf9 세트번호)
+static TN_MY_N: AtomicU64 = AtomicU64::new(0);       // 내 팀(PLAYER_TEAM_ID) 매치 히트 수
+static TN_MY_SLOT: AtomicU64 = AtomicU64::new(0);    // 내 팀 슬롯(0=+0x140/1=+0x148)
+static TN_MY_SB: AtomicU64 = AtomicU64::new(0);      // 그 세트의 side 바이트
+static TN_MY_SEED: AtomicU64 = AtomicU64::new(0);    // ★buy측 상관 키(마지막 store = 게시 완료 표식)
+static TN_VOTE: [AtomicU64; 8] = [const { AtomicU64::new(0) }; 8]; // [slot*4+sb*2+ath_side] 투표
+// ⚠cap_launcher 최소 디투어 제약 상속 — VEH 보호 읽기 + 원자연산만(format!/fs/락/할당/catch_unwind 금지).
+//   대회 retaddr 에서만 호출(경기 시작당 1회)·스캔 상한 mask<0x1000 ⟹ 핫패스 아님.
+unsafe fn tourn_capture(saved: *mut u64, seed: u64) {
+    TN_SEEN.fetch_add(1, Ordering::Relaxed);
+    let entry_rsp = saved.add(10) as usize;      // = launcher 진입 rsp([rsp]=retaddr, 스텁 push 10개 위)
+    let rbp = entry_rsp.wrapping_add(0x88);      // worker 프롤로그: 8push + sub rsp,0x1ceb8 + rbp=rsp+0x80
+    let (Some(db), Some(cfg), Some(set_end)) = (
+        safe_read_u64(rbp.wrapping_add(0x1cde8)),   // 배경 sim db(0x2392f90 1회 기록)
+        safe_read_u64(rbp.wrapping_add(0x1cdc0)),   // cfg(배경 sim 상태 구조체)
+        safe_read_u64(rbp.wrapping_add(0x1cce0)),   // 현재 세트블록 끝 포인터
+    ) else { TN_MISS_FRAME.fetch_add(1, Ordering::Relaxed); return; };
+    // 검증① — db 포인터 대조(LIVE_DB 미확보면 대조 생략 — ②·③이 남는다)
+    let kdb = LIVE_DB.load(Ordering::Relaxed);
+    if kdb != 0 && db != kdb { TN_MISS_DB.fetch_add(1, Ordering::Relaxed); return; }
+    let (cfg, set_end) = (cfg as usize, set_end as usize);
+    if cfg < 0x10000 || set_end < 0x10000 { TN_MISS_FRAME.fetch_add(1, Ordering::Relaxed); return; }
+    let map_b = *saved.add(1) & 0xff;            // dl = launcher arg2 = 맵 바이트
+    for map_off in [0x2a0usize, 0x2d0] {
+        let Some(ctrl) = safe_read_u64(cfg + map_off) else { continue };
+        let Some(mask) = safe_read_u64(cfg + map_off + 8) else { continue };
+        let ctrl = ctrl as usize;
+        if ctrl < 0x10000 || mask >= 0x1000 { continue; } // hashbrown: ctrl 배열 포인터·bucket_mask
+        let n = mask as usize + 1;
+        let mut g = 0usize;
+        while g < n {
+            let Some(w) = safe_read_u64(ctrl + g) else { break }; // ctrl 바이트 8개 묶음
+            let lim = (n - g).min(8);
+            for j in 0..lim {
+                if (w >> (j * 8)) & 0x80 != 0 { continue; }       // empty/deleted 버킷
+                let ent = ctrl.wrapping_sub((g + j + 1) * 0x160); // 엔트리 = ctrl 아래로 (i+1)*0x160
+                if ent < 0x10000 { continue; }
+                let Some(key) = safe_read_u64(ent) else { continue };
+                let rec = ent + 8;
+                let (Some(sptr), Some(slen)) = (safe_read_u64(rec + 8), safe_read_u64(rec + 0x10)) else { continue };
+                let (sptr, slen) = (sptr as usize, slen as usize);
+                if sptr < 0x10000 || slen == 0 || slen > 64 { continue; }
+                // 검증② — set_end 가 이 레코드의 세트 Vec(원소 0x100) 범위 내·정렬 일치
+                if !(set_end > sptr && set_end <= sptr + slen * 0x100 && (set_end - sptr) % 0x100 == 0) { continue; }
+                // 검증③ — 매치키 자기일치·미완료·맵 바이트 (u64 하나로 +0x150/+0x151 동시 커버)
+                let (Some(k2), Some(w150)) = (safe_read_u64(rec + 0x138), safe_read_u64(rec + 0x150)) else { continue };
+                if k2 != key || w150 & 0xff != 0 || (w150 >> 8) & 0xff != map_b {
+                    TN_V3_NG.fetch_add(1, Ordering::Relaxed); continue;
+                }
+                let (Some(ta), Some(tb)) = (safe_read_u64(rec + 0x140), safe_read_u64(rec + 0x148)) else { continue };
+                let Some(wtail) = safe_read_u64(set_end - 8) else { continue }; // set+0xf8 side·+0xf9 세트번호
+                TN_HIT.fetch_add(1, Ordering::Relaxed);
+                TN_LAST_A.store(ta, Ordering::Relaxed);
+                TN_LAST_B.store(tb, Ordering::Relaxed);
+                TN_LAST_KEY.store(key, Ordering::Relaxed);
+                TN_LAST_MAP.store(map_off as u64, Ordering::Relaxed);
+                TN_LAST_SB.store(wtail & 0xffff, Ordering::Relaxed);
+                let pid = PLAYER_TEAM_ID.load(Ordering::Relaxed);
+                if pid != u64::MAX && (ta == pid || tb == pid) {
+                    TN_MY_N.fetch_add(1, Ordering::Relaxed);
+                    TN_MY_SLOT.store(u64::from(ta != pid), Ordering::Relaxed);
+                    TN_MY_SB.store(wtail & 1, Ordering::Relaxed);
+                    TN_MY_SEED.store(seed, Ordering::Relaxed); // 마지막 store = buy측 투표 게이트 오픈
+                }
+                return;
+            }
+            g += 8;
+        }
+    }
+    TN_MISS_SCAN.fetch_add(1, Ordering::Relaxed);
 }
 // ★훅 설치 경로 카운터(2026-07-22 진단): "훅 재시도"가 프레임당 189µs = 47만 사이클로 관측 —
 //   early return 경로라기엔 과대. 매프레임 실제 재설치(VirtualAlloc+VirtualProtect ×N) 여부를 가린다.
@@ -3998,6 +4097,29 @@ fn write_registry_status(db: usize) {
             s.push_str("        (참고) 줄은 적팀 정상 차단이라 값이 커도 무시할 것\n");
             s.push_str("        MOD_REGISTRY 0 → 구멍3 / 재시도>0 이면 첫 스캔이 실패했다는 뜻\n");
         }
+        // ★08-08 — 대회(리그) 배경 디스크립터 보험 관측(관측 전용·게이트 미연결. RE 레시피 런타임 실측 2건용).
+        if TN_ENABLED {
+            s.push_str(&format!("\n  [대회 디스크립터 보험 (08-08 RE·worker ret 0x239f242·관측 전용)]\n\
+                \x20   런처발화={} 스캔성공={} · miss: 프레임={} db불일치={} 스캔={} · 검증③탈락={}\n",
+                TN_SEEN.load(Ordering::Relaxed), TN_HIT.load(Ordering::Relaxed),
+                TN_MISS_FRAME.load(Ordering::Relaxed), TN_MISS_DB.load(Ordering::Relaxed),
+                TN_MISS_SCAN.load(Ordering::Relaxed), TN_V3_NG.load(Ordering::Relaxed)));
+            s.push_str(&format!("\x20   마지막 히트: 팀A(+0x140)={} 팀B(+0x148)={} key={} map=+{:#x} set꼬리={:#06x}\n",
+                TN_LAST_A.load(Ordering::Relaxed), TN_LAST_B.load(Ordering::Relaxed),
+                TN_LAST_KEY.load(Ordering::Relaxed), TN_LAST_MAP.load(Ordering::Relaxed),
+                TN_LAST_SB.load(Ordering::Relaxed)));
+            s.push_str(&format!("\x20   내팀 매치 히트={}회 (slot={} sidebyte={} seed={:#x})\n",
+                TN_MY_N.load(Ordering::Relaxed), TN_MY_SLOT.load(Ordering::Relaxed),
+                TN_MY_SB.load(Ordering::Relaxed), TN_MY_SEED.load(Ordering::Relaxed)));
+            s.push_str("\x20   side 투표 (slot,sb)→ath_side0:side1 = ");
+            for sl in 0..2usize { for sb in 0..2usize {
+                s.push_str(&format!("({},{})={}:{}  ", sl, sb,
+                    TN_VOTE[sl * 4 + sb * 2].load(Ordering::Relaxed),
+                    TN_VOTE[sl * 4 + sb * 2 + 1].load(Ordering::Relaxed)));
+            }}
+            s.push_str("\n\x20   판독: ①스캔성공+miss스캔 합 = 런처발화여야 정상. ★miss스캔>0 = set_end 슬롯 무효 경로 실재\n\
+                \x20         ②투표가 (slot,sb) 조합별로 한쪽 side 에 쏠리면 = +0x140/+0x148 의 side 대응 확정 근거\n");
+        }
         s.push_str(&format!("\n  [원시값] retry호출={} 광역스캔={}회(상한8)\n",
             NETRETRY_N.load(Ordering::Relaxed), NETWIDE_TRIES.load(Ordering::Relaxed)));
         for (tag, base) in [("신", DB_DIRECT.load(Ordering::Relaxed) as usize), ("구", db)] {
@@ -5027,6 +5149,18 @@ unsafe extern "C" fn buy_replace_ctx(saved: *mut u64, rsp_entry: usize) -> u64 {
         let champ: &str = champ_cow.as_ref();
         let champ_designated = is_champ_designated(champ); // 스냅샷 zero-alloc
         let side = if readable(athlete + 0x810, 8) { rd_u64(athlete + 0x810) } else { u64::MAX };
+        // ★08-08 대회 보험 실측② — 내 팀 대회 배경경기에서 (레코드 슬롯, 세트 side 바이트) ↔ 실제 athlete
+        //   side(+0x810) 투표. TN_MY_SEED(launcher 캡처 시 저장) == 이 sim 의 provider seed 면 같은 경기.
+        //   여기 도달한 배경 buy 는 이미 내 선수(멤버십/구제 게이트 통과) ⟹ 저비용(원자 2로드+VEH 1읽기).
+        if TN_ENABLED && !is_live && side <= 1 {
+            let tseed = TN_MY_SEED.load(Ordering::Relaxed);
+            if tseed != 0 && safe_read_u64(provider_now as usize + O_PROVIDER_SEED) == Some(tseed)
+                && matches!(is_my_athlete(athlete), Some(true)) {
+                let idx = (TN_MY_SLOT.load(Ordering::Relaxed) as usize & 1) * 4
+                    + (TN_MY_SB.load(Ordering::Relaxed) as usize & 1) * 2 + (side as usize & 1);
+                TN_VOTE[idx].fetch_add(1, Ordering::Relaxed);
+            }
+        }
         // ★side 판별: scene 직독(SCENE_SIDE, 메인스레드 갱신) 우선 → 미정이면 LIVE_DB로 즉석 판정(owned=0 주입창 보호).
         //   미판정 = 주입 안 함(적/배경 오염 방지 — 폴백 투표 폐기 확정).
         let scene_ps = scene_player_side().or_else(|| {
