@@ -73,6 +73,118 @@ item_text_layout: {{ x: 6px; y: 5px; width: {}px; height: 26px; }} max_items_hei
 /// 슬롯(0~9) + 칸(0~2) → 드롭다운 노드 id
 pub fn dd_id(slot: usize, item: usize) -> String { format!("ct_i{}_{}", item, ROWS[slot]) }
 
+/// ★킬스코어 현황 오버레이 조각(2026-08-08) — 병렬 실행 중 경기 N개의 점수·진행률을 한 화면에.
+///   게임의 로딩 진행바는 "결과 도착 후 1.4초 연출"이라 병렬에선 의미가 없다(모드가 숨기고 이걸 띄운다).
+///   ⚠append_child 조각이므로 최상위 id에 `#` 금지. 좌표는 `comp_test_popup`(1280x680) 기준 절대값.
+// ★모드가 주입하는 라벨은 전부 **볼드**(게임 `#bold_label` 스타일 재사용 — 유저 요청 2026-08-08).
+fn ct_label_at(id: &str, x: u32, y: u32, w: u32, size: u32) -> String {
+    format!("{}:label {{ @\"asset/base/style/main#bold_label\"; visible: false; \
+x: {}px; y: {}px; width: {}px; height: 30px; align_x: Center; align_y: Center; \
+text: \"\"; size: {}; }}", id, x, y, w, size)
+}
+fn ct_label(id: &str, y: u32, size: u32) -> String { ct_label_at(id, 240, y, 800, size) }
+pub fn ks_id(i: usize) -> String { format!("ct_ks{}", i) }
+pub const KS_MSG_ID: &str = "ct_ksmsg";
+// 최대 10경기(20은 CPU 부하로 실용성 없음 — 유저 실측). 한 열로 세운다.
+pub const KS_MAX: usize = 10;
+pub const KS_COL: usize = 10;
+fn ks_pos(i: usize) -> (u32, u32) { (240, 196 + (i as u32) * 34) }
+
+/// ★기록탭 범위 토글 — 게임의 준비/기록 토글(`popup_tabs`)과 **같은 모양**으로 만든다.
+///   `.ui` 원본(L1485~1528)의 `color` 컨테이너 + `color_selectable` 2개 구조를 그대로 복제.
+///   위치 = 탭(y18~58)과 기록 스크롤(y112~) 사이 빈 구간(y62).
+pub const HS_LAST_ID: &str = "ct_hs_last";
+pub const HS_ALL_ID: &str = "ct_hs_all";
+pub const HS_BOX_ID: &str = "ct_hs_box";
+// 이번 회차 승패 집계 — 한 라벨엔 색을 하나만 줄 수 있어 **3조각**으로 나눈다
+//   (블루 쪽은 우측정렬, 구분자는 중앙, 레드 쪽은 좌측정렬 → 가운데 정렬처럼 보인다).
+// 팀 이름은 팀 색, **숫자는 흰색** ⟹ 5조각으로 나눈다(라벨 하나에 색은 하나뿐).
+pub const WL_BL_ID: &str = "ct_wl_bl";   // "블루"  (청록)
+pub const WL_BN_ID: &str = "ct_wl_bn";   // 블루 승수 (흰색)
+pub const WL_C_ID: &str = "ct_wl_c";     // ":"     (회색)
+pub const WL_RN_ID: &str = "ct_wl_rn";   // 레드 승수 (흰색)
+pub const WL_RL_ID: &str = "ct_wl_rl";   // "레드"  (빨강)
+pub const COL_BLUE: u32 = 0x37d5b3ff;   // 게임 블루(청록)
+pub const COL_RED: u32 = 0xeb3d4dff;    // 게임 레드
+pub const COL_DIM: u32 = 0xc2c6ceff;    // 기본 회색
+pub const COL_WHITE: u32 = 0xffffffff;
+fn ct_label_align(id: &str, x: u32, y: u32, w: u32, size: u32, align: &str) -> String {
+    format!("{}:label {{ @\"asset/base/style/main#bold_label\"; visible: false; \
+x: {}px; y: {}px; width: {}px; height: 30px; align_x: {}; align_y: Center; \
+text: \"\"; size: {}; }}", id, x, y, w, align, size)
+}
+fn ct_scope_toggle() -> String {
+    format!("{}:color {{ visible: false; x: 820px; y: 62px; width: 372px; height: 40px; \
+padding: {{ left: 4px; right: 4px; top: 4px; bottom: 4px; }} \
+color: #4a4c56ff; stroke: 1; back_color: #00000000; \
+rounding: Uniform {{ rounding: 8; }} \
+child_type: LeftToRight {{ spacing: 0px; }} \
+#{}:color_selectable {{ @\"asset/base/style/main#strategy_option\"; width: 182px; height: 32px; \
+label: {{ size: 16; }} selected_label: {{ size: 16; }} text: \"테스트 결과\"; }} \
+#{}:color_selectable {{ @\"asset/base/style/main#strategy_option\"; width: 182px; height: 32px; \
+label: {{ size: 16; }} selected_label: {{ size: 16; }} text: \"모든 결과\"; }} }}",
+        HS_BOX_ID, HS_LAST_ID, HS_ALL_ID)
+}
+
+/// ★경기 수 선택 — 준비 화면에서 1~10을 즉석으로 고른다.
+///   ⚠**드롭다운(`:dropdown`)은 쓸 수 없다**: `.ui`에 항목(items)을 선언하는 문법이 없고 게임 코드가
+///   런타임에 채우는 구조라, 모드가 주입한 드롭다운은 **목록이 빈 채로 뜬다**(게임 `#athlete:dropdown`
+///   선언 확인 — items 없음). ⟹ **−/+ 버튼 + 숫자 라벨**로 구현한다(1~10 전체를 두 번 클릭 안에 커버).
+// 두 벌을 만든다 — 준비 화면(page 0)용과 전술 화면(page 3)용. 화면마다 레이아웃이 달라
+//   같은 노드를 옮겨 쓸 수 없다(런타임 좌표 write 금지 = 히트박스가 안 따라옴).
+pub const RUNS_DEC_ID: [&str; 2] = ["ct_runs_dec0", "ct_runs_dec1"];
+pub const RUNS_INC_ID: [&str; 2] = ["ct_runs_inc0", "ct_runs_inc1"];
+pub const RUNS_VAL_ID: [&str; 2] = ["ct_runs_val0", "ct_runs_val1"];
+pub const RUNS_BOX_ID: [&str; 2] = ["ct_runs_box0", "ct_runs_box1"];
+fn ct_runs_picker(i: usize, x: u32, y: u32) -> String {
+    format!("{}:color {{ visible: false; x: {}px; y: {}px; width: 300px; height: 34px; \
+color: #4a4c56ff; stroke: 1; back_color: #00000000; rounding: Uniform {{ rounding: 8; }} \
+#{}:color_selectable {{ @\"asset/base/style/main#strategy_option\"; x: 4px; y: 3px; \
+width: 44px; height: 28px; label: {{ size: 16; }} selected_label: {{ size: 16; }} text: \"-\"; }} \
+#{}:label {{ @\"asset/base/style/main#label\"; x: 52px; y: 3px; width: 196px; height: 28px; \
+align_x: Center; align_y: Center; text: \"\"; size: 15; }} \
+#{}:color_selectable {{ @\"asset/base/style/main#strategy_option\"; x: 252px; y: 3px; \
+width: 44px; height: 28px; label: {{ size: 16; }} selected_label: {{ size: 16; }} text: \"+\"; }} }}",
+        RUNS_BOX_ID[i], x, y, RUNS_DEC_ID[i], RUNS_VAL_ID[i], RUNS_INC_ID[i])
+}
+
+/// comp_test_popup 에 킬스코어 라벨 KS_MAX개 + 상태 라벨 1개 주입(멱등).
+unsafe fn inject_killscore(r: usize) -> bool {
+    if r <= 0x10000 { return false; }
+    if find_tmpl(r, b"ct_ksmsg", 0) != 0 { return true; }       // 멱등 마커
+    let mut n = 0;
+    // 상태 메시지(맨 위) — "경기 진행 중" / "결과 정리 중 k/N"
+    if append_child(r, b"comp_test_popup", &ct_label(KS_MSG_ID, 150, 20)) { n += 1; }
+    for i in 0..KS_MAX {
+        let (x, y) = ks_pos(i);
+        // 폭 800 = 상태 메시지와 같은 폭이라 가운데 정렬이 서로 맞는다(폭 500이면 왼쪽으로 쏠림).
+        let txt = ct_label_at(&ks_id(i), x, y, 800, 17);
+        if append_child(r, b"comp_test_popup", &txt) { n += 1; }
+    }
+    // 기록탭 범위 토글(테스트 결과 / 모든 결과)
+    if append_child(r, b"comp_test_popup", &ct_scope_toggle()) { n += 1; }
+    // 이번 회차 승패 집계("블루 N : M 레드") — 토글 왼쪽 빈 자리
+    //   ★구분자 ":"가 **팝업 정중앙(1280/2 = 640)** 에 오도록 잡는다:
+    //     블루 조각 290~620(우측정렬) · ":" 620~660(중앙 = 640) · 레드 조각 660~990(좌측정렬).
+    //   글자 19 = 기존 17 + 2.
+    //   조각 배치(중앙 640 대칭): 블루라벨 300~555 / 블루숫자 560~615 / ":" 620~660 /
+    //                              레드숫자 665~720 / 레드라벨 725~980
+    if append_child(r, b"comp_test_popup", &ct_label_align(WL_BL_ID, 300, 59, 255, 19, "Right")) { n += 1; }
+    if append_child(r, b"comp_test_popup", &ct_label_align(WL_BN_ID, 560, 59, 55, 19, "Right")) { n += 1; }
+    if append_child(r, b"comp_test_popup", &ct_label_align(WL_C_ID, 620, 59, 40, 19, "Center")) { n += 1; }
+    if append_child(r, b"comp_test_popup", &ct_label_align(WL_RN_ID, 665, 59, 55, 19, "Left")) { n += 1; }
+    if append_child(r, b"comp_test_popup", &ct_label_align(WL_RL_ID, 725, 59, 255, 19, "Left")) { n += 1; }
+    // 경기 수 선택(−/+) 2벌:
+    //   [0] 준비 화면 — "챔피언 선택" 버튼(x673,y565) **위**
+    //   [1] 전술 화면 — 팀 전술 블록(#strategy y160~616) 아래, 개인 전술 위의 오른쪽
+    //   (좌표는 인게임 실측으로 미세조정 — 유저 확인 2026-08-08)
+    if append_child(r, b"comp_test_popup", &ct_runs_picker(0, 955, 498)) { n += 1; }
+    if append_child(r, b"comp_test_popup", &ct_runs_picker(1, 957, 654)) { n += 1; }
+    KS_INJECTED.store(n, Ordering::Relaxed);
+    n > 0
+}
+pub static KS_INJECTED: AtomicUsize = AtomicUsize::new(0);
+
 static BASE: AtomicUsize = AtomicUsize::new(0);
 static TRAMP: AtomicUsize = AtomicUsize::new(0);
 static INSTALLED: AtomicBool = AtomicBool::new(false);
@@ -190,11 +302,18 @@ fn loader_body(path: *const u8, len: usize, r: usize) {
     if s == PATH_TRAIN && r != LAST_TRAIN.load(Ordering::Relaxed) {
         let ok = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| unsafe { inject_comptest(r) }))
             .unwrap_or(false);
+        // ★킬스코어 오버레이도 같은 레이아웃에 주입(실패해도 기존 기능엔 영향 없음)
+        let _ = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| unsafe { inject_killscore(r) }));
         if ok { LAST_TRAIN.store(r, Ordering::Relaxed); }
     }
 }
 
+/// ★게임 에셋 매니저(로더 1번 인자). 팝업 refresh `0x2306000(assets, node)`의 a1이 바로 이것이다
+///   — 모드 `Assets`(post_update 인자)와는 **다른 물건**이라 여기서 캐시해야 한다.
+pub static ASSETS: AtomicUsize = AtomicUsize::new(0);
+
 extern "win64" fn detour(am: usize, path: *const u8, len: usize) -> usize {
+    if am > 0x10000 { ASSETS.store(am, Ordering::Relaxed); }
     let t = TRAMP.load(Ordering::Relaxed);
     if t == 0 { return 0; }
     let r = unsafe { core::mem::transmute::<usize, LoaderFn>(t)(am, path, len) };
