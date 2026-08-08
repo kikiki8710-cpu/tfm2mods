@@ -52,7 +52,14 @@ extern "system" fn seh_veh(p: *mut ExceptionPointers) -> i32 {
     unsafe {
         if p.is_null() { return CONTINUE_SEARCH; }
         let rec = (*p).rec;
-        if rec.is_null() || (*rec).code != 0xC0000005 { return CONTINUE_SEARCH; }   // ACCESS_VIOLATION만
+        if rec.is_null() { return CONTINUE_SEARCH; }
+        // ★[08-09] 0x80000001(STATUS_GUARD_PAGE_VIOLATION) 추가 — PAGE_GUARD 페이지를 프로브가 읽으면 OS는
+        //   AV가 아니라 가드 위반을 던진다(가드비트는 예외 전달 전에 이미 소거됨). AV만 받던 구버전은 이게
+        //   VEH를 통과해 미처리 예외로 즉사했다(08-09 데모화면 크래시: WER MOD+0x101c=pr_rd1_f, faultAddr=
+        //   0xfe343f0000 스택 가드페이지). VirtualQuery 경로는 GUARD를 "읽기 불가"로 배제하므로(아래 readable)
+        //   프로브 경로도 같은 의미(실패 반환)가 되도록 우리 RIP 한정으로 처리한다. 그 외 RIP는 종전대로 통과.
+        let code = (*rec).code;
+        if code != 0xC0000005 && code != 0x8000_0001 { return CONTINUE_SEARCH; }
         let ctx = (*p).ctx as usize;
         if ctx == 0 { return CONTINUE_SEARCH; }
         let rip = *((ctx + 0xF8) as *const u64) as usize;                           // CONTEXT.Rip@0xF8
@@ -64,12 +71,16 @@ extern "system" fn seh_veh(p: *mut ExceptionPointers) -> i32 {
                    else if rip == core::ptr::addr_of!(pr_wr4_f) as usize { core::ptr::addr_of!(pr_wr4_l) as usize }
                    else if rip == core::ptr::addr_of!(pr_wr1_f) as usize { core::ptr::addr_of!(pr_wr1_l) as usize }
                    else { 0 };
-        if land != 0 { *((ctx + 0xF8) as *mut u64) = land as u64; return CONTINUE_EXECUTION; }
+        if land != 0 {
+            if code == 0x8000_0001 { seh_rearm_guard(rec); }
+            *((ctx + 0xF8) as *mut u64) = land as u64; return CONTINUE_EXECUTION;
+        }
         // ── spinlock 읽기(level1): SEH[] 활성 + 우리스레드 + 우리 asm범위 ──
         let g = core::ptr::addr_of!(SEH) as *const u64;
         if *g.add(0) == 0 { return CONTINUE_SEARCH; }                                // inactive
         if *g.add(1) != GetCurrentThreadId() as u64 { return CONTINUE_SEARCH; }      // 다른 스레드
         if (rip as u64) < *g.add(5) || (rip as u64) >= *g.add(6) { return CONTINUE_SEARCH; }  // 범위 밖
+        if code == 0x8000_0001 { seh_rearm_guard(rec); }
         *((ctx + 0xF8) as *mut u64) = *g.add(2);                                     // Rip → land
         *((ctx + 0x98) as *mut u64) = *g.add(3);                                     // Rsp 복원
         *((ctx + 0xA0) as *mut u64) = *g.add(4);                                     // Rbp 복원
@@ -77,6 +88,21 @@ extern "system" fn seh_veh(p: *mut ExceptionPointers) -> i32 {
         *gm.add(7) += 1;
         CONTINUE_EXECUTION
     }
+}
+
+// ★[08-09] 가드페이지 재무장 — 가드 위반은 예외 전달 전에 PAGE_GUARD 비트가 소거된다. 프로브가 소비한
+//   가드를 되돌리지 않으면 그 페이지 원주인(대개 다른 스레드의 스택 성장 가드)이 망가져 나중에 그쪽이
+//   0xc00000fd(STACK_OVERFLOW)로 죽는다. VEH 문맥 수칙 준수: VirtualQuery/VirtualProtect는 raw syscall
+//   (할당·락·패닉 없음). COMMIT 페이지가 아니면 손대지 않는다(그 사이 decommit된 경우).
+unsafe fn seh_rearm_guard(rec: *mut ExceptionRecord) {
+    if (*rec)._np < 2 { return; }
+    let fa = (*rec)._params[1];
+    if fa < 0x10000 || fa >= 0x0001_0000_0000_0000 { return; }
+    let mut mbi = MemBasicInfo::default();
+    if VirtualQuery(fa as *const _, &mut mbi, core::mem::size_of::<MemBasicInfo>()) == 0 { return; }
+    if mbi.state != 0x1000 { return; }   // MEM_COMMIT만
+    let mut old = 0u32;
+    VirtualProtect(fa & !0xfff, 0x1000, mbi.protect | 0x100, &mut old);   // PAGE_GUARD 재부여
 }
 
 fn seh_install() { if SEH_INSTALLED.swap(true, Ordering::Relaxed) { return; } unsafe { AddVectoredExceptionHandler(1, seh_veh); } }
