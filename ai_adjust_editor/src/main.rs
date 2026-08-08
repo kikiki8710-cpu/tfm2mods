@@ -109,7 +109,9 @@ static TABS: &[Tab] = &[
  "§◆ 방어","d19i_enable","d19_retreat_hp","nx_dn_nexus_hp","nx_dn_hp_crit","nx_dn_hp_low","nx_dn_near_dist","nx_dn_pred_dist","nx_dn_vision_mem",
  "§◆ 방어 측 교전 컷 · 배회 반경","nx_cull_dist19","nx_around_def",
  "§◆ 공격 측 배회 반경","nx_around_atk",
- "§◆ 공격","nx_an_finish_hp","nx_an_cull_dist","§◆ 넥서스로 밀어붙일지 (0.5.4 신설)","an_tower_gate","an_attack_sub","an_home_wait","an_fallback","an_fallback_wave","an_fallback_style","§◆ 넥서스가 위험할 때 — 위험도 사다리","d19_ally_hp","nx_dn_count_gate","nx_an_count_gate","d19_sev_hp_1","d19_sev_hp_2","d19_sev_hp_3","d19_sev_ratio_0","d19_sev_ratio_1","d19_sev_ratio_2","d19_sev_ratio_3",], note:
+ "§◆ 공격","nx_an_finish_hp","nx_an_cull_dist","§◆ 넥서스로 밀어붙일지 (0.5.4 신설)","an_tower_gate","an_attack_sub","an_home_wait","an_fallback","an_fallback_wave","an_fallback_style","§◆ 넥서스가 위험할 때 — 위험도 사다리","d19_ally_hp","nx_dn_count_gate","nx_an_count_gate","d19_sev_hp_1","d19_sev_hp_2","d19_sev_hp_3","d19_sev_ratio_0","d19_sev_ratio_1","d19_sev_ratio_2","d19_sev_ratio_3",
+ "§★ 비상 수비 — 어느 상황에서 얼마나 적극적으로 (0.5.4 게임 신규 판단)","nxe_twin0","nxe_twin1","nxe_t2_1","nxe_t2_2","nxe_t2_3","nxe_t1_1","nxe_t1_2","nxe_t1_3",
+ "§☆ 비상 수비 — 부작용 분리(평소엣 건드리지 마세요)","nxe_supp_off","nxe_battle_off",], note:
  "<b>[18·19] 넥서스 공수</b> — 넥서스 방어(disc19)/공격(실행 18) 판단 튜닝. 대부분 <b>byte-patch</b>(게임 원본상수 직접 수정).<br>\
  이 탭의 값들은 현재 버전에서 정상 적용됩니다. 적용 여부는 <b>obj_imm.txt</b>에서 확인할 수 있습니다.<br>\
  <b>방어</b>: d19_retreat_hp(후퇴 HP%문턱, ↑=수비적) — <b>d19i_enable=1 켜야</b> byte-patch 반영(0=원본45 복원). + oi_dn_*(<b>nx_enable=1</b> 필요).<br>\
@@ -319,7 +321,8 @@ fn is_toggle(k: &str) -> bool {
  matches!(k, "cond_repl"|"gbskip"|"mp_repl"|"dd7_repl"|"poke_repl"|"recall_repl"|"engage_repl"
  |"e9jt"|"d4_repl"|"d7_repl"|"d4ttd"|"perf_measure"|"read_bench"|"replay_reset"|"enabled"
  |"nx_repl"|"d12_repl"|"d14_repl"|"d15_repl"|"skip_untuned"|"sp_seen"
- |"fix_skill2_dmg"|"fix_hp_ratio"|"probe"|"hd_skip_landmark"|"lt_revive_join") // 07-31 노출분 (sp_seen_tag는 자유 문자열이라 제외)
+ |"fix_skill2_dmg"|"fix_hp_ratio"|"probe"|"hd_skip_landmark"|"lt_revive_join"
+ |"nxe_supp_off"|"nxe_battle_off")   // 08-08 넥서스 비상 부작용 분리 스위치 // 07-31 노출분 (sp_seen_tag는 자유 문자열이라 제외)
 }
 // ⛔is_added / "신규" 뱃지는 제거됨(유저 지시 2026-08-03) — 추가분을 구분 표시하지 않는다.
 // 나열돼 있던 키(tower_*·numbers_*·ally_tower_*·rc_join*·stat_influence)는 08-03 원본 순수화로 전부 폐기됐다.
@@ -351,6 +354,17 @@ fn disp_key(k: &str) -> &str {
 /// `-1`만 보이면 무엇을 덮어쓰는 건지 알 수 없어서, 원본을 같이 보여준다.
 fn orig_val(k: &str) -> Option<&'static str> {
  Some(match k {
+        "nxe_twin0" => "100",
+        "nxe_twin1" => "0",
+        "nxe_t2_1" => "0",
+        "nxe_t2_2" => "0",
+        "nxe_t2_3" => "0",
+        "nxe_t1_1" => "0",
+        "nxe_t1_2" => "0",
+        "nxe_t1_3" => "0",
+        "nxe_supp_off" => "0",
+        "nxe_battle_off" => "0",
+
  "ex_skill2_level" => "3", "ex_ult_level" => "5",
  "ex_attack_margin" => "15000", "ex_attack_margin_sp" => "2000", "ex_attack_seek" => "100",
  // 성향 흔들림
@@ -844,6 +858,16 @@ fn select_opts(k: &str) -> Option<&'static [(&'static str, &'static str)]> {
 
 fn desc_static(k: &str) -> Option<&'static str> {
  Some(match k {
+    "nxe_twin0" => "쌍둥이 타워가 **다 부서졌을 때** 얼마나 적극적으로 넥서스를 지킬지. 게임 0.5.4 가 원래 발동하던 상황입니다. 100 = 게임 원본과 같은 세기 / 200 = 더 적극적 / 50 = 덜 적극적 / 0 = 이 상황을 비상으로 보지 않음(원본 동작을 끕니다). 비상이 되면 멀리 있어도 수비 후보가 살아남아 달려오고, 죽을 것 같으면 빠지는 동작이 취소됩니다. 원본 100",
+    "nxe_twin1" => "쌍둥이 타워가 **하나만 남아도** 비상으로 볼지. 값은 적극도(100=원본 세기). 0=끔. 쌍둥이는 팀당 2기입니다. 원본 0(끔)",
+    "nxe_t2_1" => "**2차 타워가 1개 이상** 부서지면 비상으로 볼지(쌍둥이가 멀쩡해도). 적극도, 0=끔. 원본 0(끔)",
+    "nxe_t2_2" => "**2차 타워가 2개 이상** 부서지면. 적극도, 0=끔. 1개 조건과 함께 걸리면 **높은 쪽**이 쓰입니다. 원본 0(끔)",
+    "nxe_t2_3" => "**2차 타워가 3개(전부)** 부서지면. 적극도, 0=끔. 원본 0(끔)",
+    "nxe_t1_1" => "**1차 타워가 1개 이상** 부서지면 비상으로 볼지. 가장 이른 시점입니다. 적극도, 0=끔. 원본 0(끔)",
+    "nxe_t1_2" => "**1차 타워가 2개 이상** 부서지면. 적극도, 0=끔. 원본 0(끔)",
+    "nxe_t1_3" => "**1차 타워가 3개(전부)** 부서지면. 적극도, 0=끔. 원본 0(끔)",
+    "nxe_supp_off" => "⚠부작용 분리용. 비상일 때 게임이 '다른 행동'의 점수를 크게 깎아 눌러버리는 조항이 하나 있습니다. 비상을 자주 켜면 그 행동이 자주 죽습니다. 켜면 그 조항을 없앱니다. 평소엔 끔. 원본 0",
+    "nxe_battle_off" => "⚠부작용 분리용. 교전 판단도 이 비상 신호를 입력으로 받습니다(효과 방향은 아직 규명 전). 켜면 교전 판단이 이 신호를 무시합니다. 평소엔 끔. 원본 0",
     "numbers_margin" => "단순 인원차 후퇴 임계(원본 0=끔). 1 이상으로 두면 (적 수 − 아군 수)가 이 값 이상일 때 후퇴합니다. 게임 원본에 없는 모드 추가 판정이라 0이 아니면 원본과 달라집니다. 0=끔",
     "aggr_object" => "⛔작동하지 않습니다(파서 저장되나 읽는 곳 0=값 무반영). 오브젝트(판단 9·11) 견제 공격성은 실제로는 poke_reach_bonus(↑=더 멀어도 견제)·poke_phase_gate로 조절. 원본 100",
     "aggr_defense" => "⛔작동하지 않습니다(읽는 곳 0=값 무반영). 에픽견제(판단 14) 공격성은 sn_hp_crit·nxd_ref_hp로, 넥서스 방어는 d19_retreat_hp·nx_dn_*로 조절. 원본 100",
