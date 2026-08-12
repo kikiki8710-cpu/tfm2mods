@@ -32,6 +32,9 @@ const LOG_ENABLED: bool = false;            // 디버그 덤프(mods/<MOD_ID>/hl
 //   산식: ClientDatabase.scene(+0x1328) + InGame payload(+8) + GameClient.events(+0x330) = 0x1660 = 5728
 //   (0.4.14 = 0xF90 + 8 + 0x3D0 = 4968 — 같은 산식으로 구 확정치 재현 확인)
 const LIVE_EVENTS_OFF: usize = 5744;  // 0.5.0_3(구5728): ClientDatabase scene 앞 +0x10 필드추가 → db-절대 전부 +0x10(scene 내부 상대는 불변). 런타임 스캔 실증.
+// ★0.5.5 재확인(2026-08-12): 0.5.4→0.5.5 앵커사상 명령 센서스(스켈유일 33,461쌍)로 db-절대 오프셋 전부 시프트 0 —
+//   0x1338(20/20)·0x1598(8/8)·0x1670(4/4)·0x1678(6/6)·0x17F8(14/14)·0x1818(12/12)·0x1820(12/12).
+//   0x1680(events len)만 직접 표본 0이나 같은 Vec triple의 cap/ptr 무이동으로 동반 불변 판단.
 
 // game_view 타입(&Vec<Arc<GameFrameData>>)을 anchor 로 raw 포인터를 &T 캐스팅 (Spectator_Chat 동일 기법)
 unsafe fn cast_as<T>(_anchor: &Option<&T>, ptr: usize) -> &'static T { &*(ptr as *const T) }
@@ -398,7 +401,7 @@ fn hl_collect(data: &ClientData, root: &Node) {
 fn hl_identify_match(db: &ClientDatabase) -> Option<usize> {
     unsafe {
         let base = (db as *const ClientDatabase) as usize;
-        let scene_tag = *((base + 0x1338) as *const u32);   // 0.5.0_3(구0x1328, +0x10)
+        let scene_tag = *((base + 0x1338) as *const u32);   // 0.5.0_3(구0x1328, +0x10)~0.5.5 불변(2026-08-12 센서스)
         if scene_tag != 9 { return None; } // 관전(InGame) scene 아님
         let mt_tag = *((base + 0x1818) as *const u64);       // 0.5.0_3(구0x1808, +0x10)
         if mt_tag != 1 { return None; } // Normal 매치만 (연습/튜토리얼/솔로랭크 제외)
