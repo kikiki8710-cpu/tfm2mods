@@ -618,8 +618,10 @@ impl ModExtension for P {
             //   ※events 5728 은 community_reaction_mod 0.5.0 인게임 검증으로 런타임 실증됨.
             //   ★0.5.0_3: ClientDatabase 가 scene 앞에 필드 +0x10 추가 → scene 0x1328→0x1338, db-절대 오프셋 전부 +0x10.
             //     (scene 내부 상대 0x258/0x330 은 불변. 런타임 스캔 실증: scene_tag@0x1338, events@5744 cap=32768 len=30785, played@5528.)
-            const LIVE_PLAYED_OFF: usize = 5528;            // 0.5.0_3(구5512). scene(db+4920=0x1338)+8+0x258
-            const LIVE_EVENTS_OFF: usize = 5744;            // 0.5.0_3(구5728). scene(db+4920=0x1338)+8+0x330
+            //   ★0.5.5 재확인(2026-08-12): 0.5.4→0.5.5 앵커사상 명령 센서스로 db-절대 오프셋 전부 시프트 0
+            //     (0x1338 20/20 · 0x1598 8/8 · 0x1670 4/4 · 0x1678 6/6, 0x1680은 cap/ptr 무이동으로 동반 불변).
+            const LIVE_PLAYED_OFF: usize = 5528;            // 0.5.0_3(구5512)~0.5.5 불변. scene(db+4920=0x1338)+8+0x258
+            const LIVE_EVENTS_OFF: usize = 5744;            // 0.5.0_3(구5728)~0.5.5 불변. scene(db+4920=0x1338)+8+0x330
             unsafe {
                 let base = (&*db as *const _) as usize;
                 let played = *((base + LIVE_PLAYED_OFF) as *const u64) as i64;
