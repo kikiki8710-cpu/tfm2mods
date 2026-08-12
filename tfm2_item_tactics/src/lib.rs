@@ -1280,7 +1280,12 @@ const GV_OFF_ITEMLIST_LEN: usize = 0xb8;
 const GV_OFF_PV_CTRL: usize = 0x1d0;      // hashbrown RawTable ctrl
 const GV_OFF_PV_MASK: usize = 0x1d8;
 const GV_OFF_PV_ITEMS: usize = 0x1e8;     // 원소 수(0이면 경기 아님)
-const PV_STRIDE: usize = 0x260;           // PlayerViewInfo
+const PV_STRIDE: usize = 0x2c0;           // PlayerViewInfo. 0.5.5: 구 0.5.3~0.5.4 ~~0x260~~ → **0x2c0** (+0x60, 정정 2026-08-12 인게임결함).
+//   ★근거(ghidra 명령 실측): 0.5.5 ingame_ui `imul r10,r10,0x2c0` @0xadbefd 등 4곳 + GV update 0x964350 디컴
+//   그룹스킵 -0x2c0 + 메가함수 상수 0x2600→0x2C00 12곳. hashbrown 역방향 어드레싱(ctrl−(i+1)*stride)이라
+//   stride가 어긋나면 team/pos가 쓰레기 → collect_slot3_icons 빈 맵 → icon.visible=false 능동 세팅
+//   = 0.5.5 "slot3 효과는 적용되는데 아이콘 미표시" 결함의 근본원인. 엔트리 내부(+0 team/+8 pos/items
+//   +0x50·0x58·0x60)와 GameView 헤더(+0x1d0/0x1d8/0x1e8)·item vtable(+0x58/+0x60)은 불변 실측.
 const PV_OFF_TEAM: usize = 0x00;          // u64 태그: 0=blue(Team0) 1=red(Team1)
 const PV_OFF_POS: usize = 0x08;           // u32: 0 top /1 jungle /2 mid /3 bottom /4 support
 const PV_OFF_ITEMS_PTR: usize = 0x58;     // Vec<u64> = {cap@0x50, ptr@0x58, len@0x60}
@@ -3136,10 +3141,15 @@ fn refresh_roster_management(ctx: &mut ServerModContext) {
     publish_my_athletes(my);
 }
 
+// ★champion_patch_statistics 의 Database 구조체 내 오프셋. ~~0x16698~~ → **0x16ed8**
+//   (0.5.5 실측 정정 2026-08-12: 자가치유 프로브 `실제 cps 오프셋 = 0x16ed8` — item_tactics_registry.txt,
+//    구 하드코딩 0x16698 대비 +0x840. 0.5.4 실측은 0x16ec0(+0x828)이었으니 0.5.4→0.5.5 실이동은 +0x18.
+//    ⚠어차피 base 는 dbase(addr_of 직접취득)가 1순위라 이 상수는 폴백·진단 표시용이다.)
+const CPS_OFF: usize = 0x16ed8;
 fn probe_db(ctx: &mut ServerModContext) {
-    // Database 시작 = champion_patch_statistics(@Database+0x16698) 절대주소 − 0x16698.
+    // Database 시작 = champion_patch_statistics(@Database+CPS_OFF) 절대주소 − CPS_OFF.
     let cps = &ctx.database.champion_patch_statistics as *const _ as usize;
-    let db = cps.wrapping_sub(0x16698);
+    let db = cps.wrapping_sub(CPS_OFF);
     // ★★2026-08-07 — **Database 구조체 시작 주소를 하드코딩 없이 직접 취득한다.**
     //   구 코드는 `db = cps − 0x16698` 로 역산했는데, 그 `0x16698`(= champion_patch_statistics 의
     //   구조체 내 오프셋)이 0.5.4 에서 유효한지는 **한 번도 검증된 적이 없다**. 그런데 exe 대조로
@@ -3187,7 +3197,7 @@ fn probe_db(ctx: &mut ServerModContext) {
                 // ★진단(LOG무관): +0xda0 실패 → cps 기준 넓은 창에서 net 시그(16384/*/16384/1) 스캔해 실제 오프셋 찾기.
                 //   + forward RVA 프롤로그도 덤프(itemnet_addr_valid 실패 원인 구분). 한 번만.
                 if !NETSCAN_DONE.swap(true, Ordering::Relaxed) {
-                    let mut out = format!("db={:#x} cps={:#x} (champ_patch_stat off=0x16698)\n net@+0xda0={:#x} sig=({},{},{}) readable={}\n",
+                    let mut out = format!("db={:#x} cps={:#x} (champ_patch_stat off={CPS_OFF:#x})\n net@+0xda0={:#x} sig=({},{},{}) readable={}\n",
                         db, cps, net,
                         if readable(net,0x20){rd_u64(net) as i64}else{-1}, if readable(net,0x20){rd_u64(net+0x10) as i64}else{-1},
                         if readable(net,0x20){rd_u64(net+0x18) as i64}else{-1}, readable(net,0x20));
@@ -3400,24 +3410,34 @@ fn write_registry_status(db: usize) {
                   ^ GATE_DIFF.load(Ordering::Relaxed).min(1).rotate_left(35)
                   ^ LIVE_GAME.load(Ordering::Relaxed).rotate_left(7)
                   ^ BUY_GAME.load(Ordering::Relaxed).rotate_left(11)
-                  ^ if net == 0 { (tries.min(64) << 40) ^ (NETWIDE_TRIES.load(Ordering::Relaxed).min(9) << 52) } else { 0 };
+                  ^ if net == 0 { (tries.min(64) << 40) ^ (NETWIDE_TRIES.load(Ordering::Relaxed).min(9) << 52) } else { 0 }
+                  // ★08-12 인게임결함 진단 추가: GV 훅 발화 여부가 slot3 표시 결함 판별의 핵심인데
+                  //   어떤 파일에도 안 남고 있었다 — 발화 시작/아이콘 세팅 시작 시 재기록되도록 지문에 포함.
+                  ^ GV_HITS.load(Ordering::Relaxed).min(1).rotate_left(45)
+                  ^ SLOT3_ICON_N.load(Ordering::Relaxed).min(1).rotate_left(47);
         if REG_LAST_SIG.swap(sig, Ordering::Relaxed) == sig { return; }
         let mut s = format!("[{}ms] item_tactics 레지스트리/신경망 프로브 결과 (상태 변화 시 갱신)\n\n", now_ms());
-        s.push_str(&format!("  db base(구·역산) = {:#x}  (= &champion_patch_statistics − 0x16698)\n", db));
-        {   // ★08-07: 하드코딩 없이 직접 얻은 Database base 와 대조 — 0x16698 유효성 판정
+        s.push_str(&format!("  db base(구·역산) = {:#x}  (= &champion_patch_statistics − {CPS_OFF:#x})\n", db));
+        {   // ★08-07: 하드코딩 없이 직접 얻은 Database base 와 대조 — CPS_OFF 유효성 판정
             let dd = DB_DIRECT.load(Ordering::Relaxed) as usize;
             let cp = SERVER_CPS.load(Ordering::Relaxed) as usize;
             if dd != 0 {
                 s.push_str(&format!("  db base(신·직접) = {:#x}  (= addr_of!(*ctx.database))\n", dd));
                 if cp != 0 {
                     let real_off = cp.wrapping_sub(dd);
-                    s.push_str(&format!("  ★실제 cps 오프셋 = {:#x}   (하드코딩 = 0x16698 → {})\n",
-                        real_off, if real_off == 0x16698 { "일치 = 0x16698 유효" } else { "★불일치 = 0x16698 이 STALE" }));
+                    s.push_str(&format!("  ★실제 cps 오프셋 = {:#x}   (하드코딩 = {CPS_OFF:#x} → {})\n",
+                        real_off, if real_off == CPS_OFF { "일치 = CPS_OFF 유효" } else { "★불일치 = CPS_OFF 가 STALE" }));
                 }
                 s.push_str(&format!("  두 base 차이     = {}{:#x}\n",
                     if dd >= db { "+" } else { "−" }, if dd >= db { dd - db } else { db - dd }));
             }
         }
+        // ★08-12 인게임결함 진단(0.5.5 slot3 미표시): GV_UPDATE 훅 상태를 상시 노출.
+        //   설치(1=성공/2=실패) · 발화수 · PV잡힘 · 아이콘 세팅수 — 발화=0이면 RVA_GV_UPDATE 오답이 원인.
+        s.push_str(&format!("  [slot3진단] GV훅 설치={} 발화={} PV잡힘={} 아이콘세팅={} miss={}\n",
+            GV_HOOK_INSTALLED.load(Ordering::Relaxed), GV_HITS.load(Ordering::Relaxed),
+            SLOT3_PV_N.load(Ordering::Relaxed), SLOT3_ICON_N.load(Ordering::Relaxed),
+            SLOT3_ICON_MISS.load(Ordering::Relaxed)));
         s.push_str(&format!("  MOD_REGISTRY  = {}개   {}\n", reg,
             if reg == 0 { "★FAIL — 모드템 지정이 전부 미적용된다(SEL_PENDING 행). 상세=item_tactics_moditems.txt(LOG_ENABLED 필요)" } else { "OK" }));
         s.push_str(&format!("  MOD_ACTIVE    = {}/{} 활성\n", act_n, act_tot));
