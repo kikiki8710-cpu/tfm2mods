@@ -29,7 +29,7 @@ const MOD_ID: &str = "tfm2_item_tactics";
 //   프롤로그 55 56 57 48 83 ec 70, 옵션 Vec@+0x1528, 선택 idx@+0x1788.
 //   ⚠ 패치마다 이동 → MIGRATION 시 재탐색.
 // 0.5.0 확정(구 0x218a5f0). dd_addr_valid() 프롤로그 가드(55 56 57 48 83 ec 70)로 검증 후 사용.
-const FN_DD_SETOPT_RVA: usize = 0x1c1ad0; // 0.5.4(구0.5.3=0x1bfc80). 본문 니모닉 100% 동일·콜러 103개 동수·프롤로그 12B 동일. // 0.5.3(구0.5.2=0x242f250). ghidra-re 확정: 직접 콜러 103개로 구 exe와 완전 일치 + 오프셋 지문 4종(+0x1788 selected / +0x1528·0x1530·0x1538 옵션Vec / +0x1570·0x1578 콜백 / 원소 0xf8 / 입력 stride 0x28) 전부 불변. ⚠프롤로그는 변경됨(아래 dd_addr_valid expect 갱신).
+const FN_DD_SETOPT_RVA: usize = 0x1c1a30; // 0.5.5(구0.5.4=0x1c1ad0, exe2exe 스켈레톤 확정). // 0.5.4(구0.5.3=0x1bfc80). 본문 니모닉 100% 동일·콜러 103개 동수·프롤로그 12B 동일. // 0.5.3(구0.5.2=0x242f250). ghidra-re 확정: 직접 콜러 103개로 구 exe와 완전 일치 + 오프셋 지문 4종(+0x1788 selected / +0x1528·0x1530·0x1538 옵션Vec / +0x1570·0x1578 콜백 / 원소 0xf8 / 입력 stride 0x28) 전부 불변. ⚠프롤로그는 변경됨(아래 dd_addr_valid expect 갱신).
 
 const LOG_ENABLED: bool = false; // 프로덕션 OFF(진단 로깅·dump·[slot012] 로그 게이트). 주입 로직은 이 게이트 바깥이라 무영향.
 // ★프로덕션 마스터 진단 게이트(07-11): 이번 세션 진단(nn_moditem·timing·liveroster·p6/channel scan·shadow-call 카탈로그이름조회) +
@@ -1310,8 +1310,8 @@ static TIP_OWNED: AtomicBool = AtomicBool::new(false); // 지금 우리가 빌�
 //   계약: (p1=asset/i18n 레지스트리, p2=텍스트계측 ctx, p3=그 vtable(상수), node=#item_tooltip,
 //          item_data, item_vtable, x, y, pivot_x, pivot_y, clamp_rect{x,y,w,h})
 //   ★item (data,vtable)은 **빌림만** 한다(내부에서 drop 안 함) ⟹ item_list 원본 그대로 넘겨도 안전.
-const RVA_TIP_SHOW: usize = 0x236dc00; // 0.5.4(구0.5.3=0x1ab52f0). item_tooltip.rs panic-location 23개 동일 + 콜러 3개(UI메가 포함) 동수 + 명령수 1936 동일.
-const RVA_TIP_MEASURE_VT: usize = 0x32602a0; // p3 = 텍스트 계측 ctx 의 vtable(상수)
+const RVA_TIP_SHOW: usize = 0x2587990; // 0.5.5(구0.5.4=0x236dc00). head-지문 유일후보·콜러 3개(UImega=0xaedc09 포함) 동수·size 10010→10237·ninsn 1936→2018. // 0.5.4(구0.5.3=0x1ab52f0). item_tooltip.rs panic-location 23개 동일 + 콜러 3개(UI메가 포함) 동수 + 명령수 1936 동일.
+const RVA_TIP_MEASURE_VT: usize = 0x333b970; // 0.5.5(구0.5.4=0x32602a0). UImega tipshow call(0xaedc09) 직전 lea r8,[rip+X]@0xaedbf1 = 4c 8d 05 78 dd 84 02 → 0x333b970. p3 = 텍스트 계측 ctx 의 vtable(상수)
 static TIP_P1: AtomicUsize = AtomicUsize::new(0);
 static TIP_P2: AtomicUsize = AtomicUsize::new(0);
 static TIP_ROOT: AtomicUsize = AtomicUsize::new(0);
@@ -1337,7 +1337,7 @@ unsafe fn node_set_xy(n: &Node, x: f32, y: f32) {
 //  ✅+0x58 key(&String) / +0x60 icon(&String) / +0x68 price(u64 **값**) / +0x70 tier(u64 **값**, 0-base)
 //  ⛔+0x50 = bool(self+0x190!=0) — **name 아님**. 이름은 vtable 슬롯이 없고 key로 i18n 키를 조립한다.
 //     (이걸 String 포인터로 착각해 역참조 → 크래시. 재발 금지.)
-const RVA_GAME_ALLOC: usize = 0x29bb920;  // (rcx=무시, rdx=flags 0, r8=size) -> ptr
+const RVA_GAME_ALLOC: usize = 0x2a9bf30;  // 0.5.5(구0.5.4=0x29bb920). (rcx=무시, rdx=flags 0, r8=size) -> ptr
 unsafe fn item_obj_at(gv: usize, idx: u64) -> Option<(usize, usize)> {
     if !readable(gv + GV_OFF_ITEMLIST_CAP, 24) { return None; }
     if rd_u64(gv + GV_OFF_ITEMLIST_CAP) == u64::MAX { return None; }
@@ -1351,7 +1351,7 @@ unsafe fn item_obj_at(gv: usize, idx: u64) -> Option<(usize, usize)> {
 }
 // GameView 포인터(읽기전용 캡처). game.rs update(0x960df0)의 rcx = GameView. 값 불변이라 1회만 잡으면 된다.
 static GAME_VIEW: AtomicUsize = AtomicUsize::new(0);
-const RVA_GV_UPDATE: usize = 0xaa06c0; // 0.5.4(구0.5.3=0x960df0). 본문 니모닉 100% 동일(오프셋 시퀀스까지)·콜러 22개 동수.
+const RVA_GV_UPDATE: usize = 0x964350; // 0.5.5(구0.5.4=0xaa06c0, exe2exe 스켈레톤 확정). // 0.5.4(구0.5.3=0x960df0). 본문 니모닉 100% 동일(오프셋 시퀀스까지)·콜러 22개 동수.
 const GV_UPDATE_PROLOGUE: [u8; 12] = [0x55, 0x41,0x57, 0x41,0x56, 0x41,0x55, 0x41,0x54, 0x56, 0x57, 0x53];
 static GV_HOOK_INSTALLED: AtomicU64 = AtomicU64::new(0);
 static GV_HITS: AtomicU64 = AtomicU64::new(0);
@@ -2060,7 +2060,7 @@ static PLAYER_TEAM_ID: AtomicU64 = AtomicU64::new(u64::MAX); // u64::MAX=미캡�
 //   (`[rcx+0x840]` 배열·`[rcx+0x848]` count·`imul rcx,r9,0x8d0`) ⟹ **stride 0x8d0도 유지**.
 //   athlete 레이아웃 전체 불변 확인: champ String +0x418/0x420/0x428 · items Vec +0x448/0x450/0x458
 //   · build Vec +0x490/0x498/0x4a0 · id +0x810 · team +0x820 · gold +0x888 · position(dword) +0x8b0 · 사본 0x8b8.
-const O_ATHLETE_ID: usize = 0x800;
+const O_ATHLETE_ID: usize = 0x920; // 0.5.5(구0.5.4=0x800, +0x120 시프트 — athlete ctor 0x102bf00 store 정렬 확정). id 0x800→0x920 / team 0x810→0x930 / pos 0x8a0→0x9c0 / stride 0x8c0→0x9e0. 0x408~0x520 구간 필드는 +0x60(champ String·owned·build Vec).
 static MY_ATHLETES: AtomicPtr<std::collections::HashSet<u64>> = AtomicPtr::new(core::ptr::null_mut());
 static MY_ATH_PREV: AtomicPtr<std::collections::HashSet<u64>> = AtomicPtr::new(core::ptr::null_mut());
 static MY_ATH_N: AtomicU64 = AtomicU64::new(0); // 게시된 선발 인원수(0=미확보)
@@ -2134,7 +2134,7 @@ fn is_skill_key(k: &str) -> bool {
 }
 
 
-const RVA_REALLOC: usize = 0x29a7640; // 0.5.4(구0.5.3=0x28e3b10). 본문 100% 동일·콜러 3개 동수. // 0.5.3(구0.5.2=0x25c4dd0). __rust_realloc 실함수. (rcx=ptr,rdx=old,r8=align,r9=new)->rax. 구 exe 진입 112B 마스크시그 → 신 exe 유일 1히트 + 본문 명령 대 명령 동형(mov rdi,r9 / mov rsi,rcx / cmp r8,0x11 / jae).
+const RVA_REALLOC: usize = 0x2a87a70; // 0.5.5(구0.5.4=0x29a7640, exe2exe 스켈레톤 확정). // 0.5.4(구0.5.3=0x28e3b10). 본문 100% 동일·콜러 3개 동수. // 0.5.3(구0.5.2=0x25c4dd0). __rust_realloc 실함수. (rcx=ptr,rdx=old,r8=align,r9=new)->rax. 구 exe 진입 112B 마스크시그 → 신 exe 유일 1히트 + 본문 명령 대 명령 동형(mov rdi,r9 / mov rsi,rcx / cmp r8,0x11 / jae).
 type ReallocFn = unsafe extern "win64" fn(usize, usize, usize, usize) -> usize;
 static EXE_BASE_CACHE: AtomicUsize = AtomicUsize::new(0);
 fn exe_base_addr() -> usize {
@@ -2153,8 +2153,8 @@ static NN_ID_NAME: Mutex<Option<HashMap<u64, String>>> = Mutex::new(None);
 // ═══ 경기시작 launcher 훅(0.5.1 RE) — 렌더 경기 시드 결정적 캡처 ═══
 //   launcher 0x20588a0(out=rcx, flag=dl, seed=r8, r9) ← 클라 렌더 씬빌더 0x722ca0가 호출(콜러=렌더 판별).
 //   retaddr rva ∈ [0x722ca0, 0x732ca0)면 렌더 경기 → LIVE_SEED=seed(r8). buy훅 sim_seed==LIVE_SEED 게이트.
-const CL_LAUNCHER_RVA: usize = 0x13b53d0; // 0.5.4(구0.5.3=0xeb8810). 크기 0x1150·명령수 787·콜러 9개 전부 동일 + Game+0x1dc0/0x1dc8 스토어 동일 + 콜러 컨테이너 8개 전부 소스파일 지문 일치. // 0.5.3(구0.5.2=0x1d96870). 확정 근거: ①프롤로그 관용구 동형(8push+mov eax,frame+call chkstk+lea rbp,[rsp+0x80]+xmm 스필+[rbp+X]=-2) ②콜러 **9곳 = 구 exe와 동수** ③렌더 씬빌더(0x997740)가 2회 호출 ④내부에서 seedctor(0x12b9ab0)를 rdx=저장된 r8(seed)로 호출 = 구 exe 라인대응. 진입 시 r8=seed 계약 유지(mov r12,r8).
-const CL_LAUNCHER_PROLOGUE: [u8; 17] = [0x55, 0x41,0x57, 0x41,0x56, 0x41,0x55, 0x41,0x54, 0x56, 0x57, 0x53, 0xb8, 0x68, 0x51, 0x02, 0x00]; // 0.5.3: 8push+mov eax,0x25108 (구 0.5.2=0x165c8) — chkstk 프레임만 확대
+const CL_LAUNCHER_RVA: usize = 0x14ac3e0; // 0.5.5(구0.5.4=0x13b53d0). head 유일후보·콜러 9개 동수(지문 1:1)·내부 mov[rsi+0x1dc0]/[rsi+0x1dc8] 스토어 존재·size 4432→4401. ⚠프롤로그 chkstk imm 0x25168→0x25438(아래 배열 index13 변경). // 0.5.4(구0.5.3=0xeb8810). 크기 0x1150·명령수 787·콜러 9개 전부 동일 + Game+0x1dc0/0x1dc8 스토어 동일 + 콜러 컨테이너 8개 전부 소스파일 지문 일치. // 0.5.3(구0.5.2=0x1d96870). 확정 근거: ①프롤로그 관용구 동형(8push+mov eax,frame+call chkstk+lea rbp,[rsp+0x80]+xmm 스필+[rbp+X]=-2) ②콜러 **9곳 = 구 exe와 동수** ③렌더 씬빌더(0x997740)가 2회 호출 ④내부에서 seedctor(0x12b9ab0)를 rdx=저장된 r8(seed)로 호출 = 구 exe 라인대응. 진입 시 r8=seed 계약 유지(mov r12,r8).
+const CL_LAUNCHER_PROLOGUE: [u8; 17] = [0x55, 0x41,0x57, 0x41,0x56, 0x41,0x55, 0x41,0x54, 0x56, 0x57, 0x53, 0xb8, 0x38, 0x54, 0x02, 0x00]; // 0.5.5: 8push+mov eax,0x25438 (chkstk 프레임 0x25168→0x25438, index13 0x68→0x38). // 0.5.3: 8push+mov eax,0x25108 (구 0.5.2=0x165c8) — chkstk 프레임만 확대
 static CLAUNCH_INSTALLED: AtomicU64 = AtomicU64::new(0);
 static LAUNCH_N: AtomicU64 = AtomicU64::new(0);
 static LAUNCH_RENDER_N: AtomicU64 = AtomicU64::new(0);
@@ -2208,8 +2208,9 @@ unsafe extern "C" fn cap_launcher(saved: *mut u64, _e: usize) -> u64 {
     //   0x229ad94 = 리플레이(pause_ui.rs:2332 — serpen 이 쓰는 값)
     //   0x220acb(state.rs 앱 상태머신) / 0x195c5be(server\worker.rs) / 0x20dac9c(solo_rank.rs)
     //   0x2256a6d(solo_rank_ui.rs) = **배경 sim → 절대 넣지 말 것**
-    let is_comptest = rva == 0x235c382 || rva == 0x2323ffe;
-    if (rva == 0x9e2079 || rva == 0x9e6feb || is_comptest) && seed != 0 {
+    // 0.5.5 재핀(구0.5.4→0.5.5): 관전 0x9e2079→0x763329 · 내경기 0x9e6feb→0x76829b · 조테본경기 0x235c382→0x1aed292 · 조테기록 0x2323ffe→0x1aa88ce. (전부 e8 call+5, 컨테이너 지문 1:1)
+    let is_comptest = rva == 0x1aed292 || rva == 0x1aa88ce;
+    if (rva == 0x763329 || rva == 0x76829b || is_comptest) && seed != 0 {
         let prev = LIVE_SEED.swap(seed, Ordering::Relaxed);
         if prev != seed { RENDER_PROVIDER.store(0, Ordering::Relaxed); } // 새 경기 시드 → 직후 ctor가 provider 재캡처
         COMPTEST_MATCH.store(is_comptest, Ordering::Relaxed);
@@ -2220,7 +2221,7 @@ unsafe extern "C" fn cap_launcher(saved: *mut u64, _e: usize) -> u64 {
         GAME_PROBE_DONE.store(false, Ordering::Relaxed);
     }
     // ★08-08 대회(리그) 배경 경기 — 디스크립터 보험 캡처(아래 tourn_capture 참조. 최소 디투어 제약 준수).
-    if TN_ENABLED && rva == RA_TOURN_054 { tourn_capture(saved, seed); }
+    if TN_ENABLED && rva == RA_TOURN_055 { tourn_capture(saved, seed); }
     // 진단: 고유 콜러 rva 수집(원자 CAS, 24슬롯)
     for k in 0..24 {
         let s = LAUNCH_RVAS[k].load(Ordering::Relaxed);
@@ -2245,7 +2246,7 @@ unsafe extern "C" fn cap_launcher(saved: *mut u64, _e: usize) -> u64 {
 //       — 내 팀 매치의 buy 에서 (레코드 슬롯, 세트 side 바이트) ↔ 실제 athlete side(+0x810) 투표로 확정.
 //   현 단계 = 관측 전용(팀 게이트 판정에 사용하지 않음). 실측 확정 후 게이트 연결을 별도 결정.
 const TN_ENABLED: bool = true;
-const RA_TOURN_054: u64 = 0x239f242; // 0.5.4 worker.rs 대회 배경 launcher retaddr(콜 0x239f23d)
+const RA_TOURN_055: u64 = 0x1c777d8; // 0.5.5(구0.5.4=0x239f242). worker.rs:36 대회 배경 launcher retaddr(콜 0x1c777d3, e8+5)
 static TN_SEEN: AtomicU64 = AtomicU64::new(0);       // 대회 retaddr 런처 발화 수
 static TN_HIT: AtomicU64 = AtomicU64::new(0);        // 레코드 스캔 성공
 static TN_MISS_FRAME: AtomicU64 = AtomicU64::new(0); // 프레임 슬롯 읽기 실패/포인터 무효
@@ -2464,11 +2465,11 @@ fn install_launcher_hook() {
 //   ⬜**미검증**: "r9=provider"는 buy 본문이 arg4를 즉시 덮어써 정적 확인 불가 — 0.5.2 때처럼 **인게임 seed 매칭으로만 확정**된다.
 //     0.5.3에서 어긋나면 크래시가 아니라 '관전 경기 미인식'으로 조용히 나타난다(is_live 히트 카운터로 판별).
 //   launcher가 ctor를 동기 호출 → LIVE_SEED 선세팅 보장. 배경 sim은 렌더시드 아님 → 무매칭(오염 배제).
-const SEEDCTOR_RVA: usize = 0x14e16d0; // 0.5.4(구0.5.3=0x12b9ab0). 프롤로그 8push 동일·콜러 4개 동수·본문 sim 0.90·seed 스토어 1:1 대응. // 0.5.3(구0.5.2=0x22c1da0). 프롤로그 12B 완전동일(8push)·chkstk 프레임 0x11b58→0x11b98·launcher(0xeb8810) 내부 콜에서 rdx=저장된 r8(seed) 확인. ⚠seed 저장 오프셋은 provider+0xeab8→**+0xeaf8**로 이동(0x12ba92d 실측).
+const SEEDCTOR_RVA: usize = 0x14c2380; // 0.5.5(구0.5.4=0x14e16d0, 마스크시그 확정). seed 스토어 provider+0xeb28→+0xec90. // 0.5.4(구0.5.3=0x12b9ab0). 프롤로그 8push 동일·콜러 4개 동수·본문 sim 0.90·seed 스토어 1:1 대응. // 0.5.3(구0.5.2=0x22c1da0). 프롤로그 12B 완전동일(8push)·chkstk 프레임 0x11b58→0x11b98·launcher(0xeb8810) 내부 콜에서 rdx=저장된 r8(seed) 확인. ⚠seed 저장 오프셋은 provider+0xeab8→**+0xeaf8**로 이동(0x12ba92d 실측).
 // ★0.5.3: provider 구조체에서 seed 저장 오프셋이 이동했다(0.5.2 +0xeab8 → 0.5.3 +0xeaf8).
 //   실측 = seedctor 내부 `mov [reg+0xeaf8], rdx` @0x12ba92d (구 exe는 같은 자리에 0xeab8).
 //   ⚠단일 상수로 묶어둔다 — 패치마다 여기만 갱신하면 is_live 게이트 전체가 따라온다.
-const O_PROVIDER_SEED: usize = 0xeb28;
+const O_PROVIDER_SEED: usize = 0xec90; // 0.5.5(구0.5.4=0xeb28, +0x168 이동). seedctor 0x14c2380 fn+0xed0 mov[rsi+0xec90],rax + 게터썽크 0x14f7de0 mov rax,[rcx+0xec90];ret 유일히트로 확정.
 const SEEDCTOR_PROLOGUE: [u8; 12] = [0x55, 0x41,0x57, 0x41,0x56, 0x41,0x55, 0x41,0x54, 0x56, 0x57, 0x53]; // ghidra-re 확정: 8push(12B)+mov eax,0x11b58+call chkstk (launcher 동일패턴)
 const SEEDCTOR_ORIG_LEN: usize = 12; // 8push만 재배치(chkstk call 제외). jmp가 fn+12=mov eax에 착지→프레임 정상세팅
 static SEEDCTOR_INSTALLED: AtomicU64 = AtomicU64::new(0);
@@ -2524,7 +2525,7 @@ unsafe fn my_side_in_match(provider: u64, athlete: usize) -> Option<u64> {
     for k in -9i64..=9 {
         let a = athlete.wrapping_add((k.wrapping_mul(ATH_STRIDE as i64)) as usize);
         if matches!(is_my_athlete(a), Some(true)) {
-            if let Some(s) = safe_read_u64(a + 0x810) { if s <= 1 { found = s; break; } }
+            if let Some(s) = safe_read_u64(a + 0x930) { if s <= 1 { found = s; break; } }
         }
     }
     pv.store(found, Ordering::Relaxed);
@@ -2598,7 +2599,7 @@ fn is_known_item_key(k: &str) -> bool {
 //     그래서 0.5.4 마이그(2026-08-05)에서 이 한 줄만 구 오프셋(+0x420)으로 남아 있었다.
 //     되살릴 때 오프셋을 반드시 재확인할 것. 살아 있었다면 전 athlete 에서 false → 팀게이트 붕괴였다.
 unsafe fn valid_ps_elem(elem: usize) -> bool {
-    if read_str_try(elem + 0x410).is_some() { return true; } // 0.5.4 champ String ptr 정위치
+    if read_str_try(elem + 0x470).is_some() { return true; } // 0.5.4 champ String ptr 정위치
     let mut o = 0x388usize; // 폴백(구버전/레이아웃 변형 대비)
     while o <= 0x3b0 { if read_str_try(elem + o).is_some() { return true; } o += 8; }
     false
@@ -3551,7 +3552,7 @@ fn write_registry_status(db: usize) {
 }
 
 // ══ athlete→champion 매핑 프로브 (buy_item r8=athlete 스캔) ══════════════════
-const RVA_BUY_ITEM: usize = 0xe767e0; // 0.5.4(구0.5.3=0xd0c680). 크기 0xe6·명령 67개 라인단위 동일(유일차 = athlete build len 0x4a0->0x490) + vtable 썽크 바이트형태 exe 전체 유일 1히트. // 0.5.3(구0.5.2=0x211e070). **진입 24B 바이트 완전동일**(exe 전체 유일 1히트) + 본체 명령 대 명령 동형 + 인자계약 유지(r8=athlete·[rsp_entry+0x30]=Game·Game+0x30=catalog). orig_len=19도 그대로(11B<12B → 다음 클린경계 mov rax,[rsp+0xa8] 8B). ⚠0.5.3 변화: 호출 경로가 direct call → vtable(+0x78) 썽크 0xd22340 경유로 바뀌었으나 **함수 진입부 훅이라 전 호출 포착됨**. ↓이하 0.5.2 이력. (구0.5.1=0x1f01090, exe2exe 스켈레톤 UNIQUE·프롤로그 24B 완전동일=본체 무변경, delta +0x21cfe0). ↓이하 0.5.1 이력. 함수 대개편(8push/sub0x38→5push/sub0x50, build/이름비교가 서브함수 0x1f00920로 분리)으로 mask-sig NONE이었으나 인자계약 불변(r8=athlete, p6=Game@rsp_entry+0x30, Game+0x30=catalog)로 확정. buy 드라이버 FUN_142234430(구 FUN_1420e76e0 후계)+vtable슬롯 교차검증.
+const RVA_BUY_ITEM: usize = 0xeb2c40; // 0.5.5(구0.5.4=0xe767e0, exe2exe 스켈레톤 확정). resolver 0xeb2d30을 직접 호출. // 0.5.4(구0.5.3=0xd0c680). 크기 0xe6·명령 67개 라인단위 동일(유일차 = athlete build len 0x4a0->0x490) + vtable 썽크 바이트형태 exe 전체 유일 1히트. // 0.5.3(구0.5.2=0x211e070). **진입 24B 바이트 완전동일**(exe 전체 유일 1히트) + 본체 명령 대 명령 동형 + 인자계약 유지(r8=athlete·[rsp_entry+0x30]=Game·Game+0x30=catalog). orig_len=19도 그대로(11B<12B → 다음 클린경계 mov rax,[rsp+0xa8] 8B). ⚠0.5.3 변화: 호출 경로가 direct call → vtable(+0x78) 썽크 0xd22340 경유로 바뀌었으나 **함수 진입부 훅이라 전 호출 포착됨**. ↓이하 0.5.2 이력. (구0.5.1=0x1f01090, exe2exe 스켈레톤 UNIQUE·프롤로그 24B 완전동일=본체 무변경, delta +0x21cfe0). ↓이하 0.5.1 이력. 함수 대개편(8push/sub0x38→5push/sub0x50, build/이름비교가 서브함수 0x1f00920로 분리)으로 mask-sig NONE이었으나 인자계약 불변(r8=athlete, p6=Game@rsp_entry+0x30, Game+0x30=catalog)로 확정. buy 드라이버 FUN_142234430(구 FUN_1420e76e0 후계)+vtable슬롯 교차검증.
 const BUY_PROLOGUE: [u8; 12] = [0x41,0x57, 0x41,0x56, 0x56, 0x57, 0x53, 0x48,0x83,0xEC,0x50, 0x48]; // 0.5.1 신 프롤로그 첫12B: push r15/r14/rsi/rdi/rbx; sub rsp,0x50; (11B=클린경계) + mov(0x48…) 첫바이트. 트램폴린 재배치=19B(다음 클린경계=+mov rax,[rsp+0xa8])
 static BUY_PROBE_INSTALLED: AtomicU64 = AtomicU64::new(0);
 static CHAMP_SCAN: Mutex<Vec<u64>> = Mutex::new(Vec::new());
@@ -3599,7 +3600,7 @@ unsafe fn install_detour(rva: usize, orig_len: usize, cap_fn: usize) -> Result<u
 // ── 아이템 신경망 forward 직접 호출 (scrim 검증본 이식) ──
 //   forward(net, ctx=&[u64;11], build_ptr, build_len, flag=0) → f32 sigmoid 점수.
 //   ctx: [0..5]=우리팀 champ id / [5..10]=상대 / [10]=포지션(0~4, >4면 forward 패닉).
-const ITEMNET_FORWARD_RVA: usize = 0x145a680; // 0.5.4(구0.5.3=0x10587e0). 피처 문자열 4종 완전일치 + 크기 0x649·명령 409 동일 + 본문 100% 동일(net 레이아웃 불변). // 0.5.3(구0.5.2=0x1b9cce0). 진입 24B 완전동일 + 피처명 문자열 5종 일치(self_item/champ_pos_build/lane_counter/synergy/global_counter) + net 레이아웃 불변(net+0x8=가중치ptr, +0x10=16384 바운드, +0x18=1) ⟹ 모드의 매호출 재검증 로직 그대로 유효. ↓이하 0.5.2 이력. (구0.5.1=0x1bc82e0, exe2exe UNIQUE·프롤로그 동일). ↓이하 0.5.1 이력: (구0.5.0_3=0x1b78420, mask-sig UNIQUE PROL-OK push8 554157415641554154565753). ⚠AUTO4_FORWARD_SCORE=false로 OFF(0.5.1서 forward 내부 +0x44a AV, 위 플래그 주석 참조). 프롤로그 매치≠내부동작 동일.
+const ITEMNET_FORWARD_RVA: usize = 0x12624f0; // 0.5.5(구0.5.4=0x145a680, exe2exe 스켈레톤 확정). // 0.5.4(구0.5.3=0x10587e0). 피처 문자열 4종 완전일치 + 크기 0x649·명령 409 동일 + 본문 100% 동일(net 레이아웃 불변). // 0.5.3(구0.5.2=0x1b9cce0). 진입 24B 완전동일 + 피처명 문자열 5종 일치(self_item/champ_pos_build/lane_counter/synergy/global_counter) + net 레이아웃 불변(net+0x8=가중치ptr, +0x10=16384 바운드, +0x18=1) ⟹ 모드의 매호출 재검증 로직 그대로 유효. ↓이하 0.5.2 이력. (구0.5.1=0x1bc82e0, exe2exe UNIQUE·프롤로그 동일). ↓이하 0.5.1 이력: (구0.5.0_3=0x1b78420, mask-sig UNIQUE PROL-OK push8 554157415641554154565753). ⚠AUTO4_FORWARD_SCORE=false로 OFF(0.5.1서 forward 내부 +0x44a AV, 위 플래그 주석 참조). 프롤로그 매치≠내부동작 동일.
 type ItemNetFn = unsafe extern "C" fn(usize, usize, *const u64, u64, u8) -> f32;
 static ITEM_NET_ADDR: AtomicU64 = AtomicU64::new(0);
 static ITEMNET_VALID: AtomicU64 = AtomicU64::new(0); // 0=미확인,1=유효,2=무효
@@ -3865,14 +3866,14 @@ unsafe fn maybe_dump_builds() {
 // ── 로스터 배열(SimState+0x840, stride 0x8d0)에서 그 경기 진짜 라인업 ctx 복원 ──
 //   athlete = 배열 원소. team=+0x820(0/1), champion name=+0x420. 병렬 경기는 각기 다른 배열이라
 //   athlete 포인터가 정확히 한 경기에만 속함 = 충돌 없음(백포인터 불필요, RE 확정).
-const ATH_STRIDE: usize = 0x8c0;
+const ATH_STRIDE: usize = 0x9e0; // 0.5.5(구0.5.4=0x8c0, +0x120). imul r64,r64,imm32 전수: 0.5.4 0x8c0=143건 → 0.5.5 0x9e0=167건.
 // athlete 유효성 검사 + (team, champ_id) 반환. 강한 검증(team∈{0,1} + 실챔프명)으로 배열 경계 자동 판정.
 unsafe fn athlete_lineup_at(p: usize) -> Option<(u64, u64)> {
     if p < 0x10000 { return None; }
-    let team = safe_read_u64(p + 0x810)?;
+    let team = safe_read_u64(p + 0x930)?;
     if team > 1 { return None; }
-    let nptr = safe_read_u64(p + 0x410)? as usize; // 0.5.0 champion name ptr (구 0x398)
-    let nlen = safe_read_u64(p + 0x418)? as usize; // 0.5.0 champion name len (구 0x3a0)
+    let nptr = safe_read_u64(p + 0x470)? as usize; // 0.5.0 champion name ptr (구 0x398)
+    let nlen = safe_read_u64(p + 0x478)? as usize; // 0.5.0 champion name len (구 0x3a0)
     if nptr < 0x10000 || nlen == 0 || nlen > 48 { return None; }
     let mut buf = Vec::new();
     if !safe_read_bytes(nptr, nlen, &mut buf) { return None; }
@@ -3883,8 +3884,8 @@ unsafe fn athlete_lineup_at(p: usize) -> Option<(u64, u64)> {
 // ★ athlete의 champion name 읽기(**0.5.4: +0x410 ptr / +0x418 len**, ~~0.5.3까지 +0x420/+0x428~~). SEL/PT 매칭용.
 unsafe fn ath_champ_name(p: usize) -> Option<String> {
     if p < 0x10000 { return None; }
-    let nptr = safe_read_u64(p + 0x410)? as usize;
-    let nlen = safe_read_u64(p + 0x418)? as usize;
+    let nptr = safe_read_u64(p + 0x470)? as usize;
+    let nlen = safe_read_u64(p + 0x478)? as usize;
     if nptr < 0x10000 || nlen == 0 || nlen > 48 { return None; }
     let mut buf = Vec::new();
     if !safe_read_bytes(nptr, nlen, &mut buf) { return None; }
@@ -3896,9 +3897,9 @@ unsafe fn ath_champ_name(p: usize) -> Option<String> {
 //     인접 구조메모리 오판→경계 과확장→카운트붕괴(전챔프 미주입 회귀). position<5 가 정밀경계+모드챔프 양립.
 //   가짜양성은 SEL/PT 멤버십(카운트)에서 어차피 미매칭이라 무해. (build_lineup_ctx도 lane<5 사용.)
 unsafe fn ath_side_champ(p: usize) -> Option<(u64, String)> {
-    let side = safe_read_u64(p + 0x810)?;
+    let side = safe_read_u64(p + 0x930)?;
     if side > 1 { return None; }
-    let pos = safe_read_u64(p + 0x8a0)? & 0xffff_ffff; // 라인 0~4
+    let pos = safe_read_u64(p + 0x9c0)? & 0xffff_ffff; // 라인 0~4
     if pos >= 5 { return None; }
     let nm = ath_champ_name(p)?; // len 1..=48, readable
     if nm.len() < 2 { return None; }
@@ -3957,14 +3958,14 @@ unsafe fn build_lineup_ctx(p: usize) -> Option<([u64; 11], u64)> {
     let mut a = base;
     while a <= end {
         if let Some((team, cid)) = athlete_lineup_at(a) {
-            let lane = (safe_read_u64(a + 0x8a0).unwrap_or(9) & 0xffff_ffff) as usize; // 실제 포지션(0~4)
+            let lane = (safe_read_u64(a + 0x9c0).unwrap_or(9) & 0xffff_ffff) as usize; // 실제 포지션(0~4)
             if lane < 5 {
                 if team == my_team { ctx[lane] = cid; } else { ctx[5 + lane] = cid; }
             }
         }
         a = a.wrapping_add(ATH_STRIDE);
     }
-    let pos = ((safe_read_u64(p + 0x8a0).unwrap_or(0) & 0xffff_ffff) as usize).min(4);
+    let pos = ((safe_read_u64(p + 0x9c0).unwrap_or(0) & 0xffff_ffff) as usize).min(4);
     ctx[10] = pos as u64; // ctx[pos] = 내 챔프(자기일관)
     let vcount = safe_read_u64(base.wrapping_sub(0x840) + 0x848).unwrap_or(0);
     Some((ctx, vcount))
@@ -4000,7 +4001,7 @@ unsafe fn compute_auto_4th_id(athlete: usize, champ: &str) -> Option<u64> {
     if !AUTO4_FORWARD_SCORE { return None; }
     let net = ITEM_NET_ADDR.load(Ordering::Relaxed) as usize;
     if net == 0 || !itemnet_addr_valid() { AUTO4_CNT[0].fetch_add(1, Ordering::Relaxed); return None; }
-    let ptr = rd_u64(athlete + 0x488) as usize; // 0.5.0 build ptr (구 0x410)
+    let ptr = rd_u64(athlete + 0x4e8) as usize; // 0.5.0 build ptr (구 0x410)
     if ptr < 0x10000 || !readable(ptr, 24) { AUTO4_CNT[1].fetch_add(1, Ordering::Relaxed); return None; }
     let b0 = rd_u64(ptr); let b1 = rd_u64(ptr + 8); let b2 = rd_u64(ptr + 16);
     if b0 >= 0x10000 || b1 >= 0x10000 || b2 >= 0x10000 { AUTO4_CNT[1].fetch_add(1, Ordering::Relaxed); return None; }
@@ -4220,6 +4221,55 @@ static BR_WAS_INGAME: AtomicBool = AtomicBool::new(false);    // InGame 진입 �
 //   내 선수=지정템 / 나머지=신경망, 배경·관전 동일 → 수렴. id기반이라 AI끼리 경기는 my=0=지정無=통계오염0.
 //   ⚠false=옛 동작(is_live 게이트·배경 무주입) 복원. 문제 시 즉시 롤백용.
 const FIXB: bool = true;
+// ★BG4(2026-08-11 유저 요청 "백그라운드 경기들도 4번째 아이템 구매"): 배경 리그 sim 의
+//   비-내선수(타 팀 전원)도 build Vec 3→4 확장 — 조기탈출 직전에 경량 경로로만 수행하고
+//   무거운 주입 경로(readable·지정템·신경망)는 안 탄다. 4번째 = 챔프명 FNV 분산 바닐라
+//   최종템 폴백(챔프별 결정적 = 리플레이 안전. 신경망은 배경 rayon 대량병렬 미검증이라 안 씀).
+//   mode=4 + BUILD_EXTEND_ENABLED 일 때만. false = 구 동작(배경 비-내선수 3템).
+const BG4_ALL_ENABLED: bool = true;
+static BG4_EXT: AtomicU64 = AtomicU64::new(0); // 진단: 배경 build 3→4 확장 횟수
+static BG4_FIRST_LOGGED: AtomicBool = AtomicBool::new(false);
+
+/// 배경 비-내선수 buy 의 경량 4칸 확장. len==3&&cap==3(선수당 1회)일 때만 무거운 검사 진입.
+unsafe fn bg4_extend_build(athlete: usize) {
+    // 싼 검사(VEH 읽기 2회) — 이미 확장됐으면(len==4) 즉시 복귀 = 배경 buy 핫패스 비용 최소.
+    match safe_read_u64(athlete + 0x4f0) { Some(3) => {} _ => return } // build len
+    match safe_read_u64(athlete + 0x4e0) { Some(3) => {} _ => return } // build cap
+    if !readable(athlete, 0x4f8) { return; }
+    let ptr = rd_u64(athlete + 0x4e8) as usize; // build ptr
+    if ptr < 0x10000 || !readable(ptr, 24) || !writable(athlete + 0x4e0, 0x18) { return; }
+    let (b0, b1, b2) = (rd_u64(ptr), rd_u64(ptr + 8), rd_u64(ptr + 16));
+    // 챔프명 FNV → VANILLA_FINAL 분산 시작점(라이브 폴백과 동일 식 — 공격력 편향 방지)
+    let mut h: u64 = 0xcbf29ce484222325;
+    let cptr = rd_u64(athlete + 0x470) as usize;
+    let clen = rd_u64(athlete + 0x478) as usize;
+    let mut champ = String::new();
+    if cptr >= 0x10000 && clen > 0 && clen <= 48 && readable(cptr, clen) {
+        let bytes = std::slice::from_raw_parts(cptr as *const u8, clen);
+        for &b in bytes { h = (h ^ b as u64).wrapping_mul(0x100000001b3); }
+        if !BG4_FIRST_LOGGED.load(Ordering::Relaxed) {
+            champ = String::from_utf8_lossy(bytes).into_owned();
+        }
+    }
+    let start = (h % 6) as usize;
+    let t4 = (0..6).map(|k| VANILLA_FINAL[(start + k) % 6]).find(|&v| v != b0 && v != b1 && v != b2);
+    if let Some(t) = t4 {
+        let realloc: ReallocFn = core::mem::transmute(exe_base_addr() + RVA_REALLOC);
+        let np = realloc(ptr, 24, 8, 32);
+        if np >= 0x10000 && writable(np, 32) {
+            wr_u64(np + 24, t);
+            wr_u64(athlete + 0x4e8, np as u64);
+            wr_u64(athlete + 0x4e0, 4);
+            wr_u64(athlete + 0x4f0, 4);
+            let n = BG4_EXT.fetch_add(1, Ordering::Relaxed) + 1;
+            // 작동 증거 1줄(최초 1회, LOG_ENABLED 무관·비용 무시) — "배경 4칸 확장이 실제 발화했다"
+            if n == 1 && !BG4_FIRST_LOGGED.swap(true, Ordering::Relaxed) {
+                append_log("4items_bg4.txt",
+                    &format!("[bg4 첫 발화] champ={} build=[{},{},{}]+[{}]", champ, b0, b1, b2, t));
+            }
+        }
+    }
+}
 unsafe extern "C" fn buy_replace_ctx(saved: *mut u64, rsp_entry: usize) -> u64 {
     // ★핫패스(rayon 워커 병렬) — 전역 원자 카운터는 캐시라인 경합으로 측정 자체가 부하가 되므로
     //   thread_local 누적(rec_tl) 사용. T_BUY_ALL = 디투어 전체(catch_unwind 포함),
@@ -4266,16 +4316,21 @@ unsafe extern "C" fn buy_replace_ctx(saved: *mut u64, rsp_entry: usize) -> u64 {
         //   신: 그 매치에 내 선발이 한 명이라도 있으면 그 side 전체 인정(provider 키 lock-free 캐시).
         if FIXB && !is_live && !matches!(is_my_athlete(athlete), Some(true)) {
             let rescued = match my_side_in_match(provider_now, athlete) {
-                Some(ms) => match safe_read_u64(athlete + 0x810) { Some(s) => s == ms, None => false },
+                Some(ms) => match safe_read_u64(athlete + 0x930) { Some(s) => s == ms, None => false },
                 None => false,
             };
             // ★v2.8.0 TN 게이트(유저 지시 "하나만 걸려도 주입"): 대회 디스크립터가 이 sim(seed)의 내 팀
             //   side 를 확정하면, aid 멤버십이 놓친 내 선수(교체 출전·aid 미기입)도 구제. 추가 승인 전용.
             let tn_rescued = !rescued && match tn_my_side(provider_now as usize) {
-                Some(ms) => matches!(safe_read_u64(athlete + 0x810), Some(s) if s == ms),
+                Some(ms) => matches!(safe_read_u64(athlete + 0x930), Some(s) if s == ms),
                 None => false,
             };
             if !(rescued || tn_rescued) {
+                // ★BG4: 조기탈출 전에 배경 비-내선수도 4칸 확장(경량 경로)만 수행.
+                //   지정템 주입(SLOT012)·신경망은 그대로 안 탐 = 리그 오염 없음(fix A 거부 사유와 무관).
+                if BG4_ALL_ENABLED && BUILD_EXTEND_ENABLED && slot_count() == 4 {
+                    bg4_extend_build(athlete);
+                }
                 if BUY_REPORT { BR_TOTAL.fetch_add(1, Ordering::Relaxed); }
                 perf::rec_tl(perf::T_BUY_EARLY, __bt);
                 return 0;
@@ -4285,12 +4340,12 @@ unsafe extern "C" fn buy_replace_ctx(saved: *mut u64, rsp_entry: usize) -> u64 {
         }
         // ── 여기부터는 관전 경기 buy(전체 소수) + 배경의 내 선수 buy(5명)만 도달 ──
         // ★athlete 유효성 검사(VirtualQuery)는 여기서 1회 — 위 재정렬 주석 참조.
-        if !readable(athlete, 0x4a8) { return 0; } // 0.5.0: build len@+0x4a0+8 커버
-        let owned = rd_u64(athlete + 0x448); // 0.5.0 owned (구 0x3d0)
+        if !readable(athlete, 0x4f8) { return 0; } // 0.5.0: build len@+0x4a0+8 커버
+        let owned = rd_u64(athlete + 0x4a8); // 0.5.0 owned (구 0x3d0)
         if LOG_ENABLED && owned <= 8 { let p = MAX_OWNED4.load(Ordering::Relaxed); if owned > p { MAX_OWNED4.store(owned, Ordering::Relaxed); } }
         // ★진단: 4번째(owned[3]) 티어 진행 추적 — 순차(t0→t4)인지 최종템 직구인지. (프로덕션: LOG_ENABLED 게이트)
         if LOG_ENABLED && owned >= 3 && owned <= 8 {
-            let cptr0 = rd_u64(athlete + 0x410) as usize; let clen0 = rd_u64(athlete + 0x418) as usize; // 0.5.0 champ name (구 0x398/0x3a0, +0x88 파생)
+            let cptr0 = rd_u64(athlete + 0x470) as usize; let clen0 = rd_u64(athlete + 0x478) as usize; // 0.5.0 champ name (구 0x398/0x3a0, +0x88 파생)
             if cptr0 >= 0x10000 && clen0 > 0 && clen0 <= 48 && readable(cptr0, clen0) {
                 let cn = String::from_utf8_lossy(std::slice::from_raw_parts(cptr0 as *const u8, clen0)).into_owned();
                 let optr = rd_u64(athlete + 0x440) as usize; // 0.5.0 item slot array (구 0x3c8)
@@ -4320,14 +4375,14 @@ unsafe extern "C" fn buy_replace_ctx(saved: *mut u64, rsp_entry: usize) -> u64 {
             }
         }
         // ★ 타겟 챔프(지정)만 처리 — 비타겟은 passthrough(build 손 안 댐).
-        let cptr = rd_u64(athlete + 0x410) as usize; // 0.5.0 champ name ptr (구 0x398, +0x88 파생)
-        let clen = rd_u64(athlete + 0x418) as usize; // 0.5.0 champ name len (구 0x3a0)
+        let cptr = rd_u64(athlete + 0x470) as usize; // 0.5.0 champ name ptr (구 0x398, +0x88 파생)
+        let clen = rd_u64(athlete + 0x478) as usize; // 0.5.0 champ name len (구 0x3a0)
         if cptr < 0x10000 || clen == 0 || clen > 48 || !readable(cptr, clen) { return 0; }
         // ★성능: Cow 차용(유효 UTF-8이면 힙 할당 없음).
         let champ_cow = String::from_utf8_lossy(std::slice::from_raw_parts(cptr as *const u8, clen));
         let champ: &str = champ_cow.as_ref();
         let champ_designated = is_champ_designated(champ); // 스냅샷 zero-alloc
-        let side = if readable(athlete + 0x810, 8) { rd_u64(athlete + 0x810) } else { u64::MAX };
+        let side = if readable(athlete + 0x930, 8) { rd_u64(athlete + 0x930) } else { u64::MAX };
         // ★08-08 대회 보험 실측② — 내 팀 대회 배경경기에서 (레코드 슬롯, 세트 side 바이트) ↔ 실제 athlete
         //   side(+0x810) 투표. TN_MY_SEED(launcher 캡처 시 저장) == 이 sim 의 provider seed 면 같은 경기.
         //   여기 도달한 배경 buy 는 이미 내 선수(멤버십/구제 게이트 통과) ⟹ 저비용(원자 2로드+VEH 1읽기).
@@ -4593,8 +4648,8 @@ unsafe extern "C" fn buy_replace_ctx(saved: *mut u64, rsp_entry: usize) -> u64 {
         //   아직 안 산 슬롯(owned<=si)만 → 게임이 그 인덱스를 향해 자연 빌드업. 바닐라=id, 모드템=이름스캔(레시피검증).
         if SLOT012_INJECT_ENABLED && is_player {
             let ctx012 = rd_u64(rsp_entry + 0x30) as usize;
-            let bptr = rd_u64(athlete + 0x488) as usize; // 0.5.0 build ptr
-            let blen = rd_u64(athlete + 0x490);          // 0.5.0 build len
+            let bptr = rd_u64(athlete + 0x4e8) as usize; // 0.5.0 build ptr
+            let blen = rd_u64(athlete + 0x4f0);          // 0.5.0 build len
             if ctx012 >= 0x10000 && bptr >= 0x10000 && blen >= 1 && blen <= 8 && readable(bptr, (blen as usize) * 8) {
                 for si in 0u8..3 {
                     if (si as u64) >= blen { break; }         // build에 그 슬롯 없음
@@ -4628,9 +4683,9 @@ unsafe extern "C" fn buy_replace_ctx(saved: *mut u64, rsp_entry: usize) -> u64 {
         if LOG_ENABLED && owned == 3 {
             let mut cl = CHAMP_AT3.lock().unwrap_or_else(|e| e.into_inner());
             if cl.len() < 40 && !cl.iter().any(|c| c.as_str() == champ) {
-                let bl = rd_u64(athlete + 0x490); // 0.5.0 build len (구 0x418)
+                let bl = rd_u64(athlete + 0x4f0); // 0.5.0 build len (구 0x418)
                 let manual = slot3_item_key(scope, champ).is_some();
-                let bp = rd_u64(athlete + 0x488) as usize; // 0.5.0 build ptr (구 0x410)
+                let bp = rd_u64(athlete + 0x4e8) as usize; // 0.5.0 build ptr (구 0x410)
                 let (mut b0, mut b1, mut b2, mut b3) = (0u64, 0u64, 0u64, 0u64);
                 if bp >= 0x10000 && readable(bp, 32) { b0 = rd_u64(bp); b1 = rd_u64(bp + 8); b2 = rd_u64(bp + 16); b3 = rd_u64(bp + 24); }
                 let mx = MAX_OWNED4.load(Ordering::Relaxed);
@@ -4647,10 +4702,10 @@ unsafe extern "C" fn buy_replace_ctx(saved: *mut u64, rsp_entry: usize) -> u64 {
         // build Vec 3→4 realloc + build[3]=카탈로그 인덱스. resolver가 owned==3서 build[3]을 목표로 t1부터 빌드업.
         //   ★ RE: build Vec 값 = "카탈로그 인덱스"(아이템 id 아님). build[0]=게임이 넣은 유효 인덱스+레시피 有.
         //   메커니즘 검증: build[3] = build[0] 복사(확실히 유효). 되면 owned가 4로 감. 그다음 실제 4번째 인덱스 매핑.
-        let mut build_len = rd_u64(athlete + 0x490); // 0.5.0 build len (구 0x418)
-        if build_len == 3 && rd_u64(athlete + 0x480) == 3 { // 0.5.0 build cap (구 0x408)
-            let ptr = rd_u64(athlete + 0x488) as usize; // 0.5.0 build ptr (구 0x410)
-            if ptr >= 0x10000 && readable(ptr, 24) && writable(athlete + 0x480, 0x18) {
+        let mut build_len = rd_u64(athlete + 0x4f0); // 0.5.0 build len (구 0x418)
+        if build_len == 3 && rd_u64(athlete + 0x4e0) == 3 { // 0.5.0 build cap (구 0x408)
+            let ptr = rd_u64(athlete + 0x4e8) as usize; // 0.5.0 build ptr (구 0x410)
+            if ptr >= 0x10000 && readable(ptr, 24) && writable(athlete + 0x4e0, 0x18) {
                 let (b0, b1, b2) = (rd_u64(ptr), rd_u64(ptr + 8), rd_u64(ptr + 16));
                 // ★ build[3] = ① 개인전술 수동지정 → ② 신경망 추천 → ③ distinct 바닐라 폴백.
                 //   ①②는 아이템 "이름"으로 catalog 스캔해 인덱스+레시피검증(모드템 id≠인덱스라 이름스캔 필수).
@@ -4684,7 +4739,7 @@ unsafe extern "C" fn buy_replace_ctx(saved: *mut u64, rsp_entry: usize) -> u64 {
                     let np = realloc(ptr, 24, 8, 32);
                     if np >= 0x10000 && writable(np, 32) {
                         wr_u64(np + 24, t); // ★ build[3] = 수동/신경망 인덱스 or 바닐라 폴백
-                        wr_u64(athlete + 0x488, np as u64); wr_u64(athlete + 0x480, 4); wr_u64(athlete + 0x490, 4); // 0.5.0 build ptr/cap/len
+                        wr_u64(athlete + 0x4e8, np as u64); wr_u64(athlete + 0x4e0, 4); wr_u64(athlete + 0x4f0, 4); // 0.5.0 build ptr/cap/len
                         build_len = 4;
                         if LOG_ENABLED {
                             let src = if manual.is_some() && picked.is_some() { "manual" } else if picked.is_some() { "neural" } else { "vanilla" };
@@ -4884,9 +4939,9 @@ unsafe fn patch_owned_cap() -> String {
     //   disp(struct 오프셋 0x458)·imm(3)은 불변. `cmp qword[reg+0x458],3` 형태는 신 exe 전체에서 이 1곳뿐(유일).
     // 0.5.3(2026-07-29): 레지스터가 R15→**RSI**로 회귀(49 83 bf → 48 83 be). disp 0x458·imm 3은 불변.
     //   `cmp qword[reg+0x458],3` 형태는 신 exe .text 전체에서 **유일 1건**(바이트스캔 실측) = 오식별 불가.
-    let sig = base + 0x1420b29; // 0.5.4(구0.5.3=0xf24a39). `cmp qword[reg+0x448],3` = 신 exe 전체 유일 1건 + 컨테이너 mode.rs panic-loc 23개 동일 + 함수내 오프셋 0x2a59->0x2b29. // 0.5.3(구0.5.2=0x2341440). 컨테이너 0x233e9d0→0xf21fe0.
-    let imm = base + 0x1420b30; // cmp 의 imm8 (=sig+7)
-    let expect = [0x48u8, 0x83, 0xbe, 0x48, 0x04, 0x00, 0x00, 0x03]; // 0.5.4: athlete owned len 0x458->0x448
+    let sig = base + 0x15206a9; // 0.5.5(구0.5.4=0x1420b29). `cmp qword[rsi+0x4a8],3` = 신 exe .text 전체 유일 1건 + athlete owned len 0x448→0x4a8(+0x60 시프트, ctor 정렬 확증). // 0.5.4(구0.5.3=0xf24a39). `cmp qword[reg+0x448],3` = 신 exe 전체 유일 1건 + 컨테이너 mode.rs panic-loc 23개 동일 + 함수내 오프셋 0x2a59->0x2b29. // 0.5.3(구0.5.2=0x2341440). 컨테이너 0x233e9d0→0xf21fe0.
+    let imm = base + 0x15206b0; // cmp 의 imm8 (=sig+7)
+    let expect = [0x48u8, 0x83, 0xbe, 0xa8, 0x04, 0x00, 0x00, 0x03]; // 0.5.5: cmp qword[rsi+0x4a8],3 (athlete owned len 0x448->0x4a8). ~~0.5.4: 0x448~~
     if !readable(sig, 8) { return "owned_cap: unreadable".into(); }
     for i in 0..8 { if *((sig + i) as *const u8) != expect[i] {
         return format!("owned_cap: sig mismatch @+{} = {:#04x}", i, *((sig + i) as *const u8));
@@ -4907,9 +4962,9 @@ unsafe fn patch_owned_cap() -> String {
 unsafe fn patch_gate3() -> String {
     let base = exe_base_addr();
     // 0.5.0: jbe @ 0x1e4bd36(구 0x2052e76). sig 시작 = jbe-9. 76→EB(JMP)로 owned>2 게이트 무력화.
-    let sig = base + 0xe76b1e;          // 0.5.3(구0.5.2=0x211e428): resolver 컨테이너 0x211e150→**0xd0c770**(buy 0xd0c680이 직접 호출). 스필 슬롯이 rsp+0x78→**rsp+0x40**으로 이동했고 `cmp qword[rsp+0x40],2;jbe` 형태는 신 exe 전체 **유일 1건**(바이트스캔 실측). ↓0.5.2 이력: (구0.5.1=0x1f01448): resolver 컨테이너 0x1f01170→0x211e150(스켈레톤 UNIQUE, +0x21cfe0) 동일 오프셋 +0x2d8, 7B 시그 바이트동일(BYTE-OK). ↓0.5.1 이력: (구0.5.0_3=0x1fb8cdd, ghidra-re HIGH 재-ID). resolver 후계 FUN_141f01170 내부. owned_count가 [rsp+0x78]로 spill돼 시퀀스가 'cmp qword[rsp+0x78],2;jbe'로 재작성됨(구 'mov rsi,[rsp+0x40];jbe').
-    let jbe = base + 0xe76b24; // 0.5.4(구0.5.3=0xd0c9c4). resolver 0xe768d0 내 +0x24e = 구 exe와 동일 함수내 오프셋, 10B 바이트 완전동일, exe 전체 유일.          // 0.5.3 jbe 의 opcode 바이트 (=sig+6, 구0.5.2=0x211e42e). owned≤2→점프, >2 fall-through(has_recipe 추가검사).
-    let expect = [0x48u8, 0x83, 0x7c, 0x24, 0x40, 0x02, 0x76]; // 0.5.3: cmp qword[rsp+0x40],2 ; jbe (구0.5.2=rsp+0x78)
+    let sig = base + 0xeb2fa8;          // 0.5.5(구0.5.4=0xe76b1e). 신 resolver 0xeb2d30(buy 0xeb2c40이 호출) 내부 유일 gate, 함수내 off 0x24e→0x278, spill 슬롯 rsp+0x40→rsp+0x60. // 0.5.3(구0.5.2=0x211e428): resolver 컨테이너 0x211e150→**0xd0c770**(buy 0xd0c680이 직접 호출). 스필 슬롯이 rsp+0x78→**rsp+0x40**으로 이동했고 `cmp qword[rsp+0x40],2;jbe` 형태는 신 exe 전체 **유일 1건**(바이트스캔 실측). ↓0.5.2 이력: (구0.5.1=0x1f01448): resolver 컨테이너 0x1f01170→0x211e150(스켈레톤 UNIQUE, +0x21cfe0) 동일 오프셋 +0x2d8, 7B 시그 바이트동일(BYTE-OK). ↓0.5.1 이력: (구0.5.0_3=0x1fb8cdd, ghidra-re HIGH 재-ID). resolver 후계 FUN_141f01170 내부. owned_count가 [rsp+0x78]로 spill돼 시퀀스가 'cmp qword[rsp+0x78],2;jbe'로 재작성됨(구 'mov rsi,[rsp+0x40];jbe').
+    let jbe = base + 0xeb2fae; // 0.5.5(구0.5.4=0xe76b24, =sig+6). resolver 0xeb2d30 내 +0x27e. // 0.5.4(구0.5.3=0xd0c9c4). resolver 0xe768d0 내 +0x24e = 구 exe와 동일 함수내 오프셋, 10B 바이트 완전동일, exe 전체 유일.          // 0.5.3 jbe 의 opcode 바이트 (=sig+6, 구0.5.2=0x211e42e). owned≤2→점프, >2 fall-through(has_recipe 추가검사).
+    let expect = [0x48u8, 0x83, 0x7c, 0x24, 0x60, 0x02, 0x76]; // 0.5.5: cmp qword[rsp+0x60],2 ; jbe (spill rsp+0x40->rsp+0x60). ~~0.5.4: rsp+0x40~~
     if !readable(sig, 7) { return "gate3: unreadable".into(); }
     for i in 0..7 { if *((sig + i) as *const u8) != expect[i] {
         return format!("gate3: sig mismatch @+{} = {:#04x}", i, *((sig + i) as *const u8));
@@ -4937,18 +4992,18 @@ unsafe fn patch_gate3() -> String {
 //   ①exe 파일 크기 — 0.5.3 = 74,970,624B. 버전마다 확실히 달라지는 값이고 읽기 비용이 없다.
 //   ②핵심 훅 3곳의 진입부 프롤로그 실측 — 크기가 우연히 같은 리패키징이라도 코드가 다르면 걸러진다.
 //  ⚠느슨한 검사(예 크기만)로 하면 핫픽스에서 오작동할 수 있어 프롤로그까지 본다.
-const GAME_EXE_SIZE_053: u64 = 75_936_256; // 0.5.4
+const GAME_EXE_SIZE_055: u64 = 76_957_696; // 0.5.5 (실측 확인). ~~0.5.4=75_936_256~~
 static VERSION_OK: AtomicBool = AtomicBool::new(false);
 static VERSION_MSG: Mutex<String> = Mutex::new(String::new());
-/// 0.5.4 인지 판정. init 에서 1회 호출하고 결과를 VERSION_OK 에 남긴다.
+/// 0.5.5 인지 판정. init 에서 1회 호출하고 결과를 VERSION_OK 에 남긴다.
 fn check_game_version() -> bool {
     let mut why = String::new();
     // ① exe 크기
     let size_ok = match exe_path().and_then(|p| fs::metadata(p).ok()) {
         Some(m) => {
             let sz = m.len();
-            if sz == GAME_EXE_SIZE_053 { true }
-            else { why = format!("exe 크기 불일치: {}B (0.5.4 = {}B)", sz, GAME_EXE_SIZE_053); false }
+            if sz == GAME_EXE_SIZE_055 { true }
+            else { why = format!("exe 크기 불일치: {}B (0.5.5 = {}B)", sz, GAME_EXE_SIZE_055); false }
         }
         None => { why = "exe 경로/메타데이터 실패".into(); false }
     };
@@ -4989,7 +5044,7 @@ fn check_game_version() -> bool {
     } else { false };
     let ok = size_ok && proto_ok;
     *VERSION_MSG.lock().unwrap_or_else(|e| e.into_inner()) =
-        if ok { "0.5.4 확인 — 정상 활성".to_string() }
+        if ok { "0.5.5 확인 — 정상 활성".to_string() }
         else { format!("★버전 불일치 → 모드 전체 비활성 ({})", why) };
     VERSION_OK.store(ok, Ordering::Relaxed);
     ok
@@ -4999,7 +5054,7 @@ fn check_game_version() -> bool {
 fn version_ok() -> bool { VERSION_OK.load(Ordering::Relaxed) }
 
 fn init(_ctx: &GameCtx) -> ModRegistration {
-    // ★★버전 게이트: 0.5.4 가 아니면 **훅·패치를 하나도 설치하지 않고** 빈 등록만 반환한다.
+    // ★★버전 게이트: 0.5.5 가 아니면 **훅·패치를 하나도 설치하지 않고** 빈 등록만 반환한다.
     //   (하드코딩 RVA·바이트패치·구조체 오프셋 의존이라 다른 버전에선 오작동 위험)
     if !check_game_version() {
         let msg = VERSION_MSG.lock().unwrap_or_else(|e| e.into_inner()).clone();
@@ -5008,7 +5063,7 @@ fn init(_ctx: &GameCtx) -> ModRegistration {
             let _ = fs::write(d.join("version_gate.txt"),
                 format!("{}
 
-이 모드는 게임 0.5.4 전용입니다.
+이 모드는 게임 0.5.5 전용입니다.
 게임이 업데이트되면 모드 업데이트를 기다려 주세요.
 ", msg)); }
         // 등록만 하고 **확장(extension)·훅·패치를 하나도 붙이지 않는다** = 완전 비활성.
