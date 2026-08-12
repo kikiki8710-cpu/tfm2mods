@@ -44,7 +44,13 @@ const O_CUR_HP: usize = 0x670;    // 0.5.5: 구 0x658 → 신 0x670 (+0x18). DMG
 // ★0.5.3 이동 확정(2026-07-29): SERPEN 함수 +77 에서 `mov rax,[rbx+0x1b8]` → `[rbx+0x1c8]` 로 바뀜
 //   (앞뒤 명령 문맥 동일 = 같은 명령의 disp만 변경). DMGB 콜러 사상에서도 +0x10 일치.
 //   ⚠이 값은 읽어서 **함수포인터로 호출**하므로 틀리면 즉시 크래시 — 엔티티 구조체 나머지는 전부 불변.
-const O_ENTITY_ACCESSOR: usize = 0x1c8; // 0.5.3 (구0.5.2/0.5.1=0x1b8) rdx+0x1c8 = id→entity 리졸버 함수포인터
+const O_ENTITY_ACCESSOR: usize = 0x1e0; // 0.5.5: 구 0.5.3~0.5.4 ~~0x1c8~~ → **0x1e0** (+0x18, 정정 2026-08-12 인게임결함).
+//   ★근거(ghidra 직접 대조): 0.5.5 SERPEN 0x16be600 @+0x4d `mov rax,[rbx+0x1e0]; call rax`(rbx=rdx) ↔
+//   0.5.4 0x1328950 디컴 `pcStack_98 = *(param_2+0x1c8); (*pcStack_98)(param_1,param_5)` — 같은 자리 +0x18.
+//   리졸버 테이블(rdx) 슬롯 전역 +0x18 이동(0x1d0→0x1e8 등 동반 관측). 08-12 재핀이 "0x1c8 불변"으로 오판한
+//   원인 = 엔티티 **필드** 0x1c8 센서스와 이 **리졸버 슬롯**을 혼동(둘은 다른 구조체). 이 값이 틀리면
+//   잘못된 슬롯을 함수포인터로 호출/조기반환 → 속성 배정 전면 무동작(0.5.5 "세르펜 안 나옴" 결함의 근본원인).
+//   (구0.5.2/0.5.1=0x1b8) rdx+O_ENTITY_ACCESSOR = id→entity 리졸버 함수포인터
 const O_SERPEN_TEMPLATE: usize = 0xb0;  // 세르펜 엔티티+0xb0 = 처치 시 뿌릴 이펙트 템플릿(0x120)
 const O_SPRITE_NAME_PTR: usize = 0x250; // 세르펜 엔티티+0x250 = 스프라이트 이름 (ptr, len@+0x258) "serpen_monster"
 const O_SPRITE_NAME_LEN: usize = 0x258;
@@ -377,7 +383,7 @@ const GAME_PROVIDER_OFF: usize = 0x1dc0; // Game + 0x1dc0 = provider data ptr (=
 //   처치 tick이 함께 저장되므로 played_tick 이하만 집계하면 sim 선행·뒤로감기가 자동 정합된다.
 //   (+0xed50/+0xed58 = 팀별 처치수, +0xed30/+0xed38 = 팀별 버프 잔여틱)
 const KILLS_PTR_OFF: usize = 0xeef8; // 0.5.5: 구 0xed90 → 신 0xeef8 (+0x168) — cap=0xeef0
-const KILLS_LEN_OFF: usize = 0xf000; // 0.5.5: 구 0xed98 → 신 0xf000 (+0x168)
+const KILLS_LEN_OFF: usize = 0xef00; // 0.5.5: 구 0xed98 → 신 ~~0xf000~~ **0xef00** (+0x168 정정 2026-08-12 인게임결함). 0xed98+0x168=0xef00이고 Vec{cap 0xeef0, ptr 0xeef8, len 0xef00} 인접 8B 정합 — 08-12 재핀 때 0xf000으로 오기입(+0x268)돼 kills len이 항상 쓰레기 → track_kills/장로버프/툴팁 전멸이었다.
 // ★실측 확정(2026-07-16): played_tick과 sim tick은 **같은 축(1:1)**.
 //   근거: 첫 웨이브 sim_tick=7200 → played=7281에 화면에 세르펜이 보였고(유저 확인), 다음 웨이브
 //   16185는 아직 안 보였음. sim_tick=16382가 played=7281보다 앞선 건 sim이 재생을 앞질러 계산하기 때문.
@@ -2978,12 +2984,14 @@ impl ModExtension for ElementalSerpenExt {
         if in_match { update_elder_buff_ui(ui); } // 색 결정(화면 카운터) + 장로 버프 표시
         if in_match { nudge_morgard(ui); }        // 레드 모르가드 버프 오른쪽 5px
         // ★진단 flush는 배포본에서 제거(2026-07-29). probe_flush 호출부 = on_init 한 곳뿐이라
-        //   **프로세스당 1회**만 기록된다(실측). 경기 중 상태를 관측해야 할 땐 아래를 되살릴 것:
-        //     let npf = now_ms();
-        //     if npf.saturating_sub(POST_FLUSH_MS.load(Ordering::Relaxed)) >= 1000 {
-        //         POST_FLUSH_MS.store(npf, Ordering::Relaxed); probe_flush();
-        //     }
-        //   (0.5.3 마이그 인게임 검증은 이 방식으로 완료했다 — 훅 12/12·+0x40 오프셋 정합·런처 게이트 적중)
+        //   **프로세스당 1회**만 기록된다(실측).
+        // ★★08-12 정정: 그 "1회" 규칙이 이번 0.5.5 인게임 결함 오진의 직접 원인이었다 —
+        //   게임을 껐다 켜면 부팅+1초 스냅샷(전부 0)이 직전 세션 기록을 덮어써서,
+        //   "훅 발화 전부 0"이라는 가짜 증거를 만들었다. ⟹ **경기화면 진입/이탈 전이 시에만**
+        //   flush 를 추가한다(세션당 수 회 · 프레임당 비용 0 — 매초 flush 방식은 되살리지 않음).
+        if was_in != in_match {
+            probe_flush();
+        }
     }
 }
 
