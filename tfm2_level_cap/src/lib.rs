@@ -15,7 +15,17 @@
 //     UI 스텁은 0.5.2와 동일하게 rax 베이스라 무수정.
 //   0.5.4 변화 = **레지스터 할당 무변화**(rax/r14/r12/rcx 그대로, 명령 바이트도 동일).
 //     바뀐 것은 챔프 구조체 필드 오프셋뿐 = level +0x880→+0x870 / exp +0x870→+0x860 (스텁 무관).
-//   GameSetting: +0xd00=cap / +0xd08=ptr / +0xd10=len (0.5.2 = 0.5.3 = 0.5.4 **불변 실측**)
+//   ★0.5.5 변화(재핀 2026-08-12) = **레벨업 경로 GameSetting 베이스 rax → r14 회귀**(0.5.2와 동일 패턴).
+//     레벨업 함수 0.5.5 `0x14d7e10` 내부 (0.5.4 `0x14ec9e0`):
+//       0x14d8193  mov rdi,[r13+0x990]   ; level  (홀더 r12→r13, +0x870→+0x990, 레지스터 r14→rdi)
+//       0x14d819a  mov rdx,[r14+0xd10]   ; need_exp.len  ← ★후킹 사이트 (베이스 rax→r14!)
+//       0x14d81a1  cmp rdi,rdx / ja ...  ; 조용히 return
+//       0x14d81b7  mov rcx,[r14+0xd08]   ; ptr (rdx→rcx로 변경)
+//       0x14d81be  mov rax,[r13+0x980]   ; exp
+//       0x14d81c5  sub rax,[rcx+rdi*8-8]
+//     ⟹ 레벨업 스텁의 GameSetting 접근 베이스만 rax→r14로 인코딩 교체(스텁은 rdx·r11만 파괴 = 그대로 안전).
+//     UI 경로는 0.5.5에서도 rax 베이스·rcx=index·바이트 완전 동일 = UI 스텁 무수정.
+//   GameSetting: +0xd00=cap / +0xd08=ptr / +0xd10=len (0.5.2 = 0.5.3 = 0.5.4 = 0.5.5 **불변 실측**)
 //
 // ⛔ 하면 안 되는 것: `ja @0x22d3ff4`를 NOP으로 뭉개는 바이트패치. 가드가 사라지면 바로 뒤
 //   `jae @0x22d4001` bounds panic이 실제 발화 → ud2 하드크래시. len만 늘리는 것도 동일(ptr이
@@ -80,9 +90,10 @@ const MAX_LEVEL_LIMIT: u64 = 500;   // sanity 상한 (스탯은 레벨당 선형
 static mut TABLE_PTR: u64 = 0;
 static mut TABLE_LEN: u64 = 0;
 
-// ── 후킹 지점 (0.5.4, 재핀 2026-08-05 / 직전 0.5.3 buildid 24451609) ──
-// ★0.5.4 재핀도 아래 ①②를 그대로 돌려 **양 버전 각 1건**만 나왔다(0.5.3 재현 = 방법 검증).
-//   GameSetting +0xd00/+0xd08/+0xd10 = 0.5.4 에서도 그대로 실측 확인.
+// ── 후킹 지점 (0.5.5, 재핀 2026-08-12 / 직전 0.5.4 재핀 2026-08-05) ──
+// ★0.5.5 재핀도 아래 ①②를 그대로 돌려 **양 버전 각 1건**만 나왔다(0.5.4 재현 = 방법 검증).
+//   GameSetting +0xd08(ptr)/+0xd10(len) = 0.5.5 코드에서 그대로 실측(len 비교→ptr 로드→[ptr+idx*8-8]).
+//   +0xd00(cap)은 Vec(cap,ptr,len) 배치상 동반 불변 판단(0.5.2~0.5.4 실측 이력 + ptr/len 무이동).
 // ★GameSetting은 시뮬마다 복제된다(로그 실측: patched 카운터가 계속 증가). 따라서 "한 번 고치고 끝"이
 //   아니라, need_exp를 읽는 **각 경로에서 매번** 원본(len=11) 인스턴스를 잡아 교체해야 한다.
 //   need_exp를 인덱싱하는 지점은 .text 전체에 2곳뿐이고(전수 스캔 확인), 둘 다 여기서 처리한다.
@@ -91,19 +102,24 @@ static mut TABLE_LEN: u64 = 0;
 //      → 0.5.2 1건(=기지 정답 0x22d3fea) / 0.5.3 1건(0x12c5b44).
 //   ② `cmp r,[reg+0xd10]` → 양 버전 .text 전체에 각 1건뿐(0x80ae73 / 0x95a359).
 //   교차검증 = 둘 다 _MIGRATE_053.md의 컨테이너 후보 body 범위 내(0x12c56d0-0x12c5e69 / 0x952170-0x95b682).
-// 0.5.4(2026-08-05 재핀): ~~0.5.3 0x12c5b44~~ → **0x14ece54**(컨테이너 0x14ec9e0-0x14ed17a, 크기 0x79a
-//   ·함수내 오프셋 0x474 모두 0.5.3 과 동일). ★레지스터 무변화 = rax=GameSetting / r14=level / r12=챔프.
-//   (챔프 구조체만 level +0x880→+0x870 · exp +0x870→+0x860 로 이동 — 스텁은 안 건드림)
-const RVA_LEN_LOAD: usize = 0x14ece54;   // 레벨업 함수 0x14ec9e0 내 (구 0.5.3 0x12c5b44 / 0.5.2 0x22d3fea)
-const ORIG_LEN_LOAD: [u8; 7] = [0x48, 0x8b, 0x90, 0x10, 0x0d, 0x00, 0x00]; // mov rdx,[rax+0xd10]
+// 0.5.4(2026-08-05 재핀): ~~0.5.3 0x12c5b44~~ → 0x14ece54(컨테이너 0x14ec9e0-0x14ed17a).
+// 0.5.5(2026-08-12 재핀): ~~0.5.4 0x14ece54~~ → **0x14d819a**(컨테이너 0x14d7e10-0x14d855f, 함수내 +0x38a).
+//   방법 ①을 0.5.4에 먼저 돌려 기지 정답 1건 재현 확인 후 0.5.5 적용 → 각 버전 유일 1건.
+//   ★0.5.5 = 원본 바이트 변경: 48 8b 90(rax 베이스) → **49 8b 96(r14 베이스)** — mov rdx,[r14+0xd10].
+//   가드검사(교체영역 site+1..+6 내부로 점프하는 분기) = 0건, 7B 치환 안전.
+const RVA_LEN_LOAD: usize = 0x14d819a;   // 레벨업 함수 0x14d7e10 내 (구 0.5.4 0x14ece54 / 0.5.3 0x12c5b44 / 0.5.2 0x22d3fea)
+const ORIG_LEN_LOAD: [u8; 7] = [0x49, 0x8b, 0x96, 0x10, 0x0d, 0x00, 0x00]; // mov rdx,[r14+0xd10] (0.5.5: 베이스 rax→r14)
 
 // UI 경험치 바 경로. 여기를 놓치면 레벨은 오르는데 경험치 막대가 깨진다(레벨 13+에서
 //   원본 11칸 테이블을 보고 len 가드에 걸림). 뒤따르는 `mov rax,[rax+0xd08]`가 같은
 //   인스턴스에서 ptr을 읽으므로, 앞선 이 지점에서 교체하면 인덱싱도 함께 따라온다.
 // 0.5.3에서 **명령 바이트·주변 코드 모두 0.5.2와 동일**(rax=GameSetting, rcx=index 유지) = 스텁 무수정.
-// 0.5.4(2026-08-05 재핀): ~~0.5.3 0x95a359~~ → **0xa99c29**. 사이트 전후 0x50B 바이트 완전동일,
-//   rax=GameSetting·rcx=index 유지, 뒤따르는 `mov rax,[rax+0xd08]` 까지 거리 0x912 도 동일.
-const RVA_UI_CMP: usize = 0xa99c29;      // UI 함수 0xa91a30 내 (구 0.5.3 0x95a359 / 0.5.2 0x80ae73)
+// 0.5.4(2026-08-05 재핀): ~~0.5.3 0x95a359~~ → 0xa99c29.
+// 0.5.5(2026-08-12 재핀): ~~0.5.4 0xa99c29~~ → **0x95d8b9**(컨테이너 0x955680-0x95f05e, 함수내 +0x8239).
+//   방법 ② 0.5.4 기지 정답 재현 후 적용 → 각 버전 유일 1건. 원본 7B·rax=GameSetting·rcx=index 전부
+//   무변경, 뒤따르는 `mov rax,[rax+0xd08]` 까지 거리 0x912 도 0.5.4와 동일 = UI 스텁 무수정.
+//   가드검사 0건, 7B 치환 안전.
+const RVA_UI_CMP: usize = 0x95d8b9;      // UI 함수 0x955680 내 (구 0.5.4 0xa99c29 / 0.5.3 0x95a359 / 0.5.2 0x80ae73)
 const ORIG_UI_CMP: [u8; 7] = [0x48, 0x3b, 0x88, 0x10, 0x0d, 0x00, 0x00];   // cmp rcx,[rax+0xd10]
 
 // GameSetting 오프셋
@@ -287,13 +303,16 @@ fn patch_je_near(s: &mut Vec<u8>, at: usize) {
     s[at + 2..at + 6].copy_from_slice(&rel.to_le_bytes());
 }
 
-/// 레벨업 경로 트램폴린. **진입 시 rax = GameSetting**(0.5.3 — 0.5.2는 r14였다).
+/// 레벨업 경로 트램폴린. **진입 시 r14 = GameSetting**
+///   (0.5.5 재핀 2026-08-12: ~~0.5.3·0.5.4 rax~~ → r14 회귀. 0.5.2도 r14였다).
 /// ★판정 기준 = **ptr이 이미 내 테이블인가**(len 비교가 아니라). len으로 판정하면 merge된
 ///   인스턴스(len은 같지만 ptr은 게임 것)를 그냥 지나쳐, 시뮬과 UI가 서로 다른 테이블을
 ///   보게 된다 — 2026-07-23 경험치 바 폭주 사고의 구조적 원인.
-/// ★rax는 GameSetting 베이스라 **파괴 금지**. 스크래치는 rdx(원본이 덮어쓰는 목적 레지스터)와
-///   r11(push/pop 보존)뿐이다. rdx는 마지막에 항상 우리 len으로 설정한다.
-/// flags는 직후 원본 `cmp r14,rdx`가 새로 세팅하므로 무관(pop·mov는 flags 불변).
+/// ★r14는 GameSetting 베이스라 **파괴 금지**(rax·rcx는 사이트 이후 게임이 다시 로드하지만
+///   ja 분기 경로에서의 라이브니스가 불확실하니 건드리지 않는다). 스크래치는
+///   rdx(원본이 덮어쓰는 목적 레지스터)와 r11(push/pop 보존)뿐이다.
+///   rdx는 마지막에 항상 우리 len으로 설정한다.
+/// flags는 직후 원본 `cmp rdi,rdx`(0.5.5 — 구 `cmp r14,rdx`)가 새로 세팅하므로 무관.
 unsafe fn build_stub(stub: usize) {
     let arr = TABLE_PTR;
     let len = TABLE_LEN;
@@ -302,31 +321,37 @@ unsafe fn build_stub(stub: usize) {
     let cnt = (&PATCH_COUNT as *const AtomicU64) as u64;
     let cal = (&CALL_COUNT as *const AtomicU64) as u64;
 
+    // 0.5.5: GameSetting 베이스 = r14 (REX.B) — mod=10 rm=110(r14)
+    //   구 0.5.3/0.5.4(rax 베이스)는 48 8b 90 / 48 89 90 / 48 c7 80 이었다.
+    const LD_R14: [u8; 3] = [0x49, 0x8b, 0x96];   // mov rdx,[r14+disp32]
+    const ST_R14: [u8; 3] = [0x49, 0x89, 0x96];   // mov [r14+disp32],rdx
+    const MI_R14: [u8; 3] = [0x49, 0xc7, 0x86];   // mov qword [r14+disp32],imm32
+
     let mut s: Vec<u8> = Vec::new();
     s.extend_from_slice(&[0x41, 0x53]);                             // push r11
     // CALL_COUNT += 1
     s.extend_from_slice(&[0x49, 0xbb]); s.extend_from_slice(&cal.to_le_bytes()); // mov r11, &CALL_COUNT
     s.extend_from_slice(&[0x49, 0xff, 0x03]);                       // inc qword [r11]
     // 이미 내 테이블을 가리키는가?
-    s.extend_from_slice(&[0x48, 0x8b, 0x90]); s.extend_from_slice(&O_PTR.to_le_bytes()); // mov rdx,[rax+0xd08]
+    s.extend_from_slice(&LD_R14); s.extend_from_slice(&O_PTR.to_le_bytes());     // mov rdx,[r14+0xd08]
     s.extend_from_slice(&[0x49, 0xbb]); s.extend_from_slice(&arr.to_le_bytes());         // mov r11, TABLE
     s.extend_from_slice(&[0x4c, 0x39, 0xda]);                       // cmp rdx, r11
     let je_at = je_near_placeholder(&mut s);                        // je skip
     // 진단: 교체 직전의 원본 len / cap 기록
-    s.extend_from_slice(&[0x48, 0x8b, 0x90]); s.extend_from_slice(&O_LEN.to_le_bytes()); // mov rdx,[rax+0xd10]
+    s.extend_from_slice(&LD_R14); s.extend_from_slice(&O_LEN.to_le_bytes());     // mov rdx,[r14+0xd10]
     s.extend_from_slice(&[0x49, 0xbb]); s.extend_from_slice(&obs.to_le_bytes());         // mov r11, &OBSERVED_LEN
     s.extend_from_slice(&[0x49, 0x89, 0x13]);                       // mov [r11], rdx
-    s.extend_from_slice(&[0x48, 0x8b, 0x90]); s.extend_from_slice(&O_CAP.to_le_bytes()); // mov rdx,[rax+0xd00]
+    s.extend_from_slice(&LD_R14); s.extend_from_slice(&O_CAP.to_le_bytes());     // mov rdx,[r14+0xd00]
     s.extend_from_slice(&[0x49, 0xbb]); s.extend_from_slice(&ocap.to_le_bytes());        // mov r11, &OBSERVED_CAP
     s.extend_from_slice(&[0x49, 0x89, 0x13]);                       // mov [r11], rdx
     // ptr / len / cap 교체
     s.extend_from_slice(&[0x48, 0xba]); s.extend_from_slice(&arr.to_le_bytes());         // mov rdx, TABLE
-    s.extend_from_slice(&[0x48, 0x89, 0x90]); s.extend_from_slice(&O_PTR.to_le_bytes()); // mov [rax+0xd08], rdx
-    s.extend_from_slice(&[0x48, 0xc7, 0x80]); s.extend_from_slice(&O_LEN.to_le_bytes());
-    s.extend_from_slice(&(len as u32).to_le_bytes());               // mov qword [rax+0xd10], len
+    s.extend_from_slice(&ST_R14); s.extend_from_slice(&O_PTR.to_le_bytes());     // mov [r14+0xd08], rdx
+    s.extend_from_slice(&MI_R14); s.extend_from_slice(&O_LEN.to_le_bytes());
+    s.extend_from_slice(&(len as u32).to_le_bytes());               // mov qword [r14+0xd10], len
     if CAP_ZERO {
-        s.extend_from_slice(&[0x48, 0xc7, 0x80]); s.extend_from_slice(&O_CAP.to_le_bytes());
-        s.extend_from_slice(&0u32.to_le_bytes());                   // mov qword [rax+0xd00], 0
+        s.extend_from_slice(&MI_R14); s.extend_from_slice(&O_CAP.to_le_bytes());
+        s.extend_from_slice(&0u32.to_le_bytes());                   // mov qword [r14+0xd00], 0
     }
     s.extend_from_slice(&[0x49, 0xbb]); s.extend_from_slice(&cnt.to_le_bytes());         // mov r11, &PATCH_COUNT
     s.extend_from_slice(&[0x49, 0xff, 0x03]);                       // inc qword [r11]
@@ -430,7 +455,7 @@ fn init(_ctx: &GameCtx) -> ModRegistration {
         TABLE_LEN = leaked.len() as u64;
     }
 
-    log(&format!("\n[{}ms] === {} INIT (0.5.4) ===\n", now_ms(), MOD_ID));
+    log(&format!("\n[{}ms] === {} INIT (0.5.5) ===\n", now_ms(), MOD_ID));
     log(&format!("[cfg] {}\n", note));
     log(&format!("[cfg] 최대 레벨 {} / need_exp({}개, 앞 {}개는 바닐라) = {:?}\n",
                  max_level, leaked.len(), VANILLA.len().min(leaked.len()), leaked));
