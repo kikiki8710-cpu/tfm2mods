@@ -650,7 +650,7 @@ let flowHistory = [];
 const SCENES = [
   { name: '전체', main: null, match: null },
   { name: '데모', main: 'ui/layout/title.ui', match: /^ui\/layout\/((title|disclaimer|prologue|prologue_first|new_game|team_select)\.ui|new_game_component\/)/ },
-  { name: '관리', main: 'ui/layout/home.ui', match: /^ui\/layout\/((main|home|schedule|lineup|scout|news|finance|facility|training|team_data|records|rank|statistics|solo_rank|locker_room|gaming_house_bg|transfer_offer|staff_offer|staff_view_detail|today_match|recruit_offer|team_detail|team_detail_squad|view_detail|view_detail_backup|champion_info|item_info|game_rules_info|patch_history_info)\.ui|(home|schedule|lineup|scout|news|finance|facility|training|team_data|records|rank|statistics|solo_rank|locker_room|gaming_house|transfer|recruit|staff|main_button|today_match|player_detail|team_detail|champion_info|item_info|game_rules_info|patch_history_info|mods)_component\/|player_detail\/|main_button\/)/ },
+  { name: '관리', main: 'ui/layout/home.ui', match: /^ui\/layout\/((main|home|schedule|lineup|scout|news|finance|facility|training|team_data|records|rank|statistics|solo_rank|locker_room|gaming_house_bg|transfer_offer|staff_offer|staff_view_detail|today_match|recruit_offer|team_detail|team_detail_squad|view_detail|view_detail_backup|champion_info|item_info|game_rules_info|patch_history_info)\.ui|(home|schedule|lineup|scout|news|finance|facility|training|team_data|records|rank|statistics|solo_rank|locker_room|gaming_house|transfer|recruit|staff|main_button|today_match|player_detail|team_detail|champion_info|item_info|game_rules_info|patch_history_info|mods)_component\/|player_detail\/|main_button\/)|\(프리셋\)\/구성테스트/ },
   { name: '밴픽', main: '(프리셋)/밴픽 - 슬롯 채움', match: /banpick|enemy_lineup|side_select_popup|pick_button|\(프리셋\)\/밴픽/ },
   { name: '전술', main: 'ui/layout/strategy.ui', match: /strategy/ },
   { name: '관전', main: '(프리셋)/관전 - 일반 HUD', match: /^(ui\/layout\/((ingame|loading|spectate_lineup_waiting|stadium_entrance|log)\.ui|(ingame|loading)_component\/)|\(프리셋\)\/관전)/ },
@@ -687,6 +687,12 @@ const FLOW = {
   [L('lobby.ui')]: { nodes: {}, links: [['방', L('room.ui')]] },
   [L('room.ui')]: { nodes: {}, links: [['(시작) → 밴픽', L('banpick/layout.ui')]] },
   [L('strategy.ui')]: { nodes: {}, links: [['홈으로', L('home.ui')]] },
+  [L('training.ui')]: { nodes: {}, links: [['구성테스트 준비(5:5)', '(프리셋)/구성테스트 - 준비(5:5)'], ['구성테스트 기록', '(프리셋)/구성테스트 - 기록'], ['구성테스트 챔피언 선택', '(프리셋)/구성테스트 - 챔피언 선택'], ['훈련 화면(선수 채움)', '(프리셋)/구성테스트 - 훈련 화면']] },
+  '(프리셋)/구성테스트 - 준비(5:5)': { nodes: {}, links: [['전술 선택', '(프리셋)/구성테스트 - 전술 선택'], ['기록 탭', '(프리셋)/구성테스트 - 기록'], ['챔피언 선택', '(프리셋)/구성테스트 - 챔피언 선택'], ['팝업 닫기 → 훈련 화면', '(프리셋)/구성테스트 - 훈련 화면']] },
+  '(프리셋)/구성테스트 - 전술 선택': { nodes: {}, links: [['챔피언 선택', '(프리셋)/구성테스트 - 챔피언 선택'], ['준비(5:5) 탭', '(프리셋)/구성테스트 - 준비(5:5)'], ['(테스트 시작) → 관전', '(프리셋)/관전 - 일반 HUD'], ['팝업 닫기 → 훈련 화면', '(프리셋)/구성테스트 - 훈련 화면']] },
+  '(프리셋)/구성테스트 - 기록': { nodes: {}, links: [['준비(5:5) 탭', '(프리셋)/구성테스트 - 준비(5:5)'], ['챔피언 선택', '(프리셋)/구성테스트 - 챔피언 선택'], ['팝업 닫기 → 훈련 화면', '(프리셋)/구성테스트 - 훈련 화면']] },
+  '(프리셋)/구성테스트 - 챔피언 선택': { nodes: {}, links: [['준비(5:5) 탭', '(프리셋)/구성테스트 - 준비(5:5)'], ['기록 탭', '(프리셋)/구성테스트 - 기록'], ['팝업 닫기 → 훈련 화면', '(프리셋)/구성테스트 - 훈련 화면']] },
+  '(프리셋)/구성테스트 - 훈련 화면': { nodes: {}, links: [['구성테스트 준비(5:5)', '(프리셋)/구성테스트 - 준비(5:5)'], ['빈 훈련 화면(원본)', L('training.ui')]] },
 };
 /* =====================================================================
  * 합성(컴포즈) 시스템
@@ -710,6 +716,11 @@ const PRESETS = {
   '(프리셋)/관전 - 일반 HUD': { base: L('ingame.ui'), mode: 'compact' },
   '(프리셋)/관전 - 전체보기': { base: L('ingame.ui'), mode: 'wide' },
   '(프리셋)/밴픽 - 슬롯 채움': { base: L('banpick/layout.ui'), mode: 'banpick' },
+  '(프리셋)/구성테스트 - 준비(5:5)': { base: L('training.ui'), mode: 'ct_setup' },
+  '(프리셋)/구성테스트 - 전술 선택': { base: L('training.ui'), mode: 'ct_tactics' },
+  '(프리셋)/구성테스트 - 기록': { base: L('training.ui'), mode: 'ct_history' },
+  '(프리셋)/구성테스트 - 챔피언 선택': { base: L('training.ui'), mode: 'ct_champselect' },
+  '(프리셋)/구성테스트 - 훈련 화면': { base: L('training.ui'), mode: 'ct_training' },
 };
 function baseKeyOf(key) { return PRESETS[key] ? PRESETS[key].base : key; }
 function cloneTpl(t) { return JSON.parse(JSON.stringify(t)); }
@@ -835,6 +846,176 @@ function composeBanpick(baseRoot) {
   if (desc) desc.props.text = '"BLUE 밴 차례"';
   const step = findTplByIds(root, ['header', 'step']);
   if (step) step.props.text = '"밴 페이즈 1/2"';
+  return root;
+}
+function findTplDeep(t, id) {
+  if (!t) return null;
+  if (t.id === id) return t;
+  for (const c of (t.children || [])) { const r = findTplDeep(c, id); if (r) return r; }
+  return null;
+}
+function injectRows(host, file, count, perInstance) {
+  if (!_rowCache[file]) _rowCache[file] = getParsedRoot(file);
+  const tpl = _rowCache[file];
+  if (!host || !tpl) return;
+  for (let i = 0; i < count; i++) {
+    const c = cloneTpl(tpl);
+    c.id = c.id + i;
+    if (perInstance) perInstance(c, i);
+    host.children.push(c);
+  }
+}
+/* 구성 테스트(comp_test) 프리셋 — 전부 training.ui 베이스.
+   구성테스트 팝업(#comp_test_popup 1280×680, 기본 숨김)은 training.ui에 통째로 들어있다:
+   #setup(슬롯 10개+RUN) / #history(#scroll/#contents 1208w TTB sp8) / #champion_select(#champion_grid/#contents 488w Table sp8) */
+const CT_NAMES = ['김태윤', '박서준', '이도현', '최민재', '정하늘', '오유진', '한지우', '강시온', '문라온', '서이안'];
+const CT_CHAMPS = ['불꽃술사', '서리궁수', '바위기사', '그림자단검', '천둥주먹', '숲의현자', '핏빛창기병', '달빛무희', '강철포식자', '폭풍소환사'];
+function composeCompTest(baseRoot, mode) {
+  const root = cloneTpl(baseRoot);
+  // 공통: 선수 리스트(기본 숨김) 표시 + 10행 채움 → 훈련 화면 배경 완성
+  const list = findTplByIds(root, ['list']);
+  if (list) list.props.visible = 'true';
+  injectRows(findTplByIds(root, ['list', 'athletes', 'contents']), L('training_component/athlete_slot.ui'), 10, (c, i) => {
+    // 각 칸 = #칼럼:empty > #text:label 구조 — 칼럼별 근사값 채움
+    const cols = {
+      name: CT_NAMES[i], position: ['탑', '정글', '미드', '바텀', '서폿'][i % 5],
+      match: String(19 + i), kill: String(15 + ((i * 7) % 6)), death: String(12 + ((i * 5) % 8)),
+      assist: String(10 + ((i * 3) % 9)), kda: (2 + (i % 4)) + '.' + (i % 10),
+      stress: ((i * 9) % 40) + '%', rating: String(70 + ((i * 11) % 25)),
+    };
+    for (const cid in cols) {
+      const col = c.children.find(x => x.id === cid);
+      const t = col ? findTplDeep(col, 'text') : null;
+      if (t && t.type === 'label') t.props.text = '"' + cols[cid] + '"';
+    }
+  });
+  if (mode === 'ct_training') return root;
+
+  // 팝업 공통: 오버레이 + 팝업 표시
+  const ov = findTplByIds(root, ['comp_test_overlay']);
+  if (ov) ov.props.visible = 'true';
+  const popup = findTplByIds(root, ['comp_test_popup']);
+  if (!popup) return root;
+  popup.props.visible = 'true';
+  // 팝업 상단 문구 한글화(i18n 키 대신 실제 게임 문구 — 스크린샷 대조)
+  const setLbl = (host, id, txt) => { const n2 = findTplDeep(host, id); if (n2 && n2.type === 'label') n2.props.text = '"' + txt + '"'; };
+  const setBtn = (host, id, txt) => { const n2 = findTplDeep(host, id); if (n2 && n2.props.text && n2.props.text.__block) n2.props.text.props.text = '"' + txt + '"'; };
+  setLbl(popup, 'header', '조합 테스트');
+  setLbl(popup, 'daily_count', '오늘 0/5회');
+  setLbl(popup, 'stamina_note', '시작하면 참가 선수의 체력이 5 감소합니다.');
+  // ⚠ popup_tabs에 같은 id의 탭 버튼(#setup/#history:color_selectable)이 있어 DFS 금지 — 직접 자식으로 찾는다
+  const setup = popup.children.find(c => c.id === 'setup' && c.type === 'empty');
+
+  if (mode === 'ct_setup') {
+    // 준비(5:5) 탭: 슬롯 10개는 정적 — 챔피언 버튼 이름만 채움
+    const slots = setup ? findTplDeep(setup, 'slots') : null;
+    if (slots) {
+      for (let i = 0; i < 10; i++) {
+        const slot = findTplDeep(slots, 'slot' + i);
+        const champ = slot ? findTplDeep(slot, 'champion') : null;
+        const nm = champ ? findTplDeep(champ, 'name') : null;
+        if (nm) nm.props.text = '"' + CT_CHAMPS[i] + '"';
+      }
+    }
+    return root;
+  }
+  if (setup) setup.props.visible = 'false';
+
+  if (mode === 'ct_history') {
+    const hist = popup.children.find(c => c.id === 'history' && c.type === 'empty');
+    if (hist) {
+      hist.props.visible = 'true';
+      const emptyLbl = findTplDeep(hist, 'empty');
+      if (emptyLbl) emptyLbl.props.visible = 'false';
+      const scroll = findTplDeep(hist, 'scroll');
+      const DATES = ['3월 12일', '3월 12일', '3월 11일', '3월 10일', '3월 9일'];
+      injectRows(scroll ? findTplDeep(scroll, 'contents') : null, L('training_component/comp_test_history_row.ui'), 5, (c, i) => {
+        walkTpl(c, n => {
+          if (n.type !== 'label') return;
+          if (n.id === 'date') n.props.text = '"' + DATES[i] + '"';
+          if (n.id === 'mode') n.props.text = i % 3 === 2 ? '"라인전"' : '"5 : 5"';
+          if (n.id === 'win_badge') n.props.text = i % 2 === 0 ? '"블루 승리"' : '"레드 승리"';
+          if (n.id === 'score') n.props.text = '"' + (8 + i * 3) + ' : ' + (5 + i * 2) + '"';
+        });
+      });
+    }
+    return root;
+  }
+  if (mode === 'ct_tactics') {
+    // 전술 및 아이템 빌드 설정 화면 (#tactics 1280×1072 — 팝업을 세로로 늘림)
+    const tac = popup.children.find(c => c.id === 'tactics' && c.type === 'empty');
+    if (!tac) return root;
+    tac.props.visible = 'true';
+    popup.props.height = '1080px';
+    popup.props.y = '0px';
+    setLbl(tac, 'title', '전술 및 아이템 빌드 설정');
+    setLbl(tac, 'strategy_header', '팀 전술');
+    setLbl(tac, 'blue_strategy_label', '블루');
+    setLbl(tac, 'red_strategy_label', '레드');
+    setLbl(tac, 'build_header', '개인 전술');
+    setBtn(tac, 'delegate_strategy', '수석 코치에게 위임');
+    setBtn(tac, 'back', '뒤로');
+    setBtn(tac, 'open_champion_select', '챔피언 선택');
+    setBtn(tac, 'run', '테스트 시작');
+    // 팀 전술 12행: [라벨, 블루값, 레드값(생략=블루와 동일)] — 실게임 스크린샷 대조
+    const TROWS = {
+      focused: ['라인전 핵심 지역', '탑/미드 지역 집중'],
+      early_jungle: ['라인전 정글 플레이', '성장/커버 위주'],
+      early_serpen: ['라인전 단계 세르펜 시도', '무조건 시도'],
+      early_serpen_top: ['라인전 단계 세르펜 탑 라이너 합류', '반드시 합류'],
+      minion_wave: ['미니언 웨이브 관리', '미니언 웨이브 우선'],
+      object_buildup: ['오브젝트 빌드업', '최대한 모이기'],
+      object_battle: ['오브젝트 전투 전략', '거리를 유지하며 견제'],
+      object_finish: ['오브젝트 마무리', '처치 우선', '전투 우선'],
+      morgard_use: ['모르가드 버프 활용', '모두 모이기'],
+      tower_press: ['타워 압박', '다이브'],
+      morgard_defense: ['수비 전술', '밀리는 라인 방어'],
+      game_finish: ['끝내기', '유연하게'],
+    };
+    const strat = findTplDeep(tac, 'strategy');
+    if (strat) {
+      for (const rid in TROWS) {
+        const row = strat.children.find(c => c.id === rid);
+        if (!row) continue;
+        const [lab, bv, rv] = TROWS[rid];
+        setLbl(row, 'label', lab);
+        const bd = row.children.find(c => c.id === 'blue' && c.type === 'dropdown');
+        const rd = row.children.find(c => c.id === 'red' && c.type === 'dropdown');
+        if (bd) bd.props.__seltext = bv;
+        if (rd) rd.props.__seltext = rv || bv;
+      }
+    }
+    // 개인 전술: blue0~4 / red0~4 — 챔피언명 + 아이템 드롭다운
+    const builds = findTplDeep(tac, 'builds');
+    if (builds) {
+      for (let i = 0; i < 10; i++) {
+        const rid = (i < 5 ? 'blue' : 'red') + (i % 5);
+        const row = findTplDeep(builds, rid);
+        if (!row) continue;
+        setLbl(row, 'name', CT_CHAMPS[i]);
+        walkTpl(row, n => {
+          if (n.type === 'dropdown' && /^item\d$/.test(n.id)) {
+            n.props.__seltext = (i === 0) ? '체력' : '선수에게 맡김';
+          }
+        });
+      }
+    }
+    return root;
+  }
+  // ct_champselect: 팝업 내 챔피언 선택 화면
+  const cs = popup.children.find(c => c.id === 'champion_select' && c.type === 'empty');
+  if (cs) {
+    cs.props.visible = 'true';
+    const grid = findTplDeep(cs, 'champion_grid');
+    injectRows(grid ? findTplDeep(grid, 'contents') : null, L('training_component/comp_test_champion_button.ui'), 12, (c, i) => {
+      walkTpl(c, n => {
+        if (n.id === 'name' && n.type === 'label') n.props.text = '"' + CT_CHAMPS[i % 10] + '"';
+        if (n.id === 'pos0') n.props.visible = 'true';
+        if (n.id === 'proficiency_bg') n.props.visible = 'true';
+        if (n.id === 'text' && n.type === 'label' && n.props.text === '""') n.props.text = '"' + (50 + ((i * 7) % 50)) + '"';
+      });
+    });
+  }
   return root;
 }
 function isManageContent(root) {
@@ -1035,7 +1216,7 @@ function renderLayout(st, parentEl, stack, fileKey) {
     const tx = blockProps(P.text) || {};
     const tl = blockProps(P.text_layout) || {};
     const sp = document.createElement('div');
-    sp.textContent = '항목 1';
+    sp.textContent = typeof P.__seltext === 'string' ? P.__seltext : '항목 1';
     const tsz = pNum(tx.size, 14);
     sp.style.cssText = `position:absolute;color:${pColor(typeof tx.color==='string'?tx.color:'#e8e8e8ff')};font-size:${tsz}px;display:flex;align-items:center;`;
     sp.style.left = (resolveLen(tl.x, st.w) != null ? resolveLen(tl.x, st.w) : 10) + 'px';
@@ -1298,7 +1479,12 @@ function rebuild() {
   const preset = PRESETS[currentKey];
   if (root && preset) {
     if (preset.mode === 'banpick') { root = composeBanpick(root); composed = '밴픽 합성(슬롯 채움)'; }
+    else if (preset.mode.indexOf('ct_') === 0) { root = composeCompTest(root, preset.mode); composed = '구성테스트 합성'; }
     else { root = composeSpectate(root, preset.mode); composed = '관전 합성(' + (preset.mode === 'wide' ? '전체보기' : '일반 HUD') + ')'; }
+    if (root && SHELL_ON && isManageContent(root) && FILES.has(L('main.ui'))) {
+      root = composeShell(root);
+      composed += ' + main.ui 셸';
+    }
   } else if (root && SHELL_ON && isManageContent(root) && currentKey !== L('main.ui') && FILES.has(L('main.ui'))) {
     root = composeShell(root);
     composed = 'main.ui 셸 합성';
