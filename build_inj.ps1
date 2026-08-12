@@ -34,13 +34,20 @@ param(
 #    mod_api/game_core/game_view/game_ai/engine_ui/engine_core 6종 전부 내용 해시 DIFF
 #    ⟹ "RVA 무영향 ≠ 재빌드 불요" 원칙대로 **RVA 0 모드 포함 전 모드 재빌드 필수**.
 #    toolchain은 nightly-2026-05-24로 051~053과 동일(rust-toolchain.toml 실측) = 재설치 불요.)
-$SDK  = "C:\tfm2mods\sdk_054\mod-sdk"
+#   (0.5.5 전환 2026-08-12: sdk_055. rlib 154개로 054와 동수. mod_api/game_core/game_ai/game_view 4종은
+#    파일명(StableCrateId)까지 변경 + engine_core 등 핵심 전부 내용 해시 DIFF ⟹ **전 모드 재빌드 필수**.
+#    toolchain은 nightly-2026-05-24 유지(toolchain_version.txt = rustc 1.98.0-nightly 23a3312d9 실측) = 재설치 불요.)
+$SDK  = "C:\tfm2mods\sdk_055\mod-sdk"
 $DEPS = "$SDK\deps"; $NAT = "$SDK\native"
 $MODAPI = (Get-ChildItem "$DEPS\libmod_api-*.rlib")[0].FullName
 $EUI    = (Get-ChildItem "$DEPS\libengine_ui-*.rlib")[0].FullName
 # engine_core: RenderState.commands 의 RenderCommand enum 이 mod_api 미노출이라 직접 링크
 # (banpick_illust patchviz 가 사용. 안 쓰는 모드엔 --extern 만 추가돼 무해.)
 $ECORE  = (Get-ChildItem "$DEPS\libengine_core-*.rlib")[0].FullName
+# ★0.5.4: mod_api 가 game_core 를 더 이상 재수출하지 않는다(`use mod_api::*` 로는 안 잡힘).
+#   ai_adjust 의 sp_strat_sig 가 `game_core::Strategy` 를 직접 쓰므로 extern 을 명시한다.
+#   안 쓰는 모드엔 --extern 만 늘어나 무해.
+$GCORE  = (Get-ChildItem "$DEPS\libgame_core-*.rlib")[0].FullName
 
 # ★모드별·프로세스별 격리 작업 폴더 (공유 $SDK\lib.dll 사용 금지)
 $work = Join-Path $env:TEMP "tfm2_build\$ModId`_$PID"
@@ -57,7 +64,7 @@ $started = Get-Date
 #   rlib 자체는 정상(ar 구조·심볼테이블 오프셋 전부 파일 내 유효, zip↔추출본 329/329 크기 일치).
 #   미해결 심볼이 생겨 링커가 아카이브를 재스캔할 때만 터진다(심볼 0인 SDK 템플릿은 MSVC 로도 링크 성공).
 #   ⟹ 툴체인 동봉 `rust-lld` 로 전환하면 동일 소스가 그대로 링크된다(0.5.3 전 모드 확인).
-cmd /c "rustup run nightly-2026-05-24 rustc --crate-type cdylib --edition 2021 -C opt-level=1 -C overflow-checks=off -C linker-flavor=lld-link -C linker=rust-lld -L dependency=$DEPS -L native=$NAT --extern mod_api=$MODAPI --extern engine_ui=$EUI --extern engine_core=$ECORE $Src -o `"$out`" 2> `"$errf`""
+cmd /c "rustup run nightly-2026-05-24 rustc --crate-type cdylib --edition 2021 -C opt-level=1 -C overflow-checks=off -C linker-flavor=lld-link -C linker=rust-lld -L dependency=$DEPS -L native=$NAT --extern mod_api=$MODAPI --extern engine_ui=$EUI --extern engine_core=$ECORE --extern game_core=$GCORE $Src -o `"$out`" 2> `"$errf`""
 $rc = $LASTEXITCODE
 
 # ① rustc exit code 우선 (문자열 grep 은 보조)

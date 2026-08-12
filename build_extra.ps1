@@ -1,4 +1,4 @@
-# build_extra.ps1 - build+deploy a mod that needs EXTRA --extern crates beyond what
+﻿# build_extra.ps1 - build+deploy a mod that needs EXTRA --extern crates beyond what
 # build_inj.ps1 passes (mod_api / engine_ui / engine_core), or that exceeds its 1MB size guard.
 #
 # Keeps every guard build_inj.ps1 has, because those guards exist for real incidents:
@@ -23,7 +23,7 @@ param(
   [string[]]$Externs = @(),
   [int]$MaxSize = 1300000,
   [switch]$NoDeploy,
-  [string]$Sdk = "C:\tfm2mods\sdk_054\mod-sdk",
+  [string]$Sdk = "C:\tfm2mods\sdk_055\mod-sdk",
   # Fallback identity marker for mods that embed NO absolute source path.
   # rustc only bakes the source path in via panic locations; a mod with no reachable panic
   # site has none (verified 2026-08-05: tfm2_meta_champion_tiers, both the fresh build and
