@@ -813,19 +813,19 @@ unsafe fn apply_objective_imm() {
     let _ = (cg, ag);   // ⛔dn_count_gate=0.5.2 삭제 / an_count_gate=오식별 폐기 → 패치 사이트 없음(로그 표시용으로만 유지)
     let mut ok = 0u32;
     // ── dn 클러스터 A: 컨테이너 0x1b92e40 ──
-    ok += patch_imm_bytes(base + 0xcd7054, &[0x48,0x83,0xf8], 3, 1, b1(nh)) as u32;              // dn_nexus_hp #1 orig 0x32 (64bit div 경로)
-    ok += patch_imm_bytes(base + 0xcd7063, &[0x48,0x83,0xf8], 3, 1, b1(nh)) as u32;
+    ok += patch_imm_bytes(base + 0xdbc964, &[0x48,0x83,0xf8], 3, 1, b1(nh)) as u32;              // dn_nexus_hp #1 orig 0x32 (64bit div 경로)   // ←s2 cd7054
+    ok += patch_imm_bytes(base + 0xdbc973, &[0x48,0x83,0xf8], 3, 1, b1(nh)) as u32;   // ←s2 cd7063
     // ★0.5.4: nx_dn_nexus_hp 가 **2곳 → 4곳**으로 늘었다(신설 블록A 64/32bit).
-    ok += patch_imm_bytes(base + 0xcd6ff1, &[0x48,0x83,0xf8], 3, 1, b1(nh)) as u32;
-    ok += patch_imm_bytes(base + 0xcd7089, &[0x48,0x83,0xf8], 3, 1, b1(nh)) as u32;              // dn_nexus_hp #2 orig 0x32 (32bit div 경로) ★둘 다 필수
-    ok += patch_imm_bytes(base + 0xcd712c, &[0x48,0x83,0x7d,0xe8], 4, 1, b1(hl)) as u32;         // dn_hp_low  orig 0x1f  (★0.5.3: 스택변위 [rbp-0x28]→**[rbp-0x30]** = prefix 마지막 d8→d0. 주소는 맞는데 이 prefix를 안 고쳐 8/12로 skip됐던 자리)
-    ok += patch_imm_bytes(base + 0xcd713a, &[0x48,0x83,0x7d,0xe8], 4, 1, b1(hc)) as u32;         // dn_hp_crit orig 0x15  (★0.5.3: 변위 d8→d0, 위와 동일 사유. 0.5.2엔 1곳뿐=병합)
-    ok += patch_imm_bytes(base + 0xcd6b74, &[0x48,0xb8], 2, 8, sq(nd)) as u32;                   // dn_near_dist #1 orig 0x35a4e9001 (=120000²+1)
-    ok += patch_imm_bytes(base + 0xcd6ca0, &[0x48,0xb8], 2, 8, sq(nd)) as u32;                   // dn_near_dist #2 orig 0x35a4e9001
-    ok += patch_imm_bytes(base + 0xcd6f08, &[0x49,0xba], 2, 8, sq0(nd)) as u32;                  // ★dn_near_dist #3 orig 0x35a4e9000 (**+1 없음** = sq0 / movabs r10 / 후보 루프 컬링)
+    ok += patch_imm_bytes(base + 0xdbc901, &[0x48,0x83,0xf8], 3, 1, b1(nh)) as u32;   // ←s2 cd6ff1
+    ok += patch_imm_bytes(base + 0xdbc999, &[0x48,0x83,0xf8], 3, 1, b1(nh)) as u32;              // dn_nexus_hp #2 orig 0x32 (32bit div 경로) ★둘 다 필수   // ←s2 cd7089
+    ok += patch_imm_bytes(base + 0xdbca3c, &[0x48,0x83,0x7d,0xe8], 4, 1, b1(hl)) as u32;         // dn_hp_low  orig 0x1f  (★0.5.3: 스택변위 [rbp-0x28]→**[rbp-0x30]** = prefix 마지막 d8→d0. 주소는 맞는데 이 prefix를 안 고쳐 8/12로 skip됐던 자리)   // ←s2 cd712c
+    ok += patch_imm_bytes(base + 0xdbca4a, &[0x48,0x83,0x7d,0xe8], 4, 1, b1(hc)) as u32;         // dn_hp_crit orig 0x15  (★0.5.3: 변위 d8→d0, 위와 동일 사유. 0.5.2엔 1곳뿐=병합)   // ←s2 cd713a
+    ok += patch_imm_bytes(base + 0xdbc484, &[0x48,0xb8], 2, 8, sq(nd)) as u32;                   // dn_near_dist #1 orig 0x35a4e9001 (=120000²+1)   // ←s2 cd6b74
+    ok += patch_imm_bytes(base + 0xdbc5b0, &[0x48,0xb8], 2, 8, sq(nd)) as u32;                   // dn_near_dist #2 orig 0x35a4e9001   // ←s2 cd6ca0
+    ok += patch_imm_bytes(base + 0xdbc818, &[0x49,0xba], 2, 8, sq0(nd)) as u32;                  // ★dn_near_dist #3 orig 0x35a4e9000 (**+1 없음** = sq0 / movabs r10 / 후보 루프 컬링)   // ←s2 cd6f08
     // ── dn 클러스터 B: 컨테이너 0x1bdaaa0 ──
-    ok += patch_imm_bytes(base + 0xce3995, &[0x48,0xb8], 2, 8, sq(pd)) as u32;                   // dn_pred_dist  orig 0xd693a4001 (=240000²+1, exe 전역 유일)
-    ok += patch_imm_bytes(base + 0xce3a03, &[0x49,0x83,0xc5], 3, 1, b1(lm)) as u32;              // dn_lane_margin orig 0x78 (★0.5.3: `add r14`→**`add r13`** = prefix c6→c5. 명령·의미 동일, 레지스터 배정만 바뀜)
+    ok += patch_imm_bytes(base + 0xdd1a85, &[0x48,0xb8], 2, 8, sq(pd)) as u32;                   // dn_pred_dist  orig 0xd693a4001 (=240000²+1, exe 전역 유일)   // ←s2 ce3995
+    ok += patch_imm_bytes(base + 0xdd1af3, &[0x49,0x83,0xc5], 3, 1, b1(lm)) as u32;              // dn_lane_margin orig 0x78 (★0.5.3: `add r14`→**`add r13`** = prefix c6→c5. 명령·의미 동일, 레지스터 배정만 바뀜)   // ←s2 ce3a03
     // ── an 클러스터: 컨테이너 0x2376320 (0.5.1 disc18 핸들러 0x1c7ca20 후계) ──
     // ★0.5.3 재구성(ghidra-re 07-29 + 실측): 0.5.2의 **단일 루프 1사이트**가 **3연속 루프 3사이트**로 분열했다.
     //   0.5.2 = 헬퍼(0x22c8a70)가 만든 Vec 1개를 1회 스캔 / 0.5.3 = [rbp+0x198]+idx*32 의 (ptr,len) **3쌍**을 인라인 체이닝,
@@ -834,11 +834,11 @@ unsafe fn apply_objective_imm() {
     //   ⟹ 임계값에 **+1** 을 실어야 의미가 같다(원본 복원값 0x5f5e0 → write 0x5f5e1 로 자동 정합).
     //   prefix 도 `49 81 fa`(cmp r10) → **`49 81 f8`(cmp r8)** 로 바뀌었다.
     let cd1 = u32c(cd).saturating_add(1);
-    ok += patch_imm_bytes(base + 0xda2143, &[0x49,0x81,0xf8], 3, 4, cd1) as u32;                  // an_cull_dist #1 (리스트A)
-    ok += patch_imm_bytes(base + 0xda21d3, &[0x49,0x81,0xf8], 3, 4, cd1) as u32;                  // an_cull_dist #2 (리스트B)
-    ok += patch_imm_bytes(base + 0xda2257, &[0x49,0x81,0xf8], 3, 4, cd1) as u32;                  // an_cull_dist #3 (리스트C)
-    ok += patch_imm_bytes(base + 0xda2c22, &[0x48,0x83,0xf8], 3, 1, b1(fh)) as u32;              // an_finish_hp #1 orig 0x38 (64bit div 경로)
-    ok += patch_imm_bytes(base + 0xda2c2e, &[0x48,0x83,0xf8], 3, 1, b1(fh)) as u32;              // an_finish_hp #2 orig 0x38 (32bit div 경로) ★0.5.1은 #1만 패치=결함이었음
+    ok += patch_imm_bytes(base + 0xd29693, &[0x49,0x81,0xf8], 3, 4, cd1) as u32;                  // an_cull_dist #1 (리스트A)   // ←s2 da2143
+    ok += patch_imm_bytes(base + 0xd29723, &[0x49,0x81,0xf8], 3, 4, cd1) as u32;                  // an_cull_dist #2 (리스트B)   // ←s2 da21d3
+    ok += patch_imm_bytes(base + 0xd297a7, &[0x49,0x81,0xf8], 3, 4, cd1) as u32;                  // an_cull_dist #3 (리스트C)   // ←s2 da2257
+    ok += patch_imm_bytes(base + 0xd2a172, &[0x48,0x83,0xf8], 3, 1, b1(fh)) as u32;              // an_finish_hp #1 orig 0x38 (64bit div 경로)   // ←s2 da2c22
+    ok += patch_imm_bytes(base + 0xd2a17e, &[0x48,0x83,0xf8], 3, 1, b1(fh)) as u32;              // an_finish_hp #2 orig 0x38 (32bit div 경로) ★0.5.1은 #1만 패치=결함이었음   // ←s2 da2c2e
     OBJIMM_SIG.store(sig, Ordering::Relaxed);
     // ★LOG_ON 무관 직접 write(설치확증 — d19_imm.txt·itemnet_guard와 동일). write_named은 LOG_ON 게이트라 프로덕션서 미확인됐음.
     if let Some(p) = pth("obj_imm.txt") {
@@ -860,7 +860,7 @@ unsafe fn apply_vis_imm() {
     let v = (vw.max(0) as u64) & 0xffff_ffff;   // imm32 클램프(0=즉시망각, 유저책임)
     // ★0.5.2(was 0.5.1 0x1caedd3). version-migrator: 컨테이너 한정 마스크시그 유일 + 사이트 12B 바이트 완전동일
     //   (`48 81 c6 58 02 00 00 48 39 c6 0f 93`). 신뢰=중상(컨테이너 매칭은 cos 기반 L4). prefix 3B 검증이 있어 어긋나면 skip.
-    let ok = patch_imm_bytes(base + 0xc8c4e3, &[0x48,0x81,0xc6], 3, 4, v);   // add rsi, imm32
+    let ok = patch_imm_bytes(base + 0xc8f733, &[0x48,0x81,0xc6], 3, 4, v);   // add rsi, imm32   // ←s2 c8c4e3
     VISIMM_SIG.store(sig, Ordering::Relaxed);
     if let Some(p) = pth("vis_imm.txt") {
         let _ = fs::write(p, format!("vis_window={} applied={}/1 @0xc8c4e3(0.5.3) @base{:#x}\n", vw, ok as u32, base));
@@ -892,28 +892,28 @@ unsafe fn apply_visshort_imm() {
     let enc = |v: i64| if v < 0 { 0x78u64 } else { (v.min(0x7f)) as u64 };   // -1=원본(120) 복원 / imm8 클램프
     let mut ok = 0u32;
     // ── lane: disc0/1/3 컨테이너(0xd803f0) — add rdi,imm8 ×5 ──
-    for rva in [0xcd5c7eusize, 0xcd5d45, 0xcd5e07, 0xcd5ec9, 0xcd5f92] {
+    for rva in [0xcc032eusize, 0xcc03f5, 0xcc04b7, 0xcc0579, 0xcc0642] {
         ok += patch_imm_bytes(base + rva, &[0x48,0x83,0xc7], 3, 1, enc(lane)) as u32;
     }
     // ── jungle: disc4 컨테이너(0xd71630) — add rdi ×4 + add rsi ×1 ──
-    for rva in [0xd67247usize, 0xd6730c, 0xd673cc, 0xd6748c] {
+    for rva in [0xcb8d27usize, 0xcb8dec, 0xcb8eac, 0xcb8f6c] {
         ok += patch_imm_bytes(base + rva, &[0x48,0x83,0xc7], 3, 1, enc(jungle)) as u32;
     }
-    ok += patch_imm_bytes(base + 0xd6754e, &[0x48,0x83,0xc6], 3, 1, enc(jungle)) as u32;
+    ok += patch_imm_bytes(base + 0xcb902e, &[0x48,0x83,0xc6], 3, 1, enc(jungle)) as u32;   // ←s2 d6754e
     // ── check: 공용 bool 헬퍼 0x12b6e20 — add rbx ──
-    ok += patch_imm_bytes(base + 0xf3d658, &[0x48,0x83,0xc3], 3, 1, enc(check)) as u32;
+    ok += patch_imm_bytes(base + 0xf3d658, &[0x48,0x83,0xc3], 3, 1, enc(check)) as u32;   // ⛔s2 미확정(스테일): f3d658
     // ── nexus: 헬퍼 0xc8e4e0(add r13 — ⚠disc19 관찰 shadow-CALL 대상과 동일 함수=값 일관 자동 유지)·0xd10d00(add r14) ──
-    ok += patch_imm_bytes(base + 0xdb6ade, &[0x49,0x83,0xc5], 3, 1, enc(nexus)) as u32;
-    ok += patch_imm_bytes(base + 0xe23c83, &[0x49,0x83,0xc6], 3, 1, enc(nexus)) as u32;
+    ok += patch_imm_bytes(base + 0xd4335e, &[0x49,0x83,0xc5], 3, 1, enc(nexus)) as u32;   // ←s2 db6ade
+    ok += patch_imm_bytes(base + 0xdc8a13, &[0x49,0x83,0xc6], 3, 1, enc(nexus)) as u32;   // ←s2 e23c83
     // ── threat: sev[A] 헬퍼 0xd36b00(add r12, 비트마스크형)·sev[B] 헬퍼 0xc4d6f0(add r15) ──
-    ok += patch_imm_bytes(base + 0xc70ce2, &[0x49,0x83,0xc4], 3, 1, enc(threat)) as u32;
-    ok += patch_imm_bytes(base + 0xc985d1, &[0x49,0x83,0xc7], 3, 1, enc(threat)) as u32;
+    ok += patch_imm_bytes(base + 0xc73ee2, &[0x49,0x83,0xc4], 3, 1, enc(threat)) as u32;   // ←s2 c70ce2
+    ok += patch_imm_bytes(base + 0xc9b671, &[0x49,0x83,0xc7], 3, 1, enc(threat)) as u32;   // ←s2 c985d1
     // ── score: sev[E] 본체(0xc7f640) add rsi ×5 + 헬퍼 0xcc8060 add rbx ×1·add rsi ×4 ──
-    for rva in [0xd93b33usize, 0xd93c04, 0xd93cd1, 0xd93d9e, 0xd93e67] {
+    for rva in [0xe3ab47usize, 0xe3ac15, 0xe3acd8, 0xe3ad9b, 0xe3ae5a] {
         ok += patch_imm_bytes(base + rva, &[0x48,0x83,0xc6], 3, 1, enc(score)) as u32;
     }
-    ok += patch_imm_bytes(base + 0xcdd4ec, &[0x48,0x83,0xc3], 3, 1, enc(score)) as u32;
-    for rva in [0xcdd635usize, 0xcdd76e, 0xcdd8c0, 0xcdd9e5] {
+    ok += patch_imm_bytes(base + 0xd0f47c, &[0x48,0x83,0xc3], 3, 1, enc(score)) as u32;   // ←s2 cdd4ec
+    for rva in [0xd0f5c5usize, 0xd0f6fe, 0xd0f850, 0xd0f975] {
         ok += patch_imm_bytes(base + rva, &[0x48,0x83,0xc6], 3, 1, enc(score)) as u32;
     }
     VISSHORT_SIG.store(sig, Ordering::Relaxed);
@@ -969,12 +969,12 @@ unsafe fn apply_gank_imm() {
     }
     // ── B. 라인개입(jng=1) 리드액션 HP 게이트 base (mov dl,imm8 @0xe63d92, 원본 0x46=70) ──
     let bv = if hpb >= 0 { hpb.min(100) as u64 } else { 0x46 };
-    ok += patch_imm_bytes(base + 0xe63d92, &[0xb2], 1, 1, bv) as u32;
+    ok += patch_imm_bytes(base + 0xce29e0, &[0xb2], 1, 1, bv) as u32;   // ←s2 e63d92
     // ── C. 갱 윈도우 여유 배수 3사이트 (lea SIB, 원본 0x80=×5 / 허용 2/3/5/9 → 최근접 매핑) ──
     let ci = if wm >= 0 { let mut bi = 2usize; let mut bd = i64::MAX;
         for (i, f) in F2M.iter().enumerate() { let d = (f - wm).abs(); if d < bd { bd = d; bi = i; } } bi } else { 2 };
     let cv = ((ci as u8) << 6) as u64;   // 하위 6비트 = 0x00 (orig 0x80 & 0x3f)
-    for rva in [0xe63e26usize, 0xe63ecc, 0xe63ff5] {
+    for rva in [0xce2a89usize, 0xce2b42, 0xce2c87] {
         ok += patch_imm_bytes(base + rva, &[0x48,0x8d,0x04], 3, 1, cv) as u32;
     }
     GANKIMM_SIG.store(sig, Ordering::Relaxed);
@@ -1016,9 +1016,9 @@ unsafe fn apply_exec_imm() {
     let mut ok = 0u32; let mut tot = 0u32;
     // ── ① 판단력 오판 게이트 (line_defense) ──
     tot += 3;
-    ok += patch_imm_bytes(base + 0xd792e7, &[0x48,0x83,0xfa], 3, 1, b1(jcap, 100)) as u32;   // cmp rdx,100
-    ok += patch_imm_bytes(base + 0xd792f4, &[0x6b,0xc0], 2, 1, b1(jslp, 85)) as u32;         // imul eax,eax,85
-    ok += patch_imm_bytes(base + 0xd79303, &[0x05], 1, 4, b4(jflr, 150)) as u32;             // add eax,150
+    ok += patch_imm_bytes(base + 0xe22e57, &[0x48,0x83,0xfa], 3, 1, b1(jcap, 100)) as u32;   // cmp rdx,100   // ←s2 d792e7
+    ok += patch_imm_bytes(base + 0xe22e64, &[0x6b,0xc0], 2, 1, b1(jslp, 85)) as u32;         // imul eax,eax,85   // ←s2 d792f4
+    ok += patch_imm_bytes(base + 0xe22e73, &[0x05], 1, 4, b4(jflr, 150)) as u32;             // add eax,150   // ←s2 d79303
     // ── ② 대기 위치 (line_wait) ──
     // ⛔[08-07 중복 제거] 이 두 사이트(0xe721d3 · 0xe727c4)는 **apply_score_imm 의 lw_wait_dist / lw_back
     //    과 같은 주소**였다. 두 묶음이 같은 바이트를 각각 패치해 **나중 것이 이기는** 상태였고,
@@ -1032,7 +1032,7 @@ unsafe fn apply_exec_imm() {
     let taken = micro_taken("ex_order_hold");
     if !taken {
         tot += 1;
-        ok += patch_imm_bytes(base + 0xe747e3, &[0x48,0x83,0xc0], 3, 1, b1(hold, 10)) as u32;    // add rax,10
+        ok += patch_imm_bytes(base + 0xeb0bd5, &[0x48,0x83,0xc0], 3, 1, b1(hold, 10)) as u32;    // add rax,10   // ←s2 e747e3
     }
     EXECIMM_SIG.store(sig, Ordering::Relaxed);
     if let Some(p) = pth("exec_imm.txt") {
@@ -1111,52 +1111,52 @@ unsafe fn apply_cast_imm() {
     // ── ① 시전 후보 생성기 (0xcb3ab0) ──
     // ★[08-07] 마이크로 디투어가 이 자리를 가져갔으면 건드리지 않는다(상호배타 — 창 5B 를 통째로 바꿨다).
     if !micro_taken("cs_lead_attack") {
-    p!(base + 0xdb869a, &[0xb8], 1, 4, b4(la, 30));   // ←0.5.3 cb3efd  ★재조사로 복구: lead 30 (053 5곳→054 2곳 통합, 나머지 4키는 보류)  ★41bc(6B)→b8(5B) 로 인코딩 축소 ⟹ imm_off 2→1
+    p!(base + 0xd4561a, &[0xb8], 1, 4, b4(la, 30));   // ←0.5.3 cb3efd  ★재조사로 복구: lead 30 (053 5곳→054 2곳 통합, 나머지 4키는 보류)  ★41bc(6B)→b8(5B) 로 인코딩 축소 ⟹ imm_off 2→1   // ←0.5.3 db869a
     }
     pskip!(base + 0xcb440a, &[0xb9],      1, 4, b4(la, 30));   // ⛔0.5.4 미확정: 시그 2→0 / 완화 4→2 (골격 99%)
     pskip!(base + 0xcb4781, &[0xb9],      1, 4, b4(ls, 30));   // ⛔0.5.4 미확정: 시그 2→0 / 완화 4→2 (골격 99%)
     pskip!(base + 0xcb5a7d, &[0xbb],      1, 4, b4(ls2, 30));   // ⛔0.5.4 미확정: 시그 1→0 / 완화 4→2 (골격 99%)
     pskip!(base + 0xcb6936, &[0xba],      1, 4, b4(lst, 30));   // ⛔0.5.4 미확정: 시그 1→0 / 완화 4→2 (골격 99%)
-    p!(base + 0xdbcbba, &[0x48,0x6b,0x85,0x60,0x02,0x00,0x00], 7, 1, b1(lu, 60));   // ←0.5.3 cb8036
-    p!(base + 0xdbcd67, &[0x48,0x6b,0x86,0x28,0x06,0x00,0x00], 7, 1, b1(lu, 60));   // ←0.5.3 cb81d7
-    p!(base + 0xdbc645, &[0xb9],      1, 4, sq(ur, 36_000_000));          // 6000²   // ←0.5.3 cb7ac9
-    p!(base + 0xdbc65d, &[0xb8],      1, 4, sq(ur, 36_000_000));   // ←0.5.3 cb7ae1
-    p!(base + 0xdbc662, &[0x48,0xb9], 2, 8, sq(urg, 8_100_000_000));      // 90000²   // ←0.5.3 cb7ae6
-    p!(base + 0xdbc77a, &[0xb9],      1, 4, b4(umk, 0x6f));   // ←0.5.3 cb7bfa
-    for a in [0xdbb5d7usize, 0xdbb5e7] { p!(base + a, &[0x48,0x83,0xf8], 3, 1, b1(shp, 20)); }
+    p!(base + 0xd49b3a, &[0x48,0x6b,0x85,0x60,0x02,0x00,0x00], 7, 1, b1(lu, 60));   // ←0.5.3 cb8036   // ←0.5.3 dbcbba
+    p!(base + 0xd49ce7, &[0x48,0x6b,0x86,0x40,0x06,0x00,0x00], 7, 1, b1(lu, 60));   // ←0.5.3 cb81d7   // ←0.5.3 dbcd67
+    p!(base + 0xd495c5, &[0xb9],      1, 4, sq(ur, 36_000_000));          // 6000²   // ←0.5.3 cb7ac9   // ←0.5.3 dbc645
+    p!(base + 0xd495dd, &[0xb8],      1, 4, sq(ur, 36_000_000));   // ←0.5.3 cb7ae1   // ←0.5.3 dbc65d
+    p!(base + 0xd495e2, &[0x48,0xb9], 2, 8, sq(urg, 8_100_000_000));      // 90000²   // ←0.5.3 cb7ae6   // ←0.5.3 dbc662
+    p!(base + 0xd496fa, &[0xb9],      1, 4, b4(umk, 0x6f));   // ←0.5.3 cb7bfa   // ←0.5.3 dbc77a
+    for a in [0xd48557usize, 0xd48567] { p!(base + a, &[0x48,0x83,0xf8], 3, 1, b1(shp, 20)); }
     // ↓0.5.4: prefix 가 사이트마다 달라져 루프를 펼침(원래 `for a in [..]`)
-    p!(base + 0xdb86b7, &[0x48,0x83,0xfa], 3, 1, b1(uh, 2));   // ←0.5.3 cb4317
-    p!(base + 0xdb8f07, &[0x48,0x83,0xf8], 3, 1, b1(uh, 2));   // ←0.5.3 cb4331
-    for a in [0xdb9ab6usize, 0xdbad76] { p!(base + a, &[0x48,0x83,0xf8], 3, 1, b1(ahp, 79)); }
+    p!(base + 0xd45637, &[0x48,0x83,0xfa], 3, 1, b1(uh, 2));   // ←0.5.3 cb4317   // ←0.5.3 db86b7
+    p!(base + 0xd45e87, &[0x48,0x83,0xf8], 3, 1, b1(uh, 2));   // ←0.5.3 cb4331   // ←0.5.3 db8f07
+    for a in [0xd46a36usize, 0xd47cf6] { p!(base + a, &[0x48,0x83,0xf8], 3, 1, b1(ahp, 79)); }
     // ↓0.5.4: prefix 가 사이트마다 달라져 루프를 펼침(원래 `for a in [..]`)
-    p!(base + 0xdb996f, &[0x48,0xb9], 2, 8, sqp(arad, 14_400_000_001));   // ←0.5.3 cb4d9f
-    p!(base + 0xdb99e2, &[0x49,0xb9], 2, 8, sqp(arad, 14_400_000_001));   // ←0.5.3 cb4e12
-    p!(base + 0xdb9ba2, &[0x49,0xba], 2, 8, sqp(arad, 14_400_000_001));   // ←0.5.3 cb4fd2
-    p!(base + 0xdbac40, &[0x48,0xb9], 2, 8, sqp(arad, 14_400_000_001));   // ←0.5.3 cb6080
-    p!(base + 0xdbacab, &[0x49,0xb9], 2, 8, sqp(arad, 14_400_000_001));   // ←0.5.3 cb60eb
-    p!(base + 0xdbae5b, &[0x49,0xba], 2, 8, sqp(arad, 14_400_000_001));   // ←0.5.3 cb629b
-    for a in [0xdb9a6ausize, 0xdbad2a] {                                           // 120000²
+    p!(base + 0xd468ef, &[0x48,0xb9], 2, 8, sqp(arad, 14_400_000_001));   // ←0.5.3 cb4d9f   // ←0.5.3 db996f
+    p!(base + 0xd46962, &[0x49,0xb9], 2, 8, sqp(arad, 14_400_000_001));   // ←0.5.3 cb4e12   // ←0.5.3 db99e2
+    p!(base + 0xd46b22, &[0x49,0xba], 2, 8, sqp(arad, 14_400_000_001));   // ←0.5.3 cb4fd2   // ←0.5.3 db9ba2
+    p!(base + 0xd47bc0, &[0x48,0xb9], 2, 8, sqp(arad, 14_400_000_001));   // ←0.5.3 cb6080   // ←0.5.3 dbac40
+    p!(base + 0xd47c2b, &[0x49,0xb9], 2, 8, sqp(arad, 14_400_000_001));   // ←0.5.3 cb60eb   // ←0.5.3 dbacab
+    p!(base + 0xd47ddb, &[0x49,0xba], 2, 8, sqp(arad, 14_400_000_001));   // ←0.5.3 cb629b   // ←0.5.3 dbae5b
+    for a in [0xd469eausize, 0xd47caa] {                                           // 120000²
         pany!(base + a, [[0x49,0xbb],[0x48,0xbb],[0x49,0xb9],[0x48,0xb9]], 2, 8, sq(arad, 14_400_000_000));
     }
-    p!(base + 0xdbc0ea, &[0x49,0x83,0xc4], 3, 1, b1(mvis, 120));   // ←0.5.3 cb756b
+    p!(base + 0xd4906a, &[0x49,0x83,0xc4], 3, 1, b1(mvis, 120));   // ←0.5.3 cb756b   // ←0.5.3 dbc0ea
     // ↓0.5.4: prefix 가 사이트마다 달라져 루프를 펼침(원래 `for a in [..]`)
-    p!(base + 0xdb8af7, &[0x41,0xbd], 2, 4, b4(ccm, 0x3B8));   // ←0.5.3 cb3f07
-    p!(base + 0xdb9444, &[0x41,0xb9], 2, 4, b4(ccm, 0x3B8));   // ←0.5.3 cb4874
-    p!(base + 0xdba640, &[0x41,0xbe], 2, 4, b4(ccm, 0x3B8));   // ←0.5.3 cb5a86
-    p!(base + 0xdbc834, &[0x41,0xb9], 2, 4, b4(ccm, 0x3B8));   // ←0.5.3 cb7cb4
+    p!(base + 0xd45a77, &[0x41,0xbd], 2, 4, b4(ccm, 0x3B8));   // ←0.5.3 cb3f07   // ←0.5.3 db8af7
+    p!(base + 0xd463c4, &[0x41,0xb9], 2, 4, b4(ccm, 0x3B8));   // ←0.5.3 cb4874   // ←0.5.3 db9444
+    p!(base + 0xd475c0, &[0x41,0xbe], 2, 4, b4(ccm, 0x3B8));   // ←0.5.3 cb5a86   // ←0.5.3 dba640
+    p!(base + 0xd497b4, &[0x41,0xb9], 2, 4, b4(ccm, 0x3B8));   // ←0.5.3 cb7cb4   // ←0.5.3 dbc834
     // ── ② 행동 실행층 ──
-    p!(base + 0xca6849, &[0x49,0x83,0xbe,0xb0,0x05,0x00,0x00], 7, 1, b1(sk2l, 3));   // ←0.5.3 cc3489
-    p!(base + 0xca6a79, &[0x49,0x83,0xbe,0xb0,0x05,0x00,0x00], 7, 1, b1(ultl, 5));   // ←0.5.3 cc36b9
-    p!(base + 0xe5a1c2, &[0xba], 1, 4, b4(am, 15000));   // ←0.5.3 c87c76
-    p!(base + 0xe5a1bd, &[0xb8], 1, 4, b4(ams, 2000));   // ←0.5.3 c87c71
-    p!(base + 0xe59fc1, &[0x83,0xc2], 2, 1, b1(asek, 100));   // ←0.5.3 c87a81
-    p!(base + 0xe753af, &[0x48,0x83,0xf9], 3, 1, b1(fmt, 119));   // ←0.5.3 d0a85b
+    p!(base + 0xd0b409, &[0x49,0x83,0xbe,0xc8,0x05,0x00,0x00], 7, 1, b1(sk2l, 3));   // ←0.5.3 cc3489   // ←0.5.3 ca6849
+    p!(base + 0xd0b639, &[0x49,0x83,0xbe,0xc8,0x05,0x00,0x00], 7, 1, b1(ultl, 5));   // ←0.5.4 ca6a79 (ult twin d0b4f0, 0x5b0→0x5c8, align복구)
+    p!(base + 0xe52c92, &[0xba], 1, 4, b4(am, 15000));   // ←0.5.3 c87c76   // ←0.5.3 e5a1c2
+    p!(base + 0xe52c8d, &[0xb8], 1, 4, b4(ams, 2000));   // ←0.5.3 c87c71   // ←0.5.3 e5a1bd
+    p!(base + 0xe52a91, &[0x83,0xc2], 2, 1, b1(asek, 100));   // ←0.5.3 c87a81   // ←0.5.3 e59fc1
+    p!(base + 0xeb177f, &[0x48,0x83,0xf9], 3, 1, b1(fmt, 119));   // ←0.5.3 d0a85b   // ←0.5.3 e753af
     // ★0.5.4: 명령 모양이 바뀌었다. 053 `add rcx,0x190`(7B, imm off 3)
     //   → 054 `lea rcx,[rax+rax*2+0x190]`(8B, imm off **4**). 앞 명령의 ×3 SIB 가 합쳐진 것.
     if !micro_taken("ex_think_min") {   // ★[08-07] 마이크로 디투어와 상호배타
-    p!(base + 0xe76cb0, &[0x48,0x8d,0x8c,0x40], 4, 4, b4(tmin, 400));   // ←0.5.3 d0cb6b
+    pskip!(base + 0xe76cb0, &[0x48,0x8d,0x8c,0x40], 4, 4, b4(tmin, 400));   // ←0.5.3 d0cb6b   // ⛔0.5.4 미확정: 시그 1→0 / 완화 1→0 (골격 96%)
     }
-    p!(base + 0xe76cba, &[0x48,0x8d,0x04,0x85], 4, 4, b4(tmax, 800));   // ←0.5.3 d0cb74
+    pskip!(base + 0xe76cba, &[0x48,0x8d,0x04,0x85], 4, 4, b4(tmax, 800));   // ←0.5.3 d0cb74   // ⛔0.5.4 미확정: 시그 1→0 / 완화 1→0 (골격 96%)
 
     CASTIMM_SIG.store(sig, Ordering::Relaxed);
     if let Some(pp) = pth("cast_imm.txt") {
@@ -1238,8 +1238,8 @@ unsafe fn apply_score_imm() {
     }}; }
 
     // ── ① 수적우세 배율 (코드 즉치 2개) ──
-    p!(base + 0xd8fd14, &[0xb9], 1, 4, b4(ahi, 200));   // ←0.5.3 c7d300
-    p!(base + 0xd8fd23, &[0xb9], 1, 4, b4(alo, 30));   // ←0.5.3 c7d30f
+    p!(base + 0xe36c64, &[0xb9], 1, 4, b4(ahi, 200));   // ←0.5.3 c7d300   // ←0.5.3 d8fd14
+    p!(base + 0xe36c73, &[0xb9], 1, 4, b4(alo, 30));   // ←0.5.3 c7d30f   // ←0.5.3 d8fd23
     // ── ①-b 수적우세 배율 (.rdata 테이블 3개) ──
     //    prefix 검증이 불가능한 데이터 영역이라, 원본 3값이 그대로인지 최초 확인 후에만 건드린다.
     {
@@ -1265,28 +1265,28 @@ unsafe fn apply_score_imm() {
         }
     }
     // ── ② 인식 반경·보너스 ──
-    p!(base + 0xd8f8d3, &[0x48,0xbe], 2, 8, sq(arad, 22_500_000_000));      // 150000²   // ←0.5.3 c7ccde
-    for a in [0xd8ee73usize, 0xd8fb96] {
+    p!(base + 0xe36823, &[0x48,0xbe], 2, 8, sq(arad, 22_500_000_000));      // 150000²   // ←0.5.3 c7ccde   // ←0.5.3 d8f8d3
+    for a in [0xe36ae6usize, 0xe36f61] {
         p!(base + a, &[0x48,0xba], 2, 8, sqp(erad, 10_000_000_000));        // 100000²+1
     }
-    p!(base + 0xd8ee80, &[0xbb], 1, 4, b4(nbon, 10));   // ←0.5.3 c7d5a6
-    p!(base + 0xe55d65, &[0xb8], 1, 4, b4(obon, 10));   // ←0.5.3 d9bac1
+    p!(base + 0xe36f6e, &[0xbb], 1, 4, b4(nbon, 10));   // ←0.5.3 c7d5a6   // ←0.5.3 d8ee80
+    p!(base + 0xe4e839, &[0xb8], 1, 4, b4(obon, 10));   // ←0.5.3 d9bac1   // ←0.5.3 e55d65
     // ── ③ 라인 수비 후보 유지 하한 (두 인코딩이 한 임계를 이룸: N, N−1) ──
-    p!(base + 0xc865aa, &[0x48,0x83,0xf8], 3, 1, s1(if rthr_orig { -30 } else { rthr }));   // ←0.5.3 c3cf8d
-    p!(base + 0xc865b9, &[0x48,0x83,0xf8], 3, 1, s1(if rthr_orig { -31 } else { rthr - 1 }));   // ←0.5.3 c3cf9e
+    p!(base + 0xc897fa, &[0x48,0x83,0xf8], 3, 1, s1(if rthr_orig { -30 } else { rthr }));   // ←0.5.3 c3cf8d   // ←0.5.3 c865aa
+    p!(base + 0xc89809, &[0x48,0x83,0xf8], 3, 1, s1(if rthr_orig { -31 } else { rthr - 1 }));   // ←0.5.3 c3cf9e   // ←0.5.3 c865b9
     // ── ④ 대기(line_wait) / 라인 안전(line_safe) ──
-    p!(base + 0xe721d3, &[0x48,0xb9], 2, 8, sqp(lwd, 32_400_000_001));      // 180000²+1   // ←0.5.3 d971b6
-    p!(base + 0xe727c4, &[0x48,0x2d], 2, 4, b4(lwb, 180_000));   // ←0.5.3 d974c9
-    for a in [0xe72141usize, 0xe72358, 0xe72db4] {
+    p!(base + 0xdc3dd1, &[0x48,0xb9], 2, 8, sqp(lwd, 32_400_000_001));      // 180000²+1   // ←0.5.3 d971b6   // ←0.5.3 e721d3
+    p!(base + 0xdc40dc, &[0x48,0x2d], 2, 4, b4(lwb, 180_000));   // ←0.5.3 d974c9   // ←0.5.3 e727c4
+    for a in [0xdc3a2ausize, 0xdc404e, 0xdc46cc] {
         p!(base + a, &[0x48,0xc7,0x85], 7, 4, b4(lwr, 80_000));
     }
-    for a in [0xe70a25usize, 0xe70b05] {
+    for a in [0xdc22c2usize, 0xdc23a3] {
         p!(base + a, &[0x48,0xc7,0x85], 7, 4, b4(lsr, 80_000));
     }
     // ── ⑤ 이동 실행층 ──
-    p!(base + 0xe077c3, &[0x48,0x81,0xfa], 3, 4, sqp(mvb, 256_000_001));    // 16000²+1   // ←0.5.3 d87f22
-    p!(base + 0xe0d089, &[0x48,0x81,0xfa], 3, 4, sq(mvh, 144_000_000));     // 12000²   // ←0.5.3 d89ad0
-    p!(base + 0xca8132, &[0x48,0xb9], 2, 8, sqp(mvt, 14_400_000_001));   // ←0.5.3 c7b4a5  ★재조사로 복구: mvt ★자동짝 de0680은 오답이었다
+    p!(base + 0xd9a833, &[0x48,0x81,0xfa], 3, 4, sqp(mvb, 256_000_001));    // 16000²+1   // ←0.5.3 d87f22   // ←0.5.3 e077c3
+    p!(base + 0xda00f9, &[0x48,0x81,0xfa], 3, 4, sq(mvh, 144_000_000));     // 12000²   // ←0.5.3 d89ad0   // ←0.5.3 e0d089
+    p!(base + 0xd38841, &[0x48,0xb9], 2, 8, sqp(mvt, 14_400_000_001));   // ←0.5.3 c7b4a5  ★재조사로 복구: mvt ★자동짝 de0680은 오답이었다   // ←0.5.3 ca8132
 
     SCOREIMM_SIG.store(sig, Ordering::Relaxed);
     if let Some(pp) = pth("score_imm.txt") {
@@ -1349,38 +1349,43 @@ unsafe fn apply_score2_imm() {
     macro_rules! p { ($a:expr, $pre:expr, $off:expr, $w:expr, $v:expr) => {{
         tot += 1; ok += patch_imm_bytes($a, $pre, $off, $w, $v) as u32;
     }}; }
+    macro_rules! pskip { ($a:expr, $pre:expr, $off:expr, $w:expr, $v:expr) => {{
+        // ⛔0.5.4 재배치 미확정 — 세기만 하고 **패치하지 않는다**.
+        //    (orig_guard 는 표에 없는 RVA 를 통과시키므로, 옛 주소를 남기면 오패치 위험)
+        tot += 1; let _ = ($a, $pre, $off, $w, $v);
+    }}; }
     static CMP3: [[u8;3];4] = [[0x48,0x81,0xfe],[0x49,0x81,0xfa],[0x48,0x81,0xfa],[0x49,0x81,0xf9]];
-    static CMP1: [[u8;3];5] = [[0x48,0x83,0xf8],[0x49,0x83,0xf8],[0x48,0x83,0xff],[0x49,0x83,0xff],
-                              [0x49,0x83,0xfb]];   // ★0.5.4: kcap 2사이트가 cmp r11 로 바뀜
+    static CMP1: [[u8;3];6] = [[0x48,0x83,0xf8],[0x49,0x83,0xf8],[0x48,0x83,0xff],[0x49,0x83,0xff],
+                              [0x49,0x83,0xfb],[0x48,0x83,0xf9]];   // ★0.5.5: kcap 2사이트(e3d864/959)가 cmp rcx(48,83,f9)로 — 후보 추가
 
     // ── ① 구조물 인식 반경 (d²>>8). 두 그룹이 1 차이(부등호 방향) ──
     let tr_a = dsh(trad, 0x53D1AC1, 8);
     // ★[08-03 주소 정정] 뒤 3개(`c8037c`·`c803ef`·`c80470`)는 어긋난 주소였고 한 번도 안 걸렸다.
     //   구간 전수 스캔으로 실제 사이트 확정 → `c80397`·`c80418`·`c8048b`, 그리고 **목록에 없던 `c80513` 추가**.
     // ↓0.5.4: prefix 가 사이트마다 달라져 루프를 펼침(원래 `for a in [..]`)
-    p!(base + 0xd92e97, &[0x48,0x81,0xfb], 3, 4, tr_a);   // ←0.5.3 c7f8b9
-    p!(base + 0xd92f3b, &[0x48,0x81,0xfb], 3, 4, tr_a);   // ←0.5.3 c7f939
-    p!(base + 0xd92fc6, &[0x48,0x81,0xfb], 3, 4, tr_a);   // ←0.5.3 c7f9ac
-    p!(base + 0xd93044, &[0x48,0x81,0xfb], 3, 4, tr_a);   // ←0.5.3 c7fa1f
-    p!(base + 0xd932a6, &[0x48,0x81,0xfb], 3, 4, tr_a);   // ←0.5.3 c7faa0
-    p!(base + 0xd935e7, &[0x48,0x81,0xfe], 3, 4, tr_a);   // ←0.5.3 c7fcaf
-    p!(base + 0xd93689, &[0x48,0x81,0xfe], 3, 4, tr_a);   // ←0.5.3 c80289
-    p!(base + 0xd9372b, &[0x48,0x81,0xfe], 3, 4, tr_a);   // ←0.5.3 c80309
-    p!(base + 0xd937c0, &[0x48,0x81,0xfe], 3, 4, tr_a);   // ←0.5.3 c80397
-    p!(base + 0xd93848, &[0x48,0x81,0xfe], 3, 4, tr_a);   // ←0.5.3 c80418
-    p!(base + 0xd938de, &[0x48,0x81,0xfb], 3, 4, tr_a);   // ←0.5.3 c8048b
-    p!(base + 0xd9397b, &[0x48,0x81,0xfe], 3, 4, tr_a);   // ←0.5.3 c80513
+    p!(base + 0xe3a1c1, &[0x49,0x81,0xfe], 3, 4, tr_a);   // ←0.5.3 c7f8b9   // ←0.5.3 d92e97
+    p!(base + 0xe3a263, &[0x49,0x81,0xfe], 3, 4, tr_a);   // ←0.5.3 c7f939   // ←0.5.3 d92f3b
+    p!(base + 0xe3a2f0, &[0x49,0x81,0xfe], 3, 4, tr_a);   // ←0.5.3 c7f9ac   // ←0.5.3 d92fc6
+    p!(base + 0xe3a384, &[0x49,0x81,0xfe], 3, 4, tr_a);   // ←0.5.3 c7fa1f   // ←0.5.3 d93044
+    p!(base + 0xe3a5e9, &[0x49,0x81,0xfe], 3, 4, tr_a);   // ←0.5.3 c7faa0   // ←0.5.3 d932a6
+    p!(base + 0xe3a912, &[0x48,0x81,0xfe], 3, 4, tr_a);   // ←0.5.3 c7fcaf   // ←0.5.3 d935e7
+    p!(base + 0xe3a987, &[0x48,0x81,0xfe], 3, 4, tr_a);   // ←0.5.3 c80289   // ←0.5.3 d93689
+    p!(base + 0xe3af90, &[0x48,0x81,0xfe], 3, 4, tr_a);   // ←0.5.3 c80309   // ←0.5.3 d9372b
+    p!(base + 0xe3b034, &[0x48,0x81,0xfe], 3, 4, tr_a);   // ←0.5.3 c80397   // ←0.5.3 d937c0
+    p!(base + 0xe3b103, &[0x48,0x81,0xfe], 3, 4, tr_a);   // ←0.5.3 c80418   // ←0.5.3 d93848
+    p!(base + 0xe3b186, &[0x49,0x81,0xfe], 3, 4, tr_a);   // ←0.5.3 c8048b   // ←0.5.3 d938de
+    p!(base + 0xe3b228, &[0x48,0x81,0xfe], 3, 4, tr_a);   // ←0.5.3 c80513   // ←0.5.3 d9397b
     // ↓0.5.4: prefix 가 사이트마다 달라져 루프를 펼침(원래 `for a in [..]`)
-    p!(base + 0xd940e7, &[0x49,0x81,0xfa], 3, 4, tr_a.wrapping_sub(1));   // ←0.5.3 c7fd67
-    p!(base + 0xd94197, &[0x49,0x81,0xfc], 3, 4, tr_a.wrapping_sub(1));   // ←0.5.3 c80be7
+    p!(base + 0xe3b388, &[0x49,0x81,0xfa], 3, 4, tr_a.wrapping_sub(1));   // ←0.5.3 c7fd67   // ←0.5.3 d940e7
+    p!(base + 0xe3b438, &[0x48,0x81,0xfb], 3, 4, tr_a.wrapping_sub(1));   // ←0.5.3 c80be7   // ←0.5.3 d94197
     // ── ② 적 챔피언 근접 인식 (d²>>9) ──
-    for a in [0xd93ad3usize, 0xd93ba4, 0xd93c71, 0xd93d3e, 0xd93e0b] {
+    for a in [0xe3aaeeusize, 0xe3abbc, 0xe3ac7f, 0xe3ad42, 0xe3ae05] {
         pany!(base + a, CMP3, 3, 4, dsh(erad2, 0x1BF08EA, 9));
     }
     // ── ③ 셀 위협 진입 거리 (d²+1) ──
-    pany!(base + 0xd943a4, CMP3, 3, 4, sqp(cdst, 0x49040441));   // ←0.5.3 c80e02
+    pany!(base + 0xe3b655, CMP3, 3, 4, sqp(cdst, 0x49040441));   // ←0.5.3 c80e02   // ←0.5.3 d943a4
     // ── ④ 다이브 여유분 ──
-    pany!(base + 0xd9533e, [[0x48,0x05]], 2, 4, b4(dvm, 15000));   // ←0.5.3 c7fe82
+    pany!(base + 0xe3c40d, [[0x48,0x05]], 2, 4, b4(dvm, 15000));   // ←0.5.3 c7fe82   // ←0.5.3 d9533e
     // ── ⑤ 위험 판정 사다리 ──
     for (a, v, o) in [(0xc82224usize, rd0, 49u64), (0xd958c9, rh1, 65), (0xd958cf, rd1, 29),
                       (0xd958d5, rh2, 40), (0xd958db, rd2, 17), (0xd958e3, rh3, 25),
@@ -1388,28 +1393,28 @@ unsafe fn apply_score2_imm() {
         pany!(base + a, CMP1, 3, 1, b1(v, o));
     }
     // ── ⑥ 보너스 상한·기준 ──
-    pany!(base + 0xd95e74, CMP1, 3, 1, b1(fcap, 80));   // ←0.5.3 c827c4
-    pany!(base + 0xd95e78, [[0x41,0xbf],[0x41,0xbe]], 2, 4, b4(fcap, 80));   // ★0.5.4: r14d→r15d   // ←0.5.3 c827c8
+    pany!(base + 0xe3d0a2, CMP1, 3, 1, b1(fcap, 80));   // ←0.5.3 c827c4   // ←0.5.3 d95e74
+    pany!(base + 0xe3d0a6, [[0x41,0xbf],[0x41,0xbe]], 2, 4, b4(fcap, 80));   // ★0.5.4: r14d→r15d   // ←0.5.3 c827c8   // ←0.5.3 d95e78
     // ★[08-05 감사] 이 상한은 `cmp / mov / cmovl` 3종 세트다. 예전엔 3쌍 중 2쌍이 **cmp만** 패치돼
     //   200으로 올리면 `cmp rdi,200 / mov eax,80 / cmovl` ⟹ 200 미만은 무제한 통과, 200 이상은 80으로 추락 =
     //   **상한을 올렸는데 큰 값만 잘리는 역전**이 났다. mov 쪽 2사이트를 짝으로 추가한다.
-    pany!(base + 0xd96649, CMP1, 3, 1, b1(kcap, 80));   // ←0.5.3 c82f27
-    pany!(base + 0xd9664d, [[0xb8]], 1, 4, b4(kcap, 80));   // ←0.5.3 c82f2b
-    pany!(base + 0xd96698, CMP1, 3, 1, b1(kcap, 80));   // ←0.5.3 c82f76
-    pany!(base + 0xd9669c, [[0xb8]], 1, 4, b4(kcap, 80));   // ←0.5.3 c82f7a
+    pany!(base + 0xe3d864, CMP1, 3, 1, b1(kcap, 80));   // ←0.5.3 c82f27   // ←0.5.3 d96649
+    pany!(base + 0xe3d868, [[0xb8]], 1, 4, b4(kcap, 80));   // ←0.5.3 c82f2b   // ←0.5.3 d9664d
+    pany!(base + 0xe3d959, CMP1, 3, 1, b1(kcap, 80));   // ←0.5.3 c82f76   // ←0.5.3 d96698
+    pany!(base + 0xe3d95d, [[0xb8]], 1, 4, b4(kcap, 80));   // ←0.5.3 c82f7a   // ←0.5.3 d9669c
     // ⚠`c83391`은 `mov`가 아니라 **`cmp rax,80`** 이다(짝이 되는 `mov ecx,80`이 c83395). 08-03 정정.
-    pany!(base + 0xd96a37, CMP1, 3, 1, b1(kcap, 80));   // ←0.5.3 c83391
-    pany!(base + 0xd96a3b, [[0xb8],[0xb9],[0xbb]], 1, 4, b4(kcap, 80));   // ←0.5.3 c83395
-    pany!(base + 0xd9668b, CMP1, 3, 1, b1(kpct, 60));   // ←0.5.3 c82f69
+    pany!(base + 0xe3dcf7, CMP1, 3, 1, b1(kcap, 80));   // ←0.5.3 c83391   // ←0.5.3 d96a37
+    pany!(base + 0xe3dcfb, [[0xb8],[0xb9],[0xbb]], 1, 4, b4(kcap, 80));   // ←0.5.3 c83395   // ←0.5.3 d96a3b
+    pany!(base + 0xe3d93e, CMP1, 3, 1, b1(kpct, 60));   // ←0.5.3 c82f69   // ←0.5.3 d9668b
     // ── ⑦ 점수 계산의 시야 기억 ──
     // ⚠[08-05 감사] 같은 축이 5곳인데 여기서 잡는 건 1곳뿐이다. 나머지 4곳(`0xd93c04`·`0xd93cd1`·
     //   `0xd93d9e`·`0xd93e67`)은 **`vw_score`가 10사이트로 이미 소유**한다 — 여기서 또 잡으면 두 노브가
     //   같은 바이트를 다투게 되므로(마지막에 쓴 쪽이 이김) **의도적으로 1곳만 유지**한다.
     //   사용자에겐 `vw_score`를 쓰라고 안내한다(편집기 설명 반영).
-    for a in [0xd93b33usize] { pany!(base + a, [[0x48,0x83,0xc6],[0x49,0x83,0xc6],[0x48,0x83,0xc5]], 3, 1, b1(svis, 120)); }
+    for a in [0xe3ab47usize] { pany!(base + a, [[0x48,0x83,0xc6],[0x49,0x83,0xc6],[0x48,0x83,0xc5]], 3, 1, b1(svis, 120)); }
     // ── ⑧ 본체 0일 때 대체 점수(음수) ──
     let nv = if nul_orig { -10i64 } else { nul };
-    for a in [0xd96c90usize, 0xd96f06] {
+    for a in [0xe3df4cusize, 0xe3e1c6] {
         pany!(base + a, [[0x48,0xc7,0xc1],[0x48,0xc7,0xc0],[0x49,0xc7,0xc1]], 3, 4,
               (nv as i32) as u32 as u64);
     }
@@ -1477,8 +1482,8 @@ unsafe fn apply_move_imm() {
     }}; }
 
     // ── ① cat0 배율 (코드 즉치 2개) ──
-    p!(base + 0xd8eafe, &[0x41,0xb8], 2, 4, b4(m0hi, 300));   // ←0.5.3 c7c7ae
-    p!(base + 0xd8eb0e, &[0x41,0xb8], 2, 4, b4(m0lo, 40));   // ←0.5.3 c7c7be
+    p!(base + 0xe3629d, &[0x41,0xb8], 2, 4, b4(m0hi, 300));   // ←0.5.3 c7c7ae   // ←0.5.3 d8eafe
+    p!(base + 0xe362ad, &[0x41,0xb8], 2, 4, b4(m0lo, 40));   // ←0.5.3 c7c7be   // ←0.5.3 d8eb0e
     // ── ①-b cat0 배율 (.rdata 3개) — prefix 검증이 불가능해 최초 1회 원본 확인 후에만 건드린다 ──
     {
         let t = base + 0x31AA4E8;
@@ -1502,17 +1507,17 @@ unsafe fn apply_move_imm() {
         }
     }
     // ── ② cat0 가중치·기본 페널티·근접 보너스 ──
-    p!(base + 0xd8eb45, &[0x49,0xc1,0xf9], 3, 1, b1(m0rs, 2));    // sar r9, 2   (÷4)   // ←0.5.3 c7c7f5
-    p!(base + 0xd8eb53, &[0x48,0xc1,0xfa], 3, 1, b1(m0es, 9));    // sar rdx, 9  (÷800)   // ←0.5.3 c7c803
+    p!(base + 0xe362e4, &[0x49,0xc1,0xf9], 3, 1, b1(m0rs, 2));    // sar r9, 2   (÷4)   // ←0.5.3 c7c7f5   // ←0.5.3 d8eb45
+    p!(base + 0xe362f2, &[0x48,0xc1,0xfa], 3, 1, b1(m0es, 9));    // sar rdx, 9  (÷800)   // ←0.5.3 c7c803   // ←0.5.3 d8eb53
     {   // add r12, −2  → imm8 그대로. 센티널 이하면 원본 유지.
         tot += 1;
         let want = if m0bp_orig { 0xfeu64 } else { (m0bp as i8) as u8 as u64 };
-        ok += patch_imm_bytes(base + 0xd8eb5e, &[0x49,0x83,0xc5], 3, 1, want) as u32;
+        ok += patch_imm_bytes(base + 0xe362fd, &[0x49,0x83,0xc5], 3, 1, want) as u32;   // ←s2 d8eb5e
     }
-    p!(base + 0xd8ee80, &[0xbb], 1, 4, b4(m0nb, 10));   // ←0.5.3 c7d5a6
-    p!(base + 0xd8edbb, &[0x48,0x81,0xbd,0xb8,0x00,0x00,0x00], 7, 4, b4(m0ng, 950));   // ←0.5.3 c7d4f0  ★재조사로 복구: 950 (rbp+0x68→+0xb8)  ★★imm_off 4→7 — 0.5.4에서 REX 접두가 붙어 즉치가 1B 밀렸다(크래시 원인)
+    p!(base + 0xe36f6e, &[0xbb], 1, 4, b4(m0nb, 10));   // ←0.5.3 c7d5a6   // ←0.5.3 d8ee80
+    p!(base + 0xe36ea9, &[0x48,0x81,0xbd,0xb8,0x00,0x00,0x00], 7, 4, b4(m0ng, 950));   // ←0.5.3 c7d4f0  ★재조사로 복구: 950 (rbp+0x68→+0xb8)  ★★imm_off 4→7 — 0.5.4에서 REX 접두가 붙어 즉치가 1B 밀렸다(크래시 원인)   // ←0.5.3 d8edbb
     // ── ③ 포탑 사거리 감산 / 상한 3쌍 ──
-    for a in [0xd8f3dcusize, 0xd8f60d] {
+    for a in [0xe35e0ausize, 0xe36562] {
         p!(base + a, &[0x48,0x81,0xee], 3, 4, b4(mtm, 30000));
     }
     //   상한은 `cmp rax,100` 과 `mov reg,100` **두 곳을 같이** 고쳐야 의미가 맞는다.
@@ -1523,8 +1528,8 @@ unsafe fn apply_move_imm() {
         p!(base + mv, mpre, mpre.len(), 4, b4(mtc, 100));
     }
     // ── ④ cat2 goal_gain 가중 / 예상 피격 필터 / 시야 기억 ──
-    p!(base + 0xd8ec84, &[0x48,0xc1,0xfa], 3, 1, b1(m2gs, 7));    // sar rdx, 7 (÷200)   // ←0.5.3 c7d3d0
-    for a in [0xd8e8dfusize, 0xd8f0f6, 0xd8f74f] {
+    p!(base + 0xe36d7c, &[0x48,0xc1,0xfa], 3, 1, b1(m2gs, 7));    // sar rdx, 7 (÷200)   // ←0.5.3 c7d3d0   // ←0.5.3 d8ec84
+    for a in [0xe35b24usize, 0xe3607e, 0xe3669f] {
         p!(base + a, &[0x41,0xb8], 2, 4, b4(met, 9999));
     }
     // ★[08-05 감사] 동일 패턴이 5곳인데 1곳만 잡고 있었다(다른 키가 커버하지도 않음).
@@ -1535,7 +1540,7 @@ unsafe fn apply_move_imm() {
     //   여기를 패치하면 xref **143곳 전부**(death_battle·team_plan·epic·serpen·ganker…)가 바뀐다.
     //   ⟹ 노브 의미가 "이동 점수 한정" → **"전역 시야 기억"** 으로 달라져 키를 새로 뒀다.
     //   ⚠옛 키(mv_vision_mem)의 알리아스를 두지 않는다 — 옛 값이 조용히 전역 적용되면 더 위험하다.
-    p!(base + 0xf3d658, &[0x48,0x83,0xc3], 3, 1, b1(vmg, 120));
+    pskip!(base + 0xf3d658, &[0x48,0x83,0xc3], 3, 1, b1(vmg, 120));   // ⛔0.5.4 미확정: src=?
 
     MOVEIMM_SIG.store(sig, Ordering::Relaxed);
     if let Some(pp) = pth("move_imm.txt") {
@@ -1595,50 +1600,50 @@ unsafe fn apply_db_imm() {
     }}; }
 
     // ── ① 아군/적 근접 판정 반경 (둘 다 원본 150000, d²+1 = 0x53D1AC101) ──
-    for a in [0xe29d40usize, 0xe29db6, 0xe29e2c, 0xe29ea2, 0xe29f14] {
+    for a in [0xdd4870usize, 0xdd48e6, 0xdd495c, 0xdd49d2, 0xdd4a44] {
         p!(base + a, &[0x48,0xb8], 2, 8, sqp(dna, 0x5_3D1A_C101));
     }
-    for a in [0xe29fe1usize, 0xe2a068, 0xe2a0ef, 0xe2a176, 0xe2a1fd] {
+    for a in [0xdd4b11usize, 0xdd4b98, 0xdd4c1f, 0xdd4ca6, 0xdd4d2d] {
         p!(base + a, &[0x48,0xb8], 2, 8, sqp(dne, 0x5_3D1A_C101));
     }
     // ── ② 사거리 판정 선행 틱수 (speed × N) ──
-    for a in [0xe2a272usize, 0xe2acf5, 0xe2c0e3, 0xe2d0ef] {
+    for a in [0xdd4da2usize, 0xdd5825, 0xdd6c13, 0xdd7c1f] {
         p!(base + a, &[0xb9], 1, 4, b4(dla, 30));
     }
-    p!(base + 0xe2a8b0, &[0x41,0xb9], 2, 4, b4(dla, 30));   // ←0.5.3 db05b0
-    p!(base + 0xe2edac, &[0x48,0x6b,0x8d], 7, 1, b1(dul, 60));   // ←0.5.3 db4aac
-    p!(base + 0xe2ef5a, &[0x49,0x6b,0x83], 7, 1, b1(dul, 60));   // ←0.5.3 db4c5a
+    p!(base + 0xdd53e0, &[0x41,0xb9], 2, 4, b4(dla, 30));   // ←0.5.3 db05b0   // ←0.5.3 e2a8b0
+    p!(base + 0xdd98dc, &[0x48,0x6b,0x8d], 7, 1, b1(dul, 60));   // ←0.5.3 db4aac   // ←0.5.3 e2edac
+    p!(base + 0xdd9a8a, &[0x49,0x6b,0x83], 7, 1, b1(dul, 60));   // ←0.5.3 db4c5a   // ←0.5.3 e2ef5a
     // ── ③ 처형·막타·스킬 허용 HP% ──
     // ★[08-05 감사] 이 둘은 64bit/32bit div 쌍인데 **64bit 쪽만** 잡고 있었다.
     //   `or rax,rcx; shr rax,0x20; je`로 갈리므로 HP·피해가 32비트에 들어가는 **통상 상황에선 32bit 경로가 돈다**
     //   ⟹ 사실상 무효였다. 짝을 추가한다. (같은 함수의 cs_steal_hp·cs_unit_hits는 원래 쌍을 다 잡고 있었다.)
-    p!(base + 0xe2d1d6, &[0x48,0x83,0xf8], 3, 1, b1(dex, 20));   // ←0.5.3 db2ed6
-    p!(base + 0xe2d1e6, &[0x48,0x83,0xf8], 3, 1, b1(dex, 20));   // ←0.5.3 db2ee6
-    p!(base + 0xe2a7be, &[0x48,0x83,0xf8], 3, 1, b1(dlh, 2));   // ←0.5.3 db04be
-    p!(base + 0xe2a7d0, &[0x48,0x83,0xf8], 3, 1, b1(dlh, 2));   // ←0.5.3 db04d0
-    for a in [0xe2b4e6usize, 0xe2c8a6] {
+    p!(base + 0xdd7d06, &[0x48,0x83,0xf8], 3, 1, b1(dex, 20));   // ←0.5.3 db2ed6   // ←0.5.3 e2d1d6
+    p!(base + 0xdd7d16, &[0x48,0x83,0xf8], 3, 1, b1(dex, 20));   // ←0.5.3 db2ee6   // ←0.5.3 e2d1e6
+    p!(base + 0xdd52ee, &[0x48,0x83,0xf8], 3, 1, b1(dlh, 2));   // ←0.5.3 db04be   // ←0.5.3 e2a7be
+    p!(base + 0xdd5300, &[0x48,0x83,0xf8], 3, 1, b1(dlh, 2));   // ←0.5.3 db04d0   // ←0.5.3 e2a7d0
+    for a in [0xdd6016usize, 0xdd73d6] {
         p!(base + a, &[0x48,0x83,0xf8], 3, 1, b1(dsh_, 79));
     }
     // ── ④ 궁 게이트 ──
-    p!(base + 0xe2e6bd, &[0xb9], 1, 4, sq(dur, 36_000_000));      // 6000²   // ←0.5.3 db43bd
-    p!(base + 0xe2e6d5, &[0xb8], 1, 4, sq(dur, 36_000_000));   // ←0.5.3 db43d5
-    p!(base + 0xe2e6da, &[0x48,0xb9], 2, 8, sqp(dur2, 0x1_E2CC_3100)); // 90000²+1   // ←0.5.3 db43da
-    p!(base + 0xe2e71e, &[0x48,0x3d], 2, 4, b4(durg, 150_000));   // ←0.5.3 db441e
-    p!(base + 0xe2e999, &[0xb9], 1, 4, b4(dm1, 0x6f));   // ←0.5.3 db4699
-    p!(base + 0xe2ec2c, &[0xb9], 1, 4, b4(dm2, 0x4e));   // ←0.5.3 db492c
-    p!(base + 0xe2ec53, &[0xb9], 1, 4, b4(dm3, 0x21));   // ←0.5.3 db4953
+    p!(base + 0xdd91ed, &[0xb9], 1, 4, sq(dur, 36_000_000));      // 6000²   // ←0.5.3 db43bd   // ←0.5.3 e2e6bd
+    p!(base + 0xdd9205, &[0xb8], 1, 4, sq(dur, 36_000_000));   // ←0.5.3 db43d5   // ←0.5.3 e2e6d5
+    p!(base + 0xdd920a, &[0x48,0xb9], 2, 8, sqp(dur2, 0x1_E2CC_3100)); // 90000²+1   // ←0.5.3 db43da   // ←0.5.3 e2e6da
+    p!(base + 0xdd924e, &[0x48,0x3d], 2, 4, b4(durg, 150_000));   // ←0.5.3 db441e   // ←0.5.3 e2e71e
+    p!(base + 0xdd94c9, &[0xb9], 1, 4, b4(dm1, 0x6f));   // ←0.5.3 db4699   // ←0.5.3 e2e999
+    p!(base + 0xdd975c, &[0xb9], 1, 4, b4(dm2, 0x4e));   // ←0.5.3 db492c   // ←0.5.3 e2ec2c
+    p!(base + 0xdd9783, &[0xb9], 1, 4, b4(dm3, 0x21));   // ←0.5.3 db4953   // ←0.5.3 e2ec53
     // ── ⑤ 스킬2·궁 해금 레벨 ──
-    p!(base + 0xe29cab, &[0x48,0x83,0xfa], 3, 1, b1(ds2l, 3));   // ←0.5.3 daf9ab
-    p!(base + 0xe29ccf, &[0x48,0x83,0xfa], 3, 1, b1(dulv, 5));   // ←0.5.3 daf9cf
+    p!(base + 0xdd47db, &[0x48,0x83,0xfa], 3, 1, b1(ds2l, 3));   // ←0.5.3 daf9ab   // ←0.5.3 e29cab
+    p!(base + 0xdd47ff, &[0x48,0x83,0xfa], 3, 1, b1(dulv, 5));   // ←0.5.3 daf9cf   // ←0.5.3 e29ccf
     // ── ⑥ 안전판정 `0xc8b560` — 위 값들과 같이 안 바꾸면 효과가 상쇄된다 ──
     if !micro_taken("sf_margin") {   // ★[08-07] 마이크로 디투어와 상호배타
-    p!(base + 0xdb3f1b, &[0x48,0x05], 2, 4, b4(dsm, 15_000));   // ←0.5.3 c8b99b
+    p!(base + 0xd4079b, &[0x48,0x05], 2, 4, b4(dsm, 15_000));   // ←0.5.3 c8b99b   // ←0.5.3 db3f1b
     }
     // ★[08-05 감사] 3곳 → **5곳**(같은 함수의 5슬롯 언롤). 짝인 `sf_mem`이 5/5인 것과 대조해 확정.
-    for a in [0xdb4079usize, 0xdb4166, 0xdb4242, 0xdb431e, 0xdb43fa] {
+    for a in [0xd408f9usize, 0xd409e6, 0xd40ac2, 0xd40b9e, 0xd40c7a] {
         p!(base + a, &[0x48,0xb8], 2, 8, sq(dsr, 0x3_5A4E_9000));  // 120000²
     }
-    for a in [0xdb40deusize, 0xdb41cb, 0xdb42a7, 0xdb4383, 0xdb444c] {
+    for a in [0xd4095eusize, 0xd40a4b, 0xd40b27, 0xd40c03, 0xd40ccc] {
         p!(base + a, &[0x48,0x83,0xc6], 3, 1, b1(dsv, 120));
     }
 
@@ -1727,55 +1732,55 @@ unsafe fn apply_pe_imm() {
     }}; }
 
     // ── ① 거리 임계 (전부 d² 또는 d²>>shift 인코딩) ──
-    for a in [0xca8e05usize, 0xca8e40, 0xca8ed4, 0xca8f10, 0xca8fa4, 0xca8fe0, 0xca9077, 0xca90ad] {
+    for a in [0xd1149dusize, 0xd114e0, 0xd11574, 0xd115b0, 0xd11644, 0xd11680, 0xd11717, 0xd1174d] {
         p!(base + a, &[0x48,0xb8], 2, 8, sqp(pcol, 0x9_502F_9001));
     }
-    for a in [0xca9143usize, 0xca9178, 0xca94b0, 0xca94e0] {
+    for a in [0xd117e3usize, 0xd11818, 0xd11b47, 0xd11b80] {
         p!(base + a, &[0x48,0xb8], 2, 8, sq(pcol, 0x9_502F_9000));
     }
-    for a in [0xcaa4a1usize, 0xcaa648, 0xcaa807, 0xcaafd8] {
+    for a in [0xd12bc5usize, 0xd12d88, 0xd12f88, 0xd134b8] {
         p!(base + a, &[0x48,0x81,0xf9], 3, 4, dsh(pflt, 87_890_625, 8, 1));
     }
-    for a in [0xcab8c8usize, 0xcab968] {
+    for a in [0xd13f88usize, 0xd14028] {
         p!(base + a, &[0x48,0x81,0xfa], 3, 4, dsh(pflt, 87_890_625, 8, 1));
     }
-    p!(base + 0xca98eb, &[0x48,0x3d], 2, 4, dsh(pflt, 87_890_624, 8, 0));   // ←0.5.3 ccaeef
-    p!(base + 0xcabc48, &[0x48,0x81,0xfa], 3, 4, dsh(pflt, 87_890_624, 8, 0));   // ←0.5.3 ccd108
+    p!(base + 0xd11f8b, &[0x48,0x3d], 2, 4, dsh(pflt, 87_890_624, 8, 0));   // ←0.5.3 ccaeef   // ←0.5.3 ca98eb
+    p!(base + 0xd14308, &[0x48,0x81,0xfa], 3, 4, dsh(pflt, 87_890_624, 8, 0));   // ←0.5.3 ccd108   // ←0.5.3 cabc48
     // ↓0.5.4: prefix 가 사이트마다 달라져 루프를 펼침(원래 `for a in [..]`)
-    p!(base + 0xcac08c, &[0x49,0xbe], 2, 8, sq(pflt, 0x5_3D1A_C100));   // ←0.5.3 ccd76e  ★재조사로 복구: pflt (053 3곳=재로드→054 1곳)
+    p!(base + 0xd14756, &[0x48,0xbf], 2, 8, sq(pflt, 0x5_3D1A_C100));   // ←0.5.3 ccd76e  ★재조사로 복구: pflt (053 3곳=재로드→054 1곳)   // ←0.5.3 cac08c
     pskip!(base + 0xccd78e, &[0x49,0xbb], 2, 8, sq(pflt, 0x5_3D1A_C100));   // ⛔0.5.4 미확정: 시그 3→0 / 완화 3→1 (골격 86%)
     pskip!(base + 0xccdad8, &[0x49,0xbb], 2, 8, sq(pflt, 0x5_3D1A_C100));   // ⛔0.5.4 미확정: 시그 3→0 / 완화 3→1 (골격 86%)
-    for a in [0xcaa6c1usize, 0xcab04a] {
+    for a in [0xd12dfausize, 0xd1352a] {
         p!(base + a, &[0x49,0x81,0xfe], 3, 4, dsh(pnea, 19_140_625, 8, 1));
     }
-    for a in [0xcaa51dusize, 0xcaa876] {
+    for a in [0xd12c36usize, 0xd12ff6] {
         p!(base + a, &[0x49,0x81,0xfe], 3, 4, dsh(pnea, 19_140_624, 8, 0));
     }
     // ★0.5.4: **원본값이 +1 됐다**(0xf4240000→0xf4240001) = 비교 부등호가 뒤집혔다.
     //   그래서 sq → sqp 로 바꾼다. 값만 옮기면 가드에 막혀 조용히 죽는다.
-    p!(base + 0xcabc0a, &[0xb8], 1, 4, sqp(pmin, 4_096_000_001));   // ←0.5.3 ccd3f3
-    p!(base + 0xcad98a, &[0x48,0x81,0xf9], 3, 4, dsh(pcha, 9_765_625, 10, 0));   // ←0.5.3 ccefaa
-    p!(base + 0xcac640, &[0x49,0x81,0xf8], 3, 4, dsh(pfld, 244_140_624, 8, 0));   // ←0.5.3 ccdcf1
-    p!(base + 0xcaeb9b, &[0x48,0xb8], 2, 8, sqp(pcnt, 0x3_5A4E_9001));   // ←0.5.3 cd01f5
-    p!(base + 0xcaf40a, &[0x48,0xb8], 2, 8, sq(pcnt, 0x3_5A4E_9000));   // ←0.5.3 cd0aab
+    p!(base + 0xd142c9, &[0xb8], 1, 4, sqp(pmin, 4_096_000_001));   // ←0.5.3 ccd3f3   // ←0.5.3 cabc0a
+    p!(base + 0xd15f9a, &[0x48,0x81,0xf9], 3, 4, dsh(pcha, 9_765_625, 10, 0));   // ←0.5.3 ccefaa   // ←0.5.3 cad98a
+    p!(base + 0xd14d12, &[0x49,0x81,0xf8], 3, 4, dsh(pfld, 244_140_624, 8, 0));   // ←0.5.3 ccdcf1   // ←0.5.3 cac640
+    p!(base + 0xd1714a, &[0x48,0xb8], 2, 8, sqp(pcnt, 0x3_5A4E_9001));   // ←0.5.3 cd01f5   // ←0.5.3 caeb9b
+    p!(base + 0xd179da, &[0x48,0xb8], 2, 8, sq(pcnt, 0x3_5A4E_9000));   // ←0.5.3 cd0aab   // ←0.5.3 caf40a
     // ── ② 선형 반경·여유 ──
-    for a in [0xcaced5usize, 0xcacf06, 0xcad085, 0xcad0b6, 0xcad265, 0xcad296, 0xcad415,
-              0xcad446, 0xcad5f5, 0xcad626, 0xcad7a5, 0xcad7d6, 0xcaef34, 0xcaef61] {
+    for a in [0xd15565usize, 0xd15596, 0xd156f5, 0xd15726, 0xd158c5, 0xd158f6, 0xd15a55,
+              0xd15a86, 0xd15c25, 0xd15c56, 0xd15db5, 0xd15de6, 0xd17504, 0xd17531] {
         p!(base + a, &[0x49,0x81,0xc0], 3, 4, b4(prea, 80_000));
     }
-    for a in [0xcadea1usize, 0xcae120, 0xcae399] {
+    for a in [0xd164d3usize, 0xd1674b, 0xd16993] {
         p!(base + a, &[0x48,0x81,0xc1], 3, 4, b4(prea, 80_000));
     }
-    for a in [0xcaf0a9usize, 0xcaf0d6, 0xcaf209, 0xcaf23a] {
+    for a in [0xd17679usize, 0xd176a6, 0xd177d9, 0xd1780a] {
         p!(base + a, &[0x49,0x81,0xc1], 3, 4, b4(prea, 80_000));
     }
-    for a in [0xca9eceusize, 0xcac415] { p!(base + a, &[0x48,0x05], 2, 4, b4(pband, 32_000)); }
-    p!(base + 0xcae7a8, &[0x48,0x05], 2, 4, b4(pshot, 20_000));   // ←0.5.3 ccfd38
-    for a in [0xcaea4ausize, 0xcaeb1c, 0xcaf47c] {
+    for a in [0xd1256eusize, 0xd14ae5] { p!(base + a, &[0x48,0x05], 2, 4, b4(pband, 32_000)); }
+    p!(base + 0xd16d35, &[0x48,0x05], 2, 4, b4(pshot, 20_000));   // ←0.5.4 cae7a8 (align복구)
+    for a in [0xd17000usize, 0xd170ce, 0xd17a4c] {
         p!(base + a, &[0x48,0x81,0xc2], 3, 4, b4(pblk, 28_000));
     }
-    p!(base + 0xcab59d, &[0x48,0x05], 2, 4, b4(ptwr, 18_000));   // ←0.5.3 ccccc4
-    p!(base + 0xcac7cd, &[0x49,0x81,0xc1], 3, 4, b4(ptwr, 18_000));   // ←0.5.3 ccde6f
+    p!(base + 0xd13c7e, &[0x48,0x05], 2, 4, b4(ptwr, 18_000));   // ←0.5.3 ccccc4   // ←0.5.3 cab59d
+    p!(base + 0xd14ea1, &[0x49,0x81,0xc1], 3, 4, b4(ptwr, 18_000));   // ←0.5.3 ccde6f   // ←0.5.3 cac7cd
     // ── ③ 캡·비율 ──
     //   ⚠150 캡은 `cmp`와 `mov`가 **쌍**이라 둘 다 안 고치면 의미가 어긋난다.
     //   실측된 cmp 인코딩 5종·mov 인코딩 2종. `48 3d`(cmp rax)는 prefix가 2바이트라 imm 오프셋도 2다.
@@ -1786,37 +1791,37 @@ unsafe fn apply_pe_imm() {
     // ★스택 오버플로 방지: 호출부를 펼치지 말고 **표+루프 1개**로 유지할 것.
     //   (펼치면 opt-level=1 에서 프레임이 선형으로 커져 rayon 워커 스택을 넘긴다 — 실사고)
     static PE_CAP: [(usize, &[u8], usize); 22] = [
-        (0xca9a6a, &[0x49,0x81,0xfc], 3),
-        (0xca9a71, &[0xb8], 1),
-        (0xca9c3e, &[0x49,0x81,0xfc], 3),
-        (0xca9c45, &[0xb8], 1),
-        (0xcaadc5, &[0x49,0x81,0xff], 3),
-        (0xcaadcc, &[0xb8], 1),
-        (0xcab2d7, &[0x48,0x3d], 2),
-        (0xcab2dd, &[0xb9], 1),
-        (0xcabb35, &[0x48,0x81,0xf9], 3),
-        (0xcabb3c, &[0xb8], 1),
-        (0xcabe4d, &[0x48,0x81,0xf9], 3),
-        (0xcabe54, &[0xb8], 1),
-        (0xcac1ec, &[0x49,0x81,0xfd], 3),
-        (0xcac1f3, &[0xb8], 1),
-        (0xcac843, &[0x48,0x3d], 2),
-        (0xcac849, &[0xb9], 1),
-        (0xcacaec, &[0x48,0x3d], 2),
-        (0xcacaf2, &[0xb9], 1),
-        (0xcacc77, &[0x48,0x3d], 2),
-        (0xcacc7d, &[0xb9], 1),
-        (0xcae928, &[0x49,0x81,0xff], 3),
-        (0xcae92f, &[0xb8], 1),
+        (0xd1210a, &[0x49,0x81,0xfc], 3),
+        (0xd12111, &[0xb8], 1),
+        (0xd122de, &[0x49,0x81,0xfc], 3),
+        (0xd122e5, &[0xb8], 1),
+        (0xd136fd, &[0x48,0x81,0xff], 3),
+        (0xd13704, &[0xb8], 1),
+        (0xd139f3, &[0x48,0x3d], 2),
+        (0xd139f9, &[0xb9], 1),
+        (0xd141f5, &[0x48,0x81,0xf9], 3),
+        (0xd141fc, &[0xb8], 1),
+        (0xd1450d, &[0x48,0x81,0xf9], 3),
+        (0xd14514, &[0xb8], 1),
+        (0xd148bc, &[0x49,0x81,0xfd], 3),
+        (0xd148c3, &[0xb8], 1),
+        (0xd14f19, &[0x48,0x3d], 2),
+        (0xd14f1f, &[0xb9], 1),
+        (0xd151bd, &[0x48,0x3d], 2),
+        (0xd151c3, &[0xb9], 1),
+        (0xd15356, &[0x48,0x3d], 2),
+        (0xd1535c, &[0xb9], 1),
+        (0xd16ee2, &[0x49,0x81,0xfc], 3),
+        (0xd16ee9, &[0xb8], 1),
     ];
     for &(a, pre, off) in PE_CAP.iter() { p!(base + a, pre, off, 4, b4(pcap, 150)); }
-    p!(base + 0xcabedd, &[0x48,0x3d], 2, 4, b4(ppcap, 140));   // ←0.5.3 ccd5c5
-    p!(base + 0xcabee3, &[0xbe], 1, 4, b4(ppcap, 140));   // ←0.5.3 ccd5cb
+    p!(base + 0xd1459d, &[0x48,0x3d], 2, 4, b4(ppcap, 140));   // ←0.5.3 ccd5c5   // ←0.5.3 cabedd
+    p!(base + 0xd145a3, &[0xbe], 1, 4, b4(ppcap, 140));   // ←0.5.3 ccd5cb   // ←0.5.3 cabee3
     // ↓0.5.4: prefix 가 사이트마다 달라져 루프를 펼침(원래 `for a in [..]`)
-    p!(base + 0xcab773, &[0x44,0x69,0xc0], 3, 4, b4(pfar, 656));   // ←0.5.3 ccce81  ★재조사로 복구: pfar 656 #1  ★★imm_off 2→3 — 0.5.4에서 REX 접두가 붙어 즉치가 1B 밀렸다(크래시 원인)
-    p!(base + 0xcab817, &[0x44,0x69,0xc0], 3, 4, b4(pfar, 656));   // ←0.5.3 cccef2  ★재조사로 복구: pfar 656 #2  ★★imm_off 2→3 — 0.5.4에서 REX 접두가 붙어 즉치가 1B 밀렸다(크래시 원인)
-    p!(base + 0xcaf8a0, &[0xbe], 1, 4, b4(pna2, 1000));   // ←0.5.3 cd0e8e  ★재조사로 복구: pna2 1000  ★41be(6B)→be(5B) 로 인코딩 축소 ⟹ imm_off 2→1
-    p!(base + 0xcaf8d1, &[0xb9], 1, 4, b4(pna, 2000));   // ←0.5.3 cd0e9e
+    p!(base + 0xd13e46, &[0x44,0x69,0xc0], 3, 4, b4(pfar, 656));   // ←0.5.3 ccce81  ★재조사로 복구: pfar 656 #1  ★★imm_off 2→3 — 0.5.4에서 REX 접두가 붙어 즉치가 1B 밀렸다(크래시 원인)   // ←0.5.3 cab773
+    p!(base + 0xd13ed8, &[0x44,0x69,0xc0], 3, 4, b4(pfar, 656));   // ←0.5.3 cccef2  ★재조사로 복구: pfar 656 #2  ★★imm_off 2→3 — 0.5.4에서 REX 접두가 붙어 즉치가 1B 밀렸다(크래시 원인)   // ←0.5.3 cab817
+    p!(base + 0xd17e61, &[0xbe], 1, 4, b4(pna2, 1000));   // ←0.5.3 cd0e8e  ★재조사로 복구: pna2 1000  ★41be(6B)→be(5B) 로 인코딩 축소 ⟹ imm_off 2→1   // ←0.5.3 caf8a0
+    p!(base + 0xd17e92, &[0xb9], 1, 4, b4(pna, 2000));   // ←0.5.3 cd0e9e   // ←0.5.3 caf8d1
     // ★0.5.4 재규명: 이 노브는 **포지셔닝 스탯 기반 위치 노이즈의 면제선**이다.
     //   (판단력이 아니다 — `[unit+0x1f8]`=포지셔닝. 구 RE 의 "판단력" 표기는 오류였다.)
     //   0.5.3 = `[+0x400](실력스탯 보정계수) × [+0x1f8] >= 100000` 로 **보정된** 값을 봤다.
@@ -1828,26 +1833,26 @@ unsafe fn apply_pe_imm() {
     //   ⛔`caf823`/`caf827` 은 바이트가 같지만 **진폭 캡**이다(곱셈으로 흘러감). 건드리지 말 것.
     {
         let v = if pnex < 0 { 100 } else { (pnex / 1000).max(0).min(127) as u64 };
-        p!(base + 0xcaf845, &[0x48,0x83,0xf8], 3, 1, v);
-        p!(base + 0xcaf855, &[0x48,0x83,0xf8], 3, 1, v);
+        p!(base + 0xd17e06, &[0x48,0x83,0xf8], 3, 1, v);   // ←0.5.3 caf845
+        p!(base + 0xd17e16, &[0x48,0x83,0xf8], 3, 1, v);   // ←0.5.3 caf855
     }
-    p!(base + 0xcaf6f7, &[0x48,0x6b,0x8d,0xa0,0x06,0x00,0x00], 3, 1, b1(pks, 120));   // ←0.5.3 cd0db9  ★재조사로 복구: pks 120 #1
-    p!(base + 0xcaf78f, &[0x48,0x6b,0x8d,0x30,0x06,0x00,0x00], 7, 1, b1(pks, 120));   // ←0.5.3 cd0ddc  ★재조사로 복구: pks 120 #2  ★★imm_off 4→7 — 0.5.4에서 REX 접두가 붙어 즉치가 1B 밀렸다(크래시 원인)
-    for a in [0xca9f79usize, 0xcabf21] { p!(base + a, &[0xba], 1, 4, b4(pmsk, 0x1a1)); }
-    p!(base + 0xcabf6c, &[0xb9], 1, 4, b4(pkm, 0x303));   // ←0.5.3 ccd654
+    pskip!(base + 0xcaf6f7, &[0x48,0x6b,0x8d,0xa0,0x06,0x00,0x00], 3, 1, b1(pks, 120));   // ←0.5.3 cd0db9  ★재조사로 복구: pks 120 #1   // ⛔0.5.4 미확정: 시그 1→0 / 완화 1→0 (골격 95%)
+    p!(base + 0xd17d5a, &[0x48,0x6b,0x8d,0x40,0x06,0x00,0x00], 7, 1, b1(pks, 120));   // ←0.5.4 caf78f (pks 120 #2, [rbp+0x630]→[rbp+0x640], align복구)
+    for a in [0xd12619usize, 0xd145e1] { p!(base + a, &[0xba], 1, 4, b4(pmsk, 0x1a1)); }
+    p!(base + 0xd1462c, &[0xb9], 1, 4, b4(pkm, 0x303));   // ←0.5.3 ccd654   // ←0.5.3 cabf6c
     // ★0.5.4: 대상 레지스터가 rax→r15 (`48 c7 00` → `49 c7 07`).
-    p!(base + 0xca8936, &[0x49,0xc7,0x07], 3, 4, b4(pwall, 9999));   // ←0.5.3 cc9eaf
+    p!(base + 0xd10fe6, &[0x49,0xc7,0x07], 3, 4, b4(pwall, 9999));   // ←0.5.3 cc9eaf   // ←0.5.3 ca8936
     pskip!(base + 0xcca0a6, &[0x48,0xc7,0x02], 3, 4, b4(pwell, 9999));   // ⛔0.5.4 미확정: 시그 1→0 / 완화 2→1 (골격 86%)
     pskip!(base + 0xcca0ad, &[0x48,0xc7,0x42,0x08], 4, 4, b4(pwell, 9999));   // ⛔0.5.4 미확정: 시그 1→0 / 완화 1→0 (골격 86%)
-    p!(base + 0xca8b27, &[0xb8], 1, 4, b4(pwell, 9999));   // ←0.5.3 cca0b5
-    p!(base + 0xcaf390, &[0x48,0x81,0xbd,0x10,0x04,0x00,0x00], 7, 4, b4(pagc, 1200));   // ←0.5.3 cd0a31
+    p!(base + 0xd111ae, &[0xb8], 1, 4, b4(pwell, 9999));   // ←0.5.3 cca0b5   // ←0.5.3 ca8b27
+    p!(base + 0xd17960, &[0x48,0x81,0xbd,0x20,0x04,0x00,0x00], 7, 4, b4(pagc, 1200));   // ←0.5.3 cd0a31   // ←0.5.3 caf390
     //   세 사이트가 **읽는 구조체 오프셋도 레지스터도 다르다**(+0xb8/rdi, +0xc0/rdi, +0xc8/rcx).
     // ★스택 오버플로 방지: 호출부를 펼치지 말고 **표+루프 1개**로 유지할 것.
     //   (펼치면 opt-level=1 에서 프레임이 선형으로 커져 rayon 워커 스택을 넘긴다 — 실사고)
     static PE_STG: [(usize, &[u8], usize); 3] = [
-        (0xcacd94, &[0x48,0x81,0xbe,0xb8,0x00,0x00,0x00], 7),
-        (0xcad12d, &[0x48,0x81,0xbe,0xc0,0x00,0x00,0x00], 7),
-        (0xcad4b6, &[0x48,0x81,0xbe,0xc8,0x00,0x00,0x00], 7),
+        (0xd15430, &[0x48,0x81,0xbe,0xb8,0x00,0x00,0x00], 7),
+        (0xd1578f, &[0x48,0x81,0xbe,0xc0,0x00,0x00,0x00], 7),
+        (0xd15af5, &[0x48,0x81,0xbe,0xc8,0x00,0x00,0x00], 7),
     ];
     for &(a, pre, off) in PE_STG.iter() { p!(base + a, pre, off, 4, b4(pst, 180)); }
     PEIMM_SIG.store(sig, Ordering::Relaxed);
@@ -1892,26 +1897,26 @@ unsafe fn apply_move2_imm() {
         //    (orig_guard 는 표에 없는 RVA 를 통과시키므로, 옛 주소를 남기면 오패치 위험)
         tot += 1; let _ = ($a, $pre, $off, $w, $v);
     }}; }
-    p!(base + 0xe58be8, &[0x48,0x3d], 2, 4, b4(snap, 2000));   // ←0.5.3 c8694b
+    p!(base + 0xe516b8, &[0x48,0x3d], 2, 4, b4(snap, 2000));   // ←0.5.3 c8694b   // ←0.5.3 e58be8
     if !micro_taken("mv2_avoid_coef") {   // ★[08-07] 마이크로 디투어와 상호배타
-    p!(base + 0xe58cf1, &[0x48,0x69,0xc1], 3, 4, b4(acf, 400));   // ←0.5.3 c86a36
+    p!(base + 0xe517c1, &[0x48,0x69,0xc1], 3, 4, b4(acf, 400));   // ←0.5.3 c86a36   // ←0.5.3 e58cf1
     }
-    p!(base + 0xe58d39, &[0x48,0x83,0xc1], 3, 1, b1(50, 50));   // 위 계수 입력 보정(고정)   // ←0.5.3 c86a77
+    p!(base + 0xe51809, &[0x48,0x83,0xc1], 3, 1, b1(50, 50));   // 위 계수 입력 보정(고정)   // ←0.5.3 c86a77   // ←0.5.3 e58d39
     if !micro_taken("mv2_avoid_margin") {   // ★[08-07] 마이크로 디투어와 상호배타
-    p!(base + 0xe58d45, &[0x48,0x05], 2, 4, b4(amg, 6000));   // ←0.5.3 c86a86
+    p!(base + 0xe51815, &[0x48,0x05], 2, 4, b4(amg, 6000));   // ←0.5.3 c86a86   // ←0.5.3 e58d45
     }
     if !micro_taken("mv2_avoid_bias") {   // ★[08-07] 마이크로 디투어와 상호배타
-    p!(base + 0xe5919f, &[0x48,0x3d], 2, 4, b4(abi, 1500));   // ←0.5.3 c86f23
+    p!(base + 0xe51c6f, &[0x48,0x3d], 2, 4, b4(abi, 1500));   // ←0.5.3 c86f23   // ←0.5.3 e5919f
     }
     // ── 우물 탈출(두 함수 미러) ──
-    for a in [0xd9ec15usize, 0xe58a77] {
+    for a in [0xd285b5usize, 0xe51547] {
         p!(base + a, &[0x48,0xb8], 2, 8, sq(wr, 67_600_000_000));
     }
-    p!(base + 0xd9ecab, &[0x49,0x69,0xc7], 3, 4, b4(wd, 260_000));   // ←0.5.3 d94863
-    p!(base + 0xd9ecb2, &[0x4c,0x69,0xcf], 3, 4, b4(wd, 260_000));   // ←0.5.3 d9486a
-    p!(base + 0xe58b3a, &[0x49,0x69,0xc5], 3, 4, b4(wd, 260_000));   // ←0.5.3 c8689a  ★재조사로 복구: wd 260000 #1
-    p!(base + 0xe58b41, &[0x4d,0x69,0xcc], 3, 4, b4(wd, 260_000));   // ←0.5.3 c868a1  ★재조사로 복구: wd 260000 #2
-    p!(base + 0xe07475, &[0x48,0x83,0x7b,0x18], 4, 1, b1(apm, 10));   // ←0.5.3 d87c92
+    p!(base + 0xd2864b, &[0x49,0x69,0xc7], 3, 4, b4(wd, 260_000));   // ←0.5.3 d94863   // ←0.5.3 d9ecab
+    p!(base + 0xd28652, &[0x4c,0x69,0xcf], 3, 4, b4(wd, 260_000));   // ←0.5.3 d9486a   // ←0.5.3 d9ecb2
+    p!(base + 0xe5160a, &[0x49,0x69,0xc5], 3, 4, b4(wd, 260_000));   // ←0.5.3 c8689a  ★재조사로 복구: wd 260000 #1   // ←0.5.3 e58b3a
+    p!(base + 0xe51611, &[0x4d,0x69,0xcc], 3, 4, b4(wd, 260_000));   // ←0.5.3 c868a1  ★재조사로 복구: wd 260000 #2   // ←0.5.3 e58b41
+    p!(base + 0xd9a4df, &[0x48,0x83,0x7b,0x18], 4, 1, b1(apm, 10));   // ←0.5.3 d87c92   // ←0.5.3 e07475
     MOVE2_SIG.store(sig, Ordering::Relaxed);
     if let Some(pp) = pth("move2_imm.txt") {
         let _ = fs::write(pp, format!(
@@ -1969,34 +1974,34 @@ unsafe fn apply_bv_imm() {
         p!(base + m, &[0xb8], 1, 4, b4(cap80, 80));
     }
     // ── 집중포화 ──
-    p!(base + 0xcdc37d, &[0x48,0x83,0xfa], 3, 1, b1(focus, 3));   // ←0.5.3 cc71dd
-    p!(base + 0xcdc381, &[0xb8], 1, 4, b4(focus, 3));   // ←0.5.3 cc71e1
-    p!(base + 0xcda68e, &[0x49,0x83,0xf8], 3, 1, b1(focus, 3));   // ←0.5.3 cc54ee
-    p!(base + 0xcda692, &[0xb8], 1, 4, b4(focus, 3));   // ←0.5.3 cc54f2
+    p!(base + 0xd0e30d, &[0x48,0x83,0xfa], 3, 1, b1(focus, 3));   // ←0.5.3 cc71dd   // ←0.5.3 cdc37d
+    p!(base + 0xd0e311, &[0xb8], 1, 4, b4(focus, 3));   // ←0.5.3 cc71e1   // ←0.5.3 cdc381
+    p!(base + 0xd0c61e, &[0x49,0x83,0xf8], 3, 1, b1(focus, 3));   // ←0.5.3 cc54ee   // ←0.5.3 cda68e
+    p!(base + 0xd0c622, &[0xb8], 1, 4, b4(focus, 3));   // ←0.5.3 cc54f2   // ←0.5.3 cda692
     //   ⚠반경 10사이트 중 2곳(`cc71c9`·`cc5b78`)은 **REX가 없어 imm 오프셋이 1**이다.
-    for a in [0xcdc232usize, 0xcdc282, 0xcdc2d1, 0xcdc320] {
+    for a in [0xd0e1c2usize, 0xd0e212, 0xd0e261, 0xd0e2b0] {
         p!(base + a, &[0x41,0xb9], 2, 4, sqp(frad, 3_600_000_000));
     }
-    p!(base + 0xcdc369, &[0xb9], 1, 4, sqp(frad, 3_600_000_000));   // ←0.5.3 cc71c9
-    for a in [0xcdabd2usize, 0xcdac24, 0xcdac73, 0xcdacc2] {
+    p!(base + 0xd0e2f9, &[0xb9], 1, 4, sqp(frad, 3_600_000_000));   // ←0.5.3 cc71c9   // ←0.5.3 cdc369
+    for a in [0xd0cb62usize, 0xd0cbb4, 0xd0cc03, 0xd0cc52] {
         p!(base + a, &[0x41,0xbb], 2, 4, sqp(frad, 3_600_000_000));
     }
-    p!(base + 0xcdad18, &[0xba], 1, 4, sqp(frad, 3_600_000_000));   // ←0.5.3 cc5b78
+    p!(base + 0xd0cca8, &[0xba], 1, 4, sqp(frad, 3_600_000_000));   // ←0.5.3 cc5b78   // ←0.5.3 cdad18
     // ── cc9100 하드코딩 점수표 ──
-    p!(base + 0xcde4e1, &[0xbf], 1, 4, b4(aflat, 10));   // ←0.5.3 cc9341
-    p!(base + 0xcde53c, &[0x48,0x83,0xf8], 3, 1, b1(acap, 90));   // ←0.5.3 cc939c
-    p!(base + 0xcde540, &[0xbf], 1, 4, b4(acap, 90));   // ←0.5.3 cc93a0
-    p!(base + 0xcde563, &[0xba], 1, 4, b4(aout, 5));   // ←0.5.3 cc93c3
-    p!(base + 0xcde3f4, &[0xb8], 1, 4, b4(bin, 25));   // ←0.5.3 cc9254
-    p!(base + 0xcde3f9, &[0xba], 1, 4, b4(bout, 8));   // ←0.5.3 cc9259
-    p!(base + 0xcde4d2, &[0xb8], 1, 4, b4(din, 90));   // ←0.5.3 cc9332
-    p!(base + 0xcde4d7, &[0xba], 1, 4, b4(dout, 30));   // ←0.5.3 cc9337
-    p!(base + 0xcde63e, &[0x48,0x83,0xf9], 3, 1, b1(ccap, 60));   // ←0.5.3 cc949e
-    p!(base + 0xcde642, &[0xba], 1, 4, b4(ccap, 60));   // ←0.5.3 cc94a2
+    p!(base + 0xd10471, &[0xbf], 1, 4, b4(aflat, 10));   // ←0.5.3 cc9341   // ←0.5.3 cde4e1
+    p!(base + 0xd104cc, &[0x48,0x83,0xf8], 3, 1, b1(acap, 90));   // ←0.5.3 cc939c   // ←0.5.3 cde53c
+    p!(base + 0xd104d0, &[0xbf], 1, 4, b4(acap, 90));   // ←0.5.3 cc93a0   // ←0.5.3 cde540
+    p!(base + 0xd104f3, &[0xba], 1, 4, b4(aout, 5));   // ←0.5.3 cc93c3   // ←0.5.3 cde563
+    p!(base + 0xd10384, &[0xb8], 1, 4, b4(bin, 25));   // ←0.5.3 cc9254   // ←0.5.3 cde3f4
+    p!(base + 0xd10389, &[0xba], 1, 4, b4(bout, 8));   // ←0.5.3 cc9259   // ←0.5.3 cde3f9
+    p!(base + 0xd10462, &[0xb8], 1, 4, b4(din, 90));   // ←0.5.3 cc9332   // ←0.5.3 cde4d2
+    p!(base + 0xd10467, &[0xba], 1, 4, b4(dout, 30));   // ←0.5.3 cc9337   // ←0.5.3 cde4d7
+    p!(base + 0xd105ce, &[0x48,0x83,0xf9], 3, 1, b1(ccap, 60));   // ←0.5.3 cc949e   // ←0.5.3 cde63e
+    p!(base + 0xd105d2, &[0xba], 1, 4, b4(ccap, 60));   // ←0.5.3 cc94a2   // ←0.5.3 cde642
     {   // mov rdx, −100
         tot += 1;
         let want = if cnone_orig { (-100i32) as u32 as u64 } else { (cnone as i32) as u32 as u64 };
-        ok += patch_imm_bytes(base + 0xcde457, &[0x48,0xc7,0xc2], 3, 4, want) as u32;
+        ok += patch_imm_bytes(base + 0xd103e7, &[0x48,0xc7,0xc2], 3, 4, want) as u32;   // ←s2 cde457
     }
     BV_SIG.store(sig, Ordering::Relaxed);
     if let Some(pp) = pth("bv_imm.txt") {
@@ -2040,19 +2045,19 @@ unsafe fn apply_ae_imm() {
         //    (orig_guard 는 표에 없는 RVA 를 통과시키므로, 옛 주소를 남기면 오패치 위험)
         tot += 1; let _ = ($a, $pre, $off, $w, $v);
     }}; }
-    p!(base + 0xcba42e, &[0x41,0xb8], 2, 4, b4(msk, 0x1F863));   // ←0.5.3 df58de
-    p!(base + 0xcba6e6, &[0x49,0xc1,0xfe], 3, 1, b1(rsh, 6));   // ←0.5.3 df5b96
-    p!(base + 0xcba71f, &[0x48,0xc1,0xf8], 3, 1, b1(tsh, 6));   // ←0.5.3 df5bcf
-    p!(base + 0xcba84e, &[0x48,0xc1,0xfa], 3, 1, b1(gsh, 7));   // ←0.5.3 df5cfe
+    p!(base + 0xdb152e, &[0x41,0xb8], 2, 4, b4(msk, 0x1F863));   // ←0.5.3 df58de   // ←0.5.3 cba42e
+    p!(base + 0xdb17e6, &[0x49,0xc1,0xfe], 3, 1, b1(rsh, 6));   // ←0.5.3 df5b96   // ←0.5.3 cba6e6
+    p!(base + 0xdb181f, &[0x48,0xc1,0xf8], 3, 1, b1(tsh, 6));   // ←0.5.3 df5bcf   // ←0.5.3 cba71f
+    p!(base + 0xdb194e, &[0x48,0xc1,0xfa], 3, 1, b1(gsh, 7));   // ←0.5.3 df5cfe   // ←0.5.3 cba84e
     // ⚠루프 A와 B는 **같은 값인데 인코딩이 다르다**(A=`41 bc` off 2 / B=`ba` off 1).
-    p!(base + 0xcbaa51, &[0x41,0xbc], 2, 4, b4(bsoon, 25));   // ←0.5.3 df5f01
-    p!(base + 0xcbaf07, &[0xba], 1, 4, b4(bsoon, 25));   // ←0.5.3 df63b7
-    p!(base + 0xcbab0c, &[0x41,0xbc], 2, 4, b4(bkill, 140));   // ←0.5.3 df5fbc
-    p!(base + 0xcbaebe, &[0xba], 1, 4, b4(bkill, 140));   // ←0.5.3 df636e
-    p!(base + 0xcbab2c, &[0x41,0xbc], 2, 4, b4(bnear, 70));   // ←0.5.3 df5fdc
-    p!(base + 0xcbaeda, &[0xba], 1, 4, b4(bnear, 70));   // ←0.5.3 df638a
-    p!(base + 0xcbaf80, &[0x48,0x8d,0x4a], 3, 1, b1(bstru, 80));   // ←0.5.3 df6430
-    for a in [0xcba6a1usize, 0xcba6ed] {
+    p!(base + 0xdb1b51, &[0x41,0xbc], 2, 4, b4(bsoon, 25));   // ←0.5.3 df5f01   // ←0.5.3 cbaa51
+    p!(base + 0xdb2007, &[0xba], 1, 4, b4(bsoon, 25));   // ←0.5.3 df63b7   // ←0.5.3 cbaf07
+    p!(base + 0xdb1c0c, &[0x41,0xbc], 2, 4, b4(bkill, 140));   // ←0.5.3 df5fbc   // ←0.5.3 cbab0c
+    p!(base + 0xdb1fbe, &[0xba], 1, 4, b4(bkill, 140));   // ←0.5.3 df636e   // ←0.5.3 cbaebe
+    p!(base + 0xdb1c2c, &[0x41,0xbc], 2, 4, b4(bnear, 70));   // ←0.5.3 df5fdc   // ←0.5.3 cbab2c
+    p!(base + 0xdb1fda, &[0xba], 1, 4, b4(bnear, 70));   // ←0.5.3 df638a   // ←0.5.3 cbaeda
+    p!(base + 0xdb2080, &[0x48,0x8d,0x4a], 3, 1, b1(bstru, 80));   // ←0.5.3 df6430   // ←0.5.3 cbaf80
+    for a in [0xdb17a1usize, 0xdb17ed] {
         p!(base + a, &[0x41,0xb8], 2, 4, b4(thr, 9999));
     }
     AE_SIG.store(sig, Ordering::Relaxed);
@@ -2101,65 +2106,65 @@ unsafe fn apply_th_imm() {
     }}; }
     // ── 사거리 마진 ──
     //   ⚠`d07d1a`·`d07e06`·`d07ee6`은 **바이트열이 완전히 동일** — 시그니처가 아니라 주소로 구분한다.
-    for a in [0xc9ff17usize, 0xca0006, 0xca00ea] {
+    for a in [0xd06ab7usize, 0xd06ba6, 0xd06c8a] {
         p!(base + a, &[0x48,0x05], 2, 4, b4(smg, 18_000));
     }
-    p!(base + 0xca070a, &[0x48,0x81,0xc1], 3, 4, b4(smg, 18_000));   // ←0.5.3 d08501
-    p!(base + 0xca0716, &[0x48,0x81,0xc3], 3, 4, b4(amg, 50_000));   // ←0.5.3 d0850d
+    p!(base + 0xd072aa, &[0x48,0x81,0xc1], 3, 4, b4(smg, 18_000));   // ←0.5.3 d08501   // ←0.5.3 ca070a
+    p!(base + 0xd072b6, &[0x48,0x81,0xc3], 3, 4, b4(amg, 50_000));   // ←0.5.3 d0850d   // ←0.5.3 ca0716
     // ── +32000 여유 13사이트 (레지스터가 6종으로 갈리지만 prefix 길이는 전부 3) ──
     // ★스택 오버플로 방지: 호출부를 펼치지 말고 **표+루프 1개**로 유지할 것.
     //   (펼치면 opt-level=1 에서 프레임이 선형으로 커져 rayon 워커 스택을 넘긴다 — 실사고)
     static TH_LEA: [(usize, &[u8], usize); 13] = [
-        (0xca0725, &[0x48,0x8d,0x8d], 3),
-        (0xca073e, &[0x49,0x8d,0x8e], 3),
-        (0xca074d, &[0x49,0x8d,0x8b], 3),
-        (0xca079f, &[0x49,0x8d,0x88], 3),
-        (0xca07c6, &[0x48,0x8d,0x8f], 3),
-        (0xca08da, &[0x4d,0x8d,0x91], 3),
-        (0xca08ef, &[0x4d,0x8d,0xb0], 3),
-        (0xca1432, &[0x49,0x8d,0x80], 3),
-        (0xca1448, &[0x49,0x8d,0x8c,0x24], 4),
-        (0xca1466, &[0x49,0x8d,0x8a], 3),
-        (0xca1535, &[0x48,0x8d,0x8a], 3),
-        (0xca154f, &[0x4d,0x8d,0x9e], 3),
-        (0xca1567, &[0x4d,0x8d,0xb4,0x24], 4),
+        (0xd072c5, &[0x48,0x8d,0x8d], 3),
+        (0xd072de, &[0x49,0x8d,0x8e], 3),
+        (0xd072ed, &[0x49,0x8d,0x8b], 3),
+        (0xd0733f, &[0x49,0x8d,0x88], 3),
+        (0xd07366, &[0x48,0x8d,0x8f], 3),
+        (0xd0747a, &[0x4d,0x8d,0x91], 3),
+        (0xd0748f, &[0x4d,0x8d,0xb0], 3),
+        (0xd07fd2, &[0x49,0x8d,0x80], 3),
+        (0xd07fe8, &[0x49,0x8d,0x8c,0x24], 4),
+        (0xd08006, &[0x49,0x8d,0x8a], 3),
+        (0xd080d5, &[0x48,0x8d,0x8a], 3),
+        (0xd080ef, &[0x4d,0x8d,0x9e], 3),
+        (0xd08107, &[0x4d,0x8d,0xb4,0x24], 4),
     ];
     for &(a, pre, off) in TH_LEA.iter() { p!(base + a, pre, off, 4, b4(band, 32_000)); }
     // ── 150 캡 12쌍 (cmp + mov, mov는 레지스터별 4종) ──
     // ★스택 오버플로 방지: 호출부를 펼치지 말고 **표+루프 1개**로 유지할 것.
     //   (펼치면 opt-level=1 에서 프레임이 선형으로 커져 rayon 워커 스택을 넘긴다 — 실사고)
     static TH_CAP: [(usize, &[u8], usize); 24] = [
-        (0xca04fb, &[0x48,0x3d], 2),
-        (0xca0501, &[0xb9], 1),
-        (0xca0543, &[0x48,0x3d], 2),
-        (0xca0549, &[0xb9], 1),
-        (0xca0648, &[0x48,0x3d], 2),
-        (0xca064e, &[0xb9], 1),
-        (0xca076a, &[0x48,0x3d], 2),
-        (0xca0770, &[0xb9], 1),
-        (0xca08bb, &[0x48,0x3d], 2),
-        (0xca08c1, &[0xbb], 1),
-        (0xca0947, &[0x48,0x3d], 2),
-        (0xca094d, &[0x41,0xbf], 2),
-        (0xca1221, &[0x48,0x3d], 2),
-        (0xca1227, &[0xb9], 1),
-        (0xca12a2, &[0x48,0x3d], 2),
-        (0xca12a8, &[0xb9], 1),
-        (0xca133a, &[0x48,0x3d], 2),
-        (0xca1340, &[0x41,0xb8], 2),
-        (0xca1416, &[0x48,0x3d], 2),
-        (0xca141c, &[0xba], 1),
-        (0xca151d, &[0x48,0x3d], 2),
-        (0xca1523, &[0x41,0xba], 2),
-        (0xca15bb, &[0x48,0x3d], 2),
-        (0xca15c1, &[0xbb], 1),
+        (0xd0709b, &[0x48,0x3d], 2),
+        (0xd070a1, &[0xb9], 1),
+        (0xd070e3, &[0x48,0x3d], 2),
+        (0xd070e9, &[0xb9], 1),
+        (0xd071e8, &[0x48,0x3d], 2),
+        (0xd071ee, &[0xb9], 1),
+        (0xd0730a, &[0x48,0x3d], 2),
+        (0xd07310, &[0xb9], 1),
+        (0xd0745b, &[0x48,0x3d], 2),
+        (0xd07461, &[0xbb], 1),
+        (0xd074e7, &[0x48,0x3d], 2),
+        (0xd074ed, &[0x41,0xbf], 2),
+        (0xd07dc1, &[0x48,0x3d], 2),
+        (0xd07dc7, &[0xb9], 1),
+        (0xd07e42, &[0x48,0x3d], 2),
+        (0xd07e48, &[0xb9], 1),
+        (0xd07eda, &[0x48,0x3d], 2),
+        (0xd07ee0, &[0x41,0xb8], 2),
+        (0xd07fb6, &[0x48,0x3d], 2),
+        (0xd07fbc, &[0xba], 1),
+        (0xd080bd, &[0x48,0x3d], 2),
+        (0xd080c3, &[0x41,0xba], 2),
+        (0xd0815b, &[0x48,0x3d], 2),
+        (0xd08161, &[0xbb], 1),
     ];
     for &(a, pre, off) in TH_CAP.iter() { p!(base + a, pre, off, 4, b4(cap, 150)); }
     // ── 디스크립터 생성 반경 200000 (12곳, +1 유무 2종) ──
-    for a in [0xca8e05usize, 0xca8e40, 0xca8ed4, 0xca8f10, 0xca8fa4, 0xca8fe0, 0xca9077, 0xca90ad] {
+    for a in [0xd1149dusize, 0xd114e0, 0xd11574, 0xd115b0, 0xd11644, 0xd11680, 0xd11717, 0xd1174d] {
         p!(base + a, &[0x48,0xb8], 2, 8, sqp(coll, 0x9_502F_9001));
     }
-    for a in [0xca9143usize, 0xca9178, 0xca94b0, 0xca94e0] {
+    for a in [0xd117e3usize, 0xd11818, 0xd11b47, 0xd11b80] {
         p!(base + a, &[0x48,0xb8], 2, 8, sq(coll, 0x9_502F_9000));
     }
     TH_SIG.store(sig, Ordering::Relaxed);
@@ -2206,20 +2211,20 @@ unsafe fn apply_rt_imm() {
     {   // A식 기울기만 원본이 음수(−800)라 "음수 = 원본" 규약을 못 쓴다 → 값 그대로 적용.
         tot += 1;
         let want = if ka == -1 { (-800i32) as u32 as u64 } else { (ka as i32) as u32 as u64 };
-        ok += patch_imm_bytes(base + 0xeb3118, &[0x69,0xc1], 2, 4, want) as u32;
+        ok += patch_imm_bytes(base + 0xe0a8a8, &[0x69,0xc1], 2, 4, want) as u32;   // ←s2 eb3118
     }
-    p!(base + 0xeb311e, &[0x05], 1, 4, b4(ia, 80_000));   // ←0.5.3 d6431e
-    p!(base + 0xeb312e, &[0x83,0xc0], 2, 1, b1(oa, 80));   // ←0.5.3 d6432e
-    p!(base + 0xeb3135, &[0x69,0xc1], 2, 4, b4(kb, 450));   // ←0.5.3 d64335
-    p!(base + 0xeb314a, &[0x83,0xc0], 2, 1, b1(ib, 45));   // ←0.5.3 d6434a
-    p!(base + 0xeb3151, &[0x69,0xc1], 2, 4, b4(kc, 350));   // ←0.5.3 d64351
-    p!(base + 0xeb3166, &[0x83,0xc0], 2, 1, b1(ic, 15));   // ←0.5.3 d64366
+    p!(base + 0xe0a8ae, &[0x05], 1, 4, b4(ia, 80_000));   // ←0.5.3 d6431e   // ←0.5.3 eb311e
+    p!(base + 0xe0a8be, &[0x83,0xc0], 2, 1, b1(oa, 80));   // ←0.5.3 d6432e   // ←0.5.3 eb312e
+    p!(base + 0xe0a8c5, &[0x69,0xc1], 2, 4, b4(kb, 450));   // ←0.5.3 d64335   // ←0.5.3 eb3135
+    p!(base + 0xe0a8da, &[0x83,0xc0], 2, 1, b1(ib, 45));   // ←0.5.3 d6434a   // ←0.5.3 eb314a
+    p!(base + 0xe0a8e1, &[0x69,0xc1], 2, 4, b4(kc, 350));   // ←0.5.3 d64351   // ←0.5.3 eb3151
+    p!(base + 0xe0a8f6, &[0x83,0xc0], 2, 1, b1(ic, 15));   // ←0.5.3 d64366   // ←0.5.3 eb3166
     //   deadline 하한은 `cmp 61` + `mov 60` 쌍이라 비교값을 +1로 맞춰야 한다.
-    p!(base + 0xeb42d5, &[0x48,0x83,0xf9], 3, 1, if dl < 0 { 61 } else { (dl.max(0).min(0x7e) + 1) as u64 });   // ←0.5.3 d654d5
-    p!(base + 0xeb42d9, &[0xba], 1, 4, b4(dl, 60));   // ←0.5.3 d654d9
+    p!(base + 0xe0ba65, &[0x48,0x83,0xf9], 3, 1, if dl < 0 { 61 } else { (dl.max(0).min(0x7e) + 1) as u64 });   // ←0.5.3 d654d5   // ←0.5.3 eb42d5
+    p!(base + 0xe0ba69, &[0xba], 1, 4, b4(dl, 60));   // ←0.5.3 d654d9   // ←0.5.3 eb42d9
     // ── 정글 진행 HP% ──
-    p!(base + 0xe621d4, &[0x48,0x83,0xf8], 3, 1, b1(jf, 21));   // ←0.5.3 dffebc
-    p!(base + 0xe621f1, &[0x48,0x83,0xf8], 3, 1, b1(jn, 41));   // ←0.5.3 dfff00
+    p!(base + 0xce0adc, &[0x48,0x83,0xf8], 3, 1, b1(jf, 21));   // ←0.5.3 dffebc   // ←0.5.3 e621d4
+    p!(base + 0xce0b20, &[0x48,0x83,0xf8], 3, 1, b1(jn, 41));   // ←0.5.3 dfff00   // ←0.5.3 e621f1
     RT_SIG.store(sig, Ordering::Relaxed);
     if let Some(pp) = pth("rt_imm.txt") {
         let _ = fs::write(pp, format!(
@@ -2259,15 +2264,15 @@ unsafe fn apply_ldsc_imm() {
         //    (orig_guard 는 표에 없는 RVA 를 통과시키므로, 옛 주소를 남기면 오패치 위험)
         tot += 1; let _ = ($a, $pre, $off, $w, $v);
     }}; }
-    for a in [0xd7fa62usize, 0xd7fad2, 0xd7fb3d] {
+    for a in [0xe295e2usize, 0xe29652, 0xe296bd] {
         p!(base + a, &[0x49,0x83,0xc6], 3, 1, b1(lsv, 120));
     }
-    p!(base + 0xd7fe07, &[0x83,0xc2], 2, 1, b1(lfac, 100));   // ←0.5.3 c66b95
-    p!(base + 0xcba42e, &[0x41,0xb8], 2, 4, b4(lem, 0x1F863));   // ←0.5.3 df58de
+    p!(base + 0xe29987, &[0x83,0xc2], 2, 1, b1(lfac, 100));   // ←0.5.3 c66b95   // ←0.5.3 d7fe07
+    p!(base + 0xdb152e, &[0x41,0xb8], 2, 4, b4(lem, 0x1F863));   // ←0.5.3 df58de   // ←0.5.3 cba42e
     {   // mov rcx, −99999 (48 c7 c1 imm32)
         tot += 1;
         let want = if lnul_orig { (-99999i32) as u32 as u64 } else { (lnul as i32) as u32 as u64 };
-        ok += patch_imm_bytes(base + 0xd7fe56, &[0x48,0xc7,0xc1], 3, 4, want) as u32;
+        ok += patch_imm_bytes(base + 0xe299d6, &[0x48,0xc7,0xc1], 3, 4, want) as u32;   // ←s2 d7fe56
     }
     LDSC_SIG.store(sig, Ordering::Relaxed);
     if let Some(pp) = pth("ldsc_imm.txt") {
@@ -2365,34 +2370,34 @@ unsafe fn apply_new_imm() {
         tot += 1; let _ = ($a, $pre, $off, $w, $v);
     }}; }
     // ① 적 위치 추정
-    p!(base + 0xc8c561, &[0x81,0xc2], 2, 4, b4(epsb, 3000));   // ←0.5.3 c43101
-    p!(base + 0xc8c586, &[0x48,0x8d,0x9e], 3, 4, b4(epdr, 40000));   // ←0.5.3 c43126
+    p!(base + 0xc8f7b1, &[0x81,0xc2], 2, 4, b4(epsb, 3000));   // ←0.5.3 c43101   // ←0.5.3 c8c561
+    p!(base + 0xc8f7d6, &[0x48,0x8d,0x9e], 3, 4, b4(epdr, 40000));   // ←0.5.3 c43126   // ←0.5.3 c8c586
     // ⚠짝 사이트 — 여기는 **반경+1**(gen_range 상한). 하나만 바꾸면 난수 범위가 어긋난다.
-    p!(base + 0xc8c7d9, &[0x48,0x81,0xc1], 3, 4, if epdr < 0 { 40001 } else { b4(epdr, 40000) + 1 });   // ←0.5.3 c43379
-    p!(base + 0xc8c58d, &[0x48,0x81,0xfb], 3, 4, b4(eprc, 300000));   // ←0.5.3 c4312d
+    p!(base + 0xc8fa29, &[0x48,0x81,0xc1], 3, 4, if epdr < 0 { 40001 } else { b4(epdr, 40000) + 1 });   // ←0.5.3 c43379   // ←0.5.3 c8c7d9
+    p!(base + 0xc8f7dd, &[0x48,0x81,0xfb], 3, 4, b4(eprc, 300000));   // ←0.5.3 c4312d   // ←0.5.3 c8c58d
     // ② 시전 후보 2차 검열
-    p!(base + 0xd7ed2c, &[0x48,0x83,0xf9], 3, 1, b1(cfrn, 9));   // ←0.5.3 c65f3e
-    p!(base + 0xd7ecdf, &[0x48,0x83,0xf9], 3, 1, b1(cfrf, 25));   // ←0.5.3 c65ef1
-    p!(base + 0xd7ecb7, &[0x4c,0x6b,0xc0], 3, 1, b1(cfdp, 35));   // ←0.5.3 c65ec9
-    p!(base + 0xd7e573, &[0xb9], 1, 4, b4(cfrp, 15000));   // ←0.5.3 c65793
-    p!(base + 0xd7e59e, &[0xb8], 1, 4, b4(cfru, 150000));   // ←0.5.3 c657be
+    p!(base + 0xe288ac, &[0x48,0x83,0xf9], 3, 1, b1(cfrn, 9));   // ←0.5.3 c65f3e   // ←0.5.3 d7ed2c
+    p!(base + 0xe2885f, &[0x48,0x83,0xf9], 3, 1, b1(cfrf, 25));   // ←0.5.3 c65ef1   // ←0.5.3 d7ecdf
+    p!(base + 0xe28837, &[0x4c,0x6b,0xc0], 3, 1, b1(cfdp, 35));   // ←0.5.3 c65ec9   // ←0.5.3 d7ecb7
+    p!(base + 0xe280f3, &[0xb9], 1, 4, b4(cfrp, 15000));   // ←0.5.3 c65793   // ←0.5.3 d7e573
+    p!(base + 0xe2811e, &[0xb8], 1, 4, b4(cfru, 150000));   // ←0.5.3 c657be   // ←0.5.3 d7e59e
     // ⚠12 미만은 JT 인덱스가 음수가 되어 크래시한다 — 켜기(17)/원본(12) 두 값만 허용한다.
-    p!(base + 0xd7e568, &[0x3c], 1, 1, if cfoff == 1 { 17 } else { 12 });   // ←0.5.3 c65788
+    p!(base + 0xe280e8, &[0x3c], 1, 1, if cfoff == 1 { 17 } else { 12 });   // ←0.5.3 c65788   // ←0.5.3 d7e568
     // `jne +0x0d`(= 도주중이면 이 후보 제거) → NOP 2바이트면 그 조건만 꺼진다.
     let flee_ok = patch_toggle_bytes(base + 0xd7ed2a, &[0x75,0x0d], &[0x90,0x90], cffk == 1);
     // ③ 1차 점수컷 — 두 사이트가 (−v, −v−1) 쌍
     let (f0, f1) = if cssf < 0 { (0xe2u64, 0xe1u64) } else {
         let v = cssf.clamp(0, 120) as u64; ((256 - v) & 0xff, (256 - v - 1) & 0xff)
     };
-    p!(base + 0xc865aa, &[0x48,0x83,0xf8], 3, 1, f0);   // ←0.5.3 c3cf8d
-    p!(base + 0xc865b9, &[0x48,0x83,0xf8], 3, 1, f1);   // ←0.5.3 c3cf9e
+    p!(base + 0xc897fa, &[0x48,0x83,0xf8], 3, 1, f0);   // ←0.5.3 c3cf8d   // ←0.5.3 c865aa
+    p!(base + 0xc89809, &[0x48,0x83,0xf8], 3, 1, f1);   // ←0.5.3 c3cf9e   // ←0.5.3 c865b9
     // ④ 경매 재선택
-    p!(base + 0xeb00ba, &[0x3c], 1, 1, b1(recp, 2));   // ←0.5.3 d61e4b
-    p!(base + 0xeb0778, &[0x48,0x05], 2, 4, b4(retp, 25000));   // ←0.5.3 d6220d
-    p!(base + 0xeb073e, &[0x83,0x38], 2, 1, b1(regs, 1));   // ←0.5.3 d621d3
+    p!(base + 0xe07a6a, &[0x3c], 1, 1, b1(recp, 2));   // ←0.5.3 d61e4b   // ←0.5.3 eb00ba
+    p!(base + 0xe08103, &[0x48,0x05], 2, 4, b4(retp, 25000));   // ←0.5.3 d6220d   // ←0.5.3 eb0778
+    p!(base + 0xe057fc, &[0x83,0x38], 2, 1, b1(regs, 1));   // ←0.5.3 d621d3   // ←0.5.3 eb073e
     // ⑤ 전역 궁 오버라이드
-    p!(base + 0xead84d, &[0x48,0x83,0xb9,0xb0,0x05,0x00,0x00], 7, 1, b1(gulv, 5));   // ←0.5.3 d5f93b
-    p!(base + 0xead9a7, &[0x48,0x83,0xc3], 3, 1, b1(gumem, 120));   // ←0.5.3 d5faa7
+    p!(base + 0xe05170, &[0x48,0x83,0xb9,0xc8,0x05,0x00,0x00], 7, 1, b1(gulv, 5));   // ←0.5.3 d5f93b   // ←0.5.3 ead84d
+    p!(base + 0xe052d7, &[0x48,0x83,0xc3], 3, 1, b1(gumem, 120));   // ←0.5.3 d5faa7   // ←0.5.3 ead9a7
     // ⚠거리 그대로가 아니라 **d²+1**로 인코딩된 자리다(원본 150000 → 22,500,000,001).
     pskip!(base + 0xd5f9fa, &[0x48,0xb9], 2, 8,   // ⛔0.5.4 미확정: 시그 2→1 / 완화 7→2 (골격 84%)
        if gusr < 0 { 22_500_000_001u64 } else { let d = gusr.max(0) as u64; d.wrapping_mul(d).wrapping_add(1) });
@@ -2457,28 +2462,28 @@ unsafe fn apply_auction_imm() {
     //    cmovne rsi,rdx (48 0f 45 f2) → nop dword ptr [rax] (0f 1f 40 00) 이면 noise=0 고정.
     let noise_ok = patch_toggle_bytes(base + 0xeadfff,
                                       &[0x48,0x0f,0x45,0xf2], &[0x0f,0x1f,0x40,0x00], noff == 1);
-    p!(base + 0xeadfee, &[0xba], 1, 4, if namp < 0 { 900 } else { (namp.max(900) as u64) & 0xffff_ffff });   // ←0.5.3 d5febc
-    p!(base + 0xeae027, &[0xbb], 1, 4, b4(ctr, 1000));               // mov ebx,1000  (lo 중심)   // ←0.5.3 d5fefc
-    p!(base + 0xeae02f, &[0x48,0x81,0xc6], 3, 4, b4(ctr, 1000));     // add rsi,1000  (hi 중심)   // ←0.5.3 d5ff04
+    p!(base + 0xe05928, &[0xba], 1, 4, if namp < 0 { 900 } else { (namp.max(900) as u64) & 0xffff_ffff });   // ←0.5.3 d5febc   // ←0.5.3 eadfee
+    pskip!(base + 0xeae027, &[0xbb], 1, 4, b4(ctr, 1000));               // mov ebx,1000  (lo 중심)   // ←0.5.3 d5fefc   // ⛔0.5.4 미확정: 시그 1→0 / 완화 1→0 (골격 99%)
+    p!(base + 0xe05977, &[0x48,0x81,0xc3], 3, 4, b4(ctr, 1000));     // add rsi,1000  (hi 중심)   // ←0.5.3 d5ff04   // ←0.5.3 eae02f
     // ── ② battle.rs (0xca8a10) ──
-    p!(base + 0xda6514, &[0x48,0x83,0xf8], 3, 1, b1(bhpf, 21));   // ←0.5.3 cab663
+    p!(base + 0xd30a34, &[0x48,0x83,0xf8], 3, 1, b1(bhpf, 21));   // ←0.5.3 cab663   // ←0.5.3 da6514
     // ⛔[08-05 정정] 예전엔 `0xca920b`도 같이 패치했는데 **거긴 HP 임계가 아니다.**
     //   `ca920b: add rax,0x29` = `&sub_plan + 0x29` = **`&BattleSubPlan.with_dive` 포인터 산술**(`0xc497b0` 인자 `+0x30`).
     //   41 이외의 값을 넣으면 BattleSubPlan의 엉뚱한 필드를 가리키게 된다(0x10~0x17이면 `goal` 내부).
     //   상수 41이 우연히 겹쳐 HP 임계처럼 보였을 뿐. 진짜 HP 41% 비교는 `0xcab1ef` 한 곳뿐이다.
     //   근거 = RE\2026-08-05_battle.rs-JT3개-goal8분기-크래시원인확정-모드실버그2건-0.5.3.md §2-3 Q5b / §③B
-    p!(base + 0xda608d, &[0x48,0x83,0xf8], 3, 1, b1(bhpg, 41));     // cmp rax,41 — HP%≥41이면 아군수 +2   // ←0.5.3 cab1ef
+    p!(base + 0xd305c0, &[0x48,0x83,0xf8], 3, 1, b1(bhpg, 41));     // cmp rax,41 — HP%≥41이면 아군수 +2   // ←0.5.3 cab1ef   // ←0.5.3 da608d
     // ★[08-05] emit 사이트 전수(RE\2026-08-05_battle.rs-JT3개…) 대조 결과 **4곳이 아니라 6곳**이었다.
     //   빠져 있던 `0xcab77e`(emit#13) · `0xcabb22`(emit#17)는 Q14/15 사거리 판정에서 갈라지는 경로라
     //   일반 경기에선 잘 안 보이지만 같은 tag 0xE 접근정지 반경이다 = 반쪽만 먹던 노브.
-    for a in [0xda49ddusize, 0xda4a86, 0xda4bf2, 0xda4f67, 0xda6742, 0xda6898] {
+    for a in [0xd2efc5usize, 0xd2f04f, 0xd2f160, 0xd2f783, 0xd30ca9, 0xd328f3] {
         p!(base + a, &[0x48,0xc7,0x85], 7, 4, b4(bstp, 15000));
     }
     // ⚠이 사이트만 명령 형태가 다르다 — `add rcx,15000`(48 81 c1) 이라 prefix·imm 오프셋이 위와 다름.
     //   08-03 정적 검증 전까지 위 루프에 섞여 있어 **한 번도 안 걸리고 있었다**.
-    p!(base + 0xda7417, &[0x48,0x81,0xc1], 3, 4, b4(bstp, 15000));   // ←0.5.3 cac3be
+    p!(base + 0xd30f3b, &[0x48,0x81,0xc1], 3, 4, b4(bstp, 15000));   // ←0.5.3 cac3be   // ←0.5.3 da7417
     // ★[08-05] 여기도 1곳이 아니라 2곳 — `0xcac136`(emit#18, arm4 근접 처리)이 빠져 있었다.
-    for a in [0xda8e06usize, 0xda8f8a] {
+    for a in [0xd3332eusize, 0xd3349d] {
         p!(base + a, &[0x48,0xc7,0x85], 7, 4, b4(bkep, 80000));
     }
     // ⚠7사이트가 **레지스터가 제각각**이라 prefix가 4종이다(`add r13/r14/rsi/r15, 0x78`).
@@ -2507,10 +2512,10 @@ unsafe fn apply_auction_imm() {
     //   `mov [rbp+0x4a0], 5`(접근 유지 시간)이고, prefix(48 c7 85)가 우연히 같아 **패치는 성공했다** —
     //   즉 원본이 5인 슬롯에 15000을 써 넣고 있었다(기본 설정에서도 동작이 바뀌던 실버그).
     //   올바른 주소 = `0xc6236c`·`0xc62422` (`mov [rbp+0x498], 15000`).
-    for a in [0xd7b47cusize, 0xd7b210, 0xd7b314, 0xd7b3d1] {
+    for a in [0xe24fecusize, 0xe24d80, 0xe24e84, 0xe24f41] {
         p!(base + a, &[0x48,0xc7,0x85], 7, 4, b4(lstp, 15000));
     }
-    for a in [0xd7a5c8usize, 0xd7a631, 0xd7a69d, 0xd7a709, 0xd7a76d] {
+    for a in [0xe24138usize, 0xe241a1, 0xe2420d, 0xe24279, 0xd7a76d] {
         tot += 1;
         let v = dsh(lnear, 390625, 16);                             // (160000²)>>16 = 390625
         ok += (patch_imm_bytes(base + a, &[0x49,0x81,0xfa], 3, 4, v)
@@ -2521,41 +2526,41 @@ unsafe fn apply_auction_imm() {
     //   그런데 아래 두 노브는 지금까지 **2회차 사이트만** 패치하고 있었다 = 효과가 반쪽이었다.
     //   → 1회차 동일 상수 사이트를 같이 패치한다. (RE\2026-08-03_line_defense-1회차구간-c5e160)
     // ↓0.5.4: prefix 가 사이트마다 달라져 루프를 펼침(원래 `for a in [..]`)
-    p!(base + 0xd77a06, &[0x48,0x81,0xf9], 3, 4, dsh(livn, 9765625, 8));   // ←0.5.3 c5f059
-    p!(base + 0xd7a254, &[0x48,0x81,0xfa], 3, 4, dsh(livn, 9765625, 8));   // ←0.5.3 c61784
-    p!(base + 0xd778b8, &[0x49,0x83,0xc5], 3, 1, b1(lvis, 120));           // ← 1회차(신규)   // ←0.5.3 c5eee7
-    p!(base + 0xd7c9a1, &[0x49,0x83,0xc4], 3, 1, b1(lvis, 120));   // ←0.5.3 c63b87
+    p!(base + 0xe21576, &[0x48,0x81,0xf9], 3, 4, dsh(livn, 9765625, 8));   // ←0.5.3 c5f059   // ←0.5.3 d77a06
+    p!(base + 0xe23dc4, &[0x48,0x81,0xfa], 3, 4, dsh(livn, 9765625, 8));   // ←0.5.3 c61784   // ←0.5.3 d7a254
+    p!(base + 0xe21428, &[0x49,0x83,0xc5], 3, 1, b1(lvis, 120));           // ← 1회차(신규)   // ←0.5.3 c5eee7   // ←0.5.3 d778b8
+    p!(base + 0xe26511, &[0x49,0x83,0xc4], 3, 1, b1(lvis, 120));   // ←0.5.3 c63b87   // ←0.5.3 d7c9a1
     // c61667 = `add rdi,0x78` — 08-03 exe 정적 검증으로 바이트열 확정(같은 120틱 사이트, 세 번째).
-    p!(base + 0xd7a14a, &[0x48,0x83,0xc3], 3, 1, b1(lvis, 120));   // ←0.5.3 c61667
-    p!(base + 0xd7a8aa, &[0x83,0xc1], 2, 1, b1(lest, 10));                 // add ecx,10   // ←0.5.3 c61cb4
+    p!(base + 0xe23cba, &[0x48,0x83,0xc3], 3, 1, b1(lvis, 120));   // ←0.5.3 c61667   // ←0.5.3 d7a14a
+    p!(base + 0xe2441a, &[0x83,0xc1], 2, 1, b1(lest, 10));                 // add ecx,10   // ←0.5.3 c61cb4   // ←0.5.3 d7a8aa
     // ── ③-b line_defense 1회차 전용 상수 (08-03 신규 노출) ──
     //   ★`ld_around_range`는 1·2회차 합쳐 **7사이트** — 지금까지 완전 미노출이던 값이다.
-    for a in [0xd77ab2usize, 0xd77d2c, 0xd780f2, 0xd786a2, 0xd7a3c3, 0xd7be13, 0xd7bec7] {
+    for a in [0xe21622usize, 0xe2189c, 0xe21c62, 0xe22212, 0xe23f33, 0xe25983, 0xe25a37] {
         p!(base + a, &[0x48,0xc7,0x85], 7, 4, b4(larn, 80000));
     }
     // ★[08-05 감사] 3곳만 잡고 있었다 — 실제는 **7곳**이고, 바로 위 `ld_around_range` 7사이트의 **+11B 짝**이다.
-    for a in [0xd77abdusize, 0xd78025, 0xd780fd, 0xd7b487, 0xd7b6f8, 0xd7bed2, 0xd7c1e6] {
+    for a in [0xe2162dusize, 0xe21b95, 0xe21c6d, 0xe24ff7, 0xe25268, 0xe25a42, 0xe25d56] {
         p!(base + a, &[0x48,0xc7,0x85], 7, 4, b4(lard, 5));
     }
     // ★[08-05 감사] 3곳 → **6곳**. 그리고 이 마스크가 고르는 건 게임 모드가 아니라 **경기 페이즈**(`u8[S+0x38]`, 0~8)다
     //   — 게임 모드는 0/1/2 셋뿐인데 마스크가 bit 8까지 쓴다. `lt_phase_mask`·`pl_serpen_phase_mask`와 **같은 필드**.
-    p!(base + 0xd76fbc, &[0xba], 1, 4, b4(lmsk, 0x1a1));   // ←0.5.3 c5e61a
-    p!(base + 0xd77370, &[0x41,0xb8], 2, 4, b4(lmsk, 0x1a1));   // ←0.5.3 c5e9b3
-    p!(base + 0xd78133, &[0xba], 1, 4, b4(lmsk, 0x1a1));   // ←0.5.3 c5f664
-    for a in [0xd796c0usize, 0xd79a56, 0xd7d29c] {
+    p!(base + 0xe20b2c, &[0xba], 1, 4, b4(lmsk, 0x1a1));   // ←0.5.3 c5e61a   // ←0.5.3 d76fbc
+    p!(base + 0xe20ee0, &[0x41,0xb8], 2, 4, b4(lmsk, 0x1a1));   // ←0.5.3 c5e9b3   // ←0.5.3 d77370
+    p!(base + 0xe21ca3, &[0xba], 1, 4, b4(lmsk, 0x1a1));   // ←0.5.3 c5f664   // ←0.5.3 d78133
+    for a in [0xe23230usize, 0xe235c6, 0xe26e0c] {
         p!(base + a, &[0xba], 1, 4, b4(lmsk, 0x1a1));
     }
     // ★[08-05 감사] 4곳 → **10곳**. 전부 동일 관용구 `movsxd rax,[r+0x458]; add rax,0x64; imul [r+0x668]`.
-    for a in [0xd76cdausize, 0xd76f00, 0xd788db, 0xd78929,
-              0xd78ef7, 0xd78f2a, 0xd7973b, 0xd7999c, 0xd7b55e, 0xd7b65d] {
+    for a in [0xe2084ausize, 0xe20a70, 0xe2244b, 0xe22499,
+              0xe22a67, 0xe22a9a, 0xe232ab, 0xe2350c, 0xe250ce, 0xe251cd] {
         p!(base + a, &[0x48,0x83,0xc0], 3, 1, b1(lmvp, 100));
     }
     // ★[08-05 감사] `0xc60d6c`는 `0xc5e3cc`의 완전 클론(`cmp qword[r?+0x68],13; sete`)인데 미배선이었다.
-    p!(base + 0xd76d9c, &[0x49,0x83,0x7f,0x68], 4, 1, b1(lthr, 13));   // ←0.5.3 c5e3cc
-    p!(base + 0xd797ec, &[0x48,0x83,0x7e,0x68], 4, 1, b1(lthr, 13));   // ←0.5.3 c60d6c
-    p!(base + 0xd794bc, &[0x48,0x83,0xfa], 3, 1, b1(lrnd, 2));   // ←0.5.3 c60a0c
+    p!(base + 0xe2090c, &[0x49,0x83,0x7f,0x68], 4, 1, b1(lthr, 13));   // ←0.5.3 c5e3cc   // ←0.5.3 d76d9c
+    p!(base + 0xe2335c, &[0x48,0x83,0x7e,0x68], 4, 1, b1(lthr, 13));   // ←0.5.3 c60d6c   // ←0.5.3 d797ec
+    p!(base + 0xe2302c, &[0x48,0x83,0xfa], 3, 1, b1(lrnd, 2));   // ←0.5.3 c60a0c   // ←0.5.3 d794bc
     // ── ④ 팀모드 자동취소 마스크 (chat.rs / modes.rs) ──
-    for a in [0xea1b91usize, 0xe9683a] {
+    for a in [0xdf9eaausize, 0xdeec9a] {
         p!(base + a, &[0xb9], 1, 4, b4(tcnc, 0x0b00));
     }
     AUCTIMM_SIG.store(sig, Ordering::Relaxed);
@@ -2607,15 +2612,20 @@ unsafe fn apply_an_imm() {
     macro_rules! p { ($a:expr, $pre:expr, $off:expr, $w:expr, $v:expr) => {{
         tot += 1; ok += patch_imm_bytes($a, $pre, $off, $w, $v) as u32;
     }}; }
+    macro_rules! pskip { ($a:expr, $pre:expr, $off:expr, $w:expr, $v:expr) => {{
+        // ⛔0.5.4 재배치 미확정 — 세기만 하고 **패치하지 않는다**.
+        //    (orig_guard 는 표에 없는 RVA 를 통과시키므로, 옛 주소를 남기면 오패치 위험)
+        tot += 1; let _ = ($a, $pre, $off, $w, $v);
+    }}; }
 
-    p!(base + 0xe14685, &[0x41,0xb9], 2, 4, b4(wait, 7));
+    p!(base + 0xe19dd9, &[0x41,0xb9], 2, 4, b4(wait, 7));   // ←0.5.3 e14685
     // ⚠`cmp qword[rax+r8+0x148], 0` — imm8 슬롯(부호확장)이라 0~127.
     //   값만 올리면 "정확히 N개일 때"가 되므로 아래 je→jbe 를 같이 봐야 한다(현재는 값만 노출).
-    p!(base + 0xe146a1, &[0x4a,0x83,0xbc,0x00,0x48,0x01,0x00,0x00], 8, 1, b1(towers, 0));
-    p!(base + 0xe146bf, &[0x41,0xb9], 2, 4, b4(fb, 2));
-    p!(base + 0xe14929, &[0x41,0xb9], 2, 4, b4(atk, 18));
-    p!(base + 0xe146bb, &[0xc6,0x46,0x0a], 3, 1, b1(wave, 2));
-    p!(base + 0xe146b4, &[0xc6,0x46,0x08], 3, 1, b1(style, 0));
+    p!(base + 0xe19df5, &[0x4a,0x83,0xbc,0x00,0x48,0x01,0x00,0x00], 8, 1, b1(towers, 0));   // ←0.5.3 e146a1
+    p!(base + 0xe19e13, &[0x41,0xb9], 2, 4, b4(fb, 2));   // ←0.5.3 e146bf
+    p!(base + 0xe1a0c6, &[0x41,0xb9], 2, 4, b4(atk, 18));   // ←0.5.3 e14929
+    p!(base + 0xe19e0f, &[0xc6,0x46,0x0a], 3, 1, b1(wave, 2));   // ←0.5.3 e146bb
+    p!(base + 0xe19e08, &[0xc6,0x46,0x08], 3, 1, b1(style, 0));   // ←0.5.3 e146b4
 
     ANIMM_SIG.store(sig, Ordering::Relaxed);
     if let Some(pp) = pth("an_imm.txt") {
@@ -2658,21 +2668,26 @@ unsafe fn apply_auc_imm() {
     macro_rules! p { ($a:expr, $pre:expr, $off:expr, $w:expr, $v:expr) => {{
         tot += 1; ok += patch_imm_bytes($a, $pre, $off, $w, $v) as u32;
     }}; }
+    macro_rules! pskip { ($a:expr, $pre:expr, $off:expr, $w:expr, $v:expr) => {{
+        // ⛔0.5.4 재배치 미확정 — 세기만 하고 **패치하지 않는다**.
+        //    (orig_guard 는 표에 없는 RVA 를 통과시키므로, 옛 주소를 남기면 오패치 위험)
+        tot += 1; let _ = ($a, $pre, $off, $w, $v);
+    }}; }
 
     // ⚠`cmp rax, imm8`(부호확장) — 0~127 범위. 0 으로 낮추면 version 과 무관하게 항상 켜진다.
-    p!(base + 0xead271, &[0x48,0x83,0xf8], 3, 1, b1(gate, 1));
-    p!(base + 0xead285, &[0x41,0x80,0xb9,0x70,0x04,0x00,0x00], 7, 1, b1(undy, 0));
+    p!(base + 0xe04b68, &[0x48,0x83,0xf8], 3, 1, b1(gate, 1));   // ←0.5.3 ead271
+    pskip!(base + 0xead285, &[0x41,0x80,0xb9,0x70,0x04,0x00,0x00], 7, 1, b1(undy, 0));   // ⛔0.5.4 미확정: 시그 1→0 / 완화 19→18 (골격 99%)
     // disp32 교체 — 값이 아니라 **비교할 필드**를 바꾼다(0x658 현재HP / 0x610 최대HP).
-    p!(base + 0xead5e1, &[0x48,0x3b,0x81], 3, 4, b4(hpf, 0x658));
-    p!(base + 0xead68d, &[0xa9], 1, 4, b4(nmask, 0x100));
-    p!(base + 0xead6c8, &[0xb9], 1, 4, b4(gfar, 928_000));
-    p!(base + 0xead6cd, &[0xba], 1, 4, b4(gna, 32_000));
-    p!(base + 0xead6d6, &[0x41,0xb8], 2, 4, b4(gnb, 32_000));
-    p!(base + 0xead6ff, &[0x49,0xc7,0x84,0x24,0x28,0x15,0x00,0x00], 8, 4, b4(dly, 5));
-    p!(base + 0xead72f, &[0x41,0xc6,0x84,0x24,0x8d,0x15,0x00,0x00], 8, 1, b1(pf, 2));
-    p!(base + 0xead738, &[0x41,0xc7,0x84,0x24,0x90,0x15,0x00,0x00], 8, 4, b4(wsk, 1));
-    p!(base + 0xead759, &[0x49,0xc7,0x84,0x24,0x08,0x15,0x00,0x00], 8, 4, b4(sc, 99_999));
-    p!(base + 0xead765, &[0x41,0xc6,0x84,0x24,0xc1,0x15,0x00,0x00], 8, 1, b1(tag, 3));
+    pskip!(base + 0xead5e1, &[0x48,0x3b,0x81], 3, 4, b4(hpf, 0x658));   // ⛔0.5.4 미확정: 시그 1→0 / 완화 1→0 (골격 99%)
+    p!(base + 0xe04fb0, &[0xa9], 1, 4, b4(nmask, 0x100));   // ←0.5.3 ead68d
+    p!(base + 0xe04feb, &[0xb9], 1, 4, b4(gfar, 928_000));   // ←0.5.3 ead6c8
+    p!(base + 0xe04ff0, &[0xba], 1, 4, b4(gna, 32_000));   // ←0.5.3 ead6cd
+    p!(base + 0xe04ff9, &[0x41,0xb8], 2, 4, b4(gnb, 32_000));   // ←0.5.3 ead6d6
+    p!(base + 0xe05022, &[0x49,0xc7,0x84,0x24,0x28,0x15,0x00,0x00], 8, 4, b4(dly, 5));   // ←0.5.3 ead6ff
+    p!(base + 0xe05052, &[0x41,0xc6,0x84,0x24,0x8d,0x15,0x00,0x00], 8, 1, b1(pf, 2));   // ←0.5.3 ead72f
+    p!(base + 0xe0505b, &[0x41,0xc7,0x84,0x24,0x90,0x15,0x00,0x00], 8, 4, b4(wsk, 1));   // ←0.5.3 ead738
+    p!(base + 0xe0507c, &[0x49,0xc7,0x84,0x24,0x08,0x15,0x00,0x00], 8, 4, b4(sc, 99_999));   // ←0.5.3 ead759
+    p!(base + 0xe05088, &[0x41,0xc6,0x84,0x24,0xc1,0x15,0x00,0x00], 8, 1, b1(tag, 3));   // ←0.5.3 ead765
 
     AUCIMM_SIG.store(sig, Ordering::Relaxed);
     if let Some(pp) = pth("auc_imm.txt") {
@@ -2688,215 +2703,215 @@ unsafe fn apply_auc_imm() {
 //     생겨 rayon 워커 스택이 터진다(2026-08-05 STATUS_STACK_OVERFLOW 실사고 = 크래시2).
 //   전 사이트 exe 대조 완료(prefix/imm 실제위치/원본값/명령경계) = v54\wire_path.py, 208/208 통과.
 static PATH_STEP640: [(usize, &[u8], usize); 76] = [
-    (0xc4b941, &[0xc7,0x85,0x60,0x01,0x00,0x00], 6),
-    (0xc4ba16, &[0xc7,0x85,0x60,0x01,0x00,0x00], 6),
-    (0xc4baf0, &[0xc7,0x85,0x60,0x01,0x00,0x00], 6),
-    (0xc4cc71, &[0xc7,0x85,0xa8,0x01,0x00,0x00], 6),
-    (0xc4cd3d, &[0xc7,0x85,0xa8,0x01,0x00,0x00], 6),
-    (0xc4ce08, &[0xc7,0x85,0xa8,0x01,0x00,0x00], 6),
-    (0xc4dfc1, &[0xc7,0x85,0x60,0x01,0x00,0x00], 6),
-    (0xc4e096, &[0xc7,0x85,0x60,0x01,0x00,0x00], 6),
-    (0xc4e170, &[0xc7,0x85,0x60,0x01,0x00,0x00], 6),
-    (0xc51630, &[0x41,0xb8], 2),
-    (0xc5171b, &[0xc7,0x85,0xcc,0x01,0x00,0x00], 6),
-    (0xc517c4, &[0xc7,0x85,0xcc,0x01,0x00,0x00], 6),
-    (0xc517f1, &[0xc7,0x85,0xcc,0x01,0x00,0x00], 6),
-    (0xc52c60, &[0x41,0xb8], 2),
-    (0xc52d4b, &[0xc7,0x85,0xcc,0x01,0x00,0x00], 6),
-    (0xc52df4, &[0xc7,0x85,0xcc,0x01,0x00,0x00], 6),
-    (0xc52e21, &[0xc7,0x85,0xcc,0x01,0x00,0x00], 6),
-    (0xc552e1, &[0xc7,0x85,0x80,0x01,0x00,0x00], 6),
-    (0xc553b6, &[0xc7,0x85,0x80,0x01,0x00,0x00], 6),
-    (0xc554b0, &[0xc7,0x85,0x80,0x01,0x00,0x00], 6),
-    (0xc566a1, &[0xc7,0x85,0x80,0x01,0x00,0x00], 6),
-    (0xc56776, &[0xc7,0x85,0x80,0x01,0x00,0x00], 6),
-    (0xc56870, &[0xc7,0x85,0x80,0x01,0x00,0x00], 6),
-    (0xc5ad91, &[0xc7,0x85,0x98,0x01,0x00,0x00], 6),
-    (0xc5ae66, &[0xc7,0x85,0x98,0x01,0x00,0x00], 6),
-    (0xc5af59, &[0xc7,0x85,0x98,0x01,0x00,0x00], 6),
-    (0xc5d0a1, &[0xc7,0x85,0xa8,0x01,0x00,0x00], 6),
-    (0xc5d166, &[0xc7,0x85,0xa8,0x01,0x00,0x00], 6),
-    (0xc5d238, &[0xc7,0x85,0xa8,0x01,0x00,0x00], 6),
-    (0xc5e34a, &[0xc7,0x85,0xa0,0x01,0x00,0x00], 6),
-    (0xc5e426, &[0xc7,0x85,0xa0,0x01,0x00,0x00], 6),
-    (0xc5e4ea, &[0xc7,0x85,0xa0,0x01,0x00,0x00], 6),
-    (0xc4a889, &[0x41,0xb8], 2),
-    (0xc4a970, &[0xc7,0x85,0x94,0x01,0x00,0x00], 6),
-    (0xc4a996, &[0xc7,0x85,0x94,0x01,0x00,0x00], 6),
-    (0xc4f384, &[0x41,0xbd], 2),
-    (0xc4f450, &[0x41,0xbd], 2),
-    (0xc4f46f, &[0x41,0xbd], 2),
-    (0xc50464, &[0x41,0xbd], 2),
-    (0xc50530, &[0x41,0xbd], 2),
-    (0xc50602, &[0x41,0xbd], 2),
-    (0xc542b1, &[0xc7,0x85,0x70,0x01,0x00,0x00], 6),
-    (0xc54394, &[0xc7,0x85,0x70,0x01,0x00,0x00], 6),
-    (0xc5445f, &[0xc7,0x85,0x70,0x01,0x00,0x00], 6),
-    (0xc57a8a, &[0x41,0xbd], 2),
-    (0xc57b6d, &[0x41,0xbd], 2),
-    (0xc57c4f, &[0x41,0xbd], 2),
-    (0xc58bda, &[0x41,0xbd], 2),
-    (0xc58cbd, &[0x41,0xbd], 2),
-    (0xc58d9f, &[0x41,0xbd], 2),
-    (0xc59d11, &[0xc7,0x85,0xc8,0x01,0x00,0x00], 6),
-    (0xc59dfb, &[0xc7,0x85,0xc8,0x01,0x00,0x00], 6),
-    (0xc59ecf, &[0xc7,0x85,0xc8,0x01,0x00,0x00], 6),
-    (0xc5c001, &[0xc7,0x85,0xc8,0x01,0x00,0x00], 6),
-    (0xc5c0eb, &[0xc7,0x85,0xc8,0x01,0x00,0x00], 6),
-    (0xc5c1bf, &[0xc7,0x85,0xc8,0x01,0x00,0x00], 6),
-    (0xc5f6b1, &[0xc7,0x85,0xc8,0x01,0x00,0x00], 6),
-    (0xc5f79b, &[0xc7,0x85,0xc8,0x01,0x00,0x00], 6),
-    (0xc5f876, &[0xc7,0x85,0xc8,0x01,0x00,0x00], 6),
-    (0xc607c1, &[0xc7,0x85,0xc8,0x01,0x00,0x00], 6),
-    (0xc608ab, &[0xc7,0x85,0xc8,0x01,0x00,0x00], 6),
-    (0xc60986, &[0xc7,0x85,0xc8,0x01,0x00,0x00], 6),
-    (0xde5d4e, &[0x81,0xc2], 2),
-    (0xde624a, &[0x41,0x81,0xc6], 3),
-    (0xde6e10, &[0x41,0x81,0xc2], 3),
-    (0xde736b, &[0x81,0xc3], 2),
-    (0xde775a, &[0x41,0x81,0xc6], 3),
-    (0xde7c3f, &[0x81,0xc7], 2),
-    (0xde80aa, &[0x41,0x81,0xc6], 3),
-    (0xde8582, &[0x81,0xc7], 2),
-    (0xde8a7a, &[0x41,0x81,0xc6], 3),
-    (0xde94fa, &[0x41,0x81,0xc6], 3),
-    (0xde991a, &[0x41,0x81,0xc6], 3),
-    (0xde9df2, &[0x81,0xc7], 2),
-    (0xde6753, &[0x81,0xc1], 2),
-    (0xde8f7a, &[0x81,0xc1], 2),
+    (0xc4eb41, &[0xc7,0x85,0x60,0x01,0x00,0x00], 6),
+    (0xc4ec16, &[0xc7,0x85,0x60,0x01,0x00,0x00], 6),
+    (0xc4ecf0, &[0xc7,0x85,0x60,0x01,0x00,0x00], 6),
+    (0xc4fe71, &[0xc7,0x85,0xa8,0x01,0x00,0x00], 6),
+    (0xc4ff3d, &[0xc7,0x85,0xa8,0x01,0x00,0x00], 6),
+    (0xc50008, &[0xc7,0x85,0xa8,0x01,0x00,0x00], 6),
+    (0xc4eb41, &[0xc7,0x85,0x60,0x01,0x00,0x00], 6),
+    (0xc4ec16, &[0xc7,0x85,0x60,0x01,0x00,0x00], 6),
+    (0xc4ecf0, &[0xc7,0x85,0x60,0x01,0x00,0x00], 6),
+    (0xc54830, &[0x41,0xb8], 2),
+    (0xc5491b, &[0xc7,0x85,0xcc,0x01,0x00,0x00], 6),
+    (0xc549c4, &[0xc7,0x85,0xcc,0x01,0x00,0x00], 6),
+    (0xc549f1, &[0xc7,0x85,0xcc,0x01,0x00,0x00], 6),
+    (0xc54830, &[0x41,0xb8], 2),
+    (0xc5491b, &[0xc7,0x85,0xcc,0x01,0x00,0x00], 6),
+    (0xc549c4, &[0xc7,0x85,0xcc,0x01,0x00,0x00], 6),
+    (0xc549f1, &[0xc7,0x85,0xcc,0x01,0x00,0x00], 6),
+    (0xc584e1, &[0xc7,0x85,0x80,0x01,0x00,0x00], 6),
+    (0xc585b6, &[0xc7,0x85,0x80,0x01,0x00,0x00], 6),
+    (0xc586b0, &[0xc7,0x85,0x80,0x01,0x00,0x00], 6),
+    (0xc584e1, &[0xc7,0x85,0x80,0x01,0x00,0x00], 6),
+    (0xc585b6, &[0xc7,0x85,0x80,0x01,0x00,0x00], 6),
+    (0xc586b0, &[0xc7,0x85,0x80,0x01,0x00,0x00], 6),
+    (0xc5df91, &[0xc7,0x85,0x98,0x01,0x00,0x00], 6),
+    (0xc5e066, &[0xc7,0x85,0x98,0x01,0x00,0x00], 6),
+    (0xc5e159, &[0xc7,0x85,0x98,0x01,0x00,0x00], 6),
+    (0xc602a1, &[0xc7,0x85,0xa8,0x01,0x00,0x00], 6),
+    (0xc60366, &[0xc7,0x85,0xa8,0x01,0x00,0x00], 6),
+    (0xc60438, &[0xc7,0x85,0xa8,0x01,0x00,0x00], 6),
+    (0xc6154a, &[0xc7,0x85,0xa0,0x01,0x00,0x00], 6),
+    (0xc61626, &[0xc7,0x85,0xa0,0x01,0x00,0x00], 6),
+    (0xc616ea, &[0xc7,0x85,0xa0,0x01,0x00,0x00], 6),
+    (0xc4da89, &[0x41,0xb8], 2),
+    (0xc4db70, &[0xc7,0x85,0x94,0x01,0x00,0x00], 6),
+    (0xc4db96, &[0xc7,0x85,0x94,0x01,0x00,0x00], 6),
+    (0xc52584, &[0x41,0xbd], 2),
+    (0xc52650, &[0x41,0xbd], 2),
+    (0xc5266f, &[0x41,0xbd], 2),
+    (0xc53664, &[0x41,0xbd], 2),
+    (0xc53730, &[0x41,0xbd], 2),
+    (0xc53802, &[0x41,0xbd], 2),
+    (0xc574b1, &[0xc7,0x85,0x70,0x01,0x00,0x00], 6),
+    (0xc57594, &[0xc7,0x85,0x70,0x01,0x00,0x00], 6),
+    (0xc5765f, &[0xc7,0x85,0x70,0x01,0x00,0x00], 6),
+    (0xc5ac8a, &[0x41,0xbd], 2),
+    (0xc5ad6d, &[0x41,0xbd], 2),
+    (0xc5ae4f, &[0x41,0xbd], 2),
+    (0xc5ac8a, &[0x41,0xbd], 2),
+    (0xc5ad6d, &[0x41,0xbd], 2),
+    (0xc5ae4f, &[0x41,0xbd], 2),
+    (0xc5cf11, &[0xc7,0x85,0xc8,0x01,0x00,0x00], 6),
+    (0xc5cffb, &[0xc7,0x85,0xc8,0x01,0x00,0x00], 6),
+    (0xc5d0cf, &[0xc7,0x85,0xc8,0x01,0x00,0x00], 6),
+    (0xc5cf11, &[0xc7,0x85,0xc8,0x01,0x00,0x00], 6),
+    (0xc5cffb, &[0xc7,0x85,0xc8,0x01,0x00,0x00], 6),
+    (0xc5d0cf, &[0xc7,0x85,0xc8,0x01,0x00,0x00], 6),
+    (0xc628b1, &[0xc7,0x85,0xc8,0x01,0x00,0x00], 6),
+    (0xc6299b, &[0xc7,0x85,0xc8,0x01,0x00,0x00], 6),
+    (0xc62a76, &[0xc7,0x85,0xc8,0x01,0x00,0x00], 6),
+    (0xc628b1, &[0xc7,0x85,0xc8,0x01,0x00,0x00], 6),
+    (0xc6299b, &[0xc7,0x85,0xc8,0x01,0x00,0x00], 6),
+    (0xc62a76, &[0xc7,0x85,0xc8,0x01,0x00,0x00], 6),
+    (0xd790ee, &[0x81,0xc2], 2),
+    (0xd795ea, &[0x41,0x81,0xc6], 3),
+    (0xd7a1b0, &[0x41,0x81,0xc2], 3),
+    (0xd7a70b, &[0x81,0xc3], 2),
+    (0xd795ea, &[0x41,0x81,0xc6], 3),
+    (0xd7afdf, &[0x81,0xc7], 2),
+    (0xd7b44a, &[0x41,0x81,0xc6], 3),
+    (0xd7b922, &[0x81,0xc7], 2),
+    (0xd795ea, &[0x41,0x81,0xc6], 3),
+    (0xd7b44a, &[0x41,0x81,0xc6], 3),
+    (0xd7b44a, &[0x41,0x81,0xc6], 3),
+    (0xd7d192, &[0x81,0xc7], 2),
+    (0xd79af3, &[0x81,0xc1], 2),
+    (0xd7c31a, &[0x81,0xc1], 2),
 ];
 
 static PATH_STEP896: [(usize, &[u8], usize); 20] = [
-    (0xc4a8b4, &[0x41,0xb8], 2),
-    (0xc4f3ab, &[0x41,0xbd], 2),
-    (0xc50492, &[0x41,0xbd], 2),
-    (0xc542dc, &[0xc7,0x85,0x70,0x01,0x00,0x00], 6),
-    (0xc57ab1, &[0x41,0xbd], 2),
-    (0xc58c01, &[0x41,0xbd], 2),
-    (0xc59d3c, &[0xc7,0x85,0xc8,0x01,0x00,0x00], 6),
-    (0xc5c02c, &[0xc7,0x85,0xc8,0x01,0x00,0x00], 6),
-    (0xc5f6dc, &[0xc7,0x85,0xc8,0x01,0x00,0x00], 6),
-    (0xc607ec, &[0xc7,0x85,0xc8,0x01,0x00,0x00], 6),
-    (0xc4b96d, &[0xc7,0x85,0x60,0x01,0x00,0x00], 6),
-    (0xc4cc9c, &[0xc7,0x85,0xa8,0x01,0x00,0x00], 6),
-    (0xc4dfed, &[0xc7,0x85,0x60,0x01,0x00,0x00], 6),
-    (0xc51657, &[0x41,0xb8], 2),
-    (0xc52c87, &[0x41,0xb8], 2),
-    (0xc5530d, &[0xc7,0x85,0x80,0x01,0x00,0x00], 6),
-    (0xc566cd, &[0xc7,0x85,0x80,0x01,0x00,0x00], 6),
-    (0xc5adbd, &[0xc7,0x85,0x98,0x01,0x00,0x00], 6),
-    (0xc5d0cc, &[0xc7,0x85,0xa8,0x01,0x00,0x00], 6),
-    (0xc5e379, &[0xc7,0x85,0xa0,0x01,0x00,0x00], 6),
+    (0xc4dab4, &[0x41,0xb8], 2),
+    (0xc525ab, &[0x41,0xbd], 2),
+    (0xc53692, &[0x41,0xbd], 2),
+    (0xc574dc, &[0xc7,0x85,0x70,0x01,0x00,0x00], 6),
+    (0xc5acb1, &[0x41,0xbd], 2),
+    (0xc5acb1, &[0x41,0xbd], 2),
+    (0xc5cf3c, &[0xc7,0x85,0xc8,0x01,0x00,0x00], 6),
+    (0xc5cf3c, &[0xc7,0x85,0xc8,0x01,0x00,0x00], 6),
+    (0xc628dc, &[0xc7,0x85,0xc8,0x01,0x00,0x00], 6),
+    (0xc628dc, &[0xc7,0x85,0xc8,0x01,0x00,0x00], 6),
+    (0xc4eb6d, &[0xc7,0x85,0x60,0x01,0x00,0x00], 6),
+    (0xc4fe9c, &[0xc7,0x85,0xa8,0x01,0x00,0x00], 6),
+    (0xc4eb6d, &[0xc7,0x85,0x60,0x01,0x00,0x00], 6),
+    (0xc54857, &[0x41,0xb8], 2),
+    (0xc54857, &[0x41,0xb8], 2),
+    (0xc5850d, &[0xc7,0x85,0x80,0x01,0x00,0x00], 6),
+    (0xc5850d, &[0xc7,0x85,0x80,0x01,0x00,0x00], 6),
+    (0xc5dfbd, &[0xc7,0x85,0x98,0x01,0x00,0x00], 6),
+    (0xc602cc, &[0xc7,0x85,0xa8,0x01,0x00,0x00], 6),
+    (0xc61579, &[0xc7,0x85,0xa0,0x01,0x00,0x00], 6),
 ];
 
 static PATH_RISK1281: [(usize, &[u8], usize); 50] = [
-    (0xc4bc95, &[0xb8], 1),
-    (0xc4bee7, &[0xb8], 1),
-    (0xc4cf91, &[0xba], 1),
-    (0xc4d007, &[0xba], 1),
-    (0xc4d0f1, &[0xba], 1),
-    (0xc4e315, &[0xb8], 1),
-    (0xc4e567, &[0xb8], 1),
-    (0xc51f0c, &[0xb8], 1),
-    (0xc5353c, &[0xb8], 1),
-    (0xc556b1, &[0xb8], 1),
-    (0xc5591d, &[0xb8], 1),
-    (0xc56a71, &[0xb8], 1),
-    (0xc56cdd, &[0xb8], 1),
-    (0xc5b0ea, &[0xb9], 1),
-    (0xc5d40b, &[0xb9], 1),
-    (0xc5d4a7, &[0xb9], 1),
-    (0xc5e65f, &[0xb9], 1),
-    (0xc5e743, &[0xb9], 1),
-    (0xc5e77d, &[0xb9], 1),
-    (0xc5e79f, &[0xb9], 1),
-    (0xc5e7f1, &[0xb9], 1),
-    (0xde5e45, &[0xba], 1),
-    (0xde628e, &[0x41,0xb8], 2),
-    (0xde6f47, &[0x41,0xb8], 2),
-    (0xde6f82, &[0x41,0xb8], 2),
-    (0xde739d, &[0xb8], 1),
-    (0xde779e, &[0x41,0xb8], 2),
-    (0xde7cdf, &[0x41,0xb8], 2),
-    (0xde80e3, &[0xba], 1),
-    (0xde863e, &[0x41,0xb8], 2),
-    (0xde8abe, &[0x41,0xb8], 2),
-    (0xde9533, &[0xba], 1),
-    (0xde9953, &[0xba], 1),
-    (0xde9e8e, &[0x41,0xb8], 2),
-    (0xc4ab50, &[0xb8], 1),
-    (0xc4f5ad, &[0xb8], 1),
-    (0xc4f696, &[0xb8], 1),
-    (0xc50750, &[0xb8], 1),
-    (0xc50961, &[0xb8], 1),
-    (0xc545bf, &[0xb8], 1),
-    (0xc57d29, &[0xb8], 1),
-    (0xc58e79, &[0xb8], 1),
-    (0xc59f3d, &[0xb8], 1),
-    (0xc5c22d, &[0xb8], 1),
-    (0xc5f923, &[0xb8], 1),
-    (0xc60a33, &[0xb8], 1),
-    (0xde68ba, &[0x41,0xb9], 2),
-    (0xde68fa, &[0x41,0xb9], 2),
-    (0xde695c, &[0x41,0xb9], 2),
-    (0xde90ab, &[0x41,0xb8], 2),
+    (0xc4ee95, &[0xb8], 1),
+    (0xc4f0e7, &[0xb8], 1),
+    (0xc50191, &[0xba], 1),
+    (0xc50207, &[0xba], 1),
+    (0xc502f1, &[0xba], 1),
+    (0xc4ee95, &[0xb8], 1),
+    (0xc4f0e7, &[0xb8], 1),
+    (0xc5510c, &[0xb8], 1),
+    (0xc5510c, &[0xb8], 1),
+    (0xc588b1, &[0xb8], 1),
+    (0xc58b1d, &[0xb8], 1),
+    (0xc588b1, &[0xb8], 1),
+    (0xc58b1d, &[0xb8], 1),
+    (0xc5e2ea, &[0xb9], 1),
+    (0xc6060b, &[0xb9], 1),
+    (0xc606a7, &[0xb9], 1),
+    (0xc6185f, &[0xb9], 1),
+    (0xc61943, &[0xb9], 1),
+    (0xc6197d, &[0xb9], 1),
+    (0xc6199f, &[0xb9], 1),
+    (0xc619f1, &[0xb9], 1),
+    (0xd791e5, &[0xba], 1),
+    (0xd7962e, &[0x41,0xb8], 2),
+    (0xd7a2e7, &[0x41,0xb8], 2),
+    (0xd7a322, &[0x41,0xb8], 2),
+    (0xd7a73d, &[0xb8], 1),
+    (0xd7962e, &[0x41,0xb8], 2),
+    (0xd7b07f, &[0x41,0xb8], 2),
+    (0xd7b483, &[0xba], 1),
+    (0xd7b9de, &[0x41,0xb8], 2),
+    (0xd7962e, &[0x41,0xb8], 2),
+    (0xd7b483, &[0xba], 1),
+    (0xd7b483, &[0xba], 1),
+    (0xd7d22e, &[0x41,0xb8], 2),
+    (0xc4dd50, &[0xb8], 1),
+    (0xc527ad, &[0xb8], 1),
+    (0xc52896, &[0xb8], 1),
+    (0xc53950, &[0xb8], 1),
+    (0xc53b61, &[0xb8], 1),
+    (0xc577bf, &[0xb8], 1),
+    (0xc5af29, &[0xb8], 1),
+    (0xc5af29, &[0xb8], 1),
+    (0xc5d13d, &[0xb8], 1),
+    (0xc5d13d, &[0xb8], 1),
+    (0xc62b23, &[0xb8], 1),
+    (0xc62b23, &[0xb8], 1),
+    (0xd79c5a, &[0x41,0xb9], 2),
+    (0xd79c9a, &[0x41,0xb9], 2),
+    (0xd79cfc, &[0x41,0xb9], 2),
+    (0xd7c44b, &[0x41,0xb8], 2),
 ];
 
 static PATH_HEUR: [(usize, &[u8], usize); 54] = [
-    (0xc4a32b, &[0xc1,0xe1], 2),
-    (0xc4add1, &[0xc1,0xe1], 2),
-    (0xc4b48e, &[0xc1,0xe1], 2),
-    (0xc4c127, &[0xc1,0xe1], 2),
-    (0xc4c7ae, &[0xc1,0xe1], 2),
-    (0xc4d307, &[0xc1,0xe1], 2),
-    (0xc4db0e, &[0xc1,0xe1], 2),
-    (0xc4e7a7, &[0xc1,0xe1], 2),
-    (0xc4ee35, &[0xc1,0xe1], 2),
-    (0xc4f887, &[0xc1,0xe1], 2),
-    (0xc4ffbe, &[0xc1,0xe1], 2),
-    (0xc50b37, &[0xc1,0xe1], 2),
-    (0xc5117e, &[0xc1,0xe1], 2),
-    (0xc520e7, &[0xc1,0xe1], 2),
-    (0xc527ae, &[0xc1,0xe1], 2),
-    (0xc53717, &[0xc1,0xe1], 2),
-    (0xc53de5, &[0xc1,0xe1], 2),
-    (0xc547e1, &[0xc1,0xe1], 2),
-    (0xc54e3e, &[0xc1,0xe1], 2),
-    (0xc55b77, &[0xc1,0xe1], 2),
-    (0xc561fe, &[0xc1,0xe1], 2),
-    (0xc56f37, &[0xc1,0xe1], 2),
-    (0xc575c5, &[0xc1,0xe1], 2),
-    (0xc58071, &[0xc1,0xe1], 2),
-    (0xc58715, &[0xc1,0xe1], 2),
-    (0xc591c1, &[0xc1,0xe1], 2),
-    (0xc5985b, &[0xc1,0xe1], 2),
-    (0xc5a281, &[0xc1,0xe1], 2),
-    (0xc5a8ce, &[0xc1,0xe1], 2),
-    (0xc5b417, &[0xc1,0xe1], 2),
-    (0xc5bb4b, &[0xc1,0xe1], 2),
-    (0xc5c571, &[0xc1,0xe1], 2),
-    (0xc5cbbe, &[0xc1,0xe1], 2),
-    (0xc5d6b7, &[0xc1,0xe1], 2),
-    (0xc5de4b, &[0xc1,0xe1], 2),
-    (0xc5ea55, &[0xc1,0xe1], 2),
-    (0xc5f1f5, &[0xc1,0xe1], 2),
-    (0xc5fc71, &[0xc1,0xe1], 2),
-    (0xc60305, &[0xc1,0xe1], 2),
-    (0xc60d81, &[0xc1,0xe1], 2),
-    (0xde5ea7, &[0x41,0xc1,0xe6], 3),
-    (0xde632b, &[0xc1,0xe2], 2),
-    (0xde69e4, &[0xc1,0xe7], 2),
-    (0xde6fd8, &[0xc1,0xe2], 2),
-    (0xde73ee, &[0x41,0xc1,0xe1], 3),
-    (0xde783b, &[0xc1,0xe2], 2),
-    (0xde7d37, &[0xc1,0xe2], 2),
-    (0xde8170, &[0x41,0xc1,0xe1], 3),
-    (0xde869c, &[0xc1,0xe2], 2),
-    (0xde8b5b, &[0xc1,0xe2], 2),
-    (0xde9157, &[0xc1,0xe2], 2),
-    (0xde95c0, &[0x41,0xc1,0xe1], 3),
-    (0xde99e0, &[0x41,0xc1,0xe1], 3),
-    (0xde9eec, &[0xc1,0xe2], 2),
+    (0xc4d52b, &[0xc1,0xe1], 2),
+    (0xc4dfd1, &[0xc1,0xe1], 2),
+    (0xc4e68e, &[0xc1,0xe1], 2),
+    (0xc4f327, &[0xc1,0xe1], 2),
+    (0xc4f9ae, &[0xc1,0xe1], 2),
+    (0xc50507, &[0xc1,0xe1], 2),
+    (0xc4e68e, &[0xc1,0xe1], 2),
+    (0xc4f327, &[0xc1,0xe1], 2),
+    (0xc52035, &[0xc1,0xe1], 2),
+    (0xc52a87, &[0xc1,0xe1], 2),
+    (0xc531be, &[0xc1,0xe1], 2),
+    (0xc53d37, &[0xc1,0xe1], 2),
+    (0xc5437e, &[0xc1,0xe1], 2),
+    (0xc552e7, &[0xc1,0xe1], 2),
+    (0xc5437e, &[0xc1,0xe1], 2),
+    (0xc552e7, &[0xc1,0xe1], 2),
+    (0xc56fe5, &[0xc1,0xe1], 2),
+    (0xc579e1, &[0xc1,0xe1], 2),
+    (0xc5803e, &[0xc1,0xe1], 2),
+    (0xc58d77, &[0xc1,0xe1], 2),
+    (0xc5803e, &[0xc1,0xe1], 2),
+    (0xc58d77, &[0xc1,0xe1], 2),
+    (0xc5a7c5, &[0xc1,0xe1], 2),
+    (0xc5b271, &[0xc1,0xe1], 2),
+    (0xc5a7c5, &[0xc1,0xe1], 2),
+    (0xc5b271, &[0xc1,0xe1], 2),
+    (0xc5ca5b, &[0xc1,0xe1], 2),
+    (0xc5d481, &[0xc1,0xe1], 2),
+    (0xc5dace, &[0xc1,0xe1], 2),
+    (0xc5e617, &[0xc1,0xe1], 2),
+    (0xc5ca5b, &[0xc1,0xe1], 2),
+    (0xc5d481, &[0xc1,0xe1], 2),
+    (0xc5fdbe, &[0xc1,0xe1], 2),
+    (0xc608b7, &[0xc1,0xe1], 2),
+    (0xc6104b, &[0xc1,0xe1], 2),
+    (0xc61c55, &[0xc1,0xe1], 2),
+    (0xc623f5, &[0xc1,0xe1], 2),
+    (0xc62e71, &[0xc1,0xe1], 2),
+    (0xc623f5, &[0xc1,0xe1], 2),
+    (0xc62e71, &[0xc1,0xe1], 2),
+    (0xd79247, &[0x41,0xc1,0xe6], 3),
+    (0xd796cb, &[0xc1,0xe2], 2),
+    (0xd79d84, &[0xc1,0xe7], 2),
+    (0xd7a378, &[0xc1,0xe2], 2),
+    (0xd7a78e, &[0x41,0xc1,0xe1], 3),
+    (0xd796cb, &[0xc1,0xe2], 2),
+    (0xd7b0d7, &[0xc1,0xe2], 2),
+    (0xd7b510, &[0x41,0xc1,0xe1], 3),
+    (0xd7ba3c, &[0xc1,0xe2], 2),
+    (0xd796cb, &[0xc1,0xe2], 2),
+    (0xd7c4f7, &[0xc1,0xe2], 2),
+    (0xd7b510, &[0x41,0xc1,0xe1], 3),
+    (0xd7b510, &[0x41,0xc1,0xe1], 3),
+    (0xd7d28c, &[0xc1,0xe2], 2),
 ];
 
 /// ★[0.5.4 신설] 경로탐색 비용·위험 회피 노브. 전 키 기본 -1 = 원본값 = 무변화.
@@ -2940,15 +2955,20 @@ unsafe fn apply_path_imm() {
     macro_rules! p { ($a:expr, $pre:expr, $off:expr, $w:expr, $v:expr) => {{
         tot += 1; ok += patch_imm_bytes($a, $pre, $off, $w, $v) as u32;
     }}; }
-    p!(base + 0xdb07cb, &[0x83,0xc1], 2, 1, b1(tfloor, 2));
+    macro_rules! pskip { ($a:expr, $pre:expr, $off:expr, $w:expr, $v:expr) => {{
+        // ⛔0.5.4 재배치 미확정 — 세기만 하고 **패치하지 않는다**.
+        //    (orig_guard 는 표에 없는 RVA 를 통과시키므로, 옛 주소를 남기면 오패치 위험)
+        tot += 1; let _ = ($a, $pre, $off, $w, $v);
+    }}; }
+    p!(base + 0xd3d04b, &[0x83,0xc1], 2, 1, b1(tfloor, 2));   // ←0.5.3 db07cb
     // ⚠상한은 **2곳 동시**(cmp 는 imm8, 뒤이은 mov 는 imm32) — 한쪽만 바꾸면 반쪽 노브가 된다.
-    p!(base + 0xdb07ce, &[0x83,0xf9], 2, 1, b1(tcap, 60));
-    p!(base + 0xdb07d1, &[0xb8], 1, 4, b4(tcap, 60));
-    p!(base + 0xdb077e, &[0xb9], 1, 4, b4(tscale, 30));
-    p!(base + 0xdb07b2, &[0xb9], 1, 4, b4(tscale, 30));
-    p!(base + 0xdb05fc, &[0xb8], 1, 4, b4(tdef, 2));
-    p!(base + 0xdb0745, &[0xb8], 1, 4, b4(tdef, 2));
-    p!(base + 0xd3101c, &[0xb8], 1, 4, b4(wave, 3));
+    p!(base + 0xd3d04e, &[0x83,0xf9], 2, 1, b1(tcap, 60));   // ←0.5.3 db07ce
+    p!(base + 0xd3d051, &[0xb8], 1, 4, b4(tcap, 60));   // ←0.5.3 db07d1
+    p!(base + 0xd3cffe, &[0xb9], 1, 4, b4(tscale, 30));   // ←0.5.3 db077e
+    p!(base + 0xd3d032, &[0xb9], 1, 4, b4(tscale, 30));   // ←0.5.3 db07b2
+    p!(base + 0xd3ce7c, &[0xb8], 1, 4, b4(tdef, 2));   // ←0.5.3 db05fc
+    p!(base + 0xd3cfc5, &[0xb8], 1, 4, b4(tdef, 2));   // ←0.5.3 db0745
+    p!(base + 0xe96cdc, &[0xb8], 1, 4, b4(wave, 3));   // ←0.5.3 d3101c
 
     PATHIMM_SIG.store(sig, Ordering::Relaxed);
     if let Some(pp) = pth("path_imm.txt") {
@@ -2973,21 +2993,21 @@ unsafe fn apply_plan_imm() {
     let b4 = |v: i64, orig: u64| if v < 0 { orig } else { (v.max(0) as u64) & 0xffff_ffff };
     let mut ok = 0u32;
     // ── 역할 게이트 2사이트 (plan12/14 생성 / 일반분기 plan7·8·10) ──
-    ok += patch_imm_bytes(base + 0xe8e070, &[0x49,0x83,0xfd], 3, 1, b1(role, 1)) as u32;
-    ok += patch_imm_bytes(base + 0xe8e433, &[0x41,0x83,0xfd], 3, 1, b1(role, 1)) as u32;
+    ok += patch_imm_bytes(base + 0xde53a0, &[0x49,0x83,0xfd], 3, 1, b1(role, 1)) as u32;   // ←s2 e8e070
+    ok += patch_imm_bytes(base + 0xde5763, &[0x41,0x83,0xfd], 3, 1, b1(role, 1)) as u32;   // ←s2 e8e433
     // ── 세르펜 허용 페이즈 비트마스크 2사이트 ──
-    ok += patch_imm_bytes(base + 0xe8e0ab, &[0xb9], 1, 4, b4(smask, 0x1a1)) as u32;
-    ok += patch_imm_bytes(base + 0xe8e0e4, &[0xb9], 1, 4, b4(smask, 0x1a1)) as u32;
+    ok += patch_imm_bytes(base + 0xde53db, &[0xb9], 1, 4, b4(smask, 0x1a1)) as u32;   // ←s2 e8e0ab
+    ok += patch_imm_bytes(base + 0xde5414, &[0xb9], 1, 4, b4(smask, 0x1a1)) as u32;   // ←s2 e8e0e4
     // ★0.5.4: pl_serpen_phase_mask 가 **2곳 → 4곳**. `byte[+0x38]`(맵 레이아웃 9종) → `bt` 게이트.
-    ok += patch_imm_bytes(base + 0xe8eae9, &[0xb9], 1, 4, b4(smask, 0x1a1)) as u32;
-    ok += patch_imm_bytes(base + 0xe8f00c, &[0xb9], 1, 4, b4(smask, 0x1a1)) as u32;
+    ok += patch_imm_bytes(base + 0xde5e19, &[0xb9], 1, 4, b4(smask, 0x1a1)) as u32;   // ←s2 e8eae9
+    ok += patch_imm_bytes(base + 0xde633c, &[0xb9], 1, 4, b4(smask, 0x1a1)) as u32;   // ←s2 e8f00c
     // ── 에픽 허용 페이즈 경계 2사이트 (⬜의미 미확정·실험용) ──
-    ok += patch_imm_bytes(base + 0xe8e0f9, &[0x3c], 1, 1, if ephase < 0 { 0xf9 } else { (ephase & 0xff) as u64 }) as u32;
-    ok += patch_imm_bytes(base + 0xe8e126, &[0x3c], 1, 1, if ephase < 0 { 0xf9 } else { (ephase & 0xff) as u64 }) as u32;
+    ok += patch_imm_bytes(base + 0xde5429, &[0x3c], 1, 1, if ephase < 0 { 0xf9 } else { (ephase & 0xff) as u64 }) as u32;   // ←s2 e8e0f9
+    ok += patch_imm_bytes(base + 0xde5456, &[0x3c], 1, 1, if ephase < 0 { 0xf9 } else { (ephase & 0xff) as u64 }) as u32;   // ←s2 e8e126
     // ★0.5.4: pl_epic_phase_min 이 **2곳 → 3곳**.
-    ok += patch_imm_bytes(base + 0xe8f876, &[0x3c], 1, 1, if ephase < 0 { 0xf9 } else { (ephase & 0xff) as u64 }) as u32;
+    ok += patch_imm_bytes(base + 0xde6ba6, &[0x3c], 1, 1, if ephase < 0 { 0xf9 } else { (ephase & 0xff) as u64 }) as u32;   // ←s2 e8f876
     // ── 갱 plan 게이트 1사이트 ──
-    ok += patch_imm_bytes(base + 0xe8e86c, &[0x3c], 1, 1, b1(gank, 0x0b)) as u32;
+    ok += patch_imm_bytes(base + 0xde5b9c, &[0x3c], 1, 1, b1(gank, 0x0b)) as u32;   // ←s2 e8e86c
     PLANIMM_SIG.store(sig, Ordering::Relaxed);
     if let Some(p) = pth("plan_imm.txt") {
         let _ = fs::write(p, format!("applied={}/10 obj_role={} serpen_mask={} epic_phase={} ganker_gate={} (-1=원본: 1/0x1a1/0xf9/0x0b) @base{:#x}\n",
@@ -3047,26 +3067,26 @@ unsafe fn apply_gb_imm() {
     let e_rm = if on(rm) { u32c(rm) }              else { 0x61a8 };
     let mut ok = 0u32;
     // ── 본체 0x22b2280: 거리/반경·HP (0.5.2 재핀 07-23) ──
-    ok += patch_imm_bytes(base + 0xdca53f, &[0x48,0xc7,0x44,0x24,0x40], 5, 4, e_cr) as u32;
+    ok += patch_imm_bytes(base + 0xcc1313, &[0x48,0xc7,0x44,0x24,0x40], 5, 4, e_cr) as u32;   // ←s2 dca53f
     // ★0.5.4: gb 근접반경² 가 **1곳 → 2곳**(같은 인자슬롯 복제).
-    ok += patch_imm_bytes(base + 0xdca6b0, &[0x48,0xc7,0x44,0x24,0x40], 5, 4, e_cr) as u32;                  // 근접반경²  orig 0x249f0
-    ok += patch_imm_bytes(base + 0xdcb1f0, &[0x48,0xc7,0x85,0x30,0x02,0x00,0x00], 7, 4, e_lr) as u32;        // 라인range² orig 0x3d090 (★0.5.3: rbp 변위 0x1b0→**0x270** = prefix 4~7B 교체. 0.5.1→0.5.2땐 0x180→0x1b0였음)
-    ok += patch_imm_bytes(base + 0xdcb115, &[0xb8], 1, 4, e_jd) as u32;                                 // 합류max거리²(지배) orig 0xd693a401 (★0.5.3: `41 b8`(mov r8d)→**`b8`(mov eax)** 로 인코딩 축소 ⟹ 사이트가 +1(0xe075c9→**0xdcb115**), prefix 1B, off 2→1. 뒤 비교도 cmp r9,r8→cmp r8,rax 로 대응. 구 인코딩 mov r8d로 변경)
-    ok += patch_imm_bytes(base + 0xdce2d5, &[0x48,0x83,0xf8], 3, 1, e_ph) as u32;                            // 라인압박 HP%<30
+    ok += patch_imm_bytes(base + 0xcc148b, &[0x48,0xc7,0x44,0x24,0x40], 5, 4, e_cr) as u32;                  // 근접반경²  orig 0x249f0   // ←s2 dca6b0
+    ok += patch_imm_bytes(base + 0xcc1ffd, &[0x48,0xc7,0x85,0x38,0x02,0x00,0x00], 7, 4, e_lr) as u32;        // 라인range² orig 0x3d090 (★0.5.3: rbp 변위 0x1b0→**0x270** = prefix 4~7B 교체. 0.5.1→0.5.2땐 0x180→0x1b0였음)   // ←s2 dcb1f0
+    ok += patch_imm_bytes(base + 0xcc1f06, &[0xb8], 1, 4, e_jd) as u32;                                 // 합류max거리²(지배) orig 0xd693a401 (★0.5.3: `41 b8`(mov r8d)→**`b8`(mov eax)** 로 인코딩 축소 ⟹ 사이트가 +1(0xe075c9→**0xdcb115**), prefix 1B, off 2→1. 뒤 비교도 cmp r9,r8→cmp r8,rax 로 대응. 구 인코딩 mov r8d로 변경)   // ←s2 dcb115
+    ok += patch_imm_bytes(base + 0xcc5390, &[0x48,0x83,0xf8], 3, 1, e_ph) as u32;                            // 라인압박 HP%<30   // ←s2 dce2d5
     // ── 거점헬퍼 0x2398240: op·scout ──
-    ok += patch_imm_bytes(base + 0xdd512d, &[0x48,0x83,0xb9,0xb8,0x00,0x00,0x00], 7, 1, e_op) as u32;   // 운영진입 phase>30 (★0.5.3: 컨테이너 0x2398240→**0xcc3960**, `[r14+0xb8]`→**`[rcx+0xb8]`** = prefix 49 83 be→48 83 b9)
+    ok += patch_imm_bytes(base + 0xd5f43d, &[0x48,0x83,0xb9,0xb8,0x00,0x00,0x00], 7, 1, e_op) as u32;   // 운영진입 phase>30 (★0.5.3: 컨테이너 0x2398240→**0xcc3960**, `[r14+0xb8]`→**`[rcx+0xb8]`** = prefix 49 83 be→48 83 b9)   // ←s2 dd512d
     // ★0.5.3: 0.5.2 는 같은 5슬롯 루프의 임계값을 **프리헤더+latch 2곳**에 호이스트했었는데(그래서 2사이트),
     //   0.5.3 은 호이스트 없이 **루프 본문 1곳**만 둔다 ⟹ 2사이트 → **1사이트 병합**. `movabs r9`→**`movabs rax`**.
     // ★★극성 반전: 0.5.2 `cmp rdx,r9; jae(스킵)`(임계=d²+1) ⟺ 0.5.3 `cmp rdx,rax; ja(스킵)`(임계=d²)
     //   ⟹ 인코딩을 **sq1(d²+1) → sqd(d²)** 로 바꿔야 한다. 여기서 sq1 을 쓰면 반경이 1 어긋난다.
     // ⚠같은 함수의 `movabs r13, 0x53d1ac101`(=150000²+1 @0xcc4399)은 **다른 반경**이고 원래도 미패치 — 값만 보고 잡지 말 것.
     let e_sr2 = if on(sr) { sqd(sr) } else { 0x35a4e9000 };   // ⚠sq1 아님(극성 반전)
-    ok += patch_imm_bytes(base + 0xdd5656, &[0x48,0xb8], 2, 8, e_sr2) as u32;   // 거점반경² (0.5.2 #1+#2 통합)
+    ok += patch_imm_bytes(base + 0xd5f966, &[0x48,0xb8], 2, 8, e_sr2) as u32;   // 거점반경² (0.5.2 #1+#2 통합)   // ←s2 dd5656
     // ⛔합류 phase≥12 2사이트(구 0x1e1f4ea/0x1e1fa74) = 0.5.2 게이트 삭제 → 제거(상단 주석)
     // ── reach (전역공유 ⚠): 0x23ad980 / 0x23ba8d0 ──
-    ok += patch_imm_bytes(base + 0xddc5d7, &[0x48,0xb8], 2, 8, e_rc) as u32;                                 // reach cap² #1(≤)
-    ok += patch_imm_bytes(base + 0xde338d, &[0x49,0xba], 2, 8, e_rc.wrapping_add(1)) as u32;                 // reach cap² #2(<, +1경계)
-    ok += patch_imm_bytes(base + 0xdcd2d7, &[0x41,0xb8], 2, 4, e_rm) as u32;                                 // reach margin
+    ok += patch_imm_bytes(base + 0xddc5d7, &[0x48,0xb8], 2, 8, e_rc) as u32;                                 // reach cap² #1(≤)   // ⛔s2 미확정(스테일): ddc5d7
+    ok += patch_imm_bytes(base + 0xde338d, &[0x49,0xba], 2, 8, e_rc.wrapping_add(1)) as u32;                 // reach cap² #2(<, +1경계)   // ⛔s2 미확정(스테일): de338d
+    ok += patch_imm_bytes(base + 0xcc3e01, &[0x41,0xb8], 2, 4, e_rm) as u32;                                 // reach margin   // ←s2 dcd2d7
     GBIMM_SIG.store(sig, Ordering::Relaxed);
     if let Some(p) = pth("gb_imm.txt") {
         let _ = fs::write(p, format!("gb_enable={} applied={}/10 close={} line={} join={} scout={} op_ph={} join_ph={}=DEAD push_hp={} reach_cap={} reach_mgn={} @base{:#x}\n",
@@ -3122,43 +3142,43 @@ unsafe fn apply_sev_imm() {
     };
     let mut ok = 0u32;
     // ── [A] 위협 평가 정본 본체 0x22dd9a0 (사다리 7 + 할인 3) ──
-    ok += patch_imm_bytes(base + 0xcaf964, &[0x48,0x83,0xf8], 3, 1, p_t0) as u32;   // tr>49
-    ok += patch_imm_bytes(base + 0xcaf974, &[0x48,0x83,0xf9], 3, 1, p_h1) as u32;   // hp%>65 (rcx)
-    ok += patch_imm_bytes(base + 0xcaf97a, &[0x48,0x83,0xf8], 3, 1, p_t1) as u32;   // tr>29
-    ok += patch_imm_bytes(base + 0xcaf984, &[0x48,0x83,0xf9], 3, 1, p_h2) as u32;   // hp%>40
-    ok += patch_imm_bytes(base + 0xcaf98a, &[0x48,0x83,0xf8], 3, 1, p_t2) as u32;   // tr>17
-    ok += patch_imm_bytes(base + 0xcaf994, &[0x48,0x83,0xf9], 3, 1, p_h3) as u32;   // hp%>25
-    ok += patch_imm_bytes(base + 0xcaf99a, &[0x48,0x83,0xf8], 3, 1, p_t3) as u32;   // tr>9
-    ok += patch_imm_bytes(base + 0xcaf9af, &[0x48,0xc1,0xf8], 3, 1, p_ds) as u32;   // 할인 shift (sar rax,imm8)
-    ok += patch_imm_bytes(base + 0xcaf9b3, &[0x48,0x83,0xf8], 3, 1, p_dc) as u32;   // 할인 cap 비교
-    ok += patch_imm_bytes(base + 0xcaf9b7, &[0xbe], 1, 4, p_dc) as u32;             // 할인 cap 값 (mov ebx,imm32)
+    ok += patch_imm_bytes(base + 0xd17f33, &[0x48,0x83,0xf8], 3, 1, p_t0) as u32;   // tr>49   // ←s2 caf964
+    ok += patch_imm_bytes(base + 0xd17f3d, &[0x48,0x83,0xf9], 3, 1, p_h1) as u32;   // hp%>65 (rcx)   // ←s2 caf974
+    ok += patch_imm_bytes(base + 0xd17f43, &[0x48,0x83,0xf8], 3, 1, p_t1) as u32;   // tr>29   // ←s2 caf97a
+    ok += patch_imm_bytes(base + 0xd17f4d, &[0x48,0x83,0xf9], 3, 1, p_h2) as u32;   // hp%>40   // ←s2 caf984
+    ok += patch_imm_bytes(base + 0xd17f53, &[0x48,0x83,0xf8], 3, 1, p_t2) as u32;   // tr>17   // ←s2 caf98a
+    ok += patch_imm_bytes(base + 0xd17f5d, &[0x48,0x83,0xf9], 3, 1, p_h3) as u32;   // hp%>25   // ←s2 caf994
+    ok += patch_imm_bytes(base + 0xd17f63, &[0x48,0x83,0xf8], 3, 1, p_t3) as u32;   // tr>9   // ←s2 caf99a
+    ok += patch_imm_bytes(base + 0xd17f78, &[0x48,0xc1,0xf8], 3, 1, p_ds) as u32;   // 할인 shift (sar rax,imm8)   // ←s2 caf9af
+    ok += patch_imm_bytes(base + 0xd17f7c, &[0x48,0x83,0xf8], 3, 1, p_dc) as u32;   // 할인 cap 비교   // ←s2 caf9b3
+    ok += patch_imm_bytes(base + 0xd17f80, &[0xbe], 1, 4, p_dc) as u32;             // 할인 cap 값 (mov ebx,imm32)   // ←s2 caf9b7
     // ── [B] 드라이버B 공통 위협 빌더 0x22e6460 (축약 5) ──
-    ok += patch_imm_bytes(base + 0xcb7d5d, &[0x48,0x83,0xf8], 3, 1, p_t0) as u32;   // tr>49
-    ok += patch_imm_bytes(base + 0xcb7d63, &[0x49,0x83,0xf8], 3, 1, p_h1) as u32;   // hp%>65 (r8)
-    ok += patch_imm_bytes(base + 0xcb7d69, &[0x48,0x83,0xf8], 3, 1, p_t1) as u32;   // tr>29
-    ok += patch_imm_bytes(base + 0xcb7d6f, &[0x49,0x83,0xf8], 3, 1, p_h2) as u32;   // hp%>40
-    ok += patch_imm_bytes(base + 0xcb7d75, &[0x48,0x83,0xf8], 3, 1, p_t2) as u32;   // tr>17
+    ok += patch_imm_bytes(base + 0xd20264, &[0x48,0x83,0xf8], 3, 1, p_t0) as u32;   // tr>49   // ←s2 cb7d5d
+    ok += patch_imm_bytes(base + 0xd2026a, &[0x49,0x83,0xf8], 3, 1, p_h1) as u32;   // hp%>65 (r8)   // ←s2 cb7d63
+    ok += patch_imm_bytes(base + 0xd20270, &[0x48,0x83,0xf8], 3, 1, p_t1) as u32;   // tr>29   // ←s2 cb7d69
+    ok += patch_imm_bytes(base + 0xd20276, &[0x49,0x83,0xf8], 3, 1, p_h2) as u32;   // hp%>40   // ←s2 cb7d6f
+    ok += patch_imm_bytes(base + 0xd2027c, &[0x48,0x83,0xf8], 3, 1, p_t2) as u32;   // tr>17   // ←s2 cb7d75
     // ── [C] 위협 유의성 필터 leaf 0x22efed0 branch B (7) ──
-    ok += patch_imm_bytes(base + 0xcba11b, &[0x48,0x83,0xf8], 3, 1, p_t0) as u32;   // tr>49
-    ok += patch_imm_bytes(base + 0xcba121, &[0x48,0x83,0xf9], 3, 1, p_h1) as u32;   // hp%>65 (rcx)
-    ok += patch_imm_bytes(base + 0xcba127, &[0x48,0x83,0xf8], 3, 1, p_t1) as u32;   // tr>29
-    ok += patch_imm_bytes(base + 0xcba12d, &[0x48,0x83,0xf9], 3, 1, p_h2) as u32;   // hp%>40
-    ok += patch_imm_bytes(base + 0xcba133, &[0x48,0x83,0xf8], 3, 1, p_t2) as u32;   // tr>17
-    ok += patch_imm_bytes(base + 0xcba139, &[0x48,0x83,0xf9], 3, 1, p_h3) as u32;   // hp%>25
-    ok += patch_imm_bytes(base + 0xcba13f, &[0x48,0x83,0xf8], 3, 1, p_t3) as u32;   // tr>9
+    ok += patch_imm_bytes(base + 0xdb119b, &[0x48,0x83,0xf8], 3, 1, p_t0) as u32;   // tr>49   // ←s2 cba11b
+    ok += patch_imm_bytes(base + 0xdb11a1, &[0x48,0x83,0xf9], 3, 1, p_h1) as u32;   // hp%>65 (rcx)   // ←s2 cba121
+    ok += patch_imm_bytes(base + 0xdb11a7, &[0x48,0x83,0xf8], 3, 1, p_t1) as u32;   // tr>29   // ←s2 cba127
+    ok += patch_imm_bytes(base + 0xdb11ad, &[0x48,0x83,0xf9], 3, 1, p_h2) as u32;   // hp%>40   // ←s2 cba12d
+    ok += patch_imm_bytes(base + 0xdb11b3, &[0x48,0x83,0xf8], 3, 1, p_t2) as u32;   // tr>17   // ←s2 cba133
+    ok += patch_imm_bytes(base + 0xdb11b9, &[0x48,0x83,0xf9], 3, 1, p_h3) as u32;   // hp%>25   // ←s2 cba139
+    ok += patch_imm_bytes(base + 0xdb11bf, &[0x48,0x83,0xf8], 3, 1, p_t3) as u32;   // tr>9   // ←s2 cba13f
     // ── [C] branch A "소극 경로" 4임계 (0.5.3 실바이트 지문: 48 83 f9 19 / 48 83 f8 22 / 48 83 f9 0f / 48 83 f8 14) ──
-    ok += patch_imm_bytes(base + 0xcba183, &[0x48,0x83,0xf9], 3, 1, q_hh) as u32;   // A1 hp%>25 → 1단 스킵
-    ok += patch_imm_bytes(base + 0xcba189, &[0x48,0x83,0xf8], 3, 1, q_th) as u32;   // A2 tr>34 → 통과
-    ok += patch_imm_bytes(base + 0xcba18f, &[0x48,0x83,0xf9], 3, 1, q_hl) as u32;   // A3 hp%>15 → 차단
-    ok += patch_imm_bytes(base + 0xcba195, &[0x48,0x83,0xf8], 3, 1, q_tl) as u32;   // A4 tr>=20 → 통과 (jb 인코딩)
+    ok += patch_imm_bytes(base + 0xdb1203, &[0x48,0x83,0xf9], 3, 1, q_hh) as u32;   // A1 hp%>25 → 1단 스킵   // ←s2 cba183
+    ok += patch_imm_bytes(base + 0xdb1209, &[0x48,0x83,0xf8], 3, 1, q_th) as u32;   // A2 tr>34 → 통과   // ←s2 cba189
+    ok += patch_imm_bytes(base + 0xdb120f, &[0x48,0x83,0xf9], 3, 1, q_hl) as u32;   // A3 hp%>15 → 차단   // ←s2 cba18f
+    ok += patch_imm_bytes(base + 0xdb1215, &[0x48,0x83,0xf8], 3, 1, q_tl) as u32;   // A4 tr>=20 → 통과 (jb 인코딩)   // ←s2 cba195
     // ── [E] 공유 후보-스코어링 평가자 0x23a04d0 (7, tr3만 +1 인코딩) ──
-    ok += patch_imm_bytes(base + 0xd958c3, &[0x48,0x83,0xf8], 3, 1, p_t0) as u32;   // tr>49
-    ok += patch_imm_bytes(base + 0xd958c9, &[0x49,0x83,0xf8], 3, 1, p_h1) as u32;   // hp%>65 (r8)
-    ok += patch_imm_bytes(base + 0xd958cf, &[0x48,0x83,0xf8], 3, 1, p_t1) as u32;   // tr>29
-    ok += patch_imm_bytes(base + 0xd958d5, &[0x49,0x83,0xf8], 3, 1, p_h2) as u32;   // hp%>40
-    ok += patch_imm_bytes(base + 0xd958db, &[0x48,0x83,0xf8], 3, 1, p_t2) as u32;   // tr>17
-    ok += patch_imm_bytes(base + 0xd958e3, &[0x49,0x83,0xf8], 3, 1, p_h3) as u32;   // hp%>25
-    ok += patch_imm_bytes(base + 0xd958e9, &[0x48,0x83,0xf8], 3, 1, p_t3 + 1) as u32; // tr>=10 (jb = tr3+1 인코딩)
+    ok += patch_imm_bytes(base + 0xe3cb82, &[0x48,0x83,0xf8], 3, 1, p_t0) as u32;   // tr>49   // ←s2 d958c3
+    ok += patch_imm_bytes(base + 0xe3cb88, &[0x49,0x83,0xf8], 3, 1, p_h1) as u32;   // hp%>65 (r8)   // ←s2 d958c9
+    ok += patch_imm_bytes(base + 0xe3cb8e, &[0x48,0x83,0xf8], 3, 1, p_t1) as u32;   // tr>29   // ←s2 d958cf
+    ok += patch_imm_bytes(base + 0xe3cb94, &[0x49,0x83,0xf8], 3, 1, p_h2) as u32;   // hp%>40   // ←s2 d958d5
+    ok += patch_imm_bytes(base + 0xe3cb9a, &[0x48,0x83,0xf8], 3, 1, p_t2) as u32;   // tr>17   // ←s2 d958db
+    ok += patch_imm_bytes(base + 0xe3cba2, &[0x49,0x83,0xf8], 3, 1, p_h3) as u32;   // hp%>25   // ←s2 d958e3
+    ok += patch_imm_bytes(base + 0xe3cba8, &[0x48,0x83,0xf8], 3, 1, p_t3 + 1) as u32; // tr>=10 (jb = tr3+1 인코딩)   // ←s2 d958e9
     SEVIMM_SIG.store(sig, Ordering::Relaxed);
     if let Some(p) = pth("sev_imm.txt") {
         let _ = fs::write(p, format!("sv_enable={} applied={}/33 tr=[{} {} {} {}] hp=[{} {} {}] discount=shift{} cap{} pa=[hh{} th{} hl{} tl{}] @base{:#x}\n",
@@ -3763,14 +3783,14 @@ unsafe fn apply_numbers_sp(disc: i64, entry_rsp: usize, p1: usize) {
         //   모드 전역이 이미 `p5+0x820`/`p5+0x818`을 쓰는데(dd7700·serpen·f22e80 등) **이 함수만 구 오프셋**이었다.
         //   ⚠**라이브 경로**: cfg `tower_threat=200`·`numbers_threat=49`·`numbers_threat_move=2`가 켜져 있어 실제 실행 중이었고,
         //   side가 쓰레기값·selfe가 잘못된 핸들로 해석돼 **numbers 후퇴 판정이 전 disc에서 오작동**하고 있었다(감사 07-23).
-        let side = rd_i64(r14 + 0x810).unwrap_or(-1);//  ★0.5.4 오프셋 이동 반영
-        let selfe = dd7_slot128(sim, rd_u64(r14 + 0x818).unwrap_or(0));
+        let side = rd_i64(r14 + 0x930).unwrap_or(-1);//  ★0.5.4 오프셋 이동 반영
+        let selfe = dd7_slot128(sim, rd_u64(r14 + 0x938).unwrap_or(0));
         // ★[07-29 detlog v2] numbers: IN(site12)=판단입력 / OUT(site28)=후퇴 발동여부. 둘 다 **항상** 기록해야
         //   "같은 입력인데 발동만 갈림"(=laner_should_retreat 비결정)을 잡을 수 있다.
         let fired = ptr_ok(selfe) && laner_should_retreat(r15, side, selfe, r14, base_code, disc);
         // ★[07-29 detlog ch4] numbers 후퇴 판정(발동여부). ch0/ch1 일치인데 여기만 갈리면 laner_should_retreat이 비결정.
         if DL_ON.load(Ordering::Relaxed) {
-            dl_rec(sim, 4, (fired as u64) ^ ((disc as u64) << 1) ^ rd_u64(r14 + 0x810).unwrap_or(0).rotate_left(7));
+            dl_rec(sim, 4, (fired as u64) ^ ((disc as u64) << 1) ^ rd_u64(r14 + 0x930).unwrap_or(0).rotate_left(7));
         }
         if fired {
             std::ptr::write_unaligned(p1 as *mut u64, 7u64);
@@ -3956,15 +3976,15 @@ unsafe fn apply_lt_imm() {
     //   게이트 `d²(ally,enemy) < d²(ally,me)=0`이 unsigned 비교라 **영구 false**다.
     //   ⟹ 패치는 유지하되(무해) 유저에게는 "효과 없음"으로 표기한다. 값을 바꿔도 게임 동작은 안 변한다.
     let v_lt_ally_join: u64 = { if lt_ally_join < 0 { 9765625u64 } else { let x = lt_ally_join.max(0) as u64; x.wrapping_mul(x) >> 8 } };
-    p!(base + 0xd9fc63, &[0x48,0x81,0xfa], 3, 4, v_lt_ally_join);   // ←0.5.3 c57dcf
+    p!(base + 0xea0513, &[0x48,0x81,0xfa], 3, 4, v_lt_ally_join);   // ←0.5.3 c57dcf   // ←0.5.3 d9fc63
     let v_lt_around_radius: u64 = { if lt_around_radius < 0 { 80000u64 } else { lt_around_radius.max(0) as u64 } };
     // ⛔[08-04] `0xc57ed3`은 위 死분기 안의 사이트라 **효과가 없다**(제거해도 무해하나 오해 유발 방지용으로 주석 유지).
     //   살아있는 사이트는 아래 `0xc5816c`·`0xc58296` 둘뿐이다.
-    p!(base + 0xd9fd6f, &[0x48,0xc7,0x85,0xf0,0x00,0x00,0x00], 7, 4, v_lt_around_radius);   // ←0.5.3 c57ed3
-    p!(base + 0xd9ffe7, &[0x48,0xc7,0x85,0xf0,0x00,0x00,0x00], 7, 4, v_lt_around_radius);   // ←0.5.3 c5816c
-    p!(base + 0xda0470, &[0x48,0xc7,0x85,0xf0,0x00,0x00,0x00], 7, 4, v_lt_around_radius);   // ←0.5.3 c58296
+    p!(base + 0xea061f, &[0x48,0xc7,0x85,0xf0,0x00,0x00,0x00], 7, 4, v_lt_around_radius);   // ←0.5.3 c57ed3   // ←0.5.3 d9fd6f
+    p!(base + 0xea0897, &[0x48,0xc7,0x85,0xf0,0x00,0x00,0x00], 7, 4, v_lt_around_radius);   // ←0.5.3 c5816c   // ←0.5.3 d9ffe7
+    p!(base + 0xea0d20, &[0x48,0xc7,0x85,0xf0,0x00,0x00,0x00], 7, 4, v_lt_around_radius);   // ←0.5.3 c58296   // ←0.5.3 da0470
     let v_lt_phase_mask: u64 = { if lt_phase_mask < 0 { 417u64 } else { lt_phase_mask.max(0) as u64 } };
-    p!(base + 0xd9f4c7, &[0xba], 1, 4, v_lt_phase_mask);   // ←0.5.3 c5763d
+    p!(base + 0xe9fd77, &[0xba], 1, 4, v_lt_phase_mask);   // ←0.5.3 c5763d   // ←0.5.3 d9f4c7
     LT_SIG.store(sig, Ordering::Relaxed);
     if let Some(pp) = pth("lt_imm.txt") {
         let _ = fs::write(pp, format!("applied={}/{} lt_ally_join={} lt_around_radius={} lt_phase_mask={} @base{:#x}\n",
@@ -3992,16 +4012,16 @@ unsafe fn apply_nx_imm() {
         tot += 1; let _ = ($a, $pre, $off, $w, $v);
     }}; }
     let v_nx_cull_dist19: u64 = { if nx_cull_dist19 < 0 { 390625u64 } else { let x = nx_cull_dist19.max(0) as u64; x.wrapping_mul(x) >> 14 } };
-    p!(base + 0xdadb55, &[0x49,0x81,0xf8], 3, 4, v_nx_cull_dist19);   // ←0.5.3 dee222  ★재조사로 복구: nx_cull (053 3곳→054 1곳 통합)
+    p!(base + 0xd3a3d5, &[0x49,0x81,0xf8], 3, 4, v_nx_cull_dist19);   // ←0.5.3 dee222  ★재조사로 복구: nx_cull (053 3곳→054 1곳 통합)   // ←0.5.3 dadb55
     pskip!(base + 0xdee2b1, &[0x49,0x81,0xf8], 3, 4, v_nx_cull_dist19);   // ⛔0.5.4 미확정: 시그 3→1 / 완화 3→1 (골격 80%)
     pskip!(base + 0xdee335, &[0x49,0x81,0xf8], 3, 4, v_nx_cull_dist19);   // ⛔0.5.4 미확정: 시그 3→1 / 완화 3→1 (골격 80%)
     let v_nx_around_atk: u64 = { if nx_around_atk < 0 { 80000u64 } else { nx_around_atk.max(0) as u64 } };
-    p!(base + 0xda1e59, &[0x48,0xc7,0x85,0xb8,0x00,0x00,0x00], 7, 4, v_nx_around_atk);   // ←0.5.3 d95316
+    p!(base + 0xd293a9, &[0x48,0xc7,0x85,0xb8,0x00,0x00,0x00], 7, 4, v_nx_around_atk);   // ←0.5.3 d95316   // ←0.5.3 da1e59
     let v_nx_around_def: u64 = { if nx_around_def < 0 { 80000u64 } else { nx_around_def.max(0) as u64 } };
-    p!(base + 0xdad2df, &[0x48,0xc7,0x85,0x58,0x01,0x00,0x00], 7, 4, v_nx_around_def);   // ←0.5.3 dedabf
-    p!(base + 0xdad51b, &[0x48,0xc7,0x85,0x58,0x01,0x00,0x00], 7, 4, v_nx_around_def);   // ←0.5.3 dedd0a
-    p!(base + 0xdad7ea, &[0x48,0xc7,0x85,0x58,0x01,0x00,0x00], 7, 4, v_nx_around_def);   // ←0.5.3 deddf7
-    p!(base + 0xdad892, &[0x48,0xc7,0x85,0x58,0x01,0x00,0x00], 7, 4, v_nx_around_def);   // ←0.5.3 dede9f
+    p!(base + 0xd39b5f, &[0x48,0xc7,0x85,0x58,0x01,0x00,0x00], 7, 4, v_nx_around_def);   // ←0.5.3 dedabf   // ←0.5.3 dad2df
+    p!(base + 0xd39d9b, &[0x48,0xc7,0x85,0x58,0x01,0x00,0x00], 7, 4, v_nx_around_def);   // ←0.5.3 dedd0a   // ←0.5.3 dad51b
+    p!(base + 0xd3a06a, &[0x48,0xc7,0x85,0x58,0x01,0x00,0x00], 7, 4, v_nx_around_def);   // ←0.5.3 deddf7   // ←0.5.3 dad7ea
+    p!(base + 0xd3a112, &[0x48,0xc7,0x85,0x58,0x01,0x00,0x00], 7, 4, v_nx_around_def);   // ←0.5.3 dede9f   // ←0.5.3 dad892
     NX_SIG.store(sig, Ordering::Relaxed);
     if let Some(pp) = pth("nx_imm.txt") {
         let _ = fs::write(pp, format!("applied={}/{} nx_cull_dist19={} nx_around_atk={} nx_around_def={} @base{:#x}\n",
@@ -4040,73 +4060,73 @@ unsafe fn apply_hd_imm() {
     macro_rules! p { ($a:expr, $pre:expr, $off:expr, $w:expr, $v:expr) => {{
         tot += 1; ok += patch_imm_bytes($a, $pre, $off, $w, $v) as u32; }}; }
     let v_hd_bush_near: u64 = { if hd_bush_near < 0 { 10000000000u64 } else { let x = hd_bush_near.max(0) as u64; x.wrapping_mul(x) } };
-    p!(base + 0xd81ada, &[0x48,0xb8], 2, 8, v_hd_bush_near);   // ←0.5.3 ca46b7
-    p!(base + 0xd81c47, &[0x48,0xb8], 2, 8, v_hd_bush_near);   // ←0.5.3 ca4812
+    p!(base + 0xd2adb7, &[0x48,0xb8], 2, 8, v_hd_bush_near);   // ←0.5.3 ca46b7   // ←0.5.3 d81ada
+    p!(base + 0xd2af61, &[0x48,0xb8], 2, 8, v_hd_bush_near);   // ←0.5.3 ca4812   // ←0.5.3 d81c47
     let v_hd_path_radius: u64 = { if hd_path_radius < 0 { 60000u64 } else { hd_path_radius.max(0) as u64 } };
-    p!(base + 0xd81b09, &[0x48,0xc7,0x44,0x24,0x20], 5, 4, v_hd_path_radius);   // ←0.5.3 ca46e3
-    p!(base + 0xd81c76, &[0x48,0xc7,0x44,0x24,0x20], 5, 4, v_hd_path_radius);   // ←0.5.3 ca483e
+    p!(base + 0xd2ade6, &[0x48,0xc7,0x44,0x24,0x20], 5, 4, v_hd_path_radius);   // ←0.5.3 ca46e3   // ←0.5.3 d81b09
+    p!(base + 0xd2af90, &[0x48,0xc7,0x44,0x24,0x20], 5, 4, v_hd_path_radius);   // ←0.5.3 ca483e   // ←0.5.3 d81c76
     let v_hd_around_radius: u64 = { if hd_around_radius < 0 { 80000u64 } else { hd_around_radius.max(0) as u64 } };
-    p!(base + 0xd81ba0, &[0x48,0xc7,0x45,0x08], 4, 4, v_hd_around_radius);   // ←0.5.3 ca471f
-    p!(base + 0xd81d0d, &[0x48,0xc7,0x45,0x08], 4, 4, v_hd_around_radius);   // ←0.5.3 ca487a
+    p!(base + 0xd2ae7d, &[0x48,0xc7,0x45,0x08], 4, 4, v_hd_around_radius);   // ←0.5.3 ca471f   // ←0.5.3 d81ba0
+    p!(base + 0xd2b027, &[0x48,0xc7,0x45,0x08], 4, 4, v_hd_around_radius);   // ←0.5.3 ca487a   // ←0.5.3 d81d0d
     let v_hd_detect_max: u64 = { if hd_detect_max < 0 { 62500000001u64 } else { let x = hd_detect_max.max(0) as u64; x.wrapping_mul(x).wrapping_add(1) } };
-    p!(base + 0xd81f21, &[0x48,0xba], 2, 8, v_hd_detect_max);   // ←0.5.3 ca4ae1
+    p!(base + 0xd2b241, &[0x48,0xba], 2, 8, v_hd_detect_max);   // ←0.5.3 ca4ae1   // ←0.5.3 d81f21
     // ★[08-04] **반쪽 적용 결함 수정** — 같은 게이트가 축약함수 `0xdc2c90` 안에도 있는데 안 걸려 있었다.
     //   ⚠그쪽은 `+1`이 없는 순수 제곱값이다(hide는 `<=`, 여기는 `<` 비교라 상수가 1 다르다).
     let v_hd_detect_max_h: u64 = { if hd_detect_max < 0 { 62500000000u64 } else { let x = hd_detect_max.max(0) as u64; x.wrapping_mul(x) } };
     //   ⚠주소 주의: `0xdc2dce`는 **상수가 놓인 위치**이고 명령 시작은 그 2바이트 앞인 `0xdc2dcc`다.
     //     (검색 스크립트가 찍는 건 패턴 위치라 그걸 그대로 쓰면 조용히 skip된다 — 실제로 한 번 그랬다.)
-    p!(base + 0xe3d8bc, &[0x48,0xba], 2, 8, v_hd_detect_max_h);   // ←0.5.3 dc2dcc
+    p!(base + 0xca492c, &[0x48,0xba], 2, 8, v_hd_detect_max_h);   // ←0.5.3 dc2dcc   // ←0.5.3 e3d8bc
     let v_hd_fight_cut: u64 = { if hd_fight_cut < 0 { 22500000000u64 } else { let x = hd_fight_cut.max(0) as u64; x.wrapping_mul(x) } };
-    p!(base + 0xd8259a, &[0x48,0xb8], 2, 8, v_hd_fight_cut);   // ←0.5.3 ca50fa
+    p!(base + 0xd2b8da, &[0x48,0xb8], 2, 8, v_hd_fight_cut);   // ←0.5.3 ca50fa   // ←0.5.3 d8259a
     let v_hd_cand_select: u64 = { if hd_cand_select < 0 { 22500000001u64 } else { let x = hd_cand_select.max(0) as u64; x.wrapping_mul(x).wrapping_add(1) } };
-    p!(base + 0xd82e39, &[0x49,0xb8], 2, 8, v_hd_cand_select);   // ←0.5.3 ca598f
-    p!(base + 0xd82e9e, &[0x49,0xb9], 2, 8, v_hd_cand_select);   // ←0.5.3 ca59f2
-    p!(base + 0xd82f0c, &[0x49,0xb9], 2, 8, v_hd_cand_select);   // ←0.5.3 ca5a59
-    p!(base + 0xd82f7a, &[0x49,0xb9], 2, 8, v_hd_cand_select);   // ←0.5.3 ca5ac0
-    p!(base + 0xd82fe7, &[0x49,0xb8], 2, 8, v_hd_cand_select);   // ←0.5.3 ca5b26
-    p!(base + 0xd83050, &[0x48,0xb9], 2, 8, v_hd_cand_select);   // ←0.5.3 ca5b8f
-    p!(base + 0xd83533, &[0x49,0xb9], 2, 8, v_hd_cand_select);   // ←0.5.3 ca6080
-    p!(base + 0xd8359c, &[0x49,0xb9], 2, 8, v_hd_cand_select);   // ←0.5.3 ca60e2
-    p!(base + 0xd83608, &[0x49,0xb9], 2, 8, v_hd_cand_select);   // ←0.5.3 ca6147
-    p!(base + 0xd83674, &[0x49,0xb9], 2, 8, v_hd_cand_select);   // ←0.5.3 ca61ac
-    p!(base + 0xd836e0, &[0x49,0xb9], 2, 8, v_hd_cand_select);   // ←0.5.3 ca6211
-    p!(base + 0xd83744, &[0x48,0xb9], 2, 8, v_hd_cand_select);   // ←0.5.3 ca6275
-    p!(base + 0xd83798, &[0x48,0xb9], 2, 8, v_hd_cand_select);   // ←0.5.3 ca62c9
-    p!(base + 0xd837eb, &[0x48,0xb9], 2, 8, v_hd_cand_select);   // ←0.5.3 ca631c
-    p!(base + 0xd8383e, &[0x48,0xb9], 2, 8, v_hd_cand_select);   // ←0.5.3 ca636f
-    p!(base + 0xd8388f, &[0x48,0xb9], 2, 8, v_hd_cand_select);   // ←0.5.3 ca63c0
-    p!(base + 0xd83976, &[0x49,0xb9], 2, 8, v_hd_cand_select);   // ←0.5.3 ca64a7
-    p!(base + 0xd839db, &[0x49,0xb9], 2, 8, v_hd_cand_select);   // ←0.5.3 ca650c
-    p!(base + 0xd83a45, &[0x49,0xb9], 2, 8, v_hd_cand_select);   // ←0.5.3 ca6576
-    p!(base + 0xd83aaf, &[0x49,0xb9], 2, 8, v_hd_cand_select);   // ←0.5.3 ca65e0
-    p!(base + 0xd83ba4, &[0x48,0xba], 2, 8, v_hd_cand_select);   // ←0.5.3 ca66ce
-    p!(base + 0xd83d70, &[0x48,0xb9], 2, 8, v_hd_cand_select);   // ←0.5.3 ca68a0
-    p!(base + 0xd83dc3, &[0x48,0xb9], 2, 8, v_hd_cand_select);   // ←0.5.3 ca68f3
-    p!(base + 0xd83e16, &[0x48,0xb9], 2, 8, v_hd_cand_select);   // ←0.5.3 ca6946
-    p!(base + 0xd83e67, &[0x48,0xb9], 2, 8, v_hd_cand_select);   // ←0.5.3 ca6997
-    p!(base + 0xd83eee, &[0x49,0xb8], 2, 8, v_hd_cand_select);   // ←0.5.3 ca6a1e
-    p!(base + 0xd83f55, &[0x49,0xb9], 2, 8, v_hd_cand_select);   // ←0.5.3 ca6a85
-    p!(base + 0xd83fbf, &[0x49,0xb9], 2, 8, v_hd_cand_select);   // ←0.5.3 ca6aef
-    p!(base + 0xd84029, &[0x49,0xb9], 2, 8, v_hd_cand_select);   // ←0.5.3 ca6b59
-    p!(base + 0xd8408c, &[0x48,0xba], 2, 8, v_hd_cand_select);   // ←0.5.3 ca6bbc
+    p!(base + 0xd2c1ca, &[0x49,0xb8], 2, 8, v_hd_cand_select);   // ←0.5.3 ca598f   // ←0.5.3 d82e39
+    p!(base + 0xd2c22d, &[0x49,0xb9], 2, 8, v_hd_cand_select);   // ←0.5.3 ca59f2   // ←0.5.3 d82e9e
+    p!(base + 0xd2c294, &[0x49,0xb9], 2, 8, v_hd_cand_select);   // ←0.5.3 ca5a59   // ←0.5.3 d82f0c
+    p!(base + 0xd2c2fb, &[0x49,0xb9], 2, 8, v_hd_cand_select);   // ←0.5.3 ca5ac0   // ←0.5.3 d82f7a
+    p!(base + 0xd2c361, &[0x49,0xb8], 2, 8, v_hd_cand_select);   // ←0.5.3 ca5b26   // ←0.5.3 d82fe7
+    p!(base + 0xd2c3ca, &[0x48,0xb9], 2, 8, v_hd_cand_select);   // ←0.5.3 ca5b8f   // ←0.5.3 d83050
+    p!(base + 0xd2c856, &[0x49,0xb9], 2, 8, v_hd_cand_select);   // ←0.5.3 ca6080   // ←0.5.3 d83533
+    p!(base + 0xd2c8b8, &[0x49,0xb9], 2, 8, v_hd_cand_select);   // ←0.5.3 ca60e2   // ←0.5.3 d8359c
+    p!(base + 0xd2c91d, &[0x49,0xb9], 2, 8, v_hd_cand_select);   // ←0.5.3 ca6147   // ←0.5.3 d83608
+    p!(base + 0xd2c982, &[0x49,0xb9], 2, 8, v_hd_cand_select);   // ←0.5.3 ca61ac   // ←0.5.3 d83674
+    p!(base + 0xd2c9e7, &[0x49,0xb9], 2, 8, v_hd_cand_select);   // ←0.5.3 ca6211   // ←0.5.3 d836e0
+    p!(base + 0xd2ca4b, &[0x48,0xb9], 2, 8, v_hd_cand_select);   // ←0.5.3 ca6275   // ←0.5.3 d83744
+    p!(base + 0xd2ca9f, &[0x48,0xb9], 2, 8, v_hd_cand_select);   // ←0.5.3 ca62c9   // ←0.5.3 d83798
+    p!(base + 0xd2caf2, &[0x48,0xb9], 2, 8, v_hd_cand_select);   // ←0.5.3 ca631c   // ←0.5.3 d837eb
+    p!(base + 0xd2cb45, &[0x48,0xb9], 2, 8, v_hd_cand_select);   // ←0.5.3 ca636f   // ←0.5.3 d8383e
+    p!(base + 0xd2cb96, &[0x48,0xb9], 2, 8, v_hd_cand_select);   // ←0.5.3 ca63c0   // ←0.5.3 d8388f
+    p!(base + 0xd2cc7d, &[0x49,0xb9], 2, 8, v_hd_cand_select);   // ←0.5.3 ca64a7   // ←0.5.3 d83976
+    p!(base + 0xd2cce2, &[0x49,0xb9], 2, 8, v_hd_cand_select);   // ←0.5.3 ca650c   // ←0.5.3 d839db
+    p!(base + 0xd2cd4c, &[0x49,0xb9], 2, 8, v_hd_cand_select);   // ←0.5.3 ca6576   // ←0.5.3 d83a45
+    p!(base + 0xd2cdb6, &[0x49,0xb9], 2, 8, v_hd_cand_select);   // ←0.5.3 ca65e0   // ←0.5.3 d83aaf
+    p!(base + 0xd2ce92, &[0x48,0xba], 2, 8, v_hd_cand_select);   // ←0.5.3 ca66ce   // ←0.5.3 d83ba4
+    p!(base + 0xd2d01c, &[0x48,0xb9], 2, 8, v_hd_cand_select);   // ←0.5.3 ca68a0   // ←0.5.3 d83d70
+    p!(base + 0xd2d06f, &[0x48,0xb9], 2, 8, v_hd_cand_select);   // ←0.5.3 ca68f3   // ←0.5.3 d83dc3
+    p!(base + 0xd2d0c2, &[0x48,0xb9], 2, 8, v_hd_cand_select);   // ←0.5.3 ca6946   // ←0.5.3 d83e16
+    p!(base + 0xd2d113, &[0x48,0xb9], 2, 8, v_hd_cand_select);   // ←0.5.3 ca6997   // ←0.5.3 d83e67
+    p!(base + 0xd2d212, &[0x49,0xb8], 2, 8, v_hd_cand_select);   // ←0.5.3 ca6a1e   // ←0.5.3 d83eee
+    p!(base + 0xd2d279, &[0x49,0xb9], 2, 8, v_hd_cand_select);   // ←0.5.3 ca6a85   // ←0.5.3 d83f55
+    p!(base + 0xd2d2e3, &[0x49,0xb9], 2, 8, v_hd_cand_select);   // ←0.5.3 ca6aef   // ←0.5.3 d83fbf
+    p!(base + 0xd2d34d, &[0x49,0xb9], 2, 8, v_hd_cand_select);   // ←0.5.3 ca6b59   // ←0.5.3 d84029
+    p!(base + 0xd2d3b0, &[0x48,0xba], 2, 8, v_hd_cand_select);   // ←0.5.3 ca6bbc   // ←0.5.3 d8408c
     let v_hd_trace_leash: u64 = { if hd_trace_leash < 0 { 15000u64 } else { hd_trace_leash.max(0) as u64 } };
-    p!(base + 0xd842e3, &[0x48,0xc7,0x45,0x28], 4, 4, v_hd_trace_leash);   // ←0.5.3 ca6df5
+    p!(base + 0xd2d5ee, &[0x48,0xc7,0x45,0x28], 4, 4, v_hd_trace_leash);   // ←0.5.3 ca6df5   // ←0.5.3 d842e3
     let v_hd_vision_mem: u64 = { if hd_vision_mem < 0 { 120u64 } else { hd_vision_mem.max(0) as u64 } };
-    p!(base + 0xd81fa5, &[0x49,0x83,0xc7], 3, 1, v_hd_vision_mem);   // ←0.5.3 ca4b65
+    p!(base + 0xd2b2c5, &[0x49,0x83,0xc7], 3, 1, v_hd_vision_mem);   // ←0.5.3 ca4b65   // ←0.5.3 d81fa5
     // ★[08-04] **반쪽 적용 결함 수정** — 축약함수 쪽 사본(레지스터가 r14라 prefix가 다르다)
-    p!(base + 0xe3d866, &[0x49,0x83,0xc6], 3, 1, v_hd_vision_mem);   // ←0.5.3 dc2d76
+    p!(base + 0xca48d6, &[0x49,0x83,0xc6], 3, 1, v_hd_vision_mem);   // ←0.5.3 dc2d76   // ←0.5.3 e3d866
     // ★[08-04 신설] Phase 0 이동 오더 유효기간
     let v_hd_ph0_ttl: u64 = { if hd_ph0_ttl < 0 { 5u64 } else { hd_ph0_ttl.max(0) as u64 } };
-    p!(base + 0xd81ba8, &[0x48,0xc7,0x45,0x10], 4, 4, v_hd_ph0_ttl);   // ←0.5.3 ca4727
-    p!(base + 0xd81d15, &[0x48,0xc7,0x45,0x10], 4, 4, v_hd_ph0_ttl);   // ←0.5.3 ca4882
+    p!(base + 0xd2ae85, &[0x48,0xc7,0x45,0x10], 4, 4, v_hd_ph0_ttl);   // ←0.5.3 ca4727   // ←0.5.3 d81ba8
+    p!(base + 0xd2b02f, &[0x48,0xc7,0x45,0x10], 4, 4, v_hd_ph0_ttl);   // ←0.5.3 ca4882   // ←0.5.3 d81d15
     // ★★[08-04 신설] 랜드마크 우회 건너뛰기 — 생성자가 쓰는 imm16의 상위 바이트가 phase다.
     //   `mov word [x+0x10], 0x0001` = out_line 1 + phase 0  →  `0x0101` 로 만들면 phase 1로 시작한다.
     //   ⟹ Phase 0(랜드마크 우회)이 **처음부터 존재하지 않게** 되어 곧장 부쉬로 간다.
     //   기본 0 = 원본(0x0001)이라 켜지 않으면 동작 변화 0. 끄면 그대로 되돌아간다.
     let v_hd_phase: u64 = if hd_skip_landmark != 0 { 0x0101 } else { 0x0001 };
-    p!(base + 0xe1490b, &[0x66,0xc7,0x46,0x10], 4, 2, v_hd_phase);   // ←0.5.3 c55d3b
-    p!(base + 0xcd7a3e, &[0x66,0xc7,0x40,0x10], 4, 2, v_hd_phase);   // ←0.5.3 c7a72e
-    p!(base + 0xcd75ee, &[0x66,0xc7,0x40,0x10], 4, 2, v_hd_phase);   // ←0.5.3 d81b6e
+    p!(base + 0xe1a0a6, &[0x66,0xc7,0x46,0x10], 4, 2, v_hd_phase);   // ←0.5.3 c55d3b   // ←0.5.3 e1490b
+    p!(base + 0xdc5abe, &[0x66,0xc7,0x40,0x10], 4, 2, v_hd_phase);   // ←0.5.3 c7a72e   // ←0.5.3 cd7a3e
+    p!(base + 0xdc570e, &[0x66,0xc7,0x40,0x10], 4, 2, v_hd_phase);   // ←0.5.3 d81b6e   // ←0.5.3 cd75ee
     HD_SIG.store(sig, Ordering::Relaxed);
     if let Some(pp) = pth("hd_imm.txt") {
         let _ = fs::write(pp, format!("applied={}/{} hd_bush_near={} hd_path_radius={} hd_around_radius={} hd_detect_max={} hd_fight_cut={} hd_cand_select={} hd_trace_leash={} hd_vision_mem={} hd_ph0_ttl={} hd_skip_landmark={} @base{:#x}\n",
@@ -4137,39 +4157,39 @@ unsafe fn apply_d4_imm() {
     macro_rules! p { ($a:expr, $pre:expr, $off:expr, $w:expr, $v:expr) => {{
         tot += 1; ok += patch_imm_bytes($a, $pre, $off, $w, $v) as u32; }}; }
     let v_d4_ally_radius_a: u64 = { if d4_ally_radius_a < 0 { 87890624u64 } else { let x = d4_ally_radius_a.max(0) as u64; (x.wrapping_mul(x) >> 8).wrapping_sub(1) } };
-    p!(base + 0xd671f3, &[0x49,0x81,0xf9], 3, 4, v_d4_ally_radius_a);   // ←0.5.3 d71cd3
-    p!(base + 0xd672b8, &[0x49,0x81,0xf9], 3, 4, v_d4_ally_radius_a);   // ←0.5.3 d71d98
-    p!(base + 0xd67378, &[0x49,0x81,0xf9], 3, 4, v_d4_ally_radius_a);   // ←0.5.3 d71e58
-    p!(base + 0xd67438, &[0x49,0x81,0xf9], 3, 4, v_d4_ally_radius_a);   // ←0.5.3 d71f18
-    p!(base + 0xd674fb, &[0x49,0x81,0xf9], 3, 4, v_d4_ally_radius_a);   // ←0.5.3 d71fdb
+    p!(base + 0xcb8cd3, &[0x49,0x81,0xf9], 3, 4, v_d4_ally_radius_a);   // ←0.5.3 d71cd3   // ←0.5.3 d671f3
+    p!(base + 0xcb8d98, &[0x49,0x81,0xf9], 3, 4, v_d4_ally_radius_a);   // ←0.5.3 d71d98   // ←0.5.3 d672b8
+    p!(base + 0xcb8e58, &[0x49,0x81,0xf9], 3, 4, v_d4_ally_radius_a);   // ←0.5.3 d71e58   // ←0.5.3 d67378
+    p!(base + 0xcb8f18, &[0x49,0x81,0xf9], 3, 4, v_d4_ally_radius_a);   // ←0.5.3 d71f18   // ←0.5.3 d67438
+    p!(base + 0xcb8fdb, &[0x49,0x81,0xf9], 3, 4, v_d4_ally_radius_a);   // ←0.5.3 d71fdb   // ←0.5.3 d674fb
     let v_d4_ally_radius_b: u64 = { if d4_ally_radius_b < 0 { 87890625u64 } else { let x = d4_ally_radius_b.max(0) as u64; x.wrapping_mul(x) >> 8 } };
-    p!(base + 0xd677b6, &[0x49,0x81,0xfc], 3, 4, v_d4_ally_radius_b);   // ←0.5.3 d72296
-    p!(base + 0xd677f0, &[0x49,0x81,0xfb], 3, 4, v_d4_ally_radius_b);   // ←0.5.3 d722d0
-    p!(base + 0xd67852, &[0x49,0x81,0xfd], 3, 4, v_d4_ally_radius_b);   // ←0.5.3 d72332
-    p!(base + 0xd6788d, &[0x49,0x81,0xfd], 3, 4, v_d4_ally_radius_b);   // ←0.5.3 d7236d
-    p!(base + 0xd678ee, &[0x49,0x81,0xfd], 3, 4, v_d4_ally_radius_b);   // ←0.5.3 d723ce
-    p!(base + 0xd67929, &[0x49,0x81,0xfd], 3, 4, v_d4_ally_radius_b);   // ←0.5.3 d72409
-    p!(base + 0xd6798a, &[0x49,0x81,0xfd], 3, 4, v_d4_ally_radius_b);   // ←0.5.3 d7246a
-    p!(base + 0xd679c5, &[0x49,0x81,0xfd], 3, 4, v_d4_ally_radius_b);   // ←0.5.3 d724a5
-    p!(base + 0xd67a20, &[0x48,0x81,0xfa], 3, 4, v_d4_ally_radius_b);   // ←0.5.3 d72500
-    p!(base + 0xd67a62, &[0x48,0x3d], 2, 4, v_d4_ally_radius_b);   // ←0.5.3 d72542
+    p!(base + 0xcb9296, &[0x49,0x81,0xfc], 3, 4, v_d4_ally_radius_b);   // ←0.5.3 d72296   // ←0.5.3 d677b6
+    p!(base + 0xcb92d0, &[0x49,0x81,0xfb], 3, 4, v_d4_ally_radius_b);   // ←0.5.3 d722d0   // ←0.5.3 d677f0
+    p!(base + 0xcb9332, &[0x49,0x81,0xfd], 3, 4, v_d4_ally_radius_b);   // ←0.5.3 d72332   // ←0.5.3 d67852
+    p!(base + 0xcb936d, &[0x49,0x81,0xfd], 3, 4, v_d4_ally_radius_b);   // ←0.5.3 d7236d   // ←0.5.3 d6788d
+    p!(base + 0xcb93ce, &[0x49,0x81,0xfd], 3, 4, v_d4_ally_radius_b);   // ←0.5.3 d723ce   // ←0.5.3 d678ee
+    p!(base + 0xcb9409, &[0x49,0x81,0xfd], 3, 4, v_d4_ally_radius_b);   // ←0.5.3 d72409   // ←0.5.3 d67929
+    p!(base + 0xcb946a, &[0x49,0x81,0xfd], 3, 4, v_d4_ally_radius_b);   // ←0.5.3 d7246a   // ←0.5.3 d6798a
+    p!(base + 0xcb94a5, &[0x49,0x81,0xfd], 3, 4, v_d4_ally_radius_b);   // ←0.5.3 d724a5   // ←0.5.3 d679c5
+    p!(base + 0xcb9500, &[0x48,0x81,0xfa], 3, 4, v_d4_ally_radius_b);   // ←0.5.3 d72500   // ←0.5.3 d67a20
+    p!(base + 0xcb9542, &[0x48,0x3d], 2, 4, v_d4_ally_radius_b);   // ←0.5.3 d72542   // ←0.5.3 d67a62
     let v_d4_early_leave: u64 = { if d4_early_leave < 0 { 112890625u64 } else { let x = d4_early_leave.max(0) as u64; x.wrapping_mul(x) >> 8 } };
-    p!(base + 0xd67cb1, &[0x48,0x3d], 2, 4, v_d4_early_leave);   // ←0.5.3 d72791
+    p!(base + 0xcb9791, &[0x48,0x3d], 2, 4, v_d4_early_leave);   // ←0.5.3 d72791   // ←0.5.3 d67cb1
     let v_d4_partner_dist: u64 = { if d4_partner_dist < 0 { 40000000000u64 } else { let x = d4_partner_dist.max(0) as u64; x.wrapping_mul(x) } };
-    p!(base + 0xd670df, &[0x48,0xb9], 2, 8, v_d4_partner_dist);   // ←0.5.3 d71bbf
+    p!(base + 0xcb8bbf, &[0x48,0xb9], 2, 8, v_d4_partner_dist);   // ←0.5.3 d71bbf   // ←0.5.3 d670df
     let v_d4_hp_safe: u64 = { if d4_hp_safe < 0 { 51u64 } else { d4_hp_safe.max(0) as u64 } };
-    p!(base + 0xd66f84, &[0x48,0x83,0xf8], 3, 1, v_d4_hp_safe);   // ←0.5.3 d71a64
+    p!(base + 0xcb8a64, &[0x48,0x83,0xf8], 3, 1, v_d4_hp_safe);   // ←0.5.3 d71a64   // ←0.5.3 d66f84
     let v_d4_from_mid: u64 = { if d4_from_mid < 0 { 1000u64 } else { d4_from_mid.max(0) as u64 } };
-    p!(base + 0xd66f78, &[0x49,0x81,0x7c,0x08,0x60], 5, 4, v_d4_from_mid);   // ←0.5.3 d71a58
+    p!(base + 0xcb8a58, &[0x49,0x81,0x7c,0x08,0x60], 5, 4, v_d4_from_mid);   // ←0.5.3 d71a58   // ←0.5.3 d66f78
     let v_d4_from_mid_mode: u64 = { if d4_from_mid_mode < 0 { 2001u64 } else { d4_from_mid_mode.max(0) as u64 } };
-    p!(base + 0xd675f5, &[0x48,0x81,0x78,0x10], 4, 4, v_d4_from_mid_mode);   // ←0.5.3 d720d5
+    p!(base + 0xcb90d5, &[0x48,0x81,0x78,0x10], 4, 4, v_d4_from_mid_mode);   // ←0.5.3 d720d5   // ←0.5.3 d675f5
     let v_d4_ally_cnt: u64 = { if d4_ally_cnt < 0 { 3u64 } else { d4_ally_cnt.max(0) as u64 } };
-    p!(base + 0xd67e16, &[0x48,0x83,0xbc,0x24,0x88,0x00,0x00,0x00], 8, 1, v_d4_ally_cnt);   // ←0.5.3 d728f6
-    p!(base + 0xd67e54, &[0x48,0x83,0xbc,0x24,0x88,0x00,0x00,0x00], 8, 1, v_d4_ally_cnt);   // ←0.5.3 d72934
+    p!(base + 0xcb98f6, &[0x48,0x83,0xbc,0x24,0x88,0x00,0x00,0x00], 8, 1, v_d4_ally_cnt);   // ←0.5.3 d728f6   // ←0.5.3 d67e16
+    p!(base + 0xcb9934, &[0x48,0x83,0xbc,0x24,0x88,0x00,0x00,0x00], 8, 1, v_d4_ally_cnt);   // ←0.5.3 d72934   // ←0.5.3 d67e54
     let v_d4_minion_cnt: u64 = { if d4_minion_cnt < 0 { 2u64 } else { d4_minion_cnt.max(0) as u64 } };
-    p!(base + 0xd67e2a, &[0x83,0xfe], 2, 1, v_d4_minion_cnt);   // ←0.5.3 d7290a
+    p!(base + 0xcb990a, &[0x83,0xfe], 2, 1, v_d4_minion_cnt);   // ←0.5.3 d7290a   // ←0.5.3 d67e2a
     let v_d4_gather_radius: u64 = { if d4_gather_radius < 0 { 150000u64 } else { d4_gather_radius.max(0) as u64 } };
-    p!(base + 0xd676e7, &[0x48,0xc7,0x44,0x24,0x40], 5, 4, v_d4_gather_radius);   // ←0.5.3 d721c7
+    p!(base + 0xcb91c7, &[0x48,0xc7,0x44,0x24,0x40], 5, 4, v_d4_gather_radius);   // ←0.5.3 d721c7   // ←0.5.3 d676e7
     D4_SIG.store(sig, Ordering::Relaxed);
     if let Some(pp) = pth("d4_imm.txt") {
         let _ = fs::write(pp, format!("applied={}/{} d4_ally_radius_a={} d4_ally_radius_b={} d4_early_leave={} d4_partner_dist={} d4_hp_safe={} d4_from_mid={} d4_from_mid_mode={} d4_ally_cnt={} d4_minion_cnt={} d4_gather_radius={} @base{:#x}\n",
@@ -4195,75 +4215,79 @@ unsafe fn apply_c3_imm() {
     let mut ok = 0u32; let mut tot = 0u32;
     macro_rules! p { ($a:expr, $pre:expr, $off:expr, $w:expr, $v:expr) => {{
         tot += 1; ok += patch_imm_bytes($a, $pre, $off, $w, $v) as u32; }}; }
+    macro_rules! pskip { ($a:expr, $pre:expr, $off:expr, $w:expr, $v:expr) => {{
+        // ⛔0.5.5 재배치 미확정 — 세기만 하고 패치하지 않는다.
+        tot += 1; let _ = ($a, $pre, $off, $w, $v);
+    }}; }
     let v_c3_enemy_near_a: u64 = { if c3_enemy_near_a < 0 { 14400000000u64 } else { let x = c3_enemy_near_a.max(0) as u64; x.wrapping_mul(x) } };
-    p!(base + 0xc84e04, &[0x48,0xb8], 2, 8, v_c3_enemy_near_a);   // ←0.5.3 c3b6f5
-    p!(base + 0xc84e96, &[0x48,0xb8], 2, 8, v_c3_enemy_near_a);   // ←0.5.3 c3b790
-    p!(base + 0xc84f1d, &[0x48,0xb8], 2, 8, v_c3_enemy_near_a);   // ←0.5.3 c3b820
-    p!(base + 0xc84fa4, &[0x48,0xb8], 2, 8, v_c3_enemy_near_a);   // ←0.5.3 c3b8b0
-    p!(base + 0xc8502b, &[0x48,0xb8], 2, 8, v_c3_enemy_near_a);   // ←0.5.3 c3b937
-    p!(base + 0xc85327, &[0x48,0xb8], 2, 8, v_c3_enemy_near_a);   // ←0.5.3 c3bc41
-    p!(base + 0xc853b9, &[0x48,0xb8], 2, 8, v_c3_enemy_near_a);   // ←0.5.3 c3bcdc
-    p!(base + 0xc85440, &[0x48,0xb8], 2, 8, v_c3_enemy_near_a);   // ←0.5.3 c3bd6c
-    p!(base + 0xc854c7, &[0x48,0xb8], 2, 8, v_c3_enemy_near_a);   // ←0.5.3 c3bdfc
-    p!(base + 0xc8554e, &[0x48,0xb8], 2, 8, v_c3_enemy_near_a);   // ←0.5.3 c3be83
-    p!(base + 0xc8584a, &[0x48,0xb8], 2, 8, v_c3_enemy_near_a);   // ←0.5.3 c3c192
-    p!(base + 0xc858dc, &[0x48,0xb8], 2, 8, v_c3_enemy_near_a);   // ←0.5.3 c3c22d
-    p!(base + 0xc85963, &[0x48,0xb8], 2, 8, v_c3_enemy_near_a);   // ←0.5.3 c3c2bd
-    p!(base + 0xc859ea, &[0x48,0xb8], 2, 8, v_c3_enemy_near_a);   // ←0.5.3 c3c34d
-    p!(base + 0xc85a6c, &[0x48,0xb8], 2, 8, v_c3_enemy_near_a);   // ←0.5.3 c3c3d4
-    p!(base + 0xc8603b, &[0x48,0xb8], 2, 8, v_c3_enemy_near_a);   // ←0.5.3 c3c9c6
-    p!(base + 0xc841da, &[0x48,0xb9], 2, 8, v_c3_enemy_near_a);   // ←0.5.3 c3aa44
-    p!(base + 0xc8426b, &[0x48,0xb9], 2, 8, v_c3_enemy_near_a);   // ←0.5.3 c3aade
-    p!(base + 0xc842f2, &[0x48,0xb9], 2, 8, v_c3_enemy_near_a);   // ←0.5.3 c3ab6e
-    p!(base + 0xc84379, &[0x48,0xb9], 2, 8, v_c3_enemy_near_a);   // ←0.5.3 c3abfe
-    p!(base + 0xc84400, &[0x48,0xb9], 2, 8, v_c3_enemy_near_a);   // ←0.5.3 c3ac85
-    p!(base + 0xc845f6, &[0x48,0xb9], 2, 8, v_c3_enemy_near_a);   // ←0.5.3 c3ae8e
-    p!(base + 0xc84687, &[0x48,0xb9], 2, 8, v_c3_enemy_near_a);   // ←0.5.3 c3af28
-    p!(base + 0xc8470e, &[0x48,0xb9], 2, 8, v_c3_enemy_near_a);   // ←0.5.3 c3afb8
-    p!(base + 0xc84795, &[0x48,0xb9], 2, 8, v_c3_enemy_near_a);   // ←0.5.3 c3b048
-    p!(base + 0xc8481c, &[0x48,0xb9], 2, 8, v_c3_enemy_near_a);   // ←0.5.3 c3b0cf
-    p!(base + 0xc84a14, &[0x48,0xb9], 2, 8, v_c3_enemy_near_a);   // ←0.5.3 c3b2d5
-    p!(base + 0xc84aa5, &[0x48,0xb9], 2, 8, v_c3_enemy_near_a);   // ←0.5.3 c3b36f
-    p!(base + 0xc84b2c, &[0x48,0xb9], 2, 8, v_c3_enemy_near_a);   // ←0.5.3 c3b3ff
-    p!(base + 0xc84bb3, &[0x48,0xb9], 2, 8, v_c3_enemy_near_a);   // ←0.5.3 c3b48f
-    p!(base + 0xc84c35, &[0x48,0xb9], 2, 8, v_c3_enemy_near_a);   // ←0.5.3 c3b516
-    p!(base + 0xc85e18, &[0x49,0xb9], 2, 8, v_c3_enemy_near_a);   // ←0.5.3 c3c794
-    p!(base + 0xc85fa7, &[0x49,0xb9], 2, 8, v_c3_enemy_near_a);   // ←0.5.3 c3c92d
+    p!(base + 0xc88054, &[0x48,0xb8], 2, 8, v_c3_enemy_near_a);   // ←0.5.3 c3b6f5   // ←0.5.3 c84e04
+    p!(base + 0xc880e6, &[0x48,0xb8], 2, 8, v_c3_enemy_near_a);   // ←0.5.3 c3b790   // ←0.5.3 c84e96
+    p!(base + 0xc8816d, &[0x48,0xb8], 2, 8, v_c3_enemy_near_a);   // ←0.5.3 c3b820   // ←0.5.3 c84f1d
+    p!(base + 0xc881f4, &[0x48,0xb8], 2, 8, v_c3_enemy_near_a);   // ←0.5.3 c3b8b0   // ←0.5.3 c84fa4
+    p!(base + 0xc8827b, &[0x48,0xb8], 2, 8, v_c3_enemy_near_a);   // ←0.5.3 c3b937   // ←0.5.3 c8502b
+    p!(base + 0xc88577, &[0x48,0xb8], 2, 8, v_c3_enemy_near_a);   // ←0.5.3 c3bc41   // ←0.5.3 c85327
+    p!(base + 0xc88609, &[0x48,0xb8], 2, 8, v_c3_enemy_near_a);   // ←0.5.3 c3bcdc   // ←0.5.3 c853b9
+    p!(base + 0xc88690, &[0x48,0xb8], 2, 8, v_c3_enemy_near_a);   // ←0.5.3 c3bd6c   // ←0.5.3 c85440
+    p!(base + 0xc88717, &[0x48,0xb8], 2, 8, v_c3_enemy_near_a);   // ←0.5.3 c3bdfc   // ←0.5.3 c854c7
+    p!(base + 0xc8879e, &[0x48,0xb8], 2, 8, v_c3_enemy_near_a);   // ←0.5.3 c3be83   // ←0.5.3 c8554e
+    p!(base + 0xc88a9a, &[0x48,0xb8], 2, 8, v_c3_enemy_near_a);   // ←0.5.3 c3c192   // ←0.5.3 c8584a
+    p!(base + 0xc88b2c, &[0x48,0xb8], 2, 8, v_c3_enemy_near_a);   // ←0.5.3 c3c22d   // ←0.5.3 c858dc
+    p!(base + 0xc88bb3, &[0x48,0xb8], 2, 8, v_c3_enemy_near_a);   // ←0.5.3 c3c2bd   // ←0.5.3 c85963
+    p!(base + 0xc88c3a, &[0x48,0xb8], 2, 8, v_c3_enemy_near_a);   // ←0.5.3 c3c34d   // ←0.5.3 c859ea
+    p!(base + 0xc88cbc, &[0x48,0xb8], 2, 8, v_c3_enemy_near_a);   // ←0.5.3 c3c3d4   // ←0.5.3 c85a6c
+    p!(base + 0xc8928b, &[0x48,0xb8], 2, 8, v_c3_enemy_near_a);   // ←0.5.3 c3c9c6   // ←0.5.3 c8603b
+    p!(base + 0xc8742a, &[0x48,0xb9], 2, 8, v_c3_enemy_near_a);   // ←0.5.3 c3aa44   // ←0.5.3 c841da
+    p!(base + 0xc874bb, &[0x48,0xb9], 2, 8, v_c3_enemy_near_a);   // ←0.5.3 c3aade   // ←0.5.3 c8426b
+    p!(base + 0xc87542, &[0x48,0xb9], 2, 8, v_c3_enemy_near_a);   // ←0.5.3 c3ab6e   // ←0.5.3 c842f2
+    p!(base + 0xc875c9, &[0x48,0xb9], 2, 8, v_c3_enemy_near_a);   // ←0.5.3 c3abfe   // ←0.5.3 c84379
+    p!(base + 0xc87650, &[0x48,0xb9], 2, 8, v_c3_enemy_near_a);   // ←0.5.3 c3ac85   // ←0.5.3 c84400
+    p!(base + 0xc87846, &[0x48,0xb9], 2, 8, v_c3_enemy_near_a);   // ←0.5.3 c3ae8e   // ←0.5.3 c845f6
+    p!(base + 0xc878d7, &[0x48,0xb9], 2, 8, v_c3_enemy_near_a);   // ←0.5.3 c3af28   // ←0.5.3 c84687
+    p!(base + 0xc8795e, &[0x48,0xb9], 2, 8, v_c3_enemy_near_a);   // ←0.5.3 c3afb8   // ←0.5.3 c8470e
+    p!(base + 0xc879e5, &[0x48,0xb9], 2, 8, v_c3_enemy_near_a);   // ←0.5.3 c3b048   // ←0.5.3 c84795
+    p!(base + 0xc87a6c, &[0x48,0xb9], 2, 8, v_c3_enemy_near_a);   // ←0.5.3 c3b0cf   // ←0.5.3 c8481c
+    p!(base + 0xc87c64, &[0x48,0xb9], 2, 8, v_c3_enemy_near_a);   // ←0.5.3 c3b2d5   // ←0.5.3 c84a14
+    p!(base + 0xc87cf5, &[0x48,0xb9], 2, 8, v_c3_enemy_near_a);   // ←0.5.3 c3b36f   // ←0.5.3 c84aa5
+    p!(base + 0xc87d7c, &[0x48,0xb9], 2, 8, v_c3_enemy_near_a);   // ←0.5.3 c3b3ff   // ←0.5.3 c84b2c
+    p!(base + 0xc87e03, &[0x48,0xb9], 2, 8, v_c3_enemy_near_a);   // ←0.5.3 c3b48f   // ←0.5.3 c84bb3
+    p!(base + 0xc87e85, &[0x48,0xb9], 2, 8, v_c3_enemy_near_a);   // ←0.5.3 c3b516   // ←0.5.3 c84c35
+    p!(base + 0xc89068, &[0x49,0xb9], 2, 8, v_c3_enemy_near_a);   // ←0.5.3 c3c794   // ←0.5.3 c85e18
+    p!(base + 0xc891f7, &[0x49,0xb9], 2, 8, v_c3_enemy_near_a);   // ←0.5.3 c3c92d   // ←0.5.3 c85fa7
     let v_c3_enemy_near_b: u64 = { if c3_enemy_near_b < 0 { 14400000001u64 } else { let x = c3_enemy_near_b.max(0) as u64; x.wrapping_mul(x).wrapping_add(1) } };
-    p!(base + 0xc85c36, &[0x48,0xb8], 2, 8, v_c3_enemy_near_b);   // ←0.5.3 c3c5a3
-    p!(base + 0xc85c9f, &[0x48,0xb8], 2, 8, v_c3_enemy_near_b);   // ←0.5.3 c3c611
-    p!(base + 0xc86175, &[0x48,0xb8], 2, 8, v_c3_enemy_near_b);   // ←0.5.3 c3ca96
-    p!(base + 0xc851ee, &[0x48,0xb9], 2, 8, v_c3_enemy_near_b);   // ←0.5.3 c3baf5
-    p!(base + 0xc85711, &[0x48,0xb9], 2, 8, v_c3_enemy_near_b);   // ←0.5.3 c3c041
-    p!(base + 0xc84504, &[0x48,0xbf], 2, 8, v_c3_enemy_near_b);   // ←0.5.3 c3ad8e
-    p!(base + 0xc84920, &[0x48,0xbf], 2, 8, v_c3_enemy_near_b);   // ←0.5.3 c3b1d8
-    p!(base + 0xc84d32, &[0x49,0xb9], 2, 8, v_c3_enemy_near_b);   // ←0.5.3 c3b61a
-    p!(base + 0xc85255, &[0x49,0xb9], 2, 8, v_c3_enemy_near_b);   // ←0.5.3 c3bb61
-    p!(base + 0xc85778, &[0x49,0xb9], 2, 8, v_c3_enemy_near_b);   // ←0.5.3 c3c0ad
-    p!(base + 0xc85d01, &[0x49,0xb9], 2, 8, v_c3_enemy_near_b);   // ←0.5.3 c3c678
-    p!(base + 0xc85e90, &[0x49,0xb9], 2, 8, v_c3_enemy_near_b);   // ←0.5.3 c3c811
-    p!(base + 0xc85dba, &[0x49,0xba], 2, 8, v_c3_enemy_near_b);   // ←0.5.3 c3c736
-    p!(base + 0xc85f49, &[0x49,0xba], 2, 8, v_c3_enemy_near_b);   // ←0.5.3 c3c8cf
-    p!(base + 0xc8622e, &[0x49,0xba], 2, 8, v_c3_enemy_near_b);   // ←0.5.3 c3cb55
+    p!(base + 0xc88e86, &[0x48,0xb8], 2, 8, v_c3_enemy_near_b);   // ←0.5.3 c3c5a3   // ←0.5.3 c85c36
+    p!(base + 0xc88eef, &[0x48,0xb8], 2, 8, v_c3_enemy_near_b);   // ←0.5.3 c3c611   // ←0.5.3 c85c9f
+    p!(base + 0xc893c5, &[0x48,0xb8], 2, 8, v_c3_enemy_near_b);   // ←0.5.3 c3ca96   // ←0.5.3 c86175
+    p!(base + 0xc8843e, &[0x48,0xb9], 2, 8, v_c3_enemy_near_b);   // ←0.5.3 c3baf5   // ←0.5.3 c851ee
+    p!(base + 0xc88961, &[0x48,0xb9], 2, 8, v_c3_enemy_near_b);   // ←0.5.3 c3c041   // ←0.5.3 c85711
+    p!(base + 0xc87754, &[0x48,0xbf], 2, 8, v_c3_enemy_near_b);   // ←0.5.3 c3ad8e   // ←0.5.3 c84504
+    p!(base + 0xc87b70, &[0x48,0xbf], 2, 8, v_c3_enemy_near_b);   // ←0.5.3 c3b1d8   // ←0.5.3 c84920
+    p!(base + 0xc87f82, &[0x49,0xb9], 2, 8, v_c3_enemy_near_b);   // ←0.5.3 c3b61a   // ←0.5.3 c84d32
+    p!(base + 0xc884a5, &[0x49,0xb9], 2, 8, v_c3_enemy_near_b);   // ←0.5.3 c3bb61   // ←0.5.3 c85255
+    p!(base + 0xc889c8, &[0x49,0xb9], 2, 8, v_c3_enemy_near_b);   // ←0.5.3 c3c0ad   // ←0.5.3 c85778
+    p!(base + 0xc88f51, &[0x49,0xb9], 2, 8, v_c3_enemy_near_b);   // ←0.5.3 c3c678   // ←0.5.3 c85d01
+    p!(base + 0xc890e0, &[0x49,0xb9], 2, 8, v_c3_enemy_near_b);   // ←0.5.3 c3c811   // ←0.5.3 c85e90
+    p!(base + 0xc8900a, &[0x49,0xba], 2, 8, v_c3_enemy_near_b);   // ←0.5.3 c3c736   // ←0.5.3 c85dba
+    p!(base + 0xc89199, &[0x49,0xba], 2, 8, v_c3_enemy_near_b);   // ←0.5.3 c3c8cf   // ←0.5.3 c85f49
+    p!(base + 0xc8947e, &[0x49,0xba], 2, 8, v_c3_enemy_near_b);   // ←0.5.3 c3cb55   // ←0.5.3 c8622e
     let v_c3_minion_near: u64 = { if c3_minion_near < 0 { 14400000001u64 } else { let x = c3_minion_near.max(0) as u64; x.wrapping_mul(x).wrapping_add(1) } };
-    p!(base + 0xe4f3fd, &[0x49,0xba], 2, 8, v_c3_minion_near);   // ←0.5.3 d90bfd
-    p!(base + 0xe4f486, &[0x49,0xba], 2, 8, v_c3_minion_near);   // ←0.5.3 d90c86
-    p!(base + 0xe4f50e, &[0x49,0xba], 2, 8, v_c3_minion_near);   // ←0.5.3 d90d0e
+    pskip!(base + 0xe4f3fd, &[0x49,0xba], 2, 8, v_c3_minion_near);   // ←0.5.3 d90bfd   // ⛔0.5.4 미확정: src=?
+    pskip!(base + 0xe4f486, &[0x49,0xba], 2, 8, v_c3_minion_near);   // ←0.5.3 d90c86   // ⛔0.5.4 미확정: src=?
+    pskip!(base + 0xe4f50e, &[0x49,0xba], 2, 8, v_c3_minion_near);   // ←0.5.3 d90d0e   // ⛔0.5.4 미확정: src=?
     let v_c3_ally_hp: u64 = { if c3_ally_hp < 0 { 79u64 } else { c3_ally_hp.max(0) as u64 } };
-    p!(base + 0xc83def, &[0x48,0x83,0xf8], 3, 1, v_c3_ally_hp);   // ←0.5.3 c3a629
-    p!(base + 0xc83f39, &[0x48,0x83,0xf8], 3, 1, v_c3_ally_hp);   // ←0.5.3 c3a77f
-    p!(base + 0xc84083, &[0x48,0x83,0xf8], 3, 1, v_c3_ally_hp);   // ←0.5.3 c3a8d5
-    p!(base + 0xc84d4f, &[0x48,0x83,0xf8], 3, 1, v_c3_ally_hp);   // ←0.5.3 c3b637
-    p!(base + 0xc85272, &[0x48,0x83,0xf8], 3, 1, v_c3_ally_hp);   // ←0.5.3 c3bb83
-    p!(base + 0xc85795, &[0x48,0x83,0xf8], 3, 1, v_c3_ally_hp);   // ←0.5.3 c3c0cf
+    p!(base + 0xc8703f, &[0x48,0x83,0xf8], 3, 1, v_c3_ally_hp);   // ←0.5.3 c3a629   // ←0.5.3 c83def
+    p!(base + 0xc87189, &[0x48,0x83,0xf8], 3, 1, v_c3_ally_hp);   // ←0.5.3 c3a77f   // ←0.5.3 c83f39
+    p!(base + 0xc872d3, &[0x48,0x83,0xf8], 3, 1, v_c3_ally_hp);   // ←0.5.3 c3a8d5   // ←0.5.3 c84083
+    p!(base + 0xc87f9f, &[0x48,0x83,0xf8], 3, 1, v_c3_ally_hp);   // ←0.5.3 c3b637   // ←0.5.3 c84d4f
+    p!(base + 0xc884c2, &[0x48,0x83,0xf8], 3, 1, v_c3_ally_hp);   // ←0.5.3 c3bb83   // ←0.5.3 c85272
+    p!(base + 0xc889e5, &[0x48,0x83,0xf8], 3, 1, v_c3_ally_hp);   // ←0.5.3 c3c0cf   // ←0.5.3 c85795
     let v_c3_minion_margin: u64 = { if c3_minion_margin < 0 { 64000u64 } else { c3_minion_margin.max(0) as u64 } };
-    p!(base + 0xd64c0a, &[0x48,0x05], 2, 4, v_c3_minion_margin);   // ←0.5.3 e2321a
+    p!(base + 0xdadc7a, &[0x48,0x05], 2, 4, v_c3_minion_margin);   // ←0.5.3 e2321a   // ←0.5.3 d64c0a
     let v_c3_hurt_scale: u64 = { if c3_hurt_scale < 0 { 100u64 } else { c3_hurt_scale.max(0) as u64 } };
-    p!(base + 0xcdced8, &[0x48,0x6b,0x97,0x58,0x06,0x00,0x00], 7, 1, v_c3_hurt_scale);   // ←0.5.3 cc7d38
-    p!(base + 0xcdcf9a, &[0x48,0x6b,0x96,0x58,0x06,0x00,0x00], 7, 1, v_c3_hurt_scale);   // ←0.5.3 cc7dfa
-    p!(base + 0xcdd051, &[0x48,0x6b,0x96,0x58,0x06,0x00,0x00], 7, 1, v_c3_hurt_scale);   // ←0.5.3 cc7eb1
-    p!(base + 0xcdd108, &[0x48,0x6b,0x96,0x58,0x06,0x00,0x00], 7, 1, v_c3_hurt_scale);   // ←0.5.3 cc7f68
-    p!(base + 0xcdd1b9, &[0x49,0x6b,0x8b,0x58,0x06,0x00,0x00], 7, 1, v_c3_hurt_scale);   // ←0.5.3 cc8019
+    p!(base + 0xd0ee68, &[0x48,0x6b,0x97,0x70,0x06,0x00,0x00], 7, 1, v_c3_hurt_scale);   // ←0.5.3 cc7d38   // ←0.5.3 cdced8
+    p!(base + 0xd0ef2a, &[0x48,0x6b,0x96,0x70,0x06,0x00,0x00], 7, 1, v_c3_hurt_scale);   // ←0.5.3 cc7dfa   // ←0.5.3 cdcf9a
+    p!(base + 0xd0efe1, &[0x48,0x6b,0x96,0x70,0x06,0x00,0x00], 7, 1, v_c3_hurt_scale);   // ←0.5.3 cc7eb1   // ←0.5.3 cdd051
+    p!(base + 0xd0f098, &[0x48,0x6b,0x96,0x70,0x06,0x00,0x00], 7, 1, v_c3_hurt_scale);   // ←0.5.3 cc7f68   // ←0.5.3 cdd108
+    p!(base + 0xd0f149, &[0x49,0x6b,0x8b,0x70,0x06,0x00,0x00], 7, 1, v_c3_hurt_scale);   // ←0.5.3 cc8019   // ←0.5.3 cdd1b9
     C3_SIG.store(sig, Ordering::Relaxed);
     if let Some(pp) = pth("c3_imm.txt") {
         let _ = fs::write(pp, format!("applied={}/{} c3_enemy_near_a={} c3_enemy_near_b={} c3_minion_near={} c3_ally_hp={} c3_minion_margin={} c3_hurt_scale={} @base{:#x}\n",
@@ -4286,16 +4310,16 @@ unsafe fn apply_lv_imm() {
     macro_rules! p { ($a:expr, $pre:expr, $off:expr, $w:expr, $v:expr) => {{
         tot += 1; ok += patch_imm_bytes($a, $pre, $off, $w, $v) as u32; }}; }
     let v_ex_ult_level_x: u64 = { if ex_ult_level_x < 0 { 5u64 } else { ex_ult_level_x.max(0) as u64 } };
-    p!(base + 0x1066edd, &[0x49,0x83,0xff], 3, 1, v_ex_ult_level_x);   // ←0.5.3 fdb9ed
-    p!(base + 0x1066f85, &[0x49,0x83,0xff], 3, 1, v_ex_ult_level_x);   // ←0.5.3 fdba95
-    p!(base + 0x106705d, &[0x49,0x83,0xff], 3, 1, v_ex_ult_level_x);   // ←0.5.3 fdbb6d
-    p!(base + 0xdb308a, &[0x49,0x83,0xbe,0xb0,0x05,0x00,0x00], 7, 1, v_ex_ult_level_x);   // ←0.5.3 c8ab0a
-    p!(base + 0xc83f95, &[0x49,0x83,0xbd,0xb0,0x05,0x00,0x00], 7, 1, v_ex_ult_level_x);   // ←0.5.3 c3a7db
+    p!(base + 0x11594dd, &[0x49,0x83,0xff], 3, 1, v_ex_ult_level_x);   // ←0.5.3 fdb9ed   // ←0.5.3 1066edd
+    p!(base + 0x1159585, &[0x49,0x83,0xff], 3, 1, v_ex_ult_level_x);   // ←0.5.3 fdba95   // ←0.5.3 1066f85
+    p!(base + 0x115965d, &[0x49,0x83,0xff], 3, 1, v_ex_ult_level_x);   // ←0.5.3 fdbb6d   // ←0.5.3 106705d
+    p!(base + 0xd3f90a, &[0x49,0x83,0xbe,0xc8,0x05,0x00,0x00], 7, 1, v_ex_ult_level_x);   // ←0.5.3 c8ab0a   // ←0.5.3 db308a
+    p!(base + 0xc871e5, &[0x49,0x83,0xbd,0xc8,0x05,0x00,0x00], 7, 1, v_ex_ult_level_x);   // ←0.5.3 c3a7db   // ←0.5.3 c83f95
     let v_ex_skill2_level_x: u64 = { if ex_skill2_level_x < 0 { 3u64 } else { ex_skill2_level_x.max(0) as u64 } };
-    p!(base + 0x1056e3d, &[0x49,0x83,0xff], 3, 1, v_ex_skill2_level_x);   // ←0.5.3 fcb9ad
-    p!(base + 0x1056ede, &[0x49,0x83,0xff], 3, 1, v_ex_skill2_level_x);   // ←0.5.3 fcba4e
-    p!(base + 0x1056fad, &[0x49,0x83,0xff], 3, 1, v_ex_skill2_level_x);   // ←0.5.3 fcbb1d
-    p!(base + 0xdb3064, &[0x49,0x83,0xbe,0xb0,0x05,0x00,0x00], 7, 1, v_ex_skill2_level_x);   // ←0.5.3 c8aae4
+    p!(base + 0x114955d, &[0x49,0x83,0xff], 3, 1, v_ex_skill2_level_x);   // ←0.5.3 fcb9ad   // ←0.5.3 1056e3d
+    p!(base + 0x11495fe, &[0x49,0x83,0xff], 3, 1, v_ex_skill2_level_x);   // ←0.5.3 fcba4e   // ←0.5.3 1056ede
+    p!(base + 0x11496cd, &[0x49,0x83,0xff], 3, 1, v_ex_skill2_level_x);   // ←0.5.3 fcbb1d   // ←0.5.3 1056fad
+    p!(base + 0xd3f8e4, &[0x49,0x83,0xbe,0xc8,0x05,0x00,0x00], 7, 1, v_ex_skill2_level_x);   // ←0.5.3 c8aae4   // ←0.5.3 db3064
     LV_SIG.store(sig, Ordering::Relaxed);
     if let Some(pp) = pth("lv_imm.txt") {
         let _ = fs::write(pp, format!("applied={}/{} ex_ult_level_x={} ex_skill2_level_x={} @base{:#x}\n",
@@ -4329,74 +4353,74 @@ unsafe fn apply_eh_imm() {
     macro_rules! p { ($a:expr, $pre:expr, $off:expr, $w:expr, $v:expr) => {{
         tot += 1; ok += patch_imm_bytes($a, $pre, $off, $w, $v) as u32; }}; }
     let v_eh_flee_clear_hp: u64 = { if eh_flee_clear_hp < 0 { 29u64 } else { eh_flee_clear_hp.max(0) as u64 } };
-    p!(base + 0xd861a1, &[0x48,0x83,0xf8], 3, 1, v_eh_flee_clear_hp);   // ←0.5.3 c68992
-    p!(base + 0xd8628b, &[0x48,0x83,0xf8], 3, 1, v_eh_flee_clear_hp);   // ←0.5.3 c68a7f
-    p!(base + 0xe14b2e, &[0x48,0x83,0xf8], 3, 1, v_eh_flee_clear_hp);   // ←0.5.3 da0825
-    p!(base + 0xe14bd1, &[0x48,0x83,0xf8], 3, 1, v_eh_flee_clear_hp);   // ←0.5.3 da08c5
+    p!(base + 0xe2e5e1, &[0x48,0x83,0xf8], 3, 1, v_eh_flee_clear_hp);   // ←0.5.3 c68992   // ←0.5.3 d861a1
+    p!(base + 0xe2e6cb, &[0x48,0x83,0xf8], 3, 1, v_eh_flee_clear_hp);   // ←0.5.3 c68a7f   // ←0.5.3 d8628b
+    p!(base + 0xea4121, &[0x48,0x83,0xf8], 3, 1, v_eh_flee_clear_hp);   // ←0.5.3 da0825   // ←0.5.3 e14b2e
+    p!(base + 0xea41c1, &[0x48,0x83,0xf8], 3, 1, v_eh_flee_clear_hp);   // ←0.5.3 da08c5   // ←0.5.3 e14bd1
     let v_eh_reach_margin: u64 = { if eh_reach_margin < 0 { 25000u64 } else { eh_reach_margin.max(0) as u64 } };
-    p!(base + 0xd87fbd, &[0x41,0xb8], 2, 4, v_eh_reach_margin);   // ←0.5.3 c6a83d
-    p!(base + 0xe1681d, &[0x41,0xb8], 2, 4, v_eh_reach_margin);   // ←0.5.3 da253e
-    p!(base + 0xd8ad23, &[0x48,0xc7,0x44,0x24,0x30], 5, 4, v_eh_reach_margin);   // ←0.5.3 c6d3b5
-    p!(base + 0xe19563, &[0x48,0xc7,0x44,0x24,0x30], 5, 4, v_eh_reach_margin);   // ←0.5.3 da4fc3
+    p!(base + 0xe3032d, &[0x41,0xb8], 2, 4, v_eh_reach_margin);   // ←0.5.3 c6a83d   // ←0.5.3 d87fbd
+    p!(base + 0xea5e1d, &[0x41,0xb8], 2, 4, v_eh_reach_margin);   // ←0.5.3 da253e   // ←0.5.3 e1681d
+    p!(base + 0xe330c3, &[0x48,0xc7,0x44,0x24,0x30], 5, 4, v_eh_reach_margin);   // ←0.5.3 c6d3b5   // ←0.5.3 d8ad23
+    p!(base + 0xea8bb3, &[0x48,0xc7,0x44,0x24,0x30], 5, 4, v_eh_reach_margin);   // ←0.5.3 da4fc3   // ←0.5.3 e19563
     let v_eh_recall_radius: u64 = { if eh_recall_radius < 0 { 60000u64 } else { eh_recall_radius.max(0) as u64 } };
-    p!(base + 0xd87685, &[0x48,0xc7,0x44,0x24,0x20], 5, 4, v_eh_recall_radius);   // ←0.5.3 c69fd5
-    p!(base + 0xe15f85, &[0x48,0xc7,0x44,0x24,0x20], 5, 4, v_eh_recall_radius);   // ←0.5.3 da1ce2
+    p!(base + 0xe2fa85, &[0x48,0xc7,0x44,0x24,0x20], 5, 4, v_eh_recall_radius);   // ←0.5.3 c69fd5   // ←0.5.3 d87685
+    p!(base + 0xea5575, &[0x48,0xc7,0x44,0x24,0x20], 5, 4, v_eh_recall_radius);   // ←0.5.3 da1ce2   // ←0.5.3 e15f85
     let v_eh_around_radius: u64 = { if eh_around_radius < 0 { 80000u64 } else { eh_around_radius.max(0) as u64 } };
-    p!(base + 0xd8774e, &[0x48,0xc7,0x85,0x28,0x05,0x00,0x00], 7, 4, v_eh_around_radius);   // ←0.5.3 c6a026
-    p!(base + 0xe16048, &[0x48,0xc7,0x85,0x28,0x05,0x00,0x00], 7, 4, v_eh_around_radius);   // ←0.5.3 da1d33
+    p!(base + 0xe2fb48, &[0x48,0xc7,0x85,0x38,0x05,0x00,0x00], 7, 4, v_eh_around_radius);   // ←0.5.3 c6a026   // ←0.5.3 d8774e
+    p!(base + 0xea5638, &[0x48,0xc7,0x85,0x38,0x05,0x00,0x00], 7, 4, v_eh_around_radius);   // ←0.5.3 da1d33   // ←0.5.3 e16048
     let v_eh_trace_arrive: u64 = { if eh_trace_arrive < 0 { 15000u64 } else { eh_trace_arrive.max(0) as u64 } };
-    p!(base + 0xd87aba, &[0x48,0xc7,0x85,0x48,0x05,0x00,0x00], 7, 4, v_eh_trace_arrive);   // ←0.5.3 c6a349
-    p!(base + 0xd8856a, &[0x48,0xc7,0x85,0x48,0x05,0x00,0x00], 7, 4, v_eh_trace_arrive);   // ←0.5.3 c6aaff
-    p!(base + 0xd88609, &[0x48,0xc7,0x85,0x48,0x05,0x00,0x00], 7, 4, v_eh_trace_arrive);   // ←0.5.3 c6ac5d
-    p!(base + 0xd886a8, &[0x48,0xc7,0x85,0x48,0x05,0x00,0x00], 7, 4, v_eh_trace_arrive);   // ←0.5.3 c6acf9
-    p!(base + 0xd8938b, &[0x48,0xc7,0x85,0x48,0x05,0x00,0x00], 7, 4, v_eh_trace_arrive);   // ←0.5.3 c6ba21
-    p!(base + 0xe1632f, &[0x48,0xc7,0x85,0x48,0x05,0x00,0x00], 7, 4, v_eh_trace_arrive);   // ←0.5.3 da2049
-    p!(base + 0xe16dca, &[0x48,0xc7,0x85,0x48,0x05,0x00,0x00], 7, 4, v_eh_trace_arrive);   // ←0.5.3 da2837
-    p!(base + 0xe16e69, &[0x48,0xc7,0x85,0x48,0x05,0x00,0x00], 7, 4, v_eh_trace_arrive);   // ←0.5.3 da28cf
-    p!(base + 0xe16f08, &[0x48,0xc7,0x85,0x48,0x05,0x00,0x00], 7, 4, v_eh_trace_arrive);   // ←0.5.3 da2967
-    p!(base + 0xe17bbb, &[0x48,0xc7,0x85,0x48,0x05,0x00,0x00], 7, 4, v_eh_trace_arrive);   // ←0.5.3 da366b
+    p!(base + 0xe2fe2f, &[0x48,0xc7,0x85,0x58,0x05,0x00,0x00], 7, 4, v_eh_trace_arrive);   // ←0.5.3 c6a349   // ←0.5.3 d87aba
+    p!(base + 0xe308da, &[0x48,0xc7,0x85,0x58,0x05,0x00,0x00], 7, 4, v_eh_trace_arrive);   // ←0.5.3 c6aaff   // ←0.5.3 d8856a
+    p!(base + 0xe30979, &[0x48,0xc7,0x85,0x58,0x05,0x00,0x00], 7, 4, v_eh_trace_arrive);   // ←0.5.3 c6ac5d   // ←0.5.3 d88609
+    p!(base + 0xe30a18, &[0x48,0xc7,0x85,0x58,0x05,0x00,0x00], 7, 4, v_eh_trace_arrive);   // ←0.5.3 c6acf9   // ←0.5.3 d886a8
+    p!(base + 0xe3171b, &[0x48,0xc7,0x85,0x58,0x05,0x00,0x00], 7, 4, v_eh_trace_arrive);   // ←0.5.3 c6ba21   // ←0.5.3 d8938b
+    p!(base + 0xea591f, &[0x48,0xc7,0x85,0x58,0x05,0x00,0x00], 7, 4, v_eh_trace_arrive);   // ←0.5.3 da2049   // ←0.5.3 e1632f
+    p!(base + 0xea63ca, &[0x48,0xc7,0x85,0x58,0x05,0x00,0x00], 7, 4, v_eh_trace_arrive);   // ←0.5.3 da2837   // ←0.5.3 e16dca
+    p!(base + 0xea6469, &[0x48,0xc7,0x85,0x58,0x05,0x00,0x00], 7, 4, v_eh_trace_arrive);   // ←0.5.3 da28cf   // ←0.5.3 e16e69
+    p!(base + 0xea6508, &[0x48,0xc7,0x85,0x58,0x05,0x00,0x00], 7, 4, v_eh_trace_arrive);   // ←0.5.3 da2967   // ←0.5.3 e16f08
+    p!(base + 0xea720b, &[0x48,0xc7,0x85,0x58,0x05,0x00,0x00], 7, 4, v_eh_trace_arrive);   // ←0.5.3 da366b   // ←0.5.3 e17bbb
     let v_eh_band_low: u64 = { if eh_band_low < 0 { 12000u64 } else { eh_band_low.max(0) as u64 } };
-    p!(base + 0xd88cfe, &[0xb9], 1, 4, v_eh_band_low);   // ←0.5.3 c6b3a1
-    p!(base + 0xe1755e, &[0xb9], 1, 4, v_eh_band_low);   // ←0.5.3 da300a
-    p!(base + 0xd88d4f, &[0xbe], 1, 4, v_eh_band_low);   // ←0.5.3 c6b3eb
-    p!(base + 0xe175af, &[0xbe], 1, 4, v_eh_band_low);   // ←0.5.3 da305b
-    p!(base + 0xd88d59, &[0x48,0xc7,0x85,0xd0,0x04,0x00,0x00], 7, 4, v_eh_band_low);   // ←0.5.3 c6b3f5
-    p!(base + 0xe175b9, &[0x48,0xc7,0x85,0xd0,0x04,0x00,0x00], 7, 4, v_eh_band_low);   // ←0.5.3 da3065
-    p!(base + 0xd88cf8, &[0x48,0x3d], 2, 4, v_eh_band_low.wrapping_add(1));   // ←0.5.3 c6b39b
-    p!(base + 0xe17558, &[0x48,0x3d], 2, 4, v_eh_band_low.wrapping_add(1));   // ←0.5.3 da3004
+    p!(base + 0xe310be, &[0xb9], 1, 4, v_eh_band_low);   // ←0.5.3 c6b3a1   // ←0.5.3 d88cfe
+    p!(base + 0xea6bae, &[0xb9], 1, 4, v_eh_band_low);   // ←0.5.3 da300a   // ←0.5.3 e1755e
+    p!(base + 0xe3110f, &[0xbe], 1, 4, v_eh_band_low);   // ←0.5.3 c6b3eb   // ←0.5.3 d88d4f
+    p!(base + 0xea6bff, &[0xbe], 1, 4, v_eh_band_low);   // ←0.5.3 da305b   // ←0.5.3 e175af
+    p!(base + 0xe31119, &[0x48,0xc7,0x85,0xe0,0x04,0x00,0x00], 7, 4, v_eh_band_low);   // ←0.5.3 c6b3f5   // ←0.5.3 d88d59
+    p!(base + 0xea6c09, &[0x48,0xc7,0x85,0xe0,0x04,0x00,0x00], 7, 4, v_eh_band_low);   // ←0.5.3 da3065   // ←0.5.3 e175b9
+    p!(base + 0xe310b8, &[0x48,0x3d], 2, 4, v_eh_band_low.wrapping_add(1));   // ←0.5.3 c6b39b   // ←0.5.3 d88cf8
+    p!(base + 0xea6ba8, &[0x48,0x3d], 2, 4, v_eh_band_low.wrapping_add(1));   // ←0.5.3 da3004   // ←0.5.3 e17558
     let v_eh_band_high: u64 = { if eh_band_high < 0 { 45000u64 } else { eh_band_high.max(0) as u64 } };
-    p!(base + 0xd88d07, &[0x48,0x81,0xf9], 3, 4, v_eh_band_high);   // ←0.5.3 c6b3aa
-    p!(base + 0xe17567, &[0x48,0x81,0xf9], 3, 4, v_eh_band_high);   // ←0.5.3 da3013
-    p!(base + 0xd88d0e, &[0xbb], 1, 4, v_eh_band_high);   // ←0.5.3 c6b3b1
-    p!(base + 0xe1756e, &[0xbb], 1, 4, v_eh_band_high);   // ←0.5.3 da301a
+    p!(base + 0xe310c7, &[0x48,0x81,0xf9], 3, 4, v_eh_band_high);   // ←0.5.3 c6b3aa   // ←0.5.3 d88d07
+    p!(base + 0xea6bb7, &[0x48,0x81,0xf9], 3, 4, v_eh_band_high);   // ←0.5.3 da3013   // ←0.5.3 e17567
+    p!(base + 0xe310ce, &[0xbb], 1, 4, v_eh_band_high);   // ←0.5.3 c6b3b1   // ←0.5.3 d88d0e
+    p!(base + 0xea6bbe, &[0xbb], 1, 4, v_eh_band_high);   // ←0.5.3 da301a   // ←0.5.3 e1756e
     let v_eh_commit_hp: u64 = { if eh_commit_hp < 0 { 50u64 } else { eh_commit_hp.max(0) as u64 } };
-    p!(base + 0xd89646, &[0x48,0x83,0xbd,0x88,0x05,0x00,0x00], 7, 1, v_eh_commit_hp);   // ←0.5.3 c6bcb8
-    p!(base + 0xe17e74, &[0x48,0x83,0xbd,0x88,0x05,0x00,0x00], 7, 1, v_eh_commit_hp);   // ←0.5.3 da3924
+    p!(base + 0xe319d4, &[0x48,0x83,0xbd,0x98,0x05,0x00,0x00], 7, 1, v_eh_commit_hp);   // ←0.5.3 c6bcb8   // ←0.5.3 d89646
+    p!(base + 0xea74c4, &[0x48,0x83,0xbd,0x98,0x05,0x00,0x00], 7, 1, v_eh_commit_hp);   // ←0.5.3 da3924   // ←0.5.3 e17e74
     let v_eh_commit_r_low: u64 = { if eh_commit_r_low < 0 { 70000u64 } else { eh_commit_r_low.max(0) as u64 } };
-    p!(base + 0xd8964e, &[0xb8], 1, 4, v_eh_commit_r_low);   // ←0.5.3 c6bcc0
-    p!(base + 0xe17e7c, &[0xb8], 1, 4, v_eh_commit_r_low);   // ←0.5.3 da392c
+    p!(base + 0xe319dc, &[0xb8], 1, 4, v_eh_commit_r_low);   // ←0.5.3 c6bcc0   // ←0.5.3 d8964e
+    p!(base + 0xea74cc, &[0xb8], 1, 4, v_eh_commit_r_low);   // ←0.5.3 da392c   // ←0.5.3 e17e7c
     let v_eh_commit_r_high: u64 = { if eh_commit_r_high < 0 { 40000u64 } else { eh_commit_r_high.max(0) as u64 } };
-    p!(base + 0xd89653, &[0x41,0xbd], 2, 4, v_eh_commit_r_high);   // ←0.5.3 c6bcc5
-    p!(base + 0xe17e81, &[0x41,0xbd], 2, 4, v_eh_commit_r_high);   // ←0.5.3 da3931
+    p!(base + 0xe319e1, &[0x41,0xbd], 2, 4, v_eh_commit_r_high);   // ←0.5.3 c6bcc5   // ←0.5.3 d89653
+    p!(base + 0xea74d1, &[0x41,0xbd], 2, 4, v_eh_commit_r_high);   // ←0.5.3 da3931   // ←0.5.3 e17e81
     let v_eh_abort_hp: u64 = { if eh_abort_hp < 0 { 44u64 } else { eh_abort_hp.max(0) as u64 } };
-    p!(base + 0xd896e4, &[0x48,0x83,0xbd,0x88,0x05,0x00,0x00], 7, 1, v_eh_abort_hp);   // ←0.5.3 c6bd5d
-    p!(base + 0xe17f12, &[0x48,0x83,0xbd,0x88,0x05,0x00,0x00], 7, 1, v_eh_abort_hp);   // ←0.5.3 da39c2
+    p!(base + 0xe31a72, &[0x48,0x83,0xbd,0x98,0x05,0x00,0x00], 7, 1, v_eh_abort_hp);   // ←0.5.3 c6bd5d   // ←0.5.3 d896e4
+    p!(base + 0xea7562, &[0x48,0x83,0xbd,0x98,0x05,0x00,0x00], 7, 1, v_eh_abort_hp);   // ←0.5.3 da39c2   // ←0.5.3 e17f12
     let v_eh_abort_dist: u64 = { if eh_abort_dist < 0 { 220000u64 } else { eh_abort_dist.max(0) as u64 } };
-    p!(base + 0xd896f2, &[0x48,0x81,0xbd,0x60,0x03,0x00,0x00], 7, 4, v_eh_abort_dist);   // ←0.5.3 c6bd6b
-    p!(base + 0xe17f20, &[0x48,0x81,0xbd,0x60,0x03,0x00,0x00], 7, 4, v_eh_abort_dist);   // ←0.5.3 da39d0
+    p!(base + 0xe31a80, &[0x48,0x81,0xbd,0x60,0x03,0x00,0x00], 7, 4, v_eh_abort_dist);   // ←0.5.3 c6bd6b   // ←0.5.3 d896f2
+    p!(base + 0xea7570, &[0x48,0x81,0xbd,0x60,0x03,0x00,0x00], 7, 4, v_eh_abort_dist);   // ←0.5.3 da39d0   // ←0.5.3 e17f20
     let v_eh_score_norm: u64 = { if eh_score_norm < 0 { 320000u64 } else { eh_score_norm.max(0) as u64 } };
-    p!(base + 0xd89a90, &[0x48,0x3d], 2, 4, v_eh_score_norm);   // ←0.5.3 c6c145
-    p!(base + 0xd89a96, &[0x41,0xb8], 2, 4, v_eh_score_norm);   // ←0.5.3 c6c14b
-    p!(base + 0xd89adc, &[0xba], 1, 4, v_eh_score_norm);   // ←0.5.3 c6c191
-    p!(base + 0xd89d9f, &[0x48,0x3d], 2, 4, v_eh_score_norm);   // ←0.5.3 c6c45e
-    p!(base + 0xd89da5, &[0xb9], 1, 4, v_eh_score_norm);   // ←0.5.3 c6c464
-    p!(base + 0xd89e2b, &[0xb9], 1, 4, v_eh_score_norm);   // ←0.5.3 c6c4ea
-    p!(base + 0xe182d0, &[0x48,0x3d], 2, 4, v_eh_score_norm);   // ←0.5.3 da3d96
-    p!(base + 0xe182d6, &[0x41,0xb8], 2, 4, v_eh_score_norm);   // ←0.5.3 da3d9c
-    p!(base + 0xe1831c, &[0xba], 1, 4, v_eh_score_norm);   // ←0.5.3 da3de2
-    p!(base + 0xe185df, &[0x48,0x3d], 2, 4, v_eh_score_norm);   // ←0.5.3 da409e
-    p!(base + 0xe185e5, &[0xb9], 1, 4, v_eh_score_norm);   // ←0.5.3 da40a4
-    p!(base + 0xe1866b, &[0xb9], 1, 4, v_eh_score_norm);   // ←0.5.3 da412a
+    p!(base + 0xe31e30, &[0x48,0x3d], 2, 4, v_eh_score_norm);   // ←0.5.3 c6c145   // ←0.5.3 d89a90
+    p!(base + 0xe31e36, &[0x41,0xb8], 2, 4, v_eh_score_norm);   // ←0.5.3 c6c14b   // ←0.5.3 d89a96
+    p!(base + 0xe31e7c, &[0xba], 1, 4, v_eh_score_norm);   // ←0.5.3 c6c191   // ←0.5.3 d89adc
+    p!(base + 0xe3213f, &[0x48,0x3d], 2, 4, v_eh_score_norm);   // ←0.5.3 c6c45e   // ←0.5.3 d89d9f
+    p!(base + 0xe32145, &[0xb9], 1, 4, v_eh_score_norm);   // ←0.5.3 c6c464   // ←0.5.3 d89da5
+    p!(base + 0xe321cb, &[0xb9], 1, 4, v_eh_score_norm);   // ←0.5.3 c6c4ea   // ←0.5.3 d89e2b
+    p!(base + 0xea7920, &[0x48,0x3d], 2, 4, v_eh_score_norm);   // ←0.5.3 da3d96   // ←0.5.3 e182d0
+    p!(base + 0xea7926, &[0x41,0xb8], 2, 4, v_eh_score_norm);   // ←0.5.3 da3d9c   // ←0.5.3 e182d6
+    p!(base + 0xea796c, &[0xba], 1, 4, v_eh_score_norm);   // ←0.5.3 da3de2   // ←0.5.3 e1831c
+    p!(base + 0xea7c2f, &[0x48,0x3d], 2, 4, v_eh_score_norm);   // ←0.5.3 da409e   // ←0.5.3 e185df
+    p!(base + 0xea7c35, &[0xb9], 1, 4, v_eh_score_norm);   // ←0.5.3 da40a4   // ←0.5.3 e185e5
+    p!(base + 0xea7cbb, &[0xb9], 1, 4, v_eh_score_norm);   // ←0.5.3 da412a   // ←0.5.3 e1866b
     EH_SIG.store(sig, Ordering::Relaxed);
     if let Some(pp) = pth("eh_imm.txt") {
         let _ = fs::write(pp, format!("applied={}/{} eh_flee_clear_hp={} eh_reach_margin={} eh_recall_radius={} eh_around_radius={} eh_trace_arrive={} eh_band_low={} eh_band_high={} eh_commit_hp={} eh_commit_r_low={} eh_commit_r_high={} eh_abort_hp={} eh_abort_dist={} eh_score_norm={} @base{:#x}\n",

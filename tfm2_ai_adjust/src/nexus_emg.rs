@@ -52,16 +52,18 @@
 //   둘 다 끄는 노브를 뒀다(`nxe_supp_off` · `nxe_battle_off`).
 
 // 술어 B 조건① 사이트 (0.5.4)
-const NXE_RVA: usize = 0xce3c18;
+const NXE_RVA: usize = 0xdd1d08;   // ★0.5.5(~~0xce3c18~~): defense_nexus.rs 함수 ce3be0→dd1cd0 r=1.00, cmp[rbx+rax+0x148] 사이트 정렬. window 바이트 불변
 /// 창 11B = `cmp qword [rbx+rax+0x148], 0` (9B) + `je +0x13` (2B).
 const NXE_WIN: [u8; 11] = [0x48, 0x83, 0xBC, 0x03, 0x48, 0x01, 0x00, 0x00, 0x00, 0x74, 0x13];
-const NXE_FAIL_RVA: usize = 0xce3c23;   // 비상 아님 → 0 반환
-const NXE_PASS_RVA: usize = 0xce3c36;   // 비상 → 조건②(넥서스가 맞는 중) 검사로
+const NXE_FAIL_RVA: usize = 0xdd1d13;   // 비상 아님 → 0 반환 (★0.5.5 ~~0xce3c23~~ = NXE_RVA+11 fallthru)
+const NXE_PASS_RVA: usize = 0xdd1d26;   // 비상 → 조건②(넥서스가 맞는 중) 검사로 (★0.5.5 ~~0xce3c36~~ = je타깃 mov eax,1)
 
 // 월드뷰 구조체 오프셋 (RE 2026-08-08 확정)
-const O_TWIN_LEN: usize = 0x148;                  // + side*0x20 — 살아있는 쌍둥이 타워 수
-const O_T1: [usize; 3] = [0x180, 0x1a0, 0x1c0];   // 1차 Top/Mid/Bottom (+ side*8)
-const O_T2: [usize; 3] = [0x190, 0x1b0, 0x1d0];   // 2차 Top/Mid/Bottom (+ side*8)
+// ★0.5.5 확인: region 저대역 불변. 0x148은 NXE 함수 cmp 사이트서 직접 정렬확인(불변). O_T1/O_T2(0x180~0x1d0)는
+//   같은 region struct 인접 저대역(≤0x258, §6 World 저대역 불변)이라 불변 확정(0x148 불변이 struct 미시프트 방증).
+const O_TWIN_LEN: usize = 0x148;                  // + side*0x20 — 살아있는 쌍둥이 타워 수 (0.5.5 불변)
+const O_T1: [usize; 3] = [0x180, 0x1a0, 0x1c0];   // 1차 Top/Mid/Bottom (+ side*8) (0.5.5 불변)
+const O_T2: [usize; 3] = [0x190, 0x1b0, 0x1d0];   // 2차 Top/Mid/Bottom (+ side*8) (0.5.5 불변)
 
 /// 상황별 적극도. 순서 = `NXE_KEYS` 와 1:1.
 static NXE_LV: [AtomicI64; 8] = [const { AtomicI64::new(0) }; 8];
@@ -81,13 +83,14 @@ static NXE_BY: [AtomicU64; 8] = [const { AtomicU64::new(0) }; 8];   // 어느 �
 // `0xe097b5` = `test eax,0x100` + `je e097f5` (7B). **여기를 잡아야 술어 B 경로만** 조절된다.
 // ⚠바로 아래 감산 블록(`0xe097bc`)에는 **진입 경로가 5개**나 합류한다(HP>45% 경로 포함) —
 //   거기에 손대면 비상과 무관한 **정상 플레이 전반**이 바뀐다. 그래서 한 단계 위를 잡는다.
-const NXM_RVA: usize = 0xe097b5;
+const NXM_RVA: usize = 0xd9c825;   // ★0.5.5(~~0xe097b5~~): free_dist.rs 함수 e088f0→d9b960 r=1.00, test eax,0x100 사이트 정렬. window 바이트 불변
 const NXM_WIN: [u8; 7] = [0xa9, 0x00, 0x01, 0x00, 0x00, 0x74, 0x39];   // test eax,0x100 ; je +0x39
-const NXM_PLAIN_RVA: usize = 0xe097f5;   // 비상 아님 → 평범 경로
-const NXM_AFTER_RVA: usize = 0xe097db;   // 감산 블록 다음(우리가 감산을 대신 수행하고 여기로)
-const NXM_BASE_MARGIN_SLOT: usize = 0x880;   // [rbp+0x880] = dist(나, 최근접 적)
-const O_REG_SLOT: i32 = 0x8d0;   // [rbp+0x8d0] = reg   (프롤로그에서 1회만 기록)
-const O_SIDE_SLOT: i32 = 0x8c0;  // [rbp+0x8c0] = side  (〃)
+const NXM_PLAIN_RVA: usize = 0xd9c865;   // 비상 아님 → 평범 경로 (★0.5.5 ~~0xe097f5~~ = je타깃 mov r13,[rbp+0x988])
+const NXM_AFTER_RVA: usize = 0xd9c84b;   // 감산 블록 다음 (★0.5.5 ~~0xe097db~~ = cmp[rbp+0x840],r13)
+// ★0.5.5 확인: NXM 함수(free_dist e088f0→d9b960 r=1.00) 프레임 슬롯 전부 불변(정렬서 [rbp+0x8d0/0x8c0/0x880] 동일).
+const NXM_BASE_MARGIN_SLOT: usize = 0x880;   // [rbp+0x880] = dist(나, 최근접 적) (0.5.5 불변)
+const O_REG_SLOT: i32 = 0x8d0;   // [rbp+0x8d0] = reg   (프롤로그에서 1회만 기록) (0.5.5 불변)
+const O_SIDE_SLOT: i32 = 0x8c0;  // [rbp+0x8c0] = side  (〃) (0.5.5 불변)
 /// 게임 원본 마진(월드 유닛). 맵 폭 ≈960,000 기준 3.1%.
 const NXE_BASE_MARGIN: u64 = 30_000;
 static NXM_ON: AtomicBool = AtomicBool::new(false);

@@ -83,7 +83,7 @@ pub unsafe fn cand_filter_repro(ctx: &CandCtx, draws_out: &mut u32) -> Option<Ve
         let cand = rd_u64(candtable + (team * 5 + l) * 8)? as usize;
         let mut sel: usize = 0;
         if cand != 0 {
-            let cand628 = rd_i64(cand + 0x628)?;
+            let cand628 = rd_i64(cand + 0x640)?;
             // ── RNG roll: fcdaf0(rng, lo..=hi) = inclusive gen_range (비-null 후보마다 1회, 게이트 전) ──
             *draws_out += 1;
             let roll = rng_sim.gen_range(ctx.lo as u64, ctx.hi as u64)? as i64;
@@ -100,7 +100,7 @@ pub unsafe fn cand_filter_repro(ctx: &CandCtx, draws_out: &mut u32) -> Option<Ve
             let dist = isqrt_u64(dx.wrapping_mul(dx).wrapping_add(dy.wrapping_mul(dy))) as i64;
             let dist_excess = if ctx.dist_thr <= dist { dist - ctx.dist_thr } else { 0 };
             // ── 게이트 ──
-            let cand5a8 = rd_u64(cand + 0x5a8)?;
+            let cand5a8 = rd_u64(cand + 0x5c0)?;
             let mut accept = false;
             if st290 <= rd_i64(stat268 + l * 8)? {
                 accept = true;                                  // 숏컷

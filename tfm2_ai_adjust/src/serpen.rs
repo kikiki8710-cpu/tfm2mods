@@ -16,7 +16,7 @@ unsafe fn my_serpen_poke(p2: usize, _p3: u64, p5: usize, p6: usize, _p7: usize, 
     let l80 = rd_u64(p6).unwrap_or(0) as usize;              // *P6
     if !ptr_ok(l80) { return -99; }
     let serpen_slot = tune("poke_serpen_slot", 5) as u8;    // ✅[재배선] serpen 웨이포인트 점유 임계
-    let side = rd_u64(p5 + 0x810).unwrap_or(2);             // P3 (0.5.0 SimState side, was 0x6a8)  ★0.5.4 오프셋 이동 반영
+    let side = rd_u64(p5 + 0x930).unwrap_or(2);             // P3 (0.5.0 SimState side, was 0x6a8)  ★0.5.4 오프셋 이동 반영
     if side > 1 { return -99; }
     let p3s = side as usize;
     let p1b = rd_u8(p2 + 0x20);                              // P1 = byte[subp+0x28] = byte[(subp+8)+0x20]
@@ -44,13 +44,13 @@ unsafe fn my_serpen_poke(p2: usize, _p3: u64, p5: usize, p6: usize, _p7: usize, 
             let sim = rd_u64(l80).unwrap_or(0) as usize;
             let vt = rd_u64(l80 + 8).unwrap_or(0) as usize;
             if !ptr_ok(sim) || !ptr_ok(vt) { return -99; }
-            let cand = dd7_slot128(sim, rd_u64(p5 + 0x818).unwrap_or(0));   // vt+0x138 2단 resolve, handle=*(p5+0x818) self-handle → 순수재현(shadow-call 제거=AV방지)
+            let cand = dd7_slot128(sim, rd_u64(p5 + 0x938).unwrap_or(0));   // vt+0x138 2단 resolve, handle=*(p5+0x818) self-handle → 순수재현(shadow-call 제거=AV방지)
             if !ptr_ok(cand) { return -99; }
             let vobj = rd_u64(p6 + 8).unwrap_or(0) as usize;   // *(P6+8)
             let m = rd_u64(vobj + 8).unwrap_or(0) as usize;
             let mapymax = rd_u64(m + 0x12c0).unwrap_or(0);
-            let cy = rd_u64(cand + 0x650).unwrap_or(0);
-            let cx = rd_u64(cand + 0x648).unwrap_or(0);
+            let cy = rd_u64(cand + 0x668).unwrap_or(0);
+            let cx = rd_u64(cand + 0x660).unwrap_or(0);
             let side_test = mapymax.wrapping_sub(cy) < cx;    // 부호없는 비교
             if ty == 2 && rd_u8(wp + 0x128) >= serpen_slot {
                 if side_test { if p3s == 0 { 0x0d } else { 0x12 } } else if p3s == 0 { 0x08 } else { 0x0c }
@@ -100,10 +100,10 @@ const SERPEN_PHASE3_ALLY: [i64; 18] = [4, 2, 1, 2, 1, 3, 1, 4, 4, 3, 2, 1, 2, 1,
 unsafe fn serpen_pred_b(ctx: usize, cand: usize) -> bool {
     let selfp = rd_u64(ctx).unwrap_or(0) as usize;                 // *(ctx+0) = self A
     if !ptr_ok(selfp) || !ptr_ok(cand) { return false; }
-    let sx = rd_u64(selfp + 0x648).unwrap_or(0);
-    let sy = rd_u64(selfp + 0x650).unwrap_or(0);
-    let cx = rd_u64(cand + 0x648).unwrap_or(0);
-    let cy = rd_u64(cand + 0x650).unwrap_or(0);
+    let sx = rd_u64(selfp + 0x660).unwrap_or(0);
+    let sy = rd_u64(selfp + 0x668).unwrap_or(0);
+    let cx = rd_u64(cand + 0x660).unwrap_or(0);
+    let cy = rd_u64(cand + 0x668).unwrap_or(0);
     if sqd(sx, sy, cx, cy) > 22500000000u64 { return false; }      // 150000²
     if rd_u64(selfp).unwrap_or(1) == 0 {                            // self.type==0
         let k = rd_u64(selfp + 8).unwrap_or(0) as usize;           // k=self+0x08 (>1 panic가드=재현X)
@@ -113,7 +113,7 @@ unsafe fn serpen_pred_b(ctx: usize, cand: usize) -> bool {
     let bptr = rd_u64(ctx + 8).unwrap_or(0) as usize;              // ptr B
     let bval = rd_u64(bptr).unwrap_or(0);                          // *(*(ctx+8))
     let cent = rd_u64(ctx + 0x10).unwrap_or(0) as usize;           // entity C
-    let side = rd_u64(cent + 0x810).unwrap_or(2);//  ★0.5.4 오프셋 이동 반영
+    let side = rd_u64(cent + 0x930).unwrap_or(2);//  ★0.5.4 오프셋 이동 반영
     let mut reject = false;
     if bval > 0xb && rd_u64(cand).unwrap_or(1) == 0
         && rd_u64(cand + 8).unwrap_or(99) == 1u64.wrapping_sub(side) {
@@ -161,8 +161,8 @@ unsafe fn serpen_skill_type3(entity: usize) -> bool {
 unsafe fn serpen_dmg_core(atk: usize, tgt: usize, base_in: i64, dmgtype: i32, which: u32) -> i64 {
     if !ptr_ok(atk) || !ptr_ok(tgt) { return 0; }
     let coef = atk + 0x358;
-    let atk_maxhp = rd_i64(atk + 0x610).unwrap_or(0);
-    let tgt_maxhp = rd_i64(tgt + 0x610).unwrap_or(0);
+    let atk_maxhp = rd_i64(atk + 0x628).unwrap_or(0);
+    let tgt_maxhp = rd_i64(tgt + 0x628).unwrap_or(0);
     let mut base = base_in;
     let out = if dmgtype == 2 || dmgtype == 3 {
         (rd_i64(coef + 0xf0).unwrap_or(0) + 100) * base / 100                      // amp/true
@@ -200,17 +200,17 @@ unsafe fn serpen_role7_count(g0: usize, gchild: usize, ctx2: usize, geom: usize,
         let u = rd_u64(g0 + 0x1e0 + sd * 0x28 + i * 8).unwrap_or(0) as usize;
         if u == 0 { continue; }
         // 셀 인덱스: 좌표/32000 후 29 클램프 (원본 magic 0x20c49ba5e353f7d = /32000)
-        let yi = (rd_u64(u + 0x650).unwrap_or(0) / 32000).min(29) as usize;
-        let xi = (rd_u64(u + 0x648).unwrap_or(0) / 32000).min(29) as usize;
+        let yi = (rd_u64(u + 0x668).unwrap_or(0) / 32000).min(29) as usize;
+        let xi = (rd_u64(u + 0x660).unwrap_or(0) / 32000).min(29) as usize;
         let role = rd_u64(role_tbl + yi * 0xf0 + xi * 8).unwrap_or(0);
         if role != 7 { continue; }                               // ★원본은 `n += (role==7) & ok`(양쪽 평가)이나 카운트 결과는 동일
-        let id = rd_u64(u + 0x5a8).unwrap_or(0);
+        let id = rd_u64(u + 0x5c0).unwrap_or(0);
         let ok = if geom_vt68(gchild, vis_side, id) { true }      // vt[0xd0] != 0 → 즉시 통과
         else {
             let look = geom_vtc0(gchild, id);                    // vt[0x128] = 시야레코드
             if look == 0 { false }
             else {
-                let li = rd_i32(look + 0x8a0).unwrap_or(0) as usize;   // lane idx  ★0.5.4 오프셋 이동 반영
+                let li = rd_i32(look + 0x9c0).unwrap_or(0) as usize;   // lane idx  ★0.5.4 오프셋 이동 반영
                 if !ptr_ok(ls_base) { false }
                 else { rd_i64(ls_base + sd * 0x2e8 + 0x1e0 + li * 8).unwrap_or(0) + 0x78 >= now }
             }
@@ -226,12 +226,12 @@ unsafe fn serpen_role7_count(g0: usize, gchild: usize, ctx2: usize, geom: usize,
 //   owned 원소=카탈로그와 동일 타입(buy가 카탈로그 pair 딥클론 push, vtA1-4 0x1438a1d18../vtB 0x1438af4a0 공유).
 //   ⚠라이브 대체 시: 후보 n>0이면 Lemire 균등픽 RNG 2+워드 소비 재현 필요(검증경로=discriminant만이라 생략).
 unsafe fn serpen_rng_pick(rng: usize, athlete: usize, plan: usize, live: bool) -> i64 {
-    let obase = rd_u64(athlete + 0x450).unwrap_or(0) as usize;   // owned Vec{cap@0x448,ptr@0x450,len@0x458}, 원소 {data,vt} stride 0x10
-    let ocnt = rd_u64(athlete + 0x458).unwrap_or(0) as usize;
+    let obase = rd_u64(athlete + 0x4b0).unwrap_or(0) as usize;   // owned Vec{cap@0x448,ptr@0x450,len@0x458}, 원소 {data,vt} stride 0x10
+    let ocnt = rd_u64(athlete + 0x4b8).unwrap_or(0) as usize;
     // ★★[07-23] 임의 상한 완화(~~`ocnt > 256`~~ → `> 0x10000`). 원본 `0x2135350`엔 대응 상한이 **없다**.
     //   걸리면 n이 과소 산출되어 **Lemire draw 수가 어긋남 = RNG desync**(live 대체 시 치명). 쓰레기 포인터 방어용으로만 크게 남긴다.
     if obase == 0 || ocnt == 0 || ocnt > 0x10000 { return 0; }
-    let gold = rd_u64(athlete + 0x888).unwrap_or(0);
+    let gold = rd_u64(athlete + 0x9a8).unwrap_or(0);
     // local_50 = max{tier : tier<=3} over owned, 없으면 0 (tier=*(data+0x188), unsigned)
     let mut local50: u64 = 0;
     for i in 0..ocnt {
@@ -313,10 +313,10 @@ unsafe fn serpen_rng_pick(rng: usize, athlete: usize, plan: usize, live: bool) -
 
 // engage 게이트 valid_target 술어: HP%>=40 + 위치게이트(p6=4/5). mapobj=ctx[1]=*(geom[1]+8).
 unsafe fn serpen_valid_target(e: usize, mapobj: usize, p6: u8) -> bool {
-    let maxhp = rd_u64(e + 0x610).unwrap_or(0);
-    if maxhp == 0 || rd_u64(e + 0x658).unwrap_or(0).wrapping_mul(100) / maxhp < (tune("ec_valid_hp", 0x28) as u64) { return false; }
-    let x = rd_u64(e + 0x648).unwrap_or(0);
-    let y = rd_u64(e + 0x650).unwrap_or(0);
+    let maxhp = rd_u64(e + 0x628).unwrap_or(0);
+    if maxhp == 0 || rd_u64(e + 0x670).unwrap_or(0).wrapping_mul(100) / maxhp < (tune("ec_valid_hp", 0x28) as u64) { return false; }
+    let x = rd_u64(e + 0x660).unwrap_or(0);
+    let y = rd_u64(e + 0x668).unwrap_or(0);
     let mapy = rd_u64(mapobj + 0x12c0).unwrap_or(0);
     let mapx = rd_u64(mapobj + 0x12b8).unwrap_or(0);
     if p6 == 4 {
@@ -351,7 +351,7 @@ unsafe fn serpen_engage_gate(sf: usize, tick: i64, sim: usize, geom: usize, tp: 
     let g0 = rd_u64(geom).unwrap_or(0) as usize;        // planptr=geom[0](roster+0x1e0, vt=+8)
     let ctx = rd_u64(geom + 8).unwrap_or(0) as usize;   // ctx=geom[1](+0x38 lane-id, +0x20 앵커컨테이너)
     if !ptr_ok(g0) || !ptr_ok(ctx) { sgt(6, 3); return false; }
-    let side = rd_u64(sim + 0x810).unwrap_or(2);//  ★0.5.4 오프셋 이동 반영
+    let side = rd_u64(sim + 0x930).unwrap_or(2);//  ★0.5.4 오프셋 이동 반영
     if side > 1 { sgt(6, 4); return false; }
     let s = side as usize;
     let mapobj = rd_u64(ctx + 8).unwrap_or(0) as usize;
@@ -370,7 +370,7 @@ unsafe fn serpen_engage_gate(sf: usize, tick: i64, sim: usize, geom: usize, tp: 
     let (refx, refy) = serpen_anchor_pickup(ctx, s, p6);
     let gchild = rd_u64(g0).unwrap_or(0) as usize;
     let gvt = rd_u64(g0 + 8).unwrap_or(0) as usize;
-    let w = rd_u64(sim + 0x818).unwrap_or(0) as usize;
+    let w = rd_u64(sim + 0x938).unwrap_or(0) as usize;
     if !ptr_ok(gchild) || !ptr_ok(gvt) { sgt(6, 7); return false; }   // ★07-10 sgate 진단: ptr_ok(w) 제거 — w=*(sim+0x818)은 핸들(작은 정수)이라 ptr_ok 상시 실패→게이트 상시 false→라이브매치 game(0xc)≠my(0xe). 핸들 검증=dd7_slot128 내부(범위+in-use)
     if dd7_slot128(gchild, w as u64) == 0 { sgt(6, 8); return false; }   // vt0x138 resolve 게이트 → 순수재현(2-stage=dd7_slot128 비트동일)
     // 슬롯스캔+최근접: argmin over valid slots of isqrt(anchor→E)+LANE_BIAS[idx] (포화)
@@ -378,11 +378,11 @@ unsafe fn serpen_engage_gate(sf: usize, tick: i64, sim: usize, geom: usize, tp: 
     for i in 0..5usize {
         let e = rd_u64(g0 + 0x1e0 + s * 0x28 + i * 8).unwrap_or(0) as usize;
         if e == 0 || !serpen_valid_target(e, mapobj, p6) { continue; }
-        let d = isqrt(sqd(refx, refy, rd_u64(e + 0x648).unwrap_or(0), rd_u64(e + 0x650).unwrap_or(0)));
+        let d = isqrt(sqd(refx, refy, rd_u64(e + 0x660).unwrap_or(0), rd_u64(e + 0x668).unwrap_or(0)));
         let score = d.saturating_add(SERPEN_LANE_BIAS[i] as u64);
         if score < best_score { best_score = score; best_idx = i as i64; best_ent = e; }
     }
-    if best_ent == 0 || best_idx != rd_u32(sim + 0x8a0) as i64 { sgt(6, 9); sgt(7, best_idx); sgt(8, rd_u32(sim + 0x8a0) as i64); return false; }   // out.idx==sim lane  ★0.5.4 오프셋 이동 반영
+    if best_ent == 0 || best_idx != rd_u32(sim + 0x9c0) as i64 { sgt(6, 9); sgt(7, best_idx); sgt(8, rd_u32(sim + 0x9c0) as i64); return false; }   // out.idx==sim lane  ★0.5.4 오프셋 이동 반영
     // ═══ tail byte-exact (07-10 ghidra-re 확정 스펙). RNG-free. ═══
     let geom2 = rd_u64(geom + 0x10).unwrap_or(0) as usize;
     // ★★[07-23 오류 수정] ~~`rd_u64(ctx + 0x12f8)`~~ → **`rd_u64(mapobj + 0x12f8)`**. **객체가 달랐다**(ctx ≠ mapobj).
@@ -424,22 +424,22 @@ unsafe fn serpen_engage_gate(sf: usize, tick: i64, sim: usize, geom: usize, tp: 
     let lane_ok = if p6 == 4 { lane_id == 0 || lane_id >= 7 } else { lane_id < 9 && ((0x1a1u32 >> lane_id) & 1) != 0 };
     let mut c87 = false;
     if lane_ok {
-        let now = rd_i64(gchild + 0xeb00).unwrap_or(0) as u64;
+        let now = rd_i64(gchild + 0xec68).unwrap_or(0) as u64;
         // ★★[07-23 회귀 롤백] ~~`let w87 = geom;`(같은 날 "정정"으로 넣었던 것)~~ → **`gchild + 0xeaf0` 복원 = 원래가 맞았다**.
         //   오판 경위: Ghidra 디컴이 `FUN_1423b5f70`을 `param_2[0x34]/[0x35]` 기준으로 표시해 "param_4(geom) 기준"으로 읽었으나,
         //   **실제 asm은 `@1423b5fe5 CALL [RBP+0x30]` 직후의 RDX**(= `vt+0x30`의 2번째 반환값 = `gchild+0xeaf0`)를 쓴다.
         //   `geom`은 그 콜 이전에 RDX에 있던 값이라 디컴파일러가 **콜 클로버를 놓친** 전형적 케이스(감사 07-23, 0.5.2 실disasm).
         //   ⟹ base는 dd7700 STAGE6·disc12 W큐와 **동일한 `gc+0xeaf0` 계열**로 통일된다(그쪽은 오늘 정방향 교정 완료).
         //   근거 주소: `@1423b5ff1 CMP [RDX+0x1d8],0` / `@1423b6046 CMP [RDX+0x1a8],0`.
-        let w87 = gchild + 0xeb30;
+        let w87 = gchild + 0xec98;
         let (l_off, h_off): (usize, usize) = if p6 == 4 { (0x1a8, 0x1a0) } else { (0x1d8, 0x1d0) };
         if rd_u64(w87 + l_off).unwrap_or(0) != 0 {
             let hp0 = rd_u64(w87 + h_off).unwrap_or(0) as usize;
             let tgt = if ptr_ok(hp0) { geom_resolve150(gchild, rd_u64(hp0).unwrap_or(0)) } else { 0 };
-            if ptr_ok(tgt) && geom_vt68(gchild, s, rd_u64(tgt + 0x5a8).unwrap_or(0)) {
+            if ptr_ok(tgt) && geom_vt68(gchild, s, rd_u64(tgt + 0x5c0).unwrap_or(0)) {
                 let p78 = rd_u64(sf + if p6 == 4 { 0x80 } else { 0x88 }).unwrap_or(0);
                 if now <= p78.wrapping_add(unit) {
-                    let full = rd_u64(tgt + 0x658).unwrap_or(0) >= rd_u64(tgt + 0x610).unwrap_or(1);
+                    let full = rd_u64(tgt + 0x670).unwrap_or(0) >= rd_u64(tgt + 0x628).unwrap_or(1);
                     if !full {
                         let p56 = rd_u64(tp + if p6 == 4 { 0x88 } else { 0xc0 }).unwrap_or(u64::MAX);
                         c87 = p56 <= unit.wrapping_mul(20);
@@ -450,7 +450,7 @@ unsafe fn serpen_engage_gate(sf: usize, tick: i64, sim: usize, geom: usize, tp: 
     }
     if c87 { sgt(6, 12); return true; }
     // ③ 타이밍 데드라인: now > deadline + 2*UNIT → 보류
-    let now = rd_i64(gchild + 0xeb00).unwrap_or(0) as u64;
+    let now = rd_i64(gchild + 0xec68).unwrap_or(0) as u64;
     let deadline = rd_u64(sf + if p6 == 4 { 0x80 } else { 0x88 }).unwrap_or(0);
     if now > deadline.wrapping_add(unit.wrapping_mul(2)) { sgt(6, 13); return true; }
     // ④ 앵커 셀 도달성: vt0x70==0 → 보류
@@ -460,13 +460,13 @@ unsafe fn serpen_engage_gate(sf: usize, tick: i64, sim: usize, geom: usize, tp: 
     for idx in 0..5usize {
         let e = rd_u64(g0 + eside * 0x28 + 0x1e0 + idx * 8).unwrap_or(0) as usize;
         if e == 0 { continue; }
-        let maxhp = rd_u64(e + 0x610).unwrap_or(0);
-        if maxhp == 0 || rd_u64(e + 0x658).unwrap_or(0).wrapping_mul(100) / maxhp <= 0x31 { continue; }
-        let id = rd_u64(e + 0x5a8).unwrap_or(0);
+        let maxhp = rd_u64(e + 0x628).unwrap_or(0);
+        if maxhp == 0 || rd_u64(e + 0x670).unwrap_or(0).wrapping_mul(100) / maxhp <= 0x31 { continue; }
+        let id = rd_u64(e + 0x5c0).unwrap_or(0);
         if geom_vt68(gchild, s, id) { continue; }                 // now-visible = 매복 아님
         let rec = geom_vtc0(gchild, id);
         if rec != 0 {
-            let last = rd_u64(geom2 + eside * 0x2e8 + 0x1e0 + (rd_u32(rec + 0x8a0) as usize) * 8).unwrap_or(0);//  ★0.5.4 오프셋 이동 반영
+            let last = rd_u64(geom2 + eside * 0x2e8 + 0x1e0 + (rd_u32(rec + 0x9c0) as usize) * 8).unwrap_or(0);//  ★0.5.4 오프셋 이동 반영
             if last.wrapping_add(0x78) >= now { continue; }       // 최근 목격(<=120틱) = 매복 아님
         }
         let lx = rd_i64(sf + 0x218 + idx * 0x10).unwrap_or(0);
@@ -475,7 +475,7 @@ unsafe fn serpen_engage_gate(sf: usize, tick: i64, sim: usize, geom: usize, tp: 
         let gap = d.saturating_sub(150000);
         let seen_t = rd_u64(sf + 0x2b8 + idx * 8).unwrap_or(0);
         let elapsed = now.saturating_sub(seen_t);
-        if gap <= elapsed.saturating_mul(rd_u64(e + 0x628).unwrap_or(0)) { sgt(6, 15); return true; }   // 도달가능 MIA 위협 → 보류
+        if gap <= elapsed.saturating_mul(rd_u64(e + 0x640).unwrap_or(0)) { sgt(6, 15); return true; }   // 도달가능 MIA 위협 → 보류
     }
     sgt(6, 10);
     false   // 전 게이트 통과 = 진행(본체서 dist² 판정→0xe/0xc)
@@ -500,16 +500,16 @@ unsafe fn serpen_anchor_pickup(plan: usize, side: usize, tag: u8) -> (u64, u64) 
 
 // FUN_141fe85b0: 반경내 아군 카운트(side=sim+0x820, base=geom[0], 5슬롯 HP%>=hpthr & dist²<=R²). vt필터無.
 unsafe fn serpen_count_allies_at(sim: usize, g0: usize, ax: u64, ay: u64, r: u64, hpthr: u64) -> i64 {
-    let side = rd_u64(sim + 0x810).unwrap_or(2);//  ★0.5.4 오프셋 이동 반영
+    let side = rd_u64(sim + 0x930).unwrap_or(2);//  ★0.5.4 오프셋 이동 반영
     if side > 1 || !ptr_ok(g0) { return 0; }
     let r2 = r.wrapping_mul(r);
     let mut c = 0i64;
     for i in 0..5usize {
         let e = rd_u64(g0 + 0x1e0 + (side as usize) * 0x28 + i * 8).unwrap_or(0) as usize;
         if e == 0 { continue; }
-        let maxhp = rd_u64(e + 0x610).unwrap_or(0);
-        if maxhp == 0 || rd_u64(e + 0x658).unwrap_or(0).wrapping_mul(100) / maxhp < hpthr { continue; }
-        if sqd(ax, ay, rd_u64(e + 0x648).unwrap_or(0), rd_u64(e + 0x650).unwrap_or(0)) <= r2 { c += 1; }
+        let maxhp = rd_u64(e + 0x628).unwrap_or(0);
+        if maxhp == 0 || rd_u64(e + 0x670).unwrap_or(0).wrapping_mul(100) / maxhp < hpthr { continue; }
+        if sqd(ax, ay, rd_u64(e + 0x660).unwrap_or(0), rd_u64(e + 0x668).unwrap_or(0)) <= r2 { c += 1; }
     }
     c
 }
@@ -517,7 +517,7 @@ unsafe fn serpen_count_allies_at(sim: usize, g0: usize, ax: u64, ay: u64, r: u64
 // FUN_141fe9220: 반경내 적 카운트 + 시야필터(visible-now OR last-seen<=120틱, [[tfm2-vision-fog-in-ai]]). eside=1-side.
 //   ⚠vt0xc0(시야lookup)/vt0x68(now-visible)/vt0x28(curtick) shadow-call(SERPEN_VERIFY 게이트내 실행).
 unsafe fn serpen_count_enemies_at(sim: usize, geom: usize, ax: u64, ay: u64, r: u64, hpthr: u64) -> i64 {
-    let side = rd_u64(sim + 0x810).unwrap_or(2);//  ★0.5.4 오프셋 이동 반영
+    let side = rd_u64(sim + 0x930).unwrap_or(2);//  ★0.5.4 오프셋 이동 반영
     if side > 1 { return 0; }
     let eside = 1 - side as usize;
     let g0 = rd_u64(geom).unwrap_or(0) as usize;
@@ -531,23 +531,23 @@ unsafe fn serpen_count_enemies_at(sim: usize, geom: usize, ax: u64, ay: u64, r: 
     for i in 0..5usize {
         let e = rd_u64(g0 + 0x1e0 + eside * 0x28 + i * 8).unwrap_or(0) as usize;
         if e == 0 { continue; }
-        let maxhp = rd_u64(e + 0x610).unwrap_or(0);
-        if maxhp == 0 || rd_u64(e + 0x658).unwrap_or(0).wrapping_mul(100) / maxhp < hpthr { continue; }
-        if sqd(ax, ay, rd_u64(e + 0x648).unwrap_or(0), rd_u64(e + 0x650).unwrap_or(0)) > r2 { continue; }
-        let key = rd_u64(e + 0x5a8).unwrap_or(0) as usize;
+        let maxhp = rd_u64(e + 0x628).unwrap_or(0);
+        if maxhp == 0 || rd_u64(e + 0x670).unwrap_or(0).wrapping_mul(100) / maxhp < hpthr { continue; }
+        if sqd(ax, ay, rd_u64(e + 0x660).unwrap_or(0), rd_u64(e + 0x668).unwrap_or(0)) > r2 { continue; }
+        let key = rd_u64(e + 0x5c0).unwrap_or(0) as usize;
         if geom_vt68(this, side as usize, key as u64) { c += 1; continue; }          // now-visible → 순수재현(vt0x68)
         let vis = geom_vtc0(this, key as u64);                                        // 시야레코드 → 순수재현(vt0xc0)
         if vis == 0 || !ptr_ok(g2) { continue; }                                      // 한번도 못봄
-        let laneidx = rd_u32(vis + 0x8a0) as usize;//  ★0.5.4 오프셋 이동 반영
+        let laneidx = rd_u32(vis + 0x9c0) as usize;//  ★0.5.4 오프셋 이동 반영
         let last_seen = rd_u64(g2 + eside * 0x2e8 + 0x1e0 + laneidx * 8).unwrap_or(0);
-        if (rd_i64(this+0xeb00).unwrap_or(0) as u64) <= last_seen.wrapping_add(tune("ec_vision_ticks", 0x78) as u64) { c += 1; }   // last-seen<=120틱, tick=this+0xeac0 직접읽기(vt0x28)
+        if (rd_i64(this+ 0xec68).unwrap_or(0) as u64) <= last_seen.wrapping_add(tune("ec_vision_ticks", 0x78) as u64) { c += 1; }   // last-seen<=120틱, tick=this+0xeac0 직접읽기(vt0x28)
     }
     c
 }
 
 // FUN_141fe8b90(sim,geom,4) commit/throttle 게이트: 밴드내·앵커먼 아군 n>=1 && (팀 시도카운터/타이머 게이트).
 unsafe fn serpen_commit_gate(sim: usize, geom: usize, plan: usize, mode: u8, ax: u64, ay: u64) -> bool {
-    let side = rd_u64(sim + 0x810).unwrap_or(2);//  ★0.5.4 오프셋 이동 반영
+    let side = rd_u64(sim + 0x930).unwrap_or(2);//  ★0.5.4 오프셋 이동 반영
     if side > 1 { return false; }
     let s = side as usize;
     let g0 = rd_u64(geom).unwrap_or(0) as usize;
@@ -557,9 +557,9 @@ unsafe fn serpen_commit_gate(sim: usize, geom: usize, plan: usize, mode: u8, ax:
     for i in 0..5usize {
         let e = rd_u64(g0 + 0x1e0 + s * 0x28 + i * 8).unwrap_or(0) as usize;
         if e == 0 { continue; }
-        let maxhp = rd_u64(e + 0x610).unwrap_or(0);
-        if maxhp == 0 || rd_u64(e + 0x658).unwrap_or(0).wrapping_mul(100) / maxhp < (tune("ec_commit_hp", 0x28) as u64) { continue; }
-        let (ex, ey) = (rd_u64(e + 0x648).unwrap_or(0), rd_u64(e + 0x650).unwrap_or(0));
+        let maxhp = rd_u64(e + 0x628).unwrap_or(0);
+        if maxhp == 0 || rd_u64(e + 0x670).unwrap_or(0).wrapping_mul(100) / maxhp < (tune("ec_commit_hp", 0x28) as u64) { continue; }
+        let (ex, ey) = (rd_u64(e + 0x660).unwrap_or(0), rd_u64(e + 0x668).unwrap_or(0));
         if poke_f6f720(plan, ex, ey, mode) && (sqd(ax, ay, ex, ey) >> 8) > 0xe8d4a50 { n += 1; }
     }
     if n == 0 { return false; }
@@ -589,11 +589,11 @@ unsafe fn serpen_reposition_fight(tick: i64, sim: usize, geom: usize, p4: u8) ->
     let role = rd_u8(plan + 0x38);
     let mask: u32 = match mode { 0 => 0x185, 1 => 0x1b1, _ => 0x1ab };
     if role > 8 || (mask >> (role & 0x1f)) & 1 == 0 { return false; }   // mode별 role 마스크
-    let side = rd_u64(sim + 0x810).unwrap_or(2);//  ★0.5.4 오프셋 이동 반영
+    let side = rd_u64(sim + 0x930).unwrap_or(2);//  ★0.5.4 오프셋 이동 반영
     if side > 1 { return false; }
     let gchild = rd_u64(g0).unwrap_or(0) as usize;
     let gvt = rd_u64(g0 + 8).unwrap_or(0) as usize;
-    let w = rd_u64(sim + 0x818).unwrap_or(0) as usize;
+    let w = rd_u64(sim + 0x938).unwrap_or(0) as usize;
     if !ptr_ok(gchild) || !ptr_ok(gvt) { return false; }   // ★07-10: ptr_ok(w) 제거(w=핸들, engage_gate와 동일 버그). 검증=dd7_slot128 내부
     let selfe = dd7_slot128(gchild, w as u64);   // self resolve → 순수재현(vt0x138=2-stage=dd7_slot128)
     if !ptr_ok(selfe) { return false; }
@@ -601,8 +601,8 @@ unsafe fn serpen_reposition_fight(tick: i64, sim: usize, geom: usize, p4: u8) ->
     //   **`BL`(=`param_4`)** 를 쓴다(`entry+0x20 == p4`인 첫 엔트리). 하드코딩 4는 **p4=5 경로에서 엉뚱한 앵커를 집는다**.
     //   ⚠"현재 호출부가 p4=4뿐이라 무영향"은 **오판** — L946의 **라이브 disc14가 p4=5로 호출** 중이었다.
     let (ax, ay) = serpen_anchor_pickup(plan, side as usize, p4);
-    let sx = rd_u64(selfe + 0x648).unwrap_or(0);
-    let sy = rd_u64(selfe + 0x650).unwrap_or(0);
+    let sx = rd_u64(selfe + 0x660).unwrap_or(0);
+    let sy = rd_u64(selfe + 0x668).unwrap_or(0);
     if !poke_f6f720(plan, sx, sy, mode) { return false; }   // ★self 좌표(앵커 아님)
     if (sqd(ax, ay, sx, sy) >> 8) <= 0xe8d4a50 { return false; }
     if !serpen_commit_gate(sim, geom, plan, mode, ax, ay) { return false; }
@@ -666,20 +666,20 @@ unsafe fn c8c_kinds(e: usize) -> (bool, bool, bool) {
 unsafe fn c8c_fce700(e: usize) -> bool {
     let (a4, a5, all) = c8c_kinds(e);
     if a4 { return false; }
-    if a5 && rd_i32(e + 0x4e0).unwrap_or(-1) != -1 && c8c_cast_get(e + 0x4b0, 0xc8) == 1 { return false; }
+    if a5 && rd_i32(e + 0x4f8).unwrap_or(-1) != -1 && c8c_cast_get(e + 0x4c8, 0xc8) == 1 { return false; }
     if rd_i32(e + 0x68).unwrap_or(-1) != 0xd { return false; }
     let itv = ((c8c_cast_get(e + 0x568, 0x90) as i64) * 100 / (rd_i32(e + 0x3e8).unwrap_or(0) as i64 + 100).max(1)).max(3);
     let cap = (c8c_cast_get(e + 0x568, 0xa8) as i64).max(1);
     if itv - itv / cap < rd_i64(e + 0xb8).unwrap_or(0) { return false; }
-    all && rd_i32(e + 0x4e0).unwrap_or(-1) != -1
+    all && rd_i32(e + 0x4f8).unwrap_or(-1) != -1
 }
 
 // FUN_141fbe950 재현: 무기B(*(e+0x5b0)>=3) 가용성 (comp=e+0x578/0x580, 최소1, 비교필드 e+0xc0)
 unsafe fn c8c_fbe950(e: usize) -> bool {
-    if rd_i64(e + 0x5b0).unwrap_or(0) < 3 { return false; }
+    if rd_i64(e + 0x5c8).unwrap_or(0) < 3 { return false; }
     let (a4, a5, all) = c8c_kinds(e);
     if a4 { return false; }
-    if a5 && rd_i32(e + 0x4e8 + 0x30).unwrap_or(-1) != -1 && c8c_cast_get(e + 0x4e8, 0xc8) == 1 { return false; }
+    if a5 && rd_i32(e + 0x500 + 0x30).unwrap_or(-1) != -1 && c8c_cast_get(e + 0x500, 0xc8) == 1 { return false; }
     let itv = ((c8c_cast_get(e + 0x578, 0x90) as i64) * 100 / (rd_i32(e + 0x3e8).unwrap_or(0) as i64 + 100).max(1)).max(1);
     let cap = (c8c_cast_get(e + 0x578, 0xa8) as i64).max(1);
     if itv - itv / cap < rd_i64(e + 0xc0).unwrap_or(0) { return false; }
@@ -693,11 +693,11 @@ unsafe fn c8c_fbe950(e: usize) -> bool {
 
 // 공격자 j가 피격슬롯 col에 주는 burst(가용성 게이트별 max)/dps(무조건 3열 합) 누적
 unsafe fn c8c_accum(g0: usize, gchild: usize, j: usize, col: usize, scalar: i64, burst: &mut i64, dps: &mut i64) {
-    let athj = dd7_slot_a8(gchild, rd_u64(j + 0x5a8).unwrap_or(0));
+    let athj = dd7_slot_a8(gchild, rd_u64(j + 0x5c0).unwrap_or(0));
     if athj == 0 { return; }
-    let rs = rd_u64(athj + 0x810).unwrap_or(2) as usize;//  ★0.5.4 오프셋 이동 반영
+    let rs = rd_u64(athj + 0x930).unwrap_or(2) as usize;//  ★0.5.4 오프셋 이동 반영
     if rs > 1 { return; }
-    let rslot = (rd_u32(athj + 0x8a0) as usize).min(4);//  ★0.5.4 오프셋 이동 반영
+    let rslot = (rd_u32(athj + 0x9c0) as usize).min(4);//  ★0.5.4 오프셋 이동 반영
     let ty = rd_i32(j + 0x68).unwrap_or(-1);
     let a0 = ty == 0 || ty == 3 || serpen_skill_type3(j)
         || c8c_type_off(ty).map(|o| rd_i64(j + o).unwrap_or(i64::MAX) <= scalar).unwrap_or(false);
@@ -737,28 +737,28 @@ unsafe fn my_c8c520(level: i64, ss: usize, geom: usize, selfe: usize) -> u8 {
     if !ptr_ok(g0) || !ptr_ok(plan) { return 2; }
     let gchild = rd_u64(g0).unwrap_or(0) as usize;
     if !ptr_ok(gchild) { return 2; }
-    let side = rd_u64(ss + 0x810).unwrap_or(2) as usize;//  ★0.5.4 오프셋 이동 반영
+    let side = rd_u64(ss + 0x930).unwrap_or(2) as usize;//  ★0.5.4 오프셋 이동 반영
     if side > 1 { return 2; }
-    let my_slot = (rd_u32(ss + 0x8a0) as usize).min(4);//  ★0.5.4 오프셋 이동 반영
-    let tick = rd_i64(gchild + 0xeb00).unwrap_or(0);              // vt0x28 concrete(0x19f0620)
+    let my_slot = (rd_u32(ss + 0x9c0) as usize).min(4);//  ★0.5.4 오프셋 이동 반영
+    let tick = rd_i64(gchild + 0xec68).unwrap_or(0);              // vt0x28 concrete(0x19f0620)
     let mapctx = rd_u64(plan + 8).unwrap_or(0) as usize;
     let scalar = rd_i64(mapctx + 0x12f8).unwrap_or(0);
-    let (sx, sy) = (rd_u64(selfe + 0x648).unwrap_or(0), rd_u64(selfe + 0x650).unwrap_or(0));
+    let (sx, sy) = (rd_u64(selfe + 0x660).unwrap_or(0), rd_u64(selfe + 0x668).unwrap_or(0));
     // ① tag5: 자기 구조물 보호권 — t*=own 중 최근접, 없으면 *(g0+0x170+side*8), 그래도 0 → tag5
     let mut own: Vec<usize> = Vec::new();
     c8c_structures(g0, side, &mut own);
     let mut tstar = 0usize; let mut best = u64::MAX;
     for &st in &own {
-        let d2 = sqd(rd_u64(st + 0x648).unwrap_or(0), rd_u64(st + 0x650).unwrap_or(0), sx, sy);
+        let d2 = sqd(rd_u64(st + 0x660).unwrap_or(0), rd_u64(st + 0x668).unwrap_or(0), sx, sy);
         if d2 < best { best = d2; tstar = st; }
     }
     if tstar == 0 { tstar = rd_u64(g0 + 0x170 + side * 8).unwrap_or(0) as usize; }
     if tstar == 0 { return 5; }
-    let self_reach = (rd_i32(selfe + 0x458).unwrap_or(0) as i64 + 100) * rd_i64(selfe + 0x668).unwrap_or(0) / 100;
-    if rd_i32(tstar + 0x4a8).unwrap_or(-1) != -1 {
-        let reach = rd_i64(tstar + 0x420).unwrap_or(0) + rd_i64(tstar + 0x488).unwrap_or(0)
-            + self_reach + (rd_i64(tstar + 0x5b0).unwrap_or(1) - 1) * rd_i64(tstar + 0x490).unwrap_or(0);
-        let d2 = sqd(rd_u64(tstar + 0x648).unwrap_or(0), rd_u64(tstar + 0x650).unwrap_or(0), sx, sy);
+    let self_reach = (rd_i32(selfe + 0x470).unwrap_or(0) as i64 + 100) * rd_i64(selfe + 0x680).unwrap_or(0) / 100;
+    if rd_i32(tstar + 0x4c0).unwrap_or(-1) != -1 {
+        let reach = rd_i64(tstar + 0x438).unwrap_or(0) + rd_i64(tstar + 0x4a0).unwrap_or(0)
+            + self_reach + (rd_i64(tstar + 0x5c8).unwrap_or(1) - 1) * rd_i64(tstar + 0x4a8).unwrap_or(0);
+        let d2 = sqd(rd_u64(tstar + 0x660).unwrap_or(0), rd_u64(tstar + 0x668).unwrap_or(0), sx, sy);
         if reach >= 0 && d2 <= (reach as u64).wrapping_mul(reach as u64) { return 5; }
     }
     // ② 후보 = 적 5슬롯 × FUN_141c932c0 술어(=serpen_pred_b 재사용, ctx{self,&level,ss})
@@ -773,36 +773,36 @@ unsafe fn my_c8c520(level: i64, ss: usize, geom: usize, selfe: usize) -> u8 {
     if nc == 0 { return 1; }
     // ③ 셋업
     let self_itv = ((c8c_cast_get(selfe + 0x558, 0x80) as i64) * 100 / (rd_i32(selfe + 0x3e4).unwrap_or(0) as i64 + 100).max(1)).max(3);
-    let self_spd = rd_i64(selfe + 0x628).unwrap_or(0);
-    let self_hp = rd_i64(selfe + 0x658).unwrap_or(0);
-    let t1 = (sqd(rd_u64(tstar + 0x648).unwrap_or(0), rd_u64(tstar + 0x650).unwrap_or(0), sx, sy).isqrt() as i64) / self_spd.max(1);
+    let self_spd = rd_i64(selfe + 0x640).unwrap_or(0);
+    let self_hp = rd_i64(selfe + 0x670).unwrap_or(0);
+    let t1 = (sqd(rd_u64(tstar + 0x660).unwrap_or(0), rd_u64(tstar + 0x668).unwrap_or(0), sx, sy).isqrt() as i64) / self_spd.max(1);
     let budget = t1 + self_itv + 6;
     let roleb = (rd_u8(plan + 0x38) as usize).min(7);
     let scalar2 = rd_i64(mapctx + C8C_ROLE_OFF[roleb]).unwrap_or(0);
     let list2: Vec<usize> = if tick <= scalar2 {
-        own.iter().copied().filter(|&e| sqd(rd_u64(e + 0x648).unwrap_or(0), rd_u64(e + 0x650).unwrap_or(0), sx, sy) <= 0x53d1ac100).collect()
+        own.iter().copied().filter(|&e| sqd(rd_u64(e + 0x660).unwrap_or(0), rd_u64(e + 0x668).unwrap_or(0), sx, sy) <= 0x53d1ac100).collect()
     } else { Vec::new() };
     let exe = exe_base();
     // ④ 후보 루프
     let (mut danger, mut pushed) = (false, false);
     for ci in 0..nc {
         let cand = cands[ci];
-        let id = rd_u64(cand + 0x5a8).unwrap_or(0);
+        let id = rd_u64(cand + 0x5c0).unwrap_or(0);
         let ath = dd7_slot_a8(gchild, id);
         if ath == 0 { continue; }
         let s_stat = rd_i64(ath + 0x230).unwrap_or(0).min(100);
         let th_a = 0x50 + (80000 - 800 * s_stat) / 1000;
         let th_b = 0x2d + (450 * s_stat) / 1000;
-        let c_slot = (rd_u32(ath + 0x8a0) as usize).min(4);//  ★0.5.4 오프셋 이동 반영
-        let (cx, cy) = (rd_u64(cand + 0x648).unwrap_or(0), rd_u64(cand + 0x650).unwrap_or(0));
+        let c_slot = (rd_u32(ath + 0x9c0) as usize).min(4);//  ★0.5.4 오프셋 이동 반영
+        let (cx, cy) = (rd_u64(cand + 0x660).unwrap_or(0), rd_u64(cand + 0x668).unwrap_or(0));
         // (a) 내 생존시간: 적 j(5슬롯) 중 dist²(j,cand)≤150000² && hp%≥0x28
         let (mut burst, mut dps) = (0i64, 0i64);
         for jj in 0..5usize {
             let j = rd_u64(g0 + 0x1e0 + (1 - side) * 0x28 + jj * 8).unwrap_or(0) as usize;
             if j == 0 { continue; }
-            if sqd(rd_u64(j + 0x648).unwrap_or(0), rd_u64(j + 0x650).unwrap_or(0), cx, cy) > 0x53d1ac100 { continue; }
-            let jmax = rd_i64(j + 0x610).unwrap_or(0);
-            if jmax <= 0 || rd_i64(j + 0x658).unwrap_or(0) * 100 / jmax < 0x28 { continue; }
+            if sqd(rd_u64(j + 0x660).unwrap_or(0), rd_u64(j + 0x668).unwrap_or(0), cx, cy) > 0x53d1ac100 { continue; }
+            let jmax = rd_i64(j + 0x628).unwrap_or(0);
+            if jmax <= 0 || rd_i64(j + 0x670).unwrap_or(0) * 100 / jmax < 0x28 { continue; }
             c8c_accum(g0, gchild, j, my_slot, scalar, &mut burst, &mut dps);
         }
         let my_surv = (self_hp - burst).max(0) * 0x3c / dps.max(1);
@@ -811,19 +811,19 @@ unsafe fn my_c8c520(level: i64, ss: usize, geom: usize, selfe: usize) -> u8 {
         for kk2 in 0..5usize {
             let k = rd_u64(g0 + 0x1e0 + side * 0x28 + kk2 * 8).unwrap_or(0) as usize;
             if k == 0 { continue; }
-            if sqd(rd_u64(k + 0x648).unwrap_or(0), rd_u64(k + 0x650).unwrap_or(0), cx, cy) > 0x53d1ac100 { continue; }
+            if sqd(rd_u64(k + 0x660).unwrap_or(0), rd_u64(k + 0x668).unwrap_or(0), cx, cy) > 0x53d1ac100 { continue; }
             if rd_u64(cand).unwrap_or(1) == 0 {   // cand 은신/시야 필드 → k 제외
                 let ck = rd_u64(cand + 8).unwrap_or(0) as usize;
                 if rd_u64(k + ck * 0x18 + 0x38).unwrap_or(0) != 0 { continue; }
             }
             if level > 0xb && rd_u64(k).unwrap_or(1) == 0 && rd_u64(k + 8).unwrap_or(99) as usize == side {
-                let (kx, ky) = (rd_u64(k + 0x648).unwrap_or(0), rd_u64(k + 0x650).unwrap_or(0));
+                let (kx, ky) = (rd_u64(k + 0x660).unwrap_or(0), rd_u64(k + 0x668).unwrap_or(0));
                 if c8c_in_home(side, kx, ky) { continue; }
             }
             c8c_accum(g0, gchild, k, c_slot, scalar, &mut burst2, &mut dps2);
         }
         for &st in &list2 {
-            if rd_i32(st + 0x4a8).unwrap_or(-1) == -1 { continue; }
+            if rd_i32(st + 0x4c0).unwrap_or(-1) == -1 { continue; }
             // ⛔★★[07-22] **이 shadow-call이 disc14 크래시 3건의 진범**(2차·3차 AV, RIP=exe+0x1c8f785 동일).
             //   `RVA_C8C_DMG_SHEET`는 **0.5.2 미마이그(보류)** 상태의 0.5.0_3 값 `0x3830c58`인데, 0.5.2에서 그 주소는
             //   **Rust 타입명 문자열 블롭**("…ltAction")이다. 그걸 vt+0x28 다형 shadow-call의 this로 넘겨 `call [r9+0x30]`을
@@ -848,16 +848,16 @@ unsafe fn my_c8c520(level: i64, ss: usize, geom: usize, selfe: usize) -> u8 {
             dps2 += dmg * scalar / itv_s.max(1);
             burst2 += dmg;
         }
-        let t_kill = (rd_i64(cand + 0x658).unwrap_or(0) - burst2).max(0) * 0x3c / dps2.max(1);
+        let t_kill = (rd_i64(cand + 0x670).unwrap_or(0) - burst2).max(0) * 0x3c / dps2.max(1);
         if th_a + my_surv > t_kill { continue; }   // 잡을 수 있음 → skip
-        let cand_reach = if rd_i32(cand + 0x4a8).unwrap_or(-1) != -1 {
-            rd_i64(cand + 0x420).unwrap_or(0) + rd_i64(cand + 0x488).unwrap_or(0)
-                + (rd_i64(cand + 0x5b0).unwrap_or(1) - 1) * rd_i64(cand + 0x490).unwrap_or(0)
+        let cand_reach = if rd_i32(cand + 0x4c0).unwrap_or(-1) != -1 {
+            rd_i64(cand + 0x438).unwrap_or(0) + rd_i64(cand + 0x4a0).unwrap_or(0)
+                + (rd_i64(cand + 0x5c8).unwrap_or(1) - 1) * rd_i64(cand + 0x4a8).unwrap_or(0)
         } else { 0 };
-        let cand_bonus = (rd_i32(cand + 0x458).unwrap_or(0) as i64 + 100) * rd_i64(cand + 0x668).unwrap_or(0) / 100;
+        let cand_bonus = (rd_i32(cand + 0x470).unwrap_or(0) as i64 + 100) * rd_i64(cand + 0x680).unwrap_or(0) / 100;
         let d = sqd(cx, cy, sx, sy).isqrt() as i64;
-        if d > cand_reach + self_reach + cand_bonus + rd_i64(cand + 0x628).unwrap_or(0) * (self_itv + 6) { continue; }
-        if my_surv < th_b || rd_i64(cand + 0x628).unwrap_or(0) > self_spd {
+        if d > cand_reach + self_reach + cand_bonus + rd_i64(cand + 0x640).unwrap_or(0) * (self_itv + 6) { continue; }
+        if my_surv < th_b || rd_i64(cand + 0x640).unwrap_or(0) > self_spd {
             danger = true;
             if my_surv <= budget { pushed = true; }
         }
@@ -886,9 +886,9 @@ unsafe fn my_serpen_battle(out: usize, mem: usize, tick: i64, rng: usize, sim: u
     let gchild = rd_u64(g0).unwrap_or(0) as usize;        // geom[0][0]
     let gvt = rd_u64(g0 + 8).unwrap_or(0) as usize;       // geom[0][1]
     if !ptr_ok(gchild) || !ptr_ok(gvt) { serpen_diag(2); return -99; }
-    let side = rd_u64(sim + 0x810).unwrap_or(2);//  ★0.5.4 오프셋 이동 반영
+    let side = rd_u64(sim + 0x930).unwrap_or(2);//  ★0.5.4 오프셋 이동 반영
     if side > 1 { serpen_diag(3); return -99; }
-    let self_handle = rd_u64(sim + 0x818).unwrap_or(0) as usize;   // ★self-unit 핸들(vt0x138 arg, a994)
+    let self_handle = rd_u64(sim + 0x938).unwrap_or(0) as usize;   // ★self-unit 핸들(vt0x138 arg, a994)
     let selfe = dd7_slot128(gchild, self_handle as u64);           // self resolve → 순수재현(vt0x138=2-stage=dd7_slot128)
     if !ptr_ok(selfe) { serpen_diag(4); return -99; }
     // ★order-context W = vt0x30(gchild) RDX = gchild+0xeaf0 (순수재현). 리액티브·메인 공용 target 소스.
@@ -930,9 +930,9 @@ unsafe fn my_serpen_battle(out: usize, mem: usize, tick: i64, rng: usize, sim: u
         if live { let _ = serpen_rng_pick(rng, sim, plan, true); }
         serpen_diag(7); sgt(0, 0xc); wr_u8(out + 8, 0); wr_u64(out, 0xc); return 0xc;   // 타겟없음 → 0xc
     }
-    let self_max = rd_i64(selfe + 0x610).unwrap_or(0);
+    let self_max = rd_i64(selfe + 0x628).unwrap_or(0);
     if self_max == 0 { serpen_diag(5); return -99; }   // ★-99 passthrough(게임 재실행이 드로우) — 이 지점은 아직 미드로우라 double-draw 없음
-    let self_cur = rd_i64(selfe + 0x658).unwrap_or(0);
+    let self_cur = rd_i64(selfe + 0x670).unwrap_or(0);
     let hp_pct = self_cur.wrapping_mul(100) / self_max;
     // ★★[07-28 이중드로우 수정] `[E]` 재구축 경로(미구현)는 아래 `:~1011`에서 **-99 passthrough**로 빠지는데,
     //   여기서 이미 live draw(=게임 RNG write-back 전진)를 해버리면 **원본이 재실행되며 picker를 또 소비** ⟹ 같은 호출에 draw 2회
@@ -954,14 +954,14 @@ unsafe fn my_serpen_battle(out: usize, mem: usize, tick: i64, rng: usize, sim: u
     if tag != 0 { serpen_diag(15); }
     let plan4 = rd_u64(plan + 0x20).unwrap_or(0) as usize;   // plan[4]
     let zone = plan4 + (side as usize) * 0x20;
-    let self_x = rd_u64(selfe + 0x648).unwrap_or(0);
-    let self_y = rd_u64(selfe + 0x650).unwrap_or(0);
+    let self_x = rd_u64(selfe + 0x660).unwrap_or(0);
+    let self_y = rd_u64(selfe + 0x668).unwrap_or(0);
     let out_of_zone = self_x < rd_u64(zone + 0x6d70).unwrap_or(0)
         || rd_u64(zone + 0x6d80).unwrap_or(0) < self_x
         || self_y < rd_u64(zone + 0x6d78).unwrap_or(0);
     serpen_diag(if out_of_zone { 13 } else { 14 });
-    let tgt_cur = rd_i64(target + 0x658).unwrap_or(0);
-    let tgt_max = rd_i64(target + 0x610).unwrap_or(1);
+    let tgt_cur = rd_i64(target + 0x670).unwrap_or(0);
+    let tgt_max = rd_i64(target + 0x628).unwrap_or(1);
     if tgt_cur == tgt_max { serpen_diag(16); }
     sgt(12, tag);   // ★sgate 진단: picker tag
     sgt(13, (out_of_zone as i64) | (((tgt_cur == tgt_max) as i64) << 1) | (hp_pct << 8));   // zenc=oz|tgtfull<<1|hp%<<8
@@ -985,12 +985,12 @@ unsafe fn my_serpen_battle(out: usize, mem: usize, tick: i64, rng: usize, sim: u
         //   0.5.2 원본 `@f3df~f5b2`의 실제 레인 산출(순수 오프셋형, 근거 = MIGRATION.md §7.2-A7 §6 + 조건표 §B):
         //     lane = if u8[gchild+0xeae9] != 0 { read24(sim+0x4a8) } else { read24(gchild+0xb248 + side*0x18) }
         //   (원본은 `vt[0xc0]`(바이트게터 `0x1dc87d0`) 분기 후 `vt[0xe0]`(24B sret `0x231eed0`) 호출 — 둘 다 순수재현으로 대체)
-        let lane: u32 = if rd_u8(gchild + 0xeb29) != 0 {
-            rd_u32(sim + 0x4a8)                                  // 16B movups + 8B = 24B 중 선두 u32
+        let lane: u32 = if rd_u8(gchild + 0xec91) != 0 {
+            rd_u32(sim + 0x508)                                  // 16B movups + 8B = 24B 중 선두 u32
         } else {
             rd_u32(gchild + 0xb248 + (side as usize) * 0x18)
         };
-        let role_self = rd_u32(sim + 0x8a0);//  ★0.5.4 오프셋 이동 반영
+        let role_self = rd_u32(sim + 0x9c0);//  ★0.5.4 오프셋 이동 반영
         let fight = lane <= 4 && role_self == lane && serpen_reposition_fight(tick, sim, geom, 4);
         if fight {
             let role = rd_u8(plan + 0x38);   // FIGHT: role_val 상수(0x1eb마스크→2 / role2→0 / else 1)
@@ -1038,7 +1038,7 @@ unsafe fn my_serpen_battle(out: usize, mem: usize, tick: i64, rng: usize, sim: u
                 let h = rd_u64(pptr + k * 8).unwrap_or(0);
                 let e = geom_resolve150(gchild, h);
                 if !ptr_ok(e) { continue; }
-                let (ex, ey) = (rd_u64(e + 0x648).unwrap_or(0), rd_u64(e + 0x650).unwrap_or(0));
+                let (ex, ey) = (rd_u64(e + 0x660).unwrap_or(0), rd_u64(e + 0x668).unwrap_or(0));
                 if sqd(ex, ey, self_x, self_y) < 0x9502F9001u64 {   // @f61d = 200000²+1
                     serpen_diag(8); sgt(0, 7); wr_u64(out, 7); return 7;   // @f693
                 }
@@ -1062,7 +1062,7 @@ unsafe fn my_serpen_battle(out: usize, mem: usize, tick: i64, rng: usize, sim: u
     let gate = serpen_engage_gate(sf, tick, sim, geom, tp, 4);   // ★SGT: gate 결과+경로 기록
     sgt(5, gate as i64);
     if !gate {
-        let dist2 = sqd(rd_u64(target + 0x648).unwrap_or(0), rd_u64(target + 0x650).unwrap_or(0), self_x, self_y);
+        let dist2 = sqd(rd_u64(target + 0x660).unwrap_or(0), rd_u64(target + 0x668).unwrap_or(0), self_x, self_y);
         sgt(9, (dist2 >> 8) as i64); sgt(10, (tune("ec_engage_dist2", 0x53d1ac101) as u64 >> 8) as i64);
         if dist2 < (tune("ec_engage_dist2", 0x53d1ac101) as u64) { serpen_diag(11); sgt(0, 0xe); wr_u64(out, 0xe); return 0xe; }
     }
@@ -1079,13 +1079,13 @@ unsafe fn my_defense_nexus_050(out: usize, cmd: usize, level: i64, rng: usize, s
     let gchild = rd_u64(g0).unwrap_or(0) as usize;
     let gvt = rd_u64(g0 + 8).unwrap_or(0) as usize;
     if !ptr_ok(gchild) || !ptr_ok(gvt) { return -99; }
-    let side = rd_u64(sim + 0x810).unwrap_or(2);//  ★0.5.4 오프셋 이동 반영
+    let side = rd_u64(sim + 0x930).unwrap_or(2);//  ★0.5.4 오프셋 이동 반영
     if side > 1 { return -99; }
-    let selfe = dd7_slot128(gchild, rd_u64(sim + 0x818).unwrap_or(0));   // self resolve
+    let selfe = dd7_slot128(gchild, rd_u64(sim + 0x938).unwrap_or(0));   // self resolve
     if !ptr_ok(selfe) { return -99; }
     // ── 조기 리액티브 (07-10 asm 재RE 정정: 플래그=cmd+0x18|cmd+0x19(구 cmd+3 오식별), S=vt0x30 RDX(구 *(sim+0x818) 오식별)) → 0x14 / 0xf ──
     if rd_u8(cmd + 0x18) != 0 || rd_u8(cmd + 0x19) != 0 {
-        let s_ctx = (gchild + 0xeb30);
+        let s_ctx = (gchild + 0xec98);
         if !ptr_ok(s_ctx) || rd_u64(s_ctx + 0x1d8).unwrap_or(0) == 0 { wr_u8(out + 8, 0); wr_u64(out, 0xf); return 0xf; }
         let p = rd_u64(s_ctx + 0x1d0).unwrap_or(0) as usize;
         let t = if ptr_ok(p) { geom_resolve150(gchild, rd_u64(p).unwrap_or(0)) } else { 0 };
@@ -1098,17 +1098,17 @@ unsafe fn my_defense_nexus_050(out: usize, cmd: usize, level: i64, rng: usize, s
     // ── ★pre-블록 (07-10 asm 재RE 신규 — phase 게이트들보다 앞. 구모델 누락=game7 vs my 0x10 22건 원인) ──
     //   S=vt0x30 위협리스트: 비면 0xf / T=리스트[0] 엔티티 resolve 실패 0xf / T 풀피일 때만 7 게이트 3종:
     //   ①넥서스렉트(*(geom[1]+0x20)+0x6d70+side*0x20 {xmin,ymin,xmax,ymax}) 안 && HP<max → 7 ②pct<0x33 → 7 ③FUN_141fe2500(=serpen_rng_pick, disc12서 DIFF=0 검증) Some → 7
-    let self_max0 = rd_i64(selfe + 0x610).unwrap_or(1).max(1);
-    let self_cur0 = rd_i64(selfe + 0x658).unwrap_or(0);
+    let self_max0 = rd_i64(selfe + 0x628).unwrap_or(1).max(1);
+    let self_cur0 = rd_i64(selfe + 0x670).unwrap_or(0);
     let pct0 = self_cur0.wrapping_mul(100) / self_max0;
-    let s_ctx = (gchild + 0xeb30);
+    let s_ctx = (gchild + 0xec98);
     if !ptr_ok(s_ctx) || rd_u64(s_ctx + 0x1d8).unwrap_or(0) == 0 { wr_u8(out + 8, 0); wr_u64(out, 0xf); return 0xf; }   // 위협리스트 비면 0xf
     let p0 = rd_u64(s_ctx + 0x1d0).unwrap_or(0) as usize;
     let t_ent = if ptr_ok(p0) { geom_resolve150(gchild, rd_u64(p0).unwrap_or(0)) } else { 0 };
     if !ptr_ok(t_ent) { wr_u8(out + 8, 0); wr_u64(out, 0xf); return 0xf; }
     let m0 = rd_u64(rd_u64(geom + 8).unwrap_or(0) as usize + 0x20).unwrap_or(0) as usize;   // *(geom[1]+0x20)
     let r0 = m0 + 0x6d70 + (side as usize) * 0x20;   // {x_min@0, y_min@+8, x_max@+0x10, y_max@+0x18}
-    let (nx0, ny0) = (rd_u64(selfe + 0x648).unwrap_or(0), rd_u64(selfe + 0x650).unwrap_or(0));
+    let (nx0, ny0) = (rd_u64(selfe + 0x660).unwrap_or(0), rd_u64(selfe + 0x668).unwrap_or(0));
     let inside0 = nx0 >= rd_u64(r0).unwrap_or(u64::MAX) && nx0 <= rd_u64(r0 + 0x10).unwrap_or(0) && ny0 >= rd_u64(r0 + 8).unwrap_or(u64::MAX);
     // ✅★★[07-23 수정 완료 — 구 "disc14 RNG 홀"] ~~`serpen_rng_pick(0, …, false)`~~ → **`(rng, …, live)`**.
     //   결함이었던 것: 0.5.2 원본은 이 지점에서 picker(`0x2135350`)를 **무조건 호출**하고 후보 n>0이면 Lemire 루프로 전역 RNG를
@@ -1120,7 +1120,7 @@ unsafe fn my_defense_nexus_050(out: usize, cmd: usize, level: i64, rng: usize, s
     // ★호출 위치는 원본대로 **무조건 호출** 지점 유지 — 아래 "T 풀피" 게이트보다 앞이며, 옮기면 draw 발생 조건이 게임과 갈린다.
     let opt_tag = serpen_rng_pick(rng, sim, rd_u64(geom + 8).unwrap_or(0) as usize, live);
     dl_rec(gchild, 14, opt_tag as u64);   // ★[07-29 detlog] d14 픽tag(site14): draw유무 대조
-    if rd_i64(t_ent + 0x658).unwrap_or(0) == rd_i64(t_ent + 0x610).unwrap_or(1) {   // 위협 T 풀피일 때만 7 게이트 활성
+    if rd_i64(t_ent + 0x670).unwrap_or(0) == rd_i64(t_ent + 0x628).unwrap_or(1) {   // 위협 T 풀피일 때만 7 게이트 활성
         if inside0 && ny0 <= rd_u64(r0 + 0x18).unwrap_or(0) && self_cur0 < self_max0 { wr_u64(out, 7); return 7; }
         if pct0 < tune("sn_self_hp", 0x33) { wr_u64(out, 7); return 7; }
         if opt_tag != 0 { wr_u64(out, 7); return 7; }
@@ -1150,12 +1150,12 @@ unsafe fn my_defense_nexus_050(out: usize, cmd: usize, level: i64, rng: usize, s
     //   ⚠[08-05 주석 정정] 구 주석의 "하드코딩 넥서스존"은 오기다. 이 영역(geom+0x6d70)은 **부상 유닛 회복존(분수)**이고
     //     넥서스도 에픽도 아니다. 그리고 이 함수는 이름과 달리 **disc14 = EpicPoke(에픽 견제)** 다
     //     — `my_defense_nexus_050`이라는 함수명 자체가 구라벨(tfm2_ai_adjust.rs L7054 참조). 노브는 `sn_home_*`.
-    let (sx, sy) = (rd_u64(selfe + 0x648).unwrap_or(0), rd_u64(selfe + 0x650).unwrap_or(0));
+    let (sx, sy) = (rd_u64(selfe + 0x660).unwrap_or(0), rd_u64(selfe + 0x668).unwrap_or(0));
     let (ep_lo, ep_hi, ep_x1, ep_y1) = (tune("sn_home_lo", 0xfa00) as u64, tune("sn_home_hi", 0xea600) as u64, tune("sn_home_x1", 0xd9c60) as u64, tune("sn_home_y1", 0xdac00) as u64);
     let in_home = if side == 0 { sx <= ep_lo && sy >= ep_y1 && sy <= ep_hi }
                   else { sx >= ep_x1 && sx <= ep_hi && sy <= ep_lo };
-    let self_max = rd_i64(selfe + 0x610).unwrap_or(1).max(1);
-    let self_cur = rd_i64(selfe + 0x658).unwrap_or(0);
+    let self_max = rd_i64(selfe + 0x628).unwrap_or(1).max(1);
+    let self_cur = rd_i64(selfe + 0x670).unwrap_or(0);
     if in_home && self_cur < self_max { wr_u64(out, 7); return 7; }
     let pct = self_cur.wrapping_mul(100) / self_max;   // ★self HP%(vt0x138 self 엔티티 — 구 "nexus" 명칭만 정정)
     // ── threat 게이트: min(*(tp+0xc0),*(tp+0xd0)) > 5*scalar(*(geom[1]+8)+0x12f8) ──
@@ -1185,7 +1185,7 @@ unsafe fn my_defense_nexus_050(out: usize, cmd: usize, level: i64, rng: usize, s
                         let id = rd_u64(vptr + idx * 8).unwrap_or(0) as usize;
                         let e = geom_resolve150(gchild, id as u64);
                         if ptr_ok(e) {
-                            let d2 = sqd(rd_u64(e + 0x648).unwrap_or(0), rd_u64(e + 0x650).unwrap_or(0), sx, sy);
+                            let d2 = sqd(rd_u64(e + 0x660).unwrap_or(0), rd_u64(e + 0x668).unwrap_or(0), sx, sy);
                             if d2 < 0x9502f9001 { found = true; break; }   // 다이버 self 200k내 → 추적유지 7
                         }
                     }
@@ -1207,9 +1207,9 @@ unsafe fn my_defense_nexus_050(out: usize, cmd: usize, level: i64, rng: usize, s
         let hptr = rd_u64(obj + 0x1b8).unwrap_or(0) as usize;
         let anchor = if ptr_ok(hptr) { geom_resolve150(gchild, rd_u64(hptr).unwrap_or(0)) } else { 0 };
         if !ptr_ok(anchor) { wr_u64(out, 7); return 7; }
-        let (ax, ay) = (rd_u64(anchor + 0x648).unwrap_or(0), rd_u64(anchor + 0x650).unwrap_or(0));
+        let (ax, ay) = (rd_u64(anchor + 0x660).unwrap_or(0), rd_u64(anchor + 0x668).unwrap_or(0));
         let geom2 = rd_u64(geom + 0x10).unwrap_or(0) as usize;
-        let tick_now = rd_i64(gchild + 0xeb00).unwrap_or(0) as u64;
+        let tick_now = rd_i64(gchild + 0xec68).unwrap_or(0) as u64;
         let s = side as usize;
         let mut cnts = [0u64; 2];   // [0]=enemyN(list_side=1-s), [1]=allyN(list_side=s)
         for ci in 0..2usize {
@@ -1217,17 +1217,17 @@ unsafe fn my_defense_nexus_050(out: usize, cmd: usize, level: i64, rng: usize, s
             for k in 0..5usize {
                 let e = rd_u64(g0 + 0x1e0 + list_side * 0x28 + k * 8).unwrap_or(0) as usize;
                 if e == 0 { continue; }
-                let id = rd_u64(e + 0x5a8).unwrap_or(0) as usize;
+                let id = rd_u64(e + 0x5c0).unwrap_or(0) as usize;
                 let vis = geom_vt68(gchild, s, id as u64);
                 if !vis {
                     let ath = geom_vtc0(gchild, id as u64);
                     if !ptr_ok(ath) { continue; }
-                    let slot = rd_u32(ath + 0x8a0) as usize;//  ★0.5.4 오프셋 이동 반영
+                    let slot = rd_u32(ath + 0x9c0) as usize;//  ★0.5.4 오프셋 이동 반영
                     if slot > 4 { continue; }
                     let last = rd_u64(geom2 + list_side * 0x2e8 + 0x1e0 + slot * 8).unwrap_or(0);
                     if last.wrapping_add(0x78) < tick_now { continue; }   // last-seen+120틱 창 밖 → 미포함
                 }
-                let d2 = sqd(rd_u64(e + 0x648).unwrap_or(0), rd_u64(e + 0x650).unwrap_or(0), ax, ay);
+                let d2 = sqd(rd_u64(e + 0x660).unwrap_or(0), rd_u64(e + 0x668).unwrap_or(0), ax, ay);
                 if d2 < 0x53d1ac101 { cnts[ci] += 1; }
             }
         }

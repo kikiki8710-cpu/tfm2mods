@@ -168,7 +168,7 @@ unsafe fn probe_collect(_saved: usize, entry_rsp: usize) {
     let snap = rd_u64(p6).unwrap_or(0) as usize;
     if !ptr_ok(snap) { return; }
     let sim = rd_u64(snap).unwrap_or(0) as usize;
-    if !ptr_ok(sim) || !readable(sim + 0xeb00, 8) { return; }
+    if !ptr_ok(sim) || !readable(sim + 0xec68, 8) { return; }
     PB_SNAP.store(snap, Ordering::Relaxed);
     // MapDef = [[p6+8] + 0x20] — 랜드마크 좌표표(+0x6BA0)를 읽기 위해
     let prov = rd_u64(p6 + 8).unwrap_or(0) as usize;
@@ -176,7 +176,7 @@ unsafe fn probe_collect(_saved: usize, entry_rsp: usize) {
         let m = rd_u64(prov + 0x20).unwrap_or(0) as usize;
         if ptr_ok(m) { PB_MAP.store(m, Ordering::Relaxed); }
     }
-    let handle = rd_u64(p5 + 0x818).unwrap_or(0);
+    let handle = rd_u64(p5 + 0x938).unwrap_or(0);
     let ent = dd7_slot128(sim, handle);
     probe_observe(sim, ent);
 }

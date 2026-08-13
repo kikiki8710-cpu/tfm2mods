@@ -90,9 +90,9 @@ unsafe fn my_f5db30(p1: usize, atk: usize, p5_tgt: usize, exe: usize) -> Option<
     let dtype = rd_u32(p1 + 0x2c);
     let sheet = atk + 0x358;
     let s = |o: usize| rd_i64(sheet + o).unwrap_or(0);
-    let l610 = rd_i64(p5_tgt + 0x610)?;   // 마법저항용 스탯
+    let l610 = rd_i64(p5_tgt + 0x628)?;   // 마법저항용 스탯
     let l618 = rd_i64(p5_tgt + 0x618)?;   // comp1 방어스탯
-    let local78 = rd_i64(atk + 0x610)?;   // 공격자 스탯(0xd8 계수용)
+    let local78 = rd_i64(atk + 0x628)?;   // 공격자 스탯(0xd8 계수용)
     // component1 (base=lvar4)
     let uv10: i64 = if dtype.wrapping_sub(2) < 2 { ((s(0xf0) + 100) * lvar4) / 100 }
         else {
@@ -211,7 +211,7 @@ unsafe fn pred_final_scan(elem: usize, chk: usize) -> Option<bool> {
 unsafe fn gb_dfd1e0(elem: usize, exe: usize) -> Option<bool> {
     if ab_has(elem, 4) { return Some(false); }
     if ab_has(elem, 5) {
-        if rd_i32(elem + 0x4e0)? != -1 && ab_ready(elem, 0x4b8, 0x4b0, exe)? { return Some(false); }
+        if rd_i32(elem + 0x4f8)? != -1 && ab_ready(elem, 0x4b8, 0x4b0, exe)? { return Some(false); }
     } else if rd_i32(elem + 0x68)? != 0xd { return Some(false); }
     // dfd1e0: vt90/vt_a8 동일슬롯(0x568/0x570), min=3
     if pred_thr_fail(elem, 0x568, 0x570, 0x568, 0x570, 0xb8, 0, 3)? { return Some(false); }
@@ -220,19 +220,19 @@ unsafe fn gb_dfd1e0(elem: usize, exe: usize) -> Option<bool> {
 // dec4d0 재현: 슬롯2(data+0x578/vt+0x580), thr+0xc0, desc=elem+0x4e8(if elem[0x5b0]>2) ready holder+0x4f0/vec+0x4e8
 unsafe fn gb_dec4d0(elem: usize, exe: usize) -> Option<bool> {
     if ab_has(elem, 4) { return Some(false); }
-    let s5b0 = rd_u64(elem + 0x5b0)?;
+    let s5b0 = rd_u64(elem + 0x5c8)?;
     if ab_has(elem, 5) {
-        if s5b0 > 2 && rd_i32(elem + 0x4e8 + 0x30)? != -1 && ab_ready(elem, 0x4f0, 0x4e8, exe)? { return Some(false); }
+        if s5b0 > 2 && rd_i32(elem + 0x500 + 0x30)? != -1 && ab_ready(elem, 0x4f0, 0x4e8, exe)? { return Some(false); }
     } else if rd_i32(elem + 0x68)? != 0xd { return Some(false); }
     // dec4d0: vt90=슬롯(0x578/0x580), vt_a8=(s5b0<3? 0x598/0x5a0 : 0x578/0x580), min=1
     let (a8d, a8v) = if s5b0 < 3 { (0x598usize, 0x5a0usize) } else { (0x578, 0x580) };
     if pred_thr_fail(elem, 0x578, 0x580, a8d, a8v, 0xc0, 0, 1)? { return Some(false); }
-    if s5b0 > 2 { Some(rd_i32(elem + 0x4e8 + 0x30)? != -1) } else { Some(false) }
+    if s5b0 > 2 { Some(rd_i32(elem + 0x500 + 0x30)? != -1) } else { Some(false) }
 }
 // dfb1a0 재현: 슬롯3(data+0x588/vt+0x590), thr+0xc8, desc=elem+0x520(if elem[0x5b0]>4), 제수 extra=elem[0x454]
 unsafe fn gb_dfb1a0(elem: usize, exe: usize) -> Option<bool> {
     if ab_has(elem, 4) { return Some(false); }
-    let s5b0 = rd_u64(elem + 0x5b0)?;
+    let s5b0 = rd_u64(elem + 0x5c8)?;
     if ab_has(elem, 5) {
         if s5b0 > 4 && rd_i32(elem + 0x520 + 0x30)? != -1 && ab_ready(elem, 0x528, 0x520, exe)? { return Some(false); }
     } else if rd_i32(elem + 0x68)? != 0xd { return Some(false); }
@@ -275,7 +275,7 @@ unsafe fn my_e1b330(p1cnt: u64, p3_holder: usize, p5_self: usize, sx: u64, sy: u
     let rh = rd_u64(p3_holder + 8)? as usize;
     let thr = rd_i64(rd_u64(rh + 8)? as usize + 0x12f8)?;
     let lvar20 = if rd_i32(p5_self + 0x68)? == 0xd { 0x3ci64 } else { 0x28 };
-    let lvar6 = rd_u64(p5_self + 0x5a8)?;
+    let lvar6 = rd_u64(p5_self + 0x5c0)?;
     let mut acc = 0i64;
     for (bi, ci) in [(opp*4 + 2, opp*4 + 5), (opp*4 + 0xa, opp*4 + 0xd), (opp*4 + 0x12, opp*4 + 0x15)] {
         let begin = rd_u64(rhd + bi*8)? as usize;
@@ -284,9 +284,9 @@ unsafe fn my_e1b330(p1cnt: u64, p3_holder: usize, p5_self: usize, sx: u64, sy: u
         for k in 0..cnt {
             let ent = rd_u64(begin + (k as usize)*8)? as usize;
             if !ptr_ok(ent) { continue; }
-            let d2 = dist2_sat(sx, sy, rd_u64(ent + 0x648)?, rd_u64(ent + 0x650)?);
-            if d2 < 0x35a4e9001 && rd_i32(ent + 0x68)? == 1 && rd_i32(ent + 0x4a8)? != -1 {
-                let dmg = my_f5db30(ent + 0x478, ent, p5_self, exe)?;   // FUN_14189c4a0 = memoized f5db30
+            let d2 = dist2_sat(sx, sy, rd_u64(ent + 0x660)?, rd_u64(ent + 0x668)?);
+            if d2 < 0x35a4e9001 && rd_i32(ent + 0x68)? == 1 && rd_i32(ent + 0x4c0)? != -1 {
+                let dmg = my_f5db30(ent + 0x490, ent, p5_self, exe)?;   // FUN_14189c4a0 = memoized f5db30
                 if dmg != 0 {
                     let div = skill_div(ent)?;
                     let v = (thr as u64).wrapping_mul(dmg as u64) / div;
@@ -339,7 +339,7 @@ pub unsafe fn my_f80320(c: &F80Ctx, exe: usize) -> Option<(u64, u32)> {
     let p3_1 = rd_u64(c.p3 + 8)? as usize;      // local_70 = p3[1]
     let thr  = rd_i64(rd_u64(p3_1 + 8)? as usize + 0x12f8)?;  // *(local_70[1]+0x12f8)
     // self a8 record (local_68)
-    let self_a8 = dd7_slot_a8(champ, rd_u64(c.p5 + 0x5a8)?);
+    let self_a8 = dd7_slot_a8(champ, rd_u64(c.p5 + 0x5c0)?);
     if self_a8 == 0 { return None; }            // 게임 panic
     let self_lane = rd_u32(self_a8 + 0x738) as usize;
     // 판단력 roll 범위
@@ -363,7 +363,7 @@ pub unsafe fn my_f80320(c: &F80Ctx, exe: usize) -> Option<(u64, u32)> {
     let l1_len = rd_u64(c.p6 + 0x18)? as usize;     // param_6[3]
     for i in 0..l1_len {
         let elem = rd_u64(l1_begin + i*8)? as usize;
-        let lv5 = dd7_slot_a8(champ, rd_u64(elem + 0x5a8)?);
+        let lv5 = dd7_slot_a8(champ, rd_u64(elem + 0x5c0)?);
         if lv5 == 0 { return None; }
         // dec1f0==0(=type3 능력 존재) → role 점프테이블 조기탈출. 재현 보류(캡처 제외). 순수-read 게이트.
         if ab_has(elem, 3) { return None; }
@@ -400,12 +400,12 @@ pub unsafe fn my_f80320(c: &F80Ctx, exe: usize) -> Option<(u64, u32)> {
         //   +0x82 발생 UNLESS (has5 && plVar8[+0x30]!=-1 && desc_ready(plVar8))  plVar8=(elem[0x5b0]<3)?DEFAULT:elem+0x4e8
         if !ab_has(elem, 4) {
             let has5 = ab_has(elem, 5);
-            let skip7d = has5 && rd_i32(elem + 0x4e0)? != -1 && ab_ready(elem, 0x4b8, 0x4b0, exe).unwrap_or(false);
+            let skip7d = has5 && rd_i32(elem + 0x4f8)? != -1 && ab_ready(elem, 0x4b8, 0x4b0, exe).unwrap_or(false);
             if !skip7d {
                 roll = rng.gen_range(lo, hi)? as i64; draws += 1; GB_SITE[3].fetch_add(1, Ordering::Relaxed);
                 den = den.wrapping_add(((roll * abil_w(idx0, 0x7d)) / 1000) as u64);
             }
-            let p8 = if rd_u64(elem + 0x5b0)? < 3 { default_ab2_ptr() } else { elem + 0x4e8 };
+            let p8 = if rd_u64(elem + 0x5c8)? < 3 { default_ab2_ptr() } else { elem + 0x500 };
             let skip82 = has5 && rd_i32(p8 + 0x30)? != -1 && desc_ready(p8, exe).unwrap_or(false);
             if !skip82 {
                 roll = rng.gen_range(lo, hi)? as i64; draws += 1; GB_SITE[4].fetch_add(1, Ordering::Relaxed);
@@ -421,8 +421,8 @@ pub unsafe fn my_f80320(c: &F80Ctx, exe: usize) -> Option<(u64, u32)> {
     let l2_len = rd_u64(c.p7 + 0x18)? as usize;
     for i in 0..l2_len {
         let elem = rd_u64(l2_begin + i*8)? as usize;
-        if rd_i32(elem + 0x4a8)? == -1 { return None; }   // 게임 panic
-        let dmg = my_f5db30(elem + 0x478, elem, c.p5, exe)?;   // atk=elem, target=self(p5)
+        if rd_i32(elem + 0x4c0)? == -1 { return None; }   // 게임 panic
+        let dmg = my_f5db30(elem + 0x490, elem, c.p5, exe)?;   // atk=elem, target=self(p5)
         let roll1 = rng.gen_range(lo, hi)? as i64; draws += 1; GB_SITE[5].fetch_add(1, Ordering::Relaxed);
         let div = skill_div(elem)?;
         let roll2 = rng.gen_range(lo, hi)? as i64; draws += 1; GB_SITE[5].fetch_add(1, Ordering::Relaxed);
@@ -435,16 +435,16 @@ pub unsafe fn my_f80320(c: &F80Ctx, exe: usize) -> Option<(u64, u32)> {
     if (opp as u64) >= 2 { return None; }
     let opp = opp as usize;
     let mut local_50 = num;
-    let sx = rd_u64(c.p5 + 0x648)?; let sy = rd_u64(c.p5 + 0x650)?;
+    let sx = rd_u64(c.p5 + 0x660)?; let sy = rd_u64(c.p5 + 0x668)?;
     let enl_begin = rd_u64(rhd + (opp*4 + 0x1e)*8)? as usize;
     let enl_cnt = rd_u64(rhd + (opp*4 + 0x21)*8)?;
     if !F5_STUB && enl_cnt <= 64 && ptr_ok(enl_begin) {
         for k in 0..enl_cnt {
             let elem = rd_u64(enl_begin + (k as usize)*8)? as usize;
             if !ptr_ok(elem) { continue; }
-            let d2 = dist2_sat(sx, sy, rd_u64(elem + 0x648)?, rd_u64(elem + 0x650)?);
-            if d2 < 0x53d1ac101 && rd_i32(elem + 0x4a8)? != -1 {
-                let dmg = my_f5db30(elem + 0x478, elem, c.p5, exe)?;
+            let d2 = dist2_sat(sx, sy, rd_u64(elem + 0x660)?, rd_u64(elem + 0x668)?);
+            if d2 < 0x53d1ac101 && rd_i32(elem + 0x4c0)? != -1 {
+                let dmg = my_f5db30(elem + 0x490, elem, c.p5, exe)?;
                 let div = skill_div(elem)?;
                 den = den.wrapping_add((thr as u64).wrapping_mul(dmg as u64) / div);
                 local_50 = local_50.wrapping_add(dmg as u64);
@@ -466,7 +466,7 @@ pub unsafe fn my_f80320(c: &F80Ctx, exe: usize) -> Option<(u64, u32)> {
     }
 
     // ── 최종: (max(0, self_hp - local_50) * 0x3c) / den ──
-    let self_hp = rd_u64(c.p5 + 0x658)?;
+    let self_hp = rd_u64(c.p5 + 0x670)?;
     let rem = if local_50 <= self_hp { self_hp - local_50 } else { 0 };
     let d = den + (den == 0) as u64;
     Some((rem.wrapping_mul(0x3c) / d, draws))
@@ -500,9 +500,9 @@ unsafe fn gb_collect_cands(rhd: usize, team: u64) -> ([usize; 5], usize) {
     (v, n)
 }
 unsafe fn gb_nearest(t: usize, cands: &[usize]) -> usize {
-    let tx = rd_u64(t + 0x648).unwrap_or(0); let ty = rd_u64(t + 0x650).unwrap_or(0);
+    let tx = rd_u64(t + 0x660).unwrap_or(0); let ty = rd_u64(t + 0x668).unwrap_or(0);
     let d2 = |e: usize| -> u64 {
-        let ex = rd_u64(e + 0x648).unwrap_or(0); let ey = rd_u64(e + 0x650).unwrap_or(0);
+        let ex = rd_u64(e + 0x660).unwrap_or(0); let ey = rd_u64(e + 0x668).unwrap_or(0);
         let dx = if ex >= tx { ex - tx } else { tx - ex };
         let dy = if ey >= ty { ey - ty } else { ty - ey };
         dx.wrapping_mul(dx).wrapping_add(dy.wrapping_mul(dy))
@@ -673,7 +673,7 @@ pub unsafe fn my_generic_build(c: &GBCtx, _exe: usize) -> Option<(i64, u64)> {
     let handle = rd_u64(c.athlete + 0x6a0).unwrap_or(0);
     let t = dd7_slot128(champ, handle); if !ptr_ok(t) { return None; }   // resolved entity (vt128)
     let team = rd_u64(c.athlete + 0x6a8).unwrap_or(99); if team > 1 { return None; }
-    let tx = rd_u64(t + 0x648).unwrap_or(0); let ty = rd_u64(t + 0x650).unwrap_or(0);
+    let tx = rd_u64(t + 0x660).unwrap_or(0); let ty = rd_u64(t + 0x668).unwrap_or(0);
     let in_box = gb_in_box(team, tx, ty);
     // zone밖 deadline 게이트(0x20df5f5/0x20df635): out+0x30!=0 && dd7_slot20(champ) < out+0x38
     let deadline_active = c.o_30 != 0 && dd7_slot20(champ) < c.o_38;
@@ -685,7 +685,7 @@ pub unsafe fn my_generic_build(c: &GBCtx, _exe: usize) -> Option<(i64, u64)> {
         let (cands, ncand) = gb_collect_cands(rhd, team);  // 0x38d/0x66e
         if ncand == 0 { return Some((4, c.o_60)); }        // 0x5a5 fallback kind4
         let best = gb_nearest(t, &cands[..ncand]);         // 0x450 nearest
-        Some((3, rd_u64(best + 0x5a8).unwrap_or(0)))       // 0x504 kind3 MOVE-TO-NEAREST(arg=best+0x5a8)
+        Some((3, rd_u64(best + 0x5c0).unwrap_or(0)))       // 0x504 kind3 MOVE-TO-NEAREST(arg=best+0x5a8)
     }
 }
 
@@ -749,7 +749,7 @@ pub unsafe fn my_203cb30(rh: usize, a: usize, s: usize, exe: usize) -> u64 {
     let n1 = gb_norm(a, 0x560, 0x558, 0x3e4, true);
     let s2 = gb_slot(a, a, s, rh, a, 0x4b8, 0x4b0, 0x4e0, 0x4dc, ctx, exe, false);   // 슬롯2
     let n2 = gb_norm(a, 0x570, 0x568, 0x3e8, true);
-    let plv = if rd_u64(a + 0x5b0).unwrap_or(0) < 3 { default_ab2_ptr() } else { a + 0x4e8 };  // 슬롯3 desc
+    let plv = if rd_u64(a + 0x5c8).unwrap_or(0) < 3 { default_ab2_ptr() } else { a + 0x500 };  // 슬롯3 desc
     let s3 = gb_slot(plv, a, s, rh, a, 0x8, 0x0, 0x30, 0x2c, ctx, exe, true);
     let n3 = gb_norm(a, 0x580, 0x578, 0x3e8, false);
     s1 / n1 + s2 / n2 + s3 / n3

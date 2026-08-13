@@ -187,8 +187,8 @@ unsafe fn resolve_self(r: Resolve, a: usize, b: usize) -> usize {
         Resolve::FromEntry(n) => entry_self_get(n),
         Resolve::Champions => {
             if !ptr_ok(a) || !ptr_ok(b) { return 0; }
-            let side = rd_i64(a + 0x810).unwrap_or(-1);
-            let role = rd_i64(a + 0x8a0).unwrap_or(-1) & 0xffff_ffff;   // dword 필드
+            let side = rd_i64(a + 0x930).unwrap_or(-1);
+            let role = rd_i64(a + 0x9c0).unwrap_or(-1) & 0xffff_ffff;   // dword 필드
             if !(0..2).contains(&side) || !(0..5).contains(&role) { return 0; }
             rd_u64(b + side as usize * 0x28 + role as usize * 8 + 0x1e0).unwrap_or(0) as usize
         }
@@ -692,7 +692,7 @@ macro_rules! bt_vis {
             imm_off: 3, imm_w: 1,
             a: Src::Mem(reg::RBP, 0x610), b: Src::Mem(reg::RBP, 0x560),
             resolve: Resolve::Champions,
-            note: "self=champions[[rbp+0x560]][side,role of [rbp+0x610]]",
+            note: "self=champions[[rbp+0x560]][side,role of [rbp+ 0x628]]",
         }
     };
 }
