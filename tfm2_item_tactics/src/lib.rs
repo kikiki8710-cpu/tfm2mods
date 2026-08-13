@@ -2226,17 +2226,10 @@ unsafe extern "C" fn cap_launcher(saved: *mut u64, _e: usize) -> u64 {
         GAME_PROBE_DONE.store(false, Ordering::Relaxed);
     }
     // ★08-08 대회(리그) 배경 경기 — 디스크립터 보험 캡처(아래 tourn_capture 참조. 최소 디투어 제약 준수).
-    // ★v2.9.2: 1순위 = TNR 레지스터 캡처(같은 스레드 worker 훅이 TLS에 넣어둔 팀 쌍) 소비 → 즉시 게시.
-    //   프레임 스캔(tourn_capture)은 교차검증(+캡처 부재 시 폴백)으로 유지. TLS는 소비 시 clear(idempotent).
-    if TN_ENABLED && rva == RA_TOURN_055 {
-        let (ta, tb, sb, valid) = TNR_PENDING.with(|c| { let v = c.get(); c.set((0, 0, 0, false)); v });
-        let reg = if valid {
-            TNR_CONSUME.fetch_add(1, Ordering::Relaxed);
-            if seed != 0 { tn_publish(seed, ta, tb, sb); }
-            Some((ta, tb, sb))
-        } else { None };
-        tourn_capture(saved, seed, reg);
-    }
+    //   ★v2.9.5(08-14): 프레임 스캔 단독으로 단순화 — 레지스터 캡처(TNR post-call 훅)는 launcher 시점
+    //   레지스터에 P가 없어 커버리지 3% 한계·구조상 100% 불가(RE\2026-08-14) → 제거. 프레임 스캔이 이미
+    //   2469/2469=100% 커버(교차검증 v2.9.4 NG=0 완료). caller_rbp 프레임슬롯이 팀정보의 유일 100% 소스.
+    if TN_ENABLED && rva == RA_TOURN_055 { tourn_capture(saved, seed); }
     // 진단: 고유 콜러 rva 수집(원자 CAS, 24슬롯)
     for k in 0..24 {
         let s = LAUNCH_RVAS[k].load(Ordering::Relaxed);
@@ -2334,82 +2327,11 @@ unsafe fn tn_my_side(provider: usize) -> Option<u64> {
     }
     None
 }
-// ═══ ★v2.9.2 TNR — worker 레코드 "레지스터 캡처" (유저 지시 08-13 "인자 추가로 더 안정적이게") ═══
-//   프레임 스크래핑(TN_FR_* — 0.5.5에서 부러졌던 방식)의 구조적 대체: worker가 레코드 포인터를
-//   **레지스터에 들고 있는 순간**(팀키 접근 직후)을 mid-func 훅으로 잡아 thread-local에 넣고,
-//   같은 스레드에서 곧이어 발화하는 launcher 디투어가 꺼낸다 = 사실상 "TLS로 인자 하나 추가".
-//   ⟹ 콜러 프레임 레이아웃(지역변수 배치)에 대한 의존이 사라짐. 남는 의존 = 14B 명령 시그니처
-//     (exe 전역 유일·부러지면 설치 실패로 시끄럽게 죽음 = 침묵사 없음).
-//   RE 정본 = RE\2026-08-13_worker-팀키-레지스터캡처-훅후보.md (사이트·경계·점프유입·시그니처 전부 확정).
-//   ⚠rayon 워커 병렬 → 전역 static 전달 금지, thread_local 필수(1 worker 호출 = 단일 스레드 선형 실행).
-//   구 프레임 스캔(tourn_capture)은 이번 버전에선 교차검증+폴백으로 유지(TNR_XCHK_NG=0 확인 후 강등 예정).
-// ★★2026-08-13 v2.9.4 방식B 재설계 — 훅을 **call 직후(post-call)** 로 이설.
-//   경위: v2.9.2가 팀키 접근 사이트(call 前, volatile 다수 live)를 훅해 경기 준비 중 크래시
-//   (AV @exe+0x1c6b648, r10 오염). ghidra-re 정밀분석(RE\2026-08-13_TNR-크래시-원인분석 + 후속):
-//   xmm 아님·유일 오염=r10. 근본 회피 = call 경계 이설 → 그 지점은 게임이 결과struct를 [rbp+..]에서
-//   fresh 리로드하므로 **volatile(rax/rcx/rdx/r8-r11/xmm0-5) 전부 dead, live-in = nonvolatile{rbp,base}뿐**.
-//   ⟹ 스텁이 volatile 전부 파괴해도 안전(구 크래시 원리적 무력화). + 설치 경합은 compare_exchange로 차단.
-//   RE 정본 = RE\2026-08-13_TNR-크래시-원인분석.md(후속 방식B 절).
-//   ⚠원본 14B(`48 8B 85 50 73 01 00 48 89 85 20 5E 00 00`)는 siteA/B/제3자 동일 = 시그 비유일.
-//     **런타임 설치는 RVA 직접 지정이라 무관**(프롤로그 검증은 그 주소의 바이트 일치만 봄).
-//     ★다음 마이그 재탐색은 반드시 "유일 앵커 + hook=앵커+offset"으로: siteA 앵커=0x1c6bd15
-//     `48 89 95 58 28 02 00`(mov[rbp+0x22858],rdx, worker 내 유일)+call(E8+5)+nop → hook=앵커+0x0D.
-//     siteB 앵커=0x1c6c9fd 6연속 byte-store all=1 run(worker 내 유일)+lea+mov rdx,rdi+call+nop → hook=앵커+0x3A.
-const TNR_ENABLED: bool = true;
-// post-call 원본 14B(양 사이트 동일): mov rax,[rbp+0x17350] ; mov [rbp+0x5e20],rax — 전부 rbp-rel(재배치 자명)·점프유입 0
-const TNR_POSTCALL_SIG: [u8; 14] = [0x48,0x8b,0x85,0x50,0x73,0x01,0x00, 0x48,0x89,0x85,0x20,0x5e,0x00,0x00];
-const TNR_SITE_A_RVA: usize = 0x1c6bd22; // 0.5.5. taskType 8 call(0x1c6bd1c) 직후 — base=rdi(nonvolatile)=P=r10
-const TNR_SITE_A_SIG: [u8; 14] = TNR_POSTCALL_SIG;
-const TNR_SITE_B_RVA: usize = 0x1c6ca37; // 0.5.5. taskType 5 call(0x1c6ca31) 직후 — base=rsi(nonvolatile)=P
-const TNR_SITE_B_SIG: [u8; 14] = TNR_POSTCALL_SIG;
-static TNR_A_INSTALLED: AtomicU64 = AtomicU64::new(0); // 0=미설치 1=성공 2=실패(시그 불일치 등 — 재시도 안 함)
-static TNR_B_INSTALLED: AtomicU64 = AtomicU64::new(0);
-static TNR_CAP_A: AtomicU64 = AtomicU64::new(0);   // siteA(taskType8) 캡처 수
-static TNR_CAP_B: AtomicU64 = AtomicU64::new(0);   // siteB(taskType5) 캡처 수
-static TNR_GUARD: AtomicU64 = AtomicU64::new(0);   // 가드(n 범위·포인터) 탈락 수
-static TNR_ORPHAN: AtomicU64 = AtomicU64::new(0);  // launcher 미도달로 덮인 pending(무해 — 관측용)
-static TNR_CONSUME: AtomicU64 = AtomicU64::new(0); // launcher가 소비한 캡처 수
-static TNR_XCHK_OK: AtomicU64 = AtomicU64::new(0); // 레지스터 캡처 == 프레임 스캔 (둘 다 성립 시)
-static TNR_XCHK_NG: AtomicU64 = AtomicU64::new(0); // ★불일치(0이어야 정상 — >0이면 레지스터 경로 의심)
-thread_local! {
-    // (팀A, 팀B, 세트 side 바이트, valid). const-init Cell = 지연초기화·소멸자 없음(디투어 안전).
-    static TNR_PENDING: core::cell::Cell<(u64, u64, u64, bool)> = const { core::cell::Cell::new((0, 0, 0, false)) };
-}
-// 공통 캡처 본문 — ⚠최소 디투어 제약(cap_launcher와 동일): VEH 읽기+원자+TLS Cell만. 패닉 원천 없음.
-//   재구성 계약(RE 확정, base=P): 팀A=[P-0x18] 팀B=[P-0x10] n=[P-0x148] setArr=[P-0x150],
-//   side=byte[setArr+(n<<8)-8] (마지막 세트블록 +0xf8). 게임 가드(n==0 스킵) 복제 + n 상한 sanity.
-unsafe fn tnr_capture(base: u64) {
-    let p = base as usize;
-    if p < 0x10000 || p >= 0x0000_8000_0000_0000 { TNR_GUARD.fetch_add(1, Ordering::Relaxed); return; }
-    let (Some(ta), Some(tb), Some(n), Some(sa)) = (
-        safe_read_u64(p.wrapping_sub(0x18)), safe_read_u64(p.wrapping_sub(0x10)),
-        safe_read_u64(p.wrapping_sub(0x148)), safe_read_u64(p.wrapping_sub(0x150)),
-    ) else { TNR_GUARD.fetch_add(1, Ordering::Relaxed); return; };
-    let sa = sa as usize;
-    if n == 0 || n > 32 || sa < 0x10000 || sa >= 0x0000_8000_0000_0000 { TNR_GUARD.fetch_add(1, Ordering::Relaxed); return; }
-    // 마지막 세트블록 끝-8 = {+0xf8 side, +0xf9 세트번호…} — u64 하나로 읽어 하위 바이트만 사용.
-    let Some(w) = safe_read_u64(sa + ((n as usize) << 8) - 8) else { TNR_GUARD.fetch_add(1, Ordering::Relaxed); return; };
-    let sb = w & 1;
-    TNR_PENDING.with(|c| {
-        if c.get().3 { TNR_ORPHAN.fetch_add(1, Ordering::Relaxed); } // 이전 캡처가 launcher 미도달(무해)
-        c.set((ta, tb, sb, true));
-    });
-}
-// install_detour_generic push 순서(saved 인덱스): rcx=0,rdx=1,r8=2,r9=3,r10=4,r11=5,rbx=6,rdi=7,rsi=8,r12=9.
-unsafe extern "C" fn tnr_cap_a(saved: *mut u64, _e: usize) -> u64 {
-    if saved.is_null() { return 0; }
-    TNR_CAP_A.fetch_add(1, Ordering::Relaxed);
-    tnr_capture(*saved.add(7)); // saved[7] = rdi (post-call siteA: rdi=레코드 base=P=r10, nonvolatile 생존)
-    0
-}
-unsafe extern "C" fn tnr_cap_b(saved: *mut u64, _e: usize) -> u64 {
-    if saved.is_null() { return 0; }
-    TNR_CAP_B.fetch_add(1, Ordering::Relaxed);
-    tnr_capture(*saved.add(8)); // saved[8] = rsi (post-call siteB: rsi=레코드 base=P, nonvolatile 생존)
-    0
-}
-// 게시 공통부(레지스터 경로·프레임 스캔 폴백이 공용) — 링 테이블 + 내 팀 매치 상태.
+// ═══ ★대회(리그) 배경 경기 팀 게시 공통부 (프레임 스캔 tourn_capture가 호출) ═══
 //   ⚠cap_launcher 문맥에서 호출됨: 원자연산만.
+//   ★이력: v2.9.2~v2.9.4에 worker 레코드를 레지스터로 캡처(TNR post-call 훅)해 프레임 의존을 줄이려 했으나,
+//   launcher 시점 레지스터에 레코드 base P가 없어(RE\2026-08-14_launcher-레코드-레지스터-부재-확정)
+//   커버리지 3% 한계·100% 구조상 불가로 확정 → v2.9.5(08-14)에서 TNR 훅 제거. 프레임 스캔이 유일 100% 경로.
 fn tn_publish(seed: u64, ta: u64, tb: u64, sb: u64) {
     // ★v2.7.6 매핑식(RE\2026-08-08_세트side-팀슬롯-매핑.md): side0(blue)=rec+0x140+(sb^1)*8.
     let (s0, s1) = if sb == 1 { (ta, tb) } else { (tb, ta) };
@@ -2433,32 +2355,12 @@ fn tn_publish(seed: u64, ta: u64, tb: u64, sb: u64) {
         TN_MY_SEED.store(seed, Ordering::Relaxed); // 마지막 store = buy측 투표 게이트 오픈
     }
 }
-// TNR 훅 설치(멱등·1회). 이 사이트들은 타 모드가 안 건드림 → 체인 대기 불요. 시그 불일치 = 영구 실패(2) + 1회 로그.
-fn install_tnr_hooks() {
-    if !TNR_ENABLED { return; } // ★긴급 OFF(08-13 크래시) — 미설치 시 프레임 스캔 폴백으로 v2.9.1 동작
-    for (rva, sig, cap, flag, tag) in [
-        (TNR_SITE_A_RVA, &TNR_SITE_A_SIG, tnr_cap_a as usize, &TNR_A_INSTALLED, "A"),
-        (TNR_SITE_B_RVA, &TNR_SITE_B_SIG, tnr_cap_b as usize, &TNR_B_INSTALLED, "B"),
-    ] {
-        // ★v2.9.4 이중패치 차단(08-13 크래시 용의자 (나)): compare_exchange로 0→3(설치중)을 배타적으로
-        //   선점한 스레드만 install. 순진한 load!=0 check-then-act는 on_server_start(서버 스레드)와
-        //   post_update(클라 스레드)가 동시에 0을 읽어 install_detour_generic을 이중 호출 → 2번째가 이미
-        //   패치된 12B를 "원본"으로 복사 = 트램폴린 꼬임(r10 오염). launcher 훅의 self-heal 부재분 보강.
-        if flag.compare_exchange(0, 3, Ordering::AcqRel, Ordering::Relaxed).is_err() { continue; }
-        let r = unsafe { install_detour_generic(rva, 14, cap, sig) };
-        match r {
-            Ok(_) => { flag.store(1, Ordering::Release); }
-            Err(e) => { flag.store(2, Ordering::Release);
-                write_log("4items_hooks.txt", &format!("[{}ms] TNR site{} install FAIL: {}\n", now_ms(), tag, e)); }
-        }
-    }
-}
 
 // ⚠cap_launcher 최소 디투어 제약 상속 — VEH 보호 읽기 + 원자연산만(format!/fs/락/할당/catch_unwind 금지).
 //   대회 retaddr 에서만 호출(경기 시작당 1회)·스캔 상한 mask<0x1000 ⟹ 핫패스 아님.
-//   ★v2.9.2: reg = TNR(레지스터 캡처) 결과. Some이면 게시는 이미 끝났고 여기선 **교차검증만**(불일치 카운트),
-//     None이면 기존대로 이 스캔이 게시(폴백 — 레지스터 훅 미설치/미발화 시에도 기능 유지).
-unsafe fn tourn_capture(saved: *mut u64, seed: u64, reg: Option<(u64, u64, u64)>) {
+//   ★caller_rbp 프레임슬롯(db/cfg/set_end)에서 hashbrown 맵을 역스캔해 레코드 특정 → tn_publish 게시.
+//     팀정보의 유일 100% 소스(레지스터엔 launcher 시점 P 부재 — RE\2026-08-14).
+unsafe fn tourn_capture(saved: *mut u64, seed: u64) {
     TN_SEEN.fetch_add(1, Ordering::Relaxed);
     let entry_rsp = saved.add(10) as usize;      // = launcher 진입 rsp([rsp]=retaddr, 스텁 push 10개 위)
     let rbp = entry_rsp.wrapping_add(0x88);      // worker 프롤로그: 8push + sub rsp,0x22cc8(0.5.5) + rbp=rsp+0x80
@@ -2514,17 +2416,9 @@ unsafe fn tourn_capture(saved: *mut u64, seed: u64, reg: Option<(u64, u64, u64)>
                 TN_LAST_KEY.store(key, Ordering::Relaxed);
                 TN_LAST_MAP.store(map_off as u64, Ordering::Relaxed);
                 TN_LAST_SB.store(wtail & 0xffff, Ordering::Relaxed);
-                // ★v2.7.6 매핑식은 tn_publish로 이동(v2.9.2 — 레지스터 경로와 공용).
+                // ★v2.7.6 매핑식은 tn_publish로 게시(side0/링/내팀 매치 상태).
                 let sb = wtail & 1;
-                match reg {
-                    // ★v2.9.2: 레지스터 캡처가 이미 게시함 → 여기선 전건 교차검증만(NG=0이어야 정상).
-                    Some((ra, rb, rsb)) => {
-                        if ra == ta && rb == tb && rsb == sb { TNR_XCHK_OK.fetch_add(1, Ordering::Relaxed); }
-                        else { TNR_XCHK_NG.fetch_add(1, Ordering::Relaxed); }
-                    }
-                    // 폴백: 레지스터 캡처 부재(훅 미설치/미발화) → 기존 프레임 스캔 결과로 게시.
-                    None => tn_publish(seed, ta, tb, sb),
-                }
+                tn_publish(seed, ta, tb, sb);
                 return;
             }
             g += 8;
@@ -2976,7 +2870,7 @@ impl ModExtension for ItemTacticsExt {
         let __pt = perf::tsc();
         perf::sample_self(); // 프로브 자체 비용 샘플(프레임당 1회)
         { let t = perf::tsc();
-          install_launcher_hook(); install_seed_ctor_hook(); install_game_view_hook(); install_tnr_hooks(); // ★매프레임 재시도(멱등, 성공=1이면 즉시 return) — on_server_start 1회 실패 시 자가복구 + serpen 체인 재검증. TNR은 원자 2로드 조기탈출.
+          install_launcher_hook(); install_seed_ctor_hook(); install_game_view_hook(); // ★매프레임 재시도(멱등, 성공=1이면 즉시 return) — on_server_start 1회 실패 시 자가복구 + serpen 체인 재검증.
           perf::rec(perf::S_HOOK_RETRY, t); }
         if BUY_REPORT {
             // 새 관전 경기(InGame 진입) 엣지에서 카운터/로그 리셋 → buy_report.txt 엔 마지막 본 경기만.
@@ -3210,7 +3104,7 @@ impl ModExtension for ItemTacticsExt {
 // 서버측: Database 접근해 모드 아이템 레지스트리 1회 채움.
 struct ItemTacticsServerExt;
 impl ModServerExtension for ItemTacticsServerExt {
-    fn on_server_start(&self, ctx: &mut ServerModContext) { probe_db(ctx); install_replace_4th(); install_launcher_hook(); install_seed_ctor_hook(); install_tnr_hooks(); } // resolver=mode 3·4 공통(슬롯0/1/2 지정) + v13 식별훅(launcher 시드 + seed-ctor provider) + v2.9.2 TNR 레지스터 캡처
+    fn on_server_start(&self, ctx: &mut ServerModContext) { probe_db(ctx); install_replace_4th(); install_launcher_hook(); install_seed_ctor_hook(); } // resolver=mode 3·4 공통(슬롯0/1/2 지정) + v13 식별훅(launcher 시드 + seed-ctor provider)
     fn before_management_tick(&self, ctx: &mut ServerModContext) {
         // ★매치 사이(관리화면)서 팀게이트 캐시 리셋 → 다음 경기서 로스터 재스캔(주소 재사용 대비).
         //   관리틱은 match sim 중엔 안 도므로 sim스레드의 판정과 레이스 없음.
@@ -3677,16 +3571,6 @@ fn write_registry_status(db: usize) {
                 \x20           NG(위 매핑검증)>0 이면 TN 게이트를 의심할 것. 내매치아님은 관측 전용(차단엔 미사용)\n",
                 TN_GATE_EARLY.load(Ordering::Relaxed), TN_GATE_HIT.load(Ordering::Relaxed),
                 TN_GATE_NEG.load(Ordering::Relaxed)));
-            // ★v2.9.2 — TNR 레지스터 캡처(프레임 스크래핑 대체) 지표
-            s.push_str(&format!("\x20   ★TNR 레지스터 캡처(v2.9.2): 설치 A={}/B={} · 캡처 A={}/B={} · 소비={} · 고아={} · 가드탈락={}\n\
-                \x20     교차검증(레지스터 vs 프레임스캔): OK={} · ★NG={} (0이어야 정상 — NG>0=레지스터 경로 의심)\n\
-                \x20     판독: 설치 2=시그니처 불일치(패치로 부러짐, 4items_hooks.txt 확인) / 소비>0 = 레지스터 경로가 실제 게시 중\n\
-                \x20           캡처>소비 = launcher 미도달 태스크(고아, 무해) / 프레임스캔 성공=0이어도 소비>0이면 TN 정상\n",
-                TNR_A_INSTALLED.load(Ordering::Relaxed), TNR_B_INSTALLED.load(Ordering::Relaxed),
-                TNR_CAP_A.load(Ordering::Relaxed), TNR_CAP_B.load(Ordering::Relaxed),
-                TNR_CONSUME.load(Ordering::Relaxed), TNR_ORPHAN.load(Ordering::Relaxed),
-                TNR_GUARD.load(Ordering::Relaxed),
-                TNR_XCHK_OK.load(Ordering::Relaxed), TNR_XCHK_NG.load(Ordering::Relaxed)));
         }
         s.push_str(&format!("\n  [원시값] retry호출={} 광역스캔={}회(상한8)\n",
             NETRETRY_N.load(Ordering::Relaxed), NETWIDE_TRIES.load(Ordering::Relaxed)));
