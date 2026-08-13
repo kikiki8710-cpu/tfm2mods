@@ -2249,9 +2249,18 @@ unsafe extern "C" fn cap_launcher(saved: *mut u64, _e: usize) -> u64 {
 //   ⬜런타임 실측 2건(registry [대회 디스크립터 보험] 블록으로 판독):
 //     ①스캔 성공률(TN_MISS_SCAN>0 = set_end 슬롯이 무효인 경로 존재) ②+0x140/+0x148 의 side0(blue) 대응
 //       — 내 팀 매치의 buy 에서 (레코드 슬롯, 세트 side 바이트) ↔ 실제 athlete side(+0x810) 투표로 확정.
-//   현 단계 = 관측 전용(팀 게이트 판정에 사용하지 않음). 실측 확정 후 게이트 연결을 별도 결정.
+//   ~~현 단계 = 관측 전용~~ → v2.8.0(08-08)에서 게이트 연결됨(tn_my_side, 추가 승인 전용·차단 미사용).
 const TN_ENABLED: bool = true;
 const RA_TOURN_055: u64 = 0x1c777d8; // 0.5.5(구0.5.4=0x239f242). worker.rs:36 대회 배경 launcher retaddr(콜 0x1c777d3, e8+5)
+// ★★0.5.5 프레임 슬롯 재핀(2026-08-13): worker 0x1c6a530(구 0x2392ed0)의 프레임이 0x1ceb8→0x22cc8로
+//   확대되며 슬롯 전면 시프트 — 0.5.5 인게임 실측(registry 08-13: 런처발화 120·스캔성공 0·db관측 0x1388
+//   =비포인터)으로 TN 전멸을 확인하고 ghidra-re 재핀. caller_rbp = 진입rsp+0x88 공식과 cfg 맵·레코드
+//   레이아웃(+0x2a0/+0x2d0·0x160·+0x140/+0x148·세트 0x100/+0xf8)은 전부 불변.
+//   근거 = RE\2026-08-13_대회레코드-프레임오프셋-0.5.5재핀.md (기록/판독 사이트 명령 단위 대응).
+//   ⚠교훈: 콜러 "프레임 오프셋" 레시피는 migrate_rva.py(RVA 마이그)가 못 잡는다 — 버전업 때 별도 재핀 필수.
+const TN_FR_DB: usize = 0x22bf8;     // 0.5.5(구0.5.4=0x1cde8). db 슬롯 — 판독 사이트 0x1c77740(콜 직전 생존)
+const TN_FR_CFG: usize = 0x22bd8;    // 0.5.5(구0.5.4=0x1cdc0). cfg 슬롯 — 기록 0x1c6a5e9(진입 rdx)
+const TN_FR_SETEND: usize = 0x22a40; // 0.5.5(구0.5.4=0x1cce0). set_end 슬롯 — 기록 0x1c6cc09, 콜사이트 판독 0x1c776ec
 static TN_SEEN: AtomicU64 = AtomicU64::new(0);       // 대회 retaddr 런처 발화 수
 static TN_HIT: AtomicU64 = AtomicU64::new(0);        // 레코드 스캔 성공
 static TN_MISS_FRAME: AtomicU64 = AtomicU64::new(0); // 프레임 슬롯 읽기 실패/포인터 무효
@@ -2283,9 +2292,13 @@ static TN_LAST_S1: AtomicU64 = AtomicU64::new(0);    // side1(red) 팀 id = rec+
 //   차단에는 쓰지 않는다(음성 오판 리스크 0 — 기존 동작의 순수 상위집합).
 //   발행 순서: seed=0 → s0/s1 → seed=real(Release) ⟹ 독자는 완전 발행된 엔트리만 매치(반쯤 쓴 엔트리 무해).
 const TN_GATE: bool = true;
-static TN_TAB_SEED: [AtomicU64; 16] = [const { AtomicU64::new(0) }; 16];
-static TN_TAB_S0: [AtomicU64; 16] = [const { AtomicU64::new(0) }; 16];
-static TN_TAB_S1: [AtomicU64; 16] = [const { AtomicU64::new(0) }; 16];
+// ★링 16→64 확장(2026-08-13): 일정넘김은 배경 경기 30~40판을 rayon으로 한꺼번에 발화시킨다 —
+//   런처(게시)들이 해당 sim의 buy(조회)보다 앞서 몰리면 16슬롯은 조회 전에 퇴거될 수 있다(무카운터 침묵 miss).
+//   64면 한 배치 전체가 상주. miss 경로 비용 = 원자 로드 64회(수십 ns)로 무시 가능.
+const TN_TAB_N: usize = 64;
+static TN_TAB_SEED: [AtomicU64; TN_TAB_N] = [const { AtomicU64::new(0) }; TN_TAB_N];
+static TN_TAB_S0: [AtomicU64; TN_TAB_N] = [const { AtomicU64::new(0) }; TN_TAB_N];
+static TN_TAB_S1: [AtomicU64; TN_TAB_N] = [const { AtomicU64::new(0) }; TN_TAB_N];
 static TN_TAB_W: AtomicU64 = AtomicU64::new(0);       // 링 쓰기 커서
 static TN_TAB_ANY: AtomicBool = AtomicBool::new(false); // 테이블 비면 핫패스 즉시 스킵(원자 1로드)
 static TN_GATE_EARLY: AtomicU64 = AtomicU64::new(0);  // 조기탈출에서 TN 구제 수
@@ -2299,7 +2312,7 @@ unsafe fn tn_my_side(provider: usize) -> Option<u64> {
     if provider < 0x10000 || provider >= 0x0000_8000_0000_0000 { return None; }
     let seed = safe_read_u64(provider.wrapping_add(O_PROVIDER_SEED))?;
     if seed == 0 { return None; }
-    for k in 0..16 {
+    for k in 0..TN_TAB_N {
         if TN_TAB_SEED[k].load(Ordering::Acquire) == seed {
             let s0 = TN_TAB_S0[k].load(Ordering::Relaxed);
             let s1 = TN_TAB_S1[k].load(Ordering::Relaxed);
@@ -2316,11 +2329,11 @@ unsafe fn tn_my_side(provider: usize) -> Option<u64> {
 unsafe fn tourn_capture(saved: *mut u64, seed: u64) {
     TN_SEEN.fetch_add(1, Ordering::Relaxed);
     let entry_rsp = saved.add(10) as usize;      // = launcher 진입 rsp([rsp]=retaddr, 스텁 push 10개 위)
-    let rbp = entry_rsp.wrapping_add(0x88);      // worker 프롤로그: 8push + sub rsp,0x1ceb8 + rbp=rsp+0x80
+    let rbp = entry_rsp.wrapping_add(0x88);      // worker 프롤로그: 8push + sub rsp,0x22cc8(0.5.5) + rbp=rsp+0x80
     let (Some(db), Some(cfg), Some(set_end)) = (
-        safe_read_u64(rbp.wrapping_add(0x1cde8)),   // 배경 sim db(0x2392f90 1회 기록)
-        safe_read_u64(rbp.wrapping_add(0x1cdc0)),   // cfg(배경 sim 상태 구조체)
-        safe_read_u64(rbp.wrapping_add(0x1cce0)),   // 현재 세트블록 끝 포인터
+        safe_read_u64(rbp.wrapping_add(TN_FR_DB)),     // 배경 sim db(0.5.5 판독 0x1c77740)
+        safe_read_u64(rbp.wrapping_add(TN_FR_CFG)),    // cfg(배경 sim 상태 구조체)
+        safe_read_u64(rbp.wrapping_add(TN_FR_SETEND)), // 현재 세트블록 끝 포인터
     ) else { TN_MISS_FRAME.fetch_add(1, Ordering::Relaxed); return; };
     // 검증① — db 포인터 대조. 경위: v2.7.4가 LIVE_DB(scene db)와 대조해 전건 오탐 차단(47/47) → v2.7.5 관측
     //   강등 → 2판째 실측 **seen==DB_DIRECT 28/28**(=addr_of!(*ctx.database), 서버 db)로 정체 확정 →
@@ -2378,7 +2391,7 @@ unsafe fn tourn_capture(saved: *mut u64, seed: u64) {
                 TN_LAST_S1.store(s1, Ordering::Relaxed);
                 // ★v2.8.0 TN 게이트 테이블 게시(모든 히트 — 내 팀 매치만이 아님). 발행 순서 규약은 선언부 주석.
                 if TN_GATE && seed != 0 {
-                    let k = (TN_TAB_W.fetch_add(1, Ordering::Relaxed) % 16) as usize;
+                    let k = (TN_TAB_W.fetch_add(1, Ordering::Relaxed) as usize) % TN_TAB_N;
                     TN_TAB_SEED[k].store(0, Ordering::Release);
                     TN_TAB_S0[k].store(s0, Ordering::Relaxed);
                     TN_TAB_S1[k].store(s1, Ordering::Relaxed);
