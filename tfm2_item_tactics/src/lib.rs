@@ -2343,17 +2343,25 @@ unsafe fn tn_my_side(provider: usize) -> Option<u64> {
 //   RE 정본 = RE\2026-08-13_worker-팀키-레지스터캡처-훅후보.md (사이트·경계·점프유입·시그니처 전부 확정).
 //   ⚠rayon 워커 병렬 → 전역 static 전달 금지, thread_local 필수(1 worker 호출 = 단일 스레드 선형 실행).
 //   구 프레임 스캔(tourn_capture)은 이번 버전에선 교차검증+폴백으로 유지(TNR_XCHK_NG=0 확인 후 강등 예정).
-// ★★2026-08-13 긴급 OFF — v2.9.2 인게임 첫 판에서 **경기 준비 중 크래시**(ai_adjust VEH 포착:
-//   code=0xc0000005 RIP=exe+0x1c6b648 = siteA `movzx ecx,byte[rcx-8]`, faultAddr=-1).
-//   TNR 훅 설치 후 worker 원본 흐름이 손상돼 rcx(=setArr+n*256) 계산이 깨진 것으로 추정
-//   (트램폴린 레지스터 생존 문제 유력 — 스텁이 xmm0-5 미저장 등). 원인 규명 전까지 훅 미설치.
-//   OFF 시 launcher의 TNR_PENDING 은 항상 (…,false) → reg=None → 프레임 스캔(TN_FR_*) 폴백 = v2.9.1 동작.
-//   ⚠재활성 전 필수: 트램폴린 레지스터 생존 정밀 분석 + 격리 테스트(siteA 단독부터). 03_시행착오 08-13 참조.
-const TNR_ENABLED: bool = false;
-const TNR_SITE_A_RVA: usize = 0x1c6b5f0; // 0.5.5. taskType 8 팀키 접근(lea rdx,[r10-0x158]) — 진입 시 r10=레코드 base
-const TNR_SITE_A_SIG: [u8; 14] = [0x49,0x8d,0x92,0xa8,0xfe,0xff,0xff, 0x49,0x8b,0x82,0xb8,0xfe,0xff,0xff]; // exe 전역 유일
-const TNR_SITE_B_RVA: usize = 0x1c6b66d; // 0.5.5. taskType 5 팀키 접근(lea rdi,[rsi-0x158]) — 진입 시 rsi=레코드 base
-const TNR_SITE_B_SIG: [u8; 14] = [0x48,0x8d,0xbe,0xa8,0xfe,0xff,0xff, 0x48,0x8b,0x86,0xb8,0xfe,0xff,0xff]; // exe 전역 유일
+// ★★2026-08-13 v2.9.4 방식B 재설계 — 훅을 **call 직후(post-call)** 로 이설.
+//   경위: v2.9.2가 팀키 접근 사이트(call 前, volatile 다수 live)를 훅해 경기 준비 중 크래시
+//   (AV @exe+0x1c6b648, r10 오염). ghidra-re 정밀분석(RE\2026-08-13_TNR-크래시-원인분석 + 후속):
+//   xmm 아님·유일 오염=r10. 근본 회피 = call 경계 이설 → 그 지점은 게임이 결과struct를 [rbp+..]에서
+//   fresh 리로드하므로 **volatile(rax/rcx/rdx/r8-r11/xmm0-5) 전부 dead, live-in = nonvolatile{rbp,base}뿐**.
+//   ⟹ 스텁이 volatile 전부 파괴해도 안전(구 크래시 원리적 무력화). + 설치 경합은 compare_exchange로 차단.
+//   RE 정본 = RE\2026-08-13_TNR-크래시-원인분석.md(후속 방식B 절).
+//   ⚠원본 14B(`48 8B 85 50 73 01 00 48 89 85 20 5E 00 00`)는 siteA/B/제3자 동일 = 시그 비유일.
+//     **런타임 설치는 RVA 직접 지정이라 무관**(프롤로그 검증은 그 주소의 바이트 일치만 봄).
+//     ★다음 마이그 재탐색은 반드시 "유일 앵커 + hook=앵커+offset"으로: siteA 앵커=0x1c6bd15
+//     `48 89 95 58 28 02 00`(mov[rbp+0x22858],rdx, worker 내 유일)+call(E8+5)+nop → hook=앵커+0x0D.
+//     siteB 앵커=0x1c6c9fd 6연속 byte-store all=1 run(worker 내 유일)+lea+mov rdx,rdi+call+nop → hook=앵커+0x3A.
+const TNR_ENABLED: bool = true;
+// post-call 원본 14B(양 사이트 동일): mov rax,[rbp+0x17350] ; mov [rbp+0x5e20],rax — 전부 rbp-rel(재배치 자명)·점프유입 0
+const TNR_POSTCALL_SIG: [u8; 14] = [0x48,0x8b,0x85,0x50,0x73,0x01,0x00, 0x48,0x89,0x85,0x20,0x5e,0x00,0x00];
+const TNR_SITE_A_RVA: usize = 0x1c6bd22; // 0.5.5. taskType 8 call(0x1c6bd1c) 직후 — base=rdi(nonvolatile)=P=r10
+const TNR_SITE_A_SIG: [u8; 14] = TNR_POSTCALL_SIG;
+const TNR_SITE_B_RVA: usize = 0x1c6ca37; // 0.5.5. taskType 5 call(0x1c6ca31) 직후 — base=rsi(nonvolatile)=P
+const TNR_SITE_B_SIG: [u8; 14] = TNR_POSTCALL_SIG;
 static TNR_A_INSTALLED: AtomicU64 = AtomicU64::new(0); // 0=미설치 1=성공 2=실패(시그 불일치 등 — 재시도 안 함)
 static TNR_B_INSTALLED: AtomicU64 = AtomicU64::new(0);
 static TNR_CAP_A: AtomicU64 = AtomicU64::new(0);   // siteA(taskType8) 캡처 수
@@ -2387,16 +2395,17 @@ unsafe fn tnr_capture(base: u64) {
         c.set((ta, tb, sb, true));
     });
 }
+// install_detour_generic push 순서(saved 인덱스): rcx=0,rdx=1,r8=2,r9=3,r10=4,r11=5,rbx=6,rdi=7,rsi=8,r12=9.
 unsafe extern "C" fn tnr_cap_a(saved: *mut u64, _e: usize) -> u64 {
     if saved.is_null() { return 0; }
     TNR_CAP_A.fetch_add(1, Ordering::Relaxed);
-    tnr_capture(*saved.add(4)); // saved[4] = r10 (install_detour_generic push 순서: rcx,rdx,r8,r9,r10,r11,rbx,rdi,rsi,r12)
+    tnr_capture(*saved.add(7)); // saved[7] = rdi (post-call siteA: rdi=레코드 base=P=r10, nonvolatile 생존)
     0
 }
 unsafe extern "C" fn tnr_cap_b(saved: *mut u64, _e: usize) -> u64 {
     if saved.is_null() { return 0; }
     TNR_CAP_B.fetch_add(1, Ordering::Relaxed);
-    tnr_capture(*saved.add(8)); // saved[8] = rsi
+    tnr_capture(*saved.add(8)); // saved[8] = rsi (post-call siteB: rsi=레코드 base=P, nonvolatile 생존)
     0
 }
 // 게시 공통부(레지스터 경로·프레임 스캔 폴백이 공용) — 링 테이블 + 내 팀 매치 상태.
@@ -2431,11 +2440,15 @@ fn install_tnr_hooks() {
         (TNR_SITE_A_RVA, &TNR_SITE_A_SIG, tnr_cap_a as usize, &TNR_A_INSTALLED, "A"),
         (TNR_SITE_B_RVA, &TNR_SITE_B_SIG, tnr_cap_b as usize, &TNR_B_INSTALLED, "B"),
     ] {
-        if flag.load(Ordering::Relaxed) != 0 { continue; }
+        // ★v2.9.4 이중패치 차단(08-13 크래시 용의자 (나)): compare_exchange로 0→3(설치중)을 배타적으로
+        //   선점한 스레드만 install. 순진한 load!=0 check-then-act는 on_server_start(서버 스레드)와
+        //   post_update(클라 스레드)가 동시에 0을 읽어 install_detour_generic을 이중 호출 → 2번째가 이미
+        //   패치된 12B를 "원본"으로 복사 = 트램폴린 꼬임(r10 오염). launcher 훅의 self-heal 부재분 보강.
+        if flag.compare_exchange(0, 3, Ordering::AcqRel, Ordering::Relaxed).is_err() { continue; }
         let r = unsafe { install_detour_generic(rva, 14, cap, sig) };
         match r {
-            Ok(_) => { flag.store(1, Ordering::Relaxed); }
-            Err(e) => { flag.store(2, Ordering::Relaxed);
+            Ok(_) => { flag.store(1, Ordering::Release); }
+            Err(e) => { flag.store(2, Ordering::Release);
                 write_log("4items_hooks.txt", &format!("[{}ms] TNR site{} install FAIL: {}\n", now_ms(), tag, e)); }
         }
     }
