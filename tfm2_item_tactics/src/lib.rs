@@ -2343,6 +2343,13 @@ unsafe fn tn_my_side(provider: usize) -> Option<u64> {
 //   RE 정본 = RE\2026-08-13_worker-팀키-레지스터캡처-훅후보.md (사이트·경계·점프유입·시그니처 전부 확정).
 //   ⚠rayon 워커 병렬 → 전역 static 전달 금지, thread_local 필수(1 worker 호출 = 단일 스레드 선형 실행).
 //   구 프레임 스캔(tourn_capture)은 이번 버전에선 교차검증+폴백으로 유지(TNR_XCHK_NG=0 확인 후 강등 예정).
+// ★★2026-08-13 긴급 OFF — v2.9.2 인게임 첫 판에서 **경기 준비 중 크래시**(ai_adjust VEH 포착:
+//   code=0xc0000005 RIP=exe+0x1c6b648 = siteA `movzx ecx,byte[rcx-8]`, faultAddr=-1).
+//   TNR 훅 설치 후 worker 원본 흐름이 손상돼 rcx(=setArr+n*256) 계산이 깨진 것으로 추정
+//   (트램폴린 레지스터 생존 문제 유력 — 스텁이 xmm0-5 미저장 등). 원인 규명 전까지 훅 미설치.
+//   OFF 시 launcher의 TNR_PENDING 은 항상 (…,false) → reg=None → 프레임 스캔(TN_FR_*) 폴백 = v2.9.1 동작.
+//   ⚠재활성 전 필수: 트램폴린 레지스터 생존 정밀 분석 + 격리 테스트(siteA 단독부터). 03_시행착오 08-13 참조.
+const TNR_ENABLED: bool = false;
 const TNR_SITE_A_RVA: usize = 0x1c6b5f0; // 0.5.5. taskType 8 팀키 접근(lea rdx,[r10-0x158]) — 진입 시 r10=레코드 base
 const TNR_SITE_A_SIG: [u8; 14] = [0x49,0x8d,0x92,0xa8,0xfe,0xff,0xff, 0x49,0x8b,0x82,0xb8,0xfe,0xff,0xff]; // exe 전역 유일
 const TNR_SITE_B_RVA: usize = 0x1c6b66d; // 0.5.5. taskType 5 팀키 접근(lea rdi,[rsi-0x158]) — 진입 시 rsi=레코드 base
@@ -2419,6 +2426,7 @@ fn tn_publish(seed: u64, ta: u64, tb: u64, sb: u64) {
 }
 // TNR 훅 설치(멱등·1회). 이 사이트들은 타 모드가 안 건드림 → 체인 대기 불요. 시그 불일치 = 영구 실패(2) + 1회 로그.
 fn install_tnr_hooks() {
+    if !TNR_ENABLED { return; } // ★긴급 OFF(08-13 크래시) — 미설치 시 프레임 스캔 폴백으로 v2.9.1 동작
     for (rva, sig, cap, flag, tag) in [
         (TNR_SITE_A_RVA, &TNR_SITE_A_SIG, tnr_cap_a as usize, &TNR_A_INSTALLED, "A"),
         (TNR_SITE_B_RVA, &TNR_SITE_B_SIG, tnr_cap_b as usize, &TNR_B_INSTALLED, "B"),
