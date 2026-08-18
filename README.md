@@ -3,8 +3,12 @@
 Teamfight Manager 2(팀파이트 매니저 2)를 Rust DLL로 확장하는 네이티브 모드 프로젝트입니다.
 **현재 대응 게임 버전 = 0.5.5** · 완성 모드는 [Releases](https://github.com/kikiki8710-cpu/tfm2mods/releases/latest)에서 zip으로 받을 수 있습니다.
 
-> 📚 게임 내부 구조 분석·모드별 작업 문서·리버스엔지니어링 지식베이스는 별도 저장소
-> [tfm2mods_knowledge_public](https://github.com/kikiki8710-cpu/tfm2mods_knowledge_public)에 있습니다.
+## 문서
+
+| 자료 | 내용 |
+|---|---|
+| 📚 [tfm2mods_knowledge_public](https://github.com/kikiki8710-cpu/tfm2mods_knowledge_public) | 리버스엔지니어링 정본·모드별 작업 문서(mods_report)·작업 메모리 — 지식베이스 공개판 |
+| 🎮 [노션 — 팀파매2 워크스페이스](https://app.notion.com/p/3a1d6f375d69803593d9db0f15844fff) | 정리판 문서 허브: 📖 정보정리(게임 내부 동작 01~02장) + 📚 모딩가이드(01~07장, 모드 사례연구·현행 모드 총람 포함) |
 
 ## 모드 목록 (0.5.5)
 
