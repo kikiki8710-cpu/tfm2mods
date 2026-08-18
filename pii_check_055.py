@@ -2,7 +2,7 @@
 """pii_check_055.py — 0.5.5 릴리스 zip 전수 PII 스캔.
 
 기존 `pii_check.py` 의 알려진 결함을 메운다:
-  ⚠ 그 스크립트는 **로컬 경로(C:\\Users\\dev)만** 검사해서 `mod.mod_info` 의
+  ⚠ 그 스크립트는 **로컬 사용자 경로만** 검사해서 `mod.mod_info` 의
     author 필드에 박힌 개인 핸들(kikiki8710)을 놓쳤다(2026-07-31 발각).
   ⟹ 여기서는 경로 + 개인 핸들 + 이메일 + 세이브 절대경로를 함께 본다.
      (gg 세트의 *_policy.tsv 주석에 유저 세이브 절대경로가 박혀 있던 전례가 있다.)
@@ -27,14 +27,18 @@ REL = (r"C:\Program Files (x86)\Steam\steamapps\common\Teamfight Manager2"
 #     - `refresh_meta_dashboard.ps1` 의 `Join-Path $env:USERPROFILE "AppData\Roaming\TeamSamoyed\..."`
 #       = 하드코딩 경로가 아니라 **환경변수 조립** (오히려 올바른 코드)
 #   ⟹ 이메일은 이 유저 것만, 세이브경로는 드라이브문자로 시작하는 절대경로만 잡는다.
+# 사용자명·이메일은 하드코딩하지 않고 환경에서 얻는다(공개 저장소 PII 방지).
+#   - 사용자명: %USERNAME% (검사 대상 = 이 머신에서 빌드된 산출물이므로 항상 일치)
+#   - 이메일:   %PII_EMAIL% 설정 시에만 검사(미설정이면 스킵)
+_USER = re.escape(os.environ.get("USERNAME", "").encode() or b"\x00nouser\x00")
+_EMAIL = re.escape(os.environ["PII_EMAIL"].encode()) if os.environ.get("PII_EMAIL") else None
 NEEDLES = [
-    ("로컬경로",   rb"C:\\Users\\dev"),
-    ("로컬경로",   rb"C:/Users/dev"),
+    ("로컬경로",   rb"C:\\Users\\" + _USER),
+    ("로컬경로",   rb"C:/Users/" + _USER),
     ("개인핸들",   rb"kikiki8710"),
-    ("이메일",     rb"user@example\.com"),
     ("세이브절대경로", rb"[A-Za-z]:\\Users\\[^\\\r\n\"]+\\AppData\\Roaming\\TeamSamoyed"),
-    ("유저명",     rb"\\dev\\"),
-]
+    ("유저명",     rb"\\" + _USER + rb"\\"),
+] + ([("이메일", _EMAIL)] if _EMAIL else [])
 
 # 서드파티 번들 런타임 — 우리 산출물이 아니라 upstream 배포본이라 저자 정보가 들어 있는 게 정상.
 SKIP_PATH_PARTS = ("/runtime/python/", "/licenses", "licenses.chromium")
