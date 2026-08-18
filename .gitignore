@@ -7,8 +7,9 @@
 # 1) 루트는 기본 전부 무시
 /*
 
-# 2) 문서 (현행 3종)
+# 2) 문서 (현행)
 !/.gitignore
+!/README.md
 !/MIGRATION.md
 !/MOD_REGISTRY.md
 !/MIGRATE_NEXT.md
