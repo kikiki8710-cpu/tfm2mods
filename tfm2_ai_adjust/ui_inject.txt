@@ -1,0 +1,7 @@
+# tfm2_ai_adjust UI 조각 — 개인전술 화면(strategy) 각 선수 행에 "AI" 버튼
+ui_inject/aiadj_p0.ui row0 end
+ui_inject/aiadj_p1.ui row1 end
+ui_inject/aiadj_p2.ui row2 end
+ui_inject/aiadj_p3.ui row3 end
+ui_inject/aiadj_p4.ui row4 end
+ui_inject/aiadj_modal.ui root end modal

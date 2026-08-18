@@ -1,0 +1,11 @@
+{
+  "mod_id": "tfm2_item_tactics",
+  "name": "tfm2_item_tactics",
+  "author": "local",
+  "version": "2.2.0",
+  "description": "개인전술 아이템 1~4칸 전부에 모드 아이템/바닐라 지정 가능(라이브 경기 빌드에 실제 주입, 아군팀만·모드 챔피언 포함). 아이템 칸 3↔4 토글(4items.cfg): 4칸=4번째 신경망 자동추천, 3칸=바닐라 3칸 지정. 0.5.0_3 대응.",
+  "dependencies": [
+    { "mod_id": "base", "version": ">=0.5.0,<0.6.0" }
+  ],
+  "last_updated": "2026-07-10"
+}

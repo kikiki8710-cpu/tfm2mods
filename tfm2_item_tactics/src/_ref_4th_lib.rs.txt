@@ -1,0 +1,659 @@
+//! tfm2_4items — 아이템 구매 3개 제한 → 4개 확장 (단독 테스트 모드).
+//!   0.4.14+핫픽스(buildid 23888546) 전용.
+//!   ① 바이트패치 2곳:
+//!      - 구매 스탯게이트: run_tick_ext(0x1e2f2a0) 내 `cmp [agent+0x3d0], 3` imm8 @0x1e32a85 → 4
+//!      - 생성 슬롯수: calculate_item_builds(0x1a32de0)이 beam_search에 넘기는 리터럴3 @0x1a32ff7 → 4
+//!        (참고: ②는 sim/predict용이라 LIVE athlete build엔 무영향 — 실측 확정. 무해하므로 유지.)
+//!   ② ★핵심: buy_item(0x2052ca0) 진입 트램폴린 훅에서 선수 build Vec을 3→4칸 확장(런타임 주입).
+//!      게임 3-캡 근원 = personal_tactics HashMap<String,[ItemBuildOverride;3]> 구조적 고정([_;3]),
+//!      데이터·imm 패치 불가(세이브 포맷 종속) → 하류의 athlete build Vec(동적)을 게임 __rust_realloc로 확장.
+//!      build = Vec<usize>{cap@+0x408, ptr@+0x410, len@+0x418}, 원소 8B. drop=dealloc(ptr,cap*8,8).
+//!      확장: realloc(ptr, 3*8, 8, 4*8) → cap/ptr/len 셋 다 4, [ptr+24]=4번째 카테고리값. (drop 안전.)
+//!      획득아이템(+0x3c8/+0x3e0/+0x3f0)은 owned 종속 = 구매 시 자연 성장, 안 건드림.
+//!   RE 근거 = memory tfm2-item-slot-count.md / reimpl-tracker [2026-07-04].
+//!   프레임워크 재사용: tfm2_ai_adjust install_detour (saved=push rcx/rdx/r8/r9/r10/r11 → r8=saved+0x18).
+use mod_api::*;
+use std::fs;
+use std::path::PathBuf;
+use std::sync::Mutex;
+use std::sync::atomic::{AtomicBool, Ordering};
+
+#[path = "ui_inject.rs"] mod uinj;   // 체이닝 로더훅 UI 수정(override 대체)
+#[path = "catalog.rs"] mod catalog;  // 모드템 카탈로그 + 최종템 판정 + 선택저장(item_tactics 이식)
+
+const MOD_ID: &str = "tfm2_4items";
+const LOG_ENABLED: bool = true;
+const NEW_CAP: u8 = 4;          // 3=바닐라 복원
+const PROBE_ON: bool = true;    // buy_item 훅 설치
+const INJECT_4TH: bool = true;  // true=선수 build Vec 3→4 realloc 주입 / false=관측만
+
+// build 원소값 실측 세트(5k+4 계열). 4번째는 기존 3칸에 없는 값 선택(중복=이미보유 판정 회피 테스트).
+const CAT_SET: [u64; 8] = [4, 9, 14, 19, 24, 29, 34, 39];
+const RVA_REALLOC: usize = 0x88c700; // __rust_realloc(rcx=ptr, rdx=old_size, r8=align, r9=new_size)->rax
+type ReallocFn = unsafe extern "C" fn(usize, usize, usize, usize) -> usize;
+
+// ── RVA (0.4.14+핫픽스) ──
+const RVA_BUY_ITEM: usize = 0x2052ca0;   // AgentVerHamster::buy_item (진입=push8, r8=athlete)
+// buy_item 진입 프롤로그(push r15/r14/r13/r12/rsi/rdi/rbp/rbx = 12B, 명령경계 정확)
+const BUY_PROLOGUE: [u8; 12] = [0x41,0x57, 0x41,0x56, 0x41,0x55, 0x41,0x54, 0x56, 0x57, 0x55, 0x53];
+
+// ★획득 vtable 타겟 프로브: buy_item 성공경로 mid-hook. 여기서 rbx=item registry, rax=idx-offset.
+//   element vtable = [rbx+rax+8], 획득 메서드 = [vtable+0x68] (call [rax+0x68] @0x2052d83).
+const ACQ_PROBE_ON: bool = false; // ⚠ 0x2052d77 mid-hook=루프 내부 inbound점프로 크래시 확정. HW BP로 대체 필요.
+const RVA_ACQ_HOOK: usize = 0x2052d77;
+// 0x2052d77 프롤로그: mov rcx,[rbx+rax](4) ; mov rax,[rbx+rax+8](5) ; mov rsi,rdx(3) = 12B
+const ACQ_PROLOGUE: [u8; 12] = [0x48,0x8b,0x0c,0x03, 0x48,0x8b,0x44,0x03,0x08, 0x48,0x89,0xd6];
+
+// ── UI: 경기중 player_info slot 아이콘 (0x5e3f70 아이콘함수) ──
+const RVA_SLOT_BOUND: usize = 0x5e6f60;  // cmp r14, 0x30 (=3슬롯) → 0x40 패치
+const RVA_SLOT_HELPER: usize = 0xbbbd60; // slot 경로 헬퍼(rcx=SRET, r8=len 11=blue/10=red) → full replace로 slot3 추가
+// slot 경로 문자열(정적=수명 무한). 노드검색이 내용비교라 게임 원본과 동일 내용이면 됨.
+const BLUE_SLOTS: [&[u8]; 4] = [b"blue_player.slot0", b"blue_player.slot1", b"blue_player.slot2", b"blue_player.slot3"];
+const RED_SLOTS: [&[u8]; 4]  = [b"red_player.slot0",  b"red_player.slot1",  b"red_player.slot2",  b"red_player.slot3"];
+
+struct PatchSite {
+    name: &'static str,
+    rva: usize,
+    sig: &'static [u8],
+    imm_off: usize,
+    new: u8,   // 패치할 값
+}
+const SITES: [PatchSite; 6] = [
+    PatchSite { name: "buy_cap",     rva: 0x1e32a7e, sig: &[0x48,0x83,0xb8,0xd0,0x03,0x00,0x00,0x03], imm_off: 7, new: 4 },
+    PatchSite { name: "build_len",   rva: 0x1a32ff2, sig: &[0x48,0xc7,0x44,0x24,0x40,0x03,0x00,0x00,0x00], imm_off: 5, new: 4 },
+    // UI slot 아이콘 루프 상한 4개(blue/red × 2, 전부 cmp reg,0x30 → 0x40). 버퍼 [rbp+0x7a70] 공유.
+    PatchSite { name: "slot_bound1", rva: 0x5e6f60, sig: &[0x49,0x83,0xfe,0x30], imm_off: 3, new: 0x40 },
+    PatchSite { name: "slot_bound2", rva: 0x5e72c0, sig: &[0x49,0x83,0xff,0x30], imm_off: 3, new: 0x40 }, // cmp r15
+    PatchSite { name: "slot_bound3", rva: 0x5e7950, sig: &[0x49,0x83,0xfe,0x30], imm_off: 3, new: 0x40 },
+    PatchSite { name: "slot_bound4", rva: 0x5e7cb0, sig: &[0x49,0x83,0xfe,0x30], imm_off: 3, new: 0x40 },
+];
+
+// ── WinAPI ──
+type HMODULE = isize; type DWORD = u32; type BOOL = i32;
+#[link(name = "kernel32")]
+extern "system" {
+    fn GetModuleHandleW(name: *const u16) -> HMODULE;
+    fn GetModuleHandleExW(f: DWORD, name: *const u16, h: *mut HMODULE) -> BOOL;
+    fn GetModuleFileNameW(h: HMODULE, buf: *mut u16, n: DWORD) -> DWORD;
+    fn VirtualProtect(addr: *mut core::ffi::c_void, size: usize, new: u32, old: *mut u32) -> BOOL;
+    fn VirtualAlloc(addr: usize, size: usize, typ: u32, protect: u32) -> usize;
+    fn VirtualQuery(addr: *const core::ffi::c_void, buf: *mut MemBasicInfo, len: usize) -> usize;
+    fn FlushInstructionCache(proc: HMODULE, addr: *const core::ffi::c_void, size: usize) -> BOOL;
+    fn GetCurrentProcess() -> HMODULE;
+}
+const PAGE_EXECUTE_READWRITE: u32 = 0x40;
+
+#[repr(C)]
+#[derive(Default)]
+struct MemBasicInfo {
+    base: usize, alloc_base: usize, alloc_protect: u32, _pad0: u32,
+    region_size: usize, state: u32, protect: u32, mtype: u32, _pad1: u32,
+}
+unsafe fn readable(addr: usize, len: usize) -> bool {
+    if addr < 0x10000 || len == 0 { return false; }
+    let mut mbi = MemBasicInfo::default();
+    if VirtualQuery(addr as *const _, &mut mbi, core::mem::size_of::<MemBasicInfo>()) == 0 { return false; }
+    const MEM_COMMIT: u32 = 0x1000;
+    const READABLE: u32 = 0x02 | 0x04 | 0x20 | 0x40;
+    const NOACCESS_GUARD: u32 = 0x01 | 0x100;
+    if mbi.state != MEM_COMMIT { return false; }
+    if mbi.protect & NOACCESS_GUARD != 0 { return false; }
+    if mbi.protect & READABLE == 0 { return false; }
+    addr + len <= mbi.base + mbi.region_size
+}
+#[inline] unsafe fn rd_u8(p: usize) -> u8 { std::ptr::read_unaligned(p as *const u8) }
+#[inline] unsafe fn rd_u64(p: usize) -> u64 { std::ptr::read_unaligned(p as *const u64) }
+#[inline] unsafe fn wr_u64(p: usize, v: u64) { std::ptr::write_unaligned(p as *mut u64, v); }
+unsafe fn writable(addr: usize, len: usize) -> bool {
+    if addr < 0x10000 || len == 0 { return false; }
+    let mut mbi = MemBasicInfo::default();
+    if VirtualQuery(addr as *const _, &mut mbi, core::mem::size_of::<MemBasicInfo>()) == 0 { return false; }
+    const MEM_COMMIT: u32 = 0x1000;
+    const WRITABLE: u32 = 0x04 | 0x08 | 0x40 | 0x80;
+    if mbi.state != MEM_COMMIT { return false; }
+    if mbi.protect & 0x100 != 0 { return false; }
+    if mbi.protect & WRITABLE == 0 { return false; }
+    addr + len <= mbi.base + mbi.region_size
+}
+
+fn exe_base() -> usize { unsafe { GetModuleHandleW(std::ptr::null()) as usize } }
+
+fn dll_path() -> Option<PathBuf> {
+    unsafe {
+        let mut h: HMODULE = 0;
+        if GetModuleHandleExW(0x4 | 0x2, dll_path as *const () as *const u16, &mut h) == 0 || h == 0 { return None; }
+        let mut buf = [0u16; 4096];
+        let len = GetModuleFileNameW(h, buf.as_mut_ptr(), buf.len() as DWORD);
+        if len == 0 { return None; }
+        Some(PathBuf::from(String::from_utf16_lossy(&buf[..len as usize])))
+    }
+}
+fn log_line(fname: &str, content: &str) {
+    if !LOG_ENABLED { return; }
+    use std::io::Write;
+    let Some(p) = dll_path().and_then(|p| p.parent().map(|d| d.join(fname))) else { return; };
+    if let Ok(mut f) = fs::OpenOptions::new().create(true).append(true).open(p) {
+        let _ = writeln!(f, "{}", content);
+    }
+}
+fn hex(bytes: &[u8]) -> String {
+    bytes.iter().map(|b| format!("{:02x}", b)).collect::<Vec<_>>().join(" ")
+}
+
+// ── 바이트패치: 시그니처 일치 확인 후 imm 1바이트 교체. 이미 NEW_CAP이면 skip(재진입 안전). ──
+unsafe fn apply(site: &PatchSite, base: usize) -> String {
+    let addr = base + site.rva;
+    if !readable(addr, site.sig.len()) { return format!("{}: unreadable", site.name); }
+    let cur = std::slice::from_raw_parts(addr as *const u8, site.sig.len());
+    let mut expect_patched = site.sig.to_vec();
+    expect_patched[site.imm_off] = site.new;
+    if cur == &expect_patched[..] { return format!("{}: already {} (skip)", site.name, site.new); }
+    if cur != site.sig {
+        return format!("{}: SIG MISMATCH @rva 0x{:x} found[{}] expect[{}] → 패치안함(RVA 재도출 필요)",
+            site.name, site.rva, hex(cur), hex(site.sig));
+    }
+    let imm_addr = (addr + site.imm_off) as *mut u8;
+    let mut old: u32 = 0;
+    if VirtualProtect(imm_addr as *mut _, 1, PAGE_EXECUTE_READWRITE, &mut old) == 0 {
+        return format!("{}: VirtualProtect FAIL", site.name);
+    }
+    *imm_addr = site.new;
+    let mut _o: u32 = 0;
+    VirtualProtect(imm_addr as *mut _, 1, old, &mut _o);
+    FlushInstructionCache(GetCurrentProcess(), imm_addr as *const _, 1);
+    format!("{}: PATCHED rva 0x{:x} {:#x}->{:#x}", site.name, site.rva + site.imm_off, site.sig[site.imm_off], site.new)
+}
+
+// ── ★buy_item 진입 훅: 선수 build Vec을 3→4칸 realloc 주입 ──
+// saved 레이아웃(install_detour: push rcx rdx r8 r9 r10 r11, 스택 역순):
+//   add(0)=r11 add(1)=r10 add(2)=r9 add(3)=r8 add(4)=rdx add(5)=rcx → r8=athlete=add(3)
+// build = Vec<usize>{ cap@+0x408, ptr@+0x410, len@+0x418 }, 원소 8B. drop=dealloc(ptr,cap*8,8).
+static INJECTED: Mutex<Vec<u64>> = Mutex::new(Vec::new());        // build 확장한 athlete(로그 1회용)
+static HANDLED_SEEN: Mutex<Vec<u64>> = Mutex::new(Vec::new());    // 4번째 반환한 athlete(로그 1회용)
+static MAX_OWNED: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(0);
+static HOOK_INSTALLED: AtomicBool = AtomicBool::new(false);
+static ACQ_SEEN: Mutex<Vec<u64>> = Mutex::new(Vec::new());
+static CHAMP_SEEN: Mutex<Vec<u64>> = Mutex::new(Vec::new()); // athlete+0x250 챔프이름 프로브 로그(1회용)
+
+// mid-hook @0x2052d77: element vtable=[rbx+rax+8], 획득 메서드 RVA=[vtable+0x68]-base 로깅.
+// install_detour_d saved: rbx@+0x30=add(6), rax@+0x50=add(10).
+unsafe extern "C" fn acquire_probe(saved: *const u64, _entry_rsp: usize) {
+    let _ = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+        if saved.is_null() { return; }
+        let rbx = *saved.add(6);
+        let rax = *saved.add(10);
+        let elem = rbx.wrapping_add(rax) as usize;
+        if !readable(elem, 16) { return; }
+        let vtable = rd_u64(elem + 8) as usize;
+        if !readable(vtable + 0x70, 8) { return; }
+        let target = rd_u64(vtable + 0x68);
+        let base = exe_base();
+        let rva = target.wrapping_sub(base as u64);
+        let mut seen = ACQ_SEEN.lock().unwrap_or_else(|e| e.into_inner());
+        if seen.len() < 40 && !seen.iter().any(|x| *x == rva) {
+            seen.push(rva);
+            drop(seen);
+            log_line("4items_probe.txt",
+                &format!("[acq] elem=0x{:x} vtable=0x{:x} +0x68=RVA 0x{:x}", elem, vtable, rva));
+        }
+    }));
+}
+
+// ── ★buy_item(0x2052ca0) replace-detour cap_fn ──
+//   saved 레이아웃(커스텀 replace 스텁: push rax r11 r10 r9 r8 rdx rcx):
+//     add(0)=rcx add(1)=rdx add(2)=r8(athlete) add(3)=r9 add(4)=r10(rsp_entry) add(5)=r11 add(6)=rax
+//   반환: 1=handled(원본skip, rax/rdx는 saved+0x30/+8에 쓴 값으로 caller에 반환) / 0=passthrough(원본 실행).
+//   동작: ① build.len==3이면 게임 realloc로 4칸 확장(run_tick이 owned=3 시도하게) ② owned==3이면
+//         ItemInfo[2].vtable로 registry 역매칭→그 아이템 인덱스를 rdx, rax=1 반환(4번째=3번째 복제).
+//         run_tick_ext가 그 rdx로 clone+push+owned++ 수행.
+unsafe extern "C" fn buy_replace(saved: *mut u64, rsp_entry: usize) -> u64 {
+    let r = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| -> u64 {
+        if saved.is_null() { return 0; }
+        if ITEM_MODE.load(Ordering::Relaxed) != 4 { return 0; } // 3칸 모드=바닐라 passthrough
+        let athlete = *saved.add(2) as usize; // r8 = 3rd arg
+        if athlete < 0x10000 || !readable(athlete, 0x420) { return 0; }
+        let mut build_len = rd_u64(athlete + 0x418);
+        let build_cap = rd_u64(athlete + 0x408);
+        let owned = rd_u64(athlete + 0x3d0);
+        // owned 최고치 추적(4번째 획득 확인용): owned=4 뜨면 성공.
+        if owned <= 32 {
+            let prev = MAX_OWNED.load(Ordering::Relaxed);
+            if owned > prev {
+                MAX_OWNED.store(owned, Ordering::Relaxed);
+                log_line("4items_probe.txt", &format!("[owned] 최고 보유개수 = {}", owned));
+            }
+        }
+        // ★ athlete→champion 프로브: 전투 entity의 champion_name(+0x250 String{ptr,len@+0x258})이
+        //   buy_item r8 athlete(AgentVerHamster)에도 같은 오프셋으로 있는지 런타임 확인.
+        //   유효 챔프이름 나오면 → SEL_BY_CHAMP 매핑 가능(4번째 모드템 선택의 열쇠).
+        {
+            let cptr = rd_u64(athlete + 0x250) as usize;
+            let clen = rd_u64(athlete + 0x258) as usize;
+            if cptr >= 0x10000 && clen > 0 && clen <= 48 && readable(cptr, clen) {
+                let bytes = std::slice::from_raw_parts(cptr as *const u8, clen);
+                let name = String::from_utf8_lossy(bytes).into_owned();
+                let printable = name.chars().all(|c| c.is_ascii_graphic() || c == '_');
+                let mut cs = CHAMP_SEEN.lock().unwrap_or_else(|e| e.into_inner());
+                if cs.len() < 40 && !cs.contains(&(athlete as u64)) {
+                    cs.push(athlete as u64); drop(cs);
+                    log_line("4items_champ.txt", &format!("[champ] ath=0x{:x} +0x250 len={} printable={} name={:?}", athlete, clen, printable, name));
+                }
+            } else {
+                let mut cs = CHAMP_SEEN.lock().unwrap_or_else(|e| e.into_inner());
+                if cs.len() < 40 && !cs.contains(&(athlete as u64)) {
+                    cs.push(athlete as u64); drop(cs);
+                    log_line("4items_champ.txt", &format!("[champ] ath=0x{:x} +0x250 INVALID (cptr=0x{:x} clen={})", athlete, cptr, clen));
+                }
+            }
+        }
+        // ① build Vec 3→4 확장(게임 realloc). build[3] 값은 미사용(우리가 rdx 직접 계산) → build[0] 복제.
+        if INJECT_4TH && build_len == 3 && build_cap == 3 {
+            let ptr = rd_u64(athlete + 0x410);
+            if ptr >= 0x10000 && readable(ptr as usize, 24) && writable(athlete + 0x408, 0x18) {
+                let realloc: ReallocFn = core::mem::transmute(exe_base() + RVA_REALLOC);
+                let new_ptr = realloc(ptr as usize, 3 * 8, 8, 4 * 8);
+                if new_ptr >= 0x10000 && writable(new_ptr, 4 * 8) {
+                    wr_u64(new_ptr + 24, rd_u64(ptr as usize)); // build[3]=build[0] (미사용)
+                    wr_u64(athlete + 0x410, new_ptr as u64);
+                    wr_u64(athlete + 0x408, 4);
+                    wr_u64(athlete + 0x418, 4);
+                    build_len = 4;
+                    let mut inj = INJECTED.lock().unwrap_or_else(|e| e.into_inner());
+                    if inj.len() < 100 && !inj.contains(&(athlete as u64)) {
+                        inj.push(athlete as u64); drop(inj);
+                        log_line("4items_probe.txt", &format!("[inject] ath=0x{:x} build 3->4 (ptr 0x{:x}->0x{:x})", athlete, ptr, new_ptr));
+                    }
+                }
+            }
+        }
+        // ② owned==3만 우리 로직(4번째 획득), 그외 passthrough.
+        if owned != 3 || build_len < 4 { return 0; }
+        // ItemInfo[2].vtable 획득
+        let iiarr = rd_u64(athlete + 0x3c8) as usize;
+        if iiarr < 0x10000 || !readable(iiarr, 3 * 16) { return 0; }
+        let want_vt = rd_u64(iiarr + 2 * 16 + 8);
+        if want_vt < 0x10000 { return 0; }
+        // registry (6th arg = [rsp_entry+0x30])
+        let arg6 = rd_u64(rsp_entry + 0x30) as usize;
+        if arg6 < 0x10000 || !readable(arg6, 0x28) { return 0; }
+        let reg = rd_u64(arg6 + 0x20) as usize;
+        if reg < 0x10000 || !readable(reg, 0x18) { return 0; }
+        let item_arr = rd_u64(reg + 8) as usize;
+        let item_count = rd_u64(reg + 0x10);
+        if item_arr < 0x10000 || item_count == 0 || item_count > 100000 { return 0; }
+        if !readable(item_arr, (item_count as usize) * 16) { return 0; }
+        // vtable 역매칭 → 4번째 아이템 인덱스
+        let mut found: Option<u64> = None;
+        let mut i = 0u64;
+        while i < item_count {
+            if rd_u64(item_arr + (i as usize) * 16 + 8) == want_vt { found = Some(i); break; }
+            i += 1;
+        }
+        let rdx = match found { Some(x) if x < item_count => x, _ => return 0 };
+        // 성공 반환: rax=1(saved+0x30), rdx=rdx(saved+8). run_tick이 item_arr[rdx]를 4번째로 push+owned++.
+        *saved.add(1) = rdx;   // 최종 rdx
+        *saved.add(6) = 1;     // 최종 rax
+        let mut inj = HANDLED_SEEN.lock().unwrap_or_else(|e| e.into_inner());
+        if inj.len() < 100 && !inj.contains(&(athlete as u64)) {
+            inj.push(athlete as u64); drop(inj);
+            log_line("4items_probe.txt", &format!("[4th] ath=0x{:x} rdx={} (item_count={}) vt=0x{:x}", athlete, rdx, item_count, want_vt));
+        }
+        1
+    }));
+    r.unwrap_or(0)
+}
+
+// ── replace-detour: owned==3만 (rax,rdx) 세팅+ret, 그외 원본 passthrough ──
+// 스텁: mov r10,rsp; push rax r11 r10 r9 r8 rdx rcx; cap_fn(rcx=saved,rdx=rsp_entry);
+//   rax==1(handled)→pop(rdx/rax=우리값) ret / rax==0→pop(원본복원) 원본프롤로그 jmp fn+12.
+unsafe fn install_replace_buy(rva: usize, orig_len: usize, cap_fn: usize) -> Result<usize, &'static str> {
+    let mbase = exe_base();
+    if mbase == 0 { return Err("module 0"); }
+    let fn_addr = mbase + rva;
+    if !readable(fn_addr, orig_len + 4) { return Err("fn unreadable"); }
+    const MEM_CR: u32 = 0x1000 | 0x2000; const RWX: u32 = 0x40;
+    let stub = VirtualAlloc(0, 256, MEM_CR, RWX);
+    if stub == 0 { return Err("VirtualAlloc"); }
+    let ret_addr = fn_addr + orig_len; // fn+12 (원본 sub rsp,0x38부터)
+    let mut s: Vec<u8> = Vec::new();
+    s.extend_from_slice(&[0x49,0x89,0xe2]);       // mov r10, rsp (rsp_entry)
+    // push rax r11 r10 r9 r8 rdx rcx (rcx 마지막=saved+0). saved: +0=rcx +8=rdx +0x10=r8 +0x18=r9 +0x20=r10 +0x28=r11 +0x30=rax
+    s.extend_from_slice(&[0x50, 0x41,0x53, 0x41,0x52, 0x41,0x51, 0x41,0x50, 0x52, 0x51]);
+    s.extend_from_slice(&[0x48,0x89,0xe1]);       // mov rcx, rsp (saved=arg1)
+    s.extend_from_slice(&[0x4c,0x89,0xd2]);       // mov rdx, r10 (rsp_entry=arg2)
+    s.extend_from_slice(&[0x48,0x83,0xec,0x20]);  // sub rsp,0x20 (shadow, 7push=aligned)
+    s.extend_from_slice(&[0x48,0xb8]); s.extend_from_slice(&cap_fn.to_le_bytes());
+    s.extend_from_slice(&[0xff,0xd0]);            // call rax
+    s.extend_from_slice(&[0x48,0x83,0xc4,0x20]);  // add rsp,0x20
+    s.extend_from_slice(&[0x48,0x85,0xc0]);       // test rax,rax
+    s.extend_from_slice(&[0x74,0x0c]);            // jz +0x0c → PASSTHROUGH (HANDLED 12B 스킵)
+    // ── HANDLED(12B): pop rcx rdx(우리값) r8 r9 r10 r11 rax(우리값) → ret ──
+    s.extend_from_slice(&[0x59, 0x5a, 0x41,0x58, 0x41,0x59, 0x41,0x5a, 0x41,0x5b, 0x58, 0xc3]);
+    // ── PASSTHROUGH: pop 원본복원 → 원본 프롤로그 → jmp fn+12 ──
+    s.extend_from_slice(&[0x59, 0x5a, 0x41,0x58, 0x41,0x59, 0x41,0x5a, 0x41,0x5b, 0x58]); // pop rcx rdx r8 r9 r10 r11 rax
+    let mut orig = vec![0u8; orig_len];
+    core::ptr::copy_nonoverlapping(fn_addr as *const u8, orig.as_mut_ptr(), orig_len);
+    s.extend_from_slice(&orig);
+    s.extend_from_slice(&[0xff,0x25,0x00,0x00,0x00,0x00]); s.extend_from_slice(&ret_addr.to_le_bytes()); // jmp [rip+0]; .quad fn+12
+    core::ptr::copy_nonoverlapping(s.as_ptr(), stub as *mut u8, s.len());
+    let mut patch = vec![0x90u8; orig_len];
+    patch[0]=0x48; patch[1]=0xb8; patch[2..10].copy_from_slice(&stub.to_le_bytes()); patch[10]=0xff; patch[11]=0xe0;
+    let mut old: u32 = 0;
+    if VirtualProtect(fn_addr as *mut _, orig_len, RWX, &mut old) == 0 { return Err("VirtualProtect"); }
+    core::ptr::copy_nonoverlapping(patch.as_ptr(), fn_addr as *mut u8, orig_len);
+    VirtualProtect(fn_addr as *mut _, orig_len, old, &mut old);
+    FlushInstructionCache(GetCurrentProcess(), fn_addr as *const _, orig_len);
+    Ok(stub)
+}
+
+// tfm2_ai_adjust install_detour 포팅 (saved: push rcx rdx r8 r9 r10 r11 → +0=rcx +8=rdx +0x10=r8 ...)
+unsafe fn install_detour(rva: usize, orig_len: usize, cap_fn: usize) -> Result<usize, &'static str> {
+    let mbase = exe_base();
+    if mbase == 0 { return Err("module 0"); }
+    let fn_addr = mbase + rva;
+    if !readable(fn_addr, orig_len + 4) { return Err("fn unreadable"); }
+    const MEM_CR: u32 = 0x1000 | 0x2000; const RWX: u32 = 0x40;
+    let stub = VirtualAlloc(0, 256, MEM_CR, RWX);
+    if stub == 0 { return Err("VirtualAlloc"); }
+    let ret_addr = fn_addr + orig_len;
+    let mut s: Vec<u8> = Vec::new();
+    s.extend_from_slice(&[0x49,0x89,0xe2]);        // mov r10, rsp
+    s.extend_from_slice(&[0x51,0x52,0x41,0x50,0x41,0x51,0x41,0x52,0x41,0x53]); // push rcx rdx r8 r9 r10 r11
+    s.extend_from_slice(&[0x48,0x89,0xe1]);        // mov rcx, rsp (saved)
+    s.extend_from_slice(&[0x4c,0x89,0xd2]);        // mov rdx, r10 (entry_rsp)
+    s.extend_from_slice(&[0x48,0x83,0xec,0x28]);   // sub rsp,0x28
+    s.extend_from_slice(&[0x48,0xb8]); s.extend_from_slice(&cap_fn.to_le_bytes()); // movabs rax,cap_fn
+    s.extend_from_slice(&[0xff,0xd0]);             // call rax
+    s.extend_from_slice(&[0x48,0x83,0xc4,0x28]);   // add rsp,0x28
+    s.extend_from_slice(&[0x41,0x5b,0x41,0x5a,0x41,0x59,0x41,0x58,0x5a,0x59]); // pop r11 r10 r9 r8 rdx rcx
+    let mut orig = vec![0u8; orig_len];
+    core::ptr::copy_nonoverlapping(fn_addr as *const u8, orig.as_mut_ptr(), orig_len);
+    s.extend_from_slice(&orig);
+    s.extend_from_slice(&[0x48,0xb8]); s.extend_from_slice(&ret_addr.to_le_bytes());
+    s.extend_from_slice(&[0xff,0xe0]);             // jmp rax
+    core::ptr::copy_nonoverlapping(s.as_ptr(), stub as *mut u8, s.len());
+    let mut patch = vec![0x90u8; orig_len];
+    patch[0]=0x48; patch[1]=0xb8; patch[2..10].copy_from_slice(&stub.to_le_bytes()); patch[10]=0xff; patch[11]=0xe0;
+    let mut old: u32 = 0;
+    if VirtualProtect(fn_addr as *mut _, orig_len, RWX, &mut old) == 0 { return Err("VirtualProtect"); }
+    core::ptr::copy_nonoverlapping(patch.as_ptr(), fn_addr as *mut u8, orig_len);
+    VirtualProtect(fn_addr as *mut _, orig_len, old, &mut old);
+    FlushInstructionCache(GetCurrentProcess(), fn_addr as *const _, orig_len);
+    Ok(stub)
+}
+
+// ── install_detour_d 포팅(mid-func용, 정렬보정 + rax/rbx 저장) ──
+// saved: rcx@0 rdx@8 r8@0x10 r9@0x18 r10@0x20 r11@0x28 rbx@0x30 rbp@0x38 r12@0x40 r13@0x48 rax@0x50
+unsafe fn install_detour_d(rva: usize, orig_len: usize, cap_fn: usize) -> Result<usize, &'static str> {
+    let mbase = exe_base();
+    if mbase == 0 { return Err("module 0"); }
+    let fn_addr = mbase + rva;
+    if !readable(fn_addr, orig_len + 4) { return Err("fn unreadable"); }
+    const MEM_CR: u32 = 0x1000 | 0x2000; const RWX: u32 = 0x40;
+    let stub = VirtualAlloc(0, 256, MEM_CR, RWX);
+    if stub == 0 { return Err("VirtualAlloc"); }
+    let ret_addr = fn_addr + orig_len;
+    let mut s: Vec<u8> = Vec::new();
+    s.extend_from_slice(&[0x49,0x89,0xe2]);   // mov r10, rsp
+    // push rax r13 r12 rbp rbx r11 r10 r9 r8 rdx rcx
+    s.extend_from_slice(&[0x50, 0x41,0x55, 0x41,0x54, 0x55, 0x53, 0x41,0x53, 0x41,0x52, 0x41,0x51, 0x41,0x50, 0x52, 0x51]);
+    s.extend_from_slice(&[0x48,0x89,0xe1]);   // mov rcx, rsp (saved)
+    s.extend_from_slice(&[0x4c,0x89,0xd2]);   // mov rdx, r10 (entry_rsp)
+    s.extend_from_slice(&[0x48,0x89,0xe3]);   // mov rbx, rsp (정렬복원 홀더)
+    s.extend_from_slice(&[0x48,0x83,0xe4,0xf0]); // and rsp,-16
+    s.extend_from_slice(&[0x48,0x83,0xec,0x20]); // sub rsp,0x20
+    s.extend_from_slice(&[0x48,0xb8]); s.extend_from_slice(&cap_fn.to_le_bytes());
+    s.extend_from_slice(&[0xff,0xd0]);        // call rax
+    s.extend_from_slice(&[0x48,0x89,0xdc]);   // mov rsp, rbx
+    // pop rcx rdx r8 r9 r10 r11 rbx rbp r12 r13 rax
+    s.extend_from_slice(&[0x59, 0x5a, 0x41,0x58, 0x41,0x59, 0x41,0x5a, 0x41,0x5b, 0x5b, 0x5d, 0x41,0x5c, 0x41,0x5d, 0x58]);
+    let mut orig = vec![0u8; orig_len];
+    core::ptr::copy_nonoverlapping(fn_addr as *const u8, orig.as_mut_ptr(), orig_len);
+    s.extend_from_slice(&orig);
+    s.extend_from_slice(&[0xff,0x25,0x00,0x00,0x00,0x00]); s.extend_from_slice(&ret_addr.to_le_bytes()); // jmp [rip+0]; .quad
+    core::ptr::copy_nonoverlapping(s.as_ptr(), stub as *mut u8, s.len());
+    let mut patch = vec![0x90u8; orig_len];
+    patch[0]=0x48; patch[1]=0xb8; patch[2..10].copy_from_slice(&stub.to_le_bytes()); patch[10]=0xff; patch[11]=0xe0;
+    let mut old: u32 = 0;
+    if VirtualProtect(fn_addr as *mut _, orig_len, RWX, &mut old) == 0 { return Err("VirtualProtect"); }
+    core::ptr::copy_nonoverlapping(patch.as_ptr(), fn_addr as *mut u8, orig_len);
+    VirtualProtect(fn_addr as *mut _, orig_len, old, &mut old);
+    FlushInstructionCache(GetCurrentProcess(), fn_addr as *const _, orig_len);
+    Ok(stub)
+}
+
+// ── UI: slot 경로 헬퍼 0xbbbd60 full-replace cap_fn ──
+// 원본: rcx=SRET버퍼, rdx=str_ptr, r8=len(11=blue/10=red) → [rcx+0/0x10/0x20]=slot0/1/2 경로{ptr,len}, rax=rcx.
+// 대체: slot0/1/2/3 4쌍 기입([rcx+0x30]=slot3, 버퍼 여백 확정 안전). len!=11&&!=10이면 미기입(player_info 전용이라 무발생).
+unsafe extern "C" fn fill_slots(buf: *mut u64, len: u64) -> *mut u64 {
+    let _ = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+        if buf.is_null() { return; }
+        let slots: &[&[u8]; 4] = if len == 11 { &BLUE_SLOTS } else if len == 10 { &RED_SLOTS } else { return; };
+        for i in 0..4 {
+            *buf.add(i * 2)     = slots[i].as_ptr() as u64; // ptr
+            *buf.add(i * 2 + 1) = slots[i].len() as u64;    // len
+        }
+    }));
+    buf
+}
+
+// 헬퍼 0xbbbd60 진입을 stub으로 대체(원본 미실행). stub: sub rsp,0x28; rdx=r8(len); call fill_slots(rcx=buf); add rsp; ret.
+unsafe fn install_helper_replace(rva: usize, cap_fn: usize) -> Result<usize, &'static str> {
+    let mbase = exe_base();
+    if mbase == 0 { return Err("module 0"); }
+    let fn_addr = mbase + rva;
+    if !readable(fn_addr, 16) { return Err("fn unreadable"); }
+    const MEM_CR: u32 = 0x1000 | 0x2000; const RWX: u32 = 0x40;
+    let stub = VirtualAlloc(0, 64, MEM_CR, RWX);
+    if stub == 0 { return Err("VirtualAlloc"); }
+    let mut s: Vec<u8> = Vec::new();
+    s.extend_from_slice(&[0x48,0x83,0xec,0x28]);   // sub rsp,0x28 (진입 rsp≡8 → 0, call정렬)
+    s.extend_from_slice(&[0x4c,0x89,0xc2]);        // mov rdx, r8 (arg2=len)
+    s.extend_from_slice(&[0x48,0xb8]); s.extend_from_slice(&cap_fn.to_le_bytes()); // movabs rax, fill_slots
+    s.extend_from_slice(&[0xff,0xd0]);             // call rax (rcx=buf 유지=arg1, rax=buf 반환)
+    s.extend_from_slice(&[0x48,0x83,0xc4,0x28]);   // add rsp,0x28
+    s.extend_from_slice(&[0xc3]);                  // ret (rax=buf)
+    core::ptr::copy_nonoverlapping(s.as_ptr(), stub as *mut u8, s.len());
+    let mut patch = [0u8; 12];
+    patch[0]=0x48; patch[1]=0xb8; patch[2..10].copy_from_slice(&stub.to_le_bytes()); patch[10]=0xff; patch[11]=0xe0;
+    let mut old: u32 = 0;
+    if VirtualProtect(fn_addr as *mut _, 12, RWX, &mut old) == 0 { return Err("VirtualProtect"); }
+    core::ptr::copy_nonoverlapping(patch.as_ptr(), fn_addr as *mut u8, 12);
+    VirtualProtect(fn_addr as *mut _, 12, old, &mut old);
+    FlushInstructionCache(GetCurrentProcess(), fn_addr as *const _, 12);
+    Ok(stub)
+}
+
+// 매 init 상태 재조정: 이미 우리 훅(0x48)이면 skip, 원본 프롤로그면 (재)설치.
+unsafe fn ensure_hook(base: usize) -> String {
+    if !PROBE_ON { return "probe off".into(); }
+    let fn_addr = base + RVA_BUY_ITEM;
+    if !readable(fn_addr, 16) { return "buy_item unreadable".into(); }
+    let b0 = rd_u8(fn_addr);
+    if b0 == 0x48 {
+        HOOK_INSTALLED.store(true, Ordering::Relaxed);
+        return "already hooked (skip)".into();
+    }
+    let cur = std::slice::from_raw_parts(fn_addr as *const u8, 12);
+    if cur != &BUY_PROLOGUE[..] {
+        return format!("prologue mismatch found[{}] → 훅 안함(RVA 재도출 필요)", hex(cur));
+    }
+    let r1 = match install_replace_buy(RVA_BUY_ITEM, 12, buy_replace as usize) {
+        Ok(stub) => { HOOK_INSTALLED.store(true, Ordering::Relaxed); format!("buy_item replace stub=0x{:x}", stub) }
+        Err(e) => format!("buy_item replace FAIL: {}", e),
+    };
+    // 획득 vtable 프로브 mid-hook
+    let r2 = if ACQ_PROBE_ON {
+        let acq = base + RVA_ACQ_HOOK;
+        if !readable(acq, 16) { "acq unreadable".into() }
+        else if rd_u8(acq) == 0x48 && rd_u8(acq + 1) == 0xb8 { "acq already hooked".into() }
+        else {
+            let cur = std::slice::from_raw_parts(acq as *const u8, 12);
+            if cur != &ACQ_PROLOGUE[..] { format!("acq prologue mismatch [{}]", hex(cur)) }
+            else {
+                match install_detour_d(RVA_ACQ_HOOK, 12, acquire_probe as usize) {
+                    Ok(stub) => format!("acq hook stub=0x{:x}", stub),
+                    Err(e) => format!("acq hook FAIL: {}", e),
+                }
+            }
+        }
+    } else { "acq off".into() };
+    // ── UI: slot 경로 헬퍼 0xbbbd60 full-replace (경기중 slot3 아이콘 표시) ──
+    let r3 = {
+        let hp = base + RVA_SLOT_HELPER;
+        if !readable(hp, 12) { "helper unreadable".into() }
+        else if rd_u8(hp) == 0x48 && rd_u8(hp + 1) == 0xb8 { "helper already replaced".into() }
+        else if rd_u8(hp) != 0x48 || rd_u8(hp + 1) != 0x83 { // 원본 sub rsp,0x28 = 48 83 ec 28
+            format!("helper prologue mismatch [{:02x} {:02x}]", rd_u8(hp), rd_u8(hp + 1))
+        } else {
+            match install_helper_replace(RVA_SLOT_HELPER, fill_slots as usize) {
+                Ok(stub) => format!("slot helper replaced stub=0x{:x}", stub),
+                Err(e) => format!("slot helper FAIL: {}", e),
+            }
+        }
+    };
+    format!("{} | {} | {}", r1, r2, r3)
+}
+
+// ── 개인전술 4번째 드롭다운(item3) 제어: 옵션 채우기 + 선택 읽기 ──
+const DD_SETOPT_RVA: usize = 0x218a5f0; // 0.4.14 옵션 set (rcx=base, rdx=sel, r8=[cap,ptr,len])
+const DD_SELECTED_OFF: usize = 0x1788;  // runner_base + 현재선택 idx(u64), 0.4.14 불변
+// 옵션(index: 0=선수맡김, 1~6=카테고리). item0/1/2와 동일 순서.
+const DD_OPTS: [&str; 7] = ["선수에게 맡김", "공격력", "주문력", "공격 속도", "방어력", "마법 저항력", "체력"];
+// item3 선택 저장(행 인덱스 0~4). 0=선수맡김(신경망), 1~6=카테고리.
+static ITEM3_SEL: [std::sync::atomic::AtomicU64; 5] = [const { std::sync::atomic::AtomicU64::new(0) }; 5];
+static DD_POPULATED: AtomicBool = AtomicBool::new(false);
+static DD_OPT_COUNT: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(0); // 마지막 채운 옵션수(카탈로그 로드 후 재채움 트리거)
+
+#[repr(C)]
+struct DdOpt { color: u64, color2: u32, alpha: f32, s_len: usize, s_ptr: usize, s_cap: usize }
+
+unsafe fn dd_base(node: &Node) -> Option<usize> {
+    if !node.runner.type_name().contains("DropdownRunner") { return None; }
+    let any: &dyn std::any::Any = node.runner.as_any();
+    let parts: [usize; 2] = core::mem::transmute::<*const dyn std::any::Any, [usize; 2]>(any as *const dyn std::any::Any);
+    if parts[0] < 0x10000 { return None; }
+    Some(parts[0])
+}
+fn find_all<'a>(n: &'a Node, id: &str, out: &mut Vec<&'a Node>) {
+    if n.id == id { out.push(n); }
+    for c in n.child.iter() { find_all(c, id, out); }
+}
+unsafe fn dd_set_options(base: usize, items: &[String], sel: u64) {
+    let mut opts: Vec<DdOpt> = Vec::with_capacity(items.len());
+    for it in items {
+        let s = it.clone();
+        opts.push(DdOpt { color: 0x3f800000_3f800000, color2: 0x3f800000, alpha: 1.0,
+                          s_len: s.len(), s_ptr: s.as_ptr() as usize, s_cap: s.capacity() });
+        std::mem::forget(s); // 게임이 String 소유(leak)
+    }
+    let param3: [usize; 3] = [0, opts.as_ptr() as usize, opts.len()]; // [cap=0, ptr, len]
+    let addr = exe_base() + DD_SETOPT_RVA;
+    let f: unsafe extern "system" fn(usize, u64, *const [usize; 3]) = core::mem::transmute(addr);
+    f(base, sel, &param3);
+    std::mem::forget(opts);
+}
+
+// UI 인젝트 ModExtension: post_update에서 체이닝 로더훅 늦게 설치 + item3 드롭다운 옵션/선택 처리.
+struct UiExt;
+impl ModExtension for UiExt {
+    fn post_update(&self, _s: &mut Scene, u: &mut GameUI, _a: &mut Assets, _dt: f32) {
+        unsafe { let _ = uinj::install(); } // 멱등(1회만 설치)
+        let _ = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| unsafe {
+            // 옵션 = 카탈로그(바닐라7 + 활성모드 최종템). 카탈로그 로드 후 옵션수 늘면 재채움.
+            let opts = catalog::compute_options();
+            let cnt = opts.len();
+            // 화면 재진입(populated=false) 또는 옵션수 변화 시에만 set-options(=매프레임 리셋 방지).
+            let populate = cnt as u64 != DD_OPT_COUNT.load(Ordering::Relaxed) || !DD_POPULATED.load(Ordering::Relaxed);
+            let mut any_dd = false;
+            for i in 0..5u32 {
+                let Some(row) = catalog::find_node(&u.root, &format!("row{}", i)) else { continue; };
+                let Some(dd) = catalog::find_node(row, "item3") else { continue; };
+                let Some(base) = dd_base(dd) else { continue; };
+                any_dd = true;
+                let champ = catalog::row_champ(row); // 이 행의 챔프키(없으면 None)
+                // 이 챔프의 저장된 4번째 선택(slot 3) 복원, 없으면 0(자동).
+                let stored = champ.as_ref()
+                    .map(|c| catalog::with_sel(|m| *m.get(&(c.clone(), 3u8)).unwrap_or(&0)))
+                    .unwrap_or(0);
+                if populate { dd_set_options(base, &opts, stored as u64); }
+                // 사용자가 바꾼 현재 선택 읽어 챔프별 영속 저장.
+                let v = *((base + DD_SELECTED_OFF) as *const u64);
+                if v != u64::MAX && (v as usize) < cnt {
+                    ITEM3_SEL[i as usize].store(v, Ordering::Relaxed);
+                    if let Some(c) = champ {
+                        let changed = catalog::with_sel(|m| {
+                            let e = m.entry((c.clone(), 3u8)).or_insert(0);
+                            if *e != v as u8 { *e = v as u8; true } else { false }
+                        });
+                        if changed { catalog::with_sel(|m| catalog::save_sel(&*m)); }
+                    }
+                }
+            }
+            if any_dd { DD_POPULATED.store(true, Ordering::Relaxed); DD_OPT_COUNT.store(cnt as u64, Ordering::Relaxed); }
+            else { DD_POPULATED.store(false, Ordering::Relaxed); }
+        }));
+    }
+}
+
+// ── 서버측: Database 접근해 모드템 카탈로그 1회 채움(dump_mod_items) ──
+struct Item4ServerExt;
+impl ModServerExtension for Item4ServerExt {
+    fn on_server_start(&self, ctx: &mut ServerModContext) { probe_db(ctx); }
+    fn before_management_tick(&self, ctx: &mut ServerModContext) { probe_db(ctx); }
+}
+fn probe_db(ctx: &mut ServerModContext) {
+    // Database 시작 = champion_patch_statistics(@Database+0x16698) 절대주소 − 0x16698.
+    let cps = &ctx.database.champion_patch_statistics as *const _ as usize;
+    let db = cps.wrapping_sub(0x16698);
+    unsafe { catalog::dump_mod_items(db); } // MODITEMS_DONE 자체가드(1회)
+}
+
+// ── 3/4 아이템 토글 (cfg) ──
+// 파일 `4items.cfg`(dll 옆), 내용에 '4'=4칸 / '3'=3칸(바닐라). 없으면 기본 4.
+// 변경 반영 = 게임 재시작(바이트패치가 init 시점 적용이라).
+static ITEM_MODE: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(4);
+fn load_mode() -> u64 {
+    let mut mode = 4u64;
+    if let Some(p) = dll_path().and_then(|p| p.parent().map(|d| d.join("4items.cfg"))) {
+        if let Ok(s) = fs::read_to_string(&p) {
+            // `slots=4` 형식 우선(마지막 '=' 뒤 첫 3/4), 없으면 전체서 첫 3/4.
+            let scan = match s.rfind('=') { Some(i) => &s[i + 1..], None => &s[..] };
+            for c in scan.chars() {
+                if c == '3' { mode = 3; break; }
+                if c == '4' { mode = 4; break; }
+            }
+        }
+    }
+    ITEM_MODE.store(mode, Ordering::Relaxed);
+    uinj::MODE4.store(mode == 4, Ordering::Relaxed);
+    mode
+}
+
+fn init(_ctx: &GameCtx) -> ModRegistration {
+    unsafe {
+        let base = exe_base();
+        let mode = load_mode();
+        log_line("4items_patch.txt", &format!("[init] {} base=0x{:x} mode={}칸", MOD_ID, base, mode));
+        if mode == 4 {
+            for site in SITES.iter() {
+                let r = apply(site, base);
+                log_line("4items_patch.txt", &format!("  {}", r));
+            }
+            let h = ensure_hook(base);
+            log_line("4items_patch.txt", &format!("  probe: {}", h));
+        } else {
+            log_line("4items_patch.txt", "  [3칸 모드] 4-아이템 패치·훅·UI 전부 비활성(바닐라 동작)");
+        }
+        // UI 인젝트 로그 경로(디버그 시 uinj::DBG=true)
+        if let Some(p) = dll_path().and_then(|p| p.parent().map(|d| d.join("4items_uinj.txt"))) {
+            uinj::set_log(p.to_string_lossy().into_owned());
+            uinj::DBG.store(true, Ordering::Relaxed); // 테스트: 인젝트 로그 ON
+        }
+    }
+    let mut reg = ModRegistration::new(MOD_ID);
+    reg.set_extension(UiExt);
+    reg.set_server_extension(Item4ServerExt); // 모드템 카탈로그(DB) 채움
+    reg
+}
+declare_mod!(init);

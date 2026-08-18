@@ -1,0 +1,14 @@
+{
+  "mod_id": "tfm2_html_overlay",
+  "name": "TFM2 HTML 오버레이",
+  "author": "tfm2mods",
+  "version": "0.6.0",
+  "description": "게임 창 위에 항상 떠 있는 HTML 패널(WebView2). 프리셋 탭(keep 유지·탭별 크기 기억), Ctrl+F10 접기, Ctrl+O 대시보드 세이브 선택.",
+  "dependencies": [
+    {
+      "mod_id": "base",
+      "version": ">=0.5.5, <0.5.6"
+    }
+  ],
+  "last_updated": "2026-08-13"
+}

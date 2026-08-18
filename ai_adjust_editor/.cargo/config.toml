@@ -2,7 +2,7 @@
 #
 # 왜 필요한가: rustc 는 panic location 등으로 소스 절대경로를 바이너리에 넣는다. 모드 dll 은
 # 소스가 `C:\tfm2mods\` 아래라 무해했지만, 편집기는 **cargo 로 빌드**해서 의존 크레이트의
-# registry 경로(`C:\Users\dev\.cargo\registry\...`)가 그대로 박혔다 — 실측 75종.
+# registry 경로(`C:\Users\<user>\.cargo\registry\...`)가 그대로 박혔다 — 실측 75종.
 # 그 상태로 릴리스 zip 에 들어가고 있었다(0.5.4 zip 검증에서 발각).
 #
 # ⚠같은 함정이 `legacy_save_patcher` 에서 이미 한 번 터졌다("재빌드 불요 모드도 PII 검사 대상",

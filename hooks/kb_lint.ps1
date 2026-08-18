@@ -5,11 +5,13 @@ try { [Console]::OutputEncoding = [System.Text.Encoding]::UTF8 } catch {}
 $mem = "C:\Users\dev\.claude\projects\C--Users-dev-Desktop-claude-tfm2\memory"
 $warn = @()
 $f = Get-Item "$mem\INDEX.md" -ErrorAction SilentlyContinue
-if ($f -and $f.Length -gt 40KB) { $warn += "INDEX.md $([math]::Round($f.Length/1KB))KB (상한 40KB)" }
+if ($f -and $f.Length -gt 50KB) { $warn += "INDEX.md $([math]::Round($f.Length/1KB))KB (상한 50KB - CLAUDE.md §8)" }
 $f = Get-Item "$mem\MEMORY.md" -ErrorAction SilentlyContinue
 if ($f -and $f.Length -gt 5KB) { $warn += "MEMORY.md $([math]::Round($f.Length/1KB))KB (상한 5KB)" }
 $f = Get-Item "$mem\DONE.md" -ErrorAction SilentlyContinue
-if ($f -and $f.Length -gt 6KB) { $warn += "DONE.md $([math]::Round($f.Length/1KB))KB (상한 6KB)" }
+if ($f -and $f.Length -gt 45KB) { $warn += "DONE.md $([math]::Round($f.Length/1KB))KB (상한 45KB - CLAUDE.md §8, 2026-08-07 정정)" }
+$f = Get-Item "$mem\CURRENT.md" -ErrorAction SilentlyContinue
+if ($f -and $f.Length -gt 10KB) { $warn += "CURRENT.md $([math]::Round($f.Length/1KB))KB (역할=버전·활성모드뿐, 10KB 넘으면 이력이 침입한 것 - 경위는 MIGRATION/메모리 본문으로)" }
 $big = Get-ChildItem $mem -Filter "*.md" -ErrorAction SilentlyContinue | Where-Object { $_.Name -notin @('INDEX.md','MEMORY.md','DONE.md','CURRENT.md') -and $_.Length -gt 15KB }
 if ($big) {
   $top = ($big | Sort-Object Length -Descending | Select-Object -First 5 | ForEach-Object { "$($_.Name)($([math]::Round($_.Length/1KB))KB)" }) -join ', '

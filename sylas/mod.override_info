@@ -1,6 +1,0 @@
-{
-  "asset/base/text/champion": {
-    "remapping": "asset/sylas/text/champion",
-    "type": "merge"
-  }
-}

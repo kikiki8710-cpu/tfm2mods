@@ -1,0 +1,89 @@
+탭 19개 / 배치된 고유키 378 / cfg키 415
+
+[중복 노출 0]
+
+[cfg에만 있고 탭에 없는 키 41]
+  candcap
+  capture
+  class_probe
+  class_sheet
+  condcap
+  ct_hunt
+  dcap
+  dd7cap
+  defwatch
+  disppred
+  dmgcap
+  e9a30cap
+  gbbody
+  gbcallee
+  gbcap
+  gbdedc0
+  gbrd
+  gbrepl
+  gbreplchk
+  judge_dump
+  move
+  move_off
+  move_tag
+  move_x
+  move_y
+  mpcap
+  pg_a
+  pg_b
+  pg_c
+  pgcap
+  recallcap
+  repl_out
+  replace
+  rng_repl
+  rngcap
+  roam_diag
+  seed_rotate
+  seed_set
+  strat_rotate
+  tecap
+  towercap
+
+[탭에만 있고 cfg에 없는 키 4]
+  d12_repl
+  d14_repl
+  fix_hp_ratio
+  nx_repl
+
+[설명이 없는 키 0]
+
+[원본값이 없는 키 33]
+  adv_prof
+  adv_prof_min
+  adv_prof_seg
+  cond_repl
+  d12_repl
+  d14_repl
+  d7_repl
+  dd7_repl
+  e9jt
+  engage_repl
+  fast_guard
+  fast_read
+  fix_hp_ratio
+  gk_wait
+  hang_diag
+  hang_run_rate
+  hang_run_secs
+  hang_secs
+  mp_repl
+  nx_repl
+  perf_measure
+  poke_repl
+  read_bench
+  recall_repl
+  replay_reset
+  skip_untuned
+  sp_seen
+  sp_seen_tag
+  t_recall
+  vw_check
+  vw_jungle
+  vw_nexus
+  vw_threat

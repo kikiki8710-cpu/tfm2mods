@@ -1,0 +1,3 @@
+# tfm2_draft_overlay 는 자체 체이닝 로더 훅으로 밴픽 화면에 직접 주입한다(독립).
+# scrim 프레임워크 매니페스트를 쓰지 않으므로 이 파일에는 주입 지시가 없다.
+# (draft_popup.ui 는 DLL 에 include_str! 로 컴파일 임베드됨.)

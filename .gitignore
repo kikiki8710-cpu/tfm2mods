@@ -1,88 +1,74 @@
-# ══════════════════════════════════════════════════════════
-#  화이트리스트 방식 — 기본은 전부 무시하고, 소스·문서·도구만 담는다.
-#  이유: 이 폴더는 31GB 이고 그 대부분이 SDK(~11G)·빌드산출물(target/)·
-#        게임 에셋 추출(bundle_*)·구세대 아카이브(5.1G)다. 전부 재취득·재생성 가능.
-# ══════════════════════════════════════════════════════════
+# ══════════════════════════════════════════════════════════════
+#  화이트리스트 방식 (2026-08-18 전환) — 담을 것만 명시한다.
+#  이 저장소 = 게임 0.5.5에서 실사용 중인 모드 소스 + 현행 문서·도구만.
+#  구버전/은퇴 모드·프로브·스크래치·SDK·세이브는 로컬 전용(미추적).
+# ══════════════════════════════════════════════════════════════
 
-# 1) 일단 전부 무시
-*
+# 1) 루트는 기본 전부 무시
+/*
 
-# 2) 디렉토리는 탐색 허용(안쪽 화이트리스트를 보기 위해)
-!*/
+# 2) 문서 (현행 3종)
+!/.gitignore
+!/MIGRATION.md
+!/MOD_REGISTRY.md
+!/MIGRATE_NEXT.md
 
-# 3) 담을 것 — 소스·도구·문서·설정
-!*.rs
-!*.toml
-!*.py
-!*.ps1
-!*.md
-!*.ui
-!*.json
-!*.cfg
-!.gitignore
-!.gitattributes
-# ★2026-08-02 추가 — 릴리스 사실(version·deps·override)이 담긴 파일이라 반드시 추적한다.
-#   확장자가 `.mod_info`/`.override_info` 라 위 `!*.json` 에 안 걸려 통째로 빠져 있었다
-#   ⟹ "배포된 v0.4.3 의 deps 가 뭐였나"를 git 으로 답할 수 없었다(릴리스 zip 안에만 존재).
-!*.mod_info
-!*.override_info
-# ★2026-08-03 추가 — html 이 본체의 일부인 모드가 있다(community_reaction_mod 의 TFA2_gallery.html
-#   = 갤러리 UI + 반응 생성 프롬프트 전부, 169KB). 화이트리스트에 없어 통째로 빠져 있었고,
-#   정본이 게임 설치 폴더에만 존재해 이력·백업이 전혀 없었다(mod_info 와 같은 구멍).
-#   ⚠빌드 산출물 html 은 4) 의 `build/` 로 제외한다(fanim_editor 의 xref 1.2MB).
-!*.html
-# ⚠`*.txt` 는 담지 않는다 — 이 프로젝트의 txt 는 대부분 **런타임 덤프·진단 로그**다
-#   (실측: 전체 8,054개 / `sylas_hijack\effect_dump.txt` 3.8MB 등). 이력 가치가 없고 매 실행 갱신된다.
-#   특정 txt 가 필요하면 아래처럼 개별 허용할 것:  !경로/파일.txt
+# 3) 0.5.5 실사용 모드 소스
+!/tfm2_ai_adjust/
+!/ai_adjust_editor/
+!/tfm2_item_tactics/
+!/tfm2_banpick_illust/
+!/tfm2_banpick_showcase/
+!/tfm2_banpick_order/
+!/tfm2_comptest_unlock/
+!/tfm2_draft_overlay/
+!/tfm2_elemental_serpen/
+!/tfm2_level_cap/
+!/tfm2_mod_order/
+!/tfm2_flow_capture/
+!/tfm2_stat_exp/
+!/tfm2_bancard_keep/
+!/tfm2_html_overlay/
+!/tfm2_html_overlay_stable/
+!/legacy_save_patcher_stable/
+!/Spectator_Chat/
+!/community_reaction_mod/
+!/tfm2_meta_item_delegate/
+!/ui_kit/
 
-# 4) ★위 확장자라도 제외 — 용량·재생성 가능·런타임 산출물
-#    (마지막에 와야 3)의 허용을 덮는다)
-sdk_*/
-mod_sdk/
-bundle_*/
-_dl/
-_archive/
-_tmp_*/
-_scratch/
-release/
-target/
-build/
+# 4) 현행 빌드·릴리스·마이그 도구
+!/build_inj.ps1
+!/build_full.ps1
+!/build_full_remap.ps1
+!/build_extra.ps1
+!/bump_deps_055.ps1
+!/rel_055.py
+!/rel_it_source_055.py
+!/rel_pw_055.py
+!/rel_verify.py
+!/rel_commit.ps1
+!/pii_check_055.py
+!/migrate_rva.py
+!/fnindex.py
+!/rva_catalog.py
+!/hooks/
+!/panicmap/
+!/tools/
+# tools 안의 추출 산출물은 제외(스크립트만 추적)
+/tools/bundle/bundle_ui_*/
 __pycache__/
-node_modules/
 
-# 빌드·링크 산출물(확장자 무관)
-*.o
-*.obj
-*.rcgu.*
-nul.*
-
-# 런타임 로그·크래시·백업 (텍스트지만 이력 가치 없음)
+# 5) 화이트리스트 폴더 안에서도 제외 — 빌드산출물·로그·백업·대용량
+*.dll
+*.exe
+*.pdb
 *.log
-_crash/
-crash_log.txt
-panic_log.txt
 *.bak
 *.bak_*
-*.backup
-*.devbak*
-*.diagbak*
-*.pre_*
-*.A_off_*
-*.tuned_bak*
-
-# 도구가 뱉는 대용량 캐시·중간산물
 *.pkl
-_rva_catalog.json
-_rva_final_053.json
-_anchor_*.json
-
-# 별도 git 저장소가 들어있는 폴더(embedded repo — 서브모듈로 잡히면 곤란)
-TeamfightManager2Mod/
-TFM2.gg-upstream/
-
-# 리팩터 전 소스 백업(현행 소스가 정본)
-*_backup_pre_*/
-_daram2_originals/
-# ★2026-08-02 — 위 `!*.mod_info` 화이트리스트가 백업·스테이징 폴더까지 끌어오는 것을 차단
-*_bak_*/
-_dist_rel/
+*.zip
+*.data
+*.o
+*.rlib
+target/
+Cargo.lock

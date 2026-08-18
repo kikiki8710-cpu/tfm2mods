@@ -1,0 +1,1 @@
+d19i_enable=false applied=0/15 sev=[49 29 17 9] hp=[66 41 26] ally=50 retreat=45 phase=[30 39] @base0x7ff6b4ea0000

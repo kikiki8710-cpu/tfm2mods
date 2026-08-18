@@ -1,0 +1,6 @@
+{
+  "asset/base/ui/layout/strategy": {
+    "remapping": "asset/tfm2_item_tactics/ui/layout/strategy",
+    "type": "override"
+  }
+}

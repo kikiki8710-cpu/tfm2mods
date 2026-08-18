@@ -1,0 +1,1215 @@
+// detour.rs — 트램폴린/훅 설치 인프라 + 정적 바이트패치.
+// 들어있는 것: install_* 전 디투어 설치기, build_ret_thunk/hook_return/RET 하네스, build_shim_*, alloc_near,
+//   move_override/commit_dump/threatgate_adjust/df0c10_post/itemnet_guard_ok(훅 콜백), patch6/14/patch_imm_bytes,
+//   apply_engage_base/thr_mult/lane_gate/type3_ablate/call_ablate/objective_imm/numbers_sp(정적패치).
+// 언제 손대나: 훅 설치 방식·트램폴린 ABI·바이트패치 변경 시. detour 안전수칙=[[tfm2-mod-safety]].
+
+// kind: 0=TTD(game=retval vs mine), 1=RE(retreat_engage: 결정=*retval). pre=로그프리픽스.
+struct RetFrame { key: usize, orig_ret: usize, mine: i64, kind: u8, pre: String, p5: usize, p6: usize, disp_pred: i64 }
+
+
+// thunk: rax=retval로 진입, rsp=key+8. hook_return(retval, key)→orig_ret 호출 후 rax복원·orig_ret 점프.
+unsafe fn build_ret_thunk() {
+    let handler = hook_return as *const () as usize;
+    let mut code: Vec<u8> = Vec::new();
+    code.extend_from_slice(&[0x50]);                 // push rax            (retval 보존; rsp=key=ESP0)
+    code.extend_from_slice(&[0x48,0x89,0xC1]);       // mov rcx, rax        (arg1=retval)
+    code.extend_from_slice(&[0x48,0x89,0xE2]);       // mov rdx, rsp        (arg2=key=ESP0)
+    code.extend_from_slice(&[0x4C,0x8B,0x84,0x24,0x50,0xFF,0xFF,0xFF]); // mov r8,[rsp-0xb0]  (arg3=e1; RE=local_b0 게임임계값@ESP0-0xb0)
+    code.extend_from_slice(&[0x4C,0x8B,0x8C,0x24,0xD8,0xFD,0xFF,0xFF]); // mov r9,[rsp-0x228] (arg4=e2; RE=local_228 셀렉터@ESP0-0x228)
+    code.extend_from_slice(&[0x48,0x8B,0x84,0x24,0xE8,0xFD,0xFF,0xFF]); // mov rax,[rsp-0x218] (tmp=local_218 idx)
+    code.extend_from_slice(&[0x4C,0x8B,0x94,0x24,0xB0,0xFF,0xFF,0xFF]); // mov r10,[rsp-0x50]  (tmp=local_50 df1da0반환)
+    code.extend_from_slice(&[0x48,0x83,0xEC,0x38]);  // sub rsp,0x38        (16정렬 + shadow + 2 stack args)
+    code.extend_from_slice(&[0x48,0x89,0x44,0x24,0x20]); // mov [rsp+0x20],rax  (arg5=local_218)
+    code.extend_from_slice(&[0x4C,0x89,0x54,0x24,0x28]); // mov [rsp+0x28],r10  (arg6=local_50)
+    code.extend_from_slice(&[0x48,0xB8]); code.extend_from_slice(&handler.to_le_bytes()); // movabs rax,handler
+    code.extend_from_slice(&[0xFF,0xD0]);            // call rax
+    code.extend_from_slice(&[0x48,0x83,0xC4,0x38]);  // add rsp,0x38
+    code.extend_from_slice(&[0x49,0x89,0xC2]);       // mov r10, rax        (orig_ret)
+    code.extend_from_slice(&[0x58]);                 // pop rax             (retval 복원; rsp=key+8)
+    code.extend_from_slice(&[0x41,0xFF,0xE2]);       // jmp r10
+    let m = VirtualAlloc(0, 64, 0x1000|0x2000, 0x40);
+    if m != 0 { core::ptr::copy_nonoverlapping(code.as_ptr(), m as *mut u8, code.len()); RET_THUNK.store(m, Ordering::Relaxed); }
+}
+
+// 공용 리턴 thunk 핸들러: retval=반환값, key=ESP0, e1=local_b0(게임임계값), e2=local_228(셀렉터), e3=local_218(idx), e4=local_50(df1da0반환).
+unsafe extern "C" fn hook_return(retval: i64, key: usize, e1: i64, e2: i64, e3: i64, e4: i64) -> usize {
+    let frame = if let Ok(mut st) = RET_STACK.lock() {
+        st.iter().rposition(|f| f.key == key).map(|p| st.remove(p))
+    } else { None };
+    match frame {
+        Some(f) => {
+            // ★panic-safe(mod-safety): 리턴훅 verify/logging panic이 FFI UB로 게임 크래시 → catch_unwind 차단.
+            //   orig_ret은 먼저 추출해 패닉시에도 정상 복귀(게임 흐름 유지). 전 kind(0/1/2/3/5/9/11) 공통보호.
+            let ret = f.orig_ret;
+            let hr = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+            if f.kind == 5 {
+                // fc59a0 recall score: 게임출력 *p5 = score@+0(i32), bool@+4(u8), mult@+8(i32). f.mine=내 RNG배율 m, f.disp_pred=threshold.
+                let op = f.p5;
+                let score = rd_i32(op).unwrap_or(-999) as i64;
+                let gbool = if readable(op+4,1) { std::ptr::read_unaligned((op+4) as *const u8) as i64 } else { -1 };
+                let mult  = rd_i32(op+8).unwrap_or(-999) as i64;
+                let my_m = f.mine; let thr = f.disp_pred;
+                let my_mult = f.p6 as i64;                     // 내 base-score 재현 mult
+                let mok = my_mult != RECALL_MULT_NONE && my_mult == mult;   // ★base-score 검증(게임 mult 대조)
+                let mtag = if my_mult == RECALL_MULT_NONE { "mult:N/A".to_string() }
+                           else if mok { "mult:OK".to_string() } else { format!("★mult-DIFF(my={} game={})", my_mult, mult) };
+                let n = RECALL_ARMED.load(Ordering::Relaxed);
+                if n <= RECALL_ARM_MAX {
+                    let (verdict, detail) = if mult == 0 && score == 0 {
+                        ("early-out".to_string(), "(후보없음/조기반환, RNG미소비)".to_string())
+                    } else {
+                        let pred_score = (my_m * mult) / 100;          // score = (m*mult)/100 검증
+                        let pred_bool = (thr <= pred_score) as i64;
+                        let sok = pred_score == score;
+                        let bok = pred_bool == gbool;
+                        let v = if sok && bok { "OK" } else if sok { "bool-DIFF" } else { "★score-DIFF" };
+                        (v.to_string(), format!("game_score={} pred={}({}*{}/100) | game_bool={} pred_bool={}", score, pred_score, my_m, mult, gbool, pred_bool))
+                    };
+                    let s = format!("{} → mult={} [{}] {} [{}]\n", f.pre, mult, mtag, detail, verdict);
+                    if !RECALL_FILE_INIT.swap(true, Ordering::Relaxed) { write_named("recallcmp.txt", "=== fc59a0 recall RNG score 검증: score=(m*mult)/100, bool=(thr<=score). m=내 read-only RNG draw 재현 ===\n"); }
+                    append_named("recallcmp.txt", &s);
+                }
+            } else if f.kind == 6 {
+                // facet#1 condgate: 게임 al = retval&0xff. f.mine=my_condgate(-99=pending poke/gank).
+                let game_al = (retval & 0xff) as i64;
+                let my = f.mine;
+                // ★in-scope RNG draw 측정(cond_repl 안전 재확인): condgate가 RNG 소비했나? replaced disc(my≠-99)가 0이어야 skip 안전.
+                COND_INSCOPE.store(false, Ordering::Relaxed);
+                let draws = COND_IS_DRAWS.load(Ordering::Relaxed);
+                let di6 = (f.p5).min(15);
+                if draws > COND_DISC_MAXDRAW[di6].load(Ordering::Relaxed) { COND_DISC_MAXDRAW[di6].store(draws, Ordering::Relaxed); }
+                let def = COND_IS_DEF.load(Ordering::Relaxed);   // fcd980+fcdaf0=항상 실제 draw
+                let e88 = COND_IS_E88.load(Ordering::Relaxed);   // e88a0 실제 draw(count>0)
+                let e9 = COND_IS_E9.load(Ordering::Relaxed);     // e9a30 호출
+                let real = def + e88;   // 확실한 실제 draw(e9는 count불명이라 별도)
+                if draws > 0 {  // RNG 함수 호출한 condgate 케이스. real>0=확실히 desync위험.
+                    if !CONDRNG_INIT.swap(true, Ordering::Relaxed) { write_named("condrng.txt", "=== facet#1 condgate in-scope RNG: def(fcd980/af0=실제) e88(count>0) e9(호출). replaced(my≠-99)+real>0=desync위험 ===\n"); }
+                    append_named("condrng.txt", &format!("disc={} my={} def={} e88={} e9={} real={} | LEAK누적={} [{}]\n", f.p5, my, def, e88, e9, real, COND_LEAK.load(Ordering::Relaxed),
+                        if my != -99 && real > 0 {"★REPLACED+REAL_RNG=desync확실(or누수)"} else if my != -99 && e9 > 0 {"replaced+e9호출(count확인필요)"} else if my == -99 {"passthrough(안전)"} else {"replaced(RNG=0)"}));
+                }
+                if my == -99 { COND_PEND.fetch_add(1, Ordering::Relaxed); }
+                else if my == game_al { COND_OK.fetch_add(1, Ordering::Relaxed); }
+                else { COND_DIFF.fetch_add(1, Ordering::Relaxed); }
+                let n = COND_ARMED.load(Ordering::Relaxed);
+                if n <= COND_ARM_MAX {
+                    let verdict = if my == -99 { "pending" } else if my == game_al { "OK" } else { "★DIFF" };
+                    let s = format!("{} → game={} [{}] | OK={} DIFF={} PEND={}\n", f.pre, game_al, verdict, COND_OK.load(Ordering::Relaxed), COND_DIFF.load(Ordering::Relaxed), COND_PEND.load(Ordering::Relaxed));
+                    if !COND_FILE_INIT.swap(true, Ordering::Relaxed) { write_named("condcmp.txt", "=== facet#1 condgate: my_condgate vs 게임 al (subplan별, -99=pending) ===\n"); }
+                    append_named("condcmp.txt", &s);
+                }
+            } else if f.kind == 7 {
+                // facet#4 movepriority: 출력구조체 *p5. code@+0, 필드 +8/+0x10/+0x20/+0x21.
+                let op = f.p5;
+                let code = rd_i64(op).unwrap_or(-999);
+                let my = f.mine;
+                // ★④ 출력계약 덤프: disc별 게임 출력구조 head(6 qword + key byte). aux 비-0 오프셋 식별 → replace 재현범위.
+                {
+                    let di = (f.p6 as usize).min(15);
+                    if MPOUT_CNT[di].fetch_add(1, Ordering::Relaxed) < 6 && readable(op, 0x30) {
+                        let q: [i64;6] = core::array::from_fn(|k| rd_i64(op + k*8).unwrap_or(0));
+                        let b12 = rd_u8(op + 0x12); let b21 = rd_u8(op + 0x21);
+                        if !MPOUT_INIT.swap(true, Ordering::Relaxed) { write_named("mpout.txt", "=== ④ movepriority 출력계약: disc별 게임 출력구조 (code@+0, aux 비0 오프셋 식별) ===\n"); }
+                        append_named("mpout.txt", &format!("[disc={} code={}] +8={:#x} +0x10={:#x} +0x18={:#x} +0x20={:#x} +0x28={:#x} | b+0x12={} b+0x21={}\n",
+                            f.p6, code, q[1], q[2], q[3], q[4], q[5], b12, b21));
+                    }
+                }
+                // ★출력계약 write-set: 진입스냅(MP_ENTRY) vs 현재 *op = sub-judge가 쓴 qword오프셋 비트마스크. code-only(=0b1)/aux 판별.
+                if MP_ENTRY_PTR.load(Ordering::Relaxed) == op && readable(op, 0x40) {
+                    let mut ws = 0u64;
+                    for k in 0..8usize { if rd_u64(op + k*8).unwrap_or(0) != MP_ENTRY[k].load(Ordering::Relaxed) { ws |= 1 << k; } }
+                    let di = (f.p6 as usize).min(15);
+                    let prev = MP_WS[di].fetch_or(ws, Ordering::Relaxed);
+                    if (prev | ws) != prev {   // 새 비트 발견 → 로그
+                        if !MP_WS_INIT.swap(true, Ordering::Relaxed) { write_named("mpws.txt", "=== movepriority sub-judge write-set (qword offset 비트: bit0=+0(code) bit1=+8 bit2=+0x10 ...) code-only=0b1 ===\n"); }
+                        append_named("mpws.txt", &format!("[disc={}] write-set=0b{:08b} (오프셋: {})\n", f.p6, prev|ws,
+                            (0..8).filter(|k| (prev|ws)>>k & 1 == 1).map(|k| format!("+0x{:x}", k*8)).collect::<Vec<_>>().join(",")));
+                    }
+                }
+                if my == -99 { MP_PEND.fetch_add(1, Ordering::Relaxed); }
+                else if my == code { MP_OK.fetch_add(1, Ordering::Relaxed); }
+                else { MP_DIFF.fetch_add(1, Ordering::Relaxed); }
+                let n = MP_ARMED.load(Ordering::Relaxed);
+                if n <= 30000 {
+                    let verdict = if my == -99 { "pending" } else if my == code { "OK" } else { "★DIFF" };
+                    let s = format!("{} → game_code={} [{}] | OK={} DIFF={} PEND={}\n", f.pre, code, verdict, MP_OK.load(Ordering::Relaxed), MP_DIFF.load(Ordering::Relaxed), MP_PEND.load(Ordering::Relaxed));
+                    if !MP_FILE_INIT.swap(true, Ordering::Relaxed) { write_named("mpcmp.txt", "=== facet#4 movepriority: my_movepriority vs 게임코드 (subplan별, -99=pending) ===\n"); }
+                    append_named("mpcmp.txt", &s);
+                }
+                // ★0.5.0 disc9/11 full-output 검증(재작성): 게임출력 op에 내 재현writes 적용 후 byte대조. epic=out-struct(0x2d), serpen=0xb래핑(0x14), battle=기존. 진입스냅(MP_ENTRY)기반.
+                if (f.p6 == 9 || f.p6 == 11 || f.p6 == 10 || f.p6 == 12 || f.p6 == 4) && MP_AUX_OP.load(Ordering::Relaxed) == op && (my != -99 || (f.p6 == 12 && SERPEN_VERIFY.load(Ordering::Relaxed))) && readable(op, 0x30) {
+                    let mut buf = [0u8; 0x30];
+                    for i in 0..0x30usize { buf[i] = rd_u8(op + i); }
+                    let p2sj = MP_AUX_P2.load(Ordering::Relaxed);
+                    let bufp = buf.as_mut_ptr() as usize;
+                    // 재현: disc9=epic_poke_write · disc11=write_serpen_out(char) · disc4=disc4_aux · disc10=EpicBattle(weight) · disc12=SerpenBattle(미포팅→skip).
+                    let (wrote, win) = if f.p6 == 4 { (write_disc4_aux(bufp, my, p2sj), 0x22usize) }
+                        else if f.p6 == 9 { (epic_poke_write(bufp, p2sj, MP_AUX_P3.load(Ordering::Relaxed), MP_AUX_P5.load(Ordering::Relaxed), MP_AUX_P6.load(Ordering::Relaxed)), 0x2dusize) }
+                        else if f.p6 == 11 { (write_serpen_out(bufp, my), 0x14usize) }
+                        else if f.p6 == 10 {   // EpicBattle: out+0=0xb/+8=weight(my)/+0x10=1/+0x12=0
+                            std::ptr::write_unaligned(bufp as *mut u64, 0xbu64);
+                            std::ptr::write_unaligned((bufp + 8) as *mut u64, my as u64);
+                            std::ptr::write_unaligned((bufp + 0x10) as *mut u16, 1u16);
+                            std::ptr::write_unaligned((bufp + 0x12) as *mut u8, 0u8);
+                            (true, 0x14usize)
+                        }
+                        else if f.p6 == 12 {   // ★SerpenBattle body 재현(out-writer, SERPEN_VERIFY 게이트). bufp에 직접기록 후 게임출력 대조.
+                            let c = my_serpen_battle(bufp, p2sj, MP_AUX_P3.load(Ordering::Relaxed) as i64, MP_AUX_RNG.load(Ordering::Relaxed),
+                                MP_AUX_P5.load(Ordering::Relaxed), MP_AUX_P6.load(Ordering::Relaxed), MP_AUX_TP.load(Ordering::Relaxed), MP_AUX_SF.load(Ordering::Relaxed), false);   // ★live=false: 검증 리턴훅은 게임이 이미 RNG 소비 후 → 재드로우 금지
+                            (c != -99, 0x14usize)
+                        }
+                        else { (false, 0usize) };
+                    if wrote {
+                        let mut diff_at: i64 = -1;
+                        for i in 0..win { if buf[i] != rd_u8(op + i) { diff_at = i as i64; break; } }
+                        let ok = diff_at < 0;
+                        if ok { POKE_OK.fetch_add(1, Ordering::Relaxed); } else { POKE_DIFF.fetch_add(1, Ordering::Relaxed); }
+                        let n2 = POKE_OK.load(Ordering::Relaxed) + POKE_DIFF.load(Ordering::Relaxed);
+                        if !ok || n2 % 500 == 0 || n2 <= 5 {
+                            if !POKE_INIT.swap(true, Ordering::Relaxed) { write_named("pokecmp.txt", "=== 0.5.0 disc9/11 EpicPoke/SerpenPoke 재작성 full-output 검증: 내재현 vs 게임출력 byte대조 ===\n"); }
+                            let verdict = if ok { "OK".to_string() } else { format!("★DIFF@+0x{:x}", diff_at) };
+                            let mb: [u8;0x2d] = core::array::from_fn(|i| buf[i]);
+                            let gb: [u8;0x2d] = core::array::from_fn(|i| rd_u8(op + i));
+                            append_named("pokecmp.txt", &format!("[poke {}] disc={} my={} win=0x{:x} [{}] OK={} DIFF={}\n  my  ={:02x?}\n  game={:02x?}\n",
+                                n2, f.p6, my, win, verdict, POKE_OK.load(Ordering::Relaxed), POKE_DIFF.load(Ordering::Relaxed), mb, gb));
+                        }
+                        // ★disc12 0xe/0xc divergence 특정 덤프(2026-07-10): 미스매치시 SGT 경로 상태 한 줄(sgate.txt).
+                        //   stage=engage_gate 마지막 도달 지점(0진입~10true), aux7/aux8=stage6(cnt/lane)·stage9(best_idx/sim lane).
+                        if !ok && f.p6 == 12 {
+                            let sgn = SGT_N.fetch_add(1, Ordering::Relaxed);
+                            append_named("sgate.txt", &format!(
+                                "[sg {}] my={} game_q0={} gate={} stage={} aux7={} aux8={} d2>>8={} thr>>8={} ord={} tgt={} m18={} m19={} tick={} tag={} zenc={:#x} op=0x{:x} sim=0x{:x}\n",
+                                sgn, SGT[0].load(Ordering::Relaxed), rd_u64(op).unwrap_or(0),
+                                SGT[5].load(Ordering::Relaxed), SGT[6].load(Ordering::Relaxed),
+                                SGT[7].load(Ordering::Relaxed), SGT[8].load(Ordering::Relaxed),
+                                SGT[9].load(Ordering::Relaxed), SGT[10].load(Ordering::Relaxed),
+                                SGT[1].load(Ordering::Relaxed), SGT[2].load(Ordering::Relaxed),
+                                SGT[3].load(Ordering::Relaxed), SGT[4].load(Ordering::Relaxed),
+                                SGT[11].load(Ordering::Relaxed), SGT[12].load(Ordering::Relaxed), SGT[13].load(Ordering::Relaxed),
+                                op, MP_AUX_P5.load(Ordering::Relaxed)));
+                        }
+                        // ★disc9 EpicPoke 미스매치 원인 특정 덤프(egate.txt): epic_poke_compute 게이트별 상태 한 줄.
+                        //   game_q1(op+8)이 힙포인터면 game이 타겟 리졸브함. my=f.mine(0=후보없음 의심). cand/pgpass/contested로 갈림지점 판별.
+                        if !ok && f.p6 == 9 {
+                            let egn = EGT_N.fetch_add(1, Ordering::Relaxed);
+                            append_named("egate.txt", &format!(
+                                "[eg {}] my={} game_q0={} game_q1={} active={} pgpass={} p3={} bvar1={} disc={} clane={} cand={} lane={} eside={} nlist={} contested={} reach={} op=0x{:x}\n",
+                                egn, my, rd_u64(op).unwrap_or(0), rd_u64(op + 8).unwrap_or(0),
+                                EGT[0].load(Ordering::Relaxed), EGT[10].load(Ordering::Relaxed),
+                                EGT[1].load(Ordering::Relaxed), EGT[2].load(Ordering::Relaxed),
+                                EGT[3].load(Ordering::Relaxed), EGT[4].load(Ordering::Relaxed),
+                                EGT[5].load(Ordering::Relaxed), EGT[6].load(Ordering::Relaxed),
+                                EGT[7].load(Ordering::Relaxed), EGT[8].load(Ordering::Relaxed),
+                                EGT[9].load(Ordering::Relaxed), EGT[11].load(Ordering::Relaxed), op));
+                        }
+                    }
+                }
+                // ★disc9/11 RNG footprint 측정: 진입 스냅(POKE_RNG_*) vs exit p4 → 실제 RNG 소비(words/refills). draw 분포·early-guard 상관 파악 → my_poke_rng_final 모델링용.
+                if (f.p6 == 9 || f.p6 == 11) {
+                    let p4 = POKE_RNG_P4.load(Ordering::Relaxed);
+                    if p4 != 0 && readable(p4 + 0x138, 8) {
+                        let i0 = POKE_RNG_I0.load(Ordering::Relaxed);
+                        let c0 = POKE_RNG_C0.load(Ordering::Relaxed);
+                        let i1 = rd_u64(p4 + 0x100).unwrap_or(0);
+                        let c1 = rd_u64(p4 + 0x130).unwrap_or(0);
+                        let refills = c1.wrapping_sub(c0) / 4;
+                        let words = (i1 as i64 + 64 * refills as i64) - i0 as i64;   // 소비 u32 워드수(refill 보정)
+                        let n2 = POKE_RNG_N_CTR.fetch_add(1, Ordering::Relaxed);
+                        // ★재구성 검증: 예측 exit(POKE_PIDX/PCTR, reconstructed args) vs 실제 p4 exit(i1,c1).
+                        let pcount = POKE_PCOUNT.load(Ordering::Relaxed);
+                        let (pidx, pctr) = (POKE_PIDX.load(Ordering::Relaxed), POKE_PCTR.load(Ordering::Relaxed));
+                        let e_ok = pcount >= 0 && i1 == pidx && c1 == pctr;
+                        if pcount >= 0 { if e_ok { POKE_E88_OK.fetch_add(1, Ordering::Relaxed); } else { POKE_E88_DIFF.fetch_add(1, Ordering::Relaxed); } }
+                        if !POKERNG_INIT.swap(true, Ordering::Relaxed) { write_named("pokerng.txt", "=== disc9/11 RNG: p4 delta + e88a0 재구성 검증(예측 exit vs 실제). eOK=재구성정확 ===\n"); }
+                        if n2 < 4000 || !e_ok {
+                            append_named("pokerng.txt", &format!("[pokerng {}] disc={} code={} plan={} | i0={} i1={} refills={} words={} | myCount={} pred(idx={} ctr={}) e88[{}] eOK={} eDIFF={}\n",
+                                n2, f.p6, code, POKE_RNG_PLAN.load(Ordering::Relaxed), i0, i1, refills, words,
+                                pcount, pidx, pctr, if pcount<0 {"n/a"} else if e_ok {"OK"} else {"★DIFF"},
+                                POKE_E88_OK.load(Ordering::Relaxed), POKE_E88_DIFF.load(Ordering::Relaxed)));
+                        }
+                        POKE_RNG_P4.store(0, Ordering::Relaxed);
+                    }
+                }
+                if f.p6 == 9 || f.p6 == 11 { POKE_INSCOPE.store(false, Ordering::Relaxed); }   // ★RNG caller 추적 윈도우 종료(p4 무관 항상 해제)
+                if f.p6 == 14 && code != 18 { defwatch_log(code, my, f.disp_pred); }   // 캡내 disc14의 7-케이스도 watcher 기록
+                if f.p6 == 9 && my == 7 && code != 7 {   // ★epic 7-DIFF 진단: 어느 7-출구가 과발동했나
+                    let dn = EPICDIAG_N.fetch_add(1, Ordering::Relaxed);
+                    if dn < 200 {
+                        let d = EPIC_DIAG.load(Ordering::Relaxed);
+                        let s = format!("[epicdiff #{}] game={} my=7 | reason={} hp%={} obj_full={} not_home={} side={} self_z7={} other_z7={} obj_hp={} thr_lt={}\n",
+                            dn, code, d & 0xf, (d>>4)&0xff, (d>>12)&1, (d>>13)&1, (d>>14)&1, (d>>16)&0xf, (d>>20)&0xf, (d>>24)&0xff, (d>>32)&1);
+                        if !EPICDIAG_INIT.swap(true, Ordering::Relaxed) { write_named("epicdiff.txt", "=== EpicPoke 7-DIFF 진단 (reason 1~5 = 어느 return-7) ===\n"); }
+                        append_named("epicdiff.txt", &s);
+                    }
+                }
+                if f.p6 == 9 && my == 13 {   // ★engage(13) 진단: 2 DIFF가 champ999==1로 갈리나
+                    let en = ENGDIAG_N.fetch_add(1, Ordering::Relaxed);
+                    if en < 300 {
+                        let d = ENG_DIAG.load(Ordering::Relaxed);
+                        let dsq = ENG_DIST.load(Ordering::Relaxed);
+                        let thr = 0x53d1ac101u64;   // dist²<thr% : 100=임계바로아래, 작을수록 멀리(=fdae40 의심)
+                        let verdict = if code == 13 { "OK" } else { "★DIFF" };
+                        let s = format!("[eng #{}] game={} my=13 [{}] champ999={} champ3e6={} side={} dist²={} ({}%of임계)\n",
+                            en, code, verdict, (d>>16)&0xff, (d>>24)&0xff, (d>>14)&1, dsq, dsq.saturating_mul(100)/thr);
+                        if !ENGDIAG_INIT.swap(true, Ordering::Relaxed) { write_named("epiceng.txt", "=== EpicPoke engage(13) 진단: champ999/champ3e6 (fdae40 게이트) ===\n"); }
+                        append_named("epiceng.txt", &s);
+                    }
+                }
+                if f.p6 == 9 && my == 11 && code != 11 {   // ★epic my=11 DIFF 진단: 어느 게이트서 갈렸나
+                    let d = EPIC11_DIAG.load(Ordering::Relaxed);
+                    let s = format!("[epic11] game={} my=11 | reason={} fdae40={} node2[c1={} c2={} c3={} c4={} c5={} heq={}] zone_app={} side={} flag={} champ999={} champ3e6={} zsf={} zot={} zhp={}\n",
+                        code, d&7, (d>>3)&1, (d>>4)&1, (d>>5)&1, (d>>6)&1, (d>>7)&1, (d>>8)&1, (d>>9)&1, (d>>10)&1, (d>>11)&1, (d>>12)&1, (d>>16)&0xff, (d>>24)&0xff, (d>>32)&0xff, (d>>40)&0xff, (d>>48)&0xff);
+                    append_named("epic11.txt", &s);
+                }
+            } else if f.kind == 8 {
+                // DefenseNexus 7-watcher(무제한): game!=18(=7) 케이스만 기록
+                let code = rd_i64(f.p5).unwrap_or(-999);
+                if code != 18 { defwatch_log(code, f.mine, f.disp_pred); }
+            } else if f.kind == 14 {
+                // ★generic_build 본체(0x20def90) 출력: out struct kind@+0x58 / arg@+0x60 / action sub-Vec(+0x70 ptr, +0x78 len, entry stride 0x18, word=code).
+                let out = f.p5;
+                let mbase = exe_base();
+                let kind = rd_i64(out + 0x58).unwrap_or(-99);
+                let arg = rd_u64(out + 0x60).unwrap_or(0) as usize;
+                let argr = if arg > mbase && arg < mbase + 0x10000000 { format!("rva+{:#x}", arg - mbase) } else { format!("{:#x}", arg) };
+                if GBBODY.load(Ordering::Relaxed) {
+                    let sentinel = rd_i64(out).unwrap_or(-99);
+                    let hdr8d = (rd_u8(out + 0x8d) as u32) | ((rd_u8(out + 0x8e) as u32) << 8);
+                    let (h89, h8a, h8b, h8f) = (rd_u8(out + 0x89), rd_u8(out + 0x8a), rd_u8(out + 0x8b), rd_u8(out + 0x8f));
+                    let vlen = rd_u64(out + 0x78).unwrap_or(0);
+                    let vptr = rd_u64(out + 0x70).unwrap_or(0) as usize;
+                    let mut vcodes = String::new();
+                    for i in 0..vlen.min(8) {
+                        let p = vptr + (i as usize) * 0x18;
+                        let code = (rd_u8(p) as u16) | ((rd_u8(p + 1) as u16) << 8);
+                        vcodes.push_str(&format!("{:#x},", code));
+                    }
+                    let (mk, ma) = (f.mine, f.p6 as u64);   // my_generic_build 예측 (kind, arg)
+                    let verdict = if mk == -99 { GBB_NOPRED.fetch_add(1, Ordering::Relaxed); "미예측".to_string() }
+                        else if mk == kind && ma == (arg as u64) { GBB_OK.fetch_add(1, Ordering::Relaxed); "OK".to_string() }
+                        else { GBB_DIFF.fetch_add(1, Ordering::Relaxed); format!("★DIFF(my k={} a={:#x})", mk, ma) };
+                    let s = format!("{} → kind={} arg={} [{}] (OK={} DIFF={} NP={}) sent={} hdr8d={:#x} h89/8a/8b/8f={}/{}/{}/{} vlen={} v=[{}]\n",
+                        f.pre, kind, argr, verdict, GBB_OK.load(Ordering::Relaxed), GBB_DIFF.load(Ordering::Relaxed), GBB_NOPRED.load(Ordering::Relaxed),
+                        sentinel, hdr8d, h89, h8a, h8b, h8f, vlen, vcodes);
+                    if !GBB_FILE_INIT.swap(true, Ordering::Relaxed) {
+                        write_named("gbbody.txt", "=== generic_build 본체(0x20def90) 출력 캡처: (disc,p2,team) → (kind@+0x58, arg@+0x60, action Vec) ===\n");
+                    }
+                    append_named("gbbody.txt", &s);
+                }
+                // ★gbrd: 0x20e42a3 mid-func 캡처가 저장한 gb_region_d 예측을 out ptr로 조회 → game kind/arg 대조 → gbrdcmp.txt.
+                //   같은 invocation서 0x42a3(store) → 함수리턴(여기서 consume). 0x42a3 미도달 invocation은 맵에 없음(=영역D 깊은분기 우회, 1차 무방).
+                let gbrd_ent = if let Ok(mut m) = GBRD_MAP.lock() {
+                    m.iter().position(|x| x.0 == out).map(|p| m.remove(p))
+                } else { None };
+                if let Some((_, pred, dump, entry_vlen)) = gbrd_ent {
+                    // ★action Vec 검증: 영역 D delta = 최종 len − entry_vlen = 영역 D가 push한 코드. (out+0x78 len, out+0x70 ptr, stride 0x18, word=code)
+                    let fvlen = rd_u64(out + 0x78).unwrap_or(0);
+                    let dn = fvlen.saturating_sub(entry_vlen);   // 영역 D push 개수
+                    if dn > 0 { GBRD_VPUSH.fetch_add(1, Ordering::Relaxed); }
+                    // game 영역 D push: dn==0→0 / dn==1→그 코드 / dn>1→0xffff(예상밖)
+                    let vptr = rd_u64(out + 0x70).unwrap_or(0) as usize;
+                    let game_push: u16 = if dn == 0 { 0 } else if dn == 1 && ptr_ok(vptr) {
+                        (rd_u8(vptr + (entry_vlen as usize) * 0x18) as u16) | ((rd_u8(vptr + (entry_vlen as usize) * 0x18 + 1) as u16) << 8)
+                    } else { 0xffff };
+                    if GBRD.load(Ordering::Relaxed) {   // verify 로깅은 gbrd일 때만(gbrepl 단독시 로그폭증 방지)
+                        let ga = arg as u64;
+                        let verdict = match pred {
+                            Some((pk, pa, ppush)) => if pk == kind && pa == ga && ppush == game_push {
+                                GBRD_OK.fetch_add(1, Ordering::Relaxed); "OK".to_string()
+                            } else {
+                                GBRD_DIFF.fetch_add(1, Ordering::Relaxed); format!("★DIFF(my k={} a={:#x} push={:#x})", pk, pa, ppush)
+                            },
+                            None => { GBRD_NP.fetch_add(1, Ordering::Relaxed); "미예측(영역D 분기 TODO)".to_string() }
+                        };
+                        let mut dcodes = String::new();
+                        if dn > 0 && ptr_ok(vptr) {
+                            for i in entry_vlen..fvlen.min(entry_vlen + 8) {
+                                let p = vptr + (i as usize) * 0x18;
+                                let code = (rd_u8(p) as u16) | ((rd_u8(p + 1) as u16) << 8);
+                                dcodes.push_str(&format!("{:#x},", code));
+                            }
+                        }
+                        let s = format!("[gbrd] game kind={} arg={} push={:#x} [{}] (OK={} DIFF={} NP={}) Dvec(d={} ev={} [{}]) | {}\n",
+                            kind, argr, game_push, verdict, GBRD_OK.load(Ordering::Relaxed), GBRD_DIFF.load(Ordering::Relaxed), GBRD_NP.load(Ordering::Relaxed),
+                            dn, entry_vlen, dcodes, dump);
+                        if !GBRD_FILE_INIT.swap(true, Ordering::Relaxed) {
+                            write_named("gbrdcmp.txt", "=== 영역 D gb_region_d 검증: 캡처 locals → 예측 vs game out (kind/arg) + Dvec(영역D push delta) ===\n");
+                        }
+                        append_named("gbrdcmp.txt", &s);
+                    }
+                    // ★대체(gbrepl)는 에필로그 hook(gbrd_epilogue_apply)이 100% inline 처리 → kind14서 제거.
+                    let _ = pred;
+                }
+            } else {
+                // RE: retval=puVar3(출력ptr) → 결정=*retval. e1=game임계값(local_b0), e2=셀렉터, e3=idx, e4=df1da0반환.
+                let decision = if ptr_ok(retval as usize) { rd_i64(retval as usize).unwrap_or(0) } else { 0 };
+                let pred = f.mine;                          // -1=retreat, 0=none, 9999=proceed(예측없음)
+                let has_pred = pred != 9999;
+                let violation = has_pred && decision != pred;
+                // ★2단계 검증: 임계값 충실재현(결정론적, RNG無). 디컴 332-392:
+                //   local_228==1: arr=[[[p6+8]+0x20]+8]; data=[arr+idx*0x10]; vt=[arr+8+idx*0x10]; role=(*[vt+0x68])(data); {4:100,3:70,2:50,_:30}
+                //   else: (local_50==1)?(p5[0x7a]?0:10):0
+                let sel: i64 = -777;   // (df0c10 셀렉터 훅 제거 — 항상 미신선. 0.5.1 정리)
+                let my_thr: i64 = if false && (sel as i32) == 1 {   // ★0.5.0: role getter vt+0x68 shadow-call = AV 크래시(vtable slot 0.5.0 stale). thr검증은 어차피 bypass(game garbage)라 무시됨 → shadow-call 비활성(false 게이트). role threshold 재검증시 vt+0x68 slot 0.5.0 확정 후 복원.
+                    let a = rd_u64(f.p6 + 8).unwrap_or(0) as usize;
+                    let b = rd_u64(a + 0x20).unwrap_or(0) as usize;
+                    let arr = rd_u64(b + 8).unwrap_or(0) as usize;
+                    let idx = e3 as usize;
+                    if ptr_ok(arr) && idx < 64 && readable(arr + idx*0x10, 0x10) {
+                        let data = rd_u64(arr + idx*0x10).unwrap_or(0) as usize;
+                        let vt = rd_u64(arr + 8 + idx*0x10).unwrap_or(0) as usize;
+                        if ptr_ok(data) && ptr_ok(vt) && readable(vt + 0x68, 8) {
+                            let g = rd_u64(vt + 0x68).unwrap_or(0) as usize;
+                            if ptr_ok(g) {
+                                let gf: Getter1 = core::mem::transmute(g);
+                                match gf(data) { 4 => 100, 3 => 70, 2 => 50, _ => 30 }
+                            } else { -777 }
+                        } else { -777 }
+                    } else { -777 }
+                } else {
+                    if e4 == 1 { if rd_i64(f.p5 + 0x7a*8).unwrap_or(0) != 0 { 0 } else { 10 } } else { 0 }
+                };
+                // e1(게임 local_b0)은 2차게이트 우회시 garbage. 유효 임계값(0/10/30/50/70/100)일때만 비교.
+                let e1_valid = matches!(e1, 0|10|30|50|70|100);
+                let thr_v = if my_thr == -777 { "thr:가드스킵" }
+                    else if !e1_valid { "thr:bypass(game garbage)" }
+                    else if e1 == my_thr { "thr:OK✓" } else { "thr:★DIFF" };
+                let n = RE_LOGGED.load(Ordering::Relaxed);
+                let roll_v = String::new();   // (fcd980 롤예측 훅 제거 — ROLL 대조 비활성)
+                let _ = violation;
+                let dtag = if decision == 5 { "ENGAGE(5)" } else if decision == 7 { "RECALL(7)" } else if decision == -1 { "RETREAT(-1)" } else if decision == 0 { "NONE(0)" } else if decision == 3 { "ZONE(3)" } else if decision == 8 { "STAND(8)" } else { "OTHER" };
+                let pv = if has_pred { if decision == pred { "PRED-OK" } else { "★PRED-VIOLATION" } } else { "proceed" };
+                // ★my_dispatch_code 라이브 검증: f.disp_pred(진입시 예측 7/8/3) vs 실제 decision
+                // ★완전정복 갭측정: my_dispatch_code 예측(7/8/3)이 실제 디스패치 출력과 일치? 아니면 roll/none으로 빠짐(mispredict)?
+                // ★2026-06-19 수정: disp_pred는 "dispatch 도달시" 조건부 예측 → proceed(lp_pred=9999) 케이스만 MISPREDICT 집계.
+                //   (lane_pred=0 퇴각 케이스는 my_full이 lp_pred로 -1 산출=정답이므로 disp_pred 무관 → 오집계 방지.)
+                let is_misp = f.mine == 9999 && matches!(f.disp_pred, 3|7|8) && !matches!(decision, 3|7|8);
+                let disp_v = if matches!(decision, 3|7|8) {
+                    let md = f.disp_pred;
+                    if md == decision { DISP_OK.fetch_add(1, Ordering::Relaxed); format!(" | ★DISP mydisp={} [DISP-OK✓]", md) }
+                    else { DISP_DIFF.fetch_add(1, Ordering::Relaxed); format!(" | ★DISP mydisp={} [DISP-★DIFF]", md) }
+                } else if is_misp {
+                    DISP_DIFF.fetch_add(1, Ordering::Relaxed);
+                    format!(" | ★DISP mydisp={} actual={} [★MISPREDICT(예측디스패치→실제roll/none)]", f.disp_pred, decision)
+                } else { String::new() };
+                // ★통합 출력 예측 my_full = lp_pred(lane/none) + dispatch + roll → 전 출력(-1/0/3/5/7/8) game==mine 측정.
+                //   f.mine=lp_pred(0=none/-1=lane퇴각/9999=proceed). proceed면 disp_pred(3/7/8) or roll(5/-1).
+                let roll_out: i64 = -777;   // (fcd980 롤예측 훅 제거)
+                let my_full: i64 =
+                    if f.mine == 0 { 0 } else if f.mine == -1 { -1 }
+                    else if matches!(f.disp_pred, 3|7|8) { f.disp_pred } else { roll_out };
+                let full_v = if my_full == -777 { String::new() }
+                    else if my_full == decision { FULL_OK.fetch_add(1, Ordering::Relaxed); String::new() }
+                    else { FULL_DIFF.fetch_add(1, Ordering::Relaxed); format!(" [★FULL-DIFF myfull={} act={}]", my_full, decision) };
+                let is_full_diff = !full_v.is_empty();
+                let s = format!("{} → out={} [{} {}] | sel_fresh={} idx={} game_thr={} my_thr={} [{}]{}{}{}\n", f.pre, decision, dtag, pv, sel, e3, e1, my_thr, thr_v, roll_v, disp_v, full_v);
+                // ★디스패치(3/7/8) + cVar6==2 + ★FULL-DIFF(통합예측 틀린것=진짜갭) → dispcmp.txt 고캡(2000).
+                let is_cv2 = f.pre.contains("cVar6=2 ");
+                if matches!(decision, 3|7|8) || is_cv2 || is_full_diff {
+                    if DISP_LOGGED.fetch_add(1, Ordering::Relaxed) < 2000 { append_named("dispcmp.txt", &s); }
+                } else if n < 60 {
+                    RE_LOGGED.fetch_add(1, Ordering::Relaxed);
+                    append_named("recmp.txt", &s);
+                }
+                // ★engage footprint 측정: 진입 스냅 → 출력별 총 RNG delta(words = refills*64 + i1 - i0). engfoot.txt.
+                if let Ok(mut sn) = RE_SNAP.lock() {
+                    if let Some(pos) = sn.iter().rposition(|x| x.0 == f.key) {
+                        let (_, state, i0, c0, pred_out, pred_words, pca, pcb) = sn.remove(pos);
+                        if readable(state + 0x138, 8) {
+                            let i1 = rd_u64(state + 0x100).unwrap_or(0);
+                            let c1 = rd_u64(state + 0x130).unwrap_or(0);
+                            let refills = c1.wrapping_sub(c0) / 4;
+                            let words = refills.wrapping_mul(64).wrapping_add(i1).wrapping_sub(i0) as i64;
+                            // ★engage 예측 검증: pred_out/pred_words(my_engage_predict) vs 실제 (decision, words). pred=-777=비engage(skip).
+                            if pred_out != -777 {
+                                let ok = pred_out == decision && pred_words == words;
+                                if ok { EP_OK.fetch_add(1, Ordering::Relaxed); } else { EP_DIFF.fetch_add(1, Ordering::Relaxed); }
+                                let pn = EP_OK.load(Ordering::Relaxed) + EP_DIFF.load(Ordering::Relaxed);
+                                if !ok || pn % 500 == 0 || pn <= 40 {
+                                    if !EFOOT_INIT.swap(true, Ordering::Relaxed) { write_named("engfoot.txt", "=== engage 예측검증: my_engage_predict(out,words) vs 실제(decision,words). gate early-exit은 DIFF로 노출 ===\n"); }
+                                    let roll_fired = false;   // (fcd980 롤예측 훅 제거)
+                                    append_named("engfoot.txt", &format!("[ep {}] my(out={} words={}) game(out={} words={}) [{}] | i0={} i1={} refills={} ca={} cb={} roll_fired={} EP_OK={} EP_DIFF={}\n",
+                                        pn, pred_out, pred_words, decision, words, if ok {"OK"} else {"★DIFF"}, i0, i1, refills, pca, pcb, roll_fired, EP_OK.load(Ordering::Relaxed), EP_DIFF.load(Ordering::Relaxed)));
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            }));
+            if hr.is_err() {
+                let c = HR_PANIC.fetch_add(1, Ordering::Relaxed);
+                if c < 30 { append_named("recmp.txt", &format!("[★PANIC caught] hook_return kind={} — verify 건너뜀(orig_ret 정상복귀)\n", f.kind)); }
+            }
+            ret
+        }
+        None => 0,
+    }
+}
+
+type Shim5 = unsafe extern "C" fn(usize, usize, usize, usize, usize) -> i64;
+
+type Getter4 = unsafe extern "C" fn(usize, usize, usize, usize) -> i64;
+
+type ShimBoth = unsafe extern "C" fn(usize, usize, usize, usize, usize, usize);  // (out[2], getter, a,b,c,d)
+
+// ★게터를 1회만 호출 → (rax,rdx) 둘 다 out[0],out[1]에 기록. 비멱등 게터(소환수)도 정확.
+unsafe fn build_shim_both() {
+    let code: [u8; 43] = [
+        0x53,                       // push rbx
+        0x48,0x89,0xCB,             // mov rbx, rcx        (out)
+        0x49,0x89,0xD2,             // mov r10, rdx        (getter)
+        0x4C,0x89,0xC1,             // mov rcx, r8         (getter arg1=a)
+        0x4C,0x89,0xCA,             // mov rdx, r9         (getter arg2=b)
+        0x4C,0x8B,0x44,0x24,0x30,   // mov r8, [rsp+0x30]  (arg3=c, +8 for pushed rbx)
+        0x4C,0x8B,0x4C,0x24,0x38,   // mov r9, [rsp+0x38]  (arg4=d)
+        0x48,0x83,0xEC,0x20,        // sub rsp,0x20        (shadow, 16-align 유지)
+        0x41,0xFF,0xD2,             // call r10            (getter 1회)
+        0x48,0x83,0xC4,0x20,        // add rsp,0x20
+        0x48,0x89,0x03,             // mov [rbx], rax      (out[0]=base1)
+        0x48,0x89,0x53,0x08,        // mov [rbx+8], rdx    (out[1]=base2)
+        0x5B,                       // pop rbx
+        0xC3,                       // ret
+    ];
+    let m = VirtualAlloc(0, 64, 0x1000|0x2000, 0x40);
+    if m != 0 { core::ptr::copy_nonoverlapping(code.as_ptr(), m as *mut u8, code.len()); SHIM_BOTH.store(m, Ordering::Relaxed); }
+}
+
+unsafe fn build_shim_rdx() {
+    let code: [u8; 32] = [
+        0x49,0x89,0xCA,             // mov r10, rcx (target)
+        0x48,0x89,0xD1,             // mov rcx, rdx (a)
+        0x4C,0x89,0xC2,             // mov rdx, r8  (b)
+        0x4D,0x89,0xC8,             // mov r8, r9   (c)
+        0x4C,0x8B,0x4C,0x24,0x28,   // mov r9, [rsp+0x28] (d)
+        0x48,0x83,0xEC,0x28,        // sub rsp,0x28
+        0x41,0xFF,0xD2,             // call r10
+        0x48,0x83,0xC4,0x28,        // add rsp,0x28
+        0x48,0x89,0xD0,             // mov rax, rdx
+        0xC3,                       // ret
+    ];
+    let m = VirtualAlloc(0, 64, 0x1000|0x2000, 0x40);
+    if m != 0 { core::ptr::copy_nonoverlapping(code.as_ptr(), m as *mut u8, code.len()); SHIM_RDX.store(m, Ordering::Relaxed); }
+}
+
+unsafe fn patch6(addr: usize, bytes: &[u8; 6]) {
+    const RWX: u32 = 0x40;
+    let mut old: u32 = 0;
+    if VirtualProtect(addr, 6, RWX, &mut old) == 0 { return; }
+    core::ptr::copy_nonoverlapping(bytes.as_ptr(), addr as *mut u8, 6);
+    VirtualProtect(addr, 6, old, &mut old);
+    FlushInstructionCache(GetCurrentProcess(), addr, 6);
+}
+
+unsafe fn apply_lane_gate() {
+    let want = LANE_GATE.load(Ordering::Relaxed);
+    if want == LANE_GATE_APPLIED.load(Ordering::Relaxed) { return; }
+    let base = exe_base();
+    if base == 0 { return; }
+    if READY_TICKS.load(Ordering::Relaxed) < READY_MIN { return; }
+    let addr = base + LANE_GATE_RVA;
+    if !readable(addr, 6) { return; }
+    let cur: [u8; 6] = [rd_u8(addr),rd_u8(addr+1),rd_u8(addr+2),rd_u8(addr+3),rd_u8(addr+4),rd_u8(addr+5)];
+    if !(cur == LANE_GATE_ORIG || cur == LANE_GATE_OFF || cur == LANE_GATE_ALL) {
+        write_named("lane_gate.txt", &format!("ABORT cur={:02x?} (RVA mismatch?)\n", cur));
+        return;
+    }
+    let target: &[u8; 6] = match want { 1 => &LANE_GATE_OFF, 2 => &LANE_GATE_ALL, _ => &LANE_GATE_ORIG };
+    patch6(addr, target);
+    LANE_GATE_APPLIED.store(want, Ordering::Relaxed);
+    write_named("lane_gate.txt", &format!("lane_gate={} APPLIED @ {:#x} bytes={:02x?}\n", want, addr, target));
+}
+
+unsafe fn apply_type3_ablate() {
+    let want = TYPE3_ABLATE.load(Ordering::Relaxed);
+    if want == TYPE3_APPLIED.load(Ordering::Relaxed) { return; }
+    let base = exe_base();
+    if base == 0 { return; }
+    if READY_TICKS.load(Ordering::Relaxed) < READY_MIN { return; }
+    let sites = [base + T3_GATE_A_RVA, base + T3_GATE_B_RVA];
+    // 안전검증: 둘째 바이트 0x5f, 첫바이트 want면 0x73(원본)·아니면 0xEB(패치)
+    for &addr in sites.iter() {
+        if !readable(addr, 2) { return; }
+        let (b0, b1) = (rd_u8(addr), rd_u8(addr + 1));
+        let ok = b1 == 0x5f && (if want { b0 == 0x73 } else { b0 == 0xEB });
+        if !ok { write_named("type3_ablate.txt", &format!("ABORT @{:#x} {:02x}{:02x} want={} (RVA mismatch?)\n", addr, b0, b1, want)); return; }
+    }
+    let newb: u8 = if want { 0xEB } else { 0x73 };
+    for &addr in sites.iter() {
+        let mut old: u32 = 0;
+        if VirtualProtect(addr, 1, 0x40, &mut old) == 0 { continue; }
+        core::ptr::write_unaligned(addr as *mut u8, newb);
+        VirtualProtect(addr, 1, old, &mut old);
+        FlushInstructionCache(GetCurrentProcess(), addr, 1);
+    }
+    TYPE3_APPLIED.store(want, Ordering::Relaxed);
+    write_named("type3_ablate.txt", &format!("type3_ablate={} APPLIED @ {:#x}/{:#x} (jae→jmp 차단)\n", want, sites[0], sites[1]));
+}
+
+unsafe fn build_call_stub(counter_addr: usize, join_addr: usize) -> usize {
+    const MEM_CR: u32 = 0x1000|0x2000; const RWX: u32 = 0x40;
+    let stub = VirtualAlloc(0, 64, MEM_CR, RWX);
+    if stub == 0 { return 0; }
+    let mut s: Vec<u8> = Vec::new();
+    s.push(0x51);                                          // push rcx
+    s.extend_from_slice(&[0x48,0xb9]); s.extend_from_slice(&counter_addr.to_le_bytes());  // movabs rcx, &counter
+    s.extend_from_slice(&[0xf0,0x48,0xff,0x01]);           // lock inc qword [rcx]
+    s.push(0x59);                                          // pop rcx
+    s.extend_from_slice(&[0xff,0x25,0x00,0x00,0x00,0x00]); // jmp qword [rip+0]
+    s.extend_from_slice(&join_addr.to_le_bytes());         // 합류점 절대주소
+    core::ptr::copy_nonoverlapping(s.as_ptr(), stub as *mut u8, s.len());
+    stub
+}
+
+unsafe fn patch14(addr: usize, bytes: &[u8; 14]) {
+    const RWX: u32 = 0x40;
+    let mut old: u32 = 0;
+    if VirtualProtect(addr, 14, RWX, &mut old) == 0 { return; }
+    core::ptr::copy_nonoverlapping(bytes.as_ptr(), addr as *mut u8, 14);
+    VirtualProtect(addr, 14, old, &mut old);
+    FlushInstructionCache(GetCurrentProcess(), addr, 14);
+}
+
+unsafe fn apply_call_ablate() {
+    let want = CALL_ABLATE.load(Ordering::Relaxed);
+    if want == CALL_ABLATE_APPLIED.load(Ordering::Relaxed) { return; }
+    let base = exe_base();
+    if base == 0 { return; }
+    if READY_TICKS.load(Ordering::Relaxed) < READY_MIN { return; }  // 게임 안정 후에만
+    let a_addr = base + CALL_PUSH_A_RVA;
+    let b_addr = base + CALL_PUSH_B_RVA;
+    if !readable(a_addr, 14) || !readable(b_addr, 14) { return; }
+    // 안전검증: 켤때 원본(C6 04..) / 끌때 패치(FF 25..) 상태인지 확인 후에만 적용 (RVA 오류 크래시 방지)
+    let (a0, a1, b0, b1) = (rd_u8(a_addr), rd_u8(a_addr + 1), rd_u8(b_addr), rd_u8(b_addr + 1));
+    let chk = if want { a0==0xC6 && a1==0x04 && b0==0xC6 && b1==0x04 } else { a0==0xFF && a1==0x25 && b0==0xFF && b1==0x25 };
+    if !chk { write_named("call_ablate.txt", &format!("ABORT A={:02x}{:02x} B={:02x}{:02x} want={} (RVA mismatch?)\n", a0,a1,b0,b1,want)); return; }
+    if want {
+        let sa = build_call_stub(&CALL_BLOCKED_A as *const _ as usize, base + CALL_JOIN_A_RVA);
+        let sb = build_call_stub(&CALL_BLOCKED_B as *const _ as usize, base + CALL_JOIN_B_RVA);
+        if sa == 0 || sb == 0 { write_named("call_ablate.txt", "ABORT stub alloc fail\n"); return; }
+        let mut pa = [0u8; 14]; pa[0]=0xff; pa[1]=0x25; pa[6..14].copy_from_slice(&sa.to_le_bytes());
+        let mut pb = [0u8; 14]; pb[0]=0xff; pb[1]=0x25; pb[6..14].copy_from_slice(&sb.to_le_bytes());
+        patch14(a_addr, &pa); patch14(b_addr, &pb);
+        write_named("call_ablate.txt", &format!("call_ablate=ON (콜차단+카운트) @ {:#x}/{:#x} stubs {:#x}/{:#x}\n", a_addr, b_addr, sa, sb));
+    } else {
+        patch14(a_addr, &CALL_ORIG_A); patch14(b_addr, &CALL_ORIG_B);
+        write_named("call_ablate.txt", &format!("call_ablate=OFF (원본복원) @ {:#x}/{:#x}\n", a_addr, b_addr));
+    }
+    CALL_ABLATE_APPLIED.store(want, Ordering::Relaxed);
+}
+
+#[inline] unsafe fn patch_imm_bytes(addr: usize, prefix: &[u8], imm_off: usize, width: usize, val: u64) -> bool {
+    if !readable(addr, imm_off + width) { return false; }
+    for (i, &b) in prefix.iter().enumerate() {
+        if rd_u8(addr + i) != b { return false; }   // opcode 불일치 = RVA 어긋남 → skip(크래시 방지)
+    }
+    let site = addr + imm_off;
+    let mut old: u32 = 0;
+    if VirtualProtect(site, width, 0x40, &mut old) == 0 { return false; }
+    let vb = val.to_le_bytes();
+    core::ptr::copy_nonoverlapping(vb.as_ptr(), site as *mut u8, width);
+    VirtualProtect(site, width, old, &mut old);
+    FlushInstructionCache(GetCurrentProcess(), site, width);
+    true
+}
+
+unsafe fn apply_objective_imm() {
+    // 게임 원본 imm값(0.5.0_2 실측): count 0x26 / nexus_hp 0x32 / hp_crit 0x15 / hp_low 0x1f
+    //   / lane_margin 0x78 / an_gate 5 / near_dist 120000 / pred_dist 240000 (dist는 거리, 코드가 제곱).
+    let enable = tune("oi_enable", 0) != 0;
+    let cg = tune("oi_dn_count_gate", 0x26);
+    let nh = tune("oi_dn_nexus_hp",   0x32);
+    let hc = tune("oi_dn_hp_crit",    0x15);
+    let hl = tune("oi_dn_hp_low",     0x1f);
+    let lm = tune("oi_dn_lane_margin",0x78);
+    let ag = tune("oi_an_count_gate",  5);
+    let nd = tune("oi_dn_near_dist",  120000);
+    let pd = tune("oi_dn_pred_dist",  240000);
+    // 서명(enable+전값) — 변화 없으면 재패치 skip(핫패스 무부담)
+    let mut sig = enable as u64;
+    for v in [cg, nh, hc, hl, lm, ag, nd, pd] { sig = sig.wrapping_mul(0x100000001b3) ^ (v as u64); }
+    if sig == OBJIMM_SIG.load(Ordering::Relaxed) { return; }
+    let base = exe_base();
+    if base == 0 || READY_TICKS.load(Ordering::Relaxed) < READY_MIN { return; }
+    // 유효값: enable이면 cfg, 아니면 게임 원본(복원)
+    let (cg, nh, hc, hl, lm, ag, nd, pd) = if enable { (cg, nh, hc, hl, lm, ag, nd, pd) }
+        else { (0x26, 0x32, 0x15, 0x1f, 0x78, 5, 120000, 240000) };
+    let b1 = |v: i64| (v.max(0).min(0x7f)) as u64;             // imm8 sign-safe clamp
+    let sq = |d: i64| { let d = d.max(0) as u64; d.wrapping_mul(d).wrapping_add(1) };   // dist²+1 (게임 인코딩)
+    let mut ok = 0u32;
+    ok += patch_imm_bytes(base + 0x2102135, &[0x48,0x83,0x7d,0xb8], 4, 1, b1(cg)) as u32;         // dn_count_gate
+    ok += patch_imm_bytes(base + 0x2102125, &[0x48,0x83,0xf8], 3, 1, b1(nh)) as u32;              // dn_nexus_hp #1
+    ok += patch_imm_bytes(base + 0x2102167, &[0x48,0x83,0xf8], 3, 1, b1(nh)) as u32;              // dn_nexus_hp #2
+    ok += patch_imm_bytes(base + 0x210214b, &[0x48,0x83,0x7d,0x08], 4, 1, b1(hc)) as u32;         // dn_hp_crit #1
+    ok += patch_imm_bytes(base + 0x21021e4, &[0x48,0x83,0x7d,0x08], 4, 1, b1(hc)) as u32;         // dn_hp_crit #2
+    ok += patch_imm_bytes(base + 0x21021b6, &[0x48,0x83,0x7d,0x08], 4, 1, b1(hl)) as u32;         // dn_hp_low
+    ok += patch_imm_bytes(base + 0x2115c72, &[0x49,0x83,0xc6], 3, 1, b1(lm)) as u32;              // dn_lane_margin
+    ok += patch_imm_bytes(base + 0x232351e, &[0x48,0x83,0xbb,0xb0,0x05,0x00,0x00], 7, 1, b1(ag)) as u32;  // an_count_gate
+    ok += patch_imm_bytes(base + 0x2101c6c, &[0x48,0xb8], 2, 8, sq(nd)) as u32;                   // dn_near_dist #1
+    ok += patch_imm_bytes(base + 0x2101cb9, &[0x48,0xb8], 2, 8, sq(nd)) as u32;                   // dn_near_dist #2
+    ok += patch_imm_bytes(base + 0x2115c05, &[0x48,0xb8], 2, 8, sq(pd)) as u32;                   // dn_pred_dist
+    OBJIMM_SIG.store(sig, Ordering::Relaxed);
+    write_named("obj_imm.txt", &format!("oi_enable={} applied={}/11 cg={} nh={} hc={} hl={} lm={} an={} near={} pred={} @base{:#x}\n",
+        enable, ok, cg, nh, hc, hl, lm, ag, nd, pd, base));
+}
+
+// ★install_wrap: 순수 트램폴린(orig N바이트 + jmp fn+N) 생성 후, fn 프롤로그를 jmp cap_fn으로 패치.
+//   반환=트램폴린 주소(cap_fn이 game 원본으로 호출). install_detour와 달리 cap_fn이 원본 실행 후 sret 캡처 가능.
+unsafe fn install_wrap(rva: usize, orig_len: usize, cap_fn: usize) -> Result<usize, &'static str> {
+    let mbase = exe_base();
+    if mbase == 0 { return Err("module 0"); }
+    let fn_addr = mbase + rva;
+    if !readable(fn_addr, orig_len+4) { return Err("fn unreadable"); }
+    // 신원검증: push rbp/r15/r14/r13/r12/rsi/rdi/rbx (12B) — disc18/19 공통 프롤로그
+    let prol = [0x55u8,0x41,0x57,0x41,0x56,0x41,0x55,0x41,0x54,0x56,0x57,0x53];
+    for i in 0..12 { if *((fn_addr+i) as *const u8) != prol[i] { return Err("프롤로그 불일치(패치판?)"); } }
+    const MEM_CR: u32 = 0x1000|0x2000; const RWX: u32 = 0x40;
+    let stub = VirtualAlloc(0, 128, MEM_CR, RWX);
+    if stub == 0 { return Err("VirtualAlloc"); }
+    let ret_addr = fn_addr + orig_len;   // fn+12 (원본 sub rsp,...)
+    let mut s: Vec<u8> = Vec::new();
+    let mut orig = vec![0u8; orig_len];
+    core::ptr::copy_nonoverlapping(fn_addr as *const u8, orig.as_mut_ptr(), orig_len);
+    s.extend_from_slice(&orig);                                              // orig 12B(push8)
+    s.extend_from_slice(&[0x48,0xb8]); s.extend_from_slice(&ret_addr.to_le_bytes()); s.extend_from_slice(&[0xff,0xe0]); // movabs rax,fn+12; jmp rax
+    core::ptr::copy_nonoverlapping(s.as_ptr(), stub as *mut u8, s.len());
+    // 패치: fn 프롤로그 12B → movabs rax,cap_fn; jmp rax
+    let mut patch = vec![0x90u8; orig_len];
+    patch[0]=0x48; patch[1]=0xb8; patch[2..10].copy_from_slice(&cap_fn.to_le_bytes()); patch[10]=0xff; patch[11]=0xe0;
+    let mut old: u32 = 0;
+    if VirtualProtect(fn_addr, orig_len, RWX, &mut old) == 0 { return Err("VirtualProtect"); }
+    core::ptr::copy_nonoverlapping(patch.as_ptr(), fn_addr as *mut u8, orig_len);
+    VirtualProtect(fn_addr, orig_len, old, &mut old);
+    FlushInstructionCache(GetCurrentProcess(), fn_addr, orig_len);
+    Ok(stub)
+}
+
+
+unsafe fn install_detour(rva: usize, orig_len: usize, cap_fn: usize) -> Result<(), &'static str> {
+    let mbase = exe_base();
+    if mbase == 0 { return Err("module 0"); }
+    let fn_addr = mbase + rva;
+    if !readable(fn_addr, orig_len+4) { return Err("fn unreadable"); }
+    const MEM_CR: u32 = 0x1000|0x2000; const RWX: u32 = 0x40;
+    let stub = VirtualAlloc(0, 256, MEM_CR, RWX);
+    if stub == 0 { return Err("VirtualAlloc"); }
+    let ret_addr = fn_addr + orig_len;
+    let mut s: Vec<u8> = Vec::new();
+    s.extend_from_slice(&[0x49,0x89,0xe2]);        // mov r10, rsp
+    s.extend_from_slice(&[0x51,0x52,0x41,0x50,0x41,0x51,0x41,0x52,0x41,0x53]); // push rcx rdx r8 r9 r10 r11
+    s.extend_from_slice(&[0x48,0x89,0xe1]);        // mov rcx, rsp (saved)
+    s.extend_from_slice(&[0x4c,0x89,0xd2]);        // mov rdx, r10 (entry_rsp)
+    s.extend_from_slice(&[0x48,0x83,0xec,0x28]);   // sub rsp,0x28
+    s.extend_from_slice(&[0x48,0xb8]); s.extend_from_slice(&cap_fn.to_le_bytes());
+    s.extend_from_slice(&[0xff,0xd0]);             // call rax
+    s.extend_from_slice(&[0x48,0x83,0xc4,0x28]);   // add rsp,0x28
+    s.extend_from_slice(&[0x41,0x5b,0x41,0x5a,0x41,0x59,0x41,0x58,0x5a,0x59]); // pop r11 r10 r9 r8 rdx rcx
+    let mut orig = vec![0u8; orig_len];
+    core::ptr::copy_nonoverlapping(fn_addr as *const u8, orig.as_mut_ptr(), orig_len);
+    s.extend_from_slice(&orig);
+    s.extend_from_slice(&[0x48,0xb8]); s.extend_from_slice(&ret_addr.to_le_bytes());
+    s.extend_from_slice(&[0xff,0xe0]);             // jmp rax
+    core::ptr::copy_nonoverlapping(s.as_ptr(), stub as *mut u8, s.len());
+    let mut patch = vec![0x90u8; orig_len];
+    patch[0]=0x48; patch[1]=0xb8; patch[2..10].copy_from_slice(&stub.to_le_bytes()); patch[10]=0xff; patch[11]=0xe0;
+    let mut old: u32 = 0;
+    if VirtualProtect(fn_addr, orig_len, RWX, &mut old) == 0 { return Err("VirtualProtect"); }
+    core::ptr::copy_nonoverlapping(patch.as_ptr(), fn_addr as *mut u8, orig_len);
+    VirtualProtect(fn_addr, orig_len, old, &mut old);
+    FlushInstructionCache(GetCurrentProcess(), fn_addr, orig_len);
+    Ok(())
+}
+
+unsafe fn install_replace_detour_rax(rva: usize, orig_len: usize, cap_fn: usize) -> Result<(), &'static str> {
+    let mbase = exe_base();
+    if mbase == 0 { return Err("module 0"); }
+    let fn_addr = mbase + rva;
+    if !readable(fn_addr, orig_len+4) { return Err("fn unreadable"); }
+    const MEM_CR: u32 = 0x1000|0x2000; const RWX: u32 = 0x40;
+    let stub = VirtualAlloc(0, 256, MEM_CR, RWX);
+    if stub == 0 { return Err("VirtualAlloc"); }
+    let ret_addr = fn_addr + orig_len;
+    let mut s: Vec<u8> = Vec::new();
+    s.extend_from_slice(&[0x49,0x89,0xe2]);        // mov r10, rsp
+    s.extend_from_slice(&[0x51,0x52,0x41,0x50,0x41,0x51,0x41,0x52,0x41,0x53]); // push rcx rdx r8 r9 r10 r11
+    s.extend_from_slice(&[0x48,0x89,0xe1]);        // mov rcx, rsp (saved)
+    s.extend_from_slice(&[0x4c,0x89,0xd2]);        // mov rdx, r10 (entry_rsp)
+    s.extend_from_slice(&[0x48,0x83,0xec,0x28]);   // sub rsp,0x28
+    s.extend_from_slice(&[0x48,0xb8]); s.extend_from_slice(&cap_fn.to_le_bytes()); // movabs rax, cap_fn
+    s.extend_from_slice(&[0xff,0xd0]);             // call rax  (→ rax: RAX_SENT=passthrough / else=반환값)
+    s.extend_from_slice(&[0x48,0x83,0xc4,0x28]);   // add rsp,0x28
+    s.extend_from_slice(&[0x49,0xbb]); s.extend_from_slice(&(RAX_SENT as u64).to_le_bytes()); // movabs r11, sentinel
+    s.extend_from_slice(&[0x4c,0x39,0xd8]);        // cmp rax, r11
+    s.extend_from_slice(&[0x74,0x0b]);             // je +0x0b → fallthrough (HANDLED 11B 스킵)
+    // ── HANDLED (11B): pop regs(rax=반환값 보존) → ret (caller로 복귀) ──
+    s.extend_from_slice(&[0x41,0x5b,0x41,0x5a,0x41,0x59,0x41,0x58,0x5a,0x59]); // pop r11 r10 r9 r8 rdx rcx (10B)
+    s.extend_from_slice(&[0xc3]);                  // ret (1B)
+    // ── FALLTHROUGH: regs복원 → 원본 prologue → fn+len ──
+    s.extend_from_slice(&[0x41,0x5b,0x41,0x5a,0x41,0x59,0x41,0x58,0x5a,0x59]); // pop r11 r10 r9 r8 rdx rcx
+    let mut orig = vec![0u8; orig_len];
+    core::ptr::copy_nonoverlapping(fn_addr as *const u8, orig.as_mut_ptr(), orig_len);
+    s.extend_from_slice(&orig);
+    s.extend_from_slice(&[0x48,0xb8]); s.extend_from_slice(&ret_addr.to_le_bytes()); // movabs rax, fn+len
+    s.extend_from_slice(&[0xff,0xe0]);             // jmp rax
+    core::ptr::copy_nonoverlapping(s.as_ptr(), stub as *mut u8, s.len());
+    let mut patch = vec![0x90u8; orig_len];
+    patch[0]=0x48; patch[1]=0xb8; patch[2..10].copy_from_slice(&stub.to_le_bytes()); patch[10]=0xff; patch[11]=0xe0;
+    let mut old: u32 = 0;
+    if VirtualProtect(fn_addr, orig_len, RWX, &mut old) == 0 { return Err("VirtualProtect"); }
+    core::ptr::copy_nonoverlapping(patch.as_ptr(), fn_addr as *mut u8, orig_len);
+    VirtualProtect(fn_addr, orig_len, old, &mut old);
+    FlushInstructionCache(GetCurrentProcess(), fn_addr, orig_len);
+    Ok(())
+}
+
+
+// ── 영역 D 캡처 전용 디투어(mid-func 0x20e42a3): rbp/r12/r13 캡처 + ★강제 16정렬보정(and rsp,-16) ──
+//   mid-func는 rsp 16-정렬(함수진입 16k-8과 다름) → push개수만으론 call서 8B 어긋남 → cap_fn movaps 폴트(genbuild_body_D.md "유일 crash지점").
+//   해결: 전 reg save 후 rbx에 rsp백업 → and rsp,-16(어느쪽 정렬이든 robust) → call → mov rsp,rbx 복원(rbx=non-vol, cap_fn 보존).
+//   saved 레이아웃: +0=rcx +8=rdx +0x10=r8 +0x18=r9 +0x20=r10(entry_rsp) +0x28=r11 +0x30=rbx +0x38=rbp +0x40=r12 +0x48=r13.
+//   ★r14는 save안함(cap_fn=Win64가 non-vol 보존) → 원본 shr r14,2 정상. rbp/rbx도 pop으로 복원 후 원본 mov rcx,[rbp+0x108] 정상.
+// ── ★영역 D 진짜 skip 디투어(mid-func 0x42a3): cap_fn(saved,entry_rsp)->i64. SENT=passthrough(원본 region D 실행, fn+orig_len 복귀) / else=out ptr=HANDLED.
+//    HANDLED: rax=cap반환(out=sret 반환값) 유지하고 funnel(funnel_rva)로 jmp = 게임 region D 미실행. region D=RNG-free라 skip 무desync.
+//    saved 레이아웃 = install_detour_d 동일(+0x38=rbp/+0x40=r12/+0x48=r13). 정렬보정 and rsp,-16. rax: passthrough=복원 / handled=cap반환(out) 유지.
+unsafe fn install_detour_d_skip(rva: usize, orig_len: usize, cap_fn: usize, funnel_rva: usize) -> Result<(), &'static str> {
+    let mbase = exe_base();
+    if mbase == 0 { return Err("module 0"); }
+    let fn_addr = mbase + rva;
+    if !readable(fn_addr, orig_len+4) { return Err("fn unreadable"); }
+    const MEM_CR: u32 = 0x1000|0x2000; const RWX: u32 = 0x40;
+    let stub = VirtualAlloc(0, 256, MEM_CR, RWX);
+    if stub == 0 { return Err("VirtualAlloc"); }
+    let ret_addr = fn_addr + orig_len;          // passthrough 복귀 (0x42b2)
+    let funnel_addr = mbase + funnel_rva;        // handled jump (0x20e4a1a)
+    let mut s: Vec<u8> = Vec::new();
+    s.extend_from_slice(&[0x49,0x89,0xe2]);   // mov r10, rsp (entry_rsp)
+    // push rax r13 r12 rbp rbx r11 r10 r9 r8 rdx rcx  (rax=highest/마지막pop ; rcx=saved+0)
+    s.extend_from_slice(&[0x50, 0x41,0x55, 0x41,0x54, 0x55, 0x53, 0x41,0x53, 0x41,0x52, 0x41,0x51, 0x41,0x50, 0x52, 0x51]);
+    s.extend_from_slice(&[0x48,0x89,0xe1]);   // mov rcx, rsp (saved=arg1)
+    s.extend_from_slice(&[0x4c,0x89,0xd2]);   // mov rdx, r10 (entry_rsp=arg2)
+    s.extend_from_slice(&[0x48,0x89,0xe3]);   // mov rbx, rsp (정렬복원 홀더)
+    s.extend_from_slice(&[0x48,0x83,0xe4,0xf0]); // and rsp,-16
+    s.extend_from_slice(&[0x48,0x83,0xec,0x20]); // sub rsp,0x20
+    s.extend_from_slice(&[0x48,0xb8]); s.extend_from_slice(&cap_fn.to_le_bytes());
+    s.extend_from_slice(&[0xff,0xd0]);        // call rax  (rax=SENT / out)
+    s.extend_from_slice(&[0x48,0x89,0xdc]);   // mov rsp, rbx
+    s.extend_from_slice(&[0x49,0xbb]); s.extend_from_slice(&(RAX_SENT as u64).to_le_bytes()); // movabs r11, SENT
+    s.extend_from_slice(&[0x4c,0x39,0xd8]);   // cmp rax, r11
+    s.extend_from_slice(&[0x74, 0x22]);       // je +0x22 → PASSTHROUGH (HANDLED 블록 34B 스킵)
+    // ── HANDLED (34B): rax=out(cap반환) 유지. pop rcx..r13(10, rax제외) → add rsp,8(rax슬롯 폐기) → jmp funnel ──
+    s.extend_from_slice(&[0x59, 0x5a, 0x41,0x58, 0x41,0x59, 0x41,0x5a, 0x41,0x5b, 0x5b, 0x5d, 0x41,0x5c, 0x41,0x5d]); // pop rcx rdx r8 r9 r10 r11 rbx rbp r12 r13 (16B)
+    s.extend_from_slice(&[0x48,0x83,0xc4,0x08]); // add rsp,8 (saved rax슬롯 폐기, rax=out 유지) (4B)
+    s.extend_from_slice(&[0xff,0x25,0x00,0x00,0x00,0x00]); s.extend_from_slice(&funnel_addr.to_le_bytes()); // jmp [rip+0]; .quad funnel (14B)
+    // ── PASSTHROUGH: pop rcx..r13 rax(11, rax복원) → 원본 15B → jmp fn+orig_len ──
+    s.extend_from_slice(&[0x59, 0x5a, 0x41,0x58, 0x41,0x59, 0x41,0x5a, 0x41,0x5b, 0x5b, 0x5d, 0x41,0x5c, 0x41,0x5d, 0x58]); // pop ...r13 rax (17B)
+    let mut orig = vec![0u8; orig_len];
+    core::ptr::copy_nonoverlapping(fn_addr as *const u8, orig.as_mut_ptr(), orig_len);
+    s.extend_from_slice(&orig);
+    s.extend_from_slice(&[0xff,0x25,0x00,0x00,0x00,0x00]); s.extend_from_slice(&ret_addr.to_le_bytes()); // jmp [rip+0]; .quad fn+orig_len
+    core::ptr::copy_nonoverlapping(s.as_ptr(), stub as *mut u8, s.len());
+    let mut patch = vec![0x90u8; orig_len];
+    patch[0]=0x48; patch[1]=0xb8; patch[2..10].copy_from_slice(&stub.to_le_bytes()); patch[10]=0xff; patch[11]=0xe0;
+    let mut old: u32 = 0;
+    if VirtualProtect(fn_addr, orig_len, RWX, &mut old) == 0 { return Err("VirtualProtect"); }
+    core::ptr::copy_nonoverlapping(patch.as_ptr(), fn_addr as *mut u8, orig_len);
+    VirtualProtect(fn_addr, orig_len, old, &mut old);
+    FlushInstructionCache(GetCurrentProcess(), fn_addr, orig_len);
+    Ok(())
+}
+
+// ── 조건부 디투어: cap_fn 반환값 rax==0(handled)→*p1 이미씀, rax=p1로 caller에 즉시 RET(원본 스킵).
+//    rax==1(fall-through)→원본 prologue 실행 후 fn+12로(원본 정상실행). 출력 sret=rcx=param_1. ──
+unsafe fn install_replace_detour(rva: usize, orig_len: usize, cap_fn: usize) -> Result<(), &'static str> {
+    let mbase = exe_base();
+    if mbase == 0 { return Err("module 0"); }
+    let fn_addr = mbase + rva;
+    if !readable(fn_addr, orig_len+4) { return Err("fn unreadable"); }
+    const MEM_CR: u32 = 0x1000|0x2000; const RWX: u32 = 0x40;
+    let stub = VirtualAlloc(0, 256, MEM_CR, RWX);
+    if stub == 0 { return Err("VirtualAlloc"); }
+    let ret_addr = fn_addr + orig_len;
+    let mut s: Vec<u8> = Vec::new();
+    s.extend_from_slice(&[0x49,0x89,0xe2]);        // mov r10, rsp  (r10=ESP0=retaddr슬롯)
+    s.extend_from_slice(&[0x51,0x52,0x41,0x50,0x41,0x51,0x41,0x52,0x41,0x53]); // push rcx rdx r8 r9 r10 r11
+    s.extend_from_slice(&[0x48,0x89,0xe1]);        // mov rcx, rsp (saved)
+    s.extend_from_slice(&[0x4c,0x89,0xd2]);        // mov rdx, r10 (entry_rsp)
+    s.extend_from_slice(&[0x48,0x83,0xec,0x28]);   // sub rsp,0x28
+    s.extend_from_slice(&[0x48,0xb8]); s.extend_from_slice(&cap_fn.to_le_bytes()); // movabs rax, cap_fn
+    s.extend_from_slice(&[0xff,0xd0]);             // call rax  (→ rax: 0=handled / 1=fallthrough)
+    s.extend_from_slice(&[0x48,0x83,0xc4,0x28]);   // add rsp,0x28
+    s.extend_from_slice(&[0x48,0x85,0xc0]);        // test rax, rax
+    s.extend_from_slice(&[0x75,0x0e]);             // jnz +0x0e → fallthrough (handled블록 14B 스킵)
+    // ── HANDLED (14B): regs복원 → rax=rcx(=p1) → ret (caller로 복귀, *p1 이미 씀) ──
+    s.extend_from_slice(&[0x41,0x5b,0x41,0x5a,0x41,0x59,0x41,0x58,0x5a,0x59]); // pop r11 r10 r9 r8 rdx rcx (rsp=ESP0)
+    s.extend_from_slice(&[0x48,0x89,0xc8]);        // mov rax, rcx  (반환값 = param_1 sret)
+    s.extend_from_slice(&[0xc3]);                  // ret  ([ESP0]=caller retaddr pop, 복귀)
+    // ── FALLTHROUGH: regs복원 → 원본 prologue → fn+12 ──
+    s.extend_from_slice(&[0x41,0x5b,0x41,0x5a,0x41,0x59,0x41,0x58,0x5a,0x59]); // pop r11 r10 r9 r8 rdx rcx (rsp=ESP0)
+    let mut orig = vec![0u8; orig_len];
+    core::ptr::copy_nonoverlapping(fn_addr as *const u8, orig.as_mut_ptr(), orig_len);
+    s.extend_from_slice(&orig);
+    s.extend_from_slice(&[0x48,0xb8]); s.extend_from_slice(&ret_addr.to_le_bytes()); // movabs rax, fn+12
+    s.extend_from_slice(&[0xff,0xe0]);             // jmp rax
+    core::ptr::copy_nonoverlapping(s.as_ptr(), stub as *mut u8, s.len());
+    let mut patch = vec![0x90u8; orig_len];
+    patch[0]=0x48; patch[1]=0xb8; patch[2..10].copy_from_slice(&stub.to_le_bytes()); patch[10]=0xff; patch[11]=0xe0;
+    let mut old: u32 = 0;
+    if VirtualProtect(fn_addr, orig_len, RWX, &mut old) == 0 { return Err("VirtualProtect"); }
+    core::ptr::copy_nonoverlapping(patch.as_ptr(), fn_addr as *mut u8, orig_len);
+    VirtualProtect(fn_addr, orig_len, old, &mut old);
+    FlushInstructionCache(GetCurrentProcess(), fn_addr, orig_len);
+    Ok(())
+}
+
+// ★07-11 강화(재현검증 후): itemnet 가드 판정. GOOD(원본실행)=true / BAD(차단·score 0.0)=false.
+//   ⚠구 범위체크(저주소만 차단)로는 owner "부분초기화"(model=owner+0x1558이 큰 주소지만 unmapped) 케이스를 못 막아
+//     0x1b784a1 `MOV RAX,[RBX+0x10]`서 AV 재현됨(d4_repl=1 리그 실측 07-11). → readable()로 실제 커밋 페이지 확인.
+//   순수 검사(VirtualQuery만·패닉0·락0) → rayon 워커 포함 전 스레드 안전(§6). readable=TOCTOU이나 여기선 즉시 deref로 창 최소.
+unsafe extern "C" fn itemnet_guard_ok(model: usize) -> bool {
+    if model < 0x10000 || model >= (1usize << 48) { return false; }   // 저주소/비정상(owner NULL→~0x1558)
+    if !readable(model, 0x20) { return false; }                        // 크래시 [model+0x10]/[+0x18] deref 대상 커밋 확인
+    let w = std::ptr::read_unaligned((model + 8) as *const usize);     // weights ptr(model readable 확인 후 안전)
+    if w != 0 && !readable(w, 8) { return false; }                     // 희소 내적 대상도 2차 방어
+    true
+}
+
+unsafe fn install_itemnet_guard() -> Result<(), &'static str> {
+    let mbase = exe_base();
+    if mbase == 0 { return Err("module 0"); }
+    let fn_addr = mbase + RVA_ITEMNET_SCORER;
+    if !readable(fn_addr, 27) { return Err("fn unreadable"); }
+    // 신원검증①: 프롤로그 push8(rbp,r15,r14,r13,r12,rsi,rdi,rbx) — scrim expect와 동일
+    let prol = [0x55u8,0x41,0x57,0x41,0x56,0x41,0x55,0x41,0x54,0x56,0x57,0x53];
+    for i in 0..12 { if *((fn_addr+i) as *const u8) != prol[i] { return Err("프롤로그 불일치(게임 업데이트?)"); } }
+    // 신원검증②: fn+12 변위대상 15B = sub rsp,0xd8 / lea rbp,[rsp+0x80] (byte-exact, rip-rel無 확인됨)
+    let disp = [0x48u8,0x81,0xec,0xd8,0x00,0x00,0x00, 0x48,0x8d,0xac,0x24,0x80,0x00,0x00,0x00];
+    let site = fn_addr + 12;
+    for i in 0..15 { if *((site+i) as *const u8) != disp[i] { return Err("fn+12 바이트 불일치(게임 업데이트?)"); } }
+    const MEM_CR: u32 = 0x1000|0x2000; const RWX: u32 = 0x40;
+    let stub = VirtualAlloc(0, 128, MEM_CR, RWX);
+    if stub == 0 { return Err("VirtualAlloc"); }
+    let hits = core::ptr::addr_of!(ITEMNET_GUARD_HITS) as usize;
+    let ret_addr = site + 15;   // GOOD 복귀 = fn+27
+    let check = itemnet_guard_ok as *const () as usize;
+    let mut s: Vec<u8> = Vec::new();
+    // ── 프리앰블: model(rcx) 보존 + Rust 가드판정(readable 검사) 호출. rbp프레임+and로 16정렬(call 안전). ──
+    s.extend_from_slice(&[0x55]);                        // push rbp
+    s.extend_from_slice(&[0x48,0x89,0xe5]);              // mov rbp, rsp
+    s.extend_from_slice(&[0x51,0x52,0x41,0x50,0x41,0x51,0x41,0x52,0x41,0x53]); // push rcx,rdx,r8,r9,r10,r11 (volatile 보존)
+    s.extend_from_slice(&[0x48,0x83,0xec,0x20]);         // sub rsp,0x20 (shadow space)
+    s.extend_from_slice(&[0x48,0x83,0xe4,0xf0]);         // and rsp,-16 (16정렬)
+    s.extend_from_slice(&[0x48,0xb8]); s.extend_from_slice(&check.to_le_bytes()); // movabs rax, itemnet_guard_ok
+    s.extend_from_slice(&[0xff,0xd0]);                   // call rax  (rcx=model=arg1 진입값 그대로) → al=GOOD?
+    s.extend_from_slice(&[0x48,0x8d,0x65,0xd0]);         // lea rsp,[rbp-0x30] (6 push 위치로 복원)
+    s.extend_from_slice(&[0x41,0x5b,0x41,0x5a,0x41,0x59,0x41,0x58,0x5a,0x59,0x5d]); // pop r11,r10,r9,r8,rdx,rcx,rbp
+    s.extend_from_slice(&[0x84,0xc0]);                   // test al,al
+    s.extend_from_slice(&[0x74,0x1d]);                   // jz BAD (+0x1d=29 → GOOD블록 건너뜀)
+    // ── GOOD: 변위 15B 실행 → fn+27 복귀 (rsp=fn+12 진입상태로 복원됨) ──
+    s.extend_from_slice(&disp);
+    s.extend_from_slice(&[0xff,0x25,0x00,0x00,0x00,0x00]); s.extend_from_slice(&ret_addr.to_le_bytes()); // jmp [rip+0]; .quad fn+27
+    // ── BAD(82): 카운트 → push8 되감기 → xmm0/xmm1=0 → ret ──
+    debug_assert!(s.len() == 82);
+    s.extend_from_slice(&[0x48,0xb8]); s.extend_from_slice(&hits.to_le_bytes()); // movabs rax, &HITS
+    s.extend_from_slice(&[0xf0,0x48,0xff,0x00]);                              // lock inc qword [rax]
+    s.extend_from_slice(&[0x5b,0x5f,0x5e,0x41,0x5c,0x41,0x5d,0x41,0x5e,0x41,0x5f,0x5d]); // pop rbx,rdi,rsi,r12,r13,r14,r15,rbp (프롤로그 역순)
+    s.extend_from_slice(&[0x0f,0x57,0xc0]);                                   // xorps xmm0,xmm0 (score=0.0)
+    s.extend_from_slice(&[0x0f,0x57,0xc9]);                                   // xorps xmm1,xmm1 (미분 레인 보험)
+    s.push(0xc3);                                                             // ret
+    core::ptr::copy_nonoverlapping(s.as_ptr(), stub as *mut u8, s.len());
+    // 패치(fn+12, 15B): movabs rax,stub(10B) + jmp rax(2B) + nop*3
+    let mut patch = vec![0x90u8; 15];
+    patch[0]=0x48; patch[1]=0xb8; patch[2..10].copy_from_slice(&stub.to_le_bytes()); patch[10]=0xff; patch[11]=0xe0;
+    let mut old: u32 = 0;
+    if VirtualProtect(site, 15, RWX, &mut old) == 0 { return Err("VirtualProtect"); }
+    core::ptr::copy_nonoverlapping(patch.as_ptr(), site as *mut u8, 15);
+    VirtualProtect(site, 15, old, &mut old);
+    FlushInstructionCache(GetCurrentProcess(), site, 15);
+    Ok(())
+}
+
+
+// ── facet#2 이동 override 핸들러: driver memcpy 직전 Input(src=rdx) 가로채기 ──
+// tag@+0==1(Move)이면 x@+8/y@+0x10를 cfg값으로 덮어씀. tag별 카운트(훅 발동확인).
+unsafe extern "C" fn move_override(src: usize) {
+    if !ptr_ok(src) || !readable(src, 0x90) { return; }
+    let tag = std::ptr::read_unaligned(src as *const i64);
+    let b = if (0..16).contains(&tag) { tag as usize } else { 15 };
+    TAG_COUNTS[b].fetch_add(1, Ordering::Relaxed);
+    // tag별 첫 샘플: struct 머리 9 qword 덤프 (좌표 위치 찾기)
+    if TAG_SAMP[b][0].load(Ordering::Relaxed) == i64::MIN {
+        for k in 0..18usize { TAG_SAMP[b][k].store(std::ptr::read_unaligned((src + k*8) as *const i64), Ordering::Relaxed); }
+    }
+    if MOVE_ON.load(Ordering::Relaxed) && tag == MOVE_TAG.load(Ordering::Relaxed) {
+        let off = MOVE_OFF.load(Ordering::Relaxed) as usize;
+        if off + 16 <= 0x90 {
+            std::ptr::write_unaligned((src + off) as *mut i64, MOVE_X.load(Ordering::Relaxed));
+            std::ptr::write_unaligned((src + off + 8) as *mut i64, MOVE_Y.load(Ordering::Relaxed));
+            MOVE_HANDLED.fetch_add(1, Ordering::Relaxed);
+        }
+    }
+}
+
+// rel32 도달범위(±2GB) 내 target 근처에 RWX 할당 (CALL rel32 재지정용)
+unsafe fn alloc_near(target: usize, size: usize) -> usize {
+    let base = target & !0xffff;
+    const MEM_CR: u32 = 0x1000|0x2000; const RWX: u32 = 0x40;
+    let mut step = 1usize;
+    while step < 0x7000 {  // ~1.75GB 까지 64KB 스텝
+        for dir in [1isize, -1isize] {
+            let addr = base.wrapping_add((dir * (step as isize) * 0x10000) as usize);
+            if addr >= 0x10000 {
+                let p = VirtualAlloc(addr, size, MEM_CR, RWX);
+                if p != 0 { return p; }
+            }
+        }
+        step += 1;
+    }
+    0
+}
+
+
+// ── facet#2 진짜 이동훅: driver의 FUN_141917430(이동좌표 최종화) 호출지점(0x1d4fecf)을 POST-래퍼로 ──
+// 래퍼 = 원본 FUN_141917430을 (인자 그대로 복제) 호출 → 직후 outptr(=rcx, [RBP+0xd0])이 최종 Move{tag,x,y}
+//        → move_override(outptr) (9 qword 덤프 + cfg move=1이면 x/y 강제). 호출지점 한정이라 다른 caller엔 무영향.
+unsafe fn install_move_post_hook() -> Result<(), &'static str> {
+    let mbase = exe_base();
+    if mbase == 0 { return Err("module 0"); }
+    let call_site = mbase + RVA_F2_BUILD_CALL;   // CALL FUN_141917430
+    if !readable(call_site, 5) { return Err("call_site unreadable"); }
+    if std::ptr::read_unaligned(call_site as *const u8) != 0xE8 { return Err("not a CALL(E8)"); }
+    let next = call_site + 5;                      // 0x141d4fed4 (driver 복귀지점)
+    let rel0 = std::ptr::read_unaligned((call_site + 1) as *const i32);
+    let target = (next as i64 + rel0 as i64) as usize;  // 실제 FUN_141917430 주소
+    if target != mbase + RVA_GENERIC_BUILD { return Err("target mismatch (not generic_build)"); }
+    let stub = alloc_near(next, 160);
+    if stub == 0 { return Err("alloc_near"); }
+    let new_rel = stub as i64 - next as i64;
+    if new_rel > 0x7f00_0000 || new_rel < -0x7f00_0000 { return Err("stub too far"); }
+    // 래퍼 스텁. 진입 rsp=S(%16==8), [S]=복귀주소, rcx=outptr, rdx/r8/r9=arg2~4, stack arg5~8=[S+0x28..0x40].
+    let mut s: Vec<u8> = Vec::new();
+    s.extend_from_slice(&[0x55]);                          // push rbp
+    s.extend_from_slice(&[0x48, 0x89, 0xE5]);             // mov rbp, rsp        (rbp=S-8)
+    s.extend_from_slice(&[0x53]);                          // push rbx
+    s.extend_from_slice(&[0x48, 0x89, 0xCB]);             // mov rbx, rcx        (rbx=outptr, call 넘어 보존)
+    s.extend_from_slice(&[0x48, 0x83, 0xEC, 0x48]);       // sub rsp, 0x48       (shadow0x20+arg0x20+align8)
+    // stack arg5~8 복제: [rbp+0x30..0x48] → [rsp+0x20..0x38] (원래 호출이 넘기던 값 그대로)
+    s.extend_from_slice(&[0x48, 0x8B, 0x45, 0x30, 0x48, 0x89, 0x44, 0x24, 0x20]); // mov rax,[rbp+0x30]; mov [rsp+0x20],rax
+    s.extend_from_slice(&[0x48, 0x8B, 0x45, 0x38, 0x48, 0x89, 0x44, 0x24, 0x28]); // arg6
+    s.extend_from_slice(&[0x48, 0x8B, 0x45, 0x40, 0x48, 0x89, 0x44, 0x24, 0x30]); // arg7
+    s.extend_from_slice(&[0x48, 0x8B, 0x45, 0x48, 0x48, 0x89, 0x44, 0x24, 0x38]); // arg8
+    // rcx/rdx/r8/r9 그대로(arg1~4). 원본 호출.
+    s.extend_from_slice(&[0x48, 0xB8]); s.extend_from_slice(&target.to_le_bytes());  // movabs rax, FUN_141917430
+    s.extend_from_slice(&[0xFF, 0xD0]);                   // call rax
+    // 복귀: rax=리턴값(sret→outptr). move_override(outptr) 실행 (rax 보존).
+    s.extend_from_slice(&[0x50]);                          // push rax           (리턴값 보존)
+    s.extend_from_slice(&[0x48, 0x89, 0xD9]);             // mov rcx, rbx        (arg=outptr)
+    s.extend_from_slice(&[0x48, 0x83, 0xEC, 0x28]);       // sub rsp, 0x28       (shadow+align)
+    s.extend_from_slice(&[0x48, 0xB8]); s.extend_from_slice(&(move_override as usize).to_le_bytes()); // movabs rax,move_override
+    s.extend_from_slice(&[0xFF, 0xD0]);                   // call rax
+    s.extend_from_slice(&[0x48, 0x83, 0xC4, 0x28]);       // add rsp, 0x28
+    s.extend_from_slice(&[0x58]);                          // pop rax            (리턴값 복원)
+    s.extend_from_slice(&[0x48, 0x8D, 0x65, 0xF8]);       // lea rsp, [rbp-8]    (저장된 rbx 위치)
+    s.extend_from_slice(&[0x5B]);                          // pop rbx
+    s.extend_from_slice(&[0x5D]);                          // pop rbp
+    s.extend_from_slice(&[0xC3]);                          // ret                (→ 복귀주소 next)
+    core::ptr::copy_nonoverlapping(s.as_ptr(), stub as *mut u8, s.len());
+    FlushInstructionCache(GetCurrentProcess(), stub, s.len());
+    const RWX: u32 = 0x40;
+    let mut old: u32 = 0;
+    if VirtualProtect(call_site, 5, RWX, &mut old) == 0 { return Err("VirtualProtect"); }
+    std::ptr::write_unaligned((call_site + 1) as *mut i32, new_rel as i32);
+    VirtualProtect(call_site, 5, old, &mut old);
+    FlushInstructionCache(GetCurrentProcess(), call_site, 5);
+    Ok(())
+}
+
+// stub이 p2(rcx) 넘겨 호출. 반환 = 적용할 p2(배율). 게임 원본 FUN_1420a8680은 stub이 호출.
+unsafe extern "C" fn threatgate_adjust(p2: usize) -> usize {
+    let r = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+        let mult = TG_MULT.load(Ordering::Relaxed);
+        if TG_CAP.load(Ordering::Relaxed) {
+            let n = TG_N.fetch_add(1, Ordering::Relaxed);
+            if n < 300 { append_named("tgcap.txt", &format!("[tg #{}] p2={} (0x{:x}) gate_skip(<12)={} mult={}\n", n, p2 as i64, p2, (p2 as i64) < 0xc, mult)); }
+        }
+        if mult == 100 { p2 } else {
+            let v = (p2 as i64).wrapping_mul(mult) / 100;
+            if v < 0 { 0 } else { v as usize }
+        }
+    }));
+    r.unwrap_or(p2)   // 패닉시 원본 p2 passthrough(게임 계속)
+}
+
+unsafe fn install_threatgate_hook() -> Result<(), &'static str> {
+    let mbase = exe_base();
+    if mbase == 0 { return Err("module 0"); }
+    let call_site = mbase + RVA_TG_CALL;            // 0x1feca43 CALL FUN_1420a8680 (E8 rel32)
+    if !readable(call_site, 5) { return Err("call_site unreadable"); }
+    if std::ptr::read_unaligned(call_site as *const u8) != 0xE8 { return Err("not a CALL(E8)"); }
+    let next = call_site + 5;
+    let rel0 = std::ptr::read_unaligned((call_site + 1) as *const i32);
+    let target = (next as i64 + rel0 as i64) as usize;
+    if target != mbase + RVA_THREATGATE_FN { return Err("target mismatch (not threatgate)"); }
+    let stub = alloc_near(next, 160);
+    if stub == 0 { return Err("alloc_near"); }
+    let new_rel = stub as i64 - next as i64;
+    if new_rel > 0x7f00_0000 || new_rel < -0x7f00_0000 { return Err("stub too far"); }
+    // 진입 rsp=S(%16==8), [S]=복귀(0x1feca48). rcx/rdx/r8/r9=인자(스택인자 없음). 반환 rax(결과)+rdx(타깃) 둘 다 보존.
+    let mut s: Vec<u8> = Vec::new();
+    s.extend_from_slice(&[0x55]);                          // push rbp
+    s.extend_from_slice(&[0x48, 0x89, 0xE5]);              // mov rbp, rsp
+    s.extend_from_slice(&[0x48, 0x83, 0xEC, 0x40]);        // sub rsp, 0x40 (인자저장 + shadow)
+    s.extend_from_slice(&[0x48, 0x89, 0x4D, 0xF8]);        // mov [rbp-0x08], rcx
+    s.extend_from_slice(&[0x48, 0x89, 0x55, 0xF0]);        // mov [rbp-0x10], rdx
+    s.extend_from_slice(&[0x4C, 0x89, 0x45, 0xE8]);        // mov [rbp-0x18], r8
+    s.extend_from_slice(&[0x4C, 0x89, 0x4D, 0xE0]);        // mov [rbp-0x20], r9
+    s.extend_from_slice(&[0x48, 0x89, 0xD1]);              // mov rcx, rdx (=p2)
+    s.extend_from_slice(&[0x48, 0xB8]); s.extend_from_slice(&(threatgate_adjust as usize).to_le_bytes()); // movabs rax, threatgate_adjust
+    s.extend_from_slice(&[0xFF, 0xD0]);                    // call rax → rax=조정된 p2
+    s.extend_from_slice(&[0x48, 0x89, 0xC2]);              // mov rdx, rax (p2 갱신)
+    s.extend_from_slice(&[0x48, 0x8B, 0x4D, 0xF8]);        // mov rcx, [rbp-0x08]
+    s.extend_from_slice(&[0x4C, 0x8B, 0x45, 0xE8]);        // mov r8, [rbp-0x18]
+    s.extend_from_slice(&[0x4C, 0x8B, 0x4D, 0xE0]);        // mov r9, [rbp-0x20]
+    s.extend_from_slice(&[0x48, 0xB8]); s.extend_from_slice(&target.to_le_bytes());  // movabs rax, FUN_1420a8680
+    s.extend_from_slice(&[0xFF, 0xD0]);                    // call rax → rax/rdx 반환
+    s.extend_from_slice(&[0x48, 0x89, 0xEC]);              // mov rsp, rbp
+    s.extend_from_slice(&[0x5D]);                          // pop rbp
+    s.extend_from_slice(&[0xC3]);                          // ret (→ next 0x1feca48, rax/rdx 유지)
+    core::ptr::copy_nonoverlapping(s.as_ptr(), stub as *mut u8, s.len());
+    FlushInstructionCache(GetCurrentProcess(), stub, s.len());
+    const RWX: u32 = 0x40; let mut old: u32 = 0;
+    if VirtualProtect(call_site, 5, RWX, &mut old) == 0 { return Err("VirtualProtect"); }
+    std::ptr::write_unaligned((call_site + 1) as *mut i32, new_rel as i32);
+    VirtualProtect(call_site, 5, old, &mut old);
+    FlushInstructionCache(GetCurrentProcess(), call_site, 5);
+    Ok(())
+}
+
+
+// 광범위 커밋 dump: 매프레임 최종 Input(rdx) tag별 첫샘플 18 qword. (override 없음, 관측전용)
+unsafe extern "C" fn commit_dump(src: usize) {
+    if !ptr_ok(src) || !readable(src, 0x90) { return; }
+    COMMIT_TOTAL.fetch_add(1, Ordering::Relaxed);
+    let tag = std::ptr::read_unaligned(src as *const i64);
+    let b = if (0..16).contains(&tag) { tag as usize } else { 15 };
+    COMMIT_TAGCOUNT[b].fetch_add(1, Ordering::Relaxed);
+    if COMMIT_SAMP[b][0].load(Ordering::Relaxed) == i64::MIN {
+        for k in 0..18usize { COMMIT_SAMP[b][k].store(std::ptr::read_unaligned((src + k*8) as *const i64), Ordering::Relaxed); }
+    }
+}
+
+// 페이즈 게이트 threshold 베이스(imm8) 패치. cfg engage_base>=0이면 적용(핫리로드). -1이면 원본 복원.
+unsafe fn apply_engage_base() {
+    let mbase = exe_base();
+    if mbase == 0 { return; }
+    let site = mbase + RVA_ENGAGE_GATE;
+    if !readable(site, 3) { return; }
+    // sanity: 83 C0 ?? (ADD EAX, imm8)
+    if std::ptr::read_unaligned(site as *const u8) != 0x83 || std::ptr::read_unaligned((site+1) as *const u8) != 0xC0 { return; }
+    let imm_site = site + 2;
+    // 최초 1회 원본 백업
+    if ENGAGE_ORIG.load(Ordering::Relaxed) < 0 {
+        ENGAGE_ORIG.store(std::ptr::read_unaligned(imm_site as *const u8) as i64, Ordering::Relaxed);
+    }
+    let want = ENGAGE_BASE.load(Ordering::Relaxed);
+    let new_imm: u8 = if want < 0 { ENGAGE_ORIG.load(Ordering::Relaxed) as u8 }  // -1=원본 복원
+                      else { want.clamp(0, 127) as u8 };
+    if std::ptr::read_unaligned(imm_site as *const u8) == new_imm { return; }  // 변화없으면 skip
+    const RWX: u32 = 0x40;
+    let mut old: u32 = 0;
+    if VirtualProtect(imm_site, 1, RWX, &mut old) == 0 { return; }
+    std::ptr::write_unaligned(imm_site as *mut u8, new_imm);
+    VirtualProtect(imm_site, 1, old, &mut old);
+    FlushInstructionCache(GetCurrentProcess(), imm_site, 1);
+}
+
+// ── 광범위 커밋 훅: CALL FUN_141a49fa0(0x1d5035d) rel32 재지정 → commit_dump(rdx) 후 jmp 원본 ──
+unsafe fn install_commit_hook() -> Result<(), &'static str> {
+    let mbase = exe_base();
+    if mbase == 0 { return Err("module 0"); }
+    let call_site = mbase + RVA_COMMIT_CALL;
+    if !readable(call_site, 5) { return Err("call_site unreadable"); }
+    if std::ptr::read_unaligned(call_site as *const u8) != 0xE8 { return Err("not a CALL(E8)"); }
+    let next = call_site + 5;
+    let rel0 = std::ptr::read_unaligned((call_site + 1) as *const i32);
+    let target = (next as i64 + rel0 as i64) as usize;
+    if target != mbase + RVA_COMMIT_FN { return Err("target mismatch (not commit fn)"); }
+    let stub = alloc_near(next, 128);
+    if stub == 0 { return Err("alloc_near"); }
+    let new_rel = stub as i64 - next as i64;
+    if new_rel > 0x7f00_0000 || new_rel < -0x7f00_0000 { return Err("stub too far"); }
+    // 스텁: rcx=champ+0x590, rdx=&Input. commit_dump(rdx) 후 jmp FUN_141a49fa0(→ret시 0x141d50362 복귀).
+    let mut s: Vec<u8> = Vec::new();
+    s.extend_from_slice(&[0x51, 0x52, 0x41, 0x50, 0x41, 0x51]);  // push rcx; push rdx; push r8; push r9
+    s.extend_from_slice(&[0x48, 0x89, 0xD1]);                    // mov rcx, rdx (arg=Input)
+    s.extend_from_slice(&[0x48, 0x83, 0xEC, 0x28]);              // sub rsp,0x28 (shadow+align)
+    s.extend_from_slice(&[0x48, 0xB8]); s.extend_from_slice(&(commit_dump as *const () as usize).to_le_bytes());
+    s.extend_from_slice(&[0xFF, 0xD0]);                          // call rax
+    s.extend_from_slice(&[0x48, 0x83, 0xC4, 0x28]);              // add rsp,0x28
+    s.extend_from_slice(&[0x41, 0x59, 0x41, 0x58, 0x5A, 0x59]);  // pop r9; pop r8; pop rdx; pop rcx
+    s.extend_from_slice(&[0x48, 0xB8]); s.extend_from_slice(&target.to_le_bytes());  // movabs rax, FUN_141a49fa0
+    s.extend_from_slice(&[0xFF, 0xE0]);                          // jmp rax
+    core::ptr::copy_nonoverlapping(s.as_ptr(), stub as *mut u8, s.len());
+    FlushInstructionCache(GetCurrentProcess(), stub, s.len());
+    const RWX: u32 = 0x40;
+    let mut old: u32 = 0;
+    if VirtualProtect(call_site, 5, RWX, &mut old) == 0 { return Err("VirtualProtect"); }
+    std::ptr::write_unaligned((call_site + 1) as *mut i32, new_rel as i32);
+    VirtualProtect(call_site, 5, old, &mut old);
+    FlushInstructionCache(GetCurrentProcess(), call_site, 5);
+    Ok(())
+}
+
+
+// ★facet#5 역할 교전임계값 스케일 패치(cfg engage_thr_mult). mult=100→원본 복원. 각 immediate low byte 1개.
+unsafe fn apply_engage_thr_mult() {
+    let mult = ENGAGE_THR_MULT.load(Ordering::Relaxed);
+    if mult < 0 { return; }
+    let mbase = exe_base();
+    if mbase == 0 { return; }
+    // 오프셋 sanity: 각 site의 imm32 상위3바이트가 0이어야(작은값). 아니면 잘못된 오프셋→중단.
+    for &(rva, _) in &ROLE_THR {
+        let s = mbase + rva;
+        if !readable(s, 4) { return; }
+        if std::ptr::read_unaligned((s+1) as *const u8) != 0
+            || std::ptr::read_unaligned((s+2) as *const u8) != 0
+            || std::ptr::read_unaligned((s+3) as *const u8) != 0 { return; }
+    }
+    const RWX: u32 = 0x40;
+    for &(rva, orig) in &ROLE_THR {
+        let s = mbase + rva;
+        let new = ((orig as i64) * mult / 100).clamp(0, 255) as u8;
+        if std::ptr::read_unaligned(s as *const u8) == new { continue; }
+        let mut old: u32 = 0;
+        if VirtualProtect(s, 1, RWX, &mut old) == 0 { continue; }
+        std::ptr::write_unaligned(s as *mut u8, new);
+        VirtualProtect(s, 1, old, &mut old);
+        FlushInstructionCache(GetCurrentProcess(), s, 1);
+    }
+}
+
+// ★numbers 전력회피를 movepri 각 disc(subplan) 분기에 공통 적용(2026-07-02). disc가 곧 subplan → NUMBERS_THREAT_SP[disc] 우선(-1=공통 폴백).
+//   r14=athlete(p5)/r15=view(p6)/p1=출력ptr(대체 후 code)은 모든 disc 분기 공통(entry_rsp+0x28/+0x30, saved+0x28). 후퇴 판정시 code7 override.
+//   게이트: numbers류 아무것도 설정 안 하면 skip(기본=무동작=원본보존). catch_unwind+fault-safe read라 detour 안전.
+unsafe fn apply_numbers_sp(disc: i64, entry_rsp: usize, p1: usize) {
+    if !(NUMBERS_THREAT_SP_ANY.load(Ordering::Relaxed) || TOWER_THREAT.load(Ordering::Relaxed) > 0 || NUMBERS_THREAT.load(Ordering::Relaxed) > 0 || NUMBERS_THREAT_MOVE.load(Ordering::Relaxed) > 0 || NUMBERS_MARGIN.load(Ordering::Relaxed) > 0) { return; }
+    let _ = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+        if !ptr_ok(p1) { return; }
+        let r14 = rd_u64(entry_rsp + 0x28).unwrap_or(0) as usize;   // athlete(p5)
+        let r15 = rd_u64(entry_rsp + 0x30).unwrap_or(0) as usize;   // view(p6)
+        if !ptr_ok(r14) || !ptr_ok(r15) { return; }
+        let base_code = rd_u8(p1);
+        let l80 = rd_u64(r15).unwrap_or(0) as usize;
+        let sim = rd_u64(l80).unwrap_or(0) as usize;
+        let side = rd_i64(r14 + 0x6a8).unwrap_or(-1);
+        let selfe = dd7_slot128(sim, rd_u64(r14 + 0x6a0).unwrap_or(0));
+        if ptr_ok(selfe) && laner_should_retreat(r15, side, selfe, r14, base_code, disc) {
+            std::ptr::write_unaligned(p1 as *mut u64, 7u64);
+            let c = SP_SEEN[(disc as usize).min(15)].fetch_add(1, Ordering::Relaxed);   // ★진단: 어느 subplan서 numbers 후퇴 발동
+            if c % 20 == 0 {   // 20발동마다 sp_seen.txt 덤프(log=1 필요)
+                let mut s = String::from("=== numbers_sp 후퇴발동 (subplan별 누적) ===\n2=강제수동 3=라인 4=정글 5=귀환 6=교전 7=갱실행 8=갱커버 9/11=오브견제 10/12=오브배틀 13=넥공 14=넥수비\n");
+                for d in 0..16usize { let v = SP_SEEN[d].load(Ordering::Relaxed); if v > 0 { s.push_str(&format!("subplan {:2} = {}\n", d, v)); } }
+                write_named("sp_seen.txt", &s);
+            }
+        }
+    }));
+}

@@ -1,0 +1,513 @@
+
+== [lane] • [0·1·3] 라인전 (passive_line   (28키)
+  §◆ 이동·후퇴 게이트
+     dd_frontier_mult
+     dd_ratio_thr
+     dd_ivar2_thr
+  §◆ 거리 임계
+     dd_near_dist
+     dd_main_near_dist
+     dd_gatee_dist
+  §◆ 커버·합류
+     dd_cover_count
+     dd_survivor_thr
+     dd_facet_thr
+     dd_cover_role_min
+  §◆ 생존자 카운트
+     dd_f22e80_margin
+  §라인 배정 · 봇 듀오 (레인 0=탑 1=미드 2=바텀)
+     d4_hp_safe
+     d4_partner_dist
+     d4_ally_radius_a
+     d4_ally_radius_b
+     d4_early_leave
+     d4_from_mid
+     d4_from_mid_mode
+     d4_ally_cnt
+     d4_minion_cnt
+     d4_gather_radius
+  §라인 총력전 (한번에 밀어붙일 때)
+     lt_ally_join
+     lt_around_radius
+     lt_phase_mask
+  §라인 대기 (밀고 나간 뒤 어디서 기다릴지)
+     lw_wait_dist
+     lw_back
+     lw_radius
+  §라인 안전 (물러나 있을 때)
+     ls_radius
+
+== [recall] • [8] 귀환 (ActiveRecall)  (32키)
+  §◆ 체력 기반 복귀 (기본)
+     rc_u21_init
+     rc_ehp_t1
+     rc_ehp_t2
+     rc_ehp_t3
+     rc_ehp_v1
+     rc_ehp_v2
+     rc_norp_bonus
+     rc_ed_near
+     rc_ed_mid
+     rc_ed_far
+     rc_ed_near_pen
+     rc_ed_far_bonus
+     rc_ed_vfar_bonus
+     rc_ahp_t1
+     rc_ahp_t2
+     rc_u13_bonus
+     rc_ahp2_pen
+     rc_ad_near
+     rc_ad_mid
+     rc_ad_near_bonus
+     rc_ad_far_pen
+     rc_mult_bonus
+     rc_ally_hp_min
+  §복귀 성향 다이얼
+     t_recall
+  §복귀배율 RNG/정규화
+     rc_rng_center
+     rc_rng_spread_div
+     rc_rng_a_base
+     rc_score_div
+  §✅ disc7 귀환 이동판단 [0.5.3 재가동] — d7_repl=1 기본ON. scan2 경로만 원본위임
+     d7_repl
+     d7_hp_normal
+     d7_hp_selfheal
+     d7_wp_dist2
+
+== [object] • [9·11] 교전·갱커버 (Battle·LineGankCover)  (7키)
+  §◆ 위치술어 (pf)
+     pf_edge_margin
+     pf_center_band
+     pf_diag_far
+     pf_diag_near
+     pf_band_width
+  §견제 도달 게이트
+     poke_reach_bonus
+     poke_serpen_slot
+
+== [battle] • [12] 에픽 사냥·견제 (EpicHuntAndPoke)  (22키)
+  §◆ [12]교전판단 HP 게이트
+     ec_oz_hp
+     ec_iz_hp
+     ec_self_hp_low
+     ec_valid_hp
+     ec_commit_hp
+     ec_count_hp
+  §◆ [12]거리·카운트·시야
+     ec_engage_dist2
+     ec_count_radius
+     ec_vision_ticks
+  §사냥할 때 붙는 거리
+     eh_trace_arrive
+     eh_band_low
+     eh_band_high
+     eh_around_radius
+     eh_recall_radius
+  §사냥을 걸지 말지
+     eh_abort_hp
+     eh_abort_dist
+     eh_commit_hp
+     eh_commit_r_low
+     eh_commit_r_high
+     eh_flee_clear_hp
+  §전술이 행동을 가르는 단 두 곳
+     eh_reach_margin
+     eh_score_norm
+
+== [def] • [14] 세르펜 사냥·견제 (SerpenHuntAndPoke)  (6키)
+  §◆ 홈 회복존 게이트 (아군 베이스/분수 영역·부상시 홈대기)
+     sn_home_lo
+     sn_home_hi
+     sn_home_x1
+     sn_home_y1
+  §◆ HP 게이트
+     sn_self_hp
+     sn_hp_crit
+
+== [disc17] • [17] 넥서스 방어 판단 (DefenseNexus)  (6키)
+  §◆ [17]견제 진척 게이트
+     nxd_prog_low
+     nxd_prog_crit
+     nxd_p3_gate
+     nxd_ref_hp
+  §◆ [17]거리
+     nxd_near_dist
+     nxd_pred_dist
+
+== [disc19] • [18·19] 넥서스 공수 실행 (sub_plan)  (14키)
+     oi_enable
+  §◆ 방어 (disc19) — 실작동 byte-patch (d19i_enable=1 켜야 severity/retreat 반영)
+     d19i_enable
+     d19_retreat_hp
+     oi_dn_nexus_hp
+     oi_dn_hp_crit
+     oi_dn_hp_low
+     oi_dn_near_dist
+     oi_dn_pred_dist
+     oi_dn_lane_margin
+  §방어 측 교전 컷 · 배회 반경 (빠져 있던 자리)
+     nx_cull_dist19
+     nx_around_def
+  §공격 측 배회 반경
+     nx_around_atk
+  §◆ 공격 (disc18) — 실작동 byte-patch
+     oi_an_finish_hp
+     oi_an_cull_dist
+
+== [gb] • [매크로] 운영전환·로밍 (GenericBuild)  (12키)
+  §◆ 마스터 스위치 (1=켜야 아래 byte-patch 반영, 0=전량 원본)
+     gb_enable
+  §로밍 거리·범위 (유닛, -1=원본유지)
+     gb_join_dist
+     gb_scout_radius
+     gb_close_radius
+     gb_line_range
+  §진입 타이밍 게이트 (-1=원본유지)
+     gb_op_phase
+     gb_push_hp
+  §⚠ 전역 사거리 (전 AI 공유·신중, -1=원본)
+     gb_reach_cap
+     gb_reach_margin
+  §라인개입 갱 셋업 — 정글 전술에 따라 갈림
+     gk_wait
+     gk_hp_base_gank
+     gk_window_margin
+
+== [exec] • [실행] 오판·대기·오더유지 (실행층)  (17키)
+  §판단력 오판 게이트 (게임의 '판단력' 스탯 구현 실체)
+     ex_judge_floor
+     ex_judge_slope
+     ex_judge_cap
+  §대기 위치 (밀고 나간 아군 뒤에서 대기)
+     ex_wait_dist
+     ex_wait_back
+  §행동을 얼마나 자주·오래 붙잡나
+     ex_order_hold
+     ex_think_min
+     ex_think_max
+     ex_fail_min_ticks
+  §스킬 해금 레벨 (게임 데이터가 아니라 코드에 박힌 값)
+     ex_skill2_level
+     ex_ult_level
+  §기본공격 접근·대상 선택
+     ex_attack_margin
+     ex_attack_margin_sp
+     ex_attack_seek
+  §이동 도착·추격 판정
+     mv_bush_arrive
+     mv_hide_near
+     mv_trace_dist
+
+== [movein] • [실행] 실제 이동 만들기 (모든 이동이 통과)  (7키)
+  §목적지에 다 왔다고 보는 거리
+     mv2_arrive_snap
+  §남을 피해 돌아가는 정도
+     mv2_avoid_coef
+     mv2_avoid_margin
+     mv2_avoid_bias
+  §우물에서 강제로 밀어내기
+     mv2_well_radius
+     mv2_well_dist
+  §자리 잡기 이동 모드
+     mv2_pos_mode_thr
+
+== [hide] • [11] 숨기 (hide)  (8키)
+  §숨을 자리 고르기
+     hd_cand_select
+     hd_bush_near
+     hd_path_radius
+     hd_around_radius
+  §숨을지 판단할 때 보는 범위
+     hd_detect_max
+     hd_fight_cut
+     hd_vision_mem
+     hd_trace_leash
+
+== [cast] • [실행] 평타·스킬 사거리·조건 (시전 후보)  (53키)
+  §언제부터 '닿는다'고 보고 공격을 시작할지
+     cs_lead_attack
+     cs_lead_skill
+     cs_lead_skill2
+     cs_lead_ult
+     cs_lead_steal
+  §궁 사용 조건
+     cs_ult_range
+     cs_ult_range_global
+     cs_ult_mode_mask
+  §무엇을 노릴지
+     cs_steal_hp
+     cs_unit_hits
+     cs_minion_vision
+  §아군 지원 스킬
+     cs_ally_hp
+     cs_ally_radius
+  §추격 판정
+     cs_cc_mask
+  §데스매치 — 언제 닿는다고 볼지
+     dm_lookahead
+     dm_ult_lookahead
+     dm_near_ally
+     dm_near_enemy
+  §데스매치 — 무엇을 노릴지
+     dm_execute_hp
+     dm_lasthit
+     dm_skill_hp
+  §데스매치 — 궁 사용 조건
+     dm_ult_rally
+     dm_ult_rally2
+     dm_ult_range
+     dm_ult_mask_rally
+     dm_ult_mask_focus
+     dm_ult_mask_safe
+  §데스매치 — 해금 레벨
+     dm_skill2_level
+     dm_ult_level
+  §아군 지원스킬 낭비 방지
+     c3_ally_hp
+     c3_enemy_near_a
+     c3_enemy_near_b
+     c3_minion_near
+     c3_hurt_scale
+     c3_minion_margin
+  §해금 레벨 — 남아 있던 자리
+     ex_ult_level_x
+     ex_skill2_level_x
+  §특수 효과 스킬의 고정 점수
+     bv_ally_flat
+     bv_ally_cap
+     bv_out_of_fight
+     bv_b_in
+     bv_b_out
+     bv_d_in
+     bv_d_out
+     bv_c_cap
+     bv_c_none
+  §전투 실익의 상한과 집중포화
+     bv_cap_main
+     bv_cap_half
+     bv_focus_max
+     bv_focus_radius
+  §때려도 되는지 판정 (겁 많음·적음) — 일반 경기에서도 작동
+     sf_margin
+     sf_radius
+     sf_mem
+
+== [judge] • [실행] 성향 흔들림·교전·추격 (경매층)  (65키)
+  §주변 머릿수에 따른 배율 — 쫓아가기(추적)
+     sc_adv_lo
+     sc_adv_m1
+     sc_adv_0
+     sc_adv_p1
+     sc_adv_hi
+  §주변 머릿수에 따른 배율 — 도망·귀환 (별도 표)
+     mv0_adv_lo
+     mv0_adv_m1
+     mv0_adv_0
+     mv0_adv_p1
+     mv0_adv_hi
+  §몇 명을 '이 싸움'으로 셀지
+     sc_ally_radius
+     sc_enemy_radius
+  §점수 보정
+     sc_near_bonus
+     sc_obj_bonus
+     sc_keep_thr
+  §행동의 실익을 어떻게 계산하나
+     sc_turret_radius
+     sc_engage_radius
+     sc_cell_dist
+     sc_dive_margin
+     sc_score_vision
+  §위험하다고 보는 기준 (체력 대비 예상 피해)
+     sc_risk_dmg
+     sc_risk_hp1
+     sc_risk_dmg1
+     sc_risk_hp2
+     sc_risk_dmg2
+     sc_risk_hp3
+     sc_risk_dmg3
+  §보너스 상한
+     sc_focus_cap
+     sc_kill_cap
+     sc_kill_pct
+     sc_null_score
+  §행동 성향 흔들림 (판단력 노이즈 — 최상위 레버)
+     au_noise_off
+     au_noise_amp
+     au_score_center
+  §교전 판단 (battle) — HP·거리
+     bt_hp_flee
+     bt_hp_gate
+     bt_chase_stop
+     bt_chase_keep
+     bt_vision_mem
+  §라인 수비 — 추격·아군근접
+     ld_chase_stop
+     ld_ally_near
+     ld_intervene
+     ld_vision_mem
+     ld_est_base
+  §라인 수비 — 접근 거리·모드·무작위
+     ld_around_range
+     ld_around_delay
+     ld_mode_mask
+     ld_move_pct
+     ld_threat_state
+     ld_rand_min
+  §도망 점수의 가중치와 보너스
+     mv0_risk_shift
+     mv0_engage_shift
+     mv0_base_penalty
+     mv0_near_bonus
+     mv0_near_gate
+  §포탑이 점수에 끼치는 영향
+     mv_tower_margin
+     mv_tower_cap
+     mv2_gain_shift
+     mv_engage_thr
+     mv_vision_mem
+  §라인 수비 후보 점수
+     ldsc_lost_target
+     ldsc_skill_factor
+     ldsc_vision_mem
+     ldsc_early_mask
+  §팀 모드 자동취소
+     tm_cancel_mask
+
+== [posrisk] • [공통] 자리가 위험한지 계산 (position_eval)  (39키)
+  §자리가 얼마나 위험한가 — 무엇까지 셀지
+     pe_collect_radius
+     pe_champ_threat
+     pe_minion_add
+     pe_filter_radius
+     pe_near_cut
+     pe_field_radius
+     pe_count_radius
+  §자리 평가 — 거리 여유·감쇠
+     pe_reach_bonus
+     pe_skillshot_width
+     pe_bodyblock_width
+     pe_outer_band
+     pe_tower_margin
+  §자리 평가 — 상한과 배율
+     pe_source_cap
+     pe_predict_cap
+     pe_tower_far
+     pe_kind_scale
+     pe_wall_risk
+     pe_well_risk
+     pe_ally_gain_cut
+     pe_state_gate
+     pe_mode_mask
+     pe_kind_mask
+  §자리 판단의 흔들림 (판단력 3번째 장치)
+     pe_noise_exempt
+     pe_noise_amp
+     pe_noise_amp_mode2
+  §자리 위험 수치를 만드는 값
+     th_collect_radius
+     th_skill_margin
+     th_atk_margin
+     th_band_margin
+     th_cap
+  §라인 수비 후보 점수 — 접근·미니언 자리
+     ae_bonus_kill
+     ae_bonus_near
+     ae_bonus_soon
+     ae_bonus_struct
+     ae_gain_shift
+     ae_risk_shift
+     ae_tower_shift
+     ae_threat_limit
+     ae_none_mask
+
+== [planpick] • [상위] 판단 선택 게이트 (플랜 결정기)  (14키)
+  §어떤 판단을 만들지 고르는 최상위 단계 (전부 -1=원본·실험용)
+  §후퇴 트리거 — 내가 곧 죽는가
+     rt_a_offset
+     rt_a_slope
+     rt_a_base
+     rt_b_slope
+     rt_b_base
+     rt_c_slope
+     rt_c_base
+     rt_deadline_min
+  §정글을 계속 돌 체력 기준
+     jg_hp_fight
+     jg_hp_nofight
+  §어떤 판단을 만들지 고르는 최상위 단계
+     pl_obj_role
+     pl_ganker_gate
+     pl_serpen_phase_mask
+     pl_epic_phase_min
+
+== [severity] • [공통] 위협 민감도 (severity)  (14키)
+     sv_enable
+  §◆ 위협비율 사다리 (tr = 위협×100÷현재체력)
+     sv_tr0
+     sv_tr1
+     sv_tr2
+     sv_tr3
+  §◆ 체력 단계 경계
+     sv_hp1
+     sv_hp2
+     sv_hp3
+  §◆ '사소' 위협 할인 (정본 함수 전용)
+     sv_discount_shift
+     sv_discount_cap
+  §소극 경로 별도 4임계 (라인·정글 필터 branch A — 부쉬/이동 중 위협 판단의 엄격 경로)
+     sv_pa_hp_hi
+     sv_pa_tr_hi
+     sv_pa_hp_lo
+     sv_pa_tr_lo
+
+== [vision] • [공통] 시야  (7키)
+     dd_lane_margin
+     vis_window
+  §판단별 개별 단기 시야창 (틱, -1=원본 120 유지·상한 127)
+     vw_jungle
+     vw_check
+     vw_nexus
+     vw_threat
+     vw_score
+
+== [misc] • [기타] 게임 원본의 결함 고치기  (2키)
+  §적의 두 번째 스킬 피해를 무시하는 문제
+     fix_skill2_dmg
+  §체력 비례 스킬의 피해를 무시하는 문제
+     fix_hp_ratio
+
+== [engine] • [공통] 엔진·대체스택 (고급)  (25키)
+     fast_read
+     fast_guard
+  §◆ 행(멈춤) 진단 워치독
+     hang_diag
+     hang_secs
+     hang_run_secs
+     hang_run_rate
+  §◆ 활동창 프로파일러 (일정넘김 시간분포·⚠배포시 0)
+     adv_prof
+     adv_prof_min
+     adv_prof_seg
+  §◆ 대체 게이트 (전부 OFF=원본)
+     mp_repl
+     dd7_repl
+     poke_repl
+     recall_repl
+     engage_repl
+     cond_repl
+     e9jt
+     replay_reset
+  §대체 게이트 — subplan 개별
+     nx_repl
+     d12_repl
+     d14_repl
+  §◆ 속도
+     skip_untuned
+  §🔬 계측 (평소 0)
+     perf_measure
+     read_bench
+  §📊 subplan 후퇴발동 누적 측정 (전술 비교용)
+     sp_seen
+     sp_seen_tag

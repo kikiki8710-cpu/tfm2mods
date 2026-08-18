@@ -1,0 +1,1 @@
+=== mod init: ProbeItem registered (price=99999) ===

@@ -1,0 +1,1 @@
+gb_enable=false applied=0/12 close=-1 line=-1 join=-1 scout=-1 op_ph=-1 join_ph=-1 push_hp=-1 reach_cap=-1 reach_mgn=-1 @base0x7ff6b4ea0000

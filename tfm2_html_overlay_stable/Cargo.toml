@@ -1,0 +1,18 @@
+[package]
+name = "tfm2_html_overlay"
+version = "0.7.0"
+edition = "2021"
+
+# stable ABI 포팅본 (2026-08-13) — 원본 = C:\tfm2mods\tfm2_html_overlay (클래식 SDK).
+# 게임 API 사용 = 클래식에선 post_update 틱 1회(스레드 spawn용)뿐이었음 → stable init 으로 대체
+# = 100% 무손실 포팅 2호(1호 = legacy_save_patcher). 게임 업데이트에도 재빌드 불요(abi_level 1).
+# 빌드: cargo build --release (SDK rlib·nightly 고정·build_inj.ps1 전부 불필요)
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+mod-api-stable = { path = 'C:\Program Files (x86)\Steam\steamapps\common\Teamfight Manager2\mod-sdk-stable\mod-api-stable' }
+
+# 상위 폴더가 다른 Cargo 워크스페이스로 잡히는 것 방지(독립 패키지로 빌드).
+[workspace]

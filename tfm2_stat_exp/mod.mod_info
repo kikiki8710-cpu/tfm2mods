@@ -1,0 +1,14 @@
+{
+  "mod_id": "tfm2_stat_exp",
+  "name": "tfm2_stat_exp",
+  "author": "tfm2mods",
+  "version": "0.1.0",
+  "description": "실험 모드: 다시보기/경기에서 지정 선수의 판단력(judgement)/오더(order)를 강제값으로 덮어 행동 변화를 관찰하는 통제실험. stat_exp.cfg 로 side/slot/judgement/order 지정(-1=원본유지=무개입). ★게임 0.5.5 전용.",
+  "dependencies": [
+    {
+      "mod_id": "base",
+      "version": ">=0.5.5, <0.5.6"
+    }
+  ],
+  "last_updated": "2026-08-13"
+}

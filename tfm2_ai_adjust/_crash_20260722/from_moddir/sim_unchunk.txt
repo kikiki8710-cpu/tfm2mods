@@ -1,0 +1,1 @@
+sim_unchunk=false APPLIED @0x7ff6b68540c3 bytes=74a0 (1매치/job 분할 OFF=원본)

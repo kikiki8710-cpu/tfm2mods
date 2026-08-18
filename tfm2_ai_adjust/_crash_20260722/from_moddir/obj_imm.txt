@@ -1,0 +1,1 @@
+oi_enable=false applied=0/13 cg=38 nh=50 hc=21 hl=31 lm=120 an=5 near=120000 pred=240000 fh=56 cull=390624 @base0x7ff6b4ea0000
