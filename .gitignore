@@ -29,6 +29,7 @@
 !/tfm2_flow_capture/
 !/tfm2_stat_exp/
 !/tfm2_bancard_keep/
+!/tfm2_champion_exclude/
 !/tfm2_html_overlay/
 !/tfm2_html_overlay_stable/
 !/legacy_save_patcher_stable/
