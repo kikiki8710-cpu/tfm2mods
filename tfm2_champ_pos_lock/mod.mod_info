@@ -1,0 +1,14 @@
+{
+  "author": "tfm2mods",
+  "dependencies": [
+    {
+      "mod_id": "base",
+      "version": ">=0.5.5, <0.5.6"
+    }
+  ],
+  "last_updated": "2026-08-19",
+  "mod_id": "tfm2_champ_pos_lock",
+  "name": "챔피언 포지션 제한 (Champion Position Lock)",
+  "version": "0.1.0",
+  "description": "특정 챔피언을 특정 포지션에서만 쓰게 제한합니다.\n\n· 설정 파일에 lock=<챔피언id>:<포지션> 줄을 넣으면 그 챔피언은 지정 포지션 전용이 됩니다.\n  포지션 = top/jungle/mid/bottom/support (탑/정글/미드/원딜/서폿, 숫자 0~4 도 됨). 콤마로 복수 지정 가능.\n· AI(상대 팀·코치 위임·백그라운드 리그)는 배정이 불가능해지는 픽을 하지 않고,\n  제한 챔피언을 허용 포지션으로만 평가/배정합니다.\n· 유저 본인이 스왑 화면에서 수동으로 제한을 어기는 것은 현재 버전에선 막지 않습니다.\n· 챔피언 id 목록은 debug=1 로 게임을 한 번 켜면 mods 폴더에 champ_pos_lock_champions.txt 로 생성됩니다.\n\n설정 = mods/tfm2_champ_pos_lock/tfm2_champ_pos_lock.cfg (없으면 자동 생성)\n\nWindows 전용."
+}
