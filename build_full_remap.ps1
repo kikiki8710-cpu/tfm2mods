@@ -22,11 +22,12 @@ param(
 # 0.5.4 전환 2026-08-05: sdk_054. rlib 파일 수·파일명은 053과 동일하나 mod_api/game_core/
 # game_view/game_ai/engine_ui/engine_core 6종 전부 내용 해시 DIFF ⟹ RVA 0 모드도 재빌드 필수.
 # toolchain 은 nightly-2026-05-24 유지(sdk_054\mod-sdk\toolchain_version.txt = rustc 1.98.0-nightly 23a3312d9 실측).
-$SDK  = "C:\tfm2mods\sdk_055\mod-sdk"
+$SDK  = "C:\tfm2mods\sdk_056\mod-sdk"
 $DEPS = "$SDK\deps"; $NAT = "$SDK\native"
 
 # remap 원본 접두 = 소스 트리 루트. dll 에는 이 자리에 $REMAP_TO 가 들어간다.
-$REMAP_FROM = "C:\Users\dev\Desktop\claude\tfm2\tfm2-mods-main"
+# (0.5.6 2026-08-20 정정: 계정 경로가 dev → jungs 로 바뀌어 remap 접두 불일치 = 신원검증 전멸 + PII 잔존 위험이었음)
+$REMAP_FROM = "C:\Users\jungs\Desktop\claude\tfm2\tfm2-mods-main"
 $REMAP_TO   = "mods-src"
 
 function Pick([string]$pat) { (Get-ChildItem "$DEPS\$pat")[0].FullName }

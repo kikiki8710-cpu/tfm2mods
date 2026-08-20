@@ -3024,3 +3024,72 @@ ban_slot : #in_turn 이 **color 노드**(픽 슬롯과 달리 자체 채움)
 
 **인게임 검증(2026-08-13 실측):** 훅 5종 base+새RVA 설치(base `0x7ff72ee60000`·64KB정렬)·크래시 0·run_tick 700만 발화·flow 파일 497개·캡처 데이터 정상(ce=10 챔프 전원·골드 8만대 비0·좌표 맵범위·킬 유효인덱스·serpen/tower 오브젝트). 배포 dll **439,296B @2026-08-13 10:31:42**·mod_info **v0.7.1** deps `>=0.5.5, <0.5.6`·BOM無.
 - 정본 문서 = `REPORT\tfm2_flow_capture\` + [[tfm2-match-feedback-pipeline]]. flow_capture 0.5.5 잔여 없음(미확정 3오프셋은 세트번호 표시 한정·크래시 무관).
+
+### 12. ★신규 모드 `tfm2_champ_pos_lock` — 챔피언별 허용 포지션 제한 + 0.5.5 밴픽 포지션 함수 재핀 (2026-08-19, 0.5.5 · ⬜인게임 미검증) — **본 절 = 이 모드 RVA·0.5.5 포지션 함수의 정본**
+
+- **목적**: 특정 챔피언을 특정 포지션에만 쓰게 제한(cfg). 소스 = `C:\tfm2mods\tfm2_champ_pos_lock\` · 문서 = `REPORT\tfm2_champ_pos_lock\` · 등재 = `MODS\MOD_REGISTRY.md` 비-T1.
+- **축1(RVA 0)**: SDK `ModDraftScoreHook` score_pick — 허용 포지션 매칭(홀 조건)이 깨지는 후보를 Replace(-1e9).
+- **축2 Hook A(하드코딩 RVA 1개)**: **`0x1294180`** = champ→eligible-positions 비트마스크 산출기에 트램폴린 detour(마스크 AND 교정). ★**유효범위 한정(3차 RE 08-19 밤 확정)**: 마스크 소비처 전수 = SGD 밴픽 스코어러 클러스터(캐시 게터 `0x11cda40` 경유)뿐 ⟹ **AI 평가/추천/자동배정에만 유효 — 유저 수동 스왑·최종 라인업 저장은 미지배**(하드 강제는 아래 apply_lineup 후속 개입점 후보).
+- ★**0.5.5 밴픽 AI 포지션 함수 재핀(ghidra 8080=0.5.5 실측 신원확인 후 RE)**:
+  - **fast_pos_fit_score = `0x126ec40`** (확정 — 코어식 0.6/0.15/0.08·divisor 3 바이트 대조. 0.4.13 `0x19e2310`의 후계)
+  - **plan_selector_score = `0x127cee0`** (0.4.13 `0x19fe5c0`의 후계)
+  - **champ→eligible-positions 비트마스크 산출기 = `0x1294180`** (0.4.13 assign_positions `0x19f72a0`의 실질 후계, **강한 추정** — 하위 5비트 = 그 챔프가 쓸 만한 포지션 집합·5포지션 순회 fast_pos_fit + 문턱)
+  - 근거 = `REPORT\tfm2_champ_pos_lock\RE\2026-08-19_0.5.5-포지션배정-RE.md`.
+- ★**3차 RE 신규 확정(서버권위라인업 개입점, 08-19 밤 — 근거 = `REPORT\tfm2_champ_pos_lock\RE\2026-08-19_서버권위라인업-개입점.md`)**:
+  - **마스크 캐시 게터 = `0x11cda40`** — HashMap 캐시·반환 mask&0x1f·프롤로그 push 10B `55 41 57 41 56 41 54 56 57 53` + `48 81 EC B0 00 00 00` = **orig_len 17**.
+  - **apply_lineup(`0x193de10`) 라인업 Rec Vec 레이아웃**: 콜러 `0x19e88e0`·r9=&Vec{ptr@0, base@+8, count@+0x10}·**Rec stride 0x28**: pos@+8(u32)·가드@+0x10(≠-1)·champ String 16B@+0x18 — **유저 스왑까지 하드 강제할 후속 개입점 최우선 후보**. ⚠단 sim이 이 Rec에서 pos를 읽는지 **런타임 미확정** + pos 오교정 시 unwrap 패닉 ⟹ **훅E식 가드 필수**.
+  - ❌**정정(1차 RE 오인)**: ~~"`0x1f387f0`→`0x307ff0`(mgr+0x20,&order) 큐잉"~~ → **`0x307ff0` = siphash 해셔**(큐 push 아님).
+  - ⛔**SwapDone(disc32) 소비 = 서버 모노리스 `0x216e870` 내부 async 상태처리에 흡수** ⟹ **소형 워커 detour 분리 불가(비권장)**.
+- ★**축1+축2 종합 한계(3차 RE)**: 현행 v0.1.0 = AI 쪽 제한만 — 유저 수동 스왑·최종 라인업 하드 강제는 미구현(후보 = apply_lineup Rec 개입·위 ⚠조건부).
+- ⛔**함정(재작업 방지 = DONE.md 08-19 행)**: 0.5.5 **`0x1a636c0`**(0.5.2 라인업조립 `0x1a26690`의 후계)은 **sim 참가자레코드(stride 0x100·pos u64) writer가 아님** — GAME_ALLOC 0xa0 힙에 id/champ/item/pos/strat을 **String 튜플**로 clone하는 직렬화 Rec 조립기(pos도 String)·내부 +0x9020은 해시맵(레코드 배열 아님). **"pos write 사이트 `0x1a67a65`/`0x1a67cd5` rcx 교정" 방식 개입 금지**. 구버전(0.5.2) 채록 참가자레코드 오프셋(+0x9020/stride 0x100/+0x68 u64/+0xf8 side)은 0.5.5에서 시프트 정황(side byte-store 스캔 0건) = **0.5.5 재특정 전까지 사용 금지**. 근거 = `REPORT\tfm2_champ_pos_lock\RE\2026-08-19_레코드조립기-정밀판독-정정.md`.
+- **배포 실측**: v0.1.0 dll ~~166,400B @2026-08-19 23:31:09~~ → **166,400B @2026-08-19 23:43:00**(cfg 주석·mod_info 문구 정정 재빌드·크기 동일 — 정정 08-19 밤) → `<게임설치>\mods\tfm2_champ_pos_lock\tfm2_champ_pos_lock.dll`.
+- ⬜**잔여**: 인게임 미검증(축1 Replace 반영·축2 detour 발화·마스크 교정 동작) · 릴리스 zip = 검증 후 · sim 참가자레코드 0.5.5 재특정(개입 확장 시에만) · **유저 수동 스왑 하드 강제 = 미구현**(apply_lineup Rec 개입 후보 — sim의 pos read 런타임 확인 선행).
+
+
+## §7.6 · 게임 0.5.6 마이그레이션 — 패치 성격 · exe↔exe 재핀 (2026-08-20, 0.5.6) — 본 절 = 0.5.6의 정본
+
+> ⚠ 본 절 위 §7.5(0.5.5)·이하는 이력. 0.5.6 이후 작업은 이 절만 볼 것. ⚠tfm2_ai_adjust는 별도 세션 진행(본 절 범위 밖·ai_adjust RVA 재핀 안 함).
+
+### 1. 버전 사실 (실측)
+| 항목 | 0.5.5 (직전) | 0.5.6 (현행) |
+|---|---|---|
+| exe | 76,957,696B | 77,101,056B (+143,360B) |
+| sha256[:16] | 09E12009BB240EED | A0D8E395581FDF5A |
+| .text vsz | 0x324d5ef | 0x326866f (+110,720B, +0.21%) |
+| 인덱스 pkl | _fnidx_055.pkl | _fnidx_056.pkl (fnindex.py 신규 빌드) |
+
+- 백업: OLD=tfm2_0.5.5\TeamfightManager2.exe / NEW=tfm2_0.5.6\TeamfightManager2.exe (bundle +17,631B 변경 포함).
+- 패치 성격 = "온건한 핫픽스급 + 국소 로직 변경". .text +0.21%(0.5.5의 +1.73%보다 훨씬 온건). 함수시작 재링크 대부분 UNIQUE(BYTE=SAME) = RVA-only 이동. NO MATCH/본문변경은 밴픽 AI 개선(패치노트 2) 영역에 집중(banpick_order AI6 컨테이너 2개). 순수 핫픽스에 가까움(0.5.5 같은 대공사 아님).
+- 구조체 = 저대역 전면 불변(0.5.5와 큰 차이): provider 0xec90 / athlete 0x4a8/0x4f0/0x920/0x930/stride 0x9e0 / entity 0x5c0/0x628/0x670/0x688 / World / PV 0x2c0 / ClientDatabase 저대역 0x1338/0x1598/0x1670 전부 0.5.6에서 불변(BUY 진입 cmp[r8+0x4f0]·owned_cap cmp[rsi+0x4a8]·DMGA ent필드·SERPEN [rbx+0x1e0]·MOBATICK provider disp 실측 확증). 리졸버 슬롯 0x1e0·SEED 0xec90·KILLS 0xef00 불변.
+- 유일한 구조체 이동 = ClientDatabase 고대역 +0x120: cps 0x16ed8->0x16ff8(직독 39/40) · TN 매치노드 ptr 0x16c98->0x16db8·len 0x16ca0->0x16dc0 · db+0x9020->0x9140. (item_tactics cps=폴백/진단용·매치노드 오프셋은 현 소스에 하드코딩 없음=v2.9.5 프레임 스캔 단독.) Spectator_Chat·crm 저대역엔 영향 0.
+- 재핀 도구(신규) = _mig056.py·mig056_fns.py·mig056_mids.py·mig056_align.py·mig056_mono.py·mig056_tn.py·mig056_fix*.py.
+
+### 2. 공통 4심볼 (전 모드)
+- LOADER 0x2e42d0->0x2e6f60(string-xref layout/main x17·clone family) · PARSER 0x1a3e70->0x19ab40(skel UNIQUE·BYTE=SAME·2192B) · ALLOC 0x2a9bf30->0x2ab1670(skel/마스크 UNIQUE·BYTE=SAME·60B) · ANIM_GET 0x844160->0xbea4a0(CARD_DRAW 콜슬롯14 확정).
+
+### 3. 모드별 재핀 표 (구 0.5.5 -> 신 0.5.6 · 판정) — 소스 갱신 완료(빌드는 메인 세션)
+
+tfm2_flow_capture (전건 UNIQUE·갱신완): RUN_TICK 0x14aa160->0x14db7e0 · CTOR 0x14ac3e0->0x14dda60(launcher 9/9 전단사) · SCENE_STEP 0x196c2c0->0x24d1dc0(마스크시그·movzx[rcx+0xce]) · RECO 0x12ae860->0x2ce38f0 · 공통3. 구조체 0.5.5값 전부 유효. 미확정 3오프셋(RM_OFF 0x2a0·ENTRY_STRIDE 0x160·SGR_STRIDE 0xeea8) 유지(세트번호 표시만·크래시 무관).
+
+tfm2_draft_overlay (공통4만·갱신완): LOADER·PARSER·ALLOC·ANIM_GET = 2절 값. 전건 확정.
+
+tfm2_banpick_illust (전건 UNIQUE·갱신완 29상수): 함수시작 16(FX_SET 0x24b6e40·CARD_DRAW 0x24cc8d0·ILLUST_GET 0x2384420·SUBMIT 0x181650·SUBMIT_TEXT 0x1818d0·IMG_BUILD 0x182d70·IMG_UV 0x182bd0·IMG_FLAG 0x183080·IMG_COLOR 0x1ed700·IMG_SHADER 0x184680·TEXT_BUILD 0x182260·NAME_GET 0x25126f0·ASSET_GET 0x143d70·ANIM_GET 0xbea4a0·SPRITE_CALC 0x2517620·GAME_ALLOC 0x2ab1670) BYTE=SAME. geom .rdata 6(C_CARD_RECT 0x34cd6a0 등·16B 내용동일·이동만) + mid 6(I_SNAP_H 0x254d7c0·D_SNAP_W 0x254d7d6·D_CUT_LO 0x24d6b08·D_CUT_HI 0x24d6b16·D_ZIG_X1 0x254e622·D_ZIG_X2 0x254ed00·float 480/360/-70/70/-180 검증) + SLOTS 0x40c5000->0x40e6000(64B all-zero).
+
+tfm2_item_tactics (갱신완): FN_DD 0x1c1af0·TIP_SHOW 0x1efca70(head-UNIQUE)·TIP_MEASURE_VT 0x333b970->0x334cd10(UImega lea @0xab5321)·GAME_ALLOC 0x2ab1670·GV_UPDATE 0xb52b80·REALLOC 0x2a9d1b0·CL_LAUNCHER 0x14dda60(launcher 9/9)·SEEDCTOR 0x10a3be0(seed[rsi+0xec90])·BUY_ITEM 0xebca20·ITEMNET_FWD 0xf53de0 전부 BYTE=SAME. 바이트패치: owned_cap 0x15206a9->0x154c679(orig 일치)·imm 0x154c680·gate3 sig 0xeb2fa8->0xebcd88·jbe 0xebcd8e(orig 일치). launcher retaddr 4(콜+5): 관전 0x8404e1·내경기 0x84544b·조테본경기 0x1af18a2·조테기록 0x1ac1b2e. TN: RA_TOURN 0x1c777d8->0x1f24068 + 프레임 슬롯 재핀(worker 0x1c6a530->0x1f16ea0·정렬 0.956·chkstk 0x22cc8->0x23ce8): TN_FR_DB 0x22bf8->0x23c18·TN_FR_CFG 0x22bd8->0x23c00·TN_FR_SETEND 0x22a40->0x23b20(프레임 오프셋=migrate_rva 못 잡는 별개 축·명령단위 대응). CPS_OFF 0x16ed8->0x16ff8(폴백·진단용). 구조체 저대역 전부 불변.
+
+tfm2_elemental_serpen (갱신완): SERPEN 0x12ce9b0(리졸버 [rbx+0x1e0] 확증)·MOBATICK 0x1521770(provider disp 확증)·LAUNCHER 0x14dda60·RUNNER_CTOR 0x14ae060->0x14df6d0(콜슬롯·프롤로그 동일)·DMGA 0x17f8090(구조정렬 1.000·disp만 이동)·DMGB 0x1501db0·KEYRES 0x1f8bc80·ARG_STR 0x12e74f0->0x16b5a70(콜러 투표)·SPAWN0 0xaf97d0·SPAWN1 0xaf8bc0. retaddr A 0x8404e1·B 0x84544b·C 0x1db3884·D 0x1ac1b2e. 구조체(리졸버 0x1e0·SEED 0xec90·KILLS 0xef00·CAMP 0xeea8) 전부 불변.
+
+tfm2_banpick_order (함수시작+mid 대부분 갱신완·AI6 잔여): 함수시작 16 전건(PHASE_SCENE 0x24d1dc0·PHASE_SCALAR 0x10ac1f0·APPLIER 0x24b6c10·SLOTUPD 0x251e3e0·PHASE_RAW 0x24ac690·APP_PICK_T1 0x24a2c90·T2 0x24a2e20·APP_BAN_T1 0x24e09a0·T2 0x24e0b20·TRANSITION 0x24acdc0·BANNER 0x24b4150·LINEUP 0x24a3750·COMMIT 0x10b0530·TURN 0x10b0c60·TRIGGER 0x24d58b0·PANIC_HOOK 0x2aac7b4) + PROLOGUE_SCALAR rip-rel disp 93 2B 1A->83 67 2F. mid 재작성: AI_SITE1/JOIN1 0xf97732/0xf97840·AI_SITE2/JOIN2 0xf9b348/0xf9b419(DELTA-OK·sig 일치) · AITURN_SITE/JOIN 0x2079b43/0x2079c2a(정렬 0.968·스텁슬롯 total 0x6040->0x6a20·rule 0x5ef1->0x68d1·ban 0x5ee8->0x68c8) · SFX_SITE/END 0x2550825/0x2550874(드레인 씬슬롯 0x12c0->0x1300)·STR_BAN 0x34d84f6·STR_PICK 0x34d8512 · DRAIN_HL 2(0x256066d/0x2560984)·HL(0x1f0086b)·DRAIN_HL2 3(0x25546a2/0x2554fa8/0x2554bb0)·SLOTSEL(0x2569fd5·트램폴린슬롯 0x12f8->0x1338) 전부 sig 일치. AI6 6사이트 = 0.5.5값 유지(미갱신): 3 확정(ai_comp 0x214a9c5·ai_bb3 0x214c69a) + 3 본문변경(컨테이너 0x1cb8640 ai_reco1/2·0x1cbb1a0 ai_bb1/2 = 밴픽 AI 개선·sig/arm 재작성 필요) -> ghidra-re 이관. 안전: cfg.ai_inline_phase 기본 OFF라 미설치 + sig 검증 fail-safe = stale 무해.
+
+tfm2_comptest_unlock (갱신완): 함수시작·컨테이너 27(RUN 0x1abbb90·CGATE 0x1aae7d0·SREG 0x2082390·RESULT 0x1af0790·CSEND 0x1aaa600·HPUSH 0x1792e60·RPLY2 0x1ac4350·RPLY3 0x1ac15d0·LIVEB 0x1af1440·CTX_CLONE 0x1f5f7a0·ARRIVE 0x1ac4bb0·WARN 0x1a94b00·REFRESH 0x1aa3c70·ITEMCONV 0x2094560·COLLECT 0x1abd4f0·RUST_ALLOC 0x29ed940·CLONE_CHAMP 0x1b9dd10·FN_DD 0x1bfc10·ORACLE=RUN_TICK 0x14db7e0·SIMBODY 0x235d550·DROP_CHAMP 0x1616920·INSERT 0xcb5890·ATH_GET_SC 0x157fa80·DRIVE 0x888d20/RESUME 0x888d36·DEDUP_INS 0xcb13c0 등). 바이트패치 19/19 orig MATCH(no_stamina 0x2048e37·dr_inline a/b/d 0x1aa3dd6/0x1aae9d6/0x1b0ac2c·panel_btn 0x1b0b052·daily_inc 0x2044205·server_pregate 0x20413ca·server_dedup_real 0x2082803·allow_dup 0x1aaee81·server_dedup 0x204022f·btn5v5 a/warn 0x1b0b054/0x1b0ac6c·server_roster_min 0x2082760·roster_count 0x1abbe88·collected 0x1abbe7c·collect_err 0x1abbe5f·run_push 0x1abc585·TAKE 0x1aafa9a·PAGE_IMM 0x1aaae2c). RUNNER_VT 0x348db28->0x34afda8(slot4 매핑 일치). CT_REGION/CLIENT 경계 갱신(inert). 미확정(전부 inert·CONC_PROBE/죽은 상수·fail-safe): MFORGE·A15E20·POLLER·SLOT·SIMBODY(CONC_PROBE OFF) / INSERT·ENQ·DEDUP_INS·ATH_GET·PUSH·SPAWN_CP·SRV(죽은 상수·원복) — 크래시/활성경로 무영향.
+
+tfm2_level_cap (갱신완): LEN_LOAD 0x14d819a->0x1503b4a(델타OK·orig 498b96100d0000 일치·r14 베이스 불변) · UI_CMP 0x95d8b9->0xb4c0d9(컨테이너 본문변경이라 owner내 유일검색·orig 483b88100d0000 일치).
+
+Spectator_Chat · community_reaction_mod (소스 수정 불요·SDK 재빌드만): exe RVA 하드코딩 없음. ClientDatabase 저대역 오프셋(LIVE_PLAYED_OFF 5528=0x1598·LIVE_EVENTS_OFF 5744=0x1670·scene 0x1338) 0.5.6 불변(동일오프셋 직독 0x1598 70/0x1670 60/0x1338 64 = 시프트 없음) -> 재빌드만으로 정상.
+
+RVA 0(SDK 재빌드만): tfm2_mod_order·meta_item_delegate(워크샵 content 주의)·save_probe·daram2 view_plus 8종·tfm2_html_overlay(stable API v0.7.0 = 재빌드 불요 예상·deps 게이트만 점검)·legacy_save_patcher(stable·불요).
+
+### 4. 잔여 (0.5.6)
+- 전 모드 인게임 미검증(정적 재핀·프롤로그·orig 대조만 완료). 우선 관측 = banpick_order AITURN/SFX 스텁 재핀(레지스터/슬롯 실변경) · item_tactics is_live(0xec90)/4템/BG4/TN 프레임 · comptest 바이트패치+병렬발사 · serpen 색/버프/장로.
+- ghidra-re 필요(NO MATCH·본문변경) = banpick_order AI6 컨테이너 2종(0x1cb8640 ai_reco1/2·0x1cbb1a0 ai_bb1/2 = 밴픽 AI 개선 로직 변경·sig/arm 재작성) — 단 cfg OFF·미설치라 빌드/기능 무영향. 그 외 활성 훅은 전부 재핀 완료.
+- 빌드는 메인 세션(SDK 0.5.6 다운로드 중·본 세션은 상수 Edit만).

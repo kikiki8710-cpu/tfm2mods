@@ -37,7 +37,11 @@ param(
 #   (0.5.5 전환 2026-08-12: sdk_055. rlib 154개로 054와 동수. mod_api/game_core/game_ai/game_view 4종은
 #    파일명(StableCrateId)까지 변경 + engine_core 등 핵심 전부 내용 해시 DIFF ⟹ **전 모드 재빌드 필수**.
 #    toolchain은 nightly-2026-05-24 유지(toolchain_version.txt = rustc 1.98.0-nightly 23a3312d9 실측) = 재설치 불요.)
-$SDK  = "C:\tfm2mods\sdk_055\mod-sdk"
+#   (0.5.6 전환 2026-08-20: sdk_056. rlib 154개 파일명 전원 동일(StableCrateId 무변경)이나
+#    내용 해시 DIFF 8종 = 핵심 전부(mod_api/game_core+4MB/game_ai/game_view/engine_core/engine_ui/engine_asset/engine)
+#    ⟹ "RVA 무영향 ≠ 재빌드 불요" 원칙대로 **전 모드 재빌드 필수**.
+#    toolchain은 nightly-2026-05-24 유지(toolchain_version.txt = rustc 1.98.0-nightly 23a3312d9 실측) = 재설치 불요.)
+$SDK  = "C:\tfm2mods\sdk_056\mod-sdk"
 $DEPS = "$SDK\deps"; $NAT = "$SDK\native"
 $MODAPI = (Get-ChildItem "$DEPS\libmod_api-*.rlib")[0].FullName
 $EUI    = (Get-ChildItem "$DEPS\libengine_ui-*.rlib")[0].FullName

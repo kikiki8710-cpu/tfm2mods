@@ -23,7 +23,7 @@ param(
   [string[]]$Externs = @(),
   [int]$MaxSize = 1300000,
   [switch]$NoDeploy,
-  [string]$Sdk = "C:\tfm2mods\sdk_055\mod-sdk",
+  [string]$Sdk = "C:\tfm2mods\sdk_056\mod-sdk",
   # Fallback identity marker for mods that embed NO absolute source path.
   # rustc only bakes the source path in via panic locations; a mod with no reachable panic
   # site has none (verified 2026-08-05: tfm2_meta_champion_tiers, both the fresh build and
