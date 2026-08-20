@@ -7,7 +7,7 @@ $env:NoDefaultCurrentDirectoryInExePath = ""
 
 # 0.5.4 전환(2026-08-05): 게임 rlib 전원 내용 DIFF ⟹ 재빌드 필수.
 # (툴체인 = nightly-2026-05-24, sdk_054 의 rust-toolchain.toml 실측 = 0.5.3 과 동일)
-$SDK       = "C:\tfm2mods\sdk_055\mod-sdk"
+$SDK       = "C:\tfm2mods\sdk_056\mod-sdk"
 $DEPS      = "$SDK\deps"
 $NATIVE    = "$SDK\native"
 $TOOLCHAIN = "nightly-2026-05-24"
