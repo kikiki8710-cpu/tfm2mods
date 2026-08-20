@@ -5044,18 +5044,21 @@ unsafe fn patch_gate3() -> String {
 //   ①exe 파일 크기 — 0.5.3 = 74,970,624B. 버전마다 확실히 달라지는 값이고 읽기 비용이 없다.
 //   ②핵심 훅 3곳의 진입부 프롤로그 실측 — 크기가 우연히 같은 리패키징이라도 코드가 다르면 걸러진다.
 //  ⚠느슨한 검사(예 크기만)로 하면 핫픽스에서 오작동할 수 있어 프롤로그까지 본다.
-const GAME_EXE_SIZE_055: u64 = 76_957_696; // 0.5.5 (실측 확인). ~~0.5.4=75_936_256~~
+// ⚠0.5.6 실사고(2026-08-20): 0.5.6 재핀이 RVA·구조체만 갱신하고 **이 게이트 상수를 누락** →
+//   게임에서 모드 전체 자기비활성("4번째 아이템 안 나옴" 제보·version_gate.txt로 특정).
+//   패치 대응 체크리스트에 "버전 게이트 상수(exe 크기)"도 재핀 축으로 포함할 것.
+const GAME_EXE_SIZE_056: u64 = 77_101_056; // 0.5.6 (실측 확인). ~~0.5.5=76_957_696~~ ~~0.5.4=75_936_256~~
 static VERSION_OK: AtomicBool = AtomicBool::new(false);
 static VERSION_MSG: Mutex<String> = Mutex::new(String::new());
-/// 0.5.5 인지 판정. init 에서 1회 호출하고 결과를 VERSION_OK 에 남긴다.
+/// 0.5.6 인지 판정. init 에서 1회 호출하고 결과를 VERSION_OK 에 남긴다.
 fn check_game_version() -> bool {
     let mut why = String::new();
     // ① exe 크기
     let size_ok = match exe_path().and_then(|p| fs::metadata(p).ok()) {
         Some(m) => {
             let sz = m.len();
-            if sz == GAME_EXE_SIZE_055 { true }
-            else { why = format!("exe 크기 불일치: {}B (0.5.5 = {}B)", sz, GAME_EXE_SIZE_055); false }
+            if sz == GAME_EXE_SIZE_056 { true }
+            else { why = format!("exe 크기 불일치: {}B (0.5.6 = {}B)", sz, GAME_EXE_SIZE_056); false }
         }
         None => { why = "exe 경로/메타데이터 실패".into(); false }
     };
@@ -5096,7 +5099,7 @@ fn check_game_version() -> bool {
     } else { false };
     let ok = size_ok && proto_ok;
     *VERSION_MSG.lock().unwrap_or_else(|e| e.into_inner()) =
-        if ok { "0.5.5 확인 — 정상 활성".to_string() }
+        if ok { "0.5.6 확인 — 정상 활성".to_string() }
         else { format!("★버전 불일치 → 모드 전체 비활성 ({})", why) };
     VERSION_OK.store(ok, Ordering::Relaxed);
     ok
@@ -5106,7 +5109,7 @@ fn check_game_version() -> bool {
 fn version_ok() -> bool { VERSION_OK.load(Ordering::Relaxed) }
 
 fn init(_ctx: &GameCtx) -> ModRegistration {
-    // ★★버전 게이트: 0.5.5 가 아니면 **훅·패치를 하나도 설치하지 않고** 빈 등록만 반환한다.
+    // ★★버전 게이트: 0.5.6 이 아니면 **훅·패치를 하나도 설치하지 않고** 빈 등록만 반환한다.
     //   (하드코딩 RVA·바이트패치·구조체 오프셋 의존이라 다른 버전에선 오작동 위험)
     if !check_game_version() {
         let msg = VERSION_MSG.lock().unwrap_or_else(|e| e.into_inner()).clone();
@@ -5115,7 +5118,7 @@ fn init(_ctx: &GameCtx) -> ModRegistration {
             let _ = fs::write(d.join("version_gate.txt"),
                 format!("{}
 
-이 모드는 게임 0.5.5 전용입니다.
+이 모드는 게임 0.5.6 전용입니다.
 게임이 업데이트되면 모드 업데이트를 기다려 주세요.
 ", msg)); }
         // 등록만 하고 **확장(extension)·훅·패치를 하나도 붙이지 않는다** = 완전 비활성.
