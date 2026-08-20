@@ -1,19 +1,22 @@
-//! tfm2_champion_exclude — 인게임 패치 신챔프 추가 대상에서 특정 챔피언 영구 제외 (게임 0.5.5)
+//! tfm2_champion_exclude — 인게임 패치 신챔프 추가 대상에서 특정 챔피언 영구 제외 (게임 0.5.6)
 //! ===========================================================================
 //! 배경: 시즌 진행 중 패치 데이(ScheduleType Minor/Major/SeasonPatch)에 게임이
 //!   "챔피언 registry(바닐라+모드챔프 전부) − available_champions" 를 후보로 뽑아
 //!   셔플 후 앞 N개(N=db+0x708, champion_add 설정)를 available_champions 에 push
 //!   = 신챔피언 출시. (RE 정본 = REPORT\tfm2_champion_exclude\RE\
 //!   2026-08-19_신챔프추가-메커니즘-0.5.5.md)
-//! 콜체인(0.5.5): day-proceed 0x1e34a00 → 패치데이 0x203acc0 → 신챔프추가 0x202c440
-//!   → ★후보 Vec 생성 FUN_14186e150(0x186e150, 콜러 0x202c440 한 곳뿐).
+//! 콜체인(0.5.6 재핀 2026-08-20): day-proceed 0x2109760 → 패치데이 0x2371820
+//!   → 신챔프추가 0x2363ee0(콜사이트 0x236406e)
+//!   → ★후보 Vec 생성 0x1894610(콜러 0x2363ee0 한 곳뿐 — 0.5.6 실측).
+//!   (0.5.5 = 0x1e34a00 → 0x203acc0 → 0x202c440(@0x202c5f2) → 0x186e150)
 //! 해법: 0x186e150 진입 트램폴린 detour — 원본 호출로 후보 Vec<String> 을 받은 뒤
 //!   cfg(champion_exclude.cfg)에 적힌 챔피언 id 를 swap_remove 로 걸러낸다.
 //!   후보에서 빠지면 셔플/선택/available push/액션 등록/팀 티어 반영/뉴스까지
 //!   전부 자연히 배제 = "영원히 추가 안 됨". 이미 출시된 챔피언은 건드리지 않는다.
 //!   '*' 한 줄이면 후보 전량 제거 = 신챔프 추가 전면 차단.
 //! 적용 범위 주의: 이 모드는 "시즌 중 패치로 추가"만 막는다. 신규 게임 시작 시
-//!   초기 풀 포함(0xc2d980 경로)은 범위 외 — 바닐라 게임 생성 옵션(custom_champions)
+//!   초기 풀 포함(0.5.5 0xc2d980 경로 — 0.5.6 재핀 NO MATCH·미사용이라 미추적)은
+//!   범위 외 — 바닐라 게임 생성 옵션(custom_champions)
 //!   으로 제어 가능하고, 필요 시 추가 RE 후 별도 버전에서 다룬다.
 //! 안전:
 //!   - detour 본문 = catch_unwind(AssertUnwindSafe) 격리(§3 — detour 패닉은 UB).
@@ -38,11 +41,11 @@ use std::time::{SystemTime, UNIX_EPOCH};
 
 const MOD_ID: &str = "tfm2_champion_exclude";
 
-// ── 훅 사이트 (0.5.5 확정 — RE 정본 2026-08-19) ──
-// FUN_14186e150 = 신챔프 추가 후보 Vec<String> 생성 (rcx=out, rdx=iter_ctx, ret rax=out)
-const HOOK_RVA: usize = 0x186e150;
+// ── 훅 사이트 (0.5.6 재핀 2026-08-20, 스켈레톤해시 UNIQUE — 0.5.5 = 0x186e150, RE 정본 2026-08-19) ──
+// 신챔프 추가 후보 Vec<String> 생성 (rcx=out, rdx=iter_ctx, ret rax=out) — 0.5.6 본문 무변경(UNIQUE)
+const HOOK_RVA: usize = 0x1894610;
 // 프롤로그: push rbp; push r15; push r14; push r12; push rsi; push rdi; push rbx;
-//           sub rsp,0xA0  (10B + 7B = 17B, rip-rel 없음)
+//           sub rsp,0xA0  (10B + 7B = 17B, rip-rel 없음 — 0.5.6 실측 바이트 0.5.5와 완전 동일)
 const HOOK_ORIG: [u8; 17] = [
     0x55, 0x41, 0x57, 0x41, 0x56, 0x41, 0x54, 0x56, 0x57, 0x53,
     0x48, 0x81, 0xEC, 0xA0, 0x00, 0x00, 0x00,

@@ -3,12 +3,12 @@
   "mod_id": "tfm2_champion_exclude",
   "author": "tfm2mods",
   "version": "0.1.0",
-  "description": "인게임 시즌 패치의 신규 챔피언 추가 대상에서 특정 챔피언(바닐라·모드 모두)을 영구 제외. mods\\tfm2_champion_exclude\\champion_exclude.cfg 에 제외할 챔피언 id를 한 줄에 하나씩 적으면, 패치 데이 후보 목록에서 걸러져 절대 출시되지 않는다('*' 한 줄 = 신챔프 추가 전면 차단). 이미 출시된 챔피언은 건드리지 않음. 진단 로그 = champion_exclude.txt. 게임 0.5.5 대응.",
-  "last_updated": "2026-08-19",
+  "description": "인게임 시즌 패치의 신규 챔피언 추가 대상에서 특정 챔피언(바닐라·모드 모두)을 영구 제외. mods\\tfm2_champion_exclude\\champion_exclude.cfg 에 제외할 챔피언 id를 한 줄에 하나씩 적으면, 패치 데이 후보 목록에서 걸러져 절대 출시되지 않는다('*' 한 줄 = 신챔프 추가 전면 차단). 이미 출시된 챔피언은 건드리지 않음. 진단 로그 = champion_exclude.txt. 게임 0.5.6 대응.",
+  "last_updated": "2026-08-20",
   "dependencies": [
     {
       "mod_id": "base",
-      "version": ">=0.5.5, <0.5.6"
+      "version": ">=0.5.6, <0.5.7"
     }
   ]
 }
