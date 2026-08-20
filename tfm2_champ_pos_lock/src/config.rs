@@ -1,30 +1,47 @@
-//! tfm2_champ_pos_lock 설정 — `mods\tfm2_champ_pos_lock\tfm2_champ_pos_lock.cfg`.
-//! 없으면 기본값(주석 포함 예시)으로 자동 생성. 값 수정 후 게임 재시작.
+//! tfm2_champ_pos_lock 설정 (2본 분리).
+//! ===========================================================================
+//! ① 토글 = `tfm2_champ_pos_lock.cfg` (on/off·debug — 사람이 거의 안 건드림)
+//! ② ★상태 = `champ_pos_lock_state.txt` (포지션별 허용 챔피언 화이트리스트)
+//!    - 인게임 UI(환경설정 게임플레이 탭 → 포지션 제한)가 이 파일을 읽고 쓴다.
+//!    - 형식: `<포지션> = <id>, <id>, …`  (포지션 = top/jungle/mid/bottom/support)
+//!    - ★비어 있으면(줄 없음/우변 공백) 그 포지션은 **모든 챔피언 허용**.
+//!    - 목록 = "현재 사용 가능한 챔피언"만(미출시 제외) — UI 가 available_champions 로 채운다.
 //!
-//! 핵심 키:
-//!   lock=<챔피언id>:<포지션[,포지션...]>
-//!     포지션 = top/jungle/mid/bottom/support (한국어 탑/정글/미드/원딜|바텀/서폿|서포터,
-//!     숫자 0~4 도 허용). 여러 줄 가능. 같은 챔피언이 여러 줄이면 마지막 줄 우선.
-//!   챔피언 id 목록은 debug=1 로 게임 한 번 띄우면 mods 폴더의
-//!   champ_pos_lock_champions.txt 에 떨어진다.
+//! 챔피언이 포지션 P 에서 쓸 수 있는가 = allowed[P] 가 비었거나 그 안에 있으면 OK.
+//! 이 판정을 챔피언별 5비트 마스크로 환산해 배정/픽 게이트가 소비한다(lib.rs·hooks.rs).
+//! ===========================================================================
 
-use std::sync::OnceLock;
+use std::sync::atomic::{AtomicBool, Ordering};
+use std::sync::{OnceLock, RwLock};
 
-/// 포지션 비트 (bit0=top bit1=jungle bit2=mid bit3=bottom bit4=support)
 pub const MASK_ALL: u8 = 0b11111;
+pub const POS_NAMES: [&str; 5] = ["top", "jungle", "mid", "bottom", "support"];
+/// 한국어/약칭 → 포지션 인덱스
+pub fn pos_index(tok: &str) -> Option<usize> {
+    match tok.trim().to_ascii_lowercase().as_str() {
+        "top" | "탑" | "0" => Some(0),
+        "jungle" | "jg" | "정글" | "1" => Some(1),
+        "mid" | "middle" | "미드" | "2" => Some(2),
+        "bottom" | "bot" | "adc" | "원딜" | "바텀" | "3" => Some(3),
+        "support" | "sup" | "서폿" | "서포터" | "4" => Some(4),
+        _ => None,
+    }
+}
 
+// ── 토글 (cfg) ──────────────────────────────────────────────────────────────
 pub struct Cfg {
     pub enabled: bool,
     pub debug: bool,
-    /// AI 픽 차단 (DraftScoreHook — 배정 불가능해지는 챔프를 AI가 안 집게)
+    /// AI 픽 차단 (DraftScoreHook)
     pub ai_pick_gate: bool,
-    /// AI 배정 마스크 강제 (hookA — eligible-positions 비트마스크 산출기 detour)
+    /// AI 배정 마스크 강제 (hookA)
     pub ai_assign_mask: bool,
-    /// (예약·미구현) 최종 라인업 하드 강제 — apply_lineup Rec 교정 후보 확보됨
-    /// (RE\2026-08-19_서버권위라인업-개입점.md). sim의 pos 소스 런타임 확인 후 구현.
+    /// 유저 픽 차단 (hookC — 피어리스처럼 회색+클릭불가)
+    pub user_pick_block: bool,
+    /// (예약·미구현) 최종 라인업 하드 강제
     pub enforce_lineup: bool,
-    /// 소문자 챔피언 id → 허용 포지션 마스크
-    pub locks: Vec<(String, u8)>,
+    /// 옵션/팝업 노드 트리 덤프(디버그 — UI 주입점 파악용)
+    pub dump_ui: bool,
     pub load_log: Vec<String>,
 }
 
@@ -35,113 +52,175 @@ impl Cfg {
             debug: false,
             ai_pick_gate: true,
             ai_assign_mask: true,
-            enforce_lineup: true,
-            locks: Vec::new(),
+            user_pick_block: true,
+            enforce_lineup: false,
+            dump_ui: false,
             load_log: Vec::new(),
         }
-    }
-
-    pub fn mask_of(&self, lower_name: &str) -> Option<u8> {
-        self.locks
-            .iter()
-            .rev() // 마지막 줄 우선
-            .find(|(n, _)| n == lower_name)
-            .map(|(_, m)| *m)
     }
 }
 
 static CFG: OnceLock<Cfg> = OnceLock::new();
-
 pub fn get() -> &'static Cfg {
-    CFG.get_or_init(|| Cfg::empty())
+    CFG.get_or_init(Cfg::empty)
 }
 
-fn parse_pos(tok: &str) -> Option<u8> {
-    let t = tok.trim().to_ascii_lowercase();
-    let bit = match t.as_str() {
-        "top" | "탑" | "0" => 0,
-        "jungle" | "jg" | "정글" | "1" => 1,
-        "mid" | "middle" | "미드" | "2" => 2,
-        "bottom" | "bot" | "adc" | "원딜" | "바텀" | "3" => 3,
-        "support" | "sup" | "서폿" | "서포터" | "4" => 4,
-        _ => return None,
-    };
-    Some(1u8 << bit)
+// ── 상태: 포지션별 허용 챔피언 (state 파일 · UI 편집 대상) ───────────────────
+#[derive(Default, Clone)]
+pub struct PosState {
+    /// allowed[pos] = 소문자 id 화이트리스트. **빈 Vec = 그 포지션 전 챔피언 허용.**
+    pub allowed: [Vec<String>; 5],
 }
 
-const DEFAULT_CFG: &str = "\
-# tfm2_champ_pos_lock — 특정 챔피언을 특정 포지션에서만 쓰게 제한\r\n\
-# 수정 후 게임 재시작. 포지션: top/jungle/mid/bottom/support (탑/정글/미드/원딜/서폿, 0~4 도 됨)\r\n\
-enabled=1\r\n\
-debug=0\r\n\
-# AI 가 배정 불가능한 챔프를 픽하지 않게 차단 (권장 1)\r\n\
-ai_pick_gate=1\r\n\
-# AI 의 챔피언-포지션 배정을 허용 포지션으로 제한 (권장 1)\r\n\
-ai_assign_mask=1\r\n\
-# (예약 - 아직 미구현) 최종 라인업 하드 강제. 현재 버전은 AI 픽/배정까지 제한하고,\r\n\
-# 유저 본인이 스왑 화면에서 수동으로 어기는 것은 막지 않는다.\r\n\
-enforce_lineup=1\r\n\
-# 예시 (챔피언 id 는 debug=1 로 생성되는 champ_pos_lock_champions.txt 참고):\r\n\
-# lock=alice:top\r\n\
-# lock=bright:mid,support\r\n\
-";
+impl PosState {
+    /// 챔피언(소문자)의 허용 포지션 5비트 마스크.
+    pub fn mask_of(&self, lower: &str) -> u8 {
+        let mut m = 0u8;
+        for p in 0..5 {
+            if self.allowed[p].is_empty() || self.allowed[p].iter().any(|x| x == lower) {
+                m |= 1 << p;
+            }
+        }
+        m
+    }
+    /// 제한이 하나라도 걸렸나(모든 포지션 빈 화이트리스트면 모드 무효과).
+    pub fn any_restricted(&self) -> bool {
+        self.allowed.iter().any(|v| !v.is_empty())
+    }
+}
+
+static STATE: RwLock<Option<PosState>> = RwLock::new(None);
+static STATE_VER: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(0);
+
+pub fn state_version() -> u64 {
+    STATE_VER.load(Ordering::Relaxed)
+}
+/// 읽기 스냅샷(락 최소화 — 호출 측이 복제해 씀).
+pub fn with_state<R>(f: impl FnOnce(&PosState) -> R) -> R {
+    let g = STATE.read().unwrap_or_else(|e| e.into_inner());
+    let empty = PosState::default();
+    f(g.as_ref().unwrap_or(&empty))
+}
+pub fn any_restricted() -> bool {
+    with_state(|s| s.any_restricted())
+}
+pub fn mask_of(lower: &str) -> u8 {
+    with_state(|s| s.mask_of(lower))
+}
+
+/// UI/파일에서 새 상태 게시(버전 증가 → 마스크 재계산 트리거).
+pub fn set_state(st: PosState) {
+    *STATE.write().unwrap_or_else(|e| e.into_inner()) = Some(st);
+    STATE_VER.fetch_add(1, Ordering::Relaxed);
+}
+
+// ── 피어리스 최소수 검증 ─────────────────────────────────────────────────────
+/// 밴픽 방식(0=클래식/1=피어리스/2=하드피어리스)별, 화이트리스트한 포지션이
+/// 가져야 할 최소 챔피언 수. ★대략값(유저 "대충") — 피어리스 시리즈에서 그 포지션이
+/// 세트마다 새 챔프를 소모해 마르지 않도록 = 최장 시리즈(Bo5) 가정 5.
+pub const MIN_CLASSIC: usize = 1;
+pub const MIN_FEARLESS: usize = 5;
+pub fn min_required(style: u8) -> usize {
+    if style >= 1 {
+        MIN_FEARLESS
+    } else {
+        MIN_CLASSIC
+    }
+}
+/// 포지션별 검증: (pos, 현재수, 최소수) — 부족한 포지션만. 빈 화이트리스트(=전체허용)는 제외.
+pub fn shortfalls(st: &PosState, style: u8) -> Vec<(usize, usize, usize)> {
+    let need = min_required(style);
+    (0..5)
+        .filter(|&p| !st.allowed[p].is_empty() && st.allowed[p].len() < need)
+        .map(|p| (p, st.allowed[p].len(), need))
+        .collect()
+}
+
+// ── 파일 IO ─────────────────────────────────────────────────────────────────
+fn state_path() -> Option<String> {
+    crate::mod_dir().map(|d| format!("{d}\\champ_pos_lock_state.txt"))
+}
 
 pub fn load() {
+    // 토글
     let mut c = Cfg::empty();
-    let path = crate::mod_dir().map(|d| format!("{d}\\{}.cfg", crate::MOD_ID));
-    if let Some(p) = &path {
-        match std::fs::read_to_string(p) {
-            Ok(text) => {
-                for raw in text.lines() {
+    if let Some(d) = crate::mod_dir() {
+        let p = format!("{d}\\{}.cfg", crate::MOD_ID);
+        match std::fs::read_to_string(&p) {
+            Ok(t) => {
+                for raw in t.lines() {
                     let line = raw.trim();
                     if line.is_empty() || line.starts_with('#') {
                         continue;
                     }
-                    let Some((k, v)) = line.split_once('=') else {
-                        continue;
-                    };
-                    let (k, v) = (k.trim().to_ascii_lowercase(), v.trim());
-                    let on = |s: &str| s == "1" || s.eq_ignore_ascii_case("true");
-                    match k.as_str() {
+                    let Some((k, v)) = line.split_once('=') else { continue };
+                    let on = |s: &str| s.trim() == "1" || s.trim().eq_ignore_ascii_case("true");
+                    match k.trim().to_ascii_lowercase().as_str() {
                         "enabled" => c.enabled = on(v),
                         "debug" => c.debug = on(v),
                         "ai_pick_gate" => c.ai_pick_gate = on(v),
                         "ai_assign_mask" => c.ai_assign_mask = on(v),
+                        "user_pick_block" => c.user_pick_block = on(v),
                         "enforce_lineup" => c.enforce_lineup = on(v),
-                        "lock" => {
-                            let Some((name, poss)) = v.split_once(':') else {
-                                c.load_log.push(format!("lock 파싱 실패(콜론 없음): {v}"));
-                                continue;
-                            };
-                            let mut mask = 0u8;
-                            let mut bad = false;
-                            for tok in poss.split(',') {
-                                match parse_pos(tok) {
-                                    Some(b) => mask |= b,
-                                    None => {
-                                        bad = true;
-                                        c.load_log.push(format!("모르는 포지션 '{tok}': {v}"));
-                                    }
-                                }
-                            }
-                            if !bad && mask != 0 {
-                                c.locks
-                                    .push((name.trim().to_ascii_lowercase(), mask & MASK_ALL));
-                            }
-                        }
+                        "dump_ui" => c.dump_ui = on(v),
                         _ => {}
                     }
                 }
-                c.load_log.push(format!("locks={}", c.locks.len()));
             }
             Err(_) => {
-                // 최초 실행 — 기본 cfg 생성
-                let _ = std::fs::write(p, DEFAULT_CFG);
+                let _ = std::fs::write(&p, DEFAULT_CFG);
                 c.load_log.push("cfg 없음 → 기본 생성".into());
             }
         }
     }
     let _ = CFG.set(c);
+
+    // 상태
+    let mut st = PosState::default();
+    if let Some(p) = state_path() {
+        match std::fs::read_to_string(&p) {
+            Ok(t) => {
+                for raw in t.lines() {
+                    let line = raw.trim();
+                    if line.is_empty() || line.starts_with('#') {
+                        continue;
+                    }
+                    let Some((k, v)) = line.split_once('=') else { continue };
+                    if let Some(pi) = pos_index(k) {
+                        st.allowed[pi] = v
+                            .split(',')
+                            .map(|s| s.trim().to_ascii_lowercase())
+                            .filter(|s| !s.is_empty())
+                            .collect();
+                    }
+                }
+            }
+            Err(_) => {
+                let _ = std::fs::write(&p, DEFAULT_STATE);
+            }
+        }
+    }
+    set_state(st);
+}
+
+/// 현재 상태를 state 파일에 저장(인게임 UI 확인 버튼이 호출).
+pub fn save_state_to_file() {
+    let Some(p) = state_path() else { return };
+    let mut s = String::from(
+        "# tfm2_champ_pos_lock — 포지션별 허용 챔피언 (인게임 UI 가 관리)\r\n\
+         # 빈 줄(또는 줄 없음) = 그 포지션은 모든 챔피언 허용\r\n",
+    );
+    with_state(|st| {
+        for p in 0..5 {
+            s.push_str(&format!("{} = {}\r\n", POS_NAMES[p], st.allowed[p].join(", ")));
+        }
+    });
+    let _ = std::fs::write(&p, s);
+}
+
+static DUMP_ONCE: AtomicBool = AtomicBool::new(false);
+pub fn dump_reset() {
+    DUMP_ONCE.store(false, Ordering::Relaxed);
 }
 
 pub fn dlog(msg: &str) {
@@ -159,3 +238,31 @@ pub fn dlog(msg: &str) {
         }
     }
 }
+
+const DEFAULT_CFG: &str = "\
+# tfm2_champ_pos_lock — 챔피언 포지션 제한 (토글만; 실제 제한 목록은 인게임 UI)\r\n\
+# 인게임: 환경설정 → 게임플레이 → 맨 아래 '포지션 제한' 버튼\r\n\
+enabled=1\r\n\
+debug=0\r\n\
+# AI 픽/배정 제한\r\n\
+ai_pick_gate=1\r\n\
+ai_assign_mask=1\r\n\
+# 내 밴픽 화면에서 매칭 깨는 챔피언을 피어리스처럼 회색+선택불가 (고를 게 0 이면 자동 해제)\r\n\
+user_pick_block=1\r\n\
+# UI 주입점 파악용 노드 트리 덤프(개발용 — 인게임 UI 완성 후 0)\r\n\
+dump_ui=1\r\n\
+";
+
+const DEFAULT_STATE: &str = "\
+# tfm2_champ_pos_lock — 포지션별 허용 챔피언 목록\r\n\
+# 형식: <포지션> = <챔피언id>, <챔피언id>, ...\r\n\
+# 포지션 = top / jungle / mid / bottom / support (탑/정글/미드/원딜/서폿)\r\n\
+# ★비어 있으면 그 포지션은 '모든 챔피언' 허용.\r\n\
+# 챔피언 id 는 debug=1 로 게임을 한 번 켜면 champ_pos_lock_champions.txt 에 생성됩니다.\r\n\
+# (곧 인게임 UI: 환경설정 -> 게임플레이 -> 포지션 제한 버튼으로 이 파일을 편집합니다.)\r\n\
+top =\r\n\
+jungle =\r\n\
+mid =\r\n\
+bottom =\r\n\
+support =\r\n\
+";
