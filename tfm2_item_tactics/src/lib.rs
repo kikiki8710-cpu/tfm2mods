@@ -2389,7 +2389,12 @@ unsafe fn tourn_capture(saved: *mut u64, seed: u64) {
     let (cfg, set_end) = (cfg as usize, set_end as usize);
     if cfg < 0x10000 || set_end < 0x10000 { TN_MISS_FRAME.fetch_add(1, Ordering::Relaxed); return; }
     let map_b = *saved.add(1) & 0xff;            // dl = launcher arg2 = 맵 바이트
-    for map_off in [0x2a0usize, 0x2d0] {
+    // 0.5.6 재핀(2026-08-20): cfg hashbrown 맵 2개 ~~0x2a0/0x2d0~~ → **0x320/0x350**(+0x80 이동 —
+    //  ctrl/mask 쌍 0x328/0x358 동반. 근거 = worker 본문 disp 센서스 OLD 9/9/9/8회→NEW 동수 이동
+    //  + 해시 관용구 문맥 동형 @0x1f170fc. 미재핀 시 TN 프레임 스캔 전실패(6269/6269) 실사고 —
+    //  ghidra-re RE = REPORT\tfm2_item_tactics\RE\2026-08-20_0.5.6-TN맵오프셋-BUY오독정정.md).
+    //  엔트리 stride 0x160·세트원소 0x100·rec+0x140/0x148/0x150 은 불변 확증 = 수정 불요.
+    for map_off in [0x320usize, 0x350] {
         let Some(ctrl) = safe_read_u64(cfg + map_off) else { continue };
         let Some(mask) = safe_read_u64(cfg + map_off + 8) else { continue };
         let ctrl = ctrl as usize;
@@ -2713,7 +2718,7 @@ unsafe fn install_detour_generic(rva: usize, orig_len: usize, cap_fn: usize, pro
 struct ItemTacticsExt;
 // ═══ buy 리포트 리셋 (새 관전 경기 진입 시) — buy_report.txt 엔 "마지막 본 경기"만 남김 ═══
 fn buy_report_reset() {
-    for a in [&BR_TOTAL, &BR_LIVE, &BR_DES, &BR_DES_LIVE, &BR_ISPLAYER, &BR_IDX_OK, &BR_IDX_NONE, &BR_WROTE].iter() {
+    for a in [&BR_ENTER, &BR_NULLSAVED, &BR_BADATH, &BR_TOTAL, &BR_LIVE, &BR_DES, &BR_DES_LIVE, &BR_ISPLAYER, &BR_IDX_OK, &BR_IDX_NONE, &BR_WROTE].iter() {
         a.store(0, Ordering::Relaxed);
     }
     BR_LOG.lock().unwrap_or_else(|e| e.into_inner()).clear();
@@ -2730,6 +2735,11 @@ fn buy_report_flush() {
     s.push_str("=== tfm2_item_tactics — buy 아이템 주입 리포트 (마지막 관전 경기 기준) ===\n");
     s.push_str(&format!("생성(ms): {}\n\n", now_ms()));
     s.push_str("[단계별 집계] (위→아래 깔때기 — 어디서 수가 0/급감하는지가 원인)\n");
+    s.push_str(&format!("  설치상태 BUY_PROBE_INSTALLED = {}   (0=미시도 / 1=직접설치OK / 2=설치실패 / 3=체인설치OK(외부훅 위))\n",
+        BUY_PROBE_INSTALLED.load(Ordering::Relaxed)));
+    s.push_str(&format!("  0. detour 진입(무조건)  : {}   =0 이면 훅 자체가 미발화(설치/경로 축) — 0.5.6 진단\n", ld(&BR_ENTER)));
+    s.push_str(&format!("  0a. saved null 탈출     : {}\n", ld(&BR_NULLSAVED)));
+    s.push_str(&format!("  0b. r8 athlete 쓰레기   : {}   >0 이면 buy 인자 계약(r8=athlete) 붕괴\n", ld(&BR_BADATH)));
     s.push_str(&format!("  1. 전체 buy 콜         : {}\n", ld(&BR_TOTAL)));
     s.push_str(&format!("  2. is_live(관전 경기)  : {}   =0 이면 관전 라이브 경기를 못 찾음(스폰훅 미발화)\n", ld(&BR_LIVE)));
     s.push_str(&format!("  3. 지정챔프 buy        : {}   =0 이면 SEL 지정 챔프가 이 경기 로스터에 없음\n", ld(&BR_DES)));
@@ -4242,11 +4252,19 @@ static SLOT012_LOG: Mutex<Vec<String>> = Mutex::new(Vec::new());
 //    ④실제 write ⑤게임이 실제 산 것. → mods\tfm2_item_tactics\buy_report.txt 로 출력.
 //    read-only 관찰(주입 로직 무변경). ⚠프로덕션 배포 시 false 로 끌 것(진단 파일 write 방지).
 // ═══════════════════════════════════════════════════════════════════════════
-const BUY_REPORT: bool = false; // ★프로덕션 OFF 복귀(2026-08-06, 팀 게이트 수정 검증 완료 후).
+const BUY_REPORT: bool = false; // ★프로덕션 OFF 복귀(2026-08-20 저녁 — 0.5.6 riot 충돌 체인후킹 검증 완료 후).
+                                //   08-20 진단판 실측 = 설치상태3(체인OK)·진입 369만·write 27 = 주입 정상 확증.
+                                // (그 전: ★프로덕션 OFF 복귀 2026-08-06, 팀 게이트 수정 검증 완료 후.)
                                 //   08-06 회차에 임시 ON 으로 원인을 확정했다 — 판정 지표는 `★MY_ATHLETES 게시 보류`
                                 //   (수정 전 5회 → 수정 후 0회). 재검증이 필요하면 여기만 true 로.
                                 // ↓이하 이력: ★프로덕션 OFF(2026-07-30 검증 완료 후 복귀): buy_report.txt write + per-buy
                                 // 진단 전부 봉인. 주입/식별 기능은 이 게이트 바깥이라 무영향. (재검증 시 true)
+// ★0.5.6 진단(2026-08-20): "전체 buy 콜=0"이 detour 미발화인지, 진입 후 무집계 조기탈출(saved null/r8 쓰레기)인지
+//   가를 수 없어 진입 무조건 카운터 3종 추가. BR_ENTER=detour 진입 즉시(집계 전 return 없음) —
+//   ENTER=0이면 훅 미발화(설치/경로 축), ENTER>0 & TOTAL=0이면 인자 계약 붕괴(BADATH/NULLSAVED로 세분).
+static BR_ENTER: AtomicU64 = AtomicU64::new(0);     // detour 진입(무조건)
+static BR_NULLSAVED: AtomicU64 = AtomicU64::new(0); // saved==null 탈출
+static BR_BADATH: AtomicU64 = AtomicU64::new(0);    // r8(athlete)<0x10000 탈출
 static BR_TOTAL: AtomicU64 = AtomicU64::new(0);     // 전체 buy콜
 static BR_LIVE: AtomicU64 = AtomicU64::new(0);      // is_live (관전 라이브 경기 buy)
 static BR_DES: AtomicU64 = AtomicU64::new(0);       // 지정챔프(SEL) buy
@@ -4328,9 +4346,10 @@ unsafe extern "C" fn buy_replace_ctx(saved: *mut u64, rsp_entry: usize) -> u64 {
     //   T_BUY_EARLY = 배경 sim 조기탈출분(ALL 에 포함되므로 중복 계상 — 해석 시 차감).
     let __bt = perf::tsc();
     let r = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| -> u64 {
-        if saved.is_null() { return 0; } // ★mode=3도 통과(슬롯0/1/2 지정 주입). 4번째 로직만 아래서 mode=4 게이트.
+        if BUY_REPORT { BR_ENTER.fetch_add(1, Ordering::Relaxed); } // ★진입 무조건(0.5.6 진단)
+        if saved.is_null() { if BUY_REPORT { BR_NULLSAVED.fetch_add(1, Ordering::Relaxed); } return 0; } // ★mode=3도 통과(슬롯0/1/2 지정 주입). 4번째 로직만 아래서 mode=4 게이트.
         let athlete = *saved.add(2) as usize; // r8
-        if athlete < 0x10000 { return 0; }
+        if athlete < 0x10000 { if BUY_REPORT { BR_BADATH.fetch_add(1, Ordering::Relaxed); } return 0; }
         // ★★★조기탈출 재정렬(2026-07-22, perf 계측으로 확정): 여기 앞에 `readable(athlete,0x4a8)`가 있었는데
         //   readable()=**VirtualQuery 커널호출**이라, 전 buy콜(130.7s에 689만회·초당 5.3만)이 매번 커널에 진입했다.
         //   ⇒ buy 조기탈출 평균 3.6µs = 모드 전체 비용의 75%(25.9 코어초). athlete 필드는 is_live 게이트를
@@ -4866,7 +4885,14 @@ unsafe extern "C" fn buy_replace_ctx(saved: *mut u64, rsp_entry: usize) -> u64 {
 }
 
 // buy_item replace-detour 설치(스텁: mov r10,rsp; push rax r11 r10 r9 r8 rdx rcx; cap_fn(rcx=saved,rdx=rsp_entry)).
-unsafe fn install_replace_buy(rva: usize, orig_len: usize, cap_fn: usize) -> Result<usize, &'static str> {
+// ★0.5.6 체인 후킹(2026-08-20, CLAUDE §3 규칙): riot_items_tfm2 v0.9.2(0.5.6판)가 같은 buy(0xebca20)를
+//   먼저 후킹(dll 내 RVA 상수 5회 실측) → 진입부가 `48 b8 <tgt> ff e0` = 프롤로그 mismatch로 우리 설치가
+//   영구 실패(BUY_PROBE_INSTALLED=2)하던 실사고. chain=Some(외부 12B)면:
+//   ①PASSTHROUGH 연속부 = 원본 19B 대신 외부 12B 점프(movabs+jmp = 위치무관 재배치 안전 — riot 스텁이
+//     원본 프롤로그 실행·복귀를 담당) ②게임 함수엔 12B만 덮어씀(외부 패치 잔여부 불훼손).
+//   HANDLED(반환 1=완전대체)는 체인에서도 riot 핸들러를 건너뜀 = 우리 주입 우선(riot 빌드파일은 비어 있어 실손실 없음).
+//   ⛔재체인 금지(§3): 설치는 1회 확정 — 매프레임 진입부 재검증 후 재설치 절대 금지(상호 체인 사이클 실사고 07-18).
+unsafe fn install_replace_buy(rva: usize, orig_len: usize, cap_fn: usize, chain: Option<[u8; 12]>) -> Result<usize, &'static str> {
     let mbase = exe_base_addr();
     if mbase == 0 { return Err("module 0"); }
     let fn_addr = mbase + rva;
@@ -4888,18 +4914,28 @@ unsafe fn install_replace_buy(rva: usize, orig_len: usize, cap_fn: usize) -> Res
     s.extend_from_slice(&[0x74,0x0c]);
     s.extend_from_slice(&[0x59, 0x5a, 0x41,0x58, 0x41,0x59, 0x41,0x5a, 0x41,0x5b, 0x58, 0xc3]); // HANDLED: pop..ret
     s.extend_from_slice(&[0x59, 0x5a, 0x41,0x58, 0x41,0x59, 0x41,0x5a, 0x41,0x5b, 0x58]);       // PASSTHROUGH: pop
-    let mut orig = vec![0u8; orig_len];
-    core::ptr::copy_nonoverlapping(fn_addr as *const u8, orig.as_mut_ptr(), orig_len);
-    s.extend_from_slice(&orig);
-    s.extend_from_slice(&[0xff,0x25,0x00,0x00,0x00,0x00]); s.extend_from_slice(&ret_addr.to_le_bytes());
+    let patch_len = match chain {
+        Some(foreign12) => {
+            // 체인: 외부 훅 12B(movabs rax,tgt; jmp rax)를 연속부로 재배치 — riot 스텁 → 원본 순으로 이어짐.
+            s.extend_from_slice(&foreign12);
+            12
+        }
+        None => {
+            let mut orig = vec![0u8; orig_len];
+            core::ptr::copy_nonoverlapping(fn_addr as *const u8, orig.as_mut_ptr(), orig_len);
+            s.extend_from_slice(&orig);
+            s.extend_from_slice(&[0xff,0x25,0x00,0x00,0x00,0x00]); s.extend_from_slice(&ret_addr.to_le_bytes());
+            orig_len
+        }
+    };
     core::ptr::copy_nonoverlapping(s.as_ptr(), stub as *mut u8, s.len());
-    let mut patch = vec![0x90u8; orig_len];
+    let mut patch = vec![0x90u8; patch_len];
     patch[0]=0x48; patch[1]=0xb8; patch[2..10].copy_from_slice(&stub.to_le_bytes()); patch[10]=0xff; patch[11]=0xe0;
     let mut old: u32 = 0;
-    if VirtualProtect(fn_addr, orig_len, RWX, &mut old) == 0 { return Err("VirtualProtect"); }
-    core::ptr::copy_nonoverlapping(patch.as_ptr(), fn_addr as *mut u8, orig_len);
-    VirtualProtect(fn_addr, orig_len, old, &mut old);
-    FlushInstructionCache(GetCurrentProcess(), fn_addr, orig_len);
+    if VirtualProtect(fn_addr, patch_len, RWX, &mut old) == 0 { return Err("VirtualProtect"); }
+    core::ptr::copy_nonoverlapping(patch.as_ptr(), fn_addr as *mut u8, patch_len);
+    VirtualProtect(fn_addr, patch_len, old, &mut old);
+    FlushInstructionCache(GetCurrentProcess(), fn_addr, patch_len);
     Ok(stub)
 }
 // ===========================================================================
@@ -4972,13 +5008,29 @@ fn install_replace_4th() {
     let base = unsafe { GetModuleHandleW(core::ptr::null()) } as usize;
     if base == 0 { return; }
     let fn_addr = base + RVA_BUY_ITEM;
-    let ok = unsafe { readable(fn_addr, 12) } && (0..12).all(|i| unsafe { *((fn_addr + i) as *const u8) } == BUY_PROLOGUE[i]);
-    if !ok { BUY_PROBE_INSTALLED.store(2, Ordering::Relaxed);
-        append_log("4items.txt", &format!("[{}ms] buy_item 프롤로그 mismatch → replace 미설치", now_ms())); return; }
+    if !unsafe { readable(fn_addr, 12) } { BUY_PROBE_INSTALLED.store(2, Ordering::Relaxed);
+        append_log("4items.txt", &format!("[{}ms] buy_item 진입부 unreadable → replace 미설치", now_ms())); return; }
+    let entry: [u8; 12] = core::array::from_fn(|i| unsafe { *((fn_addr + i) as *const u8) });
+    let ok = entry == BUY_PROLOGUE;
+    // ★0.5.6 체인(2026-08-20): riot_items_tfm2가 같은 buy를 먼저 후킹하면 진입부 = movabs+jmp.
+    //   그 12B를 연속부로 담아 체인 설치(우리 detour → riot 스텁 → 원본). 상세 = install_replace_buy 주석.
+    let foreign = !ok && entry[0] == 0x48 && entry[1] == 0xb8 && entry[10] == 0xff && entry[11] == 0xe0;
+    if !ok && !foreign {
+        BUY_PROBE_INSTALLED.store(2, Ordering::Relaxed);
+        append_log("4items.txt", &format!("[{}ms] buy_item 프롤로그 mismatch(외부훅 형태도 아님) → replace 미설치 entry={:02x?}", now_ms(), entry)); return;
+    }
     // orig_len=19: 0.5.1 신 프롤로그 5push(7)+sub rsp,0x50(4)=11B는 jmp패치(12B)를 못 덮음 → 다음 클린경계 11+mov rax,[rsp+0xa8](8)=19B로 재배치.
-    match unsafe { install_replace_buy(RVA_BUY_ITEM, 19, buy_replace_ctx as usize) } {
-        Ok(_) => BUY_PROBE_INSTALLED.store(1, Ordering::Relaxed),
-        Err(_) => BUY_PROBE_INSTALLED.store(2, Ordering::Relaxed),
+    let chain = if foreign { Some(entry) } else { None };
+    match unsafe { install_replace_buy(RVA_BUY_ITEM, 19, buy_replace_ctx as usize, chain) } {
+        Ok(_) => {
+            BUY_PROBE_INSTALLED.store(if foreign { 3 } else { 1 }, Ordering::Relaxed);
+            if foreign {
+                let tgt = u64::from_le_bytes(entry[2..10].try_into().unwrap());
+                append_log("4items.txt", &format!("[{}ms] buy_item 체인 설치 OK — 외부훅(tgt={:#x}, riot_items 추정) 위에 체인", now_ms(), tgt));
+            }
+        }
+        Err(e) => { BUY_PROBE_INSTALLED.store(2, Ordering::Relaxed);
+            append_log("4items.txt", &format!("[{}ms] buy_item replace 설치 실패: {}", now_ms(), e)); }
     }
 }
 
