@@ -1,6 +1,4 @@
 // disc19_repro.rs — disc19/disc18 넥서스 방어 AI 완전재현 + dcap 검증하네스.
-// ★[0.5.6 재핀 2026-08-20, mig056_apply.py] 0.5.5-live 코드 RVA 리터럴 전수 → 0.5.6(owner-delta·prefix/4B 바이트검증 통과분만).
-//   ⚠유지된 stale(0.5.6에서도 그대로): LT_JOIN/FS2(0.5.4 이전 stale·기본OFF·orig검증 fail-safe)·HR 슬롯 18(0.5.4 stale·SKIP 가드)·SIMUNCHUNK(0.5.2)·macro-pskip 4(d7a76d/f3d658/ddc5d7/de338d).
 // 들어있는 것: my_disc19/my_disc18 및 d19_*/d18_* 전 헬퍼, disc13/15/16/17, disc19_dcmp/disc18_dcmp/dump_disc_commands,
 //   disc19/18 capture wrap, apply_disc19_imm(severity byte-patch), vt게터 순수화(vt90_get 등).
 // 언제 손대나: disc19 판단로직/severity 상수/넥서스 방어 튜닝 변경 시. RVA는 rva_051.rs.
@@ -58,19 +56,19 @@ unsafe fn apply_disc19_imm() {
     //   ★[0.5.2 이력] hp_pct R15→RSI(48 83 fe). tr/ally는 RAX(48 83 f8) 불변.
     //   전 사이트 width=1·imm_off=3. 아래 imm 기대값은 ghidra-re가 3자 exe(0.5.1/0.5.2백업/라이브)로 대조확인한 실바이트.
     // 위협비율표 (RAX=tr, 48 83 f8) — 각 1인스턴스
-    ok += patch_imm_bytes(base + 0xd432eb, &[0x48,0x83,0xf8], 3, 1, p_sr0) as u32;   // tr>49  orig 0x31 (ja)   // ←s2 dacc9b
-    ok += patch_imm_bytes(base + 0xd432f7, &[0x48,0x83,0xf8], 3, 1, p_sr1) as u32;   // tr>29  orig 0x1d   // ←s2 dacca7
-    ok += patch_imm_bytes(base + 0xd43303, &[0x48,0x83,0xf8], 3, 1, p_sr2) as u32;   // tr>17  orig 0x11   // ←s2 daccb3
-    ok += patch_imm_bytes(base + 0xd4330f, &[0x48,0x83,0xf8], 3, 1, p_sr3) as u32;   // tr>9   orig 0x0a (jc, 인코딩 +1)   // ←s2 daccbf
+    ok += patch_imm_bytes(base + 0xd3951b, &[0x48,0x83,0xf8], 3, 1, p_sr0) as u32;   // tr>49  orig 0x31 (ja)   // ←s2 dacc9b
+    ok += patch_imm_bytes(base + 0xd39527, &[0x48,0x83,0xf8], 3, 1, p_sr1) as u32;   // tr>29  orig 0x1d   // ←s2 dacca7
+    ok += patch_imm_bytes(base + 0xd39533, &[0x48,0x83,0xf8], 3, 1, p_sr2) as u32;   // tr>17  orig 0x11   // ←s2 daccb3
+    ok += patch_imm_bytes(base + 0xd3953f, &[0x48,0x83,0xf8], 3, 1, p_sr3) as u32;   // tr>9   orig 0x0a (jc, 인코딩 +1)   // ←s2 daccbf
     // HP단계 경계 (★RSI=hp_pct, 48 83 fe ← 0.5.1 R15 49 83 ff) — 인코딩 V-1
-    ok += patch_imm_bytes(base + 0xd432f1, &[0x48,0x83,0xff], 3, 1, p_sh1) as u32;   // hp<66  orig 0x41   // ←s2 dacca1
-    ok += patch_imm_bytes(base + 0xd432fd, &[0x48,0x83,0xff], 3, 1, p_sh2) as u32;   // hp<41  orig 0x28   // ←s2 daccad
-    ok += patch_imm_bytes(base + 0xd43309, &[0x48,0x83,0xff], 3, 1, p_sh3) as u32;   // hp<26  orig 0x19 (앞에 xor ebx,ebx 2B 삽입 → 간격 8)   // ←s2 daccb9
+    ok += patch_imm_bytes(base + 0xd39521, &[0x48,0x83,0xff], 3, 1, p_sh1) as u32;   // hp<66  orig 0x41   // ←s2 dacca1
+    ok += patch_imm_bytes(base + 0xd3952d, &[0x48,0x83,0xff], 3, 1, p_sh2) as u32;   // hp<41  orig 0x28   // ←s2 daccad
+    ok += patch_imm_bytes(base + 0xd39539, &[0x48,0x83,0xff], 3, 1, p_sh3) as u32;   // hp<26  orig 0x19 (앞에 xor ebx,ebx 2B 삽입 → 간격 8)   // ←s2 daccb9
     // ally넥서스 위기 HP% (RAX 48 83 f8) — 2곳 동일값
-    ok += patch_imm_bytes(base + 0xd43362, &[0x48,0x83,0xf8], 3, 1, p_ah) as u32;    // ally>50 #1 orig 0x32 (64bit div rcx @0x2380e8f)   // ←s2 dacd12
-    ok += patch_imm_bytes(base + 0xd4338e, &[0x48,0x83,0xf8], 3, 1, p_ah) as u32;    // ally>50 #2 orig 0x32 (32bit div ecx @0x2380ebe)   // ←s2 dacd3e
+    ok += patch_imm_bytes(base + 0xd39592, &[0x48,0x83,0xf8], 3, 1, p_ah) as u32;    // ally>50 #1 orig 0x32 (64bit div rcx @0x2380e8f)   // ←s2 dacd12
+    ok += patch_imm_bytes(base + 0xd395be, &[0x48,0x83,0xf8], 3, 1, p_ah) as u32;    // ally>50 #2 orig 0x32 (32bit div ecx @0x2380ebe)   // ←s2 dacd3e
     // retreat_hp (★RSI 48 83 fe) — ⛔0.5.2엔 rhA 소멸, rhB 1곳뿐(+1 인코딩)
-    ok += patch_imm_bytes(base + 0xd433a4, &[0x48,0x83,0xff], 3, 1, p_rhb) as u32;   // ★0.5.4: 인코딩이 뒤집혔다 — 053 `cmp rsi,0x2e; setae`(≥46) → 054 `cmp rdi,0x2d; jbe`(>45).   // ←s2 dacd54
+    ok += patch_imm_bytes(base + 0xd395d4, &[0x48,0x83,0xff], 3, 1, p_rhb) as u32;   // ★0.5.4: 인코딩이 뒤집혔다 — 053 `cmp rsi,0x2e; setae`(≥46) → 054 `cmp rdi,0x2d; jbe`(>45).   // ←s2 dacd54
     //   ⟹ **기대값·기록값이 −1**(0x2e→0x2d). 값만 옮기면 임계가 1 어긋난다.
     // ⛔phase 진입 게이트 4곳(pt·pa#1/2/3) = 0.5.2에서 게임이 전부 삭제 → 패치 사이트 없음(상단 주석 ③).
     // ★LOG_ON 무관 직접 write(설치확증 — itemnet_guard와 동일). write_named은 LOG_ON 게이트라 미확인됐었음.
@@ -833,8 +831,8 @@ unsafe fn vt90_get(vt: usize, data: usize) -> i64 {
     let imm: i64 = match slot.wrapping_sub(base) {
         // ★0.5.3 재핀(2026-07-30, vtslot7_053.py). 구값(0.5.0_3 세대) = 0x19f2f60/0x1a13cb0/0x19ed260/0x19ed250/0x1a3a240/0xb024b0/0x1e85540.
         //   ⚠구값은 0.5.3 .text 안에서 **다른 함수**를 가리키므로 병기 금지(교체가 정본). 7종 전부 명령 완전동일 검증.
-        0xeec0b0 => 0x30, 0x2f840 => 0x28, 0xfe5230 => 0x20,
-        0x14867c0 => 0x18, 0xf0c6a0 => 0x08, 0x1494930 => 0x00,
+        0xee24c0 => 0x30, 0x2f840 => 0x28, 0xfe5230 => 0x20,
+        0xfe5c20 => 0x18, 0xf025c0 => 0x08, 0xff71b0 => 0x00,
         0x1269e60 => 0x170,   // mov rax,[rcx+0x170](쿨다운 base 게터, disp32라 구 decode_getter 미파싱)
         _ => decode_getter(slot),   // 미등재: 프롤로그 바이트 파싱(미래 챔피언 일반화)
     };
@@ -862,12 +860,12 @@ unsafe fn decode_getter(slot: usize) -> i64 {
 // vt+0xa8 쿨다운 divisor 게터 순수재현 ★[07-12 전수스캔]: 135 vtable에서 구현 3종, 전부 rcx(data)-only·RNG-free.
 //   fn(rcx=data, rdx=e)->u64. 상수1(133/135 우세형) / max(*(data+0x40),1)(circus_blade)
 //   / *(data+0x28)(ghost_skill2, 0이면 게임=div panic → 우리=1 가드).
-//   ★0.5.3 재핀: 0x9a1230→0x1309df0 · 0x1bbe3c0→0x13b4ea0 · 0x1a13cb0→0x2f840 (셋 다 명령 완전동일).
+//   ★0.5.3 재핀: 0x9a1230→0xf45090 · 0x1bbe3c0→0x13b4ea0 · 0x1a13cb0→0x2f840 (셋 다 명령 완전동일).
 unsafe fn vta8_get(vt: usize, data: usize) -> u64 {
     let slot = rd_u64(vt + 0xa8).unwrap_or(0) as usize;
     if slot == 0 || !in_text(slot) { return 1; }   // ★[07-15 하드닝] .text 게이트. 실패=1(div0 가드 유지, 유효 게터 무영향)
     let v = match slot.wrapping_sub(exe_base()) {
-        0x1309df0 => 1,
+        0xf45090 => 1,
         0x13b4ea0 => rd_u64(data + 0x40).unwrap_or(0),
         0x2f840 => rd_u64(data + 0x28).unwrap_or(0),
         _ => {
@@ -1477,11 +1475,11 @@ unsafe fn descvt_78(vt: usize, obj: usize, depth: u32) -> bool {
     if slot == 0 { return false; }
     let rva = slot.wrapping_sub(exe_base());
     if depth == 0 {
-        match rva { 0x9d360 => a2(37), 0x11fe8d0 => a2(38), 0xc05b0 => a2(39), _ => a2(44) }
+        match rva { 0x9d2a0 => a2(37), 0x11fe8d0 => a2(38), 0xc04f0 => a2(39), _ => a2(44) }
     }
     match rva {
-        0x9d360 => false,                                        // xor eax,eax; ret → 타겟불요 (0.5.3 슬롯0x78 83 vtable)
-        0xc05b0 => true,                                         // mov al,1; ret → 타겟필요 (0.5.3 슬롯0x78 11 vtable)
+        0x9d2a0 => false,                                        // xor eax,eax; ret → 타겟불요 (0.5.3 슬롯0x78 83 vtable)
+        0xc04f0 => true,                                         // mov al,1; ret → 타겟필요 (0.5.3 슬롯0x78 11 vtable)
         // ⚠0x1f635c0은 **A계열 아님**(다른 트레이트, +0x78에 우연히 fn ptr) → 등재하지 않음(0.5.3에서도 재핀 대상 아님).
         0x11fe8d0 => descvt_cany(obj, 0x08, 0x10, 0x10, 0x78, depth),   // any(child.78) 16B 엔트리 (was 0.5.1 0x1f23eb0)
         0x1210150 => descvt_cany(obj, 0x50, 0x58, 0x18, 0x78, depth),   // stride 0x18 (was 0.5.1 0x1d1edd0)
@@ -1532,8 +1530,8 @@ unsafe fn descvt_50(vt: usize, obj: usize, depth: u32) -> bool {
     if depth > 6 || !ptr_ok(vt) || !ptr_ok(obj) { return false; }
     match (rd_u64(vt + 0x50).unwrap_or(0) as usize).wrapping_sub(exe_base()) {
         // ★0.5.3 재핀(was 0.5.0_3/0.5.1: 0x50fc80·0x5418a0·0x1f23dd0·0x1ce1070·0x23a4f80·0x23b5790) — 6종 전부 명령 완전동일 검증
-        0x9d360   => false,
-        0xc05b0   => true,                                              // 상수 true stub(전 슬롯 공용)
+        0x9d2a0   => false,
+        0xc04f0   => true,                                              // 상수 true stub(전 슬롯 공용)
         0x11fe7f0 => descvt_cany(obj, 0x08, 0x10, 0x10, 0x50, depth),
         0xfe3cf0  => rd_u64(obj + 0x18).unwrap_or(0) != 0 && rd_u64(obj + 0x10).unwrap_or(0) != 0,
         0x11ff690 => descvt_child(rd_u64(obj + 0x18).unwrap_or(0) as usize, rd_u64(obj + 0x20).unwrap_or(0) as usize, 0x50, depth + 1),
@@ -1546,8 +1544,8 @@ unsafe fn descvt_58(vt: usize, obj: usize, depth: u32) -> bool {
     if depth > 6 || !ptr_ok(vt) || !ptr_ok(obj) { return false; }
     match (rd_u64(vt + 0x58).unwrap_or(0) as usize).wrapping_sub(exe_base()) {
         // ★0.5.3 재핀(was 0x50fc80·0x5418a0·0x1f23d70·0x1a671e0·0x1d1ed70·0x1faac80·0x23a4f60·0x23b5770) — 8종 전부 명령 완전동일 검증
-        0x9d360   => false,
-        0xc05b0   => true,                                              // 상수 true stub
+        0x9d2a0   => false,
+        0xc04f0   => true,                                              // 상수 true stub
         0x11fe790 => descvt_cany(obj, 0x08, 0x10, 0x10, 0x58, depth),
         0xf01ff0  => descvt_cany(obj, 0x50, 0x58, 0x18, 0x58, depth)     // 2컨테이너 (A: stride 0x18)
                   || descvt_cany(obj, 0x68, 0x70, 0x10, 0x58, depth),    //           (B: stride 0x10)
@@ -1565,7 +1563,7 @@ unsafe fn descvt_48(vt: usize, obj: usize, depth: u32) -> bool {
     match (rd_u64(vt + 0x48).unwrap_or(0) as usize).wrapping_sub(exe_base()) {
         // ★0.5.3 재핀(was 0x9c8850·0x5418a0·0x1f23f90·0x1ce10f0|0x1ce1090·0x1fabac0·0x1ff1970·0x23a5080·0x23b5890)
         0xf451d0  => false,                                              // 항상 tag=0
-        0xc05b0   => true,                                              // 상수 true stub(공용)
+        0xc04f0   => true,                                              // 상수 true stub(공용)
         0x11fe9b0 => descvt_cany(obj, 0x08, 0x10, 0x10, 0x48, depth),
         0x1254e30 | 0xfe3d10 => rd_u64(obj + 0x18).unwrap_or(0) != 0,
         0xfe3d80  => true,
@@ -1584,16 +1582,16 @@ unsafe fn descvt_c8(vt: usize, obj: usize, depth: u32) -> bool {
     let rva = slot.wrapping_sub(exe_base());
     if depth == 0 {
         match rva {
-            0x9d360 => a2(45),
+            0x9d2a0 => a2(45),
             0x1228160 | 0x1228310 | 0xf01ff0 | 0x12100f0 => a2(46),
-            0xfe3cd0 | 0x1228250 | 0x12282b0 | 0xc05b0 => a2(47),
+            0xfe3cd0 | 0x1228250 | 0x12282b0 | 0xc04f0 => a2(47),
             _ => a2(35),   // 미등재(어댑터 포함) — 0이면 테이블 완전
         }
     }
     // ★0.5.3 재핀(was 0x50fc80·0x5418a0·0x1faac80·0x1f77e30·0x23bd430·0x1a671e0·0x1d1ed70·0x23bd370·0x23bd3d0·0x1f23680)
     match rva {
-        0x9d360   => false,                                              // 상수 false(지배)
-        0xc05b0   => true,                                               // 상수 true
+        0x9d2a0   => false,                                              // 상수 false(지배)
+        0xc04f0   => true,                                               // 상수 true
         0xfe3cd0  => rd_u64(obj + 0x18).unwrap_or(0) != 0,
         0x1228160 => {                                                   // any(trio(child)), stride 0x10
             let p = rd_u64(obj + 0x08).unwrap_or(0) as usize;
@@ -1633,12 +1631,12 @@ unsafe fn descvt_90(vt: usize, obj: usize, self_u: usize, tgt: usize, depth: u32
     if slot == 0 || !in_text(slot) { return 0; }   // ★[07-15 하드닝] .text 게이트(유효 게터 무영향)
     if depth == 0 {
         match slot.wrapping_sub(exe_base()) {
-            0x9d360 => a2(32), 0x1558f10 => a2(33), 0x12d3be0 => a2(34), _ => a2(35),
+            0x9d2a0 => a2(32), 0x1558f10 => a2(33), 0x12d3be0 => a2(34), _ => a2(35),
         }
     }
     // ★0.5.3 재핀(was 0x50fc80·0x1f236f0·0x20958d0·0x1f23d30|0x23a49f0) — 전부 명령 완전동일 검증
     let rv = match slot.wrapping_sub(exe_base()) {
-        0x9d360 => 0,                                       // xor eax,eax; ret
+        0x9d2a0 => 0,                                       // xor eax,eax; ret
         0x1558f10 => {                                      // composite: unsigned MAX
             let n = rd_u64(obj + 0x10).unwrap_or(0);
             if n == 0 || n > 256 { return 0; }
@@ -2289,10 +2287,10 @@ unsafe fn d19_abil2_block(out: usize, g0: usize, sim_obj: usize, geom2: usize, p
  0x11 (cand): cmgate={} tv={} inr={} c8true={} score통과={} emit={}
  0x11 (near): tv={} emit={}
  self-target: 0x10(Gate#2) emit={}  0x11(Gate#2/#3) emit={}
- descvt_90: 0x9d360(=0)={} 0x1558f10(max)={} 0x12d3be0(lvl3)={} 미등재={} | nonzero반환={}
- descvt_78(pred): 0x9d360(false)={} 0x11fe8d0(comp)={} 0xc05b0(true)={} 미등재={}
+ descvt_90: 0x9d2a0(=0)={} 0x1558f10(max)={} 0x12d3be0(lvl3)={} 미등재={} | nonzero반환={}
+ descvt_78(pred): 0x9d2a0(false)={} 0x11fe8d0(comp)={} 0xc04f0(true)={} 미등재={}
  Gate#2: 호출={} pred단락(무조건emit)={} 컨테이너통과={} false={}
- descvt_c8(aim): 0x9d360(false)={} composite={} 기타등재={} ★미등재={}  (미등재>0 = 테이블 불완전!)
+ descvt_c8(aim): 0x9d2a0(false)={} composite={} 기타등재={} ★미등재={}  (미등재>0 = 테이블 불완전!)
  P<0(scaled) 발생수={}  (0이면 SHR교정=no-op, under 원인은 다른 곳)
 ",
                 g(0), g(1), g(2),

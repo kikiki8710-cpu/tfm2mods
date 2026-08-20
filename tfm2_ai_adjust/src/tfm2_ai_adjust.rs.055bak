@@ -29,7 +29,7 @@ use std::sync::Mutex;
 
 use std::time::{Instant, SystemTime, UNIX_EPOCH};
 include!("gb_kit.rs");
-include!("rva_056.rs");   // ★0.5.5 마이그(2026-08-13): rva_054.rs → rva_055.rs. 구파일은 이력용 보존(참조 없음).
+include!("rva_055.rs");   // ★0.5.5 마이그(2026-08-13): rva_054.rs → rva_055.rs. 구파일은 이력용 보존(참조 없음).
 include!("mem_safety.rs");
 include!("detour.rs");
 include!("class_micro.rs");   // ★[08-07] 바이트패치 노브를 클래스별로 여는 마이크로 디투어(설계 = RE 부록 B)
@@ -1685,8 +1685,8 @@ unsafe fn probe_basedmg_r9(e: usize, local_80: usize, exe: usize, r9_addr: usize
         //   dmg=0 퇴화(크래시는 없음)하고, 반대로 구값을 그대로 통과시키면 0.5.3의 그 주소는 다른 데이터라 **AV**가 난다.
         //   둘 다 desc sanity {size=0x6a8, align=8, vt+0x30=**0xc7ead0**} 실측 통과 — 근거는 rva_054.rs 해당 상수 주석.
         //   ⚠0.5.4에서 vt+0x30 이 0xc51bc0 → 0xc7ead0 으로 옮겼다. desc 주소와 **같이** 갱신해야 한다.
-        const OK_DESC_056: [usize; 2] = [0x336dcd0, 0x3372198];   // ★0.5.6 재핀(2026-08-20) C8C/DISC7 = rva_056.rs 시트값과 동기. ⚠0.5.5 회차는 0.5.4값 방치로 전 호출 차단(dmg=0 퇴화)이었음 — 시트 재핀 시 반드시 같이 갱신
-        if !OK_DESC_056.contains(&r9_addr.wrapping_sub(base)) { return (-1, -1); }
+        const OK_DESC_054: [usize; 2] = [0x3288e48, 0x327fba0];   // C8C(확정 08-05) / DISC7(확정 08-05)
+        if !OK_DESC_054.contains(&r9_addr.wrapping_sub(base)) { return (-1, -1); }
     }
     let _ = exe;
     if !ptr_ok(e) { return (-1, -1); }
@@ -2829,8 +2829,8 @@ const SPDISP_PROBE: bool = false;
 /// ★[0.5.4] 경매 진입 passthrough 프로브(`TeamPlan.version` 관측). 크래시 시 여기만 false.
 const AUC_PROBE: bool = true;
 //   ✅[08-13 재활성] 유저 지시로 0.5.5에서 재관측(TeamPlan.version). 안전 재확인 근거:
-//     ①0.5.5 0xe0e5e0 선두 12B = push8(`55 41 57 41 56 41 55 41 54 56 57 53`) install_wrap 기대값과 바이트동일.
-//     ②jmpin 전역 스캔(scratchpad\jmpin_055.py, .text 전 분기 rel 디코드) = **[0xe0e5e0,+12) 중간 착지 0건**
+//     ①0.5.5 0xe04800 선두 12B = push8(`55 41 57 41 56 41 55 41 54 56 57 53`) install_wrap 기대값과 바이트동일.
+//     ②jmpin 전역 스캔(scratchpad\jmpin_055.py, .text 전 분기 rel 디코드) = **[0xe04800,+12) 중간 착지 0건**
 //       (진입점 +0 정상 call 1건뿐 = 무해). 0.5.4 판정(테일콜0·내부진입0)과 동일 = 트램폴린 안전.
 //   ⛔[08-06] (구 OFF 사유, 기록 유지) `version = 2` 를 두 판(395만·294만 관측, 전부 값 2)에서 확정했다.
 //   ⚠끈 이유는 그것만이 아니다 — 이 프로브를 켠 두 판 모두 `imm_guard_summary` 가 `checked=10`(=로드시점

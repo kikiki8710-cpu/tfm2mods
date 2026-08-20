@@ -615,12 +615,10 @@ unsafe fn serpen_reposition_fight(tick: i64, sim: usize, geom: usize, p4: u8) ->
 // 캐스팅 컴포넌트 getter dispatch(07-10 RE: concrete 전수=raw 필드/상수 → fnptr RVA 분기, 게임코드 실행 0).
 //   vt0x80: *(data+0x38)(42/42)·디폴트=0. vt0x90: *(data+0x30)(38/42)·+0x18/+8/+0 희귀 raw·0.
 //   vt0xa8: 1(디폴트+41/42)·*(data+0x28). vt0xc8(캐스팅 트레이트)=true. 미등재(어빌리티 다형 vt0xc8 등)=보수적 0.
-// ★[0.5.6 기계재핀 2026-08-20, mig056_apply] 아래 arm 값 = 0.5.5 소스값의 0.5.6 코드동일점(owner-delta+바이트검증, 0x1494930/0xc05b0은 masked-owner).
-//   ⚠단 **슬롯 실존은 0x2f840(=mov rax,[rcx+0x28];ret 실코드 일치·정적슬롯 6개 확인)만 확증** — 나머지 8종은 0.5.5/0.5.6
-//   전섹션 포인터 검색 0건 + 실바이트가 게터 형태 아님 = **0.5.3 이후 stale 추정**(그 arm들은 종전에도 미발화·디폴트 폴백 = 동작 등가 유지).
-//   재활성화하려면 vtslot7~9 분석 재수행(RE 별건). 구 이력 = [0.5.3 재핀 2026-07-30] (0.5.0_3 방치 발견, 도구 vtslot7~9_053.py):
-//     0x19ed660→0xeedd20 · 0x19f2f60→0xeec0b0 · 0x19ed250→0x14867c0 · 0x1a3a240→0xf0c6a0 · 0xb024b0→0x1494930
-//     0x50fc80→0x9d360 · 0x9a1230→0x1309df0 · 0x1a13cb0→0x2f840 · 0x5418a0→0xc05b0
+// ★[0.5.3 재핀 2026-07-30] 이 표도 disc19_repro.rs 슬롯표와 **같이 0.5.0_3 값이 방치돼 있었다**(0.5.1·0.5.2 마이그 모두 누락).
+//   매핑(전부 명령 완전동일 + vtable 슬롯분포 일치 검증, 도구 = vtslot7~9_053.py):
+//     0x19ed660→0xee4130 · 0x19f2f60→0xee24c0 · 0x19ed250→0xfe5c20 · 0x1a3a240→0xf025c0 · 0xb024b0→0xff71b0
+//     0x50fc80→0x9d2a0 · 0x9a1230→0xf45090 · 0x1a13cb0→0x2f840 · 0x5418a0→0xc04f0
 //   ⛔구값 병기 금지 — 구 RVA 전부가 0.5.3 `.text` 안이라 방치하면 **엉뚱한 함수를 이 게터로 오인**한다.
 unsafe fn c8c_cast_get(pair: usize, slot: usize) -> u64 {
     let data = rd_u64(pair).unwrap_or(0) as usize;
@@ -630,15 +628,15 @@ unsafe fn c8c_cast_get(pair: usize, slot: usize) -> u64 {
     let b = exe_base();
     if f <= b { return 0; }
     match f - b {
-        0xeedd20 => rd_u64(data + 0x38).unwrap_or(0),
-        0xeec0b0 => rd_u64(data + 0x30).unwrap_or(0),
-        0x14867c0 => rd_u64(data + 0x18).unwrap_or(0),
-        0xf0c6a0 => rd_u64(data + 8).unwrap_or(0),
-        0x1494930 => rd_u64(data).unwrap_or(0),
-        0x9d360 => 0,
-        0x1309df0 => 1,
+        0xee4130 => rd_u64(data + 0x38).unwrap_or(0),
+        0xee24c0 => rd_u64(data + 0x30).unwrap_or(0),
+        0xfe5c20 => rd_u64(data + 0x18).unwrap_or(0),
+        0xf025c0 => rd_u64(data + 8).unwrap_or(0),
+        0xff71b0 => rd_u64(data).unwrap_or(0),
+        0x9d2a0 => 0,
+        0xf45090 => 1,
         0x2f840 => rd_u64(data + 0x28).unwrap_or(0),
-        0xc05b0 => 1,
+        0xc04f0 => 1,
         _ => 0,
     }
 }
