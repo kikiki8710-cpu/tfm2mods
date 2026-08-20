@@ -1,0 +1,28 @@
+pos_lock_row:empty {
+  visible: false;
+  width: 1160px;
+  height: 40px;
+
+  #header:label {
+    @"asset/base/style/main#label";
+    width: 305px;
+    height: 40px;
+    align_y: Center;
+    size: 16;
+    text: "포지션 제한";
+  }
+
+  #pos_lock_configure:color_icon_button {
+    @"asset/base/style/main#secondary_button";
+    x: 255px;
+    width: 852px;
+    height: 40px;
+    text: {
+      text: "설정하기";
+      font: "asset/base/font/set/bold";
+      size: 16;
+      align_x: Center;
+      align_y: Center;
+    }
+  }
+}

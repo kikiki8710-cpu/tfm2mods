@@ -114,22 +114,71 @@ pub fn set_state(st: PosState) {
     STATE_VER.fetch_add(1, Ordering::Relaxed);
 }
 
-// ── 피어리스 최소수 검증 ─────────────────────────────────────────────────────
-/// 밴픽 방식(0=클래식/1=피어리스/2=하드피어리스)별, 화이트리스트한 포지션이
-/// 가져야 할 최소 챔피언 수. ★대략값(유저 "대충") — 피어리스 시리즈에서 그 포지션이
-/// 세트마다 새 챔프를 소모해 마르지 않도록 = 최장 시리즈(Bo5) 가정 5.
-pub const MIN_CLASSIC: usize = 1;
-pub const MIN_FEARLESS: usize = 5;
-pub fn min_required(style: u8) -> usize {
-    if style >= 1 {
-        MIN_FEARLESS
-    } else {
-        MIN_CLASSIC
+fn mutate(f: impl FnOnce(&mut PosState)) {
+    let mut g = STATE.write().unwrap_or_else(|e| e.into_inner());
+    let st = g.get_or_insert_with(PosState::default);
+    f(st);
+    drop(g);
+    STATE_VER.fetch_add(1, Ordering::Relaxed);
+}
+/// pos(0..4) 화이트리스트에서 챔피언(소문자) 켜고 끄기.
+pub fn toggle(pos: usize, lower: &str) {
+    if pos >= 5 {
+        return;
+    }
+    mutate(|st| {
+        if let Some(i) = st.allowed[pos].iter().position(|x| x == lower) {
+            st.allowed[pos].remove(i);
+        } else {
+            st.allowed[pos].push(lower.to_string());
+        }
+    });
+}
+pub fn clear_pos(pos: usize) {
+    if pos >= 5 {
+        return;
+    }
+    mutate(|st| st.allowed[pos].clear());
+}
+pub fn set_pos(pos: usize, list: Vec<String>) {
+    if pos >= 5 {
+        return;
+    }
+    mutate(|st| st.allowed[pos] = list);
+}
+pub fn is_listed(pos: usize, lower: &str) -> bool {
+    if pos >= 5 {
+        return false;
+    }
+    with_state(|st| st.allowed[pos].iter().any(|x| x == lower))
+}
+pub fn pos_count(pos: usize) -> usize {
+    if pos >= 5 {
+        return 0;
+    }
+    with_state(|st| st.allowed[pos].len())
+}
+
+// ── 피어리스 최소수 검증 (유저 규칙, 2026-08-20) ─────────────────────────────
+/// 시리즈 최장 길이 가정(Bo5). 실제 시리즈 길이는 대회/라운드마다 다르나 설정 화면에서
+/// 알기 어려워 최악(Bo5)으로 고정 — 유저도 "bo5면"으로 기준을 잡음.
+pub const SERIES_GAMES: usize = 5;
+
+/// 화이트리스트한 포지션이 가져야 할 최소 챔피언 수.
+/// - 클래식(0): 1 (단판·소모 없음)
+/// - 피어리스(1): 내 팀이 시리즈 내내 안 겹치게 → Bo5 = 5, + 밴카드로 빠지는 몫(밴 양팀 = ban×2)
+/// - 하드피어리스(2): ★양팀이 서로도 못 겹침 → Bo5 = 10(=5×2), + 밴카드 ban×2
+///   (유저: "하드피어리스 bo5면 10개, 밴카드 5장이면 +10, 3장이면 +6")
+pub fn min_required(style: u8, ban_count: usize) -> usize {
+    match style {
+        2 => SERIES_GAMES * 2 + ban_count * 2, // 하드피어리스
+        1 => SERIES_GAMES + ban_count * 2,     // 피어리스
+        _ => 1,                                 // 클래식
     }
 }
 /// 포지션별 검증: (pos, 현재수, 최소수) — 부족한 포지션만. 빈 화이트리스트(=전체허용)는 제외.
-pub fn shortfalls(st: &PosState, style: u8) -> Vec<(usize, usize, usize)> {
-    let need = min_required(style);
+pub fn shortfalls(st: &PosState, style: u8, ban_count: usize) -> Vec<(usize, usize, usize)> {
+    let need = min_required(style, ban_count);
     (0..5)
         .filter(|&p| !st.allowed[p].is_empty() && st.allowed[p].len() < need)
         .map(|p| (p, st.allowed[p].len(), need))

@@ -27,9 +27,9 @@ extern "system" {
 const MEM_CR: u32 = 0x1000 | 0x2000;
 const RWX: u32 = 0x40;
 
-// ── 0.5.5 RVA (패치 시 재핀 대상 — 이 파일이 단일 수정점) ──────────────────
-/// champ→eligible-positions 비트마스크 산출기 (RE 2026-08-19 확정·"강한 추정" 후계)
-const RVA_POS_MASK: usize = 0x1294180;
+// ── 0.5.6 RVA (패치 시 재핀 대상 — 이 파일이 단일 수정점) ──────────────────
+/// champ→eligible-positions 비트마스크 산출기 (0.5.5 0x1294180 → 0.5.6 재핀·프롤로그 동일)
+const RVA_POS_MASK: usize = 0x2e739e0;
 /// 프롤로그 12B = push r15/r14/r13/r12/rsi/rdi/rbp/rbx … (전부 1~2B push — 12B 경계 클린)
 const PROL_POS_MASK: [u8; 12] = [
     0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x55, 0x53,
@@ -37,7 +37,8 @@ const PROL_POS_MASK: [u8; 12] = [
 
 // Hook C (유저 픽 차단 — 피어리스 픽불가 차용, RE 2026-08-20 4차):
 /// contains 헬퍼 `bool al = contains(rcx=&String{cap,ptr,len}, rdx=list.ptr, r8=list.len)`
-const RVA_CONTAINS: usize = 0x943440;
+/// (0.5.5 0x943440 → 0.5.6 재핀·프롤로그 동일)
+const RVA_CONTAINS: usize = 0xb31840;
 /// contains 프롤로그 14B(사이트 검증용 — 함수 자체는 패치하지 않음)
 const PROL_CONTAINS: [u8; 14] = [
     0x41, 0x57, 0x41, 0x56, 0x56, 0x57, 0x53, 0x48, 0x83, 0xEC, 0x20, 0x4D, 0x85, 0xC0,
@@ -45,11 +46,11 @@ const PROL_CONTAINS: [u8; 14] = [
 /// slot_widget(0x1971b00) 내부 contains E8 콜사이트 2곳 — 피어리스 회색+클릭게이트 지배점.
 /// ⚠커밋기(0x12156b0) 내 4콜은 일부러 안 건드림: AI가 fail-open으로 위반 픽을 냈을 때
 /// 서버 커밋이 거부되면 턴이 막힐 수 있다 — 차단은 UI(클릭 전)에서만.
-const SITES_CONTAINS: [usize; 2] = [0x1977c91, 0x1977caa];
+const SITES_CONTAINS: [usize; 2] = [0x24dd7ae, 0x24dd7c7];
 
 // Hook D (밴픽 씬 ptr 캡처 — RE 2026-08-20 5차):
 /// slot_widget = banpick_champion_slot 렌더러. 씬 ptr = 스택 인자 arg15 = 진입 시 [rsp+0x78].
-const RVA_SLOT_WIDGET: usize = 0x1971b00;
+const RVA_SLOT_WIDGET: usize = 0x24d7640;
 /// 프롤로그 12B push열(그 뒤 mov eax+call chkstk는 원위치 실행 — resume = fn+12)
 const PROL_SLOT_WIDGET: [u8; 12] = [
     0x55, 0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x53,
