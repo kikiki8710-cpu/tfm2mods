@@ -87,26 +87,24 @@ static CNT_ROW_CLICK: AtomicU64 = AtomicU64::new(0);
 static SEL_POS: AtomicUsize = AtomicUsize::new(0);
 const NCELLS: usize = 120;
 const TAB_IDS: [&str; 5] = ["tab_top", "tab_jungle", "tab_mid", "tab_bottom", "tab_support"];
-static mut CELL_BUF: [[u8; 96]; NCELLS] = [[0u8; 96]; NCELLS];
 static GRID_SIG: AtomicU64 = AtomicU64::new(u64::MAX);
+static mut CELL_BUF: [[u8; 96]; NCELLS] = [[0u8; 96]; NCELLS];
 
-// draft_overlay 에서 생성한 UV 테이블(CHAMP_UV/CHAMP_FACE/CHAMP_KEY/CHAMP_RT_FACE).
+// 챔피언 스프라이트 에셋 키 + UV 테이블(CHAMP_UV/CHAMP_KEY).
 include!(r"C:\tfm2mods\tfm2_champ_pos_lock\assets\champ_uv.rs");
-// 이름은 게임과 동일한 i18n 태그(#asset/base/text/champion?description.<id>.name)로 처리.
 fn champ_key(id: &str) -> Option<String> {
     CHAMP_KEY.iter().find(|e| e.0 == id).map(|e| e.1.to_string())
 }
-/// ImageRunner 커스텀 UV 크롭: +0xa4 flag=1, +0xa8..0xb4 = (x,y,w,h) UV.
-unsafe fn set_img_uv(dp: usize, x: f32, y: f32, w: f32, h: f32) {
+/// ImageRunner 커스텀 UV: +0xa4 flag=1, +0xa8..0xb4 = 4개 f32.
+unsafe fn set_img_uv(dp: usize, a: f32, b: f32, c: f32, d: f32) {
     *((dp + 0xa4) as *mut u8) = 1;
-    *((dp + 0xa8) as *mut f32) = x;
-    *((dp + 0xac) as *mut f32) = y;
-    *((dp + 0xb0) as *mut f32) = w;
-    *((dp + 0xb4) as *mut f32) = h;
+    *((dp + 0xa8) as *mut f32) = a;
+    *((dp + 0xac) as *mut f32) = b;
+    *((dp + 0xb0) as *mut f32) = c;
+    *((dp + 0xb4) as *mut f32) = d;
 }
-
-/// 노드 크기(width/height 복사본 6곳) 세팅 — 스프라이트 종횡비 맞춤(draft_overlay 방식).
-unsafe fn set_node_size(node: &Node, w: f32, h: f32) {
+/// 노드 크기(복사본 6곳).
+fn set_node_wh(node: &Node, w: f32, h: f32) {
     let na = node as *const Node as usize;
     for off in [0x74usize, 0xf4, 0x174, 0x1f4, 0x248, 0x258] {
         ui_kit::runner_wr_f32(na, off, w);
@@ -116,9 +114,7 @@ unsafe fn set_node_size(node: &Node, w: f32, h: f32) {
     }
 }
 
-/// 셀 아이콘(ImageRunner) = 네이티브 "시작 챔피언 선택"과 동일한 **전신 스프라이트**
-/// (#sheet 전신 UV 크롭 + 프레임 종횡비 리사이즈). 크롭 없이 #sheet 만 주면 시트 전체가
-/// 깨져 보인다. CHAMP_UV 에 없는(모드챔프) 것은 표시 생략.
+/// 셀 아이콘 = 챔피언 전신 스프라이트(#sheet) + UV 크롭(CHAMP_UV) + 종횡비 리사이즈.
 unsafe fn set_cell_icon(icon: &mut Node, k: usize, lower: &str) {
     let Some(dp) = ui_kit::runner_base(icon, "ImageRunner") else {
         return;
@@ -143,7 +139,6 @@ unsafe fn set_cell_icon(icon: &mut Node, k: usize, lower: &str) {
     let buf = core::ptr::addr_of_mut!(CELL_BUF[k]) as *mut u8;
     core::ptr::copy_nonoverlapping(kb.as_ptr(), buf, kb.len());
     let gate: i64 = if uv.is_some() { -1 } else { 0 };
-    // source String {cap@0, ptr@8, len@0x10}, frame@0x18. ★cap=0(정적버퍼 free 방지).
     core::ptr::write_unaligned(dp as *mut u64, 0u64);
     core::ptr::write_unaligned((dp + 0x08) as *mut u64, buf as u64);
     core::ptr::write_unaligned((dp + 0x10) as *mut u64, kb.len() as u64);
@@ -151,17 +146,25 @@ unsafe fn set_cell_icon(icon: &mut Node, k: usize, lower: &str) {
     if let Some((x, y, w, h, fw, fh)) = uv {
         set_img_uv(dp, x, y, w, h);
         if fw > 0.0 && fh > 0.0 {
-            let (box_w, box_h) = (84.0_f32, 84.0_f32);
+            let (bw, bh) = (84.0f32, 84.0f32);
             let ar = fw / fh;
-            let (mut w2, mut h2) = (box_h * ar, box_h);
-            if w2 > box_w {
-                w2 = box_w;
-                h2 = box_w / ar;
+            let (mut w2, mut h2) = (bh * ar, bh);
+            if w2 > bw {
+                w2 = bw;
+                h2 = bw / ar;
             }
-            set_node_size(icon, w2, h2);
+            set_node_wh(icon, w2, h2);
         }
     } else {
         *((dp + 0xa4) as *mut u8) = 0;
+    }
+}
+
+/// 노드 높이(복사본 6곳) — 스크롤 컨텐츠 높이 지정용.
+fn set_node_h(node: &Node, h: f32) {
+    let na = node as *const Node as usize;
+    for off in [0x7cusize, 0xfc, 0x17c, 0x1fc, 0x24c, 0x25c] {
+        ui_kit::runner_wr_f32(na, off, h);
     }
 }
 
@@ -198,6 +201,8 @@ fn fill_grid(root: &mut Node) {
     let Some(contents) = ui_kit::find_mut(pop, "contents") else {
         return;
     };
+    let dbg = config::get().debug;
+    let mut sample = String::new();
     for (k, cell) in contents.child.iter_mut().enumerate() {
         if let Some(champ) = champs.get(k) {
             cell.visible = true;
@@ -207,20 +212,30 @@ fn fill_grid(root: &mut Node) {
                 match c.id.as_str() {
                     "name" => {
                         // i18n 태그로 세팅 → 게임이 로케일 문자열로 자동 해석(전 챔프·라이브).
-                        // 런타임 라벨에서도 '#' 태그가 풀리는지 테스트 중.
                         ui_kit::label_set(
                             c,
                             &format!("#asset/base/text/champion?description.{lower}.name"),
                         );
                     }
                     "sel" => c.visible = listed,
-                    "icon" => unsafe { set_cell_icon(c, k, &lower) },
+                    "icon" => unsafe {
+                        set_cell_icon(c, k, &lower);
+                        let _ = (dbg, &mut sample);
+                    },
                     _ => {}
                 }
             }
         } else {
             cell.visible = false;
         }
+    }
+    // 스크롤: 컨텐츠 높이를 보이는 셀 수로 지정(셀 120h + 세로간격 15, 9열 가정).
+    let n = champs.len().min(NCELLS);
+    let rows = n.div_ceil(9);
+    let h = (rows as f32) * (120.0 + 15.0) + 16.0;
+    set_node_h(contents, h);
+    if dbg {
+        config::dlog(&format!("grid fill: h={h} icons={sample}"));
     }
 }
 
@@ -403,65 +418,7 @@ fn dump_tree(n: &Node, depth: usize, out: &mut String) {
 static DUMP_FRAME: AtomicU64 = AtomicU64::new(0);
 static DUMPED_OPTION: AtomicBool = AtomicBool::new(false);
 static DUMPED_POPUP: AtomicBool = AtomicBool::new(false);
-static DUMPED_NATIVE: AtomicBool = AtomicBool::new(false);
 
-/// 네이티브 "시작 챔피언 선택"(custom_champion_popup) 슬롯의 ImageRunner 실값 덤프.
-/// = 게임이 챔프 아이콘을 어떻게 그리는지 그대로 배끼기 위한 계측(source/frame/uv/size).
-fn dump_native_slots(root: &Node) {
-    let Some(pop) = ui_kit::find(root, "custom_champion_popup") else {
-        return;
-    };
-    let Some(contents) = ui_kit::find(pop, "contents") else {
-        return;
-    };
-    if contents.child.is_empty() {
-        return;
-    }
-    // 전 슬롯을 파싱 가능한 형식으로 덤프: `id u0 u1 u2 u3 iconW iconH frame`
-    // (게임이 각 챔프에 세팅한 최종 uv/크기 = 이걸 그대로 재생하면 게임과 동일).
-    let n = contents.child.len();
-    if n < 90 {
-        // 아직 다 안 채워졌으면(가상화/로딩) 다음 프레임 재시도.
-        DUMPED_NATIVE.store(false, Ordering::Relaxed);
-        return;
-    }
-    let mut s = format!("# native custom_champion_slot uv table  (slots={n})\n");
-    s.push_str("# fmt: id u0 u1 u2 u3 iconW iconH frame\n");
-    for slot in contents.child.iter() {
-        let Some(icon) = ui_kit::find(slot, "icon") else {
-            continue;
-        };
-        let iw = read_node_f32(icon, 0x74);
-        let ih = read_node_f32(icon, 0x7c);
-        if let Some(dp) = ui_kit::runner_base(icon, "ImageRunner") {
-            unsafe {
-                let frame = core::ptr::read((dp + 0x18) as *const i64);
-                let uvflag = core::ptr::read((dp + 0xa4) as *const u8);
-                let uv: [f32; 4] = [
-                    core::ptr::read((dp + 0xa8) as *const f32),
-                    core::ptr::read((dp + 0xac) as *const f32),
-                    core::ptr::read((dp + 0xb0) as *const f32),
-                    core::ptr::read((dp + 0xb4) as *const f32),
-                ];
-                if uvflag != 0 {
-                    s.push_str(&format!(
-                        "{} {} {} {} {} {:.1} {:.1} {}\n",
-                        slot.id, uv[0], uv[1], uv[2], uv[3], iw, ih, frame
-                    ));
-                }
-            }
-        }
-    }
-    if let Some(d) = mod_dir() {
-        let _ = std::fs::write(format!("{d}\\ui_native_slot.txt"), s);
-    }
-    config::dlog(&format!("네이티브 슬롯 {n}개 덤프 → ui_native_slot.txt"));
-}
-
-fn read_node_f32(n: &Node, off: usize) -> f32 {
-    let a = n as *const Node as usize;
-    unsafe { core::ptr::read((a + off) as *const f32) }
-}
 fn maybe_dump_ui(root: &Node) {
     let f = DUMP_FRAME.fetch_add(1, Ordering::Relaxed);
     // 매 ~1초, 화면에 떠 있는 트리 전체를 통째로 덮어쓴다(무조건 — 어떤 root 를 받는지부터 확인).
@@ -505,8 +462,6 @@ fn maybe_dump_ui(root: &Node) {
     if !pop {
         DUMPED_POPUP.store(false, Ordering::Relaxed);
     }
-    // 네이티브 챔피언 선택 슬롯이 채워지면 그 ImageRunner 실값 덤프(게임 렌더 방식 파악).
-    dump_native_slots(root);
 }
 
 // ── 진입 ──────────────────────────────────────────────────────────────────
