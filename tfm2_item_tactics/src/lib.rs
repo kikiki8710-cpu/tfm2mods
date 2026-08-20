@@ -29,7 +29,7 @@ const MOD_ID: &str = "tfm2_item_tactics";
 //   프롤로그 55 56 57 48 83 ec 70, 옵션 Vec@+0x1528, 선택 idx@+0x1788.
 //   ⚠ 패치마다 이동 → MIGRATION 시 재탐색.
 // 0.5.0 확정(구 0x218a5f0). dd_addr_valid() 프롤로그 가드(55 56 57 48 83 ec 70)로 검증 후 사용.
-const FN_DD_SETOPT_RVA: usize = 0x1c1a30; // 0.5.5(구0.5.4=0x1c1ad0, exe2exe 스켈레톤 확정). // 0.5.4(구0.5.3=0x1bfc80). 본문 니모닉 100% 동일·콜러 103개 동수·프롤로그 12B 동일. // 0.5.3(구0.5.2=0x242f250). ghidra-re 확정: 직접 콜러 103개로 구 exe와 완전 일치 + 오프셋 지문 4종(+0x1788 selected / +0x1528·0x1530·0x1538 옵션Vec / +0x1570·0x1578 콜백 / 원소 0xf8 / 입력 stride 0x28) 전부 불변. ⚠프롤로그는 변경됨(아래 dd_addr_valid expect 갱신).
+const FN_DD_SETOPT_RVA: usize = 0x1c1af0; // 0.5.6(구0.5.5=0x1c1a30, skel UNIQUE·BYTE=SAME·size 379·프롤로그 동일). // 0.5.5(구0.5.4=0x1c1ad0, exe2exe 스켈레톤 확정). // 0.5.4(구0.5.3=0x1bfc80). 본문 니모닉 100% 동일·콜러 103개 동수·프롤로그 12B 동일. // 0.5.3(구0.5.2=0x242f250). ghidra-re 확정: 직접 콜러 103개로 구 exe와 완전 일치 + 오프셋 지문 4종(+0x1788 selected / +0x1528·0x1530·0x1538 옵션Vec / +0x1570·0x1578 콜백 / 원소 0xf8 / 입력 stride 0x28) 전부 불변. ⚠프롤로그는 변경됨(아래 dd_addr_valid expect 갱신).
 
 const LOG_ENABLED: bool = false; // 프로덕션 OFF(진단 로깅·dump·[slot012] 로그 게이트). 주입 로직은 이 게이트 바깥이라 무영향.
 // ★프로덕션 마스터 진단 게이트(07-11): 이번 세션 진단(nn_moditem·timing·liveroster·p6/channel scan·shadow-call 카탈로그이름조회) +
@@ -1315,8 +1315,8 @@ static TIP_OWNED: AtomicBool = AtomicBool::new(false); // 지금 우리가 빌�
 //   계약: (p1=asset/i18n 레지스트리, p2=텍스트계측 ctx, p3=그 vtable(상수), node=#item_tooltip,
 //          item_data, item_vtable, x, y, pivot_x, pivot_y, clamp_rect{x,y,w,h})
 //   ★item (data,vtable)은 **빌림만** 한다(내부에서 drop 안 함) ⟹ item_list 원본 그대로 넘겨도 안전.
-const RVA_TIP_SHOW: usize = 0x2587990; // 0.5.5(구0.5.4=0x236dc00). head-지문 유일후보·콜러 3개(UImega=0xaedc09 포함) 동수·size 10010→10237·ninsn 1936→2018. // 0.5.4(구0.5.3=0x1ab52f0). item_tooltip.rs panic-location 23개 동일 + 콜러 3개(UI메가 포함) 동수 + 명령수 1936 동일.
-const RVA_TIP_MEASURE_VT: usize = 0x333b970; // 0.5.5(구0.5.4=0x32602a0). UImega tipshow call(0xaedc09) 직전 lea r8,[rip+X]@0xaedbf1 = 4c 8d 05 78 dd 84 02 → 0x333b970. p3 = 텍스트 계측 ctx 의 vtable(상수)
+const RVA_TIP_SHOW: usize = 0x1efca70; // 0.5.6(구0.5.5=0x2587990). head-UNIQUE·콜러 3개(UImega 0xab5339 포함) 동수·size 10237→10383. // 0.5.5(구0.5.4=0x236dc00). head-지문 유일후보·콜러 3개(UImega=0xaedc09 포함) 동수·size 10010→10237·ninsn 1936→2018. // 0.5.4(구0.5.3=0x1ab52f0). item_tooltip.rs panic-location 23개 동일 + 콜러 3개(UI메가 포함) 동수 + 명령수 1936 동일.
+const RVA_TIP_MEASURE_VT: usize = 0x334cd10; // 0.5.6(구0.5.5=0x333b970). UImega tipshow call(0xab5339) 직전 lea r8,[rip+0x28979e8]@0xab5321 → 0x334cd10. // 0.5.5(구0.5.4=0x32602a0). UImega tipshow call(0xaedc09) 직전 lea r8,[rip+X]@0xaedbf1 = 4c 8d 05 78 dd 84 02 → 0x333b970. p3 = 텍스트 계측 ctx 의 vtable(상수)
 static TIP_P1: AtomicUsize = AtomicUsize::new(0);
 static TIP_P2: AtomicUsize = AtomicUsize::new(0);
 static TIP_ROOT: AtomicUsize = AtomicUsize::new(0);
@@ -1342,7 +1342,7 @@ unsafe fn node_set_xy(n: &Node, x: f32, y: f32) {
 //  ✅+0x58 key(&String) / +0x60 icon(&String) / +0x68 price(u64 **값**) / +0x70 tier(u64 **값**, 0-base)
 //  ⛔+0x50 = bool(self+0x190!=0) — **name 아님**. 이름은 vtable 슬롯이 없고 key로 i18n 키를 조립한다.
 //     (이걸 String 포인터로 착각해 역참조 → 크래시. 재발 금지.)
-const RVA_GAME_ALLOC: usize = 0x2a9bf30;  // 0.5.5(구0.5.4=0x29bb920). (rcx=무시, rdx=flags 0, r8=size) -> ptr
+const RVA_GAME_ALLOC: usize = 0x2ab1670;  // 0.5.6(구0.5.5=0x2a9bf30, skel/마스크 UNIQUE·BYTE=SAME). // 0.5.5(구0.5.4=0x29bb920). (rcx=무시, rdx=flags 0, r8=size) -> ptr
 unsafe fn item_obj_at(gv: usize, idx: u64) -> Option<(usize, usize)> {
     if !readable(gv + GV_OFF_ITEMLIST_CAP, 24) { return None; }
     if rd_u64(gv + GV_OFF_ITEMLIST_CAP) == u64::MAX { return None; }
@@ -1356,7 +1356,7 @@ unsafe fn item_obj_at(gv: usize, idx: u64) -> Option<(usize, usize)> {
 }
 // GameView 포인터(읽기전용 캡처). game.rs update(0x960df0)의 rcx = GameView. 값 불변이라 1회만 잡으면 된다.
 static GAME_VIEW: AtomicUsize = AtomicUsize::new(0);
-const RVA_GV_UPDATE: usize = 0x964350; // 0.5.5(구0.5.4=0xaa06c0, exe2exe 스켈레톤 확정). // 0.5.4(구0.5.3=0x960df0). 본문 니모닉 100% 동일(오프셋 시퀀스까지)·콜러 22개 동수.
+const RVA_GV_UPDATE: usize = 0xb52b80; // 0.5.6(구0.5.5=0x964350, skel UNIQUE·BYTE=SAME·size 4575·프롤로그 동일). // 0.5.5(구0.5.4=0xaa06c0, exe2exe 스켈레톤 확정). // 0.5.4(구0.5.3=0x960df0). 본문 니모닉 100% 동일(오프셋 시퀀스까지)·콜러 22개 동수.
 const GV_UPDATE_PROLOGUE: [u8; 12] = [0x55, 0x41,0x57, 0x41,0x56, 0x41,0x55, 0x41,0x54, 0x56, 0x57, 0x53];
 static GV_HOOK_INSTALLED: AtomicU64 = AtomicU64::new(0);
 static GV_HITS: AtomicU64 = AtomicU64::new(0);
@@ -2139,7 +2139,7 @@ fn is_skill_key(k: &str) -> bool {
 }
 
 
-const RVA_REALLOC: usize = 0x2a87a70; // 0.5.5(구0.5.4=0x29a7640, exe2exe 스켈레톤 확정). // 0.5.4(구0.5.3=0x28e3b10). 본문 100% 동일·콜러 3개 동수. // 0.5.3(구0.5.2=0x25c4dd0). __rust_realloc 실함수. (rcx=ptr,rdx=old,r8=align,r9=new)->rax. 구 exe 진입 112B 마스크시그 → 신 exe 유일 1히트 + 본문 명령 대 명령 동형(mov rdi,r9 / mov rsi,rcx / cmp r8,0x11 / jae).
+const RVA_REALLOC: usize = 0x2a9d1b0; // 0.5.6(구0.5.5=0x2a87a70, skel UNIQUE·BYTE=SAME·size 174). // 0.5.5(구0.5.4=0x29a7640, exe2exe 스켈레톤 확정). // 0.5.4(구0.5.3=0x28e3b10). 본문 100% 동일·콜러 3개 동수. // 0.5.3(구0.5.2=0x25c4dd0). __rust_realloc 실함수. (rcx=ptr,rdx=old,r8=align,r9=new)->rax. 구 exe 진입 112B 마스크시그 → 신 exe 유일 1히트 + 본문 명령 대 명령 동형(mov rdi,r9 / mov rsi,rcx / cmp r8,0x11 / jae).
 type ReallocFn = unsafe extern "win64" fn(usize, usize, usize, usize) -> usize;
 static EXE_BASE_CACHE: AtomicUsize = AtomicUsize::new(0);
 fn exe_base_addr() -> usize {
@@ -2158,7 +2158,7 @@ static NN_ID_NAME: Mutex<Option<HashMap<u64, String>>> = Mutex::new(None);
 // ═══ 경기시작 launcher 훅(0.5.1 RE) — 렌더 경기 시드 결정적 캡처 ═══
 //   launcher 0x20588a0(out=rcx, flag=dl, seed=r8, r9) ← 클라 렌더 씬빌더 0x722ca0가 호출(콜러=렌더 판별).
 //   retaddr rva ∈ [0x722ca0, 0x732ca0)면 렌더 경기 → LIVE_SEED=seed(r8). buy훅 sim_seed==LIVE_SEED 게이트.
-const CL_LAUNCHER_RVA: usize = 0x14ac3e0; // 0.5.5(구0.5.4=0x13b53d0). head 유일후보·콜러 9개 동수(지문 1:1)·내부 mov[rsi+0x1dc0]/[rsi+0x1dc8] 스토어 존재·size 4432→4401. ⚠프롤로그 chkstk imm 0x25168→0x25438(아래 배열 index13 변경). // 0.5.4(구0.5.3=0xeb8810). 크기 0x1150·명령수 787·콜러 9개 전부 동일 + Game+0x1dc0/0x1dc8 스토어 동일 + 콜러 컨테이너 8개 전부 소스파일 지문 일치. // 0.5.3(구0.5.2=0x1d96870). 확정 근거: ①프롤로그 관용구 동형(8push+mov eax,frame+call chkstk+lea rbp,[rsp+0x80]+xmm 스필+[rbp+X]=-2) ②콜러 **9곳 = 구 exe와 동수** ③렌더 씬빌더(0x997740)가 2회 호출 ④내부에서 seedctor(0x12b9ab0)를 rdx=저장된 r8(seed)로 호출 = 구 exe 라인대응. 진입 시 r8=seed 계약 유지(mov r12,r8).
+const CL_LAUNCHER_RVA: usize = 0x14dda60; // 0.5.6(구0.5.5=0x14ac3e0). head-UNIQUE·마스크시그 UNIQUE·launcher 콜사이트 9/9 전단사(retaddr 재핀 근거)·size 4401→4398·프롤로그14 동일(chkstk imm 0x25438 불변=CL_LAUNCHER_PROLOGUE 무수정). // 0.5.5(구0.5.4=0x13b53d0). head 유일후보·콜러 9개 동수(지문 1:1)·내부 mov[rsi+0x1dc0]/[rsi+0x1dc8] 스토어 존재·size 4432→4401. ⚠프롤로그 chkstk imm 0x25168→0x25438(아래 배열 index13 변경). // 0.5.4(구0.5.3=0xeb8810). 크기 0x1150·명령수 787·콜러 9개 전부 동일 + Game+0x1dc0/0x1dc8 스토어 동일 + 콜러 컨테이너 8개 전부 소스파일 지문 일치. // 0.5.3(구0.5.2=0x1d96870). 확정 근거: ①프롤로그 관용구 동형(8push+mov eax,frame+call chkstk+lea rbp,[rsp+0x80]+xmm 스필+[rbp+X]=-2) ②콜러 **9곳 = 구 exe와 동수** ③렌더 씬빌더(0x997740)가 2회 호출 ④내부에서 seedctor(0x12b9ab0)를 rdx=저장된 r8(seed)로 호출 = 구 exe 라인대응. 진입 시 r8=seed 계약 유지(mov r12,r8).
 const CL_LAUNCHER_PROLOGUE: [u8; 17] = [0x55, 0x41,0x57, 0x41,0x56, 0x41,0x55, 0x41,0x54, 0x56, 0x57, 0x53, 0xb8, 0x38, 0x54, 0x02, 0x00]; // 0.5.5: 8push+mov eax,0x25438 (chkstk 프레임 0x25168→0x25438, index13 0x68→0x38). // 0.5.3: 8push+mov eax,0x25108 (구 0.5.2=0x165c8) — chkstk 프레임만 확대
 static CLAUNCH_INSTALLED: AtomicU64 = AtomicU64::new(0);
 static LAUNCH_N: AtomicU64 = AtomicU64::new(0);
@@ -2214,8 +2214,11 @@ unsafe extern "C" fn cap_launcher(saved: *mut u64, _e: usize) -> u64 {
     //   0x220acb(state.rs 앱 상태머신) / 0x195c5be(server\worker.rs) / 0x20dac9c(solo_rank.rs)
     //   0x2256a6d(solo_rank_ui.rs) = **배경 sim → 절대 넣지 말 것**
     // 0.5.5 재핀(구0.5.4→0.5.5): 관전 0x9e2079→0x763329 · 내경기 0x9e6feb→0x76829b · 조테본경기 0x235c382→0x1aed292 · 조테기록 0x2323ffe→0x1aa88ce. (전부 e8 call+5, 컨테이너 지문 1:1)
-    let is_comptest = rva == 0x1aed292 || rva == 0x1aa88ce;
-    if (rva == 0x763329 || rva == 0x76829b || is_comptest) && seed != 0 {
+    // 0.5.6 재핀(구0.5.5→0.5.6, launcher 콜사이트 9/9 전단사·retaddr=콜+5):
+    //   관전 0x763329→**0x8404e1**(콜 0x8404dc) · 내경기 0x76829b→**0x84544b**(콜 0x845446)
+    //   · 조테본경기 0x1aed292→**0x1af18a2**(콜 0x1af189d) · 조테기록 0x1aa88ce→**0x1ac1b2e**(콜 0x1ac1b29).
+    let is_comptest = rva == 0x1af18a2 || rva == 0x1ac1b2e;
+    if (rva == 0x8404e1 || rva == 0x84544b || is_comptest) && seed != 0 {
         let prev = LIVE_SEED.swap(seed, Ordering::Relaxed);
         if prev != seed { RENDER_PROVIDER.store(0, Ordering::Relaxed); } // 새 경기 시드 → 직후 ctor가 provider 재캡처
         COMPTEST_MATCH.store(is_comptest, Ordering::Relaxed);
@@ -2254,16 +2257,20 @@ unsafe extern "C" fn cap_launcher(saved: *mut u64, _e: usize) -> u64 {
 //       — 내 팀 매치의 buy 에서 (레코드 슬롯, 세트 side 바이트) ↔ 실제 athlete side(+0x810) 투표로 확정.
 //   ~~현 단계 = 관측 전용~~ → v2.8.0(08-08)에서 게이트 연결됨(tn_my_side, 추가 승인 전용·차단 미사용).
 const TN_ENABLED: bool = true;
-const RA_TOURN_055: u64 = 0x1c777d8; // 0.5.5(구0.5.4=0x239f242). worker.rs:36 대회 배경 launcher retaddr(콜 0x1c777d3, e8+5)
+const RA_TOURN_055: u64 = 0x1f24068; // 0.5.6(구0.5.5=0x1c777d8). worker 0x1f16ea0 내 대회 배경 launcher retaddr(콜 0x1f24063, e8+5·launcher 9/9 전단사로 확정). // 0.5.5(구0.5.4=0x239f242). worker.rs:36 대회 배경 launcher retaddr(콜 0x1c777d3, e8+5)
 // ★★0.5.5 프레임 슬롯 재핀(2026-08-13): worker 0x1c6a530(구 0x2392ed0)의 프레임이 0x1ceb8→0x22cc8로
 //   확대되며 슬롯 전면 시프트 — 0.5.5 인게임 실측(registry 08-13: 런처발화 120·스캔성공 0·db관측 0x1388
 //   =비포인터)으로 TN 전멸을 확인하고 ghidra-re 재핀. caller_rbp = 진입rsp+0x88 공식과 cfg 맵·레코드
 //   레이아웃(+0x2a0/+0x2d0·0x160·+0x140/+0x148·세트 0x100/+0xf8)은 전부 불변.
 //   근거 = RE\2026-08-13_대회레코드-프레임오프셋-0.5.5재핀.md (기록/판독 사이트 명령 단위 대응).
 //   ⚠교훈: 콜러 "프레임 오프셋" 레시피는 migrate_rva.py(RVA 마이그)가 못 잡는다 — 버전업 때 별도 재핀 필수.
-const TN_FR_DB: usize = 0x22bf8;     // 0.5.5(구0.5.4=0x1cde8). db 슬롯 — 판독 사이트 0x1c77740(콜 직전 생존)
-const TN_FR_CFG: usize = 0x22bd8;    // 0.5.5(구0.5.4=0x1cdc0). cfg 슬롯 — 기록 0x1c6a5e9(진입 rdx)
-const TN_FR_SETEND: usize = 0x22a40; // 0.5.5(구0.5.4=0x1cce0). set_end 슬롯 — 기록 0x1c6cc09, 콜사이트 판독 0x1c776ec
+// ★★0.5.6 프레임 슬롯 재핀(2026-08-20): worker 0x1c6a530→0x1f16ea0(정렬 ratio 0.956) 프레임 확대
+//   (chkstk 0x22cc8→0x23ce8)로 슬롯 전면 시프트. caller_rbp=진입rsp+0x88 공식·레코드/cfg맵 레이아웃 불변.
+//   판독/기록 사이트 명령 단위 대응: DB [rbp+0x23c18]@0x1f23fd0 · CFG [rbp+0x23c00]@0x1f16f59 ·
+//   SETEND [rbp+0x23b20]@0x1f23f7c(콜사이트 판독). ⚠프레임 오프셋은 migrate_rva가 못 잡는 별개 축.
+const TN_FR_DB: usize = 0x23c18;     // 0.5.6(구0.5.5=0x22bf8). db 슬롯 — 판독 0x1f23fd0(콜 직전 생존)
+const TN_FR_CFG: usize = 0x23c00;    // 0.5.6(구0.5.5=0x22bd8). cfg 슬롯 — 기록 0x1f16f59(진입 rdx)
+const TN_FR_SETEND: usize = 0x23b20; // 0.5.6(구0.5.5=0x22a40). set_end 슬롯 — 콜사이트 판독 0x1f23f7c
 static TN_SEEN: AtomicU64 = AtomicU64::new(0);       // 대회 retaddr 런처 발화 수
 static TN_HIT: AtomicU64 = AtomicU64::new(0);        // 레코드 스캔 성공
 static TN_MISS_FRAME: AtomicU64 = AtomicU64::new(0); // 프레임 슬롯 읽기 실패/포인터 무효
@@ -2495,7 +2502,7 @@ fn install_launcher_hook() {
 //   ⬜**미검증**: "r9=provider"는 buy 본문이 arg4를 즉시 덮어써 정적 확인 불가 — 0.5.2 때처럼 **인게임 seed 매칭으로만 확정**된다.
 //     0.5.3에서 어긋나면 크래시가 아니라 '관전 경기 미인식'으로 조용히 나타난다(is_live 히트 카운터로 판별).
 //   launcher가 ctor를 동기 호출 → LIVE_SEED 선세팅 보장. 배경 sim은 렌더시드 아님 → 무매칭(오염 배제).
-const SEEDCTOR_RVA: usize = 0x14c2380; // 0.5.5(구0.5.4=0x14e16d0, 마스크시그 확정). seed 스토어 provider+0xeb28→+0xec90. // 0.5.4(구0.5.3=0x12b9ab0). 프롤로그 8push 동일·콜러 4개 동수·본문 sim 0.90·seed 스토어 1:1 대응. // 0.5.3(구0.5.2=0x22c1da0). 프롤로그 12B 완전동일(8push)·chkstk 프레임 0x11b58→0x11b98·launcher(0xeb8810) 내부 콜에서 rdx=저장된 r8(seed) 확인. ⚠seed 저장 오프셋은 provider+0xeab8→**+0xeaf8**로 이동(0x12ba92d 실측).
+const SEEDCTOR_RVA: usize = 0x10a3be0; // 0.5.6(구0.5.5=0x14c2380). head-UNIQUE·seed 스토어 [rsi+0xec90]@0x10a4b0d 실측(provider 0xec90 불변)·프롤로그12 동일(chkstk imm 0x25438→0x256d8은 배열 밖). // 0.5.5(구0.5.4=0x14e16d0, 마스크시그 확정). seed 스토어 provider+0xeb28→+0xec90. // 0.5.4(구0.5.3=0x12b9ab0). 프롤로그 8push 동일·콜러 4개 동수·본문 sim 0.90·seed 스토어 1:1 대응. // 0.5.3(구0.5.2=0x22c1da0). 프롤로그 12B 완전동일(8push)·chkstk 프레임 0x11b58→0x11b98·launcher(0xeb8810) 내부 콜에서 rdx=저장된 r8(seed) 확인. ⚠seed 저장 오프셋은 provider+0xeab8→**+0xeaf8**로 이동(0x12ba92d 실측).
 // ★0.5.3: provider 구조체에서 seed 저장 오프셋이 이동했다(0.5.2 +0xeab8 → 0.5.3 +0xeaf8).
 //   실측 = seedctor 내부 `mov [reg+0xeaf8], rdx` @0x12ba92d (구 exe는 같은 자리에 0xeab8).
 //   ⚠단일 상수로 묶어둔다 — 패치마다 여기만 갱신하면 is_live 게이트 전체가 따라온다.
@@ -3170,7 +3177,7 @@ fn refresh_roster_management(ctx: &mut ServerModContext) {
 //   (0.5.5 실측 정정 2026-08-12: 자가치유 프로브 `실제 cps 오프셋 = 0x16ed8` — item_tactics_registry.txt,
 //    구 하드코딩 0x16698 대비 +0x840. 0.5.4 실측은 0x16ec0(+0x828)이었으니 0.5.4→0.5.5 실이동은 +0x18.
 //    ⚠어차피 base 는 dbase(addr_of 직접취득)가 1순위라 이 상수는 폴백·진단 표시용이다.)
-const CPS_OFF: usize = 0x16ed8;
+const CPS_OFF: usize = 0x16ff8; // 0.5.6(구0.5.5=0x16ed8, +0x120). ClientDatabase 고대역 재시프트(동일오프셋 직독 투표 39/40). ⚠어차피 dbase(addr_of 직접취득)가 1순위라 이 상수는 폴백·진단용.
 fn probe_db(ctx: &mut ServerModContext) {
     // Database 시작 = champion_patch_statistics(@Database+CPS_OFF) 절대주소 − CPS_OFF.
     let cps = &ctx.database.champion_patch_statistics as *const _ as usize;
@@ -3597,7 +3604,7 @@ fn write_registry_status(db: usize) {
 }
 
 // ══ athlete→champion 매핑 프로브 (buy_item r8=athlete 스캔) ══════════════════
-const RVA_BUY_ITEM: usize = 0xeb2c40; // 0.5.5(구0.5.4=0xe767e0, exe2exe 스켈레톤 확정). resolver 0xeb2d30을 직접 호출. // 0.5.4(구0.5.3=0xd0c680). 크기 0xe6·명령 67개 라인단위 동일(유일차 = athlete build len 0x4a0->0x490) + vtable 썽크 바이트형태 exe 전체 유일 1히트. // 0.5.3(구0.5.2=0x211e070). **진입 24B 바이트 완전동일**(exe 전체 유일 1히트) + 본체 명령 대 명령 동형 + 인자계약 유지(r8=athlete·[rsp_entry+0x30]=Game·Game+0x30=catalog). orig_len=19도 그대로(11B<12B → 다음 클린경계 mov rax,[rsp+0xa8] 8B). ⚠0.5.3 변화: 호출 경로가 direct call → vtable(+0x78) 썽크 0xd22340 경유로 바뀌었으나 **함수 진입부 훅이라 전 호출 포착됨**. ↓이하 0.5.2 이력. (구0.5.1=0x1f01090, exe2exe 스켈레톤 UNIQUE·프롤로그 24B 완전동일=본체 무변경, delta +0x21cfe0). ↓이하 0.5.1 이력. 함수 대개편(8push/sub0x38→5push/sub0x50, build/이름비교가 서브함수 0x1f00920로 분리)으로 mask-sig NONE이었으나 인자계약 불변(r8=athlete, p6=Game@rsp_entry+0x30, Game+0x30=catalog)로 확정. buy 드라이버 FUN_142234430(구 FUN_1420e76e0 후계)+vtable슬롯 교차검증.
+const RVA_BUY_ITEM: usize = 0xebca20; // 0.5.6(구0.5.5=0xeb2c40, skel UNIQUE·BYTE=SAME·size 230·진입부 cmp[r8+0x4f0],0 확증=athlete build len 불변). resolver 0xebcb10을 호출. // 0.5.5(구0.5.4=0xe767e0, exe2exe 스켈레톤 확정). resolver 0xeb2d30을 직접 호출. // 0.5.4(구0.5.3=0xd0c680). 크기 0xe6·명령 67개 라인단위 동일(유일차 = athlete build len 0x4a0->0x490) + vtable 썽크 바이트형태 exe 전체 유일 1히트. // 0.5.3(구0.5.2=0x211e070). **진입 24B 바이트 완전동일**(exe 전체 유일 1히트) + 본체 명령 대 명령 동형 + 인자계약 유지(r8=athlete·[rsp_entry+0x30]=Game·Game+0x30=catalog). orig_len=19도 그대로(11B<12B → 다음 클린경계 mov rax,[rsp+0xa8] 8B). ⚠0.5.3 변화: 호출 경로가 direct call → vtable(+0x78) 썽크 0xd22340 경유로 바뀌었으나 **함수 진입부 훅이라 전 호출 포착됨**. ↓이하 0.5.2 이력. (구0.5.1=0x1f01090, exe2exe 스켈레톤 UNIQUE·프롤로그 24B 완전동일=본체 무변경, delta +0x21cfe0). ↓이하 0.5.1 이력. 함수 대개편(8push/sub0x38→5push/sub0x50, build/이름비교가 서브함수 0x1f00920로 분리)으로 mask-sig NONE이었으나 인자계약 불변(r8=athlete, p6=Game@rsp_entry+0x30, Game+0x30=catalog)로 확정. buy 드라이버 FUN_142234430(구 FUN_1420e76e0 후계)+vtable슬롯 교차검증.
 const BUY_PROLOGUE: [u8; 12] = [0x41,0x57, 0x41,0x56, 0x56, 0x57, 0x53, 0x48,0x83,0xEC,0x50, 0x48]; // 0.5.1 신 프롤로그 첫12B: push r15/r14/rsi/rdi/rbx; sub rsp,0x50; (11B=클린경계) + mov(0x48…) 첫바이트. 트램폴린 재배치=19B(다음 클린경계=+mov rax,[rsp+0xa8])
 static BUY_PROBE_INSTALLED: AtomicU64 = AtomicU64::new(0);
 static CHAMP_SCAN: Mutex<Vec<u64>> = Mutex::new(Vec::new());
@@ -3645,7 +3652,7 @@ unsafe fn install_detour(rva: usize, orig_len: usize, cap_fn: usize) -> Result<u
 // ── 아이템 신경망 forward 직접 호출 (scrim 검증본 이식) ──
 //   forward(net, ctx=&[u64;11], build_ptr, build_len, flag=0) → f32 sigmoid 점수.
 //   ctx: [0..5]=우리팀 champ id / [5..10]=상대 / [10]=포지션(0~4, >4면 forward 패닉).
-const ITEMNET_FORWARD_RVA: usize = 0x12624f0; // 0.5.5(구0.5.4=0x145a680, exe2exe 스켈레톤 확정). // 0.5.4(구0.5.3=0x10587e0). 피처 문자열 4종 완전일치 + 크기 0x649·명령 409 동일 + 본문 100% 동일(net 레이아웃 불변). // 0.5.3(구0.5.2=0x1b9cce0). 진입 24B 완전동일 + 피처명 문자열 5종 일치(self_item/champ_pos_build/lane_counter/synergy/global_counter) + net 레이아웃 불변(net+0x8=가중치ptr, +0x10=16384 바운드, +0x18=1) ⟹ 모드의 매호출 재검증 로직 그대로 유효. ↓이하 0.5.2 이력. (구0.5.1=0x1bc82e0, exe2exe UNIQUE·프롤로그 동일). ↓이하 0.5.1 이력: (구0.5.0_3=0x1b78420, mask-sig UNIQUE PROL-OK push8 554157415641554154565753). ⚠AUTO4_FORWARD_SCORE=false로 OFF(0.5.1서 forward 내부 +0x44a AV, 위 플래그 주석 참조). 프롤로그 매치≠내부동작 동일.
+const ITEMNET_FORWARD_RVA: usize = 0xf53de0; // 0.5.6(구0.5.5=0x12624f0, skel UNIQUE·BYTE=SAME·size 1609·net 레이아웃 불변). // 0.5.5(구0.5.4=0x145a680, exe2exe 스켈레톤 확정). // 0.5.4(구0.5.3=0x10587e0). 피처 문자열 4종 완전일치 + 크기 0x649·명령 409 동일 + 본문 100% 동일(net 레이아웃 불변). // 0.5.3(구0.5.2=0x1b9cce0). 진입 24B 완전동일 + 피처명 문자열 5종 일치(self_item/champ_pos_build/lane_counter/synergy/global_counter) + net 레이아웃 불변(net+0x8=가중치ptr, +0x10=16384 바운드, +0x18=1) ⟹ 모드의 매호출 재검증 로직 그대로 유효. ↓이하 0.5.2 이력. (구0.5.1=0x1bc82e0, exe2exe UNIQUE·프롤로그 동일). ↓이하 0.5.1 이력: (구0.5.0_3=0x1b78420, mask-sig UNIQUE PROL-OK push8 554157415641554154565753). ⚠AUTO4_FORWARD_SCORE=false로 OFF(0.5.1서 forward 내부 +0x44a AV, 위 플래그 주석 참조). 프롤로그 매치≠내부동작 동일.
 type ItemNetFn = unsafe extern "C" fn(usize, usize, *const u64, u64, u8) -> f32;
 static ITEM_NET_ADDR: AtomicU64 = AtomicU64::new(0);
 static ITEMNET_VALID: AtomicU64 = AtomicU64::new(0); // 0=미확인,1=유효,2=무효
@@ -4984,8 +4991,8 @@ unsafe fn patch_owned_cap() -> String {
     //   disp(struct 오프셋 0x458)·imm(3)은 불변. `cmp qword[reg+0x458],3` 형태는 신 exe 전체에서 이 1곳뿐(유일).
     // 0.5.3(2026-07-29): 레지스터가 R15→**RSI**로 회귀(49 83 bf → 48 83 be). disp 0x458·imm 3은 불변.
     //   `cmp qword[reg+0x458],3` 형태는 신 exe .text 전체에서 **유일 1건**(바이트스캔 실측) = 오식별 불가.
-    let sig = base + 0x15206a9; // 0.5.5(구0.5.4=0x1420b29). `cmp qword[rsi+0x4a8],3` = 신 exe .text 전체 유일 1건 + athlete owned len 0x448→0x4a8(+0x60 시프트, ctor 정렬 확증). // 0.5.4(구0.5.3=0xf24a39). `cmp qword[reg+0x448],3` = 신 exe 전체 유일 1건 + 컨테이너 mode.rs panic-loc 23개 동일 + 함수내 오프셋 0x2a59->0x2b29. // 0.5.3(구0.5.2=0x2341440). 컨테이너 0x233e9d0→0xf21fe0.
-    let imm = base + 0x15206b0; // cmp 의 imm8 (=sig+7)
+    let sig = base + 0x154c679; // 0.5.6(구0.5.5=0x15206a9). 컨테이너델타(owner 0x151db50→0x1549b20·BYTE=SAME)·orig 4883bea804000003 실측 일치(athlete owned len 0x4a8 불변). // 0.5.5(구0.5.4=0x1420b29). `cmp qword[rsi+0x4a8],3` = 신 exe .text 전체 유일 1건 + athlete owned len 0x448→0x4a8(+0x60 시프트, ctor 정렬 확증). // 0.5.4(구0.5.3=0xf24a39). `cmp qword[reg+0x448],3` = 신 exe 전체 유일 1건 + 컨테이너 mode.rs panic-loc 23개 동일 + 함수내 오프셋 0x2a59->0x2b29. // 0.5.3(구0.5.2=0x2341440). 컨테이너 0x233e9d0→0xf21fe0.
+    let imm = base + 0x154c680; // cmp 의 imm8 (=sig+7) — 0.5.6(구0.5.5=0x15206b0)
     let expect = [0x48u8, 0x83, 0xbe, 0xa8, 0x04, 0x00, 0x00, 0x03]; // 0.5.5: cmp qword[rsi+0x4a8],3 (athlete owned len 0x448->0x4a8). ~~0.5.4: 0x448~~
     if !readable(sig, 8) { return "owned_cap: unreadable".into(); }
     for i in 0..8 { if *((sig + i) as *const u8) != expect[i] {
@@ -5007,8 +5014,8 @@ unsafe fn patch_owned_cap() -> String {
 unsafe fn patch_gate3() -> String {
     let base = exe_base_addr();
     // 0.5.0: jbe @ 0x1e4bd36(구 0x2052e76). sig 시작 = jbe-9. 76→EB(JMP)로 owned>2 게이트 무력화.
-    let sig = base + 0xeb2fa8;          // 0.5.5(구0.5.4=0xe76b1e). 신 resolver 0xeb2d30(buy 0xeb2c40이 호출) 내부 유일 gate, 함수내 off 0x24e→0x278, spill 슬롯 rsp+0x40→rsp+0x60. // 0.5.3(구0.5.2=0x211e428): resolver 컨테이너 0x211e150→**0xd0c770**(buy 0xd0c680이 직접 호출). 스필 슬롯이 rsp+0x78→**rsp+0x40**으로 이동했고 `cmp qword[rsp+0x40],2;jbe` 형태는 신 exe 전체 **유일 1건**(바이트스캔 실측). ↓0.5.2 이력: (구0.5.1=0x1f01448): resolver 컨테이너 0x1f01170→0x211e150(스켈레톤 UNIQUE, +0x21cfe0) 동일 오프셋 +0x2d8, 7B 시그 바이트동일(BYTE-OK). ↓0.5.1 이력: (구0.5.0_3=0x1fb8cdd, ghidra-re HIGH 재-ID). resolver 후계 FUN_141f01170 내부. owned_count가 [rsp+0x78]로 spill돼 시퀀스가 'cmp qword[rsp+0x78],2;jbe'로 재작성됨(구 'mov rsi,[rsp+0x40];jbe').
-    let jbe = base + 0xeb2fae; // 0.5.5(구0.5.4=0xe76b24, =sig+6). resolver 0xeb2d30 내 +0x27e. // 0.5.4(구0.5.3=0xd0c9c4). resolver 0xe768d0 내 +0x24e = 구 exe와 동일 함수내 오프셋, 10B 바이트 완전동일, exe 전체 유일.          // 0.5.3 jbe 의 opcode 바이트 (=sig+6, 구0.5.2=0x211e42e). owned≤2→점프, >2 fall-through(has_recipe 추가검사).
+    let sig = base + 0xebcd88;          // 0.5.6(구0.5.5=0xeb2fa8). 컨테이너델타(resolver 0xeb2d30→0xebcb10·BYTE=SAME·off 0x278)·orig 48837c24600276 실측 일치(spill rsp+0x60 불변). // 0.5.5(구0.5.4=0xe76b1e). 신 resolver 0xeb2d30(buy 0xeb2c40이 호출) 내부 유일 gate, 함수내 off 0x24e→0x278, spill 슬롯 rsp+0x40→rsp+0x60. // 0.5.3(구0.5.2=0x211e428): resolver 컨테이너 0x211e150→**0xd0c770**(buy 0xd0c680이 직접 호출). 스필 슬롯이 rsp+0x78→**rsp+0x40**으로 이동했고 `cmp qword[rsp+0x40],2;jbe` 형태는 신 exe 전체 **유일 1건**(바이트스캔 실측). ↓0.5.2 이력: (구0.5.1=0x1f01448): resolver 컨테이너 0x1f01170→0x211e150(스켈레톤 UNIQUE, +0x21cfe0) 동일 오프셋 +0x2d8, 7B 시그 바이트동일(BYTE-OK). ↓0.5.1 이력: (구0.5.0_3=0x1fb8cdd, ghidra-re HIGH 재-ID). resolver 후계 FUN_141f01170 내부. owned_count가 [rsp+0x78]로 spill돼 시퀀스가 'cmp qword[rsp+0x78],2;jbe'로 재작성됨(구 'mov rsi,[rsp+0x40];jbe').
+    let jbe = base + 0xebcd8e; // 0.5.6(구0.5.5=0xeb2fae, =sig+6). resolver 0xebcb10 내. // 0.5.5(구0.5.4=0xe76b24, =sig+6). resolver 0xeb2d30 내 +0x27e. // 0.5.4(구0.5.3=0xd0c9c4). resolver 0xe768d0 내 +0x24e = 구 exe와 동일 함수내 오프셋, 10B 바이트 완전동일, exe 전체 유일.          // 0.5.3 jbe 의 opcode 바이트 (=sig+6, 구0.5.2=0x211e42e). owned≤2→점프, >2 fall-through(has_recipe 추가검사).
     let expect = [0x48u8, 0x83, 0x7c, 0x24, 0x60, 0x02, 0x76]; // 0.5.5: cmp qword[rsp+0x60],2 ; jbe (spill rsp+0x40->rsp+0x60). ~~0.5.4: rsp+0x40~~
     if !readable(sig, 7) { return "gate3: unreadable".into(); }
     for i in 0..7 { if *((sig + i) as *const u8) != expect[i] {
