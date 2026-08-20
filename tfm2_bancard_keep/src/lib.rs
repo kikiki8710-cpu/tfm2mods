@@ -1,16 +1,17 @@
-//! tfm2_bancard_keep — 환경설정 "밴 카드 수" 리셋 방지 핫픽스 (게임 0.5.5)
+//! tfm2_bancard_keep — 환경설정 "밴 카드 수" 리셋 방지 핫픽스 (게임 0.5.6)
 //! ===========================================================================
 //! 문제: 환경설정의 "밴 카드 수"(1~5장)를 설정해도 팝업을 껐다 켜면 0(자동)으로 리셋.
 //! 원인(RE 정본 = REPORT\tfm2_bancard_keep\RE\2026-08-12_밴카드설정-리셋-원인-RE.md):
-//!   룸 설정 병합/커밋 새니타이저 FUN_1421d0ad0(0.5.5 RVA 0x21d0ad0)의 클램프가
-//!   챔피언 풀(+0x165c8) < banpick_style*20 + ban*2 + 15 이면
-//!   GPO+0x720(room_practice_ban_count)을 0으로 강제(리셋 store @0x21d11d2).
+//!   룸 설정 병합/커밋 새니타이저(0.5.6 RVA 0x2093310 — 0.5.5 = 0x21d0ad0)의 클램프가
+//!   챔피언 풀(0.5.6 +0x166e8 — 0.5.5 +0x165c8, ClientDB 고대역 +0x120) <
+//!   banpick_style*20 + ban*2 + 15 이면
+//!   GPO+0x720(room_practice_ban_count)을 0으로 강제(리셋 store 0.5.6 @0x20939fa).
 //!   0.5.4에도 있던 설계 동작(회귀 아님).
 //! 해법:
-//!   (1) 바이트패치 1회(모드 로드 시): RVA 0x21d11d2 의
+//!   (1) 바이트패치 1회(모드 로드 시): RVA 0x20939fa(0.5.6) 의
 //!       `mov qword [rsi+0x720], 0` 11B → NOP×11. orig 실측 검증 후에만 패치
 //!       (불일치 시 skip + 실측 바이트 로그 — 조용한 오패치 금지). 멱등(이미 NOP=OK).
-//!       직전 0x21d11a7 에서 incoming ban 이 이미 [rsi+0x720]에 복사돼 있어
+//!       직전 0x20939d2 에서 incoming ban 이 이미 [rsi+0x720]에 복사돼 있어
 //!       리셋만 무력화하면 사용자 값이 유지된다.
 //!   (2) 진단 로그(잔여 불확실성 (A)/(B) 판별용): mods\<MOD_ID>\bancard_keep.txt 에
 //!       ①패치 성공/skip ②서버 tick 에서 ~2초 간격으로 GPO+0x720 폴링,
@@ -33,9 +34,9 @@ use std::time::{SystemTime, UNIX_EPOCH};
 
 const MOD_ID: &str = "tfm2_bancard_keep";
 
-// ── 패치 사이트 (0.5.5 확정 — RE 정본 2026-08-12) ──
-// FUN_1421d0ad0 내 리셋 store: mov qword ptr [rsi+0x720], 0
-const PATCH_RVA: usize = 0x21d11d2;
+// ── 패치 사이트 (0.5.6 재핀 2026-08-20 — 0.5.5 = 0x21d11d2 in 0x21d0ad0, RE 정본 2026-08-12) ──
+// 새니타이저 0x2093310 내 리셋 store: mov qword ptr [rsi+0x720], 0 (orig 11B 0.5.5와 완전 동일 실측)
+const PATCH_RVA: usize = 0x20939fa;
 const PATCH_ORIG: [u8; 11] = [0x48, 0xC7, 0x86, 0x20, 0x07, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00];
 const PATCH_FIXED: [u8; 11] = [0x90; 11];
 
