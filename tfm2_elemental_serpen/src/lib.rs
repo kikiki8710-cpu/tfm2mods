@@ -775,12 +775,78 @@ unsafe extern "C" fn cap_launcher(saved: *mut u64, _rsp: usize) -> u64 {
     }));
     0
 }
-fn install_launcher_hook() {
-    if LAUNCHER_INSTALLED.swap(true, Ordering::Relaxed) { return; }
-    let ok = unsafe { install_stub_generic(LAUNCHER_RVA, 12, cap_launcher as usize, &LAUNCHER_PROLOGUE) };
-    log_push(format!("[{}ms] launcher hook {:#x} = {}", now_ms(), LAUNCHER_RVA, if ok { "OK" } else { "실패(프롤로그 mismatch)" }));
-}
+// ★0.5.6 지연 설치 + 체인(2026-08-20): riot_items_tfm2 v0.9.2(제작자 0.5.6판)가 같은 런처(0x14dda60)를
+//   CALL식 스텁으로 후킹한다. 우리가 init에 먼저 설치하면 체인 "안쪽"이 되어 cap_launcher의 retaddr([rsp])이
+//   riot 스텁 주소로 오염 → 화면경기 판정(retaddr 화이트리스트) 전멸(실사고: 발화 105·적중 0·rva 0x4c6d098ea,
+//   배경 속성 배정은 정상 = launcher retaddr 축만 사망). ⟹ CLAUDE §3 "늦게 + 외부훅 위에 체인 + 1회 확정":
+//   post_update 매프레임 진입부를 보다가 ①외부훅(48 b8 <tgt> ff e0)이면 그 12B를 연속부로 담아 체인 설치
+//   (우리 = 바깥 = retaddr 원본 보존 — jmp 체인이라 [rsp] 불변) ②LAUNCHER_WAIT_LIMIT 프레임까지 원본
+//   프롤로그 그대로면 직접 설치(riot 비활성 환경 폴백) ③둘 다 아니면 mismatch 확정·중단.
+//   ⛔설치 확정 후 진입부 재검증·재체인 금지(07-18 상호 체인 사이클 실사고).
 static LAUNCHER_INSTALLED: AtomicBool = AtomicBool::new(false);
+static LAUNCHER_WAIT: AtomicU64 = AtomicU64::new(0);
+const LAUNCHER_WAIT_LIMIT: u64 = 600; // ≈10초(60fps) — 경기 진입 전 여유. 초과 시 직접 설치 폴백.
+/// 체인 설치: 진입부의 외부 12B 점프(movabs rax,tgt; jmp rax = 위치무관)를 연속부로 재배치.
+/// 게임 함수엔 12B만 덮어씀(외부 패치 잔여 불훼손). install_stub_generic과 스텁 골격 동일.
+unsafe fn install_stub_chained(rva: usize, cap_fn: usize, foreign12: &[u8; 12]) -> bool {
+    let base = GetModuleHandleW(core::ptr::null());
+    if base == 0 { return false; }
+    let fn_addr = base + rva;
+    let stub = VirtualAlloc(0, 256, 0x3000, 0x40);
+    if stub == 0 { return false; }
+    let mut s: Vec<u8> = Vec::new();
+    s.extend_from_slice(&[0x41, 0x54, 0x56, 0x57, 0x53, 0x41, 0x53, 0x41, 0x52, 0x41, 0x51, 0x41, 0x50, 0x52, 0x51]);
+    s.extend_from_slice(&[0x48, 0x89, 0xe1]);       // mov rcx, rsp
+    s.extend_from_slice(&[0x48, 0x89, 0xe3]);       // mov rbx, rsp
+    s.extend_from_slice(&[0x48, 0x83, 0xe4, 0xf0]); // and rsp, -16
+    s.extend_from_slice(&[0x48, 0x83, 0xec, 0x20]); // sub rsp, 0x20
+    s.extend_from_slice(&[0x48, 0xb8]); s.extend_from_slice(&cap_fn.to_le_bytes());
+    s.extend_from_slice(&[0xff, 0xd0]);             // call rax
+    s.extend_from_slice(&[0x48, 0x89, 0xdc]);       // mov rsp, rbx
+    s.extend_from_slice(&[0x59, 0x5a, 0x41, 0x58, 0x41, 0x59, 0x41, 0x5a, 0x41, 0x5b, 0x5b, 0x5f, 0x5e, 0x41, 0x5c]);
+    s.extend_from_slice(foreign12);                 // 외부 훅으로 계속(그쪽이 원본 프롤로그 실행·복귀 담당)
+    core::ptr::copy_nonoverlapping(s.as_ptr(), stub as *mut u8, s.len());
+    let mut patch = [0x90u8; 12];
+    patch[0] = 0x48; patch[1] = 0xb8; patch[2..10].copy_from_slice(&stub.to_le_bytes());
+    patch[10] = 0xff; patch[11] = 0xe0;
+    let mut old = 0u32;
+    if VirtualProtect(fn_addr, 12, 0x40, &mut old) == 0 { return false; }
+    core::ptr::copy_nonoverlapping(patch.as_ptr(), fn_addr as *mut u8, 12);
+    VirtualProtect(fn_addr, 12, old, &mut old);
+    FlushInstructionCache(GetCurrentProcess(), fn_addr, 12);
+    true
+}
+/// post_update 매프레임 호출 — 설치 확정 시 이후 no-op.
+fn launcher_install_tick() {
+    if LAUNCHER_INSTALLED.load(Ordering::Relaxed) { return; }
+    let base = unsafe { GetModuleHandleW(core::ptr::null()) };
+    if base == 0 { return; }
+    let fn_addr = base + LAUNCHER_RVA;
+    let entry: [u8; 12] = core::array::from_fn(|i| unsafe { *((fn_addr + i) as *const u8) });
+    let foreign = entry[0] == 0x48 && entry[1] == 0xb8 && entry[10] == 0xff && entry[11] == 0xe0;
+    if foreign {
+        LAUNCHER_INSTALLED.store(true, Ordering::Relaxed);
+        let ok = unsafe { install_stub_chained(LAUNCHER_RVA, cap_launcher as usize, &entry) };
+        let tgt = u64::from_le_bytes(entry[2..10].try_into().unwrap());
+        log_push(format!("[{}ms] launcher hook {:#x} = {} (외부훅 tgt={:#x} 위에 체인·지연 {}프레임)",
+            now_ms(), LAUNCHER_RVA, if ok { "체인 OK" } else { "체인 실패" }, tgt,
+            LAUNCHER_WAIT.load(Ordering::Relaxed)));
+        return;
+    }
+    if entry == LAUNCHER_PROLOGUE {
+        let n = LAUNCHER_WAIT.fetch_add(1, Ordering::Relaxed) + 1;
+        if n < LAUNCHER_WAIT_LIMIT { return; } // 외부훅 대기 중
+        LAUNCHER_INSTALLED.store(true, Ordering::Relaxed);
+        let ok = unsafe { install_stub_generic(LAUNCHER_RVA, 12, cap_launcher as usize, &LAUNCHER_PROLOGUE) };
+        log_push(format!("[{}ms] launcher hook {:#x} = {} (외부훅 미출현·직접 설치 폴백)",
+            now_ms(), LAUNCHER_RVA, if ok { "OK" } else { "실패" }));
+        return;
+    }
+    // 원본도 외부훅 형태도 아님 = 프롤로그 mismatch 확정(버전 어긋남 등) — 재시도 무의미.
+    LAUNCHER_INSTALLED.store(true, Ordering::Relaxed);
+    log_push(format!("[{}ms] launcher hook {:#x} = 실패(프롤로그 mismatch·외부훅 형태 아님) entry={:02x?}",
+        now_ms(), LAUNCHER_RVA, entry));
+}
 
 // ★★재생기 렌더 스텝 FUN_140872950 = 매 렌더마다 rcx=game_view를 받아 그 뷰의 played_tick(+0x258)/초(+0x250)
 //   을 갱신. game_time 라벨이 읽는 그 값. ClientData의 game_view 3개(활성 1 + 유휴 2)가 각각 렌더되는데,
@@ -2397,7 +2463,8 @@ fn ensure_setup() {
     load_i18n();   // ★attr 표시명이 i18n에서 오므로 load_attrs 전에 로드
     load_attrs();
     install_serpen_hook();       // ① 속성 배정 + 팀버프(템플릿 write)
-    install_launcher_hook();     // ② 화면(LIVE) 경기 Game→seed 확정
+    // ② 화면(LIVE) 경기 Game→seed 확정 = ★지연 설치로 전환(0.5.6·riot 체인 순서 문제 — launcher_install_tick,
+    //    post_update에서 매프레임 시도. install_launcher_hook 직접 호출 금지)
     install_render_step_hook();  // ③ 활성 뷰 played_tick 캡처
     install_mobatick_hook();     // ④ 처치 팀귀속(track_kills) + 장로 처형 발동
     install_dmg_hook();          // ⑤ 장로 처형(데미지 증폭)
@@ -2938,6 +3005,7 @@ impl ModExtension for ElementalSerpenExt {
     }
     fn post_update(&self, scene: &mut Scene, ui: &mut GameUI, _assets: &mut Assets, _dt: f32) {
         ensure_setup();
+        launcher_install_tick(); // ★0.5.6 런처 지연 설치(외부훅 위 체인) — 설치 확정 후 no-op
         // ★경기 화면 판정(Spectator_Chat 검증): game_time 노드가 있어야 scene payload가 InGame이다.
         //   ★같은 노드의 텍스트("06:42")가 곧 재생 시각 → 재생 커서(tick)로 쓴다. db+0x1598보다 확실.
         let gt_node = ui_kit::find(&ui.root, "game_time");
