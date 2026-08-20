@@ -149,7 +149,7 @@ fn ensure_rt_scan() {
 //   (같은 절차가 0.5.3 에서 0x888fd0 을 재현 = 방법 검증됨).
 // 0.5.5(2026-08-12 재핀): ~~0.5.4 0x74c010~~ → **0x844160**. 근거 ①'.../champions/priest#anim'
 //   전체리터럴 lea→직후 call 1표 수렴(0.5.4 재현 OK) ②CARD_DRAW 콜슬롯13 정렬 이중확증.
-const ANIM_GET_RVA: usize = 0x844160;    // FUN(Assets, key_ptr, key_len) -> #anim map ptr
+const ANIM_GET_RVA: usize = 0xbea4a0; // 0.5.6(구0.5.5=0x844160). CARD_DRAW 콜슬롯14로 확정(clone family라 xref/콜슬롯만 유효).// FUN(Assets, key_ptr, key_len) -> #anim map ptr
 const RT_UV_ENABLED: bool = true;        // 크래시 시 false 로 끔
 static ASSETS_PTR: AtomicUsize = AtomicUsize::new(0);
 // id → Option<(u0,v0,너비uv,높이uv, 프레임픽셀너비, 프레임픽셀높이)>. 얼굴=정사각크롭 재계산, 전신=종횡비 세팅.
@@ -375,7 +375,8 @@ unsafe fn set_face_image(node: &mut Node, row_i: usize, champ_id: &str) -> bool 
 //   (특히 주입 대상 'asset/base/ui/layout/banpick/layout' 단일 리터럴 → 1/1) ②콜러수 511→511.
 // 0.5.5(2026-08-12): ~~0.5.4 0x2e35d0~~ → **0x2e42d0**. 'asset/base/ui/layout/{main,banpick}' lea→직후
 //   call 이 17/20 표로 수렴(0.5.4 재현 OK). clone family라 문자열-xref 만이 유효(프롤로그·바이트 불가).
-const LOADER_RVA: usize = 0x2e42d0; // 에셋 게터 FUN(am, path, len) -> NodeTemplate*
+// 0.5.6(2026-08-20): ~~0.5.5 0x2e42d0~~ → **0x2e6f60**. layout/main lea→call 17/17 수렴(string-xref).
+const LOADER_RVA: usize = 0x2e6f60; // 에셋 게터 FUN(am, path, len) -> NodeTemplate*
 // ~~★밴픽 화면 전용 asset-get copy #2 (0.5.1 모노모픽 분화)~~
 // ⛔0.5.3(2026-07-29): **copy #2 는 없다 — 0 = 미사용**. 실측으로 밴픽 레이아웃 문자열
 //   "asset/base/ui/layout/banpick..." 의 lea 직후 call 이 copy #1 과 **같은 0x2e1550 으로 ×19 수렴**
@@ -389,14 +390,16 @@ const BANPICK_LOADER_RVA: usize = 0;
 // 0.5.4(2026-08-05): ~~0.5.3 0x1a6530~~ → **0x1a3ce0**. 마스크 전체본문(2192B, 고정 1789B) 유일매치
 //   + 콜러수 5→5. 본문이 바이트동일 ⟹ 3인자 계약·노드 stride 0x90 그대로.
 // 0.5.5(2026-08-12): ~~0.5.4 0x1a3ce0~~ → **0x1a3e70**. skel 완전일치·전역 유일(2192B) + 프롤로그 동일.
-const PARSER_RVA: usize = 0x1a3e70; // .ui 텍스트 → NodeTemplate
+// 0.5.6(2026-08-20): ~~0.5.5 0x1a3e70~~ → **0x19ab40**. skel UNIQUE·BYTE=SAME·2192B·프롤로그 동일.
+const PARSER_RVA: usize = 0x19ab40; // .ui 텍스트 → NodeTemplate
 // 0.5.3(2026-07-29): 범용 __rust_alloc(size, align) 이 **align별 심 + impl 로 분해**됐다.
 //   전 모드 정본 = impl 직접호출 0x28f7df0 · **3인자** (rcx=무시, rdx=flags(0), r8=size) -> rax,
 //   실패 시 0 반환. ⛔align8 심(0xbb2bd0)은 OOM 시 abort 라 미채택. ⚠2인자로 두면 랜덤 크래시.
 // 0.5.4(2026-08-05): ~~0.5.3 0x28f7df0~~ → **0x29bb920**. 마스크 전체본문(60B) 유일매치 + 콜러수
 //   32890→33708(전역 alloc impl). 본문 바이트동일 ⟹ 3인자 계약(rcx무시/rdx=flags/r8=size) 유지.
 // 0.5.5(2026-08-12): ~~0.5.4 0x29bb920~~ → **0x2a9bf30**. skel/마스크 전체본문(60B) 유일 + 프롤로그 동일.
-const ALLOC_RVA: usize = 0x2a9bf30;  // 게임 alloc impl(_, flags, size) -> ptr
+// 0.5.6(2026-08-20): ~~0.5.5 0x2a9bf30~~ → **0x2ab1670**. skel/마스크 UNIQUE·BYTE=SAME·60B·프롤로그 동일.
+const ALLOC_RVA: usize = 0x2ab1670;  // 게임 alloc impl(_, flags, size) -> ptr
 const NT_SIZE: usize = 0x90;
 // 밴픽 화면 팝업 조각(컴파일타임 임베드). 접미사 매칭으로 banpick_view_plus 리매핑도 대응.
 const POPUP_UI: &str = include_str!("../ui_inject/draft_popup.ui");
