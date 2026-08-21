@@ -221,12 +221,12 @@ pub(crate) unsafe fn apply_nxe() {
     if supp > 0 {
         tot += 1;
         // `test eax,0x100` → `test eax,0` : 비상일 때 다른 액션을 −99,999 로 죽이던 조항이 사라진다.
-        ok += patch_imm_bytes(base + 0xe3f152, &[0xa9], 1, 4, 0) as u32;   // ★0.5.6(was 0.5.4 0xe3f152 — ⚠0.5.5 회차 미재핀으로 stale였음. 054호스트 0xd8db90→056 0xe3ec30 정렬 r=0.743 + a9 00 01 00 00 0f 85 7B 일치 + 055 0xe35372 교차확증)
+        ok += patch_imm_bytes(base + 0xe3f152, &[0xa9], 1, 4, 0) as u32;   // ★0.5.6(was 0.5.4 0xd8e0b2 — ⚠0.5.5 회차 미재핀으로 stale였음. 054호스트 0xd8db90→056 0xe3ec30 정렬 r=0.743 + a9 00 01 00 00 0f 85 7B 일치 + 055 0xe35372 교차확증)
     }
     if batt > 0 {
         tot += 1;
         // `and eax,1` → `and eax,0` : 교전 판단이 이 플래그를 항상 0 으로 본다.
-        ok += patch_imm_bytes(base + 0xd37a4b, &[0x83, 0xe0], 2, 1, 0) as u32;   // ★0.5.6(was 0.5.4 0xd37a4b — ⚠0.5.5 회차 미재핀 stale였음. bt_vis 동일 호스트 0xda3570→055 0xd2db90→056 0xd37960 정렬·83 e0 01 3B 일치·뒤 명령 disp 0x3d8→0x3e8 이동은 별개 명령이라 무관)
+        ok += patch_imm_bytes(base + 0xd37a4b, &[0x83, 0xe0], 2, 1, 0) as u32;   // ★0.5.6(was 0.5.4 0xda3660 — ⚠0.5.5 회차 미재핀 stale였음. bt_vis 동일 호스트 0xda3570→055 0xd2db90→056 0xd37960 정렬·83 e0 01 3B 일치·뒤 명령 disp 0x3d8→0x3e8 이동은 별개 명령이라 무관)
     }
     if tot > 0 {
         rep.push_str(&format!("부작용 중화: {}/{} (억제조항 해제={} · 교전판단 무시={})\n",
