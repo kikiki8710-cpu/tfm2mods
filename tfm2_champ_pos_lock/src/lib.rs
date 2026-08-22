@@ -528,11 +528,53 @@ fn rule_info() -> (u8, usize) {
 fn fill_grid(root: &mut Node) {
     let pos = SEL_POS.load(Ordering::Relaxed);
     let ver = config::state_version();
-    let Some(champs) = sorted_champs() else { return };
+    let Some(all) = sorted_champs() else { return };
+    // ── 편의 필터(제한 설정과 무관): 클래스 + 이름 검색 ──────────────────────
+    //   ⚠필터가 걸리면 셀 인덱스 ↔ 챔피언 대응이 sorted_champs 와 달라진다.
+    //     그리드와 **클릭 라우트가 같은 목록**(VISIBLE)을 봐야 엉뚱한 챔프가 토글되지 않는다.
+    let class_sel = CLASS_SEL.load(Ordering::Relaxed);
+    let search = SEARCH_TXT
+        .lock()
+        .unwrap_or_else(|e| e.into_inner())
+        .clone();
+    let champs: Vec<String> = all
+        .iter()
+        .filter(|c| {
+            let lower = c.to_ascii_lowercase();
+            if class_sel > 0 {
+                let want = (class_sel - 1) as u8;
+                let g = CHAMP_CAT.lock().unwrap_or_else(|e| e.into_inner());
+                match g.iter().find(|(k, _)| *k == lower).map(|(_, v)| *v) {
+                    Some(c) if c == want => {}
+                    _ => return false,
+                }
+            }
+            if !search.is_empty() {
+                let kr = kr_name(&lower).to_ascii_lowercase();
+                if !kr.contains(&search) && !lower.contains(&search) {
+                    return false;
+                }
+            }
+            true
+        })
+        .cloned()
+        .collect();
+    *VISIBLE.lock().unwrap_or_else(|e| e.into_inner()) = champs.clone();
     let ready = icon_data::READY.load(Ordering::Relaxed) as u64;
     let (style, ban_count) = rule_info();
     let rule_sig = ((style as u64) << 40) ^ ((ban_count as u64) << 32);
-    let sig = (pos as u64) << 48 ^ ver ^ ((champs.len() as u64) << 32) ^ (ready << 47) ^ rule_sig;
+    let filter_sig = {
+        use std::hash::{Hash, Hasher};
+        let mut h = std::collections::hash_map::DefaultHasher::new();
+        (class_sel, &search).hash(&mut h);
+        h.finish()
+    };
+    let sig = (pos as u64) << 48
+        ^ ver
+        ^ ((champs.len() as u64) << 32)
+        ^ (ready << 47)
+        ^ rule_sig
+        ^ filter_sig;
     if GRID_SIG.swap(sig, Ordering::Relaxed) == sig {
         return;
     }
@@ -1131,6 +1173,28 @@ static SWAP_APPLIED: AtomicUsize = AtomicUsize::new(0);
 const SWAP_APPLY_MAX: usize = 240;
 /// 유저가 직접 두 칸을 맞바꿨는가(= 자동 교정 중지). 위임하면 해제.
 static USER_SWAPPED: AtomicBool = AtomicBool::new(false);
+/// 챔피언 id(소문자) → 클래스 인덱스(0=전사 1=원거리 2=마법사 3=전투보조 4=암살자).
+///   ★라이브 DB 조회라 **패치·워크샵으로 챔프가 추가돼도 그대로 따라간다.**
+///   챔프 수가 바뀌면 재캡처한다(세션 중 다른 세이브를 열어 구성이 달라지는 경우).
+pub(crate) static CHAMP_CAT: std::sync::Mutex<Vec<(String, u8)>> =
+    std::sync::Mutex::new(Vec::new());
+/// CHAMP_CAT 를 캡처했을 때의 챔프 수(0=미캡처).
+static CHAMP_CAT_N: AtomicUsize = AtomicUsize::new(0);
+/// 설정 팝업 클래스 필터(0=전체, 1..=5 → 클래스 0..=4). 드롭다운 선택 인덱스와 같다.
+static CLASS_SEL: AtomicUsize = AtomicUsize::new(0);
+/// 설정 팝업 이름 검색어(소문자).
+static SEARCH_TXT: std::sync::Mutex<String> = std::sync::Mutex::new(String::new());
+/// 현재 그리드에 보이는 챔프 목록(셀 인덱스와 1:1) — 필터가 걸리면 sorted_champs 와 달라진다.
+static VISIBLE: std::sync::Mutex<Vec<String>> = std::sync::Mutex::new(Vec::new());
+/// 검색 지우기 버튼이 눌렸음(다음 프레임에 text_edit 비움).
+static SEARCH_CLEAR: AtomicBool = AtomicBool::new(false);
+/// 드롭다운 옵션 주입 1회 완료.
+static DD_INIT: AtomicBool = AtomicBool::new(false);
+/// 클래스 필터 드롭다운(네이티브).
+static CLASS_DD: ui_kit::NativeDropdown = ui_kit::NativeDropdown::new("class_filter");
+/// 클래스 라벨(드롭다운 옵션 순서 = CLASS_SEL 인덱스).
+const CLASS_LABELS: [&str; 6] = ["전체", "전사", "원거리", "마법사", "전투보조", "암살자"];
+
 /// ★유저(관리 중인) 팀 id — `db.player_team_id()` 로 관리화면에서 캡처. u64::MAX=미확보.
 pub(crate) static PLAYER_TEAM: AtomicU64 = AtomicU64::new(u64::MAX);
 static PID_NONZERO: AtomicBool = AtomicBool::new(false);
@@ -1831,6 +1895,33 @@ impl ModExtension for PosLockExt {
                         }
                     }
                 }
+                // ★챔피언 클래스(전사/원거리/마법사/전투보조/암살자) 1회 캡처 — 설정 팝업 필터용.
+                //   기본 챔프 = `db.champion_info(id).category()`, 워크샵 챔프 = 시트의 `mod_champions[].category`.
+                //   (게임 정보 탭이 워크샵 챔프까지 필터하는 이유가 이것 — 파일 파싱·UI 학습 불요.)
+                let cat_n = db.available_champions.len();
+                if cat_n != 0 && CHAMP_CAT_N.load(Ordering::Relaxed) != cat_n {
+                    let cat_idx = |c: &ChampionCategory| -> u8 {
+                        match c {
+                            ChampionCategory::Melee => 0,
+                            ChampionCategory::Range => 1,
+                            ChampionCategory::Magician => 2,
+                            ChampionCategory::Util => 3,
+                            ChampionCategory::Assassin => 4,
+                        }
+                    };
+                    let mut m: Vec<(String, u8)> = Vec::new();
+                    for id in db.available_champions.iter() {
+                        if let Some(c) = db.champion_info(id) {
+                            m.push((id.to_ascii_lowercase(), cat_idx(&c.category())));
+                        }
+                    }
+                    for e in db.champion_info_sheet.mod_champions.iter() {
+                        m.push((e.id.to_ascii_lowercase(), cat_idx(&e.category)));
+                    }
+                    config::dlog(&format!("클래스 캡처: {}종(챔프 {cat_n})", m.len()));
+                    *CHAMP_CAT.lock().unwrap_or_else(|e| e.into_inner()) = m;
+                    CHAMP_CAT_N.store(cat_n, Ordering::Relaxed);
+                }
                 if NAMES.get().is_none() {
                     if !db.available_champions.is_empty() {
                         let ids: Vec<String> = db.available_champions.clone();
@@ -1989,8 +2080,54 @@ impl ModExtension for PosLockExt {
             } else if let Some(pop) = ui_kit::find_mut(&mut ui.root, "pos_lock_popup") {
                 pop.visible = open;
             }
+            // ── 편의 필터 위젯 배선(클래스 드롭다운 + 이름 검색) ────────────────
+            if open && present {
+                // ①옵션 주입 1회 — ⚠ABI 호출이라 **팝업이 실제로 열린 뒤에만** 부른다.
+                if !DD_INIT.load(Ordering::Relaxed)
+                    && CLASS_DD.set_options(&ui.root, &CLASS_LABELS, 0)
+                {
+                    DD_INIT.store(true, Ordering::Relaxed);
+                    config::llog("filter: 클래스 드롭다운 옵션 주입 OK");
+                }
+                // ②선택 인덱스 폴링(게임이 클릭 시 runner+0x1788 에 기록).
+                if let Some(sel) = CLASS_DD.selected(&ui.root) {
+                    let sel = sel.min(CLASS_LABELS.len() - 1);
+                    if CLASS_SEL.swap(sel, Ordering::Relaxed) != sel {
+                        GRID_SIG.store(u64::MAX, Ordering::Relaxed);
+                    }
+                }
+                // ③검색어(비우기 버튼이 눌렸으면 먼저 지운다).
+                if SEARCH_CLEAR.swap(false, Ordering::Relaxed) {
+                    if let Some(n) = ui_kit::find_mut(&mut ui.root, "champ_search") {
+                        ui_kit::textedit_set(n, "");
+                    }
+                }
+                let cur_txt = ui_kit::find(&ui.root, "champ_search")
+                    .and_then(ui_kit::textedit_get)
+                    .unwrap_or_default()
+                    .trim()
+                    .to_ascii_lowercase();
+                {
+                    let mut g = SEARCH_TXT.lock().unwrap_or_else(|e| e.into_inner());
+                    if *g != cur_txt {
+                        *g = cur_txt;
+                        GRID_SIG.store(u64::MAX, Ordering::Relaxed);
+                    }
+                }
+            }
             if open && present {
                 fill_grid(&mut ui.root);
+                // ④결과 수 라벨(필터가 걸렸을 때만).
+                let shown = VISIBLE.lock().unwrap_or_else(|e| e.into_inner()).len();
+                let total = sorted_champs().map(|v| v.len()).unwrap_or(0);
+                if let Some(n) = ui_kit::find_mut(&mut ui.root, "filter_count") {
+                    let s = if shown == total {
+                        String::new()
+                    } else {
+                        format!("{shown} / {total}")
+                    };
+                    ui_kit::label_set(n, &s);
+                }
             }
 
             // 클릭 라우팅
@@ -2022,6 +2159,10 @@ impl ModExtension for PosLockExt {
                 ));
             }
             routes.push(ui_kit::route(
+                "search_clear",
+                Rc::new(|| SEARCH_CLEAR.store(true, Ordering::Relaxed)),
+            ));
+            routes.push(ui_kit::route(
                 "clear_pos",
                 Rc::new(|| config::clear_pos(SEL_POS.load(Ordering::Relaxed))),
             ));
@@ -2039,13 +2180,10 @@ impl ModExtension for PosLockExt {
                 routes.push(ui_kit::route(
                     &format!("cell{k}"),
                     Rc::new(move || {
-                        if let Some(champs) = sorted_champs() {
-                            if let Some(c) = champs.get(k) {
-                                config::toggle(
-                                    SEL_POS.load(Ordering::Relaxed),
-                                    &c.to_ascii_lowercase(),
-                                );
-                            }
+                        // ★필터된 목록을 본다(그리드와 같은 출처) — 안 그러면 필터 중 엉뚱한 챔프가 토글된다.
+                        let v = VISIBLE.lock().unwrap_or_else(|e| e.into_inner());
+                        if let Some(c) = v.get(k) {
+                            config::toggle(SEL_POS.load(Ordering::Relaxed), &c.to_ascii_lowercase());
                         }
                     }),
                 ));
@@ -2273,7 +2411,6 @@ impl ModExtension for PosLockExt {
                 //     (게임의 disabled-hint 툴팁 = `update_disabled_hint_tooltip` 은 옵션 UI 전용).
                 //   ⟹ 커서 위치를 Win32 로 직접 읽어 버튼 rect 안이면 우리가 띄운다.
                 {
-                    let scale = ui.scale;
                     let (uiw, uih) = (ui.rect.w, ui.rect.h);
                     let hover = match (bad, btn_rect, cursor_ui(uiw, uih)) {
                         (true, Some((x, y, w, h)), Some((cx, cy))) => {

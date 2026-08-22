@@ -178,9 +178,14 @@ const PROL_SLOT_WIDGET: [u8; 12] = [
 ///   콜러·매프레임 호출·lookahead 아님·T1/T2 구분). banpick_order A'(0.5.6 재핀 0x24d1dc0).
 ///   씬 오프셋: T1BAN=0x140/T2BAN=0x158/T1PICK=0x170/T2PICK=0x188 (내 O_BAN1/2·O_PICK1/2와 동일).
 const RVA_SCENE_STEP: usize = 0x24d1dc0;
-/// 프롤로그 12B: mov rax,[rcx+0x160]; mov rdx,[rcx+0x178] (rip-rel 없음·push 없음 → resume=fn+12)
-const PROL_SCENE_STEP: [u8; 12] = [
-    0x48, 0x8B, 0x81, 0x60, 0x01, 0x00, 0x00, 0x48, 0x8B, 0x91, 0x78, 0x01,
+/// 프롤로그 **14B**: mov rax,[rcx+0x160](7B) + mov rdx,[rcx+0x178](7B).
+/// ⚠★2026-08-23 버그수정: 구버전은 이걸 **12B 로 알고 있었다**. 두 명령은 7+7=14B 라
+///   12B 만 떠오면 **두 번째 명령이 중간에서 잘린다** → 스텁 실행 시 `48 8B 91 78 01` 뒤에
+///   우리가 이어붙인 `49 BB`(movabs) 가 disp32 로 먹혀 **엉뚱한 주소를 읽고 죽는다**.
+///   실측 크래시: `code=0xc0000005, RIP=모듈 밖(=우리 RWX 스텁)`. (유저 제보: user_pick_block=1 일 때만 튕김)
+/// (rip-rel 없음·push 없음 → resume=fn+12)
+const PROL_SCENE_STEP: [u8; 14] = [
+    0x48, 0x8B, 0x81, 0x60, 0x01, 0x00, 0x00, 0x48, 0x8B, 0x91, 0x78, 0x01, 0x00, 0x00,
 ];
 
 // Hook E (로드된 Assets 캡처 — RE 2026-08-20): 관리화면 챔프 아이콘 렌더가 쓰는
@@ -386,8 +391,8 @@ unsafe fn find_child(node: usize, want: &str) -> Option<usize> {
         if nl == 0 || nl > 64 || !ptr_ok(np) {
             continue;
         }
-        let b = core::slice::from_raw_parts(np as *const u8, nl);
-        if core::str::from_utf8(b).map(|t| t == want).unwrap_or(false) {
+        let Some(b) = safe_bytes(np, nl) else { continue };
+        if core::str::from_utf8(&b).map(|t| t == want).unwrap_or(false) {
             return Some(c);
         }
     }
@@ -406,7 +411,7 @@ unsafe fn set_game_string(slot: usize, text: &str) -> bool {
     let ptr = safe_rd_u64(slot + 8).unwrap_or(0) as usize;
     let len = safe_rd_u64(slot + 0x10).unwrap_or(0) as usize;
     if ptr_ok(ptr) && len == text.len() {
-        let cur = core::slice::from_raw_parts(ptr as *const u8, len);
+        let Some(cur) = safe_bytes(ptr, len) else { return false };
         if cur == text.as_bytes() {
             return true; // 이미 동일 → write 생략
         }
@@ -560,8 +565,8 @@ unsafe fn read_needle(needle: usize) -> Option<String> {
     if !(0x10000..1usize << 48).contains(&ptr) || len == 0 || len > 64 {
         return None;
     }
-    let bytes = core::slice::from_raw_parts(ptr as *const u8, len);
-    let s = core::str::from_utf8(bytes).ok()?;
+    let bytes = safe_bytes(ptr, len)?;
+    let s = core::str::from_utf8(&bytes).ok()?;
     Some(s.to_ascii_lowercase())
 }
 
@@ -711,8 +716,9 @@ unsafe fn install_scene_step_capture() -> Result<(), &'static str> {
         return Err("base 0");
     }
     let fn_addr = base + RVA_SCENE_STEP;
-    let mut cur = [0u8; 12];
-    core::ptr::copy_nonoverlapping(fn_addr as *const u8, cur.as_mut_ptr(), 12);
+    let mut cur = [0u8; 14];
+    core::ptr::copy_nonoverlapping(fn_addr as *const u8, cur.as_mut_ptr(), 14);
+    // 외부 훅 체인 마커(`movabs rax,tgt; jmp rax` = 12B)는 앞 12B 에 있다.
     let chained = cur[0] == 0x48 && cur[1] == 0xb8 && cur[10] == 0xff && cur[11] == 0xe0;
     if !chained && cur != PROL_SCENE_STEP {
         return Err("scene_step prologue mismatch");
@@ -727,10 +733,10 @@ unsafe fn install_scene_step_capture() -> Result<(), &'static str> {
     s.extend_from_slice(&cap_addr.to_le_bytes());
     s.extend_from_slice(&[0x49, 0x89, 0x0B]); // mov [r11], rcx  (씬 ptr)
     s.extend_from_slice(&[0x49, 0xFF, 0x43, 0x08]); // inc qword [r11+8]  (발화 스탬프)
-    s.extend_from_slice(&cur); // 원본 12B(mov rax,[rcx+0x160];mov rdx,[rcx+0x178]) 또는 외부훅 점프
+    s.extend_from_slice(if chained { &cur[..12] } else { &cur[..] }); // 원본 14B 또는 외부훅 12B훅 점프
     if !chained {
-        s.extend_from_slice(&[0x49, 0xBB]); // movabs r11, fn+12 (resume)
-        s.extend_from_slice(&(fn_addr + 12).to_le_bytes());
+        s.extend_from_slice(&[0x49, 0xBB]); // movabs r11, fn+14 (resume) ★12 아님
+        s.extend_from_slice(&(fn_addr + 14).to_le_bytes());
         s.extend_from_slice(&[0x41, 0xFF, 0xE3]); // jmp r11
     }
     core::ptr::copy_nonoverlapping(s.as_ptr(), stub as *mut u8, s.len());
@@ -1867,8 +1873,8 @@ unsafe fn read_rec_names(rec: usize, off: usize) -> Vec<String> {
         if !ptr_ok(sp) || sl == 0 || sl > 64 {
             continue;
         }
-        let b = core::slice::from_raw_parts(sp as *const u8, sl);
-        if let Ok(s) = core::str::from_utf8(b) {
+        let Some(b) = safe_bytes(sp, sl) else { continue };
+        if let Ok(s) = core::str::from_utf8(&b) {
             out.push(s.to_ascii_lowercase());
         }
     }
@@ -1928,7 +1934,8 @@ fn commit_decide(rmi: usize, acting_team: usize, champ: usize) -> CommitAction {
         if !ptr_ok(np) || nl == 0 || nl > 64 {
             return Pass;
         }
-        let name = match core::str::from_utf8(core::slice::from_raw_parts(np as *const u8, nl)) {
+        let Some(nb) = safe_bytes(np, nl) else { return Pass };
+        let name = match core::str::from_utf8(&nb) {
             Ok(s) => s.to_ascii_lowercase(),
             Err(_) => return Pass,
         };
@@ -2619,18 +2626,15 @@ unsafe fn read_mi_vec(mi: usize, off: usize) -> Option<Vec<String>> {
         if !ptr_ok(sp) || sl == 0 || sl > 64 {
             return None;
         }
-        let bytes = core::slice::from_raw_parts(sp as *const u8, sl);
-        out.push(core::str::from_utf8(bytes).ok()?.to_ascii_lowercase());
+        let bytes = safe_bytes(sp, sl)?;
+        out.push(core::str::from_utf8(&bytes).ok()?.to_ascii_lowercase());
     }
     Some(out)
 }
 
 unsafe fn read_str_at(ptr: usize, len: usize) -> Option<String> {
-    if len == 0 || !ptr_ok(ptr) || len > 64 {
-        return None;
-    }
-    let bytes = core::slice::from_raw_parts(ptr as *const u8, len);
-    core::str::from_utf8(bytes).ok().map(|s| s.to_ascii_lowercase())
+    let bytes = safe_bytes(ptr, len)?;
+    core::str::from_utf8(&bytes).ok().map(|s| s.to_ascii_lowercase())
 }
 
 /// (ptr,len) 직접 지정 Vec<String>(원소 24B {cap,ptr@8,len@0x10}) → 소문자. fault-safe.
@@ -2649,8 +2653,8 @@ unsafe fn read_str_list(ptr: usize, len: usize) -> Option<Vec<String>> {
         if !ptr_ok(sp) || sl == 0 || sl > 64 {
             return None;
         }
-        let bytes = core::slice::from_raw_parts(sp as *const u8, sl);
-        out.push(core::str::from_utf8(bytes).ok()?.to_ascii_lowercase());
+        let bytes = safe_bytes(sp, sl)?;
+        out.push(core::str::from_utf8(&bytes).ok()?.to_ascii_lowercase());
     }
     Some(out)
 }
@@ -3251,25 +3255,27 @@ unsafe fn lineup_note(ctx: usize, rec: usize) {
     };
     let snap_ptr = safe_rd_u64(rmi + 8).unwrap_or(0) as usize;
     let snap_cnt = safe_rd_u64(rmi + 0x10).unwrap_or(0) as usize;
-    if snap_cnt == 0 || !ptr_ok(snap_ptr) {
+    // ⚠snap_cnt 상한 — `ptr_ok` 는 범위만 본다. 과도기에 쓰레기 count 를 읽으면
+    //   r 주소가 엉뚱해지고(raw read 대상), 이전세트 제외 루프가 사실상 무한이 된다.
+    if snap_cnt == 0 || snap_cnt > 4096 || !ptr_ok(snap_ptr) {
         return;
     }
     let r = snap_ptr + (snap_cnt - 1) * 0x100;
-    let rule = ru8(r + 0xf9) as usize;
+    let rule = safe_rd_u8(r + 0xf9).unwrap_or(0xff) as usize;
     if rule >= 4 {
         return;
     }
     let picks_n = 4 + rule * 2;
     let per_team = picks_n / 2; // fmt0=2, 1=3, 2=4, 3=5
-    let ban_limit = ru64(r + 0xf0) as usize;
-    let total = (ru64(r + 0x40) + ru64(r + 0x58) + ru64(r + 0x70) + ru64(r + 0x88)) as usize;
+    let ban_limit = safe_rd_u64(r + 0xf0).unwrap_or(0) as usize;
+    let total = (safe_rd_u64(r + 0x40).unwrap_or(0) + safe_rd_u64(r + 0x58).unwrap_or(0) + safe_rd_u64(r + 0x70).unwrap_or(0) + safe_rd_u64(r + 0x88).unwrap_or(0)) as usize;
     // ★밴/픽 판정을 **순서 가정 없이** 한다:
     //   - 픽 목록은 스냅샷의 픽 버킷에서만 읽는다(밴은 절대 섞이지 않는다).
     //   - 스냅샷은 이번 커밋 **직전** 상태라 마지막 1건이 빠지는데,
     //     드래프트의 **마지막 행동은 항상 픽**이므로 그때만 현재 이름을 붙인다.
     //     (밴픽 순서를 바꾸는 모드도 마지막 토큰은 픽으로 강제한다.)
     let is_final = total + 1 == ban_limit * 2 + picks_n;
-    let side = ru8(r + 0xf8) as usize & 1;
+    let side = safe_rd_u8(r + 0xf8).unwrap_or(0xff) as usize & 1;
     let team_a = safe_rd_u64(rmi + 0x140 + ((side ^ 1) * 8)).unwrap_or(u64::MAX);
     let team_b = safe_rd_u64(rmi + 0x140 + (side * 8)).unwrap_or(u64::MAX);
     for (off, team) in [(0x60usize, team_a), (0x78usize, team_b)] {
@@ -3370,12 +3376,12 @@ unsafe fn cprod_swap_order(ctx: usize, rec: usize) {
     };
     let snap_ptr = safe_rd_u64(rmi + 8).unwrap_or(0) as usize;
     let snap_cnt = safe_rd_u64(rmi + 0x10).unwrap_or(0) as usize;
-    if snap_cnt == 0 || !ptr_ok(snap_ptr) {
+    if snap_cnt == 0 || snap_cnt > 4096 || !ptr_ok(snap_ptr) {
         SO_SKIP[3].fetch_add(1, Ordering::Relaxed);
         return;
     }
     let r = snap_ptr + (snap_cnt - 1) * 0x100;
-    let side = ru8(r + 0xf8) as usize & 1;
+    let side = safe_rd_u8(r + 0xf8).unwrap_or(0xff) as usize & 1;
     let team_a = safe_rd_u64(rmi + 0x140 + ((side ^ 1) * 8)).unwrap_or(u64::MAX);
     let team_b = safe_rd_u64(rmi + 0x140 + (side * 8)).unwrap_or(u64::MAX);
     let bucket = if acting == team_a {
@@ -3503,7 +3509,9 @@ unsafe fn cprod_swap(ctx: usize, rec: usize) {
     let snap_ptr = safe_rd_u64(rmi + 8).unwrap_or(0) as usize;
     // (가드는 버킷을 읽은 뒤 total 로 판정 — 아래 human-pick guard)
     let snap_cnt = safe_rd_u64(rmi + 0x10).unwrap_or(0) as usize;
-    if snap_cnt == 0 || !ptr_ok(snap_ptr) {
+    // ⚠snap_cnt 상한 — `ptr_ok` 는 범위만 본다. 과도기에 쓰레기 count 를 읽으면
+    //   r 주소가 엉뚱해지고(raw read 대상), 이전세트 제외 루프가 사실상 무한이 된다.
+    if snap_cnt == 0 || snap_cnt > 4096 || !ptr_ok(snap_ptr) {
         return;
     }
     let r = snap_ptr + (snap_cnt - 1) * 0x100;
@@ -3594,7 +3602,7 @@ unsafe fn cprod_swap(ctx: usize, rec: usize) {
     }
     // 이번 확정이 어느 팀 픽인지: acting_team 과 rmi+0x140/+0x148 대조.
     let acting = safe_rd_u64(rec + 0x30).unwrap_or(u64::MAX);
-    let side = ru8(r + 0xf8) as usize & 1;
+    let side = safe_rd_u8(r + 0xf8).unwrap_or(0xff) as usize & 1;
     let team_a = safe_rd_u64(rmi + 0x140 + ((side ^ 1) * 8)).unwrap_or(u64::MAX);
     let my_picks: &Vec<String> = if acting == team_a { &t1_pick } else { &t2_pick };
     // 픽 단계가 아니면(밴) 개입 안 함 — 우리 팀 픽 목록이 곧 pinned.
@@ -3717,8 +3725,8 @@ unsafe fn read_bucket(v: usize) -> Option<Vec<String>> {
         if !ptr_ok(sp) || sl == 0 || sl > 64 {
             return None;
         }
-        let b = core::slice::from_raw_parts(sp as *const u8, sl);
-        out.push(core::str::from_utf8(b).ok()?.to_ascii_lowercase());
+        let b = safe_bytes(sp, sl)?;
+        out.push(core::str::from_utf8(&b).ok()?.to_ascii_lowercase());
     }
     Some(out)
 }
@@ -3757,6 +3765,27 @@ unsafe fn find_rmi_at(ctx: usize, off: usize, match_id: u64) -> Option<usize> {
 /// 1바이트 fault-safe 읽기(정렬 qword 읽고 잘라냄 — VEH 경유라 stale 포인터에도 안전).
 unsafe fn safe_rd_u8(a: usize) -> Option<u8> {
     safe_rd_u64(a & !7).map(|v| ((v >> ((a & 7) * 8)) & 0xff) as u8)
+}
+
+/// fault-safe 바이트열 읽기. `from_raw_parts` 는 stale 포인터에서 그대로 세그폴트라
+/// (2026-08-23 유저 제보: `user_pick_block=1` 일 때만 튕김 — 셀/툴팁 경로가 전부 raw 였다)
+/// 게임 소유 메모리에서 문자열을 읽을 땐 **반드시 이걸 쓴다**.
+unsafe fn safe_bytes(ptr: usize, len: usize) -> Option<Vec<u8>> {
+    if len == 0 || !ptr_ok(ptr) || len > 64 {
+        return None;
+    }
+    let mut out = Vec::with_capacity(len);
+    let mut k = 0usize;
+    while k < len {
+        let w = safe_rd_u64(ptr + k)?;
+        for b in 0..8 {
+            if k + b < len {
+                out.push(((w >> (b * 8)) & 0xff) as u8);
+            }
+        }
+        k += 8;
+    }
+    Some(out)
 }
 
 /// ★A(백그라운드 스왑) 규명용 진단 — **모든 매치**의 마지막 드래프트 스냅샷에서
@@ -3892,7 +3921,7 @@ pub unsafe fn enforce_orders() -> Vec<String> {
             }
             seen += 1;
             let r = sp + (sc - 1) * 0x100;
-            let rule = ru8(r + 0xf9) as usize;
+            let rule = safe_rd_u8(r + 0xf9).unwrap_or(0xff) as usize;
             if rule >= 4 {
                 continue;
             }
@@ -4382,7 +4411,7 @@ unsafe fn team_state(
     let total = used.len();
     let ban_limit = safe_rd_u64(r + 0xf0).unwrap_or(0) as usize;
     let is_ban = total < ban_limit * 2;
-    let side = ru8(r + 0xf8) as usize & 1;
+    let side = safe_rd_u8(r + 0xf8).unwrap_or(0xff) as usize & 1;
     let team_a = safe_rd_u64(rmi + 0x140 + ((side ^ 1) * 8)).unwrap_or(u64::MAX);
     let mine = if team_id == team_a { &p_a } else { &p_b };
     let (Some(names), Some(masks)) = (crate::NAMES.get(), crate::masks()) else {
@@ -4905,7 +4934,9 @@ unsafe fn cell_paint(node: usize) {
         Some(v) if ptr_ok(v as usize) => v as usize,
         _ => return,
     };
-    let cur = ru8(logic + 0x1d3);
+    let Some(cur) = safe_rd_u8(logic + 0x1d3) else {
+        return; // 셀 로직 객체가 이미 해제됨(과도기) — 손대지 않는다
+    };
     // ★진단: 로직 객체에서 "표시이름(한글)" 오프셋 탐색 — 8B 스텝으로 (ptr,len) 후보 스캔.
     //   찾으면 밴픽 때 수집해 캐시 → 패치로 챔프가 추가돼도 정렬이 자동으로 따라간다.
     if cfg.debug {
