@@ -56,7 +56,7 @@ mod inject;
 mod ui_kit;
 
 const MOD_ID: &str = "tfm2_champion_exclude";
-const VERSION: &str = "0.4.0";
+const VERSION: &str = "0.4.1";
 
 // build_inj.ps1 신원 검증용 — dll 안에 lib.rs 절대경로 문자열 필요.
 #[no_mangle]
@@ -1058,14 +1058,25 @@ impl ModExtension for ChampExclExt {
                             if ok { "OK" } else { "거부(FALSE)" },
                             body.len()
                         ));
+                        if ok {
+                            // ★즉시 캐시 반영 — 엔진 쓰기는 "큐잉"이라 mod_save_get 이 다음
+                            //   데이터 동기까지 옛값(None/구값)을 줄 수 있다(v0.4.0 실측:
+                            //   기록 OK 15초 뒤 재열람이 cfg기본값으로 로드 = 방금 저장을
+                            //   되돌릴 수 있는 함정). 로컬 캐시를 기록 본문으로 선반영한다.
+                            *SAVE_EXCL.lock().unwrap_or_else(|e| e.into_inner()) =
+                                Some(parse_exclude_text(&body));
+                        }
                     } else {
                         log("세이브 기록 불가: can_write_mod_save=false (멀티 비호스트?) — 이번 선택은 저장 안 됨");
                     }
                 }
                 // ②세이브의 현행 설정을 캐시(패치데이 detour 가 이걸 읽음 — SDK 컨텍스트 없음).
-                let sv = data.mod_save_get_string(MOD_ID, SAVE_KEY);
-                *SAVE_EXCL.lock().unwrap_or_else(|e| e.into_inner()) =
-                    sv.map(|t| parse_exclude_text(&t));
+                //   ★None 이어도 기존 캐시를 지우지 않는다 — 큐잉 지연 동안 로컬 선반영값 유지.
+                //   (세이브 전환은 메인메뉴 경유 = 비-InGame 프레임의 else 절이 클리어해 오염 없음.)
+                if let Some(t) = data.mod_save_get_string(MOD_ID, SAVE_KEY) {
+                    *SAVE_EXCL.lock().unwrap_or_else(|e| e.into_inner()) =
+                        Some(parse_exclude_text(&t));
+                }
                 let db = data.db();
                 let avail: Vec<String> = db.available_champions.clone();
                 let mod_ids: Vec<String> = db
