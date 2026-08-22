@@ -10,7 +10,7 @@
 //!   → ★후보 Vec 생성 0x1894610(콜러 0x2363ee0 한 곳뿐 — 0.5.6 실측).
 //!   (0.5.5 = 0x1e34a00 → 0x203acc0 → 0x202c440(@0x202c5f2) → 0x186e150)
 //! 해법: 후보 Vec 생성 진입 트램폴린 detour — 원본 호출로 후보 Vec<String> 을 받은 뒤
-//!   cfg(champion_exclude.cfg)에 적힌 챔피언 id 를 swap_remove 로 걸러낸다.
+//!   현재 세이브에 설정된 제외 챔피언 id 를 swap_remove 로 걸러낸다.
 //!   후보에서 빠지면 셔플/선택/available push/액션 등록/팀 티어 반영/뉴스까지
 //!   전부 자연히 배제 = "영원히 추가 안 됨". 이미 출시된 챔피언은 건드리지 않는다.
 //!   '*' 한 줄이면 후보 전량 제거 = 신챔프 추가 전면 차단.
@@ -19,8 +19,8 @@
 //! ★v0.2.0 인게임 UI(2026-08-23): 환경설정 → 게임플레이 탭 맨 아래 '추가 챔피언 설정' 행
 //!   (pos_lock_row 아래 — 타 모드 tfm2_champ_pos_lock 과 같은 주입 방식·같은 앵커) →
 //!   클릭 시 팝업(틀 = pos_lock_popup 동일): **아직 추가 안 된 챔피언**(registry−available
-//!   근사 = champ_uv 슈퍼셋∪mod_champions∪cfg∪seen 을 db.champion_info 로 검증) 그리드,
-//!   클릭 토글 = 제외 선택, 확인 = champion_exclude.cfg 저장(패치데이 훅이 그대로 소비).
+//!   근사 = champ_uv 슈퍼셋∪mod_champions∪세이브설정∪seen 을 db.champion_info 로 검증) 그리드,
+//!   클릭 토글 = 제외 선택, 확인 = 현재 세이브에 저장(패치데이 훅이 그대로 소비).
 //! 적용 범위 주의: 이 모드는 "시즌 중 패치로 추가"만 막는다. 신규 게임 시작 시
 //!   초기 풀 포함은 범위 외 — 바닐라 게임 생성 옵션(커스텀 챔피언)으로 제어 가능.
 //! 안전:
@@ -31,8 +31,8 @@
 //!   - 포인터는 범위체크 + VirtualQuery. exe base 는 GetModuleHandleW(null) 동적.
 //! ★v0.4.0 세이브별 설정: 제외 목록은 **세이브 파일 안 mod save data**(공식 API,
 //!   docs\mod-save-data.md — 네임스페이스 MOD_ID·키 "exclude"·키당 1MiB 한도)에 저장 ⟹
-//!   세이브마다 독립·세이브 복사/백업에 동행. cfg(champion_exclude.cfg)는 "세이브에 설정이
-//!   없을 때의 기본값"(새 세이브 시드)으로 강등. 패치데이 detour 는 SDK 컨텍스트가 없어
+//!   세이브마다 독립·세이브 복사/백업에 동행. ★v0.4.2: cfg 파일 축 완전 제거(유저 지시) —
+//!   세이브에 설정 없음 = 제외 없음(바닐라). 패치데이 detour 는 SDK 컨텍스트가 없어
 //!   post_update(InGame)가 매 프레임 캐시한 SAVE_EXCL 을 읽는다(패치데이 = 항상 세이브
 //!   로드 후 발생이라 캐시 신선). UI 확인 = PENDING_SAVE 이월 → 다음 프레임 기록.
 //! 진단: mods\tfm2_champion_exclude\champion_exclude.txt + 후보 관측 캐시
@@ -56,7 +56,7 @@ mod inject;
 mod ui_kit;
 
 const MOD_ID: &str = "tfm2_champion_exclude";
-const VERSION: &str = "0.4.1";
+const VERSION: &str = "0.4.2";
 
 // build_inj.ps1 신원 검증용 — dll 안에 lib.rs 절대경로 문자열 필요.
 #[no_mangle]
@@ -149,12 +149,8 @@ pub(crate) fn log(msg: &str) {
     }
 }
 
-// ── cfg: 제외 챔피언 목록 (훅 발화마다 재독 — 패치데이는 드물어서 비용 무시 가능) ──
-// 반환: (소문자 정규화된 제외 id 목록, 전면차단 여부)
-fn cfg_path() -> Option<PathBuf> {
-    mod_dir().map(|d| d.join("champion_exclude.cfg"))
-}
-/// 제외 목록 텍스트 파서(cfg 파일·세이브 값 공용): '#' 주석·'*'=전면차단·소문자 정규화.
+// ── 제외 목록 파서 (v0.4.2: cfg 파일 축 완전 제거·유저 지시 — 설정 = 세이브 단일) ──
+/// 제외 목록 텍스트 파서(세이브 값): '#' 주석·'*'=전면차단·소문자 정규화.
 fn parse_exclude_text(text: &str) -> (Vec<String>, bool) {
     let mut list = Vec::new();
     let mut block_all = false;
@@ -167,22 +163,11 @@ fn parse_exclude_text(text: &str) -> (Vec<String>, bool) {
     }
     (list, block_all)
 }
-fn load_exclude_cfg() -> (Vec<String>, bool) {
-    let Some(p) = cfg_path() else { return (Vec::new(), false) };
-    let Ok(bytes) = std::fs::read(&p) else {
-        if let Some(d) = mod_dir() {
-            let _ = std::fs::create_dir_all(&d);
-        }
-        let _ = std::fs::write(&p, CFG_HEADER);
-        return (Vec::new(), false);
-    };
-    parse_exclude_text(&String::from_utf8_lossy(&bytes))
-}
 
-// ── 세이브별 설정 (v0.4.0 — 공식 mod save data, docs\mod-save-data.md) ──
-// 세이브 안 네임스페이스 MOD_ID·키 "exclude"(값 = cfg 와 같은 텍스트 포맷·키당 1MiB 한도)에
-// 저장 ⟹ 설정이 세이브 파일에 따라다닌다(세이브 식별 불요). cfg = "세이브에 아직 설정이
-// 없을 때의 기본값"으로 강등(하위호환·새 세이브 시드).
+// ── 세이브별 설정 (v0.4.0 도입·v0.4.2 단일화 — 공식 mod save data, docs\mod-save-data.md) ──
+// 세이브 안 네임스페이스 MOD_ID·키 "exclude"(텍스트 포맷·키당 1MiB 한도)에 저장 ⟹
+// 설정이 세이브 파일에 따라다닌다(세이브 식별 불요). 세이브에 설정 없음 = 제외 없음(바닐라).
+// (v0.4.2: cfg 파일 폴백 완전 제거 — 유저 지시 "cfg 안 쓰니까 빼줘".)
 const SAVE_KEY: &str = "exclude";
 const SAVE_NS_VERSION: usize = 1;
 /// 현재 로드된 세이브에서 읽은 제외 목록(None = 세이브에 설정 없음 또는 세이브 밖 화면).
@@ -192,21 +177,13 @@ static SAVE_EXCL: Mutex<Option<(Vec<String>, bool)>> = Mutex::new(None);
 /// (클릭 콜백엔 ClientData 접근이 없어서 프레임으로 이월).
 static PENDING_SAVE: Mutex<Option<String>> = Mutex::new(None);
 
-/// 유효 제외 목록: 세이브 설정 우선, 없으면 cfg(전역 기본값). 반환 3번째 = 출처 라벨.
+/// 유효 제외 목록 = 현재 세이브의 설정(없으면 빈 목록 = 바닐라 동작). 3번째 = 출처 라벨.
 fn effective_exclusion() -> (Vec<String>, bool, &'static str) {
     if let Some((l, s)) = SAVE_EXCL.lock().unwrap_or_else(|e| e.into_inner()).clone() {
         return (l, s, "세이브");
     }
-    let (l, s) = load_exclude_cfg();
-    (l, s, "cfg기본값")
+    (Vec::new(), false, "설정없음")
 }
-const CFG_HEADER: &str = "\
-# tfm2_champion_exclude — 인게임 패치로 절대 추가되지 않을 챔피언 id 목록\n\
-# 한 줄에 하나. '#' 뒤는 주석. 대소문자 무시.\n\
-# ★v0.4.0부터 설정은 세이브별(세이브 파일 안 mod save data)로 저장된다.\n\
-#   이 파일은 \"세이브에 아직 설정이 없을 때의 기본값\"(새 세이브 시드)으로만 쓰인다.\n\
-# 인게임 편집: 환경설정 → 게임플레이 탭 → '추가 챔피언 설정' 버튼(현재 세이브에 저장).\n\
-# '*' 한 줄만 적으면 신규 챔피언 추가를 전면 차단.\n";
 
 // ── detour (패치데이 후보 필터) ──
 // 원본 계약(0.5.5 RE): rcx=out(*mut Vec<String>), rdx=iter_ctx, 반환 rax=out.
@@ -430,7 +407,7 @@ pub(crate) fn note_assets(am: usize) {
 
 static CLICK_LAST: AtomicUsize = AtomicUsize::new(usize::MAX);
 static POPUP_OPEN: AtomicBool = AtomicBool::new(false);
-/// 팝업 열림 직후 cfg → 선택 상태 로드 요청.
+/// 팝업 열림 직후 세이브 설정 → 선택 상태 로드 요청.
 static LOAD_SEL_REQ: AtomicBool = AtomicBool::new(false);
 static GRID_SIG: AtomicU64 = AtomicU64::new(u64::MAX);
 /// 선택 상태 버전(토글마다 ++) — 그리드 시그니처 재료.
@@ -446,7 +423,7 @@ static CAND_SIG: AtomicU64 = AtomicU64::new(u64::MAX);
 static CAND_FORCE: AtomicBool = AtomicBool::new(false);
 /// 제외 선택 상태(소문자 id).
 static SEL: Mutex<Option<HashSet<String>>> = Mutex::new(None);
-/// cfg 에 '*' 가 있었는지(저장 시 유지 판단).
+/// 로드한 설정에 '*' 가 있었는지(저장 시 유지 판단).
 static HAD_STAR: AtomicBool = AtomicBool::new(false);
 
 // ── 편의 필터(v0.3.0 — pos_lock 동형): 클래스 드롭다운 + 이름 검색 ──
@@ -677,7 +654,7 @@ unsafe fn set_cell_icon(icon: &mut Node, k: usize, lower: &str) {
     core::ptr::write_unaligned((dp + 0x10) as *mut u64, 0u64);
 }
 
-/// 미출시 후보 재계산: 슈퍼셋(champ_uv ∪ mod_champions ∪ cfg ∪ seen)을
+/// 미출시 후보 재계산: 슈퍼셋(champ_uv ∪ mod_champions ∪ 세이브설정 ∪ seen)을
 /// "registry 등재(champion_info Some 또는 mod_champions) && available 아님" 으로 검증.
 /// = 패치데이 후보 빌더(registry − available)의 UI 근사.
 /// (db 타입명을 시그니처에 박지 않으려고 필요한 조각만 받는다 — SDK 타입명 비의존.)
@@ -701,8 +678,8 @@ fn recompute_candidates(
     let mut superset: HashSet<String> = CHAMP_KEY.iter().map(|e| e.0.to_string()).collect();
     superset.extend(mod_ids.iter().cloned());
     superset.extend(load_seen());
-    let (cfg_list, _) = load_exclude_cfg();
-    superset.extend(cfg_list);
+    let (excl_list, _, _) = effective_exclusion(); // 세이브 설정에만 있는 id 도 목록에 노출
+    superset.extend(excl_list);
     let mut cand: Vec<String> = superset
         .into_iter()
         .filter(|id| !avail.contains(id) && (mod_ids.contains(id) || in_registry(id)))
@@ -725,7 +702,7 @@ fn recompute_candidates(
     GRID_SIG.store(u64::MAX, Ordering::Relaxed);
 }
 
-/// 유효 설정(세이브 우선·cfg 폴백) → 선택 상태 로드(팝업 열릴 때).
+/// 현재 세이브 설정 → 선택 상태 로드(팝업 열릴 때).
 fn load_selection() {
     let (list, star, src) = effective_exclusion();
     log(&format!("선택 로드: {}개 (출처={}{})", list.len(), src, if star { "·*" } else { "" }));
@@ -745,7 +722,7 @@ fn load_selection() {
 /// - 후보가 아닌 기존 항목(이미 출시됐거나 수동 기입)은 그대로 보존.
 /// - '*' 는 "원래 있었고 여전히 전부 선택"일 때만 유지, 아니면 명시 목록으로 전환.
 /// - 클릭 콜백엔 ClientData 가 없어 본문을 PENDING_SAVE 로 이월 → post_update 가 기록.
-///   cfg 는 건드리지 않는다(cfg = 새 세이브 기본값 전용, 수동 편집).
+///   (v0.4.2: 저장처 = 세이브 단일 — cfg 파일 없음.)
 fn save_selection() {
     let cand = CAND.lock().unwrap_or_else(|e| e.into_inner()).clone();
     let sel = match SEL.lock().unwrap_or_else(|e| e.into_inner()).clone() {
@@ -971,7 +948,7 @@ fn fill_grid(root: &mut Node) {
         ui_kit::label_set(n, if from_save {
             "저장 위치: 이 세이브 (세이브별 설정)"
         } else {
-            "전역 기본값(cfg) 적용 중 — 확인 시 이 세이브에 저장됩니다"
+            "이 세이브에 아직 설정 없음 — 확인 시 이 세이브에 저장됩니다"
         });
     }
     if let Some(n) = ui_kit::find_mut(pop, "note_all") {
@@ -1243,10 +1220,7 @@ impl ModExtension for ChampExclExt {
 
 fn init(_ctx: &GameCtx) -> ModRegistration {
     // src=file!() — build_inj.ps1 신원 검증(dll 내 소스 절대경로 문자열) 요구
-    log(&format!("mod init v{VERSION} (src={})", file!()));
-    let (excl, block_all) = load_exclude_cfg();
-    log(&format!("cfg: 제외 {}개 = [{}]{}", excl.len(), excl.join(", "),
-        if block_all { " + 전면차단(*)" } else { "" }));
+    log(&format!("mod init v{VERSION} (src={}) — 설정 = 세이브별(mod save data) 단일", file!()));
     let r = catch_unwind(AssertUnwindSafe(|| unsafe { install_hook() }));
     match r {
         Ok(Ok(m)) => log(&format!("HOOK OK: {}", m)),
