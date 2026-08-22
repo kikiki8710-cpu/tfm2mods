@@ -46,607 +46,607 @@ pos_lock_popup:color {
       back: { source: "asset/base/sprite/white"; color: #4a4c56ff; }
 
       #contents:empty {
-        x: 8px; y: 8px; width: 1154px; height: auto;
+        x: 8px; y: 8px; width: 1154px; height: 1900px;
         child_type: Table { spacing_x: 15px; spacing_y: 15px; }
-        #cell0:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 110px; height: 120px; visible: false;
-          #icon:image { anchor_x: 0.5; pivot_x: 0.5; x: 0px; y: 6px; width: 84px; height: 84px; ignore_event: true; }
-          #name:label { @"asset/base/style/main#label"; x: 2px; y: 92px; width: 104px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
-          #sel:color { visible: false; x: 0px; y: 0px; width: 110px; height: 120px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
-        }
-        #cell1:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 110px; height: 120px; visible: false;
-          #icon:image { anchor_x: 0.5; pivot_x: 0.5; x: 0px; y: 6px; width: 84px; height: 84px; ignore_event: true; }
-          #name:label { @"asset/base/style/main#label"; x: 2px; y: 92px; width: 104px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
-          #sel:color { visible: false; x: 0px; y: 0px; width: 110px; height: 120px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
-        }
-        #cell2:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 110px; height: 120px; visible: false;
-          #icon:image { anchor_x: 0.5; pivot_x: 0.5; x: 0px; y: 6px; width: 84px; height: 84px; ignore_event: true; }
-          #name:label { @"asset/base/style/main#label"; x: 2px; y: 92px; width: 104px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
-          #sel:color { visible: false; x: 0px; y: 0px; width: 110px; height: 120px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
-        }
-        #cell3:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 110px; height: 120px; visible: false;
-          #icon:image { anchor_x: 0.5; pivot_x: 0.5; x: 0px; y: 6px; width: 84px; height: 84px; ignore_event: true; }
-          #name:label { @"asset/base/style/main#label"; x: 2px; y: 92px; width: 104px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
-          #sel:color { visible: false; x: 0px; y: 0px; width: 110px; height: 120px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
-        }
-        #cell4:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 110px; height: 120px; visible: false;
-          #icon:image { anchor_x: 0.5; pivot_x: 0.5; x: 0px; y: 6px; width: 84px; height: 84px; ignore_event: true; }
-          #name:label { @"asset/base/style/main#label"; x: 2px; y: 92px; width: 104px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
-          #sel:color { visible: false; x: 0px; y: 0px; width: 110px; height: 120px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
-        }
-        #cell5:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 110px; height: 120px; visible: false;
-          #icon:image { anchor_x: 0.5; pivot_x: 0.5; x: 0px; y: 6px; width: 84px; height: 84px; ignore_event: true; }
-          #name:label { @"asset/base/style/main#label"; x: 2px; y: 92px; width: 104px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
-          #sel:color { visible: false; x: 0px; y: 0px; width: 110px; height: 120px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
-        }
-        #cell6:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 110px; height: 120px; visible: false;
-          #icon:image { anchor_x: 0.5; pivot_x: 0.5; x: 0px; y: 6px; width: 84px; height: 84px; ignore_event: true; }
-          #name:label { @"asset/base/style/main#label"; x: 2px; y: 92px; width: 104px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
-          #sel:color { visible: false; x: 0px; y: 0px; width: 110px; height: 120px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
-        }
-        #cell7:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 110px; height: 120px; visible: false;
-          #icon:image { anchor_x: 0.5; pivot_x: 0.5; x: 0px; y: 6px; width: 84px; height: 84px; ignore_event: true; }
-          #name:label { @"asset/base/style/main#label"; x: 2px; y: 92px; width: 104px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
-          #sel:color { visible: false; x: 0px; y: 0px; width: 110px; height: 120px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
-        }
-        #cell8:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 110px; height: 120px; visible: false;
-          #icon:image { anchor_x: 0.5; pivot_x: 0.5; x: 0px; y: 6px; width: 84px; height: 84px; ignore_event: true; }
-          #name:label { @"asset/base/style/main#label"; x: 2px; y: 92px; width: 104px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
-          #sel:color { visible: false; x: 0px; y: 0px; width: 110px; height: 120px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
-        }
-        #cell9:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 110px; height: 120px; visible: false;
-          #icon:image { anchor_x: 0.5; pivot_x: 0.5; x: 0px; y: 6px; width: 84px; height: 84px; ignore_event: true; }
-          #name:label { @"asset/base/style/main#label"; x: 2px; y: 92px; width: 104px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
-          #sel:color { visible: false; x: 0px; y: 0px; width: 110px; height: 120px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
-        }
-        #cell10:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 110px; height: 120px; visible: false;
-          #icon:image { anchor_x: 0.5; pivot_x: 0.5; x: 0px; y: 6px; width: 84px; height: 84px; ignore_event: true; }
-          #name:label { @"asset/base/style/main#label"; x: 2px; y: 92px; width: 104px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
-          #sel:color { visible: false; x: 0px; y: 0px; width: 110px; height: 120px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
-        }
-        #cell11:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 110px; height: 120px; visible: false;
-          #icon:image { anchor_x: 0.5; pivot_x: 0.5; x: 0px; y: 6px; width: 84px; height: 84px; ignore_event: true; }
-          #name:label { @"asset/base/style/main#label"; x: 2px; y: 92px; width: 104px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
-          #sel:color { visible: false; x: 0px; y: 0px; width: 110px; height: 120px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
-        }
-        #cell12:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 110px; height: 120px; visible: false;
-          #icon:image { anchor_x: 0.5; pivot_x: 0.5; x: 0px; y: 6px; width: 84px; height: 84px; ignore_event: true; }
-          #name:label { @"asset/base/style/main#label"; x: 2px; y: 92px; width: 104px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
-          #sel:color { visible: false; x: 0px; y: 0px; width: 110px; height: 120px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
-        }
-        #cell13:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 110px; height: 120px; visible: false;
-          #icon:image { anchor_x: 0.5; pivot_x: 0.5; x: 0px; y: 6px; width: 84px; height: 84px; ignore_event: true; }
-          #name:label { @"asset/base/style/main#label"; x: 2px; y: 92px; width: 104px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
-          #sel:color { visible: false; x: 0px; y: 0px; width: 110px; height: 120px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
-        }
-        #cell14:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 110px; height: 120px; visible: false;
-          #icon:image { anchor_x: 0.5; pivot_x: 0.5; x: 0px; y: 6px; width: 84px; height: 84px; ignore_event: true; }
-          #name:label { @"asset/base/style/main#label"; x: 2px; y: 92px; width: 104px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
-          #sel:color { visible: false; x: 0px; y: 0px; width: 110px; height: 120px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
-        }
-        #cell15:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 110px; height: 120px; visible: false;
-          #icon:image { anchor_x: 0.5; pivot_x: 0.5; x: 0px; y: 6px; width: 84px; height: 84px; ignore_event: true; }
-          #name:label { @"asset/base/style/main#label"; x: 2px; y: 92px; width: 104px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
-          #sel:color { visible: false; x: 0px; y: 0px; width: 110px; height: 120px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
-        }
-        #cell16:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 110px; height: 120px; visible: false;
-          #icon:image { anchor_x: 0.5; pivot_x: 0.5; x: 0px; y: 6px; width: 84px; height: 84px; ignore_event: true; }
-          #name:label { @"asset/base/style/main#label"; x: 2px; y: 92px; width: 104px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
-          #sel:color { visible: false; x: 0px; y: 0px; width: 110px; height: 120px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
-        }
-        #cell17:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 110px; height: 120px; visible: false;
-          #icon:image { anchor_x: 0.5; pivot_x: 0.5; x: 0px; y: 6px; width: 84px; height: 84px; ignore_event: true; }
-          #name:label { @"asset/base/style/main#label"; x: 2px; y: 92px; width: 104px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
-          #sel:color { visible: false; x: 0px; y: 0px; width: 110px; height: 120px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
-        }
-        #cell18:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 110px; height: 120px; visible: false;
-          #icon:image { anchor_x: 0.5; pivot_x: 0.5; x: 0px; y: 6px; width: 84px; height: 84px; ignore_event: true; }
-          #name:label { @"asset/base/style/main#label"; x: 2px; y: 92px; width: 104px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
-          #sel:color { visible: false; x: 0px; y: 0px; width: 110px; height: 120px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
-        }
-        #cell19:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 110px; height: 120px; visible: false;
-          #icon:image { anchor_x: 0.5; pivot_x: 0.5; x: 0px; y: 6px; width: 84px; height: 84px; ignore_event: true; }
-          #name:label { @"asset/base/style/main#label"; x: 2px; y: 92px; width: 104px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
-          #sel:color { visible: false; x: 0px; y: 0px; width: 110px; height: 120px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
-        }
-        #cell20:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 110px; height: 120px; visible: false;
-          #icon:image { anchor_x: 0.5; pivot_x: 0.5; x: 0px; y: 6px; width: 84px; height: 84px; ignore_event: true; }
-          #name:label { @"asset/base/style/main#label"; x: 2px; y: 92px; width: 104px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
-          #sel:color { visible: false; x: 0px; y: 0px; width: 110px; height: 120px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
-        }
-        #cell21:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 110px; height: 120px; visible: false;
-          #icon:image { anchor_x: 0.5; pivot_x: 0.5; x: 0px; y: 6px; width: 84px; height: 84px; ignore_event: true; }
-          #name:label { @"asset/base/style/main#label"; x: 2px; y: 92px; width: 104px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
-          #sel:color { visible: false; x: 0px; y: 0px; width: 110px; height: 120px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
-        }
-        #cell22:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 110px; height: 120px; visible: false;
-          #icon:image { anchor_x: 0.5; pivot_x: 0.5; x: 0px; y: 6px; width: 84px; height: 84px; ignore_event: true; }
-          #name:label { @"asset/base/style/main#label"; x: 2px; y: 92px; width: 104px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
-          #sel:color { visible: false; x: 0px; y: 0px; width: 110px; height: 120px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
-        }
-        #cell23:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 110px; height: 120px; visible: false;
-          #icon:image { anchor_x: 0.5; pivot_x: 0.5; x: 0px; y: 6px; width: 84px; height: 84px; ignore_event: true; }
-          #name:label { @"asset/base/style/main#label"; x: 2px; y: 92px; width: 104px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
-          #sel:color { visible: false; x: 0px; y: 0px; width: 110px; height: 120px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
-        }
-        #cell24:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 110px; height: 120px; visible: false;
-          #icon:image { anchor_x: 0.5; pivot_x: 0.5; x: 0px; y: 6px; width: 84px; height: 84px; ignore_event: true; }
-          #name:label { @"asset/base/style/main#label"; x: 2px; y: 92px; width: 104px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
-          #sel:color { visible: false; x: 0px; y: 0px; width: 110px; height: 120px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
-        }
-        #cell25:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 110px; height: 120px; visible: false;
-          #icon:image { anchor_x: 0.5; pivot_x: 0.5; x: 0px; y: 6px; width: 84px; height: 84px; ignore_event: true; }
-          #name:label { @"asset/base/style/main#label"; x: 2px; y: 92px; width: 104px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
-          #sel:color { visible: false; x: 0px; y: 0px; width: 110px; height: 120px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
-        }
-        #cell26:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 110px; height: 120px; visible: false;
-          #icon:image { anchor_x: 0.5; pivot_x: 0.5; x: 0px; y: 6px; width: 84px; height: 84px; ignore_event: true; }
-          #name:label { @"asset/base/style/main#label"; x: 2px; y: 92px; width: 104px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
-          #sel:color { visible: false; x: 0px; y: 0px; width: 110px; height: 120px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
-        }
-        #cell27:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 110px; height: 120px; visible: false;
-          #icon:image { anchor_x: 0.5; pivot_x: 0.5; x: 0px; y: 6px; width: 84px; height: 84px; ignore_event: true; }
-          #name:label { @"asset/base/style/main#label"; x: 2px; y: 92px; width: 104px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
-          #sel:color { visible: false; x: 0px; y: 0px; width: 110px; height: 120px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
-        }
-        #cell28:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 110px; height: 120px; visible: false;
-          #icon:image { anchor_x: 0.5; pivot_x: 0.5; x: 0px; y: 6px; width: 84px; height: 84px; ignore_event: true; }
-          #name:label { @"asset/base/style/main#label"; x: 2px; y: 92px; width: 104px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
-          #sel:color { visible: false; x: 0px; y: 0px; width: 110px; height: 120px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
-        }
-        #cell29:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 110px; height: 120px; visible: false;
-          #icon:image { anchor_x: 0.5; pivot_x: 0.5; x: 0px; y: 6px; width: 84px; height: 84px; ignore_event: true; }
-          #name:label { @"asset/base/style/main#label"; x: 2px; y: 92px; width: 104px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
-          #sel:color { visible: false; x: 0px; y: 0px; width: 110px; height: 120px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
-        }
-        #cell30:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 110px; height: 120px; visible: false;
-          #icon:image { anchor_x: 0.5; pivot_x: 0.5; x: 0px; y: 6px; width: 84px; height: 84px; ignore_event: true; }
-          #name:label { @"asset/base/style/main#label"; x: 2px; y: 92px; width: 104px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
-          #sel:color { visible: false; x: 0px; y: 0px; width: 110px; height: 120px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
-        }
-        #cell31:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 110px; height: 120px; visible: false;
-          #icon:image { anchor_x: 0.5; pivot_x: 0.5; x: 0px; y: 6px; width: 84px; height: 84px; ignore_event: true; }
-          #name:label { @"asset/base/style/main#label"; x: 2px; y: 92px; width: 104px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
-          #sel:color { visible: false; x: 0px; y: 0px; width: 110px; height: 120px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
-        }
-        #cell32:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 110px; height: 120px; visible: false;
-          #icon:image { anchor_x: 0.5; pivot_x: 0.5; x: 0px; y: 6px; width: 84px; height: 84px; ignore_event: true; }
-          #name:label { @"asset/base/style/main#label"; x: 2px; y: 92px; width: 104px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
-          #sel:color { visible: false; x: 0px; y: 0px; width: 110px; height: 120px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
-        }
-        #cell33:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 110px; height: 120px; visible: false;
-          #icon:image { anchor_x: 0.5; pivot_x: 0.5; x: 0px; y: 6px; width: 84px; height: 84px; ignore_event: true; }
-          #name:label { @"asset/base/style/main#label"; x: 2px; y: 92px; width: 104px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
-          #sel:color { visible: false; x: 0px; y: 0px; width: 110px; height: 120px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
-        }
-        #cell34:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 110px; height: 120px; visible: false;
-          #icon:image { anchor_x: 0.5; pivot_x: 0.5; x: 0px; y: 6px; width: 84px; height: 84px; ignore_event: true; }
-          #name:label { @"asset/base/style/main#label"; x: 2px; y: 92px; width: 104px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
-          #sel:color { visible: false; x: 0px; y: 0px; width: 110px; height: 120px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
-        }
-        #cell35:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 110px; height: 120px; visible: false;
-          #icon:image { anchor_x: 0.5; pivot_x: 0.5; x: 0px; y: 6px; width: 84px; height: 84px; ignore_event: true; }
-          #name:label { @"asset/base/style/main#label"; x: 2px; y: 92px; width: 104px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
-          #sel:color { visible: false; x: 0px; y: 0px; width: 110px; height: 120px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
-        }
-        #cell36:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 110px; height: 120px; visible: false;
-          #icon:image { anchor_x: 0.5; pivot_x: 0.5; x: 0px; y: 6px; width: 84px; height: 84px; ignore_event: true; }
-          #name:label { @"asset/base/style/main#label"; x: 2px; y: 92px; width: 104px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
-          #sel:color { visible: false; x: 0px; y: 0px; width: 110px; height: 120px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
-        }
-        #cell37:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 110px; height: 120px; visible: false;
-          #icon:image { anchor_x: 0.5; pivot_x: 0.5; x: 0px; y: 6px; width: 84px; height: 84px; ignore_event: true; }
-          #name:label { @"asset/base/style/main#label"; x: 2px; y: 92px; width: 104px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
-          #sel:color { visible: false; x: 0px; y: 0px; width: 110px; height: 120px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
-        }
-        #cell38:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 110px; height: 120px; visible: false;
-          #icon:image { anchor_x: 0.5; pivot_x: 0.5; x: 0px; y: 6px; width: 84px; height: 84px; ignore_event: true; }
-          #name:label { @"asset/base/style/main#label"; x: 2px; y: 92px; width: 104px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
-          #sel:color { visible: false; x: 0px; y: 0px; width: 110px; height: 120px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
-        }
-        #cell39:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 110px; height: 120px; visible: false;
-          #icon:image { anchor_x: 0.5; pivot_x: 0.5; x: 0px; y: 6px; width: 84px; height: 84px; ignore_event: true; }
-          #name:label { @"asset/base/style/main#label"; x: 2px; y: 92px; width: 104px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
-          #sel:color { visible: false; x: 0px; y: 0px; width: 110px; height: 120px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
-        }
-        #cell40:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 110px; height: 120px; visible: false;
-          #icon:image { anchor_x: 0.5; pivot_x: 0.5; x: 0px; y: 6px; width: 84px; height: 84px; ignore_event: true; }
-          #name:label { @"asset/base/style/main#label"; x: 2px; y: 92px; width: 104px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
-          #sel:color { visible: false; x: 0px; y: 0px; width: 110px; height: 120px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
-        }
-        #cell41:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 110px; height: 120px; visible: false;
-          #icon:image { anchor_x: 0.5; pivot_x: 0.5; x: 0px; y: 6px; width: 84px; height: 84px; ignore_event: true; }
-          #name:label { @"asset/base/style/main#label"; x: 2px; y: 92px; width: 104px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
-          #sel:color { visible: false; x: 0px; y: 0px; width: 110px; height: 120px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
-        }
-        #cell42:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 110px; height: 120px; visible: false;
-          #icon:image { anchor_x: 0.5; pivot_x: 0.5; x: 0px; y: 6px; width: 84px; height: 84px; ignore_event: true; }
-          #name:label { @"asset/base/style/main#label"; x: 2px; y: 92px; width: 104px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
-          #sel:color { visible: false; x: 0px; y: 0px; width: 110px; height: 120px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
-        }
-        #cell43:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 110px; height: 120px; visible: false;
-          #icon:image { anchor_x: 0.5; pivot_x: 0.5; x: 0px; y: 6px; width: 84px; height: 84px; ignore_event: true; }
-          #name:label { @"asset/base/style/main#label"; x: 2px; y: 92px; width: 104px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
-          #sel:color { visible: false; x: 0px; y: 0px; width: 110px; height: 120px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
-        }
-        #cell44:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 110px; height: 120px; visible: false;
-          #icon:image { anchor_x: 0.5; pivot_x: 0.5; x: 0px; y: 6px; width: 84px; height: 84px; ignore_event: true; }
-          #name:label { @"asset/base/style/main#label"; x: 2px; y: 92px; width: 104px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
-          #sel:color { visible: false; x: 0px; y: 0px; width: 110px; height: 120px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
-        }
-        #cell45:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 110px; height: 120px; visible: false;
-          #icon:image { anchor_x: 0.5; pivot_x: 0.5; x: 0px; y: 6px; width: 84px; height: 84px; ignore_event: true; }
-          #name:label { @"asset/base/style/main#label"; x: 2px; y: 92px; width: 104px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
-          #sel:color { visible: false; x: 0px; y: 0px; width: 110px; height: 120px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
-        }
-        #cell46:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 110px; height: 120px; visible: false;
-          #icon:image { anchor_x: 0.5; pivot_x: 0.5; x: 0px; y: 6px; width: 84px; height: 84px; ignore_event: true; }
-          #name:label { @"asset/base/style/main#label"; x: 2px; y: 92px; width: 104px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
-          #sel:color { visible: false; x: 0px; y: 0px; width: 110px; height: 120px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
-        }
-        #cell47:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 110px; height: 120px; visible: false;
-          #icon:image { anchor_x: 0.5; pivot_x: 0.5; x: 0px; y: 6px; width: 84px; height: 84px; ignore_event: true; }
-          #name:label { @"asset/base/style/main#label"; x: 2px; y: 92px; width: 104px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
-          #sel:color { visible: false; x: 0px; y: 0px; width: 110px; height: 120px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
-        }
-        #cell48:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 110px; height: 120px; visible: false;
-          #icon:image { anchor_x: 0.5; pivot_x: 0.5; x: 0px; y: 6px; width: 84px; height: 84px; ignore_event: true; }
-          #name:label { @"asset/base/style/main#label"; x: 2px; y: 92px; width: 104px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
-          #sel:color { visible: false; x: 0px; y: 0px; width: 110px; height: 120px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
-        }
-        #cell49:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 110px; height: 120px; visible: false;
-          #icon:image { anchor_x: 0.5; pivot_x: 0.5; x: 0px; y: 6px; width: 84px; height: 84px; ignore_event: true; }
-          #name:label { @"asset/base/style/main#label"; x: 2px; y: 92px; width: 104px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
-          #sel:color { visible: false; x: 0px; y: 0px; width: 110px; height: 120px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
-        }
-        #cell50:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 110px; height: 120px; visible: false;
-          #icon:image { anchor_x: 0.5; pivot_x: 0.5; x: 0px; y: 6px; width: 84px; height: 84px; ignore_event: true; }
-          #name:label { @"asset/base/style/main#label"; x: 2px; y: 92px; width: 104px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
-          #sel:color { visible: false; x: 0px; y: 0px; width: 110px; height: 120px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
-        }
-        #cell51:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 110px; height: 120px; visible: false;
-          #icon:image { anchor_x: 0.5; pivot_x: 0.5; x: 0px; y: 6px; width: 84px; height: 84px; ignore_event: true; }
-          #name:label { @"asset/base/style/main#label"; x: 2px; y: 92px; width: 104px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
-          #sel:color { visible: false; x: 0px; y: 0px; width: 110px; height: 120px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
-        }
-        #cell52:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 110px; height: 120px; visible: false;
-          #icon:image { anchor_x: 0.5; pivot_x: 0.5; x: 0px; y: 6px; width: 84px; height: 84px; ignore_event: true; }
-          #name:label { @"asset/base/style/main#label"; x: 2px; y: 92px; width: 104px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
-          #sel:color { visible: false; x: 0px; y: 0px; width: 110px; height: 120px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
-        }
-        #cell53:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 110px; height: 120px; visible: false;
-          #icon:image { anchor_x: 0.5; pivot_x: 0.5; x: 0px; y: 6px; width: 84px; height: 84px; ignore_event: true; }
-          #name:label { @"asset/base/style/main#label"; x: 2px; y: 92px; width: 104px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
-          #sel:color { visible: false; x: 0px; y: 0px; width: 110px; height: 120px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
-        }
-        #cell54:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 110px; height: 120px; visible: false;
-          #icon:image { anchor_x: 0.5; pivot_x: 0.5; x: 0px; y: 6px; width: 84px; height: 84px; ignore_event: true; }
-          #name:label { @"asset/base/style/main#label"; x: 2px; y: 92px; width: 104px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
-          #sel:color { visible: false; x: 0px; y: 0px; width: 110px; height: 120px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
-        }
-        #cell55:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 110px; height: 120px; visible: false;
-          #icon:image { anchor_x: 0.5; pivot_x: 0.5; x: 0px; y: 6px; width: 84px; height: 84px; ignore_event: true; }
-          #name:label { @"asset/base/style/main#label"; x: 2px; y: 92px; width: 104px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
-          #sel:color { visible: false; x: 0px; y: 0px; width: 110px; height: 120px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
-        }
-        #cell56:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 110px; height: 120px; visible: false;
-          #icon:image { anchor_x: 0.5; pivot_x: 0.5; x: 0px; y: 6px; width: 84px; height: 84px; ignore_event: true; }
-          #name:label { @"asset/base/style/main#label"; x: 2px; y: 92px; width: 104px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
-          #sel:color { visible: false; x: 0px; y: 0px; width: 110px; height: 120px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
-        }
-        #cell57:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 110px; height: 120px; visible: false;
-          #icon:image { anchor_x: 0.5; pivot_x: 0.5; x: 0px; y: 6px; width: 84px; height: 84px; ignore_event: true; }
-          #name:label { @"asset/base/style/main#label"; x: 2px; y: 92px; width: 104px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
-          #sel:color { visible: false; x: 0px; y: 0px; width: 110px; height: 120px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
-        }
-        #cell58:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 110px; height: 120px; visible: false;
-          #icon:image { anchor_x: 0.5; pivot_x: 0.5; x: 0px; y: 6px; width: 84px; height: 84px; ignore_event: true; }
-          #name:label { @"asset/base/style/main#label"; x: 2px; y: 92px; width: 104px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
-          #sel:color { visible: false; x: 0px; y: 0px; width: 110px; height: 120px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
-        }
-        #cell59:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 110px; height: 120px; visible: false;
-          #icon:image { anchor_x: 0.5; pivot_x: 0.5; x: 0px; y: 6px; width: 84px; height: 84px; ignore_event: true; }
-          #name:label { @"asset/base/style/main#label"; x: 2px; y: 92px; width: 104px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
-          #sel:color { visible: false; x: 0px; y: 0px; width: 110px; height: 120px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
-        }
-        #cell60:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 110px; height: 120px; visible: false;
-          #icon:image { anchor_x: 0.5; pivot_x: 0.5; x: 0px; y: 6px; width: 84px; height: 84px; ignore_event: true; }
-          #name:label { @"asset/base/style/main#label"; x: 2px; y: 92px; width: 104px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
-          #sel:color { visible: false; x: 0px; y: 0px; width: 110px; height: 120px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
-        }
-        #cell61:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 110px; height: 120px; visible: false;
-          #icon:image { anchor_x: 0.5; pivot_x: 0.5; x: 0px; y: 6px; width: 84px; height: 84px; ignore_event: true; }
-          #name:label { @"asset/base/style/main#label"; x: 2px; y: 92px; width: 104px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
-          #sel:color { visible: false; x: 0px; y: 0px; width: 110px; height: 120px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
-        }
-        #cell62:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 110px; height: 120px; visible: false;
-          #icon:image { anchor_x: 0.5; pivot_x: 0.5; x: 0px; y: 6px; width: 84px; height: 84px; ignore_event: true; }
-          #name:label { @"asset/base/style/main#label"; x: 2px; y: 92px; width: 104px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
-          #sel:color { visible: false; x: 0px; y: 0px; width: 110px; height: 120px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
-        }
-        #cell63:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 110px; height: 120px; visible: false;
-          #icon:image { anchor_x: 0.5; pivot_x: 0.5; x: 0px; y: 6px; width: 84px; height: 84px; ignore_event: true; }
-          #name:label { @"asset/base/style/main#label"; x: 2px; y: 92px; width: 104px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
-          #sel:color { visible: false; x: 0px; y: 0px; width: 110px; height: 120px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
-        }
-        #cell64:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 110px; height: 120px; visible: false;
-          #icon:image { anchor_x: 0.5; pivot_x: 0.5; x: 0px; y: 6px; width: 84px; height: 84px; ignore_event: true; }
-          #name:label { @"asset/base/style/main#label"; x: 2px; y: 92px; width: 104px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
-          #sel:color { visible: false; x: 0px; y: 0px; width: 110px; height: 120px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
-        }
-        #cell65:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 110px; height: 120px; visible: false;
-          #icon:image { anchor_x: 0.5; pivot_x: 0.5; x: 0px; y: 6px; width: 84px; height: 84px; ignore_event: true; }
-          #name:label { @"asset/base/style/main#label"; x: 2px; y: 92px; width: 104px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
-          #sel:color { visible: false; x: 0px; y: 0px; width: 110px; height: 120px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
-        }
-        #cell66:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 110px; height: 120px; visible: false;
-          #icon:image { anchor_x: 0.5; pivot_x: 0.5; x: 0px; y: 6px; width: 84px; height: 84px; ignore_event: true; }
-          #name:label { @"asset/base/style/main#label"; x: 2px; y: 92px; width: 104px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
-          #sel:color { visible: false; x: 0px; y: 0px; width: 110px; height: 120px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
-        }
-        #cell67:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 110px; height: 120px; visible: false;
-          #icon:image { anchor_x: 0.5; pivot_x: 0.5; x: 0px; y: 6px; width: 84px; height: 84px; ignore_event: true; }
-          #name:label { @"asset/base/style/main#label"; x: 2px; y: 92px; width: 104px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
-          #sel:color { visible: false; x: 0px; y: 0px; width: 110px; height: 120px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
-        }
-        #cell68:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 110px; height: 120px; visible: false;
-          #icon:image { anchor_x: 0.5; pivot_x: 0.5; x: 0px; y: 6px; width: 84px; height: 84px; ignore_event: true; }
-          #name:label { @"asset/base/style/main#label"; x: 2px; y: 92px; width: 104px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
-          #sel:color { visible: false; x: 0px; y: 0px; width: 110px; height: 120px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
-        }
-        #cell69:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 110px; height: 120px; visible: false;
-          #icon:image { anchor_x: 0.5; pivot_x: 0.5; x: 0px; y: 6px; width: 84px; height: 84px; ignore_event: true; }
-          #name:label { @"asset/base/style/main#label"; x: 2px; y: 92px; width: 104px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
-          #sel:color { visible: false; x: 0px; y: 0px; width: 110px; height: 120px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
-        }
-        #cell70:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 110px; height: 120px; visible: false;
-          #icon:image { anchor_x: 0.5; pivot_x: 0.5; x: 0px; y: 6px; width: 84px; height: 84px; ignore_event: true; }
-          #name:label { @"asset/base/style/main#label"; x: 2px; y: 92px; width: 104px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
-          #sel:color { visible: false; x: 0px; y: 0px; width: 110px; height: 120px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
-        }
-        #cell71:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 110px; height: 120px; visible: false;
-          #icon:image { anchor_x: 0.5; pivot_x: 0.5; x: 0px; y: 6px; width: 84px; height: 84px; ignore_event: true; }
-          #name:label { @"asset/base/style/main#label"; x: 2px; y: 92px; width: 104px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
-          #sel:color { visible: false; x: 0px; y: 0px; width: 110px; height: 120px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
-        }
-        #cell72:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 110px; height: 120px; visible: false;
-          #icon:image { anchor_x: 0.5; pivot_x: 0.5; x: 0px; y: 6px; width: 84px; height: 84px; ignore_event: true; }
-          #name:label { @"asset/base/style/main#label"; x: 2px; y: 92px; width: 104px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
-          #sel:color { visible: false; x: 0px; y: 0px; width: 110px; height: 120px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
-        }
-        #cell73:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 110px; height: 120px; visible: false;
-          #icon:image { anchor_x: 0.5; pivot_x: 0.5; x: 0px; y: 6px; width: 84px; height: 84px; ignore_event: true; }
-          #name:label { @"asset/base/style/main#label"; x: 2px; y: 92px; width: 104px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
-          #sel:color { visible: false; x: 0px; y: 0px; width: 110px; height: 120px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
-        }
-        #cell74:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 110px; height: 120px; visible: false;
-          #icon:image { anchor_x: 0.5; pivot_x: 0.5; x: 0px; y: 6px; width: 84px; height: 84px; ignore_event: true; }
-          #name:label { @"asset/base/style/main#label"; x: 2px; y: 92px; width: 104px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
-          #sel:color { visible: false; x: 0px; y: 0px; width: 110px; height: 120px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
-        }
-        #cell75:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 110px; height: 120px; visible: false;
-          #icon:image { anchor_x: 0.5; pivot_x: 0.5; x: 0px; y: 6px; width: 84px; height: 84px; ignore_event: true; }
-          #name:label { @"asset/base/style/main#label"; x: 2px; y: 92px; width: 104px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
-          #sel:color { visible: false; x: 0px; y: 0px; width: 110px; height: 120px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
-        }
-        #cell76:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 110px; height: 120px; visible: false;
-          #icon:image { anchor_x: 0.5; pivot_x: 0.5; x: 0px; y: 6px; width: 84px; height: 84px; ignore_event: true; }
-          #name:label { @"asset/base/style/main#label"; x: 2px; y: 92px; width: 104px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
-          #sel:color { visible: false; x: 0px; y: 0px; width: 110px; height: 120px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
-        }
-        #cell77:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 110px; height: 120px; visible: false;
-          #icon:image { anchor_x: 0.5; pivot_x: 0.5; x: 0px; y: 6px; width: 84px; height: 84px; ignore_event: true; }
-          #name:label { @"asset/base/style/main#label"; x: 2px; y: 92px; width: 104px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
-          #sel:color { visible: false; x: 0px; y: 0px; width: 110px; height: 120px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
-        }
-        #cell78:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 110px; height: 120px; visible: false;
-          #icon:image { anchor_x: 0.5; pivot_x: 0.5; x: 0px; y: 6px; width: 84px; height: 84px; ignore_event: true; }
-          #name:label { @"asset/base/style/main#label"; x: 2px; y: 92px; width: 104px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
-          #sel:color { visible: false; x: 0px; y: 0px; width: 110px; height: 120px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
-        }
-        #cell79:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 110px; height: 120px; visible: false;
-          #icon:image { anchor_x: 0.5; pivot_x: 0.5; x: 0px; y: 6px; width: 84px; height: 84px; ignore_event: true; }
-          #name:label { @"asset/base/style/main#label"; x: 2px; y: 92px; width: 104px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
-          #sel:color { visible: false; x: 0px; y: 0px; width: 110px; height: 120px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
-        }
-        #cell80:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 110px; height: 120px; visible: false;
-          #icon:image { anchor_x: 0.5; pivot_x: 0.5; x: 0px; y: 6px; width: 84px; height: 84px; ignore_event: true; }
-          #name:label { @"asset/base/style/main#label"; x: 2px; y: 92px; width: 104px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
-          #sel:color { visible: false; x: 0px; y: 0px; width: 110px; height: 120px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
-        }
-        #cell81:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 110px; height: 120px; visible: false;
-          #icon:image { anchor_x: 0.5; pivot_x: 0.5; x: 0px; y: 6px; width: 84px; height: 84px; ignore_event: true; }
-          #name:label { @"asset/base/style/main#label"; x: 2px; y: 92px; width: 104px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
-          #sel:color { visible: false; x: 0px; y: 0px; width: 110px; height: 120px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
-        }
-        #cell82:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 110px; height: 120px; visible: false;
-          #icon:image { anchor_x: 0.5; pivot_x: 0.5; x: 0px; y: 6px; width: 84px; height: 84px; ignore_event: true; }
-          #name:label { @"asset/base/style/main#label"; x: 2px; y: 92px; width: 104px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
-          #sel:color { visible: false; x: 0px; y: 0px; width: 110px; height: 120px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
-        }
-        #cell83:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 110px; height: 120px; visible: false;
-          #icon:image { anchor_x: 0.5; pivot_x: 0.5; x: 0px; y: 6px; width: 84px; height: 84px; ignore_event: true; }
-          #name:label { @"asset/base/style/main#label"; x: 2px; y: 92px; width: 104px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
-          #sel:color { visible: false; x: 0px; y: 0px; width: 110px; height: 120px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
-        }
-        #cell84:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 110px; height: 120px; visible: false;
-          #icon:image { anchor_x: 0.5; pivot_x: 0.5; x: 0px; y: 6px; width: 84px; height: 84px; ignore_event: true; }
-          #name:label { @"asset/base/style/main#label"; x: 2px; y: 92px; width: 104px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
-          #sel:color { visible: false; x: 0px; y: 0px; width: 110px; height: 120px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
-        }
-        #cell85:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 110px; height: 120px; visible: false;
-          #icon:image { anchor_x: 0.5; pivot_x: 0.5; x: 0px; y: 6px; width: 84px; height: 84px; ignore_event: true; }
-          #name:label { @"asset/base/style/main#label"; x: 2px; y: 92px; width: 104px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
-          #sel:color { visible: false; x: 0px; y: 0px; width: 110px; height: 120px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
-        }
-        #cell86:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 110px; height: 120px; visible: false;
-          #icon:image { anchor_x: 0.5; pivot_x: 0.5; x: 0px; y: 6px; width: 84px; height: 84px; ignore_event: true; }
-          #name:label { @"asset/base/style/main#label"; x: 2px; y: 92px; width: 104px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
-          #sel:color { visible: false; x: 0px; y: 0px; width: 110px; height: 120px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
-        }
-        #cell87:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 110px; height: 120px; visible: false;
-          #icon:image { anchor_x: 0.5; pivot_x: 0.5; x: 0px; y: 6px; width: 84px; height: 84px; ignore_event: true; }
-          #name:label { @"asset/base/style/main#label"; x: 2px; y: 92px; width: 104px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
-          #sel:color { visible: false; x: 0px; y: 0px; width: 110px; height: 120px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
-        }
-        #cell88:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 110px; height: 120px; visible: false;
-          #icon:image { anchor_x: 0.5; pivot_x: 0.5; x: 0px; y: 6px; width: 84px; height: 84px; ignore_event: true; }
-          #name:label { @"asset/base/style/main#label"; x: 2px; y: 92px; width: 104px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
-          #sel:color { visible: false; x: 0px; y: 0px; width: 110px; height: 120px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
-        }
-        #cell89:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 110px; height: 120px; visible: false;
-          #icon:image { anchor_x: 0.5; pivot_x: 0.5; x: 0px; y: 6px; width: 84px; height: 84px; ignore_event: true; }
-          #name:label { @"asset/base/style/main#label"; x: 2px; y: 92px; width: 104px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
-          #sel:color { visible: false; x: 0px; y: 0px; width: 110px; height: 120px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
-        }
-        #cell90:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 110px; height: 120px; visible: false;
-          #icon:image { anchor_x: 0.5; pivot_x: 0.5; x: 0px; y: 6px; width: 84px; height: 84px; ignore_event: true; }
-          #name:label { @"asset/base/style/main#label"; x: 2px; y: 92px; width: 104px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
-          #sel:color { visible: false; x: 0px; y: 0px; width: 110px; height: 120px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
-        }
-        #cell91:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 110px; height: 120px; visible: false;
-          #icon:image { anchor_x: 0.5; pivot_x: 0.5; x: 0px; y: 6px; width: 84px; height: 84px; ignore_event: true; }
-          #name:label { @"asset/base/style/main#label"; x: 2px; y: 92px; width: 104px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
-          #sel:color { visible: false; x: 0px; y: 0px; width: 110px; height: 120px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
-        }
-        #cell92:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 110px; height: 120px; visible: false;
-          #icon:image { anchor_x: 0.5; pivot_x: 0.5; x: 0px; y: 6px; width: 84px; height: 84px; ignore_event: true; }
-          #name:label { @"asset/base/style/main#label"; x: 2px; y: 92px; width: 104px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
-          #sel:color { visible: false; x: 0px; y: 0px; width: 110px; height: 120px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
-        }
-        #cell93:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 110px; height: 120px; visible: false;
-          #icon:image { anchor_x: 0.5; pivot_x: 0.5; x: 0px; y: 6px; width: 84px; height: 84px; ignore_event: true; }
-          #name:label { @"asset/base/style/main#label"; x: 2px; y: 92px; width: 104px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
-          #sel:color { visible: false; x: 0px; y: 0px; width: 110px; height: 120px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
-        }
-        #cell94:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 110px; height: 120px; visible: false;
-          #icon:image { anchor_x: 0.5; pivot_x: 0.5; x: 0px; y: 6px; width: 84px; height: 84px; ignore_event: true; }
-          #name:label { @"asset/base/style/main#label"; x: 2px; y: 92px; width: 104px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
-          #sel:color { visible: false; x: 0px; y: 0px; width: 110px; height: 120px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
-        }
-        #cell95:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 110px; height: 120px; visible: false;
-          #icon:image { anchor_x: 0.5; pivot_x: 0.5; x: 0px; y: 6px; width: 84px; height: 84px; ignore_event: true; }
-          #name:label { @"asset/base/style/main#label"; x: 2px; y: 92px; width: 104px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
-          #sel:color { visible: false; x: 0px; y: 0px; width: 110px; height: 120px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
-        }
-        #cell96:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 110px; height: 120px; visible: false;
-          #icon:image { anchor_x: 0.5; pivot_x: 0.5; x: 0px; y: 6px; width: 84px; height: 84px; ignore_event: true; }
-          #name:label { @"asset/base/style/main#label"; x: 2px; y: 92px; width: 104px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
-          #sel:color { visible: false; x: 0px; y: 0px; width: 110px; height: 120px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
-        }
-        #cell97:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 110px; height: 120px; visible: false;
-          #icon:image { anchor_x: 0.5; pivot_x: 0.5; x: 0px; y: 6px; width: 84px; height: 84px; ignore_event: true; }
-          #name:label { @"asset/base/style/main#label"; x: 2px; y: 92px; width: 104px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
-          #sel:color { visible: false; x: 0px; y: 0px; width: 110px; height: 120px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
-        }
-        #cell98:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 110px; height: 120px; visible: false;
-          #icon:image { anchor_x: 0.5; pivot_x: 0.5; x: 0px; y: 6px; width: 84px; height: 84px; ignore_event: true; }
-          #name:label { @"asset/base/style/main#label"; x: 2px; y: 92px; width: 104px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
-          #sel:color { visible: false; x: 0px; y: 0px; width: 110px; height: 120px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
-        }
-        #cell99:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 110px; height: 120px; visible: false;
-          #icon:image { anchor_x: 0.5; pivot_x: 0.5; x: 0px; y: 6px; width: 84px; height: 84px; ignore_event: true; }
-          #name:label { @"asset/base/style/main#label"; x: 2px; y: 92px; width: 104px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
-          #sel:color { visible: false; x: 0px; y: 0px; width: 110px; height: 120px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
-        }
-        #cell100:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 110px; height: 120px; visible: false;
-          #icon:image { anchor_x: 0.5; pivot_x: 0.5; x: 0px; y: 6px; width: 84px; height: 84px; ignore_event: true; }
-          #name:label { @"asset/base/style/main#label"; x: 2px; y: 92px; width: 104px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
-          #sel:color { visible: false; x: 0px; y: 0px; width: 110px; height: 120px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
-        }
-        #cell101:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 110px; height: 120px; visible: false;
-          #icon:image { anchor_x: 0.5; pivot_x: 0.5; x: 0px; y: 6px; width: 84px; height: 84px; ignore_event: true; }
-          #name:label { @"asset/base/style/main#label"; x: 2px; y: 92px; width: 104px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
-          #sel:color { visible: false; x: 0px; y: 0px; width: 110px; height: 120px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
-        }
-        #cell102:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 110px; height: 120px; visible: false;
-          #icon:image { anchor_x: 0.5; pivot_x: 0.5; x: 0px; y: 6px; width: 84px; height: 84px; ignore_event: true; }
-          #name:label { @"asset/base/style/main#label"; x: 2px; y: 92px; width: 104px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
-          #sel:color { visible: false; x: 0px; y: 0px; width: 110px; height: 120px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
-        }
-        #cell103:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 110px; height: 120px; visible: false;
-          #icon:image { anchor_x: 0.5; pivot_x: 0.5; x: 0px; y: 6px; width: 84px; height: 84px; ignore_event: true; }
-          #name:label { @"asset/base/style/main#label"; x: 2px; y: 92px; width: 104px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
-          #sel:color { visible: false; x: 0px; y: 0px; width: 110px; height: 120px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
-        }
-        #cell104:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 110px; height: 120px; visible: false;
-          #icon:image { anchor_x: 0.5; pivot_x: 0.5; x: 0px; y: 6px; width: 84px; height: 84px; ignore_event: true; }
-          #name:label { @"asset/base/style/main#label"; x: 2px; y: 92px; width: 104px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
-          #sel:color { visible: false; x: 0px; y: 0px; width: 110px; height: 120px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
-        }
-        #cell105:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 110px; height: 120px; visible: false;
-          #icon:image { anchor_x: 0.5; pivot_x: 0.5; x: 0px; y: 6px; width: 84px; height: 84px; ignore_event: true; }
-          #name:label { @"asset/base/style/main#label"; x: 2px; y: 92px; width: 104px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
-          #sel:color { visible: false; x: 0px; y: 0px; width: 110px; height: 120px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
-        }
-        #cell106:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 110px; height: 120px; visible: false;
-          #icon:image { anchor_x: 0.5; pivot_x: 0.5; x: 0px; y: 6px; width: 84px; height: 84px; ignore_event: true; }
-          #name:label { @"asset/base/style/main#label"; x: 2px; y: 92px; width: 104px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
-          #sel:color { visible: false; x: 0px; y: 0px; width: 110px; height: 120px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
-        }
-        #cell107:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 110px; height: 120px; visible: false;
-          #icon:image { anchor_x: 0.5; pivot_x: 0.5; x: 0px; y: 6px; width: 84px; height: 84px; ignore_event: true; }
-          #name:label { @"asset/base/style/main#label"; x: 2px; y: 92px; width: 104px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
-          #sel:color { visible: false; x: 0px; y: 0px; width: 110px; height: 120px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
-        }
-        #cell108:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 110px; height: 120px; visible: false;
-          #icon:image { anchor_x: 0.5; pivot_x: 0.5; x: 0px; y: 6px; width: 84px; height: 84px; ignore_event: true; }
-          #name:label { @"asset/base/style/main#label"; x: 2px; y: 92px; width: 104px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
-          #sel:color { visible: false; x: 0px; y: 0px; width: 110px; height: 120px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
-        }
-        #cell109:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 110px; height: 120px; visible: false;
-          #icon:image { anchor_x: 0.5; pivot_x: 0.5; x: 0px; y: 6px; width: 84px; height: 84px; ignore_event: true; }
-          #name:label { @"asset/base/style/main#label"; x: 2px; y: 92px; width: 104px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
-          #sel:color { visible: false; x: 0px; y: 0px; width: 110px; height: 120px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
-        }
-        #cell110:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 110px; height: 120px; visible: false;
-          #icon:image { anchor_x: 0.5; pivot_x: 0.5; x: 0px; y: 6px; width: 84px; height: 84px; ignore_event: true; }
-          #name:label { @"asset/base/style/main#label"; x: 2px; y: 92px; width: 104px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
-          #sel:color { visible: false; x: 0px; y: 0px; width: 110px; height: 120px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
-        }
-        #cell111:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 110px; height: 120px; visible: false;
-          #icon:image { anchor_x: 0.5; pivot_x: 0.5; x: 0px; y: 6px; width: 84px; height: 84px; ignore_event: true; }
-          #name:label { @"asset/base/style/main#label"; x: 2px; y: 92px; width: 104px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
-          #sel:color { visible: false; x: 0px; y: 0px; width: 110px; height: 120px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
-        }
-        #cell112:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 110px; height: 120px; visible: false;
-          #icon:image { anchor_x: 0.5; pivot_x: 0.5; x: 0px; y: 6px; width: 84px; height: 84px; ignore_event: true; }
-          #name:label { @"asset/base/style/main#label"; x: 2px; y: 92px; width: 104px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
-          #sel:color { visible: false; x: 0px; y: 0px; width: 110px; height: 120px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
-        }
-        #cell113:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 110px; height: 120px; visible: false;
-          #icon:image { anchor_x: 0.5; pivot_x: 0.5; x: 0px; y: 6px; width: 84px; height: 84px; ignore_event: true; }
-          #name:label { @"asset/base/style/main#label"; x: 2px; y: 92px; width: 104px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
-          #sel:color { visible: false; x: 0px; y: 0px; width: 110px; height: 120px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
-        }
-        #cell114:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 110px; height: 120px; visible: false;
-          #icon:image { anchor_x: 0.5; pivot_x: 0.5; x: 0px; y: 6px; width: 84px; height: 84px; ignore_event: true; }
-          #name:label { @"asset/base/style/main#label"; x: 2px; y: 92px; width: 104px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
-          #sel:color { visible: false; x: 0px; y: 0px; width: 110px; height: 120px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
-        }
-        #cell115:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 110px; height: 120px; visible: false;
-          #icon:image { anchor_x: 0.5; pivot_x: 0.5; x: 0px; y: 6px; width: 84px; height: 84px; ignore_event: true; }
-          #name:label { @"asset/base/style/main#label"; x: 2px; y: 92px; width: 104px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
-          #sel:color { visible: false; x: 0px; y: 0px; width: 110px; height: 120px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
-        }
-        #cell116:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 110px; height: 120px; visible: false;
-          #icon:image { anchor_x: 0.5; pivot_x: 0.5; x: 0px; y: 6px; width: 84px; height: 84px; ignore_event: true; }
-          #name:label { @"asset/base/style/main#label"; x: 2px; y: 92px; width: 104px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
-          #sel:color { visible: false; x: 0px; y: 0px; width: 110px; height: 120px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
-        }
-        #cell117:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 110px; height: 120px; visible: false;
-          #icon:image { anchor_x: 0.5; pivot_x: 0.5; x: 0px; y: 6px; width: 84px; height: 84px; ignore_event: true; }
-          #name:label { @"asset/base/style/main#label"; x: 2px; y: 92px; width: 104px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
-          #sel:color { visible: false; x: 0px; y: 0px; width: 110px; height: 120px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
-        }
-        #cell118:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 110px; height: 120px; visible: false;
-          #icon:image { anchor_x: 0.5; pivot_x: 0.5; x: 0px; y: 6px; width: 84px; height: 84px; ignore_event: true; }
-          #name:label { @"asset/base/style/main#label"; x: 2px; y: 92px; width: 104px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
-          #sel:color { visible: false; x: 0px; y: 0px; width: 110px; height: 120px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
-        }
-        #cell119:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 110px; height: 120px; visible: false;
-          #icon:image { anchor_x: 0.5; pivot_x: 0.5; x: 0px; y: 6px; width: 84px; height: 84px; ignore_event: true; }
-          #name:label { @"asset/base/style/main#label"; x: 2px; y: 92px; width: 104px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
-          #sel:color { visible: false; x: 0px; y: 0px; width: 110px; height: 120px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
+        #cell0:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 152px; height: 171px; visible: false;
+          #icon:image { anchor_x: 0.5; pivot_x: 0.5; pivot_y: 1; x: 0px; y: 122px; width: 84px; height: 84px; ignore_event: true; }
+          #name:label { @"asset/base/style/main#label"; x: 2px; y: 132px; width: 148px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
+          #sel:color { visible: false; x: 0px; y: 0px; width: 152px; height: 171px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
+        }
+        #cell1:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 152px; height: 171px; visible: false;
+          #icon:image { anchor_x: 0.5; pivot_x: 0.5; pivot_y: 1; x: 0px; y: 122px; width: 84px; height: 84px; ignore_event: true; }
+          #name:label { @"asset/base/style/main#label"; x: 2px; y: 132px; width: 148px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
+          #sel:color { visible: false; x: 0px; y: 0px; width: 152px; height: 171px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
+        }
+        #cell2:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 152px; height: 171px; visible: false;
+          #icon:image { anchor_x: 0.5; pivot_x: 0.5; pivot_y: 1; x: 0px; y: 122px; width: 84px; height: 84px; ignore_event: true; }
+          #name:label { @"asset/base/style/main#label"; x: 2px; y: 132px; width: 148px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
+          #sel:color { visible: false; x: 0px; y: 0px; width: 152px; height: 171px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
+        }
+        #cell3:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 152px; height: 171px; visible: false;
+          #icon:image { anchor_x: 0.5; pivot_x: 0.5; pivot_y: 1; x: 0px; y: 122px; width: 84px; height: 84px; ignore_event: true; }
+          #name:label { @"asset/base/style/main#label"; x: 2px; y: 132px; width: 148px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
+          #sel:color { visible: false; x: 0px; y: 0px; width: 152px; height: 171px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
+        }
+        #cell4:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 152px; height: 171px; visible: false;
+          #icon:image { anchor_x: 0.5; pivot_x: 0.5; pivot_y: 1; x: 0px; y: 122px; width: 84px; height: 84px; ignore_event: true; }
+          #name:label { @"asset/base/style/main#label"; x: 2px; y: 132px; width: 148px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
+          #sel:color { visible: false; x: 0px; y: 0px; width: 152px; height: 171px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
+        }
+        #cell5:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 152px; height: 171px; visible: false;
+          #icon:image { anchor_x: 0.5; pivot_x: 0.5; pivot_y: 1; x: 0px; y: 122px; width: 84px; height: 84px; ignore_event: true; }
+          #name:label { @"asset/base/style/main#label"; x: 2px; y: 132px; width: 148px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
+          #sel:color { visible: false; x: 0px; y: 0px; width: 152px; height: 171px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
+        }
+        #cell6:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 152px; height: 171px; visible: false;
+          #icon:image { anchor_x: 0.5; pivot_x: 0.5; pivot_y: 1; x: 0px; y: 122px; width: 84px; height: 84px; ignore_event: true; }
+          #name:label { @"asset/base/style/main#label"; x: 2px; y: 132px; width: 148px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
+          #sel:color { visible: false; x: 0px; y: 0px; width: 152px; height: 171px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
+        }
+        #cell7:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 152px; height: 171px; visible: false;
+          #icon:image { anchor_x: 0.5; pivot_x: 0.5; pivot_y: 1; x: 0px; y: 122px; width: 84px; height: 84px; ignore_event: true; }
+          #name:label { @"asset/base/style/main#label"; x: 2px; y: 132px; width: 148px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
+          #sel:color { visible: false; x: 0px; y: 0px; width: 152px; height: 171px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
+        }
+        #cell8:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 152px; height: 171px; visible: false;
+          #icon:image { anchor_x: 0.5; pivot_x: 0.5; pivot_y: 1; x: 0px; y: 122px; width: 84px; height: 84px; ignore_event: true; }
+          #name:label { @"asset/base/style/main#label"; x: 2px; y: 132px; width: 148px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
+          #sel:color { visible: false; x: 0px; y: 0px; width: 152px; height: 171px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
+        }
+        #cell9:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 152px; height: 171px; visible: false;
+          #icon:image { anchor_x: 0.5; pivot_x: 0.5; pivot_y: 1; x: 0px; y: 122px; width: 84px; height: 84px; ignore_event: true; }
+          #name:label { @"asset/base/style/main#label"; x: 2px; y: 132px; width: 148px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
+          #sel:color { visible: false; x: 0px; y: 0px; width: 152px; height: 171px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
+        }
+        #cell10:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 152px; height: 171px; visible: false;
+          #icon:image { anchor_x: 0.5; pivot_x: 0.5; pivot_y: 1; x: 0px; y: 122px; width: 84px; height: 84px; ignore_event: true; }
+          #name:label { @"asset/base/style/main#label"; x: 2px; y: 132px; width: 148px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
+          #sel:color { visible: false; x: 0px; y: 0px; width: 152px; height: 171px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
+        }
+        #cell11:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 152px; height: 171px; visible: false;
+          #icon:image { anchor_x: 0.5; pivot_x: 0.5; pivot_y: 1; x: 0px; y: 122px; width: 84px; height: 84px; ignore_event: true; }
+          #name:label { @"asset/base/style/main#label"; x: 2px; y: 132px; width: 148px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
+          #sel:color { visible: false; x: 0px; y: 0px; width: 152px; height: 171px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
+        }
+        #cell12:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 152px; height: 171px; visible: false;
+          #icon:image { anchor_x: 0.5; pivot_x: 0.5; pivot_y: 1; x: 0px; y: 122px; width: 84px; height: 84px; ignore_event: true; }
+          #name:label { @"asset/base/style/main#label"; x: 2px; y: 132px; width: 148px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
+          #sel:color { visible: false; x: 0px; y: 0px; width: 152px; height: 171px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
+        }
+        #cell13:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 152px; height: 171px; visible: false;
+          #icon:image { anchor_x: 0.5; pivot_x: 0.5; pivot_y: 1; x: 0px; y: 122px; width: 84px; height: 84px; ignore_event: true; }
+          #name:label { @"asset/base/style/main#label"; x: 2px; y: 132px; width: 148px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
+          #sel:color { visible: false; x: 0px; y: 0px; width: 152px; height: 171px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
+        }
+        #cell14:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 152px; height: 171px; visible: false;
+          #icon:image { anchor_x: 0.5; pivot_x: 0.5; pivot_y: 1; x: 0px; y: 122px; width: 84px; height: 84px; ignore_event: true; }
+          #name:label { @"asset/base/style/main#label"; x: 2px; y: 132px; width: 148px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
+          #sel:color { visible: false; x: 0px; y: 0px; width: 152px; height: 171px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
+        }
+        #cell15:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 152px; height: 171px; visible: false;
+          #icon:image { anchor_x: 0.5; pivot_x: 0.5; pivot_y: 1; x: 0px; y: 122px; width: 84px; height: 84px; ignore_event: true; }
+          #name:label { @"asset/base/style/main#label"; x: 2px; y: 132px; width: 148px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
+          #sel:color { visible: false; x: 0px; y: 0px; width: 152px; height: 171px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
+        }
+        #cell16:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 152px; height: 171px; visible: false;
+          #icon:image { anchor_x: 0.5; pivot_x: 0.5; pivot_y: 1; x: 0px; y: 122px; width: 84px; height: 84px; ignore_event: true; }
+          #name:label { @"asset/base/style/main#label"; x: 2px; y: 132px; width: 148px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
+          #sel:color { visible: false; x: 0px; y: 0px; width: 152px; height: 171px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
+        }
+        #cell17:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 152px; height: 171px; visible: false;
+          #icon:image { anchor_x: 0.5; pivot_x: 0.5; pivot_y: 1; x: 0px; y: 122px; width: 84px; height: 84px; ignore_event: true; }
+          #name:label { @"asset/base/style/main#label"; x: 2px; y: 132px; width: 148px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
+          #sel:color { visible: false; x: 0px; y: 0px; width: 152px; height: 171px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
+        }
+        #cell18:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 152px; height: 171px; visible: false;
+          #icon:image { anchor_x: 0.5; pivot_x: 0.5; pivot_y: 1; x: 0px; y: 122px; width: 84px; height: 84px; ignore_event: true; }
+          #name:label { @"asset/base/style/main#label"; x: 2px; y: 132px; width: 148px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
+          #sel:color { visible: false; x: 0px; y: 0px; width: 152px; height: 171px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
+        }
+        #cell19:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 152px; height: 171px; visible: false;
+          #icon:image { anchor_x: 0.5; pivot_x: 0.5; pivot_y: 1; x: 0px; y: 122px; width: 84px; height: 84px; ignore_event: true; }
+          #name:label { @"asset/base/style/main#label"; x: 2px; y: 132px; width: 148px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
+          #sel:color { visible: false; x: 0px; y: 0px; width: 152px; height: 171px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
+        }
+        #cell20:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 152px; height: 171px; visible: false;
+          #icon:image { anchor_x: 0.5; pivot_x: 0.5; pivot_y: 1; x: 0px; y: 122px; width: 84px; height: 84px; ignore_event: true; }
+          #name:label { @"asset/base/style/main#label"; x: 2px; y: 132px; width: 148px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
+          #sel:color { visible: false; x: 0px; y: 0px; width: 152px; height: 171px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
+        }
+        #cell21:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 152px; height: 171px; visible: false;
+          #icon:image { anchor_x: 0.5; pivot_x: 0.5; pivot_y: 1; x: 0px; y: 122px; width: 84px; height: 84px; ignore_event: true; }
+          #name:label { @"asset/base/style/main#label"; x: 2px; y: 132px; width: 148px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
+          #sel:color { visible: false; x: 0px; y: 0px; width: 152px; height: 171px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
+        }
+        #cell22:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 152px; height: 171px; visible: false;
+          #icon:image { anchor_x: 0.5; pivot_x: 0.5; pivot_y: 1; x: 0px; y: 122px; width: 84px; height: 84px; ignore_event: true; }
+          #name:label { @"asset/base/style/main#label"; x: 2px; y: 132px; width: 148px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
+          #sel:color { visible: false; x: 0px; y: 0px; width: 152px; height: 171px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
+        }
+        #cell23:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 152px; height: 171px; visible: false;
+          #icon:image { anchor_x: 0.5; pivot_x: 0.5; pivot_y: 1; x: 0px; y: 122px; width: 84px; height: 84px; ignore_event: true; }
+          #name:label { @"asset/base/style/main#label"; x: 2px; y: 132px; width: 148px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
+          #sel:color { visible: false; x: 0px; y: 0px; width: 152px; height: 171px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
+        }
+        #cell24:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 152px; height: 171px; visible: false;
+          #icon:image { anchor_x: 0.5; pivot_x: 0.5; pivot_y: 1; x: 0px; y: 122px; width: 84px; height: 84px; ignore_event: true; }
+          #name:label { @"asset/base/style/main#label"; x: 2px; y: 132px; width: 148px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
+          #sel:color { visible: false; x: 0px; y: 0px; width: 152px; height: 171px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
+        }
+        #cell25:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 152px; height: 171px; visible: false;
+          #icon:image { anchor_x: 0.5; pivot_x: 0.5; pivot_y: 1; x: 0px; y: 122px; width: 84px; height: 84px; ignore_event: true; }
+          #name:label { @"asset/base/style/main#label"; x: 2px; y: 132px; width: 148px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
+          #sel:color { visible: false; x: 0px; y: 0px; width: 152px; height: 171px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
+        }
+        #cell26:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 152px; height: 171px; visible: false;
+          #icon:image { anchor_x: 0.5; pivot_x: 0.5; pivot_y: 1; x: 0px; y: 122px; width: 84px; height: 84px; ignore_event: true; }
+          #name:label { @"asset/base/style/main#label"; x: 2px; y: 132px; width: 148px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
+          #sel:color { visible: false; x: 0px; y: 0px; width: 152px; height: 171px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
+        }
+        #cell27:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 152px; height: 171px; visible: false;
+          #icon:image { anchor_x: 0.5; pivot_x: 0.5; pivot_y: 1; x: 0px; y: 122px; width: 84px; height: 84px; ignore_event: true; }
+          #name:label { @"asset/base/style/main#label"; x: 2px; y: 132px; width: 148px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
+          #sel:color { visible: false; x: 0px; y: 0px; width: 152px; height: 171px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
+        }
+        #cell28:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 152px; height: 171px; visible: false;
+          #icon:image { anchor_x: 0.5; pivot_x: 0.5; pivot_y: 1; x: 0px; y: 122px; width: 84px; height: 84px; ignore_event: true; }
+          #name:label { @"asset/base/style/main#label"; x: 2px; y: 132px; width: 148px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
+          #sel:color { visible: false; x: 0px; y: 0px; width: 152px; height: 171px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
+        }
+        #cell29:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 152px; height: 171px; visible: false;
+          #icon:image { anchor_x: 0.5; pivot_x: 0.5; pivot_y: 1; x: 0px; y: 122px; width: 84px; height: 84px; ignore_event: true; }
+          #name:label { @"asset/base/style/main#label"; x: 2px; y: 132px; width: 148px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
+          #sel:color { visible: false; x: 0px; y: 0px; width: 152px; height: 171px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
+        }
+        #cell30:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 152px; height: 171px; visible: false;
+          #icon:image { anchor_x: 0.5; pivot_x: 0.5; pivot_y: 1; x: 0px; y: 122px; width: 84px; height: 84px; ignore_event: true; }
+          #name:label { @"asset/base/style/main#label"; x: 2px; y: 132px; width: 148px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
+          #sel:color { visible: false; x: 0px; y: 0px; width: 152px; height: 171px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
+        }
+        #cell31:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 152px; height: 171px; visible: false;
+          #icon:image { anchor_x: 0.5; pivot_x: 0.5; pivot_y: 1; x: 0px; y: 122px; width: 84px; height: 84px; ignore_event: true; }
+          #name:label { @"asset/base/style/main#label"; x: 2px; y: 132px; width: 148px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
+          #sel:color { visible: false; x: 0px; y: 0px; width: 152px; height: 171px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
+        }
+        #cell32:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 152px; height: 171px; visible: false;
+          #icon:image { anchor_x: 0.5; pivot_x: 0.5; pivot_y: 1; x: 0px; y: 122px; width: 84px; height: 84px; ignore_event: true; }
+          #name:label { @"asset/base/style/main#label"; x: 2px; y: 132px; width: 148px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
+          #sel:color { visible: false; x: 0px; y: 0px; width: 152px; height: 171px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
+        }
+        #cell33:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 152px; height: 171px; visible: false;
+          #icon:image { anchor_x: 0.5; pivot_x: 0.5; pivot_y: 1; x: 0px; y: 122px; width: 84px; height: 84px; ignore_event: true; }
+          #name:label { @"asset/base/style/main#label"; x: 2px; y: 132px; width: 148px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
+          #sel:color { visible: false; x: 0px; y: 0px; width: 152px; height: 171px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
+        }
+        #cell34:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 152px; height: 171px; visible: false;
+          #icon:image { anchor_x: 0.5; pivot_x: 0.5; pivot_y: 1; x: 0px; y: 122px; width: 84px; height: 84px; ignore_event: true; }
+          #name:label { @"asset/base/style/main#label"; x: 2px; y: 132px; width: 148px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
+          #sel:color { visible: false; x: 0px; y: 0px; width: 152px; height: 171px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
+        }
+        #cell35:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 152px; height: 171px; visible: false;
+          #icon:image { anchor_x: 0.5; pivot_x: 0.5; pivot_y: 1; x: 0px; y: 122px; width: 84px; height: 84px; ignore_event: true; }
+          #name:label { @"asset/base/style/main#label"; x: 2px; y: 132px; width: 148px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
+          #sel:color { visible: false; x: 0px; y: 0px; width: 152px; height: 171px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
+        }
+        #cell36:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 152px; height: 171px; visible: false;
+          #icon:image { anchor_x: 0.5; pivot_x: 0.5; pivot_y: 1; x: 0px; y: 122px; width: 84px; height: 84px; ignore_event: true; }
+          #name:label { @"asset/base/style/main#label"; x: 2px; y: 132px; width: 148px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
+          #sel:color { visible: false; x: 0px; y: 0px; width: 152px; height: 171px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
+        }
+        #cell37:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 152px; height: 171px; visible: false;
+          #icon:image { anchor_x: 0.5; pivot_x: 0.5; pivot_y: 1; x: 0px; y: 122px; width: 84px; height: 84px; ignore_event: true; }
+          #name:label { @"asset/base/style/main#label"; x: 2px; y: 132px; width: 148px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
+          #sel:color { visible: false; x: 0px; y: 0px; width: 152px; height: 171px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
+        }
+        #cell38:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 152px; height: 171px; visible: false;
+          #icon:image { anchor_x: 0.5; pivot_x: 0.5; pivot_y: 1; x: 0px; y: 122px; width: 84px; height: 84px; ignore_event: true; }
+          #name:label { @"asset/base/style/main#label"; x: 2px; y: 132px; width: 148px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
+          #sel:color { visible: false; x: 0px; y: 0px; width: 152px; height: 171px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
+        }
+        #cell39:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 152px; height: 171px; visible: false;
+          #icon:image { anchor_x: 0.5; pivot_x: 0.5; pivot_y: 1; x: 0px; y: 122px; width: 84px; height: 84px; ignore_event: true; }
+          #name:label { @"asset/base/style/main#label"; x: 2px; y: 132px; width: 148px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
+          #sel:color { visible: false; x: 0px; y: 0px; width: 152px; height: 171px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
+        }
+        #cell40:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 152px; height: 171px; visible: false;
+          #icon:image { anchor_x: 0.5; pivot_x: 0.5; pivot_y: 1; x: 0px; y: 122px; width: 84px; height: 84px; ignore_event: true; }
+          #name:label { @"asset/base/style/main#label"; x: 2px; y: 132px; width: 148px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
+          #sel:color { visible: false; x: 0px; y: 0px; width: 152px; height: 171px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
+        }
+        #cell41:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 152px; height: 171px; visible: false;
+          #icon:image { anchor_x: 0.5; pivot_x: 0.5; pivot_y: 1; x: 0px; y: 122px; width: 84px; height: 84px; ignore_event: true; }
+          #name:label { @"asset/base/style/main#label"; x: 2px; y: 132px; width: 148px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
+          #sel:color { visible: false; x: 0px; y: 0px; width: 152px; height: 171px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
+        }
+        #cell42:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 152px; height: 171px; visible: false;
+          #icon:image { anchor_x: 0.5; pivot_x: 0.5; pivot_y: 1; x: 0px; y: 122px; width: 84px; height: 84px; ignore_event: true; }
+          #name:label { @"asset/base/style/main#label"; x: 2px; y: 132px; width: 148px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
+          #sel:color { visible: false; x: 0px; y: 0px; width: 152px; height: 171px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
+        }
+        #cell43:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 152px; height: 171px; visible: false;
+          #icon:image { anchor_x: 0.5; pivot_x: 0.5; pivot_y: 1; x: 0px; y: 122px; width: 84px; height: 84px; ignore_event: true; }
+          #name:label { @"asset/base/style/main#label"; x: 2px; y: 132px; width: 148px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
+          #sel:color { visible: false; x: 0px; y: 0px; width: 152px; height: 171px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
+        }
+        #cell44:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 152px; height: 171px; visible: false;
+          #icon:image { anchor_x: 0.5; pivot_x: 0.5; pivot_y: 1; x: 0px; y: 122px; width: 84px; height: 84px; ignore_event: true; }
+          #name:label { @"asset/base/style/main#label"; x: 2px; y: 132px; width: 148px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
+          #sel:color { visible: false; x: 0px; y: 0px; width: 152px; height: 171px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
+        }
+        #cell45:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 152px; height: 171px; visible: false;
+          #icon:image { anchor_x: 0.5; pivot_x: 0.5; pivot_y: 1; x: 0px; y: 122px; width: 84px; height: 84px; ignore_event: true; }
+          #name:label { @"asset/base/style/main#label"; x: 2px; y: 132px; width: 148px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
+          #sel:color { visible: false; x: 0px; y: 0px; width: 152px; height: 171px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
+        }
+        #cell46:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 152px; height: 171px; visible: false;
+          #icon:image { anchor_x: 0.5; pivot_x: 0.5; pivot_y: 1; x: 0px; y: 122px; width: 84px; height: 84px; ignore_event: true; }
+          #name:label { @"asset/base/style/main#label"; x: 2px; y: 132px; width: 148px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
+          #sel:color { visible: false; x: 0px; y: 0px; width: 152px; height: 171px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
+        }
+        #cell47:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 152px; height: 171px; visible: false;
+          #icon:image { anchor_x: 0.5; pivot_x: 0.5; pivot_y: 1; x: 0px; y: 122px; width: 84px; height: 84px; ignore_event: true; }
+          #name:label { @"asset/base/style/main#label"; x: 2px; y: 132px; width: 148px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
+          #sel:color { visible: false; x: 0px; y: 0px; width: 152px; height: 171px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
+        }
+        #cell48:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 152px; height: 171px; visible: false;
+          #icon:image { anchor_x: 0.5; pivot_x: 0.5; pivot_y: 1; x: 0px; y: 122px; width: 84px; height: 84px; ignore_event: true; }
+          #name:label { @"asset/base/style/main#label"; x: 2px; y: 132px; width: 148px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
+          #sel:color { visible: false; x: 0px; y: 0px; width: 152px; height: 171px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
+        }
+        #cell49:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 152px; height: 171px; visible: false;
+          #icon:image { anchor_x: 0.5; pivot_x: 0.5; pivot_y: 1; x: 0px; y: 122px; width: 84px; height: 84px; ignore_event: true; }
+          #name:label { @"asset/base/style/main#label"; x: 2px; y: 132px; width: 148px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
+          #sel:color { visible: false; x: 0px; y: 0px; width: 152px; height: 171px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
+        }
+        #cell50:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 152px; height: 171px; visible: false;
+          #icon:image { anchor_x: 0.5; pivot_x: 0.5; pivot_y: 1; x: 0px; y: 122px; width: 84px; height: 84px; ignore_event: true; }
+          #name:label { @"asset/base/style/main#label"; x: 2px; y: 132px; width: 148px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
+          #sel:color { visible: false; x: 0px; y: 0px; width: 152px; height: 171px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
+        }
+        #cell51:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 152px; height: 171px; visible: false;
+          #icon:image { anchor_x: 0.5; pivot_x: 0.5; pivot_y: 1; x: 0px; y: 122px; width: 84px; height: 84px; ignore_event: true; }
+          #name:label { @"asset/base/style/main#label"; x: 2px; y: 132px; width: 148px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
+          #sel:color { visible: false; x: 0px; y: 0px; width: 152px; height: 171px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
+        }
+        #cell52:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 152px; height: 171px; visible: false;
+          #icon:image { anchor_x: 0.5; pivot_x: 0.5; pivot_y: 1; x: 0px; y: 122px; width: 84px; height: 84px; ignore_event: true; }
+          #name:label { @"asset/base/style/main#label"; x: 2px; y: 132px; width: 148px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
+          #sel:color { visible: false; x: 0px; y: 0px; width: 152px; height: 171px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
+        }
+        #cell53:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 152px; height: 171px; visible: false;
+          #icon:image { anchor_x: 0.5; pivot_x: 0.5; pivot_y: 1; x: 0px; y: 122px; width: 84px; height: 84px; ignore_event: true; }
+          #name:label { @"asset/base/style/main#label"; x: 2px; y: 132px; width: 148px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
+          #sel:color { visible: false; x: 0px; y: 0px; width: 152px; height: 171px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
+        }
+        #cell54:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 152px; height: 171px; visible: false;
+          #icon:image { anchor_x: 0.5; pivot_x: 0.5; pivot_y: 1; x: 0px; y: 122px; width: 84px; height: 84px; ignore_event: true; }
+          #name:label { @"asset/base/style/main#label"; x: 2px; y: 132px; width: 148px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
+          #sel:color { visible: false; x: 0px; y: 0px; width: 152px; height: 171px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
+        }
+        #cell55:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 152px; height: 171px; visible: false;
+          #icon:image { anchor_x: 0.5; pivot_x: 0.5; pivot_y: 1; x: 0px; y: 122px; width: 84px; height: 84px; ignore_event: true; }
+          #name:label { @"asset/base/style/main#label"; x: 2px; y: 132px; width: 148px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
+          #sel:color { visible: false; x: 0px; y: 0px; width: 152px; height: 171px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
+        }
+        #cell56:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 152px; height: 171px; visible: false;
+          #icon:image { anchor_x: 0.5; pivot_x: 0.5; pivot_y: 1; x: 0px; y: 122px; width: 84px; height: 84px; ignore_event: true; }
+          #name:label { @"asset/base/style/main#label"; x: 2px; y: 132px; width: 148px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
+          #sel:color { visible: false; x: 0px; y: 0px; width: 152px; height: 171px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
+        }
+        #cell57:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 152px; height: 171px; visible: false;
+          #icon:image { anchor_x: 0.5; pivot_x: 0.5; pivot_y: 1; x: 0px; y: 122px; width: 84px; height: 84px; ignore_event: true; }
+          #name:label { @"asset/base/style/main#label"; x: 2px; y: 132px; width: 148px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
+          #sel:color { visible: false; x: 0px; y: 0px; width: 152px; height: 171px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
+        }
+        #cell58:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 152px; height: 171px; visible: false;
+          #icon:image { anchor_x: 0.5; pivot_x: 0.5; pivot_y: 1; x: 0px; y: 122px; width: 84px; height: 84px; ignore_event: true; }
+          #name:label { @"asset/base/style/main#label"; x: 2px; y: 132px; width: 148px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
+          #sel:color { visible: false; x: 0px; y: 0px; width: 152px; height: 171px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
+        }
+        #cell59:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 152px; height: 171px; visible: false;
+          #icon:image { anchor_x: 0.5; pivot_x: 0.5; pivot_y: 1; x: 0px; y: 122px; width: 84px; height: 84px; ignore_event: true; }
+          #name:label { @"asset/base/style/main#label"; x: 2px; y: 132px; width: 148px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
+          #sel:color { visible: false; x: 0px; y: 0px; width: 152px; height: 171px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
+        }
+        #cell60:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 152px; height: 171px; visible: false;
+          #icon:image { anchor_x: 0.5; pivot_x: 0.5; pivot_y: 1; x: 0px; y: 122px; width: 84px; height: 84px; ignore_event: true; }
+          #name:label { @"asset/base/style/main#label"; x: 2px; y: 132px; width: 148px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
+          #sel:color { visible: false; x: 0px; y: 0px; width: 152px; height: 171px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
+        }
+        #cell61:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 152px; height: 171px; visible: false;
+          #icon:image { anchor_x: 0.5; pivot_x: 0.5; pivot_y: 1; x: 0px; y: 122px; width: 84px; height: 84px; ignore_event: true; }
+          #name:label { @"asset/base/style/main#label"; x: 2px; y: 132px; width: 148px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
+          #sel:color { visible: false; x: 0px; y: 0px; width: 152px; height: 171px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
+        }
+        #cell62:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 152px; height: 171px; visible: false;
+          #icon:image { anchor_x: 0.5; pivot_x: 0.5; pivot_y: 1; x: 0px; y: 122px; width: 84px; height: 84px; ignore_event: true; }
+          #name:label { @"asset/base/style/main#label"; x: 2px; y: 132px; width: 148px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
+          #sel:color { visible: false; x: 0px; y: 0px; width: 152px; height: 171px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
+        }
+        #cell63:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 152px; height: 171px; visible: false;
+          #icon:image { anchor_x: 0.5; pivot_x: 0.5; pivot_y: 1; x: 0px; y: 122px; width: 84px; height: 84px; ignore_event: true; }
+          #name:label { @"asset/base/style/main#label"; x: 2px; y: 132px; width: 148px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
+          #sel:color { visible: false; x: 0px; y: 0px; width: 152px; height: 171px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
+        }
+        #cell64:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 152px; height: 171px; visible: false;
+          #icon:image { anchor_x: 0.5; pivot_x: 0.5; pivot_y: 1; x: 0px; y: 122px; width: 84px; height: 84px; ignore_event: true; }
+          #name:label { @"asset/base/style/main#label"; x: 2px; y: 132px; width: 148px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
+          #sel:color { visible: false; x: 0px; y: 0px; width: 152px; height: 171px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
+        }
+        #cell65:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 152px; height: 171px; visible: false;
+          #icon:image { anchor_x: 0.5; pivot_x: 0.5; pivot_y: 1; x: 0px; y: 122px; width: 84px; height: 84px; ignore_event: true; }
+          #name:label { @"asset/base/style/main#label"; x: 2px; y: 132px; width: 148px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
+          #sel:color { visible: false; x: 0px; y: 0px; width: 152px; height: 171px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
+        }
+        #cell66:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 152px; height: 171px; visible: false;
+          #icon:image { anchor_x: 0.5; pivot_x: 0.5; pivot_y: 1; x: 0px; y: 122px; width: 84px; height: 84px; ignore_event: true; }
+          #name:label { @"asset/base/style/main#label"; x: 2px; y: 132px; width: 148px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
+          #sel:color { visible: false; x: 0px; y: 0px; width: 152px; height: 171px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
+        }
+        #cell67:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 152px; height: 171px; visible: false;
+          #icon:image { anchor_x: 0.5; pivot_x: 0.5; pivot_y: 1; x: 0px; y: 122px; width: 84px; height: 84px; ignore_event: true; }
+          #name:label { @"asset/base/style/main#label"; x: 2px; y: 132px; width: 148px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
+          #sel:color { visible: false; x: 0px; y: 0px; width: 152px; height: 171px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
+        }
+        #cell68:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 152px; height: 171px; visible: false;
+          #icon:image { anchor_x: 0.5; pivot_x: 0.5; pivot_y: 1; x: 0px; y: 122px; width: 84px; height: 84px; ignore_event: true; }
+          #name:label { @"asset/base/style/main#label"; x: 2px; y: 132px; width: 148px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
+          #sel:color { visible: false; x: 0px; y: 0px; width: 152px; height: 171px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
+        }
+        #cell69:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 152px; height: 171px; visible: false;
+          #icon:image { anchor_x: 0.5; pivot_x: 0.5; pivot_y: 1; x: 0px; y: 122px; width: 84px; height: 84px; ignore_event: true; }
+          #name:label { @"asset/base/style/main#label"; x: 2px; y: 132px; width: 148px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
+          #sel:color { visible: false; x: 0px; y: 0px; width: 152px; height: 171px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
+        }
+        #cell70:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 152px; height: 171px; visible: false;
+          #icon:image { anchor_x: 0.5; pivot_x: 0.5; pivot_y: 1; x: 0px; y: 122px; width: 84px; height: 84px; ignore_event: true; }
+          #name:label { @"asset/base/style/main#label"; x: 2px; y: 132px; width: 148px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
+          #sel:color { visible: false; x: 0px; y: 0px; width: 152px; height: 171px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
+        }
+        #cell71:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 152px; height: 171px; visible: false;
+          #icon:image { anchor_x: 0.5; pivot_x: 0.5; pivot_y: 1; x: 0px; y: 122px; width: 84px; height: 84px; ignore_event: true; }
+          #name:label { @"asset/base/style/main#label"; x: 2px; y: 132px; width: 148px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
+          #sel:color { visible: false; x: 0px; y: 0px; width: 152px; height: 171px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
+        }
+        #cell72:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 152px; height: 171px; visible: false;
+          #icon:image { anchor_x: 0.5; pivot_x: 0.5; pivot_y: 1; x: 0px; y: 122px; width: 84px; height: 84px; ignore_event: true; }
+          #name:label { @"asset/base/style/main#label"; x: 2px; y: 132px; width: 148px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
+          #sel:color { visible: false; x: 0px; y: 0px; width: 152px; height: 171px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
+        }
+        #cell73:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 152px; height: 171px; visible: false;
+          #icon:image { anchor_x: 0.5; pivot_x: 0.5; pivot_y: 1; x: 0px; y: 122px; width: 84px; height: 84px; ignore_event: true; }
+          #name:label { @"asset/base/style/main#label"; x: 2px; y: 132px; width: 148px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
+          #sel:color { visible: false; x: 0px; y: 0px; width: 152px; height: 171px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
+        }
+        #cell74:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 152px; height: 171px; visible: false;
+          #icon:image { anchor_x: 0.5; pivot_x: 0.5; pivot_y: 1; x: 0px; y: 122px; width: 84px; height: 84px; ignore_event: true; }
+          #name:label { @"asset/base/style/main#label"; x: 2px; y: 132px; width: 148px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
+          #sel:color { visible: false; x: 0px; y: 0px; width: 152px; height: 171px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
+        }
+        #cell75:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 152px; height: 171px; visible: false;
+          #icon:image { anchor_x: 0.5; pivot_x: 0.5; pivot_y: 1; x: 0px; y: 122px; width: 84px; height: 84px; ignore_event: true; }
+          #name:label { @"asset/base/style/main#label"; x: 2px; y: 132px; width: 148px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
+          #sel:color { visible: false; x: 0px; y: 0px; width: 152px; height: 171px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
+        }
+        #cell76:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 152px; height: 171px; visible: false;
+          #icon:image { anchor_x: 0.5; pivot_x: 0.5; pivot_y: 1; x: 0px; y: 122px; width: 84px; height: 84px; ignore_event: true; }
+          #name:label { @"asset/base/style/main#label"; x: 2px; y: 132px; width: 148px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
+          #sel:color { visible: false; x: 0px; y: 0px; width: 152px; height: 171px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
+        }
+        #cell77:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 152px; height: 171px; visible: false;
+          #icon:image { anchor_x: 0.5; pivot_x: 0.5; pivot_y: 1; x: 0px; y: 122px; width: 84px; height: 84px; ignore_event: true; }
+          #name:label { @"asset/base/style/main#label"; x: 2px; y: 132px; width: 148px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
+          #sel:color { visible: false; x: 0px; y: 0px; width: 152px; height: 171px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
+        }
+        #cell78:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 152px; height: 171px; visible: false;
+          #icon:image { anchor_x: 0.5; pivot_x: 0.5; pivot_y: 1; x: 0px; y: 122px; width: 84px; height: 84px; ignore_event: true; }
+          #name:label { @"asset/base/style/main#label"; x: 2px; y: 132px; width: 148px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
+          #sel:color { visible: false; x: 0px; y: 0px; width: 152px; height: 171px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
+        }
+        #cell79:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 152px; height: 171px; visible: false;
+          #icon:image { anchor_x: 0.5; pivot_x: 0.5; pivot_y: 1; x: 0px; y: 122px; width: 84px; height: 84px; ignore_event: true; }
+          #name:label { @"asset/base/style/main#label"; x: 2px; y: 132px; width: 148px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
+          #sel:color { visible: false; x: 0px; y: 0px; width: 152px; height: 171px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
+        }
+        #cell80:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 152px; height: 171px; visible: false;
+          #icon:image { anchor_x: 0.5; pivot_x: 0.5; pivot_y: 1; x: 0px; y: 122px; width: 84px; height: 84px; ignore_event: true; }
+          #name:label { @"asset/base/style/main#label"; x: 2px; y: 132px; width: 148px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
+          #sel:color { visible: false; x: 0px; y: 0px; width: 152px; height: 171px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
+        }
+        #cell81:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 152px; height: 171px; visible: false;
+          #icon:image { anchor_x: 0.5; pivot_x: 0.5; pivot_y: 1; x: 0px; y: 122px; width: 84px; height: 84px; ignore_event: true; }
+          #name:label { @"asset/base/style/main#label"; x: 2px; y: 132px; width: 148px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
+          #sel:color { visible: false; x: 0px; y: 0px; width: 152px; height: 171px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
+        }
+        #cell82:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 152px; height: 171px; visible: false;
+          #icon:image { anchor_x: 0.5; pivot_x: 0.5; pivot_y: 1; x: 0px; y: 122px; width: 84px; height: 84px; ignore_event: true; }
+          #name:label { @"asset/base/style/main#label"; x: 2px; y: 132px; width: 148px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
+          #sel:color { visible: false; x: 0px; y: 0px; width: 152px; height: 171px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
+        }
+        #cell83:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 152px; height: 171px; visible: false;
+          #icon:image { anchor_x: 0.5; pivot_x: 0.5; pivot_y: 1; x: 0px; y: 122px; width: 84px; height: 84px; ignore_event: true; }
+          #name:label { @"asset/base/style/main#label"; x: 2px; y: 132px; width: 148px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
+          #sel:color { visible: false; x: 0px; y: 0px; width: 152px; height: 171px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
+        }
+        #cell84:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 152px; height: 171px; visible: false;
+          #icon:image { anchor_x: 0.5; pivot_x: 0.5; pivot_y: 1; x: 0px; y: 122px; width: 84px; height: 84px; ignore_event: true; }
+          #name:label { @"asset/base/style/main#label"; x: 2px; y: 132px; width: 148px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
+          #sel:color { visible: false; x: 0px; y: 0px; width: 152px; height: 171px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
+        }
+        #cell85:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 152px; height: 171px; visible: false;
+          #icon:image { anchor_x: 0.5; pivot_x: 0.5; pivot_y: 1; x: 0px; y: 122px; width: 84px; height: 84px; ignore_event: true; }
+          #name:label { @"asset/base/style/main#label"; x: 2px; y: 132px; width: 148px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
+          #sel:color { visible: false; x: 0px; y: 0px; width: 152px; height: 171px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
+        }
+        #cell86:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 152px; height: 171px; visible: false;
+          #icon:image { anchor_x: 0.5; pivot_x: 0.5; pivot_y: 1; x: 0px; y: 122px; width: 84px; height: 84px; ignore_event: true; }
+          #name:label { @"asset/base/style/main#label"; x: 2px; y: 132px; width: 148px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
+          #sel:color { visible: false; x: 0px; y: 0px; width: 152px; height: 171px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
+        }
+        #cell87:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 152px; height: 171px; visible: false;
+          #icon:image { anchor_x: 0.5; pivot_x: 0.5; pivot_y: 1; x: 0px; y: 122px; width: 84px; height: 84px; ignore_event: true; }
+          #name:label { @"asset/base/style/main#label"; x: 2px; y: 132px; width: 148px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
+          #sel:color { visible: false; x: 0px; y: 0px; width: 152px; height: 171px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
+        }
+        #cell88:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 152px; height: 171px; visible: false;
+          #icon:image { anchor_x: 0.5; pivot_x: 0.5; pivot_y: 1; x: 0px; y: 122px; width: 84px; height: 84px; ignore_event: true; }
+          #name:label { @"asset/base/style/main#label"; x: 2px; y: 132px; width: 148px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
+          #sel:color { visible: false; x: 0px; y: 0px; width: 152px; height: 171px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
+        }
+        #cell89:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 152px; height: 171px; visible: false;
+          #icon:image { anchor_x: 0.5; pivot_x: 0.5; pivot_y: 1; x: 0px; y: 122px; width: 84px; height: 84px; ignore_event: true; }
+          #name:label { @"asset/base/style/main#label"; x: 2px; y: 132px; width: 148px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
+          #sel:color { visible: false; x: 0px; y: 0px; width: 152px; height: 171px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
+        }
+        #cell90:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 152px; height: 171px; visible: false;
+          #icon:image { anchor_x: 0.5; pivot_x: 0.5; pivot_y: 1; x: 0px; y: 122px; width: 84px; height: 84px; ignore_event: true; }
+          #name:label { @"asset/base/style/main#label"; x: 2px; y: 132px; width: 148px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
+          #sel:color { visible: false; x: 0px; y: 0px; width: 152px; height: 171px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
+        }
+        #cell91:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 152px; height: 171px; visible: false;
+          #icon:image { anchor_x: 0.5; pivot_x: 0.5; pivot_y: 1; x: 0px; y: 122px; width: 84px; height: 84px; ignore_event: true; }
+          #name:label { @"asset/base/style/main#label"; x: 2px; y: 132px; width: 148px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
+          #sel:color { visible: false; x: 0px; y: 0px; width: 152px; height: 171px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
+        }
+        #cell92:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 152px; height: 171px; visible: false;
+          #icon:image { anchor_x: 0.5; pivot_x: 0.5; pivot_y: 1; x: 0px; y: 122px; width: 84px; height: 84px; ignore_event: true; }
+          #name:label { @"asset/base/style/main#label"; x: 2px; y: 132px; width: 148px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
+          #sel:color { visible: false; x: 0px; y: 0px; width: 152px; height: 171px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
+        }
+        #cell93:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 152px; height: 171px; visible: false;
+          #icon:image { anchor_x: 0.5; pivot_x: 0.5; pivot_y: 1; x: 0px; y: 122px; width: 84px; height: 84px; ignore_event: true; }
+          #name:label { @"asset/base/style/main#label"; x: 2px; y: 132px; width: 148px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
+          #sel:color { visible: false; x: 0px; y: 0px; width: 152px; height: 171px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
+        }
+        #cell94:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 152px; height: 171px; visible: false;
+          #icon:image { anchor_x: 0.5; pivot_x: 0.5; pivot_y: 1; x: 0px; y: 122px; width: 84px; height: 84px; ignore_event: true; }
+          #name:label { @"asset/base/style/main#label"; x: 2px; y: 132px; width: 148px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
+          #sel:color { visible: false; x: 0px; y: 0px; width: 152px; height: 171px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
+        }
+        #cell95:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 152px; height: 171px; visible: false;
+          #icon:image { anchor_x: 0.5; pivot_x: 0.5; pivot_y: 1; x: 0px; y: 122px; width: 84px; height: 84px; ignore_event: true; }
+          #name:label { @"asset/base/style/main#label"; x: 2px; y: 132px; width: 148px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
+          #sel:color { visible: false; x: 0px; y: 0px; width: 152px; height: 171px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
+        }
+        #cell96:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 152px; height: 171px; visible: false;
+          #icon:image { anchor_x: 0.5; pivot_x: 0.5; pivot_y: 1; x: 0px; y: 122px; width: 84px; height: 84px; ignore_event: true; }
+          #name:label { @"asset/base/style/main#label"; x: 2px; y: 132px; width: 148px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
+          #sel:color { visible: false; x: 0px; y: 0px; width: 152px; height: 171px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
+        }
+        #cell97:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 152px; height: 171px; visible: false;
+          #icon:image { anchor_x: 0.5; pivot_x: 0.5; pivot_y: 1; x: 0px; y: 122px; width: 84px; height: 84px; ignore_event: true; }
+          #name:label { @"asset/base/style/main#label"; x: 2px; y: 132px; width: 148px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
+          #sel:color { visible: false; x: 0px; y: 0px; width: 152px; height: 171px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
+        }
+        #cell98:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 152px; height: 171px; visible: false;
+          #icon:image { anchor_x: 0.5; pivot_x: 0.5; pivot_y: 1; x: 0px; y: 122px; width: 84px; height: 84px; ignore_event: true; }
+          #name:label { @"asset/base/style/main#label"; x: 2px; y: 132px; width: 148px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
+          #sel:color { visible: false; x: 0px; y: 0px; width: 152px; height: 171px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
+        }
+        #cell99:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 152px; height: 171px; visible: false;
+          #icon:image { anchor_x: 0.5; pivot_x: 0.5; pivot_y: 1; x: 0px; y: 122px; width: 84px; height: 84px; ignore_event: true; }
+          #name:label { @"asset/base/style/main#label"; x: 2px; y: 132px; width: 148px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
+          #sel:color { visible: false; x: 0px; y: 0px; width: 152px; height: 171px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
+        }
+        #cell100:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 152px; height: 171px; visible: false;
+          #icon:image { anchor_x: 0.5; pivot_x: 0.5; pivot_y: 1; x: 0px; y: 122px; width: 84px; height: 84px; ignore_event: true; }
+          #name:label { @"asset/base/style/main#label"; x: 2px; y: 132px; width: 148px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
+          #sel:color { visible: false; x: 0px; y: 0px; width: 152px; height: 171px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
+        }
+        #cell101:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 152px; height: 171px; visible: false;
+          #icon:image { anchor_x: 0.5; pivot_x: 0.5; pivot_y: 1; x: 0px; y: 122px; width: 84px; height: 84px; ignore_event: true; }
+          #name:label { @"asset/base/style/main#label"; x: 2px; y: 132px; width: 148px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
+          #sel:color { visible: false; x: 0px; y: 0px; width: 152px; height: 171px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
+        }
+        #cell102:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 152px; height: 171px; visible: false;
+          #icon:image { anchor_x: 0.5; pivot_x: 0.5; pivot_y: 1; x: 0px; y: 122px; width: 84px; height: 84px; ignore_event: true; }
+          #name:label { @"asset/base/style/main#label"; x: 2px; y: 132px; width: 148px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
+          #sel:color { visible: false; x: 0px; y: 0px; width: 152px; height: 171px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
+        }
+        #cell103:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 152px; height: 171px; visible: false;
+          #icon:image { anchor_x: 0.5; pivot_x: 0.5; pivot_y: 1; x: 0px; y: 122px; width: 84px; height: 84px; ignore_event: true; }
+          #name:label { @"asset/base/style/main#label"; x: 2px; y: 132px; width: 148px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
+          #sel:color { visible: false; x: 0px; y: 0px; width: 152px; height: 171px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
+        }
+        #cell104:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 152px; height: 171px; visible: false;
+          #icon:image { anchor_x: 0.5; pivot_x: 0.5; pivot_y: 1; x: 0px; y: 122px; width: 84px; height: 84px; ignore_event: true; }
+          #name:label { @"asset/base/style/main#label"; x: 2px; y: 132px; width: 148px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
+          #sel:color { visible: false; x: 0px; y: 0px; width: 152px; height: 171px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
+        }
+        #cell105:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 152px; height: 171px; visible: false;
+          #icon:image { anchor_x: 0.5; pivot_x: 0.5; pivot_y: 1; x: 0px; y: 122px; width: 84px; height: 84px; ignore_event: true; }
+          #name:label { @"asset/base/style/main#label"; x: 2px; y: 132px; width: 148px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
+          #sel:color { visible: false; x: 0px; y: 0px; width: 152px; height: 171px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
+        }
+        #cell106:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 152px; height: 171px; visible: false;
+          #icon:image { anchor_x: 0.5; pivot_x: 0.5; pivot_y: 1; x: 0px; y: 122px; width: 84px; height: 84px; ignore_event: true; }
+          #name:label { @"asset/base/style/main#label"; x: 2px; y: 132px; width: 148px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
+          #sel:color { visible: false; x: 0px; y: 0px; width: 152px; height: 171px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
+        }
+        #cell107:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 152px; height: 171px; visible: false;
+          #icon:image { anchor_x: 0.5; pivot_x: 0.5; pivot_y: 1; x: 0px; y: 122px; width: 84px; height: 84px; ignore_event: true; }
+          #name:label { @"asset/base/style/main#label"; x: 2px; y: 132px; width: 148px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
+          #sel:color { visible: false; x: 0px; y: 0px; width: 152px; height: 171px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
+        }
+        #cell108:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 152px; height: 171px; visible: false;
+          #icon:image { anchor_x: 0.5; pivot_x: 0.5; pivot_y: 1; x: 0px; y: 122px; width: 84px; height: 84px; ignore_event: true; }
+          #name:label { @"asset/base/style/main#label"; x: 2px; y: 132px; width: 148px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
+          #sel:color { visible: false; x: 0px; y: 0px; width: 152px; height: 171px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
+        }
+        #cell109:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 152px; height: 171px; visible: false;
+          #icon:image { anchor_x: 0.5; pivot_x: 0.5; pivot_y: 1; x: 0px; y: 122px; width: 84px; height: 84px; ignore_event: true; }
+          #name:label { @"asset/base/style/main#label"; x: 2px; y: 132px; width: 148px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
+          #sel:color { visible: false; x: 0px; y: 0px; width: 152px; height: 171px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
+        }
+        #cell110:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 152px; height: 171px; visible: false;
+          #icon:image { anchor_x: 0.5; pivot_x: 0.5; pivot_y: 1; x: 0px; y: 122px; width: 84px; height: 84px; ignore_event: true; }
+          #name:label { @"asset/base/style/main#label"; x: 2px; y: 132px; width: 148px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
+          #sel:color { visible: false; x: 0px; y: 0px; width: 152px; height: 171px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
+        }
+        #cell111:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 152px; height: 171px; visible: false;
+          #icon:image { anchor_x: 0.5; pivot_x: 0.5; pivot_y: 1; x: 0px; y: 122px; width: 84px; height: 84px; ignore_event: true; }
+          #name:label { @"asset/base/style/main#label"; x: 2px; y: 132px; width: 148px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
+          #sel:color { visible: false; x: 0px; y: 0px; width: 152px; height: 171px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
+        }
+        #cell112:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 152px; height: 171px; visible: false;
+          #icon:image { anchor_x: 0.5; pivot_x: 0.5; pivot_y: 1; x: 0px; y: 122px; width: 84px; height: 84px; ignore_event: true; }
+          #name:label { @"asset/base/style/main#label"; x: 2px; y: 132px; width: 148px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
+          #sel:color { visible: false; x: 0px; y: 0px; width: 152px; height: 171px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
+        }
+        #cell113:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 152px; height: 171px; visible: false;
+          #icon:image { anchor_x: 0.5; pivot_x: 0.5; pivot_y: 1; x: 0px; y: 122px; width: 84px; height: 84px; ignore_event: true; }
+          #name:label { @"asset/base/style/main#label"; x: 2px; y: 132px; width: 148px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
+          #sel:color { visible: false; x: 0px; y: 0px; width: 152px; height: 171px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
+        }
+        #cell114:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 152px; height: 171px; visible: false;
+          #icon:image { anchor_x: 0.5; pivot_x: 0.5; pivot_y: 1; x: 0px; y: 122px; width: 84px; height: 84px; ignore_event: true; }
+          #name:label { @"asset/base/style/main#label"; x: 2px; y: 132px; width: 148px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
+          #sel:color { visible: false; x: 0px; y: 0px; width: 152px; height: 171px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
+        }
+        #cell115:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 152px; height: 171px; visible: false;
+          #icon:image { anchor_x: 0.5; pivot_x: 0.5; pivot_y: 1; x: 0px; y: 122px; width: 84px; height: 84px; ignore_event: true; }
+          #name:label { @"asset/base/style/main#label"; x: 2px; y: 132px; width: 148px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
+          #sel:color { visible: false; x: 0px; y: 0px; width: 152px; height: 171px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
+        }
+        #cell116:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 152px; height: 171px; visible: false;
+          #icon:image { anchor_x: 0.5; pivot_x: 0.5; pivot_y: 1; x: 0px; y: 122px; width: 84px; height: 84px; ignore_event: true; }
+          #name:label { @"asset/base/style/main#label"; x: 2px; y: 132px; width: 148px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
+          #sel:color { visible: false; x: 0px; y: 0px; width: 152px; height: 171px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
+        }
+        #cell117:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 152px; height: 171px; visible: false;
+          #icon:image { anchor_x: 0.5; pivot_x: 0.5; pivot_y: 1; x: 0px; y: 122px; width: 84px; height: 84px; ignore_event: true; }
+          #name:label { @"asset/base/style/main#label"; x: 2px; y: 132px; width: 148px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
+          #sel:color { visible: false; x: 0px; y: 0px; width: 152px; height: 171px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
+        }
+        #cell118:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 152px; height: 171px; visible: false;
+          #icon:image { anchor_x: 0.5; pivot_x: 0.5; pivot_y: 1; x: 0px; y: 122px; width: 84px; height: 84px; ignore_event: true; }
+          #name:label { @"asset/base/style/main#label"; x: 2px; y: 132px; width: 148px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
+          #sel:color { visible: false; x: 0px; y: 0px; width: 152px; height: 171px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
+        }
+        #cell119:color_icon_button { @"asset/base/style/main#tertiary_button"; width: 152px; height: 171px; visible: false;
+          #icon:image { anchor_x: 0.5; pivot_x: 0.5; pivot_y: 1; x: 0px; y: 122px; width: 84px; height: 84px; ignore_event: true; }
+          #name:label { @"asset/base/style/main#label"; x: 2px; y: 132px; width: 148px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }
+          #sel:color { visible: false; x: 0px; y: 0px; width: 152px; height: 171px; back_color: #00000000; color: #37d5b3ff; stroke: 3; rounding: Uniform { rounding: 8; } ignore_event: true; }
         }
       }
     }
@@ -658,9 +658,11 @@ pos_lock_popup:color {
 
     #summary:label { @"asset/base/style/main#bold_label"; x: 24px; y: 24px; width: 429px; height: 28px; size: 18; align_y: Center; text: "포지션을 고르세요"; }
     #pos_hint:label { @"asset/base/style/main#label"; x: 24px; y: 68px; width: 429px; height: 100px; size: 16; line_height: 26; align_y: Center; text: "탭에서 포지션을 고르고, 그 포지션에 쓸 챔피언을 클릭해 켜고 끕니다. 아무것도 안 고르면 그 포지션은 모든 챔피언을 쓸 수 있습니다."; }
-    #count_label:label { @"asset/base/style/main#bold_label"; x: 24px; y: 180px; width: 429px; height: 26px; size: 16; align_y: Center; }
-    #min_label:label { @"asset/base/style/main#label"; x: 24px; y: 212px; width: 429px; height: 24px; size: 15; align_y: Center; }
-    #warning_min:label { @"asset/base/style/main#label"; x: 24px; y: 250px; width: 429px; height: 100px; size: 15; line_height: 24; color: #ff4a4aff; align_y: Center; }
+    #rule_label:label { @"asset/base/style/main#label"; x: 24px; y: 178px; width: 429px; height: 24px; size: 16; align_y: Center; }
+    #ban_label:label { @"asset/base/style/main#label"; x: 24px; y: 206px; width: 429px; height: 24px; size: 16; align_y: Center; }
+    #min_label:label { @"asset/base/style/main#label"; x: 24px; y: 234px; width: 429px; height: 24px; size: 16; align_y: Center; }
+    #count_label:label { @"asset/base/style/main#bold_label"; x: 24px; y: 262px; width: 429px; height: 26px; size: 16; align_y: Center; }
+    #warning_min:label { @"asset/base/style/main#label"; x: 24px; y: 298px; width: 429px; height: 100px; size: 15; line_height: 24; color: #ff4a4aff; align_y: Center; }
 
     #clear_pos:color_icon_button { @"asset/base/style/main#tertiary_button"; x: 24px; y: 470px; width: 429px; height: 40px; text: { text: "이 포지션 비우기(전체 허용)"; font: "asset/base/font/set/bold"; size: 17; align_x: Center; align_y: Center; } }
     #select_all_pos:color_icon_button { @"asset/base/style/main#tertiary_button"; x: 24px; y: 522px; width: 429px; height: 40px; text: { text: "이 포지션에 전체 선택"; font: "asset/base/font/set/bold"; size: 17; align_x: Center; align_y: Center; } }

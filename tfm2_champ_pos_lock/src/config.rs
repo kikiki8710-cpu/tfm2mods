@@ -32,6 +32,10 @@ pub fn pos_index(tok: &str) -> Option<usize> {
 pub struct Cfg {
     pub enabled: bool,
     pub debug: bool,
+    /// ★모든 매치(백그라운드 포함)의 완성된 5인 라인업을 champ_pos_lock_lineups.txt 에 기록.
+    pub log_lineups: bool,
+    /// 스왑 order 강제(0=끔 / 1=order[포지션]=픽인덱스 / 2=order[픽인덱스]=포지션). 방향 확정용.
+    pub swap_force: u32,
     /// AI 픽 차단 (DraftScoreHook)
     pub ai_pick_gate: bool,
     /// AI 배정 마스크 강제 (hookA)
@@ -40,6 +44,8 @@ pub struct Cfg {
     pub user_pick_block: bool,
     /// (예약·미구현) 최종 라인업 하드 강제
     pub enforce_lineup: bool,
+    /// ★관찰 전용: score_pick 훅·로깅은 켜되 veto(Replace)는 안 함(항상 Pass). 대조실험용.
+    pub ai_observe_only: bool,
     /// 옵션/팝업 노드 트리 덤프(디버그 — UI 주입점 파악용)
     pub dump_ui: bool,
     pub load_log: Vec<String>,
@@ -50,10 +56,13 @@ impl Cfg {
         Cfg {
             enabled: true,
             debug: false,
+            log_lineups: true,
+            swap_force: 1,
             ai_pick_gate: true,
             ai_assign_mask: true,
             user_pick_block: true,
             enforce_lineup: false,
+            ai_observe_only: false,
             dump_ui: false,
             load_log: Vec::new(),
         }
@@ -158,6 +167,44 @@ pub fn pos_count(pos: usize) -> usize {
     }
     with_state(|st| st.allowed[pos].len())
 }
+/// pos 와 챔프를 (직·간접) 공유하는 제한 포지션들의 컴포넌트(pos 포함) + 그 합집합 크기.
+/// ★겹침은 필요수를 "1씩 늘리는" 게 아니다 — 겹친 포지션들이 한 챔프풀을 나눠 쓰므로,
+///   그 **합집합**이 "픽수요×포지션수 + 밴"을 넘기만 하면 충분(유저 지적 2026-08-20:
+///   1000개를 전포지션에 다 넣으면 공유풀 1000 ≥ 필요라 문제없어야 함). 컴포넌트 BFS + 합집합.
+pub fn overlap_component(pos: usize) -> (Vec<usize>, usize) {
+    if pos >= 5 {
+        return (vec![], 0);
+    }
+    with_state(|st| {
+        let restricted: Vec<usize> = (0..5).filter(|&p| !st.allowed[p].is_empty()).collect();
+        if !restricted.contains(&pos) {
+            return (vec![], 0);
+        }
+        let shares = |a: usize, b: usize| {
+            st.allowed[a]
+                .iter()
+                .any(|c| st.allowed[b].iter().any(|x| x == c))
+        };
+        let mut comp = vec![pos];
+        let mut i = 0;
+        while i < comp.len() {
+            let cur = comp[i];
+            for &p in &restricted {
+                if !comp.contains(&p) && shares(cur, p) {
+                    comp.push(p);
+                }
+            }
+            i += 1;
+        }
+        let mut set = std::collections::HashSet::new();
+        for &p in &comp {
+            for c in &st.allowed[p] {
+                set.insert(c.as_str());
+            }
+        }
+        (comp, set.len())
+    })
+}
 
 // ── 피어리스 최소수 검증 (유저 규칙, 2026-08-20) ─────────────────────────────
 /// 시리즈 최장 길이 가정(Bo5). 실제 시리즈 길이는 대회/라운드마다 다르나 설정 화면에서
@@ -165,15 +212,16 @@ pub fn pos_count(pos: usize) -> usize {
 pub const SERIES_GAMES: usize = 5;
 
 /// 화이트리스트한 포지션이 가져야 할 최소 챔피언 수.
-/// - 클래식(0): 1 (단판·소모 없음)
-/// - 피어리스(1): 내 팀이 시리즈 내내 안 겹치게 → Bo5 = 5, + 밴카드로 빠지는 몫(밴 양팀 = ban×2)
+/// - 클래식(0): 단판이라도 내 픽1 + 상대 픽1(같은 판 배타) + 양팀 밴(ban×2) 고려 → 2 + ban×2
+///   (유저 규칙 2026-08-20: "클래식이어도 밴카드·상대 선택 생각하면 최소개수 필요")
+/// - 피어리스(1): 내 팀이 시리즈 내내 안 겹치게 → Bo5 = 5, + 밴카드 빠지는 몫(밴 양팀 = ban×2)
 /// - 하드피어리스(2): ★양팀이 서로도 못 겹침 → Bo5 = 10(=5×2), + 밴카드 ban×2
 ///   (유저: "하드피어리스 bo5면 10개, 밴카드 5장이면 +10, 3장이면 +6")
 pub fn min_required(style: u8, ban_count: usize) -> usize {
     match style {
         2 => SERIES_GAMES * 2 + ban_count * 2, // 하드피어리스
         1 => SERIES_GAMES + ban_count * 2,     // 피어리스
-        _ => 1,                                 // 클래식
+        _ => 2 + ban_count * 2,                // 클래식
     }
 }
 /// 포지션별 검증: (pos, 현재수, 최소수) — 부족한 포지션만. 빈 화이트리스트(=전체허용)는 제외.
@@ -207,7 +255,10 @@ pub fn load() {
                     match k.trim().to_ascii_lowercase().as_str() {
                         "enabled" => c.enabled = on(v),
                         "debug" => c.debug = on(v),
+                        "log_lineups" => c.log_lineups = on(v),
+                        "swap_force" => c.swap_force = v.trim().parse().unwrap_or(0),
                         "ai_pick_gate" => c.ai_pick_gate = on(v),
+                        "ai_observe_only" => c.ai_observe_only = on(v),
                         "ai_assign_mask" => c.ai_assign_mask = on(v),
                         "user_pick_block" => c.user_pick_block = on(v),
                         "enforce_lineup" => c.enforce_lineup = on(v),
@@ -270,6 +321,31 @@ pub fn save_state_to_file() {
 static DUMP_ONCE: AtomicBool = AtomicBool::new(false);
 pub fn dump_reset() {
     DUMP_ONCE.store(false, Ordering::Relaxed);
+}
+
+/// 라인업 진단 전용 로그(debug 와 무관, log_lineups 노브로 제어).
+static LINEUP_FILE_FRESH: AtomicBool = AtomicBool::new(false);
+pub fn llog(msg: &str) {
+    if !get().log_lineups {
+        return;
+    }
+    if let Some(d) = crate::mod_dir() {
+        use std::io::Write;
+        // 세션 시작 시 1회 비우기 — 지난 판 기록과 섞이면 판독이 어렵다.
+        if !LINEUP_FILE_FRESH.swap(true, Ordering::Relaxed) {
+            let _ = std::fs::write(
+                format!("{d}\\champ_pos_lock_lineups.txt"),
+                "",
+            );
+        }
+        if let Ok(mut f) = std::fs::OpenOptions::new()
+            .create(true)
+            .append(true)
+            .open(format!("{d}\\champ_pos_lock_lineups.txt"))
+        {
+            let _ = writeln!(f, "{msg}");
+        }
+    }
 }
 
 pub fn dlog(msg: &str) {

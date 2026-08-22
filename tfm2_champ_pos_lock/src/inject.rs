@@ -53,6 +53,8 @@ extern "win64" fn detour(am: usize, path: *const u8, len: usize) -> usize {
     }
     let tramp: LoaderFn = unsafe { core::mem::transmute(ta) };
     let r = tramp(am, path, len);
+    // 현 씬 Assets(am)을 기록 — 관리 씬이면 챔프 로드된 AssetServer(아이콘 공식 렌더용).
+    crate::hooks::note_assets(am);
     if r > 0x10000 {
         let _ = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| unsafe {
             try_inject(r);
