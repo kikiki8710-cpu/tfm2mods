@@ -9,40 +9,59 @@
 //!   → 신챔프추가 0x2363ee0(콜사이트 0x236406e)
 //!   → ★후보 Vec 생성 0x1894610(콜러 0x2363ee0 한 곳뿐 — 0.5.6 실측).
 //!   (0.5.5 = 0x1e34a00 → 0x203acc0 → 0x202c440(@0x202c5f2) → 0x186e150)
-//! 해법: 0x186e150 진입 트램폴린 detour — 원본 호출로 후보 Vec<String> 을 받은 뒤
+//! 해법: 후보 Vec 생성 진입 트램폴린 detour — 원본 호출로 후보 Vec<String> 을 받은 뒤
 //!   cfg(champion_exclude.cfg)에 적힌 챔피언 id 를 swap_remove 로 걸러낸다.
 //!   후보에서 빠지면 셔플/선택/available push/액션 등록/팀 티어 반영/뉴스까지
 //!   전부 자연히 배제 = "영원히 추가 안 됨". 이미 출시된 챔피언은 건드리지 않는다.
 //!   '*' 한 줄이면 후보 전량 제거 = 신챔프 추가 전면 차단.
+//!   빈 후보 = 바닐라 "전 챔피언 출시완료" 상태와 비트동일(알림 0건) — 정적 확증 =
+//!   RE\2026-08-20_알림게이트-빈Vec-등가성.md.
+//! ★v0.2.0 인게임 UI(2026-08-23): 환경설정 → 게임플레이 탭 맨 아래 '추가 챔피언 설정' 행
+//!   (pos_lock_row 아래 — 타 모드 tfm2_champ_pos_lock 과 같은 주입 방식·같은 앵커) →
+//!   클릭 시 팝업(틀 = pos_lock_popup 동일): **아직 추가 안 된 챔피언**(registry−available
+//!   근사 = champ_uv 슈퍼셋∪mod_champions∪cfg∪seen 을 db.champion_info 로 검증) 그리드,
+//!   클릭 토글 = 제외 선택, 확인 = champion_exclude.cfg 저장(패치데이 훅이 그대로 소비).
 //! 적용 범위 주의: 이 모드는 "시즌 중 패치로 추가"만 막는다. 신규 게임 시작 시
-//!   초기 풀 포함(0.5.5 0xc2d980 경로 — 0.5.6 재핀 NO MATCH·미사용이라 미추적)은
-//!   범위 외 — 바닐라 게임 생성 옵션(custom_champions)
-//!   으로 제어 가능하고, 필요 시 추가 RE 후 별도 버전에서 다룬다.
+//!   초기 풀 포함은 범위 외 — 바닐라 게임 생성 옵션(커스텀 챔피언)으로 제어 가능.
 //! 안전:
 //!   - detour 본문 = catch_unwind(AssertUnwindSafe) 격리(§3 — detour 패닉은 UB).
 //!   - 프롤로그 17B 실측 검증 후에만 설치(불일치 = skip + 실측 바이트 로그).
-//!     기존 외부 훅(48 B8 .. FF E0)이면 체인 훅(그 타깃으로 점프하는 트램폴린).
+//!     기존 외부 훅(48 B8 .. FF E0)이면 체인 훅. 로더 훅은 체인 설치(post_update 늦설치).
 //!   - 제거된 String 힙 버퍼는 의도적으로 leak(FREE_REMOVED=false 기본).
-//!     게임 Rust 할당자는 프로세스 힙(HeapAlloc) 계열로 보이나(디컴 근거) 확증
-//!     전이므로 cross-allocator free 크래시 위험 > 패치데이당 수백 B leak.
-//!   - 포인터는 범위체크 + wrapping_add. exe base 는 GetModuleHandleW(null) 동적.
+//!   - 포인터는 범위체크 + VirtualQuery. exe base 는 GetModuleHandleW(null) 동적.
 //! cfg: mods\tfm2_champion_exclude\champion_exclude.cfg — 한 줄에 챔피언 id 하나,
-//!   '#' 주석, 대소문자 무시, UTF-8(BOM 허용). detour 발화 시마다 재독(핫 편집 가능).
-//! 진단: mods\tfm2_champion_exclude\champion_exclude.txt — 설치 결과, 발화마다
-//!   후보 전체 덤프(모드챔프 포함 여부 확증용)·제거 목록·before/after 수.
+//!   '#' 주석, 대소문자 무시, UTF-8(BOM 허용). detour 발화 시마다 재독. UI 확인 버튼이 씀.
+//! 진단: mods\tfm2_champion_exclude\champion_exclude.txt + 후보 관측 캐시
+//!   champion_exclude_seen.txt(패치데이 실후보 병합 — UI 목록 보강용).
 //! ===========================================================================
 #![allow(dead_code)]
 use mod_api::*;
+use std::collections::HashSet;
 use std::io::Write as _;
 use std::panic::{catch_unwind, AssertUnwindSafe};
 use std::path::PathBuf;
-use std::sync::atomic::{AtomicUsize, Ordering};
+use std::rc::Rc;
+use std::sync::atomic::{AtomicBool, AtomicU64, AtomicUsize, Ordering};
+use std::sync::Mutex;
 use std::time::{SystemTime, UNIX_EPOCH};
 
-const MOD_ID: &str = "tfm2_champion_exclude";
+mod icon_data;
+mod inject;
 
-// ── 훅 사이트 (0.5.6 재핀 2026-08-20, 스켈레톤해시 UNIQUE — 0.5.5 = 0x186e150, RE 정본 2026-08-19) ──
-// 신챔프 추가 후보 Vec<String> 생성 (rcx=out, rdx=iter_ctx, ret rax=out) — 0.5.6 본문 무변경(UNIQUE)
+#[path = r"C:\tfm2mods\ui_kit\ui_kit.rs"]
+mod ui_kit;
+
+const MOD_ID: &str = "tfm2_champion_exclude";
+const VERSION: &str = "0.2.0";
+
+// build_inj.ps1 신원 검증용 — dll 안에 lib.rs 절대경로 문자열 필요.
+#[no_mangle]
+pub extern "C" fn tfm2_champion_exclude_src_id() -> *const u8 {
+    concat!(file!(), "\0").as_bytes().as_ptr()
+}
+
+// ── 훅 사이트 (0.5.6 재핀 2026-08-20, 스켈레톤해시 UNIQUE — 0.5.5 = 0x186e150) ──
+// 신챔프 추가 후보 Vec<String> 생성 (rcx=out, rdx=iter_ctx, ret rax=out)
 const HOOK_RVA: usize = 0x1894610;
 // 프롤로그: push rbp; push r15; push r14; push r12; push rsi; push rdi; push rbx;
 //           sub rsp,0xA0  (10B + 7B = 17B, rip-rel 없음 — 0.5.6 실측 바이트 0.5.5와 완전 동일)
@@ -51,9 +70,10 @@ const HOOK_ORIG: [u8; 17] = [
     0x48, 0x81, 0xEC, 0xA0, 0x00, 0x00, 0x00,
 ];
 const ORIG_LEN: usize = 17; // 12B jmp 훅 시 명령 경계
+/// 게임 챔프아이콘 세터 FUN(assets,node,id_ptr,id_len,w,h,scale) — 0.5.6, pos_lock hooks.rs 동일값.
+const RVA_ICON_SETTER: usize = 0x250bc30;
 // 제거한 String 의 힙 버퍼를 HeapFree 할지 — 기본 false(의도적 leak, 상단 주석 참조)
 const FREE_REMOVED: bool = false;
-// 후보 Vec 새니티 상한(이보다 크면 오독으로 보고 필터 skip)
 const MAX_CANDIDATES: usize = 4096;
 const MAX_NAME_LEN: usize = 256;
 
@@ -104,7 +124,7 @@ fn ts() -> String {
     let s = ms / 1000 + 9 * 3600;
     format!("{:02}:{:02}:{:02}.{:03}", (s / 3600) % 24, (s / 60) % 60, s % 60, ms % 1000)
 }
-fn mod_dir() -> Option<PathBuf> {
+pub(crate) fn mod_dir() -> Option<PathBuf> {
     let mut buf = [0u16; 1024];
     let n = unsafe { GetModuleFileNameW(0, buf.as_mut_ptr(), 1024) } as usize;
     if n == 0 || n >= 1024 { return None; }
@@ -115,7 +135,7 @@ fn mod_dir() -> Option<PathBuf> {
     p.push(MOD_ID);
     Some(p)
 }
-fn log(msg: &str) {
+pub(crate) fn log(msg: &str) {
     if let Some(d) = mod_dir() {
         let _ = std::fs::create_dir_all(&d);
         let p = d.join("champion_exclude.txt");
@@ -125,24 +145,20 @@ fn log(msg: &str) {
     }
 }
 
-// ── cfg: 제외 챔피언 목록 (발화마다 재독 — 패치데이는 드물어서 비용 무시 가능) ──
+// ── cfg: 제외 챔피언 목록 (훅 발화마다 재독 — 패치데이는 드물어서 비용 무시 가능) ──
 // 반환: (소문자 정규화된 제외 id 목록, 전면차단 여부)
+fn cfg_path() -> Option<PathBuf> {
+    mod_dir().map(|d| d.join("champion_exclude.cfg"))
+}
 fn load_exclude_cfg() -> (Vec<String>, bool) {
     let mut list = Vec::new();
     let mut block_all = false;
-    let Some(d) = mod_dir() else { return (list, false) };
-    let p = d.join("champion_exclude.cfg");
+    let Some(p) = cfg_path() else { return (list, false) };
     let Ok(bytes) = std::fs::read(&p) else {
-        // 첫 실행 편의: 템플릿 cfg 생성
-        let _ = std::fs::create_dir_all(&d);
-        let _ = std::fs::write(&p,
-            "# tfm2_champion_exclude — 인게임 패치로 절대 추가되지 않을 챔피언 id 목록\n\
-             # 한 줄에 하나. '#' 뒤는 주석. 대소문자 무시.\n\
-             # 챔피언 id 는 진단 로그(champion_exclude.txt)의 후보 덤프에서 확인 가능.\n\
-             # '*' 한 줄만 적으면 신규 챔피언 추가를 전면 차단.\n\
-             # 예)\n\
-             # nightmare\n\
-             # sand_mage\n");
+        if let Some(d) = mod_dir() {
+            let _ = std::fs::create_dir_all(&d);
+        }
+        let _ = std::fs::write(&p, CFG_HEADER);
         return (list, false);
     };
     let text = String::from_utf8_lossy(&bytes);
@@ -155,8 +171,13 @@ fn load_exclude_cfg() -> (Vec<String>, bool) {
     }
     (list, block_all)
 }
+const CFG_HEADER: &str = "\
+# tfm2_champion_exclude — 인게임 패치로 절대 추가되지 않을 챔피언 id 목록\n\
+# 한 줄에 하나. '#' 뒤는 주석. 대소문자 무시.\n\
+# 인게임 편집: 환경설정 → 게임플레이 탭 → '추가 챔피언 설정' 버튼.\n\
+# '*' 한 줄만 적으면 신규 챔피언 추가를 전면 차단.\n";
 
-// ── detour ──
+// ── detour (패치데이 후보 필터) ──
 // 원본 계약(0.5.5 RE): rcx=out(*mut Vec<String>), rdx=iter_ctx, 반환 rax=out.
 // Vec{cap@0, ptr@8, len@0x10} / 요소 String{cap@0, ptr@8, len@0x10} stride 0x18.
 type HookFn = extern "C" fn(usize, usize, usize, usize) -> usize;
@@ -166,8 +187,7 @@ static FIRE_COUNT: AtomicUsize = AtomicUsize::new(0);
 extern "C" fn detour_candidates(rcx: usize, rdx: usize, r8: usize, r9: usize) -> usize {
     let tramp = TRAMPOLINE.load(Ordering::Acquire);
     if tramp == 0 {
-        // 설치 전 발화는 불가능하지만 방어적으로: 원본 주소 자체를 잃은 상태 = 어쩔 수 없이 0 리턴 불가
-        // → 트램폴린 미확보 시 detour 를 설치하지 않으므로 도달 불가.
+        // 트램폴린 미확보 시 detour 를 설치하지 않으므로 도달 불가(방어적 반환).
         return rcx;
     }
     let orig: HookFn = unsafe { core::mem::transmute(tramp) };
@@ -213,6 +233,7 @@ fn filter_candidates(out: usize) {
     let (exclude, block_all) = load_exclude_cfg();
     log(&format!("fire#{}: 후보 {}개 = [{}] / 제외목록 {}개{}",
         n, len, names.join(", "), exclude.len(), if block_all { " + 전면차단(*)" } else { "" }));
+    save_seen(&names); // 실후보 관측 캐시(UI 목록 보강)
 
     if exclude.is_empty() && !block_all {
         return;
@@ -259,10 +280,45 @@ fn filter_candidates(out: usize) {
     }
 }
 
-// ── 트램폴린 설치 ──
+/// 패치데이에 관측한 실후보를 seen 파일에 병합(소문자·정렬·멱등).
+fn save_seen(names: &[String]) {
+    let Some(d) = mod_dir() else { return };
+    let p = d.join("champion_exclude_seen.txt");
+    let mut set = load_seen();
+    let before = set.len();
+    for n in names {
+        if n != "<판독불가>" {
+            set.insert(n.to_ascii_lowercase());
+        }
+    }
+    if set.len() == before {
+        return;
+    }
+    let mut v: Vec<&String> = set.iter().collect();
+    v.sort();
+    let body = v.iter().map(|s| s.as_str()).collect::<Vec<_>>().join("\n");
+    let _ = std::fs::write(&p, format!("# 패치데이에 관측된 추가 후보(자동 기록 — 편집 불요)\n{body}\n"));
+}
+fn load_seen() -> HashSet<String> {
+    let mut set = HashSet::new();
+    if let Some(d) = mod_dir() {
+        if let Ok(t) = std::fs::read_to_string(d.join("champion_exclude_seen.txt")) {
+            for line in t.lines() {
+                let line = line.split('#').next().unwrap_or("").trim();
+                if !line.is_empty() {
+                    set.insert(line.to_ascii_lowercase());
+                }
+            }
+        }
+    }
+    set
+}
+
+// ── 트램폴린 설치 (패치데이 훅) ──
 unsafe fn install_hook() -> Result<String, String> {
     let base = GetModuleHandleW(core::ptr::null());
     if base == 0 { return Err("GetModuleHandleW(null)=0".into()); }
+    MOD_BASE.store(base, Ordering::Relaxed);
     let addr = base + HOOK_RVA;
     if !readable(addr, ORIG_LEN) {
         return Err(format!("훅 지점 unreadable @abs=0x{:x} (base=0x{:x} rva=0x{:x})", addr, base, HOOK_RVA));
@@ -270,7 +326,6 @@ unsafe fn install_hook() -> Result<String, String> {
     let mut cur = [0u8; ORIG_LEN];
     core::ptr::copy_nonoverlapping(addr as *const u8, cur.as_mut_ptr(), ORIG_LEN);
 
-    // 트램폴린 페이지 확보 (orig 17B or 체인 12B + movabs jmp 12B)
     const MEM_COMMIT_RESERVE: u32 = 0x1000 | 0x2000;
     const PAGE_EXECUTE_READWRITE: u32 = 0x40;
     let tramp = VirtualAlloc(0, 0x1000, MEM_COMMIT_RESERVE, PAGE_EXECUTE_READWRITE);
@@ -279,7 +334,6 @@ unsafe fn install_hook() -> Result<String, String> {
     let mode: &str;
     let mut tlen = 0usize;
     if cur == HOOK_ORIG {
-        // 정상 프롤로그: orig 17B + jmp (addr+17)
         core::ptr::copy_nonoverlapping(cur.as_ptr(), tramp as *mut u8, ORIG_LEN);
         tlen = ORIG_LEN;
         let back = addr + ORIG_LEN;
@@ -288,7 +342,6 @@ unsafe fn install_hook() -> Result<String, String> {
         tlen += 12;
         mode = "정상 프롤로그 → 트램폴린";
     } else if cur[0] == 0x48 && cur[1] == 0xB8 && cur[10] == 0xFF && cur[11] == 0xE0 {
-        // 기존 외부 훅(movabs rax,tgt; jmp rax) — 체인: 트램폴린 = 그 12B 재현
         core::ptr::copy_nonoverlapping(cur.as_ptr(), tramp as *mut u8, 12);
         tlen = 12;
         let ext = usize::from_le_bytes(cur[2..10].try_into().unwrap());
@@ -303,7 +356,6 @@ unsafe fn install_hook() -> Result<String, String> {
     let _ = tlen;
     TRAMPOLINE.store(tramp, Ordering::Release);
 
-    // 진입부를 detour 로 교체: movabs rax, detour; jmp rax (+ 잔여 NOP)
     let mut patch = [0x90u8; ORIG_LEN];
     patch[..12].copy_from_slice(&jmp_abs(detour_candidates as usize));
     let mut old: u32 = 0;
@@ -315,7 +367,6 @@ unsafe fn install_hook() -> Result<String, String> {
     VirtualProtect(addr, ORIG_LEN, old, &mut old2);
     FlushInstructionCache(GetCurrentProcess(), addr, ORIG_LEN);
 
-    // write 후 재read 검증
     let mut landed = [0u8; ORIG_LEN];
     core::ptr::copy_nonoverlapping(addr as *const u8, landed.as_mut_ptr(), ORIG_LEN);
     if landed == patch {
@@ -334,9 +385,485 @@ fn jmp_abs(target: usize) -> [u8; 12] {
     b
 }
 
+// ═══════════════════════════ 인게임 설정 UI (v0.2.0) ═══════════════════════════
+// 참조구현 = tfm2_champ_pos_lock(행 주입·팝업·아이콘·클릭 라우팅 전부 동형).
+
+static MOD_BASE: AtomicUsize = AtomicUsize::new(0);
+/// 로더 detour 가 넘겨주는 현 씬 Assets(관리 씬 = 챔프 로드된 AssetServer).
+static GAME_ASSETS: AtomicUsize = AtomicUsize::new(0);
+pub(crate) fn note_assets(am: usize) {
+    if (0x10000..1usize << 48).contains(&am) {
+        GAME_ASSETS.store(am, Ordering::Relaxed);
+    }
+}
+
+static CLICK_LAST: AtomicUsize = AtomicUsize::new(usize::MAX);
+static POPUP_OPEN: AtomicBool = AtomicBool::new(false);
+/// 팝업 열림 직후 cfg → 선택 상태 로드 요청.
+static LOAD_SEL_REQ: AtomicBool = AtomicBool::new(false);
+static GRID_SIG: AtomicU64 = AtomicU64::new(u64::MAX);
+/// 선택 상태 버전(토글마다 ++) — 그리드 시그니처 재료.
+static SEL_VER: AtomicU64 = AtomicU64::new(0);
+const NCELLS: usize = 120;
+static mut CELL_BUF: [[u8; 96]; NCELLS] = [[0u8; 96]; NCELLS];
+static ICON_SDK: AtomicU64 = AtomicU64::new(0);
+static ICON_FB: AtomicU64 = AtomicU64::new(0);
+
+/// 미출시 후보 목록(소문자 id, 정렬) + 재계산 시그니처.
+static CAND: Mutex<Vec<String>> = Mutex::new(Vec::new());
+static CAND_SIG: AtomicU64 = AtomicU64::new(u64::MAX);
+static CAND_FORCE: AtomicBool = AtomicBool::new(false);
+/// 제외 선택 상태(소문자 id).
+static SEL: Mutex<Option<HashSet<String>>> = Mutex::new(None);
+/// cfg 에 '*' 가 있었는지(저장 시 유지 판단).
+static HAD_STAR: AtomicBool = AtomicBool::new(false);
+
+// 챔피언 스프라이트 에셋 키 테이블(champ_uv.rs — pos_lock 08-20 생성본 사본, 97 id).
+include!(r"C:\tfm2mods\tfm2_champion_exclude\assets\champ_uv.rs");
+
+/// ImageRunner 커스텀 UV: +0xa4 flag=1, +0xa8..0xb4 = 4개 f32.
+unsafe fn set_img_uv(dp: usize, a: f32, b: f32, c: f32, d: f32) {
+    *((dp + 0xa4) as *mut u8) = 1;
+    *((dp + 0xa8) as *mut f32) = a;
+    *((dp + 0xac) as *mut f32) = b;
+    *((dp + 0xb0) as *mut f32) = c;
+    *((dp + 0xb4) as *mut f32) = d;
+}
+fn set_node_wh(node: &Node, w: f32, h: f32) {
+    let na = node as *const Node as usize;
+    for off in [0x74usize, 0xf4, 0x174, 0x1f4, 0x248, 0x258] {
+        ui_kit::runner_wr_f32(na, off, w);
+    }
+    for off in [0x7cusize, 0xfc, 0x17c, 0x1fc, 0x24c, 0x25c] {
+        ui_kit::runner_wr_f32(na, off, h);
+    }
+}
+fn set_node_h(node: &Node, h: f32) {
+    let na = node as *const Node as usize;
+    for off in [0x7cusize, 0xfc, 0x17c, 0x1fc, 0x24c, 0x25c] {
+        ui_kit::runner_wr_f32(na, off, h);
+    }
+}
+
+/// 셀 아이콘 = 챔피언 전신 스프라이트 (pos_lock set_cell_icon 동형).
+/// ①캡처된 로드-assets + 게임 아이콘 세터 직접 호출 ②bundle UV 재현 폴백(icon_data).
+unsafe fn set_cell_icon(icon: &mut Node, k: usize, lower: &str) {
+    if k >= NCELLS {
+        return;
+    }
+    let ga = GAME_ASSETS.load(Ordering::Relaxed);
+    let base = MOD_BASE.load(Ordering::Relaxed);
+    if base != 0 && (0x10000..1usize << 48).contains(&ga) {
+        let node_ptr = icon as *mut Node as usize;
+        let id_ptr = lower.as_ptr() as usize;
+        let id_len = lower.len();
+        let f: extern "C" fn(usize, usize, usize, usize, f32, f32, f32) =
+            core::mem::transmute(base + RVA_ICON_SETTER);
+        let ok = catch_unwind(AssertUnwindSafe(|| {
+            f(ga, node_ptr, id_ptr, id_len, 100.0, 94.0, 2.0);
+        }))
+        .is_ok();
+        if ok {
+            if let Some(dp) = ui_kit::runner_base(icon, "ImageRunner") {
+                if core::ptr::read_unaligned((dp + 0x10) as *const u64) > 0 {
+                    ICON_SDK.fetch_add(1, Ordering::Relaxed);
+                    return; // 게임이 소스+UV+노드 세팅 완료
+                }
+            }
+        }
+    }
+    ICON_FB.fetch_add(1, Ordering::Relaxed);
+    let Some(dp) = ui_kit::runner_base(icon, "ImageRunner") else {
+        return;
+    };
+    if let Some((uv, key)) = icon_data::get(lower) {
+        let full = format!("{key}#sheet");
+        let kb = full.as_bytes();
+        if kb.len() <= 96 {
+            let buf = core::ptr::addr_of_mut!(CELL_BUF[k]) as *mut u8;
+            core::ptr::copy_nonoverlapping(kb.as_ptr(), buf, kb.len());
+            core::ptr::write_unaligned(dp as *mut u64, 0u64);
+            core::ptr::write_unaligned((dp + 0x08) as *mut u64, buf as u64);
+            core::ptr::write_unaligned((dp + 0x10) as *mut u64, kb.len() as u64);
+            core::ptr::write_unaligned((dp + 0x18) as *mut i64, -1i64);
+            set_img_uv(dp, uv.u0, uv.v0, uv.uw, uv.vh);
+            set_node_wh(icon, uv.w, uv.h);
+            return;
+        }
+    }
+    // 둘 다 실패 → 깨짐 대신 아이콘 숨김(이름은 표시).
+    *((dp + 0xa4) as *mut u8) = 0;
+    core::ptr::write_unaligned((dp + 0x10) as *mut u64, 0u64);
+}
+
+/// 미출시 후보 재계산: 슈퍼셋(champ_uv ∪ mod_champions ∪ cfg ∪ seen)을
+/// "registry 등재(champion_info Some 또는 mod_champions) && available 아님" 으로 검증.
+/// = 패치데이 후보 빌더(registry − available)의 UI 근사.
+/// (db 타입명을 시그니처에 박지 않으려고 필요한 조각만 받는다 — SDK 타입명 비의존.)
+fn recompute_candidates(
+    avail_ids: &[String],
+    mod_ids_raw: &[String],
+    in_registry: impl Fn(&str) -> bool,
+) {
+    let avail_n = avail_ids.len();
+    if avail_n == 0 {
+        return; // 목록 미로드 프레임 — 전원 미출시로 오판 방지
+    }
+    let modn = mod_ids_raw.len();
+    let sig = ((avail_n as u64) << 32) ^ ((modn as u64) << 8) ^ 1;
+    if CAND_SIG.load(Ordering::Relaxed) == sig && !CAND_FORCE.swap(false, Ordering::Relaxed) {
+        return;
+    }
+    let avail: HashSet<String> = avail_ids.iter().map(|s| s.to_ascii_lowercase()).collect();
+    let mod_ids: HashSet<String> = mod_ids_raw.iter().map(|s| s.to_ascii_lowercase()).collect();
+    let mut superset: HashSet<String> = CHAMP_KEY.iter().map(|e| e.0.to_string()).collect();
+    superset.extend(mod_ids.iter().cloned());
+    superset.extend(load_seen());
+    let (cfg_list, _) = load_exclude_cfg();
+    superset.extend(cfg_list);
+    let mut cand: Vec<String> = superset
+        .into_iter()
+        .filter(|id| !avail.contains(id) && (mod_ids.contains(id) || in_registry(id)))
+        .collect();
+    cand.sort();
+    let n = cand.len();
+    *CAND.lock().unwrap_or_else(|e| e.into_inner()) = cand;
+    if CAND_SIG.swap(sig, Ordering::Relaxed) != sig {
+        log(&format!("후보 재계산: 미출시 {n}개 (출시 {avail_n} · 모드챔프 {modn})"));
+    }
+    GRID_SIG.store(u64::MAX, Ordering::Relaxed);
+}
+
+/// cfg → 선택 상태 로드(팝업 열릴 때).
+fn load_selection() {
+    let (list, star) = load_exclude_cfg();
+    HAD_STAR.store(star, Ordering::Relaxed);
+    let cand = CAND.lock().unwrap_or_else(|e| e.into_inner()).clone();
+    let sel: HashSet<String> = if star {
+        cand.iter().cloned().collect()
+    } else {
+        let cs: HashSet<&String> = cand.iter().collect();
+        list.into_iter().filter(|e| cs.contains(e)).collect()
+    };
+    *SEL.lock().unwrap_or_else(|e| e.into_inner()) = Some(sel);
+    SEL_VER.fetch_add(1, Ordering::Relaxed);
+}
+
+/// 선택 상태 → cfg 저장(확인 버튼).
+/// - 후보가 아닌 기존 항목(이미 출시됐거나 수동 기입)은 그대로 보존.
+/// - '*' 는 "원래 있었고 여전히 전부 선택"일 때만 유지, 아니면 명시 목록으로 전환.
+fn save_selection() {
+    let cand = CAND.lock().unwrap_or_else(|e| e.into_inner()).clone();
+    let sel = match SEL.lock().unwrap_or_else(|e| e.into_inner()).clone() {
+        Some(s) => s,
+        None => return,
+    };
+    let (prev, _star) = load_exclude_cfg();
+    let cand_set: HashSet<&String> = cand.iter().collect();
+    let mut foreign: Vec<String> = prev.into_iter().filter(|e| !cand_set.contains(e)).collect();
+    foreign.sort();
+    foreign.dedup();
+    let all_selected = !cand.is_empty() && sel.len() == cand.len();
+    let keep_star = HAD_STAR.load(Ordering::Relaxed) && all_selected;
+    let mut out = String::from(CFG_HEADER);
+    if keep_star {
+        out.push_str("*\n");
+    } else {
+        for c in &cand {
+            if sel.contains(c) {
+                out.push_str(c);
+                out.push('\n');
+            }
+        }
+    }
+    if !foreign.is_empty() {
+        out.push_str("# ── 아래는 현재 미출시 목록에 없는 기존 항목(보존) ──\n");
+        for f in &foreign {
+            out.push_str(f);
+            out.push('\n');
+        }
+    }
+    if let Some(p) = cfg_path() {
+        match std::fs::write(&p, &out) {
+            Ok(_) => log(&format!(
+                "저장: 제외 {}개{}{}",
+                sel.len(),
+                if keep_star { " ('*' 유지)" } else { "" },
+                if foreign.is_empty() { String::new() } else { format!(" + 보존 {}개", foreign.len()) }
+            )),
+            Err(e) => log(&format!("저장 실패: {e}")),
+        }
+    }
+}
+
+/// 팝업 .ui 런타임 생성(틀 = pos_lock_popup 동형 — 탭/검색 없이 그리드+우측 패널).
+pub(crate) fn build_popup_ui() -> String {
+    let mut s = String::with_capacity(96 * 1024);
+    s.push_str(
+        r##"champ_excl_popup:color {
+  width: 1763px;
+  height: 1003px;
+  anchor_x: 0.5;
+  pivot_x: 0.5;
+  anchor_y: 0.5;
+  pivot_y: 0.5;
+  visible: false;
+  color: #161721ff;
+  rounding: Uniform { rounding: 12; }
+
+  #header:label {
+    @"asset/base/style/main#bold_label";
+    x: 32px; y: 24px; width: 900px; height: 42px; size: 24; align_y: Center;
+    text: "추가 챔피언 설정";
+  }
+
+  #close:button {
+    width: 16px; height: 16px; anchor_x: 1; pivot_x: 1; x: -32px; y: 32px;
+    source: "asset/base/ui/icons/cross"; color: #c2c6ceff;
+    hover: { color: #e8e8e8ff; } active: { color: #e8e8e8ff; }
+  }
+
+  #left:color {
+    x: 32px; y: 81px; width: 1207px; height: 842px; color: #1d1f2cff;
+    rounding: Uniform { rounding: 8; }
+
+    #scroll:scroll_view {
+      x: 16px; y: 16px; width: 1175px; height: 810px; speed: 100; bar_width: 4;
+      bar_padding: { top: 8px; bottom: 8px; }
+      bar: { source: "asset/base/sprite/white"; color: #37d5b3ff; hover: { color: #ecfbf8ff; } }
+      back: { source: "asset/base/sprite/white"; color: #4a4c56ff; }
+
+      #contents:empty {
+        x: 8px; y: 8px; width: 1154px; height: 1900px;
+        child_type: Table { spacing_x: 15px; spacing_y: 15px; }
+"##,
+    );
+    for k in 0..NCELLS {
+        s.push_str(&format!(
+            r##"        #cx_cell{k}:color_icon_button {{ @"asset/base/style/main#tertiary_button"; width: 152px; height: 171px; visible: false;
+          #icon:image {{ anchor_x: 0.5; pivot_x: 0.5; pivot_y: 1; x: 0px; y: 122px; width: 84px; height: 84px; ignore_event: true; }}
+          #name:label {{ @"asset/base/style/main#label"; x: 2px; y: 132px; width: 148px; height: 22px; size: 13; align_x: Center; align_y: Center; ignore_event: true; }}
+          #sel:color {{ visible: false; x: 0px; y: 0px; width: 152px; height: 171px; back_color: #00000000; color: #ff5c5cff; stroke: 3; rounding: Uniform {{ rounding: 8; }} ignore_event: true; }}
+        }}
+"##
+        ));
+    }
+    s.push_str(
+        r##"      }
+    }
+  }
+
+  #right:color {
+    x: 1254px; y: 81px; width: 477px; height: 842px; color: #1d1f2cff;
+    rounding: Uniform { rounding: 8; }
+
+    #summary:label { @"asset/base/style/main#bold_label"; x: 24px; y: 24px; width: 429px; height: 28px; size: 18; align_y: Center; text: "패치로 추가되지 않을 챔피언"; }
+    #hint:label { @"asset/base/style/main#label"; x: 24px; y: 68px; width: 429px; height: 130px; size: 16; line_height: 26; align_y: Center; text: "아직 게임에 추가되지 않은 챔피언 목록입니다. 클릭해 선택(붉은 테두리)한 챔피언은 시즌 패치에서 절대 추가되지 않습니다. 아무것도 선택하지 않으면 원래대로 동작합니다."; }
+    #cnt_total:label { @"asset/base/style/main#label"; x: 24px; y: 218px; width: 429px; height: 24px; size: 16; align_y: Center; }
+    #cnt_sel:label { @"asset/base/style/main#bold_label"; x: 24px; y: 246px; width: 429px; height: 26px; size: 16; align_y: Center; }
+    #note_all:label { @"asset/base/style/main#label"; x: 24px; y: 282px; width: 429px; height: 100px; size: 15; line_height: 24; color: #ffb84aff; align_y: Center; }
+
+    #cx_none:color_icon_button { @"asset/base/style/main#tertiary_button"; x: 24px; y: 470px; width: 429px; height: 40px; text: { text: "모두 해제 (전부 추가 허용)"; font: "asset/base/font/set/bold"; size: 17; align_x: Center; align_y: Center; } }
+    #cx_all:color_icon_button { @"asset/base/style/main#tertiary_button"; x: 24px; y: 522px; width: 429px; height: 40px; text: { text: "모두 제외 (신규 추가 차단)"; font: "asset/base/font/set/bold"; size: 17; align_x: Center; align_y: Center; } }
+  }
+
+  #cancel:color_icon_button { @"asset/base/style/main#tertiary_button"; x: 654px; y: 943px; width: 220px; height: 40px; text: { text: "취소"; font: "asset/base/font/set/bold"; size: 18; align_x: Center; align_y: Center; } }
+  #ok:color_icon_button { @"asset/base/style/main#tertiary_button"; x: 890px; y: 943px; width: 220px; height: 40px; text: { text: "확인"; font: "asset/base/font/set/bold"; size: 18; align_x: Center; align_y: Center; } }
+}
+"##,
+    );
+    s
+}
+
+/// 팝업 그리드/라벨 갱신(변경 시에만).
+fn fill_grid(root: &mut Node) {
+    let cand = CAND.lock().unwrap_or_else(|e| e.into_inner()).clone();
+    let selected: HashSet<String> = SEL
+        .lock()
+        .unwrap_or_else(|e| e.into_inner())
+        .clone()
+        .unwrap_or_default();
+    let ready = icon_data::READY.load(Ordering::Relaxed) as u64;
+    let sig = SEL_VER.load(Ordering::Relaxed)
+        ^ ((cand.len() as u64) << 32)
+        ^ (ready << 47)
+        ^ CAND_SIG.load(Ordering::Relaxed).rotate_left(17);
+    if GRID_SIG.swap(sig, Ordering::Relaxed) == sig {
+        return;
+    }
+    let Some(pop) = ui_kit::find_mut(root, "champ_excl_popup") else {
+        return;
+    };
+    if let Some(n) = ui_kit::find_mut(pop, "cnt_total") {
+        ui_kit::label_set(n, &format!("미출시 챔피언: {}", cand.len()));
+    }
+    if let Some(n) = ui_kit::find_mut(pop, "cnt_sel") {
+        ui_kit::label_set(n, &format!("제외 선택: {}", selected.len()));
+    }
+    if let Some(n) = ui_kit::find_mut(pop, "note_all") {
+        let s = if cand.is_empty() {
+            "미출시 챔피언이 없습니다 — 모든 챔피언이 이미 추가되었습니다.".to_string()
+        } else if selected.len() == cand.len() {
+            "모든 미출시 챔피언 제외 — 앞으로 신규 챔피언이 추가되지 않습니다(모든 챔피언 추가 완료와 동일 동작).".to_string()
+        } else {
+            String::new()
+        };
+        ui_kit::label_set(n, &s);
+    }
+    let Some(contents) = ui_kit::find_mut(pop, "contents") else {
+        return;
+    };
+    ICON_SDK.store(0, Ordering::Relaxed);
+    ICON_FB.store(0, Ordering::Relaxed);
+    for (k, cell) in contents.child.iter_mut().enumerate() {
+        if let Some(champ) = cand.get(k) {
+            cell.visible = true;
+            let lower = champ.clone(); // 이미 소문자
+            let listed = selected.contains(&lower);
+            for c in cell.child.iter_mut() {
+                match c.id.as_str() {
+                    "name" => {
+                        // i18n 태그 → 게임이 로케일 표시명으로 자동 해석(모드챔프 포함).
+                        ui_kit::label_set(
+                            c,
+                            &format!("#asset/base/text/champion?description.{lower}.name"),
+                        );
+                    }
+                    "sel" => c.visible = listed,
+                    "icon" => unsafe {
+                        set_cell_icon(c, k, &lower);
+                    },
+                    _ => {}
+                }
+            }
+        } else {
+            cell.visible = false;
+        }
+    }
+    // 스크롤 컨텐츠 높이 = 행 수 기준(셀 152×171·간격 15·7열 — pos_lock 동일 공식).
+    let n = cand.len().min(NCELLS);
+    let rows = n.div_ceil(7);
+    let h = (rows as f32) * (171.0 + 15.0) + 16.0;
+    set_node_h(contents, h);
+}
+
+fn toggle_sel(id: &str) {
+    let mut g = SEL.lock().unwrap_or_else(|e| e.into_inner());
+    let set = g.get_or_insert_with(HashSet::new);
+    if !set.remove(id) {
+        set.insert(id.to_string());
+    }
+    SEL_VER.fetch_add(1, Ordering::Relaxed);
+}
+
+// ── 진입 ──────────────────────────────────────────────────────────────────
+struct ChampExclExt;
+
+impl ModExtension for ChampExclExt {
+    fn post_update(&self, scene: &mut Scene, ui: &mut GameUI, _assets: &mut Assets, _dt: f32) {
+        let _ = catch_unwind(AssertUnwindSafe(|| {
+            // 미출시 후보 갱신(관리화면 = Scene::InGame).
+            if let Scene::InGame { data } = scene {
+                let db = data.db();
+                let avail: Vec<String> = db.available_champions.clone();
+                let mod_ids: Vec<String> = db
+                    .champion_info_sheet
+                    .mod_champions
+                    .iter()
+                    .map(|e| e.id.clone())
+                    .collect();
+                recompute_candidates(&avail, &mod_ids, |id| db.champion_info(id).is_some());
+            }
+            // UI 주입(로더 체인 훅 — 늦설치·매 프레임 재시도 가드).
+            inject::install();
+            // 게임플레이 탭이 보일 때만 행 표시(같은 탭 banpick_style 의 visible 을 따라감).
+            let gp_vis = ui_kit::find(&ui.root, "banpick_style")
+                .map(|n| n.visible)
+                .unwrap_or(false);
+            if let Some(row) = ui_kit::find_mut(&mut ui.root, "champ_excl_row") {
+                row.visible = gp_vis;
+            }
+            // 팝업 표시/숨김.
+            let open = POPUP_OPEN.load(Ordering::Relaxed);
+            let present = ui_kit::find_mut(&mut ui.root, "champ_excl_popup").is_some();
+            if present {
+                // 아이콘 UV 백그라운드 로드 = 환경설정 노드가 트리에 있을 때만 1회 착수
+                //   (시작 로딩 중 bundle IO 경합 = 검은 화면, pos_lock 08-20 실사고).
+                icon_data::start_load();
+            }
+            if !present {
+                POPUP_OPEN.store(false, Ordering::Relaxed);
+            } else if let Some(pop) = ui_kit::find_mut(&mut ui.root, "champ_excl_popup") {
+                pop.visible = open;
+            }
+            if open && present {
+                if LOAD_SEL_REQ.swap(false, Ordering::Relaxed) {
+                    load_selection();
+                }
+                fill_grid(&mut ui.root);
+            }
+
+            // 클릭 라우팅(id 는 전부 모드 접두 cx_/champ_excl_ — 타 모드와 충돌 없음).
+            let mut routes: Vec<(String, ui_kit::ClickFn)> = Vec::with_capacity(NCELLS + 8);
+            routes.push(ui_kit::route(
+                "champ_excl_configure",
+                Rc::new(|| {
+                    POPUP_OPEN.store(true, Ordering::Relaxed);
+                    CAND_FORCE.store(true, Ordering::Relaxed);
+                    LOAD_SEL_REQ.store(true, Ordering::Relaxed);
+                    GRID_SIG.store(u64::MAX, Ordering::Relaxed);
+                    log("추가 챔피언 설정 버튼 클릭");
+                }),
+            ));
+            let close: ui_kit::ClickFn = Rc::new(|| POPUP_OPEN.store(false, Ordering::Relaxed));
+            routes.push(ui_kit::route("champ_excl_popup.close", close.clone()));
+            routes.push(ui_kit::route("champ_excl_popup.cancel", close));
+            routes.push(ui_kit::route(
+                "champ_excl_popup.ok",
+                Rc::new(|| {
+                    save_selection();
+                    POPUP_OPEN.store(false, Ordering::Relaxed);
+                }),
+            ));
+            routes.push(ui_kit::route(
+                "cx_all",
+                Rc::new(|| {
+                    let cand = CAND.lock().unwrap_or_else(|e| e.into_inner()).clone();
+                    *SEL.lock().unwrap_or_else(|e| e.into_inner()) =
+                        Some(cand.into_iter().collect());
+                    SEL_VER.fetch_add(1, Ordering::Relaxed);
+                }),
+            ));
+            routes.push(ui_kit::route(
+                "cx_none",
+                Rc::new(|| {
+                    *SEL.lock().unwrap_or_else(|e| e.into_inner()) = Some(HashSet::new());
+                    SEL_VER.fetch_add(1, Ordering::Relaxed);
+                }),
+            ));
+            for k in 0..NCELLS {
+                routes.push(ui_kit::route(
+                    &format!("cx_cell{k}"),
+                    Rc::new(move || {
+                        let id = CAND
+                            .lock()
+                            .unwrap_or_else(|e| e.into_inner())
+                            .get(k)
+                            .cloned();
+                        if let Some(id) = id {
+                            toggle_sel(&id);
+                        }
+                    }),
+                ));
+            }
+            ui_kit::ensure_clicks(ui, &CLICK_LAST, routes);
+        }));
+    }
+}
+
 fn init(_ctx: &GameCtx) -> ModRegistration {
     // src=file!() — build_inj.ps1 신원 검증(dll 내 소스 절대경로 문자열) 요구
-    log(&format!("mod init v0.1.0 (src={})", file!()));
+    log(&format!("mod init v{VERSION} (src={})", file!()));
     let (excl, block_all) = load_exclude_cfg();
     log(&format!("cfg: 제외 {}개 = [{}]{}", excl.len(), excl.join(", "),
         if block_all { " + 전면차단(*)" } else { "" }));
@@ -346,6 +873,8 @@ fn init(_ctx: &GameCtx) -> ModRegistration {
         Ok(Err(e)) => log(&format!("HOOK FAIL: {}", e)),
         Err(_) => log("HOOK FAIL: panic in install_hook"),
     }
-    ModRegistration::new(MOD_ID)
+    let mut reg = ModRegistration::new(MOD_ID);
+    reg.set_extension(ChampExclExt);
+    reg
 }
 declare_mod!(init);
