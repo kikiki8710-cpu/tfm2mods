@@ -22,6 +22,7 @@ mod inject;
 mod ui_kit;
 
 use config::{MASK_ALL, POS_NAMES};
+use engine_core::ui::length::Length;
 use std::rc::Rc;
 
 pub(crate) const MOD_ID: &str = "tfm2_champ_pos_lock";
@@ -707,9 +708,21 @@ pub(crate) fn assign_positions(masks: &[u8]) -> Option<Vec<usize>> {
 ///       **게임의 원래 우선순위(스왑 점수)를 따른다**
 ///   반환 = (order, 맞게 앉은 인원 수)
 /// 씬의 팀 픽 → 우리 마스크 배열.
-/// ★확정 버튼이 눌린 순간 **상대 팀 order** 를 우리 배정으로 맞춘다(훅 SC 에서 호출).
-///   완전 배정이 안 되면 최대한 맞추고, 선택지가 여러 개면 게임의 원래 order 와 최대한 일치시킨다.
+/// ~~확정 시 상대 팀 order 를 우리 배정으로 맞춘다~~ → ❌**클라 경로로는 불가(2026-08-22 RE 확정)**.
+///   `FUN_141d7bc10`(확정 핸들러) 디컴 결과, 보내는 order 는 **한 팀 것뿐**이다:
+///     `lVar8 = ctrl+0x1b0; if (*(p1+0xb8) == *(p1+0xc0)) lVar8 = ctrl+0x198;`
+///     → 그 하나만 memcpy 해서 `ClientPacket::SwapDone{match_id, order, flag}` 로 보낸다.
+///   즉 **상대 팀 배정은 클라가 보내지 않는다** = 서버(worker.rs `compute_rule_swap_order`)가 정한다.
+///   ⟹ 여기서 상대 벡터를 써봐야 패킷에 안 실리고, 화면만 잠깐 어긋나 오해를 부른다.
+///   적용 범위: **클라 스왑 확정 경로로는** 불가. 개입하려면 worker.rs 계층을 잡아야 한다.
 pub(crate) fn apply_opponent_swap() {
+    static ONCE: AtomicBool = AtomicBool::new(false);
+    if !ONCE.swap(true, Ordering::Relaxed) {
+        config::llog("swapset(상대): 생략 — 확정 패킷은 내 팀 order 만 보낸다(RE 2026-08-22)");
+    }
+    if true {
+        return;
+    }
     if config::get().swap_force == 0 {
         return;
     }
@@ -1114,7 +1127,32 @@ static SWAPVEC_SIG: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64:
 static SWAP_STAMP: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(0);
 /// 드래프트당 스왑 order 를 쓴 횟수(양 팀 합산). 게임이 뒤늦게 기본값을 덮어쓸 수 있어 소수 회 허용.
 static SWAP_APPLIED: AtomicUsize = AtomicUsize::new(0);
-const SWAP_APPLY_MAX: usize = 6;
+/// 한 판에서 내 팀 order 를 다시 쓸 수 있는 최대 횟수(게임과 무한 줄다리기 방지).
+const SWAP_APPLY_MAX: usize = 240;
+/// 유저가 직접 두 칸을 맞바꿨는가(= 자동 교정 중지). 위임하면 해제.
+static USER_SWAPPED: AtomicBool = AtomicBool::new(false);
+/// ★유저(관리 중인) 팀 id — `db.player_team_id()` 로 관리화면에서 캡처. u64::MAX=미확보.
+pub(crate) static PLAYER_TEAM: AtomicU64 = AtomicU64::new(u64::MAX);
+static PID_NONZERO: AtomicBool = AtomicBool::new(false);
+/// 확보된 내 팀 id(없으면 None).
+pub(crate) fn player_team() -> Option<u64> {
+    match PLAYER_TEAM.load(Ordering::Relaxed) {
+        u64::MAX => None,
+        v => Some(v),
+    }
+}
+/// teamdbg 중복억제 서명.
+static TEAMDBG_SIG: AtomicU64 = AtomicU64::new(u64::MAX);
+/// 툴팁 좌표계 계측 카운터.
+static TIPDBG: AtomicU64 = AtomicU64::new(0);
+/// post_update 프레임 카운터(주기 작업·클릭 디바운스용).
+static FRAME: AtomicU64 = AtomicU64::new(0);
+/// 코치 위임 클릭 디바운스(같은 클릭이 여러 번 들어오는 것 방지).
+static COACH_CLICK_AT: AtomicU64 = AtomicU64::new(0);
+/// 관찰 전용 클릭 필터 재등록 추적(코치 위임 버튼).
+static OBS_LAST: AtomicUsize = AtomicUsize::new(usize::MAX);
+/// 직전 프레임에 본 내 팀 order(전위 감지용).
+static LAST_MY_ORDER: std::sync::Mutex<Option<Vec<u64>>> = std::sync::Mutex::new(None);
 static SWAP_PANEL: AtomicBool = AtomicBool::new(false);
 static SWAP_WAIT: AtomicBool = AtomicBool::new(false);
 static SWAP_COACH: AtomicBool = AtomicBool::new(false);
@@ -1125,9 +1163,152 @@ static SWAP_BAD: AtomicBool = AtomicBool::new(false);
 static CONFIRM_HIDDEN: AtomicBool = AtomicBool::new(false);
 /// 코치 위임으로 무장됐는가(무장된 동안만 내 팀 order 를 쓴다).
 static SWAP_ARMED: AtomicBool = AtomicBool::new(false);
-static CONFIRM_PROBED: AtomicBool = AtomicBool::new(false);
-static BTNPROBE_A: AtomicBool = AtomicBool::new(false);
-static BTNPROBE_B: AtomicBool = AtomicBool::new(false);
+/// 전 매치 스왑order 사후 스캔(진단) — 주기 카운터·중복억제 서명.
+static ORDSCAN_TICK: AtomicU64 = AtomicU64::new(0);
+static ORDSCAN_SIG: AtomicU64 = AtomicU64::new(0);
+/// ★확정 버튼(ColorIconButtonRunner) 원래 색 백업 — [normal, hover, active] × [icon,sub,text,btn].
+///   러너의 `disabled` 불리언은 private 라 못 켠다. 대신 **스타일 4상태 중
+///   normal/hover/active 의 색을 게임 자체 `disabled` 색으로 덮어써서** 비활성처럼 보이게 한다.
+///   (Style<P>{normal,hover,active,disabled} · P{icon,sub,text,btn} 전부 pub —
+///    SDK rlib 에 컴파일타임 대조로 확정, 오프셋 하드코딩 없음 = 패치 내성 있음.)
+static CONFIRM_SAVED: std::sync::Mutex<Option<[BtnColors; 3]>> = std::sync::Mutex::new(None);
+type BtnColors = [common::color::Color; 4];
+
+fn cib_get(p: &game_view::ColorIconButtonRunnerProperty) -> BtnColors {
+    [p.icon.color, p.sub.color, p.text.color, p.btn.color]
+}
+fn cib_set(p: &mut game_view::ColorIconButtonRunnerProperty, c: BtnColors) {
+    p.icon.color = c[0];
+    p.sub.color = c[1];
+    p.text.color = c[2];
+    p.btn.color = c[3];
+}
+/// 스타일 asset 에 disabled 가 정의돼 있지 않아 normal 과 같으면(=시각차 0)
+/// 직접 어둡게 만든 값으로 폴백한다.
+fn dim(c: common::color::Color) -> common::color::Color {
+    common::color::Color { r: c.r * 0.4, g: c.g * 0.4, b: c.b * 0.4, a: c.a }
+}
+// ── 커서 위치 (Win32) — 엔진 UIEvent 에 마우스이동/호버 이벤트가 없어서 직접 읽는다.
+//    (UIEvent 변종 실측: Click/RightClick/CheckboxSelect/TreeViewSelect/TreeViewRightClick/
+//     TreeViewMove/TextEditComplete/Remove/Custom/Changed — 호버 없음.)
+#[repr(C)]
+#[derive(Clone, Copy)]
+struct POINT {
+    x: i32,
+    y: i32,
+}
+#[repr(C)]
+#[derive(Clone, Copy, Default)]
+struct RECTW {
+    left: i32,
+    top: i32,
+    right: i32,
+    bottom: i32,
+}
+#[link(name = "user32")]
+extern "system" {
+    fn GetCursorPos(p: *mut POINT) -> i32;
+    fn ScreenToClient(h: usize, p: *mut POINT) -> i32;
+    fn GetForegroundWindow() -> usize;
+    fn GetClientRect(h: usize, r: *mut RECTW) -> i32;
+}
+/// 커서를 UI 좌표계(= `GameUI.rect`, 실측 1920x1080)로 환산.
+///   ⚠`GameUI.scale`(실측 3)로 나누면 안 된다 — scale 은 픽셀아트 배율이지
+///     클라이언트 픽셀↔UI 유닛 비율이 아니다(2026-08-22 tipdbg 로 확인).
+///   실제 비율 = 클라이언트 크기(GetClientRect) 대 UI rect.
+fn cursor_ui(uiw: f32, uih: f32) -> Option<(f32, f32)> {
+    unsafe {
+        let h = GetForegroundWindow();
+        if h == 0 {
+            return None;
+        }
+        let mut p = POINT { x: 0, y: 0 };
+        if GetCursorPos(&mut p) == 0 || ScreenToClient(h, &mut p) == 0 {
+            return None;
+        }
+        let mut r = RECTW::default();
+        if GetClientRect(h, &mut r) == 0 {
+            return None;
+        }
+        let (cw, ch) = ((r.right - r.left) as f32, (r.bottom - r.top) as f32);
+        if cw < 1.0 || ch < 1.0 || uiw < 1.0 || uih < 1.0 {
+            return None;
+        }
+        Some((p.x as f32 * uiw / cw, p.y as f32 * uih / ch))
+    }
+}
+/// 진단용 원시값(클라 px, 클라 크기).
+fn cursor_raw() -> Option<(i32, i32, i32, i32)> {
+    unsafe {
+        let h = GetForegroundWindow();
+        if h == 0 {
+            return None;
+        }
+        let mut p = POINT { x: 0, y: 0 };
+        if GetCursorPos(&mut p) == 0 || ScreenToClient(h, &mut p) == 0 {
+            return None;
+        }
+        let mut r = RECTW::default();
+        if GetClientRect(h, &mut r) == 0 {
+            return None;
+        }
+        Some((p.x, p.y, r.right - r.left, r.bottom - r.top))
+    }
+}
+
+/// 확정 버튼 툴팁 문구(비활성 사유). `hint: String` = 러너 pub 필드.
+const CONFIRM_HINT: &str = "스왑이 올바르지 않습니다.";
+/// 원래 hint 백업(대개 빈 문자열).
+static CONFIRM_HINT0: std::sync::Mutex<Option<String>> = std::sync::Mutex::new(None);
+/// gray=true → 비활성 색 / false → 백업 복구. 러너 타입이 다르면 false.
+fn confirm_gray(n: &mut Node, gray: bool) -> bool {
+    let Some(b) = ui_kit::runner_base(n, "ColorIconButtonRunner") else {
+        return false;
+    };
+    unsafe {
+        let r = &mut *(b as *mut game_view::ColorIconButtonRunner);
+        // 툴팁: 비활성 사유를 hint 에 넣는다(원래 값은 1회 백업).
+        {
+            let mut h0 = CONFIRM_HINT0.lock().unwrap_or_else(|e| e.into_inner());
+            if h0.is_none() {
+                config::llog(&format!("confirm hint 원본=\"{}\"", r.hint));
+                *h0 = Some(r.hint.clone());
+            }
+            let want: &str = if gray {
+                CONFIRM_HINT
+            } else {
+                h0.as_deref().unwrap_or("")
+            };
+            if r.hint != want {
+                r.hint = want.to_string();
+            }
+        }
+        let mut g = CONFIRM_SAVED.lock().unwrap_or_else(|e| e.into_inner());
+        if g.is_none() {
+            *g = Some([
+                cib_get(&r.style.normal),
+                cib_get(&r.style.hover),
+                cib_get(&r.style.active),
+            ]);
+        }
+        let saved = g.unwrap();
+        if gray {
+            let mut d = cib_get(&r.style.disabled);
+            // disabled 가 normal 과 동일 = 스타일에 비활성 룩이 없다 → 직접 어둡게.
+            if d == saved[0] {
+                d = [dim(d[0]), dim(d[1]), dim(d[2]), dim(d[3])];
+            }
+            cib_set(&mut r.style.normal, d);
+            cib_set(&mut r.style.hover, d);
+            cib_set(&mut r.style.active, d);
+        } else {
+            cib_set(&mut r.style.normal, saved[0]);
+            cib_set(&mut r.style.hover, saved[1]);
+            cib_set(&mut r.style.active, saved[2]);
+        }
+    }
+    true
+}
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 pub(crate) enum TurnKind {
@@ -1155,6 +1336,8 @@ pub(crate) enum Side {
 ///   상대 픽을 내 픽으로 계산해 엉뚱한 포지션을 막았다). 그래서 UI 에서 직접 유도한다.
 ///   -1=미확정 / 0=Blue / 1=Red.
 static MY_SIDE: std::sync::atomic::AtomicI32 = std::sync::atomic::AtomicI32::new(-1);
+/// 직전 프레임의 드래프트 진행 수(줄면 새 세트 = 캐시 리셋 신호).
+static LAST_DRAFT_TOTAL: std::sync::atomic::AtomicI64 = std::sync::atomic::AtomicI64::new(0);
 /// 진영 → 씬 픽 벡터 매핑. 0=미확정 / 1=Blue가 picks_a / 2=Blue가 picks_e.
 static SIDE_MAP: std::sync::atomic::AtomicI32 = std::sync::atomic::AtomicI32::new(0);
 
@@ -1330,14 +1513,23 @@ fn recompute_blocklist(root: &Node) {
         clear(); // 밴 차례 = 포지션 무관, 게다가 회색이면 밴 자체를 못 하게 된다
         return;
     }
-    // ── 내 팀 판정 ──────────────────────────────────────────────────────────
-    //   ①"위임" 버튼이 보이는 순간(=내 차례) `in_turn` 이 켜진 진영 = 내 진영. 한 번 배우면 유지.
-    if ui_kit::find(root, "delegate_btn").map(|n| n.visible).unwrap_or(false) {
-        if let Some(sd) = side_in_turn(root) {
-            MY_SIDE.store(if sd == Side::Blue { 0 } else { 1 }, Ordering::Relaxed);
+    // ── 내 팀 판정 ─────────────────────────────────────────────────────────
+    //   ★★2026-08-22 정정(유저 보고: Bo3 2세트부터 상대 차례에 내 차례처럼 회색화):
+    //     **세트마다 진영(그리고 T1/T2)이 바뀐다.** UI 로 한 번 배워서 캐시하면 다음 세트에 틀린다.
+    //     게다가 "위임 버튼이 보이면 내 차례" 가정도 틀렸다 — 위임 버튼은 **상대 차례에도 보인다**.
+    //   ⟹ ①내 팀 = 씬에서 매번 읽는다: `*(*(scene+0x388)+0xe3b8)` vs T1(+0x3d0)/T2(+0x3d8).
+    //      ②진영↔픽벡터 매핑(SIDE_MAP)은 확정 픽 수 대조로만 배우고, **드래프트가 바뀌면 리셋**.
+    //      ③내 차례가 아니면 회색화하지 않는다.
+    {
+        // 드래프트 교체 감지: 진행 수가 줄면 새 세트 → UI 유도 캐시 리셋.
+        let last_total = LAST_DRAFT_TOTAL.swap(total as i64, Ordering::Relaxed);
+        if (total as i64) < last_total {
+            SIDE_MAP.store(0, Ordering::Relaxed);
+            MY_SIDE.store(-1, Ordering::Relaxed);
+            config::llog("draft: 새 세트 감지 → 진영 캐시 리셋");
         }
     }
-    //   ②진영 → 씬 픽벡터 매핑: 양쪽 확정 픽 수가 다를 때 대조해서 확정(그 뒤 캐시).
+    //   진영 → 씬 픽벡터 매핑: 양쪽 확정 픽 수가 다를 때 대조해서 확정(그 뒤 캐시).
     {
         let (b, r) = (side_done_count(root, Side::Blue), side_done_count(root, Side::Red));
         if b != r {
@@ -1348,16 +1540,44 @@ fn recompute_blocklist(root: &Node) {
             }
         }
     }
-    let my_side = MY_SIDE.load(Ordering::Relaxed);
-    // (스왑 검증에서 재사용 — 내 팀 order 벡터를 고르는 데 필요)
     let side_map = SIDE_MAP.load(Ordering::Relaxed);
-    let my_is_t2 = if my_side >= 0 && side_map != 0 {
-        // Blue=picks_a(1) 이면 Red 가 T2; Blue=picks_e(2) 면 Blue 가 T2.
-        if side_map == 1 { my_side == 1 } else { my_side == 0 }
-    } else {
-        sel_team == t2_team // 폴백(구 방식)
+    // ★내 팀 판정 = **SDK `db.player_team_id()`**(관리화면에서 캡처, 세이브 내내 불변) vs team1(+0x3d0).
+    //   ⚠구버전들이 쓰던 `*(database+0xe3b8)` 은 실측에서 team1 과 같은 값을 돌려줘 어긋났다(폐기).
+    //   미확보 시에만 구 폴백.
+    let my_is_t2 = match player_team() {
+        Some(pid) => pid != sel_team,
+        None => sel_team == t2_team,
     };
     MY_IS_T2.store(my_is_t2, Ordering::Relaxed);
+    // 내 진영(로그·차례 판정용) — SIDE_MAP 이 확정된 뒤에만 알 수 있다.
+    let my_side: i32 = match side_map {
+        1 => {
+            if my_is_t2 {
+                1
+            } else {
+                0
+            }
+        } // Blue=picks_a(T1)
+        2 => {
+            if my_is_t2 {
+                0
+            } else {
+                1
+            }
+        } // Blue=picks_e(T2)
+        _ => -1,
+    };
+    MY_SIDE.store(my_side, Ordering::Relaxed);
+    // ③내 차례가 아니면 회색화하지 않는다(상대 차례에 회색이 뜨던 버그).
+    if my_side >= 0 {
+        if let Some(sd) = side_in_turn(root) {
+            let turn_side = if sd == Side::Blue { 0 } else { 1 };
+            if turn_side != my_side {
+                clear();
+                return;
+            }
+        }
+    }
     let my_picks_raw: &Vec<String> = if my_is_t2 { &picks_e } else { &picks_a };
     // ★빈 문자열은 "선택 대기" 자리표시자일 수 있으므로 실제 픽에서 제외.
     let my_picks: Vec<&String> = my_picks_raw.iter().filter(|s| !s.is_empty()).collect();
@@ -1585,11 +1805,32 @@ impl ModExtension for PosLockExt {
             if !cfg.enabled {
                 return;
             }
+            // ★밴픽 씬이 죽었으면 캡처 포인터를 무효화 — 워커 스레드의 stale read 차단.
+            hooks::scene_gc();
             // 챔피언 목록 1회 캡처(관리화면 프레임에서도 Scene::InGame 매치).
             if let Scene::InGame { data } = scene {
                 let db = data.db();
                 // Database 포인터 캡처(룰 카운트 읽기용) — 매 프레임 갱신. Ref<ClientDatabase> deref.
                 DB_PTR.store(&*db as *const _ as usize, Ordering::Relaxed);
+                // ★★내 팀 id = **SDK 공개 API `db.player_team_id()`** (2026-08-23).
+                //   관리화면도 `Scene::InGame` 이라 이어하기 직후 바로 잡힌다. 세이브 내내 불변.
+                //   ⚠tfm2_item_tactics 실측 교훈 이식: 조합테스트 등 팀 개념 없는 컨텍스트에서
+                //     **0 을 반환**한다 → 비0 을 한 번이라도 봤으면 0 으로 후퇴시키지 않는다.
+                {
+                    let pid = db.player_team_id() as u64;
+                    if pid < 10000 {
+                        if pid != 0 {
+                            if PLAYER_TEAM.swap(pid, Ordering::Relaxed) != pid {
+                                PID_NONZERO.store(true, Ordering::Relaxed);
+                                config::llog(&format!("myteam: player_team_id={pid} (SDK)"));
+                            }
+                        } else if !PID_NONZERO.load(Ordering::Relaxed)
+                            && PLAYER_TEAM.swap(0, Ordering::Relaxed) != 0
+                        {
+                            config::llog("myteam: player_team_id=0 (SDK · 잠정)");
+                        }
+                    }
+                }
                 if NAMES.get().is_none() {
                     if !db.available_champions.is_empty() {
                         let ids: Vec<String> = db.available_champions.clone();
@@ -1811,6 +2052,29 @@ impl ModExtension for PosLockExt {
             }
             ui_kit::ensure_clicks(ui, &CLICK_LAST, routes);
 
+            // ★코치 위임 = **버튼 클릭**(유저 확정 2026-08-22). 노드 가시성 변화로 유추하지 말고
+            //   클릭 자체를 관찰한다. ⚠소비하지 않는 관찰 전용 필터 — 소비하면 위임이 안 걸린다.
+            //   위임을 누르면 "유저가 손댔다" 상태를 풀어 자동 교정을 재개한다.
+            ui_kit::ensure_clicks_observe(
+                ui,
+                &OBS_LAST,
+                vec![ui_kit::route(
+                    "coach",
+                    Rc::new(|| {
+                        // 같은 클릭이 여러 프레임에 걸쳐 들어오는 실측(08-22: 11연발) → 디바운스.
+                        let now = FRAME.load(Ordering::Relaxed);
+                        let last = COACH_CLICK_AT.swap(now, Ordering::Relaxed);
+                        USER_SWAPPED.store(false, Ordering::Relaxed);
+                        SWAP_ARMED.store(true, Ordering::Relaxed);
+                        SWAP_APPLIED.store(0, Ordering::Relaxed);
+                        *LAST_MY_ORDER.lock().unwrap_or_else(|e| e.into_inner()) = None;
+                        if now.saturating_sub(last) > 30 {
+                            config::llog("swaparm: 코치 위임 버튼 클릭 → 내 팀 자동 배정 재개");
+                        }
+                    }),
+                )],
+            );
+
             // ★스왑 order 벡터 탐침 — RE 2026-08-22: 스왑 확정 핸들러(0x1d7bc10)가
             //   `controller+0x198`(한 팀) / `+0x1b0`(다른 팀) 의 Vec 을 그대로 복사해
             //   ClientPacket::SwapDone.order 로 보낸다. Vec = {cap@0, ptr@8, len@0x10}, 원소 8B.
@@ -1872,8 +2136,10 @@ impl ModExtension for PosLockExt {
                     if picks_done < 10 {
                         SWAP_APPLIED.store(0, Ordering::Relaxed);
                         SWAP_ARMED.store(false, Ordering::Relaxed);
+                        USER_SWAPPED.store(false, Ordering::Relaxed);
+                        *LAST_MY_ORDER.lock().unwrap_or_else(|e| e.into_inner()) = None;
                     }
-                    // 위임 감지: swap_waiting 이 뜨거나 coach 버튼이 사라지는 순간.
+                    // 위임 감지 — 이제 "재무장" 용도. 위임하면 유저 수동 스왑 존중 상태를 푼다.
                     {
                         let swap_node = ui_kit::find(&ui.root, "swap");
                         let waiting = swap_node
@@ -1891,20 +2157,40 @@ impl ModExtension for PosLockExt {
                         if (waiting && !prev_wait) || (panel && prev_coach && !coach_btn) {
                             SWAP_ARMED.store(true, Ordering::Relaxed);
                             SWAP_APPLIED.store(0, Ordering::Relaxed);
-                            config::llog("swaparm: 코치 위임 감지 → 내 팀 포지션 배정");
+                            USER_SWAPPED.store(false, Ordering::Relaxed);
+                            config::llog("swaparm: 코치 위임 감지 → 자동 교정 재개");
                         }
                     }
-                    // 위임되었을 때만 내 팀 order 를 쓴다(게임이 되돌릴 수 있어 소수 회 재시도).
+                    // ── 내 팀 order 자동 교정 (2026-08-22 재설계) ─────────────────
+                    //   ⚠구버전은 "코치 위임 감지" 때만 6회 썼다. 실측 로그(08-22)에
+                    //     `swaparm:` 이 **한 번도 안 찍혔다** = 감지 실패 → 위임해도 배정 안 됨.
+                    //   ⟹ 감지에 기대지 않고 **스왑 화면이 열려 있는 동안 상시 교정**한다.
+                    //     단 유저가 직접 두 칸을 맞바꾼 경우(= 직전 order 대비 **전위 1회**)는
+                    //     존중해서 그 판 동안 자동 교정을 멈춘다(위임하면 다시 재개).
                     if config::get().swap_force != 0
-                        && SWAP_ARMED.load(Ordering::Relaxed)
                         && picks_done >= 10
                         && SWAP_APPLIED.load(Ordering::Relaxed) < SWAP_APPLY_MAX
                     {
                         let t2 = MY_IS_T2.load(Ordering::Relaxed);
                         let off = if t2 { 0x1b0usize } else { 0x198 };
                         let vo = if t2 { hooks::O_PICK2 } else { hooks::O_PICK1 };
-                        if let Some((cur, want, _)) = swap_plan(scene, off, vo) {
-                            if cur != want {
+                        if let Some((cur, want, n)) = swap_plan(scene, off, vo) {
+                            let mut last = LAST_MY_ORDER.lock().unwrap_or_else(|e| e.into_inner());
+                            if let Some(prev) = last.as_ref() {
+                                if prev.len() == cur.len() && *prev != cur {
+                                    let d: Vec<usize> =
+                                        (0..cur.len()).filter(|&i| prev[i] != cur[i]).collect();
+                                    let transposed = d.len() == 2
+                                        && prev[d[0]] == cur[d[1]]
+                                        && prev[d[1]] == cur[d[0]];
+                                    if transposed && !USER_SWAPPED.swap(true, Ordering::Relaxed) {
+                                        config::llog(&format!(
+                                            "swapuser: 유저 수동 스왑 감지({prev:?} -> {cur:?}) → 자동 교정 중지"
+                                        ));
+                                    }
+                                }
+                            }
+                            if !USER_SWAPPED.load(Ordering::Relaxed) && cur != want {
                                 let (_, ptr, _) = rd(off);
                                 for (i, &w) in want.iter().enumerate() {
                                     let a = ptr as usize + i * 8;
@@ -1912,11 +2198,15 @@ impl ModExtension for PosLockExt {
                                         unsafe { core::ptr::write(a as *mut u64, w) };
                                     }
                                 }
-                                SWAP_APPLIED.fetch_add(1, Ordering::Relaxed);
-                                config::llog(&format!(
-                                    "swapset(내팀): +{off:x} {cur:?} -> {want:?} (n={})",
-                                    SWAP_APPLIED.load(Ordering::Relaxed)
-                                ));
+                                let c = SWAP_APPLIED.fetch_add(1, Ordering::Relaxed) + 1;
+                                if c <= 3 || c % 60 == 0 {
+                                    config::llog(&format!(
+                                        "swapset(내팀): +{off:x} {cur:?} -> {want:?} (맞춘수={n}/5, {c}회)"
+                                    ));
+                                }
+                                *last = Some(want);
+                            } else {
+                                *last = Some(cur);
                             }
                         }
                     }
@@ -1951,81 +2241,130 @@ impl ModExtension for PosLockExt {
             }
             // ★스왑 확정 버튼 비활성 표시 — 숨기지 않고 **회색 처리**한다(유저 지시 2026-08-22).
             //   클릭 차단은 훅 SC(0x1d7bc10)가 담당하고, 여기서는 보이기만 죽인다.
-            //   게임 기본 스타일의 "비활성" 룩(회색 글자 + 어두운 배경)을 흉내낸다.
+            //   ⚠러너가 `ColorIconButtonRunner`(라벨/사각형 아님)라 ui_kit 의
+            //     label_set_color/rect_set_back_all 은 **안 먹는다**(2026-08-22 실측 label=false rect=false).
+            //   ⟹ SDK 타입을 직접 써서 스타일 색을 바꾼다(오프셋 하드코딩 없음).
             {
                 let bad = SWAP_BAD.load(Ordering::Relaxed);
                 let prev = CONFIRM_HIDDEN.swap(bad, Ordering::Relaxed);
+                let mut btn_rect: Option<(f32, f32, f32, f32)> = None;
                 if bad || prev {
                     if let Some(btn) = ui_kit::find_mut(&mut ui.root, "swap")
                         .and_then(|n| ui_kit::find_mut(n, "bottom"))
                         .and_then(|n| ui_kit::find_mut(n, "confirm"))
                     {
-                        let (fg, bg) = if bad {
-                            (ui_kit::Rgba::new(0.45, 0.47, 0.50, 1.0), ui_kit::Rgba::new(0.10, 0.12, 0.13, 1.0))
-                        } else {
-                            (ui_kit::Rgba::new(1.0, 1.0, 1.0, 1.0), ui_kit::Rgba::new(0.12, 0.45, 0.33, 1.0))
-                        };
-                        // 진단: 이 노드가 어떤 러너인지 1회 기록(색 세터가 안 먹는 원인 파악).
-                        if !CONFIRM_PROBED.swap(true, Ordering::Relaxed) {
-                            config::llog(&format!(
-                                "swapprobe: confirm kind={} runner={} children={}",
-                                ui_kit::kind(btn),
-                                ui_kit::runner_type_name(btn),
-                                btn.child.len()
-                            ));
-                        }
-                        let a = ui_kit::label_set_color(btn, fg);
-                        let b = ui_kit::rect_set_back_all(btn, bg);
-                        let _ = ui_kit::text_set_deep(btn, "");
+                        // ★엔진 레벨 비활성 — `Node.disabled` 는 **pub 필드**였다(SDK 프로브 2026-08-22).
+                        //   이걸 켜면 호버 커서(손가락)·호버 효과·클릭이 게임 자체 규칙으로 죽는다.
+                        //   러너의 private `disabled` 를 찾을 필요가 없었다(privdump 두 버튼 동일 = 헛다리).
+                        btn.disabled = bad;
+                        let ok = confirm_gray(btn, bad);
+                        btn_rect = Some((btn.rect.x, btn.rect.y, btn.rect.w, btn.rect.h));
                         if bad != prev {
                             config::llog(&format!(
-                                "swapgate: 확정버튼 {} (label={a} rect={b})",
+                                "swapgate: 확정버튼 {} (style={ok})",
                                 if bad { "비활성 표시" } else { "복구" }
                             ));
                         }
                     }
                 }
-            }
-            // ★버튼 러너 바이트 덤프 — 비활성 플래그 오프셋을 찾기 위한 대조군 수집.
-            //   대조: (A) 스왑 확정 `confirm`(활성) vs (B) 환경설정 `current_database_edit/change`(비활성).
-            //   둘 다 .ui 상 `color_icon_button` + `@main#primary_button` 계열이라 레이아웃이 같다.
-            {
-                let dump_runner = |n: &Node, tag: &str, done: &AtomicBool| {
-                    if done.load(Ordering::Relaxed) {
-                        return;
-                    }
-                    let ty = ui_kit::runner_type_name(n);
-                    let Some(b) = ui_kit::runner_base(n, &ty) else {
-                        config::llog(&format!("btnprobe {tag}: runner_base 실패 ty={ty}"));
-                        done.store(true, Ordering::Relaxed);
-                        return;
-                    };
-                    let mut hex = String::new();
-                    for o in 0..0xa0usize {
-                        match ui_kit::runner_rd_u8(b, o) {
-                            Some(v) => hex.push_str(&format!("{v:02x}")),
-                            None => hex.push_str("??"),
-                        }
-                        if o % 16 == 15 {
-                            hex.push(' ');
-                        }
-                    }
-                    config::llog(&format!("btnprobe {tag}: ty={ty} base=0x{b:x}
-  {hex}"));
-                    done.store(true, Ordering::Relaxed);
-                };
-                if let Some(n) = ui_kit::find(&ui.root, "swap")
-                    .and_then(|n| ui_kit::find(n, "bottom"))
-                    .and_then(|n| ui_kit::find(n, "confirm"))
+                // ★비활성 사유 툴팁 — 게임 레이아웃(banpick/layout.ui)의
+                //   `#coach_dialogue_button_tooltip`(색박스 + #text 라벨, ignore_event) 을 재사용한다.
+                //   ⚠`Node.disabled=true` 를 켜면 게임의 호버 처리가 죽어서 러너 `hint` 는 안 뜬다
+                //     (게임의 disabled-hint 툴팁 = `update_disabled_hint_tooltip` 은 옵션 UI 전용).
+                //   ⟹ 커서 위치를 Win32 로 직접 읽어 버튼 rect 안이면 우리가 띄운다.
                 {
-                    if n.visible {
-                        dump_runner(n, "확정(활성)", &BTNPROBE_A);
+                    let scale = ui.scale;
+                    let (uiw, uih) = (ui.rect.w, ui.rect.h);
+                    let hover = match (bad, btn_rect, cursor_ui(uiw, uih)) {
+                        (true, Some((x, y, w, h)), Some((cx, cy))) => {
+                            cx >= x && cx <= x + w && cy >= y && cy <= y + h
+                        }
+                        _ => false,
+                    };
+                    let prev_tip = TIP_OURS.swap(hover, Ordering::Relaxed);
+                    if hover || prev_tip {
+                        if let Some(tip) = ui_kit::find_mut(&mut ui.root, "pos_lock_swaptip") {
+                            tip.visible = hover;
+                            if hover {
+                                // ★위치는 `Node.rect` 가 아니라 **layout** 으로 준다.
+                                //   rect 는 매 프레임 레이아웃이 덮어쓴다(밴픽 셀 툴팁에서 실측한 교훈).
+                                if let Some((x, y, w, _h)) = btn_rect {
+                                    let (tw, th) = (240.0f32, 34.0f32);
+                                    for l in [
+                                        &mut tip.layout.normal,
+                                        &mut tip.layout.hover,
+                                        &mut tip.layout.active,
+                                        &mut tip.layout.disabled,
+                                    ] {
+                                        l.width = Length::Pixel(tw);
+                                        l.height = Length::Pixel(th);
+                                        l.x = Length::Pixel(x + (w - tw) * 0.5);
+                                        l.y = Length::Pixel(y - th - 8.0);
+                                        l.anchor_x = 0.0;
+                                        l.anchor_y = 0.0;
+                                        l.pivot_x = 0.0;
+                                        l.pivot_y = 0.0;
+                                    }
+                                }
+                            }
+                            if hover != prev_tip {
+                                config::llog(&format!(
+                                    "swaptip: {} btn={:?} tip.rect=({},{},{},{})",
+                                    if hover { "표시" } else { "숨김" },
+                                    btn_rect,
+                                    tip.rect.x,
+                                    tip.rect.y,
+                                    tip.rect.w,
+                                    tip.rect.h
+                                ));
+                            }
+                        } else if hover != prev_tip {
+                            config::llog("swaptip: pos_lock_swaptip 노드 없음(주입 실패?)");
+                        }
                     }
                 }
-                if let Some(n) = ui_kit::find(&ui.root, "current_database_edit")
-                    .and_then(|n| ui_kit::find(n, "change"))
-                {
-                    dump_runner(n, "변경하기(비활성)", &BTNPROBE_B);
+            }
+
+            // ★A(백그라운드 스왑) 진단 — 드래프트가 **끝난 뒤에도** 스냅샷의
+            //   vecC(+0x90)/vecD(+0xa8)가 identity 인지 주기적으로 확인한다.
+            //   커밋 시점 관측(2026-08-22)은 6매치 전부 identity 였는데, 유저 경기의
+            //   진짜 order 는 비-identity 가 나온다 ⟹ 둘 중 하나: ①아직 안 채워짐
+            //   ②그 Vec 은 스왑 order 가 아님. 사후 스캔이 이걸 가른다.
+            //   함께 결정레코드 tag 분포도 남긴다(스왑 결정이 같은 큐로 오는지).
+            if cfg.log_lineups {
+                let t = ORDSCAN_TICK.fetch_add(1, Ordering::Relaxed);
+                if t % 600 == 599 {
+                    let lines = unsafe { hooks::scan_orders() };
+                    if !lines.is_empty() {
+                        use std::hash::{Hash, Hasher};
+                        let mut h = std::collections::hash_map::DefaultHasher::new();
+                        lines.hash(&mut h);
+                        let sig = h.finish();
+                        if ORDSCAN_SIG.swap(sig, Ordering::Relaxed) != sig {
+                            let tags: Vec<String> = hooks::CP_TAGS
+                                .iter()
+                                .enumerate()
+                                .filter(|(_, c)| c.load(Ordering::Relaxed) != 0)
+                                .map(|(i, c)| format!("{i}:{}", c.load(Ordering::Relaxed)))
+                                .collect();
+                            let so: Vec<String> = hooks::SO_SKIP
+                                .iter()
+                                .enumerate()
+                                .map(|(i, c)| format!("{i}:{}", c.load(Ordering::Relaxed)))
+                                .collect();
+                            config::llog(&format!(
+                                "ordscan({}건) tag={} | tag7={} 교체={} 스킵[{}]",
+                                lines.len(),
+                                tags.join(" "),
+                                hooks::SO_SEEN.load(Ordering::Relaxed),
+                                hooks::CNT_SWAPORDER.load(Ordering::Relaxed),
+                                so.join(" ")
+                            ));
+                            for l in lines.iter().take(24) {
+                                config::llog(&format!("  {l}"));
+                            }
+                        }
+                    }
                 }
             }
             // ★hookA(포지션 적합도 마스크) 상태를 항상 로그에 — 스왑 배정이 우리 마스크를

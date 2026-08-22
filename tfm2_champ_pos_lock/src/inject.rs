@@ -32,6 +32,10 @@ const NT_SIZE: usize = 0x90; // NodeTemplate stride
 
 const ROW_UI: &str = include_str!("../assets/pos_lock_row.ui");
 const POPUP_UI: &str = include_str!("../assets/pos_lock_popup.ui");
+/// 스왑 확정 버튼 비활성 사유 툴팁 — **밴픽 레이아웃 루트의 마지막 자식**으로 주입한다.
+///   왜 루트 마지막인가: 게임의 `#coach_dialogue_button_tooltip` 은 `.ui` 상 `#swap` 보다
+///   **먼저** 선언돼 있어 스왑 패널 뒤에 깔린다(z 순서 = 자식 배열 순서). 재사용 불가.
+const SWAPTIP_UI: &str = include_str!("../assets/pos_lock_swaptip.ui");
 /// 팝업 주입 스위치(문제 격리용). 검정화면 원인 규명 중 false 로 끌 수 있음.
 const POPUP_INJECT: bool = true;
 
@@ -44,6 +48,11 @@ static TRAMP: AtomicUsize = AtomicUsize::new(0);
 static INSTALLED: AtomicBool = AtomicBool::new(false);
 pub static INJECTED_ROW: AtomicBool = AtomicBool::new(false);
 pub static INJECTED_POPUP: AtomicBool = AtomicBool::new(false);
+pub static INJECTED_SWAPTIP: AtomicBool = AtomicBool::new(false);
+/// 시작 지연 계측 — try_inject 호출 수 / 누적 마이크로초 / 총계 1회 보고 여부.
+static SCAN_N: AtomicUsize = AtomicUsize::new(0);
+static SCAN_US: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(0);
+static SCAN_DONE: AtomicBool = AtomicBool::new(false);
 
 // ── 로더 detour(체인) ───────────────────────────────────────────────────────
 extern "win64" fn detour(am: usize, path: *const u8, len: usize) -> usize {
@@ -72,8 +81,43 @@ unsafe fn slice_eq(idp: usize, idl: usize, target: &[u8]) -> bool {
 /// 로드된 템플릿에 마커가 있으면 내 행/팝업을 append(각각 멱등).
 /// ★option 템플릿 확정 = current_database_edit 마커 보유(new_game.ui 오주입 방지).
 unsafe fn try_inject(r: usize) {
+    // ★★2026-08-23 로딩 최적화: 주입은 **각각 1회**면 끝인데, 구버전은 주입이 끝난 뒤에도
+    //   **모든 에셋 템플릿 로드마다** 트리를 깊이 14까지 재귀 스캔했다(마커 2종 × 템플릿 수백 개).
+    //   시작 시 로딩(검정화면)이 그만큼 길어진다 ⟹ 완료 플래그로 조기 탈출한다.
+    // 계측: 주입이 끝날 때까지 스캔한 템플릿 수/누적 시간(시작 지연 원인 규명용).
+    let t0 = std::time::Instant::now();
+    SCAN_N.fetch_add(1, Ordering::Relaxed);
+    let need_tip = !INJECTED_SWAPTIP.load(Ordering::Relaxed);
+    let need_opt = !INJECTED_ROW.load(Ordering::Relaxed)
+        || (POPUP_INJECT && !INJECTED_POPUP.load(Ordering::Relaxed));
+    if !need_tip && !need_opt {
+        // 완료 후 첫 1회만 총계를 남긴다.
+        if !SCAN_DONE.swap(true, Ordering::Relaxed) {
+            config::llog(&format!(
+                "inject: 주입 완료 — 스캔한 템플릿 {}개, 누적 {}ms (이후 스캔 안 함)",
+                SCAN_N.load(Ordering::Relaxed),
+                SCAN_US.load(Ordering::Relaxed) / 1000
+            ));
+        }
+        return; // 할 일 없음 — 스캔조차 하지 않는다
+    }
+    // ── 밴픽 레이아웃(마커=swap_waiting): 스왑 툴팁을 **루트 마지막 자식**으로 append ──
+    if need_tip && find_id(r, b"swap_waiting", 0) != 0 {
+        if find_id(r, b"pos_lock_swaptip", 0) != 0 {
+            INJECTED_SWAPTIP.store(true, Ordering::Relaxed);
+        } else if append_child(r, SWAPTIP_UI) {
+            INJECTED_SWAPTIP.store(true, Ordering::Relaxed);
+            config::llog("pos_lock_swaptip 주입 OK (밴픽 레이아웃)");
+        }
+        return;
+    }
+    if !need_opt {
+        SCAN_US.fetch_add(t0.elapsed().as_micros() as u64, Ordering::Relaxed);
+        return;
+    }
     let is_option = find_id(r, b"current_database_edit", 0) != 0;
     if !is_option {
+        SCAN_US.fetch_add(t0.elapsed().as_micros() as u64, Ordering::Relaxed);
         return; // option 템플릿이 아니면 아무것도 하지 않음(custom_champion_popup 은 new_game 에도 있음)
     }
     // 행: 게임플레이 탭 contents 에 append.

@@ -56,7 +56,7 @@ impl Cfg {
         Cfg {
             enabled: true,
             debug: false,
-            log_lineups: true,
+            log_lineups: false,
             swap_force: 1,
             ai_pick_gate: true,
             ai_assign_mask: true,
@@ -374,8 +374,10 @@ ai_pick_gate=1\r\n\
 ai_assign_mask=1\r\n\
 # 내 밴픽 화면에서 매칭 깨는 챔피언을 피어리스처럼 회색+선택불가 (고를 게 0 이면 자동 해제)\r\n\
 user_pick_block=1\r\n\
-# UI 주입점 파악용 노드 트리 덤프(개발용 — 인게임 UI 완성 후 0)\r\n\
-dump_ui=1\r\n\
+# UI 주입점 파악용 노드 트리 덤프(개발용)\r\n\
+dump_ui=0\r\n\
+# 배정 진단 로그(champ_pos_lock_lineups.txt) — 문제 보고용, 평소엔 0\r\n\
+log_lineups=0\r\n\
 ";
 
 const DEFAULT_STATE: &str = "\

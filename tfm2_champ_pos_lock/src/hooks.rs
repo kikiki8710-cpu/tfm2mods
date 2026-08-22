@@ -2222,6 +2222,42 @@ pub const O_T2TEAM: usize = 0x3d8;
 pub const O_APPCTX: usize = 0x388;
 pub const O_USERTEAM_IN_APP: usize = 0xe3b8; // ⚠0.5.2 채록·0.5.5 미재검증(실패 시 보수 폴백)
 
+/// ★유저(플레이어)의 팀 id — RE 확정 경로 `*(*(scene+0x388) + 0xe3b8)`.
+///   ⚠`scene+0x3d0`(O_SELTEAM)은 "내 팀"이 아니라 **T1 팀 id** 다.
+///   Bo3 처럼 **세트마다 진영이 바뀌면** T1/T2 도 바뀌므로, 캐시하지 말고 매번 읽는다.
+pub unsafe fn scene_user_team(scene: usize) -> Option<u64> {
+    if !ptr_ok(scene) {
+        return None;
+    }
+    let app = safe_rd_u64(scene + O_APPCTX)? as usize;
+    if !ptr_ok(app) {
+        return None;
+    }
+    let t = safe_rd_u64(app + O_USERTEAM_IN_APP)?;
+    // ★★2026-08-23: 여기서 `t == 0` 을 무효로 걸렀던 것이 **모든 오판의 진짜 원인**이었다.
+    //   유저 팀 id 가 실제로 **0** 인 세이브였고(SDK `player_team_id()`=0 으로 확정),
+    //   그 값을 버리고 `sel_team`(=team1) 으로 폴백해서 "내 팀 = 상대"가 됐다.
+    //   ⟹ 0 은 정상 팀 id 다. u64::MAX(미확보)만 무효.
+    if t == u64::MAX {
+        return None;
+    }
+    Some(t)
+}
+
+/// 내 팀이 T2(=picks_e/+0x1b0 쪽)인가. 판독 실패 시 None → 호출측이 폴백.
+pub unsafe fn scene_my_is_t2(scene: usize) -> Option<bool> {
+    let me = scene_user_team(scene)?;
+    let t1 = safe_rd_u64(scene + O_SELTEAM)?;
+    let t2 = safe_rd_u64(scene + O_T2TEAM)?;
+    if me == t1 && me != t2 {
+        Some(false)
+    } else if me == t2 && me != t1 {
+        Some(true)
+    } else {
+        None
+    }
+}
+
 #[inline]
 pub fn ptr_ok(a: usize) -> bool {
     (0x10000..1usize << 48).contains(&a)
@@ -2236,8 +2272,12 @@ pub unsafe fn ru64(a: usize) -> u64 {
 /// 씬의 Vec<String>(원소 24B {cap,ptr@+8,len@+0x10})을 소문자 사본으로.
 /// 형태가 이상하면 None(= 씬 stale/오프셋 불일치 신호 — 호출측이 전체 중단).
 pub unsafe fn read_scene_vec(scene: usize, off: usize) -> Option<Vec<String>> {
-    let p = ru64(scene + off) as usize;
-    let n = ru64(scene + off + 8) as usize;
+    // ★★2026-08-23 크래시 대응: 여기는 **워커 스레드(score_pick)** 에서 100만 회 단위로 불린다.
+    //   raw `ru64` 로 읽고 있었는데, 밴픽 씬이 해제된 뒤에도 stale 포인터로 계속 읽어
+    //   재활용/언매핑된 페이지를 건드리면 그대로 세그폴트다(catch_unwind 로 못 잡음).
+    //   ⟹ 전부 fault-safe 읽기로 교체(+ post_update 의 `scene_gc()` 가 포인터 자체를 무효화).
+    let p = safe_rd_u64(scene + off)? as usize;
+    let n = safe_rd_u64(scene + off + 8)? as usize;
     if n == 0 {
         return Some(Vec::new());
     }
@@ -2247,16 +2287,54 @@ pub unsafe fn read_scene_vec(scene: usize, off: usize) -> Option<Vec<String>> {
     let mut out = Vec::with_capacity(n);
     for i in 0..n {
         let e = p + i * 0x18;
-        let sp = ru64(e + 8) as usize;
-        let sl = ru64(e + 0x10) as usize;
+        let sp = safe_rd_u64(e + 8)? as usize;
+        let sl = safe_rd_u64(e + 0x10)? as usize;
         if !ptr_ok(sp) || sl == 0 || sl > 64 {
             return None;
         }
-        let bytes = core::slice::from_raw_parts(sp as *const u8, sl);
-        out.push(core::str::from_utf8(bytes).ok()?.to_ascii_lowercase());
+        // 마지막 방벽: 문자열 본문도 fault-safe 로 한 번 훑어 매핑을 확인한 뒤 복사.
+        let mut buf = Vec::with_capacity(sl);
+        let mut k = 0usize;
+        while k < sl {
+            let w = safe_rd_u64(sp + k)?;
+            for b in 0..8 {
+                if k + b < sl {
+                    buf.push(((w >> (b * 8)) & 0xff) as u8);
+                }
+            }
+            k += 8;
+        }
+        out.push(core::str::from_utf8(&buf).ok()?.to_ascii_lowercase());
     }
     Some(out)
 }
+
+/// ★밴픽 씬이 죽었으면 **캡처 포인터를 0으로 무효화**한다(post_update 매 프레임 호출).
+///   `scene_cap()` 의 stamp 는 slot_widget 이 돌 때만 올라간다. 몇 프레임 연속 정지 =
+///   밴픽 화면 종료 ⟹ 그 포인터를 쓰는 **워커 스레드 경로**(score_pick·커밋 훅)가
+///   해제된 메모리를 읽지 않도록 원천 차단한다.
+///   (2026-08-23 크래시: `guard:` 로그의 `sel=` 이 613→732→3→0 으로 널뛰다 죽었다.)
+pub fn scene_gc() {
+    let (p, s) = scene_cap();
+    if p == 0 {
+        SCENE_IDLE.store(0, Ordering::Relaxed);
+        return;
+    }
+    if SCENE_LAST_STAMP.swap(s, Ordering::Relaxed) != s {
+        SCENE_IDLE.store(0, Ordering::Relaxed);
+        return;
+    }
+    if SCENE_IDLE.fetch_add(1, Ordering::Relaxed) + 1 == 5 {
+        unsafe {
+            core::ptr::write_volatile(core::ptr::addr_of_mut!(SCENE_CAP.0) as *mut u64, 0u64);
+        }
+        if config::get().debug {
+            config::llog("scenegc: 밴픽 씬 종료 → 캡처 포인터 무효화(stale read 차단)");
+        }
+    }
+}
+static SCENE_LAST_STAMP: AtomicU64 = AtomicU64::new(u64::MAX);
+static SCENE_IDLE: AtomicU64 = AtomicU64::new(0);
 
 /// scene_step 캡처 씬의 양팀 픽 이름(소문자). 밴픽 중에만 유효(활성 씬 라이브).
 /// 형태 이상/씬 무효면 None. score_pick 의 ctx.ally_pick 불완전 보정용 —
@@ -3072,6 +3150,17 @@ pub static INSTALL_STATE_CPROD: AtomicUsize = AtomicUsize::new(0);
 static CPROD_COOLDOWN: AtomicUsize = AtomicUsize::new(0);
 pub static CNT_CP_SEEN: AtomicU64 = AtomicU64::new(0);
 pub static CNT_CP_SWAP: AtomicU64 = AtomicU64::new(0);
+/// 스왑 결정(tag 7) 교체 횟수.
+pub static CNT_SWAPORDER: AtomicU64 = AtomicU64::new(0);
+/// tag 7 을 본 총 횟수.
+pub static SO_SEEN: AtomicU64 = AtomicU64::new(0);
+/// 조기 반환 사유별 카운터.
+///  0=식별자없음 1=order길이이상 2=순열아님 3=rmi/스냅샷없음 4=팀매칭실패 5=버킷불일치
+///  6=제한챔프0명 7=게임배정이이미최적
+pub static SO_SKIP: [AtomicU64; 8] = [
+    AtomicU64::new(0), AtomicU64::new(0), AtomicU64::new(0), AtomicU64::new(0),
+    AtomicU64::new(0), AtomicU64::new(0), AtomicU64::new(0), AtomicU64::new(0),
+];
 static DBG_CP: AtomicU64 = AtomicU64::new(0);
 static DBG_CPF: AtomicU64 = AtomicU64::new(0);
 static DBG_CPS: AtomicU64 = AtomicU64::new(0);
@@ -3095,7 +3184,18 @@ unsafe extern "C" fn cprod_hook(
     p8: usize,
 ) -> usize {
     let _ = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+        // ★진단 재료 2종(A 백그라운드 스왑 규명용):
+        //   ① 실행기 ctx 보관 — post_update 가 전 매치 스냅샷을 훑을 수 있게.
+        //   ② 결정레코드 tag 히스토그램 — 스왑 결정이 같은 큐로 오는지(=개입 가능한지).
+        if ptr_ok(ctx) {
+            CP_CTX.store(ctx, Ordering::Relaxed);
+        }
+        if let Some(t) = safe_rd_u64(rec) {
+            let ti = (t as usize).min(15);
+            CP_TAGS[ti].fetch_add(1, Ordering::Relaxed);
+        }
         cprod_swap(ctx, rec);
+        cprod_swap_order(ctx, rec);
         // ★교체가 끝난 뒤(=최종 확정 이름)에 라인업을 집계한다. 백그라운드 매치 포함 전 매치.
         lineup_note(ctx, rec);
     }));
@@ -3109,8 +3209,19 @@ unsafe extern "C" fn cprod_hook(
 
 /// 이미 기록한 (match_id, team) — 라인업 1회만 남기기 위해.
 static LINEUP_SEEN: Mutex<Vec<(u64, u64)>> = Mutex::new(Vec::new());
-static DBG_KIND: AtomicU64 = AtomicU64::new(0);
-static DBG_SWAPSCAN: AtomicU64 = AtomicU64::new(0);
+/// ★커밋 훅에서 마지막으로 본 실행기 ctx — post_update 의 전 매치 스왑order 스캔용.
+///   (훅 밖에서 쓰므로 stale 가능 → 읽기는 전부 safe_rd_* 경유.)
+pub static CP_CTX: AtomicUsize = AtomicUsize::new(0);
+/// 이미 order 를 고친 (mid, 스냅샷수, 양팀픽) 조합 — **상태당 1회만** 쓴다(워커와의 경합 최소화).
+static FIXED_SEEN: Mutex<Vec<u64>> = Mutex::new(Vec::new());
+/// 결정레코드 tag(rec+0x00) 히스토그램 — tag 6(밴/픽 커밋) 말고 **스왑 결정**이
+/// 같은 큐로 오는지 찾기 위한 진단(`queue_ai_swap_select` 존재 = 가능성 높음).
+pub static CP_TAGS: [AtomicU64; 16] = [
+    AtomicU64::new(0), AtomicU64::new(0), AtomicU64::new(0), AtomicU64::new(0),
+    AtomicU64::new(0), AtomicU64::new(0), AtomicU64::new(0), AtomicU64::new(0),
+    AtomicU64::new(0), AtomicU64::new(0), AtomicU64::new(0), AtomicU64::new(0),
+    AtomicU64::new(0), AtomicU64::new(0), AtomicU64::new(0), AtomicU64::new(0),
+];
 
 /// UI 가 읽은 현재 차례 종류(0=미상 1=밴 2=픽). post_update 가 매 프레임 게시.
 ///   ★밴픽 순서를 바꾸는 모드가 있어도 맞는 유일한 근거(게임의 `in_turn` 표시).
@@ -3148,68 +3259,8 @@ unsafe fn lineup_note(ctx: usize, rec: usize) {
     if rule >= 4 {
         return;
     }
-    // ★진단: 커밋 레코드의 밴/픽 구분 후보 필드 + 이번 커밋 직전 버킷 카운트.
-    //   순서를 바꾸는 모드가 있으면 `total < 밴수*2` 공식이 깨지므로(2차 밴 페이즈에서
-    //   밴을 픽으로 오판해 교체함 — 유저 보고 2026-08-22), 레코드가 직접 알려주는
-    //   값을 찾아 대체해야 한다. 값 매핑용으로 앞부분 40건만 남긴다.
-    {
-        let n = DBG_KIND.fetch_add(1, Ordering::Relaxed);
-        if n < 40 {
-            crate::config::llog(&format!(
-                "cmt#{n}: cur={cur} k08={:?} k0c={:?} k38={:?} b={}+{} p={}+{} banlim={}",
-                safe_rd_u64(rec + 0x08),
-                safe_rd_u64(rec + 0x0c),
-                safe_rd_u64(rec + 0x38),
-                ru64(r + 0x40),
-                ru64(r + 0x58),
-                ru64(r + 0x70),
-                ru64(r + 0x88),
-                ru64(r + 0xf0)
-            ));
-        }
-    }
     let picks_n = 4 + rule * 2;
     let per_team = picks_n / 2; // fmt0=2, 1=3, 2=4, 3=5
-    // ★백그라운드 매치용 스왑 order 탐침 —
-    //   유저 경기의 order 는 클라 밴픽 씬 +0x198/+0x1b0 에 있다(RE 확정). 화면 없는 매치도
-    //   같은 자리(rmi / 스냅샷 레코드)에 있는지 훑는다. Vec{cap,ptr,len} 중 len==per_team 이고
-    //   내용이 0..per_team-1 순열인 곳만 보고한다. 드래프트가 끝난 뒤에만 의미가 있다.
-    let ban_limit2 = ru64(r + 0xf0) as usize;
-    let total2 =
-        (ru64(r + 0x40) + ru64(r + 0x58) + ru64(r + 0x70) + ru64(r + 0x88)) as usize;
-    if total2 + 1 >= ban_limit2 * 2 + picks_n {
-        let n = DBG_SWAPSCAN.fetch_add(1, Ordering::Relaxed);
-        if n < 6 {
-            let mut found: Vec<String> = Vec::new();
-            for (base, name, span) in [(rmi, "rmi", 0x600usize), (r, "snap", 0x100)] {
-                let mut o = 0usize;
-                while o + 0x18 <= span {
-                    let ptr = safe_rd_u64(base + o + 8).unwrap_or(0) as usize;
-                    let len = safe_rd_u64(base + o + 0x10).unwrap_or(0) as usize;
-                    if len == per_team && ptr_ok(ptr) {
-                        let mut seen = [false; 8];
-                        let mut ok = true;
-                        for i in 0..len {
-                            let v = safe_rd_u64(ptr + i * 8).unwrap_or(99) as usize;
-                            if v >= per_team || seen[v] {
-                                ok = false;
-                                break;
-                            }
-                            seen[v] = true;
-                        }
-                        if ok {
-                            let vals: Vec<String> = (0..len)
-                                .map(|i| safe_rd_u64(ptr + i * 8).unwrap_or(0).to_string())
-                                .collect();
-                            found.push(format!("{name}+{o:x}=[{}]", vals.join(",")));
-                        }
-                    }
-                    o += 8;
-                }
-            }
-            crate::config::llog(&format!("swapscan#{n}: mid={mid} {}", found.join(" ")));
-        }
-    }
     let ban_limit = ru64(r + 0xf0) as usize;
     let total = (ru64(r + 0x40) + ru64(r + 0x58) + ru64(r + 0x70) + ru64(r + 0x88)) as usize;
     // ★밴/픽 판정을 **순서 가정 없이** 한다:
@@ -3270,6 +3321,125 @@ unsafe fn lineup_note(ctx: usize, rec: usize) {
         };
         crate::config::llog(&format!("mid={mid} team={team} : {body} => {verdict}"));
     }
+}
+
+/// ★★스왑 결정(tag 7) 교체 — **워커 스레드에서, 배정이 정해지는 그 순간 1회**.
+///   실측 확정(2026-08-23 `tagrec#7`): tag 7 = 스왑 결정, 팀당 1건.
+///     rec+0x00 tag(=7) / rec+0x10 match_id / rec+0x18 order Vec{cap,ptr@+8,len@+0x10} / rec+0x30 팀 id
+///   예) `mid=316 f30=34 +18=[2,1,3,0,4]`, `mid=316 f30=37 +18=[2,3,1,4,0]`
+///   ⟹ 백그라운드를 폴링하며 스냅샷을 덮어쓸 필요가 없다(유저 제안 2026-08-23).
+///      같은 스레드·같은 시점이라 경합이 원천적으로 없다.
+unsafe fn cprod_swap_order(ctx: usize, rec: usize) {
+    let cfg = config::get();
+    if !cfg.enabled || cfg.swap_force == 0 || !config::any_restricted() {
+        return;
+    }
+    if !ptr_ok(rec) || safe_rd_u64(rec).unwrap_or(0) != 7 {
+        return;
+    }
+    SO_SEEN.fetch_add(1, Ordering::Relaxed);
+    let mid = safe_rd_u64(rec + 0x10).unwrap_or(u64::MAX);
+    let acting = safe_rd_u64(rec + 0x30).unwrap_or(u64::MAX);
+    if mid == u64::MAX || acting == u64::MAX {
+        SO_SKIP[0].fetch_add(1, Ordering::Relaxed);
+        return;
+    }
+    // order Vec (rec+0x18)
+    let Some(optr) = safe_rd_u64(rec + 0x20) else { return };
+    let Some(olen) = safe_rd_u64(rec + 0x28) else { return };
+    let (optr, olen) = (optr as usize, olen as usize);
+    if olen < 2 || olen > 5 || !ptr_ok(optr) {
+        SO_SKIP[1].fetch_add(1, Ordering::Relaxed);
+        return;
+    }
+    let mut cur: Vec<u64> = Vec::with_capacity(olen);
+    let mut seen = [false; 8];
+    for k in 0..olen {
+        let Some(v) = safe_rd_u64(optr + k * 8) else { return };
+        if v as usize >= olen || seen[v as usize] {
+            SO_SKIP[2].fetch_add(1, Ordering::Relaxed); // 순열 아님 = 다른 variant
+            return;
+        }
+        seen[v as usize] = true;
+        cur.push(v);
+    }
+    // 그 팀의 픽 목록: 스냅샷 버킷 중 team id 가 acting 인 쪽.
+    let Some(rmi) = find_rmi(ctx, mid).or_else(|| find_rmi_at(ctx, 0x320, mid)) else {
+        SO_SKIP[3].fetch_add(1, Ordering::Relaxed);
+        return;
+    };
+    let snap_ptr = safe_rd_u64(rmi + 8).unwrap_or(0) as usize;
+    let snap_cnt = safe_rd_u64(rmi + 0x10).unwrap_or(0) as usize;
+    if snap_cnt == 0 || !ptr_ok(snap_ptr) {
+        SO_SKIP[3].fetch_add(1, Ordering::Relaxed);
+        return;
+    }
+    let r = snap_ptr + (snap_cnt - 1) * 0x100;
+    let side = ru8(r + 0xf8) as usize & 1;
+    let team_a = safe_rd_u64(rmi + 0x140 + ((side ^ 1) * 8)).unwrap_or(u64::MAX);
+    let team_b = safe_rd_u64(rmi + 0x140 + (side * 8)).unwrap_or(u64::MAX);
+    let bucket = if acting == team_a {
+        0x60usize
+    } else if acting == team_b {
+        0x78
+    } else {
+        SO_SKIP[4].fetch_add(1, Ordering::Relaxed); // 팀 id 매칭 실패
+        return;
+    };
+    let Some(picks) = read_bucket(r + bucket) else {
+        SO_SKIP[5].fetch_add(1, Ordering::Relaxed);
+        return;
+    };
+    if picks.len() != olen {
+        SO_SKIP[5].fetch_add(1, Ordering::Relaxed); // 버킷 길이 불일치
+        return;
+    }
+    let masks: Vec<u8> = picks.iter().map(|n| config::mask_of(n)).collect();
+    let (want, best_n) = crate::best_order(&masks, &cur);
+    let restricted = masks.iter().filter(|&&m| m != config::MASK_ALL).count();
+    let cur_n = crate::order_matched(&masks, &cur);
+    // 교체가 필요하면 여기서 실제로 쓴다.
+    let changed = restricted > 0 && cur_n < best_n && want != cur;
+    if changed {
+        for (k, &w) in want.iter().enumerate() {
+            let a = optr + k * 8;
+            if ptr_ok(a) {
+                core::ptr::write(a as *mut u64, w);
+            }
+        }
+        CNT_SWAPORDER.fetch_add(1, Ordering::Relaxed);
+    } else if restricted == 0 {
+        SO_SKIP[6].fetch_add(1, Ordering::Relaxed);
+    } else {
+        SO_SKIP[7].fetch_add(1, Ordering::Relaxed);
+    }
+    // ★★최종 배정을 **그대로 출력**한다(유저 요청 2026-08-23) —
+    //   이게 "게임이 실제로 쓸 배정"이다. 우리가 계산한 값이 아니라 order 의 최종 상태.
+    //   `mid=… team=… : 챔프(포지션)` 라인업 줄은 **우리 계산**이라 검증 근거가 못 된다.
+    let fin: &Vec<u64> = if changed { &want } else { &cur };
+    let fin_n = crate::order_matched(&masks, fin);
+    let body: Vec<String> = (0..fin.len())
+        .map(|p| {
+            let i = fin[p] as usize;
+            let m = masks.get(i).copied().unwrap_or(config::MASK_ALL);
+            let bad = m != config::MASK_ALL && m & (1 << p) == 0;
+            format!(
+                "{}{}({})",
+                if bad { "★" } else { "" },
+                crate::kr_name(&picks[i]),
+                crate::POS_NAMES_KR[p]
+            )
+        })
+        .collect();
+    if !cfg.log_lineups {
+        return;
+    }
+    crate::config::llog(&format!(
+        "배정: mid={mid} team={acting} {} | 적합={fin_n}/{} 제한={restricted} {}",
+        body.join(" "),
+        best_n,
+        if changed { "교체함" } else { "게임값유지" }
+    ));
 }
 
 /// rec+0x18 String 을 읽어 소문자 이름으로.
@@ -3338,6 +3508,26 @@ unsafe fn cprod_swap(ctx: usize, rec: usize) {
     }
     let r = snap_ptr + (snap_cnt - 1) * 0x100;
     let mut used: Vec<String> = Vec::new();
+    // ★★2026-08-23 피어리스 대응 — **이전 세트에서 쓴 챔피언은 다시 못 쓴다.**
+    //   구버전은 현재 레코드(=이번 세트)의 4버킷만 제외했다. 그래서 Bo3 2세트 첫 픽에
+    //   **1세트에 쓴 챔프를 대체로 골라 넣었고**, 그 커밋을 게임이 받을 수 없어
+    //   **드래프트가 그 자리에서 멈췄다 = 일정 진행 정지**.
+    //   실측 3회 재현(2개 세션 독립) — 전부 `mid=412 acting=48 -> alchemist`,
+    //   그 팀 1세트 라인업에 연금술사가 있었다.
+    //   ⟹ 스냅샷 배열의 **이전 레코드 전부**(밴+픽)를 제외 집합에 넣는다.
+    //   ⚠과다 제외는 "합법 대체 없음 → fail-open(원본 유지)"으로 끝나 무해하지만,
+    //     과소 제외는 **정지**다. 안전 방향으로 넉넉히 제외한다.
+    for i in 0..snap_cnt.saturating_sub(1) {
+        let pr = snap_ptr + i * 0x100;
+        for off in [0x30usize, 0x48, 0x60, 0x78] {
+            if let Some(v) = read_bucket(pr + off) {
+                for s in &v {
+                    used.push(s.clone());
+                }
+            }
+        }
+    }
+    let prev_n = used.len();
     let mut t1_pick: Vec<String> = Vec::new();
     let mut t2_pick: Vec<String> = Vec::new();
     for (off, which) in [(0x30usize, 0u8), (0x48, 0), (0x60, 1), (0x78, 2)] {
@@ -3356,17 +3546,28 @@ unsafe fn cprod_swap(ctx: usize, rec: usize) {
     //   → 절대 교체하지 않는다(회색화로 애초에 못 고르게 하는 것이 올바른 처리).
     {
         let acting_now = safe_rd_u64(rec + 0x30).unwrap_or(u64::MAX);
-        let (scene, _) = scene_cap();
-        if ptr_ok(scene) {
-            let sel_team = ru64(scene + O_SELTEAM);
+        // ★★2026-08-23: 여기는 **워커 스레드**다. 밴픽 씬 포인터를 raw 로 읽던 것이
+        //   크래시 원인(해제된 메모리 read). 내 팀 id 는 이제 SDK `player_team_id()` 로
+        //   알 수 있으므로 **씬을 아예 안 본다.**
+        {
+            // ★★2026-08-22 정정: `scene+0x3d0`(sel_team)은 **T1 팀 id** 지 내 팀이 아니다.
+            //   Bo3 처럼 세트마다 진영이 바뀌면 2세트부터 **상대 픽을 내 픽으로 보호**해 버린다.
+            //   ⟹ 유저 팀 id 의 진짜 출처(`*(*(scene+0x388)+0xe3b8)`)를 1순위로 쓴다.
+            // 내 팀 id = SDK `db.player_team_id()`(관리화면에서 캡처, 세이브 내내 불변).
+            //   미확보면 판정 보류(= 보호 안 함) — 씬 raw read 폴백은 폐기했다.
+            let my_team = crate::player_team().unwrap_or(u64::MAX);
             // ★유저가 직접 클릭한 픽만 보호(자동픽/위임은 교정 대상).
             //   진단: 가드가 왜 안 걸렸는지 알 수 있게 재료를 항상 남긴다.
-            let is_my_team = acting_now == sel_team;
+            let is_my_team = acting_now == my_team;
             let clicked = human_take(&cur); // ⚠단락평가 금지 — 항상 소비/판정
-            crate::config::llog(&format!(
-                "guard: cur={cur} acting={acting_now} sel={sel_team} my={is_my_team} clicked={clicked} ck={}",
-                INSTALL_STATE_CK.load(Ordering::Relaxed)
-            ));
+            // ★로그 축소(2026-08-23): 이 줄이 전체 로그의 84%(11333/13500)를 차지했다.
+            //   판정 근거는 확보됐으니 **내 팀 커밋일 때만** 남긴다(가드가 의미 있는 경우).
+            if is_my_team || cfg.debug {
+                crate::config::llog(&format!(
+                    "guard: cur={cur} acting={acting_now} me={my_team} my={is_my_team} clicked={clicked} ck={}",
+                    INSTALL_STATE_CK.load(Ordering::Relaxed)
+                ));
+            }
             if is_my_team && clicked {
                 if cfg.debug {
                     let n = DBG_CPH.fetch_add(1, Ordering::Relaxed);
@@ -3465,11 +3666,13 @@ unsafe fn cprod_swap(ctx: usize, rec: usize) {
         Some(v) => v,
         None => return, // 합법 대체 없음 → fail-open(원본 유지)
     };
+    if cfg.log_lineups {
     crate::config::llog(&format!(
-        "swap: mid={match_id} acting={acting} cur={cur}(m={cur_mask:05b}) -> {newname} | mypicks=[{}] pinned={}",
+        "swap: mid={match_id} acting={acting} cur={cur}(m={cur_mask:05b}) -> {newname} | mypicks=[{}] pinned={} 이전세트제외={prev_n}",
         my_picks.join(","),
         pinned.len()
     ));
+    }
     // rec+0x18 String 교체: cap=0(게임이 free 안 함) + 정적 버퍼.
     let buf: &'static [u8] = {
         let leaked: &'static [u8] = Box::leak(newname.as_bytes().to_vec().into_boxed_slice());
@@ -3549,6 +3752,227 @@ unsafe fn find_rmi_at(ctx: usize, off: usize, match_id: u64) -> Option<usize> {
         }
     }
     None
+}
+
+/// 1바이트 fault-safe 읽기(정렬 qword 읽고 잘라냄 — VEH 경유라 stale 포인터에도 안전).
+unsafe fn safe_rd_u8(a: usize) -> Option<u8> {
+    safe_rd_u64(a & !7).map(|v| ((v >> ((a & 7) * 8)) & 0xff) as u8)
+}
+
+/// ★A(백그라운드 스왑) 규명용 진단 — **모든 매치**의 마지막 드래프트 스냅샷에서
+///   vecC(+0x90)/vecD(+0xa8) 를 훑어 문자열로 돌려준다.
+///   왜: 2026-08-22 커밋 시점 관측은 6매치 전부 `[0,1,2,3,4]`(identity) 였다.
+///   유저 경기의 진짜 order(클라 씬 +0x198/+0x1b0)는 `[4,3,1,0,2]` 같은 비-identity 가
+///   나오므로, **커밋 시점 identity = 아직 안 채워졌거나 스왑 order 가 아니다**.
+///   드래프트가 끝난 뒤(=post_update 주기 스캔)에도 identity 면 후자로 확정.
+pub unsafe fn scan_orders() -> Vec<String> {
+    let mut out = Vec::new();
+    let ctx = CP_CTX.load(Ordering::Relaxed);
+    if !ptr_ok(ctx) {
+        return out;
+    }
+    for off in [0x320usize, 0x350] {
+        let Some(ctl) = safe_rd_u64(ctx + off) else { continue };
+        let Some(mask) = safe_rd_u64(ctx + off + 8) else { continue };
+        let (ctl, mask) = (ctl as usize, mask as usize);
+        if !ptr_ok(ctl) || mask == 0 || mask > 0xffff {
+            continue;
+        }
+        for i in 0..=mask {
+            let Some(c) = safe_rd_u8(ctl + i) else { continue };
+            if c & 0x80 != 0 {
+                continue; // empty/deleted
+            }
+            let entry = ctl.wrapping_sub((i + 1) * 0x160);
+            if !ptr_ok(entry) {
+                continue;
+            }
+            let Some(mid) = safe_rd_u64(entry) else { continue };
+            if mid == u64::MAX {
+                continue;
+            }
+            if out.len() >= 64 {
+                return out; // 폭주 가드(테이블 용량이 커도 로그·비용을 묶는다)
+            }
+            let rmi = entry + 8;
+            let Some(sp) = safe_rd_u64(rmi + 8) else { continue };
+            let Some(sc) = safe_rd_u64(rmi + 0x10) else { continue };
+            let (sp, sc) = (sp as usize, sc as usize);
+            if sc == 0 || sc > 4096 || !ptr_ok(sp) {
+                continue;
+            }
+            let r = sp + (sc - 1) * 0x100;
+            let vec_at = |o: usize| -> String {
+                let ptr = safe_rd_u64(r + o + 8).unwrap_or(0) as usize;
+                let len = safe_rd_u64(r + o + 0x10).unwrap_or(0) as usize;
+                if len == 0 {
+                    return String::new();
+                }
+                if !ptr_ok(ptr) || len > 16 {
+                    return "?".to_string();
+                }
+                (0..len)
+                    .map(|k| {
+                        safe_rd_u64(ptr + k * 8)
+                            .map(|v| v.to_string())
+                            .unwrap_or_else(|| "?".into())
+                    })
+                    .collect::<Vec<_>>()
+                    .join(",")
+            };
+            let n_at = |o: usize| safe_rd_u64(r + o + 0x10).unwrap_or(u64::MAX);
+            out.push(format!(
+                "mid={mid} snaps={sc} 밴={}/{} 픽={}/{} | 00=[{}] 18=[{}] 90=[{}] a8=[{}]",
+                n_at(0x30),
+                n_at(0x48),
+                n_at(0x60),
+                n_at(0x78),
+                vec_at(0x00),
+                vec_at(0x18),
+                vec_at(0x90),
+                vec_at(0xa8)
+            ));
+        }
+    }
+    out
+}
+
+/// ★★백그라운드 경기 + 내 경기 상대 팀의 **스왑 order 강제** (2026-08-22 실측 확정).
+///   근거: `ordscan` 실측에서 드래프트가 끝난 매치(mid=29, 밴 5/5·픽 5/5)의
+///     `snap+0x90 = [2,0,1,4,3]` = 클라 씬 `+0x198`(상대), `snap+0xa8` = 클라 씬 `+0x1b0`(내 팀)
+///   로 **정확히 일치**했다. ⟹ `+0x90/+0xa8` 은 스왑 order 가 맞다.
+///   (직전 관측이 전부 identity 였던 건 그 매치들의 **드래프트가 아직 안 끝나서**였다 —
+///    같은 스캔에서 미완 매치는 픽 3/3 인 상태로 identity, 완료 매치만 비-identity.)
+///   짝짓기(stride 0x18): `밴 0x30/0x48` · `픽 0x60/0x78` · `order 0x90/0xa8`
+///     → 0x60 픽 ↔ 0x90 order, 0x78 픽 ↔ 0xa8 order (mid=29 로 검증).
+///   안전장치(해제된 ctx 에 쓰면 힙 오염 — 08-22 크래시 교훈):
+///     ①드래프트 완료(두 버킷 len == per_team) ②order len == per_team 이고 0..n-1 **순열**
+///     ③버킷의 챔피언 이름이 전부 정상 문자열 ④현재 배정이 최적보다 **나쁠 때만** 쓴다
+///     (= 이미 최선이면 손대지 않는다 → 유저가 직접 맞춘 배치도 보존)
+pub unsafe fn enforce_orders() -> Vec<String> {
+    let mut out = Vec::new();
+    let cfg = config::get();
+    if !cfg.enabled || cfg.swap_force == 0 || !config::any_restricted() {
+        return out;
+    }
+    let ctx = CP_CTX.load(Ordering::Relaxed);
+    if !ptr_ok(ctx) {
+        return out;
+    }
+    let mut seen = 0usize;
+    for off in [0x320usize, 0x350] {
+        let Some(ctl) = safe_rd_u64(ctx + off) else { continue };
+        let Some(mask) = safe_rd_u64(ctx + off + 8) else { continue };
+        let (ctl, mask) = (ctl as usize, mask as usize);
+        if !ptr_ok(ctl) || mask == 0 || mask > 0xfff {
+            continue;
+        }
+        for i in 0..=mask {
+            if seen >= 64 {
+                return out;
+            }
+            let Some(c) = safe_rd_u8(ctl + i) else { continue };
+            if c & 0x80 != 0 {
+                continue;
+            }
+            let entry = ctl.wrapping_sub((i + 1) * 0x160);
+            if !ptr_ok(entry) {
+                continue;
+            }
+            let Some(mid) = safe_rd_u64(entry) else { continue };
+            if mid == u64::MAX {
+                continue;
+            }
+            let rmi = entry + 8;
+            let Some(sp) = safe_rd_u64(rmi + 8) else { continue };
+            let Some(sc) = safe_rd_u64(rmi + 0x10) else { continue };
+            let (sp, sc) = (sp as usize, sc as usize);
+            if sc == 0 || sc > 4096 || !ptr_ok(sp) {
+                continue;
+            }
+            seen += 1;
+            let r = sp + (sc - 1) * 0x100;
+            let rule = ru8(r + 0xf9) as usize;
+            if rule >= 4 {
+                continue;
+            }
+            let per_team = (4 + rule * 2) / 2;
+            // ★★2026-08-23 안전 강화 — 스케줄 진행 정지 사고 대응.
+            //   구버전은 **한쪽 버킷만 다 차도** 그 팀 order 를 0.1초마다 계속 썼다. 그건
+            //   워커 스레드가 **아직 드래프트 중인 레코드**에 매 100ms 쓰는 것이라,
+            //   Vec 재할당/교체와 겹치면 워커 상태를 깨뜨릴 수 있다(무증상 정지의 유력 후보).
+            //   ⟹ ①**양 팀 드래프트가 모두 끝난 뒤에만** ②그 상태에 대해 **딱 한 번만** 쓴다.
+            let Some(p_a) = read_bucket(r + 0x60) else { continue };
+            let Some(p_b) = read_bucket(r + 0x78) else { continue };
+            if p_a.len() != per_team || p_b.len() != per_team {
+                continue; // 드래프트 미완 → 절대 쓰지 않는다
+            }
+            // (mid, 스냅샷 수, 양 팀 픽 이름) 조합당 1회만.
+            let sig = {
+                use std::hash::{Hash, Hasher};
+                let mut h = std::collections::hash_map::DefaultHasher::new();
+                (mid, sc, &p_a, &p_b).hash(&mut h);
+                h.finish()
+            };
+            {
+                let mut g = FIXED_SEEN.lock().unwrap_or_else(|e| e.into_inner());
+                if g.contains(&sig) {
+                    continue;
+                }
+                if g.len() > 512 {
+                    g.clear();
+                }
+                g.push(sig);
+            }
+            for (picks, oo) in [(&p_a, 0x90usize), (&p_b, 0xa8)] {
+                // order 가 길이 일치 + 순열일 때만
+                let Some(optr) = safe_rd_u64(r + oo + 8) else { continue };
+                let Some(olen) = safe_rd_u64(r + oo + 0x10) else { continue };
+                let (optr, olen) = (optr as usize, olen as usize);
+                if olen != per_team || !ptr_ok(optr) {
+                    continue;
+                }
+                let mut cur: Vec<u64> = Vec::with_capacity(olen);
+                let mut ok = true;
+                let mut seen_v = [false; 8];
+                for k in 0..olen {
+                    let Some(v) = safe_rd_u64(optr + k * 8) else {
+                        ok = false;
+                        break;
+                    };
+                    if v as usize >= per_team || seen_v[v as usize] {
+                        ok = false;
+                        break;
+                    }
+                    seen_v[v as usize] = true;
+                    cur.push(v);
+                }
+                if !ok {
+                    continue;
+                }
+                let masks: Vec<u8> = picks.iter().map(|n| config::mask_of(n)).collect();
+                let (want, best_n) = crate::best_order(&masks, &cur);
+                if crate::order_matched(&masks, &cur) >= best_n || want == cur {
+                    continue; // 이미 최선 → 건드리지 않는다
+                }
+                for (k, &w) in want.iter().enumerate() {
+                    let a = optr + k * 8;
+                    if ptr_ok(a) {
+                        core::ptr::write(a as *mut u64, w);
+                    }
+                }
+                out.push(format!(
+                    "swapfix: mid={mid} +{oo:x} {cur:?} -> {want:?} ({best_n}/{per_team}) [{}]",
+                    picks
+                        .iter()
+                        .map(|n| crate::kr_name(n))
+                        .collect::<Vec<_>>()
+                        .join(",")
+                ));
+            }
+        }
+    }
+    out
 }
 
 /// Hook CP 설치 (post_update — 스레드 안전 패치·쿨다운 재시도).
