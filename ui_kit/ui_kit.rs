@@ -363,6 +363,29 @@ pub fn ensure_clicks_front(ui: &mut GameUI, last: &AtomicUsize, routes: Vec<(Str
     last.store(ui.filter_handler.len(), Ordering::Relaxed);
 }
 
+/// ensure_clicks 와 동일하나 **이벤트를 소비하지 않는다**(항상 false 반환) = 관찰 전용.
+/// 게임 기본 동작은 그대로 두고 "눌렸다" 는 사실만 알고 싶을 때 쓴다.
+/// (소비하는 ensure_clicks 를 게임 버튼에 걸면 게임 동작이 죽는다 — 예: 스왑 코치 위임.)
+pub fn ensure_clicks_observe(ui: &mut GameUI, last: &AtomicUsize, routes: Vec<(String, ClickFn)>) {
+    let cur = ui.filter_handler.len();
+    let prev = last.load(Ordering::Relaxed);
+    if prev == usize::MAX || cur < prev {
+        let filter: Rc<dyn Fn(&UIEvent) -> bool> = Rc::new(move |e: &UIEvent| {
+            if let UIEvent::Click { path, .. } = e {
+                for (suf, cb) in routes.iter() {
+                    if path.ends_with(suf.as_str()) || path == suf {
+                        cb();
+                    }
+                }
+            }
+            false // ★소비하지 않는다
+        });
+        let handler: Rc<dyn Fn(&mut UIEventHandlerContext<(), UIOutEvent>)> = Rc::new(|_ctx| {});
+        ui.filter_handler.push((filter, handler));
+    }
+    last.store(ui.filter_handler.len(), Ordering::Relaxed);
+}
+
 /// 라우트 1개 편의 생성자: (노드 id, 콜백). 매칭은 `.id` 또는 정확히 id.
 pub fn route(id: &str, cb: ClickFn) -> (String, ClickFn) {
     (format!(".{id}"), cb)
