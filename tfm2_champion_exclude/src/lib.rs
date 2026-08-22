@@ -52,7 +52,7 @@ mod inject;
 mod ui_kit;
 
 const MOD_ID: &str = "tfm2_champion_exclude";
-const VERSION: &str = "0.2.0";
+const VERSION: &str = "0.3.0";
 
 // build_inj.ps1 신원 검증용 — dll 안에 lib.rs 절대경로 문자열 필요.
 #[no_mangle]
@@ -418,6 +418,156 @@ static SEL: Mutex<Option<HashSet<String>>> = Mutex::new(None);
 /// cfg 에 '*' 가 있었는지(저장 시 유지 판단).
 static HAD_STAR: AtomicBool = AtomicBool::new(false);
 
+// ── 편의 필터(v0.3.0 — pos_lock 동형): 클래스 드롭다운 + 이름 검색 ──
+/// 클래스 라벨(드롭다운 옵션 순서 = CLASS_SEL 인덱스, 0=전체).
+const CLASS_LABELS: [&str; 6] = ["전체", "전사", "원거리", "마법사", "전투보조", "암살자"];
+static CLASS_SEL: AtomicUsize = AtomicUsize::new(0);
+static SEARCH_TXT: Mutex<String> = Mutex::new(String::new());
+static SEARCH_CLEAR: AtomicBool = AtomicBool::new(false);
+static DD_INIT: AtomicBool = AtomicBool::new(false);
+static CLASS_DD: ui_kit::NativeDropdown = ui_kit::NativeDropdown::new("cx_class_filter");
+/// 필터 적용 후 실제 그리드에 보이는 목록 — 셀 인덱스 ↔ 챔피언 대응의 단일 출처
+/// (그리드와 클릭 라우트가 같은 목록을 봐야 엉뚱한 챔프가 토글되지 않는다 — pos_lock 교훈).
+static VISIBLE: Mutex<Vec<String>> = Mutex::new(Vec::new());
+/// 후보 id → 클래스 인덱스(0=전사 … 4=암살자). recompute_candidates 가 채움.
+static CAT_MAP: Mutex<Option<std::collections::HashMap<String, u8>>> = Mutex::new(None);
+
+// ── 한글 이름(검색·정렬용) — pos_lock 동형: champion.i18n 파싱(base/mods/workshop 병합) ──
+static KR_MAP: std::sync::OnceLock<std::collections::HashMap<String, String>> =
+    std::sync::OnceLock::new();
+fn game_dir() -> Option<PathBuf> {
+    let mut buf = [0u16; 512];
+    let n = unsafe { GetModuleFileNameW(0, buf.as_mut_ptr(), 512) } as usize;
+    if n == 0 || n >= 512 {
+        return None;
+    }
+    let exe = String::from_utf16_lossy(&buf[..n]);
+    Some(std::path::Path::new(&exe).parent()?.to_path_buf())
+}
+/// champion.i18n 텍스트에서 ko.description.<id>.name 을 뽑아 out 에 병합.
+fn parse_ko_names(text: &str, out: &mut std::collections::HashMap<String, String>) {
+    let Some(ko) = text.find("\"ko\"") else { return };
+    let Some(drel) = text[ko..].find("\"description\"") else { return };
+    let dpos = ko + drel;
+    let Some(obr) = text[dpos..].find('{') else { return };
+    let start = dpos + obr;
+    let b = text.as_bytes();
+    let (mut depth, mut in_str, mut esc, mut end) = (0usize, false, false, b.len());
+    for i in start..b.len() {
+        let c = b[i];
+        if in_str {
+            if esc {
+                esc = false;
+            } else if c == b'\\' {
+                esc = true;
+            } else if c == b'"' {
+                in_str = false;
+            }
+            continue;
+        }
+        match c {
+            b'"' => in_str = true,
+            b'{' => depth += 1,
+            b'}' => {
+                depth -= 1;
+                if depth == 0 {
+                    end = i;
+                    break;
+                }
+            }
+            _ => {}
+        }
+    }
+    let seg = &text[start..end.min(text.len())];
+    let sb = seg.as_bytes();
+    let (mut d, mut i) = (0usize, 0usize);
+    let mut cur_id: Option<String> = None;
+    let mut last_key = String::new();
+    while i < sb.len() {
+        match sb[i] {
+            b'"' => {
+                let mut j = i + 1;
+                let mut e = false;
+                while j < sb.len() {
+                    let c = sb[j];
+                    if e {
+                        e = false;
+                    } else if c == b'\\' {
+                        e = true;
+                    } else if c == b'"' {
+                        break;
+                    }
+                    j += 1;
+                }
+                let raw = &seg[i + 1..j.min(seg.len())];
+                let mut k = j + 1;
+                while k < sb.len() && (sb[k] as char).is_whitespace() {
+                    k += 1;
+                }
+                let is_key = k < sb.len() && sb[k] == b':';
+                if is_key {
+                    last_key = raw.to_string();
+                } else if d == 2 && last_key == "name" {
+                    if let Some(id) = cur_id.clone() {
+                        out.insert(id.to_ascii_lowercase(), raw.to_string());
+                    }
+                }
+                i = j + 1;
+                continue;
+            }
+            b'{' => {
+                d += 1;
+                if d == 2 {
+                    cur_id = Some(last_key.clone());
+                }
+            }
+            b'}' => {
+                if d == 2 {
+                    cur_id = None;
+                }
+                d = d.saturating_sub(1);
+            }
+            _ => {}
+        }
+        i += 1;
+    }
+}
+fn load_kr_names() -> std::collections::HashMap<String, String> {
+    let mut out = std::collections::HashMap::new();
+    let Some(g) = game_dir() else { return out };
+    let mut files: Vec<PathBuf> = Vec::new();
+    files.push(g.join("bundle_unpacked_full").join("text").join("champion.i18n"));
+    if let Ok(rd) = std::fs::read_dir(g.join("mods")) {
+        for e in rd.flatten() {
+            for sub in ["text", "data"] {
+                files.push(e.path().join(sub).join("champion.i18n"));
+            }
+        }
+    }
+    if let Some(steamapps) = g.parent().and_then(|p| p.parent()) {
+        let ws = steamapps.join("workshop").join("content").join("3009300");
+        if let Ok(rd) = std::fs::read_dir(&ws) {
+            for e in rd.flatten() {
+                files.push(e.path().join("text").join("champion.i18n"));
+            }
+        }
+    }
+    for f in files {
+        if let Ok(t) = std::fs::read_to_string(&f) {
+            parse_ko_names(&t, &mut out);
+        }
+    }
+    out
+}
+/// 챔프 id → 한글 이름(없으면 id 그대로).
+fn kr_name(id: &str) -> String {
+    KR_MAP
+        .get_or_init(load_kr_names)
+        .get(&id.to_ascii_lowercase())
+        .cloned()
+        .unwrap_or_else(|| id.to_string())
+}
+
 // 챔피언 스프라이트 에셋 키 테이블(champ_uv.rs — pos_lock 08-20 생성본 사본, 97 id).
 include!(r"C:\tfm2mods\tfm2_champion_exclude\assets\champ_uv.rs");
 
@@ -504,6 +654,7 @@ fn recompute_candidates(
     avail_ids: &[String],
     mod_ids_raw: &[String],
     in_registry: impl Fn(&str) -> bool,
+    cat_of: impl Fn(&str) -> Option<u8>,
 ) {
     let avail_n = avail_ids.len();
     if avail_n == 0 {
@@ -525,7 +676,16 @@ fn recompute_candidates(
         .into_iter()
         .filter(|id| !avail.contains(id) && (mod_ids.contains(id) || in_registry(id)))
         .collect();
-    cand.sort();
+    // 한글 이름 가나다순(이름 없는 챔프는 id 순으로 뒤) — pos_lock sorted_champs 동형.
+    cand.sort_by(|a, b| kr_name(a).cmp(&kr_name(b)).then_with(|| a.cmp(b)));
+    // 클래스 맵(드롭다운 필터용).
+    let mut cats = std::collections::HashMap::new();
+    for id in &cand {
+        if let Some(c) = cat_of(id) {
+            cats.insert(id.clone(), c);
+        }
+    }
+    *CAT_MAP.lock().unwrap_or_else(|e| e.into_inner()) = Some(cats);
     let n = cand.len();
     *CAND.lock().unwrap_or_else(|e| e.into_inner()) = cand;
     if CAND_SIG.swap(sig, Ordering::Relaxed) != sig {
@@ -623,12 +783,55 @@ pub(crate) fn build_popup_ui() -> String {
     hover: { color: #e8e8e8ff; } active: { color: #e8e8e8ff; }
   }
 
+  #cx_filter_bar:empty {
+    x: 32px; y: 81px; width: 700px; height: 40px;
+
+    #cx_class_filter:dropdown {
+      @"asset/base/style/main#dropdown";
+      width: 150px; height: 40px;
+      max_items_height: 280;
+      text: { size: 17; }
+      item_text: { size: 17; }
+      text_layout: { x: 14px; y: 6px; width: 100%; height: 28px; }
+      item_layout: { height: 40px; width: 145.5px; x: 14px; }
+      item_text_layout: { y: 6px; width: 145.5px; height: 28px; }
+    }
+
+    #cx_champ_search:text_edit {
+      @"asset/base/style/main#text_edit";
+      x: 158px; width: 200px; height: 40px;
+      size: 16; align_y: Center;
+      padding: { left: 44px; top: 5px; right: 15px; bottom: 5px; }
+      placeholder: "챔피언 이름 검색...";
+      max_length: 40;
+
+      #icon:image {
+        ignore_event: true;
+        x: -30px; y: 5px; width: 20px; height: 20px;
+        source: "asset/base/ui/banpick/fi-rr-search";
+        color: #858d9dff;
+      }
+    }
+
+    #cx_search_clear:color_icon_button {
+      @"asset/base/style/main#tertiary_button";
+      x: 366px; width: 40px; height: 40px;
+      icon: { source: "asset/base/ui/icons/cross"; rect: { x: 12; y: 12; w: 16; h: 16; } }
+    }
+
+    #cx_filter_count:label {
+      @"asset/base/style/main#label";
+      x: 420px; width: 240px; height: 40px; size: 15; align_y: Center;
+      color: #858d9dff;
+    }
+  }
+
   #left:color {
-    x: 32px; y: 81px; width: 1207px; height: 842px; color: #1d1f2cff;
+    x: 32px; y: 136px; width: 1207px; height: 787px; color: #1d1f2cff;
     rounding: Uniform { rounding: 8; }
 
     #scroll:scroll_view {
-      x: 16px; y: 16px; width: 1175px; height: 810px; speed: 100; bar_width: 4;
+      x: 16px; y: 16px; width: 1175px; height: 755px; speed: 100; bar_width: 4;
       bar_padding: { top: 8px; bottom: 8px; }
       bar: { source: "asset/base/sprite/white"; color: #37d5b3ff; hover: { color: #ecfbf8ff; } }
       back: { source: "asset/base/sprite/white"; color: #4a4c56ff; }
@@ -654,7 +857,7 @@ pub(crate) fn build_popup_ui() -> String {
   }
 
   #right:color {
-    x: 1254px; y: 81px; width: 477px; height: 842px; color: #1d1f2cff;
+    x: 1254px; y: 136px; width: 477px; height: 787px; color: #1d1f2cff;
     rounding: Uniform { rounding: 8; }
 
     #summary:label { @"asset/base/style/main#bold_label"; x: 24px; y: 24px; width: 429px; height: 28px; size: 18; align_y: Center; text: "패치로 추가되지 않을 챔피언"; }
@@ -683,10 +886,43 @@ fn fill_grid(root: &mut Node) {
         .unwrap_or_else(|e| e.into_inner())
         .clone()
         .unwrap_or_default();
+    // ── 편의 필터(클래스 + 이름 검색) — 그리드와 클릭 라우트가 같은 VISIBLE 을 본다 ──
+    let class_sel = CLASS_SEL.load(Ordering::Relaxed);
+    let search = SEARCH_TXT.lock().unwrap_or_else(|e| e.into_inner()).clone();
+    let visible: Vec<String> = cand
+        .iter()
+        .filter(|c| {
+            if class_sel > 0 {
+                let want = (class_sel - 1) as u8;
+                let g = CAT_MAP.lock().unwrap_or_else(|e| e.into_inner());
+                match g.as_ref().and_then(|m| m.get(*c)).copied() {
+                    Some(v) if v == want => {}
+                    _ => return false,
+                }
+            }
+            if !search.is_empty() {
+                let kr = kr_name(c).to_ascii_lowercase();
+                if !kr.contains(&search) && !c.contains(&search) {
+                    return false;
+                }
+            }
+            true
+        })
+        .cloned()
+        .collect();
+    *VISIBLE.lock().unwrap_or_else(|e| e.into_inner()) = visible.clone();
     let ready = icon_data::READY.load(Ordering::Relaxed) as u64;
+    let filter_sig = {
+        use std::hash::{Hash, Hasher};
+        let mut h = std::collections::hash_map::DefaultHasher::new();
+        (class_sel, &search).hash(&mut h);
+        h.finish()
+    };
     let sig = SEL_VER.load(Ordering::Relaxed)
         ^ ((cand.len() as u64) << 32)
+        ^ ((visible.len() as u64) << 16)
         ^ (ready << 47)
+        ^ filter_sig
         ^ CAND_SIG.load(Ordering::Relaxed).rotate_left(17);
     if GRID_SIG.swap(sig, Ordering::Relaxed) == sig {
         return;
@@ -710,13 +946,21 @@ fn fill_grid(root: &mut Node) {
         };
         ui_kit::label_set(n, &s);
     }
+    if let Some(n) = ui_kit::find_mut(pop, "cx_filter_count") {
+        let s = if visible.len() == cand.len() {
+            String::new()
+        } else {
+            format!("{} / {}", visible.len(), cand.len())
+        };
+        ui_kit::label_set(n, &s);
+    }
     let Some(contents) = ui_kit::find_mut(pop, "contents") else {
         return;
     };
     ICON_SDK.store(0, Ordering::Relaxed);
     ICON_FB.store(0, Ordering::Relaxed);
     for (k, cell) in contents.child.iter_mut().enumerate() {
-        if let Some(champ) = cand.get(k) {
+        if let Some(champ) = visible.get(k) {
             cell.visible = true;
             let lower = champ.clone(); // 이미 소문자
             let listed = selected.contains(&lower);
@@ -741,7 +985,7 @@ fn fill_grid(root: &mut Node) {
         }
     }
     // 스크롤 컨텐츠 높이 = 행 수 기준(셀 152×171·간격 15·7열 — pos_lock 동일 공식).
-    let n = cand.len().min(NCELLS);
+    let n = visible.len().min(NCELLS);
     let rows = n.div_ceil(7);
     let h = (rows as f32) * (171.0 + 15.0) + 16.0;
     set_node_h(contents, h);
@@ -772,7 +1016,32 @@ impl ModExtension for ChampExclExt {
                     .iter()
                     .map(|e| e.id.clone())
                     .collect();
-                recompute_candidates(&avail, &mod_ids, |id| db.champion_info(id).is_some());
+                let cat_idx = |c: &ChampionCategory| -> u8 {
+                    match c {
+                        ChampionCategory::Melee => 0,
+                        ChampionCategory::Range => 1,
+                        ChampionCategory::Magician => 2,
+                        ChampionCategory::Util => 3,
+                        ChampionCategory::Assassin => 4,
+                    }
+                };
+                let mod_cat: std::collections::HashMap<String, u8> = db
+                    .champion_info_sheet
+                    .mod_champions
+                    .iter()
+                    .map(|e| (e.id.to_ascii_lowercase(), cat_idx(&e.category)))
+                    .collect();
+                recompute_candidates(
+                    &avail,
+                    &mod_ids,
+                    |id| db.champion_info(id).is_some(),
+                    |id| {
+                        mod_cat
+                            .get(id)
+                            .copied()
+                            .or_else(|| db.champion_info(id).map(|c| cat_idx(&c.category())))
+                    },
+                );
             }
             // UI 주입(로더 체인 훅 — 늦설치·매 프레임 재시도 가드).
             inject::install();
@@ -796,7 +1065,40 @@ impl ModExtension for ChampExclExt {
             } else if let Some(pop) = ui_kit::find_mut(&mut ui.root, "champ_excl_popup") {
                 pop.visible = open;
             }
+            // ── 편의 필터 위젯 배선(클래스 드롭다운 + 이름 검색 — pos_lock 동형) ──
             if open && present {
+                // ①옵션 주입 1회 — ⚠ABI 호출이라 **팝업이 실제로 열린 뒤에만** 부른다.
+                if !DD_INIT.load(Ordering::Relaxed)
+                    && CLASS_DD.set_options(&ui.root, &CLASS_LABELS, 0)
+                {
+                    DD_INIT.store(true, Ordering::Relaxed);
+                    log("filter: 클래스 드롭다운 옵션 주입 OK");
+                }
+                // ②선택 인덱스 폴링(게임이 클릭 시 runner 에 기록).
+                if let Some(sel) = CLASS_DD.selected(&ui.root) {
+                    let sel = sel.min(CLASS_LABELS.len() - 1);
+                    if CLASS_SEL.swap(sel, Ordering::Relaxed) != sel {
+                        GRID_SIG.store(u64::MAX, Ordering::Relaxed);
+                    }
+                }
+                // ③검색어(비우기 버튼이 눌렸으면 먼저 지운다).
+                if SEARCH_CLEAR.swap(false, Ordering::Relaxed) {
+                    if let Some(n) = ui_kit::find_mut(&mut ui.root, "cx_champ_search") {
+                        ui_kit::textedit_set(n, "");
+                    }
+                }
+                let cur_txt = ui_kit::find(&ui.root, "cx_champ_search")
+                    .and_then(ui_kit::textedit_get)
+                    .unwrap_or_default()
+                    .trim()
+                    .to_ascii_lowercase();
+                {
+                    let mut g = SEARCH_TXT.lock().unwrap_or_else(|e| e.into_inner());
+                    if *g != cur_txt {
+                        *g = cur_txt;
+                        GRID_SIG.store(u64::MAX, Ordering::Relaxed);
+                    }
+                }
                 if LOAD_SEL_REQ.swap(false, Ordering::Relaxed) {
                     load_selection();
                 }
@@ -835,6 +1137,10 @@ impl ModExtension for ChampExclExt {
                 }),
             ));
             routes.push(ui_kit::route(
+                "cx_search_clear",
+                Rc::new(|| SEARCH_CLEAR.store(true, Ordering::Relaxed)),
+            ));
+            routes.push(ui_kit::route(
                 "cx_none",
                 Rc::new(|| {
                     *SEL.lock().unwrap_or_else(|e| e.into_inner()) = Some(HashSet::new());
@@ -845,7 +1151,9 @@ impl ModExtension for ChampExclExt {
                 routes.push(ui_kit::route(
                     &format!("cx_cell{k}"),
                     Rc::new(move || {
-                        let id = CAND
+                        // ★필터된 목록(VISIBLE)을 본다 — 그리드와 같은 출처가 아니면
+                        //   필터 중 엉뚱한 챔프가 토글된다(pos_lock 교훈).
+                        let id = VISIBLE
                             .lock()
                             .unwrap_or_else(|e| e.into_inner())
                             .get(k)
