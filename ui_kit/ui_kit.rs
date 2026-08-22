@@ -930,21 +930,41 @@ impl DraggableWindow {
 //   자동 스크롤(엔진이 스크롤바/클립 처리). 커스텀 color_selectable 불필요.
 //   값 ≈ (보일 항목수)×item_layout.height. 게임 실측: produce 280 / option 280~400.
 //   재사용 스니펫·원문 = examples/native_scroll_dropdown.md.
-// ⚠ TFM2 v0.4.12 기준 RVA. 게임 업데이트 시 재확인. (자세히: 메모리 tfm2-native-dropdown)
-const DD_SETOPT_RVA:  usize = 0x1fa5e30; // FUN_1421184e0 (옵션 set)
-const DD_SELECTED_OFF: usize = 0x1788;   // runner + 현재선택 idx (u64)
+// ★★0.5.6 재핀·구조 재확정 (2026-08-23) — 그 전 값은 **두 군데 다 틀렸다**:
+//   ① 구 `DD_SETOPT_RVA = 0x1fa5e30` 은 0.5.6 에서 **함수 시작이 아니라 코드 중간** = 호출 시 즉사.
+//   ② 구 `DdOpt` 는 **0x28**(40B) 였는데 실제 원소는 **0xf8**(248B) — 그대로 넘기면 게임이
+//      우리 버퍼 6배 바깥까지 읽는다.
+//   근거·검증 = REPORT	fm2_champ_pos_lock\RE6-08-23_네이티브드롭다운-0.5.6-재핀-옵션구조.md
+// ⚠RVA 는 패치마다 바뀐다. **호출 전 디스어셈블로 함수 프롤로그인지 1회 확인**할 것(5초).
+const DD_SETOPT_RVA:  usize = 0x1c1710;  // (rcx=runner, rdx=sel, r8=&[cap,ptr,len])
+const DD_SELECTED_OFF: usize = 0x1788;   // runner + 현재선택 idx (u64) — 0.5.6 확인
+const DD_ICON_LEN: usize = 0xd0;         // 옵션 앞부분 = IconProperty. 0 채우기 안전(아래 주석)
 
+/// 드롭다운 옵션 1개 = 0xf8. 게임이 이 배열을 **그대로 소유**한다.
+/// ★0 채우기 안전성(검증): 원소 drop 은 `+0x00/+0x18/+0x30` 을 **cap!=0 && cap!=-1 일 때만** free 하고,
+///   이어지는 `+0x48` drop 은 **첫 줄이 `if (p[1] != 0)`** 라 0 이면 즉시 반환한다.
+///   ⟹ 아이콘을 안 쓰면 앞 0xd0 을 전부 0 으로 두면 된다.
 #[repr(C)]
 struct DdOpt {
-    color: u64, color2: u32, alpha: f32,        // RGBA float 4개 (R@0,G@4,B@8,A@12) 흰색=1.0
-    s_len: usize, s_ptr: usize, s_cap: usize,   // 게임 String {len,ptr,cap}
+    // ⚠크기가 0xf8 이 아니면 게임이 우리 버퍼 밖을 읽는다 — 컴파일타임에 못 박는다.
+    // (아래 const 어서션은 struct 정의 뒤에 온다)
+    icon: [u8; DD_ICON_LEN], // +0x00 IconProperty (0 = 아이콘 없음)
+    color: [f32; 4],         // +0xd0 RGBA
+    s_cap: usize,            // +0xe0 ★0 이면 게임이 문자열 버퍼를 free 하지 않는다(우리가 leak)
+    s_ptr: usize,            // +0xe8
+    s_len: usize,            // +0xf0
 }
+const _: () = assert!(core::mem::size_of::<DdOpt>() == 0xf8);
+const _: () = assert!(core::mem::offset_of!(DdOpt, color) == 0xd0);
+const _: () = assert!(core::mem::offset_of!(DdOpt, s_cap) == 0xe0);
 
 pub struct NativeDropdown { pub node_id: &'static str }
 impl NativeDropdown {
     pub const fn new(node_id: &'static str) -> Self { NativeDropdown { node_id } }
 
-    /// 옵션 주입. `sel`=초기 선택 인덱스. ⚠ ABI 호출 — 게임 로드시점 호출 금지(모달 visible 등 조건 후 1회).
+    /// 옵션 주입. `sel`=초기 선택 인덱스.
+    /// ⚠ABI 호출 — 게임 로드 시점에 부르면 멈춘다. **팝업이 실제로 열린 뒤 1회만** 호출할 것.
+    /// 텍스트는 평문 또는 `#asset/base/text/...?key` i18n 태그 둘 다 된다(게임이 해석).
     pub fn set_options(&self, root: &Node, items: &[&str], sel: u64) -> bool {
         let Some(node) = find(root, self.node_id) else { return false; };
         let base = match unsafe { base_of(node, "DropdownRunner") } {
@@ -953,19 +973,23 @@ impl NativeDropdown {
         let mut opts: Vec<DdOpt> = Vec::with_capacity(items.len());
         for &it in items {
             let s = it.to_string();
+            let (ptr, len) = (s.as_ptr() as usize, s.len());
+            std::mem::forget(s); // 게임이 free 안 하므로(cap=0) 우리도 drop 하지 않는다 = 의도적 leak
             opts.push(DdOpt {
-                color: 0x3f800000_3f800000, color2: 0x3f800000, alpha: 1.0,
-                s_len: s.len(), s_ptr: s.as_ptr() as usize, s_cap: s.capacity(),
+                icon: [0u8; DD_ICON_LEN],
+                color: [0.909_803_9, 0.909_803_9, 0.909_803_9, 1.0], // 게임 기본 #e8e8e8ff
+                s_cap: 0,
+                s_ptr: ptr,
+                s_len: len,
             });
-            std::mem::forget(s); // 게임이 String 소유 → leak
         }
-        let param3: [usize; 3] = [0, opts.as_ptr() as usize, opts.len()]; // [cap=0, ptr, len]
+        let param3: [usize; 3] = [0, opts.as_ptr() as usize, opts.len()]; // cap=0 → 게임이 배열 free 안 함
         unsafe {
             let addr = GetModuleHandleW(std::ptr::null()) + DD_SETOPT_RVA;
             let f: unsafe extern "system" fn(usize, u64, *const [usize; 3]) = std::mem::transmute(addr);
             f(base, sel, &param3);
         }
-        std::mem::forget(opts);
+        std::mem::forget(opts); // 배열 소유권도 게임에 넘김
         true
     }
 
