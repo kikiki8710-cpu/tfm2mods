@@ -5,8 +5,11 @@
 import zipfile, os, sys, io, hashlib, re, time
 
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
-G = r"C:\Program Files (x86)\Steam\steamapps\common\Teamfight Manager2\mods"
-OUT = os.path.join(G, "release", sys.argv[1] if len(sys.argv) > 1 else "0.5.5")
+G = r"C:\Program Files (x86)\Steam\steamapps\common\Teamfight Manager2\mods"   # 라이브 dll 읽기(=배포처, 이관 대상 아님)
+# ★2026-08-23 이관: 릴리스 zip 보관처만 게임 폴더 밖으로. dll 배포처(G)와 섞지 말 것 = CLAUDE.md §1·[[tfm2-release-zip-location]].
+#   (이관 전 구 경로 os.path.join(G,"release")는 빈 껍데기만 남아 여기를 보면 FileNotFoundError 로 죽는다 — 실사고 2026-08-23.)
+RELEASE = r"C:\tfm2mods\release"
+OUT = os.path.join(RELEASE, sys.argv[1] if len(sys.argv) > 1 else "0.5.6")
 # 릴리스에 들어가면 안 되는 진단 플래그
 BAD = re.compile(r"^\s*(drbp|debug|log|detlog|dump|verbose|trace|mpcap|diag)\s*=\s*([1-9])", re.I | re.M)
 
