@@ -29,7 +29,7 @@ use std::sync::Mutex;
 
 use std::time::{Instant, SystemTime, UNIX_EPOCH};
 include!("gb_kit.rs");
-include!("rva_056.rs");   // ★0.5.5 마이그(2026-08-13): rva_054.rs → rva_055.rs. 구파일은 이력용 보존(참조 없음).
+include!("rva_056.rs");   // ★0.5.6 마이그(2026-08-20): rva_055.rs → rva_056.rs. 구파일(rva_051~055)은 이력용 보존(참조 없음).
 include!("mem_safety.rs");
 include!("detour.rs");
 include!("class_micro.rs");   // ★[08-07] 바이트패치 노브를 클래스별로 여는 마이크로 디투어(설계 = RE 부록 B)
@@ -1683,8 +1683,9 @@ unsafe fn probe_basedmg_r9(e: usize, local_80: usize, exe: usize, r9_addr: usize
         if base == 0 { return (-1, -1); }
         // ★0.5.3 갱신(2026-07-29). ~~0.5.2 [0x381e1e0, 0x38d1918]~~ → 아래. 화이트리스트를 안 옮기면 **모든 호출이 차단**돼
         //   dmg=0 퇴화(크래시는 없음)하고, 반대로 구값을 그대로 통과시키면 0.5.3의 그 주소는 다른 데이터라 **AV**가 난다.
-        //   둘 다 desc sanity {size=0x6a8, align=8, vt+0x30=**0xc7ead0**} 실측 통과 — 근거는 rva_054.rs 해당 상수 주석.
+        //   둘 다 desc sanity {size=0x6a8, align=8, vt+0x30=**0xc7ead0**} 실측 통과 — 근거는 **rva_056.rs**(현행 시트) 해당 상수 주석.
         //   ⚠0.5.4에서 vt+0x30 이 0xc51bc0 → 0xc7ead0 으로 옮겼다. desc 주소와 **같이** 갱신해야 한다.
+        //   ⚠vt+0x30 값 자체는 **0.5.6 미재확인**(0.5.6 재핀은 desc 2종만 갱신) — 아래 화이트리스트는 desc 주소만 보므로 현재 무영향.
         const OK_DESC_056: [usize; 2] = [0x336dcd0, 0x3372198];   // ★0.5.6 재핀(2026-08-20) C8C/DISC7 = rva_056.rs 시트값과 동기. ⚠0.5.5 회차는 0.5.4값 방치로 전 호출 차단(dmg=0 퇴화)이었음 — 시트 재핀 시 반드시 같이 갱신
         if !OK_DESC_056.contains(&r9_addr.wrapping_sub(base)) { return (-1, -1); }
     }
@@ -6788,7 +6789,8 @@ const JD_MAX_MATCHES: usize = 64;                     // 동시 로그 경기 �
 //   ⚠**확인된 것만 이름을 쓴다.** 08-03 RE(plan-vs-subplan 두 enum 분리) + 08-05 감사에서
 //   핸들러 RVA·패닉 Location 파일명으로 확정한 값뿐이고, 나머지는 추측하지 않고 번호로 남긴다
 //   (오늘 접두사 개명 사고의 원인이 "확신 없는 이름을 정본처럼 쓴 것"이었다).
-/// ★0.5.5: **Plan enum 번호 바이어스가 부활 = 0.5.3 번호로 복귀**.
+/// ★0.5.5(→**0.5.6 불변 재확인**, 2026-08-20 전수조사: 인덱스식 `sub r11,2; mov r14d,4; cmovae` 바이트동일·
+///   JT arm 16/16 일치 ⟹ identity 그대로 유효): **Plan enum 번호 바이어스가 부활 = 0.5.3 번호로 복귀**.
 ///   0.5.4는 디스패처 인덱스식에서 바이어스가 빠져(`idx = disc`) 번호가 −2 시프트돼 있었으나,
 ///   0.5.5는 바이어스가 돌아왔다(`idx = disc>=2 ? disc-2 : 4`, 실측 `sub r11,2; mov r14d,4; cmovae`).
 ///   → 0.5.5의 raw disc 는 **이미 0.5.3 번호 체계**이므로 되돌릴 필요 없이 **identity**.
@@ -8340,7 +8342,7 @@ fn init(_ctx: &GameCtx) -> ModRegistration {
             }
             // ★facet#4 movepriority 관측(0x1c08420, 14B=7push+sub0x50). cfg mpcap=1. 리턴훅 kind:7.
             // ★replace-detour(sret rax=rcx): mp_repl=0이면 cap_fn이 1→passthrough(install_detour와 동일). mp_repl=1이면 disc0/1 완전대체.
-            match install_replace_detour(RVA_MOVEPRI, 14, mp_capture as *const () as usize) {   // ★0.5.5: 12→**14**(프롤로그 push r15 추가 = 명령경계가 0,2,4,5,6,7,11,14,... 12는 명령 한복판을 잘라 즉사) / 구 0.5.3: 13→12 / 구 0.5.0: 14→13
+            match install_replace_detour(RVA_MOVEPRI, 14, mp_capture as *const () as usize) {   // ★0.5.5: 12→**14**(프롤로그 push r15 추가 = 명령경계가 0,2,4,5,6,7,11,14,... 12는 명령 한복판을 잘라 즉사) / **0.5.6 = 14 유지**(프롤로그 BYTE=SAME 전수확인 2026-08-20) / 구 0.5.3: 13→12 / 구 0.5.0: 14→13
                 Ok(())=>append_log("[hook] facet#4 movepriority(@0xc559e0 0.5.3, 12B, replace-sret) OK\n"),
                 Err(e)=>append_log(&format!("[hook] movepriority 실패: {}\n", e)),
             }

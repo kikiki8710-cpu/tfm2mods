@@ -55,6 +55,9 @@ $GCORE  = (Get-ChildItem "$DEPS\libgame_core-*.rlib")[0].FullName
 # ★0.5.6: game_view 의 set_champion_icon/set_team_logo(ABI level 4·게임 자체 아이콘 크롭)를
 #   classic 모드가 쓸 수 있게 링크(champ_pos_lock 등). 안 쓰는 모드엔 --extern 만 늘어나 무해.
 $GVIEW  = (Get-ChildItem "$DEPS\libgame_view-*.rlib")[0].FullName
+# ★2026-08-22: player_trade_system 이 `common::property_parsable::PropertyParsable` 를 직접 쓴다
+#   (mod_api 재수출로는 안 잡힘). 안 쓰는 모드엔 --extern 만 늘어나 무해.
+$COMMON = (Get-ChildItem "$DEPS\libcommon-*.rlib")[0].FullName
 
 # ★모드별·프로세스별 격리 작업 폴더 (공유 $SDK\lib.dll 사용 금지)
 $work = Join-Path $env:TEMP "tfm2_build\$ModId`_$PID"
@@ -71,7 +74,7 @@ $started = Get-Date
 #   rlib 자체는 정상(ar 구조·심볼테이블 오프셋 전부 파일 내 유효, zip↔추출본 329/329 크기 일치).
 #   미해결 심볼이 생겨 링커가 아카이브를 재스캔할 때만 터진다(심볼 0인 SDK 템플릿은 MSVC 로도 링크 성공).
 #   ⟹ 툴체인 동봉 `rust-lld` 로 전환하면 동일 소스가 그대로 링크된다(0.5.3 전 모드 확인).
-cmd /c "rustup run nightly-2026-05-24 rustc --crate-type cdylib --edition 2021 -C opt-level=1 -C overflow-checks=off -C linker-flavor=lld-link -C linker=rust-lld -L dependency=$DEPS -L native=$NAT --extern mod_api=$MODAPI --extern engine_ui=$EUI --extern engine_core=$ECORE --extern game_core=$GCORE --extern game_view=$GVIEW $Src -o `"$out`" 2> `"$errf`""
+cmd /c "rustup run nightly-2026-05-24 rustc --crate-type cdylib --edition 2021 -C opt-level=1 -C overflow-checks=off -C linker-flavor=lld-link -C linker=rust-lld -L dependency=$DEPS -L native=$NAT --extern mod_api=$MODAPI --extern engine_ui=$EUI --extern engine_core=$ECORE --extern game_core=$GCORE --extern game_view=$GVIEW --extern common=$COMMON $Src -o `"$out`" 2> `"$errf`""
 $rc = $LASTEXITCODE
 
 # ① rustc exit code 우선 (문자열 grep 은 보조)
