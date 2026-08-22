@@ -29,8 +29,12 @@
 //!     기존 외부 훅(48 B8 .. FF E0)이면 체인 훅. 로더 훅은 체인 설치(post_update 늦설치).
 //!   - 제거된 String 힙 버퍼는 의도적으로 leak(FREE_REMOVED=false 기본).
 //!   - 포인터는 범위체크 + VirtualQuery. exe base 는 GetModuleHandleW(null) 동적.
-//! cfg: mods\tfm2_champion_exclude\champion_exclude.cfg — 한 줄에 챔피언 id 하나,
-//!   '#' 주석, 대소문자 무시, UTF-8(BOM 허용). detour 발화 시마다 재독. UI 확인 버튼이 씀.
+//! ★v0.4.0 세이브별 설정: 제외 목록은 **세이브 파일 안 mod save data**(공식 API,
+//!   docs\mod-save-data.md — 네임스페이스 MOD_ID·키 "exclude"·키당 1MiB 한도)에 저장 ⟹
+//!   세이브마다 독립·세이브 복사/백업에 동행. cfg(champion_exclude.cfg)는 "세이브에 설정이
+//!   없을 때의 기본값"(새 세이브 시드)으로 강등. 패치데이 detour 는 SDK 컨텍스트가 없어
+//!   post_update(InGame)가 매 프레임 캐시한 SAVE_EXCL 을 읽는다(패치데이 = 항상 세이브
+//!   로드 후 발생이라 캐시 신선). UI 확인 = PENDING_SAVE 이월 → 다음 프레임 기록.
 //! 진단: mods\tfm2_champion_exclude\champion_exclude.txt + 후보 관측 캐시
 //!   champion_exclude_seen.txt(패치데이 실후보 병합 — UI 목록 보강용).
 //! ===========================================================================
@@ -52,7 +56,7 @@ mod inject;
 mod ui_kit;
 
 const MOD_ID: &str = "tfm2_champion_exclude";
-const VERSION: &str = "0.3.0";
+const VERSION: &str = "0.4.0";
 
 // build_inj.ps1 신원 검증용 — dll 안에 lib.rs 절대경로 문자열 필요.
 #[no_mangle]
@@ -150,18 +154,10 @@ pub(crate) fn log(msg: &str) {
 fn cfg_path() -> Option<PathBuf> {
     mod_dir().map(|d| d.join("champion_exclude.cfg"))
 }
-fn load_exclude_cfg() -> (Vec<String>, bool) {
+/// 제외 목록 텍스트 파서(cfg 파일·세이브 값 공용): '#' 주석·'*'=전면차단·소문자 정규화.
+fn parse_exclude_text(text: &str) -> (Vec<String>, bool) {
     let mut list = Vec::new();
     let mut block_all = false;
-    let Some(p) = cfg_path() else { return (list, false) };
-    let Ok(bytes) = std::fs::read(&p) else {
-        if let Some(d) = mod_dir() {
-            let _ = std::fs::create_dir_all(&d);
-        }
-        let _ = std::fs::write(&p, CFG_HEADER);
-        return (list, false);
-    };
-    let text = String::from_utf8_lossy(&bytes);
     let text = text.trim_start_matches('\u{feff}'); // BOM 허용
     for line in text.lines() {
         let line = line.split('#').next().unwrap_or("").trim();
@@ -171,10 +167,45 @@ fn load_exclude_cfg() -> (Vec<String>, bool) {
     }
     (list, block_all)
 }
+fn load_exclude_cfg() -> (Vec<String>, bool) {
+    let Some(p) = cfg_path() else { return (Vec::new(), false) };
+    let Ok(bytes) = std::fs::read(&p) else {
+        if let Some(d) = mod_dir() {
+            let _ = std::fs::create_dir_all(&d);
+        }
+        let _ = std::fs::write(&p, CFG_HEADER);
+        return (Vec::new(), false);
+    };
+    parse_exclude_text(&String::from_utf8_lossy(&bytes))
+}
+
+// ── 세이브별 설정 (v0.4.0 — 공식 mod save data, docs\mod-save-data.md) ──
+// 세이브 안 네임스페이스 MOD_ID·키 "exclude"(값 = cfg 와 같은 텍스트 포맷·키당 1MiB 한도)에
+// 저장 ⟹ 설정이 세이브 파일에 따라다닌다(세이브 식별 불요). cfg = "세이브에 아직 설정이
+// 없을 때의 기본값"으로 강등(하위호환·새 세이브 시드).
+const SAVE_KEY: &str = "exclude";
+const SAVE_NS_VERSION: usize = 1;
+/// 현재 로드된 세이브에서 읽은 제외 목록(None = 세이브에 설정 없음 또는 세이브 밖 화면).
+/// post_update(InGame)가 매 프레임 갱신 — 패치데이 detour 는 SDK 컨텍스트가 없어 이 캐시를 읽는다.
+static SAVE_EXCL: Mutex<Option<(Vec<String>, bool)>> = Mutex::new(None);
+/// UI 확인 → 세이브 기록 대기 본문. 다음 InGame 프레임의 post_update 가 소비
+/// (클릭 콜백엔 ClientData 접근이 없어서 프레임으로 이월).
+static PENDING_SAVE: Mutex<Option<String>> = Mutex::new(None);
+
+/// 유효 제외 목록: 세이브 설정 우선, 없으면 cfg(전역 기본값). 반환 3번째 = 출처 라벨.
+fn effective_exclusion() -> (Vec<String>, bool, &'static str) {
+    if let Some((l, s)) = SAVE_EXCL.lock().unwrap_or_else(|e| e.into_inner()).clone() {
+        return (l, s, "세이브");
+    }
+    let (l, s) = load_exclude_cfg();
+    (l, s, "cfg기본값")
+}
 const CFG_HEADER: &str = "\
 # tfm2_champion_exclude — 인게임 패치로 절대 추가되지 않을 챔피언 id 목록\n\
 # 한 줄에 하나. '#' 뒤는 주석. 대소문자 무시.\n\
-# 인게임 편집: 환경설정 → 게임플레이 탭 → '추가 챔피언 설정' 버튼.\n\
+# ★v0.4.0부터 설정은 세이브별(세이브 파일 안 mod save data)로 저장된다.\n\
+#   이 파일은 \"세이브에 아직 설정이 없을 때의 기본값\"(새 세이브 시드)으로만 쓰인다.\n\
+# 인게임 편집: 환경설정 → 게임플레이 탭 → '추가 챔피언 설정' 버튼(현재 세이브에 저장).\n\
 # '*' 한 줄만 적으면 신규 챔피언 추가를 전면 차단.\n";
 
 // ── detour (패치데이 후보 필터) ──
@@ -230,9 +261,9 @@ fn filter_candidates(out: usize) {
     for i in 0..len {
         names.push(read_name(i).unwrap_or_else(|| "<판독불가>".into()));
     }
-    let (exclude, block_all) = load_exclude_cfg();
-    log(&format!("fire#{}: 후보 {}개 = [{}] / 제외목록 {}개{}",
-        n, len, names.join(", "), exclude.len(), if block_all { " + 전면차단(*)" } else { "" }));
+    let (exclude, block_all, src) = effective_exclusion();
+    log(&format!("fire#{}: 후보 {}개 = [{}] / 제외목록 {}개(출처={}){}",
+        n, len, names.join(", "), exclude.len(), src, if block_all { " + 전면차단(*)" } else { "" }));
     save_seen(&names); // 실후보 관측 캐시(UI 목록 보강)
 
     if exclude.is_empty() && !block_all {
@@ -694,9 +725,10 @@ fn recompute_candidates(
     GRID_SIG.store(u64::MAX, Ordering::Relaxed);
 }
 
-/// cfg → 선택 상태 로드(팝업 열릴 때).
+/// 유효 설정(세이브 우선·cfg 폴백) → 선택 상태 로드(팝업 열릴 때).
 fn load_selection() {
-    let (list, star) = load_exclude_cfg();
+    let (list, star, src) = effective_exclusion();
+    log(&format!("선택 로드: {}개 (출처={}{})", list.len(), src, if star { "·*" } else { "" }));
     HAD_STAR.store(star, Ordering::Relaxed);
     let cand = CAND.lock().unwrap_or_else(|e| e.into_inner()).clone();
     let sel: HashSet<String> = if star {
@@ -709,23 +741,25 @@ fn load_selection() {
     SEL_VER.fetch_add(1, Ordering::Relaxed);
 }
 
-/// 선택 상태 → cfg 저장(확인 버튼).
+/// 선택 상태 → **현재 세이브의 mod save data 에 저장**(확인 버튼, v0.4.0).
 /// - 후보가 아닌 기존 항목(이미 출시됐거나 수동 기입)은 그대로 보존.
 /// - '*' 는 "원래 있었고 여전히 전부 선택"일 때만 유지, 아니면 명시 목록으로 전환.
+/// - 클릭 콜백엔 ClientData 가 없어 본문을 PENDING_SAVE 로 이월 → post_update 가 기록.
+///   cfg 는 건드리지 않는다(cfg = 새 세이브 기본값 전용, 수동 편집).
 fn save_selection() {
     let cand = CAND.lock().unwrap_or_else(|e| e.into_inner()).clone();
     let sel = match SEL.lock().unwrap_or_else(|e| e.into_inner()).clone() {
         Some(s) => s,
         None => return,
     };
-    let (prev, _star) = load_exclude_cfg();
+    let (prev, _star, _src) = effective_exclusion();
     let cand_set: HashSet<&String> = cand.iter().collect();
     let mut foreign: Vec<String> = prev.into_iter().filter(|e| !cand_set.contains(e)).collect();
     foreign.sort();
     foreign.dedup();
     let all_selected = !cand.is_empty() && sel.len() == cand.len();
     let keep_star = HAD_STAR.load(Ordering::Relaxed) && all_selected;
-    let mut out = String::from(CFG_HEADER);
+    let mut out = String::new();
     if keep_star {
         out.push_str("*\n");
     } else {
@@ -736,24 +770,17 @@ fn save_selection() {
             }
         }
     }
-    if !foreign.is_empty() {
-        out.push_str("# ── 아래는 현재 미출시 목록에 없는 기존 항목(보존) ──\n");
-        for f in &foreign {
-            out.push_str(f);
-            out.push('\n');
-        }
+    for f in &foreign {
+        out.push_str(f);
+        out.push('\n');
     }
-    if let Some(p) = cfg_path() {
-        match std::fs::write(&p, &out) {
-            Ok(_) => log(&format!(
-                "저장: 제외 {}개{}{}",
-                sel.len(),
-                if keep_star { " ('*' 유지)" } else { "" },
-                if foreign.is_empty() { String::new() } else { format!(" + 보존 {}개", foreign.len()) }
-            )),
-            Err(e) => log(&format!("저장 실패: {e}")),
-        }
-    }
+    *PENDING_SAVE.lock().unwrap_or_else(|e| e.into_inner()) = Some(out);
+    log(&format!(
+        "저장 요청: 제외 {}개{}{} → 이 세이브(mod save data) 기록 대기",
+        sel.len(),
+        if keep_star { " ('*' 유지)" } else { "" },
+        if foreign.is_empty() { String::new() } else { format!(" + 보존 {}개", foreign.len()) }
+    ));
 }
 
 /// 팝업 .ui 런타임 생성(틀 = pos_lock_popup 동형 — 탭/검색 없이 그리드+우측 패널).
@@ -864,7 +891,8 @@ pub(crate) fn build_popup_ui() -> String {
     #hint:label { @"asset/base/style/main#label"; x: 24px; y: 68px; width: 429px; height: 130px; size: 16; line_height: 26; align_y: Center; text: "아직 게임에 추가되지 않은 챔피언 목록입니다. 클릭해 선택(붉은 테두리)한 챔피언은 시즌 패치에서 절대 추가되지 않습니다. 아무것도 선택하지 않으면 원래대로 동작합니다."; }
     #cnt_total:label { @"asset/base/style/main#label"; x: 24px; y: 218px; width: 429px; height: 24px; size: 16; align_y: Center; }
     #cnt_sel:label { @"asset/base/style/main#bold_label"; x: 24px; y: 246px; width: 429px; height: 26px; size: 16; align_y: Center; }
-    #note_all:label { @"asset/base/style/main#label"; x: 24px; y: 282px; width: 429px; height: 100px; size: 15; line_height: 24; color: #ffb84aff; align_y: Center; }
+    #cx_src:label { @"asset/base/style/main#label"; x: 24px; y: 276px; width: 429px; height: 44px; size: 14; line_height: 20; color: #858d9dff; align_y: Center; }
+    #note_all:label { @"asset/base/style/main#label"; x: 24px; y: 324px; width: 429px; height: 100px; size: 15; line_height: 24; color: #ffb84aff; align_y: Center; }
 
     #cx_none:color_icon_button { @"asset/base/style/main#tertiary_button"; x: 24px; y: 470px; width: 429px; height: 40px; text: { text: "모두 해제 (전부 추가 허용)"; font: "asset/base/font/set/bold"; size: 17; align_x: Center; align_y: Center; } }
     #cx_all:color_icon_button { @"asset/base/style/main#tertiary_button"; x: 24px; y: 522px; width: 429px; height: 40px; text: { text: "모두 제외 (신규 추가 차단)"; font: "asset/base/font/set/bold"; size: 17; align_x: Center; align_y: Center; } }
@@ -918,10 +946,12 @@ fn fill_grid(root: &mut Node) {
         (class_sel, &search).hash(&mut h);
         h.finish()
     };
+    let from_save = SAVE_EXCL.lock().unwrap_or_else(|e| e.into_inner()).is_some() as u64;
     let sig = SEL_VER.load(Ordering::Relaxed)
         ^ ((cand.len() as u64) << 32)
         ^ ((visible.len() as u64) << 16)
         ^ (ready << 47)
+        ^ (from_save << 46)
         ^ filter_sig
         ^ CAND_SIG.load(Ordering::Relaxed).rotate_left(17);
     if GRID_SIG.swap(sig, Ordering::Relaxed) == sig {
@@ -935,6 +965,14 @@ fn fill_grid(root: &mut Node) {
     }
     if let Some(n) = ui_kit::find_mut(pop, "cnt_sel") {
         ui_kit::label_set(n, &format!("제외 선택: {}", selected.len()));
+    }
+    if let Some(n) = ui_kit::find_mut(pop, "cx_src") {
+        let from_save = SAVE_EXCL.lock().unwrap_or_else(|e| e.into_inner()).is_some();
+        ui_kit::label_set(n, if from_save {
+            "저장 위치: 이 세이브 (세이브별 설정)"
+        } else {
+            "전역 기본값(cfg) 적용 중 — 확인 시 이 세이브에 저장됩니다"
+        });
     }
     if let Some(n) = ui_kit::find_mut(pop, "note_all") {
         let s = if cand.is_empty() {
@@ -1008,6 +1046,26 @@ impl ModExtension for ChampExclExt {
         let _ = catch_unwind(AssertUnwindSafe(|| {
             // 미출시 후보 갱신(관리화면 = Scene::InGame).
             if let Scene::InGame { data } = scene {
+                // ── 세이브별 설정 (v0.4.0) ──
+                // ①UI 확인이 이월한 기록 대기분을 이 세이브의 mod save data 에 기록.
+                let pending = PENDING_SAVE.lock().unwrap_or_else(|e| e.into_inner()).take();
+                if let Some(body) = pending {
+                    if data.can_write_mod_save() {
+                        data.mod_save_set_version(MOD_ID, SAVE_NS_VERSION);
+                        let ok = data.mod_save_set_string(MOD_ID, SAVE_KEY, &body);
+                        log(&format!(
+                            "세이브 기록 {}: {}B (mod_save_set_string)",
+                            if ok { "OK" } else { "거부(FALSE)" },
+                            body.len()
+                        ));
+                    } else {
+                        log("세이브 기록 불가: can_write_mod_save=false (멀티 비호스트?) — 이번 선택은 저장 안 됨");
+                    }
+                }
+                // ②세이브의 현행 설정을 캐시(패치데이 detour 가 이걸 읽음 — SDK 컨텍스트 없음).
+                let sv = data.mod_save_get_string(MOD_ID, SAVE_KEY);
+                *SAVE_EXCL.lock().unwrap_or_else(|e| e.into_inner()) =
+                    sv.map(|t| parse_exclude_text(&t));
                 let db = data.db();
                 let avail: Vec<String> = db.available_champions.clone();
                 let mod_ids: Vec<String> = db
@@ -1042,6 +1100,9 @@ impl ModExtension for ChampExclExt {
                             .or_else(|| db.champion_info(id).map(|c| cat_idx(&c.category())))
                     },
                 );
+            } else {
+                // 세이브 밖 화면(메인메뉴 등): 이전 세이브 설정이 다른 세이브에 적용되지 않게 캐시 해제.
+                *SAVE_EXCL.lock().unwrap_or_else(|e| e.into_inner()) = None;
             }
             // UI 주입(로더 체인 훅 — 늦설치·매 프레임 재시도 가드).
             inject::install();
