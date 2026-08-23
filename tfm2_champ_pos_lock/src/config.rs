@@ -83,19 +83,118 @@ pub struct PosState {
 
 impl PosState {
     /// 챔피언(소문자)의 허용 포지션 5비트 마스크.
+    /// 이 포지션 화이트리스트 중 **지금 로스터에 실제로 있는** 챔프 수.
+    ///   ⚠세이브/워크샵이 바뀌면 없어진 챔프 id 가 화이트리스트에 그대로 남는다
+    ///     (state 파일은 세이브와 무관하게 유지된다). 그걸 세면 개수가 부풀어
+    ///     "최소 선택 수 충족"으로 오판하고, 실제 풀은 말라 라인업이 깨진다.
+    ///     (유저 제보 2026-08-23: 탑 9개만 켜져 있는데 "현재 선택 수 21")
+    pub fn live_count(&self, p: usize) -> usize {
+        let g = ROSTER.read().unwrap_or_else(|e| e.into_inner());
+        match g.as_ref() {
+            Some(set) => self.allowed[p].iter().filter(|c| set.contains(*c)).count(),
+            None => self.allowed[p].len(), // 로스터 미캡처 → 보수적으로 전부 인정
+        }
+    }
+    /// 이 포지션의 제한이 **실제로 적용되나**.
+    ///   ★빈 화이트리스트 = 전체 허용. 그리고 **최소 선택 수 미달도 전체 허용으로 취급**한다
+    ///     (유저 지시 2026-08-23). 최소 미달이면 밴/픽 몇 장에 풀이 말라 라인업이 성립 못 하고,
+    ///     그때마다 fail-open 으로 널뛰느니 **처음부터 제한을 안 건 것**으로 보는 게 예측 가능하다.
+    pub fn pos_active(&self, p: usize) -> bool {
+        let n = self.live_count(p);
+        n != 0 && n >= cur_min_required()
+    }
     pub fn mask_of(&self, lower: &str) -> u8 {
         let mut m = 0u8;
         for p in 0..5 {
-            if self.allowed[p].is_empty() || self.allowed[p].iter().any(|x| x == lower) {
+            if !self.pos_active(p) || self.allowed[p].iter().any(|x| x == lower) {
                 m |= 1 << p;
             }
         }
         m
     }
-    /// 제한이 하나라도 걸렸나(모든 포지션 빈 화이트리스트면 모드 무효과).
+    /// 제한이 하나라도 걸렸나(전부 빈/최소미달이면 모드 무효과).
     pub fn any_restricted(&self) -> bool {
-        self.allowed.iter().any(|v| !v.is_empty())
+        (0..5).any(|p| self.pos_active(p))
     }
+}
+
+// ── ★실효 밴픽 룰 캐시 (최소 선택 수 계산용) ────────────────────────────────
+//   min_required 는 룰(클래식/피어리스/하드) + 실효 밴카드 수에 달려 있는데, 마스크를 만드는
+//   시점엔 그 값을 인자로 받을 수 없다 ⟹ 밴픽 씬/설정 팝업에서 관측한 값을 여기 캐시한다.
+//   값이 바뀌면 STATE_VER 를 올려 마스크 재계산(recompute_masks_if_needed)을 트리거한다.
+static RULE_STYLE: std::sync::atomic::AtomicU8 = std::sync::atomic::AtomicU8::new(0);
+/// 실효 밴카드 수 **+1**. `0` = 미관측(설정이 "자동"이고 밴픽 씬을 아직 못 봄).
+///   ⚠+1 인코딩인 이유: **밴카드 0장도 유효한 설정**이라 0 을 "모름"으로 쓸 수 없다.
+static RULE_BAN1: std::sync::atomic::AtomicUsize = std::sync::atomic::AtomicUsize::new(0);
+
+fn set_rule_inner(style: u8, enc: usize, persist: bool) {
+    // ★한 번 확정된 값을 "모름"으로 되돌리지 않는다.
+    //   설정 팝업은 db+0x720(원본 설정값)을 읽는데 "자동"이면 0 이라 None 이 온다 ⟹ 가드가 없으면
+    //   팝업을 여는 것만으로 관측/복원된 실효값이 지워진다.
+    if enc == 0 && RULE_BAN1.load(Ordering::Relaxed) != 0 {
+        return;
+    }
+    let a = RULE_STYLE.swap(style, Ordering::Relaxed);
+    let b = RULE_BAN1.swap(enc, Ordering::Relaxed);
+    let _ = persist;
+    if a != style || b != enc {
+        STATE_VER.fetch_add(1, Ordering::Relaxed);
+        if enc != 0 {
+            // ★밴카드 자동 공식(SDK) 결과를 남긴다 — 5V5 는 로스터 40종 미만 2장 / 40 이상 3장.
+            slog(&format!(
+                "룰 확정: 밴카드 {}장 / 스타일 {} (0=클래식 1=피어리스 2=하드) → 포지션당 최소 {}개",
+                enc - 1,
+                style,
+                min_required(style, enc - 1)
+            ));
+        }
+        // ~~구: state 파일에 ban_eff 영속~~ → **2026-08-23 폐기**.
+        //   SDK `ban_count_or_default` 로 관리화면 진입 즉시 계산되므로 저장할 이유가 없고,
+        //   파일은 세이브 공용이라 다른 세이브의 값이 새어 들어오는 오염원이 된다.
+    }
+}
+/// 룰 캐시 갱신. `ban = None` = 아직 실효 밴카드 수를 모른다(설정이 "자동", 경기 관측 전).
+pub fn set_rule(style: u8, ban: Option<usize>) {
+    set_rule_inner(style, ban.map(|b| b + 1).unwrap_or(0), true);
+}
+pub fn cur_rule() -> (u8, Option<usize>) {
+    let e = RULE_BAN1.load(Ordering::Relaxed);
+    (RULE_STYLE.load(Ordering::Relaxed), (e != 0).then(|| e - 1))
+}
+/// 실효 밴카드 수를 알고 있나. `false` = 경기 1회 관측 전 → 제한을 아예 걸지 않는다.
+pub fn rule_known() -> bool {
+    RULE_BAN1.load(Ordering::Relaxed) != 0
+}
+/// 지금 룰에서 포지션 하나가 갖춰야 할 최소 화이트리스트 크기.
+///   ★미관측이면 `usize::MAX` — 어떤 화이트리스트도 못 미치므로 **전 포지션 제한 없음**이 된다.
+pub fn cur_min_required() -> usize {
+    match cur_rule() {
+        (s, Some(b)) => min_required(s, b),
+        _ => usize::MAX,
+    }
+}
+/// 제한이 실제로 걸린 포지션 비트마스크(UI 표시·진단용).
+pub fn active_pos_mask() -> u8 {
+    with_state(|s| {
+        let mut m = 0u8;
+        for p in 0..5 {
+            if s.pos_active(p) {
+                m |= 1 << p;
+            }
+        }
+        m
+    })
+}
+
+/// 지금 게임에 실제로 존재하는 챔프 id(소문자) 집합. `None` = 아직 캡처 전.
+static ROSTER: RwLock<Option<std::collections::HashSet<String>>> = RwLock::new(None);
+
+/// 로스터 캡처(챔프 목록 확정 시 1회). 마스크·개수 판정이 이 집합으로 걸러진다.
+pub fn set_roster(ids: &[String]) {
+    let set: std::collections::HashSet<String> =
+        ids.iter().map(|s| s.to_ascii_lowercase()).collect();
+    *ROSTER.write().unwrap_or_else(|e| e.into_inner()) = Some(set);
+    STATE_VER.fetch_add(1, Ordering::Relaxed); // 마스크 재계산 트리거
 }
 
 static STATE: RwLock<Option<PosState>> = RwLock::new(None);
@@ -165,7 +264,15 @@ pub fn pos_count(pos: usize) -> usize {
     if pos >= 5 {
         return 0;
     }
-    with_state(|st| st.allowed[pos].len())
+    // ★현재 로스터에 실제로 있는 것만 센다(없어진 챔프 id 는 UI 에서도 안 보이므로 세면 혼란).
+    with_state(|st| st.live_count(pos))
+}
+/// 화이트리스트에 남아 있지만 지금 로스터엔 없는 챔프 수(pos 기준) — 안내 문구용.
+pub fn pos_stale(pos: usize) -> usize {
+    if pos >= 5 {
+        return 0;
+    }
+    with_state(|st| st.allowed[pos].len().saturating_sub(st.live_count(pos)))
 }
 /// pos 와 챔프를 (직·간접) 공유하는 제한 포지션들의 컴포넌트(pos 포함) + 그 합집합 크기.
 /// ★겹침은 필요수를 "1씩 늘리는" 게 아니다 — 겹친 포지션들이 한 챔프풀을 나눠 쓰므로,
@@ -233,10 +340,6 @@ pub fn shortfalls(st: &PosState, style: u8, ban_count: usize) -> Vec<(usize, usi
         .collect()
 }
 
-// ── 파일 IO ─────────────────────────────────────────────────────────────────
-fn state_path() -> Option<String> {
-    crate::mod_dir().map(|d| format!("{d}\\champ_pos_lock_state.txt"))
-}
 
 pub fn load() {
     // 토글
@@ -275,48 +378,94 @@ pub fn load() {
     }
     let _ = CFG.set(c);
 
-    // 상태
-    let mut st = PosState::default();
-    if let Some(p) = state_path() {
-        match std::fs::read_to_string(&p) {
-            Ok(t) => {
-                for raw in t.lines() {
-                    let line = raw.trim();
-                    if line.is_empty() || line.starts_with('#') {
-                        continue;
-                    }
-                    let Some((k, v)) = line.split_once('=') else { continue };
-                    if let Some(pi) = pos_index(k) {
-                        st.allowed[pi] = v
-                            .split(',')
-                            .map(|s| s.trim().to_ascii_lowercase())
-                            .filter(|s| !s.is_empty())
-                            .collect();
-                    }
-                }
-            }
-            Err(_) => {
-                let _ = std::fs::write(&p, DEFAULT_STATE);
-            }
-        }
-    }
-    set_state(st);
+    // ★상태(포지션 화이트리스트) = **세이브 전용**(2026-08-23 유저 지시).
+    //   ~~구: champ_pos_lock_state.txt 를 읽어 초기값으로 삼음~~ → **폐기**.
+    //   파일은 세이브와 무관하게 오래 살아서 ①다른 세이브 설정이 새 세이브로 새고
+    //   ②없어진 챔프 id 가 개수를 부풀리고 ③"파일 vs 세이브" 어느 쪽이 정본인지 모호했다.
+    //   ⟹ 저장소는 세이브 안 mod save data 하나. 세이브에 설정 없음 = 제한 없음(바닐라).
+    //   (같은 결론에 먼저 도달한 선례 = tfm2_champion_exclude v0.4.2)
+    set_state(PosState::default());
 }
 
-/// 현재 상태를 state 파일에 저장(인게임 UI 확인 버튼이 호출).
-pub fn save_state_to_file() {
-    let Some(p) = state_path() else { return };
-    let mut s = String::from(
-        "# tfm2_champ_pos_lock — 포지션별 허용 챔피언 (인게임 UI 가 관리)\r\n\
-         # 빈 줄(또는 줄 없음) = 그 포지션은 모든 챔피언 허용\r\n",
-    );
-    with_state(|st| {
-        for p in 0..5 {
-            s.push_str(&format!("{} = {}\r\n", POS_NAMES[p], st.allowed[p].join(", ")));
-        }
-    });
-    let _ = std::fs::write(&p, s);
+// ── ★세이브별 설정 (2026-08-23 유저 지시) ──────────────────────────────────
+//   설정의 정본 = **그 세이브 안의 mod save data**(공식 API). 파일(state.txt)은
+//   "새 세이브의 초기값" 씨앗 역할만 한다: 세이브 영역이 비어 있으면 파일을 읽어
+//   **지금 로스터에 실제로 있는 챔프만 남겨** 그 세이브에 심는다.
+//   ⟹ 세이브마다 독립. 세이브 복사/백업에 설정이 동행. 유령 챔프가 넘어가지 않는다.
+
+/// 현재 상태를 세이브 본문 텍스트로 직렬화. `live_only=true` 면 지금 로스터에 있는 것만.
+pub fn state_text(live_only: bool) -> String {
+    with_state(|st| state_text_of(st, live_only))
 }
+
+/// 임의의 PosState 를 세이브 본문으로 직렬화.
+///   ⚠**세이브 이관에는 반드시 파일에서 읽은 PosState 를 넘길 것.** 메모리의 현재 STATE 를 쓰면
+///     직전 세이브의 설정이 새 세이브로 그대로 복사된다(2026-08-23 실사고 — 유저가 파일을
+///     지웠는데도 새 세이브에 옛 설정이 들어갔다. `state_text()` 가 STATE 를 읽는데 로그만
+///     "파일에서 이관"이라고 찍고 있었다).
+pub fn state_text_of(st: &PosState, live_only: bool) -> String {
+    let mut s = String::from(
+        "# tfm2_champ_pos_lock — 포지션별 허용 챔피언 (이 세이브 전용)
+",
+    );
+    let g = ROSTER.read().unwrap_or_else(|e| e.into_inner());
+    for p in 0..5 {
+        let list: Vec<&str> = st.allowed[p]
+            .iter()
+            .filter(|c| !live_only || g.as_ref().map(|set| set.contains(*c)).unwrap_or(true))
+            .map(|c| c.as_str())
+            .collect();
+        s.push_str(&format!("{} = {}
+", POS_NAMES[p], list.join(", ")));
+    }
+    s
+}
+
+/// 텍스트 → PosState (반영하지 않고 파싱만).
+pub fn parse_state_text(text: &str) -> PosState {
+    let mut st = PosState::default();
+    for raw in text.lines() {
+        let line = raw.trim();
+        if line.is_empty() || line.starts_with('#') {
+            continue;
+        }
+        let Some((k, v)) = line.split_once('=') else { continue };
+        if let Some(pi) = pos_index(k) {
+            st.allowed[pi] = v
+                .split(',')
+                .map(|s| s.trim().to_ascii_lowercase())
+                .filter(|s| !s.is_empty())
+                .collect();
+        }
+    }
+    st
+}
+
+
+/// 세이브 밖(메인메뉴/새 게임)으로 나갈 때 설정을 비운다 — 다음 세이브로 새는 것 차단.
+pub fn clear_state() {
+    let empty = PosState::default();
+    let changed = with_state(|st| st.allowed.iter().any(|v| !v.is_empty()));
+    if changed {
+        set_state(empty);
+    }
+}
+
+/// 세이브 본문 텍스트 → 상태 반영(마스크 재계산 트리거 포함).
+pub fn apply_state_text(text: &str) {
+    set_state(parse_state_text(text));
+}
+
+/// 로스터가 캡처됐나(세이브 마이그레이션은 이게 참일 때만 — 안 그러면 전부 유령 취급된다).
+pub fn roster_ready() -> bool {
+    ROSTER
+        .read()
+        .unwrap_or_else(|e| e.into_inner())
+        .as_ref()
+        .map(|s| !s.is_empty())
+        .unwrap_or(false)
+}
+
 
 static DUMP_ONCE: AtomicBool = AtomicBool::new(false);
 pub fn dump_reset() {
@@ -347,6 +496,46 @@ pub fn llog(msg: &str) {
         }
     }
 }
+
+/// ★설정 저장/로드 이벤트 로그 — **debug 와 무관하게 항상 남긴다**.
+///   세이브당 몇 줄뿐이라 스팸이 안 되고, 유저가 debug=1 로 안 바꿔도 "설정이 어디에 저장됐나"를
+///   확인할 수 있어야 한다(2026-08-23: debug=0 이라 세이브 배선을 아예 검증 못 한 사고).
+///   세션 시작 시 1회 비운다.
+#[repr(C)]
+struct WinSysTime {
+    year: u16,
+    month: u16,
+    dow: u16,
+    day: u16,
+    hour: u16,
+    min: u16,
+    sec: u16,
+    ms: u16,
+}
+extern "system" {
+    fn GetLocalTime(p: *mut WinSysTime);
+}
+/// 로컬 시각 "HH:MM:SS" — 로그를 세이브 파일 mtime 과 대조하려면 벽시계가 필요하다.
+fn now_hms() -> String {
+    let mut s = WinSysTime { year: 0, month: 0, dow: 0, day: 0, hour: 0, min: 0, sec: 0, ms: 0 };
+    unsafe { GetLocalTime(&mut s) };
+    format!("{:02}:{:02}:{:02}", s.hour, s.min, s.sec)
+}
+
+pub fn slog(msg: &str) {
+    let Some(d) = crate::mod_dir() else { return };
+    let msg = &format!("[{}] {msg}", now_hms());
+    use std::io::Write;
+    let path = format!("{d}\\champ_pos_lock_save.txt");
+    if !SAVE_FILE_FRESH.swap(true, Ordering::Relaxed) {
+        let _ = std::fs::write(&path, "# 포지션 제한 — 설정 저장/로드 이벤트
+");
+    }
+    if let Ok(mut f) = std::fs::OpenOptions::new().create(true).append(true).open(&path) {
+        let _ = writeln!(f, "{msg}");
+    }
+}
+static SAVE_FILE_FRESH: AtomicBool = AtomicBool::new(false);
 
 pub fn dlog(msg: &str) {
     if !get().debug {
@@ -380,16 +569,3 @@ dump_ui=0\r\n\
 log_lineups=0\r\n\
 ";
 
-const DEFAULT_STATE: &str = "\
-# tfm2_champ_pos_lock — 포지션별 허용 챔피언 목록\r\n\
-# 형식: <포지션> = <챔피언id>, <챔피언id>, ...\r\n\
-# 포지션 = top / jungle / mid / bottom / support (탑/정글/미드/원딜/서폿)\r\n\
-# ★비어 있으면 그 포지션은 '모든 챔피언' 허용.\r\n\
-# 챔피언 id 는 debug=1 로 게임을 한 번 켜면 champ_pos_lock_champions.txt 에 생성됩니다.\r\n\
-# (곧 인게임 UI: 환경설정 -> 게임플레이 -> 포지션 제한 버튼으로 이 파일을 편집합니다.)\r\n\
-top =\r\n\
-jungle =\r\n\
-mid =\r\n\
-bottom =\r\n\
-support =\r\n\
-";

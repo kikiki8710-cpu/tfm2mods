@@ -3230,6 +3230,10 @@ pub static CP_TAGS: [AtomicU64; 16] = [
 /// UI 가 읽은 현재 차례 종류(0=미상 1=밴 2=픽). post_update 가 매 프레임 게시.
 ///   ★밴픽 순서를 바꾸는 모드가 있어도 맞는 유일한 근거(게임의 `in_turn` 표시).
 pub static UI_TURN: AtomicUsize = AtomicUsize::new(0);
+/// 팀당 픽 수. 이 게임의 일반 경기는 5V5 고정(GameRule::Game5V5).
+///   ⚠백그라운드 매치엔 씬이 없어 포맷을 못 읽는다 → 상수. 씬이 있는 경로는 `2 + fmt` 를 쓴다.
+pub const PICKS_PER_TEAM: usize = 5;
+
 pub fn set_ui_turn(v: usize) {
     UI_TURN.store(v, Ordering::Relaxed);
 }
@@ -3632,6 +3636,26 @@ unsafe fn cprod_swap(ctx: usize, rec: usize) {
     }
     // 합법 대체 탐색: used(4버킷) 밖 + 우리 마스크로 feasible.
     let used_low: Vec<String> = used.iter().map(|s| s.to_ascii_lowercase()).collect();
+    // ★★자유 슬롯이 남아 있으면 **교체하지 않는다**(2026-08-23 유저 제보: 격투가를 눌렀는데
+    //   바람술사가 픽됨). 어떤 포지션 풀이 말라 정배치가 불가능해지면 그 자리는 아무나 앉아도 되고,
+    //   **몇 번째 픽으로 채울지도 순서와 무관**하다(스왑 배정은 픽이 다 끝난 뒤 결정).
+    //   ⚠유저 UI 게이트(lib.rs)가 이미 같은 규칙으로 클릭을 허용하므로, 여기서 안 맞추면
+    //     "고를 수는 있는데 확정되면 다른 챔프로 바뀌는" 최악의 불일치가 된다.
+    {
+        let pinned_all: Vec<u8> = my_picks.iter().map(|n| name_to_mask(n)).collect();
+        let pool: Vec<u8> = names
+            .iter()
+            .enumerate()
+            .filter(|(_, n)| {
+                let l = n.to_ascii_lowercase();
+                !used_low.iter().any(|u| *u == l)
+            })
+            .map(|(i, _)| masks.get(i).copied().unwrap_or(config::MASK_ALL))
+            .collect();
+        if crate::free_left(&pinned_all, &pool, PICKS_PER_TEAM) > 0 {
+            return;
+        }
+    }
     let mut chosen: Option<&str> = None;
     // ★1순위: 그 매치의 "게임이 매긴 점수순 차순위"(DQ 캐시) — 품질 보존.
     let ru = runnerup_for(match_id);
@@ -4343,6 +4367,19 @@ unsafe fn disp_fix(sret: usize, ctx: usize, match_id: u64, team_id: u64) {
     if crate::helps(&pinned, cm) {
         return; // 이미 합법(새 라인을 채움)
     }
+    // ★자유 슬롯이 남아 있으면 교체하지 않는다(위 CP 훅과 같은 규칙).
+    {
+        let pinned_all: Vec<u8> = pinned.clone();
+        let pool: Vec<u8> = names
+            .iter()
+            .enumerate()
+            .filter(|(_, n)| !used.iter().any(|u| u.eq_ignore_ascii_case(n)))
+            .map(|(i, _)| masks.get(i).copied().unwrap_or(config::MASK_ALL))
+            .collect();
+        if crate::free_left(&pinned_all, &pool, PICKS_PER_TEAM) > 0 {
+            return;
+        }
+    }
     // 차순위에서 첫 합법(그 매치의 밴/픽에도 없어야 커밋 통과) 탐색.
     //   ★무제한(MASK_ALL) 챔프는 어느 포지션에나 가므로 **스킵하지 않는다**(항상 안전).
     //     이전 구현이 스킵해서 상위 차순위가 불필요하게 밀렸음(2026-08-22 수정).
@@ -4663,6 +4700,18 @@ unsafe fn cand_filter(sret: usize, argpack: usize) {
     let len = safe_rd_u64(sret + 0x10).unwrap_or(0) as usize;
     if len == 0 || len > 512 {
         return;
+    }
+    // ★자유 슬롯이 남아 있으면 후보를 하나도 자르지 않는다(위 CP/DQ 훅과 같은 규칙).
+    //   여기선 후보 리스트 자체가 곧 남은 풀이다.
+    {
+        let mut pool: Vec<u8> = Vec::with_capacity(len);
+        for i in 0..len {
+            let Some(v) = safe_rd_u64(ptr + i * 8) else { return };
+            pool.push(masks.get(v as usize).copied().unwrap_or(config::MASK_ALL));
+        }
+        if crate::free_left(&pinned, &pool, 2 + fmt) > 0 {
+            return;
+        }
     }
     let mut keep: Vec<u64> = Vec::with_capacity(len);
     for i in 0..len {

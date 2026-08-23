@@ -507,10 +507,15 @@ fn set_node_h(node: &Node, h: f32) {
 /// GamePlayOption(=Database+0x0): ban_count=*(+0x720)u64, banpick_style=*(+0x737)u8
 /// (game-atlas 2026-08-20, 0.5.0 채록). ⚠오프셋/enum값 0.5.6 미검증 → 범위 검증으로 가드,
 /// 벗어나면 (0,0)=안전값. Database 포인터는 InGame 프레임마다 DB_PTR 에 캡처.
-fn rule_info() -> (u8, usize) {
+/// ~~구: `db+0x720`(밴카드 원본설정)·`+0x737`(스타일) raw 읽기~~ →
+/// **2026-08-23 폐기**: SDK `GamePlayOption::ban_count_or_default` / `banpick_style` 로 확정한다
+/// (raw 오프셋은 패치마다 깨지고, "자동" 설정은 원본값이 0 이라 애초에 못 읽었다).
+/// 이 함수는 캐시 조회 래퍼만 남긴다.
+#[allow(dead_code)]
+fn rule_info_raw() -> (u8, Option<usize>) {
     let p = DB_PTR.load(Ordering::Relaxed);
     if !(0x10000..1usize << 48).contains(&p) {
-        return (0, 0);
+        return (0, None);
     }
     unsafe {
         let ban = core::ptr::read_unaligned((p + 0x720) as *const u64);
@@ -518,10 +523,27 @@ fn rule_info() -> (u8, usize) {
         //   그 뒤 0x737 이 0=클래식/1=피어리스/2=하드피어리스). 미커밋 시엔 0(클래식 기본).
         let style = core::ptr::read_unaligned((p + 0x737) as *const u8);
         if ban > 5 || style > 2 {
-            return (0, 0); // 오프셋 미스/이상값 — 안전값
+            return (0, None); // 오프셋 미스/이상값 — 안전값
         }
-        (style, ban as usize)
+        // ★`db+0x720` 은 **원본 설정값**이라 밴카드 "기본"이면 0 이다(유저 제보 2026-08-23:
+        //   기본으로 두면 0장 취급). 실효값은 밴픽 씬 ban_count(+0x3c0)에서 캐시해 둔 것을 쓴다.
+        //   아직 한 판도 안 봤으면 0 → 호출측이 "기본(경기 후 확정)"으로 표시.
+        //   ★"자동"이면 원본값이 0 이고 **0장 설정과 구분이 안 된다** ⟹ 밴픽 씬에서 실제로
+        //     관측(BAN_CNT_SEEN)했을 때만 값을 신뢰한다. 관측 전이면 None = 모른다.
+        let ban = if ban == 0 {
+            BAN_CNT_SEEN
+                .load(Ordering::Relaxed)
+                .then(|| BAN_CNT_EFF.load(Ordering::Relaxed))
+        } else {
+            Some(ban as usize)
+        };
+        (style, ban)
     }
+}
+
+/// 현재 밴픽 룰(스타일, 실효 밴카드 수). `None` = 아직 Database 를 못 읽음(메인메뉴 등).
+fn rule_info() -> (u8, Option<usize>) {
+    config::cur_rule()
 }
 
 /// 팝업 그리드를 현재 탭·상태에 맞게 채운다(변경 시에만).
@@ -561,7 +583,14 @@ fn fill_grid(root: &mut Node) {
         .collect();
     *VISIBLE.lock().unwrap_or_else(|e| e.into_inner()) = champs.clone();
     let ready = icon_data::READY.load(Ordering::Relaxed) as u64;
-    let (style, ban_count) = rule_info();
+    {
+        let (st, bn) = rule_info();
+        config::set_rule(st, bn);
+    }
+    // ★라벨은 **캐시된 실효 룰**을 쓴다 — rule_info() 는 밴카드가 "자동"이면 매번 None 이라
+    //   관측/복원으로 이미 확정된 값을 화면에서 못 보여준다.
+    let (style, ban_opt) = config::cur_rule();
+    let ban_count = ban_opt.unwrap_or(0);
     let rule_sig = ((style as u64) << 40) ^ ((ban_count as u64) << 32);
     let filter_sig = {
         use std::hash::{Hash, Hasher};
@@ -606,10 +635,19 @@ fn fill_grid(root: &mut Node) {
         ui_kit::label_set(n, &format!("현재 밴픽 룰: {name}"));
     }
     if let Some(n) = ui_kit::find_mut(pop, "ban_label") {
-        ui_kit::label_set(n, &format!("현재 밴카드 수: {ban_count}"));
+        // ★밴카드 설정이 "자동"이면 원본값이 0 이라 실효값을 알 수 없다(밴픽 씬을 봐야 확정).
+        //   0 을 그대로 "0장"으로 보여주면 최소 선택 수도 함께 틀리게 읽힌다(유저 제보 2026-08-23).
+        let s = if ban_opt.is_none() {
+            "현재 밴카드 수: 읽는 중".to_string()
+        } else {
+            format!("현재 밴카드 수: {ban_count}")
+        };
+        ui_kit::label_set(n, &s);
     }
     if let Some(n) = ui_kit::find_mut(pop, "min_label") {
-        let s = if comp_size > 1 {
+        let s = if ban_opt.is_none() {
+            "최소 선택 수: 미정 (밴카드 수 확인 전)".to_string()
+        } else if comp_size > 1 {
             format!(
                 "최소 선택 수: {base_need}  ·  공유풀({comp_size}포지션) {union_size}/{union_need}"
             )
@@ -629,11 +667,22 @@ fn fill_grid(root: &mut Node) {
     if let Some(n) = ui_kit::find_mut(pop, "warning_min") {
         // cnt==0 = 전체 허용(제한 없음) → 경고 없음. 아니면 두 제약 체크:
         //  ①이 포지션 자체 ≥ base_need  ②겹친 컴포넌트 공유풀 ≥ union_need.
-        let s = if cnt == 0 {
+        let s = if ban_opt.is_none() {
+            // ★밴카드가 "자동"이면 최소 선택 수를 계산할 수 없다 ⟹ 제한을 아예 걸지 않는다.
+            //   (유저 지시 2026-08-23: 그 상태를 화면에 명시하고 해결 방법까지 적을 것.)
+            "⚠ 밴카드 수를 아직 읽지 못했습니다 — 잠시 후 다시 열어 주세요. 그때까지 포지션 제한은 적용되지 않습니다.".to_string()
+        } else if cnt == 0 {
             String::new()
         } else if cnt < base_need {
+            // ★최소 미달 = **제한 없음 취급**(유저 지시 2026-08-23). 경고가 아니라 현재 상태 안내다.
+            let stale = config::pos_stale(pos);
+            let tail = if stale > 0 {
+                format!(" · 지금 로스터에 없는 챔프 {stale}개는 제외하고 셉니다")
+            } else {
+                String::new()
+            };
             format!(
-                "⚠ 이 포지션 최소 {base_need}개 필요 — {}개 더 선택하세요",
+                "⚠ 최소 {base_need}개 미만 — 이 포지션은 지금 제한 없음으로 취급됩니다 ({}개 더 선택하면 적용){tail}",
                 base_need - cnt
             )
         } else if comp_size > 1 && union_size < union_need {
@@ -892,6 +941,101 @@ pub(crate) fn helps(pinned: &[u8], cand: u8) -> bool {
     let mut v = pinned.to_vec();
     v.push(cand);
     max_match(&v) > base
+}
+
+// -- ★자유 슬롯(정배치 불가 자리) 회계 -- 2026-08-23 ------------------------------
+//   어떤 포지션의 풀이 말라(밴/픽으로 전소) 아무 챔프도 못 앉히게 되면 그 자리는 "아무나" 앉는다.
+//   ★그 자유 자리를 **몇 번째 픽으로 채울지는 순서와 무관**하다 -- 스왑 배정은 5픽이 끝난 뒤
+//     순열로 정해지기 때문(유저 지적 2026-08-23).
+//   구 구현은 `helps()` 한 조건뿐이라 자유 픽이 **마지막 픽에서만** 통과했다
+//   (앞 픽에서는 "새 라인을 채우는" 챔프만 합법 -> 중복 라인 차단).
+//   -> 예산제로 교체: 자유 슬롯 = 팀픽수 - 달성가능최대치. 예산이 남아 있으면 전면 허용,
+//     한 장 쓰면(= 이미 찬 라인을 또 집으면) 다시 `helps()` 로 조인다.
+//   ⚠모든 포지션이 건강하면 달성가능최대치 = 팀픽수 -> 예산 0 -> 구 동작과 완전히 동일하다.
+
+/// masks 의 부분집합을 서로 다른 포지션에 배정해 **정확히 S 를 덮을 수 있는** S 들의 비트셋.
+fn cover_sets(masks: &[u8]) -> u32 {
+    let mut reach: u32 = 1; // bit0 = 공집합
+    for &m in masks {
+        let mut nxt = reach;
+        for s in 0..32usize {
+            if reach & (1 << s) == 0 {
+                continue;
+            }
+            for p in 0..5usize {
+                if m & (1 << p) != 0 && s & (1 << p) == 0 {
+                    nxt |= 1 << (s | (1 << p));
+                }
+            }
+        }
+        reach = nxt;
+    }
+    reach
+}
+
+/// 남은 풀이 **서로 다른 챔프로 S 전부를 덮을 수 있는** S 들의 비트셋(Hall 조건).
+fn pool_cover_sets(pool: &[u8]) -> u32 {
+    let mut by = [0usize; 32];
+    for &m in pool {
+        by[(m & MASK_ALL) as usize] += 1;
+    }
+    let mut avail = [0usize; 32];
+    for t in 1..32usize {
+        avail[t] = (1..32usize).filter(|m| m & t != 0).map(|m| by[m]).sum();
+    }
+    let mut ok: u32 = 1; // 공집합은 항상 가능
+    for s in 1..32usize {
+        let mut good = true;
+        let mut t = s; // s 의 모든 비공집합 부분집합 순회
+        while t > 0 {
+            if avail[t] < t.count_ones() as usize {
+                good = false;
+                break;
+            }
+            t = (t - 1) & s;
+        }
+        if good {
+            ok |= 1 << s;
+        }
+    }
+    ok
+}
+
+/// 이 팀이 최종적으로 설정대로 앉힐 수 있는 **최대 인원**(0..=team).
+///   pinned = 이미 픽한 챔프 마스크 **전부**(무제한 MASK_ALL 도 포함), pool = 아직 고를 수 있는 마스크.
+pub(crate) fn achievable(pinned: &[u8], pool: &[u8], slots: usize) -> usize {
+    let pin = cover_sets(pinned);
+    let pl = pool_cover_sets(pool);
+    let mut best = 0usize;
+    for a in 0..32usize {
+        if pin & (1 << a) == 0 {
+            continue;
+        }
+        let rest = MASK_ALL as usize & !a;
+        let mut b = rest;
+        loop {
+            if pl & (1 << b) != 0 && b.count_ones() as usize <= slots {
+                let v = a.count_ones() as usize + b.count_ones() as usize;
+                if v > best {
+                    best = v;
+                }
+            }
+            if b == 0 {
+                break;
+            }
+            b = (b - 1) & rest;
+        }
+    }
+    best
+}
+
+/// 아직 **안 쓴** 자유 슬롯 수. >0 이면 이번 픽은 무엇을 골라도 최종 정배치 인원이 줄지 않는다.
+pub(crate) fn free_left(pinned: &[u8], pool: &[u8], team: usize) -> usize {
+    let slots = team.saturating_sub(pinned.len());
+    let target = achievable(pinned, pool, slots);
+    let budget = team.saturating_sub(target); // 총 자유 슬롯
+    let used = pinned.len().saturating_sub(max_match(pinned)); // 이미 쓴 자유 슬롯
+    budget.saturating_sub(used)
 }
 
 pub(crate) fn feasible(masks: &mut Vec<u8>) -> bool {
@@ -1186,6 +1330,64 @@ static CLASS_SEL: AtomicUsize = AtomicUsize::new(0);
 static SEARCH_TXT: std::sync::Mutex<String> = std::sync::Mutex::new(String::new());
 /// 현재 그리드에 보이는 챔프 목록(셀 인덱스와 1:1) — 필터가 걸리면 sorted_champs 와 달라진다.
 static VISIBLE: std::sync::Mutex<Vec<String>> = std::sync::Mutex::new(Vec::new());
+// ── ★세이브별 설정 (2026-08-23 유저 지시) ──────────────────────────────────
+//   정본 = 그 세이브 안의 mod save data. 파일(state.txt)은 새 세이브의 씨앗.
+//   ⚠엔진 쓰기는 **큐잉**이라 기록 직후 `mod_save_get_string` 이 옛값을 줄 수 있다
+//     (tfm2_champion_exclude v0.4.0 실측). ⟹ 기록 본문을 로컬에 선반영한다.
+//   ⚠설정은 **게임이 세이브를 저장할 때** 함께 디스크로 간다(mod save data 의 성질).
+const SAVE_KEY: &str = "positions";
+const SAVE_NS_VERSION: usize = 1;
+/// 이 세이브의 설정을 이미 로드했나. 세이브 밖(메인메뉴) 프레임에서 false 로 리셋 → 세이브 전환 대응.
+static SAVE_LOADED: AtomicBool = AtomicBool::new(false);
+/// 게이트 중단 사유 코드(바뀔 때만 로그) + 스탬프 정지 카운터.
+static EXIT_SIG: AtomicU64 = AtomicU64::new(u64::MAX);
+static STAMP_STALL: AtomicUsize = AtomicUsize::new(0);
+
+/// ★상시 진단 — 게이트가 판정까지 못 가고 어디서 빠져나갔나. 사유가 바뀔 때만 한 줄.
+fn exit_note(code: u64, detail: &str) {
+    if EXIT_SIG.swap(code, Ordering::Relaxed) == code {
+        return;
+    }
+    config::slog(&format!("게이트 중단[{code}]: {detail}"));
+}
+
+/// 마지막으로 남긴 게이트 상태 서명(내용이 바뀔 때만 로그).
+static GATE_SIG: AtomicU64 = AtomicU64::new(u64::MAX);
+
+/// ★상시 진단 — 제한이 실제로 걸리고 있는지 한 줄. debug 플래그와 무관(내용 변화 시에만 기록).
+///   "제한이 안 먹힌다" 류 제보를 로그만으로 판정하기 위한 것(2026-08-23).
+fn gate_note(picks: usize, free: usize, blocked: usize, feasible: bool) {
+    let amask = config::active_pos_mask();
+    let sig = (picks as u64)
+        | (free.min(255) as u64) << 8
+        | (blocked.min(65535) as u64) << 16
+        | (feasible as u64) << 32
+        | (amask as u64) << 40;
+    if GATE_SIG.swap(sig, Ordering::Relaxed) == sig {
+        return;
+    }
+    let need = config::cur_min_required();
+    config::slog(&format!(
+        "게이트: 내픽 {picks} / 자유슬롯 {free} / 차단 {blocked}개 / 후보있음={feasible} / 제한활성={amask:05b} / 최소={} / 포지션별{:?}",
+        if need == usize::MAX { "미정".to_string() } else { need.to_string() },
+        (0..5).map(config::pos_count).collect::<Vec<_>>()
+    ));
+}
+
+/// mod save 를 **연속으로** 못 읽은 프레임 수. 이만큼 지나야 "정말 설정이 없다"로 단정한다.
+///   ★★세이브 로드 직후 몇 프레임은 `mod_save_get_string` 이 아직 None 을 준다
+///     (tfm2_champion_exclude 03_시행착오: 쓰기는 큐잉·읽기는 지연 — "None 이어도 캐시를 지우지 말 것").
+///     로스터는 프로세스당 1회만 캡처되므로 **두 번째 세이브 로드부터는 첫 프레임에 바로** 판정에
+///     들어간다 ⟹ 유예 없이는 매번 "설정 없음"으로 오판해 기존 설정을 덮어썼다(2026-08-23 실사고).
+static SAVE_MISS: AtomicUsize = AtomicUsize::new(0);
+const SAVE_MISS_GRACE: usize = 240; // ~4초(60fps)
+/// UI 확인이 이월한 기록 대기 본문(다음 InGame 프레임의 post_update 가 소비).
+static PENDING_SAVE: std::sync::Mutex<Option<String>> = std::sync::Mutex::new(None);
+
+/// 밴픽 씬에서 관측한 **실효** 밴카드 수(설정이 "기본"일 때 이걸 쓴다). 0=미관측.
+static BAN_CNT_EFF: AtomicUsize = AtomicUsize::new(0);
+/// 위 값을 밴픽 씬에서 **실제로 관측했나**. ⚠0장도 유효한 설정이라 값만으론 구분 못 한다.
+static BAN_CNT_SEEN: AtomicBool = AtomicBool::new(false);
 /// 검색 지우기 버튼이 눌렸음(다음 프레임에 text_edit 비움).
 static SEARCH_CLEAR: AtomicBool = AtomicBool::new(false);
 /// 드롭다운 옵션 주입 1회 완료.
@@ -1416,23 +1618,25 @@ fn side_root<'a>(root: &'a Node, side: Side, picks: bool) -> Option<&'a Node> {
 }
 
 /// 지금 `in_turn` 이 켜진 진영(픽 슬롯이든 밴 슬롯이든).
-fn side_in_turn(root: &Node) -> Option<Side> {
-    for side in [Side::Blue, Side::Red] {
-        if side_root(root, side, true)
-            .map(any_in_turn_visible)
-            .unwrap_or(false)
-        {
-            return Some(side);
-        }
-        if side_root(root, side, false)
-            .and_then(|n| ui_kit::find(n, "bans"))
-            .map(any_in_turn_visible)
-            .unwrap_or(false)
-        {
-            return Some(side);
-        }
+/// ★★픽 차례인 진영 — **픽 슬롯의 `in_turn` 만** 보고, **정확히 한쪽만** 켜져 있을 때만 확신한다.
+///   ⚠구현 `side_in_turn`(폐기)은 `Blue픽 → Blue밴 → Red픽 → Red밴` 순으로 훑었다.
+///     밴 페이즈가 끝난 뒤에도 **Blue 밴 슬롯의 `in_turn` 이 남아 있으면 항상 Blue** 를 돌려줘,
+///     Red 차례를 전부 "남의 차례"로 만들었다 ⟹ 회색화가 드래프트 내내 통째로 죽었다.
+///     실측 2026-08-23: `in_turn blue=false red=true` 인데 `side_in_turn=Blue`.
+///   ⟹ 픽 게이트는 밴 슬롯을 보면 안 된다(밴 차례는 호출 전에 이미 걸러진다).
+///   모호(양쪽 다 켜짐/양쪽 다 꺼짐)하면 `None` — 호출측이 fail-open 한다.
+fn pick_side_in_turn(root: &Node) -> Option<Side> {
+    let b = side_root(root, Side::Blue, true)
+        .map(any_in_turn_visible)
+        .unwrap_or(false);
+    let r = side_root(root, Side::Red, true)
+        .map(any_in_turn_visible)
+        .unwrap_or(false);
+    match (b, r) {
+        (true, false) => Some(Side::Blue),
+        (false, true) => Some(Side::Red),
+        _ => None,
     }
-    None
 }
 
 /// 그 진영의 확정된 픽 수 = `done` 이 보이는 pick_slot 개수.
@@ -1480,7 +1684,27 @@ fn recompute_blocklist(root: &Node) {
         *hooks::BLOCK_REASON.lock().unwrap_or_else(|e| e.into_inner()) = None;
     };
     let cfg = config::get();
+    // ★상시 진단: 여기서 빠져나가면 제한이 아예 안 걸린다. 어느 조건 때문인지 남긴다.
     if !cfg.enabled || !cfg.user_pick_block || !config::any_restricted() {
+        {
+            let sig = 0xE000
+                | (cfg.enabled as u64)
+                | (cfg.user_pick_block as u64) << 1
+                | (config::any_restricted() as u64) << 2
+                | (config::active_pos_mask() as u64) << 8;
+            if GATE_SIG.swap(sig, Ordering::Relaxed) != sig {
+                let need = config::cur_min_required();
+                config::slog(&format!(
+                    "게이트 OFF: enabled={} user_pick_block={} 제한있음={} / 제한활성={:05b} / 최소={} / 포지션별{:?}",
+                    cfg.enabled,
+                    cfg.user_pick_block,
+                    config::any_restricted(),
+                    config::active_pos_mask(),
+                    if need == usize::MAX { "미정".to_string() } else { need.to_string() },
+                    (0..5).map(config::pos_count).collect::<Vec<_>>()
+                ));
+            }
+        }
         clear();
         return;
     }
@@ -1496,9 +1720,19 @@ fn recompute_blocklist(root: &Node) {
     let (scene, stamp) = hooks::scene_cap();
     let last = LAST_SCENE_STAMP.swap(stamp, Ordering::Relaxed);
     // 밴픽 렌더가 이번 프레임에 없으면(스탬프 불변) = 연출·전환 중 → **직전 목록 유지**.
-    if scene < 0x10000 || stamp == last {
+    if scene < 0x10000 {
+        exit_note(1, "밴픽 씬 미포착(scene_cap=0) — scene_step 훅 미설치/무효화 의심");
         return;
     }
+    if stamp == last {
+        // 정상(연출·전환 프레임). 다만 **오래 멈춰 있으면** 훅이 안 도는 것이므로 한 번 남긴다.
+        let n = STAMP_STALL.fetch_add(1, Ordering::Relaxed) + 1;
+        if n == 600 {
+            config::slog("게이트: 씬 스탬프 600프레임 정지 — scene_step 훅 미발화 의심");
+        }
+        return;
+    }
+    STAMP_STALL.store(0, Ordering::Relaxed);
     // O_PICK1=T1PICK(내 팀)·O_PICK2=T2PICK(상대)·O_BAN1/2=T1/T2 밴. 원소 = 소문자 챔프 id.
     let (picks_a, picks_e, bans_a, bans_e) = unsafe {
         (
@@ -1511,6 +1745,7 @@ fn recompute_blocklist(root: &Node) {
     let (Some(picks_a), Some(picks_e), Some(bans_a), Some(bans_e)) =
         (picks_a, picks_e, bans_a, bans_e)
     else {
+        exit_note(2, "씬 4벡터(픽/밴) 읽기 실패");
         return; // 씬 형태 이상(과도기) → 일시적이므로 직전 목록 유지
     };
     // taken = 4벡터(픽·밴) 이름 합집합.
@@ -1534,7 +1769,25 @@ fn recompute_blocklist(root: &Node) {
         )
     };
     if fmt >= 4 || ban_cnt > 10 {
+        exit_note(3, &format!("씬 값 이상 fmt={fmt} ban_cnt={ban_cnt}"));
         return; // 씬 형태 이상 → 일시적이므로 직전 목록 유지
+    }
+    // ★밴픽 씬의 ban_count(+0x3c0) = 이 경기에 **실제 적용된** 밴카드 수.
+    //   평소엔 SDK 로 계산한 값과 같아야 한다(같지 않으면 연습실 등 특수 룰이거나 우리 계산이 틀린 것)
+    //   ⟹ 실경기 값을 우선하고, 어긋나면 로그를 남겨 공식을 검증한다.
+    //   ⚠씬 형태 검증(위 return)을 통과한 뒤에 기록해야 쓰레기값을 안 남긴다.
+    BAN_CNT_EFF.store(ban_cnt, Ordering::Relaxed);
+    BAN_CNT_SEEN.store(true, Ordering::Relaxed);
+    {
+        let (st, calc) = config::cur_rule();
+        if calc != Some(ban_cnt) {
+            if ban_cnt <= 10 {
+                config::set_rule(st, Some(ban_cnt));
+            }
+            config::dlog(&format!(
+                "밴카드: SDK계산={calc:?} vs 실경기={ban_cnt} → 실경기 채택 (스타일={st})"
+            ));
+        }
     }
     let total = picks_a.len() + picks_e.len() + bans_a.len() + bans_e.len();
     let base = ban_cnt * 2;
@@ -1574,6 +1827,7 @@ fn recompute_blocklist(root: &Node) {
         }
     }
     if is_ban {
+        exit_note(6, "밴 차례(포지션 무관)");
         clear(); // 밴 차례 = 포지션 무관, 게다가 회색이면 밴 자체를 못 하게 된다
         return;
     }
@@ -1634,9 +1888,30 @@ fn recompute_blocklist(root: &Node) {
     MY_SIDE.store(my_side, Ordering::Relaxed);
     // ③내 차례가 아니면 회색화하지 않는다(상대 차례에 회색이 뜨던 버그).
     if my_side >= 0 {
-        if let Some(sd) = side_in_turn(root) {
+        // ★모호하면(None) 억제하지 않는다 = fail-open. 확신이 있을 때만 회색화를 건너뛴다.
+        if let Some(sd) = pick_side_in_turn(root) {
             let turn_side = if sd == Side::Blue { 0 } else { 1 };
             if turn_side != my_side {
+                // ★판정 재료 전부: side_map 이 뒤집혔는지 / side_in_turn 이 한쪽만 주는지 구분용.
+                let bt = side_root(root, Side::Blue, true)
+                    .map(any_in_turn_visible)
+                    .unwrap_or(false);
+                let rt = side_root(root, Side::Red, true)
+                    .map(any_in_turn_visible)
+                    .unwrap_or(false);
+                exit_note(
+                    4,
+                    &format!(
+                        "내 차례 아님(turn={turn_side} my={my_side}) | pid={:?} team1={sel_team} team2={t2_team} is_t2={my_is_t2} side_map={side_map} | UI확정 blue={} red={} / 씬픽 t1={} t2={} | in_turn blue={bt} red={rt}",
+                        player_team(),
+                        side_done_count(root, Side::Blue),
+                        side_done_count(root, Side::Red),
+                        picks_a.len(),
+                        picks_e.len()
+                    ),
+                );
+                // 확신(한쪽만 in_turn)이 있을 때만 억제한다. 모호하면 위 `if let` 이 아예 안 걸려
+                // 그대로 진행 = fail-open(제한이 죽는 것보다 상대 차례 회색이 낫다).
                 clear();
                 return;
             }
@@ -1650,6 +1925,7 @@ fn recompute_blocklist(root: &Node) {
     //   자리표시자·집계 시점 차이로 한 스텝 일찍 상한에 닿는다.
     //   → **내 팀 픽이 다 찼는가**로 판정한다(팀당 픽 수 = picks_n/2). 내 픽이 남아 있으면 항상 활성.
     if my_picks.len() >= picks_n / 2 {
+        exit_note(5, &format!("내 픽 완료 {}/{}", my_picks.len(), picks_n / 2));
         clear(); // 내 픽 완료 → 더 고를 게 없으니 차단 불필요
         return;
     }
@@ -1658,6 +1934,25 @@ fn recompute_blocklist(root: &Node) {
         let m = config::mask_of(p);
         if m != MASK_ALL {
             pinned.push(m);
+        }
+    }
+    // ★자유 슬롯 예산(2026-08-23 유저 지적): 포지션 풀이 말라 정배치가 불가능해진 자리는
+    //   아무나 앉혀도 되고, **그 자리를 몇 번째 픽으로 채울지는 순서와 무관**하다.
+    //   구 동작은 `helps()` 만 봐서 자유 픽을 마지막 픽에서만 허용했다 → 예산이 남아 있으면 전면 허용.
+    //   ⚠회계는 무제한(MASK_ALL) 픽까지 포함한 "내 픽 전부"로 한다(그 챔프도 슬롯 하나를 쓴다).
+    {
+        let pinned_all: Vec<u8> = my_picks.iter().map(|p| config::mask_of(p)).collect();
+        let pool: Vec<u8> = names
+            .iter()
+            .enumerate()
+            .filter(|(_, n)| !taken.contains(n.to_ascii_lowercase().as_str()))
+            .map(|(i, _)| masks.get(i).copied().unwrap_or(MASK_ALL))
+            .collect();
+        let free = free_left(&pinned_all, &pool, picks_n / 2);
+        if free > 0 {
+            gate_note(my_picks.len(), free, 0, true);
+            clear();
+            return;
         }
     }
     // 각 후보: 유저가 지금 고르면 남은 포지션까지 매칭 유지되나?
@@ -1692,6 +1987,7 @@ fn recompute_blocklist(root: &Node) {
     } else {
         std::collections::HashSet::new() // fail-open
     };
+    gate_note(my_picks.len(), 0, published.len(), any_feasible);
     // 씬이 바뀐 프레임에만 로그(스팸 방지) — 실제 픽/밴을 이름으로 찍어 검증(T1=내팀 확인용).
     if cfg.debug && stamp != last {
         config::dlog(&format!(
@@ -1876,6 +2172,27 @@ impl ModExtension for PosLockExt {
                 let db = data.db();
                 // Database 포인터 캡처(룰 카운트 읽기용) — 매 프레임 갱신. Ref<ClientDatabase> deref.
                 DB_PTR.store(&*db as *const _ as usize, Ordering::Relaxed);
+                // ★★밴픽 룰 = **게임 자신의 결정 함수**로 확정(2026-08-23 RE, SDK 공개 API).
+                //   `GamePlayOption::ban_count_or_default(rule, 사용가능챔프수)` 가 밴카드 "자동"까지
+                //   풀어 준다. 자동 공식(GameRule::ban_count_for_available_champions):
+                //     2V2=1 / 3V3=2 / 4V4=2 고정, **5V5 = 챔프 40마리 미만 2, 40 이상 3**
+                //     (임계값 = `GameRule::THREE_BAN_AVAILABLE_CHAMPION_COUNT` = 40).
+                //   ⟹ raw 오프셋(db+0x720/+0x737)도, 밴픽 씬 관측도 더 이상 필요 없다.
+                {
+                    let o = &db.game_play_option;
+                    let ban = o.ban_count_or_default(
+                        o.match_game_rule_for_current_mode(),
+                        db.available_champions.len(),
+                    );
+                    let style = match o.banpick_style {
+                        game_core::BanpickStyle::Classic => 0u8,
+                        game_core::BanpickStyle::Fearless => 1,
+                        game_core::BanpickStyle::FearlessHard => 2,
+                    };
+                    if ban <= 10 {
+                        config::set_rule(style, Some(ban));
+                    }
+                }
                 // ★★내 팀 id = **SDK 공개 API `db.player_team_id()`** (2026-08-23).
                 //   관리화면도 `Scene::InGame` 이라 이어하기 직후 바로 잡힌다. 세이브 내내 불변.
                 //   ⚠tfm2_item_tactics 실측 교훈 이식: 조합테스트 등 팀 개념 없는 컨텍스트에서
@@ -1939,8 +2256,83 @@ impl ModExtension for PosLockExt {
                             }
                             config::dlog(&format!("캡처: 챔프 {}개", ids.len()));
                         }
+                        // ★로스터 확정 — 화이트리스트의 "지금 없는 챔프" 를 개수에서 제외한다.
+                        config::set_roster(&ids);
                         let _ = NAMES.set(ids);
                     }
+                }
+            }
+            // ── ★세이브별 설정 (2026-08-23) ──
+            if let Scene::InGame { data } = scene {
+                // ①UI 확인이 이월한 기록 대기분을 이 세이브에 기록.
+                let pending = PENDING_SAVE.lock().unwrap_or_else(|e| e.into_inner()).take();
+                if let Some(body) = pending {
+                    if data.can_write_mod_save() {
+                        data.mod_save_set_version(MOD_ID, SAVE_NS_VERSION);
+                        let ok = data.mod_save_set_string(MOD_ID, SAVE_KEY, &body);
+                        config::slog(&format!(
+                            "세이브 기록 {}: {}B",
+                            if ok { "OK" } else { "거부(FALSE)" },
+                            body.len()
+                        ));
+                        // ★기록 본문을 즉시 반영 — 엔진 쓰기는 큐잉이라 곧바로 다시 읽으면 옛값이 온다.
+                        if ok {
+                            config::apply_state_text(&body);
+                            SAVE_LOADED.store(true, Ordering::Relaxed);
+                        }
+                    } else {
+                        config::slog("세이브 기록 불가: can_write_mod_save=false — 이번 저장은 반영 안 됨");
+                    }
+                }
+                // ②이 세이브의 설정을 최초 1회 로드. 없으면 파일(씨앗)에서 마이그레이션.
+                //   ⚠로스터 캡처 전에 하면 전부 "유령"으로 걸러져 빈 설정이 심어진다 → 반드시 대기.
+                if !SAVE_LOADED.load(Ordering::Relaxed) && config::roster_ready() {
+                    match data.mod_save_get_string(MOD_ID, SAVE_KEY) {
+                        Some(txt) => {
+                            config::apply_state_text(&txt);
+                            SAVE_LOADED.store(true, Ordering::Relaxed);
+                            let miss = SAVE_MISS.swap(0, Ordering::Relaxed);
+                            config::slog(&format!(
+                                "세이브 설정 로드: {}B / 포지션별 {:?} (대기 {miss}프레임)",
+                                txt.len(),
+                                (0..5).map(config::pos_count).collect::<Vec<_>>()
+                            ));
+                        }
+                        None => {
+                            // ★유예: 아직 못 읽었을 뿐일 수 있다. 연속 미스가 임계를 넘어야 단정한다.
+                            //   ⚠여기서 early-return 하면 안 된다 — 이 블록은 catch_unwind 클로저
+                            //     안이라 post_update 의 나머지(마스크 재계산·훅 설치)까지 건너뛴다.
+                            let n = SAVE_MISS.fetch_add(1, Ordering::Relaxed) + 1;
+                            if n >= SAVE_MISS_GRACE {
+                                // ★설정 저장소 = 이 세이브 하나. 없으면 **제한 없음**(바닐라)이다.
+                                //   ⚠아무것도 기록하지 않는다 — 읽기가 늦었을 뿐인 경우 기존 설정을
+                                //     파괴한다(2026-08-23 실사고: 빈 본문으로 덮어써서 설정 유실).
+                                config::apply_state_text("");
+                                SAVE_LOADED.store(true, Ordering::Relaxed);
+                                config::slog(&format!(
+                                    "이 세이브엔 설정 없음({n}프레임 확인) → 제한 없음 / 로스터 {}종",
+                                    NAMES.get().map(|v| v.len()).unwrap_or(0)
+                                ));
+                            }
+                        }
+                    }
+                }
+            } else {
+                // 세이브 밖(메인메뉴/새 게임) → 다음 세이브 진입 때 다시 로드하도록 리셋.
+                //   ★설정도 함께 비운다 — 안 비우면 로드가 끝나기 전 프레임에 직전 세이브 설정이 산다.
+                SAVE_MISS.store(0, Ordering::Relaxed);
+                if SAVE_LOADED.swap(false, Ordering::Relaxed) {
+                    config::clear_state();
+                    // ★★세이브 종속 전역을 **전부** 리셋한다(2026-08-23 실사고).
+                    //   `PLAYER_TEAM` 은 "비0 을 한 번 봤으면 0 으로 후퇴 금지" 가드가 걸려 있다
+                    //   (조합테스트가 0 을 돌려주는 것 대응). 그런데 프로세스 전역이라
+                    //   **세이브를 갈아타도 이전 세이브의 팀 id 가 살아남아** 새 세이브에서 내 팀을
+                    //   오판했다 → 픽 차례를 전부 "남의 차례"로 보고 회색화가 통째로 안 걸렸다.
+                    //   `SIDE_MAP`(진영↔픽벡터 대응)도 같은 이유로 리셋.
+                    PLAYER_TEAM.store(u64::MAX, Ordering::Relaxed);
+                    PID_NONZERO.store(false, Ordering::Relaxed);
+                    SIDE_MAP.store(0, Ordering::Relaxed);
+                    config::slog("세이브 밖으로 나감 → 설정·내팀·진영맵 비움");
                 }
             }
             // 상태(UI 편집)가 바뀌었으면 마스크 재계산.
@@ -2147,9 +2539,14 @@ impl ModExtension for PosLockExt {
             routes.push(ui_kit::route(
                 "pos_lock_popup.ok",
                 Rc::new(|| {
-                    config::save_state_to_file();
+                    // ★정본 = 이 세이브. 유효 챔프만 담는다(유령 id 가 세이브로 넘어가지 않게).
+                    let body = config::state_text(true);
+                    *PENDING_SAVE.lock().unwrap_or_else(|e| e.into_inner()) = Some(body.clone());
+                    // ⚠씨앗 파일(state.txt)은 **덮어쓰지 않는다**. 덮어쓰면 지금 로스터에 없는
+                    //   챔프(다른 워크샵 구성의 선택)가 파일에서까지 지워진다 — 실제로 한 번 날렸다
+                    //   (2026-08-23: 서폿 22개 → 7개). 파일은 읽기 전용 씨앗으로 둔다.
                     POPUP_OPEN.store(false, Ordering::Relaxed);
-                    config::dlog("포지션 제한 저장");
+                    config::slog(&format!("확인: {}B 기록 대기 (이 세이브)", body.len()));
                 }),
             ));
             for (i, t) in TAB_IDS.iter().enumerate() {
