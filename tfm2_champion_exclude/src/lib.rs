@@ -56,7 +56,7 @@ mod inject;
 mod ui_kit;
 
 const MOD_ID: &str = "tfm2_champion_exclude";
-const VERSION: &str = "0.5.0";
+const VERSION: &str = "0.5.1";
 /// i18n 태그 접두(text/champion_exclude.i18n 을 mod.override_info merge 로
 /// asset/base/text/ui 에 병합 — scrim ui.i18n 동형). 라벨 text = 이 태그면 게임이
 /// 현재 언어(ko/en)로 자동 해석.
@@ -597,6 +597,49 @@ fn en_name(id: &str) -> String {
         .unwrap_or_default()
 }
 
+// ── 현재 게임 언어 (정렬 기준용, v0.5.1) ──
+// ★유일 소스 = `<게임설치>\config\game\base.json` 의 "lang" 값 — 게임의 i18n 태그 해석기
+//   (LabelRunner)가 매 해석마다 이 값으로 언어 블록을 고른다(0.5.6 RE 확정 =
+//   RE\2026-08-23_현재로케일-lang-소스.md · Steam/Windows 언어 아님·serpen 기확립 패턴).
+//   파일 미존재/파싱 실패 폴백 = "en"(게임 자체 폴백과 동일). 팝업 열 때마다 재읽기.
+fn current_lang() -> String {
+    let read = || -> Option<String> {
+        let g = game_dir()?;
+        let t = std::fs::read_to_string(g.join("config").join("game").join("base.json")).ok()?;
+        let pos = t.find("\"lang\"")?;
+        let rest = &t[pos + 6..];
+        let a = rest.find('"')?;
+        let b = rest[a + 1..].find('"')?;
+        let v = rest[a + 1..a + 1 + b].trim().to_string();
+        if v.is_empty() || v.len() > 16 { None } else { Some(v) }
+    };
+    read().unwrap_or_else(|| "en".to_string())
+}
+/// 언어별 이름 맵 캐시(ko/en 외 로케일용 — 게임정보 탭과 동일하게 "현재 lang의 이름"으로 정렬).
+static LANG_MAPS: Mutex<Option<std::collections::HashMap<String, std::collections::HashMap<String, String>>>> =
+    Mutex::new(None);
+/// 게임정보 탭 정렬 재현(0.5.6 RE = RE\2026-08-23_게임정보탭-챔프정렬.md):
+/// 키 = 현재 lang 의 i18n 표시명, **미스 시 게임과 동일하게 "description.<id>.name" 키
+/// 문자열 자체**가 정렬키(라틴이라 한글 앞으로 감 — 게임정보 탭과 같은 위치).
+/// 비교는 (키.to_lowercase(), id) 튜플 바이트 비교 — 게임의 to_lowercase+튜플비교 재현.
+/// (라틴 악센트 접기만 미재현 — ko/en 파리티 무영향, RE 미확정 매핑표.)
+fn sort_name(id: &str, lang: &str) -> String {
+    let key = id.to_ascii_lowercase();
+    let name = match lang {
+        "ko" => KR_MAP.get_or_init(load_kr_names).get(&key).cloned(),
+        "en" => EN_MAP.get_or_init(|| load_names("en")).get(&key).cloned(),
+        _ => {
+            let mut g = LANG_MAPS.lock().unwrap_or_else(|e| e.into_inner());
+            let maps = g.get_or_insert_with(std::collections::HashMap::new);
+            let m = maps
+                .entry(lang.to_string())
+                .or_insert_with(|| load_names(lang));
+            m.get(&key).cloned()
+        }
+    };
+    name.unwrap_or_else(|| format!("description.{key}.name"))
+}
+
 // 챔피언 스프라이트 에셋 키 테이블(champ_uv.rs — pos_lock 08-20 생성본 사본, 97 id).
 include!(r"C:\tfm2mods\tfm2_champion_exclude\assets\champ_uv.rs");
 
@@ -705,8 +748,14 @@ fn recompute_candidates(
         .into_iter()
         .filter(|id| !avail.contains(id) && (mod_ids.contains(id) || in_registry(id)))
         .collect();
-    // 한글 이름 가나다순(이름 없는 챔프는 id 순으로 뒤) — pos_lock sorted_champs 동형.
-    cand.sort_by(|a, b| kr_name(a).cmp(&kr_name(b)).then_with(|| a.cmp(b)));
+    // ★현재 게임 언어(config\game\base.json "lang") 기준 이름순(ko=가나다·그 외=알파벳).
+    let lang = current_lang();
+    cand.sort_by(|a, b| {
+        sort_name(a, &lang)
+            .to_lowercase()
+            .cmp(&sort_name(b, &lang).to_lowercase())
+            .then_with(|| a.cmp(b))
+    });
     // 클래스 맵(드롭다운 필터용).
     let mut cats = std::collections::HashMap::new();
     for id in &cand {
