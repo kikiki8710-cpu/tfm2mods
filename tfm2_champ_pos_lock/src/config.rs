@@ -536,18 +536,22 @@ pub fn dlog(msg: &str) {
 }
 
 const DEFAULT_CFG: &str = "\
-# tfm2_champ_pos_lock — 챔피언 포지션 제한 (토글만; 실제 제한 목록은 인게임 UI)\r\n\
-# 인게임: 환경설정 → 게임플레이 → 맨 아래 '포지션 제한' 버튼\r\n\
-enabled=1\r\n\
-debug=0\r\n\
-# AI 픽/배정 제한\r\n\
-ai_pick_gate=1\r\n\
-ai_assign_mask=1\r\n\
-# 내 밴픽 화면에서 매칭 깨는 챔피언을 피어리스처럼 회색+선택불가 (고를 게 0 이면 자동 해제)\r\n\
-user_pick_block=1\r\n\
-# UI 주입점 파악용 노드 트리 덤프(개발용)\r\n\
-dump_ui=0\r\n\
-# 배정 진단 로그(champ_pos_lock_lineups.txt) — 문제 보고용, 평소엔 0\r\n\
-log_lineups=0\r\n\
+    # tfm2_champ_pos_lock - Champion Position Lock (toggles only; the actual per-position\r\n\
+    #   champion lists are edited in-game).\r\n\
+    # In game: Settings -> Gameplay -> 'Position Lock' button at the bottom.\r\n\
+    enabled=1\r\n\
+    # Write a diagnostic log (champ_pos_lock_log.txt). Off unless you are debugging.\r\n\
+    debug=0\r\n\
+    # Restrict AI teams too (their picks and their position assignment).\r\n\
+    ai_pick_gate=1\r\n\
+    ai_assign_mask=1\r\n\
+    # In your own draft, grey out champions that would break the position assignment\r\n\
+    #   (like fearless does). Automatically lifted when nothing legal is left.\r\n\
+    user_pick_block=1\r\n\
+    # Dump the UI node tree to find injection points. Development only.\r\n\
+    dump_ui=0\r\n\
+    # Log the final line-up of every match to champ_pos_lock_lineups.txt.\r\n\
+    #   For bug reports; keep it off normally.\r\n\
+    log_lineups=0\r\n\
 ";
 
