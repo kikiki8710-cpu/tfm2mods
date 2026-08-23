@@ -1,0 +1,20 @@
+[package]
+name = "player_trade_system_test79_stable_pending_ui"
+version = "0.1.0-test79-patch055-profile-nav-scene-return-desktop-fix6"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+
+[profile.release]
+lto = "thin"
+codegen-units = 1
+incremental = false
+
+[workspace]
+
+
+# Fix6 keeps the verified asynchronous trade and Fix5 contract-row visuals.
+# It changes only projected-name scene navigation and target-profile lock restoration.

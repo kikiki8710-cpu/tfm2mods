@@ -75,3 +75,6 @@ __pycache__/
 *.rlib
 target/
 Cargo.lock
+
+# player trade system (handoff build, 0.5.6)
+!/player_trade_system_test79_stable_pending_ui/

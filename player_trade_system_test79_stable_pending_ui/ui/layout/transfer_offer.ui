@@ -1,0 +1,6893 @@
+offer:transfer_offer_ui {
+  width: 1608px;
+  height: 980px;
+
+  x: 24px;
+  y: 24px;
+
+  #header:label {
+    @"asset/base/style/main#bold_label";
+    text: "#asset/base/text/ui?offer.header";
+    width: 1608px;
+    height: 32px;
+    align_x: Left;
+    align_y: Center;
+    size: 24;
+    color: #e8e8e8ff;
+  }
+
+  #data:empty {
+    y: 32px;
+    width: 1608px;
+    height: 100%;
+    
+    #row1:empty {
+      width: 1608px;
+      height: 341px;
+      y: 10px;
+
+      #info:color {
+        width: 696px;
+        height: 341px;
+
+        rounding: Uniform {
+          rounding: 12;
+        }
+
+        color: #161721ff;
+
+        child_type: TopToBottom {
+          spacing: 0px;
+        }
+
+        #header:color {
+          width: 696px;
+          height: 80px;
+
+          color: #0f1016ff;
+
+          #face_slot:color {
+            x: 10px;
+            y: 10px;
+            width: 60px;
+            height: 60px;
+
+            color: #161721ff;
+
+            rounding: Uniform {
+              rounding: 8;
+            }
+
+            #face:canvas {
+              width: 60px;
+              height: 60px;
+            }
+          }
+
+          #position:image {
+            x: 80px;
+            y: 28px;
+            width: 24px;
+            height: 24px;
+
+            source: "asset/base/ui/icons/mid";
+          }
+
+          #name:label {
+            @"asset/base/style/main#bold_label";
+
+            width: 221px;
+            height: 32px;
+
+            x: 139px;
+            y: 24px;
+
+            text: "Name";
+            size: 30;
+
+            align_y: Center;
+            fit_width: true;
+          }
+
+          #age:label {
+            @"asset/base/style/main#label";
+
+            width: 290px;
+            height: 32px;
+
+            x: 377px;
+            y: 24px;
+
+            text: "#asset/base/text/athlete?age";
+            size: 30;
+
+            align_x: Right;
+            align_y: Center;
+          }
+        }
+
+        #team:empty {
+          x: 18px;
+          y: 17px;
+          width: 696px;
+          height: 100px;
+
+          #logo:image {
+            x: 10px;
+            y: 10px;
+
+            width: 80px;
+            height: 80px;
+            source: "asset/base/aseprite_resources/team_logo";
+            rect_tag: "0_0";
+          }
+
+          #team:label {
+            @"asset/base/style/main#bold_label";
+            x: 119px;
+            y: 10px;
+            width: 548px;
+            height: 80px;
+
+            size: 24;
+            text: "#asset/base/text/ui?offer.team";
+            align_x: Left;
+            align_y: Center;
+          }
+
+          #info:empty {
+            y: 100px;
+            width: 696px;
+            height: 200px;
+
+            padding: {
+              left: 9px;
+              right: 9px;
+              top: 10px;
+              bottom: 10px;
+            }
+
+            child_type: TopToBottom {
+              spacing: 0px;
+            }
+
+            #period:empty {
+              width: 100%;
+              height: 32px;
+
+              #header:label {
+                @"asset/base/style/main#label";
+
+                size: 18;
+
+                width: 320px;
+                height: 32px;
+
+                text: "#asset/base/text/ui?player_detail.contract.period";
+                align_y: Center;
+              }
+
+              #value:label {
+                @"asset/base/style/main#label";
+
+                x: 327px;
+                width: 320px;
+                height: 32px;
+
+                size: 18;
+                align_x: Right;
+                align_y: Center;
+                text: "#asset/base/text/ui?player_detail.contract.range";
+              }
+            }
+
+            #salary:empty {
+              width: 100%;
+              height: 32px;
+
+              #header:label {
+                @"asset/base/style/main#label";
+
+                size: 18;
+
+                width: 320px;
+                height: 32px;
+
+                text: "#asset/base/text/ui?player_detail.salary.header";
+                align_y: Center;
+              }
+
+              #value:label {
+                @"asset/base/style/main#label";
+
+                x: 327px;
+                width: 320px;
+                height: 32px;
+
+                size: 18;
+                align_x: Right;
+                align_y: Center;
+                text: "1,234,567";
+              }
+            }
+
+            #transfer_fee:empty {
+              width: 100%;
+              height: 32px;
+
+              #header:label {
+                @"asset/base/style/main#label";
+
+                size: 18;
+
+                width: 320px;
+                height: 32px;
+
+                text: "#asset/base/text/ui?player_detail.transfer_fee";
+                align_y: Center;
+              }
+
+              #value:label {
+                @"asset/base/style/main#label";
+
+                x: 327px;
+                width: 320px;
+                height: 32px;
+
+                size: 18;
+                align_x: Right;
+                align_y: Center;
+                text: "1,234,567";
+              }
+            }
+
+            #squad_status:empty {
+              width: 100%;
+              height: 32px;
+
+              #header:label {
+                @"asset/base/style/main#label";
+
+                size: 18;
+
+                width: 320px;
+                height: 32px;
+
+                text: "#asset/base/text/athlete?squad_status.desc";
+                align_y: Center;
+              }
+
+              #value:label {
+                @"asset/base/style/main#label";
+
+                x: 327px;
+                width: 320px;
+                height: 32px;
+
+                size: 18;
+                align_x: Right;
+                align_y: Center;
+                text: "-";
+              }
+            }
+          }
+        }
+      }
+
+      #sub:color {
+        width: 892px;
+        height: 341px;
+
+        x: 716px;
+
+        rounding: Uniform {
+          rounding: 12;
+        }
+
+        color: #161721ff;
+
+        #header:label {
+          @"asset/base/style/main#label";
+
+          size: 18;
+
+          x: 9px;
+          y: 10px;
+          width: 874px;
+          height: 32px;
+
+          text: "#asset/base/text/ui?offer.info.header";
+          align_y: Center;
+        }
+
+        #negotiation_info:label {
+          @"asset/base/style/main#label";
+
+          y: 52px;
+
+          size: 18;
+          line_height: 32;
+
+          width: 892px;
+          height: 280px;
+
+          padding: {
+            left: 17px;
+            right: 17px;
+            top: 10px;
+            bottom: 10px;
+          }
+
+          text: "";
+        }
+      }
+    }
+
+    #row2:color {
+      width: 1608px;
+      height: 564px;
+      y: 371px;
+
+      rounding: Uniform {
+        rounding: 12;
+      }
+
+      color: #161721ff;
+
+      #condition:label {
+        @"asset/base/style/main#label";
+        size: 18;
+
+        x: 9px;
+        y: 10px;
+        width: 1159px;
+        height: 32px;
+
+        text: "#asset/base/text/ui?offer.condition";
+        align_y: Center;
+      }
+
+      #reset:color_icon_button {
+        @"asset/base/style/main#tertiary_button";
+
+        width: 148px;
+        height: 40px;
+
+        x: -741px;
+        y: -15px;
+        anchor_x: 1;
+        pivot_x: 1;
+
+        anchor_y: 1;
+        pivot_y: 1;
+
+        text: {
+          font: "asset/base/font/set/bold";
+          text: "#asset/base/text/ui?offer.reset";
+          size: 18;
+
+          align_x: Center;
+          align_y: Center;
+        }
+      }
+
+      #view_other:color_icon_button {
+        @"asset/base/style/main#tertiary_button";
+
+        width: 200px;
+        height: 40px;
+
+        x: -904px;
+        y: -15px;
+        anchor_x: 1;
+        pivot_x: 1;
+
+        anchor_y: 1;
+        pivot_y: 1;
+
+        text: {
+          font: "asset/base/font/set/bold";
+          text: "#asset/base/text/ui?offer.pre";
+          size: 18;
+
+          align_x: Center;
+          align_y: Center;
+        }
+      }
+
+      #option:label {
+        @"asset/base/style/main#label";
+        size: 18;
+
+        x: 1176px;
+        y: 10px;
+        width: 423px;
+        height: 32px;
+
+        text: "#asset/base/text/ui?offer.option.header";
+        align_y: Center;
+      }
+
+      #condition_list:empty {
+        x: 20px;
+        y: 62px;
+        width: 1141px;
+        height: 340px;
+
+        child_type: TopToBottom {
+          spacing: 20px;
+        }
+
+        #transfer_fee:empty {
+          width: 1141px;
+          height: 40px;
+
+          child_type: LeftToRight {
+            spacing: 0px;
+          }
+
+          #tag:label {
+            @"asset/base/style/main#label";
+            width: 240px;
+            height: 40px;
+            text: "#asset/base/text/ui?offer.transfer_fee";
+            size: 18;
+            align_y: Center;
+          }
+
+          #value:dropdown {
+            @"asset/base/style/main#dropdown";
+            width: 206px;
+            height: 40px;
+
+            text: {
+              size: 18;
+            }
+
+            item_text: {
+              size: 18;
+            }
+
+            text_layout: {
+              x: 14px;
+              y: 6px;
+              width: 100%;
+              height: 28px;
+            }
+
+            item_layout: {
+              height: 40px;
+              width: 162px;
+              x: 14px;
+            }
+
+            item_text_layout: {
+              y: 6px;
+              width: 148px;
+              height: 28px;
+            }
+          }
+
+          #direct:color_icon_button {
+            @"asset/base/style/main#tertiary_button";
+
+            x: 10px;
+            width: 110px;
+            height: 40px;
+
+            text: {
+              font: "asset/base/font/set/bold";
+              text: "#asset/base/text/ui?offer.direct_input";
+              size: 18;
+
+              align_x: Center;
+              align_y: Center;
+            }
+          }
+
+          #minus:color_icon_button {
+            @"asset/base/style/main#tertiary_button";
+
+            x: 10px;
+            width: 40px;
+            height: 40px;
+
+            text: {
+              font: "asset/base/font/set/bold";
+              text: "-";
+              size: 18;
+
+              align_x: Center;
+              align_y: Center;
+            }
+          }
+
+          #plus:color_icon_button {
+            @"asset/base/style/main#tertiary_button";
+
+            x: 10px;
+            width: 40px;
+            height: 40px;
+
+            text: {
+              font: "asset/base/font/set/bold";
+              text: "+";
+              size: 18;
+
+              align_x: Center;
+              align_y: Center;
+            }
+          }
+        }
+      }
+
+      #option_box:color {
+        width: 411px;
+        height: 340px;
+
+        x: 1179px;
+        y: 62px;
+
+        color: #4a4c56ff;
+        back_color: #00000000;
+        stroke: 1;
+
+        rounding: Uniform {
+          rounding: 8;
+        }
+
+        padding: {
+          left: 20px;
+          top: 20px;
+          right: 20px;
+          bottom: 20px;
+        }
+
+        child_type: TopToBottom {
+          spacing: 10px;
+        }
+
+        #add_installment:color_icon_button {
+          @"asset/base/style/main#tertiary_button";
+          width: 371px;
+          height: 40px;
+
+          text: {
+            font: "asset/base/font/set/bold";
+            text: "#asset/base/text/ui?offer.option.add_installment";
+            size: 18;
+            align_x: Center;
+            align_y: Center;
+          }
+        }
+
+        #add_resale:color_icon_button {
+          @"asset/base/style/main#tertiary_button";
+          width: 371px;
+          height: 40px;
+
+          text: {
+            font: "asset/base/font/set/bold";
+            text: "#asset/base/text/ui?offer.option.add_resale";
+            size: 18;
+            align_x: Center;
+            align_y: Center;
+          }
+        }
+      }
+
+
+      #bar:color {
+        width: 1572px;
+        x: 18px;
+        y: 489px;
+
+        height: 1px;
+
+        color: #4a4c56ff;
+      }
+
+      #transfer_fee_budget:label {
+        @"asset/base/style/main#label";
+
+        x: 18px;
+        y: 502px;
+        width: 466px;
+        height: 28px;
+
+        size: 18;
+        align_y: Center;
+        fit_width: true;
+        text: "";
+      }
+
+      #salary_budget:label {
+        @"asset/base/style/main#label";
+
+        x: 18px;
+        y: 532px;
+        width: 466px;
+        height: 28px;
+
+        size: 18;
+        align_y: Center;
+        fit_width: true;
+        text: "";
+      }
+
+      #reject:color_icon_button {
+        @"asset/base/style/main#tertiary_button";
+
+        width: 148px;
+        height: 40px;
+
+        x: -578px;
+        y: -15px;
+        anchor_x: 1;
+        pivot_x: 1;
+
+        anchor_y: 1;
+        pivot_y: 1;
+
+        text: {
+          font: "asset/base/font/set/bold";
+          text: "#asset/base/text/ui?offer.reject";
+          size: 18;
+
+          align_x: Center;
+          align_y: Center;
+        }
+      }
+
+      #accept:color_icon_button {
+        @"asset/base/style/main#tertiary_button";
+
+        width: 148px;
+        height: 40px;
+
+        x: -415px;
+        y: -15px;
+        anchor_x: 1;
+        pivot_x: 1;
+
+        anchor_y: 1;
+        pivot_y: 1;
+
+        text: {
+          font: "asset/base/font/set/bold";
+          text: "#asset/base/text/ui?offer.accept";
+          size: 18;
+
+          align_x: Center;
+          align_y: Center;
+        }
+      }
+
+
+      #pts_trade_entry_tip:color {
+        ignore_event: true;
+        visible: false;
+
+        width: 260px;
+        height: 34px;
+
+        x: -15px;
+        y: -146px;
+        anchor_x: 1;
+        pivot_x: 1;
+
+        anchor_y: 1;
+        pivot_y: 1;
+
+        back_color: #161721ff;
+        color: #4a4c56ff;
+        stroke: 1;
+
+        rounding: Uniform {
+          rounding: 6;
+        }
+
+        padding: {
+          left: 10px;
+          right: 10px;
+        }
+
+        #text:label {
+          @"asset/base/style/main#label";
+          width: 100%;
+          height: 100%;
+
+          size: 14;
+          color: #e8e8e8ff;
+          align_x: Center;
+          align_y: Center;
+          text: "";
+        }
+      }
+
+      #pts_trade_entry:color_icon_button {
+        @"asset/base/style/main#tertiary_button";
+
+        visible: false;
+        disabled: true;
+        width: 160px;
+        height: 40px;
+
+        x: -15px;
+        y: -100px;
+        anchor_x: 1;
+        pivot_x: 1;
+
+        anchor_y: 1;
+        pivot_y: 1;
+
+        text: {
+          font: "asset/base/font/set/bold";
+          text: "트레이드";
+          size: 18;
+
+          align_x: Center;
+          align_y: Center;
+        }
+      }
+
+      #delegate:color_icon_button {
+        @"asset/base/style/main#tertiary_button";
+
+        width: 210px;
+        height: 40px;
+
+        x: -190px;
+        y: -15px;
+        anchor_x: 1;
+        pivot_x: 1;
+
+        anchor_y: 1;
+        pivot_y: 1;
+
+        text: {
+          font: "asset/base/font/set/bold";
+          text: "#asset/base/text/ui?offer.delegate_to_scout";
+          size: 18;
+
+          align_x: Center;
+          align_y: Center;
+        }
+      }
+
+      #delegate_tooltip:label {
+        width: 280px;
+        height: 40px;
+
+        x: -190px;
+        y: -60px;
+        anchor_x: 1;
+        pivot_x: 1;
+
+        anchor_y: 1;
+        pivot_y: 1;
+
+        visible: false;
+
+        text: {
+          font: "asset/base/font/set/regular";
+          text: "#asset/base/text/ui?offer.no_scout_tooltip";
+          size: 14;
+
+          align_x: Center;
+          align_y: Center;
+        }
+      }
+
+      #offer:color_icon_button {
+        @"asset/base/style/main#secondary_button";
+
+        width: 160px;
+        height: 40px;
+
+        x: -15px;
+        y: -15px;
+        anchor_x: 1;
+        pivot_x: 1;
+
+        anchor_y: 1;
+        pivot_y: 1;
+
+        text: {
+          font: "asset/base/font/set/bold";
+          text: "#asset/base/text/ui?offer.offer";
+          size: 18;
+
+          align_x: Center;
+          align_y: Center;
+        }
+      }
+    }
+
+  }
+
+
+  #pts_trade_pending_contract_slot_template:empty {
+    visible: false;
+    disabled: true;
+    width: 1605px;
+    height: 44px;
+
+    child_type: LeftToRight {
+      spacing: 0px;
+    }
+
+    #position:empty {
+      width: 173px;
+      height: 44px;
+      padding: { left: 20px; }
+      #icon:image {
+        anchor_y: 0.5;
+        pivot_y: 0.5;
+        width: 18px;
+        height: 18px;
+        source: "asset/base/ui/icons/mid";
+      }
+      #text:label {
+        x: 24px;
+        width: 100%;
+        height: 100%;
+        @"asset/base/style/main#label";
+        align_x: Left;
+        align_y: Center;
+        text: "미드";
+        size: 18;
+      }
+    }
+
+    #name:empty {
+      width: 173px;
+      height: 44px;
+      padding: { left: 20px; }
+
+      #text:label {
+        x: 29px;
+        width: 124px;
+        height: 100%;
+        @"asset/base/style/main#label";
+        align_x: Left;
+        align_y: Center;
+        text: "xartE";
+        size: 18;
+        fit_width: true;
+        color: #e8e8e8ff;
+
+        #pts_trade_projection_player_click:view_detail_button {
+          z: 2;
+          visible: true;
+          disabled: false;
+          width: 24px;
+          height: 24px;
+          x: -5px;
+          anchor_x: 0;
+          pivot_x: 1;
+          anchor_y: 0.5;
+          pivot_y: 0.5;
+
+          style: {
+            normal: Image {
+              prop: {
+                source: "asset/base/ui/icons/detail";
+                color: #858d9dff;
+              }
+            }
+            hover: Image {
+              prop: {
+                source: "asset/base/ui/icons/detail";
+                color: #e8e8e8ff;
+              }
+            }
+            active: Image {
+              prop: {
+                source: "asset/base/ui/icons/detail";
+                color: #e8e8e8ff;
+              }
+            }
+          }
+          hover_sound: "asset/base/sound/sfx/UI_mouse_hover";
+        }
+      }
+    }
+
+    #team:empty {
+      ignore_event: true;
+      width: 177px;
+      height: 44px;
+      padding: { left: 20px; }
+      #icon:image {
+        visible: false;
+        disabled: true;
+        width: 20px;
+        height: 20px;
+        source: "asset/base/aseprite_resources/team_logo";
+      }
+      #text:label {
+        x: 26px;
+        width: 100%;
+        height: 100%;
+        @"asset/base/style/main#label";
+        align_x: Left;
+        align_y: Center;
+        text: "Blaze Fury";
+        size: 18;
+        fit_width: true;
+      }
+    }
+
+    #contract:empty {
+      width: 213px;
+      height: 44px;
+      padding: { left: 20px; }
+      #text:label {
+        width: 193px;
+        height: 100%;
+        @"asset/base/style/main#label";
+        align_x: Left;
+        align_y: Center;
+        text: "2033년 12월 31일까지";
+        size: 18;
+      }
+    }
+
+    #salary:empty {
+      width: 120px;
+      height: 44px;
+      padding: { left: 20px; }
+      #text:label {
+        width: 100px;
+        height: 100%;
+        @"asset/base/style/main#label";
+        align_x: Left;
+        align_y: Center;
+        text: "6.2억원";
+        size: 18;
+        fit_width: true;
+      }
+    }
+
+    #transfer_fee:empty {
+      width: 120px;
+      height: 44px;
+      padding: { left: 20px; }
+      #text:label {
+        width: 100px;
+        height: 100%;
+        @"asset/base/style/main#label";
+        align_x: Left;
+        align_y: Center;
+        text: "40억원";
+        size: 18;
+        fit_width: true;
+      }
+    }
+
+    #squad_status:empty {
+      width: 160px;
+      height: 44px;
+      padding: { left: 20px; }
+      #text:label {
+        visible: false;
+        width: 140px;
+        height: 100%;
+        @"asset/base/style/main#label";
+        align_x: Left;
+        align_y: Center;
+        text: "주전 선수";
+        size: 18;
+      }
+      #pts_trade_projection_status_prospect:label {
+        visible: false;
+        width: 140px;
+        height: 100%;
+        @"asset/base/style/main#label";
+        align_x: Left;
+        align_y: Center;
+        text: "유망주";
+        size: 18;
+        color: #858D9Dff;
+      }
+      #pts_trade_projection_status_sub:label {
+        visible: false;
+        width: 140px;
+        height: 100%;
+        @"asset/base/style/main#label";
+        align_x: Left;
+        align_y: Center;
+        text: "후보 선수";
+        size: 18;
+        color: #3CB8A0ff;
+      }
+      #pts_trade_projection_status_general:label {
+        visible: false;
+        width: 140px;
+        height: 100%;
+        @"asset/base/style/main#label";
+        align_x: Left;
+        align_y: Center;
+        text: "주전 선수";
+        size: 18;
+        color: #4EB0D8ff;
+      }
+      #pts_trade_projection_status_important:label {
+        visible: false;
+        width: 140px;
+        height: 100%;
+        @"asset/base/style/main#label";
+        align_x: Left;
+        align_y: Center;
+        text: "주요 선수";
+        size: 18;
+        color: #C850BFff;
+      }
+      #pts_trade_projection_status_core:label {
+        visible: false;
+        width: 140px;
+        height: 100%;
+        @"asset/base/style/main#label";
+        align_x: Left;
+        align_y: Center;
+        text: "핵심 선수";
+        size: 18;
+        color: #F86624ff;
+      }
+    }
+
+    #contract_state:empty {
+      width: 155px;
+      height: 44px;
+      padding: { left: 20px; }
+      #text:label {
+        width: 135px;
+        height: 100%;
+        @"asset/base/style/main#label";
+        align_x: Left;
+        align_y: Center;
+        text: "판매 구단 검토";
+        size: 18;
+        color: #e6c94aff;
+      }
+    }
+
+    #contract_limit:empty {
+      width: 155px;
+      height: 44px;
+      padding: { left: 20px; }
+      #text:label {
+        width: 135px;
+        height: 100%;
+        @"asset/base/style/main#label";
+        align_x: Left;
+        align_y: Center;
+        text: "2031년 6월 25일";
+        size: 18;
+      }
+    }
+
+    #action:empty {
+      width: 161px;
+      height: 44px;
+      #text:label {
+        width: 161px;
+        height: 44px;
+        @"asset/base/style/main#bold_label";
+        align_x: Center;
+        align_y: Center;
+        text: "Dread 포함";
+        size: 14;
+        color: #60ddc2ff;
+      }
+    }
+  }
+
+
+  #pts_trade_modal_layer_template:empty {
+    visible: false;
+
+    width: 1920px;
+    height: 1080px;
+    x: -288px;
+    y: -24px;
+    z: 1000;
+
+    anchor_x: 0;
+    pivot_x: 0;
+    anchor_y: 0;
+    pivot_y: 0;
+
+    #pts_trade_modal_backdrop_template:color_icon_button {
+      width: 100%;
+      height: 100%;
+      btn: { color: #101218f2; }
+    }
+
+    #pts_trade_custom_compare_template:color {
+      x: 24px;
+      y: 120px;
+      width: 1248px;
+      height: 835px;
+      color: #161721ff;
+      rounding: Uniform { rounding: 12; }
+
+      #header:color {
+        width: 1248px;
+        height: 52px;
+        color: #0f1016ff;
+
+        #title:label {
+          @"asset/base/style/main#bold_label";
+          x: 20px;
+          width: 360px;
+          height: 52px;
+          text: "선수 트레이드";
+          size: 22;
+          align_y: Center;
+        }
+
+        #subtitle:label {
+          @"asset/base/style/main#label";
+          x: 390px;
+          width: 760px;
+          height: 52px;
+          text: "왼쪽에서 선수를 비교하고 · 오른쪽 내 선수단에서 보낼 선수를 선택하세요";
+          size: 15;
+          color: #b9c0ccff;
+          align_x: Right;
+          align_y: Center;
+        }
+
+        #pts_trade_custom_close:button {
+          width: 20px;
+          height: 20px;
+          anchor_x: 1;
+          pivot_x: 1;
+          x: -18px;
+          y: 16px;
+          source: "asset/base/ui/icons/cross";
+          color: #c2c6ceff;
+          hover: { color: #ffffffff; }
+          active: { color: #ffffffff; }
+        }
+      }
+
+      #pts_trade_custom_roster_panel:color {
+        x: 732px;
+        y: 68px;
+        width: 500px;
+        height: 751px;
+        color: #1d1f2aff;
+        rounding: Uniform { rounding: 8; }
+
+        #title:label {
+          @"asset/base/style/main#bold_label";
+          x: 14px;
+          y: 10px;
+          width: 260px;
+          height: 30px;
+          text: "내 선수단";
+          size: 19;
+          align_y: Center;
+        }
+
+        #pts_trade_custom_roster_count:label {
+          @"asset/base/style/main#label";
+          x: 280px;
+          y: 10px;
+          width: 202px;
+          height: 30px;
+          text: "0명";
+          size: 15;
+          color: #b9c0ccff;
+          align_x: Right;
+          align_y: Center;
+        }
+
+        #guide:label {
+          @"asset/base/style/main#label";
+          x: 14px;
+          y: 42px;
+          width: 468px;
+          height: 26px;
+          text: "선택한 행은 녹색으로 표시됩니다";
+          size: 14;
+          color: #858c99ff;
+          align_y: Center;
+        }
+
+    #pts_trade_custom_slot_00:color_icon_button {
+      visible: false;
+      disabled: true;
+      x: 12px;
+      y: 78px;
+      width: 230px;
+      height: 48px;
+
+      btn: {
+        color: #242733ff;
+        stroke: 1;
+        back_color: #3b3f4dff;
+        rounding: Uniform { rounding: 8; }
+      }
+
+      hover: { btn: { color: #303544ff; } }
+      active: { btn: { color: #303544ff; } }
+
+      #selected_bg:color {
+        visible: false;
+        width: 230px;
+        height: 48px;
+        color: #245b4fff;
+        rounding: Uniform { rounding: 8; }
+        ignore_event: true;
+      }
+
+      #check:label {
+        @"asset/base/style/main#bold_label";
+        x: 8px;
+        width: 20px;
+        height: 48px;
+        text: "";
+        size: 18;
+        color: #37d5b3ff;
+        align_x: Center;
+        align_y: Center;
+        ignore_event: true;
+      }
+
+      #position:image {
+        x: 32px;
+        y: 14px;
+        width: 20px;
+        height: 20px;
+        source: "asset/base/ui/icons/mid";
+        ignore_event: true;
+      }
+
+      #name:label {
+        @"asset/base/style/main#bold_label";
+        x: 60px;
+        width: 106px;
+        height: 48px;
+        text: "선수";
+        size: 16;
+        fit_width: true;
+        align_y: Center;
+        ignore_event: true;
+      }
+
+      #status:label {
+        @"asset/base/style/main#label";
+        x: 170px;
+        width: 52px;
+        height: 48px;
+        text: "";
+        size: 13;
+        color: #b9c0ccff;
+        fit_width: true;
+        align_x: Right;
+        align_y: Center;
+        ignore_event: true;
+      }
+    }
+
+    #pts_trade_custom_slot_01:color_icon_button {
+      visible: false;
+      disabled: true;
+      x: 12px;
+      y: 132px;
+      width: 230px;
+      height: 48px;
+
+      btn: {
+        color: #242733ff;
+        stroke: 1;
+        back_color: #3b3f4dff;
+        rounding: Uniform { rounding: 8; }
+      }
+
+      hover: { btn: { color: #303544ff; } }
+      active: { btn: { color: #303544ff; } }
+
+      #selected_bg:color {
+        visible: false;
+        width: 230px;
+        height: 48px;
+        color: #245b4fff;
+        rounding: Uniform { rounding: 8; }
+        ignore_event: true;
+      }
+
+      #check:label {
+        @"asset/base/style/main#bold_label";
+        x: 8px;
+        width: 20px;
+        height: 48px;
+        text: "";
+        size: 18;
+        color: #37d5b3ff;
+        align_x: Center;
+        align_y: Center;
+        ignore_event: true;
+      }
+
+      #position:image {
+        x: 32px;
+        y: 14px;
+        width: 20px;
+        height: 20px;
+        source: "asset/base/ui/icons/mid";
+        ignore_event: true;
+      }
+
+      #name:label {
+        @"asset/base/style/main#bold_label";
+        x: 60px;
+        width: 106px;
+        height: 48px;
+        text: "선수";
+        size: 16;
+        fit_width: true;
+        align_y: Center;
+        ignore_event: true;
+      }
+
+      #status:label {
+        @"asset/base/style/main#label";
+        x: 170px;
+        width: 52px;
+        height: 48px;
+        text: "";
+        size: 13;
+        color: #b9c0ccff;
+        fit_width: true;
+        align_x: Right;
+        align_y: Center;
+        ignore_event: true;
+      }
+    }
+
+    #pts_trade_custom_slot_02:color_icon_button {
+      visible: false;
+      disabled: true;
+      x: 12px;
+      y: 186px;
+      width: 230px;
+      height: 48px;
+
+      btn: {
+        color: #242733ff;
+        stroke: 1;
+        back_color: #3b3f4dff;
+        rounding: Uniform { rounding: 8; }
+      }
+
+      hover: { btn: { color: #303544ff; } }
+      active: { btn: { color: #303544ff; } }
+
+      #selected_bg:color {
+        visible: false;
+        width: 230px;
+        height: 48px;
+        color: #245b4fff;
+        rounding: Uniform { rounding: 8; }
+        ignore_event: true;
+      }
+
+      #check:label {
+        @"asset/base/style/main#bold_label";
+        x: 8px;
+        width: 20px;
+        height: 48px;
+        text: "";
+        size: 18;
+        color: #37d5b3ff;
+        align_x: Center;
+        align_y: Center;
+        ignore_event: true;
+      }
+
+      #position:image {
+        x: 32px;
+        y: 14px;
+        width: 20px;
+        height: 20px;
+        source: "asset/base/ui/icons/mid";
+        ignore_event: true;
+      }
+
+      #name:label {
+        @"asset/base/style/main#bold_label";
+        x: 60px;
+        width: 106px;
+        height: 48px;
+        text: "선수";
+        size: 16;
+        fit_width: true;
+        align_y: Center;
+        ignore_event: true;
+      }
+
+      #status:label {
+        @"asset/base/style/main#label";
+        x: 170px;
+        width: 52px;
+        height: 48px;
+        text: "";
+        size: 13;
+        color: #b9c0ccff;
+        fit_width: true;
+        align_x: Right;
+        align_y: Center;
+        ignore_event: true;
+      }
+    }
+
+    #pts_trade_custom_slot_03:color_icon_button {
+      visible: false;
+      disabled: true;
+      x: 12px;
+      y: 240px;
+      width: 230px;
+      height: 48px;
+
+      btn: {
+        color: #242733ff;
+        stroke: 1;
+        back_color: #3b3f4dff;
+        rounding: Uniform { rounding: 8; }
+      }
+
+      hover: { btn: { color: #303544ff; } }
+      active: { btn: { color: #303544ff; } }
+
+      #selected_bg:color {
+        visible: false;
+        width: 230px;
+        height: 48px;
+        color: #245b4fff;
+        rounding: Uniform { rounding: 8; }
+        ignore_event: true;
+      }
+
+      #check:label {
+        @"asset/base/style/main#bold_label";
+        x: 8px;
+        width: 20px;
+        height: 48px;
+        text: "";
+        size: 18;
+        color: #37d5b3ff;
+        align_x: Center;
+        align_y: Center;
+        ignore_event: true;
+      }
+
+      #position:image {
+        x: 32px;
+        y: 14px;
+        width: 20px;
+        height: 20px;
+        source: "asset/base/ui/icons/mid";
+        ignore_event: true;
+      }
+
+      #name:label {
+        @"asset/base/style/main#bold_label";
+        x: 60px;
+        width: 106px;
+        height: 48px;
+        text: "선수";
+        size: 16;
+        fit_width: true;
+        align_y: Center;
+        ignore_event: true;
+      }
+
+      #status:label {
+        @"asset/base/style/main#label";
+        x: 170px;
+        width: 52px;
+        height: 48px;
+        text: "";
+        size: 13;
+        color: #b9c0ccff;
+        fit_width: true;
+        align_x: Right;
+        align_y: Center;
+        ignore_event: true;
+      }
+    }
+
+    #pts_trade_custom_slot_04:color_icon_button {
+      visible: false;
+      disabled: true;
+      x: 12px;
+      y: 294px;
+      width: 230px;
+      height: 48px;
+
+      btn: {
+        color: #242733ff;
+        stroke: 1;
+        back_color: #3b3f4dff;
+        rounding: Uniform { rounding: 8; }
+      }
+
+      hover: { btn: { color: #303544ff; } }
+      active: { btn: { color: #303544ff; } }
+
+      #selected_bg:color {
+        visible: false;
+        width: 230px;
+        height: 48px;
+        color: #245b4fff;
+        rounding: Uniform { rounding: 8; }
+        ignore_event: true;
+      }
+
+      #check:label {
+        @"asset/base/style/main#bold_label";
+        x: 8px;
+        width: 20px;
+        height: 48px;
+        text: "";
+        size: 18;
+        color: #37d5b3ff;
+        align_x: Center;
+        align_y: Center;
+        ignore_event: true;
+      }
+
+      #position:image {
+        x: 32px;
+        y: 14px;
+        width: 20px;
+        height: 20px;
+        source: "asset/base/ui/icons/mid";
+        ignore_event: true;
+      }
+
+      #name:label {
+        @"asset/base/style/main#bold_label";
+        x: 60px;
+        width: 106px;
+        height: 48px;
+        text: "선수";
+        size: 16;
+        fit_width: true;
+        align_y: Center;
+        ignore_event: true;
+      }
+
+      #status:label {
+        @"asset/base/style/main#label";
+        x: 170px;
+        width: 52px;
+        height: 48px;
+        text: "";
+        size: 13;
+        color: #b9c0ccff;
+        fit_width: true;
+        align_x: Right;
+        align_y: Center;
+        ignore_event: true;
+      }
+    }
+
+    #pts_trade_custom_slot_05:color_icon_button {
+      visible: false;
+      disabled: true;
+      x: 12px;
+      y: 348px;
+      width: 230px;
+      height: 48px;
+
+      btn: {
+        color: #242733ff;
+        stroke: 1;
+        back_color: #3b3f4dff;
+        rounding: Uniform { rounding: 8; }
+      }
+
+      hover: { btn: { color: #303544ff; } }
+      active: { btn: { color: #303544ff; } }
+
+      #selected_bg:color {
+        visible: false;
+        width: 230px;
+        height: 48px;
+        color: #245b4fff;
+        rounding: Uniform { rounding: 8; }
+        ignore_event: true;
+      }
+
+      #check:label {
+        @"asset/base/style/main#bold_label";
+        x: 8px;
+        width: 20px;
+        height: 48px;
+        text: "";
+        size: 18;
+        color: #37d5b3ff;
+        align_x: Center;
+        align_y: Center;
+        ignore_event: true;
+      }
+
+      #position:image {
+        x: 32px;
+        y: 14px;
+        width: 20px;
+        height: 20px;
+        source: "asset/base/ui/icons/mid";
+        ignore_event: true;
+      }
+
+      #name:label {
+        @"asset/base/style/main#bold_label";
+        x: 60px;
+        width: 106px;
+        height: 48px;
+        text: "선수";
+        size: 16;
+        fit_width: true;
+        align_y: Center;
+        ignore_event: true;
+      }
+
+      #status:label {
+        @"asset/base/style/main#label";
+        x: 170px;
+        width: 52px;
+        height: 48px;
+        text: "";
+        size: 13;
+        color: #b9c0ccff;
+        fit_width: true;
+        align_x: Right;
+        align_y: Center;
+        ignore_event: true;
+      }
+    }
+
+    #pts_trade_custom_slot_06:color_icon_button {
+      visible: false;
+      disabled: true;
+      x: 12px;
+      y: 402px;
+      width: 230px;
+      height: 48px;
+
+      btn: {
+        color: #242733ff;
+        stroke: 1;
+        back_color: #3b3f4dff;
+        rounding: Uniform { rounding: 8; }
+      }
+
+      hover: { btn: { color: #303544ff; } }
+      active: { btn: { color: #303544ff; } }
+
+      #selected_bg:color {
+        visible: false;
+        width: 230px;
+        height: 48px;
+        color: #245b4fff;
+        rounding: Uniform { rounding: 8; }
+        ignore_event: true;
+      }
+
+      #check:label {
+        @"asset/base/style/main#bold_label";
+        x: 8px;
+        width: 20px;
+        height: 48px;
+        text: "";
+        size: 18;
+        color: #37d5b3ff;
+        align_x: Center;
+        align_y: Center;
+        ignore_event: true;
+      }
+
+      #position:image {
+        x: 32px;
+        y: 14px;
+        width: 20px;
+        height: 20px;
+        source: "asset/base/ui/icons/mid";
+        ignore_event: true;
+      }
+
+      #name:label {
+        @"asset/base/style/main#bold_label";
+        x: 60px;
+        width: 106px;
+        height: 48px;
+        text: "선수";
+        size: 16;
+        fit_width: true;
+        align_y: Center;
+        ignore_event: true;
+      }
+
+      #status:label {
+        @"asset/base/style/main#label";
+        x: 170px;
+        width: 52px;
+        height: 48px;
+        text: "";
+        size: 13;
+        color: #b9c0ccff;
+        fit_width: true;
+        align_x: Right;
+        align_y: Center;
+        ignore_event: true;
+      }
+    }
+
+    #pts_trade_custom_slot_07:color_icon_button {
+      visible: false;
+      disabled: true;
+      x: 12px;
+      y: 456px;
+      width: 230px;
+      height: 48px;
+
+      btn: {
+        color: #242733ff;
+        stroke: 1;
+        back_color: #3b3f4dff;
+        rounding: Uniform { rounding: 8; }
+      }
+
+      hover: { btn: { color: #303544ff; } }
+      active: { btn: { color: #303544ff; } }
+
+      #selected_bg:color {
+        visible: false;
+        width: 230px;
+        height: 48px;
+        color: #245b4fff;
+        rounding: Uniform { rounding: 8; }
+        ignore_event: true;
+      }
+
+      #check:label {
+        @"asset/base/style/main#bold_label";
+        x: 8px;
+        width: 20px;
+        height: 48px;
+        text: "";
+        size: 18;
+        color: #37d5b3ff;
+        align_x: Center;
+        align_y: Center;
+        ignore_event: true;
+      }
+
+      #position:image {
+        x: 32px;
+        y: 14px;
+        width: 20px;
+        height: 20px;
+        source: "asset/base/ui/icons/mid";
+        ignore_event: true;
+      }
+
+      #name:label {
+        @"asset/base/style/main#bold_label";
+        x: 60px;
+        width: 106px;
+        height: 48px;
+        text: "선수";
+        size: 16;
+        fit_width: true;
+        align_y: Center;
+        ignore_event: true;
+      }
+
+      #status:label {
+        @"asset/base/style/main#label";
+        x: 170px;
+        width: 52px;
+        height: 48px;
+        text: "";
+        size: 13;
+        color: #b9c0ccff;
+        fit_width: true;
+        align_x: Right;
+        align_y: Center;
+        ignore_event: true;
+      }
+    }
+
+    #pts_trade_custom_slot_08:color_icon_button {
+      visible: false;
+      disabled: true;
+      x: 12px;
+      y: 510px;
+      width: 230px;
+      height: 48px;
+
+      btn: {
+        color: #242733ff;
+        stroke: 1;
+        back_color: #3b3f4dff;
+        rounding: Uniform { rounding: 8; }
+      }
+
+      hover: { btn: { color: #303544ff; } }
+      active: { btn: { color: #303544ff; } }
+
+      #selected_bg:color {
+        visible: false;
+        width: 230px;
+        height: 48px;
+        color: #245b4fff;
+        rounding: Uniform { rounding: 8; }
+        ignore_event: true;
+      }
+
+      #check:label {
+        @"asset/base/style/main#bold_label";
+        x: 8px;
+        width: 20px;
+        height: 48px;
+        text: "";
+        size: 18;
+        color: #37d5b3ff;
+        align_x: Center;
+        align_y: Center;
+        ignore_event: true;
+      }
+
+      #position:image {
+        x: 32px;
+        y: 14px;
+        width: 20px;
+        height: 20px;
+        source: "asset/base/ui/icons/mid";
+        ignore_event: true;
+      }
+
+      #name:label {
+        @"asset/base/style/main#bold_label";
+        x: 60px;
+        width: 106px;
+        height: 48px;
+        text: "선수";
+        size: 16;
+        fit_width: true;
+        align_y: Center;
+        ignore_event: true;
+      }
+
+      #status:label {
+        @"asset/base/style/main#label";
+        x: 170px;
+        width: 52px;
+        height: 48px;
+        text: "";
+        size: 13;
+        color: #b9c0ccff;
+        fit_width: true;
+        align_x: Right;
+        align_y: Center;
+        ignore_event: true;
+      }
+    }
+
+    #pts_trade_custom_slot_09:color_icon_button {
+      visible: false;
+      disabled: true;
+      x: 12px;
+      y: 564px;
+      width: 230px;
+      height: 48px;
+
+      btn: {
+        color: #242733ff;
+        stroke: 1;
+        back_color: #3b3f4dff;
+        rounding: Uniform { rounding: 8; }
+      }
+
+      hover: { btn: { color: #303544ff; } }
+      active: { btn: { color: #303544ff; } }
+
+      #selected_bg:color {
+        visible: false;
+        width: 230px;
+        height: 48px;
+        color: #245b4fff;
+        rounding: Uniform { rounding: 8; }
+        ignore_event: true;
+      }
+
+      #check:label {
+        @"asset/base/style/main#bold_label";
+        x: 8px;
+        width: 20px;
+        height: 48px;
+        text: "";
+        size: 18;
+        color: #37d5b3ff;
+        align_x: Center;
+        align_y: Center;
+        ignore_event: true;
+      }
+
+      #position:image {
+        x: 32px;
+        y: 14px;
+        width: 20px;
+        height: 20px;
+        source: "asset/base/ui/icons/mid";
+        ignore_event: true;
+      }
+
+      #name:label {
+        @"asset/base/style/main#bold_label";
+        x: 60px;
+        width: 106px;
+        height: 48px;
+        text: "선수";
+        size: 16;
+        fit_width: true;
+        align_y: Center;
+        ignore_event: true;
+      }
+
+      #status:label {
+        @"asset/base/style/main#label";
+        x: 170px;
+        width: 52px;
+        height: 48px;
+        text: "";
+        size: 13;
+        color: #b9c0ccff;
+        fit_width: true;
+        align_x: Right;
+        align_y: Center;
+        ignore_event: true;
+      }
+    }
+
+    #pts_trade_custom_slot_10:color_icon_button {
+      visible: false;
+      disabled: true;
+      x: 12px;
+      y: 618px;
+      width: 230px;
+      height: 48px;
+
+      btn: {
+        color: #242733ff;
+        stroke: 1;
+        back_color: #3b3f4dff;
+        rounding: Uniform { rounding: 8; }
+      }
+
+      hover: { btn: { color: #303544ff; } }
+      active: { btn: { color: #303544ff; } }
+
+      #selected_bg:color {
+        visible: false;
+        width: 230px;
+        height: 48px;
+        color: #245b4fff;
+        rounding: Uniform { rounding: 8; }
+        ignore_event: true;
+      }
+
+      #check:label {
+        @"asset/base/style/main#bold_label";
+        x: 8px;
+        width: 20px;
+        height: 48px;
+        text: "";
+        size: 18;
+        color: #37d5b3ff;
+        align_x: Center;
+        align_y: Center;
+        ignore_event: true;
+      }
+
+      #position:image {
+        x: 32px;
+        y: 14px;
+        width: 20px;
+        height: 20px;
+        source: "asset/base/ui/icons/mid";
+        ignore_event: true;
+      }
+
+      #name:label {
+        @"asset/base/style/main#bold_label";
+        x: 60px;
+        width: 106px;
+        height: 48px;
+        text: "선수";
+        size: 16;
+        fit_width: true;
+        align_y: Center;
+        ignore_event: true;
+      }
+
+      #status:label {
+        @"asset/base/style/main#label";
+        x: 170px;
+        width: 52px;
+        height: 48px;
+        text: "";
+        size: 13;
+        color: #b9c0ccff;
+        fit_width: true;
+        align_x: Right;
+        align_y: Center;
+        ignore_event: true;
+      }
+    }
+
+    #pts_trade_custom_slot_11:color_icon_button {
+      visible: false;
+      disabled: true;
+      x: 12px;
+      y: 672px;
+      width: 230px;
+      height: 48px;
+
+      btn: {
+        color: #242733ff;
+        stroke: 1;
+        back_color: #3b3f4dff;
+        rounding: Uniform { rounding: 8; }
+      }
+
+      hover: { btn: { color: #303544ff; } }
+      active: { btn: { color: #303544ff; } }
+
+      #selected_bg:color {
+        visible: false;
+        width: 230px;
+        height: 48px;
+        color: #245b4fff;
+        rounding: Uniform { rounding: 8; }
+        ignore_event: true;
+      }
+
+      #check:label {
+        @"asset/base/style/main#bold_label";
+        x: 8px;
+        width: 20px;
+        height: 48px;
+        text: "";
+        size: 18;
+        color: #37d5b3ff;
+        align_x: Center;
+        align_y: Center;
+        ignore_event: true;
+      }
+
+      #position:image {
+        x: 32px;
+        y: 14px;
+        width: 20px;
+        height: 20px;
+        source: "asset/base/ui/icons/mid";
+        ignore_event: true;
+      }
+
+      #name:label {
+        @"asset/base/style/main#bold_label";
+        x: 60px;
+        width: 106px;
+        height: 48px;
+        text: "선수";
+        size: 16;
+        fit_width: true;
+        align_y: Center;
+        ignore_event: true;
+      }
+
+      #status:label {
+        @"asset/base/style/main#label";
+        x: 170px;
+        width: 52px;
+        height: 48px;
+        text: "";
+        size: 13;
+        color: #b9c0ccff;
+        fit_width: true;
+        align_x: Right;
+        align_y: Center;
+        ignore_event: true;
+      }
+    }
+
+    #pts_trade_custom_slot_12:color_icon_button {
+      visible: false;
+      disabled: true;
+      x: 258px;
+      y: 78px;
+      width: 230px;
+      height: 48px;
+
+      btn: {
+        color: #242733ff;
+        stroke: 1;
+        back_color: #3b3f4dff;
+        rounding: Uniform { rounding: 8; }
+      }
+
+      hover: { btn: { color: #303544ff; } }
+      active: { btn: { color: #303544ff; } }
+
+      #selected_bg:color {
+        visible: false;
+        width: 230px;
+        height: 48px;
+        color: #245b4fff;
+        rounding: Uniform { rounding: 8; }
+        ignore_event: true;
+      }
+
+      #check:label {
+        @"asset/base/style/main#bold_label";
+        x: 8px;
+        width: 20px;
+        height: 48px;
+        text: "";
+        size: 18;
+        color: #37d5b3ff;
+        align_x: Center;
+        align_y: Center;
+        ignore_event: true;
+      }
+
+      #position:image {
+        x: 32px;
+        y: 14px;
+        width: 20px;
+        height: 20px;
+        source: "asset/base/ui/icons/mid";
+        ignore_event: true;
+      }
+
+      #name:label {
+        @"asset/base/style/main#bold_label";
+        x: 60px;
+        width: 106px;
+        height: 48px;
+        text: "선수";
+        size: 16;
+        fit_width: true;
+        align_y: Center;
+        ignore_event: true;
+      }
+
+      #status:label {
+        @"asset/base/style/main#label";
+        x: 170px;
+        width: 52px;
+        height: 48px;
+        text: "";
+        size: 13;
+        color: #b9c0ccff;
+        fit_width: true;
+        align_x: Right;
+        align_y: Center;
+        ignore_event: true;
+      }
+    }
+
+    #pts_trade_custom_slot_13:color_icon_button {
+      visible: false;
+      disabled: true;
+      x: 258px;
+      y: 132px;
+      width: 230px;
+      height: 48px;
+
+      btn: {
+        color: #242733ff;
+        stroke: 1;
+        back_color: #3b3f4dff;
+        rounding: Uniform { rounding: 8; }
+      }
+
+      hover: { btn: { color: #303544ff; } }
+      active: { btn: { color: #303544ff; } }
+
+      #selected_bg:color {
+        visible: false;
+        width: 230px;
+        height: 48px;
+        color: #245b4fff;
+        rounding: Uniform { rounding: 8; }
+        ignore_event: true;
+      }
+
+      #check:label {
+        @"asset/base/style/main#bold_label";
+        x: 8px;
+        width: 20px;
+        height: 48px;
+        text: "";
+        size: 18;
+        color: #37d5b3ff;
+        align_x: Center;
+        align_y: Center;
+        ignore_event: true;
+      }
+
+      #position:image {
+        x: 32px;
+        y: 14px;
+        width: 20px;
+        height: 20px;
+        source: "asset/base/ui/icons/mid";
+        ignore_event: true;
+      }
+
+      #name:label {
+        @"asset/base/style/main#bold_label";
+        x: 60px;
+        width: 106px;
+        height: 48px;
+        text: "선수";
+        size: 16;
+        fit_width: true;
+        align_y: Center;
+        ignore_event: true;
+      }
+
+      #status:label {
+        @"asset/base/style/main#label";
+        x: 170px;
+        width: 52px;
+        height: 48px;
+        text: "";
+        size: 13;
+        color: #b9c0ccff;
+        fit_width: true;
+        align_x: Right;
+        align_y: Center;
+        ignore_event: true;
+      }
+    }
+
+    #pts_trade_custom_slot_14:color_icon_button {
+      visible: false;
+      disabled: true;
+      x: 258px;
+      y: 186px;
+      width: 230px;
+      height: 48px;
+
+      btn: {
+        color: #242733ff;
+        stroke: 1;
+        back_color: #3b3f4dff;
+        rounding: Uniform { rounding: 8; }
+      }
+
+      hover: { btn: { color: #303544ff; } }
+      active: { btn: { color: #303544ff; } }
+
+      #selected_bg:color {
+        visible: false;
+        width: 230px;
+        height: 48px;
+        color: #245b4fff;
+        rounding: Uniform { rounding: 8; }
+        ignore_event: true;
+      }
+
+      #check:label {
+        @"asset/base/style/main#bold_label";
+        x: 8px;
+        width: 20px;
+        height: 48px;
+        text: "";
+        size: 18;
+        color: #37d5b3ff;
+        align_x: Center;
+        align_y: Center;
+        ignore_event: true;
+      }
+
+      #position:image {
+        x: 32px;
+        y: 14px;
+        width: 20px;
+        height: 20px;
+        source: "asset/base/ui/icons/mid";
+        ignore_event: true;
+      }
+
+      #name:label {
+        @"asset/base/style/main#bold_label";
+        x: 60px;
+        width: 106px;
+        height: 48px;
+        text: "선수";
+        size: 16;
+        fit_width: true;
+        align_y: Center;
+        ignore_event: true;
+      }
+
+      #status:label {
+        @"asset/base/style/main#label";
+        x: 170px;
+        width: 52px;
+        height: 48px;
+        text: "";
+        size: 13;
+        color: #b9c0ccff;
+        fit_width: true;
+        align_x: Right;
+        align_y: Center;
+        ignore_event: true;
+      }
+    }
+
+    #pts_trade_custom_slot_15:color_icon_button {
+      visible: false;
+      disabled: true;
+      x: 258px;
+      y: 240px;
+      width: 230px;
+      height: 48px;
+
+      btn: {
+        color: #242733ff;
+        stroke: 1;
+        back_color: #3b3f4dff;
+        rounding: Uniform { rounding: 8; }
+      }
+
+      hover: { btn: { color: #303544ff; } }
+      active: { btn: { color: #303544ff; } }
+
+      #selected_bg:color {
+        visible: false;
+        width: 230px;
+        height: 48px;
+        color: #245b4fff;
+        rounding: Uniform { rounding: 8; }
+        ignore_event: true;
+      }
+
+      #check:label {
+        @"asset/base/style/main#bold_label";
+        x: 8px;
+        width: 20px;
+        height: 48px;
+        text: "";
+        size: 18;
+        color: #37d5b3ff;
+        align_x: Center;
+        align_y: Center;
+        ignore_event: true;
+      }
+
+      #position:image {
+        x: 32px;
+        y: 14px;
+        width: 20px;
+        height: 20px;
+        source: "asset/base/ui/icons/mid";
+        ignore_event: true;
+      }
+
+      #name:label {
+        @"asset/base/style/main#bold_label";
+        x: 60px;
+        width: 106px;
+        height: 48px;
+        text: "선수";
+        size: 16;
+        fit_width: true;
+        align_y: Center;
+        ignore_event: true;
+      }
+
+      #status:label {
+        @"asset/base/style/main#label";
+        x: 170px;
+        width: 52px;
+        height: 48px;
+        text: "";
+        size: 13;
+        color: #b9c0ccff;
+        fit_width: true;
+        align_x: Right;
+        align_y: Center;
+        ignore_event: true;
+      }
+    }
+
+    #pts_trade_custom_slot_16:color_icon_button {
+      visible: false;
+      disabled: true;
+      x: 258px;
+      y: 294px;
+      width: 230px;
+      height: 48px;
+
+      btn: {
+        color: #242733ff;
+        stroke: 1;
+        back_color: #3b3f4dff;
+        rounding: Uniform { rounding: 8; }
+      }
+
+      hover: { btn: { color: #303544ff; } }
+      active: { btn: { color: #303544ff; } }
+
+      #selected_bg:color {
+        visible: false;
+        width: 230px;
+        height: 48px;
+        color: #245b4fff;
+        rounding: Uniform { rounding: 8; }
+        ignore_event: true;
+      }
+
+      #check:label {
+        @"asset/base/style/main#bold_label";
+        x: 8px;
+        width: 20px;
+        height: 48px;
+        text: "";
+        size: 18;
+        color: #37d5b3ff;
+        align_x: Center;
+        align_y: Center;
+        ignore_event: true;
+      }
+
+      #position:image {
+        x: 32px;
+        y: 14px;
+        width: 20px;
+        height: 20px;
+        source: "asset/base/ui/icons/mid";
+        ignore_event: true;
+      }
+
+      #name:label {
+        @"asset/base/style/main#bold_label";
+        x: 60px;
+        width: 106px;
+        height: 48px;
+        text: "선수";
+        size: 16;
+        fit_width: true;
+        align_y: Center;
+        ignore_event: true;
+      }
+
+      #status:label {
+        @"asset/base/style/main#label";
+        x: 170px;
+        width: 52px;
+        height: 48px;
+        text: "";
+        size: 13;
+        color: #b9c0ccff;
+        fit_width: true;
+        align_x: Right;
+        align_y: Center;
+        ignore_event: true;
+      }
+    }
+
+    #pts_trade_custom_slot_17:color_icon_button {
+      visible: false;
+      disabled: true;
+      x: 258px;
+      y: 348px;
+      width: 230px;
+      height: 48px;
+
+      btn: {
+        color: #242733ff;
+        stroke: 1;
+        back_color: #3b3f4dff;
+        rounding: Uniform { rounding: 8; }
+      }
+
+      hover: { btn: { color: #303544ff; } }
+      active: { btn: { color: #303544ff; } }
+
+      #selected_bg:color {
+        visible: false;
+        width: 230px;
+        height: 48px;
+        color: #245b4fff;
+        rounding: Uniform { rounding: 8; }
+        ignore_event: true;
+      }
+
+      #check:label {
+        @"asset/base/style/main#bold_label";
+        x: 8px;
+        width: 20px;
+        height: 48px;
+        text: "";
+        size: 18;
+        color: #37d5b3ff;
+        align_x: Center;
+        align_y: Center;
+        ignore_event: true;
+      }
+
+      #position:image {
+        x: 32px;
+        y: 14px;
+        width: 20px;
+        height: 20px;
+        source: "asset/base/ui/icons/mid";
+        ignore_event: true;
+      }
+
+      #name:label {
+        @"asset/base/style/main#bold_label";
+        x: 60px;
+        width: 106px;
+        height: 48px;
+        text: "선수";
+        size: 16;
+        fit_width: true;
+        align_y: Center;
+        ignore_event: true;
+      }
+
+      #status:label {
+        @"asset/base/style/main#label";
+        x: 170px;
+        width: 52px;
+        height: 48px;
+        text: "";
+        size: 13;
+        color: #b9c0ccff;
+        fit_width: true;
+        align_x: Right;
+        align_y: Center;
+        ignore_event: true;
+      }
+    }
+
+    #pts_trade_custom_slot_18:color_icon_button {
+      visible: false;
+      disabled: true;
+      x: 258px;
+      y: 402px;
+      width: 230px;
+      height: 48px;
+
+      btn: {
+        color: #242733ff;
+        stroke: 1;
+        back_color: #3b3f4dff;
+        rounding: Uniform { rounding: 8; }
+      }
+
+      hover: { btn: { color: #303544ff; } }
+      active: { btn: { color: #303544ff; } }
+
+      #selected_bg:color {
+        visible: false;
+        width: 230px;
+        height: 48px;
+        color: #245b4fff;
+        rounding: Uniform { rounding: 8; }
+        ignore_event: true;
+      }
+
+      #check:label {
+        @"asset/base/style/main#bold_label";
+        x: 8px;
+        width: 20px;
+        height: 48px;
+        text: "";
+        size: 18;
+        color: #37d5b3ff;
+        align_x: Center;
+        align_y: Center;
+        ignore_event: true;
+      }
+
+      #position:image {
+        x: 32px;
+        y: 14px;
+        width: 20px;
+        height: 20px;
+        source: "asset/base/ui/icons/mid";
+        ignore_event: true;
+      }
+
+      #name:label {
+        @"asset/base/style/main#bold_label";
+        x: 60px;
+        width: 106px;
+        height: 48px;
+        text: "선수";
+        size: 16;
+        fit_width: true;
+        align_y: Center;
+        ignore_event: true;
+      }
+
+      #status:label {
+        @"asset/base/style/main#label";
+        x: 170px;
+        width: 52px;
+        height: 48px;
+        text: "";
+        size: 13;
+        color: #b9c0ccff;
+        fit_width: true;
+        align_x: Right;
+        align_y: Center;
+        ignore_event: true;
+      }
+    }
+
+    #pts_trade_custom_slot_19:color_icon_button {
+      visible: false;
+      disabled: true;
+      x: 258px;
+      y: 456px;
+      width: 230px;
+      height: 48px;
+
+      btn: {
+        color: #242733ff;
+        stroke: 1;
+        back_color: #3b3f4dff;
+        rounding: Uniform { rounding: 8; }
+      }
+
+      hover: { btn: { color: #303544ff; } }
+      active: { btn: { color: #303544ff; } }
+
+      #selected_bg:color {
+        visible: false;
+        width: 230px;
+        height: 48px;
+        color: #245b4fff;
+        rounding: Uniform { rounding: 8; }
+        ignore_event: true;
+      }
+
+      #check:label {
+        @"asset/base/style/main#bold_label";
+        x: 8px;
+        width: 20px;
+        height: 48px;
+        text: "";
+        size: 18;
+        color: #37d5b3ff;
+        align_x: Center;
+        align_y: Center;
+        ignore_event: true;
+      }
+
+      #position:image {
+        x: 32px;
+        y: 14px;
+        width: 20px;
+        height: 20px;
+        source: "asset/base/ui/icons/mid";
+        ignore_event: true;
+      }
+
+      #name:label {
+        @"asset/base/style/main#bold_label";
+        x: 60px;
+        width: 106px;
+        height: 48px;
+        text: "선수";
+        size: 16;
+        fit_width: true;
+        align_y: Center;
+        ignore_event: true;
+      }
+
+      #status:label {
+        @"asset/base/style/main#label";
+        x: 170px;
+        width: 52px;
+        height: 48px;
+        text: "";
+        size: 13;
+        color: #b9c0ccff;
+        fit_width: true;
+        align_x: Right;
+        align_y: Center;
+        ignore_event: true;
+      }
+    }
+
+    #pts_trade_custom_slot_20:color_icon_button {
+      visible: false;
+      disabled: true;
+      x: 258px;
+      y: 510px;
+      width: 230px;
+      height: 48px;
+
+      btn: {
+        color: #242733ff;
+        stroke: 1;
+        back_color: #3b3f4dff;
+        rounding: Uniform { rounding: 8; }
+      }
+
+      hover: { btn: { color: #303544ff; } }
+      active: { btn: { color: #303544ff; } }
+
+      #selected_bg:color {
+        visible: false;
+        width: 230px;
+        height: 48px;
+        color: #245b4fff;
+        rounding: Uniform { rounding: 8; }
+        ignore_event: true;
+      }
+
+      #check:label {
+        @"asset/base/style/main#bold_label";
+        x: 8px;
+        width: 20px;
+        height: 48px;
+        text: "";
+        size: 18;
+        color: #37d5b3ff;
+        align_x: Center;
+        align_y: Center;
+        ignore_event: true;
+      }
+
+      #position:image {
+        x: 32px;
+        y: 14px;
+        width: 20px;
+        height: 20px;
+        source: "asset/base/ui/icons/mid";
+        ignore_event: true;
+      }
+
+      #name:label {
+        @"asset/base/style/main#bold_label";
+        x: 60px;
+        width: 106px;
+        height: 48px;
+        text: "선수";
+        size: 16;
+        fit_width: true;
+        align_y: Center;
+        ignore_event: true;
+      }
+
+      #status:label {
+        @"asset/base/style/main#label";
+        x: 170px;
+        width: 52px;
+        height: 48px;
+        text: "";
+        size: 13;
+        color: #b9c0ccff;
+        fit_width: true;
+        align_x: Right;
+        align_y: Center;
+        ignore_event: true;
+      }
+    }
+
+    #pts_trade_custom_slot_21:color_icon_button {
+      visible: false;
+      disabled: true;
+      x: 258px;
+      y: 564px;
+      width: 230px;
+      height: 48px;
+
+      btn: {
+        color: #242733ff;
+        stroke: 1;
+        back_color: #3b3f4dff;
+        rounding: Uniform { rounding: 8; }
+      }
+
+      hover: { btn: { color: #303544ff; } }
+      active: { btn: { color: #303544ff; } }
+
+      #selected_bg:color {
+        visible: false;
+        width: 230px;
+        height: 48px;
+        color: #245b4fff;
+        rounding: Uniform { rounding: 8; }
+        ignore_event: true;
+      }
+
+      #check:label {
+        @"asset/base/style/main#bold_label";
+        x: 8px;
+        width: 20px;
+        height: 48px;
+        text: "";
+        size: 18;
+        color: #37d5b3ff;
+        align_x: Center;
+        align_y: Center;
+        ignore_event: true;
+      }
+
+      #position:image {
+        x: 32px;
+        y: 14px;
+        width: 20px;
+        height: 20px;
+        source: "asset/base/ui/icons/mid";
+        ignore_event: true;
+      }
+
+      #name:label {
+        @"asset/base/style/main#bold_label";
+        x: 60px;
+        width: 106px;
+        height: 48px;
+        text: "선수";
+        size: 16;
+        fit_width: true;
+        align_y: Center;
+        ignore_event: true;
+      }
+
+      #status:label {
+        @"asset/base/style/main#label";
+        x: 170px;
+        width: 52px;
+        height: 48px;
+        text: "";
+        size: 13;
+        color: #b9c0ccff;
+        fit_width: true;
+        align_x: Right;
+        align_y: Center;
+        ignore_event: true;
+      }
+    }
+
+    #pts_trade_custom_slot_22:color_icon_button {
+      visible: false;
+      disabled: true;
+      x: 258px;
+      y: 618px;
+      width: 230px;
+      height: 48px;
+
+      btn: {
+        color: #242733ff;
+        stroke: 1;
+        back_color: #3b3f4dff;
+        rounding: Uniform { rounding: 8; }
+      }
+
+      hover: { btn: { color: #303544ff; } }
+      active: { btn: { color: #303544ff; } }
+
+      #selected_bg:color {
+        visible: false;
+        width: 230px;
+        height: 48px;
+        color: #245b4fff;
+        rounding: Uniform { rounding: 8; }
+        ignore_event: true;
+      }
+
+      #check:label {
+        @"asset/base/style/main#bold_label";
+        x: 8px;
+        width: 20px;
+        height: 48px;
+        text: "";
+        size: 18;
+        color: #37d5b3ff;
+        align_x: Center;
+        align_y: Center;
+        ignore_event: true;
+      }
+
+      #position:image {
+        x: 32px;
+        y: 14px;
+        width: 20px;
+        height: 20px;
+        source: "asset/base/ui/icons/mid";
+        ignore_event: true;
+      }
+
+      #name:label {
+        @"asset/base/style/main#bold_label";
+        x: 60px;
+        width: 106px;
+        height: 48px;
+        text: "선수";
+        size: 16;
+        fit_width: true;
+        align_y: Center;
+        ignore_event: true;
+      }
+
+      #status:label {
+        @"asset/base/style/main#label";
+        x: 170px;
+        width: 52px;
+        height: 48px;
+        text: "";
+        size: 13;
+        color: #b9c0ccff;
+        fit_width: true;
+        align_x: Right;
+        align_y: Center;
+        ignore_event: true;
+      }
+    }
+
+    #pts_trade_custom_slot_23:color_icon_button {
+      visible: false;
+      disabled: true;
+      x: 258px;
+      y: 672px;
+      width: 230px;
+      height: 48px;
+
+      btn: {
+        color: #242733ff;
+        stroke: 1;
+        back_color: #3b3f4dff;
+        rounding: Uniform { rounding: 8; }
+      }
+
+      hover: { btn: { color: #303544ff; } }
+      active: { btn: { color: #303544ff; } }
+
+      #selected_bg:color {
+        visible: false;
+        width: 230px;
+        height: 48px;
+        color: #245b4fff;
+        rounding: Uniform { rounding: 8; }
+        ignore_event: true;
+      }
+
+      #check:label {
+        @"asset/base/style/main#bold_label";
+        x: 8px;
+        width: 20px;
+        height: 48px;
+        text: "";
+        size: 18;
+        color: #37d5b3ff;
+        align_x: Center;
+        align_y: Center;
+        ignore_event: true;
+      }
+
+      #position:image {
+        x: 32px;
+        y: 14px;
+        width: 20px;
+        height: 20px;
+        source: "asset/base/ui/icons/mid";
+        ignore_event: true;
+      }
+
+      #name:label {
+        @"asset/base/style/main#bold_label";
+        x: 60px;
+        width: 106px;
+        height: 48px;
+        text: "선수";
+        size: 16;
+        fit_width: true;
+        align_y: Center;
+        ignore_event: true;
+      }
+
+      #status:label {
+        @"asset/base/style/main#label";
+        x: 170px;
+        width: 52px;
+        height: 48px;
+        text: "";
+        size: 13;
+        color: #b9c0ccff;
+        fit_width: true;
+        align_x: Right;
+        align_y: Center;
+        ignore_event: true;
+      }
+    }
+      }
+
+      #pts_trade_custom_compare_panel:color {
+        x: 16px;
+        y: 68px;
+        width: 700px;
+        height: 751px;
+        color: #1d1f2aff;
+        rounding: Uniform { rounding: 8; }
+
+        #title:label {
+          @"asset/base/style/main#bold_label";
+          x: 16px;
+          y: 10px;
+          width: 668px;
+          height: 30px;
+          text: "선수 비교";
+          size: 19;
+          align_y: Center;
+        }
+
+        #target_card:color {
+          x: 16px;
+          y: 50px;
+          width: 324px;
+          height: 108px;
+          color: #252835ff;
+          rounding: Uniform { rounding: 8; }
+
+          #tag:label {
+            @"asset/base/style/main#label";
+            x: 14px; y: 8px; width: 296px; height: 22px;
+            text: "영입 대상"; size: 14; color: #b9c0ccff; align_y: Center;
+          }
+          #pts_trade_custom_target_position_icon:image {
+            x: 14px; y: 42px; width: 24px; height: 24px;
+            source: "asset/base/ui/icons/mid"; ignore_event: true;
+          }
+          #pts_trade_custom_target_name:label {
+            @"asset/base/style/main#bold_label";
+            x: 48px; y: 32px; width: 258px; height: 32px;
+            text: "대상 선수"; size: 23; fit_width: true; align_y: Center;
+          }
+          #pts_trade_custom_target_position:label {
+            @"asset/base/style/main#label";
+            x: 48px; y: 65px; width: 112px; height: 26px;
+            text: "-"; size: 15; color: #b9c0ccff; align_y: Center;
+          }
+          #pts_trade_custom_target_status:empty {
+            x: 166px; y: 65px; width: 140px; height: 26px;
+            ignore_event: true;
+            #prospect:label { @"asset/base/style/main#label"; visible: false; width: 140px; height: 26px; text: "유망주"; size: 15; color: #858d9dff; align_x: Right; align_y: Center; ignore_event: true; }
+            #sub:label { @"asset/base/style/main#label"; visible: false; width: 140px; height: 26px; text: "후보"; size: 15; color: #3cb8a0ff; align_x: Right; align_y: Center; ignore_event: true; }
+            #general:label { @"asset/base/style/main#label"; visible: false; width: 140px; height: 26px; text: "주전"; size: 15; color: #4eb0d8ff; align_x: Right; align_y: Center; ignore_event: true; }
+            #important:label { @"asset/base/style/main#label"; visible: false; width: 140px; height: 26px; text: "주요"; size: 15; color: #c850bfff; align_x: Right; align_y: Center; ignore_event: true; }
+            #core:label { @"asset/base/style/main#label"; visible: false; width: 140px; height: 26px; text: "핵심"; size: 15; color: #f86624ff; align_x: Right; align_y: Center; ignore_event: true; }
+          }
+        }
+
+        #offered_card:color {
+          x: 360px;
+          y: 50px;
+          width: 324px;
+          height: 108px;
+          color: #252835ff;
+          rounding: Uniform { rounding: 8; }
+
+          #tag:label {
+            @"asset/base/style/main#label";
+            x: 14px; y: 8px; width: 296px; height: 22px;
+            text: "내가 보내는 선수"; size: 14; color: #b9c0ccff; align_y: Center;
+          }
+          #pts_trade_custom_offered_position_icon:image {
+            visible: false;
+            x: 14px; y: 42px; width: 24px; height: 24px;
+            source: "asset/base/ui/icons/mid"; ignore_event: true;
+          }
+          #pts_trade_custom_offered_name:label {
+            @"asset/base/style/main#bold_label";
+            x: 48px; y: 32px; width: 258px; height: 32px;
+            text: "선수를 선택하세요"; size: 23; fit_width: true; align_y: Center;
+          }
+          #pts_trade_custom_offered_position:label {
+            @"asset/base/style/main#label";
+            x: 48px; y: 65px; width: 112px; height: 26px;
+            text: "-"; size: 15; color: #b9c0ccff; align_y: Center;
+          }
+          #pts_trade_custom_offered_status:empty {
+            x: 166px; y: 65px; width: 140px; height: 26px;
+            ignore_event: true;
+            #prospect:label { @"asset/base/style/main#label"; visible: false; width: 140px; height: 26px; text: "유망주"; size: 15; color: #858d9dff; align_x: Right; align_y: Center; ignore_event: true; }
+            #sub:label { @"asset/base/style/main#label"; visible: false; width: 140px; height: 26px; text: "후보"; size: 15; color: #3cb8a0ff; align_x: Right; align_y: Center; ignore_event: true; }
+            #general:label { @"asset/base/style/main#label"; visible: false; width: 140px; height: 26px; text: "주전"; size: 15; color: #4eb0d8ff; align_x: Right; align_y: Center; ignore_event: true; }
+            #important:label { @"asset/base/style/main#label"; visible: false; width: 140px; height: 26px; text: "주요"; size: 15; color: #c850bfff; align_x: Right; align_y: Center; ignore_event: true; }
+            #core:label { @"asset/base/style/main#label"; visible: false; width: 140px; height: 26px; text: "핵심"; size: 15; color: #f86624ff; align_x: Right; align_y: Center; ignore_event: true; }
+          }
+        }
+
+                #stat_header:empty {
+          x: 16px; y: 172px; width: 668px; height: 34px; ignore_event: true;
+          #name:label { @"asset/base/style/main#bold_label"; x: 10px; width: 108px; height: 34px; text: "능력치"; size: 15; color: #858c99ff; align_y: Center; ignore_event: true; }
+          #target:label { @"asset/base/style/main#bold_label"; x: 102px; width: 120px; height: 34px; text: "영입 대상"; size: 15; color: #858c99ff; align_x: Center; align_y: Center; ignore_event: true; }
+          #marker:label { @"asset/base/style/main#bold_label"; x: 312px; width: 44px; height: 34px; text: "비교"; size: 14; color: #858c99ff; align_x: Center; align_y: Center; ignore_event: true; }
+          #offered:label { @"asset/base/style/main#bold_label"; x: 446px; width: 120px; height: 34px; text: "내 선수"; size: 15; color: #858c99ff; align_x: Center; align_y: Center; ignore_event: true; }
+          #name_right:label { @"asset/base/style/main#bold_label"; x: 550px; width: 108px; height: 34px; text: "능력치"; size: 15; color: #858c99ff; align_x: Right; align_y: Center; ignore_event: true; }
+        }
+
+            #pts_trade_custom_stat_last_hit:empty {
+        x: 16px;
+        y: 212px;
+        width: 668px;
+        height: 36px;
+        ignore_event: true;
+
+        #name:label {
+          @"asset/base/style/main#label";
+          x: 10px; width: 108px; height: 36px;
+          text: "막타"; size: 16; color: #b9c0ccff;
+          align_y: Center; ignore_event: true;
+        }
+
+        #pts_trade_custom_stat_last_hit_target:empty {
+          x: 122px;
+          width: 80px;
+          height: 36px;
+          ignore_event: true;
+
+          #low:label {
+            @"asset/base/style/main#bold_label";
+            visible: true;
+            x: 0px;
+            width: 80px;
+            height: 36px;
+            text: "—";
+            size: 18;
+            color: #6b6c74ff;
+            align_x: Center;
+            align_y: Center;
+            ignore_event: true;
+          }
+          #teal:label {
+            @"asset/base/style/main#bold_label";
+            visible: false;
+            x: 0px;
+            width: 80px;
+            height: 36px;
+            text: "—";
+            size: 18;
+            color: #4ed5bdff;
+            align_x: Center;
+            align_y: Center;
+            ignore_event: true;
+          }
+          #blue:label {
+            @"asset/base/style/main#bold_label";
+            visible: false;
+            x: 0px;
+            width: 80px;
+            height: 36px;
+            text: "—";
+            size: 18;
+            color: #55c1feff;
+            align_x: Center;
+            align_y: Center;
+            ignore_event: true;
+          }
+          #purple:label {
+            @"asset/base/style/main#bold_label";
+            visible: false;
+            x: 0px;
+            width: 80px;
+            height: 36px;
+            text: "—";
+            size: 18;
+            color: #b34bb1ff;
+            align_x: Center;
+            align_y: Center;
+            ignore_event: true;
+          }
+          #orange:label {
+            @"asset/base/style/main#bold_label";
+            visible: false;
+            x: 0px;
+            width: 80px;
+            height: 36px;
+            text: "—";
+            size: 18;
+            color: #f86624ff;
+            align_x: Center;
+            align_y: Center;
+            ignore_event: true;
+          }
+        }
+
+        #pts_trade_custom_stat_last_hit_marker:empty {
+          x: 312px;
+          width: 44px;
+          height: 36px;
+          ignore_event: true;
+
+          #up:label {
+            @"asset/base/style/main#bold_label";
+            visible: false;
+            x: 0px; width: 44px; height: 36px;
+            text: "▲"; size: 18; color: #eb3d4dff;
+            align_x: Center; align_y: Center; ignore_event: true;
+          }
+          #down:label {
+            @"asset/base/style/main#bold_label";
+            visible: false;
+            x: 0px; width: 44px; height: 36px;
+            text: "▼"; size: 18; color: #667085ff;
+            align_x: Center; align_y: Center; ignore_event: true;
+          }
+          #equal:label {
+            @"asset/base/style/main#bold_label";
+            visible: false;
+            x: 0px; width: 44px; height: 36px;
+            text: "-"; size: 18; color: #667085ff;
+            align_x: Center; align_y: Center; ignore_event: true;
+          }
+          #unknown:label {
+            @"asset/base/style/main#bold_label";
+            visible: true;
+            x: 0px; width: 44px; height: 36px;
+            text: "—"; size: 18; color: #667085ff;
+            align_x: Center; align_y: Center; ignore_event: true;
+          }
+        }
+
+        #pts_trade_custom_stat_last_hit_offered:empty {
+          x: 466px;
+          width: 80px;
+          height: 36px;
+          ignore_event: true;
+
+          #low:label {
+            @"asset/base/style/main#bold_label";
+            visible: true;
+            x: 0px;
+            width: 80px;
+            height: 36px;
+            text: "—";
+            size: 18;
+            color: #6b6c74ff;
+            align_x: Center;
+            align_y: Center;
+            ignore_event: true;
+          }
+          #teal:label {
+            @"asset/base/style/main#bold_label";
+            visible: false;
+            x: 0px;
+            width: 80px;
+            height: 36px;
+            text: "—";
+            size: 18;
+            color: #4ed5bdff;
+            align_x: Center;
+            align_y: Center;
+            ignore_event: true;
+          }
+          #blue:label {
+            @"asset/base/style/main#bold_label";
+            visible: false;
+            x: 0px;
+            width: 80px;
+            height: 36px;
+            text: "—";
+            size: 18;
+            color: #55c1feff;
+            align_x: Center;
+            align_y: Center;
+            ignore_event: true;
+          }
+          #purple:label {
+            @"asset/base/style/main#bold_label";
+            visible: false;
+            x: 0px;
+            width: 80px;
+            height: 36px;
+            text: "—";
+            size: 18;
+            color: #b34bb1ff;
+            align_x: Center;
+            align_y: Center;
+            ignore_event: true;
+          }
+          #orange:label {
+            @"asset/base/style/main#bold_label";
+            visible: false;
+            x: 0px;
+            width: 80px;
+            height: 36px;
+            text: "—";
+            size: 18;
+            color: #f86624ff;
+            align_x: Center;
+            align_y: Center;
+            ignore_event: true;
+          }
+        }
+
+        #name_right:label {
+          @"asset/base/style/main#label";
+          x: 550px; width: 108px; height: 36px;
+          text: "막타"; size: 16; color: #b9c0ccff;
+          align_x: Right; align_y: Center; ignore_event: true;
+        }
+
+        #line:color {
+          width: 648px; height: 1px; x: 10px;
+          anchor_y: 1; pivot_y: 1;
+          color: #343744ff; ignore_event: true;
+        }
+      }
+
+            #pts_trade_custom_stat_skill_avoid:empty {
+        x: 16px;
+        y: 248px;
+        width: 668px;
+        height: 36px;
+        ignore_event: true;
+
+        #name:label {
+          @"asset/base/style/main#label";
+          x: 10px; width: 108px; height: 36px;
+          text: "스킬 회피"; size: 16; color: #b9c0ccff;
+          align_y: Center; ignore_event: true;
+        }
+
+        #pts_trade_custom_stat_skill_avoid_target:empty {
+          x: 122px;
+          width: 80px;
+          height: 36px;
+          ignore_event: true;
+
+          #low:label {
+            @"asset/base/style/main#bold_label";
+            visible: true;
+            x: 0px;
+            width: 80px;
+            height: 36px;
+            text: "—";
+            size: 18;
+            color: #6b6c74ff;
+            align_x: Center;
+            align_y: Center;
+            ignore_event: true;
+          }
+          #teal:label {
+            @"asset/base/style/main#bold_label";
+            visible: false;
+            x: 0px;
+            width: 80px;
+            height: 36px;
+            text: "—";
+            size: 18;
+            color: #4ed5bdff;
+            align_x: Center;
+            align_y: Center;
+            ignore_event: true;
+          }
+          #blue:label {
+            @"asset/base/style/main#bold_label";
+            visible: false;
+            x: 0px;
+            width: 80px;
+            height: 36px;
+            text: "—";
+            size: 18;
+            color: #55c1feff;
+            align_x: Center;
+            align_y: Center;
+            ignore_event: true;
+          }
+          #purple:label {
+            @"asset/base/style/main#bold_label";
+            visible: false;
+            x: 0px;
+            width: 80px;
+            height: 36px;
+            text: "—";
+            size: 18;
+            color: #b34bb1ff;
+            align_x: Center;
+            align_y: Center;
+            ignore_event: true;
+          }
+          #orange:label {
+            @"asset/base/style/main#bold_label";
+            visible: false;
+            x: 0px;
+            width: 80px;
+            height: 36px;
+            text: "—";
+            size: 18;
+            color: #f86624ff;
+            align_x: Center;
+            align_y: Center;
+            ignore_event: true;
+          }
+        }
+
+        #pts_trade_custom_stat_skill_avoid_marker:empty {
+          x: 312px;
+          width: 44px;
+          height: 36px;
+          ignore_event: true;
+
+          #up:label {
+            @"asset/base/style/main#bold_label";
+            visible: false;
+            x: 0px; width: 44px; height: 36px;
+            text: "▲"; size: 18; color: #eb3d4dff;
+            align_x: Center; align_y: Center; ignore_event: true;
+          }
+          #down:label {
+            @"asset/base/style/main#bold_label";
+            visible: false;
+            x: 0px; width: 44px; height: 36px;
+            text: "▼"; size: 18; color: #667085ff;
+            align_x: Center; align_y: Center; ignore_event: true;
+          }
+          #equal:label {
+            @"asset/base/style/main#bold_label";
+            visible: false;
+            x: 0px; width: 44px; height: 36px;
+            text: "-"; size: 18; color: #667085ff;
+            align_x: Center; align_y: Center; ignore_event: true;
+          }
+          #unknown:label {
+            @"asset/base/style/main#bold_label";
+            visible: true;
+            x: 0px; width: 44px; height: 36px;
+            text: "—"; size: 18; color: #667085ff;
+            align_x: Center; align_y: Center; ignore_event: true;
+          }
+        }
+
+        #pts_trade_custom_stat_skill_avoid_offered:empty {
+          x: 466px;
+          width: 80px;
+          height: 36px;
+          ignore_event: true;
+
+          #low:label {
+            @"asset/base/style/main#bold_label";
+            visible: true;
+            x: 0px;
+            width: 80px;
+            height: 36px;
+            text: "—";
+            size: 18;
+            color: #6b6c74ff;
+            align_x: Center;
+            align_y: Center;
+            ignore_event: true;
+          }
+          #teal:label {
+            @"asset/base/style/main#bold_label";
+            visible: false;
+            x: 0px;
+            width: 80px;
+            height: 36px;
+            text: "—";
+            size: 18;
+            color: #4ed5bdff;
+            align_x: Center;
+            align_y: Center;
+            ignore_event: true;
+          }
+          #blue:label {
+            @"asset/base/style/main#bold_label";
+            visible: false;
+            x: 0px;
+            width: 80px;
+            height: 36px;
+            text: "—";
+            size: 18;
+            color: #55c1feff;
+            align_x: Center;
+            align_y: Center;
+            ignore_event: true;
+          }
+          #purple:label {
+            @"asset/base/style/main#bold_label";
+            visible: false;
+            x: 0px;
+            width: 80px;
+            height: 36px;
+            text: "—";
+            size: 18;
+            color: #b34bb1ff;
+            align_x: Center;
+            align_y: Center;
+            ignore_event: true;
+          }
+          #orange:label {
+            @"asset/base/style/main#bold_label";
+            visible: false;
+            x: 0px;
+            width: 80px;
+            height: 36px;
+            text: "—";
+            size: 18;
+            color: #f86624ff;
+            align_x: Center;
+            align_y: Center;
+            ignore_event: true;
+          }
+        }
+
+        #name_right:label {
+          @"asset/base/style/main#label";
+          x: 550px; width: 108px; height: 36px;
+          text: "스킬 회피"; size: 16; color: #b9c0ccff;
+          align_x: Right; align_y: Center; ignore_event: true;
+        }
+
+        #line:color {
+          width: 648px; height: 1px; x: 10px;
+          anchor_y: 1; pivot_y: 1;
+          color: #343744ff; ignore_event: true;
+        }
+      }
+
+            #pts_trade_custom_stat_skill_hit:empty {
+        x: 16px;
+        y: 284px;
+        width: 668px;
+        height: 36px;
+        ignore_event: true;
+
+        #name:label {
+          @"asset/base/style/main#label";
+          x: 10px; width: 108px; height: 36px;
+          text: "스킬 적중"; size: 16; color: #b9c0ccff;
+          align_y: Center; ignore_event: true;
+        }
+
+        #pts_trade_custom_stat_skill_hit_target:empty {
+          x: 122px;
+          width: 80px;
+          height: 36px;
+          ignore_event: true;
+
+          #low:label {
+            @"asset/base/style/main#bold_label";
+            visible: true;
+            x: 0px;
+            width: 80px;
+            height: 36px;
+            text: "—";
+            size: 18;
+            color: #6b6c74ff;
+            align_x: Center;
+            align_y: Center;
+            ignore_event: true;
+          }
+          #teal:label {
+            @"asset/base/style/main#bold_label";
+            visible: false;
+            x: 0px;
+            width: 80px;
+            height: 36px;
+            text: "—";
+            size: 18;
+            color: #4ed5bdff;
+            align_x: Center;
+            align_y: Center;
+            ignore_event: true;
+          }
+          #blue:label {
+            @"asset/base/style/main#bold_label";
+            visible: false;
+            x: 0px;
+            width: 80px;
+            height: 36px;
+            text: "—";
+            size: 18;
+            color: #55c1feff;
+            align_x: Center;
+            align_y: Center;
+            ignore_event: true;
+          }
+          #purple:label {
+            @"asset/base/style/main#bold_label";
+            visible: false;
+            x: 0px;
+            width: 80px;
+            height: 36px;
+            text: "—";
+            size: 18;
+            color: #b34bb1ff;
+            align_x: Center;
+            align_y: Center;
+            ignore_event: true;
+          }
+          #orange:label {
+            @"asset/base/style/main#bold_label";
+            visible: false;
+            x: 0px;
+            width: 80px;
+            height: 36px;
+            text: "—";
+            size: 18;
+            color: #f86624ff;
+            align_x: Center;
+            align_y: Center;
+            ignore_event: true;
+          }
+        }
+
+        #pts_trade_custom_stat_skill_hit_marker:empty {
+          x: 312px;
+          width: 44px;
+          height: 36px;
+          ignore_event: true;
+
+          #up:label {
+            @"asset/base/style/main#bold_label";
+            visible: false;
+            x: 0px; width: 44px; height: 36px;
+            text: "▲"; size: 18; color: #eb3d4dff;
+            align_x: Center; align_y: Center; ignore_event: true;
+          }
+          #down:label {
+            @"asset/base/style/main#bold_label";
+            visible: false;
+            x: 0px; width: 44px; height: 36px;
+            text: "▼"; size: 18; color: #667085ff;
+            align_x: Center; align_y: Center; ignore_event: true;
+          }
+          #equal:label {
+            @"asset/base/style/main#bold_label";
+            visible: false;
+            x: 0px; width: 44px; height: 36px;
+            text: "-"; size: 18; color: #667085ff;
+            align_x: Center; align_y: Center; ignore_event: true;
+          }
+          #unknown:label {
+            @"asset/base/style/main#bold_label";
+            visible: true;
+            x: 0px; width: 44px; height: 36px;
+            text: "—"; size: 18; color: #667085ff;
+            align_x: Center; align_y: Center; ignore_event: true;
+          }
+        }
+
+        #pts_trade_custom_stat_skill_hit_offered:empty {
+          x: 466px;
+          width: 80px;
+          height: 36px;
+          ignore_event: true;
+
+          #low:label {
+            @"asset/base/style/main#bold_label";
+            visible: true;
+            x: 0px;
+            width: 80px;
+            height: 36px;
+            text: "—";
+            size: 18;
+            color: #6b6c74ff;
+            align_x: Center;
+            align_y: Center;
+            ignore_event: true;
+          }
+          #teal:label {
+            @"asset/base/style/main#bold_label";
+            visible: false;
+            x: 0px;
+            width: 80px;
+            height: 36px;
+            text: "—";
+            size: 18;
+            color: #4ed5bdff;
+            align_x: Center;
+            align_y: Center;
+            ignore_event: true;
+          }
+          #blue:label {
+            @"asset/base/style/main#bold_label";
+            visible: false;
+            x: 0px;
+            width: 80px;
+            height: 36px;
+            text: "—";
+            size: 18;
+            color: #55c1feff;
+            align_x: Center;
+            align_y: Center;
+            ignore_event: true;
+          }
+          #purple:label {
+            @"asset/base/style/main#bold_label";
+            visible: false;
+            x: 0px;
+            width: 80px;
+            height: 36px;
+            text: "—";
+            size: 18;
+            color: #b34bb1ff;
+            align_x: Center;
+            align_y: Center;
+            ignore_event: true;
+          }
+          #orange:label {
+            @"asset/base/style/main#bold_label";
+            visible: false;
+            x: 0px;
+            width: 80px;
+            height: 36px;
+            text: "—";
+            size: 18;
+            color: #f86624ff;
+            align_x: Center;
+            align_y: Center;
+            ignore_event: true;
+          }
+        }
+
+        #name_right:label {
+          @"asset/base/style/main#label";
+          x: 550px; width: 108px; height: 36px;
+          text: "스킬 적중"; size: 16; color: #b9c0ccff;
+          align_x: Right; align_y: Center; ignore_event: true;
+        }
+
+        #line:color {
+          width: 648px; height: 1px; x: 10px;
+          anchor_y: 1; pivot_y: 1;
+          color: #343744ff; ignore_event: true;
+        }
+      }
+
+            #pts_trade_custom_stat_control_speed:empty {
+        x: 16px;
+        y: 320px;
+        width: 668px;
+        height: 36px;
+        ignore_event: true;
+
+        #name:label {
+          @"asset/base/style/main#label";
+          x: 10px; width: 108px; height: 36px;
+          text: "컨트롤 속도"; size: 16; color: #b9c0ccff;
+          align_y: Center; ignore_event: true;
+        }
+
+        #pts_trade_custom_stat_control_speed_target:empty {
+          x: 122px;
+          width: 80px;
+          height: 36px;
+          ignore_event: true;
+
+          #low:label {
+            @"asset/base/style/main#bold_label";
+            visible: true;
+            x: 0px;
+            width: 80px;
+            height: 36px;
+            text: "—";
+            size: 18;
+            color: #6b6c74ff;
+            align_x: Center;
+            align_y: Center;
+            ignore_event: true;
+          }
+          #teal:label {
+            @"asset/base/style/main#bold_label";
+            visible: false;
+            x: 0px;
+            width: 80px;
+            height: 36px;
+            text: "—";
+            size: 18;
+            color: #4ed5bdff;
+            align_x: Center;
+            align_y: Center;
+            ignore_event: true;
+          }
+          #blue:label {
+            @"asset/base/style/main#bold_label";
+            visible: false;
+            x: 0px;
+            width: 80px;
+            height: 36px;
+            text: "—";
+            size: 18;
+            color: #55c1feff;
+            align_x: Center;
+            align_y: Center;
+            ignore_event: true;
+          }
+          #purple:label {
+            @"asset/base/style/main#bold_label";
+            visible: false;
+            x: 0px;
+            width: 80px;
+            height: 36px;
+            text: "—";
+            size: 18;
+            color: #b34bb1ff;
+            align_x: Center;
+            align_y: Center;
+            ignore_event: true;
+          }
+          #orange:label {
+            @"asset/base/style/main#bold_label";
+            visible: false;
+            x: 0px;
+            width: 80px;
+            height: 36px;
+            text: "—";
+            size: 18;
+            color: #f86624ff;
+            align_x: Center;
+            align_y: Center;
+            ignore_event: true;
+          }
+        }
+
+        #pts_trade_custom_stat_control_speed_marker:empty {
+          x: 312px;
+          width: 44px;
+          height: 36px;
+          ignore_event: true;
+
+          #up:label {
+            @"asset/base/style/main#bold_label";
+            visible: false;
+            x: 0px; width: 44px; height: 36px;
+            text: "▲"; size: 18; color: #eb3d4dff;
+            align_x: Center; align_y: Center; ignore_event: true;
+          }
+          #down:label {
+            @"asset/base/style/main#bold_label";
+            visible: false;
+            x: 0px; width: 44px; height: 36px;
+            text: "▼"; size: 18; color: #667085ff;
+            align_x: Center; align_y: Center; ignore_event: true;
+          }
+          #equal:label {
+            @"asset/base/style/main#bold_label";
+            visible: false;
+            x: 0px; width: 44px; height: 36px;
+            text: "-"; size: 18; color: #667085ff;
+            align_x: Center; align_y: Center; ignore_event: true;
+          }
+          #unknown:label {
+            @"asset/base/style/main#bold_label";
+            visible: true;
+            x: 0px; width: 44px; height: 36px;
+            text: "—"; size: 18; color: #667085ff;
+            align_x: Center; align_y: Center; ignore_event: true;
+          }
+        }
+
+        #pts_trade_custom_stat_control_speed_offered:empty {
+          x: 466px;
+          width: 80px;
+          height: 36px;
+          ignore_event: true;
+
+          #low:label {
+            @"asset/base/style/main#bold_label";
+            visible: true;
+            x: 0px;
+            width: 80px;
+            height: 36px;
+            text: "—";
+            size: 18;
+            color: #6b6c74ff;
+            align_x: Center;
+            align_y: Center;
+            ignore_event: true;
+          }
+          #teal:label {
+            @"asset/base/style/main#bold_label";
+            visible: false;
+            x: 0px;
+            width: 80px;
+            height: 36px;
+            text: "—";
+            size: 18;
+            color: #4ed5bdff;
+            align_x: Center;
+            align_y: Center;
+            ignore_event: true;
+          }
+          #blue:label {
+            @"asset/base/style/main#bold_label";
+            visible: false;
+            x: 0px;
+            width: 80px;
+            height: 36px;
+            text: "—";
+            size: 18;
+            color: #55c1feff;
+            align_x: Center;
+            align_y: Center;
+            ignore_event: true;
+          }
+          #purple:label {
+            @"asset/base/style/main#bold_label";
+            visible: false;
+            x: 0px;
+            width: 80px;
+            height: 36px;
+            text: "—";
+            size: 18;
+            color: #b34bb1ff;
+            align_x: Center;
+            align_y: Center;
+            ignore_event: true;
+          }
+          #orange:label {
+            @"asset/base/style/main#bold_label";
+            visible: false;
+            x: 0px;
+            width: 80px;
+            height: 36px;
+            text: "—";
+            size: 18;
+            color: #f86624ff;
+            align_x: Center;
+            align_y: Center;
+            ignore_event: true;
+          }
+        }
+
+        #name_right:label {
+          @"asset/base/style/main#label";
+          x: 550px; width: 108px; height: 36px;
+          text: "컨트롤 속도"; size: 16; color: #b9c0ccff;
+          align_x: Right; align_y: Center; ignore_event: true;
+        }
+
+        #line:color {
+          width: 648px; height: 1px; x: 10px;
+          anchor_y: 1; pivot_y: 1;
+          color: #343744ff; ignore_event: true;
+        }
+      }
+
+            #pts_trade_custom_stat_positioning:empty {
+        x: 16px;
+        y: 356px;
+        width: 668px;
+        height: 36px;
+        ignore_event: true;
+
+        #name:label {
+          @"asset/base/style/main#label";
+          x: 10px; width: 108px; height: 36px;
+          text: "포지셔닝"; size: 16; color: #b9c0ccff;
+          align_y: Center; ignore_event: true;
+        }
+
+        #pts_trade_custom_stat_positioning_target:empty {
+          x: 122px;
+          width: 80px;
+          height: 36px;
+          ignore_event: true;
+
+          #low:label {
+            @"asset/base/style/main#bold_label";
+            visible: true;
+            x: 0px;
+            width: 80px;
+            height: 36px;
+            text: "—";
+            size: 18;
+            color: #6b6c74ff;
+            align_x: Center;
+            align_y: Center;
+            ignore_event: true;
+          }
+          #teal:label {
+            @"asset/base/style/main#bold_label";
+            visible: false;
+            x: 0px;
+            width: 80px;
+            height: 36px;
+            text: "—";
+            size: 18;
+            color: #4ed5bdff;
+            align_x: Center;
+            align_y: Center;
+            ignore_event: true;
+          }
+          #blue:label {
+            @"asset/base/style/main#bold_label";
+            visible: false;
+            x: 0px;
+            width: 80px;
+            height: 36px;
+            text: "—";
+            size: 18;
+            color: #55c1feff;
+            align_x: Center;
+            align_y: Center;
+            ignore_event: true;
+          }
+          #purple:label {
+            @"asset/base/style/main#bold_label";
+            visible: false;
+            x: 0px;
+            width: 80px;
+            height: 36px;
+            text: "—";
+            size: 18;
+            color: #b34bb1ff;
+            align_x: Center;
+            align_y: Center;
+            ignore_event: true;
+          }
+          #orange:label {
+            @"asset/base/style/main#bold_label";
+            visible: false;
+            x: 0px;
+            width: 80px;
+            height: 36px;
+            text: "—";
+            size: 18;
+            color: #f86624ff;
+            align_x: Center;
+            align_y: Center;
+            ignore_event: true;
+          }
+        }
+
+        #pts_trade_custom_stat_positioning_marker:empty {
+          x: 312px;
+          width: 44px;
+          height: 36px;
+          ignore_event: true;
+
+          #up:label {
+            @"asset/base/style/main#bold_label";
+            visible: false;
+            x: 0px; width: 44px; height: 36px;
+            text: "▲"; size: 18; color: #eb3d4dff;
+            align_x: Center; align_y: Center; ignore_event: true;
+          }
+          #down:label {
+            @"asset/base/style/main#bold_label";
+            visible: false;
+            x: 0px; width: 44px; height: 36px;
+            text: "▼"; size: 18; color: #667085ff;
+            align_x: Center; align_y: Center; ignore_event: true;
+          }
+          #equal:label {
+            @"asset/base/style/main#bold_label";
+            visible: false;
+            x: 0px; width: 44px; height: 36px;
+            text: "-"; size: 18; color: #667085ff;
+            align_x: Center; align_y: Center; ignore_event: true;
+          }
+          #unknown:label {
+            @"asset/base/style/main#bold_label";
+            visible: true;
+            x: 0px; width: 44px; height: 36px;
+            text: "—"; size: 18; color: #667085ff;
+            align_x: Center; align_y: Center; ignore_event: true;
+          }
+        }
+
+        #pts_trade_custom_stat_positioning_offered:empty {
+          x: 466px;
+          width: 80px;
+          height: 36px;
+          ignore_event: true;
+
+          #low:label {
+            @"asset/base/style/main#bold_label";
+            visible: true;
+            x: 0px;
+            width: 80px;
+            height: 36px;
+            text: "—";
+            size: 18;
+            color: #6b6c74ff;
+            align_x: Center;
+            align_y: Center;
+            ignore_event: true;
+          }
+          #teal:label {
+            @"asset/base/style/main#bold_label";
+            visible: false;
+            x: 0px;
+            width: 80px;
+            height: 36px;
+            text: "—";
+            size: 18;
+            color: #4ed5bdff;
+            align_x: Center;
+            align_y: Center;
+            ignore_event: true;
+          }
+          #blue:label {
+            @"asset/base/style/main#bold_label";
+            visible: false;
+            x: 0px;
+            width: 80px;
+            height: 36px;
+            text: "—";
+            size: 18;
+            color: #55c1feff;
+            align_x: Center;
+            align_y: Center;
+            ignore_event: true;
+          }
+          #purple:label {
+            @"asset/base/style/main#bold_label";
+            visible: false;
+            x: 0px;
+            width: 80px;
+            height: 36px;
+            text: "—";
+            size: 18;
+            color: #b34bb1ff;
+            align_x: Center;
+            align_y: Center;
+            ignore_event: true;
+          }
+          #orange:label {
+            @"asset/base/style/main#bold_label";
+            visible: false;
+            x: 0px;
+            width: 80px;
+            height: 36px;
+            text: "—";
+            size: 18;
+            color: #f86624ff;
+            align_x: Center;
+            align_y: Center;
+            ignore_event: true;
+          }
+        }
+
+        #name_right:label {
+          @"asset/base/style/main#label";
+          x: 550px; width: 108px; height: 36px;
+          text: "포지셔닝"; size: 16; color: #b9c0ccff;
+          align_x: Right; align_y: Center; ignore_event: true;
+        }
+
+        #line:color {
+          width: 648px; height: 1px; x: 10px;
+          anchor_y: 1; pivot_y: 1;
+          color: #343744ff; ignore_event: true;
+        }
+      }
+
+            #pts_trade_custom_stat_judgement:empty {
+        x: 16px;
+        y: 392px;
+        width: 668px;
+        height: 36px;
+        ignore_event: true;
+
+        #name:label {
+          @"asset/base/style/main#label";
+          x: 10px; width: 108px; height: 36px;
+          text: "판단력"; size: 16; color: #b9c0ccff;
+          align_y: Center; ignore_event: true;
+        }
+
+        #pts_trade_custom_stat_judgement_target:empty {
+          x: 122px;
+          width: 80px;
+          height: 36px;
+          ignore_event: true;
+
+          #low:label {
+            @"asset/base/style/main#bold_label";
+            visible: true;
+            x: 0px;
+            width: 80px;
+            height: 36px;
+            text: "—";
+            size: 18;
+            color: #6b6c74ff;
+            align_x: Center;
+            align_y: Center;
+            ignore_event: true;
+          }
+          #teal:label {
+            @"asset/base/style/main#bold_label";
+            visible: false;
+            x: 0px;
+            width: 80px;
+            height: 36px;
+            text: "—";
+            size: 18;
+            color: #4ed5bdff;
+            align_x: Center;
+            align_y: Center;
+            ignore_event: true;
+          }
+          #blue:label {
+            @"asset/base/style/main#bold_label";
+            visible: false;
+            x: 0px;
+            width: 80px;
+            height: 36px;
+            text: "—";
+            size: 18;
+            color: #55c1feff;
+            align_x: Center;
+            align_y: Center;
+            ignore_event: true;
+          }
+          #purple:label {
+            @"asset/base/style/main#bold_label";
+            visible: false;
+            x: 0px;
+            width: 80px;
+            height: 36px;
+            text: "—";
+            size: 18;
+            color: #b34bb1ff;
+            align_x: Center;
+            align_y: Center;
+            ignore_event: true;
+          }
+          #orange:label {
+            @"asset/base/style/main#bold_label";
+            visible: false;
+            x: 0px;
+            width: 80px;
+            height: 36px;
+            text: "—";
+            size: 18;
+            color: #f86624ff;
+            align_x: Center;
+            align_y: Center;
+            ignore_event: true;
+          }
+        }
+
+        #pts_trade_custom_stat_judgement_marker:empty {
+          x: 312px;
+          width: 44px;
+          height: 36px;
+          ignore_event: true;
+
+          #up:label {
+            @"asset/base/style/main#bold_label";
+            visible: false;
+            x: 0px; width: 44px; height: 36px;
+            text: "▲"; size: 18; color: #eb3d4dff;
+            align_x: Center; align_y: Center; ignore_event: true;
+          }
+          #down:label {
+            @"asset/base/style/main#bold_label";
+            visible: false;
+            x: 0px; width: 44px; height: 36px;
+            text: "▼"; size: 18; color: #667085ff;
+            align_x: Center; align_y: Center; ignore_event: true;
+          }
+          #equal:label {
+            @"asset/base/style/main#bold_label";
+            visible: false;
+            x: 0px; width: 44px; height: 36px;
+            text: "-"; size: 18; color: #667085ff;
+            align_x: Center; align_y: Center; ignore_event: true;
+          }
+          #unknown:label {
+            @"asset/base/style/main#bold_label";
+            visible: true;
+            x: 0px; width: 44px; height: 36px;
+            text: "—"; size: 18; color: #667085ff;
+            align_x: Center; align_y: Center; ignore_event: true;
+          }
+        }
+
+        #pts_trade_custom_stat_judgement_offered:empty {
+          x: 466px;
+          width: 80px;
+          height: 36px;
+          ignore_event: true;
+
+          #low:label {
+            @"asset/base/style/main#bold_label";
+            visible: true;
+            x: 0px;
+            width: 80px;
+            height: 36px;
+            text: "—";
+            size: 18;
+            color: #6b6c74ff;
+            align_x: Center;
+            align_y: Center;
+            ignore_event: true;
+          }
+          #teal:label {
+            @"asset/base/style/main#bold_label";
+            visible: false;
+            x: 0px;
+            width: 80px;
+            height: 36px;
+            text: "—";
+            size: 18;
+            color: #4ed5bdff;
+            align_x: Center;
+            align_y: Center;
+            ignore_event: true;
+          }
+          #blue:label {
+            @"asset/base/style/main#bold_label";
+            visible: false;
+            x: 0px;
+            width: 80px;
+            height: 36px;
+            text: "—";
+            size: 18;
+            color: #55c1feff;
+            align_x: Center;
+            align_y: Center;
+            ignore_event: true;
+          }
+          #purple:label {
+            @"asset/base/style/main#bold_label";
+            visible: false;
+            x: 0px;
+            width: 80px;
+            height: 36px;
+            text: "—";
+            size: 18;
+            color: #b34bb1ff;
+            align_x: Center;
+            align_y: Center;
+            ignore_event: true;
+          }
+          #orange:label {
+            @"asset/base/style/main#bold_label";
+            visible: false;
+            x: 0px;
+            width: 80px;
+            height: 36px;
+            text: "—";
+            size: 18;
+            color: #f86624ff;
+            align_x: Center;
+            align_y: Center;
+            ignore_event: true;
+          }
+        }
+
+        #name_right:label {
+          @"asset/base/style/main#label";
+          x: 550px; width: 108px; height: 36px;
+          text: "판단력"; size: 16; color: #b9c0ccff;
+          align_x: Right; align_y: Center; ignore_event: true;
+        }
+
+        #line:color {
+          width: 648px; height: 1px; x: 10px;
+          anchor_y: 1; pivot_y: 1;
+          color: #343744ff; ignore_event: true;
+        }
+      }
+
+            #pts_trade_custom_stat_mental:empty {
+        x: 16px;
+        y: 428px;
+        width: 668px;
+        height: 36px;
+        ignore_event: true;
+
+        #name:label {
+          @"asset/base/style/main#label";
+          x: 10px; width: 108px; height: 36px;
+          text: "정신력"; size: 16; color: #b9c0ccff;
+          align_y: Center; ignore_event: true;
+        }
+
+        #pts_trade_custom_stat_mental_target:empty {
+          x: 122px;
+          width: 80px;
+          height: 36px;
+          ignore_event: true;
+
+          #low:label {
+            @"asset/base/style/main#bold_label";
+            visible: true;
+            x: 0px;
+            width: 80px;
+            height: 36px;
+            text: "—";
+            size: 18;
+            color: #6b6c74ff;
+            align_x: Center;
+            align_y: Center;
+            ignore_event: true;
+          }
+          #teal:label {
+            @"asset/base/style/main#bold_label";
+            visible: false;
+            x: 0px;
+            width: 80px;
+            height: 36px;
+            text: "—";
+            size: 18;
+            color: #4ed5bdff;
+            align_x: Center;
+            align_y: Center;
+            ignore_event: true;
+          }
+          #blue:label {
+            @"asset/base/style/main#bold_label";
+            visible: false;
+            x: 0px;
+            width: 80px;
+            height: 36px;
+            text: "—";
+            size: 18;
+            color: #55c1feff;
+            align_x: Center;
+            align_y: Center;
+            ignore_event: true;
+          }
+          #purple:label {
+            @"asset/base/style/main#bold_label";
+            visible: false;
+            x: 0px;
+            width: 80px;
+            height: 36px;
+            text: "—";
+            size: 18;
+            color: #b34bb1ff;
+            align_x: Center;
+            align_y: Center;
+            ignore_event: true;
+          }
+          #orange:label {
+            @"asset/base/style/main#bold_label";
+            visible: false;
+            x: 0px;
+            width: 80px;
+            height: 36px;
+            text: "—";
+            size: 18;
+            color: #f86624ff;
+            align_x: Center;
+            align_y: Center;
+            ignore_event: true;
+          }
+        }
+
+        #pts_trade_custom_stat_mental_marker:empty {
+          x: 312px;
+          width: 44px;
+          height: 36px;
+          ignore_event: true;
+
+          #up:label {
+            @"asset/base/style/main#bold_label";
+            visible: false;
+            x: 0px; width: 44px; height: 36px;
+            text: "▲"; size: 18; color: #eb3d4dff;
+            align_x: Center; align_y: Center; ignore_event: true;
+          }
+          #down:label {
+            @"asset/base/style/main#bold_label";
+            visible: false;
+            x: 0px; width: 44px; height: 36px;
+            text: "▼"; size: 18; color: #667085ff;
+            align_x: Center; align_y: Center; ignore_event: true;
+          }
+          #equal:label {
+            @"asset/base/style/main#bold_label";
+            visible: false;
+            x: 0px; width: 44px; height: 36px;
+            text: "-"; size: 18; color: #667085ff;
+            align_x: Center; align_y: Center; ignore_event: true;
+          }
+          #unknown:label {
+            @"asset/base/style/main#bold_label";
+            visible: true;
+            x: 0px; width: 44px; height: 36px;
+            text: "—"; size: 18; color: #667085ff;
+            align_x: Center; align_y: Center; ignore_event: true;
+          }
+        }
+
+        #pts_trade_custom_stat_mental_offered:empty {
+          x: 466px;
+          width: 80px;
+          height: 36px;
+          ignore_event: true;
+
+          #low:label {
+            @"asset/base/style/main#bold_label";
+            visible: true;
+            x: 0px;
+            width: 80px;
+            height: 36px;
+            text: "—";
+            size: 18;
+            color: #6b6c74ff;
+            align_x: Center;
+            align_y: Center;
+            ignore_event: true;
+          }
+          #teal:label {
+            @"asset/base/style/main#bold_label";
+            visible: false;
+            x: 0px;
+            width: 80px;
+            height: 36px;
+            text: "—";
+            size: 18;
+            color: #4ed5bdff;
+            align_x: Center;
+            align_y: Center;
+            ignore_event: true;
+          }
+          #blue:label {
+            @"asset/base/style/main#bold_label";
+            visible: false;
+            x: 0px;
+            width: 80px;
+            height: 36px;
+            text: "—";
+            size: 18;
+            color: #55c1feff;
+            align_x: Center;
+            align_y: Center;
+            ignore_event: true;
+          }
+          #purple:label {
+            @"asset/base/style/main#bold_label";
+            visible: false;
+            x: 0px;
+            width: 80px;
+            height: 36px;
+            text: "—";
+            size: 18;
+            color: #b34bb1ff;
+            align_x: Center;
+            align_y: Center;
+            ignore_event: true;
+          }
+          #orange:label {
+            @"asset/base/style/main#bold_label";
+            visible: false;
+            x: 0px;
+            width: 80px;
+            height: 36px;
+            text: "—";
+            size: 18;
+            color: #f86624ff;
+            align_x: Center;
+            align_y: Center;
+            ignore_event: true;
+          }
+        }
+
+        #name_right:label {
+          @"asset/base/style/main#label";
+          x: 550px; width: 108px; height: 36px;
+          text: "정신력"; size: 16; color: #b9c0ccff;
+          align_x: Right; align_y: Center; ignore_event: true;
+        }
+
+        #line:color {
+          width: 648px; height: 1px; x: 10px;
+          anchor_y: 1; pivot_y: 1;
+          color: #343744ff; ignore_event: true;
+        }
+      }
+
+            #pts_trade_custom_stat_concentration:empty {
+        x: 16px;
+        y: 464px;
+        width: 668px;
+        height: 36px;
+        ignore_event: true;
+
+        #name:label {
+          @"asset/base/style/main#label";
+          x: 10px; width: 108px; height: 36px;
+          text: "집중력"; size: 16; color: #b9c0ccff;
+          align_y: Center; ignore_event: true;
+        }
+
+        #pts_trade_custom_stat_concentration_target:empty {
+          x: 122px;
+          width: 80px;
+          height: 36px;
+          ignore_event: true;
+
+          #low:label {
+            @"asset/base/style/main#bold_label";
+            visible: true;
+            x: 0px;
+            width: 80px;
+            height: 36px;
+            text: "—";
+            size: 18;
+            color: #6b6c74ff;
+            align_x: Center;
+            align_y: Center;
+            ignore_event: true;
+          }
+          #teal:label {
+            @"asset/base/style/main#bold_label";
+            visible: false;
+            x: 0px;
+            width: 80px;
+            height: 36px;
+            text: "—";
+            size: 18;
+            color: #4ed5bdff;
+            align_x: Center;
+            align_y: Center;
+            ignore_event: true;
+          }
+          #blue:label {
+            @"asset/base/style/main#bold_label";
+            visible: false;
+            x: 0px;
+            width: 80px;
+            height: 36px;
+            text: "—";
+            size: 18;
+            color: #55c1feff;
+            align_x: Center;
+            align_y: Center;
+            ignore_event: true;
+          }
+          #purple:label {
+            @"asset/base/style/main#bold_label";
+            visible: false;
+            x: 0px;
+            width: 80px;
+            height: 36px;
+            text: "—";
+            size: 18;
+            color: #b34bb1ff;
+            align_x: Center;
+            align_y: Center;
+            ignore_event: true;
+          }
+          #orange:label {
+            @"asset/base/style/main#bold_label";
+            visible: false;
+            x: 0px;
+            width: 80px;
+            height: 36px;
+            text: "—";
+            size: 18;
+            color: #f86624ff;
+            align_x: Center;
+            align_y: Center;
+            ignore_event: true;
+          }
+        }
+
+        #pts_trade_custom_stat_concentration_marker:empty {
+          x: 312px;
+          width: 44px;
+          height: 36px;
+          ignore_event: true;
+
+          #up:label {
+            @"asset/base/style/main#bold_label";
+            visible: false;
+            x: 0px; width: 44px; height: 36px;
+            text: "▲"; size: 18; color: #eb3d4dff;
+            align_x: Center; align_y: Center; ignore_event: true;
+          }
+          #down:label {
+            @"asset/base/style/main#bold_label";
+            visible: false;
+            x: 0px; width: 44px; height: 36px;
+            text: "▼"; size: 18; color: #667085ff;
+            align_x: Center; align_y: Center; ignore_event: true;
+          }
+          #equal:label {
+            @"asset/base/style/main#bold_label";
+            visible: false;
+            x: 0px; width: 44px; height: 36px;
+            text: "-"; size: 18; color: #667085ff;
+            align_x: Center; align_y: Center; ignore_event: true;
+          }
+          #unknown:label {
+            @"asset/base/style/main#bold_label";
+            visible: true;
+            x: 0px; width: 44px; height: 36px;
+            text: "—"; size: 18; color: #667085ff;
+            align_x: Center; align_y: Center; ignore_event: true;
+          }
+        }
+
+        #pts_trade_custom_stat_concentration_offered:empty {
+          x: 466px;
+          width: 80px;
+          height: 36px;
+          ignore_event: true;
+
+          #low:label {
+            @"asset/base/style/main#bold_label";
+            visible: true;
+            x: 0px;
+            width: 80px;
+            height: 36px;
+            text: "—";
+            size: 18;
+            color: #6b6c74ff;
+            align_x: Center;
+            align_y: Center;
+            ignore_event: true;
+          }
+          #teal:label {
+            @"asset/base/style/main#bold_label";
+            visible: false;
+            x: 0px;
+            width: 80px;
+            height: 36px;
+            text: "—";
+            size: 18;
+            color: #4ed5bdff;
+            align_x: Center;
+            align_y: Center;
+            ignore_event: true;
+          }
+          #blue:label {
+            @"asset/base/style/main#bold_label";
+            visible: false;
+            x: 0px;
+            width: 80px;
+            height: 36px;
+            text: "—";
+            size: 18;
+            color: #55c1feff;
+            align_x: Center;
+            align_y: Center;
+            ignore_event: true;
+          }
+          #purple:label {
+            @"asset/base/style/main#bold_label";
+            visible: false;
+            x: 0px;
+            width: 80px;
+            height: 36px;
+            text: "—";
+            size: 18;
+            color: #b34bb1ff;
+            align_x: Center;
+            align_y: Center;
+            ignore_event: true;
+          }
+          #orange:label {
+            @"asset/base/style/main#bold_label";
+            visible: false;
+            x: 0px;
+            width: 80px;
+            height: 36px;
+            text: "—";
+            size: 18;
+            color: #f86624ff;
+            align_x: Center;
+            align_y: Center;
+            ignore_event: true;
+          }
+        }
+
+        #name_right:label {
+          @"asset/base/style/main#label";
+          x: 550px; width: 108px; height: 36px;
+          text: "집중력"; size: 16; color: #b9c0ccff;
+          align_x: Right; align_y: Center; ignore_event: true;
+        }
+
+        #line:color {
+          width: 648px; height: 1px; x: 10px;
+          anchor_y: 1; pivot_y: 1;
+          color: #343744ff; ignore_event: true;
+        }
+      }
+
+            #pts_trade_custom_stat_order:empty {
+        x: 16px;
+        y: 500px;
+        width: 668px;
+        height: 36px;
+        ignore_event: true;
+
+        #name:label {
+          @"asset/base/style/main#label";
+          x: 10px; width: 108px; height: 36px;
+          text: "오더"; size: 16; color: #b9c0ccff;
+          align_y: Center; ignore_event: true;
+        }
+
+        #pts_trade_custom_stat_order_target:empty {
+          x: 122px;
+          width: 80px;
+          height: 36px;
+          ignore_event: true;
+
+          #low:label {
+            @"asset/base/style/main#bold_label";
+            visible: true;
+            x: 0px;
+            width: 80px;
+            height: 36px;
+            text: "—";
+            size: 18;
+            color: #6b6c74ff;
+            align_x: Center;
+            align_y: Center;
+            ignore_event: true;
+          }
+          #teal:label {
+            @"asset/base/style/main#bold_label";
+            visible: false;
+            x: 0px;
+            width: 80px;
+            height: 36px;
+            text: "—";
+            size: 18;
+            color: #4ed5bdff;
+            align_x: Center;
+            align_y: Center;
+            ignore_event: true;
+          }
+          #blue:label {
+            @"asset/base/style/main#bold_label";
+            visible: false;
+            x: 0px;
+            width: 80px;
+            height: 36px;
+            text: "—";
+            size: 18;
+            color: #55c1feff;
+            align_x: Center;
+            align_y: Center;
+            ignore_event: true;
+          }
+          #purple:label {
+            @"asset/base/style/main#bold_label";
+            visible: false;
+            x: 0px;
+            width: 80px;
+            height: 36px;
+            text: "—";
+            size: 18;
+            color: #b34bb1ff;
+            align_x: Center;
+            align_y: Center;
+            ignore_event: true;
+          }
+          #orange:label {
+            @"asset/base/style/main#bold_label";
+            visible: false;
+            x: 0px;
+            width: 80px;
+            height: 36px;
+            text: "—";
+            size: 18;
+            color: #f86624ff;
+            align_x: Center;
+            align_y: Center;
+            ignore_event: true;
+          }
+        }
+
+        #pts_trade_custom_stat_order_marker:empty {
+          x: 312px;
+          width: 44px;
+          height: 36px;
+          ignore_event: true;
+
+          #up:label {
+            @"asset/base/style/main#bold_label";
+            visible: false;
+            x: 0px; width: 44px; height: 36px;
+            text: "▲"; size: 18; color: #eb3d4dff;
+            align_x: Center; align_y: Center; ignore_event: true;
+          }
+          #down:label {
+            @"asset/base/style/main#bold_label";
+            visible: false;
+            x: 0px; width: 44px; height: 36px;
+            text: "▼"; size: 18; color: #667085ff;
+            align_x: Center; align_y: Center; ignore_event: true;
+          }
+          #equal:label {
+            @"asset/base/style/main#bold_label";
+            visible: false;
+            x: 0px; width: 44px; height: 36px;
+            text: "-"; size: 18; color: #667085ff;
+            align_x: Center; align_y: Center; ignore_event: true;
+          }
+          #unknown:label {
+            @"asset/base/style/main#bold_label";
+            visible: true;
+            x: 0px; width: 44px; height: 36px;
+            text: "—"; size: 18; color: #667085ff;
+            align_x: Center; align_y: Center; ignore_event: true;
+          }
+        }
+
+        #pts_trade_custom_stat_order_offered:empty {
+          x: 466px;
+          width: 80px;
+          height: 36px;
+          ignore_event: true;
+
+          #low:label {
+            @"asset/base/style/main#bold_label";
+            visible: true;
+            x: 0px;
+            width: 80px;
+            height: 36px;
+            text: "—";
+            size: 18;
+            color: #6b6c74ff;
+            align_x: Center;
+            align_y: Center;
+            ignore_event: true;
+          }
+          #teal:label {
+            @"asset/base/style/main#bold_label";
+            visible: false;
+            x: 0px;
+            width: 80px;
+            height: 36px;
+            text: "—";
+            size: 18;
+            color: #4ed5bdff;
+            align_x: Center;
+            align_y: Center;
+            ignore_event: true;
+          }
+          #blue:label {
+            @"asset/base/style/main#bold_label";
+            visible: false;
+            x: 0px;
+            width: 80px;
+            height: 36px;
+            text: "—";
+            size: 18;
+            color: #55c1feff;
+            align_x: Center;
+            align_y: Center;
+            ignore_event: true;
+          }
+          #purple:label {
+            @"asset/base/style/main#bold_label";
+            visible: false;
+            x: 0px;
+            width: 80px;
+            height: 36px;
+            text: "—";
+            size: 18;
+            color: #b34bb1ff;
+            align_x: Center;
+            align_y: Center;
+            ignore_event: true;
+          }
+          #orange:label {
+            @"asset/base/style/main#bold_label";
+            visible: false;
+            x: 0px;
+            width: 80px;
+            height: 36px;
+            text: "—";
+            size: 18;
+            color: #f86624ff;
+            align_x: Center;
+            align_y: Center;
+            ignore_event: true;
+          }
+        }
+
+        #name_right:label {
+          @"asset/base/style/main#label";
+          x: 550px; width: 108px; height: 36px;
+          text: "오더"; size: 16; color: #b9c0ccff;
+          align_x: Right; align_y: Center; ignore_event: true;
+        }
+
+        #line:color {
+          width: 648px; height: 1px; x: 10px;
+          anchor_y: 1; pivot_y: 1;
+          color: #343744ff; ignore_event: true;
+        }
+      }
+
+            #pts_trade_custom_stat_roaming:empty {
+        x: 16px;
+        y: 536px;
+        width: 668px;
+        height: 36px;
+        ignore_event: true;
+
+        #name:label {
+          @"asset/base/style/main#label";
+          x: 10px; width: 108px; height: 36px;
+          text: "로밍"; size: 16; color: #b9c0ccff;
+          align_y: Center; ignore_event: true;
+        }
+
+        #pts_trade_custom_stat_roaming_target:empty {
+          x: 122px;
+          width: 80px;
+          height: 36px;
+          ignore_event: true;
+
+          #low:label {
+            @"asset/base/style/main#bold_label";
+            visible: true;
+            x: 0px;
+            width: 80px;
+            height: 36px;
+            text: "—";
+            size: 18;
+            color: #6b6c74ff;
+            align_x: Center;
+            align_y: Center;
+            ignore_event: true;
+          }
+          #teal:label {
+            @"asset/base/style/main#bold_label";
+            visible: false;
+            x: 0px;
+            width: 80px;
+            height: 36px;
+            text: "—";
+            size: 18;
+            color: #4ed5bdff;
+            align_x: Center;
+            align_y: Center;
+            ignore_event: true;
+          }
+          #blue:label {
+            @"asset/base/style/main#bold_label";
+            visible: false;
+            x: 0px;
+            width: 80px;
+            height: 36px;
+            text: "—";
+            size: 18;
+            color: #55c1feff;
+            align_x: Center;
+            align_y: Center;
+            ignore_event: true;
+          }
+          #purple:label {
+            @"asset/base/style/main#bold_label";
+            visible: false;
+            x: 0px;
+            width: 80px;
+            height: 36px;
+            text: "—";
+            size: 18;
+            color: #b34bb1ff;
+            align_x: Center;
+            align_y: Center;
+            ignore_event: true;
+          }
+          #orange:label {
+            @"asset/base/style/main#bold_label";
+            visible: false;
+            x: 0px;
+            width: 80px;
+            height: 36px;
+            text: "—";
+            size: 18;
+            color: #f86624ff;
+            align_x: Center;
+            align_y: Center;
+            ignore_event: true;
+          }
+        }
+
+        #pts_trade_custom_stat_roaming_marker:empty {
+          x: 312px;
+          width: 44px;
+          height: 36px;
+          ignore_event: true;
+
+          #up:label {
+            @"asset/base/style/main#bold_label";
+            visible: false;
+            x: 0px; width: 44px; height: 36px;
+            text: "▲"; size: 18; color: #eb3d4dff;
+            align_x: Center; align_y: Center; ignore_event: true;
+          }
+          #down:label {
+            @"asset/base/style/main#bold_label";
+            visible: false;
+            x: 0px; width: 44px; height: 36px;
+            text: "▼"; size: 18; color: #667085ff;
+            align_x: Center; align_y: Center; ignore_event: true;
+          }
+          #equal:label {
+            @"asset/base/style/main#bold_label";
+            visible: false;
+            x: 0px; width: 44px; height: 36px;
+            text: "-"; size: 18; color: #667085ff;
+            align_x: Center; align_y: Center; ignore_event: true;
+          }
+          #unknown:label {
+            @"asset/base/style/main#bold_label";
+            visible: true;
+            x: 0px; width: 44px; height: 36px;
+            text: "—"; size: 18; color: #667085ff;
+            align_x: Center; align_y: Center; ignore_event: true;
+          }
+        }
+
+        #pts_trade_custom_stat_roaming_offered:empty {
+          x: 466px;
+          width: 80px;
+          height: 36px;
+          ignore_event: true;
+
+          #low:label {
+            @"asset/base/style/main#bold_label";
+            visible: true;
+            x: 0px;
+            width: 80px;
+            height: 36px;
+            text: "—";
+            size: 18;
+            color: #6b6c74ff;
+            align_x: Center;
+            align_y: Center;
+            ignore_event: true;
+          }
+          #teal:label {
+            @"asset/base/style/main#bold_label";
+            visible: false;
+            x: 0px;
+            width: 80px;
+            height: 36px;
+            text: "—";
+            size: 18;
+            color: #4ed5bdff;
+            align_x: Center;
+            align_y: Center;
+            ignore_event: true;
+          }
+          #blue:label {
+            @"asset/base/style/main#bold_label";
+            visible: false;
+            x: 0px;
+            width: 80px;
+            height: 36px;
+            text: "—";
+            size: 18;
+            color: #55c1feff;
+            align_x: Center;
+            align_y: Center;
+            ignore_event: true;
+          }
+          #purple:label {
+            @"asset/base/style/main#bold_label";
+            visible: false;
+            x: 0px;
+            width: 80px;
+            height: 36px;
+            text: "—";
+            size: 18;
+            color: #b34bb1ff;
+            align_x: Center;
+            align_y: Center;
+            ignore_event: true;
+          }
+          #orange:label {
+            @"asset/base/style/main#bold_label";
+            visible: false;
+            x: 0px;
+            width: 80px;
+            height: 36px;
+            text: "—";
+            size: 18;
+            color: #f86624ff;
+            align_x: Center;
+            align_y: Center;
+            ignore_event: true;
+          }
+        }
+
+        #name_right:label {
+          @"asset/base/style/main#label";
+          x: 550px; width: 108px; height: 36px;
+          text: "로밍"; size: 16; color: #b9c0ccff;
+          align_x: Right; align_y: Center; ignore_event: true;
+        }
+
+        #line:color {
+          width: 648px; height: 1px; x: 10px;
+          anchor_y: 1; pivot_y: 1;
+          color: #343744ff; ignore_event: true;
+        }
+      }
+
+            #pts_trade_custom_stat_aggressive:empty {
+        x: 16px;
+        y: 572px;
+        width: 668px;
+        height: 36px;
+        ignore_event: true;
+
+        #name:label {
+          @"asset/base/style/main#label";
+          x: 10px; width: 108px; height: 36px;
+          text: "공격성"; size: 16; color: #b9c0ccff;
+          align_y: Center; ignore_event: true;
+        }
+
+        #pts_trade_custom_stat_aggressive_target:empty {
+          x: 122px;
+          width: 80px;
+          height: 36px;
+          ignore_event: true;
+
+          #low:label {
+            @"asset/base/style/main#bold_label";
+            visible: true;
+            x: 0px;
+            width: 80px;
+            height: 36px;
+            text: "—";
+            size: 18;
+            color: #6b6c74ff;
+            align_x: Center;
+            align_y: Center;
+            ignore_event: true;
+          }
+          #teal:label {
+            @"asset/base/style/main#bold_label";
+            visible: false;
+            x: 0px;
+            width: 80px;
+            height: 36px;
+            text: "—";
+            size: 18;
+            color: #4ed5bdff;
+            align_x: Center;
+            align_y: Center;
+            ignore_event: true;
+          }
+          #blue:label {
+            @"asset/base/style/main#bold_label";
+            visible: false;
+            x: 0px;
+            width: 80px;
+            height: 36px;
+            text: "—";
+            size: 18;
+            color: #55c1feff;
+            align_x: Center;
+            align_y: Center;
+            ignore_event: true;
+          }
+          #purple:label {
+            @"asset/base/style/main#bold_label";
+            visible: false;
+            x: 0px;
+            width: 80px;
+            height: 36px;
+            text: "—";
+            size: 18;
+            color: #b34bb1ff;
+            align_x: Center;
+            align_y: Center;
+            ignore_event: true;
+          }
+          #orange:label {
+            @"asset/base/style/main#bold_label";
+            visible: false;
+            x: 0px;
+            width: 80px;
+            height: 36px;
+            text: "—";
+            size: 18;
+            color: #f86624ff;
+            align_x: Center;
+            align_y: Center;
+            ignore_event: true;
+          }
+        }
+
+        #pts_trade_custom_stat_aggressive_marker:empty {
+          x: 312px;
+          width: 44px;
+          height: 36px;
+          ignore_event: true;
+
+          #up:label {
+            @"asset/base/style/main#bold_label";
+            visible: false;
+            x: 0px; width: 44px; height: 36px;
+            text: "▲"; size: 18; color: #eb3d4dff;
+            align_x: Center; align_y: Center; ignore_event: true;
+          }
+          #down:label {
+            @"asset/base/style/main#bold_label";
+            visible: false;
+            x: 0px; width: 44px; height: 36px;
+            text: "▼"; size: 18; color: #667085ff;
+            align_x: Center; align_y: Center; ignore_event: true;
+          }
+          #equal:label {
+            @"asset/base/style/main#bold_label";
+            visible: false;
+            x: 0px; width: 44px; height: 36px;
+            text: "-"; size: 18; color: #667085ff;
+            align_x: Center; align_y: Center; ignore_event: true;
+          }
+          #unknown:label {
+            @"asset/base/style/main#bold_label";
+            visible: true;
+            x: 0px; width: 44px; height: 36px;
+            text: "—"; size: 18; color: #667085ff;
+            align_x: Center; align_y: Center; ignore_event: true;
+          }
+        }
+
+        #pts_trade_custom_stat_aggressive_offered:empty {
+          x: 466px;
+          width: 80px;
+          height: 36px;
+          ignore_event: true;
+
+          #low:label {
+            @"asset/base/style/main#bold_label";
+            visible: true;
+            x: 0px;
+            width: 80px;
+            height: 36px;
+            text: "—";
+            size: 18;
+            color: #6b6c74ff;
+            align_x: Center;
+            align_y: Center;
+            ignore_event: true;
+          }
+          #teal:label {
+            @"asset/base/style/main#bold_label";
+            visible: false;
+            x: 0px;
+            width: 80px;
+            height: 36px;
+            text: "—";
+            size: 18;
+            color: #4ed5bdff;
+            align_x: Center;
+            align_y: Center;
+            ignore_event: true;
+          }
+          #blue:label {
+            @"asset/base/style/main#bold_label";
+            visible: false;
+            x: 0px;
+            width: 80px;
+            height: 36px;
+            text: "—";
+            size: 18;
+            color: #55c1feff;
+            align_x: Center;
+            align_y: Center;
+            ignore_event: true;
+          }
+          #purple:label {
+            @"asset/base/style/main#bold_label";
+            visible: false;
+            x: 0px;
+            width: 80px;
+            height: 36px;
+            text: "—";
+            size: 18;
+            color: #b34bb1ff;
+            align_x: Center;
+            align_y: Center;
+            ignore_event: true;
+          }
+          #orange:label {
+            @"asset/base/style/main#bold_label";
+            visible: false;
+            x: 0px;
+            width: 80px;
+            height: 36px;
+            text: "—";
+            size: 18;
+            color: #f86624ff;
+            align_x: Center;
+            align_y: Center;
+            ignore_event: true;
+          }
+        }
+
+        #name_right:label {
+          @"asset/base/style/main#label";
+          x: 550px; width: 108px; height: 36px;
+          text: "공격성"; size: 16; color: #b9c0ccff;
+          align_x: Right; align_y: Center; ignore_event: true;
+        }
+
+        #line:color {
+          width: 648px; height: 1px; x: 10px;
+          anchor_y: 1; pivot_y: 1;
+          color: #343744ff; ignore_event: true;
+        }
+      }
+
+            #pts_trade_custom_stat_ego:empty {
+        x: 16px;
+        y: 608px;
+        width: 668px;
+        height: 36px;
+        ignore_event: true;
+
+        #name:label {
+          @"asset/base/style/main#label";
+          x: 10px; width: 108px; height: 36px;
+          text: "에고"; size: 16; color: #b9c0ccff;
+          align_y: Center; ignore_event: true;
+        }
+
+        #pts_trade_custom_stat_ego_target:empty {
+          x: 122px;
+          width: 80px;
+          height: 36px;
+          ignore_event: true;
+
+          #low:label {
+            @"asset/base/style/main#bold_label";
+            visible: true;
+            x: 0px;
+            width: 80px;
+            height: 36px;
+            text: "—";
+            size: 18;
+            color: #6b6c74ff;
+            align_x: Center;
+            align_y: Center;
+            ignore_event: true;
+          }
+          #teal:label {
+            @"asset/base/style/main#bold_label";
+            visible: false;
+            x: 0px;
+            width: 80px;
+            height: 36px;
+            text: "—";
+            size: 18;
+            color: #4ed5bdff;
+            align_x: Center;
+            align_y: Center;
+            ignore_event: true;
+          }
+          #blue:label {
+            @"asset/base/style/main#bold_label";
+            visible: false;
+            x: 0px;
+            width: 80px;
+            height: 36px;
+            text: "—";
+            size: 18;
+            color: #55c1feff;
+            align_x: Center;
+            align_y: Center;
+            ignore_event: true;
+          }
+          #purple:label {
+            @"asset/base/style/main#bold_label";
+            visible: false;
+            x: 0px;
+            width: 80px;
+            height: 36px;
+            text: "—";
+            size: 18;
+            color: #b34bb1ff;
+            align_x: Center;
+            align_y: Center;
+            ignore_event: true;
+          }
+          #orange:label {
+            @"asset/base/style/main#bold_label";
+            visible: false;
+            x: 0px;
+            width: 80px;
+            height: 36px;
+            text: "—";
+            size: 18;
+            color: #f86624ff;
+            align_x: Center;
+            align_y: Center;
+            ignore_event: true;
+          }
+        }
+
+        #pts_trade_custom_stat_ego_marker:empty {
+          x: 312px;
+          width: 44px;
+          height: 36px;
+          ignore_event: true;
+
+          #up:label {
+            @"asset/base/style/main#bold_label";
+            visible: false;
+            x: 0px; width: 44px; height: 36px;
+            text: "▲"; size: 18; color: #eb3d4dff;
+            align_x: Center; align_y: Center; ignore_event: true;
+          }
+          #down:label {
+            @"asset/base/style/main#bold_label";
+            visible: false;
+            x: 0px; width: 44px; height: 36px;
+            text: "▼"; size: 18; color: #667085ff;
+            align_x: Center; align_y: Center; ignore_event: true;
+          }
+          #equal:label {
+            @"asset/base/style/main#bold_label";
+            visible: false;
+            x: 0px; width: 44px; height: 36px;
+            text: "-"; size: 18; color: #667085ff;
+            align_x: Center; align_y: Center; ignore_event: true;
+          }
+          #unknown:label {
+            @"asset/base/style/main#bold_label";
+            visible: true;
+            x: 0px; width: 44px; height: 36px;
+            text: "—"; size: 18; color: #667085ff;
+            align_x: Center; align_y: Center; ignore_event: true;
+          }
+        }
+
+        #pts_trade_custom_stat_ego_offered:empty {
+          x: 466px;
+          width: 80px;
+          height: 36px;
+          ignore_event: true;
+
+          #low:label {
+            @"asset/base/style/main#bold_label";
+            visible: true;
+            x: 0px;
+            width: 80px;
+            height: 36px;
+            text: "—";
+            size: 18;
+            color: #6b6c74ff;
+            align_x: Center;
+            align_y: Center;
+            ignore_event: true;
+          }
+          #teal:label {
+            @"asset/base/style/main#bold_label";
+            visible: false;
+            x: 0px;
+            width: 80px;
+            height: 36px;
+            text: "—";
+            size: 18;
+            color: #4ed5bdff;
+            align_x: Center;
+            align_y: Center;
+            ignore_event: true;
+          }
+          #blue:label {
+            @"asset/base/style/main#bold_label";
+            visible: false;
+            x: 0px;
+            width: 80px;
+            height: 36px;
+            text: "—";
+            size: 18;
+            color: #55c1feff;
+            align_x: Center;
+            align_y: Center;
+            ignore_event: true;
+          }
+          #purple:label {
+            @"asset/base/style/main#bold_label";
+            visible: false;
+            x: 0px;
+            width: 80px;
+            height: 36px;
+            text: "—";
+            size: 18;
+            color: #b34bb1ff;
+            align_x: Center;
+            align_y: Center;
+            ignore_event: true;
+          }
+          #orange:label {
+            @"asset/base/style/main#bold_label";
+            visible: false;
+            x: 0px;
+            width: 80px;
+            height: 36px;
+            text: "—";
+            size: 18;
+            color: #f86624ff;
+            align_x: Center;
+            align_y: Center;
+            ignore_event: true;
+          }
+        }
+
+        #name_right:label {
+          @"asset/base/style/main#label";
+          x: 550px; width: 108px; height: 36px;
+          text: "에고"; size: 16; color: #b9c0ccff;
+          align_x: Right; align_y: Center; ignore_event: true;
+        }
+
+        #line:color {
+          width: 648px; height: 1px; x: 10px;
+          anchor_y: 1; pivot_y: 1;
+          color: #343744ff; ignore_event: true;
+        }
+      }
+
+            #pts_trade_custom_stat_stamina:empty {
+        x: 16px;
+        y: 644px;
+        width: 668px;
+        height: 36px;
+        ignore_event: true;
+
+        #name:label {
+          @"asset/base/style/main#label";
+          x: 10px; width: 108px; height: 36px;
+          text: "체력"; size: 16; color: #b9c0ccff;
+          align_y: Center; ignore_event: true;
+        }
+
+        #pts_trade_custom_stat_stamina_target:empty {
+          x: 122px;
+          width: 80px;
+          height: 36px;
+          ignore_event: true;
+
+          #low:label {
+            @"asset/base/style/main#bold_label";
+            visible: true;
+            x: 0px;
+            width: 80px;
+            height: 36px;
+            text: "—";
+            size: 18;
+            color: #6b6c74ff;
+            align_x: Center;
+            align_y: Center;
+            ignore_event: true;
+          }
+          #teal:label {
+            @"asset/base/style/main#bold_label";
+            visible: false;
+            x: 0px;
+            width: 80px;
+            height: 36px;
+            text: "—";
+            size: 18;
+            color: #4ed5bdff;
+            align_x: Center;
+            align_y: Center;
+            ignore_event: true;
+          }
+          #blue:label {
+            @"asset/base/style/main#bold_label";
+            visible: false;
+            x: 0px;
+            width: 80px;
+            height: 36px;
+            text: "—";
+            size: 18;
+            color: #55c1feff;
+            align_x: Center;
+            align_y: Center;
+            ignore_event: true;
+          }
+          #purple:label {
+            @"asset/base/style/main#bold_label";
+            visible: false;
+            x: 0px;
+            width: 80px;
+            height: 36px;
+            text: "—";
+            size: 18;
+            color: #b34bb1ff;
+            align_x: Center;
+            align_y: Center;
+            ignore_event: true;
+          }
+          #orange:label {
+            @"asset/base/style/main#bold_label";
+            visible: false;
+            x: 0px;
+            width: 80px;
+            height: 36px;
+            text: "—";
+            size: 18;
+            color: #f86624ff;
+            align_x: Center;
+            align_y: Center;
+            ignore_event: true;
+          }
+        }
+
+        #pts_trade_custom_stat_stamina_marker:empty {
+          x: 312px;
+          width: 44px;
+          height: 36px;
+          ignore_event: true;
+
+          #up:label {
+            @"asset/base/style/main#bold_label";
+            visible: false;
+            x: 0px; width: 44px; height: 36px;
+            text: "▲"; size: 18; color: #eb3d4dff;
+            align_x: Center; align_y: Center; ignore_event: true;
+          }
+          #down:label {
+            @"asset/base/style/main#bold_label";
+            visible: false;
+            x: 0px; width: 44px; height: 36px;
+            text: "▼"; size: 18; color: #667085ff;
+            align_x: Center; align_y: Center; ignore_event: true;
+          }
+          #equal:label {
+            @"asset/base/style/main#bold_label";
+            visible: false;
+            x: 0px; width: 44px; height: 36px;
+            text: "-"; size: 18; color: #667085ff;
+            align_x: Center; align_y: Center; ignore_event: true;
+          }
+          #unknown:label {
+            @"asset/base/style/main#bold_label";
+            visible: true;
+            x: 0px; width: 44px; height: 36px;
+            text: "—"; size: 18; color: #667085ff;
+            align_x: Center; align_y: Center; ignore_event: true;
+          }
+        }
+
+        #pts_trade_custom_stat_stamina_offered:empty {
+          x: 466px;
+          width: 80px;
+          height: 36px;
+          ignore_event: true;
+
+          #low:label {
+            @"asset/base/style/main#bold_label";
+            visible: true;
+            x: 0px;
+            width: 80px;
+            height: 36px;
+            text: "—";
+            size: 18;
+            color: #6b6c74ff;
+            align_x: Center;
+            align_y: Center;
+            ignore_event: true;
+          }
+          #teal:label {
+            @"asset/base/style/main#bold_label";
+            visible: false;
+            x: 0px;
+            width: 80px;
+            height: 36px;
+            text: "—";
+            size: 18;
+            color: #4ed5bdff;
+            align_x: Center;
+            align_y: Center;
+            ignore_event: true;
+          }
+          #blue:label {
+            @"asset/base/style/main#bold_label";
+            visible: false;
+            x: 0px;
+            width: 80px;
+            height: 36px;
+            text: "—";
+            size: 18;
+            color: #55c1feff;
+            align_x: Center;
+            align_y: Center;
+            ignore_event: true;
+          }
+          #purple:label {
+            @"asset/base/style/main#bold_label";
+            visible: false;
+            x: 0px;
+            width: 80px;
+            height: 36px;
+            text: "—";
+            size: 18;
+            color: #b34bb1ff;
+            align_x: Center;
+            align_y: Center;
+            ignore_event: true;
+          }
+          #orange:label {
+            @"asset/base/style/main#bold_label";
+            visible: false;
+            x: 0px;
+            width: 80px;
+            height: 36px;
+            text: "—";
+            size: 18;
+            color: #f86624ff;
+            align_x: Center;
+            align_y: Center;
+            ignore_event: true;
+          }
+        }
+
+        #name_right:label {
+          @"asset/base/style/main#label";
+          x: 550px; width: 108px; height: 36px;
+          text: "체력"; size: 16; color: #b9c0ccff;
+          align_x: Right; align_y: Center; ignore_event: true;
+        }
+
+        #line:color {
+          width: 648px; height: 1px; x: 10px;
+          anchor_y: 1; pivot_y: 1;
+          color: #343744ff; ignore_event: true;
+        }
+      }
+
+            #pts_trade_custom_stat_condition:empty {
+        x: 16px;
+        y: 680px;
+        width: 668px;
+        height: 36px;
+        ignore_event: true;
+
+        #name:label {
+          @"asset/base/style/main#label";
+          x: 10px; width: 108px; height: 36px;
+          text: "컨디션"; size: 16; color: #b9c0ccff;
+          align_y: Center; ignore_event: true;
+        }
+
+        #pts_trade_custom_stat_condition_target:empty {
+          x: 122px;
+          width: 80px;
+          height: 36px;
+          ignore_event: true;
+
+          #low:label {
+            @"asset/base/style/main#bold_label";
+            visible: true;
+            x: 0px;
+            width: 80px;
+            height: 36px;
+            text: "—";
+            size: 18;
+            color: #6b6c74ff;
+            align_x: Center;
+            align_y: Center;
+            ignore_event: true;
+          }
+          #teal:label {
+            @"asset/base/style/main#bold_label";
+            visible: false;
+            x: 0px;
+            width: 80px;
+            height: 36px;
+            text: "—";
+            size: 18;
+            color: #4ed5bdff;
+            align_x: Center;
+            align_y: Center;
+            ignore_event: true;
+          }
+          #blue:label {
+            @"asset/base/style/main#bold_label";
+            visible: false;
+            x: 0px;
+            width: 80px;
+            height: 36px;
+            text: "—";
+            size: 18;
+            color: #55c1feff;
+            align_x: Center;
+            align_y: Center;
+            ignore_event: true;
+          }
+          #purple:label {
+            @"asset/base/style/main#bold_label";
+            visible: false;
+            x: 0px;
+            width: 80px;
+            height: 36px;
+            text: "—";
+            size: 18;
+            color: #b34bb1ff;
+            align_x: Center;
+            align_y: Center;
+            ignore_event: true;
+          }
+          #orange:label {
+            @"asset/base/style/main#bold_label";
+            visible: false;
+            x: 0px;
+            width: 80px;
+            height: 36px;
+            text: "—";
+            size: 18;
+            color: #f86624ff;
+            align_x: Center;
+            align_y: Center;
+            ignore_event: true;
+          }
+        }
+
+        #pts_trade_custom_stat_condition_marker:empty {
+          x: 312px;
+          width: 44px;
+          height: 36px;
+          ignore_event: true;
+
+          #up:label {
+            @"asset/base/style/main#bold_label";
+            visible: false;
+            x: 0px; width: 44px; height: 36px;
+            text: "▲"; size: 18; color: #eb3d4dff;
+            align_x: Center; align_y: Center; ignore_event: true;
+          }
+          #down:label {
+            @"asset/base/style/main#bold_label";
+            visible: false;
+            x: 0px; width: 44px; height: 36px;
+            text: "▼"; size: 18; color: #667085ff;
+            align_x: Center; align_y: Center; ignore_event: true;
+          }
+          #equal:label {
+            @"asset/base/style/main#bold_label";
+            visible: false;
+            x: 0px; width: 44px; height: 36px;
+            text: "-"; size: 18; color: #667085ff;
+            align_x: Center; align_y: Center; ignore_event: true;
+          }
+          #unknown:label {
+            @"asset/base/style/main#bold_label";
+            visible: true;
+            x: 0px; width: 44px; height: 36px;
+            text: "—"; size: 18; color: #667085ff;
+            align_x: Center; align_y: Center; ignore_event: true;
+          }
+        }
+
+        #pts_trade_custom_stat_condition_offered:empty {
+          x: 466px;
+          width: 80px;
+          height: 36px;
+          ignore_event: true;
+
+          #low:label {
+            @"asset/base/style/main#bold_label";
+            visible: true;
+            x: 0px;
+            width: 80px;
+            height: 36px;
+            text: "—";
+            size: 18;
+            color: #6b6c74ff;
+            align_x: Center;
+            align_y: Center;
+            ignore_event: true;
+          }
+          #teal:label {
+            @"asset/base/style/main#bold_label";
+            visible: false;
+            x: 0px;
+            width: 80px;
+            height: 36px;
+            text: "—";
+            size: 18;
+            color: #4ed5bdff;
+            align_x: Center;
+            align_y: Center;
+            ignore_event: true;
+          }
+          #blue:label {
+            @"asset/base/style/main#bold_label";
+            visible: false;
+            x: 0px;
+            width: 80px;
+            height: 36px;
+            text: "—";
+            size: 18;
+            color: #55c1feff;
+            align_x: Center;
+            align_y: Center;
+            ignore_event: true;
+          }
+          #purple:label {
+            @"asset/base/style/main#bold_label";
+            visible: false;
+            x: 0px;
+            width: 80px;
+            height: 36px;
+            text: "—";
+            size: 18;
+            color: #b34bb1ff;
+            align_x: Center;
+            align_y: Center;
+            ignore_event: true;
+          }
+          #orange:label {
+            @"asset/base/style/main#bold_label";
+            visible: false;
+            x: 0px;
+            width: 80px;
+            height: 36px;
+            text: "—";
+            size: 18;
+            color: #f86624ff;
+            align_x: Center;
+            align_y: Center;
+            ignore_event: true;
+          }
+        }
+
+        #name_right:label {
+          @"asset/base/style/main#label";
+          x: 550px; width: 108px; height: 36px;
+          text: "컨디션"; size: 16; color: #b9c0ccff;
+          align_x: Right; align_y: Center; ignore_event: true;
+        }
+
+        #line:color {
+          width: 648px; height: 1px; x: 10px;
+          anchor_y: 1; pivot_y: 1;
+          color: #343744ff; ignore_event: true;
+        }
+      }
+      }
+    }
+  }
+
+  #pts_trade_cash_template:color {
+    visible: false;
+
+    x: 1296px;
+    y: 120px;
+    width: 600px;
+    height: 835px;
+
+    color: #161721ff;
+
+    rounding: Uniform {
+      rounding: 12;
+    }
+
+    #pts_cash_header:color {
+      width: 600px;
+      height: 52px;
+
+      color: #0f1016ff;
+
+      #pts_cash_title:label {
+        @"asset/base/style/main#bold_label";
+
+        x: 20px;
+        width: 500px;
+        height: 52px;
+
+        text: "트레이드 현금 조정";
+        size: 20;
+        align_y: Center;
+      }
+
+      #pts_cash_cancel:button {
+        width: 16px;
+        height: 16px;
+
+        x: -20px;
+        y: 18px;
+        anchor_x: 1;
+        pivot_x: 1;
+
+        source: "asset/base/ui/icons/cross";
+        color: #c2c6ceff;
+
+        hover: {
+          color: #e8e8e8ff;
+        }
+
+        active: {
+          color: #e8e8e8ff;
+        }
+      }
+    }
+
+    #pts_cash_selection:color {
+      x: 16px;
+      y: 68px;
+      width: 568px;
+      height: 92px;
+
+      color: #1d1f2aff;
+
+      rounding: Uniform {
+        rounding: 8;
+      }
+
+      #pts_cash_selection_title:label {
+        @"asset/base/style/main#bold_label";
+
+        x: 16px;
+        y: 10px;
+        width: 274px;
+        height: 30px;
+
+        text: "교환 선수";
+        size: 18;
+        align_y: Center;
+      }
+
+      #pts_cash_selection_value:label {
+        @"asset/base/style/main#label";
+
+        x: 16px;
+        y: 45px;
+        width: 274px;
+        height: 30px;
+
+        text: "선택 조합을 계산 중입니다.";
+        size: 16;
+        color: #b9c0ccff;
+        align_y: Center;
+      }
+
+      #pts_trade_status_title:label {
+        @"asset/base/style/main#bold_label";
+
+        x: 306px;
+        y: 10px;
+        width: 246px;
+        height: 30px;
+
+        text: "약속할 팀 내 위상";
+        size: 18;
+        align_y: Center;
+      }
+
+      #pts_trade_status_toggle:color_icon_button {
+        @"asset/base/style/main#tertiary_button";
+
+        x: 306px;
+        y: 43px;
+        width: 246px;
+        height: 40px;
+
+        text: {
+          text: "";
+        }
+
+        #pts_trade_status_value_core:label {
+          @"asset/base/style/main#bold_label";
+
+          x: 14px;
+          width: 190px;
+          height: 40px;
+
+          text: "핵심 선수";
+          size: 17;
+          color: #f86624ff;
+          align_x: Center;
+          align_y: Center;
+        }
+
+        #pts_trade_status_value_important:label {
+          @"asset/base/style/main#bold_label";
+
+          visible: false;
+          x: 14px;
+          width: 190px;
+          height: 40px;
+
+          text: "주요 선수";
+          size: 17;
+          color: #c850bfff;
+          align_x: Center;
+          align_y: Center;
+        }
+
+        #pts_trade_status_value_general:label {
+          @"asset/base/style/main#bold_label";
+
+          visible: false;
+          x: 14px;
+          width: 190px;
+          height: 40px;
+
+          text: "주전 선수";
+          size: 17;
+          color: #4eb0d8ff;
+          align_x: Center;
+          align_y: Center;
+        }
+
+        #pts_trade_status_value_sub:label {
+          @"asset/base/style/main#bold_label";
+
+          visible: false;
+          x: 14px;
+          width: 190px;
+          height: 40px;
+
+          text: "후보 선수";
+          size: 17;
+          color: #3cb8a0ff;
+          align_x: Center;
+          align_y: Center;
+        }
+
+        #pts_trade_status_value_prospect:label {
+          @"asset/base/style/main#bold_label";
+
+          visible: false;
+          x: 14px;
+          width: 190px;
+          height: 40px;
+
+          text: "유망주";
+          size: 17;
+          color: #858d9dff;
+          align_x: Center;
+          align_y: Center;
+        }
+
+        #pts_trade_status_arrow:image {
+          source: "asset/base/ui/icons/dropdown";
+          width: 18.33px;
+          height: 9.17px;
+          x: -16px;
+          y: 15px;
+          anchor_x: 1;
+          pivot_x: 1;
+          color: #c2c6ceff;
+        }
+      }
+    }
+
+    #pts_cash_required:color {
+      x: 16px;
+      y: 176px;
+      width: 568px;
+      height: 112px;
+
+      color: #1d1f2aff;
+
+      rounding: Uniform {
+        rounding: 8;
+      }
+
+      #pts_cash_required_title:label {
+        @"asset/base/style/main#bold_label";
+
+        x: 16px;
+        y: 10px;
+        width: 280px;
+        height: 32px;
+
+        text: "추가 현금 제시 범위";
+        size: 18;
+        align_y: Center;
+      }
+
+      #pts_cash_required_value:label {
+        @"asset/base/style/main#bold_label";
+
+        x: -16px;
+        y: 10px;
+        width: 280px;
+        height: 32px;
+        anchor_x: 1;
+        pivot_x: 1;
+
+        text: "—";
+        size: 18;
+        color: #f5c451ff;
+        align_x: Right;
+        align_y: Center;
+      }
+
+      #pts_cash_required_note:label {
+        @"asset/base/style/main#label";
+
+        x: 16px;
+        y: 56px;
+        width: 536px;
+        height: 36px;
+
+        text: "선택 조합을 계산 중입니다.";
+        size: 15;
+        color: #858d9dff;
+        align_y: Center;
+      }
+    }
+
+    #pts_cash_proposed:color {
+      x: 16px;
+      y: 304px;
+      width: 568px;
+      height: 176px;
+
+      color: #1d1f2aff;
+
+      rounding: Uniform {
+        rounding: 8;
+      }
+
+      #pts_cash_proposed_title:label {
+        @"asset/base/style/main#bold_label";
+
+        x: 16px;
+        y: 10px;
+        width: 536px;
+        height: 30px;
+
+        text: "제시 금액";
+        size: 18;
+        align_y: Center;
+      }
+
+      #pts_cash_input:text_edit {
+        @"asset/base/style/main#text_edit";
+
+        x: 16px;
+        y: 50px;
+        width: 442px;
+        height: 46px;
+
+        size: 18;
+        align_y: Center;
+
+        padding: {
+          left: 15px;
+          top: 5px;
+          right: 15px;
+          bottom: 5px;
+        }
+
+        placeholder: "0";
+        max_length: 12;
+      }
+
+      #pts_cash_unit:label {
+        @"asset/base/style/main#label";
+
+        x: 470px;
+        y: 50px;
+        width: 82px;
+        height: 46px;
+
+        text: "만원";
+        size: 18;
+        align_y: Center;
+      }
+
+      #pts_cash_proposed_eok:label {
+        @"asset/base/style/main#bold_label";
+
+        visible: false;
+        x: 16px;
+        y: 103px;
+        width: 536px;
+        height: 26px;
+
+        text: "제시 금액 환산: —";
+        size: 16;
+        color: #dfe3ebff;
+        align_y: Center;
+      }
+
+      #pts_cash_status_idle:label {
+        @"asset/base/style/main#label";
+
+        x: 16px;
+        y: 132px;
+        width: 536px;
+        height: 30px;
+
+        text: "0 이상의 정수를 입력하고 Enter를 누르세요.";
+        size: 15;
+        color: #858d9dff;
+        align_y: Center;
+      }
+
+      #pts_cash_status_valid:label {
+        @"asset/base/style/main#label";
+
+        visible: false;
+        x: 16px;
+        y: 132px;
+        width: 536px;
+        height: 30px;
+
+        text: "입력 형식 정상";
+        size: 15;
+        color: #37d5b3ff;
+        align_y: Center;
+      }
+
+      #pts_cash_status_invalid:label {
+        @"asset/base/style/main#label";
+
+        visible: false;
+        x: 16px;
+        y: 132px;
+        width: 536px;
+        height: 30px;
+
+        text: "숫자만 입력할 수 있습니다.";
+        size: 15;
+        color: #ff6b7aff;
+        align_y: Center;
+      }
+    }
+
+    #pts_cash_budget:color {
+      x: 16px;
+      y: 496px;
+      width: 568px;
+      height: 130px;
+
+      color: #1d1f2aff;
+
+      rounding: Uniform {
+        rounding: 8;
+      }
+
+      #pts_cash_budget_title:label {
+        @"asset/base/style/main#label";
+
+        x: 16px;
+        y: 14px;
+        width: 300px;
+        height: 32px;
+
+        text: "현재 이적료 예산";
+        size: 17;
+        align_y: Center;
+      }
+
+      #pts_cash_budget_value:label {
+        @"asset/base/style/main#label";
+
+        x: -16px;
+        y: 14px;
+        width: 220px;
+        height: 32px;
+        anchor_x: 1;
+        pivot_x: 1;
+
+        text: "—";
+        size: 17;
+        align_x: Right;
+        align_y: Center;
+      }
+
+      #pts_cash_after_title:label {
+        @"asset/base/style/main#label";
+
+        x: 16px;
+        y: 68px;
+        width: 300px;
+        height: 32px;
+
+        text: "제의 후 잔액";
+        size: 17;
+        align_y: Center;
+      }
+
+      #pts_cash_after_value:label {
+        @"asset/base/style/main#label";
+
+        x: -16px;
+        y: 68px;
+        width: 220px;
+        height: 32px;
+        anchor_x: 1;
+        pivot_x: 1;
+
+        text: "—";
+        size: 17;
+        align_x: Right;
+        align_y: Center;
+      }
+    }
+
+    #pts_cash_read_only_note:label {
+      @"asset/base/style/main#label";
+
+      x: 16px;
+      y: 650px;
+      width: 568px;
+      height: 66px;
+
+      text: "트레이드 제안은 즉시 실행되지 않습니다. 제출 후 판매 구단 검토 상태에서 PTS_Test79_PendingSellerReview에 저장하세요.\n재실행 후 관리 시간을 진행하면 판매 구단 검토 → 선수 검토 → 최종 거래 순서로 처리됩니다.";
+      size: 15;
+      color: #858d9dff;
+      align_y: Center;
+    }
+
+    #pts_cash_submit_template:color_icon_button {
+      @"asset/base/style/main#secondary_button";
+
+      disabled: false;
+      x: 16px;
+      y: 759px;
+      width: 568px;
+      height: 50px;
+
+      text: {
+        font: "asset/base/font/set/bold";
+        text: "트레이드";
+        size: 18;
+        align_x: Center;
+        align_y: Center;
+      }
+    }
+
+    #pts_trade_commit_confirm_template:color_icon_button {
+      @"asset/base/style/main#secondary_button";
+
+      visible: false;
+      disabled: true;
+      x: 16px;
+      y: 759px;
+      width: 568px;
+      height: 50px;
+
+      text: {
+        font: "asset/base/font/set/bold";
+        text: "트레이드";
+        size: 18;
+        align_x: Center;
+        align_y: Center;
+      }
+    }
+
+    #pts_trade_status_menu:color {
+      visible: false;
+      x: 322px;
+      y: 154px;
+      width: 262px;
+      height: 226px;
+
+      color: #1d1f2aff;
+
+      rounding: Uniform {
+        rounding: 8;
+      }
+
+      #pts_trade_status_option_core:color_icon_button {
+        @"asset/base/style/main#tertiary_button";
+        x: 6px;
+        y: 5px;
+        width: 250px;
+        height: 40px;
+        text: {
+          text: "핵심 선수";
+          size: 17;
+          color: #f86624ff;
+          align_x: Left;
+          align_y: Center;
+        }
+
+        #pts_trade_status_check_core:label {
+          @"asset/base/style/main#bold_label";
+          x: -14px;
+          width: 30px;
+          height: 40px;
+          anchor_x: 1;
+          pivot_x: 1;
+          text: "✓";
+          size: 18;
+          align_x: Center;
+          align_y: Center;
+        }
+      }
+
+      #pts_trade_status_option_important:color_icon_button {
+        @"asset/base/style/main#tertiary_button";
+        x: 6px;
+        y: 49px;
+        width: 250px;
+        height: 40px;
+        text: {
+          text: "주요 선수";
+          size: 17;
+          color: #c850bfff;
+          align_x: Left;
+          align_y: Center;
+        }
+
+        #pts_trade_status_check_important:label {
+          @"asset/base/style/main#bold_label";
+          visible: false;
+          x: -14px;
+          width: 30px;
+          height: 40px;
+          anchor_x: 1;
+          pivot_x: 1;
+          text: "✓";
+          size: 18;
+          align_x: Center;
+          align_y: Center;
+        }
+      }
+
+      #pts_trade_status_option_general:color_icon_button {
+        @"asset/base/style/main#tertiary_button";
+        x: 6px;
+        y: 93px;
+        width: 250px;
+        height: 40px;
+        text: {
+          text: "주전 선수";
+          size: 17;
+          color: #4eb0d8ff;
+          align_x: Left;
+          align_y: Center;
+        }
+
+        #pts_trade_status_check_general:label {
+          @"asset/base/style/main#bold_label";
+          visible: false;
+          x: -14px;
+          width: 30px;
+          height: 40px;
+          anchor_x: 1;
+          pivot_x: 1;
+          text: "✓";
+          size: 18;
+          align_x: Center;
+          align_y: Center;
+        }
+      }
+
+      #pts_trade_status_option_sub:color_icon_button {
+        @"asset/base/style/main#tertiary_button";
+        x: 6px;
+        y: 137px;
+        width: 250px;
+        height: 40px;
+        text: {
+          text: "후보 선수";
+          size: 17;
+          color: #3cb8a0ff;
+          align_x: Left;
+          align_y: Center;
+        }
+
+        #pts_trade_status_check_sub:label {
+          @"asset/base/style/main#bold_label";
+          visible: false;
+          x: -14px;
+          width: 30px;
+          height: 40px;
+          anchor_x: 1;
+          pivot_x: 1;
+          text: "✓";
+          size: 18;
+          align_x: Center;
+          align_y: Center;
+        }
+      }
+
+      #pts_trade_status_option_prospect:color_icon_button {
+        @"asset/base/style/main#tertiary_button";
+        x: 6px;
+        y: 181px;
+        width: 250px;
+        height: 40px;
+        text: {
+          text: "유망주";
+          size: 17;
+          color: #858d9dff;
+          align_x: Left;
+          align_y: Center;
+        }
+
+        #pts_trade_status_check_prospect:label {
+          @"asset/base/style/main#bold_label";
+          visible: false;
+          x: -14px;
+          width: 30px;
+          height: 40px;
+          anchor_x: 1;
+          pivot_x: 1;
+          text: "✓";
+          size: 18;
+          align_x: Center;
+          align_y: Center;
+        }
+      }
+    }
+  }
+
+  #amount_popup_layer:empty {
+    width: 1920px;
+    height: 1080px;
+    x: -288px;
+    y: -24px;
+    visible: false;
+
+    anchor_x: 0;
+    pivot_x: 0;
+    anchor_y: 0;
+    pivot_y: 0;
+
+    #fade:color {
+      width: 100%;
+      height: 100%;
+      color: #60708540;
+    }
+
+    #amount_popup:color {
+      width: 415px;
+      height: 248px;
+
+      anchor_x: 0.5;
+      pivot_x: 0.5;
+      anchor_y: 0.5;
+      pivot_y: 0.5;
+
+      color: #161721ff;
+
+      rounding: Uniform {
+        rounding: 12;
+      }
+
+      #header:label {
+        @"asset/base/style/main#bold_label";
+
+        width: 300px;
+        height: 28px;
+
+        size: 18;
+
+        align_y: Center;
+        text: "#asset/base/text/ui?amount_change.header";
+
+        x: 24px;
+        y: 24px;
+      }
+
+      #cancel:button {
+        width: 16px;
+        height: 16px;
+
+        anchor_x: 1;
+        pivot_x: 1;
+
+        x: -24px;
+        y: 24px;
+
+        source: "asset/base/ui/icons/cross";
+
+        color: #c2c6ceff;
+
+        hover: {
+          color: #e8e8e8ff;
+        }
+
+        active: {
+          color: #e8e8e8ff;
+        }
+      }
+
+      #amount:text_edit {
+        @"asset/base/style/main#text_edit";
+
+        width: 275px;
+        height: 46px;
+        y:66px;
+        x: 24px;
+
+        size: 18;
+        align_y: Center;
+
+        padding: {
+          left: 15px;
+          top: 5px;
+          right: 15px;
+          bottom: 5px;
+        }
+
+        placeholder: "#asset/base/text/ui?amount_change.placeholder";
+        max_length: 12;
+      }
+
+      #unit:label {
+        @"asset/base/style/main#label";
+        x: 309px;
+        y: 66px;
+
+        width: 82px;
+        height: 46px;
+
+        text: "";
+        size: 18;
+        align_y: Center;
+      }
+
+      #desc:label {
+        @"asset/base/style/main#label";
+        x: 24px;
+        y: 126px;
+
+        width: 367px;
+        height: 44px;
+
+        text: "#asset/base/text/ui?amount_change.desc";
+        size: 18;
+        align_y: Center;
+      }
+
+      #no:color_icon_button {
+        @"asset/base/style/main#tertiary_button";
+
+        x: 24px;
+        y: 184px;
+
+        width: 173.5px;
+        height: 40px;
+        text: {
+          text: "#asset/base/text/ui?common.cancel";
+          font: "asset/base/font/set/bold";
+          size: 18;
+          align_x: Center;
+          align_y: Center;
+        }
+      }
+
+      #ok:color_icon_button {
+        @"asset/base/style/main#tertiary_button";
+
+        x: -24px;
+        y: 184px;
+        anchor_x: 1;
+        pivot_x: 1;
+
+        width: 173.5px;
+        height: 40px;
+        text: {
+          text: "#asset/base/text/ui?common.ok";
+          font: "asset/base/font/set/bold";
+          size: 18;
+          align_x: Center;
+          align_y: Center;
+        }
+      }
+    }
+  }
+}
