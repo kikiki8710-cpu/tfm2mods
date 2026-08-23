@@ -1,0 +1,40 @@
+{
+  "en": {
+    "champ_excl": {
+      "row_header": "Champion Additions",
+      "row_btn": "Configure",
+      "title": "Champion Addition Settings",
+      "summary": "Champions excluded from patches",
+      "hint": "These champions have not been added to the game yet. Click to select (red border) champions that will never be added by season patches. Leave everything unselected for vanilla behavior.",
+      "lbl_total": "Unreleased champions:",
+      "lbl_sel": "Excluded:",
+      "src_save": "Stored in: this save (per-save setting)",
+      "src_none": "No setting in this save yet — press OK to store it in this save",
+      "note_none": "No unreleased champions — every champion has already been added.",
+      "note_all": "All unreleased champions excluded — no new champions will ever be added (same as having every champion released).",
+      "btn_none": "Clear all (allow additions)",
+      "btn_all": "Exclude all (block additions)",
+      "cancel": "Cancel",
+      "ok": "OK"
+    }
+  },
+  "ko": {
+    "champ_excl": {
+      "row_header": "추가 챔피언 설정",
+      "row_btn": "설정하기",
+      "title": "추가 챔피언 설정",
+      "summary": "패치로 추가되지 않을 챔피언",
+      "hint": "아직 게임에 추가되지 않은 챔피언 목록입니다. 클릭해 선택(붉은 테두리)한 챔피언은 시즌 패치에서 절대 추가되지 않습니다. 아무것도 선택하지 않으면 원래대로 동작합니다.",
+      "lbl_total": "미출시 챔피언:",
+      "lbl_sel": "제외 선택:",
+      "src_save": "저장 위치: 이 세이브 (세이브별 설정)",
+      "src_none": "이 세이브에 아직 설정 없음 — 확인 시 이 세이브에 저장됩니다",
+      "note_none": "미출시 챔피언이 없습니다 — 모든 챔피언이 이미 추가되었습니다.",
+      "note_all": "모든 미출시 챔피언 제외 — 앞으로 신규 챔피언이 추가되지 않습니다(모든 챔피언 추가 완료와 동일 동작).",
+      "btn_none": "모두 해제 (전부 추가 허용)",
+      "btn_all": "모두 제외 (신규 추가 차단)",
+      "cancel": "취소",
+      "ok": "확인"
+    }
+  }
+}

@@ -56,7 +56,11 @@ mod inject;
 mod ui_kit;
 
 const MOD_ID: &str = "tfm2_champion_exclude";
-const VERSION: &str = "0.4.2";
+const VERSION: &str = "0.5.0";
+/// i18n 태그 접두(text/champion_exclude.i18n 을 mod.override_info merge 로
+/// asset/base/text/ui 에 병합 — scrim ui.i18n 동형). 라벨 text = 이 태그면 게임이
+/// 현재 언어(ko/en)로 자동 해석.
+const I18N: &str = "#asset/base/text/ui?champ_excl.";
 
 // build_inj.ps1 신원 검증용 — dll 안에 lib.rs 절대경로 문자열 필요.
 #[no_mangle]
@@ -428,7 +432,10 @@ static HAD_STAR: AtomicBool = AtomicBool::new(false);
 
 // ── 편의 필터(v0.3.0 — pos_lock 동형): 클래스 드롭다운 + 이름 검색 ──
 /// 클래스 라벨(드롭다운 옵션 순서 = CLASS_SEL 인덱스, 0=전체).
-const CLASS_LABELS: [&str; 6] = ["전체", "전사", "원거리", "마법사", "전투보조", "암살자"];
+/// ⚠드롭다운 옵션은 런타임 ABI 주입이라 i18n 태그 해석이 보장되지 않음 → 한/영 병기 리터럴.
+const CLASS_LABELS: [&str; 6] = [
+    "전체/All", "전사/Melee", "원거리/Range", "마법사/Magic", "보조/Util", "암살자/Assassin",
+];
 static CLASS_SEL: AtomicUsize = AtomicUsize::new(0);
 static SEARCH_TXT: Mutex<String> = Mutex::new(String::new());
 static SEARCH_CLEAR: AtomicBool = AtomicBool::new(false);
@@ -452,9 +459,10 @@ fn game_dir() -> Option<PathBuf> {
     let exe = String::from_utf16_lossy(&buf[..n]);
     Some(std::path::Path::new(&exe).parent()?.to_path_buf())
 }
-/// champion.i18n 텍스트에서 ko.description.<id>.name 을 뽑아 out 에 병합.
-fn parse_ko_names(text: &str, out: &mut std::collections::HashMap<String, String>) {
-    let Some(ko) = text.find("\"ko\"") else { return };
+/// champion.i18n 텍스트에서 <lang>.description.<id>.name 을 뽑아 out 에 병합.
+fn parse_lang_names(text: &str, lang: &str, out: &mut std::collections::HashMap<String, String>) {
+    let anchor = format!("\"{lang}\"");
+    let Some(ko) = text.find(&anchor) else { return };
     let Some(drel) = text[ko..].find("\"description\"") else { return };
     let dpos = ko + drel;
     let Some(obr) = text[dpos..].find('{') else { return };
@@ -541,6 +549,9 @@ fn parse_ko_names(text: &str, out: &mut std::collections::HashMap<String, String
     }
 }
 fn load_kr_names() -> std::collections::HashMap<String, String> {
+    load_names("ko")
+}
+fn load_names(lang: &str) -> std::collections::HashMap<String, String> {
     let mut out = std::collections::HashMap::new();
     let Some(g) = game_dir() else { return out };
     let mut files: Vec<PathBuf> = Vec::new();
@@ -562,7 +573,7 @@ fn load_kr_names() -> std::collections::HashMap<String, String> {
     }
     for f in files {
         if let Ok(t) = std::fs::read_to_string(&f) {
-            parse_ko_names(&t, &mut out);
+            parse_lang_names(&t, lang, &mut out);
         }
     }
     out
@@ -574,6 +585,16 @@ fn kr_name(id: &str) -> String {
         .get(&id.to_ascii_lowercase())
         .cloned()
         .unwrap_or_else(|| id.to_string())
+}
+/// 챔프 id → 영문 이름(검색 매칭용 — 영어 로케일 유저 대비). 없으면 빈 문자열.
+static EN_MAP: std::sync::OnceLock<std::collections::HashMap<String, String>> =
+    std::sync::OnceLock::new();
+fn en_name(id: &str) -> String {
+    EN_MAP
+        .get_or_init(|| load_names("en"))
+        .get(&id.to_ascii_lowercase())
+        .cloned()
+        .unwrap_or_default()
 }
 
 // 챔피언 스프라이트 에셋 키 테이블(champ_uv.rs — pos_lock 08-20 생성본 사본, 97 id).
@@ -778,7 +799,7 @@ pub(crate) fn build_popup_ui() -> String {
   #header:label {
     @"asset/base/style/main#bold_label";
     x: 32px; y: 24px; width: 900px; height: 42px; size: 24; align_y: Center;
-    text: "추가 챔피언 설정";
+    text: "#asset/base/text/ui?champ_excl.title";
   }
 
   #close:button {
@@ -806,7 +827,7 @@ pub(crate) fn build_popup_ui() -> String {
       x: 158px; width: 200px; height: 40px;
       size: 16; align_y: Center;
       padding: { left: 44px; top: 5px; right: 15px; bottom: 5px; }
-      placeholder: "챔피언 이름 검색...";
+      placeholder: "챔피언 검색 / Search...";
       max_length: 40;
 
       #icon:image {
@@ -864,19 +885,21 @@ pub(crate) fn build_popup_ui() -> String {
     x: 1254px; y: 136px; width: 477px; height: 787px; color: #1d1f2cff;
     rounding: Uniform { rounding: 8; }
 
-    #summary:label { @"asset/base/style/main#bold_label"; x: 24px; y: 24px; width: 429px; height: 28px; size: 18; align_y: Center; text: "패치로 추가되지 않을 챔피언"; }
-    #hint:label { @"asset/base/style/main#label"; x: 24px; y: 68px; width: 429px; height: 130px; size: 16; line_height: 26; align_y: Center; text: "아직 게임에 추가되지 않은 챔피언 목록입니다. 클릭해 선택(붉은 테두리)한 챔피언은 시즌 패치에서 절대 추가되지 않습니다. 아무것도 선택하지 않으면 원래대로 동작합니다."; }
-    #cnt_total:label { @"asset/base/style/main#label"; x: 24px; y: 218px; width: 429px; height: 24px; size: 16; align_y: Center; }
-    #cnt_sel:label { @"asset/base/style/main#bold_label"; x: 24px; y: 246px; width: 429px; height: 26px; size: 16; align_y: Center; }
+    #summary:label { @"asset/base/style/main#bold_label"; x: 24px; y: 24px; width: 429px; height: 28px; size: 18; align_y: Center; text: "#asset/base/text/ui?champ_excl.summary"; }
+    #hint:label { @"asset/base/style/main#label"; x: 24px; y: 68px; width: 429px; height: 130px; size: 16; line_height: 26; align_y: Center; text: "#asset/base/text/ui?champ_excl.hint"; }
+    #cnt_total_k:label { @"asset/base/style/main#label"; x: 24px; y: 218px; width: 290px; height: 24px; size: 16; align_y: Center; text: "#asset/base/text/ui?champ_excl.lbl_total"; }
+    #cnt_total_v:label { @"asset/base/style/main#label"; x: 320px; y: 218px; width: 133px; height: 24px; size: 16; align_y: Center; }
+    #cnt_sel_k:label { @"asset/base/style/main#bold_label"; x: 24px; y: 246px; width: 290px; height: 26px; size: 16; align_y: Center; text: "#asset/base/text/ui?champ_excl.lbl_sel"; }
+    #cnt_sel_v:label { @"asset/base/style/main#bold_label"; x: 320px; y: 246px; width: 133px; height: 26px; size: 16; align_y: Center; }
     #cx_src:label { @"asset/base/style/main#label"; x: 24px; y: 276px; width: 429px; height: 44px; size: 14; line_height: 20; color: #858d9dff; align_y: Center; }
     #note_all:label { @"asset/base/style/main#label"; x: 24px; y: 324px; width: 429px; height: 100px; size: 15; line_height: 24; color: #ffb84aff; align_y: Center; }
 
-    #cx_none:color_icon_button { @"asset/base/style/main#tertiary_button"; x: 24px; y: 470px; width: 429px; height: 40px; text: { text: "모두 해제 (전부 추가 허용)"; font: "asset/base/font/set/bold"; size: 17; align_x: Center; align_y: Center; } }
-    #cx_all:color_icon_button { @"asset/base/style/main#tertiary_button"; x: 24px; y: 522px; width: 429px; height: 40px; text: { text: "모두 제외 (신규 추가 차단)"; font: "asset/base/font/set/bold"; size: 17; align_x: Center; align_y: Center; } }
+    #cx_none:color_icon_button { @"asset/base/style/main#tertiary_button"; x: 24px; y: 470px; width: 429px; height: 40px; text: { text: "#asset/base/text/ui?champ_excl.btn_none"; font: "asset/base/font/set/bold"; size: 17; align_x: Center; align_y: Center; } }
+    #cx_all:color_icon_button { @"asset/base/style/main#tertiary_button"; x: 24px; y: 522px; width: 429px; height: 40px; text: { text: "#asset/base/text/ui?champ_excl.btn_all"; font: "asset/base/font/set/bold"; size: 17; align_x: Center; align_y: Center; } }
   }
 
-  #cancel:color_icon_button { @"asset/base/style/main#tertiary_button"; x: 654px; y: 943px; width: 220px; height: 40px; text: { text: "취소"; font: "asset/base/font/set/bold"; size: 18; align_x: Center; align_y: Center; } }
-  #ok:color_icon_button { @"asset/base/style/main#tertiary_button"; x: 890px; y: 943px; width: 220px; height: 40px; text: { text: "확인"; font: "asset/base/font/set/bold"; size: 18; align_x: Center; align_y: Center; } }
+  #cancel:color_icon_button { @"asset/base/style/main#tertiary_button"; x: 654px; y: 943px; width: 220px; height: 40px; text: { text: "#asset/base/text/ui?champ_excl.cancel"; font: "asset/base/font/set/bold"; size: 18; align_x: Center; align_y: Center; } }
+  #ok:color_icon_button { @"asset/base/style/main#tertiary_button"; x: 890px; y: 943px; width: 220px; height: 40px; text: { text: "#asset/base/text/ui?champ_excl.ok"; font: "asset/base/font/set/bold"; size: 18; align_x: Center; align_y: Center; } }
 }
 "##,
     );
@@ -907,7 +930,8 @@ fn fill_grid(root: &mut Node) {
             }
             if !search.is_empty() {
                 let kr = kr_name(c).to_ascii_lowercase();
-                if !kr.contains(&search) && !c.contains(&search) {
+                let en = en_name(c).to_ascii_lowercase();
+                if !kr.contains(&search) && !en.contains(&search) && !c.contains(&search) {
                     return false;
                 }
             }
@@ -937,25 +961,22 @@ fn fill_grid(root: &mut Node) {
     let Some(pop) = ui_kit::find_mut(root, "champ_excl_popup") else {
         return;
     };
-    if let Some(n) = ui_kit::find_mut(pop, "cnt_total") {
-        ui_kit::label_set(n, &format!("미출시 챔피언: {}", cand.len()));
+    // 숫자 라벨은 값만(키 라벨은 .ui 의 i18n 태그가 담당 — 게임 언어 자동 해석)
+    if let Some(n) = ui_kit::find_mut(pop, "cnt_total_v") {
+        ui_kit::label_set(n, &cand.len().to_string());
     }
-    if let Some(n) = ui_kit::find_mut(pop, "cnt_sel") {
-        ui_kit::label_set(n, &format!("제외 선택: {}", selected.len()));
+    if let Some(n) = ui_kit::find_mut(pop, "cnt_sel_v") {
+        ui_kit::label_set(n, &selected.len().to_string());
     }
     if let Some(n) = ui_kit::find_mut(pop, "cx_src") {
         let from_save = SAVE_EXCL.lock().unwrap_or_else(|e| e.into_inner()).is_some();
-        ui_kit::label_set(n, if from_save {
-            "저장 위치: 이 세이브 (세이브별 설정)"
-        } else {
-            "이 세이브에 아직 설정 없음 — 확인 시 이 세이브에 저장됩니다"
-        });
+        ui_kit::label_set(n, &format!("{I18N}{}", if from_save { "src_save" } else { "src_none" }));
     }
     if let Some(n) = ui_kit::find_mut(pop, "note_all") {
         let s = if cand.is_empty() {
-            "미출시 챔피언이 없습니다 — 모든 챔피언이 이미 추가되었습니다.".to_string()
+            format!("{I18N}note_none")
         } else if selected.len() == cand.len() {
-            "모든 미출시 챔피언 제외 — 앞으로 신규 챔피언이 추가되지 않습니다(모든 챔피언 추가 완료와 동일 동작).".to_string()
+            format!("{I18N}note_all")
         } else {
             String::new()
         };
