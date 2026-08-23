@@ -161,10 +161,6 @@ pub fn cur_rule() -> (u8, Option<usize>) {
     let e = RULE_BAN1.load(Ordering::Relaxed);
     (RULE_STYLE.load(Ordering::Relaxed), (e != 0).then(|| e - 1))
 }
-/// 실효 밴카드 수를 알고 있나. `false` = 경기 1회 관측 전 → 제한을 아예 걸지 않는다.
-pub fn rule_known() -> bool {
-    RULE_BAN1.load(Ordering::Relaxed) != 0
-}
 /// 지금 룰에서 포지션 하나가 갖춰야 할 최소 화이트리스트 크기.
 ///   ★미관측이면 `usize::MAX` — 어떤 화이트리스트도 못 미치므로 **전 포지션 제한 없음**이 된다.
 pub fn cur_min_required() -> usize {
@@ -331,15 +327,6 @@ pub fn min_required(style: u8, ban_count: usize) -> usize {
         _ => 2 + ban_count * 2,                // 클래식
     }
 }
-/// 포지션별 검증: (pos, 현재수, 최소수) — 부족한 포지션만. 빈 화이트리스트(=전체허용)는 제외.
-pub fn shortfalls(st: &PosState, style: u8, ban_count: usize) -> Vec<(usize, usize, usize)> {
-    let need = min_required(style, ban_count);
-    (0..5)
-        .filter(|&p| !st.allowed[p].is_empty() && st.allowed[p].len() < need)
-        .map(|p| (p, st.allowed[p].len(), need))
-        .collect()
-}
-
 
 pub fn load() {
     // 토글
@@ -466,11 +453,6 @@ pub fn roster_ready() -> bool {
         .unwrap_or(false)
 }
 
-
-static DUMP_ONCE: AtomicBool = AtomicBool::new(false);
-pub fn dump_reset() {
-    DUMP_ONCE.store(false, Ordering::Relaxed);
-}
 
 /// 라인업 진단 전용 로그(debug 와 무관, log_lineups 노브로 제어).
 static LINEUP_FILE_FRESH: AtomicBool = AtomicBool::new(false);

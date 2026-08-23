@@ -15,13 +15,14 @@ use std::sync::OnceLock;
 
 mod config;
 mod hooks;
+mod i18n;
 mod icon_data;
 mod inject;
 
 #[path = r"C:\tfm2mods\ui_kit\ui_kit.rs"]
 mod ui_kit;
 
-use config::{MASK_ALL, POS_NAMES};
+use config::MASK_ALL;
 use engine_core::ui::length::Length;
 use std::rc::Rc;
 
@@ -54,9 +55,6 @@ pub(crate) fn mod_dir() -> Option<String> {
 // ctx candidate 인덱스 = db.available_champions 순서(모드 챔프는 그 뒤) 전제.
 // NAMES 는 1회 캡처(경기 중 불변), MASKS 는 상태(UI 편집) 버전이 바뀔 때 재계산.
 pub(crate) static NAMES: OnceLock<Vec<String>> = OnceLock::new(); // 원본 표기(UI/덤프용)
-/// 서버 Database 포인터(= GamePlayOption base, +0x0). InGame 프레임마다 갱신.
-/// 룰 읽기: ban_count=*(p+0x720)u64, banpick_style=*(p+0x737)u8 (game-atlas 2026-08-20).
-static DB_PTR: AtomicUsize = AtomicUsize::new(0);
 static IDX_MASK: AtomicPtr<Vec<u8>> = AtomicPtr::new(core::ptr::null_mut());
 static APPLIED_VER: AtomicU64 = AtomicU64::new(u64::MAX);
 
@@ -292,8 +290,6 @@ static FLUSH_TICK: AtomicU64 = AtomicU64::new(0);
 static DBG_CTXN: AtomicU64 = AtomicU64::new(0);
 /// veto 시점 ally vs 유저 씬 대조 로그 throttle.
 static DBG_VETON: AtomicU64 = AtomicU64::new(0);
-/// 유저 씬 활성 중 score_pick 상태 로그 throttle.
-static DBG_LIVEN: AtomicU64 = AtomicU64::new(0);
 /// veto 조기반환 단계 카운터(어디서 새는지 확정용).
 static ST_EMPTY: AtomicU64 = AtomicU64::new(0);
 static ST_FEAS: AtomicU64 = AtomicU64::new(0);
@@ -302,7 +298,6 @@ static DBG_FEASN: AtomicU64 = AtomicU64::new(0);
 static ST_CONF: AtomicU64 = AtomicU64::new(0);
 static DBG_CONFN: AtomicU64 = AtomicU64::new(0);
 static DBG_MULTIN: AtomicU64 = AtomicU64::new(0);
-static DBG_TIP: AtomicU64 = AtomicU64::new(0);
 /// 지금 보이는 툴팁이 우리가 띄운 것인지(해제 시 게임 툴팁을 잘못 숨기지 않기 위해).
 static TIP_OURS: AtomicBool = AtomicBool::new(false);
 
@@ -328,26 +323,6 @@ fn dump_vec_names(base: usize, off: usize) -> String {
             out.push(format!("{}#{v}", nm(v)));
         }
         out.join(",")
-    }
-}
-
-/// ★권위 있는 아군 픽 = raw ctx+0x10(begin)/+0x18(len), u64 인덱스 배열.
-/// SDK DraftScoreContext.ally_pick 은 +0x30(빈 오프셋)으로 매핑돼 항상 비어 있어 오염원이었음
-/// (ctxdump 진단으로 SDK ab==raw@10==실제 아군픽 확정, 2026-08-21). 매치별로 정확·씬 불요.
-fn raw_ally_idx(ctx: &DraftScoreContext) -> Vec<usize> {
-    unsafe {
-        let base = ctx as *const DraftScoreContext as usize;
-        if !(0x10000..1usize << 48).contains(&base) {
-            return Vec::new();
-        }
-        let ptr = core::ptr::read((base + 0x10) as *const usize);
-        let len = core::ptr::read((base + 0x18) as *const usize);
-        if len == 0 || len > 16 || !(0x10000..1usize << 48).contains(&ptr) {
-            return Vec::new();
-        }
-        (0..len)
-            .map(|k| core::ptr::read((ptr + k * 8) as *const u64) as usize)
-            .collect()
     }
 }
 
@@ -410,9 +385,6 @@ static mut CELL_BUF: [[u8; 96]; NCELLS] = [[0u8; 96]; NCELLS];
 
 // 챔피언 스프라이트 에셋 키 + UV 폴백 테이블(CHAMP_UV/CHAMP_KEY — icon_data 미커버분용).
 include!(r"C:\tfm2mods\tfm2_champ_pos_lock\assets\champ_uv.rs");
-fn champ_key(id: &str) -> Option<String> {
-    CHAMP_KEY.iter().find(|e| e.0 == id).map(|e| e.1.to_string())
-}
 /// ImageRunner 커스텀 UV: +0xa4 flag=1, +0xa8..0xb4 = 4개 f32.
 unsafe fn set_img_uv(dp: usize, a: f32, b: f32, c: f32, d: f32) {
     *((dp + 0xa4) as *mut u8) = 1;
@@ -503,44 +475,6 @@ fn set_node_h(node: &Node, h: f32) {
     }
 }
 
-/// 게임 룰 설정 읽기 → (피어리스 스타일 0=없음/1=피어리스/2=하드, 밴카드 수).
-/// GamePlayOption(=Database+0x0): ban_count=*(+0x720)u64, banpick_style=*(+0x737)u8
-/// (game-atlas 2026-08-20, 0.5.0 채록). ⚠오프셋/enum값 0.5.6 미검증 → 범위 검증으로 가드,
-/// 벗어나면 (0,0)=안전값. Database 포인터는 InGame 프레임마다 DB_PTR 에 캡처.
-/// ~~구: `db+0x720`(밴카드 원본설정)·`+0x737`(스타일) raw 읽기~~ →
-/// **2026-08-23 폐기**: SDK `GamePlayOption::ban_count_or_default` / `banpick_style` 로 확정한다
-/// (raw 오프셋은 패치마다 깨지고, "자동" 설정은 원본값이 0 이라 애초에 못 읽었다).
-/// 이 함수는 캐시 조회 래퍼만 남긴다.
-#[allow(dead_code)]
-fn rule_info_raw() -> (u8, Option<usize>) {
-    let p = DB_PTR.load(Ordering::Relaxed);
-    if !(0x10000..1usize << 48).contains(&p) {
-        return (0, None);
-    }
-    unsafe {
-        let ban = core::ptr::read_unaligned((p + 0x720) as *const u64);
-        // banpick_style = +0x737 (0.5.6 커밋-diff 확정: 룰 변경 후 경기 1판 진행해야 db에 커밋됨.
-        //   그 뒤 0x737 이 0=클래식/1=피어리스/2=하드피어리스). 미커밋 시엔 0(클래식 기본).
-        let style = core::ptr::read_unaligned((p + 0x737) as *const u8);
-        if ban > 5 || style > 2 {
-            return (0, None); // 오프셋 미스/이상값 — 안전값
-        }
-        // ★`db+0x720` 은 **원본 설정값**이라 밴카드 "기본"이면 0 이다(유저 제보 2026-08-23:
-        //   기본으로 두면 0장 취급). 실효값은 밴픽 씬 ban_count(+0x3c0)에서 캐시해 둔 것을 쓴다.
-        //   아직 한 판도 안 봤으면 0 → 호출측이 "기본(경기 후 확정)"으로 표시.
-        //   ★"자동"이면 원본값이 0 이고 **0장 설정과 구분이 안 된다** ⟹ 밴픽 씬에서 실제로
-        //     관측(BAN_CNT_SEEN)했을 때만 값을 신뢰한다. 관측 전이면 None = 모른다.
-        let ban = if ban == 0 {
-            BAN_CNT_SEEN
-                .load(Ordering::Relaxed)
-                .then(|| BAN_CNT_EFF.load(Ordering::Relaxed))
-        } else {
-            Some(ban as usize)
-        };
-        (style, ban)
-    }
-}
-
 /// 현재 밴픽 룰(스타일, 실효 밴카드 수). `None` = 아직 Database 를 못 읽음(메인메뉴 등).
 fn rule_info() -> (u8, Option<usize>) {
     config::cur_rule()
@@ -624,43 +558,49 @@ fn fill_grid(root: &mut Node) {
     let pick_part = base_need.saturating_sub(ban_part); // SERIES 부분(하드10/피어5/클2)
     let union_need = pick_part * comp_size + ban_part; // 공유풀이 넘어야 할 값
     if let Some(n) = ui_kit::find_mut(pop, "summary") {
-        ui_kit::label_set(n, &format!("{} 포지션", POS_NAMES_KR[pos]));
+        ui_kit::label_set(n, &i18n::trf("summary_fmt", &[("pos", &i18n::pos_name(pos))]));
     }
     if let Some(n) = ui_kit::find_mut(pop, "rule_label") {
-        let name = match style {
-            2 => "하드 피어리스",
-            1 => "피어리스",
-            _ => "없음 (클래식)",
-        };
-        ui_kit::label_set(n, &format!("현재 밴픽 룰: {name}"));
+        let name = i18n::tr(match style {
+            2 => "rule_fearless_hard",
+            1 => "rule_fearless",
+            _ => "rule_classic",
+        });
+        ui_kit::label_set(n, &i18n::trf("rule_label", &[("name", &name)]));
     }
     if let Some(n) = ui_kit::find_mut(pop, "ban_label") {
         // ★밴카드 설정이 "자동"이면 원본값이 0 이라 실효값을 알 수 없다(밴픽 씬을 봐야 확정).
         //   0 을 그대로 "0장"으로 보여주면 최소 선택 수도 함께 틀리게 읽힌다(유저 제보 2026-08-23).
         let s = if ban_opt.is_none() {
-            "현재 밴카드 수: 읽는 중".to_string()
+            i18n::tr("ban_reading")
         } else {
-            format!("현재 밴카드 수: {ban_count}")
+            i18n::trf("ban_label", &[("n", &ban_count.to_string())])
         };
         ui_kit::label_set(n, &s);
     }
     if let Some(n) = ui_kit::find_mut(pop, "min_label") {
         let s = if ban_opt.is_none() {
-            "최소 선택 수: 미정 (밴카드 수 확인 전)".to_string()
+            i18n::tr("min_unknown")
         } else if comp_size > 1 {
-            format!(
-                "최소 선택 수: {base_need}  ·  공유풀({comp_size}포지션) {union_size}/{union_need}"
+            i18n::trf(
+                "min_shared",
+                &[
+                    ("need", &base_need.to_string()),
+                    ("count", &comp_size.to_string()),
+                    ("have", &union_size.to_string()),
+                    ("want", &union_need.to_string()),
+                ],
             )
         } else {
-            format!("최소 선택 수: {base_need}")
+            i18n::trf("min_label", &[("need", &base_need.to_string())])
         };
         ui_kit::label_set(n, &s);
     }
     if let Some(n) = ui_kit::find_mut(pop, "count_label") {
         let s = if cnt == 0 {
-            "현재 선택 수: 0 (모든 챔피언 허용)".to_string()
+            i18n::tr("count_zero")
         } else {
-            format!("현재 선택 수: {cnt}")
+            i18n::trf("count_label", &[("n", &cnt.to_string())])
         };
         ui_kit::label_set(n, &s);
     }
@@ -670,24 +610,33 @@ fn fill_grid(root: &mut Node) {
         let s = if ban_opt.is_none() {
             // ★밴카드가 "자동"이면 최소 선택 수를 계산할 수 없다 ⟹ 제한을 아예 걸지 않는다.
             //   (유저 지시 2026-08-23: 그 상태를 화면에 명시하고 해결 방법까지 적을 것.)
-            "⚠ 밴카드 수를 아직 읽지 못했습니다 — 잠시 후 다시 열어 주세요. 그때까지 포지션 제한은 적용되지 않습니다.".to_string()
+            i18n::tr("warn_ban_unknown")
         } else if cnt == 0 {
             String::new()
         } else if cnt < base_need {
             // ★최소 미달 = **제한 없음 취급**(유저 지시 2026-08-23). 경고가 아니라 현재 상태 안내다.
             let stale = config::pos_stale(pos);
             let tail = if stale > 0 {
-                format!(" · 지금 로스터에 없는 챔프 {stale}개는 제외하고 셉니다")
+                i18n::trf("warn_min_tail_stale", &[("n", &stale.to_string())])
             } else {
                 String::new()
             };
-            format!(
-                "⚠ 최소 {base_need}개 미만 — 이 포지션은 지금 제한 없음으로 취급됩니다 ({}개 더 선택하면 적용){tail}",
-                base_need - cnt
+            i18n::trf(
+                "warn_min",
+                &[
+                    ("need", &base_need.to_string()),
+                    ("more", &(base_need - cnt).to_string()),
+                    ("tail", &tail),
+                ],
             )
         } else if comp_size > 1 && union_size < union_need {
-            format!(
-                "⚠ 겹친 {comp_size}개 포지션이 챔프풀 공유 — 합쳐서 최소 {union_need}개 필요 (현재 {union_size})"
+            i18n::trf(
+                "warn_shared",
+                &[
+                    ("count", &comp_size.to_string()),
+                    ("want", &union_need.to_string()),
+                    ("have", &union_size.to_string()),
+                ],
             )
         } else {
             String::new()
@@ -747,15 +696,8 @@ fn fill_grid(root: &mut Node) {
     }
 }
 
+/// ⚠**로그·진단 전용**(로그는 한국어 고정). 유저에게 보이는 문자열은 `i18n::pos_name()` 을 쓸 것.
 pub(crate) const POS_NAMES_KR: [&str; 5] = ["탑", "정글", "미드", "원딜", "서폿"];
-
-fn mask_str(m: u8) -> String {
-    (0..5)
-        .filter(|p| m & (1 << p) != 0)
-        .map(|p| POS_NAMES[p])
-        .collect::<Vec<_>>()
-        .join(",")
-}
 
 /// 제한 챔프 마스크들에 서로 다른 포지션을 하나씩 줄 수 있는가 (5×5 이하 백트래킹).
 /// ★최대 이분매칭 크기(마스크 ≤6, 포지션 5) — "이미 깨진" 상태에서도 판정 가능.
@@ -1058,54 +1000,6 @@ pub(crate) fn feasible(masks: &mut Vec<u8>) -> bool {
     rec(masks, 0)
 }
 
-fn taken(c: usize, ctx: &DraftScoreContext) -> bool {
-    ctx.ally_ban.contains(&c)
-        || ctx.enemy_ban.contains(&c)
-        || ctx.ally_pick.contains(&c)
-        || ctx.enemy_pick.contains(&c)
-}
-
-/// ★fail-open: 남은 풀에 "픽해도 매칭 유지되는" 후보가 하나도 없으면 게이트 해제.
-fn pool_has_feasible(ctx: &DraftScoreContext, masks: &[u8], pinned: &[u8]) -> bool {
-    use std::cell::Cell;
-    thread_local! {
-        static CACHE: Cell<(u64, bool)> = const { Cell::new((0, false)) };
-    }
-    let mut key: u64 = 0xcbf29ce484222325;
-    let mut mix = |v: u64| {
-        key ^= v;
-        key = key.wrapping_mul(0x100000001b3);
-    };
-    for &i in ctx.ally_pick {
-        mix(i as u64 + 1);
-    }
-    mix(0x5eed ^ (ctx.ally_ban.len() as u64) << 8 ^ (ctx.enemy_ban.len() as u64));
-    mix(ctx.available_champions.len() as u64 | 1 << 32);
-    if let Some(hit) = CACHE.with(|c| {
-        let (k, v) = c.get();
-        (k == key && k != 0).then_some(v)
-    }) {
-        return hit;
-    }
-    let mut found = false;
-    let mut v: Vec<u8> = Vec::with_capacity(pinned.len() + 1);
-    for &c in ctx.available_champions {
-        if taken(c, ctx) {
-            continue;
-        }
-        let m = masks.get(c).copied().unwrap_or(MASK_ALL);
-        v.clear();
-        v.extend_from_slice(pinned);
-        v.push(m);
-        if feasible(&mut v) {
-            found = true;
-            break;
-        }
-    }
-    CACHE.with(|c| c.set((key, found)));
-    found
-}
-
 // ── AI 픽 게이트 (공식 확장점 — detour 불요) ───────────────────────────────
 #[derive(Debug)]
 struct PosLockDraftAi;
@@ -1395,7 +1289,18 @@ static DD_INIT: AtomicBool = AtomicBool::new(false);
 /// 클래스 필터 드롭다운(네이티브).
 static CLASS_DD: ui_kit::NativeDropdown = ui_kit::NativeDropdown::new("class_filter");
 /// 클래스 라벨(드롭다운 옵션 순서 = CLASS_SEL 인덱스).
-const CLASS_LABELS: [&str; 6] = ["전체", "전사", "원거리", "마법사", "전투보조", "암살자"];
+/// 클래스 필터 드롭다운 라벨 키(표시명은 i18n — `text/poslock.i18n`).
+const CLASS_KEYS: [&str; 6] = [
+    "class_all",
+    "class_melee",
+    "class_range",
+    "class_magician",
+    "class_util",
+    "class_assassin",
+];
+fn class_labels() -> Vec<String> {
+    CLASS_KEYS.iter().map(|k| i18n::tr(k)).collect()
+}
 
 /// ★유저(관리 중인) 팀 id — `db.player_team_id()` 로 관리화면에서 캡처. u64::MAX=미확보.
 pub(crate) static PLAYER_TEAM: AtomicU64 = AtomicU64::new(u64::MAX);
@@ -1407,10 +1312,6 @@ pub(crate) fn player_team() -> Option<u64> {
         v => Some(v),
     }
 }
-/// teamdbg 중복억제 서명.
-static TEAMDBG_SIG: AtomicU64 = AtomicU64::new(u64::MAX);
-/// 툴팁 좌표계 계측 카운터.
-static TIPDBG: AtomicU64 = AtomicU64::new(0);
 /// post_update 프레임 카운터(주기 작업·클릭 디바운스용).
 static FRAME: AtomicU64 = AtomicU64::new(0);
 /// 코치 위임 클릭 디바운스(같은 클릭이 여러 번 들어오는 것 방지).
@@ -1503,25 +1404,6 @@ fn cursor_ui(uiw: f32, uih: f32) -> Option<(f32, f32)> {
         Some((p.x as f32 * uiw / cw, p.y as f32 * uih / ch))
     }
 }
-/// 진단용 원시값(클라 px, 클라 크기).
-fn cursor_raw() -> Option<(i32, i32, i32, i32)> {
-    unsafe {
-        let h = GetForegroundWindow();
-        if h == 0 {
-            return None;
-        }
-        let mut p = POINT { x: 0, y: 0 };
-        if GetCursorPos(&mut p) == 0 || ScreenToClient(h, &mut p) == 0 {
-            return None;
-        }
-        let mut r = RECTW::default();
-        if GetClientRect(h, &mut r) == 0 {
-            return None;
-        }
-        Some((p.x, p.y, r.right - r.left, r.bottom - r.top))
-    }
-}
-
 /// 확정 버튼 툴팁 문구(비활성 사유). `hint: String` = 러너 pub 필드.
 const CONFIRM_HINT: &str = "스왑이 올바르지 않습니다.";
 /// 원래 hint 백업(대개 빈 문자열).
@@ -1973,9 +1855,10 @@ fn recompute_blocklist(root: &Node) {
         if helps(&pinned, m) {
             any_feasible = true;
         } else {
+            // ★유저에게 보이는 툴팁 사유(차단된 챔프가 갈 수 있는 포지션들) → i18n.
             let label = (0..5)
                 .filter(|p| m & (1 << p) != 0)
-                .map(|p| POS_NAMES_KR[p])
+                .map(i18n::pos_name)
                 .collect::<Vec<_>>()
                 .join("/");
             reason.insert(lower.clone(), label);
@@ -2170,8 +2053,6 @@ impl ModExtension for PosLockExt {
             // 챔피언 목록 1회 캡처(관리화면 프레임에서도 Scene::InGame 매치).
             if let Scene::InGame { data } = scene {
                 let db = data.db();
-                // Database 포인터 캡처(룰 카운트 읽기용) — 매 프레임 갱신. Ref<ClientDatabase> deref.
-                DB_PTR.store(&*db as *const _ as usize, Ordering::Relaxed);
                 // ★★밴픽 룰 = **게임 자신의 결정 함수**로 확정(2026-08-23 RE, SDK 공개 API).
                 //   `GamePlayOption::ban_count_or_default(rule, 사용가능챔프수)` 가 밴카드 "자동"까지
                 //   풀어 준다. 자동 공식(GameRule::ban_count_for_available_champions):
@@ -2475,15 +2356,18 @@ impl ModExtension for PosLockExt {
             // ── 편의 필터 위젯 배선(클래스 드롭다운 + 이름 검색) ────────────────
             if open && present {
                 // ①옵션 주입 1회 — ⚠ABI 호출이라 **팝업이 실제로 열린 뒤에만** 부른다.
+                //   ⚠라벨은 i18n 조회라 &str 슬라이스를 그 자리에서 만들어 넘긴다.
+                let labels = class_labels();
+                let label_refs: Vec<&str> = labels.iter().map(|s| s.as_str()).collect();
                 if !DD_INIT.load(Ordering::Relaxed)
-                    && CLASS_DD.set_options(&ui.root, &CLASS_LABELS, 0)
+                    && CLASS_DD.set_options(&ui.root, &label_refs, 0)
                 {
                     DD_INIT.store(true, Ordering::Relaxed);
                     config::llog("filter: 클래스 드롭다운 옵션 주입 OK");
                 }
                 // ②선택 인덱스 폴링(게임이 클릭 시 runner+0x1788 에 기록).
                 if let Some(sel) = CLASS_DD.selected(&ui.root) {
-                    let sel = sel.min(CLASS_LABELS.len() - 1);
+                    let sel = sel.min(CLASS_KEYS.len() - 1);
                     if CLASS_SEL.swap(sel, Ordering::Relaxed) != sel {
                         GRID_SIG.store(u64::MAX, Ordering::Relaxed);
                     }
@@ -2984,6 +2868,7 @@ impl ModExtension for PosLockExt {
 
 fn init(_ctx: &GameCtx) -> ModRegistration {
     config::load();
+    i18n::load();
     let mut reg = ModRegistration::new(MOD_ID);
     reg.set_extension(PosLockExt);
     reg.add_draft_score_hook(PosLockDraftAi);

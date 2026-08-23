@@ -1,0 +1,6 @@
+{
+  "asset/base/text/ui": {
+    "remapping": "asset/tfm2_champ_pos_lock/text/poslock",
+    "type": "merge"
+  }
+}

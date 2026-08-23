@@ -12,7 +12,7 @@ pos_lock_popup:color {
   #header:label {
     @"asset/base/style/main#bold_label";
     x: 32px; y: 24px; width: 900px; height: 42px; size: 24; align_y: Center;
-    text: "포지션별 사용 가능 챔피언";
+    text: "#asset/base/text/ui?pos_lock.title";
   }
 
   #close:button {
@@ -28,11 +28,11 @@ pos_lock_popup:color {
     rounding: Uniform { rounding: 8; }
     child_type: LeftToRight { spacing: 0px; }
 
-    #tab_top:color_selectable { @"asset/base/style/main#strategy_option"; width: 150px; height: 32px; text: "탑"; label: { size: 16; } selected_label: { size: 16; } }
-    #tab_jungle:color_selectable { @"asset/base/style/main#strategy_option"; width: 150px; height: 32px; text: "정글"; label: { size: 16; } selected_label: { size: 16; } }
-    #tab_mid:color_selectable { @"asset/base/style/main#strategy_option"; width: 150px; height: 32px; text: "미드"; label: { size: 16; } selected_label: { size: 16; } }
-    #tab_bottom:color_selectable { @"asset/base/style/main#strategy_option"; width: 150px; height: 32px; text: "원딜"; label: { size: 16; } selected_label: { size: 16; } }
-    #tab_support:color_selectable { @"asset/base/style/main#strategy_option"; width: 150px; height: 32px; text: "서폿"; label: { size: 16; } selected_label: { size: 16; } }
+    #tab_top:color_selectable { @"asset/base/style/main#strategy_option"; width: 150px; height: 32px; text: "#asset/base/text/ui?pos_lock.tab_top"; label: { size: 16; } selected_label: { size: 16; } }
+    #tab_jungle:color_selectable { @"asset/base/style/main#strategy_option"; width: 150px; height: 32px; text: "#asset/base/text/ui?pos_lock.tab_jungle"; label: { size: 16; } selected_label: { size: 16; } }
+    #tab_mid:color_selectable { @"asset/base/style/main#strategy_option"; width: 150px; height: 32px; text: "#asset/base/text/ui?pos_lock.tab_mid"; label: { size: 16; } selected_label: { size: 16; } }
+    #tab_bottom:color_selectable { @"asset/base/style/main#strategy_option"; width: 150px; height: 32px; text: "#asset/base/text/ui?pos_lock.tab_bottom"; label: { size: 16; } selected_label: { size: 16; } }
+    #tab_support:color_selectable { @"asset/base/style/main#strategy_option"; width: 150px; height: 32px; text: "#asset/base/text/ui?pos_lock.tab_support"; label: { size: 16; } selected_label: { size: 16; } }
   }
 
   #filter_bar:empty {
@@ -54,7 +54,7 @@ pos_lock_popup:color {
       x: 158px; width: 200px; height: 40px;
       size: 16; align_y: Center;
       padding: { left: 44px; top: 5px; right: 15px; bottom: 5px; }
-      placeholder: "챔피언 이름 검색...";
+      placeholder: "#asset/base/text/ui?pos_lock.search_placeholder";
       max_length: 40;
 
       #icon:image {
@@ -694,18 +694,18 @@ pos_lock_popup:color {
     x: 1254px; y: 136px; width: 477px; height: 787px; color: #1d1f2cff;
     rounding: Uniform { rounding: 8; }
 
-    #summary:label { @"asset/base/style/main#bold_label"; x: 24px; y: 24px; width: 429px; height: 28px; size: 18; align_y: Center; text: "포지션을 고르세요"; }
-    #pos_hint:label { @"asset/base/style/main#label"; x: 24px; y: 68px; width: 429px; height: 100px; size: 16; line_height: 26; align_y: Center; text: "탭에서 포지션을 고르고, 그 포지션에 쓸 챔피언을 클릭해 켜고 끕니다. 아무것도 안 고르면 그 포지션은 모든 챔피언을 쓸 수 있습니다."; }
+    #summary:label { @"asset/base/style/main#bold_label"; x: 24px; y: 24px; width: 429px; height: 28px; size: 18; align_y: Center; text: "#asset/base/text/ui?pos_lock.summary_default"; }
+    #pos_hint:label { @"asset/base/style/main#label"; x: 24px; y: 68px; width: 429px; height: 100px; size: 16; line_height: 26; align_y: Center; text: "#asset/base/text/ui?pos_lock.hint"; }
     #rule_label:label { @"asset/base/style/main#label"; x: 24px; y: 178px; width: 429px; height: 24px; size: 16; align_y: Center; }
     #ban_label:label { @"asset/base/style/main#label"; x: 24px; y: 206px; width: 429px; height: 24px; size: 16; align_y: Center; }
     #min_label:label { @"asset/base/style/main#label"; x: 24px; y: 234px; width: 429px; height: 24px; size: 16; align_y: Center; }
     #count_label:label { @"asset/base/style/main#bold_label"; x: 24px; y: 262px; width: 429px; height: 26px; size: 16; align_y: Center; }
     #warning_min:label { @"asset/base/style/main#label"; x: 24px; y: 298px; width: 429px; height: 100px; size: 15; line_height: 24; color: #ff4a4aff; align_y: Center; }
 
-    #clear_pos:color_icon_button { @"asset/base/style/main#tertiary_button"; x: 24px; y: 470px; width: 429px; height: 40px; text: { text: "이 포지션 비우기(전체 허용)"; font: "asset/base/font/set/bold"; size: 17; align_x: Center; align_y: Center; } }
-    #select_all_pos:color_icon_button { @"asset/base/style/main#tertiary_button"; x: 24px; y: 522px; width: 429px; height: 40px; text: { text: "이 포지션에 전체 선택"; font: "asset/base/font/set/bold"; size: 17; align_x: Center; align_y: Center; } }
+    #clear_pos:color_icon_button { @"asset/base/style/main#tertiary_button"; x: 24px; y: 470px; width: 429px; height: 40px; text: { text: "#asset/base/text/ui?pos_lock.clear_pos"; font: "asset/base/font/set/bold"; size: 17; align_x: Center; align_y: Center; } }
+    #select_all_pos:color_icon_button { @"asset/base/style/main#tertiary_button"; x: 24px; y: 522px; width: 429px; height: 40px; text: { text: "#asset/base/text/ui?pos_lock.select_all_pos"; font: "asset/base/font/set/bold"; size: 17; align_x: Center; align_y: Center; } }
   }
 
-  #cancel:color_icon_button { @"asset/base/style/main#tertiary_button"; x: 654px; y: 943px; width: 220px; height: 40px; text: { text: "취소"; font: "asset/base/font/set/bold"; size: 18; align_x: Center; align_y: Center; } }
-  #ok:color_icon_button { @"asset/base/style/main#tertiary_button"; x: 890px; y: 943px; width: 220px; height: 40px; text: { text: "확인"; font: "asset/base/font/set/bold"; size: 18; align_x: Center; align_y: Center; } }
+  #cancel:color_icon_button { @"asset/base/style/main#tertiary_button"; x: 654px; y: 943px; width: 220px; height: 40px; text: { text: "#asset/base/text/ui?pos_lock.cancel"; font: "asset/base/font/set/bold"; size: 18; align_x: Center; align_y: Center; } }
+  #ok:color_icon_button { @"asset/base/style/main#tertiary_button"; x: 890px; y: 943px; width: 220px; height: 40px; text: { text: "#asset/base/text/ui?pos_lock.ok"; font: "asset/base/font/set/bold"; size: 18; align_x: Center; align_y: Center; } }
 }

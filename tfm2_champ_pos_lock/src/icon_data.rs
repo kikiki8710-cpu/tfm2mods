@@ -368,23 +368,6 @@ fn workshop_dir(game: &std::path::Path) -> Option<std::path::PathBuf> {
     ws.is_dir().then_some(ws)
 }
 
-/// 팩 mod.mod_info 의 top-level(최소 들여쓰기) mod_id → 에셋 네임스페이스.
-fn pack_ns(pack: &std::path::Path) -> Option<String> {
-    let txt = std::fs::read_to_string(pack.join("mod.mod_info")).ok()?;
-    let mut best: Option<(usize, String)> = None;
-    for line in txt.lines() {
-        if line.contains("\"mod_id\"") {
-            let indent = line.len() - line.trim_start().len();
-            if let Some(v) = line.split(':').nth(1).and_then(|s| s.split('"').nth(1)) {
-                if best.as_ref().map_or(true, |(bi, _)| indent < *bi) {
-                    best = Some((indent, v.to_string()));
-                }
-            }
-        }
-    }
-    best.map(|(_, v)| v)
-}
-
 /// champion_view.champion_view(JSON) → id→center.y 맵. entries 객체를 중괄호 매칭으로 순회.
 /// (값에 문자열 중괄호 없음 — 전부 숫자라 안전.) 이미 있는 키는 덮지 않음(base 우선).
 fn parse_centers(txt: &str, map: &mut HashMap<String, f32>) {

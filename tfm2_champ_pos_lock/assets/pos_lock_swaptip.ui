@@ -26,6 +26,6 @@ pos_lock_swaptip:color {
     color: #e8e8e8ff;
     align_x: Center;
     align_y: Center;
-    text: "스왑이 올바르지 않습니다.";
+    text: "#asset/base/text/ui?pos_lock.swaptip";
   }
 }

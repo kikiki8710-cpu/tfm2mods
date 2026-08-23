@@ -9,7 +9,7 @@ pos_lock_row:empty {
     height: 40px;
     align_y: Center;
     size: 16;
-    text: "포지션 제한";
+    text: "#asset/base/text/ui?pos_lock.row_title";
   }
 
   #pos_lock_configure:color_icon_button {
@@ -18,7 +18,7 @@ pos_lock_row:empty {
     width: 852px;
     height: 40px;
     text: {
-      text: "설정하기";
+      text: "#asset/base/text/ui?pos_lock.row_button";
       font: "asset/base/font/set/bold";
       size: 16;
       align_x: Center;
