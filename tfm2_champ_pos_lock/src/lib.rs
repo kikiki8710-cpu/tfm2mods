@@ -82,8 +82,15 @@ pub fn champ_names() -> Option<&'static Vec<String>> {
 //   게임 자산은 bundle.game_data(1.1GB, 포맷 미해독)라 **언팩/모드 i18n 파일들을 병합**한다.
 //   실측(2026-08-22): base+mods+workshop 병합 시 94/94 커버(누락 0).
 //   ★한글 음절은 유니코드가 곧 가나다순이라 단순 문자열 비교로 정렬된다.
-static KR_MAP: OnceLock<std::collections::HashMap<String, String>> = OnceLock::new();
-static SORTED_CHAMPS: OnceLock<Vec<String>> = OnceLock::new();
+/// 언어별 id→표시명 맵(지연 캐시). 키 = `base.json` 의 lang 값 그대로("ko"/"en"/"ja"/…).
+static LANG_MAPS: std::sync::Mutex<
+    Option<std::collections::HashMap<String, std::collections::HashMap<String, String>>>,
+> = std::sync::Mutex::new(None);
+/// ★정렬 결과 캐시 + 그걸 만든 시그니처(언어 + 로스터 크기).
+///   ⚠구현은 `OnceLock` 이었다 — **세션 중 언어가 바뀌면 낡은 정렬이 고정**된다
+///     (게임정보 탭은 즉시 따라가는데 우리만 옛 언어 순서로 남음).
+static SORTED_CHAMPS: std::sync::Mutex<Option<(String, usize, Vec<String>)>> =
+    std::sync::Mutex::new(None);
 
 /// 게임 설치 폴더(exe 위치) — 경로 하드코딩 금지 규칙에 따라 동적 도출.
 fn game_dir() -> Option<std::path::PathBuf> {
@@ -98,8 +105,12 @@ fn game_dir() -> Option<std::path::PathBuf> {
 
 /// champion.i18n 텍스트에서 ko.description.<id>.name 을 뽑아 out 에 병합.
 /// (외부 크레이트 없이 중괄호 깊이 추적으로 스캔 — 로케일 오인식 방지)
-fn parse_ko_names(text: &str, out: &mut std::collections::HashMap<String, String>) {
-    let Some(ko) = text.find("\"ko\"") else { return };
+fn parse_lang_names(
+    text: &str,
+    lang: &str,
+    out: &mut std::collections::HashMap<String, String>,
+) {
+    let Some(ko) = text.find(&format!("\"{lang}\"")) else { return };
     let Some(drel) = text[ko..].find("\"description\"") else { return };
     let dpos = ko + drel;
     let Some(obr) = text[dpos..].find('{') else { return };
@@ -195,7 +206,7 @@ fn parse_ko_names(text: &str, out: &mut std::collections::HashMap<String, String
 }
 
 /// base/mods/workshop 의 champion.i18n 을 전부 병합해 id→한글이름 맵 생성.
-fn load_kr_names() -> std::collections::HashMap<String, String> {
+fn load_names(lang: &str) -> std::collections::HashMap<String, String> {
     let mut out = std::collections::HashMap::new();
     let Some(g) = game_dir() else { return out };
     let mut files: Vec<std::path::PathBuf> = Vec::new();
@@ -220,66 +231,78 @@ fn load_kr_names() -> std::collections::HashMap<String, String> {
     }
     for f in files {
         if let Ok(t) = std::fs::read_to_string(&f) {
-            parse_ko_names(&t, &mut out);
+            parse_lang_names(&t, lang, &mut out);
         }
     }
     out
 }
 
-/// 설정 팝업용: 한글 이름 가나다순으로 정렬된 챔피언 id 목록.
-///   이름을 못 찾은 챔프는 뒤로 보내고 id 순으로(표시는 되되 순서만 뒤).
-pub fn sorted_champs() -> Option<&'static Vec<String>> {
-    if let Some(v) = SORTED_CHAMPS.get() {
-        return Some(v);
+/// ★현재 게임 언어 = `<게임 설치 폴더>\config\gamease.json` 의 `lang`(RE 확정 · 유일 소스).
+///   게임의 i18n 해석기가 매 해석마다 이 값으로 언어 블록을 고르므로 **정의상 표시 언어와 동일**하다.
+///   Steam/Windows 언어가 아니다. 파싱은 `i18n` 모듈이 이미 하고 있으니 그대로 쓴다.
+fn cur_lang() -> String {
+    i18n::current_lang()
+}
+
+/// 언어별 id→표시명 맵(최초 1회 로드 후 캐시).
+fn lang_map(lang: &str) -> std::collections::HashMap<String, String> {
+    {
+        let g = LANG_MAPS.lock().unwrap_or_else(|e| e.into_inner());
+        if let Some(m) = g.as_ref().and_then(|m| m.get(lang)) {
+            return m.clone();
+        }
     }
+    let built = load_names(lang);
+    let mut g = LANG_MAPS.lock().unwrap_or_else(|e| e.into_inner());
+    g.get_or_insert_with(Default::default).insert(lang.to_string(), built.clone());
+    built
+}
+
+/// ★게임과 **같은 정렬 키**. 표시명이 없으면 게임과 동일하게 태그 문자열 자체가 키가 된다
+///   (`description.<id>.name` — 라틴 소문자라 한글 이름들보다 앞에 온다. 그 위치까지 게임과 같아야
+///    순서가 비트동일하다).
+fn sort_key(id: &str, map: &std::collections::HashMap<String, String>) -> String {
+    let key = id.to_ascii_lowercase();
+    map.get(&key)
+        .cloned()
+        .unwrap_or_else(|| format!("description.{key}.name"))
+        .to_lowercase()
+}
+
+/// 설정 팝업용: **현재 게임 언어의 표시명** 순으로 정렬된 챔피언 id 목록.
+///   이름을 못 찾은 챔프는 뒤로 보내고 id 순으로(표시는 되되 순서만 뒤).
+pub fn sorted_champs() -> Option<Vec<String>> {
     let champs = NAMES.get()?;
-    // ★1순위: 게임 밴픽 그리드 순회 순서(=게임이 쓰는 가나다순). 밴픽을 한 번 지나가면
-    //   수집되고 파일로 캐시된다 ⟹ 패치로 챔프가 추가돼도 자동으로 따라감.
-    let mut order: Vec<String> = hooks::grid_order();
-    if order.len() < 30 {
-        if let Some(dir) = mod_dir() {
-            if let Ok(t) = std::fs::read_to_string(format!("{dir}\\champ_pos_lock_order.txt")) {
-                let f: Vec<String> =
-                    t.lines().map(|l| l.trim().to_string()).filter(|l| !l.is_empty()).collect();
-                if f.len() > order.len() {
-                    order = f;
-                }
+    let lang = cur_lang();
+    // 캐시 히트 = 같은 언어 + 같은 로스터 크기.
+    {
+        let g = SORTED_CHAMPS.lock().unwrap_or_else(|e| e.into_inner());
+        if let Some((l, n, v)) = g.as_ref() {
+            if l == &lang && *n == champs.len() {
+                return Some(v.clone());
             }
         }
     }
-    let rank = |id: &str| -> Option<usize> {
-        order.iter().position(|n| n.eq_ignore_ascii_case(id))
-    };
-    // 2순위: i18n 한글 이름(파일 병합). 3순위: id.
-    let kr = KR_MAP.get_or_init(load_kr_names);
+    // ★게임(게임정보 탭)의 정렬을 그대로 재현한다(0.5.6 RE 확정):
+    //   키 = 현재 lang 의 i18n 표시명 → `to_lowercase()` → **(키, id) 튜플의 순수 바이트 비교**.
+    //   로케일 콜레이션이 없으므로 한글은 코드포인트 순 = 가나다순이 된다.
+    //   ~~구: 밴픽 그리드 순회 순서(hooks::grid_order) 를 1순위로 썼다~~ → **폐기**:
+    //     그건 게임이 *그때의 언어로* 만든 순서라 언어를 바꾸면 낡고, 밴픽을 한 번 지나가야만
+    //     수집된다. 표시명으로 직접 정렬하면 두 문제가 같이 사라진다.
+    let map = lang_map(&lang);
     let mut v: Vec<String> = champs.clone();
-    v.sort_by(|a, b| {
-        match (rank(a), rank(b)) {
-            (Some(x), Some(y)) => return x.cmp(&y),
-            (Some(_), None) => return std::cmp::Ordering::Less,
-            (None, Some(_)) => return std::cmp::Ordering::Greater,
-            (None, None) => {}
-        }
-        let (ka, kb) = (kr.get(&a.to_ascii_lowercase()), kr.get(&b.to_ascii_lowercase()));
-        match (ka, kb) {
-            (Some(x), Some(y)) => x.cmp(y),
-            (Some(_), None) => std::cmp::Ordering::Less,
-            (None, Some(_)) => std::cmp::Ordering::Greater,
-            (None, None) => a.cmp(b),
-        }
-    });
+    v.sort_by(|a, b| sort_key(a, &map).cmp(&sort_key(b, &map)).then_with(|| a.cmp(b)));
     if config::get().debug {
         let head: Vec<&str> = v.iter().take(8).map(|s| s.as_str()).collect();
         config::dlog(&format!(
-            "sort_kr: names={} order={} kr_map={} head={:?}",
+            "sort: lang={lang} names={} map={} head={head:?}",
             v.len(),
-            order.len(),
-            kr.len(),
-            head
+            map.len()
         ));
     }
-    let _ = SORTED_CHAMPS.set(v);
-    SORTED_CHAMPS.get()
+    *SORTED_CHAMPS.lock().unwrap_or_else(|e| e.into_inner()) =
+        Some((lang, champs.len(), v.clone()));
+    Some(v)
 }
 
 static CNT_VETO: AtomicU64 = AtomicU64::new(0);
@@ -506,8 +529,9 @@ fn fill_grid(root: &mut Node) {
                 }
             }
             if !search.is_empty() {
-                let kr = kr_name(&lower).to_ascii_lowercase();
-                if !kr.contains(&search) && !lower.contains(&search) {
+                // ★현재 언어 표시명 + id 로 매칭한다(영어 로케일 유저가 영문 이름으로 찾을 수 있게).
+                let name = disp_name(&lower).to_lowercase();
+                if !name.contains(&search) && !lower.contains(&search) {
                     return false;
                 }
             }
@@ -703,10 +727,19 @@ pub(crate) const POS_NAMES_KR: [&str; 5] = ["탑", "정글", "미드", "원딜",
 /// ★최대 이분매칭 크기(마스크 ≤6, 포지션 5) — "이미 깨진" 상태에서도 판정 가능.
 ///   feasible(=완전매칭)은 한 번 깨지면 전 후보가 false 라 fail-open 으로 무력화됐다
 ///   (실측: 미드 2명 픽 후 block=0). 최대매칭은 그 뒤에도 "빈 라인을 채우는 픽"을 구분한다.
-/// 챔프 id → 한글 이름(i18n 병합 맵). 없으면 id 그대로.
+/// 챔프 id → **한글** 이름. ⚠**로그·진단 전용**(로그는 한국어 고정).
+///   유저에게 보이는 이름은 `disp_name()`(현재 게임 언어)을 쓸 것.
 pub(crate) fn kr_name(id: &str) -> String {
-    let kr = KR_MAP.get_or_init(load_kr_names);
-    kr.get(&id.to_ascii_lowercase())
+    lang_map("ko")
+        .get(&id.to_ascii_lowercase())
+        .cloned()
+        .unwrap_or_else(|| id.to_string())
+}
+
+/// 챔프 id → **현재 게임 언어** 표시명. 없으면 id 그대로(검색 매칭용이라 태그 폴백은 쓰지 않는다).
+pub(crate) fn disp_name(id: &str) -> String {
+    lang_map(&cur_lang())
+        .get(&id.to_ascii_lowercase())
         .cloned()
         .unwrap_or_else(|| id.to_string())
 }
@@ -1285,7 +1318,12 @@ static BAN_CNT_SEEN: AtomicBool = AtomicBool::new(false);
 /// 검색 지우기 버튼이 눌렸음(다음 프레임에 text_edit 비움).
 static SEARCH_CLEAR: AtomicBool = AtomicBool::new(false);
 /// 드롭다운 옵션 주입 1회 완료.
-static DD_INIT: AtomicBool = AtomicBool::new(false);
+/// ★드롭다운 옵션을 **어떤 언어로** 주입했는지. `None` = 아직 주입 전.
+///   ⚠구현은 `AtomicBool`(1회 주입)이었다 — 네이티브 드롭다운 옵션은 ABI 로 한 번 밀어 넣으면
+///     그걸로 끝이라, **언어가 바뀌어도 옛 언어 문자열이 그대로 남는다**. 비-한국어 폰트엔 한글
+///     글리프가 없어 □ 로 깨진다(2026-08-23 실측: 그리드·우측 패널은 영어인데 드롭다운만 □□).
+///   ⟹ 주입 언어를 기억해 두고 달라지면 다시 주입한다.
+static DD_LANG: std::sync::Mutex<Option<String>> = std::sync::Mutex::new(None);
 /// 클래스 필터 드롭다운(네이티브).
 static CLASS_DD: ui_kit::NativeDropdown = ui_kit::NativeDropdown::new("class_filter");
 /// 클래스 라벨(드롭다운 옵션 순서 = CLASS_SEL 인덱스).
@@ -2360,13 +2398,17 @@ impl ModExtension for PosLockExt {
             if open && present {
                 // ①옵션 주입 1회 — ⚠ABI 호출이라 **팝업이 실제로 열린 뒤에만** 부른다.
                 //   ⚠라벨은 i18n 조회라 &str 슬라이스를 그 자리에서 만들어 넘긴다.
-                let labels = class_labels();
-                let label_refs: Vec<&str> = labels.iter().map(|s| s.as_str()).collect();
-                if !DD_INIT.load(Ordering::Relaxed)
-                    && CLASS_DD.set_options(&ui.root, &label_refs, 0)
-                {
-                    DD_INIT.store(true, Ordering::Relaxed);
-                    config::llog("filter: 클래스 드롭다운 옵션 주입 OK");
+                let lang = i18n::current_lang();
+                let need = DD_LANG.lock().unwrap_or_else(|e| e.into_inner()).as_deref() != Some(lang.as_str());
+                if need {
+                    let labels = class_labels();
+                    let label_refs: Vec<&str> = labels.iter().map(|s| s.as_str()).collect();
+                    // 재주입 시 현재 선택을 유지한다(언어만 바뀌었을 뿐 필터는 그대로여야 한다).
+                    let sel = CLASS_SEL.load(Ordering::Relaxed) as u64;
+                    if CLASS_DD.set_options(&ui.root, &label_refs, sel) {
+                        *DD_LANG.lock().unwrap_or_else(|e| e.into_inner()) = Some(lang);
+                        config::llog("filter: 클래스 드롭다운 옵션 주입 OK");
+                    }
                 }
                 // ②선택 인덱스 폴링(게임이 클릭 시 runner+0x1788 에 기록).
                 if let Some(sel) = CLASS_DD.selected(&ui.root) {

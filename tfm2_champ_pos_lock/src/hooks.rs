@@ -4760,42 +4760,6 @@ static DBG_DISP: AtomicU64 = AtomicU64::new(0);
 /// pos_tooltip 의 마지막 실측 폭(f32 비트). rect 는 보이는 프레임에만 채워지므로 캐시한다.
 static POS_TIP_W: AtomicU32 = AtomicU32::new(0x4302_0000); // 130.0
 
-/// ★밴픽 그리드 순회 순서 = 게임이 쓰는 **가나다순**(실측: jiangshi→swordman→fighter …).
-///   이름을 파싱하지 않고 이 순서를 그대로 수집해 캐시하면, 패치로 챔프가 추가돼도
-///   게임이 알려주는 순서를 그대로 따라간다(설정 팝업 정렬용).
-static GRID_ORDER: Mutex<Vec<String>> = Mutex::new(Vec::new());
-static ORDER_SAVED: AtomicUsize = AtomicUsize::new(0);
-
-/// 수집된 순서(없으면 빈 Vec).
-pub fn grid_order() -> Vec<String> {
-    plock_vec(&GRID_ORDER).clone()
-}
-
-fn plock_vec(m: &'static Mutex<Vec<String>>) -> std::sync::MutexGuard<'static, Vec<String>> {
-    m.lock().unwrap_or_else(|e| e.into_inner())
-}
-
-/// 셀 순회에서 본 이름을 순서대로 누적(중복 무시). 일정 수 이상 모이면 파일로 저장.
-fn order_note(name: &str) {
-    let mut g = plock_vec(&GRID_ORDER);
-    if g.iter().any(|n| n == name) {
-        return;
-    }
-    if g.len() >= 512 {
-        return;
-    }
-    g.push(name.to_string());
-    let n = g.len();
-    drop(g);
-    // 60개 넘게 모였고 아직 저장 안 했으면(또는 더 많이 모였으면) 저장.
-    if n >= 60 && n > ORDER_SAVED.load(Ordering::Relaxed) {
-        ORDER_SAVED.store(n, Ordering::Relaxed);
-        let list = plock_vec(&GRID_ORDER).join("\n");
-        if let Some(dir) = crate::mod_dir() {
-            let _ = std::fs::write(format!("{dir}\\champ_pos_lock_order.txt"), list);
-        }
-    }
-}
 static DBG_CK: AtomicU64 = AtomicU64::new(0);
 /// 우리가 회색으로 칠한 챔프(해제 시 원복 대상).
 /// 우리가 회색으로 칠한 셀: 이름 → **원래 상태값**(복원용).
@@ -4840,7 +4804,6 @@ unsafe fn cell_paint(node: usize) {
     let Some(name) = read_str_at(np, nl) else {
         return;
     };
-    order_note(&name); // ★그리드 순회 순서(=가나다순) 수집
     let logic = match safe_rd_u64(node + 0x230) {
         Some(v) if ptr_ok(v as usize) => v as usize,
         _ => return,

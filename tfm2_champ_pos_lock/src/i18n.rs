@@ -183,6 +183,11 @@ fn game_lang() -> Option<String> {
         })
 }
 
+/// 현재 게임 언어(공개). 정렬 등 다른 모듈도 같은 소스를 봐야 한다.
+pub fn current_lang() -> String {
+    game_lang().unwrap_or_else(|| "en".to_string())
+}
+
 fn merge_lang(map: &mut HashMap<String, String>, root: &J, lang: &str) {
     let Some(J::Obj(groups)) = root.get(lang) else { return };
     for (g, gobj) in groups {
