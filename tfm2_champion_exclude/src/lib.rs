@@ -56,7 +56,7 @@ mod inject;
 mod ui_kit;
 
 const MOD_ID: &str = "tfm2_champion_exclude";
-const VERSION: &str = "0.5.2";
+const VERSION: &str = "0.5.3";
 /// i18n 태그 접두(text/champion_exclude.i18n 을 mod.override_info merge 로
 /// asset/base/text/ui 에 병합 — scrim ui.i18n 동형). 라벨 text = 이 태그면 게임이
 /// 현재 언어(ko/en)로 자동 해석.
@@ -437,13 +437,18 @@ static HAD_STAR: AtomicBool = AtomicBool::new(false);
 ///   없어 한글이 □로 깨진다 → **현재 언어(base.json lang)로 분기한 단일 언어 리터럴**.
 const CLASS_LABELS_KO: [&str; 6] = ["전체", "전사", "원거리", "마법사", "전투보조", "암살자"];
 const CLASS_LABELS_EN: [&str; 6] = ["All", "Melee", "Range", "Magic", "Util", "Assassin"];
-fn class_labels() -> &'static [&'static str; 6] {
-    if current_lang() == "ko" { &CLASS_LABELS_KO } else { &CLASS_LABELS_EN }
+fn class_labels(lang: &str) -> &'static [&'static str; 6] {
+    if lang == "ko" { &CLASS_LABELS_KO } else { &CLASS_LABELS_EN }
 }
+/// 드롭다운 옵션이 주입된 언어("" = 미주입). 팝업 열 때 현재 언어와 다르면 재주입
+/// — 세션 중 언어 변경에도 재시작 없이 반영(v0.5.3, 유저 실사고: 시작=ko → 세션 중
+/// en 전환 시 드롭다운·placeholder만 ko로 남아 □ 렌더).
+static DD_LANG: Mutex<String> = Mutex::new(String::new());
+/// 팝업 열 때 캡처한 현재 언어(프레임마다 base.json 재읽기 방지).
+static CUR_LANG_CACHE: Mutex<String> = Mutex::new(String::new());
 static CLASS_SEL: AtomicUsize = AtomicUsize::new(0);
 static SEARCH_TXT: Mutex<String> = Mutex::new(String::new());
 static SEARCH_CLEAR: AtomicBool = AtomicBool::new(false);
-static DD_INIT: AtomicBool = AtomicBool::new(false);
 static CLASS_DD: ui_kit::NativeDropdown = ui_kit::NativeDropdown::new("cx_class_filter");
 /// 필터 적용 후 실제 그리드에 보이는 목록 — 셀 인덱스 ↔ 챔피언 대응의 단일 출처
 /// (그리드와 클릭 라우트가 같은 목록을 봐야 엉뚱한 챔프가 토글되지 않는다 — pos_lock 교훈).
@@ -880,7 +885,7 @@ pub(crate) fn build_popup_ui() -> String {
       x: 158px; width: 200px; height: 40px;
       size: 16; align_y: Center;
       padding: { left: 44px; top: 5px; right: 15px; bottom: 5px; }
-      placeholder: "__SEARCH_PH__";
+      placeholder: "#asset/base/text/ui?banpick.champion_search_placeholder";
       max_length: 40;
 
       #icon:image {
@@ -956,10 +961,10 @@ pub(crate) fn build_popup_ui() -> String {
 }
 "##,
     );
-    // placeholder 는 태그 해석·폰트 글리프 둘 다 보장이 안 되는 지점 —
-    // 주입 시점의 현재 언어로 단일 언어 리터럴 치환(한/영 병기 금지 = 폰트 글리프 함정).
-    let ph = if current_lang() == "ko" { "챔피언 이름 검색..." } else { "Search champions..." };
-    s.replace("__SEARCH_PH__", ph)
+    // placeholder = 게임 자체 i18n 키 재사용(banpick.champion_search_placeholder —
+    // 게임정보 탭 검색창과 동일·전 로케일 번역 완비·언어 변경 즉시 반영. v0.5.3:
+    // 게임 .ui들이 placeholder에 태그를 쓰는 것 실측으로 태그 해석 확인).
+    s
 }
 
 /// 팝업 그리드/라벨 갱신(변경 시에만).
@@ -1193,16 +1198,35 @@ impl ModExtension for ChampExclExt {
             }
             // ── 편의 필터 위젯 배선(클래스 드롭다운 + 이름 검색 — pos_lock 동형) ──
             if open && present {
-                // ①옵션 주입 1회 — ⚠ABI 호출이라 **팝업이 실제로 열린 뒤에만** 부른다.
-                if !DD_INIT.load(Ordering::Relaxed)
-                    && CLASS_DD.set_options(&ui.root, class_labels(), 0)
-                {
-                    DD_INIT.store(true, Ordering::Relaxed);
-                    log("filter: 클래스 드롭다운 옵션 주입 OK");
+                // ①현재 언어 캡처(팝업 새로 열릴 때만 base.json 재읽기).
+                if LOAD_SEL_REQ.load(Ordering::Relaxed) {
+                    let l = current_lang();
+                    let mut g = CUR_LANG_CACHE.lock().unwrap_or_else(|e| e.into_inner());
+                    if *g != l {
+                        *g = l;
+                    }
                 }
-                // ②선택 인덱스 폴링(게임이 클릭 시 runner 에 기록).
+                let lang_now = {
+                    let mut g = CUR_LANG_CACHE.lock().unwrap_or_else(|e| e.into_inner());
+                    if g.is_empty() {
+                        *g = current_lang();
+                    }
+                    g.clone()
+                };
+                // ②드롭다운 옵션 (재)주입 — 주입 언어 ≠ 현재 언어면 다시 주입(언어 변경 대응).
+                //   ⚠ABI 호출이라 **팝업이 실제로 열린 뒤에만** 부른다.
+                {
+                    let mut dl = DD_LANG.lock().unwrap_or_else(|e| e.into_inner());
+                    if *dl != lang_now
+                        && CLASS_DD.set_options(&ui.root, class_labels(&lang_now), 0)
+                    {
+                        *dl = lang_now.clone();
+                        log(&format!("filter: 클래스 드롭다운 옵션 주입 OK (언어={lang_now})"));
+                    }
+                }
+                // ③선택 인덱스 폴링(게임이 클릭 시 runner 에 기록).
                 if let Some(sel) = CLASS_DD.selected(&ui.root) {
-                    let sel = sel.min(class_labels().len() - 1);
+                    let sel = sel.min(CLASS_LABELS_KO.len() - 1);
                     if CLASS_SEL.swap(sel, Ordering::Relaxed) != sel {
                         GRID_SIG.store(u64::MAX, Ordering::Relaxed);
                     }
