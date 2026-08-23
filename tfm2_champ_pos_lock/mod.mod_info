@@ -1,14 +1,14 @@
 {
-    "author":  "tfm2mods",
-    "dependencies":  [
-                         {
-                             "mod_id":  "base",
-                             "version":  "\u003e=0.5.6, \u003c0.5.7"
-                         }
-                     ],
-    "last_updated":  "2026-08-23",
-    "mod_id":  "tfm2_champ_pos_lock",
-    "name":  "梨뷀뵾???ъ????쒗븳 (Champion Position Lock)",
-    "version":  "0.5.5",
-    "description":  "?뱀젙 梨뷀뵾?몄쓣 ?뱀젙 ?ъ??섏뿉?쒕쭔 ?곌쾶 ?쒗븳?⑸땲??\n\n쨌 ?섍꼍?ㅼ젙 ??寃뚯엫?뚮젅????\u0027?ъ????쒗븳\u0027 踰꾪듉?먯꽌 ?ъ??섎퀎濡??덉슜??梨뷀뵾?몄쓣 怨좊쫭?덈떎.\n  (???ъ??섏쓣 鍮꾩썙?먮㈃ 洹??ъ??섏? 紐⑤뱺 梨뷀뵾???덉슜)\n쨌 AI(?곷? ?쨌肄붿튂 ?꾩엫쨌諛깃렇?쇱슫??由ш렇)??諛곗젙 遺덇??ν빐吏???쎌쓣 ?섏? ?딄퀬,\n  ?쒗븳 梨뷀뵾?몄쓣 ?덉슜 ?ъ??섏쑝濡쒕쭔 ?됯??⑸땲??\n쨌 ?낇룷吏???좏깮(?ㅼ솑) ?④퀎?먯꽌 **紐⑤뱺 寃쎄린**(??寃쎄린 ??? + 諛깃렇?쇱슫??由ш렇 ??寃쎄린)??n  諛곗젙???ㅼ젙?濡?留욎땅?덈떎. ?꾩쟾 諛곗젙??遺덇??ν븯硫?理쒕???留욎땅?덈떎.\n쨌 ???? 諛댄뵿???앸굹硫??먮룞 諛곗젙?섍퀬, 吏곸젒 ??移몄쓣 諛붽씀硫?洹??먯? 議댁쨷?⑸땲??\n  (?섏꽍 肄붿튂 ?꾩엫???꾨Ⅴ硫??ㅼ떆 ?먮룞 諛곗젙)\n쨌 諛곗젙???ㅼ젙???닿린硫??뺤젙 踰꾪듉??鍮꾪솢?깊솕?섍퀬 ?ъ쑀 ?댄똻???밸땲??\n쨌 ??諛댄뵿 ?붾㈃?먯꽌 戮묒쑝硫??쇱씤?낆씠 ?깅┰ 紐??섎뒗 梨뷀뵾?몄? ?쇱뼱由ъ뒪泥섎읆 ?뚯깋?쇰줈 留됯퀬,\n  怨좊? ???덈뒗 梨뷀뵾?몄씠 ?놁뼱吏硫??먮룞?쇰줈 ?쒗븳???됰땲??\n쨌 ?ㅼ젙 李쎌뿉???대옒???꾩궗/?먭굅由?留덈쾿???꾪닾蹂댁“/?붿궡?? ?꾪꽣? 梨뷀뵾???대쫫 寃?됱쑝濡?n  留롮? 梨뷀뵾??以??먰븯??寃껋쓣 鍮좊Ⅴ寃?李얠쓣 ???덉뒿?덈떎(?쒗븳 ?ㅼ젙怨?臾닿????몄쓽 湲곕뒫).\n쨌 紐⑸줉? ?꾩옱 ?ъ슜 媛?ν븳 梨뷀뵾?몃쭔(?꾩쭅 異쒖떆 ????梨뷀뵾???쒖쇅).\n\nWindows ?꾩슜.\n???ㅼ젙? ?몄씠釉뚮쭏???곕줈 ??λ맗?덈떎(?몄씠釉??뚯씪 ?덉뿉 蹂닿? ??寃뚯엫????ν빐???⑥뒿?덈떎).\n??諛댁뭅???섍? \u0027?먮룞\u0027?댁뼱??寃뚯엫怨??묎컳? 湲곗??쇰줈 怨꾩궛?⑸땲??\n?????ъ??섏뿉 怨좊Ⅸ 梨뷀뵾?몄씠 理쒖냼 ??諛댁뭅???섏뿉 ?곕씪 寃곗젙)??紐?誘몄튂硫?\n  洹??ъ??섏? ?쒗븳 ?놁쓬?쇰줈 痍④툒?⑸땲?????留먮씪 諛댄뵿??留됲엳??寃껋쓣 留됱뒿?덈떎).\n???대뼡 ?ъ??섎룄 梨꾩슱 ???녾쾶 ?섎㈃ 洹몃쭔???먯쑀濡?쾶 怨좊? ???덇퀬,\n  洹??먯쑀 ?쎌? 紐?踰덉㎏ ?쒖꽌???⑤룄 ?⑸땲??\n??紐⑤뱶 UI ?띿뒪?멸? 寃뚯엫 ?몄뼱(?쒓뎅???곸뼱)瑜??곕씪媛묐땲??\n??梨뷀뵾??紐⑸줉???꾩옱 寃뚯엫 ?몄뼱???대쫫 ?쒖쑝濡??뺣젹?섍퀬, 洹??대쫫?쇰줈 寃?됰맗?덈떎."
+  "author": "tfm2mods",
+  "dependencies": [
+    {
+      "mod_id": "base",
+      "version": ">=0.5.6, <0.5.7"
+    }
+  ],
+  "last_updated": "2026-08-23",
+  "mod_id": "tfm2_champ_pos_lock",
+  "name": "Champion Position Lock",
+  "version": "0.5.6",
+  "description": "Restrict champions so they can only be used in the positions you choose.\n\n* Settings -> Gameplay -> 'Position Lock' lets you pick the allowed champions per position.\n  (Leave a position empty and every champion may play there.)\n* AI teams too - the enemy team, coach delegation and background league matches all obey\n  the same rule: restricted champions are only evaluated for positions you allowed.\n* At the position assignment (swap) stage, EVERY match - yours and every background\n  league game - is arranged to match your settings. If a full arrangement is impossible,\n  it gets as close as it can.\n* Your own line-up is arranged automatically once the draft ends, and if you swap two\n  slots by hand your choice is kept. (Delegating to the head coach re-arranges it again.)\n* If the arrangement cannot satisfy your settings, the confirm button is disabled and\n  hovering it explains why.\n* During your draft, champions that would make a valid line-up impossible are greyed out\n  and cannot be clicked, exactly like fearless. The lock lifts automatically when nothing\n  legal is left to pick.\n* The settings window has a class filter (Fighter / Marksman / Mage / Support / Assassin)\n  and a champion name search, so you can find what you want in a large roster.\n  (Convenience only - it does not change the restriction itself.)\n* The list shows only champions currently available (unreleased ones are excluded).\n\nNotes\n* Settings are stored per save (inside the save file - you must save the game to keep them).\n* Works with the ban card count set to 'Auto': the same rule the game itself uses is applied.\n* If a position has fewer champions than the minimum (which depends on the ban card count),\n  that position is treated as unrestricted - this prevents the draft from locking up.\n* If a position can no longer be filled at all, you get that many free picks, and you may\n  spend them at any point in the draft order.\n* The mod's UI text follows the game language (Korean / English).\n* The champion list is sorted by the display name in the current game language, and the\n  search matches that name.\n\nWindows only."
 }
