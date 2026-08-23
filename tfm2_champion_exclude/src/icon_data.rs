@@ -59,7 +59,7 @@ pub fn start_load() {
             Ok(Some(m)) => m,
             _ => HashMap::new(),
         };
-        crate::log(&format!("icon_data: {}챔프 UV 계산 완료", map.len()));
+        crate::log(&format!("icon_data: UV computed for {} champs", map.len()));
         *MAP.lock().unwrap_or_else(|e| e.into_inner()) = Some(map);
         READY.store(true, Ordering::SeqCst);
     });

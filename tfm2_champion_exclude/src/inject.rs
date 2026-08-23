@@ -88,7 +88,7 @@ unsafe fn try_inject(r: usize) {
             let parent = find_parent_of_child(r, b"current_database_edit", 0);
             if parent != 0 && append_child(parent, ROW_UI) {
                 INJECTED_ROW.store(true, Ordering::Relaxed);
-                crate::log("champ_excl_row 주입 OK (게임플레이 탭)");
+                crate::log("champ_excl_row injected (gameplay tab)");
             }
         }
     }
@@ -119,7 +119,7 @@ unsafe fn try_inject(r: usize) {
                         for k in 0..NT_SIZE {
                             core::ptr::swap(a.add(k), b.add(k));
                         }
-                        crate::log("행 순서 조정: champ_excl_row 를 pos_lock_row 아래로");
+                        crate::log("row order adjusted: champ_excl_row below pos_lock_row");
                     }
                     ROW_ORDERED.store(true, Ordering::Relaxed);
                 }
@@ -143,7 +143,7 @@ unsafe fn try_inject(r: usize) {
             let ui = crate::build_popup_ui();
             if append_child(parent, &ui) {
                 INJECTED_POPUP.store(true, Ordering::Relaxed);
-                crate::log("champ_excl_popup 주입 OK");
+                crate::log("champ_excl_popup injected");
             }
         }
     }
@@ -248,7 +248,7 @@ pub fn install() {
             INSTALLED.store(false, Ordering::Relaxed);
             return;
         }
-        crate::log("loader hook 설치 OK (UI 주입)");
+        crate::log("loader hook installed (UI inject)");
     }
 }
 

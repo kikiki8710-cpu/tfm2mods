@@ -56,7 +56,7 @@ mod inject;
 mod ui_kit;
 
 const MOD_ID: &str = "tfm2_champion_exclude";
-const VERSION: &str = "0.5.3";
+const VERSION: &str = "0.5.4";
 /// i18n 태그 접두(text/champion_exclude.i18n 을 mod.override_info merge 로
 /// asset/base/text/ui 에 병합 — scrim ui.i18n 동형). 라벨 text = 이 태그면 게임이
 /// 현재 언어(ko/en)로 자동 해석.
@@ -184,9 +184,9 @@ static PENDING_SAVE: Mutex<Option<String>> = Mutex::new(None);
 /// 유효 제외 목록 = 현재 세이브의 설정(없으면 빈 목록 = 바닐라 동작). 3번째 = 출처 라벨.
 fn effective_exclusion() -> (Vec<String>, bool, &'static str) {
     if let Some((l, s)) = SAVE_EXCL.lock().unwrap_or_else(|e| e.into_inner()).clone() {
-        return (l, s, "세이브");
+        return (l, s, "save");
     }
-    (Vec::new(), false, "설정없음")
+    (Vec::new(), false, "none")
 }
 
 // ── detour (패치데이 후보 필터) ──
@@ -212,17 +212,17 @@ extern "C" fn detour_candidates(rcx: usize, rdx: usize, r8: usize, r9: usize) ->
 fn filter_candidates(out: usize) {
     let n = FIRE_COUNT.fetch_add(1, Ordering::Relaxed) + 1;
     if !ptr_sane(out) || unsafe { !readable(out, 0x18) } {
-        log(&format!("fire#{}: out 포인터 이상(0x{:x}) — 필터 skip", n, out));
+        log(&format!("fire#{}: bad out ptr (0x{:x}) - filter skipped", n, out));
         return;
     }
     let vec_ptr = unsafe { *((out + 8) as *const usize) };
     let mut len = unsafe { *((out + 0x10) as *const usize) };
     if len == 0 {
-        log(&format!("fire#{}: 후보 0개(추가 설정 off 또는 전원 출시) — 조치 없음", n));
+        log(&format!("fire#{}: 0 candidates (champion_add off or all released) - nothing to do", n));
         return;
     }
     if len > MAX_CANDIDATES || !ptr_sane(vec_ptr) || unsafe { !readable(vec_ptr, len * 0x18) } {
-        log(&format!("fire#{}: 후보 Vec 이상(ptr=0x{:x} len={}) — 필터 skip(오독 방지)", n, vec_ptr, len));
+        log(&format!("fire#{}: bad candidate vec (ptr=0x{:x} len={}) - filter skipped (misread guard)", n, vec_ptr, len));
         return;
     }
 
@@ -240,11 +240,11 @@ fn filter_candidates(out: usize) {
     // 후보 전체 덤프(모드챔프 포함 여부 확증용 진단 — 패치데이당 1~2회라 저비용)
     let mut names: Vec<String> = Vec::with_capacity(len);
     for i in 0..len {
-        names.push(read_name(i).unwrap_or_else(|| "<판독불가>".into()));
+        names.push(read_name(i).unwrap_or_else(|| "<unreadable>".into()));
     }
     let (exclude, block_all, src) = effective_exclusion();
-    log(&format!("fire#{}: 후보 {}개 = [{}] / 제외목록 {}개(출처={}){}",
-        n, len, names.join(", "), exclude.len(), src, if block_all { " + 전면차단(*)" } else { "" }));
+    log(&format!("fire#{}: {} candidates = [{}] / exclude list {} (source={}){}",
+        n, len, names.join(", "), exclude.len(), src, if block_all { " + block-all(*)" } else { "" }));
     save_seen(&names); // 실후보 관측 캐시(UI 목록 보강)
 
     if exclude.is_empty() && !block_all {
@@ -278,16 +278,16 @@ fn filter_candidates(out: usize) {
                 len -= 1;
                 *((out + 0x10) as *mut usize) = len;
             }
-            removed.push(name.unwrap_or_else(|| "<판독불가>".into()));
+            removed.push(name.unwrap_or_else(|| "<unreadable>".into()));
             // i 는 그대로(방금 당겨온 요소 재검사)
         } else {
             i += 1;
         }
     }
     if removed.is_empty() {
-        log(&format!("fire#{}: 매치 없음 — 후보 {}개 유지", n, len));
+        log(&format!("fire#{}: no match - {} candidates kept", n, len));
     } else {
-        log(&format!("fire#{}: {}개 제거 = [{}] → 후보 {}개 남음",
+        log(&format!("fire#{}: removed {} = [{}] -> {} candidates left",
             n, removed.len(), removed.join(", "), len));
     }
 }
@@ -299,7 +299,7 @@ fn save_seen(names: &[String]) {
     let mut set = load_seen();
     let before = set.len();
     for n in names {
-        if n != "<판독불가>" {
+        if n != "<unreadable>" {
             set.insert(n.to_ascii_lowercase());
         }
     }
@@ -309,7 +309,7 @@ fn save_seen(names: &[String]) {
     let mut v: Vec<&String> = set.iter().collect();
     v.sort();
     let body = v.iter().map(|s| s.as_str()).collect::<Vec<_>>().join("\n");
-    let _ = std::fs::write(&p, format!("# 패치데이에 관측된 추가 후보(자동 기록 — 편집 불요)\n{body}\n"));
+    let _ = std::fs::write(&p, format!("# Candidates observed on patch days (auto-generated, no need to edit)\n{body}\n"));
 }
 fn load_seen() -> HashSet<String> {
     let mut set = HashSet::new();
@@ -333,7 +333,7 @@ unsafe fn install_hook() -> Result<String, String> {
     MOD_BASE.store(base, Ordering::Relaxed);
     let addr = base + HOOK_RVA;
     if !readable(addr, ORIG_LEN) {
-        return Err(format!("훅 지점 unreadable @abs=0x{:x} (base=0x{:x} rva=0x{:x})", addr, base, HOOK_RVA));
+        return Err(format!("hook site unreadable @abs=0x{:x} (base=0x{:x} rva=0x{:x})", addr, base, HOOK_RVA));
     }
     let mut cur = [0u8; ORIG_LEN];
     core::ptr::copy_nonoverlapping(addr as *const u8, cur.as_mut_ptr(), ORIG_LEN);
@@ -341,7 +341,7 @@ unsafe fn install_hook() -> Result<String, String> {
     const MEM_COMMIT_RESERVE: u32 = 0x1000 | 0x2000;
     const PAGE_EXECUTE_READWRITE: u32 = 0x40;
     let tramp = VirtualAlloc(0, 0x1000, MEM_COMMIT_RESERVE, PAGE_EXECUTE_READWRITE);
-    if tramp == 0 { return Err("VirtualAlloc 트램폴린 실패".into()); }
+    if tramp == 0 { return Err("VirtualAlloc trampoline failed".into()); }
 
     let mode: &str;
     let mut tlen = 0usize;
@@ -352,16 +352,16 @@ unsafe fn install_hook() -> Result<String, String> {
         let jmp: [u8; 12] = jmp_abs(back);
         core::ptr::copy_nonoverlapping(jmp.as_ptr(), (tramp + tlen) as *mut u8, 12);
         tlen += 12;
-        mode = "정상 프롤로그 → 트램폴린";
+        mode = "clean prologue -> trampoline";
     } else if cur[0] == 0x48 && cur[1] == 0xB8 && cur[10] == 0xFF && cur[11] == 0xE0 {
         core::ptr::copy_nonoverlapping(cur.as_ptr(), tramp as *mut u8, 12);
         tlen = 12;
         let ext = usize::from_le_bytes(cur[2..10].try_into().unwrap());
-        mode = "기존 외부 훅 감지 → 체인 훅";
-        log(&format!("체인: 외부 훅 타깃=0x{:x}", ext));
+        mode = "external hook detected -> chained";
+        log(&format!("chain: external hook target=0x{:x}", ext));
     } else {
         return Err(format!(
-            "프롤로그 불일치 → 설치 SKIP @abs=0x{:x} 실측={:02x?} 기대={:02x?} (패치버전 확인 필요)",
+            "prologue mismatch -> install SKIPPED @abs=0x{:x} found={:02x?} expected={:02x?} (check game patch version)",
             addr, cur, HOOK_ORIG
         ));
     }
@@ -372,7 +372,7 @@ unsafe fn install_hook() -> Result<String, String> {
     patch[..12].copy_from_slice(&jmp_abs(detour_candidates as usize));
     let mut old: u32 = 0;
     if VirtualProtect(addr, ORIG_LEN, PAGE_EXECUTE_READWRITE, &mut old) == 0 {
-        return Err("VirtualProtect 실패".into());
+        return Err("VirtualProtect failed".into());
     }
     core::ptr::copy_nonoverlapping(patch.as_ptr(), addr as *mut u8, ORIG_LEN);
     let mut old2: u32 = 0;
@@ -382,9 +382,9 @@ unsafe fn install_hook() -> Result<String, String> {
     let mut landed = [0u8; ORIG_LEN];
     core::ptr::copy_nonoverlapping(addr as *const u8, landed.as_mut_ptr(), ORIG_LEN);
     if landed == patch {
-        Ok(format!("설치+VERIFIED @abs=0x{:x} (rva=0x{:x}) 모드={} tramp=0x{:x}", addr, HOOK_RVA, mode, tramp))
+        Ok(format!("installed+VERIFIED @abs=0x{:x} (rva=0x{:x}) mode={} tramp=0x{:x}", addr, HOOK_RVA, mode, tramp))
     } else {
-        Err(format!("write 미반영 @abs=0x{:x} landed={:02x?}", addr, landed))
+        Err(format!("write not applied @abs=0x{:x} landed={:02x?}", addr, landed))
     }
 }
 
@@ -776,7 +776,7 @@ fn recompute_candidates(
     let n = cand.len();
     *CAND.lock().unwrap_or_else(|e| e.into_inner()) = cand;
     if CAND_SIG.swap(sig, Ordering::Relaxed) != sig {
-        log(&format!("후보 재계산: 미출시 {n}개 (출시 {avail_n} · 모드챔프 {modn})"));
+        log(&format!("candidates recomputed: {n} unreleased (released {avail_n}, mod champs {modn})"));
     }
     GRID_SIG.store(u64::MAX, Ordering::Relaxed);
 }
@@ -784,7 +784,7 @@ fn recompute_candidates(
 /// 현재 세이브 설정 → 선택 상태 로드(팝업 열릴 때).
 fn load_selection() {
     let (list, star, src) = effective_exclusion();
-    log(&format!("선택 로드: {}개 (출처={}{})", list.len(), src, if star { "·*" } else { "" }));
+    log(&format!("selection loaded: {} (source={}{})", list.len(), src, if star { ",*" } else { "" }));
     HAD_STAR.store(star, Ordering::Relaxed);
     let cand = CAND.lock().unwrap_or_else(|e| e.into_inner()).clone();
     let sel: HashSet<String> = if star {
@@ -832,10 +832,10 @@ fn save_selection() {
     }
     *PENDING_SAVE.lock().unwrap_or_else(|e| e.into_inner()) = Some(out);
     log(&format!(
-        "저장 요청: 제외 {}개{}{} → 이 세이브(mod save data) 기록 대기",
+        "save requested: {} excluded{}{} -> queued to this save (mod save data)",
         sel.len(),
-        if keep_star { " ('*' 유지)" } else { "" },
-        if foreign.is_empty() { String::new() } else { format!(" + 보존 {}개", foreign.len()) }
+        if keep_star { " ('*' kept)" } else { "" },
+        if foreign.is_empty() { String::new() } else { format!(" + {} preserved", foreign.len()) }
     ));
 }
 
@@ -1113,8 +1113,8 @@ impl ModExtension for ChampExclExt {
                         data.mod_save_set_version(MOD_ID, SAVE_NS_VERSION);
                         let ok = data.mod_save_set_string(MOD_ID, SAVE_KEY, &body);
                         log(&format!(
-                            "세이브 기록 {}: {}B (mod_save_set_string)",
-                            if ok { "OK" } else { "거부(FALSE)" },
+                            "save write {}: {}B (mod_save_set_string)",
+                            if ok { "OK" } else { "REJECTED(false)" },
                             body.len()
                         ));
                         if ok {
@@ -1126,7 +1126,7 @@ impl ModExtension for ChampExclExt {
                                 Some(parse_exclude_text(&body));
                         }
                     } else {
-                        log("세이브 기록 불가: can_write_mod_save=false (멀티 비호스트?) — 이번 선택은 저장 안 됨");
+                        log("cannot write save: can_write_mod_save=false (multiplayer non-host?) - selection not saved");
                     }
                 }
                 // ②세이브의 현행 설정을 캐시(패치데이 detour 가 이걸 읽음 — SDK 컨텍스트 없음).
@@ -1221,7 +1221,7 @@ impl ModExtension for ChampExclExt {
                         && CLASS_DD.set_options(&ui.root, class_labels(&lang_now), 0)
                     {
                         *dl = lang_now.clone();
-                        log(&format!("filter: 클래스 드롭다운 옵션 주입 OK (언어={lang_now})"));
+                        log(&format!("filter: class dropdown options injected (lang={lang_now})"));
                     }
                 }
                 // ③선택 인덱스 폴링(게임이 클릭 시 runner 에 기록).
@@ -1264,7 +1264,7 @@ impl ModExtension for ChampExclExt {
                     CAND_FORCE.store(true, Ordering::Relaxed);
                     LOAD_SEL_REQ.store(true, Ordering::Relaxed);
                     GRID_SIG.store(u64::MAX, Ordering::Relaxed);
-                    log("추가 챔피언 설정 버튼 클릭");
+                    log("champion addition settings button clicked");
                 }),
             ));
             let close: ui_kit::ClickFn = Rc::new(|| POPUP_OPEN.store(false, Ordering::Relaxed));
@@ -1321,7 +1321,7 @@ impl ModExtension for ChampExclExt {
 
 fn init(_ctx: &GameCtx) -> ModRegistration {
     // src=file!() — build_inj.ps1 신원 검증(dll 내 소스 절대경로 문자열) 요구
-    log(&format!("mod init v{VERSION} (src={}) — 설정 = 세이브별(mod save data) 단일", file!()));
+    log(&format!("mod init v{VERSION} (src={}) - settings = per-save (mod save data) only", file!()));
     let r = catch_unwind(AssertUnwindSafe(|| unsafe { install_hook() }));
     match r {
         Ok(Ok(m)) => log(&format!("HOOK OK: {}", m)),
