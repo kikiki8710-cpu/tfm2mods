@@ -56,7 +56,7 @@ mod inject;
 mod ui_kit;
 
 const MOD_ID: &str = "tfm2_champion_exclude";
-const VERSION: &str = "0.5.1";
+const VERSION: &str = "0.5.2";
 /// i18n 태그 접두(text/champion_exclude.i18n 을 mod.override_info merge 로
 /// asset/base/text/ui 에 병합 — scrim ui.i18n 동형). 라벨 text = 이 태그면 게임이
 /// 현재 언어(ko/en)로 자동 해석.
@@ -432,10 +432,14 @@ static HAD_STAR: AtomicBool = AtomicBool::new(false);
 
 // ── 편의 필터(v0.3.0 — pos_lock 동형): 클래스 드롭다운 + 이름 검색 ──
 /// 클래스 라벨(드롭다운 옵션 순서 = CLASS_SEL 인덱스, 0=전체).
-/// ⚠드롭다운 옵션은 런타임 ABI 주입이라 i18n 태그 해석이 보장되지 않음 → 한/영 병기 리터럴.
-const CLASS_LABELS: [&str; 6] = [
-    "전체/All", "전사/Melee", "원거리/Range", "마법사/Magic", "보조/Util", "암살자/Assassin",
-];
+/// ⚠드롭다운 옵션은 런타임 ABI 주입이라 i18n 태그 해석이 보장되지 않음.
+/// ⚠한/영 병기 리터럴 금지(v0.5.1 실사고): 비-한국어 로케일의 UI 폰트엔 한글 글리프가
+///   없어 한글이 □로 깨진다 → **현재 언어(base.json lang)로 분기한 단일 언어 리터럴**.
+const CLASS_LABELS_KO: [&str; 6] = ["전체", "전사", "원거리", "마법사", "전투보조", "암살자"];
+const CLASS_LABELS_EN: [&str; 6] = ["All", "Melee", "Range", "Magic", "Util", "Assassin"];
+fn class_labels() -> &'static [&'static str; 6] {
+    if current_lang() == "ko" { &CLASS_LABELS_KO } else { &CLASS_LABELS_EN }
+}
 static CLASS_SEL: AtomicUsize = AtomicUsize::new(0);
 static SEARCH_TXT: Mutex<String> = Mutex::new(String::new());
 static SEARCH_CLEAR: AtomicBool = AtomicBool::new(false);
@@ -876,7 +880,7 @@ pub(crate) fn build_popup_ui() -> String {
       x: 158px; width: 200px; height: 40px;
       size: 16; align_y: Center;
       padding: { left: 44px; top: 5px; right: 15px; bottom: 5px; }
-      placeholder: "챔피언 검색 / Search...";
+      placeholder: "__SEARCH_PH__";
       max_length: 40;
 
       #icon:image {
@@ -952,7 +956,10 @@ pub(crate) fn build_popup_ui() -> String {
 }
 "##,
     );
-    s
+    // placeholder 는 태그 해석·폰트 글리프 둘 다 보장이 안 되는 지점 —
+    // 주입 시점의 현재 언어로 단일 언어 리터럴 치환(한/영 병기 금지 = 폰트 글리프 함정).
+    let ph = if current_lang() == "ko" { "챔피언 이름 검색..." } else { "Search champions..." };
+    s.replace("__SEARCH_PH__", ph)
 }
 
 /// 팝업 그리드/라벨 갱신(변경 시에만).
@@ -1188,14 +1195,14 @@ impl ModExtension for ChampExclExt {
             if open && present {
                 // ①옵션 주입 1회 — ⚠ABI 호출이라 **팝업이 실제로 열린 뒤에만** 부른다.
                 if !DD_INIT.load(Ordering::Relaxed)
-                    && CLASS_DD.set_options(&ui.root, &CLASS_LABELS, 0)
+                    && CLASS_DD.set_options(&ui.root, class_labels(), 0)
                 {
                     DD_INIT.store(true, Ordering::Relaxed);
                     log("filter: 클래스 드롭다운 옵션 주입 OK");
                 }
                 // ②선택 인덱스 폴링(게임이 클릭 시 runner 에 기록).
                 if let Some(sel) = CLASS_DD.selected(&ui.root) {
-                    let sel = sel.min(CLASS_LABELS.len() - 1);
+                    let sel = sel.min(class_labels().len() - 1);
                     if CLASS_SEL.swap(sel, Ordering::Relaxed) != sel {
                         GRID_SIG.store(u64::MAX, Ordering::Relaxed);
                     }
