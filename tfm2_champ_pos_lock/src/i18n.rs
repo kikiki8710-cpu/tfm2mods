@@ -31,6 +31,10 @@ pub const REL_PATH: &str = "text\\poslock.i18n";
 const GROUP: &str = "pos_lock";
 
 static TABLE: Mutex<Option<HashMap<String, String>>> = Mutex::new(None);
+/// 마지막으로 테이블을 만든 언어. 게임 언어가 바뀌면 다시 만든다.
+static LOADED_LANG: Mutex<Option<String>> = Mutex::new(None);
+/// base.json 재확인 주기(프레임). 매 프레임 파일을 읽을 이유는 없다.
+static TICK: std::sync::atomic::AtomicUsize = std::sync::atomic::AtomicUsize::new(0);
 
 // ── 미니 JSON 파서 (tfm2_scrim → tfm2_elemental_serpen 계보 이식) ──────────
 enum J {
@@ -192,7 +196,33 @@ fn merge_lang(map: &mut HashMap<String, String>, root: &J, lang: &str) {
     }
 }
 
-/// 1회 로드. 파일이 없으면 내장 사본을 쓰고 파일도 만들어 준다(`.ui` 경로는 다음 실행부터 유효).
+/// ★게임 언어가 바뀌었으면 테이블을 다시 만든다.
+///   ⚠**언어는 게임 실행 중에 바뀔 수 있다.** `.ui` 라벨은 게임이 매번 다시 해석해 바로 따라가지만,
+///     우리 테이블은 시작 시 1회 로드라 그대로 남는다 ⟹ 화면 절반만 번역되고, 영어 폰트에 한글이
+///     들어가 **글자가 깨진다**(2026-08-23 실측: 왼쪽 .ui 는 영어인데 오른쪽 조합 문자열만 □□□).
+///   비용은 수백 바이트 JSON 1회 읽기라, 주기적으로 확인하는 편이 안전하다.
+pub fn poll_lang() {
+    let n = TICK.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+    if n % 300 != 0 {
+        return; // ~5초에 한 번만 파일 확인
+    }
+    poll_now();
+}
+
+/// 주기를 기다리지 않고 **지금** 확인한다(팝업을 여는 순간처럼 결과가 바로 보여야 할 때).
+pub fn poll_now() {
+    let cur = game_lang().unwrap_or_else(|| "en".to_string());
+    let same = LOADED_LANG
+        .lock()
+        .unwrap_or_else(|e| e.into_inner())
+        .as_deref()
+        == Some(cur.as_str());
+    if !same {
+        load();
+    }
+}
+
+/// 로드(재로드 포함). 파일이 없으면 내장 사본을 쓰고 파일도 만들어 준다(`.ui` 경로는 다음 실행부터 유효).
 pub fn load() {
     let path = crate::mod_dir().map(|d| format!("{d}\\{REL_PATH}"));
     let txt = match path.as_ref().and_then(|p| std::fs::read_to_string(p).ok()) {
@@ -208,15 +238,21 @@ pub fn load() {
             EMBEDDED.to_string()
         }
     };
+    let lang = game_lang().unwrap_or_else(|| "en".to_string());
     let mut map = HashMap::new();
     if let Some(root) = P::new(&txt).value() {
         merge_lang(&mut map, &root, "en"); // en 베이스(폴백)
-        let lang = game_lang().unwrap_or_else(|| "en".to_string());
         if lang != "en" {
             merge_lang(&mut map, &root, &lang); // 선택 언어로 덮어쓰기
         }
     }
+    remember_lang(&lang);
     *TABLE.lock().unwrap_or_else(|e| e.into_inner()) = Some(map);
+}
+
+/// 위 `load()` 안에서 확정한 언어를 기록(중복 로드 방지). `load()` 말미에서 호출된다.
+fn remember_lang(lang: &str) {
+    *LOADED_LANG.lock().unwrap_or_else(|e| e.into_inner()) = Some(lang.to_string());
 }
 
 /// 키 조회. 미존재 시 키 자체를 반환한다(누락이 화면에서 바로 보이도록).

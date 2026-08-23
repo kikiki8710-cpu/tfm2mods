@@ -2048,6 +2048,9 @@ impl ModExtension for PosLockExt {
             if !cfg.enabled {
                 return;
             }
+            // ★게임 언어 변경 추종(~5초 주기 확인). 안 하면 .ui 만 번역되고 조합 문자열은 옛 언어로 남아
+            //   영어 폰트 + 한글 = 글자 깨짐이 된다(2026-08-23 실측).
+            i18n::poll_lang();
             // ★밴픽 씬이 죽었으면 캡처 포인터를 무효화 — 워커 스레드의 stale read 차단.
             hooks::scene_gc();
             // 챔피언 목록 1회 캡처(관리화면 프레임에서도 Scene::InGame 매치).
@@ -2414,6 +2417,7 @@ impl ModExtension for PosLockExt {
                     CNT_ROW_CLICK.fetch_add(1, Ordering::Relaxed);
                     POPUP_OPEN.store(true, Ordering::Relaxed);
                     GRID_SIG.store(u64::MAX, Ordering::Relaxed); // 열 때 강제 재채움
+                    i18n::poll_now(); // 언어가 바뀌었으면 여는 순간 반영(주기 대기 없이)
                     config::dlog("포지션 제한 버튼 클릭됨");
                 }),
             ));
