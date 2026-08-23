@@ -11,7 +11,6 @@
 
 use mod_api::*;
 use std::sync::atomic::{AtomicBool, AtomicPtr, AtomicU64, Ordering};
-use std::sync::OnceLock;
 
 mod config;
 mod hooks;
@@ -53,8 +52,45 @@ pub(crate) fn mod_dir() -> Option<String> {
 
 // ── 챔피언 인덱스 → 이름/마스크 ─────────────────────────────────────────────
 // ctx candidate 인덱스 = db.available_champions 순서(모드 챔프는 그 뒤) 전제.
-// NAMES 는 1회 캡처(경기 중 불변), MASKS 는 상태(UI 편집) 버전이 바뀔 때 재계산.
-pub(crate) static NAMES: OnceLock<Vec<String>> = OnceLock::new(); // 원본 표기(UI/덤프용)
+// NAMES 는 **로스터가 바뀌면 재게시**(세이브 전환·워크샵 토글), MASKS 는 상태 버전이 바뀔 때 재계산.
+/// ★사용 가능 챔피언 목록. ~~`OnceLock`(프로세스당 1회 캡처)~~ → **로스터가 바뀌면 재게시**.
+///   ⚠1회 캡처였을 때: ①워크샵 챔프를 켜도 재시작 전엔 목록에 안 나오고 ②다른 세이브를 불러와도
+///     **이전 세이브의 챔프가 남아 있었다**(2026-08-23 유저 제보).
+///   해제는 하지 않는다(leak) — 다른 스레드가 이전 슬라이스를 들고 있을 수 있고, 로스터 변경은
+///   세이브 전환·워크샵 토글 때만 일어나 횟수가 극히 적다. `masks()` 와 같은 방식.
+static NAMES_PTR: AtomicPtr<Vec<String>> = AtomicPtr::new(std::ptr::null_mut());
+/// 마지막으로 게시한 로스터의 서명(내용 해시 + 길이). 같은 길이·다른 구성도 잡는다.
+static ROSTER_SIG: AtomicU64 = AtomicU64::new(0);
+/// ★재캡처 요청 플래그. **매 프레임 해시를 돌리지 않기 위한 것** — 로스터가 바뀔 수 있는
+///   순간에만 켜고, 다음 InGame 프레임이 소비한다.
+///   켜는 곳 = ①설정 모달 열기(유저가 목록을 보는 시점) ②세이브 밖으로 나감(세이브 전환)
+///   ③최초 1회(초기 캡처). 클릭 콜백엔 `db` 가 없어서 플래그로 이월한다.
+static ROSTER_DIRTY: AtomicBool = AtomicBool::new(true);
+
+pub(crate) fn names() -> Option<&'static Vec<String>> {
+    let p = NAMES_PTR.load(Ordering::Acquire);
+    if p.is_null() {
+        None
+    } else {
+        Some(unsafe { &*p })
+    }
+}
+fn publish_names(v: Vec<String>) {
+    NAMES_PTR.store(Box::into_raw(Box::new(v)), Ordering::Release);
+}
+/// 로스터 서명 — **길이만으로는 부족**하다(같은 수의 다른 챔프 구성이 가능).
+fn roster_sig(ids: &[String]) -> u64 {
+    let mut h: u64 = 0xcbf2_9ce4_8422_2325;
+    for s in ids {
+        for b in s.as_bytes() {
+            h ^= *b as u64;
+            h = h.wrapping_mul(0x100_0000_01b3);
+        }
+        h ^= 0xff;
+        h = h.wrapping_mul(0x100_0000_01b3);
+    }
+    h ^ ((ids.len() as u64) << 32)
+}
 static IDX_MASK: AtomicPtr<Vec<u8>> = AtomicPtr::new(core::ptr::null_mut());
 static APPLIED_VER: AtomicU64 = AtomicU64::new(u64::MAX);
 
@@ -73,7 +109,7 @@ fn publish_masks(v: Vec<u8>) {
 }
 /// 사용 가능 챔피언 목록(NAMES) 노출 — UI 가 그리드를 채울 때 사용.
 pub fn champ_names() -> Option<&'static Vec<String>> {
-    NAMES.get()
+    names()
 }
 
 // ── 설정 팝업 그리드: 한글 이름 가나다순 정렬 ─────────────────────────────
@@ -89,7 +125,7 @@ static LANG_MAPS: std::sync::Mutex<
 /// ★정렬 결과 캐시 + 그걸 만든 시그니처(언어 + 로스터 크기).
 ///   ⚠구현은 `OnceLock` 이었다 — **세션 중 언어가 바뀌면 낡은 정렬이 고정**된다
 ///     (게임정보 탭은 즉시 따라가는데 우리만 옛 언어 순서로 남음).
-static SORTED_CHAMPS: std::sync::Mutex<Option<(String, usize, Vec<String>)>> =
+static SORTED_CHAMPS: std::sync::Mutex<Option<(String, u64, Vec<String>)>> =
     std::sync::Mutex::new(None);
 
 /// 게임 설치 폴더(exe 위치) — 경로 하드코딩 금지 규칙에 따라 동적 도출.
@@ -272,13 +308,15 @@ fn sort_key(id: &str, map: &std::collections::HashMap<String, String>) -> String
 /// 설정 팝업용: **현재 게임 언어의 표시명** 순으로 정렬된 챔피언 id 목록.
 ///   이름을 못 찾은 챔프는 뒤로 보내고 id 순으로(표시는 되되 순서만 뒤).
 pub fn sorted_champs() -> Option<Vec<String>> {
-    let champs = NAMES.get()?;
+    let champs = names()?;
     let lang = cur_lang();
-    // 캐시 히트 = 같은 언어 + 같은 로스터 크기.
+    // 캐시 히트 = 같은 언어 + 같은 로스터(서명). ⚠길이만 보면 세이브 전환 시 같은 수의 다른
+    //   구성을 못 잡는다.
+    let sig = ROSTER_SIG.load(Ordering::Relaxed);
     {
         let g = SORTED_CHAMPS.lock().unwrap_or_else(|e| e.into_inner());
         if let Some((l, n, v)) = g.as_ref() {
-            if l == &lang && *n == champs.len() {
+            if l == &lang && *n == sig {
                 return Some(v.clone());
             }
         }
@@ -300,8 +338,7 @@ pub fn sorted_champs() -> Option<Vec<String>> {
             map.len()
         ));
     }
-    *SORTED_CHAMPS.lock().unwrap_or_else(|e| e.into_inner()) =
-        Some((lang, champs.len(), v.clone()));
+    *SORTED_CHAMPS.lock().unwrap_or_else(|e| e.into_inner()) = Some((lang, sig, v.clone()));
     Some(v)
 }
 
@@ -339,7 +376,7 @@ fn dump_vec_names(base: usize, off: usize) -> String {
         if !(0x10000..1usize << 48).contains(&ptr) || len > 16 {
             return format!("<p={ptr:#x} n={len}>");
         }
-        let nm = |i: usize| NAMES.get().and_then(|v| v.get(i)).map(|s| s.as_str()).unwrap_or("?");
+        let nm = |i: usize| names().and_then(|v| v.get(i)).map(|s| s.as_str()).unwrap_or("?");
         let mut out = Vec::with_capacity(len);
         for k in 0..len {
             let v = core::ptr::read((ptr + k * 8) as *const u64) as usize;
@@ -1060,7 +1097,7 @@ impl ModDraftScoreHook for PosLockDraftAi {
                 return None;
             }
             let nm = |i: usize| {
-                NAMES.get().and_then(|v| v.get(i)).map(|s| s.as_str()).unwrap_or("?")
+                names().and_then(|v| v.get(i)).map(|s| s.as_str()).unwrap_or("?")
             };
             // ★진단(2026-08-21): SDK 필드 매핑 vs raw ctx 오프셋 대조 — 어느 게 진짜 아군 픽인지
             //   씬 실픽과 비교해 확정. 총 상한 200줄. (동작 변경 없음 = 로깅만.)
@@ -1191,8 +1228,7 @@ impl ModDraftScoreHook for PosLockDraftAi {
             Ok(Some(())) => {
                 CNT_VETO.fetch_add(1, Ordering::Relaxed);
                 if cfg.debug {
-                    let name = NAMES
-                        .get()
+                    let name = names()
                         .and_then(|v| v.get(candidate))
                         .map(|s| s.as_str())
                         .unwrap_or("?");
@@ -1250,7 +1286,6 @@ static USER_SWAPPED: AtomicBool = AtomicBool::new(false);
 pub(crate) static CHAMP_CAT: std::sync::Mutex<Vec<(String, u8)>> =
     std::sync::Mutex::new(Vec::new());
 /// CHAMP_CAT 를 캡처했을 때의 챔프 수(0=미캡처).
-static CHAMP_CAT_N: AtomicUsize = AtomicUsize::new(0);
 /// 설정 팝업 클래스 필터(0=전체, 1..=5 → 클래스 0..=4). 드롭다운 선택 인덱스와 같다.
 static CLASS_SEL: AtomicUsize = AtomicUsize::new(0);
 /// 설정 팝업 이름 검색어(소문자).
@@ -1628,7 +1663,7 @@ fn recompute_blocklist(root: &Node) {
         clear();
         return;
     }
-    let Some(names) = NAMES.get() else {
+    let Some(names) = names() else {
         clear();
         return;
     };
@@ -1979,7 +2014,7 @@ fn recompute_blocklist(root: &Node) {
 }
 
 fn recompute_masks_if_needed() {
-    let Some(names) = NAMES.get() else { return };
+    let Some(names) = names() else { return };
     let ver = config::state_version();
     if APPLIED_VER.load(Ordering::Relaxed) == ver {
         return;
@@ -2137,33 +2172,35 @@ impl ModExtension for PosLockExt {
                 // ★챔피언 클래스(전사/원거리/마법사/전투보조/암살자) 1회 캡처 — 설정 팝업 필터용.
                 //   기본 챔프 = `db.champion_info(id).category()`, 워크샵 챔프 = 시트의 `mod_champions[].category`.
                 //   (게임 정보 탭이 워크샵 챔프까지 필터하는 이유가 이것 — 파일 파싱·UI 학습 불요.)
-                let cat_n = db.available_champions.len();
-                if cat_n != 0 && CHAMP_CAT_N.load(Ordering::Relaxed) != cat_n {
-                    let cat_idx = |c: &ChampionCategory| -> u8 {
-                        match c {
-                            ChampionCategory::Melee => 0,
-                            ChampionCategory::Range => 1,
-                            ChampionCategory::Magician => 2,
-                            ChampionCategory::Util => 3,
-                            ChampionCategory::Assassin => 4,
+                // ★로스터 갱신 — 요청이 있을 때만 확인한다(매 프레임 해시 금지).
+                //   확인 자체는 싸지만 필요 없는 일이고, 실제로 바뀌는 순간은 정해져 있다.
+                if ROSTER_DIRTY.swap(false, Ordering::Relaxed) || names().is_none() {
+                    let ids: Vec<String> = db.available_champions.clone();
+                    let sig = roster_sig(&ids);
+                    // 서명이 같으면 게시하지 않는다(불필요한 마스크 재계산·정렬 무효화 방지).
+                    if !ids.is_empty() && ROSTER_SIG.swap(sig, Ordering::Relaxed) != sig {
+                        // 클래스(전사/원거리/마법사/전투보조/암살자) — 설정 팝업 필터용.
+                        //   기본 챔프 = `db.champion_info(id).category()`,
+                        //   워크샵 챔프 = 시트의 `mod_champions[].category`.
+                        let cat_idx = |c: &ChampionCategory| -> u8 {
+                            match c {
+                                ChampionCategory::Melee => 0,
+                                ChampionCategory::Range => 1,
+                                ChampionCategory::Magician => 2,
+                                ChampionCategory::Util => 3,
+                                ChampionCategory::Assassin => 4,
+                            }
+                        };
+                        let mut m: Vec<(String, u8)> = Vec::new();
+                        for id in ids.iter() {
+                            if let Some(c) = db.champion_info(id) {
+                                m.push((id.to_ascii_lowercase(), cat_idx(&c.category())));
+                            }
                         }
-                    };
-                    let mut m: Vec<(String, u8)> = Vec::new();
-                    for id in db.available_champions.iter() {
-                        if let Some(c) = db.champion_info(id) {
-                            m.push((id.to_ascii_lowercase(), cat_idx(&c.category())));
+                        for e in db.champion_info_sheet.mod_champions.iter() {
+                            m.push((e.id.to_ascii_lowercase(), cat_idx(&e.category)));
                         }
-                    }
-                    for e in db.champion_info_sheet.mod_champions.iter() {
-                        m.push((e.id.to_ascii_lowercase(), cat_idx(&e.category)));
-                    }
-                    config::dlog(&format!("클래스 캡처: {}종(챔프 {cat_n})", m.len()));
-                    *CHAMP_CAT.lock().unwrap_or_else(|e| e.into_inner()) = m;
-                    CHAMP_CAT_N.store(cat_n, Ordering::Relaxed);
-                }
-                if NAMES.get().is_none() {
-                    if !db.available_champions.is_empty() {
-                        let ids: Vec<String> = db.available_champions.clone();
+                        *CHAMP_CAT.lock().unwrap_or_else(|e| e.into_inner()) = m;
                         if cfg.debug {
                             let mut s = String::from("# 현재 사용 가능한 챔피언 id 목록\n");
                             for id in &ids {
@@ -2171,16 +2208,14 @@ impl ModExtension for PosLockExt {
                                 s.push('\n');
                             }
                             if let Some(d) = mod_dir() {
-                                let _ = std::fs::write(
-                                    format!("{d}\\champ_pos_lock_champions.txt"),
-                                    s,
-                                );
+                                let _ =
+                                    std::fs::write(format!("{d}\\champ_pos_lock_champions.txt"), s);
                             }
-                            config::dlog(&format!("캡처: 챔프 {}개", ids.len()));
                         }
-                        // ★로스터 확정 — 화이트리스트의 "지금 없는 챔프" 를 개수에서 제외한다.
+                        config::slog(&format!("로스터 갱신: 챔프 {}종", ids.len()));
+                        // 화이트리스트의 "지금 없는 챔프" 를 개수에서 제외 + 마스크 재계산 트리거.
                         config::set_roster(&ids);
-                        let _ = NAMES.set(ids);
+                        publish_names(ids);
                     }
                 }
             }
@@ -2233,7 +2268,7 @@ impl ModExtension for PosLockExt {
                                 SAVE_LOADED.store(true, Ordering::Relaxed);
                                 config::slog(&format!(
                                     "이 세이브엔 설정 없음({n}프레임 확인) → 제한 없음 / 로스터 {}종",
-                                    NAMES.get().map(|v| v.len()).unwrap_or(0)
+                                    names().map(|v| v.len()).unwrap_or(0)
                                 ));
                             }
                         }
@@ -2251,6 +2286,7 @@ impl ModExtension for PosLockExt {
                     //   **세이브를 갈아타도 이전 세이브의 팀 id 가 살아남아** 새 세이브에서 내 팀을
                     //   오판했다 → 픽 차례를 전부 "남의 차례"로 보고 회색화가 통째로 안 걸렸다.
                     //   `SIDE_MAP`(진영↔픽벡터 대응)도 같은 이유로 리셋.
+                    ROSTER_DIRTY.store(true, Ordering::Relaxed); // 세이브가 바뀌면 로스터도 바뀐다
                     PLAYER_TEAM.store(u64::MAX, Ordering::Relaxed);
                     PID_NONZERO.store(false, Ordering::Relaxed);
                     SIDE_MAP.store(0, Ordering::Relaxed);
@@ -2460,6 +2496,7 @@ impl ModExtension for PosLockExt {
                     POPUP_OPEN.store(true, Ordering::Relaxed);
                     GRID_SIG.store(u64::MAX, Ordering::Relaxed); // 열 때 강제 재채움
                     i18n::poll_now(); // 언어가 바뀌었으면 여는 순간 반영(주기 대기 없이)
+                    ROSTER_DIRTY.store(true, Ordering::Relaxed); // 목록을 보는 시점 = 재캡처 시점
                     config::dlog("포지션 제한 버튼 클릭됨");
                 }),
             ));
@@ -2854,7 +2891,7 @@ impl ModExtension for PosLockExt {
                         .map(|s| s.load(Ordering::Relaxed))
                         .filter(|&v| v != u64::MAX)
                         .collect();
-                    let names_len = NAMES.get().map(|n| n.len()).unwrap_or(0);
+                    let names_len = names().map(|n| n.len()).unwrap_or(0);
                     config::dlog(&format!(
                         "counters: GY(cell={} paint={}) CK={} CB(seen={} cut={}) DQ(fix={}) CP(seen={} swap={}) | am_hist={:?} am_pen={} seen={} veto={} failopen={} st(e/f/b/c)={}/{}/{}/{} mask_fire={} mask_call={} mask_adj={} A={} C={} D={} E={} CM={} RC={} rc_seen={} rw_seen={} rw_live={} dp_seen={} dp_live={} rc_filt={} rc_inj={} ag0={} agp={} min_stk={} cm_seen={} cm_rej={} cm_redir={} ui_q={} ui_block={} rdx={:?} model_cnt={} max_rdx={} names={}",
                         hooks::CNT_GY_CELL.load(Ordering::Relaxed),

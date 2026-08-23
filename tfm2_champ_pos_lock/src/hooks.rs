@@ -1473,7 +1473,7 @@ unsafe fn ally_is_user_match(ally: usize) -> bool {
     if alen == 0 || alen > 16 || !ptr_ok(aptr) {
         return false;
     }
-    let Some(names) = crate::NAMES.get() else {
+    let Some(names) = crate::names() else {
         return false;
     };
     let mut ally_names: Vec<String> = Vec::with_capacity(alen);
@@ -1976,8 +1976,7 @@ fn commit_decide(rmi: usize, acting_team: usize, champ: usize) -> CommitAction {
         //   그냥 최고점(무효) 챔프를 뽑는데, 여기서 그걸 거부하면 결정(선택)↔커밋(거부)이
         //   모순돼 코치가 재시도도 못하고 멈춘다(19/20 harpy 프리즈 실사고). 유저 요구
         //   "고를 수 있는 챔피언이 없으면 제한 풀려서 아무나" 와도 일치.
-        let any_feasible = crate::NAMES
-            .get()
+        let any_feasible = crate::names()
             .map(|names| {
                 names.iter().any(|n| {
                     let low = n.to_ascii_lowercase();
@@ -2728,7 +2727,7 @@ unsafe fn pred_extra(
     //   ⚠배제 안 함(false 반환)=hang 없음. (orchestrator agent+0xf10 이 런타임에서 픽 아님이
     //   확정돼, 데이터 확실한 match_info 경유로 전환. 2026-08-22.)
     let (Some(names), Some(masks), Some(v0)) =
-        (crate::NAMES.get(), crate::masks(), read_mi_vec(mi, 0x38))
+        (crate::names(), crate::masks(), read_mi_vec(mi, 0x38))
     else {
         return false;
     };
@@ -2852,7 +2851,7 @@ unsafe extern "C" fn orch_hook(
             let n = DBG_ORCHPRE.fetch_add(1, Ordering::Relaxed);
             if n < 20 {
                 let nm = |i: usize| {
-                    crate::NAMES.get().and_then(|v| v.get(i)).map(|s| s.as_str()).unwrap_or("?")
+                    crate::names().and_then(|v| v.get(i)).map(|s| s.as_str()).unwrap_or("?")
                 };
                 let probe = |base: usize| -> String {
                     if !ptr_ok(base) {
@@ -3095,7 +3094,7 @@ unsafe fn f848_penalty(champ_ptr: usize, count: usize) -> bool {
         let n = DBG_ARGMAX.fetch_add(1, Ordering::Relaxed);
         if n < 150 {
             let nm = |i: usize| {
-                crate::NAMES.get().and_then(|v| v.get(i)).map(|s| s.as_str()).unwrap_or("?")
+                crate::names().and_then(|v| v.get(i)).map(|s| s.as_str()).unwrap_or("?")
             };
             let names: Vec<String> = (0..count.min(8))
                 .map(|i| {
@@ -3487,7 +3486,7 @@ unsafe fn cprod_swap(ctx: usize, rec: usize) {
             ));
         }
     }
-    let (Some(names), Some(masks)) = (crate::NAMES.get(), crate::masks()) else {
+    let (Some(names), Some(masks)) = (crate::names(), crate::masks()) else {
         return;
     };
     let name_to_mask = |nm: &str| -> u8 {
@@ -4193,7 +4192,7 @@ unsafe fn disp_fix(sret: usize, ctx: usize, match_id: u64, team_id: u64) {
     if pinned.is_empty() {
         return;
     }
-    let (Some(names), Some(masks)) = (crate::NAMES.get(), crate::masks()) else {
+    let (Some(names), Some(masks)) = (crate::names(), crate::masks()) else {
         return;
     };
     let m_of = |nm: &str| -> u8 {
@@ -4313,7 +4312,7 @@ unsafe fn team_state(
     let side = safe_rd_u8(r + 0xf8).unwrap_or(0xff) as usize & 1;
     let team_a = safe_rd_u64(rmi + 0x140 + ((side ^ 1) * 8)).unwrap_or(u64::MAX);
     let mine = if team_id == team_a { &p_a } else { &p_b };
-    let (Some(names), Some(masks)) = (crate::NAMES.get(), crate::masks()) else {
+    let (Some(names), Some(masks)) = (crate::names(), crate::masks()) else {
         return None;
     };
     let pinned: Vec<u8> = mine
@@ -4537,7 +4536,7 @@ unsafe fn cand_filter(sret: usize, argpack: usize) {
     if mine.is_empty() {
         return;
     }
-    let (Some(names), Some(masks)) = (crate::NAMES.get(), crate::masks()) else {
+    let (Some(names), Some(masks)) = (crate::names(), crate::masks()) else {
         return;
     };
     let pinned: Vec<u8> = mine
@@ -4624,7 +4623,7 @@ unsafe fn cand_probe(sret: usize, argpack: usize) {
     let ptr = safe_rd_u64(sret + 8).unwrap_or(0) as usize;
     let len = safe_rd_u64(sret + 0x10).unwrap_or(0) as usize;
     let nm = |i: usize| {
-        crate::NAMES.get().and_then(|v| v.get(i)).map(|s| s.as_str()).unwrap_or("?")
+        crate::names().and_then(|v| v.get(i)).map(|s| s.as_str()).unwrap_or("?")
     };
     let mut head: Vec<String> = Vec::new();
     if ptr_ok(ptr) && len > 0 && len < 512 {
