@@ -22,7 +22,7 @@ param(
 # 0.5.4 전환 2026-08-05: sdk_054. rlib 파일 수·파일명은 053과 동일하나 mod_api/game_core/
 # game_view/game_ai/engine_ui/engine_core 6종 전부 내용 해시 DIFF ⟹ RVA 0 모드도 재빌드 필수.
 # toolchain 은 nightly-2026-05-24 유지(sdk_054\mod-sdk\toolchain_version.txt = rustc 1.98.0-nightly 23a3312d9 실측).
-$SDK  = "C:\tfm2mods\sdk_056\mod-sdk"
+$SDK  = "C:\tfm2mods\sdk_057\mod-sdk"
 $DEPS = "$SDK\deps"; $NAT = "$SDK\native"
 
 # remap 원본 접두 = 소스 트리 루트. dll 에는 이 자리에 $REMAP_TO 가 들어간다.

@@ -15,7 +15,7 @@ param(
   [Parameter(Mandatory=$true)][string]$ModId,
   [int]$MaxSize = 5000000
 )
-$SDK  = "C:\tfm2mods\sdk_056\mod-sdk"
+$SDK  = "C:\tfm2mods\sdk_057\mod-sdk"
 $DEPS = "$SDK\deps"; $NAT = "$SDK\native"
 
 function Pick([string]$pat) { (Get-ChildItem "$DEPS\$pat")[0].FullName }

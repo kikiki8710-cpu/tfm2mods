@@ -3103,3 +3103,96 @@ RVA 0(SDK 재빌드만): tfm2_mod_order·meta_item_delegate(워크샵 content �
 - ★**버전업 체크리스트 추가 축(08-20 저녁 실사고) — 워크샵 서드파티 모드 훅 충돌**: riot_items_tfm2(자동 업데이트)가 BUY_ITEM(0xebca20)·SEEDCTOR·LAUNCHER 선점 후킹 → replace형 설치기도 체인 분기 필수(item_tactics `install_replace_buy` 체인 구현완 = §3 최종 정정). + ★**두 번째 얼굴(08-20 밤·serpen)**: riot 런처 훅은 **CALL식**이라 안쪽에 체인되면 **retaddr 오염**(설치는 성공해도 retaddr 판정 전멸) ⟹ **retaddr 의존 훅 = 지연 설치+체인(바깥쪽)이 기본값**(serpen 해결·검증완 = §3 serpen 정정). **다음 마이그 때 riot 업데이트 시점·훅 충돌 항상 점검**(마이그 후 이상 시 "타 모드 신규 후킹" 용의선상) = DONE.md 맨위 행.
 - ghidra-re 필요(NO MATCH·본문변경) = banpick_order AI6 컨테이너 2종(0x1cb8640 ai_reco1/2·0x1cbb1a0 ai_bb1/2 = 밴픽 AI 개선 로직 변경·sig/arm 재작성) — 단 cfg OFF·미설치라 빌드/기능 무영향. 그 외 활성 훅은 전부 재핀 완료.
 - 빌드는 메인 세션(SDK 0.5.6 다운로드 중·본 세션은 상수 Edit만).
+
+---
+
+## §7.7 · 게임 0.5.7 마이그레이션 — 패치 성격 · exe↔exe 재핀 (2026-08-26, 0.5.7) — 본 절 = 0.5.7의 정본
+
+> ⚠ 본 절 위 §7.6(0.5.6)·이하는 이력. 0.5.7 이후 작업은 이 절만 볼 것.
+> ⚠ **본 절 = 정적 재핀 결과까지**. 빌드·배포·인게임 검증은 아래 §4 잔여 참조.
+
+### 1. 버전 사실 (실측)
+| 항목 | 0.5.6 (직전) | 0.5.7 (현행) |
+|---|---|---|
+| exe | 77,101,056B | **77,111,808B** (+10,752B) |
+| sha256[:16] | A0D8E395581FDF5A | **5969A222B23EA0F1** |
+| .text raw | 52,856,832B (0x3268800) | **52,852,736B (0x3267800)** (−4,096B) |
+| 함수 수(.pdata) | 136,086 | **136,233** (+147) |
+| 인덱스 pkl | _fnidx_056.pkl | **_fnidx_057.pkl** |
+
+- 백업: OLD=`tfm2_0.5.6\TeamfightManager2.exe` / NEW=`tfm2_0.5.7\TeamfightManager2.exe`(라이브와 해시 동일 확인).
+- 패치 성격 = **0.5.6보다도 온건**(.text 사실상 무변화). 단 **코드 배치는 전면 재링크**(스켈레톤 UNIQUE계 중 RVA 제자리 725 / 이동 37,001) ⟹ RVA는 전량 교체 필요.
+- ★**단, AI 판단 계층은 0.5.6보다 큰 변경**: ai_adjust 훅 5종이 본문 변경(크기 변화) = 패치노트 "일부 챔피언 스킬 효과가 선수 AI의 스킬 사용 판단에 미반영" 수정의 실체. 상세 = §3 ai_adjust 절.
+- 재핀 도구 = `_mig057.py`(스켈레톤해시, _mig056.py 답습) + `_t057g.py`(정규식 마스크시그) + `_t057i.py`(★신규 **콜러그래프 슬롯정렬 재핀** — 본문변경 함수용) + `_t057j.py`(LCS 콜슬롯 정렬) + `_t057k.py`(프롤로그·크기 대조). 결과 JSON = `_rva057.json`.
+
+### 2. SDK · toolchain
+- **SDK = `C:\tfm2mods\sdk_057\mod-sdk`** (GitHub 릴리스 `0.5.7.zip` **556,164,491B** · sha256 `e12351c55e5ad081c7080a9f92095a6b724bb1e051cd1d0dee749478020a3d29`).
+- rlib 154개 **파일명 전원 동일(StableCrateId 무변경 — 0.5.6과 같은 패턴)**, 내용 DIFF = 핵심 6종 전부(mod_api·game_core·game_ai·game_view·engine_ui·engine_core) ⟹ **전 모드 재빌드 필요**.
+- **toolchain = `nightly-2026-05-24` 유지**(`rustc 1.98.0-nightly (23a3312d9 2026-05-23)` — 0.5.6과 동일 문자열) ⟹ 재설치 불요.
+- ⬜빌드스크립트 6종 `sdk_056`→`sdk_057` 전환 필요(build_inj·build_full·build_full_remap·build_extra·banpick_illust\build·dashboard_probe\build).
+
+### 3. 재핀 표 (구 0.5.6 → 신 0.5.7) — **정적 재핀 완료 · 소스 반영은 미실시**
+
+**공통 4심볼**: PARSER `0x19ab40`→**`0x1ab310`**(UNIQUE·BYTE=SAME) · ALLOC/GAME_ALLOC `0x2ab1670`→**`0x2ab4010`**(BYTE=SAME) · LOADER `0x2e6f60`→**`0x2ea930`**(string-xref `asset/base/ui/layout/main` x17 = 0.5.6과 동일 카운트) · ANIM_GET `0xbea4a0`→**`0x74bf10`**(CARD_DRAW 콜슬롯14).
+
+tfm2_flow_capture: RUN_TICK `0x14db7e0`→**`0x106bae0`**(SAME) · CTOR/LAUNCHER `0x14dda60`→**`0x106dd60`**(HEAD_UNIQUE·⚠size 4398→4369·프롤로그 공통 13B) · SCENE_STEP `0x24d1dc0`→**`0x1e748a0`**(마스크시그 UNIQUE·프롤로그 20B 동일) · RECO `0x2ce38f0`→**`0x2ce6310`**(size 동일).
+
+tfm2_banpick_illust (16 전건 확정): FX_SET `0x1e598b0` · CARD_DRAW `0x1e6f350` · ILLUST_GET `0x226f290` · SUBMIT `0x182430` · SUBMIT_TEXT `0x1826b0` · **IMG_BUILD `0x183b50`**(스켈레톤 NONE → CARD_DRAW 콜슬롯 27:27 완전대응으로 확정·⚠size 614→633·프롤로그 공통 9B) · IMG_UV `0x1839b0` · IMG_FLAG `0x183e90` · IMG_COLOR `0x1eeee0` · IMG_SHADER `0x185490` · TEXT_BUILD `0x183040` · NAME_GET `0x1e8d1e0` · **ASSET_GET `0x143de0`**(ILLUST_GET 콜슬롯1 @+0x74 동일오프셋) · ANIM_GET `0x74bf10` · SPRITE_CALC `0x1e92110` · GAME_ALLOC `0x2ab4010`. ⬜geom .rdata 6 · mid 6 · SLOTS 미재핀.
+
+tfm2_item_tactics: FN_DD `0x1c1af0`→**`0x1c31f0`** · **TIP_SHOW `0x1efca70`→`0x1b1d500`**(head-UNIQUE + **콜러 3개 동수 교차검증**·UImega 콜사이트 `0x854399`·⚠size 10383→10010) · GV_UPDATE `0x90a090` · REALLOC `0x2a9fb50` · CL_LAUNCHER `0x106dd60` · SEEDCTOR `0x1635ae0` · BUY_ITEM `0xdf5490` · ITEMNET_FWD `0x17f09b0`. ⬜TIP_MEASURE_VT(.rdata)·바이트패치 4·launcher retaddr 4·TN 프레임슬롯 미재핀. ★★**GAME_EXE_SIZE 게이트 = `77_111_808`로 갱신 필수**(`src\lib.rs:5102` `GAME_EXE_SIZE_056`) — 미갱신 시 0.5.6 실사고 재현(모드 전체 침묵 자기비활성).
+
+tfm2_elemental_serpen: SERPEN `0x12ce9b0`→**`0x14a25f0`**(⚠⚠size 5245→**4587**, −658B = 본문 실변경·프롤로그 공통 15B) · MOBATICK `0x10af580`(size 동일) · RUNNER_CTOR `0x106f9c0`(⚠size 3613→3646) · DMGA `0x15912c0` · DMGB `0x108f220` · KEYRES `0x238d6e0` · **ARG_STR `0x14cd960`**(콜러 316 ≈ 0.5.6의 313으로 2후보 중 확정) · SPAWN0 `0x89c440` · SPAWN1 `0x89b830` · LAUNCHER=`0x106dd60`. ⬜retaddr 4 미재핀.
+
+tfm2_banpick_order (함수시작 15 확정): PHASE_SCENE=SCENE_STEP `0x1e748a0` · PHASE_SCALAR `0x163e2c0`(⚠프롤로그 공통 9B) · APPLIER `0x1e59680` · SLOTUPD `0x1e98ed0` · PHASE_RAW `0x1e4f2d0` · **APP_PICK_T1 `0x1e458d0` / T2 `0x1e45a60` / APP_BAN_T1 `0x1e83360` / T2 `0x1e834e0`**(쌍둥이 4종 = 스켈레톤 MULTI(2) → **콜러 수 3 vs 2**로 확정, 0.5.6과 동일 분포) · TRANSITION `0x1e4fa70` · BANNER `0x1e56e00` · LINEUP `0x1e46390` · COMMIT `0x1642600` · TURN `0x1642d30` · TRIGGER `0x1e782a0`. ⬜mid-func 스텁 전량(AI_SITE/JOIN·AITURN·SFX·DRAIN_HL·HL·SLOTSEL·훅M) 미재핀 — ⚠**0.5.6 즉사 AV 축(rbp-disp32)**이라 disp 바이트 전수 대조 필수.
+
+tfm2_comptest_unlock (21 확정): RUN `0x1ad4410` · CGATE `0x1ac7050` · SREG `0x23339f0` · RESULT `0x1b182e0` · CSEND `0x1ac2e80` · HPUSH `0x17ae140` · RPLY2 `0x1adcbd0` · RPLY3 `0x1ad9e50` · LIVEB `0x1b18f90` · CTX_CLONE `0x1dec840` · ARRIVE `0x1add430` · WARN `0x1aad370` · REFRESH `0x1abc4f0` · ITEMCONV `0x2345c00` · COLLECT `0x1ad5d70` · RUST_ALLOC `0x29f00e0` · **CLONE_CHAMP `0x1a3e450`**(스켈레톤/마스크시그 NONE → **콜러그래프 17표**로 확정) · FN_DD `0x1c1300` · DROP_CHAMP `0x13557a0` · INSERT `0xca7c80` · ATH_GET_SC `0x12bdcf0` · ORACLE=RUN_TICK `0x106bae0`. **미해결 3(전부 0.5.6에서 inert 분류)** = SIMBODY(마스크시그 붕괴) · DRIVE `0x888d20`(E8 콜러 0 = 간접호출) · DEDUP_INS(3후보). ⬜바이트패치 19·RUNNER_VT 미재핀.
+
+tfm2_champ_pos_lock: POS_MASK `0xf83830`→**`0x181fe60`**(size 동일) · contains `0x8e85f0` · slot_widget `0x1e79ff0`(⚠size 30954→30971) · scene_step `0x1e748a0` · 공용3. ⬜contains 콜사이트 2 미재핀.
+
+tfm2_champion_exclude: HOOK_RVA `0x1894610`→**`0x188a660`**(UNIQUE·BYTE=SAME·size 331 동일 ⟹ HOOK_ORIG/ORIG_LEN 불변).
+
+★**tfm2_ai_adjust — 0.5.7의 핵심 변경 지점**: RVA-only 4 = GENERIC_BUILD `0xccae00`→**`0xceb5f0`**(BYTE=SAME) · FC59A0 `0xd01950`→**`0xe61600`**(SAME) · MOVEPRI `0xe23ad0`→**`0xdb2760`**(SAME) · AUCTION `0xe0e5e0`→**`0xe8b800`**(size 동일) · ITEMNET=`0x17f09b0`.
+**★본문 변경 5종(= 패치노트 AI 스킬판단 수정)**:
+  · **RETREAT** `0xcead40`→**`0xe4a750`**(스켈레톤/마스크시그 NONE → **콜러그래프 확정**·호스트 `0xe23f00`→`0xdb2b90`·size 11030→**10995**)
+  · **CONDGATE** `0xe23190`→**`0xdb1e20`**(NONE → **LCS 콜슬롯 정렬**로 확정 = 호스트 `0xdf4ce0`→`0xe723c0` 내 2사이트(슬롯 66·178) 모두 동일 결과 + **MOVEPRI와의 간격 `0x940`이 0.5.6과 동일**하게 보존 = 교차검증. size 513→**522**)
+  · **SUBPLAN** `0xe55240`→**`0xcbf340`**(HEAD_UNIQUE·size 1310→**1278**)
+  · **DISC18** `0xd32b70`→**`0xe9fd70`**(마스크시그 + 콜러그래프 **2방법 일치**·size 5891→**5934**)
+  · **DISC19** `0xd426e0`→**`0xeae620`**(마스크시그 + 콜러그래프 **2방법 일치**·size 11221→**11292**)
+  ★**CONDGATE 실변경 내용(디스어셈 1:1 대조 실측)** = ①레지스터 재할당(rsi↔rdi 스왑) ②인자 로드 `mov rsi,[rsp+0x98]`를 **프롤로그로 호이스팅** ③disc 분기 1곳에 `add rcx,8` + 인자 1개(`[rsp+0x30]`) 추가 후 다른 callee 호출. **구조체 오프셋(0x930/0x9c0/0x1e0/0x670/0x628/0x1d8/0x1d0)·JT 디스패치 골격은 전부 동일** ⟹ 로직 대개편 아님·**국소 변경**.
+  ★**orig_len 영향**: CONDGATE 신 프롤로그 = `push rsi/rdi/rbx`+`sub rsp,0x40`(7B) + `mov rsi,[rsp+0x98]`(8B) = **정확히 15B 경계** ⟹ 기존 `orig_len 15` 그대로 유효(우연히 경계 일치 — ⚠반드시 재확인 후 사용).
+  ⬜**미실시 = 바이트패치 908엔트리 재핀 · JT 베이스(Plan/SubPlan) 재핀 · 재현 코드(완전재구현) 정합성 검토**.
+
+### 4. ★배포 완료 — RVA 0 모드 **14종** (2026-08-26 20:02~20:10 · 유저 지시로 RVA 0 우선)
+
+전부 **sdk_057 재빌드 → 배포 → deps `>=0.5.7, <0.5.8` 갱신**. 배포 dll Length+mtime 확인 완료(CLAUDE.md §10 증거 규칙 충족) · mod_info 전건 BOM 없음(firstByte 0x7b)·jsonOk.
+
+| 모드 | dll | 비고 |
+|---|---|---|
+| coaching_staff_view_plus | 284,160B | build_full_remap |
+| custom_tier_assignment | 2,688,512B | build_full_remap |
+| facility_view_plus | 289,280B | ⚠**`-SkipIdentity` 필요**(panic 경로 미기재 모드) |
+| finance_view_plus | 147,456B | build_full_remap |
+| recruitment_view_plus | 333,824B | build_full_remap |
+| roster_view_plus | 433,664B | build_full_remap |
+| statistics_view_plus | 2,717,184B | build_full_remap |
+| training_view_plus | 2,612,736B | build_full_remap |
+| Spectator_Chat | 333,312B | build_inj(소스 hex 6개 = 전부 주석 속 참고 RVA·코드 미사용 ⟹ RVA 0 확정) |
+| tfm2_mod_order | 203,776B | build_inj |
+| tfm2_meta_champion_tiers | 229,888B | ⚠build_inj 신원검증 실패(panic 경로 미기재) → **PII 2종 검사 후 수동 Copy-Item** |
+| tfm2_ai_banpick_probe | 251,904B | build_inj(TFM2.gg-upstream
+ative) |
+| pts_ui_dump | 174,080B | build_inj |
+| player_trade_system_test79_stable_pending_ui | 1,242,112B | build_inj(hex 2 = 해시상수·마스크, RVA 아님) |
+
+- ⬜**인게임 미검증 전량**(정적 배포까지만).
+- ★**미복구 14종 = 0.5.6 대역 유지 = 0.5.7에서 자동 비활성(안전 상태)**: tfm2_ai_adjust(★유저 지시로 이번 세션 보류) · tfm2_item_tactics · tfm2_banpick_illust · tfm2_draft_overlay · tfm2_elemental_serpen · tfm2_banpick_order · tfm2_comptest_unlock · tfm2_champ_pos_lock · tfm2_champion_exclude · tfm2_bancard_keep · tfm2_level_cap · tfm2_flow_capture · sylas · TFM2_Meta_Dashboard(save_probe 번들). **함수시작 훅 재핀은 위 §3에 완료돼 있음** — 소스 반영·빌드만 남음.
+- ★**빌드 스크립트 6종 sdk_057 전환 완료**(build_inj L44·build_full L18·build_full_remap L25·build_extra L26·banpick_illustuild L10·dashboard_probeuild L4 — 각 `.bak057` 백업). **deps 헬퍼 신규 = `bump_deps_057.ps1`**(0.5.6판 기반·ASCII 유지·`$OLDRX`=0.5.6대역 정규식·`$NEWDEP`='>=0.5.7, <0.5.8').
+- ★**`-SkipIdentity`는 PII 검사를 끄지 않는다**(build_full_remap L81~96 실측: ①PII 검사는 무조건 수행 / ②신원검증만 생략) ⟹ panic 경로 미기재 모드에 안전하게 사용 가능.
+
+### 5. 잔여 (0.5.7)
+- ⬜**미복구 14종의 소스 반영·빌드·배포**(재핀 값은 §3에 있음).
+- ⬜빌드·배포·릴리스·인게임 검증 전량. ⬜빌드스크립트 sdk_057 전환.
+- ⬜**deps 게이트** = 배포된 모드 중 `>=0.5.6, <0.5.7`가 **28종** ⟹ 0.5.7에서 전부 자동 비활성(정상 동작). 상한 갱신 필요.
+- ★**3형제 축 점검(0.5.6 실사고 재발 방지)** = ①콜러 프레임 오프셋(item_tactics TN_FR_*) ②mid-func 스텁 rbp-disp32(banpick_order HL 계열 = 즉사 AV 전력) ③**버전 게이트 GAME_EXE_SIZE → `77_111_808`**(item_tactics 유일). 셋 다 이번 재핀에서 **미착수**.
+- ★**워크샵 서드파티 훅 충돌 점검**(riot_items_tfm2 0.5.7판 업데이트 여부) = 0.5.6에서 item_tactics·serpen 2건 실사고 낸 축.
+- ⬜**패치노트發 신규 관측 항목**: ①**"선수 AI 모드 사용 시 다시보기가 실제 경기와 다르게 재생" 수정** — 리플레이 재계산에 **모드 AI가 이제 적용됨**(종전엔 기본 AI로 실행) ⟹ ai_adjust·flow_capture·리플레이 의존 모드의 동작 전제가 바뀜 = 별도 검토 필요 ②목록형 선택창 화면내 개폐+스크롤 전환(드롭다운 사용 모드) ③구버전 형식 파일 포함 모드 구독 시 밴픽 AI 오류로그 정리 ④비활성 모드 파일 미독 오류 기록 수정.
