@@ -918,7 +918,7 @@ type RecommendFn = extern "C" fn(usize, usize, usize, usize) -> u64;
 //   1단계 = 로그 전용(라이브 위임이 이 경로인지 + Vec[0]==커밋인지 확증). 2단계 = Vec[0] 위반 시
 //   [1..]의 첫 합법 후보와 스왑(사후 교정 — 코치 점수순 보존).
 //   ⚠detour 본문 = 복사·판정만(포맷/로그 금지 — post_update 드레인). 프롤로그 = 8-push(커밋 동일).
-const RVA_DISPATCH: usize = 0x2079730;
+const RVA_DISPATCH: usize = 0x232a950;   // ★★0.5.7 재핀(2026-08-26): ~~0.5.6 0x2079730~~ → **0x232a950**. skel/head/마스크시그 전부 NONE(함수 대개편)이라 **콜리 지문**(구 함수가 호출하는 callee 를 재핀 후 그들을 가장 많이 호출하는 신 함수 탐색)으로 확정 — 24/26 일치(2위 16). size 5345→5589 · 프롬로그 8push 12B 동일(PROL_RECOMMEND 무수정, chkstk imm은 0x6ab8→0x6c18이나 검증 범위 밖). ⚠banpick_order AITURN 컨테이너와 **동일 함수**.
 static TRAMP_DISPATCH: AtomicUsize = AtomicUsize::new(0);
 pub static INSTALL_STATE_DP2: AtomicUsize = AtomicUsize::new(0);
 pub static CNT_DP_SEEN: AtomicUsize = AtomicUsize::new(0);
