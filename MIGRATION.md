@@ -3470,6 +3470,44 @@ join 을 읽어 소비 레지스터를 확정했다: 구 `mov eax, r14d` → 신
 ⟹ SIG 가 안 맞으면 **바이트를 명령 단위로 뜯어 "무엇이 달라졌는지"를 먼저 본다.** 스킵은 안전하지만 기능이 죽으므로, 안전을 이유로 분석을 건너뛰면 복구 가능한 것을 포기하게 된다.
 ⟹ 역으로 **SIG 에 rip-rel disp·상대분기 바이트를 넣지 말 것**(넣으면 버전마다 무의미하게 깨진다). 넣어야 한다면 소스에 그 사실을 명시한다.
 
+### 4i. ★★인게임 검증 (2026-08-27 00:09~00:30) — 크래시 0건·유저 "다 잘된다"
+
+#### 4i.1 ⚠먼저: **첫 기동은 크래시했다**(원인·수정 = §4i.2)
+0.5.7 배포 직후 게임 기동 시 **즉시 크래시**. `code=0xc0000005` · **RIP = `exe+0x2e6f03`** · faultAddr `0xffffffffffffffff`.
+`0x2e6f03` 은 **0.5.6 LOADER(`0x2e6f60`) 근처** ⟹ 구 LOADER 주소로 후킹한 모드가 있다는 뜻이었다.
+
+#### 4i.2 ★원인 = **서브 파일 누락**. 완료 게이트를 돌리지 않은 것이 화근
+전 모드 `.rs` 를 코드부(주석 제외)만 스캔하니 **2개 파일 8건**이 0.5.6 값 그대로였다:
+
+| 파일 | 누락 상수 |
+|---|---|
+| `tfm2_item_tactics\src\ui_inject.rs` | `LOADER_RVA`·`STRAT_LOADER_RVA`(둘 다 `0x2e6f60`) · `PARSER_RVA`(`0x19ab40`) · `ALLOC_RVA`(`0x2ab1670`) ← **크래시 직접 원인** |
+| `tfm2_champ_pos_lock\src\hooks.rs` | `RVA_CPROD`(`0x1f16ea0`) · `RVA_DISP`(`0x2079730`) · `RVA_COMMITTER`(`0x24b6c10`) + 로그 문자열 1 |
+
+- item_tactics 는 **`lib.rs` 만 보고 `ui_inject.rs` 를 놓쳤다**. champ_pos_lock 은 `RVA_DISPATCH` 를 고치고 **이름이 비슷한 `RVA_DISP` 를 놓쳤다**.
+- ★**DONE.md 에 이미 "마이그 재핀 완료 게이트 = 구버전 RVA 리터럴 전 소스 grep(include·다중prefix·imm·toggle 사각)" 교훈이 있었는데 실행하지 않았다.** 스텁·SIG 같은 어려운 축에 집중하느라 기본 점검을 건너뛴 것이 원인이다.
+- 수정 후 재빌드 → 배포 dll 정적 검증(구 주소 0회/신 주소 존재) + **전 배포 dll 에서 구 LOADER 잔존 0** 확인.
+- ⟹ 완료 게이트 스크립트를 **`C:\tfm2mods\_t059q.py`** 로 상설화했다(전 모드 `.rs` 코드부만 스캔 · `_rva057.json` 의 구 RVA 전량 대조).
+
+#### 4i.3 ✅검증 결과 — 로그로 확증
+스냅샷(`_pretest_057.txt`) 대비 증분으로 판독.
+
+| 항목 | 결과 |
+|---|---|
+| **크래시** | crash_log / panic_log / comptest_crash / banpick_order crash_log **전부 증가 0** · 신규 CrashDumps **0** |
+| **ai_adjust 훅** | 스텁 인벤토리 **n=11 전부 신주소** — retreat `0xe4a750` · fc59a0 `0xe61600` · **condgate `0xdb1e20`** · movepri `0xdb2760` · itemnet `0x17f09b0` · **disc18 `0xe9fd70`** · **disc19 `0xeae620`** · auction `0xe8b800` ⟹ **본문변경 5종 포함 전건 설치·발화** |
+| **ai_adjust 바이트패치** | **`imm_guard: checked=658/908, blocked=0`** ⟹ 잘못된 주소에 패치를 시도한 것이 **하나도 없다**. §4d.1 의 665건 복구가 실증됨 |
+| **level_cap** | 훅 설치 + 실발화 `observed_len=17 calls=78778 patched=64` |
+| **elemental_serpen** | 훅 5종 신주소 설치 — serpen `0x14a25f0` · 렌더스텝 `0x90a090` · 장로처형 `0x10af580` · 파이프라인B `0x108f220` · 증폭A `0x15912c0` |
+| **community_reaction_mod** | `gpo_debug.txt` 갱신(워크샵 경로 dll 로드 확인) |
+| 유저 확인 | level_cap · serpen · banpick_illust · comptest · community_reaction · Spectator_Chat · mod_order · 다람이 8종 = **"다 잘된다"** |
+
+★**imm_guard 예측 정정**: §4d.1 작성 시 "blocked 가 243 근처로 나오는 것이 정상"이라 적었으나 **실제는 blocked=0**. 미재핀 243건은 `patch_imm_bytes` 의 **opcode 대조 단계에서 먼저 걸러져** 가드까지 도달하지 않았다(또는 그 배선이 이번 판에 안 돌았다). 예측보다 좋은 결과다.
+
+#### 4i.4 ⬜로그 근거가 없는 항목(육안 확인만)
+serpen **경기 중 기능**(런처 발화 0 = 이번엔 경기 미관전) · comptest **조합테스트 기능**(이번 실행 로그 없음 — 화면 미진입 추정) · banpick_illust(진단 로깅 OFF) · Spectator_Chat · mod_order · 다람이 8종.
+**정상이라는 뜻이 아니라 "로그로는 확인 못 했다"는 뜻**이므로, 다음 플레이에서 해당 화면을 거치면 자동으로 근거가 쌓인다.
+
 ### 5. 잔여 (0.5.7)
 - ~~⛔미복구 = `tfm2_banpick_order` 1종~~ → **✅5차에 복구·배포 완료(§4e.2)**. **게임 폴더 실측 0.5.7 대역 28종 / 0.5.6 대역 잔존 0 = 모드 복구 전건 완료.**
 - ~~⬜ai_adjust 바이트패치 665건 복구 여지~~ → **✅복구 완료(§4d.1)**. 잔여 = 미재핀 243건(표에 구주소로 남겨 blocked = fail-safe) · JT 베이스 · class_micro 18 · 본문변경 5훅의 재현 코드 정합성.

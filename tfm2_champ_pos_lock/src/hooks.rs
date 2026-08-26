@@ -3144,7 +3144,7 @@ pub static AM_COUNT_HIST: [AtomicU64; 8] = [
 //   String 소유권: cap=0 으로 두면 게임 drop 경로가 free skip(정적/누수 버퍼 안전).
 //   실측: 커밋 1430회/세션 = 결정당 1회(lookahead 아님).
 // ══════════════════════════════════════════════════════════════════════════
-const RVA_CPROD: usize = 0x1f16ea0;
+const RVA_CPROD: usize = 0x1d9a210;
 /// f16ea0 콜사이트 3곳(실행기 Q1/Q2/Q3 드레인 — RE 확정). 진입 패치 대신 여기를 리다이렉트.
 const CPROD_CALLSITES: [usize; 3] = [0x2129c2d, 0x2129d2d, 0x2129e1d];
 static CP_STUB: AtomicUsize = AtomicUsize::new(0);
@@ -4070,7 +4070,7 @@ pub fn install_once_argmax() {
 //   sret: +0x00 kind(-1=결정없음) +0x08 match_id +0x10 VecA +0x40 team_id +0x50 marker
 // ══════════════════════════════════════════════════════════════════════════
 const DISP_CALLSITE: usize = 0x2038056; // producer 내 유일 call 0x2079730
-const RVA_DISP: usize = 0x2079730;
+const RVA_DISP: usize = 0x232a950;
 static DQ_STUB: AtomicUsize = AtomicUsize::new(0);
 static DISP_ORIG: AtomicUsize = AtomicUsize::new(0);
 pub static INSTALL_STATE_DQ: AtomicUsize = AtomicUsize::new(0);
@@ -4398,7 +4398,7 @@ pub fn install_once_dq() {
         VirtualProtect(cs, 5, old, &mut old);
         FlushInstructionCache(GetCurrentProcess(), cs, 5);
         INSTALL_STATE_DQ.store(1, Ordering::Relaxed);
-        config::dlog("hookDQ(디스패처 0x2079730 품질보존 교정) 설치 OK");
+        config::dlog("hookDQ(디스패처 0x232a950 품질보존 교정) 설치 OK");
     }
 }
 
@@ -4742,7 +4742,7 @@ pub fn install_once_cb() {
 const GY_CALLSITE: usize = 0x2553a16; // call 0x249df50 (셀 순회)
 const RVA_CELLFN: usize = 0x249df50;
 const CK_CALLSITE: usize = 0x25508de; // call 0x24b6c10 (클릭 커밋)
-const RVA_COMMITTER: usize = 0x24b6c10;
+const RVA_COMMITTER: usize = 0x1e59680;
 
 static GY_STUB: AtomicUsize = AtomicUsize::new(0);
 static CELLFN_ORIG: AtomicUsize = AtomicUsize::new(0);
