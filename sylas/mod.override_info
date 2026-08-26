@@ -1,0 +1,58 @@
+{
+  "asset/base/text/champion": {
+    "remapping": "asset/sylas/text/champion",
+    "type": "merge"
+  },
+  "asset/base/sound/sfx/sylas_attack": {
+    "remapping": "asset/base/sound/sfx/prisoner_attack",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/sylas_skill": {
+    "remapping": "asset/base/sound/sfx/prisoner_skill1",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/sylas_skill2": {
+    "remapping": "asset/base/sound/sfx/prisoner_skill2",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/sylas_skill2_cast": {
+    "remapping": "asset/base/sound/sfx/prisoner_skill2",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/sylas_skill_dash": {
+    "remapping": "asset/base/sound/sfx/prisoner_ult_dash",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/sylas_ult": {
+    "remapping": "asset/base/sound/sfx/prisoner_ult_end",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/sylas_ult_attack": {
+    "remapping": "asset/base/sound/sfx/whip_master_ult_attack",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/sylas_ult_dash": {
+    "remapping": "asset/base/sound/sfx/prisoner_ult_dash",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/sylas_ult_loop": {
+    "remapping": "asset/base/sound/sfx/archer_ult_loop",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/sylas_ult_loop_archer": {
+    "remapping": "asset/base/sound/sfx/archer_ult_loop",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/sylas_ult_pre": {
+    "remapping": "asset/base/sound/sfx/archer_ult_pre",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/sylas_ult_pre_archer": {
+    "remapping": "asset/base/sound/sfx/archer_ult_pre",
+    "type": "override"
+  },
+  "asset/base/sound/sfx/sylas_unshackled_attack": {
+    "remapping": "asset/base/sound/sfx/whip_master_ult_attack",
+    "type": "override"
+  }
+}

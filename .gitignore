@@ -39,6 +39,28 @@
 !/tfm2_meta_item_delegate/
 !/ui_kit/
 
+# sylas 모드 (2026-08-26 추가) — 그 전까지 화이트리스트에서 빠져 **통째로 미추적**이었다.
+#   소스·도구·배포 규격만 넣고 로그/생성물/백업은 뺀다(폴더 29MB 중 대부분이 그것).
+!/sylas/
+/sylas/*
+!/sylas/*.py
+!/sylas/*.cfg
+!/sylas/*.md
+!/sylas/mod.mod_info
+!/sylas/mod.override_info
+!/sylas/src/
+/sylas/src/*
+!/sylas/src/*.rs
+!/sylas/aseprite_resources/
+/sylas/aseprite_resources/*
+!/sylas/aseprite_resources/champions/
+/sylas/aseprite_resources/champions/*
+!/sylas/aseprite_resources/champions/*.png
+!/sylas/aseprite_resources/champions/*.fanim
+!/sylas/champion/
+!/sylas/icons/
+!/sylas/text/
+
 # 4) ?꾪뻾 鍮뚮뱶쨌由대━?ㅒ룸쭏?닿렇 ?꾧뎄
 !/build_inj.ps1
 !/build_full.ps1
@@ -79,3 +101,9 @@ Cargo.lock
 
 # player trade system (handoff build, 0.5.6)
 !/player_trade_system_test79_stable_pending_ui/
+
+# API 키 (절대 커밋 금지)
+sylas/.openai_key
+sylas/.gemini_key
+*.openai_key
+*.gemini_key

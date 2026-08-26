@@ -1,0 +1,22 @@
+{
+  "ko": {
+    "description": {
+      "sylas": {
+        "name": "사일러스",
+        "skill": "<#ffb900ff>사슬 채찍(Q)<>: 전방 직선으로 사슬을 뻗어 <#a974ffff>45<> + <i#asset/base/ui/banpick/champion_stat_icon:ap_0><#a974ffff>주문력의 60%<>만큼 <#a974ffff>마법 피해<>를 입히고 <#ef5350ff>2초 동안 30% 둔화<>시킨다. <#ffb900ff>0.5초<> 뒤 사슬이 다시 터져 <#a974ffff>25<> + <i#asset/base/ui/banpick/champion_stat_icon:ap_0><#a974ffff>주문력의 30%<> 추가 피해와 <#ef5350ff>50% 둔화<>를 가한다.",
+        "skill2": "<#ffb900ff>강제 연행(E)<>: 지정한 적 챔피언에게 사슬로 몸을 끌어당겨 도약, <#a974ffff>80<> + <i#asset/base/ui/banpick/champion_stat_icon:ap_0><#a974ffff>주문력의 80%<>만큼 <#a974ffff>마법 피해<>를 입히고 <#ef5350ff>0.5초 동안 공중에 띄운다<>. 동시에 자신의 체력을 <#5cd65cff>40<> + <i#asset/base/ui/banpick/champion_stat_icon:ap_0><#5cd65cff>주문력의 45%<>만큼 회복한다.",
+        "ult": "<#ffb900ff>강탈(R)<>: 사슬을 던져 적 챔피언을 자신에게 <#ef5350ff>끌어와 0.5초간 기절<>시키고 <#a974ffff>150<> + <i#asset/base/ui/banpick/champion_stat_icon:ap_0><#a974ffff>주문력의 70%<>만큼 <#a974ffff>마법 피해<>를 입힌다. 그 적의 힘을 빼앗아 <#ef5350ff>4초 동안 스킬 사용을 봉인<>(=궁극기 강탈)하고, 사일러스는 <#ffb900ff>7초<> 동안 <i#asset/base/ui/banpick/champion_stat_icon:ap_0><#ffffffff>주문력 +60<>, <i#asset/base/ui/banpick/champion_stat_icon:attack_speed_0><#ffffffff>공격 속도 +40%<>, <#ffffffff>스킬 쿨다운 -25%<>를 얻는다."
+      }
+    }
+  },
+  "en": {
+    "description": {
+      "sylas": {
+        "name": "Sylas",
+        "skill": "<#ffb900ff>Chain Lash (Q)<>: Lashes chains in a line, dealing <#a974ffff>45<> + <#a974ffff>60% AP<> magic damage and slowing by <#ef5350ff>30% for 2s<>. After 0.5s the chains detonate again for <#a974ffff>25<> + <#a974ffff>30% AP<> and a <#ef5350ff>50% slow<>.",
+        "skill2": "<#ffb900ff>Abduct (E)<>: Pulls himself to a target enemy champion, dealing <#a974ffff>80<> + <#a974ffff>80% AP<> magic damage and <#ef5350ff>knocking them up for 0.5s<>, while healing for <#5cd65cff>40<> + <#5cd65cff>45% AP<>.",
+        "ult": "<#ffb900ff>Hijack (R)<>: Throws his chains to <#ef5350ff>pull and stun<> a target enemy champion for 0.5s, dealing <#a974ffff>150<> + <#a974ffff>70% AP<> magic damage. Steals their power, <#ef5350ff>sealing their skills for 4s<> (hijacking their ultimate), and grants Sylas <#ffffffff>+60 AP, +40% attack speed, -25% skill cooldown<> for <#ffb900ff>7s<>."
+      }
+    }
+  }
+}

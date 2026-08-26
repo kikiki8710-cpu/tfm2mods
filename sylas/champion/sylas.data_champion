@@ -1,0 +1,210 @@
+{
+  "id": "sylas",
+  "category": "Magician",
+  "tags": ["AP", "Melee", "Magic", "CC"],
+  "sprite": "asset/sylas/aseprite_resources/champions/sylas",
+  "anim_prefix": "",
+  "skill_icons": [
+    "asset/sylas/icons/sylas_skill1",
+    "asset/sylas/icons/sylas_skill2",
+    "asset/sylas/icons/sylas_ult"
+  ],
+  "stat": {
+    "attack": 55,
+    "magic_power": 60,
+    "hp": 1050,
+    "defence": 30,
+    "magic_resistance": 26,
+    "move_speed": 950,
+    "hp_regen": 2,
+    "stack": 0,
+    "crit_chance": 0
+  },
+  "growth": {
+    "attack": 4,
+    "magic_power": 17,
+    "hp": 95,
+    "defence": 7,
+    "magic_resistance": 3,
+    "move_speed": 8,
+    "hp_regen": 1,
+    "stack": 0,
+    "crit_chance": 0
+  },
+  "attack": {
+    "action_name": "attack",
+    "duration": 20,
+    "cooltime": 58,
+    "start_timing": 12,
+    "cancelable": true,
+    "range": 32000,
+    "casting_type": "Targeting",
+    "casting_target": "Enemy",
+    "attack_type": "BaseAttack",
+    "effect": {
+      "type": "Attack",
+      "damage": 0,
+      "attack_ratio": 100
+    }
+  },
+  "skill": {
+    "action_name": "skill",
+    "description": "#asset/base/text/champion?description.sylas.skill",
+    "duration": 24,
+    "cooltime": 240,
+    "start_timing": 11,
+    "cancelable": true,
+    "range": 60000,
+    "casting_type": "Direction",
+    "casting_target": "Enemy",
+    "attack_type": "Skill",
+    "effect": {
+      "type": "LinearProjectile",
+      "penetrate": true,
+      "speed": 4600,
+      "range": 60000,
+      "name": "sylas_chain",
+      "shape": { "Circle": { "radius": 9000 } },
+      "applied_target": "Enemy",
+      "applied_effects": [
+        {
+          "effect": {
+            "type": "ApAttack",
+            "damage": 45,
+            "attack_ratio": 60
+          },
+          "casting_type": "Targeting"
+        },
+        {
+          "effect": {
+            "type": "AddBuff",
+            "buff_state": {
+              "name": "sylas_chain_slow",
+              "duration": { "Time": { "tick": 120 } },
+              "move_speed_mult": -30
+            }
+          },
+          "casting_type": "Targeting"
+        },
+        {
+          "effect": {
+            "type": "Delayed",
+            "tick": 30,
+            "effects": [
+              {
+                "type": "ApAttack",
+                "damage": 25,
+                "attack_ratio": 30
+              },
+              {
+                "type": "AddBuff",
+                "buff_state": {
+                  "name": "sylas_chain_slow_heavy",
+                  "duration": { "Time": { "tick": 120 } },
+                  "move_speed_mult": -50
+                }
+              }
+            ]
+          },
+          "casting_type": "Targeting"
+        }
+      ]
+    }
+  },
+  "skill2": {
+    "action_name": "skill2",
+    "description": "#asset/base/text/champion?description.sylas.skill2",
+    "duration": 22,
+    "cooltime": 420,
+    "start_timing": 8,
+    "cancelable": false,
+    "range": 50000,
+    "casting_type": "Targeting",
+    "casting_target": "EnemyChampion",
+    "attack_type": "Skill",
+    "can_use_with_move": true,
+    "effect": {
+      "type": "Combine",
+      "effects": [
+        {
+          "type": "RushMoveToBack",
+          "speed": 4800,
+          "applied_effects": [
+            {
+              "type": "ApAttack",
+              "damage": 80,
+              "attack_ratio": 80
+            },
+            {
+              "type": "Airborne",
+              "duration": 30
+            }
+          ]
+        },
+        {
+          "type": "Heal",
+          "amount": 40,
+          "ap_ratio": 45,
+          "heal_type": "Caster"
+        }
+      ]
+    }
+  },
+  "ult": {
+    "action_name": "ult",
+    "description": "#asset/base/text/champion?description.sylas.ult",
+    "duration": 28,
+    "cooltime": 900,
+    "start_timing": 12,
+    "cancelable": false,
+    "range": 55000,
+    "casting_type": "Targeting",
+    "casting_target": "EnemyChampion",
+    "attack_type": "Skill",
+    "effect": {
+      "type": "Combine",
+      "effects": [
+        {
+          "type": "CasterAnimation",
+          "name": "ult",
+          "tick": 12
+        },
+        {
+          "type": "Grab",
+          "speed": 3600,
+          "tick": 12
+        },
+        {
+          "type": "ApAttack",
+          "damage": 150,
+          "attack_ratio": 70
+        },
+        {
+          "type": "Stun",
+          "duration": 30
+        },
+        {
+          "type": "BlockSkill",
+          "tick": 240
+        },
+        {
+          "type": "AddCasterBuff",
+          "buff_state": {
+            "name": "sylas_hijacked",
+            "duration": { "Time": { "tick": 420 } },
+            "magic_power": 60,
+            "attack_speed_mult": 40,
+            "skill_cooldown_mult": -25
+          }
+        }
+      ]
+    }
+  },
+  "view_projectiles": [
+    {
+      "type": "Sprite",
+      "name": "sylas_chain",
+      "sprite": "asset/base/sprite/arrow"
+    }
+  ]
+}
