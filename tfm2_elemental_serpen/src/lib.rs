@@ -281,7 +281,15 @@ fn resolve_render_fp() {
     if game < 0x10000 { return; }
     let rs = RENDER_SEED.load(Ordering::Relaxed);
     if rs == 0 { return; }
-    for off in [GAME_PROVIDER_OFF, 0x1660usize] {
+    // ★★자동 스캔 폴백(2026-08-27) — Game→provider 오프셋은 패치마다 이동하는데
+    //   고정 후보 2개가 전부 빗나가면 fp가 영영 안 나온다(0.5.7 실사고: fp실패=5972 prov=0x0
+    //   → 툴팁 "WORLDS에 화면경기 없음"). SEED_OFF 는 자기검증 답이 있으므로
+    //   Game 상대변위를 훑어 *(cand+SEED_OFF)==RENDER_SEED 인 지점을 1회 찾는다.
+    //   ⇒ 다음 패치에도 상수 수정 없이 자동 적응한다.
+    let dynoff = GAME_PROV_OFF_DYN.load(Ordering::Relaxed);
+    let mut cands: Vec<usize> = vec![GAME_PROVIDER_OFF, 0x1660usize];
+    if dynoff != 0 { cands.insert(0, dynoff); }
+    for off in cands {
         let Some(prov) = (unsafe { safe_read_u64(game + off) }) else { continue };
         let prov = prov as usize;
         if prov < 0x10000 || prov >= (1usize << 47) { continue; }
@@ -295,6 +303,32 @@ fn resolve_render_fp() {
             }
         }
         return; // seed 검증 통과 오프셋을 찾았으면 fp 미확정이라도 종료(다음 프레임 재시도)
+    }
+    // ── 고정 후보 전멸 → 1회 스캔으로 직접 찾는다 ──
+    if PROV_SCAN_DONE.swap(true, Ordering::Relaxed) { return; }
+    let mut found = 0usize;
+    let mut n = 0u32;
+    let mut off = 0x8usize;
+    while off < 0x8000 {
+        if let Some(p) = unsafe { safe_read_u64(game + off) } {
+            let p = p as usize;
+            if p > 0x10000 && p < (1usize << 47)
+                && unsafe { safe_read_u64(p + SEED_OFF) } == Some(rs) {
+                if found == 0 { found = off; }
+                n += 1;
+                log_push(format!("[{}ms] ★★Game→provider 스캔 적중: Game+{:#x} → prov={:#x} (SEED_OFF={:#x})",
+                    now_ms(), off, p, SEED_OFF));
+            }
+        }
+        off += 8;
+    }
+    if found != 0 {
+        GAME_PROV_OFF_DYN.store(found, Ordering::Relaxed);
+        log_push(format!("[{}ms] ★★GAME_PROVIDER_OFF 자동확정 = {:#x} (후보 {}개 중 첫번째 채택; 소스 상수 {:#x}는 틀림 — 재핀 필요)",
+            now_ms(), found, n, GAME_PROVIDER_OFF));
+    } else {
+        log_push(format!("[{}ms] ★Game→provider 스캔 0건 (game={:#x} seed={:#x}) — SEED_OFF 또는 game 포인터 자체 의심",
+            now_ms(), game, rs));
     }
 }
 // 렌더측 화면 파티션 선택: RENDER_FP 확정 시 그 파티션, 미확정이면 그 seed 파티션이 유일할 때만.
@@ -424,6 +458,8 @@ static WORLDS: Mutex<Option<HashMap<(u64, u64), WorldState>>> = Mutex::new(None)
 static FP_ADDR: [AtomicU64; KC_SLOTS] = [KC_ZERO; KC_SLOTS];
 static FP_CHK: [AtomicU64; KC_SLOTS] = [KC_ZERO; KC_SLOTS];
 static FP_VAL: [AtomicU64; KC_SLOTS] = [KC_ZERO; KC_SLOTS];
+static GAME_PROV_OFF_DYN: AtomicUsize = AtomicUsize::new(0); // ★런타임 스캔으로 찾은 Game→provider 오프셋
+static PROV_SCAN_DONE: AtomicBool = AtomicBool::new(false);
 static FP_FAIL_N: AtomicU64 = AtomicU64::new(0);   // 지문 계산 실패 수(진단)
 static RENDER_FP: AtomicU64 = AtomicU64::new(0);   // 화면 세트의 fp (0=미확정)
 static LAUNCH_GAME: AtomicU64 = AtomicU64::new(0); // 런처 게이트 적중 시 rcx=out Game (렌더 fp 도출용)
