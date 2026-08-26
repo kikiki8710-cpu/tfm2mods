@@ -783,6 +783,29 @@ unsafe extern "C" fn cap_launcher(saved: *mut u64, _rsp: usize) -> u64 {
 //   (우리 = 바깥 = retaddr 원본 보존 — jmp 체인이라 [rsp] 불변) ②LAUNCHER_WAIT_LIMIT 프레임까지 원본
 //   프롤로그 그대로면 직접 설치(riot 비활성 환경 폴백) ③둘 다 아니면 mismatch 확정·중단.
 //   ⛔설치 확정 후 진입부 재검증·재체인 금지(07-18 상호 체인 사이클 실사고).
+// ★★RET 화이트리스트 자기검증(2026-08-27) — 화면경기 판정은 "런처를 부른 콜사이트의
+//   retaddr" 화이트리스트로 하는데, 이 상수가 패치로 어긋나면 **조용히 적중 0이 된다**
+//   (크래시도 로그도 없음 — 그냥 기능만 사라진다).
+//   ⇒ 각 RET이 정말 `E8 <rel32>` 로 LAUNCHER_RVA 를 부르는 call 의 리턴주소인지 검사한다.
+//   불일치 = 재핀 필요. (0.5.7 조사 때 손으로 한 검증을 모드가 스스로 하게 만든 것.)
+unsafe fn verify_ret_sites() -> String {
+    let base = GetModuleHandleW(core::ptr::null());
+    if base == 0 { return "base 0".into(); }
+    let mut ok = 0u32; let mut bad: Vec<String> = Vec::new();
+    for (tag, rva) in [("A", LAUNCHER_RET_A), ("B", LAUNCHER_RET_B),
+                       ("C", LAUNCHER_RET_C), ("D", LAUNCHER_RET_D)] {
+        let site = base + rva - 5;
+        let mut b = [0u8; 5];
+        if !safe_copy(b.as_mut_ptr(), site as *const u8, 5) { bad.push(format!("{}=읽기불가", tag)); continue; }
+        if b[0] != 0xe8 { bad.push(format!("{}=call아님({:#04x})", tag, b[0])); continue; }
+        let rel = i32::from_le_bytes([b[1], b[2], b[3], b[4]]) as isize;
+        let tgt = (site + 5).wrapping_add(rel as usize);
+        if tgt == base + LAUNCHER_RVA { ok += 1; }
+        else { bad.push(format!("{}=타긃≠LAUNCHER({:#x})", tag, tgt.wrapping_sub(base))); }
+    }
+    if bad.is_empty() { format!("RET 검증 {}/4 OK", ok) }
+    else { format!("★RET 검증 {}/4 — 불일치: {} (재핀 필요 — 화면경기 판정 불가)", ok, bad.join(" ")) }
+}
 static LAUNCHER_INSTALLED: AtomicBool = AtomicBool::new(false);
 static LAUNCHER_WAIT: AtomicU64 = AtomicU64::new(0);
 const LAUNCHER_WAIT_LIMIT: u64 = 600; // ≈10초(60fps) — 경기 진입 전 여유. 초과 시 직접 설치 폴백.
@@ -828,9 +851,9 @@ fn launcher_install_tick() {
         LAUNCHER_INSTALLED.store(true, Ordering::Relaxed);
         let ok = unsafe { install_stub_chained(LAUNCHER_RVA, cap_launcher as usize, &entry) };
         let tgt = u64::from_le_bytes(entry[2..10].try_into().unwrap());
-        log_push(format!("[{}ms] launcher hook {:#x} = {} (외부훅 tgt={:#x} 위에 체인·지연 {}프레임)",
+        log_push(format!("[{}ms] launcher hook {:#x} = {} (외부훅 tgt={:#x} 위에 체인·지연 {}프레임) | {}",
             now_ms(), LAUNCHER_RVA, if ok { "체인 OK" } else { "체인 실패" }, tgt,
-            LAUNCHER_WAIT.load(Ordering::Relaxed)));
+            LAUNCHER_WAIT.load(Ordering::Relaxed), unsafe { verify_ret_sites() }));
         return;
     }
     if entry == LAUNCHER_PROLOGUE {
@@ -838,8 +861,8 @@ fn launcher_install_tick() {
         if n < LAUNCHER_WAIT_LIMIT { return; } // 외부훅 대기 중
         LAUNCHER_INSTALLED.store(true, Ordering::Relaxed);
         let ok = unsafe { install_stub_generic(LAUNCHER_RVA, 12, cap_launcher as usize, &LAUNCHER_PROLOGUE) };
-        log_push(format!("[{}ms] launcher hook {:#x} = {} (외부훅 미출현·직접 설치 폴백)",
-            now_ms(), LAUNCHER_RVA, if ok { "OK" } else { "실패" }));
+        log_push(format!("[{}ms] launcher hook {:#x} = {} (외부훅 미출현·직접 설치 폴백) | {}",
+            now_ms(), LAUNCHER_RVA, if ok { "OK" } else { "실패" }, unsafe { verify_ret_sites() }));
         return;
     }
     // 원본도 외부훅 형태도 아님 = 프롤로그 mismatch 확정(버전 어긋남 등) — 재시도 무의미.
