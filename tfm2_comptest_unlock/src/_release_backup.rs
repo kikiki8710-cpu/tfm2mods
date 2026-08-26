@@ -2162,7 +2162,7 @@ const QUEUE_ON: bool = false;
 const ARRIVE_RVA: usize = 0x1add430; // 0.5.6 재핀   // ★0.5.5(구0.5.4=0x2327080) 다중앵커 투표 37/37·ARRIVE_PROLOGUE 15B 실측 MATCH (QUEUE_ON=false inert)
 const ARRIVE_PROLOGUE: [u8; 15] = [0x55, 0x41, 0x57, 0x41, 0x56, 0x41, 0x54, 0x56, 0x57, 0x53,
                                    0xb8, 0xc0, 0x42, 0x00, 0x00];
-const RUNNER_VT_RVA: usize = 0x34e6a20; // 0.5.7 재핀(ctor lea 참조 유일 0x22c3072→0x257a392 + vtable 슬롯지문 0/4 match_fn 일치) // 0.5.6=0x34afda8(구0.5.5=0x348db28, slot4 매핑 일치·ctor lea 참조 1곳@0x22c3072)   // ★0.5.5(구0.5.4=0x33b91f8) ghidra-re 2방법: vtable 구조지문(size 0x2410·중복슬롯) .rdata 전수유일 + ctor lea rdx 참조 1곳(@0x21121e5)·R_STATE +0x240c 유지 // node+0x238 == base+이 값 이어야 comp_test 러너
+const RUNNER_VT_RVA: usize = 0x34afda8; // 0.5.6 재핀(구0.5.5=0x348db28, slot4 매핑 일치·ctor lea 참조 1곳@0x22c3072)   // ★0.5.5(구0.5.4=0x33b91f8) ghidra-re 2방법: vtable 구조지문(size 0x2410·중복슬롯) .rdata 전수유일 + ctor lea rdx 참조 1곳(@0x21121e5)·R_STATE +0x240c 유지 // node+0x238 == base+이 값 이어야 comp_test 러너
 const NODE_RUNNER_OFF: usize = 0x230;     // runner = *(node + 0x230)
 const R_STATE: usize = 0x240c;            // 0 idle/1 setup/2 tactics/3 running/4 도착/5 기록완료
 const DETAIL_SZ: usize = 0x20a0;          // arg3
@@ -2373,9 +2373,9 @@ extern "win64" fn warn_detour(rcx: usize, rdx: usize, r8: usize, r9: usize) -> u
 // ⚠`runner+0x240c` = **UI 페이지**(0 setup/1 history/2 champion/3 tactics/4·5 summary).
 //   기존 코드 주석의 "상태머신 0 idle/1 setup/…"은 오독 — 동작에는 영향 없었으나 의미가 다르다.
 const RESULTVIEW_ON: bool = true;
-const TAKE_RVA: usize = 0x1ac831a; // 0.5.7 재핀(match_mid UNIQUE, mov dword[rbp+0x278],0x14 주변16B 동일) // 0.5.6=0x1aafa9a      // ★0.5.5(구0.5.4=0x2311d43) 마스크시그 k=1·imm32 14000000 실측·cont5=0x1a96710 // imm32 = 기록탭 목록 take 한도(기본 0x14)
+const TAKE_RVA: usize = 0x1aafa9a; // 0.5.6 재핀      // ★0.5.5(구0.5.4=0x2311d43) 마스크시그 k=1·imm32 14000000 실측·cont5=0x1a96710 // imm32 = 기록탭 목록 take 한도(기본 0x14)
 const TAKE_DEFAULT: u32 = 0x14;
-const PAGE_IMM_RVA: usize = 0x1ac36ac; // 0.5.7 재핀(패턴 41c6860c24000005 전역유일 0x1ac36a5+7) // 0.5.6=0x1aaae2c  // ★0.5.5(구0.5.4=0x230d0ec) 고정패턴 41c6860c24000005 전역유일·imm off+7 // imm8 = 기록 완료 후 이동할 페이지(기본 5=summary)
+const PAGE_IMM_RVA: usize = 0x1aaae2c; // 0.5.6 재핀  // ★0.5.5(구0.5.4=0x230d0ec) 고정패턴 41c6860c24000005 전역유일·imm off+7 // imm8 = 기록 완료 후 이동할 페이지(기본 5=summary)
 const PAGE_SUMMARY: u8 = 5;
 const PAGE_HISTORY: u8 = 1;
 static RV_ACTIVE: AtomicBool = AtomicBool::new(false);   // 배치 결과화면 모드 진행 중
@@ -2385,27 +2385,7 @@ static RV_ACTIVE: AtomicBool = AtomicBool::new(false);   // 배치 결과화면 
 static RV_NODE: AtomicUsize = AtomicUsize::new(0);
 static RV_SETUP_FRAMES: AtomicU64 = AtomicU64::new(0);   // 준비화면 연속 관측 프레임(디바운스)
 
-// ★★poke 사이트 시그 검증 — poke_u32/u8은 원본 검증 없는 blind write라
-//   마이그 누락 시 엉뚟한 명령을 훼손한다. (0.5.7 실사고: TAKE/PAGE_IMM가 0.5.6 RVA로 남아
-//   결과목록 화면이 빈 채 남았다.) ⇒ 쓰기 전 명령 오프코드를 대조하고 틀리면 포기한다.
-const TAKE_SIG: [u8; 6] = [0xc7, 0x85, 0x78, 0x02, 0x00, 0x00];        // mov dword[rbp+0x278], imm32
-const PAGE_SIG: [u8; 7] = [0x41, 0xc6, 0x86, 0x0c, 0x24, 0x00, 0x00];  // mov byte[r14+0x240c], imm8
-static POKE_NG_LOGGED: AtomicU64 = AtomicU64::new(0);
-unsafe fn poke_site_ok(rva: usize, sig: &[u8], tag: &str) -> bool {
-    let base = exe_base(); if base == 0 { return false; }
-    let a = base + rva - sig.len();
-    if !readable(a, sig.len()) { return false; }
-    let mut cur = [0u8; 8];
-    core::ptr::copy_nonoverlapping(a as *const u8, cur.as_mut_ptr(), sig.len());
-    if &cur[..sig.len()] == sig { return true; }
-    if POKE_NG_LOGGED.fetch_add(1, Ordering::Relaxed) < 4 {
-        log(&format!("[poke] ★{} 사이트 시그 불일치 @0x{:x} — write 포기(재핀 필요) cur={:02x?}\n",
-            tag, rva, &cur[..sig.len()]));
-    }
-    false
-}
 unsafe fn poke_u32(rva: usize, val: u32) -> bool {
-    if rva == TAKE_RVA && !poke_site_ok(rva, &TAKE_SIG, "TAKE") { return false; }
     let base = exe_base(); if base == 0 { return false; }
     let a = base + rva;
     if !readable(a, 4) { return false; }
@@ -2418,7 +2398,6 @@ unsafe fn poke_u32(rva: usize, val: u32) -> bool {
     true
 }
 unsafe fn poke_u8(rva: usize, val: u8) -> bool {
-    if rva == PAGE_IMM_RVA && !poke_site_ok(rva, &PAGE_SIG, "PAGE_IMM") { return false; }
     let base = exe_base(); if base == 0 { return false; }
     let a = base + rva;
     if !readable(a, 1) { return false; }
@@ -2929,18 +2908,18 @@ const PAR_OBSERVE_ONLY: bool = false;
 //       `lea rsp,[rbp+0x4240]` → pop×7 → ret)로 점프. 훅 지점이 **모든 소유권 등록 이전**이라
 //       이 경로는 detail/entry를 drop하지 않는다 = 우리가 소유권을 가져간다.
 //   ⚠호출자가 detail/entry를 **자기 스택 버퍼**에 담아 넘기므로 리턴 즉시 사라진다 ⟹ 반드시 복사.
-const DELAY_RVA: usize = 0x1add444; // 0.5.7 재핀(ARRIVE+0x14, ORIG 15B MATCH) // 0.5.6=0x1ac4bc4   // ★0.5.5(구0.5.4=0x2327094) 컨테이너 difflib(cont 0x2327080→0x1aab950)·DELAY_ORIG 15B 실측 MATCH
+const DELAY_RVA: usize = 0x1ac4bc4; // 0.5.6 재핀   // ★0.5.5(구0.5.4=0x2327094) 컨테이너 difflib(cont 0x2327080→0x1aab950)·DELAY_ORIG 15B 실측 MATCH
 const DELAY_ORIG: [u8; 15] = [0x48,0x29,0xc4, 0x48,0x8d,0xac,0x24,0x80,0x00,0x00,0x00,
                               0x48,0x83,0xe4,0x80];
-const DELAY_RESUME_RVA: usize = 0x1add453; // 0.5.7 재핀(mov rbx,rsp 확인) // 0.5.6=0x1ac4bd3   // ★0.5.5(구0.5.4=0x23270a3) 컨테이너 difflib(mov rbx,rsp)
-const EPILOG_RVA: usize = 0x1addc89; // 0.5.7 재핀(xor eax,eax + lea rsp,[rbp+0x4240] 확인) // 0.5.6=0x1ac5409     // ★0.5.5(구0.5.4=0x232790a) 컨테이너 difflib(xor eax,eax) // → lea rsp,[rbp+..] → pop×7 → ret
+const DELAY_RESUME_RVA: usize = 0x1ac4bd3; // 0.5.6 재핀   // ★0.5.5(구0.5.4=0x23270a3) 컨테이너 difflib(mov rbx,rsp)
+const EPILOG_RVA: usize = 0x1ac5409; // 0.5.6 재핀     // ★0.5.5(구0.5.4=0x232790a) 컨테이너 difflib(xor eax,eax) // → lea rsp,[rbp+..] → pop×7 → ret
 const ARRIVE_FN_RVA: usize = 0x1add430; // 0.5.6 재핀  // ★0.5.5(구0.5.4=0x2327080) 투표 37/37 // 재주입 시 직접 호출할 결과 도착 함수
 const DETAIL_SZ2: usize = 0x20a0;
 const ENTRY_SZ2: usize = 0xe0;
-const DRIVE_RVA: usize = 0xb62ce0; // 0.5.7 재핀(owner 0x888cc0->0xb62c80 HEAD_UNIQUE, off=0x60) // 0.5.6=0x888d20   // ★0.5.5(구0.5.4=0xa289c0) 컨테이너델타 UNIQUE(off=0x60)·DRIVE_ORIG 22B 실측 MATCH
-const DRIVE_ORIG: [u8; 22] = [0x48,0xc7,0x85,0xb8,0x6b,0x01,0x00,0xff,0xff,0xff,0xff,
+const DRIVE_RVA: usize = 0x888d20; // 0.5.6 재핀   // ★0.5.5(구0.5.4=0xa289c0) 컨테이너델타 UNIQUE(off=0x60)·DRIVE_ORIG 22B 실측 MATCH
+const DRIVE_ORIG: [u8; 22] = [0x48,0xc7,0x85,0xa8,0x6b,0x01,0x00,0xff,0xff,0xff,0xff,
                               0x48,0xc7,0x85,0x70,0x20,0x00,0x00,0xff,0xff,0xff,0xff];
-const DRIVE_RESUME_RVA: usize = 0xb62cf6; // 0.5.7 재핀(DRIVE+0x16) // 0.5.6=0x888d36   // ★0.5.5(구0.5.4=0xa289d6) 컨테이너델타(off=0x76)
+const DRIVE_RESUME_RVA: usize = 0x888d36; // 0.5.6 재핀   // ★0.5.5(구0.5.4=0xa289d6) 컨테이너델타(off=0x76)
 const A15E20_RVA: usize = 0x7970f0;   // ★0.5.5(구0.5.4=0xa15e20) 다중앵커 투표 50/50 size974→988
 const PAYLOAD_SZ: usize = 0x268;
 const OUT_SZ: usize = 0x740;
@@ -3186,7 +3165,7 @@ unsafe extern "win64" fn par_delay_shim() {
 
 #[unsafe(naked)]
 unsafe extern "win64" fn par_drive_shim() {
-    // 진입 시점(0.5.7 0xb62ce0): rcx=p2, rdx=p3, [rbp+0x17480]=p4  (0.5.6=0x888d20/[rbp+0x17470])
+    // 진입 시점(0xA289C0): rcx=p2, rdx=p3, [rbp+0x17470]=p4
     core::arch::naked_asm!(
         // ★스택 정렬(v20 크래시의 원인): `0xa28960`은 push **8개** + `sub rsp,0x17488`(%16=8)이라
         //   `0xa289c0` 시점 rsp ≡ 0(mod 16)이다. 여기서 push 6개(≡0) 후 `sub 0x28`(40B, %16=8)을 하면
@@ -3194,13 +3173,13 @@ unsafe extern "win64" fn par_drive_shim() {
         //   ⟹ `sub 0x20`(shadow space만, %16=0)이 정답. 지연 shim은 push 4 + sub 0x30으로 이미 맞았고,
         //   그래서 v19(지연만)는 멀쩡했는데 v20(드라이버 켬)만 죽었다.
         "push rcx", "push rdx", "push r8", "push r9", "push r10", "push r11",
-        "mov r8, [rbp+0x17480]",
+        "mov r8, [rbp+0x17470]",
         "sub rsp, 0x20",
         "call {drv}",
         "add rsp, 0x20",
         "pop r11", "pop r10", "pop r9", "pop r8", "pop rdx", "pop rcx",
         // 스틸한 원본 2명령 재현
-        "mov qword ptr [rbp+0x16bb8], -1",
+        "mov qword ptr [rbp+0x16ba8], -1",
         "mov qword ptr [rbp+0x2070], -1",
         "jmp qword ptr [rip + {res}]",
         drv = sym par_drive_rust,
