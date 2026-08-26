@@ -2629,7 +2629,7 @@ unsafe fn apply_an_imm() {
     p!(base + 0xe23bf3, &[0x41,0xb9], 2, 4, b4(fb, 2));   // ←0.5.3 e146bf
     p!(base + 0xe23ea6, &[0x41,0xb9], 2, 4, b4(atk, 18));   // ←0.5.3 e14929
     p!(base + 0xe23bef, &[0xc6,0x46,0x0a], 3, 1, b1(wave, 2));   // ←0.5.3 e146bb
-    p!(base + 0xe23be8, &[0xc6,0x46,0x08], 3, 1, b1(style, 0));   // ←0.5.3 e146b4
+    p!(base + 0xdb2878, &[0xc6,0x46,0x08], 3, 1, b1(style, 0));   // ←0.5.3 e146b4   // ★★0.5.7 재핀(2026-08-26): ~~0.5.6 0xe23be8~~ → 0xdb2878. MOVEPRI(0xe23ad0→0xdb2760) 내부 +0x118. ⚠이 1건만 교체한 이유 = 0.5.6 주소를 두면 0.5.7에서 expect_orig 가 **우연히 일치**해 orig_guard 를 통과하고 엉뚱한 코드를 패치한다(실측 확인). 나머지 907건은 구주소로 두어도 값 불일치로 blocked = fail-safe.
 
     ANIMM_SIG.store(sig, Ordering::Relaxed);
     if let Some(pp) = pth("an_imm.txt") {

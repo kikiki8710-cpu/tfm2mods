@@ -29,7 +29,7 @@ use std::sync::Mutex;
 
 use std::time::{Instant, SystemTime, UNIX_EPOCH};
 include!("gb_kit.rs");
-include!("rva_056.rs");   // ★0.5.6 마이그(2026-08-20): rva_055.rs → rva_056.rs. 구파일(rva_051~055)은 이력용 보존(참조 없음).
+include!("rva_057.rs");   // ★0.5.7 마이그(2026-08-26): rva_056.rs → rva_057.rs. 구파일(rva_051~056)은 이력용 보존(참조 없음).
 include!("mem_safety.rs");
 include!("detour.rs");
 include!("class_micro.rs");   // ★[08-07] 바이트패치 노브를 클래스별로 여는 마이크로 디투어(설계 = RE 부록 B)

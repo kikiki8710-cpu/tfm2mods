@@ -17,9 +17,9 @@ use std::rc::Rc;
 use std::sync::atomic::{AtomicBool, AtomicU32, AtomicU64, AtomicUsize, Ordering};
 
 // ── 엔진 함수 (0.5.5 확정 — MIGRATION §7.5 §2 공통 3심볼 · comptest/draft_overlay 등 전 모드 동일) ──
-const LOADER_RVA: usize = 0x2e6f60; // 레이아웃 로더 — 0.5.6(구0.5.5=0x2e42d0). string-xref layout/main×17 재현. // 0.5.5(구0.5.4=0x2e35d0)
-const PARSER_RVA: usize = 0x19ab40; // .ui 조각 파서 — 0.5.6(구0.5.5=0x1a3e70). skel UNIQUE·BYTE=SAME·size 2192 동일. // 0.5.5(구0x1a3ce0)
-const ALLOC_RVA: usize = 0x2ab1670; // 게임 힙 alloc — 0.5.6(구0.5.5=0x2a9bf30). skel UNIQUE·BYTE=SAME. // 0.5.5(구0x29bb920)
+const LOADER_RVA: usize = 0x2ea930; // 레이아웃 로더 — 0.5.6(구0.5.5=0x2e42d0). string-xref layout/main×17 재현. // 0.5.5(구0.5.4=0x2e35d0)
+const PARSER_RVA: usize = 0x1ab310; // .ui 조각 파서 — 0.5.6(구0.5.5=0x1a3e70). skel UNIQUE·BYTE=SAME·size 2192 동일. // 0.5.5(구0x1a3ce0)
+const ALLOC_RVA: usize = 0x2ab4010; // 게임 힙 alloc — 0.5.6(구0.5.5=0x2a9bf30). skel UNIQUE·BYTE=SAME. // 0.5.5(구0x29bb920)
 const NT_SIZE: usize = 0x90; // NodeTemplate 크기
 
 type LoaderFn = extern "win64" fn(usize, *const u8, usize) -> usize;

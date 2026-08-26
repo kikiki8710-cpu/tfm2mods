@@ -143,7 +143,7 @@ unsafe fn patch_entry_thread_safe(fn_addr: usize, repl: usize) -> Result<(), &'s
 ///   본문 변경으로 body-sig 이설 실패했던 함수라, fast_pos_fit(0xf5bdd0) 호출자 역추적+계약대조로 확정.
 ///   호출경로: AI밴픽스코어러 → 캐시게터 0x10659d0(미스 시) → 0xf83830 → fast_pos_fit.
 ///   캐시 미스 때만 호출 = 챔프당 1회 발화(교정값 캐시 영속) = 정상.
-const RVA_POS_MASK: usize = 0xf83830;
+const RVA_POS_MASK: usize = 0x181fe60;
 /// 프롤로그 12B = push r15/r14/r13/r12/rsi/rdi/rbp/rbx … (전부 1~2B push — 12B 경계 클린)
 const PROL_POS_MASK: [u8; 12] = [
     0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x55, 0x53,
@@ -152,7 +152,7 @@ const PROL_POS_MASK: [u8; 12] = [
 // Hook C (유저 픽 차단 — 피어리스 픽불가 차용, RE 2026-08-20 4차):
 /// contains 헬퍼 `bool al = contains(rcx=&String{cap,ptr,len}, rdx=list.ptr, r8=list.len)`
 /// (0.5.5 0x943440 → 0.5.6 재핀·프롤로그 동일)
-const RVA_CONTAINS: usize = 0xb31840;
+const RVA_CONTAINS: usize = 0x8e85f0;
 /// contains 프롤로그 14B(사이트 검증용 — 함수 자체는 패치하지 않음)
 const PROL_CONTAINS: [u8; 14] = [
     0x41, 0x57, 0x41, 0x56, 0x56, 0x57, 0x53, 0x48, 0x83, 0xEC, 0x20, 0x4D, 0x85, 0xC0,
@@ -160,14 +160,14 @@ const PROL_CONTAINS: [u8; 14] = [
 /// slot_widget(0x1971b00) 내부 contains E8 콜사이트 2곳 — 피어리스 회색+클릭게이트 지배점.
 /// ⚠커밋기(0x12156b0) 내 4콜은 일부러 안 건드림: AI가 fail-open으로 위반 픽을 냈을 때
 /// 서버 커밋이 거부되면 턴이 막힐 수 있다 — 차단은 UI(클릭 전)에서만.
-const SITES_CONTAINS: [usize; 2] = [0x24dd7ae, 0x24dd7c7];
+const SITES_CONTAINS: [usize; 2] = [0x1e8016f, 0x1e80188];
 
 // Hook D (밴픽 씬 ptr 캡처 — RE 2026-08-20 5차):
 /// slot_widget = banpick_champion_slot 렌더러. 씬 ptr = 스택 인자 arg15 = 진입 시 [rsp+0x78].
 /// ⚠2026-08-21 인게임: slot_widget entry 훅은 타 모드에 덮여 고아화 + 그리드셀 렌더는
 ///   씬 인자=0 → 씬 캡처 실패. **scene_step(아래)로 대체.** slot_widget 은 hookC(회색화
 ///   콜사이트)만 계속 사용(씬 캡처 용도로는 미사용).
-const RVA_SLOT_WIDGET: usize = 0x24d7640;
+const RVA_SLOT_WIDGET: usize = 0x1e79ff0;
 /// 프롤로그 12B push열(그 뒤 mov eax+call chkstk는 원위치 실행 — resume = fn+12)
 const PROL_SLOT_WIDGET: [u8; 12] = [
     0x55, 0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x53,
@@ -177,7 +177,7 @@ const PROL_SLOT_WIDGET: [u8; 12] = [
 /// scene_step(&BanpickScene)->u8 = 밴픽 phase leaf. **rcx = 진짜 클라 밴픽 씬**(23 client
 ///   콜러·매프레임 호출·lookahead 아님·T1/T2 구분). banpick_order A'(0.5.6 재핀 0x24d1dc0).
 ///   씬 오프셋: T1BAN=0x140/T2BAN=0x158/T1PICK=0x170/T2PICK=0x188 (내 O_BAN1/2·O_PICK1/2와 동일).
-const RVA_SCENE_STEP: usize = 0x24d1dc0;
+const RVA_SCENE_STEP: usize = 0x1e748a0;
 /// 프롤로그 **14B**: mov rax,[rcx+0x160](7B) + mov rdx,[rcx+0x178](7B).
 /// ⚠★2026-08-23 버그수정: 구버전은 이걸 **12B 로 알고 있었다**. 두 명령은 7+7=14B 라
 ///   12B 만 떠오면 **두 번째 명령이 중간에서 잘린다** → 스텁 실행 시 `48 8B 91 78 01` 뒤에
@@ -195,9 +195,9 @@ const PROL_SCENE_STEP: [u8; 14] = [
 //     "챔피언 정보" 탭(champion_info_ui)이 슬롯마다 호출(RE 2026-08-20 확정).
 //   ②set_entity_icon(0x2517620) 진입 rdx=param_2=Assets — 밴픽/팀상세 렌더.
 /// 챔프아이콘 세터. 진입 rcx = 로드된 Assets(AssetServer/로더).
-const RVA_ICON_SETTER: usize = 0x250bc30;
+const RVA_ICON_SETTER: usize = 0x1e89450;
 /// set_entity_icon leaf. 진입 rdx = 로드된 Assets.
-const RVA_ENTITY_ICON: usize = 0x2517620;
+const RVA_ENTITY_ICON: usize = 0x1e92110;
 /// 두 함수 공통 프롤로그 첫 12B = push rbp/r15/r14/r13/r12/rsi/rdi/rbx (그 뒤 sub rsp — 원위치)
 const PROL_ICON8: [u8; 12] = [
     0x55, 0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x53,
@@ -749,7 +749,7 @@ unsafe fn install_scene_step_capture() -> Result<(), &'static str> {
 // blocklist 챔프면 원본 미호출 return → 픽 커밋 드롭(클릭해도 무효). 밴 디스패처는 별도라
 // 밴은 무영향. banpick_order 미후킹 함수(커밋터 0x24b6c10만 후킹)라 단독 detour 안전.
 /// 픽 디스패처. 프롤로그 = push rbp/r15/r14/r12/rsi/rdi/rbx; sub rsp,0x40 (14B·rip-rel 없음).
-const RVA_PICK_DISPATCH: usize = 0x24a2e20;
+const RVA_PICK_DISPATCH: usize = 0x1e45a60;
 const PROL_PICK_DISPATCH: [u8; 14] = [
     0x55, 0x41, 0x57, 0x41, 0x56, 0x41, 0x54, 0x56, 0x57, 0x53, 0x48, 0x83, 0xEC, 0x40,
 ];
@@ -884,7 +884,7 @@ pub fn install_once_p() {
 //   rmi=각 매치 MatchSetInfo → 매치별 독립. 모든 매치 커밋에서 호출 → 전 매치 적용.
 //   ⟹ 픽이 그 팀 라인업을 infeasible하게 만들면 orig 미호출·0 반환 = 강제 차단.
 //   ★banpick_order도 이 함수 후킹 → 체인. 프롤로그 push8=12B 클린(sub는 13번째).
-const RVA_COMMIT: usize = 0x10b0530;
+const RVA_COMMIT: usize = 0x1642600;
 const PROL_COMMIT: [u8; 12] = [
     0x55, 0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x53,
 ];
@@ -901,7 +901,7 @@ type CommitFn = extern "C" fn(usize, usize, usize) -> u8;
 //   r8=&ally픽(동구조), r9=&enemy픽. available 는 빌림만(free 안 함) → 필터 복사본 치환 안전.
 //   ★SDK score_pick 훅이 유저 라이브/코치 매치엔 미발화(agent+0xf60 훅배열 빔) → 여기서 직접
 //   필터해야 유저 매치도 막힘. recommend 는 코치위임·상대AI·서버AI·백그라운드 sim 공용.
-const RVA_RECOMMEND: usize = 0x2148ca0;
+const RVA_RECOMMEND: usize = 0x25549d0;
 const PROL_RECOMMEND: [u8; 12] = [
     0x55, 0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x53,
 ];
@@ -1069,7 +1069,7 @@ pub fn install_once_dispatch() {
 //   디스패처·서버워커 **양쪽이 수렴**하는 최종 확정 지점. 챔프 **이름(String)** 을 sret 로 반환하고,
 //   인자에 match_info(+0x38/0x50/0x68/0x88 = 밴2·픽2 **이름** Vec)·is_pick 이 있어 자족 판정 가능.
 //   1단계 = 관측(반환 이름 + 인자 덤프로 계약 확정), 2단계 = 위반 시 합법 챔프 이름으로 교체.
-const RVA_FINALIZE: usize = 0x1f338a0;
+const RVA_FINALIZE: usize = 0x1db6f30;
 static TRAMP_FINALIZE: AtomicUsize = AtomicUsize::new(0);
 pub static INSTALL_STATE_FZ: AtomicUsize = AtomicUsize::new(0);
 pub static CNT_FZ_SEEN: AtomicUsize = AtomicUsize::new(0);
@@ -1177,7 +1177,7 @@ pub fn install_once_finalize() {
 //   여기도 agent+0xf58/+0xf60 score_pick 디스패치 있음 → 같은 주입으로 코치 픽 재검토 발화).
 //   10인자: rcx=agent, rdx=&available, r8=&ally픽, r9=&enemy픽, 스택 [0x20]=&ally밴 [0x28]=&enemy밴
 //   [0x30]=bool [0x38]=난이도 [0x40]=턴종류 [0x48]=밴카운트. 반환 rax=선택 champ id.
-const RVA_RECOMMEND_WBC: usize = 0x214a4f0;
+const RVA_RECOMMEND_WBC: usize = 0x2556220;
 static TRAMP_RC_WBC: AtomicUsize = AtomicUsize::new(0);
 pub static INSTALL_STATE_RW: AtomicUsize = AtomicUsize::new(0);
 pub static CNT_RW_SEEN: AtomicUsize = AtomicUsize::new(0);

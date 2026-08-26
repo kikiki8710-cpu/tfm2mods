@@ -1,3 +1,20 @@
+// ★★★[0.5.7 미완성 경고 — 2026-08-26] 이 파일의 **함수시작 RVA 15개만 0.5.7로 갱신**됐고,
+//   **mid-func 스텁 축(AI_SITE/JOIN·AITURN·SFX·DRAIN_HL·DRAIN_HL2·HL·SLOTSEL)은 0.5.6 값 그대로다**.
+//   ⇒ **이 상태로 빌드·배포하지 말 것.** 배포본은 0.5.6 대역(deps `>=0.5.6, <0.5.7`)을 유지해
+//   0.5.7에서 자동 비활성화 = 안전 상태다.
+//
+//   ⚠왜 보류했나(실측 근거): 스텁 사이트 15개의 컨테이너를 전수 판정한 결과
+//     **BYTE=SAME 이 0/15**이고, 9개는 컨테이너 자체가 재핀 불가(NONE)다:
+//       · 밴픽 UI 대형 컨테이너 `0x254f8f0` → NONE (SFX·DRAIN_HL·DRAIN_HL2·SLOTSEL 전부 여기 소속)
+//       · AITURN 컨테이너 `0x2079730` → NONE (champ_pos_lock RVA_DISPATCH 와 동일 함수)
+//       · AI1 `0xf97570`→0x1837690 / AI2 `0xf9b290`→0x183b3b0 / HL `0x1effd90`→0x1d837a0 는 재핀됐으나
+//         전부 **BYTE=DIFF**(HL 은 size 47102→45696로 큰 변경) ⇒ 프레임 disp 가 바뀌었을 가능성 높음.
+//   ⚠**0.5.6 실사고가 정확히 이 축이었다**: site/join 주소만 갱신하고 스텁이 박은 rbp-disp32를
+//     안 고쳐서 HL arm `lea r8,[rbp+0x9b10]`(0.5.6 정답 0x9cf0)이 "이어하기" 즉사 AV 를 냈고,
+//     SIG 가 arm 본문을 미커버해 **결함 스텁이 sig 체크를 통과해버렸다**. ⇒ sig 통과는 안전 보장이 아니다.
+//   → 다음 세션 할 일: 컨테이너 9개를 ghidra-re 로 먼저 규명 → 각 스텁의 disp 바이트를 신 exe arm 과
+//     **전수 대조** 후에만 빌드. 정본 = MIGRATION §7.7 §4c.
+//
 //! 훅 지점 — RE 정본 = ANA\discovered-banpick-ai.md §16 / §17k(0.5.3 마이그).
 //! ★현행 = **게임 0.5.3 (buildid 24451609)**. 0.5.2 값은 MIGRATION §7.2-C 참조.
 //!
@@ -27,9 +44,9 @@ use std::panic::{catch_unwind, AssertUnwindSafe};
 use std::sync::atomic::{AtomicBool, AtomicU64, AtomicUsize, Ordering};
 
 // ── 0.5.5 RVA (패치 시 재핀 — 정본 = MODS\MIGRATION.md §7.5) ────────────────
-const RVA_PHASE_SCENE: usize = 0x24d1dc0; // 0.5.6 재핀 // A' (0.5.4 0x1dad900)
-const RVA_PHASE_SCALAR: usize = 0x10ac1f0; // 0.5.6 재핀 // B  (0.5.4 0x11bc7b0)
-const RVA_APPLIER: usize = 0x24b6c10; // 0.5.6 재핀 // C  (0.5.4 0x1d92750)
+const RVA_PHASE_SCENE: usize = 0x1e748a0; // 0.5.6 재핀 // A' (0.5.4 0x1dad900)
+const RVA_PHASE_SCALAR: usize = 0x163e2c0; // 0.5.6 재핀 // B  (0.5.4 0x11bc7b0)
+const RVA_APPLIER: usize = 0x1e59680; // 0.5.6 재핀 // C  (0.5.4 0x1d92750)
 
 // 진입부 원본 바이트 (0.5.3 exe 실측 — 본 세션 채록)
 /// A' 씬 phase leaf: mov rax,[rcx+0x160]; mov rdx,[rcx+0x178]; ...
@@ -308,7 +325,7 @@ fn scene_matches(ban: u64, rule: u8, total: u64) -> bool {
 //   엉뚱한 칸이 칠해진다(유저 실측: 3픽째부터 빨강, 2차 밴 구간에도 4픽 빨강).
 // ⟹ 게임의 색 적용 로직은 그대로 두고 **판정(param_7)만** 모드가 덮어쓴다.
 //   슬롯 식별 = param_1(슬롯 노드 포인터)를 lib.rs 가 매 프레임 채우는 표와 대조.
-const RVA_SLOTUPD: usize = 0x251e3e0; // 0.5.6 재핀 // 0.5.4 0x1ddff30
+const RVA_SLOTUPD: usize = 0x1e98ed0; // 0.5.6 재핀 // 0.5.4 0x1ddff30
 const PROLOGUE_SLOTUPD: &[u8] = &[
     0x55, 0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x53,
 ];
@@ -381,7 +398,7 @@ unsafe extern "win64" fn hook_slotupd(
 // 가려 슬롯 표시를 고른다. 0.5.2 에서는 이 계산이 phase_from(훅 B)로 갔기에 커스텀
 // 순서를 자동 추종했고(=유저 증언 "0.5.2 에선 문제없었다"), 0.5.3 에서 이 leaf 로
 // 분리되면서 훅이 비어 흰칸만 바닐라로 남았다.
-const RVA_PHASE_RAW: usize = 0x24ac690; // 0.5.6 재핀 // 0.5.4 0x1d88160
+const RVA_PHASE_RAW: usize = 0x1e4f2d0; // 0.5.6 재핀 // 0.5.4 0x1d88160
 const PROLOGUE_PHASE_RAW: &[u8] = &[
     0x48, 0x8B, 0x91, 0x60, 0x01, 0x00, 0x00, 0x48, 0x03, 0x91, 0x48, 0x01,
 ];
@@ -487,12 +504,12 @@ type TransitionFn = unsafe extern "win64" fn(usize, usize, usize);
 
 // 0.5.3 재핀(버킷별 씬 오프셋 지문으로 확정: pick_t1 +0x168/0x170/0x178 · pick_t2 +0x180/
 // 0x188/0x190 · ban_t1 +0x138/0x140/0x148 · ban_t2 +0x150/0x158/0x160)
-const RVA_APP_PICK_T1: usize = 0x24a2c90; // 0.5.6 재핀 // 0.5.4 0x1d7e070
-const RVA_APP_PICK_T2: usize = 0x24a2e20; // 0.5.6 재핀 // 0.5.4 0x1d7e200
-const RVA_APP_BAN_T1: usize = 0x24e09a0; // 0.5.6 재핀 // 0.5.4 0x1dbc290
-const RVA_APP_BAN_T2: usize = 0x24e0b20; // 0.5.6 재핀 // 0.5.4 0x1dbc410
+const RVA_APP_PICK_T1: usize = 0x1e458d0; // 0.5.6 재핀 // 0.5.4 0x1d7e070
+const RVA_APP_PICK_T2: usize = 0x1e45a60; // 0.5.6 재핀 // 0.5.4 0x1d7e200
+const RVA_APP_BAN_T1: usize = 0x1e83360; // 0.5.6 재핀 // 0.5.4 0x1dbc290
+const RVA_APP_BAN_T2: usize = 0x1e834e0; // 0.5.6 재핀 // 0.5.4 0x1dbc410
 #[allow(dead_code)]
-const RVA_TRANSITION: usize = 0x24acdc0; // 0.5.6 재핀 // 0.5.4 0x1d88900 (직접 호출 안 함 — 참고용)
+const RVA_TRANSITION: usize = 0x1e4fa70; // 0.5.6 재핀 // 0.5.4 0x1d88900 (직접 호출 안 함 — 참고용)
 
 // ── 단계 배너 (금지/선택 단계 애니메이션) ──────────────────────────────────
 // 배너는 씬의 연출 FSM(scene+0x380 state, +0x384 타이머)이 그린다. update 0x1250370의
@@ -603,7 +620,7 @@ unsafe extern "win64" fn sfx_is_pick(scene: usize) -> u64 {
     r
 }
 
-const RVA_BANNER: usize = 0x24b4150; // 0.5.6 재핀 // 0.5.4 0x1d8fc90 (호출 전용 — 프롤로그 변경 무관)
+const RVA_BANNER: usize = 0x1e56e00; // 0.5.6 재핀 // 0.5.4 0x1d8fc90 (호출 전용 — 프롤로그 변경 무관)
 type BannerFn = unsafe extern "win64" fn(usize, usize, usize, u8);
 const O_SC_FSM_STATE: usize = 0x380; // u64 (state + 타이머 0x384 동시 클리어)
 const O_SC_FSM_LATCH: usize = 0x43e; // u8
@@ -634,7 +651,7 @@ static WD_KICKS: AtomicU64 = AtomicU64::new(0);
 // 인터리브에서는 적용기의 팀 배정이 게임 파리티에 종속이라 일부 픽이 반대 팀 벡터로
 // 들어가 이름을 못 찾는다 → 이 패닉. 회피: 모든 이름이 해당 팀 픽벡터에 있을 때만 원본
 // 실행, 아니면 스킵(레인 표시만 스테일, 밴픽 진행·전환은 별개 이벤트라 그대로 진행).
-const RVA_LINEUP: usize = 0x24a3750; // 0.5.6 재핀 // 0.5.4 0x1d7eb30
+const RVA_LINEUP: usize = 0x1e46390; // 0.5.6 재핀 // 0.5.4 0x1d7eb30
 const PROLOGUE_LINEUP: &[u8] = &[
     0x55, 0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x53,
 ];
@@ -652,7 +669,7 @@ static CNT_LINEUP_SKIP: AtomicU64 = AtomicU64::new(0);
 //   · 픽 강제(버킷 b): k ≡ total(mod2), k<npicks, pick_table[rule][k]==b → ban' = (total-k)/2
 //   요구 acting_team은 버킷에서 자동 결정: b==0 → team[s^1](=T1), b==1 → team[s](=T2).
 // 원본의 중복검사·상한·fearless·allocator 경로는 전부 보존된다.
-const RVA_COMMIT: usize = 0x10b0530; // 0.5.6 재핀 // 0.5.4 0x11c04a0
+const RVA_COMMIT: usize = 0x1642600; // 0.5.6 재핀 // 0.5.4 0x11c04a0
 const PROLOGUE_COMMIT: &[u8] = &[
     0x55, 0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x53,
 ];
@@ -666,7 +683,7 @@ static CNT_COMMIT_CUSTOM: AtomicU64 = AtomicU64::new(0);
 // 단일 오라클 — AI턴 0xebe530@0xebe8de가 이걸로 행동 팀을 정한다(타입은 hook A).
 // 커스텀 seq의 팀비트로 team_id를 반환하면 AI가 내 순서대로 행동 → 씬·레코드 일치.
 // 2워드 반환은 Rust로 직접 불가 → raw 스텁(out 파라미터 → rdx 로드)으로 처리.
-const RVA_TURN: usize = 0x10b0c60; // 0.5.6 재핀 // 0.5.4 0x11c0bd0
+const RVA_TURN: usize = 0x1642d30; // 0.5.6 재핀 // 0.5.4 0x11c0bd0
 static TURN_STUB: AtomicUsize = AtomicUsize::new(0);
 
 /// Drop 원복 가드 — shim 도중 패닉해도 unwind 중에 원복 보장.
@@ -1745,7 +1762,7 @@ static SLOTSEL_PATCHED: AtomicBool = AtomicBool::new(false);
 // 갈라진다. 프롤로그 15B = ghidra-re 실측(⚠12B는 `sub rsp,0x838` 중간 절단 = 15 필수,
 // 15B 내 rip-rel 없음). 스텁 = lock inc [TRIG_N] → 원본 15B → 복귀(rax만 클로버 —
 // 프롤로그는 rax 미사용·win64 인자 아님).
-const RVA_TRIGGER: usize = 0x24d58b0; // 0.5.6 재핀 // 0.5.4 0x1db11a0
+const RVA_TRIGGER: usize = 0x1e782a0; // 0.5.6 재핀 // 0.5.4 0x1db11a0
 const PROLOGUE_TRIGGER: [u8; 15] = [
     0x55, 0x41, 0x57, 0x41, 0x56, 0x56, 0x57, 0x53, 0x48, 0x81, 0xec, 0x38, 0x08, 0x00, 0x00,
 ];

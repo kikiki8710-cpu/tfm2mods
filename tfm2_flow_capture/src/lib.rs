@@ -124,7 +124,7 @@ fn log(s: &str) {
 // ── 0.5.5 오프셋 (2026-08-13 마이그 · 근거 = 파일 상단 헤더 + 아래 각 주석) ──────
 //   ⚠구조체 4대역 비균일 시프트 정본 = MIGRATION §7.5 §6. 이 모드 재핀 근거는 각 상수 주석.
 //   (0.5.4 값은 취소선으로 정정형 보존.)
-const RUN_TICK_RVA: usize = 0x14db7e0; // 0.5.6(구0.5.5=0x14aa160). exe2exe skel UNIQUE·BYTE=SAME·size 5417 동일·프롤로그12 동일. // 0.5.5(구0.5.4=0x13b3150). disp-masked 구조skel UNIQUE + comptest ORACLE 교차 + 프롤로그14/size 0x1529 동일
+const RUN_TICK_RVA: usize = 0x106bae0; // 0.5.6(구0.5.5=0x14aa160). exe2exe skel UNIQUE·BYTE=SAME·size 5417 동일·프롤로그12 동일. // 0.5.5(구0.5.4=0x13b3150). disp-masked 구조skel UNIQUE + comptest ORACLE 교차 + 프롤로그14/size 0x1529 동일
 const HOOK_PROLOGUE12: [u8; 12] = [0x55, 0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x53]; // 불변(run_tick·ctor 첫12B 동일)
 const HOOK_PROLOGUE12_ALT: [u8; 12] = [0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x55, 0x53];
 const G_OFF: usize = 0x1dc0; // ctrl(rdx) → game — 불변(§6 Game +0x1dc0/+0x1dc8, run_tick 정렬 확인)
@@ -162,7 +162,7 @@ const STRAT_STRIDE: usize = 0x18;
 //   game_rule u8@+0xce(0=2v2..3=5v5, 팀당 목표픽=rule+2). ban_count u64@+0x3c0. blue측 팀id@+0x3d0.
 //   ⚠pass-through 캡처 훅이라 14B 재배치 필요(12B는 2번째 mov 중간 절단). 두 명령 모두
 //    mov reg,[rcx+disp32](rip-rel 없음)이라 그대로 재배치 가능. 패치=12B(movabs+jmp)가 14B 안에 듦.
-const SCENE_STEP_RVA: usize = 0x24d1dc0; // 0.5.6(구0.5.5=0x196c2c0). 마스크시그 UNIQUE(pdata 없는 리프)·movzx r9d,[rcx+0xce]@0x24d1de2 시그 재확인·프롤로그14 동일. // 0.5.5(구0.5.4=0x1dad900). banpick_order PHASE_SCENE 마이그 동일 함수 + movzx[rcx+0xce]@0x196c2e2 시그 확인
+const SCENE_STEP_RVA: usize = 0x1e748a0; // 0.5.6(구0.5.5=0x196c2c0). 마스크시그 UNIQUE(pdata 없는 리프)·movzx r9d,[rcx+0xce]@0x24d1de2 시그 재확인·프롤로그14 동일. // 0.5.5(구0.5.4=0x1dad900). banpick_order PHASE_SCENE 마이그 동일 함수 + movzx[rcx+0xce]@0x196c2e2 시그 확인
 // BanpickScene 구조 = 0.5.5 전건 불변(banpick_order 0.5.5 확정: PROLOGUE_SCENE·O_SC 오프셋·+0x3d0 유지)
 const BP_PROLOGUE14: [u8; 14] = [0x48, 0x8b, 0x81, 0x60, 0x01, 0x00, 0x00, 0x48, 0x8b, 0x91, 0x78, 0x01, 0x00, 0x00]; // 불변
 const BP_BAN1: usize = 0x140; // t1 밴 Vec ptr(len=+8) — 불변
@@ -181,7 +181,7 @@ const BP_STR_STRIDE: usize = 0x18;
 // ★훅 대상 = 공개진입 0x14a0240 (라이브 위임 전용, 배경 sim은 콜그래프상 여기 못 닿음 → 필터 불요).
 //   RE 2026-08-11: 배경=0x20d5bf0이 inner 직접(override=0), 라이브=0x237c030→0x14a0240→inner(override≠0).
 //   프롤로그 12B=8push(41 57..53)+sub rsp,0x408. sret rcx 24B=캐논 Strategy. 호출당 양팀 2회(최신 채택).
-const RECO_INNER_RVA: usize = 0x2ce38f0; // 0.5.6(구0.5.5=0x12ae860). 마스크시그 UNIQUE(pdata 없는 리프)·프롤로그12 동일. // 0.5.5(구0.5.4=0x14a0240). skel UNIQUE(disp 포함, delta -0x1f19e0) + 프롤로그12 동일 = 본문 무변경
+const RECO_INNER_RVA: usize = 0x2ce6310; // 0.5.6(구0.5.5=0x12ae860). 마스크시그 UNIQUE(pdata 없는 리프)·프롤로그12 동일. // 0.5.5(구0.5.4=0x14a0240). skel UNIQUE(disp 포함, delta -0x1f19e0) + 프롤로그12 동일 = 본문 무변경
 const RECO_PROLOGUE12: [u8; 12] = [0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x55, 0x53]; // 불변(NEW 프롤로그 동일 확인)
 
 // 밴픽 피어리스 불가목록 = 씬(X) 고정오프셋 직접 읽기(extract_fearless). contains 훅은 폐기(공용 헬퍼라 분리 불가, RE 2026-08-11).
@@ -987,7 +987,7 @@ unsafe fn install_tick_hook() -> Result<String, String> {
 //   목적: 9개 매치런처 중 "리플레이 런처"를 런타임 특정(RE 2026-08-12 권장경로).
 //   캡처스텁이 진입 시 [rsp](=호출자 리턴주소)를 CTOR_RET에 저장 → ctor_detour가 RVA 기록.
 //   다시보기 클릭 직후(DABO_CLICK_MS 기준 3초) 발화한 호출자 = 리플레이 런처.
-const CTOR_RVA: usize = 0x14dda60; // 0.5.6(구0.5.5=0x14ac3e0). head-UNIQUE + 마스크시그 UNIQUE + launcher 콜사이트 9/9 전단사(item_tactics/serpen 교차)·첫12B=HOOK_PROLOGUE12 불변(chkstk imm 0x25438→0x25438 프롤로그14 동일). // 0.5.5(구0.5.4=0x13b53d0). 구조skel LCP 342(압도) + item_tactics/serpen LAUNCHER 교차 + 프롤로그[13] 0x68→0x38(chkstk imm 0x25168→0x25438). 첫12B=HOOK_PROLOGUE12 불변(설치체크 통과)
+const CTOR_RVA: usize = 0x106dd60; // 0.5.6(구0.5.5=0x14ac3e0). head-UNIQUE + 마스크시그 UNIQUE + launcher 콜사이트 9/9 전단사(item_tactics/serpen 교차)·첫12B=HOOK_PROLOGUE12 불변(chkstk imm 0x25438→0x25438 프롤로그14 동일). // 0.5.5(구0.5.4=0x13b53d0). 구조skel LCP 342(압도) + item_tactics/serpen LAUNCHER 교차 + 프롤로그[13] 0x68→0x38(chkstk imm 0x25168→0x25438). 첫12B=HOOK_PROLOGUE12 불변(설치체크 통과)
 static CTOR_INSTALLED: AtomicU32 = AtomicU32::new(0);
 static CTOR_TRAMP: AtomicUsize = AtomicUsize::new(0);
 static CTOR_RET: AtomicUsize = AtomicUsize::new(0); // 캡처스텁이 [rsp] 저장

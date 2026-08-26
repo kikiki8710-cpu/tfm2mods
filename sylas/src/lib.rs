@@ -19,7 +19,7 @@ use std::time::Duration;
 use mod_api::*;
 
 // ★0.5.6 마이그(2026-08-24) — 구값은 각 줄 주석. RVA = exe↔exe 체인 재핀(0.5.2→3→4→5→6, 전 단계 UNIQUE).
-const GRAB_RVA: usize = 0x1801780; // 0.5.6 (구 0.5.5 0x1162b20 / 0.5.4 0x156c8d0 / 0.5.3 0x12ca630 / 0.5.2 0x1e267b0)
+const GRAB_RVA: usize = 0x1504310; // 0.5.6 (구 0.5.5 0x1162b20 / 0.5.4 0x156c8d0 / 0.5.3 0x12ca630 / 0.5.2 0x1e267b0)
 const GRAB_SIG: [u8; 12] = [0x41,0x57,0x41,0x56,0x41,0x54,0x56,0x57,0x53,0x48,0x83,0xec]; // 0.5.6 프롤로그 동일(실측)
 const GRAB_LEN: usize = 13; // push6(9)+sub rsp,0x38(4)
 // ★WORLDOPS_RVA(구 0.5.2 0x38c5d78) 폐지 = detour가 받는 r9를 그대로 사용(버전 독립).
@@ -28,7 +28,7 @@ const GRAB_LEN: usize = 13; // push6(9)+sub rsp,0x38(4)
 // ★재생 루프 = Combine effect의 apply. 자식 {data,vtable} stride 0x10 배열을 순회하며
 //   각 자식의 vtable+0x20(apply)을 같은 인자 세트로 호출한다(0.5.6 디컴 FUN_141802630).
 //   self 보정식 = data + ((vtable[0x10]/*align*/ - 1) & !0xf) + 0x10.
-const COMBINE_RVA: usize = 0x1802630;
+const COMBINE_RVA: usize = 0x159a430;
 const COMBINE_SIG: [u8; 12] = [0x41,0x57,0x41,0x56,0x41,0x55,0x41,0x54,0x56,0x57,0x55,0x53];
 const COMBINE_LEN: usize = 19; // 8push(12) + sub rsp,0x98(7), rip-rel 없음
 const EFF_STRIDE: usize = 0x10;   // 자식 항목 = {data@+0, vtable@+8}
@@ -39,7 +39,7 @@ const EFF_ALIGN:  usize = 0x10;
 ///   중첩을 펼치지 않으면 **껍데기만 캡처**된다(유저 지적 2026-08-24: "이펙트 2개가 진짜 끝인가").
 const COMBINE_APPLYS: [usize; 2] = [0x1802630, 0x1802760];
 /// ★게임 할당자. 디스어셈 계약: rcx 무시 / edx=flags / r8=size / 반환 rax=ptr.
-const ALLOC_RVA: usize = 0x2ab1670;
+const ALLOC_RVA: usize = 0x2ab4010;
 
 /// ★★effect를 **fresh 인스턴스로 복제**한다.
 ///   effect = `Arc { strong@+0, weak@+8, payload@+0x10 }` 이고 payload 크기는 **vtable+8**에 있다.
@@ -91,20 +91,20 @@ unsafe fn flatten_children(selfp: usize, depth: u32, out: &mut Vec<(usize, usize
 //   내부에서 스택에 "실행 요청 구조체"를 조립해 이 함수로 넘긴다 ⟹ 모든 바닐라 action이 여기로 수렴.
 //   계약: rcx=req구조체, rdx=world, r8=WorldOps, r9=target, [rsp+0x28]=casting_ctx
 //   req[0x30] = action kind(JT 인덱스), req[0] = action Arc 포인터
-const JT_RVA: usize = 0x137dda0;
+const JT_RVA: usize = 0x161b390;
 const JT_SIG: [u8; 12] = [0x41,0x57,0x41,0x56,0x41,0x55,0x41,0x54,0x56,0x57,0x55,0x53];
 const JT_LEN: usize = 16;  // 8push(12) + sub rsp,0x38(4), rip-rel 없음
 // ★base 궁 apply — 본문 첫머리에 `lVar2 = [action+0x48]; if (lVar2 == -1) return 0;` **궁 게이트**가 있다.
 //   ⟹ 이 함수 진입 = "궁 시전"이라 kind 판별 없이 궁만 골라낼 수 있다(JT는 모든 action이 kind=0으로 들어와 구분 불가).
 //   계약(0.5.6 디컴): rcx=action_data, rdx=world, r8=WorldOps, r9=target, [rsp+0x28]=casting_ctx → u64
-const BASEULT_RVA: usize = 0x173c780;
+const BASEULT_RVA: usize = 0x1556940;
 const BASEULT_SIG: [u8; 11] = [0x55,0x41,0x57,0x41,0x56,0x41,0x55,0x41,0x54,0x56,0x57];
 const BASEULT_LEN: usize = 19; // ★push×8 = 12B(rbp1+r15/r14/r13/r12 각2 +rsi/rdi/rbx 각1) + sub rsp,0x88(7B) = 19B
 //   ⚠18로 잘못 잡아 sub 명령이 6B만 복사돼 게임이 먹통이 됐다(2026-08-24). hook_len은 반드시 명령 경계에 맞출 것.
 const A_ULT_GATE: usize = 0x48; // clone 대상 시작점이자 게이트 필드
 // ★base 궁 apply가 내부에서 쓰는 clone. 이것을 우리가 "캡처 시점"에 호출해 **우리 소유의 사본**을 만든다.
 //   (공유 action 포인터를 그대로 들고 있다가 남의 문맥에 태우면 크래시 — 2026-08-24 실증)
-const CLONE_RVA: usize = 0x16d8b30;
+const CLONE_RVA: usize = 0x14f43c0;
 const A_F180: usize = 0x180;
 const A_F188: usize = 0x188;
 const A_F190: usize = 0x190;
@@ -155,6 +155,7 @@ extern "system" {
     fn QueryPerformanceCounter(c: *mut i64) -> BOOL;
     fn GetCurrentThreadId() -> u32;
     fn GetProcessHeap() -> usize;
+    fn HeapAlloc(heap: usize, flags: u32, bytes: usize) -> usize;
     fn HeapFree(heap: usize, flags: u32, mem: usize) -> BOOL;
     fn CreateFileW(name: *const u16, access: u32, share: u32, sa: usize, disp: u32, flags: u32, tmpl: usize) -> usize;
     fn WriteFile(h: usize, buf: *const u8, len: u32, written: *mut u32, ov: usize) -> BOOL;
@@ -663,7 +664,7 @@ const Q_ITEM_VCALL: usize = 0x70; // 항목 vtable + 0x70 = 매 틱 실행
 const Q_ITEM_DONE: usize = 0x78;  // 항목 vtable + 0x78 = 완료 판정(true면 큐에서 제거·drop)
                                   //   근거 = FUN_140ed4750(큐 retain 함수) 디컴
 /// ★entity 틱 처리 함수. 진입 직후 큐를 take하므로, **이 훅이 큐를 볼 수 있는 유일한 시점**이다.
-const ETICK_RVA: usize = 0x17eabc0;
+const ETICK_RVA: usize = 0x1583de0;
 const ETICK_SIG: [u8; 11] = [0x55,0x41,0x57,0x41,0x56,0x41,0x55,0x41,0x54,0x56,0x57];
 const ETICK_LEN: usize = 19; // push×8(12) + sub rsp,0x578(7), rip-rel 없음
 /// 사일러스 entity 주소(큐를 직접 읽기 위해 보관)
@@ -803,7 +804,8 @@ fn cfg_refresher() {
         LEGACY_CALL.store(cfg_flag(&s, "legacy_call"), Ordering::Relaxed);
         GRAFT_CT.store(cfg_val(&s, "graft_ct").as_deref() != Some("0"), Ordering::Relaxed);
         AI_MASK.store(cfg_val(&s, "ai_mask").as_deref() != Some("0"), Ordering::Relaxed);
-        TAG_SWAP.store(cfg_val(&s, "tag_swap").as_deref() != Some("0"), Ordering::Relaxed);
+        TAG_SWAP.store(cfg_val(&s, "tag_swap").as_deref() == Some("1"), Ordering::Relaxed);
+        EMIT_SWAP.store(cfg_val(&s, "emit_swap").as_deref() != Some("0"), Ordering::Relaxed);
         ULT_CENSUS.store(cfg_val(&s, "ult_census").as_deref() != Some("0"), Ordering::Relaxed);
         ULT_CD_MAX.store(cfg_val(&s, "ult_cd_max").and_then(|v| v.parse::<u64>().ok()).unwrap_or(0), Ordering::Relaxed);
         PROV_KEEPCOOL.store(cfg_val(&s, "prov_keepcool").as_deref() != Some("0"), Ordering::Relaxed);
@@ -1242,12 +1244,12 @@ const E_BUF_PTR: usize = 0x2e0;
 const E_BUF_LEN: usize = 0x2e8;
 const BUF_STRIDE: usize = 0x120;
 const E_STAT_DIRTY: usize = 0x6b8;   // 1바이트 필드(상위 7B는 이웃) — u8 폭으로만 건드릴 것
-const ADDBUFF_RVA: usize = 0x15afd30;   // AddCasterBuff effect의 apply
+const ADDBUFF_RVA: usize = 0x139a5d0;   // AddCasterBuff effect의 apply
 /// ★게임의 버프 push 함수. `f(rcx=entity, rdx=src_0x120)` — memcpy·len++ 뿐 아니라
 ///   **버프 전량 재합산 결과를 `+0x3c8~+0x489`에 기록 → `0x17ea5f0`(스탯 재계산) 호출 →
 ///   최대HP 변화에 맞춰 현재HP(`+0x670`) 비례 조정**까지 한다(0x17f9590~ 디스어셈).
 ///   ⟹ 우리 재구현(`push_buff`)은 앞 절반뿐이라 **리스트에는 남지만 스탯에 반영되지 않았다**(v55 실측).
-const BUFFPUSH_RVA: usize = 0x17f9390;
+const BUFFPUSH_RVA: usize = 0x15925c0;
 // ────────────────────────────────────────────────────────────────────────
 // ★★[v56] entity **스킬 슬롯 4개** — 정적 RE로 확정(2026-08-24, `0x17eabc0` 틱 함수 분해).
 //   틱 함수는 `[ent+0x68]`(엔티티 종류, 20종 점프테이블)으로 갈라지고, **0xd = 데이터챔프**(사일러스).
@@ -1303,7 +1305,7 @@ const E_PROV_ULTV: usize = 0x5a8;   // 그 vtable
 const PV_CLONE:    usize = 0x48;    // __clone_box(&self) -> *mut ()
 const PROV_COOL:   usize = 0x170;   // cooltime
 const PROV_USES:   usize = 0x178;   // cooltime_use_count
-const RVA_ASSEMBLE: usize = 0x17f6de0;  // 슬롯 4칸 재조립(프로바이더 기준)
+const RVA_ASSEMBLE: usize = 0x1590010;  // 슬롯 4칸 재조립(프로바이더 기준)
 const RVA_BOXDROP:  usize = 0xec870;    // drop_in_place<Box<dyn>> (인자 = 16B 쌍의 주소)
 
 static PROV_SWAP: AtomicBool = AtomicBool::new(false);
@@ -1638,11 +1640,11 @@ unsafe fn ai_mask_vt(orig: usize, sy_vt: usize) -> Option<usize> {
 //   ghoul `berserk_`(0x1fbc160), cavalry_knight `fire_`(0x238ced0), demon `archfiend_`(0x2631900).
 // (RE 2026-08-26_뷰-애니이름-setter-전수-개입점.md)
 
-const TAGSEL_RVA: usize = 0x1f94b50;
+const TAGSEL_RVA: usize = 0x23964e0;
 const TAGSEL_SIG: [u8; 12] = [0x41,0x56,0x56,0x57,0x53,0x48,0x81,0xEC,0x98,0x00,0x00,0x00];
 const V_CHAMP_ID: usize = 0x38;      // ViewEntity 안 챔프 id String {cap,ptr,len}
 static TAGSEL_TRAMP: AtomicUsize = AtomicUsize::new(0);
-static TAG_SWAP: AtomicBool = AtomicBool::new(true);     // cfg tag_swap
+static TAG_SWAP: AtomicBool = AtomicBool::new(false);    // cfg tag_swap (기본 OFF — 애니 정지 버그)
 static TAG_SWAP_N: AtomicU32 = AtomicU32::new(0);
 static TAG_MISS_N: AtomicU32 = AtomicU32::new(0);
 /// 사일러스 fanim 의 anims 키 집합 — 여기 없는 이름은 **절대** 내보내지 않는다.
@@ -1764,8 +1766,140 @@ unsafe fn tagsel_swap(out: usize, v: usize) {
     if n < 12 { hlog(&format!("[태그접미사] #{} '{}' → '{}'\n", n, tag, want)); }
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// ★★[v125] 시전 애니 태그 교체 — **이미터 큐 엔트리 스왑** (RE 2026-08-25 §3 A안)
+//
+// 왜 갈아탔나: v119 는 태그 선택기 `FUN_141f94b50` 을 후킹했는데, 그 함수는
+//   `0xb49bd0` = **SetAnimation 커맨드 처리부 안**에서 불린다. 그 직전 `0xb49b33` 이
+//   옛 태그와 함께 **`V+0x158`(애니 타이머)를 백업/리셋**하므로, 채널링 중 커맨드가 반복
+//   발행되면 매번 타이머가 0으로 돌아가 **프레임 0에 고정**된다(2026-08-26 인게임 실증).
+//   RE 문서의 권장안은 처음부터 이미터였다.
+//
+// 개입면: 이미터가 방금 push 한 **큐 엔트리 1개의 String 만** 고친다.
+//   sub-tag 3 노드 생성 12곳 중 이미터(`0x14c5556`)만 궁이라 **평타·이동·스킬엔 영향 없다.**
+//   동기 실행이라 경합 없고, 태그가 fanim 에 없으면 게임이 스스로 롤백한다(실패 안전).
+const EMIT_RVA: usize = 0x10556d0;
+// push rbp/rsi/rdi/rbx ; sub rsp,0x78 ; lea rbp,[rsp+0x70]  = 13B (마지막 lea 가 5B)
+const EMIT_SIG: [u8; 13] = [0x55,0x56,0x57,0x53,0x48,0x83,0xEC,0x78,0x48,0x8D,0x6C,0x24,0x70];
+static EMIT_TRAMP: AtomicUsize = AtomicUsize::new(0);
+static EMIT_SWAP:  AtomicBool  = AtomicBool::new(true);   // cfg emit_swap
+static EMIT_N:     AtomicU32   = AtomicU32::new(0);
+static EMIT_MISS:  AtomicU32   = AtomicU32::new(0);
+type EmitFn = extern "win64" fn(usize, u64, usize);
+
+extern "win64" fn emit_detour(qpp: usize, ent_id: u64, ctx: usize) {
+    let t = EMIT_TRAMP.load(Ordering::Relaxed);
+    if t == 0 { return; }
+    unsafe { core::mem::transmute::<usize, EmitFn>(t)(qpp, ent_id, ctx) };
+    let _ = std::panic::catch_unwind(std::panic::AssertUnwindSafe(
+        || unsafe { emit_swap(qpp, ent_id, ctx) }));
+}
+
+/// 방금 push 된 마지막 큐 엔트리의 태그를 `<태그>_<공여자>` 로 바꾼다.
+/// 레이아웃 근거 = RE `2026-08-25_시전애니-태그교체-개입점.md` §3-1/§3-3.
+unsafe fn emit_swap(qpp: usize, ent_id: u64, ctx: usize) {
+    if !EMIT_SWAP.load(Ordering::Relaxed) { return; }
+    if qpp < 0x10000 || ctx < 0x10000 { return; }
+
+    // ① 시전자가 사일러스인가 — CastViewCtx{+0x00: *Entity}
+    let ent = match rd_u64(ctx) { Some(v) => v as usize, None => return };
+    if ent < 0x10000 || !is_champion(ent) { return; }
+    if ent_name(ent).as_deref() != Some("sylas") { return; }
+
+    // ② 지금 강탈 중인 공여자
+    let donor = {
+        let g = SLOT_TMPL.lock().unwrap_or_else(|x| x.into_inner());
+        match g.as_ref() { Some(t) => t.1.clone(), None => return }
+    };
+    if donor.is_empty() { return; }
+
+    // ③ 큐의 **마지막** 엔트리 = 방금 이 호출이 push 한 것
+    let q = match rd_u64(qpp) { Some(v) => v as usize, None => return };   // [rcx]==0 = 비수집 틱
+    if q < 0x10000 { return; }
+    let len = match rd_u64(q + 0x10) { Some(v) => v as usize, None => return };
+    if len == 0 || len > 0x10000 { return; }
+    let arr = match rd_u64(q + 8) { Some(v) => v as usize, None => return };
+    if arr < 0x10000 { return; }
+    let e = arr.wrapping_add((len - 1) * 0x10);
+    if rd_u64(e).map(|v| v & 0xffff_ffff) != Some(0) { return; }           // 엔트리 kind 0
+    let node = match rd_u64(e + 8) { Some(v) => v as usize, None => return };
+    if node < 0x10000 { return; }
+    if rd_u64(node) != Some(3) { return; }                                 // sub-tag 3 = SetAnimation
+    if rd_u64(node + 0x10) != Some(ent_id) { return; }                     // 다른 개체의 노드면 손대지 않는다
+    let pl = match rd_u64(node + 8) { Some(v) => v as usize, None => return };
+    if pl < 0x10000 { return; }
+
+    // ④ 접미사 이름이 fanim 에 실재할 때만 교체
+    let (cap, ptr, tag) = match rd_gstr(pl) { Some(v) => v, None => return };
+    let want = format!("{}_{}", tag, donor);
+    {
+        let g = ANIM_SET.lock().unwrap_or_else(|x| x.into_inner());
+        if g.is_empty() || !g.iter().any(|n| *n == want) {
+            let n = EMIT_MISS.fetch_add(1, Ordering::Relaxed);
+            if n < 8 { hlog(&format!("[이미터태그] '{}' 없음 → 원본 '{}' 유지
+", want, tag)); }
+            return;
+        }
+    }
+
+    // ⑤ **게임 할당자**로 새 버퍼(RE §3-3 정공법). payload 가 유일 소유자라 큐 drop 이 free 한다
+    //    ⟹ cap=0 트릭을 쓰면 안 된다(큐 drop 글루의 가드 여부가 미확인).
+    let n = want.len();
+    if n == 0 || n > 128 { return; }
+    let np = HeapAlloc(GetProcessHeap(), 0, n);
+    if np < 0x10000 { return; }
+    core::ptr::copy_nonoverlapping(want.as_ptr(), np as *mut u8, n);
+    if !(wr_u64(pl, n as u64) && wr_u64(pl + 8, np as u64) && wr_u64(pl + 0x10, n as u64)) {
+        HeapFree(GetProcessHeap(), 0, np);                                 // 쓰기 실패 시 누수 방지
+        return;
+    }
+    if cap != 0 && ptr >= 0x10000 { HeapFree(GetProcessHeap(), 0, ptr); }  // 옛 버퍼 반납
+    let k = EMIT_N.fetch_add(1, Ordering::Relaxed);
+    if k < 12 { hlog(&format!("[이미터태그] #{} '{}' → '{}'
+", k, tag, want)); }
+}
+
 /// serpen 모드와 같은 12B **wrapper** 트램폴린 — 원본을 먼저 실행하고 결과를 고칠 수 있다.
 /// (기존 `install_detour` 는 관찰용이라 반환값을 못 고친다)
+/// 길이 일반화 wrapper 트램폴린. `install_tramp12` 와 달리 **프롤로그 길이를 지정**한다.
+///
+/// 왜 필요한가: 패치는 항상 12B(`movabs rax,imm64; jmp rax`)지만, 원본 프롤로그가 12B에서
+/// **명령 중간에 잘리면** 스텁이 쓰레기를 실행한다. 이미터 `0x14c54a0` 이 그 경우다 —
+/// `55 56 57 53 | 48 83 EC 78 | 48 8D 6C 24 70` = **13B**(마지막 lea 가 5B).
+/// (RE 문서의 "12B 안전" 서술은 부정확했다. 2026-08-26 exe 직접 실측으로 정정.)
+/// ⟹ 스텁에는 n바이트를 통째로 복사하고, 패치 자리의 남는 (n-12)B 는 NOP 으로 채운다.
+unsafe fn install_trampn(rva: usize, sig: &[u8], detour: usize,
+                         tramp: &AtomicUsize) -> Result<usize, String> {
+    let n = sig.len();
+    if n < 12 { return Err(format!("프롤로그 {}B < 12B", n)); }
+    let base = exe_base();
+    if base == 0 { return Err("module 0".into()); }
+    let fa = base + rva;
+    if !readable(fa, n + 8) { return Err(format!("{:#x} unreadable", fa)); }
+    for i in 0..n {
+        let b = *((fa + i) as *const u8);
+        if b != sig[i] { return Err(format!("프롤로그 불일치 +{}: {:#x} != {:#x}", i, b, sig[i])); }
+    }
+    let stub = VirtualAlloc(0, 64 + n, 0x1000 | 0x2000, 0x40);
+    if stub == 0 { return Err("VirtualAlloc".into()); }
+    let mut st: Vec<u8> = Vec::new();
+    st.extend_from_slice(sig);                                             // 원본 프롤로그 n바이트
+    st.extend_from_slice(&[0x48, 0xb8]); st.extend_from_slice(&((fa + n) as u64).to_le_bytes());
+    st.extend_from_slice(&[0xff, 0xe0]);                                   // jmp fn+n
+    core::ptr::copy_nonoverlapping(st.as_ptr(), stub as *mut u8, st.len());
+    tramp.store(stub, Ordering::Relaxed);
+    let mut patch: Vec<u8> = vec![0x90; n];                                // 남는 자리는 NOP
+    patch[0] = 0x48; patch[1] = 0xb8;
+    patch[2..10].copy_from_slice(&detour.to_le_bytes());
+    patch[10] = 0xff; patch[11] = 0xe0;
+    let mut old = 0u32;
+    if VirtualProtect(fa, n, 0x40, &mut old) == 0 { return Err("VirtualProtect".into()); }
+    core::ptr::copy_nonoverlapping(patch.as_ptr(), fa as *mut u8, n);
+    let mut tmp = 0u32; VirtualProtect(fa, n, old, &mut tmp);
+    FlushInstructionCache(GetCurrentProcess(), fa, n);
+    Ok(stub)
+}
+
 unsafe fn install_tramp12(rva: usize, sig: &[u8; 12], detour: usize,
                           tramp: &AtomicUsize) -> Result<usize, String> {
     let base = exe_base();
@@ -2271,7 +2405,7 @@ static CCTX_MY_Y: AtomicU64 = AtomicU64::new(0);
 //   진입 시 (cctx tag, target 해석 결과)를 찍으면 **게이트 통과 여부**가 그대로 드러난다.
 //   프롤로그(0x1395dd0): push rbp/r15/r14/r13/r12/rsi/rdi/rbx(=12B) + sub rsp,0x2?? ⟹ 런타임에 길이 산출 대신
 //   기존 install_detour_generic이 쓰는 방식과 동일하게 시그니처+길이를 명시한다.
-const KZONE_RVA: usize = 0x1395dd0;
+const KZONE_RVA: usize = 0x138f7d0;
 // ────────────────────────────────────────────────────────────────────────
 // ★★[v79] **시전자 외형(CasterViewEffect) 이름 바꿔치기** — 강탈 궁을 써도 사일러스가 사라지지 않게.
 //   `CasterViewEffect` apply(`0x1270980`)는 실무를 `FUN_1414bee30`에 넘긴다:
@@ -2281,10 +2415,10 @@ const KZONE_RVA: usize = 0x1395dd0;
 //   ⟹ 강탈 궁이 실행되는 동안에는 **사일러스 자기 궁의 이름**으로 바꿔 넘긴다.
 //   ★게임 구조체는 건드리지 않는다 — 우리 버퍼를 만들고 **인자 rdx만** 우리 것으로 돌린다
 //     (트램폴린이 rcx/rdx/r8/r9를 push→pop 하므로 `saved+0x20`(rdx) 쓰기가 실제로 반영된다).
-const CVIEW_RVA: usize = 0x14bee30;
+const CVIEW_RVA: usize = 0x104f060;
 const CVIEW_SIG: [u8; 11] = [0x55,0x41,0x57,0x41,0x56,0x56,0x57,0x53,0x48,0x81,0xec];
 const CVIEW_LEN: usize = 15;   // push×6(8B) + sub rsp,0x88(7B), rip-rel 없음
-const CVIEW_APPLY_RVA: usize = 0x1270980;
+const CVIEW_APPLY_RVA: usize = 0x1413830;
 // ────────────────────────────────────────────────────────────────────────
 // ★★★[v83] **idle 폴백** — 강탈 궁을 써도 사일러스가 사라지지 않게(정공법).
 //   RE(2026-08-25, RE/2026-08-25_뷰소비-idle폴백지점.md) 확정:
@@ -2296,10 +2430,10 @@ const CVIEW_APPLY_RVA: usize = 0x1270980;
 //   ★레코드 레이아웃(확정): {cap@+0x00, name_ptr@+0x08, name_len@+0x10}, rbx=레코드.
 //   ⚠**이름 포인터를 정적 문자열로 바꾸면 안 된다** — 게임이 그 String을 drop할 때 cap으로 free하므로
 //     우리 정적 주소를 해제하게 된다. ⟹ **기존 버퍼에 제자리로 "idle"을 써넣고 len만 4로** 바꾼다(cap>=4일 때만).
-const VIEWFAIL_RVA: usize = 0xb46fc8;      // mov r14,[rbp+0x5c0] ; jmp 0x140b44160
+const VIEWFAIL_RVA: usize = 0x8fe4d8;      // mov r14,[rbp+0x5c0] ; jmp 0x140b44160
 const VIEWFAIL_JMP_OFF: usize = 7;         // 그 안에서 jmp rel32의 위치(+7, 5바이트)
-const VIEWLOOKUP_RVA: usize = 0xb46dc5;    // 조회 진입(재시도 대상)
-const VIEWLOOP_RVA: usize = 0xb44160;      // command 루프 선두(포기 시)
+const VIEWLOOKUP_RVA: usize = 0x8fe2d5;    // 조회 진입(재시도 대상)
+const VIEWLOOP_RVA: usize = 0x8fb670;      // command 루프 선두(포기 시)
 const VIEWFAIL_SIG: [u8; 12] = [0x4c,0x8b,0xb5,0xc0,0x05,0x00,0x00,0xe9,0x8c,0xd1,0xff,0xff];
 /// `idle_fallback=1` = 위 패치를 설치(기본 OFF — 렌더 경로 mid-function 패치라 신중히).
 static IDLE_FB: AtomicBool = AtomicBool::new(false);
@@ -2383,7 +2517,7 @@ unsafe fn install_idle_fallback() -> Result<usize, String> {
 //     이후 `call [r15+0xe8]` / `[r15+0x140]` / `[r15+0x28]` = **effect vtable의 AI 가치 평가 인터페이스**
 //   ⟹ AI는 **슬롯의 {data,vtable}를 그대로 평가**한다. 우리가 바꾼 것이 정확히 그것이므로
 //     구조상 "강탈 궁 기준"이어야 한다 — 이 훅으로 실측 확인한다.
-const AIEVAL_RVA: usize = 0xd4d0b0;
+const AIEVAL_RVA: usize = 0xeba9d0;
 const AIEVAL_SIG: [u8; 11] = [0x41,0x57,0x41,0x56,0x41,0x55,0x41,0x54,0x56,0x57,0x55];
 const AIEVAL_LEN: usize = 16;   // push×8(12B) + sub rsp,0x28(4B), rip-rel 없음
 /// `ai_probe=1` = 사일러스에 대한 AI 평가가 **어떤 effect vtable**로 들어오는지 기록.
@@ -4093,8 +4227,25 @@ fn init(_ctx: &GameCtx) -> ModRegistration {
             Ok(a) => hlog(&format!("[install] knight_zone_effect @{:#x} OK\n", a)),
             Err(e) => hlog(&format!("[install] knight_zone_effect 실패: {}\n", e)),
         }
-        // ★[v119] 태그 접미사 — fanim 화이트리스트를 먼저 읽고, 비어 있으면 설치하지 않는다
-        if cfg_val(&cfg0, "tag_swap").as_deref() != Some("0") {
+        // ★★[v125] 시전 애니 태그 = **이미터 큐 스왑**(권장안). 화이트리스트가 있어야 의미가 있다.
+        if cfg_val(&cfg0, "emit_swap").as_deref() != Some("0") {
+            if unsafe { load_anim_whitelist() } > 0 {
+                match unsafe { install_trampn(EMIT_RVA, &EMIT_SIG,
+                                              emit_detour as *const () as usize, &EMIT_TRAMP) } {
+                    Ok(st) => hlog(&format!("[install] cast_anim_emitter @{:#x} OK stub={:#x}
+",
+                                            exe_base()+EMIT_RVA, st)),
+                    Err(e) => hlog(&format!("[install] cast_anim_emitter 실패: {}
+", e)),
+                }
+            } else {
+                hlog("[install] cast_anim_emitter 생략 — fanim 화이트리스트가 비었다
+");
+            }
+        }
+        // ⚠[v119, 기본 OFF] 태그 선택기 후킹 — SetAnimation 처리부 안이라 **애니 타이머가 매번 리셋**돼
+        //   프레임 0에 고정된다(2026-08-26 실증). 진단용으로만 남긴다. emit_swap 과 동시 사용 금지.
+        if cfg_val(&cfg0, "tag_swap").as_deref() == Some("1") {
             if unsafe { load_anim_whitelist() } > 0 {
                 match unsafe { install_tramp12(TAGSEL_RVA, &TAGSEL_SIG,
                                                tagsel_detour as *const () as usize, &TAGSEL_TRAMP) } {

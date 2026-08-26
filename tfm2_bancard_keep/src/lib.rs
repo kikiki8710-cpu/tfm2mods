@@ -36,7 +36,7 @@ const MOD_ID: &str = "tfm2_bancard_keep";
 
 // ── 패치 사이트 (0.5.6 재핀 2026-08-20 — 0.5.5 = 0x21d11d2 in 0x21d0ad0, RE 정본 2026-08-12) ──
 // 새니타이저 0x2093310 내 리셋 store: mov qword ptr [rsi+0x720], 0 (orig 11B 0.5.5와 완전 동일 실측)
-const PATCH_RVA: usize = 0x20939fa;
+const PATCH_RVA: usize = 0x234509a;
 const PATCH_ORIG: [u8; 11] = [0x48, 0xC7, 0x86, 0x20, 0x07, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00];
 const PATCH_FIXED: [u8; 11] = [0x90; 11];
 

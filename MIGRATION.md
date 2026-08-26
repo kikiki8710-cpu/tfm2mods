@@ -3220,8 +3220,48 @@ ative) |
 - **`riot_items_tfm2` v0.9.2 deps = `=0.5.6`(정확히 고정)** ⟹ **0.5.7에서 자동 비활성 = 이번 회차엔 충돌 없음**. dll mtime 08-20 14:35(0.5.6판 그대로·0.5.7판 미출시). item_tactics `install_replace_buy`·serpen 지연체인은 "외부훅 없으면 직접 설치" 폴백이 있어 정상 동작 예상(⬜인게임 확인). ⚠**제작자가 0.5.7판을 올리면 충돌 축이 되살아난다** — 이상 발생 시 1순위 용의선상.
 - ⚠**신규 발견 — deps 상한 없는 우리 워크샵 모드**: `tfm2_meta_champion_tiers`(3738236964, `>=0.5.1`) · `tfm2_meta_item_delegate`(3738241856, `>=0.5.1`) · `tfm2_ai_banpick_probe`(3738236728, `>=0.5.1`) · `community_reaction_mod`(3738958482, `>=0.1.0`) ⟹ **0.5.7에서도 구 dll이 그대로 로드된다**(자동 비활성 안 걸림 = `_공통_빌드릴리스_교훈.md §8` 축). 이번 회차엔 community_reaction_mod만 워크샵 경로에 재배포함. 나머지 3종은 **게임 `mods\` 에만 갱신**돼 있어 실 로드처와 어긋날 수 있음 ⟹ ⬜확인 필요. 또한 같은 mod_id가 워크샵에 **두 벌**씩 존재(3738xxxxxx = 08-20판 / 3999000xxx = 06-25판).
 
+### 4c. ★3차 배포 — 잔여 9종 (2026-08-26 21:10~21:35 · 유저 지시 "나머지도 복구")
+
+| 모드 | dll | 비고 |
+|---|---|---|
+| tfm2_flow_capture | 451,072B | 함수 4 + 공통 3 |
+| tfm2_champion_exclude | 2,867,712B | ⚠1MB 초과 → `build_extra.ps1 -MaxSize` |
+| tfm2_level_cap | 198,144B | mid 2(orig `498b96100d0000`·`483b88100d0000` 일치) |
+| tfm2_bancard_keep | 143,872B | mid 1(PATCH_ORIG 11B 구·신 동일) |
+| tfm2_champ_pos_lock | 3,183,104B | 함수 11 + contains 콜사이트 2 + 공용 3 · ⚠`-Externs` 필요 |
+| tfm2_comptest_unlock | 286,720B | 함수 22 + **바이트패치 17/17** + 영역 경계 4 |
+| sylas | 489,472B | 함수 19(EMIT 포함) |
+| tfm2_ai_adjust | 3,676,160B | ★훅 10 신주소(`rva_057.rs` 신설) — 아래 4c.2 |
+| TFM2_Meta_Dashboard | 305,152B | RVA 0 · dashboard_probeuild.ps1 |
+
+**⛔미복구 = `tfm2_banpick_order` 1종**(안전 판단으로 의도적 보류 — 4c.3).
+
+#### 4c.1 새로 확정한 값
+- **champ_pos_lock**: POS_MASK `0x181fe60` · contains `0x8e85f0` · slot_widget `0x1e79ff0` · scene_step `0x1e748a0` · ICON_SETTER `0x1e89450` · ENTITY_ICON `0x1e92110` · PICK_DISPATCH `0x1e45a60` · COMMIT `0x1642600` · RECOMMEND `0x25549d0` · FINALIZE `0x1db6f30` · RECOMMEND_WBC `0x2556220` · **contains 콜사이트 `0x1e8016f`/`0x1e80188`**(slot_widget 내 off `+0x617f`/`+0x6198`, 구 `+0x616e`/`+0x6187` — widget size +17만큼 이동). ⚠**RVA_DISPATCH `0x2079730` = 재핀 불가**(skel/head 후보 0·마스크시그 0건 = 함수 대개편) ⟹ **0.5.6 값 stale 유지**. `build_tramp`가 `PROL_RECOMMEND` 프롤로그를 검증하므로 **불일치 시 미설치 = fail-safe**(코치 위임 관측·사후교정 기능만 죽음).
+- **level_cap**: LEN_LOAD `0x1090fba` · UI_CMP `0x9035e9`(둘 다 마스크시그 UNIQUE + orig 7B 구·신 일치).
+- **bancard_keep**: PATCH `0x234509a`(orig 11B 구·신 동일) · 새니타이저 `0x23449b0`(주석 참조만·코드 미사용).
+- **champion_exclude**: HOOK `0x188a660`(BYTE=SAME·size 331 ⟹ HOOK_ORIG/ORIG_LEN 불변) · ICON_SETTER `0x1e89450` · 공통 3.
+- **sylas**(19): GRAB `0x1504310` · COMBINE `0x159a430` · JT `0x161b390` · BASEULT `0x1556940` · CLONE `0x14f43c0` · ETICK `0x1583de0` · ADDBUFF `0x139a5d0` · BUFFPUSH `0x15925c0` · ASSEMBLE `0x1590010` · TAGSEL `0x23964e0` · KZONE `0x138f7d0` · CVIEW `0x104f060` · CVIEW_APPLY `0x1413830` · VIEWLOOP `0x8fb670` · VIEWFAIL `0x8fe4d8` · VIEWLOOKUP `0x8fe2d5` · AIEVAL `0xeba9d0` · ALLOC `0x2ab4010` · **EMIT `0x10556d0`**(스켈레톤 MULTI 4후보 → 콜러 owner의 콜슬롯 3/8 정렬로 확정). ⬜**EFF_VT_BASE `0x34200d8` 미재핀**(.rdata vtable 표 — 내용에 포인터가 있어 값 지문 매칭 0건). **안전 확인**: `rd_u64` 안전읽기 + `in_exe()` 검증 + **최빈값이 과반 미달이면 스스로 포기**하는 설계라 stale이어도 무해(`default_eff_stubs`).
+- ★**comptest_unlock 바이트패치 17/17**: 클라 13건은 마스크시그(back 0x00~0x20·sig 0x50)로 orig 일치 확정. **서버 4건**(no_stamina_cost·daily_inc_gate·server_pregate·server_dedup)은 전부 같은 대형 서버 핸들러 `0x2031a00`(167,910B) 소속인데 그 함수가 skel/head/마스크시그 전부 NONE → ★**콜러그래프 투표(1표)와 "크기 근접 >100KB 유일 후보"가 둘 다 `0x22e2e70`(167,319B)를 가리켜 확정** → 명령 difflib 정렬(커버리지 85%)로 4건 전건 **명령 동형 + orig 1B 일치**: `0x22f9e6b` · `0x22f5619` · `0x22f2844` · `0x22f162e`. 영역 경계도 갱신(CT_REGION_LO `0x22e2e70` / HI `0x230bc07` / CT_CLIENT_LO `0x1a90000` / HI `0x1b40000` — 신 클라 사이트 최대 `0x1b36444`가 구 HI `0x1b20000`를 넘어섰다).
+
+#### 4c.2 ★tfm2_ai_adjust — 훅만 복구, 바이트패치는 의도적으로 미복구 (실측 근거 포함)
+- **훅 10 = 신주소**(`srcva_057.rs` 신설·`tfm2_ai_adjust.rs` include 전환). 값 = §3 ai_adjust 절.
+- ⚠**바이트패치 908·class_micro 18·JT 베이스는 0.5.6 값 그대로**다. 이유는 아래.
+- ★★**실측으로 밝혀낸 위험 1건**: 0.5.6 `EXPECT_ORIG` 표를 그대로 두고 0.5.7에서 같은 주소의 값을 읽어보면 **907건은 불일치(=`orig_guard_ok`가 blocked 처리 = fail-safe)이나 `0xe23be8` 1건만 우연히 expect와 일치**한다 ⟹ 가드를 통과해 **엉뚱한 코드를 패치**한다. 그 사이트는 MOVEPRI(`0xe23ad0`→`0xdb2760`) 내부 `+0x118`이라 재핀값이 `0xdb2878`. **`detour.rs` L2632의 그 1건만 신주소로 교체**해 위험을 제거했다.
+- ★**표를 통째로 신주소로 바꾸면 오히려 위험해진다**(시도 후 되돌림): `orig_guard_ok`는 **표에 없는 사이트를 통과시킨다**(`detour.rs` L705). 패치 사이트 주소는 `detour.rs`의 `p!(base + 0x…)` 매크로에 하드코딩돼 있는데, 908 중 `base + 0x` 패턴으로 잡히는 건 **414건뿐**이라 표만 옮기면 나머지가 "표에 없음 → 무가드 패치"가 된다. ⟹ **표는 0.5.6 그대로 두는 것이 정답**(가드가 907건을 막아준다).
+- 참고로 사이트 재핀 자체는 **665/908(73%)** 성공했다(`_t058e.py` = 컨테이너 델타 + 명령 difflib, 명령 동형 + 신 exe 실측값 == expect 까지 확인). 매핑은 `_ai057_sites.json`에 보존 — **다음 세션이 사이트·표를 동시에 갈아끼우면** 665건을 살릴 수 있다. 미재핀 243건은 0.5.7에서 **우연 일치 0건**이라 표에 남겨두면 전원 blocked.
+- ⟹ **현재 배포본의 실제 상태** = 재현 디투어 훅 10은 신주소로 정상, **바이트패치 노브는 거의 전부 비활성(blocked)**, 크래시 위험 축은 제거됨. ⬜인게임 검증 필요.
+
+#### 4c.3 ⛔tfm2_banpick_order — 배포하지 않음(안전 판단)
+- 함수시작 15개는 재핀·소스 반영했으나 **빌드·배포·deps 갱신을 하지 않았다**. 배포본은 0.5.6 대역 유지 ⟹ 0.5.7에서 자동 비활성 = 안전.
+- **근거(스텁 컨테이너 15개 전수 판정)**: **BYTE=SAME 0/15**. 그중 **9개는 컨테이너 자체가 재핀 불가(NONE)** — 밴픽 UI 대형 컨테이너 `0x254f8f0`(SFX·DRAIN_HL·DRAIN_HL2·SLOTSEL 전부 소속)과 AITURN 컨테이너 `0x2079730`(champ_pos_lock DISPATCH와 동일 함수). 재핀된 3개(AI1 `0x1837690`·AI2 `0x183b3b0`·HL `0x1d837a0`)도 전부 BYTE=DIFF이고 HL은 size 47102→45696으로 크게 변했다.
+- ⚠**0.5.6 실사고가 정확히 이 축**: site/join 주소만 갱신하고 스텁이 박은 rbp-disp32를 안 고쳐 HL arm `lea r8,[rbp+0x9b10]`(정답 `0x9cf0`)가 **"이어하기" 즉사 AV**를 냈고, **SIG가 arm 본문을 미커버해 결함 스텁이 sig 체크를 통과**했다 ⟹ **sig 통과는 안전 보장이 아니다**.
+- → 다음 세션: 컨테이너 9개를 ghidra-re로 규명 → 각 스텁의 disp 바이트를 신 exe arm과 **전수 대조**한 뒤에만 빌드. 소스 상단(`hooks.rs`)에 같은 경고 배너를 넣어뒀다.
+
 ### 5. 잔여 (0.5.7)
-- ⬜**미복구 9종의 소스 반영·빌드·배포**(재핀 값은 §3에 있음): tfm2_ai_adjust(유저 보류) · tfm2_banpick_order · tfm2_comptest_unlock · tfm2_champ_pos_lock · tfm2_champion_exclude · tfm2_bancard_keep · tfm2_level_cap · tfm2_flow_capture · sylas · TFM2_Meta_Dashboard.
+- ⛔**미복구 = `tfm2_banpick_order` 1종**(안전 판단·§4c.3). 그 외 전 모드 복구 완료(누적 28종).
+- ⬜**ai_adjust 바이트패치 665건 복구 여지**: `_ai057_sites.json` 매핑을 사이트(`detour.rs` 등)와 표(`orig_table.rs`)에 **동시에** 적용하면 살릴 수 있다(§4c.2). 한쪽만 바꾸면 가드가 무력화되니 반드시 동시에.
+- ⬜**champ_pos_lock `RVA_DISPATCH`** · **sylas `EFF_VT_BASE`** = 재핀 불가로 stale 유지(둘 다 자체 fail-safe 확인·§4c.1).
 - ⬜**item_tactics `CPS_OFF` 미검증**: 0.5.6 `0x16ff8` 그대로 둠(ClientDatabase 고대역이 0.5.7에서 또 이동했는지 미확인). 소스 주석대로 **dbase addr_of 직접취득이 1순위·이 상수는 폴백/진단용**이라 위험도는 낮으나 확인 권장.
 - ⬜**banpick_order mid-func 스텁 disp 재핀**(0.5.6 즉사 AV 축) · **comptest 바이트패치 19** · **ai_adjust 바이트패치 908·JT 베이스**.
 - ⬜빌드·배포·릴리스·인게임 검증 전량. ⬜빌드스크립트 sdk_057 전환.
