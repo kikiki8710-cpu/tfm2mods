@@ -3189,8 +3189,41 @@ ative) |
 - ★**빌드 스크립트 6종 sdk_057 전환 완료**(build_inj L44·build_full L18·build_full_remap L25·build_extra L26·banpick_illustuild L10·dashboard_probeuild L4 — 각 `.bak057` 백업). **deps 헬퍼 신규 = `bump_deps_057.ps1`**(0.5.6판 기반·ASCII 유지·`$OLDRX`=0.5.6대역 정규식·`$NEWDEP`='>=0.5.7, <0.5.8').
 - ★**`-SkipIdentity`는 PII 검사를 끄지 않는다**(build_full_remap L81~96 실측: ①PII 검사는 무조건 수행 / ②신원검증만 생략) ⟹ panic 경로 미기재 모드에 안전하게 사용 가능.
 
+### 4b. ★2차 배포 — T1 활성 모드 **6/7** (2026-08-26 20:38~20:55 · 유저 지시 "T1도 이어서")
+
+| 모드 | dll | 이번 회차에 새로 확정한 축 |
+|---|---|---|
+| tfm2_draft_overlay | 684,032B | 공통 4상수만(ANIM_GET·LOADER·PARSER·ALLOC) |
+| community_reaction_mod | 620,544B | RVA 0(소스 hex 4개 = 전부 주석 속 참고값) · ★**실 로드처 = 워크샵 `contentÀ9300û8958482`** 에 배포(게임 mods\는 출력 전용) |
+| tfm2_elemental_serpen | 423,936B | 함수 12 + SPAWN_HOOKS 2 + **launcher retaddr 4** |
+| tfm2_banpick_illust | 2,894,336B | 함수 16 + **geom .rdata 6** + **mid 6** (SLOTS는 0.5.6값 유지) |
+| tfm2_item_tactics | 607,232B | 함수 9 + TIP_MEASURE_VT + **바이트패치 4** + **TN 프레임 3** + RA_TOURN + ★게이트/프롤로그 |
+| Spectator_Chat | 333,312B | (1차에서 완료) |
+
+**tfm2_ai_adjust = 유저 지시로 보류**(0.5.6 대역 유지 = 자동 비활성). 사유·재핀값 = §3 ai_adjust 절.
+
+#### 4b.1 새로 확정한 값 (구 0.5.6 → 신 0.5.7)
+- **launcher retaddr**(serpen·item_tactics 공유): LAUNCHER 콜사이트 **9:9 전단사** 확인 후 owner별 오프셋 대응 —
+  RET_A(관전) `0x8404e1`→**`0xb19ca9`** · RET_B(내경기) `0x84544b`→**`0xb1ebfb`** (둘 다 씬빌더 `0x8343a0`→**`0xb0d970`** 내 · ⚠본문 +826B로 콜 오프셋 이동 `+0xc13c`→`+0xc334` / `+0x110a6`→`+0x11286`) ·
+  RET_C(리플레이) `0x1db3884`→**`0x1a03cd4`**(owner +0x97f 동일) · RET_D(조테기록) `0x1ac1b2e`→**`0x1ada3ae`**(+0x559 동일) · IT 조테본경기 `0x1af18a2`→**`0x1b193f2`**(+0x45d 동일) · **RA_TOURN** `0x1f24068`→**`0x1da7a65`**(worker `0x1f16ea0`→**`0x1d9a210`**).
+- **banpick_illust geom(.rdata)** — 블록 통짜 매칭은 실패(0.5.7에서 앞쪽 float 추가로 뒤가 밀림), **값 지문으로 개별 확정**: C_CARD_RECT `0x34cd6a0`→**`0x348a740`**(`{-180,-240,360,480}` .rdata 유일) · C_SNAP_RECT →**`0x348a770`** · C_NORMAL →**`0x348a790`** · C_LINE_DIR →**`0x348a7b0`** · C_LINE_START →**`0x348a7c0`** · C_LINE_ANCHOR →**`0x348a7d0`**. (0.5.6 블록 내 오프셋 +0x20/+0x30/+0x50/+0x60/+0x70 → 0.5.7 +0x30/+0x50/+0x70/+0x80/+0x90.)
+- **banpick_illust mid 6** — 컨테이너 델타 전건 성공(오프셋 동일): I_SNAP_H `0x254d7c0`→**`0x1ed5830`**(imm 480.0 구·신 일치) · D_SNAP_W →**`0x1ed5846`** · D_CUT_LO →**`0x1e794b8`** · D_CUT_HI →**`0x1e794c6`** · D_ZIG_X1 →**`0x1ed6692`** · D_ZIG_X2 →**`0x1ed6d70`**. **disp4가 가리키는 float를 전건 실측 검증**(360/-70/70/-180/-180 구·신 동일). 컨테이너 `0x254cf40`→`0x1ed4fb0`, `0x24d6a80`→`0x1e79430`(둘 다 UNIQUE).
+- **SLOTS** `0x40e6000` = **0.5.7에서도 all-zero 64B 확인 ⟹ 값 유지**.
+- **item_tactics TIP_MEASURE_VT** `0x334cd10`→**`0x3333ec8`** — UImega tipshow 콜사이트 `0xab5339`→**`0x854399`** 직전 `lea r8,[rip+..]` @ **call−0x18**(0.5.6과 동일 오프셋·창 내 유일). 0.5.6 값으로 방법 검산 통과.
+- **item_tactics 바이트패치**: gate3 `0xebcd88`→**`0xdf57f8`** / jbe →**`0xdf57fe`**(resolver `0xebcb10`→`0xdf5580` UNIQUE·off +0x278 동일·orig `48837c24600276` 구·신 일치) · ★**owned_cap 은 컨테이너 델타 실패**(owner HEAD_UNIQUE지만 본문 변경으로 오프셋 밀림) → **`cmp qword[rsi+0x4a8],3` 바이트 유일검색**으로 확정: sig `0x154c679`→**`0x10da9a9`** / imm →**`0x10da9b0`**(구·신 .text 전체 **각각 1건**).
+- ★**item_tactics TN 프레임 오프셋 3**(= 3형제 축 ①): TN_FR_DB `0x23c18`→**`0x23e48`** · TN_FR_CFG `0x23c00`→**`0x23e28`**(worker 내 사이트 오프셋 `+0xb9` 구·신 동일) · TN_FR_SETEND `0x23b20`→**`0x23d68`**. 각 명령 시그(pre+wild disp4+post)로 구·신 **각각 유일** 확인. ⚠**슬롯 간 상대 간격이 바뀜**(구 DB−CFG=0x18/DB−SETEND=0xf8 → 신 0x20/0xe0) ⟹ 델타 일괄 적용 금지·개별 재핀이 정답.
+- ★**item_tactics 버전 게이트**(3형제 축 ③): `GAME_EXE_SIZE_056` **77_101_056 → 77_111_808**. 미갱신 시 0.5.6 실사고(모드 전체 침묵 자기비활성) 재현.
+- ★**CL_LAUNCHER_PROLOGUE 변경**(17B 배열): chkstk imm **`0x25438` → `0x25418`**(index13 `0x38`→`0x18`). 프롤로그 6종 중 **이것만 변경**(FN_DD 12B·SEEDCTOR 12B·GV_UPDATE 12B·BUY_ITEM 19B·REALLOC 12B는 구·신 바이트 동일). serpen 프롤로그(SERPEN·MOBATICK·LAUNCHER·RENDER_STEP·RUNNER_CTOR·SPAWN0/1 8push 12B, KEYRES 14B)는 **전건 구==신 동일 ⟹ 무수정**.
+- **serpen SPAWN_HOOKS** `[0xaf97d0, 0xaf8bc0]` → **`[0x89c440, 0x89b830]`**.
+
+#### 4b.2 워크샵 서드파티 훅 충돌 점검 결과 (0.5.6 실사고 축)
+- **`riot_items_tfm2` v0.9.2 deps = `=0.5.6`(정확히 고정)** ⟹ **0.5.7에서 자동 비활성 = 이번 회차엔 충돌 없음**. dll mtime 08-20 14:35(0.5.6판 그대로·0.5.7판 미출시). item_tactics `install_replace_buy`·serpen 지연체인은 "외부훅 없으면 직접 설치" 폴백이 있어 정상 동작 예상(⬜인게임 확인). ⚠**제작자가 0.5.7판을 올리면 충돌 축이 되살아난다** — 이상 발생 시 1순위 용의선상.
+- ⚠**신규 발견 — deps 상한 없는 우리 워크샵 모드**: `tfm2_meta_champion_tiers`(3738236964, `>=0.5.1`) · `tfm2_meta_item_delegate`(3738241856, `>=0.5.1`) · `tfm2_ai_banpick_probe`(3738236728, `>=0.5.1`) · `community_reaction_mod`(3738958482, `>=0.1.0`) ⟹ **0.5.7에서도 구 dll이 그대로 로드된다**(자동 비활성 안 걸림 = `_공통_빌드릴리스_교훈.md §8` 축). 이번 회차엔 community_reaction_mod만 워크샵 경로에 재배포함. 나머지 3종은 **게임 `mods\` 에만 갱신**돼 있어 실 로드처와 어긋날 수 있음 ⟹ ⬜확인 필요. 또한 같은 mod_id가 워크샵에 **두 벌**씩 존재(3738xxxxxx = 08-20판 / 3999000xxx = 06-25판).
+
 ### 5. 잔여 (0.5.7)
-- ⬜**미복구 14종의 소스 반영·빌드·배포**(재핀 값은 §3에 있음).
+- ⬜**미복구 9종의 소스 반영·빌드·배포**(재핀 값은 §3에 있음): tfm2_ai_adjust(유저 보류) · tfm2_banpick_order · tfm2_comptest_unlock · tfm2_champ_pos_lock · tfm2_champion_exclude · tfm2_bancard_keep · tfm2_level_cap · tfm2_flow_capture · sylas · TFM2_Meta_Dashboard.
+- ⬜**item_tactics `CPS_OFF` 미검증**: 0.5.6 `0x16ff8` 그대로 둠(ClientDatabase 고대역이 0.5.7에서 또 이동했는지 미확인). 소스 주석대로 **dbase addr_of 직접취득이 1순위·이 상수는 폴백/진단용**이라 위험도는 낮으나 확인 권장.
+- ⬜**banpick_order mid-func 스텁 disp 재핀**(0.5.6 즉사 AV 축) · **comptest 바이트패치 19** · **ai_adjust 바이트패치 908·JT 베이스**.
 - ⬜빌드·배포·릴리스·인게임 검증 전량. ⬜빌드스크립트 sdk_057 전환.
 - ⬜**deps 게이트** = 배포된 모드 중 `>=0.5.6, <0.5.7`가 **28종** ⟹ 0.5.7에서 전부 자동 비활성(정상 동작). 상한 갱신 필요.
 - ★**3형제 축 점검(0.5.6 실사고 재발 방지)** = ①콜러 프레임 오프셋(item_tactics TN_FR_*) ②mid-func 스텁 rbp-disp32(banpick_order HL 계열 = 즉사 AV 전력) ③**버전 게이트 GAME_EXE_SIZE → `77_111_808`**(item_tactics 유일). 셋 다 이번 재핀에서 **미착수**.

@@ -22,30 +22,30 @@ use std::sync::atomic::{AtomicBool, AtomicU8, AtomicU32, AtomicUsize, Ordering};
 //   ②전함수 구조지문(skel = imm/disp 정규화 명령열 해시) 완전일치 + **NEW 전역 유일**
 //   ILLUST_GET 은 추가로 문자열 xref("asset/base/ui/banpick/illustrations") 로 독립 확인.
 //   0.5.4 값 → 0.5.5 값을 각 줄 끝 주석에 남긴다(정정형). ★0.5.5 함수 16건 = version-migrator §7.5 확정 시드.
-const RVA_FX_SET: usize = 0x24b6e40; // 0.5.6(구값 갱신) // 훅 A: 연출 상태 세팅 (진영 스태시) — 0.5.5 프롤로그 20B 완전일치  ⟵0.5.4 0x1d92980
-const RVA_CARD_DRAW: usize = 0x24cc8d0; // 0.5.6(구값 갱신) // 훅 B: 카드 드로우 헬퍼 — 0.5.5 프롤로그 일치 + ILLUST_GET 콜러 size2979 대응  ⟵0.5.4 0x1da8410
-const RVA_ILLUST_GET: usize = 0x2384420; // 0.5.6(구값 갱신) // 훅 C: 밴픽 일러 에셋 조회 — 0.5.5 프롤로그 일치 + 콜러 3/3 프로필 완전대응  ⟵0.5.4 0x1ffd970
-const RVA_SUBMIT: usize = 0x181650; // 0.5.6(구값 갱신) // (list, &cmd) 일반 제출 — §7.5 skel유일  ⟵0.5.4 0x181400
-const RVA_SUBMIT_TEXT: usize = 0x1818d0; // 0.5.6(구값 갱신) // (list, &cmd) 텍스트 전용 — §7.5 skel유일  ⟵0.5.4 0x181680
-const RVA_IMG_BUILD: usize = 0x182d70; // 0.5.6(구값 갱신) // (&cmd, key, len, x, y, layer, w, h, 0,0,0,0) — §7.5 skel유일  ⟵0.5.4 0x182b20
-const RVA_IMG_UV: usize = 0x182bd0; // 0.5.6(구값 갱신) // (&out, &in, &uv) — §7.5 skel유일  ⟵0.5.4 0x182980
-const RVA_IMG_FLAG: usize = 0x183080; // 0.5.6(구값 갱신) // (&out, &in, 샘플링: 1=nearest) — §7.5 skel유일  ⟵0.5.4 0x182e30
-const RVA_IMG_COLOR: usize = 0x1ed700; // 0.5.6(구값 갱신) // (&out, &in, "color", 5, &rgba) — §7.5 콜슬롯8/19 정렬  ⟵0.5.4 0x1c2f8d0
-const RVA_IMG_SHADER: usize = 0x184680; // 0.5.6(구값 갱신) // (&out, &in, shader_key, len) — §7.5 skel유일  ⟵0.5.4 0x184430
-const RVA_TEXT_BUILD: usize = 0x182260; // 0.5.6(구값 갱신) // (...) 텍스트 cmd — §7.5 skel유일  ⟵0.5.4 0x182010
-const RVA_NAME_GET: usize = 0x25126f0; // 0.5.6(구값 갱신) // 챔프 표시명 String — ABI(sret GStr,ctx,key,len) 동일  ⟵0.5.4 0x1dd4240
+const RVA_FX_SET: usize = 0x1e598b0; // 0.5.6(구값 갱신) // 훅 A: 연출 상태 세팅 (진영 스태시) — 0.5.5 프롤로그 20B 완전일치  ⟵0.5.4 0x1d92980
+const RVA_CARD_DRAW: usize = 0x1e6f350; // 0.5.6(구값 갱신) // 훅 B: 카드 드로우 헬퍼 — 0.5.5 프롤로그 일치 + ILLUST_GET 콜러 size2979 대응  ⟵0.5.4 0x1da8410
+const RVA_ILLUST_GET: usize = 0x226f290; // 0.5.6(구값 갱신) // 훅 C: 밴픽 일러 에셋 조회 — 0.5.5 프롤로그 일치 + 콜러 3/3 프로필 완전대응  ⟵0.5.4 0x1ffd970
+const RVA_SUBMIT: usize = 0x182430; // 0.5.6(구값 갱신) // (list, &cmd) 일반 제출 — §7.5 skel유일  ⟵0.5.4 0x181400
+const RVA_SUBMIT_TEXT: usize = 0x1826b0; // 0.5.6(구값 갱신) // (list, &cmd) 텍스트 전용 — §7.5 skel유일  ⟵0.5.4 0x181680
+const RVA_IMG_BUILD: usize = 0x183b50; // 0.5.6(구값 갱신) // (&cmd, key, len, x, y, layer, w, h, 0,0,0,0) — §7.5 skel유일  ⟵0.5.4 0x182b20
+const RVA_IMG_UV: usize = 0x1839b0; // 0.5.6(구값 갱신) // (&out, &in, &uv) — §7.5 skel유일  ⟵0.5.4 0x182980
+const RVA_IMG_FLAG: usize = 0x183e90; // 0.5.6(구값 갱신) // (&out, &in, 샘플링: 1=nearest) — §7.5 skel유일  ⟵0.5.4 0x182e30
+const RVA_IMG_COLOR: usize = 0x1eeee0; // 0.5.6(구값 갱신) // (&out, &in, "color", 5, &rgba) — §7.5 콜슬롯8/19 정렬  ⟵0.5.4 0x1c2f8d0
+const RVA_IMG_SHADER: usize = 0x185490; // 0.5.6(구값 갱신) // (&out, &in, shader_key, len) — §7.5 skel유일  ⟵0.5.4 0x184430
+const RVA_TEXT_BUILD: usize = 0x183040; // 0.5.6(구값 갱신) // (...) 텍스트 cmd — §7.5 skel유일  ⟵0.5.4 0x182010
+const RVA_NAME_GET: usize = 0x1e8d1e0; // 0.5.6(구값 갱신) // 챔프 표시명 String — ABI(sret GStr,ctx,key,len) 동일  ⟵0.5.4 0x1dd4240
 // ★asset-get clone family(구조지문이 33개 함수와 동일 = skel 로 형제 구별 불가)는
 //   0.5.4 에서 **콜슬롯 정렬**로 확정했다(투표 불요):
 //     ASSET_GET  ILLUST_GET(0x1ffd970) 콜슬롯 1@+0x13 · SPRITE_CALC(0x1dd9170) 콜슬롯 5@+0x1d1
 //                → 둘 다 0x143d50 = **0.5.3 과 동일 주소**(저번지 .text 구간 미이동)
 //     ANIM_GET   CARD_DRAW 콜슬롯 14@+0x472 · SPRITE_CALC 콜슬롯 3@+0x74 → 0x74c010 (콜러 60→60)
-const RVA_ASSET_GET: usize = 0x143d70; // 0.5.6(구값 갱신) // 키→텍스처 에셋 (obj,vtbl) — §7.5 ILLUST_GET 콜슬롯1 정렬  ⟵0.5.4 0x143d50
-const RVA_ANIM_GET: usize = 0xbea4a0; // 0.5.6(구값 갱신) // 키→애님 리소스 — §7.5 lea→call 1표 + CARD_DRAW 콜슬롯13  ⟵0.5.4 0x74c010
-const RVA_SPRITE_CALC: usize = 0x2517620; // 0.5.6(구값 갱신) // idle 시트키+UV+크기 계산기(무부작용) — §7.5 skel유일  ⟵0.5.4 0x1dd9170
+const RVA_ASSET_GET: usize = 0x143de0; // 0.5.6(구값 갱신) // 키→텍스처 에셋 (obj,vtbl) — §7.5 ILLUST_GET 콜슬롯1 정렬  ⟵0.5.4 0x143d50
+const RVA_ANIM_GET: usize = 0x74bf10; // 0.5.6(구값 갱신) // 키→애님 리소스 — §7.5 lea→call 1표 + CARD_DRAW 콜슬롯13  ⟵0.5.4 0x74c010
+const RVA_SPRITE_CALC: usize = 0x1e92110; // 0.5.6(구값 갱신) // idle 시트키+UV+크기 계산기(무부작용) — §7.5 skel유일  ⟵0.5.4 0x1dd9170
 // 0.5.3~: 범용 __rust_alloc 이 align별 심 + impl 로 분해 ⟹ impl 직접호출 **3인자**가 전 모드 정본.
 //   0.5.4 실측 = 0x29bb920 은 `GetProcessHeap()` → `HeapAlloc(heap, flags, size)` tail-jmp 래퍼이고
 //   0.5.3 0x28f7df0 과 **IAT disp 2개만 다른 바이트 동일 본문**(60B) + 콜러 33,708 = 신원 확정.
-const RVA_GAME_ALLOC: usize = 0x2ab1670; // 0.5.6(구값 갱신) // (무시, flags, size) → ptr / GetProcessHeap→HeapAlloc tail-jmp 래퍼 — §7.5 skel/마스크 유일  ⟵0.5.4 0x29bb920
+const RVA_GAME_ALLOC: usize = 0x2ab4010; // 0.5.6(구값 갱신) // (무시, flags, size) → ptr / GetProcessHeap→HeapAlloc tail-jmp 래퍼 — §7.5 skel/마스크 유일  ⟵0.5.4 0x29bb920
 // ⛔RVA_GAME_FREE 폐지 — 0.5.3 에서 `__rust_dealloc` 범용 함수는 **인라인화로 소멸**했다
 //   (HeapFree 참조 함수가 전부 Box/Vec drop 인라인이고 0.5.2 dealloc(0x25c4d90) 형태는 부재).
 //   0.5.2 dealloc 본문 = `HeapFree(GetProcessHeap(), 0, align>16 ? ptr-8 : ptr)` 였고 우리는 항상
@@ -83,26 +83,26 @@ const GEOM_CUT: f32 = 60.0;
 //   **블록 내부 순서 재구성**(0.5.5 배치: CARD+0/SNAP+0x40/NORMAL+0x60/LINE_DIR+0x80/
 //   LINE_START+0x90/LINE_ANCHOR+0xa0/ZIG+0xb0)으로 중복값 2건(NORMAL·LINE_ANCHOR)까지 유일화 + 값 실측.
 //   교차검증 = ZIG 명령 rip 타겟 0x338b510 → 0x3431810 = **+0xa6300** = LINE_DIR/START 블록 델타와 일치.
-const RVA_C_CARD_RECT: usize = 0x34cd6a0; // 0.5.6(구값 갱신) // {-180,-240,360,480} 카드 로컬 rect(밴·픽 공용)  ⟵0.5.4 0x338b480
-const RVA_C_SNAP_RECT: usize = 0x34cd6c0; // 0.5.6(구값 갱신) // {0,0,360,480} 스냅샷 내부 rect(좌상단 원점)  ⟵0.5.4 0x338b4b0
-const RVA_C_LINE_DIR: usize = 0x34cd6f0; // 0.5.6(구값 갱신) // {360,340} 취소선 방향  ⟵0.5.4 0x338b4e0
-const RVA_C_LINE_START: usize = 0x34cd700; // 0.5.6(구값 갱신) // {-180,170} 취소선 시작  ⟵0.5.4 0x338b4f0
-const RVA_C_LINE_ANCHOR: usize = 0x34cd710; // 0.5.6(구값 갱신) // {0,170} 앵커(블록 내부 LINE_START<x<ZIG 유일)  ⟵0.5.4 0x338b500
-const RVA_C_NORMAL: usize = 0x34cd6d0; // 0.5.6(구값 갱신) // {0.6866,0.727} 분리 법선(블록 내부 SNAP<x<LINE_DIR 유일)  ⟵0.5.4 0x338b4c0
+const RVA_C_CARD_RECT: usize = 0x348a740; // 0.5.6(구값 갱신) // {-180,-240,360,480} 카드 로컬 rect(밴·픽 공용)  ⟵0.5.4 0x338b480
+const RVA_C_SNAP_RECT: usize = 0x348a770; // 0.5.6(구값 갱신) // {0,0,360,480} 스냅샷 내부 rect(좌상단 원점)  ⟵0.5.4 0x338b4b0
+const RVA_C_LINE_DIR: usize = 0x348a7b0; // 0.5.6(구값 갱신) // {360,340} 취소선 방향  ⟵0.5.4 0x338b4e0
+const RVA_C_LINE_START: usize = 0x348a7c0; // 0.5.6(구값 갱신) // {-180,170} 취소선 시작  ⟵0.5.4 0x338b4f0
+const RVA_C_LINE_ANCHOR: usize = 0x348a7d0; // 0.5.6(구값 갱신) // {0,170} 앵커(블록 내부 LINE_START<x<ZIG 유일)  ⟵0.5.4 0x338b500
+const RVA_C_NORMAL: usize = 0x348a790; // 0.5.6(구값 갱신) // {0.6866,0.727} 분리 법선(블록 내부 SNAP<x<LINE_DIR 유일)  ⟵0.5.4 0x338b4c0
 // ★mid-func = 명령 시작이 아니라 **필드(imm4/disp4) 위치**다. 오프셋 이식 금지 —
 //   컨테이너(A 0x1e16c90→**0x19e5f20**, 8149B / B 0x1db2370→**0x1970f40**, 1062B) 안에서
 //   "같은 니모닉 + 같은 타겟 float" 명령을 찾아 필드 위치를 재산출.
 //   ★0.5.5(2026-08-12) 는 6건 전부 **컨테이너 내 상대오프셋 Δrel=0**(+0x87c/+0x892/+0x83/+0x91/+0x16de/+0x1dbc).
 //   컨테이너 매핑 근거: 0x19e5f20 = ILLUST_GET 콜러 프로필 3/3 완전대응(size 8149·480imm 보유),
 //                       0x1970f40 = A 의 콜리(size 1062·A 가 유일 콜러·±70 movss 보유).
-const RVA_I_SNAP_H: usize = 0x254d7c0; // 0.5.6(구값 갱신) // mov dword [rsp+0x20], 480.0 의 imm4 (스냅샷 타깃 높이)  ⟵0.5.4 0x1e17510
-const RVA_D_SNAP_W: usize = 0x254d7d6; // 0.5.6(구값 갱신) // disp4 → 360.0 (스냅샷 폭, 광공유)  ⟵0.5.4 0x1e17526
-const RVA_D_CUT_LO: usize = 0x24d6b08; // 0.5.6(구값 갱신) // disp4 → -70.0 (컨테이너 0x1970f40 하단 컷)  ⟵0.5.4 0x1db23f8
-const RVA_D_CUT_HI: usize = 0x24d6b16; // 0.5.6(구값 갱신) // disp4 → +70.0 (〃 상단 컷)  ⟵0.5.4 0x1db2406
+const RVA_I_SNAP_H: usize = 0x1ed5830; // 0.5.6(구값 갱신) // mov dword [rsp+0x20], 480.0 의 imm4 (스냅샷 타깃 높이)  ⟵0.5.4 0x1e17510
+const RVA_D_SNAP_W: usize = 0x1ed5846; // 0.5.6(구값 갱신) // disp4 → 360.0 (스냅샷 폭, 광공유)  ⟵0.5.4 0x1e17526
+const RVA_D_CUT_LO: usize = 0x1e794b8; // 0.5.6(구값 갱신) // disp4 → -70.0 (컨테이너 0x1970f40 하단 컷)  ⟵0.5.4 0x1db23f8
+const RVA_D_CUT_HI: usize = 0x1e794c6; // 0.5.6(구값 갱신) // disp4 → +70.0 (〃 상단 컷)  ⟵0.5.4 0x1db2406
 // ZIG 2건은 컨테이너 안에 -180.0 참조가 정확히 2곳(0.5.2 와 동수)이고 **둘 다 slots+12 로 리타겟**
 //   하므로 X1/X2 배정 순서가 결과에 영향을 주지 않는다(주소 순으로 배정).
-const RVA_D_ZIG_X1: usize = 0x254e622; // 0.5.6(구값 갱신) // disp4 → -180.0 (지그재그 x)  ⟵0.5.4 0x1e18372
-const RVA_D_ZIG_X2: usize = 0x254ed00; // 0.5.6(구값 갱신) // disp4 → -180.0 (〃 두 번째 블록)  ⟵0.5.4 0x1e18a50
+const RVA_D_ZIG_X1: usize = 0x1ed6692; // 0.5.6(구값 갱신) // disp4 → -180.0 (지그재그 x)  ⟵0.5.4 0x1e18372
+const RVA_D_ZIG_X2: usize = 0x1ed6d70; // 0.5.6(구값 갱신) // disp4 → -180.0 (〃 두 번째 블록)  ⟵0.5.4 0x1e18a50
 // 0.5.5 .rdata 최장 0런 = **0x40c41c4..0x40db530(95,084B)** 내부의 4K 정렬 지점(±64B 전부 0 실측).
 //   precheck 가 "슬롯 4개 전부 0.0" 을 요구하므로 오염 시 자동 SKIP(안전).
 const RVA_SLOTS: usize = 0x40e6000; // 0.5.6(구값 갱신) // .rdata 패딩 슬롯 [w, cut_lo, cut_hi, zig_x]  ⟵0.5.4 0x3fe2000
