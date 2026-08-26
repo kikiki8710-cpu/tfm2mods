@@ -3,7 +3,7 @@
   "dependencies": [
     {
       "mod_id": "base",
-      "version": ">=0.5.3, <0.5.4"
+      "version": ">=0.5.7, <0.5.8"
     }
   ],
   "last_updated": "2026-07-31",
