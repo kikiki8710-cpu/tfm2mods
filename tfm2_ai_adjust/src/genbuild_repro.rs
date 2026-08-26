@@ -695,8 +695,8 @@ pub unsafe fn my_generic_build(c: &GBCtx, _exe: usize) -> Option<(i64, u64)> {
 //   resolver vt[0x28]=gb_resolver(SHIM oracle), my_combat_dmg(순수재현), norm=vt[0x90](oracle).
 //   ★검증대상: 함수시작 detour로 (entity ptr → 반환) game vs mine DIFF=0.
 // ════════════════════════════════════════════════════════════════════════
-const RVA_GB_ATKCTX_CB30: usize = 0x35d8018;   // &PTR_1435d8018 (0x203cb30 resolver r9)
-const RVA_GB_ATKCTX_C0690: usize = 0x35efd48;  // &PTR_1435efd48 (0x20c0690 resolver r9)
+const RVA_GB_ATKCTX_CB30: usize = 0x35d8038;   // &PTR_1435d8018 (0x203cb30 resolver r9) ← 0.5.7 재핀 +0x20 (주변4KB 일치율 100%)
+const RVA_GB_ATKCTX_C0690: usize = 0x35efd68;  // &PTR_1435efd48 (0x20c0690 resolver r9) ← 0.5.7 재핀 +0x20 (주변4KB 일치율 100%)
 
 // resolver vt[0x28]: owner+vt_off=슬롯vtable, owner+buf_off=data버퍼. getter(aligned,g2,g3,atk_ctx)→(rax,rdx)=base 2값.
 //   ★SHIM_BOTH 섀도우호출(게임 base getter 1회). SHIM 부재시 (0,0)=스킵.

@@ -340,7 +340,7 @@ unsafe fn executable(addr: usize, len: usize) -> bool {
 // ★게임 exe .text 산술범위(RVA 0x1000..0x30a61ff, 0.5.3) — 순수 getter-dispatch 핫패스용(VQ 없이 저렴).
 //   유효 게터 슬롯은 전부 이 안. 밖이면 stale/garbage 함수포인터 → 순수 dispatch가 기본값 반환하도록 게이트.
 //   ⚠패치 시 갱신: TeamfightManager2.exe PE의 .text VirtualSize 끝(= va 0x1000 + vsz).
-const TEXT_END_RVA: usize = 0x32697ff;   // ★0.5.6(2026-08-20 실측 va 0x1000+vsz 0x3268800−1 — 0.5.4/0.5.5 미갱신이었음·진단 분류 전용). 구 ★0.5.3(was 0.5.2 0x2c087ff). PE .text va=0x1000 vsz=0x30a5200 → vsz_end=0x30a6200 실측(capstone/pefile 2026-07-29). ⚠구값을 두면 .text 후반 40% 게터가 전부 "범위밖"으로 차단돼 재현이 조용히 기본값으로 퇴화한다.
+const TEXT_END_RVA: usize = 0x32687ff;   // ★0.5.6(2026-08-20 실측 va 0x1000+vsz 0x3268800−1 — 0.5.4/0.5.5 미갱신이었음·진단 분류 전용). 구 ★0.5.3(was 0.5.2 0x2c087ff). PE .text va=0x1000 vsz=0x30a5200 → vsz_end=0x30a6200 실측(capstone/pefile 2026-07-29). ⚠구값을 두면 .text 후반 40% 게터가 전부 "범위밖"으로 차단돼 재현이 조용히 기본값으로 퇴화한다. ← 0.5.7 실측 va 0x1000+vsz 0x3267800-1 (0.5.6=0x32697ff, .text가 0x1000 줄었다)
 #[inline] unsafe fn in_text(a: usize) -> bool {
     let b = exe_base();
     b != 0 && a > b + 0x1000 && a < b + TEXT_END_RVA

@@ -52,7 +52,7 @@ const RVA_GENERIC_BUILD: usize = 0xceb5f0;  // ★0.5.6(was 0.5.5 0xcc1030). UNI
 const RVA_FC59A0: usize = 0xe61600;  // ★0.5.6(was 0.5.5 0xcf7b80). recall_rng_score. UNIQUE·size 1459 동일·BYTE=SAME·프롤로그 20B 동일. orig_len 12.
 
 // ★pre-gate 상수 테이블(.rdata). p1(lane)<4만 사용. tableA[0..4]=[0,1,3,2](인덱스 변환).
-const RVA_TABLE_A: usize = 0x3370008;  // ★0.5.6(was 0.5.5 0x33550f8). .rdata 값지문 [0,1,3,2] u64 — 0.5.5와 동일하게 2건(0x3370008/0x33eedf0)·주소순 #1 대응.
+const RVA_TABLE_A: usize = 0x33817c8;  // ★0.5.6(was 0.5.5 0x33550f8). .rdata 값지문 [0,1,3,2] u64 — 0.5.5와 동일하게 2건(0x3370008/0x33eedf0)·주소순 #1 대응. ← 0.5.7 재핀 — lea참조 유일 + 48B 내용매칭 두 방법 일치 (0.5.6=0x3370008)
 
 // ── 영역 D 출력검증(gb_region_d): mid-func 캡처 detour 지점 ── ⏸SKIP 유지
 const RVA_GB_REGIOND_HOOK: usize = 0x22dafea;  // ⏸SKIP 유지=차단(0.5.4 주소, MIG_GB_CHANGED=true).
@@ -94,12 +94,12 @@ const RVA_DISC19_HANDLER: usize = 0xeae620;   // ★0.5.6(was 0.5.5 0xd38910). U
 const RVA_ITEMNET_SCORER: usize = 0x17f09b0;   // ★0.5.6(was 0.5.5 0x12624f0 — ⚠고대역 대이동 −0x30e710·저대역 델타 가정 금지 사례).
 //   UNIQUE·size 1609 동일·BYTE=SAME·프롤로그 20B 동일. 설치 위치 = fn+12(push8 프롤로그 직후).
 
-const RVA_C8C_DMG_SHEET: usize = 0x336dcd0;   // ★0.5.6(was 0.5.5 0x3354c40). 공격측 데미지시트 desc.
+const RVA_C8C_DMG_SHEET: usize = 0x337f778;   // ★0.5.6(was 0.5.5 0x3354c40). 공격측 데미지시트 desc. ← 0.5.7 재핀 — owner 2함수 명령정렬, 5사이트 만장일치 (0.5.6=0x336dcd0)
 //   재핀 경로 = 0.5.5와 동일: passive_jungle 데미지시트 함수(055 0xce0280 → 056 0xcea050, BYTE=SAME) 안의 lea r9,[rip] 2사이트(@0xcea3a9·@0xceaa9f) 둘 다 동일값.
 //   ⚠stale이면 임의 바이트를 vtable로 삼아 호출 → AV. probe_basedmg_r9 화이트리스트(OK_DESC_056)와 동기 갱신 완료(2026-08-20).
 
 // disc7 위협 엔티티 e가 self(se)를 때리는 DPS(실데미지×1000/공속).
-const RVA_DISC7_DMG_SHEET: usize = 0x3372198;   // ★0.5.6(was 0.5.5 0x3358fc8). "받는 데미지" 시트 desc.
+const RVA_DISC7_DMG_SHEET: usize = 0x3384c30;   // ★0.5.6(was 0.5.5 0x3358fc8). "받는 데미지" 시트 desc. ← 0.5.7 재핀 — lea참조 62건 중 49표 (0.5.6=0x3372198)
 //   재핀 경로 = disc19 핸들러(0xd426e0) 내부의 lea r9,[rip] 함수 내 유일 사이트(@0xd44dba).
 
 // ★[0.5.4 도입] 경매(전술 입찰) 진입 — passthrough 프로브. push8 프롤로그.

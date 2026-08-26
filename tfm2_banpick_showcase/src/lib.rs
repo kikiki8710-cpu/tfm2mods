@@ -1,3 +1,8 @@
+// ⚠⚠ STALE / 미설치 모드 — 이 파일의 .rdata 상수 7개는 **0.5.7 미재핀**이다.
+//   RVA_C_CARD_RECT / _SNAP_RECT / _LINE_DIR / _LINE_START / _LINE_ANCHOR / _NORMAL / RVA_SLOTS
+//   게임 mods\ 에 dll이 없어(미설치) 0.5.7 마이그 대상에서 제외했다.
+//   이 기능은 tfm2_banpick_illust\src\showcase.rs 가 흡수했고 그쪽은 재핀 완료다.
+//   ⇒ 이 모드를 되살리려면 상수 7개를 먼저 재핀할 것(2026-08-27 기록).
 //! tfm2_banpick_showcase — 밴픽 쇼케이스 카드(밴 취소선 카드 / 픽 중앙 비행 카드) 일러팩 적용
 //! ===========================================================================
 //! 근거 RE = FFI_CONTRACT.md (0.5.2, 2026-07-25 ghidra-re 확정). 전 RVA 0.5.2 기준.

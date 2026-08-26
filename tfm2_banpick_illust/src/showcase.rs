@@ -105,7 +105,7 @@ const RVA_D_ZIG_X1: usize = 0x1ed6692; // 0.5.6(구값 갱신) // disp4 → -180
 const RVA_D_ZIG_X2: usize = 0x1ed6d70; // 0.5.6(구값 갱신) // disp4 → -180.0 (〃 두 번째 블록)  ⟵0.5.4 0x1e18a50
 // 0.5.5 .rdata 최장 0런 = **0x40c41c4..0x40db530(95,084B)** 내부의 4K 정렬 지점(±64B 전부 0 실측).
 //   precheck 가 "슬롯 4개 전부 0.0" 을 요구하므로 오염 시 자동 SKIP(안전).
-const RVA_SLOTS: usize = 0x40e6000; // 0.5.6(구값 갱신) // .rdata 패딩 슬롯 [w, cut_lo, cut_hi, zig_x]  ⟵0.5.4 0x3fe2000
+const RVA_SLOTS: usize = 0x40e6000; // ★0.5.7 재검증 OK(값 변경 불필요 — 2026-08-27 실측: 0.5.7 .rdata 에서도 ±64B 전부 0). 0.5.6(구값 갱신) // .rdata 패딩 슬롯 [w, cut_lo, cut_hi, zig_x]  ⟵0.5.4 0x3fe2000
 static GEOM_PATCHED: AtomicBool = AtomicBool::new(false);
 
 // ── 상태 ──

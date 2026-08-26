@@ -6280,7 +6280,7 @@ offer:transfer_offer_ui {
       x: 16px;
       y: 176px;
       width: 568px;
-      height: 112px;
+      height: 76px;
 
       color: #1d1f2aff;
 
@@ -6320,6 +6320,7 @@ offer:transfer_offer_ui {
 
       #pts_cash_required_note:label {
         @"asset/base/style/main#label";
+        visible: false;
 
         x: 16px;
         y: 56px;
@@ -6335,7 +6336,7 @@ offer:transfer_offer_ui {
 
     #pts_cash_proposed:color {
       x: 16px;
-      y: 304px;
+      y: 268px;
       width: 568px;
       height: 176px;
 
@@ -6455,7 +6456,7 @@ offer:transfer_offer_ui {
 
     #pts_cash_budget:color {
       x: 16px;
-      y: 496px;
+      y: 460px;
       width: 568px;
       height: 130px;
 
@@ -6469,7 +6470,7 @@ offer:transfer_offer_ui {
         @"asset/base/style/main#label";
 
         x: 16px;
-        y: 14px;
+        y: 22px;
         width: 300px;
         height: 32px;
 
@@ -6482,7 +6483,7 @@ offer:transfer_offer_ui {
         @"asset/base/style/main#label";
 
         x: -16px;
-        y: 14px;
+        y: 22px;
         width: 220px;
         height: 32px;
         anchor_x: 1;
@@ -6498,7 +6499,7 @@ offer:transfer_offer_ui {
         @"asset/base/style/main#label";
 
         x: 16px;
-        y: 68px;
+        y: 76px;
         width: 300px;
         height: 32px;
 
@@ -6511,7 +6512,7 @@ offer:transfer_offer_ui {
         @"asset/base/style/main#label";
 
         x: -16px;
-        y: 68px;
+        y: 76px;
         width: 220px;
         height: 32px;
         anchor_x: 1;
@@ -6524,8 +6525,97 @@ offer:transfer_offer_ui {
       }
     }
 
+
+    #pts_cash_salary:color {
+      x: 16px;
+      y: 600px;
+      width: 568px;
+      height: 130px;
+
+      color: #1d1f2aff;
+
+      rounding: Uniform {
+        rounding: 8;
+      }
+
+      #pts_cash_salary_title:label {
+        @"asset/base/style/main#label";
+
+        x: 16px;
+        y: 22px;
+        width: 300px;
+        height: 32px;
+
+        text: "현재 연봉 예산";
+        size: 17;
+        align_y: Center;
+      }
+
+      #pts_cash_salary_value:label {
+        @"asset/base/style/main#label";
+
+        x: -16px;
+        y: 22px;
+        width: 220px;
+        height: 32px;
+        anchor_x: 1;
+        pivot_x: 1;
+
+        text: "—";
+        size: 17;
+        align_x: Right;
+        align_y: Center;
+      }
+
+      #pts_cash_salary_after_title:label {
+        @"asset/base/style/main#label";
+
+        x: 16px;
+        y: 76px;
+        width: 300px;
+        height: 32px;
+
+        text: "제의 후 연봉 예산";
+        size: 17;
+        align_y: Center;
+      }
+
+      #pts_cash_salary_after_value:label {
+        @"asset/base/style/main#label";
+
+        x: -16px;
+        y: 76px;
+        width: 220px;
+        height: 32px;
+        anchor_x: 1;
+        pivot_x: 1;
+
+        text: "—";
+        size: 17;
+        align_x: Right;
+        align_y: Center;
+      }
+    }
+
+    #pts_trade_offered_label_template:label {
+      @"asset/base/style/main#label";
+      visible: false;
+
+      x: 0px;
+      y: 0px;
+      width: 161px;
+      height: 44px;
+
+      text: "—";
+      size: 15;
+      color: #37d5b3ff;
+      align_x: Center;
+      align_y: Center;
+    }
+
     #pts_cash_read_only_note:label {
       @"asset/base/style/main#label";
+      visible: false;
 
       x: 16px;
       y: 650px;
@@ -6543,7 +6633,7 @@ offer:transfer_offer_ui {
 
       disabled: false;
       x: 16px;
-      y: 759px;
+      y: 746px;
       width: 568px;
       height: 50px;
 

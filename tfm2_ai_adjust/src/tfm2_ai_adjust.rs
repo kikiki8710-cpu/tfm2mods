@@ -1686,7 +1686,7 @@ unsafe fn probe_basedmg_r9(e: usize, local_80: usize, exe: usize, r9_addr: usize
         //   둘 다 desc sanity {size=0x6a8, align=8, vt+0x30=**0xc7ead0**} 실측 통과 — 근거는 **rva_056.rs**(현행 시트) 해당 상수 주석.
         //   ⚠0.5.4에서 vt+0x30 이 0xc51bc0 → 0xc7ead0 으로 옮겼다. desc 주소와 **같이** 갱신해야 한다.
         //   ⚠vt+0x30 값 자체는 **0.5.6 미재확인**(0.5.6 재핀은 desc 2종만 갱신) — 아래 화이트리스트는 desc 주소만 보므로 현재 무영향.
-        const OK_DESC_056: [usize; 2] = [0x336dcd0, 0x3372198];   // ★0.5.6 재핀(2026-08-20) C8C/DISC7 = rva_056.rs 시트값과 동기. ⚠0.5.5 회차는 0.5.4값 방치로 전 호출 차단(dmg=0 퇴화)이었음 — 시트 재핀 시 반드시 같이 갱신
+        const OK_DESC_056: [usize; 2] = [0x337f778, 0x3384c30];   // ★0.5.6 재핀(2026-08-20) C8C/DISC7 = rva_056.rs 시트값과 동기. ⚠0.5.5 회차는 0.5.4값 방치로 전 호출 차단(dmg=0 퇴화)이었음 — 시트 재핀 시 반드시 같이 갱신 ← 0.5.7 재핀 — rva_057.rs C8C/DISC7 와 동기 (이름은 _056 이지만 값은 0.5.7. 0.5.6=[0x336dcd0,0x3372198])
         if !OK_DESC_056.contains(&r9_addr.wrapping_sub(base)) { return (-1, -1); }
     }
     let _ = exe;
@@ -3016,13 +3016,13 @@ const D19_HOME_LO: u64 = 0x7d00;    // 32000
 //   obj p=lvl>2?e+0x4e8:&DAT_14385e5e0(zero-init desc, p[6]=-1 → lvl<3이면 c8 게이트 실질 skip) /
 //   base=항상 *(e+0x578)/*(e+0x580) / divisor만 lvl<3에서 *(e+0x598)/*(e+0x5a0) 쌍 교체 /
 //   q 하한 1(q+=(q==0), fce700의 3과 다름) / 임계=*(e+0xc0) / 최종=p[6]!=-1 && lvl>=3.
-const D19_SLOT2_EMPTY_RVA: usize = 0x38d1af0; // ⏸**0.5.3 미재핀 = 0.5.2값 유지**(2026-07-29): empty-descriptor(전 0)라 값지문 변별 불가. rd_u64(VEH 가드) 읽기 전용 = 크래시 없음, 재현 정확도만 저하.  // ⏸**0.5.3 미재핀 = 0.5.2값 유지**(2026-07-29): 이 desc는 전부 0으로 채워진 empty-descriptor라 .rdata 값지문으로 변별 불가(0 블록이 0.5.3에 6,230개). 사용처는 rd_u64(VEH 가드) 경유 읽기 전용 = **크래시 없음**, 재현 정확도만 저하.  // ★**0.5.2 확정**(ghidra-re 07-22, ~~0.5.1 0x3846d50~~). 사용처=disc19_repro(dcap 게이트 dev코드)라 프로덕션 무영향이나 재현 정확도 위해 반영. // 구:0.5.1(was 0.5.0_3 0x385e5e0). DAT_143846d50. ghidra-re HIGH 확정(disc19 핸들러 0x1e0ddb0: reach+0x5b0<5/<3 fallback, +0x30 guard=_UNK_143846d80)
+const D19_SLOT2_EMPTY_RVA: usize = 0x38d1b10; // ⏸**0.5.3 미재핀 = 0.5.2값 유지**(2026-07-29): empty-descriptor(전 0)라 값지문 변별 불가. rd_u64(VEH 가드) 읽기 전용 = 크래시 없음, 재현 정확도만 저하.  // ⏸**0.5.3 미재핀 = 0.5.2값 유지**(2026-07-29): 이 desc는 전부 0으로 채워진 empty-descriptor라 .rdata 값지문으로 변별 불가(0 블록이 0.5.3에 6,230개). 사용처는 rd_u64(VEH 가드) 경유 읽기 전용 = **크래시 없음**, 재현 정확도만 저하.  // ★**0.5.2 확정**(ghidra-re 07-22, ~~0.5.1 0x3846d50~~). 사용처=disc19_repro(dcap 게이트 dev코드)라 프로덕션 무영향이나 재현 정확도 위해 반영. // 구:0.5.1(was 0.5.0_3 0x385e5e0). DAT_143846d50. ghidra-re HIGH 확정(disc19 핸들러 0x1e0ddb0: reach+0x5b0<5/<3 fallback, +0x30 guard=_UNK_143846d80) ← 0.5.7 재핀 +0x20 (주변4KB 일치율 100%)
 // usable_slot1/2 shadow-call(FUN_141fce700 / FUN_141fbe950) — 롤백 전용(d19_us_shadow). this=self만, 반환 저비트=bool.
 type D19Us = unsafe extern "C" fn(usize) -> u64;
 
 // STATIC_TEMPLATE(슬롯2에서 *(self+0x5b0)<3일 때 desc/guard 소스). ★ghidra 확정: LEA R15,[0x14380d3f0](=DAT_14380d3f0).
 //   절대주소 exe_base()+0x380d3f0. rip-rel disp 0x1b8833e 일치. guard=*(slot2+0x30), desc=slot2+0x28.
-const D19_STATIC_TEMPLATE_RVA: usize = 0x38d1af0; // ⏸**0.5.3 미재핀 = 0.5.2값 유지**(2026-07-29): empty-descriptor(전 0)라 값지문 변별 불가. rd_u64(VEH 가드) 읽기 전용 = 크래시 없음, 재현 정확도만 저하.  // ⏸**0.5.3 미재핀 = 0.5.2값 유지**(2026-07-29): 이 desc는 전부 0으로 채워진 empty-descriptor라 .rdata 값지문으로 변별 불가(0 블록이 0.5.3에 6,230개). 사용처는 rd_u64(VEH 가드) 경유 읽기 전용 = **크래시 없음**, 재현 정확도만 저하. // ★**0.5.2 확정**(ghidra-re 07-22, ~~0.5.1 0x3846d50~~). SLOT2_EMPTY와 동일 객체(0.5.1서 통합된 단일 empty-descriptor)라 같은 값. // 구:0.5.1(was 0.5.0_3 0x380d3f0). ghidra-re HIGH 확정: LEA R14,[0x143846d50]@0x141e0f7cb(tag0x11 발행부). ★0.5.1서 SLOT2_EMPTY와 단일 empty-descriptor로 통합(0.5.0_3의 별개 2객체→1객체)
+const D19_STATIC_TEMPLATE_RVA: usize = 0x38d1b10; // ⏸**0.5.3 미재핀 = 0.5.2값 유지**(2026-07-29): empty-descriptor(전 0)라 값지문 변별 불가. rd_u64(VEH 가드) 읽기 전용 = 크래시 없음, 재현 정확도만 저하.  // ⏸**0.5.3 미재핀 = 0.5.2값 유지**(2026-07-29): 이 desc는 전부 0으로 채워진 empty-descriptor라 .rdata 값지문으로 변별 불가(0 블록이 0.5.3에 6,230개). 사용처는 rd_u64(VEH 가드) 경유 읽기 전용 = **크래시 없음**, 재현 정확도만 저하. // ★**0.5.2 확정**(ghidra-re 07-22, ~~0.5.1 0x3846d50~~). SLOT2_EMPTY와 동일 객체(0.5.1서 통합된 단일 empty-descriptor)라 같은 값. // 구:0.5.1(was 0.5.0_3 0x380d3f0). ghidra-re HIGH 확정: LEA R14,[0x143846d50]@0x141e0f7cb(tag0x11 발행부). ★0.5.1서 SLOT2_EMPTY와 단일 empty-descriptor로 통합(0.5.0_3의 별개 2객체→1객체) ← 0.5.7 재핀 +0x20 (주변4KB 일치율 100%)
 
 // ═══════════════════════════════════════════════════════════════════════════════════════════════
 // disc19 2차 abil emitter FUN_14236ddf0(0x236ddf0) 완전재현 — §11.9.11-2 실디컴 확정(0.5.0_3 buildid 24125999)
@@ -3033,7 +3033,7 @@ const D19_STATIC_TEMPLATE_RVA: usize = 0x38d1af0; // ⏸**0.5.3 미재핀 = 0.5.
 //   변수: g0=*p6_pair(로스터베이스), sim_obj=*g0(geom gc), geom2=*(p6_pair+0x10)=teamdata, self_u=nx, side=flag, src=vt0x28(gc).
 //   전부 순수(기존 헬퍼 재사용: geom_vt68/vtc0/vt28·d19_target_valid·d19_in_range·d19_threat_dmg·vtc8_get·vt90_get).
 // ═══════════════════════════════════════════════════════════════════════════════════════════════
-const D19_STATIC2_TEMPLATE_RVA: usize = 0x38d17b8; // ⏸**0.5.3 미재핀 = 0.5.2값 유지**(2026-07-29): empty-descriptor(전 0)라 값지문 변별 불가. rd_u64(VEH 가드) 읽기 전용 = 크래시 없음, 재현 정확도만 저하.  // ⏸**0.5.3 미재핀 = 0.5.2값 유지**(2026-07-29): 이 desc는 전부 0으로 채워진 empty-descriptor라 .rdata 값지문으로 변별 불가(0 블록이 0.5.3에 6,230개). 사용처는 rd_u64(VEH 가드) 경유 읽기 전용 = **크래시 없음**, 재현 정확도만 저하.  // ⏸**0.5.2 미확정=0.5.1값 유지**(ghidra-re 07-22: 2차 emitter 재식별 실패·0 desc라 값 변별 불가). 사용처=disc19_repro slot2_base(dcap 게이트 dev코드)=프로덕션 무영향. ⚠0.5.2 확정 이웃(SLOT2 0x38d1af0·DISC7시트 0x38d1918)과 같은 0x38d1 대역이나 **우연 일치일 수 있으므로 근접 추정 금지**. // 구:0.5.1(was 0.5.0_3 0x38aecc0). ghidra-re 확정: 2차 emitter FUN_14238b290 내 LEA R12,[0x1438d17b8]@0x14238b738 + F80320@0x14238a2ce 이중확증. STATIC(0x3846d50 통합)과 달리 별도 desc 유지
+const D19_STATIC2_TEMPLATE_RVA: usize = 0x38d17d8; // ⏸**0.5.3 미재핀 = 0.5.2값 유지**(2026-07-29): empty-descriptor(전 0)라 값지문 변별 불가. rd_u64(VEH 가드) 읽기 전용 = 크래시 없음, 재현 정확도만 저하.  // ⏸**0.5.3 미재핀 = 0.5.2값 유지**(2026-07-29): 이 desc는 전부 0으로 채워진 empty-descriptor라 .rdata 값지문으로 변별 불가(0 블록이 0.5.3에 6,230개). 사용처는 rd_u64(VEH 가드) 경유 읽기 전용 = **크래시 없음**, 재현 정확도만 저하.  // ⏸**0.5.2 미확정=0.5.1값 유지**(ghidra-re 07-22: 2차 emitter 재식별 실패·0 desc라 값 변별 불가). 사용처=disc19_repro slot2_base(dcap 게이트 dev코드)=프로덕션 무영향. ⚠0.5.2 확정 이웃(SLOT2 0x38d1af0·DISC7시트 0x38d1918)과 같은 0x38d1 대역이나 **우연 일치일 수 있으므로 근접 추정 금지**. // 구:0.5.1(was 0.5.0_3 0x38aecc0). ghidra-re 확정: 2차 emitter FUN_14238b290 내 LEA R12,[0x1438d17b8]@0x14238b738 + F80320@0x14238a2ce 이중확증. STATIC(0x3846d50 통합)과 달리 별도 desc 유지 ← 0.5.7 재핀 +0x20 (주변4KB 일치율 100%)
 
 // ════════ Gate#3 FUN_1421283d0(0x1283d0) AoE/셰이프 게이트 — site7의 AoE 분기 전용 ════════
 //   ★[07-15 확정] 셀 슬라이스 = vt+0x198 = RVA 0x19f03d0 = `{*(world+0xb178), *(world+0xb180)}` (ptr,len) trivial 게터.

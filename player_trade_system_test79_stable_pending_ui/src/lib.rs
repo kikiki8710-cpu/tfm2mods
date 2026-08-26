@@ -199,6 +199,11 @@ thread_local! {
     static NATIVE_ROW_ID_PROBE_KEY: RefCell<String> = RefCell::new(String::new());
     static NATIVE_ROW_COLUMN_RESULT_KEY: RefCell<String> = RefCell::new(String::new());
     static CASH_LOCK_DIAG_KEY: RefCell<String> = RefCell::new(String::new());
+    /// [PORT056] 항목10 — 이 클라이언트가 마지막으로 본 세이브 세대.
+    static CLIENT_SAVE_GENERATION: RefCell<usize> = const { RefCell::new(0) };
+    /// [PORT056] 항목6 — 조건 제의 칸용 가운데 정렬 라벨 템플릿(`.ui` 에서 1회 캡처).
+    ///   Node 는 Sync 가 아니라 static Mutex 에 못 넣는다.
+    static OFFERED_LABEL_TEMPLATE: RefCell<Option<Node>> = const { RefCell::new(None) };
 }
 static CONTRACT_TREE_DUMPED_AFTER_NUDGE: AtomicBool = AtomicBool::new(false);
 // [PORT056] player_detail 신원 캐리어 탐색 덤프 제한용.
@@ -299,6 +304,15 @@ static NATIVE_OFFER_STATUS_ATHLETE_ID: AtomicUsize = AtomicUsize::new(0);
 static NATIVE_OFFER_STATUS_OWNED: AtomicBool = AtomicBool::new(false);
 static ASYNC_LIFECYCLE_BUSY: AtomicBool = AtomicBool::new(false);
 static ASYNC_SERVER_START_LOGGED: AtomicBool = AtomicBool::new(false);
+// [PORT056] 유저 피드백 2026-08-24 항목10 — 세이브 로드 세대. on_server_start(서버 스레드)가 올리고
+//   클라이언트가 매 프레임 비교해 자기 thread_local 을 스스로 비운다.
+//   서버 스레드에서는 클라 thread_local 에 접근할 수 없어 원자 카운터로 신호를 보낸다.
+static SAVE_GENERATION: AtomicUsize = AtomicUsize::new(0);
+// [PORT056] 항목7 — 신원 있는 클릭이 마지막으로 관측된 프레임. 오래되면 컨텍스트를 무효화한다.
+static PROFILE_CONTEXT_BOUND_FRAME: AtomicUsize = AtomicUsize::new(0);
+static PROFILE_STALE_BIND_DROPPED: AtomicBool = AtomicBool::new(false);
+/// 신원 결속이 "신선"하다고 볼 프레임 수. 클릭 → 프로필 생성까지 몇 프레임이면 충분하다.
+const PROFILE_BIND_FRESH_FRAMES: usize = 240;
 static RUNTIME_NONCE: OnceLock<u128> = OnceLock::new();
 
 type ClickFilter = Rc<dyn Fn(&UIEvent) -> bool>;
@@ -307,6 +321,8 @@ type ClickHandlerPair = (ClickFilter, ClickHandler);
 
 #[derive(Clone)]
 struct QuoteView {
+    salary_budget_units: u64,
+    salary_after_units: u64,
     cooldown_fingerprint: u64,
     cooldown_retry_at: String,
     cooldown_changeable: bool,
@@ -360,6 +376,9 @@ struct ThresholdSearchResult {
 }
 
 struct ServerQuote {
+    // [PORT056] 유저 피드백 2026-08-24 항목3 — 연봉 예산 박스용. 서버에만 있는 값이라 견적에 실어 보낸다.
+    salary_budget_units: u64,
+    salary_after_units: u64,
     // ★[PORT056] 클라 선차단용 쿨다운 힌트(유저 지시 2026-08-23) — rejection::CooldownHint 참조.
     cooldown_fingerprint: u64,
     cooldown_retry_at: String,
@@ -4730,8 +4749,13 @@ fn stable_obscured_cash_range(
     offered_id: usize,
     target_id: usize,
 ) -> (u64, u64, u8, u8) {
+    // [PORT056] 유저 피드백 2026-08-24 항목9 — 요구 현금이 0이어도 상한까지 0으로 만들지 않는다.
+    //   상대 평가액이 역전되면(incoming_ratio>1.0) policy_accepts(cash=0)이 참이 되어 여기 들어오는데,
+    //   구판은 (0,0)을 반환해 0원만 입력 가능했다(웃돈을 얹을 수도 없고 0원 패키지가 성립했다).
+    //   하한 0은 유지("추가 현금 없이도 제안 가능")하되 상한은 예산 범위에서 살린다.
     if required_units == 0 {
-        return (0, 0, 0, 0);
+        let upper = (_budget_units / 10) / 1_000 * 1_000;
+        return (0, upper, 0, 0);
     }
     let seed = fnv1a64(&format!(
         "PTS76_RANGE_SALT_8D41A3|requester={requester_team_id}|recipient={recipient_team_id}|offered={offered_id}|target={target_id}"
@@ -4866,6 +4890,30 @@ fn decode_async_trade_proposal(bytes: &[u8]) -> Result<AsyncTradeProposal, Strin
         submit_process_id: u32::try_from(submit_pid_raw).map_err(|_| "submit process id does not fit u32".to_string())?,
         commit_process_id: u32::try_from(commit_pid_raw).map_err(|_| "commit process id does not fit u32".to_string())?,
     })
+}
+
+/// ★[PORT056] 유저 피드백 2026-08-24 항목10 — 세이브 로드마다 런타임 상태를 초기화한다.
+///   서버 스레드에서 호출되므로 **클라이언트 thread_local 은 직접 못 지운다.**
+///   대신 `SAVE_GENERATION` 을 올려서 클라가 매 프레임 비교해 스스로 비우게 한다(아래 clear 함수).
+fn reset_async_trade_runtime_state_for_save_load(db: &Database) {
+    let generation = SAVE_GENERATION.fetch_add(1, Ordering::AcqRel) + 1;
+    let has_proposal = load_async_trade_proposal(db).ok().flatten().is_some();
+    TARGET_ATHLETE_ID.store(0, Ordering::Release);
+    OFFERED_ATHLETE_ID.store(NO_ATHLETE, Ordering::Release);
+    PENDING_OFFERED_ATHLETE_ID.store(NO_ATHLETE, Ordering::Release);
+    PROFILE_CONTEXT_ATHLETE_ID.store(0, Ordering::Release);
+    PROFILE_CONTEXT_DETAIL_INSTANCE.store(0, Ordering::Release);
+    PROFILE_CONTEXT_TARGET_LEASE_ACTIVE.store(false, Ordering::Release);
+    PROFILE_CONTEXT_BIND_NEXT_DETAIL.store(false, Ordering::Release);
+    PROFILE_NATIVE_LOCK_ACTIVE.store(false, Ordering::Release);
+    PROFILE_STATUS_OWNED.store(false, Ordering::Release);
+    log_event(
+        "async_trade_runtime_state_reset_on_save_load",
+        &format!(
+            "save_generation={};loaded_save_has_proposal={};reason=on_server_start;cross_save_leak_guard=true",
+            generation, has_proposal,
+        ),
+    );
 }
 
 fn load_async_trade_proposal(db: &Database) -> Result<Option<AsyncTradeProposal>, String> {
@@ -5817,7 +5865,17 @@ fn evaluate_server_quote(
     //   ⚠읽기 실패는 **fail-open**(힌트 없음)으로 둔다. 제출 시 서버 검사가 정본이라 안전하다.
     let cooldown = rejection::cooldown_hint(db, target_id, requester_team_id, recipient_team_id)
         .unwrap_or(None);
+    // [PORT056] 항목3 — 연봉 예산: 현재 = 스냅샷의 salary_budget,
+    //   제의 후 = 보낼 선수 연봉이 빠지고 대상 선수 연봉이 들어온 뒤의 잔액.
+    let salary_budget_units = won_to_units_floor(budget_snapshot.salary_budget.max(0.0))?;
+    let salary_after_won =
+        (budget_snapshot.salary_budget + contract_yearly_salary(offered)?
+            - contract_yearly_salary(target)?)
+        .max(0.0);
+    let salary_after_units = won_to_units_floor(salary_after_won)?;
     Ok(ServerQuote {
+        salary_budget_units,
+        salary_after_units,
         cooldown_present: cooldown.is_some(),
         cooldown_fingerprint: cooldown.as_ref().map(|c| c.package_fingerprint).unwrap_or(0),
         cooldown_retry_at: cooldown.as_ref().map(|c| c.retry_at.clone()).unwrap_or_default(),
@@ -6082,6 +6140,8 @@ fn server_quote_payload(quote: &ServerQuote) -> Vec<u8> {
     let _ = writeln!(text, "profile={}", quote.profile_label);
     let _ = writeln!(text, "game_time={}", sanitize(&quote.game_time));
     // 쿨다운 힌트(클라 선차단용).
+    let _ = writeln!(text, "salary_budget_units={}", quote.salary_budget_units);
+    let _ = writeln!(text, "salary_after_units={}", quote.salary_after_units);
     let _ = writeln!(text, "cooldown_present={}", quote.cooldown_present);
     let _ = writeln!(text, "cooldown_fingerprint={}", quote.cooldown_fingerprint);
     let _ = writeln!(text, "cooldown_retry_at={}", sanitize(&quote.cooldown_retry_at));
@@ -6676,6 +6736,12 @@ struct Test77ServerExtension;
 
 impl ModServerExtension for Test77ServerExtension {
     fn on_server_start(&self, ctx: &mut ServerModContext) {
+        // [PORT056] 유저 피드백 2026-08-24 항목10 — 세이브를 바꿔도 이전 세이브의 오퍼 표시가 남았다.
+        //   on_server_start는 세이브 로드마다 호출되는데, 구판은 ASYNC_SERVER_START_LOGGED로
+        //   로그만 막고 런타임 상태를 리셋하지 않았다. 그래서 세이브 A의 제안 상태가 프로세스에
+        //   남은 채 세이브 B의 클라이언트 DB에 계속 주입됐다.
+        //   영속화(mod_save_data)는 세이브별로 정상 격리돼 있었다 — 문제는 런타임 statics였다.
+        reset_async_trade_runtime_state_for_save_load(&ctx.database);
         if !ASYNC_SERVER_START_LOGGED.swap(true, Ordering::AcqRel) {
             let restored = load_async_trade_proposal(&ctx.database).ok().flatten();
             let proposal_state = restored
@@ -7685,6 +7751,8 @@ fn open_trade_popup(ui: &mut GameUI, assets: &Assets) {
         ("pts_cash_required_note", "pts_cash_runtime_required_note"),
         ("pts_cash_proposed_eok", "pts_cash_runtime_proposed_eok"),
         ("pts_cash_budget_value", "pts_cash_runtime_budget_value"),
+        ("pts_cash_salary_value", "pts_cash_runtime_salary_value"),
+        ("pts_cash_salary_after_value", "pts_cash_runtime_salary_after_value"),
         ("pts_cash_after_value", "pts_cash_runtime_after_value"),
         ("pts_cash_read_only_note", "pts_cash_runtime_read_only_note"),
         ("pts_cash_status_idle", "pts_cash_runtime_status_idle"),
@@ -8239,6 +8307,32 @@ fn no_offered_player_selected() -> bool {
 ///   두 곳이 어긋나면 버튼은 막혔는데 제출은 되거나 그 반대가 된다.
 static TRADE_COOLDOWN_BLOCK: Mutex<Option<String>> = Mutex::new(None);
 
+/// ★[PORT056] 항목10 클라이언트 짝 — 세이브가 바뀌면 자기 thread_local 을 비우고 주입물을 걷는다.
+///   서버가 `SAVE_GENERATION` 을 올리면 다음 프레임에 여기서 감지된다.
+fn clear_client_state_if_save_changed(ui: &mut GameUI) {
+    let server_generation = SAVE_GENERATION.load(Ordering::Acquire);
+    let changed = CLIENT_SAVE_GENERATION.with(|slot| {
+        let mut slot = slot.borrow_mut();
+        if *slot == server_generation { false } else { *slot = server_generation; true }
+    });
+    if !changed {
+        return;
+    }
+    ASYNC_STATUS_VIEW.with(|slot| *slot.borrow_mut() = None);
+    QUOTE_VIEW.with(|slot| *slot.borrow_mut() = None);
+    QUOTE_ERROR.with(|slot| *slot.borrow_mut() = None);
+    PROPOSED_UNITS.with(|slot| *slot.borrow_mut() = None);
+    *TRADE_COOLDOWN_BLOCK
+        .lock()
+        .unwrap_or_else(|poisoned| poisoned.into_inner()) = None;
+    CASH_INPUT_STATE.store(0, Ordering::Release);
+    let removed = remove_pending_contract_projection_rows(&mut ui.root);
+    log_event(
+        "client_state_cleared_on_save_change",
+        &format!("save_generation={};removed_projection_rows={}", server_generation, removed),
+    );
+}
+
 fn update_cooldown_block_state(data: &ClientData) {
     let blocked = (|| -> Option<String> {
         let quote = QUOTE_VIEW.with(|slot| slot.borrow().clone())?;
@@ -8406,8 +8500,17 @@ fn format_eok_number(units_manwon: u64) -> String {
     format!("{}.{}", format_commas(whole), fraction_text)
 }
 
+/// [PORT056] 금액 표기 = `N억 M만 원` (유저 피드백 2026-08-24 항목4).
+///   구 표기 `198.5435억 원` 은 소수점이라 자릿수를 읽기 어려웠다. 단위는 만원(억 = /10000, 만 = %10000).
 fn format_eok_amount(units_manwon: u64) -> String {
-    format!("{}억 원", format_eok_number(units_manwon))
+    let eok = units_manwon / 10_000;
+    let man = units_manwon % 10_000;
+    match (eok, man) {
+        (0, 0) => "0원".to_string(),
+        (0, m) => format!("{}만 원", format_commas(m)),
+        (e, 0) => format!("{}억 원", format_commas(e)),
+        (e, m) => format!("{}억 {}만 원", format_commas(e), format_commas(m)),
+    }
 }
 
 fn format_cheoman_number(units_manwon: u64) -> String {
@@ -8425,14 +8528,8 @@ fn format_cheoman_number(units_manwon: u64) -> String {
 }
 
 fn format_cash_amount(units_manwon: u64) -> String {
-    if units_manwon == 0 {
-        return "0원".to_string();
-    }
-    if units_manwon <= 9_999 {
-        format!("{}천만 원", format_cheoman_number(units_manwon))
-    } else {
-        format_eok_amount(units_manwon)
-    }
+    // [PORT056] 9,999만원 이하 "천만 원" 분기 폐기 → 억/만 단일 표기(유저 피드백 항목4).
+    format_eok_amount(units_manwon)
 }
 
 fn format_eok_cheoman_bucket(units_manwon: u64) -> String {
@@ -8540,6 +8637,8 @@ fn apply_quote_view(ui: &mut GameUI) {
         set_label_text(ui, "pts_cash_runtime_selection_value", "선택 조합 계산 실패");
         set_label_text(ui, "pts_cash_runtime_required_value", "계산 실패");
         set_label_text(ui, "pts_cash_runtime_budget_value", "—");
+        set_label_text(ui, "pts_cash_runtime_salary_value", "—");
+        set_label_text(ui, "pts_cash_runtime_salary_after_value", "—");
         set_label_text(ui, "pts_cash_runtime_after_value", "—");
         // ⚠상태줄(`status_invalid`)은 여기서 건드리지 않는다 — `update_cash_input_status` 가 단독으로 소유한다.
         //   1차 구현에서 양쪽이 같은 라벨을 쓰다가, 복구 로직이 사유를
@@ -8578,6 +8677,9 @@ fn apply_quote_view(ui: &mut GameUI) {
         );
     }
     set_label_text(ui, "pts_cash_runtime_budget_value", &format_cash_amount(quote.budget_units));
+    // [PORT056] 항목3 — 연봉 예산 박스
+    set_label_text(ui, "pts_cash_runtime_salary_value", &format_cash_amount(quote.salary_budget_units));
+    set_label_text(ui, "pts_cash_runtime_salary_after_value", &format_cash_amount(quote.salary_after_units));
     let proposed = PROPOSED_UNITS.with(|slot| *slot.borrow());
     match proposed {
         None => {
@@ -9558,6 +9660,8 @@ fn parse_quote_view(values: &BTreeMap<String, String>) -> Result<QuoteView, Stri
         return Err("server returned an invalid obscured display range".to_string());
     }
     Ok(QuoteView {
+        salary_budget_units: values.get("salary_budget_units").and_then(|v| v.parse().ok()).unwrap_or(0),
+        salary_after_units: values.get("salary_after_units").and_then(|v| v.parse().ok()).unwrap_or(0),
         // 쿨다운 힌트는 없을 수도 있으므로 관대하게 읽는다(없으면 "쿨다운 없음").
         cooldown_present: values.get("cooldown_present").map(|v| v == "true").unwrap_or(false),
         cooldown_fingerprint: values
@@ -10106,6 +10210,8 @@ fn update_profile_context_from_click(path: &str, item: &str) {
 
     if let Some(athlete_id) = exact_view_detail_athlete_id_from_event(path, item) {
         PROFILE_CONTEXT_ATHLETE_ID.store(athlete_id, Ordering::Release);
+        // [PORT056] 항목7 — 신선도 스탬프. 이게 오래되면 아래 재결속 분기가 컨텍스트를 버린다.
+        PROFILE_CONTEXT_BOUND_FRAME.store(RUNTIME_FRAME_COUNT.load(Ordering::Relaxed), Ordering::Release);
         PROFILE_CONTEXT_BIND_NEXT_DETAIL.store(true, Ordering::Release);
         PROFILE_CONTEXT_TARGET_LOCK_VALID.store(false, Ordering::Release);
         PROFILE_CONTEXT_ALLOW_NEXT_REBUILD.store(false, Ordering::Release);
@@ -11500,7 +11606,11 @@ fn set_native_row_action(row: &mut Node, text: &str) -> bool {
     //   `set_runner_text` 가 먹지 않는다(자체 bind/자산 텍스트로 보인다).
     //   ⟹ "그 칸 전용 노드" 라는 이유로 고르면 안 되고, **텍스트 쓰기가 검증된 노드**를 골라야 한다.
     //   스타일(색·정렬)이 조건 제의 칸과 다소 다른 것은 감수한다.
-    let template = direct_path(row, &["contract_state", "text"]).cloned();
+    // [PORT056] 항목6 — 가운데 정렬된 전용 템플릿(`.ui` 신설)을 우선 복제한다.
+    //   없으면 기존처럼 contract_state.text 를 쓴다(쓰기가 검증된 폴백).
+    let template = OFFERED_LABEL_TEMPLATE
+        .with(|slot| slot.borrow().clone())
+        .or_else(|| direct_path(row, &["contract_state", "text"]).cloned());
     let Some(action) = direct_child_mut(row, "action") else {
         return false;
     };
@@ -12363,6 +12473,34 @@ fn set_player_profile_trade_stage(ui: &mut GameUI, view: &AsyncStatusView) -> bo
     } else {
         let current_context_id = PROFILE_CONTEXT_ATHLETE_ID.load(Ordering::Acquire);
         let bound_instance = PROFILE_CONTEXT_DETAIL_INSTANCE.load(Ordering::Acquire);
+        // ★[PORT056] 유저 피드백 2026-08-24 항목7 — 무관한 선수(내 팀 Dan)의 프로필에
+        //   대상 선수(Maomao)의 트레이드 상태가 떴다. 원인은 이 분기다: 새 player_detail 인스턴스가
+        //   나타나면 "포인터가 바뀌어도 신원은 보존"이라며 **직전 athlete id 를 그대로 재결속**했다.
+        //   클릭 경로 접두를 늘리는 방식(08-23 수정)은 못 본 진입 경로가 남는 한 계속 샌다.
+        //   ⟹ 근본 수정 = **신원 있는 클릭이 최근에 없었으면 신원을 버린다(fail-open).**
+        //   버리면 아무 표시도 안 하므로 오표시보다 안전하다.
+        let frame_now = RUNTIME_FRAME_COUNT.load(Ordering::Relaxed);
+        let bound_age = frame_now.saturating_sub(PROFILE_CONTEXT_BOUND_FRAME.load(Ordering::Acquire));
+        if current_context_id != 0 && bound_instance != detail_instance && bound_age > PROFILE_BIND_FRESH_FRAMES {
+            PROFILE_CONTEXT_ATHLETE_ID.store(0, Ordering::Release);
+            PROFILE_CONTEXT_DETAIL_INSTANCE.store(detail_instance, Ordering::Release);
+            PROFILE_CONTEXT_TARGET_LEASE_ACTIVE.store(false, Ordering::Release);
+            PROFILE_NATIVE_LOCK_ACTIVE.store(false, Ordering::Release);
+            PROFILE_STATUS_OWNED.store(false, Ordering::Release);
+            PROFILE_NATIVE_UI_SNAPSHOT.with(|slot| { slot.borrow_mut().take(); });
+            restore_owned_profile_native_ui(detail);
+            let should_log = PROFILE_STALE_BIND_DROPPED.swap(true, Ordering::AcqRel);
+            if !should_log {
+                log_event(
+                    "profile_context_dropped_stale_bind",
+                    &format!(
+                        "dropped_athlete_id={};bound_age_frames={};threshold={};reason=no_recent_id_bearing_click;fail_open=true",
+                        current_context_id, bound_age, PROFILE_BIND_FRESH_FRAMES,
+                    ),
+                );
+            }
+            return false;
+        }
         if current_context_id != 0 && bound_instance != detail_instance {
             let suspended = PROFILE_CONTEXT_SCENE_SUSPENDED.swap(false, Ordering::AcqRel);
             PROFILE_CONTEXT_DETAIL_INSTANCE.store(detail_instance, Ordering::Release);
@@ -12951,6 +13089,14 @@ fn runtime_frame(scene: &mut Scene, ui: &mut GameUI, assets: &mut Assets) {
     send_review_if_ready(data);
     send_async_status_query_if_ready(data);
     send_native_offer_status_query_if_ready(data, ui);
+    clear_client_state_if_save_changed(ui);
+    if OFFERED_LABEL_TEMPLATE.with(|slot| slot.borrow().is_none()) {
+        if let Some(node) = find_node_by_id(&ui.root, "pts_trade_offered_label_template") {
+            let mut captured = node.clone();
+            captured.visible = true;
+            OFFERED_LABEL_TEMPLATE.with(|slot| *slot.borrow_mut() = Some(captured));
+        }
+    }
     update_cooldown_block_state(data);
     update_cash_input_status(ui);
     apply_quote_view(ui);
