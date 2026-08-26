@@ -706,7 +706,7 @@ pub(crate) static MICRO_SITES: &[MicroSite] = &[
     // ① cs_lead_attack — 평타 선행예측 틱. self 가 r14 에 그대로 살아 있는 가장 깨끗한 자리.
     //    0xdb867b `mov r14,[rbx+rax*8]` = champions[myside][myrole] 이후 사이트까지 r14 write 없음.
     MicroSite {
-        key: "cs_lead_attack", orig: 30, rva: 0xd4f3ea,
+        key: "cs_lead_attack", orig: 30, rva: 0xebd49a,
         win: &[0xb8, 0x1e, 0x00, 0x00, 0x00],            // mov eax,0x1e
         pre: &[], tail: &[],
         imm_off: 1, imm_w: 4,
@@ -716,7 +716,7 @@ pub(crate) static MICRO_SITES: &[MicroSite] = &[
     },
     // ② mv2_avoid_coef — 회피 반경 계수. fn 0xe587f0 의 5번째 인자(=champions[side][role])가 rbp 에 들어있다.
     MicroSite {
-        key: "mv2_avoid_coef", orig: 400, rva: 0xe5b5a1,   // ★0.5.6(was 0.5.4 0xe58cf1 — ⚠2단계 apply 누락분 정정 2026-08-22: 054호스트 스켈레톤 UNIQUE→056·win 바이트 일치 확증)
+        key: "mv2_avoid_coef", orig: 400, rva: 0xd0d571,   // ★0.5.6(was 0.5.4 0xe58cf1 — ⚠2단계 apply 누락분 정정 2026-08-22: 054호스트 스켈레톤 UNIQUE→056·win 바이트 일치 확증)
         win: &[0x48, 0x69, 0xc1, 0x90, 0x01, 0x00, 0x00],  // imul rax,rcx,0x190
         pre: &[], tail: &[],
         imm_off: 3, imm_w: 4,
@@ -726,7 +726,7 @@ pub(crate) static MICRO_SITES: &[MicroSite] = &[
     },
     // ③ mv2_avoid_margin — 회피 여유 상수. ②와 같은 경로·같은 rbp.
     MicroSite {
-        key: "mv2_avoid_margin", orig: 6000, rva: 0xe5b5f5,   // ★0.5.6(was 0.5.4 0xe58d45 — ⚠2단계 apply 누락분 정정 2026-08-22: 054호스트 스켈레톤 UNIQUE→056·win 바이트 일치 확증)
+        key: "mv2_avoid_margin", orig: 6000, rva: 0xd0d5c5,   // ★0.5.6(was 0.5.4 0xe58d45 — ⚠2단계 apply 누락분 정정 2026-08-22: 054호스트 스켈레톤 UNIQUE→056·win 바이트 일치 확증)
         win: &[0x48, 0x05, 0x70, 0x17, 0x00, 0x00],        // add rax,0x1770
         pre: &[], tail: &[],
         imm_off: 2, imm_w: 4,
@@ -738,7 +738,7 @@ pub(crate) static MICRO_SITES: &[MicroSite] = &[
     //    5번째 인자 원본 슬롯 `[rsp+0x180]` 은 함수 내 write 가 없어 재로드로 복원한다.
     //    ⚠사이트가 `cmp` 라 **뒤 `ja` 가 플래그를 소비**한다 — 값 op(cmp)가 스텁의 마지막 플래그 생산자여야 한다.
     MicroSite {
-        key: "mv2_avoid_bias", orig: 1500, rva: 0xe5ba4f,   // ★0.5.6(was 0.5.4 0xe5919f — ⚠2단계 apply 누락분 정정 2026-08-22: 054호스트 스켈레톤 UNIQUE→056·win 바이트 일치 확증)
+        key: "mv2_avoid_bias", orig: 1500, rva: 0xd0da1f,   // ★0.5.6(was 0.5.4 0xe5919f — ⚠2단계 apply 누락분 정정 2026-08-22: 054호스트 스켈레톤 UNIQUE→056·win 바이트 일치 확증)
         win: &[0x48, 0x3d, 0xdc, 0x05, 0x00, 0x00],        // cmp rax,0x5dc
         pre: &[], tail: &[],
         imm_off: 2, imm_w: 4,
@@ -755,7 +755,7 @@ pub(crate) static MICRO_SITES: &[MicroSite] = &[
     //    ⚠발화는 **경기 초반 한정**(`현재틱 < [[p1+8]+0x13f8]` 분기 안) — 후반에 발화=0 이어도 정상.
     //    근거 = RE\2026-08-07_sf_margin-재조사-self는-3번째인자.md
     MicroSite {
-        key: "sf_margin", orig: 15000, rva: 0xd4a56b,   // ★0.5.6(was 0.5.4 0xdb3f1b — ⚠2단계 apply 누락분 정정 2026-08-22: 054호스트 스켈레톤 UNIQUE→056·win 바이트 일치 확증)
+        key: "sf_margin", orig: 15000, rva: 0xeb7e8b,   // ★0.5.6(was 0.5.4 0xdb3f1b — ⚠2단계 apply 누락분 정정 2026-08-22: 054호스트 스켈레톤 UNIQUE→056·win 바이트 일치 확증)
         win: &[0x48, 0x05, 0x98, 0x3a, 0x00, 0x00],        // add rax,0x3a98
         pre: &[], tail: &[],
         op: MOp::AddR64 { dst: reg::RAX },
