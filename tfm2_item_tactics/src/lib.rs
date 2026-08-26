@@ -3187,7 +3187,8 @@ fn refresh_roster_management(ctx: &mut ServerModContext) {
 //   (0.5.5 실측 정정 2026-08-12: 자가치유 프로브 `실제 cps 오프셋 = 0x16ed8` — item_tactics_registry.txt,
 //    구 하드코딩 0x16698 대비 +0x840. 0.5.4 실측은 0x16ec0(+0x828)이었으니 0.5.4→0.5.5 실이동은 +0x18.
 //    ⚠어차피 base 는 dbase(addr_of 직접취득)가 1순위라 이 상수는 폴백·진단 표시용이다.)
-const CPS_OFF: usize = 0x16ff8; // 0.5.6(구0.5.5=0x16ed8, +0x120). ClientDatabase 고대역 재시프트(동일오프셋 직독 투표 39/40). ⚠어차피 dbase(addr_of 직접취득)가 1순위라 이 상수는 폴백·진단용.
+const CPS_OFF: usize = core::mem::offset_of!(game_core::Database, champion_patch_statistics);   // ★★0.5.7(2026-08-26): 하드코딩 폐기 → 컴파일 타임 계산(SDK 구조체가 정본). 구값 ~~0.5.6 0x16ff8~~ / ~~0.5.5 0x16ed8~~. // 0.5.6(구0.5.5=0x16ed8, +0x120). ClientDatabase 고대역 재시프트(동일오프셋 직독 투표 39/40). ⚠어차피 dbase(addr_of 직접취득)가 1순위라 이 상수는 폴백·진단용.
+
 fn probe_db(ctx: &mut ServerModContext) {
     // Database 시작 = champion_patch_statistics(@Database+CPS_OFF) 절대주소 − CPS_OFF.
     let cps = &ctx.database.champion_patch_statistics as *const _ as usize;
