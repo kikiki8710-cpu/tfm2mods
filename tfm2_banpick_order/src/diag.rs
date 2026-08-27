@@ -819,7 +819,7 @@ pub unsafe fn dump_auth(last: usize, atot: u64, applier: u64) {
 // rust_panic_with_hook(0x25d4764)를 통과한다. r8 = &Location{file_ptr,file_len,line,col}.
 // 여기서 file:line:col을 기록하면 panicmap CSV(14,666 사이트)와 대조해 즉시 특정 가능.
 // 프롤로그 13B = `55 41 56 56 57 53 48 81 EC 80 00 00 00` (rip-rel 없음, 실측 확인).
-const RVA_PANIC_HOOK: usize = 0x2aac7b4; // 0.5.6(구0.5.5=0x2a97074) // 0.5.4 0x29b6a64
+const RVA_PANIC_HOOK: usize = 0x2aaf154; // 0.5.7 repin(2026-08-28, match_mid UNIQUE, cross-checked with champ_pos_lock) // 0.5.6(구0.5.5=0x2a97074) // 0.5.4 0x29b6a64
 const PANIC_STEAL: usize = 13;
 static TRAMP_PANIC: AtomicUsize = AtomicUsize::new(0);
 static PANIC_LOGGED: AtomicU32 = AtomicU32::new(0);
