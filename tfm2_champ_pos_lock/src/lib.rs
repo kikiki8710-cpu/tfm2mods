@@ -12,6 +12,7 @@
 use mod_api::*;
 use std::sync::atomic::{AtomicBool, AtomicPtr, AtomicU64, Ordering};
 
+mod crashlog;   // ★VEH 크래시 로거(2026-08-27)
 mod config;
 mod hooks;
 mod i18n;
@@ -337,6 +338,24 @@ pub fn sorted_champs() -> Option<Vec<String>> {
             v.len(),
             map.len()
         ));
+        // ★워크샵/모드 추가 챔프 진단(2026-08-27): 목록에 있는데 안 보인다는 제보 대응.
+        //   id 는 로스터에 있어도 i18n 표시명이 없으면 **영문 id 로 뜨고 정렬 위치도 예상 밖**이라
+        //   유저 눈엔 "리스트가 갱신 안 된 것"처럼 보인다 ⟹ id·표시명·인덱스를 같이 남긴다.
+        {
+            let base: std::collections::HashSet<&str> = map.keys().map(|s| s.as_str()).collect();
+            let extra: Vec<String> = v
+                .iter()
+                .enumerate()
+                .filter(|(_, id)| !base.contains(id.to_ascii_lowercase().as_str()))
+                .map(|(i, id)| format!("{i}:{id}=\"{}\"", disp_name(&id.to_ascii_lowercase())))
+                .collect();
+            config::dlog(&format!(
+                "roster: 총 {}종 | i18n 표시명 없는 챔프 {}개 {:?}",
+                v.len(),
+                extra.len(),
+                extra
+            ));
+        }
     }
     *SORTED_CHAMPS.lock().unwrap_or_else(|e| e.into_inner()) = Some((lang, sig, v.clone()));
     Some(v)
@@ -2950,7 +2969,9 @@ impl ModExtension for PosLockExt {
 }
 
 fn init(_ctx: &GameCtx) -> ModRegistration {
+    crashlog::install();   // ★가장 먼저 — 이후 어떤 초기화가 죽어도 RIP 가 남는다
     config::load();
+    crashlog::report();
     i18n::load();
     let mut reg = ModRegistration::new(MOD_ID);
     reg.set_extension(PosLockExt);

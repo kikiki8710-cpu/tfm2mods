@@ -1025,7 +1025,7 @@ impl Drop for PerfGuard {
 // roll<thr→교전(5), roll>=thr→퇴각(-1). thr↑=교전↑. high 3바이트 0이라 low byte만 패치(원자적).
 // ★0.4.13: retreat refactor(0x1d474c0, 프레임오프셋 시프트만)됐으나 교전코어(df0c10→역할임계값→roll게이트) 바이트동일 검증(cmp_region.py).
 //   RVA = df0c10_call(0x1fe4d33)+{0x40,0x58,0x6c,0x72}. roll게이트(cmp rax,r14;setge;neg;or 5)도 0.4.12와 동일.
-const ROLE_THR: [(usize, u8); 4] = [(0x1d3602b, 100), (0x1d36043, 70), (0x1d36058, 50), (0x1d3605d, 30)]; // (imm32 RVA, 원본) 0.4.13_5(was 0x1fd0546/55e/72/78). 인코딩 cmp-imm32→mov-imm 변경: 100/70/30=mov r14d(imm@+2), 50=mov eax(imm@+1). RETREAT 새바디 df0c10콜 직후 역할래더(role4=100/3=70/2=50/else=30). 상위3바이트0 검증 통과
+const ROLE_THR: [(usize, u8); 4] = [(0x198693b, 100), (0x1986953, 70), (0x1986968, 50), (0x198696d, 30)]; // (imm32 RVA, 원본) 0.4.13_5(was 0x1fd0546/55e/72/78). 인코딩 cmp-imm32→mov-imm 변경: 100/70/30=mov r14d(imm@+2), 50=mov eax(imm@+1). RETREAT 새바디 df0c10콜 직후 역할래더(role4=100/3=70/2=50/else=30). 상위3바이트0 검증 통과  ← 0.5.7 재핀 4/4 OWNER_UNIQUE·바이트동일 (0.5.6=[0x1d3602b,0x1d36043,0x1d36058,0x1d3605d])
 static ENGAGE_THR_MULT: AtomicI64 = AtomicI64::new(100);  // cfg %, 100=원본(검증), 다른값=공격성 조정
 static MOVE_TAG: AtomicI64 = AtomicI64::new(1);       // cfg move_tag: 어느 tag를 Move로 볼지
 static MOVE_OFF: AtomicI64 = AtomicI64::new(8);       // cfg move_off: x오프셋(y=x+8). 확인후 맞춤
@@ -3039,7 +3039,7 @@ const D19_STATIC2_TEMPLATE_RVA: usize = 0x38d17d8; // ⏸**0.5.3 미재핀 = 0.5
 //   ★[07-15 확정] 셀 슬라이스 = vt+0x198 = RVA 0x19f03d0 = `{*(world+0xb178), *(world+0xb180)}` (ptr,len) trivial 게터.
 //   셀→엔티티 = vt+0x150 = RVA 0x20ad690 = **기존 geom_resolve150 재사용**.
 //   loop1(사거리 내 유효 적) → loop2(셀 내 적이 자기 4스킬로 caster를 역으로 때릴 수 있나).
-const D19_TV7_RVA: usize = 0x32105a8;   // ★0.5.3(was 0.5.2 0x3863a28). .rdata 값지문 **선두 48B**(`07 00 00 00` + "8DataEffectDef::Nati…") 가 OLD/NEW 각 1건 = 유일 매칭. // 구 ★0.5.2(was 0.5.1 0x38b7d50). version-migrator 확정: 참조사이트 마스크시그 UNANIMOUS(2/2) + **값 sanity 완전일치**(선두 16B `07 00 00 00 38 44 61 74 ...`= u32==7 desc 헤더가 구값과 바이트동일). // ★0.5.1(was 0.5.0_3 0x38796f8). target_valid selector=7 desc. ghidra-re 확정: u32==7 desc+LEA 2회 유일후보(@0x142281e09/eba, 참조간격 0xb4=0.5.0_3 Gate#3와 바이트동일)
+const D19_TV7_RVA: usize = 0x33fa7d8;   // ★0.5.3(was 0.5.2 0x3863a28). .rdata 값지문 **선두 48B**(`07 00 00 00` + "8DataEffectDef::Nati…") 가 OLD/NEW 각 1건 = 유일 매칭. // 구 ★0.5.2(was 0.5.1 0x38b7d50). version-migrator 확정: 참조사이트 마스크시그 UNANIMOUS(2/2) + **값 sanity 완전일치**(선두 16B `07 00 00 00 38 44 61 74 ...`= u32==7 desc 헤더가 구값과 바이트동일). // ★0.5.1(was 0.5.0_3 0x38796f8). target_valid selector=7 desc. ghidra-re 확정: u32==7 desc+LEA 2회 유일후보(@0x142281e09/eba, 참조간격 0xb4=0.5.0_3 Gate#3와 바이트동일)  ← ⚠0.5.7 재핀: 값지문(07000000+8DataEffectDef::Nati) 구/신 각1건 유일. ⚠구값 0x32105a8 은 0.5.6 에서도 이미 틀렸었다(0.5.6 정답=0x341b198, 코드영역을 가리키고 있었음)
 
 // ════ Gate1(FUN_141c83700 bVar5+compFlag, ghidra 실측 a48105662) — Gate2보다 먼저 판정하는 조기 홈복귀 ════
 //   game: cf0!=0 || bVar5 || cf1!=0 → tag5 전부 스킵, tag3 홈복귀 1개만(glen=1). 전부 D19_GATE1 게이트(기본OFF)로 격리.

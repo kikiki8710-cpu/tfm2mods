@@ -847,7 +847,7 @@ pub fn install_once_p() {
         let chained = cur[0] == 0x48 && cur[1] == 0xb8 && cur[10] == 0xff && cur[11] == 0xe0;
         if !chained && cur != PROL_PICK_DISPATCH {
             INSTALL_STATE_P.store(2, Ordering::Relaxed);
-            config::dlog("hookP 프롤로그 미스매치 — 픽 차단 비활성");
+            config::dlog("hookP 프롤로그 미스매치  // — 픽 차단 비활성");
             return;
         }
         // 트램폴린: 원본 14B(push열+sub) → jmp fn+14.
@@ -918,7 +918,8 @@ type RecommendFn = extern "C" fn(usize, usize, usize, usize) -> u64;
 //   1단계 = 로그 전용(라이브 위임이 이 경로인지 + Vec[0]==커밋인지 확증). 2단계 = Vec[0] 위반 시
 //   [1..]의 첫 합법 후보와 스왑(사후 교정 — 코치 점수순 보존).
 //   ⚠detour 본문 = 복사·판정만(포맷/로그 금지 — post_update 드레인). 프롤로그 = 8-push(커밋 동일).
-const RVA_DISPATCH: usize = 0x232a950;   // ★★0.5.7 재핀(2026-08-26): ~~0.5.6 0x2079730~~ → **0x232a950**. skel/head/마스크시그 전부 NONE(함수 대개편)이라 **콜리 지문**(구 함수가 호출하는 callee 를 재핀 후 그들을 가장 많이 호출하는 신 함수 탐색)으로 확정 — 24/26 일치(2위 16). size 5345→5589 · 프롬로그 8push 12B 동일(PROL_RECOMMEND 무수정, chkstk imm은 0x6ab8→0x6c18이나 검증 범위 밖). ⚠banpick_order AITURN 컨테이너와 **동일 함수**.
+const RVA_DISPATCH: usize = 0x232a950;
+   // ★★0.5.7 재핀(2026-08-26): ~~0.5.6 0x2079730~~ → **0x232a950**. skel/head/마스크시그 전부 NONE(함수 대개편)이라 **콜리 지문**(구 함수가 호출하는 callee 를 재핀 후 그들을 가장 많이 호출하는 신 함수 탐색)으로 확정 — 24/26 일치(2위 16). size 5345→5589 · 프롬로그 8push 12B 동일(PROL_RECOMMEND 무수정, chkstk imm은 0x6ab8→0x6c18이나 검증 범위 밖). ⚠banpick_order AITURN 컨테이너와 **동일 함수**.
 static TRAMP_DISPATCH: AtomicUsize = AtomicUsize::new(0);
 pub static INSTALL_STATE_DP2: AtomicUsize = AtomicUsize::new(0);
 pub static CNT_DP_SEEN: AtomicUsize = AtomicUsize::new(0);
@@ -1251,7 +1252,7 @@ pub fn install_once_recommend_wbc() {
         match patch_entry_thread_safe(fn_addr, recommend_wbc_hook as usize) {
             Ok(()) => {
                 INSTALL_STATE_RW.store(1, Ordering::Relaxed);
-                config::dlog("hookRW(픽 recommend wbc — score_pick 주입) 설치 OK (thread-safe)");
+                config::dlog("hookRW(픽 recommend wbc  // — score_pick 주입) 설치 OK (thread-safe)");
             }
             Err("in-prologue-retry") => {
                 RW_COOLDOWN.store(120, Ordering::Relaxed); // ~2초 쉬고 재시도(매프레임 suspend 금지)
@@ -2446,7 +2447,7 @@ pub fn install_once() {
 //     (2) 통과 시 **상대 팀 order 도 우리 배정으로** 맞춘 뒤 원본 호출
 //   프롤로그 12B = push rbp,r15,r14,r13,r12,rsi,rdi,rbx (실측, 클린 경계).
 // ==========================================================================
-const RVA_SWAP_CONFIRM: usize = 0x1d7bc10;
+const RVA_SWAP_CONFIRM: usize = 0x19cc4a0;  // 0.5.7 재핀 UNIQUE size1476 동일 (0.5.6=0x1d7bc10)
 const PROL_SWAP_CONFIRM: [u8; 12] = [
     0x55, 0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x53,
 ];
@@ -2569,7 +2570,7 @@ pub fn install_once_dp() {
             }
             Err(e) => {
                 INSTALL_STATE_D.store(2, Ordering::Relaxed);
-                config::dlog(&format!("hookD' 설치 실패: {e} — 유저 픽 차단 비활성"));
+                config::dlog(&format!("hookD' 설치 실패: {e}  // — 유저 픽 차단 비활성"));
             }
         }
     }
@@ -2586,7 +2587,7 @@ pub fn install_once_dp() {
 //       [+6]=sideB.ptr(픽) [+7]=sideB.len [+8]=is_pick / 반환 eax: 0=배제 1=유효
 //   match_info 벡터: ptr@+0x38/len@+0x40, +0x50/+0x58, +0x68/+0x70, +0x80/+0x88
 // ══════════════════════════════════════════════════════════════════════════
-const RVA_PRED: usize = 0x1f36410;
+const RVA_PRED: usize = 0x1db9aa0;  // 0.5.7 재핀 UNIQUE size537 동일 (0.5.6=0x1f36410)
 const PROL_PRED: [u8; 12] =
     [0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x55, 0x53];
 static TRAMP_PRED: AtomicUsize = AtomicUsize::new(0);
@@ -2812,7 +2813,7 @@ pub fn install_once_pred() {
 //   score 를 -1e9 감점(제거 아님=hang 없음). 라인 판정 = 우리 state.txt 마스크만.
 //   비재귀(리프 헬퍼만 호출) → 스택오버플로 없음. 반환후 콜러 가산후처리는 -1e9가 흡수.
 // ══════════════════════════════════════════════════════════════════════════
-const RVA_ORCH: usize = 0x20f1f60;
+const RVA_ORCH: usize = 0x24fa9d0;  // 0.5.7 재핀 HEAD_UNIQUE size3215 동일 (0.5.6=0x20f1f60)
 const PROL_ORCH: [u8; 12] =
     [0x55, 0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x53];
 static TRAMP_ORCH: AtomicUsize = AtomicUsize::new(0);
@@ -3026,10 +3027,10 @@ pub fn install_once_orch() {
 /// f848f0 을 호출하는 **전체 콜사이트**(exe 스캔 실측 9곳). f73340(밴 셀렉터) 외에
 /// 픽 셀렉터가 어디인지 미상이라 전부 후킹 — 감점은 "조합 판정"이라 어느 경로든 안전.
 const F848_CALLSITES: [usize; 9] = [
-    0xf73510, 0xf7356b, 0xf78c90, 0xf7cce2, 0xf7cd06, 0xf7cd2c, 0x12b6016, 0x12b6a80,
-    0x12b7ff0,
-];
-const RVA_F848F0: usize = 0xf848f0;
+    0x180f920, 0x180f97b, 0x18151b0, 0x1819312, 0x1819336, 0x181935c, 0x148f7c6, 0x1490230,
+    0x14917a0,
+]; // ★0.5.7 재핀(2026-08-27): RVA_F848F0 콜러 구/신 각 9건, owner+오프셋 9/9 일치. 0.5.6=[0xf73510..0x12b7ff0]
+const RVA_F848F0: usize = 0x1820f20;  // 0.5.7 재핀 UNIQUE size617 동일 (0.5.6=0xf848f0)
 static F848_ORIG: AtomicUsize = AtomicUsize::new(0);
 static AM_STUB: AtomicUsize = AtomicUsize::new(0);
 pub static INSTALL_STATE_AM: AtomicUsize = AtomicUsize::new(0);
@@ -3146,7 +3147,7 @@ pub static AM_COUNT_HIST: [AtomicU64; 8] = [
 // ══════════════════════════════════════════════════════════════════════════
 const RVA_CPROD: usize = 0x1d9a210;
 /// f16ea0 콜사이트 3곳(실행기 Q1/Q2/Q3 드레인 — RE 확정). 진입 패치 대신 여기를 리다이렉트.
-const CPROD_CALLSITES: [usize; 3] = [0x2129c2d, 0x2129d2d, 0x2129e1d];
+const CPROD_CALLSITES: [usize; 3] = [0x2530e33, 0x2530f23, 0x2531003];  // 0.5.7 재핀 — RVA_CPROD 콜러 구/신 각 3건 순서대응 (0.5.6=[0x2129c2d,0x2129d2d,0x2129e1d])
 static CP_STUB: AtomicUsize = AtomicUsize::new(0);
 static TRAMP_CPROD: AtomicUsize = AtomicUsize::new(0);
 pub static INSTALL_STATE_CPROD: AtomicUsize = AtomicUsize::new(0);
@@ -3584,7 +3585,7 @@ unsafe fn cprod_swap(ctx: usize, rec: usize) {
                     let n = DBG_CPH.fetch_add(1, Ordering::Relaxed);
                     if n < 20 {
                         config::dlog(&format!(
-                            "cp_human#{n}: 수동픽 보호 — {cur} 유지(team={acting_now})"
+                            "cp_human#{n}: 수동픽 보호  // — {cur} 유지(team={acting_now})"
                         ));
                     }
                 }
@@ -3755,8 +3756,69 @@ unsafe fn read_bucket(v: usize) -> Option<Vec<String>> {
 }
 
 /// ctx+0x350 SwissTable 선형 스캔 → match_id 일치 엔트리의 rmi(=entry+8).
+///   ★0.5.7(2026-08-27): 고정 오프셋 0x350/0x320 이 둘 다 빗나가면 **런타임 스캔**으로 찾는다.
+///   RunningMatchInfo 의 테이블 위치·엔트리 stride 는 구조체 값이라 RVA 스캔·git 대조로
+///   잡히지 않는다(실사고: `cpfail: find_rmi 실패 mid=1177` 반복 → 픽 제한 전부 무효).
 unsafe fn find_rmi(ctx: usize, match_id: u64) -> Option<usize> {
-    find_rmi_at(ctx, 0x350, match_id)
+    // ★0.5.7 실측(2026-08-27 런타임 스캔): ctx+0x358 stride=0x160. 구 0x350 은 빗나간다.
+    if let Some(r) = find_rmi_at(ctx, 0x358, match_id) { return Some(r); }
+    if let Some(r) = find_rmi_at(ctx, 0x350, match_id) { return Some(r); }
+    // 이미 스캔으로 찾아둔 조합이 있으면 그걸 먼저
+    let (o, s) = (RMI_OFF_DYN.load(Ordering::Relaxed), RMI_STRIDE_DYN.load(Ordering::Relaxed));
+    if o != 0 && s != 0 {
+        if let Some(r) = find_rmi_stride(ctx, o, s, match_id) { return Some(r); }
+    }
+    scan_rmi(ctx, match_id)
+}
+
+static RMI_OFF_DYN: AtomicUsize = AtomicUsize::new(0);
+static RMI_STRIDE_DYN: AtomicUsize = AtomicUsize::new(0);
+static RMI_SCAN_N: AtomicU64 = AtomicU64::new(0);
+
+/// stride 를 지정해 SwissTable 을 훑는다(고정 0x160 가정을 뺀 일반형).
+unsafe fn find_rmi_stride(ctx: usize, off: usize, stride: usize, match_id: u64) -> Option<usize> {
+    if !ptr_ok(ctx) || match_id == u64::MAX { return None; }
+    let ctl = safe_rd_u64(ctx + off)? as usize;
+    let mask = safe_rd_u64(ctx + off + 8)? as usize;
+    if !ptr_ok(ctl) || mask == 0 || mask > 0xffff { return None; }
+    for i in 0..=mask {
+        let c = safe_rd_u8(ctl + i)?;
+        if c & 0x80 != 0 { continue; }
+        let entry = ctl.wrapping_sub((i + 1) * stride);
+        if !ptr_ok(entry) { continue; }
+        if safe_rd_u64(entry) == Some(match_id) { return Some(entry + 8); }
+    }
+    None
+}
+
+/// ★런타임 스캔: ctx 상대변위 × stride 후보를 훑어 match_id 를 담은 조합을 찾는다.
+///   찾으면 RMI_OFF_DYN/RMI_STRIDE_DYN 에 캐시하고 로그로 알린다(다음 패치 자동 적응).
+unsafe fn scan_rmi(ctx: usize, match_id: u64) -> Option<usize> {
+    if !ptr_ok(ctx) || match_id == u64::MAX { return None; }
+    if RMI_SCAN_N.fetch_add(1, Ordering::Relaxed) >= 40 { return None; } // 폭주 방지
+    const STRIDES: [usize; 8] = [0x160, 0x168, 0x158, 0x150, 0x170, 0x178, 0x148, 0x180];
+    let mut off = 0x100usize;
+    while off < 0x600 {
+        if let (Some(ctl), Some(mask)) = (safe_rd_u64(ctx + off), safe_rd_u64(ctx + off + 8)) {
+            let (ctl, mask) = (ctl as usize, mask as usize);
+            if ptr_ok(ctl) && mask != 0 && mask <= 0xffff {
+                for &st in STRIDES.iter() {
+                    if let Some(r) = find_rmi_stride(ctx, off, st, match_id) {
+                        RMI_OFF_DYN.store(off, Ordering::Relaxed);
+                        RMI_STRIDE_DYN.store(st, Ordering::Relaxed);
+                        config::dlog(&format!(
+                            "★★find_rmi 스캔 적중: ctx+{off:#x} stride={st:#x} (소스 고정값 0x350/0x320·0x160 은 0.5.7 에서 빗나감  // — 재핀 필요)"));
+                        return Some(r);
+                    }
+                }
+            }
+        }
+        off += 8;
+    }
+    if RMI_SCAN_N.load(Ordering::Relaxed) <= 2 {
+        config::dlog(&format!("★find_rmi 스캔 0건 (ctx={ctx:#x} mid={match_id})  // — ctx 자체 또는 match_id 축 의심"));
+    }
+    None
 }
 
 /// 지정 오프셋의 SwissTable 에서 match_id 일치 엔트리 → rmi(=entry+8).
@@ -4069,7 +4131,8 @@ pub fn install_once_argmax() {
 //   계약: rcx=sret, rdx=MS, r8=ctx, r9=kind, [+0x28]=match_id, [+0x30]=team_id
 //   sret: +0x00 kind(-1=결정없음) +0x08 match_id +0x10 VecA +0x40 team_id +0x50 marker
 // ══════════════════════════════════════════════════════════════════════════
-const DISP_CALLSITE: usize = 0x2038056; // producer 내 유일 call 0x2079730
+const DISP_CALLSITE: usize = 0x22e94ee; // producer 내 유일 call 0x2079730
+  // ← 0.5.7 재핀 — RVA_DISP 콜러 구/신 각 1건 (0.5.6=0x2038056)
 const RVA_DISP: usize = 0x232a950;
 static DQ_STUB: AtomicUsize = AtomicUsize::new(0);
 static DISP_ORIG: AtomicUsize = AtomicUsize::new(0);
@@ -4412,8 +4475,8 @@ pub fn install_once_dq() {
 //   ⚠1단계는 **진단 전용**: 인덱스 축이 우리 NAMES 와 같은지 확인만(필터 안 함).
 //     축이 다르면 엉뚱한 챔프를 걸러 AI 오작동·후보 고갈(hang) 위험.
 // ══════════════════════════════════════════════════════════════════════════
-const CB_CALLSITE: usize = 0x207a191;
-const RVA_CANDB: usize = 0x18d01b0;
+const CB_CALLSITE: usize = 0x232b402;  // 0.5.7 재핀 — RVA_CANDB 콜러 구/신 각 1건 (0.5.6=0x207a191)
+const RVA_CANDB: usize = 0x18c5f00;  // 0.5.7 재핀 UNIQUE size806 동일 (0.5.6=0x18d01b0)
 static CB_STUB: AtomicUsize = AtomicUsize::new(0);
 static CANDB_ORIG: AtomicUsize = AtomicUsize::new(0);
 pub static INSTALL_STATE_CB: AtomicUsize = AtomicUsize::new(0);
@@ -4739,9 +4802,10 @@ pub fn install_once_cb() {
 //       banpick_order 는 0x24b6c10 **진입부**를 후킹하므로, 통과 시 원래 주소로
 //       호출하면 그쪽 detour 도 정상 발화(체인 불요).
 // ══════════════════════════════════════════════════════════════════════════
-const GY_CALLSITE: usize = 0x2553a16; // call 0x249df50 (셀 순회)
-const RVA_CELLFN: usize = 0x249df50;
-const CK_CALLSITE: usize = 0x25508de; // call 0x24b6c10 (클릭 커밋)
+const GY_CALLSITE: usize = 0x1edbad6; // call 0x1e1e3c0 (셀 순회) // ★0.5.7 재핀 정정(2026-08-27): owner 0x254f8f0->0x1ed7970 내부 2개 중 구 +0x4126 짝. ~~0x1eda9fa~~ 는 구 0x255297a(+0x308a) 쪽이라 GY 발화 0회였다. ⚠전체 콜러 인덱스 순서가 아니라 **owner 내 오프셋**으로 짚을 것
+const RVA_CELLFN: usize = 0x1e1e3c0;  // 0.5.7 재핀 UNIQUE size1477 동일 (0.5.6=0x249df50)
+const CK_CALLSITE: usize = 0x1ed896e; // call 0x24b6c10 (클릭 커밋)
+  // ← 0.5.7 재핀 — RVA_COMMITTER 콜러 구/신 각 3건 순서대응 #2 (0.5.6=0x25508de)
 const RVA_COMMITTER: usize = 0x1e59680;
 
 static GY_STUB: AtomicUsize = AtomicUsize::new(0);

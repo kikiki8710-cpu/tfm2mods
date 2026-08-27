@@ -90,10 +90,28 @@ impl PosState {
     ///     (유저 제보 2026-08-23: 탑 9개만 켜져 있는데 "현재 선택 수 21")
     pub fn live_count(&self, p: usize) -> usize {
         let g = ROSTER.read().unwrap_or_else(|e| e.into_inner());
-        match g.as_ref() {
+        let named = match g.as_ref() {
             Some(set) => self.allowed[p].iter().filter(|c| set.contains(*c)).count(),
             None => self.allowed[p].len(), // 로스터 미캡처 → 보수적으로 전부 인정
+        };
+        // 명시 지정이 0 = 그 포지션엔 제한을 안 건 것 ⟹ 기존대로 0(=비활성).
+        if named == 0 {
+            return 0;
         }
+        // ★★미지정 챔프도 이 포지션에서 쓸 수 있다(mask_of 가 MASK_ALL 로 정규화) ⟹ 풀에 포함.
+        //   (2026-08-27) 이걸 빼면 "밴카드 5장+하드피어리스 → 포지션당 최소 20개" 같은 조건에서
+        //   실제로는 쓸 챔프가 충분한데도 `pos_active=false` 가 되어 **제한이 통째로 꺼진다**
+        //   (유저 제보: 밴카드 5장으로 바꾸니 제한이 안 걸림 — 지정 14 < 최소 20 이었다).
+        // ⚠guard 를 여기서 재사용한다 — `ROSTER.read()` 를 중첩으로 잡으면
+        //   같은 스레드 재귀 read 로 데드락 가능(std RwLock).
+        let unassigned = match g.as_ref() {
+            Some(set) => set
+                .iter()
+                .filter(|id| !(0..5).any(|q| self.allowed[q].iter().any(|x| x == *id)))
+                .count(),
+            None => 0,
+        };
+        named + unassigned
     }
     /// 이 포지션의 제한이 **실제로 적용되나**.
     ///   ★빈 화이트리스트 = 전체 허용. 그리고 **최소 선택 수 미달도 전체 허용으로 취급**한다
@@ -110,7 +128,12 @@ impl PosState {
                 m |= 1 << p;
             }
         }
-        m
+        // ★★어느 포지션에도 지정하지 않은 챔프(m==0) = **제한 대상이 아님** ⟹ 전 포지션 허용.
+        //   (2026-08-27 유저 지시. 그 전엔 0 을 그대로 돌려줬는데, `m==0 → 허용` 예외가
+        //    AI 마스크 경로 한 곳에만 있고 **유저 픽 경로엔 없어서** `helps(pinned, 0)` 이
+        //    항상 false → 미지정 챔프가 내 드래프트에서 전부 회색 처리됐다.)
+        //   ⟹ 근원(mask_of)에서 정규화해 모든 소비처가 일관되게 동작하게 한다.
+        if m == 0 { MASK_ALL } else { m }
     }
     /// 제한이 하나라도 걸렸나(전부 빈/최소미달이면 모드 무효과).
     pub fn any_restricted(&self) -> bool {

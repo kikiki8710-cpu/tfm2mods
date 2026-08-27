@@ -4631,7 +4631,7 @@ unsafe fn apply_fix_skill2() {
 // ⚠기본 OFF. `fix_hp_ratio=1` 일 때만 적용된다.
 // ⚠실제 피해량은 안 바뀐다(예측 전용 API) — **AI 판단만** 바뀐다. 그래서 리플레이 재현은 깨진다.
 // ════════════════════════════════════════════════════════════════════════════════
-const HR_AE_FN_RVA: usize = 0x155ffc0;   // AttackEffect·FixedAttackEffect 예측 leaf
+const HR_AE_FN_RVA: usize = 0x10efff0;   // AttackEffect·FixedAttackEffect 예측 leaf  ← 0.5.7 재핀 OWNER_UNIQUE·바이트동일 (0.5.6=0x155ffc0)
 const HR_AP_FN_RVA: usize = 0x15730b0;   // ApAttackEffect 예측 leaf
 /// AttackEffect / FixedAttackEffect vtable 의 `+0x28` 슬롯이 놓인 .rdata RVA
 const HR_AE_SLOTS: [usize; 10] = [
