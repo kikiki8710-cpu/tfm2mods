@@ -1,0 +1,628 @@
+{
+ "mod": "tfm2_champ_pos_lock",
+ "game_ver": "0.5.7",
+ "build": "(3.2MB — build_extra 계열. 정확한 명령 = REPORT\\tfm2_champ_pos_lock\\02_구현정보.md)",
+ "notes": [
+  "RVA_PANIC_HOOK 0x2aaf154 = banpick_order 와 공유.",
+  "GY_CALLSITE 는 전역 콜러 인덱스로 고르면 오프바이원(사고) — owner 내부 오프셋 + je 타깃 오프셋 판별자 사용."
+ ],
+ "offsets": [
+  {
+   "name": "find_rmi ctx",
+   "value": "0x358",
+   "ver": "0.5.7",
+   "prev": "0.5.6=0x350 (stride 0x160 불변)",
+   "verify": "런타임 스캔 폴백 있음 — 죽어도 크래시 아님"
+  }
+ ],
+ "entries": [
+  {
+   "name": "INLINE@src/hooks.rs:607",
+   "value": "0x100000",
+   "ver": "0.5.7",
+   "kind": "UNCLASSIFIED",
+   "locs": [
+    "src/hooks.rs:607",
+    "src/hooks.rs:623"
+   ],
+   "sect": ".text",
+   "bytes": "205f5e5dc366662e0f1f8400",
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+  },
+  {
+   "name": "CONTEXT_CONTROL_AMD64",
+   "value": "0x100001",
+   "ver": "0.5.7",
+   "kind": "UNCLASSIFIED",
+   "locs": [
+    "src/hooks.rs:43"
+   ],
+   "sect": ".text",
+   "bytes": "5f5e5dc366662e0f1f840000",
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+  },
+  {
+   "name": "PARSER_RVA",
+   "value": "0x1ab310",
+   "ver": "0.5.7",
+   "kind": "UNCLASSIFIED",
+   "locs": [
+    "src/inject.rs:28"
+   ],
+   "sect": ".text",
+   "bytes": "554157415641554154565753",
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+  },
+  {
+   "name": "LOADER_RVA",
+   "value": "0x2ea930",
+   "ver": "0.5.7",
+   "kind": "UNCLASSIFIED",
+   "locs": [
+    "src/inject.rs:27"
+   ],
+   "sect": ".text",
+   "bytes": "554157415641554154565753",
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+  },
+  {
+   "name": "RVA_CONTAINS",
+   "value": "0x8e85f0",
+   "ver": "0.5.7",
+   "kind": "UNCLASSIFIED",
+   "locs": [
+    "src/hooks.rs:155"
+   ],
+   "sect": ".text",
+   "bytes": "415741565657534883ec204d",
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+  },
+  {
+   "name": "INLINE@src/hooks.rs:4703",
+   "value": "0xffffff",
+   "ver": "0.5.7",
+   "kind": "NOT_RVA",
+   "locs": [
+    "src/hooks.rs:4703"
+   ],
+   "sect": ".text",
+   "bytes": "004889542410554157415641",
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
+   "ignore": true,
+   "note": "마스크",
+   "curated": true
+  },
+  {
+   "name": "INLINE@src/crashlog.rs:74",
+   "value": "0x1000000",
+   "ver": "0.5.7",
+   "kind": "UNCLASSIFIED",
+   "locs": [
+    "src/crashlog.rs:74",
+    "src/crashlog.rs:112"
+   ],
+   "sect": ".text",
+   "bytes": "488954241055415741564155",
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+  },
+  {
+   "name": "F848_CALLSITES",
+   "value": "0x148f7c6",
+   "ver": "0.5.7",
+   "kind": "UNCLASSIFIED",
+   "locs": [
+    "src/hooks.rs:3030"
+   ],
+   "sect": ".text",
+   "bytes": "e85517390090440f28c84883",
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+  },
+  {
+   "name": "F848_CALLSITES",
+   "value": "0x1490230",
+   "ver": "0.5.7",
+   "kind": "UNCLASSIFIED",
+   "locs": [
+    "src/hooks.rs:3030"
+   ],
+   "sect": ".text",
+   "bytes": "e8eb0c390090440f28c84c8b",
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+  },
+  {
+   "name": "F848_CALLSITES",
+   "value": "0x14917a0",
+   "ver": "0.5.7",
+   "kind": "UNCLASSIFIED",
+   "locs": [
+    "src/hooks.rs:3031"
+   ],
+   "sect": ".text",
+   "bytes": "e87bf7380090440f28c84c8b",
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+  },
+  {
+   "name": "RVA_COMMIT",
+   "value": "0x1642600",
+   "ver": "0.5.7",
+   "kind": "UNCLASSIFIED",
+   "locs": [
+    "src/hooks.rs:887"
+   ],
+   "sect": ".text",
+   "bytes": "554157415641554154565753",
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+  },
+  {
+   "name": "F848_CALLSITES",
+   "value": "0x180f920",
+   "ver": "0.5.7",
+   "kind": "UNCLASSIFIED",
+   "locs": [
+    "src/hooks.rs:3030"
+   ],
+   "sect": ".text",
+   "bytes": "e8fb150100900f2ec676070f",
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+  },
+  {
+   "name": "F848_CALLSITES",
+   "value": "0x180f97b",
+   "ver": "0.5.7",
+   "kind": "UNCLASSIFIED",
+   "locs": [
+    "src/hooks.rs:3030"
+   ],
+   "sect": ".text",
+   "bytes": "e8a0150100900f2ef077a5eb",
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+  },
+  {
+   "name": "F848_CALLSITES",
+   "value": "0x18151b0",
+   "ver": "0.5.7",
+   "kind": "UNCLASSIFIED",
+   "locs": [
+    "src/hooks.rs:3030"
+   ],
+   "sect": ".text",
+   "bytes": "e86bbd0000900f28f848837d",
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+  },
+  {
+   "name": "F848_CALLSITES",
+   "value": "0x1819312",
+   "ver": "0.5.7",
+   "kind": "UNCLASSIFIED",
+   "locs": [
+    "src/hooks.rs:3030"
+   ],
+   "sect": ".text",
+   "bytes": "e8097c0000900f28f04c8b4d",
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+  },
+  {
+   "name": "F848_CALLSITES",
+   "value": "0x1819336",
+   "ver": "0.5.7",
+   "kind": "UNCLASSIFIED",
+   "locs": [
+    "src/hooks.rs:3030"
+   ],
+   "sect": ".text",
+   "bytes": "e8e57b000090440f28c0488b",
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+  },
+  {
+   "name": "F848_CALLSITES",
+   "value": "0x181935c",
+   "ver": "0.5.7",
+   "kind": "UNCLASSIFIED",
+   "locs": [
+    "src/hooks.rs:3030"
+   ],
+   "sect": ".text",
+   "bytes": "e8bf7b0000900f28f84c8b4d",
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+  },
+  {
+   "name": "RVA_POS_MASK",
+   "value": "0x181fe60",
+   "ver": "0.5.7",
+   "kind": "UNCLASSIFIED",
+   "locs": [
+    "src/hooks.rs:146"
+   ],
+   "sect": ".text",
+   "bytes": "415741564155415456575553",
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+  },
+  {
+   "name": "RVA_F848F0",
+   "value": "0x1820f20",
+   "ver": "0.5.7",
+   "kind": "UNCLASSIFIED",
+   "locs": [
+    "src/hooks.rs:3033"
+   ],
+   "sect": ".text",
+   "bytes": "55415741565657534881ec68",
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+  },
+  {
+   "name": "RVA_CANDB",
+   "value": "0x18c5f00",
+   "ver": "0.5.7",
+   "kind": "UNCLASSIFIED",
+   "locs": [
+    "src/hooks.rs:4479"
+   ],
+   "sect": ".text",
+   "bytes": "554157415641554154565753",
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+  },
+  {
+   "name": "INLINE@src/hooks.rs:4782",
+   "value": "0x18d01b0",
+   "ver": "0.5.7",
+   "kind": "UNCLASSIFIED",
+   "locs": [
+    "src/hooks.rs:4782"
+   ],
+   "sect": ".text",
+   "bytes": "00ba01000000eb1d0f1f8400",
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+  },
+  {
+   "name": "RVA_SWAP_CONFIRM",
+   "value": "0x19cc4a0",
+   "ver": "0.5.7",
+   "kind": "UNCLASSIFIED",
+   "locs": [
+    "src/hooks.rs:2450"
+   ],
+   "sect": ".text",
+   "bytes": "554157415641554154565753",
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+  },
+  {
+   "name": "RVA_CPROD",
+   "value": "0x1d9a210",
+   "ver": "0.5.7",
+   "kind": "UNCLASSIFIED",
+   "locs": [
+    "src/hooks.rs:3148"
+   ],
+   "sect": ".text",
+   "bytes": "554157415641554154565753",
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+  },
+  {
+   "name": "RVA_FINALIZE",
+   "value": "0x1db6f30",
+   "ver": "0.5.7",
+   "kind": "UNCLASSIFIED",
+   "locs": [
+    "src/hooks.rs:1073"
+   ],
+   "sect": ".text",
+   "bytes": "554157415641554154565753",
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+  },
+  {
+   "name": "RVA_PRED",
+   "value": "0x1db9aa0",
+   "ver": "0.5.7",
+   "kind": "UNCLASSIFIED",
+   "locs": [
+    "src/hooks.rs:2590"
+   ],
+   "sect": ".text",
+   "bytes": "415741564155415456575553",
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+  },
+  {
+   "name": "RVA_CELLFN",
+   "value": "0x1e1e3c0",
+   "ver": "0.5.7",
+   "kind": "UNCLASSIFIED",
+   "locs": [
+    "src/hooks.rs:4806"
+   ],
+   "sect": ".text",
+   "bytes": "554157415641554154565753",
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+  },
+  {
+   "name": "RVA_PICK_DISPATCH",
+   "value": "0x1e45a60",
+   "ver": "0.5.7",
+   "kind": "UNCLASSIFIED",
+   "locs": [
+    "src/hooks.rs:752"
+   ],
+   "sect": ".text",
+   "bytes": "554157415641545657534883",
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+  },
+  {
+   "name": "RVA_COMMITTER",
+   "value": "0x1e59680",
+   "ver": "0.5.7",
+   "kind": "UNCLASSIFIED",
+   "locs": [
+    "src/hooks.rs:4809"
+   ],
+   "sect": ".text",
+   "bytes": "415741564155415456575553",
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+  },
+  {
+   "name": "RVA_SCENE_STEP",
+   "value": "0x1e748a0",
+   "ver": "0.5.7",
+   "kind": "UNCLASSIFIED",
+   "locs": [
+    "src/hooks.rs:180"
+   ],
+   "sect": ".text",
+   "bytes": "488b8160010000488b917801",
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+  },
+  {
+   "name": "RVA_SLOT_WIDGET",
+   "value": "0x1e79ff0",
+   "ver": "0.5.7",
+   "kind": "UNCLASSIFIED",
+   "locs": [
+    "src/hooks.rs:170"
+   ],
+   "sect": ".text",
+   "bytes": "554157415641554154565753",
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+  },
+  {
+   "name": "SITES_CONTAINS",
+   "value": "0x1e8016f",
+   "ver": "0.5.7",
+   "kind": "UNCLASSIFIED",
+   "locs": [
+    "src/hooks.rs:163"
+   ],
+   "sect": ".text",
+   "bytes": "e87c84a6fe4189c74c89e148",
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+  },
+  {
+   "name": "SITES_CONTAINS",
+   "value": "0x1e80188",
+   "ver": "0.5.7",
+   "kind": "UNCLASSIFIED",
+   "locs": [
+    "src/hooks.rs:163"
+   ],
+   "sect": ".text",
+   "bytes": "e86384a6fe4584ff741984c0",
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+  },
+  {
+   "name": "RVA_ICON_SETTER",
+   "value": "0x1e89450",
+   "ver": "0.5.7",
+   "kind": "UNCLASSIFIED",
+   "locs": [
+    "src/hooks.rs:198"
+   ],
+   "sect": ".text",
+   "bytes": "554157415641554154565753",
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+  },
+  {
+   "name": "RVA_ENTITY_ICON",
+   "value": "0x1e92110",
+   "ver": "0.5.7",
+   "kind": "UNCLASSIFIED",
+   "locs": [
+    "src/hooks.rs:200"
+   ],
+   "sect": ".text",
+   "bytes": "554157415641554154565753",
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+  },
+  {
+   "name": "CK_CALLSITE",
+   "value": "0x1ed896e",
+   "ver": "0.5.7",
+   "kind": "UNCLASSIFIED",
+   "locs": [
+    "src/hooks.rs:4807"
+   ],
+   "sect": ".text",
+   "bytes": "e80d0df8ff904885db7414ff",
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+  },
+  {
+   "name": "GY_CALLSITE",
+   "value": "0x1edbad6",
+   "ver": "0.5.7",
+   "kind": "UNCLASSIFIED",
+   "locs": [
+    "src/hooks.rs:4805"
+   ],
+   "sect": ".text",
+   "bytes": "e8e528f4ff9084c00f843806",
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+  },
+  {
+   "name": "INLINE@src/hooks.rs:3004",
+   "value": "0x20f1f60",
+   "ver": "0.5.7",
+   "kind": "UNCLASSIFIED",
+   "locs": [
+    "src/hooks.rs:3004"
+   ],
+   "sect": ".text",
+   "bytes": "3c01486304814801c8ffe049",
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+  },
+  {
+   "name": "DISP_CALLSITE",
+   "value": "0x22e94ee",
+   "ver": "0.5.7",
+   "kind": "UNCLASSIFIED",
+   "locs": [
+    "src/hooks.rs:4134"
+   ],
+   "sect": ".text",
+   "bytes": "e85d1404009083bdf0a40400",
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+  },
+  {
+   "name": "RVA_DISPATCH",
+   "value": "0x232a950",
+   "ver": "0.5.7",
+   "kind": "UNCLASSIFIED",
+   "locs": [
+    "src/hooks.rs:921",
+    "src/hooks.rs:4136",
+    "src/hooks.rs:4464"
+   ],
+   "sect": ".text",
+   "bytes": "554157415641554154565753",
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+  },
+  {
+   "name": "CB_CALLSITE",
+   "value": "0x232b402",
+   "ver": "0.5.7",
+   "kind": "UNCLASSIFIED",
+   "locs": [
+    "src/hooks.rs:4478"
+   ],
+   "sect": ".text",
+   "bytes": "e8f9aa59ff90488d8db82200",
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+  },
+  {
+   "name": "RVA_ORCH",
+   "value": "0x24fa9d0",
+   "ver": "0.5.7",
+   "kind": "UNCLASSIFIED",
+   "locs": [
+    "src/hooks.rs:2816"
+   ],
+   "sect": ".text",
+   "bytes": "554157415641554154565753",
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+  },
+  {
+   "name": "CPROD_CALLSITES",
+   "value": "0x2530e33",
+   "ver": "0.5.7",
+   "kind": "UNCLASSIFIED",
+   "locs": [
+    "src/hooks.rs:3150"
+   ],
+   "sect": ".text",
+   "bytes": "e8d89386ff90488b93800000",
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+  },
+  {
+   "name": "CPROD_CALLSITES",
+   "value": "0x2530f23",
+   "ver": "0.5.7",
+   "kind": "UNCLASSIFIED",
+   "locs": [
+    "src/hooks.rs:3150"
+   ],
+   "sect": ".text",
+   "bytes": "e8e89286ff90488b93800000",
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+  },
+  {
+   "name": "CPROD_CALLSITES",
+   "value": "0x2531003",
+   "ver": "0.5.7",
+   "kind": "UNCLASSIFIED",
+   "locs": [
+    "src/hooks.rs:3150"
+   ],
+   "sect": ".text",
+   "bytes": "e8089286ff90488b93800000",
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+  },
+  {
+   "name": "INLINE@src/hooks.rs:5080",
+   "value": "0x25508de",
+   "ver": "0.5.7",
+   "kind": "UNCLASSIFIED",
+   "locs": [
+    "src/hooks.rs:5080"
+   ],
+   "sect": ".text",
+   "bytes": "3ff3440f114dfcc745000000",
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+  },
+  {
+   "name": "INLINE@src/hooks.rs:5080",
+   "value": "0x2553a16",
+   "ver": "0.5.7",
+   "kind": "UNCLASSIFIED",
+   "locs": [
+    "src/hooks.rs:5080"
+   ],
+   "sect": ".text",
+   "bytes": "4c8975504c897d584c897560",
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+  },
+  {
+   "name": "RVA_RECOMMEND",
+   "value": "0x25549d0",
+   "ver": "0.5.7",
+   "kind": "UNCLASSIFIED",
+   "locs": [
+    "src/hooks.rs:904"
+   ],
+   "sect": ".text",
+   "bytes": "554157415641554154565753",
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+  },
+  {
+   "name": "RVA_RECOMMEND_WBC",
+   "value": "0x2556220",
+   "ver": "0.5.7",
+   "kind": "UNCLASSIFIED",
+   "locs": [
+    "src/hooks.rs:1181"
+   ],
+   "sect": ".text",
+   "bytes": "554157415641554154565753",
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+  },
+  {
+   "name": "RVA_PANIC_HOOK",
+   "value": "0x2aaf154",
+   "ver": "0.5.7",
+   "kind": "FN_START",
+   "locs": [
+    "src/crashlog.rs:161"
+   ],
+   "sect": ".text",
+   "bytes": "5541565657534881ec800000",
+   "method": "banpick_order 와 동일 재핀",
+   "curated": true
+  },
+  {
+   "name": "ALLOC_RVA",
+   "value": "0x2ab4010",
+   "ver": "0.5.7",
+   "kind": "UNCLASSIFIED",
+   "locs": [
+    "src/inject.rs:29"
+   ],
+   "sect": ".text",
+   "bytes": "5556574883ec20488d6c2420",
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+  }
+ ]
+}

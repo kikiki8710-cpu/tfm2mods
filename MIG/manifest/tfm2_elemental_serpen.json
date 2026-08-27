@@ -1,0 +1,240 @@
+{
+ "mod": "tfm2_elemental_serpen",
+ "game_ver": "0.5.7",
+ "build": "",
+ "notes": [
+  "verify_ret_sites() 가 각 RET-5 가 E8+LAUNCHER 인지 검증 — check 와 이중 방어.",
+  "LAUNCHER_RET_A/B = item_tactics 인라인 retaddr 와 값 공유(dups)."
+ ],
+ "offsets": [],
+ "entries": [
+  {
+   "name": "INLINE@src/lib.rs:2015",
+   "value": "0xe1de3",
+   "ver": "0.5.7",
+   "kind": "UNCLASSIFIED",
+   "locs": [
+    "src/lib.rs:2015"
+   ],
+   "sect": ".text",
+   "bytes": "29642450440f295c2460440f",
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+  },
+  {
+   "name": "UIPARSER_RVA",
+   "value": "0x1ab310",
+   "ver": "0.5.7",
+   "kind": "UNCLASSIFIED",
+   "locs": [
+    "src/lib.rs:613"
+   ],
+   "sect": ".text",
+   "bytes": "554157415641554154565753",
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+  },
+  {
+   "name": "UILOADER_RVA",
+   "value": "0x2ea930",
+   "ver": "0.5.7",
+   "kind": "UNCLASSIFIED",
+   "locs": [
+    "src/lib.rs:612"
+   ],
+   "sect": ".text",
+   "bytes": "554157415641554154565753",
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+  },
+  {
+   "name": "SPAWN_HOOKS",
+   "value": "0x89b830",
+   "ver": "0.5.7",
+   "kind": "UNCLASSIFIED",
+   "locs": [
+    "src/lib.rs:480"
+   ],
+   "sect": ".text",
+   "bytes": "554157415641554154565753",
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+  },
+  {
+   "name": "SPAWN_HOOKS",
+   "value": "0x89c440",
+   "ver": "0.5.7",
+   "kind": "UNCLASSIFIED",
+   "locs": [
+    "src/lib.rs:480"
+   ],
+   "sect": ".text",
+   "bytes": "554157415641554154565753",
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+  },
+  {
+   "name": "RENDER_STEP_RVA",
+   "value": "0x90a090",
+   "ver": "0.5.7",
+   "kind": "UNCLASSIFIED",
+   "locs": [
+    "src/lib.rs:914"
+   ],
+   "sect": ".text",
+   "bytes": "554157415641554154565753",
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+  },
+  {
+   "name": "LAUNCHER_RET_A",
+   "value": "0xb19ca9",
+   "ver": "0.5.7",
+   "kind": "UNCLASSIFIED",
+   "locs": [
+    "src/lib.rs:501"
+   ],
+   "sect": ".text",
+   "bytes": "9089bdacd6030048899d98d5",
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+  },
+  {
+   "name": "LAUNCHER_RET_B",
+   "value": "0xb1ebfb",
+   "ver": "0.5.7",
+   "kind": "UNCLASSIFIED",
+   "locs": [
+    "src/lib.rs:502"
+   ],
+   "sect": ".text",
+   "bytes": "90488b8538d8030048ff4810",
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+  },
+  {
+   "name": "LAUNCHER_RVA",
+   "value": "0x106dd60",
+   "ver": "0.5.7",
+   "kind": "UNCLASSIFIED",
+   "locs": [
+    "src/lib.rs:492"
+   ],
+   "sect": ".text",
+   "bytes": "554157415641554154565753",
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+  },
+  {
+   "name": "RUNNER_CTOR_RVA",
+   "value": "0x106f9c0",
+   "ver": "0.5.7",
+   "kind": "UNCLASSIFIED",
+   "locs": [
+    "src/lib.rs:941"
+   ],
+   "sect": ".text",
+   "bytes": "554157415641554154565753",
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+  },
+  {
+   "name": "DMGB_RVA",
+   "value": "0x108f220",
+   "ver": "0.5.7",
+   "kind": "UNCLASSIFIED",
+   "locs": [
+    "src/lib.rs:1939"
+   ],
+   "sect": ".text",
+   "bytes": "554157415641554154565753",
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+  },
+  {
+   "name": "MOBATICK_RVA",
+   "value": "0x10af580",
+   "ver": "0.5.7",
+   "kind": "UNCLASSIFIED",
+   "locs": [
+    "src/lib.rs:406"
+   ],
+   "sect": ".text",
+   "bytes": "554157415641554154565753",
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+  },
+  {
+   "name": "SERPEN_RVA",
+   "value": "0x14a25f0",
+   "ver": "0.5.7",
+   "kind": "UNCLASSIFIED",
+   "locs": [
+    "src/lib.rs:34"
+   ],
+   "sect": ".text",
+   "bytes": "554157415641554154565753",
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+  },
+  {
+   "name": "ARG_STR_RVA",
+   "value": "0x14cd960",
+   "ver": "0.5.7",
+   "kind": "UNCLASSIFIED",
+   "locs": [
+    "src/lib.rs:2688"
+   ],
+   "sect": ".text",
+   "bytes": "55415741565657534881ec88",
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+  },
+  {
+   "name": "DMGA_RVA",
+   "value": "0x15912c0",
+   "ver": "0.5.7",
+   "kind": "UNCLASSIFIED",
+   "locs": [
+    "src/lib.rs:1936"
+   ],
+   "sect": ".text",
+   "bytes": "415741564155415456575553",
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+  },
+  {
+   "name": "LAUNCHER_RET_C",
+   "value": "0x1a03cd4",
+   "ver": "0.5.7",
+   "kind": "UNCLASSIFIED",
+   "locs": [
+    "src/lib.rs:506"
+   ],
+   "sect": ".text",
+   "bytes": "90488b85c0da0100488d90e8",
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+  },
+  {
+   "name": "LAUNCHER_RET_D",
+   "value": "0x1ada3ae",
+   "ver": "0.5.7",
+   "kind": "UNCLASSIFIED",
+   "locs": [
+    "src/lib.rs:513"
+   ],
+   "sect": ".text",
+   "bytes": "90488b85f0900100488d9000",
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+  },
+  {
+   "name": "KEYRES_RVA",
+   "value": "0x238d6e0",
+   "ver": "0.5.7",
+   "kind": "UNCLASSIFIED",
+   "locs": [
+    "src/lib.rs:2131"
+   ],
+   "sect": ".text",
+   "bytes": "5556574883ec60488d6c2460",
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+  },
+  {
+   "name": "UIALLOC_RVA",
+   "value": "0x2ab4010",
+   "ver": "0.5.7",
+   "kind": "UNCLASSIFIED",
+   "locs": [
+    "src/lib.rs:620"
+   ],
+   "sect": ".text",
+   "bytes": "5556574883ec20488d6c2420",
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+  }
+ ]
+}

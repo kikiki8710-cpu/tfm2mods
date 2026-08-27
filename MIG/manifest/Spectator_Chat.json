@@ -1,0 +1,10 @@
+{
+ "mod": "Spectator_Chat",
+ "game_ver": "0.5.7",
+ "build": "(REPORT/이전 커밋 참조)",
+ "notes": [
+  "라이브 raw 오프셋 런타임 도출 — RVA 0, 재빌드만."
+ ],
+ "offsets": [],
+ "entries": []
+}

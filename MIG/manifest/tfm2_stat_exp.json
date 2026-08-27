@@ -1,0 +1,112 @@
+{
+ "mod": "tfm2_stat_exp",
+ "game_ver": "0.5.7",
+ "build": "",
+ "notes": [
+  "★전 엔트리 0.5.5 값 잔존 — 배포용 아님, 보류(유저 2026-08-28). 0x763329/0x76829b 는 flow_capture ONSCREEN_RETADDRS 와 공유 — 고칠 때 동시에."
+ ],
+ "offsets": [],
+ "entries": [
+  {
+   "name": "INLINE@src/lib.rs:617",
+   "value": "0x763329",
+   "ver": "0.5.5",
+   "kind": "UNCLASSIFIED",
+   "locs": [
+    "src/lib.rs:617",
+    "src/lib.rs:1023"
+   ],
+   "sect": ".text",
+   "bytes": "ec28488daa80000000488d4d",
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+  },
+  {
+   "name": "INLINE@src/lib.rs:617",
+   "value": "0x76829b",
+   "ver": "0.5.5",
+   "kind": "UNCLASSIFIED",
+   "locs": [
+    "src/lib.rs:617",
+    "src/lib.rs:1023"
+   ],
+   "sect": ".text",
+   "bytes": "f4baff904883c4285e5dc3cc",
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+  },
+  {
+   "name": "STATE_HOOK_RVA",
+   "value": "0xeafed0",
+   "ver": "0.5.5",
+   "kind": "UNCLASSIFIED",
+   "locs": [
+    "src/lib.rs:57"
+   ],
+   "sect": ".text",
+   "bytes": "00000f85c3000000488d8df0",
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+  },
+  {
+   "name": "RUN_TICK_RVA",
+   "value": "0x14aa160",
+   "ver": "0.5.5",
+   "kind": "UNCLASSIFIED",
+   "locs": [
+    "src/lib.rs:73"
+   ],
+   "sect": ".text",
+   "bytes": "534883ec38488daa80000000",
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+  },
+  {
+   "name": "CL_LAUNCHER_RVA",
+   "value": "0x14ac3e0",
+   "ver": "0.5.5",
+   "kind": "UNCLASSIFIED",
+   "locs": [
+    "src/lib.rs:27"
+   ],
+   "sect": ".text",
+   "bytes": "83c1f875eb85c00f8403ffff",
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+  },
+  {
+   "name": "INLINE@src/lib.rs:617",
+   "value": "0x1aa88ce",
+   "ver": "0.5.5",
+   "kind": "UNCLASSIFIED",
+   "locs": [
+    "src/lib.rs:617",
+    "src/lib.rs:1023"
+   ],
+   "sect": ".text",
+   "bytes": "90eb9f4883c128ffd7488b45",
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+  },
+  {
+   "name": "INLINE@src/lib.rs:617",
+   "value": "0x1aed292",
+   "ver": "0.5.5",
+   "kind": "UNCLASSIFIED",
+   "locs": [
+    "src/lib.rs:617",
+    "src/lib.rs:1023"
+   ],
+   "sect": ".text",
+   "bytes": "0600001e00000048c785a006",
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+  },
+  {
+   "name": "INLINE@src/lib.rs:618",
+   "value": "0x1da7d54",
+   "ver": "0.5.5",
+   "kind": "UNCLASSIFIED",
+   "locs": [
+    "src/lib.rs:618",
+    "src/lib.rs:1023"
+   ],
+   "sect": ".text",
+   "bytes": "3c020048898590e30000488b",
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+  }
+ ]
+}

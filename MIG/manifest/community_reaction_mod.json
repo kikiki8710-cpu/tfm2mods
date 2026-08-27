@@ -1,0 +1,10 @@
+{
+ "mod": "community_reaction_mod",
+ "game_ver": "0.5.7",
+ "build": "(REPORT/이전 커밋 참조)",
+ "notes": [
+  "SDK+ClientDatabase raw 오프셋 — 재빌드 + 오프셋 재도출."
+ ],
+ "offsets": [],
+ "entries": []
+}

@@ -1,0 +1,57 @@
+{
+ "mod": "tfm2_draft_overlay",
+ "game_ver": "0.5.7",
+ "build": "",
+ "notes": [],
+ "offsets": [],
+ "entries": [
+  {
+   "name": "PARSER_RVA",
+   "value": "0x1ab310",
+   "ver": "0.5.7",
+   "kind": "UNCLASSIFIED",
+   "locs": [
+    "src/lib.rs:397"
+   ],
+   "sect": ".text",
+   "bytes": "554157415641554154565753",
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+  },
+  {
+   "name": "LOADER_RVA",
+   "value": "0x2ea930",
+   "ver": "0.5.7",
+   "kind": "UNCLASSIFIED",
+   "locs": [
+    "src/lib.rs:381"
+   ],
+   "sect": ".text",
+   "bytes": "554157415641554154565753",
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+  },
+  {
+   "name": "ANIM_GET_RVA",
+   "value": "0x74bf10",
+   "ver": "0.5.7",
+   "kind": "UNCLASSIFIED",
+   "locs": [
+    "src/lib.rs:153"
+   ],
+   "sect": ".text",
+   "bytes": "554157415641554154565753",
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+  },
+  {
+   "name": "ALLOC_RVA",
+   "value": "0x2ab4010",
+   "ver": "0.5.7",
+   "kind": "UNCLASSIFIED",
+   "locs": [
+    "src/lib.rs:406"
+   ],
+   "sect": ".text",
+   "bytes": "5556574883ec20488d6c2420",
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+  }
+ ]
+}

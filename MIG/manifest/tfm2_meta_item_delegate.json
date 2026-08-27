@@ -1,0 +1,10 @@
+{
+ "mod": "tfm2_meta_item_delegate",
+ "game_ver": "0.5.7",
+ "build": "& C:\\tfm2mods\\build_extra.ps1 -Src <src>\\lib.rs -ModId tfm2_meta_item_delegate -Externs @('game_core','serde_json') -MaxSize 1300000",
+ "notes": [
+  "RVA 0 — SDK 재빌드만. mod.mod_info 없으면 로더가 폴더 무시(0.5.7 사고 9)."
+ ],
+ "offsets": [],
+ "entries": []
+}

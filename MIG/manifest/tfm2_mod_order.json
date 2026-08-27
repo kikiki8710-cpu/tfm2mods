@@ -1,0 +1,10 @@
+{
+ "mod": "tfm2_mod_order",
+ "game_ver": "0.5.7",
+ "build": "build_inj",
+ "notes": [
+  "SDK 전용 — 재빌드만."
+ ],
+ "offsets": [],
+ "entries": []
+}

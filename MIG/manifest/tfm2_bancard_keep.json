@@ -1,0 +1,21 @@
+{
+ "mod": "tfm2_bancard_keep",
+ "game_ver": "0.5.7",
+ "build": "",
+ "notes": [],
+ "offsets": [],
+ "entries": [
+  {
+   "name": "PATCH_RVA",
+   "value": "0x234509a",
+   "ver": "0.5.7",
+   "kind": "UNCLASSIFIED",
+   "locs": [
+    "src/lib.rs:39"
+   ],
+   "sect": ".text",
+   "bytes": "48c786200700000000000048",
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+  }
+ ]
+}

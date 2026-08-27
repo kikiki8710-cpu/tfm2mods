@@ -1,0 +1,10 @@
+{
+ "mod": "tfm2_html_overlay",
+ "game_ver": "0.5.7",
+ "build": "(tfm2_html_overlay_stable 참조)",
+ "notes": [
+  "stable ABI — 소스 정본 = tfm2_html_overlay_stable(Cargo)."
+ ],
+ "offsets": [],
+ "entries": []
+}

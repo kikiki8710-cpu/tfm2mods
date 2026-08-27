@@ -1,0 +1,328 @@
+{
+ "mod": "sylas",
+ "game_ver": "0.5.7",
+ "build": "",
+ "notes": [
+  "★유저 제외 판정(0.5.7 마이그 대상 아님) — 전 엔트리 0.5.6 값."
+ ],
+ "offsets": [],
+ "entries": [
+  {
+   "name": "RVA_BOXDROP",
+   "value": "0xec870",
+   "ver": "0.5.6",
+   "kind": "UNCLASSIFIED",
+   "locs": [
+    "src/lib.rs:1309"
+   ],
+   "sect": ".text",
+   "bytes": "55564883ec38488d6c243048",
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+  },
+  {
+   "name": "INLINE@src/lib.rs:1206",
+   "value": "0x100000",
+   "ver": "0.5.6",
+   "kind": "UNCLASSIFIED",
+   "locs": [
+    "src/lib.rs:1206",
+    "src/lib.rs:1937",
+    "src/lib.rs:3094",
+    "src/lib.rs:3935",
+    "src/lib.rs:4070"
+   ],
+   "sect": ".text",
+   "bytes": "205f5e5dc366662e0f1f8400",
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+  },
+  {
+   "name": "VIEWLOOP_RVA",
+   "value": "0x8fb670",
+   "ver": "0.5.6",
+   "kind": "UNCLASSIFIED",
+   "locs": [
+    "src/lib.rs:2436"
+   ],
+   "sect": ".text",
+   "bytes": "488bb508010000483bb5a800",
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+  },
+  {
+   "name": "VIEWLOOKUP_RVA",
+   "value": "0x8fe2d5",
+   "ver": "0.5.6",
+   "kind": "UNCLASSIFIED",
+   "locs": [
+    "src/lib.rs:2435"
+   ],
+   "sect": ".text",
+   "bytes": "488b85e80600004883784800",
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+  },
+  {
+   "name": "VIEWFAIL_RVA",
+   "value": "0x8fe4d8",
+   "ver": "0.5.6",
+   "kind": "UNCLASSIFIED",
+   "locs": [
+    "src/lib.rs:2433"
+   ],
+   "sect": ".text",
+   "bytes": "4c8bb5c0050000e98cd1ffff",
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+  },
+  {
+   "name": "AIEVAL_RVA",
+   "value": "0xeba9d0",
+   "ver": "0.5.6",
+   "kind": "UNCLASSIFIED",
+   "locs": [
+    "src/lib.rs:2520"
+   ],
+   "sect": ".text",
+   "bytes": "415741564155415456575553",
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+  },
+  {
+   "name": "CVIEW_RVA",
+   "value": "0x104f060",
+   "ver": "0.5.6",
+   "kind": "UNCLASSIFIED",
+   "locs": [
+    "src/lib.rs:2418"
+   ],
+   "sect": ".text",
+   "bytes": "55415741565657534881ec88",
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+  },
+  {
+   "name": "EMIT_RVA",
+   "value": "0x10556d0",
+   "ver": "0.5.6",
+   "kind": "UNCLASSIFIED",
+   "locs": [
+    "src/lib.rs:1781"
+   ],
+   "sect": ".text",
+   "bytes": "555657534883ec78488d6c24",
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+  },
+  {
+   "name": "KZONE_RVA",
+   "value": "0x138f7d0",
+   "ver": "0.5.6",
+   "kind": "UNCLASSIFIED",
+   "locs": [
+    "src/lib.rs:2408"
+   ],
+   "sect": ".text",
+   "bytes": "554157415641554154565753",
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+  },
+  {
+   "name": "ADDBUFF_RVA",
+   "value": "0x139a5d0",
+   "ver": "0.5.6",
+   "kind": "UNCLASSIFIED",
+   "locs": [
+    "src/lib.rs:1247"
+   ],
+   "sect": ".text",
+   "bytes": "415741564155415456575348",
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+  },
+  {
+   "name": "CVIEW_APPLY_RVA",
+   "value": "0x1413830",
+   "ver": "0.5.6",
+   "kind": "UNCLASSIFIED",
+   "locs": [
+    "src/lib.rs:2421"
+   ],
+   "sect": ".text",
+   "bytes": "4883ec284889ca488b4c2478",
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+  },
+  {
+   "name": "CLONE_RVA",
+   "value": "0x14f43c0",
+   "ver": "0.5.6",
+   "kind": "UNCLASSIFIED",
+   "locs": [
+    "src/lib.rs:107"
+   ],
+   "sect": ".text",
+   "bytes": "554157415641554154565753",
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+  },
+  {
+   "name": "GRAB_RVA",
+   "value": "0x1504310",
+   "ver": "0.5.6",
+   "kind": "UNCLASSIFIED",
+   "locs": [
+    "src/lib.rs:22"
+   ],
+   "sect": ".text",
+   "bytes": "4157415641545657534883ec",
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+  },
+  {
+   "name": "BASEULT_RVA",
+   "value": "0x1556940",
+   "ver": "0.5.6",
+   "kind": "UNCLASSIFIED",
+   "locs": [
+    "src/lib.rs:100"
+   ],
+   "sect": ".text",
+   "bytes": "554157415641554154565753",
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+  },
+  {
+   "name": "ETICK_RVA",
+   "value": "0x1583de0",
+   "ver": "0.5.6",
+   "kind": "UNCLASSIFIED",
+   "locs": [
+    "src/lib.rs:667"
+   ],
+   "sect": ".text",
+   "bytes": "554157415641554154565753",
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+  },
+  {
+   "name": "RVA_ASSEMBLE",
+   "value": "0x1590010",
+   "ver": "0.5.6",
+   "kind": "UNCLASSIFIED",
+   "locs": [
+    "src/lib.rs:1308"
+   ],
+   "sect": ".text",
+   "bytes": "55564883ec68488d6c246048",
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+  },
+  {
+   "name": "BUFFPUSH_RVA",
+   "value": "0x15925c0",
+   "ver": "0.5.6",
+   "kind": "UNCLASSIFIED",
+   "locs": [
+    "src/lib.rs:1252"
+   ],
+   "sect": ".text",
+   "bytes": "41565657534881ec98000000",
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+  },
+  {
+   "name": "COMBINE_RVA",
+   "value": "0x159a430",
+   "ver": "0.5.6",
+   "kind": "UNCLASSIFIED",
+   "locs": [
+    "src/lib.rs:31"
+   ],
+   "sect": ".text",
+   "bytes": "415741564155415456575553",
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+  },
+  {
+   "name": "JT_RVA",
+   "value": "0x161b390",
+   "ver": "0.5.6",
+   "kind": "UNCLASSIFIED",
+   "locs": [
+    "src/lib.rs:94"
+   ],
+   "sect": ".text",
+   "bytes": "415741564155415456575553",
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+  },
+  {
+   "name": "COMBINE_APPLYS",
+   "value": "0x1802630",
+   "ver": "0.5.6",
+   "kind": "UNCLASSIFIED",
+   "locs": [
+    "src/lib.rs:40"
+   ],
+   "sect": ".text",
+   "bytes": "0200004889c148d1e983e001",
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+  },
+  {
+   "name": "COMBINE_APPLYS",
+   "value": "0x1802760",
+   "ver": "0.5.6",
+   "kind": "UNCLASSIFIED",
+   "locs": [
+    "src/lib.rs:40"
+   ],
+   "sect": ".text",
+   "bytes": "0f89330200004889ca48d1ea",
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+  },
+  {
+   "name": "INLINE@src/lib.rs:3200",
+   "value": "0x182ea50",
+   "ver": "0.5.6",
+   "kind": "UNCLASSIFIED",
+   "locs": [
+    "src/lib.rs:3200",
+    "src/lib.rs:3218"
+   ],
+   "sect": ".text",
+   "bytes": "7848898e600400000f104568",
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+  },
+  {
+   "name": "TAGSEL_RVA",
+   "value": "0x23964e0",
+   "ver": "0.5.6",
+   "kind": "UNCLASSIFIED",
+   "locs": [
+    "src/lib.rs:1643"
+   ],
+   "sect": ".text",
+   "bytes": "41565657534881ec98000000",
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+  },
+  {
+   "name": "ALLOC_RVA",
+   "value": "0x2ab4010",
+   "ver": "0.5.6",
+   "kind": "UNCLASSIFIED",
+   "locs": [
+    "src/lib.rs:42"
+   ],
+   "sect": ".text",
+   "bytes": "5556574883ec20488d6c2420",
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+  },
+  {
+   "name": "EFF_VT_BASE",
+   "value": "0x34200d8",
+   "ver": "0.5.6",
+   "kind": "UNCLASSIFIED",
+   "locs": [
+    "src/lib.rs:1372"
+   ],
+   "sect": ".rdata",
+   "bytes": "2bc241430100000028000000",
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+  },
+  {
+   "name": "INLINE@src/lib.rs:179",
+   "value": "0x4000000",
+   "ver": "0.5.6",
+   "kind": "UNCLASSIFIED",
+   "locs": [
+    "src/lib.rs:179"
+   ],
+   "sect": ".rdata",
+   "bytes": "9a1500440100000084030044",
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+  }
+ ]
+}

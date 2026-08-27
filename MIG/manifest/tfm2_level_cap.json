@@ -1,0 +1,33 @@
+{
+ "mod": "tfm2_level_cap",
+ "game_ver": "0.5.7",
+ "build": "",
+ "notes": [],
+ "offsets": [],
+ "entries": [
+  {
+   "name": "RVA_UI_CMP",
+   "value": "0x9035e9",
+   "ver": "0.5.7",
+   "kind": "UNCLASSIFIED",
+   "locs": [
+    "src/lib.rs:122"
+   ],
+   "sect": ".text",
+   "bytes": "483b88100d00000f873c0900",
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+  },
+  {
+   "name": "RVA_LEN_LOAD",
+   "value": "0x1090fba",
+   "ver": "0.5.7",
+   "kind": "UNCLASSIFIED",
+   "locs": [
+    "src/lib.rs:110"
+   ],
+   "sect": ".text",
+   "bytes": "498b96100d00004839d70f87",
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+  }
+ ]
+}

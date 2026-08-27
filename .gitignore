@@ -11,6 +11,8 @@
 !/.gitignore
 !/README.md
 !/MIGRATION.md
+!/MIG/
+!/MIG/**
 !/MOD_REGISTRY.md
 !/MIGRATE_NEXT.md
 
