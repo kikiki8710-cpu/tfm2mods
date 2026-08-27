@@ -482,7 +482,7 @@ unsafe fn nat_dd_set_options(root: &Node, target: &str, items: &[&str], sel: u64
 unsafe fn nat_dd_selected(root: &Node, target: &str) -> Option<usize> {
     if !dd_addr_valid() { return None; }
     let rb = find_rb(root, target)?;
-    let v = *((rb + 0x1788) as *const u64);
+    let v = *((rb + 0x1790) as *const u64); // 0.5.7 repin(2026-08-28): 0.5.6=0x1788, ui_kit RE +8
     if v == u64::MAX { None } else { Some(v as usize) }
 }
 // 펼침 목록 최대높이(px). 옵션 총높이가 넘으면 엔진이 스크롤바/클립 자동 처리.
