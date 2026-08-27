@@ -1,7 +1,7 @@
 # tfm2_meta_item_delegate 전용 빌드 — build_inj.ps1 과 동일하되 game_core/serde_json extern 추가.
 param([string]$Src = "C:\tfm2mods\tfm2_meta_item_delegate\src\lib.rs")
 $ModId = "tfm2_meta_item_delegate"
-$SDK  = "C:\tfm2mods\sdk_052\mod-sdk"   # ★0.5.2 SDK (게임 크레이트 rlib DIFF → RVA 0 모드도 재빌드 필수)
+$SDK  = "C:\tfm2mods\sdk_057\mod-sdk"   # ★0.5.7 SDK (2026-08-28 마이그) (게임 크레이트 rlib DIFF → RVA 0 모드도 재빌드 필수)
 $DEPS = "$SDK\deps"; $NAT = "$SDK\native"
 $MODAPI = (Get-ChildItem "$DEPS\libmod_api-*.rlib")[0].FullName
 $EUI    = (Get-ChildItem "$DEPS\libengine_ui-*.rlib")[0].FullName
