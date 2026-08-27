@@ -3567,8 +3567,8 @@ unsafe fn dd_set_options(root: &Node, target: &str, items: &[String], sel: u64) 
 /// 현재 선택 인덱스(runner+0x1788). u64::MAX = 미선택.
 unsafe fn dd_selected(root: &Node, target: &str) -> Option<usize> {
     let rb = find_rb(root, target)?;
-    if !readable(rb + 0x1788, 8) { return None; }
-    let v = *((rb + 0x1788) as *const u64);
+    if !readable(rb + 0x1790, 8) { return None; }
+    let v = *((rb + 0x1790) as *const u64); // 0.5.7 repin(2026-08-28): 0.5.6=0x1788
     if v == u64::MAX { None } else { Some(v as usize) }
 }
 static UINJ_TICK: AtomicU64 = AtomicU64::new(0);
