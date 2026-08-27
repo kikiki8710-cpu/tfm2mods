@@ -62,11 +62,17 @@ HEXP = re.compile(r'0x([0-9a-fA-F]{5,8})\b')
 CONST = re.compile(r'const\s+([A-Z_][A-Z0-9_]*)\s*:')
 
 
-def extract(mod):
-    """소스에서 RVA 대역 리터럴 전수 추출 -> {value: {'locs': [...], 'name': 최선 이름}}"""
+def extract(mod, exclude=None):
+    """소스에서 RVA 대역 리터럴 전수 추출 -> {value: {'locs': [...], 'name': 최선 이름}}
+    exclude: 컴파일 안 되는 파일(구버전 rva 파일·백업 등) 경로 접두 목록 — 매니페스트 'exclude' 필드."""
+    if exclude is None:
+        man = load_man(mod)
+        exclude = man.get('exclude', []) if man else []
     found = {}
     for path in sources(mod):
         rel = os.path.relpath(path, os.path.join(ROOT, mod)).replace('\\', '/')
+        if any(rel.startswith(x) for x in exclude):
+            continue
         raw = open(path, 'rb').read().decode('utf-8', 'replace')
         lines = strip_code(raw).split('\n')
         cur_const, const_line = None, -10
