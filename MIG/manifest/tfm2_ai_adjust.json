@@ -7,7 +7,8 @@
   "★HOLD 236건 = 컨테이너 본문변경 byte-patch 사이트(0.5.6 값 잔존이 아니라 **의도적 보류** — orig_table 가드가 blocked 처리 = fail-safe·오패치 불가). 해소하려면 컨테이너별 ghidra-re.",
   "해당 knob 는 사이트 부분 적용 상태(재핀된 사이트에만 적용) — imm_guard.txt 의 BLOCK 줄이 정상 로그다.",
   "TEXT_END 0x32687ff — 0.5.7 에서 .text 축소(방향 반전 주의).",
-  "로그/설명 문자열 속 참고 주소(STATUS_CTR·knobs DESCS)는 마이그 대상 아님 = ignore 처리됨."
+  "로그/설명 문자열 속 참고 주소(STATUS_CTR·knobs DESCS)는 마이그 대상 아님 = ignore 처리됨.",
+  "★MIG 교훈(2026-08-28): 구값이 이미 무효(0.5.3 잔재)인 엔트리는 바이트 이주가 오핀을 낳는다 — HR_AE_FN 0x10efff0 실사고. *_FN 류는 재핀 후 함수시작(프롤로그) 검증을 별도로 할 것."
  ],
  "offsets": [],
  "entries": [
@@ -14090,18 +14091,6 @@
    "curated": true
   },
   {
-   "name": "HR_AE_FN_RVA",
-   "value": "0x10efff0",
-   "ver": "0.5.7",
-   "kind": "UNCLASSIFIED",
-   "locs": [
-    "src/detour.rs:4634"
-   ],
-   "sect": ".text",
-   "bytes": "00000000004885f674154889",
-   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
-  },
-  {
    "name": "INLINE@src/disc19_repro.rs:797",
    "value": "0x1132680",
    "ver": "0.5.7",
@@ -14477,20 +14466,6 @@
    "curated": true
   },
   {
-   "name": "HR_AP_FN_RVA",
-   "value": "0x15730b0",
-   "ver": "0.5.6",
-   "kind": "BYTE_PATCH_HOLD",
-   "locs": [
-    "src/detour.rs:4635"
-   ],
-   "sect": ".text",
-   "bytes": "488954241055564883ec2848",
-   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
-   "note": "HOLD — 컨테이너 본문변경으로 정렬 불가(가드 blocked=fail-safe). NO_OWNER",
-   "curated": true
-  },
-  {
    "name": "INLINE@src/detour.rs:4323",
    "value": "0x1580f3d",
    "ver": "0.5.7",
@@ -14567,6 +14542,34 @@
    "sect": ".text",
    "bytes": "4983ff05488d0d585ce80148",
    "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+  },
+  {
+   "name": "HR_AE_FN_RVA",
+   "value": "0x15a1330",
+   "ver": "0.5.7",
+   "kind": "FN_START",
+   "locs": [
+    "src/detour.rs:4643"
+   ],
+   "sect": ".text",
+   "bytes": "564883ec204889ce4c89c141",
+   "method": "ghidra-re vtable+0x28 슬롯 역추적(2026-08-28)",
+   "curated": true,
+   "note": "HR_AE_FN(0.5.7 ghidra-re 실측 — 3차 오핀 0x10efff0 정정)"
+  },
+  {
+   "name": "HR_AP_FN_RVA",
+   "value": "0x15b50a0",
+   "ver": "0.5.7",
+   "kind": "FN_START",
+   "locs": [
+    "src/detour.rs:4644"
+   ],
+   "sect": ".text",
+   "bytes": "564883ec204889ce4c89c141",
+   "method": "ghidra-re vtable+0x28 슬롯 역추적(2026-08-28)",
+   "curated": true,
+   "note": "HR_AP_FN(0.5.7 실측)"
   },
   {
    "name": "INLINE@src/disc19_repro.rs:318",
@@ -15110,230 +15113,6 @@
    "curated": true
   },
   {
-   "name": "HR_AE_SLOTS",
-   "value": "0x31c7d48",
-   "ver": "0.5.6",
-   "kind": "BYTE_PATCH_HOLD",
-   "locs": [
-    "src/detour.rs:4638"
-   ],
-   "sect": ".text",
-   "bytes": "1049894010498b442418498b",
-   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
-   "note": "HOLD — 컨테이너 본문변경으로 정렬 불가(가드 blocked=fail-safe). 가드 없음(수동 판정 필요)",
-   "curated": true
-  },
-  {
-   "name": "HR_AP_SLOTS",
-   "value": "0x31dc6d8",
-   "ver": "0.5.6",
-   "kind": "BYTE_PATCH_HOLD",
-   "locs": [
-    "src/detour.rs:4643"
-   ],
-   "sect": ".text",
-   "bytes": "000041b9010000004889dae8",
-   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
-   "note": "HOLD — 컨테이너 본문변경으로 정렬 불가(가드 blocked=fail-safe). OWNER_MULTI",
-   "curated": true
-  },
-  {
-   "name": "HR_AE_SLOTS",
-   "value": "0x31dca98",
-   "ver": "0.5.6",
-   "kind": "BYTE_PATCH_HOLD",
-   "locs": [
-    "src/detour.rs:4638"
-   ],
-   "sect": ".text",
-   "bytes": "0f1f84000000000048895424",
-   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
-   "note": "HOLD — 컨테이너 본문변경으로 정렬 불가(가드 blocked=fail-safe). OWNER_MULTI",
-   "curated": true
-  },
-  {
-   "name": "HR_AP_SLOTS",
-   "value": "0x31f0e40",
-   "ver": "0.5.6",
-   "kind": "BYTE_PATCH_HOLD",
-   "locs": [
-    "src/detour.rs:4643"
-   ],
-   "sect": ".text",
-   "bytes": "000000488d4de841b9010000",
-   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
-   "note": "HOLD — 컨테이너 본문변경으로 정렬 불가(가드 blocked=fail-safe). OWNER_NONE",
-   "curated": true
-  },
-  {
-   "name": "HR_AP_SLOTS",
-   "value": "0x320b2b8",
-   "ver": "0.5.6",
-   "kind": "BYTE_PATCH_HOLD",
-   "locs": [
-    "src/detour.rs:4643"
-   ],
-   "sect": ".text",
-   "bytes": "74010000488d8d68070000e8",
-   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
-   "note": "HOLD — 컨테이너 본문변경으로 정렬 불가(가드 blocked=fail-safe). NO_OWNER",
-   "curated": true
-  },
-  {
-   "name": "HR_AE_SLOTS",
-   "value": "0x320b688",
-   "ver": "0.5.6",
-   "kind": "BYTE_PATCH_HOLD",
-   "locs": [
-    "src/detour.rs:4638"
-   ],
-   "sect": ".text",
-   "bytes": "8986e8050000488b85400700",
-   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
-   "note": "HOLD — 컨테이너 본문변경으로 정렬 불가(가드 blocked=fail-safe). OWNER_MULTI",
-   "curated": true
-  },
-  {
-   "name": "HR_AE_SLOTS",
-   "value": "0x32147d8",
-   "ver": "0.5.6",
-   "kind": "BYTE_PATCH_HOLD",
-   "locs": [
-    "src/detour.rs:4638"
-   ],
-   "sect": ".text",
-   "bytes": "f8080f826803000066480f7e",
-   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
-   "note": "HOLD — 컨테이너 본문변경으로 정렬 불가(가드 blocked=fail-safe). OWNER_MULTI",
-   "curated": true
-  },
-  {
-   "name": "HR_AP_SLOTS",
-   "value": "0x3214ca0",
-   "ver": "0.5.6",
-   "kind": "BYTE_PATCH_HOLD",
-   "locs": [
-    "src/detour.rs:4643"
-   ],
-   "sect": ".text",
-   "bytes": "00ba08000000e8044cf2ff90",
-   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
-   "note": "HOLD — 컨테이너 본문변경으로 정렬 불가(가드 blocked=fail-safe). OWNER_MULTI",
-   "curated": true
-  },
-  {
-   "name": "HR_AE_SLOTS",
-   "value": "0x3214db8",
-   "ver": "0.5.6",
-   "kind": "BYTE_PATCH_HOLD",
-   "locs": [
-    "src/detour.rs:4638"
-   ],
-   "sect": ".text",
-   "bytes": "4156415541545657534883ec",
-   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
-   "note": "HOLD — 컨테이너 본문변경으로 정렬 불가(가드 blocked=fail-safe). OWNER_MULTI",
-   "curated": true
-  },
-  {
-   "name": "HR_AE_SLOTS",
-   "value": "0x3228d10",
-   "ver": "0.5.6",
-   "kind": "BYTE_PATCH_HOLD",
-   "locs": [
-    "src/detour.rs:4639"
-   ],
-   "sect": ".text",
-   "bytes": "004c8975d0488945e0488b45",
-   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
-   "note": "HOLD — 컨테이너 본문변경으로 정렬 불가(가드 blocked=fail-safe). OWNER_MULTI",
-   "curated": true
-  },
-  {
-   "name": "HR_AP_SLOTS",
-   "value": "0x3234748",
-   "ver": "0.5.7",
-   "kind": "UNCLASSIFIED",
-   "locs": [
-    "src/detour.rs:4644"
-   ],
-   "sect": ".text",
-   "bytes": "fdffff48c744242001000000",
-   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
-   "note": "3차 재핀(2026-08-28) — 윈도 유일화/match_mid + 가드 imm 실측",
-   "curated": true
-  },
-  {
-   "name": "HR_AE_SLOTS",
-   "value": "0x3234a40",
-   "ver": "0.5.6",
-   "kind": "BYTE_PATCH_HOLD",
-   "locs": [
-    "src/detour.rs:4639"
-   ],
-   "sect": ".text",
-   "bytes": "e88b0be0fc904883c4285b5f",
-   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
-   "note": "HOLD — 컨테이너 본문변경으로 정렬 불가(가드 blocked=fail-safe). OWNER_MULTI",
-   "curated": true
-  },
-  {
-   "name": "HR_AP_SLOTS",
-   "value": "0x323fe60",
-   "ver": "0.5.6",
-   "kind": "BYTE_PATCH_HOLD",
-   "locs": [
-    "src/detour.rs:4644"
-   ],
-   "sect": ".text",
-   "bytes": "534883ec28488daa80000000",
-   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
-   "note": "HOLD — 컨테이너 본문변경으로 정렬 불가(가드 blocked=fail-safe). OWNER_MULTI",
-   "curated": true
-  },
-  {
-   "name": "HR_AE_SLOTS",
-   "value": "0x32485d0",
-   "ver": "0.5.6",
-   "kind": "BYTE_PATCH_HOLD",
-   "locs": [
-    "src/detour.rs:4639"
-   ],
-   "sect": ".text",
-   "bytes": "463a343b71f14c89ff48f7d7",
-   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
-   "note": "HOLD — 컨테이너 본문변경으로 정렬 불가(가드 blocked=fail-safe). OWNER_MULTI",
-   "curated": true
-  },
-  {
-   "name": "HR_AE_SLOTS",
-   "value": "0x325c330",
-   "ver": "0.5.7",
-   "kind": "UNCLASSIFIED",
-   "locs": [
-    "src/detour.rs:4639"
-   ],
-   "sect": ".text",
-   "bytes": "4c8b64242049833c24007444",
-   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
-   "note": "3차 재핀(2026-08-28) — 윈도 유일화/match_mid + 가드 imm 실측",
-   "curated": true
-  },
-  {
-   "name": "HR_AP_SLOTS",
-   "value": "0x325ca08",
-   "ver": "0.5.7",
-   "kind": "UNCLASSIFIED",
-   "locs": [
-    "src/detour.rs:4644"
-   ],
-   "sect": ".text",
-   "bytes": "00feffffff488955d04889ce",
-   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
-   "note": "3차 재핀(2026-08-28) — 윈도 유일화/match_mid + 가드 imm 실측",
-   "curated": true
-  },
-  {
    "name": "TEXT_END_RVA",
    "value": "0x32687ff",
    "ver": "0.5.7",
@@ -15344,34 +15123,6 @@
    "sect": "?",
    "bytes": "00",
    "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
-  },
-  {
-   "name": "HR_AE_SLOTS",
-   "value": "0x326e060",
-   "ver": "0.5.6",
-   "kind": "BYTE_PATCH_HOLD",
-   "locs": [
-    "src/detour.rs:4639"
-   ],
-   "sect": ".rdata",
-   "bytes": "744572726f724c6566746d6f",
-   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
-   "note": "HOLD — 컨테이너 본문변경으로 정렬 불가(가드 blocked=fail-safe). NO_OWNER",
-   "curated": true
-  },
-  {
-   "name": "HR_AP_SLOTS",
-   "value": "0x3279250",
-   "ver": "0.5.7",
-   "kind": "UNCLASSIFIED",
-   "locs": [
-    "src/detour.rs:4644"
-   ],
-   "sect": ".rdata",
-   "bytes": "46004600490004fb46004600",
-   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
-   "note": "3차 재핀(2026-08-28) — 윈도 유일화/match_mid + 가드 imm 실측",
-   "curated": true
   },
   {
    "name": "RVA_C8C_DMG_SHEET",
@@ -15408,6 +15159,216 @@
    "sect": ".rdata",
    "bytes": "30cee94001000000c0060000",
    "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+  },
+  {
+   "name": "HR_AE_SLOTS",
+   "value": "0x338acf0",
+   "ver": "0.5.7",
+   "kind": "RDATA",
+   "locs": [
+    "src/detour.rs:4647"
+   ],
+   "sect": ".rdata",
+   "bytes": "30135a410100000080f0fb40",
+   "method": "ghidra-re vtable 스캔 실측",
+   "curated": true,
+   "note": "vtable+0x28 슬롯(0.5.7 재정의 15곳)"
+  },
+  {
+   "name": "HR_AP_SLOTS",
+   "value": "0x3394758",
+   "ver": "0.5.7",
+   "kind": "RDATA",
+   "locs": [
+    "src/detour.rs:4652"
+   ],
+   "sect": ".rdata",
+   "bytes": "a0505b410100000080f0fb40",
+   "method": "ghidra-re vtable 스캔 실측",
+   "curated": true,
+   "note": "vtable+0x28 슬롯(0.5.7 재정의 15곳)"
+  },
+  {
+   "name": "HR_AE_SLOTS",
+   "value": "0x33a3ea8",
+   "ver": "0.5.7",
+   "kind": "RDATA",
+   "locs": [
+    "src/detour.rs:4647"
+   ],
+   "sect": ".rdata",
+   "bytes": "30135a410100000080f0fb40",
+   "method": "ghidra-re vtable 스캔 실측",
+   "curated": true,
+   "note": "vtable+0x28 슬롯(0.5.7 재정의 15곳)"
+  },
+  {
+   "name": "HR_AE_SLOTS",
+   "value": "0x33d1550",
+   "ver": "0.5.7",
+   "kind": "RDATA",
+   "locs": [
+    "src/detour.rs:4647"
+   ],
+   "sect": ".rdata",
+   "bytes": "30135a410100000080f0fb40",
+   "method": "ghidra-re vtable 스캔 실측",
+   "curated": true,
+   "note": "vtable+0x28 슬롯(0.5.7 재정의 15곳)"
+  },
+  {
+   "name": "HR_AP_SLOTS",
+   "value": "0x33d1ac0",
+   "ver": "0.5.7",
+   "kind": "RDATA",
+   "locs": [
+    "src/detour.rs:4652"
+   ],
+   "sect": ".rdata",
+   "bytes": "a0505b410100000080f0fb40",
+   "method": "ghidra-re vtable 스캔 실측",
+   "curated": true,
+   "note": "vtable+0x28 슬롯(0.5.7 재정의 15곳)"
+  },
+  {
+   "name": "HR_AP_SLOTS",
+   "value": "0x33e3440",
+   "ver": "0.5.7",
+   "kind": "RDATA",
+   "locs": [
+    "src/detour.rs:4652"
+   ],
+   "sect": ".rdata",
+   "bytes": "a0505b410100000080f0fb40",
+   "method": "ghidra-re vtable 스캔 실측",
+   "curated": true,
+   "note": "vtable+0x28 슬롯(0.5.7 재정의 15곳)"
+  },
+  {
+   "name": "HR_AE_SLOTS",
+   "value": "0x33e4080",
+   "ver": "0.5.7",
+   "kind": "RDATA",
+   "locs": [
+    "src/detour.rs:4647"
+   ],
+   "sect": ".rdata",
+   "bytes": "30135a410100000080f0fb40",
+   "method": "ghidra-re vtable 스캔 실측",
+   "curated": true,
+   "note": "vtable+0x28 슬롯(0.5.7 재정의 15곳)"
+  },
+  {
+   "name": "HR_AE_SLOTS",
+   "value": "0x33ecf70",
+   "ver": "0.5.7",
+   "kind": "RDATA",
+   "locs": [
+    "src/detour.rs:4647"
+   ],
+   "sect": ".rdata",
+   "bytes": "30135a410100000080f0fb40",
+   "method": "ghidra-re vtable 스캔 실측",
+   "curated": true,
+   "note": "vtable+0x28 슬롯(0.5.7 재정의 15곳)"
+  },
+  {
+   "name": "HR_AE_SLOTS",
+   "value": "0x33ff9f0",
+   "ver": "0.5.7",
+   "kind": "RDATA",
+   "locs": [
+    "src/detour.rs:4648"
+   ],
+   "sect": ".rdata",
+   "bytes": "30135a410100000080f0fb40",
+   "method": "ghidra-re vtable 스캔 실측",
+   "curated": true,
+   "note": "vtable+0x28 슬롯(0.5.7 재정의 15곳)"
+  },
+  {
+   "name": "HR_AP_SLOTS",
+   "value": "0x33ffb10",
+   "ver": "0.5.7",
+   "kind": "RDATA",
+   "locs": [
+    "src/detour.rs:4652"
+   ],
+   "sect": ".rdata",
+   "bytes": "a0505b410100000080f0fb40",
+   "method": "ghidra-re vtable 스캔 실측",
+   "curated": true,
+   "note": "vtable+0x28 슬롯(0.5.7 재정의 15곳)"
+  },
+  {
+   "name": "HR_AE_SLOTS",
+   "value": "0x33ffc30",
+   "ver": "0.5.7",
+   "kind": "RDATA",
+   "locs": [
+    "src/detour.rs:4648"
+   ],
+   "sect": ".rdata",
+   "bytes": "30135a410100000080f0fb40",
+   "method": "ghidra-re vtable 스캔 실측",
+   "curated": true,
+   "note": "vtable+0x28 슬롯(0.5.7 재정의 15곳)"
+  },
+  {
+   "name": "HR_AP_SLOTS",
+   "value": "0x341af18",
+   "ver": "0.5.7",
+   "kind": "RDATA",
+   "locs": [
+    "src/detour.rs:4652"
+   ],
+   "sect": ".rdata",
+   "bytes": "a0505b410100000080f0fb40",
+   "method": "ghidra-re vtable 스캔 실측",
+   "curated": true,
+   "note": "vtable+0x28 슬롯(0.5.7 재정의 15곳)"
+  },
+  {
+   "name": "HR_AE_SLOTS",
+   "value": "0x341b3d0",
+   "ver": "0.5.7",
+   "kind": "RDATA",
+   "locs": [
+    "src/detour.rs:4648"
+   ],
+   "sect": ".rdata",
+   "bytes": "30135a410100000080f0fb40",
+   "method": "ghidra-re vtable 스캔 실측",
+   "curated": true,
+   "note": "vtable+0x28 슬롯(0.5.7 재정의 15곳)"
+  },
+  {
+   "name": "HR_AP_SLOTS",
+   "value": "0x342c538",
+   "ver": "0.5.7",
+   "kind": "RDATA",
+   "locs": [
+    "src/detour.rs:4652"
+   ],
+   "sect": ".rdata",
+   "bytes": "a0505b410100000080f0fb40",
+   "method": "ghidra-re vtable 스캔 실측",
+   "curated": true,
+   "note": "vtable+0x28 슬롯(0.5.7 재정의 15곳)"
+  },
+  {
+   "name": "HR_AE_SLOTS",
+   "value": "0x3437ae0",
+   "ver": "0.5.7",
+   "kind": "RDATA",
+   "locs": [
+    "src/detour.rs:4648"
+   ],
+   "sect": ".rdata",
+   "bytes": "30135a410100000080f0fb40",
+   "method": "ghidra-re vtable 스캔 실측",
+   "curated": true,
+   "note": "vtable+0x28 슬롯(0.5.7 재정의 15곳)"
   },
   {
    "name": "RVA_GB_ATKCTX_CB30",

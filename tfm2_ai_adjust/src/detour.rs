@@ -4631,17 +4631,25 @@ unsafe fn apply_fix_skill2() {
 // ⚠기본 OFF. `fix_hp_ratio=1` 일 때만 적용된다.
 // ⚠실제 피해량은 안 바뀐다(예측 전용 API) — **AI 판단만** 바뀐다. 그래서 리플레이 재현은 깨진다.
 // ════════════════════════════════════════════════════════════════════════════════
-const HR_AE_FN_RVA: usize = 0x10efff0;   // AttackEffect·FixedAttackEffect 예측 leaf  ← 0.5.7 재핀 OWNER_UNIQUE·바이트동일 (0.5.6=0x155ffc0)
-const HR_AP_FN_RVA: usize = 0x15730b0;   // ApAttackEffect 예측 leaf
-/// AttackEffect / FixedAttackEffect vtable 의 `+0x28` 슬롯이 놓인 .rdata RVA
-const HR_AE_SLOTS: [usize; 10] = [
-    0x31c7d48, 0x31dca98, 0x320b688, 0x32147d8, 0x3214db8,
-    0x3228d10, 0x3234a40, 0x32485d0, 0x325c330, 0x326e060,
+// ★★0.5.7 재정의 (2026-08-28, ghidra-re 전수 대조 — RE6-08-28_fix_hp_ratio-0.5.7판정… 참조):
+//   ①공식 0.5.7 수정 = 뱀파이어를 **전용 이펙트 타입**(전용 predictor 실구현)으로 이관 ⟹ 뱀파이어는
+//     더 이상 제네릭 vtable 을 안 탐 = **이 노브의 영향권 밖**(대상 소멸). 신 전용 predictor 0x15b4660 도
+//     hp_ratio(+0x18)는 안 읽지만(소각은 여전히 예측 밖) 개입하려면 새 사이트(0x341efc0+0x28)가 필요.
+//   ②제네릭 AE/AP leaf 는 0.5.7 에도 hp_ratio 누락 그대로(0.5.3 바이트 완전동일) ⟹ 노브의 잔존 목적 =
+//     **워크샵 챔피언 한정**.
+//   ③~~구 상수 18곳(0.5.3 잔재)~~ 은 0.5.6 부터 이미 .text 내부를 가리키는 무효값 — 가드 상시 SKIP 으로
+//     노브가 수개월간 죽어 있었다(무해). 3차 재핀의 HR_AE_FN 0x10efff0 도 **오핀**(무효 구값의 바이트 이주).
+//     아래 값은 0.5.7 ghidra-re 실측 참값. 가드(전수대조)가 있으므로 어긋나면 SKIP = fail-safe 유지.
+const HR_AE_FN_RVA: usize = 0x15a1330;   // AttackEffect·FixedAttackEffect 예측 leaf (0.5.7 실측. ~~0x10efff0 오핀~~·0.5.6 참값은 미상)
+const HR_AP_FN_RVA: usize = 0x15b50a0;   // ApAttackEffect 예측 leaf (0.5.7 실측. ~~0x15730b0 = 0.5.3 잔재~~)
+/// AttackEffect / FixedAttackEffect vtable 의 `+0x28` 슬롯이 놓인 .rdata RVA (0.5.7 실측 9곳)
+const HR_AE_SLOTS: [usize; 9] = [
+    0x338acf0, 0x33a3ea8, 0x33d1550, 0x33e4080, 0x33ecf70,
+    0x33ff9f0, 0x33ffc30, 0x341b3d0, 0x3437ae0,
 ];
-/// ApAttackEffect vtable 의 `+0x28` 슬롯이 놓인 .rdata RVA
-const HR_AP_SLOTS: [usize; 8] = [
-    0x31dc6d8, 0x31f0e40, 0x320b2b8, 0x3214ca0,
-    0x3234748, 0x323fe60, 0x325ca08, 0x3279250,
+/// ApAttackEffect vtable 의 `+0x28` 슬롯이 놓인 .rdata RVA (0.5.7 실측 6곳)
+const HR_AP_SLOTS: [usize; 6] = [
+    0x3394758, 0x33d1ac0, 0x33e3440, 0x33ffb10, 0x341af18, 0x342c538,
 ];
 
 static HR_APPLIED: AtomicI64 = AtomicI64::new(-1);   // -1=미결정 / 0=원본 / 1=수정
