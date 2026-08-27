@@ -937,7 +937,15 @@ impl DraggableWindow {
 //   근거·검증 = REPORT	fm2_champ_pos_lock\RE6-08-23_네이티브드롭다운-0.5.6-재핀-옵션구조.md
 // ⚠RVA 는 패치마다 바뀐다. **호출 전 디스어셈블로 함수 프롤로그인지 1회 확인**할 것(5초).
 const DD_SETOPT_RVA:  usize = 0x1c2e00;   // ★★0.5.7 재핀(2026-08-27): match_fn UNIQUE, 프롤로그 24B 완전동일. 0.5.6=0x1c1710. ⚠ui_kit 은 공유모듈이라 모드별 스캔에서 누락되기 쉬운데, 이게 어긋나면 드롭다운을 여는 순간 **panic도 예외도 없이 즉사**한다(0.5.7 champ_pos_lock 포지션제한 팝업 크래시 실사고).  // (rcx=runner, rdx=sel, r8=&[cap,ptr,len])
-const DD_SELECTED_OFF: usize = 0x1788;   // runner + 현재선택 idx (u64) — 0.5.6 확인
+const DD_SELECTED_OFF: usize = 0x1790;   // runner + 현재선택 idx (usize, 미선택=usize::MAX) — ★0.5.7 확인
+//   0.5.6 = 0x1788 → 0.5.7 **0x1790**(+8). 0x1578~0x1788 구간에 8B 필드가 삽입돼 뒤쪽만 밀렸다
+//   (앞쪽 옵션 Vec 0x1528 · 팝업핸들 0x1570 은 불변). 구조체 크기 0x17C0 → 0x17C8.
+//   확정 근거 3중: ①set_item 첫 store (0.5.6 0x1c1710 `mov [rcx+0x1788],rdx` ↔ 0.5.7 0x1c2e00 `mov [rcx+0x1790],rdx`)
+//     ②클릭 히트테스트 store 0x1cd952 `mov [rdi+0x1790],r14`  ③SDK rlib 컴파일 asm `selected_item()` = `movq 6032(%rcx)`
+//   ⚠구 0x1788 은 0.5.7 에서 **팝업 상태 dword(현 0x1798)의 인접 필드**를 읽어 선택이 영영 안 잡혔다
+//     (실사고 2026-08-27: 드롭다운 UI 라벨은 바뀌는데 모드가 못 읽어 **지정이 저장조차 안 됐다**).
+//   ⬜후속 개선안: `engine_ui::runner::DropdownRunner` 는 pub 이고 `selected_item()` 게터가 있어
+//     `downcast_ref` 로 이 상수와 DD_SETOPT_RVA 를 **둘 다 제거** 가능(컴파일 확인됨·런타임 미검증).
 const DD_ICON_LEN: usize = 0xd0;         // 옵션 앞부분 = IconProperty. 0 채우기 안전(아래 주석)
 
 /// 드롭다운 옵션 1개 = 0xf8. 게임이 이 배열을 **그대로 소유**한다.
