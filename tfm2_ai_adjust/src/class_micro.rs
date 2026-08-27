@@ -678,7 +678,7 @@ pub(crate) fn micro_summary() -> String {
 //  근거 = REPORT\tfm2_ai_adjust\RE\2026-08-07_클래스별노브_확장가능성.md 및 후속 RE.
 // ════════════════════════════════════════════════════════════════════════════
 //  ⛔불가 판정(재시도 전 RE 문서를 먼저 볼 것 — 범위 한정 판정이다):
-//    · `ex_order_hold` 0xe747e3 — 교체창 4B(`add rax,0xa`) + 값이 **팀 오더** 단위(조건② 불만족).
+//    · `ex_order_hold` 0xd7f963 — 교체창 4B(`add rax,0xa`) + 값이 **팀 오더** 단위(조건② 불만족).
 //    · `sf_margin`     0xdb3f1b — 사이트 시점 self 미도달(self 로드가 뒤쪽 분기, role 소스 없음).
 //      ★"**A 방식(사이트에서 self 즉시 복원) 한정** 불가" — self 신원 역산은 별도 심층 RE 로 열릴 수 있다.
 //    · `bt_vision_mem` 11곳    — 로드값이 `[목격틱테이블 + 적side*0x2e8 + 대상role*8 + 0x1e0]` = **전역 목격
@@ -704,7 +704,7 @@ macro_rules! bt_vis {
 //     / ex_think_min(0.5.5부터 명령 분해 lea+add: add rcx,0x190 @0.5.6 0xebcf2c — LeaAdd 창·재료(rdi/[rbp+0x2c8]) 재설계 필요).
 pub(crate) static MICRO_SITES: &[MicroSite] = &[
     // ① cs_lead_attack — 평타 선행예측 틱. self 가 r14 에 그대로 살아 있는 가장 깨끗한 자리.
-    //    0xdb867b `mov r14,[rbx+rax*8]` = champions[myside][myrole] 이후 사이트까지 r14 write 없음.
+    //    0xeb25cb `mov r14,[rbx+rax*8]` = champions[myside][myrole] 이후 사이트까지 r14 write 없음.
     MicroSite {
         key: "cs_lead_attack", orig: 30, rva: 0xebd49a,
         win: &[0xb8, 0x1e, 0x00, 0x00, 0x00],            // mov eax,0x1e
@@ -712,7 +712,7 @@ pub(crate) static MICRO_SITES: &[MicroSite] = &[
         imm_off: 1, imm_w: 4,
         op: MOp::MovR32 { dst: reg::RAX },
         a: Src::Reg(reg::R14), b: Src::None, resolve: Resolve::Direct,
-        note: "self=r14 생존(0xdb867b 로드)",
+        note: "self=r14 생존(0xeb25cb 로드)",
     },
     // ② mv2_avoid_coef — 회피 반경 계수. fn 0xe587f0 의 5번째 인자(=champions[side][role])가 rbp 에 들어있다.
     MicroSite {
@@ -722,7 +722,7 @@ pub(crate) static MICRO_SITES: &[MicroSite] = &[
         imm_off: 3, imm_w: 4,
         op: MOp::ImulR64 { dst: reg::RAX, src: reg::RCX },
         a: Src::Reg(reg::RBP), b: Src::None, resolve: Resolve::Direct,
-        note: "self=rbp 생존(0xe58816 [rsp+0x180] 로드)",
+        note: "self=rbp 생존(0xd0a806 [rsp+0x180] 로드)",
     },
     // ③ mv2_avoid_margin — 회피 여유 상수. ②와 같은 경로·같은 rbp.
     MicroSite {
@@ -771,7 +771,7 @@ pub(crate) static MICRO_SITES: &[MicroSite] = &[
     //    인접 필드 `+0x28b8` 을 쓰고 이미 승인된 것과 정합.
     //    근거 = RE\2026-08-07_bt_vision_mem-ex_order_hold-재조사-둘다가능.md §B
     MicroSite {
-        key: "ex_order_hold", orig: 10, rva: 0xe747e3,   // ⚠0.5.6 미복구 = 0.5.4 stale 유지(win 검증 실패로 미설치=inert — 파일 헤더 노트 참조)
+        key: "ex_order_hold", orig: 10, rva: 0xd7f963,   // ⚠0.5.6 미복구 = 0.5.4 stale 유지(win 검증 실패로 미설치=inert — 파일 헤더 노트 참조)
         win: &[0x48, 0x83, 0xc0, 0x0a, 0x48, 0x39, 0xc6],   // add rax,0xa ; cmp rsi,rax
         pre: &[], tail: &[0x48, 0x39, 0xc6],                 // ★tail 이 최종 플래그 생산자 = 원본과 동일
         op: MOp::AddR64 { dst: reg::RAX },
@@ -784,7 +784,7 @@ pub(crate) static MICRO_SITES: &[MicroSite] = &[
     //    원본 = `lea rcx,[rax+rax*2+400]` ⟹ pre 로 `lea rcx,[rax+rax*2]` 실행 후 값을 더한다.
     //    ⚠원본 lea 는 플래그를 안 건드리므로 pushfq/popfq 로 넘겨준다(MOp::LeaAdd 가 그렇게 한다).
     MicroSite {
-        key: "ex_think_min", orig: 400, rva: 0xe76cb0,   // ⚠0.5.6 미복구 = 0.5.4 stale 유지(win 검증 실패로 미설치=inert — 파일 헤더 노트 참조)
+        key: "ex_think_min", orig: 400, rva: 0xd81e00,   // ⚠0.5.6 미복구 = 0.5.4 stale 유지(win 검증 실패로 미설치=inert — 파일 헤더 노트 참조)
         win: &[0x48, 0x8d, 0x8c, 0x40, 0x90, 0x01, 0x00, 0x00],   // lea rcx,[rax+rax*2+0x190]
         pre: &[0x48, 0x8d, 0x0c, 0x40],                            // lea rcx,[rax+rax*2]
         tail: &[],
@@ -809,19 +809,19 @@ pub(crate) static MICRO_SITES: &[MicroSite] = &[
    // self 재료는 11곳 공통 = `[rbp+0x610]`(arg5, 함수 전체 write 0회) + `[rbp+0x560]`(holder, write 1회).
    // 근거 = 같은 RE 문서 §A.
     // r15 ×5
-    bt_vis!(0xd389d6, &[0x49,0x83,0xc7,0x78,0x49,0x39,0xc7], reg::R15, &[0x49,0x39,0xc7]),
-    bt_vis!(0xd3b9e6, &[0x49,0x83,0xc7,0x78,0x49,0x39,0xc7], reg::R15, &[0x49,0x39,0xc7]),
-    bt_vis!(0xd3ba6e, &[0x49,0x83,0xc7,0x78,0x49,0x39,0xc7], reg::R15, &[0x49,0x39,0xc7]),
-    bt_vis!(0xd3baf6, &[0x49,0x83,0xc7,0x78,0x49,0x39,0xc7], reg::R15, &[0x49,0x39,0xc7]),
+    bt_vis!(0xea4346, &[0x49,0x83,0xc7,0x78,0x49,0x39,0xc7], reg::R15, &[0x49,0x39,0xc7]),
+    bt_vis!(0xea733d, &[0x49,0x83,0xc7,0x78,0x49,0x39,0xc7], reg::R15, &[0x49,0x39,0xc7]),
+    bt_vis!(0xea73c5, &[0x49,0x83,0xc7,0x78,0x49,0x39,0xc7], reg::R15, &[0x49,0x39,0xc7]),
+    bt_vis!(0xea744d, &[0x49,0x83,0xc7,0x78,0x49,0x39,0xc7], reg::R15, &[0x49,0x39,0xc7]),
     bt_vis!(0xd3c62b, &[0x49,0x83,0xc7,0x78,0x49,0x39,0xc7], reg::R15, &[0x49,0x39,0xc7]),
     // rdi ×1  ★이 자리가 기존 전역 imm 패치의 prefix 목록에서 빠져 있던 곳이다(08-07 결함 수정분)
-    bt_vis!(0xd394ee, &[0x48,0x83,0xc7,0x78,0x48,0x39,0xc7], reg::RDI, &[0x48,0x39,0xc7]),
+    bt_vis!(0xea4e5e, &[0x48,0x83,0xc7,0x78,0x48,0x39,0xc7], reg::RDI, &[0x48,0x39,0xc7]),
     // r14 ×1
-    bt_vis!(0xd3a0b8, &[0x49,0x83,0xc6,0x78,0x49,0x39,0xc6], reg::R14, &[0x49,0x39,0xc6]),
+    bt_vis!(0xea5a21, &[0x49,0x83,0xc6,0x78,0x49,0x39,0xc6], reg::R14, &[0x49,0x39,0xc6]),
     // rsi ×4
-    bt_vis!(0xd3b078, &[0x48,0x83,0xc6,0x78,0x48,0x39,0xc6], reg::RSI, &[0x48,0x39,0xc6]),
-    bt_vis!(0xd3b100, &[0x48,0x83,0xc6,0x78,0x48,0x39,0xc6], reg::RSI, &[0x48,0x39,0xc6]),
-    bt_vis!(0xd3b188, &[0x48,0x83,0xc6,0x78,0x48,0x39,0xc6], reg::RSI, &[0x48,0x39,0xc6]),
+    bt_vis!(0xea69cf, &[0x48,0x83,0xc6,0x78,0x48,0x39,0xc6], reg::RSI, &[0x48,0x39,0xc6]),
+    bt_vis!(0xea6a57, &[0x48,0x83,0xc6,0x78,0x48,0x39,0xc6], reg::RSI, &[0x48,0x39,0xc6]),
+    bt_vis!(0xea6adf, &[0x48,0x83,0xc6,0x78,0x48,0x39,0xc6], reg::RSI, &[0x48,0x39,0xc6]),
     bt_vis!(0xd3c587, &[0x48,0x83,0xc6,0x78,0x48,0x39,0xc6], reg::RSI, &[0x48,0x39,0xc6]),
 ];
 

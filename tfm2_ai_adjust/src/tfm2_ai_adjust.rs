@@ -1659,7 +1659,7 @@ static SHIM_BOTH: AtomicUsize = AtomicUsize::new(0);   // ★단일호출 2값�
 //   스택인자 오프셋 off-by-8 버그(arg5/6를 8B 낮게 읽음)로 게임에 garbage roster ptr 전달→freeze.
 //   완전대체 원칙(게임함수 호출X)에 따라 my_pregate(순수Rust 재현)로 대체. shim 영구 폐기.
 // r9(소환수 게터가 읽는 테이블) 명시 버전. ~~엔게이지TTD=ability_table(0x3599b30), disc4=ATK_VT(0x35e4d00)~~
-//   → ★**둘 다 0.5.2에선 `0x381e1e0` 하나로 통합**(ghidra-re 2026-07-23). 상세 = 아래 화이트리스트 주석.
+//   → ★**둘 다 0.5.2에선 `0x381e200` 하나로 통합**(ghidra-re 2026-07-23). 상세 = 아래 화이트리스트 주석.
 unsafe fn probe_basedmg_r9(e: usize, local_80: usize, exe: usize, r9_addr: usize) -> (i64, i64) {
     // ★★[07-22] **desc 화이트리스트 가드** — 이 함수는 r9_addr를 **vt+0x28 다형 shadow-call의 this**로 쓴다.
     //   stale/미검증 주소가 들어오면 그 자리의 임의 바이트(문자열 등)를 vtable로 삼아 호출 → **non-canonical → AV**.
@@ -1667,21 +1667,21 @@ unsafe fn probe_basedmg_r9(e: usize, local_80: usize, exe: usize, r9_addr: usize
     //   ⟹ **0.5.2 검증 완료된 desc만 통과**시키고 나머지는 기존 "실패" 반환값 `(-1,-1)`로 조기탈출(호출부는 전부 이 값을
     //      dmg=0/skip으로 처리하므로 기능적으로 안전, 정확도만 저하).
     //   ~~⚠잠복 지뢰 2건(미확정이라 차단): `0x35e4d00`(ATK_VT) / `0x3599b30`(ability_table)~~
-    //   → ✅**해소(ghidra-re 2026-07-23, 0.5.2)**: 둘 다 **`0x381e1e0`(= `RVA_C8C_DMG_SHEET`와 동일 값)** 으로 통합됐다.
-    //     ① **ATK_VT = `0x381e1e0` 확신도 HIGH(실바이트 확인)**: 0.4.13_5 `FUN_14206e530`의 0.5.2 대응 = **`FUN_141b93830`(0x1b93830)**
+    //   → ✅**해소(ghidra-re 2026-07-23, 0.5.2)**: 둘 다 **`0x381e200`(= `RVA_C8C_DMG_SHEET`와 동일 값)** 으로 통합됐다.
+    //     ① **ATK_VT = `0x381e200` 확신도 HIGH(실바이트 확인)**: 0.4.13_5 `FUN_14206e530`의 0.5.2 대응 = **`FUN_141b93830`(0x1b93830)**
     //        (imm 지문 + 엔티티 memdisp 카운트 전량 일치 + athlete 0x6a0/0x6a8→0x818/0x820 이동). 그 안의 두 사이트
-    //        `0x1b93bb6`/`0x1b94354` = `4c 8d 0d ...`(lea r9 → RVA 0x381e1e0) 직후 `41 ff 52 28`(call [r10+0x28]) — 우리 재현과 인자열 일치.
+    //        `0x1b93bb6`/`0x1b94354` = `4c 8d 0d ...`(lea r9 → RVA 0x381e200) 직후 `41 ff 52 28`(call [r10+0x28]) — 우리 재현과 인자열 일치.
     //        ⛔과거 오답 `0x38832a8`은 무관 함수 `FUN_142031110` 전용 클론.
     //     ② **ability_table = 별개 테이블이 아님(확신도 MED)**: `0x3599b30`은 **0.4.13_4에만** 존재했고 그 버전에서 플랜-AI 3함수가
     //        전부 그 하나를 공유 = ATK_VT와 같은 논리 desc의 CGU 클론. 0.5.2에서 `call [+0x28]`에 쓰이는 desc는 5개뿐인데
-    //        (`0x381e1e0`·`0x38832a8`·`0x38a22b0`·`0x38c61b0`·`0x38d1918`) **slot0(drop) 빼고 size 0x6a8·align 8·메서드 7슬롯이 전부 바이트 동일**
+    //        (`0x381e200`·`0x38832a8`·`0x38a22b0`·`0x38c61b0`·`0x38d1918`) **slot0(drop) 빼고 size 0x6a8·align 8·메서드 7슬롯이 전부 바이트 동일**
     //        ⟹ 우리가 쓰는 slot `0x30`(=`0x141bebd80`)도 동일 = 어느 클론이든 동작·위험 동등. ⟹ **별도 상수 유지 근거 없음 = 통합**.
     //        (0.5.2 "엔게이지 TTD"의 정확한 call 사이트 특정은 못 함 — 모드에 그 재현 코드 자체가 없어 대조 기준 부재. 기능 등가값이라는 뜻.)
     //   desc 추가 시 **반드시 0.5.2 원본 호출부에서 실측 확인 후**에만 등록할 것(주소가 그럴듯해 보인다는 이유로 넣지 말 것).
     {
         let base = exe_base();
         if base == 0 { return (-1, -1); }
-        // ★0.5.3 갱신(2026-07-29). ~~0.5.2 [0x381e1e0, 0x38d1918]~~ → 아래. 화이트리스트를 안 옮기면 **모든 호출이 차단**돼
+        // ★0.5.3 갱신(2026-07-29). ~~0.5.2 [0x381e200, 0x38d1918]~~ → 아래. 화이트리스트를 안 옮기면 **모든 호출이 차단**돼
         //   dmg=0 퇴화(크래시는 없음)하고, 반대로 구값을 그대로 통과시키면 0.5.3의 그 주소는 다른 데이터라 **AV**가 난다.
         //   둘 다 desc sanity {size=0x6a8, align=8, vt+0x30=**0xc7ead0**} 실측 통과 — 근거는 **rva_056.rs**(현행 시트) 해당 상수 주석.
         //   ⚠0.5.4에서 vt+0x30 이 0xc51bc0 → 0xc7ead0 으로 옮겼다. desc 주소와 **같이** 갱신해야 한다.
@@ -6045,11 +6045,11 @@ static VT30_CACHE: [(AtomicUsize, AtomicI64); VT30_CACHE_N] = [
     let b = exe_base();
     if b == 0 { return 0; }
     match gvt.wrapping_sub(b) {   // 2차: 확정 상수표(런타임 도출 실패 시 폴백)
-        // ⚠검증 시 주의: k0 arm은 `_ => 0`과 결과가 같아 **컴파일러가 제거**한다 → dll 바이트에 0x383cd68/0x38c5d78이
+        // ⚠검증 시 주의: k0 arm은 `_ => 0`과 결과가 같아 **컴파일러가 제거**한다 → dll 바이트에 0x383cd88/0x38c5d78이
         //   **없는 것이 정상**(k1·k2 4개만 링크됨). 07-22 배포본에서 실제로 확인 — stale로 오판하지 말 것.
-        0x383cd68 | 0x38c5d78 => 0,   // ★0.5.2 확정(ghidra-re 07-22 + 바이트 실측). ~~0.5.0_3 0x37d9ee0|0x386b080~~ / 0.5.1=0x38942f8|0x38a66d8
-        0x383d080 | 0x38c5aa0 => 1,   // stage1=튜토리얼/축소 컨텍스트. ~~0.5.0_3 0x37da190|0x386ae10~~ / 0.5.1=0x3894610|0x38a6400
-        0x383d358 | 0x38c57c8 => 2,   // stage2=정규+백그라운드 풀매치(movepri 대체 허용 조건). ~~0.5.0_3 0x37da400|0x386aba0~~ / 0.5.1=0x38948e8|0x38a6128
+        0x383cd88 | 0x38c5d78 => 0,   // ★0.5.2 확정(ghidra-re 07-22 + 바이트 실측). ~~0.5.0_3 0x37d9ee0|0x386b080~~ / 0.5.1=0x38942f8|0x38a66d8
+        0x383d0a0 | 0x38c5aa0 => 1,   // stage1=튜토리얼/축소 컨텍스트. ~~0.5.0_3 0x37da190|0x386ae10~~ / 0.5.1=0x3894610|0x38a6400
+        0x383d378 | 0x38c57c8 => 2,   // stage2=정규+백그라운드 풀매치(movepri 대체 허용 조건). ~~0.5.0_3 0x37da400|0x386aba0~~ / 0.5.1=0x38948e8|0x38a6128
         _ => 0,   // 미상 사본 → kind0 보수(타깃경로 활성)
     }
 }
@@ -6216,10 +6216,10 @@ unsafe fn my_disc4(subp: usize, p5: usize, p6: usize) -> i64 {
     // ── code7(early): target 홈리전(x/y) AND hp-low(hp<maxhp) ──
     let x = rd_u64(target + 0x660).unwrap_or(0);
     let y = rd_u64(target + 0x668).unwrap_or(0);
-    let xb: u64 = if team == 0 { 0xfa00 } else { 0xea600 };
-    let yb: u64 = if team == 0 { 0xea600 } else { 0xfa00 };
+    let xb: u64 = if team == 0 { 0xfa00 } else { 0xea670 };
+    let yb: u64 = if team == 0 { 0xea670 } else { 0xfa00 };
     let x_home = x <= xb && (x >= 0xd9c60 || team == 0);
-    let y_home = y <= yb && (y >= 0xdac00 || team != 0);
+    let y_home = y <= yb && (y >= 0xdac70 || team != 0);
     let hp = rd_u64(target + 0x670).unwrap_or(0);
     let maxhp = rd_u64(target + 0x628).unwrap_or(0);
     if x_home && y_home && hp < maxhp {
@@ -6255,7 +6255,7 @@ unsafe fn disc4_ttd_acc(obj: usize, vt: usize, target: usize, sim: usize, exe: u
     let cnt = rd_u64(vec + 0x190).unwrap_or(0) as usize;
     let ptr = rd_u64(vec + 0x188).unwrap_or(0) as usize;
     if !ptr_ok(ptr) || cnt > 64 { return 0; }
-    let r9 = exe + 0x381e1e0;                               // base getter r9(ATK_VT). ★0.5.2(was 0.4.x 0x35e4d00 stale) — ghidra-re 07-23 실바이트 확정
+    let r9 = exe + 0x381e200;                               // base getter r9(ATK_VT). ★0.5.2(was 0.4.x 0x35e4d00 stale) — ghidra-re 07-23 실바이트 확정
     // ★튜닝 계수는 루프불변 → 루프 밖 1회 조회(핫루프 tune() SipHash×최대320회 제거 = disc4 대폭 가속).
     let t_dmg_scale = tune("d4_dmg_scale", 1000) as u64;
     let t_div_base  = tune("d4_div_base", 100);
@@ -6494,7 +6494,7 @@ type Vt40Fn = unsafe extern "C" fn(usize, usize, usize, usize, usize);   // (out
 unsafe fn disc4_subplan_r13b(target: usize, sim: usize, exe: usize) -> i32 {
     let disc: i32 = 4;
     if rd_i32(target + 0x3d8).unwrap_or(0) > 0 { return disc; }   // 3d8>0 → 2nd_dispatch, r13b=disc
-    let atkvt = exe + 0x381e1e0;   // ★0.5.2(was 0.4.x 0x35e4d00 stale) — ghidra-re 07-23 실바이트 확정
+    let atkvt = exe + 0x381e200;   // ★0.5.2(was 0.4.x 0x35e4d00 stale) — ghidra-re 07-23 실바이트 확정
     let mh = rd_i64(target + 0x628).unwrap_or(0) - rd_i64(target + 0x670).unwrap_or(0);   // maxhp-hp
     // ── 능력1 (vth=*(target+0x4b8)) ──
     if rd_i32(target + 0x4f8).unwrap_or(-1) != -1 {
@@ -6520,7 +6520,7 @@ unsafe fn disc4_subplan_r13b(target: usize, sim: usize, exe: usize) -> i32 {
         }
     }
     // ── 능력2 (0x206eb13): dpi 선택 → dummy면 r13b=0, else vt30/vt40 ──
-    let dpi = if rd_i64(target + 0x5c8).unwrap_or(0) >= 3 { target + 0x500 } else { exe + 0x35e5730 };
+    let dpi = if rd_i64(target + 0x5c8).unwrap_or(0) >= 3 { target + 0x500 } else { exe + 0x35e5750 };
     if rd_i32(dpi + 0x30).unwrap_or(-1) == -1 { return 0; }   // dummy/플래그 -1 → r13b=0 → thr41
     let dvt = rd_u64(dpi + 8).unwrap_or(0) as usize;
     let dbuf0 = rd_u64(dpi).unwrap_or(0) as usize;
@@ -6652,13 +6652,13 @@ unsafe fn disc4_subplan_r13b(target: usize, sim: usize, exe: usize) -> i32 {
             if team > 1 { return -99; }
             let x = rd_u64(ent + 0x660).unwrap_or(0);
             let y = rd_u64(ent + 0x668).unwrap_or(0);
-            let r10 = if team == 0 { 0xfa00u64 } else { 0xea600 };
+            let r10 = if team == 0 { 0xfa00u64 } else { 0xea670 };
             let cond_x = ((x >= 0xd9c60) || team == 0) && (x <= r10);
             let mut home = false;
             if cond_x {
-                // ★FIX(disasm 0x1c38d06 cmove rcx,r8): y_bound = team==0?0xea600:0xfa00 (x_bound과 교차). 기존 swap버그=team0 home 영영false.
-                let rcy = if team != 0 { 0xfa00u64 } else { 0xea600 };
-                let cond_y = ((y >= 0xdac00) || team != 0) && (y <= rcy);
+                // ★FIX(disasm 0x1c38d06 cmove rcx,r8): y_bound = team==0?0xea670:0xfa00 (x_bound과 교차). 기존 swap버그=team0 home 영영false.
+                let rcy = if team != 0 { 0xfa00u64 } else { 0xea670 };
+                let cond_y = ((y >= 0xdac70) || team != 0) && (y <= rcy);
                 if cond_y {
                     let cur = rd_u64(ent + 0x670).unwrap_or(0);
                     let max = rd_u64(ent + 0x628).unwrap_or(0);
@@ -6886,7 +6886,7 @@ const MP_STAGE_DIAG: bool = false;  // [07-22] gvt 오프셋 자동탐색 진단
 const MP_KIND_TALLY: bool = false;
 // ★[07-22 2차] 계측축을 kind → **gvt 주소(vtable 사본)** 로 변경.
 //   1차 계측 결과: 튜토리얼도 kind0(270만 회 전량) ⟹ **kind만으로는 실경기/튜토리얼 구분 불가 = kind0 허용 게이트는 위험**.
-//   단 gvt 주소는 갈렸다: 실경기=0x38c5d78(family B=live) / 튜토리얼 첫등장=0x383cd68(family A=serde 템플릿).
+//   단 gvt 주소는 갈렸다: 실경기=0x38c5d78(family B=live) / 튜토리얼 첫등장=0x383cd88(family A=serde 템플릿).
 //   ⟹ family가 진짜 판별축인지 확정하려면 **주소별** 히스토그램이 필요(1차는 gvt를 첫등장에만 찍어 전환을 놓쳤음).
 const GVT_SLOTS: usize = 8;
 static GVT_HIST: [(AtomicUsize, AtomicU64); GVT_SLOTS] = [

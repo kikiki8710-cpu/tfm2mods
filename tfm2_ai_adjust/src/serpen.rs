@@ -619,8 +619,8 @@ unsafe fn serpen_reposition_fight(tick: i64, sim: usize, geom: usize, p4: u8) ->
 //   ⚠단 **슬롯 실존은 0x2f840(=mov rax,[rcx+0x28];ret 실코드 일치·정적슬롯 6개 확인)만 확증** — 나머지 8종은 0.5.5/0.5.6
 //   전섹션 포인터 검색 0건 + 실바이트가 게터 형태 아님 = **0.5.3 이후 stale 추정**(그 arm들은 종전에도 미발화·디폴트 폴백 = 동작 등가 유지).
 //   재활성화하려면 vtslot7~9 분석 재수행(RE 별건). 구 이력 = [0.5.3 재핀 2026-07-30] (0.5.0_3 방치 발견, 도구 vtslot7~9_053.py):
-//     0x19ed660→0xeedd20 · 0x19f2f60→0xeec0b0 · 0x19ed250→0x14867c0 · 0x1a3a240→0xf0c6a0 · 0xb024b0→0x1494930
-//     0x50fc80→0x9d360 · 0x9a1230→0x1309df0 · 0x1a13cb0→0x2f840 · 0x5418a0→0xc05b0
+//     0x19ed660→0xedf510 · 0x19f2f60→0xeec0b0 · 0x19ed250→0x173a610 · 0x1a3a240→0xefde90 · 0xb024b0→0x1494930
+//     0x50fc80→0x9d3d0 · 0x9a1230→0x1309df0 · 0x1a13cb0→0x2f840 · 0x5418a0→0xc05b0
 //   ⛔구값 병기 금지 — 구 RVA 전부가 0.5.3 `.text` 안이라 방치하면 **엉뚱한 함수를 이 게터로 오인**한다.
 unsafe fn c8c_cast_get(pair: usize, slot: usize) -> u64 {
     let data = rd_u64(pair).unwrap_or(0) as usize;
@@ -630,12 +630,12 @@ unsafe fn c8c_cast_get(pair: usize, slot: usize) -> u64 {
     let b = exe_base();
     if f <= b { return 0; }
     match f - b {
-        0xeedd20 => rd_u64(data + 0x38).unwrap_or(0),
+        0xedf510 => rd_u64(data + 0x38).unwrap_or(0),
         0xeec0b0 => rd_u64(data + 0x30).unwrap_or(0),
-        0x14867c0 => rd_u64(data + 0x18).unwrap_or(0),
-        0xf0c6a0 => rd_u64(data + 8).unwrap_or(0),
+        0x173a610 => rd_u64(data + 0x18).unwrap_or(0),
+        0xefde90 => rd_u64(data + 8).unwrap_or(0),
         0x1494930 => rd_u64(data).unwrap_or(0),
-        0x9d360 => 0,
+        0x9d3d0 => 0,
         0x1309df0 => 1,
         0x2f840 => rd_u64(data + 0x28).unwrap_or(0),
         0xc05b0 => 1,
@@ -724,12 +724,12 @@ unsafe fn c8c_structures(g0: usize, side: usize, out: &mut Vec<usize>) {
     if p != 0 { for i in 0..n { let e = rd_u64(p + i * 8).unwrap_or(0) as usize; if e != 0 { out.push(e); } } }
 }
 
-// 아군 홈존 판정(c8c520 (b)루프 제외조건; side0: x≤0xfa00&&0xc3500≤y<0xea601 || x≤0x27100&&0xdac00≤y≤0xea600 / side1 대칭)
+// 아군 홈존 판정(c8c520 (b)루프 제외조건; side0: x≤0xfa00&&0xc3570≤y<0xea671 || x≤0x27100&&0xdac70≤y≤0xea670 / side1 대칭)
 #[inline] fn c8c_in_home(side: usize, x: u64, y: u64) -> bool {
     if side == 0 {
-        (x <= 0xfa00 && y >= 0xc3500 && y < 0xea601) || (x <= 0x27100 && y >= 0xdac00 && y <= 0xea600)
+        (x <= 0xfa00 && y >= 0xc3570 && y < 0xea671) || (x <= 0x27100 && y >= 0xdac70 && y <= 0xea670)
     } else {
-        (y <= 0xfa00 && x >= 0xc3500 && x < 0xea601) || (y <= 0x27100 && x >= 0xdac00 && x <= 0xea600)
+        (y <= 0xfa00 && x >= 0xc3570 && x < 0xea671) || (y <= 0x27100 && x >= 0xdac70 && x <= 0xea670)
     }
 }
 
@@ -836,7 +836,7 @@ unsafe fn my_c8c520(level: i64, ss: usize, geom: usize, selfe: usize) -> u8 {
             //   ⟹ RVA 확정 전까지 shadow-call 자체를 봉인(§3 "위험 shadow-call은 게이트로 격리" 원칙).
             //   영향: b0=b1=0 → 이 항목 dmg=0 → **재현 정확도 저하(game≠mine 가능)**. 크래시는 원천 차단.
             //   해제 조건 = `RVA_C8C_DMG_SHEET` 0.5.2 확정(ghidra-re: desc 11→9 개수변동으로 순서대응 불가 → 별도 변별 필요) 후 true.
-            //   ✅**[07-22] 봉인 해제**: `RVA_C8C_DMG_SHEET` 0.5.2 확정(`0x381e1e0`, 3버전 대조 + 0.5.0_3 ground-truth로 방법 검증).
+            //   ✅**[07-22] 봉인 해제**: `RVA_C8C_DMG_SHEET` 0.5.2 확정(`0x381e200`, 3버전 대조 + 0.5.0_3 ground-truth로 방법 검증).
             //     desc 7중복본의 slot 0x30이 전부 동일하므로 오동작 위험 사실상 0. 재현 정확도(b0/b1) 복구.
             const C8C_SHEET_MIGRATED: bool = true;
             let (b0, b1) = if C8C_SHEET_MIGRATED {
@@ -1006,7 +1006,7 @@ unsafe fn my_serpen_battle(out: usize, mem: usize, tick: i64, rng: usize, sim: u
     }
     // ══ [C] 홈 코너 박스 (0.5.2 `@f416~f4da`) ★★07-23 신설 — 기존 재현에 **통째로 없던 종단** ══
     //   원본은 여기서 self를 재취득(vt[0x1a0], 동일 엔티티)하고 hpPct2를 **재계산**한다. 아래 [F]가 쓰는 HP가 이것.
-    //   좌표 리터럴 = `0xfa00`(64000)·`0xd9c60`(892000)·`0xea600`(960000)·`0xdac00`(896000) @f46e~f4c1.
+    //   좌표 리터럴 = `0xfa00`(64000)·`0xd9c60`(892000)·`0xea670`(960000)·`0xdac70`(896000) @f46e~f4c1.
     let s_us = side as usize;
     let in_x = if s_us == 0 { self_x <= 64000 } else { self_x >= 892000 && self_x <= 960000 };
     let in_y = if s_us == 0 { self_y >= 896000 && self_y <= 960000 } else { self_y <= 64000 };
@@ -1153,7 +1153,7 @@ unsafe fn my_defense_nexus_050(out: usize, cmd: usize, level: i64, rng: usize, s
     //     넥서스도 에픽도 아니다. 그리고 이 함수는 이름과 달리 **disc14 = EpicPoke(에픽 견제)** 다
     //     — `my_defense_nexus_050`이라는 함수명 자체가 구라벨(tfm2_ai_adjust.rs L7054 참조). 노브는 `sn_home_*`.
     let (sx, sy) = (rd_u64(selfe + 0x660).unwrap_or(0), rd_u64(selfe + 0x668).unwrap_or(0));
-    let (ep_lo, ep_hi, ep_x1, ep_y1) = (tune("sn_home_lo", 0xfa00) as u64, tune("sn_home_hi", 0xea600) as u64, tune("sn_home_x1", 0xd9c60) as u64, tune("sn_home_y1", 0xdac00) as u64);
+    let (ep_lo, ep_hi, ep_x1, ep_y1) = (tune("sn_home_lo", 0xfa00) as u64, tune("sn_home_hi", 0xea670) as u64, tune("sn_home_x1", 0xd9c60) as u64, tune("sn_home_y1", 0xdac70) as u64);
     let in_home = if side == 0 { sx <= ep_lo && sy >= ep_y1 && sy <= ep_hi }
                   else { sx >= ep_x1 && sx <= ep_hi && sy <= ep_lo };
     let self_max = rd_i64(selfe + 0x628).unwrap_or(1).max(1);

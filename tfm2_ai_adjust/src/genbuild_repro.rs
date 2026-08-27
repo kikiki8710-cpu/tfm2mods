@@ -12,7 +12,7 @@
 //    적/아군 거리루프는 f5db30 직접(roll 없음).
 // =====================================================================
 
-const F5_STUB: bool = false;   // ★재활성(2026-06-18): 크래시=환경(업데이트)확정. base getter RVA 마이그완료(0x18c3090/0x1bc6f10). e1b330이 my_f5db30 사용하므로 정확도 위해 실값.
+const F5_STUB: bool = false;   // ★재활성(2026-06-18): 크래시=환경(업데이트)확정. base getter RVA 마이그완료(0x18b9050/0x1bc6f10). e1b330이 my_f5db30 사용하므로 정확도 위해 실값.
 
 #[derive(Clone, Copy)]
 pub struct F80Ctx {
@@ -56,7 +56,7 @@ pub unsafe fn emulate_getter(getter_ptr: usize, self_ptr: usize) -> Option<i64> 
 //   stat0 = *(atk+0x600)(공격자 1차 유효스탯). g=base게터 주소, p1=능력데이터, atk=공격자엔티티.
 unsafe fn base_power(g: usize, p1: usize, atk: usize, exe: usize, depth: u32) -> Option<i64> {
     if depth > 8 { return Some(0); }
-    if g == exe + 0x18c3090 {   // 0.4.13_5(was 0x1937ca0) mask-sig 유일
+    if g == exe + 0x18b9050 {   // 0.4.13_5(was 0x1937ca0) mask-sig 유일
         let cnt = rd_u64(p1 + 0x28)?;
         if cnt > 64 { return Some(0); }
         let lb = rd_u64(p1 + 0x20)? as usize;     // 서브리스트 base (plVar3=lb+8)
@@ -487,9 +487,9 @@ pub struct GBCtx {
 #[inline] fn gb_in_box(team: u64, x: u64, y: u64) -> bool {
     let b = |v: u64, lo: u64, hi: u64| v.wrapping_sub(lo) < hi;   // v in [lo, lo+hi)
     if team == 1 {
-        (x < 0xfa01 && b(y, 0xc3500, 0x27101)) || (x < 0x27101 && b(y, 0xdac00, 0xfa01))
+        (x < 0xfa01 && b(y, 0xc3570, 0x27101)) || (x < 0x27101 && b(y, 0xdac70, 0xfa01))
     } else {
-        (b(x, 0xc3500, 0x27101) && y < 0xfa01) || (b(x, 0xdac00, 0xfa01) && y < 0x27101)
+        (b(x, 0xc3570, 0x27101) && y < 0xfa01) || (b(x, 0xdac70, 0xfa01) && y < 0x27101)
     }
 }
 unsafe fn gb_collect_cands(rhd: usize, team: u64) -> ([usize; 5], usize) {
@@ -584,7 +584,7 @@ fn my_dedc0(o40: i64, o88: u8, o8d: u8) -> Option<bool> {
 pub unsafe fn gb_region_d(d: &RegionD, exe: usize) -> Option<(i64, u64, u16)> {
     let _pg = perf_guard(3);
     // 임계(empirical concrete, ghidra-re >>2유도는 오류): r15=base/50(120 검증)·r14=3·base/100(180)·rbx=base/100(60).
-    let threat = |i: u8| rd_i64(exe + 0x35f5f28 + (i as usize).min(3) * 8).unwrap_or(100);
+    let threat = |i: u8| rd_i64(exe + 0x35f5f48 + (i as usize).min(3) * 8).unwrap_or(100);
     let base = (if d.l158 >= 3 { threat(d.out_8b) } else { 100 }).wrapping_mul(d.l130).wrapping_mul(TUNE_GB_MULT.load(Ordering::Relaxed)) / 100;   // ★튜닝: 영역D 거리임계 배율(t_gb%; 세 임계 60/120/180 비례)
     let rbx_thr = (base / tune("gb_rbx_div", 100).max(1)) as u64;          // ★튜닝: 근거리밴드 divisor(기본 base/100)
     let r15_thr = (base / tune("gb_r15_div", 50).max(1)) as u64;           // ★튜닝: 중거리밴드(기본 base/50)

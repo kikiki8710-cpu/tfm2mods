@@ -836,11 +836,11 @@ unsafe fn apply_objective_imm() {
     //   ⟹ 임계값에 **+1** 을 실어야 의미가 같다(원본 복원값 0x5f5e0 → write 0x5f5e1 로 자동 정합).
     //   prefix 도 `49 81 fa`(cmp r10) → **`49 81 f8`(cmp r8)** 로 바뀌었다.
     let cd1 = u32c(cd).saturating_add(1);
-    ok += patch_imm_bytes(base + 0xd33463, &[0x49,0x81,0xf8], 3, 4, cd1) as u32;                  // an_cull_dist #1 (리스트A)   // ←s2 da2143
-    ok += patch_imm_bytes(base + 0xd334f3, &[0x49,0x81,0xf8], 3, 4, cd1) as u32;                  // an_cull_dist #2 (리스트B)   // ←s2 da21d3
-    ok += patch_imm_bytes(base + 0xd33577, &[0x49,0x81,0xf8], 3, 4, cd1) as u32;                  // an_cull_dist #3 (리스트C)   // ←s2 da2257
-    ok += patch_imm_bytes(base + 0xd33f42, &[0x48,0x83,0xf8], 3, 1, b1(fh)) as u32;              // an_finish_hp #1 orig 0x38 (64bit div 경로)   // ←s2 da2c22
-    ok += patch_imm_bytes(base + 0xd33f4e, &[0x48,0x83,0xf8], 3, 1, b1(fh)) as u32;              // an_finish_hp #2 orig 0x38 (32bit div 경로) ★0.5.1은 #1만 패치=결함이었음   // ←s2 da2c2e
+    ok += patch_imm_bytes(base + 0xea0663, &[0x49,0x81,0xf8], 3, 4, cd1) as u32;                  // an_cull_dist #1 (리스트A)   // ←s2 da2143
+    ok += patch_imm_bytes(base + 0xea06f3, &[0x49,0x81,0xf8], 3, 4, cd1) as u32;                  // an_cull_dist #2 (리스트B)   // ←s2 da21d3
+    ok += patch_imm_bytes(base + 0xea0777, &[0x49,0x81,0xf8], 3, 4, cd1) as u32;                  // an_cull_dist #3 (리스트C)   // ←s2 da2257
+    ok += patch_imm_bytes(base + 0xea1142, &[0x48,0x83,0xf8], 3, 1, b1(fh)) as u32;              // an_finish_hp #1 orig 0x38 (64bit div 경로)   // ←s2 da2c22
+    ok += patch_imm_bytes(base + 0xea114e, &[0x48,0x83,0xf8], 3, 1, b1(fh)) as u32;              // an_finish_hp #2 orig 0x38 (32bit div 경로) ★0.5.1은 #1만 패치=결함이었음   // ←s2 da2c2e
     OBJIMM_SIG.store(sig, Ordering::Relaxed);
     // ★LOG_ON 무관 직접 write(설치확증 — d19_imm.txt·itemnet_guard와 동일). write_named은 LOG_ON 게이트라 프로덕션서 미확인됐음.
     if let Some(p) = pth("obj_imm.txt") {
@@ -865,7 +865,7 @@ unsafe fn apply_vis_imm() {
     let ok = patch_imm_bytes(base + 0xc8be33, &[0x48,0x81,0xc6], 3, 4, v);   // add rsi, imm32   // ←s2 c8c4e3
     VISIMM_SIG.store(sig, Ordering::Relaxed);
     if let Some(p) = pth("vis_imm.txt") {
-        let _ = fs::write(p, format!("vis_window={} applied={}/1 @0xc8c4e3(0.5.3) @base{:#x}\n", vw, ok as u32, base));
+        let _ = fs::write(p, format!("vis_window={} applied={}/1 @0xc7ee13(0.5.3) @base{:#x}\n", vw, ok as u32, base));
     }
 }
 
@@ -903,7 +903,7 @@ unsafe fn apply_visshort_imm() {
     }
     ok += patch_imm_bytes(base + 0xce3ade, &[0x48,0x83,0xc6], 3, 1, enc(jungle)) as u32;   // ←s2 d6754e
     // ── check: 공용 bool 헬퍼 0x12b6e20 — add rbx ──
-    ok += patch_imm_bytes(base + 0xf3d658, &[0x48,0x83,0xc3], 3, 1, enc(check)) as u32;   // ⛔s2 미확정(스테일): f3d658
+    ok += patch_imm_bytes(base + 0xf2eff8, &[0x48,0x83,0xc3], 3, 1, enc(check)) as u32;   // ⛔s2 미확정(스테일): f3d658
     // ── nexus: 헬퍼 0xc8e4e0(add r13 — ⚠disc19 관찰 shadow-CALL 대상과 동일 함수=값 일관 자동 유지)·0xd10d00(add r14) ──
     ok += patch_imm_bytes(base + 0xebaa4e, &[0x49,0x83,0xc5], 3, 1, enc(nexus)) as u32;   // ←s2 db6ade
     ok += patch_imm_bytes(base + 0xcc5633, &[0x49,0x83,0xc6], 3, 1, enc(nexus)) as u32;   // ←s2 e23c83
@@ -948,9 +948,9 @@ unsafe fn apply_gank_imm() {
     const F2A: [i64; 4] = [1, 2, 4, 8];
     const A_SITES: [(usize, u8, [u8; 3], usize, u8, [u8; 3], bool); 5] = [
         (0xe642a5, 0x89, [0x48,0x8d,0x0c], 0xe642a9, 0x48, [0x48,0x8d,0x34], false), // A1 passive_jungle 10초
-        (0xe64d88, 0x49, [0x48,0x8d,0x0c], 0xe64d8c, 0x88, [0x48,0x8d,0x34], false), // A2 passive_jungle 12초
+        (0xd6ff08, 0x49, [0x48,0x8d,0x0c], 0xd6ff0c, 0x88, [0x48,0x8d,0x34], false), // A2 passive_jungle 12초
         (0xe8e89e, 0x89, [0x48,0x8d,0x0c], 0xe8e8a2, 0x49, [0x48,0x8d,0x0c], true),  // A3 GankPlan 수락 15초
-        (0xea1a10, 0x89, [0x48,0x8d,0x0c], 0xea1a14, 0x49, [0x48,0x8d,0x3c], true),  // A4 핸들러 15초
+        (0xdad550, 0x89, [0x48,0x8d,0x0c], 0xdad554, 0x49, [0x48,0x8d,0x3c], true),  // A4 핸들러 15초
         (0xea20d5, 0x89, [0x48,0x8d,0x0c], 0xea20d9, 0x48, [0x48,0x8d,0x1c], false), // A5 핸들러 10초
     ];
     for (r1, o1, p1, r2, o2, p2, mul2) in A_SITES {
@@ -1115,10 +1115,10 @@ unsafe fn apply_cast_imm() {
     if !micro_taken("cs_lead_attack") {
     p!(base + 0xebd49a, &[0xb8], 1, 4, b4(la, 30));   // ←0.5.3 cb3efd  ★재조사로 복구: lead 30 (053 5곳→054 2곳 통합, 나머지 4키는 보류)  ★41bc(6B)→b8(5B) 로 인코딩 축소 ⟹ imm_off 2→1   // ←0.5.3 db869a
     }
-    pskip!(base + 0xcb440a, &[0xb9],      1, 4, b4(la, 30));   // ⛔0.5.4 미확정: 시그 2→0 / 완화 4→2 (골격 99%)
+    pskip!(base + 0xca688a, &[0xb9],      1, 4, b4(la, 30));   // ⛔0.5.4 미확정: 시그 2→0 / 완화 4→2 (골격 99%)
     pskip!(base + 0xcb4781, &[0xb9],      1, 4, b4(ls, 30));   // ⛔0.5.4 미확정: 시그 2→0 / 완화 4→2 (골격 99%)
-    pskip!(base + 0xcb5a7d, &[0xbb],      1, 4, b4(ls2, 30));   // ⛔0.5.4 미확정: 시그 1→0 / 완화 4→2 (골격 99%)
-    pskip!(base + 0xcb6936, &[0xba],      1, 4, b4(lst, 30));   // ⛔0.5.4 미확정: 시그 1→0 / 완화 4→2 (골격 99%)
+    pskip!(base + 0xca7e6d, &[0xbb],      1, 4, b4(ls2, 30));   // ⛔0.5.4 미확정: 시그 1→0 / 완화 4→2 (골격 99%)
+    pskip!(base + 0xca8d26, &[0xba],      1, 4, b4(lst, 30));   // ⛔0.5.4 미확정: 시그 1→0 / 완화 4→2 (골격 99%)
     p!(base + 0xec19ba, &[0x48,0x6b,0x85,0x60,0x02,0x00,0x00], 7, 1, b1(lu, 60));   // ←0.5.3 cb8036   // ←0.5.3 dbcbba
     p!(base + 0xec1b67, &[0x48,0x6b,0x86,0x40,0x06,0x00,0x00], 7, 1, b1(lu, 60));   // ←0.5.3 cb81d7   // ←0.5.3 dbcd67
     p!(base + 0xec1445, &[0xb9],      1, 4, sq(ur, 36_000_000));          // 6000²   // ←0.5.3 cb7ac9   // ←0.5.3 dbc645
@@ -1156,9 +1156,9 @@ unsafe fn apply_cast_imm() {
     // ★0.5.4: 명령 모양이 바뀌었다. 053 `add rcx,0x190`(7B, imm off 3)
     //   → 054 `lea rcx,[rax+rax*2+0x190]`(8B, imm off **4**). 앞 명령의 ×3 SIB 가 합쳐진 것.
     if !micro_taken("ex_think_min") {   // ★[08-07] 마이크로 디투어와 상호배타
-    pskip!(base + 0xe76cb0, &[0x48,0x8d,0x8c,0x40], 4, 4, b4(tmin, 400));   // ←0.5.3 d0cb6b   // ⛔0.5.4 미확정: 시그 1→0 / 완화 1→0 (골격 96%)
+    pskip!(base + 0xd81e00, &[0x48,0x8d,0x8c,0x40], 4, 4, b4(tmin, 400));   // ←0.5.3 d0cb6b   // ⛔0.5.4 미확정: 시그 1→0 / 완화 1→0 (골격 96%)
     }
-    pskip!(base + 0xe76cba, &[0x48,0x8d,0x04,0x85], 4, 4, b4(tmax, 800));   // ←0.5.3 d0cb74   // ⛔0.5.4 미확정: 시그 1→0 / 완화 1→0 (골격 96%)
+    pskip!(base + 0xd81e0a, &[0x48,0x8d,0x04,0x85], 4, 4, b4(tmax, 800));   // ←0.5.3 d0cb74   // ⛔0.5.4 미확정: 시그 1→0 / 완화 1→0 (골격 96%)
 
     CASTIMM_SIG.store(sig, Ordering::Relaxed);
     if let Some(pp) = pth("cast_imm.txt") {
@@ -1279,7 +1279,7 @@ unsafe fn apply_score_imm() {
     // ── ④ 대기(line_wait) / 라인 안전(line_safe) ──
     p!(base + 0xdcdba1, &[0x48,0xb9], 2, 8, sqp(lwd, 32_400_000_001));      // 180000²+1   // ←0.5.3 d971b6   // ←0.5.3 e721d3
     p!(base + 0xdcdeac, &[0x48,0x2d], 2, 4, b4(lwb, 180_000));   // ←0.5.3 d974c9   // ←0.5.3 e727c4
-    for a in [0xdcd7fausize, 0xdcde1e, 0xdce49c] {
+    for a in [0xdcd7fausize, 0xdcde1e, 0xcbe4c2] {
         p!(base + a, &[0x48,0xc7,0x85], 7, 4, b4(lwr, 80_000));
     }
     for a in [0xdcc092usize, 0xdcc173] {
@@ -1288,7 +1288,7 @@ unsafe fn apply_score_imm() {
     // ── ⑤ 이동 실행층 ──
     p!(base + 0xe3ca63, &[0x48,0x81,0xfa], 3, 4, sqp(mvb, 256_000_001));    // 16000²+1   // ←0.5.3 d87f22   // ←0.5.3 e077c3
     p!(base + 0xe42329, &[0x48,0x81,0xfa], 3, 4, sq(mvh, 144_000_000));     // 12000²   // ←0.5.3 d89ad0   // ←0.5.3 e0d089
-    p!(base + 0xd42611, &[0x48,0xb9], 2, 8, sqp(mvt, 14_400_000_001));   // ←0.5.3 c7b4a5  ★재조사로 복구: mvt ★자동짝 de0680은 오답이었다   // ←0.5.3 ca8132
+    p!(base + 0xeae562, &[0x48,0xb9], 2, 8, sqp(mvt, 14_400_000_001));   // ←0.5.3 c7b4a5  ★재조사로 복구: mvt ★자동짝 de0680은 오답이었다   // ←0.5.3 ca8132
 
     SCOREIMM_SIG.store(sig, Ordering::Relaxed);
     if let Some(pp) = pth("score_imm.txt") {
@@ -1542,7 +1542,7 @@ unsafe fn apply_move_imm() {
     //   여기를 패치하면 xref **143곳 전부**(death_battle·team_plan·epic·serpen·ganker…)가 바뀐다.
     //   ⟹ 노브 의미가 "이동 점수 한정" → **"전역 시야 기억"** 으로 달라져 키를 새로 뒀다.
     //   ⚠옛 키(mv_vision_mem)의 알리아스를 두지 않는다 — 옛 값이 조용히 전역 적용되면 더 위험하다.
-    pskip!(base + 0xf3d658, &[0x48,0x83,0xc3], 3, 1, b1(vmg, 120));   // ⛔0.5.4 미확정: src=?
+    pskip!(base + 0xf2eff8, &[0x48,0x83,0xc3], 3, 1, b1(vmg, 120));   // ⛔0.5.4 미확정: src=?
 
     MOVEIMM_SIG.store(sig, Ordering::Relaxed);
     if let Some(pp) = pth("move_imm.txt") {
@@ -1750,39 +1750,39 @@ unsafe fn apply_pe_imm() {
     p!(base + 0xd1e0d8, &[0x48,0x81,0xfa], 3, 4, dsh(pflt, 87_890_624, 8, 0));   // ←0.5.3 ccd108   // ←0.5.3 cabc48
     // ↓0.5.4: prefix 가 사이트마다 달라져 루프를 펼침(원래 `for a in [..]`)
     p!(base + 0xd1e526, &[0x48,0xbf], 2, 8, sq(pflt, 0x5_3D1A_C100));   // ←0.5.3 ccd76e  ★재조사로 복구: pflt (053 3곳=재로드→054 1곳)   // ←0.5.3 cac08c
-    pskip!(base + 0xccd78e, &[0x49,0xbb], 2, 8, sq(pflt, 0x5_3D1A_C100));   // ⛔0.5.4 미확정: 시그 3→0 / 완화 3→1 (골격 86%)
-    pskip!(base + 0xccdad8, &[0x49,0xbb], 2, 8, sq(pflt, 0x5_3D1A_C100));   // ⛔0.5.4 미확정: 시그 3→0 / 완화 3→1 (골격 86%)
-    for a in [0xd1cbcausize, 0xd1d2fa] {
+    pskip!(base + 0xcedf7e, &[0x49,0xbb], 2, 8, sq(pflt, 0x5_3D1A_C100));   // ⛔0.5.4 미확정: 시그 3→0 / 완화 3→1 (골격 86%)
+    pskip!(base + 0xcee2c8, &[0x49,0xbb], 2, 8, sq(pflt, 0x5_3D1A_C100));   // ⛔0.5.4 미확정: 시그 3→0 / 완화 3→1 (골격 86%)
+    for a in [0xd1cbcausize, 0xd261ca] {
         p!(base + a, &[0x49,0x81,0xfe], 3, 4, dsh(pnea, 19_140_625, 8, 1));
     }
-    for a in [0xd1ca06usize, 0xd1cdc6] {
+    for a in [0xd1ca06usize, 0xd259f6] {
         p!(base + a, &[0x49,0x81,0xfe], 3, 4, dsh(pnea, 19_140_624, 8, 0));
     }
     // ★0.5.4: **원본값이 +1 됐다**(0xf4240000→0xf4240001) = 비교 부등호가 뒤집혔다.
     //   그래서 sq → sqp 로 바꾼다. 값만 옮기면 가드에 막혀 조용히 죽는다.
     p!(base + 0xd1e099, &[0xb8], 1, 4, sqp(pmin, 4_096_000_001));   // ←0.5.3 ccd3f3   // ←0.5.3 cabc0a
-    p!(base + 0xd1fd6a, &[0x48,0x81,0xf9], 3, 4, dsh(pcha, 9_765_625, 10, 0));   // ←0.5.3 ccefaa   // ←0.5.3 cad98a
+    p!(base + 0xd28b0a, &[0x48,0x81,0xf9], 3, 4, dsh(pcha, 9_765_625, 10, 0));   // ←0.5.3 ccefaa   // ←0.5.3 cad98a
     p!(base + 0xd1eae2, &[0x49,0x81,0xf8], 3, 4, dsh(pfld, 244_140_624, 8, 0));   // ←0.5.3 ccdcf1   // ←0.5.3 cac640
     p!(base + 0xd20f1a, &[0x48,0xb8], 2, 8, sqp(pcnt, 0x3_5A4E_9001));   // ←0.5.3 cd01f5   // ←0.5.3 caeb9b
-    p!(base + 0xd217aa, &[0x48,0xb8], 2, 8, sq(pcnt, 0x3_5A4E_9000));   // ←0.5.3 cd0aab   // ←0.5.3 caf40a
+    p!(base + 0xd2a58a, &[0x48,0xb8], 2, 8, sq(pcnt, 0x3_5A4E_9000));   // ←0.5.3 cd0aab   // ←0.5.3 caf40a
     // ── ② 선형 반경·여유 ──
-    for a in [0xd1f335usize, 0xd1f366, 0xd1f4c5, 0xd1f4f6, 0xd1f695, 0xd1f6c6, 0xd1f825,
-              0xd1f856, 0xd1f9f5, 0xd1fa26, 0xd1fb85, 0xd1fbb6, 0xd212d4, 0xd21301] {
+    for a in [0xd1f335usize, 0xd28086, 0xd28205, 0xd28236, 0xd1f695, 0xd1f6c6, 0xd1f825,
+              0xd1f856, 0xd1f9f5, 0xd1fa26, 0xd1fb85, 0xd1fbb6, 0xd2a0b4, 0xd21301] {
         p!(base + a, &[0x49,0x81,0xc0], 3, 4, b4(prea, 80_000));
     }
     for a in [0xd202a3usize, 0xd2051b, 0xd20763] {
         p!(base + a, &[0x48,0x81,0xc1], 3, 4, b4(prea, 80_000));
     }
-    for a in [0xd21449usize, 0xd21476, 0xd215a9, 0xd215da] {
+    for a in [0xd21449usize, 0xd21476, 0xd2a389, 0xd215da] {
         p!(base + a, &[0x49,0x81,0xc1], 3, 4, b4(prea, 80_000));
     }
-    for a in [0xd1c33eusize, 0xd1e8b5] { p!(base + a, &[0x48,0x05], 2, 4, b4(pband, 32_000)); }
+    for a in [0xd1c33eusize, 0xd27595] { p!(base + a, &[0x48,0x05], 2, 4, b4(pband, 32_000)); }
     p!(base + 0xd20b05, &[0x48,0x05], 2, 4, b4(pshot, 20_000));   // ←0.5.4 cae7a8 (align복구)
-    for a in [0xd20dd0usize, 0xd20e9e, 0xd2181c] {
+    for a in [0xd20dd0usize, 0xd29c9c, 0xd2181c] {
         p!(base + a, &[0x48,0x81,0xc2], 3, 4, b4(pblk, 28_000));
     }
     p!(base + 0xd1da4e, &[0x48,0x05], 2, 4, b4(ptwr, 18_000));   // ←0.5.3 ccccc4   // ←0.5.3 cab59d
-    p!(base + 0xd1ec71, &[0x49,0x81,0xc1], 3, 4, b4(ptwr, 18_000));   // ←0.5.3 ccde6f   // ←0.5.3 cac7cd
+    p!(base + 0xd2794d, &[0x49,0x81,0xc1], 3, 4, b4(ptwr, 18_000));   // ←0.5.3 ccde6f   // ←0.5.3 cac7cd
     // ── ③ 캡·비율 ──
     //   ⚠150 캡은 `cmp`와 `mov`가 **쌍**이라 둘 다 안 고치면 의미가 어긋난다.
     //   실측된 cmp 인코딩 5종·mov 인코딩 2종. `48 3d`(cmp rax)는 prefix가 2바이트라 imm 오프셋도 2다.
@@ -1805,25 +1805,25 @@ unsafe fn apply_pe_imm() {
         (0xd1dfcc, &[0xb8], 1),
         (0xd1e2dd, &[0x48,0x81,0xf9], 3),
         (0xd1e2e4, &[0xb8], 1),
-        (0xd1e68c, &[0x49,0x81,0xfd], 3),
-        (0xd1e693, &[0xb8], 1),
+        (0xd2736c, &[0x49,0x81,0xfd], 3),
+        (0xd27373, &[0xb8], 1),
         (0xd1ece9, &[0x48,0x3d], 2),
         (0xd1ecef, &[0xb9], 1),
-        (0xd1ef8d, &[0x48,0x3d], 2),
-        (0xd1ef93, &[0xb9], 1),
+        (0xd27c6c, &[0x48,0x3d], 2),
+        (0xd27c72, &[0xb9], 1),
         (0xd1f126, &[0x48,0x3d], 2),
         (0xd1f12c, &[0xb9], 1),
         (0xd20cb2, &[0x49,0x81,0xfc], 3),
         (0xd20cb9, &[0xb8], 1),
     ];
     for &(a, pre, off) in PE_CAP.iter() { p!(base + a, pre, off, 4, b4(pcap, 150)); }
-    p!(base + 0xd1e36d, &[0x48,0x3d], 2, 4, b4(ppcap, 140));   // ←0.5.3 ccd5c5   // ←0.5.3 cabedd
-    p!(base + 0xd1e373, &[0xbe], 1, 4, b4(ppcap, 140));   // ←0.5.3 ccd5cb   // ←0.5.3 cabee3
+    p!(base + 0xd2705d, &[0x48,0x3d], 2, 4, b4(ppcap, 140));   // ←0.5.3 ccd5c5   // ←0.5.3 cabedd
+    p!(base + 0xd27063, &[0xbe], 1, 4, b4(ppcap, 140));   // ←0.5.3 ccd5cb   // ←0.5.3 cabee3
     // ↓0.5.4: prefix 가 사이트마다 달라져 루프를 펼침(원래 `for a in [..]`)
     p!(base + 0xd1dc16, &[0x44,0x69,0xc0], 3, 4, b4(pfar, 656));   // ←0.5.3 ccce81  ★재조사로 복구: pfar 656 #1  ★★imm_off 2→3 — 0.5.4에서 REX 접두가 붙어 즉치가 1B 밀렸다(크래시 원인)   // ←0.5.3 cab773
     p!(base + 0xd1dca8, &[0x44,0x69,0xc0], 3, 4, b4(pfar, 656));   // ←0.5.3 cccef2  ★재조사로 복구: pfar 656 #2  ★★imm_off 2→3 — 0.5.4에서 REX 접두가 붙어 즉치가 1B 밀렸다(크래시 원인)   // ←0.5.3 cab817
     p!(base + 0xd21c31, &[0xbe], 1, 4, b4(pna2, 1000));   // ←0.5.3 cd0e8e  ★재조사로 복구: pna2 1000  ★41be(6B)→be(5B) 로 인코딩 축소 ⟹ imm_off 2→1   // ←0.5.3 caf8a0
-    p!(base + 0xd21c62, &[0xb9], 1, 4, b4(pna, 2000));   // ←0.5.3 cd0e9e   // ←0.5.3 caf8d1
+    p!(base + 0xd2aa51, &[0xb9], 1, 4, b4(pna, 2000));   // ←0.5.3 cd0e9e   // ←0.5.3 caf8d1
     // ★0.5.4 재규명: 이 노브는 **포지셔닝 스탯 기반 위치 노이즈의 면제선**이다.
     //   (판단력이 아니다 — `[unit+0x1f8]`=포지셔닝. 구 RE 의 "판단력" 표기는 오류였다.)
     //   0.5.3 = `[+0x400](실력스탯 보정계수) × [+0x1f8] >= 100000` 로 **보정된** 값을 봤다.
@@ -1835,26 +1835,26 @@ unsafe fn apply_pe_imm() {
     //   ⛔`caf823`/`caf827` 은 바이트가 같지만 **진폭 캡**이다(곱셈으로 흘러감). 건드리지 말 것.
     {
         let v = if pnex < 0 { 100 } else { (pnex / 1000).max(0).min(127) as u64 };
-        p!(base + 0xd21bd6, &[0x48,0x83,0xf8], 3, 1, v);   // ←0.5.3 caf845
+        p!(base + 0xd2a9c5, &[0x48,0x83,0xf8], 3, 1, v);   // ←0.5.3 caf845
         p!(base + 0xd21be6, &[0x48,0x83,0xf8], 3, 1, v);   // ←0.5.3 caf855
     }
-    pskip!(base + 0xcaf6f7, &[0x48,0x6b,0x8d,0xa0,0x06,0x00,0x00], 3, 1, b1(pks, 120));   // ←0.5.3 cd0db9  ★재조사로 복구: pks 120 #1   // ⛔0.5.4 미확정: 시그 1→0 / 완화 1→0 (골격 95%)
+    pskip!(base + 0xca1b77, &[0x48,0x6b,0x8d,0xa0,0x06,0x00,0x00], 3, 1, b1(pks, 120));   // ←0.5.3 cd0db9  ★재조사로 복구: pks 120 #1   // ⛔0.5.4 미확정: 시그 1→0 / 완화 1→0 (골격 95%)
     p!(base + 0xd21b2a, &[0x48,0x6b,0x8d,0x40,0x06,0x00,0x00], 7, 1, b1(pks, 120));   // ←0.5.4 caf78f (pks 120 #2, [rbp+0x630]→[rbp+0x640], align복구)
     for a in [0xd1c3e9usize, 0xd1e3b1] { p!(base + a, &[0xba], 1, 4, b4(pmsk, 0x1a1)); }
-    p!(base + 0xd1e3fc, &[0xb9], 1, 4, b4(pkm, 0x303));   // ←0.5.3 ccd654   // ←0.5.3 cabf6c
+    p!(base + 0xd270ec, &[0xb9], 1, 4, b4(pkm, 0x303));   // ←0.5.3 ccd654   // ←0.5.3 cabf6c
     // ★0.5.4: 대상 레지스터가 rax→r15 (`48 c7 00` → `49 c7 07`).
-    p!(base + 0xd1adb6, &[0x49,0xc7,0x07], 3, 4, b4(pwall, 9999));   // ←0.5.3 cc9eaf   // ←0.5.3 ca8936
-    pskip!(base + 0xcca0a6, &[0x48,0xc7,0x02], 3, 4, b4(pwell, 9999));   // ⛔0.5.4 미확정: 시그 1→0 / 완화 2→1 (골격 86%)
-    pskip!(base + 0xcca0ad, &[0x48,0xc7,0x42,0x08], 4, 4, b4(pwell, 9999));   // ⛔0.5.4 미확정: 시그 1→0 / 완화 1→0 (골격 86%)
+    p!(base + 0xd23ab6, &[0x49,0xc7,0x07], 3, 4, b4(pwall, 9999));   // ←0.5.3 cc9eaf   // ←0.5.3 ca8936
+    pskip!(base + 0xcea896, &[0x48,0xc7,0x02], 3, 4, b4(pwell, 9999));   // ⛔0.5.4 미확정: 시그 1→0 / 완화 2→1 (골격 86%)
+    pskip!(base + 0xcea89d, &[0x48,0xc7,0x42,0x08], 4, 4, b4(pwell, 9999));   // ⛔0.5.4 미확정: 시그 1→0 / 완화 1→0 (골격 86%)
     p!(base + 0xd1af7e, &[0xb8], 1, 4, b4(pwell, 9999));   // ←0.5.3 cca0b5   // ←0.5.3 ca8b27
     p!(base + 0xd21730, &[0x48,0x81,0xbd,0x20,0x04,0x00,0x00], 7, 4, b4(pagc, 1200));   // ←0.5.3 cd0a31   // ←0.5.3 caf390
     //   세 사이트가 **읽는 구조체 오프셋도 레지스터도 다르다**(+0xb8/rdi, +0xc0/rdi, +0xc8/rcx).
     // ★스택 오버플로 방지: 호출부를 펼치지 말고 **표+루프 1개**로 유지할 것.
     //   (펼치면 opt-level=1 에서 프레임이 선형으로 커져 rayon 워커 스택을 넘긴다 — 실사고)
     static PE_STG: [(usize, &[u8], usize); 3] = [
-        (0xd1f200, &[0x48,0x81,0xbe,0xb8,0x00,0x00,0x00], 7),
-        (0xd1f55f, &[0x48,0x81,0xbe,0xc0,0x00,0x00,0x00], 7),
-        (0xd1f8c5, &[0x48,0x81,0xbe,0xc8,0x00,0x00,0x00], 7),
+        (0xd27f14, &[0x48,0x81,0xbe,0xb8,0x00,0x00,0x00], 7),
+        (0xd282ad, &[0x48,0x81,0xbe,0xc0,0x00,0x00,0x00], 7),
+        (0xd28636, &[0x48,0x81,0xbe,0xc8,0x00,0x00,0x00], 7),
     ];
     for &(a, pre, off) in PE_STG.iter() { p!(base + a, pre, off, 4, b4(pst, 180)); }
     PEIMM_SIG.store(sig, Ordering::Relaxed);
@@ -1967,11 +1967,11 @@ unsafe fn apply_bv_imm() {
         tot += 1; let _ = ($a, $pre, $off, $w, $v);
     }}; }
     // ── 캡(전부 cmp+mov 쌍이라 둘 다 고쳐야 의미가 맞는다) ──
-    for (c, m) in [(0xcc5fcfusize, 0xcc5fd6usize), (0xcdb738, 0xcdb73f), (0xcde1a4, 0xcde1ab)] {
+    for (c, m) in [(0xcc5fcfusize, 0xcc5fd6usize), (0xcfb918, 0xcfb91f), (0xcfe384, 0xcfe38b)] {
         p!(base + c, &[0x48,0x81,0xf9], 3, 4, b4(cap160, 160));
         p!(base + m, &[0xb8], 1, 4, b4(cap160, 160));
     }
-    for (c, m) in [(0xcc690busize, 0xcc690fusize), (0xcdc123, 0xcdc127)] {
+    for (c, m) in [(0xcc690busize, 0xcc690fusize), (0xcfc303, 0xcdc127)] {
         p!(base + c, &[0x48,0x83,0xf9], 3, 1, b1(cap80, 80));
         p!(base + m, &[0xb8], 1, 4, b4(cap80, 80));
     }
@@ -2386,7 +2386,7 @@ unsafe fn apply_new_imm() {
     // ⚠12 미만은 JT 인덱스가 음수가 되어 크래시한다 — 켜기(17)/원본(12) 두 값만 허용한다.
     p!(base + 0xd4f0f8, &[0x3c], 1, 1, if cfoff == 1 { 17 } else { 12 });   // ←0.5.3 c65788   // ←0.5.3 d7e568
     // `jne +0x0d`(= 도주중이면 이 후보 제거) → NOP 2바이트면 그 조건만 꺼진다.
-    let flee_ok = patch_toggle_bytes(base + 0xe3268a, &[0x75,0x0d], &[0x90,0x90], cffk == 1);   // ★0.5.6(was 0.5.4 0xd7ed2a — ⚠patch_toggle_bytes는 sites 파서 밖이라 0.5.5 회차 미재핀=노브 침묵사(orig 가드 fail-safe). 이웃 cfrn(054 0xd7ed2c→056 0xe3268c)−2·바이트 75 0d 일치 확증)
+    let flee_ok = patch_toggle_bytes(base + 0xd4f8ba, &[0x75,0x0d], &[0x90,0x90], cffk == 1);   // ★0.5.6(was 0.5.4 0xd7ed2a — ⚠patch_toggle_bytes는 sites 파서 밖이라 0.5.5 회차 미재핀=노브 침묵사(orig 가드 fail-safe). 이웃 cfrn(054 0xd7ed2c→056 0xe3268c)−2·바이트 75 0d 일치 확증)
     // ③ 1차 점수컷 — 두 사이트가 (−v, −v−1) 쌍
     let (f0, f1) = if cssf < 0 { (0xe2u64, 0xe1u64) } else {
         let v = cssf.clamp(0, 120) as u64; ((256 - v) & 0xff, (256 - v - 1) & 0xff)
@@ -2401,7 +2401,7 @@ unsafe fn apply_new_imm() {
     p!(base + 0xe8c170, &[0x48,0x83,0xb9,0xc8,0x05,0x00,0x00], 7, 1, b1(gulv, 5));   // ←0.5.3 d5f93b   // ←0.5.3 ead84d
     p!(base + 0xe8c2d7, &[0x48,0x83,0xc3], 3, 1, b1(gumem, 120));   // ←0.5.3 d5faa7   // ←0.5.3 ead9a7
     // ⚠거리 그대로가 아니라 **d²+1**로 인코딩된 자리다(원본 150000 → 22,500,000,001).
-    pskip!(base + 0xd5f9fa, &[0x48,0xb9], 2, 8,   // ⛔0.5.4 미확정: 시그 2→1 / 완화 7→2 (골격 84%)
+    pskip!(base + 0xdb962a, &[0x48,0xb9], 2, 8,   // ⛔0.5.4 미확정: 시그 2→1 / 완화 7→2 (골격 84%)
        if gusr < 0 { 22_500_000_001u64 } else { let d = gusr.max(0) as u64; d.wrapping_mul(d).wrapping_add(1) });
     NEWIMM_SIG.store(sig, Ordering::Relaxed);
     if let Some(pp) = pth("new_imm.txt") {
@@ -2464,10 +2464,10 @@ unsafe fn apply_auction_imm() {
     //    cmovne rsi,rdx (48 0f 45 f2) → nop dword ptr [rax] (0f 1f 40 00) 이면 noise=0 고정.
     // ★0.5.6(was 0.5.4 0xeadfff — 동상 0.5.5 미재핀 침묵사). 이웃 namp(054 0xeadfee→056 0xe0f708)+0x11.
     //   ⚠0.5.5부터 cmovne 대상 레지스터 rsi→rbx(48 0f 45 f2→da, auction BYTE=SAME으로 056도 동일) — orig 바이트 동기 갱신. nop 대체 의미 동일(무노이즈 값 유지).
-    let noise_ok = patch_toggle_bytes(base + 0xe0f719,
+    let noise_ok = patch_toggle_bytes(base + 0xe8c939,
                                       &[0x48,0x0f,0x45,0xda], &[0x0f,0x1f,0x40,0x00], noff == 1);
     p!(base + 0xe8c928, &[0xba], 1, 4, if namp < 0 { 900 } else { (namp.max(900) as u64) & 0xffff_ffff });   // ←0.5.3 d5febc   // ←0.5.3 eadfee
-    pskip!(base + 0xeae027, &[0xbb], 1, 4, b4(ctr, 1000));               // mov ebx,1000  (lo 중심)   // ←0.5.3 d5fefc   // ⛔0.5.4 미확정: 시그 1→0 / 완화 1→0 (골격 99%)
+    pskip!(base + 0xde6a77, &[0xbb], 1, 4, b4(ctr, 1000));               // mov ebx,1000  (lo 중심)   // ←0.5.3 d5fefc   // ⛔0.5.4 미확정: 시그 1→0 / 완화 1→0 (골격 99%)
     p!(base + 0xe8c977, &[0x48,0x81,0xc3], 3, 4, b4(ctr, 1000));     // add rsi,1000  (hi 중심)   // ←0.5.3 d5ff04   // ←0.5.3 eae02f
     // ── ② battle.rs (0xca8a10) ──
     p!(base + 0xea616d, &[0x48,0x83,0xf8], 3, 1, b1(bhpf, 21));   // ←0.5.3 cab663   // ←0.5.3 da6514
@@ -2493,7 +2493,7 @@ unsafe fn apply_auction_imm() {
     // ⚠7사이트가 **레지스터가 제각각**이라 prefix가 4종이다(`add r13/r14/rsi/r15, 0x78`).
     //   08-03 정적 검증 전까지 2종만 시도해 **7곳 중 4곳이 안 걸리고 있었다**.
     // ★0.5.4: **7곳 → 11곳**으로 늘었다(반쪽 노브). 신규 4곳 = da7a2b·da8c8e·da81f7·da8d32.
-    // ★★[08-07 결함 수정] prefix 목록이 실제 사이트와 어긋나 **11곳 중 1곳(0xd394ee)이 안 걸리고 있었다**.
+    // ★★[08-07 결함 수정] prefix 목록이 실제 사이트와 어긋나 **11곳 중 1곳(0xea4e5e)이 안 걸리고 있었다**.
     //   exe 전수 추출(`v54\micro_win.py`) 실측 = r15×5(`49 83 c7`) · rsi×4(`48 83 c6`) · r14×1(`49 83 c6`) ·
     //   **rdi×1(`48 83 c7`)**. 목록엔 rdi 가 없고 대신 **아무 사이트도 안 쓰는 r13(`49 83 c5`)** 이 들어 있었다.
     //   ⟹ `applied=10/11` 이었는데 `ok += done` 집계만 보면 알 수 없다(같은 계열 사고 3번째 — 08-03 "7곳 중 4곳",
@@ -2501,8 +2501,8 @@ unsafe fn apply_auction_imm() {
     // ★[08-07] 마이크로 디투어가 11곳을 통째로 가져갔으면 여기선 건드리지 않는다(상호배타).
     //   그쪽은 **키 단위 all-or-nothing** 이라 "일부만 가져간" 중간 상태가 없다.
     if !micro_taken("bt_vision_mem") {
-    for a in [0xd389d6usize, 0xd394ee, 0xd3a0b8, 0xd3b078, 0xd3b100, 0xd3b188, 0xd3c587,
-              0xd3b9e6, 0xd3ba6e, 0xd3baf6, 0xd3c62b] {
+    for a in [0xea4346usize, 0xea4e5e, 0xea5a21, 0xea69cf, 0xea6a57, 0xea6adf, 0xd3c587,
+              0xea733d, 0xea73c5, 0xea744d, 0xd3c62b] {
         tot += 1;
         let mut done = false;
         for pre in [[0x49u8,0x83,0xc7], [0x48,0x83,0xc6], [0x49,0x83,0xc6], [0x48,0x83,0xc7]].iter() {
@@ -3088,8 +3088,8 @@ unsafe fn apply_gb_imm() {
     ok += patch_imm_bytes(base + 0xdc3426, &[0x48,0xb8], 2, 8, e_sr2) as u32;   // 거점반경² (0.5.2 #1+#2 통합)   // ←s2 dd5656
     // ⛔합류 phase≥12 2사이트(구 0x1e1f4ea/0x1e1fa74) = 0.5.2 게이트 삭제 → 제거(상단 주석)
     // ── reach (전역공유 ⚠): 0x23ad980 / 0x23ba8d0 ──
-    ok += patch_imm_bytes(base + 0xddc5d7, &[0x48,0xb8], 2, 8, e_rc) as u32;                                 // reach cap² #1(≤)   // ⛔s2 미확정(스테일): ddc5d7
-    ok += patch_imm_bytes(base + 0xde338d, &[0x49,0xba], 2, 8, e_rc.wrapping_add(1)) as u32;                 // reach cap² #2(<, +1경계)   // ⛔s2 미확정(스테일): de338d
+    ok += patch_imm_bytes(base + 0xccefc7, &[0x48,0xb8], 2, 8, e_rc) as u32;                                 // reach cap² #1(≤)   // ⛔s2 미확정(스테일): ddc5d7
+    ok += patch_imm_bytes(base + 0xcd5d7d, &[0x49,0xba], 2, 8, e_rc.wrapping_add(1)) as u32;                 // reach cap² #2(<, +1경계)   // ⛔s2 미확정(스테일): de338d
     ok += patch_imm_bytes(base + 0xcee3c1, &[0x41,0xb8], 2, 4, e_rm) as u32;                                 // reach margin   // ←s2 dcd2d7
     GBIMM_SIG.store(sig, Ordering::Relaxed);
     if let Some(p) = pth("gb_imm.txt") {
@@ -3147,21 +3147,21 @@ unsafe fn apply_sev_imm() {
     let mut ok = 0u32;
     // ── [A] 위협 평가 정본 본체 0x22dd9a0 (사다리 7 + 할인 3) ──
     ok += patch_imm_bytes(base + 0xd21d03, &[0x48,0x83,0xf8], 3, 1, p_t0) as u32;   // tr>49   // ←s2 caf964
-    ok += patch_imm_bytes(base + 0xd21d0d, &[0x48,0x83,0xf9], 3, 1, p_h1) as u32;   // hp%>65 (rcx)   // ←s2 caf974
+    ok += patch_imm_bytes(base + 0xd2aaf4, &[0x48,0x83,0xf9], 3, 1, p_h1) as u32;   // hp%>65 (rcx)   // ←s2 caf974
     ok += patch_imm_bytes(base + 0xd21d13, &[0x48,0x83,0xf8], 3, 1, p_t1) as u32;   // tr>29   // ←s2 caf97a
-    ok += patch_imm_bytes(base + 0xd21d1d, &[0x48,0x83,0xf9], 3, 1, p_h2) as u32;   // hp%>40   // ←s2 caf984
+    ok += patch_imm_bytes(base + 0xd2ab04, &[0x48,0x83,0xf9], 3, 1, p_h2) as u32;   // hp%>40   // ←s2 caf984
     ok += patch_imm_bytes(base + 0xd21d23, &[0x48,0x83,0xf8], 3, 1, p_t2) as u32;   // tr>17   // ←s2 caf98a
-    ok += patch_imm_bytes(base + 0xd21d2d, &[0x48,0x83,0xf9], 3, 1, p_h3) as u32;   // hp%>25   // ←s2 caf994
+    ok += patch_imm_bytes(base + 0xd2ab14, &[0x48,0x83,0xf9], 3, 1, p_h3) as u32;   // hp%>25   // ←s2 caf994
     ok += patch_imm_bytes(base + 0xd21d33, &[0x48,0x83,0xf8], 3, 1, p_t3) as u32;   // tr>9   // ←s2 caf99a
-    ok += patch_imm_bytes(base + 0xd21d48, &[0x48,0xc1,0xf8], 3, 1, p_ds) as u32;   // 할인 shift (sar rax,imm8)   // ←s2 caf9af
-    ok += patch_imm_bytes(base + 0xd21d4c, &[0x48,0x83,0xf8], 3, 1, p_dc) as u32;   // 할인 cap 비교   // ←s2 caf9b3
+    ok += patch_imm_bytes(base + 0xd2ab2f, &[0x48,0xc1,0xf8], 3, 1, p_ds) as u32;   // 할인 shift (sar rax,imm8)   // ←s2 caf9af
+    ok += patch_imm_bytes(base + 0xd2ab33, &[0x48,0x83,0xf8], 3, 1, p_dc) as u32;   // 할인 cap 비교   // ←s2 caf9b3
     ok += patch_imm_bytes(base + 0xd21d50, &[0xbe], 1, 4, p_dc) as u32;             // 할인 cap 값 (mov ebx,imm32)   // ←s2 caf9b7
     // ── [B] 드라이버B 공통 위협 빌더 0x22e6460 (축약 5) ──
-    ok += patch_imm_bytes(base + 0xd2a034, &[0x48,0x83,0xf8], 3, 1, p_t0) as u32;   // tr>49   // ←s2 cb7d5d
-    ok += patch_imm_bytes(base + 0xd2a03a, &[0x49,0x83,0xf8], 3, 1, p_h1) as u32;   // hp%>65 (r8)   // ←s2 cb7d63
-    ok += patch_imm_bytes(base + 0xd2a040, &[0x48,0x83,0xf8], 3, 1, p_t1) as u32;   // tr>29   // ←s2 cb7d69
-    ok += patch_imm_bytes(base + 0xd2a046, &[0x49,0x83,0xf8], 3, 1, p_h2) as u32;   // hp%>40   // ←s2 cb7d6f
-    ok += patch_imm_bytes(base + 0xd2a04c, &[0x48,0x83,0xf8], 3, 1, p_t2) as u32;   // tr>17   // ←s2 cb7d75
+    ok += patch_imm_bytes(base + 0xd32b4d, &[0x48,0x83,0xf8], 3, 1, p_t0) as u32;   // tr>49   // ←s2 cb7d5d
+    ok += patch_imm_bytes(base + 0xd32b53, &[0x49,0x83,0xf8], 3, 1, p_h1) as u32;   // hp%>65 (r8)   // ←s2 cb7d63
+    ok += patch_imm_bytes(base + 0xd32b59, &[0x48,0x83,0xf8], 3, 1, p_t1) as u32;   // tr>29   // ←s2 cb7d69
+    ok += patch_imm_bytes(base + 0xd32b5f, &[0x49,0x83,0xf8], 3, 1, p_h2) as u32;   // hp%>40   // ←s2 cb7d6f
+    ok += patch_imm_bytes(base + 0xd32b65, &[0x48,0x83,0xf8], 3, 1, p_t2) as u32;   // tr>17   // ←s2 cb7d75
     // ── [C] 위협 유의성 필터 leaf 0x22efed0 branch B (7) ──
     ok += patch_imm_bytes(base + 0xd34e6b, &[0x48,0x83,0xf8], 3, 1, p_t0) as u32;   // tr>49   // ←s2 cba11b
     ok += patch_imm_bytes(base + 0xd34e71, &[0x48,0x83,0xf9], 3, 1, p_h1) as u32;   // hp%>65 (rcx)   // ←s2 cba121
@@ -3198,7 +3198,7 @@ unsafe fn apply_sev_imm() {
 //   ⚠이 브릿지가 매치-sim 전용 모노모프인지 100% 미확증 → 공유 시 파급=그 iter 과분할(오버헤드뿐, 크래시 아님).
 //   sim_unchunk=1로 켜고 일정넘김 시간을 직접 A/B 측정. 이상하면 0(원본복원).
 static SIMUNCHUNK_APPLIED: AtomicU8 = AtomicU8::new(0xff);
-const SIMUNCHUNK_RVA: usize = 0x19b40c3;   // *** 0.5.3 미해결 = 0.5.2값 유지(2026-07-29): 사이트 12B `74 a0 48 d1 eb 48 89 5d c0 48 89 f0` 가 0.5.3 exe 전역 0건(앞 8B로 줄여도 0건) = rayon 브리지 코드 자체가 바뀜. 코드가 원본바이트(74 a0) 재검증 후에만 패치하므로 ABORT = fail-safe(1매치/job 분할 노브만 죽음). // ★0.5.2(was 0.5.1 0x19adc93). version-migrator 확정: 컨테이너(rayon bridge)가 L3-UNIQUE 매칭 + 사이트 12B 바이트 완전동일(`74 a0 48 d1 eb 48 89 5d c0 48 89 f0`). 코드가 원본바이트(74 a0) 재검증 후에만 패치=어긋나면 ABORT(안전).
+const SIMUNCHUNK_RVA: usize = 0x1c73be3;   // *** 0.5.3 미해결 = 0.5.2값 유지(2026-07-29): 사이트 12B `74 a0 48 d1 eb 48 89 5d c0 48 89 f0` 가 0.5.3 exe 전역 0건(앞 8B로 줄여도 0건) = rayon 브리지 코드 자체가 바뀜. 코드가 원본바이트(74 a0) 재검증 후에만 패치하므로 ABORT = fail-safe(1매치/job 분할 노브만 죽음). // ★0.5.2(was 0.5.1 0x19adc93). version-migrator 확정: 컨테이너(rayon bridge)가 L3-UNIQUE 매칭 + 사이트 12B 바이트 완전동일(`74 a0 48 d1 eb 48 89 5d c0 48 89 f0`). 코드가 원본바이트(74 a0) 재검증 후에만 패치=어긋나면 ABORT(안전).
 unsafe fn apply_sim_unchunk() {
     let want = tune("sim_unchunk", 0) != 0;
     let w = want as u8;
@@ -3822,15 +3822,15 @@ unsafe fn apply_numbers_sp(disc: i64, entry_rsp: usize, p1: usize) {
 //        뒤따르는 `d²(아군,나) >= 50000²` 게이트도 0이라 함께 막힌다(`0xc57db1`·`0xc57dcf`).
 //
 // [고치는 법] 바이트패치로는 불가능하다 — 루프에 "자기 제외" 비교를 **끼워 넣을 자리가 없다**.
-//   대신 argmin이 끝나고 게이트가 시작되기 직전(`0xc57d18`)에 트램폴린을 걸어,
+//   대신 argmin이 끝나고 게이트가 시작되기 직전(`0xc4a638`)에 트램폴린을 걸어,
 //   **결과가 자기 자신이면 자기를 뺀 최근접 아군으로 다시 고른다.**
 //   그 지점에서 `rax` = 고른 아군 · `rbp+0xb8` = 나 · `rbp+0x1d8` = 아군 5슬롯 배열이 모두 살아 있다.
-//   ⚠재진입 경로(`0xc57f8d → 0xc57d18`)에서도 `rax`는 같은 의미(아군 argmin 결과)다 — 확인함.
+//   ⚠재진입 경로(`0xc57f8d → 0xc4a638`)에서도 `rax`는 같은 의미(아군 argmin 결과)다 — 확인함.
 //
 // ⚠**기본 OFF.** 켜면 개발사가 한 번도 테스트하지 않은 판단이 살아나므로 밸런스 영향이 미지수다.
 // ⚠살아나면 후보가 하나 늘어 경매 경쟁이 바뀐다 ⟹ 리플레이 재현이 깨진다.
 // ════════════════════════════════════════════════════════════════════════════════
-const LT_JOIN_RVA: usize = 0xc57d18;
+const LT_JOIN_RVA: usize = 0xc4a638;
 const LT_JOIN_LEN: usize = 14;
 const LT_JOIN_ORIG: [u8; 14] = [0x31,0xff, 0xba,0x08,0x00,0x00,0x00, 0x48,0x89,0x95,0xe0,0x01,0x00,0x00];
 static LT_JOIN_APPLIED: AtomicI64 = AtomicI64::new(-1);
@@ -4016,11 +4016,11 @@ unsafe fn apply_nx_imm() {
         tot += 1; let _ = ($a, $pre, $off, $w, $v);
     }}; }
     let v_nx_cull_dist19: u64 = { if nx_cull_dist19 < 0 { 390625u64 } else { let x = nx_cull_dist19.max(0) as u64; x.wrapping_mul(x) >> 14 } };
-    p!(base + 0xd441a5, &[0x49,0x81,0xf8], 3, 4, v_nx_cull_dist19);   // ←0.5.3 dee222  ★재조사로 복구: nx_cull (053 3곳→054 1곳 통합)   // ←0.5.3 dadb55
+    p!(base + 0xeb0201, &[0x49,0x81,0xf8], 3, 4, v_nx_cull_dist19);   // ←0.5.3 dee222  ★재조사로 복구: nx_cull (053 3곳→054 1곳 통합)   // ←0.5.3 dadb55
     pskip!(base + 0xdee2b1, &[0x49,0x81,0xf8], 3, 4, v_nx_cull_dist19);   // ⛔0.5.4 미확정: 시그 3→1 / 완화 3→1 (골격 80%)
     pskip!(base + 0xdee335, &[0x49,0x81,0xf8], 3, 4, v_nx_cull_dist19);   // ⛔0.5.4 미확정: 시그 3→1 / 완화 3→1 (골격 80%)
     let v_nx_around_atk: u64 = { if nx_around_atk < 0 { 80000u64 } else { nx_around_atk.max(0) as u64 } };
-    p!(base + 0xd33179, &[0x48,0xc7,0x85,0xb8,0x00,0x00,0x00], 7, 4, v_nx_around_atk);   // ←0.5.3 d95316   // ←0.5.3 da1e59
+    p!(base + 0xea0370, &[0x48,0xc7,0x85,0xb8,0x00,0x00,0x00], 7, 4, v_nx_around_atk);   // ←0.5.3 d95316   // ←0.5.3 da1e59
     let v_nx_around_def: u64 = { if nx_around_def < 0 { 80000u64 } else { nx_around_def.max(0) as u64 } };
     p!(base + 0xd4392f, &[0x48,0xc7,0x85,0x58,0x01,0x00,0x00], 7, 4, v_nx_around_def);   // ←0.5.3 dedabf   // ←0.5.3 dad2df
     p!(base + 0xd43b6b, &[0x48,0xc7,0x85,0x58,0x01,0x00,0x00], 7, 4, v_nx_around_def);   // ←0.5.3 dedd0a   // ←0.5.3 dad51b
@@ -4073,7 +4073,7 @@ unsafe fn apply_hd_imm() {
     p!(base + 0xd34c4d, &[0x48,0xc7,0x45,0x08], 4, 4, v_hd_around_radius);   // ←0.5.3 ca471f   // ←0.5.3 d81ba0
     p!(base + 0xd34df7, &[0x48,0xc7,0x45,0x08], 4, 4, v_hd_around_radius);   // ←0.5.3 ca487a   // ←0.5.3 d81d0d
     let v_hd_detect_max: u64 = { if hd_detect_max < 0 { 62500000001u64 } else { let x = hd_detect_max.max(0) as u64; x.wrapping_mul(x).wrapping_add(1) } };
-    p!(base + 0xd35011, &[0x48,0xba], 2, 8, v_hd_detect_max);   // ←0.5.3 ca4ae1   // ←0.5.3 d81f21
+    p!(base + 0xcba771, &[0x48,0xba], 2, 8, v_hd_detect_max);   // ←0.5.3 ca4ae1   // ←0.5.3 d81f21
     // ★[08-04] **반쪽 적용 결함 수정** — 같은 게이트가 축약함수 `0xdc2c90` 안에도 있는데 안 걸려 있었다.
     //   ⚠그쪽은 `+1`이 없는 순수 제곱값이다(hide는 `<=`, 여기는 `<` 비교라 상수가 1 다르다).
     let v_hd_detect_max_h: u64 = { if hd_detect_max < 0 { 62500000000u64 } else { let x = hd_detect_max.max(0) as u64; x.wrapping_mul(x) } };
@@ -4081,40 +4081,40 @@ unsafe fn apply_hd_imm() {
     //     (검색 스크립트가 찍는 건 패턴 위치라 그걸 그대로 쓰면 조용히 skip된다 — 실제로 한 번 그랬다.)
     p!(base + 0xca0b7c, &[0x48,0xba], 2, 8, v_hd_detect_max_h);   // ←0.5.3 dc2dcc   // ←0.5.3 e3d8bc
     let v_hd_fight_cut: u64 = { if hd_fight_cut < 0 { 22500000000u64 } else { let x = hd_fight_cut.max(0) as u64; x.wrapping_mul(x) } };
-    p!(base + 0xd356aa, &[0x48,0xb8], 2, 8, v_hd_fight_cut);   // ←0.5.3 ca50fa   // ←0.5.3 d8259a
+    p!(base + 0xcbad8a, &[0x48,0xb8], 2, 8, v_hd_fight_cut);   // ←0.5.3 ca50fa   // ←0.5.3 d8259a
     let v_hd_cand_select: u64 = { if hd_cand_select < 0 { 22500000001u64 } else { let x = hd_cand_select.max(0) as u64; x.wrapping_mul(x).wrapping_add(1) } };
-    p!(base + 0xd35f9a, &[0x49,0xb8], 2, 8, v_hd_cand_select);   // ←0.5.3 ca598f   // ←0.5.3 d82e39
-    p!(base + 0xd35ffd, &[0x49,0xb9], 2, 8, v_hd_cand_select);   // ←0.5.3 ca59f2   // ←0.5.3 d82e9e
-    p!(base + 0xd36064, &[0x49,0xb9], 2, 8, v_hd_cand_select);   // ←0.5.3 ca5a59   // ←0.5.3 d82f0c
-    p!(base + 0xd360cb, &[0x49,0xb9], 2, 8, v_hd_cand_select);   // ←0.5.3 ca5ac0   // ←0.5.3 d82f7a
-    p!(base + 0xd36131, &[0x49,0xb8], 2, 8, v_hd_cand_select);   // ←0.5.3 ca5b26   // ←0.5.3 d82fe7
-    p!(base + 0xd3619a, &[0x48,0xb9], 2, 8, v_hd_cand_select);   // ←0.5.3 ca5b8f   // ←0.5.3 d83050
-    p!(base + 0xd36626, &[0x49,0xb9], 2, 8, v_hd_cand_select);   // ←0.5.3 ca6080   // ←0.5.3 d83533
+    p!(base + 0xcbb5e6, &[0x49,0xb8], 2, 8, v_hd_cand_select);   // ←0.5.3 ca598f   // ←0.5.3 d82e39
+    p!(base + 0xcbb649, &[0x49,0xb9], 2, 8, v_hd_cand_select);   // ←0.5.3 ca59f2   // ←0.5.3 d82e9e
+    p!(base + 0xcbb6b0, &[0x49,0xb9], 2, 8, v_hd_cand_select);   // ←0.5.3 ca5a59   // ←0.5.3 d82f0c
+    p!(base + 0xcbb717, &[0x49,0xb9], 2, 8, v_hd_cand_select);   // ←0.5.3 ca5ac0   // ←0.5.3 d82f7a
+    p!(base + 0xcbb77d, &[0x49,0xb8], 2, 8, v_hd_cand_select);   // ←0.5.3 ca5b26   // ←0.5.3 d82fe7
+    p!(base + 0xcbb7e6, &[0x48,0xb9], 2, 8, v_hd_cand_select);   // ←0.5.3 ca5b8f   // ←0.5.3 d83050
+    p!(base + 0xcbbcfc, &[0x49,0xb9], 2, 8, v_hd_cand_select);   // ←0.5.3 ca6080   // ←0.5.3 d83533
     p!(base + 0xd36688, &[0x49,0xb9], 2, 8, v_hd_cand_select);   // ←0.5.3 ca60e2   // ←0.5.3 d8359c
     p!(base + 0xd366ed, &[0x49,0xb9], 2, 8, v_hd_cand_select);   // ←0.5.3 ca6147   // ←0.5.3 d83608
     p!(base + 0xd36752, &[0x49,0xb9], 2, 8, v_hd_cand_select);   // ←0.5.3 ca61ac   // ←0.5.3 d83674
-    p!(base + 0xd367b7, &[0x49,0xb9], 2, 8, v_hd_cand_select);   // ←0.5.3 ca6211   // ←0.5.3 d836e0
-    p!(base + 0xd3681b, &[0x48,0xb9], 2, 8, v_hd_cand_select);   // ←0.5.3 ca6275   // ←0.5.3 d83744
-    p!(base + 0xd3686f, &[0x48,0xb9], 2, 8, v_hd_cand_select);   // ←0.5.3 ca62c9   // ←0.5.3 d83798
-    p!(base + 0xd368c2, &[0x48,0xb9], 2, 8, v_hd_cand_select);   // ←0.5.3 ca631c   // ←0.5.3 d837eb
-    p!(base + 0xd36915, &[0x48,0xb9], 2, 8, v_hd_cand_select);   // ←0.5.3 ca636f   // ←0.5.3 d8383e
-    p!(base + 0xd36966, &[0x48,0xb9], 2, 8, v_hd_cand_select);   // ←0.5.3 ca63c0   // ←0.5.3 d8388f
-    p!(base + 0xd36a4d, &[0x49,0xb9], 2, 8, v_hd_cand_select);   // ←0.5.3 ca64a7   // ←0.5.3 d83976
-    p!(base + 0xd36ab2, &[0x49,0xb9], 2, 8, v_hd_cand_select);   // ←0.5.3 ca650c   // ←0.5.3 d839db
-    p!(base + 0xd36b1c, &[0x49,0xb9], 2, 8, v_hd_cand_select);   // ←0.5.3 ca6576   // ←0.5.3 d83a45
-    p!(base + 0xd36b86, &[0x49,0xb9], 2, 8, v_hd_cand_select);   // ←0.5.3 ca65e0   // ←0.5.3 d83aaf
-    p!(base + 0xd36c62, &[0x48,0xba], 2, 8, v_hd_cand_select);   // ←0.5.3 ca66ce   // ←0.5.3 d83ba4
-    p!(base + 0xd36dec, &[0x48,0xb9], 2, 8, v_hd_cand_select);   // ←0.5.3 ca68a0   // ←0.5.3 d83d70
-    p!(base + 0xd36e3f, &[0x48,0xb9], 2, 8, v_hd_cand_select);   // ←0.5.3 ca68f3   // ←0.5.3 d83dc3
-    p!(base + 0xd36e92, &[0x48,0xb9], 2, 8, v_hd_cand_select);   // ←0.5.3 ca6946   // ←0.5.3 d83e16
-    p!(base + 0xd36ee3, &[0x48,0xb9], 2, 8, v_hd_cand_select);   // ←0.5.3 ca6997   // ←0.5.3 d83e67
-    p!(base + 0xd36fe2, &[0x49,0xb8], 2, 8, v_hd_cand_select);   // ←0.5.3 ca6a1e   // ←0.5.3 d83eee
-    p!(base + 0xd37049, &[0x49,0xb9], 2, 8, v_hd_cand_select);   // ←0.5.3 ca6a85   // ←0.5.3 d83f55
-    p!(base + 0xd370b3, &[0x49,0xb9], 2, 8, v_hd_cand_select);   // ←0.5.3 ca6aef   // ←0.5.3 d83fbf
-    p!(base + 0xd3711d, &[0x49,0xb9], 2, 8, v_hd_cand_select);   // ←0.5.3 ca6b59   // ←0.5.3 d84029
-    p!(base + 0xd37180, &[0x48,0xba], 2, 8, v_hd_cand_select);   // ←0.5.3 ca6bbc   // ←0.5.3 d8408c
+    p!(base + 0xcbbe91, &[0x49,0xb9], 2, 8, v_hd_cand_select);   // ←0.5.3 ca6211   // ←0.5.3 d836e0
+    p!(base + 0xcbbef8, &[0x48,0xb9], 2, 8, v_hd_cand_select);   // ←0.5.3 ca6275   // ←0.5.3 d83744
+    p!(base + 0xcbbf4c, &[0x48,0xb9], 2, 8, v_hd_cand_select);   // ←0.5.3 ca62c9   // ←0.5.3 d83798
+    p!(base + 0xcbbf9f, &[0x48,0xb9], 2, 8, v_hd_cand_select);   // ←0.5.3 ca631c   // ←0.5.3 d837eb
+    p!(base + 0xcbbff2, &[0x48,0xb9], 2, 8, v_hd_cand_select);   // ←0.5.3 ca636f   // ←0.5.3 d8383e
+    p!(base + 0xcbc043, &[0x48,0xb9], 2, 8, v_hd_cand_select);   // ←0.5.3 ca63c0   // ←0.5.3 d8388f
+    p!(base + 0xcbc131, &[0x49,0xb9], 2, 8, v_hd_cand_select);   // ←0.5.3 ca64a7   // ←0.5.3 d83976
+    p!(base + 0xcbc196, &[0x49,0xb9], 2, 8, v_hd_cand_select);   // ←0.5.3 ca650c   // ←0.5.3 d839db
+    p!(base + 0xcbc200, &[0x49,0xb9], 2, 8, v_hd_cand_select);   // ←0.5.3 ca6576   // ←0.5.3 d83a45
+    p!(base + 0xcbc26a, &[0x49,0xb9], 2, 8, v_hd_cand_select);   // ←0.5.3 ca65e0   // ←0.5.3 d83aaf
+    p!(base + 0xcbc33d, &[0x48,0xba], 2, 8, v_hd_cand_select);   // ←0.5.3 ca66ce   // ←0.5.3 d83ba4
+    p!(base + 0xcbc4f8, &[0x48,0xb9], 2, 8, v_hd_cand_select);   // ←0.5.3 ca68a0   // ←0.5.3 d83d70
+    p!(base + 0xcbc54b, &[0x48,0xb9], 2, 8, v_hd_cand_select);   // ←0.5.3 ca68f3   // ←0.5.3 d83dc3
+    p!(base + 0xcbc59e, &[0x48,0xb9], 2, 8, v_hd_cand_select);   // ←0.5.3 ca6946   // ←0.5.3 d83e16
+    p!(base + 0xcbc5ef, &[0x48,0xb9], 2, 8, v_hd_cand_select);   // ←0.5.3 ca6997   // ←0.5.3 d83e67
+    p!(base + 0xcbc666, &[0x49,0xb8], 2, 8, v_hd_cand_select);   // ←0.5.3 ca6a1e   // ←0.5.3 d83eee
+    p!(base + 0xcbc6cd, &[0x49,0xb9], 2, 8, v_hd_cand_select);   // ←0.5.3 ca6a85   // ←0.5.3 d83f55
+    p!(base + 0xcbc737, &[0x49,0xb9], 2, 8, v_hd_cand_select);   // ←0.5.3 ca6aef   // ←0.5.3 d83fbf
+    p!(base + 0xcbc7a1, &[0x49,0xb9], 2, 8, v_hd_cand_select);   // ←0.5.3 ca6b59   // ←0.5.3 d84029
+    p!(base + 0xcbc804, &[0x48,0xba], 2, 8, v_hd_cand_select);   // ←0.5.3 ca6bbc   // ←0.5.3 d8408c
     let v_hd_trace_leash: u64 = { if hd_trace_leash < 0 { 15000u64 } else { hd_trace_leash.max(0) as u64 } };
-    p!(base + 0xd373be, &[0x48,0xc7,0x45,0x28], 4, 4, v_hd_trace_leash);   // ←0.5.3 ca6df5   // ←0.5.3 d842e3
+    p!(base + 0xcbca14, &[0x48,0xc7,0x45,0x28], 4, 4, v_hd_trace_leash);   // ←0.5.3 ca6df5   // ←0.5.3 d842e3
     let v_hd_vision_mem: u64 = { if hd_vision_mem < 0 { 120u64 } else { hd_vision_mem.max(0) as u64 } };
     p!(base + 0xd35095, &[0x49,0x83,0xc7], 3, 1, v_hd_vision_mem);   // ←0.5.3 ca4b65   // ←0.5.3 d81fa5
     // ★[08-04] **반쪽 적용 결함 수정** — 축약함수 쪽 사본(레지스터가 r14라 prefix가 다르다)
@@ -4129,8 +4129,8 @@ unsafe fn apply_hd_imm() {
     //   기본 0 = 원본(0x0001)이라 켜지 않으면 동작 변화 0. 끄면 그대로 되돌아간다.
     let v_hd_phase: u64 = if hd_skip_landmark != 0 { 0x0101 } else { 0x0001 };
     p!(base + 0xdb2b16, &[0x66,0xc7,0x46,0x10], 4, 2, v_hd_phase);   // ←0.5.3 c55d3b   // ←0.5.3 e1490b
-    p!(base + 0xdcf88e, &[0x66,0xc7,0x40,0x10], 4, 2, v_hd_phase);   // ←0.5.3 c7a72e   // ←0.5.3 cd7a3e
-    p!(base + 0xdcf4de, &[0x66,0xc7,0x40,0x10], 4, 2, v_hd_phase);   // ←0.5.3 d81b6e   // ←0.5.3 cd75ee
+    p!(base + 0xdaa0be, &[0x66,0xc7,0x40,0x10], 4, 2, v_hd_phase);   // ←0.5.3 c7a72e   // ←0.5.3 cd7a3e
+    p!(base + 0xda9d0e, &[0x66,0xc7,0x40,0x10], 4, 2, v_hd_phase);   // ←0.5.3 d81b6e   // ←0.5.3 cd75ee
     HD_SIG.store(sig, Ordering::Relaxed);
     if let Some(pp) = pth("hd_imm.txt") {
         let _ = fs::write(pp, format!("applied={}/{} hd_bush_near={} hd_path_radius={} hd_around_radius={} hd_detect_max={} hd_fight_cut={} hd_cand_select={} hd_trace_leash={} hd_vision_mem={} hd_ph0_ttl={} hd_skip_landmark={} @base{:#x}\n",
@@ -4440,7 +4440,7 @@ unsafe fn apply_eh_imm() {
 // [무엇이 잘못됐나]
 //   `0xd07a60`(score_parameter.rs)의 **적 분기**는 피해 매트릭스 4열 중 슬롯2(스킬2, 열 `+0x50`/`+0x1e0`)를
 //   **아예 계산하지 않고** 슬롯1(스킬1) 결과를 그대로 복사한다.
-//     0xd087d8  mov [rsi+0x10], rdx   ; ← 0xd087c8 의 스킬1 값과 같은 rdx
+//     0xe682f8  mov [rsi+0x10], rdx   ; ← 0xd087c8 의 스킬1 값과 같은 rdx
 //     0xd08812  mov [rsi+0x30], r10   ; ← 0xd0880e 의 스킬1 값과 같은 r10
 //   함수 전체에서 `+0x50`/`+0x1e0` 접근이 0회(실측). **아군 분기는 정상.**
 //   ⟹ AI가 "저 자리로 가면 얼마나 아플까"를 셀 때 **적의 스킬2를 통째로 빼먹는다.**
@@ -4452,7 +4452,7 @@ unsafe fn apply_eh_imm() {
 // [고치는 방법 = 훅 2 + NOP 2]
 //   행렬·인덱스·분모·출력포인터가 **동시에 살아 있는** 두 지점에서 미리 계산해 넣고,
 //   뒤의 잘못된 store 2개를 NOP 한다. 두 지점 모두 해당 분기의 straight-line 상이라 무조건 실행된다.
-//     A: 0xd08404 (내/타깃 쪽)  r13=행렬 rbp=idx rbx=분모(≥1 보정됨) rsi=출력  → [rsi+0x10]
+//     A: 0xe67f24 (내/타깃 쪽)  r13=행렬 rbp=idx rbx=분모(≥1 보정됨) rsi=출력  → [rsi+0x10]
 //     B: 0xd086d4 (gain 쪽)     rdx=행렬 r12=idx r13=분모            rsi=출력  → [rsi+0x30]
 //   공식(같은 분기 형제 3개에서 도출) = `min(150, ((M[half+idx*8]>>1) + M[val+idx*8]) * 100 / max(1,분모))`
 //   슬롯2의 (val, half) = (0x050, 0x1e0).
@@ -4468,9 +4468,9 @@ unsafe fn apply_eh_imm() {
 // ⚠기본 OFF. `fix_skill2_dmg=1` 일 때만 적용된다.
 // ⚠호출자 `0xd37580` 이 결과를 200엔트리 메모 캐시에 담으므로, 토글 직후엔 캐시가 갱신될 때까지 반영이 늦다.
 // ════════════════════════════════════════════════════════════════════════════════
-const FS2_A_RVA:  usize = 0xd08404;   // 훅 A 진입
+const FS2_A_RVA:  usize = 0xe67f24;   // 훅 A 진입
 const FS2_B_RVA:  usize = 0xd086d4;   // 훅 B 진입
-const FS2_N1_RVA: usize = 0xd087d8;   // 잘못된 store (내/타깃)
+const FS2_N1_RVA: usize = 0xe682f8;   // 잘못된 store (내/타깃)
 const FS2_N2_RVA: usize = 0xd08812;   // 잘못된 store (gain)
 const FS2_A_ORIG: [u8; 16] = [0x49,0x8b,0x84,0xed,0x08,0x02,0x00,0x00, 0x48,0xd1,0xe8, 0x49,0x03,0x44,0xed,0x78];
 const FS2_B_ORIG: [u8; 16] = [0x4a,0x8b,0x84,0xe2,0x08,0x02,0x00,0x00, 0x48,0xd1,0xe8, 0x4a,0x03,0x44,0xe2,0x78];
@@ -4636,12 +4636,12 @@ const HR_AP_FN_RVA: usize = 0x15730b0;   // ApAttackEffect 예측 leaf
 /// AttackEffect / FixedAttackEffect vtable 의 `+0x28` 슬롯이 놓인 .rdata RVA
 const HR_AE_SLOTS: [usize; 10] = [
     0x31c7d48, 0x31dca98, 0x320b688, 0x32147d8, 0x3214db8,
-    0x3228d10, 0x3234a40, 0x32485d0, 0x325d1f0, 0x326e060,
+    0x3228d10, 0x3234a40, 0x32485d0, 0x325c330, 0x326e060,
 ];
 /// ApAttackEffect vtable 의 `+0x28` 슬롯이 놓인 .rdata RVA
 const HR_AP_SLOTS: [usize; 8] = [
     0x31dc6d8, 0x31f0e40, 0x320b2b8, 0x3214ca0,
-    0x322aa48, 0x323fe60, 0x325d8c8, 0x327a250,
+    0x3234748, 0x323fe60, 0x325ca08, 0x3279250,
 ];
 
 static HR_APPLIED: AtomicI64 = AtomicI64::new(-1);   // -1=미결정 / 0=원본 / 1=수정

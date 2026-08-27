@@ -315,7 +315,7 @@ unsafe fn d19_basedmg_dispatch(gptr: usize, p1: usize, e: usize, exe: usize, dep
     if depth > 8 || !ptr_ok(gptr) || !ptr_ok(p1) { return None; }
     match gptr.wrapping_sub(exe) {
         0x11fe580 | 0x1203390 => d19_bd_walk(p1, 8, 0x10, 16, e, exe, depth), // ★0.5.3(was 0.5.1 0x1f23a60|0x1d204c0). 챔피언 16B walker, primary+secondary(monomorphic 복제). 명령 완전동일=오프셋 불변
-        0x1092130 => d19_bd_walk(p1, 0x20, 0x28, 24, e, exe, depth),         // ★0.5.3(was 0.5.1 0x1a5ee60). 미니언 24B walker. 명령 완전동일=오프셋 불변
+        0x1623e00 => d19_bd_walk(p1, 0x20, 0x28, 24, e, exe, depth),         // ★0.5.3(was 0.5.1 0x1a5ee60). 미니언 24B walker. 명령 완전동일=오프셋 불변
         0xf01df0 => {                                                         // ★0.5.3(was 0.5.1 0x1d1f630). 이중 walker
             // ⚠0.5.3에서 **구조체 필드가 앞으로 당겨짐**(명령열은 동일): ptr/len 0x68/0x70→0x50/0x58, 0x80/0x88→0x68/0x70.
             //   실측 = `mov r15,[rcx+0x70]`→`[rcx+0x58]` · `mov rbp,[r14+0x68]`→`[r14+0x50]` (vtslot_diff_053.py).
@@ -328,7 +328,7 @@ unsafe fn d19_basedmg_dispatch(gptr: usize, p1: usize, e: usize, exe: usize, dep
             let s = rd_i64(e + 0x600).unwrap_or(0);
             Some((rd_i64(p1).unwrap_or(0).wrapping_add(rd_i64(p1 + 0x08).unwrap_or(0).wrapping_mul(s) / 100), 0))
         }
-        0xf15710 => {                                                         // ★0.5.3(was 0.5.1 0x1d328e0). 스택형 terminal(decay 반복). 명령 완전동일=오프셋 불변
+        0xf06f00 => {                                                         // ★0.5.3(was 0.5.1 0x1d328e0). 스택형 terminal(decay 반복). 명령 완전동일=오프셋 불변
             let s = rd_i64(e + 0x600).unwrap_or(0);
             let raw = rd_i64(e + 0x638).unwrap_or(0);
             let n = (raw + 1).min(rd_i64(p1 + 0x30).unwrap_or(0));
@@ -527,8 +527,8 @@ unsafe fn d19_threat(phase: i64, p6_pair: usize, nx: usize, x: u64, y: u64) -> i
     //   인자 규약·구조체 오프셋 모두 불변(6인자).
     // ⚠본문 변화: 0.5.0_3의 선두 phase 게이트(`cmp rcx,0x1e; jb ret`)가 0.5.3에서 **삭제**돼 rcx가 dead다.
     //   ⟹ shadow 롤백으로 이걸 쓸 때 phase<0x1e 구간에서 pure(0)와 shadow(실계산)가 갈린다. 비트동일이 필요하면 아래 호출 전에 `phase<0x1e → 0` 가드를 걸 것.
-    if !code_ptr_ok(base + 0xcd3f00) { return 0; }   // stale/비.text RVA CALL 사전차단
-    let f: extern "C" fn(usize, usize, usize, u64, u64, i64) -> u64 = core::mem::transmute(base + 0xcd3f00);
+    if !code_ptr_ok(base + 0xcf4710) { return 0; }   // stale/비.text RVA CALL 사전차단
+    let f: extern "C" fn(usize, usize, usize, u64, u64, i64) -> u64 = core::mem::transmute(base + 0xcf4710);
     let r = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| f(phase as usize, p6_pair, nx, x, y, scan_w)));
     r.unwrap_or(0) as i64
 }
@@ -794,8 +794,8 @@ unsafe fn d19_usable_slot1_shadow(self_u: usize) -> bool {
     // ★0.5.3 재핀(was 0.5.0_3 0x1fce700 — 두 버전 방치돼 stale이었음). 명령 125↔125·니모닉 불일치 0·크기 448 동일·콜러 47↔48
     //   ⟹ 신원 확정(차이 = rip 상대주소와 게임 내부 vt슬롯 `call [rdx+0xc8]`→`[rdx+0x110]` 뿐 = 인자 규약 불변).
     //   기본 `d19_us_shadow=OFF`(순수 d19_usable_slot1)라 평시 미호출 = 대조 검증용 경로.
-    if !code_ptr_ok(base + 0xfdd430) { return false; }   // stale/비.text RVA CALL 사전차단
-    let f: D19Us = core::mem::transmute(base + 0xfdd430);
+    if !code_ptr_ok(base + 0x1132680) { return false; }   // stale/비.text RVA CALL 사전차단
+    let f: D19Us = core::mem::transmute(base + 0x1132680);
     let r = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| f(self_u))).unwrap_or(0);
     (r & 1) != 0
 }
@@ -833,9 +833,9 @@ unsafe fn vt90_get(vt: usize, data: usize) -> i64 {
     let imm: i64 = match slot.wrapping_sub(base) {
         // ★0.5.3 재핀(2026-07-30, vtslot7_053.py). 구값(0.5.0_3 세대) = 0x19f2f60/0x1a13cb0/0x19ed260/0x19ed250/0x1a3a240/0xb024b0/0x1e85540.
         //   ⚠구값은 0.5.3 .text 안에서 **다른 함수**를 가리키므로 병기 금지(교체가 정본). 7종 전부 명령 완전동일 검증.
-        0xeec0b0 => 0x30, 0x2f840 => 0x28, 0xfe5230 => 0x20,
-        0x14867c0 => 0x18, 0xf0c6a0 => 0x08, 0x1494930 => 0x00,
-        0x1269e60 => 0x170,   // mov rax,[rcx+0x170](쿨다운 base 게터, disp32라 구 decode_getter 미파싱)
+        0xeec0b0 => 0x30, 0x2f840 => 0x28, 0x113a480 => 0x20,
+        0x173a610 => 0x18, 0xefde90 => 0x08, 0x1494930 => 0x00,
+        0xf979c0 => 0x170,   // mov rax,[rcx+0x170](쿨다운 base 게터, disp32라 구 decode_getter 미파싱)
         _ => decode_getter(slot),   // 미등재: 프롤로그 바이트 파싱(미래 챔피언 일반화)
     };
     if imm < 0 { return 0; }
@@ -862,13 +862,13 @@ unsafe fn decode_getter(slot: usize) -> i64 {
 // vt+0xa8 쿨다운 divisor 게터 순수재현 ★[07-12 전수스캔]: 135 vtable에서 구현 3종, 전부 rcx(data)-only·RNG-free.
 //   fn(rcx=data, rdx=e)->u64. 상수1(133/135 우세형) / max(*(data+0x40),1)(circus_blade)
 //   / *(data+0x28)(ghost_skill2, 0이면 게임=div panic → 우리=1 가드).
-//   ★0.5.3 재핀: 0x9a1230→0x1309df0 · 0x1bbe3c0→0x13b4ea0 · 0x1a13cb0→0x2f840 (셋 다 명령 완전동일).
+//   ★0.5.3 재핀: 0x9a1230→0x1309df0 · 0x1bbe3c0→0x13aeee0 · 0x1a13cb0→0x2f840 (셋 다 명령 완전동일).
 unsafe fn vta8_get(vt: usize, data: usize) -> u64 {
     let slot = rd_u64(vt + 0xa8).unwrap_or(0) as usize;
     if slot == 0 || !in_text(slot) { return 1; }   // ★[07-15 하드닝] .text 게이트. 실패=1(div0 가드 유지, 유효 게터 무영향)
     let v = match slot.wrapping_sub(exe_base()) {
         0x1309df0 => 1,
-        0x13b4ea0 => rd_u64(data + 0x40).unwrap_or(0),
+        0x13aeee0 => rd_u64(data + 0x40).unwrap_or(0),
         0x2f840 => rd_u64(data + 0x28).unwrap_or(0),
         _ => {
             // 폴백(미래 챔피언): max(f,1) 패턴 `48 8B 41 40 / 48 83 F8 01 / 48 83 D0 00 / C3` → 필드+adc.
@@ -1477,15 +1477,15 @@ unsafe fn descvt_78(vt: usize, obj: usize, depth: u32) -> bool {
     if slot == 0 { return false; }
     let rva = slot.wrapping_sub(exe_base());
     if depth == 0 {
-        match rva { 0x9d360 => a2(37), 0x11fe8d0 => a2(38), 0xc05b0 => a2(39), _ => a2(44) }
+        match rva { 0x9d3d0 => a2(37), 0x11fe8d0 => a2(38), 0xc05b0 => a2(39), _ => a2(44) }
     }
     match rva {
-        0x9d360 => false,                                        // xor eax,eax; ret → 타겟불요 (0.5.3 슬롯0x78 83 vtable)
+        0x9d3d0 => false,                                        // xor eax,eax; ret → 타겟불요 (0.5.3 슬롯0x78 83 vtable)
         0xc05b0 => true,                                         // mov al,1; ret → 타겟필요 (0.5.3 슬롯0x78 11 vtable)
         // ⚠0x1f635c0은 **A계열 아님**(다른 트레이트, +0x78에 우연히 fn ptr) → 등재하지 않음(0.5.3에서도 재핀 대상 아님).
         0x11fe8d0 => descvt_cany(obj, 0x08, 0x10, 0x10, 0x78, depth),   // any(child.78) 16B 엔트리 (was 0.5.1 0x1f23eb0)
         0x1210150 => descvt_cany(obj, 0x50, 0x58, 0x18, 0x78, depth),   // stride 0x18 (was 0.5.1 0x1d1edd0)
-        0x12c9a50 => descvt_cany(obj, 0x50, 0x58, 0x18, 0x78, depth) || descvt_cany(obj, 0x68, 0x70, 0x18, 0x78, depth),   // 듀얼컨테이너 (was 0.5.1 0x2291570)
+        0x13f96c0 => descvt_cany(obj, 0x50, 0x58, 0x18, 0x78, depth) || descvt_cany(obj, 0x68, 0x70, 0x18, 0x78, depth),   // 듀얼컨테이너 (was 0.5.1 0x2291570)
         r => decode_bool_leaf(slot, obj).unwrap_or_else(|| {
             // ★[07-15] leaf 실패 시 제네릭 바이트 디코더(cany OR) 시도 → 미등재 composite 롱테일 커버.
             decode_descvt(slot).filter(|p| p.kind == DVT_OR)
@@ -1532,12 +1532,12 @@ unsafe fn descvt_50(vt: usize, obj: usize, depth: u32) -> bool {
     if depth > 6 || !ptr_ok(vt) || !ptr_ok(obj) { return false; }
     match (rd_u64(vt + 0x50).unwrap_or(0) as usize).wrapping_sub(exe_base()) {
         // ★0.5.3 재핀(was 0.5.0_3/0.5.1: 0x50fc80·0x5418a0·0x1f23dd0·0x1ce1070·0x23a4f80·0x23b5790) — 6종 전부 명령 완전동일 검증
-        0x9d360   => false,
+        0x9d3d0   => false,
         0xc05b0   => true,                                              // 상수 true stub(전 슬롯 공용)
         0x11fe7f0 => descvt_cany(obj, 0x08, 0x10, 0x10, 0x50, depth),
         0xfe3cf0  => rd_u64(obj + 0x18).unwrap_or(0) != 0 && rd_u64(obj + 0x10).unwrap_or(0) != 0,
         0x11ff690 => descvt_child(rd_u64(obj + 0x18).unwrap_or(0) as usize, rd_u64(obj + 0x20).unwrap_or(0) as usize, 0x50, depth + 1),
-        0x120fcd0 => descvt_child(rd_u64(obj).unwrap_or(0) as usize, rd_u64(obj + 8).unwrap_or(0) as usize, 0x50, depth + 1),
+        0x26c72c0 => descvt_child(rd_u64(obj).unwrap_or(0) as usize, rd_u64(obj + 8).unwrap_or(0) as usize, 0x50, depth + 1),
         r => decode_bool_leaf(rd_u64(vt+0x50).unwrap_or(0) as usize, obj).unwrap_or_else(|| { unreg_cap(0x50, r); false }),
     }
 }
@@ -1546,15 +1546,15 @@ unsafe fn descvt_58(vt: usize, obj: usize, depth: u32) -> bool {
     if depth > 6 || !ptr_ok(vt) || !ptr_ok(obj) { return false; }
     match (rd_u64(vt + 0x58).unwrap_or(0) as usize).wrapping_sub(exe_base()) {
         // ★0.5.3 재핀(was 0x50fc80·0x5418a0·0x1f23d70·0x1a671e0·0x1d1ed70·0x1faac80·0x23a4f60·0x23b5770) — 8종 전부 명령 완전동일 검증
-        0x9d360   => false,
+        0x9d3d0   => false,
         0xc05b0   => true,                                              // 상수 true stub
         0x11fe790 => descvt_cany(obj, 0x08, 0x10, 0x10, 0x58, depth),
-        0xf01ff0  => descvt_cany(obj, 0x50, 0x58, 0x18, 0x58, depth)     // 2컨테이너 (A: stride 0x18)
+        0xef37e0  => descvt_cany(obj, 0x50, 0x58, 0x18, 0x58, depth)     // 2컨테이너 (A: stride 0x18)
                   || descvt_cany(obj, 0x68, 0x70, 0x10, 0x58, depth),    //           (B: stride 0x10)
-        0x12100f0 => descvt_cany(obj, 0x50, 0x58, 0x18, 0x58, depth),
-        0xfe3cd0  => rd_u64(obj + 0x18).unwrap_or(0) != 0,
+        0x26c76e0 => descvt_cany(obj, 0x50, 0x58, 0x18, 0x58, depth),
+        0x1138f20  => rd_u64(obj + 0x18).unwrap_or(0) != 0,
         0x11ff670 => descvt_child(rd_u64(obj + 0x18).unwrap_or(0) as usize, rd_u64(obj + 0x20).unwrap_or(0) as usize, 0x58, depth + 1),
-        0x120fcb0 => descvt_child(rd_u64(obj).unwrap_or(0) as usize, rd_u64(obj + 8).unwrap_or(0) as usize, 0x58, depth + 1),
+        0x26c72a0 => descvt_child(rd_u64(obj).unwrap_or(0) as usize, rd_u64(obj + 8).unwrap_or(0) as usize, 0x58, depth + 1),
         r => decode_bool_leaf(rd_u64(vt+0x58).unwrap_or(0) as usize, obj).unwrap_or_else(|| { unreg_cap(0x58, r); false }),
     }
 }
@@ -1564,11 +1564,11 @@ unsafe fn descvt_48(vt: usize, obj: usize, depth: u32) -> bool {
     if depth > 6 || !ptr_ok(vt) || !ptr_ok(obj) { return false; }
     match (rd_u64(vt + 0x48).unwrap_or(0) as usize).wrapping_sub(exe_base()) {
         // ★0.5.3 재핀(was 0x9c8850·0x5418a0·0x1f23f90·0x1ce10f0|0x1ce1090·0x1fabac0·0x1ff1970·0x23a5080·0x23b5890)
-        0xf451d0  => false,                                              // 항상 tag=0
+        0x17e22f0  => false,                                              // 항상 tag=0
         0xc05b0   => true,                                              // 상수 true stub(공용)
         0x11fe9b0 => descvt_cany(obj, 0x08, 0x10, 0x10, 0x48, depth),
-        0x1254e30 | 0xfe3d10 => rd_u64(obj + 0x18).unwrap_or(0) != 0,
-        0xfe3d80  => true,
+        0x1009100 | 0x1138f60 => rd_u64(obj + 0x18).unwrap_or(0) != 0,
+        0x1138fd0  => true,
         0x127d9a0 => true,                                             // out.tag=1 무조건
         0x11ff790 => descvt_child(rd_u64(obj + 0x18).unwrap_or(0) as usize, rd_u64(obj + 0x20).unwrap_or(0) as usize, 0x48, depth + 1),
         0x120fdd0 => descvt_child(rd_u64(obj).unwrap_or(0) as usize, rd_u64(obj + 8).unwrap_or(0) as usize, 0x48, depth + 1),
@@ -1584,18 +1584,18 @@ unsafe fn descvt_c8(vt: usize, obj: usize, depth: u32) -> bool {
     let rva = slot.wrapping_sub(exe_base());
     if depth == 0 {
         match rva {
-            0x9d360 => a2(45),
-            0x1228160 | 0x1228310 | 0xf01ff0 | 0x12100f0 => a2(46),
-            0xfe3cd0 | 0x1228250 | 0x12282b0 | 0xc05b0 => a2(47),
+            0x9d3d0 => a2(45),
+            0xf4ffb0 | 0xf50160 | 0xef37e0 | 0x26c76e0 => a2(46),
+            0x1138f20 | 0xf500a0 | 0xf50100 | 0xc05b0 => a2(47),
             _ => a2(35),   // 미등재(어댑터 포함) — 0이면 테이블 완전
         }
     }
     // ★0.5.3 재핀(was 0x50fc80·0x5418a0·0x1faac80·0x1f77e30·0x23bd430·0x1a671e0·0x1d1ed70·0x23bd370·0x23bd3d0·0x1f23680)
     match rva {
-        0x9d360   => false,                                              // 상수 false(지배)
+        0x9d3d0   => false,                                              // 상수 false(지배)
         0xc05b0   => true,                                               // 상수 true
-        0xfe3cd0  => rd_u64(obj + 0x18).unwrap_or(0) != 0,
-        0x1228160 => {                                                   // any(trio(child)), stride 0x10
+        0x1138f20  => rd_u64(obj + 0x18).unwrap_or(0) != 0,
+        0xf4ffb0 => {                                                   // any(trio(child)), stride 0x10
             let p = rd_u64(obj + 0x08).unwrap_or(0) as usize;
             let n = rd_i64(obj + 0x10).unwrap_or(0);
             if !ptr_ok(p) || n <= 0 || n > 256 { return false; }
@@ -1606,13 +1606,13 @@ unsafe fn descvt_c8(vt: usize, obj: usize, depth: u32) -> bool {
             }
             false
         }
-        0x1228310 => descvt_cany(obj, 0x08, 0x10, 0x10, 0x50, depth)     // 0x48 패스 없음
+        0xf50160 => descvt_cany(obj, 0x08, 0x10, 0x10, 0x50, depth)     // 0x48 패스 없음
                   || descvt_cany(obj, 0x08, 0x10, 0x10, 0x58, depth),
-        0xf01ff0  => descvt_cany(obj, 0x50, 0x58, 0x18, 0x58, depth)     // 2컨테이너, 0x58만
+        0xef37e0  => descvt_cany(obj, 0x50, 0x58, 0x18, 0x58, depth)     // 2컨테이너, 0x58만
                   || descvt_cany(obj, 0x68, 0x70, 0x10, 0x58, depth),
-        0x12100f0 => descvt_cany(obj, 0x50, 0x58, 0x18, 0x58, depth),
-        0x1228250 => descvt_trio(rd_u64(obj + 0x18).unwrap_or(0) as usize, rd_u64(obj + 0x20).unwrap_or(0) as usize, depth + 1),
-        0x12282b0 => descvt_trio(rd_u64(obj).unwrap_or(0) as usize, rd_u64(obj + 8).unwrap_or(0) as usize, depth + 1),
+        0x26c76e0 => descvt_cany(obj, 0x50, 0x58, 0x18, 0x58, depth),
+        0xf500a0 => descvt_trio(rd_u64(obj + 0x18).unwrap_or(0) as usize, rd_u64(obj + 0x20).unwrap_or(0) as usize, depth + 1),
+        0xf50100 => descvt_trio(rd_u64(obj).unwrap_or(0) as usize, rd_u64(obj + 8).unwrap_or(0) as usize, depth + 1),
         0x11fe400 => descvt_cany(obj, 0x08, 0x10, 0x10, 0xc8, depth),   // any(child.c8), 지배게터. abil over-emit 직접해소
         r => decode_bool_leaf(slot, obj).unwrap_or_else(|| {
             // ★[07-15] leaf 실패 시 제네릭 바이트 디코더(cany OR) 시도 → aim composite 롱테일 커버.
@@ -1633,13 +1633,13 @@ unsafe fn descvt_90(vt: usize, obj: usize, self_u: usize, tgt: usize, depth: u32
     if slot == 0 || !in_text(slot) { return 0; }   // ★[07-15 하드닝] .text 게이트(유효 게터 무영향)
     if depth == 0 {
         match slot.wrapping_sub(exe_base()) {
-            0x9d360 => a2(32), 0x1558f10 => a2(33), 0x12d3be0 => a2(34), _ => a2(35),
+            0x9d3d0 => a2(32), 0x10e7240 => a2(33), 0x12d3be0 => a2(34), _ => a2(35),
         }
     }
     // ★0.5.3 재핀(was 0x50fc80·0x1f236f0·0x20958d0·0x1f23d30|0x23a49f0) — 전부 명령 완전동일 검증
     let rv = match slot.wrapping_sub(exe_base()) {
-        0x9d360 => 0,                                       // xor eax,eax; ret
-        0x1558f10 => {                                      // composite: unsigned MAX
+        0x9d3d0 => 0,                                       // xor eax,eax; ret
+        0x10e7240 => {                                      // composite: unsigned MAX
             let n = rd_u64(obj + 0x10).unwrap_or(0);
             if n == 0 || n > 256 { return 0; }
             let p = rd_u64(obj + 0x08).unwrap_or(0) as usize;
@@ -2289,10 +2289,10 @@ unsafe fn d19_abil2_block(out: usize, g0: usize, sim_obj: usize, geom2: usize, p
  0x11 (cand): cmgate={} tv={} inr={} c8true={} score통과={} emit={}
  0x11 (near): tv={} emit={}
  self-target: 0x10(Gate#2) emit={}  0x11(Gate#2/#3) emit={}
- descvt_90: 0x9d360(=0)={} 0x1558f10(max)={} 0x12d3be0(lvl3)={} 미등재={} | nonzero반환={}
- descvt_78(pred): 0x9d360(false)={} 0x11fe8d0(comp)={} 0xc05b0(true)={} 미등재={}
+ descvt_90: 0x9d3d0(=0)={} 0x10e7240(max)={} 0x12d3be0(lvl3)={} 미등재={} | nonzero반환={}
+ descvt_78(pred): 0x9d3d0(false)={} 0x11fe8d0(comp)={} 0xc05b0(true)={} 미등재={}
  Gate#2: 호출={} pred단락(무조건emit)={} 컨테이너통과={} false={}
- descvt_c8(aim): 0x9d360(false)={} composite={} 기타등재={} ★미등재={}  (미등재>0 = 테이블 불완전!)
+ descvt_c8(aim): 0x9d3d0(false)={} composite={} 기타등재={} ★미등재={}  (미등재>0 = 테이블 불완전!)
  P<0(scaled) 발생수={}  (0이면 SHR교정=no-op, under 원인은 다른 곳)
 ",
                 g(0), g(1), g(2),
@@ -2494,7 +2494,7 @@ unsafe fn d19_g1_pred_pure(p5: usize, p6: usize, e: usize) -> bool {
     // lo/hi (연산우선순위: (((jud²*C1)*C2)>>S)+K)
     let jj = jud * jud;
     let lo = (((jj * 0x3a) * 0x68db9) >> 0x20) + 2;                     // ((jud²*58*0x68db9)>>32)+2
-    let hi = (((jj * 0x72) * 0x1a36e3) >> 0x22) + 6;                    // ((jud²*114*0x1a36e3)>>34)+6
+    let hi = (((jj * 0x72) * 0x1b02e3) >> 0x22) + 6;                    // ((jud²*114*0x1b02e3)>>34)+6
     // bias = (((teamstat²*0xc)/10000)*jud & 0xffff)/100
     let bias = ((((teamstat * teamstat * 0xc) / 10000) * jud) & 0xffff) / 100;
     // seed base(tid<<0x14 ^ self_h) + tick항 = max(tick-r14,0)<<0x28[최신E, 검증됨]
