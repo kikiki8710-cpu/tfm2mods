@@ -610,6 +610,19 @@ static MOD_FINALS: Mutex<Vec<u64>> = Mutex::new(Vec::new());       // next_tier 
 static MOD_BUF: AtomicU64 = AtomicU64::new(0);   // mod_items 배열 base (element = MOD_BUF + i*stride, key@element+0)
 static MOD_STRIDE: AtomicU64 = AtomicU64::new(0);
 static NT_OFFSET: AtomicUsize = AtomicUsize::new(0);
+/// ★★mod_items Vec 오프셋 — **SDK offset_of! 로 하드코딩 제거**(CPS_OFF 와 동일 방식).
+///   0.5.7 = 0x166E8. ⚠직전까지 하드코딩 `0x16700` 을 썼는데 그건 **다음 필드
+///   `available_champions`** 였다(로그 `len=95 stride=0x198` 이 아이템이 아니라 **챔피언 95종**).
+///   0.5.6 에서도 0x16700 은 오답(실제 0x166C0) — 처음부터 틀린 상수였고, comptest 에서
+///   base 환산해 이식한 값도 부정확했다.
+///   ⟹ offset_of! 로 바꿔 **패치마다 자동 추종**시킨다(이 축의 재발을 영구 차단).
+const MOD_ITEMS_VEC_OFF: usize = core::mem::offset_of!(game_core::Database, item_setting.mod_items);
+/// ModItemEntry 크기(=배열 stride). 0.5.6/0.5.7 = 0x1a8.
+///   ⚠"vanilla 0x198 / mod 0x1a8" 이분법은 **폐기** — 바닐라 30개는 배열이 아니라 ItemSetting 의
+///   개별 명명 필드이고 타입이 섞여 있어(0x198 대부분 + 0x1a8 3개 + 0x1c0 1개) stride 워크가 원리적으로 불가.
+const ITEM_STRIDE: usize = core::mem::size_of::<game_core::ModItemEntry>();
+/// next_tier Vec 오프셋(cap@+0x30 / ptr@+0x38 / len@+0x40). 0.5.6/0.5.7 동일.
+const NT_OFF: usize = core::mem::offset_of!(game_core::ModItemEntry, next_tier);
 static MODITEMS_DONE: AtomicBool = AtomicBool::new(false);
 // ★0.5.2: ModItemEntry +0x190 = 활성 플래그(!=0 활성 / ==0 비활성). idx i → 활성여부.
 //   근거 = 게임 자신의 Debug impl(0x21a0c10)이 이 필드로 "ModItemEntry(<id>, active|inactive)" 문자열 분기
@@ -658,6 +671,36 @@ unsafe fn dump_mod_items(db: usize) {
         0
     };
     let mut found: Vec<(usize, usize, usize, usize)> = Vec::new();
+    // ★★고정 오프셋 우선(2026-08-27) — comptest 실증 계약:
+    //   mod_items Vec @ db+0x15d78 = {cap@+0x00, ptr@+0x08, len@+0x10}
+    //   element stride 0x1a8(모드)/0x198(바닐라) · key String @+0x08(ptr)/+0x10(len) · 게임 ID = 30+인덱스
+    //   ⚠아래 힙 스캔은 `is_vanilla(k0)` 로 **첫 엔트리가 바닐라면 배열째 건너뛴다** ⟹ 바닐라·모드템이
+    //     한 Vec 에 섞인 구성에서 통째로 실패한다(0.5.7 실사고: MOD_REGISTRY=0 → 아이템 지정 전부 무효).
+    //     고정 경로는 그 필터를 타지 않는다.
+    {
+        for &cand_off in &[MOD_ITEMS_VEC_OFF, 0x15d78usize] {
+        let va = db + cand_off;
+        if let (Some(ptr), Some(len)) = (safe_read_u64(va + 0x08), safe_read_u64(va + 0x10)) {
+            let (p, c) = (ptr as usize, len as usize);
+            if looks_heap(ptr) && c >= 3 && c <= 2000 {
+                let st = detect_stride(p);
+                if st != 0 {
+                    s.push_str(&format!(
+                        "  ★고정 오프셋 적중: db+{MOD_ITEMS_VEC_OFF:#x} ptr={p:#x} len={c} stride={st:#x}
+"));
+                    found.push((p, c, st, va));
+                } else {
+                    s.push_str(&format!("  ⚠고정 오프셋 ptr={p:#x} len={c} — stride 탐지 실패
+"));
+                }
+            } else {
+                s.push_str(&format!("  ⚠고정 오프셋 db+{cand_off:#x} 값 이상 ptr={p:#x} len={c}
+"));
+            }
+        }
+        if !found.is_empty() { break; }
+        }
+    }
     let mut o = 0usize;
     while o + 0x18 <= 0x60000 && found.len() < 16 {
         let a = db + o; o += 8;
@@ -2217,8 +2260,16 @@ unsafe extern "C" fn cap_launcher(saved: *mut u64, _e: usize) -> u64 {
     // 0.5.6 재핀(구0.5.5→0.5.6, launcher 콜사이트 9/9 전단사·retaddr=콜+5):
     //   관전 0x763329→**0x8404e1**(콜 0x8404dc) · 내경기 0x76829b→**0x84544b**(콜 0x845446)
     //   · 조테본경기 0x1aed292→**0x1af18a2**(콜 0x1af189d) · 조테기록 0x1aa88ce→**0x1ac1b2e**(콜 0x1ac1b29).
-    let is_comptest = rva == 0x1af18a2 || rva == 0x1ac1b2e;
-    if (rva == 0x8404e1 || rva == 0x84544b || is_comptest) && seed != 0 {
+    // ★★0.5.7 재핀(2026-08-27) — serpen 이 이미 확정·인게임 검증한 값과 동일 집합이다.
+    //   관전    0x8404e1  → 0xb19ca9   (씬빌더 owner 0x8343a0→0xb0d970)
+    //   내경기  0x84544b  → 0xb1ebfb   (〃)
+    //   조테본  0x1af18a2 → 0x1b193f2  (owner 0x1af1440→0x1b18f90, size 3930 동일)
+    //   조테기록 0x1ac1b2e → 0x1ada3ae (owner 0x1ac15d0→0x1ad9e50, size 3078 동일)
+    //   ⚠이 값들은 `const` 가 아니라 **코드 안 인라인 비교 리터럴**이라 const 기반 미재핀 스캔이
+    //     원리적으로 못 잡았다(0.5.7 실사고: 화면경기 게이트 0회 → 배경 sim 에만 주입되고
+    //     유저가 보는 경기엔 지정 아이템이 안 들어갔다).
+    let is_comptest = rva == 0x1b193f2 || rva == 0x1ada3ae;
+    if (rva == 0xb19ca9 || rva == 0xb1ebfb || is_comptest) && seed != 0 {
         let prev = LIVE_SEED.swap(seed, Ordering::Relaxed);
         if prev != seed { RENDER_PROVIDER.store(0, Ordering::Relaxed); } // 새 경기 시드 → 직후 ctor가 provider 재캡처
         COMPTEST_MATCH.store(is_comptest, Ordering::Relaxed);
@@ -3216,7 +3267,11 @@ fn probe_db(ctx: &mut ServerModContext) {
             // ★08-07: **직접 취득한 base(dbase) 를 1순위**, 구 역산 base(db) 를 2순위로 시도한다.
             //   net=GameData+0x1558 은 0.5.3·0.5.4 exe 대조 확정(둘 다 beam 의 net 인자 `lea …,[r13+0x1558]`).
             'outer: for &base in &[dbase, db] {
-                for &off in &[0x1558usize, 0xd30, 0xda0] {
+                // ★0.5.7 실측(RE 2026-08-27): net = Database + **0x1690**(0.5.6 = 0x1678, +0x18 이동).
+                //   정적 2사이트(0x1da9e4f / 0x234438d `lea …,[reg+0x1690]`) + 런타임 로그 `fwd_valid=true` 일치.
+                //   ⚠구 후보 [0x1558, 0xd30, 0xda0] 는 0.5.5 부터 전부 stale — 지금까진 아래 윈도우 스캔이
+                //     주워서 살아 있었을 뿐이라 매 시도마다 최대 12,288회 VirtualQuery 를 태우고 있었다.
+                for &off in &[0x1690usize, 0x1678, 0x1558, 0xd30, 0xda0] {
                     if sig_ok(base + off) { found = base + off; break 'outer; }
                 }
             }
@@ -4420,7 +4475,11 @@ unsafe extern "C" fn buy_replace_ctx(saved: *mut u64, rsp_entry: usize) -> u64 {
             let cptr0 = rd_u64(athlete + 0x470) as usize; let clen0 = rd_u64(athlete + 0x478) as usize; // 0.5.0 champ name (구 0x398/0x3a0, +0x88 파생)
             if cptr0 >= 0x10000 && clen0 > 0 && clen0 <= 48 && readable(cptr0, clen0) {
                 let cn = String::from_utf8_lossy(std::slice::from_raw_parts(cptr0 as *const u8, clen0)).into_owned();
-                let optr = rd_u64(athlete + 0x440) as usize; // 0.5.0 item slot array (구 0x3c8)
+                // ★0.5.7 RE 정정(2026-08-27): 보유템 ptr = athlete+**0x4a0** (items Vec = 0x498/0x4a0/0x4a8).
+                //   0x440 은 0.5.4 값 — 0.5.5 의 +0x60 시프트 때 owned len(0x448→0x4a8)만 고치고 여기가 누락됐다.
+                //   0x440 은 지금 parameter(0x180~0x468) 내부를 가리켜 **진단 로그가 쓰레기를 읽고 있었다**
+                //   (주입 로직은 이 경로를 안 타서 동작엔 무영향이나, 이 로그를 근거로 한 판단은 무효였다).
+                let optr = rd_u64(athlete + 0x4a0) as usize; // items ptr (0.5.4=0x440, 0.5.5+ = 0x4a0)
                 // owned[3] (4번째) 티어 (있으면)
                 let mut t3 = -1i64;
                 if owned >= 4 && optr >= 0x10000 && readable(optr, 4 * 0x10) {
@@ -4635,7 +4694,7 @@ unsafe extern "C" fn buy_replace_ctx(saved: *mut u64, rsp_entry: usize) -> u64 {
                 //   owned 배열을 훑어 지정 아이템키가 실제로 들어있으면 REACH_HIT에 1회 등록.
                 //   (스냅샷 라인은 own2까지만 캡처돼 후반 도달을 놓치므로 미도달 오판의 원인이 됐음.)
                 if is_player && owned > 0 && owned <= 6 {
-                    let optr = rd_u64(athlete + 0x440) as usize;
+                    let optr = rd_u64(athlete + 0x4a0) as usize; // ★0.5.7 RE 정정: items ptr(구 0x440 = 0.5.4 값)
                     if optr >= 0x10000 && readable(optr, (owned as usize) * 0x10) {
                         for si in 0u8..3 {
                             let Some(want) = slotN_item_key(scope, champ, si) else { continue };
@@ -4687,7 +4746,7 @@ unsafe extern "C" fn buy_replace_ctx(saved: *mut u64, rsp_entry: usize) -> u64 {
                             }
                         }
                         // 게임이 실제 산 아이템(athlete+0x450 배열): 우리 주입대로 갔는지 대조
-                        let optr = rd_u64(athlete + 0x440) as usize;
+                        let optr = rd_u64(athlete + 0x4a0) as usize; // ★0.5.7 RE 정정: items ptr(구 0x440 = 0.5.4 값)
                         let mut bought = String::new();
                         if owned > 0 && owned <= 6 && optr >= 0x10000 && readable(optr, (owned as usize) * 0x10) {
                             for i in 0..(owned as usize) {
@@ -4726,10 +4785,18 @@ unsafe extern "C" fn buy_replace_ctx(saved: *mut u64, rsp_entry: usize) -> u64 {
                 for si in 0u8..3 {
                     if (si as u64) >= blen { break; }         // build에 그 슬롯 없음
                     if owned > si as u64 { continue; }         // 이미 구매된 슬롯 → 늦음
-                    let idx: Option<u64> = if let Some(vid) = slotN_vanilla_id(scope, champ, si) {
-                        Some(vid)                              // 바닐라: id==catalog index (스캔 불요)
-                    } else if let Some(mk) = slotN_item_key(scope, champ, si) {
-                        scan_idx_cached(ctx012, mk.as_bytes()) // 모드템: 이름스캔+레시피검증
+                    // ★★0.5.7 정정(2026-08-27 RE) — **바닐라도 이름 스캔으로 통일**한다.
+                    //   구: 바닐라는 `id == catalog index` 라 가정하고 VANILLA_FINAL{4,24,9,14,19,29}를
+                    //       스캔 없이 그대로 write 했다. **게임은 이 가정을 쓰지 않는다** —
+                    //       카테고리 JT 로 아이템 **이름**을 고른 뒤 카탈로그를 **선형 스캔**해서
+                    //       나온 **루프 인덱스**를 build[slot] 에 쓴다. 즉 인덱스는 순수 위치값이라
+                    //       카탈로그 구성(설치된 아이템 모드)이 바뀌면 그 숫자는 **조용히 다른 아이템**이 된다.
+                    //   실사고: riot_items_tfm2 가 `=0.5.6` 고정이라 0.5.7 에서 자동 비활성 → 카탈로그 구성 변화
+                    //           → 바닐라 지정이 전부 엉뚱한 아이템으로 갔다(유저 제보 "지정한 거랑 다른 아이템").
+                    //   ⟹ 이름 스캔이 실패할 때만 구 숫자로 폴백(스캔 자체가 깨진 상황 대비).
+                    let idx: Option<u64> = if let Some(mk) = slotN_item_key(scope, champ, si) {
+                        scan_idx_cached(ctx012, mk.as_bytes())
+                            .or_else(|| slotN_vanilla_id(scope, champ, si))
                     } else { None };
                     if let Some(t) = idx {
                         // ★멱등 가드(07-19): 이미 목표값이면 write 생략. 실측 53,890회 write 중 절대다수가
@@ -4762,7 +4829,16 @@ unsafe extern "C" fn buy_replace_ctx(saved: *mut u64, rsp_entry: usize) -> u64 {
                 if bp >= 0x10000 && readable(bp, 32) { b0 = rd_u64(bp); b1 = rd_u64(bp + 8); b2 = rd_u64(bp + 16); b3 = rd_u64(bp + 24); }
                 let mx = MAX_OWNED4.load(Ordering::Relaxed);
                 cl.push(champ.to_string()); drop(cl);
-                append_log("4items_buy4.txt", &format!("[owned==3] champ={} build_len={} build=[{},{},{},{}] manual={} MAX_OWNED={}", champ, bl, b0, b1, b2, b3, manual, mx));
+                // ★진단(2026-08-27): manual=false 원인 규명 — sel_get raw / SEL 맵 상태 / scope 를 같이 남긴다.
+                //   sel.txt 에 `<champ> 3 6` 이 있는데 manual=false 가 찍히는 사례가 있어,
+                //   "파일엔 있는데 맵엔 없다" 인지 "키가 다르다" 인지 가른다.
+                let sg_raw = sel_get(scope, champ, 3);
+                let (sel_n, sel_has_plain, sel_has_scoped) = with_sel(|m| (
+                    m.len(),
+                    m.contains_key(&(champ.to_string(), 3u8)),
+                    m.contains_key(&(scoped_key(scope, champ), 3u8)),
+                ));
+                append_log("4items_buy4.txt", &format!("[owned==3] champ={} build_len={} build=[{},{},{},{}] manual={} MAX_OWNED={} | sel_get={} SEL맵={}개 plain키={} scoped키={} scope={:?} pending={}", champ, bl, b0, b1, b2, b3, manual, mx, sg_raw, sel_n, sel_has_plain, sel_has_scoped, scope, SEL_PENDING_ANY.load(Ordering::Relaxed)));
             }
         }
         // ★mode=3: 여기까지(슬롯0/1/2 지정 주입)만. 4번째 아이템(build 확장·신경망·강제구매)은 mode=4 전용 → 3칸=바닐라 3슬롯 유지.
@@ -4787,10 +4863,13 @@ unsafe extern "C" fn buy_replace_ctx(saved: *mut u64, rsp_entry: usize) -> u64 {
                 // ★팀게이트: player 팀만 수동지정(바닐라/모드템) 적용. 적팀은 van=manual=None → 신경망 폴백.
                 let manual = if is_player { slot3_item_key(scope, champ) } else { None };
                 let van = if is_player { slot3_vanilla_id(scope, champ) } else { None };
-                let picked = if let Some(vid) = van {
-                    Some(vid) // ★바닐라 지정: id==catalog index → 스캔 불요(견고, 0.5.0)
-                } else if let Some(mk) = manual.as_ref() {
-                    scan_idx_cached(ctx, mk.as_bytes()) // 모드템: 이름 스캔(ctx+0x30 수정으로 동작)
+                // ★★0.5.7 정정(2026-08-27 RE) — 슬롯3 도 **이름 스캔 우선**으로 통일.
+                //   `id == catalog index` 는 게임이 쓰지 않는 가정이다(게임은 이름→선형스캔→루프인덱스).
+                //   카탈로그 구성이 바뀌면 하드코딩 숫자가 조용히 다른 아이템이 된다. 상세 = slot012 주석.
+                let picked = if let Some(mk) = manual.as_ref() {
+                    scan_idx_cached(ctx, mk.as_bytes()).or(van)   // 스캔 실패 시에만 구 숫자 폴백
+                } else if let Some(vid) = van {
+                    Some(vid)
                 } else {
                     // ★ 적팀 or 미지정: 신경망 fresh 호출(우리5+상대5+포지션 ctx). 캐시 안 함(라인업 무시=오답).
                     compute_auto_4th_id(athlete, champ)

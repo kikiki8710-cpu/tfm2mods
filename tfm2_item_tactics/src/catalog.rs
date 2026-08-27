@@ -334,11 +334,15 @@ pub unsafe fn dump_mod_items(db: usize) {
     };
     // read_nt: elem 의 next_tier Vec(오프셋 o) 를 key 리스트로 읽음. None=그 오프셋서 next_tier 아님.
     let read_nt = |elem: usize, o: usize| -> Option<Vec<String>> {
-        let len = safe_read_u64(elem + o)? as usize;
+        // ★★0.5.7 RE 정정(2026-08-27): Vec 레이아웃은 **{cap@+0x00, ptr@+0x08, len@+0x10}** 이다.
+        //   구현이 len/cap 을 뒤집어 읽고 있었다(len@+0, cap@+0x10) — `cap == len` 인 Vec 에서만
+        //   **우연히** 통과했고, `cap != len` 인 next_tier 는 `cap < len` 가드에 걸려 전부 None 이 됐다.
+        //   (그래서 오프셋 투표가 간헐적으로만 맞았다.)
+        let cap = safe_read_u64(elem + o)? as usize;
+        let ptr = safe_read_u64(elem + o + 8)? as usize;
+        let len = safe_read_u64(elem + o + 0x10)? as usize;
         if len == 0 { return Some(Vec::new()); }
         if len > 8 { return None; }
-        let ptr = safe_read_u64(elem + o + 8)? as usize;
-        let cap = safe_read_u64(elem + o + 0x10)? as usize;
         if ptr <= 0x10000 || cap < len { return None; }
         let mut out = Vec::new();
         for j in 0..len { out.push(key_of_elem(ptr + j * 0x18)?); }
