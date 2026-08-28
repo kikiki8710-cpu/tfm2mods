@@ -24,7 +24,7 @@
     "type": "override"
   },
   "asset/base/sound/sfx/sylas_ult": {
-    "remapping": "asset/base/sound/sfx/prisoner_ult_end",
+    "remapping": "asset/base/sound/sfx/priest_ult",
     "type": "override"
   },
   "asset/base/sound/sfx/sylas_ult_attack": {
@@ -35,20 +35,12 @@
     "remapping": "asset/base/sound/sfx/prisoner_ult_dash",
     "type": "override"
   },
-  "asset/base/sound/sfx/sylas_ult_loop": {
-    "remapping": "asset/base/sound/sfx/archer_ult_loop",
+  "asset/base/sound/sfx/sylas_ult_heal_priest": {
+    "remapping": "asset/base/sound/sfx/priest_ult_heal",
     "type": "override"
   },
-  "asset/base/sound/sfx/sylas_ult_loop_archer": {
-    "remapping": "asset/base/sound/sfx/archer_ult_loop",
-    "type": "override"
-  },
-  "asset/base/sound/sfx/sylas_ult_pre": {
-    "remapping": "asset/base/sound/sfx/archer_ult_pre",
-    "type": "override"
-  },
-  "asset/base/sound/sfx/sylas_ult_pre_archer": {
-    "remapping": "asset/base/sound/sfx/archer_ult_pre",
+  "asset/base/sound/sfx/sylas_ult_priest": {
+    "remapping": "asset/base/sound/sfx/priest_ult",
     "type": "override"
   },
   "asset/base/sound/sfx/sylas_unshackled_attack": {
