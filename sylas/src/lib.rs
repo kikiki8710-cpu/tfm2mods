@@ -1826,6 +1826,8 @@ unsafe fn emit_swap(qpp: usize, ent_id: u64, ctx: usize) {
     if node < 0x10000 { return; }
     if rd_u64(node) != Some(3) { return; }                                 // sub-tag 3 = SetAnimation
     if rd_u64(node + 0x10) != Some(ent_id) { return; }                     // 다른 개체의 노드면 손대지 않는다
+    // ★CasterAnimation 경로는 Entity 포인터를 못 받으므로, 여기서 확인된 id 를 넘겨준다
+    SYLAS_EID.store(ent_id, Ordering::Relaxed);
     let pl = match rd_u64(node + 8) { Some(v) => v as usize, None => return };
     if pl < 0x10000 { return; }
 
@@ -1856,6 +1858,94 @@ unsafe fn emit_swap(qpp: usize, ent_id: u64, ctx: usize) {
     if cap != 0 && ptr >= 0x10000 { HeapFree(GetProcessHeap(), 0, ptr); }  // 옛 버퍼 반납
     let k = EMIT_N.fetch_add(1, Ordering::Relaxed);
     if k < 12 { hlog(&format!("[이미터태그] #{} '{}' → '{}'
+", k, tag, want)); }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// ★★[v126] **CasterAnimation(sub-tag 0xd) 태그 교체** — 두 번째 경로
+//
+// 왜 필요한가: 시전 애니 태그를 만드는 경로가 **둘**이다.
+//   ① 이미터 `EMIT` → sub-tag 3(SetAnimation) — 미스 시 게임이 **롤백**(안전)
+//   ② 이 함수      → sub-tag 0xd(CasterAnimation) — **검증 전무 → 캐릭터 소실**
+//   ②를 안 잡으면, 공여자 애니를 접미사로 통일했을 때 이 경로가 **없는 평이름**을 써넣어
+//   **사일러스가 투명해진다**(2026-08-28 실사고: 성직자 `ult_idle`/`ult_heal` 평이름 제거 직후).
+//
+// 증거: 성직자 궁 Combine 말단의 apply RVA `0x12e7ca0` = CASTANIM_APPLY 재핀값과 일치
+//       (migrate_rva 0.5.6 `0x16e4c20` → 0.5.7 `0x12e7ca0`, 런타임 로그와 교차 확인).
+const CASTANIM_RVA: usize = 0x104ca00;
+// push rbp/r15/r14/r12/rsi/rdi/rbx ; sub rsp,0x50  = 14B (12B 에서 sub 가 잘린다)
+const CASTANIM_SIG: [u8; 14] = [0x55,0x41,0x57,0x41,0x56,0x41,0x54,0x56,0x57,0x53,
+                                0x48,0x83,0xEC,0x50];
+static CASTANIM_TRAMP: AtomicUsize = AtomicUsize::new(0);
+static CA_N:    AtomicU32 = AtomicU32::new(0);
+static CA_MISS: AtomicU32 = AtomicU32::new(0);
+/// 사일러스의 뷰 entity_id. `emit_swap` 이 **이름으로 사일러스임을 확인한 뒤** 기록한다.
+/// CasterAnimation 쪽엔 Entity 포인터가 인자로 안 오므로 이 값으로만 대상을 가린다.
+/// 못 봤으면(=u64::MAX) 아무것도 하지 않는다 — 남의 개체를 건드리면 그쪽이 투명해진다.
+static SYLAS_EID: AtomicU64 = AtomicU64::new(u64::MAX);
+type CastAnimFn = extern "win64" fn(usize, usize, usize, usize);
+
+extern "win64" fn castanim_detour(a: usize, b: usize, c: usize, d: usize) {
+    let t = CASTANIM_TRAMP.load(Ordering::Relaxed);
+    if t == 0 { return; }
+    unsafe { core::mem::transmute::<usize, CastAnimFn>(t)(a, b, c, d) };
+    let _ = std::panic::catch_unwind(std::panic::AssertUnwindSafe(
+        || unsafe { castanim_swap(a) }));
+}
+
+/// 큐 레이아웃은 이미터와 동일: 엔트리 0x10 `{u32 kind, u64 node}` · 노드 `{sub_tag, payload, entity_id}`.
+/// 다른 점은 **sub_tag 가 0xd** 이고 대상 식별을 `SYLAS_EID` 로 한다는 것뿐이다.
+unsafe fn castanim_swap(qpp: usize) {
+    if !EMIT_SWAP.load(Ordering::Relaxed) { return; }
+    if qpp < 0x10000 { return; }
+    let eid = SYLAS_EID.load(Ordering::Relaxed);
+    if eid == u64::MAX { return; }                       // 아직 사일러스를 못 봤다
+
+    let donor = {
+        let g = SLOT_TMPL.lock().unwrap_or_else(|x| x.into_inner());
+        match g.as_ref() { Some(t) => t.1.clone(), None => return }
+    };
+    if donor.is_empty() { return; }
+
+    let q = match rd_u64(qpp) { Some(v) => v as usize, None => return };
+    if q < 0x10000 { return; }
+    let len = match rd_u64(q + 0x10) { Some(v) => v as usize, None => return };
+    if len == 0 || len > 0x10000 { return; }
+    let arr = match rd_u64(q + 8) { Some(v) => v as usize, None => return };
+    if arr < 0x10000 { return; }
+    let e = arr.wrapping_add((len - 1) * 0x10);
+    if rd_u64(e).map(|v| v & 0xffff_ffff) != Some(0) { return; }
+    let node = match rd_u64(e + 8) { Some(v) => v as usize, None => return };
+    if node < 0x10000 { return; }
+    if rd_u64(node) != Some(0xd) { return; }             // ★CasterAnimation 만
+    if rd_u64(node + 0x10) != Some(eid) { return; }      // ★사일러스 것만
+    let pl = match rd_u64(node + 8) { Some(v) => v as usize, None => return };
+    if pl < 0x10000 { return; }
+
+    let (cap, ptr, tag) = match rd_gstr(pl) { Some(v) => v, None => return };
+    let want = format!("{}_{}", tag, donor);
+    {
+        let g = ANIM_SET.lock().unwrap_or_else(|x| x.into_inner());
+        // ★없으면 절대 손대지 않는다 — 이 경로는 롤백이 없어 없는 이름 = 캐릭터 소실이다
+        if g.is_empty() || !g.iter().any(|n| *n == want) {
+            let n = CA_MISS.fetch_add(1, Ordering::Relaxed);
+            if n < 8 { hlog(&format!("[시전연출] '{}' 없음 → 원본 '{}' 유지
+", want, tag)); }
+            return;
+        }
+    }
+    let n = want.len();
+    if n == 0 || n > 128 { return; }
+    let np = HeapAlloc(GetProcessHeap(), 0, n);
+    if np < 0x10000 { return; }
+    core::ptr::copy_nonoverlapping(want.as_ptr(), np as *mut u8, n);
+    if !(wr_u64(pl, n as u64) && wr_u64(pl + 8, np as u64) && wr_u64(pl + 0x10, n as u64)) {
+        HeapFree(GetProcessHeap(), 0, np);
+        return;
+    }
+    if cap != 0 && ptr >= 0x10000 { HeapFree(GetProcessHeap(), 0, ptr); }
+    let k = CA_N.fetch_add(1, Ordering::Relaxed);
+    if k < 12 { hlog(&format!("[시전연출] #{} '{}' → '{}'
 ", k, tag, want)); }
 }
 
@@ -4241,6 +4331,19 @@ fn init(_ctx: &GameCtx) -> ModRegistration {
             } else {
                 hlog("[install] cast_anim_emitter 생략 — fanim 화이트리스트가 비었다
 ");
+            }
+        }
+        // ★★[v126] CasterAnimation(sub-tag 0xd) — 이미터가 못 잡는 두 번째 태그 경로
+        if cfg_val(&cfg0, "emit_swap").as_deref() != Some("0") {
+            if !ANIM_SET.lock().unwrap_or_else(|x| x.into_inner()).is_empty() {
+                match unsafe { install_trampn(CASTANIM_RVA, &CASTANIM_SIG,
+                                              castanim_detour as *const () as usize, &CASTANIM_TRAMP) } {
+                    Ok(st) => hlog(&format!("[install] caster_animation_push @{:#x} OK stub={:#x}
+",
+                                            exe_base()+CASTANIM_RVA, st)),
+                    Err(e) => hlog(&format!("[install] caster_animation_push 실패: {}
+", e)),
+                }
             }
         }
         // ⚠[v119, 기본 OFF] 태그 선택기 후킹 — SetAnimation 처리부 안이라 **애니 타이머가 매번 리셋**돼
