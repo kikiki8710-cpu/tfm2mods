@@ -24,19 +24,19 @@
     "type": "override"
   },
   "asset/base/sound/sfx/sylas_ult": {
-    "remapping": "asset/base/sound/sfx/prisoner_ult_end",
+    "remapping": "asset/base/sound/sfx/knight_ult",
     "type": "override"
   },
   "asset/base/sound/sfx/sylas_ult_attack": {
-    "remapping": "asset/base/sound/sfx/berserker_ult_attack",
+    "remapping": "asset/base/sound/sfx/whip_master_ult_attack",
     "type": "override"
   },
   "asset/base/sound/sfx/sylas_ult_dash": {
-    "remapping": "asset/base/sound/sfx/berserker_ult_dash",
+    "remapping": "asset/base/sound/sfx/prisoner_ult_dash",
     "type": "override"
   },
-  "asset/base/sound/sfx/sylas_ult_dash_berserker": {
-    "remapping": "asset/base/sound/sfx/berserker_ult_dash",
+  "asset/base/sound/sfx/sylas_ult_knight": {
+    "remapping": "asset/base/sound/sfx/knight_ult",
     "type": "override"
   },
   "asset/base/sound/sfx/sylas_unshackled_attack": {

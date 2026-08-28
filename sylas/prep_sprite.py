@@ -153,6 +153,11 @@ def main():
     ap.add_argument("src"); ap.add_argument("champ"); ap.add_argument("anim")
     ap.add_argument("--frame"); ap.add_argument("--pad"); ap.add_argument("--match")
     ap.add_argument("--target", type=int, default=74); ap.add_argument("--cuts")
+    ap.add_argument("--fixref", action="store_true",
+        help="좌우·상하 오프셋을 **내용이 가장 적은 프레임**의 값으로 통일. "
+             "이펙트가 오프셋 측정을 오염시킬 때 쓴다(--fixy 의 일반화)")
+    ap.add_argument("--fixy", action="store_true",
+        help="세로 위치를 **첫 프레임 값으로 고정**(캐릭터는 제자리인데 이펙트만 커지는 애니용)")
     ap.add_argument("--footalign", action="store_true",
         help="발 위치로 좌우 정렬(이펙트가 한쪽으로 뻗어도 몸이 안 흔들린다)")
     ap.add_argument("--grow", action="store_true",
@@ -181,6 +186,12 @@ def main():
         print(f"✗ 프레임 {n}개가 필요한데 {len(segs)}조각만 나왔다 ({note}). --cuts 로 직접 지정하라.")
         return
     print(f"[분할] {note}  →  {[(x,y,y-x+1) for x,y in segs]}")
+    # ★조각 폭이 크게 들쭉날쭉하면 모델이 프레임을 제대로 안 그린 것이다
+    #   (실측 2026-08-29 chef/ult 9프레임: 폭 129~314, 한 프레임은 세로로 뭉개짐).
+    #   배치 러너가 이 신호를 보고 재생성한다.
+    _ws = [y-x+1 for x,y in segs]
+    if len(_ws) > 1 and max(_ws) > min(_ws) * 2.5:
+        print(f"⚠분할 불균등 — 폭 {min(_ws)}~{max(_ws)} (비율 {max(_ws)/min(_ws):.1f}배). 재생성 권장.")
     ps = [tight(im.crop((s, 0, e+1, im.size[1])), a.thr) for s, e in segs]
     print(f"[조각] {[p.size for p in ps]}   (알파 {a.thr} 이하 제거 후)")
 
@@ -245,15 +256,44 @@ def main():
         band = max(1, int((bb[3]-bb[1])*0.25))
         fb = al.crop((0, bb[3]-band, img.size[0], bb[3])).getbbox()
         return (fb[0]+fb[2])/2 if fb else (bb[0]+bb[2])/2
-    voff = []
+    voff, voffy = [], []
     try:
         _vs = Image.open(os.path.join(VAN, f"{a.champ}#sheet.png")).convert("RGBA")
         for f in fr:
             d = f["data"]; x, y, w, h = int(d["x"]), int(d["y"]), int(d["w"]), int(d["h"])
-            voff.append(_foot_cx_of(_vs.crop((x, y, x+w, y+h))) - w/2)
+            _c = _vs.crop((x, y, x+w, y+h))
+            voff.append(_foot_cx_of(_c) - w/2)
+            _bb = _c.split()[3].getbbox()
+            voffy.append((_bb[3] if _bb else h) - h/2)      # 중앙 대비 내용 하단
     except Exception:
-        voff = [0.0]*n
-    print("[원본 발오프셋] 중앙 대비 %s" % [round(v,1) for v in voff])
+        voff, voffy = [0.0]*n, [0.0]*n
+    if a.fixref and voff:
+        # ★오프셋은 **내용 전체**로 재므로 이펙트가 섞이면 오염된다.
+        #   가로도 마찬가지다(실측 boomerang_hunter/ult: 부메랑이 왼쪽에 있어
+        #   앞 4프레임이 -13 로 밀렸고, 부메랑이 사라진 f4·f5 만 0 근처였다).
+        #   ⟹ **내용이 가장 적은 프레임**(=이펙트가 가장 작은 프레임)의 값으로 전부 통일한다.
+        areas = []
+        try:
+            _vs2 = Image.open(os.path.join(VAN, f"{a.champ}#sheet.png")).convert("RGBA")
+            for f in fr:
+                d = f["data"]; x, y, w, h = int(d["x"]), int(d["y"]), int(d["w"]), int(d["h"])
+                bb = _vs2.crop((x, y, x+w, y+h)).split()[3].getbbox()
+                areas.append((bb[2]-bb[0])*(bb[3]-bb[1]) if bb else 10**9)
+        except Exception:
+            areas = [0]*n
+        k = min(range(n), key=lambda i: areas[i])
+        print("[기준프레임] f%d (내용 %spx 로 가장 적음) → 오프셋 좌우 %+.1f / 상하 %+.1f 로 통일"
+              % (k, areas[k], voff[k], voffy[k]))
+        voff = [voff[k]]*n; voffy = [voffy[k]]*n
+    elif a.fixy and voffy:
+        # ★내용 하단은 **이펙트가 커지면 같이 내려간다** — 캐릭터 발이 아니다.
+        #   (실측 demon/ult: +11.5 → +53.5 로 커지는데 캐릭터는 제자리고 불꽃 원만 커진 것)
+        #   그런 애니는 첫 프레임 값으로 고정해야 캐릭터가 안 처진다.
+        print("[상하고정] %s → 전부 %+.1f (첫 프레임 값)"
+              % ([round(v,1) for v in voffy], voffy[0]))
+        voffy = [voffy[0]]*len(voffy)
+    print("[원본 발오프셋] 좌우 %s / 상하 %s (둘 다 프레임 중앙 기준)"
+          % ([round(v,1) for v in voff], [round(v,1) for v in voffy]))
 
     def foot_cx(q):
         """발(내용 아래 25%)의 좌우 중심. 이펙트는 대개 공중에 떠 있어 발에는 안 걸린다.
@@ -285,12 +325,36 @@ def main():
         if a.grow and needw > FW:
             print(f"[확장] 프레임 폭 {FW} → {needw} (원본 발오프셋 유지에 필요한 여유)")
             FW = needw
+        # 세로도 같은 계산 — 위/아래 필요분의 2배가 최소 높이
+        needv = 0.0
+        for i, q in enumerate(qs):
+            needv = max(needv, q.size[1] - voffy[i], voffy[i])
+        needh2 = int(needv * 2) + 2
+        if a.grow and needh2 > FH:
+            print(f"[확장] 프레임 높이 {FH} → {needh2} (원본 상하 오프셋 유지에 필요한 여유)")
+            FH = needh2
         print("[정렬] 발 중심 %s → 프레임중앙%+s (원본 오프셋 재현)"
               % ([round(c,1) for c in cxs], [round(v,1) for v in voff]))
+
+    # ★원본이 **빈 프레임**이면 우리도 비운다.
+    #   빈 프레임 = "이 틱엔 아무것도 안 그린다"는 연출(깜빡임·공백)이라, 거기 캐릭터를 그리면
+    #   원본에 없는 잔상이 생긴다(실측 hunter/ult f3 = 3x3 픽셀 0).
+    blanks = set()
+    try:
+        _vs3 = Image.open(os.path.join(VAN, f"{a.champ}#sheet.png")).convert("RGBA")
+        for i, f in enumerate(fr):
+            d = f["data"]; x, y, w, h = int(d["x"]), int(d["y"]), int(d["w"]), int(d["h"])
+            if not _vs3.crop((x, y, x+w, y+h)).split()[3].getbbox(): blanks.add(i)
+    except Exception:
+        pass
+    if blanks:
+        print("[빈프레임] 원본이 비어 있는 %s → 우리도 비운다" % sorted(blanks))
 
     strip = Image.new("RGBA", (FW*n, FH), (0,0,0,0))
     rows = []
     for i, q in enumerate(qs):
+        if i in blanks:
+            rows.append((i, 0, 0, 0, 0, pads[i] if i < len(pads) else 0)); continue
         nw, nh = q.size
         if a.footalign:
             x = int(round(i*FW + FW/2 + voff[i] - cxs[i]))
@@ -299,12 +363,30 @@ def main():
             x = xc
         else:
             x = i*FW + (FW-nw)//2
-        strip.paste(q, (x, max(0, FH-pads[i]-nh)), q)
+        # ★세로도 **프레임 중앙 기준**으로 놓는다.
+        #   ~~아래여백(pads) 복사~~ 는 프레임 높이가 원본과 같을 때만 맞다.
+        #   원본은 한 애니 안에서도 높이가 다르다(실측 knight/ult = 199/177/111).
+        #   같은 아래여백이라도 높이가 다르면 **화면 위치가 달라진다**
+        #   (실측: 아래여백 86/77/44 를 199 높이에 그대로 쓰자 발이 42px 내려갔다).
+        if a.footalign:
+            ybot = FH/2 + voffy[i]
+            y = int(round(ybot)) - nh
+            y = max(0, min(y, FH - nh))
+        else:
+            y = max(0, FH-pads[i]-nh)
+        strip.paste(q, (x, y), q)
         bb = strip.crop((i*FW, 0, (i+1)*FW, FH)).split()[3].getbbox()
         rows.append((i, bb[2]-bb[0], bb[3]-bb[1], bb[1], FH-bb[3], pads[i]))
     for i, w_, h_, top, bot, want in rows:
-        flag = "" if bot == want else f"  ⚠목표 {want}"
-        print(f"   f{i}: 내용 {w_:3}x{h_:3}  위여백 {top:3}  아래여백 {bot:3}{flag}")
+        # footalign 이면 목표는 아래여백이 아니라 **중앙 대비 하단 위치**다
+        want = int(round(FH/2 + voffy[i])) if a.footalign else want
+        got  = (FH - bot) if a.footalign else bot
+        flag = "" if got == want else f"  ⚠목표 {want}"
+        bot = got
+        if w_ == 0 and h_ == 0:
+            print(f"   f{i}: (빈 프레임 — 원본과 동일)"); continue
+        lab = "하단위치" if a.footalign else "아래여백"
+        print(f"   f{i}: 내용 {w_:3}x{h_:3}  위여백 {top:3}  {lab} {bot:3}{flag}")
 
     Z = 4; pv = Image.new("RGB", (strip.width*Z, strip.height*Z+40), (38,40,48))
     q = strip.resize((strip.width*Z, strip.height*Z), Image.NEAREST); pv.paste(q, (0,40), q)
