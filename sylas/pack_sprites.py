@@ -37,7 +37,10 @@ SHEET = os.path.join(CH, "sylas#sheet.png")
 FANIM = os.path.join(CH, "sylas#anim.fanim")
 DROP  = os.path.join(MOD, "gpt_out")
 GAME  = r"C:\Program Files (x86)\Steam\steamapps\common\Teamfight Manager2\mods\sylas\aseprite_resources\champions"
-VAN   = r"C:\Program Files (x86)\Steam\steamapps\common\Teamfight Manager2\bundle_unpacked_full\aseprite_resources\champions"
+# ★신 언팩을 본다(2026-08-29 정정 — prep_sprite 와 동일 결함).
+#   구 `bundle_unpacked_full` 에는 `.data_champion` 신규 챔피언(crossbowman·nightmare)과
+#   alchemist 의 `ult_projectile` 이 없어, "원본에 그 애니 없음"으로 **조용히 건너뛰었다**.
+VAN   = r"C:\Users\jungs\Desktop\claude\tfm2\bundle_unpacked_0826\aseprite_resources\champions"
 
 GAP, GUTTER, MARGIN = 8, 24, 8      # 프레임 간격 / 밴드 간격 / 시트 여백
 

@@ -17,7 +17,8 @@
 import argparse, json, os, sys
 from PIL import Image
 sys.path.insert(0, r"C:\tfm2mods\sylas")
-from graft_effect import char_palette, effect_mask, blob_effect, van_anim
+from graft_effect import (char_palette, effect_mask, blob_effect, van_anim,
+                          outside_effect, freq_palette, freq_effect)
 
 MOD  = r"C:\tfm2mods\sylas"
 DROP = os.path.join(MOD, "gpt_out")
@@ -42,11 +43,13 @@ def auto_top(c):
     return best[0] if best else None
 
 
-def score(frames, pal, mode):
+def score(frames, pal, mode, cap=None):
     hit = px = 0
     for c in frames:
         if mode == "palette":  e = effect_mask(c, pal)
         elif mode == "blob":   e, _ = blob_effect(c)
+        elif mode == "outside": e, _ = outside_effect(c, pal)
+        elif mode == "freq":   e = freq_effect(c, cap or {})
         else:
             t = auto_top(c)
             e = effect_mask(c, pal, t) if t is not None else Image.new("RGBA", c.size, (0,0,0,0))
@@ -55,6 +58,11 @@ def score(frames, pal, mode):
         n = sum(1 for p in e.getdata() if p[3] > 8)
         tot = sum(1 for p in c.getdata() if p[3] > 8)
         if tot and n > tot * 0.75:      # 몸까지 먹었다 = 오판
+            continue
+        # ★잡티는 세지 않는다 — 프레임당 몇 px 짜리는 이펙트가 아니다.
+        #   (실측 inquisitor/ult_end: blob 이 4프레임 **6px** 를 잡아 "4프레임 성공"으로 이겼는데
+        #    실제 이펙트인 분홍 검기 1272px 를 잡은 palette 가 밀렸다)
+        if n < 20:
             continue
         hit += 1; px += n
     return hit, px
@@ -71,9 +79,9 @@ def main():
     for c in json.load(open(ATL, encoding="utf-8"))["champs"]:
         for r in c["anims"]: body[(c["id"], r["n"])] = r["body"]
 
-    pals = {}
-    print("%-30s %-4s %-14s %-14s %-14s  %s" %
-          ("대상", "프레", "palette", "blob", "top", "권장"))
+    pals = {}; caps = {}
+    print("%-30s %-4s %-13s %-13s %-13s %-13s %-13s  %s" %
+          ("대상", "프레", "palette", "blob", "top", "outside", "freq", "권장"))
     for fn in sorted(os.listdir(DROP)):
         if not fn.endswith(".png") or "__" not in fn: continue
         cid, anim = fn[:-4].split("__", 1)
@@ -83,13 +91,15 @@ def main():
         except Exception: continue
         if cid not in pals: pals[cid] = char_palette(cid)
         n = len(frames)
-        res = {m: score(frames, pals[cid], m) for m in ("palette", "blob", "top")}
+        if cid not in caps: caps[cid] = freq_palette(cid)
+        res = {m: score(frames, pals[cid], m, caps[cid])
+               for m in ("palette", "blob", "top", "outside", "freq")}
         best = max(res, key=lambda m: (res[m][0], res[m][1]))
         if res[best][0] == 0: best = "—"
-        print("%-30s %-4d %-14s %-14s %-14s  %s" % (
+        print("%-30s %-4d %-13s %-13s %-13s %-13s %-13s  %s" % (
             cid + "__" + anim, n,
-            "%d프레임 %dpx" % res["palette"], "%d프레임 %dpx" % res["blob"],
-            "%d프레임 %dpx" % res["top"], best))
+            "%dF %dpx" % res["palette"], "%dF %dpx" % res["blob"], "%dF %dpx" % res["top"],
+            "%dF %dpx" % res["outside"], "%dF %dpx" % res["freq"], best))
 
 
 if __name__ == "__main__":

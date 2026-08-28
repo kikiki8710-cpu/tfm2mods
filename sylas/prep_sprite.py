@@ -34,7 +34,11 @@ from PIL import Image, ImageDraw, ImageFont
 MOD  = r"C:\tfm2mods\sylas"
 DROP = os.path.join(MOD, "gpt_out")
 PREV = r"C:\Users\jungs\Desktop\claude\tfm2\mods_report\sylas\gpt_refs"
-VAN  = r"C:\Program Files (x86)\Steam\steamapps\common\Teamfight Manager2\bundle_unpacked_full\aseprite_resources\champions"
+# ★신 언팩을 본다(2026-08-29 정정). 구 `bundle_unpacked_full` 에는 `.data_champion` 으로 정의된
+#   신규 챔피언 4종(alchemist·crossbowman·nightmare·sand_mage)이 **없어서** 변환이 실패했다.
+#   ⚠두 언팩은 시트 배치·PNG 인코딩만 다르고 **프레임 규격·픽셀 내용은 동일**함을 확인(표본 8종).
+#   ⟹ 그 전에 처리한 것들은 재작업 불요.
+VAN  = r"C:\Users\jungs\Desktop\claude\tfm2\bundle_unpacked_0826\aseprite_resources\champions"
 
 def dechroma(im, tol=64):
     """★배경을 투명으로. 2단계다.

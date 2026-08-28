@@ -231,6 +231,9 @@ def main():
     ap.add_argument("--mirror", action="store_true",
         help="추출한 이펙트의 오른쪽 절반을 좌우대칭해 왼쪽에 덮는다"
              "(캐릭터에 붙어 있던 쪽이 같이 잘려나갔을 때 복원)")
+    ap.add_argument("--tip", action="store_true",
+        help="이펙트를 **캐릭터의 무기 끝(내용 오른쪽 끝)** 에 붙인다. "
+             "원본에서 이펙트가 창끝·화살촉에 달려 있을 때(실측 lancer: 고리 중심 +26.0 = 창끝 +25.5)")
     ap.add_argument("--center", action="store_true",
         help="이펙트를 **내 캐릭터의 중심**에 맞춘다(원본 중앙대비 대신). "
              "이펙트가 캐릭터를 둘러싸는 형태일 때 쓴다")
@@ -301,7 +304,27 @@ def main():
             W2 = e2.width; half = (W2 + 1) // 2
             right = e2.crop((W2 - half, 0, W2, e2.height)).transpose(Image.FLIP_LEFT_RIGHT)
             e2.paste(right, (0, 0), right)
-        if a.center:
+        if a.tip:
+            # ★원본에서 "이펙트 중심 − 캐릭터 오른쪽 끝" 관계를 구해, 내 캐릭터의 오른쪽 끝에 같은 관계로 붙인다.
+            #   절대 위치(중앙 대비)를 그대로 쓰면 무기 길이가 다른 만큼 어긋난다
+            #   (실측 lancer: 사일러스 창끝이 +44.5~+77.5 인데 고리를 +26.0 에 두어 몸통에 얹혔다).
+            ch = c.copy(); ep2 = e.load(); cp2 = ch.load()
+            for yy in range(c.height):
+                for xx in range(c.width):
+                    if ep2[xx, yy][3] > 8: cp2[xx, yy] = (0, 0, 0, 0)
+            cb = ch.split()[3].getbbox()
+            mb2 = mine[i].split()[3].getbbox()
+            if cb and mb2:
+                dx = ((bb[0]+bb[2])/2) - cb[2]              # 원본: 이펙트중심 − 캐릭터 우끝
+                dy = ((bb[1]+bb[3])/2) - ((cb[1]+cb[3])/2)  # 원본: 이펙트중심 − 캐릭터 세로중심
+                cx2 = mb2[2] + dx                            # 내 캐릭터 우끝 + 같은 관계
+                cy2 = (mb2[1]+mb2[3])/2 + dy
+                px = int(round(i*FW + cx2 - e2.width/2)); py = int(round(cy2 - e2.height/2))
+                relx = rely = float("nan")
+            else:
+                relx = bb[0] - c.width/2; rely = bb[1] - c.height/2
+                px = int(round(i*FW + FW/2 + relx)); py = int(round(FH/2 + rely))
+        elif a.center:
             # 내 프레임의 캐릭터 중심에 이펙트 중심을 맞춘다
             mb = mine[i].split()[3].getbbox()
             if mb:
