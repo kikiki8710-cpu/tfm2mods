@@ -115,10 +115,17 @@ def main():
         stem = fn[:-4]
         if "__" not in stem: skipped.append((fn, "이름이 <champ>__<anim>.png 형식이 아님")); continue
         champ, anim = stem.split("__", 1)
-        # ★`champ__원본애니@저장이름` = 규격은 원본 애니에서 가져오되 **다른 이름으로** 저장한다.
-        #   사일러스 자기 애니와 이름이 겹치는 경우에 쓴다(예: 기병 궁은 `ult` 인데
-        #   그 이름은 사일러스 자기 궁이 쓰고 있다 → `cavalry_knight__ult@ult_cavalry.png`).
-        anim, save_as = anim.split("@", 1) if "@" in anim else (anim, anim)
+        # ★★저장 이름 = **항상 `<원본애니>_<공여자>`**(2026-08-28 유저 지시로 규칙 통일).
+        #   왜: 평이름으로 저장하면 사일러스 본인 애니를 **조용히 덮어쓴다**
+        #   (실사고: 광전사 `ult_dash` 가 사일러스 `ult_dash` 37x38 10프레임을 날렸다).
+        #   pack 은 gpt_out 에서 온 이름을 `_sylas` 밴드에서 빼기 때문에 원본이 사라진다.
+        #   emit_swap(이미터 큐 스왑)이 `<태그>_<공여자>` 를 찾으므로 접미사가 **정답이자 기본값**이다.
+        #   사일러스에 그 이름이 없더라도 예외 없이 붙인다 — 공여자가 늘면 언젠가 겹친다.
+        #   `@저장이름` 을 명시하면 그것을 우선한다(특수한 경우용 탈출구).
+        if "@" in anim:
+            anim, save_as = anim.split("@", 1)
+        else:
+            save_as = f"{anim}_{champ}"
         # 원본에서 프레임 수·duration 을 가져온다(타이밍을 원본과 맞추기 위해)
         try:
             src = load_fanim(os.path.join(VAN, f"{champ}#anim.fanim"))["anims"][anim]
