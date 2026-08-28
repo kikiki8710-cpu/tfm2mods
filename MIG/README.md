@@ -55,6 +55,7 @@ MIG\
 | 7 | 인라인 리터럴 (rva == 0x…) | 추출기가 const 여부 무관 전수 추출 + coverage |
 | + | 로컬 복사본 (0x1788×3모드) | **dups** — 같은 값 보유 모드 그룹 보고 |
 | + | 침묵 사망 (sig fail-safe) | check 는 로그·증상과 무관하게 exe 만 본다 |
+| 8 | 무효 구값 엔트리 (HR_AE_FN 오핀 08-28 — 구값이 함수시작 아닌데 바이트 이주가 유일 매치 통과) | **재핀 전 구값 유효성 선검증**(함수시작=프롤로그/vtable=.rdata)·무효=ghidra-re 재규명·`*_FN`은 재핀 후 함수시작 검증 |
 
 ## 현행 상태 (2026-08-28 채록 기준)
 - 0.5.7 정합: item_tactics·champ_pos_lock·comptest·banpick_order·banpick_illust·serpen·

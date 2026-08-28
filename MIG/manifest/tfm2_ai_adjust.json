@@ -8,7 +8,8 @@
   "해당 knob 는 사이트 부분 적용 상태(재핀된 사이트에만 적용) — imm_guard.txt 의 BLOCK 줄이 정상 로그다.",
   "TEXT_END 0x32687ff — 0.5.7 에서 .text 축소(방향 반전 주의).",
   "로그/설명 문자열 속 참고 주소(STATUS_CTR·knobs DESCS)는 마이그 대상 아님 = ignore 처리됨.",
-  "★MIG 교훈(2026-08-28): 구값이 이미 무효(0.5.3 잔재)인 엔트리는 바이트 이주가 오핀을 낳는다 — HR_AE_FN 0x10efff0 실사고. *_FN 류는 재핀 후 함수시작(프롤로그) 검증을 별도로 할 것."
+  "★MIG 교훈(2026-08-28): 구값이 이미 무효(0.5.3 잔재)인 엔트리는 바이트 이주가 오핀을 낳는다 — HR_AE_FN 0x10efff0 실사고. *_FN 류는 재핀 후 함수시작(프롤로그) 검증을 별도로 할 것.",
+  "★fix_skill2_dmg 0.5.7 재설계 완료(2026-08-28): 훅 A 0xd199f2(위협·행렬r12/idx r13/분모rbx) + B 0xd19c61(이득·r10/r15/r13) + NOP 0xd19ea7·0xd19edf. 스킬2 컬럼 0x50/0x1e0. 인게임 적용·완주 검증(fix_imm.txt 적용·크래시0). RE=2026-08-28_AI판단버그3종."
  ],
  "offsets": [],
  "entries": [
@@ -4557,34 +4558,6 @@
    "curated": true
   },
   {
-   "name": "FS2_B_RVA",
-   "value": "0xd086d4",
-   "ver": "0.5.6",
-   "kind": "BYTE_PATCH_HOLD",
-   "locs": [
-    "src/detour.rs:4472"
-   ],
-   "sect": ".text",
-   "bytes": "e87900004c89f184c074e1b0",
-   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
-   "note": "HOLD — 컨테이너 본문변경으로 정렬 불가(가드 blocked=fail-safe). OWNER_MULTI",
-   "curated": true
-  },
-  {
-   "name": "FS2_N2_RVA",
-   "value": "0xd08812",
-   "ver": "0.5.6",
-   "kind": "BYTE_PATCH_HOLD",
-   "locs": [
-    "src/detour.rs:4474"
-   ],
-   "sect": ".text",
-   "bytes": "c2f5284d85c0741c4983c064",
-   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
-   "note": "HOLD — 컨테이너 본문변경으로 정렬 불가(가드 blocked=fail-safe). OWNER_MULTI",
-   "curated": true
-  },
-  {
    "name": "INLINE@src/class_micro.rs:725",
    "value": "0xd0a806",
    "ver": "0.5.7",
@@ -4823,6 +4796,18 @@
    "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
   },
   {
+   "name": "FS2_A_RVA",
+   "value": "0xd199f2",
+   "ver": "0.5.7",
+   "kind": "UNCLASSIFIED",
+   "locs": [
+    "src/detour.rs:4471"
+   ],
+   "sect": ".text",
+   "bytes": "4b8b84ecb801000048d1e84b",
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+  },
+  {
    "name": "INLINE@src/detour.rs:2141",
    "value": "0xd19a23",
    "ver": "0.5.7",
@@ -4966,6 +4951,18 @@
    "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
   },
   {
+   "name": "FS2_B_RVA",
+   "value": "0xd19c61",
+   "ver": "0.5.7",
+   "kind": "UNCLASSIFIED",
+   "locs": [
+    "src/detour.rs:4472"
+   ],
+   "sect": ".text",
+   "bytes": "4b8b84fab801000048d1e84b",
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+  },
+  {
    "name": "INLINE@src/detour.rs:2123",
    "value": "0xd19c7f",
    "ver": "0.5.7",
@@ -5067,6 +5064,30 @@
    ],
    "sect": ".text",
    "bytes": "41bf960000004c0f42f8488b",
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+  },
+  {
+   "name": "FS2_N1_RVA",
+   "value": "0xd19ea7",
+   "ver": "0.5.7",
+   "kind": "UNCLASSIFIED",
+   "locs": [
+    "src/detour.rs:4473"
+   ],
+   "sect": ".text",
+   "bytes": "4c895010448b542460448890",
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+  },
+  {
+   "name": "FS2_N2_RVA",
+   "value": "0xd19edf",
+   "ver": "0.5.7",
+   "kind": "UNCLASSIFIED",
+   "locs": [
+    "src/detour.rs:4474"
+   ],
+   "sect": ".text",
+   "bytes": "488958304c8978384c8b9424",
    "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
   },
   {
@@ -11967,34 +11988,6 @@
    "bytes": "84a1000000488b8160060000",
    "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
    "note": "HOLD — 컨테이너 본문변경으로 정렬 불가(가드 blocked=fail-safe). 가드 없음(수동 판정 필요)",
-   "curated": true
-  },
-  {
-   "name": "FS2_A_RVA",
-   "value": "0xe67f24",
-   "ver": "0.5.7",
-   "kind": "UNCLASSIFIED",
-   "locs": [
-    "src/detour.rs:4471"
-   ],
-   "sect": ".text",
-   "bytes": "b9000000488b8b2806000048",
-   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
-   "note": "3차 재핀(2026-08-28) — 윈도 유일화/match_mid + 가드 imm 실측",
-   "curated": true
-  },
-  {
-   "name": "FS2_N1_RVA",
-   "value": "0xe682f8",
-   "ver": "0.5.7",
-   "kind": "UNCLASSIFIED",
-   "locs": [
-    "src/detour.rs:4473"
-   ],
-   "sect": ".text",
-   "bytes": "d14885c074ef4c8b98280600",
-   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
-   "note": "3차 재핀(2026-08-28) — 윈도 유일화/match_mid + 가드 imm 실측",
    "curated": true
   },
   {

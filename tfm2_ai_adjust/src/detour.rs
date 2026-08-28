@@ -4437,45 +4437,45 @@ unsafe fn apply_eh_imm() {
 //   근거 = RE\2026-08-04_d07a60-위협디스크립터-생산자-스킬2버그-0.5.3.md (버그 발견)
 //          RE\2026-08-04_스킬2버그-수정지점-d08404-d086d4-0.5.3.md   (수정 지점 확정)
 //
-// [무엇이 잘못됐나]
-//   `0xd07a60`(score_parameter.rs)의 **적 분기**는 피해 매트릭스 4열 중 슬롯2(스킬2, 열 `+0x50`/`+0x1e0`)를
-//   **아예 계산하지 않고** 슬롯1(스킬1) 결과를 그대로 복사한다.
-//     0xe682f8  mov [rsi+0x10], rdx   ; ← 0xd087c8 의 스킬1 값과 같은 rdx
-//     0xd08812  mov [rsi+0x30], r10   ; ← 0xd0880e 의 스킬1 값과 같은 r10
-//   함수 전체에서 `+0x50`/`+0x1e0` 접근이 0회(실측). **아군 분기는 정상.**
-//   ⟹ AI가 "저 자리로 가면 얼마나 아플까"를 셀 때 **적의 스킬2를 통째로 빼먹는다.**
+// [무엇이 잘못됐나]  ★0.5.7 재핀(2026-08-28, ghidra-re+capstone 실측). 구 0.5.3 주소·레지스터는 아래 이력.
+//   생산자 = 0.5.7 `0xd19130`(score_parameter.rs)의 **적 분기**가 슬롯2(스킬2, 열 `+0x50`/`+0x1e0`)를
+//   **아예 계산하지 않고** 슬롯1(스킬1) 값을 그대로 복사한다.
+//     0xd19ea7  mov [rax+0x10], r10   ; ← 0xd19e8e 의 스킬1 위협값 r10 을 재로드 없이 그대로
+//     0xd19edf  mov [rax+0x30], rbx   ; ← 0xd19edb 의 스킬1 이득값 rbx 를 그대로
+//   위협 슬롯 스필은 평타[rsp+0x80]·스킬1[rsp+0x58]·궁[rsp+0xb0] 3개뿐 = **스킬2 위협값이 계산조차 안 됨.**
+//   아군 분기는 정상. ⟹ AI 가 "저 자리로 가면 얼마나 아플까"에서 적의 스킬2를 통째로 빼먹는다.
 //
 // [왜 4바이트 교체로는 못 고치나]
-//   `0xd087c0` 시점엔 행렬 베이스는 살아 있지만 **인덱스(param_4)와 두 분모가 이미 클로버**돼 있다.
-//   올바른 값을 만들 재료가 그 자리에 없다.
+//   store 시점(0xd19ea7)엔 행렬(r12)이 이미 클로버(0xd19e98 `mov r12d,[rsp+0xa0]`)돼 재료가 없다.
 //
-// [고치는 방법 = 훅 2 + NOP 2]
-//   행렬·인덱스·분모·출력포인터가 **동시에 살아 있는** 두 지점에서 미리 계산해 넣고,
-//   뒤의 잘못된 store 2개를 NOP 한다. 두 지점 모두 해당 분기의 straight-line 상이라 무조건 실행된다.
-//     A: 0xe67f24 (내/타깃 쪽)  r13=행렬 rbp=idx rbx=분모(≥1 보정됨) rsi=출력  → [rsi+0x10]
-//     B: 0xd086d4 (gain 쪽)     rdx=행렬 r12=idx r13=분모            rsi=출력  → [rsi+0x30]
-//   공식(같은 분기 형제 3개에서 도출) = `min(150, ((M[half+idx*8]>>1) + M[val+idx*8]) * 100 / max(1,분모))`
-//   슬롯2의 (val, half) = (0x050, 0x1e0).
+// [고치는 방법 = 훅 2 + NOP 2]  (0.5.3 방식과 동일 구조, 0.5.7 레지스터로 이식)
+//   행렬·idx·분모가 **동시에 살아 있는** 계산부에서 스킬2 값을 만들어 출력 슬롯에 직접 쓰고,
+//   뒤의 잘못된 store 2개를 NOP. 출력 포인터는 두 훅 모두 `[rsp+0xf8]`(함수 진입시 rcx, 프레임 고정).
+//     A(위협): 0xd199f2  행렬=r12 idx=r13 분모=rbx  → [out+0x10]  (스틸=스킬1 위협 계산 16B, 복귀 0xd19a02)
+//     B(이득): 0xd19c61  행렬=r10 idx=r15 분모=r13  → [out+0x30]  (스틸=스킬1 이득 계산 16B, 복귀 0xd19c71)
+//   공식(같은 분기 형제 슬롯에서 도출) = `min(150, ((M[half+idx*8]>>1) + M[val+idx*8]) * 100 / max(1,분모))`
+//   컬럼 stride +0x28: 평타(0x000,0x190)·스킬1(0x028,0x1b8)·**스킬2(0x050,0x1e0)**·궁(0x078,0x208).
 //
 // [안전성 근거]
-//   · 두 사이트 16B는 명령 경계 정확히 일치, rip-relative 없음(그대로 재실행 가능)
-//   · 진입 시 rax는 dead(첫 명령이 덮어씀) ⟹ `movabs rax,stub; jmp rax` 12B + NOP 4B 로 후킹 가능
-//   · 함수 내 분기 타깃 106개 전수에 이 구간 진입 0건 · xref 0건 · `.pdata` unwind flags=0
-//   · `[rsi+0x10]`·`[rsi+0x30]` 을 쓰는 명령은 각각 단 1곳뿐 ⟹ 조기 write 안전
-//   · 스텁은 게임 레지스터를 하나도 안 건드린다(push/pushfq 로 rax·rcx·rdx·플래그 보존)
-//   · 분모 0 방어를 넣었다(원본은 cmp/adc 로 이미 보정하지만 방어적으로)
+//   · 두 사이트 16B 는 명령 경계 정확히 일치(capstone 확인), rip-relative 없음(그대로 재실행 가능)
+//   · 진입 시 rax 는 dead(스틸 첫 명령이 덮어씀) ⟹ `movabs rax,stub; jmp rax` 12B + NOP 4B 로 후킹
+//   · `[out+0x10]`·`[out+0x30]` 을 쓰는 명령은 각각 store 블록의 단 1곳(NOP 대상) ⟹ 조기 write 안전
+//   · 스텁은 rax·rcx·rdx·플래그만 push/pushfq 로 보존(행렬·idx·분모 레지스터는 read-only)
+//   · 분모 0 방어 포함(원본은 cmp/adc 로 보정하나 방어적으로)
+//   · 적용 전 4곳 원본 바이트 전수 대조(fs2_bytes_eq) — 하나라도 다르면 아무것도 안 씀(패치 이동 감지)
 //
 // ⚠기본 OFF. `fix_skill2_dmg=1` 일 때만 적용된다.
-// ⚠호출자 `0xd37580` 이 결과를 200엔트리 메모 캐시에 담으므로, 토글 직후엔 캐시가 갱신될 때까지 반영이 늦다.
+// ⚠호출자 캐시래퍼 `0xc70eb0`(200엔트리 memo)가 결과를 담으므로 토글 직후엔 캐시 갱신까지 반영 지연.
+//   [구 0.5.3 이력] A=0xe67f24 B=0xd086d4 N1=0xe682f8 N2=0xd08812 (rsi=출력·rdx/r10 값). 0.5.7서 전면 이동.
 // ════════════════════════════════════════════════════════════════════════════════
-const FS2_A_RVA:  usize = 0xe67f24;   // 훅 A 진입
-const FS2_B_RVA:  usize = 0xd086d4;   // 훅 B 진입
-const FS2_N1_RVA: usize = 0xe682f8;   // 잘못된 store (내/타깃)
-const FS2_N2_RVA: usize = 0xd08812;   // 잘못된 store (gain)
-const FS2_A_ORIG: [u8; 16] = [0x49,0x8b,0x84,0xed,0x08,0x02,0x00,0x00, 0x48,0xd1,0xe8, 0x49,0x03,0x44,0xed,0x78];
-const FS2_B_ORIG: [u8; 16] = [0x4a,0x8b,0x84,0xe2,0x08,0x02,0x00,0x00, 0x48,0xd1,0xe8, 0x4a,0x03,0x44,0xe2,0x78];
-const FS2_N1_ORIG: [u8; 4] = [0x48,0x89,0x56,0x10];   // mov [rsi+0x10], rdx
-const FS2_N2_ORIG: [u8; 4] = [0x4c,0x89,0x56,0x30];   // mov [rsi+0x30], r10
+const FS2_A_RVA:  usize = 0xd199f2;   // 훅 A 진입(위협 계산부: 스킬1 위협 로드)
+const FS2_B_RVA:  usize = 0xd19c61;   // 훅 B 진입(이득 계산부: 스킬1 이득 로드 — 위협 훅과 대칭)
+const FS2_N1_RVA: usize = 0xd19ea7;   // 잘못된 store (위협 스킬2)
+const FS2_N2_RVA: usize = 0xd19edf;   // 잘못된 store (이득 스킬2)
+const FS2_A_ORIG: [u8; 16] = [0x4b,0x8b,0x84,0xec,0xb8,0x01,0x00,0x00, 0x48,0xd1,0xe8, 0x4b,0x03,0x44,0xec,0x28];
+const FS2_B_ORIG: [u8; 16] = [0x4b,0x8b,0x84,0xfa,0xb8,0x01,0x00,0x00, 0x48,0xd1,0xe8, 0x4b,0x03,0x44,0xfa,0x28];
+const FS2_N1_ORIG: [u8; 4] = [0x4c,0x89,0x50,0x10];   // mov [rax+0x10], r10
+const FS2_N2_ORIG: [u8; 4] = [0x48,0x89,0x58,0x30];   // mov [rax+0x30], rbx
 const FS2_NOP4:    [u8; 4] = [0x0f,0x1f,0x40,0x00];   // nop dword [rax+0]
 
 static FS2_APPLIED: AtomicI64 = AtomicI64::new(-1);   // -1=미결정 / 0=원본 / 1=수정
@@ -4497,24 +4497,26 @@ unsafe fn fs2_bytes_eq(addr: usize, want: &[u8]) -> bool {
 }
 
 /// 스킬2 값을 계산해 out에 쓰는 스텁을 만든다.
-///  `mode 0` = 훅 A (M=r13, idx=rbp, div=rbx, out=[rsi+0x10])
-///  `mode 1` = 훅 B (M=rdx, idx=r12, div=r13, out=[rsi+0x30])
+///  `mode 0` = 훅 A 위협 (M=r12, idx=r13, div=rbx, out=[rsp+0xf8]→+0x10)  ★0.5.7
+///  `mode 1` = 훅 B 이득 (M=r10, idx=r15, div=r13, out=[rsp+0xf8]→+0x30)
 unsafe fn fs2_build_stub(mode: u32, orig: &[u8; 16], ret_addr: usize) -> usize {
     const MEM_CR: u32 = 0x1000 | 0x2000; const RWX: u32 = 0x40;
     let stub = stub_reg(VirtualAlloc(0, 256, MEM_CR, RWX), 256, 0xF10 + mode as usize);
     if stub == 0 { return 0; }
+    // ★0.5.7 스텁. 출력 포인터 = [rsp+0xf8](진입시 rcx). push 4개(0x20) 후엔 [rsp+0x118].
+    //   위협(mode0): 행렬=r12 idx=r13 분모=rbx → [out+0x10] / 이득(mode1): 행렬=r10 idx=r15 분모=r13 → [out+0x30]
     let mut s: Vec<u8> = Vec::new();
     s.extend_from_slice(&[0x50, 0x51, 0x52, 0x9c]);          // push rax; push rcx; push rdx; pushfq
     if mode == 0 {
-        s.extend_from_slice(&[0x49,0x8b,0x84,0xed,0xe0,0x01,0x00,0x00]); // mov rax,[r13+rbp*8+0x1e0]
+        s.extend_from_slice(&[0x4b,0x8b,0x84,0xec,0xe0,0x01,0x00,0x00]); // mov rax,[r12+r13*8+0x1e0]
         s.extend_from_slice(&[0x48,0xd1,0xe8]);                          // shr rax,1
-        s.extend_from_slice(&[0x49,0x03,0x44,0xed,0x50]);                // add rax,[r13+rbp*8+0x50]
+        s.extend_from_slice(&[0x4b,0x03,0x44,0xec,0x50]);                // add rax,[r12+r13*8+0x50]
         s.extend_from_slice(&[0x48,0x6b,0xc0,0x64]);                     // imul rax,rax,100
         s.extend_from_slice(&[0x48,0x89,0xd9]);                          // mov rcx,rbx        (분모)
     } else {
-        s.extend_from_slice(&[0x4a,0x8b,0x84,0xe2,0xe0,0x01,0x00,0x00]); // mov rax,[rdx+r12*8+0x1e0]
+        s.extend_from_slice(&[0x4b,0x8b,0x84,0xfa,0xe0,0x01,0x00,0x00]); // mov rax,[r10+r15*8+0x1e0]
         s.extend_from_slice(&[0x48,0xd1,0xe8]);                          // shr rax,1
-        s.extend_from_slice(&[0x4a,0x03,0x44,0xe2,0x50]);                // add rax,[rdx+r12*8+0x50]
+        s.extend_from_slice(&[0x4b,0x03,0x44,0xfa,0x50]);                // add rax,[r10+r15*8+0x50]
         s.extend_from_slice(&[0x48,0x6b,0xc0,0x64]);                     // imul rax,rax,100
         s.extend_from_slice(&[0x4c,0x89,0xe9]);                          // mov rcx,r13        (분모)
     }
@@ -4526,8 +4528,9 @@ unsafe fn fs2_build_stub(mode: u32, orig: &[u8; 16], ret_addr: usize) -> usize {
     s.extend_from_slice(&[0x48,0x3d,0x96,0x00,0x00,0x00]);               // cmp rax,150
     s.extend_from_slice(&[0xb9,0x96,0x00,0x00,0x00]);                    // mov ecx,150
     s.extend_from_slice(&[0x48,0x0f,0x42,0xc8]);                         // cmovb rcx,rax   = min(.,150)
-    s.extend_from_slice(if mode == 0 { &[0x48,0x89,0x4e,0x10] }          // mov [rsi+0x10],rcx
-                        else         { &[0x48,0x89,0x4e,0x30] });        // mov [rsi+0x30],rcx
+    s.extend_from_slice(&[0x48,0x8b,0x84,0x24,0x18,0x01,0x00,0x00]);     // mov rax,[rsp+0x118]  (출력ptr = 원 [rsp+0xf8])
+    s.extend_from_slice(if mode == 0 { &[0x48,0x89,0x48,0x10] }          // mov [rax+0x10],rcx
+                        else         { &[0x48,0x89,0x48,0x30] });        // mov [rax+0x30],rcx
     s.extend_from_slice(&[0x9d, 0x5a, 0x59, 0x58]);                      // popfq; pop rdx; pop rcx; pop rax
     s.extend_from_slice(orig);                                           // 훔친 원본 16B 재실행
     s.extend_from_slice(&[0xff,0x25,0x00,0x00,0x00,0x00]);               // jmp qword [rip+0]
