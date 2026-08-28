@@ -1923,17 +1923,35 @@ unsafe fn castanim_swap(qpp: usize) {
     if pl < 0x10000 { return; }
 
     let (cap, ptr, tag) = match rd_gstr(pl) { Some(v) => v, None => return };
-    let want = format!("{}_{}", tag, donor);
-    {
+    let want = {
         let g = ANIM_SET.lock().unwrap_or_else(|x| x.into_inner());
-        // ★없으면 절대 손대지 않는다 — 이 경로는 롤백이 없어 없는 이름 = 캐릭터 소실이다
-        if g.is_empty() || !g.iter().any(|n| *n == want) {
-            let n = CA_MISS.fetch_add(1, Ordering::Relaxed);
-            if n < 8 { hlog(&format!("[시전연출] '{}' 없음 → 원본 '{}' 유지
-", want, tag)); }
-            return;
+        if g.is_empty() { return; }
+        let suffixed = format!("{}_{}", tag, donor);
+        if g.iter().any(|n| *n == suffixed) {
+            suffixed                                   // ①공여자 전용 이름이 있다 = 정상 교체
+        } else if g.iter().any(|n| *n == tag) {
+            return;                                    // ②원본 이름이 실재 = 손대지 않는다
+        } else {
+            // ★★③둘 다 없다 = 이대로 두면 **캐릭터가 사라진다**.
+            //   이 경로(sub-tag 0xd)는 sub-tag 3 과 달리 **미스 롤백이 없어서**, 게임이
+            //   존재하지 않는 이름을 그대로 써넣고 렌더가 프레임을 못 찾는다(2026-08-28 실사고).
+            //   ⟹ 모드가 책임지고 **실재하는 이름으로 갈아끼운다**. 연출은 틀려도 몸은 보인다.
+            //   공여자 아트가 아직 없는 태그(예: 광전사 `ult_pre`)에서 발생한다.
+            let fb = ["ult", "idle"];
+            match fb.iter().find(|c| g.iter().any(|n| n.as_str() == **c)) {
+                Some(c) => {
+                    let n = CA_MISS.fetch_add(1, Ordering::Relaxed);
+                    if n < 8 {
+                        hlog(&format!("[시전연출] ⚠'{}' 도 '{}' 도 없음 → 소실방지 '{}' 로 대체
+",
+                                      tag, format!("{}_{}", tag, donor), c));
+                    }
+                    (*c).to_string()
+                }
+                None => return,                        // 폴백조차 없으면 건드리지 않는다
+            }
         }
-    }
+    };
     let n = want.len();
     if n == 0 || n > 128 { return; }
     let np = HeapAlloc(GetProcessHeap(), 0, n);
