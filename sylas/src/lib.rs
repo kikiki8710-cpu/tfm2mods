@@ -671,12 +671,12 @@ unsafe fn eff_ct(cent: usize) -> u32 {
 ///   정적 디컴으로 챔프↔프로바이더를 잇는 건 이름 매핑이 어려워 추정이 섞인다. 여기선 엔티티에
 ///   이름과 슬롯이 나란히 있으므로 **추정이 0이다.**
 ///   ⚠레벨<5인 챔프는 궁 슬롯이 정적 더미(gate=-1)라 "궁없음"으로 찍힌다 — 경기 후반에 다시 찍힌다.
-unsafe fn ult_meta_census(world: usize) {
+unsafe fn ult_meta_census(world: usize, live: bool) {
     if !ULT_META.load(Ordering::Relaxed) { return; }
     {
         let mut g = META_DONE.lock().unwrap_or_else(|x| x.into_inner());
         if g.contains(&world) { return; }
-        if g.len() >= 64 { return; }            // 상한 — 백그라운드 world가 무한히 늘지 않게
+        if g.len() >= 12 { return; }            // 상한 — 백그라운드 world가 무한히 늘지 않게
         g.push(world);
     }
     // ★기본구현 3종을 여기서도 확보한다 — census는 첫 이식보다 먼저 돌아서
@@ -688,9 +688,9 @@ unsafe fn ult_meta_census(world: usize) {
     };
     let slot_len = rd_u64(world + W_SLOT_LEN).unwrap_or(0).min(2048);
     let mut out = format!("
-===== [궁메타 전수] world={:#x} =====
- champ            | ctype tgt atk |  range  growth start | cool | vt+0x48/+0x58/+0x110
-", world);
+===== [궁메타 전수] world={:#x} ({}) =====
+ champ            | ctype tgt atk |  range  growth start | cool | vt+0x50/+0x60/+0x118
+", world, if live { "표시경기" } else { "배경sim" });
     let mut n = 0;
     for k in 0..slot_len {
         let e = resolve(world, k);
@@ -1817,16 +1817,16 @@ unsafe fn ai_mask_vt(orig: usize, sy_vt: usize) -> Option<usize> {
         let (a, b) = (w[VT_I_SKILLSHOT], w[VT_I_AOE]);
         w[VT_I_SKILLSHOT] = def[3];
         w[VT_I_AOE]       = def[4];
-        hlog(&format!("★[오더마스크] +0xf0 RVA:{:#x}->{:#x} | +0x110 RVA:{:#x}->{:#x} = ct 1/2 궁이 Move 오더로 강등되는 것을 막는다
+        hlog(&format!("★[오더마스크] +0xf0 RVA:{:#x}->{:#x} | +0x118 RVA:{:#x}->{:#x} = ct 1/2 궁이 Move 오더로 강등되는 것을 막는다
 ",
             rva_of(a), rva_of(def[3]), rva_of(b), rva_of(def[4])));
     }
     // leak: 이 vtable을 가리키는 Arc가 언제 죽는지 알 수 없다. 공여자당 280B라 누수는 무의미.
     let p = Box::leak(Box::new(w)).as_ptr() as usize;
-    hlog(&format!("★★★[AI마스크] effect vtable 사본 {:#x}→{:#x} (35슬롯 중 3개 교체)\n           \
-+0x48 RVA:{:#x}→{:#x} | +0x58 RVA:{:#x}→{:#x} | +0x110 RVA:{:#x}→{:#x}\n           \
+    hlog(&format!("★★★[AI마스크] effect vtable 사본 {:#x}→{:#x} ({}슬롯 중 3개 교체)\n           \
++0x50 RVA:{:#x}→{:#x} | +0x60 RVA:{:#x}→{:#x} | +0x110 RVA:{:#x}→{:#x}\n           \
 = AI에겐 '이동 안 시키는 즉시 궁'으로 보이게 한다. 발동(+0x20 apply)은 원본 그대로.\n",
-        orig, p, rva_of(o9), rva_of(def[0]), rva_of(o11), rva_of(def[1]), rva_of(o34), rva_of(def[2])));
+        orig, p, VT_WORDS, rva_of(o9), rva_of(def[0]), rva_of(o11), rva_of(def[1]), rva_of(o34), rva_of(def[2])));
     VT_COPY.lock().unwrap_or_else(|x| x.into_inner()).push((orig, p));
     Some(p)
 }
@@ -3635,7 +3635,10 @@ apply=[{}]\n           ★apply**직전**(진입훅) rush_state={:#x}({}) | cctx
     //   RE#14 확정: **표시 경기는 생성·틱이 전부 메인 스레드**, 배경 sim은 스폰 스레드.
     let live = on_game_thread();
     if live { VIEW_LIVE_N.fetch_add(1, Ordering::Relaxed); } else { VIEW_BG_N.fetch_add(1, Ordering::Relaxed); }
-    if live { ult_meta_census(world); }
+    // ★[v130] ~~`if live`~~ 게이트를 뗀다. 실측(2026-08-29 20:04) `[뷰싱크] 표시틱 0 / 백그라운드 576` —
+    //   창-소유-스레드 판별은 신뢰할 수 없고(v91 이력) 그 뒤에 두면 census 가 **영원히 안 돈다**.
+    //   궁 메타는 world 종류와 무관하게 같은 값이라 배경 sim 에서 읽어도 유효하다.
+    ult_meta_census(world, live);
     // ★★★[v92] 프로바이더 교체는 **표시 경기 게이트보다 앞에서** 한다.
     //   ① v91 실측: `on_game_thread()`가 판에 따라 전부 차단(표시틱 0/백그라운드 479)했다가
     //      다른 판에선 38을 통과했다 — **창-소유-스레드 판별은 신뢰할 수 없다.**
