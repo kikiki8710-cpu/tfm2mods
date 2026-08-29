@@ -146,6 +146,24 @@ def main():
                 cell = Image.new("RGBA", (FW, FH), (0,0,0,0))
                 cell.paste(c, ((FW-c.width)//2, (FH-c.height)//2))
                 note = "원본 그대로 %dx%d" % c.size
+            # ★[2026-08-29] **원본의 가로 위치에 맞춘다.**
+            #   구 코드는 사일러스 프레임을 손대지 않고, 원본 연기 프레임만 중앙에 놓았다.
+            #   그 결과 사일러스(f0·f1)와 연기(f3~f6)가 **서로 다른 자리**에 그려졌다
+            #   (실측: 내 f0 중심 -45.5 vs 원본 -4.5 = 41px 어긋남).
+            #   원본은 "닌자가 사라진 그 자리에서 연기가 난다"이므로 자리가 같아야 한다.
+            #   ⟹ 각 프레임의 내용 중심을 **원본 같은 프레임의 중심**에 맞춘다.
+            vb = van[i].split()[3].getbbox()
+            cb = cell.split()[3].getbbox()
+            if vb and cb:
+                want = (vb[0] + vb[2]) / 2 - van[i].width / 2      # 원본 중심(프레임 중앙 대비)
+                have = (cb[0] + cb[2]) / 2 - FW / 2
+                dx = int(round(want - have))
+                dx = max(-cb[0], min(FW - cb[2], dx))               # 프레임 밖으로 안 나가게
+                if dx:
+                    sh = Image.new("RGBA", cell.size, (0, 0, 0, 0))
+                    sh.paste(cell, (dx, 0))
+                    cell = sh
+                    note += "  가로 %+d" % dx
             out.paste(cell, (i*FW, 0))
             print("   %s f%d  %s" % (anim, i, note))
 
