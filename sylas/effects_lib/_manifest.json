@@ -1,0 +1,862 @@
+{
+ "note": "graft_effect.py 로 얹은 이펙트만 분리 보관. 최종본 − .bak_graft(얹기 직전) 차분.",
+ "made": "2026-08-29",
+ "count": 45,
+ "items": [
+  {
+   "file": "alchemist__ult.png",
+   "champ": "alchemist",
+   "anim": "ult",
+   "frames": 4,
+   "frame_size": [
+    93,
+    91
+   ],
+   "pre_graft_size": [
+    93,
+    91
+   ],
+   "pad": [
+    0,
+    0
+   ],
+   "effect_px": 183
+  },
+  {
+   "file": "boomerang_hunter__ult.png",
+   "champ": "boomerang_hunter",
+   "anim": "ult",
+   "frames": 6,
+   "frame_size": [
+    81,
+    90
+   ],
+   "pre_graft_size": [
+    79,
+    82
+   ],
+   "pad": [
+    1,
+    4
+   ],
+   "effect_px": 2308
+  },
+  {
+   "file": "dancer__ult.png",
+   "champ": "dancer",
+   "anim": "ult",
+   "frames": 5,
+   "frame_size": [
+    104,
+    95
+   ],
+   "pre_graft_size": [
+    76,
+    59
+   ],
+   "pad": [
+    14,
+    18
+   ],
+   "effect_px": 2916
+  },
+  {
+   "file": "dark_mage__ult.png",
+   "champ": "dark_mage",
+   "anim": "ult",
+   "frames": 5,
+   "frame_size": [
+    90,
+    185
+   ],
+   "pre_graft_size": [
+    71,
+    185
+   ],
+   "pad": [
+    9,
+    0
+   ],
+   "effect_px": 5807
+  },
+  {
+   "file": "dark_mage__ult_line.png",
+   "champ": "dark_mage",
+   "anim": "ult_line",
+   "frames": 1,
+   "frame_size": [
+    167,
+    77
+   ],
+   "pre_graft_size": [
+    167,
+    77
+   ],
+   "pad": [
+    0,
+    0
+   ],
+   "effect_px": 72
+  },
+  {
+   "file": "dark_mage__ult_line_hit.png",
+   "champ": "dark_mage",
+   "anim": "ult_line_hit",
+   "frames": 6,
+   "frame_size": [
+    101,
+    77
+   ],
+   "pre_graft_size": [
+    101,
+    77
+   ],
+   "pad": [
+    0,
+    0
+   ],
+   "effect_px": 432
+  },
+  {
+   "file": "demon__ult.png",
+   "champ": "demon",
+   "anim": "ult",
+   "frames": 5,
+   "frame_size": [
+    110,
+    131
+   ],
+   "pre_graft_size": [
+    50,
+    71
+   ],
+   "pad": [
+    30,
+    30
+   ],
+   "effect_px": 6421
+  },
+  {
+   "file": "druid__ult.png",
+   "champ": "druid",
+   "anim": "ult",
+   "frames": 4,
+   "frame_size": [
+    97,
+    71
+   ],
+   "pre_graft_size": [
+    97,
+    71
+   ],
+   "pad": [
+    0,
+    0
+   ],
+   "effect_px": 422
+  },
+  {
+   "file": "dual_blader__ult.png",
+   "champ": "dual_blader",
+   "anim": "ult",
+   "frames": 13,
+   "frame_size": [
+    87,
+    71
+   ],
+   "pre_graft_size": [
+    87,
+    71
+   ],
+   "pad": [
+    0,
+    0
+   ],
+   "effect_px": 3081
+  },
+  {
+   "file": "enchanter__ult.png",
+   "champ": "enchanter",
+   "anim": "ult",
+   "frames": 4,
+   "frame_size": [
+    85,
+    82
+   ],
+   "pre_graft_size": [
+    53,
+    78
+   ],
+   "pad": [
+    16,
+    2
+   ],
+   "effect_px": 1905
+  },
+  {
+   "file": "exorcist__ult.png",
+   "champ": "exorcist",
+   "anim": "ult",
+   "frames": 5,
+   "frame_size": [
+    61,
+    123
+   ],
+   "pre_graft_size": [
+    61,
+    97
+   ],
+   "pad": [
+    0,
+    13
+   ],
+   "effect_px": 1569
+  },
+  {
+   "file": "fighter__ult.png",
+   "champ": "fighter",
+   "anim": "ult",
+   "frames": 10,
+   "frame_size": [
+    77,
+    81
+   ],
+   "pre_graft_size": [
+    57,
+    79
+   ],
+   "pad": [
+    10,
+    1
+   ],
+   "effect_px": 5081
+  },
+  {
+   "file": "gambler__ult.png",
+   "champ": "gambler",
+   "anim": "ult",
+   "frames": 8,
+   "frame_size": [
+    90,
+    131
+   ],
+   "pre_graft_size": [
+    82,
+    113
+   ],
+   "pad": [
+    4,
+    9
+   ],
+   "effect_px": 3939
+  },
+  {
+   "file": "guardian_spirit__ult.png",
+   "champ": "guardian_spirit",
+   "anim": "ult",
+   "frames": 5,
+   "frame_size": [
+    125,
+    159
+   ],
+   "pre_graft_size": [
+    53,
+    105
+   ],
+   "pad": [
+    36,
+    27
+   ],
+   "effect_px": 3574
+  },
+  {
+   "file": "hitman__ult.png",
+   "champ": "hitman",
+   "anim": "ult",
+   "frames": 5,
+   "frame_size": [
+    91,
+    79
+   ],
+   "pre_graft_size": [
+    85,
+    71
+   ],
+   "pad": [
+    3,
+    4
+   ],
+   "effect_px": 2206
+  },
+  {
+   "file": "hunter__ult.png",
+   "champ": "hunter",
+   "anim": "ult",
+   "frames": 7,
+   "frame_size": [
+    86,
+    75
+   ],
+   "pre_graft_size": [
+    86,
+    75
+   ],
+   "pad": [
+    0,
+    0
+   ],
+   "effect_px": 1076
+  },
+  {
+   "file": "ice_mage__ult.png",
+   "champ": "ice_mage",
+   "anim": "ult",
+   "frames": 5,
+   "frame_size": [
+    79,
+    71
+   ],
+   "pre_graft_size": [
+    79,
+    71
+   ],
+   "pad": [
+    0,
+    0
+   ],
+   "effect_px": 90
+  },
+  {
+   "file": "illusionist__ult.png",
+   "champ": "illusionist",
+   "anim": "ult",
+   "frames": 5,
+   "frame_size": [
+    53,
+    107
+   ],
+   "pre_graft_size": [
+    53,
+    91
+   ],
+   "pad": [
+    0,
+    8
+   ],
+   "effect_px": 1797
+  },
+  {
+   "file": "inquisitor__ult_end.png",
+   "champ": "inquisitor",
+   "anim": "ult_end",
+   "frames": 4,
+   "frame_size": [
+    135,
+    71
+   ],
+   "pre_graft_size": [
+    135,
+    71
+   ],
+   "pad": [
+    0,
+    0
+   ],
+   "effect_px": 2764
+  },
+  {
+   "file": "lancer__ult.png",
+   "champ": "lancer",
+   "anim": "ult",
+   "frames": 5,
+   "frame_size": [
+    165,
+    71
+   ],
+   "pre_graft_size": [
+    157,
+    71
+   ],
+   "pad": [
+    4,
+    0
+   ],
+   "effect_px": 1757
+  },
+  {
+   "file": "lancer__ult_pre.png",
+   "champ": "lancer",
+   "anim": "ult_pre",
+   "frames": 4,
+   "frame_size": [
+    168,
+    87
+   ],
+   "pre_graft_size": [
+    154,
+    87
+   ],
+   "pad": [
+    7,
+    0
+   ],
+   "effect_px": 1516
+  },
+  {
+   "file": "lightning_mage__ult.png",
+   "champ": "lightning_mage",
+   "anim": "ult",
+   "frames": 7,
+   "frame_size": [
+    70,
+    104
+   ],
+   "pre_graft_size": [
+    70,
+    92
+   ],
+   "pad": [
+    0,
+    6
+   ],
+   "effect_px": 2372
+  },
+  {
+   "file": "lightning_mage__ult_loop.png",
+   "champ": "lightning_mage",
+   "anim": "ult_loop",
+   "frames": 2,
+   "frame_size": [
+    94,
+    77
+   ],
+   "pre_graft_size": [
+    94,
+    77
+   ],
+   "pad": [
+    0,
+    0
+   ],
+   "effect_px": 453
+  },
+  {
+   "file": "magic_knight__ult.png",
+   "champ": "magic_knight",
+   "anim": "ult",
+   "frames": 3,
+   "frame_size": [
+    88,
+    83
+   ],
+   "pre_graft_size": [
+    88,
+    83
+   ],
+   "pad": [
+    0,
+    0
+   ],
+   "effect_px": 725
+  },
+  {
+   "file": "monk__ult.png",
+   "champ": "monk",
+   "anim": "ult",
+   "frames": 10,
+   "frame_size": [
+    158,
+    159
+   ],
+   "pre_graft_size": [
+    62,
+    71
+   ],
+   "pad": [
+    48,
+    44
+   ],
+   "effect_px": 4927
+  },
+  {
+   "file": "ninja__ult_pre.png",
+   "champ": "ninja",
+   "anim": "ult_pre",
+   "frames": 7,
+   "frame_size": [
+    153,
+    99
+   ],
+   "pre_graft_size": [
+    153,
+    99
+   ],
+   "pad": [
+    0,
+    0
+   ],
+   "effect_px": 1820
+  },
+  {
+   "file": "plague_doctor__ult.png",
+   "champ": "plague_doctor",
+   "anim": "ult",
+   "frames": 5,
+   "frame_size": [
+    92,
+    71
+   ],
+   "pre_graft_size": [
+    92,
+    71
+   ],
+   "pad": [
+    0,
+    0
+   ],
+   "effect_px": 394
+  },
+  {
+   "file": "pole_warrior__ult_attack.png",
+   "champ": "pole_warrior",
+   "anim": "ult_attack",
+   "frames": 4,
+   "frame_size": [
+    73,
+    86
+   ],
+   "pre_graft_size": [
+    67,
+    86
+   ],
+   "pad": [
+    3,
+    0
+   ],
+   "effect_px": 3089
+  },
+  {
+   "file": "pole_warrior__ult_dash.png",
+   "champ": "pole_warrior",
+   "anim": "ult_dash",
+   "frames": 4,
+   "frame_size": [
+    96,
+    89
+   ],
+   "pre_graft_size": [
+    96,
+    83
+   ],
+   "pad": [
+    0,
+    3
+   ],
+   "effect_px": 1747
+  },
+  {
+   "file": "prisoner__ult_end.png",
+   "champ": "prisoner",
+   "anim": "ult_end",
+   "frames": 2,
+   "frame_size": [
+    77,
+    63
+   ],
+   "pre_graft_size": [
+    77,
+    63
+   ],
+   "pad": [
+    0,
+    0
+   ],
+   "effect_px": 454
+  },
+  {
+   "file": "pyromancer__ult.png",
+   "champ": "pyromancer",
+   "anim": "ult",
+   "frames": 4,
+   "frame_size": [
+    78,
+    79
+   ],
+   "pre_graft_size": [
+    78,
+    79
+   ],
+   "pad": [
+    0,
+    0
+   ],
+   "effect_px": 45
+  },
+  {
+   "file": "pythoness__ult.png",
+   "champ": "pythoness",
+   "anim": "ult",
+   "frames": 8,
+   "frame_size": [
+    65,
+    73
+   ],
+   "pre_graft_size": [
+    65,
+    73
+   ],
+   "pad": [
+    0,
+    0
+   ],
+   "effect_px": 1572
+  },
+  {
+   "file": "sand_mage__ult.png",
+   "champ": "sand_mage",
+   "anim": "ult",
+   "frames": 4,
+   "frame_size": [
+    89,
+    91
+   ],
+   "pre_graft_size": [
+    89,
+    91
+   ],
+   "pad": [
+    0,
+    0
+   ],
+   "effect_px": 199
+  },
+  {
+   "file": "shadowmancer__ult.png",
+   "champ": "shadowmancer",
+   "anim": "ult",
+   "frames": 4,
+   "frame_size": [
+    100,
+    75
+   ],
+   "pre_graft_size": [
+    100,
+    75
+   ],
+   "pad": [
+    0,
+    0
+   ],
+   "effect_px": 1244
+  },
+  {
+   "file": "soldier__ult.png",
+   "champ": "soldier",
+   "anim": "ult",
+   "frames": 10,
+   "frame_size": [
+    93,
+    71
+   ],
+   "pre_graft_size": [
+    71,
+    71
+   ],
+   "pad": [
+    11,
+    0
+   ],
+   "effect_px": 3031
+  },
+  {
+   "file": "soldier__ult_casting.png",
+   "champ": "soldier",
+   "anim": "ult_casting",
+   "frames": 5,
+   "frame_size": [
+    100,
+    69
+   ],
+   "pre_graft_size": [
+    100,
+    69
+   ],
+   "pad": [
+    0,
+    0
+   ],
+   "effect_px": 733
+  },
+  {
+   "file": "soldier__ult_fire.png",
+   "champ": "soldier",
+   "anim": "ult_fire",
+   "frames": 2,
+   "frame_size": [
+    115,
+    71
+   ],
+   "pre_graft_size": [
+    115,
+    71
+   ],
+   "pad": [
+    0,
+    0
+   ],
+   "effect_px": 222
+  },
+  {
+   "file": "soldier__ult_pre.png",
+   "champ": "soldier",
+   "anim": "ult_pre",
+   "frames": 3,
+   "frame_size": [
+    95,
+    71
+   ],
+   "pre_graft_size": [
+    95,
+    71
+   ],
+   "pad": [
+    0,
+    0
+   ],
+   "effect_px": 168
+  },
+  {
+   "file": "spirit_caller__ult.png",
+   "champ": "spirit_caller",
+   "anim": "ult",
+   "frames": 4,
+   "frame_size": [
+    93,
+    76
+   ],
+   "pre_graft_size": [
+    93,
+    76
+   ],
+   "pad": [
+    0,
+    0
+   ],
+   "effect_px": 1008
+  },
+  {
+   "file": "taoist__ult.png",
+   "champ": "taoist",
+   "anim": "ult",
+   "frames": 5,
+   "frame_size": [
+    80,
+    71
+   ],
+   "pre_graft_size": [
+    80,
+    71
+   ],
+   "pad": [
+    0,
+    0
+   ],
+   "effect_px": 785
+  },
+  {
+   "file": "voodoo_shaman__ult.png",
+   "champ": "voodoo_shaman",
+   "anim": "ult",
+   "frames": 6,
+   "frame_size": [
+    80,
+    146
+   ],
+   "pre_graft_size": [
+    80,
+    110
+   ],
+   "pad": [
+    0,
+    18
+   ],
+   "effect_px": 4279
+  },
+  {
+   "file": "werewolf__ult_loop.png",
+   "champ": "werewolf",
+   "anim": "ult_loop",
+   "frames": 4,
+   "frame_size": [
+    77,
+    76
+   ],
+   "pre_graft_size": [
+    73,
+    76
+   ],
+   "pad": [
+    2,
+    0
+   ],
+   "effect_px": 2552
+  },
+  {
+   "file": "whip_master__ult_loop.png",
+   "champ": "whip_master",
+   "anim": "ult_loop",
+   "frames": 4,
+   "frame_size": [
+    107,
+    71
+   ],
+   "pre_graft_size": [
+    107,
+    71
+   ],
+   "pad": [
+    0,
+    0
+   ],
+   "effect_px": 631
+  },
+  {
+   "file": "white_mage__ult.png",
+   "champ": "white_mage",
+   "anim": "ult",
+   "frames": 4,
+   "frame_size": [
+    99,
+    95
+   ],
+   "pre_graft_size": [
+    99,
+    95
+   ],
+   "pad": [
+    0,
+    0
+   ],
+   "effect_px": 488
+  },
+  {
+   "file": "wind_mage__ult.png",
+   "champ": "wind_mage",
+   "anim": "ult",
+   "frames": 4,
+   "frame_size": [
+    99,
+    79
+   ],
+   "pre_graft_size": [
+    99,
+    79
+   ],
+   "pad": [
+    0,
+    0
+   ],
+   "effect_px": 848
+  }
+ ]
+}
