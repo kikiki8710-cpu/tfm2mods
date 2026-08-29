@@ -1,7 +1,12 @@
 {
   "id": "sylas",
   "category": "Magician",
-  "tags": ["AP", "Melee", "Magic", "CC"],
+  "tags": [
+    "AP",
+    "Melee",
+    "Magic",
+    "CC"
+  ],
   "sprite": "asset/sylas/aseprite_resources/champions/sylas",
   "anim_prefix": "",
   "skill_icons": [
@@ -33,122 +38,284 @@
   },
   "attack": {
     "action_name": "attack",
-    "duration": 20,
-    "cooltime": 58,
-    "start_timing": 12,
+    "duration": 18,
+    "cooltime": 60,
+    "start_timing": 9,
     "cancelable": true,
-    "range": 32000,
+    "range": 18000,
     "casting_type": "Targeting",
     "casting_target": "Enemy",
     "attack_type": "BaseAttack",
     "effect": {
-      "type": "Attack",
-      "damage": 0,
-      "attack_ratio": 100
-    }
-  },
-  "skill": {
-    "action_name": "skill",
-    "description": "#asset/base/text/champion?description.sylas.skill",
-    "duration": 24,
-    "cooltime": 240,
-    "start_timing": 11,
-    "cancelable": true,
-    "range": 60000,
-    "casting_type": "Direction",
-    "casting_target": "Enemy",
-    "attack_type": "Skill",
-    "effect": {
-      "type": "LinearProjectile",
-      "penetrate": true,
-      "speed": 4600,
-      "range": 60000,
-      "name": "sylas_chain",
-      "shape": { "Circle": { "radius": 9000 } },
-      "applied_target": "Enemy",
-      "applied_effects": [
+      "type": "Combine",
+      "effects": [
         {
-          "effect": {
-            "type": "ApAttack",
-            "damage": 45,
-            "attack_ratio": 60
+          "type": "SwitchByBuff",
+          "buff_name": "unshackled",
+          "effect_none": {
+            "type": "Attack",
+            "damage": 0,
+            "attack_ratio": 100,
+            "hp_ratio": 0,
+            "target_hp_ratio": 0,
+            "attack_effect_type": "Target"
           },
-          "casting_type": "Targeting"
-        },
-        {
-          "effect": {
-            "type": "AddBuff",
-            "buff_state": {
-              "name": "sylas_chain_slow",
-              "duration": { "Time": { "tick": 120 } },
-              "move_speed_mult": -30
-            }
-          },
-          "casting_type": "Targeting"
-        },
-        {
-          "effect": {
-            "type": "Delayed",
-            "tick": 30,
+          "effect_buff": {
+            "type": "Combine",
             "effects": [
               {
-                "type": "ApAttack",
-                "damage": 25,
-                "attack_ratio": 30
+                "type": "Attack",
+                "damage": 0,
+                "attack_ratio": 130,
+                "hp_ratio": 0,
+                "target_hp_ratio": 0,
+                "attack_effect_type": "Target"
               },
               {
-                "type": "AddBuff",
-                "buff_state": {
-                  "name": "sylas_chain_slow_heavy",
-                  "duration": { "Time": { "tick": 120 } },
-                  "move_speed_mult": -50
-                }
+                "type": "RangeEffect",
+                "shape": {
+                  "Circle": {
+                    "radius": 25000
+                  }
+                },
+                "target": "EnemyWithoutTower",
+                "apply_type": "AroundCaster",
+                "effects": [
+                  {
+                    "type": "ApAttack",
+                    "damage": 50,
+                    "attack_ratio": 50,
+                    "hp_ratio": 0,
+                    "attack_effect_type": "Target"
+                  }
+                ]
+              },
+              {
+                "type": "CasterAnimation",
+                "name": "unshackled_attack",
+                "tick": 40
+              },
+              {
+                "type": "CasterViewEffect",
+                "name": "unshackled_attack"
+              },
+              {
+                "type": "RemoveCasterBuff",
+                "name": "unshackled"
               }
             ]
-          },
-          "casting_type": "Targeting"
+          }
+        },
+        {
+          "type": "Sfx",
+          "name": "prisoner_attack"
         }
       ]
     }
   },
-  "skill2": {
-    "action_name": "skill2",
-    "description": "#asset/base/text/champion?description.sylas.skill2",
-    "duration": 22,
-    "cooltime": 420,
-    "start_timing": 8,
-    "cancelable": false,
-    "range": 50000,
+  "skill": {
+    "action_name": "skill_dash",
+    "duration": 20,
+    "cooltime": 300,
+    "start_timing": 6,
+    "range": 30000,
     "casting_type": "Targeting",
-    "casting_target": "EnemyChampion",
+    "casting_target": "EnemyWithoutTower",
     "attack_type": "Skill",
-    "can_use_with_move": true,
     "effect": {
       "type": "Combine",
       "effects": [
         {
-          "type": "RushMoveToBack",
-          "speed": 4800,
-          "applied_effects": [
+          "type": "MoveToTarget",
+          "speed": 4000,
+          "range": 30000,
+          "end_effects": [
             {
-              "type": "ApAttack",
-              "damage": 80,
-              "attack_ratio": 80
-            },
-            {
-              "type": "Airborne",
-              "duration": 30
+              "type": "Combine",
+              "effects": [
+                {
+                  "type": "ApAttack",
+                  "damage": 95,
+                  "attack_ratio": 80,
+                  "hp_ratio": 0,
+                  "attack_effect_type": "Target"
+                },
+                {
+                  "type": "Heal",
+                  "amount": 50,
+                  "attack_ratio": 0,
+                  "ap_ratio": 75,
+                  "heal_type": "Caster"
+                },
+                {
+                  "type": "AddCasterBuff",
+                  "buff_state": {
+                    "name": "unshackled",
+                    "duration": {
+                      "Time": {
+                        "tick": 240
+                      }
+                    },
+                    "attack_speed_mult": 25
+                  },
+                  "only_to_enemy": false
+                }
+              ]
             }
           ]
         },
         {
-          "type": "Heal",
-          "amount": 40,
-          "ap_ratio": 45,
-          "heal_type": "Caster"
+          "type": "Sfx",
+          "name": "prisoner_ult_dash"
         }
       ]
-    }
+    },
+    "can_use_with_move": false,
+    "description": "#asset/base/text/champion?description.cf_sylas.skill"
+  },
+  "skill2": {
+    "action_name": "skill_dash",
+    "duration": 20,
+    "cooltime": 120,
+    "start_timing": 10,
+    "range": 50000,
+    "casting_type": "Direction",
+    "casting_target": "EnemyWithoutTower",
+    "attack_type": "Skill",
+    "effect": {
+      "type": "Combine",
+      "effects": [
+        {
+          "type": "SwitchByBuff",
+          "buff_name": "abduct",
+          "effect_none": {
+            "type": "Combine",
+            "effects": [
+              {
+                "type": "RushTime",
+                "speed": 4000,
+                "tick": 10,
+                "casting_target": "EnemyWithoutTower",
+                "range": 40000,
+                "penetrate": true,
+                "applied_effects": []
+              },
+              {
+                "type": "AddCasterBuff",
+                "buff_state": {
+                  "name": "unshackled",
+                  "duration": {
+                    "Time": {
+                      "tick": 240
+                    }
+                  },
+                  "attack_speed_mult": 25
+                },
+                "only_to_enemy": false
+              },
+              {
+                "type": "AddCasterBuff",
+                "buff_state": {
+                  "name": "abduct",
+                  "duration": "Permanent"
+                },
+                "only_to_enemy": false
+              }
+            ]
+          },
+          "effect_buff": {
+            "type": "Combine",
+            "effects": [
+              {
+                "type": "AddCasterBuff",
+                "buff_state": {
+                  "name": "unshackled",
+                  "duration": {
+                    "Time": {
+                      "tick": 240
+                    }
+                  },
+                  "attack_speed_mult": 25
+                },
+                "only_to_enemy": false
+              },
+              {
+                "type": "CasterAnimation",
+                "name": "skill2_cast",
+                "tick": 30
+              },
+              {
+                "type": "LinearProjectile",
+                "name": "skill2_sylas_chain",
+                "speed": 3000,
+                "range": 80000,
+                "penetrate": false,
+                "shape": {
+                  "Circle": {
+                    "radius": 15000
+                  }
+                },
+                "applied_target": "EnemyWithoutTower",
+                "applied_effects": [
+                  {
+                    "casting_type": "Targeting",
+                    "effect": {
+                      "type": "Combine",
+                      "effects": [
+                        {
+                          "type": "Stun",
+                          "duration": 45
+                        },
+                        {
+                          "type": "Delayed",
+                          "tick": 5,
+                          "effects": [
+                            {
+                              "type": "MoveToTarget",
+                              "speed": 4000,
+                              "range": 40000,
+                              "end_effects": [
+                                {
+                                  "type": "Combine",
+                                  "effects": [
+                                    {
+                                      "type": "ApAttack",
+                                      "damage": 80,
+                                      "attack_ratio": 80,
+                                      "hp_ratio": 0,
+                                      "attack_effect_type": "Target"
+                                    },
+                                    {
+                                      "type": "Airborne",
+                                      "duration": 45
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  }
+                ],
+                "end_effects": []
+              },
+              {
+                "type": "RemoveCasterBuff",
+                "name": "abduct"
+              }
+            ]
+          }
+        },
+        {
+          "type": "Sfx",
+          "name": "prisoner_skill1"
+        }
+      ]
+    },
+    "can_use_with_move": false,
+    "description": "#asset/base/text/champion?description.cf_sylas.skill2"
   },
   "ult": {
     "action_name": "ult",
@@ -191,7 +358,11 @@
           "type": "AddCasterBuff",
           "buff_state": {
             "name": "sylas_hijacked",
-            "duration": { "Time": { "tick": 420 } },
+            "duration": {
+              "Time": {
+                "tick": 420
+              }
+            },
             "magic_power": 60,
             "attack_speed_mult": 40,
             "skill_cooldown_mult": -25
