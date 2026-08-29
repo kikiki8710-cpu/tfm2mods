@@ -706,8 +706,13 @@ unsafe fn ult_meta_census(world: usize) {
                 name, rd_u64(e + E_SKILL_CNT).unwrap_or(0)));
             n += 1; continue;
         }
+        // ⚠쿨은 **DataActionDef(0x1a8) 구조일 때만** +0x170이 cooltime이다(네이티브는 다른 필드).
+        //   게이트를 안 걸면 네이티브 챔프 행에 쓰레기 숫자가 찍혀 표 전체가 못 믿을 것이 된다.
         let pd = rd_u64(e + E_PROV_ULT).unwrap_or(0) as usize;
-        let cool = if pd >= 0x10000 { rd_u64(pd + PROV_COOL).unwrap_or(0) } else { 0 };
+        let pv = rd_u64(e + E_PROV_ULTV).unwrap_or(0) as usize;
+        let psz = if in_exe(pv as u64) { rd_u64(pv + 0x08).unwrap_or(0) } else { 0 };
+        let raw = if pd >= 0x10000 { rd_u64(pd + PROV_COOL).unwrap_or(0) } else { 0 };
+        let cool = if psz >= 0x1a8 && raw > 0 && raw < 1_000_000 { raw } else { 0 };
         // effect vtable 3슬롯이 **기본값인지 오버라이드인지** — AI마스크가 실제로 뭘 바꾸는지의 근거
         let vt = w[1] as usize;
         let mark = |i: usize, d: Option<u64>| -> String {
@@ -718,9 +723,10 @@ unsafe fn ult_meta_census(world: usize) {
                 _ => "?".into(),
             }
         };
-        out.push_str(&format!(" {:<16} | {:>5} {:>3} {:>3} | {:>7} {:>6} {:>5} | {:>4} | {} {} {}
+        let cool_s = if cool > 0 { format!("{}", cool) } else { "네이티브".to_string() };
+        out.push_str(&format!(" {:<16} | {:>5} {:>3} {:>3} | {:>7} {:>6} {:>5} | {:>8} | {} {} {}
 ",
-            name, gate, w[5] as u32, (w[5] >> 32) as u32, w[2], w[3], w[4], cool,
+            name, gate, w[5] as u32, (w[5] >> 32) as u32, w[2], w[3], w[4], cool_s,
             mark(VT_I_MOVE_TICKS,  def.map(|d| d[0])),
             mark(VT_I_NOT_INSTANT, def.map(|d| d[1])),
             mark(VT_I_IS_MOVE,     def.map(|d| d[2]))));
@@ -2260,9 +2266,20 @@ unsafe fn slot_tmpl_get(world: usize, who: &str) -> Option<Vec<u64>> {
     GRAFT_SRC_TGT.store(w[5] as u32, Ordering::Relaxed);
     GRAFT_SRC_ATK.store((w[5] >> 32) as u32, Ordering::Relaxed);
     // ★공여자 궁 쿨 = 그 챔프의 **궁 프로바이더 +0x170**(슬롯엔 쿨 필드가 없다).
+    //   ⚠★★**네이티브 챔프는 프로바이더 struct가 DataActionDef(0x1a8)가 아니다** — `+0x170`이
+    //     cooltime이 아니라 전혀 다른 필드다. v92는 여기에 값을 써서 **힙을 깼다**(knight 크래시,
+    //     증거 = 읽힌 cooltime 1308622847). 읽기도 같은 이유로 쓰레기가 나온다.
+    //   ⟹ ①할당 크기(vt+0x08) ≥ 0x1a8 ②값이 상식 범위 일 때만 채택하고, 아니면 **0(미확보)**.
     {
         let pd = rd_u64(src + E_PROV_ULT).unwrap_or(0) as usize;
-        let c = if pd >= 0x10000 { rd_u64(pd + PROV_COOL).unwrap_or(0) } else { 0 };
+        let pv = rd_u64(src + E_PROV_ULTV).unwrap_or(0) as usize;
+        let psz = if in_exe(pv as u64) { rd_u64(pv + 0x08).unwrap_or(0) } else { 0 };
+        let raw = if pd >= 0x10000 { rd_u64(pd + PROV_COOL).unwrap_or(0) } else { 0 };
+        let c = if psz >= 0x1a8 && raw > 0 && raw < 1_000_000 { raw } else {
+            hlog(&format!("  [쿨 채취 불가] {} 프로바이더 size={:#x} raw={} — DataActionDef가 아니거나 값이 비상식 ⟹ graft_cool은 이 공여자에 적용하지 않는다
+", who, psz, raw));
+            0
+        };
         GRAFT_SRC_COOL.store(c, Ordering::Relaxed);
         hlog(&format!("  [공여자 메타] casting_target={} attack_type={} cooltime={} (사일러스 = 7 / 1 / {})
 ",
@@ -2372,8 +2389,11 @@ unsafe fn slot_install(world: usize, sy_key: u64, sy: usize) -> Option<String> {
             if SY_COOL_ORIG.load(Ordering::Relaxed) == 0 {
                 if let Some(c) = rd_u64(pd + PROV_COOL) { SY_COOL_ORIG.store(c, Ordering::Relaxed); }
             }
-            let want = if GRAFT_COOL.load(Ordering::Relaxed) {
-                GRAFT_SRC_COOL.load(Ordering::Relaxed)
+            // 공여자 쿨을 못 캤으면(네이티브 struct 등) **사일러스 원본으로 되돌린다** —
+            // 직전 공여자의 값이 남아 있으면 안 된다.
+            let src_c = GRAFT_SRC_COOL.load(Ordering::Relaxed);
+            let want = if GRAFT_COOL.load(Ordering::Relaxed) && src_c > 0 {
+                src_c
             } else { SY_COOL_ORIG.load(Ordering::Relaxed) };
             if want > 0 {
                 if let Some(now) = rd_u64(pd + PROV_COOL) {
