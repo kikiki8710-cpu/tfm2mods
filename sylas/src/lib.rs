@@ -539,15 +539,19 @@ unsafe fn fix_entity_cctx(world: usize, cent: usize, caster_key: u64) -> Option<
     let mut tgt_key: Option<u64> = if tag0 == 0 { Some(a0) } else { None };
     let mut tgt_pos: Option<(i64, i64)> = None;
     if tag0 == 2 { tgt_pos = Some((a0 as i64, b0 as i64)); }
+    // ★★[v128] 게임이 준 대상이 **공여자 casting_target을 만족하는지** 검사한다.
+    //   사일러스 슬롯은 ct=7(EnemyChampion)이라 AI는 늘 적을 준다. 공여자 궁이 아군/자기 대상이면
+    //   그 적 대상은 **틀린 값**이므로 버리고 규칙에 맞는 후보로 갈아야 한다.
+    let ct_want = eff_ct(cent);
     if let Some(k) = tgt_key {
         let te = resolve(world, k);
-        if te >= 0x10000 {
+        if te >= 0x10000 && ct_allows(ct_want, cent, te) {
             tgt_pos = Some((rd_u64(te + E_POS_X).unwrap_or(0) as i64,
                             rd_u64(te + E_POS_Y).unwrap_or(0) as i64));
-        } else { tgt_key = None; }
+        } else { tgt_key = None; tgt_pos = None; }
     }
     if tgt_key.is_none() || tgt_pos.is_none() {
-        if let Some(k) = nearest_enemy(world, cent, caster_key) {
+        if let Some(k) = nearest_by_ct(world, cent, caster_key, ct_want) {
             let pe = resolve(world, k);
             if pe >= 0x10000 {
                 if tgt_key.is_none() { tgt_key = Some(k); }
@@ -609,6 +613,125 @@ unsafe fn fix_entity_cctx(world: usize, cent: usize, caster_key: u64) -> Option<
 
 /// ★사일러스 기준 **가장 가까운 적**의 SlotMap key를 고른다("일반적으로 궁 쓰는 것처럼").
 ///   X 자신을 대상으로 삼으면 강탈 컨셉엔 맞지만 위치가 부자연스럽다(유저 지시 2026-08-24).
+/// ★★[v128] 게임 정본 술어 `FUN_1417faeb0`(casting_target 14 arm)의 재현.
+///   RE `2026-08-25_casting_target-필터-14arm-전수.md` 표를 그대로 옮겼다.
+///   ⚠이게 없으면 아군/자기 대상 궁(ct 0~4)을 뺏었을 때 **적을 조준**한다 —
+///     ct=4(AllyOnlySelf)면 자버프가 적에게 붙고, ct=1/3이면 힐·실드가 적에게 간다.
+///   실측 공여자 값: cavalry_knight=4 · knight=1 · priest=3 · archer/berserker/crossbowman=7.
+///   ⚠2(InCC)/9(RecentlyAttacked)의 부가 조건(CC 상태·최근 피격)은 **후보 선정용이라 생략**한다
+///     — 게임 게이트는 슬롯에 심은 값으로 별도 판정하므로 여기서 좁힐 필요가 없다.
+unsafe fn ct_allows(ct: u32, se: usize, ent: usize) -> bool {
+    let champ = is_champion(ent);
+    let foe = is_enemy(se, ent);
+    match ct {
+        0 => !foe,                                  // Ally (자신 포함)
+        1 | 2 => !foe && champ,                     // AllyChampion / AllyChampionInCC
+        3 => !foe && champ && ent != se,            // AllyNotSelf
+        4 => ent == se,                             // AllyOnlySelf (팀 검사조차 없음)
+        5 | 6 => foe,                               // Enemy / EnemyWithoutTower
+        7 | 8 | 9 => foe && champ,                  // EnemyChampion 계열
+        10 | 11 => true,                            // Both 계열
+        12 => champ,                                // BothChampion
+        _ => false,                                 // 13 None
+    }
+}
+
+/// `casting_target` 규칙을 만족하는 **가장 가까운** 후보의 SlotMap 키.
+/// ct=4(자기시전)는 순회하지 않고 자기 키를 돌려준다.
+/// ⚠"가장 가까운"은 게임 AI의 점수식이 아니다 — 이건 게임이 준 cctx가 쓸모없을 때의 **폴백**이고,
+///   `graft_tgt=1`이면 AI가 애초에 옳은 대상을 골라주므로 거의 타지 않는다.
+unsafe fn nearest_by_ct(world: usize, se: usize, sk: u64, ct: u32) -> Option<u64> {
+    if ct == 4 { return Some(sk); }
+    let sx = rd_u64(se + E_POS_X)? as i64;
+    let sy = rd_u64(se + E_POS_Y)? as i64;
+    let slot_len = rd_u64(world + W_SLOT_LEN).unwrap_or(0).min(2048);
+    let (mut best, mut bestd) = (None, u64::MAX);
+    for k in 0..slot_len {
+        let ent = resolve(world, k);
+        if ent == 0 { continue; }
+        if !is_champion(ent) || !is_alive(ent) || !is_targetable(ent) { continue; }
+        if !ct_allows(ct, se, ent) { continue; }
+        let (Some(x), Some(y)) = (rd_u64(ent + E_POS_X), rd_u64(ent + E_POS_Y)) else { continue };
+        let (dx, dy) = (x as i64 - sx, y as i64 - sy);
+        let dsq = (dx * dx + dy * dy) as u64;
+        if dsq < bestd { bestd = dsq; best = Some(k); }
+    }
+    best
+}
+
+/// 지금 이식된 궁의 **유효 casting_target**. 공여자 값을 확보했으면 그것, 아니면 사일러스 슬롯 값.
+unsafe fn eff_ct(cent: usize) -> u32 {
+    let g = GRAFT_SRC_TGT.load(Ordering::Relaxed);
+    if g != u32::MAX { return g; }
+    rd_u64(cent + E_SLOT0 + 3 * SLOT_STRIDE + 0x28).map(|v| v as u32).unwrap_or(7)
+}
+
+/// ★★[v128] 이 world의 **전 챔피언 궁 메타 1회 덤프**.
+///   목적 = 어느 챔프의 궁이 아군/자기 대상(ct 0~4)인지, 돌진형(vt+0x110)인지를 **실측**으로 세우는 것.
+///   정적 디컴으로 챔프↔프로바이더를 잇는 건 이름 매핑이 어려워 추정이 섞인다. 여기선 엔티티에
+///   이름과 슬롯이 나란히 있으므로 **추정이 0이다.**
+///   ⚠레벨<5인 챔프는 궁 슬롯이 정적 더미(gate=-1)라 "궁없음"으로 찍힌다 — 경기 후반에 다시 찍힌다.
+unsafe fn ult_meta_census(world: usize) {
+    if !ULT_META.load(Ordering::Relaxed) { return; }
+    {
+        let mut g = META_DONE.lock().unwrap_or_else(|x| x.into_inner());
+        if g.contains(&world) { return; }
+        if g.len() >= 64 { return; }            // 상한 — 백그라운드 world가 무한히 늘지 않게
+        g.push(world);
+    }
+    // ★기본구현 3종을 여기서도 확보한다 — census는 첫 이식보다 먼저 돌아서
+    //   `ai_mask_vt`가 아직 채우지 않았을 수 있다(비우면 ★/기본 판별이 죽는다).
+    let def = {
+        let mut g = SY_VT_DEF.lock().unwrap_or_else(|x| x.into_inner());
+        if g.is_none() { *g = default_eff_stubs(); }
+        *g
+    };
+    let slot_len = rd_u64(world + W_SLOT_LEN).unwrap_or(0).min(2048);
+    let mut out = format!("
+===== [궁메타 전수] world={:#x} =====
+ champ            | ctype tgt atk |  range  growth start | cool | vt+0x48/+0x58/+0x110
+", world);
+    let mut n = 0;
+    for k in 0..slot_len {
+        let e = resolve(world, k);
+        if e < 0x10000 || !is_champion(e) { continue; }
+        let name = match ent_name(e) { Some(v) => v, None => continue };
+        let b = e + E_SLOT0 + 3 * SLOT_STRIDE;
+        let w = slot_words(b);
+        if w.len() != SLOT_STRIDE / 8 { continue; }
+        let gate = w[6] as u32;
+        if gate == u32::MAX {
+            out.push_str(&format!(" {:<16} | 궁슬롯 비어있음(레벨 {} < 5)
+",
+                name, rd_u64(e + E_SKILL_CNT).unwrap_or(0)));
+            n += 1; continue;
+        }
+        let pd = rd_u64(e + E_PROV_ULT).unwrap_or(0) as usize;
+        let cool = if pd >= 0x10000 { rd_u64(pd + PROV_COOL).unwrap_or(0) } else { 0 };
+        // effect vtable 3슬롯이 **기본값인지 오버라이드인지** — AI마스크가 실제로 뭘 바꾸는지의 근거
+        let vt = w[1] as usize;
+        let mark = |i: usize, d: Option<u64>| -> String {
+            match (rd_u64(vt + i * 8), d) {
+                (Some(v), Some(dv)) => if v == dv { "기본".into() }
+                                       else { format!("★{:#x}", rva_of(v)) },
+                (Some(v), None) => format!("{:#x}", rva_of(v)),
+                _ => "?".into(),
+            }
+        };
+        out.push_str(&format!(" {:<16} | {:>5} {:>3} {:>3} | {:>7} {:>6} {:>5} | {:>4} | {} {} {}
+",
+            name, gate, w[5] as u32, (w[5] >> 32) as u32, w[2], w[3], w[4], cool,
+            mark(VT_I_MOVE_TICKS,  def.map(|d| d[0])),
+            mark(VT_I_NOT_INSTANT, def.map(|d| d[1])),
+            mark(VT_I_IS_MOVE,     def.map(|d| d[2]))));
+        n += 1;
+    }
+    out.push_str(&format!("  ctype: 0 Targeting/1 Position/2 Direction  |  tgt: 0 Ally 1 AllyChampion 2 AllyChampInCC 3 AllyNotSelf 4 AllyOnlySelf 5 Enemy 6 EnemyNoTower 7 EnemyChampion 8 EnemyChampInCC 9 EnemyRecentAtk 10 Both 11 BothNoTower 12 BothChampion 13 None
+  ★ = 기본구현이 아닌 오버라이드 = AI마스크가 실제로 동작을 바꾸는 궁. 총 {}명
+", n));
+    hlog(&out);
+}
+
 unsafe fn nearest_enemy(world: usize, se: usize, sk: u64) -> Option<u64> {
     let _ = sk;
     let sx = rd_u64(se + E_POS_X)? as i64;
@@ -804,6 +927,12 @@ fn cfg_refresher() {
         LEGACY_CALL.store(cfg_flag(&s, "legacy_call"), Ordering::Relaxed);
         GRAFT_CT.store(cfg_val(&s, "graft_ct").as_deref() != Some("0"), Ordering::Relaxed);
         AI_MASK.store(cfg_val(&s, "ai_mask").as_deref() != Some("0"), Ordering::Relaxed);
+        // ★[v128] 원본 충실도 스위치 3종. **기본 전부 OFF** — 켜기 전 동작이 현행과 같아야
+        //   기존 인게임 검증(archer/priest/berserker/knight)이 그대로 유효하다. A/B는 하나씩.
+        GRAFT_TGT.store(cfg_flag(&s, "graft_tgt"), Ordering::Relaxed);
+        GRAFT_ATK.store(cfg_flag(&s, "graft_atk"), Ordering::Relaxed);
+        GRAFT_COOL.store(cfg_flag(&s, "graft_cool"), Ordering::Relaxed);
+        ULT_META.store(cfg_flag(&s, "ult_meta"), Ordering::Relaxed);
         TAG_SWAP.store(cfg_val(&s, "tag_swap").as_deref() == Some("1"), Ordering::Relaxed);
         EMIT_SWAP.store(cfg_val(&s, "emit_swap").as_deref() != Some("0"), Ordering::Relaxed);
         ULT_CENSUS.store(cfg_val(&s, "ult_census").as_deref() != Some("0"), Ordering::Relaxed);
@@ -1360,6 +1489,27 @@ static GRAFT_CT: AtomicBool = AtomicBool::new(true);
 ///   궁 오더를 만들지만(ct=1이면 Order::None), 이펙트는 공여자 계약(장판=tag2)을 요구한다.
 ///   ⟹ 슬롯 게이트는 사일러스, **cctx만 공여자 계약대로** 따로 공급한다. u32::MAX = 미설정.
 static GRAFT_SRC_CT: AtomicU32 = AtomicU32::new(u32::MAX);
+/// ★[v128] 공여자 궁의 casting_target(slot+0x28) / attack_type(slot+0x2c) / cooltime.
+///   u32::MAX·0 = 미확보. 원본 충실도 개선(§원본충실 로드맵)의 입력.
+static GRAFT_SRC_TGT:  AtomicU32 = AtomicU32::new(u32::MAX);
+static GRAFT_SRC_ATK:  AtomicU32 = AtomicU32::new(u32::MAX);
+static GRAFT_SRC_COOL: AtomicU64 = AtomicU64::new(0);
+/// cfg `graft_tgt=1` — casting_target을 공여자 것으로 이식.
+///   RE(2026-08-25 casting_target-AI후보풀-전수) = 이 필드는 **AI 후보 풀만** 정하고
+///   발동 경로(시전 개시·틱 arm·effect apply) 어디서도 읽히지 않는다 ⟹ 런타임 부작용 없음.
+static GRAFT_TGT:  AtomicBool = AtomicBool::new(false);
+/// cfg `graft_atk=1` — attack_type을 공여자 것으로 이식.
+static GRAFT_ATK:  AtomicBool = AtomicBool::new(false);
+/// cfg `graft_cool=1` — 궁 쿨을 공여자 것으로(사일러스 900 → 공여자 900~3000).
+///   쿨은 슬롯이 아니라 **프로바이더 +0x170**에서 온다(RE 조립기-콜러전수-쿨관리).
+static GRAFT_COOL: AtomicBool = AtomicBool::new(false);
+/// 사일러스 프로바이더의 원래 cooltime(복원용). 0 = 미확보.
+static SY_COOL_ORIG: AtomicU64 = AtomicU64::new(0);
+/// cfg `ult_meta=1` — 경기 시작 시 **그 판의 전 챔피언 궁 메타**를 1회 덤프.
+///   정적 RE(디컴)의 지상검증 짝 — 어느 챔프가 아군/자기 대상 궁인지, 돌진궁인지를 실측으로 확정한다.
+static ULT_META: AtomicBool = AtomicBool::new(false);
+/// 이미 덤프한 world(중복 방지).
+static META_DONE: Mutex<Vec<usize>> = Mutex::new(Vec::new());
 
 /// ★★★[v105] AI 판정 3슬롯 마스킹 스위치. cfg `ai_mask`(기본 ON, "0"이면 끈다).
 static AI_MASK: AtomicBool = AtomicBool::new(true);
@@ -2107,6 +2257,17 @@ unsafe fn slot_tmpl_get(world: usize, who: &str) -> Option<Vec<u64>> {
         who, d, rva_of(w[1]), w[2], w[3], w[4], w[6] as u32,
         w[5] as u32, (w[5] >> 32) as u32));
     GRAFT_SRC_CT.store(w[6] as u32, Ordering::Relaxed);
+    GRAFT_SRC_TGT.store(w[5] as u32, Ordering::Relaxed);
+    GRAFT_SRC_ATK.store((w[5] >> 32) as u32, Ordering::Relaxed);
+    // ★공여자 궁 쿨 = 그 챔프의 **궁 프로바이더 +0x170**(슬롯엔 쿨 필드가 없다).
+    {
+        let pd = rd_u64(src + E_PROV_ULT).unwrap_or(0) as usize;
+        let c = if pd >= 0x10000 { rd_u64(pd + PROV_COOL).unwrap_or(0) } else { 0 };
+        GRAFT_SRC_COOL.store(c, Ordering::Relaxed);
+        hlog(&format!("  [공여자 메타] casting_target={} attack_type={} cooltime={} (사일러스 = 7 / 1 / {})
+",
+            w[5] as u32, (w[5] >> 32) as u32, c, SY_COOL_ORIG.load(Ordering::Relaxed)));
+    }
     *SLOT_TMPL.lock().unwrap_or_else(|x| x.into_inner()) = Some((w.clone(), who.to_string()));
     Some(w)
 }
@@ -2168,16 +2329,23 @@ unsafe fn slot_install(world: usize, sy_key: u64, sy: usize) -> Option<String> {
     }
     let my = slot_words(b);
     let (od, ov, ogate) = (my[0] as usize, my[1] as usize, my[6] as u32);
-    let keep_w5 = my[5];   // ★casting_target + attack_type = 사일러스 것 유지
+    // ★★[v128] casting_target / attack_type 선택적 이식.
+    //   ~~"공여자 값을 쓰면 AI가 궁 오더를 None으로 만든다"~~ 는 **귀속 오류**였다(RE 2026-08-25):
+    //   v97/v98 A/B는 둘 다 casting_target=7 고정이었고 **casting_type만 달랐다** — 진범은 그쪽이다.
+    //   casting_target은 `FUN_1417faeb0` 한 곳에서만 읽히고 발동 경로는 안 읽는다 ⟹ 이식 안전.
+    let use_tgt = if GRAFT_TGT.load(Ordering::Relaxed) { t[5] as u32 } else { my[5] as u32 };
+    let use_atk = if GRAFT_ATK.load(Ordering::Relaxed) { (t[5] >> 32) as u32 } else { (my[5] >> 32) as u32 };
+    let keep_w5 = (use_tgt as u64) | ((use_atk as u64) << 32);
 
     if !arc_incref(td) { return prov_skip("템플릿 Arc inc 실패"); }
     let msg = format!("★★[슬롯 이식] world={:#x} key={} sylas ent={:#x} ← {} 궁
            data {:#x}→{:#x} | range {}→{} | growth {}→{} | start {}→{} | casting_type {}→{}
-           ★casting_target={} attack_type={} = **사일러스 것 유지**(공여자 값을 쓰면 AI가 궁 오더를 None으로 만든다)
+           casting_target={} attack_type={} (graft_tgt={} graft_atk={} — OFF면 사일러스 것 유지)
 ",
         world, sy_key, sy, want, od, td, my[2], t[2], my[3], t[3], my[4], t[4],
         ogate, if GRAFT_CT.load(Ordering::Relaxed) { t[6] as u32 } else { my[6] as u32 },
-        keep_w5 as u32, (keep_w5 >> 32) as u32);
+        keep_w5 as u32, (keep_w5 >> 32) as u32,
+        GRAFT_TGT.load(Ordering::Relaxed), GRAFT_ATK.load(Ordering::Relaxed));
     hlog(&msg);   // ★위험한 쓰기 전에 관측을 흘려보낸다
 
     // ★[v98] casting_type을 공여자 것으로 쓸지 A/B로 가른다.
@@ -2195,6 +2363,30 @@ unsafe fn slot_install(world: usize, sy_key: u64, sy: usize) -> Option<String> {
 ".into()); }
     if ogate != u32::MAX && od != td { arc_dec_drop(od, ov); }   // 옛 Arc 놓아주기
 
+    // ★★[v128] 궁 쿨 = **프로바이더 +0x170**에서 온다(슬롯엔 쿨 필드가 없다 — RE 쿨관리).
+    //   이식하지 않으면 뺏은 궁이 전부 사일러스 쿨(900)로 돌아, 원본이 3000인 궁은 **3.3배** 자주 나간다.
+    //   ⚠사일러스 원본 값을 최초 1회 보존한다(force_src를 바꿔도 원본을 잃지 않게).
+    {
+        let pd = rd_u64(sy + E_PROV_ULT).unwrap_or(0) as usize;
+        if pd >= 0x10000 {
+            if SY_COOL_ORIG.load(Ordering::Relaxed) == 0 {
+                if let Some(c) = rd_u64(pd + PROV_COOL) { SY_COOL_ORIG.store(c, Ordering::Relaxed); }
+            }
+            let want = if GRAFT_COOL.load(Ordering::Relaxed) {
+                GRAFT_SRC_COOL.load(Ordering::Relaxed)
+            } else { SY_COOL_ORIG.load(Ordering::Relaxed) };
+            if want > 0 {
+                if let Some(now) = rd_u64(pd + PROV_COOL) {
+                    if now != want {
+                        wr_u64(pd + PROV_COOL, want);
+                        hlog(&format!("  ★[쿨 이식] 사일러스 궁 cooltime {} → {} (graft_cool={})
+",
+                            now, want, GRAFT_COOL.load(Ordering::Relaxed)));
+                    }
+                }
+            }
+        }
+    }
     let cd = rd_u64(sy + E_ULT_CD);
     wr_u64(sy + E_ULT_CD, 0);
     {
@@ -3348,6 +3540,7 @@ apply=[{}]\n           ★apply**직전**(진입훅) rush_state={:#x}({}) | cctx
     //   RE#14 확정: **표시 경기는 생성·틱이 전부 메인 스레드**, 배경 sim은 스폰 스레드.
     let live = on_game_thread();
     if live { VIEW_LIVE_N.fetch_add(1, Ordering::Relaxed); } else { VIEW_BG_N.fetch_add(1, Ordering::Relaxed); }
+    if live { ult_meta_census(world); }
     // ★★★[v92] 프로바이더 교체는 **표시 경기 게이트보다 앞에서** 한다.
     //   ① v91 실측: `on_game_thread()`가 판에 따라 전부 차단(표시틱 0/백그라운드 479)했다가
     //      다른 판에선 38을 통과했다 — **창-소유-스레드 판별은 신뢰할 수 없다.**
@@ -3508,7 +3701,9 @@ apply=[{}]\n           ★apply**직전**(진입훅) rush_state={:#x}({}) | cctx
                         }
                     }
                     if p.is_none() {
-                        if let Some(k) = nearest_enemy(world, cent, caster_key) {
+                        // ★[v128] 여기도 공여자 casting_target을 따른다(위 fix_entity_cctx와 동형).
+                        //   cctx_ent=1이면 이 경로는 안 타지만, 두 경로가 어긋나 있으면 나중에 함정이 된다.
+                        if let Some(k) = nearest_by_ct(world, cent, caster_key, eff_ct(cent)) {
                             let pe = resolve(world, k);
                             if pe >= 0x10000 {
                                 p = Some((rd_u64(pe + E_POS_X).unwrap_or(0), rd_u64(pe + E_POS_Y).unwrap_or(0)));
