@@ -932,7 +932,12 @@ fn cfg_refresher() {
         SLOT_GRAFT.store(cfg_flag(&s, "slot_graft"), Ordering::Relaxed);
         LEGACY_CALL.store(cfg_flag(&s, "legacy_call"), Ordering::Relaxed);
         GRAFT_CT.store(cfg_val(&s, "graft_ct").as_deref() != Some("0"), Ordering::Relaxed);
-        AI_MASK.store(cfg_val(&s, "ai_mask").as_deref() != Some("0"), Ordering::Relaxed);
+        // ★★[0.5.7 정정] 기본을 **OFF**로 바꿨다(~~기본 ON~~).
+        //   근거: 0.5.7 내내 표 주소가 틀려 마스킹이 **한 번도 걸린 적 없고**, 그 상태로
+        //   archer/priest/berserker/knight 인게임 검증이 전부 통과했다 ⟹ 마스킹은 불필요하다.
+        //   상수를 고친 지금 기본 ON으로 두면 **한 번도 검증된 적 없는 동작이 갑자기 켜진다.**
+        //   원본 충실도 관점에서도 OFF가 옳다 — 마스킹은 돌진 안전판정을 건너뛰게 만든다.
+        AI_MASK.store(cfg_val(&s, "ai_mask").as_deref() == Some("1"), Ordering::Relaxed);
         // ★[v128] 원본 충실도 스위치 3종. **기본 전부 OFF** — 켜기 전 동작이 현행과 같아야
         //   기존 인게임 검증(archer/priest/berserker/knight)이 그대로 유효하다. A/B는 하나씩.
         GRAFT_TGT.store(cfg_flag(&s, "graft_tgt"), Ordering::Relaxed);
@@ -1540,9 +1545,14 @@ static AI_MASK: AtomicBool = AtomicBool::new(true);
 ///   (`+0x48=0x1800c00`, `+0x58=0x18009e0`). 공여자도 Combine이라 덮어써도 **완전한 no-op**.
 ///   "자식이 전부 기본이라 **결과**가 None"인 것과 "**슬롯**이 기본 스텁"은 다른 얘기다.
 static SY_VT_DEF: Mutex<Option<[u64; 3]>> = Mutex::new(None);
-/// effect vtable 표: `EFF_VT_BASE + kind*0x118`, kind 0..59 (RE 2026-08-25_AI궁결심사이트-전수 §2)
-const EFF_VT_BASE: usize = 0x34200d8;
-const EFF_VT_N: usize = 59;
+/// effect vtable 표: `EFF_VT_BASE + kind*EFF_VT_STRIDE`.
+/// ★★★[0.5.7 정정 2026-08-29] ~~`0x34200d8` / 59개 / stride 0x118~~ 는 **0.5.6 값**이고
+///   0.5.7에서 그 주소는 effect vtable 표가 아니다. 실측 증거 = 로그
+///   `[AI마스크·포기] 슬롯 9의 최빈값이 과반 미달 1/59 — 표 주소 의심`, 성공 로그 **0건**
+///   ⟹ **0.5.7 내내 AI 마스킹이 완전히 죽어 있었다**(soft-fail이라 조용히 원본을 그대로 썼다).
+const EFF_VT_BASE: usize = 0x33FF9C8;
+const EFF_VT_N: usize = 57;
+const EFF_VT_STRIDE: usize = 0x120;
 
 // ───────────────────────── 궁 시전 센서스 (v108) ─────────────────────────
 // ★왜: "궁을 잘 안 쓴다"를 눈으로 세는 걸 반복하면 판정이 안 난다.
@@ -1700,11 +1710,18 @@ unsafe fn ult_census() {
 }
 /// 원본 vtable → 마스킹 사본. 사본은 leak해서 Arc보다 오래 살린다.
 static VT_COPY: Mutex<Vec<(usize, usize)>> = Mutex::new(Vec::new());
-/// effect vtable = 35슬롯 × 8 = 0x118B (RE 2026-08-25_이동형궁-AI결심경로-전수 §4)
-const VT_WORDS: usize = 35;
-const VT_I_MOVE_TICKS: usize = 0x48 / 8;    //  9: Option<(틱, 거리)> — "시전자를 이동시키는가"
-const VT_I_NOT_INSTANT: usize = 0x58 / 8;   // 11: bool — "즉시명중이 아니다"(텔포/투사체)
-const VT_I_IS_MOVE: usize = 0x110 / 8;      // 34: bool — is_move_skill
+/// effect vtable ~~35슬롯 0x118B(0.5.6)~~ → ★**0.5.7 = 36슬롯 0x120B**.
+/// 신규 메서드 1개가 **구 `+0x28`(damage)과 구 `+0x30`(heal) 사이에 삽입**되어
+/// **구 `+0x30` 이상이 전부 +8 이동**했다(2026-08-29 정적 전수, 5중 독립 일치로 확정:
+/// 상수 48000 스텁 유일함수가 `+0x100`→`+0x108`, 슬롯별 오버라이드 개수 대응, 기본 스텁 사전 1:1).
+/// ⚠★★**표 주소만 고치고 인덱스를 그대로 두면 더 나빠진다** — 0.5.6 인덱스는 0.5.7에서
+///   `+0x48`(무관)·`+0x58`(rush)·**`+0x110`(AoE)** 를 덮어써, AoE 궁 9종
+///   (demon·executioner·fighter·hammerer·jiangshi·monk·poison_dart_hunter·prisoner·spirit_caller)의
+///   범위 플래그를 파괴한다.
+const VT_WORDS: usize = 36;
+const VT_I_MOVE_TICKS: usize = 0x50 / 8;    // 10: Option<(틱, 거리)> — "시전자를 이동시키는가"
+const VT_I_NOT_INSTANT: usize = 0x60 / 8;   // 12: bool — 블링크/순간이동 포함
+const VT_I_IS_MOVE: usize = 0x118 / 8;      // 35: bool — is_move_skill
 
 /// ★★★[v105] 공여자 effect vtable의 **AI 판정 3슬롯만** 사일러스 기본 구현으로 바꾼 사본을 만든다.
 ///
@@ -1731,7 +1748,7 @@ unsafe fn default_eff_stubs() -> Option<[u64; 3]> {
     for (k, &slot) in [VT_I_MOVE_TICKS, VT_I_NOT_INSTANT, VT_I_IS_MOVE].iter().enumerate() {
         let mut seen: Vec<(u64, u32)> = Vec::new();
         for i in 0..EFF_VT_N {
-            let v = match rd_u64(base + i * 0x118 + slot * 8) { Some(v) => v, None => continue };
+            let v = match rd_u64(base + i * EFF_VT_STRIDE + slot * 8) { Some(v) => v, None => continue };
             if !in_exe(v) { continue; }
             match seen.iter_mut().find(|q| q.0 == v) { Some(q) => q.1 += 1, None => seen.push((v, 1)) }
         }
