@@ -3,7 +3,10 @@
  "game_ver": "0.5.7",
  "build": "",
  "notes": [
-  "★유저 제외 판정(0.5.7 마이그 대상 아님) — 전 엔트리 0.5.6 값."
+  "★유저 제외 판정(0.5.7 마이그 대상 아님) — 전 엔트리 0.5.6 값.",
+  "⚠2026-08-29 정정: 이 제외가 마이그 누락 1건을 낳았다. EFF_VT_BASE(0.5.6 0x34200d8)는 0.5.7에서 무효 = effect vtable이 35슬롯(stride 0x118) -> 36슬롯(stride 0x120)으로 바뀌었다(구 +0x28과 +0x30 사이 1개 삽입 -> 구 +0x30 이상 전부 +8).",
+  "0.5.7 확정값 = EFF_VT_BASE 0x33FF9C8 / 개수 57 / stride 0x120. 소스(sylas/src/lib.rs)에는 반영 완료. 이 엔트리의 value/bytes는 아직 0.5.6 채록이므로 재채록 필요(version-migrator).",
+  "⚠표 주소만 갈고 슬롯 인덱스를 0.5.6 그대로 두면 구 +0x110(AoE)를 덮어써 AoE 궁 9종의 범위 플래그가 파괴된다. 근거 = REPORT/sylas/RE/2026-08-29_챔프별-궁메타-전수와-0.5.7-effect-vtable-레이아웃-변경.md, 02_구현정보.md 32-9."
  ],
  "offsets": [],
  "entries": [
@@ -101,7 +104,7 @@
    "ver": "0.5.6",
    "kind": "UNCLASSIFIED",
    "locs": [
-    "src/lib.rs:1781"
+    "src/lib.rs:1796"
    ],
    "sect": ".text",
    "bytes": "555657534883ec78488d6c24",
@@ -302,15 +305,16 @@
   },
   {
    "name": "EFF_VT_BASE",
-   "value": "0x34200d8",
-   "ver": "0.5.6",
-   "kind": "UNCLASSIFIED",
+   "value": "0x33ff9c8",
+   "ver": "0.5.7",
+   "kind": "RDATA_TABLE",
    "locs": [
-    "src/lib.rs:1372"
+    "src/lib.rs:1559"
    ],
    "sect": ".rdata",
-   "bytes": "2bc241430100000028000000",
-   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+   "bytes": "000000000000000048000000",
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
+   "note": "0.5.7에서 effect vtable이 35슬롯(0x118B)->36슬롯(0x120B)로 바뀌어 표 주소가 이동. 구 0x34200d8은 0.5.7에서 effect vtable 표가 아니다. stride=0x120, N=57. ⚠이 엔트리의 bytes 시그니처는 첫 qword가 0이라 약하다 — 진짜 검증은 'stride 0x120으로 57개 훑을 때 +0x108이 전부 동일(=mov eax,0xbb80;ret)'이다. 모드가 시작 시 자기점검으로 이걸 확인하고 실패하면 [자기점검 실패]를 찍는다. 근거=REPORT/sylas/RE/2026-08-29_챔프별-궁메타-전수와-0.5.7-effect-vtable-레이아웃-변경.md"
   },
   {
    "name": "INLINE@src/lib.rs:179",
@@ -323,6 +327,19 @@
    "sect": ".rdata",
    "bytes": "9a1500440100000084030044",
    "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+  },
+  {
+   "name": "CASTANIM_RVA",
+   "value": "0x104ca00",
+   "ver": "0.5.7",
+   "kind": "UNCLASSIFIED",
+   "locs": [
+    "src/lib.rs:2089"
+   ],
+   "sect": ".text",
+   "bytes": "554157415641545657534883",
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
+   "note": "CasterAnimation(sub-tag 0xd) — 검증 없이 태그를 밀어넣어 이름이 없으면 캐릭터가 사라진다. castanim_swap 3단 가드가 여기 붙는다."
   }
  ]
 }

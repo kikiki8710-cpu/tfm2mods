@@ -4584,6 +4584,27 @@ fn init(_ctx: &GameCtx) -> ModRegistration {
         cfg_refresher();
         let base = exe_base();
         hlog(&format!("\n===== sylas 통합모드(강탈 프로브 v12) 시작 base={:#x} =====\n", base));
+        // ★★★[v129] **자기점검 — effect vtable 상수가 이 exe에서 유효한가.**
+        //   이번 세션의 근본 사고: 0.5.7에서 vtable이 35→36슬롯으로 바뀌었는데 상수가 0.5.6이었고,
+        //   `default_eff_stubs()`가 **조용히 None을 반환하며 원본을 그대로 쓰는 soft-fail** 이라
+        //   기능(AI 마스킹)이 내내 죽어 있어도 크래시도 경고도 없었다.
+        //   ⚠**mig_verify의 바이트 대조로는 이걸 못 잡는다** — 그 주소에 여전히 어떤 바이트가 있으면
+        //   PASS가 나온다("주소가 유효한가"만 보고 "여전히 올바른 구조인가"는 안 본다).
+        //   ⟹ 구조 자체를 검사하는 자기점검을 **매 실행 첫 줄**에 둔다. 실패하면 눈에 띄게 남는다.
+        unsafe {
+            match default_eff_stubs() {
+                Some(d) => hlog(&format!("[자기점검] effect vtable OK — base RVA:{:#x} N={} stride={:#x} (기본스텁 이동={:#x} blink={:#x} is_move={:#x} 스킬샷={:#x} AoE={:#x})
+",
+                    EFF_VT_BASE, EFF_VT_N, EFF_VT_STRIDE,
+                    rva_of(d[0]), rva_of(d[1]), rva_of(d[2]), rva_of(d[3]), rva_of(d[4]))),
+                None => hlog(&format!("★★★[자기점검 실패] effect vtable 상수가 이 exe와 안 맞는다 — base RVA:{:#x} N={} stride={:#x}
+    ⟹ 게임이 패치됐을 가능성이 높다. ai_mask/order_mask는 **무동작**이 된다(크래시는 안 난다).
+    재핀법 = .rdata를 stride 후보로 훑어 **한 슬롯이 전 엔트리에서 동일한** 표를 찾는다(0.5.7 기준 +0x108이 57/57 전부 mov eax,0xbb80; ret = 48000).
+    정본 = REPORT/sylas/RE/2026-08-29_챔프별-궁메타-전수와-0.5.7-effect-vtable-레이아웃-변경.md
+",
+                    EFF_VT_BASE, EFF_VT_N, EFF_VT_STRIDE)),
+            }
+        }
         match unsafe { install_detour(GRAB_RVA, GRAB_LEN, &GRAB_SIG, cap_grab as *const () as usize) } {
             Ok(stub) => hlog(&format!("[install] Grab_apply @{:#x} OK stub={:#x}\n", base + GRAB_RVA, stub)),
             Err(e)   => hlog(&format!("[install] Grab_apply 실패: {}\n", e)),
