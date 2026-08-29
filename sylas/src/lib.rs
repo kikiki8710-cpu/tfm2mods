@@ -526,7 +526,19 @@ unsafe fn fix_entity_cctx(world: usize, cent: usize, caster_key: u64) -> Option<
         //   계약이 이미 맞는데도 덮어쓰면 AI가 고른 대상을 우리가 매 8틱마다
         //   다른 대상으로 바꿔치기하게 된다(광전사 케이스에서 실제로 그랬다).
         //   개입은 **계약이 어긋날 때만.**
-        if src_ct == slot_ct { return None; }
+        //   ★★[v132] **단 casting_target 이 어긋나면 계약이 같아도 개입해야 한다.**
+        //   실측(2026-08-30 magic_knight): 공여자 ct=4(AllyOnlySelf) 를 슬롯에 심으면(graft_tgt=1)
+        //   AI 가 **궁을 한 번도 결심하지 않는다**(시전 상태 6 진입 0회 / 다른 챔프는 4~8회 시전).
+        //   ct=4 는 자기시전 사이트만 여는데 그건 결심 3계층의 **최후 폴백**이라 거의 안 닿는다.
+        //   ⟹ 슬롯 casting_target 은 **사일러스의 7 로 두어 AI가 정상 결심**하게 하고,
+        //      **대상만 공여자 규칙으로 바로잡는다**(러너·자버프가 적에게 붙는 것을 막는 게 목적이므로
+        //      대상만 맞으면 된다). 이 경로가 tgt_key 를 ct 규칙으로 다시 고르므로 성립한다.
+        let tgt_mismatch = {
+            let g = GRAFT_SRC_TGT.load(Ordering::Relaxed);
+            let slot_tgt = rd_u64(cent + E_SLOT0 + 3 * SLOT_STRIDE + 0x28).map(|v| v as u32);
+            g != u32::MAX && slot_tgt.map(|s| s != g).unwrap_or(false)
+        };
+        if src_ct == slot_ct && !tgt_mismatch { return None; }
         src_ct as i32
     } else { slot_ct as i32 };
     let want_tag = ct_to_tag(ct)?;
@@ -3676,7 +3688,10 @@ apply=[{}]\n           ★apply**직전**(진입훅) rush_state={:#x}({}) | cctx
             None => { let _ = prov_skip(&format!("world {:#x}에 sylas 없음", world)); }
         }
     }
-    if !live && LIVE_GATE.load(Ordering::Relaxed) { return; }
+    // ★★[v131] **live 게이트 앞으로 옮겼다.** 이 블록은 읽기 전용 로깅인데 게이트 뒤에 있어서,
+    //   창-소유-스레드 판별이 실패해 표시틱 0 이 되면(실측 2026-08-29: 표시틱 0 / 백그라운드 2507)
+    //   **궁이 실제로 나가도 로그가 한 줄도 안 남았다.** 그래서 '안 나간다'를 로그로 확인할 수 없었다.
+    //   world/live 를 함께 찍어 표시경기·배경sim 을 구분한다.
     // ★★[v102] **이식한 effect가 실제로 실행됐는가**를 직접 찍는다.
     //   `[SYLAS-ULT]`은 caster 이름 역산에 의존해 놓치는 경우가 있다.
     //   여기서는 payload 주소가 우리 템플릿의 것과 같은지로 **1:1 판정**한다
@@ -3686,15 +3701,16 @@ apply=[{}]\n           ★apply**직전**(진입훅) rush_state={:#x}({}) | cctx
             .as_ref().map(|(w, n)| (w[0] as usize, n.clone())) };
         if let Some((td, who)) = td {
             if selfp == td + 0x10 && GRAFT_FIRE.fetch_add(1, Ordering::Relaxed) < 40 {
-                hlog(&format!("★★★[이식궁 실행!] {} 궁이 실제로 apply 됐다 — caster={:?} ent={:#x}                      world={:#x} 자식={} cctx={:?} 누적{}회
+                hlog(&format!("★★★[이식궁 실행!] {} 궁이 실제로 apply 됐다 — caster={:?} ent={:#x}                      world={:#x} 자식={} cctx={:?} 누적{}회 live={}
 ",
                     who, cname, cent, world,
                     rd_u64(selfp + 0x10).unwrap_or(0),
                     read_cctx(rd_u64(e + 0x38).unwrap_or(0) as usize),
-                    GRAFT_FIRE.load(Ordering::Relaxed)));
+                    GRAFT_FIRE.load(Ordering::Relaxed), live));
             }
         }
     }
+    if !live && LIVE_GATE.load(Ordering::Relaxed) { return; }
     if SLOT_SWAP.load(Ordering::Relaxed) { try_restore_pending(world); }
     // ★살아 있을 때 본 궁 슬롯을 캐시(부활로 entity가 갈려도 강탈 재료를 잃지 않는다)
     if SLOT_SWAP.load(Ordering::Relaxed) { cache_slot3(world, &cname, cent); }
