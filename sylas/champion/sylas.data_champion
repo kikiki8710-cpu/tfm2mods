@@ -373,9 +373,20 @@
   },
   "view_projectiles": [
     {
-      "type": "Sprite",
-      "name": "sylas_chain",
-      "sprite": "asset/base/sprite/arrow"
+      "type": "Animated",
+      "name": "skill2_sylas_chain",
+      "anim": "asset/sylas/fx/skill2_sylas_chain",
+      "tag": "chain_proj",
+      "repeat": true,
+      "z": -1
+    }
+  ],
+  "view_effects": [
+    {
+      "type": "Animation",
+      "name": "unshackled_attack",
+      "anim": "asset/base/aseprite_resources/skill_effect/chef_effect",
+      "tag": "ult_effect"
     }
   ]
 }
