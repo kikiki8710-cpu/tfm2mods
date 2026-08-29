@@ -957,6 +957,7 @@ fn cfg_refresher() {
         }
         GRAFT_ATK.store(cfg_flag(&s, "graft_atk"), Ordering::Relaxed);
         GRAFT_COOL.store(cfg_flag(&s, "graft_cool"), Ordering::Relaxed);
+        ORDER_MASK.store(cfg_flag(&s, "order_mask"), Ordering::Relaxed);
         ULT_META.store(cfg_flag(&s, "ult_meta"), Ordering::Relaxed);
         TAG_SWAP.store(cfg_val(&s, "tag_swap").as_deref() == Some("1"), Ordering::Relaxed);
         EMIT_SWAP.store(cfg_val(&s, "emit_swap").as_deref() != Some("0"), Ordering::Relaxed);
@@ -1532,6 +1533,11 @@ static GRAFT_COOL: AtomicBool = AtomicBool::new(false);
 static SY_COOL_ORIG: AtomicU64 = AtomicU64::new(0);
 /// 인터록 로그 상한용.
 static INTERLOCK_LOG: AtomicU32 = AtomicU32::new(0);
+/// cfg `order_mask=1` — ★안 A: 오더 팩토리 술어 `+0xf0`·`+0x110`을 기본 스텁(false)으로 덮어
+///   **ct=1/2 궁도 ct=0과 같은 오더 경로**를 타게 한다. 그 둘이 true면 오더 팩토리가 궁을
+///   **Move 오더로 강등**해 궁이 영원히 안 나간다(v97 "시전 0건"의 유일하게 남은 설명).
+///   ⚠비용: AI가 그 궁을 "범위/스킬샷"으로 안 보게 되므로 위치 선정이 원본과 달라진다.
+static ORDER_MASK: AtomicBool = AtomicBool::new(false);
 /// cfg `ult_meta=1` — 경기 시작 시 **그 판의 전 챔피언 궁 메타**를 1회 덤프.
 ///   정적 RE(디컴)의 지상검증 짝 — 어느 챔프가 아군/자기 대상 궁인지, 돌진궁인지를 실측으로 확정한다.
 static ULT_META: AtomicBool = AtomicBool::new(false);
@@ -1544,7 +1550,7 @@ static AI_MASK: AtomicBool = AtomicBool::new(true);
 /// ⚠v106 버그: 사일러스 자기 궁 vtable에서 뽑았는데 그건 **Combine의 자식 집계기**였다
 ///   (`+0x48=0x1800c00`, `+0x58=0x18009e0`). 공여자도 Combine이라 덮어써도 **완전한 no-op**.
 ///   "자식이 전부 기본이라 **결과**가 None"인 것과 "**슬롯**이 기본 스텁"은 다른 얘기다.
-static SY_VT_DEF: Mutex<Option<[u64; 3]>> = Mutex::new(None);
+static SY_VT_DEF: Mutex<Option<[u64; 5]>> = Mutex::new(None);
 /// effect vtable 표: `EFF_VT_BASE + kind*EFF_VT_STRIDE`.
 /// ★★★[0.5.7 정정 2026-08-29] ~~`0x34200d8` / 59개 / stride 0x118~~ 는 **0.5.6 값**이고
 ///   0.5.7에서 그 주소는 effect vtable 표가 아니다. 실측 증거 = 로그
@@ -1722,6 +1728,12 @@ const VT_WORDS: usize = 36;
 const VT_I_MOVE_TICKS: usize = 0x50 / 8;    // 10: Option<(틱, 거리)> — "시전자를 이동시키는가"
 const VT_I_NOT_INSTANT: usize = 0x60 / 8;   // 12: bool — 블링크/순간이동 포함
 const VT_I_IS_MOVE: usize = 0x118 / 8;      // 35: bool — is_move_skill
+/// ★[v129] 오더 팩토리 술어 2종 (RE 2026-08-29 casting_type 소비처 전수 §3 D1·D2).
+///   `+0xf0` = "스킬샷/리드샷 필요" · `+0x110` = "범위(AoE)". 둘 다 **AI 판정 전용**이고
+///   발동(`+0x20 apply`)·drop(`+0x00`)과 무관하다.
+///   ct∈{1,2}일 때만 읽히며, true면 궁 오더가 **Move 오더로 강등**된다(= 궁 시전 0).
+const VT_I_SKILLSHOT: usize = 0xf0 / 8;     // 30
+const VT_I_AOE:       usize = 0x110 / 8;    // 34
 
 /// ★★★[v105] 공여자 effect vtable의 **AI 판정 3슬롯만** 사일러스 기본 구현으로 바꾼 사본을 만든다.
 ///
@@ -1742,10 +1754,11 @@ const VT_I_IS_MOVE: usize = 0x118 / 8;      // 35: bool — is_move_skill
 /// 왜 최빈값인가: 59종 중 대다수가 그 슬롯을 오버라이드하지 않는다(RE §4 — `+0x48`/`+0x58`은
 /// 43종이 기본). 따라서 **가장 많이 나오는 함수 포인터가 곧 기본 구현**이다. RVA를 박지 않으므로
 /// 패치가 와도 표 주소만 맞으면 따라간다. 과반이 아니면 마스킹을 포기한다(오판 방지).
-unsafe fn default_eff_stubs() -> Option<[u64; 3]> {
+unsafe fn default_eff_stubs() -> Option<[u64; 5]> {
     let base = exe_base() + EFF_VT_BASE;
-    let mut out = [0u64; 3];
-    for (k, &slot) in [VT_I_MOVE_TICKS, VT_I_NOT_INSTANT, VT_I_IS_MOVE].iter().enumerate() {
+    let mut out = [0u64; 5];
+    for (k, &slot) in [VT_I_MOVE_TICKS, VT_I_NOT_INSTANT, VT_I_IS_MOVE,
+                       VT_I_SKILLSHOT, VT_I_AOE].iter().enumerate() {
         let mut seen: Vec<(u64, u32)> = Vec::new();
         for i in 0..EFF_VT_N {
             let v = match rd_u64(base + i * EFF_VT_STRIDE + slot * 8) { Some(v) => v, None => continue };
@@ -1762,13 +1775,14 @@ unsafe fn default_eff_stubs() -> Option<[u64; 3]> {
         }
         out[k] = best;
     }
-    hlog(&format!("[AI마스크] 기본 스텁 확보(최빈값) +0x48=RVA:{:#x} +0x58=RVA:{:#x} +0x110=RVA:{:#x}\n",
-        rva_of(out[0]), rva_of(out[1]), rva_of(out[2])));
+    hlog(&format!("[AI마스크] 기본 스텁(최빈값·0.5.7) +0x50=RVA:{:#x} +0x60=RVA:{:#x} +0x118=RVA:{:#x} | 오더술어 +0xf0=RVA:{:#x} +0x110=RVA:{:#x}
+",
+        rva_of(out[0]), rva_of(out[1]), rva_of(out[2]), rva_of(out[3]), rva_of(out[4])));
     Some(out)
 }
 
 unsafe fn ai_mask_vt(orig: usize, sy_vt: usize) -> Option<usize> {
-    if !AI_MASK.load(Ordering::Relaxed) { return Some(orig); }
+    if !AI_MASK.load(Ordering::Relaxed) && !ORDER_MASK.load(Ordering::Relaxed) { return Some(orig); }
     if orig < 0x10000 { return None; }
     // ── 사일러스 기본 구현 3개 확보(최초 1회). 아직 못 얻었으면 마스킹을 포기하고
     //    원본을 그대로 쓴다(궁이 안 나갈지언정 잘못된 함수 포인터를 심지는 않는다).
@@ -1793,9 +1807,20 @@ unsafe fn ai_mask_vt(orig: usize, sy_vt: usize) -> Option<usize> {
         };
     }
     let (o9, o11, o34) = (w[VT_I_MOVE_TICKS], w[VT_I_NOT_INSTANT], w[VT_I_IS_MOVE]);
-    w[VT_I_MOVE_TICKS]  = def[0];
-    w[VT_I_NOT_INSTANT] = def[1];
-    w[VT_I_IS_MOVE]     = def[2];
+    if AI_MASK.load(Ordering::Relaxed) {
+        w[VT_I_MOVE_TICKS]  = def[0];
+        w[VT_I_NOT_INSTANT] = def[1];
+        w[VT_I_IS_MOVE]     = def[2];
+    }
+    // ★[v129] 안 A — 오더 팩토리 술어 2종. `ai_mask`와 **독립**이다(목적이 다르다).
+    if ORDER_MASK.load(Ordering::Relaxed) {
+        let (a, b) = (w[VT_I_SKILLSHOT], w[VT_I_AOE]);
+        w[VT_I_SKILLSHOT] = def[3];
+        w[VT_I_AOE]       = def[4];
+        hlog(&format!("★[오더마스크] +0xf0 RVA:{:#x}->{:#x} | +0x110 RVA:{:#x}->{:#x} = ct 1/2 궁이 Move 오더로 강등되는 것을 막는다
+",
+            rva_of(a), rva_of(def[3]), rva_of(b), rva_of(def[4])));
+    }
     // leak: 이 vtable을 가리키는 Arc가 언제 죽는지 알 수 없다. 공여자당 280B라 누수는 무의미.
     let p = Box::leak(Box::new(w)).as_ptr() as usize;
     hlog(&format!("★★★[AI마스크] effect vtable 사본 {:#x}→{:#x} (35슬롯 중 3개 교체)\n           \
@@ -2314,6 +2339,23 @@ unsafe fn slot_tmpl_get(world: usize, who: &str) -> Option<Vec<u64>> {
             0
         };
         GRAFT_SRC_COOL.store(c, Ordering::Relaxed);
+        // ★[v129] **오더 강등 위험 진단** — 게임함수를 호출하지 않고 vtable 슬롯 **값만** 읽어
+        //   기본 스텁과 대조한다(shadow-call 금지 규칙 준수, CLAUDE.md §3).
+        //   `+0xf0`/`+0x110`이 기본이 아니면 그 공여자는 ct=1/2일 때 궁 오더가 Move로
+        //   강등될 수 있다 ⟹ `order_mask=1`이 필요한 후보다.
+        {
+            let vt = w[1] as usize;
+            let def = { let mut g = SY_VT_DEF.lock().unwrap_or_else(|x| x.into_inner());
+                        if g.is_none() { *g = default_eff_stubs(); } *g };
+            let (a, b) = (rd_u64(vt + VT_I_SKILLSHOT * 8), rd_u64(vt + VT_I_AOE * 8));
+            let mk = |v: Option<u64>, d: Option<u64>| -> String {
+                match (v, d) { (Some(x), Some(dv)) if x == dv => "기본".into(),
+                               (Some(x), _) => format!("★RVA:{:#x}", rva_of(x)),
+                               _ => "?".into() } };
+            hlog(&format!("  [오더술어] {} 궁 vt+0xf0={} vt+0x110={} (casting_type={}) — ★가 있고 casting_type이 1/2면 궁 오더가 Move로 강등될 수 있다(order_mask 후보)
+",
+                who, mk(a, def.map(|d| d[3])), mk(b, def.map(|d| d[4])), w[6] as u32));
+        }
         hlog(&format!("  [공여자 메타] casting_target={} attack_type={} cooltime={} (사일러스 = 7 / 1 / {})
 ",
             w[5] as u32, (w[5] >> 32) as u32, c, SY_COOL_ORIG.load(Ordering::Relaxed)));
