@@ -29,6 +29,10 @@ GPT가 그려 온 스트립 PNG들을 사일러스 시트에 배치하고 `sylas
   python C:\tfm2mods\sylas\pack_sprites.py --write --deploy   # 게임 폴더까지 복사
 """
 import json, os, sys, shutil, collections, io
+# ★알파 이중적용 주의(2026-08-29): **투명 캔버스**에 `paste(im, pos, im)` 를 하면
+#   마스크가 알파에도 곱해져 `새α = α²/255`, RGB 도 `rgb*α/255` 로 검게 눌린다.
+#   실측 피해: 반투명 연출 17종 213,641px (바닐라 α77 → 23). 불투명 픽셀은 멀쩡해서 오래 안 보였다.
+#   ⟹ **빈 캔버스에 배치할 때는 마스크를 주지 말 것.** 기존 내용 위에 합성할 때만 마스크가 옳다.
 from PIL import Image
 
 MOD   = r"C:\tfm2mods\sylas"
@@ -84,7 +88,7 @@ def align_to(src_img, gen_img):
     dy = max(-gb[1], min(H - gb[3], dy))
     if dx == 0 and dy == 0: return gen_img, (0, 0)
     out = Image.new("RGBA", gen_img.size, (0,0,0,0))
-    out.paste(gen_img, (dx, dy), gen_img)
+    out.paste(gen_img, (dx, dy))
     return out, (dx, dy)
 
 def main():
@@ -170,7 +174,7 @@ def main():
                 dx, dy = hit
                 for i in range(len(parts)):
                     out = Image.new("RGBA", parts[i].size, (0,0,0,0))
-                    out.paste(parts[i], (dx, dy), parts[i])
+                    out.paste(parts[i], (dx, dy))
                     parts[i] = out
                 shifts = [hit] * len(parts)
             else:
@@ -232,7 +236,7 @@ def main():
     out = Image.new("RGBA", (width, height), (0,0,0,0))
     for im, x, y2 in plan:
         if im is None: continue
-        out.paste(im, (x, y2), im)
+        out.paste(im, (x, y2))
     n = 0
     while os.path.exists(SHEET + f".bak_pack_{n}"): n += 1
     shutil.copy2(SHEET, SHEET + f".bak_pack_{n}"); shutil.copy2(FANIM, FANIM + f".bak_pack_{n}")

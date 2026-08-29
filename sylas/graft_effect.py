@@ -23,6 +23,10 @@
   python graft_effect.py dark_mage ult_line --top 12 --write
 """
 import argparse, json, os, shutil, sys
+# ★알파 이중적용 주의(2026-08-29): **투명 캔버스**에 `paste(im, pos, im)` 를 하면
+#   마스크가 알파에도 곱해져 `새α = α²/255`, RGB 도 `rgb*α/255` 로 검게 눌린다.
+#   실측 피해: 반투명 연출 17종 213,641px (바닐라 α77 → 23). 불투명 픽셀은 멀쩡해서 오래 안 보였다.
+#   ⟹ **빈 캔버스에 배치할 때는 마스크를 주지 말 것.** 기존 내용 위에 합성할 때만 마스크가 옳다.
 from PIL import Image, ImageDraw
 
 MOD  = r"C:\tfm2mods\sylas"
@@ -358,7 +362,7 @@ def main():
         NFW, NFH = FW + padx*2, FH + pady*2
         grown = Image.new("RGBA", (NFW*n, NFH), (0,0,0,0))
         for i in range(n):
-            grown.paste(mine[i], (i*NFW + padx, pady), mine[i])
+            grown.paste(mine[i], (i*NFW + padx, pady))
         st, FW, FH = grown, NFW, NFH
         effs = [(e[0], e[1]+padx, e[2]+pady) if e else None for e in effs]
         mine = [st.crop((i*FW, 0, (i+1)*FW, FH)) for i in range(n)]

@@ -17,6 +17,10 @@
 """
 import json, os, shutil, sys
 from collections import Counter
+# ★알파 이중적용 주의(2026-08-29): **투명 캔버스**에 `paste(im, pos, im)` 를 하면
+#   마스크가 알파에도 곱해져 `새α = α²/255`, RGB 도 `rgb*α/255` 로 검게 눌린다.
+#   실측 피해: 반투명 연출 17종 213,641px (바닐라 α77 → 23). 불투명 픽셀은 멀쩡해서 오래 안 보였다.
+#   ⟹ **빈 캔버스에 배치할 때는 마스크를 주지 말 것.** 기존 내용 위에 합성할 때만 마스크가 옳다.
 from PIL import Image, ImageDraw
 
 sys.path.insert(0, r"C:\tfm2mods\sylas")
@@ -140,9 +144,9 @@ def main():
                 # 원본 프레임을 **중앙 기준**으로 놓는다(게임이 중앙 기준으로 그린다)
                 c = van[i]
                 cell = Image.new("RGBA", (FW, FH), (0,0,0,0))
-                cell.paste(c, ((FW-c.width)//2, (FH-c.height)//2), c)
+                cell.paste(c, ((FW-c.width)//2, (FH-c.height)//2))
                 note = "원본 그대로 %dx%d" % c.size
-            out.paste(cell, (i*FW, 0), cell)
+            out.paste(cell, (i*FW, 0))
             print("   %s f%d  %s" % (anim, i, note))
 
         if write:

@@ -29,6 +29,10 @@ GPT가 준 큰 이미지를 게임이 쓸 수 있는 **균일 스트립**으로 
   (2026-08-26 실측: priest/ult_heal 조각이 574px 로 잡혔으나 실제 내용은 258px).
 """
 import json, os, sys, argparse
+# ★알파 이중적용 주의(2026-08-29): **투명 캔버스**에 `paste(im, pos, im)` 를 하면
+#   마스크가 알파에도 곱해져 `새α = α²/255`, RGB 도 `rgb*α/255` 로 검게 눌린다.
+#   실측 피해: 반투명 연출 17종 213,641px (바닐라 α77 → 23). 불투명 픽셀은 멀쩡해서 오래 안 보였다.
+#   ⟹ **빈 캔버스에 배치할 때는 마스크를 주지 말 것.** 기존 내용 위에 합성할 때만 마스크가 옳다.
 from PIL import Image, ImageDraw, ImageFont
 
 MOD  = r"C:\tfm2mods\sylas"
@@ -378,7 +382,7 @@ def main():
             y = max(0, min(y, FH - nh))
         else:
             y = max(0, FH-pads[i]-nh)
-        strip.paste(q, (x, y), q)
+        strip.paste(q, (x, y))
         bb = strip.crop((i*FW, 0, (i+1)*FW, FH)).split()[3].getbbox()
         rows.append((i, bb[2]-bb[0], bb[3]-bb[1], bb[1], FH-bb[3], pads[i]))
     for i, w_, h_, top, bot, want in rows:
