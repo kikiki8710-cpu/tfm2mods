@@ -936,6 +936,20 @@ fn cfg_refresher() {
         // ★[v128] 원본 충실도 스위치 3종. **기본 전부 OFF** — 켜기 전 동작이 현행과 같아야
         //   기존 인게임 검증(archer/priest/berserker/knight)이 그대로 유효하다. A/B는 하나씩.
         GRAFT_TGT.store(cfg_flag(&s, "graft_tgt"), Ordering::Relaxed);
+        // ★★★안전 인터록 — `graft_ct=1`(casting_type 이식)은 **`graft_tgt=1` 없이는 금지**.
+        //   RE `2026-08-25_궁시전-사거리게이트-d2c850-d152c0.md` §6(C) 확정:
+        //     "casting_type만 바꾸고 casting_target을 원본으로 두면 전제조건 불일치 → Order::None
+        //      (접근조차 안 하고 멍때림)"
+        //   ⟹ **v97의 궁 시전 0건이 정확히 이 조합이었다.** 같은 실패를 다시 만들지 않도록
+        //     여기서 강제로 짝을 맞춘다. 같은 RE의 권고: "desc 7워드를 통째로 복사.
+        //     필드 하나만 갈아끼우는 게 모든 실패 모드의 원인."
+        if GRAFT_CT.load(Ordering::Relaxed) && !GRAFT_TGT.load(Ordering::Relaxed) {
+            GRAFT_TGT.store(true, Ordering::Relaxed);
+            if INTERLOCK_LOG.fetch_add(1, Ordering::Relaxed) < 3 {
+                hlog("★[인터록] graft_ct=1 인데 graft_tgt=0 이다 — casting_type만 바꾸면 전제조건 불일치로 Order::None(멍때림)이 된다(v97 실패 재현). graft_tgt를 강제로 켠다.
+");
+            }
+        }
         GRAFT_ATK.store(cfg_flag(&s, "graft_atk"), Ordering::Relaxed);
         GRAFT_COOL.store(cfg_flag(&s, "graft_cool"), Ordering::Relaxed);
         ULT_META.store(cfg_flag(&s, "ult_meta"), Ordering::Relaxed);
@@ -1511,6 +1525,8 @@ static GRAFT_ATK:  AtomicBool = AtomicBool::new(false);
 static GRAFT_COOL: AtomicBool = AtomicBool::new(false);
 /// 사일러스 프로바이더의 원래 cooltime(복원용). 0 = 미확보.
 static SY_COOL_ORIG: AtomicU64 = AtomicU64::new(0);
+/// 인터록 로그 상한용.
+static INTERLOCK_LOG: AtomicU32 = AtomicU32::new(0);
 /// cfg `ult_meta=1` — 경기 시작 시 **그 판의 전 챔피언 궁 메타**를 1회 덤프.
 ///   정적 RE(디컴)의 지상검증 짝 — 어느 챔프가 아군/자기 대상 궁인지, 돌진궁인지를 실측으로 확정한다.
 static ULT_META: AtomicBool = AtomicBool::new(false);
