@@ -8634,8 +8634,8 @@ fn apply_quote_view(ui: &mut GameUI) {
         return;
     }
     if let Some(detail) = QUOTE_ERROR.with(|slot| slot.borrow().clone()) {
-        set_label_text(ui, "pts_cash_runtime_selection_value", "선택 조합 계산 실패");
-        set_label_text(ui, "pts_cash_runtime_required_value", "계산 실패");
+        set_label_text(ui, "pts_cash_runtime_selection_value", "트레이드 조건이 맞지 않음");
+        set_label_text(ui, "pts_cash_runtime_required_value", "트레이드 조건이 맞지 않음");
         set_label_text(ui, "pts_cash_runtime_budget_value", "—");
         set_label_text(ui, "pts_cash_runtime_salary_value", "—");
         set_label_text(ui, "pts_cash_runtime_salary_after_value", "—");
