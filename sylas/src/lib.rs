@@ -3360,6 +3360,15 @@ unsafe fn dump_slots(ent: usize, who: &str) -> String {
 static BUFF_CALL: AtomicBool = AtomicBool::new(false);
 /// `buff_probe=1` = 버프 리스트·페이로드 관찰.
 static BUFF_PROBE: AtomicBool = AtomicBool::new(false);
+/// ★[v133] 사일러스 PassiveRunner 목록(`ent+0x2F0`) 길이 추적.
+///   RE `2026-08-29_자기킷참조-궁-6종-코드확정.md` (b): `+0x2F0` = `Vec<Box<dyn PassiveRunner>>`
+///   (cap@0x2F0 / ptr@0x2F8 / **len@0x300**, stride 0x10 팻포인터).
+///   마검사 궁의 `AddEffectBuffEffect`(0x13ae870)가 여기에 러너를 push 한다.
+///   ⟹ **이 길이가 늘면 러너가 실제로 붙은 것**이고, 그게 "평타마다 Q" 의 전제다.
+static RUNNER_LEN: AtomicU64 = AtomicU64::new(u64::MAX);
+/// ★[v134] 버프 지속시간 비교 로그 상한.
+static BUFDUR_LOG: AtomicU32 = AtomicU32::new(0);
+const E_RUNNERS_LEN: usize = 0x300;
 /// `buff_graft=1` = 보유한 X 버프를 사일러스 궁 시전 시 **사일러스 버프 리스트에 push**.
 static BUFF_GRAFT: AtomicBool = AtomicBool::new(false);
 /// X 궁의 AddCasterBuff 페이로드 **값 사본**(0x120B) — 포인터를 들지 않는다.
@@ -3405,6 +3414,29 @@ fn buff_name(b: &[u8]) -> String {
     if n == 0 || n > b.len() - 4 || n > 64 { return String::new(); }
     String::from_utf8_lossy(&b[4..4 + n]).to_string()
 }
+/// ★[v134] BuffState(0x120) 를 **읽을 수 있게** 디코드한다.
+///   레이아웃(RE 2026-08-29_자기킷참조-궁-6종-코드확정 (d)):
+///   `name.len@0` · `name@4`(인라인 문자열) · `duration.tag@0x48` · `value@0x50`
+///   ⟹ "지속시간이 짧다" 를 **틱 수**로 답하기 위한 계측.
+unsafe fn buff_rows(ent: usize) -> Vec<(String, u64, u64)> {
+    let ptr = rd_u64(ent + E_BUF_PTR).unwrap_or(0) as usize;
+    let len = rd_u64(ent + E_BUF_LEN).unwrap_or(0);
+    let mut out = Vec::new();
+    if ptr < 0x10000 || len == 0 || len > 64 { return out; }
+    for i in 0..len as usize {
+        let it = ptr + i * BUF_STRIDE;
+        let n = rd_u64(it).unwrap_or(0) as u32 as usize;
+        if n == 0 || n > 40 { continue; }
+        let mut b = Vec::with_capacity(n);
+        for k in 0..n {
+            match rd_u64(it + 4 + k) { Some(v) => b.push(v as u8), None => break }
+        }
+        let nm = String::from_utf8_lossy(&b).to_string();
+        out.push((nm, rd_u64(it + 0x48).unwrap_or(0), rd_u64(it + 0x50).unwrap_or(0)));
+    }
+    out
+}
+
 unsafe fn dump_buff_list(ent: usize, who: &str) -> String {
     let cap = rd_u64(ent + E_BUF_CAP).unwrap_or(0);
     let ptr = rd_u64(ent + E_BUF_PTR).unwrap_or(0) as usize;
@@ -4525,6 +4557,47 @@ unsafe fn on_etick(_saved: usize, _e: usize) {
             .iter().map(|q| (q.0, q.1)).collect() };
         for (w, k) in list {
             let e = match champ_by_key(w, k, "sylas") { Some(v) => v, None => continue };
+            // ★[v133] 러너 목록 길이가 **바뀔 때만** 찍는다(매 틱 도배 방지).
+            if let Some(n) = rd_u64(e + E_RUNNERS_LEN) {
+                if n < 64 && RUNNER_LEN.swap(n, Ordering::Relaxed) != n {
+                    // ★[v135] 길이만으론 "왜 사라지는가"를 못 답한다. **러너의 수명 필드**를 직접 읽는다.
+                    //   Vec<Box<dyn PassiveRunner>> — ptr@0x2F8, stride 0x10 팻포인터 {data, vtable}.
+                    //   MagicKnightUltEffect = {tick@0, caster_id@8} (RE 2026-08-29 자기킷참조 §3).
+                    //   ⟹ tick 이 곧 남은 수명이다. 이 값이 처음부터 작으면 이식 payload 문제,
+                    //      크게 시작해 줄어들면 정상 소멸, 안 줄었는데 사라지면 외부가 지우는 것.
+                    let mut det = String::new();
+                    let pp = rd_u64(e + 0x2f8).unwrap_or(0) as usize;
+                    if pp >= 0x10000 {
+                        for i in 0..(n as usize).min(4) {
+                            let d = rd_u64(pp + i*0x10).unwrap_or(0) as usize;
+                            let v = rd_u64(pp + i*0x10 + 8).unwrap_or(0);
+                            let tick = if d >= 0x10000 { rd_u64(d) } else { None };
+                            let cid  = if d >= 0x10000 { rd_u64(d + 8) } else { None };
+                            det.push_str(&format!(" [{}] data={:#x} vt=RVA:{:#x} tick={:?} caster_id={:?}",
+                                i, d, rva_of(v), tick, cid));
+                        }
+                    }
+                    hlog(&format!("★[러너목록] sylas ent={:#x} +0x300 len={}{}
+", e, n, det));
+                }
+            }
+            // ★[v134] **사일러스 vs 원주인**의 같은 버프 지속시간을 나란히 찍는다.
+            //   유저 관찰 "지속시간이 엄청 짧아"(2026-09-01)를 숫자로 확인하기 위한 계측.
+            //   effect 트리는 Arc 공유라 값이 같아야 정상 — 다르면 어딘가에서 스케일된다는 뜻.
+            if BUFDUR_LOG.load(Ordering::Relaxed) < 24 {
+                let donor = { FORCE_SRC.lock().unwrap_or_else(|x| x.into_inner()).clone() };
+                let mine: Vec<_> = buff_rows(e).into_iter()
+                    .filter(|r| !donor.is_empty() && r.0.starts_with(&donor)).collect();
+                if !mine.is_empty() {
+                    let theirs = find_champ(w, &donor).map(|d| buff_rows(d)
+                        .into_iter().filter(|r| r.0.starts_with(&donor)).collect::<Vec<_>>())
+                        .unwrap_or_default();
+                    BUFDUR_LOG.fetch_add(1, Ordering::Relaxed);
+                    hlog(&format!("★[버프지속] sylas {:?}
+            {} 본인 {:?}  (tag,value) — 같아야 정상. 다르면 어딘가에서 스케일된다
+", mine, donor, theirs));
+                }
+            }
             if rd_u64(e + E_CAST_ST) != Some(6) { continue; }
             if let Some(msg) = fix_entity_cctx(w, e, k) {
                 if CCTX_LOG.fetch_add(1, Ordering::Relaxed) < 24 {

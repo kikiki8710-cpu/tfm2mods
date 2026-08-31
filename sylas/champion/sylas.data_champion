@@ -388,5 +388,97 @@
       "anim": "asset/base/aseprite_resources/skill_effect/chef_effect",
       "tag": "ult_effect"
     }
+  ],
+  "view_buffs": [
+    {
+      "type": "Animated",
+      "name": "magic_knight_ult",
+      "anim": "asset/sylas/aseprite_resources/champions/sylas",
+      "tag": "ult_effect_loop_magic_knight"
+    },
+    {
+      "type": "Animated",
+      "name": "android_ult",
+      "anim": "asset/sylas/aseprite_resources/champions/sylas",
+      "tag": "ult_loop_android"
+    },
+    {
+      "type": "Animated",
+      "name": "archer_ult",
+      "anim": "asset/sylas/aseprite_resources/champions/sylas",
+      "tag": "ult_loop_archer"
+    },
+    {
+      "type": "Animated",
+      "name": "bard_ult",
+      "anim": "asset/sylas/aseprite_resources/champions/sylas",
+      "tag": "ult_loop_bard"
+    },
+    {
+      "type": "Animated",
+      "name": "lightning_mage_ult",
+      "anim": "asset/sylas/aseprite_resources/champions/sylas",
+      "tag": "ult_loop_lightning_mage"
+    },
+    {
+      "type": "Animated",
+      "name": "shield_bearer_ult",
+      "anim": "asset/sylas/aseprite_resources/champions/sylas",
+      "tag": "ult_loop_shield_bearer"
+    },
+    {
+      "type": "Animated",
+      "name": "werewolf_ult",
+      "anim": "asset/sylas/aseprite_resources/champions/sylas",
+      "tag": "ult_loop_werewolf"
+    },
+    {
+      "type": "Animated",
+      "name": "whip_master_ult",
+      "anim": "asset/sylas/aseprite_resources/champions/sylas",
+      "tag": "ult_loop_whip_master"
+    },
+    {
+      "type": "Animated",
+      "name": "clown_ult",
+      "anim": "asset/sylas/aseprite_resources/champions/sylas",
+      "tag": "ult_on_clown"
+    },
+    {
+      "type": "Animated",
+      "name": "guardian_spirit_ult",
+      "anim": "asset/sylas/aseprite_resources/champions/sylas",
+      "tag": "ult_on_guardian_spirit"
+    },
+    {
+      "type": "Animated",
+      "name": "gunner_ult",
+      "anim": "asset/sylas/aseprite_resources/champions/sylas",
+      "tag": "ult_on_gunner"
+    },
+    {
+      "type": "Animated",
+      "name": "knight_ult",
+      "anim": "asset/sylas/aseprite_resources/champions/sylas",
+      "tag": "ult_on_knight"
+    },
+    {
+      "type": "Animated",
+      "name": "taoist_ult",
+      "anim": "asset/sylas/aseprite_resources/champions/sylas",
+      "tag": "ult_on_taoist"
+    },
+    {
+      "type": "Animated",
+      "name": "voodoo_shaman_ult",
+      "anim": "asset/sylas/aseprite_resources/champions/sylas",
+      "tag": "ult_on_voodoo_shaman"
+    },
+    {
+      "type": "Animated",
+      "name": "jiangshi_ult",
+      "anim": "asset/sylas/aseprite_resources/champions/sylas",
+      "tag": "ult_on_loop_jiangshi"
+    }
   ]
 }
