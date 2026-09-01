@@ -2109,6 +2109,7 @@ fn load_cfg(force: bool) -> bool {
                 "call_ablate" => { CALL_ABLATE.store(v=="1"||v.eq_ignore_ascii_case("true"), Ordering::Relaxed); }   // ★오더 콜(0xb) 제거 ablation: 1=콜차단(retreat_engage 2 push nop), 0=원본복원. 콜 영향 검증용
                 "lane_gate" => { if let Ok(n)=v.trim().parse::<u8>() { LANE_GATE.store(n.min(2), Ordering::Relaxed); } }   // ★오더 라인후보 게이트 ablation: 0=원본/1=OFF(후보0개)/2=ALL(후보다). 매크로 영향 검증용
                 "type3_ablate" => { TYPE3_ABLATE.store(v=="1"||v.eq_ignore_ascii_case("true"), Ordering::Relaxed); }   // ★오더 transition type3 콜 차단: 1=차단(jae→jmp), 0=원본. 매크로 subplan 전환 영향 검증
+                "push_ablate" => { PUSH_ABLATE.store(v=="1"||v.eq_ignore_ascii_case("true"), Ordering::Relaxed); }   // ★오더 push 4게이트 완전차단(0.5.7): 1=push0(jae→jmp), 0=원본. 오더스탯 다운스트림 판별
                 "skip_untuned" => { SKIP_UNTUNED.store(v=="1"||v.eq_ignore_ascii_case("true"), Ordering::Relaxed); }   // ★튜닝 안 한 judge는 원본 native 사용(속도↑·결과동일). 일정넘김 백그라운드 가속
                 "class_verify" => { CLASS_VERIFY.store(v=="1"||v.eq_ignore_ascii_case("true"), Ordering::Relaxed); }   // ★런타임 검증: 클래스 탐지+오버라이드 적용횟수(class_verify.txt)
                 "champ_verify" => { let on=v=="1"||v.eq_ignore_ascii_case("true"); if on && !CHAMP_VERIFY.load(Ordering::Relaxed) { CHAMP_OVHIT.store(0, Ordering::Relaxed); GATE_PASS.store(0,Ordering::Relaxed); GATE_BLOCK.store(0,Ordering::Relaxed); if let Ok(mut s)=CHAMP_SEEN.lock(){ s.clear(); } if let Ok(mut g)=GATE_IDS.lock(){ g.clear(); } } CHAMP_VERIFY.store(on, Ordering::Relaxed); }   // ★선수별 오버라이드 탐지+적용횟수+게이트(champ_verify.txt)
@@ -2431,6 +2432,7 @@ unsafe extern "C" fn retreat_capture(saved: usize, entry_rsp: usize) -> u64 {
         apply_call_ablate();  // ★오더 콜 ablation 패치 적용/복원 (want==applied면 즉시 return)
         apply_lane_gate();    // ★오더 라인후보 게이트 ablation (lane_gate 0/1/2)
         apply_type3_ablate(); // ★오더 transition type3 콜 ablation (매크로 전환 영향 검증)
+        apply_push_ablate();  // ★오더 push 4게이트 완전차단 (오더스탯 다운스트림 판별, 0.5.7)
         apply_objective_imm();// ★objective 원본상수 노출 (oi_* imm-patch)
         apply_vis_imm();      // ★[07-16] vis_window 부활 byte-patch (0x1caedd3 imm32, 기본600=무변화)
         apply_gb_imm();       // ★[07-16] GenericBuild 로밍/운영 byte-patch (경로A, gb_enable=0 기본=무변화)
@@ -2778,6 +2780,20 @@ const CALL_JOIN_A_RVA: usize = 0x2070d01;
 const CALL_JOIN_B_RVA: usize = 0x207176c;
 const CALL_ORIG_A: [u8; 14] = [0xC6,0x04,0xC8,0x0B, 0x88,0x5C,0xC8,0x01, 0x48,0xC7,0x44,0xC8,0x08,0x00];
 const CALL_ORIG_B: [u8; 14] = [0xC6,0x04,0xC8,0x0B, 0x44,0x88,0x6C,0xC8,0x01, 0x48,0xC7,0x44,0xC8,0x08];
+
+// ── ★오더 push 완전차단 (step-1 판별: push가 결과 채널인가 / 오더스탯 다운스트림 규명) ──
+//   push_ablate=1 → 오더 게이트 4곳을 전부 jmp(push 항상 스킵), =0 → 원본. gen_range는 게이트 위라 RNG 보존.
+//   0.5.7 확정(ghidra-re 2026-09-01): retreat A/B(0xe4a750) + transition gate3(near)/gate4(0xe832c0).
+//   같은 리플레이에서 on/off 결과가 갈리면 push=채널(나비효과/소비자), 불변이면 push 무관(재조사).
+static PUSH_ABLATE: AtomicBool = AtomicBool::new(false);
+static PUSH_ABLATE_APPLIED: AtomicBool = AtomicBool::new(false);
+const PA_G1_RVA: usize = 0xe4c585;  // retreat A: 73 33 → eb 33
+const PA_G2_RVA: usize = 0xe4d006;  // retreat B: 73 32 → eb 32
+const PA_G4_RVA: usize = 0xe8ad35;  // trans B(short): 73 44 → eb 44
+const PA_G1_D: u8 = 0x33; const PA_G2_D: u8 = 0x32; const PA_G4_D: u8 = 0x44;   // short jae disp(검증)
+const PA_G3_RVA: usize = 0xe89b52;  // trans A(near jae 6B): 0f 83 23 12 00 00 → e9 24 12 00 00 90(jmp rel32+nop)
+const PA_G3_ORIG: [u8;6] = [0x0f,0x83,0x23,0x12,0x00,0x00];
+const PA_G3_PATCH: [u8;6] = [0xe9,0x24,0x12,0x00,0x00,0x90];
 
 // ════════════════ objective 원본상수 노출 (imm byte-patch) ════════════════
 // ★"새 계산식 없음" 원칙: 게임 원본 함수(DefenseNexus 결정 0x2101a80 / AttackNexus 실행 0x232351e)를
@@ -8229,6 +8245,7 @@ impl ModExtension for CfgExt {
                 let s = format!("{}call_ablate: cfg={} applied={} blocked(콜0xb 발화·차단) A={} B={} 합계={}\n", s, CALL_ABLATE.load(Ordering::Relaxed) as u8, CALL_ABLATE_APPLIED.load(Ordering::Relaxed) as u8, CALL_BLOCKED_A.load(Ordering::Relaxed), CALL_BLOCKED_B.load(Ordering::Relaxed), CALL_BLOCKED_A.load(Ordering::Relaxed)+CALL_BLOCKED_B.load(Ordering::Relaxed));
                 let s = format!("{}lane_gate: cfg={} applied={} (0=원본/1=후보0개/2=후보다)\n", s, LANE_GATE.load(Ordering::Relaxed), LANE_GATE_APPLIED.load(Ordering::Relaxed));
                 let s = format!("{}type3_ablate: cfg={} applied={} (transition 타입3콜 차단)\n", s, TYPE3_ABLATE.load(Ordering::Relaxed) as u8, TYPE3_APPLIED.load(Ordering::Relaxed) as u8);
+                let s = format!("{}push_ablate: cfg={} applied={} (오더 push 4게이트 완전차단 0.5.7)\n", s, PUSH_ABLATE.load(Ordering::Relaxed) as u8, PUSH_ABLATE_APPLIED.load(Ordering::Relaxed) as u8);
                 // ★[07-31] SubPlan 실측 분포 — disc18/19(=SubPlan 18/19) 발화 여부의 직접 지표.
                 //   0이 아닌 버킷만 찍는다. **18/19가 0이면** 그 경기에서 넥서스 SubPlan 자체가 생성되지 않은 것
                 //   ⟹ 훅·주소 문제가 아니라 **국면 미도달**이라는 뜻(Plan16/17은 나와도 승격 게이트에서 막힐 수 있다).

@@ -628,6 +628,47 @@ unsafe fn apply_type3_ablate() {
     write_named("type3_ablate.txt", &format!("type3_ablate={} APPLIED @ {:#x}/{:#x} (jae→jmp 차단)\n", want, sites[0], sites[1]));
 }
 
+// ★오더 push 완전차단 (0.5.7) — 게이트 4곳 jae→jmp. short 3(1B 플립) + near 1(6B 재작성). RNG 보존.
+unsafe fn apply_push_ablate() {
+    let want = PUSH_ABLATE.load(Ordering::Relaxed);
+    if want == PUSH_ABLATE_APPLIED.load(Ordering::Relaxed) { return; }
+    let base = exe_base();
+    if base == 0 { return; }
+    if READY_TICKS.load(Ordering::Relaxed) < READY_MIN { return; }
+    let shorts = [(base + PA_G1_RVA, PA_G1_D), (base + PA_G2_RVA, PA_G2_D), (base + PA_G4_RVA, PA_G4_D)];
+    let g3 = base + PA_G3_RVA;
+    // 안전검증(전부 통과해야 하나라도 씀): short는 (want?73:eb)+disp, near는 6B 통째
+    for &(addr, d) in shorts.iter() {
+        if !readable(addr, 2) { return; }
+        let (b0, b1) = (rd_u8(addr), rd_u8(addr + 1));
+        let ok = b1 == d && (if want { b0 == 0x73 } else { b0 == 0xEB });
+        if !ok { write_named("push_ablate.txt", &format!("ABORT short @{:#x} {:02x}{:02x} want={} (RVA mismatch?)\n", addr, b0, b1, want)); return; }
+    }
+    if !readable(g3, 6) { return; }
+    let mut cur = [0u8; 6];
+    for i in 0..6 { cur[i] = rd_u8(g3 + i); }
+    let expect: [u8;6] = if want { PA_G3_ORIG } else { PA_G3_PATCH };
+    if cur != expect { write_named("push_ablate.txt", &format!("ABORT near @{:#x} {:02x?} want={} (RVA mismatch?)\n", g3, cur, want)); return; }
+    // 적용
+    let newb: u8 = if want { 0xEB } else { 0x73 };
+    for &(addr, _) in shorts.iter() {
+        let mut old: u32 = 0;
+        if VirtualProtect(addr, 1, 0x40, &mut old) == 0 { continue; }
+        core::ptr::write_unaligned(addr as *mut u8, newb);
+        VirtualProtect(addr, 1, old, &mut old);
+        FlushInstructionCache(GetCurrentProcess(), addr, 1);
+    }
+    let g3new: [u8;6] = if want { PA_G3_PATCH } else { PA_G3_ORIG };
+    let mut old: u32 = 0;
+    if VirtualProtect(g3, 6, 0x40, &mut old) != 0 {
+        core::ptr::copy_nonoverlapping(g3new.as_ptr(), g3 as *mut u8, 6);
+        VirtualProtect(g3, 6, old, &mut old);
+        FlushInstructionCache(GetCurrentProcess(), g3, 6);
+    }
+    PUSH_ABLATE_APPLIED.store(want, Ordering::Relaxed);
+    write_named("push_ablate.txt", &format!("push_ablate={} APPLIED (4게이트 jae→jmp, push0)\n", want));
+}
+
 unsafe fn build_call_stub(counter_addr: usize, join_addr: usize) -> usize {
     const MEM_CR: u32 = 0x1000|0x2000; const RWX: u32 = 0x40;
     let stub = stub_reg(VirtualAlloc(0, 64, MEM_CR, RWX), 64, 0xF004);
