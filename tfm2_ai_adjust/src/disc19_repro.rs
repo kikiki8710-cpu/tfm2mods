@@ -4,6 +4,14 @@
 // 들어있는 것: my_disc19/my_disc18 및 d19_*/d18_* 전 헬퍼, disc13/15/16/17, disc19_dcmp/disc18_dcmp/dump_disc_commands,
 //   disc19/18 capture wrap, apply_disc19_imm(severity byte-patch), vt게터 순수화(vt90_get 등).
 // 언제 손대나: disc19 판단로직/severity 상수/넥서스 방어 튜닝 변경 시. RVA는 rva_051.rs.
+// ⚠⚠[0.5.7 정합성검증 정정] 두 가지 주의:
+//   (1) ★my_disc13/15/16/17 = **facet#4 movepriority 디스패처(0x1419e4a50) 계층 재현**(단일 i64 이동코드 출력).
+//       0.5.7 행단위 RE가 다룬 **sub_plan serpen 핸들러**(check 0xd50b60/hunt 0xde6880/poke 0xd42b20, SmallAction Vec 출력)와는
+//       **디스패처도 출력계약도 다른 별개 계층**(이름 충돌). sub_plan serpen 재현이 아님 — offset +0x1d0 구분은 있으나
+//       {5,5} objId·FUN_1416006d0 맵질의·FUN_140e52110 mode5·serpen_seen 토글 미반영. 진짜 sub_plan serpen은
+//       모드가 fin/K*(apply_eh_imm) byte-patch로만 건드림. movepri 계층 의도면 그대로 OK, sub_plan 재현 의도였으면 재작성.
+//   (2) ✅apply_disc19_imm(HP래더 severity byte-patch)는 [0.5.7 재핀 완료 2026-09-01] — FUN_140eae620 내부 0xeaf239~0xeaf30e(sp19 RE·capstone).
+//       ~~0.5.6 0xd432xx stale~~ → 0.5.7. d19i_enable=1일 때 반영. orig_table도 갱신(가드 통과). ⚠my_disc19 재현부(위 (1)과 별개)는 여전히 은퇴.
 
 // ★[07-15] 로드시점 1회 호출(install_wrap과 동일 타이밍 = sim 실행 전 = .text 패치 안전).
 //   게임플레이중(백그라운드 sim이 disc19 동시실행) 패치는 쓰기 AV폴트(exe+0x1c83e6a) → post_update 호출 금지.
@@ -48,29 +56,25 @@ unsafe fn apply_disc19_imm() {
     };
     let _ = (pt, pa);   // ⛔0.5.2 대응 게이트 소멸 = 패치 사이트 없음(로그 표시용으로만 유지)
     let mut ok = 0u32;
-    // ★[0.5.3 마이그 2026-07-29] disc19 본체=**0xdece30**(was 0.5.2 0x2380820). severity 인라인 블록 시작=**0xdacc9b**(was 0x2380e16).
-    //   10사이트 전량 재핀 = 컨테이너 안에서 "prefix+원본imm" 시그 재탐색(오프셋 이전 금지 — 0.5.3은 함수가 커져 함수내 오프셋 비보존).
-    //   ⚠ally #1/#2는 시그가 동일해 문맥으로 판별: **`div rcx`(64bit) 직후 = #1(0xdacd12) / `div ecx`(32bit) 직후 = #2(0xdacd3e)**.
-    //     자동 문맥점수는 이 둘을 뒤집어 판정했다(실측으로 정정) — 쌍둥이 사이트는 반드시 앞 명령을 눈으로 확인할 것.
-    //   ★★[0.5.4] hp_pct RSI→**RDI**(48 83 ff)이고, HP 3사이트 주소가 tr 사이트와 **겹쳐 있었다**
-    //     (일괄 치환 사고 — 값이 서로 덮어썼다). 정정: hp=dacca1/daccad/daccb9, retreat=dacd54.
-    //     retreat 는 `setae`(≥46) → `jbe`(>45) 로 **극성이 뒤집혀** 원본·인코딩이 −1 이다.
-    //   ★[0.5.2 이력] hp_pct R15→RSI(48 83 fe). tr/ally는 RAX(48 83 f8) 불변.
-    //   전 사이트 width=1·imm_off=3. 아래 imm 기대값은 ghidra-re가 3자 exe(0.5.1/0.5.2백업/라이브)로 대조확인한 실바이트.
-    // 위협비율표 (RAX=tr, 48 83 f8) — 각 1인스턴스
-    ok += patch_imm_bytes(base + 0xd432eb, &[0x48,0x83,0xf8], 3, 1, p_sr0) as u32;   // tr>49  orig 0x31 (ja)   // ←s2 dacc9b
-    ok += patch_imm_bytes(base + 0xd432f7, &[0x48,0x83,0xf8], 3, 1, p_sr1) as u32;   // tr>29  orig 0x1d   // ←s2 dacca7
-    ok += patch_imm_bytes(base + 0xd43303, &[0x48,0x83,0xf8], 3, 1, p_sr2) as u32;   // tr>17  orig 0x11   // ←s2 daccb3
-    ok += patch_imm_bytes(base + 0xd4330f, &[0x48,0x83,0xf8], 3, 1, p_sr3) as u32;   // tr>9   orig 0x0a (jc, 인코딩 +1)   // ←s2 daccbf
-    // HP단계 경계 (★RSI=hp_pct, 48 83 fe ← 0.5.1 R15 49 83 ff) — 인코딩 V-1
-    ok += patch_imm_bytes(base + 0xd432f1, &[0x48,0x83,0xff], 3, 1, p_sh1) as u32;   // hp<66  orig 0x41   // ←s2 dacca1
-    ok += patch_imm_bytes(base + 0xd432fd, &[0x48,0x83,0xff], 3, 1, p_sh2) as u32;   // hp<41  orig 0x28   // ←s2 daccad
-    ok += patch_imm_bytes(base + 0xd43309, &[0x48,0x83,0xff], 3, 1, p_sh3) as u32;   // hp<26  orig 0x19 (앞에 xor ebx,ebx 2B 삽입 → 간격 8)   // ←s2 daccb9
-    // ally넥서스 위기 HP% (RAX 48 83 f8) — 2곳 동일값
-    ok += patch_imm_bytes(base + 0xd43362, &[0x48,0x83,0xf8], 3, 1, p_ah) as u32;    // ally>50 #1 orig 0x32 (64bit div rcx @0x2380e8f)   // ←s2 dacd12
-    ok += patch_imm_bytes(base + 0xd4338e, &[0x48,0x83,0xf8], 3, 1, p_ah) as u32;    // ally>50 #2 orig 0x32 (32bit div ecx @0x2380ebe)   // ←s2 dacd3e
-    // retreat_hp (★RSI 48 83 fe) — ⛔0.5.2엔 rhA 소멸, rhB 1곳뿐(+1 인코딩)
-    ok += patch_imm_bytes(base + 0xd433a4, &[0x48,0x83,0xff], 3, 1, p_rhb) as u32;   // ★0.5.4: 인코딩이 뒤집혔다 — 053 `cmp rsi,0x2e; setae`(≥46) → 054 `cmp rdi,0x2d; jbe`(>45).   // ←s2 dacd54
+    // ★[0.5.7 재핀 2026-09-01] disc19 severity 래더 = defense_nexus(FUN_140eae620) 내부 **0xeaf239~0xeaf30e**(sp19 P2 RE + capstone 확정).
+    //   ~~0.5.6 0xd432xx (stale·0.5.7 guard-dead=no-op)~~ → 0.5.7 재핀. 값·극성 sp19 P2와 비트일치.
+    //   prefix 2종: **Q/넥서스2 = 48 83 f8(rax)** / **HP%/retreat = 48 83 fb(rbx)** (0.5.6 hp/retreat RDI 48 83 ff → 0.5.7 RBX 48 83 fb).
+    //   ⚠넥서스2(ally) 문턱 = 32/64bit div **2사이트 중복**(0xeaf2d3 JA=64bit + 0xeaf2f8 JBE=32bit) — 둘 다 패치해야 일관.
+    //   전 사이트 width=1·imm_off=3. sr3 +1 인코딩(9→0x0a) 유지, hp경계 V−1(66→0x41) 유지, retreat orig 0x2d(JBE, HP%<=45 후퇴) — 0.5.7은 +1/−1 조정 없음.
+    // 위협비율표 (RAX=tr, 48 83 f8)
+    ok += patch_imm_bytes(base + 0xeaf239, &[0x48,0x83,0xf8], 3, 1, p_sr0) as u32;   // tr>49  orig 0x31 (JA)   // ←s6 d432eb/dacc9b
+    ok += patch_imm_bytes(base + 0xeaf245, &[0x48,0x83,0xf8], 3, 1, p_sr1) as u32;   // tr>29  orig 0x1d   // ←s6 d432f7
+    ok += patch_imm_bytes(base + 0xeaf251, &[0x48,0x83,0xf8], 3, 1, p_sr2) as u32;   // tr>17  orig 0x11   // ←s6 d43303
+    ok += patch_imm_bytes(base + 0xeaf25d, &[0x48,0x83,0xf8], 3, 1, p_sr3) as u32;   // tr<=9  orig 0x0a (JAE, +1 인코딩)   // ←s6 d4330f
+    // HP단계 경계 (★RBX=hp_pct, 48 83 fb ← 0.5.6 RDI 48 83 ff) — V−1 인코딩
+    ok += patch_imm_bytes(base + 0xeaf23f, &[0x48,0x83,0xfb], 3, 1, p_sh1) as u32;   // hp>65(<66)  orig 0x41   // ←s6 d432f1
+    ok += patch_imm_bytes(base + 0xeaf24b, &[0x48,0x83,0xfb], 3, 1, p_sh2) as u32;   // hp>40  orig 0x28   // ←s6 d432fd
+    ok += patch_imm_bytes(base + 0xeaf257, &[0x48,0x83,0xfb], 3, 1, p_sh3) as u32;   // hp>25  orig 0x19   // ←s6 d43309
+    // ally넥서스 위기 HP% (RAX 48 83 f8) — 32/64bit div 2사이트 중복(둘 다 동일값)
+    ok += patch_imm_bytes(base + 0xeaf2d3, &[0x48,0x83,0xf8], 3, 1, p_ah) as u32;    // ally>50 #1(64bit div, JA) orig 0x32   // ←s6 d43362
+    ok += patch_imm_bytes(base + 0xeaf2f8, &[0x48,0x83,0xf8], 3, 1, p_ah) as u32;    // ally>50 #2(32bit div, JBE) orig 0x32   // ←s6 d4338e
+    // retreat_hp (★RBX 48 83 fb) — orig 0x2d(JBE, HP%<=45 후퇴)
+    ok += patch_imm_bytes(base + 0xeaf30e, &[0x48,0x83,0xfb], 3, 1, p_rhb) as u32;   // retreat  orig 0x2d   // ←s6 d433a4/dacd54
     //   ⟹ **기대값·기록값이 −1**(0x2e→0x2d). 값만 옮기면 임계가 1 어긋난다.
     // ⛔phase 진입 게이트 4곳(pt·pa#1/2/3) = 0.5.2에서 게임이 전부 삭제 → 패치 사이트 없음(상단 주석 ③).
     // ★LOG_ON 무관 직접 write(설치확증 — itemnet_guard와 동일). write_named은 LOG_ON 게이트라 미확인됐었음.

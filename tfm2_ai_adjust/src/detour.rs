@@ -934,8 +934,8 @@ unsafe fn apply_visshort_imm() {
 //   전 키 기본 -1 = 원본 복원(무개입). ⚠전 사이트 인게임 미검증(정적 확정만) — 적용확인 = gank_imm.txt.
 unsafe fn apply_gank_imm() {
     let wait = tune("gk_wait", -1);           // 부쉬 대기 timeout(초). -1=원본(사이트별 10/12/15/15/10초). 2~72초 조합 근사
-    let hpb  = tune("gk_hp_base_gank", -1);   // ⚠[0.5.7 STALE-dead] 라인개입 리드액션 HP 게이트 base(원본 70). 사이트 0xcec7b0=0.5.6 재핀실패 → orig_guard blocked=no-op. 재핀 전 무효. (실효임계=base−스탯/5)
-    let wm   = tune("gk_window_margin", -1);  // ⚠[0.5.7 STALE-dead] 갱 윈도우 여유 배수(원본 5). 3사이트(0xcec859/912/a57) 전부 0.5.6 재핀실패 → orig_guard blocked=no-op. 재핀 전 무효.
+    let hpb  = tune("gk_hp_base_gank", -1);   // ✅[0.5.7 재핀 완료] 라인개입 리드액션 HP 게이트 base(원본 70, 실효임계=base−스탯/5). 0xe4c09f(was 0xcec7b0). ↑=발동 억제
+    let wm   = tune("gk_window_margin", -1);  // ✅[0.5.7 재핀 완료] 갱 윈도우 여유 배수(원본 5·허용 2/3/5/9). 0xe4c141/1e8/32d(was 0xcec859/912/a57). ↑=재시도 억제
     let mut sig = 0u64;
     for v in [wait, hpb, wm] { sig = sig.wrapping_mul(0x100000001b3) ^ (v as u64); }
     if sig == GANKIMM_SIG.load(Ordering::Relaxed) { return; }
@@ -971,12 +971,12 @@ unsafe fn apply_gank_imm() {
     }
     // ── B. 라인개입(jng=1) 리드액션 HP 게이트 base (mov dl,imm8 @0xe63d92, 원본 0x46=70) ──
     let bv = if hpb >= 0 { hpb.min(100) as u64 } else { 0x46 };
-    ok += patch_imm_bytes(base + 0xcec7b0, &[0xb2], 1, 1, bv) as u32;   // ←s2 e63d92
+    ok += patch_imm_bytes(base + 0xe4c09f, &[0xb2], 1, 1, bv) as u32;   // ★0.5.7 재핀(was 0xcec7b0) mov dl,0x46 @passive_jungle 0xe4a750, jng 3카피 중 라인개입(3번째)
     // ── C. 갱 윈도우 여유 배수 3사이트 (lea SIB, 원본 0x80=×5 / 허용 2/3/5/9 → 최근접 매핑) ──
     let ci = if wm >= 0 { let mut bi = 2usize; let mut bd = i64::MAX;
         for (i, f) in F2M.iter().enumerate() { let d = (f - wm).abs(); if d < bd { bd = d; bi = i; } } bi } else { 2 };
     let cv = ((ci as u8) << 6) as u64;   // 하위 6비트 = 0x00 (orig 0x80 & 0x3f)
-    for rva in [0xcec859usize, 0xcec912, 0xceca57] {
+    for rva in [0xe4c141usize, 0xe4c1e8, 0xe4c32d] {   // ★0.5.7 재핀(was 0xcec859/912/a57) lea rax,[rax+rax*4] SIB
         ok += patch_imm_bytes(base + rva, &[0x48,0x8d,0x04], 3, 1, cv) as u32;
     }
     GANKIMM_SIG.store(sig, Ordering::Relaxed);

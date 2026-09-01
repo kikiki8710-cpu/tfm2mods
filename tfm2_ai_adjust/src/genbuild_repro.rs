@@ -1,4 +1,14 @@
 // =====================================================================
+//  ⛔⛔ [0.5.7 휴면·DORMANT — 재활성 전 전면 재작성 필수] ⛔⛔
+//    이 재현물(my_generic_build/gb_region_d/my_gb_mainbuild/my_f80320)은 구세대(0.4.13~0.5.0)
+//    함수(FUN_1420def90/1420dedc0/141f80320)를 겨냥. 0.5.7 실 함수 = FUN_140ceb5f0(GENERIC_BUILD).
+//    rva_057.rs가 MIG_GB_CHANGED=true로 훅 SKIP(차단) = 현재 게임에 영향 없음(휴면).
+//    ★0.5.7 행단위 RE(GENERIC_BUILD P1/P2)가 뒤집은 3대 정정 전부 미반영:
+//      ① 상수 8 = tag 아닌 bumpalo 빈-Vec sentinel(산출=BumpVec<*Entity>)
+//      ② 이동점 = team_plan.rs FUN_140c8bb60 splitmix64 결정론(RNG-free) — 이 재현은 RngSim gen_range 소비(정반대)
+//      ③ 후보선택 = fight_check FUN_140cc4c50 argmin(승률예측) — 이 재현은 dist²최소(다른 아키텍처)
+//    ⟹ 재활성하려면 0.5.7 RE 기준 전면 재작성. LIVE 개입은 apply_gb_imm(별개, 배선됨)만.
+// =====================================================================
 //  generic_build 옵션 스코어러 화이트박스 재현 (survivability score)
 //  원본: FUN_141f80320 @ RVA 0x1f80320 (3차 핫픽스, 3844B)
 //  generic_build(0x1bf5980)이 옵션 평가에 사용. 단일 ulonglong 점수 반환.
