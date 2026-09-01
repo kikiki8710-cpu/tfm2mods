@@ -1851,7 +1851,25 @@ fn load_cfg(force: bool) -> bool {
     if !force && mt == CFG_MTIME.load(Ordering::Relaxed) { return false; }
     CFG_MTIME.store(mt, Ordering::Relaxed);
     CFG_GEN.fetch_add(1, Ordering::Relaxed);   // ★[07-16] 실리로드 세대+1 → retreat 핫패스 apply체인 1회 재실행
-    let txt = match fs::read_to_string(&p) { Ok(t) => t, Err(_) => return false };
+    // ★[09-01 견고화] 구 fs::read_to_string 은 cfg 가 무효 UTF-8(예: 편집기가 CP949/ANSI로 한글 저장)이면 Err→return false
+    //   → TUNE_PTR 미게시 → 유저 설정 포함 **전 knob 이 조용히 default**(진단 0). 원인추적에 수시간 소요된 실사고(2026-09-01 인게임검증).
+    //   이제: 바이트로 읽어 무효면 진단(cfg_error.txt) 남기고 lossy 파싱 진행 — ASCII key=value(실 설정)는 보존, 손상 주석만 U+FFFD.
+    let txt = match fs::read(&p) {
+        Ok(bytes) => match std::str::from_utf8(&bytes) {
+            Ok(s) => s.to_string(),
+            Err(e) => {
+                if let Some(ep) = pth("cfg_error.txt") {
+                    let _ = fs::write(ep, format!(
+                        "[cfg 무효 UTF-8] tfm2_ai_adjust.cfg 의 byte offset {} 부터 UTF-8 이 아님.\n\
+                         → 설정편집기 또는 텍스트에디터가 **UTF-8(BOM 없음)** 로 저장하는지 확인하세요(한글 주석이 CP949/ANSI면 이 오류).\n\
+                         지금은 lossy 파싱으로 진행합니다 = ASCII 설정값(key=value)은 정상 반영, 손상된 부분만 무시.\n",
+                        e.valid_up_to()));
+                }
+                String::from_utf8_lossy(&bytes).into_owned()
+            }
+        },
+        Err(_) => return false,
+    };
     let mut new_tune: TuneMap = HashMap::default();   // ★lock-free + FNV 해셔: 파싱 누적 후 일괄 게시
     // ★[수정 07-31] subplan별 임계는 "키가 있을 때만" 덮어써서 **한 번 설정하면 되돌릴 수 없었다**
     //   (줄을 지우거나 -1로 바꿔도 구값·ANY=true가 게임 재시작까지 잔존 = 핫리로드 무효).
