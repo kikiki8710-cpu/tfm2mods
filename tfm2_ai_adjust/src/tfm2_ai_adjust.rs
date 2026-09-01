@@ -2446,6 +2446,7 @@ unsafe extern "C" fn retreat_capture(saved: usize, entry_rsp: usize) -> u64 {
             apply_c3_imm();
             apply_lv_imm();
             apply_eh_imm();       // ★[08-04 신설] 위협감지·후퇴 d63d60 + 정글 진행 게이트 (전 키 기본 -1=무변화)
+            apply_init_imm();     // ★[09-01 신설] 갱크/교전/결사전 개시 게이트(gk2_*·eng_camp_radius·db_retreat_margin, 전 키 기본 -1=무변화)
         apply_sim_unchunk();  // ★[07-16] 백그sim 병렬도(rayon split budget nop, sim_unchunk=0 기본=무변화)
         apply_fix_skill2();    // ★[08-04] 게임 결함 수정 스위치(fix_skill2_dmg, 기본 0=원본)
         apply_fix_hp_ratio();  // ★[08-04] 게임 결함 수정 스위치(fix_hp_ratio, 기본 0=원본)
@@ -2811,6 +2812,7 @@ static D4_SIG: AtomicU64 = AtomicU64::new(u64::MAX);
 static C3_SIG: AtomicU64 = AtomicU64::new(u64::MAX);
 static LV_SIG: AtomicU64 = AtomicU64::new(u64::MAX);
 static EH_SIG: AtomicU64 = AtomicU64::new(u64::MAX);
+static INITIMM_SIG: AtomicU64 = AtomicU64::new(u64::MAX);   // ★[09-01 신설] 갱크/교전/결사전 개시 게이트 byte-patch 서명
 // ════════════════ disc19(FUN_141c83700) 판단상수 노출 (imm byte-patch, disc19 전용) ════════════════
 // ★"새 계산식 없음" 원칙: disc19 핸들러 코드에 박힌 판단 임계값(위협비율표·HP경계·phase·retreat·ally)만 cfg로 덮어씀.
 //   출력축(abil 발행)·threat식(FUN_1420a3fd0 공유)·compFlag(FUN_14209a750 공유)는 무손댐 → 다른 AI 무영향, 게임 원본 발행.

@@ -4351,8 +4351,28 @@ unsafe fn apply_eh_imm() {
     let eh_abort_hp = tune("eh_abort_hp", -1);   // 몬스터 HP% 이 값 초과면 사냥 포기(원본 44, 2곳)
     let eh_abort_dist = tune("eh_abort_dist", -1);   // 거리 상한 — 넘으면 포기(원본 220000, 2곳)
     let eh_score_norm = tune("eh_score_norm", -1);   // 거리→점수 정규화 상한(원본 320000, 12곳)
+    // ★[0.5.7 신규 확장 2026-09-01] fin + 미커버 K6·K18~K33 (스캔 = RE\행단위_0.5.7\_재핀\serpen_fin_K_재핀스캔). epic+serpen 쌍.
+    let eh_band_off      = tune("eh_band_off", -1);      // K6 접근밴드 오프셋(원본 10000, 2곳)
+    let eh_commit_margin = tune("eh_commit_margin", -1); // K18 커밋 거리여유(원본 30000, sub+add 4곳)
+    let eh_dist_clamp    = tune("eh_dist_clamp", -1);    // K19 거리 클램프 상한(원본 100000, cmp v+1/mov v 4곳)
+    let eh_clamp2        = tune("eh_clamp2", -1);        // K21 2차 거리 클램프(원본 80000, cmp/mov 4곳)
+    let eh_engage_dist   = tune("eh_engage_dist", -1);   // K22 교전거리(유닛, 원본 12000→d²+1, 2곳)
+    let eh_dist_shift    = tune("eh_dist_shift", -1);    // K23 거리²>>10 임계(원본 172265625 raw, 2곳)
+    let eh_power_weight  = tune("eh_power_weight", -1);  // K24 팀파워 편차 가중계수(원본 103, 2곳)
+    let eh_power_neutral = tune("eh_power_neutral", -1); // K25 팀파워 중립점%(원본 50, 2곳)
+    let eh_power_sub     = tune("eh_power_sub", -1);     // K26 파워 2번째 항 byte(원본 206=−50, 2곳). ⚠K25와 짝
+    let eh_time_slope    = tune("eh_time_slope", -1);    // K27 파워%→시간창 계수(원본 99, 4곳)
+    let eh_window_cap    = tune("eh_window_cap", -1);    // K28 시간창 상한(원본 2000, 4곳)
+    let eh_score_floor   = tune("eh_score_floor", -1);   // K29 fight_check 점수 하한(원본 1000, 2곳)
+    let eh_score_gate    = tune("eh_score_gate", -1);    // K30 점수 보조 게이트(원본 10, 2곳)
+    let eh_helper_a      = tune("eh_helper_a", -1);      // K31a 보조 헬퍼 param(원본 40, 2곳)
+    let eh_helper_b      = tune("eh_helper_b", -1);      // K31b 보조 헬퍼 param2(원본 60, 2곳)
+    let eh_hp_gate2      = tune("eh_hp_gate2", -1);      // K32 HP% 2차 게이트(원본 36, 2곳)
+    let eh_grid_cost     = tune("eh_grid_cost", -1);     // K33 그리드 탐색 비용 가산(원본 10000, 2곳)
+    let eh_fin_mode      = tune("eh_fin_mode", -1);      // fin 킬타깃 게이트: -1=원본 / 0=항상 킬타깃 사용(추격 적극) / 1=항상 무시(4 branch사이트)
     let mut sig = 0u64;
-    for v in [eh_flee_clear_hp, eh_reach_margin, eh_recall_radius, eh_around_radius, eh_trace_arrive, eh_band_low, eh_band_high, eh_commit_hp, eh_commit_r_low, eh_commit_r_high, eh_abort_hp, eh_abort_dist, eh_score_norm] { sig = sig.wrapping_mul(0x100000001b3) ^ (v as u64); }
+    for v in [eh_flee_clear_hp, eh_reach_margin, eh_recall_radius, eh_around_radius, eh_trace_arrive, eh_band_low, eh_band_high, eh_commit_hp, eh_commit_r_low, eh_commit_r_high, eh_abort_hp, eh_abort_dist, eh_score_norm,
+              eh_band_off, eh_commit_margin, eh_dist_clamp, eh_clamp2, eh_engage_dist, eh_dist_shift, eh_power_weight, eh_power_neutral, eh_power_sub, eh_time_slope, eh_window_cap, eh_score_floor, eh_score_gate, eh_helper_a, eh_helper_b, eh_hp_gate2, eh_grid_cost, eh_fin_mode] { sig = sig.wrapping_mul(0x100000001b3) ^ (v as u64); }
     if sig == EH_SIG.load(Ordering::Relaxed) { return; }
     let base = exe_base();
     if base == 0 || READY_TICKS.load(Ordering::Relaxed) < READY_MIN { return; }
@@ -4428,10 +4448,98 @@ unsafe fn apply_eh_imm() {
     p!(base + 0xdea45f, &[0x48,0x3d], 2, 4, v_eh_score_norm);   // ←0.5.3 da409e   // ←0.5.3 e185df
     p!(base + 0xdea465, &[0xb9], 1, 4, v_eh_score_norm);   // ←0.5.3 da40a4   // ←0.5.3 e185e5
     p!(base + 0xdea4eb, &[0xb9], 1, 4, v_eh_score_norm);   // ←0.5.3 da412a   // ←0.5.3 e1866b
+    // ── ★[0.5.7 신규 확장] K6·K18~K33 (imm) + fin (branch). 스펙 = 재핀 스캔 exe 대조 52/52 + fin 4. epic/serpen 쌍 ──
+    let vv = |x: i64, orig: u64| if x < 0 { orig } else { x.max(0) as u64 };
+    let ec = vv(eh_band_off, 10000);
+    p!(base + 0xd569bd, &[0x48,0x81,0xe9], 3, 4, ec); p!(base + 0xde93cd, &[0x48,0x81,0xe9], 3, 4, ec);   // K6
+    let cm = vv(eh_commit_margin, 30000);
+    p!(base + 0xd573dc, &[0x48,0x81,0xe9], 3, 4, cm); p!(base + 0xde9dba, &[0x48,0x81,0xe9], 3, 4, cm);   // K18a sub
+    p!(base + 0xd57c3e, &[0x48,0x81,0xc1], 3, 4, cm); p!(base + 0xdea62e, &[0x48,0x81,0xc1], 3, 4, cm);   // K18b add
+    let dc = vv(eh_dist_clamp, 100000);
+    p!(base + 0xd57364, &[0x48,0x3d], 2, 4, dc.wrapping_add(1)); p!(base + 0xde9d42, &[0x48,0x3d], 2, 4, dc.wrapping_add(1));   // K19a cmp(v+1)
+    p!(base + 0xd5736a, &[0xb9], 1, 4, dc); p!(base + 0xde9d48, &[0xb9], 1, 4, dc);   // K19b mov
+    let c2 = vv(eh_clamp2, 80000);
+    p!(base + 0xd57aba, &[0x48,0x81,0xfb], 3, 4, c2); p!(base + 0xdea4aa, &[0x48,0x81,0xfb], 3, 4, c2);   // K21a cmp(rbx)
+    p!(base + 0xd57ac1, &[0xb8], 1, 4, c2); p!(base + 0xdea4b1, &[0xb8], 1, 4, c2);   // K21b mov
+    let ed = if eh_engage_dist < 0 { 144000001u64 } else { let u = eh_engage_dist.max(0) as u64; u.wrapping_mul(u).wrapping_add(1) };
+    p!(base + 0xd57ca3, &[0x48,0x81,0xfa], 3, 4, ed); p!(base + 0xdea693, &[0x48,0x81,0xfa], 3, 4, ed);   // K22 d²+1
+    let ds = vv(eh_dist_shift, 172265625);
+    p!(base + 0xd5824a, &[0x49,0x81,0xfe], 3, 4, ds); p!(base + 0xdeac3a, &[0x49,0x81,0xfe], 3, 4, ds);   // K23 (⚠rbx/r14 프리픽스 49 81 fe = K29와 공유·값으로 구분)
+    let pw = vv(eh_power_weight, 103);
+    p!(base + 0xd576b9, &[0x6b,0xc0], 2, 1, pw); p!(base + 0xdea0a9, &[0x6b,0xc0], 2, 1, pw);   // K24
+    let pn = vv(eh_power_neutral, 50);
+    p!(base + 0xd576b2, &[0xb0], 1, 1, pn); p!(base + 0xdea0a2, &[0xb0], 1, 1, pn);   // K25
+    let ps = vv(eh_power_sub, 206);
+    p!(base + 0xd576cd, &[0x48,0x83,0xc2], 3, 1, ps); p!(base + 0xdea0bd, &[0x48,0x83,0xc2], 3, 1, ps);   // K26 (K25와 짝: 기본 206=−50)
+    let tsl = vv(eh_time_slope, 99);
+    p!(base + 0xd55b87, &[0x6b,0xc6], 2, 1, tsl); p!(base + 0xde858c, &[0x6b,0xc6], 2, 1, tsl);   // K27a
+    p!(base + 0xd57d80, &[0x6b,0xc1], 2, 1, tsl); p!(base + 0xdea770, &[0x6b,0xc1], 2, 1, tsl);   // K27b
+    let wc = vv(eh_window_cap, 2000);
+    p!(base + 0xd55b99, &[0xba], 1, 4, wc); p!(base + 0xde859e, &[0xba], 1, 4, wc);   // K28a
+    p!(base + 0xd57d93, &[0x41,0xb9], 2, 4, wc); p!(base + 0xdea783, &[0x41,0xb9], 2, 4, wc);   // K28b
+    let sf = vv(eh_score_floor, 1000);
+    p!(base + 0xd5605d, &[0x49,0x81,0xfe], 3, 4, sf); p!(base + 0xde8a6d, &[0x49,0x81,0xfe], 3, 4, sf);   // K29
+    let sg = vv(eh_score_gate, 10);
+    p!(base + 0xd56066, &[0x48,0x83,0xf8], 3, 1, sg); p!(base + 0xde8a76, &[0x48,0x83,0xf8], 3, 1, sg);   // K30 (48 83 f8 = K32와 공유·값 구분)
+    let ha = vv(eh_helper_a, 40);
+    p!(base + 0xd55e99, &[0x41,0xb8], 2, 4, ha); p!(base + 0xde88a9, &[0x41,0xb8], 2, 4, ha);   // K31a
+    let hb = vv(eh_helper_b, 60);
+    p!(base + 0xd55fc9, &[0x41,0xb8], 2, 4, hb); p!(base + 0xde89d9, &[0x41,0xb8], 2, 4, hb);   // K31b
+    let hg = vv(eh_hp_gate2, 36);
+    p!(base + 0xd56f91, &[0x48,0x83,0xf8], 3, 1, hg); p!(base + 0xde9971, &[0x48,0x83,0xf8], 3, 1, hg);   // K32
+    let gc = vv(eh_grid_cost, 10000);
+    p!(base + 0xd58015, &[0x49,0x81,0xc6], 3, 4, gc); p!(base + 0xdeaa05, &[0x49,0x81,0xc6], 3, 4, gc);   // K33
+    // fin (killtarget 게이트, 3-state: 이전 잔여 원복 후 목표 적용)
+    macro_rules! fin3 { ($a:expr, $o:expr, $a0:expr, $a1:expr) => {{
+        let _ = patch_toggle_bytes(base + $a, $o, $a0, false);
+        let _ = patch_toggle_bytes(base + $a, $o, $a1, false);
+        if eh_fin_mode == 0 { tot += 1; ok += patch_toggle_bytes(base + $a, $o, $a0, true) as u32; }
+        else if eh_fin_mode == 1 { tot += 1; ok += patch_toggle_bytes(base + $a, $o, $a1, true) as u32; }
+    }}; }
+    fin3!(0xd54b93, &[0x74,0x04], &[0xeb,0x04], &[0x90,0x90]);   // fin#1 epic je→jmp/nop
+    fin3!(0xde7661, &[0x74,0x04], &[0xeb,0x04], &[0x90,0x90]);   // fin#1 serp
+    fin3!(0xd55bc5, &[0x08,0xd8], &[0x08,0xc0], &[0xb0,0x01]);   // fin#2 epic or→and/mov
+    fin3!(0xde85ca, &[0x08,0xd8], &[0x08,0xc0], &[0xb0,0x01]);   // fin#2 serp
     EH_SIG.store(sig, Ordering::Relaxed);
     if let Some(pp) = pth("eh_imm.txt") {
         let _ = fs::write(pp, format!("applied={}/{} eh_flee_clear_hp={} eh_reach_margin={} eh_recall_radius={} eh_around_radius={} eh_trace_arrive={} eh_band_low={} eh_band_high={} eh_commit_hp={} eh_commit_r_low={} eh_commit_r_high={} eh_abort_hp={} eh_abort_dist={} eh_score_norm={} @base{:#x}\n",
             ok, tot, eh_flee_clear_hp, eh_reach_margin, eh_recall_radius, eh_around_radius, eh_trace_arrive, eh_band_low, eh_band_high, eh_commit_hp, eh_commit_r_low, eh_commit_r_high, eh_abort_hp, eh_abort_dist, eh_score_norm, base));
+    }
+}
+
+// ★★[09-01 신설] 갱크·교전·결사전 "개시" 게이트 byte-patch — 판단이 언제 발동하는가.
+//   근거 = RE\행단위_0.5.7\_재핀\gank_engage_개시_knob스펙_0.5.7.md (exe 실측). 전 키 기본 -1=원본 유지.
+//   ⚠인게임 미검증(정적 확정). 반경계열은 유닛 입력→d² 인코딩. orig_guard fail-safe(RVA 어긋나면 no-op).
+unsafe fn apply_init_imm() {
+    let gkr = tune("gk2_gank_radius", -1);   // 갱크 개시 근접 반경(유닛, 원본 250000, d²·6곳). ↓=코앞만 갱크, ↑=넓게
+    let gkh = tune("gk2_gank_hp", -1);        // 갱크 적격 HP%(원본 40, 10곳). ↑=더 다친 적만 갱크(신중), ↓=풀피도 갱크
+    let egr = tune("eng_camp_radius", -1);    // 교전개시 아군집결 반경(유닛, 원본≈140060, d²·6곳). ↓=바짝 모여야 개시, ↑=흩어져도 개시
+    let dbm = tune("db_retreat_margin", -1);  // 결사전 후퇴 인원마진(원본 2 = aliveCount≥적+2). ↓=쉽게 후퇴, ↑=올인 고집
+    let mut sig = 0u64;
+    for v in [gkr, gkh, egr, dbm] { sig = sig.wrapping_mul(0x100000001b3) ^ (v as u64); }
+    if sig == INITIMM_SIG.load(Ordering::Relaxed) { return; }
+    let base = exe_base();
+    if base == 0 || READY_TICKS.load(Ordering::Relaxed) < READY_MIN { return; }
+    let mut ok = 0u32; let mut tot = 0u32;
+    macro_rules! p { ($a:expr, $pre:expr, $off:expr, $w:expr, $v:expr) => {{
+        tot += 1; ok += patch_imm_bytes($a, $pre, $off, $w, $v) as u32; }}; }
+    // 갱크 근접 반경²(6곳, d² 8B movabs) — 아군2 r12(49 bc) + 적4 rax(48 b8)
+    let gr = if gkr < 0 { 0xe8d4a5100u64 } else { let r = gkr.max(0) as u64; r.wrapping_mul(r) };
+    p!(base + 0xe33faf, &[0x49,0xbc], 2, 8, gr); p!(base + 0xe34313, &[0x49,0xbc], 2, 8, gr);
+    for rva in [0xe3447cusize, 0xe34588, 0xe34694, 0xe347a0] { p!(base + rva, &[0x48,0xb8], 2, 8, gr); }
+    // 갱크 적격 hp%(10곳, cmp rax,0x28)
+    let gh = if gkh < 0 { 0x28u64 } else { (gkh.max(0).min(0x7f)) as u64 };
+    for rva in [0xe34032usize,0xe340be,0xe3414c,0xe341da,0xe34261,0xe343ab,0xe344c0,0xe345cc,0xe346d8,0xe347fb] { p!(base + rva, &[0x48,0x83,0xf8], 3, 1, gh); }
+    // 교전 in_camp_ally 반경²(6곳, d² 8B) — rcx5(48 b9)+rax1(48 b8). ⚠경계 ≥ 2곳(0xe83ebe/e8422f)은 프리픽스 미확정으로 미배선(대칭 필요시 별도 재핀)
+    let er = if egr < 0 { 0x490404401u64 } else { let r = egr.max(0) as u64; r.wrapping_mul(r).wrapping_add(1) };
+    for rva in [0xe83468usize,0xe835ab,0xe83607,0xe83661,0xe836bb] { p!(base + rva, &[0x48,0xb9], 2, 8, er); }
+    p!(base + 0xe83716, &[0x48,0xb8], 2, 8, er);
+    // 결사전 후퇴 인원마진(1곳, add rcx,2)
+    let dm = if dbm < 0 { 2u64 } else { (dbm.max(0).min(0x7f)) as u64 };
+    p!(base + 0xcb5e7b, &[0x48,0x83,0xc1], 3, 1, dm);
+    INITIMM_SIG.store(sig, Ordering::Relaxed);
+    if let Some(pp) = pth("init_imm.txt") {
+        let _ = fs::write(pp, format!("applied={}/{} gk2_gank_radius={} gk2_gank_hp={} eng_camp_radius={} db_retreat_margin={} @base{:#x}\n", ok, tot, gkr, gkh, egr, dbm, base));
     }
 }
 
