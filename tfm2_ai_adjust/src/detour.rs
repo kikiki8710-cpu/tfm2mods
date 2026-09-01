@@ -1674,8 +1674,8 @@ unsafe fn apply_db_imm() {
 //   - `0xcc9960`은 진입점이 아니라 **512버킷 메모이제이션 래퍼** — 같은 틱·셀·kind면 본문이 안 돈다.
 //   ⚠**`×1968`·`×25`는 immediate가 아니라 `lea` 조합**이라 byte-patch로 못 건드린다(노브 없음).
 unsafe fn apply_pe_imm() {
-    let pcol = tune("pe_collect_radius", -1); // 적·아군 위협 수집 반경(원본 200000, 12곳). ⚠[0.5.7 갭] 이 12곳은 형제/콜리 함수(0xd1b~0xd1e대)이고, position_eval 본체(0xd23970)의 Phase1/2 수집반경(0x23f85/0x245d5) + scoreA 위협 프리필터(0x24a60)는 **미패치** → 본체 수집반경은 이 노브로 안 바뀜
-    let pflt = tune("pe_filter_radius", -1);  // 구조물·미니언 후보 필터(원본 150000, 10곳). ⚠[0.5.7 갭] pcol과 동일 — 본체(0xd23970) 프리필터 150000²(0x24a60)는 미포함(형제함수만)
+    let pcol = tune("pe_collect_radius", -1); // 적·아군 위협 수집 반경(원본 200000). 형제함수 12곳 + ★[09-01 갭메움] position_eval 본체(0xd23970) 12곳(적팀8·5번째슬롯2·아군2) = 총 24곳. 이제 본체 수집반경도 이동.
+    let pflt = tune("pe_filter_radius", -1);  // 위협/구조물 후보 필터(원본 150000). 형제함수 + ★[09-01] 본체 scoreA 프리필터(0xd24a6b)+P3 2차루프(0xd26dcb) 포함.
     let pnea = tune("pe_near_cut", -1);       // 병합 이터 근접컷(원본 70000, 4곳)
     let pmin = tune("pe_minion_add", -1);     // ★미니언·중립을 위험으로 **가산**하는 거리(원본 64000)
     let pcha = tune("pe_champ_threat", -1);   // ★적 챔피언 위협 평가 컷(원본 100000)
@@ -1754,6 +1754,16 @@ unsafe fn apply_pe_imm() {
     p!(base + 0xd1e526, &[0x48,0xbf], 2, 8, sq(pflt, 0x5_3D1A_C100));   // ←0.5.3 ccd76e  ★재조사로 복구: pflt (053 3곳=재로드→054 1곳)   // ←0.5.3 cac08c
     pskip!(base + 0xcedf7e, &[0x49,0xbb], 2, 8, sq(pflt, 0x5_3D1A_C100));   // ⛔0.5.4 미확정: 시그 3→0 / 완화 3→1 (골격 86%)
     pskip!(base + 0xcee2c8, &[0x49,0xbb], 2, 8, sq(pflt, 0x5_3D1A_C100));   // ⛔0.5.4 미확정: 시그 3→0 / 완화 3→1 (골격 86%)
+    // ── ★[09-01 갭메움] position_eval **본체**(0xd23970) 수집반경·프리필터. 위 형제함수(0xd1b~0xd1e)와 함께 이동해야 실제 반경 변경(대표 사이트만으론 안 바뀜=커버리지 갭 실체).
+    //   근거 = _재핀\pe본체_교전경계_patch스펙. ⚠값스캔 절대금지(0x9502f9001/000·0x53d1ac0 전역 다수 재사용) — 아래 절대주소 앵커만.
+    for a in [0xd23f8dusize,0xd23fd0,0xd24064,0xd240a0,0xd24134,0xd24170,0xd24207,0xd2423d] {   // 적팀 Phase1 8곳 (R²+1)
+        p!(base + a, &[0x48,0xb8], 2, 8, sqp(pcol, 0x9_502F_9001));
+    }
+    for a in [0xd242d3usize,0xd24308,0xd2463a,0xd24670] {   // 적 5번째슬롯 2 + 아군 Phase2 2 (R²)
+        p!(base + a, &[0x48,0xb8], 2, 8, sq(pcol, 0x9_502F_9000));
+    }
+    p!(base + 0xd24a6b, &[0x48,0x3d], 2, 4, dsh(pflt, 87_890_624, 8, 0));      // scoreA 위협 프리필터(본체, cmp rax,imm32 d²>>8)
+    p!(base + 0xd26dcb, &[0x48,0x81,0xfa], 3, 4, dsh(pflt, 87_890_624, 8, 0)); // P3 2차 위협루프(본체)
     for a in [0xd1cbcausize, 0xd261ca] {
         p!(base + a, &[0x49,0x81,0xfe], 3, 4, dsh(pnea, 19_140_625, 8, 1));
     }
@@ -4530,10 +4540,12 @@ unsafe fn apply_init_imm() {
     // 갱크 적격 hp%(10곳, cmp rax,0x28)
     let gh = if gkh < 0 { 0x28u64 } else { (gkh.max(0).min(0x7f)) as u64 };
     for rva in [0xe34032usize,0xe340be,0xe3414c,0xe341da,0xe34261,0xe343ab,0xe344c0,0xe345cc,0xe346d8,0xe347fb] { p!(base + rva, &[0x48,0x83,0xf8], 3, 1, gh); }
-    // 교전 in_camp_ally 반경²(6곳, d² 8B) — rcx5(48 b9)+rax1(48 b8). ⚠경계 ≥ 2곳(0xe83ebe/e8422f)은 프리픽스 미확정으로 미배선(대칭 필요시 별도 재핀)
+    // 교전 in_camp_ally 반경²(메인 6곳=R²+1, d² 8B) — rcx5(48 b9)+rax1(48 b8) + ★[09-01] 경계 ≥ 2곳(0xe83ebe/e8422f=R², 48 b8)도 대칭 배선(스펙 확정)
     let er = if egr < 0 { 0x490404401u64 } else { let r = egr.max(0) as u64; r.wrapping_mul(r).wrapping_add(1) };
     for rva in [0xe83468usize,0xe835ab,0xe83607,0xe83661,0xe836bb] { p!(base + rva, &[0x48,0xb9], 2, 8, er); }
     p!(base + 0xe83716, &[0x48,0xb8], 2, 8, er);
+    let erb = if egr < 0 { 0x490404400u64 } else { let r = egr.max(0) as u64; r.wrapping_mul(r) };   // 경계 = R²(메인−1)
+    p!(base + 0xe83ebe, &[0x48,0xb8], 2, 8, erb); p!(base + 0xe8422f, &[0x48,0xb8], 2, 8, erb);
     // 결사전 후퇴 인원마진(1곳, add rcx,2)
     let dm = if dbm < 0 { 2u64 } else { (dbm.max(0).min(0x7f)) as u64 };
     p!(base + 0xcb5e7b, &[0x48,0x83,0xc1], 3, 1, dm);
