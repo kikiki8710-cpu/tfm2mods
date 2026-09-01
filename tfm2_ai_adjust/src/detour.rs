@@ -934,8 +934,8 @@ unsafe fn apply_visshort_imm() {
 //   전 키 기본 -1 = 원본 복원(무개입). ⚠전 사이트 인게임 미검증(정적 확정만) — 적용확인 = gank_imm.txt.
 unsafe fn apply_gank_imm() {
     let wait = tune("gk_wait", -1);           // 부쉬 대기 timeout(초). -1=원본(사이트별 10/12/15/15/10초). 2~72초 조합 근사
-    let hpb  = tune("gk_hp_base_gank", -1);   // 라인개입 리드액션 HP 게이트 base(원본 70, 실효임계=base−스탯/5). ↑=발동 억제
-    let wm   = tune("gk_window_margin", -1);  // 갱 윈도우 최소 여유 배수(원본 5·허용 2/3/5/9). ↑=재시도 억제
+    let hpb  = tune("gk_hp_base_gank", -1);   // ⚠[0.5.7 STALE-dead] 라인개입 리드액션 HP 게이트 base(원본 70). 사이트 0xcec7b0=0.5.6 재핀실패 → orig_guard blocked=no-op. 재핀 전 무효. (실효임계=base−스탯/5)
+    let wm   = tune("gk_window_margin", -1);  // ⚠[0.5.7 STALE-dead] 갱 윈도우 여유 배수(원본 5). 3사이트(0xcec859/912/a57) 전부 0.5.6 재핀실패 → orig_guard blocked=no-op. 재핀 전 무효.
     let mut sig = 0u64;
     for v in [wait, hpb, wm] { sig = sig.wrapping_mul(0x100000001b3) ^ (v as u64); }
     if sig == GANKIMM_SIG.load(Ordering::Relaxed) { return; }
@@ -986,9 +986,11 @@ unsafe fn apply_gank_imm() {
     }
 }
 
-// ★★[08-03 신설] sub_plan **실행층** byte-patch — 게임이 "실제 움직임"을 만드는 층.
+// ★★[08-03 신설] 판단력/오더유지 byte-patch (★[0.5.7 정정] ~~"sub_plan 실행층·실제 움직임"~~ 과장 라벨 정정).
 //   근거 = RE\2026-08-03_라인전hot3핸들러-*.md + RE\2026-08-03_Order소비자-실행기규명-auction층-*.md.
-//   ★이 층은 모드가 대체하지 않는다(모드 훅 = movepri `0xc559e0` arm) ⟹ **byte-patch가 그대로 유효**.
+//   ★[0.5.7 행단위 RE] 진짜 "실제 움직임 실행자" = db0f40(SmallAction→Input 디스패치, JT2 16-arm)이고 이 함수는 그걸 패치하지 않는다.
+//     실제 패치 대상 = 판단력 오판 게이트(0xd49xxx=플랜선택/스코어층) + order-hold(0xdf3425=plan_driver). 실행자(db0f40) 아님.
+//   ★이 층은 모드가 대체하지 않는다 ⟹ **byte-patch가 그대로 유효**.
 //
 //   ① 판단력 오판 게이트 (`line_defense 0xc5e160` P10) — 게임의 "판단력 스탯" 구현 실체:
 //        thr  = min(v,100) * 85 * 6554 >> 16 + 150     (≈ min(v,100)*8.5 + 150, 범위 150~1000)
@@ -1672,8 +1674,8 @@ unsafe fn apply_db_imm() {
 //   - `0xcc9960`은 진입점이 아니라 **512버킷 메모이제이션 래퍼** — 같은 틱·셀·kind면 본문이 안 돈다.
 //   ⚠**`×1968`·`×25`는 immediate가 아니라 `lea` 조합**이라 byte-patch로 못 건드린다(노브 없음).
 unsafe fn apply_pe_imm() {
-    let pcol = tune("pe_collect_radius", -1); // 적·아군 위협 수집 반경(원본 200000, 12곳)
-    let pflt = tune("pe_filter_radius", -1);  // 구조물·미니언 후보 필터(원본 150000, 10곳)
+    let pcol = tune("pe_collect_radius", -1); // 적·아군 위협 수집 반경(원본 200000, 12곳). ⚠[0.5.7 갭] 이 12곳은 형제/콜리 함수(0xd1b~0xd1e대)이고, position_eval 본체(0xd23970)의 Phase1/2 수집반경(0x23f85/0x245d5) + scoreA 위협 프리필터(0x24a60)는 **미패치** → 본체 수집반경은 이 노브로 안 바뀜
+    let pflt = tune("pe_filter_radius", -1);  // 구조물·미니언 후보 필터(원본 150000, 10곳). ⚠[0.5.7 갭] pcol과 동일 — 본체(0xd23970) 프리필터 150000²(0x24a60)는 미포함(형제함수만)
     let pnea = tune("pe_near_cut", -1);       // 병합 이터 근접컷(원본 70000, 4곳)
     let pmin = tune("pe_minion_add", -1);     // ★미니언·중립을 위험으로 **가산**하는 거리(원본 64000)
     let pcha = tune("pe_champ_threat", -1);   // ★적 챔피언 위협 평가 컷(원본 100000)
@@ -1683,7 +1685,7 @@ unsafe fn apply_pe_imm() {
     let pband= tune("pe_outer_band", -1);     // 투사체·중립 외곽 감쇠 띠(원본 32000, 2곳)
     let pshot= tune("pe_skillshot_width", -1);// ★스킬샷 궤적 허용폭(원본 20000)
     let pblk = tune("pe_bodyblock_width", -1);// 아군 몸빵 판정폭(원본 28000, 3곳)
-    let ptwr = tune("pe_tower_margin", -1);   // 타워·미니언 사거리 여유(원본 18000, 2곳)
+    let ptwr = tune("pe_tower_margin", -1);   // ★[0.5.7 정정] 실제=flag0(차단/시야) 계산 루프의 액션도형 커버 반경여유(0xd2794d add r9,0x4650), ~~타워·미니언 사거리~~ 아님(원본 18000, 2곳)
     let pcap = tune("pe_source_cap", -1);     // ★소스당 %HP 캡(원본 150, **11쌍 22곳**)
     let ppcap= tune("pe_predict_cap", -1);    // 예측피해 캡(원본 140, 1쌍)
     let pfar = tune("pe_tower_far", -1);      // 원거리 타워 기여 계수(원본 656, 2곳)
@@ -1693,7 +1695,7 @@ unsafe fn apply_pe_imm() {
     let pks  = tune("pe_kind_scale", -1);     // kind 스케일 ×1.2(원본 120, 2곳)
     let pmsk = tune("pe_mode_mask", -1);      // 미니언 위협을 켜는 게임모드 마스크(원본 0x1a1, 2곳)
     let pkm  = tune("pe_kind_mask", -1);      // 예측피해 감산 kind 마스크(원본 0x303)
-    let pwall= tune("pe_wall_risk", -1);      // 지형 벽 셀 risk(원본 9999)
+    let pwall= tune("pe_wall_risk", -1);      // 차단셀 risk(원본 9999). ★[0.5.7] 유일하게 출력 score 필드(out+0x00=scoreA)에 직접 쓰는 조기리턴 센티넬(0xd23ab6 mov [r15],0x270f) — 위협누적 정상경로 값 아님
     let pwell= tune("pe_well_risk", -1);      // 적 우물 risk·tower_risk·base(원본 9999, 3곳)
     let pagc = tune("pe_ally_gain_cut", -1);  // 아군 스킬 gain 컷(원본 1200)
     let pst  = tune("pe_state_gate", -1);     // 상태 게이트(원본 180, 3곳)
@@ -2344,11 +2346,12 @@ unsafe fn apply_new_imm() {
     let cffk = tune("cf_flee_kill_off", -1); // 1 = "후퇴 의사가 있으면 시전 후보 몰살"을 끈다(원본 = 몰살함). au_noise_off·cf_filter_off와 같은 1=끔 규약
     // ── ③ 1차 점수컷 (0xc3cd60). 두 사이트가 값·값−1 쌍이라 반드시 같이 움직인다 ──
     let cssf = tune("ld_score_floor", -1);   // 후보 점수 하한의 절댓값(원본 30 = score ≥ −30이면 통과)
-    // ── ④ 경매 재선택 (0xd5f500 Stage-2/3) ──
-    let recp = tune("re_cast_promote", -1);  // Stage-2 승격 대상 태그 개수(원본 2 = 15·16·17). 3이면 **궁(18)도 승격**
-    let retp = tune("re_trace_pad", -1);     // Stage-3 추격 포기 여유거리(원본 25000)
-    let regs = tune("re_gate_subplan", -1);  // Stage-3 사전게이트 `sub_plan <= N`(원본 1)
-    // ── ⑤ 전역 궁 요청(아군 채팅) 오버라이드 (0xd5f500 진입부) ──
+    // ── ④ 경매 재선택 (AUCTION 0xe8b800 ★정정: 헤더 구주소 0xd5f500 stale) ──
+    //   ★[0.5.7 행단위 RE 정정] 3단 순차경매 오해로 인한 stage 오라벨 정정. 실제 AUCTION = Stage1 액션argmax → Stage2 센티넬(-0x89543f) 게이트+승격(0xcc2340) → Stage3 승자 타겟 materialize.
+    let recp = tune("re_cast_promote", -1);  // ★실제=Stage3 emit-C **2차타겟 수집필터**(0xe8ea6a, variant태그 ∈{0x0f,0x10,0x11}). 원본 2. 3이면 궁(0x12)도 포함. (~~Stage-2 승격~~ 오라벨 정정 — 진짜 Stage2 센티넬 승격엔 노브 없음)
+    let retp = tune("re_trace_pad", -1);     // Stage3 emit-D 추격 여유거리(0xe8f103, 원본 25000) — 라벨 정확
+    let regs = tune("re_gate_subplan", -1);  // ★실제=Stage1 §F **스코어링-셋업 plan-enum([aiCtx+0x768]<=1) 분기**(0xe8c7fc, 원본 1). (~~Stage-3 사전게이트~~ 오라벨 정정 — 값 변경 시 Stage3가 아닌 전체 스코어링 교란)
+    // ── ⑤ 전역 궁 요청(아군 채팅) 오버라이드 (AUCTION §E2 retreat 블록·본 RE 커버리지 밖=미검증) ──
     let gulv = tune("gu_level", -1);         // 궁 해금 레벨 전제(원본 5)
     let gumem= tune("gu_enemy_mem", -1);     // 억제 판정의 적 목격 기억(원본 120틱)
     let gusr = tune("gu_suppress_r", -1);    // 억제 반경(원본 150000). 이 안에 적이 보이면 전역 궁 발동 안 함
