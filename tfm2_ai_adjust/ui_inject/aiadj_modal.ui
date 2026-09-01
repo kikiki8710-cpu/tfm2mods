@@ -14,7 +14,7 @@ aiadj_modal:empty {
     #aiadj_scroll:scroll_view {
       x: 30px; y: 74px; width: 840px; height: 486px; speed: 120; bar_width: 5;
       bar: { source: "asset/base/sprite/white"; color: #37d5b3ff; }
-      #aiadj_list:empty { width: 820px; height: 5692px; child_type: TopToBottom { spacing: 4px; }
+      #aiadj_list:empty { width: 820px; height: 6688px; child_type: TopToBottom { spacing: 4px; }
     #hdr_0:label { @"asset/base/style/main#label"; width: 820px; height: 32px; align_y: Center; size: 16; color: #37d5b3ff; text: "§ 전체 성향 다이얼"; }
     #kbrow_0:empty {
       width: 820px; height: 38px;
@@ -283,475 +283,609 @@ aiadj_modal:empty {
       #aiadj_f42:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
       #aiadj_r42:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
     }
-    #hdr_10:label { @"asset/base/style/main#label"; width: 820px; height: 32px; align_y: Center; size: 16; color: #37d5b3ff; text: "§ 갱킹/처치 (TTD)"; }
+    #hdr_10:label { @"asset/base/style/main#label"; width: 820px; height: 32px; align_y: Center; size: 16; color: #37d5b3ff; text: "§ 신규 09-01: 개시 게이트 (갱크·교전·결사전)"; }
     #kbrow_43:empty {
       width: 820px; height: 38px;
-      #kl_43:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "d4_dmg_scale"; }
+      #kl_43:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "gk2_gank_radius"; }
       #aiadj_f43:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
       #aiadj_r43:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
     }
     #kbrow_44:empty {
       width: 820px; height: 38px;
-      #kl_44:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "d4_div_base"; }
+      #kl_44:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "gk2_gank_hp"; }
       #aiadj_f44:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
       #aiadj_r44:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
     }
     #kbrow_45:empty {
       width: 820px; height: 38px;
-      #kl_45:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "d4_coef_scale"; }
+      #kl_45:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "eng_camp_radius"; }
       #aiadj_f45:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
       #aiadj_r45:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
     }
     #kbrow_46:empty {
       width: 820px; height: 38px;
-      #kl_46:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "d4_coef_min"; }
+      #kl_46:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "db_retreat_margin"; }
       #aiadj_f46:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
       #aiadj_r46:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
     }
+    #hdr_11:label { @"asset/base/style/main#label"; width: 820px; height: 32px; align_y: Center; size: 16; color: #37d5b3ff; text: "§ 갱킹/처치 (TTD)"; }
     #kbrow_47:empty {
       width: 820px; height: 38px;
-      #kl_47:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "d4_coef_clamp"; }
+      #kl_47:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "d4_dmg_scale"; }
       #aiadj_f47:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
       #aiadj_r47:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
     }
     #kbrow_48:empty {
       width: 820px; height: 38px;
-      #kl_48:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "d4_coord_dist"; }
+      #kl_48:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "d4_div_base"; }
       #aiadj_f48:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
       #aiadj_r48:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
     }
     #kbrow_49:empty {
       width: 820px; height: 38px;
-      #kl_49:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "d4_ttd_scale"; }
+      #kl_49:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "d4_coef_scale"; }
       #aiadj_f49:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
       #aiadj_r49:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
     }
-    #hdr_11:label { @"asset/base/style/main#label"; width: 820px; height: 32px; align_y: Center; size: 16; color: #37d5b3ff; text: "§ 복귀 (Recall) - 체력기반"; }
     #kbrow_50:empty {
       width: 820px; height: 38px;
-      #kl_50:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "rc_u21_init"; }
+      #kl_50:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "d4_coef_min"; }
       #aiadj_f50:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
       #aiadj_r50:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
     }
     #kbrow_51:empty {
       width: 820px; height: 38px;
-      #kl_51:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "rc_ehp_t1"; }
+      #kl_51:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "d4_coef_clamp"; }
       #aiadj_f51:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
       #aiadj_r51:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
     }
     #kbrow_52:empty {
       width: 820px; height: 38px;
-      #kl_52:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "rc_ehp_t2"; }
+      #kl_52:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "d4_coord_dist"; }
       #aiadj_f52:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
       #aiadj_r52:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
     }
     #kbrow_53:empty {
       width: 820px; height: 38px;
-      #kl_53:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "rc_ehp_t3"; }
+      #kl_53:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "d4_ttd_scale"; }
       #aiadj_f53:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
       #aiadj_r53:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
     }
+    #hdr_12:label { @"asset/base/style/main#label"; width: 820px; height: 32px; align_y: Center; size: 16; color: #37d5b3ff; text: "§ 복귀 (Recall) - 체력기반"; }
     #kbrow_54:empty {
       width: 820px; height: 38px;
-      #kl_54:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "rc_ehp_v1"; }
+      #kl_54:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "rc_u21_init"; }
       #aiadj_f54:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
       #aiadj_r54:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
     }
     #kbrow_55:empty {
       width: 820px; height: 38px;
-      #kl_55:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "rc_ehp_v2"; }
+      #kl_55:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "rc_ehp_t1"; }
       #aiadj_f55:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
       #aiadj_r55:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
     }
     #kbrow_56:empty {
       width: 820px; height: 38px;
-      #kl_56:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "rc_norp_bonus"; }
+      #kl_56:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "rc_ehp_t2"; }
       #aiadj_f56:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
       #aiadj_r56:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
     }
     #kbrow_57:empty {
       width: 820px; height: 38px;
-      #kl_57:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "rc_ed_near"; }
+      #kl_57:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "rc_ehp_t3"; }
       #aiadj_f57:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
       #aiadj_r57:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
     }
     #kbrow_58:empty {
       width: 820px; height: 38px;
-      #kl_58:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "rc_ed_mid"; }
+      #kl_58:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "rc_ehp_v1"; }
       #aiadj_f58:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
       #aiadj_r58:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
     }
     #kbrow_59:empty {
       width: 820px; height: 38px;
-      #kl_59:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "rc_ed_far"; }
+      #kl_59:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "rc_ehp_v2"; }
       #aiadj_f59:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
       #aiadj_r59:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
     }
     #kbrow_60:empty {
       width: 820px; height: 38px;
-      #kl_60:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "rc_ed_near_pen"; }
+      #kl_60:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "rc_norp_bonus"; }
       #aiadj_f60:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
       #aiadj_r60:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
     }
     #kbrow_61:empty {
       width: 820px; height: 38px;
-      #kl_61:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "rc_ed_far_bonus"; }
+      #kl_61:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "rc_ed_near"; }
       #aiadj_f61:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
       #aiadj_r61:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
     }
     #kbrow_62:empty {
       width: 820px; height: 38px;
-      #kl_62:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "rc_ed_vfar_bonus"; }
+      #kl_62:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "rc_ed_mid"; }
       #aiadj_f62:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
       #aiadj_r62:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
     }
     #kbrow_63:empty {
       width: 820px; height: 38px;
-      #kl_63:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "rc_ahp_t1"; }
+      #kl_63:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "rc_ed_far"; }
       #aiadj_f63:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
       #aiadj_r63:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
     }
     #kbrow_64:empty {
       width: 820px; height: 38px;
-      #kl_64:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "rc_ahp_t2"; }
+      #kl_64:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "rc_ed_near_pen"; }
       #aiadj_f64:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
       #aiadj_r64:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
     }
     #kbrow_65:empty {
       width: 820px; height: 38px;
-      #kl_65:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "rc_u13_bonus"; }
+      #kl_65:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "rc_ed_far_bonus"; }
       #aiadj_f65:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
       #aiadj_r65:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
     }
     #kbrow_66:empty {
       width: 820px; height: 38px;
-      #kl_66:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "rc_ahp2_pen"; }
+      #kl_66:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "rc_ed_vfar_bonus"; }
       #aiadj_f66:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
       #aiadj_r66:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
     }
     #kbrow_67:empty {
       width: 820px; height: 38px;
-      #kl_67:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "rc_ad_near"; }
+      #kl_67:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "rc_ahp_t1"; }
       #aiadj_f67:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
       #aiadj_r67:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
     }
     #kbrow_68:empty {
       width: 820px; height: 38px;
-      #kl_68:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "rc_ad_mid"; }
+      #kl_68:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "rc_ahp_t2"; }
       #aiadj_f68:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
       #aiadj_r68:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
     }
     #kbrow_69:empty {
       width: 820px; height: 38px;
-      #kl_69:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "rc_ad_near_bonus"; }
+      #kl_69:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "rc_u13_bonus"; }
       #aiadj_f69:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
       #aiadj_r69:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
     }
     #kbrow_70:empty {
       width: 820px; height: 38px;
-      #kl_70:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "rc_ad_far_pen"; }
+      #kl_70:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "rc_ahp2_pen"; }
       #aiadj_f70:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
       #aiadj_r70:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
     }
     #kbrow_71:empty {
       width: 820px; height: 38px;
-      #kl_71:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "rc_mult_bonus"; }
+      #kl_71:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "rc_ad_near"; }
       #aiadj_f71:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
       #aiadj_r71:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
     }
     #kbrow_72:empty {
       width: 820px; height: 38px;
-      #kl_72:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "rc_ally_hp_min"; }
+      #kl_72:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "rc_ad_mid"; }
       #aiadj_f72:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
       #aiadj_r72:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
     }
-    #hdr_12:label { @"asset/base/style/main#label"; width: 820px; height: 32px; align_y: Center; size: 16; color: #37d5b3ff; text: "§ 복귀 - 합류 이득 (rc_join_weight=0=끔)"; }
     #kbrow_73:empty {
       width: 820px; height: 38px;
-      #kl_73:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "rc_join_weight"; }
+      #kl_73:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "rc_ad_near_bonus"; }
       #aiadj_f73:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
       #aiadj_r73:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
     }
     #kbrow_74:empty {
       width: 820px; height: 38px;
-      #kl_74:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "rc_join_adv"; }
+      #kl_74:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "rc_ad_far_pen"; }
       #aiadj_f74:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
       #aiadj_r74:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
     }
     #kbrow_75:empty {
       width: 820px; height: 38px;
-      #kl_75:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "rc_join_rescue"; }
+      #kl_75:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "rc_mult_bonus"; }
       #aiadj_f75:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
       #aiadj_r75:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
     }
     #kbrow_76:empty {
       width: 820px; height: 38px;
-      #kl_76:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "rc_join_dnear"; }
+      #kl_76:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "rc_ally_hp_min"; }
       #aiadj_f76:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
       #aiadj_r76:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
     }
+    #hdr_13:label { @"asset/base/style/main#label"; width: 820px; height: 32px; align_y: Center; size: 16; color: #37d5b3ff; text: "§ 복귀 - 합류 이득 (rc_join_weight=0=끔)"; }
     #kbrow_77:empty {
       width: 820px; height: 38px;
-      #kl_77:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "rc_join_dmid"; }
+      #kl_77:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "rc_join_weight"; }
       #aiadj_f77:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
       #aiadj_r77:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
     }
     #kbrow_78:empty {
       width: 820px; height: 38px;
-      #kl_78:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "rc_join_obj_mult"; }
+      #kl_78:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "rc_join_adv"; }
       #aiadj_f78:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
       #aiadj_r78:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
     }
-    #hdr_13:label { @"asset/base/style/main#label"; width: 820px; height: 32px; align_y: Center; size: 16; color: #37d5b3ff; text: "§ 운영전환 (GenericBuild)"; }
     #kbrow_79:empty {
       width: 820px; height: 38px;
-      #kl_79:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "gb_rbx_div"; }
+      #kl_79:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "rc_join_rescue"; }
       #aiadj_f79:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
       #aiadj_r79:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
     }
     #kbrow_80:empty {
       width: 820px; height: 38px;
-      #kl_80:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "gb_r15_div"; }
+      #kl_80:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "rc_join_dnear"; }
       #aiadj_f80:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
       #aiadj_r80:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
     }
     #kbrow_81:empty {
       width: 820px; height: 38px;
-      #kl_81:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "gb_r14_num"; }
+      #kl_81:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "rc_join_dmid"; }
       #aiadj_f81:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
       #aiadj_r81:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
     }
-    #hdr_14:label { @"asset/base/style/main#label"; width: 820px; height: 32px; align_y: Center; size: 16; color: #37d5b3ff; text: "§ 라인전 (dd7700)"; }
     #kbrow_82:empty {
       width: 820px; height: 38px;
-      #kl_82:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "dd_frontier_mult"; }
+      #kl_82:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "rc_join_obj_mult"; }
       #aiadj_f82:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
       #aiadj_r82:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
     }
+    #hdr_14:label { @"asset/base/style/main#label"; width: 820px; height: 32px; align_y: Center; size: 16; color: #37d5b3ff; text: "§ 운영전환 (GenericBuild)"; }
     #kbrow_83:empty {
       width: 820px; height: 38px;
-      #kl_83:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "dd_cover_count"; }
+      #kl_83:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "gb_rbx_div"; }
       #aiadj_f83:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
       #aiadj_r83:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
     }
     #kbrow_84:empty {
       width: 820px; height: 38px;
-      #kl_84:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "dd_ratio_thr"; }
+      #kl_84:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "gb_r15_div"; }
       #aiadj_f84:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
       #aiadj_r84:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
     }
     #kbrow_85:empty {
       width: 820px; height: 38px;
-      #kl_85:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "dd_facet_thr"; }
+      #kl_85:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "gb_r14_num"; }
       #aiadj_f85:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
       #aiadj_r85:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
     }
+    #hdr_15:label { @"asset/base/style/main#label"; width: 820px; height: 32px; align_y: Center; size: 16; color: #37d5b3ff; text: "§ 라인전 (dd7700)"; }
     #kbrow_86:empty {
       width: 820px; height: 38px;
-      #kl_86:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "dd_near_dist"; }
+      #kl_86:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "dd_frontier_mult"; }
       #aiadj_f86:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
       #aiadj_r86:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
     }
     #kbrow_87:empty {
       width: 820px; height: 38px;
-      #kl_87:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "dd_main_near_dist"; }
+      #kl_87:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "dd_cover_count"; }
       #aiadj_f87:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
       #aiadj_r87:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
     }
     #kbrow_88:empty {
       width: 820px; height: 38px;
-      #kl_88:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "dd_gatee_dist"; }
+      #kl_88:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "dd_ratio_thr"; }
       #aiadj_f88:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
       #aiadj_r88:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
     }
     #kbrow_89:empty {
       width: 820px; height: 38px;
-      #kl_89:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "dd_ivar2_thr"; }
+      #kl_89:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "dd_facet_thr"; }
       #aiadj_f89:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
       #aiadj_r89:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
     }
     #kbrow_90:empty {
       width: 820px; height: 38px;
-      #kl_90:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "dd_n_thr"; }
+      #kl_90:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "dd_near_dist"; }
       #aiadj_f90:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
       #aiadj_r90:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
     }
     #kbrow_91:empty {
       width: 820px; height: 38px;
-      #kl_91:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "dd_survivor_thr"; }
+      #kl_91:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "dd_main_near_dist"; }
       #aiadj_f91:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
       #aiadj_r91:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
     }
-    #hdr_15:label { @"asset/base/style/main#label"; width: 820px; height: 32px; align_y: Center; size: 16; color: #37d5b3ff; text: "§ 견제 (Poke)"; }
     #kbrow_92:empty {
       width: 820px; height: 38px;
-      #kl_92:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "pf_edge_margin"; }
+      #kl_92:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "dd_gatee_dist"; }
       #aiadj_f92:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
       #aiadj_r92:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
     }
     #kbrow_93:empty {
       width: 820px; height: 38px;
-      #kl_93:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "pf_center_band"; }
+      #kl_93:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "dd_ivar2_thr"; }
       #aiadj_f93:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
       #aiadj_r93:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
     }
     #kbrow_94:empty {
       width: 820px; height: 38px;
-      #kl_94:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "pf_diag_far"; }
+      #kl_94:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "dd_n_thr"; }
       #aiadj_f94:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
       #aiadj_r94:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
     }
     #kbrow_95:empty {
       width: 820px; height: 38px;
-      #kl_95:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "pf_diag_near"; }
+      #kl_95:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "dd_survivor_thr"; }
       #aiadj_f95:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
       #aiadj_r95:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
     }
+    #hdr_16:label { @"asset/base/style/main#label"; width: 820px; height: 32px; align_y: Center; size: 16; color: #37d5b3ff; text: "§ 견제 (Poke)"; }
     #kbrow_96:empty {
       width: 820px; height: 38px;
-      #kl_96:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "pf_band_width"; }
+      #kl_96:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "pf_edge_margin"; }
       #aiadj_f96:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
       #aiadj_r96:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
     }
     #kbrow_97:empty {
       width: 820px; height: 38px;
-      #kl_97:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "pk_home_lo"; }
+      #kl_97:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "pf_center_band"; }
       #aiadj_f97:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
       #aiadj_r97:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
     }
     #kbrow_98:empty {
       width: 820px; height: 38px;
-      #kl_98:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "pk_home_hi"; }
+      #kl_98:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "pf_diag_far"; }
       #aiadj_f98:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
       #aiadj_r98:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
     }
     #kbrow_99:empty {
       width: 820px; height: 38px;
-      #kl_99:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "pk_home_x1"; }
+      #kl_99:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "pf_diag_near"; }
       #aiadj_f99:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
       #aiadj_r99:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
     }
     #kbrow_100:empty {
       width: 820px; height: 38px;
-      #kl_100:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "pk_home_y1"; }
+      #kl_100:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "pf_band_width"; }
       #aiadj_f100:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
       #aiadj_r100:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
     }
     #kbrow_101:empty {
       width: 820px; height: 38px;
-      #kl_101:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "pk_hp_main"; }
+      #kl_101:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "pk_home_lo"; }
       #aiadj_f101:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
       #aiadj_r101:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
     }
     #kbrow_102:empty {
       width: 820px; height: 38px;
-      #kl_102:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "pk_hp_retreat"; }
+      #kl_102:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "pk_home_hi"; }
       #aiadj_f102:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
       #aiadj_r102:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
     }
     #kbrow_103:empty {
       width: 820px; height: 38px;
-      #kl_103:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "pk_smallact_split"; }
+      #kl_103:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "pk_home_x1"; }
       #aiadj_f103:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
       #aiadj_r103:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
     }
     #kbrow_104:empty {
       width: 820px; height: 38px;
-      #kl_104:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "pk_threat_mult"; }
+      #kl_104:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "pk_home_y1"; }
       #aiadj_f104:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
       #aiadj_r104:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
     }
     #kbrow_105:empty {
       width: 820px; height: 38px;
-      #kl_105:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "pk_zone_hp"; }
+      #kl_105:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "pk_hp_main"; }
       #aiadj_f105:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
       #aiadj_r105:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
     }
     #kbrow_106:empty {
       width: 820px; height: 38px;
-      #kl_106:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "pk_engage_dist"; }
+      #kl_106:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "pk_hp_retreat"; }
       #aiadj_f106:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
       #aiadj_r106:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
     }
     #kbrow_107:empty {
       width: 820px; height: 38px;
-      #kl_107:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "pk_obj_hp"; }
+      #kl_107:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "pk_smallact_split"; }
       #aiadj_f107:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
       #aiadj_r107:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
     }
-    #hdr_16:label { @"asset/base/style/main#label"; width: 820px; height: 32px; align_y: Center; size: 16; color: #37d5b3ff; text: "§ EpicPoke 수비값 (disc14, 실명 — 구 오라벨 DefenseNexus)"; }
     #kbrow_108:empty {
       width: 820px; height: 38px;
-      #kl_108:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "ep_nexus_hp"; }
+      #kl_108:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "pk_threat_mult"; }
       #aiadj_f108:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
       #aiadj_r108:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
     }
     #kbrow_109:empty {
       width: 820px; height: 38px;
-      #kl_109:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "ep_home_lo"; }
+      #kl_109:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "pk_zone_hp"; }
       #aiadj_f109:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
       #aiadj_r109:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
     }
     #kbrow_110:empty {
       width: 820px; height: 38px;
-      #kl_110:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "ep_home_hi"; }
+      #kl_110:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "pk_engage_dist"; }
       #aiadj_f110:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
       #aiadj_r110:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
     }
     #kbrow_111:empty {
       width: 820px; height: 38px;
-      #kl_111:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "ep_home_x1"; }
+      #kl_111:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "pk_obj_hp"; }
       #aiadj_f111:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
       #aiadj_r111:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
     }
+    #hdr_17:label { @"asset/base/style/main#label"; width: 820px; height: 32px; align_y: Center; size: 16; color: #37d5b3ff; text: "§ EpicPoke 수비값 (disc14, 실명 — 구 오라벨 DefenseNexus)"; }
     #kbrow_112:empty {
       width: 820px; height: 38px;
-      #kl_112:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "ep_home_y1"; }
+      #kl_112:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "ep_nexus_hp"; }
       #aiadj_f112:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
       #aiadj_r112:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
     }
     #kbrow_113:empty {
       width: 820px; height: 38px;
-      #kl_113:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "ep_hp_crit"; }
+      #kl_113:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "ep_home_lo"; }
       #aiadj_f113:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
       #aiadj_r113:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
     }
-    #hdr_17:label { @"asset/base/style/main#label"; width: 820px; height: 32px; align_y: Center; size: 16; color: #37d5b3ff; text: "§ 기타"; }
     #kbrow_114:empty {
       width: 820px; height: 38px;
-      #kl_114:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "d8_slot_thr"; }
+      #kl_114:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "ep_home_hi"; }
       #aiadj_f114:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
       #aiadj_r114:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
     }
     #kbrow_115:empty {
       width: 820px; height: 38px;
-      #kl_115:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "bt_home_lo"; }
+      #kl_115:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "ep_home_x1"; }
       #aiadj_f115:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
       #aiadj_r115:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
     }
     #kbrow_116:empty {
       width: 820px; height: 38px;
-      #kl_116:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "bt_home_hi"; }
+      #kl_116:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "ep_home_y1"; }
       #aiadj_f116:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
       #aiadj_r116:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
     }
     #kbrow_117:empty {
       width: 820px; height: 38px;
-      #kl_117:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "bt_home_x1"; }
+      #kl_117:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "ep_hp_crit"; }
       #aiadj_f117:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
       #aiadj_r117:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
     }
+    #hdr_18:label { @"asset/base/style/main#label"; width: 820px; height: 32px; align_y: Center; size: 16; color: #37d5b3ff; text: "§ 신규 09-01: 에픽·세르펜 사냥 킬타깃/세부 (고급)"; }
     #kbrow_118:empty {
       width: 820px; height: 38px;
-      #kl_118:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "bt_home_y1"; }
+      #kl_118:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "eh_fin_mode"; }
       #aiadj_f118:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
       #aiadj_r118:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
     }
     #kbrow_119:empty {
       width: 820px; height: 38px;
-      #kl_119:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "bt_hp_retreat"; }
+      #kl_119:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "eh_band_off"; }
       #aiadj_f119:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
       #aiadj_r119:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
+    }
+    #kbrow_120:empty {
+      width: 820px; height: 38px;
+      #kl_120:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "eh_commit_margin"; }
+      #aiadj_f120:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
+      #aiadj_r120:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
+    }
+    #kbrow_121:empty {
+      width: 820px; height: 38px;
+      #kl_121:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "eh_dist_clamp"; }
+      #aiadj_f121:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
+      #aiadj_r121:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
+    }
+    #kbrow_122:empty {
+      width: 820px; height: 38px;
+      #kl_122:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "eh_clamp2"; }
+      #aiadj_f122:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
+      #aiadj_r122:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
+    }
+    #kbrow_123:empty {
+      width: 820px; height: 38px;
+      #kl_123:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "eh_engage_dist"; }
+      #aiadj_f123:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
+      #aiadj_r123:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
+    }
+    #kbrow_124:empty {
+      width: 820px; height: 38px;
+      #kl_124:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "eh_dist_shift"; }
+      #aiadj_f124:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
+      #aiadj_r124:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
+    }
+    #kbrow_125:empty {
+      width: 820px; height: 38px;
+      #kl_125:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "eh_power_weight"; }
+      #aiadj_f125:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
+      #aiadj_r125:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
+    }
+    #kbrow_126:empty {
+      width: 820px; height: 38px;
+      #kl_126:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "eh_power_neutral"; }
+      #aiadj_f126:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
+      #aiadj_r126:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
+    }
+    #kbrow_127:empty {
+      width: 820px; height: 38px;
+      #kl_127:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "eh_power_sub"; }
+      #aiadj_f127:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
+      #aiadj_r127:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
+    }
+    #kbrow_128:empty {
+      width: 820px; height: 38px;
+      #kl_128:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "eh_time_slope"; }
+      #aiadj_f128:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
+      #aiadj_r128:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
+    }
+    #kbrow_129:empty {
+      width: 820px; height: 38px;
+      #kl_129:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "eh_window_cap"; }
+      #aiadj_f129:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
+      #aiadj_r129:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
+    }
+    #kbrow_130:empty {
+      width: 820px; height: 38px;
+      #kl_130:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "eh_score_floor"; }
+      #aiadj_f130:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
+      #aiadj_r130:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
+    }
+    #kbrow_131:empty {
+      width: 820px; height: 38px;
+      #kl_131:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "eh_score_gate"; }
+      #aiadj_f131:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
+      #aiadj_r131:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
+    }
+    #kbrow_132:empty {
+      width: 820px; height: 38px;
+      #kl_132:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "eh_helper_a"; }
+      #aiadj_f132:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
+      #aiadj_r132:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
+    }
+    #kbrow_133:empty {
+      width: 820px; height: 38px;
+      #kl_133:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "eh_helper_b"; }
+      #aiadj_f133:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
+      #aiadj_r133:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
+    }
+    #kbrow_134:empty {
+      width: 820px; height: 38px;
+      #kl_134:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "eh_hp_gate2"; }
+      #aiadj_f134:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
+      #aiadj_r134:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
+    }
+    #kbrow_135:empty {
+      width: 820px; height: 38px;
+      #kl_135:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "eh_grid_cost"; }
+      #aiadj_f135:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
+      #aiadj_r135:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
+    }
+    #hdr_19:label { @"asset/base/style/main#label"; width: 820px; height: 32px; align_y: Center; size: 16; color: #37d5b3ff; text: "§ 기타"; }
+    #kbrow_136:empty {
+      width: 820px; height: 38px;
+      #kl_136:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "d8_slot_thr"; }
+      #aiadj_f136:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
+      #aiadj_r136:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
+    }
+    #kbrow_137:empty {
+      width: 820px; height: 38px;
+      #kl_137:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "bt_home_lo"; }
+      #aiadj_f137:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
+      #aiadj_r137:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
+    }
+    #kbrow_138:empty {
+      width: 820px; height: 38px;
+      #kl_138:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "bt_home_hi"; }
+      #aiadj_f138:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
+      #aiadj_r138:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
+    }
+    #kbrow_139:empty {
+      width: 820px; height: 38px;
+      #kl_139:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "bt_home_x1"; }
+      #aiadj_f139:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
+      #aiadj_r139:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
+    }
+    #kbrow_140:empty {
+      width: 820px; height: 38px;
+      #kl_140:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "bt_home_y1"; }
+      #aiadj_f140:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
+      #aiadj_r140:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
+    }
+    #kbrow_141:empty {
+      width: 820px; height: 38px;
+      #kl_141:label { @"asset/base/style/main#label"; x: 10px; width: 400px; height: 38px; align_y: Center; size: 15; text: "bt_hp_retreat"; }
+      #aiadj_f141:text_edit { @"asset/base/style/main#text_edit"; x: 430px; y: 2px; width: 322px; height: 34px; size: 15; padding: { left: 10px; top: 4px; right: 10px; bottom: 4px; } }
+      #aiadj_r141:color_icon_button { x: 758px; y: 2px; width: 56px; height: 34px; color: #c8ccd8ff; hover: { color: #ffffffff; } btn: { color: #2a2d3aff; hover: { color: #3a3f52ff; } rounding: Uniform { rounding: 6; } } text: { text: "기본"; rect: { x: 0; y: 8; w: 56; h: 18; } align_x: Center; align_y: Center; size: 13; font: "asset/base/font/set/regular"; } }
     }
       }
     }

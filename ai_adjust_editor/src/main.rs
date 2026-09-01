@@ -77,7 +77,8 @@ static TABS: &[Tab] = &[
  
  "§◆ 사냥할 때 붙는 거리","eh_trace_arrive","eh_band_low","eh_band_high","eh_around_radius","eh_recall_radius",
  "§◆ 사냥을 걸지 말지","eh_abort_hp","eh_abort_dist","eh_commit_hp","eh_commit_r_low","eh_commit_r_high","eh_flee_clear_hp",
- "§◆ 전술이 행동을 가르는 단 두 곳","eh_reach_margin","eh_score_norm",], note:
+ "§◆ 전술이 행동을 가르는 단 두 곳","eh_reach_margin","eh_score_norm",
+ "§◆ 킬타깃·세부 (신규 09-01, 고급)","eh_fin_mode","eh_band_off","eh_commit_margin","eh_dist_clamp","eh_clamp2","eh_engage_dist","eh_dist_shift","eh_power_weight","eh_power_neutral","eh_power_sub","eh_time_slope","eh_window_cap","eh_score_floor","eh_score_gate","eh_helper_a","eh_helper_b","eh_hp_gate2","eh_grid_cost",], note:
  "<b>팀전술이 판단 발화를 가릅니다</b> — 리그 경기 1판(44,309틱·양팀 전수 로그)에서 <b>같은 경기인데 팀마다 뜨는 판단이 달랐습니다</b>: 세르펜 사냥은 <b>오브젝트 마무리='처치 우선'</b>인 팀에서만 433회(전투 우선 팀 0회), 세르펜 견제는 반대로 '전투 우선' 팀에서만 471회. ⟹ <b>값이 안 먹으면 그 판단이 우리 팀 전술에서 안 뜨는 것일 수 있습니다.</b><br>\
  &nbsp;&nbsp;⚠<b>정정</b>: 구 안내 '미니언 웨이브 설정에 따라 모르가드·세르펜 계열이 통째로 침묵'은 <b>반박됐습니다</b>(웨이브 우선 팀·합류 우선 팀 <b>양쪽 다</b> 모르가드 판단이 활발히 발화). 미니언 웨이브만으로 이 탭이 죽지는 않습니다.<br>\
  추가로 <b>ec_valid_hp·ec_commit_hp·ec_count_hp·ec_count_radius·ec_vision_ticks</b> 5키는 <b>오브젝트 빌드업 = '스플릿'(라인별)</b>이고 그 라인이 내 라인일 때만 작동(모이기/유연에선 무반영).<br>\
@@ -125,6 +126,7 @@ static TABS: &[Tab] = &[
  "§◆ 진입 타이밍 게이트","gb_op_phase","gb_push_hp",
  "§◆ 전역 사거리","gb_reach_cap","gb_reach_margin",
  "§◆ 라인개입 갱 셋업","gk_wait","gk_hp_base_gank","gk_window_margin",
+ "§◆ 개시 게이트 (신규 09-01: 갱크·교전·결사전)","gk2_gank_radius","gk2_gank_hp","eng_camp_radius","db_retreat_margin",
  ], note:
  "<b>운영전환·로밍 (GenericBuild)</b> — 특정 subplan이 아니라 '어느 상태로 갈지'(합류/거점로밍/라인압박/운영진입)를 분기하는 매크로 판단.<br>\
  적용 여부는 <b>gb_imm.txt</b>에서 확인할 수 있습니다.<br><b>gb_enable=1</b> 켜야 아래 로밍 byte-patch가 걸림(0=게임 원본 그대로). 각 값 <b>-1=그 항목만 원본유지</b>.<br>\
@@ -1409,6 +1411,29 @@ fn desc_static(k: &str) -> Option<&'static str> {
  "pl_ganker_gate" => "갱(LineGanker) 판단 생성 게이트(원본 11). 이 값이 맞을 때만 정글러가 갱 플랜을 취득합니다. 부쉬 왕복이 갱 셋업에서 온다면, gk_*(대기·재시도)로 완화가 안 될 때 갱 자체를 덜 뜨게 하는 상위 수단. ⚠의미 = 내부 상태값 비교라 임의값은 '갱 봉인'에 가깝게 동작할 수 있음. -1=원본",
  "pl_serpen_phase_mask" => "세르펜 판단 허용 페이즈 비트마스크(원본 0x1a1=417, 비트 0·5·7·8). 경기 진행 페이즈 중 어느 구간에서 세르펜 사냥·견제 판단을 만들지. 비트를 더하면 더 넓은 구간에서 세르펜을 노립니다(예: 511=0~8 전 구간). 4사이트 동시. -1=원본",
  "pl_epic_phase_min" => "⚠에픽 판단 허용 페이즈 경계(원본 249). 내부 인코딩이라 의미가 아직 확정되지 않았습니다 — 값↔효과 대응이 직관적이지 않을 수 있으니 리플레이 A/B로 확인하며 쓰세요. 2사이트 동시. -1=원본",
+ // ★[신규 09-01] 개시 게이트 + 사냥 세부 (인게임 검증 완료)
+ "gk2_gank_radius" => "갱크 개시: 갱크 판정 근접 반경(유닛, 원본 250000). 아군·적 카운트 공통. ↓=코앞만 갱크, ↑=넓게 갱크. -1=원본",
+ "gk2_gank_hp" => "갱크 개시: 갱크 적격 적 HP%(원본 40, 10사이트). ↑=더 다친 적만 갱크(신중), ↓=풀피도 갱크(과감). -1=원본",
+ "eng_camp_radius" => "교전 개시: 아군 집결 반경(유닛, 원본≈140060). 이 반경 안에 아군이 모여야 교전 개시. ↓=바짝 모여야 개시, ↑=흩어져도 개시. -1=원본",
+ "db_retreat_margin" => "결사전 후퇴 인원마진(원본 2 = 아군 생존수 ≥ 적수+2 일 때만 후퇴 허용). ↓=쉽게 후퇴, ↑=올인 고집. -1=원본",
+ "eh_fin_mode" => "에픽/세르펜 사냥 킬타깃 추격 게이트(branch-patch 4사이트). -1=원본 / 0=항상 킬타깃 추격(적극) / 1=항상 무시.",
+ "eh_band_off" => "사냥 접근밴드 오프셋(원본 10000, 고급). -1=원본",
+ "eh_commit_margin" => "사냥 커밋 거리여유(원본 30000, 고급). -1=원본",
+ "eh_dist_clamp" => "사냥 거리 클램프 상한(원본 100000, 고급). -1=원본",
+ "eh_clamp2" => "사냥 2차 거리 클램프(원본 80000, 고급). -1=원본",
+ "eh_engage_dist" => "사냥 교전거리(유닛, 원본 12000, 제곱저장, 고급). -1=원본",
+ "eh_dist_shift" => "사냥 거리²>>10 임계(원본 172265625 raw, 고급). -1=원본",
+ "eh_power_weight" => "사냥 팀파워 편차 가중계수(원본 103, 고급). -1=원본",
+ "eh_power_neutral" => "사냥 팀파워 중립점%(원본 50, 고급). -1=원본",
+ "eh_power_sub" => "사냥 파워 2번째 항 byte(원본 206=−50, eh_power_neutral 짝, 고급). -1=원본",
+ "eh_time_slope" => "사냥 파워%→시간창 계수(원본 99, 고급). -1=원본",
+ "eh_window_cap" => "사냥 시간창 상한(원본 2000, 고급). -1=원본",
+ "eh_score_floor" => "사냥 fight_check 점수 하한(원본 1000, 고급). -1=원본",
+ "eh_score_gate" => "사냥 점수 보조 게이트(원본 10, 고급). -1=원본",
+ "eh_helper_a" => "사냥 보조 헬퍼 파라미터(원본 40, 고급). -1=원본",
+ "eh_helper_b" => "사냥 보조 헬퍼 파라미터2(원본 60, 고급). -1=원본",
+ "eh_hp_gate2" => "사냥 HP% 2차 게이트(원본 36, 고급). -1=원본",
+ "eh_grid_cost" => "사냥 그리드 탐색 비용 가산(원본 10000, 고급). -1=원본",
  _ => return None,
  })
 }
@@ -1491,11 +1516,14 @@ fn html_to_text(s: &str) -> String {
 }
 
 // ============================ 파일 I/O (UTF-8 BOM 없음) ============================
-fn read_utf8(path: &Path) -> Option<String> {
+fn read_utf8(path: &Path) -> Option<String> { read_utf8_checked(path).map(|(s, _)| s) }
+// ★[09-01 견고화] 유효성도 반환: 무효 UTF-8이면 (lossy문자열, false). 호출부가 원본백업·경고 가능.
+//   구 read_utf8은 lossy로 조용히 U+FFFD 치환 → 그 상태로 저장하면 손상(주석 등)이 영구 고착됐다.
+fn read_utf8_checked(path: &Path) -> Option<(String, bool)> {
  let bytes = std::fs::read(path).ok()?;
- // BOM 제거
  let bytes = if bytes.starts_with(&[0xEF, 0xBB, 0xBF]) { &bytes[3..] } else { &bytes[..] };
- Some(String::from_utf8_lossy(bytes).into_owned())
+ let valid = std::str::from_utf8(bytes).is_ok();
+ Some((String::from_utf8_lossy(bytes).into_owned(), valid))
 }
 fn write_utf8_nobom(path: &Path, text: &str) -> std::io::Result<()> {
  std::fs::write(path, text.as_bytes())
@@ -1551,7 +1579,15 @@ impl App {
  if let Entry::Kv { key, val, .. } = e { defaults.insert(key, val); }
  }
 
- let active_text = read_utf8(&active_path).unwrap_or_else(|| default_text.clone());
+ // ★[09-01 견고화] active cfg 유효성 검사. 무효 UTF-8이면 원본 raw를 .bak_invalid 로 백업(저장 시 lossy 손상 고착 방지) + 경고.
+ let (active_text, active_valid) = read_utf8_checked(&active_path)
+ .unwrap_or_else(|| (default_text.clone(), true));
+ if !active_valid {
+ if let Ok(raw) = std::fs::read(&active_path) {
+ let bak = active_path.with_file_name("tfm2_ai_adjust.cfg.bak_invalid");
+ let _ = std::fs::write(&bak, &raw);
+ }
+ }
 
  let mut app = App {
  folder, active_path, cfg_dir, default_path,
@@ -1564,7 +1600,8 @@ impl App {
  selected_config: ACTIVE_NAME.to_string(),
  show_save_as: false,
  save_as_name: String::new(),
- toast: String::new(), toast_err: false, toast_until: 0.0,
+ toast: if active_valid { String::new() } else { "⚠ tfm2_ai_adjust.cfg 가 무효 UTF-8입니다 — 원본을 tfm2_ai_adjust.cfg.bak_invalid 로 백업했습니다. 저장하면 손상된 부분(주석 등)만 정리되고 값은 보존됩니다. (편집기·게임은 UTF-8 BOM없음으로 저장합니다)".to_string() },
+ toast_err: !active_valid, toast_until: if active_valid { 0.0 } else { 1e18 },
  view_flow: false, flow_open: vec![false; FLOW.len()],
  flow_gopen: std::collections::HashSet::new(), flow_sel: None,
  };

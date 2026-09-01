@@ -24,6 +24,7 @@ SECTIONS = [
  ("§ 신규: 성향 반영", ["stat_influence"]),
  ("§ 시야 (사라진 적 기억)", ["vis_window","dd_lane_margin"]),
  ("§ 교전 (Engage)", ["eng_role4","eng_role3","eng_role2","eng_role_def"]),
+ ("§ 신규 09-01: 개시 게이트 (갱크·교전·결사전)", ["gk2_gank_radius","gk2_gank_hp","eng_camp_radius","db_retreat_margin"]),
  ("§ 갱킹/처치 (TTD)", ["d4_dmg_scale","d4_div_base","d4_coef_scale","d4_coef_min","d4_coef_clamp","d4_coord_dist","d4_ttd_scale"]),
  ("§ 복귀 (Recall) - 체력기반", ["rc_u21_init","rc_ehp_t1","rc_ehp_t2","rc_ehp_t3","rc_ehp_v1","rc_ehp_v2","rc_norp_bonus","rc_ed_near","rc_ed_mid","rc_ed_far","rc_ed_near_pen","rc_ed_far_bonus","rc_ed_vfar_bonus","rc_ahp_t1","rc_ahp_t2","rc_u13_bonus","rc_ahp2_pen","rc_ad_near","rc_ad_mid","rc_ad_near_bonus","rc_ad_far_pen","rc_mult_bonus","rc_ally_hp_min"]),
  ("§ 복귀 - 합류 이득 (rc_join_weight=0=끔)", ["rc_join_weight","rc_join_adv","rc_join_rescue","rc_join_dnear","rc_join_dmid","rc_join_obj_mult"]),
@@ -31,6 +32,7 @@ SECTIONS = [
  ("§ 라인전 (dd7700)", ["dd_frontier_mult","dd_cover_count","dd_ratio_thr","dd_facet_thr","dd_near_dist","dd_main_near_dist","dd_gatee_dist","dd_ivar2_thr","dd_n_thr","dd_survivor_thr"]),
  ("§ 견제 (Poke)", ["pf_edge_margin","pf_center_band","pf_diag_far","pf_diag_near","pf_band_width","pk_home_lo","pk_home_hi","pk_home_x1","pk_home_y1","pk_hp_main","pk_hp_retreat","pk_smallact_split","pk_threat_mult","pk_zone_hp","pk_engage_dist","pk_obj_hp"]),
  ("§ EpicPoke 수비값 (disc14, 실명 — 구 오라벨 DefenseNexus)", ["ep_nexus_hp","ep_home_lo","ep_home_hi","ep_home_x1","ep_home_y1","ep_hp_crit"]),   # ★[수정 07-16] dn_*→ep_* 통일(편집기가 쓰던 dn_ 키를 코드 serpen.rs는 ep_로 읽었음=미스매치). dead 5개(lane_margin/pred_dist/near_dist/hp_low/count_gate=read site 없음) 제거
+ ("§ 신규 09-01: 에픽·세르펜 사냥 킬타깃/세부 (고급)", ["eh_fin_mode","eh_band_off","eh_commit_margin","eh_dist_clamp","eh_clamp2","eh_engage_dist","eh_dist_shift","eh_power_weight","eh_power_neutral","eh_power_sub","eh_time_slope","eh_window_cap","eh_score_floor","eh_score_gate","eh_helper_a","eh_helper_b","eh_hp_gate2","eh_grid_cost"]),
  ("§ 기타", ["d8_slot_thr","bt_home_lo","bt_home_hi","bt_home_x1","bt_home_y1","bt_hp_retreat"]),
 ]
 knobs = []; seen = set(); rows = []
