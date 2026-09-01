@@ -3038,8 +3038,8 @@ unsafe fn apply_plan_imm() {
 unsafe fn apply_gb_imm() {
     let enable = tune("gb_enable", 0) != 0;
     // 튜닝키(전부 기본 -1 = 원본유지). 거리계열은 유닛, 게이트는 phase/퍼센트 raw.
-    let cr = tune("gb_close_radius", -1);   // 근접반경(유닛, 원본≈387 / raw 150000)
-    let lr = tune("gb_line_range",   -1);   // 라인range(유닛, 원본≈500 / raw 250000)
+    let cr = tune("gb_close_radius", -1);   // ★정정(0.5.7 GENERIC_BUILD RE): [rsp+0x40]=선형 leash(원본 150000). ~~유닛≈387²~~ 오해 — d²아닌 선형 가산항(FUN_140c8bb60 local_68). 입력=선형거리
+    let lr = tune("gb_line_range",   -1);   // ★정정(0.5.7 RE): [rbp+0x238]=선형(원본 250000). 게임이 비교시점에 제곱(dist²≤[+0x238]²) → 사전제곱 금지. 입력=선형거리
     let jd = tune("gb_join_dist",    -1);   // 합류/근접 전환거리(유닛, 원본 60000) — 지배 게이트
     let sr = tune("gb_scout_radius", -1);   // 거점반경(유닛, 원본 120000) — 로밍 후보수집 범위
     let op = tune("gb_op_phase",     -1);   // 운영진입 phase 임계(원본 31, =>30). 낮추면 이른 운영
@@ -3060,8 +3060,8 @@ unsafe fn apply_gb_imm() {
     let sq1 = |d: i64| { let d = d.max(0) as u64; d.wrapping_mul(d).wrapping_add(1) };  // d²+1 (게임 인코딩)
     // 유효값: enable & 값≥0이면 인코딩, 아니면 게임 원본 raw 복원
     let on = |v: i64| enable && v >= 0;
-    let e_cr = if on(cr) { sqd(cr) & 0x7fff_ffff } else { 150000 };            // imm32 부호확장 방어
-    let e_lr = if on(lr) { sqd(lr) & 0x7fff_ffff } else { 250000 };
+    let e_cr = if on(cr) { (cr.max(0) as u64).min(0x7fff_ffff) } else { 150000 }; // ★정정: 선형 leash(sqd 제거). [rsp+0x40]은 d²아닌 선형 가산항 → 사전제곱하면 유저값 어긋남
+    let e_lr = if on(lr) { (lr.max(0) as u64).min(0x7fff_ffff) } else { 250000 }; // ★정정: 선형(sqd 제거). 게임이 [rbp+0x238]을 재제곱 → 사전제곱이면 이중제곱
     let e_jd = if on(jd) { sq1(jd) & 0xffff_ffff } else { 0xd693a401 };        // MOV ECX zero-ext
     let _ = sq1;   // ★0.5.3: 거점반경²가 극성 반전으로 sqd 인코딩이 됨 → 구 e_sr(sq1) 폐기. sq1 은 다른 사이트가 쓸 수 있어 클로저는 유지.
     let e_op = if on(op) { b1(op) }                else { 0x1f };
@@ -3073,8 +3073,8 @@ unsafe fn apply_gb_imm() {
     // ── 본체 0x22b2280: 거리/반경·HP (0.5.2 재핀 07-23) ──
     ok += patch_imm_bytes(base + 0xceb8d3, &[0x48,0xc7,0x44,0x24,0x40], 5, 4, e_cr) as u32;   // ←s2 dca53f
     // ★0.5.4: gb 근접반경² 가 **1곳 → 2곳**(같은 인자슬롯 복제).
-    ok += patch_imm_bytes(base + 0xceba4b, &[0x48,0xc7,0x44,0x24,0x40], 5, 4, e_cr) as u32;                  // 근접반경²  orig 0x249f0   // ←s2 dca6b0
-    ok += patch_imm_bytes(base + 0xcec5bd, &[0x48,0xc7,0x85,0x38,0x02,0x00,0x00], 7, 4, e_lr) as u32;        // 라인range² orig 0x3d090 (★0.5.3: rbp 변위 0x1b0→**0x270** = prefix 4~7B 교체. 0.5.1→0.5.2땐 0x180→0x1b0였음)   // ←s2 dcb1f0
+    ok += patch_imm_bytes(base + 0xceba4b, &[0x48,0xc7,0x44,0x24,0x40], 5, 4, e_cr) as u32;                  // 근접반경 leash(선형) orig 0x249f0=150000 (★정정: ~~²~~ 아님)   // ←s2 dca6b0
+    ok += patch_imm_bytes(base + 0xcec5bd, &[0x48,0xc7,0x85,0x38,0x02,0x00,0x00], 7, 4, e_lr) as u32;        // 라인range(선형, 게임이 비교시 제곱) orig 0x3d090=250000 (★정정: 실제 rbp 변위=0x238, 구 주석 0x1b0/0x270 오기)   // ←s2 dcb1f0
     ok += patch_imm_bytes(base + 0xcec4c6, &[0xb8], 1, 4, e_jd) as u32;                                 // 합류max거리²(지배) orig 0xd693a401 (★0.5.3: `41 b8`(mov r8d)→**`b8`(mov eax)** 로 인코딩 축소 ⟹ 사이트가 +1(0xe075c9→**0xdcb115**), prefix 1B, off 2→1. 뒤 비교도 cmp r9,r8→cmp r8,rax 로 대응. 구 인코딩 mov r8d로 변경)   // ←s2 dcb115
     ok += patch_imm_bytes(base + 0xcef950, &[0x48,0x83,0xf8], 3, 1, e_ph) as u32;                            // 라인압박 HP%<30   // ←s2 dce2d5
     // ── 거점헬퍼 0x2398240: op·scout ──
