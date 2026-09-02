@@ -88,6 +88,18 @@ impl PosState {
     ///     (state 파일은 세이브와 무관하게 유지된다). 그걸 세면 개수가 부풀어
     ///     "최소 선택 수 충족"으로 오판하고, 실제 풀은 말라 라인업이 깨진다.
     ///     (유저 제보 2026-08-23: 탑 9개만 켜져 있는데 "현재 선택 수 21")
+    /// 이 포지션에 **명시로 지정된** 챔프 중 지금 로스터에 실재하는 수.
+    /// ★`live_count` 와 구분할 것 — 저쪽은 "제한 판정용 풀"이라 미지정 챔프까지 더한다.
+    ///   UI 의 "현재 선택 수" 는 사용자가 실제로 켠 개수여야 하므로 이 함수를 쓴다
+    ///   (2026-09-02: 21개만 켰는데 94 로 보이던 오표시의 원인).
+    pub fn named_count(&self, p: usize) -> usize {
+        let g = ROSTER.read().unwrap_or_else(|e| e.into_inner());
+        match g.as_ref() {
+            Some(set) => self.allowed[p].iter().filter(|c| set.contains(*c)).count(),
+            None => self.allowed[p].len(),
+        }
+    }
+
     pub fn live_count(&self, p: usize) -> usize {
         let g = ROSTER.read().unwrap_or_else(|e| e.into_inner());
         let named = match g.as_ref() {
@@ -284,6 +296,15 @@ pub fn pos_count(pos: usize) -> usize {
         return 0;
     }
     // ★현재 로스터에 실제로 있는 것만 센다(없어진 챔프 id 는 UI 에서도 안 보이므로 세면 혼란).
+    with_state(|st| st.named_count(pos))   // ★UI 표시용 = 실제로 켠 개수(풀 크기는 pos_pool)
+}
+/// 제한 판정에 실제로 쓰이는 **풀 크기**(명시 지정 + 미지정 챔프).
+/// `pos_active` 가 최소 선택 수와 비교하는 값이 이것이다 — 화면에도 같이 보여 줘야
+/// "21개만 켰는데 왜 최소 20을 넘지?" 가 설명된다.
+pub fn pos_pool(pos: usize) -> usize {
+    if pos >= 5 {
+        return 0;
+    }
     with_state(|st| st.live_count(pos))
 }
 /// 화이트리스트에 남아 있지만 지금 로스터엔 없는 챔프 수(pos 기준) — 안내 문구용.
@@ -291,7 +312,7 @@ pub fn pos_stale(pos: usize) -> usize {
     if pos >= 5 {
         return 0;
     }
-    with_state(|st| st.allowed[pos].len().saturating_sub(st.live_count(pos)))
+    with_state(|st| st.allowed[pos].len().saturating_sub(st.named_count(pos)))
 }
 /// pos 와 챔프를 (직·간접) 공유하는 제한 포지션들의 컴포넌트(pos 포함) + 그 합집합 크기.
 /// ★겹침은 필요수를 "1씩 늘리는" 게 아니다 — 겹친 포지션들이 한 챔프풀을 나눠 쓰므로,

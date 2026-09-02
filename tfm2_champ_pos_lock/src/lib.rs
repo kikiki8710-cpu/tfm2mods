@@ -677,8 +677,17 @@ fn fill_grid(root: &mut Node) {
         ui_kit::label_set(n, &s);
     }
     if let Some(n) = ui_kit::find_mut(pop, "count_label") {
+        // ★[2026-09-02] `cnt` 는 이제 **실제로 켠 개수**(config::pos_count = named_count).
+        //   제한 판정은 `pos_pool`(명시 + 미지정)로 하므로 둘이 다르면 풀도 같이 보여 준다 —
+        //   안 그러면 "21개만 켰는데 최소 20을 어떻게 넘지?" 가 화면에서 설명되지 않는다.
+        let pool = config::pos_pool(pos);
         let s = if cnt == 0 {
             i18n::tr("count_zero")
+        } else if pool > cnt {
+            i18n::trf(
+                "count_label_pool",
+                &[("n", &cnt.to_string()), ("pool", &pool.to_string())],
+            )
         } else {
             i18n::trf("count_label", &[("n", &cnt.to_string())])
         };

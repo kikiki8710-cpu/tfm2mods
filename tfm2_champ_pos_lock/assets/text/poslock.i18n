@@ -38,7 +38,8 @@
       "warn_ban_unknown": "⚠ Ban card count not read yet - reopen in a moment. Position limits are not applied until then.",
       "warn_min": "⚠ Below the minimum of {need} - this position is treated as unrestricted ({more} more to apply){tail}",
       "warn_min_tail_stale": " · {n} champions not in the current roster are excluded from the count",
-      "warn_shared": "⚠ {count} overlapping positions share a champion pool - {want} needed in total (currently {have})"
+      "warn_shared": "⚠ {count} overlapping positions share a champion pool - {want} needed in total (currently {have})",
+      "count_label_pool": "Selected: {n}  (pool {pool} = {n} named + unassigned)"
     }
   },
   "ko": {
@@ -80,7 +81,8 @@
       "warn_ban_unknown": "⚠ 밴카드 수를 아직 읽지 못했습니다 - 잠시 후 다시 열어 주세요. 그때까지 포지션 제한은 적용되지 않습니다.",
       "warn_min": "⚠ 최소 {need}개 미만 - 이 포지션은 지금 제한 없음으로 취급됩니다 ({more}개 더 선택하면 적용){tail}",
       "warn_min_tail_stale": " · 지금 로스터에 없는 챔프 {n}개는 제외하고 셉니다",
-      "warn_shared": "⚠ 겹친 {count}개 포지션이 챔프풀 공유 - 합쳐서 최소 {want}개 필요 (현재 {have})"
+      "warn_shared": "⚠ 겹친 {count}개 포지션이 챔프풀 공유 - 합쳐서 최소 {want}개 필요 (현재 {have})",
+      "count_label_pool": "현재 선택 수: {n}  (판정 풀 {pool} = 지정 {n} + 미지정)"
     }
   }
 }
