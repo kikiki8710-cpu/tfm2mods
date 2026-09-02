@@ -22,6 +22,8 @@ MIGD = os.path.join(ROOT, 'MIG')
 MAND = os.path.join(MIGD, 'manifest')
 GAME_EXE = r'C:\Program Files (x86)\Steam\steamapps\common\Teamfight Manager2\TeamfightManager2.exe'
 RVA_LO, RVA_HI = 0x80000, 0x4800000   # .text + RVA vtable(.rdata ~0x34e6a20) 포함
+GAME_VER = '0.5.8'   # gen 이 새 엔트리에 박는 버전 라벨(패치마다 갱신)
+
 NBYTES = 12                            # 엔트리당 채록 바이트
 
 # 마이그 대상 모드 (설치 여부 아님 — ui_kit 같은 공유모듈 포함이 이 목록의 존재 이유)
@@ -58,6 +60,66 @@ def strip_code(text):
     return '\n'.join(l.split('//')[0] for l in text.split('\n'))
 
 
+def mask_code(text):
+    """주석(//, /* */)과 문자열 리터럴을 공백으로 덮되 **길이를 보존**한다.
+
+    ★왜 strip_code 와 따로 두는가 (2026-09-02 실사고):
+      strip_code 는 주석을 지워 **길이가 줄어든다**. 그 오프셋으로 소스를 치환하면
+      위치가 어긋나 코드가 깨진다(0.5.8 마이그 1차 apply 가 12개 모드 소스를 훼손).
+      문자열까지 덮는 이유 = 진단 로그·설명 문자열에 적힌 **과거 버전 RVA** 를
+      재핀값으로 덮어쓰지 않기 위함(= 그것들은 애초에 매니페스트 대상도 아니다).
+    ⚠문자 리터럴 '"' 이 스캐너를 문자열 모드에 빠뜨리면 이후 전 라인이 마스킹돼
+      치환이 통째로 누락된다(serpen 5건 실사고) — 아래 "'" 분기가 그 방어다.
+    """
+    out = list(text)
+    i, n = 0, len(text)
+    while i < n:
+        c = text[i]
+        if c == '/' and i + 1 < n and text[i + 1] == '/':
+            while i < n and text[i] != '\n':
+                out[i] = ' '
+                i += 1
+        elif c == '/' and i + 1 < n and text[i + 1] == '*':
+            while i < n and not (text[i] == '*' and i + 1 < n and text[i + 1] == '/'):
+                if text[i] != '\n':
+                    out[i] = ' '
+                i += 1
+            for k in range(i, min(i + 2, n)):
+                out[k] = ' '
+            i += 2
+        elif c == "'":
+            j = i + 1
+            if j < n and text[j] == '\\':
+                j += 1
+                while j < n and text[j] != "'" and text[j] != '\n' and j - i < 12:
+                    j += 1
+            elif j + 1 < n and text[j + 1] == "'":
+                j += 1
+            if j < n and text[j] == "'":
+                for k in range(i, j + 1):
+                    out[k] = ' '
+                i = j + 1
+            else:
+                i += 1
+        elif c == '"':
+            out[i] = ' '
+            i += 1
+            while i < n and text[i] != '"':
+                if text[i] == '\\' and i + 1 < n:
+                    out[i] = ' '
+                    i += 1
+                if i < n:
+                    if text[i] != '\n':
+                        out[i] = ' '
+                    i += 1
+            if i < n:
+                out[i] = ' '
+                i += 1
+        else:
+            i += 1
+    return ''.join(out)
+
+
 HEXP = re.compile(r'0x([0-9a-fA-F]{5,8})\b')
 CONST = re.compile(r'const\s+([A-Z_][A-Z0-9_]*)\s*:')
 
@@ -74,7 +136,7 @@ def extract(mod, exclude=None):
         if any(rel.startswith(x) for x in exclude):
             continue
         raw = open(path, 'rb').read().decode('utf-8', 'replace')
-        lines = strip_code(raw).split('\n')
+        lines = mask_code(raw).split('\n')   # ★apply 와 같은 규칙(주석+문자열 마스킹)
         cur_const, const_line = None, -10
         for i, line in enumerate(lines):
             m = CONST.search(line)
@@ -142,7 +204,7 @@ def cmd_gen(mods, exe):
                 entries.append(keep[hexv])
                 continue
             b = at(v)
-            e = {'name': found[v]['name'], 'value': hexv, 'ver': '0.5.7',
+            e = {'name': found[v]['name'], 'value': hexv, 'ver': GAME_VER,
                  'kind': 'UNCLASSIFIED', 'locs': found[v]['locs'][:6],
                  'sect': sect(v), 'bytes': b.hex() if b else None,
                  'method': 'bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)'}
@@ -153,7 +215,7 @@ def cmd_gen(mods, exe):
             if b is None:
                 e['note'] = (e.get('note', '') + ' *exe 범위 밖=INVALID').strip()
             entries.append(e)
-        man = old or {'mod': mod, 'game_ver': '0.5.7', 'build': '',
+        man = old or {'mod': mod, 'game_ver': GAME_VER, 'build': '',
                       'notes': [], 'offsets': []}
         man['entries'] = entries
         save_man(mod, man)

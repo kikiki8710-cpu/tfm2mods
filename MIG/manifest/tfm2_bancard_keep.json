@@ -7,8 +7,8 @@
  "entries": [
   {
    "name": "PATCH_RVA",
-   "value": "0x234509a",
-   "ver": "0.5.7",
+   "value": "0x1a95aea",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/lib.rs:39"

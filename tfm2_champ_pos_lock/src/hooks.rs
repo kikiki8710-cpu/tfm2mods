@@ -143,7 +143,7 @@ unsafe fn patch_entry_thread_safe(fn_addr: usize, repl: usize) -> Result<(), &'s
 ///   본문 변경으로 body-sig 이설 실패했던 함수라, fast_pos_fit(0xf5bdd0) 호출자 역추적+계약대조로 확정.
 ///   호출경로: AI밴픽스코어러 → 캐시게터 0x10659d0(미스 시) → 0xf83830 → fast_pos_fit.
 ///   캐시 미스 때만 호출 = 챔프당 1회 발화(교정값 캐시 영속) = 정상.
-const RVA_POS_MASK: usize = 0x181fe60;
+const RVA_POS_MASK: usize = 0x12153e0;
 /// 프롤로그 12B = push r15/r14/r13/r12/rsi/rdi/rbp/rbx … (전부 1~2B push — 12B 경계 클린)
 const PROL_POS_MASK: [u8; 12] = [
     0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x55, 0x53,
@@ -152,7 +152,7 @@ const PROL_POS_MASK: [u8; 12] = [
 // Hook C (유저 픽 차단 — 피어리스 픽불가 차용, RE 2026-08-20 4차):
 /// contains 헬퍼 `bool al = contains(rcx=&String{cap,ptr,len}, rdx=list.ptr, r8=list.len)`
 /// (0.5.5 0x943440 → 0.5.6 재핀·프롤로그 동일)
-const RVA_CONTAINS: usize = 0x8e85f0;
+const RVA_CONTAINS: usize = 0xc26cd0;
 /// contains 프롤로그 14B(사이트 검증용 — 함수 자체는 패치하지 않음)
 const PROL_CONTAINS: [u8; 14] = [
     0x41, 0x57, 0x41, 0x56, 0x56, 0x57, 0x53, 0x48, 0x83, 0xEC, 0x20, 0x4D, 0x85, 0xC0,
@@ -160,14 +160,14 @@ const PROL_CONTAINS: [u8; 14] = [
 /// slot_widget(0x1971b00) 내부 contains E8 콜사이트 2곳 — 피어리스 회색+클릭게이트 지배점.
 /// ⚠커밋기(0x12156b0) 내 4콜은 일부러 안 건드림: AI가 fail-open으로 위반 픽을 냈을 때
 /// 서버 커밋이 거부되면 턴이 막힐 수 있다 — 차단은 UI(클릭 전)에서만.
-const SITES_CONTAINS: [usize; 2] = [0x1e8016f, 0x1e80188];
+const SITES_CONTAINS: [usize; 2] = [0x21676df, 0x21676f8];
 
 // Hook D (밴픽 씬 ptr 캡처 — RE 2026-08-20 5차):
 /// slot_widget = banpick_champion_slot 렌더러. 씬 ptr = 스택 인자 arg15 = 진입 시 [rsp+0x78].
 /// ⚠2026-08-21 인게임: slot_widget entry 훅은 타 모드에 덮여 고아화 + 그리드셀 렌더는
 ///   씬 인자=0 → 씬 캡처 실패. **scene_step(아래)로 대체.** slot_widget 은 hookC(회색화
 ///   콜사이트)만 계속 사용(씬 캡처 용도로는 미사용).
-const RVA_SLOT_WIDGET: usize = 0x1e79ff0;
+const RVA_SLOT_WIDGET: usize = 0x2161560;
 /// 프롤로그 12B push열(그 뒤 mov eax+call chkstk는 원위치 실행 — resume = fn+12)
 const PROL_SLOT_WIDGET: [u8; 12] = [
     0x55, 0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x53,
@@ -177,7 +177,7 @@ const PROL_SLOT_WIDGET: [u8; 12] = [
 /// scene_step(&BanpickScene)->u8 = 밴픽 phase leaf. **rcx = 진짜 클라 밴픽 씬**(23 client
 ///   콜러·매프레임 호출·lookahead 아님·T1/T2 구분). banpick_order A'(0.5.6 재핀 0x24d1dc0).
 ///   씬 오프셋: T1BAN=0x140/T2BAN=0x158/T1PICK=0x170/T2PICK=0x188 (내 O_BAN1/2·O_PICK1/2와 동일).
-const RVA_SCENE_STEP: usize = 0x1e748a0;
+const RVA_SCENE_STEP: usize = 0x215be10;
 /// 프롤로그 **14B**: mov rax,[rcx+0x160](7B) + mov rdx,[rcx+0x178](7B).
 /// ⚠★2026-08-23 버그수정: 구버전은 이걸 **12B 로 알고 있었다**. 두 명령은 7+7=14B 라
 ///   12B 만 떠오면 **두 번째 명령이 중간에서 잘린다** → 스텁 실행 시 `48 8B 91 78 01` 뒤에
@@ -195,9 +195,9 @@ const PROL_SCENE_STEP: [u8; 14] = [
 //     "챔피언 정보" 탭(champion_info_ui)이 슬롯마다 호출(RE 2026-08-20 확정).
 //   ②set_entity_icon(0x2517620) 진입 rdx=param_2=Assets — 밴픽/팀상세 렌더.
 /// 챔프아이콘 세터. 진입 rcx = 로드된 Assets(AssetServer/로더).
-const RVA_ICON_SETTER: usize = 0x1e89450;
+const RVA_ICON_SETTER: usize = 0x2170920;
 /// set_entity_icon leaf. 진입 rdx = 로드된 Assets.
-const RVA_ENTITY_ICON: usize = 0x1e92110;
+const RVA_ENTITY_ICON: usize = 0x2179a30;
 /// 두 함수 공통 프롤로그 첫 12B = push rbp/r15/r14/r13/r12/rsi/rdi/rbx (그 뒤 sub rsp — 원위치)
 const PROL_ICON8: [u8; 12] = [
     0x55, 0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x53,
@@ -749,7 +749,7 @@ unsafe fn install_scene_step_capture() -> Result<(), &'static str> {
 // blocklist 챔프면 원본 미호출 return → 픽 커밋 드롭(클릭해도 무효). 밴 디스패처는 별도라
 // 밴은 무영향. banpick_order 미후킹 함수(커밋터 0x24b6c10만 후킹)라 단독 detour 안전.
 /// 픽 디스패처. 프롤로그 = push rbp/r15/r14/r12/rsi/rdi/rbx; sub rsp,0x40 (14B·rip-rel 없음).
-const RVA_PICK_DISPATCH: usize = 0x1e45a60;
+const RVA_PICK_DISPATCH: usize = 0x212d090;
 const PROL_PICK_DISPATCH: [u8; 14] = [
     0x55, 0x41, 0x57, 0x41, 0x56, 0x41, 0x54, 0x56, 0x57, 0x53, 0x48, 0x83, 0xEC, 0x40,
 ];
@@ -884,7 +884,7 @@ pub fn install_once_p() {
 //   rmi=각 매치 MatchSetInfo → 매치별 독립. 모든 매치 커밋에서 호출 → 전 매치 적용.
 //   ⟹ 픽이 그 팀 라인업을 infeasible하게 만들면 orig 미호출·0 반환 = 강제 차단.
 //   ★banpick_order도 이 함수 후킹 → 체인. 프롤로그 push8=12B 클린(sub는 13번째).
-const RVA_COMMIT: usize = 0x1642600;
+const RVA_COMMIT: usize = 0x1056c00;
 const PROL_COMMIT: [u8; 12] = [
     0x55, 0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x53,
 ];
@@ -901,7 +901,7 @@ type CommitFn = extern "C" fn(usize, usize, usize) -> u8;
 //   r8=&ally픽(동구조), r9=&enemy픽. available 는 빌림만(free 안 함) → 필터 복사본 치환 안전.
 //   ★SDK score_pick 훅이 유저 라이브/코치 매치엔 미발화(agent+0xf60 훅배열 빔) → 여기서 직접
 //   필터해야 유저 매치도 막힘. recommend 는 코치위임·상대AI·서버AI·백그라운드 sim 공용.
-const RVA_RECOMMEND: usize = 0x25549d0;
+const RVA_RECOMMEND: usize = 0x1b58370;
 const PROL_RECOMMEND: [u8; 12] = [
     0x55, 0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x53,
 ];
@@ -918,7 +918,7 @@ type RecommendFn = extern "C" fn(usize, usize, usize, usize) -> u64;
 //   1단계 = 로그 전용(라이브 위임이 이 경로인지 + Vec[0]==커밋인지 확증). 2단계 = Vec[0] 위반 시
 //   [1..]의 첫 합법 후보와 스왑(사후 교정 — 코치 점수순 보존).
 //   ⚠detour 본문 = 복사·판정만(포맷/로그 금지 — post_update 드레인). 프롤로그 = 8-push(커밋 동일).
-const RVA_DISPATCH: usize = 0x232a950;
+const RVA_DISPATCH: usize = 0x1a78ea0;
    // ★★0.5.7 재핀(2026-08-26): ~~0.5.6 0x2079730~~ → **0x232a950**. skel/head/마스크시그 전부 NONE(함수 대개편)이라 **콜리 지문**(구 함수가 호출하는 callee 를 재핀 후 그들을 가장 많이 호출하는 신 함수 탐색)으로 확정 — 24/26 일치(2위 16). size 5345→5589 · 프롬로그 8push 12B 동일(PROL_RECOMMEND 무수정, chkstk imm은 0x6ab8→0x6c18이나 검증 범위 밖). ⚠banpick_order AITURN 컨테이너와 **동일 함수**.
 static TRAMP_DISPATCH: AtomicUsize = AtomicUsize::new(0);
 pub static INSTALL_STATE_DP2: AtomicUsize = AtomicUsize::new(0);
@@ -1070,7 +1070,7 @@ pub fn install_once_dispatch() {
 //   디스패처·서버워커 **양쪽이 수렴**하는 최종 확정 지점. 챔프 **이름(String)** 을 sret 로 반환하고,
 //   인자에 match_info(+0x38/0x50/0x68/0x88 = 밴2·픽2 **이름** Vec)·is_pick 이 있어 자족 판정 가능.
 //   1단계 = 관측(반환 이름 + 인자 덤프로 계약 확정), 2단계 = 위반 시 합법 챔프 이름으로 교체.
-const RVA_FINALIZE: usize = 0x1db6f30;
+const RVA_FINALIZE: usize = 0x201da90;
 static TRAMP_FINALIZE: AtomicUsize = AtomicUsize::new(0);
 pub static INSTALL_STATE_FZ: AtomicUsize = AtomicUsize::new(0);
 pub static CNT_FZ_SEEN: AtomicUsize = AtomicUsize::new(0);
@@ -1178,7 +1178,7 @@ pub fn install_once_finalize() {
 //   여기도 agent+0xf58/+0xf60 score_pick 디스패치 있음 → 같은 주입으로 코치 픽 재검토 발화).
 //   10인자: rcx=agent, rdx=&available, r8=&ally픽, r9=&enemy픽, 스택 [0x20]=&ally밴 [0x28]=&enemy밴
 //   [0x30]=bool [0x38]=난이도 [0x40]=턴종류 [0x48]=밴카운트. 반환 rax=선택 champ id.
-const RVA_RECOMMEND_WBC: usize = 0x2556220;
+const RVA_RECOMMEND_WBC: usize = 0x1b59b00;
 static TRAMP_RC_WBC: AtomicUsize = AtomicUsize::new(0);
 pub static INSTALL_STATE_RW: AtomicUsize = AtomicUsize::new(0);
 pub static CNT_RW_SEEN: AtomicUsize = AtomicUsize::new(0);
@@ -2447,7 +2447,7 @@ pub fn install_once() {
 //     (2) 통과 시 **상대 팀 order 도 우리 배정으로** 맞춘 뒤 원본 호출
 //   프롤로그 12B = push rbp,r15,r14,r13,r12,rsi,rdi,rbx (실측, 클린 경계).
 // ==========================================================================
-const RVA_SWAP_CONFIRM: usize = 0x19cc4a0;  // 0.5.7 재핀 UNIQUE size1476 동일 (0.5.6=0x1d7bc10)
+const RVA_SWAP_CONFIRM: usize = 0x1c18a80;  // 0.5.7 재핀 UNIQUE size1476 동일 (0.5.6=0x1d7bc10)
 const PROL_SWAP_CONFIRM: [u8; 12] = [
     0x55, 0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x53,
 ];
@@ -2587,7 +2587,7 @@ pub fn install_once_dp() {
 //       [+6]=sideB.ptr(픽) [+7]=sideB.len [+8]=is_pick / 반환 eax: 0=배제 1=유효
 //   match_info 벡터: ptr@+0x38/len@+0x40, +0x50/+0x58, +0x68/+0x70, +0x80/+0x88
 // ══════════════════════════════════════════════════════════════════════════
-const RVA_PRED: usize = 0x1db9aa0;  // 0.5.7 재핀 UNIQUE size537 동일 (0.5.6=0x1f36410)
+const RVA_PRED: usize = 0x2020600;  // 0.5.7 재핀 UNIQUE size537 동일 (0.5.6=0x1f36410)
 const PROL_PRED: [u8; 12] =
     [0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x55, 0x53];
 static TRAMP_PRED: AtomicUsize = AtomicUsize::new(0);
@@ -2813,7 +2813,7 @@ pub fn install_once_pred() {
 //   score 를 -1e9 감점(제거 아님=hang 없음). 라인 판정 = 우리 state.txt 마스크만.
 //   비재귀(리프 헬퍼만 호출) → 스택오버플로 없음. 반환후 콜러 가산후처리는 -1e9가 흡수.
 // ══════════════════════════════════════════════════════════════════════════
-const RVA_ORCH: usize = 0x24fa9d0;  // 0.5.7 재핀 HEAD_UNIQUE size3215 동일 (0.5.6=0x20f1f60)
+const RVA_ORCH: usize = 0x1a069a0;  // 0.5.7 재핀 HEAD_UNIQUE size3215 동일 (0.5.6=0x20f1f60)
 const PROL_ORCH: [u8; 12] =
     [0x55, 0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x53];
 static TRAMP_ORCH: AtomicUsize = AtomicUsize::new(0);
@@ -3027,10 +3027,10 @@ pub fn install_once_orch() {
 /// f848f0 을 호출하는 **전체 콜사이트**(exe 스캔 실측 9곳). f73340(밴 셀렉터) 외에
 /// 픽 셀렉터가 어디인지 미상이라 전부 후킹 — 감점은 "조합 판정"이라 어느 경로든 안전.
 const F848_CALLSITES: [usize; 9] = [
-    0x180f920, 0x180f97b, 0x18151b0, 0x1819312, 0x1819336, 0x181935c, 0x148f7c6, 0x1490230,
-    0x14917a0,
+    0x1204e80, 0x1204edb, 0x120a710, 0x120e892, 0x120e8b6, 0x120e8dc, 0x142f1b6, 0x142fc20,
+    0x1431190,
 ]; // ★0.5.7 재핀(2026-08-27): RVA_F848F0 콜러 구/신 각 9건, owner+오프셋 9/9 일치. 0.5.6=[0xf73510..0x12b7ff0]
-const RVA_F848F0: usize = 0x1820f20;  // 0.5.7 재핀 UNIQUE size617 동일 (0.5.6=0xf848f0)
+const RVA_F848F0: usize = 0x12164a0;  // 0.5.7 재핀 UNIQUE size617 동일 (0.5.6=0xf848f0)
 static F848_ORIG: AtomicUsize = AtomicUsize::new(0);
 static AM_STUB: AtomicUsize = AtomicUsize::new(0);
 pub static INSTALL_STATE_AM: AtomicUsize = AtomicUsize::new(0);
@@ -3145,9 +3145,9 @@ pub static AM_COUNT_HIST: [AtomicU64; 8] = [
 //   String 소유권: cap=0 으로 두면 게임 drop 경로가 free skip(정적/누수 버퍼 안전).
 //   실측: 커밋 1430회/세션 = 결정당 1회(lookahead 아님).
 // ══════════════════════════════════════════════════════════════════════════
-const RVA_CPROD: usize = 0x1d9a210;
+const RVA_CPROD: usize = 0x2000b90;
 /// f16ea0 콜사이트 3곳(실행기 Q1/Q2/Q3 드레인 — RE 확정). 진입 패치 대신 여기를 리다이렉트.
-const CPROD_CALLSITES: [usize; 3] = [0x2530e33, 0x2530f23, 0x2531003];  // 0.5.7 재핀 — RVA_CPROD 콜러 구/신 각 3건 순서대응 (0.5.6=[0x2129c2d,0x2129d2d,0x2129e1d])
+const CPROD_CALLSITES: [usize; 3] = [0x1f096b3, 0x1f097a3, 0x1f09883];  // 0.5.7 재핀 — RVA_CPROD 콜러 구/신 각 3건 순서대응 (0.5.6=[0x2129c2d,0x2129d2d,0x2129e1d])
 static CP_STUB: AtomicUsize = AtomicUsize::new(0);
 static TRAMP_CPROD: AtomicUsize = AtomicUsize::new(0);
 pub static INSTALL_STATE_CPROD: AtomicUsize = AtomicUsize::new(0);
@@ -4131,9 +4131,9 @@ pub fn install_once_argmax() {
 //   계약: rcx=sret, rdx=MS, r8=ctx, r9=kind, [+0x28]=match_id, [+0x30]=team_id
 //   sret: +0x00 kind(-1=결정없음) +0x08 match_id +0x10 VecA +0x40 team_id +0x50 marker
 // ══════════════════════════════════════════════════════════════════════════
-const DISP_CALLSITE: usize = 0x22e94ee; // producer 내 유일 call 0x2079730
+const DISP_CALLSITE: usize = 0x1a374ae; // producer 내 유일 call 0x2079730
   // ← 0.5.7 재핀 — RVA_DISP 콜러 구/신 각 1건 (0.5.6=0x2038056)
-const RVA_DISP: usize = 0x232a950;
+const RVA_DISP: usize = 0x1a78ea0;
 static DQ_STUB: AtomicUsize = AtomicUsize::new(0);
 static DISP_ORIG: AtomicUsize = AtomicUsize::new(0);
 pub static INSTALL_STATE_DQ: AtomicUsize = AtomicUsize::new(0);
@@ -4475,8 +4475,8 @@ pub fn install_once_dq() {
 //   ⚠1단계는 **진단 전용**: 인덱스 축이 우리 NAMES 와 같은지 확인만(필터 안 함).
 //     축이 다르면 엉뚱한 챔프를 걸러 AI 오작동·후보 고갈(hang) 위험.
 // ══════════════════════════════════════════════════════════════════════════
-const CB_CALLSITE: usize = 0x232b402;  // 0.5.7 재핀 — RVA_CANDB 콜러 구/신 각 1건 (0.5.6=0x207a191)
-const RVA_CANDB: usize = 0x18c5f00;  // 0.5.7 재핀 UNIQUE size806 동일 (0.5.6=0x18d01b0)
+const CB_CALLSITE: usize = 0x1a79952;  // 0.5.7 재핀 — RVA_CANDB 콜러 구/신 각 1건 (0.5.6=0x207a191)
+const RVA_CANDB: usize = 0x191bfb0;  // 0.5.7 재핀 UNIQUE size806 동일 (0.5.6=0x18d01b0)
 static CB_STUB: AtomicUsize = AtomicUsize::new(0);
 static CANDB_ORIG: AtomicUsize = AtomicUsize::new(0);
 pub static INSTALL_STATE_CB: AtomicUsize = AtomicUsize::new(0);
@@ -4802,11 +4802,11 @@ pub fn install_once_cb() {
 //       banpick_order 는 0x24b6c10 **진입부**를 후킹하므로, 통과 시 원래 주소로
 //       호출하면 그쪽 detour 도 정상 발화(체인 불요).
 // ══════════════════════════════════════════════════════════════════════════
-const GY_CALLSITE: usize = 0x1edbad6; // call 0x1e1e3c0 (셀 순회) // ★0.5.7 재핀 정정(2026-08-27): owner 0x254f8f0->0x1ed7970 내부 2개 중 구 +0x4126 짝. ~~0x1eda9fa~~ 는 구 0x255297a(+0x308a) 쪽이라 GY 발화 0회였다. ⚠전체 콜러 인덱스 순서가 아니라 **owner 내 오프셋**으로 짚을 것
-const RVA_CELLFN: usize = 0x1e1e3c0;  // 0.5.7 재핀 UNIQUE size1477 동일 (0.5.6=0x249df50)
-const CK_CALLSITE: usize = 0x1ed896e; // call 0x24b6c10 (클릭 커밋)
+const GY_CALLSITE: usize = 0x21bc336; // call 0x1e1e3c0 (셀 순회) // ★0.5.7 재핀 정정(2026-08-27): owner 0x254f8f0->0x1ed7970 내부 2개 중 구 +0x4126 짝. ~~0x1eda9fa~~ 는 구 0x255297a(+0x308a) 쪽이라 GY 발화 0회였다. ⚠전체 콜러 인덱스 순서가 아니라 **owner 내 오프셋**으로 짚을 것
+const RVA_CELLFN: usize = 0x2105f80;  // 0.5.7 재핀 UNIQUE size1477 동일 (0.5.6=0x249df50)
+const CK_CALLSITE: usize = 0x21b91de; // call 0x24b6c10 (클릭 커밋)
   // ← 0.5.7 재핀 — RVA_COMMITTER 콜러 구/신 각 3건 순서대응 #2 (0.5.6=0x25508de)
-const RVA_COMMITTER: usize = 0x1e59680;
+const RVA_COMMITTER: usize = 0x2140c40;
 
 static GY_STUB: AtomicUsize = AtomicUsize::new(0);
 static CELLFN_ORIG: AtomicUsize = AtomicUsize::new(0);

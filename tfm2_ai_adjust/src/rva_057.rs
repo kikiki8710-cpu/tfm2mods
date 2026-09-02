@@ -37,22 +37,22 @@
 //      GB_REGIOND_HOOK / GB_FUNNEL / COMMIT_CALL / COMMIT_FN / ENGAGE_GATE. 전부 신원검증(target-guard·E8·프롤로그)에
 //      걸려 미설치=inert 이므로 방치가 fail-safe. 0.5.6 재핀 시도 안 함(rva_055 값 그대로).
 
-const RVA_RETREAT:  usize = 0xe4a750;   // ★0.5.6(was 0.5.5 0xce0f70). retreat_engage. UNIQUE·size 11030 동일·BYTE=SAME·프롤로그 20B 동일. orig_len 12 유지.
+const RVA_RETREAT:  usize = 0xd2f180;   // ★0.5.6(was 0.5.5 0xce0f70). retreat_engage. UNIQUE·size 11030 동일·BYTE=SAME·프롤로그 20B 동일. orig_len 12 유지.
 
 const RVA_TG_CALL: usize = 0x1feca43;        // ⏸stale 유지(0.5.4 주소, inert). install guard "not a CALL(E8)" bail=안전.
 
 const RVA_THREATGATE_FN: usize = 0x20a8680;  // ⏸stale 유지=inert(0.5.4 주소). TG_CALL guard로 미설치=안전.
 
 // facet#2 position: driver 내 generic_build(이동좌표 최종화) 호출지점.
-const RVA_F2_BUILD_CALL: usize = 0x22dd4fe;  // ⏸stale 유지=inert(0.5.4 주소, 스왑 금지). target-guard로 미설치.
+const RVA_F2_BUILD_CALL: usize = 0x1a1ef3e;  // ⏸stale 유지=inert(0.5.4 주소, 스왑 금지). target-guard로 미설치.
 
 const RVA_GENERIC_BUILD: usize = 0xceb5f0;  // ★0.5.6(was 0.5.5 0xcc1030). UNIQUE·size 27883 동일·BYTE=SAME·프롤로그 동일. orig_len 12 유지.
 
 // ★facet#2 레인워크 waypoint 선택. install_replace_detour_rax 무조건설치 경로.
-const RVA_FC59A0: usize = 0xe61600;  // ★0.5.6(was 0.5.5 0xcf7b80). recall_rng_score. UNIQUE·size 1459 동일·BYTE=SAME·프롤로그 20B 동일. orig_len 12.
+const RVA_FC59A0: usize = 0xd40f10;  // ★0.5.6(was 0.5.5 0xcf7b80). recall_rng_score. UNIQUE·size 1459 동일·BYTE=SAME·프롤로그 20B 동일. orig_len 12.
 
 // ★pre-gate 상수 테이블(.rdata). p1(lane)<4만 사용. tableA[0..4]=[0,1,3,2](인덱스 변환).
-const RVA_TABLE_A: usize = 0x33817c8;  // ★0.5.6(was 0.5.5 0x33550f8). .rdata 값지문 [0,1,3,2] u64 — 0.5.5와 동일하게 2건(0x3370008/0x33eedf0)·주소순 #1 대응. ← 0.5.7 재핀 — lea참조 유일 + 48B 내용매칭 두 방법 일치 (0.5.6=0x3370008)
+const RVA_TABLE_A: usize = 0x33e1808;  // ★0.5.6(was 0.5.5 0x33550f8). .rdata 값지문 [0,1,3,2] u64 — 0.5.5와 동일하게 2건(0x3370008/0x33eedf0)·주소순 #1 대응. ← 0.5.7 재핀 — lea참조 유일 + 48B 내용매칭 두 방법 일치 (0.5.6=0x3370008)
 
 // ── 영역 D 출력검증(gb_region_d): mid-func 캡처 detour 지점 ── ⏸SKIP 유지
 const RVA_GB_REGIOND_HOOK: usize = 0x22dafea;  // ⏸SKIP 유지=차단(0.5.4 주소, MIG_GB_CHANGED=true).
@@ -62,36 +62,36 @@ const ORIG_LEN_GB_REGIOND: usize = 14;         // (REGIOND_HOOK이 SKIP이라 �
 const RVA_GB_FUNNEL: usize = 0x22dbc4e;           // ⏸SKIP 유지=inert(0.5.4 주소, 무효).
 
 // facet#1 condgate(목표커밋 bool). rcx=subplan_ctx(*=disc), r9=reg
-const RVA_CONDGATE: usize = 0xdb1e20;   // ★0.5.6(was 0.5.5 0xe193b0). UNIQUE·size 513 동일·BYTE=SAME·프롤로그 20B 동일. orig_len 15 유지(경계 [0,1,2,3,7,15..] 동일).
+const RVA_CONDGATE: usize = 0xcaf0d0;   // ★0.5.6(was 0.5.5 0xe193b0). UNIQUE·size 513 동일·BYTE=SAME·프롤로그 20B 동일. orig_len 15 유지(경계 [0,1,2,3,7,15..] 동일).
 
-const RVA_MOVEPRI: usize = 0xdb2760;   // ★0.5.6(was 0.5.5 0xe19cf0). **Plan 디스패처**(SubPlan 아님).
+const RVA_MOVEPRI: usize = 0xcaf9f0;   // ★0.5.6(was 0.5.5 0xe19cf0). **Plan 디스패처**(SubPlan 아님).
 //   UNIQUE·size 1062 동일·BYTE=SAME. **orig_len 14 유지**(0.5.5와 프롤로그 동일: 41 57 41 56... 경계 [0,2,4,5,6,7,11,14,22]).
 //   인덱스식 idx=(disc>=2)?disc-2:4 **바이트동일 유지** ⟹ plan_disc identity 유지(0.5.5 그대로).
 //   JT 베이스 0.5.5 0x336637C → 0.5.6 **0x338128c**(16엔트리·arm 오프셋 16/16 일치).
 
 // ★cVar6==0 STAND vs roll 게이트 → my_fa1ea0 순수재현으로 완전대체(RVA_FA1EA0 제거).
-const RVA_COMMIT_CALL: usize = 0x1e3dfd2;     // ⏸stale 유지=inert(0.5.4 주소). target-guard 자체보호.
+const RVA_COMMIT_CALL: usize = 0x2125602;     // ⏸stale 유지=inert(0.5.4 주소). target-guard 자체보호.
 
-const RVA_COMMIT_FN: usize = 0x235ffa0;        // ⏸stale 유지=inert(0.5.4 주소). target-guard로 inert(안전).
+const RVA_COMMIT_FN: usize = 0x2d4500;        // ⏸stale 유지=inert(0.5.4 주소). target-guard로 inert(안전).
 
 // 페이즈 게이트 threshold = objective*9 + min(B,100)*2 + BASE(=100). imm8(베이스) 패치 = 교전 공격성 다이얼.
 const RVA_ENGAGE_GATE: usize = 0x1c9b33d;     // ⏸stale 유지=inert(0.5.4 주소). apply_engage_base가 83C0 sanity서 return=안전 inert. 재RE 필요
 
 // ════ disc18/19(진짜 넥서스 AttackNexus/DefenseNexus) 완전재현 Phase2-1: 캡처 훅 ════
-const RVA_DISC18_HANDLER: usize = 0xe9fd70;   // ★0.5.6(was 0.5.5 0xd28da0). UNIQUE·size 5891 동일·BYTE=SAME·프롤로그 동일. orig_len 12.
+const RVA_DISC18_HANDLER: usize = 0xe81680;   // ★0.5.6(was 0.5.5 0xd28da0). UNIQUE·size 5891 동일·BYTE=SAME·프롤로그 동일. orig_len 12.
 
 // ★SubPlan 디스패처(= disc18/19 핸들러를 직접 call 하는 그 함수).
 //   ⚠2계층 주의: RVA_MOVEPRI 는 Plan 디스패처, 이건 SubPlan 디스패처. 번호공간이 다르다.
-const RVA_SUBPLAN_DISPATCH: usize = 0xcbf340;   // ★0.5.6(was 0.5.5 0xe4b460).
+const RVA_SUBPLAN_DISPATCH: usize = 0xe35bd0;   // ★0.5.6(was 0.5.5 0xe4b460).
 //   UNIQUE·size 1310 동일·BYTE=SAME·프롤로그 동일. orig_len 12.
 //   인덱스식 idx=(disc>=2)?disc-2:8 바이트동일(바이어스·default 불변 = SubPlan 번호 불변).
 //   19 arm call 순서 disc18(call@+0x10e)·disc19(call@+0x32c) 위치까지 1:1 보존. JT 베이스 0.5.5 0x3366E5C → 0.5.6 **0x3381d6c**.
 
-const RVA_DISC19_HANDLER: usize = 0xeae620;   // ★0.5.6(was 0.5.5 0xd38910). UNIQUE·size 11221 동일·BYTE=SAME·프롤로그 동일. orig_len 12.
+const RVA_DISC19_HANDLER: usize = 0xe928f0;   // ★0.5.6(was 0.5.5 0xd38910). UNIQUE·size 11221 동일·BYTE=SAME·프롤로그 동일. orig_len 12.
 //   교차확증 = 함수 내 유일 lea r9,[rip](DISC7 desc)가 동일 위치서 재발견(055 @0xd3906a→0x3358fc8 ↔ 056 @0xd44dba→0x3372198).
 
 // ══ itemnet 빌드 스코어러 NULL-모델 가드 (튜토리얼/에이전트부재 AV 원천차단) ══
-const RVA_ITEMNET_SCORER: usize = 0x17f09b0;   // ★0.5.6(was 0.5.5 0x12624f0 — ⚠고대역 대이동 −0x30e710·저대역 델타 가정 금지 사례).
+const RVA_ITEMNET_SCORER: usize = 0x11e1b10;   // ★0.5.6(was 0.5.5 0x12624f0 — ⚠고대역 대이동 −0x30e710·저대역 델타 가정 금지 사례).
 //   UNIQUE·size 1609 동일·BYTE=SAME·프롤로그 20B 동일. 설치 위치 = fn+12(push8 프롤로그 직후).
 
 const RVA_C8C_DMG_SHEET: usize = 0x337f778;   // ★0.5.6(was 0.5.5 0x3354c40). 공격측 데미지시트 desc. ← 0.5.7 재핀 — owner 2함수 명령정렬, 5사이트 만장일치 (0.5.6=0x336dcd0)
@@ -103,5 +103,5 @@ const RVA_DISC7_DMG_SHEET: usize = 0x3384c30;   // ★0.5.6(was 0.5.5 0x3358fc8)
 //   재핀 경로 = disc19 핸들러(0xd426e0) 내부의 lea r9,[rip] 함수 내 유일 사이트(@0xd44dba).
 
 // ★[0.5.4 도입] 경매(전술 입찰) 진입 — passthrough 프로브. push8 프롤로그.
-const RVA_AUCTION: usize = 0xe8b800;  // ★0.5.6(was 0.5.5 0xe04800). UNIQUE·size 19492 동일·BYTE=SAME.
+const RVA_AUCTION: usize = 0xe65b10;  // ★0.5.6(was 0.5.5 0xe04800). UNIQUE·size 19492 동일·BYTE=SAME.
 //   선두 15B 동일(pro20 차이 = __chkstk call rel32뿐 = 트램폴린 12B 밖). orig_len 12 유지. ⚠passthrough 프로브 전용.

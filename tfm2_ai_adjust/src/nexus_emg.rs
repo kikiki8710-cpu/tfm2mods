@@ -52,11 +52,11 @@
 //   둘 다 끄는 노브를 뒀다(`nxe_supp_off` · `nxe_battle_off`).
 
 // 술어 B 조건① 사이트 (0.5.4)
-const NXE_RVA: usize = 0xe19898;   // ★0.5.6(was 0.5.5 0xddbad8 — 호스트 0xdd1cd0→0xddbaa0 UNIQUE·BYTE=SAME·delta+0x9dd0·win 11B 일치 재확증). 구 0.5.5(~~0xce3c18~~) 정렬 이력 유지  ← 0.5.7 재핀 OWNER_UNIQUE·바이트동일 (0.5.6=0xddbad8)
+const NXE_RVA: usize = 0xd3fe88;   // ★0.5.6(was 0.5.5 0xddbad8 — 호스트 0xdd1cd0→0xddbaa0 UNIQUE·BYTE=SAME·delta+0x9dd0·win 11B 일치 재확증). 구 0.5.5(~~0xce3c18~~) 정렬 이력 유지  ← 0.5.7 재핀 OWNER_UNIQUE·바이트동일 (0.5.6=0xddbad8)
 /// 창 11B = `cmp qword [rbx+rax+0x148], 0` (9B) + `je +0x13` (2B).
 const NXE_WIN: [u8; 11] = [0x48, 0x83, 0xBC, 0x03, 0x48, 0x01, 0x00, 0x00, 0x00, 0x74, 0x13];
-const NXE_FAIL_RVA: usize = 0xe198a3;   // 비상 아님 → 0 반환 (★0.5.5 ~~0xce3c23~~ = NXE_RVA+11 fallthru)  ← 0.5.7 재핀 바이트동일 (0.5.6=0xddbae3)
-const NXE_PASS_RVA: usize = 0xe198b6;   // 비상 → 조건②(넥서스가 맞는 중) 검사로 (★0.5.5 ~~0xce3c36~~ = je타깃 mov eax,1)  ← 0.5.7 재핀 바이트동일 (0.5.6=0xddbaf6)
+const NXE_FAIL_RVA: usize = 0xd3fe93;   // 비상 아님 → 0 반환 (★0.5.5 ~~0xce3c23~~ = NXE_RVA+11 fallthru)  ← 0.5.7 재핀 바이트동일 (0.5.6=0xddbae3)
+const NXE_PASS_RVA: usize = 0xd3fea6;   // 비상 → 조건②(넥서스가 맞는 중) 검사로 (★0.5.5 ~~0xce3c36~~ = je타깃 mov eax,1)  ← 0.5.7 재핀 바이트동일 (0.5.6=0xddbaf6)
 
 // 월드뷰 구조체 오프셋 (RE 2026-08-08 확정)
 // ★0.5.5 확인: region 저대역 불변. 0x148은 NXE 함수 cmp 사이트서 직접 정렬확인(불변). O_T1/O_T2(0x180~0x1d0)는
@@ -83,10 +83,10 @@ static NXE_BY: [AtomicU64; 8] = [const { AtomicU64::new(0) }; 8];   // 어느 �
 // `0xe097b5` = `test eax,0x100` + `je e097f5` (7B). **여기를 잡아야 술어 B 경로만** 조절된다.
 // ⚠바로 아래 감산 블록(`0xe097bc`)에는 **진입 경로가 5개**나 합류한다(HP>45% 경로 포함) —
 //   거기에 손대면 비상과 무관한 **정상 플레이 전반**이 바뀐다. 그래서 한 단계 위를 잡는다.
-const NXM_RVA: usize = 0xe3ea55;   // ★0.5.6(was 0.5.5 0xda65f5 — 호스트 0xd9b960→0xda5730 UNIQUE·BYTE=SAME·win 7B 일치 재확증). 구 0.5.5(~~0xe097b5~~) 정렬 이력 유지  ← 0.5.7 재핀 바이트동일 (0.5.6=0xda65f5)
+const NXM_RVA: usize = 0xdc4105;   // ★0.5.6(was 0.5.5 0xda65f5 — 호스트 0xd9b960→0xda5730 UNIQUE·BYTE=SAME·win 7B 일치 재확증). 구 0.5.5(~~0xe097b5~~) 정렬 이력 유지  ← 0.5.7 재핀 바이트동일 (0.5.6=0xda65f5)
 const NXM_WIN: [u8; 7] = [0xa9, 0x00, 0x01, 0x00, 0x00, 0x74, 0x39];   // test eax,0x100 ; je +0x39
-const NXM_PLAIN_RVA: usize = 0xe3ea95;   // 비상 아님 → 평범 경로 (★0.5.5 ~~0xe097f5~~ = je타깃 mov r13,[rbp+0x988])  ← 0.5.7 재핀 바이트동일 (0.5.6=0xda6635)
-const NXM_AFTER_RVA: usize = 0xe3ea7b;   // 감산 블록 다음 (★0.5.5 ~~0xe097db~~ = cmp[rbp+0x840],r13)  ← 0.5.7 재핀 바이트동일 (0.5.6=0xda661b)
+const NXM_PLAIN_RVA: usize = 0xdc4145;   // 비상 아님 → 평범 경로 (★0.5.5 ~~0xe097f5~~ = je타깃 mov r13,[rbp+0x988])  ← 0.5.7 재핀 바이트동일 (0.5.6=0xda6635)
+const NXM_AFTER_RVA: usize = 0xdc412b;   // 감산 블록 다음 (★0.5.5 ~~0xe097db~~ = cmp[rbp+0x840],r13)  ← 0.5.7 재핀 바이트동일 (0.5.6=0xda661b)
 // ★0.5.5 확인: NXM 함수(free_dist e088f0→d9b960 r=1.00) 프레임 슬롯 전부 불변(정렬서 [rbp+0x8d0/0x8c0/0x880] 동일).
 const NXM_BASE_MARGIN_SLOT: usize = 0x880;   // [rbp+0x880] = dist(나, 최근접 적) (0.5.5 불변)
 const O_REG_SLOT: i32 = 0x8d0;   // [rbp+0x8d0] = reg   (프롤로그에서 1회만 기록) (0.5.5 불변)
@@ -221,12 +221,12 @@ pub(crate) unsafe fn apply_nxe() {
     if supp > 0 {
         tot += 1;
         // `test eax,0x100` → `test eax,0` : 비상일 때 다른 액션을 −99,999 로 죽이던 조항이 사라진다.
-        ok += patch_imm_bytes(base + 0xd5bd42, &[0xa9], 1, 4, 0) as u32;   // ★0.5.6(was 0.5.4 0xd8e0b2 — ⚠0.5.5 회차 미재핀으로 stale였음. 054호스트 0xd8db90→056 0xe3ec30 정렬 r=0.743 + a9 00 01 00 00 0f 85 7B 일치 + 055 0xe35372 교차확증)
+        ok += patch_imm_bytes(base + 0xd57a62, &[0xa9], 1, 4, 0) as u32;   // ★0.5.6(was 0.5.4 0xd8e0b2 — ⚠0.5.5 회차 미재핀으로 stale였음. 054호스트 0xd8db90→056 0xe3ec30 정렬 r=0.743 + a9 00 01 00 00 0f 85 7B 일치 + 055 0xe35372 교차확증)
     }
     if batt > 0 {
         tot += 1;
         // `and eax,1` → `and eax,0` : 교전 판단이 이 플래그를 항상 0 으로 본다.
-        ok += patch_imm_bytes(base + 0xea335b, &[0x83, 0xe0], 2, 1, 0) as u32;   // ★0.5.6(was 0.5.4 0xda3660 — ⚠0.5.5 회차 미재핀 stale였음. bt_vis 동일 호스트 0xda3570→055 0xd2db90→056 0xd37960 정렬·83 e0 01 3B 일치·뒤 명령 disp 0x3d8→0x3e8 이동은 별개 명령이라 무관)
+        ok += patch_imm_bytes(base + 0xcbbe9b, &[0x83, 0xe0], 2, 1, 0) as u32;   // ★0.5.6(was 0.5.4 0xda3660 — ⚠0.5.5 회차 미재핀 stale였음. bt_vis 동일 호스트 0xda3570→055 0xd2db90→056 0xd37960 정렬·83 e0 01 3B 일치·뒤 명령 disp 0x3d8→0x3e8 이동은 별개 명령이라 무관)
     }
     if tot > 0 {
         rep.push_str(&format!("부작용 중화: {}/{} (억제조항 해제={} · 교전판단 무시={})\n",

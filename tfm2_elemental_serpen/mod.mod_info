@@ -1,14 +1,1 @@
-{
-  "mod_id": "tfm2_elemental_serpen",
-  "name": "Elemental Serpen",
-  "author": "tfm2mods",
-  "version": "0.4.4",
-  "description": "세르펜이 리스폰마다 랜덤 속성으로 등장하고, 속성별로 다른 팀 영구 버프를 준다. N번째 이후로는 저체력 챔피언을 처형하는 장로 세르펜이 등장한다. 속성별 전용 스프라이트/툴팁 포함. 다시보기(리플레이)에서도 동작.",
-  "dependencies": [
-    {
-      "mod_id": "base",
-      "version": ">=0.5.7, <0.5.8"
-    }
-  ],
-  "last_updated": "2026-08-08"
-}
+{"mod_id": "tfm2_elemental_serpen", "name": "Elemental Serpen", "author": "tfm2mods", "version": "0.4.4", "description": "세르펜이 리스폰마다 랜덤 속성으로 등장하고, 속성별로 다른 팀 영구 버프를 준다. N번째 이후로는 저체력 챔피언을 처형하는 장로 세르펜이 등장한다. 속성별 전용 스프라이트/툴팁 포함. 다시보기(리플레이)에서도 동작.", "dependencies": [{"mod_id": "base", "version": ">=0.5.8, <0.5.9"}], "last_updated": "2026-08-08"}

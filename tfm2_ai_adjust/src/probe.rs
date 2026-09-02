@@ -40,20 +40,20 @@
 //            이고 폭도 u32가 아니라 **u64**였다. `sim`은 `snap`의 0번 필드(world)일 뿐이다.
 //   ✅포탑 좌표는 런타임 탐색이 **불필요해졌다** — 랜드마크 27좌표가 곧 라인 노드이고 정적으로 라벨링됐다.
 // ════════════════════════════════════════════════════════════════════════════════
-const PB_H1_RVA: usize = 0xc975d1;   // Phase 1: 적이 나를 봄
-const PB_H2_RVA: usize = 0xc976a3;   // Phase 1: 안 봄 → 부쉬로
-const PB_H3_RVA: usize = 0xc96ffa;   // Phase 0: 랜드마크가 멀다 (P분기)
-const PB_H4_RVA: usize = 0xe1ff3f;   // 자리선택 밴드 진입
-const PB_H5_RVA: usize = 0xc97155;   // Phase 0: 랜드마크가 멀다 (Q분기 — P의 짝, 분모 완성용)
-const PB_H6_RVA: usize = 0xc96d16;   // ★hide 총 진입 (모든 비율의 공통 분모)
-const PB_H7_RVA: usize = 0xc9725e;   // ★Phase 0 → 1 래치 전이 (= 랜드마크 도착)
+const PB_H1_RVA: usize = 0xca5a71;   // Phase 1: 적이 나를 봄
+const PB_H2_RVA: usize = 0xca5b43;   // Phase 1: 안 봄 → 부쉬로
+const PB_H3_RVA: usize = 0xca549a;   // Phase 0: 랜드마크가 멀다 (P분기)
+const PB_H4_RVA: usize = 0xda4e2f;   // 자리선택 밴드 진입
+const PB_H5_RVA: usize = 0xca55f5;   // Phase 0: 랜드마크가 멀다 (Q분기 — P의 짝, 분모 완성용)
+const PB_H6_RVA: usize = 0xca51b6;   // ★hide 총 진입 (모든 비율의 공통 분모)
+const PB_H7_RVA: usize = 0xca56fe;   // ★Phase 0 → 1 래치 전이 (= 랜드마크 도착)
 // ★[08-04 3차] AI 판단 스로틀 — `now < agent+0x21c8`면 판단을 통째로 건너뛰고 직전 결정을 유지한다.
 //   주기 = gen_range([400+3r, 800+4r])/100 = 4~12틱, `r = 100 - clamp(p4[0x400]*p4[0x200]/1000, 0, 100)`.
 //   ⟹ **능력치가 높을수록 자주 판단**한다. 기준이 sim tick이라 관전 배속과는 무관(RE 확정).
 //   여기서 재는 것: ①게이트 진입 A ②실제 판단 B ⟹ **실행률 B/A** ③`r`의 두 입력값 분포
 //     — 분포가 한 점에 몰리면 **게임 옵션**, 퍼지면 **선수 능력치**다(이게 판별의 핵심).
-const PB_H8_RVA: usize = 0xd0cab0;   // 스로틀 게이트(판단 본체의 유일한 콜러)
-const PB_H9_RVA: usize = 0xdd6cd0;   // 판단 본체
+const PB_H8_RVA: usize = 0xd34170;   // 스로틀 게이트(판단 본체의 유일한 콜러)
+const PB_H9_RVA: usize = 0xe14b00;   // 판단 본체
 const PB_H8_LEN: usize = 12;
 const PB_H9_LEN: usize = 12;
 // ★[08-04] 버프 가치 평가기 `0xcc4740`의 **死항 판정 실측**.
@@ -61,7 +61,7 @@ const PB_H9_LEN: usize = 12;
 //   그 판정은 **생산자가 `cc94c0`인 경로 한정**이다(다른 생산자 경로는 미조사).
 //   ⟹ 진입부에서 대표 8필드를 직접 읽어 **한 경기 동안 한 번이라도 비-0이 나오는지** 본다.
 //   전부 0이면 死 판정이 실측으로 확정되고, 하나라도 켜지면 판정 범위가 좁혀진다.
-const PB_HA_RVA: usize = 0xcc4740;
+const PB_HA_RVA: usize = 0xeb7dc0;
 const PB_HA_LEN: usize = 12;
 // ★[08-05] 층① 플랜 결정기의 **최상위 3-way 스위치** `G.vt[0x30]()` 반환값 실측.
 //   `0xd48ec0`(handler.rs, plan 4·5·6의 생산자) 진입 직후:
@@ -74,7 +74,7 @@ const PB_HA_LEN: usize = 12;
 //   ⚠`cmp rax,2`가 세운 플래그를 `0xd48f67 jne`가 소비한다. 공용 스텁이 pushfq/popfq로 감싸고
 //     훔친 원본(`cmp` 포함)을 work **뒤에** 재실행하므로 플래그는 정상이다.
 //   ✅`[0xeb686e, 0xd48f60)` 안으로 들어오는 분기 타깃 = **0개**(함수 전체 스캔으로 확인).
-const PB_HB_RVA: usize = 0xeb686e;
+const PB_HB_RVA: usize = 0xd9997e;
 const PB_HB_LEN: usize = 18;
 const PB_HB_ORIG: [u8; 18] = [0x48,0x83,0xf8,0x02,
                               0x48,0x89,0xbd,0xe0,0x05,0x00,0x00,

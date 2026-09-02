@@ -33,13 +33,16 @@
     "src/lib.rs:3453"
    ],
    "sect": ".text",
-   "bytes": "205f5e5dc366662e0f1f8400",
-   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+   "bytes": "8b416489c1d1e981e1555555",
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
+   "ignore": true,
+   "curated": true,
+   "note": "[비RVA 상수: saturating_sub 1MB 상수]"
   },
   {
    "name": "PARSER_RVA",
-   "value": "0x1ab310",
-   "ver": "0.5.7",
+   "value": "0x1ab140",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/ui_inject.rs:26"
@@ -50,8 +53,8 @@
   },
   {
    "name": "FN_DD_SETOPT_RVA",
-   "value": "0x1c31f0",
-   "ver": "0.5.7",
+   "value": "0x1c3120",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/lib.rs:32"
@@ -62,8 +65,8 @@
   },
   {
    "name": "LOADER_RVA",
-   "value": "0x2ea930",
-   "ver": "0.5.7",
+   "value": "0x2ea830",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/ui_inject.rs:24",
@@ -82,8 +85,11 @@
     "src/lib.rs:2810"
    ],
    "sect": ".text",
-   "bytes": "43080f2945d0c645ff01488d",
-   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+   "bytes": "050000000f42c8e97f010000",
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
+   "ignore": true,
+   "curated": true,
+   "note": "[비RVA 상수: 진단 문자열 안 렌더필터 하한]"
   },
   {
    "name": "INLINE@src/lib.rs:2810",
@@ -94,13 +100,16 @@
     "src/lib.rs:2810"
    ],
    "sect": ".text",
-   "bytes": "488b0a488b4208488b401848",
-   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+   "bytes": "05884801c60000c3b1028848",
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
+   "ignore": true,
+   "curated": true,
+   "note": "[비RVA 상수: 진단 문자열 안 이력값]"
   },
   {
    "name": "RVA_GV_UPDATE",
-   "value": "0x90a090",
-   "ver": "0.5.7",
+   "value": "0x95cb80",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/lib.rs:1402"
@@ -111,36 +120,36 @@
   },
   {
    "name": "INLINE@src/lib.rs:2272",
-   "value": "0xb19ca9",
-   "ver": "0.5.7",
+   "value": "0x893cb9",
+   "ver": "0.5.8",
    "kind": "INLINE_RETADDR",
    "locs": [
     "src/lib.rs:2272"
    ],
    "sect": ".text",
-   "bytes": "9089bdacd6030048899d98d5",
+   "bytes": "0000ba01000000eb0231d24d",
    "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
    "note": "화면경기 판정 retaddr — const 아님(스캔 사각지대 7). 뒤 2개는 serpen LAUNCHER_RET 와 값 공유",
    "curated": true
   },
   {
    "name": "INLINE@src/lib.rs:2272",
-   "value": "0xb1ebfb",
-   "ver": "0.5.7",
+   "value": "0x898c0b",
+   "ver": "0.5.8",
    "kind": "INLINE_RETADDR",
    "locs": [
     "src/lib.rs:2272"
    ],
    "sect": ".text",
-   "bytes": "90488b8538d8030048ff4810",
+   "bytes": "e3d7030001c685e2d7030001",
    "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
    "note": "화면경기 판정 retaddr — const 아님(스캔 사각지대 7). 뒤 2개는 serpen LAUNCHER_RET 와 값 공유",
    "curated": true
   },
   {
    "name": "RVA_BUY_ITEM",
-   "value": "0xdf5490",
-   "ver": "0.5.7",
+   "value": "0xe8fc80",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/lib.rs:3673"
@@ -151,26 +160,26 @@
   },
   {
    "name": "INLINE@src/lib.rs:5149",
-   "value": "0xdf57f8",
-   "ver": "0.5.7",
+   "value": "0xe8ffe8",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/lib.rs:5149"
    ],
    "sect": ".text",
-   "bytes": "48837c246002767348837c24",
+   "bytes": "39f60f839e0000004c89f048",
    "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
   },
   {
    "name": "INLINE@src/lib.rs:5150",
-   "value": "0xdf57fe",
-   "ver": "0.5.7",
+   "value": "0xe8ffee",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/lib.rs:5150"
    ],
    "sect": ".text",
-   "bytes": "767348837c24500074194c8b",
+   "bytes": "00004c89f048c1e004488b0c",
    "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
   },
   {
@@ -182,13 +191,16 @@
     "src/lib.rs:3666"
    ],
    "sect": ".text",
-   "bytes": "488954241055564883ec2848",
-   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+   "bytes": "000000488bbd900100004889",
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
+   "ignore": true,
+   "curated": true,
+   "note": "[비RVA 상수: 진단 문자열 안 이력값(0.5.3)]"
   },
   {
    "name": "CL_LAUNCHER_RVA",
-   "value": "0x106dd60",
-   "ver": "0.5.7",
+   "value": "0x1810d20",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/lib.rs:2204"
@@ -199,8 +211,8 @@
   },
   {
    "name": "INLINE@src/lib.rs:5126",
-   "value": "0x10da9a9",
-   "ver": "0.5.7",
+   "value": "0x187bc09",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/lib.rs:5126"
@@ -211,8 +223,8 @@
   },
   {
    "name": "INLINE@src/lib.rs:5127",
-   "value": "0x10da9b0",
-   "ver": "0.5.7",
+   "value": "0x187bc10",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/lib.rs:5127"
@@ -230,13 +242,16 @@
     "src/lib.rs:3666"
    ],
    "sect": ".text",
-   "bytes": "01000048894d00488b958800",
-   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+   "bytes": "660f29bdd0010000660f29bd",
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
+   "ignore": true,
+   "curated": true,
+   "note": "[비RVA 상수: 진단 문자열 안 이력값(0.5.4)]"
   },
   {
    "name": "SEEDCTOR_RVA",
-   "value": "0x1635ae0",
-   "ver": "0.5.7",
+   "value": "0x132fc60",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/lib.rs:2561"
@@ -247,8 +262,8 @@
   },
   {
    "name": "ITEMNET_FORWARD_RVA",
-   "value": "0x17f09b0",
-   "ver": "0.5.7",
+   "value": "0x11e1b10",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/lib.rs:3721"
@@ -259,8 +274,8 @@
   },
   {
    "name": "INLINE@src/lib.rs:3665",
-   "value": "0x182d4be",
-   "ver": "0.5.7",
+   "value": "0x122135e",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/lib.rs:3665"
@@ -271,8 +286,8 @@
   },
   {
    "name": "INLINE@src/lib.rs:2271",
-   "value": "0x1ada3ae",
-   "ver": "0.5.7",
+   "value": "0x23aafce",
+   "ver": "0.5.8",
    "kind": "INLINE_RETADDR",
    "locs": [
     "src/lib.rs:2271"
@@ -285,8 +300,8 @@
   },
   {
    "name": "INLINE@src/lib.rs:2271",
-   "value": "0x1b193f2",
-   "ver": "0.5.7",
+   "value": "0x23d5a52",
+   "ver": "0.5.8",
    "kind": "INLINE_RETADDR",
    "locs": [
     "src/lib.rs:2271"
@@ -299,8 +314,8 @@
   },
   {
    "name": "RVA_TIP_SHOW",
-   "value": "0x1b1d500",
-   "ver": "0.5.7",
+   "value": "0x23da030",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/lib.rs:1361"
@@ -311,20 +326,20 @@
   },
   {
    "name": "RA_TOURN_055",
-   "value": "0x1da7a65",
-   "ver": "0.5.7",
+   "value": "0x200e3e5",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/lib.rs:2311"
    ],
    "sect": ".text",
-   "bytes": "90c685823d020001488d8d00",
+   "bytes": "fc78fe4885c00f84fc000000",
    "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
   },
   {
    "name": "INLINE@src/lib.rs:3665",
-   "value": "0x2123733",
-   "ver": "0.5.7",
+   "value": "0x260d5d3",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/lib.rs:3665"
@@ -342,13 +357,16 @@
     "src/lib.rs:3613"
    ],
    "sect": ".text",
-   "bytes": "8d01000048833b00750b4883",
-   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+   "bytes": "4d85f67414ff154b67f30048",
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
+   "ignore": true,
+   "curated": true,
+   "note": "[비RVA 상수: 진단 문자열 안 이력값(08-08 RE)]"
   },
   {
    "name": "RVA_REALLOC",
-   "value": "0x2a9fb50",
-   "ver": "0.5.7",
+   "value": "0x2b06f50",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/lib.rs:2185"
@@ -359,8 +377,8 @@
   },
   {
    "name": "RVA_GAME_ALLOC",
-   "value": "0x2ab4010",
-   "ver": "0.5.7",
+   "value": "0x2b1b410",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/lib.rs:1388",
@@ -372,15 +390,17 @@
   },
   {
    "name": "RVA_TIP_MEASURE_VT",
-   "value": "0x3333ec8",
-   "ver": "0.5.7",
+   "value": "0x33bb690",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/lib.rs:1362"
    ],
    "sect": ".rdata",
-   "bytes": "002689400100000088010000",
-   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+   "bytes": "f058b1400100000088010000",
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
+   "curated": true,
+   "note": "[0.5.8 vtable 포인터 사영 투표 4/4 + 레이아웃(size 0x188) 대조]"
   }
  ]
 }

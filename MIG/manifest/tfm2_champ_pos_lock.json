@@ -26,8 +26,11 @@
     "src/hooks.rs:623"
    ],
    "sect": ".text",
-   "bytes": "205f5e5dc366662e0f1f8400",
-   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+   "bytes": "8b416489c1d1e981e1555555",
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
+   "ignore": true,
+   "curated": true,
+   "note": "[비RVA 상수: 모듈탐색 step 1MB]"
   },
   {
    "name": "CONTEXT_CONTROL_AMD64",
@@ -38,13 +41,16 @@
     "src/hooks.rs:43"
    ],
    "sect": ".text",
-   "bytes": "5f5e5dc366662e0f1f840000",
-   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+   "bytes": "416489c1d1e981e155555555",
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
+   "ignore": true,
+   "curated": true,
+   "note": "[비RVA 상수: CONTEXT_CONTROL_AMD64(Win 상수)]"
   },
   {
    "name": "PARSER_RVA",
-   "value": "0x1ab310",
-   "ver": "0.5.7",
+   "value": "0x1ab140",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/inject.rs:28"
@@ -55,8 +61,8 @@
   },
   {
    "name": "LOADER_RVA",
-   "value": "0x2ea930",
-   "ver": "0.5.7",
+   "value": "0x2ea830",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/inject.rs:27"
@@ -67,8 +73,8 @@
   },
   {
    "name": "RVA_CONTAINS",
-   "value": "0x8e85f0",
-   "ver": "0.5.7",
+   "value": "0xc26cd0",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/hooks.rs:155"
@@ -86,7 +92,7 @@
     "src/hooks.rs:4703"
    ],
    "sect": ".text",
-   "bytes": "004889542410554157415641",
+   "bytes": "5dc36666666666662e0f1f84",
    "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
    "ignore": true,
    "note": "마스크",
@@ -102,49 +108,52 @@
     "src/crashlog.rs:112"
    ],
    "sect": ".text",
-   "bytes": "488954241055415741564155",
-   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+   "bytes": "c36666666666662e0f1f8400",
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
+   "ignore": true,
+   "curated": true,
+   "note": "[비RVA 상수: 모듈크기 상한 16MB]"
   },
   {
    "name": "F848_CALLSITES",
-   "value": "0x148f7c6",
-   "ver": "0.5.7",
+   "value": "0x142f1b6",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/hooks.rs:3030"
    ],
    "sect": ".text",
-   "bytes": "e85517390090440f28c84883",
+   "bytes": "e8e572deff90440f28c84883",
    "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
   },
   {
    "name": "F848_CALLSITES",
-   "value": "0x1490230",
-   "ver": "0.5.7",
+   "value": "0x142fc20",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/hooks.rs:3030"
    ],
    "sect": ".text",
-   "bytes": "e8eb0c390090440f28c84c8b",
+   "bytes": "e87b68deff90440f28c84c8b",
    "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
   },
   {
    "name": "F848_CALLSITES",
-   "value": "0x14917a0",
-   "ver": "0.5.7",
+   "value": "0x1431190",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/hooks.rs:3031"
    ],
    "sect": ".text",
-   "bytes": "e87bf7380090440f28c84c8b",
+   "bytes": "e80b53deff90440f28c84c8b",
    "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
   },
   {
    "name": "RVA_COMMIT",
-   "value": "0x1642600",
-   "ver": "0.5.7",
+   "value": "0x1056c00",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/hooks.rs:887"
@@ -155,44 +164,44 @@
   },
   {
    "name": "F848_CALLSITES",
-   "value": "0x180f920",
-   "ver": "0.5.7",
+   "value": "0x1204e80",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/hooks.rs:3030"
    ],
    "sect": ".text",
-   "bytes": "e8fb150100900f2ec676070f",
+   "bytes": "e81b160100900f2ec676070f",
    "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
   },
   {
    "name": "F848_CALLSITES",
-   "value": "0x180f97b",
-   "ver": "0.5.7",
+   "value": "0x1204edb",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/hooks.rs:3030"
    ],
    "sect": ".text",
-   "bytes": "e8a0150100900f2ef077a5eb",
+   "bytes": "e8c0150100900f2ef077a5eb",
    "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
   },
   {
    "name": "F848_CALLSITES",
-   "value": "0x18151b0",
-   "ver": "0.5.7",
+   "value": "0x120a710",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/hooks.rs:3030"
    ],
    "sect": ".text",
-   "bytes": "e86bbd0000900f28f848837d",
+   "bytes": "e88bbd0000900f28f848837d",
    "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
   },
   {
    "name": "F848_CALLSITES",
-   "value": "0x1819312",
-   "ver": "0.5.7",
+   "value": "0x120e892",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/hooks.rs:3030"
@@ -203,8 +212,8 @@
   },
   {
    "name": "F848_CALLSITES",
-   "value": "0x1819336",
-   "ver": "0.5.7",
+   "value": "0x120e8b6",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/hooks.rs:3030"
@@ -215,8 +224,8 @@
   },
   {
    "name": "F848_CALLSITES",
-   "value": "0x181935c",
-   "ver": "0.5.7",
+   "value": "0x120e8dc",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/hooks.rs:3030"
@@ -227,8 +236,8 @@
   },
   {
    "name": "RVA_POS_MASK",
-   "value": "0x181fe60",
-   "ver": "0.5.7",
+   "value": "0x12153e0",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/hooks.rs:146"
@@ -239,8 +248,8 @@
   },
   {
    "name": "RVA_F848F0",
-   "value": "0x1820f20",
-   "ver": "0.5.7",
+   "value": "0x12164a0",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/hooks.rs:3033"
@@ -251,8 +260,8 @@
   },
   {
    "name": "RVA_CANDB",
-   "value": "0x18c5f00",
-   "ver": "0.5.7",
+   "value": "0x191bfb0",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/hooks.rs:4479"
@@ -263,8 +272,8 @@
   },
   {
    "name": "INLINE@src/hooks.rs:4782",
-   "value": "0x18d01b0",
-   "ver": "0.5.7",
+   "value": "0x1926410",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/hooks.rs:4782"
@@ -275,8 +284,8 @@
   },
   {
    "name": "RVA_SWAP_CONFIRM",
-   "value": "0x19cc4a0",
-   "ver": "0.5.7",
+   "value": "0x1c18a80",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/hooks.rs:2450"
@@ -287,8 +296,8 @@
   },
   {
    "name": "RVA_CPROD",
-   "value": "0x1d9a210",
-   "ver": "0.5.7",
+   "value": "0x2000b90",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/hooks.rs:3148"
@@ -299,8 +308,8 @@
   },
   {
    "name": "RVA_FINALIZE",
-   "value": "0x1db6f30",
-   "ver": "0.5.7",
+   "value": "0x201da90",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/hooks.rs:1073"
@@ -311,8 +320,8 @@
   },
   {
    "name": "RVA_PRED",
-   "value": "0x1db9aa0",
-   "ver": "0.5.7",
+   "value": "0x2020600",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/hooks.rs:2590"
@@ -323,8 +332,8 @@
   },
   {
    "name": "RVA_CELLFN",
-   "value": "0x1e1e3c0",
-   "ver": "0.5.7",
+   "value": "0x2105f80",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/hooks.rs:4806"
@@ -335,8 +344,8 @@
   },
   {
    "name": "RVA_PICK_DISPATCH",
-   "value": "0x1e45a60",
-   "ver": "0.5.7",
+   "value": "0x212d090",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/hooks.rs:752"
@@ -347,8 +356,8 @@
   },
   {
    "name": "RVA_COMMITTER",
-   "value": "0x1e59680",
-   "ver": "0.5.7",
+   "value": "0x2140c40",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/hooks.rs:4809"
@@ -359,8 +368,8 @@
   },
   {
    "name": "RVA_SCENE_STEP",
-   "value": "0x1e748a0",
-   "ver": "0.5.7",
+   "value": "0x215be10",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/hooks.rs:180"
@@ -371,8 +380,8 @@
   },
   {
    "name": "RVA_SLOT_WIDGET",
-   "value": "0x1e79ff0",
-   "ver": "0.5.7",
+   "value": "0x2161560",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/hooks.rs:170"
@@ -383,32 +392,32 @@
   },
   {
    "name": "SITES_CONTAINS",
-   "value": "0x1e8016f",
-   "ver": "0.5.7",
+   "value": "0x21676df",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/hooks.rs:163"
    ],
    "sect": ".text",
-   "bytes": "e87c84a6fe4189c74c89e148",
+   "bytes": "e8ecf5abfe4189c74c89e148",
    "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
   },
   {
    "name": "SITES_CONTAINS",
-   "value": "0x1e80188",
-   "ver": "0.5.7",
+   "value": "0x21676f8",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/hooks.rs:163"
    ],
    "sect": ".text",
-   "bytes": "e86384a6fe4584ff741984c0",
+   "bytes": "e8d3f5abfe4584ff741984c0",
    "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
   },
   {
    "name": "RVA_ICON_SETTER",
-   "value": "0x1e89450",
-   "ver": "0.5.7",
+   "value": "0x2170920",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/hooks.rs:198"
@@ -419,8 +428,8 @@
   },
   {
    "name": "RVA_ENTITY_ICON",
-   "value": "0x1e92110",
-   "ver": "0.5.7",
+   "value": "0x2179a30",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/hooks.rs:200"
@@ -431,56 +440,60 @@
   },
   {
    "name": "CK_CALLSITE",
-   "value": "0x1ed896e",
-   "ver": "0.5.7",
+   "value": "0x21b91de",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/hooks.rs:4807"
    ],
    "sect": ".text",
-   "bytes": "e80d0df8ff904885db7414ff",
-   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+   "bytes": "e85d7af8ff904885db7414ff",
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
+   "curated": true,
+   "note": "[0.5.8 owner 0x1ed7970→0x21b81e0, off 0xffe 불변 + call 타깃=RVA_COMMITTER 재핀값 일치]"
   },
   {
    "name": "GY_CALLSITE",
-   "value": "0x1edbad6",
-   "ver": "0.5.7",
+   "value": "0x21bc336",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/hooks.rs:4805"
    ],
    "sect": ".text",
-   "bytes": "e8e528f4ff9084c00f843806",
-   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+   "bytes": "e8459cf4ff9084c00f843806",
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
+   "curated": true,
+   "note": "[0.5.8 같은 owner, off 0x4166→0x4156(Δ-0x10 군집) + call 타깃=RVA_CELLFN 재핀값 일치]"
   },
   {
    "name": "INLINE@src/hooks.rs:3004",
-   "value": "0x20f1f60",
-   "ver": "0.5.7",
+   "value": "0x25dade0",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/hooks.rs:3004"
    ],
    "sect": ".text",
-   "bytes": "3c01486304814801c8ffe049",
+   "bytes": "f800486304814801c8ffe049",
    "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
   },
   {
    "name": "DISP_CALLSITE",
-   "value": "0x22e94ee",
-   "ver": "0.5.7",
+   "value": "0x1a374ae",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/hooks.rs:4134"
    ],
    "sect": ".text",
-   "bytes": "e85d1404009083bdf0a40400",
+   "bytes": "660f108d10a504000f109520",
    "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
   },
   {
    "name": "RVA_DISPATCH",
-   "value": "0x232a950",
-   "ver": "0.5.7",
+   "value": "0x1a78ea0",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/hooks.rs:921",
@@ -493,20 +506,20 @@
   },
   {
    "name": "CB_CALLSITE",
-   "value": "0x232b402",
-   "ver": "0.5.7",
+   "value": "0x1a79952",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/hooks.rs:4478"
    ],
    "sect": ".text",
-   "bytes": "e8f9aa59ff90488d8db82200",
+   "bytes": "85c07406488b4830eb0231c9",
    "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
   },
   {
    "name": "RVA_ORCH",
-   "value": "0x24fa9d0",
-   "ver": "0.5.7",
+   "value": "0x1a069a0",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/hooks.rs:2816"
@@ -517,44 +530,44 @@
   },
   {
    "name": "CPROD_CALLSITES",
-   "value": "0x2530e33",
-   "ver": "0.5.7",
+   "value": "0x1f096b3",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/hooks.rs:3150"
    ],
    "sect": ".text",
-   "bytes": "e8d89386ff90488b93800000",
+   "bytes": "488983e801000048898bf001",
    "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
   },
   {
    "name": "CPROD_CALLSITES",
-   "value": "0x2530f23",
-   "ver": "0.5.7",
+   "value": "0x1f097a3",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/hooks.rs:3150"
    ],
    "sect": ".text",
-   "bytes": "e8e89286ff90488b93800000",
+   "bytes": "838800000000e812ddbf0090",
    "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
   },
   {
    "name": "CPROD_CALLSITES",
-   "value": "0x2531003",
-   "ver": "0.5.7",
+   "value": "0x1f09883",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/hooks.rs:3150"
    ],
    "sect": ".text",
-   "bytes": "e8089286ff90488b93800000",
+   "bytes": "4c8da3680a0000660f1f4400",
    "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
   },
   {
    "name": "INLINE@src/hooks.rs:5080",
-   "value": "0x25508de",
-   "ver": "0.5.7",
+   "value": "0x257c7be",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/hooks.rs:5080"
@@ -565,8 +578,8 @@
   },
   {
    "name": "INLINE@src/hooks.rs:5080",
-   "value": "0x2553a16",
-   "ver": "0.5.7",
+   "value": "0x1f49346",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/hooks.rs:5080"
@@ -577,8 +590,8 @@
   },
   {
    "name": "RVA_RECOMMEND",
-   "value": "0x25549d0",
-   "ver": "0.5.7",
+   "value": "0x1b58370",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/hooks.rs:904"
@@ -589,8 +602,8 @@
   },
   {
    "name": "RVA_RECOMMEND_WBC",
-   "value": "0x2556220",
-   "ver": "0.5.7",
+   "value": "0x1b59b00",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/hooks.rs:1181"
@@ -601,8 +614,8 @@
   },
   {
    "name": "RVA_PANIC_HOOK",
-   "value": "0x2aaf154",
-   "ver": "0.5.7",
+   "value": "0x2b16554",
+   "ver": "0.5.8",
    "kind": "FN_START",
    "locs": [
     "src/crashlog.rs:161"
@@ -614,8 +627,8 @@
   },
   {
    "name": "ALLOC_RVA",
-   "value": "0x2ab4010",
-   "ver": "0.5.7",
+   "value": "0x2b1b410",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/inject.rs:29"

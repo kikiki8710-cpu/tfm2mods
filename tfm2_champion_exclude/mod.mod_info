@@ -1,14 +1,1 @@
-{
-  "name": "tfm2_champion_exclude",
-  "mod_id": "tfm2_champion_exclude",
-  "author": "tfm2mods",
-  "version": "0.5.4",
-  "description": "Permanently exclude specific champions (vanilla and modded) from being added by in-game season patches. A 'Champion Addition Settings' button at the bottom of Settings > Gameplay opens a popup listing all unreleased champions (class filter and name search included) - click to exclude. Settings are stored per save file (inside the save via mod save data), so each save is independent and travels with backups; saves without a setting behave vanilla. Excluded champions are filtered out of the major/season patch addition pool and will never be released; excluding everyone behaves exactly like 'all champions already added' (no addition news). Already-released champions are never touched. UI supports Korean/English following the game language. Diagnostics log = champion_exclude.txt. For game 0.5.6.",
-  "last_updated": "2026-08-23",
-  "dependencies": [
-    {
-      "mod_id": "base",
-      "version": ">=0.5.7, <0.5.8"
-    }
-  ]
-}
+{"name": "tfm2_champion_exclude", "mod_id": "tfm2_champion_exclude", "author": "tfm2mods", "version": "0.5.4", "description": "Permanently exclude specific champions (vanilla and modded) from being added by in-game season patches. A 'Champion Addition Settings' button at the bottom of Settings > Gameplay opens a popup listing all unreleased champions (class filter and name search included) - click to exclude. Settings are stored per save file (inside the save via mod save data), so each save is independent and travels with backups; saves without a setting behave vanilla. Excluded champions are filtered out of the major/season patch addition pool and will never be released; excluding everyone behaves exactly like 'all champions already added' (no addition news). Already-released champions are never touched. UI supports Korean/English following the game language. Diagnostics log = champion_exclude.txt. For game 0.5.6.", "last_updated": "2026-08-23", "dependencies": [{"mod_id": "base", "version": ">=0.5.8, <0.5.9"}]}

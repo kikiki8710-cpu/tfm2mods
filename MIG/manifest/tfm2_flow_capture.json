@@ -16,7 +16,7 @@
     "src/lib.rs:2327"
    ],
    "sect": ".text",
-   "bytes": "c4205f5e5dc366662e0f1f84",
+   "bytes": "cc8b416489c1d1e981e15555",
    "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
    "ignore": true,
    "note": "마스크",
@@ -31,7 +31,7 @@
     "src/ui_replay.rs:21"
    ],
    "sect": ".text",
-   "bytes": "554157415641554154565753",
+   "bytes": "00eb7f31c04531c0eb064889",
    "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
   },
   {
@@ -43,20 +43,22 @@
     "src/ui_replay.rs:20"
    ],
    "sect": ".text",
-   "bytes": "554157415641554154565753",
+   "bytes": "66440f74c766410fd7c885c9",
    "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
   },
   {
    "name": "ONSCREEN_RETADDRS",
-   "value": "0x763329",
-   "ver": "0.5.5",
+   "value": "0x768a99",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/lib.rs:1005"
    ],
    "sect": ".text",
    "bytes": "ec28488daa80000000488d4d",
-   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
+   "curated": true,
+   "note": "[0.5.8 owner 0x763320→0x768a90(지역창 유일) + 20B 문맥]"
   },
   {
    "name": "ONSCREEN_RETADDRS",
@@ -67,7 +69,7 @@
     "src/lib.rs:1005"
    ],
    "sect": ".text",
-   "bytes": "f4baff904883c4285e5dc3cc",
+   "bytes": "0048c78568050000ffffffff",
    "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
   },
   {
@@ -79,7 +81,7 @@
     "src/lib.rs:127"
    ],
    "sect": ".text",
-   "bytes": "554157415641554154565753",
+   "bytes": "a80000000f1087180100000f",
    "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
   },
   {
@@ -91,7 +93,7 @@
     "src/lib.rs:990"
    ],
    "sect": ".text",
-   "bytes": "554157415641554154565753",
+   "bytes": "28488d4d104c89f24989d849",
    "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
   },
   {
@@ -103,7 +105,7 @@
     "src/lib.rs:1005"
    ],
    "sect": ".text",
-   "bytes": "90eb9f4883c128ffd7488b45",
+   "bytes": "488b85200300004889851002",
    "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
   },
   {
@@ -115,7 +117,7 @@
     "src/lib.rs:1005"
    ],
    "sect": ".text",
-   "bytes": "0600001e00000048c785a006",
+   "bytes": "0f287c24204881c4c8000000",
    "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
   },
   {
@@ -127,7 +129,7 @@
     "src/lib.rs:165"
    ],
    "sect": ".text",
-   "bytes": "488b8160010000488b917801",
+   "bytes": "d80f14c80f14da0f16d90f5e",
    "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
   },
   {
@@ -139,7 +141,7 @@
     "src/ui_replay.rs:22"
    ],
    "sect": ".text",
-   "bytes": "5556574883ec20488d6c2420",
+   "bytes": "010000666666662e0f1f8400",
    "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
   },
   {
@@ -151,7 +153,7 @@
     "src/lib.rs:184"
    ],
    "sect": ".text",
-   "bytes": "415741564155415456575553",
+   "bytes": "5e415ec3e8777b4b00cccccc",
    "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
   }
  ]

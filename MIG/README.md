@@ -9,9 +9,26 @@
 MIG\
   README.md            이 문서 (절차)
   RETRO-0.5.7.md       재설계 배경 = 0.5.7 마이그 실패 회고
-  mig_verify.py        도구: gen / check / coverage / dups / rebase
+  mig_verify.py        도구: gen / check / coverage / dups / rebase  (+ mask_code 정본)
+  ★repin.py            도구: plan / apply / rdata / resolve — STALE 엔트리 **자동 재핀 엔진**(0.5.8 신설)
+  ★callgraph.py        도구: exe 전 함수의 call/jmp 대상 인덱스(repin 의 MULTI/NONE 판별 재료)
   manifest\<MOD>.json  ★모드별 버전 민감 지점 전수 목록 (기계 정본)
 ```
+### 재핀 엔진 (repin.py, 2026-09-02 신설 — 0.5.8 에서 1,454 STALE 중 1,136 자동 해결)
+```
+python fnindex.py <신exe> _fnidx_<신버전>.pkl              # 함수 지문(skel/head/mnem)
+python MIG\callgraph.py <exe> <fnidx.pkl> _cg_<버전>.pkl   # 콜그래프(구·신 각 1회, ~4분)
+python MIG\repin.py plan  [MOD...] --old --new --oldpkl --newpkl --oldcg --newcg --out map.json
+python MIG\repin.py apply [MOD...] --map map.json [--write --ver <신버전>]
+python MIG\repin.py rdata --addrs 0x... --old ... --new ...  # .rdata 포인터 표(vtable) 전용
+python MIG\repin.py resolve --addrs 0x... --old ... --new ... # 개별 구 RVA 직접 재핀(잔여 처리)
+```
+판별 단계(강한 것부터): ①채록 바이트 유일검색(부족하면 구 exe 에서 12→64B 연장)
+②skeleton 지문 ③**콜그래프 사영**(UNIQUE 매칭 3.7만건을 기준맵으로 caller/callee 집합 대조)
+④owner 함수 안에서 사이트 로컬 바이트 재탐색. ⑤ 그래도 남으면 **지역창**(주소순 이웃 중
+매핑된 앞/뒤 함수 사이)으로 후보 축소 → 그래도 동형 클론이면 ghidra-re.
+⚠`apply` 는 **주석·문자열을 길이보존 마스킹**(`mig_verify.mask_code`)한 위치에서만 치환한다 —
+`strip_code`(길이 줄어듦) 오프셋으로 치환하면 소스가 깨진다(2026-09-02 실사고, 아래 절).
 매니페스트 엔트리 = 이름 · 값 · 버전 · 종류 · 소스 위치 · **현행 exe 채록 바이트(12B)** · 재탐색 방법.
 `offsets` = 구조체 오프셋 축(exe 대조 불가 — RE 로 검증), `notes` = 모드별 함정, `build` = 빌드 명령.
 
@@ -80,15 +97,34 @@ MIG\
 | 9 | ★**구조만 바뀐 주소**(sylas EFF_VT_BASE 0.5.7 — 바이트 유효·표 아님 ⟹ check PASS인데 기능 사망) | check로는 **못 막는다** ⟹ **구조 불변식 검사 + 모드 자기점검**(위 절) |
 | 8 | 무효 구값 엔트리 (HR_AE_FN 오핀 08-28 — 구값이 함수시작 아닌데 바이트 이주가 유일 매치 통과) | **재핀 전 구값 유효성 선검증**(함수시작=프롤로그/vtable=.rdata)·무효=ghidra-re 재규명·`*_FN`은 재핀 후 함수시작 검증 |
 
-## 현행 상태 (2026-08-28 채록 기준)
-- 0.5.7 정합: item_tactics·champ_pos_lock·comptest·banpick_order·banpick_illust·serpen·
-  draft_overlay·level_cap·champion_exclude·bancard_keep·ui_kit + SDK 전용 6종
-- **미정합(의도)**: `tfm2_ai_adjust` = 0.5.7-PENDING(잔여 49+345, 별도 세션) /
-  `stat_exp`·`flow_capture` = 0.5.5 잔존(배포용 아님, 보류) / ~~`sylas` = 0.5.6(유저 제외)~~
-  → ★**정정 2026-08-29: `sylas` = 0.5.7 정합**(`EFF_VT_BASE` 0x34200d8→**0x33ff9c8** 재핀 + `CASTANIM_RVA` 신규,
-    rebase 재채록 ⟹ **check 27/27 PASS · coverage 클린**. ⚠새 base 첫 12B 대부분 0 = 시그니처 약함 → `note` 명시)
-  → 각 매니페스트 notes 에 명시. ⚠이들의 bytes 는 "0.5.7 exe 의 그 주소" 채록이라
-  **이동 감지용으로만 유효**(값 자체의 정당성 보증 아님).
+## ★★apply 오프셋 사고 (2026-09-02 · 버전무관 · 실사고)
+0.5.8 1차 `apply` 가 **12개 모드 소스를 통째로 훼손**했다. 원인은 한 줄:
+`mig_verify.strip_code` 는 주석을 **지워서 길이가 줄어드는데**, 그 오프셋으로 원본을 치환했다.
+주석이 하나라도 있는 파일은 그 뒤 모든 위치가 밀려, 상수 대신 **주석 한복판이 덮였다**
+(`// 위 ja 때문에 도달불가=가드` → `// 위 ja 때문0x1835b4a`).
+- 방어 = **`mask_code`(길이보존 마스킹)** — mig_verify 정본, repin 이 재수출. `extract`/`coverage` 도 같은 규칙.
+- 부수효과(의도한 것): **문자열 리터럴도 마스킹**한다 ⟹ 진단 로그·설명 문자열에 적힌
+  과거 버전 RVA 를 재핀값으로 덮어쓰지 않는다(1차에는 그것도 덮어써 이력 주석이 오염됐다).
+- ⚠**마스커의 함정**: 문자 리터럴 `'"'` 를 처리 못하면 스캐너가 문자열 모드에 빠져 **이후 전 라인이
+  마스킹**되고, 치환이 조용히 **누락**된다(serpen 5건). 훼손이 아니라 **누락**이라 diff 로는 안 보이고
+  `coverage` 만 잡아낸다 ⟹ **apply 뒤 coverage 는 선택이 아니라 필수 단계다.**
+- 교훈: 소스 자동치환은 **"덮어쓰기"가 아니라 "마스킹된 좌표계에서의 치환"** 이다.
+  치환 좌표를 만드는 함수와 치환 대상 문자열은 **길이가 같아야 한다**.
+
+## 현행 상태 (2026-09-02 · 게임 0.5.8)
+- **0.5.8 정합 (check PASS + coverage 클린)**: item_tactics·champ_pos_lock·comptest·banpick_order·
+  banpick_illust·serpen·draft_overlay·level_cap·champion_exclude·bancard_keep·sylas·ui_kit
+  + SDK 전용 5종(mod_order·html_overlay·Spectator_Chat·community_reaction_mod·meta_item_delegate)
+- **부분 정합(재핀 실패 잔여)** — 매니페스트에 `"unresolved": "0.5.8"` 낙인이 찍혀 있다(grep 대상):
+  | 모드 | 잔여 | 성격 |
+  |---|---|---|
+  | `tfm2_ai_adjust` | 125 | 대부분 detour.rs 인라인 사이트. 0.5.7 때도 PENDING 이었다 |
+  | `tfm2_banpick_order` | 7 | AI6 6사이트 + `RVA_PHASE_SCALAR` — 동형 클론 2,849후보에 막힘 |
+  | `tfm2_comptest_unlock` | 4 | `SRV_RVA`·`CT_ARM_LO/HI`·`CT_REGION_HI` |
+  | `tfm2_stat_exp` | 1 | `RUN_TICK_RVA`(보류 모드) |
+- ⚠★**`rebase` 는 재핀 실패분까지 check PASS 로 둔갑시킨다**(그 주소의 현재 바이트를 그냥 다시 채록하므로).
+  그래서 실패분에 `unresolved` 낙인을 남긴다 — **check 결과만 보고 "다 됐다"고 읽지 말 것.**
+- ~~0.5.7 정합 목록(2026-08-28)~~ → 위로 대체. 0.5.7 경위는 REPORT\_공통 마이그 문서 참조.
 
 ## 구버전 자료
 - 구 MIGRATION.md(636KB, §7 세션 이력 누적) → `_archive\MIGRATION-이력-2026-08-28.md`

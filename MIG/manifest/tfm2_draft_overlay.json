@@ -7,8 +7,8 @@
  "entries": [
   {
    "name": "PARSER_RVA",
-   "value": "0x1ab310",
-   "ver": "0.5.7",
+   "value": "0x1ab140",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/lib.rs:397"
@@ -19,8 +19,8 @@
   },
   {
    "name": "LOADER_RVA",
-   "value": "0x2ea930",
-   "ver": "0.5.7",
+   "value": "0x2ea830",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/lib.rs:381"
@@ -31,8 +31,8 @@
   },
   {
    "name": "ANIM_GET_RVA",
-   "value": "0x74bf10",
-   "ver": "0.5.7",
+   "value": "0x7507e0",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/lib.rs:153"
@@ -43,8 +43,8 @@
   },
   {
    "name": "ALLOC_RVA",
-   "value": "0x2ab4010",
-   "ver": "0.5.7",
+   "value": "0x2b1b410",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/lib.rs:406"

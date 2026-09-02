@@ -53,8 +53,8 @@
  "entries": [
   {
    "name": "DD_SETOPT_RVA",
-   "value": "0x1c2e00",
-   "ver": "0.5.7",
+   "value": "0x1c2d30",
+   "ver": "0.5.8",
    "kind": "FN_START",
    "locs": [
     "ui_kit.rs:939"

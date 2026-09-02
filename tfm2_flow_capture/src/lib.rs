@@ -1002,7 +1002,7 @@ pub(crate) static DABO_CLICK_MS: AtomicU64 = AtomicU64::new(0); // 다시보기 
 //   ⚠0.5.5 화면 retaddr — 패치 때 재핀(item_tactics lib.rs L2216 참조):
 //     관전 0x763329 · 내경기 0x76829b · 조테본경기 0x1aed292 · 조테기록 0x1aa88ce.
 //     배경(state.rs/solo_rank/worker.rs)은 절대 넣지 말 것.
-const ONSCREEN_RETADDRS: [u64; 4] = [0x763329, 0x76829b, 0x1aed292, 0x1aa88ce];
+const ONSCREEN_RETADDRS: [u64; 4] = [0x768a99, 0x76829b, 0x1aed292, 0x1aa88ce];
 static LIVE_SEED: AtomicU64 = AtomicU64::new(0);   // 화면 경기 시드(ctor 훅이 화면 retaddr에서 게시)
 static LIVE_SEED_N: AtomicU64 = AtomicU64::new(0); // 화면 판정 발화수(진단)
 static CTOR_R_SEED: [AtomicU64; 24] = [const { AtomicU64::new(0) }; 24]; // 진단: retaddr별 마지막 seed(r8)

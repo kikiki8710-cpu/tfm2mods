@@ -7,8 +7,8 @@
  "entries": [
   {
    "name": "RVA_ASSET_GET",
-   "value": "0x143de0",
-   "ver": "0.5.7",
+   "value": "0x144070",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/showcase.rs:42"
@@ -19,8 +19,8 @@
   },
   {
    "name": "RVA_SUBMIT",
-   "value": "0x182430",
-   "ver": "0.5.7",
+   "value": "0x182260",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/showcase.rs:28"
@@ -31,8 +31,8 @@
   },
   {
    "name": "RVA_SUBMIT_TEXT",
-   "value": "0x1826b0",
-   "ver": "0.5.7",
+   "value": "0x1824e0",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/showcase.rs:29"
@@ -43,8 +43,8 @@
   },
   {
    "name": "RVA_TEXT_BUILD",
-   "value": "0x183040",
-   "ver": "0.5.7",
+   "value": "0x182e70",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/showcase.rs:35"
@@ -55,8 +55,8 @@
   },
   {
    "name": "RVA_IMG_UV",
-   "value": "0x1839b0",
-   "ver": "0.5.7",
+   "value": "0x1837e0",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/showcase.rs:31"
@@ -67,8 +67,8 @@
   },
   {
    "name": "RVA_IMG_BUILD",
-   "value": "0x183b50",
-   "ver": "0.5.7",
+   "value": "0x183980",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/showcase.rs:30"
@@ -79,8 +79,8 @@
   },
   {
    "name": "RVA_IMG_FLAG",
-   "value": "0x183e90",
-   "ver": "0.5.7",
+   "value": "0x183cc0",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/showcase.rs:32"
@@ -91,8 +91,8 @@
   },
   {
    "name": "RVA_IMG_SHADER",
-   "value": "0x185490",
-   "ver": "0.5.7",
+   "value": "0x1852c0",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/showcase.rs:34"
@@ -103,8 +103,8 @@
   },
   {
    "name": "RVA_IMG_COLOR",
-   "value": "0x1eeee0",
-   "ver": "0.5.7",
+   "value": "0x1eee10",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/showcase.rs:33"
@@ -115,8 +115,8 @@
   },
   {
    "name": "RVA_ANIM_GET",
-   "value": "0x74bf10",
-   "ver": "0.5.7",
+   "value": "0x7507e0",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/showcase.rs:43"
@@ -127,8 +127,8 @@
   },
   {
    "name": "RVA_FX_SET",
-   "value": "0x1e598b0",
-   "ver": "0.5.7",
+   "value": "0x2140e70",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/showcase.rs:25"
@@ -139,8 +139,8 @@
   },
   {
    "name": "RVA_CARD_DRAW",
-   "value": "0x1e6f350",
-   "ver": "0.5.7",
+   "value": "0x21568c0",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/showcase.rs:26"
@@ -151,32 +151,32 @@
   },
   {
    "name": "RVA_D_CUT_LO",
-   "value": "0x1e794b8",
-   "ver": "0.5.7",
+   "value": "0x2160a28",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/showcase.rs:100"
    ],
    "sect": ".text",
-   "bytes": "8c264c01f3450f58c2f3440f",
+   "bytes": "ec9a2401f3450f58c2f3440f",
    "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
   },
   {
    "name": "RVA_D_CUT_HI",
-   "value": "0x1e794c6",
-   "ver": "0.5.7",
+   "value": "0x2160a36",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/showcase.rs:101"
    ],
    "sect": ".text",
-   "bytes": "fedf5001f3450f58d941b820",
+   "bytes": "be003101f3450f58d941b820",
    "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
   },
   {
    "name": "RVA_NAME_GET",
-   "value": "0x1e8d1e0",
-   "ver": "0.5.7",
+   "value": "0x2174b00",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/showcase.rs:36"
@@ -187,8 +187,8 @@
   },
   {
    "name": "RVA_SPRITE_CALC",
-   "value": "0x1e92110",
-   "ver": "0.5.7",
+   "value": "0x2179a30",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/showcase.rs:44"
@@ -199,8 +199,8 @@
   },
   {
    "name": "RVA_I_SNAP_H",
-   "value": "0x1ed5830",
-   "ver": "0.5.7",
+   "value": "0x21b60a0",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/showcase.rs:98"
@@ -211,44 +211,44 @@
   },
   {
    "name": "RVA_D_SNAP_W",
-   "value": "0x1ed5846",
-   "ver": "0.5.7",
+   "value": "0x21b60b6",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/showcase.rs:99"
    ],
    "sect": ".text",
-   "bytes": "e60f5a01e8912b2cfe90498b",
+   "bytes": "46083601e85121fefd90498b",
    "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
   },
   {
    "name": "RVA_D_ZIG_X1",
-   "value": "0x1ed6692",
-   "ver": "0.5.7",
+   "value": "0x21b6f02",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/showcase.rs:104"
    ],
    "sect": ".text",
-   "bytes": "4a415b01440f58d8410fc6fb",
+   "bytes": "6afa3501440f58d8410fc6fb",
    "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
   },
   {
    "name": "RVA_D_ZIG_X2",
-   "value": "0x1ed6d70",
-   "ver": "0.5.7",
+   "value": "0x21b75e0",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/showcase.rs:105"
    ],
    "sect": ".text",
-   "bytes": "6c3a5b010f58d50fc6da010f",
+   "bytes": "8cf335010f58d50fc6da010f",
    "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
   },
   {
    "name": "RVA_ILLUST_GET",
-   "value": "0x226f290",
-   "ver": "0.5.7",
+   "value": "0x207d140",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/showcase.rs:27"
@@ -259,8 +259,8 @@
   },
   {
    "name": "RVA_GAME_ALLOC",
-   "value": "0x2ab4010",
-   "ver": "0.5.7",
+   "value": "0x2b1b410",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/showcase.rs:48"
@@ -271,8 +271,8 @@
   },
   {
    "name": "RVA_C_CARD_RECT",
-   "value": "0x348a740",
-   "ver": "0.5.7",
+   "value": "0x35168e0",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/showcase.rs:86"
@@ -283,20 +283,22 @@
   },
   {
    "name": "RVA_C_SNAP_RECT",
-   "value": "0x348a770",
-   "ver": "0.5.7",
+   "value": "0x3516910",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/showcase.rs:87"
    ],
    "sect": ".rdata",
    "bytes": "00000000000000000000b443",
-   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
+   "curated": true,
+   "note": "[0.5.8 f32 블록 직접 대조 {0,0,360,480} — 블록 내부 재배치라 형제 델타 불가]"
   },
   {
    "name": "RVA_C_NORMAL",
-   "value": "0x348a790",
-   "ver": "0.5.7",
+   "value": "0x3516920",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/showcase.rs:91"
@@ -307,8 +309,8 @@
   },
   {
    "name": "RVA_C_LINE_DIR",
-   "value": "0x348a7b0",
-   "ver": "0.5.7",
+   "value": "0x3516940",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/showcase.rs:88"
@@ -319,8 +321,8 @@
   },
   {
    "name": "RVA_C_LINE_START",
-   "value": "0x348a7c0",
-   "ver": "0.5.7",
+   "value": "0x3516950",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/showcase.rs:89"
@@ -331,8 +333,8 @@
   },
   {
    "name": "RVA_C_LINE_ANCHOR",
-   "value": "0x348a7d0",
-   "ver": "0.5.7",
+   "value": "0x3516960",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/showcase.rs:90"
@@ -343,15 +345,17 @@
   },
   {
    "name": "RVA_SLOTS",
-   "value": "0x40e6000",
-   "ver": "0.5.7",
+   "value": "0x4159000",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/showcase.rs:108"
    ],
    "sect": ".rdata",
    "bytes": "000000000000000000000000",
-   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
+   "curated": true,
+   "note": "[0.5.8 .rdata 0런(0x4158641+0x135a) 내 페이지정렬 스크래치 슬롯]"
   }
  ]
 }

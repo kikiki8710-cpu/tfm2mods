@@ -21,13 +21,13 @@ use std::sync::atomic::{AtomicBool, AtomicUsize, Ordering};
 //   같은 모노모픽 clone family의 형제였다). 도구를 0.5.2에 먼저 돌려 문서화된 정답(0x5ac950)을 재현해 검증한 뒤 적용.
 //   0.5.3 실측: player_info lea@0xa93f3a / wide lea@0xa93f7e / strategy lea@0x200fb1b·0x201446f /
 //               training lea 12곳 — **전부 call 0x2e1550 으로 수렴** ⟹ STRAT_LOADER = LOADER 유지(세컨드 훅 스킵).
-const LOADER_RVA: usize = 0x2ea930; // 0.5.6(구0.5.5=0x2e42d0). 문자열-xref layout/main×17 수렴(clone family라 xref만 유효). // 0.5.5(구0.5.4=0x2e35d0). 문자열-xref 정본(layout/main×17·banpick 계열) 재현 OK, clone family라 xref만 유효. // 0.5.4(구0.5.3=0x2e1550). 문자열-xref 정본 경로 재도출: player_info 1 / wide 1 / strategy 2 / training 12 = 전부 이 함수로 수렴(0.5.3과 동수) + 본문 100% 동일. // 0.5.3(구0.5.2=0x5ac950). 진입 24B **바이트 완전동일**(push8+sub 0x98) → 12B 체이닝 install 무수정 동작.
-const STRAT_LOADER_RVA: usize = 0x2ea930; // 0.5.6: LOADER와 동일 copy(구0.5.5=0x2e42d0).
-const PARSER_RVA: usize = 0x1ab310; // 0.5.6(구0.5.5=0x1a3e70, skel UNIQUE·BYTE=SAME). NT_SIZE 0x90 무변경. // 0.5.5(구0.5.4=0x1a3ce0, skel 유일). NT_SIZE 0x90 무변경. // 0.5.4(구0.5.3=0x1a6530). 본문 100% 동일·크기 0x890·콜러 5개 동수·mod.rs panic-loc 3개 동일 ⇒ NT_SIZE 0x90 무변경. // 0.5.3(구0.5.2=0x24b5a00). 3인자(out, ptr, len) 계약·`:`/`{`/`}` 파싱·에러 시 out[2]=-1·노드 stride 0x90 전부 동일 확인 ⟹ NT_SIZE 무변경.
+const LOADER_RVA: usize = 0x2ea830; // 0.5.6(구0.5.5=0x2e42d0). 문자열-xref layout/main×17 수렴(clone family라 xref만 유효). // 0.5.5(구0.5.4=0x2e35d0). 문자열-xref 정본(layout/main×17·banpick 계열) 재현 OK, clone family라 xref만 유효. // 0.5.4(구0.5.3=0x2e1550). 문자열-xref 정본 경로 재도출: player_info 1 / wide 1 / strategy 2 / training 12 = 전부 이 함수로 수렴(0.5.3과 동수) + 본문 100% 동일. // 0.5.3(구0.5.2=0x5ac950). 진입 24B **바이트 완전동일**(push8+sub 0x98) → 12B 체이닝 install 무수정 동작.
+const STRAT_LOADER_RVA: usize = 0x2ea830; // 0.5.6: LOADER와 동일 copy(구0.5.5=0x2e42d0).
+const PARSER_RVA: usize = 0x1ab140; // 0.5.6(구0.5.5=0x1a3e70, skel UNIQUE·BYTE=SAME). NT_SIZE 0x90 무변경. // 0.5.5(구0.5.4=0x1a3ce0, skel 유일). NT_SIZE 0x90 무변경. // 0.5.4(구0.5.3=0x1a6530). 본문 100% 동일·크기 0x890·콜러 5개 동수·mod.rs panic-loc 3개 동일 ⇒ NT_SIZE 0x90 무변경. // 0.5.3(구0.5.2=0x24b5a00). 3인자(out, ptr, len) 계약·`:`/`{`/`}` 파싱·에러 시 out[2]=-1·노드 stride 0x90 전부 동일 확인 ⟹ NT_SIZE 무변경.
 // ⚠0.5.3에서 2인자 `__rust_alloc(size, align)` 심은 **소멸**(전 호출부 인라인) ⟹ 내부 힙 헬퍼를 직접 호출한다.
 //   ~~후보 0xbb2bd0(align8 고정 심·OOM 시 abort)~~ → **0x28f7df0 채택**(0.5.2 0x25d9640과 명령 동일·OOM 시 0 반환 보존
 //   ·병행 ai_adjust 세션과 동일 값 = 모드 간 일원화). 계약은 위 `AllocFn` 주석 참조.
-const ALLOC_RVA: usize  = 0x2ab4010; // 0.5.6(구0.5.5=0x2a9bf30, skel/마스크 UNIQUE·BYTE=SAME). // 0.5.5(구0.5.4=0x29bb920, skel/마스크 유일). // 0.5.4(구0.5.3=0x28f7df0). 본문 100% 동일(IAT rip-rel만 이동)·콜러 32890→33708. // 0.5.3 힙 alloc 헬퍼(구0.5.2=0x25d9640에 대응. 구 __rust_alloc 심 0x25c4d30은 0.5.3에 없음).
+const ALLOC_RVA: usize  = 0x2b1b410; // 0.5.6(구0.5.5=0x2a9bf30, skel/마스크 UNIQUE·BYTE=SAME). // 0.5.5(구0.5.4=0x29bb920, skel/마스크 유일). // 0.5.4(구0.5.3=0x28f7df0). 본문 100% 동일(IAT rip-rel만 이동)·콜러 32890→33708. // 0.5.3 힙 alloc 헬퍼(구0.5.2=0x25d9640에 대응. 구 __rust_alloc 심 0x25c4d30은 0.5.3에 없음).
 const DEALLOC_RVA: usize = 0x1000; // 0.5.3(구0.5.2=0x25c4d90). __rust_dealloc(ptr,size,align) 형태 유일. 현재 미사용.
 const NT_SIZE: usize = 0x90;
 

@@ -15,7 +15,13 @@
 #       배포 증거가 되도록 배포 경로·크기·mtime 을 출력한다(CLAUDE.md §10 증거 기반 완료 보고).
 param(
   [Parameter(Mandatory=$true)][string]$Src,
-  [Parameter(Mandatory=$true)][string]$ModId
+  [Parameter(Mandatory=$true)][string]$ModId,
+  # ★사이즈 가드 상한(기본 1.3MB). 정상적으로 큰 모드(ai_adjust·banpick_illust·champ_pos_lock·
+  #   banpick_order·champion_exclude·scrim)는 이 값을 올려 통과시킨다. 가드의 목적은
+  #   "생각보다 큰 산출물을 모르고 배포하는 것" 방지지 큰 모드 금지가 아니다.
+  #   (2026-09-02: 이전엔 수동 rustc + Copy-Item 으로 우회했고, 그 과정에서
+  #    stale dll 복사·opt 플래그 누락 같은 사고가 반복됐다 — 같은 경로로 통일.)
+  [int]$MaxSize = 1300000
 )
 # ★ 정식 SDK 사용. mod_sdk\0.4.14 는 비공식 오빌드 = mod_api 내용이
 # 게임 핫픽스와 다름(save_probe desync와 동일 함정, 메모리 tfm2-native-mod-loader-abi).
@@ -41,7 +47,9 @@ param(
 #    내용 해시 DIFF 8종 = 핵심 전부(mod_api/game_core+4MB/game_ai/game_view/engine_core/engine_ui/engine_asset/engine)
 #    ⟹ "RVA 무영향 ≠ 재빌드 불요" 원칙대로 **전 모드 재빌드 필수**.
 #    toolchain은 nightly-2026-05-24 유지(toolchain_version.txt = rustc 1.98.0-nightly 23a3312d9 실측) = 재설치 불요.)
-$SDK  = "C:\tfm2mods\sdk_057\mod-sdk"
+#   (0.5.8 전환 2026-09-02: sdk_058. toolchain 동일 rustc 1.98.0-nightly(23a3312d9 2026-05-23), rlib 154개로 057과 동수.
+#    exe 는 전면 재링크(.pdata 136,233->137,497 = +1,264) -> RVA 전량 재핑 + 전 모드 재빌드.)
+$SDK  = "C:\tfm2mods\sdk_058\mod-sdk"
 $DEPS = "$SDK\deps"; $NAT = "$SDK\native"
 $MODAPI = (Get-ChildItem "$DEPS\libmod_api-*.rlib")[0].FullName
 $EUI    = (Get-ChildItem "$DEPS\libengine_ui-*.rlib")[0].FullName
@@ -92,7 +100,7 @@ if (-not (Test-Path $out)) { Write-Output "FAIL: $ModId.dll not produced"; exit 
 $item = Get-Item $out
 if ($item.LastWriteTime -lt $started) { Write-Output "FAIL: stale dll (mtime $($item.LastWriteTime) < build start $started)"; exit 1 }
 $sz = $item.Length
-if ($sz -ge 1300000) { Write-Output "FAIL: oversized dll ($sz) - 사이즈 가드"; exit 1 }
+if ($sz -ge $MaxSize) { Write-Output "FAIL: oversized dll ($sz >= $MaxSize) - 사이즈 가드 (-MaxSize 로 상한 조정)"; exit 1 }
 
 # ③ 신원 검증: dll 안에 "이번에 컴파일한 소스의 절대경로" 문자열이 박혀 있어야 한다.
 #    rustc 가 panic location 등으로 소스 경로를 PE 에 박으므로, 이 dll 이 정말 $Src 에서

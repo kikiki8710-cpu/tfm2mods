@@ -70,7 +70,7 @@ pub extern "C" fn tfm2_champion_exclude_src_id() -> *const u8 {
 
 // ── 훅 사이트 (0.5.6 재핀 2026-08-20, 스켈레톤해시 UNIQUE — 0.5.5 = 0x186e150) ──
 // 신챔프 추가 후보 Vec<String> 생성 (rcx=out, rdx=iter_ctx, ret rax=out)
-const HOOK_RVA: usize = 0x188a660;
+const HOOK_RVA: usize = 0x18e0180;
 // 프롤로그: push rbp; push r15; push r14; push r12; push rsi; push rdi; push rbx;
 //           sub rsp,0xA0  (10B + 7B = 17B, rip-rel 없음 — 0.5.6 실측 바이트 0.5.5와 완전 동일)
 const HOOK_ORIG: [u8; 17] = [
@@ -79,7 +79,7 @@ const HOOK_ORIG: [u8; 17] = [
 ];
 const ORIG_LEN: usize = 17; // 12B jmp 훅 시 명령 경계
 /// 게임 챔프아이콘 세터 FUN(assets,node,id_ptr,id_len,w,h,scale) — 0.5.6, pos_lock hooks.rs 동일값.
-const RVA_ICON_SETTER: usize = 0x1e89450;
+const RVA_ICON_SETTER: usize = 0x2170920;
 // 제거한 String 의 힙 버퍼를 HeapFree 할지 — 기본 false(의도적 leak, 상단 주석 참조)
 const FREE_REMOVED: bool = false;
 const MAX_CANDIDATES: usize = 4096;

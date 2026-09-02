@@ -107,7 +107,7 @@ static mut TABLE_LEN: u64 = 0;
 //   방법 ①을 0.5.4에 먼저 돌려 기지 정답 1건 재현 확인 후 0.5.5 적용 → 각 버전 유일 1건.
 //   ★0.5.5 = 원본 바이트 변경: 48 8b 90(rax 베이스) → **49 8b 96(r14 베이스)** — mov rdx,[r14+0xd10].
 //   가드검사(교체영역 site+1..+6 내부로 점프하는 분기) = 0건, 7B 치환 안전.
-const RVA_LEN_LOAD: usize = 0x1090fba;   // 0.5.6(구0.5.5=0x14d819a). 컨테이너델타(레벨업 0x14d7e10→0x15037c0·BYTE=SAME·함수내 +0x38a)·orig 498b96100d0000 실측 일치(r14 베이스·0xd10 불변). // 레벨업 함수 0x14d7e10 내 (구 0.5.4 0x14ece54 / 0.5.3 0x12c5b44 / 0.5.2 0x22d3fea)
+const RVA_LEN_LOAD: usize = 0x1835b4a;   // 0.5.6(구0.5.5=0x14d819a). 컨테이너델타(레벨업 0x14d7e10→0x15037c0·BYTE=SAME·함수내 +0x38a)·orig 498b96100d0000 실측 일치(r14 베이스·0xd10 불변). // 레벨업 함수 0x14d7e10 내 (구 0.5.4 0x14ece54 / 0.5.3 0x12c5b44 / 0.5.2 0x22d3fea)
 const ORIG_LEN_LOAD: [u8; 7] = [0x49, 0x8b, 0x96, 0x10, 0x0d, 0x00, 0x00]; // mov rdx,[r14+0xd10] (0.5.5: 베이스 rax→r14)
 
 // UI 경험치 바 경로. 여기를 놓치면 레벨은 오르는데 경험치 막대가 깨진다(레벨 13+에서
@@ -119,7 +119,7 @@ const ORIG_LEN_LOAD: [u8; 7] = [0x49, 0x8b, 0x96, 0x10, 0x0d, 0x00, 0x00]; // mo
 //   방법 ② 0.5.4 기지 정답 재현 후 적용 → 각 버전 유일 1건. 원본 7B·rax=GameSetting·rcx=index 전부
 //   무변경, 뒤따르는 `mov rax,[rax+0xd08]` 까지 거리 0x912 도 0.5.4와 동일 = UI 스텁 무수정.
 //   가드검사 0건, 7B 치환 안전.
-const RVA_UI_CMP: usize = 0x9035e9;      // 0.5.6(구0.5.5=0x95d8b9). 컨테이너 0x955680→0xb43ed0(본문변경·BYTE=DIFF)이라 owner내 유일검색으로 확정·orig 483b88100d0000 실측 일치(rax=GameSetting·0xd10 불변). // UI 함수 0x955680 내 (구 0.5.4 0xa99c29 / 0.5.3 0x95a359 / 0.5.2 0x80ae73)
+const RVA_UI_CMP: usize = 0x9560d9;      // 0.5.6(구0.5.5=0x95d8b9). 컨테이너 0x955680→0xb43ed0(본문변경·BYTE=DIFF)이라 owner내 유일검색으로 확정·orig 483b88100d0000 실측 일치(rax=GameSetting·0xd10 불변). // UI 함수 0x955680 내 (구 0.5.4 0xa99c29 / 0.5.3 0x95a359 / 0.5.2 0x80ae73)
 const ORIG_UI_CMP: [u8; 7] = [0x48, 0x3b, 0x88, 0x10, 0x0d, 0x00, 0x00];   // cmp rcx,[rax+0xd10]
 
 // GameSetting 오프셋

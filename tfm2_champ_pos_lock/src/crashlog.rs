@@ -158,7 +158,7 @@ pub(crate) fn install() {
 //      r8 = &Location { file_ptr, file_len, line: u32, col: u32 }
 //   ⟹ 여기서 file:line:col 을 남기면 크래시 지점을 게임 소스 단위로 특정할 수 있다.
 //   ⚠출력은 16진이다(line/col 도 16진 — 10진으로 오독한 실사례 있음).
-const RVA_PANIC_HOOK: usize = 0x2aaf154; // 0.5.7 재핀: match_fn UNIQUE size527 동일 (0.5.6=0x2aac7b4)
+const RVA_PANIC_HOOK: usize = 0x2b16554; // 0.5.7 재핀: match_fn UNIQUE size527 동일 (0.5.6=0x2aac7b4)
 const PANIC_STEAL: usize = 13;
 const PANIC_PROLOGUE: [u8; 13] = [0x55, 0x41, 0x56, 0x56, 0x57, 0x53, 0x48, 0x81, 0xec, 0x80, 0x00, 0x00, 0x00];
 static TRAMP_PANIC: AtomicUsize = AtomicUsize::new(0);

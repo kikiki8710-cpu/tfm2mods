@@ -19,7 +19,7 @@ use std::time::Duration;
 use mod_api::*;
 
 // ★0.5.6 마이그(2026-08-24) — 구값은 각 줄 주석. RVA = exe↔exe 체인 재핀(0.5.2→3→4→5→6, 전 단계 UNIQUE).
-const GRAB_RVA: usize = 0x1504310; // 0.5.6 (구 0.5.5 0x1162b20 / 0.5.4 0x156c8d0 / 0.5.3 0x12ca630 / 0.5.2 0x1e267b0)
+const GRAB_RVA: usize = 0x13bf990; // 0.5.6 (구 0.5.5 0x1162b20 / 0.5.4 0x156c8d0 / 0.5.3 0x12ca630 / 0.5.2 0x1e267b0)
 const GRAB_SIG: [u8; 12] = [0x41,0x57,0x41,0x56,0x41,0x54,0x56,0x57,0x53,0x48,0x83,0xec]; // 0.5.6 프롤로그 동일(실측)
 const GRAB_LEN: usize = 13; // push6(9)+sub rsp,0x38(4)
 // ★WORLDOPS_RVA(구 0.5.2 0x38c5d78) 폐지 = detour가 받는 r9를 그대로 사용(버전 독립).
@@ -28,7 +28,7 @@ const GRAB_LEN: usize = 13; // push6(9)+sub rsp,0x38(4)
 // ★재생 루프 = Combine effect의 apply. 자식 {data,vtable} stride 0x10 배열을 순회하며
 //   각 자식의 vtable+0x20(apply)을 같은 인자 세트로 호출한다(0.5.6 디컴 FUN_141802630).
 //   self 보정식 = data + ((vtable[0x10]/*align*/ - 1) & !0xf) + 0x10.
-const COMBINE_RVA: usize = 0x159a430;
+const COMBINE_RVA: usize = 0x12a70b0;
 const COMBINE_SIG: [u8; 12] = [0x41,0x57,0x41,0x56,0x41,0x55,0x41,0x54,0x56,0x57,0x55,0x53];
 const COMBINE_LEN: usize = 19; // 8push(12) + sub rsp,0x98(7), rip-rel 없음
 const EFF_STRIDE: usize = 0x10;   // 자식 항목 = {data@+0, vtable@+8}
@@ -37,9 +37,9 @@ const EFF_ALIGN:  usize = 0x10;
 /// ★"자식을 순회하는" effect는 하나가 아니다. 둘 다 `[self+0x10]`=len, `[self+8]`=ptr(stride 0x10) 구조.
 ///   `0x1802630` = Combine apply(재생 루프) / `0x1802760` = 또 다른 Combine류(디스어셈 확인).
 ///   중첩을 펼치지 않으면 **껍데기만 캡처**된다(유저 지적 2026-08-24: "이펙트 2개가 진짜 끝인가").
-const COMBINE_APPLYS: [usize; 2] = [0x1802630, 0x1802760];
+const COMBINE_APPLYS: [usize; 2] = [0x11f7b90, 0x11f7cc0];
 /// ★게임 할당자. 디스어셈 계약: rcx 무시 / edx=flags / r8=size / 반환 rax=ptr.
-const ALLOC_RVA: usize = 0x2ab4010;
+const ALLOC_RVA: usize = 0x2b1b410;
 
 /// ★★effect를 **fresh 인스턴스로 복제**한다.
 ///   effect = `Arc { strong@+0, weak@+8, payload@+0x10 }` 이고 payload 크기는 **vtable+8**에 있다.
@@ -91,20 +91,20 @@ unsafe fn flatten_children(selfp: usize, depth: u32, out: &mut Vec<(usize, usize
 //   내부에서 스택에 "실행 요청 구조체"를 조립해 이 함수로 넘긴다 ⟹ 모든 바닐라 action이 여기로 수렴.
 //   계약: rcx=req구조체, rdx=world, r8=WorldOps, r9=target, [rsp+0x28]=casting_ctx
 //   req[0x30] = action kind(JT 인덱스), req[0] = action Arc 포인터
-const JT_RVA: usize = 0x161b390;
+const JT_RVA: usize = 0x1285640;
 const JT_SIG: [u8; 12] = [0x41,0x57,0x41,0x56,0x41,0x55,0x41,0x54,0x56,0x57,0x55,0x53];
 const JT_LEN: usize = 16;  // 8push(12) + sub rsp,0x38(4), rip-rel 없음
 // ★base 궁 apply — 본문 첫머리에 `lVar2 = [action+0x48]; if (lVar2 == -1) return 0;` **궁 게이트**가 있다.
 //   ⟹ 이 함수 진입 = "궁 시전"이라 kind 판별 없이 궁만 골라낼 수 있다(JT는 모든 action이 kind=0으로 들어와 구분 불가).
 //   계약(0.5.6 디컴): rcx=action_data, rdx=world, r8=WorldOps, r9=target, [rsp+0x28]=casting_ctx → u64
-const BASEULT_RVA: usize = 0x1556940;
+const BASEULT_RVA: usize = 0x1753cf0;
 const BASEULT_SIG: [u8; 11] = [0x55,0x41,0x57,0x41,0x56,0x41,0x55,0x41,0x54,0x56,0x57];
 const BASEULT_LEN: usize = 19; // ★push×8 = 12B(rbp1+r15/r14/r13/r12 각2 +rsi/rdi/rbx 각1) + sub rsp,0x88(7B) = 19B
 //   ⚠18로 잘못 잡아 sub 명령이 6B만 복사돼 게임이 먹통이 됐다(2026-08-24). hook_len은 반드시 명령 경계에 맞출 것.
 const A_ULT_GATE: usize = 0x48; // clone 대상 시작점이자 게이트 필드
 // ★base 궁 apply가 내부에서 쓰는 clone. 이것을 우리가 "캡처 시점"에 호출해 **우리 소유의 사본**을 만든다.
 //   (공유 action 포인터를 그대로 들고 있다가 남의 문맥에 태우면 크래시 — 2026-08-24 실증)
-const CLONE_RVA: usize = 0x14f43c0;
+const CLONE_RVA: usize = 0x16f45d0;
 const A_F180: usize = 0x180;
 const A_F188: usize = 0x188;
 const A_F190: usize = 0x190;
@@ -805,7 +805,7 @@ const Q_ITEM_VCALL: usize = 0x70; // 항목 vtable + 0x70 = 매 틱 실행
 const Q_ITEM_DONE: usize = 0x78;  // 항목 vtable + 0x78 = 완료 판정(true면 큐에서 제거·drop)
                                   //   근거 = FUN_140ed4750(큐 retain 함수) 디컴
 /// ★entity 틱 처리 함수. 진입 직후 큐를 take하므로, **이 훅이 큐를 볼 수 있는 유일한 시점**이다.
-const ETICK_RVA: usize = 0x1583de0;
+const ETICK_RVA: usize = 0x128fe80;
 const ETICK_SIG: [u8; 11] = [0x55,0x41,0x57,0x41,0x56,0x41,0x55,0x41,0x54,0x56,0x57];
 const ETICK_LEN: usize = 19; // push×8(12) + sub rsp,0x578(7), rip-rel 없음
 /// 사일러스 entity 주소(큐를 직접 읽기 위해 보관)
@@ -1411,12 +1411,12 @@ const E_BUF_PTR: usize = 0x2e0;
 const E_BUF_LEN: usize = 0x2e8;
 const BUF_STRIDE: usize = 0x120;
 const E_STAT_DIRTY: usize = 0x6b8;   // 1바이트 필드(상위 7B는 이웃) — u8 폭으로만 건드릴 것
-const ADDBUFF_RVA: usize = 0x139a5d0;   // AddCasterBuff effect의 apply
+const ADDBUFF_RVA: usize = 0x1150800;   // AddCasterBuff effect의 apply
 /// ★게임의 버프 push 함수. `f(rcx=entity, rdx=src_0x120)` — memcpy·len++ 뿐 아니라
 ///   **버프 전량 재합산 결과를 `+0x3c8~+0x489`에 기록 → `0x17ea5f0`(스탯 재계산) 호출 →
 ///   최대HP 변화에 맞춰 현재HP(`+0x670`) 비례 조정**까지 한다(0x17f9590~ 디스어셈).
 ///   ⟹ 우리 재구현(`push_buff`)은 앞 절반뿐이라 **리스트에는 남지만 스탯에 반영되지 않았다**(v55 실측).
-const BUFFPUSH_RVA: usize = 0x15925c0;
+const BUFFPUSH_RVA: usize = 0x129e660;
 // ────────────────────────────────────────────────────────────────────────
 // ★★[v56] entity **스킬 슬롯 4개** — 정적 RE로 확정(2026-08-24, `0x17eabc0` 틱 함수 분해).
 //   틱 함수는 `[ent+0x68]`(엔티티 종류, 20종 점프테이블)으로 갈라지고, **0xd = 데이터챔프**(사일러스).
@@ -1472,8 +1472,8 @@ const E_PROV_ULTV: usize = 0x5a8;   // 그 vtable
 const PV_CLONE:    usize = 0x48;    // __clone_box(&self) -> *mut ()
 const PROV_COOL:   usize = 0x170;   // cooltime
 const PROV_USES:   usize = 0x178;   // cooltime_use_count
-const RVA_ASSEMBLE: usize = 0x1590010;  // 슬롯 4칸 재조립(프로바이더 기준)
-const RVA_BOXDROP:  usize = 0xec870;    // drop_in_place<Box<dyn>> (인자 = 16B 쌍의 주소)
+const RVA_ASSEMBLE: usize = 0x129c0b0;  // 슬롯 4칸 재조립(프로바이더 기준)
+const RVA_BOXDROP:  usize = 0xec780;    // drop_in_place<Box<dyn>> (인자 = 16B 쌍의 주소)
 
 static PROV_SWAP: AtomicBool = AtomicBool::new(false);
 /// ★정본 경로: 슬롯 필드 이식(프로바이더는 그대로).
@@ -1568,9 +1568,11 @@ static SY_VT_DEF: Mutex<Option<[u64; 5]>> = Mutex::new(None);
 ///   0.5.7에서 그 주소는 effect vtable 표가 아니다. 실측 증거 = 로그
 ///   `[AI마스크·포기] 슬롯 9의 최빈값이 과반 미달 1/59 — 표 주소 의심`, 성공 로그 **0건**
 ///   ⟹ **0.5.7 내내 AI 마스킹이 완전히 죽어 있었다**(soft-fail이라 조용히 원본을 그대로 썼다).
-const EFF_VT_BASE: usize = 0x33FF9C8;
+const EFF_VT_BASE: usize = 0x3494778;  // ★0.5.8 재핀(2026-09-02, 구조 불변식). 정본 = REPORT/sylas/RE/2026-09-02_0.5.8-effect-vtable-재핀.md
+//   `mov eax,0xbb80; ret` 스텁(0.5.7 0xfbf0a0 → 0.5.8 0x109bae0)이 .rdata 에서 stride 0x128 로 57연속
+//   출현하는 유일 구간(0x3494888) → base = 그 −0x110. 슬롯 위치 대응 정합 97.6%(120/123). ~~0.5.7=0x33FF9C8~~
 const EFF_VT_N: usize = 57;
-const EFF_VT_STRIDE: usize = 0x120;
+const EFF_VT_STRIDE: usize = 0x128;   // ★0.5.8 = 37슬롯(~~0.5.7 36슬롯 0x120~~)
 
 // ───────────────────────── 궁 시전 센서스 (v108) ─────────────────────────
 // ★왜: "궁을 잘 안 쓴다"를 눈으로 세는 걸 반복하면 판정이 안 난다.
@@ -1736,16 +1738,16 @@ static VT_COPY: Mutex<Vec<(usize, usize)>> = Mutex::new(Vec::new());
 ///   `+0x48`(무관)·`+0x58`(rush)·**`+0x110`(AoE)** 를 덮어써, AoE 궁 9종
 ///   (demon·executioner·fighter·hammerer·jiangshi·monk·poison_dart_hunter·prisoner·spirit_caller)의
 ///   범위 플래그를 파괴한다.
-const VT_WORDS: usize = 36;
-const VT_I_MOVE_TICKS: usize = 0x50 / 8;    // 10: Option<(틱, 거리)> — "시전자를 이동시키는가"
-const VT_I_NOT_INSTANT: usize = 0x60 / 8;   // 12: bool — 블링크/순간이동 포함
-const VT_I_IS_MOVE: usize = 0x118 / 8;      // 35: bool — is_move_skill
+const VT_WORDS: usize = 37;             // ★0.5.8 (~~0.5.7=36~~) — 신규 메서드가 구 +0x30 자리에 삽입
+const VT_I_MOVE_TICKS: usize = 0x58 / 8;    // ★0.5.8 11 (~~0.5.7 0x50=10~~): Option<(틱, 거리)> — "시전자를 이동시키는가"
+const VT_I_NOT_INSTANT: usize = 0x68 / 8;   // ★0.5.8 13 (~~0.5.7 0x60=12~~): bool — 블링크/순간이동 포함
+const VT_I_IS_MOVE: usize = 0x120 / 8;      // ★0.5.8 36 (~~0.5.7 0x118=35~~): bool — is_move_skill
 /// ★[v129] 오더 팩토리 술어 2종 (RE 2026-08-29 casting_type 소비처 전수 §3 D1·D2).
 ///   `+0xf0` = "스킬샷/리드샷 필요" · `+0x110` = "범위(AoE)". 둘 다 **AI 판정 전용**이고
 ///   발동(`+0x20 apply`)·drop(`+0x00`)과 무관하다.
 ///   ct∈{1,2}일 때만 읽히며, true면 궁 오더가 **Move 오더로 강등**된다(= 궁 시전 0).
-const VT_I_SKILLSHOT: usize = 0xf0 / 8;     // 30
-const VT_I_AOE:       usize = 0x110 / 8;    // 34
+const VT_I_SKILLSHOT: usize = 0xf8 / 8;     // ★0.5.8 31 (~~0.5.7 0xf0=30~~)
+const VT_I_AOE:       usize = 0x118 / 8;    // ★0.5.8 35 (~~0.5.7 0x110=34~~)
 
 /// ★★★[v105] 공여자 effect vtable의 **AI 판정 3슬롯만** 사일러스 기본 구현으로 바꾼 사본을 만든다.
 ///
@@ -1866,7 +1868,7 @@ unsafe fn ai_mask_vt(orig: usize, sy_vt: usize) -> Option<usize> {
 //   ghoul `berserk_`(0x1fbc160), cavalry_knight `fire_`(0x238ced0), demon `archfiend_`(0x2631900).
 // (RE 2026-08-26_뷰-애니이름-setter-전수-개입점.md)
 
-const TAGSEL_RVA: usize = 0x23964e0;
+const TAGSEL_RVA: usize = 0x2069c50;
 const TAGSEL_SIG: [u8; 12] = [0x41,0x56,0x56,0x57,0x53,0x48,0x81,0xEC,0x98,0x00,0x00,0x00];
 const V_CHAMP_ID: usize = 0x38;      // ViewEntity 안 챔프 id String {cap,ptr,len}
 static TAGSEL_TRAMP: AtomicUsize = AtomicUsize::new(0);
@@ -2004,7 +2006,7 @@ unsafe fn tagsel_swap(out: usize, v: usize) {
 // 개입면: 이미터가 방금 push 한 **큐 엔트리 1개의 String 만** 고친다.
 //   sub-tag 3 노드 생성 12곳 중 이미터(`0x14c5556`)만 궁이라 **평타·이동·스킬엔 영향 없다.**
 //   동기 실행이라 경합 없고, 태그가 fanim 에 없으면 게임이 스스로 롤백한다(실패 안전).
-const EMIT_RVA: usize = 0x10556d0;
+const EMIT_RVA: usize = 0x17fc840;
 // push rbp/rsi/rdi/rbx ; sub rsp,0x78 ; lea rbp,[rsp+0x70]  = 13B (마지막 lea 가 5B)
 const EMIT_SIG: [u8; 13] = [0x55,0x56,0x57,0x53,0x48,0x83,0xEC,0x78,0x48,0x8D,0x6C,0x24,0x70];
 static EMIT_TRAMP: AtomicUsize = AtomicUsize::new(0);
@@ -2098,7 +2100,7 @@ unsafe fn emit_swap(qpp: usize, ent_id: u64, ctx: usize) {
 //
 // 증거: 성직자 궁 Combine 말단의 apply RVA `0x12e7ca0` = CASTANIM_APPLY 재핀값과 일치
 //       (migrate_rva 0.5.6 `0x16e4c20` → 0.5.7 `0x12e7ca0`, 런타임 로그와 교차 확인).
-const CASTANIM_RVA: usize = 0x104ca00;
+const CASTANIM_RVA: usize = 0x17f2d60;
 // push rbp/r15/r14/r12/rsi/rdi/rbx ; sub rsp,0x50  = 14B (12B 에서 sub 가 잘린다)
 const CASTANIM_SIG: [u8; 14] = [0x55,0x41,0x57,0x41,0x56,0x41,0x54,0x56,0x57,0x53,
                                 0x48,0x83,0xEC,0x50];
@@ -2812,7 +2814,7 @@ static CCTX_MY_Y: AtomicU64 = AtomicU64::new(0);
 //   진입 시 (cctx tag, target 해석 결과)를 찍으면 **게이트 통과 여부**가 그대로 드러난다.
 //   프롤로그(0x1395dd0): push rbp/r15/r14/r13/r12/rsi/rdi/rbx(=12B) + sub rsp,0x2?? ⟹ 런타임에 길이 산출 대신
 //   기존 install_detour_generic이 쓰는 방식과 동일하게 시그니처+길이를 명시한다.
-const KZONE_RVA: usize = 0x138f7d0;
+const KZONE_RVA: usize = 0x16a3730;
 // ────────────────────────────────────────────────────────────────────────
 // ★★[v79] **시전자 외형(CasterViewEffect) 이름 바꿔치기** — 강탈 궁을 써도 사일러스가 사라지지 않게.
 //   `CasterViewEffect` apply(`0x1270980`)는 실무를 `FUN_1414bee30`에 넘긴다:
@@ -2822,10 +2824,10 @@ const KZONE_RVA: usize = 0x138f7d0;
 //   ⟹ 강탈 궁이 실행되는 동안에는 **사일러스 자기 궁의 이름**으로 바꿔 넘긴다.
 //   ★게임 구조체는 건드리지 않는다 — 우리 버퍼를 만들고 **인자 rdx만** 우리 것으로 돌린다
 //     (트램폴린이 rcx/rdx/r8/r9를 push→pop 하므로 `saved+0x20`(rdx) 쓰기가 실제로 반영된다).
-const CVIEW_RVA: usize = 0x104f060;
+const CVIEW_RVA: usize = 0x17f5700;
 const CVIEW_SIG: [u8; 11] = [0x55,0x41,0x57,0x41,0x56,0x56,0x57,0x53,0x48,0x81,0xec];
 const CVIEW_LEN: usize = 15;   // push×6(8B) + sub rsp,0x88(7B), rip-rel 없음
-const CVIEW_APPLY_RVA: usize = 0x1413830;
+const CVIEW_APPLY_RVA: usize = 0x17c40a0;
 // ────────────────────────────────────────────────────────────────────────
 // ★★★[v83] **idle 폴백** — 강탈 궁을 써도 사일러스가 사라지지 않게(정공법).
 //   RE(2026-08-25, RE/2026-08-25_뷰소비-idle폴백지점.md) 확정:
@@ -2837,10 +2839,10 @@ const CVIEW_APPLY_RVA: usize = 0x1413830;
 //   ★레코드 레이아웃(확정): {cap@+0x00, name_ptr@+0x08, name_len@+0x10}, rbx=레코드.
 //   ⚠**이름 포인터를 정적 문자열로 바꾸면 안 된다** — 게임이 그 String을 drop할 때 cap으로 free하므로
 //     우리 정적 주소를 해제하게 된다. ⟹ **기존 버퍼에 제자리로 "idle"을 써넣고 len만 4로** 바꾼다(cap>=4일 때만).
-const VIEWFAIL_RVA: usize = 0x8fe4d8;      // mov r14,[rbp+0x5c0] ; jmp 0x140b44160
+const VIEWFAIL_RVA: usize = 0x950fc8;      // mov r14,[rbp+0x5c0] ; jmp 0x140b44160
 const VIEWFAIL_JMP_OFF: usize = 7;         // 그 안에서 jmp rel32의 위치(+7, 5바이트)
-const VIEWLOOKUP_RVA: usize = 0x8fe2d5;    // 조회 진입(재시도 대상)
-const VIEWLOOP_RVA: usize = 0x8fb670;      // command 루프 선두(포기 시)
+const VIEWLOOKUP_RVA: usize = 0x950dc5;    // 조회 진입(재시도 대상)
+const VIEWLOOP_RVA: usize = 0x94e160;      // command 루프 선두(포기 시)
 const VIEWFAIL_SIG: [u8; 12] = [0x4c,0x8b,0xb5,0xc0,0x05,0x00,0x00,0xe9,0x8c,0xd1,0xff,0xff];
 /// `idle_fallback=1` = 위 패치를 설치(기본 OFF — 렌더 경로 mid-function 패치라 신중히).
 static IDLE_FB: AtomicBool = AtomicBool::new(false);
@@ -2924,7 +2926,7 @@ unsafe fn install_idle_fallback() -> Result<usize, String> {
 //     이후 `call [r15+0xe8]` / `[r15+0x140]` / `[r15+0x28]` = **effect vtable의 AI 가치 평가 인터페이스**
 //   ⟹ AI는 **슬롯의 {data,vtable}를 그대로 평가**한다. 우리가 바꾼 것이 정확히 그것이므로
 //     구조상 "강탈 궁 기준"이어야 한다 — 이 훅으로 실측 확인한다.
-const AIEVAL_RVA: usize = 0xeba9d0;
+const AIEVAL_RVA: usize = 0xd399a0;
 const AIEVAL_SIG: [u8; 11] = [0x41,0x57,0x41,0x56,0x41,0x55,0x41,0x54,0x56,0x57,0x55];
 const AIEVAL_LEN: usize = 16;   // push×8(12B) + sub rsp,0x28(4B), rip-rel 없음
 /// `ai_probe=1` = 사일러스에 대한 AI 평가가 **어떤 effect vtable**로 들어오는지 기록.
@@ -3636,7 +3638,7 @@ unsafe fn on_combine(saved: usize, e: usize) {
         let aps: Vec<String> = flat.iter()
             .map(|(_, v)| format!("{:#x}", rva_of(rd_u64(*v + EFF_APPLY).unwrap_or(0)))).collect();
         let has_mtt = flat.iter().any(|(_, v)|
-            rd_u64(*v + EFF_APPLY).map(|a| rva_of(a)) == Some(0x182ea50));
+            rd_u64(*v + EFF_APPLY).map(|a| rva_of(a)) == Some(0x1222cc0));
         // arg7(&cctx)의 실제 자리를 모르므로 후보 오프셋을 훑어 tag(0..3)로 식별한다
         let mut cand = String::new();
         for off in [0x20usize, 0x28, 0x30, 0x38, 0x40, 0x48] {
@@ -3654,7 +3656,7 @@ unsafe fn on_combine(saved: usize, e: usize) {
         let rs = rd_u64(cent + 0x308).unwrap_or(0);
         // ⚠+0x88은 u32 tag + u32 대상id 두 필드다(u64로 읽으면 0x1b7⚠⚠00처럼 보인다)
         let tag = rd_u64(cent + 0x88).map(|v| (v as u32, (v >> 32) as u32));
-        let mtt = flat.iter().find(|(_, v)| rd_u64(*v + EFF_APPLY).map(|a| rva_of(a)) == Some(0x182ea50));
+        let mtt = flat.iter().find(|(_, v)| rd_u64(*v + EFF_APPLY).map(|a| rva_of(a)) == Some(0x1222cc0));
         let spd = mtt.map(|(d, v)| { let sp = eff_self(*d, *v); (sp, rd_u64(sp + 0x18), rd_u64(sp + 0x20)) });
         hlog(&format!("[강탈궁발동] sylas Combine self={:#x} 말단{}개 MoveToTarget={}\n           \
 apply=[{}]\n           ★apply**직전**(진입훅) rush_state={:#x}({}) | cctx (tag,대상id)={:?}(tag 0이어야 통과) | MoveToTarget {:x?}\n           \

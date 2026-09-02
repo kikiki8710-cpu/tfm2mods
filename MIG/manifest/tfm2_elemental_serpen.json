@@ -10,8 +10,8 @@
  "entries": [
   {
    "name": "INLINE@src/lib.rs:2015",
-   "value": "0xe1de3",
-   "ver": "0.5.7",
+   "value": "0xb9293",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/lib.rs:2015"
@@ -22,8 +22,8 @@
   },
   {
    "name": "UIPARSER_RVA",
-   "value": "0x1ab310",
-   "ver": "0.5.7",
+   "value": "0x1ab140",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/lib.rs:613"
@@ -34,8 +34,8 @@
   },
   {
    "name": "UILOADER_RVA",
-   "value": "0x2ea930",
-   "ver": "0.5.7",
+   "value": "0x2ea830",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/lib.rs:612"
@@ -46,8 +46,8 @@
   },
   {
    "name": "SPAWN_HOOKS",
-   "value": "0x89b830",
-   "ver": "0.5.7",
+   "value": "0xb1cf10",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/lib.rs:480"
@@ -58,8 +58,8 @@
   },
   {
    "name": "SPAWN_HOOKS",
-   "value": "0x89c440",
-   "ver": "0.5.7",
+   "value": "0xb1db20",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/lib.rs:480"
@@ -70,8 +70,8 @@
   },
   {
    "name": "RENDER_STEP_RVA",
-   "value": "0x90a090",
-   "ver": "0.5.7",
+   "value": "0x95cb80",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/lib.rs:914"
@@ -82,32 +82,32 @@
   },
   {
    "name": "LAUNCHER_RET_A",
-   "value": "0xb19ca9",
-   "ver": "0.5.7",
+   "value": "0x893cb9",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/lib.rs:501"
    ],
    "sect": ".text",
-   "bytes": "9089bdacd6030048899d98d5",
+   "bytes": "0000ba01000000eb0231d24d",
    "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
   },
   {
    "name": "LAUNCHER_RET_B",
-   "value": "0xb1ebfb",
-   "ver": "0.5.7",
+   "value": "0x898c0b",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/lib.rs:502"
    ],
    "sect": ".text",
-   "bytes": "90488b8538d8030048ff4810",
+   "bytes": "e3d7030001c685e2d7030001",
    "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
   },
   {
    "name": "LAUNCHER_RVA",
-   "value": "0x106dd60",
-   "ver": "0.5.7",
+   "value": "0x1810d20",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/lib.rs:492"
@@ -118,8 +118,8 @@
   },
   {
    "name": "RUNNER_CTOR_RVA",
-   "value": "0x106f9c0",
-   "ver": "0.5.7",
+   "value": "0x18129a0",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/lib.rs:941"
@@ -130,8 +130,8 @@
   },
   {
    "name": "DMGB_RVA",
-   "value": "0x108f220",
-   "ver": "0.5.7",
+   "value": "0x1833db0",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/lib.rs:1939"
@@ -142,8 +142,8 @@
   },
   {
    "name": "MOBATICK_RVA",
-   "value": "0x10af580",
-   "ver": "0.5.7",
+   "value": "0x1851f60",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/lib.rs:406"
@@ -154,8 +154,8 @@
   },
   {
    "name": "SERPEN_RVA",
-   "value": "0x14a25f0",
-   "ver": "0.5.7",
+   "value": "0x1444860",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/lib.rs:34"
@@ -166,8 +166,8 @@
   },
   {
    "name": "ARG_STR_RVA",
-   "value": "0x14cd960",
-   "ver": "0.5.7",
+   "value": "0x2207e90",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/lib.rs:2688"
@@ -178,8 +178,8 @@
   },
   {
    "name": "DMGA_RVA",
-   "value": "0x15912c0",
-   "ver": "0.5.7",
+   "value": "0x129d360",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/lib.rs:1936"
@@ -190,20 +190,20 @@
   },
   {
    "name": "LAUNCHER_RET_C",
-   "value": "0x1a03cd4",
-   "ver": "0.5.7",
+   "value": "0x1c50704",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/lib.rs:506"
    ],
    "sect": ".text",
-   "bytes": "90488b85c0da0100488d90e8",
+   "bytes": "f24c8b85c8da01004531c9e8",
    "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
   },
   {
    "name": "LAUNCHER_RET_D",
-   "value": "0x1ada3ae",
-   "ver": "0.5.7",
+   "value": "0x23aafce",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/lib.rs:513"
@@ -214,8 +214,8 @@
   },
   {
    "name": "KEYRES_RVA",
-   "value": "0x238d6e0",
-   "ver": "0.5.7",
+   "value": "0x2060eb0",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/lib.rs:2131"
@@ -226,8 +226,8 @@
   },
   {
    "name": "UIALLOC_RVA",
-   "value": "0x2ab4010",
-   "ver": "0.5.7",
+   "value": "0x2b1b410",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/lib.rs:620"

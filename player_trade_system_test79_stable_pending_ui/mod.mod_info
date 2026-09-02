@@ -1,14 +1,1 @@
-{
-  "author": "MIN KIM / OpenAI test build",
-  "dependencies": [
-    {
-      "mod_id": "base",
-      "version": ">=0.5.7, <0.5.8"
-    }
-  ],
-  "description": "Test79 Fix6 desktop regression build for TFM2 0.5.5. It preserves the verified Fix4/Fix5 asynchronous proposal lifecycle and contract-row visuals. The projected xartE detail icon/name click is now consumed by the mod and explicitly returns through UIOutEvent::UndoScene to the previous exact target profile instead of relying on a cloned ViewDetailButtonRunner internal handler. A target-identity lease also preserves SellerReview/PlayerReview text and hides the native negotiation button when the exact target profile is rebuilt after visiting a non-player screen; a changed Node address alone is no longer treated as a different player. Non-target players remain fail-open with their native negotiation UI. Use the existing PTS_Test79_PendingSellerReview save; no ARM, new proposal, advance, or save is required.",
-  "last_updated": "2026-08-22",
-  "mod_id": "player_trade_system_test79_stable_pending_ui",
-  "name": "Player Trade System - Test79 Fix6 Profile Navigation / Scene Return (Desktop)",
-  "version": "0.1.0-test79-patch055-profile-nav-scene-return-desktop-fix6"
-}
+{"author": "MIN KIM / OpenAI test build", "dependencies": [{"mod_id": "base", "version": ">=0.5.8, <0.5.9"}], "description": "Test79 Fix6 desktop regression build for TFM2 0.5.5. It preserves the verified Fix4/Fix5 asynchronous proposal lifecycle and contract-row visuals. The projected xartE detail icon/name click is now consumed by the mod and explicitly returns through UIOutEvent::UndoScene to the previous exact target profile instead of relying on a cloned ViewDetailButtonRunner internal handler. A target-identity lease also preserves SellerReview/PlayerReview text and hides the native negotiation button when the exact target profile is rebuilt after visiting a non-player screen; a changed Node address alone is no longer treated as a different player. Non-target players remain fail-open with their native negotiation UI. Use the existing PTS_Test79_PendingSellerReview save; no ARM, new proposal, advance, or save is required.", "last_updated": "2026-08-22", "mod_id": "player_trade_system_test79_stable_pending_ui", "name": "Player Trade System - Test79 Fix6 Profile Navigation / Scene Return (Desktop)", "version": "0.1.0-test79-patch055-profile-nav-scene-return-desktop-fix6"}

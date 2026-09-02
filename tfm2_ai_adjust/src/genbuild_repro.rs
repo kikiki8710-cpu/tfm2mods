@@ -66,7 +66,7 @@ pub unsafe fn emulate_getter(getter_ptr: usize, self_ptr: usize) -> Option<i64> 
 //   stat0 = *(atk+0x600)(공격자 1차 유효스탯). g=base게터 주소, p1=능력데이터, atk=공격자엔티티.
 unsafe fn base_power(g: usize, p1: usize, atk: usize, exe: usize, depth: u32) -> Option<i64> {
     if depth > 8 { return Some(0); }
-    if g == exe + 0x18b9050 {   // 0.4.13_5(was 0x1937ca0) mask-sig 유일
+    if g == exe + 0x190e740 {   // 0.4.13_5(was 0x1937ca0) mask-sig 유일
         let cnt = rd_u64(p1 + 0x28)?;
         if cnt > 64 { return Some(0); }
         let lb = rd_u64(p1 + 0x20)? as usize;     // 서브리스트 base (plVar3=lb+8)
@@ -169,7 +169,7 @@ unsafe fn ready_walk(rfn: usize, arg: usize, exe: usize, depth: u32) -> Option<b
         return walk_list(0x68, 0x70, 0x10, depth);
     }
     if rfn == exe + 0x1db2c30 { return walk_list(0x50, 0x58, 0x18, depth); }   // 0.4.13_5(was 0x18e1da0)
-    if rfn == exe + 0x1a45ba0 { return walk_list(0x8, 0x10, 0x10, depth); }   // 0.4.13_5(was 0x1a7e440). vt+0x48 분기 미발화 → vt+0x58만
+    if rfn == exe + 0x1b46ae0 { return walk_list(0x8, 0x10, 0x10, depth); }   // 0.4.13_5(was 0x1a7e440). vt+0x48 분기 미발화 → vt+0x58만
     // terminal: 순수게터면 emulate. 미지면 GB_TERM에 기록 후 loose 시도.
     match emulate_getter(rfn, arg) {
         Some(v) => Some(v != 0),
@@ -497,9 +497,9 @@ pub struct GBCtx {
 #[inline] fn gb_in_box(team: u64, x: u64, y: u64) -> bool {
     let b = |v: u64, lo: u64, hi: u64| v.wrapping_sub(lo) < hi;   // v in [lo, lo+hi)
     if team == 1 {
-        (x < 0xfa01 && b(y, 0xc3570, 0x27101)) || (x < 0x27101 && b(y, 0xdac70, 0xfa01))
+        (x < 0xfa01 && b(y, 0xe4250, 0x27101)) || (x < 0x27101 && b(y, 0x9f9f0, 0xfa01))
     } else {
-        (b(x, 0xc3570, 0x27101) && y < 0xfa01) || (b(x, 0xdac70, 0xfa01) && y < 0x27101)
+        (b(x, 0xe4250, 0x27101) && y < 0xfa01) || (b(x, 0x9f9f0, 0xfa01) && y < 0x27101)
     }
 }
 unsafe fn gb_collect_cands(rhd: usize, team: u64) -> ([usize; 5], usize) {
@@ -594,7 +594,7 @@ fn my_dedc0(o40: i64, o88: u8, o8d: u8) -> Option<bool> {
 pub unsafe fn gb_region_d(d: &RegionD, exe: usize) -> Option<(i64, u64, u16)> {
     let _pg = perf_guard(3);
     // 임계(empirical concrete, ghidra-re >>2유도는 오류): r15=base/50(120 검증)·r14=3·base/100(180)·rbx=base/100(60).
-    let threat = |i: u8| rd_i64(exe + 0x35f5f48 + (i as usize).min(3) * 8).unwrap_or(100);
+    let threat = |i: u8| rd_i64(exe + 0x3669428 + (i as usize).min(3) * 8).unwrap_or(100);
     let base = (if d.l158 >= 3 { threat(d.out_8b) } else { 100 }).wrapping_mul(d.l130).wrapping_mul(TUNE_GB_MULT.load(Ordering::Relaxed)) / 100;   // ★튜닝: 영역D 거리임계 배율(t_gb%; 세 임계 60/120/180 비례)
     let rbx_thr = (base / tune("gb_rbx_div", 100).max(1)) as u64;          // ★튜닝: 근거리밴드 divisor(기본 base/100)
     let r15_thr = (base / tune("gb_r15_div", 50).max(1)) as u64;           // ★튜닝: 중거리밴드(기본 base/50)
@@ -705,7 +705,7 @@ pub unsafe fn my_generic_build(c: &GBCtx, _exe: usize) -> Option<(i64, u64)> {
 //   resolver vt[0x28]=gb_resolver(SHIM oracle), my_combat_dmg(순수재현), norm=vt[0x90](oracle).
 //   ★검증대상: 함수시작 detour로 (entity ptr → 반환) game vs mine DIFF=0.
 // ════════════════════════════════════════════════════════════════════════
-const RVA_GB_ATKCTX_CB30: usize = 0x35d8038;   // &PTR_1435d8018 (0x203cb30 resolver r9) ← 0.5.7 재핀 +0x20 (주변4KB 일치율 100%)
+const RVA_GB_ATKCTX_CB30: usize = 0x364b518;   // &PTR_1435d8018 (0x203cb30 resolver r9) ← 0.5.7 재핀 +0x20 (주변4KB 일치율 100%)
 const RVA_GB_ATKCTX_C0690: usize = 0x35efd68;  // &PTR_1435efd48 (0x20c0690 resolver r9) ← 0.5.7 재핀 +0x20 (주변4KB 일치율 100%)
 
 // resolver vt[0x28]: owner+vt_off=슬롯vtable, owner+buf_off=data버퍼. getter(aligned,g2,g3,atk_ctx)→(rax,rdx)=base 2값.

@@ -936,7 +936,7 @@ impl DraggableWindow {
 //      우리 버퍼 6배 바깥까지 읽는다.
 //   근거·검증 = REPORT	fm2_champ_pos_lock\RE6-08-23_네이티브드롭다운-0.5.6-재핀-옵션구조.md
 // ⚠RVA 는 패치마다 바뀐다. **호출 전 디스어셈블로 함수 프롤로그인지 1회 확인**할 것(5초).
-const DD_SETOPT_RVA:  usize = 0x1c2e00;   // ★★0.5.7 재핀(2026-08-27): match_fn UNIQUE, 프롤로그 24B 완전동일. 0.5.6=0x1c1710. ⚠ui_kit 은 공유모듈이라 모드별 스캔에서 누락되기 쉬운데, 이게 어긋나면 드롭다운을 여는 순간 **panic도 예외도 없이 즉사**한다(0.5.7 champ_pos_lock 포지션제한 팝업 크래시 실사고).  // (rcx=runner, rdx=sel, r8=&[cap,ptr,len])
+const DD_SETOPT_RVA:  usize = 0x1c2d30;   // ★★0.5.7 재핀(2026-08-27): match_fn UNIQUE, 프롤로그 24B 완전동일. 0.5.6=0x1c1710. ⚠ui_kit 은 공유모듈이라 모드별 스캔에서 누락되기 쉬운데, 이게 어긋나면 드롭다운을 여는 순간 **panic도 예외도 없이 즉사**한다(0.5.7 champ_pos_lock 포지션제한 팝업 크래시 실사고).  // (rcx=runner, rdx=sel, r8=&[cap,ptr,len])
 const DD_SELECTED_OFF: usize = 0x1790;   // runner + 현재선택 idx (usize, 미선택=usize::MAX) — ★0.5.7 확인
 //   0.5.6 = 0x1788 → 0.5.7 **0x1790**(+8). 0x1578~0x1788 구간에 8B 필드가 삽입돼 뒤쪽만 밀렸다
 //   (앞쪽 옵션 Vec 0x1528 · 팝업핸들 0x1570 은 불변). 구조체 크기 0x17C0 → 0x17C8.

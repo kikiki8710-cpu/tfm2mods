@@ -706,7 +706,7 @@ pub(crate) static MICRO_SITES: &[MicroSite] = &[
     // ① cs_lead_attack — 평타 선행예측 틱. self 가 r14 에 그대로 살아 있는 가장 깨끗한 자리.
     //    0xeb25cb `mov r14,[rbx+rax*8]` = champions[myside][myrole] 이후 사이트까지 r14 write 없음.
     MicroSite {
-        key: "cs_lead_attack", orig: 30, rva: 0xebd49a,
+        key: "cs_lead_attack", orig: 30, rva: 0xcd066a,
         win: &[0xb8, 0x1e, 0x00, 0x00, 0x00],            // mov eax,0x1e
         pre: &[], tail: &[],
         imm_off: 1, imm_w: 4,
@@ -716,7 +716,7 @@ pub(crate) static MICRO_SITES: &[MicroSite] = &[
     },
     // ② mv2_avoid_coef — 회피 반경 계수. fn 0xe587f0 의 5번째 인자(=champions[side][role])가 rbp 에 들어있다.
     MicroSite {
-        key: "mv2_avoid_coef", orig: 400, rva: 0xd0d571,   // ★0.5.6(was 0.5.4 0xe58cf1 — ⚠2단계 apply 누락분 정정 2026-08-22: 054호스트 스켈레톤 UNIQUE→056·win 바이트 일치 확증)
+        key: "mv2_avoid_coef", orig: 400, rva: 0xd34c57,   // ★0.5.6(was 0.5.4 0xe58cf1 — ⚠2단계 apply 누락분 정정 2026-08-22: 054호스트 스켈레톤 UNIQUE→056·win 바이트 일치 확증)
         win: &[0x48, 0x69, 0xc1, 0x90, 0x01, 0x00, 0x00],  // imul rax,rcx,0x190
         pre: &[], tail: &[],
         imm_off: 3, imm_w: 4,
@@ -726,7 +726,7 @@ pub(crate) static MICRO_SITES: &[MicroSite] = &[
     },
     // ③ mv2_avoid_margin — 회피 여유 상수. ②와 같은 경로·같은 rbp.
     MicroSite {
-        key: "mv2_avoid_margin", orig: 6000, rva: 0xd0d5c5,   // ★0.5.6(was 0.5.4 0xe58d45 — ⚠2단계 apply 누락분 정정 2026-08-22: 054호스트 스켈레톤 UNIQUE→056·win 바이트 일치 확증)
+        key: "mv2_avoid_margin", orig: 6000, rva: 0xd34c9f,   // ★0.5.6(was 0.5.4 0xe58d45 — ⚠2단계 apply 누락분 정정 2026-08-22: 054호스트 스켈레톤 UNIQUE→056·win 바이트 일치 확증)
         win: &[0x48, 0x05, 0x70, 0x17, 0x00, 0x00],        // add rax,0x1770
         pre: &[], tail: &[],
         imm_off: 2, imm_w: 4,
@@ -738,7 +738,7 @@ pub(crate) static MICRO_SITES: &[MicroSite] = &[
     //    5번째 인자 원본 슬롯 `[rsp+0x180]` 은 함수 내 write 가 없어 재로드로 복원한다.
     //    ⚠사이트가 `cmp` 라 **뒤 `ja` 가 플래그를 소비**한다 — 값 op(cmp)가 스텁의 마지막 플래그 생산자여야 한다.
     MicroSite {
-        key: "mv2_avoid_bias", orig: 1500, rva: 0xd0da1f,   // ★0.5.6(was 0.5.4 0xe5919f — ⚠2단계 apply 누락분 정정 2026-08-22: 054호스트 스켈레톤 UNIQUE→056·win 바이트 일치 확증)
+        key: "mv2_avoid_bias", orig: 1500, rva: 0xd350ff,   // ★0.5.6(was 0.5.4 0xe5919f — ⚠2단계 apply 누락분 정정 2026-08-22: 054호스트 스켈레톤 UNIQUE→056·win 바이트 일치 확증)
         win: &[0x48, 0x3d, 0xdc, 0x05, 0x00, 0x00],        // cmp rax,0x5dc
         pre: &[], tail: &[],
         imm_off: 2, imm_w: 4,
@@ -755,7 +755,7 @@ pub(crate) static MICRO_SITES: &[MicroSite] = &[
     //    ⚠발화는 **경기 초반 한정**(`현재틱 < [[p1+8]+0x13f8]` 분기 안) — 후반에 발화=0 이어도 정상.
     //    근거 = RE\2026-08-07_sf_margin-재조사-self는-3번째인자.md
     MicroSite {
-        key: "sf_margin", orig: 15000, rva: 0xeb7e8b,   // ★0.5.6(was 0.5.4 0xdb3f1b — ⚠2단계 apply 누락분 정정 2026-08-22: 054호스트 스켈레톤 UNIQUE→056·win 바이트 일치 확증)
+        key: "sf_margin", orig: 15000, rva: 0xd36dcb,   // ★0.5.6(was 0.5.4 0xdb3f1b — ⚠2단계 apply 누락분 정정 2026-08-22: 054호스트 스켈레톤 UNIQUE→056·win 바이트 일치 확증)
         win: &[0x48, 0x05, 0x98, 0x3a, 0x00, 0x00],        // add rax,0x3a98
         pre: &[], tail: &[],
         op: MOp::AddR64 { dst: reg::RAX },
@@ -771,7 +771,7 @@ pub(crate) static MICRO_SITES: &[MicroSite] = &[
     //    인접 필드 `+0x28b8` 을 쓰고 이미 승인된 것과 정합.
     //    근거 = RE\2026-08-07_bt_vision_mem-ex_order_hold-재조사-둘다가능.md §B
     MicroSite {
-        key: "ex_order_hold", orig: 10, rva: 0xd7f963,   // ⚠0.5.6 미복구 = 0.5.4 stale 유지(win 검증 실패로 미설치=inert — 파일 헤더 노트 참조)
+        key: "ex_order_hold", orig: 10, rva: 0xcf0e73,   // ⚠0.5.6 미복구 = 0.5.4 stale 유지(win 검증 실패로 미설치=inert — 파일 헤더 노트 참조)
         win: &[0x48, 0x83, 0xc0, 0x0a, 0x48, 0x39, 0xc6],   // add rax,0xa ; cmp rsi,rax
         pre: &[], tail: &[0x48, 0x39, 0xc6],                 // ★tail 이 최종 플래그 생산자 = 원본과 동일
         op: MOp::AddR64 { dst: reg::RAX },
@@ -784,7 +784,7 @@ pub(crate) static MICRO_SITES: &[MicroSite] = &[
     //    원본 = `lea rcx,[rax+rax*2+400]` ⟹ pre 로 `lea rcx,[rax+rax*2]` 실행 후 값을 더한다.
     //    ⚠원본 lea 는 플래그를 안 건드리므로 pushfq/popfq 로 넘겨준다(MOp::LeaAdd 가 그렇게 한다).
     MicroSite {
-        key: "ex_think_min", orig: 400, rva: 0xd81e00,   // ⚠0.5.6 미복구 = 0.5.4 stale 유지(win 검증 실패로 미설치=inert — 파일 헤더 노트 참조)
+        key: "ex_think_min", orig: 400, rva: 0xcf3310,   // ⚠0.5.6 미복구 = 0.5.4 stale 유지(win 검증 실패로 미설치=inert — 파일 헤더 노트 참조)
         win: &[0x48, 0x8d, 0x8c, 0x40, 0x90, 0x01, 0x00, 0x00],   // lea rcx,[rax+rax*2+0x190]
         pre: &[0x48, 0x8d, 0x0c, 0x40],                            // lea rcx,[rax+rax*2]
         tail: &[],
@@ -809,20 +809,20 @@ pub(crate) static MICRO_SITES: &[MicroSite] = &[
    // self 재료는 11곳 공통 = `[rbp+0x610]`(arg5, 함수 전체 write 0회) + `[rbp+0x560]`(holder, write 1회).
    // 근거 = 같은 RE 문서 §A.
     // r15 ×5
-    bt_vis!(0xea4346, &[0x49,0x83,0xc7,0x78,0x49,0x39,0xc7], reg::R15, &[0x49,0x39,0xc7]),
-    bt_vis!(0xea733d, &[0x49,0x83,0xc7,0x78,0x49,0x39,0xc7], reg::R15, &[0x49,0x39,0xc7]),
-    bt_vis!(0xea73c5, &[0x49,0x83,0xc7,0x78,0x49,0x39,0xc7], reg::R15, &[0x49,0x39,0xc7]),
-    bt_vis!(0xea744d, &[0x49,0x83,0xc7,0x78,0x49,0x39,0xc7], reg::R15, &[0x49,0x39,0xc7]),
+    bt_vis!(0xcbce46, &[0x49,0x83,0xc7,0x78,0x49,0x39,0xc7], reg::R15, &[0x49,0x39,0xc7]),
+    bt_vis!(0xcbfe7d, &[0x49,0x83,0xc7,0x78,0x49,0x39,0xc7], reg::R15, &[0x49,0x39,0xc7]),
+    bt_vis!(0xcbff05, &[0x49,0x83,0xc7,0x78,0x49,0x39,0xc7], reg::R15, &[0x49,0x39,0xc7]),
+    bt_vis!(0xcbff8d, &[0x49,0x83,0xc7,0x78,0x49,0x39,0xc7], reg::R15, &[0x49,0x39,0xc7]),
     bt_vis!(0xd3c62b, &[0x49,0x83,0xc7,0x78,0x49,0x39,0xc7], reg::R15, &[0x49,0x39,0xc7]),
     // rdi ×1  ★이 자리가 기존 전역 imm 패치의 prefix 목록에서 빠져 있던 곳이다(08-07 결함 수정분)
-    bt_vis!(0xea4e5e, &[0x48,0x83,0xc7,0x78,0x48,0x39,0xc7], reg::RDI, &[0x48,0x39,0xc7]),
+    bt_vis!(0xcbd93e, &[0x48,0x83,0xc7,0x78,0x48,0x39,0xc7], reg::RDI, &[0x48,0x39,0xc7]),
     // r14 ×1
-    bt_vis!(0xea5a21, &[0x49,0x83,0xc6,0x78,0x49,0x39,0xc6], reg::R14, &[0x49,0x39,0xc6]),
+    bt_vis!(0xcbe545, &[0x49,0x83,0xc6,0x78,0x49,0x39,0xc6], reg::R14, &[0x49,0x39,0xc6]),
     // rsi ×4
-    bt_vis!(0xea69cf, &[0x48,0x83,0xc6,0x78,0x48,0x39,0xc6], reg::RSI, &[0x48,0x39,0xc6]),
-    bt_vis!(0xea6a57, &[0x48,0x83,0xc6,0x78,0x48,0x39,0xc6], reg::RSI, &[0x48,0x39,0xc6]),
-    bt_vis!(0xea6adf, &[0x48,0x83,0xc6,0x78,0x48,0x39,0xc6], reg::RSI, &[0x48,0x39,0xc6]),
-    bt_vis!(0xd3c587, &[0x48,0x83,0xc6,0x78,0x48,0x39,0xc6], reg::RSI, &[0x48,0x39,0xc6]),
+    bt_vis!(0xcbf50f, &[0x48,0x83,0xc6,0x78,0x48,0x39,0xc6], reg::RSI, &[0x48,0x39,0xc6]),
+    bt_vis!(0xcbf597, &[0x48,0x83,0xc6,0x78,0x48,0x39,0xc6], reg::RSI, &[0x48,0x39,0xc6]),
+    bt_vis!(0xcbf61f, &[0x48,0x83,0xc6,0x78,0x48,0x39,0xc6], reg::RSI, &[0x48,0x39,0xc6]),
+    bt_vis!(0x13eacf7, &[0x48,0x83,0xc6,0x78,0x48,0x39,0xc6], reg::RSI, &[0x48,0x39,0xc6]),
 ];
 
 // ════════════════════════════════════════════════════════════════════════════

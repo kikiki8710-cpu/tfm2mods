@@ -614,7 +614,7 @@ unsafe extern "C" fn cap_launcher(saved: *mut u64, _e: usize) -> u64 {
     //   0.5.5 값(item_tactics 정본): 관전 0x763329 · 내경기 0x76829b · 조테본경기 0x1aed292 · 조테기록 0x1aa88ce.
     //   다시보기(리플레이) 0x1da7d54 = elemental_serpen 0.5.5 RET_C 교차확인 + 인게임 로그 실측(2026-08-13).
     //   ⛔나머지 후보(0x1c777d8 대회워커·0x2228db·0x1a7191c 배경sim·heap ra) 추가 금지 = 비가시 배경 sim 오염.
-    let is_screen = rva == 0x763329 || rva == 0x76829b || rva == 0x1aed292 || rva == 0x1aa88ce
+    let is_screen = rva == 0x768a99 || rva == 0x76829b || rva == 0x1aed292 || rva == 0x1aa88ce
         || rva == 0x1da7d54;
     if is_screen && ptr_ok(game_arg as usize) {
         LIVE_GAME.store(game_arg, Ordering::Relaxed);

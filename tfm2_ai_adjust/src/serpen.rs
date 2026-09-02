@@ -119,10 +119,10 @@ unsafe fn serpen_pred_b(ctx: usize, cand: usize) -> bool {
         && rd_u64(cand + 8).unwrap_or(99) == 1u64.wrapping_sub(side) {
         if side == 1 {   // side1
             reject = (cx < 0xFA01 && cy.wrapping_sub(0xC3500) < 0x27101)
-                  || (cx < 0x27101 && cy.wrapping_sub(0xDAC00) < 0xFA01);
+                  || (cx < 0x27101 && cy.wrapping_sub(0x9f980) < 0xFA01);
         } else {         // side0 = 대칭 x/y스왑
             reject = (cy < 0xFA01 && cx.wrapping_sub(0xC3500) < 0x27101)
-                  || (cy < 0x27101 && cx.wrapping_sub(0xDAC00) < 0xFA01);
+                  || (cy < 0x27101 && cx.wrapping_sub(0x9f980) < 0xFA01);
         }
     }
     !reject
@@ -630,13 +630,13 @@ unsafe fn c8c_cast_get(pair: usize, slot: usize) -> u64 {
     let b = exe_base();
     if f <= b { return 0; }
     match f - b {
-        0xedf510 => rd_u64(data + 0x38).unwrap_or(0),
-        0xeec0b0 => rd_u64(data + 0x30).unwrap_or(0),
-        0x173a610 => rd_u64(data + 0x18).unwrap_or(0),
-        0xefde90 => rd_u64(data + 8).unwrap_or(0),
-        0x1494930 => rd_u64(data).unwrap_or(0),
-        0x9d3d0 => 0,
-        0x1309df0 => 1,
+        0xee91e0 => rd_u64(data + 0x38).unwrap_or(0),
+        0xef5d80 => rd_u64(data + 0x30).unwrap_or(0),
+        0x151a580 => rd_u64(data + 0x18).unwrap_or(0),
+        0xf07b60 => rd_u64(data + 8).unwrap_or(0),
+        0x1434320 => rd_u64(data).unwrap_or(0),
+        0x9db00 => 0,
+        0x11616f0 => 1,
         0x2f840 => rd_u64(data + 0x28).unwrap_or(0),
         0xc05b0 => 1,
         _ => 0,
@@ -727,9 +727,9 @@ unsafe fn c8c_structures(g0: usize, side: usize, out: &mut Vec<usize>) {
 // 아군 홈존 판정(c8c520 (b)루프 제외조건; side0: x≤0xfa00&&0xc3570≤y<0xea671 || x≤0x27100&&0xdac70≤y≤0xea670 / side1 대칭)
 #[inline] fn c8c_in_home(side: usize, x: u64, y: u64) -> bool {
     if side == 0 {
-        (x <= 0xfa00 && y >= 0xc3570 && y < 0xea671) || (x <= 0x27100 && y >= 0xdac70 && y <= 0xea670)
+        (x <= 0xfa00 && y >= 0xe4250 && y < 0xea6e1) || (x <= 0x27100 && y >= 0x9f9f0 && y <= 0xea6e0)
     } else {
-        (y <= 0xfa00 && x >= 0xc3570 && x < 0xea671) || (y <= 0x27100 && x >= 0xdac70 && x <= 0xea670)
+        (y <= 0xfa00 && x >= 0xe4250 && x < 0xea6e1) || (y <= 0x27100 && x >= 0x9f9f0 && x <= 0xea6e0)
     }
 }
 
@@ -1153,7 +1153,7 @@ unsafe fn my_defense_nexus_050(out: usize, cmd: usize, level: i64, rng: usize, s
     //     넥서스도 에픽도 아니다. 그리고 이 함수는 이름과 달리 **disc14 = EpicPoke(에픽 견제)** 다
     //     — `my_defense_nexus_050`이라는 함수명 자체가 구라벨(tfm2_ai_adjust.rs L7054 참조). 노브는 `sn_home_*`.
     let (sx, sy) = (rd_u64(selfe + 0x660).unwrap_or(0), rd_u64(selfe + 0x668).unwrap_or(0));
-    let (ep_lo, ep_hi, ep_x1, ep_y1) = (tune("sn_home_lo", 0xfa00) as u64, tune("sn_home_hi", 0xea670) as u64, tune("sn_home_x1", 0xd9c60) as u64, tune("sn_home_y1", 0xdac70) as u64);
+    let (ep_lo, ep_hi, ep_x1, ep_y1) = (tune("sn_home_lo", 0xfa00) as u64, tune("sn_home_hi", 0xea6e0) as u64, tune("sn_home_x1", 0xd9c60) as u64, tune("sn_home_y1", 0x9f9f0) as u64);
     let in_home = if side == 0 { sx <= ep_lo && sy >= ep_y1 && sy <= ep_hi }
                   else { sx >= ep_x1 && sx <= ep_hi && sy <= ep_lo };
     let self_max = rd_i64(selfe + 0x628).unwrap_or(1).max(1);

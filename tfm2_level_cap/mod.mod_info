@@ -1,14 +1,1 @@
-{
-  "mod_id": "tfm2_level_cap",
-  "name": "Champion Level Cap 18",
-  "author": "tfm2mods",
-  "version": "2.1.0",
-  "last_updated": "2026-07-31",
-  "description": "경기 중 챔피언 최대 레벨을 12에서 18로 확장합니다. 레벨업 함수가 읽는 need_exp 테이블(포인터/길이/용량)을 런타임에 교체하는 네이티브 모드. 데이터 override만으로는 시뮬에 반영되지 않아 트램폴린 방식으로 구현했습니다.",
-  "dependencies": [
-    {
-      "mod_id": "base",
-      "version": ">=0.5.7, <0.5.8"
-    }
-  ]
-}
+{"mod_id": "tfm2_level_cap", "name": "Champion Level Cap 18", "author": "tfm2mods", "version": "2.1.0", "last_updated": "2026-07-31", "description": "경기 중 챔피언 최대 레벨을 12에서 18로 확장합니다. 레벨업 함수가 읽는 need_exp 테이블(포인터/길이/용량)을 런타임에 교체하는 네이티브 모드. 데이터 override만으로는 시뮬에 반영되지 않아 트램폴린 방식으로 구현했습니다.", "dependencies": [{"mod_id": "base", "version": ">=0.5.8, <0.5.9"}]}

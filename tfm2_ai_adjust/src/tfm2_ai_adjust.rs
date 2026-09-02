@@ -6099,9 +6099,9 @@ static VT30_CACHE: [(AtomicUsize, AtomicI64); VT30_CACHE_N] = [
     match gvt.wrapping_sub(b) {   // 2차: 확정 상수표(런타임 도출 실패 시 폴백)
         // ⚠검증 시 주의: k0 arm은 `_ => 0`과 결과가 같아 **컴파일러가 제거**한다 → dll 바이트에 0x383cd88/0x38c5d78이
         //   **없는 것이 정상**(k1·k2 4개만 링크됨). 07-22 배포본에서 실제로 확인 — stale로 오판하지 말 것.
-        0x383cd88 | 0x38c5d78 => 0,   // ★0.5.2 확정(ghidra-re 07-22 + 바이트 실측). ~~0.5.0_3 0x37d9ee0|0x386b080~~ / 0.5.1=0x38942f8|0x38a66d8
-        0x383d0a0 | 0x38c5aa0 => 1,   // stage1=튜토리얼/축소 컨텍스트. ~~0.5.0_3 0x37da190|0x386ae10~~ / 0.5.1=0x3894610|0x38a6400
-        0x383d378 | 0x38c57c8 => 2,   // stage2=정규+백그라운드 풀매치(movepri 대체 허용 조건). ~~0.5.0_3 0x37da400|0x386aba0~~ / 0.5.1=0x38948e8|0x38a6128
+        0x38b0268 | 0x38c5d78 => 0,   // ★0.5.2 확정(ghidra-re 07-22 + 바이트 실측). ~~0.5.0_3 0x37d9ee0|0x386b080~~ / 0.5.1=0x38942f8|0x38a66d8
+        0x38b0580 | 0x38c5aa0 => 1,   // stage1=튜토리얼/축소 컨텍스트. ~~0.5.0_3 0x37da190|0x386ae10~~ / 0.5.1=0x3894610|0x38a6400
+        0x38b0858 | 0x38c57c8 => 2,   // stage2=정규+백그라운드 풀매치(movepri 대체 허용 조건). ~~0.5.0_3 0x37da400|0x386aba0~~ / 0.5.1=0x38948e8|0x38a6128
         _ => 0,   // 미상 사본 → kind0 보수(타깃경로 활성)
     }
 }
@@ -6268,10 +6268,10 @@ unsafe fn my_disc4(subp: usize, p5: usize, p6: usize) -> i64 {
     // ── code7(early): target 홈리전(x/y) AND hp-low(hp<maxhp) ──
     let x = rd_u64(target + 0x660).unwrap_or(0);
     let y = rd_u64(target + 0x668).unwrap_or(0);
-    let xb: u64 = if team == 0 { 0xfa00 } else { 0xea670 };
-    let yb: u64 = if team == 0 { 0xea670 } else { 0xfa00 };
+    let xb: u64 = if team == 0 { 0xfa00 } else { 0xea6e0 };
+    let yb: u64 = if team == 0 { 0xea6e0 } else { 0xfa00 };
     let x_home = x <= xb && (x >= 0xd9c60 || team == 0);
-    let y_home = y <= yb && (y >= 0xdac70 || team != 0);
+    let y_home = y <= yb && (y >= 0x9f9f0 || team != 0);
     let hp = rd_u64(target + 0x670).unwrap_or(0);
     let maxhp = rd_u64(target + 0x628).unwrap_or(0);
     if x_home && y_home && hp < maxhp {
@@ -6307,7 +6307,7 @@ unsafe fn disc4_ttd_acc(obj: usize, vt: usize, target: usize, sim: usize, exe: u
     let cnt = rd_u64(vec + 0x190).unwrap_or(0) as usize;
     let ptr = rd_u64(vec + 0x188).unwrap_or(0) as usize;
     if !ptr_ok(ptr) || cnt > 64 { return 0; }
-    let r9 = exe + 0x381e200;                               // base getter r9(ATK_VT). ★0.5.2(was 0.4.x 0x35e4d00 stale) — ghidra-re 07-23 실바이트 확정
+    let r9 = exe + 0x38916e0;                               // base getter r9(ATK_VT). ★0.5.2(was 0.4.x 0x35e4d00 stale) — ghidra-re 07-23 실바이트 확정
     // ★튜닝 계수는 루프불변 → 루프 밖 1회 조회(핫루프 tune() SipHash×최대320회 제거 = disc4 대폭 가속).
     let t_dmg_scale = tune("d4_dmg_scale", 1000) as u64;
     let t_div_base  = tune("d4_div_base", 100);
@@ -6546,7 +6546,7 @@ type Vt40Fn = unsafe extern "C" fn(usize, usize, usize, usize, usize);   // (out
 unsafe fn disc4_subplan_r13b(target: usize, sim: usize, exe: usize) -> i32 {
     let disc: i32 = 4;
     if rd_i32(target + 0x3d8).unwrap_or(0) > 0 { return disc; }   // 3d8>0 → 2nd_dispatch, r13b=disc
-    let atkvt = exe + 0x381e200;   // ★0.5.2(was 0.4.x 0x35e4d00 stale) — ghidra-re 07-23 실바이트 확정
+    let atkvt = exe + 0x38916e0;   // ★0.5.2(was 0.4.x 0x35e4d00 stale) — ghidra-re 07-23 실바이트 확정
     let mh = rd_i64(target + 0x628).unwrap_or(0) - rd_i64(target + 0x670).unwrap_or(0);   // maxhp-hp
     // ── 능력1 (vth=*(target+0x4b8)) ──
     if rd_i32(target + 0x4f8).unwrap_or(-1) != -1 {
@@ -6572,7 +6572,7 @@ unsafe fn disc4_subplan_r13b(target: usize, sim: usize, exe: usize) -> i32 {
         }
     }
     // ── 능력2 (0x206eb13): dpi 선택 → dummy면 r13b=0, else vt30/vt40 ──
-    let dpi = if rd_i64(target + 0x5c8).unwrap_or(0) >= 3 { target + 0x500 } else { exe + 0x35e5750 };
+    let dpi = if rd_i64(target + 0x5c8).unwrap_or(0) >= 3 { target + 0x500 } else { exe + 0x3658c30 };
     if rd_i32(dpi + 0x30).unwrap_or(-1) == -1 { return 0; }   // dummy/플래그 -1 → r13b=0 → thr41
     let dvt = rd_u64(dpi + 8).unwrap_or(0) as usize;
     let dbuf0 = rd_u64(dpi).unwrap_or(0) as usize;
@@ -6704,13 +6704,13 @@ unsafe fn disc4_subplan_r13b(target: usize, sim: usize, exe: usize) -> i32 {
             if team > 1 { return -99; }
             let x = rd_u64(ent + 0x660).unwrap_or(0);
             let y = rd_u64(ent + 0x668).unwrap_or(0);
-            let r10 = if team == 0 { 0xfa00u64 } else { 0xea670 };
+            let r10 = if team == 0 { 0xfa00u64 } else { 0xea6e0 };
             let cond_x = ((x >= 0xd9c60) || team == 0) && (x <= r10);
             let mut home = false;
             if cond_x {
                 // ★FIX(disasm 0x1c38d06 cmove rcx,r8): y_bound = team==0?0xea670:0xfa00 (x_bound과 교차). 기존 swap버그=team0 home 영영false.
-                let rcy = if team != 0 { 0xfa00u64 } else { 0xea670 };
-                let cond_y = ((y >= 0xdac70) || team != 0) && (y <= rcy);
+                let rcy = if team != 0 { 0xfa00u64 } else { 0xea6e0 };
+                let cond_y = ((y >= 0x9f9f0) || team != 0) && (y <= rcy);
                 if cond_y {
                     let cur = rd_u64(ent + 0x670).unwrap_or(0);
                     let max = rd_u64(ent + 0x628).unwrap_or(0);

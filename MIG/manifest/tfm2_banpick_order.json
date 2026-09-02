@@ -17,7 +17,7 @@
     "src/lib.rs:227"
    ],
    "sect": ".text",
-   "bytes": "e89fa3f6020f0b75e8488d9f",
+   "bytes": "41545657534883ec28488daa",
    "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
    "ignore": true,
    "note": "u32 색상 — RVA 아님(0.5.7 감사 오탐)",
@@ -32,7 +32,7 @@
     "src/lib.rs:229"
    ],
    "sect": ".text",
-   "bytes": "7412488b8dd07b01004c89f2",
+   "bytes": "8b02488985e07b01004885c0",
    "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
    "ignore": true,
    "note": "u32 색상 — RVA 아님(0.5.7 감사 오탐)",
@@ -47,7 +47,7 @@
     "src/lib.rs:228"
    ],
    "sect": ".text",
-   "bytes": "0f29742440440f296c245044",
+   "bytes": "8985600300004c89a5f00300",
    "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
    "ignore": true,
    "note": "u32 색상 — RVA 아님(0.5.7 감사 오탐)",
@@ -62,7 +62,7 @@
     "src/lib.rs:230"
    ],
    "sect": ".text",
-   "bytes": "000100000f28bc24f0000000",
+   "bytes": "08004c89bdb81a0800488d85",
    "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
    "ignore": true,
    "note": "u32 색상 — RVA 아님(0.5.7 감사 오탐)",
@@ -71,19 +71,22 @@
   {
    "name": "RVA_PHASE_SCALAR",
    "value": "0x163e2c0",
-   "ver": "0.5.7",
+   "ver": "0.5.7(0.5.8 재핀실패)",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/hooks.rs:56"
    ],
    "sect": ".text",
-   "bytes": "4d01c00fb6c2488d15932cdf",
-   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+   "bytes": "4c89fa4d89f0e8d81eb6014c",
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
+   "curated": true,
+   "unresolved": "0.5.8",
+   "note": "★0.5.8 재핀 실패(2026-09-02) — 자동 3단(바이트 유일검색/skeleton/owner+콜그래프)·지역창 축소·사이트 문맥 대조 전부 동형 클론에 막힘. ghidra-re 로 개별 재규명 필요. ⚠rebase 로 bytes 는 새 exe 기준이라 check 는 PASS 로 보인다 — 이 표식이 유일한 단서."
   },
   {
    "name": "RVA_COMMIT",
-   "value": "0x1642600",
-   "ver": "0.5.7",
+   "value": "0x1056c00",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/hooks.rs:686"
@@ -94,8 +97,8 @@
   },
   {
    "name": "RVA_TURN",
-   "value": "0x1642d30",
-   "ver": "0.5.7",
+   "value": "0x1057330",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/hooks.rs:700"
@@ -106,8 +109,8 @@
   },
   {
    "name": "RVA_AI_SITE1",
-   "value": "0x1837852",
-   "ver": "0.5.7",
+   "value": "0x1231562",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/hooks.rs:555"
@@ -118,8 +121,8 @@
   },
   {
    "name": "RVA_AI_JOIN1",
-   "value": "0x1837960",
-   "ver": "0.5.7",
+   "value": "0x1231670",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/hooks.rs:556"
@@ -130,8 +133,8 @@
   },
   {
    "name": "RVA_AI_SITE2",
-   "value": "0x183b468",
-   "ver": "0.5.7",
+   "value": "0x1235178",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/hooks.rs:557"
@@ -142,8 +145,8 @@
   },
   {
    "name": "RVA_AI_JOIN2",
-   "value": "0x183b539",
-   "ver": "0.5.7",
+   "value": "0x1235249",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/hooks.rs:558"
@@ -154,78 +157,78 @@
   },
   {
    "name": "AI6",
-   "value": "0x1cb8b72",
-   "ver": "0.5.5",
+   "value": "0x1e688a2",
+   "ver": "0.5.8",
    "kind": "BYTE_PATCH",
    "locs": [
     "src/hooks.rs:1598"
    ],
    "sect": ".text",
-   "bytes": "85c00f843f19000041b86802",
+   "bytes": "0000f3440f11b0fc000000c7",
    "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
    "note": "미완 유지 — ai_inline_phase 기본 OFF + sig fail-safe = stale 무해. 기존 sig/스텁 그대로 재핀 불가 판정(스텁 재생성은 열려 있음)",
    "curated": true
   },
   {
    "name": "AI6",
-   "value": "0x1cb8d60",
-   "ver": "0.5.5",
+   "value": "0x1e68a90",
+   "ver": "0.5.8",
    "kind": "BYTE_PATCH",
    "locs": [
     "src/hooks.rs:1600"
    ],
    "sect": ".text",
-   "bytes": "00004889daff5018904885db",
+   "bytes": "90e92efffffff34c0f2aff45",
    "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
    "note": "미완 유지 — ai_inline_phase 기본 OFF + sig fail-safe = stale 무해. 기존 sig/스텁 그대로 재핀 불가 판정(스텁 재생성은 열려 있음)",
    "curated": true
   },
   {
    "name": "AI6",
-   "value": "0x1cb900e",
-   "ver": "0.5.5",
+   "value": "0x1e68d3e",
+   "ver": "0.5.8",
    "kind": "BYTE_PATCH",
    "locs": [
     "src/hooks.rs:1598"
    ],
    "sect": ".text",
-   "bytes": "85681400004c8b40384c8b48",
+   "bytes": "11000000000000488d8d300f",
    "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
    "note": "미완 유지 — ai_inline_phase 기본 OFF + sig fail-safe = stale 무해. 기존 sig/스텁 그대로 재핀 불가 판정(스텁 재생성은 열려 있음)",
    "curated": true
   },
   {
    "name": "AI6",
-   "value": "0x1cb96a7",
-   "ver": "0.5.5",
+   "value": "0x1e693d7",
+   "ver": "0.5.8",
    "kind": "BYTE_PATCH",
    "locs": [
     "src/hooks.rs:1600"
    ],
    "sect": ".text",
-   "bytes": "904885c00f84300e0000488b",
+   "bytes": "48c785e80e00001700000048",
    "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
    "note": "미완 유지 — ai_inline_phase 기본 OFF + sig fail-safe = stale 무해. 기존 sig/스텁 그대로 재핀 불가 판정(스텁 재생성은 열려 있음)",
    "curated": true
   },
   {
    "name": "AI6",
-   "value": "0x1cba2a5",
-   "ver": "0.5.5",
+   "value": "0x1e69fd5",
+   "ver": "0.5.8",
    "kind": "BYTE_PATCH",
    "locs": [
     "src/hooks.rs:1602"
    ],
    "sect": ".text",
-   "bytes": "7c010000c780f80100000100",
+   "bytes": "0000e814891afe48c7c1ffff",
    "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
    "note": "미완 유지 — ai_inline_phase 기본 OFF + sig fail-safe = stale 무해. 기존 sig/스텁 그대로 재핀 불가 판정(스텁 재생성은 열려 있음)",
    "curated": true
   },
   {
    "name": "AI6",
-   "value": "0x1cba40c",
-   "ver": "0.5.5",
+   "value": "0x1e6a542",
+   "ver": "0.5.8",
    "kind": "BYTE_PATCH",
    "locs": [
     "src/hooks.rs:1602"
@@ -239,107 +242,121 @@
   {
    "name": "AI6",
    "value": "0x1cbb38d",
-   "ver": "0.5.5",
+   "ver": "0.5.7(0.5.8 재핀실패)",
    "kind": "BYTE_PATCH",
    "locs": [
     "src/hooks.rs:1604"
    ],
    "sect": ".text",
-   "bytes": "000000440f28ac24b0000000",
+   "bytes": "c4880000005b5f5e415c415d",
    "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
-   "note": "미완 유지 — ai_inline_phase 기본 OFF + sig fail-safe = stale 무해. 기존 sig/스텁 그대로 재핀 불가 판정(스텁 재생성은 열려 있음)",
-   "curated": true
+   "note": "미완 유지 — ai_inline_phase 기본 OFF + sig fail-safe = stale 무해. 기존 sig/스텁 그대로 재핀 불가 판정(스텁 재생성은 열려 있음) ★0.5.8 재핀 실패(2026-09-02) — 자동 3단(바이트 유일검색/skeleton/owner+콜그래프)·지역창 축소·사이트 문맥 대조 전부 동형 클론에 막힘. ghidra-re 로 개별 재규명 필요. ⚠rebase 로 bytes 는 새 exe 기준이라 check 는 PASS 로 보인다 — 이 표식이 유일한 단서.",
+   "curated": true,
+   "unresolved": "0.5.8"
   },
   {
    "name": "INLINE@src/hooks.rs:1606",
    "value": "0x1cbb479",
-   "ver": "0.5.7",
+   "ver": "0.5.7(0.5.8 재핀실패)",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/hooks.rs:1606"
    ],
    "sect": ".text",
-   "bytes": "28a424c0000000440f28ac24",
-   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+   "bytes": "2844245066440f6f4c244048",
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
+   "curated": true,
+   "unresolved": "0.5.8",
+   "note": "★0.5.8 재핀 실패(2026-09-02) — 자동 3단(바이트 유일검색/skeleton/owner+콜그래프)·지역창 축소·사이트 문맥 대조 전부 동형 클론에 막힘. ghidra-re 로 개별 재규명 필요. ⚠rebase 로 bytes 는 새 exe 기준이라 check 는 PASS 로 보인다 — 이 표식이 유일한 단서."
   },
   {
    "name": "INLINE@src/hooks.rs:1606",
    "value": "0x1cbb5d0",
-   "ver": "0.5.7",
+   "ver": "0.5.7(0.5.8 재핀실패)",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/hooks.rs:1606"
    ],
    "sect": ".text",
-   "bytes": "00440f29ac24b0000000440f",
-   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+   "bytes": "2460660f2974247080bd340c",
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
+   "curated": true,
+   "unresolved": "0.5.8",
+   "note": "★0.5.8 재핀 실패(2026-09-02) — 자동 3단(바이트 유일검색/skeleton/owner+콜그래프)·지역창 축소·사이트 문맥 대조 전부 동형 클론에 막힘. ghidra-re 로 개별 재규명 필요. ⚠rebase 로 bytes 는 새 exe 기준이라 check 는 PASS 로 보인다 — 이 표식이 유일한 단서."
   },
   {
    "name": "AI6",
    "value": "0x1cbb7bf",
-   "ver": "0.5.5",
+   "ver": "0.5.7(0.5.8 재핀실패)",
    "kind": "BYTE_PATCH",
    "locs": [
     "src/hooks.rs:1604"
    ],
    "sect": ".text",
-   "bytes": "c0000000440f299c24d00000",
+   "bytes": "004869cb680200004801f1c6",
    "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
-   "note": "미완 유지 — ai_inline_phase 기본 OFF + sig fail-safe = stale 무해. 기존 sig/스텁 그대로 재핀 불가 판정(스텁 재생성은 열려 있음)",
-   "curated": true
+   "note": "미완 유지 — ai_inline_phase 기본 OFF + sig fail-safe = stale 무해. 기존 sig/스텁 그대로 재핀 불가 판정(스텁 재생성은 열려 있음) ★0.5.8 재핀 실패(2026-09-02) — 자동 3단(바이트 유일검색/skeleton/owner+콜그래프)·지역창 축소·사이트 문맥 대조 전부 동형 클론에 막힘. ghidra-re 로 개별 재규명 필요. ⚠rebase 로 bytes 는 새 exe 기준이라 check 는 PASS 로 보인다 — 이 표식이 유일한 단서.",
+   "curated": true,
+   "unresolved": "0.5.8"
   },
   {
    "name": "INLINE@src/hooks.rs:1608",
    "value": "0x1cbbeea",
-   "ver": "0.5.7",
+   "ver": "0.5.7(0.5.8 재핀실패)",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/hooks.rs:1608"
    ],
    "sect": ".text",
-   "bytes": "e0000000440f289c24d00000",
-   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+   "bytes": "48894528488d059b143bfe48",
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
+   "curated": true,
+   "unresolved": "0.5.8",
+   "note": "★0.5.8 재핀 실패(2026-09-02) — 자동 3단(바이트 유일검색/skeleton/owner+콜그래프)·지역창 축소·사이트 문맥 대조 전부 동형 클론에 막힘. ghidra-re 로 개별 재규명 필요. ⚠rebase 로 bytes 는 새 exe 기준이라 check 는 PASS 로 보인다 — 이 표식이 유일한 단서."
   },
   {
    "name": "INLINE@src/hooks.rs:1608",
    "value": "0x1cbc1ba",
-   "ver": "0.5.7",
+   "ver": "0.5.7(0.5.8 재핀실패)",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/hooks.rs:1608"
    ],
    "sect": ".text",
-   "bytes": "000f28bc2410010000440f28",
-   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+   "bytes": "1045e00f2945b04c8b75b848",
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
+   "curated": true,
+   "unresolved": "0.5.8",
+   "note": "★0.5.8 재핀 실패(2026-09-02) — 자동 3단(바이트 유일검색/skeleton/owner+콜그래프)·지역창 축소·사이트 문맥 대조 전부 동형 클론에 막힘. ghidra-re 로 개별 재규명 필요. ⚠rebase 로 bytes 는 새 exe 기준이라 check 는 PASS 로 보인다 — 이 표식이 유일한 단서."
   },
   {
    "name": "HL",
-   "value": "0x1d84277",
-   "ver": "0.5.7",
+   "value": "0x1fea597",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/hooks.rs:1683"
    ],
    "sect": ".text",
-   "bytes": "ffe2488d5104b3ff4839d04c",
+   "bytes": "488d75e0ffe2488d510441b6",
    "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
   },
   {
    "name": "HL",
-   "value": "0x1d84360",
-   "ver": "0.5.7",
+   "value": "0x1fea680",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/hooks.rs:1683"
    ],
    "sect": ".text",
-   "bytes": "89d824fe3c020f9485c7bf00",
+   "bytes": "ff4839d04c8d85609d000073",
    "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
   },
   {
    "name": "RVA_APP_PICK_T1",
-   "value": "0x1e458d0",
-   "ver": "0.5.7",
+   "value": "0x212cf00",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/hooks.rs:521"
@@ -350,8 +367,8 @@
   },
   {
    "name": "RVA_APP_PICK_T2",
-   "value": "0x1e45a60",
-   "ver": "0.5.7",
+   "value": "0x212d090",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/hooks.rs:522"
@@ -362,8 +379,8 @@
   },
   {
    "name": "RVA_LINEUP",
-   "value": "0x1e46390",
-   "ver": "0.5.7",
+   "value": "0x212d9c0",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/hooks.rs:668"
@@ -374,8 +391,8 @@
   },
   {
    "name": "RVA_PHASE_RAW",
-   "value": "0x1e4f2d0",
-   "ver": "0.5.7",
+   "value": "0x2136900",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/hooks.rs:415"
@@ -386,8 +403,8 @@
   },
   {
    "name": "RVA_TRANSITION",
-   "value": "0x1e4fa70",
-   "ver": "0.5.7",
+   "value": "0x2137030",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/hooks.rs:526"
@@ -398,8 +415,8 @@
   },
   {
    "name": "RVA_BANNER",
-   "value": "0x1e56e00",
-   "ver": "0.5.7",
+   "value": "0x213e3c0",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/hooks.rs:637"
@@ -410,8 +427,8 @@
   },
   {
    "name": "RVA_APPLIER",
-   "value": "0x1e59680",
-   "ver": "0.5.7",
+   "value": "0x2140c40",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/hooks.rs:57"
@@ -422,8 +439,8 @@
   },
   {
    "name": "RVA_PHASE_SCENE",
-   "value": "0x1e748a0",
-   "ver": "0.5.7",
+   "value": "0x215be10",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/hooks.rs:55"
@@ -434,8 +451,8 @@
   },
   {
    "name": "RVA_TRIGGER",
-   "value": "0x1e782a0",
-   "ver": "0.5.7",
+   "value": "0x215f810",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/hooks.rs:1818"
@@ -446,8 +463,8 @@
   },
   {
    "name": "RVA_APP_BAN_T1",
-   "value": "0x1e83360",
-   "ver": "0.5.7",
+   "value": "0x216a8d0",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/hooks.rs:523"
@@ -458,8 +475,8 @@
   },
   {
    "name": "RVA_APP_BAN_T2",
-   "value": "0x1e834e0",
-   "ver": "0.5.7",
+   "value": "0x216aa50",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/hooks.rs:524"
@@ -470,8 +487,8 @@
   },
   {
    "name": "RVA_SLOTUPD",
-   "value": "0x1e98ed0",
-   "ver": "0.5.7",
+   "value": "0x2180b10",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/hooks.rs:342"
@@ -482,8 +499,8 @@
   },
   {
    "name": "RVA_SFX_SITE",
-   "value": "0x1ed88b5",
-   "ver": "0.5.7",
+   "value": "0x21b9125",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/hooks.rs:594"
@@ -494,8 +511,8 @@
   },
   {
    "name": "RVA_SFX_END",
-   "value": "0x1ed8904",
-   "ver": "0.5.7",
+   "value": "0x21b9174",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/hooks.rs:595"
@@ -506,8 +523,8 @@
   },
   {
    "name": "DRAIN_HL2",
-   "value": "0x1ee2e47",
-   "ver": "0.5.7",
+   "value": "0x21c36a7",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/hooks.rs:1782"
@@ -518,8 +535,8 @@
   },
   {
    "name": "DRAIN_HL2",
-   "value": "0x1ee3014",
-   "ver": "0.5.7",
+   "value": "0x21c3874",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/hooks.rs:1782"
@@ -530,20 +547,22 @@
   },
   {
    "name": "DRAIN_HL2",
-   "value": "0x1ee3028",
-   "ver": "0.5.7",
+   "value": "0x21c3888",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/hooks.rs:1782"
    ],
    "sect": ".text",
-   "bytes": "80faff740838d00f85954dff",
-   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+   "bytes": "80faff740838d00f85a54dff",
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
+   "curated": true,
+   "note": "[0.5.8 owner 0x21b81e0 내 off 0xb6b8→0xb6a8 (형제 Δ-0x10 군집 일치)]"
   },
   {
    "name": "DRAIN_HL2",
-   "value": "0x1ee3359",
-   "ver": "0.5.7",
+   "value": "0x21c3bb9",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/hooks.rs:1786"
@@ -554,8 +573,8 @@
   },
   {
    "name": "DRAIN_HL2",
-   "value": "0x1ee408c",
-   "ver": "0.5.7",
+   "value": "0x21c48ec",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/hooks.rs:1786"
@@ -566,8 +585,8 @@
   },
   {
    "name": "DRAIN_HL2",
-   "value": "0x1ee4132",
-   "ver": "0.5.7",
+   "value": "0x21c4992",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/hooks.rs:1784"
@@ -578,8 +597,8 @@
   },
   {
    "name": "DRAIN_HL2",
-   "value": "0x1ee41e8",
-   "ver": "0.5.7",
+   "value": "0x21c4a48",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/hooks.rs:1784"
@@ -590,8 +609,8 @@
   },
   {
    "name": "INLINE@src/hooks.rs:1938",
-   "value": "0x1ee421a",
-   "ver": "0.5.7",
+   "value": "0x21c4a7a",
+   "ver": "0.5.8",
    "kind": "MID_SITE",
    "locs": [
     "src/hooks.rs:1938"
@@ -603,8 +622,8 @@
   },
   {
    "name": "INLINE@src/hooks.rs:1938",
-   "value": "0x1ee42b2",
-   "ver": "0.5.7",
+   "value": "0x21c4b12",
+   "ver": "0.5.8",
    "kind": "MID_SITE",
    "locs": [
     "src/hooks.rs:1938"
@@ -616,8 +635,8 @@
   },
   {
    "name": "DRAIN_HL2",
-   "value": "0x1ee42cf",
-   "ver": "0.5.7",
+   "value": "0x21c4b2f",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/hooks.rs:1784"
@@ -628,8 +647,8 @@
   },
   {
    "name": "DRAIN_HL",
-   "value": "0x1ee4de3",
-   "ver": "0.5.7",
+   "value": "0x21c5643",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/hooks.rs:1748"
@@ -640,8 +659,8 @@
   },
   {
    "name": "DRAIN_HL",
-   "value": "0x1ee50a9",
-   "ver": "0.5.7",
+   "value": "0x21c5909",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/hooks.rs:1748"
@@ -652,8 +671,8 @@
   },
   {
    "name": "DRAIN_HL",
-   "value": "0x1ee50fa",
-   "ver": "0.5.7",
+   "value": "0x21c595a",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/hooks.rs:1750"
@@ -664,8 +683,8 @@
   },
   {
    "name": "DRAIN_HL",
-   "value": "0x1ee519b",
-   "ver": "0.5.7",
+   "value": "0x21c59fb",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/hooks.rs:1750"
@@ -676,20 +695,22 @@
   },
   {
    "name": "SLOTSEL",
-   "value": "0x1eee9e2",
-   "ver": "0.5.7",
+   "value": "0x21cf242",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/hooks.rs:1803"
    ],
    "sect": ".text",
-   "bytes": "4d01d2488d3508cb5a014e63",
-   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+   "bytes": "4d01d2488d35e09035014e63",
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
+   "curated": true,
+   "note": "[0.5.8 owner 0x21b81e0 내 off 0x17072→0x17062 (형제 Δ-0x10 군집 일치)]"
   },
   {
    "name": "SLOTSEL",
-   "value": "0x1eeeaed",
-   "ver": "0.5.7",
+   "value": "0x21cf34d",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/hooks.rs:1803"
@@ -700,8 +721,8 @@
   },
   {
    "name": "SLOTSEL",
-   "value": "0x1eeeaf3",
-   "ver": "0.5.7",
+   "value": "0x21cf353",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/hooks.rs:1803"
@@ -712,8 +733,8 @@
   },
   {
    "name": "SLOTSEL",
-   "value": "0x1eef15c",
-   "ver": "0.5.7",
+   "value": "0x21cf9bc",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/hooks.rs:1803"
@@ -724,32 +745,32 @@
   },
   {
    "name": "RVA_AITURN_SITE",
-   "value": "0x232ad9a",
-   "ver": "0.5.7",
+   "value": "0x1a792ea",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/hooks.rs:579"
    ],
    "sect": ".text",
-   "bytes": "0fb68d116a0000488b85086a",
+   "bytes": "7461498b4630eb5d48898520",
    "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
   },
   {
    "name": "RVA_AITURN_JOIN",
-   "value": "0x232b242",
-   "ver": "0.5.7",
+   "value": "0x1a79792",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/hooks.rs:580"
    ],
    "sect": ".text",
-   "bytes": "88858f6b00004c89f9e8e07a",
+   "bytes": "850190488d8d90450000e87f",
    "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
   },
   {
    "name": "RVA_PANIC_HOOK",
-   "value": "0x2aaf154",
-   "ver": "0.5.7",
+   "value": "0x2b16554",
+   "ver": "0.5.8",
    "kind": "FN_START",
    "locs": [
     "src/diag.rs:822"
@@ -761,8 +782,8 @@
   },
   {
    "name": "RVA_STR_BAN",
-   "value": "0x34915f0",
-   "ver": "0.5.7",
+   "value": "0x351e2f0",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/hooks.rs:596"
@@ -773,8 +794,8 @@
   },
   {
    "name": "RVA_STR_PICK",
-   "value": "0x349160c",
-   "ver": "0.5.7",
+   "value": "0x351e30c",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/hooks.rs:597"
@@ -796,8 +817,11 @@
     "src/lib.rs:446"
    ],
    "sect": ".rdata",
-   "bytes": "00000000e0fe5d0100000000",
-   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+   "bytes": "0f030a5206300570046003e0",
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
+   "ignore": true,
+   "curated": true,
+   "note": "[비RVA 상수: exe span 상한]"
   }
  ]
 }

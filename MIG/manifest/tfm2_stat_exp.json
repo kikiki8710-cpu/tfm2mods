@@ -9,8 +9,8 @@
  "entries": [
   {
    "name": "INLINE@src/lib.rs:617",
-   "value": "0x763329",
-   "ver": "0.5.5",
+   "value": "0x768a99",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/lib.rs:617",
@@ -18,7 +18,9 @@
    ],
    "sect": ".text",
    "bytes": "ec28488daa80000000488d4d",
-   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
+   "curated": true,
+   "note": "[0.5.8 owner 0x763320→0x768a90(지역창 유일) + 20B 문맥]"
   },
   {
    "name": "INLINE@src/lib.rs:617",
@@ -30,7 +32,7 @@
     "src/lib.rs:1023"
    ],
    "sect": ".text",
-   "bytes": "f4baff904883c4285e5dc3cc",
+   "bytes": "0048c78568050000ffffffff",
    "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
   },
   {
@@ -42,20 +44,23 @@
     "src/lib.rs:57"
    ],
    "sect": ".text",
-   "bytes": "00000f85c3000000488d8df0",
+   "bytes": "00008d48ff83f9020f835101",
    "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
   },
   {
    "name": "RUN_TICK_RVA",
    "value": "0x14aa160",
-   "ver": "0.5.5",
+   "ver": "0.5.7(0.5.8 재핀실패)",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/lib.rs:73"
    ],
    "sect": ".text",
-   "bytes": "534883ec38488daa80000000",
-   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+   "bytes": "004d0fa3c50f830201000049",
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
+   "curated": true,
+   "unresolved": "0.5.8",
+   "note": "★0.5.8 재핀 실패(2026-09-02) — 자동 3단(바이트 유일검색/skeleton/owner+콜그래프)·지역창 축소·사이트 문맥 대조 전부 동형 클론에 막힘. ghidra-re 로 개별 재규명 필요. ⚠rebase 로 bytes 는 새 exe 기준이라 check 는 PASS 로 보인다 — 이 표식이 유일한 단서."
   },
   {
    "name": "CL_LAUNCHER_RVA",
@@ -66,7 +71,7 @@
     "src/lib.rs:27"
    ],
    "sect": ".text",
-   "bytes": "83c1f875eb85c00f8403ffff",
+   "bytes": "488985800100004c89bd4802",
    "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
   },
   {
@@ -79,7 +84,7 @@
     "src/lib.rs:1023"
    ],
    "sect": ".text",
-   "bytes": "90eb9f4883c128ffd7488b45",
+   "bytes": "488b85200300004889851002",
    "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
   },
   {
@@ -92,7 +97,7 @@
     "src/lib.rs:1023"
    ],
    "sect": ".text",
-   "bytes": "0600001e00000048c785a006",
+   "bytes": "0f287c24204881c4c8000000",
    "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
   },
   {
@@ -105,7 +110,7 @@
     "src/lib.rs:1023"
    ],
    "sect": ".text",
-   "bytes": "3c020048898590e30000488b",
+   "bytes": "48c785a80e0000000000004c",
    "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
   }
  ]

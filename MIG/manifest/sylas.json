@@ -12,8 +12,8 @@
  "entries": [
   {
    "name": "RVA_BOXDROP",
-   "value": "0xec870",
-   "ver": "0.5.6",
+   "value": "0xec780",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/lib.rs:1309"
@@ -35,13 +35,16 @@
     "src/lib.rs:4070"
    ],
    "sect": ".text",
-   "bytes": "205f5e5dc366662e0f1f8400",
-   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+   "bytes": "8b416489c1d1e981e1555555",
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
+   "ignore": true,
+   "curated": true,
+   "note": "[비RVA 상수: refcount 정상범위 상한]"
   },
   {
    "name": "VIEWLOOP_RVA",
-   "value": "0x8fb670",
-   "ver": "0.5.6",
+   "value": "0x94e160",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/lib.rs:2436"
@@ -52,8 +55,8 @@
   },
   {
    "name": "VIEWLOOKUP_RVA",
-   "value": "0x8fe2d5",
-   "ver": "0.5.6",
+   "value": "0x950dc5",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/lib.rs:2435"
@@ -64,8 +67,8 @@
   },
   {
    "name": "VIEWFAIL_RVA",
-   "value": "0x8fe4d8",
-   "ver": "0.5.6",
+   "value": "0x950fc8",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/lib.rs:2433"
@@ -76,20 +79,20 @@
   },
   {
    "name": "AIEVAL_RVA",
-   "value": "0xeba9d0",
-   "ver": "0.5.6",
+   "value": "0xd399a0",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/lib.rs:2520"
    ],
    "sect": ".text",
-   "bytes": "415741564155415456575553",
+   "bytes": "415741564155415456575348",
    "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
   },
   {
    "name": "CVIEW_RVA",
-   "value": "0x104f060",
-   "ver": "0.5.6",
+   "value": "0x17f5700",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/lib.rs:2418"
@@ -100,8 +103,8 @@
   },
   {
    "name": "EMIT_RVA",
-   "value": "0x10556d0",
-   "ver": "0.5.6",
+   "value": "0x17fc840",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/lib.rs:1796"
@@ -112,8 +115,8 @@
   },
   {
    "name": "KZONE_RVA",
-   "value": "0x138f7d0",
-   "ver": "0.5.6",
+   "value": "0x16a3730",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/lib.rs:2408"
@@ -124,8 +127,8 @@
   },
   {
    "name": "ADDBUFF_RVA",
-   "value": "0x139a5d0",
-   "ver": "0.5.6",
+   "value": "0x1150800",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/lib.rs:1247"
@@ -136,8 +139,8 @@
   },
   {
    "name": "CVIEW_APPLY_RVA",
-   "value": "0x1413830",
-   "ver": "0.5.6",
+   "value": "0x17c40a0",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/lib.rs:2421"
@@ -148,8 +151,8 @@
   },
   {
    "name": "CLONE_RVA",
-   "value": "0x14f43c0",
-   "ver": "0.5.6",
+   "value": "0x16f45d0",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/lib.rs:107"
@@ -160,8 +163,8 @@
   },
   {
    "name": "GRAB_RVA",
-   "value": "0x1504310",
-   "ver": "0.5.6",
+   "value": "0x13bf990",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/lib.rs:22"
@@ -172,8 +175,8 @@
   },
   {
    "name": "BASEULT_RVA",
-   "value": "0x1556940",
-   "ver": "0.5.6",
+   "value": "0x1753cf0",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/lib.rs:100"
@@ -184,8 +187,8 @@
   },
   {
    "name": "ETICK_RVA",
-   "value": "0x1583de0",
-   "ver": "0.5.6",
+   "value": "0x128fe80",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/lib.rs:667"
@@ -196,8 +199,8 @@
   },
   {
    "name": "RVA_ASSEMBLE",
-   "value": "0x1590010",
-   "ver": "0.5.6",
+   "value": "0x129c0b0",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/lib.rs:1308"
@@ -208,8 +211,8 @@
   },
   {
    "name": "BUFFPUSH_RVA",
-   "value": "0x15925c0",
-   "ver": "0.5.6",
+   "value": "0x129e660",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/lib.rs:1252"
@@ -220,8 +223,8 @@
   },
   {
    "name": "COMBINE_RVA",
-   "value": "0x159a430",
-   "ver": "0.5.6",
+   "value": "0x12a70b0",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/lib.rs:31"
@@ -232,8 +235,8 @@
   },
   {
    "name": "JT_RVA",
-   "value": "0x161b390",
-   "ver": "0.5.6",
+   "value": "0x1285640",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/lib.rs:94"
@@ -244,8 +247,8 @@
   },
   {
    "name": "COMBINE_APPLYS",
-   "value": "0x1802630",
-   "ver": "0.5.6",
+   "value": "0x11f7b90",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/lib.rs:40"
@@ -256,8 +259,8 @@
   },
   {
    "name": "COMBINE_APPLYS",
-   "value": "0x1802760",
-   "ver": "0.5.6",
+   "value": "0x11f7cc0",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/lib.rs:40"
@@ -268,21 +271,21 @@
   },
   {
    "name": "INLINE@src/lib.rs:3200",
-   "value": "0x182ea50",
-   "ver": "0.5.6",
+   "value": "0x1222cc0",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/lib.rs:3200",
     "src/lib.rs:3218"
    ],
    "sect": ".text",
-   "bytes": "7848898e600400000f104568",
+   "bytes": "899d500100004889bd580100",
    "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
   },
   {
    "name": "TAGSEL_RVA",
-   "value": "0x23964e0",
-   "ver": "0.5.6",
+   "value": "0x2069c50",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/lib.rs:1643"
@@ -293,8 +296,8 @@
   },
   {
    "name": "ALLOC_RVA",
-   "value": "0x2ab4010",
-   "ver": "0.5.6",
+   "value": "0x2b1b410",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/lib.rs:42"
@@ -305,8 +308,8 @@
   },
   {
    "name": "EFF_VT_BASE",
-   "value": "0x33ff9c8",
-   "ver": "0.5.7",
+   "value": "0x3494778",
+   "ver": "0.5.8",
    "kind": "RDATA_TABLE",
    "locs": [
     "src/lib.rs:1559"
@@ -314,7 +317,8 @@
    "sect": ".rdata",
    "bytes": "000000000000000048000000",
    "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
-   "note": "0.5.7에서 effect vtable이 35슬롯(0x118B)->36슬롯(0x120B)로 바뀌어 표 주소가 이동. 구 0x34200d8은 0.5.7에서 effect vtable 표가 아니다. stride=0x120, N=57. ⚠이 엔트리의 bytes 시그니처는 첫 qword가 0이라 약하다 — 진짜 검증은 'stride 0x120으로 57개 훑을 때 +0x108이 전부 동일(=mov eax,0xbb80;ret)'이다. 모드가 시작 시 자기점검으로 이걸 확인하고 실패하면 [자기점검 실패]를 찍는다. 근거=REPORT/sylas/RE/2026-08-29_챔프별-궁메타-전수와-0.5.7-effect-vtable-레이아웃-변경.md"
+   "note": "0.5.7에서 effect vtable이 35슬롯(0x118B)->36슬롯(0x120B)로 바뀌어 표 주소가 이동. 구 0x34200d8은 0.5.7에서 effect vtable 표가 아니다. stride=0x120, N=57. ⚠이 엔트리의 bytes 시그니처는 첫 qword가 0이라 약하다 — 진짜 검증은 'stride 0x120으로 57개 훑을 때 +0x108이 전부 동일(=mov eax,0xbb80;ret)'이다. 모드가 시작 시 자기점검으로 이걸 확인하고 실패하면 [자기점검 실패]를 찍는다. 근거=REPORT/sylas/RE/2026-08-29_챔프별-궁메타-전수와-0.5.7-effect-vtable-레이아웃-변경.md [0.5.8 구조 불변식 재핀(stride 0x120→0x128·37슬롯). RE = REPORT/sylas/RE/2026-09-02]",
+   "curated": true
   },
   {
    "name": "INLINE@src/lib.rs:179",
@@ -325,13 +329,16 @@
     "src/lib.rs:179"
    ],
    "sect": ".rdata",
-   "bytes": "9a1500440100000084030044",
-   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+   "bytes": "38043c042000410442043004",
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
+   "ignore": true,
+   "curated": true,
+   "note": "[비RVA 상수: in_exe span 상한]"
   },
   {
    "name": "CASTANIM_RVA",
-   "value": "0x104ca00",
-   "ver": "0.5.7",
+   "value": "0x17f2d60",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/lib.rs:2089"
