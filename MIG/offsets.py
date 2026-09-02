@@ -164,12 +164,40 @@ def cmd_sources(mods, a):
     sh = json.load(open(sp, encoding='utf-8'))
     # ★그 모드 **자신의** 함수가 움직인 오프셋만 본다.
     #   (모드 간 교차 매칭은 0x30·0x64 같은 흔한 수 때문에 노이즈만 낸다 — 09-02 실측 898건)
-    per_mod = {}
+    # ★델타 필터: 진짜 구조체 이동은 **여러 함수에서 같은 델타**로 나타난다.
+    #   1~2쌍짜리 단발 델타(0x78·0x980 등)는 코드젠 변화가 만든 허깨비 짝짓기다
+    #   (0.5.8 실측: 진짜는 Δ+0x10 — comptest·serpen·sylas·champ_pos_lock 에서 동시 출현).
+    import collections as _c
+    votes = _c.Counter()
     for mod, rows in sh.items():
-        d = per_mod.setdefault(mod, {})
         for r in rows:
+            if r['delta'] is not None and r['pairs']:
+                votes[r['delta']] += 1          # 함수 단위 1표
+    if a.delta is not None:
+        keep = {a.delta}
+    else:
+        keep = {d for d, v in votes.items() if v >= 2}
+    print('델타 투표(함수 수): %s  → 채택 %s'
+          % ([(hex(k), v) for k, v in votes.most_common(6)], [hex(x) for x in sorted(keep)]))
+    # ★구조체는 전역이다 — "그 모드 자신의 함수"로만 제한하면 놓친다.
+    #   (0.5.8: `0x1e0→0x1f0` 증거는 sylas 함수 4개에서 나왔지만, 같은 값을 ai_adjust 도 쓴다.)
+    #   대신 **여러 함수에서 관측된 (구,신) 쌍**만 채택해 신뢰도를 세운다.
+    pair_votes = _c.Counter()
+    pair_who = _c.defaultdict(set)
+    for mod, rows in sh.items():
+        for r in rows:
+            if r['delta'] not in keep:
+                continue
             for o, n in r['pairs']:
-                d.setdefault(int(o, 16), []).append((r['fn'], n))
+                if int(n, 16) - int(o, 16) not in keep:
+                    continue
+                pair_votes[(o, n)] += 1
+                pair_who[(o, n)].add(mod + ':' + r['fn'])
+    glob = {int(o, 16): (n, pair_votes[(o, n)], sorted(pair_who[(o, n)]))
+            for (o, n) in pair_votes if pair_votes[(o, n)] >= a.minvotes}
+    print('전역 채택 쌍(관측 함수 %d개 이상): %s'
+          % (a.minvotes, ['%s->%s x%d' % (hex(k), v[0], v[1]) for k, v in sorted(glob.items())]))
+    per_mod = {m: glob for m in mods}
     floor = a.floor
     print('모드별 이동 오프셋(자기 함수 기준) — 소스 하드코딩 위치 (>= %#x, 덧셈 문맥만):' % floor)
     hit = 0
@@ -195,9 +223,9 @@ def cmd_sources(mods, a):
                            re.search(r'(OFF|OFFSET|SLOT|STRIDE|_OF)\w*\s*(:\s*\w+)?\s*=\s*$', pre))
                     if not ctx:
                         continue
-                    fn, new = moved[v][0]
-                    print('  %-22s %-28s:%-5d 0x%-4x -> 0x%-4x  (근거 함수 %s)'
-                          % (mod, rel, i + 1, v, int(new, 16), fn))
+                    new, votes, whos = moved[v]
+                    print('  %-20s %-26s:%-5d 0x%-4x -> %-6s x%d  (근거 %s)'
+                          % (mod, rel, i + 1, v, new, votes, ','.join(whos[:2])))
                     hit += 1
     print('총 %d곳. ⚠같은 수가 다른 구조체를 뜻할 수 있다 — 함수 문맥으로 확인하고 고칠 것.' % hit)
     return 0
@@ -210,6 +238,8 @@ if __name__ == '__main__':
     ap.add_argument('--exe', default=MV.GAME_EXE)
     ap.add_argument('--pkl', default=os.path.join(MV.ROOT, '_fnidx_058.pkl'))
     ap.add_argument('--ver', default=MV.GAME_VER)
+    ap.add_argument('--minvotes', type=int, default=2, help='이 개수 이상의 함수에서 관측된 (구,신) 쌍만 채택')
+    ap.add_argument('--delta', type=lambda x:int(x,0), default=None, help='이 델타만 진짜 이동으로 본다(미지정=2개 함수 이상에서 나온 델타)')
     ap.add_argument('--floor', type=lambda x:int(x,0), default=0x40, help='이 값 미만 오프셋은 노이즈로 보고 무시')
     a = ap.parse_args()
     mods = a.mods or list(MV.MODS)

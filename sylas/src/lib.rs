@@ -111,7 +111,9 @@ const A_F190: usize = 0x190;
 const A_F198: usize = 0x198; // casting_type — JT 디스패처가 req[0x30]으로 읽는 인덱스
 const A_F19C: usize = 0x19c;
 const REQ_COPY: usize = 0x48; // 스택 조립 구조체 복사 크기(디컴상 local_a0~local_68 = 0x40 + 여유)
-const WOPS_RESOLVE_SLOT: usize = 0x1e0; // 0.5.6 Grab 본문 `call [r9+0x1e0]` (구 0.5.2 0x1b8) — r9 sanity 검사용
+const WOPS_RESOLVE_SLOT: usize = 0x1f0; // ★0.5.8 재핀: Grab 본문 `call [r9+0x1f0]` (0.5.7=0x1e0 · 0.5.2=0x1b8) — r9 sanity 검사용
+// ★근거 = 0.5.7 GRAB 0x1504310 `call [r9+0x1e0]` ↔ 0.5.8 GRAB 0x13bf990 `call [r9+0x1f0]`
+//   (같은 함수 같은 위치, 같은 명령). WorldOps vtable 이 0x10 커졌다 — `MIG\offsets.py` 가 잡아낸 축.
 // world SlotMap 오프셋 (resolve 재구현) — 0.5.5에서 world 저대역 +0x18 강체 시프트(정본 = MIGRATION §7.5 §6)
 const W_DENSE_BASE: usize = 0x738; // 구 0x720
 const W_DENSE_LEN:  usize = 0x740; // 구 0x728
