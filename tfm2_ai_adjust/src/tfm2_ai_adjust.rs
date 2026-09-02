@@ -2456,8 +2456,10 @@ unsafe extern "C" fn retreat_capture(saved: usize, entry_rsp: usize) -> u64 {
         //   0.5.8 재핀 실패 상태다(매니페스트 unresolved). 체인을 켜면 첫 이적시장 "생략하기"에서
         //   `exe+0xcc20ce` 점프테이블 인덱스 폭주로 죽는다(0.5.8 실측, 12회 동일 지점).
         //   ⚠훅·마이크로 디투어는 이 게이트 밖이라 정상 동작한다 — 죽는 건 imm 패치 계열뿐.
-        //   재활성 조건 = unresolved 사이트 재핀 후 `hk_applyimm=1`.
-        if hk_on_d("applyimm", 0) {
+        //   ★2026-09-02 재활성: `orig_guard_ok` 를 **fail-closed** 로 바꿔(detour.rs)
+        //   표(orig_table 891행)에 없거나 원본값이 다른 사이트는 아예 패치되지 않는다.
+        //   ⟹ 재핀 확인된 558건만 적용되고 미재핀 333건 + 표 밖 사이트는 안전하게 skip.
+        if hk_on("applyimm") {
         if hk_on("ap_call_ablate") { apply_call_ablate(); }  // ★오더 콜 ablation 패치 적용/복원 (want==applied면 즉시 return)
         if hk_on("ap_lane_gate") { apply_lane_gate(); }    // ★오더 라인후보 게이트 ablation (lane_gate 0/1/2)
         if hk_on("ap_type3_ablate") { apply_type3_ablate(); } // ★오더 transition type3 콜 ablation (매크로 전환 영향 검증)

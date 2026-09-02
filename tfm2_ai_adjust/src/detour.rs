@@ -759,6 +759,7 @@ unsafe fn apply_call_ablate() {
 static GUARD_SEEN: [AtomicU64; (orig_table::EXPECT_ORIG.len() + 63) / 64] =
     [const { AtomicU64::new(0) }; (orig_table::EXPECT_ORIG.len() + 63) / 64];
 static GUARD_BLOCKED: AtomicU32 = AtomicU32::new(0);
+static GUARD_UNKNOWN: AtomicU32 = AtomicU32::new(0);   // ★[0.5.8] 표에 없어 거부한 사이트 수(fail-closed)
 static GUARD_CHECKED: AtomicU32 = AtomicU32::new(0);
 
 /// 사이트를 처음 건드릴 때만 원본값을 대조한다. `true` = 써도 된다.
@@ -770,9 +771,29 @@ static GUARD_CHECKED: AtomicU32 = AtomicU32::new(0);
         let m = (lo + hi) / 2;
         if t[m].0 < rva { lo = m + 1; } else { hi = m; }
     }
-    if lo >= t.len() || t[lo].0 != rva { return true; }          // 표에 없는 사이트 = 기존 동작 유지
+    if lo >= t.len() || t[lo].0 != rva {
+        // ★★[0.5.8] fail-CLOSED 전환(2026-09-02). 구 동작은 `return true`(무가드 통과)였다.
+        //   그 결과 **재핀 안 된 사이트가 prefix 3~4B 우연일치만으로 패치**돼 엉뚜한 명령의
+        //   즉시값을 덮어썼고, 게임 구조체의 상태 enum 이 -1 이 되어
+        //   `exe+0xcc20ce` 점프테이블 인덱스 폭주로 죽었다(0.5.8 실측 12회 동일 지점).
+        //   표(orig_table)는 891행 = 사실상 전수라, 표에 없으면 "모르는 자리"로 보고 **거부**한다.
+        GUARD_UNKNOWN.fetch_add(1, Ordering::Relaxed);
+        // ★[0.5.8] 거부한 자리를 남긴다 — 이 목록이 곧 **재핀 대상 명세**다.
+        //   (표에 없다 = 0.5.8 에서 이 사이트를 아직 확정 못 했다는 뜻)
+        if let Some(pp) = pth("imm_unknown.txt") {
+            use std::io::Write as _;
+            if let Ok(mut f) = fs::OpenOptions::new().create(true).append(true).open(&pp) {
+                let _ = write!(f, "{:#x} off={} w={}
+", rva, imm_off, width);
+            }
+        }
+        return false;
+    }
     let (_, off, w, orig) = t[lo];
-    if off as usize != imm_off || w as usize != width { return true; }   // 다른 배선 = 판단 보류
+    if off as usize != imm_off || w as usize != width {
+        GUARD_UNKNOWN.fetch_add(1, Ordering::Relaxed);
+        return false;   // ★[0.5.8] 배선 폭이 다르면 같은 자리가 아니다 — 보류(true) 대신 거부
+    }
     let (wi, bi) = (lo / 64, lo % 64);
     if GUARD_SEEN[wi].load(Ordering::Relaxed) & (1u64 << bi) != 0 { return true; }  // 이미 우리가 쓴 자리
     GUARD_CHECKED.fetch_add(1, Ordering::Relaxed);
@@ -803,10 +824,11 @@ unsafe fn write_guard_summary() {
     if ck == 0 { return; }
     if let Some(p) = pth("imm_guard_summary.txt") {   // log 플래그와 무관하게 기록(안전 보고)
         let _ = fs::write(p, format!(
-            "checked={}/{} blocked={}\n\
+            "checked={}/{} blocked={} unknown={}\n\
              (등록 사이트 전수 = {}. checked 가 이보다 작으면 그 배선이 아직 안 돌았거나 prefix 단계에서 걸린 것)\n\
              blocked>0 이면 그 배선 주소가 틀린 것이므로 반드시 확인할 것.\n",
-            ck, orig_table::EXPECT_ORIG.len(), bl, orig_table::EXPECT_ORIG.len()));
+            ck, orig_table::EXPECT_ORIG.len(), bl,
+            GUARD_UNKNOWN.load(Ordering::Relaxed), orig_table::EXPECT_ORIG.len()));
     }
 }
 
