@@ -669,6 +669,33 @@ unsafe fn apply_push_ablate() {
     write_named("push_ablate.txt", &format!("push_ablate={} APPLIED (4게이트 jae→jmp, push0)\n", want));
 }
 
+// ★오더 push 내용 스크램블 (0.5.7) — store type 즉치 3곳 0x0b/0x03↔0xff. len/realloc 불변.
+unsafe fn apply_push_scramble() {
+    let want = PUSH_SCRAMBLE.load(Ordering::Relaxed);
+    if want == PUSH_SCRAMBLE_APPLIED.load(Ordering::Relaxed) { return; }
+    let base = exe_base();
+    if base == 0 { return; }
+    if READY_TICKS.load(Ordering::Relaxed) < READY_MIN { return; }
+    let sites = [(base + PS_A_RVA, PS_A_ORIG), (base + PS_B_RVA, PS_B_ORIG), (base + PS_T_RVA, PS_T_ORIG)];
+    // 안전검증: 켤때 원본(0x0b/0x03), 끌때 스크램블(0xff)
+    for &(addr, orig) in sites.iter() {
+        if !readable(addr, 1) { return; }
+        let b = rd_u8(addr);
+        let ok = if want { b == orig } else { b == PS_SCRAM };
+        if !ok { write_named("push_scramble.txt", &format!("ABORT @{:#x} {:02x} want={} (RVA mismatch?)\n", addr, b, want)); return; }
+    }
+    for &(addr, orig) in sites.iter() {
+        let newb = if want { PS_SCRAM } else { orig };
+        let mut old: u32 = 0;
+        if VirtualProtect(addr, 1, 0x40, &mut old) == 0 { continue; }
+        core::ptr::write_unaligned(addr as *mut u8, newb);
+        VirtualProtect(addr, 1, old, &mut old);
+        FlushInstructionCache(GetCurrentProcess(), addr, 1);
+    }
+    PUSH_SCRAMBLE_APPLIED.store(want, Ordering::Relaxed);
+    write_named("push_scramble.txt", &format!("push_scramble={} APPLIED (type 즉치 0x0b/0x03↔0xff, realloc 불변)\n", want));
+}
+
 unsafe fn build_call_stub(counter_addr: usize, join_addr: usize) -> usize {
     const MEM_CR: u32 = 0x1000|0x2000; const RWX: u32 = 0x40;
     let stub = stub_reg(VirtualAlloc(0, 64, MEM_CR, RWX), 64, 0xF004);
