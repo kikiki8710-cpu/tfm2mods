@@ -1,0 +1,44 @@
+{
+ "mod": "tfm2_draft_overlay",
+ "game_ver": "0.5.7",
+ "fns": {
+  "0x1ab310": {
+   "name": "PARSER_RVA",
+   "size": 2192,
+   "offs": {
+    "0x28": 7,
+    "0x18": 7,
+    "0x20": 7,
+    "0x10": 8,
+    "0x30": 3
+   }
+  },
+  "0x2ea930": {
+   "name": "LOADER_RVA",
+   "size": 425,
+   "offs": {
+    "0x48": 1,
+    "0x50": 1,
+    "0x30": 1,
+    "0x38": 1,
+    "0x18": 1
+   }
+  },
+  "0x74bf10": {
+   "name": "ANIM_GET_RVA",
+   "size": 425,
+   "offs": {
+    "0x48": 1,
+    "0x50": 1,
+    "0x30": 1,
+    "0x38": 1,
+    "0x18": 1
+   }
+  },
+  "0x2ab4010": {
+   "name": "ALLOC_RVA",
+   "size": 60,
+   "offs": {}
+  }
+ }
+}

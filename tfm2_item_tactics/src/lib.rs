@@ -5179,18 +5179,21 @@ unsafe fn patch_gate3() -> String {
 // ⚠0.5.6 실사고(2026-08-20): 0.5.6 재핀이 RVA·구조체만 갱신하고 **이 게이트 상수를 누락** →
 //   게임에서 모드 전체 자기비활성("4번째 아이템 안 나옴" 제보·version_gate.txt로 특정).
 //   패치 대응 체크리스트에 "버전 게이트 상수(exe 크기)"도 재핀 축으로 포함할 것.
-const GAME_EXE_SIZE_056: u64 = 77_111_808; // 0.5.6 (실측 확인). ~~0.5.5=76_957_696~~ ~~0.5.4=75_936_256~~
+const GAME_EXE_SIZE: u64 = 77_666_816; // ★0.5.8 (실측). ~~0.5.7=77_111_808~~ ~~0.5.5=76_957_696~~ ~~0.5.4=75_936_256~~
+// ★이름에 버전을 박지 않는다 — 0.5.7 회차에 값만 고치고 이름(_056)을 안 고쳐서
+//   "이름은 056인데 값은 0.5.7" 인 상태로 남았고, 읽는 사람이 최신인지 알 수 없었다.
+// ★이 상수는 `MIG\env.py` 의 [버전 게이트] 검사가 매 패치마다 자동으로 잡는다(2026-09-02 신설).
 static VERSION_OK: AtomicBool = AtomicBool::new(false);
 static VERSION_MSG: Mutex<String> = Mutex::new(String::new());
-/// 0.5.6 인지 판정. init 에서 1회 호출하고 결과를 VERSION_OK 에 남긴다.
+/// 현행 게임 버전인지 판정. init 에서 1회 호출하고 결과를 VERSION_OK 에 남긴다.
 fn check_game_version() -> bool {
     let mut why = String::new();
     // ① exe 크기
     let size_ok = match exe_path().and_then(|p| fs::metadata(p).ok()) {
         Some(m) => {
             let sz = m.len();
-            if sz == GAME_EXE_SIZE_056 { true }
-            else { why = format!("exe 크기 불일치: {}B (0.5.6 = {}B)", sz, GAME_EXE_SIZE_056); false }
+            if sz == GAME_EXE_SIZE { true }
+            else { why = format!("exe 크기 불일치: {}B (모드 기대 = {}B)", sz, GAME_EXE_SIZE); false }
         }
         None => { why = "exe 경로/메타데이터 실패".into(); false }
     };

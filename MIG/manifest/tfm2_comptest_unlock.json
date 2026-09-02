@@ -249,7 +249,10 @@
    ],
    "sect": ".text",
    "bytes": "ffffff666666662e0f1f8400",
-   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
+   "ignore": true,
+   "curated": true,
+   "note": "[주석·로그문자열 전용 — 코드 상수 아님(마스킹 규칙상 apply 대상 밖)]"
   },
   {
    "name": "INLINE@src/_release_backup.rs:2762",
@@ -909,7 +912,10 @@
    ],
    "sect": ".text",
    "bytes": "4c89bd78070000488b958007",
-   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
+   "ignore": true,
+   "curated": true,
+   "note": "[주석·로그문자열 전용 — 코드 상수 아님(마스킹 규칙상 apply 대상 밖)]"
   },
   {
    "name": "MFORGE_RVA",
@@ -1023,7 +1029,10 @@
    ],
    "sect": ".text",
    "bytes": "e2000000f0480fbaae800000",
-   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
+   "ignore": true,
+   "curated": true,
+   "note": "[주석·로그문자열 전용 — 코드 상수 아님(마스킹 규칙상 apply 대상 밖)]"
   },
   {
    "name": "SREG_RVA",

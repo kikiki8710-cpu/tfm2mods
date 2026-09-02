@@ -282,7 +282,10 @@
    ],
    "sect": ".text",
    "bytes": "00000f28e3807c242b007546",
-   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
+   "ignore": true,
+   "curated": true,
+   "note": "[주석·로그문자열 전용 — 코드 상수 아님(마스킹 규칙상 apply 대상 밖)]"
   },
   {
    "name": "INLINE@src/lib.rs:2271",
@@ -346,7 +349,10 @@
    ],
    "sect": ".text",
    "bytes": "488b5120498950200f10010f",
-   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
+   "ignore": true,
+   "curated": true,
+   "note": "[주석·로그문자열 전용 — 코드 상수 아님(마스킹 규칙상 apply 대상 밖)]"
   },
   {
    "name": "INLINE@src/lib.rs:3613",

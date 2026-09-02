@@ -9,7 +9,11 @@
 MIG\
   README.md            이 문서 (절차)
   RETRO-0.5.7.md       재설계 배경 = 0.5.7 마이그 실패 회고
-  mig_verify.py        도구: gen / check / coverage / dups / rebase  (+ mask_code 정본)
+  ★run.py              ★단일 진입점 — 전 축을 순서대로 돌리고 종료코드로 막는다
+  mig_verify.py        축① RVA: gen / check / coverage / dups / rebase  (+ mask_code 정본)
+  ★offsets.py          축② 구조체 오프셋: snap / check / sources
+  ★env.py              축③ 환경: mod_info·deps / 버전게이트 / 빌드SDK / apply누락 / stale dll
+  ★bump_deps.py        deps 대역 일괄(.bak + 재파싱 검증) — 구 bump_deps_058.ps1 은 폐기
   ★repin.py            도구: plan / apply / rdata / resolve — STALE 엔트리 **자동 재핀 엔진**(0.5.8 신설)
   ★callgraph.py        도구: exe 전 함수의 call/jmp 대상 인덱스(repin 의 MULTI/NONE 판별 재료)
   manifest\<MOD>.json  ★모드별 버전 민감 지점 전수 목록 (기계 정본)
@@ -32,6 +36,33 @@ python MIG\repin.py resolve --addrs 0x... --old ... --new ... # 개별 구 RVA �
 매니페스트 엔트리 = 이름 · 값 · 버전 · 종류 · 소스 위치 · **현행 exe 채록 바이트(12B)** · 재탐색 방법.
 `offsets` = 구조체 오프셋 축(exe 대조 불가 — RE 로 검증), `notes` = 모드별 함정, `build` = 빌드 명령.
 
+## ★★마이그는 축이 3개다 — 단일 진입점 `run.py` (2026-09-02 신설)
+```
+python MIG\run.py --exe <신exe> --pkl <신fnidx.pkl> --sdk sdk_<신> --ver <신>
+```
+| 축 | 도구 | 무엇을 보는가 | 이걸 안 봐서 생긴 일 |
+|---|---|---|---|
+| ① RVA | `mig_verify check/coverage/dups` | 주소가 옮겨졌는가 | — |
+| ② **구조체 오프셋** | **`offsets.py check/sources`** | 필드가 밀렸는가 | ★**0.5.8 크래시의 진범** |
+| ③ **환경** | **`env.py`** | deps 대역·버전게이트 상수·빌드 SDK 경로·apply 누락·stale dll | 0.5.8 에서 5건 전부 여기 |
+
+★**`run.py` 가 종료코드 0 을 줄 때만 "마이그 완료"라고 말할 수 있다.** 그 다음이 인게임 검증이다.
+⚠**0.5.8 교훈**: RVA 1,454건을 전부 재핀하고 `check` 전건 PASS·`coverage` 클린을 받고도 게임이 크래시했다.
+원인은 **구조체가 0x10 커져 그 뒤 필드가 전부 밀린 것**. ⑦에 "offsets 는 별도 확인"이라고 **글로는**
+적혀 있었지만 기계 검사가 없어 지켜지지 않았다 — **글로 적힌 절차는 지켜지지 않는다.**
+
+### ② 구조체 오프셋 축이 어떻게 동작하나
+매니페스트는 이미 "우리가 의존하는 게임 함수" 주소를 들고 있다. 그 함수가 **어떤 필드 오프셋을 쓰는지**
+히스토그램 지문을 떠 두고, 다음 버전에서 재핀한 뒤 다시 떠서 diff 한다.
+```
+python MIG\offsets.py snap  --exe <현행exe> --pkl <현행pkl>   # ★마이그 "완료 후" 채록(다음 회차 기준선)
+python MIG\offsets.py check --exe <신exe>  --pkl <신pkl>      # 재핀 후 대조 -> 이동한 오프셋 전수
+python MIG\offsets.py sources                                # 그 값을 하드코딩한 소스 위치 지목
+```
+⚠**snap 타이밍**: 오프셋 작업이 **끝난 뒤에** 떠야 한다. 작업 전에 뜨면 기준선이 새 버전으로 덮여
+이동이 영영 안 보인다. (0.5.8 실측 = ORACLE `+0x110/0x130/0x158/0x198/0x2a8/0x310` → 전부 +0x10,
+sylas `+0x1e0→0x1f0` 5개 함수, serpen MOBATICK Δ+0x38 등)
+
 ## 패치가 오면 (표준 절차)
 
 ```
@@ -51,7 +82,12 @@ python MIG\repin.py resolve --addrs 0x... --old ... --new ... # 개별 구 RVA �
      check 전 PASS  +  coverage 클린  +  dups 로 연동 그룹 동시 갱신 확인
 ⑦ offsets(구조체 축)는 exe 대조 불가 — 각 항목의 verify 방법(RE/런타임 스캔)으로 별도 확인
 ⑧ SDK 교체(sdk_<신버전>) 후 전 모드 재빌드 — ★RVA 0 모드도 재빌드 필수(rlib DIFF)
-⑨ 인게임 검증 → REPORT 검증표 갱신 → rel_commit
+⑨ ★python MIG\offsets.py check → sources  = 구조체 오프셋 이동 전수 + 고칠 소스 위치
+⑩ ★python MIG\bump_deps.py --to <신>     = mod_info base 대역(안 하면 전 모드 자동 비활성)
+⑪ ★python MIG\env.py                       = 버전게이트 상수·빌드 SDK 경로·apply 누락·stale dll
+⑫ ★python MIG\run.py 가 종료코드 0 → 그때만 "마이그 완료"
+⑬ 오프셋 작업이 끝났으면 python MIG\offsets.py snap  (다음 회차 기준선 채록)
+⑭ 인게임 검증 → REPORT 검증표 갱신 → rel_commit
 ```
 
 ## ★★check PASS ≠ 기능 정상 (2026-08-29 · 버전무관 · 실사고 sylas)
@@ -111,8 +147,15 @@ python MIG\repin.py resolve --addrs 0x... --old ... --new ... # 개별 구 RVA �
 - 교훈: 소스 자동치환은 **"덮어쓰기"가 아니라 "마스킹된 좌표계에서의 치환"** 이다.
   치환 좌표를 만드는 함수와 치환 대상 문자열은 **길이가 같아야 한다**.
 
-## 현행 상태 (2026-09-02 · 게임 0.5.8)
-- **0.5.8 정합 (check PASS + coverage 클린)**: item_tactics·champ_pos_lock·comptest·banpick_order·
+## 현행 상태 (2026-09-02 · 게임 0.5.8) — ⛔**마이그 미완**
+★`run.py` 종료코드 **1**. 축① RVA 는 클린이지만 **축② 구조체 오프셋 · 축③ 환경이 열려 있다.**
+- ⛔**인게임 크래시 발생**(0xc0000005 읽기·`faultAddr=0x5df3` = 널 컨테이너 순회). 원인 = **축②**.
+  콜체인 = comptest ORACLE → serpen MOBATICK → sylas ETICK → `0x132f630` 에서 폭발.
+  이 함수들의 0.5.7 대응본과 오프셋을 diff 하니 **필드가 +0x10 밀려 있었다**.
+- 현재 조치 = `tfm2_ai_adjust`·`sylas`·`tfm2_elemental_serpen`·`tfm2_comptest_unlock` 를
+  **deps 대역으로 비활성**(구 대역 `>=0.5.7, <0.5.8`). 오프셋 수정 후 되살릴 것.
+- 남은 작업 = `offsets.py sources` 가 찍어 준 **38곳**(sylas `0x1e0→0x1f0` 등) + 아래 잔여 재핀 137건.
+- ✅**0.5.8 축① 정합 (check PASS + coverage 클린)**: item_tactics·champ_pos_lock·comptest·banpick_order·
   banpick_illust·serpen·draft_overlay·level_cap·champion_exclude·bancard_keep·sylas·ui_kit
   + SDK 전용 5종(mod_order·html_overlay·Spectator_Chat·community_reaction_mod·meta_item_delegate)
 - **부분 정합(재핀 실패 잔여)** — 매니페스트에 `"unresolved": "0.5.8"` 낙인이 찍혀 있다(grep 대상):

@@ -280,7 +280,10 @@
    ],
    "sect": ".text",
    "bytes": "00ba01000000eb1d0f1f8400",
-   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
+   "ignore": true,
+   "curated": true,
+   "note": "[주석·로그문자열 전용 — 코드 상수 아님(마스킹 규칙상 apply 대상 밖)]"
   },
   {
    "name": "RVA_SWAP_CONFIRM",
@@ -476,7 +479,10 @@
    ],
    "sect": ".text",
    "bytes": "f800486304814801c8ffe049",
-   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
+   "ignore": true,
+   "curated": true,
+   "note": "[주석·로그문자열 전용 — 코드 상수 아님(마스킹 규칙상 apply 대상 밖)]"
   },
   {
    "name": "DISP_CALLSITE",
@@ -574,7 +580,10 @@
    ],
    "sect": ".text",
    "bytes": "3ff3440f114dfcc745000000",
-   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
+   "ignore": true,
+   "curated": true,
+   "note": "[주석·로그문자열 전용 — 코드 상수 아님(마스킹 규칙상 apply 대상 밖)]"
   },
   {
    "name": "INLINE@src/hooks.rs:5080",
@@ -586,7 +595,10 @@
    ],
    "sect": ".text",
    "bytes": "4c8975504c897d584c897560",
-   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
+   "ignore": true,
+   "curated": true,
+   "note": "[주석·로그문자열 전용 — 코드 상수 아님(마스킹 규칙상 apply 대상 밖)]"
   },
   {
    "name": "RVA_RECOMMEND",
