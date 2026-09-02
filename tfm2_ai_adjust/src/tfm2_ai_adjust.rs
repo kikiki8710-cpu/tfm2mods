@@ -2448,54 +2448,64 @@ unsafe extern "C" fn retreat_capture(saved: usize, entry_rsp: usize) -> u64 {
         // ★[08-07] 마이크로 디투어를 **먼저** 설치한다 — 아래 apply_*_imm 들이 `micro_taken()` 으로
         //   자기 사이트를 건너뛸지 판단하기 때문. 순서가 뒤집히면 imm 패치가 우리 `E9` 를 덮어써
         //   게임이 엉뚱한 주소로 점프한다(상호배타가 깨지는 유일한 경로).
-        install_class_micro();
-        apply_call_ablate();  // ★오더 콜 ablation 패치 적용/복원 (want==applied면 즉시 return)
-        apply_lane_gate();    // ★오더 라인후보 게이트 ablation (lane_gate 0/1/2)
-        apply_type3_ablate(); // ★오더 transition type3 콜 ablation (매크로 전환 영향 검증)
-        apply_push_ablate();  // ★오더 push 4게이트 완전차단 (오더스탯 다운스트림 판별, 0.5.7)
-        apply_push_scramble(); // ★오더 push 내용 스크램블 (①allocator vs ②소비자 판별, 0.5.7)
-        apply_objective_imm();// ★objective 원본상수 노출 (oi_* imm-patch)
-        apply_vis_imm();      // ★[07-16] vis_window 부활 byte-patch (0x1caedd3 imm32, 기본600=무변화)
-        apply_gb_imm();       // ★[07-16] GenericBuild 로밍/운영 byte-patch (경로A, gb_enable=0 기본=무변화)
-        apply_sev_imm();      // ★[07-23 신설] 공유 위협 severity 사다리 byte-patch (sv_enable=0 기본=무변화)
-        apply_visshort_imm(); // ★[08-03 신설] subplan별 개별 단기 시야창(120틱) byte-patch (전 키 기본 -1=무변화)
-        apply_gank_imm();     // ★[08-03 신설] 라인개입(jng=1) 갱 셋업 타이밍/게이트 byte-patch (전 키 기본 -1=무변화)
-        apply_plan_imm();     // ★[08-03 신설] plan 결정기 생성 게이트 byte-patch (전 키 기본 -1=무변화)
-        apply_path_imm();     // ★[0.5.4 신설] 경로/거리 시스템 208사이트 (전 키 기본 -1=무변화)
-        apply_auc_imm();      // ★[0.5.4 신설] 경매 중 강제귀환 12노브 (전 키 기본 -1=무변화)
-        apply_an_imm();       // ★[0.5.4 신설] 판단14 넥서스공격 — 노브가 없던 유일한 판단 (전 키 기본 -1=무변화)
-        apply_exec_imm();     // ★[08-03 신설] sub_plan 실행층 byte-patch — 판단력 오판 게이트·대기 거리·오더 유지 (전 키 기본 -1=무변화)
-        apply_auction_imm();  // ★[08-03 신설] 판단력 노이즈(judge_noise_ratio)·battle.rs·line_defense 2회차·팀모드 취소마스크 (전 키 기본 -1=무변화)
-        apply_new_imm();      // ★[08-05 신설] 적 위치추정 모델·시전 2차검열·1차 점수컷·경매 재선택·전역 궁 (전 키 기본 -1=무변화)
-        apply_cast_imm();     // 시전 후보(평타·스킬 사거리/조건)·행동 실행층(해금레벨·재판단 간격) (전 키 기본 -1=무변화)
-        apply_score_imm();    // 행동 점수 엔진(수적우세 배율·인식반경)·대기/안전/이동 실행층 (전 키 기본 -1=무변화)
-        apply_score2_imm();   // 전투행동 점수 공식(구조물 인식반경·위험 사다리·보너스 상한) (전 키 기본 -1=무변화)
-        apply_move_imm();     // ★[08-03 신설] 이동 계열 점수 cat0 도주·cat2 접근·cat4 추적 (전 키 기본 -1=무변화)
-        apply_db_imm();       // ★[08-03 신설] death_battle 전투 후보 생성기 + 안전판정 게이트 (전 키 기본 -1=무변화)
-        apply_pe_imm();       // ★[08-03 신설] 자리 평가 엔진 position_eval — risk 생성 자체 (전 키 기본 -1=무변화)
-        apply_ldsc_imm();     // ★[08-03 신설] line_defense 후보 점수 함수 c66800 (전 키 기본 -1=무변화)
-        apply_move2_imm();    // ★[08-04 신설] 이동 입력 생성기 c86560 + 우물탈출 (전 키 기본 -1=무변화)
-        apply_bv_imm();       // ★[08-04 신설] buff_value 9함수 — 전투 실익 (전 키 기본 -1=무변화)
-        apply_ae_imm();       // ★[08-04 신설] action_eval df5880 — 라인 수비 점수의 절반 (전 키 기본 -1=무변화)
-        apply_th_imm();       // ★[08-04 신설] 위협 디스크립터 생산자 d07a60 (전 키 기본 -1=무변화)
-        apply_rt_imm();
-            apply_lt_imm();
-            apply_nx_imm();
-            apply_nxe();      // ★[08-08 신설] "넥서스 비상" 발동 조건 — 남은 구조물 N개 이하 / 2차 타워 파괴 (기본 -1=원본)
-            apply_hd_imm();
-            apply_d4_imm();
-            apply_c3_imm();
-            apply_lv_imm();
-            apply_eh_imm();       // ★[08-04 신설] 위협감지·후퇴 d63d60 + 정글 진행 게이트 (전 키 기본 -1=무변화)
-            apply_init_imm();     // ★[09-01 신설] 갱크/교전/결사전 개시 게이트(gk2_*·eng_camp_radius·db_retreat_margin, 전 키 기본 -1=무변화)
-        apply_sim_unchunk();  // ★[07-16] 백그sim 병렬도(rayon split budget nop, sim_unchunk=0 기본=무변화)
-        apply_fix_skill2();    // ★[08-04] 게임 결함 수정 스위치(fix_skill2_dmg, 기본 0=원본)
-        apply_fix_hp_ratio();  // ★[08-04] 게임 결함 수정 스위치(fix_hp_ratio, 기본 0=원본)
-        apply_lt_revive_join();// ★[08-04] 죽은 판단 되살리기(lt_revive_join, 기본 0=원본)
+        // ★[0.5.8 진단] 마이크로 디투어(E9) 설치 게이트 — `hk_micro=0` 이면 건너뛴다.
+        if hk_on("micro") { install_class_micro(); }
+        // ★[0.5.8 진단] 바이트패치 체인 게이트 — `hk_applyimm=0` 이면 아래 apply_* 를 전부 건너뛴다.
+        //   retreat 훅이 이 체인의 유일한 트리거라, 훅을 끄면 체인도 통째로 죽는다 ⟹ 분리 필요.
+        // ★★[0.5.8] 기본 OFF — 이 체인의 바이트패치 사이트는 `orig_table.rs` 82건 + `detour.rs` 123건이
+        //   0.5.8 재핀 실패 상태다(매니페스트 unresolved). 체인을 켜면 첫 이적시장 "생략하기"에서
+        //   `exe+0xcc20ce` 점프테이블 인덱스 폭주로 죽는다(0.5.8 실측, 12회 동일 지점).
+        //   ⚠훅·마이크로 디투어는 이 게이트 밖이라 정상 동작한다 — 죽는 건 imm 패치 계열뿐.
+        //   재활성 조건 = unresolved 사이트 재핀 후 `hk_applyimm=1`.
+        if hk_on_d("applyimm", 0) {
+        if hk_on("ap_call_ablate") { apply_call_ablate(); }  // ★오더 콜 ablation 패치 적용/복원 (want==applied면 즉시 return)
+        if hk_on("ap_lane_gate") { apply_lane_gate(); }    // ★오더 라인후보 게이트 ablation (lane_gate 0/1/2)
+        if hk_on("ap_type3_ablate") { apply_type3_ablate(); } // ★오더 transition type3 콜 ablation (매크로 전환 영향 검증)
+        if hk_on("ap_push_ablate") { apply_push_ablate(); }  // ★오더 push 4게이트 완전차단 (오더스탯 다운스트림 판별, 0.5.7)
+        if hk_on("ap_push_scramble") { apply_push_scramble(); } // ★오더 push 내용 스크램블 (①allocator vs ②소비자 판별, 0.5.7)
+        if hk_on("ap_objective_imm") { apply_objective_imm(); }// ★objective 원본상수 노출 (oi_* imm-patch)
+        if hk_on("ap_vis_imm") { apply_vis_imm(); }      // ★[07-16] vis_window 부활 byte-patch (0x1caedd3 imm32, 기본600=무변화)
+        if hk_on("ap_gb_imm") { apply_gb_imm(); }       // ★[07-16] GenericBuild 로밍/운영 byte-patch (경로A, gb_enable=0 기본=무변화)
+        if hk_on("ap_sev_imm") { apply_sev_imm(); }      // ★[07-23 신설] 공유 위협 severity 사다리 byte-patch (sv_enable=0 기본=무변화)
+        if hk_on("ap_visshort_imm") { apply_visshort_imm(); } // ★[08-03 신설] subplan별 개별 단기 시야창(120틱) byte-patch (전 키 기본 -1=무변화)
+        if hk_on("ap_gank_imm") { apply_gank_imm(); }     // ★[08-03 신설] 라인개입(jng=1) 갱 셋업 타이밍/게이트 byte-patch (전 키 기본 -1=무변화)
+        if hk_on("ap_plan_imm") { apply_plan_imm(); }     // ★[08-03 신설] plan 결정기 생성 게이트 byte-patch (전 키 기본 -1=무변화)
+        if hk_on("ap_path_imm") { apply_path_imm(); }     // ★[0.5.4 신설] 경로/거리 시스템 208사이트 (전 키 기본 -1=무변화)
+        if hk_on("ap_auc_imm") { apply_auc_imm(); }      // ★[0.5.4 신설] 경매 중 강제귀환 12노브 (전 키 기본 -1=무변화)
+        if hk_on("ap_an_imm") { apply_an_imm(); }       // ★[0.5.4 신설] 판단14 넥서스공격 — 노브가 없던 유일한 판단 (전 키 기본 -1=무변화)
+        if hk_on("ap_exec_imm") { apply_exec_imm(); }     // ★[08-03 신설] sub_plan 실행층 byte-patch — 판단력 오판 게이트·대기 거리·오더 유지 (전 키 기본 -1=무변화)
+        if hk_on("ap_auction_imm") { apply_auction_imm(); }  // ★[08-03 신설] 판단력 노이즈(judge_noise_ratio)·battle.rs·line_defense 2회차·팀모드 취소마스크 (전 키 기본 -1=무변화)
+        if hk_on("ap_new_imm") { apply_new_imm(); }      // ★[08-05 신설] 적 위치추정 모델·시전 2차검열·1차 점수컷·경매 재선택·전역 궁 (전 키 기본 -1=무변화)
+        if hk_on("ap_cast_imm") { apply_cast_imm(); }     // 시전 후보(평타·스킬 사거리/조건)·행동 실행층(해금레벨·재판단 간격) (전 키 기본 -1=무변화)
+        if hk_on("ap_score_imm") { apply_score_imm(); }    // 행동 점수 엔진(수적우세 배율·인식반경)·대기/안전/이동 실행층 (전 키 기본 -1=무변화)
+        if hk_on("ap_score2_imm") { apply_score2_imm(); }   // 전투행동 점수 공식(구조물 인식반경·위험 사다리·보너스 상한) (전 키 기본 -1=무변화)
+        if hk_on("ap_move_imm") { apply_move_imm(); }     // ★[08-03 신설] 이동 계열 점수 cat0 도주·cat2 접근·cat4 추적 (전 키 기본 -1=무변화)
+        if hk_on("ap_db_imm") { apply_db_imm(); }       // ★[08-03 신설] death_battle 전투 후보 생성기 + 안전판정 게이트 (전 키 기본 -1=무변화)
+        if hk_on("ap_pe_imm") { apply_pe_imm(); }       // ★[08-03 신설] 자리 평가 엔진 position_eval — risk 생성 자체 (전 키 기본 -1=무변화)
+        if hk_on("ap_ldsc_imm") { apply_ldsc_imm(); }     // ★[08-03 신설] line_defense 후보 점수 함수 c66800 (전 키 기본 -1=무변화)
+        if hk_on("ap_move2_imm") { apply_move2_imm(); }    // ★[08-04 신설] 이동 입력 생성기 c86560 + 우물탈출 (전 키 기본 -1=무변화)
+        if hk_on("ap_bv_imm") { apply_bv_imm(); }       // ★[08-04 신설] buff_value 9함수 — 전투 실익 (전 키 기본 -1=무변화)
+        if hk_on("ap_ae_imm") { apply_ae_imm(); }       // ★[08-04 신설] action_eval df5880 — 라인 수비 점수의 절반 (전 키 기본 -1=무변화)
+        if hk_on("ap_th_imm") { apply_th_imm(); }       // ★[08-04 신설] 위협 디스크립터 생산자 d07a60 (전 키 기본 -1=무변화)
+        if hk_on("ap_rt_imm") { apply_rt_imm(); }
+            if hk_on("ap_lt_imm") { apply_lt_imm(); }
+            if hk_on("ap_nx_imm") { apply_nx_imm(); }
+            if hk_on("ap_nxe") { apply_nxe(); }      // ★[08-08 신설] "넥서스 비상" 발동 조건 — 남은 구조물 N개 이하 / 2차 타워 파괴 (기본 -1=원본)
+            if hk_on("ap_hd_imm") { apply_hd_imm(); }
+            if hk_on("ap_d4_imm") { apply_d4_imm(); }
+            if hk_on("ap_c3_imm") { apply_c3_imm(); }
+            if hk_on("ap_lv_imm") { apply_lv_imm(); }
+            if hk_on("ap_eh_imm") { apply_eh_imm(); }       // ★[08-04 신설] 위협감지·후퇴 d63d60 + 정글 진행 게이트 (전 키 기본 -1=무변화)
+            if hk_on("ap_init_imm") { apply_init_imm(); }     // ★[09-01 신설] 갱크/교전/결사전 개시 게이트(gk2_*·eng_camp_radius·db_retreat_margin, 전 키 기본 -1=무변화)
+        if hk_on("ap_sim_unchunk") { apply_sim_unchunk(); }  // ★[07-16] 백그sim 병렬도(rayon split budget nop, sim_unchunk=0 기본=무변화)
+        if hk_on("ap_fix_skill2") { apply_fix_skill2(); }    // ★[08-04] 게임 결함 수정 스위치(fix_skill2_dmg, 기본 0=원본)
+        if hk_on("ap_fix_hp_ratio") { apply_fix_hp_ratio(); }  // ★[08-04] 게임 결함 수정 스위치(fix_hp_ratio, 기본 0=원본)
+        if hk_on("ap_lt_revive_join") { apply_lt_revive_join(); }// ★[08-04] 죽은 판단 되살리기(lt_revive_join, 기본 0=원본)
         // ★[08-04] 런타임 진단 프로브(probe=0 기본 OFF). **catch_unwind 필수** — 여기서 패닉이 나면
         //   SDK 콜백을 관통해 unwind되어 게임이 죽는다(실제로 한 번 그렇게 죽였다).
-        let _ = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| apply_probe()));
-        write_guard_summary();   // ★[#26] 원본값 가드 결과 — blocked>0 이면 배선 주소가 틀린 것
+        if hk_on("ap_probe") { let _ = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| apply_probe())); }
+        }   // ← hk_applyimm 게이트 끝
+        if hk_on("ap_guardsum") { write_guard_summary(); }   // ★[#26] 원본값 가드 결과 — blocked>0 이면 배선 주소가 틀린 것
         // ★[08-07] `micro_settled()` 추가 — 마이크로 디투어 설치가 아직 준비 관문에서 튕기는 중이면
         //   이 세대를 완료로 찍지 않는다. 안 그러면 체인이 다시 오지 않아 **설치가 영영 누락된다**:
         //   `CFG_GEN` 은 cfg 파싱 **시작**에 +1 되는데 `tune_publish` 는 파싱 **끝**이라, 그 틈에 체인이
@@ -8374,7 +8384,7 @@ fn init(_ctx: &GameCtx) -> ModRegistration {
         load_cfg(true);
         if HARNESS_ON { build_ret_thunk(); }  // 공용 리턴 thunk (TTD+RE 둘 다 사용; 훅설치 前)
         // ★3차 retreat replace 분리활성(2026-06-18): retreat_engage(0x1fcfda0) 프롤로그 8push=12B 경계OK·rip-rel無 검증, args(rcx=out/rdx=p2(+0x48읽음)/r9=self) 3차서도 동일(리팩터는 뒷부분만). 기본 replace=0/capture=0이면 retreat_capture 즉시 return1=inert라 안전. 콜리 lane_pred(0x1fe2b60)/roster vt 3차갱신.
-        match if hk_on_d("retreat", 0) { install_replace_detour(RVA_RETREAT, 12, retreat_capture as *const () as usize) } else { Err("gated off (hk_retreat=0)") } {
+        match if hk_on("retreat") { install_replace_detour(RVA_RETREAT, 12, retreat_capture as *const () as usize) } else { Err("gated off (hk_retreat=0)") } {
             Ok(())=>append_log("[hook] retreat_engage replace(0x1fcfda0,12B) OK\n"),
             Err(e)=>append_log(&format!("[hook] retreat 실패: {}\n", e)),
         }
