@@ -44,7 +44,11 @@ const O_CUR_HP: usize = 0x670;    // 0.5.5: 구 0x658 → 신 0x670 (+0x18). DMG
 // ★0.5.3 이동 확정(2026-07-29): SERPEN 함수 +77 에서 `mov rax,[rbx+0x1b8]` → `[rbx+0x1c8]` 로 바뀜
 //   (앞뒤 명령 문맥 동일 = 같은 명령의 disp만 변경). DMGB 콜러 사상에서도 +0x10 일치.
 //   ⚠이 값은 읽어서 **함수포인터로 호출**하므로 틀리면 즉시 크래시 — 엔티티 구조체 나머지는 전부 불변.
-const O_ENTITY_ACCESSOR: usize = 0x1e0; // 0.5.5: 구 0.5.3~0.5.4 ~~0x1c8~~ → **0x1e0** (+0x18, 정정 2026-08-12 인게임결함).
+// ★★0.5.8 오프셋 경계(MOBATICK 전수 위치대조 2026-09-02): World 는 **0xecc2 이하 불변 / 0xecc8 이상 Δ+0x38**.
+//   ⟹ SEED_OFF(0xec90)·SIM_TICK_OFF(0xec98) 은 경계 아래라 **불변**이다. 일괄 +0x38 금지.
+//   엔티티 저대역(0x5c0/0x670/0x628/0x688/0x738/0x750/0x858/0x930/0x9c8/0x9d0/스트라이드) 도 불변.
+//   도구 = MIG\posdiff.py (같은 명령 인덱스끼리 disp 비교) · 축 검사 = MIG\offsets.py
+const O_ENTITY_ACCESSOR: usize = 0x1f0;  // ★0.5.8: WorldOps 표 Δ+0x10 (SERPEN_RVA 0x14a263d `[rbx+0x1e0]` -> 0x14448ad `[rbx+0x1f0]` 위치대조). ~~0.5.7=0x1e0~~ ⚠이 값을 함수포인터로 읽어 호출한다 = 틀리면 즉시 AV(0.5.8 크래시 원인) // 0.5.5: 구 0.5.3~0.5.4 ~~0x1c8~~ → **0x1e0** (+0x18, 정정 2026-08-12 인게임결함).
 //   ★근거(ghidra 직접 대조): 0.5.5 SERPEN 0x16be600 @+0x4d `mov rax,[rbx+0x1e0]; call rax`(rbx=rdx) ↔
 //   0.5.4 0x1328950 디컴 `pcStack_98 = *(param_2+0x1c8); (*pcStack_98)(param_1,param_5)` — 같은 자리 +0x18.
 //   리졸버 테이블(rdx) 슬롯 전역 +0x18 이동(0x1d0→0x1e8 등 동반 관측). 08-12 재핀이 "0x1c8 불변"으로 오판한
@@ -373,8 +377,8 @@ const SIM_TICK_OFF: usize = 0xec98; // 0.5.5: 구 0xeb30 → 신 0xec98 (+0x168)
 //   provider = `World`(0xeaf0) + 인라인 `MobaMode`(@+0xeaf0). 아래는 전부 provider(=detour rcx) 기준.
 //   세르펜 캠프 = JungleCampState(0x30) @ +0xecb8 (jungle_runner 10슬롯 중 serpen, ty=5).
 //   ⇒ 세르펜은 **경기당 정확히 1마리**(ty5 스폰좌표 1개로 정적 확증) → "여러 마리" 가정 불필요.
-const CAMP_SPAWN_TICK: usize = 0xeea8; // 0.5.5: 구 0xed40 → 신 0xeea8 (+0x168). next_respawn_tick(웨이브 스폰 tick). MOBATICK +0x168 정렬 확인.
-const CAMP_WAVE_IDX: usize = 0xeeb0;   // 0.5.5: 구 0xed48 → 신 0xeeb0 (+0x168). respawn_count = 웨이브 인덱스(0-based).
+const CAMP_SPAWN_TICK: usize = 0xeee0;  // ★0.5.8: World 고대역 Δ+0x38 (MOBATICK 0x10bb195 `[r12+0xeea8]` -> 0x185db75 `[r12+0xeee0]`). ~~0.5.7=0xeea8~~ // 0.5.5: 구 0xed40 → 신 0xeea8 (+0x168). next_respawn_tick(웨이브 스폰 tick). MOBATICK +0x168 정렬 확인.
+const CAMP_WAVE_IDX: usize = 0xeee8;  // ★0.5.8: World 고대역 Δ+0x38. ~~0.5.7=0xeeb0~~ (이웃 0xeea8·0xeec0 이 둘 다 +0x38)   // 0.5.5: 구 0xed48 → 신 0xeeb0 (+0x168). respawn_count = 웨이브 인덱스(0-based).
 // 처치 로그: serpen_logs[i] = **웨이브 i의 죽음**(1:1) → 처치↔웨이브 순서 매칭 로직 불필요.
 //   entry 16B { team:u64, tick:u64 }, tick 축 = World.tick(+0xeac0) = played_tick과 1:1.
 // ★★장로 처형 (2026-07-17 RE). 게임의 처형 = 전용 kill 함수 없이 **entity+0x658 = 0** raw write.
@@ -405,8 +409,8 @@ const PLAYER_STRIDE: usize = 0x9e0; // 0.5.5: 구 0x8c0 → 신 0x9e0 (+0x120). 
 //   프롤로그 12B 바이트 동일(chkstk imm만 0x19c8→0x1b08). 크기 48761→42668.
 const MOBATICK_RVA: usize = 0x1851f60; // 0.5.6 재핀(구값→신값) // 0.5.5: 구 0x13ee0a0 → 신 0x14f7e40. 투표 35표(2위 22)+head-unique+문자열 `game_core::simulation::game` xref. 본문 41740→51450(+23%). (구0.5.3=0xeeeac0)
 const MOBATICK_PROLOGUE: [u8; 12] = [0x55, 0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x53];
-const KILLS_BLUE_OFF: usize = 0xef28;  // 0.5.5: 구 0xedc0 → 신 0xef28 (+0x168). serpen_count[0]
-const KILLS_RED_OFF: usize = 0xef30;   // 0.5.5: 구 0xedc8 → 신 0xef30 (+0x168). serpen_count[1]
+const KILLS_BLUE_OFF: usize = 0xef60;  // ★0.5.8: Δ+0x38 (MOBATICK 0x10b7d8e 위치대조). ~~0.5.7=0xef28~~  // 0.5.5: 구 0xedc0 → 신 0xef28 (+0x168). serpen_count[0]
+const KILLS_RED_OFF: usize = 0xef68;  // ★0.5.8: Δ+0x38 (MOBATICK 0x10b7d95 위치대조). ~~0.5.7=0xef30~~   // 0.5.5: 구 0xedc8 → 신 0xef30 (+0x168). serpen_count[1]
 // ★db → 화면 경기 provider 정석 3-deref (db 128KB 스캔 폐기: VEH 폴트 25만의 주범이었음)
 // ⬜0.5.2 정적 미검증(값 유지) — ClientDatabase raw 오프셋군. disp 센서스로는 판정 불가(위 SEED_OFF 주석).
 //   런타임 불변식으로 자기검증됨: 0 ≤ PLAYED_TICK ≤ events.len(EV_LEN_OFF). 어긋나면 조용히 미채택.
@@ -416,8 +420,8 @@ const GAME_PROVIDER_OFF: usize = 0x1dc0; // Game + 0x1dc0 = provider data ptr (=
 //   provider + 0xed18/0xed20/0xed28 = Vec<{team:u64, tick:u64}> 의 cap/ptr/len. team 0=blue 1=red.
 //   처치 tick이 함께 저장되므로 played_tick 이하만 집계하면 sim 선행·뒤로감기가 자동 정합된다.
 //   (+0xed50/+0xed58 = 팀별 처치수, +0xed30/+0xed38 = 팀별 버프 잔여틱)
-const KILLS_PTR_OFF: usize = 0xeef8; // 0.5.5: 구 0xed90 → 신 0xeef8 (+0x168) — cap=0xeef0
-const KILLS_LEN_OFF: usize = 0xef00; // 0.5.5: 구 0xed98 → 신 ~~0xf000~~ **0xef00** (+0x168 정정 2026-08-12 인게임결함). 0xed98+0x168=0xef00이고 Vec{cap 0xeef0, ptr 0xeef8, len 0xef00} 인접 8B 정합 — 08-12 재핀 때 0xf000으로 오기입(+0x268)돼 kills len이 항상 쓰레기 → track_kills/장로버프/툴팁 전멸이었다.
+const KILLS_PTR_OFF: usize = 0xef30;  // ★0.5.8: Δ+0x38 (MOBATICK 0x10b3803 위치대조) · cap = 0xef28. ~~0.5.7=0xeef8(cap 0xeef0)~~ // 0.5.5: 구 0xed90 → 신 0xeef8 (+0x168) — cap=0xeef0
+const KILLS_LEN_OFF: usize = 0xef38;  // ★0.5.8: Δ+0x38 (MOBATICK 0x10b37df 위치대조). ~~0.5.7=0xef00~~ // 0.5.5: 구 0xed98 → 신 ~~0xf000~~ **0xef00** (+0x168 정정 2026-08-12 인게임결함). 0xed98+0x168=0xef00이고 Vec{cap 0xeef0, ptr 0xeef8, len 0xef00} 인접 8B 정합 — 08-12 재핀 때 0xf000으로 오기입(+0x268)돼 kills len이 항상 쓰레기 → track_kills/장로버프/툴팁 전멸이었다.
 // ★실측 확정(2026-07-16): played_tick과 sim tick은 **같은 축(1:1)**.
 //   근거: 첫 웨이브 sim_tick=7200 → played=7281에 화면에 세르펜이 보였고(유저 확인), 다음 웨이브
 //   16185는 아직 안 보였음. sim_tick=16382가 played=7281보다 앞선 건 sim이 재생을 앞질러 계산하기 때문.
