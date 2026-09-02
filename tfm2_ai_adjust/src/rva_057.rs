@@ -37,7 +37,7 @@
 //      GB_REGIOND_HOOK / GB_FUNNEL / COMMIT_CALL / COMMIT_FN / ENGAGE_GATE. 전부 신원검증(target-guard·E8·프롤로그)에
 //      걸려 미설치=inert 이므로 방치가 fail-safe. 0.5.6 재핀 시도 안 함(rva_055 값 그대로).
 
-const RVA_RETREAT:  usize = 0xd2f180;   // ★0.5.6(was 0.5.5 0xce0f70). retreat_engage. UNIQUE·size 11030 동일·BYTE=SAME·프롤로그 20B 동일. orig_len 12 유지.
+const RVA_RETREAT: usize = 0xd2f180;   // ⛔**0.5.8 무효 — 훅 기본 OFF**(hk_retreat=0). 0.5.6 이 마지막 유효 버전, 0.5.7 엔 이미 명령 중간, 0.5.8 엔 **다른 함수 진입부**가 돼 12B 트램폴린이 박히며 첫 이적시장 '생략하기' 시 100% 즉사(이분탐색 확정 2026-09-02). 재활성 = 0.5.8 retreat_engage 재핀 후. ★0.5.6(was 0.5.5 0xce0f70). retreat_engage. UNIQUE·size 11030 동일·BYTE=SAME·프롤로그 20B 동일. orig_len 12 유지.
 
 const RVA_TG_CALL: usize = 0x1feca43;        // ⏸stale 유지(0.5.4 주소, inert). install guard "not a CALL(E8)" bail=안전.
 

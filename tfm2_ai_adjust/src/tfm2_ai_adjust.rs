@@ -487,6 +487,25 @@ static TUNE_PREV: AtomicPtr<TuneMap> = AtomicPtr::new(std::ptr::null_mut());   /
     let p = TUNE_PTR.load(Ordering::Acquire);
     if p.is_null() { default } else { unsafe { (*p).get(key).copied().unwrap_or(default) } }
 }
+
+/// ★[0.5.8 진단] 훅 설치 개별 게이트. cfg `hk_<name> = 0` 이면 그 훅을 **설치하지 않는다**.
+/// 왜: 훅 트램폴린은 `repl` 노브를 꺼도(passthrough) **박히는 것 자체**는 그대로라,
+///     "어느 훅이 엉뚱한 함수를 잡고 있나"를 가리려면 설치 단계를 막아야 한다.
+///     `install_wrap` 계열의 신원검증은 프롤로그(push8) 뿐이라 **다른 함수도 통과**한다 —
+///     0.5.8 에서 실제로 이 구멍으로 크래시가 났다(REPORT `_0.5.8_마이그.md` §8).
+/// 기본 1(=설치). 진단이 끝나면 cfg 에서 지우면 된다.
+/// 기본값을 지정하는 판. `hk_<name>` 이 cfg 에 없으면 `dflt` 를 쓴다.
+#[inline] fn hk_on_d(name: &str, dflt: i64) -> bool {
+    let mut k = String::with_capacity(3 + name.len());
+    k.push_str("hk_"); k.push_str(name);
+    tune(&k, dflt) != 0
+}
+
+#[inline] fn hk_on(name: &str) -> bool {
+    let mut k = String::with_capacity(3 + name.len());
+    k.push_str("hk_"); k.push_str(name);
+    tune(&k, 1) != 0
+}
 // cfg 로드 끝에서 새 테이블 게시. ★누수상한(2세대 지연 free): 옛 테이블 즉시 free는 reader(judge가 tune() 읽는 중)
 //   use-after-free 위험 → 직전 old는 TUNE_PREV에 보관하고 그 전 세대(N-2)만 free. reader는 judge 1회(µs)내 끝나고
 //   게시는 cfg mtime변경(초)마다라 2세대차면 reader 없음 = 안전. 살아있는 테이블 ≤2개로 바운드(무한누수 제거).
@@ -2880,7 +2899,11 @@ static ORIG_DISC19: AtomicUsize = AtomicUsize::new(0);
 //   (`subplan_dispatch: total=5269 other=0 | 0:155 1:95 2:3692 4:93 6:7 7:247 8:912 11:68`).
 const SPDISP_PROBE: bool = false;
 /// ★[0.5.4] 경매 진입 passthrough 프로브(`TeamPlan.version` 관측). 크래시 시 여기만 false.
-const AUC_PROBE: bool = true;
+const AUC_PROBE: bool = false;   // ★0.5.8 OFF(2026-09-02) — RVA_AUCTION 0xe65b10 이 0.5.8 에서
+                                  //   **다른 함수의 진입부**가 됐다(0.5.7 은 명령 중간=무해했음).
+                                  //   거기에 12B 트램폴린이 박혀 첫 이적시장 '생략하기' 시 100% 즉사.
+                                  //   크래시 = exe+0xcc20ce 점프테이블(`movsxd r10,[r8+rax*4]`) 인덱스 폭주.
+                                  //   ⚠재활성 조건 = 0.5.8 진짜 경매 함수 RVA 재핀 후.
 //   ✅[08-13 재활성] 유저 지시로 0.5.5에서 재관측(TeamPlan.version). 안전 재확인 근거:
 //     ①0.5.5 0xe0e5e0 선두 12B = push8(`55 41 57 41 56 41 55 41 54 56 57 53`) install_wrap 기대값과 바이트동일.
 //     ②jmpin 전역 스캔(scratchpad\jmpin_055.py, .text 전 분기 rel 디코드) = **[0xe0e5e0,+12) 중간 착지 0건**
@@ -8346,31 +8369,34 @@ fn init(_ctx: &GameCtx) -> ModRegistration {
         build_shim_rdx();
         build_shim_both();   // ★소환수 비멱등 게터용 단일호출 2값캡처
         // build_pregate_shim 제거: my_pregate(순수Rust)로 대체
+        // ★[0.5.8] 훅 설치 **전에** cfg 를 읽는다 — `hk_*` 게이트가 tune() 을 쓰는데
+        //   구버전은 load_cfg 가 훅 설치 뒤(§아래)라 게이트가 항상 기본값 1(=설치)로 읽혔다.
+        load_cfg(true);
         if HARNESS_ON { build_ret_thunk(); }  // 공용 리턴 thunk (TTD+RE 둘 다 사용; 훅설치 前)
         // ★3차 retreat replace 분리활성(2026-06-18): retreat_engage(0x1fcfda0) 프롤로그 8push=12B 경계OK·rip-rel無 검증, args(rcx=out/rdx=p2(+0x48읽음)/r9=self) 3차서도 동일(리팩터는 뒷부분만). 기본 replace=0/capture=0이면 retreat_capture 즉시 return1=inert라 안전. 콜리 lane_pred(0x1fe2b60)/roster vt 3차갱신.
-        match install_replace_detour(RVA_RETREAT, 12, retreat_capture as *const () as usize) {
+        match if hk_on_d("retreat", 0) { install_replace_detour(RVA_RETREAT, 12, retreat_capture as *const () as usize) } else { Err("gated off (hk_retreat=0)") } {
             Ok(())=>append_log("[hook] retreat_engage replace(0x1fcfda0,12B) OK\n"),
             Err(e)=>append_log(&format!("[hook] retreat 실패: {}\n", e)),
         }
         // ★3차 commit 마이그완료(드라이버 +0x590 콜 스캔): COMMIT_CALL 0x1b6ec93 / COMMIT_FN 0x1cbc9f0. sanity가드(target≠COMMIT_FN→Err)+commit_dump 관측전용 → 분리활성.
-        match install_commit_hook() {
+        match if hk_on("commit") { install_commit_hook() } else { Err("gated off (hk_commit=0)") } {
             Ok(())=>append_log("[hook] commit(commit_fn @0x1b6ec93) OK\n"),
             Err(e)=>append_log(&format!("[hook] commit 실패: {}\n", e)),
         }
         // ★3차 B2 generic_build: move-post 훅 분리활성(retreat/commit과 분리). F2_BUILD_CALL(0x1b6e806)+generic_build(0x1bf5980) 3차갱신, 콜사이트 8인자(4reg+4stack@rsp+0x20~38)·rcx=outptr ABI확인. move_override 기본 read-only(MOVE_ON off=캡처만). target sanity가드 자체보호 → 안전.
-        match install_move_post_hook() {
+        match if hk_on("movepost") { install_move_post_hook() } else { Err("gated off (hk_movepost=0)") } {
             Ok(())=>append_log("[hook] move-post(generic_build @0x1b6e806, 8arg) OK\n"),
             Err(e)=>append_log(&format!("[hook] move-post 실패: {}\n", e)),
         }
         // ★0.4.14 위협게이트(FUN_1420a8680) 콜사이트 래핑 — 정글러 교전후퇴 p2 캡처/배율. target sanity가드(≠FUN_1420a8680→Err skip)라 stale시 무크래시. mult=100&tgcap=0=원본 비트동일.
-        match install_threatgate_hook() {
+        match if hk_on("threatgate") { install_threatgate_hook() } else { Err("gated off (hk_threatgate=0)") } {
             Ok(())=>append_log("[hook] threatgate(@0x1feca43→FUN_1420a8680) OK\n"),
             Err(e)=>append_log(&format!("[hook] threatgate 실패: {}\n", e)),
         }
         let _ = (install_replace_detour as *const (), install_move_post_hook as *const (), install_commit_hook as *const ());
         if HARNESS_ON {
             // ★fc59a0 recall RNG score(0x2080e20, 12B=push8). cfg recallcap=1 검증(리턴훅 kind:5) / recall_repl=1 완전대체(replace-rax: SENT=passthrough, 그외=out ptr로 skip).
-            match install_replace_detour_rax(RVA_FC59A0, 12, fc59a0_capture as *const () as usize) {
+            match if hk_on("fc59a0") { install_replace_detour_rax(RVA_FC59A0, 12, fc59a0_capture as *const () as usize) } else { Err("gated off (hk_fc59a0=0)") } {
                 Ok(())=>append_log("[hook] fc59a0 recall score(@0x2080e20, 12B, replace-rax) OK\n"),
                 Err(e)=>append_log(&format!("[hook] fc59a0 실패: {}\n", e)),
             }
@@ -8390,20 +8416,20 @@ fn init(_ctx: &GameCtx) -> ModRegistration {
             } else { let _=(install_detour_d_skip as *const(), gbrd_capture as *const(), RVA_GB_REGIOND_HOOK, RVA_GB_FUNNEL, ORIG_LEN_GB_REGIOND); append_log("[hook] gbrd/gbskip 영역D SKIP (MIG_GB_CHANGED=true, 0.4.14 generic_build region D 재추출 대기)\n"); }
             // ★0.4.13 마이그완료: facet#1 condgate(@0x1be1290, 15B). cfg condcap=1. 리턴훅 kind:6.
             // ★replace-detour(rax): cond_repl=0이면 cap_fn이 SENT→passthrough(install_detour와 동일). cond_repl=1이면 my_condgate(≠-99)로 완전대체.
-            match install_replace_detour_rax(RVA_CONDGATE, 15, condgate_capture as *const () as usize) {
+            match if hk_on("condgate") { install_replace_detour_rax(RVA_CONDGATE, 15, condgate_capture as *const () as usize) } else { Err("gated off (hk_condgate=0)") } {
                 Ok(())=>append_log("[hook] facet#1 condgate(@0x1c383f0, 15B, replace-rax) OK\n"),
                 Err(e)=>append_log(&format!("[hook] condgate 실패: {}\n", e)),
             }
             // ★facet#4 movepriority 관측(0x1c08420, 14B=7push+sub0x50). cfg mpcap=1. 리턴훅 kind:7.
             // ★replace-detour(sret rax=rcx): mp_repl=0이면 cap_fn이 1→passthrough(install_detour와 동일). mp_repl=1이면 disc0/1 완전대체.
-            match install_replace_detour(RVA_MOVEPRI, 14, mp_capture as *const () as usize) {   // ★0.5.5: 12→**14**(프롤로그 push r15 추가 = 명령경계가 0,2,4,5,6,7,11,14,... 12는 명령 한복판을 잘라 즉사) / **0.5.6 = 14 유지**(프롤로그 BYTE=SAME 전수확인 2026-08-20) / 구 0.5.3: 13→12 / 구 0.5.0: 14→13
+            match if hk_on("movepri") { install_replace_detour(RVA_MOVEPRI, 14, mp_capture as *const () as usize) } else { Err("gated off (hk_movepri=0)") } {   // ★0.5.5: 12→**14**(프롤로그 push r15 추가 = 명령경계가 0,2,4,5,6,7,11,14,... 12는 명령 한복판을 잘라 즉사) / **0.5.6 = 14 유지**(프롤로그 BYTE=SAME 전수확인 2026-08-20) / 구 0.5.3: 13→12 / 구 0.5.0: 14→13
                 Ok(())=>append_log("[hook] facet#4 movepriority(@0xc559e0 0.5.3, 12B, replace-sret) OK\n"),
                 Err(e)=>append_log(&format!("[hook] movepriority 실패: {}\n", e)),
             }
             // ★07-11 크래시대책②(§12.23): itemnet 스코어러 NULL-모델 가드(fn+12, scrim 프롤로그검증 비간섭).
             //   실패해도 기능 무영향(가드 부재=기존과 동일) — 단 크래시 원천차단이 빠지므로 로그로 노출.
             //   ★설치 결과를 LOG_ON 무관 직접write(append_log 인프라가 죽어도 설치여부 확증 — 무크래시가 "가드덕"인지 "트리거미도달"인지 구분용).
-            match install_itemnet_guard() {
+            match if hk_on("itemnet") { install_itemnet_guard() } else { Err("gated off (hk_itemnet=0)") } {
                 Ok(())=>{ append_log("[hook] itemnet NULL-모델 가드(@0x1b78420+12, 15B) OK\n");
                     if let Some(p)=pth("itemnet_guard.txt"){ let _=fs::write(p, "itemnet 가드 설치 OK (readable 검사판) — 차단 누적 0 (아직 미발동)\n"); } }
                 Err(e)=>{ append_log(&format!("[hook] itemnet 가드 실패(크래시대책② 미설치): {}\n", e));
@@ -8411,11 +8437,11 @@ fn init(_ctx: &GameCtx) -> ModRegistration {
             }
             // ★disc18/19(진짜 넥서스) 완전재현 Phase2-1: 캡처 wrap(game 원본 관찰). wrap은 game 원본 항상 호출=passthrough라
             //   dcap=0이면 기능 무영향(덤프만 skip). 프롤로그 push8 신원검증+catch_unwind로 안전. RNG-free라 재sim 무영향.
-            match install_wrap(RVA_DISC18_HANDLER, 12, disc18_capture as *const () as usize) {
+            match if hk_on("disc18") { install_wrap(RVA_DISC18_HANDLER, 12, disc18_capture as *const () as usize) } else { Err("gated off (hk_disc18=0)") } {
                 Ok(orig)=>{ ORIG_DISC18.store(orig, Ordering::Relaxed); append_log("[hook] disc18 캡처wrap(@0x1c7ca20 0.5.1) OK\n"); }
                 Err(e)=>append_log(&format!("[hook] disc18 wrap 실패: {}\n", e)),
             }
-            match install_wrap(RVA_DISC19_HANDLER, 12, disc19_capture as *const () as usize) {
+            match if hk_on("disc19") { install_wrap(RVA_DISC19_HANDLER, 12, disc19_capture as *const () as usize) } else { Err("gated off (hk_disc19=0)") } {
                 Ok(orig)=>{ ORIG_DISC19.store(orig, Ordering::Relaxed); append_log("[hook] disc19 캡처wrap(@0x2380820 0.5.2) OK\n"); }
                 Err(e)=>append_log(&format!("[hook] disc19 wrap 실패: {}\n", e)),
             }
