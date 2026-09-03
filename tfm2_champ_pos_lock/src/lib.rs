@@ -375,6 +375,8 @@ static ST_FEAS: AtomicU64 = AtomicU64::new(0);
 static ST_BROKEN: AtomicU64 = AtomicU64::new(0);
 static DBG_FEASN: AtomicU64 = AtomicU64::new(0);
 static ST_CONF: AtomicU64 = AtomicU64::new(0);
+/// ★[2026-09-03] 커버리지 규칙(UI 게이트와 동일)으로 막은 수. 구 판정은 충돌만 봐서 0건이었다.
+static ST_COVER: AtomicU64 = AtomicU64::new(0);
 static DBG_CONFN: AtomicU64 = AtomicU64::new(0);
 static DBG_MULTIN: AtomicU64 = AtomicU64::new(0);
 /// 지금 보이는 툴팁이 우리가 띄운 것인지(해제 시 게임 툴팁을 잘못 숨기지 않기 위해).
@@ -1117,6 +1119,12 @@ impl ModDraftScoreHook for PosLockDraftAi {
         //   5차(자체 Arc 시드)가 크래시한 원인이 vtable 불일치인지 ptr 규약 차이인지 가르기 위해
         //   실제 (data, vtable) 을 1회만 찍는다. 5차 자체생성값 = ptr 0x2bca43d1c30 / vt 0x7ff8d050a678.
         {
+            // ★[2026-09-03] 훅 Vec 실측 스캔의 키 = 우리 vtable. debug 여부와 무관하게 채운다.
+            if hooks::MY_VT.load(Ordering::Relaxed) == 0 {
+                let dref: &dyn ModDraftScoreHook = self;
+                let pair: (usize, usize) = unsafe { core::mem::transmute(dref) };
+                hooks::MY_VT.store(pair.1, Ordering::Relaxed);
+            }
             static VT_LOGGED: std::sync::atomic::AtomicBool =
                 std::sync::atomic::AtomicBool::new(false);
             if config::get().debug && !VT_LOGGED.swap(true, Ordering::Relaxed) {
@@ -1194,6 +1202,33 @@ impl ModDraftScoreHook for PosLockDraftAi {
                     ));
                 }
             }
+            // ★★[2026-09-03] 라이브 밴픽에서는 **UI 게이트가 게시한 차단목록을 그대로 따른다.**
+            //   여기서 직접 계산하지 못하는 이유: `ctx.ally_pick` 이 비어 오는 경우가 많다
+            //   (실측 `ctxfld: ally_pick(n=0)`). 내가 뭘 이미 골랐는지 모르면 자유 슬롯이
+            //   남은 것으로 계산돼 어떤 후보도 못 막는다 — 실제로 같은 화면에서 UI 는 57칸을
+            //   회색으로 칠했는데 veto 는 0건이었다(2026-09-03 실측).
+            //   반면 UI 게이트는 밴픽 **씬에서 픽을 직접 읽어** 정확히 계산한다.
+            //   ⟹ 규칙을 두 벌 유지하지 말고 한 곳(UI 게이트)의 결과를 판정에도 쓴다.
+            //      효과: 유저가 회색으로 보는 것 == 코치가 고를 수 없는 것(항상 일치).
+            //   ⚠BLOCKLIST 는 **내 팀 픽 차례에만** 게시된다(밴 차례·내 픽 완료·씬 미포착이면
+            //     `None` 으로 지워진다) ⟹ 상대 팀 픽까지 잘못 제한하지 않는다.
+            {
+                let lname = nm(candidate).to_ascii_lowercase();
+                let blocked = {
+                    let g = hooks::BLOCKLIST.lock().unwrap_or_else(|e| e.into_inner());
+                    g.as_ref().map_or(false, |set| set.contains(&lname))
+                };
+                if blocked {
+                    ST_COVER.fetch_add(1, Ordering::Relaxed);
+                    if cfg.debug {
+                        let n = DBG_VETON.fetch_add(1, Ordering::Relaxed);
+                        if n < 200 {
+                            config::dlog(&format!("cover_veto(UI목록): cand={lname}"));
+                        }
+                    }
+                    return Some(());
+                }
+            }
             let pinned: Vec<u8> = ally_idx
                 .iter()
                 .map(|&i| masks.get(i).copied().unwrap_or(MASK_ALL))
@@ -1212,6 +1247,10 @@ impl ModDraftScoreHook for PosLockDraftAi {
                     ));
                 }
             }
+            // ⛔[2026-09-03] `ctx` 로 커버리지를 **자체 계산**하는 블록은 제거했다.
+            //   `ctx.ally_pick` 이 비어 오는 경우가 많아(`ctxfld: ally_pick(n=0)`) 자유 슬롯이
+            //   남은 것으로 계산돼 실효가 0이었고(실측 `cover=0`), 배경 AI 경기에선 반대로
+            //   과차단이 될 수 있었다. 판정은 위쪽 **UI BLOCKLIST 조회 한 곳**으로 통일한다.
             if pinned.is_empty() {
                 ST_EMPTY.fetch_add(1, Ordering::Relaxed);
                 return None; // 제한 픽 없음 → 어떤 후보도 충돌 불가
@@ -3008,7 +3047,7 @@ impl ModExtension for PosLockExt {
                         .collect();
                     let names_len = names().map(|n| n.len()).unwrap_or(0);
                     config::dlog(&format!(
-                        "counters: GY(cell={} paint={}) CK={} CB(seen={} cut={}) DQ(fix={}) CP(seen={} swap={}) | am_hist={:?} am_pen={} seen={} veto={} failopen={} st(e/f/b/c)={}/{}/{}/{} mask_fire={} mask_call={} mask_adj={} A={} C={} D={} E={} CM={} RC={} rc_seen={} rw_seen={} rw_live={} dp_seen={} dp_live={} rc_filt={} rc_inj={} ag0={} agp={} min_stk={} cm_seen={} cm_rej={} cm_redir={} ui_q={} ui_block={} rdx={:?} model_cnt={} max_rdx={} names={}",
+                        "counters: GY(cell={} paint={}) CK={} CB(seen={} cut={}) DQ(fix={}) CP(seen={} swap={}) | am_hist={:?} am_pen={} seen={} veto={} failopen={} st(e/f/b/c/cover)={}/{}/{}/{}/{} mask_fire={} mask_call={} mask_adj={} A={} C={} D={} E={} CM={} RC={} rc_seen={} rw_seen={} rw_live={} dp_seen={} dp_live={} rc_filt={} rc_inj={} ag0={} agp={} min_stk={} cm_seen={} cm_rej={} cm_redir={} ui_q={} ui_block={} rdx={:?} model_cnt={} max_rdx={} names={}",
                         hooks::CNT_GY_CELL.load(Ordering::Relaxed),
                         hooks::CNT_GY_PAINT.load(Ordering::Relaxed),
                         hooks::CNT_CK_BLOCK.load(Ordering::Relaxed),
@@ -3029,6 +3068,7 @@ impl ModExtension for PosLockExt {
                         ST_FEAS.load(Ordering::Relaxed),
                         ST_BROKEN.load(Ordering::Relaxed),
                         ST_CONF.load(Ordering::Relaxed),
+                        ST_COVER.load(Ordering::Relaxed),
                         hooks::CNT_MASK_FIRE.load(Ordering::Relaxed),
                         hooks::CNT_MASK_CALL.load(Ordering::Relaxed),
                         hooks::CNT_MASK_ADJ.load(Ordering::Relaxed),

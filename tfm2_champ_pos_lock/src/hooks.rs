@@ -1588,8 +1588,14 @@ fn probe_agent_layout(agent: usize) {
 static MOD_HOOK_BUF: [AtomicU64; 16] = [const { AtomicU64::new(0) }; 16];
 static MOD_HOOK_LEN: AtomicUsize = AtomicUsize::new(0);
 static HOOK_CAPTURED: std::sync::atomic::AtomicBool = std::sync::atomic::AtomicBool::new(false);
+/// ★[2026-09-03] 주입 잠금 스위치. 오프셋 재핀(+0x18)을 **읽기로 먼저 검증**한 뒤 연다.
+///   false 인 동안 inject 는 관측(ag0/agp/캡처)만 하고 write 하지 않는다.
+pub static INJECT_ARMED: std::sync::atomic::AtomicBool =
+    std::sync::atomic::AtomicBool::new(false); // ★2026-09-03: 오프셋 가설 기각(capbuf=게임 vtable) → 재잠금
 /// 주입 발생 수(진단): 0이면 "len==0 에이전트가 recommend 에 안 옴" = 코치가 recommend 미경유.
 pub static CNT_RC_INJ: AtomicUsize = AtomicUsize::new(0);
+/// ★[2026-09-03] 우리 훅의 vtable(= score_pick 의 fat-ptr 뒷워드). 훅 Vec 실측 스캔의 키.
+pub static MY_VT: AtomicUsize = AtomicUsize::new(0);
 /// 진단: recommend(plain+wbc)에 온 에이전트 len==0 / len>0 관측 수.
 pub static CNT_AG_LEN0: AtomicUsize = AtomicUsize::new(0);
 pub static CNT_AG_LENP: AtomicUsize = AtomicUsize::new(0);
@@ -1684,13 +1690,79 @@ pub fn seed_hook_buf_from_self() {
 
 /// recommend 진입 시: len>0(백그라운드) 에이전트에서 훅 Vec 1회 딥카피 → len==0(라이브/코치)
 /// 에이전트에 그 캡처본 주입. 스택복사본 agent 라 free 없음. +0xf68(cap) 미변경.
+/// ★★[2026-09-03] 훅 Vec 오프셋 **실측**. 추측(0xf58 / 0xf70)이 둘 다 빗나갔으므로,
+///   에이전트 안을 훑어 "가리킨 곳의 앞 16B 가 `{1, 우리 vtable}`" 인 워드를 찾는다.
+///   우리 훅은 ZST 라 data==1 이고 vtable 은 모드 DLL 주소 — 오탐이 사실상 불가능한 지문이다.
+///   찾은 오프셋 d 가 곧 훅 Vec 의 ptr 필드이고, len 은 d+8(또는 d+0x10)에 있다.
+///   **읽기 전용**(주입 없음).
+#[inline(never)]
+fn scan_hookvec_offset(agent: usize) {
+    let myvt = MY_VT.load(Ordering::Relaxed);
+    if myvt == 0 {
+        return;
+    }
+    // ★1회만 보면 "훅 없는 에이전트"를 봤을 뿐일 수 있다 ⟹ 찾을 때까지 여러 에이전트에 재시도.
+    static FOUND: std::sync::atomic::AtomicBool = std::sync::atomic::AtomicBool::new(false);
+    static TRIES: AtomicUsize = AtomicUsize::new(0);
+    if FOUND.load(Ordering::Relaxed) {
+        return;
+    }
+    let t = TRIES.fetch_add(1, Ordering::Relaxed);
+    if t >= 400 {
+        return;
+    }
+    let _ = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| unsafe {
+        let mut hits: Vec<String> = Vec::new();
+        let mut off = 0usize;
+        while off < 0x2000 {
+            if let Some(pv) = safe_rd_u64(agent + off) {
+                let p = pv as usize;
+                if ptr_ok(p) {
+                    if let (Some(w0), Some(w1)) = (safe_rd_u64(p), safe_rd_u64(p + 8)) {
+                        if w0 == 1 && w1 as usize == myvt {
+                            let l1 = safe_rd_u64(agent + off + 8).unwrap_or(0);
+                            let l2 = safe_rd_u64(agent + off + 0x10).unwrap_or(0);
+                            hits.push(format!(
+                                "+0x{off:x}(ptr=0x{p:x} next=0x{l1:x} next2=0x{l2:x})"
+                            ));
+                            if hits.len() >= 4 {
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+            off += 8;
+        }
+        if hits.is_empty() {
+            // 마지막 시도에서만 1줄(로그 폭주 방지)
+            if t == 399 {
+                config::dlog(&format!(
+                    "hookvec: 400개 agent 전부 {{1,myvt}} 참조 없음 (myvt=0x{myvt:x}) ⟹ 훅 목록이 agent 에 없다(전역 레지스트리 가능성)"
+                ));
+            }
+        } else {
+            FOUND.store(true, Ordering::Relaxed);
+            config::dlog(&format!("hookvec: ★try={t} {}", hits.join(" ")));
+        }
+    }));
+}
+
 #[inline(never)]
 fn inject_score_hook(agent: usize) {
     let _ = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| unsafe {
         if !ptr_ok(agent) {
             return;
         }
-        let len = match safe_rd_u64(agent + 0xf60) {
+        // ⛔[2026-09-03 결론] 훅 Vec 실측 스캔 중단. `{1, 우리vt}` 를 agent+0..0x2000 에서
+        //   400개 에이전트 전수 스캔해 **0건** — 훅 목록은 에이전트 객체에 없다(전역 레지스트리).
+        //   "코치 에이전트엔 훅이 없다"는 전제 자체가 오프셋 오독이었다(03_시행착오 9차).
+        // scan_hookvec_offset(agent);
+        // ★★[0.5.8 재핀 2026-09-03] 훅 Vec 이 **+0x18 이동**했다(0xf58/60/68 → 0xf70/78/80).
+        //   근거: recommend(plain/wbc) 본문이 **양쪽 모두 +0xf70/+0xf78 만** 참조하고,
+        //   구 오프셋(+0xf58/60/68)은 recommend 대역에 참조가 **0건**이다.
+        //   ⟹ 구 값으로 읽으면 항상 0(=ag0 전부·agp=0), 쓰면 다른 필드 파괴(=5·6·7차 크래시).
+        let len = match safe_rd_u64(agent + 0xf78) {
             Some(v) => v as usize,
             None => return,
         };
@@ -1702,7 +1774,7 @@ fn inject_score_hook(agent: usize) {
         if len > 0 {
             // 백그라운드 에이전트 = 훅 Vec 보유 → 최초 1회 엔트리 딥카피(값 복사, ptr 저장 X).
             if len <= 8 && !HOOK_CAPTURED.load(Ordering::Acquire) {
-                let src = match safe_rd_u64(agent + 0xf58) {
+                let src = match safe_rd_u64(agent + 0xf70) {
                     Some(v) => v as usize,
                     None => return,
                 };
@@ -1724,8 +1796,15 @@ fn inject_score_hook(agent: usize) {
             let mlen = MOD_HOOK_LEN.load(Ordering::Relaxed);
             if mlen > 0 {
                 let buf = core::ptr::addr_of!(MOD_HOOK_BUF) as usize;
-                core::ptr::write((agent + 0xf58) as *mut u64, buf as u64);
-                core::ptr::write((agent + 0xf60) as *mut u64, mlen as u64);
+                // ⚠[2026-09-03] 주입은 **아직 잠근다**. 오프셋 재핀(+0x18)이 맞는지
+                //   먼저 "agp>0(캡처 원본이 온다)" 로 읽기 검증한 뒤에 연다.
+                //   5·6·7차 크래시가 이 write 에서 났고, 원인이 주소였음이 유력하므로
+                //   같은 자리를 다시 열기 전에 근거를 확보한다.
+                if !INJECT_ARMED.load(Ordering::Relaxed) {
+                    return;
+                }
+                core::ptr::write((agent + 0xf70) as *mut u64, buf as u64);
+                core::ptr::write((agent + 0xf78) as *mut u64, mlen as u64);
                 // ★★[2026-09-03 7차] `+0xf68`(cap) 도 **같이** 쓴다.
                 //   구 코드는 여기를 미변경으로 뒀는데, 코치 에이전트는 훅 Vec 이 비어 있어
                 //   그 워드가 0 이다 ⟹ **cap=0 인데 len=1** 인 모순 Vec 이 되어 게임이
@@ -1733,7 +1812,7 @@ fn inject_score_hook(agent: usize) {
                 //   스택 스캔으로 게임 것과 일치함을 확인했다 — hookscan …=MINE).
                 //   ⚠필드 순서가 (ptr,len,cap)인지 (ptr,cap,len)인지 확정되지 않았지만,
                 //     **둘 다 같은 값**이면 어느 순서든 일관되므로 순서 규명 없이 안전하다.
-                core::ptr::write((agent + 0xf68) as *mut u64, mlen as u64);
+                core::ptr::write((agent + 0xf80) as *mut u64, mlen as u64);
                 CNT_RC_INJ.fetch_add(1, Ordering::Relaxed); // 주입 발생 수(진단)
             }
         }
