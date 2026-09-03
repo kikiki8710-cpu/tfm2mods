@@ -1304,6 +1304,8 @@ static SWAPVEC_SIG: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64:
 static SWAP_STAMP: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(0);
 /// 드래프트당 스왑 order 를 쓴 횟수(양 팀 합산). 게임이 뒤늦게 기본값을 덮어쓸 수 있어 소수 회 허용.
 static SWAP_APPLIED: AtomicUsize = AtomicUsize::new(0);
+/// ★[2026-09-03 진단] swapdiag 중복 억제용 시그니처.
+static SWAPDIAG_SIG: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(0);
 /// 한 판에서 내 팀 order 를 다시 쓸 수 있는 최대 횟수(게임과 무한 줄다리기 방지).
 const SWAP_APPLY_MAX: usize = 240;
 /// 유저가 직접 두 칸을 맞바꿨는가(= 자동 교정 중지). 위임하면 해제.
@@ -2697,6 +2699,36 @@ impl ModExtension for PosLockExt {
                     //   ⟹ 감지에 기대지 않고 **스왑 화면이 열려 있는 동안 상시 교정**한다.
                     //     단 유저가 직접 두 칸을 맞바꾼 경우(= 직전 order 대비 **전위 1회**)는
                     //     존중해서 그 판 동안 자동 교정을 멈춘다(위임하면 다시 재개).
+                    // ★[2026-09-03 진단] 자동 교정이 왜 안 도는지 갈래를 찍는다(값 변화 시에만).
+                    {
+                        let sf = config::get().swap_force;
+                        let ap = SWAP_APPLIED.load(Ordering::Relaxed);
+                        let t2d = MY_IS_T2.load(Ordering::Relaxed);
+                        let offd = if t2d { 0x1b0usize } else { 0x198 };
+                        let vod = if t2d { hooks::O_PICK2 } else { hooks::O_PICK1 };
+                        let planned = swap_plan(scene, offd, vod);
+                        let masks_len = unsafe { hooks::read_scene_vec(scene, vod) }
+                            .map(|v| v.len() as i64)
+                            .unwrap_or(-1);
+                        let line = match &planned {
+                            Some((cur, want, n)) => format!(
+                                "swapdiag: sf={sf} picks={picks_done} applied={ap} usr={} t2={t2d}                                  picklen={masks_len} cur={cur:?} want={want:?} best_n={n} eq={}",
+                                USER_SWAPPED.load(Ordering::Relaxed),
+                                cur == want
+                            ),
+                            None => format!(
+                                "swapdiag: sf={sf} picks={picks_done} applied={ap} usr={} t2={t2d}                                  picklen={masks_len} plan=None(재료부족 → 교정·차단 모두 스킵)",
+                                USER_SWAPPED.load(Ordering::Relaxed)
+                            ),
+                        };
+                        use std::hash::{Hash, Hasher};
+                        let mut h = std::collections::hash_map::DefaultHasher::new();
+                        line.hash(&mut h);
+                        let sg = h.finish();
+                        if SWAPDIAG_SIG.swap(sg, Ordering::Relaxed) != sg {
+                            config::llog(&line);
+                        }
+                    }
                     if config::get().swap_force != 0
                         && picks_done >= 10
                         && SWAP_APPLIED.load(Ordering::Relaxed) < SWAP_APPLY_MAX

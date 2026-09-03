@@ -831,8 +831,14 @@ pub fn install_once_p() {
         return;
     }
     let cfg = config::get();
-    if !cfg.enabled || !cfg.user_pick_block || !config::any_restricted() {
+    if !cfg.enabled || !cfg.user_pick_block {
         INSTALL_STATE_P.store(2, Ordering::Relaxed);
+        return;
+    }
+    // ★[2026-09-03] "제한이 아직 없음"은 세이브 로드 전일 수 있다 ⟹ 영구실패로
+    //   못박지 말고 재시도(state 0 유지). 구 코드는 여기서 state=2 로 박제해
+    //   세이브를 불러 제한이 생겨도 훅이 안 붙었다(코치 위임 픽 무차단 실사고).
+    if !config::any_restricted() {
         return;
     }
     unsafe {
@@ -1033,8 +1039,14 @@ pub fn install_once_dispatch() {
         return;
     }
     let cfg = config::get();
-    if !cfg.enabled || !cfg.ai_pick_gate || !config::any_restricted() {
+    if !cfg.enabled || !cfg.ai_pick_gate {
         INSTALL_STATE_DP2.store(2, Ordering::Relaxed);
+        return;
+    }
+    // ★[2026-09-03] "제한이 아직 없음"은 세이브 로드 전일 수 있다 ⟹ 영구실패로
+    //   못박지 말고 재시도(state 0 유지). 구 코드는 여기서 state=2 로 박제해
+    //   세이브를 불러 제한이 생겨도 훅이 안 붙었다(코치 위임 픽 무차단 실사고).
+    if !config::any_restricted() {
         return;
     }
     unsafe {
@@ -1140,8 +1152,14 @@ pub fn install_once_finalize() {
         return;
     }
     let cfg = config::get();
-    if !cfg.enabled || !cfg.ai_pick_gate || !config::any_restricted() {
+    if !cfg.enabled || !cfg.ai_pick_gate {
         INSTALL_STATE_FZ.store(2, Ordering::Relaxed);
+        return;
+    }
+    // ★[2026-09-03] "제한이 아직 없음"은 세이브 로드 전일 수 있다 ⟹ 영구실패로
+    //   못박지 말고 재시도(state 0 유지). 구 코드는 여기서 state=2 로 박제해
+    //   세이브를 불러 제한이 생겨도 훅이 안 붙었다(코치 위임 픽 무차단 실사고).
+    if !config::any_restricted() {
         return;
     }
     unsafe {
@@ -1230,8 +1248,14 @@ pub fn install_once_recommend_wbc() {
         return;
     }
     let cfg = config::get();
-    if !cfg.enabled || !cfg.ai_pick_gate || !config::any_restricted() {
+    if !cfg.enabled || !cfg.ai_pick_gate {
         INSTALL_STATE_RW.store(2, Ordering::Relaxed);
+        return;
+    }
+    // ★[2026-09-03] "제한이 아직 없음"은 세이브 로드 전일 수 있다 ⟹ 영구실패로
+    //   못박지 말고 재시도(state 0 유지). 구 코드는 여기서 state=2 로 박제해
+    //   세이브를 불러 제한이 생겨도 훅이 안 붙었다(코치 위임 픽 무차단 실사고).
+    if !config::any_restricted() {
         return;
     }
     unsafe {
@@ -1653,9 +1677,16 @@ pub fn install_once_recommend() {
         return;
     }
     let cfg = config::get();
-    if !cfg.enabled || !cfg.ai_pick_gate || !config::any_restricted() {
+    if !cfg.enabled || !cfg.ai_pick_gate {
+        // ★★[2026-09-03] `any_restricted()` 는 **세이브 로드 전엔 false** 다(포지션 설정이
+        //   세이브에 딸려 온다). 구 코드는 이때 state=2(영구실패)로 못박아, 이후 세이브를
+        //   불러 제한이 생겨도 훅이 영원히 안 붙었다(실사고: CM=2 → 코치 위임 픽 무차단).
+        //   ⟹ 설정으로 끈 경우만 영구실패, "아직 제한 없음"은 재시도(state 0 유지).
         INSTALL_STATE_RC.store(2, Ordering::Relaxed);
         return;
+    }
+    if !config::any_restricted() {
+        return; // ★제한이 아직 없음(세이브 로드 전) — state 0 유지 = 다음 프레임 재시도
     }
     unsafe {
         if BASE.load(Ordering::Relaxed) == 0 {
@@ -2123,9 +2154,16 @@ pub fn install_once_commit() {
         return;
     }
     let cfg = config::get();
-    if !cfg.enabled || !cfg.user_pick_block || !config::any_restricted() {
+    if !cfg.enabled || !cfg.user_pick_block {
+        // ★★[2026-09-03] `any_restricted()` 는 **세이브 로드 전엔 false** 다(포지션 설정이
+        //   세이브에 딸려 온다). 구 코드는 이때 state=2(영구실패)로 못박아, 이후 세이브를
+        //   불러 제한이 생겨도 훅이 영원히 안 붙었다(실사고: CM=2 → 코치 위임 픽 무차단).
+        //   ⟹ 설정으로 끈 경우만 영구실패, "아직 제한 없음"은 재시도(state 0 유지).
         INSTALL_STATE_CM.store(2, Ordering::Relaxed);
         return;
+    }
+    if !config::any_restricted() {
+        return; // ★제한이 아직 없음(세이브 로드 전) — state 0 유지 = 다음 프레임 재시도
     }
     unsafe {
         if BASE.load(Ordering::Relaxed) == 0 {
@@ -2514,9 +2552,16 @@ pub fn install_once_c() {
         return;
     }
     let cfg = config::get();
-    if !cfg.enabled || !cfg.user_pick_block || !config::any_restricted() {
+    if !cfg.enabled || !cfg.user_pick_block {
+        // ★★[2026-09-03] `any_restricted()` 는 **세이브 로드 전엔 false** 다(포지션 설정이
+        //   세이브에 딸려 온다). 구 코드는 이때 state=2(영구실패)로 못박아, 이후 세이브를
+        //   불러 제한이 생겨도 훅이 영원히 안 붙었다(실사고: CM=2 → 코치 위임 픽 무차단).
+        //   ⟹ 설정으로 끈 경우만 영구실패, "아직 제한 없음"은 재시도(state 0 유지).
         INSTALL_STATE_C.store(2, Ordering::Relaxed);
         return;
+    }
+    if !config::any_restricted() {
+        return; // ★제한이 아직 없음(세이브 로드 전) — state 0 유지 = 다음 프레임 재시도
     }
     unsafe {
         if BASE.load(Ordering::Relaxed) == 0 {
@@ -2765,8 +2810,14 @@ pub fn install_once_pred() {
         return;
     }
     let cfg = config::get();
-    if !cfg.enabled || !cfg.ai_pick_gate || !config::any_restricted() {
+    if !cfg.enabled || !cfg.ai_pick_gate {
         INSTALL_STATE_PRED.store(2, Ordering::Relaxed);
+        return;
+    }
+    // ★[2026-09-03] "제한이 아직 없음"은 세이브 로드 전일 수 있다 ⟹ 영구실패로
+    //   못박지 말고 재시도(state 0 유지). 구 코드는 여기서 state=2 로 박제해
+    //   세이브를 불러 제한이 생겨도 훅이 안 붙었다(코치 위임 픽 무차단 실사고).
+    if !config::any_restricted() {
         return;
     }
     let cd = PRED_COOLDOWN.load(Ordering::Relaxed);
@@ -2974,8 +3025,14 @@ pub fn install_once_orch() {
         return;
     }
     let cfg = config::get();
-    if !cfg.enabled || !cfg.ai_pick_gate || !config::any_restricted() {
+    if !cfg.enabled || !cfg.ai_pick_gate {
         INSTALL_STATE_ORCH.store(2, Ordering::Relaxed);
+        return;
+    }
+    // ★[2026-09-03] "제한이 아직 없음"은 세이브 로드 전일 수 있다 ⟹ 영구실패로
+    //   못박지 말고 재시도(state 0 유지). 구 코드는 여기서 state=2 로 박제해
+    //   세이브를 불러 제한이 생겨도 훅이 안 붙었다(코치 위임 픽 무차단 실사고).
+    if !config::any_restricted() {
         return;
     }
     let cd = ORCH_COOLDOWN.load(Ordering::Relaxed);
@@ -3958,8 +4015,14 @@ pub fn install_once_cprod() {
         return;
     }
     let cfg = config::get();
-    if !cfg.enabled || !cfg.ai_pick_gate || !config::any_restricted() {
+    if !cfg.enabled || !cfg.ai_pick_gate {
         INSTALL_STATE_CPROD.store(2, Ordering::Relaxed);
+        return;
+    }
+    // ★[2026-09-03] "제한이 아직 없음"은 세이브 로드 전일 수 있다 ⟹ 영구실패로
+    //   못박지 말고 재시도(state 0 유지). 구 코드는 여기서 state=2 로 박제해
+    //   세이브를 불러 제한이 생겨도 훅이 안 붙었다(코치 위임 픽 무차단 실사고).
+    if !config::any_restricted() {
         return;
     }
     let cd = CPROD_COOLDOWN.load(Ordering::Relaxed);
@@ -4042,8 +4105,14 @@ pub fn install_once_argmax() {
         return;
     }
     let cfg = config::get();
-    if !cfg.enabled || !cfg.ai_pick_gate || !config::any_restricted() {
+    if !cfg.enabled || !cfg.ai_pick_gate {
         INSTALL_STATE_AM.store(2, Ordering::Relaxed);
+        return;
+    }
+    // ★[2026-09-03] "제한이 아직 없음"은 세이브 로드 전일 수 있다 ⟹ 영구실패로
+    //   못박지 말고 재시도(state 0 유지). 구 코드는 여기서 state=2 로 박제해
+    //   세이브를 불러 제한이 생겨도 훅이 안 붙었다(코치 위임 픽 무차단 실사고).
+    if !config::any_restricted() {
         return;
     }
     unsafe {
@@ -4398,8 +4467,14 @@ pub fn install_once_dq() {
         return;
     }
     let cfg = config::get();
-    if !cfg.enabled || !cfg.ai_pick_gate || !config::any_restricted() {
+    if !cfg.enabled || !cfg.ai_pick_gate {
         INSTALL_STATE_DQ.store(2, Ordering::Relaxed);
+        return;
+    }
+    // ★[2026-09-03] "제한이 아직 없음"은 세이브 로드 전일 수 있다 ⟹ 영구실패로
+    //   못박지 말고 재시도(state 0 유지). 구 코드는 여기서 state=2 로 박제해
+    //   세이브를 불러 제한이 생겨도 훅이 안 붙었다(코치 위임 픽 무차단 실사고).
+    if !config::any_restricted() {
         return;
     }
     unsafe {
@@ -4716,8 +4791,14 @@ pub fn install_once_cb() {
         return;
     }
     let cfg = config::get();
-    if !cfg.enabled || !cfg.ai_pick_gate || !config::any_restricted() {
+    if !cfg.enabled || !cfg.ai_pick_gate {
         INSTALL_STATE_CB.store(2, Ordering::Relaxed);
+        return;
+    }
+    // ★[2026-09-03] "제한이 아직 없음"은 세이브 로드 전일 수 있다 ⟹ 영구실패로
+    //   못박지 말고 재시도(state 0 유지). 구 코드는 여기서 state=2 로 박제해
+    //   세이브를 불러 제한이 생겨도 훅이 안 붙었다(코치 위임 픽 무차단 실사고).
+    if !config::any_restricted() {
         return;
     }
     unsafe {
