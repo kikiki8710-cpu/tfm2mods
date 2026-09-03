@@ -1100,7 +1100,7 @@ pub(crate) fn feasible(masks: &mut Vec<u8>) -> bool {
 
 // ── AI 픽 게이트 (공식 확장점 — detour 불요) ───────────────────────────────
 #[derive(Debug)]
-struct PosLockDraftAi;
+pub(crate) struct PosLockDraftAi;
 
 impl ModDraftScoreHook for PosLockDraftAi {
     fn id(&self) -> &str {
@@ -2379,6 +2379,12 @@ impl ModExtension for PosLockExt {
             //     세이브 로드 후부터 붙이면 리그 백그라운드 sim 이 len>0 에이전트를 실어온다.
             //     부팅 직후가 아니므로 "시작 검은화면" 창은 여전히 피한다.
             if masks().is_some() {
+                // ⛔[2026-09-03] 자체 Arc 시드 = **부팅 크래시**(세이브 로드 중 즉사, dmp 확인).
+                //   시드 자체는 성공했으나(seedhook: ptr/vt 유효) 게임이 그 엔트리를 호출하며 죽었다.
+                //   ⟹  의 fat pointer 를 그대로 넣는 것은 **틀린 레이아웃**이다.
+                //     SDK  이 내부에서 다른 래핑(상위 trait/어댑터)을 하는 것으로 보인다.
+                //     ⛔이 형태 그대로 재시도 금지 — 먼저 SDK 가 registry 에 넣는 실제 타입을 규명할 것.
+                // hooks::seed_hook_buf_from_self();
                 hooks::install_once_recommend();
                 // ★★[2026-09-03 3차] hookRW(**픽 턴** recommend wbc) 재활성 — 이게 핵심이다.
                 //   정의부 RE 주석: "recommend 는 pick/ban x plain/wbc 4개.

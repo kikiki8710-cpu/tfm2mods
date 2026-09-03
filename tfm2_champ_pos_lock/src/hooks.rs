@@ -1594,6 +1594,37 @@ pub static CNT_RC_INJ: AtomicUsize = AtomicUsize::new(0);
 pub static CNT_AG_LEN0: AtomicUsize = AtomicUsize::new(0);
 pub static CNT_AG_LENP: AtomicUsize = AtomicUsize::new(0);
 
+/// ★★[2026-09-03] 훅 Vec 원본을 **모드가 직접 만든다**(백그라운드 캡처 대기 폐기).
+///   4차까지 실측: 훅 R(밴)·RW(픽) 을 둘 다 살려도 `agp=0` — len>0 에이전트가 어느 경로에도
+///   오지 않아 캡처 원본을 못 구했다(rc_inj=0 → veto=0 → 코치 위임 픽 무차단).
+///   버퍼 엔트리는 `{ArcInner_ptr, vtable}` 16B = `Arc<dyn ModDraftScoreHook>` 의 fat pointer 다.
+///   모드는 `reg.add_draft_score_hook(PosLockDraftAi)` 로 **같은 타입을 이미 등록**하므로,
+///   같은 Arc 를 하나 더 만들어 (ptr, vtable) 을 그대로 쓰면 된다.
+///   ⚠`mem::forget` 으로 영구 유지 — registry 가 strong ref 를 붙잡는 것과 동일한 수명 보장이라
+///     게임이 이 엔트리를 언제 만져도 안전하다(free 위험 0).
+pub fn seed_hook_buf_from_self() {
+    if HOOK_CAPTURED.load(Ordering::Acquire) {
+        return;
+    }
+    let arc: std::sync::Arc<dyn mod_api::ModDraftScoreHook> =
+        std::sync::Arc::new(crate::PosLockDraftAi);
+    // Arc<dyn T> 의 메모리 표현 = (ArcInner_ptr, vtable) — 버퍼 엔트리와 동일 레이아웃.
+    let pair: (u64, u64) = unsafe { core::mem::transmute_copy(&arc) };
+    core::mem::forget(arc); // 영구 유지(의도적 leak)
+    if pair.0 == 0 || pair.1 == 0 {
+        config::dlog("seedhook: transmute 결과 0 — 시드 취소");
+        return;
+    }
+    MOD_HOOK_BUF[0].store(pair.0, Ordering::Relaxed);
+    MOD_HOOK_BUF[1].store(pair.1, Ordering::Relaxed);
+    MOD_HOOK_LEN.store(1, Ordering::Relaxed);
+    HOOK_CAPTURED.store(true, Ordering::Release);
+    config::dlog(&format!(
+        "seedhook: 자체 Arc 시드 OK ptr=0x{:x} vt=0x{:x}",
+        pair.0, pair.1
+    ));
+}
+
 /// recommend 진입 시: len>0(백그라운드) 에이전트에서 훅 Vec 1회 딥카피 → len==0(라이브/코치)
 /// 에이전트에 그 캡처본 주입. 스택복사본 agent 라 free 없음. +0xf68(cap) 미변경.
 #[inline(never)]
