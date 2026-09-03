@@ -1528,7 +1528,59 @@ extern "C" fn recommend_hook(agent: usize, available: usize, ally: usize, enemy:
     //   score_pick 훅 Vec 를 주입 → 게임 자체 디스패치가 내 veto 를 부름(스택안전·검증된 경로).
     //   진입에서 u64 몇 개 읽기/쓰기뿐이라 재귀·저스택에도 안전.
     inject_score_hook(agent);
+    probe_agent_layout(agent);
     orig(agent, available, ally, enemy)
+}
+
+/// ★[2026-09-03 진단] agent 구조체에서 "Vec 다운" 3연속 워드를 실측한다.
+///   훅 Vec 오프셋(구 +0xf58/+0xf60/+0xf68)이 0.5.8 에서 어긋난 것으로 의심돼,
+///   실제 레이아웃을 찾기 위한 일회성 프로브. 워커 스레드 경로라 최소 부하로 짠다:
+///   최초 PROBE_MAX 회만 · safe_rd_u64 만 · 발견 시 한 줄.
+static PROBE_N: AtomicUsize = AtomicUsize::new(0);
+const PROBE_MAX: usize = 40;
+
+#[inline(never)]
+fn probe_agent_layout(agent: usize) {
+    if !config::get().debug {
+        return;
+    }
+    if PROBE_N.fetch_add(1, Ordering::Relaxed) >= PROBE_MAX {
+        return;
+    }
+    let _ = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| unsafe {
+        if !ptr_ok(agent) {
+            return;
+        }
+        let mut hits: Vec<String> = Vec::new();
+        // 구 오프셋 주변을 넉넉히 훑는다(8B 정렬).
+        let mut off = 0xE00usize;
+        while off <= 0x1200 {
+            let p = match safe_rd_u64(agent + off) {
+                Some(v) => v as usize,
+                None => {
+                    off += 8;
+                    continue;
+                }
+            };
+            let a = safe_rd_u64(agent + off + 8).unwrap_or(0) as usize;
+            let b = safe_rd_u64(agent + off + 16).unwrap_or(0) as usize;
+            // {ptr, len, cap} 또는 {ptr, cap, len} 둘 다 허용
+            let vec_like = ptr_ok(p)
+                && ((a >= 1 && a <= 8 && b >= a && b <= 64) || (b >= 1 && b <= 8 && a >= b && a <= 64));
+            if vec_like {
+                hits.push(format!("+0x{off:x}{{p=ok,{a},{b}}}"));
+                if hits.len() >= 6 {
+                    break;
+                }
+            }
+            off += 8;
+        }
+        if !hits.is_empty() {
+            config::dlog(&format!("agentprobe: {}", hits.join(" ")));
+        } else {
+            config::dlog("agentprobe: (Vec 다운 패턴 없음)");
+        }
+    }));
 }
 
 /// 훅 Vec 캡처 버퍼(엔트리 = {ArcInner_ptr, vtable} 16B × ≤8). Arc 는 registry 가 strong ref
