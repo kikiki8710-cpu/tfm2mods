@@ -1128,6 +1128,14 @@ impl ModDraftScoreHook for PosLockDraftAi {
                     pair.1,
                     self as *const Self as usize
                 ));
+                // ★[2026-09-03] 게임이 만든 **진짜 훅 엔트리**를 찾는다(읽기 전용).
+                //   엔트리 = {data, vtable} 16B 이고 우리 훅은 ZST 라 data==1 이다.
+                //   ⟹ "1 다음에 모듈영역 주소"인 16B 를 ctx 주변·스택에서 훑는다.
+                //   찾으면 그 배열이 곧 훅 Vec 의 데이터부 = 코치 에이전트에 그대로 넣을 원본.
+                hooks::scan_real_hook_entry(
+                    ctx as *const DraftScoreContext as usize,
+                    pair.1,
+                );
             }
         }
         let cfg = config::get();
@@ -2401,7 +2409,7 @@ impl ModExtension for PosLockExt {
                 //   ⟹  의 fat pointer 를 그대로 넣는 것은 **틀린 레이아웃**이다.
                 //     SDK  이 내부에서 다른 래핑(상위 trait/어댑터)을 하는 것으로 보인다.
                 //     ⛔이 형태 그대로 재시도 금지 — 먼저 SDK 가 registry 에 넣는 실제 타입을 규명할 것.
-                // hooks::seed_hook_buf_from_self();  // ⛔ 2회 연속 부팅 크래시 — 재시도 금지(03_시행착오 6차)
+                // hooks::seed_hook_buf_from_self();  // ⛔3회 연속 부팅 크래시 — 주입 축 폐기(03_시행착오 7차)
                 hooks::install_once_recommend();
                 // ★★[2026-09-03 3차] hookRW(**픽 턴** recommend wbc) 재활성 — 이게 핵심이다.
                 //   정의부 RE 주석: "recommend 는 pick/ban x plain/wbc 4개.

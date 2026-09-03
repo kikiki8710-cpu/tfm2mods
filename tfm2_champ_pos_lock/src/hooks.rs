@@ -1594,6 +1594,61 @@ pub static CNT_RC_INJ: AtomicUsize = AtomicUsize::new(0);
 pub static CNT_AG_LEN0: AtomicUsize = AtomicUsize::new(0);
 pub static CNT_AG_LENP: AtomicUsize = AtomicUsize::new(0);
 
+/// ★[2026-09-03] 게임이 만든 진짜 훅 엔트리 `{data=1, vtable}` 를 찾는다(**읽기 전용**).
+///   5·6차에서 "모드가 만든 엔트리" 주입이 2회 크래시했으므로, 원본을 게임에서 떠 오는 쪽으로
+///   방향을 바꿨다. 우리 훅은 ZST 라 data==1 이고 vtable 은 모듈 영역 주소 — 매우 특징적이다.
+///   scan 은 로그만 남긴다(주입 없음).
+pub fn scan_real_hook_entry(ctx: usize, my_vt: usize) {
+    let _ = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| unsafe {
+        let mut found: Vec<String> = Vec::new();
+        let is_mod_addr = |v: usize| v >= 0x7ff0_0000_0000 && v < 0x8000_0000_0000;
+
+        // 후보 영역 ①ctx 주변 ②현재 스택 위쪽
+        let probe_stack = 0usize;
+        let sp = &probe_stack as *const usize as usize;
+        let regions: [(usize, usize, &str); 2] = [
+            (ctx.saturating_sub(0x100), 0x400, "ctx"),
+            (sp, 0x1800, "stack"),
+        ];
+
+        for (base, size, tag) in regions {
+            let mut off = 0usize;
+            while off + 16 <= size {
+                let a = match safe_rd_u64(base + off) {
+                    Some(v) => v as usize,
+                    None => {
+                        off += 8;
+                        continue;
+                    }
+                };
+                if a == 1 {
+                    if let Some(b) = safe_rd_u64(base + off + 8) {
+                        let b = b as usize;
+                        if is_mod_addr(b) {
+                            found.push(format!(
+                                "{tag}+0x{off:x}{{1,0x{b:x}}}{}",
+                                if b == my_vt { "=MINE" } else { "" }
+                            ));
+                            if found.len() >= 6 {
+                                break;
+                            }
+                        }
+                    }
+                }
+                off += 8;
+            }
+            if found.len() >= 6 {
+                break;
+            }
+        }
+        if found.is_empty() {
+            config::dlog("hookscan: {1,vtable} 패턴 없음 (ctx/stack)");
+        } else {
+            config::dlog(&format!("hookscan: {}", found.join(" ")));
+        }
+    }));
+}
+
 /// ★★[2026-09-03] 훅 Vec 원본을 **모드가 직접 만든다**(백그라운드 캡처 대기 폐기).
 ///   4차까지 실측: 훅 R(밴)·RW(픽) 을 둘 다 살려도 `agp=0` — len>0 에이전트가 어느 경로에도
 ///   오지 않아 캡처 원본을 못 구했다(rc_inj=0 → veto=0 → 코치 위임 픽 무차단).
@@ -1671,7 +1726,14 @@ fn inject_score_hook(agent: usize) {
                 let buf = core::ptr::addr_of!(MOD_HOOK_BUF) as usize;
                 core::ptr::write((agent + 0xf58) as *mut u64, buf as u64);
                 core::ptr::write((agent + 0xf60) as *mut u64, mlen as u64);
-                // +0xf68(cap) 미변경 — 스택복사본이라 drop/free 없음.
+                // ★★[2026-09-03 7차] `+0xf68`(cap) 도 **같이** 쓴다.
+                //   구 코드는 여기를 미변경으로 뒀는데, 코치 에이전트는 훅 Vec 이 비어 있어
+                //   그 워드가 0 이다 ⟹ **cap=0 인데 len=1** 인 모순 Vec 이 되어 게임이
+                //   순회/정리할 때 죽었던 것으로 본다(6차 크래시. 값 `{1,vtable}` 자체는
+                //   스택 스캔으로 게임 것과 일치함을 확인했다 — hookscan …=MINE).
+                //   ⚠필드 순서가 (ptr,len,cap)인지 (ptr,cap,len)인지 확정되지 않았지만,
+                //     **둘 다 같은 값**이면 어느 순서든 일관되므로 순서 규명 없이 안전하다.
+                core::ptr::write((agent + 0xf68) as *mut u64, mlen as u64);
                 CNT_RC_INJ.fetch_add(1, Ordering::Relaxed); // 주입 발생 수(진단)
             }
         }
