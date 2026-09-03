@@ -1113,6 +1113,23 @@ impl ModDraftScoreHook for PosLockDraftAi {
         candidate: usize,
         _base_score: f32,
     ) -> DraftScoreDecision {
+        // ★[2026-09-03 진단] 여기서의 `&self` 는 **게임이 registry 에서 꺼낸 진짜 훅 인스턴스**다.
+        //   5차(자체 Arc 시드)가 크래시한 원인이 vtable 불일치인지 ptr 규약 차이인지 가르기 위해
+        //   실제 (data, vtable) 을 1회만 찍는다. 5차 자체생성값 = ptr 0x2bca43d1c30 / vt 0x7ff8d050a678.
+        {
+            static VT_LOGGED: std::sync::atomic::AtomicBool =
+                std::sync::atomic::AtomicBool::new(false);
+            if config::get().debug && !VT_LOGGED.swap(true, Ordering::Relaxed) {
+                let dref: &dyn ModDraftScoreHook = self;
+                let pair: (usize, usize) = unsafe { core::mem::transmute(dref) };
+                config::dlog(&format!(
+                    "selfvt: data=0x{:x} vt=0x{:x} (self=0x{:x})",
+                    pair.0,
+                    pair.1,
+                    self as *const Self as usize
+                ));
+            }
+        }
         let cfg = config::get();
         if !cfg.enabled || !cfg.ai_pick_gate || !config::any_restricted() {
             return DraftScoreDecision::Pass;
@@ -2384,7 +2401,7 @@ impl ModExtension for PosLockExt {
                 //   ⟹  의 fat pointer 를 그대로 넣는 것은 **틀린 레이아웃**이다.
                 //     SDK  이 내부에서 다른 래핑(상위 trait/어댑터)을 하는 것으로 보인다.
                 //     ⛔이 형태 그대로 재시도 금지 — 먼저 SDK 가 registry 에 넣는 실제 타입을 규명할 것.
-                // hooks::seed_hook_buf_from_self();
+                // hooks::seed_hook_buf_from_self();  // ⛔ 2회 연속 부팅 크래시 — 재시도 금지(03_시행착오 6차)
                 hooks::install_once_recommend();
                 // ★★[2026-09-03 3차] hookRW(**픽 턴** recommend wbc) 재활성 — 이게 핵심이다.
                 //   정의부 RE 주석: "recommend 는 pick/ban x plain/wbc 4개.

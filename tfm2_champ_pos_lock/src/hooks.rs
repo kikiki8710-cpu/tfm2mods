@@ -1606,11 +1606,13 @@ pub fn seed_hook_buf_from_self() {
     if HOOK_CAPTURED.load(Ordering::Acquire) {
         return;
     }
-    let arc: std::sync::Arc<dyn mod_api::ModDraftScoreHook> =
-        std::sync::Arc::new(crate::PosLockDraftAi);
-    // Arc<dyn T> 의 메모리 표현 = (ArcInner_ptr, vtable) — 버퍼 엔트리와 동일 레이아웃.
-    let pair: (u64, u64) = unsafe { core::mem::transmute_copy(&arc) };
-    core::mem::forget(arc); // 영구 유지(의도적 leak)
+    // ★★[2026-09-03 교정] ~~Arc::new~~ → **ZST 정적 참조**.
+    //   실측: score_pick 진입의 진짜 훅 인스턴스가 `data=0x1 self=0x1` 이다
+    //   (`PosLockDraftAi` 는 유닛 구조체 = ZST 라 힙 실체가 없고 더미 주소 0x1 을 쓴다).
+    //   5차는 Arc::new 로 **힙 ArcInner 주소**를 첫 워드에 넣어, 게임이 그걸 self 로 넘기는
+    //   순간 refcount 영역을 self 로 오인해 즉사했다. ⟹ ZST 참조의 fat pointer 를 쓴다.
+    let dref: &'static dyn mod_api::ModDraftScoreHook = &crate::PosLockDraftAi;
+    let pair: (u64, u64) = unsafe { core::mem::transmute(dref) };
     if pair.0 == 0 || pair.1 == 0 {
         config::dlog("seedhook: transmute 결과 0 — 시드 취소");
         return;
