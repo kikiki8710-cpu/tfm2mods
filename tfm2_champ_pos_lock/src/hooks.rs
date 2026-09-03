@@ -1145,6 +1145,15 @@ unsafe fn read_str_vec_into(
     }
 }
 
+/// ★★[2026-09-04] **"지금이 내 팀 픽 차례"임을 확신할 때만 참.**
+///   `BLOCKLIST` 가 비어있지 않다는 것만으로는 이 판정을 대신할 수 없다 —
+///   UI 게이트는 ①차례 판정이 모호하면(`pick_side_in_turn`=None) fail-open 으로 목록을 유지하고
+///   ②밴픽 씬을 놓치면(`exit_note(1)`) **일부러 직전 목록을 남긴다**(회색 깜빡임 방지).
+///   그 상태에서 AI 필터가 돌면 **상대 팀 결정까지 내 제한으로 굶겨** 드래프트가 멈춘다
+///   (2026-09-04 실측: 19/20 정지, `rw_live=2090` 재시도 폭주, 후보가 전부 지정 21종으로 강제됨).
+///   ⟹ UI 회색화(사람용)와 AI 필터(코치용)의 **발동 조건을 분리한다.**
+pub static MY_PICK_TURN: std::sync::atomic::AtomicBool =
+    std::sync::atomic::AtomicBool::new(false);
 pub static CNT_FZ_FILT: AtomicUsize = AtomicUsize::new(0);
 pub static CNT_FZ_PASS: AtomicUsize = AtomicUsize::new(0);
 
@@ -1189,7 +1198,10 @@ unsafe extern "C" fn finalize_hook(
         if !cfg.enabled || !cfg.ai_pick_gate || !config::any_restricted() {
             return None;
         }
-        // 내 팀 픽 차례에만 개입한다 — UI 게이트가 그때만 차단목록을 게시한다.
+        // ★내 팀 픽 차례라고 **확신**할 때만 개입한다(위 MY_PICK_TURN 주석 참조).
+        if !MY_PICK_TURN.load(Ordering::Relaxed) {
+            return None;
+        }
         let block = {
             let g = BLOCKLIST.lock().unwrap_or_else(|e| e.into_inner());
             match g.as_ref() {

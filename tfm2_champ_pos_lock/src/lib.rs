@@ -1731,7 +1731,11 @@ fn recompute_blocklist(root: &Node) {
     let clear = || {
         *hooks::BLOCKLIST.lock().unwrap_or_else(|e| e.into_inner()) = None;
         *hooks::BLOCK_REASON.lock().unwrap_or_else(|e| e.into_inner()) = None;
+        hooks::MY_PICK_TURN.store(false, Ordering::Relaxed);
     };
+    // ★AI 필터는 **매 프레임 새로 확신을 얻어야** 켜진다(기본 꺼짐). UI 회색화는 종전대로
+    //   fail-open 을 유지하되, 그 관대함이 AI 필터로 새지 않게 여기서 끊는다.
+    hooks::MY_PICK_TURN.store(false, Ordering::Relaxed);
     let cfg = config::get();
     // ★상시 진단: 여기서 빠져나가면 제한이 아예 안 걸린다. 어느 조건 때문인지 남긴다.
     if !cfg.enabled || !cfg.user_pick_block || !config::any_restricted() {
@@ -1940,6 +1944,10 @@ fn recompute_blocklist(root: &Node) {
         // ★모호하면(None) 억제하지 않는다 = fail-open. 확신이 있을 때만 회색화를 건너뛴다.
         if let Some(sd) = pick_side_in_turn(root) {
             let turn_side = if sd == Side::Blue { 0 } else { 1 };
+            if turn_side == my_side {
+                // ★한쪽만 in_turn 이고 그게 내 쪽 = **확신**. 이때만 AI 필터를 연다.
+                hooks::MY_PICK_TURN.store(true, Ordering::Relaxed);
+            }
             if turn_side != my_side {
                 // ★판정 재료 전부: side_map 이 뒤집혔는지 / side_in_turn 이 한쪽만 주는지 구분용.
                 let bt = side_root(root, Side::Blue, true)

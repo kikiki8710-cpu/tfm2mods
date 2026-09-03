@@ -133,19 +133,36 @@ impl PosState {
         let n = self.live_count(p);
         n != 0 && n >= cur_min_required()
     }
+    /// ★★[2026-09-04 유저 지시 — 규칙 반전] **지정한 포지션에만 갈 수 있다.**
+    ///   ~~구 규칙: 비활성 포지션의 비트를 항상 켰다~~ ⟹ 탑에만 21종을 지정하면 그 21종이
+    ///   `MASK_ALL`(어디든 가능)이 되어, "탑 제한"이 사실상 **"탑은 이 21종만"** 만 뜻하고
+    ///   **"이 21종은 탑만"** 은 뜻하지 않았다. 유저 의도는 후자를 **포함**한다:
+    ///   "선택한 탑 제한 챔피언은 탑만 갈 수 있어야 해. 다른 포지션은 못 가고.
+    ///    다른 포지션에도 갈 수 있게 하려면 그 포지션에서도 똑같이 골라야지."
+    ///
+    ///   새 규칙:
+    ///     ① 어느 활성 포지션에든 지정됨 → **지정된 포지션 비트만** (다른 데는 못 감)
+    ///     ② 어디에도 지정 안 됨      → **비활성(목록 없는) 포지션만** (목록 있는 자리엔 못 감)
+    ///     ③ ②인데 전 포지션이 활성   → `MASK_ALL` fail-open
+    ///        (그 챔프를 아예 못 뽑게 만들면 드래프트가 성립하지 않는다. 2026-08-27 사고와 같은 이유:
+    ///         `helps(pinned, 0)` 이 항상 false 라 전부 회색 처리된다.)
     pub fn mask_of(&self, lower: &str) -> u8 {
-        let mut m = 0u8;
+        let mut designated = 0u8;
+        let mut free = 0u8;
         for p in 0..5 {
-            if !self.pos_active(p) || self.allowed[p].iter().any(|x| x == lower) {
-                m |= 1 << p;
+            if !self.pos_active(p) {
+                free |= 1 << p; // 목록이 없거나 최소 미달 = 제한 없음
+            } else if self.allowed[p].iter().any(|x| x == lower) {
+                designated |= 1 << p;
             }
         }
-        // ★★어느 포지션에도 지정하지 않은 챔프(m==0) = **제한 대상이 아님** ⟹ 전 포지션 허용.
-        //   (2026-08-27 유저 지시. 그 전엔 0 을 그대로 돌려줬는데, `m==0 → 허용` 예외가
-        //    AI 마스크 경로 한 곳에만 있고 **유저 픽 경로엔 없어서** `helps(pinned, 0)` 이
-        //    항상 false → 미지정 챔프가 내 드래프트에서 전부 회색 처리됐다.)
-        //   ⟹ 근원(mask_of)에서 정규화해 모든 소비처가 일관되게 동작하게 한다.
-        if m == 0 { MASK_ALL } else { m }
+        if designated != 0 {
+            return designated; // ①지정된 자리에만
+        }
+        if free != 0 {
+            return free; // ②목록 있는 자리엔 못 감
+        }
+        MASK_ALL // ③전 포지션 활성인데 어디에도 없음 → fail-open
     }
     /// 제한이 하나라도 걸렸나(전부 빈/최소미달이면 모드 무효과).
     pub fn any_restricted(&self) -> bool {
