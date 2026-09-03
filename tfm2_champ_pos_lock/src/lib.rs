@@ -2380,6 +2380,12 @@ impl ModExtension for PosLockExt {
             //     부팅 직후가 아니므로 "시작 검은화면" 창은 여전히 피한다.
             if masks().is_some() {
                 hooks::install_once_recommend();
+                // ★★[2026-09-03 3차] hookRW(**픽 턴** recommend wbc) 재활성 — 이게 핵심이다.
+                //   정의부 RE 주석: "recommend 는 pick/ban x plain/wbc 4개.
+                //   0x2148ca0(=훅 R)은 **밴 페이즈 전용**이라 픽에 안 잡혔던 것. 픽 턴 = 이 함수."
+                //   ⟹ 훅 R 만 살려선 **픽 차단이 안 된다**(실측: rc_seen 은 늘어도 위임 픽 무차단).
+                //   08-22 "recommend 계열 전부 불필요" 판단이 픽 경로까지 함께 껐다.
+                hooks::install_once_recommend_wbc();
             }
             // hooks::install_once_recommend_wbc(); — 제거(2026-08-22): veto 는 SDK score_pick
             //   디스패치로 발화하므로 recommend 계열 훅은 전부 불필요. suspend 기반 설치가
