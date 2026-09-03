@@ -2361,8 +2361,26 @@ impl ModExtension for PosLockExt {
             }
             // ★Hook R(recommend available 필터) — AI 결정단계 하드블록. score_pick 훅이 유저
             //   라이브/코치 매치엔 미발화하므로, recommend 진입서 available 후보를 직접 필터.
-            // hookR(밴 페이즈 recommend 0x2148ca0) — 픽 차단엔 불요 + 설치 경합/검은화면 위험이라 비활성.
-            // hooks::install_once_recommend();
+            // ★★[2026-09-03 재활성] hookR — 코치 위임 픽을 막을 유일한 장치다.
+            //   ⚠아래 08-22 주석("veto 는 score_pick 으로 발화하므로 불필요")은 **오판이었다**.
+            //     실측: 포지션 제한 1개만 켠 판에서 코치 위임이 탑 불가 챔프만 5개를 골라
+            //     배정 자체가 불가능해졌다(swapdiag best_n=4). 하드블록을 전수 확인하니
+            //       · 커밋 REJECT = 의도적 비활성(코치 프리즈 방지)
+            //       · score_pick veto = 유저 라이브/코치 매치엔 미발화(훅 R 정의부 주석 그대로)
+            //       · 훅 R = 호출부가 주석 처리 → RC=0 (한 번도 안 붙음)
+            //     ⟹ 위임 픽을 막을 장치가 하나도 없었다.
+            //   ⚠비활성 사유였던 "시작 검은화면"은 **부팅 직후 suspend 설치**가 원인이므로,
+            //     밴픽 씬에 들어온 뒤에만 시도해 그 창을 피한다(설치는 1회 확정).
+            //   ⚠★[2026-09-03 2차] 설치 시점을 ~~BANPICK_UI_ACTIVE(밴픽 진입 후)~~ →
+            //     **masks() 유효(=세이브 로드 후) 상시** 로 앞당긴다. 훅 R 의 주입 전략은
+            //     "백그라운드 에이전트(len>0)에서 score_pick 훅 Vec 를 캡처해 라이브/코치
+            //     (len==0)에 주입" 인데, 밴픽 진입 후에만 붙이면 **캡처 원본이 안 온다**
+            //     (실측: rc_seen=462 인데 ag0=462 / agp=0 / rc_inj=0 → veto=0).
+            //     세이브 로드 후부터 붙이면 리그 백그라운드 sim 이 len>0 에이전트를 실어온다.
+            //     부팅 직후가 아니므로 "시작 검은화면" 창은 여전히 피한다.
+            if masks().is_some() {
+                hooks::install_once_recommend();
+            }
             // hooks::install_once_recommend_wbc(); — 제거(2026-08-22): veto 는 SDK score_pick
             //   디스패치로 발화하므로 recommend 계열 훅은 전부 불필요. suspend 기반 설치가
             //   시작 검은화면(간헐)의 원인이라 원천 제거.
