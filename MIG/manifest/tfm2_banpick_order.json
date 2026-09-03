@@ -70,8 +70,8 @@
   },
   {
    "name": "RVA_PHASE_SCALAR",
-   "value": "0x163e2c0",
-   "ver": "0.5.7(0.5.8 재핀실패)",
+   "value": "0x10528c0",
+   "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/hooks.rs:56"
@@ -80,8 +80,7 @@
    "bytes": "4c89fa4d89f0e8d81eb6014c",
    "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
    "curated": true,
-   "unresolved": "0.5.8",
-   "note": "★0.5.8 재핀 실패(2026-09-02) — 자동 3단(바이트 유일검색/skeleton/owner+콜그래프)·지역창 축소·사이트 문맥 대조 전부 동형 클론에 막힘. ghidra-re 로 개별 재규명 필요. ⚠rebase 로 bytes 는 새 exe 기준이라 check 는 PASS 로 보인다 — 이 표식이 유일한 단서."
+   "note": "★0.5.8 재핀 완료(2026-09-03) — 인게임 밴픽 20/20 완주로 검증."
   },
   {
    "name": "RVA_COMMIT",
@@ -745,7 +744,7 @@
   },
   {
    "name": "RVA_AITURN_SITE",
-   "value": "0x1a792ea",
+   "value": "0x1a792f9",
    "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
@@ -753,11 +752,12 @@
    ],
    "sect": ".text",
    "bytes": "7461498b4630eb5d48898520",
-   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
+   "note": "★0.5.8 재핀 완료(2026-09-03) — 인게임 밴픽 20/20 완주로 검증."
   },
   {
    "name": "RVA_AITURN_JOIN",
-   "value": "0x1a79792",
+   "value": "0x1a7990b",
    "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
@@ -765,7 +765,8 @@
    ],
    "sect": ".text",
    "bytes": "850190488d8d90450000e87f",
-   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
+   "note": "★0.5.8 재핀 완료(2026-09-03) — 인게임 밴픽 20/20 완주로 검증."
   },
   {
    "name": "RVA_PANIC_HOOK",
