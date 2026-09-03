@@ -1086,8 +1086,12 @@ const RVA_FINALIZE: usize = 0x201da90;
 static TRAMP_FINALIZE: AtomicUsize = AtomicUsize::new(0);
 pub static INSTALL_STATE_FZ: AtomicUsize = AtomicUsize::new(0);
 pub static CNT_FZ_SEEN: AtomicUsize = AtomicUsize::new(0);
-type FinalizeFn = extern "C" fn(
-    usize, usize, usize, usize, usize, usize, usize, usize, usize, usize,
+/// ★★[2026-09-04 RE 확정] 인자 **12개**(레지스터 4 + 스택 8), 반환 = sret(rcx=출력버퍼, rax=rcx).
+///   구 코드는 **10개로 추정**해 후킹했고, 그래서 마지막 두 인자(`list_b_len`·`use_b`)가
+///   스택 쓰레기가 되어 부팅 즉시 AV 했다(빈 Vec 의 dangling ptr 8 을 배열로 취급 → `[8+0x10]=0x18`,
+///   실제 폴트주소와 일치). 근거 = `REPORT\…\RE6-09-04_코치위임픽-개입점-0.5.8.md`.
+type FinalizeFn = unsafe extern "C" fn(
+    usize, usize, usize, usize, usize, usize, usize, usize, usize, usize, usize, usize,
 ) -> usize;
 
 /// sret String(={cap@0,ptr@8,len@0x10})에서 이름 읽기.
@@ -1114,47 +1118,148 @@ pub struct FzEntry {
 }
 pub static FZ_RING: std::sync::Mutex<Vec<FzEntry>> = std::sync::Mutex::new(Vec::new());
 
+/// `String{cap@0,ptr@8,len@0x10}` 원소 하나에서 이름(소문자)을 읽는다. stride 0x18.
+unsafe fn read_str_elem(elem: usize) -> Option<String> {
+    let sp = safe_rd_u64(elem + 8)? as usize;
+    let sl = safe_rd_u64(elem + 0x10)? as usize;
+    if sl == 0 || sl > 64 || !ptr_ok(sp) {
+        return None;
+    }
+    let b = safe_bytes(sp, sl)?;
+    core::str::from_utf8(&b).ok().map(|x| x.to_ascii_lowercase())
+}
+
+/// `Vec<String>`(ptr,len)을 이름 집합으로 읽는다.
+unsafe fn read_str_vec_into(
+    ptr: usize,
+    len: usize,
+    out: &mut std::collections::HashSet<String>,
+) {
+    if len == 0 || len > 512 || !ptr_ok(ptr) {
+        return;
+    }
+    for i in 0..len {
+        if let Some(n) = read_str_elem(ptr + i * 0x18) {
+            out.insert(n);
+        }
+    }
+}
+
+pub static CNT_FZ_FILT: AtomicUsize = AtomicUsize::new(0);
+pub static CNT_FZ_PASS: AtomicUsize = AtomicUsize::new(0);
+
+/// ★★[2026-09-04] **코치/AI 픽의 진짜 개입점.**
+///   이 함수가 `recommend()` 가 낸 *인덱스*를 실제 챔프 **이름 String** 으로 확정하고,
+///   그 String 이 그대로 밴픽 메시지 페이로드가 된다(RE: `0x1fef9a6` 조립 → `0x1a2c5a0` 발신).
+///   ⟹ 여기서 바꾸면 픽이 바뀐다. (점수 훅·recommend 반환·커밋 훅은 전부 안 닿는다 — 실측 확정.)
+///
+///   개입 방식 = **pre-call 로 `order`/`pref_idx` 만 좁힌다.** 반환 String 은 orig 가 스스로
+///   할당하므로 모드는 힙을 만지지 않는다(사후 치환은 길이 다르면 realloc 필요 → 안 함).
+///   ⚠`order` 를 **빈 배열로 만들면 안 된다** — orig 가 "후보 전체 선형스캔" 폴백으로 빠져
+///     제한을 오히려 무시한다. 유효 후보 0이면 **원본 인자 그대로 통과**(fail-open).
 #[allow(clippy::too_many_arguments)]
-extern "C" fn finalize_hook(
-    a0: usize, a1: usize, a2: usize, a3: usize, a4: usize,
-    a5: usize, a6: usize, a7: usize, a8: usize, a9: usize,
+unsafe extern "C" fn finalize_hook(
+    out: usize,
+    cand_ptr: usize,
+    cand_len: usize,
+    order_ptr: usize,
+    order_len: usize,
+    pref_idx: usize,
+    ctx: usize,
+    la_p: usize,
+    la_l: usize,
+    lb_p: usize,
+    lb_l: usize,
+    use_b: usize,
 ) -> usize {
     let tramp = TRAMP_FINALIZE.load(Ordering::Relaxed);
     if tramp == 0 {
-        return 0;
+        return out;
     }
-    let orig: FinalizeFn = unsafe { core::mem::transmute(tramp) };
-    let r = orig(a0, a1, a2, a3, a4, a5, a6, a7, a8, a9);
+    let orig: FinalizeFn = core::mem::transmute(tramp);
     CNT_FZ_SEEN.fetch_add(1, Ordering::Relaxed);
-    let _ = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| unsafe {
-        let live = scene_cap().0 != 0;
-        if !live {
-            return; // 라이브 매치 관측만(로그 스팸 방지)
+
+    // 좁힌 order 를 담을 **스택 버퍼** — orig 호출 동안만 살아 있으면 된다.
+    let mut buf = [0usize; 256];
+    let mut nbuf = 0usize;
+    let mut new_pref = pref_idx;
+
+    let plan = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+        let cfg = config::get();
+        if !cfg.enabled || !cfg.ai_pick_gate || !config::any_restricted() {
+            return None;
         }
-        // 반환 String 은 sret(a0) 또는 반환 포인터(r) 둘 중 하나 → 둘 다 시도.
-        let name = read_string_at(a0).or_else(|| read_string_at(r));
-        // ★[2026-09-04] 여기가 코치의 실제 결정 지점인지 판정하기 위한 관측(라이브·상한 40).
-        //   기준 = **커밋된 챔프가 여기에 나타나는가**. 나타나면 개입 지점이 여기다.
+        // 내 팀 픽 차례에만 개입한다 — UI 게이트가 그때만 차단목록을 게시한다.
+        let block = {
+            let g = BLOCKLIST.lock().unwrap_or_else(|e| e.into_inner());
+            match g.as_ref() {
+                Some(set) if !set.is_empty() => set.clone(),
+                _ => return None,
+            }
+        };
+        if cand_len == 0 || cand_len > 512 || !ptr_ok(cand_ptr) {
+            return None;
+        }
+        // 이미 쓰인 챔프(= orig 의 가용성 술어가 보는 것과 같은 출처):
+        //   ctx 의 Vec 4개(양팀 밴2·픽2) + 단계별 추가목록(use_b 로 A/B 택일).
+        let mut taken: std::collections::HashSet<String> = std::collections::HashSet::new();
+        if ptr_ok(ctx) {
+            for base in [0x38usize, 0x50, 0x68, 0x80] {
+                let p = safe_rd_u64(ctx + base).unwrap_or(0) as usize;
+                let l = safe_rd_u64(ctx + base + 8).unwrap_or(0) as usize;
+                read_str_vec_into(p, l, &mut taken);
+            }
+        }
+        if use_b & 0xff != 0 {
+            read_str_vec_into(lb_p, lb_l, &mut taken);
+        } else {
+            read_str_vec_into(la_p, la_l, &mut taken);
+        }
+
+        let mut allowed: Vec<usize> = Vec::with_capacity(64);
+        for i in 0..cand_len {
+            let Some(n) = read_str_elem(cand_ptr + i * 0x18) else { continue };
+            if taken.contains(&n) || block.contains(&n) {
+                continue;
+            }
+            allowed.push(i);
+            if allowed.len() >= 256 {
+                break;
+            }
+        }
+        if allowed.is_empty() {
+            return None; // fail-open — 좁히면 오히려 선형스캔 폴백으로 제한이 풀린다
+        }
+        let pref = if allowed.contains(&pref_idx) { pref_idx } else { allowed[0] };
+        Some((allowed, pref, block.len()))
+    }))
+    .ok()
+    .flatten();
+
+    if let Some((allowed, pref, bl_n)) = plan {
+        nbuf = allowed.len().min(256);
+        buf[..nbuf].copy_from_slice(&allowed[..nbuf]);
+        new_pref = pref;
+        CNT_FZ_FILT.fetch_add(1, Ordering::Relaxed);
         if config::get().debug {
-            static FZ_N: AtomicUsize = AtomicUsize::new(0);
-            let n = FZ_N.fetch_add(1, Ordering::Relaxed);
+            static N: AtomicUsize = AtomicUsize::new(0);
+            let n = N.fetch_add(1, Ordering::Relaxed);
             if n < 40 {
+                let nm = read_str_elem(cand_ptr + pref * 0x18).unwrap_or_default();
                 config::dlog(&format!(
-                    "fzout#{n}: name={:?} r=0x{r:x} a0=0x{a0:x} a1=0x{a1:x}",
-                    name.as_deref().unwrap_or("?")
+                    "fzfilt#{n}: cand={cand_len} order={order_len}→{nbuf} pref={pref_idx}→{pref}({nm}) bl={bl_n}"
                 ));
             }
         }
-        let mut g = FZ_RING.lock().unwrap_or_else(|e| e.into_inner());
-        if g.len() < 40 {
-            g.push(FzEntry {
-                name,
-                args: [a0, a1, a2, a3, a4, a5, a6, a7, a8, a9],
-                live,
-            });
-        }
-    }));
-    r
+    } else {
+        CNT_FZ_PASS.fetch_add(1, Ordering::Relaxed);
+    }
+
+    if nbuf > 0 {
+        orig(out, cand_ptr, cand_len, buf.as_ptr() as usize, nbuf, new_pref, ctx, la_p, la_l, lb_p, lb_l, use_b)
+    } else {
+        orig(out, cand_ptr, cand_len, order_ptr, order_len, pref_idx, ctx, la_p, la_l, lb_p, lb_l, use_b)
+    }
 }
 
 /// Hook FZ 설치 (post_update — 스레드 안전 패치·재시도).
