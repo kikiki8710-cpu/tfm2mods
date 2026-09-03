@@ -2460,7 +2460,15 @@ impl ModExtension for PosLockExt {
             // hooks::install_once_recommend_wbc(); — 제거(2026-08-22): veto 는 SDK score_pick
             //   디스패치로 발화하므로 recommend 계열 훅은 전부 불필요. suspend 기반 설치가
             //   시작 검은화면(간헐)의 원인이라 원천 제거.
-            // hooks::install_once_finalize(); — 보류(재설계: score_pick 축 교정이 1순위, 불필요 변수 제거)
+            // ★[2026-09-04] FZ 설치 재개. 보류 사유였던 "score_pick 축이 1순위"는 폐기 —
+            //   실측으로 **코치의 실제 픽이 `recommend` 반환값이 아님**이 확정됐다
+            //   (커밋된 챔프가 recommend 반환 로그에 한 번도 나오지 않음). 점수 개입은 닿지 않는다.
+            // ⛔[2026-09-04] **재시도 금지(현 시그니처 한정)** — 켜자마자 부팅 직후 크래시.
+            //   `code=0xc0000005 *FAULT=exe+0x2020799 fault=0x18`, 스택 `exe+0x201db5c ← MOD+0xc6f4`
+            //   = 트램폴린을 거쳐 orig 가 돈 뒤 내부 호출에서 널+0x18 참조.
+            //   원인 = `FinalizeFn` 의 **10인자 extern "C" 시그니처가 추정값**이라 스택 인자가 깨진다.
+            //   다시 켜려면 먼저 `0x201da90` 의 **정확한 인자 개수·타입을 RE 로 확정**할 것.
+            // hooks::install_once_finalize();
             // ★전 매치 최종 라인업 드레인 — veto 가 실제로 중복을 막는지 결과로 검증.
             {
                 let fin: Vec<hooks::FinalLineup> = {
@@ -2801,12 +2809,26 @@ impl ModExtension for PosLockExt {
                         let offd = if t2d { 0x1b0usize } else { 0x198 };
                         let vod = if t2d { hooks::O_PICK2 } else { hooks::O_PICK1 };
                         let planned = swap_plan(scene, offd, vod);
-                        let masks_len = unsafe { hooks::read_scene_vec(scene, vod) }
-                            .map(|v| v.len() as i64)
-                            .unwrap_or(-1);
+                        let scene_picks = unsafe { hooks::read_scene_vec(scene, vod) };
+                        let masks_len = scene_picks.as_ref().map(|v| v.len() as i64).unwrap_or(-1);
+                        // ★[2026-09-04] **스왑 시점의 실제 5픽 이름 + 마스크**를 남긴다.
+                        //   `best_n` 만으로는 "치환이 픽에 반영됐는지"를 못 가른다 — 이름이 있어야
+                        //   커밋 REDIRECT 결과가 여기까지 왔는지 확인된다.
+                        let names_dbg: String = scene_picks
+                            .as_ref()
+                            .map(|v| {
+                                v.iter()
+                                    .map(|n| {
+                                        let m = config::mask_of(&n.to_ascii_lowercase());
+                                        format!("{n}({m:05b})")
+                                    })
+                                    .collect::<Vec<_>>()
+                                    .join(",")
+                            })
+                            .unwrap_or_else(|| "?".to_string());
                         let line = match &planned {
                             Some((cur, want, n)) => format!(
-                                "swapdiag: sf={sf} picks={picks_done} applied={ap} usr={} t2={t2d}                                  picklen={masks_len} cur={cur:?} want={want:?} best_n={n} eq={}",
+                                "swapdiag: sf={sf} picks={picks_done} applied={ap} usr={} t2={t2d} picklen={masks_len} cur={cur:?} want={want:?} best_n={n} eq={} 픽=[{names_dbg}]",
                                 USER_SWAPPED.load(Ordering::Relaxed),
                                 cur == want
                             ),

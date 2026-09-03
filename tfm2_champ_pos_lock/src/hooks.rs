@@ -1133,6 +1133,18 @@ extern "C" fn finalize_hook(
         }
         // 반환 String 은 sret(a0) 또는 반환 포인터(r) 둘 중 하나 → 둘 다 시도.
         let name = read_string_at(a0).or_else(|| read_string_at(r));
+        // ★[2026-09-04] 여기가 코치의 실제 결정 지점인지 판정하기 위한 관측(라이브·상한 40).
+        //   기준 = **커밋된 챔프가 여기에 나타나는가**. 나타나면 개입 지점이 여기다.
+        if config::get().debug {
+            static FZ_N: AtomicUsize = AtomicUsize::new(0);
+            let n = FZ_N.fetch_add(1, Ordering::Relaxed);
+            if n < 40 {
+                config::dlog(&format!(
+                    "fzout#{n}: name={:?} r=0x{r:x} a0=0x{a0:x} a1=0x{a1:x}",
+                    name.as_deref().unwrap_or("?")
+                ));
+            }
+        }
         let mut g = FZ_RING.lock().unwrap_or_else(|e| e.into_inner());
         if g.len() < 40 {
             g.push(FzEntry {
@@ -1230,7 +1242,53 @@ extern "C" fn recommend_wbc_hook(
     }
     // 라이브/코치 에이전트(훅 Vec 빔)에 score_pick 훅 주입 — 게임 자체 디스패치가 veto 호출.
     inject_score_hook(agent);
-    orig(agent, available, ally, enemy, ally_ban, enemy_ban, p7, diff, turn_kind, ban_cnt)
+    let r = orig(agent, available, ally, enemy, ally_ban, enemy_ban, p7, diff, turn_kind, ban_cnt);
+    // ★★[2026-09-04 축A] **반환값이 실제 픽인가 / 그게 차단 대상인가**를 계측한다.
+    //   배경: `score_pick` 의 `Replace(-1e9)` 가 2271회 발화했는데도 코치의 마지막 픽이
+    //   미지정 챔프로 갔다(탑=youmu, `best_n=4`). 벌점이 최종 선택을 못 정한다는 뜻이므로,
+    //   **어디서 확정되는지**를 먼저 잡는다. 여기 반환값이 곧 픽이면 개입 지점은 여기다.
+    rw_probe_out(r);
+    r
+}
+
+/// 반환 champ id ↔ BLOCKLIST 대조 로그(라이브 씬 한정·상한 60줄).
+#[inline(never)]
+fn rw_probe_out(r: u64) {
+    let _ = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+        if scene_cap().0 == 0 || !config::get().debug {
+            return;
+        }
+        // ★[2026-09-04 2차] 상한 60을 **밴 단계가 다 써버려** 정작 마지막 픽 구간을 못 봤다.
+        //   ⟹ **차단목록이 살아있는 동안만**(bl_n>0) 찍는다 = 결정적 구간만 남는다.
+        let bl_live = {
+            let g = BLOCKLIST.lock().unwrap_or_else(|e| e.into_inner());
+            g.as_ref().map_or(0, |s| s.len())
+        };
+        // ★[2026-09-04 3차] 필터를 **풀고** 전 구간을 본다. 확인할 것 =
+        //   "코치가 위임 직후 전체 픽을 미리 정하는가"(그렇다면 결정 시점엔 차단목록이 비어 있어
+        //   점수 개입이 원천적으로 닿지 않는다). 판정 = 실제 커밋된 챔프가 recommend 반환으로
+        //   나타난 시점의 `bl_n`.
+        static N: AtomicUsize = AtomicUsize::new(0);
+        let n = N.fetch_add(1, Ordering::Relaxed);
+        if n >= 400 {
+            return;
+        }
+        let idx = r as usize;
+        let name = crate::names()
+            .and_then(|v| v.get(idx).cloned())
+            .unwrap_or_else(|| "?".to_string());
+        let lower = name.to_ascii_lowercase();
+        let blocked = {
+            let g = BLOCKLIST.lock().unwrap_or_else(|e| e.into_inner());
+            g.as_ref().map_or(false, |set| set.contains(&lower))
+        };
+        // 지정 목록 소속 여부(마스크로 판정) — 결과물 기준 판정용.
+        let m = config::mask_of(&lower);
+        config::dlog(&format!(
+            "rwout#{n}: name={name} blocked={blocked} bl_n={bl_live} mask={m:05b}{}",
+            if m == MASK_ALL { " ALLOWED(지정)" } else { "" }
+        ));
+    }));
 }
 
 /// Hook RW 설치 (post_update — 스레드 안전 패치·재시도). 픽 recommend(wbc) 진입.
@@ -2141,6 +2199,33 @@ unsafe fn read_rec_names(rec: usize, off: usize) -> Vec<String> {
 
 /// 이 커밋(rmi, acting_team, champ)이 "그 매치의 acting팀 라인업을 깨는 픽"인가.
 /// 반환 = Pass(원본)/Reject(거부·인간용)/Redirect(대체 챔프·AI코치용).
+/// 한 드래프트에서 커밋 치환을 허용할 최대 횟수(무한 줄다리기 차단).
+const CM_REDIR_MAX: usize = 4;
+pub static CM_REDIR_N: AtomicUsize = AtomicUsize::new(0);
+
+/// ★[2026-09-04] 라인업을 깨는 픽을 대신할 **유효 챔프**를 고른다.
+///   조건: 아직 안 쓰였고(`taken` 밖), 현재 픽들과 합쳐 `feasible` 한 것.
+///   ⚠"제한 챔프를 우선" 같은 휴리스틱은 쓰지 않는다 — **이 모드의 마스크는 직관과 반대**다.
+///     한 포지션(탑)만 지정하면 **지정된 챔프가 `MASK_ALL`** 이 되고(나머지 포지션이 비활성이라
+///     그 비트가 전부 켜진다), 지정 안 된 챔프가 `0b11110`(탑 불가) = 제한 대상이 된다.
+///     그래서 "제한 챔프 우선"은 정확히 거꾸로 고른다. 판정은 `feasible` 하나로 충분하다.
+fn pick_replacement(
+    cur_masks: &[u8],
+    taken: &std::collections::HashSet<String>,
+    skip: &str,
+) -> Option<String> {
+    let names = crate::names()?;
+    names.iter().find_map(|n| {
+        let low = n.to_ascii_lowercase();
+        if low == skip || taken.contains(&low) {
+            return None;
+        }
+        let mut v = cur_masks.to_vec();
+        v.push(config::mask_of(&low));
+        crate::feasible(&mut v).then_some(low)
+    })
+}
+
 fn commit_decide(rmi: usize, acting_team: usize, champ: usize) -> CommitAction {
     use CommitAction::*;
     let cfg = config::get();
@@ -2225,6 +2310,18 @@ fn commit_decide(rmi: usize, acting_team: usize, champ: usize) -> CommitAction {
             with.push(cand);
         }
         let new_ok = crate::feasible(&mut with);
+        // ★★[2026-09-04 축A] **왜 통과시켰는지**를 남긴다. `cm_rej=0` 인데 결과는 위반이므로
+        //   판정 입력(is_pick / cand_restricted / cur_ok / new_ok)을 그대로 봐야 원인이 갈린다.
+        if config::get().debug {
+            static CD_N: AtomicUsize = AtomicUsize::new(0);
+            let n = CD_N.fetch_add(1, Ordering::Relaxed);
+            if n < 60 {
+                config::dlog(&format!(
+                    "cmdec#{n}: total={total} name={name} pick={is_pick} restr={cand_restricted} cur_ok={cur_ok} new_ok={new_ok} picks={picks:?} cand={cand:05b} → {}",
+                    if is_pick && cand_restricted && cur_ok && !new_ok { "개입" } else { "PASS" }
+                ));
+            }
+        }
         // 개입 필요 = 픽 + 제한챔프 + 현재는 가능한데 이 챔프 추가 시 불가능(=이 챔프가 깸).
         if !(is_pick && cand_restricted && cur_ok && !new_ok) {
             return Pass;
@@ -2267,9 +2364,28 @@ fn commit_decide(rmi: usize, acting_team: usize, champ: usize) -> CommitAction {
         //   무조건 Pass 해서 프리즈/크래시 원천 차단. (REDIRECT=순서 desync 프리즈, REJECT=코치
         //   행, 둘 다 폐기 — 커밋 시점 개입은 안전한 fail-open 판정 외엔 하지 않는다.)
         let _ = REJECT_LIMIT;
+        // ★★[2026-09-04] **REDIRECT 재도입 (범위 한정)**.
+        //   여기까지 온 것 = "픽이고 · 제한챔프고 · 지금까진 가능한데 이 챔프가 라인업을 깨고 ·
+        //   대체 가능한 챔프가 실제로 남아 있다"가 전부 참인, 가장 좁은 경우다.
+        //   구 코드는 이 자리에서 **로그만 남기고 무조건 Pass** 했다(2026-08-21, 프리즈 회피).
+        //   그 대안으로 예정했던 "결정단계 후보필터"는 스택 오버플로로 폐기돼 **끝내 비어 있었고**,
+        //   그 결과 게이트가 위반을 알면서 통과시켜 왔다(2026-09-04 실측: `cmdec → 개입` 인데
+        //   `cm_rej=0 cm_redir=0`, 최종 `best_n=4`).
+        //   ⟹ 점수 개입(`score_pick`)으로는 못 막는다. **추천과 확정이 다른 경로**이기 때문:
+        //      같은 순간 `recommend` 는 허용 챔프(fighter)를 반환했는데 커밋엔 dual_blader 가 왔다.
+        //   ⚠REJECT(거부)는 코치를 얼린다(실사고) ⟹ **거부가 아니라 치환**만 한다.
+        //     치환은 게임 입장에서 "정상 커밋"이라 상태기계가 멈출 이유가 없다.
+        //   ⚠드래프트당 상한을 둬 무한 치환/줄다리기를 차단한다.
+        // ⛔[2026-09-04] **REDIRECT 재시도 금지(커밋 지점 한정)** — 실측으로 무효이자 위험.
+        //   치환은 정상 발화했다(`commitgate … → REDIRECT 'archer'`, `cm_redir=1`, 프리즈 없음).
+        //   그런데 **스왑 시점 실제 픽은 그대로였다**: `픽=[…,hellion(11110)]`, `best_n=4`.
+        //   ⟹ 이 함수는 **결정 지점이 아니라 기록(record) 지점**이다. 치환하면 기록만 바뀌어
+        //     record ↔ scene 이 어긋난다 — 2026-08-21 "REDIRECT = 순서 desync" 의 정체가 이것이다.
+        //   ⟹ 커밋 지점에서는 **판정·로그만** 하고 실제 개입은 하지 않는다.
+        let _ = pick_replacement(&[], &taken, &name); // (헬퍼 보존 — 진짜 개입 지점 확보 시 재사용)
         if cfg.debug {
             config::dlog(&format!(
-                "commitgate: name='{name}' total={total} picks=[{}] act=0x{acting_team:x} → would-block(reject-disabled→pass)",
+                "commitgate: name='{name}' total={total} picks=[{}] → would-block(개입 지점 아님→pass)",
                 picks.join(",")
             ));
         }
