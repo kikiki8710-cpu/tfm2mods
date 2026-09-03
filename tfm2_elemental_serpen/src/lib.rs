@@ -502,19 +502,22 @@ const LAUNCHER_PROLOGUE: [u8; 12] = [0x55, 0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0
 // ★0.5.3 재도출(2026-07-29): 위 확정 런처의 xref 콜사이트를 씬빌더 본문에서 직접 열거해 얻음
 //   (컨테이너+오프셋 델타나 콜 서수 매핑을 쓰지 말 것 — 0.5.2 때 둘 다 오답이었다).
 //   자기일치 확인: 세 사이트의 E8 타깃이 전부 LAUNCHER_RVA(0xeb8810)로 재계산됨.
-const LAUNCHER_RET_A: usize = 0x893cb9; // 0.5.6 재핀(구값→신값) // 0.5.5: 구 0x9e2079 → 신 0x763329. 콜사이트 0x763324+5 (씬빌더 0x7571d0 +0xc154, 구와 동일 오프셋·크기 91975). (구0.5.3=0x9a3287)
-const LAUNCHER_RET_B: usize = 0x898c0b; // 0.5.6 재핀(구값→신값) // 0.5.5: 구 0x9e6feb → 신 0x76829b. 콜사이트 0x768296+5 (씬빌더 0x7571d0 +0x110c6, 동일). (구0.5.3=0x9a7b03)
+const LAUNCHER_RET_A: usize = 0x893c41; // ★0.5.8 재핀(2026-09-04): 구 0x893cb9 는 **콜사이트가 아니었다**(그 앞이 call 아님).
+                                        // 콜사이트 0x893c3c, 오너 씬빌더 0x887980 +0xc2bc (0.5.5 기록 +0xc154 대응). // 0.5.6 재핀(구값→신값) // 0.5.5: 구 0x9e2079 → 신 0x763329. 콜사이트 0x763324+5 (씬빌더 0x7571d0 +0xc154, 구와 동일 오프셋·크기 91975). (구0.5.3=0x9a3287)
+const LAUNCHER_RET_B: usize = 0x898be9; // ★0.5.8 재핀(2026-09-04): 구 0x898c0b 틀림. 콜사이트 0x898be4,
+                                        // 오너 씬빌더 0x887980 +0x11264 (0.5.5 기록 +0x110c6 대응). 런타임 retaddr 실측치와 일치. // 0.5.6 재핀(구값→신값) // 0.5.5: 구 0x9e6feb → 신 0x76829b. 콜사이트 0x768296+5 (씬빌더 0x7571d0 +0x110c6, 동일). (구0.5.3=0x9a7b03)
 // ★리플레이(다시보기) 진입 경로 C — pause 메뉴 replay_match_slot 매치런치 핸들러(entry 0x1554930)의
 //   런처 콜사이트 0x1555210 + 5(E8 rel32) = retaddr. 이 게이트로 리플레이도 화면 경기 seed를 확정한다.
 //   (ghidra-re 2026-07-26: World 생성은 런처 0x1d96870을 반드시 경유·간접호출 전무 → 콜사이트+5=retaddr)
-const LAUNCHER_RET_C: usize = 0x1c50704; // 0.5.6 재핀(구값→신값) // 0.5.5: 구 0x1d147e4 → 신 0x1da7d54. 리플레이 = 콜사이트 0x1da7d4f+5 (핸들러 0x1da73d0 +0x97f, 크기 5272 동일). (구0.5.3=0x229ad94)
+const LAUNCHER_RET_C: usize = 0x1c50714; // ★0.5.8 재핀(2026-09-04): 구 0x1c50704 틀림. 콜사이트 0x1c5070f,
+                                         // 오너 리플레이핸들러 0x1c4fd80 +0x98f (0.5.5 기록 +0x97f 대응). // 0.5.6 재핀(구값→신값) // 0.5.5: 구 0x1d147e4 → 신 0x1da7d54. 리플레이 = 콜사이트 0x1da7d4f+5 (핸들러 0x1da73d0 +0x97f, 크기 5272 동일). (구0.5.3=0x229ad94)
 // ★comp_test(조합테스트) 다시보기 경로 D — comp_test는 정규 리플레이 핸들러(0x1d13e60)를 타지 않고
 //   전용 재생 빌더 0x2323aa0(training_ui.rs, CompTestHistoryEntry의 seed로 재시뮬)을 탄다.
 //   경로: comp_test 팝업 다시보기 버튼 → 0x2326820 → 0x2323aa0 → 런처 콜사이트 0x2323ff9(+5=retaddr).
 //   (ghidra-re 2026-08-08: 런처 콜사이트 exe 바이트스캔 전수 9건 중 유일한 comp_test 화면 재생 경로.
 //    ⚠0x235c382는 comp_test 백그라운드 sim 본체 추정 = 화이트리스트 금지.
 //    전문 = REPORT\tfm2_elemental_serpen\RE\2026-08-08_comptest-다시보기-런처콜사이트.md)
-const LAUNCHER_RET_D: usize = 0x23aafce; // 0.5.6 재핀(구값→신값) // 0.5.5: 구 0x2323ffe → 신 0x1aa88ce. comp_test 다시보기 = 콜사이트 0x1aa88c9+5 (재생 빌더 0x1aa8370 +0x559, 구 크기 3085→3078 동일오프셋).
+const LAUNCHER_RET_D: usize = 0x23aafce; // ★0.5.8 검증(2026-09-04): **불변**. 콜사이트 0x23aafc9, comp_test 재생빌더 0x23aaa70 +0x559 완전일치. // 0.5.6 재핀(구값→신값) // 0.5.5: 구 0x2323ffe → 신 0x1aa88ce. comp_test 다시보기 = 콜사이트 0x1aa88c9+5 (재생 빌더 0x1aa8370 +0x559, 구 크기 3085→3078 동일오프셋).
 static RENDER_SEED: AtomicU64 = AtomicU64::new(0);   // ★화면 경기 seed (이게 정답 게이트)
 static LAUNCH_N: AtomicU64 = AtomicU64::new(0);      // 런처 총 발화수
 static LAUNCH_HIT: AtomicU64 = AtomicU64::new(0);    // 그중 화면 경기(retaddr 일치)
