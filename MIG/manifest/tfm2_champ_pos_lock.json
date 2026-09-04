@@ -486,15 +486,17 @@
   },
   {
    "name": "DISP_CALLSITE",
-   "value": "0x1a374ae",
+   "value": "0x1a37477",
    "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/hooks.rs:4134"
    ],
    "sect": ".text",
-   "bytes": "660f108d10a504000f109520",
-   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+   "bytes": "e8241a04009083bd00a50400",
+   "method": "타깃 RVA 로 .text 전수 E8 rel32 스캔(콜러 유일)",
+   "curated": true,
+   "note": "[0.5.8 재핀 정정 2026-09-04: _mig 12B 바이트매치가 non-CALL 지점을 짚어 미설치(hookCP 0건 / hookCB non-CALL(85) / hookDQ non-CALL(66)). 앵커 = 타깃 RVA 로 .text 전수 E8 rel32 스캔 — CPROD 3콜러 / CANDB 1콜러 / DISPATCH 1콜러로 유일 확정. 다음 마이그도 이 방법으로.]"
   },
   {
    "name": "RVA_DISPATCH",
@@ -512,15 +514,17 @@
   },
   {
    "name": "CB_CALLSITE",
-   "value": "0x1a79952",
+   "value": "0x1a79acb",
    "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/hooks.rs:4478"
    ],
    "sect": ".text",
-   "bytes": "85c07406488b4830eb0231c9",
-   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+   "bytes": "e8e024eaff90488d8db82200",
+   "method": "타깃 RVA 로 .text 전수 E8 rel32 스캔(콜러 유일)",
+   "curated": true,
+   "note": "[0.5.8 재핀 정정 2026-09-04: _mig 12B 바이트매치가 non-CALL 지점을 짚어 미설치(hookCP 0건 / hookCB non-CALL(85) / hookDQ non-CALL(66)). 앵커 = 타깃 RVA 로 .text 전수 E8 rel32 스캔 — CPROD 3콜러 / CANDB 1콜러 / DISPATCH 1콜러로 유일 확정. 다음 마이그도 이 방법으로.]"
   },
   {
    "name": "RVA_ORCH",
@@ -536,39 +540,45 @@
   },
   {
    "name": "CPROD_CALLSITES",
-   "value": "0x1f096b3",
+   "value": "0x1f098dd",
    "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/hooks.rs:3150"
    ],
    "sect": ".text",
-   "bytes": "488983e801000048898bf001",
-   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+   "bytes": "e8ae720f0090488b93c00000",
+   "method": "타깃 RVA 로 .text 전수 E8 rel32 스캔(콜러 유일)",
+   "curated": true,
+   "note": "[0.5.8 재핀 정정 2026-09-04: _mig 12B 바이트매치가 non-CALL 지점을 짚어 미설치(hookCP 0건 / hookCB non-CALL(85) / hookDQ non-CALL(66)). 앵커 = 타깃 RVA 로 .text 전수 E8 rel32 스캔 — CPROD 3콜러 / CANDB 1콜러 / DISPATCH 1콜러로 유일 확정. 다음 마이그도 이 방법으로.]"
   },
   {
    "name": "CPROD_CALLSITES",
-   "value": "0x1f097a3",
+   "value": "0x1f099dd",
    "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/hooks.rs:3150"
    ],
    "sect": ".text",
-   "bytes": "838800000000e812ddbf0090",
-   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+   "bytes": "e8ae710f0090488b93c00000",
+   "method": "타깃 RVA 로 .text 전수 E8 rel32 스캔(콜러 유일)",
+   "curated": true,
+   "note": "[0.5.8 재핀 정정 2026-09-04: _mig 12B 바이트매치가 non-CALL 지점을 짚어 미설치(hookCP 0건 / hookCB non-CALL(85) / hookDQ non-CALL(66)). 앵커 = 타깃 RVA 로 .text 전수 E8 rel32 스캔 — CPROD 3콜러 / CANDB 1콜러 / DISPATCH 1콜러로 유일 확정. 다음 마이그도 이 방법으로.]"
   },
   {
    "name": "CPROD_CALLSITES",
-   "value": "0x1f09883",
+   "value": "0x1f09acd",
    "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
     "src/hooks.rs:3150"
    ],
    "sect": ".text",
-   "bytes": "4c8da3680a0000660f1f4400",
-   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
+   "bytes": "e8be700f0090488b93c00000",
+   "method": "타깃 RVA 로 .text 전수 E8 rel32 스캔(콜러 유일)",
+   "curated": true,
+   "note": "[0.5.8 재핀 정정 2026-09-04: _mig 12B 바이트매치가 non-CALL 지점을 짚어 미설치(hookCP 0건 / hookCB non-CALL(85) / hookDQ non-CALL(66)). 앵커 = 타깃 RVA 로 .text 전수 E8 rel32 스캔 — CPROD 3콜러 / CANDB 1콜러 / DISPATCH 1콜러로 유일 확정. 다음 마이그도 이 방법으로.]"
   },
   {
    "name": "INLINE@src/hooks.rs:5080",

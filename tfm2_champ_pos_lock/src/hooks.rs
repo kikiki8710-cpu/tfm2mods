@@ -2911,8 +2911,22 @@ pub fn install_once() {
         return;
     }
     let cfg = config::get();
-    if !cfg.enabled || !cfg.ai_assign_mask || !config::any_restricted() {
+    if !cfg.enabled || !cfg.ai_assign_mask {
+        // ★★[2026-09-04] 09-03 정정(RC/CM/C)을 hookA 에도 적용.
+        //   `any_restricted()` 는 **세이브 로드 전엔 false** 다(포지션 설정이 세이브에
+        //   딸려 온다). 구 코드는 이때 state=2(영구실패)로 못박아, 이후 세이브를 불러
+        //   제한이 생겨도 훅이 영원히 안 붙었다(실사고 2026-09-04: A=2 · mask_fire=0
+        //   = 상대 AI 포지션 배정이 무제한).
+        //   ⟹ 설정으로 끔 경우만 영구실패, "아직 제한 없음"은 재시도(state 0 유지).
         INSTALL_STATE.store(2, Ordering::Relaxed);
+        return;
+    }
+    if !config::any_restricted() {
+        // state 0 유지 = 다음 프레임 재시도. 보류는 1회만 남긴다(매 프레임 스팸 방지).
+        static PEND: std::sync::atomic::AtomicBool = std::sync::atomic::AtomicBool::new(false);
+        if !PEND.swap(true, Ordering::Relaxed) {
+            config::dlog("hookA(pos_mask) 설치 보류: 아직 제한 없음(세이브 로드 대기) — 제한이 생기면 자동 설치");
+        }
         return;
     }
     unsafe {
@@ -3663,7 +3677,7 @@ pub static AM_COUNT_HIST: [AtomicU64; 8] = [
 // ══════════════════════════════════════════════════════════════════════════
 const RVA_CPROD: usize = 0x2000b90;
 /// f16ea0 콜사이트 3곳(실행기 Q1/Q2/Q3 드레인 — RE 확정). 진입 패치 대신 여기를 리다이렉트.
-const CPROD_CALLSITES: [usize; 3] = [0x1f096b3, 0x1f097a3, 0x1f09883];  // 0.5.7 재핀 — RVA_CPROD 콜러 구/신 각 3건 순서대응 (0.5.6=[0x2129c2d,0x2129d2d,0x2129e1d])
+const CPROD_CALLSITES: [usize; 3] = [0x1f098dd, 0x1f099dd, 0x1f09acd]; // ★★0.5.8 재핀 정정(2026-09-04): _mig 12B 바이트매치가 non-CALL 지점을 짚어 미설치였다. exe 전수 스캔(E8 rel32 → 타깃 RVA)으로 확정.  // 0.5.7 재핀 — RVA_CPROD 콜러 구/신 각 3건 순서대응 (0.5.6=[0x2129c2d,0x2129d2d,0x2129e1d])
 static CP_STUB: AtomicUsize = AtomicUsize::new(0);
 static TRAMP_CPROD: AtomicUsize = AtomicUsize::new(0);
 pub static INSTALL_STATE_CPROD: AtomicUsize = AtomicUsize::new(0);
@@ -4659,7 +4673,7 @@ pub fn install_once_argmax() {
 //   계약: rcx=sret, rdx=MS, r8=ctx, r9=kind, [+0x28]=match_id, [+0x30]=team_id
 //   sret: +0x00 kind(-1=결정없음) +0x08 match_id +0x10 VecA +0x40 team_id +0x50 marker
 // ══════════════════════════════════════════════════════════════════════════
-const DISP_CALLSITE: usize = 0x1a374ae; // producer 내 유일 call 0x2079730
+const DISP_CALLSITE: usize = 0x1a37477; // ★★0.5.8 재핀 정정(2026-09-04): _mig 12B 바이트매치가 non-CALL 지점을 짚어 미설치였다. exe 전수 스캔(E8 rel32 → 타깃 RVA)으로 확정. // producer 내 유일 call 0x2079730
   // ← 0.5.7 재핀 — RVA_DISP 콜러 구/신 각 1건 (0.5.6=0x2038056)
 const RVA_DISP: usize = 0x1a78ea0;
 static DQ_STUB: AtomicUsize = AtomicUsize::new(0);
@@ -5009,7 +5023,7 @@ pub fn install_once_dq() {
 //   ⚠1단계는 **진단 전용**: 인덱스 축이 우리 NAMES 와 같은지 확인만(필터 안 함).
 //     축이 다르면 엉뚱한 챔프를 걸러 AI 오작동·후보 고갈(hang) 위험.
 // ══════════════════════════════════════════════════════════════════════════
-const CB_CALLSITE: usize = 0x1a79952;  // 0.5.7 재핀 — RVA_CANDB 콜러 구/신 각 1건 (0.5.6=0x207a191)
+const CB_CALLSITE: usize = 0x1a79acb; // ★★0.5.8 재핀 정정(2026-09-04): _mig 12B 바이트매치가 non-CALL 지점을 짚어 미설치였다. exe 전수 스캔(E8 rel32 → 타깃 RVA)으로 확정.  // 0.5.7 재핀 — RVA_CANDB 콜러 구/신 각 1건 (0.5.6=0x207a191)
 const RVA_CANDB: usize = 0x191bfb0;  // 0.5.7 재핀 UNIQUE size806 동일 (0.5.6=0x18d01b0)
 static CB_STUB: AtomicUsize = AtomicUsize::new(0);
 static CANDB_ORIG: AtomicUsize = AtomicUsize::new(0);
@@ -5588,10 +5602,20 @@ pub fn install_once_uiblock() {
         return;
     }
     let cfg = config::get();
-    if !cfg.enabled || !cfg.user_pick_block || !config::any_restricted() {
+    if !cfg.enabled || !cfg.user_pick_block {
+        // ★★[2026-09-04] hookA 와 동일한 정정 — 아래 `any_restricted()` 주석 참조.
+        //   실사고: 설정 없는 세이브로 들어가 그 자리에서 제한을 만들면
+        //   GY/CK 가 이미 state=2 로 못박혀 그 판 내내 회색화가 안 됐다(GY cell=0).
         INSTALL_STATE_GY.store(2, Ordering::Relaxed);
         INSTALL_STATE_CK.store(2, Ordering::Relaxed);
         return;
+    }
+    if !config::any_restricted() {
+        static PEND: std::sync::atomic::AtomicBool = std::sync::atomic::AtomicBool::new(false);
+        if !PEND.swap(true, Ordering::Relaxed) {
+            config::dlog("hookGY/CK 설치 보류: 아직 제한 없음(세이브 로드 대기) — 제한이 생기면 자동 설치");
+        }
+        return; // state 0 유지 = 다음 프레임 재시도
     }
     unsafe {
         if BASE.load(Ordering::Relaxed) == 0 {
@@ -5617,7 +5641,7 @@ pub fn install_once_uiblock() {
         INSTALL_STATE_GY.store(if a { 1 } else { 2 }, Ordering::Relaxed);
         INSTALL_STATE_CK.store(if b { 1 } else { 2 }, Ordering::Relaxed);
         config::dlog(&format!(
-            "hookGY(회색화 0x2553a16)={} hookCK(클릭차단 0x25508de)={}",
+            "hookGY(회색화 cs={GY_CALLSITE:#x})={} hookCK(클릭차단 cs={CK_CALLSITE:#x})={}",
             if a { "OK" } else { "실패" },
             if b { "OK" } else { "실패" }
         ));
