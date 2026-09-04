@@ -62,19 +62,19 @@ unsafe fn apply_disc19_imm() {
     //   ⚠넥서스2(ally) 문턱 = 32/64bit div **2사이트 중복**(0xeaf2d3 JA=64bit + 0xeaf2f8 JBE=32bit) — 둘 다 패치해야 일관.
     //   전 사이트 width=1·imm_off=3. sr3 +1 인코딩(9→0x0a) 유지, hp경계 V−1(66→0x41) 유지, retreat orig 0x2d(JBE, HP%<=45 후퇴) — 0.5.7은 +1/−1 조정 없음.
     // 위협비율표 (RAX=tr, 48 83 f8)
-    ok += patch_imm_bytes(base + 0xeaf239, &[0x48,0x83,0xf8], 3, 1, p_sr0) as u32;   // tr>49  orig 0x31 (JA)   // ←s6 d432eb/dacc9b
-    ok += patch_imm_bytes(base + 0xeaf245, &[0x48,0x83,0xf8], 3, 1, p_sr1) as u32;   // tr>29  orig 0x1d   // ←s6 d432f7
-    ok += patch_imm_bytes(base + 0xeaf251, &[0x48,0x83,0xf8], 3, 1, p_sr2) as u32;   // tr>17  orig 0x11   // ←s6 d43303
-    ok += patch_imm_bytes(base + 0xeaf25d, &[0x48,0x83,0xf8], 3, 1, p_sr3) as u32;   // tr<=9  orig 0x0a (JAE, +1 인코딩)   // ←s6 d4330f
+    ok += patch_imm_bytes(base + 0xe93517, &[0x48,0x83,0xf8], 3, 1, p_sr0) as u32;   // tr>49  orig 0x31 (JA)   // ←s6 d432eb/dacc9b
+    ok += patch_imm_bytes(base + 0xe93523, &[0x48,0x83,0xf8], 3, 1, p_sr1) as u32;   // tr>29  orig 0x1d   // ←s6 d432f7
+    ok += patch_imm_bytes(base + 0xe9352f, &[0x48,0x83,0xf8], 3, 1, p_sr2) as u32;   // tr>17  orig 0x11   // ←s6 d43303
+    ok += patch_imm_bytes(base + 0xe9353b, &[0x48,0x83,0xf8], 3, 1, p_sr3) as u32;   // tr<=9  orig 0x0a (JAE, +1 인코딩)   // ←s6 d4330f
     // HP단계 경계 (★RBX=hp_pct, 48 83 fb ← 0.5.6 RDI 48 83 ff) — V−1 인코딩
-    ok += patch_imm_bytes(base + 0xeaf23f, &[0x48,0x83,0xfb], 3, 1, p_sh1) as u32;   // hp>65(<66)  orig 0x41   // ←s6 d432f1
-    ok += patch_imm_bytes(base + 0xeaf24b, &[0x48,0x83,0xfb], 3, 1, p_sh2) as u32;   // hp>40  orig 0x28   // ←s6 d432fd
-    ok += patch_imm_bytes(base + 0xeaf257, &[0x48,0x83,0xfb], 3, 1, p_sh3) as u32;   // hp>25  orig 0x19   // ←s6 d43309
+    ok += patch_imm_bytes(base + 0xe9351d, &[0x48,0x83,0xfb], 3, 1, p_sh1) as u32;   // hp>65(<66)  orig 0x41   // ←s6 d432f1
+    ok += patch_imm_bytes(base + 0xe93529, &[0x48,0x83,0xfb], 3, 1, p_sh2) as u32;   // hp>40  orig 0x28   // ←s6 d432fd
+    ok += patch_imm_bytes(base + 0xe93535, &[0x48,0x83,0xfb], 3, 1, p_sh3) as u32;   // hp>25  orig 0x19   // ←s6 d43309
     // ally넥서스 위기 HP% (RAX 48 83 f8) — 32/64bit div 2사이트 중복(둘 다 동일값)
-    ok += patch_imm_bytes(base + 0xeaf2d3, &[0x48,0x83,0xf8], 3, 1, p_ah) as u32;    // ally>50 #1(64bit div, JA) orig 0x32   // ←s6 d43362
-    ok += patch_imm_bytes(base + 0xeaf2f8, &[0x48,0x83,0xf8], 3, 1, p_ah) as u32;    // ally>50 #2(32bit div, JBE) orig 0x32   // ←s6 d4338e
+    ok += patch_imm_bytes(base + 0xe9358f, &[0x48,0x83,0xf8], 3, 1, p_ah) as u32;    // ally>50 #1(64bit div, JA) orig 0x32   // ←s6 d43362
+    ok += patch_imm_bytes(base + 0xe935bb, &[0x48,0x83,0xf8], 3, 1, p_ah) as u32;    // ally>50 #2(32bit div, JBE) orig 0x32   // ←s6 d4338e
     // retreat_hp (★RBX 48 83 fb) — orig 0x2d(JBE, HP%<=45 후퇴)
-    ok += patch_imm_bytes(base + 0xeaf30e, &[0x48,0x83,0xfb], 3, 1, p_rhb) as u32;   // retreat  orig 0x2d   // ←s6 d433a4/dacd54
+    ok += patch_imm_bytes(base + 0xe935d1, &[0x48,0x83,0xfb], 3, 1, p_rhb) as u32;   // retreat  orig 0x2d   // ←s6 d433a4/dacd54
     //   ⟹ **기대값·기록값이 −1**(0x2e→0x2d). 값만 옮기면 임계가 1 어긋난다.
     // ⛔phase 진입 게이트 4곳(pt·pa#1/2/3) = 0.5.2에서 게임이 전부 삭제 → 패치 사이트 없음(상단 주석 ③).
     // ★LOG_ON 무관 직접 write(설치확증 — itemnet_guard와 동일). write_named은 LOG_ON 게이트라 미확인됐었음.

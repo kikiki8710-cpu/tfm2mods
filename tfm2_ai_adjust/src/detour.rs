@@ -984,11 +984,11 @@ unsafe fn apply_visshort_imm() {
     let enc = |v: i64| if v < 0 { 0x78u64 } else { (v.min(0x7f)) as u64 };   // -1=원본(120) 복원 / imm8 클램프
     let mut ok = 0u32;
     // ── lane: disc0/1/3 컨테이너(0xd803f0) — add rdi,imm8 ×5 ──
-    for rva in [0xcea8eeusize, 0xd2cdd5, 0xd2ce97, 0xd2cf59, 0xd2d022] {
+    for rva in [0xd2cd0eusize, 0xd2cdd5, 0xd2ce97, 0xd2cf59, 0xd2d022] {
         ok += patch_imm_bytes(base + rva, &[0x48,0x83,0xc7], 3, 1, enc(lane)) as u32;
     }
     // ── jungle: disc4 컨테이너(0xd71630) — add rdi ×4 + add rsi ×1 ──
-    for rva in [0xce37d7usize, 0xd7899c, 0xd78a5c, 0xd78b1c] {
+    for rva in [0xd788d7usize, 0xd7899c, 0xd78a5c, 0xd78b1c] {
         ok += patch_imm_bytes(base + rva, &[0x48,0x83,0xc7], 3, 1, enc(jungle)) as u32;
     }
     ok += patch_imm_bytes(base + 0xd78bde, &[0x48,0x83,0xc6], 3, 1, enc(jungle)) as u32;   // ←s2 d6754e
@@ -1001,11 +1001,11 @@ unsafe fn apply_visshort_imm() {
     ok += patch_imm_bytes(base + 0xc7ed62, &[0x49,0x83,0xc4], 3, 1, enc(threat)) as u32;   // ←s2 c70ce2
     ok += patch_imm_bytes(base + 0xca6211, &[0x49,0x83,0xc7], 3, 1, enc(threat)) as u32;   // ←s2 c985d1
     // ── score: sev[E] 본체(0xc7f640) add rsi ×5 + 헬퍼 0xcc8060 add rbx ×1·add rsi ×4 ──
-    for rva in [0xd61517usize, 0xd5d135, 0xd5d1f8, 0xd5d2bb, 0xd5d37a] {
+    for rva in [0xd5d067usize, 0xd5d135, 0xd5d1f8, 0xd5d2bb, 0xd5d37a] {
         ok += patch_imm_bytes(base + rva, &[0x48,0x83,0xc6], 3, 1, enc(score)) as u32;
     }
     ok += patch_imm_bytes(base + 0xe0364c, &[0x48,0x83,0xc3], 3, 1, enc(score)) as u32;   // ←s2 cdd4ec
-    for rva in [0xd22085usize, 0xe038ce, 0xe03a20, 0xe03b45] {
+    for rva in [0xe03795usize, 0xe038ce, 0xe03a20, 0xe03b45] {
         ok += patch_imm_bytes(base + rva, &[0x48,0x83,0xc6], 3, 1, enc(score)) as u32;
     }
     VISSHORT_SIG.store(sig, Ordering::Relaxed);
@@ -1217,11 +1217,11 @@ unsafe fn apply_cast_imm() {
     p!(base + 0xcd462d, &[0xb8],      1, 4, sq(ur, 36_000_000));   // ←0.5.3 cb7ae1   // ←0.5.3 dbc65d
     p!(base + 0xcd4632, &[0x48,0xb9], 2, 8, sq(urg, 8_100_000_000));      // 90000²   // ←0.5.3 cb7ae6   // ←0.5.3 dbc662
     p!(base + 0xcd474a, &[0xb9],      1, 4, b4(umk, 0x6f));   // ←0.5.3 cb7bfa   // ←0.5.3 dbc77a
-    for a in [0xec03d7usize, 0xcd35b7] { p!(base + a, &[0x48,0x83,0xf8], 3, 1, b1(shp, 20)); }
+    for a in [0xcd35a7usize, 0xcd35b7] { p!(base + a, &[0x48,0x83,0xf8], 3, 1, b1(shp, 20)); }
     // ↓0.5.4: prefix 가 사이트마다 달라져 루프를 펼침(원래 `for a in [..]`)
     p!(base + 0xcd0687, &[0x48,0x83,0xfa], 3, 1, b1(uh, 2));   // ←0.5.3 cb4317   // ←0.5.3 db86b7
     p!(base + 0xcd0ed7, &[0x48,0x83,0xf8], 3, 1, b1(uh, 2));   // ←0.5.3 cb4331   // ←0.5.3 db8f07
-    for a in [0xebe8b6usize, 0xcd2d46] { p!(base + a, &[0x48,0x83,0xf8], 3, 1, b1(ahp, 79)); }
+    for a in [0xcd1a86usize, 0xcd2d46] { p!(base + a, &[0x48,0x83,0xf8], 3, 1, b1(ahp, 79)); }
     // ↓0.5.4: prefix 가 사이트마다 달라져 루프를 펼침(원래 `for a in [..]`)
     p!(base + 0xcd193f, &[0x48,0xb9], 2, 8, sqp(arad, 14_400_000_001));   // ←0.5.3 cb4d9f   // ←0.5.3 db996f
     p!(base + 0xcd19b2, &[0x49,0xb9], 2, 8, sqp(arad, 14_400_000_001));   // ←0.5.3 cb4e12   // ←0.5.3 db99e2
@@ -1505,7 +1505,7 @@ unsafe fn apply_score2_imm() {
     //   `0xd93d9e`·`0xd93e67`)은 **`vw_score`가 10사이트로 이미 소유**한다 — 여기서 또 잡으면 두 노브가
     //   같은 바이트를 다투게 되므로(마지막에 쓴 쪽이 이김) **의도적으로 1곳만 유지**한다.
     //   사용자에겐 `vw_score`를 쓰라고 안내한다(편집기 설명 반영).
-    for a in [0xd61517usize] { pany!(base + a, [[0x48,0x83,0xc6],[0x49,0x83,0xc6],[0x48,0x83,0xc5]], 3, 1, b1(svis, 120)); }
+    for a in [0xd5d067usize] { pany!(base + a, [[0x48,0x83,0xc6],[0x49,0x83,0xc6],[0x48,0x83,0xc5]], 3, 1, b1(svis, 120)); }
     // ── ⑧ 본체 0일 때 대체 점수(음수) ──
     let nv = if nul_orig { -10i64 } else { nul };
     for a in [0xd64915usize, 0xd606f6] {
@@ -1694,14 +1694,14 @@ unsafe fn apply_db_imm() {
     }}; }
 
     // ── ① 아군/적 근접 판정 반경 (둘 다 원본 150000, d²+1 = 0x53D1AC101) ──
-    for a in [0xcd1030usize, 0xec04e6, 0xec055c, 0xec05d2, 0xec0644] {
+    for a in [0xec0470usize, 0xec04e6, 0xec055c, 0xec05d2, 0xec0644] {
         p!(base + a, &[0x48,0xb8], 2, 8, sqp(dna, 0x5_3D1A_C101));
     }
-    for a in [0xcd12d1usize, 0xec0798, 0xec081f, 0xec08a6, 0xec092d] {
+    for a in [0xec0711usize, 0xec0798, 0xec081f, 0xec08a6, 0xec092d] {
         p!(base + a, &[0x48,0xb8], 2, 8, sqp(dne, 0x5_3D1A_C101));
     }
     // ── ② 사거리 판정 선행 틱수 (speed × N) ──
-    for a in [0xcd1562usize, 0xec1425, 0xec2813, 0xec381f] {
+    for a in [0xec09a2usize, 0xec1425, 0xec2813, 0xec381f] {
         p!(base + a, &[0xb9], 1, 4, b4(dla, 30));
     }
     p!(base + 0xec0fe0, &[0x41,0xb9], 2, 4, b4(dla, 30));   // ←0.5.3 db05b0   // ←0.5.3 e2a8b0
@@ -1715,7 +1715,7 @@ unsafe fn apply_db_imm() {
     p!(base + 0xec3916, &[0x48,0x83,0xf8], 3, 1, b1(dex, 20));   // ←0.5.3 db2ee6   // ←0.5.3 e2d1e6
     p!(base + 0xec0eee, &[0x48,0x83,0xf8], 3, 1, b1(dlh, 2));   // ←0.5.3 db04be   // ←0.5.3 e2a7be
     p!(base + 0xec0f00, &[0x48,0x83,0xf8], 3, 1, b1(dlh, 2));   // ←0.5.3 db04d0   // ←0.5.3 e2a7d0
-    for a in [0xcd27d6usize, 0xec2fd6] {
+    for a in [0xec1c16usize, 0xec2fd6] {
         p!(base + a, &[0x48,0x83,0xf8], 3, 1, b1(dsh_, 79));
     }
     // ── ④ 궁 게이트 ──
@@ -1734,10 +1734,10 @@ unsafe fn apply_db_imm() {
     p!(base + 0xd36dcb, &[0x48,0x05], 2, 4, b4(dsm, 15_000));   // ←0.5.3 c8b99b   // ←0.5.3 db3f1b
     }
     // ★[08-05 감사] 3곳 → **5곳**(같은 함수의 5슬롯 언롤). 짝인 `sf_mem`이 5/5인 것과 대조해 확정.
-    for a in [0xeb7fe9usize, 0xd37016, 0xd370f2, 0xd371ce, 0xd372aa] {
+    for a in [0xd36f29usize, 0xd37016, 0xd370f2, 0xd371ce, 0xd372aa] {
         p!(base + a, &[0x48,0xb8], 2, 8, sq(dsr, 0x3_5A4E_9000));  // 120000²
     }
-    for a in [0xeb804eusize, 0xd3707b, 0xd37157, 0xd37233, 0xd372fc] {
+    for a in [0xd36f8eusize, 0xd3707b, 0xd37157, 0xd37233, 0xd372fc] {
         p!(base + a, &[0x48,0x83,0xc6], 3, 1, b1(dsv, 120));
     }
 
@@ -2013,7 +2013,7 @@ unsafe fn apply_move2_imm() {
     p!(base + 0xd35127, &[0x48,0x3d], 2, 4, b4(abi, 1500));   // ←0.5.3 c86f23   // ←0.5.3 e5919f
     }
     // ── 우물 탈출(두 함수 미러) ──
-    for a in [0xdb1135usize, 0xd349da] {
+    for a in [0xe24195usize, 0xd349da] {
         p!(base + a, &[0x48,0xb8], 2, 8, sq(wr, 67_600_000_000));
     }
     p!(base + 0xe2422b, &[0x49,0x69,0xc7], 3, 4, b4(wd, 260_000));   // ←0.5.3 d94863   // ←0.5.3 d9ecab
@@ -2083,11 +2083,11 @@ unsafe fn apply_bv_imm() {
     p!(base + 0xe007be, &[0x49,0x83,0xf8], 3, 1, b1(focus, 3));   // ←0.5.3 cc54ee   // ←0.5.3 cda68e
     p!(base + 0xe007c2, &[0xb8], 1, 4, b4(focus, 3));   // ←0.5.3 cc54f2   // ←0.5.3 cda692
     //   ⚠반경 10사이트 중 2곳(`cc71c9`·`cc5b78`)은 **REX가 없어 imm 오프셋이 1**이다.
-    for a in [0xd20c82usize, 0xe023e2, 0xe02431, 0xe02480] {
+    for a in [0xe02392usize, 0xe023e2, 0xe02431, 0xe02480] {
         p!(base + a, &[0x41,0xb9], 2, 4, sqp(frad, 3_600_000_000));
     }
     p!(base + 0xe024c9, &[0xb9], 1, 4, sqp(frad, 3_600_000_000));   // ←0.5.3 cc71c9   // ←0.5.3 cdc369
-    for a in [0xd1f612usize, 0xe00d54, 0xe00da3, 0xe00df2] {
+    for a in [0xe00d02usize, 0xe00d54, 0xe00da3, 0xe00df2] {
         p!(base + a, &[0x41,0xbb], 2, 4, sqp(frad, 3_600_000_000));
     }
     p!(base + 0xe00e48, &[0xba], 1, 4, sqp(frad, 3_600_000_000));   // ←0.5.3 cc5b78   // ←0.5.3 cdad18
@@ -2161,7 +2161,7 @@ unsafe fn apply_ae_imm() {
     p!(base + 0xe2a299, &[0x41,0xbc], 2, 4, b4(bnear, 70));   // ←0.5.3 df5fdc   // ←0.5.3 cbab2c
     p!(base + 0xe2a64a, &[0xba], 1, 4, b4(bnear, 70));   // ←0.5.3 df638a   // ←0.5.3 cbaeda
     p!(base + 0xe2a6f0, &[0x48,0x8d,0x4a], 3, 1, b1(bstru, 80));   // ←0.5.3 df6430   // ←0.5.3 cbaf80
-    for a in [0xebc701usize, 0xe29e5d] {
+    for a in [0xe29e0eusize, 0xe29e5d] {
         p!(base + a, &[0x41,0xb8], 2, 4, b4(thr, 9999));
     }
     AE_SIG.store(sig, Ordering::Relaxed);
@@ -2583,14 +2583,14 @@ unsafe fn apply_auction_imm() {
     // ★[08-05] emit 사이트 전수(RE\2026-08-05_battle.rs-JT3개…) 대조 결과 **4곳이 아니라 6곳**이었다.
     //   빠져 있던 `0xcab77e`(emit#13) · `0xcabb22`(emit#17)는 Q14/15 사거리 판정에서 갈라지는 경로라
     //   일반 경기에선 잘 안 보이지만 같은 tag 0xE 접근정지 반경이다 = 반쪽만 먹던 노브.
-    for a in [0xea4705usize, 0xcbd292, 0xcbd3a0, 0xcbd9e1, 0xcbef22, 0xcc0bb3] {
+    for a in [0xcbd208usize, 0xcbd292, 0xcbd3a0, 0xcbd9e1, 0xcbef22, 0xcc0bb3] {
         p!(base + a, &[0x48,0xc7,0x85], 7, 4, b4(bstp, 15000));
     }
     // ⚠이 사이트만 명령 형태가 다르다 — `add rcx,15000`(48 81 c1) 이라 prefix·imm 오프셋이 위와 다름.
     //   08-03 정적 검증 전까지 위 루프에 섞여 있어 **한 번도 안 걸리고 있었다**.
     p!(base + 0xcbf1a2, &[0x48,0x81,0xc1], 3, 4, b4(bstp, 15000));   // ←0.5.3 cac3be   // ←0.5.3 da7417
     // ★[08-05] 여기도 1곳이 아니라 2곳 — `0xcac136`(emit#18, arm4 근접 처리)이 빠져 있었다.
-    for a in [0xea8aaeusize, 0xcc175d] {
+    for a in [0xcc15a8usize, 0xcc175d] {
         p!(base + a, &[0x48,0xc7,0x85], 7, 4, b4(bkep, 80000));
     }
     // ⚠7사이트가 **레지스터가 제각각**이라 prefix가 4종이다(`add r13/r14/rsi/r15, 0x78`).
@@ -2619,10 +2619,10 @@ unsafe fn apply_auction_imm() {
     //   `mov [rbp+0x4a0], 5`(접근 유지 시간)이고, prefix(48 c7 85)가 우연히 같아 **패치는 성공했다** —
     //   즉 원본이 5인 슬롯에 15000을 써 넣고 있었다(기본 설정에서도 동작이 바뀌던 실버그).
     //   올바른 주소 = `0xc6236c`·`0xc62422` (`mov [rbp+0x498], 15000`).
-    for a in [0xd4c00cusize, 0xe87a80, 0xe87b84, 0xe87c41] {
+    for a in [0xe870dausize, 0xe87a80, 0xe87b84, 0xe87c41] {
         p!(base + a, &[0x48,0xc7,0x85], 7, 4, b4(lstp, 15000));
     }
-    for a in [0xd4b158usize, 0xe86ea1, 0xe86f0d, 0xe86f79, 0xcebc7d] {
+    for a in [0xe86216usize, 0xe86ea1, 0xe86f0d, 0xe86f79, 0xcebc7d] {
         tot += 1;
         let v = dsh(lnear, 390625, 16);                             // (160000²)>>16 = 390625
         ok += (patch_imm_bytes(base + a, &[0x49,0x81,0xfa], 3, 4, v)
@@ -2654,11 +2654,11 @@ unsafe fn apply_auction_imm() {
     p!(base + 0xe837f7, &[0xba], 1, 4, b4(lmsk, 0x1a1));   // ←0.5.3 c5e61a   // ←0.5.3 d76fbc
     p!(base + 0xe83ba5, &[0x41,0xb8], 2, 4, b4(lmsk, 0x1a1));   // ←0.5.3 c5e9b3   // ←0.5.3 d77370
     p!(base + 0xe8449c, &[0xba], 1, 4, b4(lmsk, 0x1a1));   // ←0.5.3 c5f664   // ←0.5.3 d78133
-    for a in [0xd4a250usize, 0xe862c6, 0xe89b0c] {
+    for a in [0xe858e0usize, 0xe862c6, 0xe89b0c] {
         p!(base + a, &[0xba], 1, 4, b4(lmsk, 0x1a1));
     }
     // ★[08-05 감사] 4곳 → **10곳**. 전부 동일 관용구 `movsxd rax,[r+0x458]; add rax,0x64; imul [r+0x668]`.
-    for a in [0xd4786ausize, 0xe8373d, 0xe84afb, 0xe84b49,
+    for a in [0xe8353busize, 0xe8373d, 0xe84afb, 0xe84b49,
               0xe85767, 0xe8579a, 0xe85fab, 0xe8620c, 0xe87dce, 0xe872bd] {
         p!(base + a, &[0x48,0x83,0xc0], 3, 1, b1(lmvp, 100));
     }
@@ -3182,11 +3182,11 @@ unsafe fn apply_gb_imm() {
     let e_rm = if on(rm) { u32c(rm) }              else { 0x61a8 };
     let mut ok = 0u32;
     // ── 본체 0x22b2280: 거리/반경·HP (0.5.2 재핀 07-23) ──
-    ok += patch_imm_bytes(base + 0xceb8d3, &[0x48,0xc7,0x44,0x24,0x40], 5, 4, e_cr) as u32;   // ←s2 dca53f
+    ok += patch_imm_bytes(base + 0xdf39df, &[0x48,0xc7,0x44,0x24,0x40], 5, 4, e_cr) as u32;   // ←s2 dca53f
     // ★0.5.4: gb 근접반경² 가 **1곳 → 2곳**(같은 인자슬롯 복제).
     ok += patch_imm_bytes(base + 0xdf3b50, &[0x48,0xc7,0x44,0x24,0x40], 5, 4, e_cr) as u32;                  // 근접반경 leash(선형) orig 0x249f0=150000 (★정정: ~~²~~ 아님)   // ←s2 dca6b0
     ok += patch_imm_bytes(base + 0xcec5bd, &[0x48,0xc7,0x85,0x38,0x02,0x00,0x00], 7, 4, e_lr) as u32;        // 라인range(선형, 게임이 비교시 제곱) orig 0x3d090=250000 (★정정: 실제 rbp 변위=0x238, 구 주석 0x1b0/0x270 오기)   // ←s2 dcb1f0
-    ok += patch_imm_bytes(base + 0xcec4c6, &[0xb8], 1, 4, e_jd) as u32;                                 // 합류max거리²(지배) orig 0xd693a401 (★0.5.3: `41 b8`(mov r8d)→**`b8`(mov eax)** 로 인코딩 축소 ⟹ 사이트가 +1(0xe075c9→**0xdcb115**), prefix 1B, off 2→1. 뒤 비교도 cmp r9,r8→cmp r8,rax 로 대응. 구 인코딩 mov r8d로 변경)   // ←s2 dcb115
+    ok += patch_imm_bytes(base + 0xdf45b5, &[0xb8], 1, 4, e_jd) as u32;                                 // 합류max거리²(지배) orig 0xd693a401 (★0.5.3: `41 b8`(mov r8d)→**`b8`(mov eax)** 로 인코딩 축소 ⟹ 사이트가 +1(0xe075c9→**0xdcb115**), prefix 1B, off 2→1. 뒤 비교도 cmp r9,r8→cmp r8,rax 로 대응. 구 인코딩 mov r8d로 변경)   // ←s2 dcb115
     ok += patch_imm_bytes(base + 0xcef950, &[0x48,0x83,0xf8], 3, 1, e_ph) as u32;                            // 라인압박 HP%<30   // ←s2 dce2d5
     // ── 거점헬퍼 0x2398240: op·scout ──
     ok += patch_imm_bytes(base + 0xdfe4fd, &[0x48,0x83,0xb9,0xb8,0x00,0x00,0x00], 7, 1, e_op) as u32;   // 운영진입 phase>30 (★0.5.3: 컨테이너 0x2398240→**0xcc3960**, `[r14+0xb8]`→**`[rcx+0xb8]`** = prefix 49 83 be→48 83 b9)   // ←s2 dd512d
@@ -3201,7 +3201,7 @@ unsafe fn apply_gb_imm() {
     // ── reach (전역공유 ⚠): 0x23ad980 / 0x23ba8d0 ──
     ok += patch_imm_bytes(base + 0xebe407, &[0x48,0xb8], 2, 8, e_rc) as u32;                                 // reach cap² #1(≤)   // ⛔s2 미확정(스테일): ddc5d7
     ok += patch_imm_bytes(base + 0xec51bd, &[0x49,0xba], 2, 8, e_rc.wrapping_add(1)) as u32;                 // reach cap² #2(<, +1경계)   // ⛔s2 미확정(스테일): de338d
-    ok += patch_imm_bytes(base + 0xcee3c1, &[0x41,0xb8], 2, 4, e_rm) as u32;                                 // reach margin   // ←s2 dcd2d7
+    ok += patch_imm_bytes(base + 0xdf6777, &[0x41,0xb8], 2, 4, e_rm) as u32;                                 // reach margin   // ←s2 dcd2d7
     GBIMM_SIG.store(sig, Ordering::Relaxed);
     if let Some(p) = pth("gb_imm.txt") {
         let _ = fs::write(p, format!("gb_enable={} applied={}/10 close={} line={} join={} scout={} op_ph={} join_ph={}=DEAD push_hp={} reach_cap={} reach_mgn={} @base{:#x}\n",
@@ -4192,14 +4192,14 @@ unsafe fn apply_hd_imm() {
     //     (검색 스크립트가 찍는 건 패턴 위치라 그걸 그대로 쓰면 조용히 skip된다 — 실제로 한 번 그랬다.)
     p!(base + 0xe2f9cc, &[0x48,0xba], 2, 8, v_hd_detect_max_h);   // ←0.5.3 dc2dcc   // ←0.5.3 e3d8bc
     let v_hd_fight_cut: u64 = { if hd_fight_cut < 0 { 22500000000u64 } else { let x = hd_fight_cut.max(0) as u64; x.wrapping_mul(x) } };
-    p!(base + 0xcbad8a, &[0x48,0xb8], 2, 8, v_hd_fight_cut);   // ←0.5.3 ca50fa   // ←0.5.3 d8259a
+    p!(base + 0xcb8357, &[0x48,0xb8], 2, 8, v_hd_fight_cut);   // ←0.5.3 ca50fa   // ←0.5.3 d8259a
     let v_hd_cand_select: u64 = { if hd_cand_select < 0 { 22500000001u64 } else { let x = hd_cand_select.max(0) as u64; x.wrapping_mul(x).wrapping_add(1) } };
     p!(base + 0xcb9ccc, &[0x49,0xb8], 2, 8, v_hd_cand_select);   // ←0.5.3 ca598f   // ←0.5.3 d82e39
-    p!(base + 0xcbb649, &[0x49,0xb9], 2, 8, v_hd_cand_select);   // ←0.5.3 ca59f2   // ←0.5.3 d82e9e
-    p!(base + 0xcbb6b0, &[0x49,0xb9], 2, 8, v_hd_cand_select);   // ←0.5.3 ca5a59   // ←0.5.3 d82f0c
+    p!(base + 0xcb8cdf, &[0x49,0xb9], 2, 8, v_hd_cand_select);   // ←0.5.3 ca59f2   // ←0.5.3 d82e9e
+    p!(base + 0xcb8d46, &[0x49,0xb9], 2, 8, v_hd_cand_select);   // ←0.5.3 ca5a59   // ←0.5.3 d82f0c
     p!(base + 0xcbb717, &[0x49,0xb9], 2, 8, v_hd_cand_select);   // ←0.5.3 ca5ac0   // ←0.5.3 d82f7a
     p!(base + 0xcb8dac, &[0x49,0xb8], 2, 8, v_hd_cand_select);   // ←0.5.3 ca5b26   // ←0.5.3 d82fe7
-    p!(base + 0xcbb7e6, &[0x48,0xb9], 2, 8, v_hd_cand_select);   // ←0.5.3 ca5b8f   // ←0.5.3 d83050
+    p!(base + 0xcb8e0e, &[0x48,0xb9], 2, 8, v_hd_cand_select);   // ←0.5.3 ca5b8f   // ←0.5.3 d83050
     p!(base + 0xcb9036, &[0x49,0xb9], 2, 8, v_hd_cand_select);   // ←0.5.3 ca6080   // ←0.5.3 d83533
     p!(base + 0xd9f528, &[0x49,0xb9], 2, 8, v_hd_cand_select);   // ←0.5.3 ca60e2   // ←0.5.3 d8359c
     p!(base + 0xd9f58d, &[0x49,0xb9], 2, 8, v_hd_cand_select);   // ←0.5.3 ca6147   // ←0.5.3 d83608
@@ -4208,22 +4208,22 @@ unsafe fn apply_hd_imm() {
     p!(base + 0xcb9247, &[0x48,0xb9], 2, 8, v_hd_cand_select);   // ←0.5.3 ca6275   // ←0.5.3 d83744
     p!(base + 0xcb929b, &[0x48,0xb9], 2, 8, v_hd_cand_select);   // ←0.5.3 ca62c9   // ←0.5.3 d83798
     p!(base + 0xcb92ee, &[0x48,0xb9], 2, 8, v_hd_cand_select);   // ←0.5.3 ca631c   // ←0.5.3 d837eb
-    p!(base + 0xcbbff2, &[0x48,0xb9], 2, 8, v_hd_cand_select);   // ←0.5.3 ca636f   // ←0.5.3 d8383e
+    p!(base + 0xcb9341, &[0x48,0xb9], 2, 8, v_hd_cand_select);   // ←0.5.3 ca636f   // ←0.5.3 d8383e
     p!(base + 0xcb9392, &[0x48,0xb9], 2, 8, v_hd_cand_select);   // ←0.5.3 ca63c0   // ←0.5.3 d8388f
     p!(base + 0xcb96f2, &[0x49,0xb9], 2, 8, v_hd_cand_select);   // ←0.5.3 ca64a7   // ←0.5.3 d83976
-    p!(base + 0xcbc196, &[0x49,0xb9], 2, 8, v_hd_cand_select);   // ←0.5.3 ca650c   // ←0.5.3 d839db
-    p!(base + 0xcbc200, &[0x49,0xb9], 2, 8, v_hd_cand_select);   // ←0.5.3 ca6576   // ←0.5.3 d83a45
-    p!(base + 0xcbc26a, &[0x49,0xb9], 2, 8, v_hd_cand_select);   // ←0.5.3 ca65e0   // ←0.5.3 d83aaf
+    p!(base + 0xcb975e, &[0x49,0xb9], 2, 8, v_hd_cand_select);   // ←0.5.3 ca650c   // ←0.5.3 d839db
+    p!(base + 0xcb97cf, &[0x49,0xb9], 2, 8, v_hd_cand_select);   // ←0.5.3 ca6576   // ←0.5.3 d83a45
+    p!(base + 0xcb9840, &[0x49,0xb9], 2, 8, v_hd_cand_select);   // ←0.5.3 ca65e0   // ←0.5.3 d83aaf
     p!(base + 0xcb9935, &[0x48,0xba], 2, 8, v_hd_cand_select);   // ←0.5.3 ca66ce   // ←0.5.3 d83ba4
-    p!(base + 0xcbc4f8, &[0x48,0xb9], 2, 8, v_hd_cand_select);   // ←0.5.3 ca68a0   // ←0.5.3 d83d70
-    p!(base + 0xcbc54b, &[0x48,0xb9], 2, 8, v_hd_cand_select);   // ←0.5.3 ca68f3   // ←0.5.3 d83dc3
-    p!(base + 0xcbc59e, &[0x48,0xb9], 2, 8, v_hd_cand_select);   // ←0.5.3 ca6946   // ←0.5.3 d83e16
-    p!(base + 0xcbc5ef, &[0x48,0xb9], 2, 8, v_hd_cand_select);   // ←0.5.3 ca6997   // ←0.5.3 d83e67
-    p!(base + 0xcbc666, &[0x49,0xb8], 2, 8, v_hd_cand_select);   // ←0.5.3 ca6a1e   // ←0.5.3 d83eee
-    p!(base + 0xcbc6cd, &[0x49,0xb9], 2, 8, v_hd_cand_select);   // ←0.5.3 ca6a85   // ←0.5.3 d83f55
-    p!(base + 0xcbc737, &[0x49,0xb9], 2, 8, v_hd_cand_select);   // ←0.5.3 ca6aef   // ←0.5.3 d83fbf
-    p!(base + 0xcbc7a1, &[0x49,0xb9], 2, 8, v_hd_cand_select);   // ←0.5.3 ca6b59   // ←0.5.3 d84029
-    p!(base + 0xcbc804, &[0x48,0xba], 2, 8, v_hd_cand_select);   // ←0.5.3 ca6bbc   // ←0.5.3 d8408c
+    p!(base + 0xcb9b4e, &[0x48,0xb9], 2, 8, v_hd_cand_select);   // ←0.5.3 ca68a0   // ←0.5.3 d83d70
+    p!(base + 0xcb9ba1, &[0x48,0xb9], 2, 8, v_hd_cand_select);   // ←0.5.3 ca68f3   // ←0.5.3 d83dc3
+    p!(base + 0xcb9bf4, &[0x48,0xb9], 2, 8, v_hd_cand_select);   // ←0.5.3 ca6946   // ←0.5.3 d83e16
+    p!(base + 0xcb9c45, &[0x48,0xb9], 2, 8, v_hd_cand_select);   // ←0.5.3 ca6997   // ←0.5.3 d83e67
+    p!(base + 0xcb9ccc, &[0x49,0xb8], 2, 8, v_hd_cand_select);   // ←0.5.3 ca6a1e   // ←0.5.3 d83eee
+    p!(base + 0xcb9d32, &[0x49,0xb9], 2, 8, v_hd_cand_select);   // ←0.5.3 ca6a85   // ←0.5.3 d83f55
+    p!(base + 0xcb9d9c, &[0x49,0xb9], 2, 8, v_hd_cand_select);   // ←0.5.3 ca6aef   // ←0.5.3 d83fbf
+    p!(base + 0xcb9e06, &[0x49,0xb9], 2, 8, v_hd_cand_select);   // ←0.5.3 ca6b59   // ←0.5.3 d84029
+    p!(base + 0xcb9e69, &[0x48,0xba], 2, 8, v_hd_cand_select);   // ←0.5.3 ca6bbc   // ←0.5.3 d8408c
     let v_hd_trace_leash: u64 = { if hd_trace_leash < 0 { 15000u64 } else { hd_trace_leash.max(0) as u64 } };
     p!(base + 0xcba0b7, &[0x48,0xc7,0x45,0x28], 4, 4, v_hd_trace_leash);   // ←0.5.3 ca6df5   // ←0.5.3 d842e3
     let v_hd_vision_mem: u64 = { if hd_vision_mem < 0 { 120u64 } else { hd_vision_mem.max(0) as u64 } };
@@ -4240,8 +4240,8 @@ unsafe fn apply_hd_imm() {
     //   기본 0 = 원본(0x0001)이라 켜지 않으면 동작 변화 0. 끄면 그대로 되돌아간다.
     let v_hd_phase: u64 = if hd_skip_landmark != 0 { 0x0101 } else { 0x0001 };
     p!(base + 0xcafd99, &[0x66,0xc7,0x46,0x10], 4, 2, v_hd_phase);   // ←0.5.3 c55d3b   // ←0.5.3 e1490b
-    p!(base + 0xdaa0be, &[0x66,0xc7,0x40,0x10], 4, 2, v_hd_phase);   // ←0.5.3 c7a72e   // ←0.5.3 cd7a3e
-    p!(base + 0xda9d0e, &[0x66,0xc7,0x40,0x10], 4, 2, v_hd_phase);   // ←0.5.3 d81b6e   // ←0.5.3 cd75ee
+    p!(base + 0xccc59e, &[0x66,0xc7,0x40,0x10], 4, 2, v_hd_phase);   // ←0.5.3 c7a72e   // ←0.5.3 cd7a3e
+    p!(base + 0xccc1ee, &[0x66,0xc7,0x40,0x10], 4, 2, v_hd_phase);   // ←0.5.3 d81b6e   // ←0.5.3 cd75ee
     HD_SIG.store(sig, Ordering::Relaxed);
     if let Some(pp) = pth("hd_imm.txt") {
         let _ = fs::write(pp, format!("applied={}/{} hd_bush_near={} hd_path_radius={} hd_around_radius={} hd_detect_max={} hd_fight_cut={} hd_cand_select={} hd_trace_leash={} hd_vision_mem={} hd_ph0_ttl={} hd_skip_landmark={} @base{:#x}\n",
@@ -4272,19 +4272,19 @@ unsafe fn apply_d4_imm() {
     macro_rules! p { ($a:expr, $pre:expr, $off:expr, $w:expr, $v:expr) => {{
         tot += 1; ok += patch_imm_bytes($a, $pre, $off, $w, $v) as u32; }}; }
     let v_d4_ally_radius_a: u64 = { if d4_ally_radius_a < 0 { 87890624u64 } else { let x = d4_ally_radius_a.max(0) as u64; (x.wrapping_mul(x) >> 8).wrapping_sub(1) } };
-    p!(base + 0xce3783, &[0x49,0x81,0xf9], 3, 4, v_d4_ally_radius_a);   // ←0.5.3 d71cd3   // ←0.5.3 d671f3
-    p!(base + 0xce3848, &[0x49,0x81,0xf9], 3, 4, v_d4_ally_radius_a);   // ←0.5.3 d71d98   // ←0.5.3 d672b8
-    p!(base + 0xce3908, &[0x49,0x81,0xf9], 3, 4, v_d4_ally_radius_a);   // ←0.5.3 d71e58   // ←0.5.3 d67378
-    p!(base + 0xce39c8, &[0x49,0x81,0xf9], 3, 4, v_d4_ally_radius_a);   // ←0.5.3 d71f18   // ←0.5.3 d67438
+    p!(base + 0xd78883, &[0x49,0x81,0xf9], 3, 4, v_d4_ally_radius_a);   // ←0.5.3 d71cd3   // ←0.5.3 d671f3
+    p!(base + 0xd78948, &[0x49,0x81,0xf9], 3, 4, v_d4_ally_radius_a);   // ←0.5.3 d71d98   // ←0.5.3 d672b8
+    p!(base + 0xd78a08, &[0x49,0x81,0xf9], 3, 4, v_d4_ally_radius_a);   // ←0.5.3 d71e58   // ←0.5.3 d67378
+    p!(base + 0xd78ac8, &[0x49,0x81,0xf9], 3, 4, v_d4_ally_radius_a);   // ←0.5.3 d71f18   // ←0.5.3 d67438
     p!(base + 0xd78b8b, &[0x49,0x81,0xf9], 3, 4, v_d4_ally_radius_a);   // ←0.5.3 d71fdb   // ←0.5.3 d674fb
     let v_d4_ally_radius_b: u64 = { if d4_ally_radius_b < 0 { 87890625u64 } else { let x = d4_ally_radius_b.max(0) as u64; x.wrapping_mul(x) >> 8 } };
     p!(base + 0xd78e46, &[0x49,0x81,0xfc], 3, 4, v_d4_ally_radius_b);   // ←0.5.3 d72296   // ←0.5.3 d677b6
     p!(base + 0xd78e80, &[0x49,0x81,0xfb], 3, 4, v_d4_ally_radius_b);   // ←0.5.3 d722d0   // ←0.5.3 d677f0
-    p!(base + 0xce3de2, &[0x49,0x81,0xfd], 3, 4, v_d4_ally_radius_b);   // ←0.5.3 d72332   // ←0.5.3 d67852
+    p!(base + 0xd78ee2, &[0x49,0x81,0xfd], 3, 4, v_d4_ally_radius_b);   // ←0.5.3 d72332   // ←0.5.3 d67852
     p!(base + 0xd78f1d, &[0x49,0x81,0xfd], 3, 4, v_d4_ally_radius_b);   // ←0.5.3 d7236d   // ←0.5.3 d6788d
-    p!(base + 0xce3e7e, &[0x49,0x81,0xfd], 3, 4, v_d4_ally_radius_b);   // ←0.5.3 d723ce   // ←0.5.3 d678ee
+    p!(base + 0xd78f7e, &[0x49,0x81,0xfd], 3, 4, v_d4_ally_radius_b);   // ←0.5.3 d723ce   // ←0.5.3 d678ee
     p!(base + 0xd78fb9, &[0x49,0x81,0xfd], 3, 4, v_d4_ally_radius_b);   // ←0.5.3 d72409   // ←0.5.3 d67929
-    p!(base + 0xce3f1a, &[0x49,0x81,0xfd], 3, 4, v_d4_ally_radius_b);   // ←0.5.3 d7246a   // ←0.5.3 d6798a
+    p!(base + 0xd7901a, &[0x49,0x81,0xfd], 3, 4, v_d4_ally_radius_b);   // ←0.5.3 d7246a   // ←0.5.3 d6798a
     p!(base + 0xd79055, &[0x49,0x81,0xfd], 3, 4, v_d4_ally_radius_b);   // ←0.5.3 d724a5   // ←0.5.3 d679c5
     p!(base + 0xd790b0, &[0x48,0x81,0xfa], 3, 4, v_d4_ally_radius_b);   // ←0.5.3 d72500   // ←0.5.3 d67a20
     p!(base + 0xd790f2, &[0x48,0x3d], 2, 4, v_d4_ally_radius_b);   // ←0.5.3 d72542   // ←0.5.3 d67a62
@@ -4293,9 +4293,9 @@ unsafe fn apply_d4_imm() {
     let v_d4_partner_dist: u64 = { if d4_partner_dist < 0 { 40000000000u64 } else { let x = d4_partner_dist.max(0) as u64; x.wrapping_mul(x) } };
     p!(base + 0xd7876f, &[0x48,0xb9], 2, 8, v_d4_partner_dist);   // ←0.5.3 d71bbf   // ←0.5.3 d670df
     let v_d4_hp_safe: u64 = { if d4_hp_safe < 0 { 51u64 } else { d4_hp_safe.max(0) as u64 } };
-    p!(base + 0xce3514, &[0x48,0x83,0xf8], 3, 1, v_d4_hp_safe);   // ←0.5.3 d71a64   // ←0.5.3 d66f84
+    p!(base + 0xd78614, &[0x48,0x83,0xf8], 3, 1, v_d4_hp_safe);   // ←0.5.3 d71a64   // ←0.5.3 d66f84
     let v_d4_from_mid: u64 = { if d4_from_mid < 0 { 1000u64 } else { d4_from_mid.max(0) as u64 } };
-    p!(base + 0xce3508, &[0x49,0x81,0x7c,0x08,0x60], 5, 4, v_d4_from_mid);   // ←0.5.3 d71a58   // ←0.5.3 d66f78
+    p!(base + 0xd78608, &[0x49,0x81,0x7c,0x08,0x60], 5, 4, v_d4_from_mid);   // ←0.5.3 d71a58   // ←0.5.3 d66f78
     let v_d4_from_mid_mode: u64 = { if d4_from_mid_mode < 0 { 2001u64 } else { d4_from_mid_mode.max(0) as u64 } };
     p!(base + 0xd78c85, &[0x48,0x81,0x78,0x10], 4, 4, v_d4_from_mid_mode);   // ←0.5.3 d720d5   // ←0.5.3 d675f5
     let v_d4_ally_cnt: u64 = { if d4_ally_cnt < 0 { 3u64 } else { d4_ally_cnt.max(0) as u64 } };
@@ -4488,26 +4488,26 @@ unsafe fn apply_eh_imm() {
     macro_rules! p { ($a:expr, $pre:expr, $off:expr, $w:expr, $v:expr) => {{
         tot += 1; ok += patch_imm_bytes($a, $pre, $off, $w, $v) as u32; }}; }
     let v_eh_flee_clear_hp: u64 = { if eh_flee_clear_hp < 0 { 29u64 } else { eh_flee_clear_hp.max(0) as u64 } };
-    p!(base + 0xd53e31, &[0x48,0x83,0xf8], 3, 1, v_eh_flee_clear_hp);   // ←0.5.3 c68992   // ←0.5.3 d861a1
-    p!(base + 0xd53f1b, &[0x48,0x83,0xf8], 3, 1, v_eh_flee_clear_hp);   // ←0.5.3 c68a7f   // ←0.5.3 d8628b
+    p!(base + 0xeaee6e, &[0x48,0x83,0xf8], 3, 1, v_eh_flee_clear_hp);   // ←0.5.3 c68992   // ←0.5.3 d861a1
+    p!(base + 0xeaef5b, &[0x48,0x83,0xf8], 3, 1, v_eh_flee_clear_hp);   // ←0.5.3 c68a7f   // ←0.5.3 d8628b
     p!(base + 0xcb1db9, &[0x48,0x83,0xf8], 3, 1, v_eh_flee_clear_hp);   // ←0.5.3 da0825   // ←0.5.3 e14b2e
     p!(base + 0xcb1e59, &[0x48,0x83,0xf8], 3, 1, v_eh_flee_clear_hp);   // ←0.5.3 da08c5   // ←0.5.3 e14bd1
     let v_eh_reach_margin: u64 = { if eh_reach_margin < 0 { 25000u64 } else { eh_reach_margin.max(0) as u64 } };
-    p!(base + 0xd55c3d, &[0x41,0xb8], 2, 4, v_eh_reach_margin);   // ←0.5.3 c6a83d   // ←0.5.3 d87fbd
-    p!(base + 0xde864d, &[0x41,0xb8], 2, 4, v_eh_reach_margin);   // ←0.5.3 da253e   // ←0.5.3 e1681d
-    p!(base + 0xd589f3, &[0x48,0xc7,0x44,0x24,0x30], 5, 4, v_eh_reach_margin);   // ←0.5.3 c6d3b5   // ←0.5.3 d8ad23
-    p!(base + 0xdeb3e3, &[0x48,0xc7,0x44,0x24,0x30], 5, 4, v_eh_reach_margin);   // ←0.5.3 da4fc3   // ←0.5.3 e19563
+    p!(base + 0xeb0b8d, &[0x41,0xb8], 2, 4, v_eh_reach_margin);   // ←0.5.3 c6a83d   // ←0.5.3 d87fbd
+    p!(base + 0xcb3c3d, &[0x41,0xb8], 2, 4, v_eh_reach_margin);   // ←0.5.3 da253e   // ←0.5.3 e1681d
+    p!(base + 0xeb3923, &[0x48,0xc7,0x44,0x24,0x30], 5, 4, v_eh_reach_margin);   // ←0.5.3 c6d3b5   // ←0.5.3 d8ad23
+    p!(base + 0xcb6aaf, &[0x48,0xc7,0x44,0x24,0x30], 5, 4, v_eh_reach_margin);   // ←0.5.3 da4fc3   // ←0.5.3 e19563
     let v_eh_recall_radius: u64 = { if eh_recall_radius < 0 { 60000u64 } else { eh_recall_radius.max(0) as u64 } };
-    p!(base + 0xd55315, &[0x48,0xc7,0x44,0x24,0x20], 5, 4, v_eh_recall_radius);   // ←0.5.3 c69fd5   // ←0.5.3 d87685
-    p!(base + 0xde7da5, &[0x48,0xc7,0x44,0x24,0x20], 5, 4, v_eh_recall_radius);   // ←0.5.3 da1ce2   // ←0.5.3 e15f85
+    p!(base + 0xeb0305, &[0x48,0xc7,0x44,0x24,0x20], 5, 4, v_eh_recall_radius);   // ←0.5.3 c69fd5   // ←0.5.3 d87685
+    p!(base + 0xcb3389, &[0x48,0xc7,0x44,0x24,0x20], 5, 4, v_eh_recall_radius);   // ←0.5.3 da1ce2   // ←0.5.3 e15f85
     let v_eh_around_radius: u64 = { if eh_around_radius < 0 { 80000u64 } else { eh_around_radius.max(0) as u64 } };
     p!(base + 0xeb03c8, &[0x48,0xc7,0x85,0x38,0x05,0x00,0x00], 7, 4, v_eh_around_radius);   // ←0.5.3 c6a026   // ←0.5.3 d8774e
     p!(base + 0xeb03c8, &[0x48,0xc7,0x85,0x38,0x05,0x00,0x00], 7, 4, v_eh_around_radius);   // ←0.5.3 da1d33   // ←0.5.3 e16048
     let v_eh_trace_arrive: u64 = { if eh_trace_arrive < 0 { 15000u64 } else { eh_trace_arrive.max(0) as u64 } };
     p!(base + 0xeb06af, &[0x48,0xc7,0x85,0x58,0x05,0x00,0x00], 7, 4, v_eh_trace_arrive);   // ←0.5.3 c6a349   // ←0.5.3 d87aba
-    p!(base + 0xd561ea, &[0x48,0xc7,0x85,0x58,0x05,0x00,0x00], 7, 4, v_eh_trace_arrive);   // ←0.5.3 c6aaff   // ←0.5.3 d8856a
-    p!(base + 0xd56289, &[0x48,0xc7,0x85,0x58,0x05,0x00,0x00], 7, 4, v_eh_trace_arrive);   // ←0.5.3 c6ac5d   // ←0.5.3 d88609
-    p!(base + 0xd56328, &[0x48,0xc7,0x85,0x58,0x05,0x00,0x00], 7, 4, v_eh_trace_arrive);   // ←0.5.3 c6acf9   // ←0.5.3 d886a8
+    p!(base + 0xeb113a, &[0x48,0xc7,0x85,0x58,0x05,0x00,0x00], 7, 4, v_eh_trace_arrive);   // ←0.5.3 c6aaff   // ←0.5.3 d8856a
+    p!(base + 0xeb11d9, &[0x48,0xc7,0x85,0x58,0x05,0x00,0x00], 7, 4, v_eh_trace_arrive);   // ←0.5.3 c6ac5d   // ←0.5.3 d88609
+    p!(base + 0xeb1278, &[0x48,0xc7,0x85,0x58,0x05,0x00,0x00], 7, 4, v_eh_trace_arrive);   // ←0.5.3 c6acf9   // ←0.5.3 d886a8
     p!(base + 0xeb1f7b, &[0x48,0xc7,0x85,0x58,0x05,0x00,0x00], 7, 4, v_eh_trace_arrive);   // ←0.5.3 c6ba21   // ←0.5.3 d8938b
     p!(base + 0xeb06af, &[0x48,0xc7,0x85,0x58,0x05,0x00,0x00], 7, 4, v_eh_trace_arrive);   // ←0.5.3 da2049   // ←0.5.3 e1632f
     p!(base + 0xde8bfa, &[0x48,0xc7,0x85,0x58,0x05,0x00,0x00], 7, 4, v_eh_trace_arrive);   // ←0.5.3 da2837   // ←0.5.3 e16dca
@@ -4538,20 +4538,20 @@ unsafe fn apply_eh_imm() {
     p!(base + 0xeb2241, &[0x41,0xbd], 2, 4, v_eh_commit_r_high);   // ←0.5.3 c6bcc5   // ←0.5.3 d89653
     p!(base + 0xeb2241, &[0x41,0xbd], 2, 4, v_eh_commit_r_high);   // ←0.5.3 da3931   // ←0.5.3 e17e81
     let v_eh_abort_hp: u64 = { if eh_abort_hp < 0 { 44u64 } else { eh_abort_hp.max(0) as u64 } };
-    p!(base + 0xd573b4, &[0x48,0x83,0xbd,0x98,0x05,0x00,0x00], 7, 1, v_eh_abort_hp);   // ←0.5.3 c6bd5d   // ←0.5.3 d896e4
+    p!(base + 0xeb22d2, &[0x48,0x83,0xbd,0x98,0x05,0x00,0x00], 7, 1, v_eh_abort_hp);   // ←0.5.3 c6bd5d   // ←0.5.3 d896e4
     p!(base + 0xeb22d2, &[0x48,0x83,0xbd,0x98,0x05,0x00,0x00], 7, 1, v_eh_abort_hp);   // ←0.5.3 da39c2   // ←0.5.3 e17f12
     let v_eh_abort_dist: u64 = { if eh_abort_dist < 0 { 220000u64 } else { eh_abort_dist.max(0) as u64 } };
     p!(base + 0xeb22e0, &[0x48,0x81,0xbd,0x60,0x03,0x00,0x00], 7, 4, v_eh_abort_dist);   // ←0.5.3 c6bd6b   // ←0.5.3 d896f2
     p!(base + 0xeb22e0, &[0x48,0x81,0xbd,0x60,0x03,0x00,0x00], 7, 4, v_eh_abort_dist);   // ←0.5.3 da39d0   // ←0.5.3 e17f20
     let v_eh_score_norm: u64 = { if eh_score_norm < 0 { 320000u64 } else { eh_score_norm.max(0) as u64 } };
-    p!(base + 0xd57760, &[0x48,0x3d], 2, 4, v_eh_score_norm);   // ←0.5.3 c6c145   // ←0.5.3 d89a90
-    p!(base + 0xd57766, &[0x41,0xb8], 2, 4, v_eh_score_norm);   // ←0.5.3 c6c14b   // ←0.5.3 d89a96
+    p!(base + 0xeb2690, &[0x48,0x3d], 2, 4, v_eh_score_norm);   // ←0.5.3 c6c145   // ←0.5.3 d89a90
+    p!(base + 0xeb2696, &[0x41,0xb8], 2, 4, v_eh_score_norm);   // ←0.5.3 c6c14b   // ←0.5.3 d89a96
     p!(base + 0xeb26dc, &[0xba], 1, 4, v_eh_score_norm);   // ←0.5.3 c6c191   // ←0.5.3 d89adc
     p!(base + 0xeb299f, &[0x48,0x3d], 2, 4, v_eh_score_norm);   // ←0.5.3 c6c45e   // ←0.5.3 d89d9f
     p!(base + 0xeb29a5, &[0xb9], 1, 4, v_eh_score_norm);   // ←0.5.3 c6c464   // ←0.5.3 d89da5
     p!(base + 0xeb2a2b, &[0xb9], 1, 4, v_eh_score_norm);   // ←0.5.3 c6c4ea   // ←0.5.3 d89e2b
-    p!(base + 0xdea150, &[0x48,0x3d], 2, 4, v_eh_score_norm);   // ←0.5.3 da3d96   // ←0.5.3 e182d0
-    p!(base + 0xdea156, &[0x41,0xb8], 2, 4, v_eh_score_norm);   // ←0.5.3 da3d9c   // ←0.5.3 e182d6
+    p!(base + 0xcb57e1, &[0x48,0x3d], 2, 4, v_eh_score_norm);   // ←0.5.3 da3d96   // ←0.5.3 e182d0
+    p!(base + 0xcb57e7, &[0x41,0xb8], 2, 4, v_eh_score_norm);   // ←0.5.3 da3d9c   // ←0.5.3 e182d6
     p!(base + 0xeb26dc, &[0xba], 1, 4, v_eh_score_norm);   // ←0.5.3 da3de2   // ←0.5.3 e1831c
     p!(base + 0xeb299f, &[0x48,0x3d], 2, 4, v_eh_score_norm);   // ←0.5.3 da409e   // ←0.5.3 e185df
     p!(base + 0xeb29a5, &[0xb9], 1, 4, v_eh_score_norm);   // ←0.5.3 da40a4   // ←0.5.3 e185e5
@@ -4559,44 +4559,44 @@ unsafe fn apply_eh_imm() {
     // ── ★[0.5.7 신규 확장] K6·K18~K33 (imm) + fin (branch). 스펙 = 재핀 스캔 exe 대조 52/52 + fin 4. epic/serpen 쌍 ──
     let vv = |x: i64, orig: u64| if x < 0 { orig } else { x.max(0) as u64 };
     let ec = vv(eh_band_off, 10000);
-    p!(base + 0xd569bd, &[0x48,0x81,0xe9], 3, 4, ec); p!(base + 0xde93cd, &[0x48,0x81,0xe9], 3, 4, ec);   // K6
+    p!(base + 0xeb190d, &[0x48,0x81,0xe9], 3, 4, ec); p!(base + 0xcb4a65, &[0x48,0x81,0xe9], 3, 4, ec);   // K6
     let cm = vv(eh_commit_margin, 30000);
-    p!(base + 0xd573dc, &[0x48,0x81,0xe9], 3, 4, cm); p!(base + 0xde9dba, &[0x48,0x81,0xe9], 3, 4, cm);   // K18a sub
-    p!(base + 0xd57c3e, &[0x48,0x81,0xc1], 3, 4, cm); p!(base + 0xdea62e, &[0x48,0x81,0xc1], 3, 4, cm);   // K18b add
+    p!(base + 0xeb22fa, &[0x48,0x81,0xe9], 3, 4, cm); p!(base + 0xcb5450, &[0x48,0x81,0xe9], 3, 4, cm);   // K18a sub
+    p!(base + 0xeb2b6e, &[0x48,0x81,0xc1], 3, 4, cm); p!(base + 0xcb5cbb, &[0x48,0x81,0xc1], 3, 4, cm);   // K18b add
     let dc = vv(eh_dist_clamp, 100000);
-    p!(base + 0xd57364, &[0x48,0x3d], 2, 4, dc.wrapping_add(1)); p!(base + 0xde9d42, &[0x48,0x3d], 2, 4, dc.wrapping_add(1));   // K19a cmp(v+1)
-    p!(base + 0xd5736a, &[0xb9], 1, 4, dc); p!(base + 0xde9d48, &[0xb9], 1, 4, dc);   // K19b mov
+    p!(base + 0xeb2282, &[0x48,0x3d], 2, 4, dc.wrapping_add(1)); p!(base + 0xcb53d6, &[0x48,0x3d], 2, 4, dc.wrapping_add(1));   // K19a cmp(v+1)
+    p!(base + 0xeb2288, &[0xb9], 1, 4, dc); p!(base + 0xcb53dc, &[0xb9], 1, 4, dc);   // K19b mov
     let c2 = vv(eh_clamp2, 80000);
-    p!(base + 0xd57aba, &[0x48,0x81,0xfb], 3, 4, c2); p!(base + 0xdea4aa, &[0x48,0x81,0xfb], 3, 4, c2);   // K21a cmp(rbx)
-    p!(base + 0xd57ac1, &[0xb8], 1, 4, c2); p!(base + 0xdea4b1, &[0xb8], 1, 4, c2);   // K21b mov
+    p!(base + 0xeb29ea, &[0x48,0x81,0xfb], 3, 4, c2); p!(base + 0xdea4aa, &[0x48,0x81,0xfb], 3, 4, c2);   // K21a cmp(rbx)
+    p!(base + 0xeb29f1, &[0xb8], 1, 4, c2); p!(base + 0xcb5b3f, &[0xb8], 1, 4, c2);   // K21b mov
     let ed = if eh_engage_dist < 0 { 144000001u64 } else { let u = eh_engage_dist.max(0) as u64; u.wrapping_mul(u).wrapping_add(1) };
-    p!(base + 0xd57ca3, &[0x48,0x81,0xfa], 3, 4, ed); p!(base + 0xdea693, &[0x48,0x81,0xfa], 3, 4, ed);   // K22 d²+1
+    p!(base + 0xeb2bd3, &[0x48,0x81,0xfa], 3, 4, ed); p!(base + 0xcb5d20, &[0x48,0x81,0xfa], 3, 4, ed);   // K22 d²+1
     let ds = vv(eh_dist_shift, 172265625);
-    p!(base + 0xd5824a, &[0x49,0x81,0xfe], 3, 4, ds); p!(base + 0xdeac3a, &[0x49,0x81,0xfe], 3, 4, ds);   // K23 (⚠rbx/r14 프리픽스 49 81 fe = K29와 공유·값으로 구분)
+    p!(base + 0xeb317a, &[0x49,0x81,0xfe], 3, 4, ds); p!(base + 0xdeac3a, &[0x49,0x81,0xfe], 3, 4, ds);   // K23 (⚠rbx/r14 프리픽스 49 81 fe = K29와 공유·값으로 구분)
     let pw = vv(eh_power_weight, 103);
-    p!(base + 0xd576b9, &[0x6b,0xc0], 2, 1, pw); p!(base + 0xdea0a9, &[0x6b,0xc0], 2, 1, pw);   // K24
+    p!(base + 0xeb25e9, &[0x6b,0xc0], 2, 1, pw); p!(base + 0xcb573a, &[0x6b,0xc0], 2, 1, pw);   // K24
     let pn = vv(eh_power_neutral, 50);
-    p!(base + 0xd576b2, &[0xb0], 1, 1, pn); p!(base + 0xdea0a2, &[0xb0], 1, 1, pn);   // K25
+    p!(base + 0xeb25e2, &[0xb0], 1, 1, pn); p!(base + 0xcb5733, &[0xb0], 1, 1, pn);   // K25
     let ps = vv(eh_power_sub, 206);
-    p!(base + 0xd576cd, &[0x48,0x83,0xc2], 3, 1, ps); p!(base + 0xdea0bd, &[0x48,0x83,0xc2], 3, 1, ps);   // K26 (K25와 짝: 기본 206=−50)
+    p!(base + 0xeb25fd, &[0x48,0x83,0xc2], 3, 1, ps); p!(base + 0xcb574e, &[0x48,0x83,0xc2], 3, 1, ps);   // K26 (K25와 짝: 기본 206=−50)
     let tsl = vv(eh_time_slope, 99);
-    p!(base + 0xd55b87, &[0x6b,0xc6], 2, 1, tsl); p!(base + 0xde858c, &[0x6b,0xc6], 2, 1, tsl);   // K27a
-    p!(base + 0xd57d80, &[0x6b,0xc1], 2, 1, tsl); p!(base + 0xdea770, &[0x6b,0xc1], 2, 1, tsl);   // K27b
+    p!(base + 0xeb0ad9, &[0x6b,0xc6], 2, 1, tsl); p!(base + 0xcb3b85, &[0x6b,0xc6], 2, 1, tsl);   // K27a
+    p!(base + 0xeb2cb0, &[0x6b,0xc1], 2, 1, tsl); p!(base + 0xcb5e10, &[0x6b,0xc1], 2, 1, tsl);   // K27b
     let wc = vv(eh_window_cap, 2000);
-    p!(base + 0xd55b99, &[0xba], 1, 4, wc); p!(base + 0xde859e, &[0xba], 1, 4, wc);   // K28a
-    p!(base + 0xd57d93, &[0x41,0xb9], 2, 4, wc); p!(base + 0xdea783, &[0x41,0xb9], 2, 4, wc);   // K28b
+    p!(base + 0xeb0aeb, &[0xba], 1, 4, wc); p!(base + 0xcb3b97, &[0xba], 1, 4, wc);   // K28a
+    p!(base + 0xeb2cc3, &[0x41,0xb9], 2, 4, wc); p!(base + 0xdea783, &[0x41,0xb9], 2, 4, wc);   // K28b
     let sf = vv(eh_score_floor, 1000);
-    p!(base + 0xd5605d, &[0x49,0x81,0xfe], 3, 4, sf); p!(base + 0xde8a6d, &[0x49,0x81,0xfe], 3, 4, sf);   // K29
+    p!(base + 0xeb0fad, &[0x49,0x81,0xfe], 3, 4, sf); p!(base + 0xde8a6d, &[0x49,0x81,0xfe], 3, 4, sf);   // K29
     let sg = vv(eh_score_gate, 10);
-    p!(base + 0xd56066, &[0x48,0x83,0xf8], 3, 1, sg); p!(base + 0xde8a76, &[0x48,0x83,0xf8], 3, 1, sg);   // K30 (48 83 f8 = K32와 공유·값 구분)
+    p!(base + 0xeb0fb6, &[0x48,0x83,0xf8], 3, 1, sg); p!(base + 0xcb3fe2, &[0x48,0x83,0xf8], 3, 1, sg);   // K30 (48 83 f8 = K32와 공유·값 구분)
     let ha = vv(eh_helper_a, 40);
-    p!(base + 0xd55e99, &[0x41,0xb8], 2, 4, ha); p!(base + 0xde88a9, &[0x41,0xb8], 2, 4, ha);   // K31a
+    p!(base + 0xeb0de9, &[0x41,0xb8], 2, 4, ha); p!(base + 0xcb3e99, &[0x41,0xb8], 2, 4, ha);   // K31a
     let hb = vv(eh_helper_b, 60);
-    p!(base + 0xd55fc9, &[0x41,0xb8], 2, 4, hb); p!(base + 0xde89d9, &[0x41,0xb8], 2, 4, hb);   // K31b
+    p!(base + 0xeb0f19, &[0x41,0xb8], 2, 4, hb); p!(base + 0xde89d9, &[0x41,0xb8], 2, 4, hb);   // K31b
     let hg = vv(eh_hp_gate2, 36);
-    p!(base + 0xd56f91, &[0x48,0x83,0xf8], 3, 1, hg); p!(base + 0xde9971, &[0x48,0x83,0xf8], 3, 1, hg);   // K32
+    p!(base + 0xeb1eb1, &[0x48,0x83,0xf8], 3, 1, hg); p!(base + 0xcb5027, &[0x48,0x83,0xf8], 3, 1, hg);   // K32
     let gc = vv(eh_grid_cost, 10000);
-    p!(base + 0xd58015, &[0x49,0x81,0xc6], 3, 4, gc); p!(base + 0xdeaa05, &[0x49,0x81,0xc6], 3, 4, gc);   // K33
+    p!(base + 0xeb2f45, &[0x49,0x81,0xc6], 3, 4, gc); p!(base + 0xcb60a5, &[0x49,0x81,0xc6], 3, 4, gc);   // K33
     // fin (killtarget 게이트, 3-state: 이전 잔여 원복 후 목표 적용)
     macro_rules! fin3 { ($a:expr, $o:expr, $a0:expr, $a1:expr) => {{
         let _ = patch_toggle_bytes(base + $a, $o, $a0, false);
@@ -4640,13 +4640,13 @@ unsafe fn apply_init_imm() {
     for rva in [0xe34032usize,0xe340be,0xe3414c,0xe341da,0xe34261,0xe343ab,0xe344c0,0xe345cc,0xe346d8,0xe347fb] { p!(base + rva, &[0x48,0x83,0xf8], 3, 1, gh); }
     // 교전 in_camp_ally 반경²(메인 6곳=R²+1, d² 8B) — rcx5(48 b9)+rax1(48 b8) + ★[09-01] 경계 ≥ 2곳(0xe83ebe/e8422f=R², 48 b8)도 대칭 배선(스펙 확정)
     let er = if egr < 0 { 0x490404401u64 } else { let r = egr.max(0) as u64; r.wrapping_mul(r).wrapping_add(1) };
-    for rva in [0xe83468usize,0xe835ab,0xe83607,0xe83661,0xe836bb] { p!(base + rva, &[0x48,0xb9], 2, 8, er); }
-    p!(base + 0xe83716, &[0x48,0xb8], 2, 8, er);
+    for rva in [0xe5d778usize,0xe5d8bb,0xe5d917,0xe5d971,0xe5d9cb] { p!(base + rva, &[0x48,0xb9], 2, 8, er); }
+    p!(base + 0xe5da26, &[0x48,0xb8], 2, 8, er);
     let erb = if egr < 0 { 0x490404400u64 } else { let r = egr.max(0) as u64; r.wrapping_mul(r) };   // 경계 = R²(메인−1)
-    p!(base + 0xe83ebe, &[0x48,0xb8], 2, 8, erb); p!(base + 0xe8422f, &[0x48,0xb8], 2, 8, erb);
+    p!(base + 0xe5e1ce, &[0x48,0xb8], 2, 8, erb); p!(base + 0xe5e53f, &[0x48,0xb8], 2, 8, erb);
     // 결사전 후퇴 인원마진(1곳, add rcx,2)
     let dm = if dbm < 0 { 2u64 } else { (dbm.max(0).min(0x7f)) as u64 };
-    p!(base + 0xcb5e7b, &[0x48,0x83,0xc1], 3, 1, dm);
+    p!(base + 0xeaad5b, &[0x48,0x83,0xc1], 3, 1, dm);
     INITIMM_SIG.store(sig, Ordering::Relaxed);
     if let Some(pp) = pth("init_imm.txt") {
         let _ = fs::write(pp, format!("applied={}/{} gk2_gank_radius={} gk2_gank_hp={} eng_camp_radius={} db_retreat_margin={} @base{:#x}\n", ok, tot, gkr, gkh, egr, dbm, base));
