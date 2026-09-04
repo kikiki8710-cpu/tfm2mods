@@ -324,6 +324,16 @@ pub fn pos_pool(pos: usize) -> usize {
     }
     with_state(|st| st.live_count(pos))
 }
+/// ★이 포지션의 제한이 **실제로 적용되나** — 게이트와 화면이 같은 식을 쓰게 하는 단일 창구.
+///   ⚠화면 경고를 `pos_count`(지정 수)로 판정하지 말 것: 게이트는 `pos_pool`(지정+미지정)로
+///     판정하므로, 지정 수만 보면 **"제한 없음"이라 안내해 놓고 실제로는 제한이 걸리는**
+///     구간(`pos_count < 최소 <= pos_pool`)이 생긴다(2026-09-04 발견 · 교훈 #4).
+pub fn pos_active_of(pos: usize) -> bool {
+    if pos >= 5 {
+        return false;
+    }
+    with_state(|st| st.pos_active(pos))
+}
 /// 화이트리스트에 남아 있지만 지금 로스터엔 없는 챔프 수(pos 기준) — 안내 문구용.
 pub fn pos_stale(pos: usize) -> usize {
     if pos >= 5 {
@@ -614,5 +624,10 @@ const DEFAULT_CFG: &str = "\
     # Log the final line-up of every match to champ_pos_lock_lineups.txt.\r\n\
     #   For bug reports; keep it off normally.\r\n\
     log_lineups=0\r\n\
+    # Rewrite the position assignment (swap order) so every champion ends up in a\r\n\
+    #   position you allowed. This is what fixes the OPPONENT and every AI team's\r\n\
+    #   line-up - turning it off leaves their assignment untouched (and stops the\r\n\
+    #   'assignment' lines in the line-up log). 1 = on, 0 = off.\r\n\
+    swap_force=1\r\n\
 ";
 

@@ -698,14 +698,22 @@ fn fill_grid(root: &mut Node) {
     if let Some(n) = ui_kit::find_mut(pop, "warning_min") {
         // cnt==0 = 전체 허용(제한 없음) → 경고 없음. 아니면 두 제약 체크:
         //  ①이 포지션 자체 ≥ base_need  ②겹친 컴포넌트 공유풀 ≥ union_need.
+        // ★★[2026-09-04] 화면 경고를 **게이트와 같은 식**으로 판정한다.
+        //   ~~구: `cnt < base_need`(지정 수)~~ → 실제 게이트는 `pos_active`(= 판정 풀 `pos_pool`
+        //   = 지정 + 미지정 ≥ 최소). 지정 수만 보면 `cnt < 최소 ≤ pool` 구간에서 화면은
+        //   "제한 없음으로 취급"이라 안내해 놓고 **실제로는 제한이 걸린다**(거짓 안심).
+        //   실측 예: 하드피어리스 3장(최소 16) · 서폿 지정 14 · 미지정 5 → 풀 19 ⟹ 제한 적용.
+        //   ⟹ 판정은 `config::pos_active_of` 한 곳에서만 한다(교훈 #4 재발 방지).
+        let live = config::pos_pool(pos);
+        let active = config::pos_active_of(pos);
         let s = if ban_opt.is_none() {
             // ★밴카드가 "자동"이면 최소 선택 수를 계산할 수 없다 ⟹ 제한을 아예 걸지 않는다.
             //   (유저 지시 2026-08-23: 그 상태를 화면에 명시하고 해결 방법까지 적을 것.)
             i18n::tr("warn_ban_unknown")
         } else if cnt == 0 {
             String::new()
-        } else if cnt < base_need {
-            // ★최소 미달 = **제한 없음 취급**(유저 지시 2026-08-23). 경고가 아니라 현재 상태 안내다.
+        } else if !active {
+            // 최소 미달 = **제한 없음 취급**(유저 지시 2026-08-23). 경고가 아니라 현재 상태 안내다.
             let stale = config::pos_stale(pos);
             let tail = if stale > 0 {
                 i18n::trf("warn_min_tail_stale", &[("n", &stale.to_string())])
@@ -716,23 +724,44 @@ fn fill_grid(root: &mut Node) {
                 "warn_min",
                 &[
                     ("need", &base_need.to_string()),
-                    ("more", &(base_need - cnt).to_string()),
+                    ("pool", &live.to_string()),
+                    ("more", &base_need.saturating_sub(live).to_string()),
                     ("tail", &tail),
                 ],
             )
         } else if comp_size > 1 && union_size < union_need {
+            // ⚠이 줄은 **참고**다 — 공유풀 식(`union_need`)은 아무것도 게이트하지 않는다.
+            //   적용 여부는 위 `active` 가 이미 결정했다(그래서 문구도 "적용 중"을 앞에 둔다).
             i18n::trf(
-                "warn_shared",
+                "status_active_shared",
                 &[
+                    ("pool", &live.to_string()),
+                    ("need", &base_need.to_string()),
                     ("count", &comp_size.to_string()),
                     ("want", &union_need.to_string()),
                     ("have", &union_size.to_string()),
                 ],
             )
         } else {
-            String::new()
+            i18n::trf(
+                "status_active",
+                &[("pool", &live.to_string()), ("need", &base_need.to_string())],
+            )
         };
         ui_kit::label_set(n, &s);
+        // ★[2026-09-04] 같은 노드에 경고와 "적용 중"을 같이 쓰므로 색까지 바꾼다 —
+        //   .ui 의 기본색이 빨강(#ff4a4a)이라 그냥 두면 **정상 상태가 경고처럼 보인다**.
+        let warn = !s.is_empty() && !active;
+        ui_kit::label_set_color(
+            n,
+            if s.is_empty() {
+                ui_kit::Rgba::hex(0xff4a4aff)
+            } else if warn {
+                ui_kit::Rgba::hex(0xff4a4aff) // 경고 = 빨강(기존)
+            } else {
+                ui_kit::Rgba::hex(0x37d5b3ff) // 적용 중 = 청록(게임 강조색)
+            },
+        );
     }
     // 그리드 셀
     let Some(contents) = ui_kit::find_mut(pop, "contents") else {
