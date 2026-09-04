@@ -1332,7 +1332,7 @@ unsafe fn apply_score_imm() {
     }}; }
 
     // ── ① 수적우세 배율 (코드 즉치 2개) ──
-    p!(base + 0xd59354, &[0xb9], 1, 4, b4(ahi, 200));   // ←0.5.3 c7d300   // ←0.5.3 d8fd14
+    p!(base + 0xd59427, &[0xb9], 1, 4, b4(ahi, 200));   // ←0.5.3 c7d300   // ←0.5.3 d8fd14
     p!(base + 0xd59436, &[0xb9], 1, 4, b4(alo, 30));   // ←0.5.3 c7d30f   // ←0.5.3 d8fd23
     // ── ①-b 수적우세 배율 (.rdata 테이블 3개) ──
     //    prefix 검증이 불가능한 데이터 영역이라, 원본 3값이 그대로인지 최초 확인 후에만 건드린다.
@@ -1602,14 +1602,14 @@ unsafe fn apply_move_imm() {
     }
     // ── ② cat0 가중치·기본 페널티·근접 보너스 ──
     p!(base + 0xd5885a, &[0x49,0xc1,0xf9], 3, 1, b1(m0rs, 2));    // sar r9, 2   (÷4)   // ←0.5.3 c7c7f5   // ←0.5.3 d8eb45
-    p!(base + 0xd589e2, &[0x48,0xc1,0xfa], 3, 1, b1(m0es, 9));    // sar rdx, 9  (÷800)   // ←0.5.3 c7c803   // ←0.5.3 d8eb53
+    p!(base + 0xd58868, &[0x48,0xc1,0xfa], 3, 1, b1(m0es, 9));    // sar rdx, 9  (÷800)   // ←0.5.3 c7c803   // ←0.5.3 d8eb53
     {   // add r12, −2  → imm8 그대로. 센티널 이하면 원본 유지.
         tot += 1;
         let want = if m0bp_orig { 0xfeu64 } else { (m0bp as i8) as u8 as u64 };
-        ok += patch_imm_bytes(base + 0xd589ed, &[0x49,0x83,0xc5], 3, 1, want) as u32;   // ←s2 d8eb5e
+        ok += patch_imm_bytes(base + 0xd58873, &[0x48,0x83,0xc5], 3, 1, want) as u32;   // ←s2 d8eb5e
     }
     p!(base + 0xd595f2, &[0xbb], 1, 4, b4(m0nb, 10));   // ←0.5.3 c7d5a6   // ←0.5.3 d8ee80
-    p!(base + 0xd59599, &[0x48,0x81,0xbd,0xb8,0x00,0x00,0x00], 7, 4, b4(m0ng, 950));   // ←0.5.3 c7d4f0  ★재조사로 복구: 950 (rbp+0x68→+0xb8)  ★★imm_off 4→7 — 0.5.4에서 REX 접두가 붙어 즉치가 1B 밀렸다(크래시 원인)   // ←0.5.3 d8edbb
+    p!(base + 0xd59529, &[0x48,0x81,0xbc,0x24,0xd0,0x00,0x00,0x00], 8, 4, b4(m0ng, 950));   // ★0.5.8 재핀: rbp→rsp 기반으로 바뀌어 prefix 7B→8B·off 7→8   // ←0.5.3 c7d4f0  ★재조사로 복구: 950 (rbp+0x68→+0xb8)  ★★imm_off 4→7 — 0.5.4에서 REX 접두가 붙어 즉치가 1B 밀렸다(크래시 원인)   // ←0.5.3 d8edbb
     // ── ③ 포탑 사거리 감산 / 상한 3쌍 ──
     for a in [0xd5c7dausize, 0xd58c52] {
         p!(base + a, &[0x48,0x81,0xee], 3, 4, b4(mtm, 30000));
@@ -1622,7 +1622,7 @@ unsafe fn apply_move_imm() {
         p!(base + mv, mpre, mpre.len(), 4, b4(mtc, 100));
     }
     // ── ④ cat2 goal_gain 가중 / 예상 피격 필터 / 시야 기억 ──
-    p!(base + 0xd5946c, &[0x48,0xc1,0xfa], 3, 1, b1(m2gs, 7));    // sar rdx, 7 (÷200)   // ←0.5.3 c7d3d0   // ←0.5.3 d8ec84
+    p!(base + 0xd57fe9, &[0x48,0xc1,0xfa], 3, 1, b1(m2gs, 7));    // sar rdx, 7 (÷200)   // ←0.5.3 c7d3d0   // ←0.5.3 d8ec84
     for a in [0xd5c4f4usize, 0xd5876e, 0xd58d8f] {
         p!(base + a, &[0x41,0xb8], 2, 4, b4(met, 9999));
     }
@@ -1919,12 +1919,12 @@ unsafe fn apply_pe_imm() {
         (0xe023c9, &[0xb8], 1),
     ];
     for &(a, pre, off) in PE_CAP.iter() { p!(base + a, pre, off, 4, b4(pcap, 150)); }
-    p!(base + 0xd888bd, &[0x48,0x3d], 2, 4, b4(ppcap, 140));   // ←0.5.3 ccd5c5   // ←0.5.3 cabedd
-    p!(base + 0xd888c3, &[0xbe], 1, 4, b4(ppcap, 140));   // ←0.5.3 ccd5cb   // ←0.5.3 cabee3
+    p!(base + 0xd8898e, &[0x48,0x3d], 2, 4, b4(ppcap, 140));   // ←0.5.3 ccd5c5   // ←0.5.3 cabedd
+    p!(base + 0xd88994, &[0xbb], 1, 4, b4(ppcap, 140));   // ★0.5.8 재핀: mov esi→ebx (be→bb)   // ←0.5.3 ccd5cb   // ←0.5.3 cabee3
     // ↓0.5.4: prefix 가 사이트마다 달라져 루프를 펼침(원래 `for a in [..]`)
-    p!(base + 0xd846a6, &[0x44,0x69,0xc0], 3, 4, b4(pfar, 656));   // ←0.5.3 ccce81  ★재조사로 복구: pfar 656 #1  ★★imm_off 2→3 — 0.5.4에서 REX 접두가 붙어 즉치가 1B 밀렸다(크래시 원인)   // ←0.5.3 cab773
-    p!(base + 0xd84738, &[0x44,0x69,0xc0], 3, 4, b4(pfar, 656));   // ←0.5.3 cccef2  ★재조사로 복구: pfar 656 #2  ★★imm_off 2→3 — 0.5.4에서 REX 접두가 붙어 즉치가 1B 밀렸다(크래시 원인)   // ←0.5.3 cab817
-    p!(base + 0xe03341, &[0xbe], 1, 4, b4(pna2, 1000));   // ←0.5.3 cd0e8e  ★재조사로 복구: pna2 1000  ★41be(6B)→be(5B) 로 인코딩 축소 ⟹ imm_off 2→1   // ←0.5.3 caf8a0
+    p!(base + 0xd88248, &[0x69,0xf0], 2, 4, b4(pfar, 656));   // ★0.5.8 재핀: imul r8d→esi (prefix 3B→2B·off 3→2)   // ←0.5.3 ccce81  ★재조사로 복구: pfar 656 #1  ★★imm_off 2→3 — 0.5.4에서 REX 접두가 붙어 즉치가 1B 밀렸다(크래시 원인)   // ←0.5.3 cab773
+    p!(base + 0xd882b1, &[0x69,0xf0], 2, 4, b4(pfar, 656));   // ★0.5.8 재핀: 동상   // ←0.5.3 cccef2  ★재조사로 복구: pfar 656 #2  ★★imm_off 2→3 — 0.5.4에서 REX 접두가 붙어 즉치가 1B 밀렸다(크래시 원인)   // ←0.5.3 cab817
+    p!(base + 0xd8c377, &[0xbe], 1, 4, b4(pna2, 1000));   // ←0.5.3 cd0e8e  ★재조사로 복구: pna2 1000  ★41be(6B)→be(5B) 로 인코딩 축소 ⟹ imm_off 2→1   // ←0.5.3 caf8a0
     p!(base + 0xd8c3a5, &[0xb9], 1, 4, b4(pna, 2000));   // ←0.5.3 cd0e9e   // ←0.5.3 caf8d1
     // ★0.5.4 재규명: 이 노브는 **포지셔닝 스탯 기반 위치 노이즈의 면제선**이다.
     //   (판단력이 아니다 — `[unit+0x1f8]`=포지셔닝. 구 RE 의 "판단력" 표기는 오류였다.)
@@ -1941,15 +1941,15 @@ unsafe fn apply_pe_imm() {
         p!(base + 0xe032f6, &[0x48,0x83,0xf8], 3, 1, v);   // ←0.5.3 caf855
     }
     pskip!(base + 0xe309c7, &[0x48,0x6b,0x8d,0xa0,0x06,0x00,0x00], 3, 1, b1(pks, 120));   // ←0.5.3 cd0db9  ★재조사로 복구: pks 120 #1   // ⛔0.5.4 미확정: 시그 1→0 / 완화 1→0 (골격 95%)
-    p!(base + 0xe0323a, &[0x48,0x6b,0x8d,0x40,0x06,0x00,0x00], 7, 1, b1(pks, 120));   // ←0.5.4 caf78f (pks 120 #2, [rbp+0x630]→[rbp+0x640], align복구)
+    p!(base + 0xd8c274, &[0x48,0x6b,0x8d,0x28,0x06,0x00,0x00], 7, 1, b1(pks, 120));   // ★0.5.8 재핀: [rbp+0x640]→[rbp+0x628]   // ←0.5.4 caf78f (pks 120 #2, [rbp+0x630]→[rbp+0x640], align복구)
     for a in [0xd1c3e9usize, 0xdffaa1] { p!(base + a, &[0xba], 1, 4, b4(pmsk, 0x1a1)); }
-    p!(base + 0xd8894c, &[0xb9], 1, 4, b4(pkm, 0x303));   // ←0.5.3 ccd654   // ←0.5.3 cabf6c
+    p!(base + 0xd86a07, &[0xb9], 1, 4, b4(pkm, 0x503));   // ★★0.5.8: 게임 원본이 0x303→**0x503**. enum 에 변형 1개가 index 9 자리에 삽입돼 상한 9→10, 옛 bit9가 bit10으로 이동(bit{0,1,8,9}→{0,1,8,10}). ⚠구 0x303 을 두면 **노브 미설정에도 bit10 종류를 통째로 배제**하는 원본 변조가 된다.   // ←0.5.3 ccd654   // ←0.5.3 cabf6c
     // ★0.5.4: 대상 레지스터가 rax→r15 (`48 c7 00` → `49 c7 07`).
     p!(base + 0xd85306, &[0x49,0xc7,0x07], 3, 4, b4(pwall, 9999));   // ←0.5.3 cc9eaf   // ←0.5.3 ca8936
     pskip!(base + 0xcea896, &[0x48,0xc7,0x02], 3, 4, b4(pwell, 9999));   // ⛔0.5.4 미확정: 시그 1→0 / 완화 2→1 (골격 86%)
     pskip!(base + 0xcea89d, &[0x48,0xc7,0x42,0x08], 4, 4, b4(pwell, 9999));   // ⛔0.5.4 미확정: 시그 1→0 / 완화 1→0 (골격 86%)
-    p!(base + 0xdf0d2e, &[0xb8], 1, 4, b4(pwell, 9999));   // ←0.5.3 cca0b5   // ←0.5.3 ca8b27
-    p!(base + 0xe02e40, &[0x48,0x81,0xbd,0x20,0x04,0x00,0x00], 7, 4, b4(pagc, 1200));   // ←0.5.3 cd0a31   // ←0.5.3 caf390
+    p!(base + 0xd85501, &[0xb8], 1, 4, b4(pwell, 9999));   // ←0.5.3 cca0b5   // ←0.5.3 ca8b27
+    p!(base + 0xd8be70, &[0x48,0x81,0xbd,0x20,0x04,0x00,0x00], 7, 4, b4(pagc, 1200));   // ←0.5.3 cd0a31   // ←0.5.3 caf390
     //   세 사이트가 **읽는 구조체 오프셋도 레지스터도 다르다**(+0xb8/rdi, +0xc0/rdi, +0xc8/rcx).
     // ★스택 오버플로 방지: 호출부를 펼치지 말고 **표+루프 1개**로 유지할 것.
     //   (펼치면 opt-level=1 에서 프레임이 선형으로 커져 rayon 워커 스택을 넘긴다 — 실사고)
@@ -2010,7 +2010,7 @@ unsafe fn apply_move2_imm() {
     p!(base + 0xd34c9f, &[0x48,0x05], 2, 4, b4(amg, 6000));   // ←0.5.3 c86a86   // ←0.5.3 e58d45
     }
     if !micro_taken("mv2_avoid_bias") {   // ★[08-07] 마이크로 디투어와 상호배타
-    p!(base + 0xd350ff, &[0x48,0x3d], 2, 4, b4(abi, 1500));   // ←0.5.3 c86f23   // ←0.5.3 e5919f
+    p!(base + 0xd35127, &[0x48,0x3d], 2, 4, b4(abi, 1500));   // ←0.5.3 c86f23   // ←0.5.3 e5919f
     }
     // ── 우물 탈출(두 함수 미러) ──
     for a in [0xdb1135usize, 0xd349da] {
@@ -2327,8 +2327,8 @@ unsafe fn apply_rt_imm() {
     p!(base + 0xe6cc82, &[0x48,0x83,0xf9], 3, 1, if dl < 0 { 61 } else { (dl.max(0).min(0x7e) + 1) as u64 });   // ←0.5.3 d654d5   // ←0.5.3 eb42d5
     p!(base + 0xe6cc86, &[0xba], 1, 4, b4(dl, 60));   // ←0.5.3 d654d9   // ←0.5.3 eb42d9
     // ── 정글 진행 HP% ──
-    p!(base + 0xe4a2ff, &[0x48,0x83,0xf8], 3, 1, b1(jf, 21));   // ←0.5.3 dffebc   // ←0.5.3 e621d4
-    p!(base + 0xe4a315, &[0x48,0x83,0xf8], 3, 1, b1(jn, 41));   // ←0.5.3 dfff00   // ←0.5.3 e621f1
+    p!(base + 0xd2ed57, &[0x48,0x83,0xf8], 3, 1, b1(jf, 21));   // ←0.5.3 dffebc   // ←0.5.3 e621d4
+    p!(base + 0xd2ed6d, &[0x48,0x83,0xf8], 3, 1, b1(jn, 41));   // ←0.5.3 dfff00   // ←0.5.3 e621f1
     RT_SIG.store(sig, Ordering::Relaxed);
     if let Some(pp) = pth("rt_imm.txt") {
         let _ = fs::write(pp, format!(
@@ -2633,12 +2633,12 @@ unsafe fn apply_auction_imm() {
     //   그런데 아래 두 노브는 지금까지 **2회차 사이트만** 패치하고 있었다 = 효과가 반쪽이었다.
     //   → 1회차 동일 상수 사이트를 같이 패치한다. (RE\2026-08-03_line_defense-1회차구간-c5e160)
     // ↓0.5.4: prefix 가 사이트마다 달라져 루프를 펼침(원래 `for a in [..]`)
-    p!(base + 0xe84246, &[0x48,0x81,0xf9], 3, 4, dsh(livn, 9765625, 8));   // ←0.5.3 c5f059   // ←0.5.3 d77a06
-    p!(base + 0xe86ac4, &[0x48,0x81,0xfa], 3, 4, dsh(livn, 9765625, 8));   // ←0.5.3 c61784   // ←0.5.3 d7a254
-    p!(base + 0xe840f8, &[0x49,0x83,0xc5], 3, 1, b1(lvis, 120));           // ← 1회차(신규)   // ←0.5.3 c5eee7   // ←0.5.3 d778b8
+    pskip!(base + 0xe84246, &[0x48,0x81,0xf9], 3, 4, dsh(livn, 9765625, 8));   // ⛔**0.5.8 소멸 확정**(ghidra-re 2026-09-04): line_defense 1회차 시야 루프 블록이 통째로 삭제됨(함수 0x6cd6→0x60f4, `add r,0x78` 3→1, `cmp r,9765625` 2→0, 전역 27→17). **되살릴 수 없다.**   // ←0.5.3 c5f059   // ←0.5.3 d77a06
+    pskip!(base + 0xe86ac4, &[0x48,0x81,0xfa], 3, 4, dsh(livn, 9765625, 8));   // ⛔**0.5.8 소멸 확정**(ghidra-re 2026-09-04): line_defense 1회차 시야 루프 블록이 통째로 삭제됨(함수 0x6cd6→0x60f4, `add r,0x78` 3→1, `cmp r,9765625` 2→0, 전역 27→17). **되살릴 수 없다.**   // ←0.5.3 c61784   // ←0.5.3 d7a254
+    pskip!(base + 0xe840f8, &[0x49,0x83,0xc5], 3, 1, b1(lvis, 120));   // ⛔**0.5.8 소멸 확정**(ghidra-re 2026-09-04): line_defense 1회차 시야 루프 블록이 통째로 삭제됨(함수 0x6cd6→0x60f4, `add r,0x78` 3→1, `cmp r,9765625` 2→0, 전역 27→17). **되살릴 수 없다.**           // ← 1회차(신규)   // ←0.5.3 c5eee7   // ←0.5.3 d778b8
     p!(base + 0xe88641, &[0x49,0x83,0xc4], 3, 1, b1(lvis, 120));   // ←0.5.3 c63b87   // ←0.5.3 d7c9a1
     // c61667 = `add rdi,0x78` — 08-03 exe 정적 검증으로 바이트열 확정(같은 120틱 사이트, 세 번째).
-    p!(base + 0xe869ba, &[0x48,0x83,0xc3], 3, 1, b1(lvis, 120));   // ←0.5.3 c61667   // ←0.5.3 d7a14a
+    pskip!(base + 0xe869ba, &[0x48,0x83,0xc3], 3, 1, b1(lvis, 120));   // ⛔**0.5.8 소멸 확정**(ghidra-re 2026-09-04): line_defense 1회차 시야 루프 블록이 통째로 삭제됨(함수 0x6cd6→0x60f4, `add r,0x78` 3→1, `cmp r,9765625` 2→0, 전역 27→17). **되살릴 수 없다.**   // ←0.5.3 c61667   // ←0.5.3 d7a14a
     p!(base + 0xe864f8, &[0x83,0xc1], 2, 1, b1(lest, 10));                 // add ecx,10   // ←0.5.3 c61cb4   // ←0.5.3 d7a8aa
     // ── ③-b line_defense 1회차 전용 상수 (08-03 신규 노출) ──
     //   ★`ld_around_range`는 1·2회차 합쳐 **7사이트** — 지금까지 완전 미노출이던 값이다.
@@ -2651,9 +2651,9 @@ unsafe fn apply_auction_imm() {
     }
     // ★[08-05 감사] 3곳 → **6곳**. 그리고 이 마스크가 고르는 건 게임 모드가 아니라 **경기 페이즈**(`u8[S+0x38]`, 0~8)다
     //   — 게임 모드는 0/1/2 셋뿐인데 마스크가 bit 8까지 쓴다. `lt_phase_mask`·`pl_serpen_phase_mask`와 **같은 필드**.
-    p!(base + 0xe83807, &[0xba], 1, 4, b4(lmsk, 0x1a1));   // ←0.5.3 c5e61a   // ←0.5.3 d76fbc
+    p!(base + 0xe837f7, &[0xba], 1, 4, b4(lmsk, 0x1a1));   // ←0.5.3 c5e61a   // ←0.5.3 d76fbc
     p!(base + 0xe83ba5, &[0x41,0xb8], 2, 4, b4(lmsk, 0x1a1));   // ←0.5.3 c5e9b3   // ←0.5.3 d77370
-    p!(base + 0xe84973, &[0xba], 1, 4, b4(lmsk, 0x1a1));   // ←0.5.3 c5f664   // ←0.5.3 d78133
+    p!(base + 0xe8449c, &[0xba], 1, 4, b4(lmsk, 0x1a1));   // ←0.5.3 c5f664   // ←0.5.3 d78133
     for a in [0xd4a250usize, 0xe862c6, 0xe89b0c] {
         p!(base + a, &[0xba], 1, 4, b4(lmsk, 0x1a1));
     }
