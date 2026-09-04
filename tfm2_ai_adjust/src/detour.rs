@@ -1229,7 +1229,7 @@ unsafe fn apply_cast_imm() {
     p!(base + 0xcd2c10, &[0x48,0xb9], 2, 8, sqp(arad, 14_400_000_001));   // ←0.5.3 cb6080   // ←0.5.3 dbac40
     p!(base + 0xcd2c7b, &[0x49,0xb9], 2, 8, sqp(arad, 14_400_000_001));   // ←0.5.3 cb60eb   // ←0.5.3 dbacab
     p!(base + 0xcd2e2b, &[0x49,0xba], 2, 8, sqp(arad, 14_400_000_001));   // ←0.5.3 cb629b   // ←0.5.3 dbae5b
-    for a in [0xebe86ausize, 0xcd2cfa] {                                           // 120000²
+    for a in [0xcd1a3ausize, 0xcd2cfa] {                                           // 120000²
         pany!(base + a, [[0x49,0xbb],[0x48,0xbb],[0x49,0xb9],[0x48,0xb9]], 2, 8, sq(arad, 14_400_000_000));
     }
     p!(base + 0xcd40ba, &[0x49,0x83,0xc4], 3, 1, b1(mvis, 120));   // ←0.5.3 cb756b   // ←0.5.3 dbc0ea
@@ -1473,7 +1473,7 @@ unsafe fn apply_score2_imm() {
     p!(base + 0xd5d8a8, &[0x49,0x81,0xfa], 3, 4, tr_a.wrapping_sub(1));   // ←0.5.3 c7fd67   // ←0.5.3 d940e7
     p!(base + 0xd5d958, &[0x48,0x81,0xfb], 3, 4, tr_a.wrapping_sub(1));   // ←0.5.3 c80be7   // ←0.5.3 d94197
     // ── ② 적 챔피언 근접 인식 (d²>>9) ──
-    for a in [0xd614beusize, 0xd5d0dc, 0xd5d19f, 0xd5d262, 0xd5d325] {
+    for a in [0xd5d00eusize, 0xd5d0dc, 0xd5d19f, 0xd5d262, 0xd5d325] {
         pany!(base + a, CMP3, 3, 4, dsh(erad2, 0x1da09fa, 9));
     }
     // ── ③ 셀 위협 진입 거리 (d²+1) ──
@@ -1481,9 +1481,9 @@ unsafe fn apply_score2_imm() {
     // ── ④ 다이브 여유분 ──
     pany!(base + 0xd5e92d, [[0x48,0x05]], 2, 4, b4(dvm, 15000));   // ←0.5.3 c7fe82   // ←0.5.3 d9533e
     // ── ⑤ 위험 판정 사다리 ──
-    for (a, v, o) in [(0xc82224usize, rd0, 49u64), (0xd06dd9, rh1, 65), (0xd06ddf, rd1, 29),
-                      (0xd06de5, rh2, 40), (0xd06deb, rd2, 17), (0xd06df3, rh3, 25),
-                      (0xd06df9, rd3, 10)] {
+    for (a, v, o) in [(0xd5f0a2usize, rd0, 49u64), (0xd5f0a8, rh1, 65), (0xd5f0ae, rd1, 29),
+                      (0xd5f0b4, rh2, 40), (0xd5f0ba, rd2, 17), (0xd5f0c2, rh3, 25),
+                      (0xd5f0c8, rd3, 10)] {
         pany!(base + a, CMP1, 3, 1, b1(v, o));
     }
     // ── ⑥ 보너스 상한·기준 ──
@@ -1508,7 +1508,7 @@ unsafe fn apply_score2_imm() {
     for a in [0xd5d067usize] { pany!(base + a, [[0x48,0x83,0xc6],[0x49,0x83,0xc6],[0x48,0x83,0xc5]], 3, 1, b1(svis, 120)); }
     // ── ⑧ 본체 0일 때 대체 점수(음수) ──
     let nv = if nul_orig { -10i64 } else { nul };
-    for a in [0xd64915usize, 0xd606f6] {
+    for a in [0xd6047cusize, 0xd606f6] {
         pany!(base + a, [[0x48,0xc7,0xc1],[0x48,0xc7,0xc0],[0x49,0xc7,0xc1]], 3, 4,
               (nv as i32) as u32 as u64);
     }
