@@ -1,0 +1,4 @@
+[["RVA_MOVEPRI (Plan 디스패처)","0xdb2760","0xcaf9f0",10],
+ ["RVA_SUBPLAN_DISPATCH","0xcbf340","0xe35bd0",16],
+ ["RVA_CONDGATE (facet#1)","0xdb1e20","0xcaf0d0",8],
+ ["RVA_FC59A0 (recall/waypoint)","0xe61600","0xd40f10",20]]
