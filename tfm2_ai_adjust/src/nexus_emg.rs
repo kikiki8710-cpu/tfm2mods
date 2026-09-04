@@ -221,7 +221,7 @@ pub(crate) unsafe fn apply_nxe() {
     if supp > 0 {
         tot += 1;
         // `test eax,0x100` → `test eax,0` : 비상일 때 다른 액션을 −99,999 로 죽이던 조항이 사라진다.
-        ok += patch_imm_bytes(base + 0xd57a62, &[0xa9], 1, 4, 0) as u32;   // ★0.5.6(was 0.5.4 0xd8e0b2 — ⚠0.5.5 회차 미재핀으로 stale였음. 054호스트 0xd8db90→056 0xe3ec30 정렬 r=0.743 + a9 00 01 00 00 0f 85 7B 일치 + 055 0xe35372 교차확증)
+        ok += patch_imm_bytes(base + 0xd57a2e, &[0xa9], 1, 4, 0) as u32;   // ★0.5.6(was 0.5.4 0xd8e0b2 — ⚠0.5.5 회차 미재핀으로 stale였음. 054호스트 0xd8db90→056 0xe3ec30 정렬 r=0.743 + a9 00 01 00 00 0f 85 7B 일치 + 055 0xe35372 교차확증)
     }
     if batt > 0 {
         tot += 1;
