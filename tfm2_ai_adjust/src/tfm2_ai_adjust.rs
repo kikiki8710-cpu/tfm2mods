@@ -1044,7 +1044,7 @@ impl Drop for PerfGuard {
 // roll<thr→교전(5), roll>=thr→퇴각(-1). thr↑=교전↑. high 3바이트 0이라 low byte만 패치(원자적).
 // ★0.4.13: retreat refactor(0x1d474c0, 프레임오프셋 시프트만)됐으나 교전코어(df0c10→역할임계값→roll게이트) 바이트동일 검증(cmp_region.py).
 //   RVA = df0c10_call(0x1fe4d33)+{0x40,0x58,0x6c,0x72}. roll게이트(cmp rax,r14;setge;neg;or 5)도 0.4.12와 동일.
-const ROLE_THR: [(usize, u8); 4] = [(0x198693b, 100), (0x1986953, 70), (0x1986968, 50), (0x198696d, 30)]; // (imm32 RVA, 원본) 0.4.13_5(was 0x1fd0546/55e/72/78). 인코딩 cmp-imm32→mov-imm 변경: 100/70/30=mov r14d(imm@+2), 50=mov eax(imm@+1). RETREAT 새바디 df0c10콜 직후 역할래더(role4=100/3=70/2=50/else=30). 상위3바이트0 검증 통과  ← 0.5.7 재핀 4/4 OWNER_UNIQUE·바이트동일 (0.5.6=[0x1d3602b,0x1d36043,0x1d36058,0x1d3605d])
+const ROLE_THR: [(usize, u8); 4] = [(0xd2f950, 100), (0xd2f968, 70), (0xd2f97c, 50), (0xd2f982, 30)];   // ★0.5.8 재핀(2026-09-04): 값 100/70/50/30 사다리는 **전 버전에서 정확히 1개**뿐이라 지문이 된다. owner 0xd2f180 = passive_jungle(ghidra-re 확정). 간격 0x18/0x14/0x6 은 0.4.13 원본과 동일. ⚠이 경로는 patch_imm_bytes 를 안 거쳐 **orig_guard 밖**이다(자체 sanity: 상위 3바이트 0). // (imm32 RVA, 원본) 0.4.13_5(was 0x1fd0546/55e/72/78). 인코딩 cmp-imm32→mov-imm 변경: 100/70/30=mov r14d(imm@+2), 50=mov eax(imm@+1). RETREAT 새바디 df0c10콜 직후 역할래더(role4=100/3=70/2=50/else=30). 상위3바이트0 검증 통과  ← 0.5.7 재핀 4/4 OWNER_UNIQUE·바이트동일 (0.5.6=[0x1d3602b,0x1d36043,0x1d36058,0x1d3605d])
 static ENGAGE_THR_MULT: AtomicI64 = AtomicI64::new(100);  // cfg %, 100=원본(검증), 다른값=공격성 조정
 static MOVE_TAG: AtomicI64 = AtomicI64::new(1);       // cfg move_tag: 어느 tag를 Move로 볼지
 static MOVE_OFF: AtomicI64 = AtomicI64::new(8);       // cfg move_off: x오프셋(y=x+8). 확인후 맞춤

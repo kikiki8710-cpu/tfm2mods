@@ -583,6 +583,13 @@ unsafe fn patch6(addr: usize, bytes: &[u8; 6]) {
     FlushInstructionCache(GetCurrentProcess(), addr, 6);
 }
 
+// ★★[2026-09-04] `pskip!` 판정 어휘를 둘로 갈랐다 — 이게 매 버전 재조사 비용의 원인이었다.
+//   ⛔소멸확정 = 증거 있음(모듈 소멸·라우터 callee 제거 등). **소스에서 삭제**한다.
+//              이번에 9건 삭제: line_defense 1회차 4 + line_total 5(둘 다 ghidra-re 3중 근거).
+//   ⬜미확정   = 자동 마이그가 유일화에 실패했을 뿐 **소멸이 아니다. 지우지 말 것.**
+//              실측(2026-09-04): 주석 앵커가 남은 pskip 11건 중 **9건이 실제로 유효** =
+//              되살릴 수 있었다. 지웠으면 그 노브와 되살릴 단서(주소·prefix·ORIG·앵커)가 함께 사라진다.
+//   ⟹ 다음 마이그는 ⬜만 보면 된다. 앵커 목록 = `MIG\knob\ANCHORS.md`.
 unsafe fn apply_lane_gate() {
     let want = LANE_GATE.load(Ordering::Relaxed);
     if want == LANE_GATE_APPLIED.load(Ordering::Relaxed) { return; }
@@ -1040,8 +1047,8 @@ unsafe fn apply_gank_imm() {
         (0xde7985, 0x89, [0x48,0x8d,0x0c], 0xde7989, 0x48, [0x48,0x8d,0x34], false), // A1 passive_jungle 10초
         (0xce1418, 0x49, [0x48,0x8d,0x0c], 0xce141c, 0x88, [0x48,0x8d,0x34], false), // A2 passive_jungle 12초
         (0xe4743e, 0x89, [0x48,0x8d,0x0c], 0xe47442, 0x49, [0x48,0x8d,0x0c], true),  // A3 GankPlan 수락 15초
-        (0xd20a90, 0x89, [0x48,0x8d,0x0c], 0xd20a94, 0x49, [0x48,0x8d,0x3c], true),  // A4 핸들러 15초
-        (0xcbac5f, 0x89, [0x48,0x8d,0x0c], 0xcbac63, 0x48, [0x48,0x8d,0x1c], false), // A5 핸들러 10초
+        (0xe5b19e, 0x89, [0x48,0x8d,0x0c], 0xe5b1a2, 0x49, [0x48,0x8d,0x1c], true),  // A4 핸들러 15초
+        (0xe5b84b, 0x89, [0x48,0x8d,0x0c], 0xe5b84f, 0x48, [0x4c,0x8d,0x34], false), // A5 핸들러 10초
     ];
     for (r1, o1, p1, r2, o2, p2, mul2) in A_SITES {
         let (b1v, b2v) = if wait >= 2 {
@@ -1207,10 +1214,10 @@ unsafe fn apply_cast_imm() {
     if !micro_taken("cs_lead_attack") {
     p!(base + 0xcd066a, &[0xb8], 1, 4, b4(la, 30));   // ←0.5.3 cb3efd  ★재조사로 복구: lead 30 (053 5곳→054 2곳 통합, 나머지 4키는 보류)  ★41bc(6B)→b8(5B) 로 인코딩 축소 ⟹ imm_off 2→1   // ←0.5.3 db869a
     }
-    pskip!(base + 0xe3522a, &[0xb9],      1, 4, b4(la, 30));   // ⛔0.5.4 미확정: 시그 2→0 / 완화 4→2 (골격 99%)
-    pskip!(base + 0xe26fb1, &[0xb9],      1, 4, b4(ls, 30));   // ⛔0.5.4 미확정: 시그 2→0 / 완화 4→2 (골격 99%)
-    pskip!(base + 0xccd3dd, &[0xbb],      1, 4, b4(ls2, 30));   // ⛔0.5.4 미확정: 시그 1→0 / 완화 4→2 (골격 99%)
-    pskip!(base + 0xe38ef6, &[0xba],      1, 4, b4(lst, 30));   // ⛔0.5.4 미확정: 시그 1→0 / 완화 4→2 (골격 99%)
+    pskip!(base + 0xe3522a, &[0xb9],      1, 4, b4(la, 30));   // ⬜미확정(앵커 0.5.4 이전·되살릴 수 있음): 시그 2→0 / 완화 4→2 (골격 99%)
+    pskip!(base + 0xe26fb1, &[0xb9],      1, 4, b4(ls, 30));   // ⬜미확정(앵커 0.5.4 이전·되살릴 수 있음): 시그 2→0 / 완화 4→2 (골격 99%)
+    pskip!(base + 0xccd3dd, &[0xbb],      1, 4, b4(ls2, 30));   // ⬜미확정(앵커 0.5.4 이전·되살릴 수 있음): 시그 1→0 / 완화 4→2 (골격 99%)
+    pskip!(base + 0xe38ef6, &[0xba],      1, 4, b4(lst, 30));   // ⬜미확정(앵커 0.5.4 이전·되살릴 수 있음): 시그 1→0 / 완화 4→2 (골격 99%)
     p!(base + 0xcd4b8a, &[0x48,0x6b,0x85,0x60,0x02,0x00,0x00], 7, 1, b1(lu, 60));   // ←0.5.3 cb8036   // ←0.5.3 dbcbba
     p!(base + 0xcd4d37, &[0x48,0x6b,0x86,0x40,0x06,0x00,0x00], 7, 1, b1(lu, 60));   // ←0.5.3 cb81d7   // ←0.5.3 dbcd67
     p!(base + 0xcd4615, &[0xb9],      1, 4, sq(ur, 36_000_000));          // 6000²   // ←0.5.3 cb7ac9   // ←0.5.3 dbc645
@@ -1248,9 +1255,9 @@ unsafe fn apply_cast_imm() {
     // ★0.5.4: 명령 모양이 바뀌었다. 053 `add rcx,0x190`(7B, imm off 3)
     //   → 054 `lea rcx,[rax+rax*2+0x190]`(8B, imm off **4**). 앞 명령의 ×3 SIB 가 합쳐진 것.
     if !micro_taken("ex_think_min") {   // ★[08-07] 마이크로 디투어와 상호배타
-    pskip!(base + 0xcf3310, &[0x48,0x8d,0x8c,0x40], 4, 4, b4(tmin, 400));   // ←0.5.3 d0cb6b   // ⛔0.5.4 미확정: 시그 1→0 / 완화 1→0 (골격 96%)
+    pskip!(base + 0xcf3310, &[0x48,0x8d,0x8c,0x40], 4, 4, b4(tmin, 400));   // ←0.5.3 d0cb6b   // ⬜미확정(앵커 0.5.4 이전·되살릴 수 있음): 시그 1→0 / 완화 1→0 (골격 96%)
     }
-    pskip!(base + 0xcf331a, &[0x48,0x8d,0x04,0x85], 4, 4, b4(tmax, 800));   // ←0.5.3 d0cb74   // ⛔0.5.4 미확정: 시그 1→0 / 완화 1→0 (골격 96%)
+    pskip!(base + 0xcf331a, &[0x48,0x8d,0x04,0x85], 4, 4, b4(tmax, 800));   // ←0.5.3 d0cb74   // ⬜미확정(앵커 0.5.4 이전·되살릴 수 있음): 시그 1→0 / 완화 1→0 (골격 96%)
 
     CASTIMM_SIG.store(sig, Ordering::Relaxed);
     if let Some(pp) = pth("cast_imm.txt") {
@@ -1614,7 +1621,7 @@ unsafe fn apply_move_imm() {
     // ★0.5.8 재핀: 두 사이트의 prefix 가 갈려 루프를 펼침. 첫 사이트만 확정(sub rsi→rdi),
     //   둘째(구 0xd58c52)는 ghidra-re 가 대응을 못 지어 **미해결로 남긴다**.
     p!(base + 0xd583c6, &[0x48,0x81,0xef], 3, 4, b4(mtm, 30000));
-    pskip!(base + 0xd58c52, &[0x48,0x81,0xee], 3, 4, b4(mtm, 30000));   // ⬜0.5.8 미해결 — 대응 미확정
+    pskip!(base + 0xd58c52, &[0x48,0x81,0xee], 3, 4, b4(mtm, 30000));   // ⬜미확정(0.5.8 대응 못 찾음·되살릴 수 있음)
     //   상한은 `cmp rax,100` 과 `mov reg,100` **두 곳을 같이** 고쳐야 의미가 맞는다.
     // ★0.5.8 재핀: 앵커 = git 0a5acec 원본 [d8ec43,d8f4db,d8fea6] (현행 소스의 뒤 2개는
     //   나중 마이그가 망가뜨린 주소였다). 0.5.4 action_score 0xd8db90 안 3개 = 소스 3개이고
@@ -1638,7 +1645,7 @@ unsafe fn apply_move_imm() {
     //   여기를 패치하면 xref **143곳 전부**(death_battle·team_plan·epic·serpen·ganker…)가 바뀐다.
     //   ⟹ 노브 의미가 "이동 점수 한정" → **"전역 시야 기억"** 으로 달라져 키를 새로 뒀다.
     //   ⚠옛 키(mv_vision_mem)의 알리아스를 두지 않는다 — 옛 값이 조용히 전역 적용되면 더 위험하다.
-    pskip!(base + 0xf38db8, &[0x48,0x83,0xc3], 3, 1, b1(vmg, 120));   // ⛔0.5.4 미확정: src=?
+    pskip!(base + 0xf38db8, &[0x48,0x83,0xc3], 3, 1, b1(vmg, 120));   // ⬜미확정(앵커 0.5.4 이전·되살릴 수 있음): src=?
 
     MOVEIMM_SIG.store(sig, Ordering::Relaxed);
     if let Some(pp) = pth("move_imm.txt") {
@@ -1846,8 +1853,8 @@ unsafe fn apply_pe_imm() {
     // ★0.5.8 삭제(중복): L1843 = L1853(0xd884c8) 와 같은 사이트 — 주석이 정확한 L1853 쪽을 남긴다
     // ↓0.5.4: prefix 가 사이트마다 달라져 루프를 펼침(원래 `for a in [..]`)
     p!(base + 0xd88b41, &[0x49,0xbd], 2, 8, sq(pflt, 0x5_3D1A_C100));   // ★0.5.8 재핀: movabs 48 bf→**49 bd**   // ←0.5.3 ccd76e  ★재조사로 복구: pflt (053 3곳=재로드→054 1곳)   // ←0.5.3 cac08c
-    pskip!(base + 0xdf6322, &[0x49,0xbb], 2, 8, sq(pflt, 0x5_3D1A_C100));   // ⛔0.5.4 미확정: 시그 3→0 / 완화 3→1 (골격 86%)
-    pskip!(base + 0xcee2c8, &[0x49,0xbb], 2, 8, sq(pflt, 0x5_3D1A_C100));   // ⛔0.5.4 미확정: 시그 3→0 / 완화 3→1 (골격 86%)
+    pskip!(base + 0xdf6322, &[0x49,0xbb], 2, 8, sq(pflt, 0x5_3D1A_C100));   // ⬜미확정(앵커 0.5.4 이전·되살릴 수 있음): 시그 3→0 / 완화 3→1 (골격 86%)
+    pskip!(base + 0xcee2c8, &[0x49,0xbb], 2, 8, sq(pflt, 0x5_3D1A_C100));   // ⬜미확정(앵커 0.5.4 이전·되살릴 수 있음): 시그 3→0 / 완화 3→1 (골격 86%)
     // ── ★[09-01 갭메움] position_eval **본체**(0xd23970) 수집반경·프리필터. 위 형제함수(0xd1b~0xd1e)와 함께 이동해야 실제 반경 변경(대표 사이트만으론 안 바뀜=커버리지 갭 실체).
     //   근거 = _재핀\pe본체_교전경계_patch스펙. ⚠값스캔 절대금지(0x9502f9001/000·0x53d1ac0 전역 다수 재사용) — 아래 절대주소 앵커만.
     // ★0.5.8 삭제: position_eval 중복배열1(:1849) — 0.5.8 에서 위 :1829 와 동일 집합
@@ -1933,14 +1940,14 @@ unsafe fn apply_pe_imm() {
         p!(base + 0xd8c31c, &[0x48,0x83,0xf8], 3, 1, v);   // ←0.5.3 caf845
         p!(base + 0xd8c32c, &[0x48,0x83,0xf8], 3, 1, v);   // ←0.5.3 caf855
     }
-    pskip!(base + 0xe309c7, &[0x48,0x6b,0x8d,0xa0,0x06,0x00,0x00], 3, 1, b1(pks, 120));   // ←0.5.3 cd0db9  ★재조사로 복구: pks 120 #1   // ⛔0.5.4 미확정: 시그 1→0 / 완화 1→0 (골격 95%)
+    pskip!(base + 0xe309c7, &[0x48,0x6b,0x8d,0xa0,0x06,0x00,0x00], 3, 1, b1(pks, 120));   // ←0.5.3 cd0db9  ★재조사로 복구: pks 120 #1   // ⬜미확정(앵커 0.5.4 이전·되살릴 수 있음): 시그 1→0 / 완화 1→0 (골격 95%)
     p!(base + 0xd8c274, &[0x48,0x6b,0x8d,0x28,0x06,0x00,0x00], 7, 1, b1(pks, 120));   // ★0.5.8 재핀: [rbp+0x640]→[rbp+0x628]   // ←0.5.4 caf78f (pks 120 #2, [rbp+0x630]→[rbp+0x640], align복구)
     for a in [0xd869c1usize, 0xd889d2] { p!(base + a, &[0xba], 1, 4, b4(pmsk, 0x1a1)); }
     p!(base + 0xd86a07, &[0xb9], 1, 4, b4(pkm, 0x503));   // ★★0.5.8: 게임 원본이 0x303→**0x503**. enum 에 변형 1개가 index 9 자리에 삽입돼 상한 9→10, 옛 bit9가 bit10으로 이동(bit{0,1,8,9}→{0,1,8,10}). ⚠구 0x303 을 두면 **노브 미설정에도 bit10 종류를 통째로 배제**하는 원본 변조가 된다.   // ←0.5.3 ccd654   // ←0.5.3 cabf6c
     // ★0.5.4: 대상 레지스터가 rax→r15 (`48 c7 00` → `49 c7 07`).
     p!(base + 0xd85306, &[0x49,0xc7,0x07], 3, 4, b4(pwall, 9999));   // ←0.5.3 cc9eaf   // ←0.5.3 ca8936
-    pskip!(base + 0xcea896, &[0x48,0xc7,0x02], 3, 4, b4(pwell, 9999));   // ⛔0.5.4 미확정: 시그 1→0 / 완화 2→1 (골격 86%)
-    pskip!(base + 0xcea89d, &[0x48,0xc7,0x42,0x08], 4, 4, b4(pwell, 9999));   // ⛔0.5.4 미확정: 시그 1→0 / 완화 1→0 (골격 86%)
+    pskip!(base + 0xcea896, &[0x48,0xc7,0x02], 3, 4, b4(pwell, 9999));   // ⬜미확정(앵커 0.5.4 이전·되살릴 수 있음): 시그 1→0 / 완화 2→1 (골격 86%)
+    pskip!(base + 0xcea89d, &[0x48,0xc7,0x42,0x08], 4, 4, b4(pwell, 9999));   // ⬜미확정(앵커 0.5.4 이전·되살릴 수 있음): 시그 1→0 / 완화 1→0 (골격 86%)
     p!(base + 0xd85501, &[0xb8], 1, 4, b4(pwell, 9999));   // ←0.5.3 cca0b5   // ←0.5.3 ca8b27
     p!(base + 0xd8be70, &[0x48,0x81,0xbd,0x20,0x04,0x00,0x00], 7, 4, b4(pagc, 1200));   // ←0.5.3 cd0a31   // ←0.5.3 caf390
     //   세 사이트가 **읽는 구조체 오프셋도 레지스터도 다르다**(+0xb8/rdi, +0xc0/rdi, +0xc8/rcx).
@@ -2476,7 +2483,7 @@ unsafe fn apply_new_imm() {
     p!(base + 0xe66480, &[0x48,0x83,0xb9,0xc8,0x05,0x00,0x00], 7, 1, b1(gulv, 5));   // ←0.5.3 d5f93b   // ←0.5.3 ead84d
     p!(base + 0xe665e7, &[0x48,0x83,0xc3], 3, 1, b1(gumem, 120));   // ←0.5.3 d5faa7   // ←0.5.3 ead9a7
     // ⚠거리 그대로가 아니라 **d²+1**로 인코딩된 자리다(원본 150000 → 22,500,000,001).
-    pskip!(base + 0xdb962a, &[0x48,0xb9], 2, 8,   // ⛔0.5.4 미확정: 시그 2→1 / 완화 7→2 (골격 84%)
+    pskip!(base + 0xdb962a, &[0x48,0xb9], 2, 8,   // ⬜미확정(앵커 0.5.4 이전·되살릴 수 있음): 시그 2→1 / 완화 7→2 (골격 84%)
        if gusr < 0 { 22_500_000_001u64 } else { let d = gusr.max(0) as u64; d.wrapping_mul(d).wrapping_add(1) });
     NEWIMM_SIG.store(sig, Ordering::Relaxed);
     if let Some(pp) = pth("new_imm.txt") {
@@ -2542,7 +2549,7 @@ unsafe fn apply_auction_imm() {
     let noise_ok = patch_toggle_bytes(base + 0xe66c49,
                                       &[0x48,0x0f,0x45,0xda], &[0x0f,0x1f,0x40,0x00], noff == 1);
     p!(base + 0xe66c38, &[0xba], 1, 4, if namp < 0 { 900 } else { (namp.max(900) as u64) & 0xffff_ffff });   // ←0.5.3 d5febc   // ←0.5.3 eadfee
-    pskip!(base + 0xeaefe3, &[0xbb], 1, 4, b4(ctr, 1000));               // mov ebx,1000  (lo 중심)   // ←0.5.3 d5fefc   // ⛔0.5.4 미확정: 시그 1→0 / 완화 1→0 (골격 99%)
+    pskip!(base + 0xeaefe3, &[0xbb], 1, 4, b4(ctr, 1000));               // mov ebx,1000  (lo 중심)   // ←0.5.3 d5fefc   // ⬜미확정(앵커 0.5.4 이전·되살릴 수 있음): 시그 1→0 / 완화 1→0 (골격 99%)
     p!(base + 0xe66c87, &[0x48,0x81,0xc3], 3, 4, b4(ctr, 1000));     // add rsi,1000  (hi 중심)   // ←0.5.3 d5ff04   // ←0.5.3 eae02f
     // ── ② battle.rs (0xca8a10) ──
     p!(base + 0xcbec94, &[0x48,0x83,0xf8], 3, 1, b1(bhpf, 21));   // ←0.5.3 cab663   // ←0.5.3 da6514
@@ -2607,12 +2614,8 @@ unsafe fn apply_auction_imm() {
     //   그런데 아래 두 노브는 지금까지 **2회차 사이트만** 패치하고 있었다 = 효과가 반쪽이었다.
     //   → 1회차 동일 상수 사이트를 같이 패치한다. (RE\2026-08-03_line_defense-1회차구간-c5e160)
     // ↓0.5.4: prefix 가 사이트마다 달라져 루프를 펼침(원래 `for a in [..]`)
-    pskip!(base + 0xe84246, &[0x48,0x81,0xf9], 3, 4, dsh(livn, 9765625, 8));   // ⛔**0.5.8 소멸 확정**(ghidra-re 2026-09-04): line_defense 1회차 시야 루프 블록이 통째로 삭제됨(함수 0x6cd6→0x60f4, `add r,0x78` 3→1, `cmp r,9765625` 2→0, 전역 27→17). **되살릴 수 없다.**   // ←0.5.3 c5f059   // ←0.5.3 d77a06
-    pskip!(base + 0xe86ac4, &[0x48,0x81,0xfa], 3, 4, dsh(livn, 9765625, 8));   // ⛔**0.5.8 소멸 확정**(ghidra-re 2026-09-04): line_defense 1회차 시야 루프 블록이 통째로 삭제됨(함수 0x6cd6→0x60f4, `add r,0x78` 3→1, `cmp r,9765625` 2→0, 전역 27→17). **되살릴 수 없다.**   // ←0.5.3 c61784   // ←0.5.3 d7a254
-    pskip!(base + 0xe840f8, &[0x49,0x83,0xc5], 3, 1, b1(lvis, 120));   // ⛔**0.5.8 소멸 확정**(ghidra-re 2026-09-04): line_defense 1회차 시야 루프 블록이 통째로 삭제됨(함수 0x6cd6→0x60f4, `add r,0x78` 3→1, `cmp r,9765625` 2→0, 전역 27→17). **되살릴 수 없다.**           // ← 1회차(신규)   // ←0.5.3 c5eee7   // ←0.5.3 d778b8
     p!(base + 0xe88641, &[0x49,0x83,0xc4], 3, 1, b1(lvis, 120));   // ←0.5.3 c63b87   // ←0.5.3 d7c9a1
     // c61667 = `add rdi,0x78` — 08-03 exe 정적 검증으로 바이트열 확정(같은 120틱 사이트, 세 번째).
-    pskip!(base + 0xe869ba, &[0x48,0x83,0xc3], 3, 1, b1(lvis, 120));   // ⛔**0.5.8 소멸 확정**(ghidra-re 2026-09-04): line_defense 1회차 시야 루프 블록이 통째로 삭제됨(함수 0x6cd6→0x60f4, `add r,0x78` 3→1, `cmp r,9765625` 2→0, 전역 27→17). **되살릴 수 없다.**   // ←0.5.3 c61667   // ←0.5.3 d7a14a
     p!(base + 0xe864f8, &[0x83,0xc1], 2, 1, b1(lest, 10));                 // add ecx,10   // ←0.5.3 c61cb4   // ←0.5.3 d7a8aa
     // ── ③-b line_defense 1회차 전용 상수 (08-03 신규 노출) ──
     //   ★`ld_around_range`는 1·2회차 합쳐 **7사이트** — 지금까지 완전 미노출이던 값이다.
@@ -2769,9 +2772,9 @@ unsafe fn apply_auc_imm() {
 
     // ⚠`cmp rax, imm8`(부호확장) — 0~127 범위. 0 으로 낮추면 version 과 무관하게 항상 켜진다.
     p!(base + 0xe65e78, &[0x48,0x83,0xf8], 3, 1, b1(gate, 1));   // ←0.5.3 ead271
-    pskip!(base + 0xcce145, &[0x41,0x80,0xb9,0x70,0x04,0x00,0x00], 7, 1, b1(undy, 0));   // ⛔0.5.4 미확정: 시그 1→0 / 완화 19→18 (골격 99%)
+    pskip!(base + 0xcce145, &[0x41,0x80,0xb9,0x70,0x04,0x00,0x00], 7, 1, b1(undy, 0));   // ⬜미확정(앵커 0.5.4 이전·되살릴 수 있음): 시그 1→0 / 완화 19→18 (골격 99%)
     // disp32 교체 — 값이 아니라 **비교할 필드**를 바꾼다(0x658 현재HP / 0x610 최대HP).
-    pskip!(base + 0xcce4a1, &[0x48,0x3b,0x81], 3, 4, b4(hpf, 0x658));   // ⛔0.5.4 미확정: 시그 1→0 / 완화 1→0 (골격 99%)
+    pskip!(base + 0xcce4a1, &[0x48,0x3b,0x81], 3, 4, b4(hpf, 0x658));   // ⬜미확정(앵커 0.5.4 이전·되살릴 수 있음): 시그 1→0 / 완화 1→0 (골격 99%)
     p!(base + 0xe662c0, &[0xa9], 1, 4, b4(nmask, 0x100));   // ←0.5.3 ead68d
     p!(base + 0xe662fb, &[0xb9], 1, 4, b4(gfar, 928_000));   // ←0.5.3 ead6c8
     p!(base + 0xe66300, &[0xba], 1, 4, b4(gna, 32_000));   // ←0.5.3 ead6cd
@@ -4069,19 +4072,14 @@ unsafe fn apply_lt_imm() {
     //   게이트 `d²(ally,enemy) < d²(ally,me)=0`이 unsigned 비교라 **영구 false**다.
     //   ⟹ 패치는 유지하되(무해) 유저에게는 "효과 없음"으로 표기한다. 값을 바꿔도 게임 동작은 안 변한다.
     let v_lt_ally_join: u64 = { if lt_ally_join < 0 { 9765625u64 } else { let x = lt_ally_join.max(0) as u64; x.wrapping_mul(x) >> 8 } };
-    // ⛔0.5.8 소멸: pskip!(base + 0xde2cd3, &[0x48,0x81,0xfa], 3, 4, v_lt_ally_join);   // ←0.5.3 c57dcf   // ←0.5.3 d9fc63
     let v_lt_around_radius: u64 = { if lt_around_radius < 0 { 80000u64 } else { lt_around_radius.max(0) as u64 } };
     // ⛔[08-04] `0xc57ed3`은 위 死분기 안의 사이트라 **효과가 없다**(제거해도 무해하나 오해 유발 방지용으로 주석 유지).
     //   살아있는 사이트는 아래 `0xc5816c`·`0xc58296` 둘뿐이다.
-    // ⛔0.5.8 소멸: pskip!(base + 0xde2de2, &[0x48,0xc7,0x85,0xf0,0x00,0x00,0x00], 7, 4, v_lt_around_radius);   // ←0.5.3 c57ed3   // ←0.5.3 d9fd6f
-    // ⛔0.5.8 소멸: pskip!(base + 0xde305a, &[0x48,0xc7,0x85,0xf0,0x00,0x00,0x00], 7, 4, v_lt_around_radius);   // ←0.5.3 c5816c   // ←0.5.3 d9ffe7
-    // ⛔0.5.8 소멸: pskip!(base + 0xde34e0, &[0x48,0xc7,0x85,0xf0,0x00,0x00,0x00], 7, 4, v_lt_around_radius);   // ←0.5.3 c58296   // ←0.5.3 da0470
     let v_lt_phase_mask: u64 = { if lt_phase_mask < 0 { 417u64 } else { lt_phase_mask.max(0) as u64 } };
     // ⛔⛔ line_total.rs 모듈 자체가 0.5.8 에서 소멸(ghidra-re 2026-09-04 3중 근거:
     //   ①문자열 카운트 1→0·개명 아님 ②`mov [rbp+0xf0],80000` 전역 3→0회
     //   ③sub_plan 라우터 0xcbf340→0xe35bd0 의 callee 가 19→17, 빠진 2개가 정확히
     //   line_total.rs 와 line_attack.rs). 아래 5사이트는 死코드 — 되살리려 하지 말 것.
-    // ⛔0.5.8 소멸: pskip!(base + 0xde2537, &[0xba], 1, 4, v_lt_phase_mask);   // ←0.5.3 c5763d   // ←0.5.3 d9f4c7
     LT_SIG.store(sig, Ordering::Relaxed);
     if let Some(pp) = pth("lt_imm.txt") {
         let _ = fs::write(pp, format!("applied={}/{} lt_ally_join={} lt_around_radius={} lt_phase_mask={} @base{:#x}\n",
@@ -4110,8 +4108,8 @@ unsafe fn apply_nx_imm() {
     }}; }
     let v_nx_cull_dist19: u64 = { if nx_cull_dist19 < 0 { 390625u64 } else { let x = nx_cull_dist19.max(0) as u64; x.wrapping_mul(x) >> 14 } };
     p!(base + 0xe944d8, &[0x49,0x81,0xf8], 3, 4, v_nx_cull_dist19);   // ←0.5.3 dee222  ★재조사로 복구: nx_cull (053 3곳→054 1곳 통합)   // ←0.5.3 dadb55
-    pskip!(base + 0xcc85d1, &[0x49,0x81,0xf8], 3, 4, v_nx_cull_dist19);   // ⛔0.5.4 미확정: 시그 3→1 / 완화 3→1 (골격 80%)
-    pskip!(base + 0xcc8655, &[0x49,0x81,0xf8], 3, 4, v_nx_cull_dist19);   // ⛔0.5.4 미확정: 시그 3→1 / 완화 3→1 (골격 80%)
+    pskip!(base + 0xcc85d1, &[0x49,0x81,0xf8], 3, 4, v_nx_cull_dist19);   // ⬜미확정(앵커 0.5.4 이전·되살릴 수 있음): 시그 3→1 / 완화 3→1 (골격 80%)
+    pskip!(base + 0xcc8655, &[0x49,0x81,0xf8], 3, 4, v_nx_cull_dist19);   // ⬜미확정(앵커 0.5.4 이전·되살릴 수 있음): 시그 3→1 / 완화 3→1 (골격 80%)
     let v_nx_around_atk: u64 = { if nx_around_atk < 0 { 80000u64 } else { nx_around_atk.max(0) as u64 } };
     p!(base + 0xe81c8d, &[0x48,0xc7,0x85,0xb8,0x00,0x00,0x00], 7, 4, v_nx_around_atk);   // ←0.5.3 d95316   // ←0.5.3 da1e59
     let v_nx_around_def: u64 = { if nx_around_def < 0 { 80000u64 } else { nx_around_def.max(0) as u64 } };
@@ -4367,9 +4365,9 @@ unsafe fn apply_c3_imm() {
     p!(base + 0xc93b39, &[0x49,0xba], 2, 8, v_c3_enemy_near_b);   // ←0.5.3 c3c8cf   // ←0.5.3 c85f49
     p!(base + 0xc93e1e, &[0x49,0xba], 2, 8, v_c3_enemy_near_b);   // ←0.5.3 c3cb55   // ←0.5.3 c8622e
     let v_c3_minion_near: u64 = { if c3_minion_near < 0 { 14400000001u64 } else { let x = c3_minion_near.max(0) as u64; x.wrapping_mul(x).wrapping_add(1) } };
-    pskip!(base + 0xdcf9cd, &[0x49,0xba], 2, 8, v_c3_minion_near);   // ←0.5.3 d90bfd   // ⛔0.5.4 미확정: src=?
-    pskip!(base + 0xdcfa56, &[0x49,0xba], 2, 8, v_c3_minion_near);   // ←0.5.3 d90c86   // ⛔0.5.4 미확정: src=?
-    pskip!(base + 0xdcfade, &[0x49,0xba], 2, 8, v_c3_minion_near);   // ←0.5.3 d90d0e   // ⛔0.5.4 미확정: src=?
+    pskip!(base + 0xdcf9cd, &[0x49,0xba], 2, 8, v_c3_minion_near);   // ←0.5.3 d90bfd   // ⬜미확정(앵커 0.5.4 이전·되살릴 수 있음): src=?
+    pskip!(base + 0xdcfa56, &[0x49,0xba], 2, 8, v_c3_minion_near);   // ←0.5.3 d90c86   // ⬜미확정(앵커 0.5.4 이전·되살릴 수 있음): src=?
+    pskip!(base + 0xdcfade, &[0x49,0xba], 2, 8, v_c3_minion_near);   // ←0.5.3 d90d0e   // ⬜미확정(앵커 0.5.4 이전·되살릴 수 있음): src=?
     let v_c3_ally_hp: u64 = { if c3_ally_hp < 0 { 79u64 } else { c3_ally_hp.max(0) as u64 } };
     p!(base + 0xc919df, &[0x48,0x83,0xf8], 3, 1, v_c3_ally_hp);   // ←0.5.3 c3a629   // ←0.5.3 c83def
     p!(base + 0xc91b29, &[0x48,0x83,0xf8], 3, 1, v_c3_ally_hp);   // ←0.5.3 c3a77f   // ←0.5.3 c83f39
