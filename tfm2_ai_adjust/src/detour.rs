@@ -1371,7 +1371,7 @@ unsafe fn apply_score_imm() {
     // ── ④ 대기(line_wait) / 라인 안전(line_safe) ──
     p!(base + 0xd67ec1, &[0x48,0xb9], 2, 8, sqp(lwd, 32_400_000_001));      // 180000²+1   // ←0.5.3 d971b6   // ←0.5.3 e721d3
     p!(base + 0xd681dc, &[0x48,0x2d], 2, 4, b4(lwb, 180_000));   // ←0.5.3 d974c9   // ←0.5.3 e727c4
-    for a in [0xeb4734usize, 0xd6814e, 0xeb5419] {
+    for a in [0xeb4734usize, 0xeb4d64, 0xeb5419] {
         p!(base + a, &[0x48,0xc7,0x85], 7, 4, b4(lwr, 80_000));
     }
     for a in [0xdcc092usize, 0xd60bb3] {
@@ -1623,7 +1623,7 @@ unsafe fn apply_move_imm() {
     }
     // ── ④ cat2 goal_gain 가중 / 예상 피격 필터 / 시야 기억 ──
     p!(base + 0xd57fe9, &[0x48,0xc1,0xfa], 3, 1, b1(m2gs, 7));    // sar rdx, 7 (÷200)   // ←0.5.3 c7d3d0   // ←0.5.3 d8ec84
-    for a in [0xd5c4f4usize, 0xd5876e, 0xd58d8f] {
+    for a in [0xd58affusize, 0xd580a3, 0xd585f6] {
         p!(base + a, &[0x41,0xb8], 2, 4, b4(met, 9999));
     }
     // ★[08-05 감사] 동일 패턴이 5곳인데 1곳만 잡고 있었다(다른 키가 커버하지도 않음).
@@ -1832,10 +1832,10 @@ unsafe fn apply_pe_imm() {
     for a in [0xd85b33usize, 0xdf1398, 0xdf16c7, 0xdf1700] {
         p!(base + a, &[0x48,0xb8], 2, 8, sq(pcol, 0x9_502F_9000));
     }
-    for a in [0xd86f1eusize, 0xdf2908, 0xdf2b08, 0xdf3038] {
+    for a in [0xd86f1eusize, 0xd870e8, 0xd872bb, 0xd87ad8] {
         p!(base + a, &[0x48,0x81,0xf9], 3, 4, dsh(pflt, 87_890_625, 8, 1));
     }
-    for a in [0xd88388usize, 0xd84888] {
+    for a in [0xd88388usize, 0xd88428] {
         p!(base + a, &[0x48,0x81,0xfa], 3, 4, dsh(pflt, 87_890_625, 8, 1));
     }
     p!(base + 0xdf1b0b, &[0x48,0x3d], 2, 4, dsh(pflt, 87_890_624, 8, 0));   // ←0.5.3 ccaeef   // ←0.5.3 ca98eb
@@ -1854,33 +1854,33 @@ unsafe fn apply_pe_imm() {
     }
     p!(base + 0xd24a6b, &[0x48,0x3d], 2, 4, dsh(pflt, 87_890_624, 8, 0));      // scoreA 위협 프리필터(본체, cmp rax,imm32 d²>>8)
     p!(base + 0xd26dcb, &[0x48,0x81,0xfa], 3, 4, dsh(pflt, 87_890_624, 8, 0)); // P3 2차 위협루프(본체)
-    for a in [0xd8715ausize, 0xd87a2a] {
+    for a in [0xd8715ausize, 0xd87b4a] {
         p!(base + a, &[0x49,0x81,0xfe], 3, 4, dsh(pnea, 19_140_625, 8, 1));
     }
-    for a in [0xd86f96usize, 0xd87256] {
+    for a in [0xd86f96usize, 0xd87326] {
         p!(base + a, &[0x49,0x81,0xfe], 3, 4, dsh(pnea, 19_140_624, 8, 0));
     }
     // ★0.5.4: **원본값이 +1 됐다**(0xf4240000→0xf4240001) = 비교 부등호가 뒤집혔다.
     //   그래서 sq → sqp 로 바꾼다. 값만 옮기면 가드에 막혀 조용히 죽는다.
     p!(base + 0xd84b29, &[0xb8], 1, 4, sqp(pmin, 4_096_000_001));   // ←0.5.3 ccd3f3   // ←0.5.3 cabc0a
     p!(base + 0xd8a344, &[0x48,0x81,0xf9], 3, 4, dsh(pcha, 9_765_625, 10, 0));   // ←0.5.3 ccefaa   // ←0.5.3 cad98a
-    p!(base + 0xe001d2, &[0x49,0x81,0xf8], 3, 4, dsh(pfld, 244_140_624, 8, 0));   // ←0.5.3 ccdcf1   // ←0.5.3 cac640
+    p!(base + 0xd890f0, &[0x49,0x81,0xf8], 3, 4, dsh(pfld, 244_140_624, 8, 0));   // ←0.5.3 ccdcf1   // ←0.5.3 cac640
     p!(base + 0xe0262a, &[0x48,0xb8], 2, 8, sqp(pcnt, 0x3_5A4E_9001));   // ←0.5.3 cd01f5   // ←0.5.3 caeb9b
     p!(base + 0xd8beea, &[0x48,0xb8], 2, 8, sq(pcnt, 0x3_5A4E_9000));   // ←0.5.3 cd0aab   // ←0.5.3 caf40a
     // ── ② 선형 반경·여유 ──
-    for a in [0xd89935usize, 0xd898e6, 0xd89a65, 0xd89a96, 0xe00d85, 0xe00db6, 0xe00f15,
-              0xe00f46, 0xe010e5, 0xe01116, 0xe01275, 0xe012a6, 0xd8b914, 0xe02a11] {
+    for a in [0xd89935usize, 0xd89966, 0xd89ab5, 0xd89ae6, 0xd89ca6, 0xd89e05, 0xd89e36,
+              0xd89fd5, 0xd8a006, 0xd8a165, 0xd8a196, 0xd8ba14, 0xd89c75, 0xd8ba41] {
         p!(base + a, &[0x49,0x81,0xc0], 3, 4, b4(prea, 80_000));
     }
-    for a in [0xd8a873usize, 0xe01c2b, 0xe01e73] {
+    for a in [0xd8a873usize, 0xd8ab4e, 0xd8ae27] {
         p!(base + a, &[0x48,0x81,0xc1], 3, 4, b4(prea, 80_000));
     }
-    for a in [0xd8bb89usize, 0xe02b86, 0xd8bbe9, 0xe02cea] {
+    for a in [0xd8bb89usize, 0xd8bce9, 0xd8bbb6, 0xd8bd1a] {
         p!(base + a, &[0x49,0x81,0xc1], 3, 4, b4(prea, 80_000));
     }
     for a in [0xd86916usize, 0xd88ec8] { p!(base + a, &[0x48,0x05], 2, 4, b4(pband, 32_000)); }
     p!(base + 0xe02215, &[0x48,0x05], 2, 4, b4(pshot, 20_000));   // ←0.5.4 cae7a8 (align복구)
-    for a in [0xd8b50ausize, 0xd8b5dc, 0xe02f2c] {
+    for a in [0xd8b50ausize, 0xd8b5dc, 0xd8bf5c] {
         p!(base + a, &[0x48,0x81,0xc2], 3, 4, b4(pblk, 28_000));
     }
     p!(base + 0xd8334e, &[0x48,0x05], 2, 4, b4(ptwr, 18_000));   // ←0.5.3 ccccc4   // ←0.5.3 cab59d
@@ -1942,7 +1942,7 @@ unsafe fn apply_pe_imm() {
     }
     pskip!(base + 0xe309c7, &[0x48,0x6b,0x8d,0xa0,0x06,0x00,0x00], 3, 1, b1(pks, 120));   // ←0.5.3 cd0db9  ★재조사로 복구: pks 120 #1   // ⛔0.5.4 미확정: 시그 1→0 / 완화 1→0 (골격 95%)
     p!(base + 0xd8c274, &[0x48,0x6b,0x8d,0x28,0x06,0x00,0x00], 7, 1, b1(pks, 120));   // ★0.5.8 재핀: [rbp+0x640]→[rbp+0x628]   // ←0.5.4 caf78f (pks 120 #2, [rbp+0x630]→[rbp+0x640], align복구)
-    for a in [0xd869c1usize, 0xdffaa1] { p!(base + a, &[0xba], 1, 4, b4(pmsk, 0x1a1)); }
+    for a in [0xd869c1usize, 0xd889d2] { p!(base + a, &[0xba], 1, 4, b4(pmsk, 0x1a1)); }
     p!(base + 0xd86a07, &[0xb9], 1, 4, b4(pkm, 0x503));   // ★★0.5.8: 게임 원본이 0x303→**0x503**. enum 에 변형 1개가 index 9 자리에 삽입돼 상한 9→10, 옛 bit9가 bit10으로 이동(bit{0,1,8,9}→{0,1,8,10}). ⚠구 0x303 을 두면 **노브 미설정에도 bit10 종류를 통째로 배제**하는 원본 변조가 된다.   // ←0.5.3 ccd654   // ←0.5.3 cabf6c
     // ★0.5.4: 대상 레지스터가 rax→r15 (`48 c7 00` → `49 c7 07`).
     p!(base + 0xd85306, &[0x49,0xc7,0x07], 3, 4, b4(pwall, 9999));   // ←0.5.3 cc9eaf   // ←0.5.3 ca8936
@@ -2161,7 +2161,7 @@ unsafe fn apply_ae_imm() {
     p!(base + 0xe2a299, &[0x41,0xbc], 2, 4, b4(bnear, 70));   // ←0.5.3 df5fdc   // ←0.5.3 cbab2c
     p!(base + 0xe2a64a, &[0xba], 1, 4, b4(bnear, 70));   // ←0.5.3 df638a   // ←0.5.3 cbaeda
     p!(base + 0xe2a6f0, &[0x48,0x8d,0x4a], 3, 1, b1(bstru, 80));   // ←0.5.3 df6430   // ←0.5.3 cbaf80
-    for a in [0xe29e0eusize, 0xe29e5d] {
+    for a in [0xe29e0eusize, 0xe29e5a] {
         p!(base + a, &[0x41,0xb8], 2, 4, b4(thr, 9999));
     }
     AE_SIG.store(sig, Ordering::Relaxed);
@@ -2210,7 +2210,7 @@ unsafe fn apply_th_imm() {
     }}; }
     // ── 사거리 마진 ──
     //   ⚠`d07d1a`·`d07e06`·`d07ee6`은 **바이트열이 완전히 동일** — 시그니처가 아니라 주소로 구분한다.
-    for a in [0xd193f7usize, 0xd81996, 0xd81a7a] {
+    for a in [0xd818b0usize, 0xd819a3, 0xd81a97] {
         p!(base + a, &[0x48,0x05], 2, 4, b4(smg, 18_000));
     }
     p!(base + 0xd82333, &[0x48,0x81,0xc1], 3, 4, b4(smg, 18_000));   // ←0.5.3 d08501   // ←0.5.3 ca070a
@@ -2368,7 +2368,7 @@ unsafe fn apply_ldsc_imm() {
         //    (orig_guard 는 표에 없는 RVA 를 통과시키므로, 옛 주소를 남기면 오패치 위험)
         tot += 1; let _ = ($a, $pre, $off, $w, $v);
     }}; }
-    for a in [0xd505f2usize, 0xe8b6e2, 0xe8b74d] {
+    for a in [0xd77d5fusize, 0xd77e0f, 0xd77ebf] {
         p!(base + a, &[0x49,0x83,0xc6], 3, 1, b1(lsv, 120));
     }
     p!(base + 0xe8b508, &[0x83,0xc2], 2, 1, b1(lfac, 100));   // ←0.5.3 c66b95   // ←0.5.3 d7fe07
@@ -2583,14 +2583,14 @@ unsafe fn apply_auction_imm() {
     // ★[08-05] emit 사이트 전수(RE\2026-08-05_battle.rs-JT3개…) 대조 결과 **4곳이 아니라 6곳**이었다.
     //   빠져 있던 `0xcab77e`(emit#13) · `0xcabb22`(emit#17)는 Q14/15 사거리 판정에서 갈라지는 경로라
     //   일반 경기에선 잘 안 보이지만 같은 tag 0xE 접근정지 반경이다 = 반쪽만 먹던 노브.
-    for a in [0xcbd208usize, 0xcbd292, 0xcbd3a0, 0xcbd9e1, 0xcbef22, 0xcc0bb3] {
+    for a in [0xcbd208usize, 0xcbd292, 0xcbd3a0, 0xcbd981, 0xcbef09, 0xcc0b67] {
         p!(base + a, &[0x48,0xc7,0x85], 7, 4, b4(bstp, 15000));
     }
     // ⚠이 사이트만 명령 형태가 다르다 — `add rcx,15000`(48 81 c1) 이라 prefix·imm 오프셋이 위와 다름.
     //   08-03 정적 검증 전까지 위 루프에 섞여 있어 **한 번도 안 걸리고 있었다**.
     p!(base + 0xcbf1a2, &[0x48,0x81,0xc1], 3, 4, b4(bstp, 15000));   // ←0.5.3 cac3be   // ←0.5.3 da7417
     // ★[08-05] 여기도 1곳이 아니라 2곳 — `0xcac136`(emit#18, arm4 근접 처리)이 빠져 있었다.
-    for a in [0xcc15a8usize, 0xcc175d] {
+    for a in [0xcc15a8usize, 0xcc1717] {
         p!(base + a, &[0x48,0xc7,0x85], 7, 4, b4(bkep, 80000));
     }
     // ⚠7사이트가 **레지스터가 제각각**이라 prefix가 4종이다(`add r13/r14/rsi/r15, 0x78`).
@@ -2619,7 +2619,7 @@ unsafe fn apply_auction_imm() {
     //   `mov [rbp+0x4a0], 5`(접근 유지 시간)이고, prefix(48 c7 85)가 우연히 같아 **패치는 성공했다** —
     //   즉 원본이 5인 슬롯에 15000을 써 넣고 있었다(기본 설정에서도 동작이 바뀌던 실버그).
     //   올바른 주소 = `0xc6236c`·`0xc62422` (`mov [rbp+0x498], 15000`).
-    for a in [0xe870dausize, 0xe87a80, 0xe87b84, 0xe87c41] {
+    for a in [0xe870dausize, 0xe86e67, 0xe86f72, 0xe8702f] {
         p!(base + a, &[0x48,0xc7,0x85], 7, 4, b4(lstp, 15000));
     }
     for a in [0xe86216usize, 0xe86ea1, 0xe86f0d, 0xe86f79, 0xcebc7d] {
@@ -2659,7 +2659,7 @@ unsafe fn apply_auction_imm() {
     }
     // ★[08-05 감사] 4곳 → **10곳**. 전부 동일 관용구 `movsxd rax,[r+0x458]; add rax,0x64; imul [r+0x668]`.
     for a in [0xe8353busize, 0xe8373d, 0xe84afb, 0xe84b49,
-              0xe85767, 0xe8579a, 0xe85fab, 0xe8620c, 0xe87dce, 0xe872bd] {
+              0xe85120, 0xe85162, 0xe8598b, 0xe85bc5, 0xe871be, 0xe872bd] {
         p!(base + a, &[0x48,0x83,0xc0], 3, 1, b1(lmvp, 100));
     }
     // ★[08-05 감사] `0xc60d6c`는 `0xc5e3cc`의 완전 클론(`cmp qword[r?+0x68],13; sete`)인데 미배선이었다.
@@ -2667,7 +2667,7 @@ unsafe fn apply_auction_imm() {
     p!(base + 0xe85a5c, &[0x48,0x83,0x7e,0x68], 4, 1, b1(lthr, 13));   // ←0.5.3 c60d6c   // ←0.5.3 d797ec
     p!(base + 0xe856dc, &[0x48,0x83,0xfa], 3, 1, b1(lrnd, 2));   // ←0.5.3 c60a0c   // ←0.5.3 d794bc
     // ── ④ 팀모드 자동취소 마스크 (chat.rs / modes.rs) ──
-    for a in [0xe03c8ausize, 0xe503f4] {
+    for a in [0xe5b6fbusize, 0xe503f4] {
         p!(base + a, &[0xb9], 1, 4, b4(tcnc, 0x0b00));
     }
     AUCTIMM_SIG.store(sig, Ordering::Relaxed);
