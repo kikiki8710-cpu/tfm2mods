@@ -1061,12 +1061,12 @@ unsafe fn apply_gank_imm() {
     }
     // ── B. 라인개입(jng=1) 리드액션 HP 게이트 base (mov dl,imm8 @0xe63d92, 원본 0x46=70) ──
     let bv = if hpb >= 0 { hpb.min(100) as u64 } else { 0x46 };
-    ok += patch_imm_bytes(base + 0xe4c09f, &[0xb2], 1, 1, bv) as u32;   // ★0.5.7 재핀(was 0xcec7b0) mov dl,0x46 @passive_jungle 0xe4a750, jng 3카피 중 라인개입(3번째)
+    ok += patch_imm_bytes(base + 0xd309e1, &[0xb2], 1, 1, bv) as u32;   // ★0.5.7 재핀(was 0xcec7b0) mov dl,0x46 @passive_jungle 0xe4a750, jng 3카피 중 라인개입(3번째)
     // ── C. 갱 윈도우 여유 배수 3사이트 (lea SIB, 원본 0x80=×5 / 허용 2/3/5/9 → 최근접 매핑) ──
     let ci = if wm >= 0 { let mut bi = 2usize; let mut bd = i64::MAX;
         for (i, f) in F2M.iter().enumerate() { let d = (f - wm).abs(); if d < bd { bd = d; bi = i; } } bi } else { 2 };
     let cv = ((ci as u8) << 6) as u64;   // 하위 6비트 = 0x00 (orig 0x80 & 0x3f)
-    for rva in [0xe4c141usize, 0xe4c1e8, 0xe4c32d] {   // ★0.5.7 재핀(was 0xcec859/912/a57) lea rax,[rax+rax*4] SIB
+    for rva in [0xd30a91usize, 0xd30b2c, 0xd30c70] {   // ★0.5.7 재핀(was 0xcec859/912/a57) lea rax,[rax+rax*4] SIB
         ok += patch_imm_bytes(base + rva, &[0x48,0x8d,0x04], 3, 1, cv) as u32;
     }
     GANKIMM_SIG.store(sig, Ordering::Relaxed);
@@ -1360,7 +1360,7 @@ unsafe fn apply_score_imm() {
     }
     // ── ② 인식 반경·보너스 ──
     p!(base + 0xde781a, &[0x48,0xbe], 2, 8, sq(arad, 22_500_000_000));      // 150000²   // ←0.5.3 c7ccde   // ←0.5.3 d8f8d3
-    for a in [0xd5d4b6usize, 0xd595e5] {
+    for a in [0xd592a1usize, 0xd595e5] {
         p!(base + a, &[0x48,0xba], 2, 8, sqp(erad, 10_000_000_000));        // 100000²+1
     }
     p!(base + 0xd595f2, &[0xbb], 1, 4, b4(nbon, 10));   // ←0.5.3 c7d5a6   // ←0.5.3 d8ee80
@@ -1611,9 +1611,10 @@ unsafe fn apply_move_imm() {
     p!(base + 0xd595f2, &[0xbb], 1, 4, b4(m0nb, 10));   // ←0.5.3 c7d5a6   // ←0.5.3 d8ee80
     p!(base + 0xd59529, &[0x48,0x81,0xbc,0x24,0xd0,0x00,0x00,0x00], 8, 4, b4(m0ng, 950));   // ★0.5.8 재핀: rbp→rsp 기반으로 바뀌어 prefix 7B→8B·off 7→8   // ←0.5.3 c7d4f0  ★재조사로 복구: 950 (rbp+0x68→+0xb8)  ★★imm_off 4→7 — 0.5.4에서 REX 접두가 붙어 즉치가 1B 밀렸다(크래시 원인)   // ←0.5.3 d8edbb
     // ── ③ 포탑 사거리 감산 / 상한 3쌍 ──
-    for a in [0xd5c7dausize, 0xd58c52] {
-        p!(base + a, &[0x48,0x81,0xee], 3, 4, b4(mtm, 30000));
-    }
+    // ★0.5.8 재핀: 두 사이트의 prefix 가 갈려 루프를 펼침. 첫 사이트만 확정(sub rsi→rdi),
+    //   둘째(구 0xd58c52)는 ghidra-re 가 대응을 못 지어 **미해결로 남긴다**.
+    p!(base + 0xd583c6, &[0x48,0x81,0xef], 3, 4, b4(mtm, 30000));
+    pskip!(base + 0xd58c52, &[0x48,0x81,0xee], 3, 4, b4(mtm, 30000));   // ⬜0.5.8 미해결 — 대응 미확정
     //   상한은 `cmp rax,100` 과 `mov reg,100` **두 곳을 같이** 고쳐야 의미가 맞는다.
     for (ca, mv, mpre) in [(0xd8ec43usize, 0xd8ec47usize, &[0x41,0xbd][..]),
                            (0xd009eb,      0xd009ef,      &[0xb9][..]),
@@ -1846,13 +1847,9 @@ unsafe fn apply_pe_imm() {
     pskip!(base + 0xcee2c8, &[0x49,0xbb], 2, 8, sq(pflt, 0x5_3D1A_C100));   // ⛔0.5.4 미확정: 시그 3→0 / 완화 3→1 (골격 86%)
     // ── ★[09-01 갭메움] position_eval **본체**(0xd23970) 수집반경·프리필터. 위 형제함수(0xd1b~0xd1e)와 함께 이동해야 실제 반경 변경(대표 사이트만으론 안 바뀜=커버리지 갭 실체).
     //   근거 = _재핀\pe본체_교전경계_patch스펙. ⚠값스캔 절대금지(0x9502f9001/000·0x53d1ac0 전역 다수 재사용) — 아래 절대주소 앵커만.
-    for a in [0xd23f8dusize,0xd23fd0,0xd24064,0xd240a0,0xd24134,0xd24170,0xd24207,0xd2423d] {   // 적팀 Phase1 8곳 (R²+1)
-        p!(base + a, &[0x48,0xb8], 2, 8, sqp(pcol, 0x9_502F_9001));
-    }
-    for a in [0xd242d3usize,0xd24308,0xd2463a,0xd24670] {   // 적 5번째슬롯 2 + 아군 Phase2 2 (R²)
-        p!(base + a, &[0x48,0xb8], 2, 8, sq(pcol, 0x9_502F_9000));
-    }
-    p!(base + 0xd24a6b, &[0x48,0x3d], 2, 4, dsh(pflt, 87_890_624, 8, 0));      // scoreA 위협 프리필터(본체, cmp rax,imm32 d²>>8)
+    // ★0.5.8 삭제: position_eval 중복배열1(:1849) — 0.5.8 에서 위 :1829 와 동일 집합
+    // ★0.5.8 삭제: position_eval 중복배열2(:1852) — 위 :1832 와 동일 집합
+    p!(base + 0xd8631b, &[0x48,0x3d], 2, 4, dsh(pflt, 87_890_624, 8, 0));      // scoreA 위협 프리필터(본체, cmp rax,imm32 d²>>8)
     p!(base + 0xd26dcb, &[0x48,0x81,0xfa], 3, 4, dsh(pflt, 87_890_624, 8, 0)); // P3 2차 위협루프(본체)
     for a in [0xd8715ausize, 0xd87b4a] {
         p!(base + a, &[0x49,0x81,0xfe], 3, 4, dsh(pnea, 19_140_625, 8, 1));
@@ -3191,9 +3188,9 @@ unsafe fn apply_gb_imm() {
     ok += patch_imm_bytes(base + 0xdf39df, &[0x48,0xc7,0x44,0x24,0x40], 5, 4, e_cr) as u32;   // ←s2 dca53f
     // ★0.5.4: gb 근접반경² 가 **1곳 → 2곳**(같은 인자슬롯 복제).
     ok += patch_imm_bytes(base + 0xdf3b50, &[0x48,0xc7,0x44,0x24,0x40], 5, 4, e_cr) as u32;                  // 근접반경 leash(선형) orig 0x249f0=150000 (★정정: ~~²~~ 아님)   // ←s2 dca6b0
-    ok += patch_imm_bytes(base + 0xcec5bd, &[0x48,0xc7,0x85,0x38,0x02,0x00,0x00], 7, 4, e_lr) as u32;        // 라인range(선형, 게임이 비교시 제곱) orig 0x3d090=250000 (★정정: 실제 rbp 변위=0x238, 구 주석 0x1b0/0x270 오기)   // ←s2 dcb1f0
+    ok += patch_imm_bytes(base + 0xdf4690, &[0x48,0xc7,0x85,0x30,0x02,0x00,0x00], 7, 4, e_lr) as u32;        // 라인range(선형, 게임이 비교시 제곱) orig 0x3d090=250000 (★정정: 실제 rbp 변위=0x238, 구 주석 0x1b0/0x270 오기)   // ←s2 dcb1f0
     ok += patch_imm_bytes(base + 0xdf45b5, &[0xb8], 1, 4, e_jd) as u32;                                 // 합류max거리²(지배) orig 0xd693a401 (★0.5.3: `41 b8`(mov r8d)→**`b8`(mov eax)** 로 인코딩 축소 ⟹ 사이트가 +1(0xe075c9→**0xdcb115**), prefix 1B, off 2→1. 뒤 비교도 cmp r9,r8→cmp r8,rax 로 대응. 구 인코딩 mov r8d로 변경)   // ←s2 dcb115
-    ok += patch_imm_bytes(base + 0xcef950, &[0x48,0x83,0xf8], 3, 1, e_ph) as u32;                            // 라인압박 HP%<30   // ←s2 dce2d5
+    ok += patch_imm_bytes(base + 0xdf7775, &[0x48,0x83,0xf8], 3, 1, e_ph) as u32;                            // 라인압박 HP%<30   // ←s2 dce2d5
     // ── 거점헬퍼 0x2398240: op·scout ──
     ok += patch_imm_bytes(base + 0xdfe4fd, &[0x48,0x83,0xb9,0xb8,0x00,0x00,0x00], 7, 1, e_op) as u32;   // 운영진입 phase>30 (★0.5.3: 컨테이너 0x2398240→**0xcc3960**, `[r14+0xb8]`→**`[rcx+0xb8]`** = prefix 49 83 be→48 83 b9)   // ←s2 dd512d
     // ★0.5.3: 0.5.2 는 같은 5슬롯 루프의 임계값을 **프리헤더+latch 2곳**에 호이스트했었는데(그래서 2사이트),
@@ -4097,15 +4094,19 @@ unsafe fn apply_lt_imm() {
     //   게이트 `d²(ally,enemy) < d²(ally,me)=0`이 unsigned 비교라 **영구 false**다.
     //   ⟹ 패치는 유지하되(무해) 유저에게는 "효과 없음"으로 표기한다. 값을 바꿔도 게임 동작은 안 변한다.
     let v_lt_ally_join: u64 = { if lt_ally_join < 0 { 9765625u64 } else { let x = lt_ally_join.max(0) as u64; x.wrapping_mul(x) >> 8 } };
-    p!(base + 0xde2cd3, &[0x48,0x81,0xfa], 3, 4, v_lt_ally_join);   // ←0.5.3 c57dcf   // ←0.5.3 d9fc63
+    // ⛔0.5.8 소멸: pskip!(base + 0xde2cd3, &[0x48,0x81,0xfa], 3, 4, v_lt_ally_join);   // ←0.5.3 c57dcf   // ←0.5.3 d9fc63
     let v_lt_around_radius: u64 = { if lt_around_radius < 0 { 80000u64 } else { lt_around_radius.max(0) as u64 } };
     // ⛔[08-04] `0xc57ed3`은 위 死분기 안의 사이트라 **효과가 없다**(제거해도 무해하나 오해 유발 방지용으로 주석 유지).
     //   살아있는 사이트는 아래 `0xc5816c`·`0xc58296` 둘뿐이다.
-    p!(base + 0xde2de2, &[0x48,0xc7,0x85,0xf0,0x00,0x00,0x00], 7, 4, v_lt_around_radius);   // ←0.5.3 c57ed3   // ←0.5.3 d9fd6f
-    p!(base + 0xde305a, &[0x48,0xc7,0x85,0xf0,0x00,0x00,0x00], 7, 4, v_lt_around_radius);   // ←0.5.3 c5816c   // ←0.5.3 d9ffe7
-    p!(base + 0xde34e0, &[0x48,0xc7,0x85,0xf0,0x00,0x00,0x00], 7, 4, v_lt_around_radius);   // ←0.5.3 c58296   // ←0.5.3 da0470
+    // ⛔0.5.8 소멸: pskip!(base + 0xde2de2, &[0x48,0xc7,0x85,0xf0,0x00,0x00,0x00], 7, 4, v_lt_around_radius);   // ←0.5.3 c57ed3   // ←0.5.3 d9fd6f
+    // ⛔0.5.8 소멸: pskip!(base + 0xde305a, &[0x48,0xc7,0x85,0xf0,0x00,0x00,0x00], 7, 4, v_lt_around_radius);   // ←0.5.3 c5816c   // ←0.5.3 d9ffe7
+    // ⛔0.5.8 소멸: pskip!(base + 0xde34e0, &[0x48,0xc7,0x85,0xf0,0x00,0x00,0x00], 7, 4, v_lt_around_radius);   // ←0.5.3 c58296   // ←0.5.3 da0470
     let v_lt_phase_mask: u64 = { if lt_phase_mask < 0 { 417u64 } else { lt_phase_mask.max(0) as u64 } };
-    p!(base + 0xde2537, &[0xba], 1, 4, v_lt_phase_mask);   // ←0.5.3 c5763d   // ←0.5.3 d9f4c7
+    // ⛔⛔ line_total.rs 모듈 자체가 0.5.8 에서 소멸(ghidra-re 2026-09-04 3중 근거:
+    //   ①문자열 카운트 1→0·개명 아님 ②`mov [rbp+0xf0],80000` 전역 3→0회
+    //   ③sub_plan 라우터 0xcbf340→0xe35bd0 의 callee 가 19→17, 빠진 2개가 정확히
+    //   line_total.rs 와 line_attack.rs). 아래 5사이트는 死코드 — 되살리려 하지 말 것.
+    // ⛔0.5.8 소멸: pskip!(base + 0xde2537, &[0xba], 1, 4, v_lt_phase_mask);   // ←0.5.3 c5763d   // ←0.5.3 d9f4c7
     LT_SIG.store(sig, Ordering::Relaxed);
     if let Some(pp) = pth("lt_imm.txt") {
         let _ = fs::write(pp, format!("applied={}/{} lt_ally_join={} lt_around_radius={} lt_phase_mask={} @base{:#x}\n",
@@ -4203,7 +4204,7 @@ unsafe fn apply_hd_imm() {
     p!(base + 0xcb9ccc, &[0x49,0xb8], 2, 8, v_hd_cand_select);   // ←0.5.3 ca598f   // ←0.5.3 d82e39
     p!(base + 0xcb8cdf, &[0x49,0xb9], 2, 8, v_hd_cand_select);   // ←0.5.3 ca59f2   // ←0.5.3 d82e9e
     p!(base + 0xcb8d46, &[0x49,0xb9], 2, 8, v_hd_cand_select);   // ←0.5.3 ca5a59   // ←0.5.3 d82f0c
-    p!(base + 0xcbb717, &[0x49,0xb9], 2, 8, v_hd_cand_select);   // ←0.5.3 ca5ac0   // ←0.5.3 d82f7a
+    // ★0.5.8 삭제: hide 중복(:4206) — 위 :4205 의 0xcb8d46 과 같은 주소가 됨
     p!(base + 0xcb8dac, &[0x49,0xb8], 2, 8, v_hd_cand_select);   // ←0.5.3 ca5b26   // ←0.5.3 d82fe7
     p!(base + 0xcb8e0e, &[0x48,0xb9], 2, 8, v_hd_cand_select);   // ←0.5.3 ca5b8f   // ←0.5.3 d83050
     p!(base + 0xcb9036, &[0x49,0xb9], 2, 8, v_hd_cand_select);   // ←0.5.3 ca6080   // ←0.5.3 d83533
@@ -4402,7 +4403,10 @@ unsafe fn apply_c3_imm() {
     p!(base + 0xc92e62, &[0x48,0x83,0xf8], 3, 1, v_c3_ally_hp);   // ←0.5.3 c3bb83   // ←0.5.3 c85272
     p!(base + 0xc93385, &[0x48,0x83,0xf8], 3, 1, v_c3_ally_hp);   // ←0.5.3 c3c0cf   // ←0.5.3 c85795
     let v_c3_minion_margin: u64 = { if c3_minion_margin < 0 { 64000u64 } else { c3_minion_margin.max(0) as u64 } };
-    p!(base + 0xe14b5a, &[0x48,0x05], 2, 4, v_c3_minion_margin);   // ←0.5.3 e2321a   // ←0.5.3 d64c0a
+    // ★0.5.8: 컴파일러가 dedupe 하지 않아 **같은 함수가 두 벌**(0xd76140·0xe22e60) 찍혔고 둘 다 live
+    //   (호출자 0xd71230 이 d76140 2회 + e22e60 1회로 갈라 호출). 한 곳만 패치하면 반쪽 효과.
+    p!(base + 0xd7629a, &[0x48,0x05], 2, 4, v_c3_minion_margin);
+    p!(base + 0xe22fba, &[0x48,0x05], 2, 4, v_c3_minion_margin);   // ←0.5.3 e2321a   // ←0.5.3 d64c0a
     let v_c3_hurt_scale: u64 = { if c3_hurt_scale < 0 { 100u64 } else { c3_hurt_scale.max(0) as u64 } };
     p!(base + 0xe03038, &[0x48,0x6b,0x97,0x70,0x06,0x00,0x00], 7, 1, v_c3_hurt_scale);   // ←0.5.3 cc7d38   // ←0.5.3 cdced8
     p!(base + 0xe030fa, &[0x48,0x6b,0x96,0x70,0x06,0x00,0x00], 7, 1, v_c3_hurt_scale);   // ←0.5.3 cc7dfa   // ←0.5.3 cdcf9a
@@ -4516,9 +4520,9 @@ unsafe fn apply_eh_imm() {
     p!(base + 0xeb1278, &[0x48,0xc7,0x85,0x58,0x05,0x00,0x00], 7, 4, v_eh_trace_arrive);   // ←0.5.3 c6acf9   // ←0.5.3 d886a8
     p!(base + 0xeb1f7b, &[0x48,0xc7,0x85,0x58,0x05,0x00,0x00], 7, 4, v_eh_trace_arrive);   // ←0.5.3 c6ba21   // ←0.5.3 d8938b
     p!(base + 0xeb06af, &[0x48,0xc7,0x85,0x58,0x05,0x00,0x00], 7, 4, v_eh_trace_arrive);   // ←0.5.3 da2049   // ←0.5.3 e1632f
-    p!(base + 0xde8bfa, &[0x48,0xc7,0x85,0x58,0x05,0x00,0x00], 7, 4, v_eh_trace_arrive);   // ←0.5.3 da2837   // ←0.5.3 e16dca
-    p!(base + 0xde8c99, &[0x48,0xc7,0x85,0x58,0x05,0x00,0x00], 7, 4, v_eh_trace_arrive);   // ←0.5.3 da28cf   // ←0.5.3 e16e69
-    p!(base + 0xde8d38, &[0x48,0xc7,0x85,0x58,0x05,0x00,0x00], 7, 4, v_eh_trace_arrive);   // ←0.5.3 da2967   // ←0.5.3 e16f08
+    p!(base + 0xcb41c0, &[0x48,0xc7,0x85,0x38,0x05,0x00,0x00], 7, 4, v_eh_trace_arrive);   // ★0.5.8 재핀: 변위 0x558→0x538   // ←0.5.3 da2837   // ←0.5.3 e16dca
+    p!(base + 0xcb4321, &[0x48,0xc7,0x85,0x38,0x05,0x00,0x00], 7, 4, v_eh_trace_arrive);   // ★0.5.8 재핀: 동상   // ←0.5.3 da28cf   // ←0.5.3 e16e69
+    p!(base + 0xcb43c4, &[0x48,0xc7,0x85,0x38,0x05,0x00,0x00], 7, 4, v_eh_trace_arrive);   // ★0.5.8 재핀: 동상   // ←0.5.3 da2967   // ←0.5.3 e16f08
     p!(base + 0xeb1f7b, &[0x48,0xc7,0x85,0x58,0x05,0x00,0x00], 7, 4, v_eh_trace_arrive);   // ←0.5.3 da366b   // ←0.5.3 e17bbb
     let v_eh_band_low: u64 = { if eh_band_low < 0 { 12000u64 } else { eh_band_low.max(0) as u64 } };
     p!(base + 0xeb191e, &[0xb9], 1, 4, v_eh_band_low);   // ←0.5.3 c6b3a1   // ←0.5.3 d88cfe
@@ -4573,12 +4577,12 @@ unsafe fn apply_eh_imm() {
     p!(base + 0xeb2282, &[0x48,0x3d], 2, 4, dc.wrapping_add(1)); p!(base + 0xcb53d6, &[0x48,0x3d], 2, 4, dc.wrapping_add(1));   // K19a cmp(v+1)
     p!(base + 0xeb2288, &[0xb9], 1, 4, dc); p!(base + 0xcb53dc, &[0xb9], 1, 4, dc);   // K19b mov
     let c2 = vv(eh_clamp2, 80000);
-    p!(base + 0xeb29ea, &[0x48,0x81,0xfb], 3, 4, c2); p!(base + 0xdea4aa, &[0x48,0x81,0xfb], 3, 4, c2);   // K21a cmp(rbx)
+    p!(base + 0xeb29ea, &[0x48,0x81,0xfb], 3, 4, c2); p!(base + 0xcb5b38, &[0x49,0x81,0xff], 3, 4, c2);   // ★0.5.8 재핀: cmp rbx→r15   // K21a cmp(rbx)
     p!(base + 0xeb29f1, &[0xb8], 1, 4, c2); p!(base + 0xcb5b3f, &[0xb8], 1, 4, c2);   // K21b mov
     let ed = if eh_engage_dist < 0 { 144000001u64 } else { let u = eh_engage_dist.max(0) as u64; u.wrapping_mul(u).wrapping_add(1) };
     p!(base + 0xeb2bd3, &[0x48,0x81,0xfa], 3, 4, ed); p!(base + 0xcb5d20, &[0x48,0x81,0xfa], 3, 4, ed);   // K22 d²+1
     let ds = vv(eh_dist_shift, 172265625);
-    p!(base + 0xeb317a, &[0x49,0x81,0xfe], 3, 4, ds); p!(base + 0xdeac3a, &[0x49,0x81,0xfe], 3, 4, ds);   // K23 (⚠rbx/r14 프리픽스 49 81 fe = K29와 공유·값으로 구분)
+    p!(base + 0xeb317a, &[0x49,0x81,0xfe], 3, 4, ds); p!(base + 0xcb62fc, &[0x48,0x81,0xfb], 3, 4, ds);   // ★0.5.8 재핀: cmp r14→rbx   // K23 (⚠rbx/r14 프리픽스 49 81 fe = K29와 공유·값으로 구분)
     let pw = vv(eh_power_weight, 103);
     p!(base + 0xeb25e9, &[0x6b,0xc0], 2, 1, pw); p!(base + 0xcb573a, &[0x6b,0xc0], 2, 1, pw);   // K24
     let pn = vv(eh_power_neutral, 50);
@@ -4590,15 +4594,15 @@ unsafe fn apply_eh_imm() {
     p!(base + 0xeb2cb0, &[0x6b,0xc1], 2, 1, tsl); p!(base + 0xcb5e10, &[0x6b,0xc1], 2, 1, tsl);   // K27b
     let wc = vv(eh_window_cap, 2000);
     p!(base + 0xeb0aeb, &[0xba], 1, 4, wc); p!(base + 0xcb3b97, &[0xba], 1, 4, wc);   // K28a
-    p!(base + 0xeb2cc3, &[0x41,0xb9], 2, 4, wc); p!(base + 0xdea783, &[0x41,0xb9], 2, 4, wc);   // K28b
+    p!(base + 0xeb2cc3, &[0x41,0xb9], 2, 4, wc); p!(base + 0xcb5e22, &[0x41,0xb8], 2, 4, wc);   // ★0.5.8 재핀: mov r9d→r8d   // K28b
     let sf = vv(eh_score_floor, 1000);
-    p!(base + 0xeb0fad, &[0x49,0x81,0xfe], 3, 4, sf); p!(base + 0xde8a6d, &[0x49,0x81,0xfe], 3, 4, sf);   // K29
+    p!(base + 0xeb0fad, &[0x49,0x81,0xfe], 3, 4, sf); p!(base + 0xcb3fd5, &[0x49,0x81,0xfc], 3, 4, sf);   // ★0.5.8 재핀: cmp r14→r12   // K29
     let sg = vv(eh_score_gate, 10);
     p!(base + 0xeb0fb6, &[0x48,0x83,0xf8], 3, 1, sg); p!(base + 0xcb3fe2, &[0x48,0x83,0xf8], 3, 1, sg);   // K30 (48 83 f8 = K32와 공유·값 구분)
     let ha = vv(eh_helper_a, 40);
     p!(base + 0xeb0de9, &[0x41,0xb8], 2, 4, ha); p!(base + 0xcb3e99, &[0x41,0xb8], 2, 4, ha);   // K31a
     let hb = vv(eh_helper_b, 60);
-    p!(base + 0xeb0f19, &[0x41,0xb8], 2, 4, hb); p!(base + 0xde89d9, &[0x41,0xb8], 2, 4, hb);   // K31b
+    p!(base + 0xeb0f19, &[0x41,0xb8], 2, 4, hb); p!(base + 0xcb4036, &[0x41,0xb8], 2, 4, hb);   // K31b
     let hg = vv(eh_hp_gate2, 36);
     p!(base + 0xeb1eb1, &[0x48,0x83,0xf8], 3, 1, hg); p!(base + 0xcb5027, &[0x48,0x83,0xf8], 3, 1, hg);   // K32
     let gc = vv(eh_grid_cost, 10000);
@@ -4639,11 +4643,11 @@ unsafe fn apply_init_imm() {
         tot += 1; ok += patch_imm_bytes($a, $pre, $off, $w, $v) as u32; }}; }
     // 갱크 근접 반경²(6곳, d² 8B movabs) — 아군2 r12(49 bc) + 적4 rax(48 b8)
     let gr = if gkr < 0 { 0xe8d4a5100u64 } else { let r = gkr.max(0) as u64; r.wrapping_mul(r) };
-    p!(base + 0xe33faf, &[0x49,0xbc], 2, 8, gr); p!(base + 0xe34313, &[0x49,0xbc], 2, 8, gr);
-    for rva in [0xe3447cusize, 0xe34588, 0xe34694, 0xe347a0] { p!(base + rva, &[0x48,0xb8], 2, 8, gr); }
+    p!(base + 0xdb960f, &[0x49,0xbc], 2, 8, gr); p!(base + 0xdb9973, &[0x49,0xbc], 2, 8, gr);
+    for rva in [0xdb9adcusize, 0xdb9be8, 0xdb9cf4, 0xdb9e00] { p!(base + rva, &[0x48,0xb8], 2, 8, gr); }
     // 갱크 적격 hp%(10곳, cmp rax,0x28)
     let gh = if gkh < 0 { 0x28u64 } else { (gkh.max(0).min(0x7f)) as u64 };
-    for rva in [0xe34032usize,0xe340be,0xe3414c,0xe341da,0xe34261,0xe343ab,0xe344c0,0xe345cc,0xe346d8,0xe347fb] { p!(base + rva, &[0x48,0x83,0xf8], 3, 1, gh); }
+    for rva in [0xdb9692usize,0xdb971e,0xdb97ac,0xdb983a,0xdb98c1,0xdb9a0b,0xdb9b20,0xdb9c2c,0xdb9d38,0xdb9e5b] { p!(base + rva, &[0x48,0x83,0xf8], 3, 1, gh); }
     // 교전 in_camp_ally 반경²(메인 6곳=R²+1, d² 8B) — rcx5(48 b9)+rax1(48 b8) + ★[09-01] 경계 ≥ 2곳(0xe83ebe/e8422f=R², 48 b8)도 대칭 배선(스펙 확정)
     let er = if egr < 0 { 0x490404401u64 } else { let r = egr.max(0) as u64; r.wrapping_mul(r).wrapping_add(1) };
     for rva in [0xe5d778usize,0xe5d8bb,0xe5d917,0xe5d971,0xe5d9cb] { p!(base + rva, &[0x48,0xb9], 2, 8, er); }
