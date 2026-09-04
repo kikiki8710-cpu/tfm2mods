@@ -1616,9 +1616,12 @@ unsafe fn apply_move_imm() {
     p!(base + 0xd583c6, &[0x48,0x81,0xef], 3, 4, b4(mtm, 30000));
     pskip!(base + 0xd58c52, &[0x48,0x81,0xee], 3, 4, b4(mtm, 30000));   // ⬜0.5.8 미해결 — 대응 미확정
     //   상한은 `cmp rax,100` 과 `mov reg,100` **두 곳을 같이** 고쳐야 의미가 맞는다.
-    for (ca, mv, mpre) in [(0xd8ec43usize, 0xd8ec47usize, &[0x41,0xbd][..]),
-                           (0xd009eb,      0xd009ef,      &[0xb9][..]),
-                           (0xd013b6,      0xd013ba,      &[0xb9][..])] {
+    // ★0.5.8 재핀: 앵커 = git 0a5acec 원본 [d8ec43,d8f4db,d8fea6] (현행 소스의 뒤 2개는
+    //   나중 마이그가 망가뜨린 주소였다). 0.5.4 action_score 0xd8db90 안 3개 = 소스 3개이고
+    //   0.5.8 대응 0xd57540 안에도 정확히 3개. ⚠**mov prefix 2개가 바뀜**.
+    for (ca, mv, mpre) in [(0xd589b1usize, 0xd589b5usize, &[0x41,0xbe][..]),
+                           (0xd594da,      0xd594de,      &[0xb9][..]),
+                           (0xd59509,      0xd5950d,      &[0xbd][..])] {
         p!(base + ca, &[0x48,0x83,0xf8], 3, 1, b1(mtc, 100));
         p!(base + mv, mpre, mpre.len(), 4, b4(mtc, 100));
     }
@@ -2066,11 +2069,14 @@ unsafe fn apply_bv_imm() {
         tot += 1; let _ = ($a, $pre, $off, $w, $v);
     }}; }
     // ── 캡(전부 cmp+mov 쌍이라 둘 다 고쳐야 의미가 맞는다) ──
-    for (c, m) in [(0xcc5fcfusize, 0xcc5fd6usize), (0xd62918, 0xd6291f), (0xd65384, 0xd6538b)] {
+    // ★0.5.8 재핀: 앵커 = 0a5acec 원본 [cc5fcf@053, cdb738@054, cde1a4@054].
+    //   owner 3개를 0.5.8 로 사영(여유 +0.84~+0.94) → 서로 다른 함수에 1개씩.
+    for (c, m) in [(0xe0129fusize, 0xe012a6usize), (0xe0187d, 0xe01884), (0xe04304, 0xe0430b)] {
         p!(base + c, &[0x48,0x81,0xf9], 3, 4, b4(cap160, 160));
         p!(base + m, &[0xb8], 1, 4, b4(cap160, 160));
     }
-    for (c, m) in [(0xcc690busize, 0xcc690fusize), (0xd63303, 0xe2b5f7)] {
+    // ★0.5.8 재핀: 앵커 = 0a5acec 원본 [cc690b@053, cdc123@054] (여유 +0.77).
+    for (c, m) in [(0xe01bfbusize, 0xe01bffusize), (0xe0228b, 0xe0228f)] {
         p!(base + c, &[0x48,0x83,0xf9], 3, 1, b1(cap80, 80));
         p!(base + m, &[0xb8], 1, 4, b4(cap80, 80));
     }
