@@ -1826,10 +1826,10 @@ unsafe fn apply_pe_imm() {
     }}; }
 
     // ── ① 거리 임계 (전부 d² 또는 d²>>shift 인코딩) ──
-    for a in [0xd857ecusize, 0xdf1060, 0xdf10f4, 0xdf1130, 0xdf11c4, 0xdf1200, 0xdf1297, 0xdf12cd] {
+    for a in [0xd857ecusize, 0xd85830, 0xd858c4, 0xd85900, 0xd85993, 0xd859d0, 0xd85a67, 0xd85a9d] {
         p!(base + a, &[0x48,0xb8], 2, 8, sqp(pcol, 0x9_502F_9001));
     }
-    for a in [0xd85b33usize, 0xdf1398, 0xdf16c7, 0xdf1700] {
+    for a in [0xd85b33usize, 0xd85b68, 0xd85eb7, 0xd85ef0] {
         p!(base + a, &[0x48,0xb8], 2, 8, sq(pcol, 0x9_502F_9000));
     }
     for a in [0xd86f1eusize, 0xd870e8, 0xd872bb, 0xd87ad8] {
@@ -2265,10 +2265,10 @@ unsafe fn apply_th_imm() {
     ];
     for &(a, pre, off) in TH_CAP.iter() { p!(base + a, pre, off, 4, b4(cap, 150)); }
     // ── 디스크립터 생성 반경 200000 (12곳, +1 유무 2종) ──
-    for a in [0xd857ecusize, 0xdf1060, 0xdf10f4, 0xdf1130, 0xdf11c4, 0xdf1200, 0xdf1297, 0xdf12cd] {
+    for a in [0xd857ecusize, 0xd85830, 0xd858c4, 0xd85900, 0xd85993, 0xd859d0, 0xd85a67, 0xd85a9d] {
         p!(base + a, &[0x48,0xb8], 2, 8, sqp(coll, 0x9_502F_9001));
     }
-    for a in [0xd85b33usize, 0xdf1398, 0xdf16c7, 0xdf1700] {
+    for a in [0xd85b33usize, 0xd85b68, 0xd85eb7, 0xd85ef0] {
         p!(base + a, &[0x48,0xb8], 2, 8, sq(coll, 0x9_502F_9000));
     }
     TH_SIG.store(sig, Ordering::Relaxed);
@@ -2622,7 +2622,9 @@ unsafe fn apply_auction_imm() {
     for a in [0xe870dausize, 0xe86e67, 0xe86f72, 0xe8702f] {
         p!(base + a, &[0x48,0xc7,0x85], 7, 4, b4(lstp, 15000));
     }
-    for a in [0xe86216usize, 0xe86ea1, 0xe86f0d, 0xe86f79, 0xcebc7d] {
+    // ★0.5.8 재핀: line_defense 2회차 함수(0xe83390) 안 서명(390625) 정확히 5개 = 소스 5개.
+    //   0xe86216 은 재핀 전에도 살아 있던 주소라 자기검증이 성립한다.
+    for a in [0xe86216usize, 0xe8627f, 0xe862eb, 0xe86357, 0xe863bb] {
         tot += 1;
         let v = dsh(lnear, 390625, 16);                             // (160000²)>>16 = 390625
         ok += (patch_imm_bytes(base + a, &[0x49,0x81,0xfa], 3, 4, v)
@@ -2642,11 +2644,15 @@ unsafe fn apply_auction_imm() {
     p!(base + 0xe864f8, &[0x83,0xc1], 2, 1, b1(lest, 10));                 // add ecx,10   // ←0.5.3 c61cb4   // ←0.5.3 d7a8aa
     // ── ③-b line_defense 1회차 전용 상수 (08-03 신규 노출) ──
     //   ★`ld_around_range`는 1·2회차 합쳐 **7사이트** — 지금까지 완전 미노출이던 값이다.
-    for a in [0xd48612usize, 0xe8456c, 0xe84932, 0xe84ee2, 0xe86c33, 0xe88683, 0xe88737] {
+    // ★0.5.8 재핀 7→5: 복합서명(80000 사이트 + **11B 뒤 5 사이트**, 소스 주석의 구조제약)이
+    //   line_defense 모듈 12개 함수 중 **0xe83390 에만 5쌍**. 줄어든 2개 = 1회차 구간이고
+    //   그 구간의 0.5.8 소멸은 위 `pskip!` 3건으로 이미 확정돼 있다.
+    for a in [0xe83ebeusize, 0xe84088, 0xe8445b, 0xe87b2b, 0xe87bdf] {
         p!(base + a, &[0x48,0xc7,0x85], 7, 4, b4(larn, 80000));
     }
     // ★[08-05 감사] 3곳만 잡고 있었다 — 실제는 **7곳**이고, 바로 위 `ld_around_range` 7사이트의 **+11B 짝**이다.
-    for a in [0xd4861dusize, 0xe84865, 0xe8493d, 0xe87cf7, 0xe87f68, 0xe88742, 0xe88a56] {
+    // ★0.5.8 재핀 7→5: 위 larn 5사이트의 +11B 짝(구조제약 그대로).
+    for a in [0xe83ec9usize, 0xe84093, 0xe84466, 0xe87b36, 0xe87bea] {
         p!(base + a, &[0x48,0xc7,0x85], 7, 4, b4(lard, 5));
     }
     // ★[08-05 감사] 3곳 → **6곳**. 그리고 이 마스크가 고르는 건 게임 모드가 아니라 **경기 페이즈**(`u8[S+0x38]`, 0~8)다
