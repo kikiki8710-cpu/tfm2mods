@@ -86,6 +86,45 @@ pub const CFG_TPS: usize = 0x12f8;
 // hunt_and_battle 의 p7(타이머 쌍): epic +0x98/+0xa0 · serpen +0xd0/+0xd8 (`p7[b] < tps + p7[a]` 이면 최근 창)
 pub const P7_EPIC_TA: usize = 0x98;  pub const P7_EPIC_TB: usize = 0xa0;
 pub const P7_SERPEN_TA: usize = 0xd0; pub const P7_SERPEN_TB: usize = 0xd8;
+// ── passive_line(Plan 3, 0xd2c5d0) 전용 ── [디컴 2026-09-06]
+pub const W_TICK: usize = 0xec98;            // vt+0x28 = [w+0xec98] (현재 틱 추정)
+pub const PL_F110: usize = 0x110;            // payload 플래그: !=0 → code 5
+pub const PL_F112: usize = 0x112;            //   ==1 && F115==0 → code 3/4(F113), out+8=lane
+pub const PL_F113: usize = 0x113;
+pub const PL_F115: usize = 0x115;
+pub const PL_LANE: usize = 0x116;            //   u8 레인 f (0/1/2)
+pub const ORDER_PLAN: usize = 0x41f;         // p7: u8 plan 종류(8=SF, 1, 0…)
+pub const ORDER_SF: usize = 0x420;           // p7: u8 sf 레인
+pub const G_PHASE: usize = 0x38;             // u8 [G+0x38] 국면(비트마스크 0x1a1 = {0,5,7,8} 에서 미드 특수블록)
+pub const CFG_8A8: usize = 0x8a8;            // [cfg+0x8a8] 시각(틱·tps*30 과 비교)
+pub const HOLDER_LANES: usize = 0x10;        // holder[2] = 레인 표 base
+pub const LANE_STRIDE: usize = 0x2e8;        //   + side*0x2e8 (사이드별 레인 데이터)
+pub const LANE_SUB_MID: usize = 0x50;        //   레인 f 서브 오프셋: 0→+0 · 2→+0x50 · 그 외(1)→+0x28
+pub const LANE_SUB_SIDE: usize = 0x28;
+pub const LR_STATE: usize = 0x0;             //   i32 (1 = 활성)
+pub const LR_TARGET_H: usize = 0x8;          //   u64 목표 핸들
+pub const LR_F10: usize = 0x10;              //   i64 (< 0x7d1 비교)
+pub const LR_F18: usize = 0x18;              //   i64 (부호 → cVar15 2/0)
+pub const LR_F20: usize = 0x20;              //   i32 (< 3 → code 4 / else 5)
+pub const LANE_F60: usize = 0x60;            //   [lanes+side*0x2e8+0x60] i64 (> 999)
+pub const LANE_ROSTER: usize = 0x1e0;        //   [lanes+other*0x2e8+0x1e0+role*8] i64 (틱 임계, +0x78 여유)
+pub const LANE_ROSTER_MARGIN: u64 = 0x78;
+pub const X_MINION_PTR: usize = 0x130;       // X+0x130+side*0x20 : 슬라이스 ptr / +0x148 : len
+pub const X_MINION_LEN: usize = 0x148;
+pub const X_TOWER_A: usize = 0x180;          // X+0x180+side*8+lane*0x20 : 1차 타워 / +0x190 : 2차
+pub const X_TOWER_B: usize = 0x190;
+pub const X_NEXUS: usize = 0x170;            // X+0x170+side*8 : 넥서스(0 → panic)
+pub const ENT_KIND: usize = 0x68;
+pub const ENT_SUBTYPE: usize = 0x70;
+pub const ENT_F88: usize = 0x88;
+pub const GRID_TBL: usize = 0x1c98;          // [G+0x20]+0x1c98 + (y/32000)*0xf0 + (x/32000)*8 (30×30, clamp 29)
+pub const GRID_CELL: u64 = 32000;
+pub const GRID_MAX: u64 = 29;
+pub const D2_150K_SHR8: u64 = 0x53d1ac1;     // (d²>>8) < 이 값 ⟺ d < 150000
+pub const D2_170K_SHR8: u64 = 0x6ba9301;     // d < 170000
+pub const D2_200K_PLUS1: u64 = 0x9502f9001;  // d² < 200000²+1
+pub const LANE_ANCHOR_A: [u64; 3] = [820000, 817000, 880000];   // .rdata 0x1433d9ea0
+pub const LANE_ANCHOR_B: [u64; 3] = [80000, 144000, 144000];    // .rdata 0x1433d9eb8
 // MovePriority(out 0x30) 코드 [디컴] — move_name 표: 0 히트맨 1 스킬 2 전진 3 도망 4 귀환 5 주변 6 포지셔닝 7 추적 8 라인 9 라인공격 10 라인대기 11 결사전
 pub const MP_CODE_AROUND: u64 = 5;
 pub const MP_CODE_LINE_ATTACK: u64 = 9;
