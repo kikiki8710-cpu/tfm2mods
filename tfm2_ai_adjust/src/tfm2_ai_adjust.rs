@@ -24,11 +24,11 @@ use std::sync::atomic::{AtomicBool, AtomicI16, AtomicI64, AtomicPtr, AtomicU8, A
 //   재개하려면 이 한 줄만 true 로. 주입 목록은 mods/tfm2_ai_adjust/ui_inject.txt 그대로 보존돼 있다.
 const UI_INJECT_ON: bool = false;
 #[path = "knobs.rs"] mod knobs;   // ★자동생성: 편집기 항목 KNOBS 배열
+#[path = "judge/mod.rs"] mod judge;   // ★[2026-09-06] AI 판단 계층 버전별 재구현(착수서 §8). 첫 함수 = steal 스코어러(검증 모드). 상수 = MIGiport.py 생성물.
 #[path = "../../ui_kit/ui_kit.rs"] mod ui_kit;   // ★UI 조작(textedit/find_mut/set_visible)
 use std::sync::Mutex;
 
 use std::time::{Instant, SystemTime, UNIX_EPOCH};
-include!("gb_kit.rs");
 include!("rva_057.rs");   // ★0.5.7 마이그(2026-08-26): rva_056.rs → rva_057.rs. 구파일(rva_051~056)은 이력용 보존(참조 없음).
 include!("mem_safety.rs");
 include!("detour.rs");
@@ -36,13 +36,11 @@ include!("class_micro.rs");   // ★[08-07] 바이트패치 노브를 클래스�
 include!("nexus_emg.rs");     // ★[08-08] "넥서스 비상" 발동 조건(쌍둥이 타워·2차 타워) 노브
 include!("probe.rs");   // ★[08-04] 런타임 진단 프로브(probe=0 기본 OFF) — 정적 분석으로 안 뚫린 6건 계측
 include!("serpen.rs");
-include!("disc19_repro.rs");
+include!("d19_imm.rs");   // ★[2026-09-06] disc19_repro.rs(3,945줄 넥서스 재현·검증하네스) 제거 — 살아있는 severity 바이트패치(apply_disc19_imm)만 분리 보존. 착수서 §5.
 
 const MOD_ID: &str = "tfm2_ai_adjust";
 // facet#4 movepriority. 프롤로그 7push+sub0x50 = 14B 클린. rcx=출력ptr(rsi), rdx=subplan ptr(*=disc), 스택: r14(sim)@entry+0x28, r15(rh)@entry+0x30
 const DD7_TAIL_OK: bool = true;   // ★engage-tail 재활성(2026-06-19): STAGE6 resolver/vt168 this=sim 수정(AV근본원인=rf(target)→rf(sim)). 디컴 confirm.
-const INSTALL_DIAG_HOOKS: bool = false;   // ★성능(2026-06-22): 휴면 진단/캡처훅 미설치(프로덕션). ⚠⚠07-10 확정: true로 켜면 크래시 — 휴면훅(e88a0 @0x20e88a0 등)이 0.5.0_3 미재검증 stale이라 설치 즉시 AV(fault 0x20e9a2d=e88a0+0x118d, 3회 재현). mpcap/condcap/serpen_verify 검증은 KEEP훅(retreat/condgate/movepri/fc59a0=항상설치)만으로 충분 — 이 플래그 켤 필요 없음. 휴면훅 재활성하려면 RVA 전수 재마이그 선행.
-const MIG_GB_CHANGED: bool = true;   // ★07-10 region D 정적완결로 넘어감(유저 지시 "추측으로 game=mine 맞춤"): gb_region_d_050 = ghidra-re 결정블록(0x22daff8~0x22db0b0) 완전일치=정적 game=mine 확정. gbrd_capture는 0.5.0_3 재작성완료(rbp맵 out@0x2b8/cnt0x110/da0x100/db0x108/d20x170/l2 0x1d0·dedc0 인라인 score/sim_scale)·detour 크래시 수정완료(안전슬롯 0x22dafea/orig14). ⚠단 런타임 detour raw=0 미해결(데모/리플레이/라이브 전부 0, movepri/condgate는 정상=훅인프라OK) → detour 실행경로/설치 재검증은 다음세션. 그때까지 훅 미설치(true)로 프로덕션 안전. **앵커 재추출완료**(REGIOND_HOOK 0x22daff8·EPILOGUE 0x22dbd22·FUNNEL 0x22dbc4e·DEDC0 인라인 0x22db05e; 203CB30/20C0690=vtable간접 소멸). **로직 재작업완료**=gb_region_d_050(결정트리). ⬜잔여=capture 디투어 새 RBP레이아웃(out@0x2b8·CNT@0x110·D2@0x170)·gbrd 하네스 macro_op(out[0]=9/action-Vec) 대조·스코어러 FUN_1420a5030(CNT/DB) 직접구현 → 이후 false 재활성+검증.
 // facet#5 셀렉터(local_228) 신선포착: retreat_engage 내 df0c10 호출 직후 [rcx]=셀렉터(1=역할기반). 리턴前엔 액션코드로 덮임.
 const ROSTER_BASE: usize = 0x1e0;        // plan_base + team*0x228 + 0x1e0
 const ROSTER_STRIDE: usize = 0x228;
@@ -326,55 +324,6 @@ static RECALL_REPL: AtomicBool = AtomicBool::new(false);
 static RECALL_REPL_N: AtomicU64 = AtomicU64::new(0);
 static RECALL_REPL_PASS: AtomicU64 = AtomicU64::new(0);
 const RECALL_ARM_MAX: u64 = 600;
-// ★generic_build 본체(0x20def90) 디스패치/출력 캡처(cfg gbbody). 진입(disc,param2,team) 스냅 + 리턴훅 kind:14서 out kind@+0x58/arg@+0x60/action Vec 읽기. 게임호출 제로(순수 read).
-static GBBODY: AtomicBool = AtomicBool::new(false);
-static GBB_ARMED: AtomicU64 = AtomicU64::new(0);
-static GBB_RAW: AtomicU64 = AtomicU64::new(0);
-static GBB_FILE_INIT: AtomicBool = AtomicBool::new(false);
-const GBB_ARM_MAX: u64 = 100000;   // ★gbrepl 대체모드서 리턴훅 무장범위(=덮어쓸 수 있는 generic_build 호출 수). verify(gbbody/gbrd)엔 별도 GBRD_ARM_MAX/GBB_SEEN 스로틀이 더 좁게 작용.
-const GBB_PER_KEY: u32 = 24;                          // unique (disc,param2)별 캡처 상한(분포 골고루)
-static GBB_SEEN: Mutex<Vec<(u64,u32)>> = Mutex::new(Vec::new());
-static GBB_OK: AtomicU64 = AtomicU64::new(0);      // my_generic_build 예측 일치
-static GBB_DIFF: AtomicU64 = AtomicU64::new(0);    // 예측 불일치
-static GBB_NOPRED: AtomicU64 = AtomicU64::new(0);  // None(미예측=메인빌드/B/C/D)
-static GB_TERM: AtomicUsize = AtomicUsize::new(0);   // ready_walk 미지 terminal vt+0x58 RVA(찾기용)
-// ★per-site draw 카운터(F80320 +1 진단): [0]base [1]슬롯게이트 [2]+0x78 [3]+0x7d [4]+0x82 [5]list2. my_f80320가 매 호출 리셋+증가.
-static GB_SITE: [AtomicU32; 6] = [AtomicU32::new(0),AtomicU32::new(0),AtomicU32::new(0),AtomicU32::new(0),AtomicU32::new(0),AtomicU32::new(0)];
-// ★영역 D 출력검증(cfg gbrd, genbuild_body_D.md "런타임 캡처 빌드"): mid-func 0x20e42a3 캡처 → RegionD locals(rbp/r12/r13)
-//   → gb_region_d 예측을 out ptr 키로 GBRD_MAP 저장. generic_build 리턴훅(kind14)이 같은 out ptr로 조회해 game out+0x58/+0x60 대조.
-//   ★mid-func라 return 하이재킹 불가 → 저장만. gbrd=1이면 genbuild_body_capture(kind14 리턴)도 자동 무장. 순수 read+gb_region_d(순수)=게임호출0.
-static GBRD: AtomicBool = AtomicBool::new(false);
-static GBRD_INSTALL_OK: AtomicU8 = AtomicU8::new(0);   // ★07-10 진단: gbrd detour 설치 결과 0=미시도 1=OK 2=실패
-static GBRD_RAW: AtomicU64 = AtomicU64::new(0);     // 0x42a3 전체진입(READY/cfg게이트 前) — "도달함?" 판정
-static GBRD_ARMED: AtomicU64 = AtomicU64::new(0);   // GBRD_MAP에 store된 예측 수
-static GBRD_BADPTR: AtomicU64 = AtomicU64::new(0);
-static GBRD_PANIC: AtomicU64 = AtomicU64::new(0);
-static GBRD_OK: AtomicU64 = AtomicU64::new(0);      // gb_region_d == game (kind+arg)
-static GBRD_DIFF: AtomicU64 = AtomicU64::new(0);
-static GBRD_NP: AtomicU64 = AtomicU64::new(0);      // gb_region_d None(미확정 분기 sil!=1/idle/0x4659)
-static GBRD_VPUSH: AtomicU64 = AtomicU64::new(0);   // 영역 D가 action Vec에 push한(delta>0) 케이스 수(action Vec 검증 진단)
-static GBRD_FILE_INIT: AtomicBool = AtomicBool::new(false);
-const GBRD_ARM_MAX: u64 = 4000;
-// out ptr → (예측 Option<(kind,arg)>, locals 덤프, 영역D진입시 action Vec len). kind14 리턴훅서 find+remove(같은 invocation 내 store→consume).
-//   entry_vlen = 0x42a3시 out+0x78(=A/B/C가 쌓은 len). 리턴서 최종 len과 비교 → 영역 D push delta 진단(action Vec 검증).
-static GBRD_MAP: Mutex<Vec<(usize, Option<(i64,u64,u16)>, String, u64)>> = Mutex::new(Vec::new());
-// ★영역 D 한정 대체모드(cfg gbrepl): live locals서 gb_region_d 계산(0x42a3) → 함수리턴(kind14)서 game out+0x58/+0x60을
-//   내 결정으로 덮어씀. 제어흐름 hijack無(리턴-overwrite=안전). gb_region_d==game(DIFF=0)이라 무수정시 게임동작 동일(메커니즘 투명성 증명),
-//   gb_region_d 튜닝시 게임 AI가 그 결정 채택. ⚠v1 한계: 리턴훅 무장(GBB_ARM_MAX) 범위까지만(=조기~중반 다수). 전건 대체는 inline skip 필요(후속).
-static GBREPL: AtomicBool = AtomicBool::new(false);
-static GBREPL_N: AtomicU64 = AtomicU64::new(0);   // 실제 덮어쓴 횟수
-// ★대체 충실성 체크(cfg gbreplchk): 덮어쓰기 없이 에필로그서 pred vs game out+0x58/0x60 대조(전케이스, 미cap) → match/mismatch+로그.
-//   체크전용서 게임이 같으면=hook 투명(메커니즘OK), mismatch=gb_region_d 미검증오류. 다르면=메커니즘 side effect.
-static GBREPLCHK: AtomicBool = AtomicBool::new(false);
-static GBREPL_MATCH: AtomicU64 = AtomicU64::new(0);
-static GBREPL_MISMATCH: AtomicU64 = AtomicU64::new(0);
-static GBREPLCHK_FILE_INIT: AtomicBool = AtomicBool::new(false);
-// ★진짜 skip 대체(cfg gbskip): region D RNG-free라 0x42a3서 gb_region_d 계산→out기록→funnel jump=게임 region D 미실행(진짜 계산대체).
-//   overwrite(게임실행+덮어쓰기)와 달리 게임 region D 건너뜀. push≠0/None은 passthrough(게임실행=Vec보존). install_detour_d_skip 필요.
-static GBSKIP: AtomicBool = AtomicBool::new(false);
-static GBSKIP_N: AtomicU64 = AtomicU64::new(0);
-// ★dedc0 timing분기(out+0x40==0 && b_logic) 오라클 해결(cfg gbdedc0): my_dedc0가 None인 21 NP에서만 FUN_1420dedc0 shadow-call(getter=leaf 오라클, resolver/norm과 동급). 게임함수콜=AV위험 cfg게이트(기본OFF).
-static GBDEDC0: AtomicBool = AtomicBool::new(false);
 // ★facet#4 movepriority 관측(cfg mpcap). disc→출력코드 분포. 별도 judge 10개라 우선 관측.
 static MPCAP: AtomicBool = AtomicBool::new(false);
 static MP_OBSERVE: AtomicBool = AtomicBool::new(false);   // ★관찰전용 캡처(cfg mp_observe): my_movepriority 미실행(my=-99), game 출력만 기록.
@@ -2011,55 +1960,6 @@ fn load_cfg(force: bool) -> bool {
                     }
                     RECALLCAP.store(on, Ordering::Relaxed);
                 }
-                "gbbody" => {
-                    let on = v=="1"||v.eq_ignore_ascii_case("true");
-                    if on && !GBBODY.load(Ordering::Relaxed) {
-                        GBB_ARMED.store(0, Ordering::Relaxed);
-                        GBB_FILE_INIT.store(false, Ordering::Relaxed);
-                        if let Ok(mut sv) = GBB_SEEN.lock() { sv.clear(); }
-                    }
-                    GBBODY.store(on, Ordering::Relaxed);
-                }
-                "gbrd" => {
-                    let on = v=="1"||v.eq_ignore_ascii_case("true");
-                    if on && !GBRD.load(Ordering::Relaxed) {
-                        GBRD_ARMED.store(0, Ordering::Relaxed);
-                        GBRD_OK.store(0, Ordering::Relaxed); GBRD_DIFF.store(0, Ordering::Relaxed); GBRD_NP.store(0, Ordering::Relaxed);
-                        GBRD_FILE_INIT.store(false, Ordering::Relaxed);
-                        if let Ok(mut m) = GBRD_MAP.lock() { m.clear(); }
-                        // gbrd는 kind14 리턴캡처에 의존 → gbbody seen 풀도 리셋(스로틀 신선화).
-                        if let Ok(mut sv) = GBB_SEEN.lock() { sv.clear(); }
-                        GBB_ARMED.store(0, Ordering::Relaxed);
-                    }
-                    GBRD.store(on, Ordering::Relaxed);
-                }
-                "gbrepl" => {
-                    let on = v=="1"||v.eq_ignore_ascii_case("true");
-                    if on && !GBREPL.load(Ordering::Relaxed) {
-                        GBREPL_N.store(0, Ordering::Relaxed);
-                        GBRD_FILE_INIT.store(false, Ordering::Relaxed);
-                        GBRD_OK.store(0, Ordering::Relaxed); GBRD_DIFF.store(0, Ordering::Relaxed); GBRD_NP.store(0, Ordering::Relaxed);
-                        if let Ok(mut m) = GBRD_MAP.lock() { m.clear(); }
-                        GBB_ARMED.store(0, Ordering::Relaxed);
-                        if let Ok(mut sv) = GBB_SEEN.lock() { sv.clear(); }
-                    }
-                    GBREPL.store(on, Ordering::Relaxed);
-                }
-                "gbdedc0" => { GBDEDC0.store(v=="1"||v.eq_ignore_ascii_case("true"), Ordering::Relaxed); }
-                "gbskip" => {
-                    let on = v=="1"||v.eq_ignore_ascii_case("true");
-                    if on && !GBSKIP.load(Ordering::Relaxed) { GBSKIP_N.store(0, Ordering::Relaxed); }
-                    GBSKIP.store(on, Ordering::Relaxed);
-                }
-                "gbreplchk" => {
-                    let on = v=="1"||v.eq_ignore_ascii_case("true");
-                    if on && !GBREPLCHK.load(Ordering::Relaxed) {
-                        GBREPL_MATCH.store(0, Ordering::Relaxed); GBREPL_MISMATCH.store(0, Ordering::Relaxed);
-                        GBREPLCHK_FILE_INIT.store(false, Ordering::Relaxed);
-                        if let Ok(mut m) = GBRD_MAP.lock() { m.clear(); }
-                    }
-                    GBREPLCHK.store(on, Ordering::Relaxed);
-                }
                 "e9jt" => { E9_JT.store(v=="1"||v.eq_ignore_ascii_case("true"), Ordering::Relaxed); }
                 "d4ttd" => { let on=v=="1"||v.eq_ignore_ascii_case("true"); if on && !D4_TTD.load(Ordering::Relaxed) { D4_TTD_PASS.store(0,Ordering::Relaxed); D4_TTD_C8.store(0,Ordering::Relaxed); } D4_TTD.store(on, Ordering::Relaxed); }
                 "d4_repl" => { D4_REPL.store(v=="1"||v.eq_ignore_ascii_case("true"), Ordering::Relaxed); }   // disc4 mp_repl 대체 토글(freeze 격리; 0=disc4만 passthrough)
@@ -2075,37 +1975,13 @@ fn load_cfg(force: bool) -> bool {
                     } else if !on { DL_ON.store(false, Ordering::Relaxed); }
                 }
                 "mp_d56_repl" => { MP_D56_REPL.store(v=="1"||v.eq_ignore_ascii_case("true"), Ordering::Relaxed); }   // ★07-11 크래시대책①: disc5/6 대체 격리(기본0=관측만; §12.23)
-                "dcap" => { DISC1819_CAP.store(v=="1"||v.eq_ignore_ascii_case("true"), Ordering::Relaxed); }   // ★disc18/19 넥서스 game 출력 캡처(disc1819cap.txt, 완전재현 대조용; 기본0)
-                "d19thr" => { D19_THREAT_SHADOW.store(v=="1"||v.eq_ignore_ascii_case("true"), Ordering::Relaxed); }   // ★disc19 위협점수 활성 게이트(기본OFF→threat=0=후반B경로). 켜면 my_disc19 HP사다리 활성. 계산=기본 순수(d19_threat_pure), 롤백=d19thrpure=0
-                "d19thrpure" => { D19_THREAT_PURE.store(v=="1"||v.eq_ignore_ascii_case("true"), Ordering::Relaxed); }   // ★[07-12] threat 계산 순수/shadow 선택(기본1=순수 FUN_1420a3fd0 재현, vt0x28 base getter만 leaf shadow). 0=전체 shadow-call 롤백(AV위험 §3)
-                "d19gate1" => { D19_GATE1.store(v=="1"||v.eq_ignore_ascii_case("true"), Ordering::Relaxed); }   // ★disc19 Gate1(조기홈복귀) 활성: FUN_14237d910/FUN_142090ec0/getter vt0x90 shadow-call(AV+재sim오염 위험 §3, 기본OFF=현행 완전보존). 켜면 Gate2 앞 Gate1 판정(cf0||bVar5||cf1→glen=1 홈복귀)
-                "d19vis" => { D19_VIS_GATE.store(v=="1"||v.eq_ignore_ascii_case("true"), Ordering::Relaxed); }   // ★disc19 struct_threat 확률 시야 게이트(기본 ON): d19_building_reaches 후보건물에 FUN_14237d910 시야 롤(Gate1 bVar5 동일)→미노출이면 제외. OFF=구동작(visible=true→실desc 4건 오도달)
-                "d19abil" => { D19_ABIL.store(v=="1"||v.eq_ignore_ascii_case("true"), Ordering::Relaxed); }
-                "d19abil2" => { D19_ABIL2.store(v=="1"||v.eq_ignore_ascii_case("true"), Ordering::Relaxed); }   // ★[07-14] 2차 abil emitter(FUN_14236ddf0) 발행. 비-self 5사이트+Gate#1 스코어게이트 순수재현(self-target 사이트는 Gate#2/#3 폴리모픽 미해결로 defer). 기본 OFF
-                "d19_lead" => { D19_LEAD.store(v!="0"&&!v.eq_ignore_ascii_case("false"), Ordering::Relaxed); }   // ★[07-15 진단] cand_main 리드보정(spd 감산) ON/OFF. 기본 ON. 0xf under 원인 격리용
 
-                "d19_g1_shadow" => { D19_G1_SHADOW.store(v=="1"||v.eq_ignore_ascii_case("true"), Ordering::Relaxed); }   // ★시야롤 롤백 토글(기본 OFF=순수재현 d19_g1_pred_pure). ON=FUN_14237d910 shadow-call(AV위험 §3). 순수는 shadow와 17790건 비트동일 검증완료(mmN=0)
-                "d19_us_shadow" => { D19_US_SHADOW.store(v=="1"||v.eq_ignore_ascii_case("true"), Ordering::Relaxed); }   // ★[07-12] usable_slot1/2 롤백 토글(기본 OFF=순수재현 d19_usable_slot1/2). ON=fce700/fbe950 shadow-call(AV위험 §3)
-                "d19_bd_shadow" => { D19_BASEDMG_SHADOW.store(v=="1"||v.eq_ignore_ascii_case("true"), Ordering::Relaxed); }   // ★[07-12] vt0x28 base쌍 getter 롤백(기본 OFF=순수 d19_basedmg 6종). ON=probe_basedmg_r9 전체 shadow-call(AV위험 §3)
-                "d19_bd_cmp" => { let on=v=="1"||v.eq_ignore_ascii_case("true"); if on { BD_CMP_OK.store(0,Ordering::Relaxed); BD_CMP_MM.store(0,Ordering::Relaxed); } D19_BD_CMP.store(on, Ordering::Relaxed); }
-                // ★[07-31] SubPlan19 강제(검증 전용). my_disc17의 최종 반환을 0x13으로 고정 → disc19 핸들러 경로를 태운다.
-                "force_sp19" => { FORCE_SP19.store(v=="1"||v.eq_ignore_ascii_case("true"), Ordering::Relaxed); }
-                // ★[07-31] disc16/17 대체 A/B 토글. 0 = 그 둘만 passthrough(게임 원본 실행).
-                // ⚠키 이름 `nx_`는 넥서스처럼 보이지만 **세르펜(disc16 SerpenHunt·17 SerpenPoke)** 스위치다(구라벨, L7164 참조).
-            "nx_repl" => { D1617_REPL.store(v=="1"||v.eq_ignore_ascii_case("true"), Ordering::Relaxed); }   // ★[07-12] 순수 base쌍 vs shadow 비트동일 대조(bdcmp.txt, 검증 전용·shadow 호출 AV위험 §3)
-                "d19_g1cap" => { G1CAP_ON.store(v=="1"||v.eq_ignore_ascii_case("true"), Ordering::Relaxed); }   // ★[07-12] compFlag vt0x170 오브젝티브 트리 빌더 concrete 타깃 캡처(g1cap.txt, 순수 read·기본 OFF). Gate1(d19gate1=1) 발화 시 수집→오프라인 RE
-                "d19_g1cf_shadow" => { D19_G1CF_SHADOW.store(v=="1"||v.eq_ignore_ascii_case("true"), Ordering::Relaxed); }   // ★[07-12] compFlag 순수/shadow 선택(기본1=shadow FUN_142090ec0, 순수검증 전 안전). 0=순수 d19_g1_compflag_pure
-                "d19_g1cf_cmp" => { let on=v=="1"||v.eq_ignore_ascii_case("true"); if on { G1CF_OK.store(0,Ordering::Relaxed); G1CF_MM.store(0,Ordering::Relaxed); } D19_G1CF_CMP.store(on, Ordering::Relaxed); }   // ★[07-12] compFlag 순수 vs shadow A/B(g1cfcmp.txt, 검증 전용·shadow 호출)
-                "d19_g1cf_loop2" => { D19_G1CF_LOOP2.store(v=="1"||v.eq_ignore_ascii_case("true"), Ordering::Relaxed); }   // ★[07-12] 진단: loop2 threat항 격리(0=de40만)
-                "d18abil" => { D18_ABIL.store(v=="1"||v.eq_ignore_ascii_case("true"), Ordering::Relaxed); }   // ★[07-12] disc18 Phase3/4 능력블록(0xf/0x10/0x11) 발행(기본 OFF=골격 미발행). 실발행+dcmp 보정은 §11.9.11 잔여
                 "d19_threat_mult" => { if let Ok(n)=v.parse() { D19_THREAT_MULT.store(n, Ordering::Relaxed); } }   // ★[07-12] disc19 위협점수 배수%(주력 튜닝)
                 "d19_retreat_hp" => { if let Ok(n)=v.parse() { D19_RETREAT_HP.store(n, Ordering::Relaxed); } }   // ★[07-12] go_detailed HP%문턱
                 "d19_range_atkme" => { if let Ok(n)=v.parse() { D19_RANGE_ATKME.store(n, Ordering::Relaxed); } }
                 "d19_range_bld" => { if let Ok(n)=v.parse() { D19_RANGE_BLD.store(n, Ordering::Relaxed); } }
                 "d19_range_other" => { if let Ok(n)=v.parse() { D19_RANGE_OTHER.store(n, Ordering::Relaxed); } }
                 "d19_range_idle" => { if let Ok(n)=v.parse() { D19_RANGE_IDLE.store(n, Ordering::Relaxed); } }
-                "d7_repl" => { D7_REPL.store(v=="1"||v.eq_ignore_ascii_case("true"), Ordering::Relaxed); }   // disc7(Recall) 라이브대체 토글(기본0=원본. d7_hp_normal/selfheal/wp_dist2 반영엔 이게 켜져야)
-                "d15_repl" => { D15_REPL.store(v=="1"||v.eq_ignore_ascii_case("true"), Ordering::Relaxed); }   // disc15(SerpenCheck) 라이브대체 토글(기본0=원본. d15_engage_hp_pct 반영엔 이게 켜져야·재현 미검증)
                 "mp_observe" => { MP_OBSERVE.store(v=="1"||v.eq_ignore_ascii_case("true"), Ordering::Relaxed); }   // 관찰전용 캡처(my 미실행) — 튜토리얼/스테이지1 발화 관찰용
                 "perf_measure" => { let on = v=="1"||v.eq_ignore_ascii_case("true"); if on { for i in 0..8 { PERF_NS[i].store(0,Ordering::Relaxed); PERF_CNT[i].store(0,Ordering::Relaxed); } } PERF_ON.store(on, Ordering::Relaxed); }   // judge별 시간측정→perf.txt
                 "fast_read" => { let lvl = v.trim().parse::<u8>().unwrap_or(if v.eq_ignore_ascii_case("true"){2}else{0}); FAST_READ.store(lvl.min(2), Ordering::Relaxed); }   // ★rd_* 읽기 경로: 0=VirtualQuery / 1=VEH spinlock / 2=VEH lockless(최속). 문제시 낮춰서 롤백
@@ -2292,7 +2168,6 @@ fn load_cfg(force: bool) -> bool {
             let engage_t = vis_t || NUMBERS_MARGIN.load(Ordering::Relaxed) > 0 || TOWER_THREAT.load(Ordering::Relaxed) > 0 || g(&["t_engage","eng_role4","eng_role3","eng_role2","eng_role_def","engage_base","engage_thr_mult","stat_neutral","stat_pos_div","stat_judg_ref","stat_noise_shift"]);   // numbers/tower>0도 engage 대체 유지(override 동작 위함)
             let disc4_t  = vis_t || TOWER_THREAT.load(Ordering::Relaxed) > 0 || g(&["t_ttd","d4_dmg_scale","d4_div_base","d4_coef_scale","d4_coef_min","d4_coef_clamp","d4_coord_dist","d4_ttd_scale","tower_dps","d4_ward_dist2","d4_engage_r2","d4_ref_dist2","d4_close_hp","d4_threat_min","d4_pathlen_thr","d4_wcast_thr"]);   // ★포탑위협>0도 disc4 대체 유지(TTD 가산 위함)
             let recall_t = vis_t || g(&["t_recall","rc_u21_init","rc_ehp_t1","rc_ehp_t2","rc_ehp_t3","rc_ehp_v1","rc_ehp_v2","rc_norp_bonus","rc_ed_near","rc_ed_mid","rc_ed_far","rc_ed_near_pen","rc_ed_far_bonus","rc_ed_vfar_bonus","rc_ahp_t1","rc_ahp_t2","rc_u13_bonus","rc_ahp2_pen","rc_ad_near","rc_ad_mid","rc_ad_near_bonus","rc_ad_far_pen","rc_mult_bonus","rc_ally_hp_min","rc_rng_a_base","rc_rng_spread_div","rc_rng_center","rc_score_div","rc_join_weight","rc_join_adv","rc_join_rescue","rc_join_dnear","rc_join_dmid","rc_join_obj_mult","pf_edge_margin","pf_center_band","pf_diag_far","pf_diag_near","pf_band_width"]);   // ★[수정 07-16] pf_* 추가(poke_t서 이동. my_recall_mult geometry가 read)
-            let gb_t     = vis_t || g(&["t_gb","gb_rbx_div","gb_r15_div","gb_r14_num","gb_cnt_skip","gb_da_thr","gb_cnt_move","gb_db_engage","gb_score_mult"]);
             let dd7_t    = vis_t || TOWER_THREAT.load(Ordering::Relaxed) > 0 || NUMBERS_MARGIN.load(Ordering::Relaxed) > 0 || NUMBERS_THREAT.load(Ordering::Relaxed) > 0 || NUMBERS_THREAT_MOVE.load(Ordering::Relaxed) >= 0 || NUMBERS_THREAT_SP_ANY.load(Ordering::Relaxed) || g(&["dd_frontier_mult","dd_lane_margin","dd_cover_count","dd_ratio_thr","dd_facet_thr","dd_near_dist","dd_main_near_dist","dd_gatee_dist","dd_ivar2_thr","dd_n_thr","dd_survivor_thr","dd_early_p3_thr","dd_cover_p3_thr","dd_f22e80_margin"]);   // ★포탑/전력/Move임계>0도 dd7_repl 유지(라이너 후퇴 override 위함)
             let poke_t   = vis_t || g(&["pk_home_lo","pk_home_hi","pk_home_x1","pk_home_y1","pk_hp_main","pk_hp_retreat","pk_smallact_split","pk_threat_mult","pk_zone_hp","pk_engage_dist","pk_obj_hp","poke_phase_gate","poke_active_min","poke_reach_bonus","poke_serpen_slot"]);   // ★[수정 07-16] pf_* 제거(→recall_t. pf_*는 my_recall_mult가 read=recall 소속인데 여기 있어 skip모드서 recall 강제off 잠복버그였음)
             let mp_misc_t = g(&["d8_slot_thr","sn_home_lo","sn_home_hi","sn_home_x1","sn_home_y1","sn_hp_crit","sn_self_hp","bt_home_lo","bt_home_hi","bt_home_x1","bt_home_y1","bt_hp_retreat",
@@ -2304,7 +2179,6 @@ fn load_cfg(force: bool) -> bool {
             if !engage_t { ENGAGE_REPL.store(false, Ordering::Relaxed); }
             if !disc4_t  { D4_REPL.store(false, Ordering::Relaxed); }
             if !recall_t { RECALL_REPL.store(false, Ordering::Relaxed); }
-            if !gb_t     { GBSKIP.store(false, Ordering::Relaxed); }
             if !dd7_t    { DD7_REPL.store(false, Ordering::Relaxed); }
             if !poke_t   { POKE_REPL.store(false, Ordering::Relaxed); }
             if !(dd7_t || poke_t || disc4_t || mp_misc_t) { MP_REPL.store(false, Ordering::Relaxed); }   // 이동판단 하위 전부 untuned면 통째 원본
@@ -2324,6 +2198,43 @@ fn isqrt(n: u64) -> u64 {
     while y < x { x = y; y = (x + n / x) / 2; }
     x
 }
+// ── vt+0x90 필드게터 순수 read(vt90_get) + 미등재 슬롯 프롤로그 디코더(decode_getter). ★[2026-09-06] disc19_repro.rs 제거 시 이식(vt560_threat → disc7_threat 계열이 사용).
+// ── vt0x90 스킬게터 순수재현(shadow-call 제거) ──────────────────────────────────────────
+//   vt0x90 슬롯값 = 함수포인터. 6종 전부 trivial 필드게터(`mov rax,[data+imm]; ret`, self/target·RNG 미참조,
+//   47 vtable 전수확인). 그래서 CALL 대신 슬롯 RVA로 imm을 판정해 *(data+imm)을 직접 read = bit-exact 순수화.
+//   (c8c_cast_get의 vt0x90 서브셋과 동일 표 + 0x19ed260→+0x20 추가.) 미등재 슬롯은 decode_getter로 프롤로그 파싱.
+unsafe fn vt90_get(vt: usize, data: usize) -> i64 {
+    let slot = rd_u64(vt + 0x90).unwrap_or(0) as usize;
+    if slot == 0 || !ptr_ok(data) || !in_text(slot) { return 0; }   // ★[07-15 하드닝] .text 게이트(유효 게터 무영향)
+    let base = exe_base();
+    let imm: i64 = match slot.wrapping_sub(base) {
+        // ★0.5.3 재핀(2026-07-30, vtslot7_053.py). 구값(0.5.0_3 세대) = 0x19f2f60/0x1a13cb0/0x19ed260/0x19ed250/0x1a3a240/0xb024b0/0x1e85540.
+        //   ⚠구값은 0.5.3 .text 안에서 **다른 함수**를 가리키므로 병기 금지(교체가 정본). 7종 전부 명령 완전동일 검증.
+        0xef5d80 => 0x30, 0x2f840 => 0x28, 0xf76b10 => 0x20,
+        0x151a580 => 0x18, 0xf07b60 => 0x08, 0x1434320 => 0x00,
+        0x17bbad0 => 0x170,   // mov rax,[rcx+0x170](쿨다운 base 게터, disp32라 구 decode_getter 미파싱)
+        _ => decode_getter(slot),   // 미등재: 프롤로그 바이트 파싱(미래 챔피언 일반화)
+    };
+    if imm < 0 { return 0; }
+    rd_i64(data + imm as usize).unwrap_or(0)
+}
+// decode_getter: 미등재 슬롯의 프롤로그를 VEH-safe로 읽어 필드게터인지 판정.
+//   패턴A `48 8B 41 <imm8> C3` (mov rax,[rcx+imm8];ret) → imm8. 패턴B `48 8B 01 C3` (mov rax,[rcx];ret) → 0.
+//   그 외(다른 레지스터/movzx/실제 로직 등) → -1(미지원, 0 반환).
+unsafe fn decode_getter(slot: usize) -> i64 {
+    if !readable(slot, 8) { return -1; }
+    if rd_u8(slot) == 0x48 && rd_u8(slot + 1) == 0x8B {
+        let b2 = rd_u8(slot + 2);
+        if b2 == 0x41 && rd_u8(slot + 4) == 0xC3 { return rd_u8(slot + 3) as i64; } // [rcx+imm8]
+        if b2 == 0x01 && rd_u8(slot + 3) == 0xC3 { return 0; }                       // [rcx]
+        // ★[07-15] disp32형 `48 8B 81 <imm32> C3` (오프셋 ≥0x80이라 어셈블러가 disp32 인코딩) → imm8형과 동일 필드게터.
+        if b2 == 0x81 && rd_u8(slot + 7) == 0xC3 {
+            return (rd_u8(slot+3) as i64) | ((rd_u8(slot+4) as i64)<<8) | ((rd_u8(slot+5) as i64)<<16) | ((rd_u8(slot+6) as i64)<<24);
+        }
+    }
+    -1
+}
+
 // vt0x90 = trivial 필드게터 전수확정(§11.9.1-G) → shadow-CALL 대신 vt90_get 순수 read (leaf는 rcx=dataptr만 사용).
 unsafe fn vt560_threat(e: usize) -> i64 {
     let v = rd_u64(e + 0x560).unwrap_or(0) as usize;
@@ -2331,6 +2242,25 @@ unsafe fn vt560_threat(e: usize) -> i64 {
     if !ptr_ok(v) { return 0; }
     vt90_get(v, a0)
 }
+
+// ── geom vt0x68(now-visible) 순수재현. ★[2026-09-06] disc19_repro.rs 제거 시 이식(serpen.rs·본체 dd7/gank 재현이 사용). ⚠오프셋(gc+0x738/0x740/0x750/0x758·entity stride 0x6c0·+0x38/+0x50)은 0.5.3 세대 값 — 0.5.8 미검증(구 사용처와 동일 조건).
+// vt0x68 재현 (게임 RVA 0x20aacd0): now-visible. key(적 id) L3 resolve → entity[0x38+side*0x18]==0 이면 visible(true).
+#[inline] unsafe fn geom_vt68(gc: usize, side: usize, key: u64) -> bool {
+    if key < rd_u64(gc+0x758).unwrap_or(0) {
+        let t3 = rd_u64(gc+0x750).unwrap_or(0) as usize;
+        if ptr_ok(t3) && rd_i32(t3 + (key as usize)*0x10).unwrap_or(0) == 1 {
+            let u = rd_u64(t3 + (key as usize)*0x10 + 8).unwrap_or(0);
+            if u < rd_u64(gc+0x740).unwrap_or(0) && side < 2 {
+                let e = (u as usize)*0x6c0 + rd_u64(gc+0x738).unwrap_or(0) as usize;
+                return rd_u64(e + 0x38 + side*0x18).unwrap_or(1) == 0;   // side0=+0x38, side1=+0x50
+            }
+        }
+    }
+    false
+}
+
+
+
 
 // ★engage RNG footprint 측정+예측검증: retreat 진입 (entry_rsp, state, idx0, ctr0, pred_out, pred_words) 스냅 → kind1 리턴서 실제 (out, words)와 대조. engfoot.txt.
 //   pred_out/pred_words = my_engage_predict (engage 브랜치만; 비engage는 -777=skip).
@@ -2900,16 +2830,6 @@ static INITIMM_SIG: AtomicU64 = AtomicU64::new(u64::MAX);   // ★[09-01 신설]
 //   ★컴파일러 경계변환(<→<=, >→>=) 반영: HP경계·phase는 V-1, tr>9·retreat2는 V+1로 인코딩값 도출(주석의 원본 imm이 근거).
 //   d19i_enable=0이면 게임 원본 imm 복원(무개입). 전 사이트 REX+83+modrm 3바이트 prefix 검증 후 imm8 1바이트만 패치.
 static D19IMM_DONE: AtomicBool = AtomicBool::new(false);
-static ORIG_DISC18: AtomicUsize = AtomicUsize::new(0);   // game 원본 트램폴린(wrap이 호출)
-static ORIG_DISC19: AtomicUsize = AtomicUsize::new(0);
-// ★★[07-31] SubPlan 디스패처 계측 — "disc18/19 훅이 설치됐는데 한 번도 발화하지 않는" 원인 규명용.
-//   ghidra-re 결론: 발화 게이트는 **"그 유닛의 SubPlan(unit+0x6b0)이 18/19인가" 하나뿐**이고,
-//   Plan16/17(진입결정)은 실제로 발생하는데(REPL 로그 disc=16 42회·17 56회) SubPlan 승격에서 막히는 것으로 보인다.
-//   ⟹ 실제 SubPlan 분포를 직접 세어 확정한다. **read-only 카운터만**(파일 IO 없음 — 매 호출 IO는 게임을 죽인다는 07-22 실증).
-// ⛔**기본 false 확정** — 2026-07-31 인게임 크래시(AV, 2회 재현)로 즉시 차단. 원인 규명 전 재활성 금지.
-//   ★단 크래시 전 5,269건을 세는 데는 성공했고 그 결과가 결론이 됐다: `18:`/`19:` 버킷 **0건**
-//   (`subplan_dispatch: total=5269 other=0 | 0:155 1:95 2:3692 4:93 6:7 7:247 8:912 11:68`).
-const SPDISP_PROBE: bool = false;
 /// ★[0.5.4] 경매 진입 passthrough 프로브(`TeamPlan.version` 관측). 크래시 시 여기만 false.
 const AUC_PROBE: bool = false;   // ★0.5.8 OFF(2026-09-02) — RVA_AUCTION 0xe65b10 이 0.5.8 에서
                                   //   **다른 함수의 진입부**가 됐다(0.5.7 은 명령 중간=무해했음).
@@ -2927,248 +2847,13 @@ const AUC_PROBE: bool = false;   // ★0.5.8 OFF(2026-09-02) — RVA_AUCTION 0xe
 //     (rax:rdx)를 반환하면 **크래시 없이 반환값만 망가져** 경매 점수가 엉키고 후퇴 판단이 안 뜬다.
 //   ★교훈: passthrough 훅은 인자만 맞추면 되는 게 아니라 **반환값 폭·레지스터까지** 맞아야 무해하다.
 //     "크래시 안 남 = 무해" 가 아니다 — 조용한 동작 변화가 더 나쁘다.
-// ★★[07-31] **SubPlan 19(DefenseNexus) 강제** — disc19 재현 검증 전용. cfg `force_sp19 = 1`.
-//   왜 여기인가: ghidra-re 확정 — `MP_SAFE_DISC`에 16/17이 있어 **Plan16/17은 모드가 이미 완전대체**한다.
-//   ⟹ 게임 원본(`0xdec6b0`)은 아예 실행되지 않으므로 **게임 byte-patch는 효과 0**이고,
-//      진짜 제어점은 우리 재현부 `my_disc17`의 반환값이다(RE\2026-07-31_SubPlan승격게이트-패치사이트 §0·§5).
-//   자연 상태에서 Plan17 56회가 전부 SubPlan 7로 떨어지는 이유 = `inBase && curHP<maxHP → 7`(유력).
-//   ⚠검증 전용: 켜면 Plan17 챔프가 귀환 대신 넥서스 방어를 상시 수행 = AI 왜곡. **기본 OFF.**
-static FORCE_SP19: AtomicBool = AtomicBool::new(false);
-// 진단: 게이트가 실제로 도달·발동했는지. (cfg 파싱 실패 / my_disc17 미호출 / 발동했는데 게임에 전달 안 됨) 을 구분한다.
-static D17_CALLS: AtomicU64 = AtomicU64::new(0);    // my_disc17 최종반환 지점 도달 수
-static D17_FORCED: AtomicU64 = AtomicU64::new(0);   // 그중 0x13으로 강제한 수
-// ★[07-31] disc16/17 대체 토글(A/B 실험용). **기본 true = 종전 동작 유지**. cfg `nx_repl = 0` 으로 끄면
-//   그 두 disc 만 passthrough(게임 원본 실행) 가 되어, 같은 리플레이를 0/1 로 돌려 결과 차이를 볼 수 있다.
-static D1617_REPL: AtomicBool = AtomicBool::new(true);
-//   ★실험 계기 = 아래 `d17_calls`. 토글 OFF면 my_disc17 이 아예 안 불리므로 **d17_calls=0** 이 되어 A/B 구분이 자명하다.
-static ORIG_SPDISP: AtomicUsize = AtomicUsize::new(0);
-static SP_HIST: [AtomicU64; 40] = [const { AtomicU64::new(0) }; 40];
-static SP_OTHER: AtomicU64 = AtomicU64::new(0);   // 40 이상/비정상 값
-static SP_TOTAL: AtomicU64 = AtomicU64::new(0);
-static DISC1819_CAP: AtomicBool = AtomicBool::new(false); // cfg dcap
-static D18_N: AtomicU64 = AtomicU64::new(0);
-static D19_N: AtomicU64 = AtomicU64::new(0);
-static DISC_FILE_INIT: AtomicBool = AtomicBool::new(false);
-// ── my_disc19(완전재현 Phase2-2) 대조 배선용 ──
-static D19_THREAT_SHADOW: AtomicBool = AtomicBool::new(false);   // cfg d19thr: threat 활성 게이트(기본OFF→threat=0)
-static D19_THREAT_PURE: AtomicBool = AtomicBool::new(true);      // cfg d19thrpure: 1=순수 d19_threat_pure(기본), 0=전체 shadow 롤백
-static D19_US_SHADOW: AtomicBool = AtomicBool::new(false);       // cfg d19_us_shadow: usable_slot1/2 shadow 롤백(기본 OFF=순수)
-static D19_BASEDMG_SHADOW: AtomicBool = AtomicBool::new(false);  // cfg d19_bd_shadow: vt0x28 base쌍 getter shadow 롤백(기본 OFF=순수, #4/미지 RVA는 자동 shadow 폴백)
-static D19_BD_CMP: AtomicBool = AtomicBool::new(false);          // cfg d19_bd_cmp: 순수 base쌍을 shadow와 비트동일 대조(bdcmp.txt, 검증 전용)
-static BD_CMP_OK: AtomicU64 = AtomicU64::new(0);
-static BD_CMP_MM: AtomicU64 = AtomicU64::new(0);
-static D19_CMP_N: AtomicU64 = AtomicU64::new(0);                 // dcmp 발화 카운터(200회당 1회 샘플)
-static D19_CMP_INIT: AtomicBool = AtomicBool::new(false);
-static D19_LAYOUT: AtomicU8 = AtomicU8::new(0xff);               // 마지막 감지 p6 레이아웃(0=직접 p6[0]=obj / 1=이중deref p6[0][0]=obj / 0xff=미해결)
-// ── disc18(AttackNexus, FUN_141c81980) 완전재현 골격 대조 배선(관찰 전용, disc19 인프라 미러). 근거=§11.9.2(본체)+§11.9.11(콜리/게이트/band/zone). ──
-//   ★이 단계 = 관찰/대조 전용(disc19와 동일 methodology). game sret 훼손 금지 → my_disc18은 별도 scratch에 계산. RNG-free라 재sim 무영향.
-static D18_CMP_N: AtomicU64 = AtomicU64::new(0);                 // dcmp 발화 카운터(200회당 1회 샘플)
-static D18_CMP_INIT: AtomicBool = AtomicBool::new(false);
-static D18_LAYOUT: AtomicU8 = AtomicU8::new(0xff);               // 마지막 감지 p6 레이아웃
-static D18_INRANGE: AtomicI64 = AtomicI64::new(-1);             // 계측: Phase1 in_range(적구조물 사거리내). -1=미계산
-static D18_F0: AtomicI64 = AtomicI64::new(-1);                  // 계측: Phase2 zone flag0
-static D18_F1: AtomicI64 = AtomicI64::new(-1);                  // 계측: Phase2 zone flag1
-static D18_BAND: AtomicI64 = AtomicI64::new(-1);               // 계측: band(p3)
-static D18_ABIL: AtomicBool = AtomicBool::new(false);          // cfg d18abil: Phase3/4 능력블록(0xf/0x10/0x11) 발행(기본 OFF=골격 미발행)
-// ── Gate2 계측(순수 관찰: my_disc19가 Gate2 계산 시 값 캡처 → dcmp가 마지막호출 값을 라인에 append). 미도달=sentinel(thr=-1). ──
-static D19_G2_THREAT: AtomicI64 = AtomicI64::new(-1);           // sentinel -1 = Gate2 미도달(phase<=0x1d/조기return)
-static D19_G2_B: AtomicI64 = AtomicI64::new(0);                 // curHP (nx+0x658)
-static D19_G2_HP: AtomicI64 = AtomicI64::new(0);               // hp_pct
-static D19_G2_SEV: AtomicI64 = AtomicI64::new(0);              // sev 임계표 결과
-static D19_G2_CV: AtomicI64 = AtomicI64::new(0);              // cvar7(disc17_pred, phase>=0x27)
-static D19_G2_GD: AtomicI64 = AtomicI64::new(0);             // go_detailed as u8(0/1)
-static D19_G2_PHASE: AtomicI64 = AtomicI64::new(0);         // Gate2 진입 phase
-// ── Gate1 계측/토글(FUN_141c83700 bVar5+compFlag 조기홈복귀, Gate2보다 먼저). shadow-call 3종(FUN_14237d910 로컬RNG / FUN_142090ec0 TLS캐시 / getter vt0x90) = AV+재sim오염 위험(§3) → cfg d19gate1 격리, 기본 OFF=현행동작 완전보존. ──
-static D19_GATE1: AtomicBool = AtomicBool::new(false);        // cfg d19gate1: Gate1 활성(기본 OFF)
-static D19_VIS_GATE: AtomicBool = AtomicBool::new(true);      // cfg d19vis: struct_threat 후보건물 확률 시야 게이트(FUN_14237d910 shadow-call). 기본 ON=미노출건물 제외(실desc 4건 회귀 해소). Gate1 bVar5의 d19_g1_pred와 동일 롤(per-call 지역RNG=전역 sim-rng 미소비→재sim 안전). OFF=구동작(visible=true 가정)
-static D19_G1_CF0: AtomicI64 = AtomicI64::new(-1);            // compFlag0(FUN_142090ec0 out+0x28 byte0). -1=게이트OFF/미도달
-static D19_G1_CF1: AtomicI64 = AtomicI64::new(-1);            // compFlag1(out+0x29 byte1)
-static D19_G1_BV:  AtomicI64 = AtomicI64::new(-1);            // bVar5(적웨이브 임박) as 0/1
-static D19_G1_FIRED: AtomicI64 = AtomicI64::new(0);          // Gate1 발화(cf0||bv||cf1) → glen=1 홈복귀
-// ── 전반A(4) 조기후퇴 게이트 계측(순수 관찰). Gate1/Gate2보다 앞선 홈복귀 경로(flag0||struct_threat||flag1). ──
-//   이 게이트가 발화하면 emit+return이 Gate1/Gate2 계측 store보다 먼저라 기존 g1/g2가 전부 sentinel로 남았다(glen>=3 vs mlen=1 5건의 실체). 판정 직전 캡처.
-static D19_A4_F0: AtomicI64 = AtomicI64::new(-1);            // flag0(zone f0). -1=게이트 미도달
-static D19_A4_STRUCT: AtomicI64 = AtomicI64::new(-1);        // struct_threat(적건물 reach) as 0/1
-static D19_A4_F1: AtomicI64 = AtomicI64::new(-1);            // flag1(zone f1)
-static D19_A4_FIRED: AtomicI64 = AtomicI64::new(0);          // 전반A(4) 발화(f0||struct||f1) → tag3 후퇴 return(glen=1)
-// ── d19_building_reaches 항별 계측(순수 관찰). struct_threat=true 유발한 첫 도달건물의 reach 각 항. -1=미발화(도달건물 없음). ──
-//   과대판정(struct_threat 오발화) 원인항 특정용: R=base420+desc2+desc3term+vt90. d²<=R²이면 도달. 어느 항이 R을 과대하게 만드는지 대조.
-static D19_BR_BASE: AtomicI64 = AtomicI64::new(-1);          // reach_base = rd_i64(b+0x420)  (format: base 및 rb 공용)
-static D19_BR_D2:   AtomicI64 = AtomicI64::new(-1);          // d² = sqd(b, nexus)
-static D19_BR_DESC2: AtomicI64 = AtomicI64::new(-1);         // desc[2] = rd_i64(desc+0x10)
-static D19_BR_DESC3: AtomicI64 = AtomicI64::new(-1);         // desc3term = (lvl-1)*rd_i64(desc+0x18)
-static D19_BR_VT90: AtomicI64 = AtomicI64::new(-1);          // vt0x90 필드게터 값
-static D19_BR_R:    AtomicI64 = AtomicI64::new(-1);          // reach 총합 = base420 + desc_term
-static D19_BR_BK:   AtomicI64 = AtomicI64::new(-1);          // b kind (b+0x68)
-static D19_BR_BST:  AtomicI64 = AtomicI64::new(-1);          // b subtype (b+0x70)
-static D19_BR_BID:  AtomicI64 = AtomicI64::new(-1);          // b id (b+0x5a8)
-// ── 능력배정 발행블록(tag 0xf/0x10/0x11, FUN_141c83700 0x84c35~0x8525b) 토글. usable_slot1/2·vt90 range getter shadow-call(AV위험 §3) → cfg d19abil 격리, 기본 OFF=현행(tag5 완전일치) 완전보존. ON이면 tag5/tag3 뒤 능력사용 커맨드 추가발행(game disc19cmp 559건 미발행 교정). ──
-static D19_ABIL: AtomicBool = AtomicBool::new(false);        // cfg d19abil: 능력배정 블록 활성(기본 OFF)
-static D19_ABIL2: AtomicBool = AtomicBool::new(false);       // cfg d19abil2: 2차 abil emitter(FUN_14236ddf0) 활성(기본 OFF). 비-self 5사이트+Gate#1
-static D19_LEAD: AtomicBool = AtomicBool::new(true);        // cfg d19_lead: cand_main 리드보정(기본 ON). 0xf under 격리용 진단
-// ★[07-15] 0xf under 진단: cand_main/near 후보의 (target_id | slot0존재게이트<<16 | slot0inr<<17) 캡처. disc19cmp에 append.
-static D19_CMDBG: [AtomicU64; 12] = [const { AtomicU64::new(0) }; 12];
-static D19_CMDBG_N: AtomicUsize = AtomicUsize::new(0);
-// ★[07-15] cand_main raw 5슬롯 로스터 진단: id<<8 | reject(0=수락/1=tag/2=null/3=시야/4=6a0/5=688). disc19cmp에 append.
-static D19_RAWROST: [AtomicU64; 5] = [const { AtomicU64::new(0xffff_ff00) }; 5];
-// ★[07-15] 1차 emitter concat3 slot0(0xf) 진단: id<<8 | code(0=emit / 1=dist / 2=team / 3=usable0 / 4=inrange). game 놓친타겟이 여기 emit(0)이면 1차서 발행中(2차대조아티팩트) / dist/inrange면 1차 사거리 / 부재면 concat3에 없음.
-static D19_C1DBG: [AtomicU64; 128] = [const { AtomicU64::new(0) }; 128];
-static D19_C1DBG_N: AtomicUsize = AtomicUsize::new(0);
-// ★[07-15] RE 가설 확인: d19_scaled에서 P<0 발생수(0이면 SHR교정=no-op) / in_range 부호R<=0 발생수.
-static D19_PNEG: AtomicU64 = AtomicU64::new(0);
-// ★[07-15] slot2(0x11) 게이트 per-cand 진단: id<<8 | code(0=emit / 1=존재 / 2=tv / 3=inr / 4=score). 어느 게이트가 0x11 거부하나.
-static D19_S2DBG: [AtomicU64; 12] = [const { AtomicU64::new(0) }; 12];
-static D19_S2DBG_N: AtomicUsize = AtomicUsize::new(0);
-// ★[07-15] 2차 slot1(0x10) 게이트 per-cand: id<<8|code(0=emit/1=존재/2=tv(+sel/tk/sm 상위비트)/3=inr/4=score).
-static D19_S1DBG: [AtomicU64; 12] = [const { AtomicU64::new(0) }; 12];
-static D19_S1DBG_N: AtomicUsize = AtomicUsize::new(0);
-// ★[07-15] 1차 concat3 slot1(0x10)·slot2(0x11) 게이트 per-cand: id<<8|code(0=emit/1=slotvalid/2=usable/3=tv/4=inr).
-static D19_C1S1: [AtomicU64; 24] = [const { AtomicU64::new(0) }; 24];
-static D19_C1S1_N: AtomicUsize = AtomicUsize::new(0);
-static D19_C1S2: [AtomicU64; 24] = [const { AtomicU64::new(0) }; 24];
-static D19_C1S2_N: AtomicUsize = AtomicUsize::new(0);
-// ★[07-15] 방어리스트(FUN_142376f00, g0+0xf0/+0x108) 3슬롯 발행 진단: id<<8|code(0=emit(≥1슬롯) / 1=invisible / 2=defflag / 3=team / 4=dist / 5=slot전부게이트). 놓친타겟(0x1ec류)이 여기 뜨면 방어경로 소스 확인.
-static D19_DEFDBG: [AtomicU64; 32] = [const { AtomicU64::new(0) }; 32];
-static D19_DEFDBG_N: AtomicUsize = AtomicUsize::new(0);
-// ★[07-15] Path B 최근접구조물 0xf 진단: m=리스트수, best=*(best_s+0x5a8), gate 비트필드(b0=best!=0 b1=4a8!=-1 b2=s_in_range b3=unit_in_range b4=!dive b5=usable0 b6=hp>r15).
-static D19_PB_M: AtomicU64 = AtomicU64::new(0xffff);
-static D19_PB_BEST: AtomicU64 = AtomicU64::new(0xffff);
-static D19_PB_GATE: AtomicU64 = AtomicU64::new(0);
-// ★[07-15] usable_slot1 실패게이트 계측: 0=usable/1=type4/2=c8(시전중)/3=kind≠0xd/4=vtnull/5=cooldown/6=typescan/7=finalid.
-static D19_US1_FAIL: AtomicU64 = AtomicU64::new(0xff);
-// ★[07-15] usable_slot1 쿨다운 계측(us1f=5 진단): base(vt90)·div(vta8)·q·cd(*e+0xb8)·slot0x570 RVA.
-static D19_US1_BASE: AtomicU64 = AtomicU64::new(0);
-static D19_US1_DIV: AtomicU64 = AtomicU64::new(0);
-static D19_US1_Q: AtomicU64 = AtomicU64::new(0);
-static D19_US1_CD: AtomicU64 = AtomicU64::new(0);
-static D19_US1_SLOTRVA: AtomicU64 = AtomicU64::new(0);
-// ★[07-15] usable_slot2 계측(0x11 over 진단): fail게이트 + base/div/q/cd/lvl/slotRVA.
-static D19_US2_FAIL: AtomicU64 = AtomicU64::new(0xff);
-static D19_US2_BASE: AtomicU64 = AtomicU64::new(0);
-static D19_US2_DIV: AtomicU64 = AtomicU64::new(0);
-static D19_US2_Q: AtomicU64 = AtomicU64::new(0);
-static D19_US2_CD: AtomicU64 = AtomicU64::new(0);
-static D19_US2_LVL: AtomicU64 = AtomicU64::new(0);
-static D19_US2_SLOTRVA: AtomicU64 = AtomicU64::new(0);
-// ★[07-15] in_range 마지막 계산(R², d2, R) — 2차 slot1 경계건 정밀/계통 판별용.
-static D19_INR_RSQ: AtomicU64 = AtomicU64::new(0);
-static D19_INR_D2: AtomicU64 = AtomicU64::new(0);
-static D19_INR_R: AtomicU64 = AtomicU64::new(0);
-// 2차 slot1 in_range 탈락(code3) 스냅샷.
-static D19_S1BR_RSQ: AtomicU64 = AtomicU64::new(0);
-static D19_S1BR_D2: AtomicU64 = AtomicU64::new(0);
-static D19_S1BR_R: AtomicU64 = AtomicU64::new(0);
-static D19_S1BR_ID: AtomicU64 = AtomicU64::new(0);
-// ★[07-14] 2차 emitter per-site/per-gate 계측(abil2_dbg.txt) — 0xf over / 0x11 under의 책임 게이트 특정용.
-//   idx: 0=blk 1=ncm합 2=nen합 | 3~7=멤버십(tag유효/ptrok/vis/폴백/accept) | 8~10=slotN_ready
-//   11~13=0xf(cmgate/lead발동/emit) | 14~19=0x10 cand(cmgate/tv/inr/c8/score/emit) | 20~21=0x10 near(tv/emit)
-//   22~27=0x11 cand(cmgate/tv/inr/c8/score/emit) | 28~29=0x11 near(tv/emit) | 30=0x10 self emit | 31=0x11 self emit
-//   32~35=descvt_90 구현별 hit(0x50fc80 / 0x23cbf20 / 0x214d210 / 미등재) | 36=descvt_90 nonzero 반환수
-//   37~39=descvt_78 구현별 hit(0x50fc80=false / 0x19ec2c0=composite / 0x1e65a80=delegate)
-//   40=Gate#2 호출수 | 41=Gate#2 pred단락(즉시true=무조건emit) | 42=Gate#2 컨테이너스캔 통과 | 43=Gate#2 false
-static A2DBG: [AtomicI64; 48] = [const { AtomicI64::new(0) }; 48];
-#[inline] fn a2(i: usize) { A2DBG[i].fetch_add(1, Ordering::Relaxed); }
-// ★[07-15] 미등재 vtable 구현 RVA 런타임 캡처(모든 depth) — 정적 스캔이 못 찾은 7번째 pred 등을 실측 특정.
-//   key = (slot_tag<<40 | rva). slot_tag: 0x78/0xc8/0x90/0x50/0x58/0x48. dedup 후 최대 16종 저장.
-static UNREG: [AtomicUsize; 16] = [const { AtomicUsize::new(0) }; 16];
-static UNREG_N: AtomicUsize = AtomicUsize::new(0);
-#[inline] fn unreg_cap(slot: u16, rva: usize) {
-    let key = ((slot as usize) << 40) | (rva & 0xff_ffff_ffff);
-    let n = UNREG_N.load(Ordering::Relaxed).min(16);
-    for i in 0..n { if UNREG[i].load(Ordering::Relaxed) == key { return; } }
-    let idx = UNREG_N.fetch_add(1, Ordering::Relaxed);
-    if idx < 16 { UNREG[idx].store(key, Ordering::Relaxed); }
-}
-// 진단: abil 블록 게이트별 통과수. [0]블록진입 [1]후보 [2]dist통과 [3]team통과 / slot0:[4]usable[5]emit0xf / slot1:[6]usable[7]emit0x10 / slot2:[8]usable[9]emit0x11 / [10]cand총순회 [11]self_team1
-static ABIL_DBG: [AtomicI64; 16] = [const { AtomicI64::new(0) }; 16];
-// 진단: my_disc19 진행 스테이지(panic 위치). 1=진입 2=nx해결 3=struct후 4=zone후 5=A4후 6=Gate1전 7=Gate2전 8=threat후 9=go_detailed후 10=phase_b진입. dcmp가 rc=-98시 기록.
-static D19_STAGE: AtomicI64 = AtomicI64::new(0);
-// ── 시야 확률롤(FUN_14237d910) 순수/shadow 전환(cfg d19_g1_shadow, 기본 OFF=순수). ─────────────────
-//   순수재현(d19_g1_pred_pure, seed tick항=max(tick-r14,0)<<0x28[최신E])이 shadow(FUN_14237d910 shadow-call)와
-//   17790건 비트동일(mmN=0)로 검증 완료(2026-07-11 vispure 병행계측). 검증 끝났으므로 순수를 기본으로 승격.
-//   ON=shadow-call로 롤백(AV위험 §3 격리, 안전 대비용). 순수는 로컬RNG(전역 sim-rng 미소비→재sim 안전).
-static D19_G1_SHADOW: AtomicBool = AtomicBool::new(false);   // cfg d19_g1_shadow: 시야롤을 shadow-call로 롤백(기본 OFF=순수재현)
-
-// ════════════════════════════════════════════════════════════════════════════════════════════════
-// disc19(DefenseNexus) 완전재현 Phase2-2 — my_disc19 (전반A + tag3 후퇴 emit + 후반B 골격) + dcmp 배선
-//   근거: §11.9.3(제어흐름·필드맵)·§11.9.5(콜리·게이트)·§11.9.1(콜리)·§11.9.4(usability leaf)·§11.9.6(zone 산술).
-//   ★이 단계 = 관찰/대조 전용. game sret 훼손 금지 → out은 disc19_dcmp가 넘기는 별도 scratch Vec.
-//   ★RNG-free(전역 sim-rng 미소비)라 병렬계산=재sim 무영향. rd_*(safe VEH)만 사용, shadow-call은 d19thr 게이트(기본OFF).
-//   TODO(남은 잔여): 후반B 9단계 본체 · zone 실계산(FUN_14209a750 §11.9.6) · 위협점수 순수재현(FUN_1420a3fd0) · usability leaf vt3슬롯.
-// ════════════════════════════════════════════════════════════════════════════════════════════════
-const D19_STRIDE: usize = 0x500;   // ★0.5.1(was 0.5.0_3 0x4f8). Command 구조체 +8 성장(verb앞 +0x4a0에 8B destY 삽입, tag +0x4f1→+0x4f9). ghidra 확정(imul→LEA+SHL 0x500).
-const D19_HOME_HI: u64 = 0xe2900;   // 930048
-const D19_HOME_LO: u64 = 0x7d00;    // 32000
-// usable_slot2 순수재현(FUN_141fbe950) ★[07-12 의사코드 확정]: fce700 구조 + 차이 —
-//   obj p=lvl>2?e+0x4e8:&DAT_14385e5e0(zero-init desc, p[6]=-1 → lvl<3이면 c8 게이트 실질 skip) /
-//   base=항상 *(e+0x578)/*(e+0x580) / divisor만 lvl<3에서 *(e+0x598)/*(e+0x5a0) 쌍 교체 /
-//   q 하한 1(q+=(q==0), fce700의 3과 다름) / 임계=*(e+0xc0) / 최종=p[6]!=-1 && lvl>=3.
-const D19_SLOT2_EMPTY_RVA: usize = 0x38d1b10; // ⏸**0.5.3 미재핀 = 0.5.2값 유지**(2026-07-29): empty-descriptor(전 0)라 값지문 변별 불가. rd_u64(VEH 가드) 읽기 전용 = 크래시 없음, 재현 정확도만 저하.  // ⏸**0.5.3 미재핀 = 0.5.2값 유지**(2026-07-29): 이 desc는 전부 0으로 채워진 empty-descriptor라 .rdata 값지문으로 변별 불가(0 블록이 0.5.3에 6,230개). 사용처는 rd_u64(VEH 가드) 경유 읽기 전용 = **크래시 없음**, 재현 정확도만 저하.  // ★**0.5.2 확정**(ghidra-re 07-22, ~~0.5.1 0x3846d50~~). 사용처=disc19_repro(dcap 게이트 dev코드)라 프로덕션 무영향이나 재현 정확도 위해 반영. // 구:0.5.1(was 0.5.0_3 0x385e5e0). DAT_143846d50. ghidra-re HIGH 확정(disc19 핸들러 0x1e0ddb0: reach+0x5b0<5/<3 fallback, +0x30 guard=_UNK_143846d80) ← 0.5.7 재핀 +0x20 (주변4KB 일치율 100%)
-// usable_slot1/2 shadow-call(FUN_141fce700 / FUN_141fbe950) — 롤백 전용(d19_us_shadow). this=self만, 반환 저비트=bool.
-type D19Us = unsafe extern "C" fn(usize) -> u64;
-
-// STATIC_TEMPLATE(슬롯2에서 *(self+0x5b0)<3일 때 desc/guard 소스). ★ghidra 확정: LEA R15,[0x14380d3f0](=DAT_14380d3f0).
-//   절대주소 exe_base()+0x380d3f0. rip-rel disp 0x1b8833e 일치. guard=*(slot2+0x30), desc=slot2+0x28.
-const D19_STATIC_TEMPLATE_RVA: usize = 0x38d1b10; // ⏸**0.5.3 미재핀 = 0.5.2값 유지**(2026-07-29): empty-descriptor(전 0)라 값지문 변별 불가. rd_u64(VEH 가드) 읽기 전용 = 크래시 없음, 재현 정확도만 저하.  // ⏸**0.5.3 미재핀 = 0.5.2값 유지**(2026-07-29): 이 desc는 전부 0으로 채워진 empty-descriptor라 .rdata 값지문으로 변별 불가(0 블록이 0.5.3에 6,230개). 사용처는 rd_u64(VEH 가드) 경유 읽기 전용 = **크래시 없음**, 재현 정확도만 저하. // ★**0.5.2 확정**(ghidra-re 07-22, ~~0.5.1 0x3846d50~~). SLOT2_EMPTY와 동일 객체(0.5.1서 통합된 단일 empty-descriptor)라 같은 값. // 구:0.5.1(was 0.5.0_3 0x380d3f0). ghidra-re HIGH 확정: LEA R14,[0x143846d50]@0x141e0f7cb(tag0x11 발행부). ★0.5.1서 SLOT2_EMPTY와 단일 empty-descriptor로 통합(0.5.0_3의 별개 2객체→1객체) ← 0.5.7 재핀 +0x20 (주변4KB 일치율 100%)
-
-// ═══════════════════════════════════════════════════════════════════════════════════════════════
-// disc19 2차 abil emitter FUN_14236ddf0(0x236ddf0) 완전재현 — §11.9.11-2 실디컴 확정(0.5.0_3 buildid 24125999)
-//   후보소스 3종(cand_main via FUN_1422a1180 멤버십 / enemies_near 자팀근접 / self) × 7 emit 사이트.
-//   ★이번 구현 = 비-self 5사이트(cand_main 0xf/0x10/0x11 + enemies_near 0x10/0x11) + Gate#1 스코어게이트 완전재현.
-//   ★defer(후속): self-target(0x10 self·0x11 self+AoE) = Gate#2(FUN_1423802d0 pred=vtable슬롯0x78)·
-//      Gate#3(FUN_1421283d0 폴리모픽 vt0x198/0x150·4-leaf) 런타임 슬롯해결 필요 → 추정재현 시 over-emit/AV 위험이라 보류.
-//   변수: g0=*p6_pair(로스터베이스), sim_obj=*g0(geom gc), geom2=*(p6_pair+0x10)=teamdata, self_u=nx, side=flag, src=vt0x28(gc).
-//   전부 순수(기존 헬퍼 재사용: geom_vt68/vtc0/vt28·d19_target_valid·d19_in_range·d19_threat_dmg·vtc8_get·vt90_get).
-// ═══════════════════════════════════════════════════════════════════════════════════════════════
-const D19_STATIC2_TEMPLATE_RVA: usize = 0x38d17d8; // ⏸**0.5.3 미재핀 = 0.5.2값 유지**(2026-07-29): empty-descriptor(전 0)라 값지문 변별 불가. rd_u64(VEH 가드) 읽기 전용 = 크래시 없음, 재현 정확도만 저하.  // ⏸**0.5.3 미재핀 = 0.5.2값 유지**(2026-07-29): 이 desc는 전부 0으로 채워진 empty-descriptor라 .rdata 값지문으로 변별 불가(0 블록이 0.5.3에 6,230개). 사용처는 rd_u64(VEH 가드) 경유 읽기 전용 = **크래시 없음**, 재현 정확도만 저하.  // ⏸**0.5.2 미확정=0.5.1값 유지**(ghidra-re 07-22: 2차 emitter 재식별 실패·0 desc라 값 변별 불가). 사용처=disc19_repro slot2_base(dcap 게이트 dev코드)=프로덕션 무영향. ⚠0.5.2 확정 이웃(SLOT2 0x38d1af0·DISC7시트 0x38d1918)과 같은 0x38d1 대역이나 **우연 일치일 수 있으므로 근접 추정 금지**. // 구:0.5.1(was 0.5.0_3 0x38aecc0). ghidra-re 확정: 2차 emitter FUN_14238b290 내 LEA R12,[0x1438d17b8]@0x14238b738 + F80320@0x14238a2ce 이중확증. STATIC(0x3846d50 통합)과 달리 별도 desc 유지 ← 0.5.7 재핀 +0x20 (주변4KB 일치율 100%)
-
-// ════════ Gate#3 FUN_1421283d0(0x1283d0) AoE/셰이프 게이트 — site7의 AoE 분기 전용 ════════
-//   ★[07-15 확정] 셀 슬라이스 = vt+0x198 = RVA 0x19f03d0 = `{*(world+0xb178), *(world+0xb180)}` (ptr,len) trivial 게터.
-//   셀→엔티티 = vt+0x150 = RVA 0x20ad690 = **기존 geom_resolve150 재사용**.
-//   loop1(사거리 내 유효 적) → loop2(셀 내 적이 자기 4스킬로 caster를 역으로 때릴 수 있나).
-const D19_TV7_RVA: usize = 0x33fa7d8;   // ★0.5.3(was 0.5.2 0x3863a28). .rdata 값지문 **선두 48B**(`07 00 00 00` + "8DataEffectDef::Nati…") 가 OLD/NEW 각 1건 = 유일 매칭. // 구 ★0.5.2(was 0.5.1 0x38b7d50). version-migrator 확정: 참조사이트 마스크시그 UNANIMOUS(2/2) + **값 sanity 완전일치**(선두 16B `07 00 00 00 38 44 61 74 ...`= u32==7 desc 헤더가 구값과 바이트동일). // ★0.5.1(was 0.5.0_3 0x38796f8). target_valid selector=7 desc. ghidra-re 확정: u32==7 desc+LEA 2회 유일후보(@0x142281e09/eba, 참조간격 0xb4=0.5.0_3 Gate#3와 바이트동일)  ← ⚠0.5.7 재핀: 값지문(07000000+8DataEffectDef::Nati) 구/신 각1건 유일. ⚠구값 0x32105a8 은 0.5.6 에서도 이미 틀렸었다(0.5.6 정답=0x341b198, 코드영역을 가리키고 있었음)
-
-// ════ Gate1(FUN_141c83700 bVar5+compFlag, ghidra 실측 a48105662) — Gate2보다 먼저 판정하는 조기 홈복귀 ════
-//   game: cf0!=0 || bVar5 || cf1!=0 → tag5 전부 스킵, tag3 홈복귀 1개만(glen=1). 전부 D19_GATE1 게이트(기본OFF)로 격리.
-//   ⚠3 shadow-call: FUN_14237d910(확률술어, type!=0xd=로컬RNG/type==0xd=subtype 점프테이블), FUN_142090ec0(동적 위협그리드, TLS 메모캐시),
-//     getter vt0x90(스킬사거리). 전부 exe_base()+rva + catch_unwind + ptr_ok/readable 가드. 재sim 무결성은 상위세션 런타임검증.
-type Fn2090 = unsafe extern "C" fn(usize, usize, usize, usize, usize, usize, u8) -> usize;
-// ★★[0.5.3] 인자 3개 → **4개**(선두 삽입). ghidra-re 실측(2026-07-31, RE\2026-07-31_shadowcall-4종):
-//   0.5.0_3 `(rcx=p5, rdx=p6, r8=e)` → 0.5.3 `(rcx=dead, rdx=p5, r8=p6, r9=e)`.
-//   게임 콜사이트 `0x140ded006`도 4개를 세팅한다. ⛔3인자로 호출하면 인자가 한 칸씩 밀려 **즉시 AV**.
-type F237d  = unsafe extern "C" fn(usize, usize, usize, usize) -> u64;
-// ── vt0x170 오브젝티브 트리 빌더 concrete 타깃 캡처(compFlag 순수화 1차 블로커, cfg d19_g1cap 기본 OFF) ──
-//   gameobj=*(*p6), vtbl=*(*p6+8), vt170=*(vtbl+0x170). 순수 read(호출 없음). distinct RVA+프롤로그 → g1cap.txt.
-static D19_G1CF_SHADOW: AtomicBool = AtomicBool::new(false);   // ★[0.5.1] 기본 OFF=순수 d19_g1_compflag_pure(compFlag MM=0 검증완=DONE). 구 기본 ON은 shadow FUN_142090ec0 호출인데 0.5.1서 그 함수 0x2090ec0→0x236b6b0 재배치=stale이라 dcap=1 크래시 유발 → 순수로 전환(doctrine·안전). shadow 재활성하려면 disc19_repro.rs:2560 RVA 0.5.1 갱신 선행
-static D19_G1CF_CMP: AtomicBool = AtomicBool::new(false);      // cfg d19_g1cf_cmp: 순수 vs shadow A/B 대조(g1cfcmp.txt)
-static G1CF_OK: AtomicU64 = AtomicU64::new(0);
-static G1CF_MM: AtomicU64 = AtomicU64::new(0);
-static D19_G1CF_LOOP2: AtomicBool = AtomicBool::new(true);     // cfg d19_g1cf_loop2: loop2 threat항 격리(기본 ON). 진단용 OFF=de40만
-// ── disc19 AI 성향 튜닝 계수(순수화 완료 후 개입지점). 전부 기본값=게임 원본 상수 → 미설정 시 비트동일 보존, 변경 시 튜닝. ──
+// ── disc19 노브 static(cfg 파서가 채움). D19_RETREAT_HP 만 실배선(apply_disc19_imm) · 나머지 5개는 은퇴 재현부 전용이던 것 = 현재 read 없음(편집기 KNOBS 표면 유지용). ──
 static D19_THREAT_MULT: AtomicI64 = AtomicI64::new(100);   // cfg d19_threat_mult: 위협점수 배수%(주력). >100=수비적(일찍 후퇴), <100=공격적
 static D19_RETREAT_HP:  AtomicI64 = AtomicI64::new(0x2d);  // cfg d19_retreat_hp: go_detailed HP%문턱(45). 높이면 높은 HP에도 후퇴(수비적)
 static D19_RANGE_ATKME: AtomicI64 = AtomicI64::new(100);   // cfg d19_range_atkme: '나를 공격중' 적 위협 가중(100)
 static D19_RANGE_BLD:   AtomicI64 = AtomicI64::new(0x3c);  // cfg d19_range_bld: '내 건물 공격중' 가중(60)
 static D19_RANGE_OTHER: AtomicI64 = AtomicI64::new(0x28);  // cfg d19_range_other: '딴 대상 공격중' 가중(40)
 static D19_RANGE_IDLE:  AtomicI64 = AtomicI64::new(0x50);  // cfg d19_range_idle: '비교전(놀고있음)' 가중(80)
-// 진단: 마지막 pure 호출의 내부상태(불일치 특정용). [0]=de40cf0 [1]=loop2cf0 [2]=cf1 [3]=nobj [4]=na [5]=nb / [8..24]=obj cats(≤16)
-static G1CF_DBG: [AtomicI64; 24] = [const { AtomicI64::new(0) }; 24];
-// 진단: cat2 SPECIAL 5개 other-슬롯 덤프. 각 code = slotvalid*1e7+uok*1e6+dist*1e5+side*1e4+geom*1e3+fcf*1e2+same*10+guard. [5]=desc group low16
-static G1CF_SLOT: [AtomicI64; 6] = [const { AtomicI64::new(0) }; 6];
-static G1CAP_ON: AtomicBool = AtomicBool::new(false);          // cfg d19_g1cap
-static G1CAP_CNT: AtomicU64 = AtomicU64::new(0);
-static G1CAP_SET: [AtomicUsize; 16] = [const { AtomicUsize::new(0) }; 16];
-
-// ── dcmp: my_disc19를 별도 scratch Vec에 계산 → game sret와 대조 → disc19cmp.txt 직접write(LOG_ON 무관) ──
-//   ★★[2026-07-14] scratch를 **thread_local화**(구: 단일 전역 D19_SCRATCH/D18_SCRATCH).
-//     구조: dcap=1이면 rayon 병렬 sim 워커 N개가 **같은 버퍼**에 write_bytes(memset)+커맨드 write+len 갱신 →
-//     데이터 레이스(대조결과 오염 + 크래시 의심). handoff §5가 지시한 조치 = thread_local.
-//     Cell<usize>(소멸자 없음) → 디투어서 TLS 접근 안전. 스레드당 20KB VirtualAlloc 1회(워커 수만큼, 해제 안 함=프로세스 수명).
-thread_local! {
-    static D19_SCRATCH_TL: core::cell::Cell<usize> = const { core::cell::Cell::new(0) };
-    static D18_SCRATCH_TL: core::cell::Cell<usize> = const { core::cell::Cell::new(0) };
-}
-const D19_SCRATCH_SZ: usize = 0x20 + 16 * D19_STRIDE;   // 헤더 0x20 + 16 command
 
 // ★스칼라(rax) 반환 replace detour: cap_fn(saved,entry_rsp)->i64. 반환값=RAX_SENT(=i64::MIN)면 passthrough(원본실행),
 //   그 외면 그 값을 rax로 caller에 반환(원본 skip). install_detour와 saved레이아웃 동일(push rcx/rdx/r8/r9/r10/r11).
@@ -3912,7 +3597,13 @@ unsafe fn my_dd7700_code(p2: usize, _p3: u64, p4: usize, p5: usize, p6: usize, p
     //     실측 폴트 `exe+0x12b95fb`가 그 지점과 정확히 일치(재현 2/2). 07-23 주석이 경고한 "엉뚱한 함수 shadow-call" 사고가 그대로 재발한 것.
     //   ⚠**mpcap 전용 문제가 아니다**: disc0/1/3 재현은 대체 여부와 무관하게 매 판단마다 실행되므로 라이브 경로도 같은 지뢰를 밟을 수 있다
     //     (mpcap=1이 화이트리스트 밖 disc까지 돌려 노출을 키웠을 뿐). ⟹ 프로덕션 안전을 위해 필수 수정.
-    let resolver = if ptr_ok(vtab) { rd_u64(vtab+ 0x1e0).unwrap_or(0) as usize } else { 0 };  // ★0.5.3 **0x1c8**(0.5.1/0.5.2=0x1b8, 0.5.0_3=0x150)
+    // ★★★[09-05 STALE 수정 — 0.5.8] `+0x1e0` 은 **0.5.7 슬롯**. 정답 = **`+0x1f0`**.
+    //   실측: arm A `0.5.7 @0xce3bd7 mov rax,[r8+0x1e0]` ↔ `0.5.8 @0xd78cd7 mov rax,[r8+0x1f0]` / arm B 동일.
+    //   그 슬롯의 함수 본문은 0.5.7↔0.5.8 **바이트 완전동일**(엔티티 SlotMap 리졸버, `imul 0x6c0` + `[rcx+0x738]`).
+    //   ⛔**그냥 두면 라이브 상태를 파손한다**: 0.5.8 `vt+0x1e0` 은 `mov rax,rcx; mov qword[rcx],-1; ret` 이라
+    //     `rf(sim, handle)` 호출이 **`*(sim) = -1` 을 써버리고** rax=sim 을 돌려준다. `ptr_ok(sim)` 은 통과하므로
+    //     `DD7_TERM 42` 가드에도 안 걸리고, 이후 `sim+0x660/0x668` 을 좌표로 읽어 STAGE3~6 이 전부 쓰레기가 된다.
+    let resolver = if ptr_ok(vtab) { rd_u64(vtab+ 0x1f0).unwrap_or(0) as usize } else { 0 };  // ←0.5.7 0x1e0 / 0.5.3 0x1c8 / 0.5.1~2 0x1b8 / 0.5.0_3 0x150
     if !ptr_ok(resolver) { DD7_TERM.store(41, Ordering::Relaxed); return 2; }
     let tgt_handle = rd_u64(rolerec+8).unwrap_or(0);
     let rf: G2 = core::mem::transmute(resolver);
@@ -4336,7 +4027,14 @@ unsafe fn my_dd7700_rng_final(p4: usize, p2: usize, p3: u64, p5: usize, p6: usiz
     if rd_i32(s * 0x2e8 + geo + roleoff).unwrap_or(0) != 1 { return None; }
     DD7_RNG_DBG.fetch_or(1 << 12, Ordering::Relaxed);         // iVar12==1
     // target resolve (vt[0x140](robj, *(pi14+8))). 0 → af3d9 early, CAND_FILTER 미도달
-    let resolver = rd_u64(vt + 0x140).unwrap_or(0) as usize;
+    // ★★[09-05 STALE 수정 — 0.5.8] 정답 = **`vt+0x1f0`**.
+    //   ⚠1차 수정에서 `0x150` 으로 잘못 고쳤다가 되돌린다. 오판 원인 = 게임 함수에서 `call qword[reg+disp]` 형태만
+    //     세었는데, 이 리졸버 사이트는 **`mov rax,[vt+disp]; call rax`** 라 그 스캔에 안 걸렸고 무관한 호출과 짝지었다.
+    //     (`vt+0x140` = 0.5.7 `0x10af170` = 0x9e0 스트라이드 **로스터 선형스캔**이지 엔티티 리졸버가 아니다.)
+    //   실측 근거: 게임 dd7700 arm A `0.5.7 @0xce3bd7 mov rax,[r8+0x1e0]` ↔ `0.5.8 @0xd78cd7 mov rax,[r8+0x1f0]`
+    //     (arm B 도 동일). `.rdata` 교차확증 = 그 슬롯의 함수 본문이 0.5.7↔0.5.8 **바이트 완전동일**한 엔티티 SlotMap 리졸버.
+    //   ★WorldOps 델타 규칙(전 슬롯 대조 확정): `+0x20`·`+0x28` 불변, **`+0x30` 이상 전부 Δ+0x10**.
+    let resolver = rd_u64(vt + 0x1f0).unwrap_or(0) as usize;
     if !ptr_ok(resolver) { return None; }
     let tgt_handle = rd_u64(s * 0x2e8 + geo + roleoff + 8).unwrap_or(0);
     DD7_RNG_TH0.store(tgt_handle, Ordering::Relaxed);         // entry tgt_handle
@@ -5510,7 +5208,6 @@ unsafe extern "C" fn fc59a0_capture(saved: usize, entry_rsp: usize) -> i64 {
 }
 
 // ── generic_build 스코어러 재현 모듈 (my_f80320/F80Ctx) ──
-include!("genbuild_repro.rs");
 
 // ── facet#1 condgate 재현: subplan별 목표커밋 bool. 리프 vtable=섀도우호출(getter, 부작용無 추정). -99=미재현(poke/gank-else).
 type VtPtrFn = unsafe extern "C" fn(usize) -> usize;          // rvt[0x20]timing / rvt[0x168]ctx (1 arg)
@@ -6098,11 +5795,14 @@ static VT30_CACHE: [(AtomicUsize, AtomicI64); VT30_CACHE_N] = [
 // vtable+0x30 본체 바이트를 읽어 kind를 뽑는다. 실패=None. rd_* = VEH 경유 안전읽기(stale ptr 세그폴트 방지).
 #[inline] unsafe fn vt30_probe(gvt: usize) -> Option<i64> {
     if !ptr_ok(gvt) { return None; }
-    let f = rd_u64(gvt.wrapping_add(0x30))? as usize;
+    // ★★[09-05] 슬롯 0x30 → **0x40**(WorldOps Δ+0x10). 0.5.7 때부터 stale 이라 프로브가 **상시 실패**했고,
+    //   그 결과 `disc4_vt30_kind` 가 항상 0 이 돼 `my_f22e80_count` 가 kind!=2 알고리즘을 타 STAGE3 COUNT 가 틀렸다(크래시는 없음).
+    let f = rd_u64(gvt.wrapping_add(0x40))? as usize;
     if !ptr_ok(f) { return None; }
     // lea rdx,[rcx+0xeaf0] = 48 8d 91 | f0 ea 00 00
     if rd_u8(f) != 0x48 || rd_u8(f + 1) != 0x8d || rd_u8(f + 2) != 0x91 { return None; }
-    if rd_u32(f + 3) != 0xeb30 { return None; }
+    // ⚠disp 는 버전마다 움직인다 — 0.5.7 `0xecc8` / 0.5.8 kind0 본 `0xed00`. 하나로 박지 말 것.
+    { let d = rd_u32(f + 3); if d != 0xecc8 && d != 0xed00 && d != 0xeb30 { return None; } }
     match rd_u8(f + 7) {
         0x31 if rd_u8(f + 8) == 0xc0 => Some(0),                                  // xor eax,eax
         0xb8 => { let v = rd_u32(f + 8); if v <= 2 { Some(v as i64) } else { None } }   // mov eax,imm32
@@ -6256,7 +5956,6 @@ unsafe fn disc4_earlyexit(posa: i64, self_id: u64, posb: i64, unit: i64, _jud1: 
 // ★disc4 메인경로(좌표게이트+첫 TTD루프) 토글 + 진단카운터. d4ttd=1이면 my_disc4가 TTD경로 사용(기본off=late7 단순화).
 static D4_TTD: AtomicBool = AtomicBool::new(false);
 static D4_REPL: AtomicBool = AtomicBool::new(true);     // disc4 mp_repl 대체 토글(cfg d4_repl; false=passthrough 격리)
-static D7_REPL: AtomicBool = AtomicBool::new(false);    // disc7(Recall) mp_repl 라이브대체 토글(cfg d7_repl; 기본0=원본. 신모델 인게임 400/400 확인 전까지 격리)
 // ★★[07-23] disc14 대체 토글(cfg d14_repl; 기본1=대체). **0으로 두면 passthrough+캡처 → mpcmp에 disc14 판정줄 생성**.
 //   도입 사유: **대체되면 리턴훅이 안 돌아 game↔mine 비교 자체가 성립하지 않는다**(07-23 실측: disc14 대체 971회 발화했으나
 //   mpcmp 판정줄 0건. 판정줄이 나온 subplan 0·7·12는 전부 passthrough 호출이었다). ⟹ 재검증하려면 일시적으로 꺼야 한다.
@@ -6265,7 +5964,6 @@ static D7_REPL: AtomicBool = AtomicBool::new(false);    // disc7(Recall) mp_repl
 static D14_REPL: AtomicBool = AtomicBool::new(true);    // cfg d14_repl; false=disc14만 passthrough(검증용)
 // ★[07-23] disc12 대체 토글(cfg d12_repl; 기본1=대체 / 0=passthrough+캡처). 편입 직후라 문제 시 재빌드 없이 격리·재검증용.
 static D12_REPL: AtomicBool = AtomicBool::new(true);
-static D15_REPL: AtomicBool = AtomicBool::new(false);   // disc15(SerpenCheck) 라이브대체 토글(cfg d15_repl; 기본0=원본. 재현 미검증·표본부족 opt-in)
 static D4FREEZE: AtomicBool = AtomicBool::new(false);   // my_disc4 단계별 truncate-write 진단(cfg d4freeze → d4last.txt)
 static D4_CALLN: AtomicU64 = AtomicU64::new(0);         // my_disc4 호출 카운터
 static D4_CN: AtomicU64 = AtomicU64::new(0);            // 현재 호출번호(d4stage 공유)
@@ -6681,7 +6379,8 @@ unsafe fn disc4_subplan_r13b(target: usize, sim: usize, exe: usize) -> i32 {
         2 | 8 => return 7,                              // 인라인 상수7 (블록 0x1419e4aa8 공유, aux 없음 disasm 확정 07-11). 라이브 대체=mp_capture disc2||8 분기
         6 => return 0xa,                               // 인라인 상수0xa (0x1419e4ba3). ✅aux 해소(07-11): 라이브 대체=mp_write_disc6(전체 write-set)
         5 => return rd_i64(subp + 8).unwrap_or(-99),   // data-var = *(subp+8) (0x1419e4ca2). ✅aux 해소(07-11): 라이브 대체=mp_write_disc5(전체 write-set)
-        7 => return my_disc7(r15, r14, subp),   // ★07-11 완전재현(§12.22): zone-box·웨이포인트TTD·스캔2/3·r12b임계전환. 구 "hp%>=0x29→8" 단순모델(397/400) supersede.
+        7 => return -99,   // ★[2026-09-06] my_disc7(Recall 재현, disc19_repro.rs) 제거 → -99=passthrough(게임 원본). 재구현은 judge 계층에서 새로.
+        13 | 15 | 16 | 17 => return -99,   // ★[2026-09-06] my_disc13/15/16/17(facet#4 movepri 재현, disc19_repro.rs) 제거 → passthrough. ⚠13 은 아래 2번째 match 의 인라인 arm 이 아니라 여기서 -99 로 끝난다(종전에도 my_disc13 이 먼저 return 해 그 arm 은 사각이었다).
         // ★disc3 충돌 해소(a6e4): disc0/1/3 = 동일 핸들러 0x141c76ed0 = dd7700(0.5.0_2 0x2100a30서 MOVED). my_dd7700_code가 이 함수 reimpl({2,4,6,7}, 선두 selector 포함) → 아래 통합.
         4 => {   // ★07-10 0.5.0_3 REWRITE 배선: my_disc4_050(0x1c6f260 재구현, out-writer)을 scratch에 쓰고 code만 반환(게임 out 무오염). 구 my_disc4=0.4.x 오프셋(p5+0x6a0/vt0x128) stale.
             let mut scratch = [0u64; 8];
@@ -6704,22 +6403,6 @@ unsafe fn disc4_subplan_r13b(target: usize, sim: usize, exe: usize) -> i32 {
         11 => return my_serpen_poke(subp + 8, r8, r14, r15, p7p, p7_dd), // ★0.5.0 SerpenPoke: char 반환
         10 => return my_epic_battle(subp + 8, r14, r15, p7p),           // EpicBattle: p2=subp+8, p5=r14(lanectx), p6=r15(geom), p7=p7p(threat)
         12 => return -99,   // SerpenBattle=out-writer(복합 aux) → code-return 부적합. 전용 capture(SERPEN_VERIFY) 브랜치서 my_serpen_battle 직접호출.
-        16 => {   // ★07-10 disc16(idx14 인라인) REWRITE. out-writer지만 code {7,0x12,2}=mpcmp 직접검증. scratch out(게임 out 무오염).
-            let mut scratch = [0u64; 8];
-            return my_disc16(scratch.as_mut_ptr() as usize, r14, r15, subp);   // sim=param5=r14(엔티티), geom=param6=r15(컨텍스트), subplan=subp(raw, idx14 add rdx,8 안함)
-        }
-        17 => {   // ★07-10 disc17(idx15 핸들러 0x141c77f20) REWRITE. code {7,0x13}=mpcmp 직접검증. add rdx,8 있음→subplan=subp+8, param3=r8.
-            let mut scratch = [0u64; 8];
-            return my_disc17(scratch.as_mut_ptr() as usize, subp + 8, r8, r14, r15);   // sim=param5=r14, geom=param6=r15
-        }
-        15 => {   // ★07-10 disc15(idx13 핸들러 0x235d230) 정적완결(★표본 미발화=검증불가). code {7,0xB,0x10}. add rdx,8 있음. rng=r9, tp=p7p(arg7).
-            let mut scratch = [0u64; 8];
-            return my_disc15(scratch.as_mut_ptr() as usize, subp + 8, r8, r9, r14, r15, p7p);   // sim=param5=r14, geom=param6=r15, tp=param7=p7p
-        }
-        13 => {   // ★07-10 disc13(idx11 핸들러 0x1422d6d30, AttackNexus) 완전재RE(구 {7,0x11,2} 폐기). code {7,0xb,0xd}. add rdx,8 있음. rng=r9, ctx=p7p.
-            let mut scratch = [0u64; 8];
-            return my_disc13(scratch.as_mut_ptr() as usize, subp + 8, r8, r9, r14, r15, p7p);   // sim=param5=r14, geom=param6=r15, ctx=param7=p7p
-        }
         _ => {}
     }
     let rh = rd_u64(r15).unwrap_or(0) as usize;
@@ -6731,7 +6414,11 @@ unsafe fn disc4_subplan_r13b(target: usize, sim: usize, exe: usize) -> i32 {
         13 => {  // AttackNexus 인라인: 홈리전&HP안풀→7, else rh[(1-team)*0x20+0x148]==0→0x11 / else→2
             if !ptr_ok(r14) { return -99; }
             let arg = rd_u64(r14 + 0x938).unwrap_or(0) as usize;   // 0.5.0: r14(SimState)+0x6a0→0x818
-            let s = vt_slot(rvt, 0x138); if !ptr_ok(s) { return -99; }   // 0.5.0: vt 0x128→0x138
+            // ★★[09-05] 0x138 → **0x148**(WorldOps Δ+0x10). 0.5.8 `+0x138` 은 **r8/r9 를 쓰는 3+인자 함수**라
+            //   rcx/rdx 만 넘기는 현재 호출은 **미초기화 r9 역참조 = AV 위험**이었다.
+            //   ⚠단 0.5.7 `+0x138` 자체가 엔티티 리졸버가 아니라 0x9e0 로스터 스캔이라 **의미상도 의심**이다
+            //   (직후 `ent+0x660/0x668` 을 좌표로 읽는다). 별도 RE 전까지는 이 arm 을 의심할 것.
+            let s = vt_slot(rvt, 0x148); if !ptr_ok(s) { return -99; }   // ←0.5.7 0x138 / 0.5.0 0x128
             let f: VtPtr2Fn = core::mem::transmute(s);
             let ent = f(robj, arg);
             if !ptr_ok(ent) || !readable(ent + 0x670, 8) || !readable(ent + 0x660, 8) { return -99; }
@@ -7325,35 +7012,6 @@ unsafe extern "C" fn mp_capture(saved: usize, entry_rsp: usize) -> i64 {
                 }
                 if done { apply_numbers_sp(disc as i64, entry_rsp, p1); return 0; }   // ★subplan별 numbers 후퇴(disc8)
                 MP_REPL_PASS.fetch_add(1, Ordering::Relaxed);
-            } else if disc == 7 && D7_REPL.load(Ordering::Relaxed) {
-                // ★disc7(Recall) 라이브 대체(§12.22 my_disc7). 기본 D7_REPL=false(원본). code {7,8}·code8만 aux(+8=P48=payload+0x48/+0x10=role=payload+0x60 u8/+0x11=0). add rdx,8→payload=p2+8.
-                let r14 = rd_u64(entry_rsp + 0x28).unwrap_or(0) as usize;   // arg5 gholder
-                let r15 = rd_u64(entry_rsp + 0x30).unwrap_or(0) as usize;   // arg6 ctxpair
-                let code = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| my_disc7(r15, r14, p2))).unwrap_or(-99);
-                if code != -99 && wr_u64(p1, code as u64) {   // ★probe+write: 첫필드 wr_*로 writability확인→성공시 aux raw
-                    if code == 8 {
-                        let pl = p2 + 8;
-                        std::ptr::write_unaligned((p1 + 8) as *mut u64, rd_u64(pl + 0x48).unwrap_or(0));
-                        std::ptr::write_unaligned((p1 + 0x10) as *mut u8, rd_u8(pl + 0x60));
-                        std::ptr::write_unaligned((p1 + 0x11) as *mut u8, 0u8);
-                    }
-                    let n = MP_REPL_N.fetch_add(1, Ordering::Relaxed) + 1;
-                    if n % 500 == 0 {
-                        if !MP_FILE_INIT.swap(true, Ordering::Relaxed) { write_named("mpcmp.txt", "=== facet#4 movepriority ④ 완전대체(mp_repl) ===\n"); }
-                        append_named("mpcmp.txt", &format!("[mp REPL #{}] disc=7(Recall) code={}\n", n, code));
-                    }
-                    apply_numbers_sp(disc as i64, entry_rsp, p1);
-                    if DL_ON.load(Ordering::Relaxed) {
-                        // ★[07-29 v5] ch5 = **출력 0x30 전량**(코드+aux 전부). 전 arm 0-fill이 걸려 잔재가 없으므로
-                        //   전체 해싱해도 오탐 없음(구 "+8 오탐"의 원인=잔재는 제거됨). dd7 +8/+9/+0xa, poke +0x28~+0x2c,
-                        //   d12/d14 +8/+0x10/+0x11 같은 **aux write가 그간 전부 미계측**이었다.
-                        let mut oh = (dl_site as u64) << 56;
-                        for i in 0..6 { oh ^= rd_u64(p1 + i * 8).unwrap_or(0).rotate_left((i * 7) as u32); }
-                        dl_rec(dl_world, 5, oh);
-                    }   // ★subplan별 numbers 후퇴(disc7 귀환)
-                    return 0;   // HANDLED → rax=rcx=p1(sret)
-                }
-                MP_REPL_PASS.fetch_add(1, Ordering::Relaxed);
             } else if disc == 14 {
                 // ⛔★★[07-22 정정] ~~"code-only(디컴 *param_1=code만) … +0만 write, aux 미터치(**게임도 동일**)"~~ = **오기(誤記)**.
                 //   0.5.2 원본 헬퍼 `0x2118ef0` 실disasm: code0x14 → +8(q)=0·**+0x10(b)=1**·+0x11(b)=byte[payload+0x18] /
@@ -7427,81 +7085,6 @@ unsafe extern "C" fn mp_capture(saved: usize, entry_rsp: usize) -> i64 {
                         for i in 0..6 { oh ^= rd_u64(p1 + i * 8).unwrap_or(0).rotate_left((i * 7) as u32); }
                         dl_rec(dl_world, 5, oh);
                     }   // ★subplan별 numbers 후퇴(disc13 EpicHunt)
-                    return 0;   // HANDLED → rax=rcx=p1(sret)
-                }
-                MP_REPL_PASS.fetch_add(1, Ordering::Relaxed);
-            } else if disc == 15 && D15_REPL.load(Ordering::Relaxed) {
-                // ★[07-16] disc15(SerpenCheck) 라이브 대체 — d15_repl=1 opt-in(재현 미검증·표본부족이라 기본 OFF). 출력 {7,0xb,0x10}. code0xb만 aux(+8=u64,+0x10=1). my_disc15에 real 인자(rng=r9,tp=p7p) 전달.
-                let r14 = rd_u64(entry_rsp + 0x28).unwrap_or(0) as usize;
-                let r15 = rd_u64(entry_rsp + 0x30).unwrap_or(0) as usize;
-                let r8 = rd_u64(saved + 0x18).unwrap_or(0);
-                let r9 = rd_u64(saved + 0x10).unwrap_or(0) as usize;
-                let p7p = rd_u64(entry_rsp + 0x38).unwrap_or(0) as usize;
-                let mut scratch = [0u64; 8];
-                let code = my_disc15(scratch.as_mut_ptr() as usize, p2 + 8, r8, r9, r14, r15, p7p);
-                if code != -99 && wr_u64(p1, code as u64) {
-                    if code == 0xb {
-                        std::ptr::write_unaligned((p1 + 8) as *mut u64, scratch[1]);
-                        std::ptr::write_unaligned((p1 + 0x10) as *mut u8, 1u8);
-                        std::ptr::write_unaligned((p1 + 0x11) as *mut u8, 0u8);
-                        std::ptr::write_unaligned((p1 + 0x12) as *mut u8, 0u8);
-                    } else if code == 0x10 {
-                        std::ptr::write_unaligned((p1 + 8) as *mut u8, 0u8);
-                    }
-                    let n = MP_REPL_N.fetch_add(1, Ordering::Relaxed) + 1;
-                    if n % 500 == 0 {
-                        if !MP_FILE_INIT.swap(true, Ordering::Relaxed) { write_named("mpcmp.txt", "=== facet#4 movepriority ④ 완전대체(mp_repl) ===\n"); }
-                        append_named("mpcmp.txt", &format!("[mp REPL #{}] disc=15(SerpenCheck·opt-in) code={}\n", n, code));
-                    }
-                    apply_numbers_sp(disc as i64, entry_rsp, p1);
-                    if DL_ON.load(Ordering::Relaxed) {
-                        // ★[07-29 v5] ch5 = **출력 0x30 전량**(코드+aux 전부). 전 arm 0-fill이 걸려 잔재가 없으므로
-                        //   전체 해싱해도 오탐 없음(구 "+8 오탐"의 원인=잔재는 제거됨). dd7 +8/+9/+0xa, poke +0x28~+0x2c,
-                        //   d12/d14 +8/+0x10/+0x11 같은 **aux write가 그간 전부 미계측**이었다.
-                        let mut oh = (dl_site as u64) << 56;
-                        for i in 0..6 { oh ^= rd_u64(p1 + i * 8).unwrap_or(0).rotate_left((i * 7) as u32); }
-                        dl_rec(dl_world, 5, oh);
-                    }
-                    return 0;
-                }
-                MP_REPL_PASS.fetch_add(1, Ordering::Relaxed);
-            } else if (disc == 16 || disc == 17) && D1617_REPL.load(Ordering::Relaxed) {
-                // ★★[07-31] disc16/17 **대체 실효성 A/B 실험용 토글**(cfg `nx_repl`, 기본 1=종전 동작).
-                //   배경: `force_sp19`로 my_disc17 반환을 9,217회 전부 0x13(SubPlan19)으로 강제했는데
-                //         **게임 disc19 핸들러가 한 번도 안 돌았고 AI 행동도 눈에 띄게 안 바뀌었다**
-                //         ⟹ "disc16/17 대체가 게임에 반영되지 않을 수 있다"는 의심(추정).
-                //   실험: 같은 리플레이(=시드 재시뮬레이션이라 결정론적)를 이 값 0/1로 각각 관전해
-                //         결과가 갈리면 대체가 실효 있는 것, 같으면 무효인 것.
-                //   ⚠전체 `mp_repl`을 끄면 disc0/1/3/9/11 효과까지 섞여 인과를 못 가린다 ⟹ **16/17만** 격리한다.
-                // ★07-11 배선: disc16(실명 SerpenHunt, idx14 인라인)/disc17(실명 SerpenPoke, 0x1c77f20) 라이브 대체 — 재현 400/400 검증완료(§12.20), out 계약 disasm 확정(07-11):
-                //   disc16: 7/0x12=code-only, 2=code+aux3(+8=0,+9=byte[subp+0x10 raw],+0xa=2 — 0.4.x rh-slot 계약 유지 확인) / disc17: 항상 code-only {7,0x13}. 둘 다 RNG-free.
-                let r14 = rd_u64(entry_rsp + 0x28).unwrap_or(0) as usize;
-                let r15 = rd_u64(entry_rsp + 0x30).unwrap_or(0) as usize;
-                let r8 = rd_u64(saved + 0x18).unwrap_or(0);
-                let r9 = rd_u64(saved + 0x10).unwrap_or(0) as usize;
-                let p7_dd = rd_u64(entry_rsp + 0x40).unwrap_or(0) as usize;
-                let p7p = rd_u64(entry_rsp + 0x38).unwrap_or(0) as usize;
-                let code = my_movepriority(disc, r15, r14, p2, r8, r9, p7_dd, p7p);
-                if code != -99 && wr_u64(p1, code as u64) {
-                    if disc == 16 && code == 2 {
-                        std::ptr::write_unaligned((p1 + 8) as *mut u8, 0u8);
-                        std::ptr::write_unaligned((p1 + 9) as *mut u8, rd_u8(p2 + 0x10));
-                        std::ptr::write_unaligned((p1 + 0xa) as *mut u8, 2u8);
-                    }
-                    let n = MP_REPL_N.fetch_add(1, Ordering::Relaxed) + 1;
-                    if n % 500 == 0 {
-                        if !MP_FILE_INIT.swap(true, Ordering::Relaxed) { write_named("mpcmp.txt", "=== facet#4 movepriority ④ 완전대체(mp_repl) ===\n"); }
-                        append_named("mpcmp.txt", &format!("[mp REPL #{}] disc={}({}) code={}\n", n, disc, if disc == 16 { "SerpenHunt16" } else { "SerpenPoke17" }, code));
-                    }
-                    apply_numbers_sp(disc as i64, entry_rsp, p1);
-                    if DL_ON.load(Ordering::Relaxed) {
-                        // ★[07-29 v5] ch5 = **출력 0x30 전량**(코드+aux 전부). 전 arm 0-fill이 걸려 잔재가 없으므로
-                        //   전체 해싱해도 오탐 없음(구 "+8 오탐"의 원인=잔재는 제거됨). dd7 +8/+9/+0xa, poke +0x28~+0x2c,
-                        //   d12/d14 +8/+0x10/+0x11 같은 **aux write가 그간 전부 미계측**이었다.
-                        let mut oh = (dl_site as u64) << 56;
-                        for i in 0..6 { oh ^= rd_u64(p1 + i * 8).unwrap_or(0).rotate_left((i * 7) as u32); }
-                        dl_rec(dl_world, 5, oh);
-                    }   // ★subplan별 numbers 후퇴(disc16/17 SerpenHunt·Poke)
                     return 0;   // HANDLED → rax=rcx=p1(sret)
                 }
                 MP_REPL_PASS.fetch_add(1, Ordering::Relaxed);
@@ -8283,14 +7866,11 @@ impl ModExtension for CfgExt {
                         format!("{}→{}", orig, b)
                     }).collect::<Vec<_>>().join(",")
                 };
-                let s = format!("move={} move_tag={} move_off={:#x} move_x={} move_y={} MOVE_HANDLED={} | engage_base(cfg)={} gate_imm8={} | engage_thr_mult(cfg)={} ROLE_THR[{}]\nengage_repl(entry): on={} N={} pass={} (PT gate={} count={} other={})\nfc59a0[recall]: raw={} arm={} filt={} recallcap={}\ngenbuild[body]: raw={} arm={} gbbody={}\ngb[region_d]: raw={} armed={} badptr={} panic={} gbrd={} (OK={} DIFF={} NP={} Dvpush={}) | gbrepl={} replaced={} chk(M={} X={}) gbskip={} skipped={}\nInput tag별 첫샘플(머리 9 qword; 좌표같은 값 있는 오프셋이 Move의 x/y):\n{}replace={} repl_handled={} ready_ticks={}\n=== 광범위 커밋(FUN_141a49fa0, 매프레임 최종Input) total={} ===\n{}",
+                let s = format!("move={} move_tag={} move_off={:#x} move_x={} move_y={} MOVE_HANDLED={} | engage_base(cfg)={} gate_imm8={} | engage_thr_mult(cfg)={} ROLE_THR[{}]\nengage_repl(entry): on={} N={} pass={} (PT gate={} count={} other={})\nfc59a0[recall]: raw={} arm={} filt={} recallcap={}\nInput tag별 첫샘플(머리 9 qword; 좌표같은 값 있는 오프셋이 Move의 x/y):\n{}replace={} repl_handled={} ready_ticks={}\n=== 광범위 커밋(FUN_141a49fa0, 매프레임 최종Input) total={} ===\n{}",
                     MOVE_ON.load(Ordering::Relaxed) as u8, MOVE_TAG.load(Ordering::Relaxed), MOVE_OFF.load(Ordering::Relaxed), MOVE_X.load(Ordering::Relaxed), MOVE_Y.load(Ordering::Relaxed), MOVE_HANDLED.load(Ordering::Relaxed),
                     ENGAGE_BASE.load(Ordering::Relaxed), gate_imm, ENGAGE_THR_MULT.load(Ordering::Relaxed), thr_live,
                     ENGAGE_REPL.load(Ordering::Relaxed) as u8, ENGAGE_REPL_N.load(Ordering::Relaxed), ENGAGE_REPL_PASS.load(Ordering::Relaxed), PT_GATE.load(Ordering::Relaxed), PT_COUNT.load(Ordering::Relaxed), PT_OTHER.load(Ordering::Relaxed),
                     FC59_RAW.load(Ordering::Relaxed), FC59_ARM.load(Ordering::Relaxed), FC59_FILT.load(Ordering::Relaxed), RECALLCAP.load(Ordering::Relaxed) as u8,
-                    GBB_RAW.load(Ordering::Relaxed), GBB_ARMED.load(Ordering::Relaxed), GBBODY.load(Ordering::Relaxed) as u8,
-                    GBRD_RAW.load(Ordering::Relaxed), GBRD_ARMED.load(Ordering::Relaxed), GBRD_BADPTR.load(Ordering::Relaxed), GBRD_PANIC.load(Ordering::Relaxed), GBRD.load(Ordering::Relaxed) as u8, GBRD_OK.load(Ordering::Relaxed), GBRD_DIFF.load(Ordering::Relaxed), GBRD_NP.load(Ordering::Relaxed), GBRD_VPUSH.load(Ordering::Relaxed),
-                    GBREPL.load(Ordering::Relaxed) as u8, GBREPL_N.load(Ordering::Relaxed), GBREPL_MATCH.load(Ordering::Relaxed), GBREPL_MISMATCH.load(Ordering::Relaxed), GBSKIP.load(Ordering::Relaxed) as u8, GBSKIP_N.load(Ordering::Relaxed),
                     tags, REPL_ON.load(Ordering::Relaxed) as u8, REPL_HANDLED.load(Ordering::Relaxed), READY_TICKS.load(Ordering::Relaxed),
                     COMMIT_TOTAL.load(Ordering::Relaxed), ctags);
                 let s = format!("{}call_ablate: cfg={} applied={} blocked(콜0xb 발화·차단) A={} B={} 합계={}\n", s, CALL_ABLATE.load(Ordering::Relaxed) as u8, CALL_ABLATE_APPLIED.load(Ordering::Relaxed) as u8, CALL_BLOCKED_A.load(Ordering::Relaxed), CALL_BLOCKED_B.load(Ordering::Relaxed), CALL_BLOCKED_A.load(Ordering::Relaxed)+CALL_BLOCKED_B.load(Ordering::Relaxed));
@@ -8298,28 +7878,6 @@ impl ModExtension for CfgExt {
                 let s = format!("{}type3_ablate: cfg={} applied={} (transition 타입3콜 차단)\n", s, TYPE3_ABLATE.load(Ordering::Relaxed) as u8, TYPE3_APPLIED.load(Ordering::Relaxed) as u8);
                 let s = format!("{}push_ablate: cfg={} applied={} (오더 push 4게이트 완전차단 0.5.7)\n", s, PUSH_ABLATE.load(Ordering::Relaxed) as u8, PUSH_ABLATE_APPLIED.load(Ordering::Relaxed) as u8);
                 let s = format!("{}push_scramble: cfg={} applied={} (오더 push type→0xff, realloc불변 0.5.7)\n", s, PUSH_SCRAMBLE.load(Ordering::Relaxed) as u8, PUSH_SCRAMBLE_APPLIED.load(Ordering::Relaxed) as u8);
-                // ★[07-31] SubPlan 실측 분포 — disc18/19(=SubPlan 18/19) 발화 여부의 직접 지표.
-                //   0이 아닌 버킷만 찍는다. **18/19가 0이면** 그 경기에서 넥서스 SubPlan 자체가 생성되지 않은 것
-                //   ⟹ 훅·주소 문제가 아니라 **국면 미도달**이라는 뜻(Plan16/17은 나와도 승격 게이트에서 막힐 수 있다).
-                let sp_line = {
-                    let mut v: Vec<String> = Vec::new();
-                    for i in 0..SP_HIST.len() {
-                        let c = SP_HIST[i].load(Ordering::Relaxed);
-                        if c != 0 { v.push(format!("{}:{}", i, c)); }
-                    }
-                    format!("subplan_dispatch: total={} other={} | {}\n",
-                        SP_TOTAL.load(Ordering::Relaxed), SP_OTHER.load(Ordering::Relaxed),
-                        if v.is_empty() { "(발화 0 = 디스패처 자체 미도달)".to_string() } else { v.join(" ") })
-                };
-                let s = format!("{}{}", s, sp_line);
-                // ★[07-31] FORCE_SP19 진단 — 셋을 구분한다:
-                //   cfg=0        → cfg 파싱 실패 or 미설정
-                //   calls=0      → my_disc17 최종반환 미도달(= disc17 대체가 다른 경로로 감)
-                //   forced>0인데 disc19 훅 미발화 → 우리가 쓴 SubPlan 이 게임에 전달되지 않음
-                let s = format!("{}force_sp19: cfg={} d17_calls={} d17_forced={} | nx_repl={} (0=disc16/17 passthrough=A/B 실험 OFF측)\n", s,
-                    FORCE_SP19.load(Ordering::Relaxed) as u8,
-                    D17_CALLS.load(Ordering::Relaxed), D17_FORCED.load(Ordering::Relaxed),
-                    D1617_REPL.load(Ordering::Relaxed) as u8);
                 write_named("repl_status.txt", &s);
             }
         }
@@ -8396,7 +7954,11 @@ fn init(_ctx: &GameCtx) -> ModRegistration {
             Err(e)=>append_log(&format!("[hook] commit 실패: {}\n", e)),
         }
         // ★3차 B2 generic_build: move-post 훅 분리활성(retreat/commit과 분리). F2_BUILD_CALL(0x1b6e806)+generic_build(0x1bf5980) 3차갱신, 콜사이트 8인자(4reg+4stack@rsp+0x20~38)·rcx=outptr ABI확인. move_override 기본 read-only(MOVE_ON off=캡처만). target sanity가드 자체보호 → 안전.
-        match if hk_on("movepost") { install_move_post_hook() } else { Err("gated off (hk_movepost=0)") } {
+        // ★[09-05] 기본 1 → **0**. 이 훅이 지금까지 안 걸린 이유는 `RVA_F2_BUILD_CALL` 이 stale 이라
+        //   타깃 가드가 실패했기 때문뿐이었다 = 안전을 "주소가 틀렸다"에 기대는 구조.
+        //   오늘 `0xdfd364` 가 우연 일치로 `.text` 가드를 통과한 사례가 나와, 명시 게이트로 바꾼다.
+        //   ⚠generic_build 본문이 0.5.8 에서 바뀌었으므로(유사도 0.763) 재현코드 재검증 전엔 켜지 말 것.
+        match if hk_on_d("movepost", 0) { install_move_post_hook() } else { Err("gated off (hk_movepost=0)") } {
             Ok(())=>append_log("[hook] move-post(generic_build @0x1b6e806, 8arg) OK\n"),
             Err(e)=>append_log(&format!("[hook] move-post 실패: {}\n", e)),
         }
@@ -8412,20 +7974,6 @@ fn init(_ctx: &GameCtx) -> ModRegistration {
                 Ok(())=>append_log("[hook] fc59a0 recall score(@0x2080e20, 12B, replace-rax) OK\n"),
                 Err(e)=>append_log(&format!("[hook] fc59a0 실패: {}\n", e)),
             }
-            // ★generic_build 본체(0x20def90, 12B=push8) 디스패치/출력 캡처. cfg gbbody=1. 리턴훅 kind:14. (task#23)
-            if INSTALL_DIAG_HOOKS {
-            match install_detour(RVA_GENERIC_BUILD, 12, genbuild_body_capture as *const () as usize) {
-                Ok(())=>append_log("[hook] generic_build body 출력캡처(@0x20def90, 12B) OK\n"),
-                Err(e)=>append_log(&format!("[hook] generic_build body 실패: {}\n", e)),
-            }
-            }
-            // ★영역 D: 0x42a3 캡처/검증/skip 디투어(handled→funnel skip / passthrough→capture+verify). cfg gbrd=verify·gbskip=진짜skip. cap_fn i64.
-            if !MIG_GB_CHANGED {
-            match install_detour_d_skip(RVA_GB_REGIOND_HOOK, ORIG_LEN_GB_REGIOND, gbrd_capture as *const () as usize, RVA_GB_FUNNEL) {
-                Ok(())=>{ GBRD_INSTALL_OK.store(1, Ordering::Relaxed); if let Some(p)=pth("gbinstall.txt"){ let _=fs::write(p, format!("gbrd detour OK @0x{:x} len={}\n", RVA_GB_REGIOND_HOOK, ORIG_LEN_GB_REGIOND)); } append_log("[hook] gbrd/gbskip 영역D(@0x22dafea, 14B) OK\n"); }
-                Err(e)=>{ GBRD_INSTALL_OK.store(2, Ordering::Relaxed); if let Some(p)=pth("gbinstall.txt"){ let _=fs::write(p, format!("gbrd detour FAIL: {}\n", e)); } append_log(&format!("[hook] gbrd/gbskip 실패: {}\n", e)); }
-            }
-            } else { let _=(install_detour_d_skip as *const(), gbrd_capture as *const(), RVA_GB_REGIOND_HOOK, RVA_GB_FUNNEL, ORIG_LEN_GB_REGIOND); append_log("[hook] gbrd/gbskip 영역D SKIP (MIG_GB_CHANGED=true, 0.4.14 generic_build region D 재추출 대기)\n"); }
             // ★0.4.13 마이그완료: facet#1 condgate(@0x1be1290, 15B). cfg condcap=1. 리턴훅 kind:6.
             // ★replace-detour(rax): cond_repl=0이면 cap_fn이 SENT→passthrough(install_detour와 동일). cond_repl=1이면 my_condgate(≠-99)로 완전대체.
             match if hk_on("condgate") { install_replace_detour_rax(RVA_CONDGATE, 15, condgate_capture as *const () as usize) } else { Err("gated off (hk_condgate=0)") } {
@@ -8447,24 +7995,8 @@ fn init(_ctx: &GameCtx) -> ModRegistration {
                 Err(e)=>{ append_log(&format!("[hook] itemnet 가드 실패(크래시대책② 미설치): {}\n", e));
                     if let Some(p)=pth("itemnet_guard.txt"){ let _=fs::write(p, format!("★itemnet 가드 설치 실패: {} (크래시 원천차단 부재 — 재현시 크래시 가능)\n", e)); } }
             }
-            // ★disc18/19(진짜 넥서스) 완전재현 Phase2-1: 캡처 wrap(game 원본 관찰). wrap은 game 원본 항상 호출=passthrough라
-            //   dcap=0이면 기능 무영향(덤프만 skip). 프롤로그 push8 신원검증+catch_unwind로 안전. RNG-free라 재sim 무영향.
-            match if hk_on("disc18") { install_wrap(RVA_DISC18_HANDLER, 12, disc18_capture as *const () as usize) } else { Err("gated off (hk_disc18=0)") } {
-                Ok(orig)=>{ ORIG_DISC18.store(orig, Ordering::Relaxed); append_log("[hook] disc18 캡처wrap(@0x1c7ca20 0.5.1) OK\n"); }
-                Err(e)=>append_log(&format!("[hook] disc18 wrap 실패: {}\n", e)),
-            }
-            match if hk_on("disc19") { install_wrap(RVA_DISC19_HANDLER, 12, disc19_capture as *const () as usize) } else { Err("gated off (hk_disc19=0)") } {
-                Ok(orig)=>{ ORIG_DISC19.store(orig, Ordering::Relaxed); append_log("[hook] disc19 캡처wrap(@0x2380820 0.5.2) OK\n"); }
-                Err(e)=>append_log(&format!("[hook] disc19 wrap 실패: {}\n", e)),
-            }
-            // ⛔★[07-31] SubPlan 디스패처 계측 wrap — **크래시로 즉시 OFF**(아래 SPDISP_PROBE=false).
-            //   증상: 설치 자체는 성공(`hooks.txt` stub tag=0xd98740 등재)했으나 경기 진입 후 **AV `0xc0000005`**
-            //         `RIP=exe+0xc4225e` · `faultAddr=0x0`(null 역참조) · 콜러 `exe+0xca92ed`, 2회 재현.
-            //   ⟹ 원인 규명 전에는 켜지 말 것. 후보 = ①`0xd98740` 12B 구간으로 **점프해 들어오는 내부 분기**가 있어
-            //      트램폴린이 그 경로를 깨뜨림 ②install_wrap 의 7인자 전달이 이 함수 규약과 불일치.
-            //   ★교훈: passthrough·read-only 라도 **트램폴린을 새로 박는 것 자체가 위험**하다(§3 메모리안전).
             // ★[0.5.4 프로브] 경매 진입 래퍼 — `TeamPlan.version` 관측 전용(passthrough).
-            //   위 SPDISP_PROBE 블록 **밖**에 둔다: 07-31 크래시는 `d98740` 한정이고,
+            //   (구 SPDISP_PROBE 블록은 2026-09-06 제거 — 07-31 크래시는 `d98740` 한정이었고,
             //   경매(`eacf10`)는 안전 실증된 disc18(`da1850`)과 측정 가능한 전 항목이 동일하다 —
             //   선두 12B 바이트 완전동일(push8) · 12인자 extern "C" 동형 · 호출부 1곳 ·
             //   **테일콜 진입 0 · 선두 12B 내부 진입 0**(v54\jmpin2.py 전역 스캔).
@@ -8474,17 +8006,12 @@ fn init(_ctx: &GameCtx) -> ModRegistration {
                     ORIG_AUCTION.store(o, Ordering::Relaxed);
                 }
             }
-            if SPDISP_PROBE {
-                match install_wrap(RVA_SUBPLAN_DISPATCH, 12, subplan_dispatch_capture as *const () as usize) {
-                    Ok(orig)=>{ ORIG_SPDISP.store(orig, Ordering::Relaxed); append_log("[hook] SubPlan 디스패처 계측wrap(@0xd98740) OK\n"); }
-                    Err(e)=>append_log(&format!("[hook] SubPlan 디스패처 wrap 실패: {}\n", e)),
-                }
-            }
             // ★[07-15] disc19 판단상수 imm-patch = 로드시점 1회(여기 = install_wrap 성공지점 = sim 실행 전 = .text 쓰기 안전).
             //   cfg 먼저 로드해 사용자값 반영(config=재시작이라 로드시 1회면 충분). 게임플레이중 재패치는 AV폴트라 안 함.
             load_cfg(true);
             apply_disc19_imm();
-        } else { let _ = (RVA_FC59A0, fc59a0_capture as *const ()); let _ = (RVA_GENERIC_BUILD, genbuild_body_capture as *const ()); let _ = (RVA_CONDGATE, condgate_capture as *const ()); let _ = (RVA_MOVEPRI, mp_capture as *const ()); }
+            judge::install();   // ★[2026-09-06] judge 계층 훅(cfg judge_verify 기본1=대조만·judge_live 기본0). 프롤로그 바이트 불일치면 미설치=원본.
+        } else { let _ = (RVA_FC59A0, fc59a0_capture as *const ()); let _ = (RVA_CONDGATE, condgate_capture as *const ()); let _ = (RVA_MOVEPRI, mp_capture as *const ()); }
     }
     load_cfg(true);
     load_champ_cfgs(true);   // ★선수(챔피언)별 players/*.cfg 초기 로드

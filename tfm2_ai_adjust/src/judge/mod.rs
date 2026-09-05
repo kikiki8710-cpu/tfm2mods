@@ -1,0 +1,151 @@
+//! judge — AI 판단 계층(`game-ai`) **버전별 재구현**. 착수서 = REPORT\tfm2_ai_adjust\04_판단재구현_착수서.md.
+//!
+//! 방침(유저, 2026-09-06): 구 재현 코드를 마이그(재핀)하지 않는다. **매 버전 디컴 소스를 따와 새로 포팅**하고,
+//! 버전마다 반복되는 기계적 일(RVA 재탐색·프롤로그 안전성·상수 파일·스켈레톤)은 `MIG\aiport.py` 가 한다.
+//!
+//! 구성(파일 1개 = 관심사 1개):
+//!   gen_fns.rs   ★자동생성(aiport gen) — 함수별 RVA/크기/옮길 프롤로그 바이트. 손으로 고치지 않는다.
+//!   layout.rs    구조체 오프셋·vtable 슬롯(버전 태그 붙은 상수). 포팅 코드에 매직 넘버를 두지 않기 위한 유일한 자리.
+//!   world.rs     게임 상태 읽기(메모리 읽기만 — 게임 함수 호출 0). 핸들→엔티티 등 vtable 슬롯의 **순수 재현**.
+//!   hook.rs      바이트 검증 wrap 설치기(프롤로그가 gen_fns 와 완전 일치할 때만 패치 = 스테일 RVA 방어).
+//!   port\*.rs    포팅 본체. 함수 1개 = 파일 1개, 스켈레톤은 `aiport skeleton <name>` 이 디컴 C 를 동봉해 만든다.
+//!
+//! 동작 모드(cfg 키 — 파서 미지키는 TUNE_TABLE 로 들어오므로 배선 불요):
+//!   judge_verify (기본 1) : 훅 설치. 게임 원본을 실행해 rax 를 얻고 mine 과 **대조만** 한다 → 행동 무변경.
+//!   judge_live   (기본 0) : mine 이 Some 이면 게임 원본을 건너뛰고 mine 을 반환(대체). None 이면 원본.
+//!   ⚠ 대체(live)는 RNG-free 함수에만 안전하다. 난수를 소비하는 함수는 이중 소비 desync(방법론 메모리 07-23 교훈).
+//!
+//! 산출(전부 직접 write = LOG_ON 무관):
+//!   judge_install.txt   설치 결과(함수별 OK/실패 사유)
+//!   judge_status.txt    누적 카운터(n/ok/diff/na/live) — 인게임 검증의 정본 지표
+//!   judge_<fn>.txt      표본(첫 16건) + 전 DIFF(상한 240줄) + 매 2000번째. DIFF 줄에 인자·태그가 있어 원인 추적용.
+//!
+//! 규약(CLAUDE.md §3): 포팅 코드는 게임 헬퍼를 FFI 로 호출하지 않는다. 읽기는 전부 `rd_*`(VEH 경유). wrap 본문은 catch_unwind.
+#![allow(dead_code)]
+use crate::*;
+use std::sync::atomic::{AtomicBool, AtomicU64, AtomicUsize, Ordering};
+
+pub mod gen_fns;
+pub mod layout;
+pub mod world;
+pub mod hook;
+pub mod port {
+    pub mod steal_score;
+}
+use gen_fns::*;
+
+/// SubPlan 스코어러 공통 호출 계약(0.5.8 실측 — steal `0xcbbca0`·recall `0xcc5fc0` 디컴):
+///   p1 = SubPlan 상태(self, `[p1+8]` = phase 등)
+///   p5 = 선수 sim 상태(`+0x930` side · `+0x9c0` role)
+///   p6 = &Holder — `*p6` = World-ish X (`X+0` world data · `X+8` WorldOps vtable · `X+0x1e0` 로스터). steal 목표 슬롯은 Holder 자체(+0x1a0/+0x1d0)
+///   p7 = 평가 대상 SmallAction(`+0xb1` tag)
+///   반환 rax = i64 점수. p2/p3/p4/p8 은 함수마다 다르게 쓰인다(base 스코어러 `0xd57540` 로 전달).
+#[derive(Clone, Copy)]
+pub struct ScorerArgs { pub p1: usize, pub p2: usize, pub p3: usize, pub p4: usize, pub p5: usize, pub p6: usize, pub p7: usize, pub p8: usize }
+
+/// 함수별 검증 카운터(전부 원자 — 디투어 문맥에서 lock/alloc 없이 갱신).
+pub struct Stat {
+    pub n: AtomicU64, pub ok: AtomicU64, pub diff: AtomicU64, pub na: AtomicU64, pub live: AtomicU64,
+    pub logged: AtomicU64,          // 파일에 쓴 줄 수(상한)
+    pub vt_rva: AtomicUsize,        // 진단: 첫 호출에서 읽은 WorldOps vt+VT_WORLD_ENTITY 타깃 RVA(순수 read) — ghidra-re 에 넘길 값
+}
+impl Stat {
+    pub const fn new() -> Self {
+        Stat { n: AtomicU64::new(0), ok: AtomicU64::new(0), diff: AtomicU64::new(0), na: AtomicU64::new(0), live: AtomicU64::new(0),
+               logged: AtomicU64::new(0), vt_rva: AtomicUsize::new(0) }
+    }
+}
+
+#[inline] pub fn live() -> bool { tune("judge_live", 0) != 0 }
+
+/// 직접 append(로그 인프라·LOG_ON 과 무관). 디투어 문맥에서 호출되므로 호출 빈도는 record() 가 제한한다.
+fn append_direct(name: &str, s: &str) {
+    if let Some(p) = pth(name) {
+        if let Ok(mut f) = fs::OpenOptions::new().create(true).append(true).open(&p) { let _ = std::io::Write::write_all(&mut f, s.as_bytes()); }
+    }
+}
+
+/// 훅 하나 = 모듈 하나(ORIG 트램폴린·카운터·12인자 wrap). ⚠인자 12개 과선언 = Win64 에서 항상 안전, 과소선언은 AV(08-05 실사고).
+macro_rules! judge_hook {
+    ($m:ident, $spec:expr, $mine:path) => {
+        pub mod $m {
+            use std::sync::atomic::{AtomicUsize, Ordering};
+            pub static ORIG: AtomicUsize = AtomicUsize::new(0);
+            pub static ST: super::Stat = super::Stat::new();
+            type F12 = unsafe extern "C" fn(usize, usize, usize, usize, usize, usize, usize, usize, usize, usize, usize, usize) -> usize;
+            pub unsafe extern "C" fn wrap(p1: usize, p2: usize, p3: usize, p4: usize, p5: usize, p6: usize, p7: usize, p8: usize,
+                                          p9: usize, p10: usize, p11: usize, p12: usize) -> usize {
+                let orig = ORIG.load(Ordering::Relaxed);
+                if orig == 0 { return 0; }   // 설치 전 호출은 불가능하지만 방어
+                let f: F12 = core::mem::transmute(orig);
+                let a = super::ScorerArgs { p1, p2, p3, p4, p5, p6, p7, p8 };
+                let mine: Option<i64> = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| $mine(&a))).unwrap_or(None);
+                if super::live() {
+                    if let Some(v) = mine { ST.live.fetch_add(1, Ordering::Relaxed); return v as usize; }
+                }
+                let game = f(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12);
+                let _ = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| super::record(&$spec, &ST, game as i64, mine, &a)));
+                game
+            }
+        }
+    };
+}
+judge_hook!(steal_hook, crate::judge::gen_fns::STEAL_SCORE, crate::judge::port::steal_score::steal_score);
+
+/// 등록된 훅 전부(status 덤프용). 훅을 늘리면 여기와 install() 에 한 줄씩.
+pub fn stats() -> Vec<(&'static str, &'static Stat)> { vec![(STEAL_SCORE.name, &steal_hook::ST)] }
+
+pub unsafe fn record(spec: &FnSpec, st: &Stat, game: i64, mine: Option<i64>, a: &ScorerArgs) {
+    let n = st.n.fetch_add(1, Ordering::Relaxed) + 1;
+    let verdict = match mine {
+        None => { st.na.fetch_add(1, Ordering::Relaxed); "NA" }
+        Some(m) if m == game => { st.ok.fetch_add(1, Ordering::Relaxed); "OK" }
+        Some(_) => { st.diff.fetch_add(1, Ordering::Relaxed); "DIFF" }
+    };
+    if n == 1 {
+        // 진단: WorldOps vt+VT_WORLD_ENTITY 타깃 RVA(순수 read). 0.5.8 리졸버 디컴의 출발점.
+        if let Some(w) = world::World::from_holder(a.p6) { st.vt_rva.store(w.slot_target_rva(layout::VT_WORLD_ENTITY), Ordering::Relaxed); }
+    }
+    let want = n <= 16 || verdict == "DIFF" || n % 2000 == 0;
+    if want && st.logged.load(Ordering::Relaxed) < 240 {
+        st.logged.fetch_add(1, Ordering::Relaxed);
+        let tag = if ptr_ok(a.p7) { rd_u8(a.p7 + layout::SA_TAG) } else { 0xff };
+        let phase = if ptr_ok(a.p1) { rd_u8(a.p1 + layout::STEAL_PHASE) } else { 0xff };
+        append_direct(&format!("judge_{}.txt", spec.name),
+            &format!("[{} #{}] {} game={} mine={:?} | p1={:#x} phase={} p5={:#x} p6={:#x} p7={:#x} tag={} vt_rva={:#x}\n",
+                spec.name, n, verdict, game, mine, a.p1, phase, a.p5, a.p6, a.p7, tag, st.vt_rva.load(Ordering::Relaxed)));
+    }
+    if n == 1 || n % 500 == 0 { write_status(); }
+}
+
+pub fn write_status() {
+    let mut s = format!("=== judge 계층 검증 누적 (게임 {} · gen_fns {}) judge_verify={} judge_live={} ===\n", GAME_VER, GAME_VER, tune("judge_verify", 1), tune("judge_live", 0));
+    for (name, st) in stats() {
+        s.push_str(&format!("{:<16} n={} ok={} diff={} na={} live={} | vt_rva={:#x}\n", name,
+            st.n.load(Ordering::Relaxed), st.ok.load(Ordering::Relaxed), st.diff.load(Ordering::Relaxed),
+            st.na.load(Ordering::Relaxed), st.live.load(Ordering::Relaxed), st.vt_rva.load(Ordering::Relaxed)));
+    }
+    s.push_str("판정: diff=0 && na=0 이면 그 함수 DIFF=0(이번 판 표본 한정). na>0 = 가드 경로(읽기 실패/미지 태그) → judge_<fn>.txt 의 NA 줄 확인.\n");
+    if let Some(p) = pth("judge_status.txt") { let _ = fs::write(p, s); }
+}
+
+static INSTALLED: AtomicBool = AtomicBool::new(false);
+
+/// 로드 시점 1회(훅 설치 블록 끝, cfg 로드 후). 실패해도 게임 무영향(미설치 = 원본).
+pub unsafe fn install() {
+    if INSTALLED.swap(true, Ordering::Relaxed) { return; }
+    let verify = tune("judge_verify", 1) != 0;
+    let mut log = format!("judge 계층: 게임 {} · 등록 {}함수 · judge_verify={} judge_live={}\n", GAME_VER, ALL.len(), verify as u8, tune("judge_live", 0));
+    if verify {
+        match hook::install_wrap_bytes(STEAL_SCORE.rva, STEAL_SCORE.prolog, steal_hook::wrap as *const () as usize) {
+            Ok(orig) => { steal_hook::ORIG.store(orig, Ordering::Relaxed);
+                          log.push_str(&format!("[judge] {} wrap OK @rva {:#x} (orig_len={} sym={})\n", STEAL_SCORE.name, STEAL_SCORE.rva, STEAL_SCORE.prolog.len(), STEAL_SCORE.sym)); }
+            Err(e) => log.push_str(&format!("[judge] {} wrap 실패: {} @rva {:#x}\n", STEAL_SCORE.name, e, STEAL_SCORE.rva)),
+        }
+    } else {
+        log.push_str("[judge] judge_verify=0 → 훅 미설치(원본)\n");
+    }
+    append_log(&log);
+    if let Some(p) = pth("judge_install.txt") { let _ = fs::write(p, &log); }
+    write_status();
+}

@@ -347,81 +347,6 @@ unsafe extern "C" fn hook_return(retval: i64, key: usize, e1: i64, e2: i64, e3: 
                 // DefenseNexus 7-watcher(무제한): game!=18(=7) 케이스만 기록
                 let code = rd_i64(f.p5).unwrap_or(-999);
                 if code != 18 { defwatch_log(code, f.mine, f.disp_pred); }
-            } else if f.kind == 14 {
-                // ★generic_build 본체(0x20def90) 출력: out struct kind@+0x58 / arg@+0x60 / action sub-Vec(+0x70 ptr, +0x78 len, entry stride 0x18, word=code).
-                let out = f.p5;
-                let mbase = exe_base();
-                let kind = rd_i64(out + 0x58).unwrap_or(-99);
-                let arg = rd_u64(out + 0x60).unwrap_or(0) as usize;
-                let argr = if arg > mbase && arg < mbase + 0x10000000 { format!("rva+{:#x}", arg - mbase) } else { format!("{:#x}", arg) };
-                if GBBODY.load(Ordering::Relaxed) {
-                    let sentinel = rd_i64(out).unwrap_or(-99);
-                    let hdr8d = (rd_u8(out + 0x8d) as u32) | ((rd_u8(out + 0x8e) as u32) << 8);
-                    let (h89, h8a, h8b, h8f) = (rd_u8(out + 0x89), rd_u8(out + 0x8a), rd_u8(out + 0x8b), rd_u8(out + 0x8f));
-                    let vlen = rd_u64(out + 0x78).unwrap_or(0);
-                    let vptr = rd_u64(out + 0x70).unwrap_or(0) as usize;
-                    let mut vcodes = String::new();
-                    for i in 0..vlen.min(8) {
-                        let p = vptr + (i as usize) * 0x18;
-                        let code = (rd_u8(p) as u16) | ((rd_u8(p + 1) as u16) << 8);
-                        vcodes.push_str(&format!("{:#x},", code));
-                    }
-                    let (mk, ma) = (f.mine, f.p6 as u64);   // my_generic_build 예측 (kind, arg)
-                    let verdict = if mk == -99 { GBB_NOPRED.fetch_add(1, Ordering::Relaxed); "미예측".to_string() }
-                        else if mk == kind && ma == (arg as u64) { GBB_OK.fetch_add(1, Ordering::Relaxed); "OK".to_string() }
-                        else { GBB_DIFF.fetch_add(1, Ordering::Relaxed); format!("★DIFF(my k={} a={:#x})", mk, ma) };
-                    let s = format!("{} → kind={} arg={} [{}] (OK={} DIFF={} NP={}) sent={} hdr8d={:#x} h89/8a/8b/8f={}/{}/{}/{} vlen={} v=[{}]\n",
-                        f.pre, kind, argr, verdict, GBB_OK.load(Ordering::Relaxed), GBB_DIFF.load(Ordering::Relaxed), GBB_NOPRED.load(Ordering::Relaxed),
-                        sentinel, hdr8d, h89, h8a, h8b, h8f, vlen, vcodes);
-                    if !GBB_FILE_INIT.swap(true, Ordering::Relaxed) {
-                        write_named("gbbody.txt", "=== generic_build 본체(0x20def90) 출력 캡처: (disc,p2,team) → (kind@+0x58, arg@+0x60, action Vec) ===\n");
-                    }
-                    append_named("gbbody.txt", &s);
-                }
-                // ★gbrd: 0x20e42a3 mid-func 캡처가 저장한 gb_region_d 예측을 out ptr로 조회 → game kind/arg 대조 → gbrdcmp.txt.
-                //   같은 invocation서 0x42a3(store) → 함수리턴(여기서 consume). 0x42a3 미도달 invocation은 맵에 없음(=영역D 깊은분기 우회, 1차 무방).
-                let gbrd_ent = if let Ok(mut m) = GBRD_MAP.lock() {
-                    m.iter().position(|x| x.0 == out).map(|p| m.remove(p))
-                } else { None };
-                if let Some((_, pred, dump, entry_vlen)) = gbrd_ent {
-                    // ★action Vec 검증: 영역 D delta = 최종 len − entry_vlen = 영역 D가 push한 코드. (out+0x78 len, out+0x70 ptr, stride 0x18, word=code)
-                    let fvlen = rd_u64(out + 0x78).unwrap_or(0);
-                    let dn = fvlen.saturating_sub(entry_vlen);   // 영역 D push 개수
-                    if dn > 0 { GBRD_VPUSH.fetch_add(1, Ordering::Relaxed); }
-                    // game 영역 D push: dn==0→0 / dn==1→그 코드 / dn>1→0xffff(예상밖)
-                    let vptr = rd_u64(out + 0x70).unwrap_or(0) as usize;
-                    let game_push: u16 = if dn == 0 { 0 } else if dn == 1 && ptr_ok(vptr) {
-                        (rd_u8(vptr + (entry_vlen as usize) * 0x18) as u16) | ((rd_u8(vptr + (entry_vlen as usize) * 0x18 + 1) as u16) << 8)
-                    } else { 0xffff };
-                    if GBRD.load(Ordering::Relaxed) {   // verify 로깅은 gbrd일 때만(gbrepl 단독시 로그폭증 방지)
-                        let ga = arg as u64;
-                        let verdict = match pred {
-                            Some((pk, pa, ppush)) => if pk == kind && pa == ga && ppush == game_push {
-                                GBRD_OK.fetch_add(1, Ordering::Relaxed); "OK".to_string()
-                            } else {
-                                GBRD_DIFF.fetch_add(1, Ordering::Relaxed); format!("★DIFF(my k={} a={:#x} push={:#x})", pk, pa, ppush)
-                            },
-                            None => { GBRD_NP.fetch_add(1, Ordering::Relaxed); "미예측(영역D 분기 TODO)".to_string() }
-                        };
-                        let mut dcodes = String::new();
-                        if dn > 0 && ptr_ok(vptr) {
-                            for i in entry_vlen..fvlen.min(entry_vlen + 8) {
-                                let p = vptr + (i as usize) * 0x18;
-                                let code = (rd_u8(p) as u16) | ((rd_u8(p + 1) as u16) << 8);
-                                dcodes.push_str(&format!("{:#x},", code));
-                            }
-                        }
-                        let s = format!("[gbrd] game kind={} arg={} push={:#x} [{}] (OK={} DIFF={} NP={}) Dvec(d={} ev={} [{}]) | {}\n",
-                            kind, argr, game_push, verdict, GBRD_OK.load(Ordering::Relaxed), GBRD_DIFF.load(Ordering::Relaxed), GBRD_NP.load(Ordering::Relaxed),
-                            dn, entry_vlen, dcodes, dump);
-                        if !GBRD_FILE_INIT.swap(true, Ordering::Relaxed) {
-                            write_named("gbrdcmp.txt", "=== 영역 D gb_region_d 검증: 캡처 locals → 예측 vs game out (kind/arg) + Dvec(영역D push delta) ===\n");
-                        }
-                        append_named("gbrdcmp.txt", &s);
-                    }
-                    // ★대체(gbrepl)는 에필로그 hook(gbrd_epilogue_apply)이 100% inline 처리 → kind14서 제거.
-                    let _ = pred;
-                }
             } else {
                 // RE: retval=puVar3(출력ptr) → 결정=*retval. e1=game임계값(local_b0), e2=셀렉터, e3=idx, e4=df1da0반환.
                 let decision = if ptr_ok(retval as usize) { rd_i64(retval as usize).unwrap_or(0) } else { 0 };
@@ -1044,14 +969,19 @@ unsafe fn apply_gank_imm() {
     const F2M: [i64; 4] = [2, 3, 5, 9];
     const F2A: [i64; 4] = [1, 2, 4, 8];
     const A_SITES: [(usize, u8, [u8; 3], usize, u8, [u8; 3], bool); 5] = [
-        // ⬜미확정(★0.5.8 소멸 유력·근거 2종) A1 10초 / A2 12초 — **주소가 스테일이라 패치 안 나감**.
-        //   근거① passive_jungle(0.5.4 e625e0 → 0.5.8 d2f180, Location 자카드 1.000) 안의 SIB 곱값 분포가
-        //     0.5.4 [6,10,10,6,12] → 0.5.8 [40,40,6,10,6] 로 바뀌었다. **곱 12 쌍은 0.5.8 에 0개**.
-        //   근거② 남은 곱 10 하나(0xd311d5)는 앞 문맥이 `95 d8 02 00 00|48 8b 8d`,
-        //     즉 A1(앞에 `90` nop 있음)이 아니라 **비패치 사이트 0xe64509 쪽**과 일치한다.
-        //   ⟹ 지우지 않고 남긴다(정책: 소멸은 증거 3중일 때만 삭제). 되살릴 앵커 = git c09385c @0.5.4.
-        (0xde7985, 0x89, [0x48,0x8d,0x0c], 0xde7989, 0x48, [0x48,0x8d,0x34], false), // A1 passive_jungle 10초
-        (0xce1418, 0x49, [0x48,0x8d,0x0c], 0xce141c, 0x88, [0x48,0x8d,0x34], true),  // A2 passive_jungle 12초
+        // ★★[09-05 재핀·소멸판정 철회] ~~⬜소멸 유력(근거 2종)~~ → **A1·A2 둘 다 0.5.8 에 살아 있다**(행단위 RE 실측).
+        //   구 근거①("곱 12 가 0개")은 **오탐**이었다 — A1 의 `lea rcx,[r13*4]; add rcx,r13` 분해형을
+        //   SIB 연쇄로 인식하지 못해 생긴 것. 실제 0.5.8 분포는 [40,40,10,12] 로 **곱 12 가 1개 있다**(0xd31866).
+        //   구 근거②("남은 곱 10 은 비패치 사이트")도 오류 — 0.5.8 엔 곱 10 이 **두 자리**고 A1 은 0xd30f24 쪽이다.
+        //   의미 재확정: 이 lea 쌍은 **부쉬 대기 오더의 만료 시각**을 만든다(`[+0x28] = now + tps*곱`).
+        //     시작 오프셋 `+1초`(`[+0x20] = now + tps`)는 별개 상수라 `gk_wait` 와 무관하다.
+        //   ⚠prefix 가 전부 바뀌었다 — A1 `4a`(REX.X, r13 인덱스) · A2 `4b`(REX.XB, r14) ·
+        //     둘 다 두 번째 lea 의 dest 가 rsi→rax 라 `34`→`04`. 주소만 갈고 prefix 를 두면 계속 skip 된다.
+        //   ★A2 의 `mul2` 는 0.5.7 때부터 **오분류**였다: 두 번째 lea SIB `0x88` = base≠index ⟹ 표현 가능한 곱은
+        //     F2A `{1,2,4,8}` 인데 F2M `{2,3,5,9}` 로 등록돼 있었다. 원본 12초 = 3×**4** 이고 4 는 F2M 에 없다
+        //     ⟹ `gk_wait` 를 주면 의도와 다른 곱이 쓰였다(-1 원본복원만 정상이라 지금까지 안 드러남). false 로 정정.
+        (0xd30f24, 0xad, [0x4a,0x8d,0x0c], 0xd30f2f, 0x48, [0x48,0x8d,0x04], false), // A1 passive_jungle 10초 ←0.5.7 de7985
+        (0xd31866, 0x76, [0x4b,0x8d,0x0c], 0xd3186a, 0x88, [0x48,0x8d,0x04], false), // A2 passive_jungle 12초 ←0.5.7 ce1418
         (0xe4743e, 0x89, [0x48,0x8d,0x0c], 0xe47442, 0x49, [0x48,0x8d,0x0c], true),  // A3 GankPlan 수락 15초
         (0xe5b19e, 0x89, [0x48,0x8d,0x0c], 0xe5b1a2, 0x49, [0x48,0x8d,0x1c], true),  // A4 핸들러 15초
         (0xe5b84b, 0x89, [0x48,0x8d,0x0c], 0xe5b84f, 0x48, [0x4c,0x8d,0x34], false), // A5 핸들러 10초
@@ -1627,7 +1557,9 @@ unsafe fn apply_move_imm() {
     // ★0.5.8 재핀: 두 사이트의 prefix 가 갈려 루프를 펼침. 첫 사이트만 확정(sub rsi→rdi),
     //   둘째(구 0xd58c52)는 ghidra-re 가 대응을 못 지어 **미해결로 남긴다**.
     p!(base + 0xd583c6, &[0x48,0x81,0xef], 3, 4, b4(mtm, 30000));
-    pskip!(base + 0xd58c52, &[0x48,0x81,0xee], 3, 4, b4(mtm, 30000));   // ⬜미확정(0.5.8 대응 못 찾음·되살릴 수 있음)
+    // ⛔★[09-05] `0xd58c52` 는 **명령 경계가 아니다**(행단위 RE 실측 — 실제 명령은 `0xd58c51 lea r12,[rdx+rax*8]`
+    //   과 `0xd58c55 imul rcx,rdi,0x2e8`). 되살렸으면 `imul` 을 깨뜨렸다. 0.5.8 의 올바른 30000 사이트는 아래.
+    pskip!(base + 0xd58dc0, &[0x48,0x81,0xef], 3, 4, b4(mtm, 30000));   // ⬜미활성(주소는 확정: sub rdi,0x7530) ←구 0xd58c52(경계 오류)
     //   상한은 `cmp rax,100` 과 `mov reg,100` **두 곳을 같이** 고쳐야 의미가 맞는다.
     // ★0.5.8 재핀: 앵커 = git 0a5acec 원본 [d8ec43,d8f4db,d8fea6] (현행 소스의 뒤 2개는
     //   나중 마이그가 망가뜨린 주소였다). 0.5.4 action_score 0xd8db90 안 3개 = 소스 3개이고
@@ -1859,7 +1791,7 @@ unsafe fn apply_pe_imm() {
     // ★0.5.8 삭제(중복): L1843 = L1853(0xd884c8) 와 같은 사이트 — 주석이 정확한 L1853 쪽을 남긴다
     // ↓0.5.4: prefix 가 사이트마다 달라져 루프를 펼침(원래 `for a in [..]`)
     p!(base + 0xd88b41, &[0x49,0xbd], 2, 8, sq(pflt, 0x5_3D1A_C100));   // ★0.5.8 재핀: movabs 48 bf→**49 bd**   // ←0.5.3 ccd76e  ★재조사로 복구: pflt (053 3곳=재로드→054 1곳)   // ←0.5.3 cac08c
-    pskip!(base + 0xdf6322, &[0x49,0xbb], 2, 8, sq(pflt, 0x5_3D1A_C100));   // ⬜미확정(앵커 0.5.4 이전·되살릴 수 있음): 시그 3→0 / 완화 3→1 (골격 86%)
+    pskip!(base + 0xdf6322, &[0x49,0xbb], 2, 8, sq(pflt, 0x5_3D1A_C100));   // ⛔[09-05 부활 불가 확정] 행단위 RE 실측: 상수 0x53D1AC100 은 generic_build 본문에 0.5.7·0.5.8 **양쪽 모두 없다**. 이 자리 실제 바이트는 08 05 … ⟹ 앵커 자체가 헛다. pskip 이라 무해
     pskip!(base + 0xcee2c8, &[0x49,0xbb], 2, 8, sq(pflt, 0x5_3D1A_C100));   // ⬜미확정(앵커 0.5.4 이전·되살릴 수 있음): 시그 3→0 / 완화 3→1 (골격 86%)
     // ── ★[09-01 갭메움] position_eval **본체**(0xd23970) 수집반경·프리필터. 위 형제함수(0xd1b~0xd1e)와 함께 이동해야 실제 반경 변경(대표 사이트만으론 안 바뀜=커버리지 갭 실체).
     //   근거 = _재핀\pe본체_교전경계_patch스펙. ⚠값스캔 절대금지(0x9502f9001/000·0x53d1ac0 전역 다수 재사용) — 아래 절대주소 앵커만.
@@ -1901,13 +1833,15 @@ unsafe fn apply_pe_imm() {
     // ── ③ 캡·비율 ──
     //   ⚠150 캡은 `cmp`와 `mov`가 **쌍**이라 둘 다 안 고치면 의미가 어긋난다.
     //   실측된 cmp 인코딩 5종·mov 인코딩 2종. `48 3d`(cmp rax)는 prefix가 2바이트라 imm 오프셋도 2다.
-    static CAPCMP: [(&[u8], usize); 5] = [(&[0x48,0x81,0xf9], 3), (&[0x49,0x81,0xfc], 3),
+    //   ★[09-05] `49 81 fe`(cmp r14) 추가 — 이게 빠져 있어서 아래 PE_CAP 가 홀수(15개)였다(짝 파괴, 행단위 RE 확인).
+    static CAPCMP: [(&[u8], usize); 6] = [(&[0x48,0x81,0xf9], 3), (&[0x49,0x81,0xfc], 3),
                                          (&[0x48,0x81,0xff], 3), (&[0x48,0x81,0xfb], 3),
+                                         (&[0x49,0x81,0xfe], 3),
                                          (&[0x48,0x3d], 2)];
     static CAPMOV: [(&[u8], usize); 3] = [(&[0xb8], 1), (&[0xb9], 1), (&[0xbb], 1)];
     // ★스택 오버플로 방지: 호출부를 펼치지 말고 **표+루프 1개**로 유지할 것.
     //   (펼치면 opt-level=1 에서 프레임이 선형으로 커져 rayon 워커 스택을 넘긴다 — 실사고)
-    static PE_CAP: [(usize, &[u8], usize); 15] = [
+    static PE_CAP: [(usize, &[u8], usize); 16] = [
     (0xd8649a, &[0x49,0x81,0xfc], 3),
     (0xd864a1, &[0xb8], 1),
     (0xd86683, &[0x49,0x81,0xfc], 3),
@@ -1922,6 +1856,9 @@ unsafe fn apply_pe_imm() {
     (0xd895a1, &[0xb9], 1),
     (0xd89728, &[0x48,0x3d], 2),
     (0xd8972e, &[0xb9], 1),
+    // ★[09-05 짝 복구] `0xd8b3de`(mov eax,150)만 있고 짝인 cmp 가 빠져 있었다 = 이 표가 홀수였던 이유.
+    //   빠지면 노브를 낮췄을 때 `[새값,150)` 구간이 클램프를 통과해 **부분만 작동**한다(위 ⚠주석의 그 함정).
+    (0xd8b3d7, &[0x49,0x81,0xfe], 3),
     (0xd8b3de, &[0xb8], 1),
     ];
     for &(a, pre, off) in PE_CAP.iter() { p!(base + a, pre, off, 4, b4(pcap, 150)); }
@@ -3186,8 +3123,8 @@ unsafe fn apply_gb_imm() {
     ok += patch_imm_bytes(base + 0xdfea26, &[0x48,0xb8], 2, 8, e_sr2) as u32;   // 거점반경² (0.5.2 #1+#2 통합)   // ←s2 dd5656
     // ⛔합류 phase≥12 2사이트(구 0x1e1f4ea/0x1e1fa74) = 0.5.2 게이트 삭제 → 제거(상단 주석)
     // ── reach (전역공유 ⚠): 0x23ad980 / 0x23ba8d0 ──
-    ok += patch_imm_bytes(base + 0xe0a6a7, &[0x48,0xb8], 2, 8, e_rc) as u32;                                 // reach cap² #1(≤)   // ⛔s2 미확정(스테일): ddc5d7
-    ok += patch_imm_bytes(base + 0xe1263d, &[0x49,0xba], 2, 8, e_rc.wrapping_add(1)) as u32;                 // reach cap² #2(<, +1경계)   // ⛔s2 미확정(스테일): de338d
+    ok += patch_imm_bytes(base + 0xe0a6a7, &[0x48,0xb8], 2, 8, e_rc) as u32;                                 // reach cap² #1(≤)   // ✅[09-05] 0.5.8 exe 바이트 MATCH 확인(prefix 48 b8 / 원본 0x490404400). ~~⛔s2 미확정 ddc5d7~~ = 0.5.7 스캔 잔재였음
+    ok += patch_imm_bytes(base + 0xe1263d, &[0x49,0xba], 2, 8, e_rc.wrapping_add(1)) as u32;                 // reach cap² #2(<, +1경계)   // ✅[09-05] 0.5.8 MATCH(49 ba / 0x490404401). ~~⛔s2 미확정 de338d~~ 동상
     ok += patch_imm_bytes(base + 0xdf6777, &[0x41,0xb8], 2, 4, e_rm) as u32;                                 // reach margin   // ←s2 dcd2d7
     GBIMM_SIG.store(sig, Ordering::Relaxed);
     if let Some(p) = pth("gb_imm.txt") {
@@ -4180,7 +4117,10 @@ unsafe fn apply_hd_imm() {
     let v_hd_fight_cut: u64 = { if hd_fight_cut < 0 { 22500000000u64 } else { let x = hd_fight_cut.max(0) as u64; x.wrapping_mul(x) } };
     p!(base + 0xcb8357, &[0x48,0xb8], 2, 8, v_hd_fight_cut);   // ←0.5.3 ca50fa   // ←0.5.3 d8259a
     let v_hd_cand_select: u64 = { if hd_cand_select < 0 { 22500000001u64 } else { let x = hd_cand_select.max(0) as u64; x.wrapping_mul(x).wrapping_add(1) } };
-    p!(base + 0xcb9ccc, &[0x49,0xb8], 2, 8, v_hd_cand_select);   // ←0.5.3 ca598f   // ←0.5.3 d82e39
+    // ★[09-05] 여기 있던 `0xcb9ccc` 는 아래 :4208 과 **중복**이라 지웠다(카운터만 부풀고 두 번째는 무의미).
+    //   그 자리에 실제로 빠져 있던 선두 2곳(#0·#1)을 넣는다 — 행단위 RE 로 30/30 전수 대조 확인.
+    p!(base + 0xcb8c16, &[0x49,0xb8], 2, 8, v_hd_cand_select);   // ★0.5.8 신규(#0)
+    p!(base + 0xcb8c78, &[0x49,0xb9], 2, 8, v_hd_cand_select);   // ★0.5.8 신규(#1)
     p!(base + 0xcb8cdf, &[0x49,0xb9], 2, 8, v_hd_cand_select);   // ←0.5.3 ca59f2   // ←0.5.3 d82e9e
     p!(base + 0xcb8d46, &[0x49,0xb9], 2, 8, v_hd_cand_select);   // ←0.5.3 ca5a59   // ←0.5.3 d82f0c
     // ★0.5.8 삭제: hide 중복(:4206) — 위 :4205 의 0xcb8d46 과 같은 주소가 됨
@@ -4491,47 +4431,47 @@ unsafe fn apply_eh_imm() {
     p!(base + 0xcb3389, &[0x48,0xc7,0x44,0x24,0x20], 5, 4, v_eh_recall_radius);   // ←0.5.3 da1ce2   // ←0.5.3 e15f85
     let v_eh_around_radius: u64 = { if eh_around_radius < 0 { 80000u64 } else { eh_around_radius.max(0) as u64 } };
     p!(base + 0xeb03c8, &[0x48,0xc7,0x85,0x38,0x05,0x00,0x00], 7, 4, v_eh_around_radius);   // ←0.5.3 c6a026   // ←0.5.3 d8774e
-    p!(base + 0xeb03c8, &[0x48,0xc7,0x85,0x38,0x05,0x00,0x00], 7, 4, v_eh_around_radius);   // ←0.5.3 da1d33   // ←0.5.3 e16048
+    p!(base + 0xcb344c, &[0x48,0xc7,0x85,0x18,0x05,0x00,0x00], 7, 4, v_eh_around_radius);   // ←0.5.3 da1d33   // ←0.5.3 e16048   // ★09-05 자매 오짝 정정 eh_around_radius ←epic 0xeb03c8
     let v_eh_trace_arrive: u64 = { if eh_trace_arrive < 0 { 15000u64 } else { eh_trace_arrive.max(0) as u64 } };
     p!(base + 0xeb06af, &[0x48,0xc7,0x85,0x58,0x05,0x00,0x00], 7, 4, v_eh_trace_arrive);   // ←0.5.3 c6a349   // ←0.5.3 d87aba
     p!(base + 0xeb113a, &[0x48,0xc7,0x85,0x58,0x05,0x00,0x00], 7, 4, v_eh_trace_arrive);   // ←0.5.3 c6aaff   // ←0.5.3 d8856a
     p!(base + 0xeb11d9, &[0x48,0xc7,0x85,0x58,0x05,0x00,0x00], 7, 4, v_eh_trace_arrive);   // ←0.5.3 c6ac5d   // ←0.5.3 d88609
     p!(base + 0xeb1278, &[0x48,0xc7,0x85,0x58,0x05,0x00,0x00], 7, 4, v_eh_trace_arrive);   // ←0.5.3 c6acf9   // ←0.5.3 d886a8
     p!(base + 0xeb1f7b, &[0x48,0xc7,0x85,0x58,0x05,0x00,0x00], 7, 4, v_eh_trace_arrive);   // ←0.5.3 c6ba21   // ←0.5.3 d8938b
-    p!(base + 0xeb06af, &[0x48,0xc7,0x85,0x58,0x05,0x00,0x00], 7, 4, v_eh_trace_arrive);   // ←0.5.3 da2049   // ←0.5.3 e1632f
+    p!(base + 0xcb3741, &[0x48,0xc7,0x85,0x38,0x05,0x00,0x00], 7, 4, v_eh_trace_arrive);   // ←0.5.3 da2049   // ←0.5.3 e1632f   // ★09-05 자매 오짝 정정 eh_trace_arrive#1 ←epic 0xeb06af
     p!(base + 0xcb41c0, &[0x48,0xc7,0x85,0x38,0x05,0x00,0x00], 7, 4, v_eh_trace_arrive);   // ★0.5.8 재핀: 변위 0x558→0x538   // ←0.5.3 da2837   // ←0.5.3 e16dca
     p!(base + 0xcb4321, &[0x48,0xc7,0x85,0x38,0x05,0x00,0x00], 7, 4, v_eh_trace_arrive);   // ★0.5.8 재핀: 동상   // ←0.5.3 da28cf   // ←0.5.3 e16e69
     p!(base + 0xcb43c4, &[0x48,0xc7,0x85,0x38,0x05,0x00,0x00], 7, 4, v_eh_trace_arrive);   // ★0.5.8 재핀: 동상   // ←0.5.3 da2967   // ←0.5.3 e16f08
-    p!(base + 0xeb1f7b, &[0x48,0xc7,0x85,0x58,0x05,0x00,0x00], 7, 4, v_eh_trace_arrive);   // ←0.5.3 da366b   // ←0.5.3 e17bbb
+    p!(base + 0xcb50f1, &[0x48,0xc7,0x85,0x38,0x05,0x00,0x00], 7, 4, v_eh_trace_arrive);   // ←0.5.3 da366b   // ←0.5.3 e17bbb   // ★09-05 자매 오짝 정정 eh_trace_arrive#5 ←epic 0xeb1f7b
     let v_eh_band_low: u64 = { if eh_band_low < 0 { 12000u64 } else { eh_band_low.max(0) as u64 } };
     p!(base + 0xeb191e, &[0xb9], 1, 4, v_eh_band_low);   // ←0.5.3 c6b3a1   // ←0.5.3 d88cfe
-    p!(base + 0xeb191e, &[0xb9], 1, 4, v_eh_band_low);   // ←0.5.3 da300a   // ←0.5.3 e1755e
+    p!(base + 0xcb4a76, &[0xb9], 1, 4, v_eh_band_low);   // ←0.5.3 da300a   // ←0.5.3 e1755e   // ★09-05 자매 오짝 정정 eh_band_low mov ecx ←epic 0xeb191e
     p!(base + 0xeb196f, &[0xbe], 1, 4, v_eh_band_low);   // ←0.5.3 c6b3eb   // ←0.5.3 d88d4f
-    p!(base + 0xeb196f, &[0xbe], 1, 4, v_eh_band_low);   // ←0.5.3 da305b   // ←0.5.3 e175af
+    p!(base + 0xcb4ac7, &[0xbe], 1, 4, v_eh_band_low);   // ←0.5.3 da305b   // ←0.5.3 e175af   // ★09-05 자매 오짝 정정 eh_band_low mov esi ←epic 0xeb196f
     p!(base + 0xeb1979, &[0x48,0xc7,0x85,0xe0,0x04,0x00,0x00], 7, 4, v_eh_band_low);   // ←0.5.3 c6b3f5   // ←0.5.3 d88d59
-    p!(base + 0xeb1979, &[0x48,0xc7,0x85,0xe0,0x04,0x00,0x00], 7, 4, v_eh_band_low);   // ←0.5.3 da3065   // ←0.5.3 e175b9
+    p!(base + 0xcb4ad1, &[0x48,0xc7,0x85,0xc0,0x04,0x00,0x00], 7, 4, v_eh_band_low);   // ←0.5.3 da3065   // ←0.5.3 e175b9   // ★09-05 자매 오짝 정정 eh_band_low mov[rbp] ←epic 0xeb1979
     p!(base + 0xeb1918, &[0x48,0x3d], 2, 4, v_eh_band_low.wrapping_add(1));   // ←0.5.3 c6b39b   // ←0.5.3 d88cf8
-    p!(base + 0xeb1918, &[0x48,0x3d], 2, 4, v_eh_band_low.wrapping_add(1));   // ←0.5.3 da3004   // ←0.5.3 e17558
+    p!(base + 0xcb4a70, &[0x48,0x3d], 2, 4, v_eh_band_low.wrapping_add(1));   // ←0.5.3 da3004   // ←0.5.3 e17558   // ★09-05 자매 오짝 정정 eh_band_low cmp ←epic 0xeb1918
     let v_eh_band_high: u64 = { if eh_band_high < 0 { 45000u64 } else { eh_band_high.max(0) as u64 } };
     p!(base + 0xeb1927, &[0x48,0x81,0xf9], 3, 4, v_eh_band_high);   // ←0.5.3 c6b3aa   // ←0.5.3 d88d07
-    p!(base + 0xeb1927, &[0x48,0x81,0xf9], 3, 4, v_eh_band_high);   // ←0.5.3 da3013   // ←0.5.3 e17567
+    p!(base + 0xcb4a7f, &[0x48,0x81,0xf9], 3, 4, v_eh_band_high);   // ←0.5.3 da3013   // ←0.5.3 e17567   // ★09-05 자매 오짝 정정 eh_band_high cmp rcx ←epic 0xeb1927
     p!(base + 0xeb192e, &[0xbb], 1, 4, v_eh_band_high);   // ←0.5.3 c6b3b1   // ←0.5.3 d88d0e
-    p!(base + 0xeb192e, &[0xbb], 1, 4, v_eh_band_high);   // ←0.5.3 da301a   // ←0.5.3 e1756e
+    p!(base + 0xcb4a86, &[0xbb], 1, 4, v_eh_band_high);   // ←0.5.3 da301a   // ←0.5.3 e1756e   // ★09-05 자매 오짝 정정 eh_band_high mov ebx ←epic 0xeb192e
     let v_eh_commit_hp: u64 = { if eh_commit_hp < 0 { 50u64 } else { eh_commit_hp.max(0) as u64 } };
     p!(base + 0xeb2234, &[0x48,0x83,0xbd,0x98,0x05,0x00,0x00], 7, 1, v_eh_commit_hp);   // ←0.5.3 c6bcb8   // ←0.5.3 d89646
-    p!(base + 0xeb2234, &[0x48,0x83,0xbd,0x98,0x05,0x00,0x00], 7, 1, v_eh_commit_hp);   // ←0.5.3 da3924   // ←0.5.3 e17e74
+    p!(base + 0xcb5388, &[0x48,0x83,0xbd,0xd8,0x05,0x00,0x00], 7, 1, v_eh_commit_hp);   // ←0.5.3 da3924   // ←0.5.3 e17e74   // ★09-05 자매 오짝 정정 eh_commit_hp ←epic 0xeb2234
     let v_eh_commit_r_low: u64 = { if eh_commit_r_low < 0 { 70000u64 } else { eh_commit_r_low.max(0) as u64 } };
     p!(base + 0xeb223c, &[0xb8], 1, 4, v_eh_commit_r_low);   // ←0.5.3 c6bcc0   // ←0.5.3 d8964e
-    p!(base + 0xeb223c, &[0xb8], 1, 4, v_eh_commit_r_low);   // ←0.5.3 da392c   // ←0.5.3 e17e7c
+    p!(base + 0xcb5390, &[0xb8], 1, 4, v_eh_commit_r_low);   // ←0.5.3 da392c   // ←0.5.3 e17e7c   // ★09-05 자매 오짝 정정 eh_commit_r_low ←epic 0xeb223c
     let v_eh_commit_r_high: u64 = { if eh_commit_r_high < 0 { 40000u64 } else { eh_commit_r_high.max(0) as u64 } };
     p!(base + 0xeb2241, &[0x41,0xbd], 2, 4, v_eh_commit_r_high);   // ←0.5.3 c6bcc5   // ←0.5.3 d89653
-    p!(base + 0xeb2241, &[0x41,0xbd], 2, 4, v_eh_commit_r_high);   // ←0.5.3 da3931   // ←0.5.3 e17e81
+    p!(base + 0xcb5395, &[0x41,0xbd], 2, 4, v_eh_commit_r_high);   // ←0.5.3 da3931   // ←0.5.3 e17e81   // ★09-05 자매 오짝 정정 eh_commit_r_high ←epic 0xeb2241
     let v_eh_abort_hp: u64 = { if eh_abort_hp < 0 { 44u64 } else { eh_abort_hp.max(0) as u64 } };
     p!(base + 0xeb22d2, &[0x48,0x83,0xbd,0x98,0x05,0x00,0x00], 7, 1, v_eh_abort_hp);   // ←0.5.3 c6bd5d   // ←0.5.3 d896e4
-    p!(base + 0xeb22d2, &[0x48,0x83,0xbd,0x98,0x05,0x00,0x00], 7, 1, v_eh_abort_hp);   // ←0.5.3 da39c2   // ←0.5.3 e17f12
+    p!(base + 0xcb5428, &[0x48,0x83,0xbd,0xd8,0x05,0x00,0x00], 7, 1, v_eh_abort_hp);   // ←0.5.3 da39c2   // ←0.5.3 e17f12   // ★09-05 자매 오짝 정정 eh_abort_hp ←epic 0xeb22d2
     let v_eh_abort_dist: u64 = { if eh_abort_dist < 0 { 220000u64 } else { eh_abort_dist.max(0) as u64 } };
     p!(base + 0xeb22e0, &[0x48,0x81,0xbd,0x60,0x03,0x00,0x00], 7, 4, v_eh_abort_dist);   // ←0.5.3 c6bd6b   // ←0.5.3 d896f2
-    p!(base + 0xeb22e0, &[0x48,0x81,0xbd,0x60,0x03,0x00,0x00], 7, 4, v_eh_abort_dist);   // ←0.5.3 da39d0   // ←0.5.3 e17f20
+    p!(base + 0xcb5436, &[0x48,0x81,0xbd,0x58,0x03,0x00,0x00], 7, 4, v_eh_abort_dist);   // ←0.5.3 da39d0   // ←0.5.3 e17f20   // ★09-05 자매 오짝 정정 eh_abort_dist ←epic 0xeb22e0
     let v_eh_score_norm: u64 = { if eh_score_norm < 0 { 320000u64 } else { eh_score_norm.max(0) as u64 } };
     p!(base + 0xeb2690, &[0x48,0x3d], 2, 4, v_eh_score_norm);   // ←0.5.3 c6c145   // ←0.5.3 d89a90
     p!(base + 0xeb2696, &[0x41,0xb8], 2, 4, v_eh_score_norm);   // ←0.5.3 c6c14b   // ←0.5.3 d89a96
@@ -4541,10 +4481,10 @@ unsafe fn apply_eh_imm() {
     p!(base + 0xeb2a2b, &[0xb9], 1, 4, v_eh_score_norm);   // ←0.5.3 c6c4ea   // ←0.5.3 d89e2b
     p!(base + 0xcb57e1, &[0x48,0x3d], 2, 4, v_eh_score_norm);   // ←0.5.3 da3d96   // ←0.5.3 e182d0
     p!(base + 0xcb57e7, &[0x41,0xb8], 2, 4, v_eh_score_norm);   // ←0.5.3 da3d9c   // ←0.5.3 e182d6
-    p!(base + 0xeb26dc, &[0xba], 1, 4, v_eh_score_norm);   // ←0.5.3 da3de2   // ←0.5.3 e1831c
-    p!(base + 0xeb299f, &[0x48,0x3d], 2, 4, v_eh_score_norm);   // ←0.5.3 da409e   // ←0.5.3 e185df
-    p!(base + 0xeb29a5, &[0xb9], 1, 4, v_eh_score_norm);   // ←0.5.3 da40a4   // ←0.5.3 e185e5
-    p!(base + 0xeb2a2b, &[0xb9], 1, 4, v_eh_score_norm);   // ←0.5.3 da412a   // ←0.5.3 e1866b
+    p!(base + 0xcb582d, &[0xba], 1, 4, v_eh_score_norm);   // ←0.5.3 da3de2   // ←0.5.3 e1831c   // ★09-05 자매 오짝 정정 eh_score_norm mov edx ←epic 0xeb26dc
+    p!(base + 0xcb5aed, &[0x48,0x3d], 2, 4, v_eh_score_norm);   // ←0.5.3 da409e   // ←0.5.3 e185df   // ★09-05 자매 오짝 정정 eh_score_norm cmp rax ←epic 0xeb299f
+    p!(base + 0xcb5af3, &[0xb9], 1, 4, v_eh_score_norm);   // ←0.5.3 da40a4   // ←0.5.3 e185e5   // ★09-05 자매 오짝 정정 eh_score_norm mov ecx ←epic 0xeb29a5
+    p!(base + 0xcb5b79, &[0xb9], 1, 4, v_eh_score_norm);   // ←0.5.3 da412a   // ←0.5.3 e1866b   // ★09-05 자매 오짝 정정 eh_score_norm mov ecx2 ←epic 0xeb2a2b
     // ── ★[0.5.7 신규 확장] K6·K18~K33 (imm) + fin (branch). 스펙 = 재핀 스캔 exe 대조 52/52 + fin 4. epic/serpen 쌍 ──
     let vv = |x: i64, orig: u64| if x < 0 { orig } else { x.max(0) as u64 };
     let ec = vv(eh_band_off, 10000);
@@ -4587,16 +4527,28 @@ unsafe fn apply_eh_imm() {
     let gc = vv(eh_grid_cost, 10000);
     p!(base + 0xeb2f45, &[0x49,0x81,0xc6], 3, 4, gc); p!(base + 0xcb60a5, &[0x49,0x81,0xc6], 3, 4, gc);   // K33
     // fin (killtarget 게이트, 3-state: 이전 잔여 원복 후 목표 적용)
+    // ⛔★[09-05 안전 가드] 이 매크로는 목표 적용 **전에 되돌리기를 무조건 2번** 썼다.
+    //   주소가 스테일이면서 그 자리 바이트가 우연히 `alt`(`90 90`·`b0 01` 은 흔하다)와 같으면
+    //   "원본으로 되돌리는" 쓰기가 **엉뚱한 코드를 파괴**한다. 실제로 아래 4곳은 0.5.7 주소였고,
+    //   0.5.8 에서 우연히 제3의 바이트열이라 안 터졌을 뿐이다(운).
+    //   ⟹ **알려진 3상태(orig/alt0/alt1) 중 하나일 때만** 손댄다.
+    //   ⚠한계: 스테일 주소가 우연히 그 3상태 중 하나와 같으면 여전히 통과한다. 이 가드는 마지막 방어선이고
+    //     1차 방어는 아래 주소가 맞는 것이다(0.5.8 실측 재핀 완료).
     macro_rules! fin3 { ($a:expr, $o:expr, $a0:expr, $a1:expr) => {{
-        let _ = patch_toggle_bytes(base + $a, $o, $a0, false);
-        let _ = patch_toggle_bytes(base + $a, $o, $a1, false);
-        if eh_fin_mode == 0 { tot += 1; ok += patch_toggle_bytes(base + $a, $o, $a0, true) as u32; }
-        else if eh_fin_mode == 1 { tot += 1; ok += patch_toggle_bytes(base + $a, $o, $a1, true) as u32; }
+        let _ad = base + $a;
+        if fs2_bytes_eq(_ad, $o) || fs2_bytes_eq(_ad, $a0) || fs2_bytes_eq(_ad, $a1) {
+            let _ = patch_toggle_bytes(_ad, $o, $a0, false);
+            let _ = patch_toggle_bytes(_ad, $o, $a1, false);
+            if eh_fin_mode == 0 { tot += 1; ok += patch_toggle_bytes(_ad, $o, $a0, true) as u32; }
+            else if eh_fin_mode == 1 { tot += 1; ok += patch_toggle_bytes(_ad, $o, $a1, true) as u32; }
+        }
     }}; }
-    fin3!(0xd54b93, &[0x74,0x04], &[0xeb,0x04], &[0x90,0x90]);   // fin#1 epic je→jmp/nop
-    fin3!(0xde7661, &[0x74,0x04], &[0xeb,0x04], &[0x90,0x90]);   // fin#1 serp
-    fin3!(0xd55bc5, &[0x08,0xd8], &[0x08,0xc0], &[0xb0,0x01]);   // fin#2 epic or→and/mov
-    fin3!(0xde85ca, &[0x08,0xd8], &[0x08,0xc0], &[0xb0,0x01]);   // fin#2 serp
+    // ★[09-05 재핀] 4곳 전부 0.5.7 주소라 `eh_fin_mode` 가 **완전 무동작**이었다(행단위 RE·자매쌍 조사).
+    //   0.5.8 주소는 각 함수 안에서 해당 바이트열이 정확히 1회뿐이라 확정.
+    fin3!(0xeafbc1, &[0x74,0x04], &[0xeb,0x04], &[0x90,0x90]);   // fin#1 epic je→jmp/nop  ←0.5.7 d54b93
+    fin3!(0xcb2c0e, &[0x74,0x04], &[0xeb,0x04], &[0x90,0x90]);   // fin#1 serp             ←0.5.7 de7661
+    fin3!(0xeb0b17, &[0x08,0xd8], &[0x08,0xc0], &[0xb0,0x01]);   // fin#2 epic or→and/mov  ←0.5.7 d55bc5
+    fin3!(0xcb3bc3, &[0x08,0xd8], &[0x08,0xc0], &[0xb0,0x01]);   // fin#2 serp             ←0.5.7 de85ca
     EH_SIG.store(sig, Ordering::Relaxed);
     if let Some(pp) = pth("eh_imm.txt") {
         let _ = fs::write(pp, format!("applied={}/{} eh_flee_clear_hp={} eh_reach_margin={} eh_recall_radius={} eh_around_radius={} eh_trace_arrive={} eh_band_low={} eh_band_high={} eh_commit_hp={} eh_commit_r_low={} eh_commit_r_high={} eh_abort_hp={} eh_abort_dist={} eh_score_norm={} @base{:#x}\n",
@@ -4751,8 +4703,19 @@ unsafe fn fs2_build_stub(mode: u32, orig: &[u8; 16], ret_addr: usize) -> usize {
 }
 
 /// `fix_skill2_dmg` 토글 처리. 켜면 훅 2 + NOP 2, 끄면 원본 4곳 복원.
+///
+/// ⛔★★[09-05 영구 폐기 — 0.5.8] **게임이 이 결함을 자체 수정했다**(행단위 RE 실측).
+///   0.5.7 은 적 경로 store 가 스킬1 값을 그대로 복사했으나(`[rax+0x10]=r10` 이 스킬1 위협),
+///   0.5.8 은 `0xd8213a`(위협)·`0xd823aa`(이득)에서 스킬2 를 **실제로 계산**해
+///   `0xd825f2 mov [rsi+0x10],r10` · `0xd82632 mov [rsi+0x30],rbx` 로 **올바르게** 기록한다.
+///   ⟹ 이 훅을 되살리면 **이미 맞는 store 2개를 NOP 시켜 스킬2 를 도로 0 으로 만든다**(개악).
+///   게다가 스텁이 출력 포인터를 `[rsp+0x118]`(구 프레임의 rcx 스필)로 오독한다 — 0.5.8 은 rsi 다.
+///   위 FS2_*_RVA 4개는 0.5.8 에서 **명령 경계조차 아니다**(rebase 오차 + 레지스터 재할당).
+///   재핀 금지. 0.5.7 이하로 되돌아갈 일이 있으면 git 이력에서 꺼낼 것.
 unsafe fn apply_fix_skill2() {
-    let want = if tune("fix_skill2_dmg", 0) != 0 { 1i64 } else { 0i64 };
+    // 0.5.8 부터는 cfg 값과 무관하게 **항상 0**(= 원본 유지). 위 폐기 사유 참조.
+    let want = 0i64;
+    let _ = tune("fix_skill2_dmg", 0);   // 키 자체는 남겨 둔다(경고·감사 도구가 참조)
     if FS2_APPLIED.load(Ordering::Relaxed) == want { return; }
     let base = exe_base();
     if base == 0 || READY_TICKS.load(Ordering::Relaxed) < READY_MIN { return; }

@@ -46,7 +46,13 @@ const RVA_THREATGATE_FN: usize = 0x20a8680;  // ⏸stale 유지=inert(0.5.4 주�
 // facet#2 position: driver 내 generic_build(이동좌표 최종화) 호출지점.
 const RVA_F2_BUILD_CALL: usize = 0x1a1ef3e;  // ⏸stale 유지=inert(0.5.4 주소, 스왑 금지). target-guard로 미설치.
 
-const RVA_GENERIC_BUILD: usize = 0xceb5f0;  // ★0.5.6(was 0.5.5 0xcc1030). UNIQUE·size 27883 동일·BYTE=SAME·프롤로그 동일. orig_len 12 유지.
+const RVA_GENERIC_BUILD: usize = 0xdf36e0;  // ★★0.5.8 확정(09-05 행단위 RE, ~~0.5.6 0xceb5f0~~ ~~0.5.5 0xcc1030~~).
+// 근거 3중: ①`0xdfb840`(battle.rs:430~632)의 **tail call** 위치가 0.5.7 `0xcf56c7 call 0xceb5f0` 과 1:1 대응(둘 다 공통출구 직전·7인자)
+//           ②크기 27,883B → 29,389B (09-04 전수비교의 ins 5376→5713 과 정합)
+//           ③Location = `battle.rs:774/850/917` = `0xdfb840` 바로 다음 패스. ⟹ 09-04 "추정" 을 확정으로 승격.
+// ⚠**본문은 바뀌었다**(유사도 0.763) ⟹ 재현코드는 stale. 그래서 이 주소를 고쳐도 `hk_movepost` 는 켜면 안 된다.
+//   ★안전을 stale 주소에 기대지 말 것 — 오늘 `0xdfd364` 가 우연 일치로 가드를 통과한 실사고가 있었다.
+//   그래서 `hk_movepost` 기본값을 **명시적으로 0** 으로 내렸다(tfm2_ai_adjust.rs). `RVA_F2_BUILD_CALL` 은 계속 stale 유지.
 
 // ★facet#2 레인워크 waypoint 선택. install_replace_detour_rax 무조건설치 경로.
 const RVA_FC59A0: usize = 0xd40f10;  // ★0.5.6(was 0.5.5 0xcf7b80). recall_rng_score. UNIQUE·size 1459 동일·BYTE=SAME·프롤로그 20B 동일. orig_len 12.
