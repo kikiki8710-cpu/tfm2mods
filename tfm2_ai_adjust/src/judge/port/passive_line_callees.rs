@@ -64,7 +64,9 @@ pub unsafe fn lane_pred(team_enemy: usize, data: usize, vt: usize, rec_self: usi
     let rec = w.roster_rec(h)?; if rec == 0 { return Some((0, 0)); }
     let idx = rd_u32(rec + REC_ROLE) as usize;
     let last = rd_u64(team_enemy + LANE_ROSTER + idx * 8)?;
-    Some((if last.wrapping_add(0x78) >= rd_u64(data + W_TICK)? { 2 } else { 0 }, last))
+    // ★창 = 라이브 즉치(0x1323a5b, 노브 vw_check). 정적 0x78 로 두면 cfg 가 90 일 때 2% 가 갈린다(2026-09-06 5판 실측).
+    let win = super::super::live_imm8(SITE_VW_CHECK_IMM, 0x78) as u64;
+    Some((if last.wrapping_add(win) >= rd_u64(data + W_TICK)? { 2 } else { 0 }, last))
 }
 
 /// 0x16047b0 — 예측 억제 게이트(순수 해시). (A, B)

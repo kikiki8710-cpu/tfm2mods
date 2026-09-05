@@ -93,7 +93,7 @@ pub unsafe fn passive_line(a: &Args8) -> Option<MpOut> {
                         let (lp, last) = cal::lane_pred(lane_o, w.data, w.vt, p5, e)?;
                         if lp != 0 { bits |= 1 << r; } if lp == 1 { bits |= 1 << (24 + r); }          // 24+r = 시야로 참(1) / r 만 = 기록으로 참(2)
                         if r >= 3 && lp == 2 {                                                        // t8 = 적3(low 28b)·적4(high) 의 (last+0x78 − tick) 여유(+0x800000 바이어스, 포화)
-                            let m = (last.wrapping_add(0x78) as i64).wrapping_sub(tick as i64).clamp(-0x7f_ffff, 0x7f_ffff) + 0x80_0000;
+                            let m = (last.wrapping_add(super::super::live_imm8(SITE_VW_CHECK_IMM, 0x78) as u64) as i64).wrapping_sub(tick as i64).clamp(-0x7f_ffff, 0x7f_ffff) + 0x80_0000;
                             let prev = tr_get(8) & !(0xfff_ffffu64 << (if r == 3 { 0 } else { 28 })) & 0x00ff_ffff_ffff_ffff;
                             tr(8, 0x100_0000_0000_0000 | prev | ((m as u64) << (if r == 3 { 0 } else { 28 })));
                         }
@@ -161,7 +161,7 @@ pub unsafe fn passive_line(a: &Args8) -> Option<MpOut> {
             let rec = w.roster_rec(hh)?;
             if rec != 0 {
                 let thr = rd_i64(lane_other + LANE_ROSTER + (rd_u32(rec + REC_ROLE) as usize) * 8)?;
-                if tick <= (thr as u64).wrapping_add(LANE_ROSTER_MARGIN) { hit = true; break; }
+                if tick <= (thr as u64).wrapping_add(super::super::live_imm8(SITE_VW_LANE_IMM, LANE_ROSTER_MARGIN as u8) as u64) { hit = true; break; }   // 라이브 즉치(노브 vw_lane ×5 동일값)
             }
         }
         c15 = if hit { if rd_i64(lane_self + lane_sub(lane) + LR_F18)? < 0 { 2 } else { 0 } } else { 2 };

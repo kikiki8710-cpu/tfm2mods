@@ -328,6 +328,28 @@ def cmd_list(a):
             name, e.get('role'), e.get('status'), c['rva'], c['size'], c['orig_len'], c['reloc'], c['jmpin'], c['sym']))
 
 
+def cmd_sites(a):
+    """포팅 함수(+ --extra 로 준 콜리) 범위 ∩ 이 모드의 바이트패치 사이트(orig_table.rs). 히트 = 포팅이 그 즉치를 **라이브로 읽어야** 하는 자리.
+    왜: 재현 대상은 정적 exe 가 아니라 바이트패치가 적용된 실행 이미지다(2026-09-06 recently_seen 0x1323a58 · vw_check=90 으로 5판 소모)."""
+    import re as _re
+    tbl = a.table or os.path.join(os.path.dirname(os.path.dirname(GEN_RS)), 'orig_table.rs')
+    txt = io.open(tbl, encoding='utf-8').read()
+    sites = [(int(m.group(1), 16), int(m.group(2)), int(m.group(3)), int(m.group(4)))
+             for m in _re.finditer(r'\(\s*(0x[0-9a-fA-F]+)\s*,\s*(\d+)\s*,\s*(\d+)\s*,\s*(-?\d+)\s*\)', txt)]
+    m = load_man()
+    fns = [(n, int(e['cur']['rva'], 16), e['cur']['size']) for n, e in sorted(m['fns'].items())]
+    for x in (a.extra or []):
+        n, r, l = x.split(':'); fns.append((n, int(r, 16), int(l, 0)))
+    print('사이트 표 %s (%d개) ∩ 함수 %d개' % (os.path.basename(tbl), len(sites), len(fns)))
+    total = 0
+    for n, s, l in fns:
+        hit = [(r, o, w, v) for r, o, w, v in sites if s <= r < s + l]
+        total += len(hit)
+        mark = '★' if hit else ' '
+        print('%s %-22s %#x+%-5d %d' % (mark, n, s, l, len(hit)), ' '.join('%#x(imm@+%d %dB orig=%d)' % h for h in hit))
+    print('⟹ 히트 %d — 각 사이트의 즉치 RVA(사이트+off)를 layout.rs SITE_* 로 두고 포팅은 judge::live_imm8/16 으로 읽는다.' % total)
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sp = ap.add_subparsers(dest='cmd', required=True)
@@ -337,6 +359,7 @@ def main():
     p = sp.add_parser('status'); p.add_argument('--old', required=True); p.add_argument('--new', default=GAME_EXE); p.add_argument('--apply', action='store_true'); p.set_defaults(f=cmd_status)
     p = sp.add_parser('mark'); p.add_argument('name'); p.add_argument('status'); p.add_argument('--note', default=''); p.set_defaults(f=cmd_mark)
     p = sp.add_parser('list'); p.set_defaults(f=cmd_list)
+    p = sp.add_parser('sites'); p.add_argument('--table', default=None); p.add_argument('--extra', nargs='*', help='name:rva:size (콜리 등 매니페스트 밖)'); p.set_defaults(f=cmd_sites)
     a = ap.parse_args()
     a.f(a)
 

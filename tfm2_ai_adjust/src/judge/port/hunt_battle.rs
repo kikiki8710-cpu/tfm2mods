@@ -21,9 +21,9 @@ use super::super::layout::*;
 use super::super::{Args8, MpOut};
 use super::super::cap_ability_pick;
 
-pub struct HbVariant { pub t_len: usize, pub t_ptr: usize, pub p7_ta: usize, pub p7_tb: usize, pub code_else: u64 }
-pub const EPIC: HbVariant = HbVariant { t_len: T0_LEN, t_ptr: T0_PTR, p7_ta: P7_EPIC_TA, p7_tb: P7_EPIC_TB, code_else: MP_CODE_EPIC_HB };
-pub const SERPEN: HbVariant = HbVariant { t_len: T1_LEN, t_ptr: T1_PTR, p7_ta: P7_SERPEN_TA, p7_tb: P7_SERPEN_TB, code_else: MP_CODE_SERPEN_HB };
+pub struct HbVariant { pub t_len: usize, pub t_ptr: usize, pub p7_ta: usize, pub p7_tb: usize, pub code_else: u64, pub site_phase_imm: usize }
+pub const EPIC: HbVariant = HbVariant { t_len: T0_LEN, t_ptr: T0_PTR, p7_ta: P7_EPIC_TA, p7_tb: P7_EPIC_TB, code_else: MP_CODE_EPIC_HB, site_phase_imm: SITE_HD_PHASE_EPIC_IMM };
+pub const SERPEN: HbVariant = HbVariant { t_len: T1_LEN, t_ptr: T1_PTR, p7_ta: P7_SERPEN_TA, p7_tb: P7_SERPEN_TB, code_else: MP_CODE_SERPEN_HB, site_phase_imm: SITE_HD_PHASE_SERPEN_IMM };
 
 /// 반환 None = 게임이 panic 하는 경로·읽기 실패·콜리 캡처 없음 → 검증 NA / live passthrough.
 pub unsafe fn hunt_battle(a: &Args8, v: &HbVariant) -> Option<MpOut> {
@@ -56,7 +56,7 @@ pub unsafe fn hunt_battle(a: &Args8, v: &HbVariant) -> Option<MpOut> {
     let tps = g.tps()? as u64;
     if rd_u64(p7 + v.p7_tb)? < tps.wrapping_add(rd_u64(p7 + v.p7_ta)?) && rd_u8(payload) != 0 {
         o.push(0x8, 8, rd_u64(payload + 8)?);
-        o.push(0x10, 2, 1);
+        o.push(0x10, 2, super::super::live_imm16(v.site_phase_imm, 1) as u64);   // 라이브 즉치(노브 hd_phase, 원본 1)
         o.push(0x12, 1, 0);
         o.code(MP_CODE_LINE_ATTACK);
     } else {

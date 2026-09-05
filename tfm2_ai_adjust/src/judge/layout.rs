@@ -130,3 +130,12 @@ pub const MP_CODE_AROUND: u64 = 5;
 pub const MP_CODE_LINE_ATTACK: u64 = 9;
 pub const MP_CODE_EPIC_HB: u64 = 0xb;
 pub const MP_CODE_SERPEN_HB: u64 = 0xe;
+
+// ── ★이 모드의 바이트패치 사이트(즉치 RVA) — 포팅 범위 안에 있는 것 ── [orig_table.rs 교차검사 2026-09-06, 0.5.8]
+//   재현 대상은 정적 exe 가 아니라 **바이트패치가 적용된 실행 이미지**다. 포팅은 이 즉치를 라이브로 읽는다(judge::live_imm8/16).
+//   목록 갱신 = `python MIGiport.py sites` (포팅 함수·콜리 범위 ∩ orig_table.rs). 라이브 승격 시 그 노브를 포팅 안으로 옮기고 사이트 패치는 은퇴.
+pub const SITE_VW_CHECK_IMM: usize = 0x1323a5b;      // recently_seen `add rbx, imm8` (노브 vw_check, 원본 0x78) — 5판을 태운 그 자리
+pub const SITE_VW_LANE_IMM: usize = 0xd2cd11;        // passive_line MAIN `add rdi, imm8` ×5 중 첫 사이트(노브 vw_lane, 5곳 동일값, 원본 0x78)
+pub const SITE_HD_PHASE_EPIC_IMM: usize = 0xccc1f2;  // epic hunt_and_battle `mov word [rax+0x10], imm16`(노브 hd_phase, 원본 1)
+pub const SITE_HD_PHASE_SERPEN_IMM: usize = 0xccc5a2; // serpen 동일
+

@@ -102,6 +102,12 @@ impl Stat {
 /// 분기 태그 규약: `tr(3, (tag as u64) << 56 | 하위값)` — 상위 바이트가 태그(1..7), 하위는 자유(기존 c15 등과 충돌 없음).
 #[inline] pub fn tag_of(t3: u64) -> usize { ((t3 >> 56) & 7) as usize }
 
+/// ★라이브 즉치 읽기 — 이 모드의 바이트패치 노브가 덮어쓴 exe 바이트를 그대로 읽는다(layout::SITE_*). 읽기 실패·base 미확정이면 원본값.
+/// 왜: 포팅의 검증 대상은 "게임 원본" 이 아니라 "바이트패치까지 적용된 실행 이미지" 다. recently_seen 창 0x78 을 정적으로 박았다가
+///     cfg `vw_check=90` 패치(0x1323a5b) 와 어긋나 5판(2%·22만 건)을 태웠다(2026-09-06). 라이브 승격 시엔 해당 노브를 포팅 인자로 옮긴다.
+#[inline] pub unsafe fn live_imm8(rva_imm: usize, orig: u8) -> u8 { let b = crate::exe_base(); if b == 0 { orig } else { crate::rd_u8(b + rva_imm) } }
+#[inline] pub unsafe fn live_imm16(rva_imm: usize, orig: u16) -> u16 { let b = crate::exe_base(); if b == 0 { orig } else { (crate::rd_u8(b + rva_imm) as u16) | ((crate::rd_u8(b + rva_imm + 1) as u16) << 8) } }
+
 #[inline] pub fn live() -> bool { tune("judge_live", 0) != 0 }
 
 /// 포팅 내부 추적값(DIFF 원인 분리용). 포팅이 `tr(i, v)` 로 채우고 record 가 DIFF/NA 줄에 같이 찍는다. thread-local·고정배열(alloc 없음).
@@ -243,7 +249,8 @@ pub mod cap_recent_seen {
         let tick = crate::rd_u64(p2 + super::layout::W_TICK).unwrap_or(0);
         RING.with(|c| { let (mut a, n) = c.get(); a[n % 8] = Cap { ent: p5, game, mine, last, tick }; c.set((a, n + 1)); });
         ST.n.fetch_add(1, Ordering::Relaxed);
-        let margin = (last.wrapping_add(0x78) as i64).wrapping_sub(tick as i64);
+        let win = super::live_imm8(super::layout::SITE_VW_CHECK_IMM, 0x78) as u64;
+        let margin = (last.wrapping_add(win) as i64).wrapping_sub(tick as i64);
         let agree = mine != 0xff && (game != 0) == (mine != 0);
         if mine == 0xff { ST.na.fetch_add(1, Ordering::Relaxed); }
         else if agree { ST.ok.fetch_add(1, Ordering::Relaxed); }
