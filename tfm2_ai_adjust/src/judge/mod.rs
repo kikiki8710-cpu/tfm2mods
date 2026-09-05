@@ -1,4 +1,4 @@
-//! judge — AI 판단 계층(`game-ai`) **버전별 재구현**. 착수서 = REPORT\tfm2_ai_adjust\04_판단재구현_착수서.md.
+//! judge — AI 판단 계층(`game-ai`) **버전별 재구현**. 착수서 = REPORT\tfm2_ai_adjust\04_판단재구현_착수서.md · 설계 = 05_judge_계층_설계.md.
 //!
 //! 방침(유저, 2026-09-06): 구 재현 코드를 마이그(재핀)하지 않는다. **매 버전 디컴 소스를 따와 새로 포팅**하고,
 //! 버전마다 반복되는 기계적 일(RVA 재탐색·프롤로그 안전성·상수 파일·스켈레톤)은 `MIG\aiport.py` 가 한다.
@@ -10,17 +10,23 @@
 //!   hook.rs      바이트 검증 wrap 설치기(프롤로그가 gen_fns 와 완전 일치할 때만 패치 = 스테일 RVA 방어).
 //!   port\*.rs    포팅 본체. 함수 1개 = 파일 1개, 스켈레톤은 `aiport skeleton <name>` 이 디컴 C 를 동봉해 만든다.
 //!
+//! 훅 3종류:
+//!   judge_hook!      스칼라 반환 함수(스코어러): mine(i64) vs 게임 rax.
+//!   judge_hook_out!  out-writer(Plan 핸들러, out 0x30B): mine = 쓰기집합(MpOut) vs 게임이 실제로 쓴 바이트. 게임 호출 **뒤**에 mine 계산
+//!                    (콜리 캡처를 쓰기 위해). live 면 쓰기집합을 out 에 직접 쓰고 원본 skip.
+//!   judge_capture!   콜리 캡처(검증 전용): 게임 콜리를 그대로 실행하고 결과만 thread-local 에 남긴다 → 아직 안 포팅한 콜리(예: RNG 소비
+//!                    ability_pick 0xe7a8c0)를 부모 포팅이 검증 단계에서 "게임 결과" 로 대신 쓴다. ⚠live 는 그 콜리를 포팅한 뒤에만.
+//!
 //! 동작 모드(cfg 키 — 파서 미지키는 TUNE_TABLE 로 들어오므로 배선 불요):
-//!   judge_verify (기본 **0** — 2026-09-06 첫 배포판 기본 1 이었으나 직후 크래시 2회로 원인 분리 전까지 opt-in) : 훅 설치. 게임 원본을 실행해 rax 를 얻고 mine 과 **대조만** 한다.
-//!   judge_live   (기본 0) : mine 이 Some 이면 게임 원본을 건너뛰고 mine 을 반환(대체). None 이면 원본.
+//!   judge_verify (기본 **0** — opt-in) : 훅 설치. 게임 원본을 실행하고 mine 과 **대조만** 한다 → 행동 무변경.
+//!   judge_live   (기본 0) : mine 이 Some 이면 게임 원본을 건너뛰고 mine 을 반환/기록(대체). None 이면 원본.
 //!   ⚠ 대체(live)는 RNG-free 함수에만 안전하다. 난수를 소비하는 함수는 이중 소비 desync(방법론 메모리 07-23 교훈).
 //!
 //! 산출(전부 직접 write = LOG_ON 무관):
-//!   judge_install.txt   설치 결과(함수별 OK/실패 사유)
-//!   judge_status.txt    누적 카운터(n/ok/diff/na/live) — 인게임 검증의 정본 지표
-//!   judge_<fn>.txt      표본(첫 16건) + 전 DIFF(상한 240줄) + 매 2000번째. DIFF 줄에 인자·태그가 있어 원인 추적용.
+//!   judge_install.txt   설치 결과 / judge_status.txt   누적 카운터(n/ok/diff/na/live/entered) / judge_<fn>.txt   표본·DIFF 상세(≤240줄)
 //!
 //! 규약(CLAUDE.md §3): 포팅 코드는 게임 헬퍼를 FFI 로 호출하지 않는다. 읽기는 전부 `rd_*`(VEH 경유). wrap 본문은 catch_unwind.
+//! ★트램폴린 복귀는 `jmp [rip+0]`(hook.rs) — `movabs rax` 는 옮긴 프롤로그가 rax 를 쓰는 함수에서 값을 파괴한다(2026-09-06 실사고).
 #![allow(dead_code)]
 use crate::*;
 use std::sync::atomic::{AtomicBool, AtomicU64, AtomicUsize, Ordering};
@@ -31,24 +37,55 @@ pub mod world;
 pub mod hook;
 pub mod port {
     pub mod steal_score;
+    pub mod hunt_battle;
+    pub mod epic_hunt_battle;
+    pub mod serpen_hunt_battle;
 }
 use gen_fns::*;
 
-/// SubPlan 스코어러 공통 호출 계약(0.5.8 실측 — steal `0xcbbca0`·recall `0xcc5fc0` 디컴):
-///   p1 = SubPlan 상태(self, `[p1+8]` = phase 등)
-///   p5 = 선수 sim 상태(`+0x930` side · `+0x9c0` role)
-///   p6 = &Holder — `*p6` = World-ish X (`X+0` world data · `X+8` WorldOps vtable · `X+0x1e0` 로스터). steal 목표 슬롯은 Holder 자체(+0x1a0/+0x1d0)
-///   p7 = 평가 대상 SmallAction(`+0xb1` tag)
-///   반환 rax = i64 점수. p2/p3/p4/p8 은 함수마다 다르게 쓰인다(base 스코어러 `0xd57540` 로 전달).
+/// 8인자 공통 뷰. SubPlan 스코어러: p1=상태 · p5=선수 sim · p6=&Holder · p7=SmallAction(→i64).
+/// Plan 핸들러(디스패처 `0xcaf9f0` 가 `add rdx,8` 후 call): p1=out(MovePriority 0x30) · p2=Plan payload · p3/p4(rng) · p5=선수 sim · p6=&Holder · p7=타이머 등.
 #[derive(Clone, Copy)]
 pub struct ScorerArgs { pub p1: usize, pub p2: usize, pub p3: usize, pub p4: usize, pub p5: usize, pub p6: usize, pub p7: usize, pub p8: usize }
+pub type Args8 = ScorerArgs;
+
+/// out-writer 의 쓰기집합. 게임도 경로별로 out 의 일부만 쓰므로(잔재는 그대로 커밋) 검증은 **쓴 바이트만** 대조한다.
+#[derive(Clone, Copy, Default)]
+pub struct MpWrite { pub off: u8, pub len: u8, pub val: u64 }
+#[derive(Clone, Copy, Default)]
+pub struct MpOut { pub n: u8, pub w: [MpWrite; 6] }
+impl MpOut {
+    pub fn push(&mut self, off: usize, len: usize, val: u64) { if (self.n as usize) < self.w.len() { self.w[self.n as usize] = MpWrite { off: off as u8, len: len as u8, val }; self.n += 1; } }
+    pub fn code(&mut self, c: u64) { self.push(0, 8, c); }
+    pub fn get_code(&self) -> Option<u64> { self.w[..self.n as usize].iter().find(|w| w.off == 0 && w.len == 8).map(|w| w.val) }
+}
+unsafe fn read_n(addr: usize, len: u8) -> Option<u64> {
+    match len { 1 => Some(rd_u8(addr) as u64), 2 => Some((rd_u8(addr) as u64) | ((rd_u8(addr + 1) as u64) << 8)), 4 => Some(rd_u32(addr) as u64), 8 => rd_u64(addr), _ => None }
+}
+/// 검증: 쓰기집합의 각 항목을 게임이 쓴 out 과 대조. Some(true)=전부 일치 / Some(false)=불일치 / None=읽기 실패.
+unsafe fn compare_out(out: usize, mine: &MpOut) -> Option<bool> {
+    for w in &mine.w[..mine.n as usize] { if read_n(out + w.off as usize, w.len)? != w.val { return Some(false); } }
+    Some(true)
+}
+/// live: 쓰기집합을 out 에 적용. 첫 write 는 wr_u64 프로브(쓰기 가능 확인).
+unsafe fn apply_out(out: usize, mine: &MpOut) -> bool {
+    if !ptr_ok(out) || !writable(out, 0x30) { return false; }
+    for w in &mine.w[..mine.n as usize] {
+        let a = out + w.off as usize;
+        match w.len { 1 => core::ptr::write_unaligned(a as *mut u8, w.val as u8), 2 => core::ptr::write_unaligned(a as *mut u16, w.val as u16),
+                      4 => core::ptr::write_unaligned(a as *mut u32, w.val as u32), _ => core::ptr::write_unaligned(a as *mut u64, w.val) }
+    }
+    true
+}
+unsafe fn hex30(out: usize) -> String { (0..0x30).map(|i| format!("{:02x}", rd_u8(out + i))).collect::<Vec<_>>().join("") }
+fn fmt_writes(m: &MpOut) -> String { m.w[..m.n as usize].iter().map(|w| format!("+{:#x}/{}={:#x}", w.off, w.len, w.val)).collect::<Vec<_>>().join(" ") }
 
 /// 함수별 검증 카운터(전부 원자 — 디투어 문맥에서 lock/alloc 없이 갱신).
 pub struct Stat {
     pub n: AtomicU64, pub ok: AtomicU64, pub diff: AtomicU64, pub na: AtomicU64, pub live: AtomicU64,
     pub logged: AtomicU64,          // 파일에 쓴 줄 수(상한)
     pub entered: AtomicU64,         // wrap 진입 수(게임 호출 전 증가 — n 과 달리 크래시 직전 발화도 센다)
-    pub vt_rva: AtomicUsize,        // 진단: 첫 호출에서 읽은 WorldOps vt+VT_WORLD_ENTITY 타깃 RVA(순수 read) — ghidra-re 에 넘길 값
+    pub vt_rva: AtomicUsize,        // 진단: 첫 호출에서 읽은 WorldOps vt+VT_WORLD_ENTITY 타깃 RVA(순수 read)
 }
 impl Stat {
     pub const fn new() -> Self {
@@ -66,21 +103,21 @@ pub fn append_direct(name: &str, s: &str) {
     }
 }
 
-/// 훅 하나 = 모듈 하나(ORIG 트램폴린·카운터·12인자 wrap). ⚠인자 12개 과선언 = Win64 에서 항상 안전, 과소선언은 AV(08-05 실사고).
+type F12 = unsafe extern "C" fn(usize, usize, usize, usize, usize, usize, usize, usize, usize, usize, usize, usize) -> usize;
+
+/// 스칼라 반환 훅. ⚠인자 12개 과선언 = Win64 에서 항상 안전, 과소선언은 AV(08-05 실사고).
 macro_rules! judge_hook {
     ($m:ident, $spec:expr, $mine:path) => {
         pub mod $m {
             use std::sync::atomic::{AtomicUsize, Ordering};
             pub static ORIG: AtomicUsize = AtomicUsize::new(0);
             pub static ST: super::Stat = super::Stat::new();
-            type F12 = unsafe extern "C" fn(usize, usize, usize, usize, usize, usize, usize, usize, usize, usize, usize, usize) -> usize;
             pub unsafe extern "C" fn wrap(p1: usize, p2: usize, p3: usize, p4: usize, p5: usize, p6: usize, p7: usize, p8: usize,
                                           p9: usize, p10: usize, p11: usize, p12: usize) -> usize {
                 let orig = ORIG.load(Ordering::Relaxed);
-                if orig == 0 { return 0; }   // 설치 전 호출은 불가능하지만 방어
-                let f: F12 = core::mem::transmute(orig);
+                if orig == 0 { return 0; }
+                let f: super::F12 = core::mem::transmute(orig);
                 let a = super::ScorerArgs { p1, p2, p3, p4, p5, p6, p7, p8 };
-                // ★[2026-09-06 크래시 후] 진입 추적: 첫 3회는 게임 호출 **전에** 파일에 남긴다(카운터는 호출 뒤에 올라 "발화했는데 죽었는지"를 못 가렸다).
                 let en = ST.entered.fetch_add(1, Ordering::Relaxed) + 1;
                 if en <= 3 { super::append_direct(&format!("judge_{}.txt", $spec.name), &format!("[{} ENTER #{}] p1={:#x} p5={:#x} p6={:#x} p7={:#x}\n", $spec.name, en, p1, p5, p6, p7)); }
                 let mine: Option<i64> = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| $mine(&a))).unwrap_or(None);
@@ -94,10 +131,81 @@ macro_rules! judge_hook {
         }
     };
 }
+
+/// out-writer 훅(Plan 핸들러). $pre = 게임 호출 직전 훅(콜리 캡처 리셋 등). live 는 $live_ok 가 true 일 때만 허용.
+macro_rules! judge_hook_out {
+    ($m:ident, $spec:expr, $mine:path, $pre:path, $live_ok:expr) => {
+        pub mod $m {
+            use std::sync::atomic::{AtomicUsize, Ordering};
+            pub static ORIG: AtomicUsize = AtomicUsize::new(0);
+            pub static ST: super::Stat = super::Stat::new();
+            pub unsafe extern "C" fn wrap(p1: usize, p2: usize, p3: usize, p4: usize, p5: usize, p6: usize, p7: usize, p8: usize,
+                                          p9: usize, p10: usize, p11: usize, p12: usize) -> usize {
+                let orig = ORIG.load(Ordering::Relaxed);
+                if orig == 0 { return 0; }
+                let f: super::F12 = core::mem::transmute(orig);
+                let a = super::ScorerArgs { p1, p2, p3, p4, p5, p6, p7, p8 };
+                let en = ST.entered.fetch_add(1, Ordering::Relaxed) + 1;
+                if en <= 3 { super::append_direct(&format!("judge_{}.txt", $spec.name), &format!("[{} ENTER #{}] out={:#x} p2={:#x} p5={:#x} p6={:#x} p7={:#x}\n", $spec.name, en, p1, p2, p5, p6, p7)); }
+                $pre();
+                if super::live() && $live_ok {
+                    let mine: Option<super::MpOut> = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| $mine(&a))).unwrap_or(None);
+                    if let Some(m) = mine { if super::apply_out(p1, &m) { ST.live.fetch_add(1, Ordering::Relaxed); return p1; } }
+                }
+                let game = f(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12);
+                let mine: Option<super::MpOut> = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| $mine(&a))).unwrap_or(None);
+                let _ = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| super::record_out(&$spec, &ST, p1, mine, &a)));
+                game
+            }
+        }
+    };
+}
+
+/// 콜리 캡처(검증 전용). 게임 콜리를 그대로 돌리고 `[p1]`,`[p1+8]`,`[p1+0x10]` 를 thread-local 에 남긴다.
+macro_rules! judge_capture {
+    ($m:ident, $spec:expr) => {
+        pub mod $m {
+            use std::sync::atomic::{AtomicUsize, AtomicU64, Ordering};
+            use std::cell::Cell;
+            pub static ORIG: AtomicUsize = AtomicUsize::new(0);
+            pub static ST: super::Stat = super::Stat::new();
+            static SEQ: AtomicU64 = AtomicU64::new(0);
+            thread_local! { static LAST: Cell<(u64, u64, u64, u64)> = const { Cell::new((0, 0, 0, 0)) }; }   // (seq, r0, r1, r2)
+            pub fn reset() { LAST.with(|c| c.set((0, 0, 0, 0))); }
+            /// 리셋 이후 이 스레드에서 캡처된 결과. None = 콜리가 안 불렸다(부모 경로 불일치 → NA).
+            pub fn take() -> Option<(u64, u64, u64)> { LAST.with(|c| { let v = c.get(); if v.0 == 0 { None } else { Some((v.1, v.2, v.3)) } }) }
+            pub unsafe extern "C" fn wrap(p1: usize, p2: usize, p3: usize, p4: usize, p5: usize, p6: usize, p7: usize, p8: usize,
+                                          p9: usize, p10: usize, p11: usize, p12: usize) -> usize {
+                let orig = ORIG.load(Ordering::Relaxed);
+                if orig == 0 { return 0; }
+                let f: super::F12 = core::mem::transmute(orig);
+                ST.entered.fetch_add(1, Ordering::Relaxed);
+                let r = f(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12);
+                let seq = SEQ.fetch_add(1, Ordering::Relaxed) + 1;
+                let (r0, r1, r2) = (crate::rd_u64(p1).unwrap_or(u64::MAX), crate::rd_u64(p1 + 8).unwrap_or(0), crate::rd_u64(p1 + 0x10).unwrap_or(0));
+                LAST.with(|c| c.set((seq, r0, r1, r2)));
+                ST.n.fetch_add(1, Ordering::Relaxed);
+                r
+            }
+        }
+    };
+}
+
 judge_hook!(steal_hook, crate::judge::gen_fns::STEAL_SCORE, crate::judge::port::steal_score::steal_score);
+judge_capture!(cap_ability_pick, crate::judge::gen_fns::ABILITY_PICK);
+judge_hook_out!(epic_hb_hook, crate::judge::gen_fns::EPIC_HUNT_BATTLE, crate::judge::port::epic_hunt_battle::epic_hunt_battle, crate::judge::cap_ability_pick::reset, false);
+judge_hook_out!(serpen_hb_hook, crate::judge::gen_fns::SERPEN_HUNT_BATTLE, crate::judge::port::serpen_hunt_battle::serpen_hunt_battle, crate::judge::cap_ability_pick::reset, false);
 
 /// 등록된 훅 전부(status 덤프용). 훅을 늘리면 여기와 install() 에 한 줄씩.
-pub fn stats() -> Vec<(&'static str, &'static Stat)> { vec![(STEAL_SCORE.name, &steal_hook::ST)] }
+pub fn stats() -> Vec<(&'static str, &'static Stat)> {
+    vec![(STEAL_SCORE.name, &steal_hook::ST), (ABILITY_PICK.name, &cap_ability_pick::ST),
+         (EPIC_HUNT_BATTLE.name, &epic_hb_hook::ST), (SERPEN_HUNT_BATTLE.name, &serpen_hb_hook::ST)]
+}
+
+fn sample_line(st: &Stat, n: u64, verdict: &str) -> bool {
+    let want = n <= 16 || verdict == "DIFF" || n % 2000 == 0;
+    if want && st.logged.load(Ordering::Relaxed) < 240 { st.logged.fetch_add(1, Ordering::Relaxed); true } else { false }
+}
 
 pub unsafe fn record(spec: &FnSpec, st: &Stat, game: i64, mine: Option<i64>, a: &ScorerArgs) {
     let n = st.n.fetch_add(1, Ordering::Relaxed) + 1;
@@ -107,12 +215,9 @@ pub unsafe fn record(spec: &FnSpec, st: &Stat, game: i64, mine: Option<i64>, a: 
         Some(_) => { st.diff.fetch_add(1, Ordering::Relaxed); "DIFF" }
     };
     if n == 1 {
-        // 진단: WorldOps vt+VT_WORLD_ENTITY 타깃 RVA(순수 read). 0.5.8 리졸버 디컴의 출발점.
         if let Some(w) = world::World::from_holder(a.p6) { st.vt_rva.store(w.slot_target_rva(layout::VT_WORLD_ENTITY), Ordering::Relaxed); }
     }
-    let want = n <= 16 || verdict == "DIFF" || n % 2000 == 0;
-    if want && st.logged.load(Ordering::Relaxed) < 240 {
-        st.logged.fetch_add(1, Ordering::Relaxed);
+    if sample_line(st, n, verdict) {
         let tag = if ptr_ok(a.p7) { rd_u8(a.p7 + layout::SA_TAG) } else { 0xff };
         let phase = if ptr_ok(a.p1) { rd_u8(a.p1 + layout::STEAL_PHASE) } else { 0xff };
         append_direct(&format!("judge_{}.txt", spec.name),
@@ -122,18 +227,45 @@ pub unsafe fn record(spec: &FnSpec, st: &Stat, game: i64, mine: Option<i64>, a: 
     if n == 1 || n % 500 == 0 { write_status(); }
 }
 
+pub unsafe fn record_out(spec: &FnSpec, st: &Stat, out: usize, mine: Option<MpOut>, a: &ScorerArgs) {
+    let n = st.n.fetch_add(1, Ordering::Relaxed) + 1;
+    let verdict = match mine {
+        None => { st.na.fetch_add(1, Ordering::Relaxed); "NA" }
+        Some(ref m) => match compare_out(out, m) {
+            Some(true) => { st.ok.fetch_add(1, Ordering::Relaxed); "OK" }
+            Some(false) => { st.diff.fetch_add(1, Ordering::Relaxed); "DIFF" }
+            None => { st.na.fetch_add(1, Ordering::Relaxed); "NA(read)" }
+        },
+    };
+    if sample_line(st, n, verdict) {
+        let gcode = rd_u64(out).unwrap_or(u64::MAX);
+        append_direct(&format!("judge_{}.txt", spec.name),
+            &format!("[{} #{}] {} game_code={} mine=[{}] | out={} | p2={:#x} p5={:#x} p6={:#x} p7={:#x}\n",
+                spec.name, n, verdict, gcode, mine.as_ref().map(fmt_writes).unwrap_or_else(|| "None".into()), hex30(out), a.p2, a.p5, a.p6, a.p7));
+    }
+    if n == 1 || n % 500 == 0 { write_status(); }
+}
+
 pub fn write_status() {
-    let mut s = format!("=== judge 계층 검증 누적 (게임 {} · gen_fns {}) judge_verify={} judge_live={} ===\n", GAME_VER, GAME_VER, tune("judge_verify", 0), tune("judge_live", 0));
+    let mut s = format!("=== judge 계층 검증 누적 (게임 {}) judge_verify={} judge_live={} ===\n", GAME_VER, tune("judge_verify", 0), tune("judge_live", 0));
     for (name, st) in stats() {
-        s.push_str(&format!("{:<16} n={} ok={} diff={} na={} live={} | vt_rva={:#x}\n", name,
-            st.n.load(Ordering::Relaxed), st.ok.load(Ordering::Relaxed), st.diff.load(Ordering::Relaxed),
+        s.push_str(&format!("{:<20} entered={} n={} ok={} diff={} na={} live={} | vt_rva={:#x}\n", name,
+            st.entered.load(Ordering::Relaxed), st.n.load(Ordering::Relaxed), st.ok.load(Ordering::Relaxed), st.diff.load(Ordering::Relaxed),
             st.na.load(Ordering::Relaxed), st.live.load(Ordering::Relaxed), st.vt_rva.load(Ordering::Relaxed)));
     }
-    s.push_str("판정: diff=0 && na=0 이면 그 함수 DIFF=0(이번 판 표본 한정). na>0 = 가드 경로(읽기 실패/미지 태그) → judge_<fn>.txt 의 NA 줄 확인.\n");
+    s.push_str("판정: diff=0 && na=0 이면 그 함수 DIFF=0(이번 판 표본 한정). na>0 = 가드 경로/콜리 캡처 없음 → judge_<fn>.txt 의 NA 줄 확인. ability_pick 은 캡처 전용(n=호출 수).\n");
     if let Some(p) = pth("judge_status.txt") { let _ = fs::write(p, s); }
 }
 
 static INSTALLED: AtomicBool = AtomicBool::new(false);
+
+unsafe fn install_one(log: &mut String, spec: &FnSpec, orig_slot: &AtomicUsize, cap: usize, kind: &str) {
+    match hook::install_wrap_bytes(spec.rva, spec.prolog, cap) {
+        Ok(orig) => { orig_slot.store(orig, Ordering::Relaxed);
+                      log.push_str(&format!("[judge] {} {} OK @rva {:#x} (orig_len={} sym={})\n", spec.name, kind, spec.rva, spec.prolog.len(), spec.sym)); }
+        Err(e) => log.push_str(&format!("[judge] {} {} 실패: {} @rva {:#x}\n", spec.name, kind, e, spec.rva)),
+    }
+}
 
 /// 로드 시점 1회(훅 설치 블록 끝, cfg 로드 후). 실패해도 게임 무영향(미설치 = 원본).
 pub unsafe fn install() {
@@ -141,11 +273,11 @@ pub unsafe fn install() {
     let verify = tune("judge_verify", 0) != 0;
     let mut log = format!("judge 계층: 게임 {} · 등록 {}함수 · judge_verify={} judge_live={}\n", GAME_VER, ALL.len(), verify as u8, tune("judge_live", 0));
     if verify {
-        match hook::install_wrap_bytes(STEAL_SCORE.rva, STEAL_SCORE.prolog, steal_hook::wrap as *const () as usize) {
-            Ok(orig) => { steal_hook::ORIG.store(orig, Ordering::Relaxed);
-                          log.push_str(&format!("[judge] {} wrap OK @rva {:#x} (orig_len={} sym={})\n", STEAL_SCORE.name, STEAL_SCORE.rva, STEAL_SCORE.prolog.len(), STEAL_SCORE.sym)); }
-            Err(e) => log.push_str(&format!("[judge] {} wrap 실패: {} @rva {:#x}\n", STEAL_SCORE.name, e, STEAL_SCORE.rva)),
-        }
+        install_one(&mut log, &STEAL_SCORE, &steal_hook::ORIG, steal_hook::wrap as *const () as usize, "wrap");
+        // ★캡처를 핸들러보다 먼저 설치 — 핸들러 wrap 이 부르는 게임 원본이 콜리로 진입할 때 캡처가 살아 있어야 한다.
+        install_one(&mut log, &ABILITY_PICK, &cap_ability_pick::ORIG, cap_ability_pick::wrap as *const () as usize, "capture");
+        install_one(&mut log, &EPIC_HUNT_BATTLE, &epic_hb_hook::ORIG, epic_hb_hook::wrap as *const () as usize, "wrap-out");
+        install_one(&mut log, &SERPEN_HUNT_BATTLE, &serpen_hb_hook::ORIG, serpen_hb_hook::wrap as *const () as usize, "wrap-out");
     } else {
         log.push_str("[judge] judge_verify=0 → 훅 미설치(원본)\n");
     }

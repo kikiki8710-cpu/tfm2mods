@@ -55,6 +55,32 @@ impl World {
     }
 }
 
+/// Plan 핸들러의 p6 = &Holder { X(월드), G(컨텍스트), … }. [디컴 0xccc010: `puVar2=*param_6`, `lVar7=param_6[1]`]
+#[derive(Clone, Copy)]
+pub struct Holder(pub usize);
+impl Holder {
+    pub unsafe fn new(p6: usize) -> Option<Holder> { if ptr_ok(p6) { Some(Holder(p6)) } else { None } }
+    pub unsafe fn world(&self) -> Option<World> { World::from_holder(self.0 + HOLDER_X) }
+    pub unsafe fn g(&self) -> Option<G> { let g = rd_u64(self.0 + HOLDER_G)? as usize; if ptr_ok(g) { Some(G(g)) } else { None } }
+}
+
+/// G(컨텍스트): +8 → cfg(tick/sec) · +0x20 → 홈존 박스 표.
+#[derive(Clone, Copy)]
+pub struct G(pub usize);
+impl G {
+    pub unsafe fn tps(&self) -> Option<i64> { let c = rd_u64(self.0 + G_CFG)? as usize; if !ptr_ok(c) { return None; } rd_i64(c + CFG_TPS) }
+    /// side 진영 홈존 박스(부호없는 비교). [디컴 0xccc010 · 0xcaf9f0 아암16 동일]
+    pub unsafe fn home_box(&self, side: u64) -> Option<HomeBox> {
+        if side > 1 { return None; }
+        let t = rd_u64(self.0 + G_BOXES)? as usize; if !ptr_ok(t) { return None; }
+        let b = t + BOX_BASE + (side as usize) * BOX_STRIDE;
+        Some(HomeBox { xlo: rd_u64(b)?, ylo: rd_u64(b + 8)?, xhi: rd_u64(b + 0x10)?, yhi: rd_u64(b + 0x18)? })
+    }
+}
+#[derive(Clone, Copy)]
+pub struct HomeBox { pub xlo: u64, pub ylo: u64, pub xhi: u64, pub yhi: u64 }
+impl HomeBox { #[inline] pub fn contains(&self, x: u64, y: u64) -> bool { self.xlo <= x && x <= self.xhi && self.ylo <= y && y <= self.yhi } }
+
 /// 엔티티(전투 유닛) 뷰. 값 접근자는 전부 Option(읽기 실패 = None).
 #[derive(Clone, Copy)]
 pub struct Ent(pub usize);

@@ -76,6 +76,324 @@
      "0x1431a37c0": 2
     }
    }
+  },
+  "epic_hunt_battle": {
+   "role": "plan_handler",
+   "status": "todo",
+   "history": [
+    {
+     "ver": "0.5.8",
+     "rva": "0xccc010",
+     "size": 591,
+     "date": "2026-09-06",
+     "event": "add"
+    }
+   ],
+   "sym": "game-ai\\src\\plan_legacy\\old\\epic\\hunt_and_battle.rs",
+   "cur": {
+    "rva": "0xccc010",
+    "end": "0xccc25f",
+    "size": 591,
+    "orig_len": 12,
+    "prolog": "41 57 41 56 41 55 41 54 56 57 55 53",
+    "prolog_insns": [
+     "push r15",
+     "push r14",
+     "push r13",
+     "push r12",
+     "push rsi",
+     "push rdi",
+     "push rbp",
+     "push rbx"
+    ],
+    "reloc": "ok",
+    "jmpin": 0,
+    "n": 143,
+    "sym": "game-ai\\src\\plan_legacy\\old\\epic\\hunt_and_battle.rs",
+    "lines": [
+     29,
+     31,
+     32
+    ],
+    "callees": [
+     "0xe7a8c0",
+     "0x31a37c0",
+     "0x31a3863",
+     "0x31a3b40"
+    ],
+    "offs": {
+     "0x8": 7,
+     "0x10": 1,
+     "0x12": 1,
+     "0x18": 1,
+     "0x20": 2,
+     "0x28": 1,
+     "0x30": 1,
+     "0x38": 2,
+     "0x40": 3,
+     "0x48": 2,
+     "0x50": 2,
+     "0x58": 2,
+     "0x60": 2,
+     "0x68": 2,
+     "0x70": 2,
+     "0x98": 1,
+     "0xa0": 1,
+     "0xf0": 1,
+     "0xf8": 2,
+     "0x100": 1,
+     "0x1a0": 1,
+     "0x1a8": 1,
+     "0x1e0": 1,
+     "0x1f0": 1,
+     "0x628": 2,
+     "0x660": 1,
+     "0x668": 1,
+     "0x670": 2,
+     "0x930": 1,
+     "0x9c0": 1,
+     "0x12f8": 1,
+     "0x6d70": 1,
+     "0x6d80": 1
+    },
+    "vslots": {
+     "0x40": 1,
+     "0x1f0": 1
+    },
+    "imms": {
+     "0x20": 1,
+     "0x33": 1,
+     "0x64": 1,
+     "0x88": 2,
+     "0x6d70": 1,
+     "0x140ccc0ae": 1,
+     "0x140ccc0b3": 1,
+     "0x140ccc0fc": 1,
+     "0x140ccc0ff": 1,
+     "0x140ccc155": 2,
+     "0x140ccc1b9": 2,
+     "0x140ccc1ff": 2,
+     "0x140ccc208": 4,
+     "0x140ccc21f": 1,
+     "0x140ccc22d": 1,
+     "0x140ccc23b": 1,
+     "0x140ccc251": 1,
+     "0x140e7a8c0": 1,
+     "0x1431a37c0": 2,
+     "0x1431a3863": 1,
+     "0x1431a3b40": 1
+    }
+   }
+  },
+  "serpen_hunt_battle": {
+   "role": "plan_handler",
+   "status": "todo",
+   "history": [
+    {
+     "ver": "0.5.8",
+     "rva": "0xccc3c0",
+     "size": 591,
+     "date": "2026-09-06",
+     "event": "add"
+    }
+   ],
+   "sym": "game-ai\\src\\plan_legacy\\old\\serpen\\hunt_and_battle.rs",
+   "cur": {
+    "rva": "0xccc3c0",
+    "end": "0xccc60f",
+    "size": 591,
+    "orig_len": 12,
+    "prolog": "41 57 41 56 41 55 41 54 56 57 55 53",
+    "prolog_insns": [
+     "push r15",
+     "push r14",
+     "push r13",
+     "push r12",
+     "push rsi",
+     "push rdi",
+     "push rbp",
+     "push rbx"
+    ],
+    "reloc": "ok",
+    "jmpin": 0,
+    "n": 143,
+    "sym": "game-ai\\src\\plan_legacy\\old\\serpen\\hunt_and_battle.rs",
+    "lines": [
+     29,
+     31,
+     32
+    ],
+    "callees": [
+     "0xe7a8c0",
+     "0x31a37c0",
+     "0x31a3863",
+     "0x31a3b40"
+    ],
+    "offs": {
+     "0x8": 7,
+     "0x10": 1,
+     "0x12": 1,
+     "0x18": 1,
+     "0x20": 2,
+     "0x28": 1,
+     "0x30": 1,
+     "0x38": 2,
+     "0x40": 3,
+     "0x48": 2,
+     "0x50": 2,
+     "0x58": 2,
+     "0x60": 2,
+     "0x68": 2,
+     "0x70": 2,
+     "0xd0": 1,
+     "0xd8": 1,
+     "0xf0": 1,
+     "0xf8": 2,
+     "0x100": 1,
+     "0x1d0": 1,
+     "0x1d8": 1,
+     "0x1e0": 1,
+     "0x1f0": 1,
+     "0x628": 2,
+     "0x660": 1,
+     "0x668": 1,
+     "0x670": 2,
+     "0x930": 1,
+     "0x9c0": 1,
+     "0x12f8": 1,
+     "0x6d70": 1,
+     "0x6d80": 1
+    },
+    "vslots": {
+     "0x40": 1,
+     "0x1f0": 1
+    },
+    "imms": {
+     "0x20": 1,
+     "0x33": 1,
+     "0x64": 1,
+     "0x88": 2,
+     "0x6d70": 1,
+     "0x140ccc45e": 1,
+     "0x140ccc463": 1,
+     "0x140ccc4ac": 1,
+     "0x140ccc4af": 1,
+     "0x140ccc505": 2,
+     "0x140ccc569": 2,
+     "0x140ccc5af": 2,
+     "0x140ccc5b8": 4,
+     "0x140ccc5cf": 1,
+     "0x140ccc5dd": 1,
+     "0x140ccc5eb": 1,
+     "0x140ccc601": 1,
+     "0x140e7a8c0": 1,
+     "0x1431a37c0": 2,
+     "0x1431a3863": 1,
+     "0x1431a3b40": 1
+    }
+   }
+  },
+  "ability_pick": {
+   "role": "helper",
+   "status": "todo",
+   "history": [
+    {
+     "ver": "0.5.8",
+     "rva": "0xe7a8c0",
+     "size": 932,
+     "date": "2026-09-06",
+     "event": "add"
+    }
+   ],
+   "sym": "game-ai\\src\\lib.rs",
+   "cur": {
+    "rva": "0xe7a8c0",
+    "end": "0xe7ac64",
+    "size": 932,
+    "orig_len": 12,
+    "prolog": "55 41 57 41 56 41 55 41 54 56 57 53",
+    "prolog_insns": [
+     "push rbp",
+     "push r15",
+     "push r14",
+     "push r13",
+     "push r12",
+     "push rsi",
+     "push rdi",
+     "push rbx"
+    ],
+    "reloc": "ok",
+    "jmpin": 0,
+    "n": 252,
+    "sym": "game-ai\\src\\lib.rs",
+    "lines": [
+     1626,
+     1634
+    ],
+    "callees": [
+     "0xccdc00",
+     "0x105fae0",
+     "0x2a29480",
+     "0x31a3863"
+    ],
+    "offs": {
+     "0x2": 1,
+     "0x8": 10,
+     "0x10": 5,
+     "0x20": 2,
+     "0x30": 1,
+     "0x50": 1,
+     "0x68": 1,
+     "0x70": 5,
+     "0x80": 3,
+     "0xfc": 1,
+     "0x100": 4,
+     "0x110": 1,
+     "0x4a0": 1,
+     "0x4a8": 1,
+     "0x998": 1
+    },
+    "vslots": {
+     "0x50": 1,
+     "0x68": 1,
+     "0x70": 4,
+     "0x80": 1
+    },
+    "imms": {
+     "-0x10": 2,
+     "0x10": 3,
+     "0x18": 1,
+     "0x20": 1,
+     "0x3f": 1,
+     "0x88": 2,
+     "0x140ccdc00": 1,
+     "0x140e7a930": 1,
+     "0x140e7a960": 1,
+     "0x140e7a9a0": 2,
+     "0x140e7a9a9": 1,
+     "0x140e7a9ce": 4,
+     "0x140e7aa00": 1,
+     "0x140e7aa08": 1,
+     "0x140e7aa46": 1,
+     "0x140e7aa4a": 1,
+     "0x140e7aa70": 5,
+     "0x140e7ab0d": 1,
+     "0x140e7ab40": 1,
+     "0x140e7ab52": 2,
+     "0x140e7ab5a": 1,
+     "0x140e7aba0": 1,
+     "0x140e7abc7": 1,
+     "0x140e7abf7": 1,
+     "0x140e7ac09": 1,
+     "0x140e7ac26": 3,
+     "0x140e7ac3a": 1,
+     "0x140e7ac4f": 1,
+     "0x140e7ac62": 1,
+     "0x14105fae0": 1,
+     "0x142a29480": 2,
+     "0x1431a3863": 2
+    }
+   }
   }
  }
 }
