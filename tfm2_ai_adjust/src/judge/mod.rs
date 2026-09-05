@@ -88,19 +88,26 @@ pub struct Stat {
     pub logged: AtomicU64,          // 파일에 쓴 줄 수(상한)
     pub entered: AtomicU64,         // wrap 진입 수(게임 호출 전 증가 — n 과 달리 크래시 직전 발화도 센다)
     pub vt_rva: AtomicUsize,        // 진단: 첫 호출에서 읽은 WorldOps vt+VT_WORLD_ENTITY 타깃 RVA(순수 read)
+    /// 분기 태그별 OK/DIFF 카운터 — 포팅이 `tr(3, tag<<56)` 로 "내가 탄 분기" 를 표시하면(tag 1..7) 그 분기의 일치율을 따로 센다.
+    /// (DIFF 만 보면 "게임이 이 분기를 아예 안 타는지 / 데이터 한 건만 다른지" 를 못 가른다.) 태그별 OK 표본도 ≤4줄 남긴다.
+    pub tag_ok: [AtomicU64; 8], pub tag_diff: [AtomicU64; 8], pub tag_logged: [AtomicU64; 8],
 }
 impl Stat {
     pub const fn new() -> Self {
         Stat { n: AtomicU64::new(0), ok: AtomicU64::new(0), diff: AtomicU64::new(0), na: AtomicU64::new(0), live: AtomicU64::new(0),
-               logged: AtomicU64::new(0), entered: AtomicU64::new(0), vt_rva: AtomicUsize::new(0) }
+               logged: AtomicU64::new(0), entered: AtomicU64::new(0), vt_rva: AtomicUsize::new(0),
+               tag_ok: [const { AtomicU64::new(0) }; 8], tag_diff: [const { AtomicU64::new(0) }; 8], tag_logged: [const { AtomicU64::new(0) }; 8] }
     }
 }
+/// 분기 태그 규약: `tr(3, (tag as u64) << 56 | 하위값)` — 상위 바이트가 태그(1..7), 하위는 자유(기존 c15 등과 충돌 없음).
+#[inline] pub fn tag_of(t3: u64) -> usize { ((t3 >> 56) & 7) as usize }
 
 #[inline] pub fn live() -> bool { tune("judge_live", 0) != 0 }
 
 /// 포팅 내부 추적값(DIFF 원인 분리용). 포팅이 `tr(i, v)` 로 채우고 record 가 DIFF/NA 줄에 같이 찍는다. thread-local·고정배열(alloc 없음).
 thread_local! { static TRACE: std::cell::Cell<[u64; 12]> = const { std::cell::Cell::new([0; 12]) }; }
 #[inline] pub fn tr(i: usize, v: u64) { if i < 12 { TRACE.with(|c| { let mut a = c.get(); a[i] = v; c.set(a); }); } }
+#[inline] pub fn tr_get(i: usize) -> u64 { if i < 12 { TRACE.with(|c| c.get()[i]) } else { 0 } }
 pub fn tr_reset() { TRACE.with(|c| c.set([0; 12])); }
 pub fn tr_fmt() -> String { TRACE.with(|c| c.get().iter().enumerate().filter(|(_, v)| **v != 0).map(|(i, v)| format!("t{}={:#x}", i, v)).collect::<Vec<_>>().join(" ")) }
 #[inline] fn status_due(n: u64) -> bool { n == 1 || n == 16 || n == 64 || n == 256 || n % 500 == 0 }
@@ -249,7 +256,14 @@ pub unsafe fn record_out(spec: &FnSpec, st: &Stat, out: usize, mine: Option<MpOu
             None => { st.na.fetch_add(1, Ordering::Relaxed); "NA(read)" }
         },
     };
-    if sample_line(st, n, verdict) {
+    // 분기 태그 집계(t3 상위 바이트) + 태그별 OK 표본 ≤4줄(DIFF 표본과 나란히 비교하려고)
+    let tag = tag_of(tr_get(3));
+    let mut tag_sample = false;
+    if tag != 0 {
+        match verdict { "OK" => { st.tag_ok[tag].fetch_add(1, Ordering::Relaxed); } "DIFF" => { st.tag_diff[tag].fetch_add(1, Ordering::Relaxed); } _ => {} }
+        if verdict == "OK" && st.tag_logged[tag].fetch_add(1, Ordering::Relaxed) < 4 { tag_sample = true; }
+    }
+    if tag_sample || sample_line(st, n, verdict) {
         let gcode = rd_u64(out).unwrap_or(u64::MAX);
         append_direct(&format!("judge_{}.txt", spec.name),
             &format!("[{} #{}] {} game_code={} mine=[{}] | out={} | p2={:#x} p5={:#x} p6={:#x} p7={:#x} | {}\n",
@@ -264,6 +278,9 @@ pub fn write_status() {
         s.push_str(&format!("{:<20} entered={} n={} ok={} diff={} na={} live={} | vt_rva={:#x}\n", name,
             st.entered.load(Ordering::Relaxed), st.n.load(Ordering::Relaxed), st.ok.load(Ordering::Relaxed), st.diff.load(Ordering::Relaxed),
             st.na.load(Ordering::Relaxed), st.live.load(Ordering::Relaxed), st.vt_rva.load(Ordering::Relaxed)));
+        let tags: Vec<String> = (1..8).filter(|&t| st.tag_ok[t].load(Ordering::Relaxed) + st.tag_diff[t].load(Ordering::Relaxed) > 0)
+            .map(|t| format!("tag{}: ok={} diff={}", t, st.tag_ok[t].load(Ordering::Relaxed), st.tag_diff[t].load(Ordering::Relaxed))).collect();
+        if !tags.is_empty() { s.push_str(&format!("{:<20}   분기별 | {}\n", "", tags.join(" | "))); }
     }
     s.push_str("판정: diff=0 && na=0 이면 그 함수 DIFF=0(이번 판 표본 한정). na>0 = 가드 경로/콜리 캡처 없음 → judge_<fn>.txt 의 NA 줄 확인. ability_pick 은 캡처 전용(n=호출 수).\n");
     if let Some(p) = pth("judge_status.txt") { let _ = fs::write(p, s); }

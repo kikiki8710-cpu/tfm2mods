@@ -7,7 +7,7 @@
 use crate::*;
 use super::super::world::*;
 use super::super::layout::*;
-use super::super::{Args8, MpOut, tr};
+use super::super::{Args8, MpOut, tr, tr_get};
 use super::passive_line_callees as cal;
 
 // ── 계약(디컴 0xd2c5d0, passive_line.rs:889~1038 · 0.5.8) ──
@@ -58,7 +58,7 @@ pub unsafe fn passive_line(a: &Args8) -> Option<MpOut> {
             if thr <= tick { to_main = true; }
             tr(7, 0x1_0000_0000 | (thr.min(0xffff_ffff) << 1) | to_main as u64);
         }
-        tr(5, 0x100 | phase as u64); tr(6, 0x100 | (rd_u32(p5 + P5_ROLE) as u64));
+        tr(5, 0x100 | phase as u64); tr(6, 0x10000 | (rd_u32(p5 + P5_ROLE) as u64));
         if !to_main {
             let role = rd_u32(p5 + P5_ROLE) as u64;
             if role > 2 {
@@ -75,11 +75,11 @@ pub unsafe fn passive_line(a: &Args8) -> Option<MpOut> {
                         else if !(ex <= bx.xhi && bx.ylo <= ey && ey <= bx.yhi) { go_count = false; }
                     }
                 }
-                tr(8, 0x100 | go_count as u64 | ((ent2 != 0) as u64) << 1);
+                tr(6, 0x10000 | role | (go_count as u64) << 8 | ((ent2 != 0) as u64) << 9);   // t6 = role | go_count<<8 | ent2<<9
                 if go_count {
                     let other = 1 - side;
                     let lane_o = lanes + (other as usize) * LANE_STRIDE;
-                    let mut cnt: u32 = 0; let mut bits: u64 = 0x100_0000;
+                    let mut cnt: u32 = 0; let mut bits: u64 = 0x100_0000_0000;
                     // 진단(DIFF 원인 분리): W/H·tick·적 3/4 좌표 — t5 상위비트·t2 상위비트·t10/t11
                     { let cfg = rd_u64(g.0 + G_CFG)? as usize; tr(5, 0x100 | phase as u64 | ((rd_u64(cfg + 0x12b8)? >> 10) << 12) | ((rd_u64(cfg + 0x12c0)? >> 10) << 32)); }
                     tr(2, 0x100 | sf as u64 | (tick.min(0xf_ffff_ffff) << 12));
@@ -91,10 +91,17 @@ pub unsafe fn passive_line(a: &Args8) -> Option<MpOut> {
                         if r >= 3 { tr(7 + r as usize, 0x1_0000_0000_0000 | (ex.min(0xf_ffff) ) | (ey.min(0xf_ffff) << 24)); }   // t10/t11 = 적3/적4 (x | y<<24)
                         if !cal::in_region(g.0, ex, ey)? { continue; }
                         bits |= 1 << (8 + r);
-                        let lp = cal::lane_pred(lane_o, w.data, w.vt, p5, e)?; if lp != 0 { bits |= 1 << r; }
-                        cnt += lp as u32;
+                        let (lp, last) = cal::lane_pred(lane_o, w.data, w.vt, p5, e)?;
+                        if lp != 0 { bits |= 1 << r; } if lp == 1 { bits |= 1 << (24 + r); }          // 24+r = 시야로 참(1) / r 만 = 기록으로 참(2)
+                        if r >= 3 && lp == 2 {                                                        // t8 = 적3(low 28b)·적4(high) 의 (last+0x78 − tick) 여유(+0x800000 바이어스, 포화)
+                            let m = (last.wrapping_add(0x78) as i64).wrapping_sub(tick as i64).clamp(-0x7f_ffff, 0x7f_ffff) + 0x80_0000;
+                            let prev = tr_get(8) & !(0xfff_ffffu64 << (if r == 3 { 0 } else { 28 })) & 0x00ff_ffff_ffff_ffff;
+                            tr(8, 0x100_0000_0000_0000 | prev | ((m as u64) << (if r == 3 { 0 } else { 28 })));
+                        }
+                        cnt += (lp != 0) as u32;
                     }
                     tr(9, bits); tr(4, 0x100 | cnt as u64);
+                    tr(3, (if cnt >= 2 { 1u64 } else { 2u64 }) << 56);   // 분기 태그: 1=미드 분기(code 3|5) 채택 / 2=미드 카운트 후 main 으로
                     if cnt >= 2 {
                         let me = w.roster(side, role as u32)?; if me == 0 { return None; }
                         let maxhp = rd_u64(me + ENT_MAXHP)?; if maxhp == 0 { return None; }
@@ -150,7 +157,7 @@ pub unsafe fn passive_line(a: &Args8) -> Option<MpOut> {
         }
         c15 = if hit { if rd_i64(lane_self + lane_sub(lane) + LR_F18)? < 0 { 2 } else { 0 } } else { 2 };
     }
-    tr(3, 0x100 | c15 as u64);
+    tr(3, (tr_get(3) & (0xffu64 << 56)) | 0x100 | c15 as u64);   // 상위 바이트(분기 태그)는 보존
     // ── 4. LAB_d2d0e4 ──
     let lr = lane_self + lane_sub(lane);
     let code2 = |o: &mut MpOut| { o.push(0x8, 1, is_role1 as u64); o.push(0x9, 1, lane as u64); o.push(0xa, 1, c15 as u64); o.code(2); };

@@ -56,14 +56,15 @@ pub unsafe fn in_lane(g: usize, x: u64, y: u64, lane: u8) -> Option<bool> {
 }
 
 /// 0x1323a00 — recently_seen.
-pub unsafe fn lane_pred(team_enemy: usize, data: usize, vt: usize, rec_self: usize, ent: usize) -> Option<u8> {
+/// 반환 (code, last): code 1 = 지금 보임(vt+0xf8) / 2 = 로스터 기록 last_seen+0x78 >= tick / 0 = 아니오. last = 기록 경로의 last_seen(진단용, 그 외 0).
+pub unsafe fn lane_pred(team_enemy: usize, data: usize, vt: usize, rec_self: usize, ent: usize) -> Option<(u8, u64)> {
     let w = World { x: 0, data, vt };
     let h = rd_u64(ent + ENT_HANDLE)?; let side = rd_u64(rec_self + P5_SIDE)?;
-    if w.visible(side, h)? { return Some(1); }
-    let rec = w.roster_rec(h)?; if rec == 0 { return Some(0); }
+    if w.visible(side, h)? { return Some((1, 0)); }
+    let rec = w.roster_rec(h)?; if rec == 0 { return Some((0, 0)); }
     let idx = rd_u32(rec + REC_ROLE) as usize;
     let last = rd_u64(team_enemy + LANE_ROSTER + idx * 8)?;
-    Some((last.wrapping_add(0x78) >= rd_u64(data + W_TICK)?) as u8)
+    Some((if last.wrapping_add(0x78) >= rd_u64(data + W_TICK)? { 2 } else { 0 }, last))
 }
 
 /// 0x16047b0 — 예측 억제 게이트(순수 해시). (A, B)
