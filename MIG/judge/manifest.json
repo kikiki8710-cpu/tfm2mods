@@ -4,7 +4,7 @@
  "fns": {
   "steal_score": {
    "role": "scorer",
-   "status": "ported",
+   "status": "verified",
    "history": [
     {
      "ver": "0.5.8",
@@ -19,6 +19,13 @@
      "date": "2026-09-06",
      "event": "mark:todo→ported",
      "note": "2026-09-06 손 복원 C 기준 포팅·verify 훅 설치. 인게임 DIFF=0 대기"
+    },
+    {
+     "ver": "0.5.8",
+     "rva": "0xcbbca0",
+     "date": "2026-09-06",
+     "event": "mark:ported→verified",
+     "note": "0.5.8 2026-09-06 03:2x 1판 500/500 DIFF=0 (RNG-free · 라이브 승격은 2판째 확인 후)"
     }
    ],
    "sym": "game-ai\\src\\plan_legacy\\sub_plan\\steal.rs",
