@@ -17,6 +17,12 @@ MIG\
   ★repin.py            도구: plan / apply / rdata / resolve — STALE 엔트리 **자동 재핀 엔진**(0.5.8 신설)
   ★callgraph.py        도구: exe 전 함수의 call/jmp 대상 인덱스(repin 의 MULTI/NONE 판별 재료)
   manifest\<MOD>.json  ★모드별 버전 민감 지점 전수 목록 (기계 정본)
+
+  ── AI 판단계층 축 (2026-09-05 신설 — 아래 "AI 판단계층은 별도 축" 절) ──
+  ★aidiff.py           구exe↔신exe AI 판단함수 자동 대조 (IDENTICAL/SHIFTED/EDITED/삭제/신규)
+  ★aidump.py           AI 계층 전량을 원본 소스 트리 모양 스캐폴딩으로 생성 + 디컴 배치 분할
+  ★aifill.py           그 스캐폴딩 본문을 Ghidra 에서 받아 자동 채움 (fill/cap/jt · 멱등)
+  decomp\<버전>\       ↑ 산출물 = 복원된 game-ai\src\**.rs 트리
 ```
 ### 재핀 엔진 (repin.py, 2026-09-02 신설 — 0.5.8 에서 1,454 STALE 중 1,136 자동 해결)
 ```
@@ -89,6 +95,57 @@ sylas `+0x1e0→0x1f0` 5개 함수, serpen MOBATICK Δ+0x38 등)
 ⑬ 오프셋 작업이 끝났으면 python MIG\offsets.py snap  (다음 회차 기준선 채록)
 ⑭ 인게임 검증 → REPORT 검증표 갱신 → rel_commit
 ```
+
+## ★AI 판단계층은 별도 축이다 (2026-09-05 신설)
+
+`mig_verify` 는 **매니페스트에 적힌 지점**만 본다. 그런데 AI 판단계층은 매니페스트에 없는
+함수가 640개고, 매주 패치마다 "**어디가 바뀌었는지 찾는 데만 일주일**"이 갔다.
+그래서 exe 두 개만 주면 기계가 답하도록 축을 하나 더 만들었다.
+
+```
+① 이번 버전에 AI 판단에서 뭐가 바뀌었나  (2분, 캐시 있으면 즉시)
+   python MIG\aidiff.py <구exe> <신exe> -o report.md
+      → EDITED 목록 = 이번에 실제로 볼 곳. SHIFTED/IDENTICAL 은 볼 필요 없다.
+
+② 원본 소스 트리 스캐폴딩 + 디컴 배치 분할표
+   python MIG\aidump.py <신exe> -o MIG\decomp\<버전> --ver <버전> -b 4
+
+③ 스캐폴딩 본문 자동 채움 (Ghidra 서버가 그 버전을 열고 있어야 한다)
+   python MIG\aifill.py MIG\decomp\<버전> --port 8081
+      --only <경로조각>  부분 실행 / --force 이미 채운 것도 재수신
+      --passes fill,cap,jt  (기본 셋 다. 오프라인 재보강은 cap,jt 만)
+```
+
+⚠**배치를 손으로 나누지 마라.** ②가 `INDEX.md` 에 넣는 배치표는 전 모듈을 빠짐없이 덮는다
+(0.5.8 실측: 4배치 × 약 95,700 명령으로 균등). 2026-09-05 에 사람이 눈으로 나눴다가
+`free_dist.rs`(22함수) 하나가 통째로 배정에서 빠졌고, 전수 grep 으로 뒤늦게 발견했다.
+③을 통째로 돌리면 애초에 이 문제가 없다 — 배치 분할은 **여러 에이전트에 나눠 줄 때만** 쓴다.
+
+**판정 기준 = Rust 패닉 `Location`**(`.rdata` 의 `{file:&str, line, col}` 24B)이다.
+함수가 참조하는 Location 집합은 릴링크·인라인·레지스터 재할당에 불변이라 함수의 신원이 된다.
+⛔**유사도 지표는 쓰지 않는다** — 자매쌍(epic_*↔serpen_* 등)에서 원리적으로 오답이다
+(2026-09-05 실측: serpen_hunt 의 유사도 1위가 epic_hunt 0.9327, 정답은 0.5163).
+
+⚠**시프트는 모듈별로 봐야 한다.** 한 함수가 본체 모듈 + `utils.rs` 등 여러 모듈의 Location 을
+참조하고 **모듈마다 행 시프트가 다르다**. 한 덩어리로 보면 멀쩡한 함수가 EDITED 로 나온다
+(0.5.7→0.5.8 실측: 96개 → **28개**, 오탐 68건).
+
+### Ghidra 대량 디컴의 조용한 손실 3종 (버전무관 · 전부 aifill 이 대응)
+1. **함수 미정의** — xref 가 `.rdata` DATA 뿐이면 오토애널라이저가 함수를 안 만들어 디컴 실패.
+   MCP 에 create-function API 는 **없다**(jar 문자열 전수 확인) → capstone 선형 디스어셈 대체.
+2. **`Could not recover jumptable … Too many branches`** — ★**switch 아암이 통째로 조용히 누락**된다.
+   디컴 C 만 믿으면 로직이 빠진 줄도 모른다(실측 `battle 0xcc20a0` 692명령 → 디컴 5행).
+   → rip-rel `lea` 테이블 디코드 + `cmp reg,N; ja` 바운드 절단으로 아암 복구.
+3. **범위 밖 코드 오염** — 디컴이 tail-jump 를 따라가 남의 코드를 본문에 합친다
+   (실측 `attack_nexus 0xe83080` 자체 778B 인데 디컴 12,627행).
+
+### 실행 메모
+- Ghidra MCP 는 **HTTP 직접 호출**이 가능하다(`/decompile_function?address=0x…`). 함수 수백 개
+  배치는 MCP 도구보다 이쪽이 압도적으로 빠르다. 주소는 **절대주소**(RVA + `0x140000000`).
+- ⚠**포트는 버전마다 다르다**(2026-09-05: `ghidra_beta`=8081 이 0.5.8, `ghidra`=8080 은 구버전).
+  잘못 잡으면 **구버전을 디컴해 놓고 성공으로 보고**하는 조용한 오염이라, `aifill` 은 시작 시
+  프롤로그를 exe 와 대조해 다르면 즉시 중단한다.
+- 첫 실행은 exe 전수 디스어셈이라 수 분, 이후는 캐시(`_aidiff_<sha>_*.pkl`)로 즉시.
 
 ## ★★check PASS ≠ 기능 정상 (2026-08-29 · 버전무관 · 실사고 sylas)
 `mig_verify` 가 검사하는 명제 = **"그 주소의 12B 가 채록 때와 같은가"**.

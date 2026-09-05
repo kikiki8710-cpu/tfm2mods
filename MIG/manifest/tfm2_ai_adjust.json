@@ -9,27 +9,24 @@
   "TEXT_END 0x32687ff — 0.5.7 에서 .text 축소(방향 반전 주의).",
   "로그/설명 문자열 속 참고 주소(STATUS_CTR·knobs DESCS)는 마이그 대상 아님 = ignore 처리됨.",
   "★MIG 교훈(2026-08-28): 구값이 이미 무효(0.5.3 잔재)인 엔트리는 바이트 이주가 오핀을 낳는다 — HR_AE_FN 0x10efff0 실사고. *_FN 류는 재핀 후 함수시작(프롤로그) 검증을 별도로 할 것.",
-  "★fix_skill2_dmg 0.5.7 재설계 완료(2026-08-28): 훅 A 0xd199f2(위협·행렬r12/idx r13/분모rbx) + B 0xd19c61(이득·r10/r15/r13) + NOP 0xd19ea7·0xd19edf. 스킬2 컬럼 0x50/0x1e0. 인게임 적용·완주 검증(fix_imm.txt 적용·크래시0). RE=2026-08-28_AI판단버그3종."
+  "★fix_skill2_dmg 0.5.7 재설계 완료(2026-08-28): 훅 A 0xd199f2(위협·행렬r12/idx r13/분모rbx) + B 0xd19c61(이득·r10/r15/r13) + NOP 0xd19ea7·0xd19edf. 스킬2 컬럼 0x50/0x1e0. 인게임 적용·완주 검증(fix_imm.txt 적용·크래시0). RE=2026-08-28_AI판단버그3종.",
+  "★2026-09-06 낡은 재현모듈 4파일(disc19_repro/genbuild_repro/cand_filter_repro/gb_kit) 제거 — 그 파일에만 있던 엔트리 65건 삭제(값이 소스에 더 없음), 11건은 locs 재지정(d19_imm.rs 등). 원본 = manifest\tfm2_ai_adjust.json.bak_20260906_prune. 삭제 목록 = MIG\\judge\\_pruned_entries_20260906.json",
+  "2026-09-06 src/judge/gen_fns.rs 는 aiport.py 생성물(judge 계층 RVA·프롤로그 정본 = MIG\\judge\\manifest.json) — 마이그 축 coverage 에서 제외"
  ],
  "offsets": [],
  "entries": [
   {
-   "name": "INLINE@src/disc19_repro.rs:1480",
+   "name": "INLINE@src/serpen.rs:638",
    "value": "0x9db00",
    "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
-    "src/disc19_repro.rs:1480",
-    "src/disc19_repro.rs:1483",
-    "src/disc19_repro.rs:1535",
-    "src/disc19_repro.rs:1549",
-    "src/disc19_repro.rs:1587",
-    "src/disc19_repro.rs:1595"
+    "src/serpen.rs:638"
    ],
    "sect": ".text",
    "bytes": "4883c64048ffcb743c48833e",
    "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
-   "note": "3차 재핀(2026-08-28) — 윈도 유일화/match_mid + 가드 imm 실측",
+   "note": "3차 재핀(2026-08-28) — 윈도 유일화/match_mid + 가드 imm 실측 | 2026-09-06 낡은 재현모듈 제거로 locs 재지정",
    "curated": true
   },
   {
@@ -46,22 +43,21 @@
    "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
   },
   {
-   "name": "INLINE@src/genbuild_repro.rs:490",
+   "name": "INLINE@src/serpen.rs:730",
    "value": "0x9f9f0",
    "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
-    "src/genbuild_repro.rs:490",
-    "src/genbuild_repro.rs:492",
     "src/serpen.rs:730",
     "src/serpen.rs:732",
     "src/serpen.rs:1156",
-    "src/tfm2_ai_adjust.rs:6222"
+    "src/tfm2_ai_adjust.rs:6006",
+    "src/tfm2_ai_adjust.rs:6434"
    ],
    "sect": ".text",
    "bytes": "0000e9f4feffff4c8ba3b8fe",
    "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
-   "note": "3차 재핀(2026-08-28) — 윈도 유일화/match_mid + 가드 imm 실측",
+   "note": "3차 재핀(2026-08-28) — 윈도 유일화/match_mid + 가드 imm 실측 | 2026-09-06 낡은 재현모듈 제거로 locs 재지정",
    "curated": true
   },
   {
@@ -78,22 +74,17 @@
    "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
   },
   {
-   "name": "INLINE@src/disc19_repro.rs:1480",
+   "name": "INLINE@src/serpen.rs:641",
    "value": "0xc05b0",
    "ver": "0.5.7(0.5.8 재핀실패)",
    "kind": "BYTE_PATCH_HOLD",
    "locs": [
-    "src/disc19_repro.rs:1480",
-    "src/disc19_repro.rs:1484",
-    "src/disc19_repro.rs:1536",
-    "src/disc19_repro.rs:1550",
-    "src/disc19_repro.rs:1568",
-    "src/disc19_repro.rs:1589"
+    "src/serpen.rs:641"
    ],
    "sect": ".text",
    "bytes": "ffffc685fe25000001488d4d",
    "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
-   "note": "HOLD — 컨테이너 본문변경으로 정렬 불가(가드 blocked=fail-safe). OWNER_MULTI ★0.5.8 재핀 실패(2026-09-02) — 자동 3단(바이트 유일검색/skeleton/owner+콜그래프)·지역창 축소·사이트 문맥 대조 전부 동형 클론에 막힘. ghidra-re 로 개별 재규명 필요. ⚠rebase 로 bytes 는 새 exe 기준이라 check 는 PASS 로 보인다 — 이 표식이 유일한 단서.",
+   "note": "HOLD — 컨테이너 본문변경으로 정렬 불가(가드 blocked=fail-safe). OWNER_MULTI ★0.5.8 재핀 실패(2026-09-02) — 자동 3단(바이트 유일검색/skeleton/owner+콜그래프)·지역창 축소·사이트 문맥 대조 전부 동형 클론에 막힘. ghidra-re 로 개별 재규명 필요. ⚠rebase 로 bytes 는 새 exe 기준이라 check 는 PASS 로 보인다 — 이 표식이 유일한 단서. | 2026-09-06 낡은 재현모듈 제거로 locs 재지정",
    "curated": true,
    "unresolved": "0.5.8"
   },
@@ -143,20 +134,18 @@
    "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
   },
   {
-   "name": "INLINE@src/genbuild_repro.rs:490",
+   "name": "INLINE@src/serpen.rs:730",
    "value": "0xe4250",
    "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
-    "src/genbuild_repro.rs:490",
-    "src/genbuild_repro.rs:492",
     "src/serpen.rs:730",
     "src/serpen.rs:732"
    ],
    "sect": ".text",
    "bytes": "488954241055415741564155",
    "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
-   "note": "3차 재핀(2026-08-28) — 윈도 유일화/match_mid + 가드 imm 실측",
+   "note": "3차 재핀(2026-08-28) — 윈도 유일화/match_mid + 가드 imm 실측 | 2026-09-06 낡은 재현모듈 제거로 locs 재지정",
    "curated": true
   },
   {
@@ -194,21 +183,6 @@
    "curated": true
   },
   {
-   "name": "INLINE@src/gb_kit.rs:83",
-   "value": "0xfffff",
-   "ver": "0.5.7",
-   "kind": "NOT_RVA",
-   "locs": [
-    "src/gb_kit.rs:83"
-   ],
-   "sect": ".text",
-   "bytes": "cc8b416489c1d1e981e15555",
-   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
-   "ignore": true,
-   "note": "오탐(로그/설명 문자열·마스크) 또는 고의보류(TG_CALL/GB_REGIOND — 0.5.4부터 inert)",
-   "curated": true
-  },
-  {
    "name": "PARSER_RVA",
    "value": "0x1a6530",
    "ver": "0.5.8",
@@ -219,20 +193,6 @@
    "sect": ".text",
    "bytes": "488954241055415741564155",
    "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
-  },
-  {
-   "name": "INLINE@src/disc19_repro.rs:2497",
-   "value": "0x1b0113",
-   "ver": "0.5.8",
-   "kind": "UNCLASSIFIED",
-   "locs": [
-    "src/disc19_repro.rs:2497"
-   ],
-   "sect": ".text",
-   "bytes": "46100f1045a80f11064c8976",
-   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
-   "note": "3차 재핀(2026-08-28) — 윈도 유일화/match_mid + 가드 imm 실측",
-   "curated": true
   },
   {
    "name": "RVA_COMMIT_FN",
@@ -269,20 +229,6 @@
    "sect": ".text",
    "bytes": "444531c0660f76c94821d0f3",
    "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
-  },
-  {
-   "name": "INLINE@src/disc19_repro.rs:2802",
-   "value": "0x9f3619",
-   "ver": "0.5.8",
-   "kind": "BYTE_PATCH_HOLD",
-   "locs": [
-    "src/disc19_repro.rs:2802"
-   ],
-   "sect": ".text",
-   "bytes": "660f6f034c8d731066440fd7",
-   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
-   "note": "HOLD — 컨테이너 본문변경으로 정렬 불가(가드 blocked=fail-safe). OWNER_NONE",
-   "curated": true
   },
   {
    "name": "INLINE@src/detour.rs:2946",
@@ -2702,21 +2648,6 @@
    "sect": ".text",
    "bytes": "4881c1419c000048f7e14989",
    "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
-  },
-  {
-   "name": "INLINE@src/disc19_repro.rs:2460",
-   "value": "0xc9c7d0",
-   "ver": "0.5.8",
-   "kind": "BYTE_PATCH_HOLD",
-   "locs": [
-    "src/disc19_repro.rs:2460",
-    "src/disc19_repro.rs:2461"
-   ],
-   "sect": ".text",
-   "bytes": "004c8b7a1031d2488d7dd849",
-   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
-   "note": "HOLD — 컨테이너 본문변경으로 정렬 불가(가드 blocked=fail-safe). OWNER_MULTI",
-   "curated": true
   },
   {
    "name": "PB_H6_RVA",
@@ -10536,21 +10467,6 @@
    "curated": true
   },
   {
-   "name": "INLINE@src/disc19_repro.rs:530",
-   "value": "0xdfd364",
-   "ver": "0.5.8",
-   "kind": "UNCLASSIFIED",
-   "locs": [
-    "src/disc19_repro.rs:530",
-    "src/disc19_repro.rs:531"
-   ],
-   "sect": ".text",
-   "bytes": "00410f94c0b2054c89cfe88d",
-   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
-   "note": "3차 재핀(2026-08-28) — 윈도 유일화/match_mid + 가드 imm 실측",
-   "curated": true
-  },
-  {
    "name": "INLINE@src/detour.rs:3162",
    "value": "0xdfe4fd",
    "ver": "0.5.8",
@@ -13942,136 +13858,6 @@
    "curated": true
   },
   {
-   "name": "INLINE@src/disc19_repro.rs:65",
-   "value": "0xeaf239",
-   "ver": "0.5.8",
-   "kind": "UNCLASSIFIED",
-   "locs": [
-    "src/disc19_repro.rs:65",
-    "src/orig_table.rs:526"
-   ],
-   "sect": ".text",
-   "bytes": "75234983bda0060000007519",
-   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
-  },
-  {
-   "name": "INLINE@src/disc19_repro.rs:70",
-   "value": "0xeaf23f",
-   "ver": "0.5.8",
-   "kind": "UNCLASSIFIED",
-   "locs": [
-    "src/disc19_repro.rs:70",
-    "src/orig_table.rs:527"
-   ],
-   "sect": ".text",
-   "bytes": "0600000075194d89ca660f6f",
-   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
-  },
-  {
-   "name": "INLINE@src/disc19_repro.rs:66",
-   "value": "0xeaf245",
-   "ver": "0.5.8",
-   "kind": "UNCLASSIFIED",
-   "locs": [
-    "src/disc19_repro.rs:66",
-    "src/orig_table.rs:528"
-   ],
-   "sect": ".text",
-   "bytes": "4d89ca660f6f0540064d0249",
-   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
-  },
-  {
-   "name": "INLINE@src/disc19_repro.rs:71",
-   "value": "0xeaf24b",
-   "ver": "0.5.8",
-   "kind": "UNCLASSIFIED",
-   "locs": [
-    "src/disc19_repro.rs:71",
-    "src/orig_table.rs:529"
-   ],
-   "sect": ".text",
-   "bytes": "0540064d024989fe4c89ee4d",
-   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
-  },
-  {
-   "name": "INLINE@src/disc19_repro.rs:67",
-   "value": "0xeaf251",
-   "ver": "0.5.8",
-   "kind": "UNCLASSIFIED",
-   "locs": [
-    "src/disc19_repro.rs:67",
-    "src/orig_table.rs:530"
-   ],
-   "sect": ".text",
-   "bytes": "89fe4c89ee4d89e8e97e0000",
-   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
-  },
-  {
-   "name": "INLINE@src/disc19_repro.rs:72",
-   "value": "0xeaf257",
-   "ver": "0.5.8",
-   "kind": "UNCLASSIFIED",
-   "locs": [
-    "src/disc19_repro.rs:72",
-    "src/orig_table.rs:531"
-   ],
-   "sect": ".text",
-   "bytes": "89e8e97e0000004d85c9742a",
-   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
-  },
-  {
-   "name": "INLINE@src/disc19_repro.rs:68",
-   "value": "0xeaf25d",
-   "ver": "0.5.8",
-   "kind": "UNCLASSIFIED",
-   "locs": [
-    "src/disc19_repro.rs:68",
-    "src/orig_table.rs:532"
-   ],
-   "sect": ".text",
-   "bytes": "004d85c9742a4180b9b90600",
-   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
-  },
-  {
-   "name": "INLINE@src/disc19_repro.rs:74",
-   "value": "0xeaf2d3",
-   "ver": "0.5.8",
-   "kind": "UNCLASSIFIED",
-   "locs": [
-    "src/disc19_repro.rs:74",
-    "src/orig_table.rs:533"
-   ],
-   "sect": ".text",
-   "bytes": "0075da4c89ee4d89ca498b90",
-   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
-  },
-  {
-   "name": "INLINE@src/disc19_repro.rs:75",
-   "value": "0xeaf2f8",
-   "ver": "0.5.8",
-   "kind": "UNCLASSIFIED",
-   "locs": [
-    "src/disc19_repro.rs:75",
-    "src/orig_table.rs:534"
-   ],
-   "sect": ".text",
-   "bytes": "4989d54d29e54929d4498b91",
-   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
-  },
-  {
-   "name": "INLINE@src/disc19_repro.rs:77",
-   "value": "0xeaf30e",
-   "ver": "0.5.8",
-   "kind": "UNCLASSIFIED",
-   "locs": [
-    "src/disc19_repro.rs:77",
-    "src/orig_table.rs:535"
-   ],
-   "sect": ".text",
-   "bytes": "fd4929d54c29fa490f42d548",
-   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
-  },
-  {
    "name": "INLINE@src/detour.rs:4474",
    "value": "0xeb03c8",
    "ver": "0.5.8",
@@ -14380,21 +14166,6 @@
    "sect": ".text",
    "bytes": "4983c6784939c60f93c184c9",
    "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
-  },
-  {
-   "name": "INLINE@src/disc19_repro.rs:2888",
-   "value": "0xebd040",
-   "ver": "0.5.8",
-   "kind": "BYTE_PATCH_HOLD",
-   "locs": [
-    "src/disc19_repro.rs:2888",
-    "src/disc19_repro.rs:2895"
-   ],
-   "sect": ".text",
-   "bytes": "06000000754a488b86600600",
-   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
-   "note": "HOLD — 컨테이너 본문변경으로 정렬 불가(가드 blocked=fail-safe). 가드 없음(수동 판정 필요)",
-   "curated": true
   },
   {
    "name": "INLINE@src/detour.rs:3091",
@@ -14851,91 +14622,33 @@
    "curated": true
   },
   {
-   "name": "INLINE@src/disc19_repro.rs:836",
+   "name": "INLINE@src/serpen.rs:634",
    "value": "0xef5d80",
    "ver": "0.5.8",
    "kind": "BYTE_PATCH_HOLD",
    "locs": [
-    "src/disc19_repro.rs:836",
-    "src/serpen.rs:634"
+    "src/serpen.rs:634",
+    "src/tfm2_ai_adjust.rs:2212"
    ],
    "sect": ".text",
    "bytes": "488b451848894df04c8924c1",
    "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
-   "note": "HOLD — 컨테이너 본문변경으로 정렬 불가(가드 blocked=fail-safe). OWNER_MULTI",
+   "note": "HOLD — 컨테이너 본문변경으로 정렬 불가(가드 blocked=fail-safe). OWNER_MULTI | 2026-09-06 낡은 재현모듈 제거로 locs 재지정",
    "curated": true
   },
   {
-   "name": "INLINE@src/disc19_repro.rs:1552",
-   "value": "0xefd4b0",
-   "ver": "0.5.8",
-   "kind": "UNCLASSIFIED",
-   "locs": [
-    "src/disc19_repro.rs:1552",
-    "src/disc19_repro.rs:1588",
-    "src/disc19_repro.rs:1611"
-   ],
-   "sect": ".text",
-   "bytes": "c80000005b5f5e415c415d41",
-   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
-   "note": "3차 재핀(2026-08-28) — 윈도 유일화/match_mid + 가드 imm 실측",
-   "curated": true
-  },
-  {
-   "name": "INLINE@src/disc19_repro.rs:837",
+   "name": "INLINE@src/serpen.rs:636",
    "value": "0xf07b60",
    "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
-    "src/disc19_repro.rs:837",
-    "src/serpen.rs:636"
+    "src/serpen.rs:636",
+    "src/tfm2_ai_adjust.rs:2213"
    ],
    "sect": ".text",
    "bytes": "e800000048898d9800000048",
    "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
-   "note": "3차 재핀(2026-08-28) — 윈도 유일화/match_mid + 가드 imm 실측",
-   "curated": true
-  },
-  {
-   "name": "INLINE@src/disc19_repro.rs:319",
-   "value": "0xf0bac0",
-   "ver": "0.5.8",
-   "kind": "BYTE_PATCH_HOLD",
-   "locs": [
-    "src/disc19_repro.rs:319"
-   ],
-   "sect": ".text",
-   "bytes": "8d4db0488941100f1045c80f",
-   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
-   "note": "HOLD — 컨테이너 본문변경으로 정렬 불가(가드 blocked=fail-safe). 가드 없음(수동 판정 필요)",
-   "curated": true
-  },
-  {
-   "name": "INLINE@src/disc19_repro.rs:331",
-   "value": "0xf10bd0",
-   "ver": "0.5.8",
-   "kind": "UNCLASSIFIED",
-   "locs": [
-    "src/disc19_repro.rs:331"
-   ],
-   "sect": ".text",
-   "bytes": "480f43c1488985d000000049",
-   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
-   "note": "3차 재핀(2026-08-28) — 윈도 유일화/match_mid + 가드 imm 실측",
-   "curated": true
-  },
-  {
-   "name": "INLINE@src/disc19_repro.rs:326",
-   "value": "0xf1e870",
-   "ver": "0.5.8",
-   "kind": "BYTE_PATCH_HOLD",
-   "locs": [
-    "src/disc19_repro.rs:326"
-   ],
-   "sect": ".text",
-   "bytes": "ff7425488b47184c29f848c1",
-   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
-   "note": "HOLD — 컨테이너 본문변경으로 정렬 불가(가드 blocked=fail-safe). OWNER_MULTI",
+   "note": "3차 재핀(2026-08-28) — 윈도 유일화/match_mid + 가드 imm 실측 | 2026-09-06 낡은 재현모듈 제거로 locs 재지정",
    "curated": true
   },
   {
@@ -14954,76 +14667,17 @@
    "curated": true
   },
   {
-   "name": "INLINE@src/disc19_repro.rs:797",
-   "value": "0xf6ef5d",
-   "ver": "0.5.8",
-   "kind": "UNCLASSIFIED",
-   "locs": [
-    "src/disc19_repro.rs:797",
-    "src/disc19_repro.rs:798"
-   ],
-   "sect": ".text",
-   "bytes": "fb4569fb900100004429fb41",
-   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
-   "note": "3차 재핀(2026-08-28) — 윈도 유일화/match_mid + 가드 imm 실측",
-   "curated": true
-  },
-  {
-   "name": "INLINE@src/disc19_repro.rs:1555",
-   "value": "0xf755b0",
-   "ver": "0.5.8",
-   "kind": "UNCLASSIFIED",
-   "locs": [
-    "src/disc19_repro.rs:1555",
-    "src/disc19_repro.rs:1589",
-    "src/disc19_repro.rs:1597"
-   ],
-   "sect": ".text",
-   "bytes": "c785d00300000800000048c7",
-   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
-   "note": "3차 재핀(2026-08-28) — 윈도 유일화/match_mid + 가드 imm 실측",
-   "curated": true
-  },
-  {
-   "name": "INLINE@src/disc19_repro.rs:1570",
-   "value": "0xf755f0",
-   "ver": "0.5.8",
-   "kind": "UNCLASSIFIED",
-   "locs": [
-    "src/disc19_repro.rs:1570"
-   ],
-   "sect": ".text",
-   "bytes": "0f76f64c89ade8020000660f",
-   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
-   "note": "3차 재핀(2026-08-28) — 윈도 유일화/match_mid + 가드 imm 실측",
-   "curated": true
-  },
-  {
-   "name": "INLINE@src/disc19_repro.rs:1571",
-   "value": "0xf75660",
-   "ver": "0.5.8",
-   "kind": "UNCLASSIFIED",
-   "locs": [
-    "src/disc19_repro.rs:1571"
-   ],
-   "sect": ".text",
-   "bytes": "01660f6fd1660f74d066440f",
-   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
-   "note": "3차 재핀(2026-08-28) — 윈도 유일화/match_mid + 가드 imm 실측",
-   "curated": true
-  },
-  {
-   "name": "INLINE@src/disc19_repro.rs:836",
+   "name": "INLINE@src/tfm2_ai_adjust.rs:2212",
    "value": "0xf76b10",
    "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
-    "src/disc19_repro.rs:836"
+    "src/tfm2_ai_adjust.rs:2212"
    ],
    "sect": ".text",
    "bytes": "e98900000048b80100000000",
    "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
-   "note": "3차 재핀(2026-08-28) — 윈도 유일화/match_mid + 가드 imm 실측",
+   "note": "3차 재핀(2026-08-28) — 윈도 유일화/match_mid + 가드 imm 실측 | 2026-09-06 낡은 재현모듈 제거로 locs 재지정",
    "curated": true
   },
   {
@@ -15042,105 +14696,17 @@
    "curated": true
   },
   {
-   "name": "INLINE@src/disc19_repro.rs:318",
-   "value": "0x10379b0",
-   "ver": "0.5.8",
-   "kind": "UNCLASSIFIED",
-   "locs": [
-    "src/disc19_repro.rs:318"
-   ],
-   "sect": ".text",
-   "bytes": "4c8bad20020000721589c1ba",
-   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
-   "note": "3차 재핀(2026-08-28) — 윈도 유일화/match_mid + 가드 imm 실측",
-   "curated": true
-  },
-  {
-   "name": "INLINE@src/disc19_repro.rs:808",
-   "value": "0x10a3df0",
-   "ver": "0.5.8",
-   "kind": "BYTE_PATCH_HOLD",
-   "locs": [
-    "src/disc19_repro.rs:808",
-    "src/disc19_repro.rs:809"
-   ],
-   "sect": ".text",
-   "bytes": "000000807d36007412488b4d",
-   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
-   "note": "HOLD — 컨테이너 본문변경으로 정렬 불가(가드 blocked=fail-safe). OWNER_HEAD_UNIQUE",
-   "curated": true
-  },
-  {
-   "name": "INLINE@src/disc19_repro.rs:1538",
-   "value": "0x10c0a80",
-   "ver": "0.5.8",
-   "kind": "BYTE_PATCH_HOLD",
-   "locs": [
-    "src/disc19_repro.rs:1538"
-   ],
-   "sect": ".text",
-   "bytes": "01cd4883c5c84d39e50f84f7",
-   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
-   "note": "HOLD — 컨테이너 본문변경으로 정렬 불가(가드 blocked=fail-safe). OWNER_HEAD_UNIQUE",
-   "curated": true
-  },
-  {
-   "name": "INLINE@src/disc19_repro.rs:1570",
-   "value": "0x10e5bb0",
-   "ver": "0.5.8",
-   "kind": "UNCLASSIFIED",
-   "locs": [
-    "src/disc19_repro.rs:1570"
-   ],
-   "sect": ".text",
-   "bytes": "89c148d1e983e0014809c80f",
-   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
-   "note": "3차 재핀(2026-08-28) — 윈도 유일화/match_mid + 가드 imm 실측",
-   "curated": true
-  },
-  {
-   "name": "INLINE@src/disc19_repro.rs:1636",
-   "value": "0x1131930",
-   "ver": "0.5.8",
-   "kind": "BYTE_PATCH_HOLD",
-   "locs": [
-    "src/disc19_repro.rs:1636",
-    "src/disc19_repro.rs:1656",
-    "src/disc19_repro.rs:2292"
-   ],
-   "sect": ".text",
-   "bytes": "bae8010000e86bf3060290e9",
-   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
-   "note": "HOLD — 컨테이너 본문변경으로 정렬 불가(가드 blocked=fail-safe). OWNER_MULTI",
-   "curated": true
-  },
-  {
-   "name": "INLINE@src/disc19_repro.rs:870",
+   "name": "INLINE@src/serpen.rs:639",
    "value": "0x11616f0",
    "ver": "0.5.8",
    "kind": "BYTE_PATCH_HOLD",
    "locs": [
-    "src/disc19_repro.rs:870",
     "src/serpen.rs:639"
    ],
    "sect": ".text",
    "bytes": "4c898c2488000000488d0599",
    "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
-   "note": "HOLD — 컨테이너 본문변경으로 정렬 불가(가드 blocked=fail-safe). OWNER_MULTI",
-   "curated": true
-  },
-  {
-   "name": "INLINE@src/disc19_repro.rs:1567",
-   "value": "0x11cf090",
-   "ver": "0.5.8",
-   "kind": "UNCLASSIFIED",
-   "locs": [
-    "src/disc19_repro.rs:1567"
-   ],
-   "sect": ".text",
-   "bytes": "8e940000004c8b45e44539c1",
-   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
-   "note": "3차 재핀(2026-08-28) — 윈도 유일화/match_mid + 가드 imm 실측",
+   "note": "HOLD — 컨테이너 본문변경으로 정렬 불가(가드 blocked=fail-safe). OWNER_MULTI | 2026-09-06 낡은 재현모듈 제거로 locs 재지정",
    "curated": true
   },
   {
@@ -15154,21 +14720,6 @@
    "sect": ".text",
    "bytes": "554157415641554154565753",
    "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
-  },
-  {
-   "name": "INLINE@src/disc19_repro.rs:1573",
-   "value": "0x11ff790",
-   "ver": "0.5.7(0.5.8 재핀실패)",
-   "kind": "BYTE_PATCH_HOLD",
-   "locs": [
-    "src/disc19_repro.rs:1573"
-   ],
-   "sect": ".text",
-   "bytes": "0f95c04989fe4929de0f97c1",
-   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
-   "note": "HOLD — 컨테이너 본문변경으로 정렬 불가(가드 blocked=fail-safe). OWNER_MULTI ★0.5.8 재핀 실패(2026-09-02) — 자동 3단(바이트 유일검색/skeleton/owner+콜그래프)·지역창 축소·사이트 문맥 대조 전부 동형 클론에 막힘. ghidra-re 로 개별 재규명 필요. ⚠rebase 로 bytes 는 새 exe 기준이라 check 는 PASS 로 보인다 — 이 표식이 유일한 단서.",
-   "curated": true,
-   "unresolved": "0.5.8"
   },
   {
    "name": "INLINE@src/tfm2_ai_adjust.rs:8093",
@@ -15265,20 +14816,6 @@
    "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
   },
   {
-   "name": "INLINE@src/disc19_repro.rs:871",
-   "value": "0x13de690",
-   "ver": "0.5.8",
-   "kind": "UNCLASSIFIED",
-   "locs": [
-    "src/disc19_repro.rs:871"
-   ],
-   "sect": ".text",
-   "bytes": "010000488dac248000000066",
-   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
-   "note": "3차 재핀(2026-08-28) — 윈도 유일화/match_mid + 가드 imm 실측",
-   "curated": true
-  },
-  {
    "name": "INLINE@src/class_micro.rs:825",
    "value": "0x13eacf7",
    "ver": "0.5.8",
@@ -15294,217 +14831,33 @@
    "curated": true
   },
   {
-   "name": "INLINE@src/disc19_repro.rs:837",
+   "name": "INLINE@src/serpen.rs:637",
    "value": "0x1434320",
    "ver": "0.5.8",
    "kind": "BYTE_PATCH_HOLD",
    "locs": [
-    "src/disc19_repro.rs:837",
-    "src/serpen.rs:637"
+    "src/serpen.rs:637",
+    "src/tfm2_ai_adjust.rs:2213"
    ],
    "sect": ".text",
    "bytes": "0f104d100f1055200f105d30",
    "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
-   "note": "HOLD — 컨테이너 본문변경으로 정렬 불가(가드 blocked=fail-safe). 가드 없음(수동 판정 필요)",
+   "note": "HOLD — 컨테이너 본문변경으로 정렬 불가(가드 blocked=fail-safe). 가드 없음(수동 판정 필요) | 2026-09-06 낡은 재현모듈 제거로 locs 재지정",
    "curated": true
   },
   {
-   "name": "INLINE@src/disc19_repro.rs:1488",
-   "value": "0x143fb30",
-   "ver": "0.5.8",
-   "kind": "UNCLASSIFIED",
-   "locs": [
-    "src/disc19_repro.rs:1488"
-   ],
-   "sect": ".text",
-   "bytes": "40488b85a001000048898530",
-   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
-   "note": "3차 재핀(2026-08-28) — 윈도 유일화/match_mid + 가드 imm 실측",
-   "curated": true
-  },
-  {
-   "name": "INLINE@src/disc19_repro.rs:698",
-   "value": "0x1496e40",
-   "ver": "0.5.8",
-   "kind": "BYTE_PATCH_HOLD",
-   "locs": [
-    "src/disc19_repro.rs:698"
-   ],
-   "sect": ".text",
-   "bytes": "e3014889c131d24989d8ff15",
-   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
-   "note": "HOLD — 컨테이너 본문변경으로 정렬 불가(가드 blocked=fail-safe). OWNER_MULTI",
-   "curated": true
-  },
-  {
-   "name": "INLINE@src/disc19_repro.rs:837",
+   "name": "INLINE@src/serpen.rs:635",
    "value": "0x151a580",
    "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
-    "src/disc19_repro.rs:837",
-    "src/serpen.rs:635"
+    "src/serpen.rs:635",
+    "src/tfm2_ai_adjust.rs:2213"
    ],
    "sect": ".text",
    "bytes": "554157415641554154565753",
    "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
-   "note": "3차 재핀(2026-08-28) — 윈도 유일화/match_mid + 가드 imm 실측",
-   "curated": true
-  },
-  {
-   "name": "INLINE@src/disc19_repro.rs:1616",
-   "value": "0x1598d20",
-   "ver": "0.5.8",
-   "kind": "BYTE_PATCH_HOLD",
-   "locs": [
-    "src/disc19_repro.rs:1616"
-   ],
-   "sect": ".text",
-   "bytes": "488954241055415741564155",
-   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
-   "note": "HOLD — 컨테이너 본문변경으로 정렬 불가(가드 blocked=fail-safe). OWNER_MULTI",
-   "curated": true
-  },
-  {
-   "name": "INLINE@src/disc19_repro.rs:317",
-   "value": "0x1598ea0",
-   "ver": "0.5.8",
-   "kind": "BYTE_PATCH_HOLD",
-   "locs": [
-    "src/disc19_repro.rs:317"
-   ],
-   "sect": ".text",
-   "bytes": "442420660f7f7c2430660f7f",
-   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
-   "note": "HOLD — 컨테이너 본문변경으로 정렬 불가(가드 blocked=fail-safe). OWNER_MULTI",
-   "curated": true
-  },
-  {
-   "name": "INLINE@src/disc19_repro.rs:1671",
-   "value": "0x1599070",
-   "ver": "0.5.8",
-   "kind": "BYTE_PATCH_HOLD",
-   "locs": [
-    "src/disc19_repro.rs:1671"
-   ],
-   "sect": ".text",
-   "bytes": "0f287c2430440f2844242048",
-   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
-   "note": "HOLD — 컨테이너 본문변경으로 정렬 불가(가드 blocked=fail-safe). OWNER_MULTI",
-   "curated": true
-  },
-  {
-   "name": "INLINE@src/disc19_repro.rs:1551",
-   "value": "0x15990b0",
-   "ver": "0.5.8",
-   "kind": "BYTE_PATCH_HOLD",
-   "locs": [
-    "src/disc19_repro.rs:1551"
-   ],
-   "sect": ".text",
-   "bytes": "0100000f848f0100004889d6",
-   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
-   "note": "HOLD — 컨테이너 본문변경으로 정렬 불가(가드 blocked=fail-safe). OWNER_MULTI",
-   "curated": true
-  },
-  {
-   "name": "INLINE@src/disc19_repro.rs:1537",
-   "value": "0x1599110",
-   "ver": "0.5.8",
-   "kind": "BYTE_PATCH_HOLD",
-   "locs": [
-    "src/disc19_repro.rs:1537"
-   ],
-   "sect": ".text",
-   "bytes": "d8660fd7d385d27437f3440f",
-   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
-   "note": "HOLD — 컨테이너 본문변경으로 정렬 불가(가드 blocked=fail-safe). OWNER_MULTI",
-   "curated": true
-  },
-  {
-   "name": "INLINE@src/disc19_repro.rs:1480",
-   "value": "0x15991f0",
-   "ver": "0.5.8",
-   "kind": "BYTE_PATCH_HOLD",
-   "locs": [
-    "src/disc19_repro.rs:1480",
-    "src/disc19_repro.rs:1486",
-    "src/disc19_repro.rs:2293"
-   ],
-   "sect": ".text",
-   "bytes": "660f6fda660f74d866440fd7",
-   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
-   "note": "HOLD — 컨테이너 본문변경으로 정렬 불가(가드 blocked=fail-safe). OWNER_MULTI",
-   "curated": true
-  },
-  {
-   "name": "INLINE@src/disc19_repro.rs:1569",
-   "value": "0x15992d0",
-   "ver": "0.5.8",
-   "kind": "BYTE_PATCH_HOLD",
-   "locs": [
-    "src/disc19_repro.rs:1569"
-   ],
-   "sect": ".text",
-   "bytes": "97486b010066410f6ec0660f",
-   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
-   "note": "HOLD — 컨테이너 본문변경으로 정렬 불가(가드 blocked=fail-safe). OWNER_MULTI",
-   "curated": true
-  },
-  {
-   "name": "INLINE@src/disc19_repro.rs:346",
-   "value": "0x1599dc0",
-   "ver": "0.5.8",
-   "kind": "BYTE_PATCH_HOLD",
-   "locs": [
-    "src/disc19_repro.rs:346"
-   ],
-   "sect": ".text",
-   "bytes": "5d415e415f5dc3660f1f8400",
-   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
-   "note": "HOLD — 컨테이너 본문변경으로 정렬 불가(가드 blocked=fail-safe). OWNER_MULTI",
-   "curated": true
-  },
-  {
-   "name": "INLINE@src/disc19_repro.rs:1556",
-   "value": "0x1599f90",
-   "ver": "0.5.8",
-   "kind": "BYTE_PATCH_HOLD",
-   "locs": [
-    "src/disc19_repro.rs:1556"
-   ],
-   "sect": ".text",
-   "bytes": "000f298da00000000f1045f0",
-   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
-   "note": "HOLD — 컨테이너 본문변경으로 정렬 불가(가드 blocked=fail-safe). OWNER_MULTI",
-   "curated": true
-  },
-  {
-   "name": "INLINE@src/disc19_repro.rs:1539",
-   "value": "0x1599fb0",
-   "ver": "0.5.8",
-   "kind": "BYTE_PATCH_HOLD",
-   "locs": [
-    "src/disc19_repro.rs:1539"
-   ],
-   "sect": ".text",
-   "bytes": "60488d4da0e87655deff900f",
-   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
-   "note": "HOLD — 컨테이너 본문변경으로 정렬 불가(가드 blocked=fail-safe). OWNER_MULTI",
-   "curated": true
-  },
-  {
-   "name": "INLINE@src/disc19_repro.rs:317",
-   "value": "0x159df10",
-   "ver": "0.5.8",
-   "kind": "BYTE_PATCH_HOLD",
-   "locs": [
-    "src/disc19_repro.rs:317"
-   ],
-   "sect": ".text",
-   "bytes": "0f28dee8482fc4ff488b9690",
-   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
-   "note": "HOLD — 컨테이너 본문변경으로 정렬 불가(가드 blocked=fail-safe). 가드 없음(수동 판정 필요)",
+   "note": "3차 재핀(2026-08-28) — 윈도 유일화/match_mid + 가드 imm 실측 | 2026-09-06 낡은 재현모듈 제거로 locs 재지정",
    "curated": true
   },
   {
@@ -15523,34 +14876,6 @@
    "unresolved": "0.5.8"
   },
   {
-   "name": "INLINE@src/disc19_repro.rs:1574",
-   "value": "0x15aa9c0",
-   "ver": "0.5.8",
-   "kind": "BYTE_PATCH_HOLD",
-   "locs": [
-    "src/disc19_repro.rs:1574"
-   ],
-   "sect": ".text",
-   "bytes": "4885c90f84a70600004885c0",
-   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
-   "note": "HOLD — 컨테이너 본문변경으로 정렬 불가(가드 blocked=fail-safe). 가드 없음(수동 판정 필요)",
-   "curated": true
-  },
-  {
-   "name": "INLINE@src/disc19_repro.rs:1487",
-   "value": "0x15aad40",
-   "ver": "0.5.8",
-   "kind": "BYTE_PATCH_HOLD",
-   "locs": [
-    "src/disc19_repro.rs:1487"
-   ],
-   "sect": ".text",
-   "bytes": "0048898d40020000488b8de8",
-   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
-   "note": "HOLD — 컨테이너 본문변경으로 정렬 불가(가드 blocked=fail-safe). 가드 없음(수동 판정 필요)",
-   "curated": true
-  },
-  {
    "name": "HR_AP_FN_RVA",
    "value": "0x15b50a0",
    "ver": "0.5.7(0.5.8 재핀실패)",
@@ -15566,121 +14891,17 @@
    "unresolved": "0.5.8"
   },
   {
-   "name": "INLINE@src/disc19_repro.rs:1572",
-   "value": "0x16171f0",
-   "ver": "0.5.8",
-   "kind": "BYTE_PATCH_HOLD",
-   "locs": [
-    "src/disc19_repro.rs:1572"
-   ],
-   "sect": ".text",
-   "bytes": "2420488bb5e0ff0200488bbd",
-   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
-   "note": "HOLD — 컨테이너 본문변경으로 정렬 불가(가드 blocked=fail-safe). OWNER_MULTI",
-   "curated": true
-  },
-  {
-   "name": "INLINE@src/disc19_repro.rs:1588",
-   "value": "0x177b3e0",
-   "ver": "0.5.8",
-   "kind": "UNCLASSIFIED",
-   "locs": [
-    "src/disc19_repro.rs:1588",
-    "src/disc19_repro.rs:1598"
-   ],
-   "sect": ".text",
-   "bytes": "cef3480f2ae6f30f58e4498b",
-   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
-   "note": "3차 재핀(2026-08-28) — 윈도 유일화/match_mid + 가드 imm 실측",
-   "curated": true
-  },
-  {
-   "name": "INLINE@src/disc19_repro.rs:1589",
-   "value": "0x177b4d0",
-   "ver": "0.5.8",
-   "kind": "UNCLASSIFIED",
-   "locs": [
-    "src/disc19_repro.rs:1589",
-    "src/disc19_repro.rs:1614"
-   ],
-   "sect": ".text",
-   "bytes": "09cef34c0f2aeef3450f58ed",
-   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
-   "note": "3차 재핀(2026-08-28) — 윈도 유일화/match_mid + 가드 imm 실측",
-   "curated": true
-  },
-  {
-   "name": "INLINE@src/disc19_repro.rs:1589",
-   "value": "0x177b530",
-   "ver": "0.5.8",
-   "kind": "UNCLASSIFIED",
-   "locs": [
-    "src/disc19_repro.rs:1589",
-    "src/disc19_repro.rs:1615"
-   ],
-   "sect": ".text",
-   "bytes": "0f89fe0200004889f148d1e9",
-   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
-   "note": "3차 재핀(2026-08-28) — 윈도 유일화/match_mid + 가드 imm 실측",
-   "curated": true
-  },
-  {
-   "name": "INLINE@src/disc19_repro.rs:1588",
-   "value": "0x177b590",
-   "ver": "0.5.8",
-   "kind": "UNCLASSIFIED",
-   "locs": [
-    "src/disc19_repro.rs:1588",
-    "src/disc19_repro.rs:1609"
-   ],
-   "sect": ".text",
-   "bytes": "57c0f3490f2ac60f298424d0",
-   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
-   "note": "3차 재핀(2026-08-28) — 윈도 유일화/match_mid + 가드 imm 실측",
-   "curated": true
-  },
-  {
-   "name": "INLINE@src/disc19_repro.rs:838",
+   "name": "INLINE@src/tfm2_ai_adjust.rs:2214",
    "value": "0x17bbad0",
    "ver": "0.5.8",
    "kind": "UNCLASSIFIED",
    "locs": [
-    "src/disc19_repro.rs:838"
+    "src/tfm2_ai_adjust.rs:2214"
    ],
    "sect": ".text",
    "bytes": "440f29442450660f297c2460",
    "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
-   "note": "3차 재핀(2026-08-28) — 윈도 유일화/match_mid + 가드 imm 실측",
-   "curated": true
-  },
-  {
-   "name": "INLINE@src/disc19_repro.rs:1636",
-   "value": "0x18877b0",
-   "ver": "0.5.8",
-   "kind": "UNCLASSIFIED",
-   "locs": [
-    "src/disc19_repro.rs:1636",
-    "src/disc19_repro.rs:1642",
-    "src/disc19_repro.rs:2292"
-   ],
-   "sect": ".text",
-   "bytes": "0f287c24504881c4f8000000",
-   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
-   "note": "3차 재핀(2026-08-28) — 윈도 유일화/match_mid + 가드 imm 실측",
-   "curated": true
-  },
-  {
-   "name": "INLINE@src/genbuild_repro.rs:59",
-   "value": "0x190e740",
-   "ver": "0.5.8",
-   "kind": "UNCLASSIFIED",
-   "locs": [
-    "src/genbuild_repro.rs:59"
-   ],
-   "sect": ".text",
-   "bytes": "488b453048894439300f1045",
-   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
-   "note": "3차 재핀(2026-08-28) — 윈도 유일화/match_mid + 가드 imm 실측",
+   "note": "3차 재핀(2026-08-28) — 윈도 유일화/match_mid + 가드 imm 실측 | 2026-09-06 낡은 재현모듈 제거로 locs 재지정",
    "curated": true
   },
   {
@@ -15744,35 +14965,6 @@
    "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
   },
   {
-   "name": "INLINE@src/genbuild_repro.rs:162",
-   "value": "0x1b46ae0",
-   "ver": "0.5.8",
-   "kind": "BYTE_PATCH_HOLD",
-   "locs": [
-    "src/genbuild_repro.rs:162"
-   ],
-   "sect": ".text",
-   "bytes": "404600000f1089504600000f",
-   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
-   "note": "HOLD — 컨테이너 본문변경으로 정렬 불가(가드 blocked=fail-safe). OWNER_MULTI",
-   "curated": true
-  },
-  {
-   "name": "INLINE@src/genbuild_repro.rs:73",
-   "value": "0x1bc6f10",
-   "ver": "0.5.7(0.5.8 재핀실패)",
-   "kind": "UNCLASSIFIED",
-   "locs": [
-    "src/genbuild_repro.rs:73"
-   ],
-   "sect": ".text",
-   "bytes": "ca4585c9743a4c8d97e00000",
-   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
-   "curated": true,
-   "unresolved": "0.5.8",
-   "note": "★0.5.8 재핀 실패(2026-09-02) — 자동 3단(바이트 유일검색/skeleton/owner+콜그래프)·지역창 축소·사이트 문맥 대조 전부 동형 클론에 막힘. ghidra-re 로 개별 재규명 필요. ⚠rebase 로 bytes 는 새 exe 기준이라 check 는 PASS 로 보인다 — 이 표식이 유일한 단서."
-  },
-  {
    "name": "RVA_ENGAGE_GATE",
    "value": "0x1c9b33d",
    "ver": "0.5.7(0.5.8 재핀실패)",
@@ -15800,36 +14992,6 @@
    "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
    "note": "HOLD — 컨테이너 본문변경으로 정렬 불가(가드 blocked=fail-safe). OWNER_MULTI",
    "curated": true
-  },
-  {
-   "name": "INLINE@src/genbuild_repro.rs:157",
-   "value": "0x1db1eb0",
-   "ver": "0.5.7(0.5.8 재핀실패)",
-   "kind": "BYTE_PATCH_HOLD",
-   "locs": [
-    "src/genbuild_repro.rs:157"
-   ],
-   "sect": ".text",
-   "bytes": "00488b9dd80a00004885c00f",
-   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
-   "note": "HOLD — 컨테이너 본문변경으로 정렬 불가(가드 blocked=fail-safe). OWNER_MULTI ★0.5.8 재핀 실패(2026-09-02) — 자동 3단(바이트 유일검색/skeleton/owner+콜그래프)·지역창 축소·사이트 문맥 대조 전부 동형 클론에 막힘. ghidra-re 로 개별 재규명 필요. ⚠rebase 로 bytes 는 새 exe 기준이라 check 는 PASS 로 보인다 — 이 표식이 유일한 단서.",
-   "curated": true,
-   "unresolved": "0.5.8"
-  },
-  {
-   "name": "INLINE@src/genbuild_repro.rs:161",
-   "value": "0x1db2c30",
-   "ver": "0.5.7(0.5.8 재핀실패)",
-   "kind": "BYTE_PATCH_HOLD",
-   "locs": [
-    "src/genbuild_repro.rs:161"
-   ],
-   "sect": ".text",
-   "bytes": "ffd0904889c6488b4218c685",
-   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
-   "note": "HOLD — 컨테이너 본문변경으로 정렬 불가(가드 blocked=fail-safe). OWNER_MULTI ★0.5.8 재핀 실패(2026-09-02) — 자동 3단(바이트 유일검색/skeleton/owner+콜그래프)·지역창 축소·사이트 문맥 대조 전부 동형 클론에 막힘. ghidra-re 로 개별 재규명 필요. ⚠rebase 로 bytes 는 새 exe 기준이라 check 는 PASS 로 보인다 — 이 표식이 유일한 단서.",
-   "curated": true,
-   "unresolved": "0.5.8"
   },
   {
    "name": "SIMUNCHUNK_RVA",
@@ -16022,50 +15184,6 @@
    "curated": true,
    "unresolved": "0.5.8",
    "note": "★0.5.8 재핀 실패(2026-09-02) — 자동 3단(바이트 유일검색/skeleton/owner+콜그래프)·지역창 축소·사이트 문맥 대조 전부 동형 클론에 막힘. ghidra-re 로 개별 재규명 필요. ⚠rebase 로 bytes 는 새 exe 기준이라 check 는 PASS 로 보인다 — 이 표식이 유일한 단서."
-  },
-  {
-   "name": "INLINE@src/disc19_repro.rs:1557",
-   "value": "0x2738580",
-   "ver": "0.5.8",
-   "kind": "UNCLASSIFIED",
-   "locs": [
-    "src/disc19_repro.rs:1557"
-   ],
-   "sect": ".text",
-   "bytes": "00000fb685d00000004189c4",
-   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
-   "note": "3차 재핀(2026-08-28) — 윈도 유일화/match_mid + 가드 imm 실측",
-   "curated": true
-  },
-  {
-   "name": "INLINE@src/disc19_repro.rs:1540",
-   "value": "0x27385a0",
-   "ver": "0.5.8",
-   "kind": "UNCLASSIFIED",
-   "locs": [
-    "src/disc19_repro.rs:1540"
-   ],
-   "sect": ".text",
-   "bytes": "888d1d01000083f83f0f87ff",
-   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
-   "note": "3차 재핀(2026-08-28) — 윈도 유일화/match_mid + 가드 imm 실측",
-   "curated": true
-  },
-  {
-   "name": "INLINE@src/disc19_repro.rs:1554",
-   "value": "0x27389c0",
-   "ver": "0.5.8",
-   "kind": "UNCLASSIFIED",
-   "locs": [
-    "src/disc19_repro.rs:1554",
-    "src/disc19_repro.rs:1588",
-    "src/disc19_repro.rs:1613"
-   ],
-   "sect": ".text",
-   "bytes": "7c4183f8010f85d800000041",
-   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
-   "note": "3차 재핀(2026-08-28) — 윈도 유일화/match_mid + 가드 imm 실측",
-   "curated": true
   },
   {
    "name": "ALLOC_RVA",
@@ -16432,33 +15550,6 @@
    "unresolved": "0.5.8"
   },
   {
-   "name": "RVA_GB_ATKCTX_C0690",
-   "value": "0x35efd68",
-   "ver": "0.5.7(0.5.8 재핀실패)",
-   "kind": "UNCLASSIFIED",
-   "locs": [
-    "src/genbuild_repro.rs:699"
-   ],
-   "sect": ".rdata",
-   "bytes": "09010000090100000b010000",
-   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
-   "curated": true,
-   "unresolved": "0.5.8",
-   "note": "★0.5.8 재핀 실패(2026-09-02) — 자동 3단(바이트 유일검색/skeleton/owner+콜그래프)·지역창 축소·사이트 문맥 대조 전부 동형 클론에 막힘. ghidra-re 로 개별 재규명 필요. ⚠rebase 로 bytes 는 새 exe 기준이라 check 는 PASS 로 보인다 — 이 표식이 유일한 단서."
-  },
-  {
-   "name": "RVA_GB_ATKCTX_CB30",
-   "value": "0x364b518",
-   "ver": "0.5.8",
-   "kind": "UNCLASSIFIED",
-   "locs": [
-    "src/genbuild_repro.rs:708"
-   ],
-   "sect": ".rdata",
-   "bytes": "3f0700504407005049070050",
-   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)"
-  },
-  {
    "name": "INLINE@src/tfm2_ai_adjust.rs:6523",
    "value": "0x3658c30",
    "ver": "0.5.8",
@@ -16471,35 +15562,6 @@
    "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
    "note": "3차 재핀(2026-08-28) — 윈도 유일화/match_mid + 가드 imm 실측",
    "curated": true
-  },
-  {
-   "name": "INLINE@src/genbuild_repro.rs:587",
-   "value": "0x3669428",
-   "ver": "0.5.8",
-   "kind": "UNCLASSIFIED",
-   "locs": [
-    "src/genbuild_repro.rs:587"
-   ],
-   "sect": ".rdata",
-   "bytes": "000000006cfd000000006bfa",
-   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
-   "note": "3차 재핀(2026-08-28) — 윈도 유일화/match_mid + 가드 imm 실측",
-   "curated": true
-  },
-  {
-   "name": "INLINE@src/disc19_repro.rs:2340",
-   "value": "0x3886538",
-   "ver": "0.5.7(0.5.8 재핀실패)",
-   "kind": "BYTE_PATCH_HOLD",
-   "locs": [
-    "src/disc19_repro.rs:2340"
-   ],
-   "sect": ".rdata",
-   "bytes": "443070804d30e68053307f80",
-   "method": "bytes 12B find_unique -> 실패시 match_fn/match_mid(_mig 엔진)",
-   "note": "HOLD — 컨테이너 본문변경으로 정렬 불가(가드 blocked=fail-safe). NO_OWNER ★0.5.8 재핀 실패(2026-09-02) — 자동 3단(바이트 유일검색/skeleton/owner+콜그래프)·지역창 축소·사이트 문맥 대조 전부 동형 클론에 막힘. ghidra-re 로 개별 재규명 필요. ⚠rebase 로 bytes 는 새 exe 기준이라 check 는 PASS 로 보인다 — 이 표식이 유일한 단서.",
-   "curated": true,
-   "unresolved": "0.5.8"
   },
   {
    "name": "INLINE@src/tfm2_ai_adjust.rs:6258",
@@ -16638,6 +15700,7 @@
   "src/rva_056.rs",
   "src/cand_filter_repro.rs",
   "wave2_gen.rs",
-  "_backup_pre_refactor_20260715_1829/"
+  "_backup_pre_refactor_20260715_1829/",
+  "src/judge/gen_fns.rs"
  ]
 }

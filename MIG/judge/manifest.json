@@ -1,0 +1,74 @@
+{
+ "ver": "0.5.8",
+ "exe_sha": "4ed3aed08971efd0",
+ "fns": {
+  "steal_score": {
+   "role": "scorer",
+   "status": "todo",
+   "history": [
+    {
+     "ver": "0.5.8",
+     "rva": "0xcbbca0",
+     "size": 269,
+     "date": "2026-09-06",
+     "event": "add"
+    }
+   ],
+   "sym": "game-ai\\src\\plan_legacy\\sub_plan\\steal.rs",
+   "cur": {
+    "rva": "0xcbbca0",
+    "end": "0xcbbdad",
+    "size": 269,
+    "orig_len": 14,
+    "prolog": "56 48 83 ec 20 48 8b 54 24 58 0f b6 41 08",
+    "prolog_insns": [
+     "push rsi",
+     "sub rsp, 0x20",
+     "mov rdx, qword ptr [rsp + 0x58]",
+     "movzx eax, byte ptr [rcx + 8]"
+    ],
+    "reloc": "ok",
+    "jmpin": 0,
+    "n": 70,
+    "sym": "game-ai\\src\\plan_legacy\\sub_plan\\steal.rs",
+    "lines": [
+     27,
+     28
+    ],
+    "callees": [
+     "0x31a37c0"
+    ],
+    "offs": {
+     "0x8": 6,
+     "0x10": 2,
+     "0x40": 2,
+     "0x58": 1,
+     "0x60": 2,
+     "0xb1": 1,
+     "0x1f0": 1,
+     "0x5c0": 2
+    },
+    "vslots": {
+     "0x40": 2,
+     "0x1f0": 1
+    },
+    "imms": {
+     "-0x1869f": 1,
+     "0x20": 4,
+     "0x5a": 1,
+     "0x64": 1,
+     "0x198": 1,
+     "0x1c8": 1,
+     "0x3e8": 1,
+     "0x140cbbce0": 1,
+     "0x140cbbd00": 1,
+     "0x140cbbd4b": 4,
+     "0x140cbbd80": 1,
+     "0x140cbbd91": 1,
+     "0x140cbbd9f": 1,
+     "0x1431a37c0": 2
+    }
+   }
+  }
+ }
+}
