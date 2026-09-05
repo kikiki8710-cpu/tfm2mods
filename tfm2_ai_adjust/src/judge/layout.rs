@@ -139,3 +139,17 @@ pub const SITE_VW_LANE_IMM: usize = 0xd2cd11;        // passive_line MAIN `add r
 pub const SITE_HD_PHASE_EPIC_IMM: usize = 0xccc1f2;  // epic hunt_and_battle `mov word [rax+0x10], imm16`(노브 hd_phase, 원본 1)
 pub const SITE_HD_PHASE_SERPEN_IMM: usize = 0xccc5a2; // serpen 동일
 
+// ── defense_nexus(Plan 17, 0xd2da10) 전용 ── [capstone 디스어셈 2026-09-06, 0.5.8]
+pub const ORDER_F0: usize = 0xf0;                 // p7(오더)+0xf0 u8 — !=0 이면 즉시 code 5 (p3>1 경로)
+pub const ENT_TARGET_H: usize = 0x90;             // 유닛 +0x90 u64 = 공격 목표 핸들(+0x88==1 일 때)
+pub const X_LIST3_PTR: [usize; 3] = [0x10, 0x50, 0x90];   // X + off + side*0x20 : 사이드별 유닛 리스트 3개(ptr)
+pub const X_LIST3_LEN: [usize; 3] = [0x28, 0x68, 0xa8];   //                                          (len)
+// nx_dn_* 바이트패치 사이트 즉치(aiport sites 실측 11곳) — 검증판은 live_imm 로 읽는다
+pub const SITE_DN_NEAR_P1_IMM: usize = 0xd2dc06;  // movabs rax, 120000²+1 (0xd2dc04·0xd2dd30 두 곳 동일값 — 첫 곳)
+pub const SITE_DN_NEAR_IMM: usize = 0xd2df9a;     // movabs r10, 120000²
+pub const SITE_DN_NEXUS_HP_IMM: usize = 0xd2e084; // cmp rax, 50 (4곳 동일값 — 첫 곳)
+pub const SITE_DN_HP_LOW_IMM: usize = 0xd2e1c0;   // cmp [rbp-0x18], 31
+pub const SITE_DN_HP_CRIT_IMM: usize = 0xd2e1ce;  // cmp [rbp-0x18], 21
+pub const SITE_DN_PRED_P1_IMM: usize = 0xd3fc07;  // 0xd3fa80 안 movabs 240000²+1
+pub const SITE_DN_VISION_IMM: usize = 0xd3fc76;   // 0xd3fa80 안 add, 0x78
+

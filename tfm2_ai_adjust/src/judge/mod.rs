@@ -43,6 +43,7 @@ pub mod port {
     pub mod serpen_hunt_battle;
     pub mod passive_line_callees;
     pub mod passive_line;
+    pub mod defense_nexus;
 }
 use gen_fns::*;
 
@@ -111,6 +112,7 @@ impl Stat {
 /// 왜: 포팅의 검증 대상은 "게임 원본" 이 아니라 "바이트패치까지 적용된 실행 이미지" 다. recently_seen 창 0x78 을 정적으로 박았다가
 ///     cfg `vw_check=90` 패치(0x1323a5b) 와 어긋나 5판(2%·22만 건)을 태웠다(2026-09-06). 라이브 승격 시엔 해당 노브를 포팅 인자로 옮긴다.
 #[inline] pub unsafe fn live_imm8(rva_imm: usize, orig: u8) -> u8 { let b = crate::exe_base(); if b == 0 { orig } else { crate::rd_u8(b + rva_imm) } }
+#[inline] pub unsafe fn live_imm64(rva_imm: usize, orig: u64) -> u64 { let b = crate::exe_base(); if b == 0 { orig } else { crate::rd_u64(b + rva_imm).unwrap_or(orig) } }
 #[inline] pub unsafe fn live_imm16(rva_imm: usize, orig: u16) -> u16 { let b = crate::exe_base(); if b == 0 { orig } else { (crate::rd_u8(b + rva_imm) as u16) | ((crate::rd_u8(b + rva_imm + 1) as u16) << 8) } }
 
 #[inline] pub fn live() -> bool { tune("judge_live", 0) != 0 }
@@ -242,6 +244,36 @@ macro_rules! judge_capture {
     };
 }
 
+/// 콜리 반환값(rax) 캡처 — out 버퍼가 아니라 스칼라를 돌려주는 콜리용(예: 틱 메모 캐시 0xc87850 의 플래그 워드).
+macro_rules! judge_capture_ret {
+    ($m:ident, $spec:expr) => {
+        pub mod $m {
+            use std::sync::atomic::{AtomicUsize, AtomicU64, Ordering};
+            use std::cell::Cell;
+            pub static ORIG: AtomicUsize = AtomicUsize::new(0);
+            pub static ST: super::Stat = super::Stat::new();
+            static SEQ: AtomicU64 = AtomicU64::new(0);
+            thread_local! { static LAST: Cell<(u64, u64)> = const { Cell::new((0, 0)) }; }
+            pub fn reset() { LAST.with(|c| c.set((0, 0))); }
+            pub fn take() -> Option<u64> { LAST.with(|c| { let v = c.get(); if v.0 == 0 { None } else { Some(v.1) } }) }
+            pub unsafe extern "C" fn wrap(p1: usize, p2: usize, p3: usize, p4: usize, p5: usize, p6: usize, p7: usize, p8: usize,
+                                          p9: usize, p10: usize, p11: usize, p12: usize) -> usize {
+                let orig = ORIG.load(Ordering::Relaxed);
+                if orig == 0 { return 0; }
+                let f: super::F12 = core::mem::transmute(orig);
+                ST.entered.fetch_add(1, Ordering::Relaxed);
+                let r = f(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12);
+                let seq = SEQ.fetch_add(1, Ordering::Relaxed) + 1;
+                LAST.with(|c| c.set((seq, r as u64)));
+                ST.n.fetch_add(1, Ordering::Relaxed);
+                r
+            }
+        }
+    };
+}
+
+judge_capture_ret!(cap_dn_cache, crate::judge::gen_fns::DN_CACHE);
+judge_hook_out!(defense_nexus_hook, crate::judge::gen_fns::DEFENSE_NEXUS, crate::judge::port::defense_nexus::defense_nexus, crate::judge::port::defense_nexus::defense_nexus_live, crate::judge::cap_dn_cache::reset, false, "judge_live_defense_nexus");
 judge_hook!(steal_hook, crate::judge::gen_fns::STEAL_SCORE, crate::judge::port::steal_score::steal_score, crate::judge::port::steal_score::steal_score, "judge_live_steal_score");
 judge_capture!(cap_ability_pick, crate::judge::gen_fns::ABILITY_PICK);
 judge_hook_out!(epic_hb_hook, crate::judge::gen_fns::EPIC_HUNT_BATTLE, crate::judge::port::epic_hunt_battle::epic_hunt_battle, crate::judge::port::epic_hunt_battle::epic_hunt_battle, crate::judge::cap_ability_pick::reset, false, "judge_live_epic_hunt_battle");
@@ -328,7 +360,7 @@ judge_hook_out!(serpen_hb_hook, crate::judge::gen_fns::SERPEN_HUNT_BATTLE, crate
 
 /// 등록된 훅 전부(status 덤프용). 훅을 늘리면 여기와 install() 에 한 줄씩.
 pub fn stats() -> Vec<(&'static str, &'static Stat)> {
-    vec![(STEAL_SCORE.name, &steal_hook::ST), (ABILITY_PICK.name, &cap_ability_pick::ST), (RECENTLY_SEEN.name, &cap_recent_seen::ST),
+    vec![(STEAL_SCORE.name, &steal_hook::ST), (ABILITY_PICK.name, &cap_ability_pick::ST), (RECENTLY_SEEN.name, &cap_recent_seen::ST), (DN_CACHE.name, &cap_dn_cache::ST), (DEFENSE_NEXUS.name, &defense_nexus_hook::ST),
          (EPIC_HUNT_BATTLE.name, &epic_hb_hook::ST), (SERPEN_HUNT_BATTLE.name, &serpen_hb_hook::ST), (PASSIVE_LINE.name, &passive_line_hook::ST)]
 }
 
@@ -425,6 +457,8 @@ pub unsafe fn install() {
         install_one(&mut log, &EPIC_HUNT_BATTLE, &epic_hb_hook::ORIG, epic_hb_hook::wrap as *const () as usize, "wrap-out");
         install_one(&mut log, &SERPEN_HUNT_BATTLE, &serpen_hb_hook::ORIG, serpen_hb_hook::wrap as *const () as usize, "wrap-out");
         install_one(&mut log, &PASSIVE_LINE, &passive_line_hook::ORIG, passive_line_hook::wrap as *const () as usize, "wrap-out");
+        install_one(&mut log, &DN_CACHE, &cap_dn_cache::ORIG, cap_dn_cache::wrap as *const () as usize, "capture-ret");
+        install_one(&mut log, &DEFENSE_NEXUS, &defense_nexus_hook::ORIG, defense_nexus_hook::wrap as *const () as usize, "wrap-out");
     } else {
         log.push_str("[judge] judge_verify=0 → 훅 미설치(원본)\n");
     }
