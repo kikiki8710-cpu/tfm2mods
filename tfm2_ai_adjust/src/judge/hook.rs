@@ -23,9 +23,12 @@ pub unsafe fn install_wrap_bytes(rva: usize, prolog: &[u8], cap_fn: usize) -> Re
     let stub = stub_reg(VirtualAlloc(0, 128, MEM_CR, RWX), 128, rva);
     if stub == 0 { return Err("VirtualAlloc"); }
     let ret_addr = fn_addr + orig_len;
-    let mut s: Vec<u8> = Vec::with_capacity(orig_len + 12);
+    let mut s: Vec<u8> = Vec::with_capacity(orig_len + 14);
     s.extend_from_slice(prolog);                                                             // 옮긴 원본 프롤로그
-    s.extend_from_slice(&[0x48, 0xb8]); s.extend_from_slice(&ret_addr.to_le_bytes()); s.extend_from_slice(&[0xff, 0xe0]);   // movabs rax, fn+len; jmp rax
+    // ★[2026-09-06 크래시 후 수정] 복귀 점프는 레지스터를 건드리지 않는 `jmp qword ptr [rip+0]` + imm64 로.
+    //   구 `movabs rax, fn+len; jmp rax` 는 옮긴 프롤로그가 rax 를 세팅하는 함수(steal: `movzx eax,[rcx+8]` = phase)에서
+    //   그 값을 파괴해 원본이 엉뚱한 분기를 탔다. detour.rs 의 install_wrap 은 push8 전용이라 같은 문제가 안 드러났을 뿐이다.
+    s.extend_from_slice(&[0xff, 0x25, 0x00, 0x00, 0x00, 0x00]); s.extend_from_slice(&ret_addr.to_le_bytes());   // jmp [rip+0]; dq fn+len
     core::ptr::copy_nonoverlapping(s.as_ptr(), stub as *mut u8, s.len());
     let mut patch = vec![0x90u8; orig_len];
     patch[0] = 0x48; patch[1] = 0xb8; patch[2..10].copy_from_slice(&cap_fn.to_le_bytes()); patch[10] = 0xff; patch[11] = 0xe0;

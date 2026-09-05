@@ -11,7 +11,7 @@
 //!   port\*.rs    포팅 본체. 함수 1개 = 파일 1개, 스켈레톤은 `aiport skeleton <name>` 이 디컴 C 를 동봉해 만든다.
 //!
 //! 동작 모드(cfg 키 — 파서 미지키는 TUNE_TABLE 로 들어오므로 배선 불요):
-//!   judge_verify (기본 1) : 훅 설치. 게임 원본을 실행해 rax 를 얻고 mine 과 **대조만** 한다 → 행동 무변경.
+//!   judge_verify (기본 **0** — 2026-09-06 첫 배포판 기본 1 이었으나 직후 크래시 2회로 원인 분리 전까지 opt-in) : 훅 설치. 게임 원본을 실행해 rax 를 얻고 mine 과 **대조만** 한다.
 //!   judge_live   (기본 0) : mine 이 Some 이면 게임 원본을 건너뛰고 mine 을 반환(대체). None 이면 원본.
 //!   ⚠ 대체(live)는 RNG-free 함수에만 안전하다. 난수를 소비하는 함수는 이중 소비 desync(방법론 메모리 07-23 교훈).
 //!
@@ -47,19 +47,20 @@ pub struct ScorerArgs { pub p1: usize, pub p2: usize, pub p3: usize, pub p4: usi
 pub struct Stat {
     pub n: AtomicU64, pub ok: AtomicU64, pub diff: AtomicU64, pub na: AtomicU64, pub live: AtomicU64,
     pub logged: AtomicU64,          // 파일에 쓴 줄 수(상한)
+    pub entered: AtomicU64,         // wrap 진입 수(게임 호출 전 증가 — n 과 달리 크래시 직전 발화도 센다)
     pub vt_rva: AtomicUsize,        // 진단: 첫 호출에서 읽은 WorldOps vt+VT_WORLD_ENTITY 타깃 RVA(순수 read) — ghidra-re 에 넘길 값
 }
 impl Stat {
     pub const fn new() -> Self {
         Stat { n: AtomicU64::new(0), ok: AtomicU64::new(0), diff: AtomicU64::new(0), na: AtomicU64::new(0), live: AtomicU64::new(0),
-               logged: AtomicU64::new(0), vt_rva: AtomicUsize::new(0) }
+               logged: AtomicU64::new(0), entered: AtomicU64::new(0), vt_rva: AtomicUsize::new(0) }
     }
 }
 
 #[inline] pub fn live() -> bool { tune("judge_live", 0) != 0 }
 
 /// 직접 append(로그 인프라·LOG_ON 과 무관). 디투어 문맥에서 호출되므로 호출 빈도는 record() 가 제한한다.
-fn append_direct(name: &str, s: &str) {
+pub fn append_direct(name: &str, s: &str) {
     if let Some(p) = pth(name) {
         if let Ok(mut f) = fs::OpenOptions::new().create(true).append(true).open(&p) { let _ = std::io::Write::write_all(&mut f, s.as_bytes()); }
     }
@@ -79,6 +80,9 @@ macro_rules! judge_hook {
                 if orig == 0 { return 0; }   // 설치 전 호출은 불가능하지만 방어
                 let f: F12 = core::mem::transmute(orig);
                 let a = super::ScorerArgs { p1, p2, p3, p4, p5, p6, p7, p8 };
+                // ★[2026-09-06 크래시 후] 진입 추적: 첫 3회는 게임 호출 **전에** 파일에 남긴다(카운터는 호출 뒤에 올라 "발화했는데 죽었는지"를 못 가렸다).
+                let en = ST.entered.fetch_add(1, Ordering::Relaxed) + 1;
+                if en <= 3 { super::append_direct(&format!("judge_{}.txt", $spec.name), &format!("[{} ENTER #{}] p1={:#x} p5={:#x} p6={:#x} p7={:#x}\n", $spec.name, en, p1, p5, p6, p7)); }
                 let mine: Option<i64> = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| $mine(&a))).unwrap_or(None);
                 if super::live() {
                     if let Some(v) = mine { ST.live.fetch_add(1, Ordering::Relaxed); return v as usize; }
@@ -119,7 +123,7 @@ pub unsafe fn record(spec: &FnSpec, st: &Stat, game: i64, mine: Option<i64>, a: 
 }
 
 pub fn write_status() {
-    let mut s = format!("=== judge 계층 검증 누적 (게임 {} · gen_fns {}) judge_verify={} judge_live={} ===\n", GAME_VER, GAME_VER, tune("judge_verify", 1), tune("judge_live", 0));
+    let mut s = format!("=== judge 계층 검증 누적 (게임 {} · gen_fns {}) judge_verify={} judge_live={} ===\n", GAME_VER, GAME_VER, tune("judge_verify", 0), tune("judge_live", 0));
     for (name, st) in stats() {
         s.push_str(&format!("{:<16} n={} ok={} diff={} na={} live={} | vt_rva={:#x}\n", name,
             st.n.load(Ordering::Relaxed), st.ok.load(Ordering::Relaxed), st.diff.load(Ordering::Relaxed),
@@ -134,7 +138,7 @@ static INSTALLED: AtomicBool = AtomicBool::new(false);
 /// 로드 시점 1회(훅 설치 블록 끝, cfg 로드 후). 실패해도 게임 무영향(미설치 = 원본).
 pub unsafe fn install() {
     if INSTALLED.swap(true, Ordering::Relaxed) { return; }
-    let verify = tune("judge_verify", 1) != 0;
+    let verify = tune("judge_verify", 0) != 0;
     let mut log = format!("judge 계층: 게임 {} · 등록 {}함수 · judge_verify={} judge_live={}\n", GAME_VER, ALL.len(), verify as u8, tune("judge_live", 0));
     if verify {
         match hook::install_wrap_bytes(STEAL_SCORE.rva, STEAL_SCORE.prolog, steal_hook::wrap as *const () as usize) {
