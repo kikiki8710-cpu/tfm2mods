@@ -963,7 +963,7 @@
   },
   "defense_nexus": {
    "role": "plan_handler",
-   "status": "todo",
+   "status": "verified",
    "history": [
     {
      "ver": "0.5.8",
@@ -971,6 +971,13 @@
      "size": 2104,
      "date": "2026-09-06",
      "event": "add"
+    },
+    {
+     "ver": "0.5.8",
+     "rva": "0xd2da10",
+     "date": "2026-09-06",
+     "event": "mark:todo→verified",
+     "note": "2026-09-06 08:25 replay 190,220/190,220 DIFF=0 (cache 0xc87850 rax capture)"
     }
    ],
    "sym": "game-ai\\src\\plan_legacy\\old\\defense_nexus.rs",
@@ -1120,7 +1127,7 @@
   },
   "dn_cache": {
    "role": "helper",
-   "status": "todo",
+   "status": "ported",
    "history": [
     {
      "ver": "0.5.8",
@@ -1128,6 +1135,13 @@
      "size": 610,
      "date": "2026-09-06",
      "event": "add"
+    },
+    {
+     "ver": "0.5.8",
+     "rva": "0xc87850",
+     "date": "2026-09-06",
+     "event": "mark:todo→ported",
+     "note": "capture-ret only (0xd3fe50 needs dyn +0xe8 port)"
     }
    ],
    "sym": "(AI 계층 census 밖 — Location 없음)",
