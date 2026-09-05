@@ -80,11 +80,16 @@ pub unsafe fn passive_line(a: &Args8) -> Option<MpOut> {
                     let other = 1 - side;
                     let lane_o = lanes + (other as usize) * LANE_STRIDE;
                     let mut cnt: u32 = 0; let mut bits: u64 = 0x100_0000;
+                    // 진단(DIFF 원인 분리): W/H·tick·적 3/4 좌표 — t5 상위비트·t2 상위비트·t10/t11
+                    { let cfg = rd_u64(g.0 + G_CFG)? as usize; tr(5, 0x100 | phase as u64 | ((rd_u64(cfg + 0x12b8)? >> 10) << 12) | ((rd_u64(cfg + 0x12c0)? >> 10) << 32)); }
+                    tr(2, 0x100 | sf as u64 | (tick.min(0xf_ffff_ffff) << 12));
                     for r in 0..5u32 {
                         let e = w.roster(other, r)?;
                         if e == 0 { continue; }
                         bits |= 1 << (16 + r);
-                        if !cal::in_region(g.0, rd_u64(e + ENT_X)?, rd_u64(e + ENT_Y)?)? { continue; }
+                        let (ex, ey) = (rd_u64(e + ENT_X)?, rd_u64(e + ENT_Y)?);
+                        if r >= 3 { tr(7 + r as usize, 0x1_0000_0000_0000 | (ex.min(0xf_ffff) ) | (ey.min(0xf_ffff) << 24)); }   // t10/t11 = 적3/적4 (x | y<<24)
+                        if !cal::in_region(g.0, ex, ey)? { continue; }
                         bits |= 1 << (8 + r);
                         let lp = cal::lane_pred(lane_o, w.data, w.vt, p5, e)?; if lp != 0 { bits |= 1 << r; }
                         cnt += lp as u32;
