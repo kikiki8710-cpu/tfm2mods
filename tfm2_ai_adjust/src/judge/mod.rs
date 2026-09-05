@@ -266,13 +266,25 @@ pub mod cap_recent_seen {
                 let tbl: Vec<String> = (0..5usize).map(|i| format!("{}", crate::rd_u64(p1 + 0x1e0 + i * 8).unwrap_or(u64::MAX) as i64)).collect();
                 let wn: Vec<String> = (0..5usize).map(|i| format!("{:#x}", crate::rd_u64(p2 + 0xec90 + i * 8).unwrap_or(0))).collect();
                 let rf = |off: usize| if rec != 0 && rec != usize::MAX { crate::rd_u64(rec + off).unwrap_or(0) } else { 0 };
+                // ★진단 전용 FFI 프로브(cfg judge_ffi_probe=1 일 때만): 게임의 순수 리더 3종을 같은 인자로 직접 불러 내 재현과 나란히 찍는다.
+                //   호출 대상은 RVA 가 정적 규명값과 정확히 일치할 때만(0x1851b50 = 스캔 / 0x1847490 = visible / 0x1851f10 = tick). 전부 leaf·부수효과 없음.
+                //   CLAUDE.md §3 의 "재현에 FFI 금지" 는 포팅 본체 규칙 — 이건 검증 로그 한 줄이며 기본 OFF.
+                let mut probe = String::new();
+                if crate::tune("judge_ffi_probe", 0) != 0 && rva(t150) == 0x1851b50 && rva(tf8) == 0x1847490 && rva(t28) == 0x1851f10 && side < 2 {
+                    type F3 = unsafe extern "C" fn(usize, usize, usize) -> usize;
+                    let f150: F3 = core::mem::transmute(t150); let ff8: F3 = core::mem::transmute(tf8); let f28: F3 = core::mem::transmute(t28);
+                    let grec = f150(p2, h as usize, 0); let gvis = ff8(p2, side as usize, h as usize) & 0xff; let gtick = f28(p2, 0, 0);
+                    let gidx = if grec != 0 { crate::rd_u32(grec + 0x9c0) } else { 0xffff };
+                    let glast = if grec != 0 && gidx < 8 { crate::rd_u64(p1 + 0x1e0 + gidx as usize * 8).unwrap_or(u64::MAX) } else { u64::MAX };
+                    probe = format!(" | PROBE game: rec={:#x} idx={} last={} vis={} tick={}", grec, gidx, glast as i64, gvis, gtick);
+                }
                 super::append_direct("judge_recently_seen.txt", &format!(
-                    "[recently_seen {}] game={} mine={} | team={:#x} data={:#x} vt={:#x}(rva {:#x}) rec_self={:#x} ent={:#x} | h={:#x} side={} vis={:?} rec={:#x} idx={} last={} tick={} margin={} | slots +28={:#x}[{:016x}] +f8={:#x}[{:016x}] +150={:#x}[{:016x}] entry[{:016x}] | w+ec90..={} | team.last[0..5]={} | rectbl base={:#x} cnt={} | rec.9c0={} .9c8={} .9d0={} .930={}\n",
+                    "[recently_seen {}] game={} mine={} | team={:#x} data={:#x} vt={:#x}(rva {:#x}) rec_self={:#x} ent={:#x} | h={:#x} side={} vis={:?} rec={:#x} idx={} last={} tick={} margin={} | slots +28={:#x}[{:016x}] +f8={:#x}[{:016x}] +150={:#x}[{:016x}] entry[{:016x}] | w+ec90..={} | team.last[0..5]={} | rectbl base={:#x} cnt={} | rec.9c0={} .9c8={} .9d0={} .930={}{}\n",
                     if agree { "OK" } else { "DIFF" }, game, mine, p1, p2, p3, rva(p3), p4, p5, h, side, vis, rec, idx, last, tick, margin,
                     rva(t28), b8(t28), rva(tf8), b8(tf8), rva(t150), b8(t150), b8(base + 0x1323a00),
                     wn.join(","), tbl.join(","),
                     crate::rd_u64(p2 + 0x858).unwrap_or(0), crate::rd_u64(p2 + 0x860).unwrap_or(0),
-                    rf(0x9c0) & 0xffff_ffff, rf(0x9c8), rf(0x9d0), rf(0x930)));
+                    rf(0x9c0) & 0xffff_ffff, rf(0x9c8), rf(0x9d0), rf(0x930), probe));
             }
         }
         r
