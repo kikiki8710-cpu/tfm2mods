@@ -35,6 +35,7 @@ pub mod gen_fns;
 pub mod layout;
 pub mod world;
 pub mod hook;
+pub mod laycheck;
 pub mod port {
     pub mod steal_score;
     pub mod hunt_battle;
@@ -115,7 +116,7 @@ impl Stat {
 #[inline] pub fn live() -> bool { tune("judge_live", 0) != 0 }
 /// ★함수별 live 게이트: 마스터 `judge_live=1` **그리고** `judge_live_<fn>` = 1(live: 원본 건너뛰고 mine) / 2(shadow: 원본도 돌려 대조 기록하되 **mine 을 반환**).
 /// shadow 는 RNG-free 함수에만(원본 실행이 부수효과 없을 때). 첫 승격은 shadow 로 시작해 DIFF 계측을 유지한다.
-#[inline] pub fn live_mode(key: &str) -> i64 { if tune("judge_live", 0) == 0 { 0 } else { tune(key, 0) } }
+#[inline] pub fn live_mode(key: &str) -> i64 { if tune("judge_live", 0) == 0 || !laycheck::ok_for_live() { 0 } else { tune(key, 0) } }   // layout FAIL 이면 live 전부 차단
 
 /// 포팅 내부 추적값(DIFF 원인 분리용). 포팅이 `tr(i, v)` 로 채우고 record 가 DIFF/NA 줄에 같이 찍는다. thread-local·고정배열(alloc 없음).
 thread_local! { static TRACE: std::cell::Cell<[u64; 12]> = const { std::cell::Cell::new([0; 12]) }; }
@@ -344,7 +345,7 @@ pub unsafe fn record(spec: &FnSpec, st: &Stat, game: i64, mine: Option<i64>, a: 
         Some(_) => { st.diff.fetch_add(1, Ordering::Relaxed); "DIFF" }
     };
     if n == 1 {
-        if let Some(w) = world::World::from_holder(a.p6) { st.vt_rva.store(w.slot_target_rva(layout::VT_WORLD_ENTITY), Ordering::Relaxed); }
+        if let Some(w) = world::World::from_holder(a.p6) { st.vt_rva.store(w.slot_target_rva(layout::VT_WORLD_ENTITY), Ordering::Relaxed); laycheck::run_once(&w); }
     }
     if sample_line(st, n, verdict) {
         let tag = if ptr_ok(a.p7) { rd_u8(a.p7 + layout::SA_TAG) } else { 0xff };
@@ -358,6 +359,7 @@ pub unsafe fn record(spec: &FnSpec, st: &Stat, game: i64, mine: Option<i64>, a: 
 
 pub unsafe fn record_out(spec: &FnSpec, st: &Stat, out: usize, mine: Option<MpOut>, a: &ScorerArgs) {
     let n = st.n.fetch_add(1, Ordering::Relaxed) + 1;
+    if n == 1 { if let Some(w) = world::World::from_holder(a.p6) { laycheck::run_once(&w); } }
     let verdict = match mine {
         None => { st.na.fetch_add(1, Ordering::Relaxed); "NA" }
         Some(ref m) => match compare_out(out, m) {
@@ -383,7 +385,8 @@ pub unsafe fn record_out(spec: &FnSpec, st: &Stat, out: usize, mine: Option<MpOu
 }
 
 pub fn write_status() {
-    let mut s = format!("=== judge 계층 검증 누적 (게임 {}) judge_verify={} judge_live={} ===\n", GAME_VER, tune("judge_verify", 0), tune("judge_live", 0));
+    let lay = match laycheck::STATE.load(Ordering::Relaxed) { 0 => "미실행", 1 => "PASS", 2 => "FAIL(live 차단)", _ => "실행불가" };
+    let mut s = format!("=== judge 계층 검증 누적 (게임 {}) judge_verify={} judge_live={} layout={} ===\n", GAME_VER, tune("judge_verify", 0), tune("judge_live", 0), lay);
     for (name, st) in stats() {
         s.push_str(&format!("{:<20} entered={} n={} ok={} diff={} na={} live={} knob_eff={} | vt_rva={:#x}\n", name,
             st.entered.load(Ordering::Relaxed), st.n.load(Ordering::Relaxed), st.ok.load(Ordering::Relaxed), st.diff.load(Ordering::Relaxed),
@@ -412,6 +415,7 @@ pub unsafe fn install() {
     let verify = tune("judge_verify", 0) != 0;
     // 판단 파일은 프로세스마다 새로(누적되면 지난 판 DIFF 가 섞여 오독 — 03:05 실사고)
     for s in ALL { if let Some(p) = pth(&format!("judge_{}.txt", s.name)) { let _ = fs::remove_file(p); } }
+    if let Some(p) = pth("judge_layout.txt") { let _ = fs::remove_file(p); }
     let mut log = format!("judge 계층: 게임 {} · 등록 {}함수 · judge_verify={} judge_live={}\n", GAME_VER, ALL.len(), verify as u8, tune("judge_live", 0));
     if verify {
         install_one(&mut log, &STEAL_SCORE, &steal_hook::ORIG, steal_hook::wrap as *const () as usize, "wrap");
