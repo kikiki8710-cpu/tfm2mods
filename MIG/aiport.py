@@ -303,6 +303,80 @@ def cmd_status(a):
         print('★ EDITED 였던 ported/verified 함수는 status=stale 로 내렸다. 재포팅 후 status 를 손으로 올릴 것.')
 
 
+LAYOUT_RS = os.path.join(os.path.dirname(GEN_RS), 'layout.rs')
+
+
+def layout_consts(path=LAYOUT_RS):
+    """layout.rs 의 `pub const NAME: <int> = <lit>;` → {value: [names]} (usize/u64/i64/u8/u16/u32)."""
+    txt = io.open(path, encoding='utf-8').read()
+    out = {}
+    for m_ in re.finditer(r'pub const ([A-Z0-9_]+):\s*(?:usize|u64|i64|u8|u16|u32|i32)\s*=\s*(0x[0-9a-fA-F_]+|\d+)\s*;', txt):
+        v = int(m_.group(2).replace('_', ''), 0)
+        out.setdefault(v, []).append(m_.group(1))
+    return out
+
+
+def offs_diff(old_offs, new_offs, consts):
+    """구/신 필드오프셋 히스토그램 대조. 반환 (drops, shifts, others)
+    drops  = layout 상수 값인데 신에서 횟수가 줄어든 것 [(val, names, old, new)]
+    shifts = drop 된 값 근처(±8..±0x40, 8 단위)에서 신에만 새로 생긴 값 [(val, cand, delta)]
+    others = layout 과 무관한데 사라지거나 새로 생긴 오프셋 수"""
+    o = {int(k, 16): c for k, c in old_offs.items()}
+    n = {int(k, 16): c for k, c in new_offs.items()}
+    drops, shifts = [], []
+    for v, c in sorted(o.items()):
+        if v in consts and n.get(v, 0) < c:
+            drops.append((v, consts[v], c, n.get(v, 0)))
+            for d in (8, -8, 16, -16, 24, -24, 32, -32, 40, -40, 48, -48, 56, -56, 64, -64):
+                cand = v + d
+                if cand > 0 and cand not in o and n.get(cand, 0) >= c - n.get(v, 0):
+                    shifts.append((v, cand, d)); break
+    others = sum(1 for v in set(o) | set(n) if v not in consts and o.get(v, 0) != n.get(v, 0))
+    return drops, shifts, others
+
+
+def cmd_layout(a):
+    """★주간 오프셋 검사(정적): 매니페스트 cur.offs(= 현재 포팅이 성립한 버전의 필드오프셋 히스토그램) vs 새 exe 의 같은 함수.
+    layout.rs 상수 값이 새 exe 에서 줄어들면 DROP(그 상수가 밀렸을 가능성), 근처에 새로 생긴 값을 SHIFT 후보로 찍는다.
+    laycheck.rs(런타임·vt 슬롯)의 정적 짝. 함수 짝은 aidiff(패닉 Location)로 맞춘다. `status --apply` **전에** 돌릴 것(적용하면 baseline 이 새 값으로 바뀐다)."""
+    m = load_man()
+    consts = layout_consts()
+    in_, cn = aidiff.load(a.new, 'game-ai')
+    old_exe = a.old
+    pairs = None
+    if old_exe:
+        io_, co = aidiff.load(old_exe, 'game-ai')
+        pairs, _, _ = aidiff.pair(co, cn)
+    tot_drop = 0
+    print('layout.rs 상수 %d개 · 함수 %d개 · 신 exe %s' % (len(consts), len(m['fns']), in_.sha))
+    for name, e in sorted(m['fns'].items()):
+        cur = e['cur']; old_offs = cur.get('offs') or {}
+        rva = int(cur['rva'], 16)
+        if pairs is not None:
+            ko = io_.owner(rva)
+            if not ko or ko not in pairs:
+                print('  %-22s 짝 없음(구 census 밖 또는 삭제)' % name); continue
+            kn = pairs[ko][0]
+        else:
+            kn = in_.owner(rva)      # 같은 exe(자기검사) 또는 RVA 불변 가정
+            if not kn or kn[0] != rva:
+                print('  %-22s 신 exe 에 같은 RVA 함수 없음 — --old <구exe> 로 짝을 맞출 것' % name); continue
+        v = cn.get(kn)
+        if not v:
+            print('  %-22s 신 census 항목 없음' % name); continue
+        new_offs = {'0x%x' % k: c for k, c in v['offs'].items() if k >= 0}
+        drops, shifts, others = offs_diff(old_offs, new_offs, consts)
+        tot_drop += len(drops)
+        mark = '★' if drops else ' '
+        print('%s %-22s %s→%#x  layout 상수 사용 %d종 · DROP %d · 기타 변동 %d' % (
+            mark, name, cur['rva'], kn[0], sum(1 for k in old_offs if int(k, 16) in consts), len(drops), others))
+        for val, names, oc, nc in drops:
+            sh = [x for x in shifts if x[0] == val]
+            hint = ('  ⟹ SHIFT 후보 %#x(%+d)' % (sh[0][1], sh[0][2])) if sh else ''
+            print('      DROP %#x %s: %d→%d%s' % (val, '/'.join(names), oc, nc, hint))
+    print('⟹ DROP %d — 0 이면 정적으로는 오프셋 이동 징후 없음(런타임 judge_layout.txt 와 함께 판정). DROP 은 layout.rs 재확인 → 포팅 해당 줄 → 리플레이 DIFF.' % tot_drop)
+
+
 def cmd_mark(a):
     """status 를 손으로 올린다(todo → ported → verified). stale 강등은 status --apply 가 자동으로 한다."""
     m = load_man()
@@ -359,6 +433,7 @@ def main():
     p = sp.add_parser('status'); p.add_argument('--old', required=True); p.add_argument('--new', default=GAME_EXE); p.add_argument('--apply', action='store_true'); p.set_defaults(f=cmd_status)
     p = sp.add_parser('mark'); p.add_argument('name'); p.add_argument('status'); p.add_argument('--note', default=''); p.set_defaults(f=cmd_mark)
     p = sp.add_parser('list'); p.set_defaults(f=cmd_list)
+    p = sp.add_parser('layout'); p.add_argument('--new', default=GAME_EXE); p.add_argument('--old', default=None, help='구 exe(함수 짝 맞춤). 생략 = 같은 RVA 가정(자기검사)'); p.set_defaults(f=cmd_layout)
     p = sp.add_parser('sites'); p.add_argument('--table', default=None); p.add_argument('--extra', nargs='*', help='name:rva:size (콜리 등 매니페스트 밖)'); p.set_defaults(f=cmd_sites)
     a = ap.parse_args()
     a.f(a)
