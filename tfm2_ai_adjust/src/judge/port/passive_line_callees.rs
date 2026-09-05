@@ -44,8 +44,10 @@ pub unsafe fn in_lane(g: usize, x: u64, y: u64, lane: u8) -> Option<bool> {
     Some(match lane {
         1 => ad < LANE_BAND,
         _ => {
-            let (lo_x, lo_c) = (w.wrapping_sub(INNER_SPAN) >> 1, h.wrapping_sub(INNER_SPAN) >> 1);
-            let inner = lo_x <= x && x <= lo_x.wrapping_add(INNER_SPAN) && lo_c <= c && c <= lo_c.wrapping_add(INNER_SPAN);
+            // ★inner 띠는 (x, **y**) 로 판정한다 — c(=H−y) 가 아니다. 디스어셈 0x1453332 `cmp r8(y), r9((H−0xabe00)>>1)` 실측.
+            //   (ghidra-re 의사코드는 c 로 적혀 있었고, 그대로 옮긴 첫 판에서 미드 카운트 경계 DIFF 2,018건이 났다.)
+            let (lo_x, lo_y) = (w.wrapping_sub(INNER_SPAN) >> 1, h.wrapping_sub(INNER_SPAN) >> 1);
+            let inner = lo_x <= x && x <= lo_x.wrapping_add(INNER_SPAN) && lo_y <= y && y <= lo_y.wrapping_add(INNER_SPAN);
             let (hi, lo) = if lane == 0 { (c, x) } else { (x, c) };          // 0: c>=x(위) / 2: x>=c(아래)
             let base = hi >= lo && hi >= BASE_R && (hi - lo) >= LANE_BAND;
             if inner { base && (hi - lo) <= INNER_BAND } else { base }
