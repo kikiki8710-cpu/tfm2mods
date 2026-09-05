@@ -86,7 +86,7 @@
   },
   "epic_hunt_battle": {
    "role": "plan_handler",
-   "status": "todo",
+   "status": "ported",
    "history": [
     {
      "ver": "0.5.8",
@@ -94,6 +94,13 @@
      "size": 591,
      "date": "2026-09-06",
      "event": "add"
+    },
+    {
+     "ver": "0.5.8",
+     "rva": "0xccc010",
+     "date": "2026-09-06",
+     "event": "mark:todo→ported",
+     "note": "2026-09-06 포팅·verify 훅 설치. 3판 표본 0(Plan 13 미발생). live 금지(ability_pick 캡처 의존)"
     }
    ],
    "sym": "game-ai\\src\\plan_legacy\\old\\epic\\hunt_and_battle.rs",
@@ -194,7 +201,7 @@
   },
   "serpen_hunt_battle": {
    "role": "plan_handler",
-   "status": "todo",
+   "status": "ported",
    "history": [
     {
      "ver": "0.5.8",
@@ -202,6 +209,13 @@
      "size": 591,
      "date": "2026-09-06",
      "event": "add"
+    },
+    {
+     "ver": "0.5.8",
+     "rva": "0xccc3c0",
+     "date": "2026-09-06",
+     "event": "mark:todo→ported",
+     "note": "2026-09-06 동상(Plan 15)"
     }
    ],
    "sym": "game-ai\\src\\plan_legacy\\old\\serpen\\hunt_and_battle.rs",
