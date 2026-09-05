@@ -223,6 +223,7 @@ pub mod cap_recent_seen {
     pub static ORIG: AtomicUsize = AtomicUsize::new(0);
     pub static ST: super::Stat = super::Stat::new();
     static LOGGED: AtomicU64 = AtomicU64::new(0);
+    static OKLOG: AtomicU64 = AtomicU64::new(0);
     #[derive(Clone, Copy)] pub struct Cap { pub ent: usize, pub game: u8, pub mine: u8, pub last: u64, pub tick: u64 }
     const Z: Cap = Cap { ent: 0, game: 0, mine: 0, last: 0, tick: 0 };
     thread_local! { static RING: Cell<([Cap; 8], usize)> = const { Cell::new(([Z; 8], 0)) }; }
@@ -242,19 +243,36 @@ pub mod cap_recent_seen {
         let tick = crate::rd_u64(p2 + super::layout::W_TICK).unwrap_or(0);
         RING.with(|c| { let (mut a, n) = c.get(); a[n % 8] = Cap { ent: p5, game, mine, last, tick }; c.set((a, n + 1)); });
         ST.n.fetch_add(1, Ordering::Relaxed);
+        let margin = (last.wrapping_add(0x78) as i64).wrapping_sub(tick as i64);
+        let agree = mine != 0xff && (game != 0) == (mine != 0);
         if mine == 0xff { ST.na.fetch_add(1, Ordering::Relaxed); }
-        else if (game != 0) == (mine != 0) { ST.ok.fetch_add(1, Ordering::Relaxed); }
-        else {
-            ST.diff.fetch_add(1, Ordering::Relaxed);
-            if LOGGED.fetch_add(1, Ordering::Relaxed) < 60 {
+        else if agree { ST.ok.fetch_add(1, Ordering::Relaxed); }
+        else { ST.diff.fetch_add(1, Ordering::Relaxed); }
+        // 경계 표본: 기록 경로(mine==2)에서 여유 30~70 인 OK 도 남긴다(게임 임계 실측용) + DIFF 는 ≤60줄
+        let want = if mine == 0xff { false } else if !agree { LOGGED.fetch_add(1, Ordering::Relaxed) < 60 } else { mine == 2 && (30..=70).contains(&margin) && OKLOG.fetch_add(1, Ordering::Relaxed) < 12 };
+        if want {
+            {
                 let h = crate::rd_u64(p5 + super::layout::ENT_HANDLE).unwrap_or(0);
                 let side = crate::rd_u64(p4 + super::layout::P5_SIDE).unwrap_or(99);
                 let w = super::world::World { x: 0, data: p2, vt: p3 };
                 let vis = w.visible(side, h); let rec = w.roster_rec(h).unwrap_or(usize::MAX);
                 let idx = if rec != 0 && rec != usize::MAX { crate::rd_u32(rec + super::layout::REC_ROLE) } else { 0xffff };
+                // 런타임 실체 덤프: vt RVA·슬롯 타깃 RVA(+첫 8B — 런타임 패치 탐지)·tick 이웃·적팀 last 표·레코드 표 헤더·rec 필드
+                let base = crate::exe_base();
+                let rva = |a: usize| if base != 0 && a > base && a - base < 0x8000000 { a - base } else { 0 };
+                let tgt = |slot: usize| crate::rd_u64(p3 + slot).unwrap_or(0) as usize;
+                let (t28, tf8, t150) = (tgt(0x28), tgt(0xf8), tgt(0x150));
+                let b8 = |a: usize| crate::rd_u64(a).unwrap_or(0);
+                let tbl: Vec<String> = (0..5usize).map(|i| format!("{}", crate::rd_u64(p1 + 0x1e0 + i * 8).unwrap_or(u64::MAX) as i64)).collect();
+                let wn: Vec<String> = (0..5usize).map(|i| format!("{:#x}", crate::rd_u64(p2 + 0xec90 + i * 8).unwrap_or(0))).collect();
+                let rf = |off: usize| if rec != 0 && rec != usize::MAX { crate::rd_u64(rec + off).unwrap_or(0) } else { 0 };
                 super::append_direct("judge_recently_seen.txt", &format!(
-                    "[recently_seen DIFF] game={} mine={} | team={:#x} data={:#x} vt={:#x} rec_self={:#x} ent={:#x} | h={:#x} side={} vis={:?} rec={:#x} idx={} last={} tick={} last+0x78-tick={}\n",
-                    game, mine, p1, p2, p3, p4, p5, h, side, vis, rec, idx, last, tick, (last.wrapping_add(0x78) as i64).wrapping_sub(tick as i64)));
+                    "[recently_seen {}] game={} mine={} | team={:#x} data={:#x} vt={:#x}(rva {:#x}) rec_self={:#x} ent={:#x} | h={:#x} side={} vis={:?} rec={:#x} idx={} last={} tick={} margin={} | slots +28={:#x}[{:016x}] +f8={:#x}[{:016x}] +150={:#x}[{:016x}] entry[{:016x}] | w+ec90..={} | team.last[0..5]={} | rectbl base={:#x} cnt={} | rec.9c0={} .9c8={} .9d0={} .930={}\n",
+                    if agree { "OK" } else { "DIFF" }, game, mine, p1, p2, p3, rva(p3), p4, p5, h, side, vis, rec, idx, last, tick, margin,
+                    rva(t28), b8(t28), rva(tf8), b8(tf8), rva(t150), b8(t150), b8(base + 0x1323a00),
+                    wn.join(","), tbl.join(","),
+                    crate::rd_u64(p2 + 0x858).unwrap_or(0), crate::rd_u64(p2 + 0x860).unwrap_or(0),
+                    rf(0x9c0) & 0xffff_ffff, rf(0x9c8), rf(0x9d0), rf(0x930)));
             }
         }
         r
