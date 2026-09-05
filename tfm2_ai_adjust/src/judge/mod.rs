@@ -212,12 +212,59 @@ macro_rules! judge_capture {
 judge_hook!(steal_hook, crate::judge::gen_fns::STEAL_SCORE, crate::judge::port::steal_score::steal_score);
 judge_capture!(cap_ability_pick, crate::judge::gen_fns::ABILITY_PICK);
 judge_hook_out!(epic_hb_hook, crate::judge::gen_fns::EPIC_HUNT_BATTLE, crate::judge::port::epic_hunt_battle::epic_hunt_battle, crate::judge::cap_ability_pick::reset, false);
-judge_hook_out!(passive_line_hook, crate::judge::gen_fns::PASSIVE_LINE, crate::judge::port::passive_line::passive_line, crate::judge::tr_reset, false);
+judge_hook_out!(passive_line_hook, crate::judge::gen_fns::PASSIVE_LINE, crate::judge::port::passive_line::passive_line, crate::judge::cap_recent_seen::reset, false);
+
+/// recently_seen(0x1323a00) 캡처(검증 전용) — 게임 콜리를 그대로 돌리고, **같은 순간**에 내 재현(lane_pred)을 같은 인자로 계산해
+/// (게임 반환, 내 반환, last_seen, tick) 을 thread-local 링(8)에 남긴다. 부모(passive_line) 포팅이 적별로 꺼내 대조한다.
+/// 용도 = "코드는 같은데 결과가 다르다" 를 ①그 순간에도 다르다(로직 오독) / ②그 순간엔 같고 나중(부모 원본 실행 후) 읽으면 다르다(부수효과) 로 가른다.
+pub mod cap_recent_seen {
+    use std::sync::atomic::{AtomicUsize, AtomicU64, Ordering};
+    use std::cell::Cell;
+    pub static ORIG: AtomicUsize = AtomicUsize::new(0);
+    pub static ST: super::Stat = super::Stat::new();
+    static LOGGED: AtomicU64 = AtomicU64::new(0);
+    #[derive(Clone, Copy)] pub struct Cap { pub ent: usize, pub game: u8, pub mine: u8, pub last: u64, pub tick: u64 }
+    const Z: Cap = Cap { ent: 0, game: 0, mine: 0, last: 0, tick: 0 };
+    thread_local! { static RING: Cell<([Cap; 8], usize)> = const { Cell::new(([Z; 8], 0)) }; }
+    pub fn reset() { RING.with(|c| { let mut v = c.get(); v.1 = 0; c.set(v); }); }
+    /// 리셋 이후 이 스레드에서 ent 로 불린 마지막 캡처.
+    pub fn find(ent: usize) -> Option<Cap> { RING.with(|c| { let (a, n) = c.get(); a[..n.min(8)].iter().rev().find(|e| e.ent == ent).copied() }) }
+    pub unsafe extern "C" fn wrap(p1: usize, p2: usize, p3: usize, p4: usize, p5: usize, p6: usize, p7: usize, p8: usize,
+                                  p9: usize, p10: usize, p11: usize, p12: usize) -> usize {
+        let orig = ORIG.load(Ordering::Relaxed);
+        if orig == 0 { return 0; }
+        let f: super::F12 = core::mem::transmute(orig);
+        ST.entered.fetch_add(1, Ordering::Relaxed);
+        let r = f(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12);
+        let game = (r & 0xff) as u8;
+        let res: Option<(u8, u64)> = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| crate::judge::port::passive_line_callees::lane_pred(p1, p2, p3, p4, p5))).unwrap_or(None);
+        let (mine, last) = res.unwrap_or((0xff, 0));
+        let tick = crate::rd_u64(p2 + super::layout::W_TICK).unwrap_or(0);
+        RING.with(|c| { let (mut a, n) = c.get(); a[n % 8] = Cap { ent: p5, game, mine, last, tick }; c.set((a, n + 1)); });
+        ST.n.fetch_add(1, Ordering::Relaxed);
+        if mine == 0xff { ST.na.fetch_add(1, Ordering::Relaxed); }
+        else if (game != 0) == (mine != 0) { ST.ok.fetch_add(1, Ordering::Relaxed); }
+        else {
+            ST.diff.fetch_add(1, Ordering::Relaxed);
+            if LOGGED.fetch_add(1, Ordering::Relaxed) < 60 {
+                let h = crate::rd_u64(p5 + super::layout::ENT_HANDLE).unwrap_or(0);
+                let side = crate::rd_u64(p4 + super::layout::P5_SIDE).unwrap_or(99);
+                let w = super::world::World { x: 0, data: p2, vt: p3 };
+                let vis = w.visible(side, h); let rec = w.roster_rec(h).unwrap_or(usize::MAX);
+                let idx = if rec != 0 && rec != usize::MAX { crate::rd_u32(rec + super::layout::REC_ROLE) } else { 0xffff };
+                super::append_direct("judge_recently_seen.txt", &format!(
+                    "[recently_seen DIFF] game={} mine={} | team={:#x} data={:#x} vt={:#x} rec_self={:#x} ent={:#x} | h={:#x} side={} vis={:?} rec={:#x} idx={} last={} tick={} last+0x78-tick={}\n",
+                    game, mine, p1, p2, p3, p4, p5, h, side, vis, rec, idx, last, tick, (last.wrapping_add(0x78) as i64).wrapping_sub(tick as i64)));
+            }
+        }
+        r
+    }
+}
 judge_hook_out!(serpen_hb_hook, crate::judge::gen_fns::SERPEN_HUNT_BATTLE, crate::judge::port::serpen_hunt_battle::serpen_hunt_battle, crate::judge::cap_ability_pick::reset, false);
 
 /// 등록된 훅 전부(status 덤프용). 훅을 늘리면 여기와 install() 에 한 줄씩.
 pub fn stats() -> Vec<(&'static str, &'static Stat)> {
-    vec![(STEAL_SCORE.name, &steal_hook::ST), (ABILITY_PICK.name, &cap_ability_pick::ST),
+    vec![(STEAL_SCORE.name, &steal_hook::ST), (ABILITY_PICK.name, &cap_ability_pick::ST), (RECENTLY_SEEN.name, &cap_recent_seen::ST),
          (EPIC_HUNT_BATTLE.name, &epic_hb_hook::ST), (SERPEN_HUNT_BATTLE.name, &serpen_hb_hook::ST), (PASSIVE_LINE.name, &passive_line_hook::ST)]
 }
 
@@ -307,6 +354,7 @@ pub unsafe fn install() {
         install_one(&mut log, &STEAL_SCORE, &steal_hook::ORIG, steal_hook::wrap as *const () as usize, "wrap");
         // ★캡처를 핸들러보다 먼저 설치 — 핸들러 wrap 이 부르는 게임 원본이 콜리로 진입할 때 캡처가 살아 있어야 한다.
         install_one(&mut log, &ABILITY_PICK, &cap_ability_pick::ORIG, cap_ability_pick::wrap as *const () as usize, "capture");
+        install_one(&mut log, &RECENTLY_SEEN, &cap_recent_seen::ORIG, cap_recent_seen::wrap as *const () as usize, "capture");
         install_one(&mut log, &EPIC_HUNT_BATTLE, &epic_hb_hook::ORIG, epic_hb_hook::wrap as *const () as usize, "wrap-out");
         install_one(&mut log, &SERPEN_HUNT_BATTLE, &serpen_hb_hook::ORIG, serpen_hb_hook::wrap as *const () as usize, "wrap-out");
         install_one(&mut log, &PASSIVE_LINE, &passive_line_hook::ORIG, passive_line_hook::wrap as *const () as usize, "wrap-out");

@@ -33,6 +33,13 @@
      "date": "2026-09-06",
      "event": "mark:verified→verified",
      "note": "2판째 1,673/1,673 DIFF=0 (04:5x) → 라이브 후보"
+    },
+    {
+     "ver": "0.5.8",
+     "rva": "0xcbbca0",
+     "date": "2026-09-06",
+     "event": "mark:verified→verified",
+     "note": "2판째 1,673/1,673 DIFF=0"
     }
    ],
    "sym": "game-ai\\src\\plan_legacy\\sub_plan\\steal.rs",
@@ -689,6 +696,44 @@
      "0x9502f9000": 1,
      "0x20c49ba5e353f7d": 1
     }
+   }
+  },
+  "recently_seen": {
+   "role": "helper",
+   "status": "todo",
+   "history": [
+    {
+     "ver": "0.5.8",
+     "rva": "0x1323a00",
+     "size": 118,
+     "date": "2026-09-06",
+     "event": "add"
+    }
+   ],
+   "sym": "(AI 계층 census 밖 — Location 없음)",
+   "cur": {
+    "rva": "0x1323a00",
+    "end": "0x1323a76",
+    "size": 118,
+    "orig_len": 12,
+    "prolog": "41 56 56 57 53 48 83 ec 28 4c 89 c6",
+    "prolog_insns": [
+     "push r14",
+     "push rsi",
+     "push rdi",
+     "push rbx",
+     "sub rsp, 0x28",
+     "mov rsi, r8"
+    ],
+    "reloc": "ok",
+    "jmpin": 0,
+    "n": null,
+    "sym": "(AI 계층 census 밖 — Location 없음)",
+    "lines": [],
+    "callees": [],
+    "offs": {},
+    "vslots": {},
+    "imms": {}
    }
   }
  }

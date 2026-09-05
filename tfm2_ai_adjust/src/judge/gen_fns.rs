@@ -1,5 +1,5 @@
 // gen_fns.rs — ★자동생성(python MIG\aiport.py gen). 손으로 고치지 말 것 — 정본 = MIG\judge\manifest.json
-//   게임 0.5.8 · exe sha 4ed3aed08971efd0 · 2026-09-06 04:59
+//   게임 0.5.8 · exe sha 4ed3aed08971efd0 · 2026-09-06 06:13
 //   FnSpec.prolog = 훅이 옮기는 선두 바이트(명령 경계 ≥12B). 설치기는 exe 바이트가 이와 **완전 일치**할 때만 패치한다(패치판/스테일 방어).
 #![allow(dead_code)]
 pub const GAME_VER: &str = "0.5.8";
@@ -7,6 +7,7 @@ pub struct FnSpec { pub name: &'static str, pub sym: &'static str, pub role: &'s
 pub const ABILITY_PICK: FnSpec = FnSpec { name: "ability_pick", sym: r"game-ai\src\lib.rs", role: "helper", rva: 0xe7a8c0, size: 932, prolog: &[0x55, 0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x53], status: "todo" };   // 원본 행 1626,1634 · 252명령 · vslots 0x50,0x68,0x70,0x80
 pub const EPIC_HUNT_BATTLE: FnSpec = FnSpec { name: "epic_hunt_battle", sym: r"game-ai\src\plan_legacy\old\epic\hunt_and_battle.rs", role: "plan_handler", rva: 0xccc010, size: 591, prolog: &[0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x55, 0x53], status: "ported" };   // 원본 행 29,31,32 · 143명령 · vslots 0x40,0x1f0
 pub const PASSIVE_LINE: FnSpec = FnSpec { name: "passive_line", sym: r"game-ai\src\plan_legacy\old\passive_line.rs", role: "plan_handler", rva: 0xd2c5d0, size: 5182, prolog: &[0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x55, 0x53], status: "ported" };   // 원본 행 235,889,918,939,953,958,1037,1038,1483 · 1194명령 · vslots 0x28,0x40,0x98,0xf8,0x150
+pub const RECENTLY_SEEN: FnSpec = FnSpec { name: "recently_seen", sym: r"(AI 계층 census 밖 — Location 없음)", role: "helper", rva: 0x1323a00, size: 118, prolog: &[0x41, 0x56, 0x56, 0x57, 0x53, 0x48, 0x83, 0xec, 0x28, 0x4c, 0x89, 0xc6], status: "todo" };   // 원본 행 - · None명령 · vslots -
 pub const SERPEN_HUNT_BATTLE: FnSpec = FnSpec { name: "serpen_hunt_battle", sym: r"game-ai\src\plan_legacy\old\serpen\hunt_and_battle.rs", role: "plan_handler", rva: 0xccc3c0, size: 591, prolog: &[0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x55, 0x53], status: "ported" };   // 원본 행 29,31,32 · 143명령 · vslots 0x40,0x1f0
 pub const STEAL_SCORE: FnSpec = FnSpec { name: "steal_score", sym: r"game-ai\src\plan_legacy\sub_plan\steal.rs", role: "scorer", rva: 0xcbbca0, size: 269, prolog: &[0x56, 0x48, 0x83, 0xec, 0x20, 0x48, 0x8b, 0x54, 0x24, 0x58, 0x0f, 0xb6, 0x41, 0x08], status: "verified" };   // 원본 행 27,28 · 70명령 · vslots 0x40,0x1f0
-pub static ALL: &[&FnSpec] = &[&ABILITY_PICK, &EPIC_HUNT_BATTLE, &PASSIVE_LINE, &SERPEN_HUNT_BATTLE, &STEAL_SCORE];
+pub static ALL: &[&FnSpec] = &[&ABILITY_PICK, &EPIC_HUNT_BATTLE, &PASSIVE_LINE, &RECENTLY_SEEN, &SERPEN_HUNT_BATTLE, &STEAL_SCORE];

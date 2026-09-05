@@ -88,7 +88,6 @@ pub unsafe fn passive_line(a: &Args8) -> Option<MpOut> {
                         if e == 0 { continue; }
                         bits |= 1 << (16 + r);
                         let (ex, ey) = (rd_u64(e + ENT_X)?, rd_u64(e + ENT_Y)?);
-                        if r >= 3 { tr(7 + r as usize, 0x1_0000_0000_0000 | (ex.min(0xf_ffff) ) | (ey.min(0xf_ffff) << 24)); }   // t10/t11 = 적3/적4 (x | y<<24)
                         if !cal::in_region(g.0, ex, ey)? { continue; }
                         bits |= 1 << (8 + r);
                         let (lp, last) = cal::lane_pred(lane_o, w.data, w.vt, p5, e)?;
@@ -97,6 +96,16 @@ pub unsafe fn passive_line(a: &Args8) -> Option<MpOut> {
                             let m = (last.wrapping_add(0x78) as i64).wrapping_sub(tick as i64).clamp(-0x7f_ffff, 0x7f_ffff) + 0x80_0000;
                             let prev = tr_get(8) & !(0xfff_ffffu64 << (if r == 3 { 0 } else { 28 })) & 0x00ff_ffff_ffff_ffff;
                             tr(8, 0x100_0000_0000_0000 | prev | ((m as u64) << (if r == 3 { 0 } else { 28 })));
+                        }
+                        if r >= 3 {   // t10/t11 = 적3/적4: 게임 recently_seen 캡처(같은 순간) 와 내 지금 계산 대조
+                            //   bit0 found · bit1..3 game_ret · bit4..7 cap_mine(0/1/2, 7=NA) · bit8..10 lp(지금) · bit11 tick 동일 · bit12.. cap.last(24b) · bit36.. last(지금, 24b)
+                            let c = super::super::cap_recent_seen::find(e);
+                            let v = match c {
+                                Some(c) => 1 | ((c.game as u64 & 7) << 1) | (((if c.mine == 0xff { 7 } else { c.mine as u64 }) & 0xf) << 4) | ((lp as u64) << 8)
+                                          | (((c.tick == tick) as u64) << 11) | ((c.last & 0xff_ffff) << 12) | ((last & 0xff_ffff) << 36),
+                                None => ((lp as u64) << 8) | ((last & 0xff_ffff) << 36),
+                            };
+                            tr(7 + r as usize, (1u64 << 56) | v);
                         }
                         cnt += (lp != 0) as u32;
                     }
