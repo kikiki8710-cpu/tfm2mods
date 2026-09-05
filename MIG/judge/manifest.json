@@ -26,6 +26,13 @@
      "date": "2026-09-06",
      "event": "mark:ported→verified",
      "note": "0.5.8 2026-09-06 03:2x 1판 500/500 DIFF=0 (RNG-free · 라이브 승격은 2판째 확인 후)"
+    },
+    {
+     "ver": "0.5.8",
+     "rva": "0xcbbca0",
+     "date": "2026-09-06",
+     "event": "mark:verified→verified",
+     "note": "2판째 1,673/1,673 DIFF=0 (04:5x) → 라이브 후보"
     }
    ],
    "sym": "game-ai\\src\\plan_legacy\\sub_plan\\steal.rs",
@@ -418,7 +425,7 @@
   },
   "passive_line": {
    "role": "plan_handler",
-   "status": "todo",
+   "status": "ported",
    "history": [
     {
      "ver": "0.5.8",
@@ -426,6 +433,13 @@
      "size": 5182,
      "date": "2026-09-06",
      "event": "add"
+    },
+    {
+     "ver": "0.5.8",
+     "rva": "0xd2c5d0",
+     "date": "2026-09-06",
+     "event": "mark:todo→ported",
+     "note": "2026-09-06 04:5x 1판 2,734,000회 ok 99.93% diff 2,018(미드 블록 카운트 경계) na 0"
     }
    ],
    "sym": "game-ai\\src\\plan_legacy\\old\\passive_line.rs",

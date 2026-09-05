@@ -56,7 +56,9 @@ pub unsafe fn passive_line(a: &Args8) -> Option<MpOut> {
             let tps = rd_u64(cfg + CFG_TPS)?;
             let thr = if tps.wrapping_mul(0x1e) <= t8a8 { t8a8 - tps * 0x1e } else { 0 };
             if thr <= tick { to_main = true; }
+            tr(7, 0x1_0000_0000 | (thr.min(0xffff_ffff) << 1) | to_main as u64);
         }
+        tr(5, 0x100 | phase as u64); tr(6, 0x100 | (rd_u32(p5 + P5_ROLE) as u64));
         if !to_main {
             let role = rd_u32(p5 + P5_ROLE) as u64;
             if role > 2 {
@@ -73,16 +75,21 @@ pub unsafe fn passive_line(a: &Args8) -> Option<MpOut> {
                         else if !(ex <= bx.xhi && bx.ylo <= ey && ey <= bx.yhi) { go_count = false; }
                     }
                 }
+                tr(8, 0x100 | go_count as u64 | ((ent2 != 0) as u64) << 1);
                 if go_count {
                     let other = 1 - side;
                     let lane_o = lanes + (other as usize) * LANE_STRIDE;
-                    let mut cnt: u32 = 0;
+                    let mut cnt: u32 = 0; let mut bits: u64 = 0x100_0000;
                     for r in 0..5u32 {
                         let e = w.roster(other, r)?;
                         if e == 0 { continue; }
+                        bits |= 1 << (16 + r);
                         if !cal::in_region(g.0, rd_u64(e + ENT_X)?, rd_u64(e + ENT_Y)?)? { continue; }
-                        cnt += cal::lane_pred(lane_o, w.data, w.vt, p5, e)? as u32;
+                        bits |= 1 << (8 + r);
+                        let lp = cal::lane_pred(lane_o, w.data, w.vt, p5, e)?; if lp != 0 { bits |= 1 << r; }
+                        cnt += lp as u32;
                     }
+                    tr(9, bits); tr(4, 0x100 | cnt as u64);
                     if cnt >= 2 {
                         let me = w.roster(side, role as u32)?; if me == 0 { return None; }
                         let maxhp = rd_u64(me + ENT_MAXHP)?; if maxhp == 0 { return None; }
