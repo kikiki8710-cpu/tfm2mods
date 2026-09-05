@@ -49,7 +49,11 @@ pub const W_SINGLETON_TAG: usize = 0x70; //   i32 tag(-1 = 없음), 엔티티 = 
 //   vt+0x40(data) = (rax=모드 태그, rdx=&모드 데이터). MOBA = tag 0 → 모드 데이터 = w+0xed00 / tag 1·2 → w+0xecc8.
 //   ⚠steal·hunt_and_* 의 "vt+0x40 != 0 → panic" 은 assert 가 아니라 **MOBA 전용 가드**이고, 직후 `[rdx+…]` 는 모드 데이터를 읽는다.
 //   (2026-09-06 02:50 첫 검증판 steal DIFF 226건의 원인 = 이걸 홀더/페이로드 기준으로 읽었던 것.)
-pub const W_MODE_TAG: usize = 0xecc2;        // u8: 0=MOBA
+pub const W_MODE_TAG: usize = 0xecc2;        // u8 (⚠모드 태그로 추정했으나 03:05 검증판에서 기각 — 기록용)
+pub const VT_WORLD_MODE: usize = 0x40;       // vt+0x40 구현 RVA 로 모드 판정(모노모픽 상수 반환)
+pub const VT40_IMPL_MOBA: usize = 0x1849400; // vt2 0x1434ae890 → tag 0, mode = w+0xed00
+pub const VT40_IMPL_TAG1: usize = 0x186b080; // vt1 0x1434ae560 → tag 1, mode = w+0xecc8
+pub const VT40_IMPL_TAG2: usize = 0x187f240; // vt0 0x1434ae230 → tag 2, mode = w+0xecc8
 pub const W_MODE_DATA_MOBA: usize = 0xed00;
 pub const W_MODE_DATA_OTHER: usize = 0xecc8;
 pub const STEAL_PHASE: usize = 0x8;

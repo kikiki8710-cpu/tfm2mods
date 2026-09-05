@@ -280,6 +280,8 @@ unsafe fn install_one(log: &mut String, spec: &FnSpec, orig_slot: &AtomicUsize, 
 pub unsafe fn install() {
     if INSTALLED.swap(true, Ordering::Relaxed) { return; }
     let verify = tune("judge_verify", 0) != 0;
+    // 판단 파일은 프로세스마다 새로(누적되면 지난 판 DIFF 가 섞여 오독 — 03:05 실사고)
+    for s in ALL { if let Some(p) = pth(&format!("judge_{}.txt", s.name)) { let _ = fs::remove_file(p); } }
     let mut log = format!("judge 계층: 게임 {} · 등록 {}함수 · judge_verify={} judge_live={}\n", GAME_VER, ALL.len(), verify as u8, tune("judge_live", 0));
     if verify {
         install_one(&mut log, &STEAL_SCORE, &steal_hook::ORIG, steal_hook::wrap as *const () as usize, "wrap");

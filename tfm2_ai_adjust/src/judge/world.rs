@@ -50,7 +50,11 @@ impl World {
     /// vt+0x40 순수 재현: 모드 태그(0=MOBA) 와 모드 데이터 포인터. [ghidra-re 2026-09-06]
     pub unsafe fn mode(&self) -> Option<(u8, usize)> {
         if !ptr_ok(self.data) { return None; }
-        let tag = rd_u8(self.data + W_MODE_TAG);
+        // ★태그는 vtable 별 상수(모노모픽) — vt+0x40 구현 RVA 로 판정한다(순수 read). `w+0xecc2` 바이트는 보조 기록용.
+        //   [2026-09-06 03:05 검증판] 바이트 기준 판정은 500/500 NA(tag!=0) — 그 바이트는 모드 태그가 아니었다.
+        let impl_rva = self.slot_target_rva(VT_WORLD_MODE);
+        super::tr(8, self.vt as u64); super::tr(9, impl_rva as u64); super::tr(10, rd_u8(self.data + W_MODE_TAG) as u64 | 0x100);
+        let tag = match impl_rva { VT40_IMPL_MOBA => 0u8, VT40_IMPL_TAG1 => 1, VT40_IMPL_TAG2 => 2, _ => return None };
         Some((tag, self.data + if tag == 0 { W_MODE_DATA_MOBA } else { W_MODE_DATA_OTHER }))
     }
     /// MOBA 모드 데이터(아니면 None = 게임은 panic 경로).
