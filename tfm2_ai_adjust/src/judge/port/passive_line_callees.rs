@@ -57,15 +57,14 @@ pub unsafe fn in_lane(g: usize, x: u64, y: u64, lane: u8) -> Option<bool> {
 
 /// 0x1323a00 — recently_seen.
 /// 반환 (code, last): code 1 = 지금 보임(vt+0xf8) / 2 = 로스터 기록 last_seen+0x78 >= tick / 0 = 아니오. last = 기록 경로의 last_seen(진단용, 그 외 0).
-pub unsafe fn lane_pred(team_enemy: usize, data: usize, vt: usize, rec_self: usize, ent: usize) -> Option<(u8, u64)> {
+pub unsafe fn lane_pred(team_enemy: usize, data: usize, vt: usize, rec_self: usize, ent: usize, win: u64) -> Option<(u8, u64)> {
     let w = World { x: 0, data, vt };
     let h = rd_u64(ent + ENT_HANDLE)?; let side = rd_u64(rec_self + P5_SIDE)?;
     if w.visible(side, h)? { return Some((1, 0)); }
     let rec = w.roster_rec(h)?; if rec == 0 { return Some((0, 0)); }
     let idx = rd_u32(rec + REC_ROLE) as usize;
     let last = rd_u64(team_enemy + LANE_ROSTER + idx * 8)?;
-    // ★창 = 라이브 즉치(0x1323a5b, 노브 vw_check). 정적 0x78 로 두면 cfg 가 90 일 때 2% 가 갈린다(2026-09-06 5판 실측).
-    let win = super::super::live_imm8(SITE_VW_CHECK_IMM, 0x78) as u64;
+    // ★창(win) = 호출자가 준다: 검증 = 라이브 즉치(0x1323a5b, 노브 vw_check) / live = dd_lane_margin. 정적 0x78 은 cfg 90 일 때 2% 가 갈렸다(09-06).
     Some((if last.wrapping_add(win) >= rd_u64(data + W_TICK)? { 2 } else { 0 }, last))
 }
 

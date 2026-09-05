@@ -79,6 +79,8 @@ unsafe fn apply_out(out: usize, mine: &MpOut) -> bool {
     }
     true
 }
+/// 두 쓰기집합이 같은가(같은 포팅이 같은 순서로 push 하므로 순서 비교로 충분).
+pub fn same_out(a: &MpOut, b: &MpOut) -> bool { a.n == b.n && a.w[..a.n as usize].iter().zip(b.w[..b.n as usize].iter()).all(|(x, y)| x.off == y.off && x.len == y.len && x.val == y.val) }
 unsafe fn hex30(out: usize) -> String { (0..0x30).map(|i| format!("{:02x}", rd_u8(out + i))).collect::<Vec<_>>().join("") }
 fn fmt_writes(m: &MpOut) -> String { m.w[..m.n as usize].iter().map(|w| format!("+{:#x}/{}={:#x}", w.off, w.len, w.val)).collect::<Vec<_>>().join(" ") }
 
@@ -91,12 +93,14 @@ pub struct Stat {
     /// 분기 태그별 OK/DIFF 카운터 — 포팅이 `tr(3, tag<<56)` 로 "내가 탄 분기" 를 표시하면(tag 1..7) 그 분기의 일치율을 따로 센다.
     /// (DIFF 만 보면 "게임이 이 분기를 아예 안 타는지 / 데이터 한 건만 다른지" 를 못 가른다.) 태그별 OK 표본도 ≤4줄 남긴다.
     pub tag_ok: [AtomicU64; 8], pub tag_diff: [AtomicU64; 8], pub tag_logged: [AtomicU64; 8],
+    /// live 에서 "노브 적용 출력 ≠ 게임 동치 출력" 이었던 횟수 = 노브가 실제로 판단을 바꾼 횟수(knob effect).
+    pub knob_eff: AtomicU64,
 }
 impl Stat {
     pub const fn new() -> Self {
         Stat { n: AtomicU64::new(0), ok: AtomicU64::new(0), diff: AtomicU64::new(0), na: AtomicU64::new(0), live: AtomicU64::new(0),
                logged: AtomicU64::new(0), entered: AtomicU64::new(0), vt_rva: AtomicUsize::new(0),
-               tag_ok: [const { AtomicU64::new(0) }; 8], tag_diff: [const { AtomicU64::new(0) }; 8], tag_logged: [const { AtomicU64::new(0) }; 8] }
+               tag_ok: [const { AtomicU64::new(0) }; 8], tag_diff: [const { AtomicU64::new(0) }; 8], tag_logged: [const { AtomicU64::new(0) }; 8], knob_eff: AtomicU64::new(0) }
     }
 }
 /// 분기 태그 규약: `tr(3, (tag as u64) << 56 | 하위값)` — 상위 바이트가 태그(1..7), 하위는 자유(기존 c15 등과 충돌 없음).
@@ -109,6 +113,9 @@ impl Stat {
 #[inline] pub unsafe fn live_imm16(rva_imm: usize, orig: u16) -> u16 { let b = crate::exe_base(); if b == 0 { orig } else { (crate::rd_u8(b + rva_imm) as u16) | ((crate::rd_u8(b + rva_imm + 1) as u16) << 8) } }
 
 #[inline] pub fn live() -> bool { tune("judge_live", 0) != 0 }
+/// ★함수별 live 게이트: 마스터 `judge_live=1` **그리고** `judge_live_<fn>` = 1(live: 원본 건너뛰고 mine) / 2(shadow: 원본도 돌려 대조 기록하되 **mine 을 반환**).
+/// shadow 는 RNG-free 함수에만(원본 실행이 부수효과 없을 때). 첫 승격은 shadow 로 시작해 DIFF 계측을 유지한다.
+#[inline] pub fn live_mode(key: &str) -> i64 { if tune("judge_live", 0) == 0 { 0 } else { tune(key, 0) } }
 
 /// 포팅 내부 추적값(DIFF 원인 분리용). 포팅이 `tr(i, v)` 로 채우고 record 가 DIFF/NA 줄에 같이 찍는다. thread-local·고정배열(alloc 없음).
 thread_local! { static TRACE: std::cell::Cell<[u64; 12]> = const { std::cell::Cell::new([0; 12]) }; }
@@ -129,7 +136,7 @@ type F12 = unsafe extern "C" fn(usize, usize, usize, usize, usize, usize, usize,
 
 /// 스칼라 반환 훅. ⚠인자 12개 과선언 = Win64 에서 항상 안전, 과소선언은 AV(08-05 실사고).
 macro_rules! judge_hook {
-    ($m:ident, $spec:expr, $mine:path) => {
+    ($m:ident, $spec:expr, $mine:path, $live_mine:path, $lkey:expr) => {
         pub mod $m {
             use std::sync::atomic::{AtomicUsize, Ordering};
             pub static ORIG: AtomicUsize = AtomicUsize::new(0);
@@ -144,11 +151,21 @@ macro_rules! judge_hook {
                 if en <= 3 { super::append_direct(&format!("judge_{}.txt", $spec.name), &format!("[{} ENTER #{}] p1={:#x} p5={:#x} p6={:#x} p7={:#x}\n", $spec.name, en, p1, p5, p6, p7)); }
                 super::tr_reset();
                 let mine: Option<i64> = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| $mine(&a))).unwrap_or(None);
-                if super::live() {
-                    if let Some(v) = mine { ST.live.fetch_add(1, Ordering::Relaxed); return v as usize; }
+                let mode = super::live_mode($lkey);
+                // live 출력 = 노브 적용판($live_mine). $mine 은 게임 동치판(검증 지표 유지). 둘이 다르면 knob_eff.
+                let live_out = |mine: Option<i64>| -> Option<i64> {
+                    let lv: Option<i64> = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| $live_mine(&a))).unwrap_or(None);
+                    if lv.is_some() && lv != mine { ST.knob_eff.fetch_add(1, Ordering::Relaxed); }
+                    lv
+                };
+                if mode == 1 {
+                    if let Some(v) = live_out(mine) { ST.live.fetch_add(1, Ordering::Relaxed); return v as usize; }
                 }
                 let game = f(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12);
                 let _ = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| super::record(&$spec, &ST, game as i64, mine, &a)));
+                if mode == 2 {
+                    if let Some(v) = live_out(mine) { ST.live.fetch_add(1, Ordering::Relaxed); return v as usize; }   // shadow: 대조는 기록하고 행동은 mine
+                }
                 game
             }
         }
@@ -157,7 +174,7 @@ macro_rules! judge_hook {
 
 /// out-writer 훅(Plan 핸들러). $pre = 게임 호출 직전 훅(콜리 캡처 리셋 등). live 는 $live_ok 가 true 일 때만 허용.
 macro_rules! judge_hook_out {
-    ($m:ident, $spec:expr, $mine:path, $pre:path, $live_ok:expr) => {
+    ($m:ident, $spec:expr, $mine:path, $live_mine:path, $pre:path, $live_ok:expr, $lkey:expr) => {
         pub mod $m {
             use std::sync::atomic::{AtomicUsize, Ordering};
             pub static ORIG: AtomicUsize = AtomicUsize::new(0);
@@ -172,13 +189,22 @@ macro_rules! judge_hook_out {
                 if en <= 3 { super::append_direct(&format!("judge_{}.txt", $spec.name), &format!("[{} ENTER #{}] out={:#x} p2={:#x} p5={:#x} p6={:#x} p7={:#x}\n", $spec.name, en, p1, p2, p5, p6, p7)); }
                 $pre();
                 super::tr_reset();
-                if super::live() && $live_ok {
+                let mode = if $live_ok { super::live_mode($lkey) } else { 0 };
+                let live_out = |mine: Option<super::MpOut>| -> Option<super::MpOut> {
+                    let lv: Option<super::MpOut> = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| $live_mine(&a))).unwrap_or(None);
+                    if let (Some(l), Some(m)) = (lv.as_ref(), mine.as_ref()) { if !super::same_out(l, m) { ST.knob_eff.fetch_add(1, Ordering::Relaxed); } }
+                    lv
+                };
+                if mode == 1 {
                     let mine: Option<super::MpOut> = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| $mine(&a))).unwrap_or(None);
-                    if let Some(m) = mine { if super::apply_out(p1, &m) { ST.live.fetch_add(1, Ordering::Relaxed); return p1; } }
+                    if let Some(m) = live_out(mine) { if super::apply_out(p1, &m) { ST.live.fetch_add(1, Ordering::Relaxed); return p1; } }
                 }
                 let game = f(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12);
                 let mine: Option<super::MpOut> = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| $mine(&a))).unwrap_or(None);
                 let _ = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| super::record_out(&$spec, &ST, p1, mine, &a)));
+                if mode == 2 {
+                    if let Some(m) = live_out(mine) { if super::apply_out(p1, &m) { ST.live.fetch_add(1, Ordering::Relaxed); } }   // shadow: 게임 out 위에 노브 적용 쓰기집합 덮어쓰기
+                }
                 game
             }
         }
@@ -215,10 +241,10 @@ macro_rules! judge_capture {
     };
 }
 
-judge_hook!(steal_hook, crate::judge::gen_fns::STEAL_SCORE, crate::judge::port::steal_score::steal_score);
+judge_hook!(steal_hook, crate::judge::gen_fns::STEAL_SCORE, crate::judge::port::steal_score::steal_score, crate::judge::port::steal_score::steal_score, "judge_live_steal_score");
 judge_capture!(cap_ability_pick, crate::judge::gen_fns::ABILITY_PICK);
-judge_hook_out!(epic_hb_hook, crate::judge::gen_fns::EPIC_HUNT_BATTLE, crate::judge::port::epic_hunt_battle::epic_hunt_battle, crate::judge::cap_ability_pick::reset, false);
-judge_hook_out!(passive_line_hook, crate::judge::gen_fns::PASSIVE_LINE, crate::judge::port::passive_line::passive_line, crate::judge::cap_recent_seen::reset, false);
+judge_hook_out!(epic_hb_hook, crate::judge::gen_fns::EPIC_HUNT_BATTLE, crate::judge::port::epic_hunt_battle::epic_hunt_battle, crate::judge::port::epic_hunt_battle::epic_hunt_battle, crate::judge::cap_ability_pick::reset, false, "judge_live_epic_hunt_battle");
+judge_hook_out!(passive_line_hook, crate::judge::gen_fns::PASSIVE_LINE, crate::judge::port::passive_line::passive_line, crate::judge::port::passive_line::passive_line_live, crate::judge::cap_recent_seen::reset, true, "judge_live_passive_line");
 
 /// recently_seen(0x1323a00) 캡처(검증 전용) — 게임 콜리를 그대로 돌리고, **같은 순간**에 내 재현(lane_pred)을 같은 인자로 계산해
 /// (게임 반환, 내 반환, last_seen, tick) 을 thread-local 링(8)에 남긴다. 부모(passive_line) 포팅이 적별로 꺼내 대조한다.
@@ -244,7 +270,7 @@ pub mod cap_recent_seen {
         ST.entered.fetch_add(1, Ordering::Relaxed);
         let r = f(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12);
         let game = (r & 0xff) as u8;
-        let res: Option<(u8, u64)> = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| crate::judge::port::passive_line_callees::lane_pred(p1, p2, p3, p4, p5))).unwrap_or(None);
+        let res: Option<(u8, u64)> = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| crate::judge::port::passive_line_callees::lane_pred(p1, p2, p3, p4, p5, super::live_imm8(super::layout::SITE_VW_CHECK_IMM, 0x78) as u64))).unwrap_or(None);
         let (mine, last) = res.unwrap_or((0xff, 0));
         let tick = crate::rd_u64(p2 + super::layout::W_TICK).unwrap_or(0);
         RING.with(|c| { let (mut a, n) = c.get(); a[n % 8] = Cap { ent: p5, game, mine, last, tick }; c.set((a, n + 1)); });
@@ -297,7 +323,7 @@ pub mod cap_recent_seen {
         r
     }
 }
-judge_hook_out!(serpen_hb_hook, crate::judge::gen_fns::SERPEN_HUNT_BATTLE, crate::judge::port::serpen_hunt_battle::serpen_hunt_battle, crate::judge::cap_ability_pick::reset, false);
+judge_hook_out!(serpen_hb_hook, crate::judge::gen_fns::SERPEN_HUNT_BATTLE, crate::judge::port::serpen_hunt_battle::serpen_hunt_battle, crate::judge::port::serpen_hunt_battle::serpen_hunt_battle, crate::judge::cap_ability_pick::reset, false, "judge_live_serpen_hunt_battle");
 
 /// 등록된 훅 전부(status 덤프용). 훅을 늘리면 여기와 install() 에 한 줄씩.
 pub fn stats() -> Vec<(&'static str, &'static Stat)> {
@@ -359,9 +385,9 @@ pub unsafe fn record_out(spec: &FnSpec, st: &Stat, out: usize, mine: Option<MpOu
 pub fn write_status() {
     let mut s = format!("=== judge 계층 검증 누적 (게임 {}) judge_verify={} judge_live={} ===\n", GAME_VER, tune("judge_verify", 0), tune("judge_live", 0));
     for (name, st) in stats() {
-        s.push_str(&format!("{:<20} entered={} n={} ok={} diff={} na={} live={} | vt_rva={:#x}\n", name,
+        s.push_str(&format!("{:<20} entered={} n={} ok={} diff={} na={} live={} knob_eff={} | vt_rva={:#x}\n", name,
             st.entered.load(Ordering::Relaxed), st.n.load(Ordering::Relaxed), st.ok.load(Ordering::Relaxed), st.diff.load(Ordering::Relaxed),
-            st.na.load(Ordering::Relaxed), st.live.load(Ordering::Relaxed), st.vt_rva.load(Ordering::Relaxed)));
+            st.na.load(Ordering::Relaxed), st.live.load(Ordering::Relaxed), st.knob_eff.load(Ordering::Relaxed), st.vt_rva.load(Ordering::Relaxed)));
         let tags: Vec<String> = (1..8).filter(|&t| st.tag_ok[t].load(Ordering::Relaxed) + st.tag_diff[t].load(Ordering::Relaxed) > 0)
             .map(|t| format!("tag{}: ok={} diff={}", t, st.tag_ok[t].load(Ordering::Relaxed), st.tag_diff[t].load(Ordering::Relaxed))).collect();
         if !tags.is_empty() { s.push_str(&format!("{:<20}   분기별 | {}\n", "", tags.join(" | "))); }

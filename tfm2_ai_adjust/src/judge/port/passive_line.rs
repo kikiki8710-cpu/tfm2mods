@@ -23,7 +23,51 @@ use super::passive_line_callees as cal;
 }
 #[inline] fn lane_sub(lane: u8) -> usize { if lane == 0 { 0 } else if lane == 2 { LANE_SUB_MID } else { LANE_SUB_SIDE } }
 
-pub unsafe fn passive_line(a: &Args8) -> Option<MpOut> {
+/// ★노브 묶음 — passive_line 안에서 "게임 상수" 였던 자리 전부. 두 생성자:
+///   `game_equiv()` = 검증용(게임 동치): 원본 상수 + 바이트패치 사이트의 **라이브 즉치**(vw_check/vw_lane) → judge_status 의 DIFF 지표는 이걸로 잰다.
+///   `from_cfg()`   = live 용: cfg `dd_*`(SUBPLAN_동작_전수조사.md §2 표). 노브 −1 규칙 = 원본값. 0.5.2 세대 재현(dd7_repl)이 죽은 뒤 처음 되살아나는 자리.
+///   ⚠`dd_lane_margin` 은 두 창(콜리 recently_seen 창 + MAIN 여유) 모두를 잡는다 — 게임의 vw_check/vw_lane 패치 대신(대체된 함수 안의 바이트패치는 무효 원칙).
+#[derive(Clone, Copy)]
+pub struct Knobs {
+    pub frontier_mult: u64,   // dd_frontier_mult   원본 30   — 미드 블록 시간창 thr = t8a8 − tps*mult
+    pub cover_role_min: u64,  // dd_cover_role_min  원본 3    — 커버 진입 role 하한(원본 `role ≥ 3` = 봇 듀오)
+    pub cover_count: u32,     // dd_cover_count     원본 2    — 레인 안 최근목격 적 수 ≥ N → 커버
+    pub seen_margin: u64,     // dd_lane_margin     원본 120  — recently_seen 창(last_seen + N ≥ tick). 검증 = 라이브 즉치 0x1323a5b
+    pub main_margin: u64,     // dd_lane_margin     원본 120  — MAIN 경로 여유(tick ≤ 임계 + N). 검증 = 라이브 즉치 0xd2cd11
+    pub ratio_thr: u64,       // dd_ratio_thr       원본 51   — 커버 종단 내 체력% < N
+    pub facet_thr: i64,       // dd_facet_thr       원본 999  — 커버 종단 진척 > N → code 5
+    pub main_near_d2: u64,    // dd_main_near_dist  원본 150000²>>8 = 87,890,625 — MAIN 적 탐색 반경(제곱>>8 도메인)
+    pub near_d2: u64,         // dd_near_dist       원본 87,890,625 — 아군 근접 카운트 반경(제곱>>8)
+    pub gatee_d2: u64,        // dd_gatee_dist      원본 170000²>>8 = 112,890,625 — 타워–타깃 거리 게이트(제곱>>8)
+    pub survivor_radius: u64, // dd_f22e80_margin   원본 150000 — 미시야 적 예측 카운트 반경(near_target_count 인자)
+    pub survivor_thr: u64,    // dd_survivor_thr    원본 3    — 적 카운트 ≤ N 이면 라인공격(code 2) (원본 `< 4`, 2곳)
+    pub ivar2_thr: i32,       // dd_ivar2_thr       원본 2    — 라인 진척 f20 ≤ N → code 4(+8=lane) / 아니면 5
+}
+impl Knobs {
+    pub unsafe fn game_equiv() -> Knobs {
+        Knobs { frontier_mult: 0x1e, cover_role_min: 3, cover_count: 2,
+                seen_margin: super::super::live_imm8(SITE_VW_CHECK_IMM, 0x78) as u64,
+                main_margin: super::super::live_imm8(SITE_VW_LANE_IMM, 0x78) as u64,
+                ratio_thr: 0x33, facet_thr: 999, main_near_d2: D2_150K_SHR8, near_d2: D2_150K_SHR8, gatee_d2: D2_170K_SHR8,
+                survivor_radius: 150000, survivor_thr: 3, ivar2_thr: 2 }
+    }
+    pub unsafe fn from_cfg() -> Knobs {
+        #[inline] fn k(key: &str, orig: i64) -> i64 { let v = tune(key, -1); if v < 0 { orig } else { v } }   // 노브 −1 규칙
+        let lm = k("dd_lane_margin", 120) as u64;
+        Knobs { frontier_mult: k("dd_frontier_mult", 30) as u64, cover_role_min: k("dd_cover_role_min", 3) as u64, cover_count: k("dd_cover_count", 2) as u32,
+                seen_margin: lm, main_margin: lm,
+                ratio_thr: k("dd_ratio_thr", 51) as u64, facet_thr: k("dd_facet_thr", 999),
+                main_near_d2: k("dd_main_near_dist", D2_150K_SHR8 as i64) as u64, near_d2: k("dd_near_dist", D2_150K_SHR8 as i64) as u64,
+                gatee_d2: k("dd_gatee_dist", D2_170K_SHR8 as i64) as u64,
+                survivor_radius: k("dd_f22e80_margin", 150000) as u64, survivor_thr: k("dd_survivor_thr", 3) as u64, ivar2_thr: k("dd_ivar2_thr", 2) as i32 }
+    }
+}
+/// 검증용(게임 동치) — judge 가 DIFF 를 재는 함수.
+pub unsafe fn passive_line(a: &Args8) -> Option<MpOut> { passive_line_k(a, &Knobs::game_equiv()) }
+/// live 용(노브 적용) — judge 가 mode 1/2 에서 out 에 쓰는 함수.
+pub unsafe fn passive_line_live(a: &Args8) -> Option<MpOut> { passive_line_k(a, &Knobs::from_cfg()) }
+
+pub unsafe fn passive_line_k(a: &Args8, k: &Knobs) -> Option<MpOut> {
     let (payload, p5, p6, p7) = (a.p2, a.p5, a.p6, a.p7);
     if !ptr_ok(payload) || !ptr_ok(p5) || !ptr_ok(p7) { return None; }
     let mut o = MpOut::default();
@@ -54,14 +98,14 @@ pub unsafe fn passive_line(a: &Args8) -> Option<MpOut> {
             let cfg = rd_u64(g.0 + G_CFG)? as usize;
             let t8a8 = rd_u64(cfg + CFG_8A8)?;
             let tps = rd_u64(cfg + CFG_TPS)?;
-            let thr = if tps.wrapping_mul(0x1e) <= t8a8 { t8a8 - tps * 0x1e } else { 0 };
+            let thr = if tps.wrapping_mul(k.frontier_mult) <= t8a8 { t8a8 - tps * k.frontier_mult } else { 0 };   // dd_frontier_mult
             if thr <= tick { to_main = true; }
             tr(7, 0x1_0000_0000 | (thr.min(0xffff_ffff) << 1) | to_main as u64);
         }
         tr(5, 0x100 | phase as u64); tr(6, 0x10000 | (rd_u32(p5 + P5_ROLE) as u64));
         if !to_main {
             let role = rd_u32(p5 + P5_ROLE) as u64;
-            if role > 2 {
+            if role >= k.cover_role_min {   // dd_cover_role_min(원본 3)
                 let side = rd_u64(p5 + P5_SIDE)?;
                 if side > 1 { return None; }
                 let ent2 = w.roster(side, (3 + (role == 3) as u64) as u32)?;   // roster[side][3 + (role==3)]
@@ -90,10 +134,10 @@ pub unsafe fn passive_line(a: &Args8) -> Option<MpOut> {
                         let (ex, ey) = (rd_u64(e + ENT_X)?, rd_u64(e + ENT_Y)?);
                         if !cal::in_region(g.0, ex, ey)? { continue; }
                         bits |= 1 << (8 + r);
-                        let (lp, last) = cal::lane_pred(lane_o, w.data, w.vt, p5, e)?;
+                        let (lp, last) = cal::lane_pred(lane_o, w.data, w.vt, p5, e, k.seen_margin)?;
                         if lp != 0 { bits |= 1 << r; } if lp == 1 { bits |= 1 << (24 + r); }          // 24+r = 시야로 참(1) / r 만 = 기록으로 참(2)
                         if r >= 3 && lp == 2 {                                                        // t8 = 적3(low 28b)·적4(high) 의 (last+0x78 − tick) 여유(+0x800000 바이어스, 포화)
-                            let m = (last.wrapping_add(super::super::live_imm8(SITE_VW_CHECK_IMM, 0x78) as u64) as i64).wrapping_sub(tick as i64).clamp(-0x7f_ffff, 0x7f_ffff) + 0x80_0000;
+                            let m = (last.wrapping_add(k.seen_margin) as i64).wrapping_sub(tick as i64).clamp(-0x7f_ffff, 0x7f_ffff) + 0x80_0000;
                             let prev = tr_get(8) & !(0xfff_ffffu64 << (if r == 3 { 0 } else { 28 })) & 0x00ff_ffff_ffff_ffff;
                             tr(8, 0x100_0000_0000_0000 | prev | ((m as u64) << (if r == 3 { 0 } else { 28 })));
                         }
@@ -110,12 +154,12 @@ pub unsafe fn passive_line(a: &Args8) -> Option<MpOut> {
                         cnt += (lp != 0) as u32;
                     }
                     tr(9, bits); tr(4, 0x100 | cnt as u64);
-                    tr(3, (if cnt >= 2 { 1u64 } else { 2u64 }) << 56);   // 분기 태그: 1=미드 분기(code 3|5) 채택 / 2=미드 카운트 후 main 으로
-                    if cnt >= 2 {
+                    tr(3, (if cnt >= k.cover_count { 1u64 } else { 2u64 }) << 56);   // 분기 태그: 1=미드 분기(code 3|5) 채택 / 2=미드 카운트 후 main 으로
+                    if cnt >= k.cover_count {   // dd_cover_count
                         let me = w.roster(side, role as u32)?; if me == 0 { return None; }
                         let maxhp = rd_u64(me + ENT_MAXHP)?; if maxhp == 0 { return None; }
                         let pct = rd_u64(me + ENT_HP)?.wrapping_mul(100) / maxhp;
-                        let code = if pct < 0x33 { if rd_i64(lanes + (side as usize) * LANE_STRIDE + LANE_F60)? > 999 { 5 } else { 3 } } else { 3 };
+                        let code = if pct < k.ratio_thr { if rd_i64(lanes + (side as usize) * LANE_STRIDE + LANE_F60)? > k.facet_thr { 5 } else { 3 } } else { 3 };   // dd_ratio_thr / dd_facet_thr
                         o.push(0x8, 1, 2); o.code(code); return Some(o);
                     }
                 }
@@ -155,13 +199,13 @@ pub unsafe fn passive_line(a: &Args8) -> Option<MpOut> {
             let e = w.roster(other, r)?;
             if e == 0 { continue; }
             let d2 = sqd(mx, my, rd_u64(e + ENT_X)?, rd_u64(e + ENT_Y)?);
-            if (d2 >> 8) >= D2_150K_SHR8 { continue; }
+            if (d2 >> 8) >= k.main_near_d2 { continue; }   // dd_main_near_dist
             let hh = rd_u64(e + ENT_HANDLE)?;
             if w.visible(side, hh)? { hit = true; break; }
             let rec = w.roster_rec(hh)?;
             if rec != 0 {
                 let thr = rd_i64(lane_other + LANE_ROSTER + (rd_u32(rec + REC_ROLE) as usize) * 8)?;
-                if tick <= (thr as u64).wrapping_add(super::super::live_imm8(SITE_VW_LANE_IMM, LANE_ROSTER_MARGIN as u8) as u64) { hit = true; break; }   // 라이브 즉치(노브 vw_lane ×5 동일값)
+                if tick <= (thr as u64).wrapping_add(k.main_margin) { hit = true; break; }   // dd_lane_margin(검증 = 라이브 즉치 vw_lane)
             }
         }
         c15 = if hit { if rd_i64(lane_self + lane_sub(lane) + LR_F18)? < 0 { 2 } else { 0 } } else { 2 };
@@ -174,14 +218,14 @@ pub unsafe fn passive_line(a: &Args8) -> Option<MpOut> {
     let tgt = match w.entity(rd_u64(lr + LR_TARGET_H)?) { Some(t) => t.0, None => { code2(&mut o); return Some(o); } };
     let (tx, ty) = (rd_u64(tgt + ENT_X)?, rd_u64(tgt + ENT_Y)?);
     tr(4, tgt as u64);
-    let enemy_cnt = cal::near_target_count(p7, a.p3, a.p4, p5, p6, tx, ty, 150000, a.p8)?;
+    let enemy_cnt = cal::near_target_count(p7, a.p3, a.p4, p5, p6, tx, ty, k.survivor_radius, a.p8)?;   // dd_f22e80_margin
     // 아군 5명: 나 또는 목표에서 150000 안이면 +1
     let mut ally_cnt: u64 = 0;
     for r in 0..5u32 {
         let e = w.roster(side, r)?; if e == 0 { continue; }
         let (ex, ey) = (rd_u64(e + ENT_X)?, rd_u64(e + ENT_Y)?);
-        let near_me = (sqd(mx, my, ex, ey) >> 8) < D2_150K_SHR8;
-        ally_cnt += (near_me || (sqd(tx, ty, ex, ey) >> 8) < D2_150K_SHR8) as u64;
+        let near_me = (sqd(mx, my, ex, ey) >> 8) < k.near_d2;   // dd_near_dist
+        ally_cnt += (near_me || (sqd(tx, ty, ex, ey) >> 8) < k.near_d2) as u64;
     }
     tr(5, enemy_cnt); tr(6, ally_cnt);
     // 타워: X+0x180(1차) / +0x190(2차) [side*8 + lane*0x20]
@@ -203,7 +247,7 @@ pub unsafe fn passive_line(a: &Args8) -> Option<MpOut> {
     let (nx, ny) = (rd_u64(nexus + ENT_X)?, rd_u64(nexus + ENT_Y)?);
     let (twx, twy) = (rd_u64(tower + ENT_X)?, rd_u64(tower + ENT_Y)?);
     if sqd(nx, ny, tx, ty) < sqd(nx, ny, twx, twy) { code2(&mut o); return Some(o); }
-    if enemy_cnt <= ally_cnt || (sqd(twx, twy, tx, ty) >> 8) < D2_170K_SHR8 { code2(&mut o); return Some(o); }
+    if enemy_cnt <= ally_cnt || (sqd(twx, twy, tx, ty) >> 8) < k.gatee_d2 { code2(&mut o); return Some(o); }   // dd_gatee_dist
     let f20 = rd_i32(lr + LR_F20)?;
     // bVar38
     let (tag, mode) = w.mode()?;
@@ -223,7 +267,7 @@ pub unsafe fn passive_line(a: &Args8) -> Option<MpOut> {
         let vp = rd_u64(mode + T0_PTR)? as usize; if !ptr_ok(vp) { return None; }
         resolved = w.entity(rd_u64(vp)?).map(|e| e.0);
     }
-    let code_45 = |o: &mut MpOut| { if f20 < 3 { o.push(0x8, 1, lane as u64); o.code(4); } else { o.code(5); } };
+    let code_45 = |o: &mut MpOut| { if f20 <= k.ivar2_thr { /* dd_ivar2_thr(원본 `< 3`) */ o.push(0x8, 1, lane as u64); o.code(4); } else { o.code(5); } };
     let d93f = |o: &mut MpOut| -> Option<()> {
         if rd_i32(tower + ENT_KIND)? != 2 || rd_u64(tower + ENT_F88)? == 0 { code2(o); } else { o.code(5); }
         Some(())
@@ -231,7 +275,7 @@ pub unsafe fn passive_line(a: &Args8) -> Option<MpOut> {
     match resolved {
         None => {
             // d8e2
-            if b38 { if enemy_cnt < 4 { code2(&mut o); return Some(o); } code_45(&mut o); return Some(o); }
+            if b38 { if enemy_cnt <= k.survivor_thr { /* dd_survivor_thr(원본 `< 4`) */ code2(&mut o); return Some(o); } code_45(&mut o); return Some(o); }
             d93f(&mut o)?; Some(o)
         }
         Some(ent) => {
@@ -241,7 +285,7 @@ pub unsafe fn passive_line(a: &Args8) -> Option<MpOut> {
             }
             let side2 = rd_u64(me + 8)?; if side2 > 1 { return None; }
             if b38 {
-                if enemy_cnt < 4 && rd_u64(ent + ENT_VIS_BASE + (side2 as usize) * ENT_VIS_STRIDE)? != 0 { code2(&mut o); return Some(o); }
+                if enemy_cnt <= k.survivor_thr && rd_u64(ent + ENT_VIS_BASE + (side2 as usize) * ENT_VIS_STRIDE)? != 0 { code2(&mut o); return Some(o); }
                 code_45(&mut o); return Some(o);
             }
             d93f(&mut o)?; Some(o)

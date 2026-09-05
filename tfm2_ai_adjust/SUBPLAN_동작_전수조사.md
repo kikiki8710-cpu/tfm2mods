@@ -113,6 +113,12 @@
 
 ⚠ **`vw_lane`은 무효**입니다 — 그 사이트가 이 함수 안에 있는데 모드가 함수를 통째 대체하므로 게임 원본이 실행되지 않습니다. **라인전 기억창은 `dd_lane_margin`으로.** (일반 규칙: **완전 대체하는 함수 내부의 byte-patch는 무효**)
 
+> ★**2026-09-06 (0.5.8) 처리 경로 교체 — judge 계층 포팅으로 부활**: 0.5.2 세대 `dd7_repl` 라이브 대체는 0.5.8 에서 크래시로 OFF(`mp_repl/dd7_repl=0` 고정) 되어 위 `dd_*` 는 전부 죽어 있었다. 이제 `src\judge\port\passive_line.rs`(0.5.8 디컴 재포팅·리플레이 179만/179만 DIFF=0) 의 `Knobs::from_cfg()` 가 같은 키를 다시 읽는다. 활성 조건 = cfg `judge_live = 1` **and** `judge_live_passive_line = 1`(live) 또는 `2`(shadow: 게임 원본도 돌려 대조 기록, 행동은 노브판). `judge_status.txt` 의 `knob_eff=` 가 "노브가 실제로 판단을 바꾼 횟수".
+> - 배선된 키(원본값): `dd_frontier_mult`(30) · `dd_cover_role_min`(3) · `dd_cover_count`(2) · `dd_lane_margin`(120 — **두 창 모두**: 콜리 recently_seen 창 + MAIN 여유) · `dd_ratio_thr`(51) · `dd_facet_thr`(999) · `dd_main_near_dist`(87,890,625 = 150000²>>8) · `dd_near_dist`(87,890,625) · `dd_gatee_dist`(112,890,625 = 170000²>>8) · `dd_f22e80_margin`(150000) · `dd_survivor_thr`(3, 원본 `< 4`) · `dd_ivar2_thr`(2, 원본 `< 3`). 노브 −1 = 원본.
+> - 미배선(의도): `dd_n_thr`(원본 대응 없음 = 半死레버 유지) · `aggr_lane`(합성 배율, 0.5.2 세대 전용) · `numbers_*`/`tower_*`(플랜 뒤 공통 후퇴 처리 — passive_line 밖). `vw_lane`/`vw_check` 는 live 에서 `dd_lane_margin` 에 밀린다(검증 모드에선 라이브 즉치로 게임과 동치 유지).
+> - 결과 코드 대응(이 문서의 대기7/귀환6/전면4/라인공격2 는 디스패처 뒤 표기): 포팅 내부 code 3|5(+8=2)=커버 종단 · code 2=라인공격 · code 4(+8=lane)/5=종단.
+
+
 ---
 
 ## §3. plan 7 (PassiveJungle) — 정글 · 라인 개입
