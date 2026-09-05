@@ -44,6 +44,7 @@ pub mod port {
     pub mod passive_line_callees;
     pub mod passive_line;
     pub mod defense_nexus;
+    pub mod dn_reach;
 }
 use gen_fns::*;
 
@@ -273,7 +274,7 @@ macro_rules! judge_capture_ret {
 }
 
 judge_capture_ret!(cap_dn_cache, crate::judge::gen_fns::DN_CACHE);
-judge_hook_out!(defense_nexus_hook, crate::judge::gen_fns::DEFENSE_NEXUS, crate::judge::port::defense_nexus::defense_nexus, crate::judge::port::defense_nexus::defense_nexus_live, crate::judge::cap_dn_cache::reset, false, "judge_live_defense_nexus");
+judge_hook_out!(defense_nexus_hook, crate::judge::gen_fns::DEFENSE_NEXUS, crate::judge::port::defense_nexus::defense_nexus, crate::judge::port::defense_nexus::defense_nexus_live, crate::judge::cap_dn_cache::reset, true, "judge_live_defense_nexus");
 judge_hook!(steal_hook, crate::judge::gen_fns::STEAL_SCORE, crate::judge::port::steal_score::steal_score, crate::judge::port::steal_score::steal_score, "judge_live_steal_score");
 judge_capture!(cap_ability_pick, crate::judge::gen_fns::ABILITY_PICK);
 judge_hook_out!(epic_hb_hook, crate::judge::gen_fns::EPIC_HUNT_BATTLE, crate::judge::port::epic_hunt_battle::epic_hunt_battle, crate::judge::port::epic_hunt_battle::epic_hunt_battle, crate::judge::cap_ability_pick::reset, false, "judge_live_epic_hunt_battle");
@@ -426,6 +427,10 @@ pub fn write_status() {
         let tags: Vec<String> = (1..8).filter(|&t| st.tag_ok[t].load(Ordering::Relaxed) + st.tag_diff[t].load(Ordering::Relaxed) > 0)
             .map(|t| format!("tag{}: ok={} diff={}", t, st.tag_ok[t].load(Ordering::Relaxed), st.tag_diff[t].load(Ordering::Relaxed))).collect();
         if !tags.is_empty() { s.push_str(&format!("{:<20}   분기별 | {}\n", "", tags.join(" | "))); }
+        if name == DEFENSE_NEXUS.name {
+            let (a, b) = (port::defense_nexus::REACH_CMP.load(Ordering::Relaxed), port::defense_nexus::REACH_MISMATCH.load(Ordering::Relaxed));
+            if a > 0 { s.push_str(&format!("{:<20}   reach(0xd3fe50) 교차검사 | 캡처 대조 {} · 불일치 {}\n", "", a, b)); }
+        }
     }
     s.push_str("판정: diff=0 && na=0 이면 그 함수 DIFF=0(이번 판 표본 한정). na>0 = 가드 경로/콜리 캡처 없음 → judge_<fn>.txt 의 NA 줄 확인. ability_pick 은 캡처 전용(n=호출 수).\n");
     if let Some(p) = pth("judge_status.txt") { let _ = fs::write(p, s); }

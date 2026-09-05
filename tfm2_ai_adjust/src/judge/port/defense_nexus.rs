@@ -17,6 +17,10 @@ use crate::*;
 use super::super::world::*;
 use super::super::layout::*;
 use super::super::{Args8, MpOut, tr, live_imm8, live_imm64};
+use std::sync::atomic::{AtomicU64, Ordering};
+/// reach 순수 재현 vs 틱 캐시 캡처(bit8) 교차검사 카운터(검증 기간 한정 — 캡처 훅 제거 시 같이 제거)
+pub static REACH_CMP: AtomicU64 = AtomicU64::new(0);
+pub static REACH_MISMATCH: AtomicU64 = AtomicU64::new(0);
 
 #[inline] fn sqd(ax: u64, ay: u64, bx: u64, by: u64) -> u64 {
     let dx = if ax < bx { bx - ax } else { ax - bx }; let dy = if ay < by { by - ay } else { ay - by };
@@ -148,8 +152,12 @@ pub unsafe fn defense_nexus_k(a: &Args8, k: &Knobs) -> Option<MpOut> {
         let np = nexus_pct()?; tr(5, 0x100 | np.min(0xff));
         if np <= k.nexus_hp && nexus_threat(p5, p6, k)? { code11(&mut o); return Some(o); }
         // 틱 메모 캐시(0xc87850) bit8 = 0xd3fe50 "적 사거리가 넥서스에 닿음" — 검증 단계는 캡처값
-        let flags = super::super::cap_dn_cache::take()?; tr(6, 0x1_0000 | (flags & 0xffff));
-        if flags & 0x100 != 0 { code11(&mut o); return Some(o); }
+        let reach = super::dn_reach::reach(p5, p6)?; tr(6, 0x1_0000 | reach as u64);
+        if let Some(flags) = super::super::cap_dn_cache::take() {
+            REACH_CMP.fetch_add(1, Ordering::Relaxed);
+            if ((flags & 0x100) != 0) != reach { REACH_MISMATCH.fetch_add(1, Ordering::Relaxed); tr(8, 0x100 | (flags & 0xffff) << 1 | reach as u64); }
+        }
+        if reach { code11(&mut o); return Some(o); }
     } else {
         let np = nexus_pct()?; tr(5, 0x100 | np.min(0xff));
         if np <= k.nexus_hp && nexus_threat(p5, p6, k)? { code11(&mut o); return Some(o); }

@@ -153,3 +153,15 @@ pub const SITE_DN_HP_CRIT_IMM: usize = 0xd2e1ce;  // cmp [rbp-0x18], 21
 pub const SITE_DN_PRED_P1_IMM: usize = 0xd3fc07;  // 0xd3fa80 안 movabs 240000²+1
 pub const SITE_DN_VISION_IMM: usize = 0xd3fc76;   // 0xd3fa80 안 add, 0x78
 
+// ── dn_reach(0xd3fe50) 전용 ── [capstone 2026-09-06, 0.5.8]
+pub const ENT_F438: usize = 0x438;       // 기본 사거리
+pub const ENT_F470: usize = 0x470;       // i32 사거리 보정 %(0 이면 미적용)
+pub const ENT_F680: usize = 0x680;       // u64 반경(체구) — (0x470+100)*0x680/100
+pub const ENT_SLOT0: usize = 0x490;      // 스킬/평타 슬롯0: [+0] Arc data · [+8] vt · [+0x10] 기본 · [+0x18] 레벨당 · [+0x30] i32 flag(−1 = 없음)
+pub const ENT_SLOT0_FLAG: usize = 0x4c0; // = ENT_SLOT0 + 0x30
+pub const EFF_SLOT_E8: usize = 0xe8;     // 이펙트 vt 슬롯: 사거리 보너스 fn(&self, &ent, &nexus) -> u64
+pub const EFF_E8_ZERO: usize = 0x9db70;              // ×280  xor eax,eax
+pub const EFF_E8_MAX_CHILDREN: usize = 0x12a67a0;    // ×9    자식 (data,vt)[n] (self+8/+0x10) 의 max
+pub const EFF_E8_LVL3_NEXUS_TABLE: usize = 0x12b9e60;// ×1    level≥3 && nexus+0x298 표(stride 0x38, [+0x34]==1) → [self+0x40]
+pub const EFF_E8_BUFF_FLAG: usize = 0x16a8c10;       // ×1    [self+0x62]==1 && ent+0x2f8 버프 vt+0x48==1 → 9,999,999 (버프 층 미재현 → NA)
+
