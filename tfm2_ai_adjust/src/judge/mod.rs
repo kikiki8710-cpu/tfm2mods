@@ -96,6 +96,13 @@ impl Stat {
 
 #[inline] pub fn live() -> bool { tune("judge_live", 0) != 0 }
 
+/// 포팅 내부 추적값(DIFF 원인 분리용). 포팅이 `tr(i, v)` 로 채우고 record 가 DIFF/NA 줄에 같이 찍는다. thread-local·고정배열(alloc 없음).
+thread_local! { static TRACE: std::cell::Cell<[u64; 12]> = const { std::cell::Cell::new([0; 12]) }; }
+#[inline] pub fn tr(i: usize, v: u64) { if i < 12 { TRACE.with(|c| { let mut a = c.get(); a[i] = v; c.set(a); }); } }
+pub fn tr_reset() { TRACE.with(|c| c.set([0; 12])); }
+pub fn tr_fmt() -> String { TRACE.with(|c| c.get().iter().enumerate().filter(|(_, v)| **v != 0).map(|(i, v)| format!("t{}={:#x}", i, v)).collect::<Vec<_>>().join(" ")) }
+#[inline] fn status_due(n: u64) -> bool { n == 1 || n == 16 || n == 64 || n == 256 || n % 500 == 0 }
+
 /// 직접 append(로그 인프라·LOG_ON 과 무관). 디투어 문맥에서 호출되므로 호출 빈도는 record() 가 제한한다.
 pub fn append_direct(name: &str, s: &str) {
     if let Some(p) = pth(name) {
@@ -120,6 +127,7 @@ macro_rules! judge_hook {
                 let a = super::ScorerArgs { p1, p2, p3, p4, p5, p6, p7, p8 };
                 let en = ST.entered.fetch_add(1, Ordering::Relaxed) + 1;
                 if en <= 3 { super::append_direct(&format!("judge_{}.txt", $spec.name), &format!("[{} ENTER #{}] p1={:#x} p5={:#x} p6={:#x} p7={:#x}\n", $spec.name, en, p1, p5, p6, p7)); }
+                super::tr_reset();
                 let mine: Option<i64> = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| $mine(&a))).unwrap_or(None);
                 if super::live() {
                     if let Some(v) = mine { ST.live.fetch_add(1, Ordering::Relaxed); return v as usize; }
@@ -148,6 +156,7 @@ macro_rules! judge_hook_out {
                 let en = ST.entered.fetch_add(1, Ordering::Relaxed) + 1;
                 if en <= 3 { super::append_direct(&format!("judge_{}.txt", $spec.name), &format!("[{} ENTER #{}] out={:#x} p2={:#x} p5={:#x} p6={:#x} p7={:#x}\n", $spec.name, en, p1, p2, p5, p6, p7)); }
                 $pre();
+                super::tr_reset();
                 if super::live() && $live_ok {
                     let mine: Option<super::MpOut> = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| $mine(&a))).unwrap_or(None);
                     if let Some(m) = mine { if super::apply_out(p1, &m) { ST.live.fetch_add(1, Ordering::Relaxed); return p1; } }
@@ -221,10 +230,10 @@ pub unsafe fn record(spec: &FnSpec, st: &Stat, game: i64, mine: Option<i64>, a: 
         let tag = if ptr_ok(a.p7) { rd_u8(a.p7 + layout::SA_TAG) } else { 0xff };
         let phase = if ptr_ok(a.p1) { rd_u8(a.p1 + layout::STEAL_PHASE) } else { 0xff };
         append_direct(&format!("judge_{}.txt", spec.name),
-            &format!("[{} #{}] {} game={} mine={:?} | p1={:#x} phase={} p5={:#x} p6={:#x} p7={:#x} tag={} vt_rva={:#x}\n",
-                spec.name, n, verdict, game, mine, a.p1, phase, a.p5, a.p6, a.p7, tag, st.vt_rva.load(Ordering::Relaxed)));
+            &format!("[{} #{}] {} game={} mine={:?} | p1={:#x} phase={} p5={:#x} p6={:#x} p7={:#x} tag={} vt_rva={:#x} | {}\n",
+                spec.name, n, verdict, game, mine, a.p1, phase, a.p5, a.p6, a.p7, tag, st.vt_rva.load(Ordering::Relaxed), tr_fmt()));
     }
-    if n == 1 || n % 500 == 0 { write_status(); }
+    if status_due(n) { write_status(); }
 }
 
 pub unsafe fn record_out(spec: &FnSpec, st: &Stat, out: usize, mine: Option<MpOut>, a: &ScorerArgs) {
@@ -240,10 +249,10 @@ pub unsafe fn record_out(spec: &FnSpec, st: &Stat, out: usize, mine: Option<MpOu
     if sample_line(st, n, verdict) {
         let gcode = rd_u64(out).unwrap_or(u64::MAX);
         append_direct(&format!("judge_{}.txt", spec.name),
-            &format!("[{} #{}] {} game_code={} mine=[{}] | out={} | p2={:#x} p5={:#x} p6={:#x} p7={:#x}\n",
-                spec.name, n, verdict, gcode, mine.as_ref().map(fmt_writes).unwrap_or_else(|| "None".into()), hex30(out), a.p2, a.p5, a.p6, a.p7));
+            &format!("[{} #{}] {} game_code={} mine=[{}] | out={} | p2={:#x} p5={:#x} p6={:#x} p7={:#x} | {}\n",
+                spec.name, n, verdict, gcode, mine.as_ref().map(fmt_writes).unwrap_or_else(|| "None".into()), hex30(out), a.p2, a.p5, a.p6, a.p7, tr_fmt()));
     }
-    if n == 1 || n % 500 == 0 { write_status(); }
+    if status_due(n) { write_status(); }
 }
 
 pub fn write_status() {

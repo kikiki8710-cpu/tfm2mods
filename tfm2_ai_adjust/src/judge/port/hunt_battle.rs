@@ -5,8 +5,7 @@
 //! 계약(디컴): p1=out(MovePriority) · p2=Plan payload(목표 슬롯 보유) · p5=선수 sim · p6=&Holder(X·G) · p7=타이머 구조체
 //!   side=[p5+0x930](≥2 panic) · role=[p5+0x9c0] · ent=X 로스터[side*5+role] (0 → panic)
 //!   maxhp=[ent+0x628](0 → panic) · hp=[ent+0x670] · pct=hp*100/maxhp
-//!   vt+0x40(data) != 0 → panic(assert 취급)
-//!   tgt = [payload+T_SET]!=0 ? 리졸버(*[payload+T_SLOT]) : NULL
+//!   (tag, mode) = vt+0x40(data); tag!=0 → panic ; tgt = mode.T_LEN!=0 ? 리졸버(**mode.T_PTR) : NULL   (모드 데이터 = world+0xed00)
 //!   in_home = 홈존 박스(G→+0x20→+0x6d70+side*0x20) 안에 (x,y)
 //!   pick = ability_pick(&local, p3, p4(rng), p5, data, vt, G)  ← 검증 단계에서는 게임 콜리 캡처값 사용(포팅 전)
 //!   if tgt==NULL || tgt.hp!=tgt.maxhp || (!(hp<maxhp && in_home) && pct>50 && pick.r0==0):
@@ -22,9 +21,9 @@ use super::super::layout::*;
 use super::super::{Args8, MpOut};
 use super::super::cap_ability_pick;
 
-pub struct HbVariant { pub t_set: usize, pub t_slot: usize, pub p7_ta: usize, pub p7_tb: usize, pub code_else: u64 }
-pub const EPIC: HbVariant = HbVariant { t_set: T0_SET, t_slot: T0_SLOT, p7_ta: P7_EPIC_TA, p7_tb: P7_EPIC_TB, code_else: MP_CODE_EPIC_HB };
-pub const SERPEN: HbVariant = HbVariant { t_set: T1_SET, t_slot: T1_SLOT, p7_ta: P7_SERPEN_TA, p7_tb: P7_SERPEN_TB, code_else: MP_CODE_SERPEN_HB };
+pub struct HbVariant { pub t_len: usize, pub t_ptr: usize, pub p7_ta: usize, pub p7_tb: usize, pub code_else: u64 }
+pub const EPIC: HbVariant = HbVariant { t_len: T0_LEN, t_ptr: T0_PTR, p7_ta: P7_EPIC_TA, p7_tb: P7_EPIC_TB, code_else: MP_CODE_EPIC_HB };
+pub const SERPEN: HbVariant = HbVariant { t_len: T1_LEN, t_ptr: T1_PTR, p7_ta: P7_SERPEN_TA, p7_tb: P7_SERPEN_TB, code_else: MP_CODE_SERPEN_HB };
 
 /// 반환 None = 게임이 panic 하는 경로·읽기 실패·콜리 캡처 없음 → 검증 NA / live passthrough.
 pub unsafe fn hunt_battle(a: &Args8, v: &HbVariant) -> Option<MpOut> {
@@ -42,12 +41,11 @@ pub unsafe fn hunt_battle(a: &Args8, v: &HbVariant) -> Option<MpOut> {
     if maxhp == 0 { return None; }                                 // 게임: panic(div by zero)
     let hp = e.hp()? as u64;
     let pct = hp.wrapping_mul(100) / maxhp;
-    // vt+0x40(data) != 0 → panic — assert 취급(재현 X)
-    let tgt = if rd_u64(payload + v.t_set)? != 0 {
-        let slot = rd_u64(payload + v.t_slot)? as usize;
-        if !ptr_ok(slot) { return None; }
-        w.entity(rd_u64(slot)?)
-    } else { None };
+    // vt+0x40(data) = (tag, &mode_data): tag!=0 → 게임 panic(None). 목표 = 모드 데이터 핸들 Vec 첫 원소 → 리졸버.
+    //   ★[2026-09-06 정정] 첫 포팅은 payload(p2) 기준으로 읽었다 — 디컴의 `*(uVar11+0x1a8)` 는 vt+0x40 이 rdx 로 돌려준 모드 데이터다.
+    let moba = w.moba()?;
+    let tgt = match w.first_target(moba, v.t_len, v.t_ptr)? { Some(h) => { super::super::tr(3, h); w.entity(h) } None => None };
+    super::super::tr(1, moba as u64); super::super::tr(4, tgt.map(|t| t.0 as u64).unwrap_or(0));
     let g = h.g()?;
     let in_home = g.home_box(side)?.contains(e.x()? as u64, e.y()? as u64);
     let pick = cap_ability_pick::take()?;                          // 게임 콜리 결과(검증 전용). live 전환 시 순수 포팅으로 교체.

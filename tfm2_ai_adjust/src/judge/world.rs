@@ -47,6 +47,62 @@ impl World {
         None
     }
 
+    /// vt+0x40 순수 재현: 모드 태그(0=MOBA) 와 모드 데이터 포인터. [ghidra-re 2026-09-06]
+    pub unsafe fn mode(&self) -> Option<(u8, usize)> {
+        if !ptr_ok(self.data) { return None; }
+        let tag = rd_u8(self.data + W_MODE_TAG);
+        Some((tag, self.data + if tag == 0 { W_MODE_DATA_MOBA } else { W_MODE_DATA_OTHER }))
+    }
+    /// MOBA 모드 데이터(아니면 None = 게임은 panic 경로).
+    pub unsafe fn moba(&self) -> Option<usize> { let (t, m) = self.mode()?; if t == 0 { Some(m) } else { None } }
+    /// 모드 데이터의 목표 핸들 Vec(len_off/ptr_off) 첫 핸들. None = Vec 비어 있음(게임: 목표 없음). Err 대신 (found, handle) 로 구분.
+    pub unsafe fn first_target(&self, moba: usize, len_off: usize, ptr_off: usize) -> Option<Option<u64>> {
+        if rd_u64(moba + len_off)? == 0 { return Some(None); }
+        let p = rd_u64(moba + ptr_off)? as usize;
+        if !ptr_ok(p) { return None; }
+        Some(Some(rd_u64(p)?))
+    }
+    /// vt+0xf8 순수 재현: 핸들 h 가 viewer side 에 지금 보이는가. [ghidra-re 2026-09-06 = 0.5.0 vt0x68 동일]
+    pub unsafe fn visible(&self, viewer_side: u64, h: u64) -> Option<bool> {
+        if viewer_side > 1 { return None; }
+        match self.entity_slotmap(h)? { Some(e) => Some(rd_u64(e + ENT_VIS_BASE + (viewer_side as usize) * ENT_VIS_STRIDE)? == 0), None => Some(false) }
+    }
+    /// 슬롯맵 경로만(싱글턴 폴백 없음) — vt+0xf8 이 쓰는 형태.
+    pub unsafe fn entity_slotmap(&self, h: u64) -> Option<Option<usize>> {
+        let g = self.data;
+        if h < rd_u64(g + W_L3_CNT)? {
+            let t3 = rd_u64(g + W_L3_TBL)? as usize;
+            let slot = t3.wrapping_add((h as usize).wrapping_mul(W_SLOT_STRIDE));
+            if ptr_ok(t3) && ptr_ok(slot) && rd_i32(slot)? == 1 {
+                let u = rd_u64(slot + 8)?;
+                if u < rd_u64(g + W_ENT_CNT)? {
+                    let base = rd_u64(g + W_ENT_BASE)? as usize;
+                    let e = base.wrapping_add((u as usize).wrapping_mul(ENT_STRIDE));
+                    if ptr_ok(base) && ptr_ok(e) { return Some(Some(e)); }
+                }
+            }
+        }
+        Some(None)
+    }
+    /// vt+0x150 순수 재현: 핸들 → AI 로스터 레코드(0 = 없음). 선형스캔 stride 0x9e0. [ghidra-re 2026-09-06]
+    pub unsafe fn roster_rec(&self, h: u64) -> Option<usize> {
+        let cnt = rd_u64(self.data + W_ROSTER_REC_CNT)?;
+        if cnt == 0 { return Some(0); }
+        let base = rd_u64(self.data + W_ROSTER_REC_BASE)? as usize;
+        if !ptr_ok(base) { return None; }
+        for i in 0..cnt.min(64) as usize {
+            let rec = base + i * REC_STRIDE;
+            if rd_u64(rec + REC_ALIVE)? != 0 && rd_u64(rec + REC_HANDLE)? == h { return Some(rec); }
+        }
+        Some(0)
+    }
+    /// vt+0xe8 순수 재현: 설정 플래그 u8.
+    pub unsafe fn cfg_flag(&self) -> Option<u8> { if ptr_ok(self.data) { Some(rd_u8(self.data + W_CFG_FLAG)) } else { None } }
+    /// vt+0x108 순수 재현: 사이드별 24B 설정의 주소(호출부가 필요한 필드만 읽는다).
+    pub unsafe fn side_cfg(&self, side: u64) -> Option<usize> { if side > 1 { return None; } Some(self.data + W_SIDE_CFG + (side as usize) * W_SIDE_CFG_STRIDE) }
+    /// vt+0x290 순수 재현: 사이드 킬 카운터 (side0, side1).
+    pub unsafe fn kills(&self) -> Option<(u64, u64)> { Some((rd_u64(self.data + W_KILLS)?, rd_u64(self.data + W_KILLS + 8)?)) }
+
     /// 로스터: X+0x1e0 + side*0x28 + role*8 → 엔티티 ptr(0 = 없음). recall `0xcc5fc0` 실측.
     pub unsafe fn roster(&self, side: u64, role: u32) -> Option<usize> {
         if side > 1 || role > 4 { return None; }

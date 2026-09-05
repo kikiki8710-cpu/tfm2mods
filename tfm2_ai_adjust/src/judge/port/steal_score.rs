@@ -19,20 +19,23 @@ pub unsafe fn steal_score(a: &ScorerArgs) -> Option<i64> {
     let action = a.p7;    // [rsp+0x60] = 평가 대상 SmallAction
     if !ptr_ok(st) || !ptr_ok(holder) || !ptr_ok(action) { return None; }
     let w = World::from_holder(holder)?;
-    // phase(st+8): 0 → T0 슬롯 / 2 → 0(도둑질 완료) / 그 외(1) → T1 슬롯
-    //   (게임은 각 분기에서 vt+0x40(data)!=0 이면 panic — assert 취급, 재현하지 않는다)
+    // phase(st+8): 0 → 모르가드(T0) / 2 → 0(도둑질 완료) / 그 외(1) → 세르펜(T1)
+    //   vt+0x40(data) = (tag, &mode_data) — tag!=0(비-MOBA) 이면 게임은 panic → None. 목표 = 모드 데이터의 핸들 Vec 첫 원소.
+    //   ★[2026-09-06 정정] 첫 포팅은 이 슬롯을 홀더(p6) 기준으로 읽어 DIFF 226건(RE\…WorldOps-슬롯-0x40…).
     let phase = rd_u8(st + STEAL_PHASE);
-    let (set_off, slot_off) = match phase {
-        0 => (HOLDER_T0_SET, HOLDER_T0_SLOT),
+    super::super::tr(0, phase as u64 | 0x100);   // t0 = phase(+0x100 표식)
+    let (len_off, ptr_off) = match phase {
+        0 => (T0_LEN, T0_PTR),
         2 => return Some(0),
-        _ => (HOLDER_T1_SET, HOLDER_T1_SLOT),
+        _ => (T1_LEN, T1_PTR),
     };
-    if rd_u64(holder + set_off)? == 0 { return Some(0); }          // 목표 미지정 → 0
-    let slot = rd_u64(holder + slot_off)? as usize;
-    if !ptr_ok(slot) { return None; }
-    let h = rd_u64(slot)?;                                          // *slot = 목표 핸들
+    let moba = w.moba()?;                                           // 비-MOBA = 게임 panic 경로
+    let h = match w.first_target(moba, len_off, ptr_off)? { Some(h) => h, None => return Some(0) };   // 목표 없음 → 0
+    super::super::tr(1, moba as u64); super::super::tr(3, h);     // t1 = 모드 데이터 · t3 = 핸들
     let tgt = match w.entity(h) { Some(e) => e, None => return Some(0) };   // vt+0x1f0 순수 재현: NULL → 0
+    super::super::tr(4, tgt.0 as u64);
     let tgt_h = tgt.handle()?;                                      // tgt+0x5c0
+    super::super::tr(5, tgt_h); super::super::tr(6, rd_u64(action + 0x08).unwrap_or(0)); super::super::tr(7, rd_u64(action + 0x60).unwrap_or(0));   // t5 tgt 핸들 · t6 action+8 · t7 action+0x60
     // 태그 디스패치: idx = (tag >= 3) ? tag-3 : 7  ← `sub dl,3; cmovae`  (태그 0·1·2 는 태그 10 과 같은 아암)
     let tag = rd_u8(action + SA_TAG);
     let idx = if tag >= 3 { tag - 3 } else { 7 };
