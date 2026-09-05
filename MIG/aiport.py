@@ -5,6 +5,7 @@ r"""aiport — AI 판단함수 **버전별 재구현(judge 계층) 드라이버*
     python MIG\aiport.py gen        [--exe PATH]                 src\judge\gen_fns.rs 재생성
     python MIG\aiport.py skeleton <name> [--decomp DIR]           src\judge\port\<name>.rs 스켈레톤(디컴 C 동봉)
     python MIG\aiport.py status [--old EXE] [--new EXE] [--apply] 버전 대조(IDENTICAL/SHIFTED/EDITED) + 새 RVA. --apply = 매니페스트 갱신+gen
+    python MIG\aiport.py mark <name> todo|ported|verified|stale [--note …]   status 수동 갱신(+gen)
     python MIG\aiport.py list                                     등록 함수 표
 
 ## 왜 만들었나 (2026-09-06)
@@ -302,6 +303,22 @@ def cmd_status(a):
         print('★ EDITED 였던 ported/verified 함수는 status=stale 로 내렸다. 재포팅 후 status 를 손으로 올릴 것.')
 
 
+def cmd_mark(a):
+    """status 를 손으로 올린다(todo → ported → verified). stale 강등은 status --apply 가 자동으로 한다."""
+    m = load_man()
+    e = m['fns'].get(a.name)
+    if not e:
+        raise SystemExit('미등록: %s' % a.name)
+    if a.status not in ('todo', 'ported', 'verified', 'stale'):
+        raise SystemExit('status 는 todo|ported|verified|stale')
+    e['history'].append({'ver': m['ver'], 'rva': e['cur']['rva'], 'date': datetime.date.today().isoformat(),
+                         'event': 'mark:%s→%s' % (e.get('status'), a.status), 'note': a.note or ''})
+    e['status'] = a.status
+    save_man(m)
+    cmd_gen(a)
+    print('mark: %s → %s' % (a.name, a.status))
+
+
 def cmd_list(a):
     m = load_man()
     print('게임 %s · exe %s' % (m['ver'], m['exe_sha']))
@@ -318,6 +335,7 @@ def main():
     p = sp.add_parser('gen'); p.add_argument('--exe', default=GAME_EXE); p.set_defaults(f=cmd_gen)
     p = sp.add_parser('skeleton'); p.add_argument('name'); p.add_argument('--decomp', default=None); p.add_argument('--force', action='store_true'); p.set_defaults(f=cmd_skeleton)
     p = sp.add_parser('status'); p.add_argument('--old', required=True); p.add_argument('--new', default=GAME_EXE); p.add_argument('--apply', action='store_true'); p.set_defaults(f=cmd_status)
+    p = sp.add_parser('mark'); p.add_argument('name'); p.add_argument('status'); p.add_argument('--note', default=''); p.set_defaults(f=cmd_mark)
     p = sp.add_parser('list'); p.set_defaults(f=cmd_list)
     a = ap.parse_args()
     a.f(a)
