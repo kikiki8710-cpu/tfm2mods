@@ -502,8 +502,46 @@ pub unsafe fn eff_bool(data: usize, vt: usize, slot: usize, depth: u32) -> Optio
         (0x68, EFF68_ANY_CHILD) => any_child(0x68),
         (0x68, 0x13bede0) => { let n = rd_u64(p + 0x58)?; if n == 0 { return Some(false); } let arr = rd_u64(p + 0x50)? as usize; if !ptr_ok(arr) { return None; }
             for i in 0..n.min(64) as usize { let (cd, cv) = (rd_u64(arr + i * 0x18)? as usize, rd_u64(arr + i * 0x18 + 8)? as usize); if eff_bool(cd, cv, 0x68, depth + 1)? { return Some(true); } } Some(false) }
-        _ => { super::dyn_eff::unseen(slot as u32, r); None }
+        (0x68, 0x122e650) => {
+            // any(list1 @ p+0x50, len p+0x58, stride 0x18) || any(list2 @ p+0x68, len p+0x70, stride 0x10)
+            let n1 = rd_u64(p + 0x58)?;
+            if n1 != 0 { let a1 = rd_u64(p + 0x50)? as usize; if !ptr_ok(a1) { return None; }
+                for i in 0..n1.min(64) as usize { let e = a1 + i * 0x18;
+                    if eff_bool(rd_u64(e)? as usize, rd_u64(e + 8)? as usize, 0x68, depth + 1)? { return Some(true); } } }
+            let n2 = rd_u64(p + 0x70)?;
+            if n2 != 0 { let a2 = rd_u64(p + 0x68)? as usize; if !ptr_ok(a2) { return None; }
+                for i in 0..n2.min(64) as usize { let e = a2 + i * 0x10;
+                    if eff_bool(rd_u64(e)? as usize, rd_u64(e + 8)? as usize, 0x68, depth + 1)? { return Some(true); } } }
+            Some(false)
+        }
+        _ => {
+            // ★위임형 일반 디코더: `mov rax,[rcx+A]; mov rdx,[rcx+B]; …; jmp qword ptr [rdx+SLOT]`
+            //   = 자식 fat-ptr (p+A, p+B) 로 같은 판정을 그대로 넘긴다(0x1606650 · 0x164ec10 등).
+            if let Some((da, db, sl)) = delegate_pair(rd_u64(vt + slot)? as usize) {
+                let (cd, cv) = (rd_u64(p + da)? as usize, rd_u64(p + db)? as usize);
+                if ptr_ok(cd) && ptr_ok(cv) { return eff_bool(cd, cv, sl, depth + 1); }
+            }
+            super::dyn_eff::unseen(slot as u32, r); None
+        }
     }
+}
+/// 위임형 impl 판별 → (자식 data 오프셋, 자식 vt 오프셋, 넘길 슬롯)
+pub unsafe fn delegate_pair(f: usize) -> Option<(usize, usize, usize)> {
+    if !ptr_ok(f) { return None; }
+    let (a, mut i) = if rd_u8(f) == 0x48 && rd_u8(f + 1) == 0x8b && rd_u8(f + 2) == 0x01 { (0usize, 3usize) }
+        else if rd_u8(f) == 0x48 && rd_u8(f + 1) == 0x8b && rd_u8(f + 2) == 0x41 { (rd_u8(f + 3) as usize, 4) }
+        else if rd_u8(f) == 0x48 && rd_u8(f + 1) == 0x8b && rd_u8(f + 2) == 0x81 { (rd_i32(f + 3)? as usize, 7) }
+        else { return None };
+    let b = if rd_u8(f + i) == 0x48 && rd_u8(f + i + 1) == 0x8b && rd_u8(f + i + 2) == 0x11 { i += 3; 0usize }
+        else if rd_u8(f + i) == 0x48 && rd_u8(f + i + 1) == 0x8b && rd_u8(f + i + 2) == 0x51 { let v = rd_u8(f + i + 3) as usize; i += 4; v }
+        else if rd_u8(f + i) == 0x48 && rd_u8(f + i + 1) == 0x8b && rd_u8(f + i + 2) == 0x91 { let v = rd_i32(f + i + 3)? as usize; i += 7; v }
+        else { return None };
+    for k in 0..0x18usize {
+        let a2 = f + i + k;
+        if rd_u8(a2) == 0xff && rd_u8(a2 + 1) == 0x62 { return Some((a, b, rd_u8(a2 + 2) as usize)); }
+        if rd_u8(a2) == 0xff && rd_u8(a2 + 1) == 0xa2 { return Some((a, b, rd_i32(a2 + 2)? as usize)); }
+    }
+    None
 }
 /// 0xcaff00 (small_action/trace.rs): 추적 대상의 접근점. 반환 Some(None) = tag 0(대상 없음/슬롯0 없음).
 ///   대상 = vt1f0(sa+0x60) · reach = sa.0(u32)==1 ? sa+8 : min(슬롯0 [필수], 슬롯1·2 [sa+0x91==0 && 술어]) 의 사거리(rng(self)+rng(tgt)+0x438+base+(lv−1)perlv+e8)

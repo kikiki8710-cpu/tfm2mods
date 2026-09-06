@@ -56,6 +56,7 @@ pub mod port {
     pub mod dn_cache;
     pub mod position_eval;
     pub mod combat_score;
+    pub mod buff_value;
 }
 use gen_fns::*;
 
@@ -583,9 +584,9 @@ macro_rules! judge_capture_pair {
             pub static ORIG: AtomicUsize = AtomicUsize::new(0);
             pub static ST: super::Stat = super::Stat::new();
             pub fn reset() {}
-            unsafe extern "C" fn record(p1: usize, p2: usize, p3: usize, p4: usize, r: usize, d: usize, caller_rbp: usize) {
+            unsafe extern "C" fn record(p1: usize, p2: usize, p3: usize, p4: usize, r: usize, d: usize, caller_rbp: usize, retaddr: usize) {
                 ST.n.fetch_add(1, Ordering::Relaxed); ST.entered.fetch_add(1, Ordering::Relaxed);
-                let _ = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| ($rec)(p1, p2, p3, p4, r as u64, d as u64, caller_rbp)));
+                let _ = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| ($rec)(p1, p2, p3, p4, r as u64, d as u64, caller_rbp, retaddr)));
             }
             /// ★naked: 원본의 (rax, rdx) 쌍 반환을 그대로 게임에 돌려준다. 일반 Rust wrap 은 rdx(두 번째 반환값)를 파괴해 게임 동작을 바꿨다
             ///   (2026-09-06 22:35 실사고: 타워다이브 target 핸들이 깨져 hit_me 판정이 항상 false → 게임 B 가산이 달라짐).
@@ -601,6 +602,7 @@ macro_rules! judge_capture_pair {
                     "mov [rsp+0x60], rax", "mov [rsp+0x68], rdx",
                     "mov [rsp+0x20], rax", "mov [rsp+0x28], rdx",
                     "mov rax, [rsp+0x70]", "mov [rsp+0x30], rax",
+                    "mov rax, [rsp+0x78]", "mov [rsp+0x38], rax",
                     "mov rcx, [rsp+0x40]", "mov rdx, [rsp+0x48]", "mov r8, [rsp+0x50]", "mov r9, [rsp+0x58]",
                     "call {rec}",
                     "mov rax, [rsp+0x60]", "mov rdx, [rsp+0x68]",
@@ -612,8 +614,8 @@ macro_rules! judge_capture_pair {
         }
     };
 }
-judge_capture_pair!(cap_as_e04400, crate::judge::gen_fns::AS_E04400, |_p1: usize, _p2: usize, _p3: usize, p4: usize, r: u64, d: u64, _rbp: usize| { crate::judge::port::combat_score::e04400_record(p4, r, d) });   // 특수형 조기반환(combat_score 전용 콜리)
-judge_capture_pair!(cap_as_d96d00, crate::judge::gen_fns::AS_D96D00, |_p1: usize, p2: usize, p3: usize, p4: usize, r: u64, d: u64, rbp: usize| unsafe { crate::judge::port::position_eval::dive_record(p2, p3, p4, r, d, rbp) });   // 타워다이브 (순수 경계: 전투 시뮬 0xe05450 → 캡처)
+judge_capture_pair!(cap_as_e04400, crate::judge::gen_fns::AS_E04400, |_p1: usize, _p2: usize, _p3: usize, p4: usize, r: u64, d: u64, _rbp: usize, _ra: usize| { crate::judge::port::combat_score::e04400_record(p4, r, d) });   // 특수형 조기반환(combat_score 전용 콜리)
+judge_capture_pair!(cap_as_d96d00, crate::judge::gen_fns::AS_D96D00, |_p1: usize, p2: usize, p3: usize, p4: usize, r: u64, d: u64, rbp: usize, ra: usize| unsafe { crate::judge::port::position_eval::dive_record(p2, p3, p4, r, d, rbp, ra) });   // 타워다이브 (순수 경계: 전투 시뮬 0xe05450 → 캡처)
 /// capture_ring + 대조: 링(find/last)은 그대로 두고, `$mine(p1..p4)`(Option<u64>) 를 rax 전체와 대조한다(ok/diff/na, DIFF ≤40줄). 콜리 순수 포팅 검증용.
 macro_rules! judge_capture_ring_cmp9_pre {
     ($m:ident, $spec:expr, $mine:expr) => {
@@ -954,7 +956,7 @@ pub fn write_status() {
     s.push_str("판정: diff=0 && na=0 이면 그 함수 DIFF=0(이번 판 표본 한정). na>0 = 가드 경로/콜리 캡처 없음 → judge_<fn>.txt 의 NA 줄 확인. ability_pick 은 캡처 전용(n=호출 수).\n");
     if let Some(p) = pth("judge_status.txt") { let _ = fs::write(p, s); }
     if let Some(p) = pth("judge_dyn.txt") { let _ = fs::write(p, port::dyn_eff::unseen_report()); }
-    if let Some(p) = pth("judge_pe_gate.txt") { let _ = fs::write(p, format!("{}{}{}{}", port::position_eval::memo_report(), port::position_eval::edge_report(), port::position_eval::gate_report(), port::combat_score::na_report())); }
+    if let Some(p) = pth("judge_pe_gate.txt") { let _ = fs::write(p, format!("{}{}{}{}{}", port::position_eval::memo_report(), port::position_eval::truth_report(), port::position_eval::edge_report(), port::position_eval::gate_report(), port::combat_score::na_report())); }
 }
 
 static INSTALLED: AtomicBool = AtomicBool::new(false);

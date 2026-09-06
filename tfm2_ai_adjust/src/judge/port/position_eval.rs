@@ -278,12 +278,38 @@ pub fn dive_calls_since(side: u64, th: u64) -> usize { let pre = PRE_N.with(|c| 
 pub fn dive_push(side: u64, th: u64, tick: u64, r: u64, d: u64, q: (u64, u64, u64), f: [u64; 8]) { DIVE.with(|c| { let (mut a, n) = c.get(); a[n % 32] = (side, th, tick, r, d); DIVE_Q.with(|qq| { let mut b = qq.get(); b[n % 32] = q; qq.set(b); }); DIVE_F.with(|ff| { let mut b = ff.get(); b[n % 32] = f; ff.set(b); }); c.set((a, n + 1)); }); }
 pub fn dive_lookup(side: u64, th: u64, tick: u64) -> Option<(u64, u64)> { DIVE.with(|c| { let (a, n) = c.get(); (n.saturating_sub(32)..n).rev().map(|i| a[i % 32]).find(|e| e.0 == side && e.1 == th && e.2 == tick).map(|e| (e.3, e.4)) }) }
 /// 훅에서 부른다: p1=mode p2=&Holder p3=sim p4=tower
-pub unsafe fn dive_record(p2: usize, p3: usize, p4: usize, r: u64, d: u64, rbp: usize) {
+pub unsafe fn dive_record(p2: usize, p3: usize, p4: usize, r: u64, d: u64, rbp: usize, ra: usize) {
+    // ★진짜 필터 = 반환주소. position_eval 본체의 콜사이트는 `call 0xd96d00` @0xd88043 → 복귀 0xd88048.
+    //   다른 함수에서 온 호출은 프레임이 달라 [rbp+…] 이 전부 쓰레기다.
+    let base = crate::exe_base(); if base == 0 || ra != base + 0xd88048 { return; }
+    // ★0xd96d00 은 position_eval 본체(0xd851d0 @d88043) 말고 **다른 함수에서도** 불린다.
+    //   그 호출들은 rbp 프레임이 전혀 달라 [rbp+0x7a0] 등이 쓰레기값이고, 그대로 링에 넣으면
+    //   "게임이 이 타워로 d96d00 을 불렀는가" 오라클이 오염된다(2026-09-07 03:30 실측:
+    //   q=(70,0) f=[0,0,0,0,0,0,0,18] 같은 표본 다수 → 게이트 후보 통계가 rg+24000 쪽으로 끌려감).
+    //   본체 프레임에서는 [rbp+0x718] 이 곧 item(=p4) 이므로 이것으로 걸러낸다.
+    if !ptr_ok(rbp) || rd_u64(rbp + 0x718).unwrap_or(0) as usize != p4 { return; }
     let x = rd_u64(p2).unwrap_or(0) as usize; let data = if ptr_ok(x) { rd_u64(x).unwrap_or(0) as usize } else { 0 };
     let tick = if ptr_ok(data) { rd_u64(data + W_TICK).unwrap_or(0) } else { 0 };
     let q = if ptr_ok(rbp) { (rd_u64(rbp + 0x7a0).unwrap_or(0), rd_u64(rbp + 0x7a8).unwrap_or(0), rd_u64(rbp + 0x718).unwrap_or(0)) } else { (0, 0, 0) };
     let g = |o: usize| if ptr_ok(rbp) { rd_u64(rbp + o).unwrap_or(u64::MAX) } else { 0 };
     let f = [g(0x378), g(0x380), g(0x388), g(0x390), g(0x3d8), g(0x3e0), g(0x408), g(0x720)];
+    // ★결정적 계측: 게임이 실제로 게이트를 통과한 그 순간의 (타워좌표, q, 임계 성분) 을 그대로 남긴다.
+    //   게이트 = |item.x−qx|² + |item.y−qy|² <= (438+4a0+(lv−1)*4a8+vt_e8+ri'+rt'+18000)²  (d87ea1~d8800d)
+    //   여기서 d2 > T² 인 줄이 하나라도 나오면 게이트 변수 식별이 틀린 것이다.
+    if ptr_ok(rbp) && ptr_ok(p4) {
+        let (ix, iy) = (rd_u64(p4 + ENT_X).unwrap_or(0), rd_u64(p4 + ENT_Y).unwrap_or(0));
+        let lv = f[6];
+        let t = f[0].wrapping_add(f[1]).wrapping_add(lv.wrapping_sub(1).wrapping_mul(f[2])).wrapping_add(f[3])
+                    .wrapping_add(f[4]).wrapping_add(f[5]).wrapping_add(18000);
+        let d2 = absd(ix, q.0).wrapping_mul(absd(ix, q.0)).wrapping_add(absd(iy, q.1).wrapping_mul(absd(iy, q.1)));
+        // 게이트 자체 임시 슬롯: [rbp+0x710]=item.y · [rbp+0x708]=item.438 · [rbp+0x6e8]=item.4a8
+        // [rbp+0x698]/[rbp+0x6a0] = 게임이 q 를 가리키는 포인터(d8544f/d8545d 에서 lea). 이게 rbp+0x7a0/0x7a8 이 아니면
+        // 게이트가 읽는 q 와 내가 읽는 q 가 다른 것이다. 포인터와 그 대상까지 같이 찍는다.
+        let (qp, qp2) = (g(0x698), g(0x6a0));
+        let gs = [g(0x710), g(0x708), g(0x6e8), qp.wrapping_sub((rbp + 0x7a0) as u64), qp2.wrapping_sub((rbp + 0x7a8) as u64),
+                  rd_u64(qp as usize).unwrap_or(u64::MAX), rd_u64(qp2 as usize).unwrap_or(u64::MAX), rd_u64(p4 + 0x4a0).unwrap_or(0)];
+        gate_truth(d2, t, ix, iy, q.0, q.1, &f, &gs);
+    }
     dive_push(rd_u64(p3 + P5_SIDE).unwrap_or(9), rd_u64(p4 + ENT_HANDLE).unwrap_or(0), tick, r, d, q, f);
 }
 
@@ -634,17 +660,27 @@ unsafe fn body(st: &St) -> Option<Out> {
                 let mut v = match est(item, tgt).and_then(|es| tower_v(item, es, tps, scale)) { Some(v) => v, None => { trs(|| "NA:etower".into()); return None } };
                 let r_u = range_u(item, tgt)?;
                 let d2g = wrap_d2(ix, iy, qx, qy); let rgb = range_g(item, tgt)?; let ri = radius(item)?; let rt = radius(tgt)?;
-                // ⬜게이트 = `range_g + 24000` (**실측 맞춤 상수 · 구조 미확정**). 게임의 실제 게이트(= 그 타워로 d96d00 을 부르는가) 대비 적중률:
-                //   rg+18000(디스어셈 그대로) 90.24% → rg+18000+ri 99.65% → **rg+24000 99.92%**(2026-09-07 00:37, 표본 3,174,611 · ng 2,659).
-                //   디스어셈(d87fe4~d88009)은 `range_g + 18000` 인데 실측은 +6000 더 넓다 → 내 range_g 성분 중 하나가 게임보다 작다는 뜻.
-                //   불일치 표본은 judge_pe_gate_ng.txt 로 수집한다(다음 세션에서 성분 역산).
+                // ⬜게이트 = `range_g + 24000` (**실측 맞춤 · 구조 미해결**). 2026-09-07 03:5x 재조사 결론:
+                //   디스어셈(d87ea1~d8800d)은 바이트 단위로 `range_g + 18000` 이 확실하고, 게이트가 읽는 값들도
+                //   **게임 프레임에서 직접 떠서** 전부 대조했다([rbp+0x710]=item.y · [rbp+0x708]=438 · [rbp+0x6e8]=4a8 ·
+                //   [rbp+0x698]/[0x6a0] 이 정확히 rbp+0x7a0/0x7a8 을 가리킴 · q·item 좌표 일치). 그런데도 게임은
+                //   d2 > (rg+18000)² 인 표본 다수에서 d96d00 을 부른다(need−rg 최소 20,377). 반대로 need=1,000 인데
+                //   부르지 않는 표본도 있어 **"d96d00 호출 = 이 거리 게이트" 자체가 성립하지 않는다**.
+                //   → 원인 미해결. out 워드 일치율만 보면 +24000(≈1.9% DIFF)이 +18000(≈2.76%)보다 낫다.
+                //   ~~+18000(디스어셈 그대로)~~ → +24000 유지(2026-09-07). 다음 세션 과제 = 게이트 앞 조건 전수.
+                // (구 근거) 디스어셈 성분: rgb = item.0x438 + item.0x4a0 + (lv−1)*item.0x4a8 + vt_e8 + radius'(item) + radius'(tgt).
+                //   ~~rg+24000(실측 맞춤)~~ 은 오라클이 잘못됐다 — "게임이 그 타워로 d96d00 을 부르는가"(dive_calls_since)
+                //   를 정답으로 삼아 99.9% 를 얻었지만, 실제 out 대조에서 게임 b=0 인데 내가 b=150 을 얹는 표본이
+                //   그대로 나왔다(judge_as_d84db0.txt #5882 등: rg+18000=113000, isqrt(d2)=115377 → 게임은 탈락).
+                //   디스어셈 성분: rgb = item.0x438 + item.0x4a0 + (lv−1)*item.0x4a8 + vt_e8 + radius'(item) + radius'(tgt),
+                //   radius'(e) = e.0x470==0 ? e.0x680 : (e.0x470+100)*e.0x680/100 — 내 range_g 와 완전히 일치한다.
                 let game_pass = d2g <= sq(rgb.wrapping_add(24000));
                 { let gp = dive_calls_since(side, rd_u64(item + ENT_HANDLE)?) > 0;
                   gate_edge(rgb, isqrt_fast(d2g), gp);
                   if gp != game_pass { gate_log(d2g, rgb, ri, rt, rd_u64(item + ENT_F438)?, rd_u64(item + 0x4a0)?, rd_u64(item + 0x4a8)?, rd_u64(item + ENT_LEVEL)?, rd_i32(item + 0x4c0)? as i64, rd_i32(item + 0x470)? as i64, rd_u64(item + 0x680)?, rd_i32(tgt + 0x470)? as i64, rd_u64(tgt + 0x680)?, gp); } }
                 // 진단: 게임의 실제 게이트(= 그 타워로 d96d00 호출) 대비 후보별 적중 집계
                 { let gp = dive_calls_since(side, rd_u64(item + ENT_HANDLE)?) > 0;
-                  let cands = [rgb + 23000, rgb + 23500, rgb + 24000, rgb + 24500, rgb + 18000 + ri, rgb + 18000 + rt, rgb + 24000 + ri / 5, rgb + 24000 - ri / 5];
+                  let cands = [rgb + 18000, rgb + 19000, rgb + 20000, rgb + 22000, rgb + 24000, rgb + 18000 + ri, rgb + 18000 + rt, rgb];
                   for (i, c) in cands.iter().enumerate() { let ok = (d2g <= sq(*c)) == gp; gate_stat(i, ok); } }
                 trs(|| { let d2g = wrap_d2(ix, iy, qx, qy); let rg = range_g(item, tgt).unwrap_or(0); let ri = radius(item).unwrap_or(0); let rt = radius(tgt).unwrap_or(0);
                     let cands = [rg + 18000, rg + 18000 + ri, rg + 18000 + rt, rg + 32000, rg + 50000, rg.wrapping_sub(ri) + 18000];
@@ -932,7 +968,7 @@ pub fn edge_report() -> String {
 pub static GATE_STAT: [std::sync::atomic::AtomicU64; 16] = [const { std::sync::atomic::AtomicU64::new(0) }; 16];
 #[inline] fn gate_stat(i: usize, ok: bool) { if i < 8 { GATE_STAT[i * 2 + usize::from(!ok)].fetch_add(1, std::sync::atomic::Ordering::Relaxed); } }
 pub fn gate_report() -> String {
-    let n = ["rg+23000", "rg+23500", "rg+24000", "rg+24500", "rg+18000+ri", "rg+18000+rt", "rg+24000+ri/5", "rg+24000-ri/5"];
+    let n = ["rg+18000", "rg+19000", "rg+20000", "rg+22000", "rg+24000", "rg+18000+ri", "rg+18000+rt", "rg+0"];
     let mut s = String::from("=== S7 적 타워 게이트 후보 적중(게임 = d96d00 호출 여부) ===
 ");
     for i in 0..8 { let (ok, ng) = (GATE_STAT[i * 2].load(std::sync::atomic::Ordering::Relaxed), GATE_STAT[i * 2 + 1].load(std::sync::atomic::Ordering::Relaxed));
@@ -941,6 +977,27 @@ pub fn gate_report() -> String {
     s
 }
 /// 게이트 공식 역산용 표본 로그(최대 200줄). judge_pe_gate.txt
+/// 게임이 게이트를 통과한 순간의 실측 — PASS/FAIL 집계 + FAIL 표본 200 줄
+pub static TRUTH: [std::sync::atomic::AtomicU64; 2] = [const { std::sync::atomic::AtomicU64::new(0) }; 2];
+static TRUTH_N: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(0);
+fn gate_truth(d2: u64, t: u64, ix: u64, iy: u64, qx: u64, qy: u64, f: &[u64; 8], gs: &[u64; 8]) {
+    let ok = d2 <= t.wrapping_mul(t);
+    TRUTH[usize::from(!ok)].fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+    if !ok && TRUTH_N.fetch_add(1, std::sync::atomic::Ordering::Relaxed) < 200 {
+        if let Some(p) = crate::pth("judge_pe_gate_truth.txt") {
+            let line = format!("d2={} T={} T2={} item=({},{}) q=({},{}) f={:?} gs={:?}
+", d2, t, t.wrapping_mul(t), ix, iy, qx, qy, f, gs);
+            let _ = std::fs::OpenOptions::new().create(true).append(true).open(p).and_then(|mut fh| { use std::io::Write; fh.write_all(line.as_bytes()) });
+        }
+    }
+}
+pub fn truth_report() -> String {
+    let (a, b) = (TRUTH[0].load(std::sync::atomic::Ordering::Relaxed), TRUTH[1].load(std::sync::atomic::Ordering::Relaxed));
+    if a + b == 0 { return String::new(); }
+    format!("=== 게임이 d96d00 을 부른 순간의 게이트 실측(모델: d2 <= (rg+18000)²) ===
+모델도 통과={} 모델은 탈락={} | 모델 적중 {:.3}%
+", a, b, a as f64 * 100.0 / (a + b) as f64)
+}
 static GATE_N: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(0);
 #[allow(clippy::too_many_arguments)]
 fn gate_log(d2: u64, rg: u64, ri: u64, rt: u64, f438: u64, f4a0: u64, f4a8: u64, lv: u64, f4c0: i64, f470: i64, f680: u64, t470: i64, t680: u64, game: bool) {
@@ -1003,14 +1060,20 @@ pub fn memo_report() -> String {
     let t = g(0) + g(1) + g(2) + g(3);
     if t == 0 { return String::new(); }
     format!("=== 래퍼 메모 판정 대조(정답 = 게임이 본체 0xd851d0 을 돌았는가) ===
-히트일치={} 히트오판(내히트·게임미스)={} 미스오판(내미스·게임히트)={} 미스일치={} | 정확도 {:.3}%
+히트일치={} 히트오판(내히트·게임미스)={} 미스일치={} 미스오판(내미스·게임히트)={} | 정확도 {:.3}%
 ",
-        g(0), g(1), g(2), g(3), (g(0) + g(3)) as f64 * 100.0 / t as f64)
+        g(0), g(1), g(2), g(3), (g(0) + g(2)) as f64 * 100.0 / t as f64)
 }
 /// 호출 전 스냅샷: 게임 래퍼 메모가 이 (tick, sim.928, qx, qy, purpose, mode) 로 히트하는가.
 pub unsafe fn pre_memo(mode: usize, sim: usize, holder: usize, qx: usize, qy: usize, purpose: usize) {
     PRE_HIT.with(|c| c.set((false, [0; 9])));
-    let hit = (|| -> Option<[u64; 9]> {
+    let hit = memo_lookup(mode, sim, holder, qx, qy, purpose);
+    if let Some(w) = hit { PRE_HIT.with(|c| c.set((true, w))); }
+    PRE_BODY.with(|c| c.set(crate::judge::cap_as_d851d0::count()));
+}
+/// 래퍼 0xd84db0 의 TLS 메모 표를 그대로 조회한다(게임이 히트시키는 것과 같은 키).
+pub unsafe fn memo_lookup(mode: usize, sim: usize, holder: usize, qx: usize, qy: usize, purpose: usize) -> Option<[u64; 9]> {
+    (|| -> Option<[u64; 9]> {
         if !ptr_ok(sim) || !ptr_ok(holder) { return None; }
         let x = rd_u64(holder)? as usize; if !ptr_ok(x) { return None; }
         let data = rd_u64(x)? as usize; if !ptr_ok(data) { return None; }
@@ -1029,9 +1092,7 @@ pub unsafe fn pre_memo(mode: usize, sim: usize, holder: usize, qx: usize, qy: us
         let mut w = [0u64; 9];
         for i in 0..7 { w[i] = rd_u64(e + 0x30 + i * 8)?; }
         Some(w)
-    })();
-    if let Some(w) = hit { PRE_HIT.with(|c| c.set((true, w))); }
-    PRE_BODY.with(|c| c.set(crate::judge::cap_as_d851d0::count()));
+    })()
 }
 
 // ── 훅 어댑터 ─────────────────────────────────────────────────────────────────────────────

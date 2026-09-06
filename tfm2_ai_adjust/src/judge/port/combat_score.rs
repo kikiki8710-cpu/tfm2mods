@@ -18,7 +18,7 @@ const BB_R: usize = 0x918; const BB_998: usize = 0x998; const BB_9A0: usize = 0x
 const BB_1500: usize = 0x1500;
 const BB_ALLY_PTR: usize = 0x14b8; const BB_ALLY_LEN: usize = 0x14d0;
 const BB_ENEMY_PTR: usize = 0x14d8; const BB_ENEMY_LEN: usize = 0x14f0;
-const RT_KILL: usize = 0x158; const RT_170: usize = 0x170; const RT_HANDLE: usize = 0x58;
+const RT_KILL: usize = 0x80; const RT_170: usize = 0x98; const RT_HANDLE: usize = 0x58;
 const ENT_KIND: usize = 0x68; const ENT_488: usize = 0x488; const ENT_4C0: usize = 0x4c0;
 const SLOT_BASE: usize = 0x10; const SLOT_PERLV: usize = 0x18; const SLOT_FLAG: usize = 0x30;
 const CFG_8A8: usize = 0x8a8; const CFG_13F8: usize = 0x13f8;
@@ -28,7 +28,10 @@ const STRUCT_OFFS: [usize; 6] = [0x180, 0x1a0, 0x1c0, 0x190, 0x1b0, 0x1d0];
 use std::sync::atomic::{AtomicU64, Ordering};
 static NA_KEYS: [AtomicU64; 32] = [const { AtomicU64::new(0) }; 32];
 static NA_CNTS: [AtomicU64; 32] = [const { AtomicU64::new(0) }; 32];
+thread_local! { static STG: std::cell::Cell<u64> = const { std::cell::Cell::new(0) }; static TAGGED: std::cell::Cell<bool> = const { std::cell::Cell::new(false) }; }
+#[inline] fn stg(t: u64) { STG.with(|c| c.set(t)); }
 fn na(tag: u64) -> Option<i64> {
+    TAGGED.with(|c| c.set(true));
     for i in 0..32 {
         let k = NA_KEYS[i].load(Ordering::Relaxed);
         if k == tag { NA_CNTS[i].fetch_add(1, Ordering::Relaxed); return None; }
@@ -36,6 +39,8 @@ fn na(tag: u64) -> Option<i64> {
     }
     None
 }
+/// 다른 모듈(buff_value 등)에서 미포팅 지점을 집계할 때 쓰는 공개 창구
+pub fn na_tag(t: &str) -> Option<i64> { na(tag8(t)) }
 pub fn na_report() -> String {
     let mut v: Vec<(u64, u64)> = (0..32).filter_map(|i| { let k = NA_KEYS[i].load(Ordering::Relaxed); if k == 0 { None } else { Some((k, NA_CNTS[i].load(Ordering::Relaxed))) } }).collect();
     v.sort_by(|a, b| b.1.cmp(&a.1));
@@ -44,13 +49,14 @@ pub fn na_report() -> String {
     for (k, c) in v { let t: String = k.to_le_bytes().iter().take_while(|b| **b != 0).map(|b| *b as char).collect(); s += &format!("{:<10} x{}\n", t, c); }
     s
 }
-thread_local! { pub static LAST: std::cell::Cell<[i64; 18]> = const { std::cell::Cell::new([0; 18]) }; }
+thread_local! { pub static S12D: std::cell::Cell<[i64; 8]> = const { std::cell::Cell::new([0; 8]) }; pub static LAST: std::cell::Cell<[i64; 18]> = const { std::cell::Cell::new([0; 18]) }; }
 /// DIFF 로그용 단계 값
 pub unsafe fn diag(_p1: usize, _p3: usize, _p4: usize) -> String {
     let v = LAST.with(|c| c.get());
     format!("risk_neg={} tower={} pos={} main={} urgent={} C={} thr_s={} chase={} bb998={} b9b0={} cast={} hp={} thr={} thrlen={}",
         v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7], v[8], v[9], v[10], v[11], v[12], v[13])
         + &format!(" game_thr={} bb970={} bb9a0={} bb988={}", v[14], v[15], v[16], v[17])
+        + &{ let q = S12D.with(|c| c.get()); format!(" | S12[D={} X={} Ct={} kill={} score={} e01450={} e019d0={} e02020={}]", q[0], q[1], q[2], q[3], q[4], q[5], q[6], q[7]) }
         + &unsafe { let caps = crate::judge::cap_util_c87fe0::last_p2().unwrap_or(0);
             if crate::ptr_ok(caps) { format!(" gameR={:#x} gameBB={:#x} gameBB998={:?}", rd_u64(caps + 0x18).unwrap_or(0), rd_u64(caps + 0x20).unwrap_or(0),
                 rd_u64(caps + 0x20).and_then(|b| rd_i64(b as usize + 0x998))) } else { " caps=none".into() } }
@@ -159,9 +165,192 @@ unsafe fn nearest_in_chain(w: &World, side: u64, me: usize) -> Option<Option<(us
     Some(best)
 }
 
+
+// ── S12 dyn 게터 ─────────────────────────────────────────────────────────────────────────
+//   단순 impl + 자식 순회 합성(자식 = [p+8] ptr · [p+0x10] len · stride 0x10)의 두 형태뿐이다(capstone 2026-09-07 03:0x).
+#[inline] unsafe fn kids(p: usize) -> Option<(usize, u64)> { Some((rd_u64(p + 8)? as usize, rd_u64(p + 0x10)?)) }
+/// slot.vt+0xa8 → Option<[u64;6]>(sret). `0x109ba90` = tag 0(None) · `0x12a68e0` = 자식 중 **첫 Some**.
+unsafe fn slot_a8(data: usize, vt: usize, depth: u32) -> Option<Option<[u64; 6]>> {
+    if depth > 6 { return None; }
+    let r = super::dyn_eff::impl_rva(vt, 0xa8)?; let p = super::dyn_eff::arc_payload(data, vt)?;
+    match r {
+        0x109ba90 => Some(None),
+        0x12a68e0 => { let (arr, n) = kids(p)?; if n == 0 { return Some(None); } if !ptr_ok(arr) { return None; }
+            for i in 0..n.min(64) as usize {
+                let v = slot_a8(rd_u64(arr + i * 0x10)? as usize, rd_u64(arr + i * 0x10 + 8)? as usize, depth + 1)?;
+                if v.is_some() { return Some(v); } }
+            Some(None) }
+        _ => { super::dyn_eff::unseen(0x5a8, r); None }
+    }
+}
+/// slot.vt+0xc0 → bool. `0x9db70` = false · `0x12a6b10` = any(child)
+unsafe fn slot_c0(data: usize, vt: usize, depth: u32) -> Option<bool> {
+    if depth > 6 { return None; }
+    let r = super::dyn_eff::impl_rva(vt, 0xc0)?; let p = super::dyn_eff::arc_payload(data, vt)?;
+    match r {
+        EFF_E8_ZERO => Some(false), EFF_TRUE => Some(true),
+        0x12a6b10 => { let (arr, n) = kids(p)?; if n == 0 { return Some(false); } if !ptr_ok(arr) { return None; }
+            for i in 0..n.min(64) as usize {
+                if slot_c0(rd_u64(arr + i * 0x10)? as usize, rd_u64(arr + i * 0x10 + 8)? as usize, depth + 1)? { return Some(true); } }
+            Some(false) }
+        _ => { super::dyn_eff::unseen(0x5c0, r); None }
+    }
+}
+/// slot.vt+0xc8 → (T, f1, f2) sret. `0x109bac0` 은 f2←2 만 쓴다(= 호출부에서 즉시 0).
+unsafe fn slot_c8(data: usize, vt: usize, depth: u32) -> Option<(u64, u8, u8)> {
+    if depth > 6 { return None; }
+    let r = super::dyn_eff::impl_rva(vt, 0xc8)?; let p = super::dyn_eff::arc_payload(data, vt)?;
+    match r {
+        0x109bac0 => Some((0, 0, 2)),
+        0x12a6970 => { let (arr, n) = kids(p)?; if n == 0 { return Some((0, 0, 2)); } if !ptr_ok(arr) { return None; }
+            for i in 0..n.min(64) as usize {
+                let v = slot_c8(rd_u64(arr + i * 0x10)? as usize, rd_u64(arr + i * 0x10 + 8)? as usize, depth + 1)?;
+                if v.2 != 2 { return Some(v); } }
+            Some((0, 0, 2)) }
+        _ => { super::dyn_eff::unseen(0x5c8, r); None }
+    }
+}
+/// slot.vt+0x88 → (flag, T). `0x1147250` = (1, [p]) · `0x1145640` = (1,1) · `0x12a57b0` = 자식 중 첫 flag&1
+unsafe fn slot_88(data: usize, vt: usize, depth: u32) -> Option<(bool, u64)> {
+    if depth > 6 { return None; }
+    let r = super::dyn_eff::impl_rva(vt, 0x88)?; let p = super::dyn_eff::arc_payload(data, vt)?;
+    match r {
+        EFF_E8_ZERO => Some((false, 0)),
+        0x1147250 => Some((true, rd_u64(p)?)),
+        0x1145640 => Some((true, 1)),
+        0x1147250 | 0x122f090 | 0x13bfa20 | 0x16adaa0 | 0x109bab0 => Some((true, rd_u64(p)?)),
+        0x17c2bd0 => Some((rd_u64(p)? != 0, 0)),
+        0x1701740 => Some((rd_u64(p + 0x48)? != 0, 1)),
+        0x1153880 => { let (d2, v2) = (rd_u64(p)? as usize, rd_u64(p + 8)? as usize);
+            let r2 = super::dyn_eff::impl_rva(v2, 0xb0)?; match r2 { EFF_E8_ZERO => Some((false, 0)), EFF_TRUE => Some((true, 0)), _ => { super::dyn_eff::unseen(0x5b0, r2); let _ = d2; None } } }
+        0x1606700 | 0x164ecc0 => { let o = if r == 0x1606700 { 0x18 } else { 0 };
+            let a = slot_88(rd_u64(p + o)? as usize, rd_u64(p + o + 8)? as usize, depth + 1)?;
+            if a.0 { return Some(a); }
+            slot_88(rd_u64(p + o + 0x10)? as usize, rd_u64(p + o + 0x18)? as usize, depth + 1) }
+        0x12a57b0 | 0x12a61c0 | 0x12481a0 | 0x13bfc40 | 0x1146c40 | 0x1340ef0 | 0x16a3450 | 0x153b5a0 | 0x12a5100 => {
+            // 자식 리스트 순회형 — (ptr, len, stride) 가 impl 마다 다르다
+            let lists: &[(usize, usize, usize)] = match r {
+                0x12a57b0 => &[(8, 0x10, 0x10)],
+                0x12a61c0 => &[(0x20, 0x28, 0x18)],
+                0x12481a0 | 0x12a5100 => &[(0x50, 0x58, 0x18)],
+                0x13bfc40 => &[(8, 0x10, 0x18)],
+                0x1146c40 => &[(0x20, 0x28, 0x18)],
+                0x1340ef0 => &[(0x68, 0x70, 0x18), (0x80, 0x88, 0x10)],
+                0x16a3450 | 0x153b5a0 => &[(0x50, 0x58, 0x18), (0x68, 0x70, 0x10)],
+                _ => &[],
+            };
+            for (po, lo, st) in lists {
+                let n = rd_u64(p + lo)?; if n == 0 { continue; }
+                let arr = rd_u64(p + po)? as usize; if !ptr_ok(arr) { return None; }
+                for i in 0..n.min(64) as usize {
+                    let v = slot_88(rd_u64(arr + i * st)? as usize, rd_u64(arr + i * st + 8)? as usize, depth + 1)?;
+                    if v.0 { return Some(v); } }
+            }
+            Some((false, 0)) }
+        _ => { super::dyn_eff::unseen(0x588, r); None }
+    }
+}
+/// 공격 주기(0xe01450 안): max(3, prov90 * 100 / max(1, e.3fc+100)) — 원본은 `< 4 → 3` 로 클램프
+unsafe fn atk_iv2(e: usize) -> Option<u64> {
+    let base = super::dyn_eff::prov90_cooltime(rd_u64(e + 0x570)? as usize, rd_u64(e + 0x578)? as usize, e)?;
+    let a = (rd_i32(e + 0x3fc)?).wrapping_add(100); let den = if a < 2 { 1u64 } else { a as u32 as u64 };
+    let v = base.wrapping_mul(100) / den; Some(if v < 4 { 3 } else { v })
+}
+/// 자기 진영 로스터에서 tgt 150,000 이내인 원소를 도는 공통 루프. f(ally, ally_agent_rec)
+unsafe fn near_allies<F: FnMut(usize, usize) -> Option<()>>(w: &World, side: u64, tgt: usize, skip_h: Option<u64>, mut f: F) -> Option<()> {
+    let (tx, ty) = xy(tgt)?;
+    for i in 0..5usize {
+        let e = rd_u64(w.x + X_ROSTER + (side as usize) * ROSTER_SIDE_STRIDE + i * 8)? as usize;
+        if e == 0 { continue; }
+        if let Some(h) = skip_h { if rd_u64(e + ENT_HANDLE)? == h { continue; } }
+        let (ex, ey) = xy(e)?;
+        if d2_xy(ex, ey, tx, ty) > 0x53d1ac100 { continue; }
+        let rec = w.roster_rec(rd_u64(e + ENT_HANDLE)?)?; if rec == 0 { continue; }
+        f(e, rec)?;
+    }
+    Some(())
+}
+/// score_parameter 표: W + 0x280 + side*0xfa0 + role*0x320
+#[inline] unsafe fn mat(w: &World, rec: usize) -> Option<usize> {
+    let side = rd_u64(rec + REC_SIDE)?; if side > 1 { return None; }
+    Some(w.x + 0x280 + (side as usize) * 0xfa0 + (rd_u32(rec + REC_ROLE_O) as usize) * 0x320)
+}
+/// 0xe01450 — 아군 화력 기반 가산(상한 160)
+#[allow(clippy::too_many_arguments)]
+unsafe fn e01450(w: &World, sim: usize, rec: usize, slot: usize, tgt: usize, c_t: i64, tps: u64) -> Option<i64> {
+    let v = match slot_a8(rd_u64(slot)? as usize, rd_u64(slot + 8)? as usize, 0)? { Some(v) => v, None => return Some(0) };
+    let (v1, v2, v3, v4, v5) = (v[1] as i64, v[2], v[3] as i64, v[4], v[5]);
+    let rec_t = w.roster_rec(rd_u64(tgt + ENT_HANDLE)?)?; if rec_t == 0 { return Some(0); }
+    if tps == 0 { return None; }
+    let n = (v5 / tps).max(1);
+    let side = rd_u64(rec + REC_SIDE)?; if side > 1 { return None; }
+    let role_t = rd_u32(rec_t + REC_ROLE_O) as usize;
+    let (mut msum, mut dps) = (0u64, 0u64);
+    near_allies(w, side, tgt, None, |e, r3| {
+        let b = match mat(w, r3) { Some(b) => b, None => return None };
+        for o in [0x190usize, 0x1b8, 0x1e0, 0x208] { msum = msum.wrapping_add(rd_u64(b + role_t * 8 + o)?); }
+        dps = dps.wrapping_add(tps.wrapping_mul(100) / atk_iv2(e)?);
+        Some(())
+    })?;
+    let cap2 = rd_u64(tgt + ENT_MAXHP)?.wrapping_mul(2);
+    let ms = { let x = msum.wrapping_mul(n); x.min(cap2) };
+    let dp = dps.wrapping_mul(n) / 100;
+    let dp = if v4 != 0 { dp.min(v4) } else { dp };
+    let acc = (dp.wrapping_mul(v3 as u64) as i64).wrapping_add(v1).wrapping_add((ms.wrapping_mul(v2) / 100) as i64);
+    let acc = acc.min(cap2 as i64);
+    let hp = { let h = rd_i64(tgt + ENT_HP)?; if h >= 2 { h } else { 1 } };
+    let _ = sim;
+    Some((acc.wrapping_mul(c_t) / hp).min(160))
+}
+/// 0xe019d0 — 자기 스테로이드 기여(상한 80)
+unsafe fn e019d0(w: &World, sim: usize, slot: usize, tgt: usize, c_t: i64, tps: u64) -> Option<i64> {
+    let (t, f1, f2) = slot_c8(rd_u64(slot)? as usize, rd_u64(slot + 8)? as usize, 0)?;
+    if f2 == 2 { return Some(0); }
+    let rec_t = w.roster_rec(rd_u64(tgt + ENT_HANDLE)?)?; if rec_t == 0 { return Some(0); }
+    if tps == 0 { return None; }
+    let b = mat(w, rec_t)?;
+    let n = (t / tps).max(1);
+    let mut acc = 0u64;
+    if f1 != 0 { let mut x = 0u64; for k in 0..5usize { x = x.wrapping_add(rd_u64(b + 0x190 + k * 8)?); } acc = x / 10; }
+    if f2 & 1 == 1 { let mut x = 0u64; for k in 0..15usize { x = x.wrapping_add(rd_u64(b + 0x1b8 + k * 8)?); } acc = acc.wrapping_add(x / 10); }
+    acc = acc.wrapping_mul(n).min(rd_u64(tgt + ENT_MAXHP)?);
+    let hp = { let h = rd_i64(tgt + ENT_HP)?; if h >= 2 { h } else { 1 } };
+    let _ = sim;
+    Some(((acc.wrapping_mul(c_t as u64) as i64) / hp / 2).min(80))
+}
+/// 0xe02020 — 아군 스테로이드 기여(상한 80, 최종 감산 항)
+#[allow(clippy::too_many_arguments)]
+unsafe fn e02020(w: &World, sim: usize, rec: usize, slot: usize, me: usize, tgt: usize, c_t: i64, tps: u64) -> Option<i64> {
+    let (sd, sv) = (rd_u64(slot)? as usize, rd_u64(slot + 8)? as usize);
+    if !slot_c0(sd, sv, 0)? { return Some(0); }
+    let (ok, t) = slot_88(sd, sv, 0)?; if !ok { return Some(0); }
+    if tps == 0 { return None; }
+    let n = (t / tps).max(1);
+    let rec_t = w.roster_rec(rd_u64(tgt + ENT_HANDLE)?)?; if rec_t == 0 { return Some(0); }
+    let side = rd_u64(rec + REC_SIDE)?; if side > 1 { return None; }
+    let role_t = rd_u32(rec_t + REC_ROLE_O) as usize;
+    let me_h = rd_u64(me + ENT_HANDLE)?;
+    let mut acc = 0u64;
+    near_allies(w, side, tgt, Some(me_h), |_e, r3| {
+        let b = match mat(w, r3) { Some(b) => b, None => return None };
+        for o in [0x190usize, 0x1b8, 0x1e0, 0x208] { acc = acc.wrapping_add(rd_u64(b + role_t * 8 + o)?); }
+        Some(())
+    })?;
+    acc = acc.wrapping_mul(n).min(rd_u64(tgt + ENT_MAXHP)?);
+    let hp = { let h = rd_i64(tgt + ENT_HP)?; if h >= 2 { h } else { 1 } };
+    let _ = sim;
+    Some(((acc.wrapping_mul(c_t as u64) as i64) / hp / 2).min(80))
+}
+
 /// 본체. 반환 None = 미재현(NA).
 #[allow(clippy::too_many_arguments)]
-pub unsafe fn combat_score(mode: usize, _prof: usize, rec: usize, ctx: usize, bb: usize, sp: usize, slot: usize, tgt: usize, _p9: usize) -> Option<i64> {
+pub unsafe fn combat_score(mode: usize, _prof: usize, rec: usize, ctx: usize, bb: usize, sp: usize, slot: usize, tgt: usize, p9: usize) -> Option<i64> {
+    TAGGED.with(|c| c.set(false)); stg(tag8("S0"));
+    let r = combat_score_inner(mode, _prof, rec, ctx, bb, sp, slot, tgt, p9);
+    if r.is_none() && !TAGGED.with(|c| c.get()) { let t = STG.with(|c| c.get()); na(t); }
+    r
+}
+unsafe fn combat_score_inner(mode: usize, _prof: usize, rec: usize, ctx: usize, bb: usize, sp: usize, slot: usize, tgt: usize, _p9: usize) -> Option<i64> {
     if !ptr_ok(rec) || !ptr_ok(ctx) || !ptr_ok(bb) || !ptr_ok(sp) || !ptr_ok(slot) || !ptr_ok(tgt) { return None; }
     // ── S0 프롤로그 ──
     let side = rd_u64(rec + REC_SIDE)?; if side > 1 { return None; }
@@ -185,10 +374,12 @@ pub unsafe fn combat_score(mode: usize, _prof: usize, rec: usize, ctx: usize, bb
             else { b & 0x10001 != 0 }
         };
     // ── S1 특수형 조기반환(0xe04400) ──
+    stg(tag8("S1"));
     if let Some(v) = special_early(ctx, rec, me, sp, tgt)? { return Some(v); }
     let tgt_kind = rd_i32(tgt + ENT_KIND)?;
     let self_is_tgt = me == tgt;
     // ── S2 사거리 게이트 ──
+    stg(tag8("S2"));
     if mode > 1 && tgt_kind == 13 && !self_is_tgt {
         let (mtag, _) = w.mode()?;
         if mtag != 2 {
@@ -224,6 +415,7 @@ pub unsafe fn combat_score(mode: usize, _prof: usize, rec: usize, ctx: usize, bb
         }
     }
     // ── S3 위협·적 구조물 스캔 ──
+    stg(tag8("S3"));
     let cast_delay = cast_delay0(sp)?;
     let thr = threat_sum(bb + BB_R, cast_delay.wrapping_add(30))?;
     let my_handle = rd_u64(me + ENT_HANDLE)?;
@@ -243,6 +435,7 @@ pub unsafe fn combat_score(mode: usize, _prof: usize, rec: usize, ctx: usize, bb
         }
     }
     // ── S4 추격 위험 ──
+    stg(tag8("S4"));
     let phase = rd_u8(sim + 0x38);
     let mut chase: i64 = 0;
     if matches!(phase, 0 | 5 | 7 | 8) && rd_u64(cfg + CFG_8A8)?.saturating_sub(30u64.wrapping_mul(tps)) <= now && !self_is_tgt && safe {
@@ -258,6 +451,7 @@ pub unsafe fn combat_score(mode: usize, _prof: usize, rec: usize, ctx: usize, bb
         }
     }
     // ── S5 위험항 ──
+    stg(tag8("S5"));
     let c = pct_c(bb, bb + BB_R)?; let c_val = c;
     if hp == 0 { return None; }
     let risk_neg: i64 = if urgent { -1 } else {
@@ -265,9 +459,11 @@ pub unsafe fn combat_score(mode: usize, _prof: usize, rec: usize, ctx: usize, bb
         !(inner.wrapping_mul(c) / hp as i64)
     };
     // ── S6 아군 구조물·적 근접 ──
+    stg(tag8("S6"));
     let near_ally = nearest_in_chain(&w, side, me)?;
     let enemy_near = enemy_visible_near(&w, agents, side, me, 0x37e11d600, now)?;
     // ── S7 타워 지원 ──
+    stg(tag8("S7"));
     let mut tower_support: i64 = 0;
     if let Some((na_ent, _)) = near_ally {
         let rt = rd_u64(na_ent + ENT_F438)?.wrapping_add(rd_u64(na_ent + 0x4a0)?)
@@ -281,20 +477,28 @@ pub unsafe fn combat_score(mode: usize, _prof: usize, rec: usize, ctx: usize, bb
         }
     }
     // ── S8 위치항 ──
+    stg(tag8("S8"));
     let mut pos_term: i64 = 0;
     if slot_pos_gate(slot)? && d2_ee(me, tgt)? >= 0x49040441 {
         let (tx, ty) = xy(tgt)?;
         let (cx, cy) = ((tx / 32000).min(29), (ty / 32000).min(29));
-        let o = super::position_eval::position_eval(mode as u64, rec, ctx, cx * 32000 + 16000, cy * 32000 + 16000, 0xc)?;
-        pos_term = o.a.wrapping_mul(c) / 100;
+        let (qx8, qy8) = (cx * 32000 + 16000, cy * 32000 + 16000);
+        // 게임은 래퍼 0xd84db0 을 부른다 = TLS 메모 경유. 본체 재현이 None 이면 게임이 방금 채워 둔 메모 표를 읽는다.
+        let a8 = match super::position_eval::position_eval(mode as u64, rec, ctx, qx8, qy8, 0xc) {
+            Some(o) => o.a,
+            None => match super::position_eval::memo_lookup(mode, rec, ctx, qx8 as usize, qy8 as usize, 0xc) { Some(w) => w[0] as i64, None => return na(tag8("S8pe")) },
+        };
+        pos_term = a8.wrapping_mul(c) / 100;
     }
     // ── S9 오판 플래그 ──
+    stg(tag8("S9"));
     let mis = if rd_i32(rec + REC_464)? == 1 {
         let (a, b) = misjudge(rd_u64(w.data + 0xec90)?, rd_u64(rec + REC_SEED2)?, now, tps,
                               rd_u64(rec + REC_208)?.min(100), rd_u64(rec + REC_210)?.min(100), rd_u64(rec + REC_448)?);
         a || b
     } else { false };
     // ── S10 처형 경로 ──
+    stg(tag8("S10"));
     if sp_vt_b8(sp)? {
         if d2_ee(me, tgt)? <= sq(reach(me, slot, tgt)?) {
             let th = rd_u64(tgt + ENT_HANDLE)?;
@@ -315,24 +519,46 @@ pub unsafe fn combat_score(mode: usize, _prof: usize, rec: usize, ctx: usize, bb
         }
     }
     // ── S11~S14 ──
+    stg(tag8("S11"));
     let th = rd_u64(tgt + ENT_HANDLE)?;
     let rec_t = find_rec(bb, BB_ENEMY_PTR, BB_ENEMY_LEN, th)?;
     let rec_a = find_rec(bb, BB_ALLY_PTR, BB_ALLY_LEN, th)?;
-    if rec_t.is_some() {
-        // S12 진입 시 필요한 dyn 게터 impl 을 수집한다(다음 단계 포팅 재료): slot.vt+0xc0(bool)·+0xc8(sret{T,f1,f2})·+0x88(flag,T)
-        let sv = rd_u64(slot + 8)? as usize;
-        for sl in [0xc0usize, 0xc8, 0x88] { if let Some(r) = super::dyn_eff::impl_rva(sv, sl) { super::dyn_eff::unseen(0x500 + sl as u32, r); } }
-        let spv = rd_u64(sp + 8)? as usize;
-        for sl in [0x90usize, 0xa8, 0x68] { if let Some(r) = super::dyn_eff::impl_rva(spv, sl) { super::dyn_eff::unseen(0x600 + sl as u32, r); } }
-        return na(tag8("S12"));
+    // S11 오판 경로: mis && 적 레코드 존재 → 거리 감쇠항만 (0xd5de97~0xd5df15)
+    if mis && rec_t.is_some() {
+        let dv = dist(me, tgt)? as i64;
+        return Some(risk_neg + tower_support + pos_term + (150000 - dv).max(0) / 1500);
     }
-    if rec_a.is_some() || self_is_tgt {
-        // S13/S14 재료: slot.vt+0x40(heal)·+0x48(shield)·+0x90·+0x98·+0xa0(sret BuffSpec)·+0xa8·+0xb0(aura)·+0xb8·+0xd0·+0xe0
-        let sv = rd_u64(slot + 8)? as usize;
-        for sl in [0x40usize, 0x48, 0x90, 0x98, 0xa0, 0xa8, 0xb0, 0xb8, 0xd0, 0xe0] { if let Some(r) = super::dyn_eff::impl_rva(sv, sl) { super::dyn_eff::unseen(0x700 + sl as u32, r); } }
-        return na(tag8(if self_is_tgt && rec_a.is_none() { "S13" } else { "S14" }));
+    let main: i64 = if let Some(rt) = rec_t {
+        // ── S12 적 타깃 ──
+        let d = est(slot, me, tgt)? as i64;
+        let x = threat_sum(rt, cast_delay.wrapping_add(30))?.wrapping_add(rd_i64(rt + RT_170)?);
+        let ct = pct_c(bb, rt)?;
+        let kill = rd_i64(rt + RT_KILL)?;
+        let thp = rd_i64(tgt + ENT_HP)?; if thp == 0 { return None; }
+        let mut v = x / 4 + kill / 2 + d;
+        if rd_u8(tgt + ENT_488) != 0 { v = v.min((thp - 1).max(0)); }
+        let mut score = v.wrapping_mul(ct) / thp;
+        if safe {
+            let cap = ct.min(100);
+            if d >= thp { score += cap; }
+            else if kill / 2 + d >= thp { score += 3 * cap / 4; }
+            else if (est(me + 0x490, me, tgt)? as i64) + d >= thp { score += cap / 2; }
+        }
+        // 스테로이드 창: sp.vt+0x68 의 dyn Any 가 스테로이드형이면 그 T, 아니면 slot.vt+0x88 의 (ok, T)
+        let (sd, sv) = (rd_u64(slot)? as usize, rd_u64(slot + 8)? as usize);
+        let (ok88, t88) = slot_88(sd, sv, 0)?;
+        if ok88 { return na(tag8("S12ster")); }   // ⬜스테로이드 창 블록(피해행렬·버스트) 미포팅
+        let _ = t88;
+        let (a1, a2, a3) = (e01450(&w, sim, rec, slot, tgt, ct, tps)?, e019d0(&w, sim, slot, tgt, ct, tps)?, e02020(&w, sim, rec, slot, me, tgt, ct, tps)?);
+        S12D.with(|c| c.set([d, x, ct, kill, score, a1, a2, a3]));
+        score + a1 + a2 - a3
+    } else { 0 };
+    if rec_t.is_some() { let _ = main; }
+    if rec_t.is_none() && (rec_a.is_some() || self_is_tgt) {
+        let bc = super::buff_value::BCtx { mode, prof: _prof, rec, ctx, bb, sp, slot, tgt, me, p9: _p9,
+                                           sim, w: w.x, c: c_val, inc_base: bonus9b0.wrapping_add(thr_s), cast_delay };
+        return super::buff_value::s13_s14(&bc, rec_a);
     }
-    let main: i64 = 0;
     let _ = (bonus9b0, thr_s, sp, my_handle, seen);
     LAST.with(|c| c.set([risk_neg, tower_support, pos_term, main, urgent as i64, c_val, thr_s, chase, rd_i64(bb + BB_998).unwrap_or(-1), bonus9b0, cast_delay as i64, hp as i64, thr, rd_u64(bb + BB_R + AS_REC_THR_LEN).unwrap_or(0) as i64, crate::judge::cap_as_d83230::last().map(|v| v as i64).unwrap_or(-999), rd_i64(bb + 0x970).unwrap_or(0), rd_i64(bb + 0x9a0).unwrap_or(0), rd_i64(bb + 0x988).unwrap_or(0)]));
     Some(risk_neg + tower_support + pos_term + main)
