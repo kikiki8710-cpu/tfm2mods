@@ -203,3 +203,14 @@ pub const EFF40_LEAF_ADAP: usize = 0x117ca10;      // q400([s+0x18]*AD)+q400([s+
 pub const EFF40_LEAF_STACK: usize = 0x12b2e90;     // [s+0x10]+[s+0x18]*(stats[0x38]+1)
 pub const EFF40_LEAF_RATIO: usize = 0x12b1550;     // ([s]+[s+8]*AP)*([s+0x20]/[s+0x28])
 pub const EFFA0_WIND_SPEED: usize = 0x12266f0;     // BuffState 상수 생성(type 1, vamp 0)
+pub const EFF40_SUM_08_18: usize = 0x13bfae0;      // 자식 Vec [s+8]/[s+0x10] stride 0x18 합
+pub const EFF40_SUM_48_10: usize = 0x12a4f30;      // 자식 Vec [s+0x48]/[s+0x50] stride 0x10 합
+pub const EFF40_SUM_RATIO_68_50: usize = 0x16a3190;// Σ[0x68/0x70 s0x18] + ([s+0x78]/max(1,[s+0x80])) * Σ[0x50/0x58 s0x18]
+pub const EFF40_SWITCH_BY_BUFF: usize = 0x16063d0; // 버프 이름([s+8],[s+0x10]) 보유 여부로 자식 (0x18/0x20 | 0x28/0x30) 선택 → 그 +0x40
+pub const EFFA0_MERGE_08_10: usize = 0x12a5770;    // 자식 [s+8]/[s+0x10] stride 0x10 병합(type=첫 Some, vamp=Σ)
+pub const EFFA0_MERGE_50_18: usize = 0x1248150;    // [s+0x50]/[s+0x58] stride 0x18
+pub const EFFA0_MERGE_20_18: usize = 0x1455d70;    // [s+0x20]/[s+0x28] stride 0x18
+pub const EFFA0_MERGE_50_18_68_10: usize = 0x153b540; // 두 범위
+pub const ENT_BUFFS_PTR: usize = 0x2e0;            // 엔티티 버프 목록 ptr / +0x2e8 len · stride 0x120 · [0]=name len u32, [4..]=name
+pub const ENT_BUFFS_LEN: usize = 0x2e8;
+
