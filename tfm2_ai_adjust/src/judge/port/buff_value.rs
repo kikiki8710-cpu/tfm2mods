@@ -599,12 +599,8 @@ pub unsafe fn s13_s14(b: &BCtx, ally: Option<usize>) -> Option<i64> {
 }
 
 /// slot.vt+0x98 : (inline, sim, self, 아군엔티티) -> i64. 단순 게터/위임만 처리.
-unsafe fn slot_i64_98(data: usize, vt: usize, _sim: usize, _me: usize, _e: usize) -> Option<i64> {
-    let f = rd_u64(vt + 0x98)? as usize;
-    let p = inline_self(data, vt)?;
-    if let Some(v) = super::as_callees::decode_getter(f, p) { return Some(v as i64); }
-    if let Some(r) = super::dyn_eff::impl_rva(vt, 0x98) { super::dyn_eff::unseen(0x998, r); }
-    na_tag("B98")
+unsafe fn slot_i64_98(data: usize, vt: usize, _sim: usize, me: usize, _e: usize) -> Option<i64> {
+    slot_sum(data, vt, 0x98, me, 0, "B98")
 }
 
 /// S14 전용 도달시간 감쇠: `buff = e022d0(..., (k*v)/6)`, `k = min(6, max(0, 6 − t))`
@@ -1250,6 +1246,86 @@ pub unsafe fn e03360(b: &BCtx, e3: usize, e4: usize) -> Option<u8> {
         }
     }
     if no_wep { return Some(2); }
-    // ⬜②~⑥ (중립/포탑/미니언/넥서스/유닛리스트 + 술어 0xdef0a0) 미포팅
-    na_tag("B3360p").map(|_| 0u8)
+
+    // ② 중립 리스트(팀 무관) — 통과하면 1
+    let n0 = rd_u64(wroot + 0xe8)?;
+    if n0 != 0 {
+        let p0 = rd_u64(wroot + 0xd0)? as usize; if !ptr_ok(p0) { return None; }
+        for i in 0..n0.min(64) as usize {
+            let u = rd_u64(p0 + i * 8)? as usize; if u == 0 { continue; }
+            if alive_target(u)? && order_pred(b, e4, u)? { return Some(1); }
+        }
+    }
+    // ③ 적 고정 6슬롯(포탑) — 검사 순서 고정
+    for off in [0x180usize, 0x1a0, 0x1c0, 0x190, 0x1b0, 0x1d0] {
+        let s0 = rd_u64(wroot + off + (opp as usize) * 8)? as usize; if s0 == 0 { continue; }
+        if alive_target(s0)? && order_pred(b, e4, s0)? { return Some(0); }
+    }
+    // ④ 적 미니언
+    let nm = rd_u64(wroot + X_MINION_LEN + (opp as usize) * 0x20)?;
+    if nm != 0 {
+        let pm = rd_u64(wroot + X_MINION_PTR + (opp as usize) * 0x20)? as usize; if !ptr_ok(pm) { return None; }
+        for i in 0..nm.min(256) as usize {
+            let m = rd_u64(pm + i * 8)? as usize; if m == 0 { continue; }
+            if alive_target(m)? && order_pred(b, e4, m)? { return Some(0); }
+        }
+    }
+    // ⑤ 적 넥서스
+    let nx = rd_u64(wroot + X_NEXUS + (opp as usize) * 8)? as usize;
+    if nx != 0 && alive_target(nx)? && order_pred(b, e4, nx)? { return Some(0); }
+    // ⑥ 폴백: 적 유닛리스트 3종
+    for (po, lo) in [(0x10usize, 0x28usize), (0x50, 0x68), (0x90, 0xa8)] {
+        let n = rd_u64(wroot + lo + (opp as usize) * 0x20)?;
+        if n == 0 { continue; }
+        let p = rd_u64(wroot + po + (opp as usize) * 0x20)? as usize; if !ptr_ok(p) { return None; }
+        for i in 0..n.min(256) as usize {
+            let u = rd_u64(p + i * 8)? as usize; if u == 0 { continue; }
+            if order_pred(b, e4, u)? { return Some(0); }
+        }
+    }
+    Some(2)
 }
+
+// ── 0xdef0a0 — "우리 팀 누군가의 오더 타깃이고 내 사거리 안인가" 술어 ────────────────────
+//   정본 = `RE\2026-09-07_def0a0-오더타깃술어-0.5.8.md`
+//   오더 표: kind @ `lanes + side*0x2e8 + 0x78 + role*0x18` · target handle @ `+8`
+//   kind ∈ {2,4,6,7,8,9} 만 타깃 비교(3·5 및 범위 밖은 그 role skip). role 4 는 불일치 시 즉시 false.
+unsafe fn order_pred(b: &BCtx, me: usize, cand: usize) -> Option<bool> {
+    let wroot = rd_u64(b.ctx)? as usize;
+    let lanes = rd_u64(b.ctx + 0x10)? as usize; if !ptr_ok(lanes) { return None; }
+    let side = rd_u64(b.rec + 0x930)?; if side > 1 { return None; }
+    let h = rd_u64(cand + ENT_HANDLE)?;
+    let mh = rd_u64(me + ENT_HANDLE)?;
+    let (mx, my) = (rd_u64(me + ENT_X)?, rd_u64(me + ENT_Y)?);
+    let lane = lanes + (side as usize) * LANE_STRIDE;
+    let mut hit = false;
+    for role in 0..5usize {
+        let ally = rd_u64(wroot + X_ROSTER + (side as usize) * 0x28 + role * 8)? as usize;
+        if ally == 0 { continue; }
+        if rd_u64(ally + ENT_HANDLE)? != mh {                      // 나 자신이면 거리 게이트 생략
+            let (dx, dy) = (absd(rd_u64(ally + ENT_X)?, mx), absd(rd_u64(ally + ENT_Y)?, my));
+            if dx.wrapping_mul(dx).wrapping_add(dy.wrapping_mul(dy)) > 3_600_000_000 { continue; }
+        }
+        let kind = rd_u64(lane + 0x78 + role * 0x18)?;
+        if kind.wrapping_sub(2) > 7 { continue; }
+        if kind == 3 || kind == 5 { continue; }
+        if rd_u64(lane + 0x80 + role * 0x18)? == h { hit = true; break; }
+        if role == 4 { return Some(false); }                       // 마지막 role 만 즉시 false
+    }
+    if !hit { return Some(false); }
+    // 사거리 = 0x438 + 0x4a0 + (lv−1)*0x4a8 + sz(me) + sz(cand) + vt+0xe8 + speed*30
+    let s = me + 0x490;
+    let (sd, sv) = (rd_u64(s)? as usize, rd_u64(s + 8)? as usize);
+    if !ptr_ok(sv) { return None; }
+    let bonus = super::dn_reach::eff_e8(sd, sv, me, cand, 0)?;
+    let range = rd_u64(me + 0x438)?
+        .wrapping_add(rd_u64(s + 0x10)?)
+        .wrapping_add(rd_u64(me + 0x5c8)?.wrapping_sub(1).wrapping_mul(rd_u64(s + 0x18)?))
+        .wrapping_add(body_radius(me)?)
+        .wrapping_add(body_radius(cand)?)
+        .wrapping_add(bonus)
+        .wrapping_add(rd_u64(me + 0x640)?.wrapping_mul(30));
+    let (dx, dy) = (absd(rd_u64(cand + ENT_X)?, mx), absd(rd_u64(cand + ENT_Y)?, my));
+    Some(dx.wrapping_mul(dx).wrapping_add(dy.wrapping_mul(dy)) <= range.wrapping_mul(range))
+}
+#[inline] unsafe fn alive_target(e: usize) -> Option<bool> { Some(rd_u8(e + 0x6b9) == 1 && rd_u64(e + 0x6a0)? == 0) }
