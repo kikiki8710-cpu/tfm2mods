@@ -195,6 +195,12 @@ unsafe fn effa0_buff_p(me: usize, vt: usize, ent: usize, depth: u32) -> Option<(
             merge_a0(&mut acc, rd_u64(me + 0x68)? as usize, rd_u64(me + 0x70)?, 0x18, ent, depth)?;
             Some(acc)
         }
+        EFFA0_MERGE_68_18_80_10 => {
+            let mut acc = (-1, 0);
+            merge_a0(&mut acc, rd_u64(me + 0x68)? as usize, rd_u64(me + 0x70)?, 0x18, ent, depth)?;
+            merge_a0(&mut acc, rd_u64(me + 0x80)? as usize, rd_u64(me + 0x88)?, 0x10, ent, depth)?;
+            Some(acc)
+        }
         EFFA0_MERGE_08_10_B => { let mut acc = (-1, 0); merge_a0(&mut acc, rd_u64(me + 8)? as usize, rd_u64(me + 0x10)?, 0x10, ent, depth)?; Some(acc) }
         EFFA0_MERGE_08_18 => { let mut acc = (-1, 0); merge_a0(&mut acc, rd_u64(me + 8)? as usize, rd_u64(me + 0x10)?, 0x18, ent, depth)?; Some(acc) }
         EFFA0_MERGE_48_10 => { let mut acc = (-1, 0); merge_a0(&mut acc, rd_u64(me + 0x48)? as usize, rd_u64(me + 0x50)?, 0x10, ent, depth)?; Some(acc) }
@@ -206,6 +212,7 @@ unsafe fn effa0_buff_p(me: usize, vt: usize, ent: usize, depth: u32) -> Option<(
         }
         EFFA0_CONST0 => Some((0, 0)),
         EFFA0_CONST1_ENCH => Some((1, 0)),
+        EFFA0_CONST1_ENCH2 => Some((1, 0)),
         EFFA0_CONST1_STAT => Some((1, 0)),
         EFFA0_COPY_STATE => Some((rd_i32(me + 0x48)?, rd_i32(me + 0x80)?)),
         EFFA0_STATSCALED => Some((rd_i32(me + 0x48)?, rd_i32(me + 0x80)?)),

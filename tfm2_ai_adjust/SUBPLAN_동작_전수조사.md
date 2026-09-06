@@ -164,6 +164,8 @@
 
 ## §7. 나머지 plan
 
+- ★**[2026-09-06 judge 계층] plan 9 Battle(교전) 핸들러(`0xdfdfc0`, 판당 ~72만 발화 = 라인전 다음 2위)를 `src\judge\portattle.rs` 로 재구현해 **shadow live**(`judge_live_battle=2`, 첫 리플레이 773,692/773,692 DIFF=0). 동작(쉬운말): 교전 대상(payload 의 target)이 **적 타워 사거리 + `bt_tower_margin`(기본 120000 = 원본값)** 안에 있으면 `in_range=1`, 그러면 추격(`chase`)을 하지 않는다(`fd` 플래그가 1 이면 어차피 추격 안 함). 타워는 같은 라인(lane 3·4 는 서로 호환)만 본다. 살아난 설정값 = `bt_tower_margin` 1개(원본에 바이트패치 사이트 없음 → judge 로만 조정 가능). 기존 `bt_hp_*`·`bt_chase_*`·`bt_vision_mem` 은 다른(구 sub_plan) 경로 값이라 이 핸들러와 무관.
+
 | plan | 상태 |
 |---|---|
 | 2 | 채팅 이벤트에서만 생성 → 실측 0 |

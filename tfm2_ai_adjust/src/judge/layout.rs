@@ -234,3 +234,15 @@ pub const CAMP_MEMO_TLS_IDX: usize = 0x4856da0;  // .data u32 = 이 exe 의 TLS 
 pub const CAMP_MEMO_OFF: usize = 0x17d50;        // TLS 블록 안 캐시(0x190B): [0]borrow [1]key=map_def ptr · 항목 i=camp*6+side*3+2: [i]valid u8 [i+1]x [i+2]y
 pub const CAMP_MEMO_INIT: usize = 0x17ee0;       // 지연초기화 플래그 바이트(0 = 아직 없음 → 재계산)
 pub const EFF40_SUM_68_18_80_10: usize = 0x13409d0; // 두 Vec 합([s+0x68]/0x70 stride 0x18 + [s+0x80]/0x88 stride 0x10) — SET2 리플레이 신규(×1398)
+// ── battle(disc 9, 0xdfdfc0) — 2026-09-06 15:20
+pub const BT_TOWER_MARGIN: u64 = 120_000;        // 타워 사거리 여유(0x1d4c0) · slot0.flag==-1 이면 120000² 고정
+pub const BT_PL_KIND: usize = 0x58;              // payload+0x58 kind(u64) — (0x6f>>kind)&1 인 kind 만 계산
+pub const BT_PL_HANDLE: usize = 0x60;            // payload+0x60 target 핸들
+pub const BT_PL_FLAG: usize = 0xf6;              // payload+0xf6 flag(0 이면 계산 없음)
+pub const BT_PL_FD: usize = 0xfd;                // payload+0xfd (1 이면 chase=0)
+pub const BT_PL_LANE: usize = 0xfe;              // payload+0xfe lane(0xff = 없음)
+pub const ENT_LANE: usize = 0x128;               // 유닛 lane 바이트(타워 kind 2 매칭)
+pub const X_FIXED6: [usize; 6] = [0x180, 0x1a0, 0x1c0, 0x190, 0x1b0, 0x1d0]; // 0x1820ee0 고정 6슬롯(X+off+side*8) 순회 순서
+pub const EFFA0_MERGE_68_18_80_10: usize = 0x1340e80; // 두 범위([s+0x68]/0x70 stride 0x18 + [s+0x80]/0x88 stride 0x10, 병합기 0x126f240) — 15:22 리플레이 신규 ×7124
+pub const EFFA0_CONST1_ENCH2: usize = 0x12bc970; // 상수 생성(type 1, vamp 0) enchanter_skill2 (.pdata 없는 leaf) — 15:22 리플레이 신규 ×1052
+

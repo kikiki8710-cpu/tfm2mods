@@ -47,6 +47,7 @@ pub mod port {
     pub mod dn_reach;
     pub mod dyn_eff;
     pub mod passive_jungle;
+    pub mod battle;
 }
 use gen_fns::*;
 
@@ -60,7 +61,7 @@ pub type Args8 = ScorerArgs;
 #[derive(Clone, Copy, Default)]
 pub struct MpWrite { pub off: u8, pub len: u8, pub val: u64 }
 #[derive(Clone, Copy, Default)]
-pub struct MpOut { pub n: u8, pub w: [MpWrite; 6] }
+pub struct MpOut { pub n: u8, pub w: [MpWrite; 12] }   // battle(disc 9) 은 쓰기 11개
 impl MpOut {
     pub fn push(&mut self, off: usize, len: usize, val: u64) { if (self.n as usize) < self.w.len() { self.w[self.n as usize] = MpWrite { off: off as u8, len: len as u8, val }; self.n += 1; } }
     pub fn code(&mut self, c: u64) { self.push(0, 8, c); }
@@ -300,6 +301,11 @@ pub mod cap_est_dmg {
     }
 }
 pub fn pj_reset() { tr_reset(); cap_est_dmg::reset(); }
+// ── 발화 빈도 계측용 capture-ret(다음 포팅 대상 선정 — 리플레이에서 실제로 불리는 아암만 포팅한다). 검증기간 한정.
+judge_capture_ret!(cap_single_line, crate::judge::gen_fns::SINGLE_LINE);
+judge_hook_out!(battle_hook, crate::judge::gen_fns::BATTLE_ARM9, crate::judge::port::battle::battle, crate::judge::port::battle::battle_live, crate::judge::tr_reset, true, "judge_live_battle");
+judge_capture_ret!(cap_epic_hunt_poke, crate::judge::gen_fns::EPIC_HUNT_POKE);
+judge_capture_ret!(cap_serpen_hunt_poke, crate::judge::gen_fns::SERPEN_HUNT_POKE);
 judge_hook_out!(passive_jungle_hook, crate::judge::gen_fns::PASSIVE_JUNGLE, crate::judge::port::passive_jungle::passive_jungle, crate::judge::port::passive_jungle::passive_jungle_live, crate::judge::pj_reset, true, "judge_live_passive_jungle");
 judge_hook_out!(defense_nexus_hook, crate::judge::gen_fns::DEFENSE_NEXUS, crate::judge::port::defense_nexus::defense_nexus, crate::judge::port::defense_nexus::defense_nexus_live, crate::judge::cap_dn_cache::reset, true, "judge_live_defense_nexus");
 judge_hook!(steal_hook, crate::judge::gen_fns::STEAL_SCORE, crate::judge::port::steal_score::steal_score, crate::judge::port::steal_score::steal_score, "judge_live_steal_score");
@@ -388,7 +394,7 @@ judge_hook_out!(serpen_hb_hook, crate::judge::gen_fns::SERPEN_HUNT_BATTLE, crate
 
 /// 등록된 훅 전부(status 덤프용). 훅을 늘리면 여기와 install() 에 한 줄씩.
 pub fn stats() -> Vec<(&'static str, &'static Stat)> {
-    vec![(STEAL_SCORE.name, &steal_hook::ST), (ABILITY_PICK.name, &cap_ability_pick::ST), (RECENTLY_SEEN.name, &cap_recent_seen::ST), (DN_CACHE.name, &cap_dn_cache::ST), (DEFENSE_NEXUS.name, &defense_nexus_hook::ST), (EST_DAMAGE.name, &cap_est_dmg::ST), (PASSIVE_JUNGLE.name, &passive_jungle_hook::ST),
+    vec![(STEAL_SCORE.name, &steal_hook::ST), (ABILITY_PICK.name, &cap_ability_pick::ST), (RECENTLY_SEEN.name, &cap_recent_seen::ST), (DN_CACHE.name, &cap_dn_cache::ST), (DEFENSE_NEXUS.name, &defense_nexus_hook::ST), (EST_DAMAGE.name, &cap_est_dmg::ST), (PASSIVE_JUNGLE.name, &passive_jungle_hook::ST), (SINGLE_LINE.name, &cap_single_line::ST), (BATTLE_ARM9.name, &battle_hook::ST), (EPIC_HUNT_POKE.name, &cap_epic_hunt_poke::ST), (SERPEN_HUNT_POKE.name, &cap_serpen_hunt_poke::ST),
          (EPIC_HUNT_BATTLE.name, &epic_hb_hook::ST), (SERPEN_HUNT_BATTLE.name, &serpen_hb_hook::ST), (PASSIVE_LINE.name, &passive_line_hook::ST)]
 }
 
@@ -501,8 +507,15 @@ pub unsafe fn install() {
         if tune("judge_cap_est", 0) != 0 { install_one(&mut log, &EST_DAMAGE, &cap_est_dmg::ORIG, cap_est_dmg::wrap as *const () as usize, "capture-ret"); }
         else { log.push_str("[judge] est_damage capture 생략(judge_cap_est=0)
 "); }
+        // 발화 빈도 계측(카운터만) — cfg judge_cap_arms=0 이면 생략
+        if tune("judge_cap_arms", 1) != 0 {
+            install_one(&mut log, &SINGLE_LINE, &cap_single_line::ORIG, cap_single_line::wrap as *const () as usize, "capture-ret");
+            install_one(&mut log, &EPIC_HUNT_POKE, &cap_epic_hunt_poke::ORIG, cap_epic_hunt_poke::wrap as *const () as usize, "capture-ret");
+            install_one(&mut log, &SERPEN_HUNT_POKE, &cap_serpen_hunt_poke::ORIG, cap_serpen_hunt_poke::wrap as *const () as usize, "capture-ret");
+        }
         install_one(&mut log, &DEFENSE_NEXUS, &defense_nexus_hook::ORIG, defense_nexus_hook::wrap as *const () as usize, "wrap-out");
         install_one(&mut log, &PASSIVE_JUNGLE, &passive_jungle_hook::ORIG, passive_jungle_hook::wrap as *const () as usize, "wrap-out");
+        install_one(&mut log, &BATTLE_ARM9, &battle_hook::ORIG, battle_hook::wrap as *const () as usize, "wrap-out");
     } else {
         log.push_str("[judge] judge_verify=0 → 훅 미설치(원본)\n");
     }
