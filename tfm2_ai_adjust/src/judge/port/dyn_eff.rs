@@ -141,6 +141,21 @@ pub unsafe fn eff28_damage(data: usize, vt: usize, att: usize) -> Option<(u64, u
         _ => { unseen(0x28, rva); None }
     }
 }
+/// 진단: eff28 구현 트리(impl RVA · (p,m) · 페이로드 앞 워드)를 문자열로
+pub unsafe fn eff28_trace(data: usize, vt: usize, att: usize, depth: u32) -> String {
+    if depth > 4 { return "…".into(); }
+    let rva = match impl_rva(vt, 0x28) { Some(r) => r, None => return "?vt".into() };
+    let me = match arc_payload(data, vt) { Some(m) => m, None => return "?pl".into() };
+    let v = eff28_damage(data, vt, att);
+    let mut out = format!("[{:#x}->{:?} w={:?}", rva, v, (0..4).map(|i| rd_u64(me + i * 8).unwrap_or(0)).collect::<Vec<_>>());
+    let kids = |po: usize, lo: usize, st: usize| -> String {
+        let n = rd_u64(me + lo).unwrap_or(0); if n == 0 || n > 64 { return String::new(); }
+        let arr = rd_u64(me + po).unwrap_or(0) as usize; if !ptr_ok(arr) { return String::new(); }
+        (0..n as usize).map(|i| eff28_trace(rd_u64(arr + i * st).unwrap_or(0) as usize, rd_u64(arr + i * st + 8).unwrap_or(0) as usize, att, depth + 1)).collect::<Vec<_>>().join("")
+    };
+    match rva { 0x12a56e0 => out += &kids(8, 0x10, 0x10), EFF28_SUM_20_18 => out += &kids(0x20, 0x28, 0x18), _ => {} }
+    out + "]"
+}
 /// effect `+0x38` 최대체력 비율 피해(%)
 pub unsafe fn eff38_pct(data: usize, vt: usize, _att: usize) -> Option<u64> {
     let rva = impl_rva(vt, 0x38)?; let me = arc_payload(data, vt)?;

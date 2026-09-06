@@ -260,7 +260,12 @@ pub unsafe fn max_reach(e: usize, o: usize) -> Option<u64> {
 
 // ─────────────────────────────────────────────────────────────────────────────────────────────
 // 진단: capture_ring_cmp 의 DIFF/NA 줄에 붙는 콜리별 내부 상태 문자열
-pub unsafe fn cmp_diag8(name: &str, p1: usize, p2: usize, p3: usize, p4: usize, p5: usize, p6: usize, p7: usize, _p8: usize) -> String {
+pub unsafe fn cmp_diag8(name: &str, p1: usize, p2: usize, p3: usize, p4: usize, p5: usize, p6: usize, p7: usize, p8: usize) -> String {
+    if name == "as_132b310" { return super::position_eval::threat_diag(p1, p3, p4); }
+    cmp_diag8_x(name, p1, p2, p3, p4, p5, p6, p7, p8)
+}
+#[allow(clippy::too_many_arguments)]
+pub unsafe fn cmp_diag8_x(name: &str, p1: usize, p2: usize, p3: usize, p4: usize, p5: usize, p6: usize, p7: usize, _p8: usize) -> String {
     if name == "as_eb82d0" { return super::fight_check::diag(p3, p4, p5, p6, p7); }
     cmp_diag(name, p1, p2, p3, p4)
 }

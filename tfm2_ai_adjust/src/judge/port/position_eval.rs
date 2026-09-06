@@ -513,6 +513,9 @@ unsafe fn dmg_list(ptr: usize, len: u64, stride: usize, a: usize, src: usize, tg
     list_iter(ptr, len, stride, |d, v| { let (x, y) = dy::eff28_damage(d, v, src)?; p = p.wrapping_add(x); m = m.wrapping_add(y); pc = pc.wrapping_add(dy::eff38_pct(d, v, src)?); Some(()) })?;
     let raw = p.wrapping_add(pc.wrapping_mul(rd_u64(tgt + ENT_MAXHP)?) / 100);
     if raw == 0 && m == 0 { return Some(0); }
+    // ⚠"amt==0 인 쪽은 기여 0" 가설은 **기각**(2026-09-07 00:00 실측): as_132b310 DIFF 30.9% → 37.7% 로 악화.
+    //   ty=0 표본(p=15/m=0)은 게임이 conv(0)=1 을 더했고, ty=2 표본(p=5/m=0)은 더하지 않았다 → 아암(k)별로 갈린다.
+    //   디스어셈 132bba3~132bbe8 은 두 conv 를 무조건 더하므로, 남은 차이는 k별 아암 구조에 있다(다음 세션).
     let ty = rd_u32(a + 0x128); Some(conv(src, tgt, raw, ty, 0)?.wrapping_add(conv(src, tgt, m, ty, 1)?))
 }
 unsafe fn sum_list(ptr: usize, len: u64, stride: usize, slot: usize, src: usize) -> Option<u64> {
@@ -891,6 +894,29 @@ fn gate_log(d2: u64, rg: u64, ri: u64, rt: u64, f438: u64, f4a0: u64, f4a8: u64,
     let line = format!("d2={} need={} rg={} ri={} rt={} 438={} 4a0={} 4a8={} lv={} 4c0={} 470={} 680={} t470={} t680={} game={}
 ", d2, need, rg, ri, rt, f438, f4a0, f4a8, lv, f4c0, f470, f680, t470, t680, game);
     if let Some(p) = crate::pth("judge_pe_gate.txt") { let _ = std::fs::OpenOptions::new().create(true).append(true).open(p).and_then(|mut f| { use std::io::Write; f.write_all(line.as_bytes()) }); }
+}
+
+/// 훅 대조용: threat(a, G, src, tgt) 순수 재현. relevant 게이트 포함(게임 0x132b310 전제).
+pub unsafe fn threat_diag(a: usize, src: usize, tgt: usize) -> String {
+    if !ptr_ok(a) || !ptr_ok(src) || !ptr_ok(tgt) { return "bad ptr".into(); }
+    let a40 = rd_u64(a + 0x40).unwrap_or(0); let k = if a40 >= 2 { a40 - 2 } else { 7 };
+    let (b0, bn) = lb0(a).unwrap_or((0, 0)); let (l5, l5n) = l50(a).unwrap_or((0, 0));
+    let (mut p, mut m, mut pc) = (0u64, 0u64, 0u64); let mut impls = String::new();
+    let _ = list_iter(b0, bn, 0x18, |d, v| {
+        let (x, y) = dy::eff28_damage(d, v, src)?; let z = dy::eff38_pct(d, v, src)?;
+        impls += &format!("<i38={:#x} pct={} {}>", dy::impl_rva(v, 0x38).unwrap_or(0), z, dy::eff28_trace(d, v, src, 0));
+        p = p.wrapping_add(x); m = m.wrapping_add(y); pc = pc.wrapping_add(z); Some(()) });
+    let mh = rd_u64(tgt + ENT_MAXHP).unwrap_or(0);
+    let raw = p.wrapping_add(pc.wrapping_mul(mh) / 100); let ty = rd_u32(a + 0x128);
+    format!("k={} tt={} bn={} l5n={} p={} m={} pct={} mh={} raw={} ty={} conv0={:?} conv1={:?} ticks={:?} a60={} a68={} src440={:?} src448={:?} src450={:?} src460={:?} src418={:?} src420={:?} t630={:?} t638={:?} {}",
+        k, rd_u32(a + 0x12c), bn, l5n, p, m, pc, mh, raw, ty, conv(src, tgt, raw, ty, 0), conv(src, tgt, m, ty, 1), ticks(a), rd_u64(a + 0x60).unwrap_or(0), rd_u64(a + 0x68).unwrap_or(0),
+        rd_u64(src + 0x440), rd_u64(src + 0x448), rd_u64(src + 0x450), rd_u64(src + 0x460), rd_u64(src + 0x418), rd_u64(src + 0x420), rd_u64(tgt + 0x630), rd_u64(tgt + 0x638), impls)
+}
+pub unsafe fn threat_cmp(a: usize, src: usize, tgt: usize) -> Option<u64> {
+    if !ptr_ok(a) || !ptr_ok(src) || !ptr_ok(tgt) { return None; }
+    if !relevant(rd_u32(a + 0x12c), a, tgt)? { return Some(0); }
+    let a40 = rd_u64(a + 0x40)?; let k = if a40 >= 2 { a40 - 2 } else { 7 };
+    threat(&Act { a, k }, src, tgt)
 }
 
 // ── 래퍼 0xd84db0 의 TLS 메모(512버킷 × 0x68B) 직접 조회 ──────────────────────────────────
