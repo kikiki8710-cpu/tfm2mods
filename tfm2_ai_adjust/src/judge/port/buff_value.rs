@@ -298,57 +298,6 @@ pub unsafe fn slot_sum(data: usize, vt: usize, slot: usize, me: usize, depth: u3
     na_tag(tag)
 }
 
-/// S13(자기 버프) · S14(아군 버프). `ally` = 아군 Record(S14) / None(S13).
-/// 아직 `0xe047c0`·`0xdffa10` 등이 미포팅이라 최종값은 NA — 지금은 **어느 조각이 벽인지** 집계가 목적이다.
-pub unsafe fn s13_s14(b: &BCtx, ally: Option<usize>) -> Option<i64> {
-    set_leaf_ctx(b.sim);
-    let (_sd, sv, sin) = slot3(b.slot)?;
-    let t = b.tgt;
-    let (maxhp, hp) = (rd_u64(t + ENT_MAXHP)?, rd_u64(t + ENT_HP)?);
-    let missing_raw = maxhp.wrapping_sub(hp);
-    let heal0 = if hp <= maxhp { missing_raw } else { 0 };
-
-    // slot.vt+0x40 / +0x48 : (inline, sim, self, EST) -> i64
-    let heal_cap = slot_sum(_sd, sv, 0x40, b.me, 0, "B40")?;
-    let heal = heal0.min(heal_cap.max(0) as u64) as i64;
-    let shield = slot_sum(_sd, sv, 0x48, b.me, 0, "B48")?;
-    // slot.vt+0xb0 : (inline, sim, self) -> i64 아우라
-    let aura = slot_sum(_sd, sv, 0xb0, b.me, 0, "Bb0")?;
-
-    // inc / heal_e / shield_e — S13 은 bb 필드, S14 는 아군 Record 필드에서 온다
-    let (inc, shield_ok, miss) = if let Some(ra) = ally {
-        let x = super::action_score::threat_sum(ra, b.cast_delay.wrapping_add(30))?.wrapping_add(rd_i64(ra + 0x98)?);
-        let (r14, r10) = (rd_i64(ra + 0x88)?, rd_i64(ra + 0x70)?);
-        let mut so = if r14 == 0 { 0 } else { shield };
-        if r10 > 0 || x > 0 { so = shield; }
-        (r10.wrapping_add(r14).wrapping_add(x), so, (missing_raw as i64).max(0))
-    } else {
-        let (g9a0, g988) = (rd_i64(b.bb + 0x9a0)?, rd_i64(b.bb + 0x988)?);
-        let mut so = if (g9a0 | g988) == 0 { 0 } else { shield };
-        if b.inc_base > 0 { so = shield; }
-        let inc = b.inc_base.wrapping_add(g988).wrapping_add(g9a0);
-        let miss = (rd_i64(b.me + ENT_MAXHP)? - rd_i64(b.me + ENT_HP)?).max(0);
-        (inc, so, miss)
-    };
-    let heal_e = heal.min(miss.wrapping_add(2 * inc));
-    let shield_e = shield_ok.min(3 * inc);
-    let _ = (heal_e, shield_e, aura, sin, b.mode, b.prof, b.rec, b.ctx, b.sp, b.me, b.p9, b.sim, b.w, b.c);
-
-    let spec0 = match e047c0(b.slot, b.ctx, t) { Some(v) => v, None => return na_tag("B047") };
-    // has = spec0 있음 ∨ slot.vt+0xa0(sret BuffSpec) 의 tag != −1  ·  b90 = slot.vt+0x90(bool)
-    let _has = match spec0 { Some(_) => true, None => { sret_spec_tag(_sd, sv, b.me, "Ba0")? != -1 } };
-    let _b90 = slot_bool90(_sd, sv, 0)?;
-    // 조립 항 중 이미 옮긴 것들(값은 아직 안 쓰지만 도달·NA 집계로 검증 순서를 잡는다)
-    let atgt = if ally.is_some() { t } else { b.me };
-    let ah = match rd_u64(atgt + ENT_HANDLE) { Some(v) => v, None => return na_tag("B2bc0") };
-    let _aoe = match e02bc0(b.slot, b.ctx, b.bb, b.me, atgt, ah, b.cast_delay) { Some(v) => v, None => return na_tag("B2bc0") };
-    if ally.is_none() {
-        let _trig = match e03ed0(b.slot, b.ctx, b.rec, b.bb, b.me, b.c) { Some(v) => v, None => return na_tag("B3ed0") };
-    }
-    // ⬜남은 미포팅: 0xdffa10(버프가치) → 0xe022d0 → 0xe01c40 → 0xe03360/0xe02540
-    na_tag(if ally.is_some() { "B14spec" } else { "B13spec" })
-}
-
 // ── slot.vt+0xa0 : sret BuffSpec(0x120) ─────────────────────────────────────────────────
 //   정본 = `RE\2026-09-07_BuffSpec-fold-0x126e6c0-0.5.8.md`
 //   `0x126e6c0` = 자식들의 BuffSpec 을 접는다: **첫 유효(=+0x48 != −1) 자식을 통째로 채택**하고,
@@ -507,6 +456,131 @@ pub unsafe fn spec_a0_inline(p: usize, vt: usize, me: usize, depth: u32) -> Opti
         }
     }
 }
+/// S13(자기 버프) · S14(아군 버프). `ally` = 아군 Record(S14) / None(S13).
+///   정본 = `RE\2026-09-07_combat_score-S13S14-본체구간-정밀전사-0.5.8.md`
+pub unsafe fn s13_s14(b: &BCtx, ally: Option<usize>) -> Option<i64> {
+    set_leaf_ctx(b.sim);
+    let (sd, sv, _sin) = slot3(b.slot)?;
+    let t = b.tgt;
+    let (maxhp, hp) = (rd_u64(t + ENT_MAXHP)?, rd_u64(t + ENT_HP)?);
+    let missing_raw = maxhp.wrapping_sub(hp);
+    let heal0 = if hp <= maxhp { missing_raw } else { 0 };
+
+    let heal_cap = slot_sum(sd, sv, 0x40, b.me, 0, "B40")?;
+    let heal = heal0.min(heal_cap.max(0) as u64) as i64;
+    let shield = slot_sum(sd, sv, 0x48, b.me, 0, "B48")?;
+    let aura = slot_sum(sd, sv, 0xb0, b.me, 0, "Bb0")?;
+
+    // spec0 = 0xe047c0(slot, ctx, tgt) · has = spec0 있음 ∨ slot.vt+0xa0 의 tag != −1
+    let spec0 = match e047c0(b.slot, b.ctx, t) { Some(v) => v, None => return na_tag("B047") };
+    let a0 = spec_a0(sd, sv, b.me, 0)?;
+    let has = spec0.is_some() || a0.is_some();
+    let b90 = slot_bool90(sd, sv, 0)?;
+    // etc = (!has && aura<=0 && b90) ? (vt_a8()[0]==0 ? 5 : 0) : 0   ⬜vt+0xa8 미포팅
+    let etc: i64 = if !has && aura <= 0 && b90 { return na_tag("Ba8"); } else { 0 };
+
+    // inc / heal_e / shield_e
+    let (inc, shield_ok, miss) = if let Some(ra) = ally {
+        let x = super::action_score::threat_sum(ra, b.cast_delay.wrapping_add(30))?.wrapping_add(rd_i64(ra + 0x98)?);
+        let (r14, r10) = (rd_i64(ra + 0x88)?, rd_i64(ra + 0x70)?);
+        let mut so = if r14 == 0 { 0 } else { shield };
+        if r10 > 0 || x > 0 { so = shield; }
+        (r10.wrapping_add(r14).wrapping_add(x), so, (missing_raw as i64).max(0))
+    } else {
+        let (g9a0, g988) = (rd_i64(b.bb + 0x9a0)?, rd_i64(b.bb + 0x988)?);
+        let mut so = if (g9a0 | g988) == 0 { 0 } else { shield };
+        if b.inc_base > 0 { so = shield; }
+        let inc = b.inc_base.wrapping_add(g988).wrapping_add(g9a0);
+        let miss = (rd_i64(b.me + ENT_MAXHP)? - rd_i64(b.me + ENT_HP)?).max(0);
+        (inc, so, miss)
+    };
+    let heal_e = heal.min(miss.wrapping_add(2 * inc));
+    let shield_e = shield_ok.min(3 * inc);
+    // dffa10 의 8번째 인자(gate) — S13 은 bb.0x9a0, S14 는 아군 Record 의 0x88
+    let gate = match ally { Some(ra) => rd_i64(ra + 0x88)?, None => rd_i64(b.bb + 0x9a0)? };
+    // dffa10 의 대상/계수 — S13 은 self·C, S14 는 tgt·C_ally
+    let (dtgt, dc) = match ally {
+        Some(ra) => (t, super::as_callees::pct_c(b.bb, ra)?),
+        None => (b.me, b.c),
+    };
+
+    // ── 버프 항 ──
+    let mut buff: i64 = 0;
+    let mut need_second = false;
+    if has || aura > 0 {
+        let spec = match spec0 { Some(x) => Some(x), None => a0 };
+        match spec {
+            Some(sp) => {
+                let hs_needed = sp[0xf8] != 0 || sp[0x118] != 0 || sp[0xb8..0xc0].iter().any(|&x| x != 0);
+                if hs_needed { return na_tag("B1c40"); }        // ⬜0xe01c40 미포팅
+                let d = Dffa { self_e: dtgt, ctx: b.ctx, rec: b.rec, bb: b.bb, hs: None, inc, gate, aura, c: dc };
+                let v = dffa10(&sp, &d)?;
+                let v = if ally.is_some() { decay_s14(b, t, v)? } else { v };
+                buff = e022d0(b.slot, b.ctx, b.rec, dtgt, v)?;
+                if has && buff == 0 { need_second = true; }
+            }
+            None => {
+                if aura <= 0 { if !has { buff = 0; } else { need_second = true; } }
+                else {
+                    let z = [0u8; SPEC_SIZE];
+                    let d = Dffa { self_e: dtgt, ctx: b.ctx, rec: b.rec, bb: b.bb, hs: None, inc, gate, aura, c: dc };
+                    let v = dffa10(&z, &d)?;                    // ★E2 경로엔 /6 감쇠가 없다
+                    buff = e022d0(b.slot, b.ctx, b.rec, dtgt, v)?;
+                    if has && buff == 0 { need_second = true; }
+                }
+            }
+        }
+    }
+    if need_second { return na_tag("B3360"); }                  // ⬜0xe03360 + 0xe02540 2차 경로
+
+    // ── 조립 ──
+    let thp = rd_i64(if ally.is_some() { t } else { b.me } + ENT_HP)?;
+    if thp == 0 { return None; }
+    let total = heal_e.wrapping_add(shield_e);
+    let mut hs_term = dc.wrapping_mul(total) / thp;
+    if ally.is_some() && total > 0 && hs_term == 0 {
+        let ra = ally.unwrap();
+        let x = super::action_score::threat_sum(ra, b.cast_delay.wrapping_add(30))?.wrapping_add(rd_i64(ra + 0x98)?);
+        hs_term = (rd_i64(ra + 0x70)? > 0 || x > 0 || rd_u64(t + ENT_MAXHP)? > rd_u64(t + ENT_HP)? || rd_i64(ra + 0x80)? != 0) as i64;
+    }
+    let atgt = if ally.is_some() { t } else { b.me };
+    let ah = rd_u64(atgt + ENT_HANDLE)?;
+    let aoe = match e02bc0(b.slot, b.ctx, b.bb, b.me, atgt, ah, b.cast_delay) { Some(v) => v, None => return na_tag("B2bc0") };
+    let main_raw = if ally.is_some() {
+        aoe + etc + buff + hs_term
+    } else {
+        // S13 전용: 아군 아우라 루프 + 0xe03ed0
+        return na_tag("B13aura");
+    };
+    Some(if main_raw != 0 { main_raw } else if total > 0 || has { -10 } else { 0 })
+}
+
+/// S14 전용 도달시간 감쇠: `buff = e022d0(..., (k*v)/6)`, `k = min(6, max(0, 6 − t))`
+unsafe fn decay_s14(b: &BCtx, tgt: usize, v: i64) -> Option<i64> {
+    let (sd, sv, sin) = slot3(b.slot)?;
+    let _ = sd;
+    let e8 = {
+        let f = rd_u64(sv + 0xe8)? as usize;
+        match super::as_callees::decode_getter(f, sin) { Some(x) => x as i64, None => return na_tag("Be8") }
+    };
+    let me = b.me;
+    let reach = rd_i64(me + 0x438)?
+        .wrapping_add(rd_i64(b.slot + 0x10)?)
+        .wrapping_add(e8)
+        .wrapping_add((rd_i64(me + 0x5c8)? - 1).wrapping_mul(rd_i64(b.slot + 0x18)?))
+        .wrapping_add(body_radius(me)? as i64)
+        .wrapping_add(body_radius(tgt)? as i64);
+    let d = super::as_callees::isqrt_fast(
+        { let (dx, dy) = (absd(rd_u64(me + ENT_X)?, rd_u64(tgt + ENT_X)?), absd(rd_u64(me + ENT_Y)?, rd_u64(tgt + ENT_Y)?));
+          dx.wrapping_mul(dx).wrapping_add(dy.wrapping_mul(dy)) }) as i64;
+    let cfg = rd_u64(rd_u64(b.ctx + 8)? as usize + 8)? as usize;
+    let tps = rd_i64(cfg + 0x12f8)?; if tps == 0 { return None; }
+    let over = if d >= reach { (d - reach) as u64 } else { 0 };
+    let t1 = (over / (rd_u64(me + 0x640)?.max(1))) as i64 / tps;
+    let k = (6 - t1).max(0).min(6);
+    Some(k.wrapping_mul(v) / 6)
+}
+
 /// slot.vt+0xa0 의 태그만 (−1 = 없음)
 unsafe fn sret_spec_tag(data: usize, vt: usize, me: usize, _tag: &str) -> Option<i32> {
     Ok::<(), ()>(()).ok();
@@ -554,7 +628,7 @@ unsafe fn slot_def_b8(data: usize, vt: usize) -> Option<(usize, usize)> {
 }
 
 /// `0xe047c0`. 성공하면 `Some(BuffSpec)`(0x120 바이트 · i32 필드만 채움), 실패(=tag −1)면 `Some(None)`.
-pub unsafe fn e047c0(slot: usize, ctx: usize, me: usize) -> Option<Option<[i32; 72]>> {
+pub unsafe fn e047c0(slot: usize, ctx: usize, me: usize) -> Option<Option<[u8; SPEC_SIZE]>> {
     let (sd, sv) = (rd_u64(slot)? as usize, rd_u64(slot + 8)? as usize);
     if !ptr_ok(sd) || !ptr_ok(sv) { return None; }
     let (def, dvt) = slot_def_b8(sd, sv)?;
@@ -577,28 +651,36 @@ pub unsafe fn e047c0(slot: usize, ctx: usize, me: usize) -> Option<Option<[i32; 
         } else { return Some(None) };
 
     let w = rd_u64(ctx)? as usize; if !ptr_ok(w) { return None; }
-    let rec = sim_of_handle(w, rd_u64(me + ENT_HANDLE)?)?;
+    let rec = super::action_score::sim_of_handle(w, rd_u64(me + ENT_HANDLE)?)?;
     if rec == 0 { return Some(None); }
     let mult = rd_u32(hit) as i32;                     // 매칭된 def 의 +0x00 = 퍼센트
 
-    // 챔피언 어빌리티 전부의 BuffSpec 성분합 (전부 i32 wrapping)
+    // 챔피언 어빌리티 전부의 BuffSpec 성분합 (전부 i32 wrapping) — 각 어빌리티는 `vt+0x78` sret
+    const G: [usize; 16] = [0x58, 0x5c, 0x60, 0x64, 0x68, 0x6c, 0x70, 0x74, 0x78, 0x7c, 0x80, 0x84, 0x88, 0x8c, 0x90, 0x104];
+    let mut sum = [0i32; 16];
     let n = rd_u64(rec + 0x4a8)?;
     let arr = rd_u64(rec + 0x4a0)? as usize;
     if n != 0 && !ptr_ok(arr) { return None; }
-    let mut sum = [0i32; 72];
+    let (sim, est) = (SIM_TLS.with(|c| c.get()) as u64, EST_DESC_RVA_ABS.with(|c| c.get()));
     for i in 0..n.min(32) as usize {
         let e = arr + i * 0x10;
-        let (_ed, ev) = (rd_u64(e)? as usize, rd_u64(e + 8)? as usize);
+        let (ed, ev) = (rd_u64(e)? as usize, rd_u64(e + 8)? as usize);
         if !ptr_ok(ev) { return None; }
-        // ⬜어빌리티별 `vt+0x78`(sret BuffSpec 0x120) 미포팅 — impl 목록부터 모은다
-        if let Some(r) = super::dyn_eff::impl_rva(ev, 0x78) { super::dyn_eff::unseen(0xa78, r); }
-        return na_tag("B78").map(|_| None);
+        let f = rd_u64(ev + 0x78)? as usize;
+        let tmp = match super::specemu::run_spec_leaf(f, ed as u64, sim, me as u64, est) {
+            Some(t) => t,
+            None => { if let Some(r) = super::dyn_eff::impl_rva(ev, 0x78) { super::dyn_eff::unseen(0xa78, r); } return na_tag("B78").map(|_| None); }
+        };
+        for (k, o) in G.iter().enumerate() {
+            sum[k] = sum[k].wrapping_add(i32::from_le_bytes([tmp[*o], tmp[*o + 1], tmp[*o + 2], tmp[*o + 3]]));
+        }
     }
-    let mut out = [0i32; 72];
-    for k in [0x58usize, 0x5c, 0x60, 0x64, 0x68, 0x6c, 0x70, 0x74, 0x78, 0x7c, 0x80, 0x84, 0x88, 0x8c, 0x90, 0x104] {
-        out[k / 4] = sum[k / 4].wrapping_mul(mult) / 100;
+    let mut out = [0u8; SPEC_SIZE];
+    for (k, o) in G.iter().enumerate() {
+        let v = sum[k].wrapping_mul(mult) / 100;
+        out[*o..*o + 4].copy_from_slice(&v.to_le_bytes());
     }
-    out[0x48 / 4] = 0;
+    // tag A = 0, tag B = 0 (e047c0 은 성공 시 +0x48 에 0 을 쓴다)
     Some(Some(out))
 }
 
@@ -876,9 +958,57 @@ pub unsafe fn dffa10(spec: &[u8; SPEC_SIZE], a: &Dffa) -> Option<i64> {
         raw += n.min(3) * dur * ((cv + bv + av) * s64(0xa0) / 100);
     }
 
-    // ── 앵커 정규화 ── ⬜미확정(RE 위임 중): 필터 술어·동률 규칙 확정 전까지 NA
+    // ── 앵커 정규화 (RE `2026-09-07_dffa10-앵커블록-확정-0.5.8.md`) ──
+    //   ★`gate <= 0` 은 **함수를 끝내지 않는다** — result 만 0 으로 두고 아래 (5)(6)(7) 을 계속 더한다.
+    let rng_e = |e: usize| -> Option<i64> {
+        let v = rd_i32(e + 0x470)? as i64;
+        Some(if v == 0 { rd_i64(e + 0x680)? } else { ((v + 100).wrapping_mul(rd_i64(e + 0x680)?) as u64 / 100) as i64 })
+    };
+    let reach_of = |e: usize| -> Option<i64> {
+        let base = if rd_i32(e + 0x4c0)? == -1 { 0 }
+                   else { rd_i64(e + 0x438)? + rd_i64(e + 0x4a0)? + (rd_i64(e + 0x5c8)? - 1) * rd_i64(e + 0x4a8)? };
+        Some(base + rd_i64(e + 0x640)? * 120 + rng_e(e)?)
+    };
     let mut result: i64 = 0;
-    if raw > 0 { return na_tag("Banchor"); }
+    if raw > 0 {
+        let self_reach = reach_of(me)?;
+        let ally = rd_u64(sim + 0x1e0 + (myteam as usize) * 0x28 + (rd_u32(a.rec + 0x9c0) as usize) * 8)? as usize;
+        if ally == 0 { return None; }                       // 게임은 여기서 패닉(buff_value.rs:322)
+        let ally_reach = reach_of(ally)?;
+        let (wd, wv) = (rd_u64(sim)? as usize, rd_u64(sim + 8)? as usize);
+        if !ptr_ok(wd) || !ptr_ok(wv) { return None; }
+        let w = World { x: sim, data: wd, vt: wv };
+        let (mx, my) = (rd_u64(me + ENT_X)?, rd_u64(me + ENT_Y)?);
+        let (ax0, ay0) = (rd_u64(ally + ENT_X)?, rd_u64(ally + ENT_Y)?);
+        let n = rd_u64(a.bb + BV_ENEMY_LEN)?;
+        let mut best: Option<(i64, i64)> = None;
+        if n != 0 {
+            let arr = rd_u64(a.bb + BV_ENEMY_PTR)? as usize; if !ptr_ok(arr) { return None; }
+            for i in 0..n.min(64) as usize {
+                let elem = arr + i * 0xd8;
+                let h = rd_u64(elem + 0x58)?;
+                let e = match w.entity(h) { Some(x) => x.0, None => continue };
+                let r = rng_e(e)? as u64;
+                let (ex, ey) = (rd_u64(e + ENT_X)?, rd_u64(e + ENT_Y)?);
+                let (dx, dy) = (absd(ex, mx), absd(ey, my));
+                let rs = (self_reach as u64).wrapping_add(r);
+                let ok = dx.wrapping_mul(dx).wrapping_add(dy.wrapping_mul(dy)) <= rs.wrapping_mul(rs) || {
+                    let (bx, by) = (absd(ex, ax0), absd(ey, ay0));
+                    let ra = r.wrapping_add(ally_reach as u64);
+                    bx.wrapping_mul(bx).wrapping_add(by.wrapping_mul(by)) <= ra.wrapping_mul(ra)
+                };
+                if !ok { continue; }
+                let v = super::as_callees::pct_c(a.bb, elem)?;
+                let hp = rd_i64(e + ENT_HP)?;
+                if hp < 1 { continue; }
+                match best { Some((bv, _)) if bv > v => {} _ => best = Some((v, hp)) }   // 동률이면 나중 원소
+            }
+        }
+        result = match best {
+            Some((v, hp)) => v.wrapping_mul(raw) / if hp >= 2 { hp } else { 1 },
+            None => if a.gate <= 0 { 0 } else { a.c.wrapping_mul(raw) / if hpmax >= 2 { hpmax } else { 1 } },
+        };
+    }
 
     // ── 방어/유틸 가치 ──
     if s32(0x90) > 0 || s32(0xfc) > 0 {
@@ -916,8 +1046,17 @@ pub unsafe fn dffa10(spec: &[u8; SPEC_SIZE], a: &Dffa) -> Option<i64> {
         if sh2 + d > 0 { result += (sh2 + d) * a.c / rd_i64(me + ENT_HP)?.max(1); }
     }
 
-    // ── 오더 게이트 보너스 ── ⬜ctx[2] 오더 kind 미확정 → 항이 필요한 경우만 NA
-    if s32(0x88) > 0 || (spec[0x119] & 1) != 0 { return na_tag("Border"); }
+    // ── 오더 게이트 보너스 ── (ctx[2] = agents. o 의 의미는 추정이나 식은 확정)
+    if s32(0x88) > 0 || (spec[0x119] & 1) != 0 {
+        let agents = rd_u64(a.ctx + 0x10)? as usize;
+        let r2 = super::action_score::sim_of_handle(sim, rd_u64(me + ENT_HANDLE)?)?;
+        if r2 != 0 && ptr_ok(agents) {
+            let t = rd_u64(r2 + 0x930)?; if t > 1 { return None; }
+            let o = rd_i64(agents + (t as usize) * 0x2e8 + 0x78 + (rd_u32(r2 + 0x9c0) as usize) * 0x18)?;
+            let ok = (o == 0 && a.inc >= 1) || (o == 4 && rd_u64(a.bb + BV_ENEMY_LEN)? != 0);
+            if ok { result += (s32(0x88) + if spec[0x119] & 1 != 0 { 10 } else { 0 }) * a.c / 100; }
+        }
+    }
 
     if let Some((h0, h1)) = a.hs {
         if spec[0x118] != 0 { result += if h0 { a.c } else { 0 }; }

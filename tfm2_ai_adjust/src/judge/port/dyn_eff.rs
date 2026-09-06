@@ -192,6 +192,10 @@ pub unsafe fn eff28_damage(data: usize, vt: usize, att: usize) -> Option<(u64, u
             super::super::tr(5, a.min(0xffff) | b.min(0xffff) << 16 | base.min(0xffff) << 32 | ((me as u64) & 0xffff) << 48);
             Some((a.wrapping_add(base).wrapping_add(b), 0))
         }
+        // p.0x00 + p.0x08 * AD / 100   (EST[0x30] 스탯복사판 / EST[0x38] 포인터판)
+        0x134ac70 | 0x106a230 => Some((rd_u64(me)?.wrapping_add(rd_u64(me + 8)?.wrapping_mul(rd_u64(att + ENT_STATS)?) / 100), 0)),
+        // 마법 쪽으로: (0, p.0x00 + p.0x08 * AP / 100)
+        0x122fcb0 => Some((0, rd_u64(me)?.wrapping_add(rd_u64(me + 8)?.wrapping_mul(rd_u64(att + ENT_STATS + 8)?) / 100))),
         // ((p.0x38 >> 1) + p.0x30) * AD / 100
         0x16a8c80 => Some(((rd_u64(me + 0x38)? >> 1).wrapping_add(rd_u64(me + 0x30)?).wrapping_mul(rd_u64(att + ENT_STATS)?) / 100, 0)),
         // p.0x08 + p.0x10 * AD / 100
