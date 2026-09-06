@@ -3562,7 +3562,7 @@
   },
   "as_c88300": {
    "role": "helper",
-   "status": "todo",
+   "status": "verified",
    "history": [
     {
      "ver": "0.5.8",
@@ -3570,6 +3570,13 @@
      "size": 4592,
      "date": "2026-09-06",
      "event": "add"
+    },
+    {
+     "ver": "0.5.8",
+     "rva": "0xc88300",
+     "date": "2026-09-06",
+     "event": "mark:todo→verified",
+     "note": "스냅샷 순수 재현+메모, 8,336,048/8,336,048 DIFF=0 NA=0 (19:59)"
     }
    ],
    "sym": "(AI 계층 census 밖 — Location 없음)",
@@ -3602,7 +3609,7 @@
   },
   "as_eb82d0": {
    "role": "helper",
-   "status": "todo",
+   "status": "verified",
    "history": [
     {
      "ver": "0.5.8",
@@ -3610,6 +3617,13 @@
      "size": 1699,
      "date": "2026-09-06",
      "event": "add"
+    },
+    {
+     "ver": "0.5.8",
+     "rva": "0xeb82d0",
+     "date": "2026-09-06",
+     "event": "mark:todo→verified",
+     "note": "fight_check 순수(메모 미러·노이즈·매트릭스·dyn 15종) 5,815,961/5,815,961 DIFF=0 (20:41), NA 1,232=0x117bb30 원뿔(20:45 포팅·미검증)"
     }
    ],
    "sym": "(AI 계층 census 밖 — Location 없음)",
@@ -3642,7 +3656,7 @@
   },
   "as_e0e890": {
    "role": "helper",
-   "status": "todo",
+   "status": "verified",
    "history": [
     {
      "ver": "0.5.8",
@@ -3650,6 +3664,13 @@
      "size": 1081,
      "date": "2026-09-06",
      "event": "add"
+    },
+    {
+     "ver": "0.5.8",
+     "rva": "0xe0e890",
+     "date": "2026-09-06",
+     "event": "mark:todo→verified",
+     "note": "최대사거리+술어 0x12a0180+버프층 vt+0x48, 52,912,245/52,912,245 DIFF=0 NA=0 (19:59)"
     }
    ],
    "sym": "(AI 계층 census 밖 — Location 없음)",
@@ -3682,7 +3703,7 @@
   },
   "util_c87fe0": {
    "role": "helper",
-   "status": "todo",
+   "status": "verified",
    "history": [
     {
      "ver": "0.5.8",
@@ -3690,6 +3711,13 @@
      "size": 724,
      "date": "2026-09-06",
      "event": "add"
+    },
+    {
+     "ver": "0.5.8",
+     "rva": "0xc87fe0",
+     "date": "2026-09-06",
+     "event": "mark:todo→verified",
+     "note": "백분위 C 0xd390a0 순수+메모(키 seed/tick/bb.970, R.58), 13,139,708/13,139,708 DIFF=0 (19:59; 메모 없이는 0.013% 시점차)"
     }
    ],
    "sym": "game-ai\\src\\utils.rs",
@@ -3776,7 +3804,7 @@
   },
   "as_d83230": {
    "role": "helper",
-   "status": "todo",
+   "status": "verified",
    "history": [
     {
      "ver": "0.5.8",
@@ -3784,6 +3812,13 @@
      "size": 459,
      "date": "2026-09-06",
      "event": "add"
+    },
+    {
+     "ver": "0.5.8",
+     "rva": "0xd83230",
+     "date": "2026-09-06",
+     "event": "mark:todo→verified",
+     "note": "위협합 threat_sum 교차대조 13,123,902/13,123,902 DIFF=0 (19:59)"
     }
    ],
    "sym": "(AI 계층 census 밖 — Location 없음)",
@@ -3815,7 +3850,7 @@
   },
   "as_e23170": {
    "role": "helper",
-   "status": "todo",
+   "status": "verified",
    "history": [
     {
      "ver": "0.5.8",
@@ -3823,6 +3858,20 @@
      "size": 729,
      "date": "2026-09-06",
      "event": "add"
+    },
+    {
+     "ver": "0.5.8",
+     "rva": "0xe23170",
+     "date": "2026-09-06",
+     "event": "mark:todo→verified",
+     "note": "목적지 투영(0x129d800/0x18096a0/0xcaff00/스킬타깃 dyn) 2,477,859/2,477,859 DIFF=0 NA=0 진행 중 (20:06)"
+    },
+    {
+     "ver": "0.5.8",
+     "rva": "0xe23170",
+     "date": "2026-09-06",
+     "event": "mark:verified→verified",
+     "note": "목적지 투영(0x129d800/0x18096a0/0xcaff00/스킬타깃 dyn vt+0x60/68) 6,327,981/6,327,981 DIFF=0 NA=0 (20:10)"
     }
    ],
    "sym": "game-ai\\src\\small_action.rs",

@@ -1,5 +1,5 @@
 // gen_fns.rs — ★자동생성(python MIG\aiport.py gen). 손으로 고치지 말 것 — 정본 = MIG\judge\manifest.json
-//   게임 0.5.8 · exe sha 4ed3aed08971efd0 · 2026-09-06 20:12
+//   게임 0.5.8 · exe sha 4ed3aed08971efd0 · 2026-09-06 20:43
 //   FnSpec.prolog = 훅이 옮기는 선두 바이트(명령 경계 ≥12B). 설치기는 exe 바이트가 이와 **완전 일치**할 때만 패치한다(패치판/스테일 방어).
 #![allow(dead_code)]
 pub const GAME_VER: &str = "0.5.8";
@@ -10,7 +10,7 @@ pub const AS_D83230: FnSpec = FnSpec { name: "as_d83230", sym: r"(AI 계층 cens
 pub const AS_D84DB0: FnSpec = FnSpec { name: "as_d84db0", sym: r"game-ai\src\position_eval.rs", role: "helper", rva: 0xd84db0, size: 841, prolog: &[0x55, 0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x53], status: "todo" };   // 원본 행 317,319,428 · 197명령 · vslots 0x20,0x28
 pub const AS_E0E890: FnSpec = FnSpec { name: "as_e0e890", sym: r"(AI 계층 census 밖 — Location 없음)", role: "helper", rva: 0xe0e890, size: 1081, prolog: &[0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x53, 0x48, 0x83, 0xec, 0x20], status: "verified" };   // 원본 행 - · None명령 · vslots -
 pub const AS_E23170: FnSpec = FnSpec { name: "as_e23170", sym: r"game-ai\src\small_action.rs", role: "helper", rva: 0xe23170, size: 729, prolog: &[0x41, 0x57, 0x41, 0x56, 0x56, 0x57, 0x53, 0x48, 0x81, 0xec, 0x80, 0x00, 0x00, 0x00], status: "verified" };   // 원본 행 246 · 164명령 · vslots 0x60,0x68,0x1f0
-pub const AS_EB82D0: FnSpec = FnSpec { name: "as_eb82d0", sym: r"(AI 계층 census 밖 — Location 없음)", role: "helper", rva: 0xeb82d0, size: 1699, prolog: &[0x55, 0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x53], status: "todo" };   // 원본 행 - · None명령 · vslots -
+pub const AS_EB82D0: FnSpec = FnSpec { name: "as_eb82d0", sym: r"(AI 계층 census 밖 — Location 없음)", role: "helper", rva: 0xeb82d0, size: 1699, prolog: &[0x55, 0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x53], status: "verified" };   // 원본 행 - · None명령 · vslots -
 pub const BASE_SCORE: FnSpec = FnSpec { name: "base_score", sym: r"game-ai\src\action_score.rs", role: "scorer", rva: 0xd57540, size: 9212, prolog: &[0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x55, 0x53], status: "verified" };   // 원본 행 617,709,710,796,797,803,811,822,829,838,839,872,879,886,898,904,909,932 · 1988명령 · vslots 0x20,0x28,0x30,0x40,0x98,0xe8,0xf8,0x150,0x1f0
 pub const BATTLE_ARM9: FnSpec = FnSpec { name: "battle_arm9", sym: r"(AI 계층 census 밖 — Location 없음)", role: "plan_handler", rva: 0xdfdfc0, size: 733, prolog: &[0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x55, 0x53], status: "verified" };   // 원본 행 - · None명령 · vslots -
 pub const COMBAT_SCORE: FnSpec = FnSpec { name: "combat_score", sym: r"game-ai\src\action_score.rs", role: "helper", rva: 0xd5bbf0, size: 19586, prolog: &[0x55, 0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x53], status: "todo" };   // 원본 행 982,1071,1108,1121,1127,1172,1192,1249,1365,1401,1517 · 3893명령 · vslots 0x18,0x20,0x28,0x40,0x48,0x60,0x68,0x78,0x80,0x88,0x90,0x98,0xa0,0xa8,0xb0,0xb8,0xe8,0x150,0x648,0x7e8,0x828
