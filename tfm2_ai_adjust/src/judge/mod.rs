@@ -55,6 +55,7 @@ pub mod port {
     pub mod fight_check;
     pub mod dn_cache;
     pub mod position_eval;
+    pub mod combat_score;
 }
 use gen_fns::*;
 
@@ -546,6 +547,33 @@ macro_rules! judge_capture_out_cmp {
 judge_capture_out_cmp!(cap_as_c88300_out, crate::judge::gen_fns::AS_C88300, 9, |_p1, _p2, p3, _p4, _p5, _p6, _p7, _p8| unsafe { crate::judge::port::as_callees::snapshot_from_args(p3) }, crate::judge::port::as_callees::snapshot_eq);   // 스냅샷 0x48B (2단계: 순수 재현 대조)
 judge_capture_out_cmp!(cap_as_e23170, crate::judge::gen_fns::AS_E23170, 3, |_p1, p2, _p3, p4, p5, _p6, _p7, _p8| unsafe { crate::judge::port::as_callees::dest_from_args(p2, p4, p5).map(|v| { let mut w = [0u64; 9]; w[..3].copy_from_slice(&v); w }) }, crate::judge::port::as_callees::dest_eq);       // Option<(x,y)> 0x18B (2단계: 순수 재현 대조)
 judge_capture_out_cmp!(cap_as_d84db0, crate::judge::gen_fns::AS_D84DB0, 7, |_p1, p2, p3, p4, p5, p6, p7, _p8| unsafe { crate::judge::port::position_eval::pe_from_args(p2, p3, p4, p5, p6, p7) }, crate::judge::port::position_eval::pe_eq, |_p1: usize, p2: usize, p3: usize, p4: usize, p5: usize, p6: usize, p7: usize, _p8: usize| { crate::judge::port::position_eval::pre_mark(); unsafe { crate::judge::port::position_eval::pre_memo(p2, p3, p4, p5, p6, p7) } });   // position_eval out 0x38B (2단계: 순수 재현 대조 — 타워다이브는 d96d00 캡처 경유)
+/// 본체 실행 카운터 전용 훅(래퍼 메모 히트/미스의 정답 레이블). 인자·반환 무변경.
+macro_rules! judge_capture_count {
+    ($m:ident, $spec:expr) => {
+        pub mod $m {
+            use std::sync::atomic::{AtomicUsize, AtomicU64, Ordering};
+            pub static ORIG: AtomicUsize = AtomicUsize::new(0);
+            pub static ST: super::Stat = super::Stat::new();
+            thread_local! { pub static N: std::cell::Cell<u64> = const { std::cell::Cell::new(0) }; }
+            pub fn reset() {}
+            pub fn count() -> u64 { N.with(|c| c.get()) }
+            static SEQ: AtomicU64 = AtomicU64::new(0);
+            pub unsafe extern "C" fn wrap(p1: usize, p2: usize, p3: usize, p4: usize, p5: usize, p6: usize, p7: usize, p8: usize,
+                                          p9: usize, p10: usize, p11: usize, p12: usize) -> usize {
+                let orig = ORIG.load(Ordering::Relaxed);
+                if orig == 0 { return 0; }
+                let f: super::F12 = core::mem::transmute(orig);
+                ST.entered.fetch_add(1, Ordering::Relaxed);
+                N.with(|c| c.set(c.get() + 1));
+                SEQ.fetch_add(1, Ordering::Relaxed);
+                let r = f(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12);
+                ST.n.fetch_add(1, Ordering::Relaxed);
+                r
+            }
+        }
+    };
+}
+judge_capture_count!(cap_as_d851d0, crate::judge::gen_fns::AS_D851D0);
 /// (rax, rdx) 쌍 반환 콜리 캡처(타워다이브 0xd96d00: rax=dive, rdx=target handle). 원본을 inline asm 으로 불러 rdx 까지 받는다(인자 4개 이하 전용).
 macro_rules! judge_capture_pair {
     ($m:ident, $spec:expr, $rec:expr) => {
@@ -583,8 +611,50 @@ macro_rules! judge_capture_pair {
         }
     };
 }
+judge_capture_pair!(cap_as_e04400, crate::judge::gen_fns::AS_E04400, |_p1: usize, _p2: usize, _p3: usize, p4: usize, r: u64, d: u64, _rbp: usize| { crate::judge::port::combat_score::e04400_record(p4, r, d) });   // 특수형 조기반환(combat_score 전용 콜리)
 judge_capture_pair!(cap_as_d96d00, crate::judge::gen_fns::AS_D96D00, |_p1: usize, p2: usize, p3: usize, p4: usize, r: u64, d: u64, rbp: usize| unsafe { crate::judge::port::position_eval::dive_record(p2, p3, p4, r, d, rbp) });   // 타워다이브 (순수 경계: 전투 시뮬 0xe05450 → 캡처)
 /// capture_ring + 대조: 링(find/last)은 그대로 두고, `$mine(p1..p4)`(Option<u64>) 를 rax 전체와 대조한다(ok/diff/na, DIFF ≤40줄). 콜리 순수 포팅 검증용.
+macro_rules! judge_capture_ring_cmp9 {
+    ($m:ident, $spec:expr, $mine:expr) => {
+        pub mod $m {
+            use std::sync::atomic::{AtomicUsize, AtomicU64, Ordering};
+            use std::cell::Cell;
+            pub static ORIG: AtomicUsize = AtomicUsize::new(0);
+            pub static ST: super::Stat = super::Stat::new();
+            static LOGGED: AtomicU64 = AtomicU64::new(0); static LOGGED_D: AtomicU64 = AtomicU64::new(0);
+            #[derive(Clone, Copy)] pub struct Cap { pub p1: usize, pub p2: usize, pub p3: usize, pub p4: usize, pub ret: u64 }
+            const Z: Cap = Cap { p1: 0, p2: 0, p3: 0, p4: 0, ret: 0 };
+            thread_local! { static RING: Cell<([Cap; 16], usize)> = const { Cell::new(([Z; 16], 0)) }; }
+            pub fn reset() { RING.with(|c| { let mut v = c.get(); v.1 = 0; c.set(v); }); }
+            pub fn find(p1: usize, p2: usize) -> Option<u64> { RING.with(|c| { let (a, n) = c.get(); a[..n.min(16)].iter().rev().find(|e| e.p1 == p1 && e.p2 == p2).map(|e| e.ret) }) }
+            pub fn last() -> Option<u64> { RING.with(|c| { let (a, n) = c.get(); if n == 0 { None } else { Some(a[(n - 1) % 16].ret) } }) }
+            pub fn find_p1(p1: usize) -> Option<u64> { RING.with(|c| { let (a, n) = c.get(); a[..n.min(16)].iter().rev().find(|e| e.p1 == p1).map(|e| e.ret) }) }
+            pub fn find4(p1: usize, p2: usize, p3: usize, p4: usize) -> Option<u64> { RING.with(|c| { let (a, n) = c.get(); a[..n.min(16)].iter().rev().find(|e| e.p1 == p1 && e.p2 == p2 && e.p3 == p3 && e.p4 == p4).map(|e| e.ret) }) }
+            pub unsafe extern "C" fn wrap(p1: usize, p2: usize, p3: usize, p4: usize, p5: usize, p6: usize, p7: usize, p8: usize,
+                                          p9: usize, p10: usize, p11: usize, p12: usize) -> usize {
+                let orig = ORIG.load(Ordering::Relaxed);
+                if orig == 0 { return 0; }
+                let f: super::F12 = core::mem::transmute(orig);
+                ST.entered.fetch_add(1, Ordering::Relaxed);
+                let r = f(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12);
+                RING.with(|c| { let (mut a, n) = c.get(); a[n % 16] = Cap { p1, p2, p3, p4, ret: r as u64 }; c.set((a, n + 1)); });
+                ST.n.fetch_add(1, Ordering::Relaxed);
+                let mine: Option<i64> = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| ($mine)(p1, p2, p3, p4, p5, p6, p7, p8, p9))).unwrap_or(None);
+                let logline = |tag: &str, v: Option<i64>| {
+                    let diag = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| crate::judge::port::as_callees::cmp_diag8($spec.name, p1, p2, p3, p4, p5, p6, p7, p8))).unwrap_or_default();
+                    let line = format!("[{} #{}] {} game={}({:#x}) mine={} | p1={:#x} p2={:#x} p3={:#x} p4={:#x} p5={:#x} p6={:#x} p7={:#x} | {}\n", $spec.name, ST.n.load(Ordering::Relaxed), tag, r as i64, r, v.map(|x| format!("{}({:#x})", x, x as u64)).unwrap_or("NA".into()), p1, p2, p3, p4, p5, p6, p7, diag);
+                    if let Some(p) = crate::pth(&format!("judge_{}.txt", $spec.name)) { let _ = std::fs::OpenOptions::new().create(true).append(true).open(p).and_then(|mut f| { use std::io::Write; f.write_all(line.as_bytes()) }); }
+                };
+                match mine {
+                    None => { ST.na.fetch_add(1, Ordering::Relaxed); if LOGGED.fetch_add(1, Ordering::Relaxed) < 30 { logline("NA", None); } }
+                    Some(v) if v == r as i64 => { ST.ok.fetch_add(1, Ordering::Relaxed); }
+                    Some(v) => { ST.diff.fetch_add(1, Ordering::Relaxed); if LOGGED_D.fetch_add(1, Ordering::Relaxed) < 40 { logline("DIFF", Some(v)); } }
+                }
+                r
+            }
+        }
+    };
+}
 macro_rules! judge_capture_ring_cmp {
     ($m:ident, $spec:expr, $mine:expr) => {
         pub mod $m {
@@ -627,7 +697,7 @@ macro_rules! judge_capture_ring_cmp {
     };
 }
 judge_capture_ring_cmp!(cap_util_c87fe0, crate::judge::gen_fns::UTIL_C87FE0, |_p1, p2, _p3, _p4, _p5, _p6, _p7, _p8| unsafe { crate::judge::port::as_callees::pct_c_from_args(p2) });   // 백분위 C (2단계: 0xd390a0 순수 재현 대조)
-judge_capture_ring!(cap_combat_score, crate::judge::gen_fns::COMBAT_SCORE);
+judge_capture_ring_cmp9!(cap_combat_score, crate::judge::gen_fns::COMBAT_SCORE, |p1, p2, p3, p4, p5, p6, p7, p8, p9| unsafe { crate::judge::port::combat_score::combat_score(p1, p2, p3, p4, p5, p6, p7, p8, p9) });   // 전투행동 점수(2단계: 순수 재현 대조)
 judge_capture_ring_cmp!(cap_as_eb82d0, crate::judge::gen_fns::AS_EB82D0, |p1, _p2, p3, p4, p5, p6, p7, _p8| unsafe { crate::judge::port::fight_check::fight_check_memo(p1 as u64, p3, p4, p5, p6, p7) });   // fight_check (2단계: 순수 재현+메모 미러 대조)
 judge_capture_ring_cmp!(cap_as_e0e890, crate::judge::gen_fns::AS_E0E890, |p1, p2, _p3, _p4, _p5, _p6, _p7, _p8| unsafe { crate::judge::port::as_callees::max_reach(p1, p2) });   // 최대사거리 (2단계: 순수 재현 대조)
 judge_capture_ring_cmp!(cap_as_132b310, crate::judge::gen_fns::AS_132B310, |p1, _p2, p3, p4, _p5, _p6, _p7, _p8| unsafe { crate::judge::port::position_eval::threat_cmp(p1, p3, p4) });   // S11 액션 위협(threat) — A ±1 추적용
@@ -759,7 +829,7 @@ judge_hook_out!(serpen_hb_hook, crate::judge::gen_fns::SERPEN_HUNT_BATTLE, crate
 
 /// 등록된 훅 전부(status 덤프용). 훅을 늘리면 여기와 install() 에 한 줄씩.
 pub fn stats() -> Vec<(&'static str, &'static Stat)> {
-    vec![(STEAL_SCORE.name, &steal_hook::ST), (ABILITY_PICK.name, &cap_ability_pick::ST), (RECENTLY_SEEN.name, &cap_recent_seen::ST), (DN_CACHE.name, &cap_dn_cache::ST), (DEFENSE_NEXUS.name, &defense_nexus_hook::ST), (EST_DAMAGE.name, &cap_est_dmg::ST), (PASSIVE_JUNGLE.name, &passive_jungle_hook::ST), (SINGLE_LINE.name, &cap_single_line::ST), (OBJ_CAN_ATTACK.name, &cap_obj_can_attack::ST), (OBJ_ENGAGE_GATE.name, &cap_obj_engage_gate::ST), (OBJ_POKE_GATE.name, &cap_obj_poke_gate::ST), (OBJ_COULD_ARRIVE.name, &cap_obj_could_arrive::ST), (BASE_SCORE.name, &cap_base_score::ST), (COMBAT_SCORE.name, &cap_combat_score::ST), (AS_C88300.name, &cap_as_c88300_out::ST), (AS_E23170.name, &cap_as_e23170::ST), (AS_D84DB0.name, &cap_as_d84db0::ST), (AS_D96D00.name, &cap_as_d96d00::ST), (AS_EB82D0.name, &cap_as_eb82d0::ST), (AS_E0E890.name, &cap_as_e0e890::ST), (AS_D83230.name, &cap_as_d83230::ST), (AS_132B310.name, &cap_as_132b310::ST), (UTIL_C87FE0.name, &cap_util_c87fe0::ST), (BATTLE_ARM9.name, &battle_hook::ST), (EPIC_HUNT_POKE.name, &epic_hp_hook::ST), (SERPEN_HUNT_POKE.name, &serpen_hp_hook::ST),
+    vec![(STEAL_SCORE.name, &steal_hook::ST), (ABILITY_PICK.name, &cap_ability_pick::ST), (RECENTLY_SEEN.name, &cap_recent_seen::ST), (DN_CACHE.name, &cap_dn_cache::ST), (DEFENSE_NEXUS.name, &defense_nexus_hook::ST), (EST_DAMAGE.name, &cap_est_dmg::ST), (PASSIVE_JUNGLE.name, &passive_jungle_hook::ST), (SINGLE_LINE.name, &cap_single_line::ST), (OBJ_CAN_ATTACK.name, &cap_obj_can_attack::ST), (OBJ_ENGAGE_GATE.name, &cap_obj_engage_gate::ST), (OBJ_POKE_GATE.name, &cap_obj_poke_gate::ST), (OBJ_COULD_ARRIVE.name, &cap_obj_could_arrive::ST), (BASE_SCORE.name, &cap_base_score::ST), (COMBAT_SCORE.name, &cap_combat_score::ST), (AS_C88300.name, &cap_as_c88300_out::ST), (AS_E23170.name, &cap_as_e23170::ST), (AS_D84DB0.name, &cap_as_d84db0::ST), (AS_D96D00.name, &cap_as_d96d00::ST), (AS_D851D0.name, &cap_as_d851d0::ST), (AS_E04400.name, &cap_as_e04400::ST), (AS_EB82D0.name, &cap_as_eb82d0::ST), (AS_E0E890.name, &cap_as_e0e890::ST), (AS_D83230.name, &cap_as_d83230::ST), (AS_132B310.name, &cap_as_132b310::ST), (UTIL_C87FE0.name, &cap_util_c87fe0::ST), (BATTLE_ARM9.name, &battle_hook::ST), (EPIC_HUNT_POKE.name, &epic_hp_hook::ST), (SERPEN_HUNT_POKE.name, &serpen_hp_hook::ST),
          (EPIC_HUNT_BATTLE.name, &epic_hb_hook::ST), (SERPEN_HUNT_BATTLE.name, &serpen_hb_hook::ST), (PASSIVE_LINE.name, &passive_line_hook::ST)]
 }
 
@@ -837,7 +907,7 @@ pub fn write_status() {
     s.push_str("판정: diff=0 && na=0 이면 그 함수 DIFF=0(이번 판 표본 한정). na>0 = 가드 경로/콜리 캡처 없음 → judge_<fn>.txt 의 NA 줄 확인. ability_pick 은 캡처 전용(n=호출 수).\n");
     if let Some(p) = pth("judge_status.txt") { let _ = fs::write(p, s); }
     if let Some(p) = pth("judge_dyn.txt") { let _ = fs::write(p, port::dyn_eff::unseen_report()); }
-    if let Some(p) = pth("judge_pe_gate.txt") { let _ = fs::write(p, port::position_eval::gate_report()); }
+    if let Some(p) = pth("judge_pe_gate.txt") { let _ = fs::write(p, format!("{}{}{}{}", port::position_eval::memo_report(), port::position_eval::edge_report(), port::position_eval::gate_report(), port::combat_score::na_report())); }
 }
 
 static INSTALLED: AtomicBool = AtomicBool::new(false);
@@ -888,6 +958,9 @@ pub unsafe fn install() {
             install_one(&mut log, &AS_C88300, &cap_as_c88300_out::ORIG, cap_as_c88300_out::wrap as *const () as usize, "capture-out");
             install_one(&mut log, &AS_E23170, &cap_as_e23170::ORIG, cap_as_e23170::wrap as *const () as usize, "capture-out");
             install_one(&mut log, &AS_D96D00, &cap_as_d96d00::ORIG, cap_as_d96d00::wrap as *const () as usize, "capture-pair");
+            install_one(&mut log, &AS_D851D0, &cap_as_d851d0::ORIG, cap_as_d851d0::wrap as *const () as usize, "capture-count");
+            // ⛔as_e04400 캡처 미설치 — 5인자 함수라 naked wrap 의 `sub rsp,0x78` 이 **스택 인자(5번째)를 어긋나게** 만들어 즉시 크래시했다
+            //   (2026-09-07 01:10, exe+0xccab25 접근위반). 4인자 이하(d96d00)만 이 매크로로 감쌀 수 있다.
             install_one(&mut log, &AS_D84DB0, &cap_as_d84db0::ORIG, cap_as_d84db0::wrap as *const () as usize, "capture-out");
             install_one(&mut log, &AS_EB82D0, &cap_as_eb82d0::ORIG, cap_as_eb82d0::wrap as *const () as usize, "capture-ring");
             install_one(&mut log, &AS_E0E890, &cap_as_e0e890::ORIG, cap_as_e0e890::wrap as *const () as usize, "capture-ring");

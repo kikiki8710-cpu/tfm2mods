@@ -262,6 +262,7 @@ pub unsafe fn max_reach(e: usize, o: usize) -> Option<u64> {
 // 진단: capture_ring_cmp 의 DIFF/NA 줄에 붙는 콜리별 내부 상태 문자열
 pub unsafe fn cmp_diag8(name: &str, p1: usize, p2: usize, p3: usize, p4: usize, p5: usize, p6: usize, p7: usize, p8: usize) -> String {
     if name == "as_132b310" { return super::position_eval::threat_diag(p1, p3, p4); }
+    if name == "combat_score" { return super::combat_score::diag(p1, p3, p4); }
     cmp_diag8_x(name, p1, p2, p3, p4, p5, p6, p7, p8)
 }
 #[allow(clippy::too_many_arguments)]
@@ -329,7 +330,7 @@ pub fn isqrt_fast(n: u64) -> u64 {
 }
 #[inline] unsafe fn wcell(wmap: usize, j: i64, i: i64) -> Option<u64> { rd_u64(wmap + WMAP_GRID + (j as usize) * WMAP_ROW + (i as usize) * 8) }
 /// 0x18096a0: 목표점 보정(셀값 1 = 밀어내기 / ≠0 차단 → 최근접 통행셀) + signed 클램프
-unsafe fn adjust_target(wmap: usize, cfg: usize, tx0: i64, ty0: i64) -> Option<(i64, i64)> {
+pub unsafe fn adjust_target(wmap: usize, cfg: usize, tx0: i64, ty0: i64) -> Option<(i64, i64)> {
     let (mut tx, mut ty) = (tx0, ty0);
     let cx = tx0 / 32000; let cy = ty0 / 32000;
     if (cx as u64) < 30 && (cy as u64) < 30 && wcell(wmap, cy, cx)? == 1 {
@@ -464,6 +465,24 @@ pub fn dest_eq(game: &[u64; 9], mine: &[u64; 9]) -> bool {
 }
 
 /// 스킬 dyn Effect 의 bool 슬롯(+0x60 / +0x68) — Arc 페이로드 정렬(dn_reach::eff_payload 와 동일) 후 구현체 RVA 로 판정. 미재현 → unseen(slot) + None.
+/// 단순 필드 게터 impl 을 기계어로 디코드해 값만 읽는다. dyn 구현체 수십 종이 전부 이 형태라
+/// (실측 2026-09-07 01:20: sp.vt+0x80 상위 9종이 모두 `mov rax,[rcx+K]; ret`), RVA 표를 늘리는 대신 패턴으로 처리한다.
+///   지원: `48 8b 81 d32` / `48 8b 41 d8`(mov rax,[rcx+d]) · `8b 81 d32` / `8b 41 d8`(mov eax) ·
+///        `0f b6 81 d32` / `0f b6 41 d8`(movzx eax, byte) · `48 8b 01`(mov rax,[rcx]) · `31 c0`/`33 c0`(xor eax,eax → 0) · `b8 imm32`(mov eax,imm)
+pub unsafe fn decode_getter(f: usize, obj: usize) -> Option<u64> {
+    if !ptr_ok(f) { return None; }
+    let b0 = rd_u8(f); let b1 = rd_u8(f + 1); let b2 = rd_u8(f + 2);
+    if b0 == 0x48 && b1 == 0x8b && b2 == 0x81 { return rd_u64((obj as isize + rd_i32(f + 3)? as isize) as usize); }
+    if b0 == 0x48 && b1 == 0x8b && b2 == 0x41 { return rd_u64((obj as isize + rd_u8(f + 3) as i8 as isize) as usize); }
+    if b0 == 0x48 && b1 == 0x8b && b2 == 0x01 { return rd_u64(obj); }
+    if b0 == 0x8b && b1 == 0x81 { return Some(rd_u32((obj as isize + rd_i32(f + 2)? as isize) as usize) as u64); }
+    if b0 == 0x8b && b1 == 0x41 { return Some(rd_u32((obj as isize + rd_u8(f + 2) as i8 as isize) as usize) as u64); }
+    if b0 == 0x0f && b1 == 0xb6 && b2 == 0x81 { return Some(rd_u8((obj as isize + rd_i32(f + 3)? as isize) as usize) as u64); }
+    if b0 == 0x0f && b1 == 0xb6 && b2 == 0x41 { return Some(rd_u8((obj as isize + rd_u8(f + 3) as i8 as isize) as usize) as u64); }
+    if (b0 == 0x31 || b0 == 0x33) && b1 == 0xc0 { return Some(0); }
+    if b0 == 0xb8 { return Some(rd_u32(f + 1) as u64); }
+    None
+}
 pub unsafe fn eff_bool(data: usize, vt: usize, slot: usize, depth: u32) -> Option<bool> {
     if depth > 8 || !ptr_ok(vt) { return None; }
     let r = super::dyn_eff::impl_rva(vt, slot)?;

@@ -316,10 +316,11 @@ unsafe fn count_in_range(x: usize, side: u64, item: usize) -> Option<u64> {
     Some(acc)
 }
 /// 0xd95d00: 적 kind1 유닛 노출 합
-unsafe fn exposure(x: usize, tgt: usize, qx: u64, qy: u64, tps: u64) -> Option<u64> {
+pub unsafe fn exposure(x: usize, tgt: usize, qx: u64, qy: u64, t_raw: u64, tps: u64) -> Option<u64> {
     if rd_u8(tgt) != 0 { return Some(0); }
     let eside = 1u64.wrapping_sub(rd_u64(tgt + 8)?); if eside > 1 { return None; }
-    let tp = tps >> 1; let th = rd_u64(tgt + ENT_HANDLE)?; let wk = if rd_i32(tgt + ENT_KIND)? == 13 { 60u64 } else { 40 };
+    let tp = (tps >> 1).max(t_raw);   // 게임 0xd95d00: Tp = max(cfg.12f8>>1, T)
+    let th = rd_u64(tgt + ENT_HANDLE)?; let wk = if rd_i32(tgt + ENT_KIND)? == 13 { 60u64 } else { 40 };
     let mut acc = 0u64;
     units(x, eside, |u| {
         let (ux, uy) = xy(u)?; let d2s = sat_d2(ux, uy, qx, qy);
@@ -639,6 +640,7 @@ unsafe fn body(st: &St) -> Option<Out> {
                 //   불일치 표본은 judge_pe_gate_ng.txt 로 수집한다(다음 세션에서 성분 역산).
                 let game_pass = d2g <= sq(rgb.wrapping_add(24000));
                 { let gp = dive_calls_since(side, rd_u64(item + ENT_HANDLE)?) > 0;
+                  gate_edge(rgb, isqrt_fast(d2g), gp);
                   if gp != game_pass { gate_log(d2g, rgb, ri, rt, rd_u64(item + ENT_F438)?, rd_u64(item + 0x4a0)?, rd_u64(item + 0x4a8)?, rd_u64(item + ENT_LEVEL)?, rd_i32(item + 0x4c0)? as i64, rd_i32(item + 0x470)? as i64, rd_u64(item + 0x680)?, rd_i32(tgt + 0x470)? as i64, rd_u64(tgt + 0x680)?, gp); } }
                 // 진단: 게임의 실제 게이트(= 그 타워로 d96d00 호출) 대비 후보별 적중 집계
                 { let gp = dive_calls_since(side, rd_u64(item + ENT_HANDLE)?) > 0;
@@ -702,7 +704,7 @@ unsafe fn body(st: &St) -> Option<Out> {
         })?;
     } else {
         // S9 노출
-        let r = match exposure(x, tgt, qx, qy, tps) { Some(v) => v, None => { trs(|| "NA:expo".into()); return None } };
+        let r = match exposure(x, tgt, qx, qy, tps >> 1, tps) { Some(v) => v, None => { trs(|| "NA:expo".into()); return None } };
         let mut add: i64 = 0;
         if r != 0 {
             let hp = st.hp; let hpd = hp.wrapping_add((hp == 0) as u64); let r100 = r.wrapping_mul(100);
@@ -905,6 +907,27 @@ unsafe fn body(st: &St) -> Option<Out> {
     Some(Out { a: a_out, b: b_acc, c: c_acc, maxc, half28, f30, f31 })
 }
 
+/// 게이트 임계 역산: rg 값별로 (게임 통과한 최대 need, 게임 탈락한 최소 need) 를 모은다.
+///   need = isqrt(d2). 임계 T 가 존재하면 true_max < T <= false_min 이어야 한다 — 역전되면 rg 외의 변수가 있다는 증거.
+pub static EDGE: [std::sync::atomic::AtomicU64; 24] = [const { std::sync::atomic::AtomicU64::new(0) }; 24];
+fn gate_edge(rg: u64, need: u64, game_pass: bool) {
+    use std::sync::atomic::Ordering::Relaxed;
+    let slot = match rg { 0..=59999 => 0, 60000..=89999 => 1, 90000..=99999 => 2, 100000..=119999 => 3, 120000..=159999 => 4, _ => 5 };
+    let b = slot * 4;
+    if game_pass { EDGE[b].fetch_max(need, Relaxed); EDGE[b + 1].fetch_add(1, Relaxed); }
+    else { let mut cur = EDGE[b + 2].load(Relaxed); if cur == 0 { cur = u64::MAX; EDGE[b + 2].store(u64::MAX, Relaxed); }
+           let _ = cur; EDGE[b + 2].fetch_min(need, Relaxed); EDGE[b + 3].fetch_add(1, Relaxed); }
+}
+pub fn edge_report() -> String {
+    use std::sync::atomic::Ordering::Relaxed;
+    let lab = ["rg<60k", "rg 60~90k", "rg 90~100k", "rg 100~120k", "rg 120~160k", "rg>=160k"];
+    let mut s = String::from("=== 게이트 임계 역산(need = isqrt(d2)) ===
+");
+    for i in 0..6 { let (tmax, tn, fmin, fn_) = (EDGE[i * 4].load(Relaxed), EDGE[i * 4 + 1].load(Relaxed), EDGE[i * 4 + 2].load(Relaxed), EDGE[i * 4 + 3].load(Relaxed));
+        if tn + fn_ != 0 { s += &format!("{:<12} 통과n={} 최대need={} | 탈락n={} 최소need={} {}
+", lab[i], tn, tmax, fn_, if fmin == u64::MAX { 0 } else { fmin }, if fmin != u64::MAX && tmax >= fmin { "★역전" } else { "" }); } }
+    s
+}
 /// 게이트 공식 후보별 적중 집계(후보 8종 × ok/ng)
 pub static GATE_STAT: [std::sync::atomic::AtomicU64; 16] = [const { std::sync::atomic::AtomicU64::new(0) }; 16];
 #[inline] fn gate_stat(i: usize, ok: bool) { if i < 8 { GATE_STAT[i * 2 + usize::from(!ok)].fetch_add(1, std::sync::atomic::Ordering::Relaxed); } }
@@ -970,7 +993,20 @@ fn pkey_of(purpose: u8) -> Option<u64> {
     let case = if purpose >= 2 { purpose - 2 } else { 7 };
     Some(match case { 0 => 0, 1 => 0x200, 2 => 0x400, 3 => 0x600, 4 => 0x800, 5 => 0xa00, 6 => 0xc00, 7 => ((purpose as u64) << 9) | 0x1000, 8 => 0x1400, 9 => 0x1600, 10 => 0x1800, _ => return None })
 }
-thread_local! { static PRE_HIT: std::cell::Cell<(bool, [u64; 9])> = const { std::cell::Cell::new((false, [0; 9])) }; }
+thread_local! { static PRE_HIT: std::cell::Cell<(bool, [u64; 9])> = const { std::cell::Cell::new((false, [0; 9])) }; static PRE_BODY: std::cell::Cell<u64> = const { std::cell::Cell::new(0) }; }
+/// 게임이 이번 호출에서 본체(0xd851d0)를 실제로 돌렸는가 = 래퍼 메모 **미스**. 내 pre_memo 판정의 정답 레이블.
+pub fn game_body_ran() -> bool { crate::judge::cap_as_d851d0::count() > PRE_BODY.with(|c| c.get()) }
+/// pre_memo 판정 대조 집계 [히트일치, 히트오판(내 히트·게임 미스), 미스오판(내 미스·게임 히트), 미스일치]
+pub static MEMO_STAT: [std::sync::atomic::AtomicU64; 4] = [const { std::sync::atomic::AtomicU64::new(0) }; 4];
+pub fn memo_report() -> String {
+    let g = |i: usize| MEMO_STAT[i].load(std::sync::atomic::Ordering::Relaxed);
+    let t = g(0) + g(1) + g(2) + g(3);
+    if t == 0 { return String::new(); }
+    format!("=== 래퍼 메모 판정 대조(정답 = 게임이 본체 0xd851d0 을 돌았는가) ===
+히트일치={} 히트오판(내히트·게임미스)={} 미스오판(내미스·게임히트)={} 미스일치={} | 정확도 {:.3}%
+",
+        g(0), g(1), g(2), g(3), (g(0) + g(3)) as f64 * 100.0 / t as f64)
+}
 /// 호출 전 스냅샷: 게임 래퍼 메모가 이 (tick, sim.928, qx, qy, purpose, mode) 로 히트하는가.
 pub unsafe fn pre_memo(mode: usize, sim: usize, holder: usize, qx: usize, qy: usize, purpose: usize) {
     PRE_HIT.with(|c| c.set((false, [0; 9])));
@@ -995,6 +1031,7 @@ pub unsafe fn pre_memo(mode: usize, sim: usize, holder: usize, qx: usize, qy: us
         Some(w)
     })();
     if let Some(w) = hit { PRE_HIT.with(|c| c.set((true, w))); }
+    PRE_BODY.with(|c| c.set(crate::judge::cap_as_d851d0::count()));
 }
 
 // ── 훅 어댑터 ─────────────────────────────────────────────────────────────────────────────
@@ -1004,6 +1041,7 @@ pub unsafe fn pe_from_args(p2: usize, p3: usize, p4: usize, p5: usize, p6: usize
     LAST_ARGS.with(|c| c.set((p5, p6, p7)));
     // 래퍼 메모 히트 = 게임이 계산을 안 했다 → 그 캐시값이 곧 게임 출력
     let (hit, w) = PRE_HIT.with(|c| c.get());
+    { let ran = game_body_ran(); MEMO_STAT[usize::from(hit == ran) + usize::from(!hit) * 2].fetch_add(1, std::sync::atomic::Ordering::Relaxed); }
     if hit { return Some(w); }
     let o = position_eval(p2 as u64, p3, p4, p5 as u64, p6 as u64, (p7 & 0xff) as u8)?;
     Some([o.a as u64, o.b as u64, o.c as u64, o.maxc as u64, 0, o.half28 as u64, (o.f30 as u64) | ((o.f31 as u64) << 8), 0, 0])
