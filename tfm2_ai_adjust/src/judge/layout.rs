@@ -257,4 +257,21 @@ pub const ENT_SPEED: usize = 0x640;              // 이동속도(틱당) — 0xd
 pub const W_GRID: usize = 0xb450;                // WorldOps vt+0x100(0x184acb0): [w + 0xb450 + side*0xe10 + gy*0x78 + gx*4] i32 > 0
 pub const W_GRID_SIDE: usize = 0xe10;
 pub const W_GRID_ROW: usize = 0x78;
+// ── hunt_poke(disc 12 epic 0xdefcd0) — 2026-09-06 16:20
+pub const HP_PL_F18: usize = 0x18;               // payload+0x18/+0x19 인터럽트 플래그 → code 0x12/10
+pub const HP_PL_F19: usize = 0x19;
+pub const HP_PL_HASPATH: usize = 0x1a;           // payload+0x1a 경로 보유(1) · +8 경로 핸들 ptr · +0x10 len (게임이 쓴다)
+pub const HP_PL_PATH_PTR: usize = 0x8;
+pub const HP_PL_PATH_LEN: usize = 0x10;
+pub const P5_CFG_SELF: usize = 0x4f8;            // sim+0x4f8 (cfg_flag≠0 일 때 side_cfg 대신 쓰는 챔피언별 24B)
+pub const HP_HOME_LO: u64 = 64000;               // 홈 띠: side0 x<=64000 && 896000<=y<=960000 / side1 892000<=x<=960000 && y<=64000
+pub const HP_HOME_HI: u64 = 960000;
+pub const HP_HOME_X1: u64 = 0xd9c5f;
+pub const HP_HOME_Y1: u64 = 0xdabff;
+pub const HP_P7_A: usize = 0x88;                 // p7 타이머 min(+0x88, +0x98) > tps*5 면 경로/그리드 블록
+pub const HP_P7_B: usize = 0x98;
+pub const HP_PATH_NEAR_D2: u64 = 0x9502f9001;    // 200000²+1 = 40,000,000,001 (경로 핸들 근접 → 5) ~~0x9502f901(자릿수 누락)~~ 16:25 정정
+pub const HP_ENGAGE_D2: u64 = 0x53d1ac101;       // 150000²+1 (engage_gate 0 && 근접 → code 0xc)
+pub const G_GRID: usize = 0x38b8;                // G+0x20 obj +0x38b8 : 30×30 u64 영향력 타일(값 7 = 우세) · 행 0xf0
+pub const G_GRID_ROW: usize = 0xf0;
 
