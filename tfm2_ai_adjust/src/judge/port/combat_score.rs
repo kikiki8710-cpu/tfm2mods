@@ -483,7 +483,13 @@ unsafe fn combat_score_inner(mode: usize, _prof: usize, rec: usize, ctx: usize, 
     stg(tag8("S4"));
     let phase = rd_u8(sim + 0x38);
     let mut chase: i64 = 0;
-    if matches!(phase, 0 | 5 | 7 | 8) && rd_u64(cfg + CFG_8A8)?.saturating_sub(30u64.wrapping_mul(tps)) <= now && !self_is_tgt && safe {
+    // ★게이트 = `다른 팀 && tgt.kind==13`(0xd5ca6b~0xd5cb47). ~~`!self_is_tgt && safe`~~ 는 우연히 비슷했을 뿐(2026-09-07 정정)
+    let other_team = {
+        let (a0, a8) = (rd_u64(me)?, rd_u64(me + 8)?);
+        let (b0, b8) = (rd_u64(tgt)?, rd_u64(tgt + 8)?);
+        !(a0 == b0 && (a0 != 0 || a8 == b8))
+    };
+    if matches!(phase, 0 | 5 | 7 | 8) && rd_u64(cfg + CFG_8A8)?.saturating_sub(30u64.wrapping_mul(tps)) <= now && other_team && tgt_kind == 13 {
         if let Some((ax, ay, t)) = approach(ctx, me, tgt, slot)? {
             let h = (cast_delay.wrapping_add(t)).clamp(tps / 2, 2 * tps);
             let (mx, my) = xy(me)?;
