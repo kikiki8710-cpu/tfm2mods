@@ -403,6 +403,17 @@ pub unsafe fn slot_bool90(data: usize, vt: usize, depth: u32) -> Option<bool> {
         }
         return Some(false);
     }
+    if f - eb == 0x13bf4b0 {
+        let n = rd_u64(p + 0x58)?; if n == 0 { return Some(false); }
+        let arr = rd_u64(p + 0x50)? as usize; if !ptr_ok(arr) { return None; }
+        for i in 0..n.min(64) as usize {
+            let e = arr + i * 0x18;
+            let (cd, cv) = (rd_u64(e)? as usize, rd_u64(e + 8)? as usize);
+            if !ptr_ok(cd) || !ptr_ok(cv) { return None; }
+            if slot_bool90(cd, cv, depth + 1)? { return Some(true); }
+        }
+        return Some(false);
+    }
     if let Some(v) = super::as_callees::decode_getter(f, p) { return Some(v & 1 == 1); }
     if let Some((da, db, sl)) = super::as_callees::delegate_pair(f) {
         if sl == 0x90 {
@@ -766,4 +777,152 @@ pub unsafe fn e02bc0(slot: usize, ctx: usize, bb: usize, me: usize, tgt: usize, 
         acc = acc.wrapping_add(ce.wrapping_mul(total) / den);
     }
     Some(acc)
+}
+
+// ── 0xdffa10 — 버프 가치 평가기 (6,720B) ─────────────────────────────────────────────────
+//   정본 = `RE\2026-09-07_buff_value-0xdffa10-전수해독-0.5.8.md`
+//   `(spec, self, ctx, rec, bb, hs_opt, inc, gate, aura, C) -> i64`, 최종 clamp(0,160)
+#[inline] fn sum_n(base: usize, off: usize, n: usize) -> Option<u64> {
+    let mut a = 0u64; for i in 0..n { a = a.wrapping_add(unsafe { rd_u64(base + off + i * 8) }?); } Some(a)
+}
+/// `self.0x578` 의 vt+0x90 = 평타 base 쿨. 단순 게터 impl 만 처리(그 외 None).
+unsafe fn basic_cool(me: usize) -> Option<u64> {
+    let (d, v) = (rd_u64(me + 0x570)? as usize, rd_u64(me + 0x578)? as usize);
+    if !ptr_ok(v) { return None; }
+    let f = rd_u64(v + 0x90)? as usize;
+    if let Some(x) = super::as_callees::decode_getter(f, d) { return Some(x); }
+    if let Some(r) = super::dyn_eff::impl_rva(v, 0x90) { super::dyn_eff::unseen(0xb90, r); }
+    None
+}
+
+pub struct Dffa {
+    pub self_e: usize, pub ctx: usize, pub rec: usize, pub bb: usize,
+    pub hs: Option<(bool, bool)>, pub inc: i64, pub gate: i64, pub aura: i64, pub c: i64,
+}
+
+pub unsafe fn dffa10(spec: &[u8; SPEC_SIZE], a: &Dffa) -> Option<i64> {
+    let s32 = |o: usize| -> i64 { i32::from_le_bytes([spec[o], spec[o + 1], spec[o + 2], spec[o + 3]]) as i64 };
+    let s64 = |o: usize| -> i64 { let mut b = [0u8; 8]; b.copy_from_slice(&spec[o..o + 8]); i64::from_le_bytes(b) };
+    let me = a.self_e;
+    let cfg = rd_u64(rd_u64(a.ctx + 8)? as usize + 8)? as usize; if !ptr_ok(cfg) { return None; }
+    let x = rd_i64(cfg + 0x12f8)?;                                   // tps
+    let mut dur: i64 = 6;
+    if s32(0x48) == 1 { if x == 0 { return None; } dur = (s64(0x50) / x).clamp(1, 6); }
+
+    let sim = rd_u64(a.ctx)? as usize; if !ptr_ok(sim) { return None; }
+    let r = super::action_score::sim_of_handle(sim, rd_u64(me + ENT_HANDLE)?)?;
+    let (av, bv, cv) = if r == 0 { (0u64, 0u64, 0u64) } else {
+        let t = rd_u64(r + 0x930)?; if t > 1 { return None; }
+        let pos = rd_u32(r + 0x9c0) as usize;
+        let blk = sim + 0x410 + (t as usize) * 0xfa0 + pos * 0x320;
+        (sum_n(blk, 0, 5)? / 5, sum_n(blk, 0x28, 10)? / 5, sum_n(blk, 0x78, 5)? / 5)
+    };
+    let (av, bv, cv) = (av as i64, bv as i64, cv as i64);
+
+    let myteam = rd_u64(a.rec + 0x930)?; if myteam > 1 { return None; }
+    let opp = 1 - myteam;
+    let (hpmax, arm, mr) = (rd_i64(me + 0x628)?, rd_i64(me + 0x630)?, rd_i64(me + 0x638)?);
+    let (mut sh, mut sa, mut sm, mut cnt) = (0i64, 0i64, 0i64, 0i64);
+    for i in 0..5usize {
+        let e = rd_u64(sim + 0x1e0 + (opp as usize) * 0x28 + i * 8)? as usize; if e == 0 { continue; }
+        sh += rd_i64(e + 0x628)?; sa += rd_i64(e + 0x630)?; sm += rd_i64(e + 0x638)?; cnt += 1;
+    }
+    let (ehp, earm, emr) = if cnt > 0 { (sh / cnt, sa / cnt, sm / cnt) } else { (sh, sa, sm) };
+
+    // ── 공격 가치 raw ──
+    let mut raw: i64 = 0;
+    if s32(0x5c) > 0 { raw += s32(0x5c) * av / 100; }
+    if s32(0x58) > 0 { raw += s32(0x58) * av / rd_i64(me + 0x618)?.max(1); }
+    if s32(0x8c) > 0 { raw += av * s32(0x8c) / 100; }
+    if s32(0x104) > 0 { raw += s32(0x104) * av / 100; }
+    if s32(0x60) > 0 { raw += (cv + bv) * s32(0x60) / rd_i64(me + 0x620)?.max(1); }
+    if s32(0x64) > 0 { raw += (bv + cv) * s32(0x64) / 100; }
+    if cnt > 0 && s64(0xa8) != 0 { let af = (100 - s64(0xa8)).max(0) * earm / 100; raw += (earm - af) * av / (af.max(-99) + 100); }
+    if cnt > 0 && s64(0xb0) != 0 { let af = (100 - s64(0xb0)).max(0) * emr / 100; raw += (emr - af) * (cv + bv) / (af.max(-99) + 100); }
+    if s64(0xf0) != 0 { raw += s64(0xf0) * bv / 200; }
+    if s64(0xc8) != 0 {
+        let den = if rd_i32(me + 0x4c0)? == -1 { 1 } else {
+            let s = rd_i64(me + 0x438)? + rd_i64(me + 0x4a0)? + (rd_i64(me + 0x5c8)? - 1) * rd_i64(me + 0x4a8)?;
+            s + (s == 0) as i64
+        };
+        raw += s64(0xc8) * av / den;
+    }
+    if s32(0x100) > 0 { raw += s32(0x100) * bv / 200; }
+    raw *= dur;
+
+    // 평타 횟수 k (호출마다 재계산 — 게임도 vtable 을 다시 부른다)
+    let kf = || -> Option<i64> {
+        let cool = basic_cool(me)? as i64;
+        let itv = (cool * 100 / (rd_i64(me + 0x3fc)? + 100).max(1)).max(3);
+        Some((dur * x / itv.max(1)).max(1))
+    };
+    if a.aura > 0 { raw += kf()? * a.aura; }
+    if cnt > 0 && s64(0xd0) != 0 { raw += (s64(0xd0) * ehp / 100) * kf()?; }
+    if cnt > 0 && s64(0xe0) != 0 { raw += s64(0xe0) * ehp / 100; }
+    if s64(0xd8) != 0 { raw += (s64(0xd8) * hpmax / 100) * kf()?; }
+    if s64(0xc0) != 0 {
+        let mut d = 0i64;
+        for pos in 0..5usize { d += (sum_n(sim + 0x4b0 + (opp as usize) * 0xfa0 + pos * 0x320, 0, 10)? / 5) as i64; }
+        raw += (d * s64(0xc0) / 100) * dur;
+    }
+    if s64(0xa0) != 0 {
+        let mut n = 0i64;
+        let (mx, my) = (rd_u64(me + ENT_X)?, rd_u64(me + ENT_Y)?);
+        for i in 0..5usize {
+            let e = rd_u64(sim + 0x1e0 + (myteam as usize) * 0x28 + i * 8)? as usize; if e == 0 { continue; }
+            let (dx, dy) = (absd(rd_u64(e + ENT_X)?, mx), absd(rd_u64(e + ENT_Y)?, my));
+            if dx.wrapping_mul(dx).wrapping_add(dy.wrapping_mul(dy)) <= D2_120K - 1 { n += 1; }
+        }
+        raw += n.min(3) * dur * ((cv + bv + av) * s64(0xa0) / 100);
+    }
+
+    // ── 앵커 정규화 ── ⬜미확정(RE 위임 중): 필터 술어·동률 규칙 확정 전까지 NA
+    let mut result: i64 = 0;
+    if raw > 0 { return na_tag("Banchor"); }
+
+    // ── 방어/유틸 가치 ──
+    if s32(0x90) > 0 || s32(0xfc) > 0 {
+        let mut n = 0i64;
+        let (mx, my) = (rd_u64(me + ENT_X)?, rd_u64(me + ENT_Y)?);
+        for i in 0..5usize {
+            let e = rd_u64(sim + 0x1e0 + (myteam as usize) * 0x28 + i * 8)? as usize; if e == 0 { continue; }
+            let (dx, dy) = (absd(rd_u64(e + ENT_X)?, mx), absd(rd_u64(e + ENT_Y)?, my));
+            if dx.wrapping_mul(dx).wrapping_add(dy.wrapping_mul(dy)) < D2_60K { n += 1; }
+        }
+        if n >= 2 {
+            let mut v = 0i64;
+            if s32(0x90) > 0 { v = (bv + cv) * s32(0x90) / (s32(0x90) + 100); }
+            if s32(0xfc) > 0 { v += cv * s32(0xfc) / (s32(0xfc) + 100); }
+            result += dur * a.c * v / rd_i64(me + ENT_HP)?.max(1);
+        }
+    }
+    let heal = (if s32(0x80) > 0 { (s32(0x80) * av / 100) * dur } else { 0 })
+             + (if s32(0x74) > 0 { dur * s32(0x74) } else { 0 });
+    let capped = heal.min((hpmax - rd_i64(me + ENT_HP)?).max(0) + a.inc);
+    if capped > 0 { result += capped * a.c / rd_i64(me + ENT_HP)?.max(1); }
+
+    if a.inc > 0 {
+        let mut d = 0i64;
+        let da = s32(0x6c) * arm / 100 + s32(0x68);
+        if da != 0 { d = (a.inc >> 1) * da / (da + arm + 100).max(1); }
+        let dm = s32(0x7c) * mr / 100 + s32(0x78);
+        if dm != 0 { d += (a.inc >> 1) * dm / (dm + mr + 100).max(1); }
+        if s64(0xe8) != 0 { d += s64(0xe8) * a.inc / 100; }
+        if s64(0x108) != 0 { d += s64(0x108) * (a.inc >> 1) / 100; }
+        if s64(0x110) != 0 { d += s64(0x110) * (a.inc >> 1) / 100; }
+        if s64(0x98) != 0 { d += s64(0x98) * a.inc / 100; }
+        let sh2 = hpmax * s32(0x84) / 100 + s32(0x70);
+        let sh2 = if sh2 > 0 { sh2.min(a.inc) } else { 0 };
+        if sh2 + d > 0 { result += (sh2 + d) * a.c / rd_i64(me + ENT_HP)?.max(1); }
+    }
+
+    // ── 오더 게이트 보너스 ── ⬜ctx[2] 오더 kind 미확정 → 항이 필요한 경우만 NA
+    if s32(0x88) > 0 || (spec[0x119] & 1) != 0 { return na_tag("Border"); }
+
+    if let Some((h0, h1)) = a.hs {
+        if spec[0x118] != 0 { result += if h0 { a.c } else { 0 }; }
+        if spec[0xf8] != 0 && h1 { result += if !h0 { a.c / 3 } else { a.c }; }
+        if s64(0xb8) != 0 && h1 { result += s64(0xb8) * a.c / 200; }
+    }
+    Some(result.clamp(0, 160))
 }

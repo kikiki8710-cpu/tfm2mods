@@ -192,6 +192,16 @@ pub unsafe fn eff28_damage(data: usize, vt: usize, att: usize) -> Option<(u64, u
             super::super::tr(5, a.min(0xffff) | b.min(0xffff) << 16 | base.min(0xffff) << 32 | ((me as u64) & 0xffff) << 48);
             Some((a.wrapping_add(base).wrapping_add(b), 0))
         }
+        // ((p.0x38 >> 1) + p.0x30) * AD / 100
+        0x16a8c80 => Some(((rd_u64(me + 0x38)? >> 1).wrapping_add(rd_u64(me + 0x30)?).wrapping_mul(rd_u64(att + ENT_STATS)?) / 100, 0)),
+        // p.0x08 + p.0x10 * AD / 100
+        0x183ff50 => Some((rd_u64(me + 8)?.wrapping_add(rd_u64(me + 0x10)?.wrapping_mul(rd_u64(att + ENT_STATS)?) / 100), 0)),
+        // ((p.0x10 + 100) * p.0x08 / 100) * AD / 100  +  2 * p.0x00
+        0x16a76d0 => {
+            let t = rd_u64(me + 0x10)?.wrapping_add(100).wrapping_mul(rd_u64(me + 8)?) / 100;
+            Some((t.wrapping_mul(rd_u64(att + ENT_STATS)?) / 100 + rd_u64(me)?.wrapping_mul(2), 0))
+        }
+        // 레벨(self.0x5c8) >= 3 이면 자식 (p+0x10,p+0x18), 아니면 (p+0,p+8) 로 위임
         // ★골격 스캐너 폴백: 자식 순회 합산형이면 RVA 표 없이 처리(rax·rdx 둘 다 합산)
         _ => {
             let f = rd_u64(vt + 0x28)? as usize;
@@ -270,6 +280,13 @@ pub unsafe fn eff38_pct(data: usize, vt: usize, _att: usize) -> Option<u64> {
             let mut acc = 0u64;
             for i in 0..n.min(64) as usize { let (d, v) = (rd_u64(arr + i * 0x18)? as usize, rd_u64(arr + i * 0x18 + 8)? as usize); acc = acc.wrapping_add(eff38_pct(d, v, _att)?); }
             Some(acc)
+        }
+        // 레벨(att.0x5c8) >= 3 이면 자식 (p+0x10,p+0x18), 아니면 (p+0,p+8) 로 그대로 위임
+        0x164ed70 => {
+            let o = if rd_u64(_att + 0x5c8)? >= 3 { 0x10usize } else { 0 };
+            let (cd, cv) = (rd_u64(me + o)? as usize, rd_u64(me + o + 8)? as usize);
+            if !ptr_ok(cd) || !ptr_ok(cv) { return None; }
+            eff38_pct(cd, cv, _att)
         }
         _ => {
             let f = rd_u64(vt + 0x38)? as usize;

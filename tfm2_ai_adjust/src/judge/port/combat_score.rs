@@ -193,6 +193,18 @@ unsafe fn slot_c0(data: usize, vt: usize, depth: u32) -> Option<bool> {
             for i in 0..n.min(64) as usize {
                 if slot_c0(rd_u64(arr + i * 0x10)? as usize, rd_u64(arr + i * 0x10 + 8)? as usize, depth + 1)? { return Some(true); } }
             Some(false) }
+        // any(list1 @p+0x50/len p+0x58, stride 0x18) || any(list2 @p+0x68/len p+0x70, stride 0x10)
+        0x153b490 => {
+            for (po, lo, st) in [(0x50usize, 0x58usize, 0x18usize), (0x68, 0x70, 0x10)] {
+                let n = rd_u64(p + lo)?; if n == 0 { continue; }
+                let arr = rd_u64(p + po)? as usize; if !ptr_ok(arr) { return None; }
+                for i in 0..n.min(64) as usize {
+                    let e = arr + i * st;
+                    if slot_c0(rd_u64(e)? as usize, rd_u64(e + 8)? as usize, depth + 1)? { return Some(true); }
+                }
+            }
+            Some(false)
+        }
         _ => { super::dyn_eff::unseen(0x5c0, r); None }
     }
 }
