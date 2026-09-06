@@ -10,6 +10,12 @@ use super::super::layout::*;
 use super::action_score::sim_of_handle;
 
 pub const SPEC_SIZE: usize = 0x120;
+/// DIFF 로그용 S13/S14 성분 [aoe, trig, aura_t, etc, hs_term, buff, raw, dur]
+thread_local! { pub static S13D: std::cell::Cell<[i64; 8]> = const { std::cell::Cell::new([0; 8]) }; }
+pub fn s13_diag() -> String {
+    let v = S13D.with(|c| c.get());
+    format!(" S13[aoe={} trig={} aura={} etc={} hs={} buff={} raw={} dur={}]", v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7])
+}
 /// 잎 에뮬레이터가 필요로 하는 두 컨텍스트(sim · EST 서술자 절대주소). S13/S14 진입 때 한 번 세운다.
 thread_local! {
     static SIM_TLS: std::cell::Cell<usize> = const { std::cell::Cell::new(0) };
@@ -81,7 +87,14 @@ unsafe fn slot_flag_e0(data: usize, vt: usize) -> Option<bool> {
 
 // ── 0xe02540 — BuffSpec → 점수 (1,658B, 완전 순수) ────────────────────────────────────────
 /// `(ctx, spec, self, st) -> i64`. st 는 `0xe03360` 의 EAX 바이트(0/1/2).
+/// `e02540` 의 바이트 배열판(재현이 만든 BuffSpec 을 그대로 넘길 때)
+pub unsafe fn e02540_bytes(ctx: usize, spec: &[u8; SPEC_SIZE], me: usize, st: u8) -> Option<i64> {
+    e02540_impl(ctx, |o, sz| { let mut v = 0u64; for i in 0..sz { v |= (spec[o + i] as u64) << (8 * i); } Some(v) }, me, st)
+}
 pub unsafe fn e02540(ctx: usize, spec: usize, me: usize, st: u8) -> Option<i64> {
+    e02540_impl(ctx, |o, sz| match sz { 4 => Some(rd_u32(spec + o) as u64), _ => rd_u64(spec + o) }, me, st)
+}
+unsafe fn e02540_impl<F: Fn(usize, usize) -> Option<u64>>(ctx: usize, rd: F, me: usize, st: u8) -> Option<i64> {
     let a = rd_i64(me + 0x618)?;            // attack
     let mp = rd_i64(me + 0x620)?;           // magic_power
     let hmax = rd_i64(me + 0x628)?;         // maxHP
@@ -101,8 +114,8 @@ pub unsafe fn e02540(ctx: usize, spec: usize, me: usize, st: u8) -> Option<i64> 
         if total != 0 { ratio = phys.wrapping_mul(1000).wrapping_div(total); }
     }
 
-    let s32 = |o: usize| -> Option<i32> { rd_i32(spec + o) };
-    let s64 = |o: usize| -> Option<i64> { rd_i64(spec + o) };
+    let s32 = |o: usize| -> Option<i32> { rd(o, 4).map(|v| v as u32 as i32) };
+    let s64 = |o: usize| -> Option<i64> { rd(o, 8).map(|v| v as i64) };
     let mut acc: i64 = 0;
     if s32(0x5c)? > 0 { acc = ((s32(0x5c)? as i64).wrapping_mul(a) / 100).min(40); }
     if s32(0x8c)? > 0 { acc += (((s32(0x8c)? as i64).wrapping_mul(a) / 200).wrapping_mul(ratio) / 500).min(40); }
@@ -531,7 +544,20 @@ pub unsafe fn s13_s14(b: &BCtx, ally: Option<usize>) -> Option<i64> {
             }
         }
     }
-    if need_second { return na_tag("B3360"); }                  // ⬜0xe03360 + 0xe02540 2차 경로
+    if need_second {
+        // 2차 시도: S2 = spec0 또는 vt+0xa0 · (st,dd) = 0xe03360 · st==2 또는 tag −1 이면 buff = 0
+        let s2 = match spec0 { Some(x) => Some(x), None => a0 };
+        let (e3, e4) = if ally.is_some() { (b.me, t) } else { (b.me, b.me) };
+        let st = e03360(b, e3, e4)?;
+        match s2 {
+            None => buff = 0,
+            Some(_) if st == 2 => buff = 0,
+            Some(sp) => {
+                let v2 = e02540_bytes(b.ctx, &sp, dtgt, st)?;
+                buff = e022d0(b.slot, b.ctx, b.rec, dtgt, v2)?;
+            }
+        }
+    }
 
     // ── 조립 ──
     let thp = rd_i64(if ally.is_some() { t } else { b.me } + ENT_HP)?;
@@ -565,8 +591,10 @@ pub unsafe fn s13_s14(b: &BCtx, ally: Option<usize>) -> Option<i64> {
             aura_t += super::as_callees::pct_c(b.bb, rec_e)?.min(80);
         }
         let trig = match e03ed0(b.slot, b.ctx, b.rec, b.bb, b.me, b.c) { Some(v) => v, None => return na_tag("B3ed0") };
+        S13D.with(|c| { let mut v = c.get(); v[1] = trig; v[2] = aura_t; c.set(v); });
         aoe + trig + aura_t + etc + hs_term + buff
     };
+    S13D.with(|c| { let mut v = c.get(); v[0] = aoe; v[3] = etc; v[4] = hs_term; v[5] = buff; c.set(v); });
     Some(if main_raw != 0 { main_raw } else if total > 0 || has { -10 } else { 0 })
 }
 
@@ -1034,6 +1062,7 @@ pub unsafe fn dffa10(spec: &[u8; SPEC_SIZE], a: &Dffa) -> Option<i64> {
         };
     }
 
+    S13D.with(|c| { let mut v = c.get(); v[6] = raw; v[7] = dur; c.set(v); });
     // ── 방어/유틸 가치 ──
     if s32(0x90) > 0 || s32(0xfc) > 0 {
         let mut n = 0i64;
@@ -1172,4 +1201,55 @@ pub unsafe fn e01c40(b: &BCtx, subject: usize) -> Option<(bool, bool)> {
         if c3 <= tps && rd_i32(s3 + 0x30)? != -1 && skill_ready88(s3)? { big = true; break; }
     }
     Some((fights_back, big))
+}
+
+// ── 0xe03360 — 공격 대상 종류 판정 (2,922B) ──────────────────────────────────────────────
+//   정본 = `RE\2026-09-07_BuffSpec레이아웃-0xe047c0-0xe03360-0xe02540-전수해독-0.5.8.md` §3
+//   반환 EAX = 0/1/2. 호출부는 `st == 2` 면 그 후보 점수를 0 으로 확정한다.
+//   ①적 챔프가 위협 사거리 안 + (가시 ∨ 120틱 내 목격) → 2   ②self 무기 없음 → 2
+//   ③중립/포탑/미니언/넥서스/유닛리스트는 술어 `0xdef0a0` 필요 — ⬜미포팅
+pub unsafe fn e03360(b: &BCtx, e3: usize, e4: usize) -> Option<u8> {
+    let wroot = rd_u64(b.ctx)? as usize;
+    let (wd, wv) = (rd_u64(wroot)? as usize, rd_u64(wroot + 8)? as usize);
+    if !ptr_ok(wd) || !ptr_ok(wv) { return None; }
+    let w = World { x: wroot, data: wd, vt: wv };
+    let agents = rd_u64(b.ctx + 0x10)? as usize; if !ptr_ok(agents) { return None; }
+    let side = rd_u64(b.rec + 0x930)?; if side > 1 { return None; }
+    let opp = 1 - side;
+    let now = rd_u64(wd + W_TICK)?;
+
+    let reach_of = |e: usize| -> Option<i64> {
+        let base = if rd_i32(e + 0x4c0)? == -1 { 0 }
+                   else { rd_i64(e + 0x438)? + rd_i64(e + 0x4a0)? + (rd_i64(e + 0x5c8)? - 1) * rd_i64(e + 0x4a8)? };
+        Some(base + rd_i64(e + 0x640)? * 120 + body_radius(e)? as i64)
+    };
+    let no_wep = rd_i32(e4 + 0x4c0)? == -1;
+    let r4 = reach_of(e4)? as u64;
+    let r3 = reach_of(e3)? as u64;
+    let (e4x, e4y) = (rd_u64(e4 + ENT_X)?, rd_u64(e4 + ENT_Y)?);
+    let (e3x, e3y) = (rd_u64(e3 + ENT_X)?, rd_u64(e3 + ENT_Y)?);
+
+    // ① 적 챔피언 5슬롯
+    for k in 0..5usize {
+        let en = rd_u64(wroot + X_ROSTER + (opp as usize) * 0x28 + k * 8)? as usize; if en == 0 { continue; }
+        let re = body_radius(en)?;
+        let (ex, ey) = (rd_u64(en + ENT_X)?, rd_u64(en + ENT_Y)?);
+        let (ax, ay) = (absd(ex, e4x), absd(ey, e4y));
+        let lim_a = re.wrapping_add(r4);
+        let in_a = ax.wrapping_mul(ax).wrapping_add(ay.wrapping_mul(ay)) <= lim_a.wrapping_mul(lim_a);
+        let (bx, by) = (absd(ex, e3x), absd(ey, e3y));
+        let lim_b = re.wrapping_add(r3);
+        let in_b = bx.wrapping_mul(bx).wrapping_add(by.wrapping_mul(by)) <= lim_b.wrapping_mul(lim_b);
+        if !in_a && !in_b { continue; }
+        let h = rd_u64(en + ENT_HANDLE)?;
+        if w.visible(side, h)? { return Some(2); }
+        let rc = w.roster_rec(h)?;
+        if rc != 0 {
+            let t = rd_u64(agents + (opp as usize) * LANE_STRIDE + LANE_ROSTER + (rd_u32(rc + 0x9c0) as usize) * 8)?;
+            if now <= t.wrapping_add(120) { return Some(2); }
+        }
+    }
+    if no_wep { return Some(2); }
+    // ⬜②~⑥ (중립/포탑/미니언/넥서스/유닛리스트 + 술어 0xdef0a0) 미포팅
+    na_tag("B3360p").map(|_| 0u8)
 }

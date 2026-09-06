@@ -58,8 +58,9 @@ pub unsafe fn diag(_p1: usize, _p3: usize, _p4: usize) -> String {
         + &format!(" game_thr={} bb970={} bb9a0={} bb988={}", v[14], v[15], v[16], v[17])
         + &{ let q = S12D.with(|c| c.get()); format!(" | S12[D={} X={} Ct={} kill={} score={} e01450={} e019d0={} e02020={}]", q[0], q[1], q[2], q[3], q[4], q[5], q[6], q[7]) }
         + &unsafe { let caps = crate::judge::cap_util_c87fe0::last_p2().unwrap_or(0);
-            if crate::ptr_ok(caps) { format!(" gameR={:#x} gameBB={:#x} gameBB998={:?}", rd_u64(caps + 0x18).unwrap_or(0), rd_u64(caps + 0x20).unwrap_or(0),
-                rd_u64(caps + 0x20).and_then(|b| rd_i64(b as usize + 0x998))) } else { " caps=none".into() } }
+            if crate::ptr_ok(caps) { format!(" gameR={:#x} gameBB={:#x} gameBB998={:?}{}", rd_u64(caps + 0x18).unwrap_or(0), rd_u64(caps + 0x20).unwrap_or(0),
+                rd_u64(caps + 0x20).and_then(|b| rd_i64(b as usize + 0x998)), super::buff_value::s13_diag()) } else { " caps=none".into() } }
+
 }
 #[inline] fn tag8(s: &str) -> u64 { let mut b = [0u8; 8]; for (i, c) in s.bytes().take(8).enumerate() { b[i] = c; } u64::from_le_bytes(b) }
 
@@ -571,9 +572,11 @@ unsafe fn combat_score_inner(mode: usize, _prof: usize, rec: usize, ctx: usize, 
     if rec_t.is_some() { let _ = main; }
     if rec_t.is_none() && (rec_a.is_some() || self_is_tgt) {
         stg(tag8("S13x"));
+        // ★S15 는 `risk_neg + tower_support + pos_term + main` 이다 — s13_s14 는 main 만 돌려준다
         let bc = super::buff_value::BCtx { mode, prof: _prof, rec, ctx, bb, sp, slot, tgt, me, p9: _p9,
                                            sim, w: w.x, c: c_val, inc_base: bonus9b0.wrapping_add(thr_s), cast_delay };
-        return super::buff_value::s13_s14(&bc, rec_a);
+        let m = super::buff_value::s13_s14(&bc, rec_a)?;
+        return Some(risk_neg + tower_support + pos_term + m);
     }
     let _ = (bonus9b0, thr_s, sp, my_handle, seen);
     LAST.with(|c| c.set([risk_neg, tower_support, pos_term, main, urgent as i64, c_val, thr_s, chase, rd_i64(bb + BB_998).unwrap_or(-1), bonus9b0, cast_delay as i64, hp as i64, thr, rd_u64(bb + BB_R + AS_REC_THR_LEN).unwrap_or(0) as i64, crate::judge::cap_as_d83230::last().map(|v| v as i64).unwrap_or(-999), rd_i64(bb + 0x970).unwrap_or(0), rd_i64(bb + 0x9a0).unwrap_or(0), rd_i64(bb + 0x988).unwrap_or(0)]));
