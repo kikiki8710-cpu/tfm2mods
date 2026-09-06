@@ -122,6 +122,12 @@ unsafe fn eff40_heal_d(data: usize, vt: usize, ent: usize, depth: u32) -> Option
             Some(rd_u64(me + 0x10)?.wrapping_add(rd_u64(me + 0x18)?.wrapping_mul(rd_u64(ent + ENT_STATS + 0x38)?.wrapping_add(1))))
         }
         EFF40_SUM_08_18 => sum_children_40(rd_u64(me + 8)? as usize, rd_u64(me + 0x10)?, 0x18, ent, depth),
+        EFF40_SUM_68_18_80_10 => {
+            // 0x13409d0: Σ[0x68/0x70 s0x18] + Σ[0x80/0x88 s0x10]
+            let a = sum_children_40(rd_u64(me + 0x68)? as usize, rd_u64(me + 0x70)?, 0x18, ent, depth)?;
+            let b = sum_children_40(rd_u64(me + 0x80)? as usize, rd_u64(me + 0x88)?, 0x10, ent, depth)?;
+            Some(a.wrapping_add(b))
+        }
         EFF40_SUM_48_10 => sum_children_40(rd_u64(me + 0x48)? as usize, rd_u64(me + 0x50)?, 0x10, ent, depth),
         EFF40_SUM_RATIO_68_50 => {
             // 0x16a3190: a = Σ[0x68/0x70 s0x18] ; b = Σ[0x50/0x58 s0x18] ; d = max(1,[s+0x80]) ; ([s+0x78]/d)*b + a

@@ -497,7 +497,10 @@ pub unsafe fn install() {
         install_one(&mut log, &SERPEN_HUNT_BATTLE, &serpen_hb_hook::ORIG, serpen_hb_hook::wrap as *const () as usize, "wrap-out");
         install_one(&mut log, &PASSIVE_LINE, &passive_line_hook::ORIG, passive_line_hook::wrap as *const () as usize, "wrap-out");
         install_one(&mut log, &DN_CACHE, &cap_dn_cache::ORIG, cap_dn_cache::wrap as *const () as usize, "capture-ret");
-        install_one(&mut log, &EST_DAMAGE, &cap_est_dmg::ORIG, cap_est_dmg::wrap as *const () as usize, "capture-ret");
+        // est_damage(0x12857f0) 는 전 AI 공용 헬퍼(판당 1~1.8억 호출) — 교차검사 2판 불일치 0 확인 후 기본 OFF(cfg judge_cap_est=1 이면 설치)
+        if tune("judge_cap_est", 0) != 0 { install_one(&mut log, &EST_DAMAGE, &cap_est_dmg::ORIG, cap_est_dmg::wrap as *const () as usize, "capture-ret"); }
+        else { log.push_str("[judge] est_damage capture 생략(judge_cap_est=0)
+"); }
         install_one(&mut log, &DEFENSE_NEXUS, &defense_nexus_hook::ORIG, defense_nexus_hook::wrap as *const () as usize, "wrap-out");
         install_one(&mut log, &PASSIVE_JUNGLE, &passive_jungle_hook::ORIG, passive_jungle_hook::wrap as *const () as usize, "wrap-out");
     } else {

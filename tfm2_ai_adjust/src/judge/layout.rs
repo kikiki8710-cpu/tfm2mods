@@ -233,4 +233,4 @@ pub const EFFA0_CONST1_ENCH: usize = 0x12aa290;    // 상수 생성(type 1, vamp
 pub const CAMP_MEMO_TLS_IDX: usize = 0x4856da0;  // .data u32 = 이 exe 의 TLS 슬롯 인덱스(런타임 이미지에서 읽는다)
 pub const CAMP_MEMO_OFF: usize = 0x17d50;        // TLS 블록 안 캐시(0x190B): [0]borrow [1]key=map_def ptr · 항목 i=camp*6+side*3+2: [i]valid u8 [i+1]x [i+2]y
 pub const CAMP_MEMO_INIT: usize = 0x17ee0;       // 지연초기화 플래그 바이트(0 = 아직 없음 → 재계산)
-
+pub const EFF40_SUM_68_18_80_10: usize = 0x13409d0; // 두 Vec 합([s+0x68]/0x70 stride 0x18 + [s+0x80]/0x88 stride 0x10) — SET2 리플레이 신규(×1398)
