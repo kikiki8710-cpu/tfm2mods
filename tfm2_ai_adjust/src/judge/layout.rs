@@ -194,3 +194,12 @@ pub const EFF38_GET28: usize = 0x2f840;          // [s+0x28] ×10
 pub const EFF40_ZERO: usize = 0x9db70;           // 0 ×197
 pub const EFFA0_NONE: usize = 0x109baa0;         // type=−1 ×171
 
+pub const EFF28_GENERIC: usize = 0x1708310;        // q400([s+0x18]*AD)+q400([s+0x20]*stats[0x10])+[s+0x10] (몬스터 평타, 리플레이 13만회)
+pub const EFF40_SUM_08_10: usize = 0x12a5660;      // 자식 Vec [s+8]/[s+0x10] stride 0x10 합
+pub const EFF40_SUM_20_18: usize = 0x12a5ae0;      // 자식 Vec [s+0x20]/[s+0x28] stride 0x18 합
+pub const EFF40_SUM_50_18: usize = 0x1248040;      // 자식 Vec [s+0x50]/[s+0x58] stride 0x18 합
+pub const EFF40_SUM_50_18_68_10: usize = 0x122e360;// 두 Vec 합([s+0x50]/0x58 s0x18 + [s+0x68]/0x70 s0x10)
+pub const EFF40_LEAF_ADAP: usize = 0x117ca10;      // q400([s+0x18]*AD)+q400([s+0x20]*AP)+[s+0x28]
+pub const EFF40_LEAF_STACK: usize = 0x12b2e90;     // [s+0x10]+[s+0x18]*(stats[0x38]+1)
+pub const EFF40_LEAF_RATIO: usize = 0x12b1550;     // ([s]+[s+8]*AP)*([s+0x20]/[s+0x28])
+pub const EFFA0_WIND_SPEED: usize = 0x12266f0;     // BuffState 상수 생성(type 1, vamp 0)

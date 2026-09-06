@@ -2,7 +2,9 @@
 //!   규칙: 구현체 RVA(= `[vt+slot] − exe_base`)로 갈라 재현한다. 미재현 RVA 는 `None`(NA) 을 돌려주고 `unseen` 표에 (slot, rva, 횟수)를 남긴다
 //!   → 리플레이 한 번이면 "실제로 불리는 구현" 목록이 `judge_dyn.txt` 에 나오고, 그것부터 포팅한다(291×5 슬롯 전부를 미리 옮기지 않는다).
 //!   구현체 분포(0.5.8 정적 열거, scratchpad dyn_families.txt): +0x28 39종(0 ×152) · +0x30 1종(항상 None) · +0x38 12종(0 ×194) · +0x40 15종(0 ×197) · +0xa0 26종(None ×171) · 프로바이더 +0x90 19종.
+//!   1차 리플레이(13:40) 실측 상위: +0x28 0x1708310(13만) · +0x40 0x12a5660(9.4만)/0x122e360(6.8만)/0x12a5ae0/0x1248040 · +0xa0 0x12266f0 → 전부 재현(아래).
 //! ⚠페이로드 주소: Arc<dyn> 은 `data + ((align−1) & !0xf) + 0x10`(align=[vt+0x10]), Box<dyn>(프로바이더)은 data 그대로.
+//!   인자 규약(effect 슬롯): (rcx=payload, rdx=W, r8=entity, r9=ENT_VT 0x33d8768). ENT_VT+0x38(e) = &e+0x618 스탯 스냅샷, +0x30 = 스냅샷 sret(같은 0x48B) → 직접 오프셋으로 읽는다.
 #![allow(dead_code)]
 use crate::*;
 use super::super::layout::*;
@@ -36,14 +38,33 @@ pub fn unseen_report() -> String {
 #[inline] pub unsafe fn arc_payload(data: usize, vt: usize) -> Option<usize> {
     let align = rd_u64(vt + 0x10)?; Some(data.wrapping_add(((align.wrapping_sub(1)) & !0xfu64) as usize).wrapping_add(0x10))
 }
+/// 게임의 `x>>2` 후 `/100`(매직 곱) = (x>>2)/100 — x/400 과 끝자리가 다를 수 있어 그대로 둔다.
+#[inline] fn q400(x: u64) -> u64 { (x >> 2) / 100 }
+
+/// 자식 (data, vt) 배열 합산 — Vec 원소 stride 가 0x10 또는 0x18(둘 다 [+0]=data, [+8]=vt)
+unsafe fn sum_children_40(ptr: usize, len: u64, stride: usize, ent: usize, depth: u32) -> Option<u64> {
+    if len == 0 { return Some(0); } if !ptr_ok(ptr) { return None; }
+    let mut acc: u64 = 0;
+    for i in 0..len.min(64) as usize {
+        let (d, v) = (rd_u64(ptr + i * stride)? as usize, rd_u64(ptr + i * stride + 8)? as usize);
+        acc = acc.wrapping_add(eff40_heal_d(d, v, ent, depth + 1)?);
+    }
+    Some(acc)
+}
 
 /// effect `+0x28` 피해 (rax=물리, rdx=마법). 인자 (payload, W, attacker, ENT_VT) — 재현본은 attacker 만 필요.
-pub unsafe fn eff28_damage(data: usize, vt: usize, _att: usize) -> Option<(u64, u64)> {
+pub unsafe fn eff28_damage(data: usize, vt: usize, att: usize) -> Option<(u64, u64)> {
     let rva = impl_rva(vt, 0x28)?; let me = arc_payload(data, vt)?;
     match rva {
         EFF28_ZERO => Some((0, 0)),
         EFF28_PAIR_RAW => Some((rd_u64(me)?, rd_u64(me + 8)?)),
         EFF28_PAIR_BYKIND => { let v = rd_u64(me)?; if rd_i32(me + 8)? == 1 { Some((0, v)) } else { Some((v, 0)) } }
+        EFF28_GENERIC => {
+            // 0x1708310: q400([s+0x18]*stats[0]) + q400([s+0x20]*stats[0x10]) + [s+0x10] ; m=0   (stats = e+0x618)
+            let a = q400(rd_u64(me + 0x18)?.wrapping_mul(rd_u64(att + ENT_STATS)?));
+            let b = q400(rd_u64(me + 0x20)?.wrapping_mul(rd_u64(att + ENT_STATS + 0x10)?));
+            Some((a.wrapping_add(rd_u64(me + 0x10)?).wrapping_add(b), 0))
+        }
         _ => { unseen(0x28, rva); None }
     }
 }
@@ -57,10 +78,36 @@ pub unsafe fn eff38_pct(data: usize, vt: usize, _att: usize) -> Option<u64> {
     }
 }
 /// effect `+0x40` 회복량 추정
-pub unsafe fn eff40_heal(data: usize, vt: usize, _ent: usize) -> Option<u64> {
-    let rva = impl_rva(vt, 0x40)?;
+pub unsafe fn eff40_heal(data: usize, vt: usize, ent: usize) -> Option<u64> { eff40_heal_d(data, vt, ent, 0) }
+unsafe fn eff40_heal_d(data: usize, vt: usize, ent: usize, depth: u32) -> Option<u64> {
+    if depth > 4 { return None; }
+    let rva = impl_rva(vt, 0x40)?; let me = arc_payload(data, vt)?;
     match rva {
         EFF40_ZERO => Some(0),
+        EFF40_SUM_08_10 => sum_children_40(rd_u64(me + 8)? as usize, rd_u64(me + 0x10)?, 0x10, ent, depth),
+        EFF40_SUM_20_18 => sum_children_40(rd_u64(me + 0x20)? as usize, rd_u64(me + 0x28)?, 0x18, ent, depth),
+        EFF40_SUM_50_18 => sum_children_40(rd_u64(me + 0x50)? as usize, rd_u64(me + 0x58)?, 0x18, ent, depth),
+        EFF40_SUM_50_18_68_10 => {
+            let a = sum_children_40(rd_u64(me + 0x50)? as usize, rd_u64(me + 0x58)?, 0x18, ent, depth)?;
+            let b = sum_children_40(rd_u64(me + 0x68)? as usize, rd_u64(me + 0x70)?, 0x10, ent, depth)?;
+            Some(a.wrapping_add(b))
+        }
+        EFF40_LEAF_ADAP => {
+            // 0x117ca10: q400([s+0x18]*stats[0]) + q400([s+0x20]*stats[8]) + [s+0x28]
+            let a = q400(rd_u64(me + 0x18)?.wrapping_mul(rd_u64(ent + ENT_STATS)?));
+            let b = q400(rd_u64(me + 0x20)?.wrapping_mul(rd_u64(ent + ENT_STATS + 8)?));
+            Some(a.wrapping_add(rd_u64(me + 0x28)?).wrapping_add(b))
+        }
+        EFF40_LEAF_STACK => {
+            // 0x12b2e90: [s+0x10] + [s+0x18] * (stats[0x38] + 1)
+            Some(rd_u64(me + 0x10)?.wrapping_add(rd_u64(me + 0x18)?.wrapping_mul(rd_u64(ent + ENT_STATS + 0x38)?.wrapping_add(1))))
+        }
+        EFF40_LEAF_RATIO => {
+            // 0x12b1550: ([s] + [s+8]*snap[8]) * ([s+0x20] / [s+0x28]) ; [s+0x28]==0 → div0 panic
+            let d = rd_u64(me + 0x28)?; if d == 0 { return None; }
+            let base = rd_u64(me)?.wrapping_add(rd_u64(me + 8)?.wrapping_mul(rd_u64(ent + ENT_STATS + 8)?));
+            Some(base.wrapping_mul(rd_u64(me + 0x20)? / d))
+        }
         _ => { unseen(0x40, rva); None }
     }
 }
@@ -69,6 +116,7 @@ pub unsafe fn effa0_buff(data: usize, vt: usize, _ent: usize) -> Option<(i32, i3
     let rva = impl_rva(vt, 0xa0)?;
     match rva {
         EFFA0_NONE => Some((-1, 0)),
+        EFFA0_WIND_SPEED => Some((1, 0)),          // 0x12266f0: 상수 생성(type 1, +0x80 = 0)
         _ => { unseen(0xa0, rva); None }
     }
 }
