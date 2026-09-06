@@ -37,7 +37,7 @@ unsafe fn reach_val(slot: usize, e: usize, other: usize) -> Option<u64> {
 /// 0x1285320/0xd47620: dist²(e, other) <= reach(e→other)²
 unsafe fn in_reach(slot: usize, e: usize, other: usize) -> Option<bool> { let r = reach_val(slot, e, other)?; Some(d2(e, other)? <= r.wrapping_mul(r)) }
 /// 0xd83230: Record 위협 리스트(+0x18 ptr/+0x30 len, stride 0x18 {src, delay, amount}) 를 delay<=thr 로 거르고 src 별 max 를 합산
-unsafe fn threat_sum(rec: usize, thr: u64) -> Option<i64> {
+pub unsafe fn threat_sum(rec: usize, thr: u64) -> Option<i64> {
     let n = rd_u64(rec + AS_REC_THR_LEN)?; if n == 0 { return Some(0); }
     let p = rd_u64(rec + AS_REC_THR_PTR)? as usize; if !ptr_ok(p) { return None; }
     let mut srcs: [(u64, i64); 64] = [(0, 0); 64]; let mut m = 0usize;

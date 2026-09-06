@@ -56,9 +56,27 @@ pub unsafe fn eff_e8(data: usize, vt: usize, ent: usize, nexus: usize, depth: u3
     }
     if rva == EFF_E8_BUFF_FLAG {
         if rd_u8(me + 0x62) != 1 { return Some(0); }
-        return None;                                                   // 버프 vt+0x48 한 층 더 — 미재현(NA)
+        // 0x16a8c10: ent+0x2f8/+0x300 (data,vt)[n] 의 vt+0x48(data) 가 1 인 원소가 있으면 9,999,999 (디컴 2026-09-06 19:45)
+        return Some(if buff48_any(ent)? { 9_999_999 } else { 0 });
     }
+    super::dyn_eff::unseen(0xe8, rva);
     None
+}
+/// 엔티티 버프/효과 리스트(+0x2f8 ptr / +0x300 len, stride 0x10 = (data, vt)) 의 vt+0x48(data) == 1 존재 여부. 구현체는 RVA 로 판정(미재현 → unseen 0x48 기록·None).
+pub unsafe fn buff48_any(ent: usize) -> Option<bool> {
+    let n = rd_u64(ent + ENT_EFFS_LEN)?; if n == 0 { return Some(false); }
+    let p = rd_u64(ent + ENT_EFFS_PTR)? as usize; if !ptr_ok(p) { return None; }
+    for i in 0..n.min(64) as usize {
+        let (d, v) = (rd_u64(p + i * 16)? as usize, rd_u64(p + i * 16 + 8)? as usize);
+        let r = super::dyn_eff::impl_rva(v, 0x48)?;
+        let val: u64 = match r {
+            EFF_E8_ZERO => 0,
+            EFF48_OPT_PTR => (rd_u64(d + 0x10)? != 0) as u64,
+            _ => { super::dyn_eff::unseen(0x48, r); return None; }
+        };
+        if val == 1 { return Some(true); }
+    }
+    Some(false)
 }
 /// 사거리 = [e+0x438] + [slot+0x10] + (level−1)*[slot+0x18] + (slot.flag==0 ? hp680항(e) : 0) + hp680항(넥서스) + 보너스 ; dist² <= 사거리²
 unsafe fn in_reach(e: usize, slot: usize, nexus: usize, r: usize) -> Option<bool> {

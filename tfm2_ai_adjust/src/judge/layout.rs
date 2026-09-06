@@ -163,7 +163,8 @@ pub const EFF_SLOT_E8: usize = 0xe8;     // 이펙트 vt 슬롯: 사거리 보�
 pub const EFF_E8_ZERO: usize = 0x9db70;              // ×280  xor eax,eax
 pub const EFF_E8_MAX_CHILDREN: usize = 0x12a67a0;    // ×9    자식 (data,vt)[n] (self+8/+0x10) 의 max
 pub const EFF_E8_LVL3_NEXUS_TABLE: usize = 0x12b9e60;// ×1    level≥3 && nexus+0x298 표(stride 0x38, [+0x34]==1) → [self+0x40]
-pub const EFF_E8_BUFF_FLAG: usize = 0x16a8c10;       // ×1    [self+0x62]==1 && ent+0x2f8 버프 vt+0x48==1 → 9,999,999 (버프 층 미재현 → NA)
+pub const EFF_E8_BUFF_FLAG: usize = 0x16a8c10;
+pub const EFF48_OPT_PTR: usize = 0x16b8820;          // 효과 리스트 vt+0x48 impl: rax = ([data+0x10] != 0), rdx = [data+8] (capstone 2026-09-06 19:52)       // ×1    [self+0x62]==1 && ent+0x2f8 버프 vt+0x48==1 → 9,999,999 (버프 층 미재현 → NA)
 
 // ── passive_jungle(Plan 7, 0xd2e500) · dyn_eff 전용 ── [capstone + ghidra-re 2026-09-06, 0.5.8]
 pub const PLAN_PJ_SIDE: usize = 0x48;            // 플랜 인자 +0x48 u64 side(0/≠0)
@@ -337,4 +338,13 @@ pub const EFF28_SUM_20_18: usize = 0x1146bb0;   // 자식 Vec [s+0x20]/[s+0x28] 
 pub const EFFA0_CONST1_BARD2: usize = 0x17cd2e0;  // 상수 생성(type 1, vamp 0) bard_skill2 — x852
 pub const EFF28_BASE_AD: usize = 0x16a61d0;      // p = [s] + [s+8]*stats[0]/100 ; m = 0 — base_score 리플레이 신규(x105,458)
 pub const EFF38_SUM_20_18: usize = 0x1146ca0;   // 자식 Vec [s+0x20]/[s+0x28] stride 0x18 의 +0x38 합(0x1146bb0 형제) — x107,186
+pub const ENT_EFFS_PTR: usize = 0x2f8;            // 엔티티 dyn 효과 리스트 (data,vt) ptr / +0x300 len · stride 0x10 (0x16a8c10·0xeba9b0 vt+0x48/+0x80/+0x88/+0x90)
+pub const ENT_EFFS_LEN: usize = 0x300;
+// ── 스킬 dyn Effect vt+0x60/+0x68 (타깃 술어) 구현체 — fight_check RE §3-d + 디컴 2026-09-06 20:02
+pub const EFF60_PAIR_NONZERO: usize = 0x12a7320;     // +0x60 잎: [p+0x18]!=0 && [p+0x10]!=0
+pub const EFF60_ANY_CHILD: usize = 0x12a6d30;        // +0x60 합성: 자식 (d,vt)[len@p+0x10] @p+8 의 vt+0x60 any
+pub const EFF68_NONZERO18: usize = 0x12a5ad0;        // +0x68 잎: [p+0x18]!=0
+pub const EFF68_ANY_CHILD: usize = 0x12a6cd0;        // +0x68 합성: 자식 vt+0x68 any
+pub const EFF_TRUE: usize = 0xadec0;                 // 항상 1 (mov al,1; ret)
+pub const WMAP_GRID2: usize = 0x1c98;                // wmap 두 번째 30×30 표(+0x78 + 30*0xf0) — 0xcaff00 접근점 게이트
 
