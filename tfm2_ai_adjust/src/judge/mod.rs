@@ -52,6 +52,7 @@ pub mod port {
     pub mod hunt_poke;
     pub mod action_score;
     pub mod as_callees;
+    pub mod fight_check;
 }
 use gen_fns::*;
 
@@ -461,7 +462,7 @@ macro_rules! judge_capture_out_cmp {
             use std::cell::Cell;
             pub static ORIG: AtomicUsize = AtomicUsize::new(0);
             pub static ST: super::Stat = super::Stat::new();
-            static LOGGED: AtomicU64 = AtomicU64::new(0);
+            static LOGGED: AtomicU64 = AtomicU64::new(0); static LOGGED_D: AtomicU64 = AtomicU64::new(0);
             #[derive(Clone, Copy)] pub struct Cap { pub p1: usize, pub p2: usize, pub p3: usize, pub p4: usize, pub ret: u64, pub w: [u64; 9] }
             const Z: Cap = Cap { p1: 0, p2: 0, p3: 0, p4: 0, ret: 0, w: [0; 9] };
             thread_local! { static RING: Cell<([Cap; 8], usize)> = const { Cell::new(([Z; 8], 0)) }; }
@@ -487,9 +488,9 @@ macro_rules! judge_capture_out_cmp {
                     if let Some(p) = crate::pth(&format!("judge_{}.txt", $spec.name)) { let _ = std::fs::OpenOptions::new().create(true).append(true).open(p).and_then(|mut f| { use std::io::Write; f.write_all(line.as_bytes()) }); }
                 };
                 match mine {
-                    None => { ST.na.fetch_add(1, Ordering::Relaxed); if LOGGED.fetch_add(1, Ordering::Relaxed) < 60 { logline("NA", None); } }
+                    None => { ST.na.fetch_add(1, Ordering::Relaxed); if LOGGED.fetch_add(1, Ordering::Relaxed) < 30 { logline("NA", None); } }
                     Some(m) if ($eq)(&w, &m) => { ST.ok.fetch_add(1, Ordering::Relaxed); }
-                    Some(m) => { ST.diff.fetch_add(1, Ordering::Relaxed); if LOGGED.fetch_add(1, Ordering::Relaxed) < 60 { logline("DIFF", Some(m)); } }
+                    Some(m) => { ST.diff.fetch_add(1, Ordering::Relaxed); if LOGGED_D.fetch_add(1, Ordering::Relaxed) < 40 { logline("DIFF", Some(m)); } }
                 }
                 r
             }
@@ -507,7 +508,7 @@ macro_rules! judge_capture_ring_cmp {
             use std::cell::Cell;
             pub static ORIG: AtomicUsize = AtomicUsize::new(0);
             pub static ST: super::Stat = super::Stat::new();
-            static LOGGED: AtomicU64 = AtomicU64::new(0);
+            static LOGGED: AtomicU64 = AtomicU64::new(0); static LOGGED_D: AtomicU64 = AtomicU64::new(0);
             #[derive(Clone, Copy)] pub struct Cap { pub p1: usize, pub p2: usize, pub p3: usize, pub p4: usize, pub ret: u64 }
             const Z: Cap = Cap { p1: 0, p2: 0, p3: 0, p4: 0, ret: 0 };
             thread_local! { static RING: Cell<([Cap; 16], usize)> = const { Cell::new(([Z; 16], 0)) }; }
@@ -525,27 +526,27 @@ macro_rules! judge_capture_ring_cmp {
                 let r = f(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12);
                 RING.with(|c| { let (mut a, n) = c.get(); a[n % 16] = Cap { p1, p2, p3, p4, ret: r as u64 }; c.set((a, n + 1)); });
                 ST.n.fetch_add(1, Ordering::Relaxed);
-                let mine: Option<u64> = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| ($mine)(p1, p2, p3, p4))).unwrap_or(None);
+                let mine: Option<u64> = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| ($mine)(p1, p2, p3, p4, p5, p6, p7, p8))).unwrap_or(None);
                 let logline = |tag: &str, v: Option<u64>| {
-                    let diag = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| crate::judge::port::as_callees::cmp_diag($spec.name, p1, p2, p3, p4))).unwrap_or_default();
-                    let line = format!("[{} #{}] {} game={}({:#x}) mine={} | p1={:#x} p2={:#x} p3={:#x} p4={:#x} | {}\n", $spec.name, ST.n.load(Ordering::Relaxed), tag, r as i64, r, v.map(|x| format!("{}({:#x})", x as i64, x)).unwrap_or("NA".into()), p1, p2, p3, p4, diag);
+                    let diag = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| crate::judge::port::as_callees::cmp_diag8($spec.name, p1, p2, p3, p4, p5, p6, p7, p8))).unwrap_or_default();
+                    let line = format!("[{} #{}] {} game={}({:#x}) mine={} | p1={:#x} p2={:#x} p3={:#x} p4={:#x} p5={:#x} p6={:#x} p7={:#x} | {}\n", $spec.name, ST.n.load(Ordering::Relaxed), tag, r as i64, r, v.map(|x| format!("{}({:#x})", x as i64, x)).unwrap_or("NA".into()), p1, p2, p3, p4, p5, p6, p7, diag);
                     if let Some(p) = crate::pth(&format!("judge_{}.txt", $spec.name)) { let _ = std::fs::OpenOptions::new().create(true).append(true).open(p).and_then(|mut f| { use std::io::Write; f.write_all(line.as_bytes()) }); }
                 };
                 match mine {
-                    None => { ST.na.fetch_add(1, Ordering::Relaxed); if LOGGED.fetch_add(1, Ordering::Relaxed) < 60 { logline("NA", None); } }
+                    None => { ST.na.fetch_add(1, Ordering::Relaxed); if LOGGED.fetch_add(1, Ordering::Relaxed) < 30 { logline("NA", None); } }
                     Some(v) if v == r as u64 => { ST.ok.fetch_add(1, Ordering::Relaxed); }
-                    Some(v) => { ST.diff.fetch_add(1, Ordering::Relaxed); if LOGGED.fetch_add(1, Ordering::Relaxed) < 60 { logline("DIFF", Some(v)); } }
+                    Some(v) => { ST.diff.fetch_add(1, Ordering::Relaxed); if LOGGED_D.fetch_add(1, Ordering::Relaxed) < 40 { logline("DIFF", Some(v)); } }
                 }
                 r
             }
         }
     };
 }
-judge_capture_ring_cmp!(cap_util_c87fe0, crate::judge::gen_fns::UTIL_C87FE0, |_p1, p2, _p3, _p4| unsafe { crate::judge::port::as_callees::pct_c_from_args(p2) });   // 백분위 C (2단계: 0xd390a0 순수 재현 대조)
+judge_capture_ring_cmp!(cap_util_c87fe0, crate::judge::gen_fns::UTIL_C87FE0, |_p1, p2, _p3, _p4, _p5, _p6, _p7, _p8| unsafe { crate::judge::port::as_callees::pct_c_from_args(p2) });   // 백분위 C (2단계: 0xd390a0 순수 재현 대조)
 judge_capture_ring!(cap_combat_score, crate::judge::gen_fns::COMBAT_SCORE);
-judge_capture_ring!(cap_as_eb82d0, crate::judge::gen_fns::AS_EB82D0);
-judge_capture_ring_cmp!(cap_as_e0e890, crate::judge::gen_fns::AS_E0E890, |p1, p2, _p3, _p4| unsafe { crate::judge::port::as_callees::max_reach(p1, p2) });   // 최대사거리 (2단계: 순수 재현 대조)
-judge_capture_ring_cmp!(cap_as_d83230, crate::judge::gen_fns::AS_D83230, |p1, _p2, p3, _p4| unsafe { crate::judge::port::action_score::threat_sum(p1, p3 as u64).map(|v| v as u64) });   // 위협합 (2단계: 순수 재현 교차대조)
+judge_capture_ring_cmp!(cap_as_eb82d0, crate::judge::gen_fns::AS_EB82D0, |p1, _p2, p3, p4, p5, p6, p7, _p8| unsafe { crate::judge::port::fight_check::fight_check_memo(p1 as u64, p3, p4, p5, p6, p7) });   // fight_check (2단계: 순수 재현+메모 미러 대조)
+judge_capture_ring_cmp!(cap_as_e0e890, crate::judge::gen_fns::AS_E0E890, |p1, p2, _p3, _p4, _p5, _p6, _p7, _p8| unsafe { crate::judge::port::as_callees::max_reach(p1, p2) });   // 최대사거리 (2단계: 순수 재현 대조)
+judge_capture_ring_cmp!(cap_as_d83230, crate::judge::gen_fns::AS_D83230, |p1, _p2, p3, _p4, _p5, _p6, _p7, _p8| unsafe { crate::judge::port::action_score::threat_sum(p1, p3 as u64).map(|v| v as u64) });   // 위협합 (2단계: 순수 재현 교차대조)
 pub fn as_reset_all() { cap_util_c87fe0::reset(); cap_combat_score::reset(); cap_as_c88300_out::reset(); cap_as_e23170::reset(); cap_as_d84db0::reset(); cap_as_eb82d0::reset(); cap_as_e0e890::reset(); cap_as_d83230::reset(); cap_dn_cache::reset(); cap_est_dmg::reset(); }
 judge_scorer_cmp!(cap_base_score, crate::judge::gen_fns::BASE_SCORE, |_p1: usize, _p2: usize, _p3: usize, _p4: usize, _p5: usize, _p6: usize| { crate::judge::as_reset_all(); }, crate::judge::port::action_score::base_score);
 judge_capture_cmp!(cap_obj_can_attack, crate::judge::gen_fns::OBJ_CAN_ATTACK, |_p1: usize, _p2: usize, _p3: usize, _p4: usize, _p5: usize, _p6: usize| {}, |_p1: usize, p2: usize, p3: usize, p4: usize, _p5: usize, _p6: usize| -> Option<u8> { crate::judge::port::obj_helpers::can_attack(p2, p3, (p4 & 0xff) as u8).map(|b| b as u8) });

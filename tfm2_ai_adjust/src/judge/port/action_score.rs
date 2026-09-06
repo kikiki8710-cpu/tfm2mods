@@ -50,7 +50,7 @@ pub unsafe fn threat_sum(rec: usize, thr: u64) -> Option<i64> {
     Some(srcs[..m].iter().map(|s| s.1).fold(0i64, |a, b| a.wrapping_add(b)))
 }
 /// 0xd31bb0: X 로스터(side 별 5슬롯) 에서 핸들 일치 슬롯 i → X+0x230+side*0x28+i*8 (sim 포인터)
-unsafe fn sim_of_handle(x: usize, h: u64) -> Option<usize> {
+pub unsafe fn sim_of_handle(x: usize, h: u64) -> Option<usize> {
     for side in 0..2usize { for i in 0..5usize {
         let e = rd_u64(x + X_ROSTER + side * 0x28 + i * 8)? as usize;
         if e != 0 && rd_u64(e + ENT_HANDLE)? == h { return Some(rd_u64(x + X_SIM_TABLE + side * 0x28 + i * 8)? as usize); } } }

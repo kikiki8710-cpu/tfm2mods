@@ -68,6 +68,33 @@ pub unsafe fn eff28_damage(data: usize, vt: usize, att: usize) -> Option<(u64, u
             Some((p, m))
         }
         EFF28_PAIR_RAW => Some((rd_u64(me)?, rd_u64(me + 8)?)),
+        0x12a56e0 => {
+            // Σ 자식(stride 0x10, data@+0/vt@+8, ptr [me+8], len [me+0x10]) 의 (p, m)
+            let n = rd_u64(me + 0x10)?; if n == 0 { return Some((0, 0)); }
+            let arr = rd_u64(me + 8)? as usize; if !ptr_ok(arr) { return None; }
+            let (mut p, mut m) = (0u64, 0u64);
+            for i in 0..n.min(64) as usize { let (d, v) = (rd_u64(arr + i * 0x10)? as usize, rd_u64(arr + i * 0x10 + 8)? as usize); let (a, b) = eff28_damage(d, v, att)?; p = p.wrapping_add(a); m = m.wrapping_add(b); }
+            Some((p, m))
+        }
+        0x164eaa0 => {
+            // SwitchByLevel: desc.vt+0x48(=0xc8c890 [att+0x5c8] 레벨) >= 3 → 자식 1(data @me+0x10, vt @me+0x18), 아니면 자식 0(@me+0/+8) (capstone 2026-09-06 20:33)
+            let idx = if rd_u64(att + ENT_LEVEL)? >= 3 { 1usize } else { 0 };
+            let (d, v) = (rd_u64(me + idx * 0x10)? as usize, rd_u64(me + 8 + idx * 0x10)? as usize);
+            eff28_damage(d, v, att)
+        }
+        0x16abff0 => {
+            // 감쇠 누적: n = min(att.650+1, me.30); coef=me.18; acc += coef*att.618/100; coef = max(coef*me.20/100, me.28) (capstone 2026-09-06 20:38); m=0
+            let stat = rd_u64(att + ENT_STATS)?; let n = rd_u64(att + 0x650)?.wrapping_add(1).min(rd_u64(me + 0x30)?);
+            let (mut coef, mut acc) = (rd_u64(me + 0x18)?, 0u64); let (m20, m28) = (rd_u64(me + 0x20)?, rd_u64(me + 0x28)?);
+            for _ in 0..n.min(4096) { acc = acc.wrapping_add(q400(coef.wrapping_mul(stat))); coef = q400(coef.wrapping_mul(m20)).max(m28); }
+            Some((acc, 0))
+        }
+        0x1606470 => {
+            // SwitchByBuff: desc.vt+0x50(=0x128f470 buff_lookup)(att, [me+8], [me+0x10]) != 0 → 자식 1, 아니면 자식 0 (capstone 2026-09-06 20:22)
+            let idx = if buff_lookup(att, rd_u64(me + 8)? as usize, rd_u64(me + 0x10)?)? != 0 { 1usize } else { 0 };
+            let (d, v) = (rd_u64(me + 0x18 + idx * 0x10)? as usize, rd_u64(me + 0x20 + idx * 0x10)? as usize);
+            eff28_damage(d, v, att)
+        }
         EFF28_PAIR_BYKIND => { let v = rd_u64(me)?; if rd_i32(me + 8)? == 1 { Some((0, v)) } else { Some((v, 0)) } }
         EFF28_GENERIC => {
             // 0x1708310: [s+0x18]*stats[0]/100 + [s+0x20]*stats[0x10]/100 + [s+0x10] ; m=0   (stats = e+0x618)
@@ -86,6 +113,14 @@ pub unsafe fn eff38_pct(data: usize, vt: usize, _att: usize) -> Option<u64> {
     match rva {
         EFF38_ZERO => Some(0),
         EFF38_GET28 => rd_u64(me + 0x28),
+        0x12a5890 => {
+            // Σ 자식(stride 0x10, ptr [me+8], len [me+0x10]) 의 +0x38 (capstone 2026-09-06 20:38)
+            let n = rd_u64(me + 0x10)?; if n == 0 { return Some(0); }
+            let arr = rd_u64(me + 8)? as usize; if !ptr_ok(arr) { return None; }
+            let mut acc = 0u64;
+            for i in 0..n.min(64) as usize { let (d, v) = (rd_u64(arr + i * 0x10)? as usize, rd_u64(arr + i * 0x10 + 8)? as usize); acc = acc.wrapping_add(eff38_pct(d, v, _att)?); }
+            Some(acc)
+        }
         EFF38_SUM_20_18 => {
             let n = rd_u64(me + 0x28)?; if n == 0 { return Some(0); }
             let arr = rd_u64(me + 0x20)? as usize; if !ptr_ok(arr) { return None; }
@@ -255,10 +290,16 @@ unsafe fn effa0_buff_p(me: usize, vt: usize, ent: usize, depth: u32) -> Option<(
     }
 }
 /// 프로바이더(Box<dyn DataAction>) `+0x90` cooltime — 구현체 바이트를 해석: `48 8b 41 K c3` / `48 8b 81 K32 c3` = [data+K], `31 c0 c3` = 0.
-pub unsafe fn prov90_cooltime(data: usize, vt: usize, _ent: usize) -> Option<u64> {
+pub unsafe fn prov90_cooltime(data: usize, vt: usize, ent: usize) -> Option<u64> {
     let rva = impl_rva(vt, 0x90)?; let b = exe_base(); let t = b + rva;
+    // 레벨 의존 impl (fight_check 검증 2026-09-06 20:20, capstone): 0x1725060 = sat_sub(d.50, lv*d.108) · 0x12462a0 = max(sat_sub(d.50, lv*d.f8), d.100+60)
+    if rva == 0x1725060 { let lv = rd_u64(ent + 0x5c8)?; return Some(rd_u64(data + 0x50)?.saturating_sub(lv.wrapping_mul(rd_u64(data + 0x108)?))); }
+    if rva == 0x17033a0 { let lv = rd_u64(ent + 0x5c8)?; return Some(rd_u64(data + 0x50)?.saturating_sub(lv.wrapping_mul(rd_u64(data + 0x138)?))); }
+    if rva == 0x12462a0 { let lv = rd_u64(ent + 0x5c8)?; let prod = (rd_u64(data + 0xf8)? as u128) * (lv as u128); if prod >> 64 != 0 { return None; }
+        let v = rd_u64(data + 0x50)?.saturating_sub(prod as u64); return Some(rd_u64(data + 0x100)?.wrapping_add(0x3c).max(v)); }
     let (b0, b1, b2) = (rd_u8(t), rd_u8(t + 1), rd_u8(t + 2));
     if b0 == 0x31 && b1 == 0xc0 && b2 == 0xc3 { return Some(0); }
+    if b0 == 0x48 && b1 == 0x8b && b2 == 0x01 && rd_u8(t + 3) == 0xc3 { return rd_u64(data); }
     if b0 == 0x48 && b1 == 0x8b && b2 == 0x41 && rd_u8(t + 4) == 0xc3 { return rd_u64(data + rd_u8(t + 3) as usize); }
     if b0 == 0x48 && b1 == 0x8b && b2 == 0x81 && rd_u8(t + 7) == 0xc3 { return rd_u64(data + rd_u32(t + 3) as usize); }
     unseen(0x90, rva); None

@@ -260,6 +260,10 @@ pub unsafe fn max_reach(e: usize, o: usize) -> Option<u64> {
 
 // ─────────────────────────────────────────────────────────────────────────────────────────────
 // 진단: capture_ring_cmp 의 DIFF/NA 줄에 붙는 콜리별 내부 상태 문자열
+pub unsafe fn cmp_diag8(name: &str, p1: usize, p2: usize, p3: usize, p4: usize, p5: usize, p6: usize, p7: usize, _p8: usize) -> String {
+    if name == "as_eb82d0" { return super::fight_check::diag(p3, p4, p5, p6, p7); }
+    cmp_diag(name, p1, p2, p3, p4)
+}
 pub unsafe fn cmp_diag(name: &str, p1: usize, p2: usize, _p3: usize, _p4: usize) -> String {
     match name {
         "as_e0e890" => {
