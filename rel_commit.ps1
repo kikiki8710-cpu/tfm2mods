@@ -110,7 +110,7 @@ $lines += ""
 $lines += "변경 파일"
 $lines += $stat
 $lines += ""
-$lines += "Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>"
+$lines += "Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>"
 $msg = ($lines -join "`n")
 
 if ($DryRun) {
