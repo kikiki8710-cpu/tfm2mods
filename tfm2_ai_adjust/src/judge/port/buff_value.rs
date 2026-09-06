@@ -258,9 +258,18 @@ pub unsafe fn s13_s14(b: &BCtx, ally: Option<usize>) -> Option<i64> {
     let _ = (heal_e, shield_e, aura, sin, b.mode, b.prof, b.rec, b.ctx, b.sp, b.me, b.p9, b.sim, b.w, b.c);
 
     let spec0 = e047c0(b.slot, b.ctx, t)?;
-    let _ = spec0;
+    // has = spec0 있음 ∨ slot.vt+0xa0(sret BuffSpec) 의 tag != −1  ·  b90 = slot.vt+0x90(bool)
+    let _has = match spec0 { Some(_) => true, None => { sret_spec_tag(_sd, sv, "Ba0")? != -1 } };
+    let _b90 = slot_sum(_sd, sv, 0x90, b.me, 0, "B90")? != 0;
     // ⬜여기부터 미포팅: 0xdffa10(버프가치) → 0xe022d0 → 0xe03360/0xe02540 → 0xe02bc0/0xe03ed0
     na_tag(if ally.is_some() { "B14spec" } else { "B13spec" })
+}
+
+/// slot.vt+0xa0 / +0xa8 : sret 로 BuffSpec(0x120) 을 돌려준다 — impl 목록부터 모은다.
+unsafe fn sret_spec_tag(data: usize, vt: usize, tag: &str) -> Option<i32> {
+    let _ = data;
+    if let Some(r) = super::dyn_eff::impl_rva(vt, 0xa0) { super::dyn_eff::unseen(0x9a0, r); }
+    na_tag(tag).map(|_| 0)
 }
 
 // ── 0xe047c0 — BuffSpec 생성 (1,172B) ────────────────────────────────────────────────────
@@ -281,14 +290,21 @@ unsafe fn typeid_rva(vt: usize) -> Option<usize> {
     let b = crate::exe_base(); if b == 0 || tid <= b { return None; }
     Some(tid - b)
 }
-/// slot.vt+0xb8 → 버프 def 포인터(null 가능)
-unsafe fn slot_def_b8(data: usize, vt: usize) -> Option<usize> {
+/// slot.vt+0xb8 → 버프 def **fat 포인터** `(data, vt)`. data==0 이면 none.
+///   ★호출부(`0xe047c0` @e0481b)는 이 호출이 `rdx`(=두 번째 반환값 = def 의 vtable)를 덮어쓴다는 것을 그대로 이용해
+///   바로 다음 줄에서 `mov rsi,[rdx+0x18]` 로 **def 자신의 `type_id`** 를 집는다. slot.vt+0x18 이 아니다(2026-09-07 04:35 정정).
+///   실측 최빈형: `mov rax,rcx; lea rdx,[rip+D]; ret` → (inline self, f+10+D).
+unsafe fn slot_def_b8(data: usize, vt: usize) -> Option<(usize, usize)> {
     let f = rd_u64(vt + 0xb8)? as usize;
     let p = inline_self(data, vt)?;
-    // ★실측 최빈형: `mov rax,rcx; lea rdx,[rip+D]; ret` = **fat ptr 반환**(rax = inline self, rdx = 정적 vtable).
-    //   즉 def 데이터는 자기 자신이다(0x1701710 · 0x13c0670 · 0x183eca0 · 0x106a430 전부 이 형태).
-    if rd_u8(f) == 0x48 && rd_u8(f + 1) == 0x89 && rd_u8(f + 2) == 0xc8 { return Some(p); }
-    if let Some(v) = super::as_callees::decode_getter(f, p) { return Some(v as usize); }
+    if rd_u8(f) == 0x48 && rd_u8(f + 1) == 0x89 && rd_u8(f + 2) == 0xc8
+       && rd_u8(f + 3) == 0x48 && rd_u8(f + 4) == 0x8d && rd_u8(f + 5) == 0x15 {
+        let dv = (f as isize + 10 + rd_i32(f + 6)? as isize) as usize;
+        if !ptr_ok(dv) { return None; }
+        return Some((p, dv));
+    }
+    // `xor eax,eax; ret` 류(=def 없음)는 그대로 null fat ptr
+    if let Some(v) = super::as_callees::decode_getter(f, p) { if v == 0 { return Some((0, 0)); } }
     if let Some(r) = super::dyn_eff::impl_rva(vt, 0xb8) { super::dyn_eff::unseen(0x9b8, r); }
     None
 }
@@ -297,9 +313,9 @@ unsafe fn slot_def_b8(data: usize, vt: usize) -> Option<usize> {
 pub unsafe fn e047c0(slot: usize, ctx: usize, me: usize) -> Option<Option<[i32; 72]>> {
     let (sd, sv) = (rd_u64(slot)? as usize, rd_u64(slot + 8)? as usize);
     if !ptr_ok(sd) || !ptr_ok(sv) { return None; }
-    let def = slot_def_b8(sd, sv)?;
+    let (def, dvt) = slot_def_b8(sd, sv)?;
     if def == 0 { return Some(None); }
-    let tid = typeid_rva(sv)?;
+    let tid = typeid_rva(dvt)?;
     let hit = if tid == TID_BUFF { def }
         else if tid == TID_CONT {
             let n = rd_u64(def + 0x10)?; if n == 0 { return Some(None); }
@@ -308,9 +324,9 @@ pub unsafe fn e047c0(slot: usize, ctx: usize, me: usize) -> Option<Option<[i32; 
             for i in 0..n.min(64) as usize {
                 let (cd, cv) = (rd_u64(arr + i * 0x10)? as usize, rd_u64(arr + i * 0x10 + 8)? as usize);
                 if !ptr_ok(cd) || !ptr_ok(cv) { continue; }
-                let d2 = match slot_def_b8(cd, cv) { Some(v) => v, None => continue };
+                let (d2, dv2) = match slot_def_b8(cd, cv) { Some(v) => v, None => continue };
                 if d2 == 0 { continue; }
-                if typeid_rva(cv)? == TID_BUFF { found = d2; break; }
+                if typeid_rva(dv2)? == TID_BUFF { found = d2; break; }
             }
             if found == 0 { return Some(None); }
             found
