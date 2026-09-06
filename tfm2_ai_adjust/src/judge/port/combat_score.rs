@@ -120,6 +120,14 @@ pub fn misjudge(seed: u64, key: u64, now: u64, tps: u64, s1: u64, s2: u64, v7: u
     super::dn_reach::eff_e8(rd_u64(slot)? as usize, rd_u64(slot + 8)? as usize, e, other, 0)
 }
 /// reach(e, slot, other) = slot.base + (slot.flag==0 ? rng(e) : 0) + e.438 + (lv−1)*slot.perlv + rng(other) + slot.vt_e8
+/// `reach` 와 같되 `slot.vt+0xe8` 의 3번째 인자만 `e8t` 로 바꾼 판(S3 구조물 경로가 near 를 넘긴다)
+unsafe fn reach_e8(e: usize, slot: usize, other: usize, e8t: usize) -> Option<u64> {
+    let base = rd_u64(slot + SLOT_BASE)?; let per = rd_u64(slot + SLOT_PERLV)?;
+    let own = if rd_i32(slot + SLOT_FLAG)? == 0 { rng_of(e)? } else { 0 };
+    Some(base.wrapping_add(own).wrapping_add(rd_u64(e + ENT_F438)?)
+        .wrapping_add(rd_u64(e + ENT_LEVEL)?.wrapping_sub(1).wrapping_mul(per))
+        .wrapping_add(rng_of(other)?).wrapping_add(slot_e8(slot, e, e8t)?))
+}
 unsafe fn reach(e: usize, slot: usize, other: usize) -> Option<u64> {
     let base = rd_u64(slot + SLOT_BASE)?; let per = rd_u64(slot + SLOT_PERLV)?;
     let own = if rd_i32(slot + SLOT_FLAG)? == 0 { rng_of(e)? } else { 0 };
@@ -454,17 +462,21 @@ unsafe fn combat_score_inner(mode: usize, _prof: usize, rec: usize, ctx: usize, 
     let my_handle = rd_u64(me + ENT_HANDLE)?;
     let seen = w.visible(1 - side, my_handle)?;
     let thr_s = if seen { thr } else { thr / 3 };
+    // ★구조물 경로(0xd5d762→0xd5e7e4→0xd5e913)에서는 **타깃 종류를 보지 않고** bb.0x9b0 을 넣는다.
+    //   ~~`bonus9b0 = tgt_kind==13 ? bb.0x9b0 : 0`~~ 이 최대 불일치 원인이었다(2026-09-07 확정, 로그 역산으로 검증).
+    //   r_t 에는 `slot_e8(near..)` 항이 없고, 비교는 `<=`, extra 의 reach 는 vt+0xe8 3번째 인자가 **near** 다.
     let mut bonus9b0 = if tgt_kind == 13 { rd_i64(bb + BB_9B0)? } else { 0 };
     let mut safe = true;
     if let Some((near, _)) = nearest_in_chain(&w, 1 - side, me)? {
         if rd_i32(near + ENT_KIND)? == 2 && rd_u64(near + 0x88)? == 0 {
-            let extra = { let d = dist(tgt, me)? as i64; let r = reach(me, slot, tgt)? as i64; (d - r).max(0) as u64 };
+            let extra = { let d = dist(tgt, me)? as i64; let r = reach_e8(me, slot, tgt, near)? as i64; (d - r).max(0) as u64 };
             let r_t = rd_u64(near + ENT_F438)?.wrapping_add(rd_u64(near + 0x4a0)?)
                 .wrapping_add(rd_u64(near + ENT_LEVEL)?.wrapping_sub(1).wrapping_mul(rd_u64(near + 0x4a8)?))
                 .wrapping_add(rng_of(near)?).wrapping_add(rng_of(me)?)
-                .wrapping_add(slot_e8(near + 0x490, near, me)?).wrapping_add(15000).wrapping_add(extra);
-            safe = dist(me, near)? < r_t || tgt_kind == 13;
-            if !safe { bonus9b0 = 0; }
+                .wrapping_add(15000).wrapping_add(extra);
+            safe = dist(me, near)? <= r_t;
+            bonus9b0 = if safe || tgt_kind == 13 { rd_i64(bb + BB_9B0)? } else { 0 };
+            safe = safe || tgt_kind == 13;
         }
     }
     // ── S4 추격 위험 ──
