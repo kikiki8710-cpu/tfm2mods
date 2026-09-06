@@ -80,7 +80,7 @@ pub unsafe fn eff38_pct(data: usize, vt: usize, _att: usize) -> Option<u64> {
 /// effect `+0x40` 회복량 추정
 pub unsafe fn eff40_heal(data: usize, vt: usize, ent: usize) -> Option<u64> { eff40_heal_d(data, vt, ent, 0) }
 unsafe fn eff40_heal_d(data: usize, vt: usize, ent: usize, depth: u32) -> Option<u64> {
-    if depth > 10 { unseen(0xdd, depth as usize); return None; }
+    if depth > 10 { unseen(0xdd, impl_rva(vt, 0x40).unwrap_or(0)); return None; }
     let rva = impl_rva(vt, 0x40)?; let me = arc_payload(data, vt)?;
     match rva {
         EFF40_ZERO => Some(0),
@@ -161,7 +161,7 @@ pub unsafe fn effa0_buff(data: usize, vt: usize, ent: usize) -> Option<(i32, i32
 unsafe fn effa0_buff_d(data: usize, vt: usize, ent: usize, depth: u32) -> Option<(i32, i32)> { effa0_buff_p(arc_payload(data, vt)?, vt, ent, depth) }
 /// payload 주소를 직접 받는 판(0x1153860 위임은 자식 data 를 Arc 조정 없이 그대로 넘긴다)
 unsafe fn effa0_buff_p(me: usize, vt: usize, ent: usize, depth: u32) -> Option<(i32, i32)> {
-    if depth > 10 { unseen(0xdd, depth as usize); return None; }
+    if depth > 10 { unseen(0xde, impl_rva(vt, 0xa0).unwrap_or(0)); return None; }
     let rva = impl_rva(vt, 0xa0)?;
     match rva {
         EFFA0_MERGE_50_18_68_18 => {
@@ -180,6 +180,7 @@ unsafe fn effa0_buff_p(me: usize, vt: usize, ent: usize, depth: u32) -> Option<(
             effa0_buff_d(d, v, ent, depth + 1)
         }
         EFFA0_CONST0 => Some((0, 0)),
+        EFFA0_CONST1_ENCH => Some((1, 0)),
         EFFA0_CONST1_STAT => Some((1, 0)),
         EFFA0_COPY_STATE => Some((rd_i32(me + 0x48)?, rd_i32(me + 0x80)?)),
         EFFA0_STATSCALED => Some((rd_i32(me + 0x48)?, rd_i32(me + 0x80)?)),

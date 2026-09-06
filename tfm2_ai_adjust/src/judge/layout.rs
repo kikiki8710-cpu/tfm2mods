@@ -228,3 +228,4 @@ pub const EFFA0_STATSCALED: usize = 0x114b3f0;     // payload 안 BuffState 복�
 pub const EFFA0_MERGE_20_18_INLINE: usize = 0x12a5be0; // 병합기 인라인판([s+0x20]/[s+0x28] stride 0x18)
 pub const EFFA0_COPY_STATE: usize = 0x106a440;     // memcpy(out, payload, 0x120) → (type [s+0x48], vamp [s+0x80])
 pub const EFFA0_CONST1_STAT: usize = 0x17c9e90;    // 상수 생성(type 1, vamp 0; +0x8c 만 스탯 비례)
+pub const EFFA0_CONST1_ENCH: usize = 0x12aa290;    // 상수 생성(type 1, vamp 0) enchanter_skill1
