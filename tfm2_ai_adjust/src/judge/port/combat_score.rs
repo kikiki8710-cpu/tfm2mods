@@ -51,6 +51,9 @@ pub unsafe fn diag(_p1: usize, _p3: usize, _p4: usize) -> String {
     format!("risk_neg={} tower={} pos={} main={} urgent={} C={} thr_s={} chase={} bb998={} b9b0={} cast={} hp={} thr={} thrlen={}",
         v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7], v[8], v[9], v[10], v[11], v[12], v[13])
         + &format!(" game_thr={} bb970={} bb9a0={} bb988={}", v[14], v[15], v[16], v[17])
+        + &unsafe { let caps = crate::judge::cap_util_c87fe0::last_p2().unwrap_or(0);
+            if crate::ptr_ok(caps) { format!(" gameR={:#x} gameBB={:#x} gameBB998={:?}", rd_u64(caps + 0x18).unwrap_or(0), rd_u64(caps + 0x20).unwrap_or(0),
+                rd_u64(caps + 0x20).and_then(|b| rd_i64(b as usize + 0x998))) } else { " caps=none".into() } }
 }
 #[inline] fn tag8(s: &str) -> u64 { let mut b = [0u8; 8]; for (i, c) in s.bytes().take(8).enumerate() { b[i] = c; } u64::from_le_bytes(b) }
 
@@ -315,9 +318,20 @@ pub unsafe fn combat_score(mode: usize, _prof: usize, rec: usize, ctx: usize, bb
     let th = rd_u64(tgt + ENT_HANDLE)?;
     let rec_t = find_rec(bb, BB_ENEMY_PTR, BB_ENEMY_LEN, th)?;
     let rec_a = find_rec(bb, BB_ALLY_PTR, BB_ALLY_LEN, th)?;
-    if rec_t.is_some() { return na(tag8("S12")); }
-    if rec_a.is_some() { return na(tag8("S14")); }
-    if self_is_tgt { return na(tag8("S13")); }
+    if rec_t.is_some() {
+        // S12 진입 시 필요한 dyn 게터 impl 을 수집한다(다음 단계 포팅 재료): slot.vt+0xc0(bool)·+0xc8(sret{T,f1,f2})·+0x88(flag,T)
+        let sv = rd_u64(slot + 8)? as usize;
+        for sl in [0xc0usize, 0xc8, 0x88] { if let Some(r) = super::dyn_eff::impl_rva(sv, sl) { super::dyn_eff::unseen(0x500 + sl as u32, r); } }
+        let spv = rd_u64(sp + 8)? as usize;
+        for sl in [0x90usize, 0xa8, 0x68] { if let Some(r) = super::dyn_eff::impl_rva(spv, sl) { super::dyn_eff::unseen(0x600 + sl as u32, r); } }
+        return na(tag8("S12"));
+    }
+    if rec_a.is_some() || self_is_tgt {
+        // S13/S14 재료: slot.vt+0x40(heal)·+0x48(shield)·+0x90·+0x98·+0xa0(sret BuffSpec)·+0xa8·+0xb0(aura)·+0xb8·+0xd0·+0xe0
+        let sv = rd_u64(slot + 8)? as usize;
+        for sl in [0x40usize, 0x48, 0x90, 0x98, 0xa0, 0xa8, 0xb0, 0xb8, 0xd0, 0xe0] { if let Some(r) = super::dyn_eff::impl_rva(sv, sl) { super::dyn_eff::unseen(0x700 + sl as u32, r); } }
+        return na(tag8(if self_is_tgt && rec_a.is_none() { "S13" } else { "S14" }));
+    }
     let main: i64 = 0;
     let _ = (bonus9b0, thr_s, sp, my_handle, seen);
     LAST.with(|c| c.set([risk_neg, tower_support, pos_term, main, urgent as i64, c_val, thr_s, chase, rd_i64(bb + BB_998).unwrap_or(-1), bonus9b0, cast_delay as i64, hp as i64, thr, rd_u64(bb + BB_R + AS_REC_THR_LEN).unwrap_or(0) as i64, crate::judge::cap_as_d83230::last().map(|v| v as i64).unwrap_or(-999), rd_i64(bb + 0x970).unwrap_or(0), rd_i64(bb + 0x9a0).unwrap_or(0), rd_i64(bb + 0x988).unwrap_or(0)]));

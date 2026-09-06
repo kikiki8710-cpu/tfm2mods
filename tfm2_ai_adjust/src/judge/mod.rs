@@ -410,6 +410,7 @@ macro_rules! judge_capture_ring {
             pub fn reset() { RING.with(|c| { let mut v = c.get(); v.1 = 0; c.set(v); }); }
             pub fn find(p1: usize, p2: usize) -> Option<u64> { RING.with(|c| { let (a, n) = c.get(); a[..n.min(16)].iter().rev().find(|e| e.p1 == p1 && e.p2 == p2).map(|e| e.ret) }) }
             pub fn last() -> Option<u64> { RING.with(|c| { let (a, n) = c.get(); if n == 0 { None } else { Some(a[(n - 1) % 16].ret) } }) }
+            pub fn last_p2() -> Option<usize> { RING.with(|c| { let (a, n) = c.get(); if n == 0 { None } else { Some(a[(n - 1) % 16].p2) } }) }
             pub fn find_p1(p1: usize) -> Option<u64> { RING.with(|c| { let (a, n) = c.get(); a[..n.min(16)].iter().rev().find(|e| e.p1 == p1).map(|e| e.ret) }) }
             pub fn find4(p1: usize, p2: usize, p3: usize, p4: usize) -> Option<u64> { RING.with(|c| { let (a, n) = c.get(); a[..n.min(16)].iter().rev().find(|e| e.p1 == p1 && e.p2 == p2 && e.p3 == p3 && e.p4 == p4).map(|e| e.ret) }) }
             pub unsafe extern "C" fn wrap(p1: usize, p2: usize, p3: usize, p4: usize, p5: usize, p6: usize, p7: usize, p8: usize,
@@ -614,6 +615,50 @@ macro_rules! judge_capture_pair {
 judge_capture_pair!(cap_as_e04400, crate::judge::gen_fns::AS_E04400, |_p1: usize, _p2: usize, _p3: usize, p4: usize, r: u64, d: u64, _rbp: usize| { crate::judge::port::combat_score::e04400_record(p4, r, d) });   // 특수형 조기반환(combat_score 전용 콜리)
 judge_capture_pair!(cap_as_d96d00, crate::judge::gen_fns::AS_D96D00, |_p1: usize, p2: usize, p3: usize, p4: usize, r: u64, d: u64, rbp: usize| unsafe { crate::judge::port::position_eval::dive_record(p2, p3, p4, r, d, rbp) });   // 타워다이브 (순수 경계: 전투 시뮬 0xe05450 → 캡처)
 /// capture_ring + 대조: 링(find/last)은 그대로 두고, `$mine(p1..p4)`(Option<u64>) 를 rax 전체와 대조한다(ok/diff/na, DIFF ≤40줄). 콜리 순수 포팅 검증용.
+macro_rules! judge_capture_ring_cmp9_pre {
+    ($m:ident, $spec:expr, $mine:expr) => {
+        pub mod $m {
+            use std::sync::atomic::{AtomicUsize, AtomicU64, Ordering};
+            use std::cell::Cell;
+            pub static ORIG: AtomicUsize = AtomicUsize::new(0);
+            pub static ST: super::Stat = super::Stat::new();
+            static LOGGED: AtomicU64 = AtomicU64::new(0); static LOGGED_D: AtomicU64 = AtomicU64::new(0);
+            #[derive(Clone, Copy)] pub struct Cap { pub p1: usize, pub p2: usize, pub p3: usize, pub p4: usize, pub ret: u64 }
+            const Z: Cap = Cap { p1: 0, p2: 0, p3: 0, p4: 0, ret: 0 };
+            thread_local! { static RING: Cell<([Cap; 16], usize)> = const { Cell::new(([Z; 16], 0)) }; }
+            pub fn reset() { RING.with(|c| { let mut v = c.get(); v.1 = 0; c.set(v); }); }
+            pub fn find(p1: usize, p2: usize) -> Option<u64> { RING.with(|c| { let (a, n) = c.get(); a[..n.min(16)].iter().rev().find(|e| e.p1 == p1 && e.p2 == p2).map(|e| e.ret) }) }
+            pub fn last() -> Option<u64> { RING.with(|c| { let (a, n) = c.get(); if n == 0 { None } else { Some(a[(n - 1) % 16].ret) } }) }
+            pub fn last_p2() -> Option<usize> { RING.with(|c| { let (a, n) = c.get(); if n == 0 { None } else { Some(a[(n - 1) % 16].p2) } }) }
+            pub fn find_p1(p1: usize) -> Option<u64> { RING.with(|c| { let (a, n) = c.get(); a[..n.min(16)].iter().rev().find(|e| e.p1 == p1).map(|e| e.ret) }) }
+            pub fn find4(p1: usize, p2: usize, p3: usize, p4: usize) -> Option<u64> { RING.with(|c| { let (a, n) = c.get(); a[..n.min(16)].iter().rev().find(|e| e.p1 == p1 && e.p2 == p2 && e.p3 == p3 && e.p4 == p4).map(|e| e.ret) }) }
+            pub unsafe extern "C" fn wrap(p1: usize, p2: usize, p3: usize, p4: usize, p5: usize, p6: usize, p7: usize, p8: usize,
+                                          p9: usize, p10: usize, p11: usize, p12: usize) -> usize {
+                let orig = ORIG.load(Ordering::Relaxed);
+                if orig == 0 { return 0; }
+                let f: super::F12 = core::mem::transmute(orig);
+                ST.entered.fetch_add(1, Ordering::Relaxed);
+                // ★원본 호출 **전**에 재현값을 계산한다. 게임이 읽는 상태와 같은 시점이어야 대조가 성립한다
+                //   (호출 뒤에 계산하면 원본이 갱신한 블랙보드/메모를 보게 된다 — 2026-09-07 02:2x 위험항 불일치 가설).
+                let mine: Option<i64> = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| ($mine)(p1, p2, p3, p4, p5, p6, p7, p8, p9))).unwrap_or(None);
+                let r = f(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12);
+                RING.with(|c| { let (mut a, n) = c.get(); a[n % 16] = Cap { p1, p2, p3, p4, ret: r as u64 }; c.set((a, n + 1)); });
+                ST.n.fetch_add(1, Ordering::Relaxed);
+                let logline = |tag: &str, v: Option<i64>| {
+                    let diag = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| crate::judge::port::as_callees::cmp_diag8($spec.name, p1, p2, p3, p4, p5, p6, p7, p8))).unwrap_or_default();
+                    let line = format!("[{} #{}] {} game={}({:#x}) mine={} | p1={:#x} p2={:#x} p3={:#x} p4={:#x} p5={:#x} p6={:#x} p7={:#x} | {}\n", $spec.name, ST.n.load(Ordering::Relaxed), tag, r as i64, r, v.map(|x| format!("{}({:#x})", x, x as u64)).unwrap_or("NA".into()), p1, p2, p3, p4, p5, p6, p7, diag);
+                    if let Some(p) = crate::pth(&format!("judge_{}.txt", $spec.name)) { let _ = std::fs::OpenOptions::new().create(true).append(true).open(p).and_then(|mut f| { use std::io::Write; f.write_all(line.as_bytes()) }); }
+                };
+                match mine {
+                    None => { ST.na.fetch_add(1, Ordering::Relaxed); if LOGGED.fetch_add(1, Ordering::Relaxed) < 30 { logline("NA", None); } }
+                    Some(v) if v == r as i64 => { ST.ok.fetch_add(1, Ordering::Relaxed); }
+                    Some(v) => { ST.diff.fetch_add(1, Ordering::Relaxed); if LOGGED_D.fetch_add(1, Ordering::Relaxed) < 40 { logline("DIFF", Some(v)); } }
+                }
+                r
+            }
+        }
+    };
+}
 macro_rules! judge_capture_ring_cmp9 {
     ($m:ident, $spec:expr, $mine:expr) => {
         pub mod $m {
@@ -628,6 +673,7 @@ macro_rules! judge_capture_ring_cmp9 {
             pub fn reset() { RING.with(|c| { let mut v = c.get(); v.1 = 0; c.set(v); }); }
             pub fn find(p1: usize, p2: usize) -> Option<u64> { RING.with(|c| { let (a, n) = c.get(); a[..n.min(16)].iter().rev().find(|e| e.p1 == p1 && e.p2 == p2).map(|e| e.ret) }) }
             pub fn last() -> Option<u64> { RING.with(|c| { let (a, n) = c.get(); if n == 0 { None } else { Some(a[(n - 1) % 16].ret) } }) }
+            pub fn last_p2() -> Option<usize> { RING.with(|c| { let (a, n) = c.get(); if n == 0 { None } else { Some(a[(n - 1) % 16].p2) } }) }
             pub fn find_p1(p1: usize) -> Option<u64> { RING.with(|c| { let (a, n) = c.get(); a[..n.min(16)].iter().rev().find(|e| e.p1 == p1).map(|e| e.ret) }) }
             pub fn find4(p1: usize, p2: usize, p3: usize, p4: usize) -> Option<u64> { RING.with(|c| { let (a, n) = c.get(); a[..n.min(16)].iter().rev().find(|e| e.p1 == p1 && e.p2 == p2 && e.p3 == p3 && e.p4 == p4).map(|e| e.ret) }) }
             pub unsafe extern "C" fn wrap(p1: usize, p2: usize, p3: usize, p4: usize, p5: usize, p6: usize, p7: usize, p8: usize,
@@ -669,6 +715,7 @@ macro_rules! judge_capture_ring_cmp {
             pub fn reset() { RING.with(|c| { let mut v = c.get(); v.1 = 0; c.set(v); }); }
             pub fn find(p1: usize, p2: usize) -> Option<u64> { RING.with(|c| { let (a, n) = c.get(); a[..n.min(16)].iter().rev().find(|e| e.p1 == p1 && e.p2 == p2).map(|e| e.ret) }) }
             pub fn last() -> Option<u64> { RING.with(|c| { let (a, n) = c.get(); if n == 0 { None } else { Some(a[(n - 1) % 16].ret) } }) }
+            pub fn last_p2() -> Option<usize> { RING.with(|c| { let (a, n) = c.get(); if n == 0 { None } else { Some(a[(n - 1) % 16].p2) } }) }
             pub fn find_p1(p1: usize) -> Option<u64> { RING.with(|c| { let (a, n) = c.get(); a[..n.min(16)].iter().rev().find(|e| e.p1 == p1).map(|e| e.ret) }) }
             pub fn find4(p1: usize, p2: usize, p3: usize, p4: usize) -> Option<u64> { RING.with(|c| { let (a, n) = c.get(); a[..n.min(16)].iter().rev().find(|e| e.p1 == p1 && e.p2 == p2 && e.p3 == p3 && e.p4 == p4).map(|e| e.ret) }) }
             pub unsafe extern "C" fn wrap(p1: usize, p2: usize, p3: usize, p4: usize, p5: usize, p6: usize, p7: usize, p8: usize,
@@ -697,7 +744,7 @@ macro_rules! judge_capture_ring_cmp {
     };
 }
 judge_capture_ring_cmp!(cap_util_c87fe0, crate::judge::gen_fns::UTIL_C87FE0, |_p1, p2, _p3, _p4, _p5, _p6, _p7, _p8| unsafe { crate::judge::port::as_callees::pct_c_from_args(p2) });   // 백분위 C (2단계: 0xd390a0 순수 재현 대조)
-judge_capture_ring_cmp9!(cap_combat_score, crate::judge::gen_fns::COMBAT_SCORE, |p1, p2, p3, p4, p5, p6, p7, p8, p9| unsafe { crate::judge::port::combat_score::combat_score(p1, p2, p3, p4, p5, p6, p7, p8, p9) });   // 전투행동 점수(2단계: 순수 재현 대조)
+judge_capture_ring_cmp9_pre!(cap_combat_score, crate::judge::gen_fns::COMBAT_SCORE, |p1, p2, p3, p4, p5, p6, p7, p8, p9| unsafe { crate::judge::port::combat_score::combat_score(p1, p2, p3, p4, p5, p6, p7, p8, p9) });   // 전투행동 점수(2단계: 순수 재현 대조)
 judge_capture_ring_cmp!(cap_as_eb82d0, crate::judge::gen_fns::AS_EB82D0, |p1, _p2, p3, p4, p5, p6, p7, _p8| unsafe { crate::judge::port::fight_check::fight_check_memo(p1 as u64, p3, p4, p5, p6, p7) });   // fight_check (2단계: 순수 재현+메모 미러 대조)
 judge_capture_ring_cmp!(cap_as_e0e890, crate::judge::gen_fns::AS_E0E890, |p1, p2, _p3, _p4, _p5, _p6, _p7, _p8| unsafe { crate::judge::port::as_callees::max_reach(p1, p2) });   // 최대사거리 (2단계: 순수 재현 대조)
 judge_capture_ring_cmp!(cap_as_132b310, crate::judge::gen_fns::AS_132B310, |p1, _p2, p3, p4, _p5, _p6, _p7, _p8| unsafe { crate::judge::port::position_eval::threat_cmp(p1, p3, p4) });   // S11 액션 위협(threat) — A ±1 추적용
