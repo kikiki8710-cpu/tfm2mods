@@ -10,19 +10,24 @@
 #   powershell -File C:\tfm2mods\rel_commit.ps1 -ModId tfm2_item_tactics -DryRun      # 메시지만 확인
 #
 #   -Summary  : 사람이 쓰는 한 줄~여러 줄 변경점 요약(권장). 없으면 diff 통계만 들어간다.
-#   -Base     : 게임 버전 폴더(기본 0.5.3) = release\<Base>\<ModId>.zip
+#   -Base     : 게임 버전 폴더(기본 = MIG\mig_verify.py 의 GAME_VER) = release\<Base>\<ModId>.zip
 #   -NoZip    : 릴리스 zip 이 아직 없을 때(배포만 하고 커밋)
 #   -DryRun   : 커밋하지 않고 메시지와 검사 결과만 출력
 param(
     [Parameter(Mandatory = $true)][string]$ModId,
     [string]$Summary = "",
-    [string]$Base = "0.5.3",
+    [string]$Base = "",
     [switch]$NoZip,
     [switch]$DryRun
 )
 
 $ErrorActionPreference = "Stop"
 $REPO = "C:\tfm2mods"
+# -Base 생략 시 현행 게임 버전 = MIG\mig_verify.py 의 GAME_VER (패치마다 거기만 갱신). 2026-09-06: 0.5.3 고정값이 0.5.8 릴리스에 구 zip 을 보고했던 사고 → 자동화
+if ($Base -eq "") {
+    $mv = Get-Content "$REPO\MIG\mig_verify.py" -Encoding UTF8 | Select-String "^GAME_VER\s*=\s*'([^']+)'" | Select-Object -First 1
+    if ($mv) { $Base = $mv.Matches[0].Groups[1].Value } else { $Base = "0.5.8" }
+}
 $GAME = "C:\Program Files (x86)\Steam\steamapps\common\Teamfight Manager2\mods"
 $RELEASE = "C:\tfm2mods\release"   # 릴리스 zip 보관처(게임 폴더 밖, 2026-08-23 이관)
 
