@@ -127,12 +127,14 @@ pub unsafe fn passive_jungle_k(a: &Args8, k: &Knobs) -> Option<MpOut> {
         tr(9, 0x100 | 6);
         let d2 = sqd(mx, my, cx, cy); tr(3, d2.min(0xffff_ffff_ffff));
         if d2 <= k.wp_d2 {
-            let mut dps: u64 = 0;
+            let mut dps: u64 = 0; let (mut nres, mut nskip) = (0u64, 0u64);
             for i in 0..vlen.min(64) as usize {
                 let e = match w.entity(rd_u64(vptr + i * 8)?) { Some(e) => e.0, None => continue };
-                if rd_i32(e + ENT_SLOT0_FLAG)? == -1 { continue; }
+                nres += 1;
+                if rd_i32(e + ENT_SLOT0_FLAG)? == -1 { nskip += 1; continue; }
                 dps = dps.wrapping_add(monster_dps(e, me, 7 + i.min(1) * 4)?);
             }
+            tr(6, 0x100_0000 | vlen.min(0xff) | nres << 8 | nskip << 16);
             tr(4, 0x1_0000_0000 | dps.min(0xffff_ffff));
             if dps != 0 { if hp.wrapping_mul(1000) / dps > tps { tag6(&mut o); tr(2, 0x101); return Some(o); } }
             else { tag6(&mut o); tr(2, 0x102); return Some(o); }
