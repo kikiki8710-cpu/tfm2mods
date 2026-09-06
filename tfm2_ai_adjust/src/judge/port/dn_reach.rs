@@ -7,6 +7,17 @@
 use crate::*;
 use super::super::world::*;
 use super::super::layout::*;
+use std::cell::Cell;
+
+/// 진단(검증 기간 한정): 마지막 reach 호출의 내부값. [0]=my_minion_len·[1]=lists_hit·[2]=nexus 0x470|0x680<<32, 이후 적별 9워드: e, flag4c0, level, base438, slot10, slot18, e470|e680<<32, bonus|impl_rva<<32, dist2, range
+thread_local! { pub static DBG: Cell<[u64; 3 + 5 * 10]> = const { Cell::new([0; 53]) }; }
+#[inline] fn dbg_set(i: usize, v: u64) { DBG.with(|c| { let mut a = c.get(); if i < a.len() { a[i] = v; } c.set(a); }); }
+pub fn dbg_fmt() -> String {
+    DBG.with(|c| { let a = c.get(); let mut s = format!("my_minion_len={} lists_hit={} nexus470|680={:#x}", a[0], a[1], a[2]);
+        for r in 0..5 { let b = 3 + r * 10; if a[b] == 0 { continue; }
+            s.push_str(&format!(" | e{}={:#x} flag={} lvl={} base={} s10={} s18={} e470|680={:#x} bonus={} impl={:#x} d2={} range={}", r, a[b], a[b+1] as i64, a[b+2], a[b+3], a[b+4], a[b+5], a[b+6], a[b+7] & 0xffff_ffff, a[b+7] >> 32, a[b+8], a[b+9])); }
+        s })
+}
 
 #[inline] fn sqd(ax: u64, ay: u64, bx: u64, by: u64) -> u64 {
     let dx = if ax < bx { bx - ax } else { ax - bx }; let dy = if ay < by { by - ay } else { ay - by };
@@ -50,23 +61,32 @@ unsafe fn eff_e8(data: usize, vt: usize, ent: usize, nexus: usize, depth: u32) -
     None
 }
 /// 사거리 = [e+0x438] + [slot+0x10] + (level−1)*[slot+0x18] + (slot.flag==0 ? hp680항(e) : 0) + hp680항(넥서스) + 보너스 ; dist² <= 사거리²
-unsafe fn in_reach(e: usize, slot: usize, nexus: usize) -> Option<bool> {
+unsafe fn in_reach(e: usize, slot: usize, nexus: usize, r: usize) -> Option<bool> {
     let (data, vt) = (rd_u64(slot)? as usize, rd_u64(slot + 8)? as usize);
     let bonus = eff_e8(data, vt, e, nexus, 0)?;
+    let impl_rva = { let b = exe_base(); if b == 0 { 0 } else { (rd_u64(vt + EFF_SLOT_E8).unwrap_or(0) as usize).wrapping_sub(b) as u64 } };
     let term = |x: usize| -> Option<u64> { let a = rd_i32(x + ENT_F470)? as i64; let h = rd_u64(x + ENT_F680)?; Some(if a == 0 { h } else { (((a + 100) as u64).wrapping_mul(h)) / 100 }) };
     let r8 = if rd_i32(slot + 0x30)? == 0 { term(e)? } else { 0 };
     let rn = term(nexus)?;
     let range = rd_u64(e + ENT_F438)?.wrapping_add(rd_u64(slot + 0x10)?).wrapping_add(rd_u64(e + ENT_LEVEL)?.wrapping_sub(1).wrapping_mul(rd_u64(slot + 0x18)?))
         .wrapping_add(r8).wrapping_add(rn).wrapping_add(bonus);
-    Some(sqd(rd_u64(e + ENT_X)?, rd_u64(e + ENT_Y)?, rd_u64(nexus + ENT_X)?, rd_u64(nexus + ENT_Y)?) <= range.wrapping_mul(range))
+    let d2 = sqd(rd_u64(e + ENT_X)?, rd_u64(e + ENT_Y)?, rd_u64(nexus + ENT_X)?, rd_u64(nexus + ENT_Y)?);
+    let b = 3 + r * 10;
+    dbg_set(b, e as u64); dbg_set(b + 1, rd_i32(slot + 0x30)? as i64 as u64); dbg_set(b + 2, rd_u64(e + ENT_LEVEL)?); dbg_set(b + 3, rd_u64(e + ENT_F438)?);
+    dbg_set(b + 4, rd_u64(slot + 0x10)?); dbg_set(b + 5, rd_u64(slot + 0x18)?); dbg_set(b + 6, (rd_i32(e + ENT_F470)? as u32 as u64) | (rd_u64(e + ENT_F680)? << 32));
+    dbg_set(b + 7, (bonus & 0xffff_ffff) | ((impl_rva & 0xffff_ffff) << 32)); dbg_set(b + 8, d2); dbg_set(b + 9, range);
+    Some(d2 <= range.wrapping_mul(range))
 }
 
 /// 0xd3fe50 (p5 = 선수 sim, p6 = &Holder) → bool
 pub unsafe fn reach(p5: usize, p6: usize) -> Option<bool> {
     let side = rd_u64(p5 + P5_SIDE)?; if side > 1 { return None; }
     let h = Holder::new(p6)?; let w = h.world()?;
+    DBG.with(|c| c.set([0; 53]));
     let nexus = rd_u64(w.x + X_NEXUS + (side as usize) * 8)? as usize; if nexus == 0 { return Some(false); }
-    if rd_u64(w.x + X_MINION_LEN + (side as usize) * 0x20)? != 0 { return Some(false); }
+    let mml = rd_u64(w.x + X_MINION_LEN + (side as usize) * 0x20)?; dbg_set(0, mml);
+    dbg_set(2, (rd_i32(nexus + ENT_F470)? as u32 as u64) | (rd_u64(nexus + ENT_F680)? << 32));
+    if mml != 0 { return Some(false); }
     let other = 1 - side; let nh = rd_u64(nexus + ENT_HANDLE)?;
     for i in 0..3usize {
         let ptr = rd_u64(w.x + X_LIST3_PTR[i] + (other as usize) * 0x20)? as usize;
@@ -74,13 +94,13 @@ pub unsafe fn reach(p5: usize, p6: usize) -> Option<bool> {
         if len == 0 { continue; } if !ptr_ok(ptr) { return None; }
         for j in 0..len.min(4096) as usize {
             let u = rd_u64(ptr + j * 8)? as usize; if !ptr_ok(u) { return None; }
-            if rd_i32(u + ENT_KIND)? == 1 && rd_i32(u + ENT_F88)? == 1 && rd_u64(u + ENT_TARGET_H)? == nh { return Some(true); }
+            if rd_i32(u + ENT_KIND)? == 1 && rd_i32(u + ENT_F88)? == 1 && rd_u64(u + ENT_TARGET_H)? == nh { dbg_set(1, 1); return Some(true); }
         }
     }
     for r in 0..5u32 {
         let e = w.roster(other, r)?; if e == 0 { continue; }
         if rd_i32(e + ENT_SLOT0_FLAG)? == -1 { continue; }
-        if in_reach(e, e + ENT_SLOT0, nexus)? { return Some(true); }
+        if in_reach(e, e + ENT_SLOT0, nexus, r as usize)? { return Some(true); }
     }
     Some(false)
 }

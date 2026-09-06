@@ -21,6 +21,7 @@ use std::sync::atomic::{AtomicU64, Ordering};
 /// reach 순수 재현 vs 틱 캐시 캡처(bit8) 교차검사 카운터(검증 기간 한정 — 캡처 훅 제거 시 같이 제거)
 pub static REACH_CMP: AtomicU64 = AtomicU64::new(0);
 pub static REACH_MISMATCH: AtomicU64 = AtomicU64::new(0);
+static REACH_LOGGED: AtomicU64 = AtomicU64::new(0);
 
 #[inline] fn sqd(ax: u64, ay: u64, bx: u64, by: u64) -> u64 {
     let dx = if ax < bx { bx - ax } else { ax - bx }; let dy = if ay < by { by - ay } else { ay - by };
@@ -152,10 +153,22 @@ pub unsafe fn defense_nexus_k(a: &Args8, k: &Knobs) -> Option<MpOut> {
         let np = nexus_pct()?; tr(5, 0x100 | np.min(0xff));
         if np <= k.nexus_hp && nexus_threat(p5, p6, k)? { code11(&mut o); return Some(o); }
         // 틱 메모 캐시(0xc87850) bit8 = 0xd3fe50 "적 사거리가 넥서스에 닿음" — 검증 단계는 캡처값
-        let reach = super::dn_reach::reach(p5, p6)?; tr(6, 0x1_0000 | reach as u64);
-        if let Some(flags) = super::super::cap_dn_cache::take() {
+        // NOTE(2026-09-06): the game memoizes 0xd3fe50 per (seed,tick,rec+0x928) at the FIRST c87850 call of the tick, which may come from
+        //   another handler before my-side unit lists are filled -> recomputing "now" (dn_reach) differs 0.6% (all game=1/mine=0, my_minion_len=1).
+        //   Game-equivalent value = captured flags when present; dn_reach is the pure fallback (pure live) and documents the game's own staleness.
+        let mine_reach = super::dn_reach::reach(p5, p6)?;
+        let cap = super::super::cap_dn_cache::take();
+        let reach = match cap { Some(f) => (f & 0x100) != 0, None => mine_reach };
+        tr(6, 0x1_0000 | reach as u64 | (mine_reach as u64) << 1 | (cap.is_some() as u64) << 2);
+        if let Some(flags) = cap {
             REACH_CMP.fetch_add(1, Ordering::Relaxed);
-            if ((flags & 0x100) != 0) != reach { REACH_MISMATCH.fetch_add(1, Ordering::Relaxed); tr(8, 0x100 | (flags & 0xffff) << 1 | reach as u64); }
+            if ((flags & 0x100) != 0) != mine_reach {
+                REACH_MISMATCH.fetch_add(1, Ordering::Relaxed); tr(8, 0x100 | (flags & 0xffff) << 1 | reach as u64);
+                if REACH_LOGGED.fetch_add(1, Ordering::Relaxed) < 40 {
+                    super::super::append_direct("judge_dn_reach.txt", &format!("[reach MISMATCH] game_bit8={} mine={} side={} tick={} | {}\n",
+                        (flags >> 8) & 1, reach as u8, side, rd_u64(w.data + W_TICK).unwrap_or(0), super::dn_reach::dbg_fmt()));
+                }
+            }
         }
         if reach { code11(&mut o); return Some(o); }
     } else {
