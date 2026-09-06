@@ -1549,7 +1549,7 @@
   },
   "epic_hunt_poke": {
    "role": "plan_handler",
-   "status": "todo",
+   "status": "verified",
    "history": [
     {
      "ver": "0.5.8",
@@ -1557,6 +1557,13 @@
      "size": 3413,
      "date": "2026-09-06",
      "event": "add"
+    },
+    {
+     "ver": "0.5.8",
+     "rva": "0xdefcd0",
+     "date": "2026-09-06",
+     "event": "mark:todo→verified",
+     "note": "2026-09-06 16:27 verify-only port (port/hunt_poke.rs) replay 119,706/119,706 DIFF=0 NA=0 after 1 fix (HP_PATH_NEAR_D2 digit). live blocked: payload path Vec write (0xd3b2a0+0xd7bdf0 bumpalo) not reproduced"
     }
    ],
    "sym": "game-ai\\src\\plan_legacy\\old\\epic\\hunt_and_poke.rs",
