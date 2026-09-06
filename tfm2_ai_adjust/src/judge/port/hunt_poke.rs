@@ -123,3 +123,91 @@ pub unsafe fn epic_hunt_poke(a: &Args8) -> Option<MpOut> {
     let _ = p3;
     Some(o)
 }
+
+/// disc 14 serpen hunt_and_poke `0xdf0e90`(829명령, capstone 포팅 — 디컴은 JT 오염). 에픽과 다른 점:
+///   인터럽트 → code 0x12{+8=0,+0x10=**1**,+0x11=f18} / 타겟 없음 → code **0xd**{+8=0} · order+0x41f **==1** 필수(아니면 5) · 0x420==3 → can_attack(**5**) → code 2 서브타입 = HP_S_SUBTYPE[mk] / 아니면 **0xe**
+///   타이머 min(p7+0xc0, p7+0xd0) · 경로 블록 동일 · 그리드 대신 **타겟 150000 안 && recently_seen** 카운트(적 vs 아군) · pct≤20 && 아군<적 → 5
+///   engage_gate(5) ? **0xd**{+8=0} : **0xf**(코드만)
+pub unsafe fn serpen_hunt_poke(a: &Args8) -> Option<MpOut> {
+    let (payload, p5, p6, p7, p8) = (a.p2, a.p5, a.p6, a.p7, a.p8);
+    if !ptr_ok(payload) || !ptr_ok(p5) || !ptr_ok(p7) || !ptr_ok(p8) { return None; }
+    let side = rd_u64(p5 + P5_SIDE)?; if side > 1 { return None; }
+    let role = rd_u32(p5 + P5_ROLE);
+    let h = Holder::new(p6)?; let w = h.world()?; let g = h.g()?;
+    let me = w.roster(side, role)?; if me == 0 { return None; }
+    let f18 = rd_u8(payload + HP_PL_F18); let f19 = rd_u8(payload + HP_PL_F19);
+    let mut o = MpOut::default();
+    let moba = w.moba()?;
+    let tgt = match w.first_target(moba, T1_LEN, T1_PTR)? { Some(hh) => w.entity(hh).map(|e| e.0), None => None };
+    tr(0, 0x200 | f18 as u64 | (f19 as u64) << 8 | (tgt.is_some() as u64) << 16 | side << 20 | (role as u64) << 24);
+    if f18 != 0 || f19 != 0 {
+        if tgt.is_some() { o.push(8, 8, 0); o.push(0x10, 1, 1); o.push(0x11, 1, f18 as u64); o.code(0x12); tr(2, 0x200); }
+        else { o.push(8, 1, 0); o.code(0xd); tr(2, 0x201); }
+        return Some(o);
+    }
+    let maxhp = rd_u64(me + ENT_MAXHP)?; if maxhp == 0 { return None; }
+    let hp = rd_u64(me + ENT_HP)?; let pct = hp.wrapping_mul(100) / maxhp;
+    let tgt = match tgt { Some(t) => t, None => { o.push(8, 1, 0); o.code(0xd); tr(2, 0x202); return Some(o) } };
+    let pick = cap_ability_pick::take()?.0;
+    let bx = g.home_box(side)?;
+    let (mx, my) = (rd_u64(me + ENT_X)?, rd_u64(me + ENT_Y)?);
+    let outside = mx < bx.xlo || bx.xhi < mx || my < bx.ylo;
+    let tgt_full = rd_u64(tgt + ENT_HP)? == rd_u64(tgt + ENT_MAXHP)?;
+    tr(1, 0x200 | pct.min(0xff) | (pick.min(0xff)) << 8 | (outside as u64) << 16 | (tgt_full as u64) << 17);
+    let proceed = if outside { !tgt_full || (pct >= 0x33 && pick == 0) }
+                  else { !tgt_full || (!(hp < maxhp && my <= bx.yhi) && pct >= 0x33 && pick == 0) };
+    if !proceed { o.code(5); tr(2, 0x203); return Some(o); }
+    if rd_u8(p8 + ORDER_PLAN) != 1 { o.code(5); tr(2, 0x204); return Some(o); }
+    if rd_u8(p8 + ORDER_SF) == 3 {
+        let sel = if w.cfg_flag()? == 0 { rd_u64(w.side_cfg(side)?)? } else { rd_u64(p5 + P5_CFG_SELF)? };
+        if (sel & 0xffff_ffff) as u32 == role && can_attack(p5, p6, 5)? {
+            let mk = rd_u8(g.0 + G_PHASE); if mk > 8 { return None; }                   // JT 범위 밖 = UB
+            o.push(8, 1, 0); o.push(9, 1, HP_S_SUBTYPE[mk as usize]); o.push(10, 1, 2); o.code(2); tr(2, 0x205); return Some(o);
+        }
+        o.push(8, 1, 0); o.code(0xe); tr(2, 0x206); return Some(o);
+    }
+    let in_home = if side == 0 { mx <= HP_HOME_LO && my <= HP_HOME_HI && my > HP_HOME_Y1 }
+                  else { mx <= HP_HOME_HI && mx > HP_HOME_X1 && my <= HP_HOME_LO };
+    if in_home && hp < maxhp { o.code(5); tr(2, 0x207); return Some(o); }
+    let pct2 = pct;
+    let tps = g.tps()? as u64;
+    let tmin = rd_u64(p7 + HP_S_P7_A)?.min(rd_u64(p7 + HP_S_P7_B)?);
+    if tps.wrapping_mul(5) < tmin {
+        let (ok, pre_flag, pre_len, pre_ptr) = PRE.with(|c| c.get());
+        let mut early5 = false;
+        if pre_flag == 0 {
+            if ok == 1 && rd_u8(payload + HP_PL_HASPATH) == 1 { early5 = true; tr(3, 0x200); }
+            else if ok == 0 { return None; } else { tr(3, 0x201); }
+        } else {
+            tr(3, 0x202 | pre_len.min(0xff) << 16);
+            if pre_len != 0 {
+                if !ptr_ok(pre_ptr as usize) { return None; }
+                for i in 0..pre_len.min(256) as usize {
+                    if let Some(e) = w.entity(rd_u64(pre_ptr as usize + i * 8)?) {
+                        if sqd(rd_u64(e.0 + ENT_X)?, rd_u64(e.0 + ENT_Y)?, mx, my) < HP_PATH_NEAR_D2 { early5 = true; tr(3, 0x203 | (i as u64) << 8); break; }
+                    }
+                }
+            }
+        }
+        if early5 { o.code(5); tr(2, 0x208); return Some(o); }
+        // vt+0xe0 정글 상태(w+0xed18)+0x1b8/+0x1c0 = 모드+0x1d0/+0x1d8 = 같은 세르펜 타겟 → 없으면 5
+        let tgt2 = match w.first_target(moba, T1_LEN, T1_PTR)? { Some(hh) => match w.entity(hh) { Some(e) => e.0, None => { o.code(5); tr(2, 0x209); return Some(o) } }, None => { o.code(5); tr(2, 0x209); return Some(o) } };
+        let (tx, ty) = (rd_u64(tgt2 + ENT_X)?, rd_u64(tgt2 + ENT_Y)?);
+        let lanes = rd_u64(p6 + HOLDER_LANES)? as usize; if !ptr_ok(lanes) { return None; }
+        let other = 1 - side; let win = live_imm8(SITE_VW_CHECK_IMM, 0x78) as u64;
+        let mut en = 0u32; let mut mine_n = 0u32;
+        for i in 0..5 { let e = rd_u64(w.x + X_ROSTER + other as usize * 0x28 + i * 8)? as usize; if e == 0 { continue; }
+            if lane_pred(lanes + other as usize * LANE_STRIDE, w.data, w.vt, p5, e, win)?.0 == 0 { continue; }
+            en += (sqd(rd_u64(e + ENT_X)?, rd_u64(e + ENT_Y)?, tx, ty) < HP_ENGAGE_D2) as u32; }
+        for i in 0..5 { let e = rd_u64(w.x + X_ROSTER + side as usize * 0x28 + i * 8)? as usize; if e == 0 { continue; }
+            if lane_pred(lanes + side as usize * LANE_STRIDE, w.data, w.vt, p5, e, win)?.0 == 0 { continue; }
+            mine_n += (sqd(rd_u64(e + ENT_X)?, rd_u64(e + ENT_Y)?, tx, ty) < HP_ENGAGE_D2) as u32; }
+        tr(4, 0x200 | en as u64 | (mine_n as u64) << 8 | pct2.min(0xff) << 16);
+        if pct2 <= 0x14 && mine_n < en { o.code(5); tr(2, 0x20a); return Some(o); }
+    } else { tr(3, 0x2ff); }
+    let gate = engage_gate(p8, p5, p6, p7, 5)?;
+    tr(5, 0x200 | gate as u64);
+    if gate { o.push(8, 1, 0); o.code(0xd); tr(2, 0x20b); } else { o.code(0xf); tr(2, 0x20c); }
+    Some(o)
+}
+

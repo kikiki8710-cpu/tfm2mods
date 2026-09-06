@@ -274,4 +274,7 @@ pub const HP_PATH_NEAR_D2: u64 = 0x9502f9001;    // 200000²+1 = 40,000,000,001 
 pub const HP_ENGAGE_D2: u64 = 0x53d1ac101;       // 150000²+1 (engage_gate 0 && 근접 → code 0xc)
 pub const G_GRID: usize = 0x38b8;                // G+0x20 obj +0x38b8 : 30×30 u64 영향력 타일(값 7 = 우세) · 행 0xf0
 pub const G_GRID_ROW: usize = 0xf0;
+pub const HP_S_P7_A: usize = 0xc0;               // 세르펜 p7 타이머 min(+0xc0, +0xd0)
+pub const HP_S_P7_B: usize = 0xd0;
+pub const HP_S_SUBTYPE: [u64; 9] = [0, 2, 0, 2, 1, 2, 2, 0, 0]; // 세르펜 code 2 서브타입(맵종류 JT 0x33e580c: 0/2/7/8→0 · 1/3→[0x33e8d81]=2 · 4→[0x33e8e60]=1 · 5→[0x33e9909]=2 · 6→2)
 

@@ -383,7 +383,7 @@ pub mod cap_obj_could_arrive {
 judge_capture_ret!(cap_single_line, crate::judge::gen_fns::SINGLE_LINE);
 judge_hook_out!(battle_hook, crate::judge::gen_fns::BATTLE_ARM9, crate::judge::port::battle::battle, crate::judge::port::battle::battle_live, crate::judge::pre_tr, true, "judge_live_battle");
 judge_hook_out!(epic_hp_hook, crate::judge::gen_fns::EPIC_HUNT_POKE, crate::judge::port::hunt_poke::epic_hunt_poke, crate::judge::port::hunt_poke::epic_hunt_poke, crate::judge::pre_hp, false, "judge_live_epic_hunt_poke");
-judge_capture_ret!(cap_serpen_hunt_poke, crate::judge::gen_fns::SERPEN_HUNT_POKE);
+judge_hook_out!(serpen_hp_hook, crate::judge::gen_fns::SERPEN_HUNT_POKE, crate::judge::port::hunt_poke::serpen_hunt_poke, crate::judge::port::hunt_poke::serpen_hunt_poke, crate::judge::pre_hp, false, "judge_live_serpen_hunt_poke");
 judge_hook_out!(passive_jungle_hook, crate::judge::gen_fns::PASSIVE_JUNGLE, crate::judge::port::passive_jungle::passive_jungle, crate::judge::port::passive_jungle::passive_jungle_live, crate::judge::pre_pj, true, "judge_live_passive_jungle");
 judge_hook_out!(defense_nexus_hook, crate::judge::gen_fns::DEFENSE_NEXUS, crate::judge::port::defense_nexus::defense_nexus, crate::judge::port::defense_nexus::defense_nexus_live, crate::judge::pre_dn, true, "judge_live_defense_nexus");
 judge_hook!(steal_hook, crate::judge::gen_fns::STEAL_SCORE, crate::judge::port::steal_score::steal_score, crate::judge::port::steal_score::steal_score, "judge_live_steal_score");
@@ -472,7 +472,7 @@ judge_hook_out!(serpen_hb_hook, crate::judge::gen_fns::SERPEN_HUNT_BATTLE, crate
 
 /// 등록된 훅 전부(status 덤프용). 훅을 늘리면 여기와 install() 에 한 줄씩.
 pub fn stats() -> Vec<(&'static str, &'static Stat)> {
-    vec![(STEAL_SCORE.name, &steal_hook::ST), (ABILITY_PICK.name, &cap_ability_pick::ST), (RECENTLY_SEEN.name, &cap_recent_seen::ST), (DN_CACHE.name, &cap_dn_cache::ST), (DEFENSE_NEXUS.name, &defense_nexus_hook::ST), (EST_DAMAGE.name, &cap_est_dmg::ST), (PASSIVE_JUNGLE.name, &passive_jungle_hook::ST), (SINGLE_LINE.name, &cap_single_line::ST), (OBJ_CAN_ATTACK.name, &cap_obj_can_attack::ST), (OBJ_ENGAGE_GATE.name, &cap_obj_engage_gate::ST), (OBJ_POKE_GATE.name, &cap_obj_poke_gate::ST), (OBJ_COULD_ARRIVE.name, &cap_obj_could_arrive::ST), (BATTLE_ARM9.name, &battle_hook::ST), (EPIC_HUNT_POKE.name, &epic_hp_hook::ST), (SERPEN_HUNT_POKE.name, &cap_serpen_hunt_poke::ST),
+    vec![(STEAL_SCORE.name, &steal_hook::ST), (ABILITY_PICK.name, &cap_ability_pick::ST), (RECENTLY_SEEN.name, &cap_recent_seen::ST), (DN_CACHE.name, &cap_dn_cache::ST), (DEFENSE_NEXUS.name, &defense_nexus_hook::ST), (EST_DAMAGE.name, &cap_est_dmg::ST), (PASSIVE_JUNGLE.name, &passive_jungle_hook::ST), (SINGLE_LINE.name, &cap_single_line::ST), (OBJ_CAN_ATTACK.name, &cap_obj_can_attack::ST), (OBJ_ENGAGE_GATE.name, &cap_obj_engage_gate::ST), (OBJ_POKE_GATE.name, &cap_obj_poke_gate::ST), (OBJ_COULD_ARRIVE.name, &cap_obj_could_arrive::ST), (BATTLE_ARM9.name, &battle_hook::ST), (EPIC_HUNT_POKE.name, &epic_hp_hook::ST), (SERPEN_HUNT_POKE.name, &serpen_hp_hook::ST),
          (EPIC_HUNT_BATTLE.name, &epic_hb_hook::ST), (SERPEN_HUNT_BATTLE.name, &serpen_hb_hook::ST), (PASSIVE_LINE.name, &passive_line_hook::ST)]
 }
 
@@ -595,12 +595,12 @@ pub unsafe fn install() {
         }
         if tune("judge_cap_arms", 1) != 0 {
             install_one(&mut log, &SINGLE_LINE, &cap_single_line::ORIG, cap_single_line::wrap as *const () as usize, "capture-ret");
-            install_one(&mut log, &SERPEN_HUNT_POKE, &cap_serpen_hunt_poke::ORIG, cap_serpen_hunt_poke::wrap as *const () as usize, "capture-ret");
         }
         install_one(&mut log, &DEFENSE_NEXUS, &defense_nexus_hook::ORIG, defense_nexus_hook::wrap as *const () as usize, "wrap-out");
         install_one(&mut log, &PASSIVE_JUNGLE, &passive_jungle_hook::ORIG, passive_jungle_hook::wrap as *const () as usize, "wrap-out");
         install_one(&mut log, &BATTLE_ARM9, &battle_hook::ORIG, battle_hook::wrap as *const () as usize, "wrap-out");
         install_one(&mut log, &EPIC_HUNT_POKE, &epic_hp_hook::ORIG, epic_hp_hook::wrap as *const () as usize, "wrap-out");
+        install_one(&mut log, &SERPEN_HUNT_POKE, &serpen_hp_hook::ORIG, serpen_hp_hook::wrap as *const () as usize, "wrap-out");
     } else {
         log.push_str("[judge] judge_verify=0 → 훅 미설치(원본)\n");
     }
