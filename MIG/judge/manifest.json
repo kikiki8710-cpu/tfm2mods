@@ -752,7 +752,7 @@
   },
   "passive_jungle": {
    "role": "plan_handler",
-   "status": "todo",
+   "status": "verified",
    "history": [
     {
      "ver": "0.5.8",
@@ -767,6 +767,13 @@
      "date": "2026-09-06",
      "event": "mark:todo→todo",
      "note": "2026-09-06 RE done (dyn 4 sites, ~1700 instr w/ effect vt tables) - deferred"
+    },
+    {
+     "ver": "0.5.8",
+     "rva": "0xd2e500",
+     "date": "2026-09-06",
+     "event": "mark:todo→verified",
+     "note": "2026-09-06 14:50 replay 321,350/321,350 DIFF=0 NA=0 (tag1 213,688). fixes: camp_pos TLS memo (0xffa3e0) read from game thread-local; magic-div /100 (was /400) in eff28/eff40 leaves; eff40 depth 10->40 (nested SwitchByBuff 11). shadow live enabled"
     }
    ],
    "sym": "game-ai\\src\\plan_legacy\\old\\passive_jungle.rs",
@@ -1174,6 +1181,53 @@
      "push rdi",
      "push rbx",
      "sub rsp, 0x30"
+    ],
+    "reloc": "ok",
+    "jmpin": 0,
+    "n": null,
+    "sym": "(AI 계층 census 밖 — Location 없음)",
+    "lines": [],
+    "callees": [],
+    "offs": {},
+    "vslots": {},
+    "imms": {}
+   }
+  },
+  "est_damage": {
+   "role": "helper",
+   "status": "ported",
+   "history": [
+    {
+     "ver": "0.5.8",
+     "rva": "0x12857f0",
+     "size": 1111,
+     "date": "2026-09-06",
+     "event": "add"
+    },
+    {
+     "ver": "0.5.8",
+     "rva": "0x12857f0",
+     "date": "2026-09-06",
+     "event": "mark:todo→ported",
+     "note": "2026-09-06 14:43 capture-ret hook (rax) for passive_jungle::estimate_damage cross-check; port lives in port/passive_jungle.rs estimate_damage; 176,118 compared / 0 mismatch after q400 fix"
+    }
+   ],
+   "sym": "(AI 계층 census 밖 — Location 없음)",
+   "cur": {
+    "rva": "0x12857f0",
+    "end": "0x1285c47",
+    "size": 1111,
+    "orig_len": 12,
+    "prolog": "55 41 57 41 56 41 55 41 54 56 57 53",
+    "prolog_insns": [
+     "push rbp",
+     "push r15",
+     "push r14",
+     "push r13",
+     "push r12",
+     "push rsi",
+     "push rdi",
+     "push rbx"
     ],
     "reloc": "ok",
     "jmpin": 0,
