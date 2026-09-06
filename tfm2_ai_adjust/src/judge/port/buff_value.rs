@@ -176,9 +176,33 @@ unsafe fn composite_shape(f: usize) -> Option<(usize, usize, usize, usize)> {
         }
         i += 1;
     }
+    // ★루프가 2개 이상이면(= `call [r?+S]` 2회 이상) 거부한다. 첫 루프만 합산해 **조용히 틀리는 것**을 막기 위함이다
+    //   (0x122e360/0x122e560 은 두 리스트를 더한다 — 스캐너가 첫 리스트만 보면 값이 절반이 된다).
+    let mut calls = 0usize;
+    for k in 0..0x120usize {
+        let a = f + k;
+        // int3 3연속 = 함수 끝 패딩 → 다음 함수의 call 을 세지 않도록 여기서 멈춘다
+        if rd_u8(a) == 0xcc && rd_u8(a + 1) == 0xcc && rd_u8(a + 2) == 0xcc { break; }
+        if rd_u8(a) == 0x41 && rd_u8(a + 1) == 0xff && ((rd_u8(a + 2) & 0xF8) == 0x50 || (rd_u8(a + 2) & 0xF8) == 0x90) { calls += 1; }
+    }
+    if calls != 1 { return None; }
     if no == 2 && slot != usize::MAX && stride != usize::MAX && (stride == 0x10 || stride == 0x18) {
         Some((offs[0], offs[1], stride, slot))
     } else { None }
+}
+/// **레벨 게이트형 위임**: `call [r9+0x48]`(= EST 서술자 → self.0x5c8 = 레벨) 이 3 이상이면 자식 (p+0x10, p+0x18),
+///   아니면 (p+0, p+8) 로 같은 트레이트를 그대로 위임한다. 넘길 슬롯은 `mov r10,[rcx+SLOT]` 에서 뽑는다.
+///   실측: `0x164ea30`(→0x40) · `0x164eb10`(→0x48).
+unsafe fn level_delegate(f: usize) -> Option<usize> {
+    if !ptr_ok(f) { return None; }
+    let (mut c48, mut cmp3) = (false, false);
+    for i in 0..0x50usize {
+        let a = f + i;
+        if rd_u8(a) == 0x41 && rd_u8(a + 1) == 0xff && rd_u8(a + 2) == 0x51 && rd_u8(a + 3) == 0x48 { c48 = true; }
+        if rd_u8(a) == 0x48 && rd_u8(a + 1) == 0x83 && rd_u8(a + 2) == 0xf8 && rd_u8(a + 3) == 0x03 { cmp3 = true; }
+        if c48 && cmp3 && rd_u8(a) == 0x4c && rd_u8(a + 1) == 0x8b && rd_u8(a + 2) == 0x51 { return Some(rd_u8(a + 3) as usize); }
+    }
+    None
 }
 
 /// EST 서술자(`0x1433da3d0`)의 `+0x38` = `lea rax,[rcx+0x618]` — 즉 **자기 스탯 블록**(0x618 AD · 0x620 AP · 0x628 maxHP).
@@ -198,11 +222,56 @@ unsafe fn leaf_stat_scaled(rva: usize, p: usize, me: usize) -> Option<i64> {
     Some(acc as i64)
 }
 
+/// 자식 배열 하나를 돌며 같은 슬롯을 합산
+unsafe fn sum_list(p: usize, ptr_o: usize, len_o: usize, stride: usize, cs: usize, me: usize, depth: u32, tag: &str) -> Option<i64> {
+    let n = rd_u64(p + len_o)?; if n == 0 { return Some(0); }
+    let arr = rd_u64(p + ptr_o)? as usize; if !ptr_ok(arr) { return None; }
+    let mut acc: i64 = 0;
+    for i in 0..n.min(64) as usize {
+        let e = arr + i * stride;
+        let (cd, cv) = (rd_u64(e)? as usize, rd_u64(e + 8)? as usize);
+        if !ptr_ok(cd) || !ptr_ok(cv) { return None; }
+        acc = acc.wrapping_add(slot_sum(cd, cv, cs, me, depth + 1, tag)?);
+    }
+    Some(acc)
+}
 /// dyn 슬롯 값(i64). 합성이면 자식 합, 잎이면 디코드/스탯식, 그 외엔 unseen 기록 후 NA.
 pub unsafe fn slot_sum(data: usize, vt: usize, slot: usize, me: usize, depth: u32, tag: &str) -> Option<i64> {
     if depth > 8 { return na_tag(tag); }
     let f = rd_u64(vt + slot)? as usize;          // ★절대주소(impl_rva 는 RVA)
     let p = inline_self(data, vt)?;
+    // ── 골격 스캐너로 안 잡히는 변종 3종(실측 vt+0x40) ─────────────────────────────────
+    let eb = crate::exe_base();
+    if eb != 0 && f > eb {
+        match f - eb {
+            // Σlist(p+0x68/len p+0x70/stride 0x18) + (p+0x78 / max(1,p+0x80)) * Σlist(p+0x50/len p+0x58/stride 0x18)
+            0x16a3190 => {
+                let s1 = sum_list(p, 0x68, 0x70, 0x18, 0x40, me, depth, tag)?;
+                let s2 = sum_list(p, 0x50, 0x58, 0x18, 0x40, me, depth, tag)?;
+                let a = rd_u64(p + 0x78)?; let mut b = rd_u64(p + 0x80)?; if b == 0 { b = 1; }
+                return Some(((a / b) as i64).wrapping_mul(s2).wrapping_add(s1));
+            }
+            // Σlist(p+0x50/len p+0x58/stride 0x18) + Σlist(p+0x68/len p+0x70/stride 0x10)
+            0x122e360 => {
+                let s1 = sum_list(p, 0x50, 0x58, 0x18, 0x40, me, depth, tag)?;
+                let s2 = sum_list(p, 0x68, 0x70, 0x10, 0x40, me, depth, tag)?;
+                return Some(s1.wrapping_add(s2));
+            }
+            // 같은 두-리스트 형의 vt+0x48 판(자식 슬롯만 0x48)
+            0x122e560 => {
+                let s1 = sum_list(p, 0x50, 0x58, 0x18, 0x48, me, depth, tag)?;
+                let s2 = sum_list(p, 0x68, 0x70, 0x10, 0x48, me, depth, tag)?;
+                return Some(s1.wrapping_add(s2));
+            }
+            _ => {}
+        }
+    }
+    if let Some(cs) = level_delegate(f) {
+        let o = if rd_u64(me + 0x5c8)? >= 3 { 0x10usize } else { 0 };
+        let (cd, cv) = (rd_u64(p + o)? as usize, rd_u64(p + o + 8)? as usize);
+        if !ptr_ok(cd) || !ptr_ok(cv) { return None; }
+        return slot_sum(cd, cv, cs, me, depth + 1, tag);
+    }
     if let Some((len_o, ptr_o, stride, cs)) = composite_shape(f) {
         let n = rd_u64(p + len_o)?; if n == 0 { return Some(0); }
         let arr = rd_u64(p + ptr_o)? as usize; if !ptr_ok(arr) { return None; }
@@ -259,17 +328,125 @@ pub unsafe fn s13_s14(b: &BCtx, ally: Option<usize>) -> Option<i64> {
 
     let spec0 = e047c0(b.slot, b.ctx, t)?;
     // has = spec0 있음 ∨ slot.vt+0xa0(sret BuffSpec) 의 tag != −1  ·  b90 = slot.vt+0x90(bool)
-    let _has = match spec0 { Some(_) => true, None => { sret_spec_tag(_sd, sv, "Ba0")? != -1 } };
-    let _b90 = slot_sum(_sd, sv, 0x90, b.me, 0, "B90")? != 0;
+    let _has = match spec0 { Some(_) => true, None => { sret_spec_tag(_sd, sv, b.me, "Ba0")? != -1 } };
+    let _b90 = slot_bool90(_sd, sv, 0)?;
     // ⬜여기부터 미포팅: 0xdffa10(버프가치) → 0xe022d0 → 0xe03360/0xe02540 → 0xe02bc0/0xe03ed0
     na_tag(if ally.is_some() { "B14spec" } else { "B13spec" })
 }
 
-/// slot.vt+0xa0 / +0xa8 : sret 로 BuffSpec(0x120) 을 돌려준다 — impl 목록부터 모은다.
-unsafe fn sret_spec_tag(data: usize, vt: usize, tag: &str) -> Option<i32> {
-    let _ = data;
-    if let Some(r) = super::dyn_eff::impl_rva(vt, 0xa0) { super::dyn_eff::unseen(0x9a0, r); }
-    na_tag(tag).map(|_| 0)
+// ── slot.vt+0xa0 : sret BuffSpec(0x120) ─────────────────────────────────────────────────
+//   정본 = `RE\2026-09-07_BuffSpec-fold-0x126e6c0-0.5.8.md`
+//   `0x126e6c0` = 자식들의 BuffSpec 을 접는다: **첫 유효(=+0x48 != −1) 자식을 통째로 채택**하고,
+//   이후 유효 자식은 아래 오프셋 집합만 wrapping 합(i32/i64) 또는 논리합(bool). 태그·페이로드는 버린다.
+const FOLD_I32: [usize; 18] = [0x58, 0x5c, 0x60, 0x64, 0x68, 0x6c, 0x70, 0x74, 0x78, 0x7c, 0x80, 0x84, 0x88, 0x8c, 0x90, 0xfc, 0x100, 0x104];
+const FOLD_I64: [usize; 14] = [0x98, 0xa0, 0xa8, 0xb0, 0xb8, 0xc0, 0xc8, 0xd0, 0xd8, 0xe0, 0xe8, 0xf0, 0x108, 0x110];
+const FOLD_BOOL: [usize; 3] = [0xf8, 0x118, 0x119];
+
+#[inline] fn sp_i32(b: &[u8; SPEC_SIZE], o: usize) -> i32 { i32::from_le_bytes([b[o], b[o + 1], b[o + 2], b[o + 3]]) }
+#[inline] fn sp_set_i32(b: &mut [u8; SPEC_SIZE], o: usize, v: i32) { b[o..o + 4].copy_from_slice(&v.to_le_bytes()); }
+#[inline] fn sp_i64(b: &[u8; SPEC_SIZE], o: usize) -> i64 { let mut a = [0u8; 8]; a.copy_from_slice(&b[o..o + 8]); i64::from_le_bytes(a) }
+#[inline] fn sp_set_i64(b: &mut [u8; SPEC_SIZE], o: usize, v: i64) { b[o..o + 8].copy_from_slice(&v.to_le_bytes()); }
+
+/// 자식 배열 (ptr@p+ptr_o, len@p+len_o, stride) 을 `0x126e6c0` 규칙으로 접는다.
+unsafe fn fold_children(p: usize, ptr_o: usize, len_o: usize, stride: usize, me: usize, depth: u32) -> Option<Option<[u8; SPEC_SIZE]>> {
+    let n = rd_u64(p + len_o)?;
+    let arr = rd_u64(p + ptr_o)? as usize;
+    if n == 0 { return Some(None); }
+    if !ptr_ok(arr) { return None; }
+    let mut acc: Option<[u8; SPEC_SIZE]> = None;
+    for i in 0..n.min(64) as usize {
+        let e = arr + i * stride;
+        let (cd, cv) = (rd_u64(e)? as usize, rd_u64(e + 8)? as usize);
+        if !ptr_ok(cd) || !ptr_ok(cv) { return None; }
+        let t = match spec_a0(cd, cv, me, depth + 1)? { Some(t) => t, None => continue };
+        match acc.as_mut() {
+            None => acc = Some(t),
+            Some(a) => {
+                for o in FOLD_I32 { sp_set_i32(a, o, sp_i32(a, o).wrapping_add(sp_i32(&t, o))); }
+                for o in FOLD_I64 { sp_set_i64(a, o, sp_i64(a, o).wrapping_add(sp_i64(&t, o))); }
+                for o in FOLD_BOOL { a[o] |= t[o]; }
+            }
+        }
+    }
+    Some(acc)
+}
+
+/// slot.vt+0x90 : bool. 실측 최빈 impl `0x12a71e0` = 자식(ptr p+8 / len p+0x10 / stride 0x10) 중 **하나라도 true**.
+pub unsafe fn slot_bool90(data: usize, vt: usize, depth: u32) -> Option<bool> {
+    if depth > 8 { return na_tag("B90d").map(|_| false); }
+    let f = rd_u64(vt + 0x90)? as usize;
+    let p = inline_self(data, vt)?;
+    let eb = crate::exe_base(); if eb == 0 || f <= eb { return None; }
+    if f - eb == 0x12a71e0 {
+        let n = rd_u64(p + 0x10)?; if n == 0 { return Some(false); }
+        let arr = rd_u64(p + 8)? as usize; if !ptr_ok(arr) { return None; }
+        for i in 0..n.min(64) as usize {
+            let e = arr + i * 0x10;
+            let (cd, cv) = (rd_u64(e)? as usize, rd_u64(e + 8)? as usize);
+            if !ptr_ok(cd) || !ptr_ok(cv) { return None; }
+            if slot_bool90(cd, cv, depth + 1)? { return Some(true); }
+        }
+        return Some(false);
+    }
+    if let Some(v) = super::as_callees::decode_getter(f, p) { return Some(v & 1 == 1); }
+    if let Some((da, db, sl)) = super::as_callees::delegate_pair(f) {
+        if sl == 0x90 {
+            let (cd, cv) = (rd_u64(p + da)? as usize, rd_u64(p + db)? as usize);
+            if ptr_ok(cd) && ptr_ok(cv) { return slot_bool90(cd, cv, depth + 1); }
+        }
+    }
+    if let Some(r) = super::dyn_eff::impl_rva(vt, 0x90) { super::dyn_eff::unseen(0x990, r); }
+    na_tag("B90").map(|_| false)
+}
+/// `slot.vt+0xa0(sret, inline, sim, self, EST)` 재현. `Some(None)` = tag −1(버프 없음).
+pub unsafe fn spec_a0(data: usize, vt: usize, me: usize, depth: u32) -> Option<Option<[u8; SPEC_SIZE]>> {
+    if depth > 8 { return na_tag("Ba0d").map(|_| None); }
+    let f = rd_u64(vt + 0xa0)? as usize;
+    let p = inline_self(data, vt)?;
+    let eb = crate::exe_base(); if eb == 0 || f <= eb { return None; }
+    match f - eb {
+        0x109baa0 => Some(None),                                                  // 기본 impl: +0x48 = −1
+        // inline+0x120 플래그가 서면 없음, 아니면 inline 에 저장된 spec 을 그대로 복사
+        0x11507c0 => {
+            if rd_u8(p + 0x120) != 0 { return Some(None); }
+            let mut b = [0u8; SPEC_SIZE]; for i in 0..SPEC_SIZE { b[i] = rd_u8(p + i); }
+            if i32::from_le_bytes([b[0x48], b[0x49], b[0x4a], b[0x4b]]) == -1 { return Some(None); }
+            Some(Some(b))
+        }
+        // 두 리스트(둘 다 stride 0x18)를 같은 규칙으로 이어서 접는다(0x126f800)
+        0x16a33f0 => {
+            let a1 = fold_children(p, 0x50, 0x58, 0x18, me, depth)?;
+            let a2 = fold_children(p, 0x68, 0x70, 0x18, me, depth)?;
+            Some(match (a1, a2) {
+                (None, x) => x,
+                (Some(x), None) => Some(x),
+                (Some(mut x), Some(y)) => {
+                    for o in FOLD_I32 { let v = sp_i32(&x, o).wrapping_add(sp_i32(&y, o)); sp_set_i32(&mut x, o, v); }
+                    for o in FOLD_I64 { let v = sp_i64(&x, o).wrapping_add(sp_i64(&y, o)); sp_set_i64(&mut x, o, v); }
+                    for o in FOLD_BOOL { x[o] |= y[o]; }
+                    Some(x)
+                }
+            })
+        }
+        0x12a5770 | 0x13be350 => fold_children(p, 8, 0x10, 0x10, me, depth),      // Vec<Arc<dyn>> {cap,ptr,len}
+        0x12a50c0 => fold_children(p, 0x48, 0x50, 0x10, me, depth),
+        0x12a5be0 => fold_children(p, 0x20, 0x28, 0x18, me, depth),
+        0x106a440 => {                                                            // memcpy(sret, inline, 0x120)
+            let mut b = [0u8; SPEC_SIZE];
+            for i in 0..SPEC_SIZE { b[i] = rd_u8(p + i); }
+            if i32::from_le_bytes([b[0x48], b[0x49], b[0x4a], b[0x4b]]) == -1 { return Some(None); }
+            Some(Some(b))
+        }
+        _ => { if let Some(r) = super::dyn_eff::impl_rva(vt, 0xa0) { super::dyn_eff::unseen(0x9a0, r); } na_tag("Ba0").map(|_| None) }
+    }
+}
+/// slot.vt+0xa0 의 태그만 (−1 = 없음)
+unsafe fn sret_spec_tag(data: usize, vt: usize, me: usize, _tag: &str) -> Option<i32> {
+    Ok::<(), ()>(()).ok();
+    match spec_a0(data, vt, me, 0)? {
+        None => Some(-1),
+        Some(b) => Some(i32::from_le_bytes([b[0x48], b[0x49], b[0x4a], b[0x4b]])),
+    }
 }
 
 // ── 0xe047c0 — BuffSpec 생성 (1,172B) ────────────────────────────────────────────────────
