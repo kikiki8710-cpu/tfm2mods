@@ -1148,7 +1148,7 @@
   },
   "dn_cache": {
    "role": "helper",
-   "status": "ported",
+   "status": "verified",
    "history": [
     {
      "ver": "0.5.8",
@@ -1163,6 +1163,13 @@
      "date": "2026-09-06",
      "event": "mark:todo→ported",
      "note": "capture-ret only (0xd3fe50 needs dyn +0xe8 port)"
+    },
+    {
+     "ver": "0.5.8",
+     "rva": "0xc87850",
+     "date": "2026-09-06",
+     "event": "mark:ported→verified",
+     "note": "틱 메모 캐시 순수(bit0/8/16 + 메모 미러 + 게임 TLS 표 프로브) 19,321,477/19,321,477 DIFF=0 NA=0 (21:29) — bit8 게이트는 nexus_emg 디투어(nxe_gate) 동치"
     }
    ],
    "sym": "(AI 계층 census 밖 — Location 없음)",
