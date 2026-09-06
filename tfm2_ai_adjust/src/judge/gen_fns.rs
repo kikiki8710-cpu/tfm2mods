@@ -1,11 +1,11 @@
 // gen_fns.rs — ★자동생성(python MIG\aiport.py gen). 손으로 고치지 말 것 — 정본 = MIG\judge\manifest.json
-//   게임 0.5.8 · exe sha 4ed3aed08971efd0 · 2026-09-06 23:43
+//   게임 0.5.8 · exe sha 4ed3aed08971efd0 · 2026-09-07 00:44
 //   FnSpec.prolog = 훅이 옮기는 선두 바이트(명령 경계 ≥12B). 설치기는 exe 바이트가 이와 **완전 일치**할 때만 패치한다(패치판/스테일 방어).
 #![allow(dead_code)]
 pub const GAME_VER: &str = "0.5.8";
 pub struct FnSpec { pub name: &'static str, pub sym: &'static str, pub role: &'static str, pub rva: usize, pub size: usize, pub prolog: &'static [u8], pub status: &'static str }
 pub const ABILITY_PICK: FnSpec = FnSpec { name: "ability_pick", sym: r"game-ai\src\lib.rs", role: "helper", rva: 0xe7a8c0, size: 932, prolog: &[0x55, 0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x53], status: "todo" };   // 원본 행 1626,1634 · 252명령 · vslots 0x50,0x68,0x70,0x80
-pub const AS_132B310: FnSpec = FnSpec { name: "as_132b310", sym: r"(AI 계층 census 밖 — Location 없음)", role: "helper", rva: 0x132b310, size: 3817, prolog: &[0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x55, 0x53], status: "todo" };   // 원본 행 - · None명령 · vslots -
+pub const AS_132B310: FnSpec = FnSpec { name: "as_132b310", sym: r"(AI 계층 census 밖 — Location 없음)", role: "helper", rva: 0x132b310, size: 3817, prolog: &[0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x55, 0x53], status: "ported" };   // 원본 행 - · None명령 · vslots -
 pub const AS_C88300: FnSpec = FnSpec { name: "as_c88300", sym: r"(AI 계층 census 밖 — Location 없음)", role: "helper", rva: 0xc88300, size: 4592, prolog: &[0x55, 0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x53], status: "verified" };   // 원본 행 - · None명령 · vslots -
 pub const AS_D83230: FnSpec = FnSpec { name: "as_d83230", sym: r"(AI 계층 census 밖 — Location 없음)", role: "helper", rva: 0xd83230, size: 459, prolog: &[0x55, 0x41, 0x56, 0x56, 0x57, 0x53, 0x48, 0x83, 0xec, 0x60, 0x48, 0x8d, 0x6c, 0x24, 0x60], status: "verified" };   // 원본 행 - · None명령 · vslots -
 pub const AS_D84DB0: FnSpec = FnSpec { name: "as_d84db0", sym: r"game-ai\src\position_eval.rs", role: "helper", rva: 0xd84db0, size: 841, prolog: &[0x55, 0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x53], status: "ported" };   // 원본 행 317,319,428 · 197명령 · vslots 0x20,0x28

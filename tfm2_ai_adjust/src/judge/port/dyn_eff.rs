@@ -116,6 +116,12 @@ pub unsafe fn eff28_damage(data: usize, vt: usize, att: usize) -> Option<(u64, u
             let f = rd_u64(me + 0x10)?.wrapping_mul(rd_u64(st + 0x38)?).wrapping_add(100);
             Some((q400(f.wrapping_mul(base)), 0))
         }
+        0x12a4fb0 => {   // Σ 자식(stride 0x10 @me+0x48/len me+0x50) (capstone 2026-09-07 00:25)
+            let n = rd_u64(me + 0x50)?; if n == 0 { return Some((0, 0)); } let arr = rd_u64(me + 0x48)? as usize; if !ptr_ok(arr) { return None; }
+            let (mut p, mut m) = (0u64, 0u64);
+            for i in 0..n.min(64) as usize { let (d, v) = (rd_u64(arr + i * 0x10)? as usize, rd_u64(arr + i * 0x10 + 8)? as usize); let (a, b) = eff28_damage(d, v, att)?; p = p.wrapping_add(a); m = m.wrapping_add(b); }
+            Some((p, m))
+        }
         0x12480c0 => {   // Σ 자식(stride 0x18 @me+0x50/len me+0x58) (capstone 2026-09-06 22:40)
             let n = rd_u64(me + 0x58)?; if n == 0 { return Some((0, 0)); } let arr = rd_u64(me + 0x50)? as usize; if !ptr_ok(arr) { return None; }
             let (mut p, mut m) = (0u64, 0u64);

@@ -355,7 +355,7 @@ unsafe fn vt88_flag(data: usize, vt: usize, depth: u32) -> Option<u64> {
         for i in 0..n.min(64) as usize { if vt88_flag(rd_u64(arr + i * stride)? as usize, rd_u64(arr + i * stride + 8)? as usize, depth + 1)? & 1 == 1 { return Some(1); } } Some(0)
     };
     match r { EFF_E8_ZERO => Some(0), 0x1147250 | 0x1145640 => Some(1), 0x12a57b0 => any(8, 0x10, 0x10), 0x12a61c0 => any(0x20, 0x28, 0x18),
-        0x12481a0 => any(0x50, 0x58, 0x18), 0x13bfc40 => any(8, 0x10, 0x18), 0x13bfa20 | 0x16adaa0 | 0x109bab0 => Some(1),
+        0x12481a0 => any(0x50, 0x58, 0x18), 0x13bfc40 => any(8, 0x10, 0x18), 0x13bfa20 | 0x16adaa0 | 0x109bab0 | 0x122f090 => Some(1),
         0x17c2bd0 => Some((rd_u64(p)? != 0) as u64),
         0x1701740 => Some((rd_u64(p + 0x48)? != 0) as u64),
         0x1146c40 => { let n = rd_u64(p + 0x28)?; if n == 0 { return Some(0); } let arr = rd_u64(p + 0x20)? as usize; if !ptr_ok(arr) { return None; }   // 자식(stride 0x18 @p+0x20/0x28) 의 vt+0x80 중 첫 al&1 의 rax
@@ -498,7 +498,7 @@ unsafe fn vt80_flag(data: usize, vt: usize, depth: u32) -> Option<u64> {
     if depth > 8 || !ptr_ok(vt) { return None; }
     let r = dy::impl_rva(vt, 0x80)?; let p = dy::arc_payload(data, vt)?;
     match r {
-        EFF_E8_ZERO => Some(0), EFF_TRUE | 0x1147250 | 0x1145640 => Some(1),
+        EFF_E8_ZERO => Some(0), EFF_TRUE | 0x1147250 | 0x1145640 | 0x122fcf0 => Some(1),
         0x1606550 => vt80_flag(rd_u64(p + 0x18)? as usize, rd_u64(p + 0x20)? as usize, depth + 1),
         0x12a6b80 => { let n = rd_u64(p + 0x10)?; if n == 0 { return Some(0); } let arr = rd_u64(p + 8)? as usize; if !ptr_ok(arr) { return None; }
             for i in 0..n.min(64) as usize { let v = vt80_flag(rd_u64(arr + i * 0x10)? as usize, rd_u64(arr + i * 0x10 + 8)? as usize, depth + 1)?; if v & 1 == 1 { return Some(v); } } Some(0) }
@@ -513,10 +513,19 @@ unsafe fn dmg_list(ptr: usize, len: u64, stride: usize, a: usize, src: usize, tg
     list_iter(ptr, len, stride, |d, v| { let (x, y) = dy::eff28_damage(d, v, src)?; p = p.wrapping_add(x); m = m.wrapping_add(y); pc = pc.wrapping_add(dy::eff38_pct(d, v, src)?); Some(()) })?;
     let raw = p.wrapping_add(pc.wrapping_mul(rd_u64(tgt + ENT_MAXHP)?) / 100);
     if raw == 0 && m == 0 { return Some(0); }
-    // ⚠"amt==0 인 쪽은 기여 0" 가설은 **기각**(2026-09-07 00:00 실측): as_132b310 DIFF 30.9% → 37.7% 로 악화.
-    //   ty=0 표본(p=15/m=0)은 게임이 conv(0)=1 을 더했고, ty=2 표본(p=5/m=0)은 더하지 않았다 → 아암(k)별로 갈린다.
-    //   디스어셈 132bba3~132bbe8 은 두 conv 를 무조건 더하므로, 남은 차이는 k별 아암 구조에 있다(다음 세션).
+    // ★공통 꼬리(132bba3~132bbe8, k=0/1/3/4/5/6/7): `raw|M != 0` 이면 **두 conv 를 모두** 부른다 → 0 인 쪽도 conv 의 `cmp 1; adc 0` 로 1 을 기여한다.
+    //   k=2 만 각 항을 따로 0 검사해 건너뛴다(`dmg_list_k2`). 2026-09-07 00:1x 아암 전수 디스어셈으로 확정.
     let ty = rd_u32(a + 0x128); Some(conv(src, tgt, raw, ty, 0)?.wrapping_add(conv(src, tgt, m, ty, 1)?))
+}
+/// k=2 아암 전용: 각 항이 0 이면 conv 를 **호출하지 않는다**(게임 132be36 `je` · 132be85 `test r13,r13; je` · L_50 쪽 132bfa6·132bfe0 동일).
+unsafe fn dmg_list_k2(ptr: usize, len: u64, stride: usize, a: usize, src: usize, tgt: usize) -> Option<u64> {
+    let (mut p, mut m, mut pc) = (0u64, 0u64, 0u64);
+    list_iter(ptr, len, stride, |d, v| { let (x, y) = dy::eff28_damage(d, v, src)?; p = p.wrapping_add(x); m = m.wrapping_add(y); pc = pc.wrapping_add(dy::eff38_pct(d, v, src)?); Some(()) })?;
+    let raw = p.wrapping_add(pc.wrapping_mul(rd_u64(tgt + ENT_MAXHP)?) / 100);
+    let ty = rd_u32(a + 0x128);
+    let ca = if raw != 0 { conv(src, tgt, raw, ty, 0)? } else { 0 };
+    let cb = if m != 0 { conv(src, tgt, m, ty, 1)? } else { 0 };
+    Some(ca.wrapping_add(cb))
 }
 unsafe fn sum_list(ptr: usize, len: u64, stride: usize, slot: usize, src: usize) -> Option<u64> {
     let mut acc = 0u64;
@@ -530,7 +539,7 @@ unsafe fn threat(ac: &Act, src: usize, tgt: usize) -> Option<u64> {
     match ac.k {
         0 => { let (p, n) = l50(a)?; Some((if hit(a, tgt)? { 0 } else { dmg_list(b0, bn, 0x18, a, src, tgt)? }).wrapping_add(dmg_list(p, n, 0x10, a, src, tgt)?)) }
         1 => if rd_u8(a + 0x58) != 0 { Some(0) } else { dmg_list(b0, bn, 0x18, a, src, tgt) },
-        2 => { let (p, n) = l50(a)?; Some(dmg_list(b0, bn, 0x18, a, src, tgt)?.wrapping_mul(ticks(a)?).wrapping_add(dmg_list(p, n, 0x18, a, src, tgt)?)) }
+        2 => { let (p, n) = l50(a)?; Some(dmg_list_k2(b0, bn, 0x18, a, src, tgt)?.wrapping_mul(ticks(a)?).wrapping_add(dmg_list_k2(p, n, 0x18, a, src, tgt)?)) }
         3 | 6 | 7 => if hit(a, tgt)? { Some(0) } else { dmg_list(b0, bn, 0x18, a, src, tgt) },
         4 | 5 => dmg_list(b0, bn, 0x18, a, src, tgt),
         8 => { let (p, n) = l50(a)?; dmg_list(p, n, 0x10, a, src, tgt) }
@@ -623,7 +632,18 @@ unsafe fn body(st: &St) -> Option<Out> {
             } else if rd_i32(item + ENT_KIND)? == 2 {
                 let mut v = match est(item, tgt).and_then(|es| tower_v(item, es, tps, scale)) { Some(v) => v, None => { trs(|| "NA:etower".into()); return None } };
                 let r_u = range_u(item, tgt)?;
-                let game_pass = wrap_d2(ix, iy, qx, qy) <= sq(range_g(item, tgt)?.wrapping_add(18000));
+                let d2g = wrap_d2(ix, iy, qx, qy); let rgb = range_g(item, tgt)?; let ri = radius(item)?; let rt = radius(tgt)?;
+                // ⬜게이트 = `range_g + 24000` (**실측 맞춤 상수 · 구조 미확정**). 게임의 실제 게이트(= 그 타워로 d96d00 을 부르는가) 대비 적중률:
+                //   rg+18000(디스어셈 그대로) 90.24% → rg+18000+ri 99.65% → **rg+24000 99.92%**(2026-09-07 00:37, 표본 3,174,611 · ng 2,659).
+                //   디스어셈(d87fe4~d88009)은 `range_g + 18000` 인데 실측은 +6000 더 넓다 → 내 range_g 성분 중 하나가 게임보다 작다는 뜻.
+                //   불일치 표본은 judge_pe_gate_ng.txt 로 수집한다(다음 세션에서 성분 역산).
+                let game_pass = d2g <= sq(rgb.wrapping_add(24000));
+                { let gp = dive_calls_since(side, rd_u64(item + ENT_HANDLE)?) > 0;
+                  if gp != game_pass { gate_log(d2g, rgb, ri, rt, rd_u64(item + ENT_F438)?, rd_u64(item + 0x4a0)?, rd_u64(item + 0x4a8)?, rd_u64(item + ENT_LEVEL)?, rd_i32(item + 0x4c0)? as i64, rd_i32(item + 0x470)? as i64, rd_u64(item + 0x680)?, rd_i32(tgt + 0x470)? as i64, rd_u64(tgt + 0x680)?, gp); } }
+                // 진단: 게임의 실제 게이트(= 그 타워로 d96d00 호출) 대비 후보별 적중 집계
+                { let gp = dive_calls_since(side, rd_u64(item + ENT_HANDLE)?) > 0;
+                  let cands = [rgb + 23000, rgb + 23500, rgb + 24000, rgb + 24500, rgb + 18000 + ri, rgb + 18000 + rt, rgb + 24000 + ri / 5, rgb + 24000 - ri / 5];
+                  for (i, c) in cands.iter().enumerate() { let ok = (d2g <= sq(*c)) == gp; gate_stat(i, ok); } }
                 trs(|| { let d2g = wrap_d2(ix, iy, qx, qy); let rg = range_g(item, tgt).unwrap_or(0); let ri = radius(item).unwrap_or(0); let rt = radius(tgt).unwrap_or(0);
                     let cands = [rg + 18000, rg + 18000 + ri, rg + 18000 + rt, rg + 32000, rg + 50000, rg.wrapping_sub(ri) + 18000];
                     format!("G[d2={} isq={} rg={} ri={} rt={} pass={:?}]", d2g, isqrt_fast(d2g), rg, ri, rt, cands.iter().map(|c| d2g <= sq(*c)).collect::<Vec<_>>()) });
@@ -885,6 +905,18 @@ unsafe fn body(st: &St) -> Option<Out> {
     Some(Out { a: a_out, b: b_acc, c: c_acc, maxc, half28, f30, f31 })
 }
 
+/// 게이트 공식 후보별 적중 집계(후보 8종 × ok/ng)
+pub static GATE_STAT: [std::sync::atomic::AtomicU64; 16] = [const { std::sync::atomic::AtomicU64::new(0) }; 16];
+#[inline] fn gate_stat(i: usize, ok: bool) { if i < 8 { GATE_STAT[i * 2 + usize::from(!ok)].fetch_add(1, std::sync::atomic::Ordering::Relaxed); } }
+pub fn gate_report() -> String {
+    let n = ["rg+23000", "rg+23500", "rg+24000", "rg+24500", "rg+18000+ri", "rg+18000+rt", "rg+24000+ri/5", "rg+24000-ri/5"];
+    let mut s = String::from("=== S7 적 타워 게이트 후보 적중(게임 = d96d00 호출 여부) ===
+");
+    for i in 0..8 { let (ok, ng) = (GATE_STAT[i * 2].load(std::sync::atomic::Ordering::Relaxed), GATE_STAT[i * 2 + 1].load(std::sync::atomic::Ordering::Relaxed));
+        let t = ok + ng; if t != 0 { s += &format!("{:<22} ok={} ng={} ({:.3}%)
+", n[i], ok, ng, ok as f64 * 100.0 / t as f64); } }
+    s
+}
 /// 게이트 공식 역산용 표본 로그(최대 200줄). judge_pe_gate.txt
 static GATE_N: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(0);
 #[allow(clippy::too_many_arguments)]
@@ -893,7 +925,7 @@ fn gate_log(d2: u64, rg: u64, ri: u64, rt: u64, f438: u64, f4a0: u64, f4a8: u64,
     let need = isqrt_fast(d2);
     let line = format!("d2={} need={} rg={} ri={} rt={} 438={} 4a0={} 4a8={} lv={} 4c0={} 470={} 680={} t470={} t680={} game={}
 ", d2, need, rg, ri, rt, f438, f4a0, f4a8, lv, f4c0, f470, f680, t470, t680, game);
-    if let Some(p) = crate::pth("judge_pe_gate.txt") { let _ = std::fs::OpenOptions::new().create(true).append(true).open(p).and_then(|mut f| { use std::io::Write; f.write_all(line.as_bytes()) }); }
+    if let Some(p) = crate::pth("judge_pe_gate_ng.txt") { let _ = std::fs::OpenOptions::new().create(true).append(true).open(p).and_then(|mut f| { use std::io::Write; f.write_all(line.as_bytes()) }); }
 }
 
 /// 훅 대조용: threat(a, G, src, tgt) 순수 재현. relevant 게이트 포함(게임 0x132b310 전제).
