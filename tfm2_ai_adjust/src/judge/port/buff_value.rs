@@ -10,6 +10,7 @@ use super::super::layout::*;
 use super::action_score::sim_of_handle;
 
 pub const SPEC_SIZE: usize = 0x120;
+const BV_ENEMY_PTR: usize = 0x14d8; const BV_ENEMY_LEN: usize = 0x14f0;
 
 // ── 공통 관용구 ───────────────────────────────────────────────────────────────────────────
 /// dyn fat-ptr `{[0]=Arc 데이터, [8]=vtable}` 의 inline self = `data + ((vt[0x10]-1) & !0xF) + 0x10`
@@ -330,7 +331,11 @@ pub unsafe fn s13_s14(b: &BCtx, ally: Option<usize>) -> Option<i64> {
     // has = spec0 있음 ∨ slot.vt+0xa0(sret BuffSpec) 의 tag != −1  ·  b90 = slot.vt+0x90(bool)
     let _has = match spec0 { Some(_) => true, None => { sret_spec_tag(_sd, sv, b.me, "Ba0")? != -1 } };
     let _b90 = slot_bool90(_sd, sv, 0)?;
-    // ⬜여기부터 미포팅: 0xdffa10(버프가치) → 0xe022d0 → 0xe03360/0xe02540 → 0xe02bc0/0xe03ed0
+    // 조립 항 중 이미 옮긴 것들(값은 아직 안 쓰지만 도달·NA 집계로 검증 순서를 잡는다)
+    let _aoe = e02bc0(b.slot, b.ctx, b.bb, b.me, if ally.is_some() { t } else { b.me },
+                      rd_u64(if ally.is_some() { t } else { b.me } + ENT_HANDLE)?, b.cast_delay)?;
+    if ally.is_none() { let _trig = e03ed0(b.slot, b.ctx, b.rec, b.bb, b.me, b.c)?; }
+    // ⬜남은 미포팅: 0xdffa10(버프가치) → 0xe022d0 → 0xe01c40 → 0xe03360/0xe02540
     na_tag(if ally.is_some() { "B14spec" } else { "B13spec" })
 }
 
@@ -430,6 +435,29 @@ pub unsafe fn spec_a0(data: usize, vt: usize, me: usize, depth: u32) -> Option<O
         }
         0x12a5770 | 0x13be350 => fold_children(p, 8, 0x10, 0x10, me, depth),      // Vec<Arc<dyn>> {cap,ptr,len}
         0x12a50c0 => fold_children(p, 0x48, 0x50, 0x10, me, depth),
+        0x1248150 => fold_children(p, 0x50, 0x58, 0x18, me, depth),
+        // 레벨(self.0x5c8) >= 3 이면 자식 (p+0x10,p+0x18), 아니면 (p+0,p+8) 로 위임
+        0x164eba0 => {
+            let o = if rd_u64(me + 0x5c8)? >= 3 { 0x10usize } else { 0 };
+            let (cd, cv) = (rd_u64(p + o)? as usize, rd_u64(p + o + 8)? as usize);
+            if !ptr_ok(cd) || !ptr_ok(cv) { return None; }
+            spec_a0(cd, cv, me, depth + 1)
+        }
+        // 두 리스트(첫째 stride 0x18, 둘째 stride 0x10)
+        0x153b540 => {
+            let a1 = fold_children(p, 0x50, 0x58, 0x18, me, depth)?;
+            let a2 = fold_children(p, 0x68, 0x70, 0x10, me, depth)?;
+            Some(match (a1, a2) {
+                (None, x) => x,
+                (Some(x), None) => Some(x),
+                (Some(mut x), Some(y)) => {
+                    for o in FOLD_I32 { let v = sp_i32(&x, o).wrapping_add(sp_i32(&y, o)); sp_set_i32(&mut x, o, v); }
+                    for o in FOLD_I64 { let v = sp_i64(&x, o).wrapping_add(sp_i64(&y, o)); sp_set_i64(&mut x, o, v); }
+                    for o in FOLD_BOOL { x[o] |= y[o]; }
+                    Some(x)
+                }
+            })
+        }
         0x12a5be0 => fold_children(p, 0x20, 0x28, 0x18, me, depth),
         0x106a440 => {                                                            // memcpy(sret, inline, 0x120)
             let mut b = [0u8; SPEC_SIZE];
@@ -533,4 +561,172 @@ pub unsafe fn e047c0(slot: usize, ctx: usize, me: usize) -> Option<Option<[i32; 
     }
     out[0x48 / 4] = 0;
     Some(Some(out))
+}
+
+// ── 0xe03ed0 — Spirit Caller 표식 소모 가치 (1,324B, S13 전용) ──────────────────────────
+//   정본 = `RE\2026-09-07_combat_score-S13S14-버프콜리4종-…-0.5.8.md` §1
+//   `(slot, ctx, rec, bb, self, C) -> i64` : 아군/적 로스터에서 "spirit_caller_skill1/2" 버프를 가진
+//   유닛을 반경 안에서 찾아 기여도를 합산. 표식 2개 미만이면 0, 상한 160.
+const TID_SPIRIT: usize = 0x33e1ce0;   // e03ed0 의 TID_A
+const EFF_STRIDE: usize = 0x120;
+
+/// 엔티티의 버프 목록(`e.0x2e0` ptr / `e.0x2e8` len, stride 0x120)에서 이름이 `name`(길이 20)인 것이 있는가
+unsafe fn has_effect20(e: usize, tail4: &[u8; 4]) -> Option<bool> {
+    let n = rd_u64(e + 0x2e8)?; if n == 0 { return Some(false); }
+    let p = rd_u64(e + 0x2e0)? as usize; if !ptr_ok(p) { return None; }
+    const HEAD: &[u8; 16] = b"spirit_caller_sk";
+    for i in 0..n.min(64) as usize {
+        let eff = p + i * EFF_STRIDE;
+        if rd_u32(eff) != 0x14 { continue; }
+        let mut ok = true;
+        for k in 0..16 { if rd_u8(eff + 4 + k) != HEAD[k] { ok = false; break; } }
+        if !ok { continue; }
+        for k in 0..4 { if rd_u8(eff + 20 + k) != tail4[k] { ok = false; break; } }
+        if ok { return Some(true); }
+    }
+    Some(false)
+}
+
+pub unsafe fn e03ed0(slot: usize, ctx: usize, rec: usize, bb: usize, me: usize, c: i64) -> Option<i64> {
+    let (sd, sv) = (rd_u64(slot)? as usize, rd_u64(slot + 8)? as usize);
+    if !ptr_ok(sd) || !ptr_ok(sv) { return None; }
+    let (def, dvt) = slot_def_b8(sd, sv)?;
+    if def == 0 { return Some(0); }
+    // TypeId 가 표식형이 아니면 컨테이너 1단계만 훑어 표식형 자식을 찾는다
+    let hit = if typeid_rva(dvt)? == TID_SPIRIT { def } else {
+        if typeid_rva(dvt)? != TID_CONT { return Some(0); }
+        let n = rd_u64(def + 0x10)?; if n == 0 { return Some(0); }
+        let arr = rd_u64(def + 8)? as usize; if !ptr_ok(arr) { return None; }
+        let mut found = 0usize;
+        for i in 0..n.min(64) as usize {
+            let (cd, cv) = (rd_u64(arr + i * 0x10)? as usize, rd_u64(arr + i * 0x10 + 8)? as usize);
+            if !ptr_ok(cd) || !ptr_ok(cv) { continue; }
+            let (d2, dv2) = match slot_def_b8(cd, cv) { Some(v) => v, None => continue };
+            if d2 == 0 { continue; }
+            if typeid_rva(dv2)? == TID_SPIRIT { found = d2; break; }
+        }
+        if found == 0 { return Some(0); }
+        found
+    };
+
+    let st = rd_u64(me + 0x620)?;                       // 주문력(추정) — RE §1 의 `self.0x620`
+    let amt1 = rd_i64(hit + 0x08)?.wrapping_add((rd_u64(hit + 0x10)?.wrapping_mul(st) / 100) as i64);
+    let amt2 = rd_i64(hit + 0x30)?.wrapping_add((rd_u64(hit + 0x38)?.wrapping_mul(st) / 100) as i64);
+    let r = rd_u64(hit)?; let r2 = r.wrapping_mul(r);
+    let side = rd_u64(rec + 0x930)?; if side > 1 { return None; }
+    let w = rd_u64(ctx)? as usize; if !ptr_ok(w) { return None; }
+    let (sx, sy) = (rd_u64(me + ENT_X)?, rd_u64(me + ENT_Y)?);
+    let (mut sum, mut cnt): (i64, u64) = (0, 0);
+
+    // 루프1 — 내 팀 5칸, "…skill1"
+    for i in 0..5usize {
+        let e = rd_u64(w + 0x1e0 + (side as usize) * 0x28 + i * 8)? as usize; if e == 0 { continue; }
+        let (ex, ey) = (rd_u64(e + ENT_X)?, rd_u64(e + ENT_Y)?);
+        let (dx, dy) = (absd(ex, sx), absd(ey, sy));
+        if dx.wrapping_mul(dx).wrapping_add(dy.wrapping_mul(dy)) > r2 { continue; }
+        if !has_effect20(e, b"ill1")? { continue; }
+        let hp = rd_i64(e + ENT_HP)?;
+        let den = if hp < 2 { 1 } else { hp };
+        sum = sum.wrapping_add(amt1.min(hp).wrapping_mul(c) / den);
+        cnt += 1;
+    }
+    // 루프2 — 적 팀 5칸, "…skill2"
+    let half = c / 2;
+    let (rp, rn) = (rd_u64(bb + BV_ENEMY_PTR)? as usize, rd_u64(bb + BV_ENEMY_LEN)?);
+    for j in 0..5usize {
+        let e = rd_u64(w + 0x1e0 + ((1 - side) as usize) * 0x28 + j * 8)? as usize; if e == 0 { continue; }
+        let (ex, ey) = (rd_u64(e + ENT_X)?, rd_u64(e + ENT_Y)?);
+        let (dx, dy) = (absd(ex, sx), absd(ey, sy));
+        if dx.wrapping_mul(dx).wrapping_add(dy.wrapping_mul(dy)) > r2 { continue; }
+        if !has_effect20(e, b"ill2")? { continue; }
+        cnt += 1;
+        let h = rd_u64(e + ENT_HANDLE)?;
+        let mut mult = half;
+        if rn != 0 && ptr_ok(rp) {
+            for k in 0..rn.min(64) as usize {
+                let r = rp + k * 0xd8;
+                if rd_u64(r + 0x58)? == h { mult = super::as_callees::pct_c(bb, r)?; break; }
+            }
+        }
+        let hp = rd_i64(e + ENT_HP)?;
+        let den = if hp < 2 { 1 } else { hp };
+        sum = sum.wrapping_add(amt2.min(hp).wrapping_mul(mult) / den);
+    }
+    if cnt < 2 { return Some(0); }
+    Some(sum.min(160))
+}
+
+// ── 0xe02bc0 — 광역 힐/실드 가치 (871B) ──────────────────────────────────────────────────
+//   `(mode 미사용, slot, ctx, bb, self, tgt, tgt.handle, sp) -> i64`
+//   `slot.vt+0xd0` 이 **(kind, aoeRadius) 2값**을 돌려주고, kind != 1 이면 즉시 0.
+unsafe fn slot_d0(data: usize, vt: usize) -> Option<(u64, u64)> {
+    let f = rd_u64(vt + 0xd0)? as usize;
+    let p = inline_self(data, vt)?;
+    // `mov rax,[rcx+A]; mov rdx,[rcx+B]; ret` 형(2값 게터)
+    if rd_u8(f) == 0x48 && rd_u8(f + 1) == 0x8b && (rd_u8(f + 2) & 0xC7) == 0x41 {
+        let a = rd_u8(f + 3) as usize;
+        let g = f + 4;
+        if rd_u8(g) == 0x48 && rd_u8(g + 1) == 0x8b && (rd_u8(g + 2) & 0xC7) == 0x51 && rd_u8(g + 4) == 0xc3 {
+            return Some((rd_u64(p + a)?, rd_u64(p + rd_u8(g + 3) as usize)?));
+        }
+    }
+    let eb = crate::exe_base();
+    if eb != 0 && f > eb {
+        match f - eb {
+            // 자식 중 **kind&1 이 선 첫 자식**의 (kind, 반경). 없으면 (0, _)
+            0x12a6e80 => {
+                let n = rd_u64(p + 0x10)?; if n == 0 { return Some((0, 0)); }
+                let arr = rd_u64(p + 8)? as usize; if !ptr_ok(arr) { return None; }
+                for i in 0..n.min(64) as usize {
+                    let e = arr + i * 0x10;
+                    let (cd, cv) = (rd_u64(e)? as usize, rd_u64(e + 8)? as usize);
+                    if !ptr_ok(cd) || !ptr_ok(cv) { return None; }
+                    let (k, r) = slot_d0(cd, cv)?;
+                    if k & 1 != 0 { return Some((k, r)); }
+                }
+                return Some((0, 0));
+            }
+            0x9db70 => return Some((0, 0)),          // xor eax,eax; ret
+            _ => {}
+        }
+    }
+    if let Some(r) = super::dyn_eff::impl_rva(vt, 0xd0) { super::dyn_eff::unseen(0x9d0, r); }
+    na_tag("Bd0").map(|_| (0, 0))
+}
+
+pub unsafe fn e02bc0(slot: usize, ctx: usize, bb: usize, me: usize, tgt: usize, tgt_h: u64, cast_delay: u64) -> Option<i64> {
+    let (sd, sv) = (rd_u64(slot)? as usize, rd_u64(slot + 8)? as usize);
+    if !ptr_ok(sd) || !ptr_ok(sv) { return None; }
+    let (kind, aoe_r) = slot_d0(sd, sv)?;
+    let n = rd_u64(bb + 0x14d0)?;                    // 아군 Record len
+    if kind != 1 || n == 0 { return Some(0); }
+    let arr = rd_u64(bb + 0x14b8)? as usize; if !ptr_ok(arr) { return None; }
+    let w = rd_u64(ctx)? as usize; if !ptr_ok(w) { return None; }
+    let wd = rd_u64(w)? as usize; let wv = rd_u64(w + 8)? as usize;
+    if !ptr_ok(wd) || !ptr_ok(wv) { return None; }
+    let wr = World { x: w, data: wd, vt: wv };
+    let (cx, cy) = (rd_u64(tgt + ENT_X)?, rd_u64(tgt + ENT_Y)?);
+    let mut acc: i64 = 0;
+    for i in 0..n.min(64) as usize {
+        let rec = arr + i * 0xd8;
+        let h = rd_u64(rec + 0x58)?;
+        if h == tgt_h { continue; }
+        let e = match wr.entity(h) { Some(x) => x.0, None => continue };
+        let r = body_radius(e)?.wrapping_add(aoe_r);
+        let (ex, ey) = (rd_u64(e + ENT_X)?, rd_u64(e + ENT_Y)?);
+        let (dx, dy) = (absd(ex, cx), absd(ey, cy));
+        if dx.wrapping_mul(dx).wrapping_add(dy.wrapping_mul(dy)) > r.wrapping_mul(r) { continue; }
+        let heal_cap = slot_sum(sd, sv, 0x40, me, 0, "B40")?;
+        let heal = rd_u64(e + ENT_MAXHP)?.saturating_sub(rd_u64(e + ENT_HP)?).min(heal_cap.max(0) as u64) as i64;
+        let x = super::action_score::threat_sum(rec, cast_delay.wrapping_add(30))?
+            .wrapping_add(rd_i64(rec + 0x70)?).wrapping_add(rd_i64(rec + 0x88)?);
+        let shield = slot_sum(sd, sv, 0x48, me, 0, "B48")?.min(3 * x);
+        let total = shield.wrapping_add(heal);
+        if total <= 0 { continue; }
+        let ce = super::as_callees::pct_c(bb, rec)?;
+        let hp = rd_i64(e + ENT_HP)?;
+        let den = if hp < 2 { 1 } else { hp };
+        acc = acc.wrapping_add(ce.wrapping_mul(total) / den);
+    }
+    Some(acc)
 }

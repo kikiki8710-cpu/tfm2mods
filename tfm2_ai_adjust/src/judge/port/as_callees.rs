@@ -475,6 +475,7 @@ pub unsafe fn decode_getter(f: usize, obj: usize) -> Option<u64> {
     if b0 == 0x48 && b1 == 0x8b && b2 == 0x81 { return rd_u64((obj as isize + rd_i32(f + 3)? as isize) as usize); }
     if b0 == 0x48 && b1 == 0x8b && b2 == 0x41 { return rd_u64((obj as isize + rd_u8(f + 3) as i8 as isize) as usize); }
     if b0 == 0x48 && b1 == 0x8b && b2 == 0x01 { return rd_u64(obj); }
+    if b0 == 0xb0 && rd_u8(f + 2) == 0xc3 { return Some(b1 as u64); }              // mov al, imm8; ret
     if b0 == 0x8b && b1 == 0x81 { return Some(rd_u32((obj as isize + rd_i32(f + 2)? as isize) as usize) as u64); }
     if b0 == 0x8b && b1 == 0x41 { return Some(rd_u32((obj as isize + rd_u8(f + 2) as i8 as isize) as usize) as u64); }
     if b0 == 0x0f && b1 == 0xb6 && b2 == 0x81 { return Some(rd_u8((obj as isize + rd_i32(f + 3)? as isize) as usize) as u64); }
