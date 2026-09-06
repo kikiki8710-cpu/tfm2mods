@@ -213,4 +213,12 @@ pub const EFFA0_MERGE_20_18: usize = 0x1455d70;    // [s+0x20]/[s+0x28] stride 0
 pub const EFFA0_MERGE_50_18_68_10: usize = 0x153b540; // 두 범위
 pub const ENT_BUFFS_PTR: usize = 0x2e0;            // 엔티티 버프 목록 ptr / +0x2e8 len · stride 0x120 · [0]=name len u32, [4..]=name
 pub const ENT_BUFFS_LEN: usize = 0x2e8;
+pub const EFF40_SWITCH_BY_LEVEL3: usize = 0x164ea30; // level≥3 ? 자식1([s+0x10],[s+0x18]) : 자식0([s],[s+8]) → 그 +0x40
+pub const EFFA0_MERGE_50_18_68_18: usize = 0x16a33f0; // 두 범위 모두 stride 0x18 (0x126f800)
+pub const EFFA0_MERGE_08_10_B: usize = 0x13be350;     // [s+8]/[s+0x10] stride 0x10 (0x126e6c0)
+pub const EFFA0_DELEGATE_RAW: usize = 0x1153860;      // 자식 (payload=[s] 그대로, vt=[s+8]) 의 +0xa0 로 tail
+pub const EFFA0_SWITCH_BY_BUFF: usize = 0x16065e0;    // 버프 이름([s+8],[s+0x10]) 보유 ? 자식1(0x28/0x30) : 자식0(0x18/0x20) → +0xa0
+pub const EFFA0_INLINE_STATE: usize = 0x11507c0;      // [s+0x120]!=0 → None ; 아니면 payload 안의 BuffState 복사(type=[s+0x48], vamp=[s+0x80])
+pub const EFFA0_MERGE_08_18: usize = 0x13bfbf0;       // [s+8]/[s+0x10] stride 0x18 (0x126ec80)
+pub const EFFA0_MERGE_48_10: usize = 0x12a50c0;       // [s+0x48]/[s+0x50] stride 0x10 (0x126e6c0)
 

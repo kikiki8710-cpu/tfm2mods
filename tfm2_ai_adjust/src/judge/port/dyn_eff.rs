@@ -117,6 +117,12 @@ unsafe fn eff40_heal_d(data: usize, vt: usize, ent: usize, depth: u32) -> Option
             let (d, v) = (rd_u64(me + 0x18 + idx)? as usize, rd_u64(me + 0x20 + idx)? as usize);
             eff40_heal_d(d, v, ent, depth + 1)
         }
+        EFF40_SWITCH_BY_LEVEL3 => {
+            // 0x164ea30: level(ent+0x5c8) >= 3 ? 자식1 : 자식0
+            let idx = if rd_u64(ent + ENT_LEVEL)? >= 3 { 0x10 } else { 0 };
+            let (d, v) = (rd_u64(me + idx)? as usize, rd_u64(me + idx + 8)? as usize);
+            eff40_heal_d(d, v, ent, depth + 1)
+        }
         EFF40_LEAF_RATIO => {
             // 0x12b1550: ([s] + [s+8]*snap[8]) * ([s+0x20] / [s+0x28]) ; [s+0x28]==0 → div0 panic
             let d = rd_u64(me + 0x28)?; if d == 0 { return None; }
@@ -152,10 +158,28 @@ unsafe fn merge_a0(acc: &mut (i32, i32), ptr: usize, len: u64, stride: usize, en
 }
 /// effect `+0xa0` BuffState sret — 핸들러가 읽는 두 필드만: (+0x48 type i32(−1=None), +0x80 vamp i32)
 pub unsafe fn effa0_buff(data: usize, vt: usize, ent: usize) -> Option<(i32, i32)> { effa0_buff_d(data, vt, ent, 0) }
-unsafe fn effa0_buff_d(data: usize, vt: usize, ent: usize, depth: u32) -> Option<(i32, i32)> {
+unsafe fn effa0_buff_d(data: usize, vt: usize, ent: usize, depth: u32) -> Option<(i32, i32)> { effa0_buff_p(arc_payload(data, vt)?, vt, ent, depth) }
+/// payload 주소를 직접 받는 판(0x1153860 위임은 자식 data 를 Arc 조정 없이 그대로 넘긴다)
+unsafe fn effa0_buff_p(me: usize, vt: usize, ent: usize, depth: u32) -> Option<(i32, i32)> {
     if depth > 4 { return None; }
-    let rva = impl_rva(vt, 0xa0)?; let me = arc_payload(data, vt)?;
+    let rva = impl_rva(vt, 0xa0)?;
     match rva {
+        EFFA0_MERGE_50_18_68_18 => {
+            let mut acc = (-1, 0);
+            merge_a0(&mut acc, rd_u64(me + 0x50)? as usize, rd_u64(me + 0x58)?, 0x18, ent, depth)?;
+            merge_a0(&mut acc, rd_u64(me + 0x68)? as usize, rd_u64(me + 0x70)?, 0x18, ent, depth)?;
+            Some(acc)
+        }
+        EFFA0_MERGE_08_10_B => { let mut acc = (-1, 0); merge_a0(&mut acc, rd_u64(me + 8)? as usize, rd_u64(me + 0x10)?, 0x10, ent, depth)?; Some(acc) }
+        EFFA0_MERGE_08_18 => { let mut acc = (-1, 0); merge_a0(&mut acc, rd_u64(me + 8)? as usize, rd_u64(me + 0x10)?, 0x18, ent, depth)?; Some(acc) }
+        EFFA0_MERGE_48_10 => { let mut acc = (-1, 0); merge_a0(&mut acc, rd_u64(me + 0x48)? as usize, rd_u64(me + 0x50)?, 0x10, ent, depth)?; Some(acc) }
+        EFFA0_DELEGATE_RAW => effa0_buff_p(rd_u64(me)? as usize, rd_u64(me + 8)? as usize, ent, depth + 1),
+        EFFA0_SWITCH_BY_BUFF => {
+            let idx = if buff_lookup(ent, rd_u64(me + 8)? as usize, rd_u64(me + 0x10)?)? != 0 { 0x10 } else { 0 };
+            let (d, v) = (rd_u64(me + 0x18 + idx)? as usize, rd_u64(me + 0x20 + idx)? as usize);
+            effa0_buff_d(d, v, ent, depth + 1)
+        }
+        EFFA0_INLINE_STATE => { if rd_u8(me + 0x120) != 0 { Some((-1, 0)) } else { Some((rd_i32(me + 0x48)?, rd_i32(me + 0x80)?)) } }
         EFFA0_NONE => Some((-1, 0)),
         EFFA0_WIND_SPEED => Some((1, 0)),          // 0x12266f0: 상수 생성(type 1, +0x80 = 0)
         EFFA0_MERGE_08_10 => { let mut acc = (-1, 0); merge_a0(&mut acc, rd_u64(me + 8)? as usize, rd_u64(me + 0x10)?, 0x10, ent, depth)?; Some(acc) }
