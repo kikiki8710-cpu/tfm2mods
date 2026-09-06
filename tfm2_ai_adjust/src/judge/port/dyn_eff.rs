@@ -30,6 +30,54 @@ pub fn unseen_report() -> String {
     s
 }
 
+/// **합성 impl 골격 스캐너**(eff28/eff38 공용). 컴파일러가 모노몰픽 복제한 "자식 순회 후 합산" 형을
+///   RVA 표 없이 해석한다. 규칙:
+///     · 직전 call 이후 처음 나오는 **disp8 메모리 로드 2개**(SIB 없음) = (len_off, ptr_off)
+///     · `call qword ptr [r?+SLOT]` 로 루프 확정(모든 루프의 SLOT 은 같아야 한다)
+///     · 그 뒤 첫 `add r?, imm8` 이 stride
+///   루프는 최대 2개까지. 그 밖의 형태면 None(=fail-closed).
+///   실측 대상: `0x122e450`(2루프) · `0x13bfb60` · `0x12a51e0` · `0x1248270` · `0x1341090` 등.
+pub unsafe fn composite_loops(f: usize, want_slot: usize) -> Option<([(usize, usize, usize); 2], usize)> {
+    if !ptr_ok(f) { return None; }
+    let mut lp = [(0usize, 0usize, 0usize); 2];
+    let mut n = 0usize;
+    let mut pend = [usize::MAX; 2]; let mut np = 0usize;
+    let mut want_stride = false;
+    let mut i = 0usize;
+    while i < 0x180 {
+        let a = f + i;
+        if rd_u8(a) == 0xcc && rd_u8(a + 1) == 0xcc && rd_u8(a + 2) == 0xcc { break; }
+        let p0 = rd_u8(a);
+        // disp8 메모리 로드: 48/49/4c/4d 8b <mod=01, rm!=4> disp8
+        if matches!(p0, 0x48 | 0x49 | 0x4c | 0x4d) && rd_u8(a + 1) == 0x8b {
+            let m = rd_u8(a + 2);
+            if (m >> 6) == 1 && (m & 7) != 4 {
+                if !want_stride && np < 2 { pend[np] = rd_u8(a + 3) as usize; np += 1; }
+                i += 4; continue;
+            }
+        }
+        // add r?, imm8 (49/48 83 c? ib) — call 뒤 첫 개가 stride
+        if matches!(p0, 0x48 | 0x49) && rd_u8(a + 1) == 0x83 && (rd_u8(a + 2) & 0xF8) == 0xC0 {
+            if want_stride && n > 0 { lp[n - 1].2 = rd_u8(a + 3) as usize; want_stride = false; }
+            i += 4; continue;
+        }
+        // call qword ptr [r8..r15 + disp8 / disp32]
+        if p0 == 0x41 && rd_u8(a + 1) == 0xff {
+            let m = rd_u8(a + 2);
+            if (m & 0xF8) == 0x50 || (m & 0xF8) == 0x90 {
+                let slot = if (m & 0xF8) == 0x50 { rd_u8(a + 3) as usize } else { rd_i32(a + 3)? as usize };
+                if slot != want_slot || np != 2 || n >= 2 { return None; }
+                lp[n] = (pend[0], pend[1], 0); n += 1;
+                np = 0; pend = [usize::MAX; 2]; want_stride = true;
+                i += if (m & 0xF8) == 0x50 { 4 } else { 7 }; continue;
+            }
+        }
+        i += 1;
+    }
+    if n == 0 { return None; }
+    for k in 0..n { if lp[k].2 != 0x10 && lp[k].2 != 0x18 { return None; } }
+    Some((lp, n))
+}
 #[inline] pub unsafe fn impl_rva(vt: usize, slot: usize) -> Option<usize> {
     let b = exe_base(); if b == 0 || !ptr_ok(vt) { return None; }
     let t = rd_u64(vt + slot)? as usize; if t <= b || t - b > 0x8000000 { return None; }
@@ -144,7 +192,27 @@ pub unsafe fn eff28_damage(data: usize, vt: usize, att: usize) -> Option<(u64, u
             super::super::tr(5, a.min(0xffff) | b.min(0xffff) << 16 | base.min(0xffff) << 32 | ((me as u64) & 0xffff) << 48);
             Some((a.wrapping_add(base).wrapping_add(b), 0))
         }
-        _ => { unseen(0x28, rva); None }
+        // ★골격 스캐너 폴백: 자식 순회 합산형이면 RVA 표 없이 처리(rax·rdx 둘 다 합산)
+        _ => {
+            let f = rd_u64(vt + 0x28)? as usize;
+            if let Some((lp, n)) = composite_loops(f, 0x28) {
+                let (mut p, mut m) = (0u64, 0u64);
+                for k in 0..n {
+                    let (lo, po, st) = lp[k];
+                    let cnt = rd_u64(me + lo)?; if cnt == 0 { continue; }
+                    let arr = rd_u64(me + po)? as usize; if !ptr_ok(arr) { return None; }
+                    for i in 0..cnt.min(64) as usize {
+                        let e = arr + i * st;
+                        let (d, v) = (rd_u64(e)? as usize, rd_u64(e + 8)? as usize);
+                        if !ptr_ok(d) || !ptr_ok(v) { return None; }
+                        let (x, y) = eff28_damage(d, v, att)?;
+                        p = p.wrapping_add(x); m = m.wrapping_add(y);
+                    }
+                }
+                return Some((p, m));
+            }
+            unseen(0x28, rva); None
+        }
     }
 }
 /// 진단: eff28 구현 트리(impl RVA · (p,m) · 페이로드 앞 워드)를 문자열로
@@ -203,7 +271,25 @@ pub unsafe fn eff38_pct(data: usize, vt: usize, _att: usize) -> Option<u64> {
             for i in 0..n.min(64) as usize { let (d, v) = (rd_u64(arr + i * 0x18)? as usize, rd_u64(arr + i * 0x18 + 8)? as usize); acc = acc.wrapping_add(eff38_pct(d, v, _att)?); }
             Some(acc)
         }
-        _ => { unseen(0x38, rva); None }
+        _ => {
+            let f = rd_u64(vt + 0x38)? as usize;
+            if let Some((lp, n)) = composite_loops(f, 0x38) {
+                let mut acc = 0u64;
+                for k in 0..n {
+                    let (lo, po, st) = lp[k];
+                    let cnt = rd_u64(me + lo)?; if cnt == 0 { continue; }
+                    let arr = rd_u64(me + po)? as usize; if !ptr_ok(arr) { return None; }
+                    for i in 0..cnt.min(64) as usize {
+                        let e = arr + i * st;
+                        let (d, v) = (rd_u64(e)? as usize, rd_u64(e + 8)? as usize);
+                        if !ptr_ok(d) || !ptr_ok(v) { return None; }
+                        acc = acc.wrapping_add(eff38_pct(d, v, _att)?);
+                    }
+                }
+                return Some(acc);
+            }
+            unseen(0x38, rva); None
+        }
     }
 }
 /// effect `+0x40` 회복량 추정

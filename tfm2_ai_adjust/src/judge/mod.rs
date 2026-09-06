@@ -57,6 +57,7 @@ pub mod port {
     pub mod position_eval;
     pub mod combat_score;
     pub mod buff_value;
+    pub mod specemu;
 }
 use gen_fns::*;
 

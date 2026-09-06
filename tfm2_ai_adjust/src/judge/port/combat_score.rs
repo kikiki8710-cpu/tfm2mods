@@ -530,9 +530,10 @@ unsafe fn combat_score_inner(mode: usize, _prof: usize, rec: usize, ctx: usize, 
     }
     let main: i64 = if let Some(rt) = rec_t {
         // ── S12 적 타깃 ──
-        let d = est(slot, me, tgt)? as i64;
-        let x = threat_sum(rt, cast_delay.wrapping_add(30))?.wrapping_add(rd_i64(rt + RT_170)?);
-        let ct = pct_c(bb, rt)?;
+        stg(tag8("S12"));
+        let d = match est(slot, me, tgt) { Some(v) => v as i64, None => return na(tag8("S12_est")) };
+        let x = match threat_sum(rt, cast_delay.wrapping_add(30)) { Some(v) => v.wrapping_add(rd_i64(rt + RT_170)?), None => return na(tag8("S12_thr")) };
+        let ct = match pct_c(bb, rt) { Some(v) => v, None => return na(tag8("S12_ct")) };
         let kill = rd_i64(rt + RT_KILL)?;
         let thp = rd_i64(tgt + ENT_HP)?; if thp == 0 { return None; }
         let mut v = x / 4 + kill / 2 + d;
@@ -546,15 +547,18 @@ unsafe fn combat_score_inner(mode: usize, _prof: usize, rec: usize, ctx: usize, 
         }
         // 스테로이드 창: sp.vt+0x68 의 dyn Any 가 스테로이드형이면 그 T, 아니면 slot.vt+0x88 의 (ok, T)
         let (sd, sv) = (rd_u64(slot)? as usize, rd_u64(slot + 8)? as usize);
-        let (ok88, t88) = slot_88(sd, sv, 0)?;
+        let (ok88, t88) = match slot_88(sd, sv, 0) { Some(v) => v, None => return na(tag8("S12_88")) };
         if ok88 { return na(tag8("S12ster")); }   // ⬜스테로이드 창 블록(피해행렬·버스트) 미포팅
         let _ = t88;
-        let (a1, a2, a3) = (e01450(&w, sim, rec, slot, tgt, ct, tps)?, e019d0(&w, sim, slot, tgt, ct, tps)?, e02020(&w, sim, rec, slot, me, tgt, ct, tps)?);
+        let a1 = match e01450(&w, sim, rec, slot, tgt, ct, tps) { Some(v) => v, None => return na(tag8("S12_1450")) };
+        let a2 = match e019d0(&w, sim, slot, tgt, ct, tps) { Some(v) => v, None => return na(tag8("S12_19d0")) };
+        let a3 = match e02020(&w, sim, rec, slot, me, tgt, ct, tps) { Some(v) => v, None => return na(tag8("S12_2020")) };
         S12D.with(|c| c.set([d, x, ct, kill, score, a1, a2, a3]));
         score + a1 + a2 - a3
     } else { 0 };
     if rec_t.is_some() { let _ = main; }
     if rec_t.is_none() && (rec_a.is_some() || self_is_tgt) {
+        stg(tag8("S13x"));
         let bc = super::buff_value::BCtx { mode, prof: _prof, rec, ctx, bb, sp, slot, tgt, me, p9: _p9,
                                            sim, w: w.x, c: c_val, inc_base: bonus9b0.wrapping_add(thr_s), cast_delay };
         return super::buff_value::s13_s14(&bc, rec_a);

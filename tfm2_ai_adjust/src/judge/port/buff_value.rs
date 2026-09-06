@@ -10,6 +10,12 @@ use super::super::layout::*;
 use super::action_score::sim_of_handle;
 
 pub const SPEC_SIZE: usize = 0x120;
+/// 잎 에뮬레이터가 필요로 하는 두 컨텍스트(sim · EST 서술자 절대주소). S13/S14 진입 때 한 번 세운다.
+thread_local! {
+    static SIM_TLS: std::cell::Cell<usize> = const { std::cell::Cell::new(0) };
+    static EST_DESC_RVA_ABS: std::cell::Cell<u64> = const { std::cell::Cell::new(0) };
+}
+pub unsafe fn set_leaf_ctx(sim: usize) { SIM_TLS.with(|c| c.set(sim)); EST_DESC_RVA_ABS.with(|c| c.set((crate::exe_base() + 0x33da3d0) as u64)); }
 const BV_ENEMY_PTR: usize = 0x14d8; const BV_ENEMY_LEN: usize = 0x14f0;
 
 // ── 공통 관용구 ───────────────────────────────────────────────────────────────────────────
@@ -295,6 +301,7 @@ pub unsafe fn slot_sum(data: usize, vt: usize, slot: usize, me: usize, depth: u3
 /// S13(자기 버프) · S14(아군 버프). `ally` = 아군 Record(S14) / None(S13).
 /// 아직 `0xe047c0`·`0xdffa10` 등이 미포팅이라 최종값은 NA — 지금은 **어느 조각이 벽인지** 집계가 목적이다.
 pub unsafe fn s13_s14(b: &BCtx, ally: Option<usize>) -> Option<i64> {
+    set_leaf_ctx(b.sim);
     let (_sd, sv, sin) = slot3(b.slot)?;
     let t = b.tgt;
     let (maxhp, hp) = (rd_u64(t + ENT_MAXHP)?, rd_u64(t + ENT_HP)?);
@@ -327,14 +334,17 @@ pub unsafe fn s13_s14(b: &BCtx, ally: Option<usize>) -> Option<i64> {
     let shield_e = shield_ok.min(3 * inc);
     let _ = (heal_e, shield_e, aura, sin, b.mode, b.prof, b.rec, b.ctx, b.sp, b.me, b.p9, b.sim, b.w, b.c);
 
-    let spec0 = e047c0(b.slot, b.ctx, t)?;
+    let spec0 = match e047c0(b.slot, b.ctx, t) { Some(v) => v, None => return na_tag("B047") };
     // has = spec0 있음 ∨ slot.vt+0xa0(sret BuffSpec) 의 tag != −1  ·  b90 = slot.vt+0x90(bool)
     let _has = match spec0 { Some(_) => true, None => { sret_spec_tag(_sd, sv, b.me, "Ba0")? != -1 } };
     let _b90 = slot_bool90(_sd, sv, 0)?;
     // 조립 항 중 이미 옮긴 것들(값은 아직 안 쓰지만 도달·NA 집계로 검증 순서를 잡는다)
-    let _aoe = e02bc0(b.slot, b.ctx, b.bb, b.me, if ally.is_some() { t } else { b.me },
-                      rd_u64(if ally.is_some() { t } else { b.me } + ENT_HANDLE)?, b.cast_delay)?;
-    if ally.is_none() { let _trig = e03ed0(b.slot, b.ctx, b.rec, b.bb, b.me, b.c)?; }
+    let atgt = if ally.is_some() { t } else { b.me };
+    let ah = match rd_u64(atgt + ENT_HANDLE) { Some(v) => v, None => return na_tag("B2bc0") };
+    let _aoe = match e02bc0(b.slot, b.ctx, b.bb, b.me, atgt, ah, b.cast_delay) { Some(v) => v, None => return na_tag("B2bc0") };
+    if ally.is_none() {
+        let _trig = match e03ed0(b.slot, b.ctx, b.rec, b.bb, b.me, b.c) { Some(v) => v, None => return na_tag("B3ed0") };
+    }
     // ⬜남은 미포팅: 0xdffa10(버프가치) → 0xe022d0 → 0xe01c40 → 0xe03360/0xe02540
     na_tag(if ally.is_some() { "B14spec" } else { "B13spec" })
 }
@@ -405,9 +415,13 @@ pub unsafe fn slot_bool90(data: usize, vt: usize, depth: u32) -> Option<bool> {
 }
 /// `slot.vt+0xa0(sret, inline, sim, self, EST)` 재현. `Some(None)` = tag −1(버프 없음).
 pub unsafe fn spec_a0(data: usize, vt: usize, me: usize, depth: u32) -> Option<Option<[u8; SPEC_SIZE]>> {
+    spec_a0_inline(inline_self(data, vt)?, vt, me, depth)
+}
+/// `spec_a0` 의 inline 기준판. 일부 impl(`0x1153860`)은 자식에게 **Arc 보정 없이** payload 를 그대로 넘긴다.
+pub unsafe fn spec_a0_inline(p: usize, vt: usize, me: usize, depth: u32) -> Option<Option<[u8; SPEC_SIZE]>> {
+    let sim = SIM_TLS.with(|c| c.get()) as u64;
     if depth > 8 { return na_tag("Ba0d").map(|_| None); }
     let f = rd_u64(vt + 0xa0)? as usize;
-    let p = inline_self(data, vt)?;
     let eb = crate::exe_base(); if eb == 0 || f <= eb { return None; }
     match f - eb {
         0x109baa0 => Some(None),                                                  // 기본 impl: +0x48 = −1
@@ -436,6 +450,12 @@ pub unsafe fn spec_a0(data: usize, vt: usize, me: usize, depth: u32) -> Option<O
         0x12a5770 | 0x13be350 => fold_children(p, 8, 0x10, 0x10, me, depth),      // Vec<Arc<dyn>> {cap,ptr,len}
         0x12a50c0 => fold_children(p, 0x48, 0x50, 0x10, me, depth),
         0x1248150 => fold_children(p, 0x50, 0x58, 0x18, me, depth),
+        // `mov rax,[rdx]; mov rdx,[rdx+8]; jmp [rdx+0xa0]` — 자식 fat-ptr 을 **보정 없이** 그대로 넘기는 위임
+        0x1153860 => {
+            let (cd, cv) = (rd_u64(p)? as usize, rd_u64(p + 8)? as usize);
+            if !ptr_ok(cd) || !ptr_ok(cv) { return None; }
+            spec_a0_inline(cd, cv, me, depth + 1)
+        }
         // 레벨(self.0x5c8) >= 3 이면 자식 (p+0x10,p+0x18), 아니면 (p+0,p+8) 로 위임
         0x164eba0 => {
             let o = if rd_u64(me + 0x5c8)? >= 3 { 0x10usize } else { 0 };
@@ -465,7 +485,15 @@ pub unsafe fn spec_a0(data: usize, vt: usize, me: usize, depth: u32) -> Option<O
             if i32::from_le_bytes([b[0x48], b[0x49], b[0x4a], b[0x4b]]) == -1 { return Some(None); }
             Some(Some(b))
         }
-        _ => { if let Some(r) = super::dyn_eff::impl_rva(vt, 0xa0) { super::dyn_eff::unseen(0x9a0, r); } na_tag("Ba0").map(|_| None) }
+        // ★잎(챔피언 어빌리티별 스펙 빌더)은 미니 에뮬레이터로 해석한다. 모르는 명령이면 None → NA(조용히 틀리지 않음).
+        _ => {
+            if let Some(bspec) = super::specemu::run_spec_leaf(f, p as u64, sim, me as u64, EST_DESC_RVA_ABS.with(|c| c.get())) {
+                if i32::from_le_bytes([bspec[0x48], bspec[0x49], bspec[0x4a], bspec[0x4b]]) == -1 { return Some(None); }
+                return Some(Some(bspec));
+            }
+            if let Some(r) = super::dyn_eff::impl_rva(vt, 0xa0) { super::dyn_eff::unseen(0x9a0, r); }
+            na_tag("Ba0").map(|_| None)
+        }
     }
 }
 /// slot.vt+0xa0 의 태그만 (−1 = 없음)
@@ -687,6 +715,15 @@ unsafe fn slot_d0(data: usize, vt: usize) -> Option<(u64, u64)> {
                 return Some((0, 0));
             }
             0x9db70 => return Some((0, 0)),          // xor eax,eax; ret
+            // p.0x10 != 0 → 없음 · p.0x58(u32) 가 2 이거나 3 초과면 없음 · 아니면 (1, p.0x18)
+            0x1145e30 => {
+                if rd_u64(p + 0x10)? != 0 { return Some((0, 0)); }
+                let k = rd_u32(p + 0x58);
+                if k > 3 || k == 2 { return Some((0, 0)); }
+                return Some((1, rd_u64(p + 0x18)?));
+            }
+            // (kind = (p.u32 == 3), radius = p.0x08)
+            0x108dc10 => return Some(((rd_u32(p) == 3) as u64, rd_u64(p + 8)?)),
             _ => {}
         }
     }
