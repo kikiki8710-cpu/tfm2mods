@@ -260,7 +260,27 @@ unsafe fn slot_88(data: usize, vt: usize, depth: u32) -> Option<(bool, u64)> {
                     if v.0 { return Some(v); } }
             }
             Some((false, 0)) }
-        _ => { super::dyn_eff::unseen(0x588, r); None }
+        // ★골격 스캐너 폴백: 자식 순회 "any" 형이면 RVA 표 없이 처리
+        _ => {
+            let f = rd_u64(vt + 0x88)? as usize;
+            if let Some((lp, n)) = super::dyn_eff::composite_loops(f, 0x88) {
+                for k in 0..n {
+                    let (lo, po, st) = lp[k];
+                    let cnt = rd_u64(p + lo)?; if cnt == 0 { continue; }
+                    let arr = rd_u64(p + po)? as usize; if !ptr_ok(arr) { return None; }
+                    for i in 0..cnt.min(64) as usize {
+                        let e = arr + i * st;
+                        let v = slot_88(rd_u64(e)? as usize, rd_u64(e + 8)? as usize, depth + 1)?;
+                        if v.0 { return Some(v); }
+                    }
+                }
+                return Some((false, 0));
+            }
+            if let Some((da, db, sl)) = super::as_callees::delegate_pair(f) {
+                if sl == 0x88 { return slot_88(rd_u64(p + da)? as usize, rd_u64(p + db)? as usize, depth + 1); }
+            }
+            super::dyn_eff::unseen(0x588, r); None
+        }
     }
 }
 /// 공격 주기(0xe01450 안): max(3, prov90 * 100 / max(1, e.3fc+100)) — 원본은 `< 4 → 3` 로 클램프
