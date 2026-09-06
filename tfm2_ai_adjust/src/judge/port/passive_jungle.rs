@@ -42,10 +42,16 @@ pub unsafe fn camp_pos(map_def: usize, camp: u8, side: usize) -> Option<(u64, u6
 
 /// 0x12857f0 — 공격자 슬롯(slot=att+0x490: [0] Arc data·[8] vt·+0x2c atk_type u32)의 대상(target) 예상 피해.
 ///   (p,m)=eff28 · p += eff38*target.maxhp/100 · 공격자 버프블록(att+0x370)의 +0xd0/+0xd8/+0xe0/+0xf0 보정 · 관통 +0xa8/+0xb0 · 방어 target+0x630/+0x638 · 결과 max(p,1)+max(m,1)
-pub unsafe fn estimate_damage(slot: usize, att: usize, target: usize) -> Option<u64> {
+pub unsafe fn estimate_damage(slot: usize, att: usize, target: usize, dbg: bool) -> Option<u64> {
     let (data, vt) = (rd_u64(slot)? as usize, rd_u64(slot + 8)? as usize);
     let (mut p, mut m) = dy::eff28_damage(data, vt, att)?;                    // +0x30 은 단일 구현(항상 None) → kind 무관하게 +0x28
     let x38 = dy::eff38_pct(data, vt, att)?;
+    if dbg {
+        let me_ = dy::arc_payload(data, vt).unwrap_or(0);
+        let g = |o: usize| if me_ != 0 { rd_u64(me_ + o).unwrap_or(0xffff).min(0xffff) } else { 0xffff };
+        tr(6, g(0x18) | g(0x20) << 16 | rd_u64(att + ENT_STATS).unwrap_or(0).min(0xffff) << 32 | g(0x10) << 48);
+        tr(11, rd_u64(target + ENT_DEF_P).unwrap_or(0).min(0xffff) | rd_u64(att + ENT_BUFF_BLOCK + 0xa8).unwrap_or(0).min(0xff) << 16 | (rd_u32(slot + 0x2c) as u64 & 0xff) << 24 | p.min(0xffff) << 32 | m.min(0xffff) << 48);
+    }
     let tmax = rd_u64(target + ENT_MAXHP)?;
     if x38 != 0 { p = p.wrapping_add(x38.wrapping_mul(tmax) / 100); }
     if p == 0 && m == 0 { return Some(0); }
@@ -84,7 +90,7 @@ unsafe fn monster_dps(e: usize, me: usize, slot_tr: usize) -> Option<u64> {
     tr(9, 0x100 | 0x20);
     let vt28 = rd_u64(e + ENT_SLOT0 + 8).unwrap_or(0) as usize;
     let impl28 = dy::impl_rva(vt28, 0x28).unwrap_or(0xffff) as u64;
-    let dmg = match estimate_damage(e + ENT_SLOT0, e, me) { Some(v) => v, None => { tr(9, 0x100 | 0x21); tr(slot_tr, 0x8000_0000_0000_0000 | (impl28 & 0xffff) << 48); return None; } };
+    let dmg = match estimate_damage(e + ENT_SLOT0, e, me, slot_tr == 7) { Some(v) => v, None => { tr(9, 0x100 | 0x21); tr(slot_tr, 0x8000_0000_0000_0000 | (impl28 & 0xffff) << 48); return None; } };
     tr(9, 0x100 | 0x22);
     let cd = dy::prov90_cooltime(rd_u64(e + ENT_PROV0_DATA)? as usize, rd_u64(e + ENT_PROV0_VT)? as usize, e)?;
     tr(9, 0x100 | 0x23);
@@ -134,7 +140,7 @@ pub unsafe fn passive_jungle_k(a: &Args8, k: &Knobs) -> Option<MpOut> {
                 if rd_i32(e + ENT_SLOT0_FLAG)? == -1 { nskip += 1; continue; }
                 dps = dps.wrapping_add(monster_dps(e, me, 7 + i.min(1) * 4)?);
             }
-            tr(6, 0x100_0000 | vlen.min(0xff) | nres << 8 | nskip << 16);
+            tr(10, 0x100_0000 | vlen.min(0xff) | nres << 8 | nskip << 16);
             tr(4, 0x1_0000_0000 | dps.min(0xffff_ffff));
             if dps != 0 { if hp.wrapping_mul(1000) / dps > tps { tag6(&mut o); tr(2, 0x101); return Some(o); } }
             else { tag6(&mut o); tr(2, 0x102); return Some(o); }
@@ -146,15 +152,19 @@ pub unsafe fn passive_jungle_k(a: &Args8, k: &Knobs) -> Option<MpOut> {
         let mut r: Option<bool> = None;
         if rd_i32(me + ENT_SLOT1_FLAG)? != -1 {
             let (d1, v1) = (rd_u64(me + ENT_SLOT1)? as usize, rd_u64(me + ENT_SLOT1 + 8)? as usize);
+            tr(9, 0x100 | 0x71); tr(8, v1 as u64);
             let heal = dy::eff40_heal(d1, v1, me)?;
+            tr(9, 0x100 | 0x72);
             if maxhp.saturating_sub(hp).min(heal) != 0 { r = Some(true); }
-            else { let (ty, vamp) = dy::effa0_buff(d1, v1, me)?; if ty != -1 && vamp > 0 { r = Some(true); } }
+            else { let (ty, vamp) = dy::effa0_buff(d1, v1, me)?; tr(9, 0x100 | 0x73); if ty != -1 && vamp > 0 { r = Some(true); } }
         }
         match r { Some(b) => b, None => {
             if rd_u64(me + ENT_LEVEL)? < 3 || rd_i32(me + ENT_SLOT2_FLAG)? == -1 { false } else {
                 let (d2_, v2) = (rd_u64(me + ENT_SLOT2)? as usize, rd_u64(me + ENT_SLOT2 + 8)? as usize);
+                tr(9, 0x100 | 0x74); tr(8, v2 as u64);
                 let heal = dy::eff40_heal(d2_, v2, me)?;
-                if maxhp.saturating_sub(hp).min(heal) != 0 { true } else { let (ty, vamp) = dy::effa0_buff(d2_, v2, me)?; ty != -1 && vamp > 0 }
+                tr(9, 0x100 | 0x75);
+                if maxhp.saturating_sub(hp).min(heal) != 0 { true } else { let (ty, vamp) = dy::effa0_buff(d2_, v2, me)?; tr(9, 0x100 | 0x76); ty != -1 && vamp > 0 }
             }
         } }
     };
