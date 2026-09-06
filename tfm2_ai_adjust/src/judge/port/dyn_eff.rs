@@ -110,6 +110,25 @@ pub unsafe fn eff28_damage(data: usize, vt: usize, att: usize) -> Option<(u64, u
             let (d, v) = (rd_u64(me + 0x18 + idx * 0x10)? as usize, rd_u64(me + 0x20 + idx * 0x10)? as usize);
             eff28_damage(d, v, att)
         }
+        0x16a7550 => {   // 스탯 스냅샷(ENT_VT+0x30 = att.618): p = ((me.8*st[0]/100 + me.0) * (me.10*st[0x38] + 100)) / 100 ; m=0 (capstone 2026-09-06 22:50)
+            let st = att + ENT_STATS;
+            let base = q400(rd_u64(me + 8)?.wrapping_mul(rd_u64(st)?)).wrapping_add(rd_u64(me)?);
+            let f = rd_u64(me + 0x10)?.wrapping_mul(rd_u64(st + 0x38)?).wrapping_add(100);
+            Some((q400(f.wrapping_mul(base)), 0))
+        }
+        0x12480c0 => {   // Σ 자식(stride 0x18 @me+0x50/len me+0x58) (capstone 2026-09-06 22:40)
+            let n = rd_u64(me + 0x58)?; if n == 0 { return Some((0, 0)); } let arr = rd_u64(me + 0x50)? as usize; if !ptr_ok(arr) { return None; }
+            let (mut p, mut m) = (0u64, 0u64);
+            for i in 0..n.min(64) as usize { let (d, v) = (rd_u64(arr + i * 0x18)? as usize, rd_u64(arr + i * 0x18 + 8)? as usize); let (a, b) = eff28_damage(d, v, att)?; p = p.wrapping_add(a); m = m.wrapping_add(b); }
+            Some((p, m))
+        }
+        0x16a32a0 => {   // (Σ 리스트1 @0x50/0x58 s0x18) × n + Σ 리스트2 @0x68/0x70 s0x18 ; n = me.78 / max(1, me.80) (capstone 2026-09-06 22:40)
+            let sum = |po: usize, lo: usize| -> Option<(u64, u64)> { let n = rd_u64(me + lo)?; if n == 0 { return Some((0, 0)); } let arr = rd_u64(me + po)? as usize; if !ptr_ok(arr) { return None; }
+                let (mut p, mut m) = (0u64, 0u64); for i in 0..n.min(64) as usize { let (d, v) = (rd_u64(arr + i * 0x18)? as usize, rd_u64(arr + i * 0x18 + 8)? as usize); let (a, b) = eff28_damage(d, v, att)?; p = p.wrapping_add(a); m = m.wrapping_add(b); } Some((p, m)) };
+            let (p1, m1) = sum(0x50, 0x58)?; let (p2, m2) = sum(0x68, 0x70)?;
+            let per = rd_u64(me + 0x80)?.max(1); let n = rd_u64(me + 0x78)? / per;
+            Some((p1.wrapping_mul(n).wrapping_add(p2), m1.wrapping_mul(n).wrapping_add(m2)))
+        }
         EFF28_PAIR_BYKIND => { let v = rd_u64(me)?; if rd_i32(me + 8)? == 1 { Some((0, v)) } else { Some((v, 0)) } }
         EFF28_GENERIC => {
             // 0x1708310: [s+0x18]*stats[0]/100 + [s+0x20]*stats[0x10]/100 + [s+0x10] ; m=0   (stats = e+0x618)
@@ -128,6 +147,26 @@ pub unsafe fn eff38_pct(data: usize, vt: usize, _att: usize) -> Option<u64> {
     match rva {
         EFF38_ZERO => Some(0),
         EFF38_GET28 => rd_u64(me + 0x28),
+        0x1341090 => {   // Σ 리스트1(@0x68/0x70 s0x18) + Σ 리스트2(@0x80/0x88 s0x18) 의 +0x38 (capstone 2026-09-06 22:50)
+            let mut acc = 0u64;
+            for (po, lo) in [(0x68usize, 0x70usize), (0x80, 0x88)] { let n = rd_u64(me + lo)?; if n == 0 { continue; } let arr = rd_u64(me + po)? as usize; if !ptr_ok(arr) { return None; }
+                for i in 0..n.min(64) as usize { acc = acc.wrapping_add(eff38_pct(rd_u64(arr + i * 0x18)? as usize, rd_u64(arr + i * 0x18 + 8)? as usize, _att)?); } }
+            Some(acc)
+        }
+        0x1248270 => {   // Σ 자식(stride 0x18 @me+0x50/len me+0x58) 의 +0x38 (capstone 2026-09-06 22:45)
+            let n = rd_u64(me + 0x58)?; if n == 0 { return Some(0); } let arr = rd_u64(me + 0x50)? as usize; if !ptr_ok(arr) { return None; }
+            let mut acc = 0u64; for i in 0..n.min(64) as usize { acc = acc.wrapping_add(eff38_pct(rd_u64(arr + i * 0x18)? as usize, rd_u64(arr + i * 0x18 + 8)? as usize, _att)?); } Some(acc)
+        }
+        0x16a3610 => {   // Σ 리스트1(@0x50/0x58 s0x18) + Σ 리스트2(@0x68/0x70 s0x18) 의 +0x38 (꼬리 미확인: 0x16a32a0 과 같은 ×n 가능성 → 검증으로 판정)
+            let mut acc = 0u64;
+            for (po, lo) in [(0x50usize, 0x58usize), (0x68, 0x70)] { let n = rd_u64(me + lo)?; if n == 0 { continue; } let arr = rd_u64(me + po)? as usize; if !ptr_ok(arr) { return None; }
+                for i in 0..n.min(64) as usize { acc = acc.wrapping_add(eff38_pct(rd_u64(arr + i * 0x18)? as usize, rd_u64(arr + i * 0x18 + 8)? as usize, _att)?); } }
+            Some(acc)
+        }
+        0x16067b0 => {   // SwitchByBuff(+0x38 판): buff_lookup(att, [me+8], [me+0x10]) != 0 → 자식1(@0x28/0x30) 아니면 자식0(@0x18/0x20)
+            let idx = if buff_lookup(_att, rd_u64(me + 8)? as usize, rd_u64(me + 0x10)?)? != 0 { 1usize } else { 0 };
+            eff38_pct(rd_u64(me + 0x18 + idx * 0x10)? as usize, rd_u64(me + 0x20 + idx * 0x10)? as usize, _att)
+        }
         0x12a5890 => {
             // Σ 자식(stride 0x10, ptr [me+8], len [me+0x10]) 의 +0x38 (capstone 2026-09-06 20:38)
             let n = rd_u64(me + 0x10)?; if n == 0 { return Some(0); }

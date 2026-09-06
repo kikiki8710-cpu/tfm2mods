@@ -266,6 +266,7 @@ pub unsafe fn cmp_diag8(name: &str, p1: usize, p2: usize, p3: usize, p4: usize, 
 }
 pub unsafe fn cmp_diag(name: &str, p1: usize, p2: usize, _p3: usize, _p4: usize) -> String {
     match name {
+        "as_d84db0" => super::position_eval::diag(p2, _p3, _p4),
         "as_e0e890" => {
             let (e, o) = (p1, p2);
             if !ptr_ok(e) || !ptr_ok(o) { return "bad ptr".into(); }
@@ -310,7 +311,7 @@ const ENT_SPEED_640: usize = 0x640;
 /// DAT_143436870 (u16×256) = ceil(sqrt((i+1)*256)) = isqrt(i*256+255)+1 — RE 실덤프 전량 일치
 static SQRT_TAB: [u16; 256] = { let mut t = [0u16; 256]; let mut i = 0; while i < 256 { let v = (i as u64) * 256 + 255; let mut r = 0u64; while (r + 1) * (r + 1) <= v { r += 1; } t[i] = (r + 1) as u16; i += 1; } t };
 /// 게임 인라인 isqrt(표 + Newton) — 0x129d800 은 임계 없이 이 경로만 쓴다
-fn isqrt_fast(n: u64) -> u64 {
+pub fn isqrt_fast(n: u64) -> u64 {
     if n == 0 { return 0; }
     let b = 63 - n.leading_zeros();
     let sh = if n < 0x10000 { 0 } else { b.wrapping_sub(14) & !1 };

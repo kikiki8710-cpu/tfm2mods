@@ -57,14 +57,14 @@ pub unsafe fn sim_of_handle(x: usize, h: u64) -> Option<usize> {
     Some(0)
 }
 /// dyn Champion 게터 디코드: vt+0x20 → `8b 81 disp32 c3`(mov eax,[rcx+d]) 로 u32 kind ; vt+0x28 → `48 8d 41 d8` / `48 8d 81 d32` / `48 89 c8` 로 &Vec<i32>
-unsafe fn champ_kind(data: usize, vt: usize) -> Option<u32> {
+pub unsafe fn champ_kind(data: usize, vt: usize) -> Option<u32> {
     let f = rd_u64(vt + 0x20)? as usize; if !ptr_ok(f) { return None; }
     let b0 = rd_u8(f); let b1 = rd_u8(f + 1);
     if b0 == 0x8b && b1 == 0x81 { let d = rd_i32(f + 2)? as isize; return Some(rd_u32((data as isize + d) as usize)); }
     if b0 == 0x8b && b1 == 0x41 { let d = rd_u8(f + 2) as i8 as isize; return Some(rd_u32((data as isize + d) as usize)); }
     None
 }
-unsafe fn champ_tags(data: usize, vt: usize) -> Option<(usize, u64)> {
+pub unsafe fn champ_tags(data: usize, vt: usize) -> Option<(usize, u64)> {
     let f = rd_u64(vt + 0x28)? as usize; if !ptr_ok(f) { return None; }
     let (b0, b1, b2) = (rd_u8(f), rd_u8(f + 1), rd_u8(f + 2));
     let base = if b0 == 0x48 && b1 == 0x8d && b2 == 0x41 { (data as isize + rd_u8(f + 3) as i8 as isize) as usize }
@@ -73,7 +73,7 @@ unsafe fn champ_tags(data: usize, vt: usize) -> Option<(usize, u64)> {
     Some((rd_u64(base + 8)? as usize, rd_u64(base + 0x10)?))
 }
 /// dyn Champion vt+0x30 (out, obj) 복사 구현에서 원본 블록 오프셋을 디코드: `0f 10 81 d32` / `0f 10 41 d8` (movups xmm0,[rcx+d]) / `f3 0f 6f 81 d32` (movdqu). 반환 = [obj+d+0x10]
-unsafe fn champ_vt30_w2(obj: usize, vt: usize) -> Option<u64> {
+pub unsafe fn champ_vt30_w2(obj: usize, vt: usize) -> Option<u64> {
     let f = rd_u64(vt + 0x30)? as usize; if !ptr_ok(f) { return None; }
     static DBG: std::sync::atomic::AtomicU32 = std::sync::atomic::AtomicU32::new(0);
     if DBG.fetch_add(1, std::sync::atomic::Ordering::Relaxed) < 6 {
@@ -91,7 +91,7 @@ unsafe fn champ_vt30_w2(obj: usize, vt: usize) -> Option<u64> {
     }
     None
 }
-unsafe fn tags_has(ptr: usize, len: u64, v: i32) -> Option<bool> {
+pub unsafe fn tags_has(ptr: usize, len: u64, v: i32) -> Option<bool> {
     if len == 0 { return Some(false); } if !ptr_ok(ptr) { return None; }
     for i in 0..len.min(64) as usize { if rd_i32(ptr + i * 4)? == v { return Some(true); } } Some(false)
 }

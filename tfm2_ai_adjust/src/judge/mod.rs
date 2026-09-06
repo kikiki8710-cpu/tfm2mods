@@ -54,6 +54,7 @@ pub mod port {
     pub mod as_callees;
     pub mod fight_check;
     pub mod dn_cache;
+    pub mod position_eval;
 }
 use gen_fns::*;
 
@@ -499,7 +500,8 @@ macro_rules! judge_capture_out {
 }
 /// capture_out + 대조: 원본 반환 뒤 out N워드를 캡처하고, `$mine(p1..p4)` 의 순수 재현(Option<[u64;9]>)을 `$eq(game,mine)` 로 대조한다(ok/diff/na, DIFF ≤40줄).
 macro_rules! judge_capture_out_cmp {
-    ($m:ident, $spec:expr, $nw:expr, $mine:expr, $eq:expr) => {
+    ($m:ident, $spec:expr, $nw:expr, $mine:expr, $eq:expr) => { judge_capture_out_cmp!($m, $spec, $nw, $mine, $eq, |_p1: usize, _p2: usize, _p3: usize, _p4: usize, _p5: usize, _p6: usize, _p7: usize, _p8: usize| {}); };
+    ($m:ident, $spec:expr, $nw:expr, $mine:expr, $eq:expr, $pre:expr) => {
         pub mod $m {
             use std::sync::atomic::{AtomicUsize, AtomicU64, Ordering};
             use std::cell::Cell;
@@ -518,12 +520,13 @@ macro_rules! judge_capture_out_cmp {
                 if orig == 0 { return 0; }
                 let f: super::F12 = core::mem::transmute(orig);
                 ST.entered.fetch_add(1, Ordering::Relaxed);
+                ($pre)(p1, p2, p3, p4, p5, p6, p7, p8);
                 let r = f(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12);
                 let mut w = [0u64; 9];
                 for i in 0..($nw as usize).min(9) { w[i] = crate::rd_u64(p1 + i * 8).unwrap_or(0); }
                 RING.with(|c| { let (mut a, n) = c.get(); a[n % 8] = Cap { p1, p2, p3, p4, ret: r as u64, w }; c.set((a, n + 1)); });
                 ST.n.fetch_add(1, Ordering::Relaxed);
-                let mine: Option<[u64; 9]> = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| ($mine)(p1, p2, p3, p4, p5, p6))).unwrap_or(None);
+                let mine: Option<[u64; 9]> = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| ($mine)(p1, p2, p3, p4, p5, p6, p7, p8))).unwrap_or(None);
                 let logline = |tag: &str, m: Option<[u64; 9]>| {
                     let fmt = |a: &[u64; 9]| a.iter().map(|v| format!("{:#x}", v)).collect::<Vec<_>>().join(" ");
                     let diag = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| crate::judge::port::as_callees::cmp_diag($spec.name, p1, p2, p3, p4))).unwrap_or_default();
@@ -540,9 +543,47 @@ macro_rules! judge_capture_out_cmp {
         }
     };
 }
-judge_capture_out_cmp!(cap_as_c88300_out, crate::judge::gen_fns::AS_C88300, 9, |_p1, _p2, p3, _p4, _p5, _p6| unsafe { crate::judge::port::as_callees::snapshot_from_args(p3) }, crate::judge::port::as_callees::snapshot_eq);   // 스냅샷 0x48B (2단계: 순수 재현 대조)
-judge_capture_out_cmp!(cap_as_e23170, crate::judge::gen_fns::AS_E23170, 3, |_p1, p2, _p3, p4, p5, _p6| unsafe { crate::judge::port::as_callees::dest_from_args(p2, p4, p5).map(|v| { let mut w = [0u64; 9]; w[..3].copy_from_slice(&v); w }) }, crate::judge::port::as_callees::dest_eq);       // Option<(x,y)> 0x18B (2단계: 순수 재현 대조)
-judge_capture_out!(cap_as_d84db0, crate::judge::gen_fns::AS_D84DB0, 7);       // position_eval out 0x38B(+0 A · +8 B · +0x31 tag)
+judge_capture_out_cmp!(cap_as_c88300_out, crate::judge::gen_fns::AS_C88300, 9, |_p1, _p2, p3, _p4, _p5, _p6, _p7, _p8| unsafe { crate::judge::port::as_callees::snapshot_from_args(p3) }, crate::judge::port::as_callees::snapshot_eq);   // 스냅샷 0x48B (2단계: 순수 재현 대조)
+judge_capture_out_cmp!(cap_as_e23170, crate::judge::gen_fns::AS_E23170, 3, |_p1, p2, _p3, p4, p5, _p6, _p7, _p8| unsafe { crate::judge::port::as_callees::dest_from_args(p2, p4, p5).map(|v| { let mut w = [0u64; 9]; w[..3].copy_from_slice(&v); w }) }, crate::judge::port::as_callees::dest_eq);       // Option<(x,y)> 0x18B (2단계: 순수 재현 대조)
+judge_capture_out_cmp!(cap_as_d84db0, crate::judge::gen_fns::AS_D84DB0, 7, |_p1, p2, p3, p4, p5, p6, p7, _p8| unsafe { crate::judge::port::position_eval::pe_from_args(p2, p3, p4, p5, p6, p7) }, crate::judge::port::position_eval::pe_eq, |_p1: usize, p2: usize, p3: usize, p4: usize, p5: usize, p6: usize, p7: usize, _p8: usize| { crate::judge::port::position_eval::pre_mark(); unsafe { crate::judge::port::position_eval::pre_memo(p2, p3, p4, p5, p6, p7) } });   // position_eval out 0x38B (2단계: 순수 재현 대조 — 타워다이브는 d96d00 캡처 경유)
+/// (rax, rdx) 쌍 반환 콜리 캡처(타워다이브 0xd96d00: rax=dive, rdx=target handle). 원본을 inline asm 으로 불러 rdx 까지 받는다(인자 4개 이하 전용).
+macro_rules! judge_capture_pair {
+    ($m:ident, $spec:expr, $rec:expr) => {
+        pub mod $m {
+            use std::sync::atomic::{AtomicUsize, Ordering};
+            pub static ORIG: AtomicUsize = AtomicUsize::new(0);
+            pub static ST: super::Stat = super::Stat::new();
+            pub fn reset() {}
+            unsafe extern "C" fn record(p1: usize, p2: usize, p3: usize, p4: usize, r: usize, d: usize, caller_rbp: usize) {
+                ST.n.fetch_add(1, Ordering::Relaxed); ST.entered.fetch_add(1, Ordering::Relaxed);
+                let _ = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| ($rec)(p1, p2, p3, p4, r as u64, d as u64, caller_rbp)));
+            }
+            /// ★naked: 원본의 (rax, rdx) 쌍 반환을 그대로 게임에 돌려준다. 일반 Rust wrap 은 rdx(두 번째 반환값)를 파괴해 게임 동작을 바꿨다
+            ///   (2026-09-06 22:35 실사고: 타워다이브 target 핸들이 깨져 hit_me 판정이 항상 false → 게임 B 가산이 달라짐).
+            #[unsafe(naked)]
+            pub unsafe extern "C" fn wrap() {
+                core::arch::naked_asm!(
+                    "sub rsp, 0x78",
+                    "mov [rsp+0x40], rcx", "mov [rsp+0x48], rdx", "mov [rsp+0x50], r8", "mov [rsp+0x58], r9",
+                    "mov [rsp+0x70], rbp",
+                    "mov rax, qword ptr [rip + {orig}]",
+                    "test rax, rax", "jz 2f",
+                    "call rax",
+                    "mov [rsp+0x60], rax", "mov [rsp+0x68], rdx",
+                    "mov [rsp+0x20], rax", "mov [rsp+0x28], rdx",
+                    "mov rax, [rsp+0x70]", "mov [rsp+0x30], rax",
+                    "mov rcx, [rsp+0x40]", "mov rdx, [rsp+0x48]", "mov r8, [rsp+0x50]", "mov r9, [rsp+0x58]",
+                    "call {rec}",
+                    "mov rax, [rsp+0x60]", "mov rdx, [rsp+0x68]",
+                    "2:",
+                    "add rsp, 0x78", "ret",
+                    orig = sym ORIG, rec = sym record,
+                );
+            }
+        }
+    };
+}
+judge_capture_pair!(cap_as_d96d00, crate::judge::gen_fns::AS_D96D00, |_p1: usize, p2: usize, p3: usize, p4: usize, r: u64, d: u64, rbp: usize| unsafe { crate::judge::port::position_eval::dive_record(p2, p3, p4, r, d, rbp) });   // 타워다이브 (순수 경계: 전투 시뮬 0xe05450 → 캡처)
 /// capture_ring + 대조: 링(find/last)은 그대로 두고, `$mine(p1..p4)`(Option<u64>) 를 rax 전체와 대조한다(ok/diff/na, DIFF ≤40줄). 콜리 순수 포팅 검증용.
 macro_rules! judge_capture_ring_cmp {
     ($m:ident, $spec:expr, $mine:expr) => {
@@ -717,7 +758,7 @@ judge_hook_out!(serpen_hb_hook, crate::judge::gen_fns::SERPEN_HUNT_BATTLE, crate
 
 /// 등록된 훅 전부(status 덤프용). 훅을 늘리면 여기와 install() 에 한 줄씩.
 pub fn stats() -> Vec<(&'static str, &'static Stat)> {
-    vec![(STEAL_SCORE.name, &steal_hook::ST), (ABILITY_PICK.name, &cap_ability_pick::ST), (RECENTLY_SEEN.name, &cap_recent_seen::ST), (DN_CACHE.name, &cap_dn_cache::ST), (DEFENSE_NEXUS.name, &defense_nexus_hook::ST), (EST_DAMAGE.name, &cap_est_dmg::ST), (PASSIVE_JUNGLE.name, &passive_jungle_hook::ST), (SINGLE_LINE.name, &cap_single_line::ST), (OBJ_CAN_ATTACK.name, &cap_obj_can_attack::ST), (OBJ_ENGAGE_GATE.name, &cap_obj_engage_gate::ST), (OBJ_POKE_GATE.name, &cap_obj_poke_gate::ST), (OBJ_COULD_ARRIVE.name, &cap_obj_could_arrive::ST), (BASE_SCORE.name, &cap_base_score::ST), (COMBAT_SCORE.name, &cap_combat_score::ST), (AS_C88300.name, &cap_as_c88300_out::ST), (AS_E23170.name, &cap_as_e23170::ST), (AS_D84DB0.name, &cap_as_d84db0::ST), (AS_EB82D0.name, &cap_as_eb82d0::ST), (AS_E0E890.name, &cap_as_e0e890::ST), (AS_D83230.name, &cap_as_d83230::ST), (UTIL_C87FE0.name, &cap_util_c87fe0::ST), (BATTLE_ARM9.name, &battle_hook::ST), (EPIC_HUNT_POKE.name, &epic_hp_hook::ST), (SERPEN_HUNT_POKE.name, &serpen_hp_hook::ST),
+    vec![(STEAL_SCORE.name, &steal_hook::ST), (ABILITY_PICK.name, &cap_ability_pick::ST), (RECENTLY_SEEN.name, &cap_recent_seen::ST), (DN_CACHE.name, &cap_dn_cache::ST), (DEFENSE_NEXUS.name, &defense_nexus_hook::ST), (EST_DAMAGE.name, &cap_est_dmg::ST), (PASSIVE_JUNGLE.name, &passive_jungle_hook::ST), (SINGLE_LINE.name, &cap_single_line::ST), (OBJ_CAN_ATTACK.name, &cap_obj_can_attack::ST), (OBJ_ENGAGE_GATE.name, &cap_obj_engage_gate::ST), (OBJ_POKE_GATE.name, &cap_obj_poke_gate::ST), (OBJ_COULD_ARRIVE.name, &cap_obj_could_arrive::ST), (BASE_SCORE.name, &cap_base_score::ST), (COMBAT_SCORE.name, &cap_combat_score::ST), (AS_C88300.name, &cap_as_c88300_out::ST), (AS_E23170.name, &cap_as_e23170::ST), (AS_D84DB0.name, &cap_as_d84db0::ST), (AS_D96D00.name, &cap_as_d96d00::ST), (AS_EB82D0.name, &cap_as_eb82d0::ST), (AS_E0E890.name, &cap_as_e0e890::ST), (AS_D83230.name, &cap_as_d83230::ST), (UTIL_C87FE0.name, &cap_util_c87fe0::ST), (BATTLE_ARM9.name, &battle_hook::ST), (EPIC_HUNT_POKE.name, &epic_hp_hook::ST), (SERPEN_HUNT_POKE.name, &serpen_hp_hook::ST),
          (EPIC_HUNT_BATTLE.name, &epic_hb_hook::ST), (SERPEN_HUNT_BATTLE.name, &serpen_hb_hook::ST), (PASSIVE_LINE.name, &passive_line_hook::ST)]
 }
 
@@ -844,6 +885,7 @@ pub unsafe fn install() {
             install_one(&mut log, &COMBAT_SCORE, &cap_combat_score::ORIG, cap_combat_score::wrap as *const () as usize, "capture-ring");
             install_one(&mut log, &AS_C88300, &cap_as_c88300_out::ORIG, cap_as_c88300_out::wrap as *const () as usize, "capture-out");
             install_one(&mut log, &AS_E23170, &cap_as_e23170::ORIG, cap_as_e23170::wrap as *const () as usize, "capture-out");
+            install_one(&mut log, &AS_D96D00, &cap_as_d96d00::ORIG, cap_as_d96d00::wrap as *const () as usize, "capture-pair");
             install_one(&mut log, &AS_D84DB0, &cap_as_d84db0::ORIG, cap_as_d84db0::wrap as *const () as usize, "capture-out");
             install_one(&mut log, &AS_EB82D0, &cap_as_eb82d0::ORIG, cap_as_eb82d0::wrap as *const () as usize, "capture-ring");
             install_one(&mut log, &AS_E0E890, &cap_as_e0e890::ORIG, cap_as_e0e890::wrap as *const () as usize, "capture-ring");
