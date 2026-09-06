@@ -50,6 +50,7 @@ pub mod port {
     pub mod battle;
     pub mod obj_helpers;
     pub mod hunt_poke;
+    pub mod action_score;
 }
 use gen_fns::*;
 
@@ -347,6 +348,79 @@ macro_rules! judge_capture_cmp {
         }
     };
 }
+/// 인자+반환 캡처 링(스레드로컬 16): 콜리 포팅 전 단계에서 호출자 재현이 게임 콜리 값을 (p1,p2) 키로 받아 쓴다(est_damage 패턴 일반화). 검증기간 한정.
+macro_rules! judge_capture_ring {
+    ($m:ident, $spec:expr) => {
+        pub mod $m {
+            use std::sync::atomic::{AtomicUsize, Ordering};
+            use std::cell::Cell;
+            pub static ORIG: AtomicUsize = AtomicUsize::new(0);
+            pub static ST: super::Stat = super::Stat::new();
+            #[derive(Clone, Copy)] pub struct Cap { pub p1: usize, pub p2: usize, pub p3: usize, pub p4: usize, pub ret: u64 }
+            const Z: Cap = Cap { p1: 0, p2: 0, p3: 0, p4: 0, ret: 0 };
+            thread_local! { static RING: Cell<([Cap; 16], usize)> = const { Cell::new(([Z; 16], 0)) }; }
+            pub fn reset() { RING.with(|c| { let mut v = c.get(); v.1 = 0; c.set(v); }); }
+            pub fn find(p1: usize, p2: usize) -> Option<u64> { RING.with(|c| { let (a, n) = c.get(); a[..n.min(16)].iter().rev().find(|e| e.p1 == p1 && e.p2 == p2).map(|e| e.ret) }) }
+            pub fn find4(p1: usize, p2: usize, p3: usize, p4: usize) -> Option<u64> { RING.with(|c| { let (a, n) = c.get(); a[..n.min(16)].iter().rev().find(|e| e.p1 == p1 && e.p2 == p2 && e.p3 == p3 && e.p4 == p4).map(|e| e.ret) }) }
+            pub unsafe extern "C" fn wrap(p1: usize, p2: usize, p3: usize, p4: usize, p5: usize, p6: usize, p7: usize, p8: usize,
+                                          p9: usize, p10: usize, p11: usize, p12: usize) -> usize {
+                let orig = ORIG.load(Ordering::Relaxed);
+                if orig == 0 { return 0; }
+                let f: super::F12 = core::mem::transmute(orig);
+                ST.entered.fetch_add(1, Ordering::Relaxed);
+                let r = f(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12);
+                RING.with(|c| { let (mut a, n) = c.get(); a[n % 16] = Cap { p1, p2, p3, p4, ret: r as u64 }; c.set((a, n + 1)); });
+                ST.n.fetch_add(1, Ordering::Relaxed);
+                r
+            }
+        }
+    };
+}
+/// 스코어러 대조 훅(원본 먼저 → 재현 → i64 전체 대조). judge_hook! 은 재현을 먼저 돌려 콜리 캡처를 못 쓰므로, 캡처 링을 쓰는 포팅은 이걸로 검증한다. 행동 무변경.
+macro_rules! judge_scorer_cmp {
+    ($m:ident, $spec:expr, $pre:expr, $mine:path) => {
+        pub mod $m {
+            use std::sync::atomic::{AtomicUsize, AtomicU64, Ordering};
+            pub static ORIG: AtomicUsize = AtomicUsize::new(0);
+            pub static ST: super::Stat = super::Stat::new();
+            static LOGGED: AtomicU64 = AtomicU64::new(0);
+            pub unsafe extern "C" fn wrap(p1: usize, p2: usize, p3: usize, p4: usize, p5: usize, p6: usize, p7: usize, p8: usize,
+                                          p9: usize, p10: usize, p11: usize, p12: usize) -> usize {
+                let orig = ORIG.load(Ordering::Relaxed);
+                if orig == 0 { return 0; }
+                let f: super::F12 = core::mem::transmute(orig);
+                ST.entered.fetch_add(1, Ordering::Relaxed);
+                let _ = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| ($pre)(p1, p2, p3, p4, p5, p6)));
+                let r = f(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12);
+                super::tr_reset();
+                let a = super::ScorerArgs { p1, p2, p3, p4, p5, p6, p7, p8 };
+                let mine: Option<i64> = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| $mine(&a))).unwrap_or(None);
+                ST.n.fetch_add(1, Ordering::Relaxed);
+                let game = r as i64;
+                match mine {
+                    None => { ST.na.fetch_add(1, Ordering::Relaxed); }
+                    Some(v) if v == game => { ST.ok.fetch_add(1, Ordering::Relaxed); }
+                    Some(v) => {
+                        ST.diff.fetch_add(1, Ordering::Relaxed);
+                        if LOGGED.fetch_add(1, Ordering::Relaxed) < 40 {
+                            let line = format!("[{} #{}] DIFF game={} mine={} | p1={:#x} p2={:#x} p3={:#x} p4={:#x} p5={:#x} p6={:#x} p7={:#x} p8={:#x} | {}\n", $spec.name, ST.n.load(Ordering::Relaxed), game, v, p1, p2, p3, p4, p5, p6, p7, p8, super::tr_fmt());
+                            if let Some(p) = crate::pth(&format!("judge_{}.txt", $spec.name)) { let _ = std::fs::OpenOptions::new().create(true).append(true).open(p).and_then(|mut f| { use std::io::Write; f.write_all(line.as_bytes()) }); }
+                        }
+                    }
+                }
+                r
+            }
+        }
+    };
+}
+judge_capture_ring!(cap_util_c87fe0, crate::judge::gen_fns::UTIL_C87FE0);
+judge_capture_ring!(cap_combat_score, crate::judge::gen_fns::COMBAT_SCORE);
+judge_capture_ring!(cap_as_c88300, crate::judge::gen_fns::AS_C88300);
+judge_capture_ring!(cap_as_eb82d0, crate::judge::gen_fns::AS_EB82D0);
+judge_capture_ring!(cap_as_e0e890, crate::judge::gen_fns::AS_E0E890);
+judge_capture_ring!(cap_as_d83230, crate::judge::gen_fns::AS_D83230);
+pub fn as_reset_all() { cap_util_c87fe0::reset(); cap_combat_score::reset(); cap_as_c88300::reset(); cap_as_eb82d0::reset(); cap_as_e0e890::reset(); cap_as_d83230::reset(); cap_dn_cache::reset(); cap_est_dmg::reset(); }
+judge_scorer_cmp!(cap_base_score, crate::judge::gen_fns::BASE_SCORE, |_p1: usize, _p2: usize, _p3: usize, _p4: usize, _p5: usize, _p6: usize| { crate::judge::as_reset_all(); }, crate::judge::port::action_score::base_score);
 judge_capture_cmp!(cap_obj_can_attack, crate::judge::gen_fns::OBJ_CAN_ATTACK, |_p1: usize, _p2: usize, _p3: usize, _p4: usize, _p5: usize, _p6: usize| {}, |_p1: usize, p2: usize, p3: usize, p4: usize, _p5: usize, _p6: usize| -> Option<u8> { crate::judge::port::obj_helpers::can_attack(p2, p3, (p4 & 0xff) as u8).map(|b| b as u8) });
 judge_capture_cmp!(cap_obj_engage_gate, crate::judge::gen_fns::OBJ_ENGAGE_GATE, |_p1: usize, _p2: usize, _p3: usize, p4: usize, _p5: usize, _p6: usize| unsafe { crate::judge::port::obj_helpers::pre_read_targets(p4) }, |p1: usize, _p2: usize, p3: usize, p4: usize, p5: usize, p6: usize| -> Option<u8> { crate::judge::port::obj_helpers::engage_gate(p1, p3, p4, p5, (p6 & 0xff) as u8).map(|b| b as u8) });
 judge_capture_cmp!(cap_obj_poke_gate, crate::judge::gen_fns::OBJ_POKE_GATE, |_p1: usize, p2: usize, _p3: usize, _p4: usize, _p5: usize, _p6: usize| unsafe { crate::judge::port::obj_helpers::pre_read_targets(p2) }, |p1: usize, p2: usize, p3: usize, p4: usize, p5: usize, _p6: usize| -> Option<u8> { crate::judge::port::obj_helpers::poke_timer_gate(p1, p2, p3, p4, (p5 & 0xff) != 0).map(|b| b as u8) });
@@ -472,7 +546,7 @@ judge_hook_out!(serpen_hb_hook, crate::judge::gen_fns::SERPEN_HUNT_BATTLE, crate
 
 /// 등록된 훅 전부(status 덤프용). 훅을 늘리면 여기와 install() 에 한 줄씩.
 pub fn stats() -> Vec<(&'static str, &'static Stat)> {
-    vec![(STEAL_SCORE.name, &steal_hook::ST), (ABILITY_PICK.name, &cap_ability_pick::ST), (RECENTLY_SEEN.name, &cap_recent_seen::ST), (DN_CACHE.name, &cap_dn_cache::ST), (DEFENSE_NEXUS.name, &defense_nexus_hook::ST), (EST_DAMAGE.name, &cap_est_dmg::ST), (PASSIVE_JUNGLE.name, &passive_jungle_hook::ST), (SINGLE_LINE.name, &cap_single_line::ST), (OBJ_CAN_ATTACK.name, &cap_obj_can_attack::ST), (OBJ_ENGAGE_GATE.name, &cap_obj_engage_gate::ST), (OBJ_POKE_GATE.name, &cap_obj_poke_gate::ST), (OBJ_COULD_ARRIVE.name, &cap_obj_could_arrive::ST), (BATTLE_ARM9.name, &battle_hook::ST), (EPIC_HUNT_POKE.name, &epic_hp_hook::ST), (SERPEN_HUNT_POKE.name, &serpen_hp_hook::ST),
+    vec![(STEAL_SCORE.name, &steal_hook::ST), (ABILITY_PICK.name, &cap_ability_pick::ST), (RECENTLY_SEEN.name, &cap_recent_seen::ST), (DN_CACHE.name, &cap_dn_cache::ST), (DEFENSE_NEXUS.name, &defense_nexus_hook::ST), (EST_DAMAGE.name, &cap_est_dmg::ST), (PASSIVE_JUNGLE.name, &passive_jungle_hook::ST), (SINGLE_LINE.name, &cap_single_line::ST), (OBJ_CAN_ATTACK.name, &cap_obj_can_attack::ST), (OBJ_ENGAGE_GATE.name, &cap_obj_engage_gate::ST), (OBJ_POKE_GATE.name, &cap_obj_poke_gate::ST), (OBJ_COULD_ARRIVE.name, &cap_obj_could_arrive::ST), (BASE_SCORE.name, &cap_base_score::ST), (COMBAT_SCORE.name, &cap_combat_score::ST), (AS_C88300.name, &cap_as_c88300::ST), (AS_EB82D0.name, &cap_as_eb82d0::ST), (AS_E0E890.name, &cap_as_e0e890::ST), (AS_D83230.name, &cap_as_d83230::ST), (UTIL_C87FE0.name, &cap_util_c87fe0::ST), (BATTLE_ARM9.name, &battle_hook::ST), (EPIC_HUNT_POKE.name, &epic_hp_hook::ST), (SERPEN_HUNT_POKE.name, &serpen_hp_hook::ST),
          (EPIC_HUNT_BATTLE.name, &epic_hb_hook::ST), (SERPEN_HUNT_BATTLE.name, &serpen_hb_hook::ST), (PASSIVE_LINE.name, &passive_line_hook::ST)]
 }
 
@@ -592,6 +666,16 @@ pub unsafe fn install() {
             install_one(&mut log, &OBJ_ENGAGE_GATE, &cap_obj_engage_gate::ORIG, cap_obj_engage_gate::wrap as *const () as usize, "capture-cmp");
             install_one(&mut log, &OBJ_POKE_GATE, &cap_obj_poke_gate::ORIG, cap_obj_poke_gate::wrap as *const () as usize, "capture-cmp");
             install_one(&mut log, &OBJ_COULD_ARRIVE, &cap_obj_could_arrive::ORIG, cap_obj_could_arrive::wrap as *const () as usize, "capture-cmp");
+        }
+        // action_score 기저 스코어러 계층(콜리 캡처 링 6 + 본체 대조) — cfg judge_cap_as(기본 1). 캡처는 본체보다 먼저.
+        if tune("judge_cap_as", 1) != 0 {
+            install_one(&mut log, &UTIL_C87FE0, &cap_util_c87fe0::ORIG, cap_util_c87fe0::wrap as *const () as usize, "capture-ring");
+            install_one(&mut log, &COMBAT_SCORE, &cap_combat_score::ORIG, cap_combat_score::wrap as *const () as usize, "capture-ring");
+            install_one(&mut log, &AS_C88300, &cap_as_c88300::ORIG, cap_as_c88300::wrap as *const () as usize, "capture-ring");
+            install_one(&mut log, &AS_EB82D0, &cap_as_eb82d0::ORIG, cap_as_eb82d0::wrap as *const () as usize, "capture-ring");
+            install_one(&mut log, &AS_E0E890, &cap_as_e0e890::ORIG, cap_as_e0e890::wrap as *const () as usize, "capture-ring");
+            install_one(&mut log, &AS_D83230, &cap_as_d83230::ORIG, cap_as_d83230::wrap as *const () as usize, "capture-ring");
+            install_one(&mut log, &BASE_SCORE, &cap_base_score::ORIG, cap_base_score::wrap as *const () as usize, "scorer-cmp");
         }
         if tune("judge_cap_arms", 1) != 0 {
             install_one(&mut log, &SINGLE_LINE, &cap_single_line::ORIG, cap_single_line::wrap as *const () as usize, "capture-ret");
