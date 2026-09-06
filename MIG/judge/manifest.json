@@ -760,6 +760,13 @@
      "size": 2993,
      "date": "2026-09-06",
      "event": "add"
+    },
+    {
+     "ver": "0.5.8",
+     "rva": "0xd2e500",
+     "date": "2026-09-06",
+     "event": "mark:todo→todo",
+     "note": "2026-09-06 RE done (dyn 4 sites, ~1700 instr w/ effect vt tables) - deferred"
     }
    ],
    "sym": "game-ai\\src\\plan_legacy\\old\\passive_jungle.rs",
@@ -978,6 +985,13 @@
      "date": "2026-09-06",
      "event": "mark:todo→verified",
      "note": "2026-09-06 08:25 replay 190,220/190,220 DIFF=0 (cache 0xc87850 rax capture)"
+    },
+    {
+     "ver": "0.5.8",
+     "rva": "0xd2da10",
+     "date": "2026-09-06",
+     "event": "mark:verified→verified",
+     "note": "2026-09-06 09:05 2nd replay 145,289/145,289 DIFF=0; dn_reach.rs pure port of 0xd3fe50 (cache-captured value preferred: game memoizes per tick)"
     }
    ],
    "sym": "game-ai\\src\\plan_legacy\\old\\defense_nexus.rs",
