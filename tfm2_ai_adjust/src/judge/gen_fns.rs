@@ -1,5 +1,5 @@
 // gen_fns.rs — ★자동생성(python MIG\aiport.py gen). 손으로 고치지 말 것 — 정본 = MIG\judge\manifest.json
-//   게임 0.5.8 · exe sha 4ed3aed08971efd0 · 2026-09-06 20:43
+//   게임 0.5.8 · exe sha 4ed3aed08971efd0 · 2026-09-06 20:50
 //   FnSpec.prolog = 훅이 옮기는 선두 바이트(명령 경계 ≥12B). 설치기는 exe 바이트가 이와 **완전 일치**할 때만 패치한다(패치판/스테일 방어).
 #![allow(dead_code)]
 pub const GAME_VER: &str = "0.5.8";

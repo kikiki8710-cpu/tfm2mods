@@ -162,6 +162,31 @@ unsafe fn eff80_dps(rva: usize, d: usize, e: usize, me: usize, tps: u64) -> Opti
             let per = { let x = rd_u64(d + 0x10)?; if x == 0 { 1 } else { x } };
             Some(v.wrapping_mul(tps) / per)
         }
+        0x117bb30 => {
+            // 원뿔형(디컴 2026-09-06 20:25): R=(rng(self)+d.28)² ≥ D2(128비트 부호) · D2≠0 이면 방향 (d.40,d.48)·cos 임계 d.30/1000 원뿔 판정(128비트 wrapping) · 자식 Σ eff28 → def(P,0)+def(M,1) · ×tps / max(d.50,1)
+            let (ex, ey) = xy(e)?; let (mx, my) = xy(me)?;
+            let dx = (mx as i64).wrapping_sub(ex as i64) as i128; let dyv = (my as i64).wrapping_sub(ey as i64) as i128;
+            let d2: i128 = dx * dx + dyv * dyv;
+            let r = rng_of(me)? as u128 + rd_u64(d + 0x28)? as u128; let r2 = r.wrapping_mul(r) as i128;
+            if r2.wrapping_sub(d2) < 0 { return Some(0); }
+            if d2 != 0 {
+                let half = rd_i64(d + 0x30)?; let (ax, ay) = (rd_i64(d + 0x40)? as i128, rd_i64(d + 0x48)? as i128);
+                let dot: i128 = dx * ax + dyv * ay;
+                if half > 0 || dot < 0 {
+                    if half > 0 && dot < 0 { return Some(0); }
+                    let lhs = (dot.wrapping_mul(dot)).wrapping_mul(1_000_000);
+                    let dir2: i128 = ax * ax + ay * ay;
+                    let rhs = ((half as i128).wrapping_mul(half as i128)).wrapping_mul(dir2).wrapping_mul(d2);
+                    if half < 1 || dot < 0 { if rhs.wrapping_sub(lhs) < 0 { return Some(0); } } else if lhs.wrapping_sub(rhs) < 0 { return Some(0); }
+                }
+            }
+            let n = rd_u64(d + 0x10)?; let (mut pp, mut mm) = (0u64, 0u64);
+            if n != 0 { let arr = rd_u64(d + 8)? as usize; if !ptr_ok(arr) { return None; }
+                for i in 0..n.min(64) as usize { let (cd, cv) = (rd_u64(arr + i * 0x10)? as usize, rd_u64(arr + i * 0x10 + 8)? as usize); let (a, b) = dy::eff28_damage(cd, cv, e)?; pp = pp.wrapping_add(a); mm = mm.wrapping_add(b); } }
+            let dmg = def_dmg(e, me, pp, 0)?.wrapping_add(def_dmg(e, me, mm, 1)?);
+            let per = { let v = rd_u64(d + 0x50)?; if v == 0 { 1 } else { v } };
+            Some(dmg.wrapping_mul(tps) / per)
+        }
         _ => { dy::unseen(0x180, rva); None }
     }
 }
