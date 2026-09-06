@@ -1,6 +1,6 @@
 //! passive_jungle — game-ai\src\plan_legacy\old\passive_jungle.rs:143 (Plan 7 정글 핸들러)
 //!   게임 0.5.8 · RVA 0xd2e500 (2993B / 699명령) · capstone 디스어셈 포팅(scratchpad pj_d2e500.txt) + RE = REPORT\RE\2026-09-06_passive_jungle-…
-//!   콜리: estimate_damage 0x12857f0(아래 `estimate_damage`) · camp_pos 0xffa3e0(아래 `camp_pos`, 메모는 의미 없음 → 재계산) · HeapAlloc/memcpy(Vec 복사 = 재현 불요)
+//!   콜리: estimate_damage 0x12857f0(아래 `estimate_damage`) · camp_pos 0xffa3e0(아래 `camp_pos_game`: ★스레드로컬 메모 캐시를 게임과 같은 TLS 슬롯에서 읽는다 — map_def 포인터가 재사용되면 낡은 위치를 그대로 쓰는 게임 동작까지 동일) · HeapAlloc/memcpy(Vec 복사 = 재현 불요)
 //!   dyn: 프로바이더 +0x90 cooltime · effect +0x28/+0x38(몬스터 평타 피해) · effect +0x40 heal / +0xa0 BuffState(내 스킬1·2) → `dyn_eff.rs` RVA 디스패치(미재현 = NA + 로그)
 //!
 //! 계약: p1=out(tag u64: 5=불가 / 6=Some(+8 side u64, +0x10 camp u8, +0x11 0)) · p2=플랜(+0x48 side, +0x60 camp u8) · p5=선수 sim · p6=&Holder(X, W(G), …)
@@ -16,6 +16,21 @@ use super::dyn_eff as dy;
     let dx = if ax < bx { bx - ax } else { ax - bx }; let dy = if ay < by { by - ay } else { ay - by };
     dx.wrapping_mul(dx).wrapping_add(dy.wrapping_mul(dy))
 }
+/// estimate_damage 재현 vs 게임 캡처(0x12857f0 rax) 교차검사 카운터(검증 기간 한정 — 캡처 훅 제거 시 같이 제거)
+pub static EST_CMP: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(0);
+pub static EST_MISMATCH: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(0);
+unsafe fn est_dump(slot: usize, att: usize, target: usize, mine: Option<u64>, game: u64) {
+    if EST_MISMATCH.load(std::sync::atomic::Ordering::Relaxed) > 12 { return; }
+    let b = crate::exe_base();
+    let (data, vt) = (rd_u64(slot).unwrap_or(0) as usize, rd_u64(slot + 8).unwrap_or(0) as usize);
+    let me_ = dy::arc_payload(data, vt).unwrap_or(0);
+    let w = |a: usize, n: usize| -> String { (0..n).map(|k| format!("{:#x}", rd_u64(a + k * 8).unwrap_or(0))).collect::<Vec<_>>().join(" ") };
+    let out = format!("mine={:?} game={} slot={:#x} vt_rva={:#x} impl28={:#x} impl38={:#x} atk_type={} | payload {} | att.stats(0x618..) {} | att.buffs +0xa8.. {} | target.kind={:#x} maxhp={} defp={} defm={}\n",
+        mine, game, slot, vt.wrapping_sub(b), dy::impl_rva(vt, 0x28).unwrap_or(0), dy::impl_rva(vt, 0x38).unwrap_or(0), rd_u32(slot + 0x2c),
+        w(me_, 8), w(att + ENT_STATS, 8), w(att + ENT_BUFF_BLOCK + 0xa8, 10),
+        rd_u32(target + 0x68), rd_u64(target + ENT_MAXHP).unwrap_or(0), rd_u64(target + ENT_DEF_P).unwrap_or(0), rd_u64(target + ENT_DEF_M).unwrap_or(0));
+    if let Some(p) = super::super::pth("judge_pj_est.txt") { let _ = std::fs::OpenOptions::new().create(true).append(true).open(p).and_then(|mut f| { use std::io::Write; f.write_all(out.as_bytes()) }); }
+}
 #[derive(Clone, Copy)]
 pub struct Knobs { pub hp_selfheal: u64, pub hp_normal: u64, pub wp_d2: u64 }
 impl Knobs {
@@ -28,7 +43,7 @@ impl Knobs {
 pub unsafe fn passive_jungle(a: &Args8) -> Option<MpOut> { passive_jungle_k(a, &Knobs::game_equiv()) }
 pub unsafe fn passive_jungle_live(a: &Args8) -> Option<MpOut> { passive_jungle_k(a, &Knobs::from_cfg()) }
 
-/// 0xffa3e0 — 맵 정의 캠프 표(`map_def+0x68` ptr / `+0x70` len, stride 0x28: {pos_side0 @0, pos_side1 @0x10, kind u8 @0x20})에서 kind==camp 첫 항목의 side 위치. 없으면 (0,0). 스레드로컬 메모는 결과에 영향 없음.
+/// 0xffa3e0 의 순수 계산부 — 맵 정의 캠프 표(`map_def+0x68` ptr / `+0x70` len, stride 0x28: {pos_side0 @0, pos_side1 @0x10, kind u8 @0x20})에서 kind==camp 첫 항목의 side 위치. 없으면 (0,0).
 pub unsafe fn camp_pos(map_def: usize, camp: u8, side: usize) -> Option<(u64, u64)> {
     if camp as u64 >= 8 || side >= 2 { return None; }                           // 게임: index panic
     let ptr = rd_u64(map_def + MAPDEF_CAMPS_PTR)? as usize; let n = rd_u64(map_def + MAPDEF_CAMPS_LEN)?;
@@ -38,6 +53,45 @@ pub unsafe fn camp_pos(map_def: usize, camp: u8, side: usize) -> Option<(u64, u6
         if rd_u8(e + 0x20) == camp { return Some((rd_u64(e + side * 0x10)?, rd_u64(e + side * 0x10 + 8)?)); }
     }
     Some((0, 0))
+}
+
+/// 게임의 camp_pos 메모 캐시(현재 스레드 TLS) 주소. 0 = 접근 불가/미초기화.
+static MEMO_DBG: std::sync::atomic::AtomicU32 = std::sync::atomic::AtomicU32::new(0);
+unsafe fn memo_dbg(stage: u32, b: usize, idx: usize, teb: usize, blk: usize, flag: u8) {
+    if MEMO_DBG.fetch_add(1, std::sync::atomic::Ordering::Relaxed) >= 4 { return; }
+    let p = match super::super::pth("judge_pj_memo.txt") { Some(p) => p, None => return };
+    let line = format!("stage={} base={:#x} idx={:#x} teb={:#x} blk={:#x} flag={} key={:#x}\n", stage, b, idx, teb, blk, flag,
+        if blk != 0 { rd_u64(blk + CAMP_MEMO_OFF + 8).unwrap_or(0) } else { 0 });
+    let _ = std::fs::OpenOptions::new().create(true).append(true).open(p).and_then(|mut f| { use std::io::Write; f.write_all(line.as_bytes()) });
+}
+unsafe fn camp_memo_ptr() -> usize {
+    let b = crate::exe_base(); if b == 0 { memo_dbg(1, b, 0, 0, 0, 0); return 0; }
+    let idx = rd_u32(b + CAMP_MEMO_TLS_IDX) as usize; if idx > 0x1000 { memo_dbg(2, b, idx, 0, 0, 0); return 0; }
+    let teb: usize; core::arch::asm!("mov {}, gs:[0x58]", out(reg) teb, options(nostack, readonly, preserves_flags));
+    if !ptr_ok(teb) { memo_dbg(3, b, idx, teb, 0, 0); return 0; }
+    let blk = match rd_u64(teb + idx * 8) { Some(v) => v as usize, None => { memo_dbg(4, b, idx, teb, 0, 0); return 0 } }; if !ptr_ok(blk) { memo_dbg(5, b, idx, teb, blk, 0); return 0; }
+    let flag = rd_u8(blk + CAMP_MEMO_INIT);
+    memo_dbg(6, b, idx, teb, blk, flag);
+    if flag == 0 { return 0; }
+    blk + CAMP_MEMO_OFF
+}
+/// 0xffa3e0 전체 재현 — 메모 히트면 캐시값(낡았어도 게임과 동일), 미스면 순수 계산 후 게임처럼 캐시에 기록(키 바뀌면 16항목 valid 초기화).
+/// 반환 .2 = 진단: 0 캐시없음 · 1 히트(재계산과 같음) · 2 히트(재계산과 다름=낡은 값) · 3 미스(기록)
+pub unsafe fn camp_pos_game(map_def: usize, camp: u8, side: usize) -> Option<(u64, u64, u8)> {
+    if camp as u64 >= 8 || side >= 2 { return None; }
+    let c = camp_memo_ptr();
+    let i = camp as usize * 6 + side * 3 + 2;
+    if c != 0 && rd_u64(c + 8)? == map_def as u64 && rd_u8(c + i * 8) != 0 {
+        let (x, y) = (rd_u64(c + (i + 1) * 8)?, rd_u64(c + (i + 2) * 8)?);
+        let st = match camp_pos(map_def, camp, side) { Some(r) if r == (x, y) => 1, _ => 2 };
+        return Some((x, y, st));
+    }
+    let (x, y) = camp_pos(map_def, camp, side)?;
+    if c != 0 {
+        if rd_u64(c + 8)? != map_def as u64 { wr_u64(c + 8, map_def as u64); for k in 0..16 { wr_u8(c + (k * 3 + 2) * 8, 0); } }
+        wr_u8(c + i * 8, 1); wr_u64(c + (i + 1) * 8, x); wr_u64(c + (i + 2) * 8, y);
+        Some((x, y, 3))
+    } else { Some((x, y, 0)) }
 }
 
 /// 0x12857f0 — 공격자 슬롯(slot=att+0x490: [0] Arc data·[8] vt·+0x2c atk_type u32)의 대상(target) 예상 피해.
@@ -90,7 +144,12 @@ unsafe fn monster_dps(e: usize, me: usize, slot_tr: usize) -> Option<u64> {
     tr(9, 0x100 | 0x20);
     let vt28 = rd_u64(e + ENT_SLOT0 + 8).unwrap_or(0) as usize;
     let impl28 = dy::impl_rva(vt28, 0x28).unwrap_or(0xffff) as u64;
-    let dmg = match estimate_damage(e + ENT_SLOT0, e, me, slot_tr == 7) { Some(v) => v, None => { tr(9, 0x100 | 0x21); tr(slot_tr, 0x8000_0000_0000_0000 | (impl28 & 0xffff) << 48); return None; } };
+    let dmg_r = estimate_damage(e + ENT_SLOT0, e, me, slot_tr == 7);
+    if let Some(g) = super::super::cap_est_dmg::find(e + ENT_SLOT0, me) {
+        EST_CMP.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+        if dmg_r != Some(g) { EST_MISMATCH.fetch_add(1, std::sync::atomic::Ordering::Relaxed); est_dump(e + ENT_SLOT0, e, me, dmg_r, g); }
+    }
+    let dmg = match dmg_r { Some(v) => v, None => { tr(9, 0x100 | 0x21); tr(slot_tr, 0x8000_0000_0000_0000 | (impl28 & 0xffff) << 48); return None; } };
     tr(9, 0x100 | 0x22);
     let cd = dy::prov90_cooltime(rd_u64(e + ENT_PROV0_DATA)? as usize, rd_u64(e + ENT_PROV0_VT)? as usize, e)?;
     tr(9, 0x100 | 0x23);
@@ -129,9 +188,9 @@ pub unsafe fn passive_jungle_k(a: &Args8, k: &Knobs) -> Option<MpOut> {
     tr(9, 0x100 | 5);
     // A
     if vlen != 0 {
-        let (cx, cy) = camp_pos(map_def, camp, side as usize)?;
+        let (cx, cy, mst) = camp_pos_game(map_def, camp, side as usize)?;
         tr(9, 0x100 | 6);
-        let d2 = sqd(mx, my, cx, cy); tr(3, d2.min(0xffff_ffff_ffff));
+        let d2 = sqd(mx, my, cx, cy); tr(3, d2.min(0xffff_ffff_ffff) | (mst as u64) << 56);
         if d2 <= k.wp_d2 {
             let mut dps: u64 = 0; let (mut nres, mut nskip) = (0u64, 0u64);
             for i in 0..vlen.min(64) as usize {

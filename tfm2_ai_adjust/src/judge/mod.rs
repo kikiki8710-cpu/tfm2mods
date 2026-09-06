@@ -276,7 +276,31 @@ macro_rules! judge_capture_ret {
 }
 
 judge_capture_ret!(cap_dn_cache, crate::judge::gen_fns::DN_CACHE);
-judge_hook_out!(passive_jungle_hook, crate::judge::gen_fns::PASSIVE_JUNGLE, crate::judge::port::passive_jungle::passive_jungle, crate::judge::port::passive_jungle::passive_jungle_live, crate::judge::tr_reset, false, "judge_live_passive_jungle");
+/// 0x12857f0(estimate_damage) 인자·반환 캡처(스레드로컬 링 16) — passive_jungle 검증 중 내 estimate_damage 와 같은 (slot,target) 표본을 대조한다. 검증기간 한정.
+pub mod cap_est_dmg {
+    use std::sync::atomic::{AtomicUsize, Ordering};
+    use std::cell::Cell;
+    pub static ORIG: AtomicUsize = AtomicUsize::new(0);
+    pub static ST: super::Stat = super::Stat::new();
+    #[derive(Clone, Copy)] pub struct Cap { pub slot: usize, pub att: usize, pub target: usize, pub ret: u64 }
+    const Z: Cap = Cap { slot: 0, att: 0, target: 0, ret: 0 };
+    thread_local! { static RING: Cell<([Cap; 16], usize)> = const { Cell::new(([Z; 16], 0)) }; }
+    pub fn reset() { RING.with(|c| { let mut v = c.get(); v.1 = 0; c.set(v); }); }
+    pub fn find(slot: usize, target: usize) -> Option<u64> { RING.with(|c| { let (a, n) = c.get(); a[..n.min(16)].iter().rev().find(|e| e.slot == slot && e.target == target).map(|e| e.ret) }) }
+    pub unsafe extern "C" fn wrap(p1: usize, p2: usize, p3: usize, p4: usize, p5: usize, p6: usize, p7: usize, p8: usize,
+                                  p9: usize, p10: usize, p11: usize, p12: usize) -> usize {
+        let orig = ORIG.load(Ordering::Relaxed);
+        if orig == 0 { return 0; }
+        let f: super::F12 = core::mem::transmute(orig);
+        ST.entered.fetch_add(1, Ordering::Relaxed);
+        let r = f(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12);
+        RING.with(|c| { let (mut a, n) = c.get(); a[n % 16] = Cap { slot: p1, att: p3, target: p5, ret: r as u64 }; c.set((a, n + 1)); });
+        ST.n.fetch_add(1, Ordering::Relaxed);
+        r
+    }
+}
+pub fn pj_reset() { tr_reset(); cap_est_dmg::reset(); }
+judge_hook_out!(passive_jungle_hook, crate::judge::gen_fns::PASSIVE_JUNGLE, crate::judge::port::passive_jungle::passive_jungle, crate::judge::port::passive_jungle::passive_jungle_live, crate::judge::pj_reset, true, "judge_live_passive_jungle");
 judge_hook_out!(defense_nexus_hook, crate::judge::gen_fns::DEFENSE_NEXUS, crate::judge::port::defense_nexus::defense_nexus, crate::judge::port::defense_nexus::defense_nexus_live, crate::judge::cap_dn_cache::reset, true, "judge_live_defense_nexus");
 judge_hook!(steal_hook, crate::judge::gen_fns::STEAL_SCORE, crate::judge::port::steal_score::steal_score, crate::judge::port::steal_score::steal_score, "judge_live_steal_score");
 judge_capture!(cap_ability_pick, crate::judge::gen_fns::ABILITY_PICK);
@@ -364,7 +388,7 @@ judge_hook_out!(serpen_hb_hook, crate::judge::gen_fns::SERPEN_HUNT_BATTLE, crate
 
 /// 등록된 훅 전부(status 덤프용). 훅을 늘리면 여기와 install() 에 한 줄씩.
 pub fn stats() -> Vec<(&'static str, &'static Stat)> {
-    vec![(STEAL_SCORE.name, &steal_hook::ST), (ABILITY_PICK.name, &cap_ability_pick::ST), (RECENTLY_SEEN.name, &cap_recent_seen::ST), (DN_CACHE.name, &cap_dn_cache::ST), (DEFENSE_NEXUS.name, &defense_nexus_hook::ST), (PASSIVE_JUNGLE.name, &passive_jungle_hook::ST),
+    vec![(STEAL_SCORE.name, &steal_hook::ST), (ABILITY_PICK.name, &cap_ability_pick::ST), (RECENTLY_SEEN.name, &cap_recent_seen::ST), (DN_CACHE.name, &cap_dn_cache::ST), (DEFENSE_NEXUS.name, &defense_nexus_hook::ST), (EST_DAMAGE.name, &cap_est_dmg::ST), (PASSIVE_JUNGLE.name, &passive_jungle_hook::ST),
          (EPIC_HUNT_BATTLE.name, &epic_hb_hook::ST), (SERPEN_HUNT_BATTLE.name, &serpen_hb_hook::ST), (PASSIVE_LINE.name, &passive_line_hook::ST)]
 }
 
@@ -434,6 +458,10 @@ pub fn write_status() {
             let (a, b) = (port::defense_nexus::REACH_CMP.load(Ordering::Relaxed), port::defense_nexus::REACH_MISMATCH.load(Ordering::Relaxed));
             if a > 0 { s.push_str(&format!("{:<20}   reach(0xd3fe50) 교차검사 | 캡처 대조 {} · 불일치 {}\n", "", a, b)); }
         }
+        if name == PASSIVE_JUNGLE.name {
+            let (a, b) = (port::passive_jungle::EST_CMP.load(Ordering::Relaxed), port::passive_jungle::EST_MISMATCH.load(Ordering::Relaxed));
+            if a > 0 { s.push_str(&format!("{:<20}   est_damage(0x12857f0) 교차검사 | 캡처 대조 {} · 불일치 {}\n", "", a, b)); }
+        }
     }
     s.push_str("판정: diff=0 && na=0 이면 그 함수 DIFF=0(이번 판 표본 한정). na>0 = 가드 경로/콜리 캡처 없음 → judge_<fn>.txt 의 NA 줄 확인. ability_pick 은 캡처 전용(n=호출 수).\n");
     if let Some(p) = pth("judge_status.txt") { let _ = fs::write(p, s); }
@@ -458,6 +486,7 @@ pub unsafe fn install() {
     for s in ALL { if let Some(p) = pth(&format!("judge_{}.txt", s.name)) { let _ = fs::remove_file(p); } }
     if let Some(p) = pth("judge_layout.txt") { let _ = fs::remove_file(p); }
     if let Some(p) = pth("judge_dyn.txt") { let _ = fs::remove_file(p); }
+    for f in ["judge_eff40_chain.txt", "judge_pj_memo.txt", "judge_pj_est.txt"] { if let Some(p) = pth(f) { let _ = fs::remove_file(p); } }
     let mut log = format!("judge 계층: 게임 {} · 등록 {}함수 · judge_verify={} judge_live={}\n", GAME_VER, ALL.len(), verify as u8, tune("judge_live", 0));
     if verify {
         install_one(&mut log, &STEAL_SCORE, &steal_hook::ORIG, steal_hook::wrap as *const () as usize, "wrap");
@@ -468,6 +497,7 @@ pub unsafe fn install() {
         install_one(&mut log, &SERPEN_HUNT_BATTLE, &serpen_hb_hook::ORIG, serpen_hb_hook::wrap as *const () as usize, "wrap-out");
         install_one(&mut log, &PASSIVE_LINE, &passive_line_hook::ORIG, passive_line_hook::wrap as *const () as usize, "wrap-out");
         install_one(&mut log, &DN_CACHE, &cap_dn_cache::ORIG, cap_dn_cache::wrap as *const () as usize, "capture-ret");
+        install_one(&mut log, &EST_DAMAGE, &cap_est_dmg::ORIG, cap_est_dmg::wrap as *const () as usize, "capture-ret");
         install_one(&mut log, &DEFENSE_NEXUS, &defense_nexus_hook::ORIG, defense_nexus_hook::wrap as *const () as usize, "wrap-out");
         install_one(&mut log, &PASSIVE_JUNGLE, &passive_jungle_hook::ORIG, passive_jungle_hook::wrap as *const () as usize, "wrap-out");
     } else {

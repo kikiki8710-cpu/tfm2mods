@@ -38,8 +38,9 @@ pub fn unseen_report() -> String {
 #[inline] pub unsafe fn arc_payload(data: usize, vt: usize) -> Option<usize> {
     let align = rd_u64(vt + 0x10)?; Some(data.wrapping_add(((align.wrapping_sub(1)) & !0xfu64) as usize).wrapping_add(0x10))
 }
-/// 게임의 `x>>2` 후 `/100`(매직 곱) = (x>>2)/100 — x/400 과 끝자리가 다를 수 있어 그대로 둔다.
-#[inline] fn q400(x: u64) -> u64 { (x >> 2) / 100 }
+/// 게임의 `shr rcx,2 → mul 0x28f5c28f5c28f5c3 → shr rdx,2` 는 **통째로 x/100** (매직 상수 = 2^68/100 → (x>>2)/25 = x/100).
+/// ~~(x>>2)/100~~ 로 옮겼던 것이 피해량 1/4 오류의 원인(2026-09-06 캡처 교차검사: AD 8·계수 100 → 게임 8, 재현 2). 이름은 호출부 보존을 위해 유지.
+#[inline] fn q400(x: u64) -> u64 { x / 100 }
 
 /// 자식 (data, vt) 배열 합산 — Vec 원소 stride 가 0x10 또는 0x18(둘 다 [+0]=data, [+8]=vt)
 unsafe fn sum_children_40(ptr: usize, len: u64, stride: usize, ent: usize, depth: u32) -> Option<u64> {
@@ -60,10 +61,12 @@ pub unsafe fn eff28_damage(data: usize, vt: usize, att: usize) -> Option<(u64, u
         EFF28_PAIR_RAW => Some((rd_u64(me)?, rd_u64(me + 8)?)),
         EFF28_PAIR_BYKIND => { let v = rd_u64(me)?; if rd_i32(me + 8)? == 1 { Some((0, v)) } else { Some((v, 0)) } }
         EFF28_GENERIC => {
-            // 0x1708310: q400([s+0x18]*stats[0]) + q400([s+0x20]*stats[0x10]) + [s+0x10] ; m=0   (stats = e+0x618)
+            // 0x1708310: [s+0x18]*stats[0]/100 + [s+0x20]*stats[0x10]/100 + [s+0x10] ; m=0   (stats = e+0x618)
             let a = q400(rd_u64(me + 0x18)?.wrapping_mul(rd_u64(att + ENT_STATS)?));
             let b = q400(rd_u64(me + 0x20)?.wrapping_mul(rd_u64(att + ENT_STATS + 0x10)?));
-            Some((a.wrapping_add(rd_u64(me + 0x10)?).wrapping_add(b), 0))
+            let base = rd_u64(me + 0x10)?;
+            super::super::tr(5, a.min(0xffff) | b.min(0xffff) << 16 | base.min(0xffff) << 32 | ((me as u64) & 0xffff) << 48);
+            Some((a.wrapping_add(base).wrapping_add(b), 0))
         }
         _ => { unseen(0x28, rva); None }
     }
@@ -79,9 +82,25 @@ pub unsafe fn eff38_pct(data: usize, vt: usize, _att: usize) -> Option<u64> {
 }
 /// effect `+0x40` 회복량 추정
 pub unsafe fn eff40_heal(data: usize, vt: usize, ent: usize) -> Option<u64> { eff40_heal_d(data, vt, ent, 0) }
+thread_local! { static CHAIN40: core::cell::Cell<[(usize, usize, usize); 48]> = const { core::cell::Cell::new([(0, 0, 0); 48]) }; }
+static CHAIN40_DUMPED: std::sync::atomic::AtomicU32 = std::sync::atomic::AtomicU32::new(0);
+/// 진단: 깊이 초과 시 그 스레드가 밟아 온 (vt rva, impl rva, data) 체인을 `judge_eff40_chain.txt` 에 기록(최초 8회)
+unsafe fn chain40_dump(depth: u32, data: usize, vt: usize) {
+    if CHAIN40_DUMPED.fetch_add(1, std::sync::atomic::Ordering::Relaxed) >= 8 { return; }
+    let b = exe_base();
+    let mut out = format!("depth={} data={:#x} vt={:#x}(rva {:#x}) impl40={:#x}\n", depth, data, vt, vt.wrapping_sub(b), impl_rva(vt, 0x40).unwrap_or(0));
+    let ch = CHAIN40.with(|c| c.get());
+    for (i, (v, im, d)) in ch.iter().enumerate().take(depth.min(48) as usize) {
+        let me = arc_payload(*d, *v).unwrap_or(0);
+        let words: Vec<String> = (0..12).map(|k| format!("{:#x}", rd_u64(me + k * 8).unwrap_or(0))).collect();
+        out += &format!("  [{}] vt_rva={:#x} impl40={:#x} data={:#x} payload={:#x} | {}\n", i, v.wrapping_sub(b), im, d, me, words.join(" "));
+    }
+    if let Some(p) = super::super::pth("judge_eff40_chain.txt") { let _ = std::fs::OpenOptions::new().create(true).append(true).open(p).and_then(|mut f| { use std::io::Write; f.write_all(out.as_bytes()) }); }
+}
 unsafe fn eff40_heal_d(data: usize, vt: usize, ent: usize, depth: u32) -> Option<u64> {
-    if depth > 10 { unseen(0xdd, impl_rva(vt, 0x40).unwrap_or(0)); return None; }
+    if depth > 40 { chain40_dump(depth, data, vt); unseen(0xdd, impl_rva(vt, 0x40).unwrap_or(0)); return None; }   // 중첩 SwitchByBuff 11단 실측(14:37 리플레이) → 40
     let rva = impl_rva(vt, 0x40)?; let me = arc_payload(data, vt)?;
+    CHAIN40.with(|c| { let mut a = c.get(); a[depth as usize] = (vt, rva, data); c.set(a); });
     match rva {
         EFF40_ZERO => Some(0),
         EFF40_SUM_08_10 => sum_children_40(rd_u64(me + 8)? as usize, rd_u64(me + 0x10)?, 0x10, ent, depth),
@@ -93,7 +112,7 @@ unsafe fn eff40_heal_d(data: usize, vt: usize, ent: usize, depth: u32) -> Option
             Some(a.wrapping_add(b))
         }
         EFF40_LEAF_ADAP => {
-            // 0x117ca10: q400([s+0x18]*stats[0]) + q400([s+0x20]*stats[8]) + [s+0x28]
+            // 0x117ca10: [s+0x18]*stats[0]/100 + [s+0x20]*stats[8]/100 + [s+0x28]
             let a = q400(rd_u64(me + 0x18)?.wrapping_mul(rd_u64(ent + ENT_STATS)?));
             let b = q400(rd_u64(me + 0x20)?.wrapping_mul(rd_u64(ent + ENT_STATS + 8)?));
             Some(a.wrapping_add(rd_u64(me + 0x28)?).wrapping_add(b))
@@ -161,7 +180,7 @@ pub unsafe fn effa0_buff(data: usize, vt: usize, ent: usize) -> Option<(i32, i32
 unsafe fn effa0_buff_d(data: usize, vt: usize, ent: usize, depth: u32) -> Option<(i32, i32)> { effa0_buff_p(arc_payload(data, vt)?, vt, ent, depth) }
 /// payload 주소를 직접 받는 판(0x1153860 위임은 자식 data 를 Arc 조정 없이 그대로 넘긴다)
 unsafe fn effa0_buff_p(me: usize, vt: usize, ent: usize, depth: u32) -> Option<(i32, i32)> {
-    if depth > 10 { unseen(0xde, impl_rva(vt, 0xa0).unwrap_or(0)); return None; }
+    if depth > 40 { unseen(0xde, impl_rva(vt, 0xa0).unwrap_or(0)); return None; }
     let rva = impl_rva(vt, 0xa0)?;
     match rva {
         EFFA0_MERGE_50_18_68_18 => {

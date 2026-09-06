@@ -229,3 +229,8 @@ pub const EFFA0_MERGE_20_18_INLINE: usize = 0x12a5be0; // 병합기 인라인판
 pub const EFFA0_COPY_STATE: usize = 0x106a440;     // memcpy(out, payload, 0x120) → (type [s+0x48], vamp [s+0x80])
 pub const EFFA0_CONST1_STAT: usize = 0x17c9e90;    // 상수 생성(type 1, vamp 0; +0x8c 만 스탯 비례)
 pub const EFFA0_CONST1_ENCH: usize = 0x12aa290;    // 상수 생성(type 1, vamp 0) enchanter_skill1
+// ── camp_pos(0xffa3e0) 스레드로컬 메모 캐시 (접근자 0x1395a70: eax=[TLS_IDX]; rcx=gs:[0x58]; rcx=[rcx+rax*8]; cache=rcx+0x17d50; init=[rcx+0x17ee0])
+pub const CAMP_MEMO_TLS_IDX: usize = 0x4856da0;  // .data u32 = 이 exe 의 TLS 슬롯 인덱스(런타임 이미지에서 읽는다)
+pub const CAMP_MEMO_OFF: usize = 0x17d50;        // TLS 블록 안 캐시(0x190B): [0]borrow [1]key=map_def ptr · 항목 i=camp*6+side*3+2: [i]valid u8 [i+1]x [i+2]y
+pub const CAMP_MEMO_INIT: usize = 0x17ee0;       // 지연초기화 플래그 바이트(0 = 아직 없음 → 재계산)
+
