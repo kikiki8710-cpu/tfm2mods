@@ -58,6 +58,15 @@ pub unsafe fn eff28_damage(data: usize, vt: usize, att: usize) -> Option<(u64, u
     let rva = impl_rva(vt, 0x28)?; let me = arc_payload(data, vt)?;
     match rva {
         EFF28_ZERO => Some((0, 0)),
+        EFF28_BASE_AD => Some((rd_u64(me)?.wrapping_add(q400(rd_u64(me + 8)?.wrapping_mul(rd_u64(att + ENT_STATS)?))), 0)),
+        EFF28_SUM_20_18 => {
+            // 0x1146bb0: Σ 자식(+0x28) — rax(p)·rdx(m) 둘 다 합산
+            let n = rd_u64(me + 0x28)?; if n == 0 { return Some((0, 0)); }
+            let arr = rd_u64(me + 0x20)? as usize; if !ptr_ok(arr) { return None; }
+            let (mut p, mut m) = (0u64, 0u64);
+            for i in 0..n.min(64) as usize { let (d, v) = (rd_u64(arr + i * 0x18)? as usize, rd_u64(arr + i * 0x18 + 8)? as usize); let (a, b) = eff28_damage(d, v, att)?; p = p.wrapping_add(a); m = m.wrapping_add(b); }
+            Some((p, m))
+        }
         EFF28_PAIR_RAW => Some((rd_u64(me)?, rd_u64(me + 8)?)),
         EFF28_PAIR_BYKIND => { let v = rd_u64(me)?; if rd_i32(me + 8)? == 1 { Some((0, v)) } else { Some((v, 0)) } }
         EFF28_GENERIC => {
@@ -77,6 +86,13 @@ pub unsafe fn eff38_pct(data: usize, vt: usize, _att: usize) -> Option<u64> {
     match rva {
         EFF38_ZERO => Some(0),
         EFF38_GET28 => rd_u64(me + 0x28),
+        EFF38_SUM_20_18 => {
+            let n = rd_u64(me + 0x28)?; if n == 0 { return Some(0); }
+            let arr = rd_u64(me + 0x20)? as usize; if !ptr_ok(arr) { return None; }
+            let mut acc = 0u64;
+            for i in 0..n.min(64) as usize { let (d, v) = (rd_u64(arr + i * 0x18)? as usize, rd_u64(arr + i * 0x18 + 8)? as usize); acc = acc.wrapping_add(eff38_pct(d, v, _att)?); }
+            Some(acc)
+        }
         _ => { unseen(0x38, rva); None }
     }
 }
@@ -213,6 +229,7 @@ unsafe fn effa0_buff_p(me: usize, vt: usize, ent: usize, depth: u32) -> Option<(
         EFFA0_CONST0 => Some((0, 0)),
         EFFA0_CONST1_ENCH => Some((1, 0)),
         EFFA0_CONST1_ENCH2 => Some((1, 0)),
+        EFFA0_CONST1_BARD2 => Some((1, 0)),
         EFFA0_CONST1_STAT => Some((1, 0)),
         EFFA0_COPY_STATE => Some((rd_i32(me + 0x48)?, rd_i32(me + 0x80)?)),
         EFFA0_STATSCALED => Some((rd_i32(me + 0x48)?, rd_i32(me + 0x80)?)),

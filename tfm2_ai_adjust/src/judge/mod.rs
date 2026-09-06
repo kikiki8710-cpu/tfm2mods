@@ -120,6 +120,7 @@ impl Stat {
 ///     cfg `vw_check=90` 패치(0x1323a5b) 와 어긋나 5판(2%·22만 건)을 태웠다(2026-09-06). 라이브 승격 시엔 해당 노브를 포팅 인자로 옮긴다.
 #[inline] pub unsafe fn live_imm8(rva_imm: usize, orig: u8) -> u8 { let b = crate::exe_base(); if b == 0 { orig } else { crate::rd_u8(b + rva_imm) } }
 #[inline] pub unsafe fn live_imm64(rva_imm: usize, orig: u64) -> u64 { let b = crate::exe_base(); if b == 0 { orig } else { crate::rd_u64(b + rva_imm).unwrap_or(orig) } }
+#[inline] pub unsafe fn live_imm32(rva_imm: usize, orig: u32) -> u32 { let b = crate::exe_base(); if b == 0 { orig } else { crate::rd_u32(b + rva_imm) } }
 #[inline] pub unsafe fn live_imm16(rva_imm: usize, orig: u16) -> u16 { let b = crate::exe_base(); if b == 0 { orig } else { (crate::rd_u8(b + rva_imm) as u16) | ((crate::rd_u8(b + rva_imm + 1) as u16) << 8) } }
 
 #[inline] pub fn live() -> bool { tune("judge_live", 0) != 0 }
@@ -361,6 +362,8 @@ macro_rules! judge_capture_ring {
             thread_local! { static RING: Cell<([Cap; 16], usize)> = const { Cell::new(([Z; 16], 0)) }; }
             pub fn reset() { RING.with(|c| { let mut v = c.get(); v.1 = 0; c.set(v); }); }
             pub fn find(p1: usize, p2: usize) -> Option<u64> { RING.with(|c| { let (a, n) = c.get(); a[..n.min(16)].iter().rev().find(|e| e.p1 == p1 && e.p2 == p2).map(|e| e.ret) }) }
+            pub fn last() -> Option<u64> { RING.with(|c| { let (a, n) = c.get(); if n == 0 { None } else { Some(a[(n - 1) % 16].ret) } }) }
+            pub fn find_p1(p1: usize) -> Option<u64> { RING.with(|c| { let (a, n) = c.get(); a[..n.min(16)].iter().rev().find(|e| e.p1 == p1).map(|e| e.ret) }) }
             pub fn find4(p1: usize, p2: usize, p3: usize, p4: usize) -> Option<u64> { RING.with(|c| { let (a, n) = c.get(); a[..n.min(16)].iter().rev().find(|e| e.p1 == p1 && e.p2 == p2 && e.p3 == p3 && e.p4 == p4).map(|e| e.ret) }) }
             pub unsafe extern "C" fn wrap(p1: usize, p2: usize, p3: usize, p4: usize, p5: usize, p6: usize, p7: usize, p8: usize,
                                           p9: usize, p10: usize, p11: usize, p12: usize) -> usize {
@@ -384,6 +387,7 @@ macro_rules! judge_scorer_cmp {
             pub static ORIG: AtomicUsize = AtomicUsize::new(0);
             pub static ST: super::Stat = super::Stat::new();
             static LOGGED: AtomicU64 = AtomicU64::new(0);
+            static LOGGED_NA: AtomicU64 = AtomicU64::new(0);
             pub unsafe extern "C" fn wrap(p1: usize, p2: usize, p3: usize, p4: usize, p5: usize, p6: usize, p7: usize, p8: usize,
                                           p9: usize, p10: usize, p11: usize, p12: usize) -> usize {
                 let orig = ORIG.load(Ordering::Relaxed);
@@ -398,11 +402,16 @@ macro_rules! judge_scorer_cmp {
                 ST.n.fetch_add(1, Ordering::Relaxed);
                 let game = r as i64;
                 match mine {
-                    None => { ST.na.fetch_add(1, Ordering::Relaxed); }
+                    None => { ST.na.fetch_add(1, Ordering::Relaxed);
+                        if LOGGED_NA.fetch_add(1, Ordering::Relaxed) < 20 {
+                            let line = format!("[{} #{}] NA game={} | p1={:#x} p6={:#x} | {}
+", $spec.name, ST.n.load(Ordering::Relaxed), game, p1, p6, super::tr_fmt());
+                            if let Some(p) = crate::pth(&format!("judge_{}.txt", $spec.name)) { let _ = std::fs::OpenOptions::new().create(true).append(true).open(p).and_then(|mut f| { use std::io::Write; f.write_all(line.as_bytes()) }); }
+                        } }
                     Some(v) if v == game => { ST.ok.fetch_add(1, Ordering::Relaxed); }
                     Some(v) => {
                         ST.diff.fetch_add(1, Ordering::Relaxed);
-                        if LOGGED.fetch_add(1, Ordering::Relaxed) < 40 {
+                        if LOGGED.fetch_add(1, Ordering::Relaxed) < 60 {
                             let line = format!("[{} #{}] DIFF game={} mine={} | p1={:#x} p2={:#x} p3={:#x} p4={:#x} p5={:#x} p6={:#x} p7={:#x} p8={:#x} | {}\n", $spec.name, ST.n.load(Ordering::Relaxed), game, v, p1, p2, p3, p4, p5, p6, p7, p8, super::tr_fmt());
                             if let Some(p) = crate::pth(&format!("judge_{}.txt", $spec.name)) { let _ = std::fs::OpenOptions::new().create(true).append(true).open(p).and_then(|mut f| { use std::io::Write; f.write_all(line.as_bytes()) }); }
                         }
@@ -413,13 +422,45 @@ macro_rules! judge_scorer_cmp {
         }
     };
 }
+/// out-구조체 캡처 링(스레드로컬 8): 원본 반환 뒤 p1(out) 에서 N워드를 복사해 둔다(스냅샷·목적지·position_eval 처럼 sret 로 돌려주는 콜리).
+macro_rules! judge_capture_out {
+    ($m:ident, $spec:expr, $nw:expr) => {
+        pub mod $m {
+            use std::sync::atomic::{AtomicUsize, Ordering};
+            use std::cell::Cell;
+            pub static ORIG: AtomicUsize = AtomicUsize::new(0);
+            pub static ST: super::Stat = super::Stat::new();
+            #[derive(Clone, Copy)] pub struct Cap { pub p1: usize, pub p2: usize, pub p3: usize, pub p4: usize, pub ret: u64, pub w: [u64; 9] }
+            const Z: Cap = Cap { p1: 0, p2: 0, p3: 0, p4: 0, ret: 0, w: [0; 9] };
+            thread_local! { static RING: Cell<([Cap; 8], usize)> = const { Cell::new(([Z; 8], 0)) }; }
+            pub fn reset() { RING.with(|c| { let mut v = c.get(); v.1 = 0; c.set(v); }); }
+            pub fn last() -> Option<Cap> { RING.with(|c| { let (a, n) = c.get(); if n == 0 { None } else { Some(a[(n - 1) % 8]) } }) }
+            pub fn find_p2(p2: usize) -> Option<Cap> { RING.with(|c| { let (a, n) = c.get(); a[..n.min(8)].iter().rev().find(|e| e.p2 == p2).copied() }) }
+            pub unsafe extern "C" fn wrap(p1: usize, p2: usize, p3: usize, p4: usize, p5: usize, p6: usize, p7: usize, p8: usize,
+                                          p9: usize, p10: usize, p11: usize, p12: usize) -> usize {
+                let orig = ORIG.load(Ordering::Relaxed);
+                if orig == 0 { return 0; }
+                let f: super::F12 = core::mem::transmute(orig);
+                ST.entered.fetch_add(1, Ordering::Relaxed);
+                let r = f(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12);
+                let mut w = [0u64; 9];
+                for i in 0..($nw as usize).min(9) { w[i] = crate::rd_u64(p1 + i * 8).unwrap_or(0); }
+                RING.with(|c| { let (mut a, n) = c.get(); a[n % 8] = Cap { p1, p2, p3, p4, ret: r as u64, w }; c.set((a, n + 1)); });
+                ST.n.fetch_add(1, Ordering::Relaxed);
+                r
+            }
+        }
+    };
+}
+judge_capture_out!(cap_as_c88300_out, crate::judge::gen_fns::AS_C88300, 9);   // 스냅샷 0x48B
+judge_capture_out!(cap_as_e23170, crate::judge::gen_fns::AS_E23170, 3);       // Option<(x,y)> 0x18B
+judge_capture_out!(cap_as_d84db0, crate::judge::gen_fns::AS_D84DB0, 7);       // position_eval out 0x38B(+0 A · +8 B · +0x31 tag)
 judge_capture_ring!(cap_util_c87fe0, crate::judge::gen_fns::UTIL_C87FE0);
 judge_capture_ring!(cap_combat_score, crate::judge::gen_fns::COMBAT_SCORE);
-judge_capture_ring!(cap_as_c88300, crate::judge::gen_fns::AS_C88300);
 judge_capture_ring!(cap_as_eb82d0, crate::judge::gen_fns::AS_EB82D0);
 judge_capture_ring!(cap_as_e0e890, crate::judge::gen_fns::AS_E0E890);
 judge_capture_ring!(cap_as_d83230, crate::judge::gen_fns::AS_D83230);
-pub fn as_reset_all() { cap_util_c87fe0::reset(); cap_combat_score::reset(); cap_as_c88300::reset(); cap_as_eb82d0::reset(); cap_as_e0e890::reset(); cap_as_d83230::reset(); cap_dn_cache::reset(); cap_est_dmg::reset(); }
+pub fn as_reset_all() { cap_util_c87fe0::reset(); cap_combat_score::reset(); cap_as_c88300_out::reset(); cap_as_e23170::reset(); cap_as_d84db0::reset(); cap_as_eb82d0::reset(); cap_as_e0e890::reset(); cap_as_d83230::reset(); cap_dn_cache::reset(); cap_est_dmg::reset(); }
 judge_scorer_cmp!(cap_base_score, crate::judge::gen_fns::BASE_SCORE, |_p1: usize, _p2: usize, _p3: usize, _p4: usize, _p5: usize, _p6: usize| { crate::judge::as_reset_all(); }, crate::judge::port::action_score::base_score);
 judge_capture_cmp!(cap_obj_can_attack, crate::judge::gen_fns::OBJ_CAN_ATTACK, |_p1: usize, _p2: usize, _p3: usize, _p4: usize, _p5: usize, _p6: usize| {}, |_p1: usize, p2: usize, p3: usize, p4: usize, _p5: usize, _p6: usize| -> Option<u8> { crate::judge::port::obj_helpers::can_attack(p2, p3, (p4 & 0xff) as u8).map(|b| b as u8) });
 judge_capture_cmp!(cap_obj_engage_gate, crate::judge::gen_fns::OBJ_ENGAGE_GATE, |_p1: usize, _p2: usize, _p3: usize, p4: usize, _p5: usize, _p6: usize| unsafe { crate::judge::port::obj_helpers::pre_read_targets(p4) }, |p1: usize, _p2: usize, p3: usize, p4: usize, p5: usize, p6: usize| -> Option<u8> { crate::judge::port::obj_helpers::engage_gate(p1, p3, p4, p5, (p6 & 0xff) as u8).map(|b| b as u8) });
@@ -546,7 +587,7 @@ judge_hook_out!(serpen_hb_hook, crate::judge::gen_fns::SERPEN_HUNT_BATTLE, crate
 
 /// 등록된 훅 전부(status 덤프용). 훅을 늘리면 여기와 install() 에 한 줄씩.
 pub fn stats() -> Vec<(&'static str, &'static Stat)> {
-    vec![(STEAL_SCORE.name, &steal_hook::ST), (ABILITY_PICK.name, &cap_ability_pick::ST), (RECENTLY_SEEN.name, &cap_recent_seen::ST), (DN_CACHE.name, &cap_dn_cache::ST), (DEFENSE_NEXUS.name, &defense_nexus_hook::ST), (EST_DAMAGE.name, &cap_est_dmg::ST), (PASSIVE_JUNGLE.name, &passive_jungle_hook::ST), (SINGLE_LINE.name, &cap_single_line::ST), (OBJ_CAN_ATTACK.name, &cap_obj_can_attack::ST), (OBJ_ENGAGE_GATE.name, &cap_obj_engage_gate::ST), (OBJ_POKE_GATE.name, &cap_obj_poke_gate::ST), (OBJ_COULD_ARRIVE.name, &cap_obj_could_arrive::ST), (BASE_SCORE.name, &cap_base_score::ST), (COMBAT_SCORE.name, &cap_combat_score::ST), (AS_C88300.name, &cap_as_c88300::ST), (AS_EB82D0.name, &cap_as_eb82d0::ST), (AS_E0E890.name, &cap_as_e0e890::ST), (AS_D83230.name, &cap_as_d83230::ST), (UTIL_C87FE0.name, &cap_util_c87fe0::ST), (BATTLE_ARM9.name, &battle_hook::ST), (EPIC_HUNT_POKE.name, &epic_hp_hook::ST), (SERPEN_HUNT_POKE.name, &serpen_hp_hook::ST),
+    vec![(STEAL_SCORE.name, &steal_hook::ST), (ABILITY_PICK.name, &cap_ability_pick::ST), (RECENTLY_SEEN.name, &cap_recent_seen::ST), (DN_CACHE.name, &cap_dn_cache::ST), (DEFENSE_NEXUS.name, &defense_nexus_hook::ST), (EST_DAMAGE.name, &cap_est_dmg::ST), (PASSIVE_JUNGLE.name, &passive_jungle_hook::ST), (SINGLE_LINE.name, &cap_single_line::ST), (OBJ_CAN_ATTACK.name, &cap_obj_can_attack::ST), (OBJ_ENGAGE_GATE.name, &cap_obj_engage_gate::ST), (OBJ_POKE_GATE.name, &cap_obj_poke_gate::ST), (OBJ_COULD_ARRIVE.name, &cap_obj_could_arrive::ST), (BASE_SCORE.name, &cap_base_score::ST), (COMBAT_SCORE.name, &cap_combat_score::ST), (AS_C88300.name, &cap_as_c88300_out::ST), (AS_E23170.name, &cap_as_e23170::ST), (AS_D84DB0.name, &cap_as_d84db0::ST), (AS_EB82D0.name, &cap_as_eb82d0::ST), (AS_E0E890.name, &cap_as_e0e890::ST), (AS_D83230.name, &cap_as_d83230::ST), (UTIL_C87FE0.name, &cap_util_c87fe0::ST), (BATTLE_ARM9.name, &battle_hook::ST), (EPIC_HUNT_POKE.name, &epic_hp_hook::ST), (SERPEN_HUNT_POKE.name, &serpen_hp_hook::ST),
          (EPIC_HUNT_BATTLE.name, &epic_hb_hook::ST), (SERPEN_HUNT_BATTLE.name, &serpen_hb_hook::ST), (PASSIVE_LINE.name, &passive_line_hook::ST)]
 }
 
@@ -671,7 +712,9 @@ pub unsafe fn install() {
         if tune("judge_cap_as", 1) != 0 {
             install_one(&mut log, &UTIL_C87FE0, &cap_util_c87fe0::ORIG, cap_util_c87fe0::wrap as *const () as usize, "capture-ring");
             install_one(&mut log, &COMBAT_SCORE, &cap_combat_score::ORIG, cap_combat_score::wrap as *const () as usize, "capture-ring");
-            install_one(&mut log, &AS_C88300, &cap_as_c88300::ORIG, cap_as_c88300::wrap as *const () as usize, "capture-ring");
+            install_one(&mut log, &AS_C88300, &cap_as_c88300_out::ORIG, cap_as_c88300_out::wrap as *const () as usize, "capture-out");
+            install_one(&mut log, &AS_E23170, &cap_as_e23170::ORIG, cap_as_e23170::wrap as *const () as usize, "capture-out");
+            install_one(&mut log, &AS_D84DB0, &cap_as_d84db0::ORIG, cap_as_d84db0::wrap as *const () as usize, "capture-out");
             install_one(&mut log, &AS_EB82D0, &cap_as_eb82d0::ORIG, cap_as_eb82d0::wrap as *const () as usize, "capture-ring");
             install_one(&mut log, &AS_E0E890, &cap_as_e0e890::ORIG, cap_as_e0e890::wrap as *const () as usize, "capture-ring");
             install_one(&mut log, &AS_D83230, &cap_as_d83230::ORIG, cap_as_d83230::wrap as *const () as usize, "capture-ring");

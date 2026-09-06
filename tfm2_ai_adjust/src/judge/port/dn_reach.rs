@@ -28,7 +28,7 @@ pub fn dbg_fmt() -> String {
     let align = rd_u64(vt + 0x10)?; Some(data.wrapping_add(((align.wrapping_sub(1)) & !0xfu64) as usize).wrapping_add(0x10))
 }
 /// 이펙트 vt `+0xe8`(사거리 보너스) 디스패치 — 구현 RVA 로 판정(버전 태그 상수). depth 는 래퍼 재귀 가드.
-unsafe fn eff_e8(data: usize, vt: usize, ent: usize, nexus: usize, depth: u32) -> Option<u64> {
+pub unsafe fn eff_e8(data: usize, vt: usize, ent: usize, nexus: usize, depth: u32) -> Option<u64> {
     if depth > 4 || !ptr_ok(vt) { return None; }
     let base = exe_base(); if base == 0 { return None; }
     let tgt = rd_u64(vt + EFF_SLOT_E8)? as usize;

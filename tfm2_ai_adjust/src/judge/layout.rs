@@ -277,4 +277,64 @@ pub const G_GRID_ROW: usize = 0xf0;
 pub const HP_S_P7_A: usize = 0xc0;               // 세르펜 p7 타이머 min(+0xc0, +0xd0)
 pub const HP_S_P7_B: usize = 0xd0;
 pub const HP_S_SUBTYPE: [u64; 9] = [0, 2, 0, 2, 1, 2, 2, 0, 0]; // 세르펜 code 2 서브타입(맵종류 JT 0x33e580c: 0/2/7/8→0 · 1/3→[0x33e8d81]=2 · 4→[0x33e8e60]=1 · 5→[0x33e9909]=2 · 6→2)
+// ── action_score 기저 스코어러(0xd57540) — RE 2026-09-06 17:10 (REPORT RE\2026-09-06_action_score-기저스코어러-…)
+pub const P5_MEMO_KEY: usize = 0x928;            // sim+0x928 메모 키(틱 캐시 엔트리)
+pub const P5_CHAMP_DATA: usize = 0x510;          // sim+0x510/0x518 = Box<dyn Champion>(data, vt): vt+0x20 kind(u32 getter) · vt+0x28 &Vec<i32> tags · vt+0x30 (out,obj)
+pub const P5_CHAMP_VT: usize = 0x518;
+pub const AS_BB_REC: usize = 0x918;              // bb+0x918 내 Record R
+pub const AS_BB_988: usize = 0x988;              // bb 위험 관련 i64 3종
+pub const AS_BB_998: usize = 0x998;
+pub const AS_BB_9B0: usize = 0x9b0;
+pub const AS_BB_RECB_PTR: usize = 0x14d8;        // bb+0x14d8 적 Record Vec ptr / +0x14f0 len · stride 0xd8
+pub const AS_BB_RECB_LEN: usize = 0x14f0;
+pub const AS_BB_1500: usize = 0x1500;            // u8 하드리젝트 스위치
+pub const AS_REC_STRIDE: usize = 0xd8;
+pub const AS_REC_THR_PTR: usize = 0x18;          // Record 위협 리스트 ptr / +0x30 len · stride 0x18 {src, delay, amount}
+pub const AS_REC_THR_LEN: usize = 0x30;
+pub const AS_REC_AGENT_H: usize = 0x58;          // Record +0x58 에이전트 핸들(0xd31bb0 키)
+pub const AS_REC_80: usize = 0x80;               // Record +0x80 가치 가산
+pub const AS_REC_ENT_H: usize = 0x130;           // Record +0x130 엔티티 핸들(타깃 매칭)
+pub const SA_PAYLOAD8: usize = 0x8;              // SmallAction 페이로드 핸들(cat2/6~9)
+pub const SA_PAYLOAD60: usize = 0x60;            // cat4 Trace 핸들
+pub const SA_GOAL20: usize = 0x20;               // cat2 goal i64
+pub const SA_FLAG94: usize = 0x94;               // cat4 플래그 u8
+pub const CFG_TICK_CAP: usize = 0x13f8;          // cfg+0x13f8 틱 상한(피해 추정 게이트 tick < cap)
+pub const ENT_IMMOBILE: usize = 0x488;           // u8 이동불가(0.5.3 +0x470)
+pub const ENT_B8: usize = 0xb8;                  // 슬롯0 잔여쿨(추정) · +0xc0 슬롯1
+pub const ENT_C0: usize = 0xc0;
+pub const ENT_SLOT3: usize = 0x538;              // 궁 슬롯(lv≥5) · ZERO desc 0x33daf38
+pub const X_SIM_TABLE: usize = 0x230;            // X+0x230+side*0x28+i*8 sim 포인터표(0xd31bb0)
+pub const LANE_ROLE_BYTE: usize = 0xf8;          // lanes+side*0x2e8 + role*32 + 0xf8 역할 바이트
+pub const AS_MULT0: [i64; 5] = [40, 75, 100, 200, 300];  // cat0 수적우세 배율(diff ≤−2 … ≥+2) — 표 0x33dbea0 + imm
+pub const AS_MULT4: [i64; 5] = [30, 60, 80, 150, 200];   // cat4 배율 — 표 0x33dbeb8 + imm
+pub const AS_ZERO_DESC: usize = 0x33daf38;       // ZERO 스킬 desc(0x38B, +0x30 = −1)
+// ── base_score(0xd57540) 바이트패치 사이트 24곳(aiport sites 실측 2026-09-06 18:05) — 포팅은 live_imm* 로 읽는다(즉치 RVA = 사이트+off)
+pub const SITE_AS_BIT100: usize = 0xd57a2e + 1;      // 4B 256 = 0x100 (dn_reach 비트 마스크)
+pub const SITE_AS_IDX7: usize = 0xd57fe9 + 3;        // 1B 7
+pub const SITE_AS_THR_A: usize = 0xd580a3 + 2;       // 4B 9999 (cat4 D 위협 임계)
+pub const SITE_AS_MARGIN_A: usize = 0xd583c6 + 3;    // 4B 30000 (cat4 S 사거리 여유)
+pub const SITE_AS_THR_B: usize = 0xd585f6 + 2;       // 4B 9999 (cat0 D)
+pub const SITE_AS_M0_HI: usize = 0xd58813 + 2;       // 4B 300 (cat0 diff>1)
+pub const SITE_AS_M0_LO: usize = 0xd58823 + 2;       // 4B 40  (cat0 diff<-1)
+pub const SITE_AS_SHR4: usize = 0xd5885a + 3;        // 1B 2   (t1 /4 = sar 2)
+pub const SITE_AS_SHR800: usize = 0xd58868 + 3;      // 1B 9   (mult*t2 /800 = 매직 a3d7 + sar 9)
+pub const SITE_AS_MINUS2: usize = 0xd58873 + 3;      // 1B 254 (= -2)
+pub const SITE_AS_PCT_C2A: usize = 0xd589b1 + 3;     // 1B 100 (cat2 gain: dmg*100)
+pub const SITE_AS_PCT_C2B: usize = 0xd589b5 + 2;     // 4B 100 (cat2 gain 상한)
+pub const SITE_AS_THR_C: usize = 0xd58aff + 2;       // 4B 9999 (cat4 record V)
+pub const SITE_AS_MARGIN_B: usize = 0xd58dc0 + 3;    // 4B 30000 (cat4 E2 사거리 여유)
+pub const SITE_AS_AL_D2: usize = 0xd592a1 + 2;       // 8B 100000^2+1 (cat4 아군 반경)
+pub const SITE_AS_M4_HI: usize = 0xd59427 + 1;       // 4B 200 (cat4 diff>1)
+pub const SITE_AS_M4_LO: usize = 0xd59436 + 1;       // 4B 30  (cat4 diff<-1)
+pub const SITE_AS_PCT_XA: usize = 0xd594da + 3;      // 1B 100 (cat4 X: dmg*100)
+pub const SITE_AS_PCT_XB: usize = 0xd594de + 1;      // 4B 100 (cat4 X 상한)
+pub const SITE_AS_PCT_XC: usize = 0xd59509 + 3;      // 1B 100 (cat4 X 2번째)
+pub const SITE_AS_PCT_XD: usize = 0xd5950d + 1;      // 4B 100
+pub const SITE_AS_950: usize = 0xd59529 + 8;         // 4B 950 (kind3 게이트)
+pub const SITE_AS_NEAR_D2: usize = 0xd595e5 + 2;     // 8B 100000^2+1 (cat0 보너스 근접)
+pub const SITE_AS_BONUS: usize = 0xd595f2 + 1;       // 4B 10 (cat0 보너스)
+pub const EFF28_SUM_20_18: usize = 0x1146bb0;   // 자식 Vec [s+0x20]/[s+0x28] stride 0x18 의 (p,m) 합 — base_score 리플레이 신규(x101,428)
+pub const EFFA0_CONST1_BARD2: usize = 0x17cd2e0;  // 상수 생성(type 1, vamp 0) bard_skill2 — x852
+pub const EFF28_BASE_AD: usize = 0x16a61d0;      // p = [s] + [s+8]*stats[0]/100 ; m = 0 — base_score 리플레이 신규(x105,458)
+pub const EFF38_SUM_20_18: usize = 0x1146ca0;   // 자식 Vec [s+0x20]/[s+0x28] stride 0x18 의 +0x38 합(0x1146bb0 형제) — x107,186
 
