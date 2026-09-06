@@ -89,6 +89,21 @@ pub unsafe fn eff28_damage(data: usize, vt: usize, att: usize) -> Option<(u64, u
             for _ in 0..n.min(4096) { acc = acc.wrapping_add(q400(coef.wrapping_mul(stat))); coef = q400(coef.wrapping_mul(m20)).max(m28); }
             Some((acc, 0))
         }
+        0x1715d70 => {
+            // 마법형 GENERIC: desc.vt+0x38(att)=&att.618 → m = me.10 + me.18*att.620/100 + me.20*att.628/100 ; p=0 (capstone 2026-09-06 21:30)
+            let a = q400(rd_u64(me + 0x18)?.wrapping_mul(rd_u64(att + ENT_STATS + 8)?));
+            let b = q400(rd_u64(me + 0x20)?.wrapping_mul(rd_u64(att + ENT_STATS + 0x10)?));
+            Some((0, a.wrapping_add(rd_u64(me + 0x10)?).wrapping_add(b)))
+        }
+        0x1340ac0 => {
+            // Σ 리스트1(stride 0x18 @me+0x68/len me+0x70) + Σ 리스트2(stride 0x10 @me+0x80/len me+0x88) 의 (p,m)
+            let (mut p, mut m) = (0u64, 0u64);
+            let n1 = rd_u64(me + 0x70)?; if n1 != 0 { let arr = rd_u64(me + 0x68)? as usize; if !ptr_ok(arr) { return None; }
+                for i in 0..n1.min(64) as usize { let (d, v) = (rd_u64(arr + i * 0x18)? as usize, rd_u64(arr + i * 0x18 + 8)? as usize); let (a, b) = eff28_damage(d, v, att)?; p = p.wrapping_add(a); m = m.wrapping_add(b); } }
+            let n2 = rd_u64(me + 0x88)?; if n2 != 0 { let arr = rd_u64(me + 0x80)? as usize; if !ptr_ok(arr) { return None; }
+                for i in 0..n2.min(64) as usize { let (d, v) = (rd_u64(arr + i * 0x10)? as usize, rd_u64(arr + i * 0x10 + 8)? as usize); let (a, b) = eff28_damage(d, v, att)?; p = p.wrapping_add(a); m = m.wrapping_add(b); } }
+            Some((p, m))
+        }
         0x1606470 => {
             // SwitchByBuff: desc.vt+0x50(=0x128f470 buff_lookup)(att, [me+8], [me+0x10]) != 0 → 자식 1, 아니면 자식 0 (capstone 2026-09-06 20:22)
             let idx = if buff_lookup(att, rd_u64(me + 8)? as usize, rd_u64(me + 0x10)?)? != 0 { 1usize } else { 0 };

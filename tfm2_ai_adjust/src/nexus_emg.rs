@@ -160,6 +160,11 @@ unsafe extern "C" fn nxe_margin(reg: usize, side: u64) -> u64 {
     })).unwrap_or(NXE_BASE_MARGIN)
 }
 
+/// judge 순수 포팅(dn_reach 0xd3fe50 재현)이 쓰는 **게이트 동치**: 디투어가 걸려 있으면 게임 실행 이미지는 `nxe_level>0` 으로 판정하고,
+/// 아니면 원본 `쌍둥이 len == 0`. count=false 라 비상 카운터를 두 번 세지 않는다. (2026-09-06 21:25 — dn_cache 대조에서 bit8 0.07% DIFF 의 원인)
+pub(crate) unsafe fn nxe_gate(reg: usize, side: u64, twin_len: u64) -> bool {
+    if NXE_DETOUR_ON.load(Ordering::Relaxed) { nxe_level(reg, side, false) > 0 } else { twin_len == 0 }
+}
 /// 넥서스 비상 조건 노브 적용. apply 체인에서 부른다.
 pub(crate) unsafe fn apply_nxe() {
     // ★`nxe_twin0` 기본 1 = **게임 원본 동작**(쌍둥이 0기면 비상). 나머지는 기본 0 = 추가 발동 없음.

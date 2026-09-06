@@ -53,6 +53,7 @@ pub mod port {
     pub mod action_score;
     pub mod as_callees;
     pub mod fight_check;
+    pub mod dn_cache;
 }
 use gen_fns::*;
 
@@ -282,7 +283,49 @@ macro_rules! judge_capture_ret {
     };
 }
 
-judge_capture_ret!(cap_dn_cache, crate::judge::gen_fns::DN_CACHE);
+/// capture_ret + 대조(하위 24비트): 스칼라 반환 콜리의 순수 재현 검증(틱 메모 캐시 0xc87850). take()/reset() API 는 capture_ret 와 동일.
+macro_rules! judge_capture_ret_cmp {
+    ($m:ident, $spec:expr, $pre:expr, $mine:expr, $diag:expr) => {
+        pub mod $m {
+            use std::sync::atomic::{AtomicUsize, AtomicU64, Ordering};
+            use std::cell::Cell;
+            pub static ORIG: AtomicUsize = AtomicUsize::new(0);
+            pub static ST: super::Stat = super::Stat::new();
+            pub static HIT: AtomicU64 = AtomicU64::new(0);
+            static SEQ: AtomicU64 = AtomicU64::new(0); static LOGGED: AtomicU64 = AtomicU64::new(0); static LOGGED_D: AtomicU64 = AtomicU64::new(0);
+            thread_local! { static LAST: Cell<(u64, u64)> = const { Cell::new((0, 0)) }; }
+            pub fn reset() { LAST.with(|c| c.set((0, 0))); }
+            pub fn take() -> Option<u64> { LAST.with(|c| { let v = c.get(); if v.0 == 0 { None } else { Some(v.1) } }) }
+            pub unsafe extern "C" fn wrap(p1: usize, p2: usize, p3: usize, p4: usize, p5: usize, p6: usize, p7: usize, p8: usize,
+                                          p9: usize, p10: usize, p11: usize, p12: usize) -> usize {
+                let orig = ORIG.load(Ordering::Relaxed);
+                if orig == 0 { return 0; }
+                let f: super::F12 = core::mem::transmute(orig);
+                ST.entered.fetch_add(1, Ordering::Relaxed);
+                let pre: u64 = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| ($pre)(p1, p2, p3, p4))).unwrap_or(u64::MAX);
+                if pre <= 0xff_ffff { HIT.fetch_add(1, Ordering::Relaxed); }
+                let r = f(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12);
+                let seq = SEQ.fetch_add(1, Ordering::Relaxed) + 1;
+                LAST.with(|c| c.set((seq, r as u64)));
+                ST.n.fetch_add(1, Ordering::Relaxed);
+                let mine: Option<u64> = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| ($mine)(p1, p2, p3, p4, pre))).unwrap_or(None);
+                let game = (r as u64) & 0xff_ffff;
+                let logline = |tag: &str, v: Option<u64>| {
+                    let diag = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| ($diag)(p1, p2, p3, p4))).unwrap_or_default();
+                    let line = format!("[{} #{}] {} game={:#x} mine={} | p1={:#x} p2={:#x} | {}\n", $spec.name, ST.n.load(Ordering::Relaxed), tag, game, v.map(|x| format!("{:#x}", x)).unwrap_or("NA".into()), p1, p2, diag);
+                    if let Some(p) = crate::pth(&format!("judge_{}.txt", $spec.name)) { let _ = std::fs::OpenOptions::new().create(true).append(true).open(p).and_then(|mut f| { use std::io::Write; f.write_all(line.as_bytes()) }); }
+                };
+                match mine {
+                    None => { ST.na.fetch_add(1, Ordering::Relaxed); if LOGGED.fetch_add(1, Ordering::Relaxed) < 30 { logline("NA", None); } }
+                    Some(v) if (v & 0xff_ffff) == game => { ST.ok.fetch_add(1, Ordering::Relaxed); }
+                    Some(v) => { ST.diff.fetch_add(1, Ordering::Relaxed); if LOGGED_D.fetch_add(1, Ordering::Relaxed) < 40 { logline("DIFF", Some(v)); } }
+                }
+                r
+            }
+        }
+    };
+}
+judge_capture_ret_cmp!(cap_dn_cache, crate::judge::gen_fns::DN_CACHE, |_p1, p2, _p3, _p4| unsafe { crate::judge::port::dn_cache::pre_lookup(p2) }, |_p1, p2, _p3, _p4, pre| unsafe { crate::judge::port::dn_cache::bits_verify(p2, pre) }, |_p1, p2, _p3, _p4| unsafe { crate::judge::port::dn_cache::diag(p2) });   // 틱 메모 캐시 (2단계: 순수 재현+메모 미러 대조)
 /// 0x12857f0(estimate_damage) 인자·반환 캡처(스레드로컬 링 16) — passive_jungle 검증 중 내 estimate_damage 와 같은 (slot,target) 표본을 대조한다. 검증기간 한정.
 pub mod cap_est_dmg {
     use std::sync::atomic::{AtomicUsize, Ordering};

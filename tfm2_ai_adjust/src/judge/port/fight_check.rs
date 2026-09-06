@@ -202,6 +202,15 @@ unsafe fn eff88_red(rva: usize, d: usize, ally: usize, me: usize, tps: u64) -> O
             let per = { let v = rd_u64(d + 0x30)?; if v == 0 { 1 } else { v } };
             Some((rd_u64(d + 0x28)?.wrapping_mul(rd_u64(ally + 0x620)?) / 100).wrapping_add(rd_u64(d + 0x20)?).wrapping_mul(tps) / per)
         }
+        0x16a3d90 => {
+            // 0x1152530 과 같은 게이트, 반경 d.28, 값 (d.38*ally.620/100 + d.30)*tps / max(d.40,1) (capstone 2026-09-06 21:12)
+            if rd_u32(me + ENT_KIND) != 13 || rd_u64(me)? != rd_u64(ally)? { return Some(0); }
+            if rd_u64(me)? == 0 && rd_u64(me + 8)? != rd_u64(ally + 8)? { return Some(0); }
+            if rd_u64(me + ENT_HP)? == 0 { return Some(0); }
+            let r = rd_u64(d + 0x28)?; if d2_ee(ally, me)? > r.wrapping_mul(r) { return Some(0); }
+            let per = { let v = rd_u64(d + 0x40)?; if v == 0 { 1 } else { v } };
+            Some((rd_u64(d + 0x38)?.wrapping_mul(rd_u64(ally + 0x620)?) / 100).wrapping_add(rd_u64(d + 0x30)?).wrapping_mul(tps) / per)
+        }
         _ => { dy::unseen(0x188, rva); None }
     }
 }
@@ -215,7 +224,7 @@ unsafe fn effs_sum(ent: usize, slot: usize, other: usize, tps: u64) -> Option<u6
         let val = match slot {
             0x80 => eff80_dps(r, d, ent, other, tps)?,
             0x88 => eff88_red(r, d, ent, other, tps)?,
-            _ => match r { EFF_E8_ZERO => 0, _ => { dy::unseen(0x100 + slot as u32, r); return None; } },
+            _ => match r { EFF_E8_ZERO => 0, 0x117c930 => rd_u64(d + 0x28)?.wrapping_mul(rd_u64(ent + ENT_MAXHP)?) / 100, _ => { dy::unseen(0x100 + slot as u32, r); return None; } },
         };
         acc = acc.wrapping_add(val);
     }
@@ -410,8 +419,9 @@ pub unsafe fn diag(holder: usize, sim: usize, me: usize, a: usize, b: usize) -> 
     for i in 0..la.min(8) as usize {
         let e = rd_u64(ap + i * 8).unwrap_or(0) as usize; if !ptr_ok(e) { break; }
         let (h3, h4, h5, bad) = buff_kinds(e).unwrap_or((false, false, false, false));
-        s += &format!(" A{}=[k={} b0={:?} b8={:?} c0={:?} c8={:?} lv={:?} buffs={}{}{}{} cc90={:?} p1={:?} p2={:?} p3={:?} effs={:?}]", i, rd_u32(e + ENT_KIND), rd_u64(e + 0xb0), rd_u64(e + 0xb8), rd_u64(e + 0xc0), rd_u64(e + 0xc8), rd_u64(e + ENT_LEVEL),
-            h3 as u8, h4 as u8, h5 as u8, bad as u8, can_basic_attack(e), pred_skill(e, 1), pred_skill(e, 2), pred_skill(e, 3), rd_u64(e + ENT_EFFS_LEN));
+        let v120 = |slot: usize| -> String { let (d, v) = (rd_u64(slot).unwrap_or(0) as usize, rd_u64(slot + 8).unwrap_or(0) as usize); format!("{:#x}:{:?}", dy::impl_rva(v, 0x120).unwrap_or(0), eff_vt120(d, v, 0)) };
+        s += &format!(" A{}=[k={} b0={:?} b8={:?} c0={:?} c8={:?} lv={:?} buffs={}{}{}{} cc90={:?} p1={:?} p2={:?} p3={:?} effs={:?} s1id={:?} s2id={:?} v120_1={} v120_2={}]", i, rd_u32(e + ENT_KIND), rd_u64(e + 0xb0), rd_u64(e + 0xb8), rd_u64(e + 0xc0), rd_u64(e + 0xc8), rd_u64(e + ENT_LEVEL),
+            h3 as u8, h4 as u8, h5 as u8, bad as u8, can_basic_attack(e), pred_skill(e, 1), pred_skill(e, 2), pred_skill(e, 3), rd_u64(e + ENT_EFFS_LEN), rd_i32(e + SLOT1 + 0x30), rd_i32(e + SLOT2 + 0x30), v120(e + SLOT1), v120(e + SLOT2));
     }
     let l = LAST.with(|c| c.get());
     s += &format!(" | mine: burst={} dps={} ally_red={} incoming={} hp_eff={} call={} bl={} h={:#x} mid={} span={} |{}", l[0], l[1], l[2], l[3], l[4], l[5], l[6], l[7], l[8], l[9], TERMS.with(|c| c.borrow().clone()));

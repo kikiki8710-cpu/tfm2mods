@@ -1,5 +1,5 @@
 // gen_fns.rs — ★자동생성(python MIG\aiport.py gen). 손으로 고치지 말 것 — 정본 = MIG\judge\manifest.json
-//   게임 0.5.8 · exe sha 4ed3aed08971efd0 · 2026-09-06 20:50
+//   게임 0.5.8 · exe sha 4ed3aed08971efd0 · 2026-09-06 21:34
 //   FnSpec.prolog = 훅이 옮기는 선두 바이트(명령 경계 ≥12B). 설치기는 exe 바이트가 이와 **완전 일치**할 때만 패치한다(패치판/스테일 방어).
 #![allow(dead_code)]
 pub const GAME_VER: &str = "0.5.8";
@@ -15,7 +15,7 @@ pub const BASE_SCORE: FnSpec = FnSpec { name: "base_score", sym: r"game-ai\src\a
 pub const BATTLE_ARM9: FnSpec = FnSpec { name: "battle_arm9", sym: r"(AI 계층 census 밖 — Location 없음)", role: "plan_handler", rva: 0xdfdfc0, size: 733, prolog: &[0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x55, 0x53], status: "verified" };   // 원본 행 - · None명령 · vslots -
 pub const COMBAT_SCORE: FnSpec = FnSpec { name: "combat_score", sym: r"game-ai\src\action_score.rs", role: "helper", rva: 0xd5bbf0, size: 19586, prolog: &[0x55, 0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x53], status: "todo" };   // 원본 행 982,1071,1108,1121,1127,1172,1192,1249,1365,1401,1517 · 3893명령 · vslots 0x18,0x20,0x28,0x40,0x48,0x60,0x68,0x78,0x80,0x88,0x90,0x98,0xa0,0xa8,0xb0,0xb8,0xe8,0x150,0x648,0x7e8,0x828
 pub const DEFENSE_NEXUS: FnSpec = FnSpec { name: "defense_nexus", sym: r"game-ai\src\plan_legacy\old\defense_nexus.rs", role: "plan_handler", rva: 0xd2da10, size: 2104, prolog: &[0x55, 0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x53], status: "verified" };   // 원본 행 38,40,44 · 524명령 · vslots 0x20,0x28,0x1f0
-pub const DN_CACHE: FnSpec = FnSpec { name: "dn_cache", sym: r"(AI 계층 census 밖 — Location 없음)", role: "helper", rva: 0xc87850, size: 610, prolog: &[0x55, 0x41, 0x57, 0x41, 0x56, 0x41, 0x54, 0x56, 0x57, 0x53, 0x48, 0x83, 0xec, 0x30], status: "ported" };   // 원본 행 - · None명령 · vslots -
+pub const DN_CACHE: FnSpec = FnSpec { name: "dn_cache", sym: r"(AI 계층 census 밖 — Location 없음)", role: "helper", rva: 0xc87850, size: 610, prolog: &[0x55, 0x41, 0x57, 0x41, 0x56, 0x41, 0x54, 0x56, 0x57, 0x53, 0x48, 0x83, 0xec, 0x30], status: "verified" };   // 원본 행 - · None명령 · vslots -
 pub const EPIC_HUNT_BATTLE: FnSpec = FnSpec { name: "epic_hunt_battle", sym: r"game-ai\src\plan_legacy\old\epic\hunt_and_battle.rs", role: "plan_handler", rva: 0xccc010, size: 591, prolog: &[0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x55, 0x53], status: "ported" };   // 원본 행 29,31,32 · 143명령 · vslots 0x40,0x1f0
 pub const EPIC_HUNT_POKE: FnSpec = FnSpec { name: "epic_hunt_poke", sym: r"game-ai\src\plan_legacy\old\epic\hunt_and_poke.rs", role: "plan_handler", rva: 0xdefcd0, size: 3413, prolog: &[0x55, 0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x53], status: "verified" };   // 원본 행 32,36,47,49,104,112 · 800명령 · vslots 0x28,0x40,0xe8,0x108,0x1f0
 pub const EST_DAMAGE: FnSpec = FnSpec { name: "est_damage", sym: r"(AI 계층 census 밖 — Location 없음)", role: "helper", rva: 0x12857f0, size: 1111, prolog: &[0x55, 0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x53], status: "ported" };   // 원본 행 - · None명령 · vslots -

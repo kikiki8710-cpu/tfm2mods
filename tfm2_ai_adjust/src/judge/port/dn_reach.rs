@@ -96,6 +96,9 @@ unsafe fn in_reach(e: usize, slot: usize, nexus: usize, r: usize) -> Option<bool
     Some(d2 <= range.wrapping_mul(range))
 }
 
+thread_local! { pub static NOGATE: std::cell::Cell<bool> = const { std::cell::Cell::new(false) }; }
+/// 진단: 미니언 len 게이트를 무시한 값
+pub unsafe fn reach_nogate(p5: usize, p6: usize) -> Option<bool> { NOGATE.with(|c| c.set(true)); let r = reach(p5, p6); NOGATE.with(|c| c.set(false)); r }
 /// 0xd3fe50 (p5 = 선수 sim, p6 = &Holder) → bool
 pub unsafe fn reach(p5: usize, p6: usize) -> Option<bool> {
     let side = rd_u64(p5 + P5_SIDE)?; if side > 1 { return None; }
@@ -104,7 +107,8 @@ pub unsafe fn reach(p5: usize, p6: usize) -> Option<bool> {
     let nexus = rd_u64(w.x + X_NEXUS + (side as usize) * 8)? as usize; if nexus == 0 { return Some(false); }
     let mml = rd_u64(w.x + X_MINION_LEN + (side as usize) * 0x20)?; dbg_set(0, mml);
     dbg_set(2, (rd_i32(nexus + ENT_F470)? as u32 as u64) | (rd_u64(nexus + ENT_F680)? << 32));
-    if mml != 0 { return Some(false); }
+    // ★X+0x148+side*0x20 = 살아있는 쌍둥이 타워 수(nexus_emg RE) — 게임 원본 게이트 `==0` 을 이 모드의 nexus_emg 디투어가 `nxe_level>0` 으로 바꿔 둔다. 실행 이미지와 같게 판정.
+    if !crate::nxe_gate(w.x, side, mml) && !NOGATE.with(|c| c.get()) { return Some(false); }
     let other = 1 - side; let nh = rd_u64(nexus + ENT_HANDLE)?;
     for i in 0..3usize {
         let ptr = rd_u64(w.x + X_LIST3_PTR[i] + (other as usize) * 0x20)? as usize;

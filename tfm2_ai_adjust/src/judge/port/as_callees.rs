@@ -475,6 +475,8 @@ pub unsafe fn eff_bool(data: usize, vt: usize, slot: usize, depth: u32) -> Optio
         (0x60, EFF60_ANY_CHILD) => any_child(0x60),
         (0x68, EFF68_NONZERO18) => Some(rd_u64(p + 0x18)? != 0),
         (0x68, EFF68_ANY_CHILD) => any_child(0x68),
+        (0x68, 0x13bede0) => { let n = rd_u64(p + 0x58)?; if n == 0 { return Some(false); } let arr = rd_u64(p + 0x50)? as usize; if !ptr_ok(arr) { return None; }
+            for i in 0..n.min(64) as usize { let (cd, cv) = (rd_u64(arr + i * 0x18)? as usize, rd_u64(arr + i * 0x18 + 8)? as usize); if eff_bool(cd, cv, 0x68, depth + 1)? { return Some(true); } } Some(false) }
         _ => { super::dyn_eff::unseen(slot as u32, r); None }
     }
 }
