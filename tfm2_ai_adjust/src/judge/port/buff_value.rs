@@ -494,7 +494,15 @@ pub unsafe fn s13_s14(b: &BCtx, ally: Option<usize>) -> Option<i64> {
     let has = spec0.is_some() || a0.is_some();
     let b90 = slot_bool90(sd, sv, 0)?;
     // etc = (!has && aura<=0 && b90) ? (vt_a8()[0]==0 ? 5 : 0) : 0   ⬜vt+0xa8 미포팅
-    let etc: i64 = if !has && aura <= 0 && b90 { return na_tag("Ba8"); } else { 0 };
+    let etc: i64 = if !has && aura <= 0 && b90 {
+        let f = rd_u64(sv + 0xa8)? as usize;
+        let p = inline_self(sd, sv)?;
+        let (sim2, est) = (SIM_TLS.with(|c| c.get()) as u64, EST_DESC_RVA_ABS.with(|c| c.get()));
+        match super::specemu::run_spec_leaf(f, p as u64, sim2, b.me as u64, est) {
+            Some(x) => if u64::from_le_bytes([x[0], x[1], x[2], x[3], x[4], x[5], x[6], x[7]]) == 0 { 5 } else { 0 },
+            None => { if let Some(r) = super::dyn_eff::impl_rva(sv, 0xa8) { super::dyn_eff::unseen(0x9a8, r); } return na_tag("Ba8"); }
+        }
+    } else { 0 };
 
     // inc / heal_e / shield_e
     let (inc, shield_ok, miss) = if let Some(ra) = ally {
@@ -611,12 +619,10 @@ unsafe fn slot_i64_98(data: usize, vt: usize, _sim: usize, me: usize, _e: usize)
 
 /// S14 전용 도달시간 감쇠: `buff = e022d0(..., (k*v)/6)`, `k = min(6, max(0, 6 − t))`
 unsafe fn decay_s14(b: &BCtx, tgt: usize, v: i64) -> Option<i64> {
-    let (sd, sv, sin) = slot3(b.slot)?;
-    let _ = sd;
-    let e8 = {
-        let f = rd_u64(sv + 0xe8)? as usize;
-        match super::as_callees::decode_getter(f, sin) { Some(x) => x as i64, None => return na_tag("Be8") }
-    };
+    let (sd2, sv, sin) = slot3(b.slot)?;
+    let _ = sin;
+    // slot.vt+0xe8(inline, self, tgt) — 이미 재현된 dn_reach::eff_e8 을 그대로 쓴다
+    let e8 = match super::dn_reach::eff_e8(sd2, sv, b.me, tgt, 0) { Some(x) => x as i64, None => return na_tag("Be8") };
     let me = b.me;
     let reach = rd_i64(me + 0x438)?
         .wrapping_add(rd_i64(b.slot + 0x10)?)
