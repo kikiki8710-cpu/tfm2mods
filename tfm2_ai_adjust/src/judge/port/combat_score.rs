@@ -44,12 +44,13 @@ pub fn na_report() -> String {
     for (k, c) in v { let t: String = k.to_le_bytes().iter().take_while(|b| **b != 0).map(|b| *b as char).collect(); s += &format!("{:<10} x{}\n", t, c); }
     s
 }
-thread_local! { pub static LAST: std::cell::Cell<[i64; 14]> = const { std::cell::Cell::new([0; 14]) }; }
+thread_local! { pub static LAST: std::cell::Cell<[i64; 18]> = const { std::cell::Cell::new([0; 18]) }; }
 /// DIFF 로그용 단계 값
 pub unsafe fn diag(_p1: usize, _p3: usize, _p4: usize) -> String {
     let v = LAST.with(|c| c.get());
     format!("risk_neg={} tower={} pos={} main={} urgent={} C={} thr_s={} chase={} bb998={} b9b0={} cast={} hp={} thr={} thrlen={}",
         v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7], v[8], v[9], v[10], v[11], v[12], v[13])
+        + &format!(" game_thr={} bb970={} bb9a0={} bb988={}", v[14], v[15], v[16], v[17])
 }
 #[inline] fn tag8(s: &str) -> u64 { let mut b = [0u8; 8]; for (i, c) in s.bytes().take(8).enumerate() { b[i] = c; } u64::from_le_bytes(b) }
 
@@ -319,7 +320,7 @@ pub unsafe fn combat_score(mode: usize, _prof: usize, rec: usize, ctx: usize, bb
     if self_is_tgt { return na(tag8("S13")); }
     let main: i64 = 0;
     let _ = (bonus9b0, thr_s, sp, my_handle, seen);
-    LAST.with(|c| c.set([risk_neg, tower_support, pos_term, main, urgent as i64, c_val, thr_s, chase, rd_i64(bb + BB_998).unwrap_or(-1), bonus9b0, cast_delay as i64, hp as i64, thr, rd_u64(bb + BB_R + AS_REC_THR_LEN).unwrap_or(0) as i64]));
+    LAST.with(|c| c.set([risk_neg, tower_support, pos_term, main, urgent as i64, c_val, thr_s, chase, rd_i64(bb + BB_998).unwrap_or(-1), bonus9b0, cast_delay as i64, hp as i64, thr, rd_u64(bb + BB_R + AS_REC_THR_LEN).unwrap_or(0) as i64, crate::judge::cap_as_d83230::last().map(|v| v as i64).unwrap_or(-999), rd_i64(bb + 0x970).unwrap_or(0), rd_i64(bb + 0x9a0).unwrap_or(0), rd_i64(bb + 0x988).unwrap_or(0)]));
     Some(risk_neg + tower_support + pos_term + main)
 }
 
