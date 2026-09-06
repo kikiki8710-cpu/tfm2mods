@@ -576,6 +576,12 @@ unsafe fn combat_score_inner(mode: usize, _prof: usize, rec: usize, ctx: usize, 
         let bc = super::buff_value::BCtx { mode, prof: _prof, rec, ctx, bb, sp, slot, tgt, me, p9: _p9,
                                            sim, w: w.x, c: c_val, inc_base: bonus9b0.wrapping_add(thr_s), cast_delay };
         let m = super::buff_value::s13_s14(&bc, rec_a)?;
+        // LAST 를 이 경로에서도 채운다(안 그러면 DIFF 로그의 risk_neg/tower/pos 가 직전 호출의 잔값이다)
+        LAST.with(|c| c.set([risk_neg, tower_support, pos_term, m, urgent as i64, c_val, thr_s, chase,
+                             rd_i64(bb + BB_998).unwrap_or(-1), bonus9b0, cast_delay as i64, hp as i64, thr,
+                             rd_u64(bb + BB_R + AS_REC_THR_LEN).unwrap_or(0) as i64,
+                             crate::judge::cap_as_d83230::last().map(|v| v as i64).unwrap_or(-999),
+                             rd_i64(bb + 0x970).unwrap_or(0), rd_i64(bb + 0x9a0).unwrap_or(0), rd_i64(bb + 0x988).unwrap_or(0)]));
         return Some(risk_neg + tower_support + pos_term + m);
     }
     let _ = (bonus9b0, thr_s, sp, my_handle, seen);

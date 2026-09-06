@@ -11,10 +11,14 @@ use super::action_score::sim_of_handle;
 
 pub const SPEC_SIZE: usize = 0x120;
 /// DIFF 로그용 S13/S14 성분 [aoe, trig, aura_t, etc, hs_term, buff, raw, dur]
-thread_local! { pub static S13D: std::cell::Cell<[i64; 8]> = const { std::cell::Cell::new([0; 8]) }; }
+thread_local! {
+    pub static S13D: std::cell::Cell<[i64; 8]> = const { std::cell::Cell::new([0; 8]) };
+    pub static S13E: std::cell::Cell<[i64; 8]> = const { std::cell::Cell::new([0; 8]) };
+}
 pub fn s13_diag() -> String {
-    let v = S13D.with(|c| c.get());
-    format!(" S13[aoe={} trig={} aura={} etc={} hs={} buff={} raw={} dur={}]", v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7])
+    let v = S13D.with(|c| c.get()); let e = S13E.with(|c| c.get());
+    format!(" S13[aoe={} trig={} aura={} etc={} hs={} buff={} raw={} dur={}] S13E[heal={} shield={} inc={} gate={} total={} has={} ally={} raw2={}]",
+        v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7], e[0], e[1], e[2], e[3], e[4], e[5], e[6], e[7])
 }
 /// 잎 에뮬레이터가 필요로 하는 두 컨텍스트(sim · EST 서술자 절대주소). S13/S14 진입 때 한 번 세운다.
 thread_local! {
@@ -509,6 +513,7 @@ pub unsafe fn s13_s14(b: &BCtx, ally: Option<usize>) -> Option<i64> {
     };
     let heal_e = heal.min(miss.wrapping_add(2 * inc));
     let shield_e = shield_ok.min(3 * inc);
+    S13E.with(|c| c.set([heal_e, shield_e, inc, 0, heal_e + shield_e, has as i64, ally.is_some() as i64, heal]));
     // dffa10 의 8번째 인자(gate) — S13 은 bb.0x9a0, S14 는 아군 Record 의 0x88
     let gate = match ally { Some(ra) => rd_i64(ra + 0x88)?, None => rd_i64(b.bb + 0x9a0)? };
     // dffa10 의 대상/계수 — S13 은 self·C, S14 는 tgt·C_ally
@@ -595,6 +600,7 @@ pub unsafe fn s13_s14(b: &BCtx, ally: Option<usize>) -> Option<i64> {
         aoe + trig + aura_t + etc + hs_term + buff
     };
     S13D.with(|c| { let mut v = c.get(); v[0] = aoe; v[3] = etc; v[4] = hs_term; v[5] = buff; c.set(v); });
+    S13E.with(|c| { let mut v = c.get(); v[3] = gate; v[7] = main_raw; c.set(v); });
     Some(if main_raw != 0 { main_raw } else if total > 0 || has { -10 } else { 0 })
 }
 
