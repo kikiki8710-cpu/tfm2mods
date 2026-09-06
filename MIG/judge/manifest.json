@@ -1754,7 +1754,7 @@
   },
   "serpen_hunt_poke": {
    "role": "plan_handler",
-   "status": "todo",
+   "status": "verified",
    "history": [
     {
      "ver": "0.5.8",
@@ -1762,6 +1762,13 @@
      "size": 3471,
      "date": "2026-09-06",
      "event": "add"
+    },
+    {
+     "ver": "0.5.8",
+     "rva": "0xdf0e90",
+     "date": "2026-09-06",
+     "event": "mark:todo→verified",
+     "note": "2026-09-06 16:35 verify-only port (port/hunt_poke.rs serpen_hunt_poke, capstone+JT 0x33e580c) first replay 86,290/86,290 DIFF=0 NA=0. live blocked same as epic (payload path Vec)"
     }
    ],
    "sym": "game-ai\\src\\plan_legacy\\old\\serpen\\hunt_and_poke.rs",
