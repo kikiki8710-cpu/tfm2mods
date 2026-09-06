@@ -48,6 +48,7 @@ pub mod port {
     pub mod dyn_eff;
     pub mod passive_jungle;
     pub mod battle;
+    pub mod obj_helpers;
 }
 use gen_fns::*;
 
@@ -301,6 +302,75 @@ pub mod cap_est_dmg {
     }
 }
 pub fn pj_reset() { tr_reset(); cap_est_dmg::reset(); }
+/// 캡처+대조 훅(헬퍼 단위 검증): 원본을 돌린 뒤 같은 인자로 내 재현을 돌려 저바이트를 대조한다. 행동 무변경. `judge_<name>.txt` 에 DIFF ≤40줄.
+macro_rules! judge_capture_cmp {
+    ($m:ident, $spec:expr, $pre:expr, $mine:expr) => {
+        pub mod $m {
+            use std::sync::atomic::{AtomicUsize, AtomicU64, Ordering};
+            pub static ORIG: AtomicUsize = AtomicUsize::new(0);
+            pub static ST: super::Stat = super::Stat::new();
+            static LOGGED: AtomicU64 = AtomicU64::new(0);
+            pub unsafe extern "C" fn wrap(p1: usize, p2: usize, p3: usize, p4: usize, p5: usize, p6: usize, p7: usize, p8: usize,
+                                          p9: usize, p10: usize, p11: usize, p12: usize) -> usize {
+                let orig = ORIG.load(Ordering::Relaxed);
+                if orig == 0 { return 0; }
+                let f: super::F12 = core::mem::transmute(orig);
+                ST.entered.fetch_add(1, Ordering::Relaxed);
+                let _ = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| ($pre)(p1, p2, p3, p4, p5, p6)));
+                let r = f(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12);
+                super::tr_reset();
+                let game = (r & 0xff) as u8;
+                let mine: Option<u8> = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| ($mine)(p1, p2, p3, p4, p5, p6))).unwrap_or(None);
+                crate::judge::port::obj_helpers::pre_clear();
+                ST.n.fetch_add(1, Ordering::Relaxed);
+                match mine {
+                    None => { ST.na.fetch_add(1, Ordering::Relaxed); }
+                    Some(v) if v == game => { ST.ok.fetch_add(1, Ordering::Relaxed); }
+                    Some(v) => {
+                        ST.diff.fetch_add(1, Ordering::Relaxed);
+                        if LOGGED.fetch_add(1, Ordering::Relaxed) < 40 {
+                            let line = format!("[{} #{}] DIFF game={} mine={} | p1={:#x} p2={:#x} p3={:#x} p4={:#x} p5={:#x} p6={:#x} | {}\n", $spec.name, ST.n.load(Ordering::Relaxed), game, v, p1, p2, p3, p4, p5, p6, super::tr_fmt());
+                            if let Some(p) = crate::pth(&format!("judge_{}.txt", $spec.name)) { let _ = std::fs::OpenOptions::new().create(true).append(true).open(p).and_then(|mut f| { use std::io::Write; f.write_all(line.as_bytes()) }); }
+                        }
+                    }
+                }
+                r
+            }
+        }
+    };
+}
+judge_capture_cmp!(cap_obj_can_attack, crate::judge::gen_fns::OBJ_CAN_ATTACK, |_p1: usize, _p2: usize, _p3: usize, _p4: usize, _p5: usize, _p6: usize| {}, |_p1: usize, p2: usize, p3: usize, p4: usize, _p5: usize, _p6: usize| -> Option<u8> { crate::judge::port::obj_helpers::can_attack(p2, p3, (p4 & 0xff) as u8).map(|b| b as u8) });
+judge_capture_cmp!(cap_obj_engage_gate, crate::judge::gen_fns::OBJ_ENGAGE_GATE, |_p1: usize, _p2: usize, _p3: usize, p4: usize, _p5: usize, _p6: usize| unsafe { crate::judge::port::obj_helpers::pre_read_targets(p4) }, |p1: usize, _p2: usize, p3: usize, p4: usize, p5: usize, p6: usize| -> Option<u8> { crate::judge::port::obj_helpers::engage_gate(p1, p3, p4, p5, (p6 & 0xff) as u8).map(|b| b as u8) });
+judge_capture_cmp!(cap_obj_poke_gate, crate::judge::gen_fns::OBJ_POKE_GATE, |_p1: usize, p2: usize, _p3: usize, _p4: usize, _p5: usize, _p6: usize| unsafe { crate::judge::port::obj_helpers::pre_read_targets(p2) }, |p1: usize, p2: usize, p3: usize, p4: usize, p5: usize, _p6: usize| -> Option<u8> { crate::judge::port::obj_helpers::poke_timer_gate(p1, p2, p3, p4, (p5 & 0xff) != 0).map(|b| b as u8) });
+/// 0xdcc100 캡처 대조 — 범위 p1 은 원본이 진행하며 갱신하므로 호출 전에 읽는다.
+pub mod cap_obj_could_arrive {
+    use std::sync::atomic::{AtomicUsize, AtomicU64, Ordering};
+    pub static ORIG: AtomicUsize = AtomicUsize::new(0);
+    pub static ST: super::Stat = super::Stat::new();
+    static LOGGED: AtomicU64 = AtomicU64::new(0);
+    pub unsafe extern "C" fn wrap(p1: usize, p2: usize, p3: usize, p4: usize, p5: usize, p6: usize, p7: usize, p8: usize, p9: usize, p10: usize, p11: usize, p12: usize) -> usize {
+        let orig = ORIG.load(Ordering::Relaxed); if orig == 0 { return 0; }
+        let f: super::F12 = core::mem::transmute(orig);
+        ST.entered.fetch_add(1, Ordering::Relaxed);
+        let (i0, e0) = (crate::rd_u64(p1).unwrap_or(u64::MAX), crate::rd_u64(p1 + 8).unwrap_or(u64::MAX));
+        let r = f(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12);
+        super::tr_reset();
+        let game = (r & 0xff) as u8;
+        let mine: Option<u8> = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| crate::judge::port::obj_helpers::could_arrive_env(i0, e0, p2).map(|b| b as u8))).unwrap_or(None);
+        ST.n.fetch_add(1, Ordering::Relaxed);
+        match mine {
+            None => { ST.na.fetch_add(1, Ordering::Relaxed); }
+            Some(v) if v == game => { ST.ok.fetch_add(1, Ordering::Relaxed); }
+            Some(v) => { ST.diff.fetch_add(1, Ordering::Relaxed);
+                if LOGGED.fetch_add(1, Ordering::Relaxed) < 40 {
+                    let line = format!("[obj_could_arrive #{}] DIFF game={} mine={} | range={}..{} env={:#x} | {}
+", ST.n.load(Ordering::Relaxed), game, v, i0, e0, p2, super::tr_fmt());
+                    if let Some(p) = crate::pth("judge_obj_could_arrive.txt") { let _ = std::fs::OpenOptions::new().create(true).append(true).open(p).and_then(|mut f| { use std::io::Write; f.write_all(line.as_bytes()) }); }
+                } }
+        }
+        r
+    }
+}
 // ── 발화 빈도 계측용 capture-ret(다음 포팅 대상 선정 — 리플레이에서 실제로 불리는 아암만 포팅한다). 검증기간 한정.
 judge_capture_ret!(cap_single_line, crate::judge::gen_fns::SINGLE_LINE);
 judge_hook_out!(battle_hook, crate::judge::gen_fns::BATTLE_ARM9, crate::judge::port::battle::battle, crate::judge::port::battle::battle_live, crate::judge::tr_reset, true, "judge_live_battle");
@@ -394,7 +464,7 @@ judge_hook_out!(serpen_hb_hook, crate::judge::gen_fns::SERPEN_HUNT_BATTLE, crate
 
 /// 등록된 훅 전부(status 덤프용). 훅을 늘리면 여기와 install() 에 한 줄씩.
 pub fn stats() -> Vec<(&'static str, &'static Stat)> {
-    vec![(STEAL_SCORE.name, &steal_hook::ST), (ABILITY_PICK.name, &cap_ability_pick::ST), (RECENTLY_SEEN.name, &cap_recent_seen::ST), (DN_CACHE.name, &cap_dn_cache::ST), (DEFENSE_NEXUS.name, &defense_nexus_hook::ST), (EST_DAMAGE.name, &cap_est_dmg::ST), (PASSIVE_JUNGLE.name, &passive_jungle_hook::ST), (SINGLE_LINE.name, &cap_single_line::ST), (BATTLE_ARM9.name, &battle_hook::ST), (EPIC_HUNT_POKE.name, &cap_epic_hunt_poke::ST), (SERPEN_HUNT_POKE.name, &cap_serpen_hunt_poke::ST),
+    vec![(STEAL_SCORE.name, &steal_hook::ST), (ABILITY_PICK.name, &cap_ability_pick::ST), (RECENTLY_SEEN.name, &cap_recent_seen::ST), (DN_CACHE.name, &cap_dn_cache::ST), (DEFENSE_NEXUS.name, &defense_nexus_hook::ST), (EST_DAMAGE.name, &cap_est_dmg::ST), (PASSIVE_JUNGLE.name, &passive_jungle_hook::ST), (SINGLE_LINE.name, &cap_single_line::ST), (OBJ_CAN_ATTACK.name, &cap_obj_can_attack::ST), (OBJ_ENGAGE_GATE.name, &cap_obj_engage_gate::ST), (OBJ_POKE_GATE.name, &cap_obj_poke_gate::ST), (OBJ_COULD_ARRIVE.name, &cap_obj_could_arrive::ST), (BATTLE_ARM9.name, &battle_hook::ST), (EPIC_HUNT_POKE.name, &cap_epic_hunt_poke::ST), (SERPEN_HUNT_POKE.name, &cap_serpen_hunt_poke::ST),
          (EPIC_HUNT_BATTLE.name, &epic_hb_hook::ST), (SERPEN_HUNT_BATTLE.name, &serpen_hb_hook::ST), (PASSIVE_LINE.name, &passive_line_hook::ST)]
 }
 
@@ -508,6 +578,13 @@ pub unsafe fn install() {
         else { log.push_str("[judge] est_damage capture 생략(judge_cap_est=0)
 "); }
         // 발화 빈도 계측(카운터만) — cfg judge_cap_arms=0 이면 생략
+        // hunt_and_poke 콜리 계층 캡처+대조(헬퍼 단위 검증) — cfg judge_cap_obj(기본 1)
+        if tune("judge_cap_obj", 1) != 0 {
+            install_one(&mut log, &OBJ_CAN_ATTACK, &cap_obj_can_attack::ORIG, cap_obj_can_attack::wrap as *const () as usize, "capture-cmp");
+            install_one(&mut log, &OBJ_ENGAGE_GATE, &cap_obj_engage_gate::ORIG, cap_obj_engage_gate::wrap as *const () as usize, "capture-cmp");
+            install_one(&mut log, &OBJ_POKE_GATE, &cap_obj_poke_gate::ORIG, cap_obj_poke_gate::wrap as *const () as usize, "capture-cmp");
+            install_one(&mut log, &OBJ_COULD_ARRIVE, &cap_obj_could_arrive::ORIG, cap_obj_could_arrive::wrap as *const () as usize, "capture-cmp");
+        }
         if tune("judge_cap_arms", 1) != 0 {
             install_one(&mut log, &SINGLE_LINE, &cap_single_line::ORIG, cap_single_line::wrap as *const () as usize, "capture-ret");
             install_one(&mut log, &EPIC_HUNT_POKE, &cap_epic_hunt_poke::ORIG, cap_epic_hunt_poke::wrap as *const () as usize, "capture-ret");

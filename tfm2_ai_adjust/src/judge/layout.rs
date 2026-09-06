@@ -245,4 +245,16 @@ pub const ENT_LANE: usize = 0x128;               // 유닛 lane 바이트(타워
 pub const X_FIXED6: [usize; 6] = [0x180, 0x1a0, 0x1c0, 0x190, 0x1b0, 0x1d0]; // 0x1820ee0 고정 6슬롯(X+off+side*8) 순회 순서
 pub const EFFA0_MERGE_68_18_80_10: usize = 0x1340e80; // 두 범위([s+0x68]/0x70 stride 0x18 + [s+0x80]/0x88 stride 0x10, 병합기 0x126f240) — 15:22 리플레이 신규 ×7124
 pub const EFFA0_CONST1_ENCH2: usize = 0x12bc970; // 상수 생성(type 1, vamp 0) enchanter_skill2 (.pdata 없는 leaf) — 15:22 리플레이 신규 ×1052
+// ── obj_helpers(hunt_and_poke 콜리 계층) — 2026-09-06 16:00 (디컴 0xeca200/0xeca430/0xec9840/0xecacc0/0xdd5db0/0xdcc100/0xec9bf0/0xeca9a0)
+pub const X_OBJ_CNT: usize = 0x21c0;             // X+0x21c0 + kind*0x10 + side*8 : 오브젝티브 확보 카운터(u64)
+pub const LANE_OBJ_T: usize = 0x10;              // lanes+side*0x2e8 (+0/+0x28/+0x50 = kind 0/1/2) +0x10 i64 시각 · +0x20 i32 횟수
+pub const LANE_OBJ_N: usize = 0x20;
+pub const ORDER_TS4: usize = 0x80;               // order(p8) +0x80 에픽 / +0x88 세르펜 타임스탬프
+pub const ORDER_TS5: usize = 0x88;
+pub const ORDER_LASTPOS: usize = 0x230;          // order +0x230 + i*0x10 : 적 챔프 i 마지막 관측 (x,y)
+pub const ORDER_LASTTICK: usize = 0x2d0;         // order +0x2d0 + i*8   : 적 챔프 i 마지막 관측 틱
+pub const ENT_SPEED: usize = 0x640;              // 이동속도(틱당) — 0xdcc100 도달 가능성
+pub const W_GRID: usize = 0xb450;                // WorldOps vt+0x100(0x184acb0): [w + 0xb450 + side*0xe10 + gy*0x78 + gx*4] i32 > 0
+pub const W_GRID_SIDE: usize = 0xe10;
+pub const W_GRID_ROW: usize = 0x78;
 
