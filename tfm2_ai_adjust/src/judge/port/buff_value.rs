@@ -512,8 +512,8 @@ pub unsafe fn s13_s14(b: &BCtx, ally: Option<usize>) -> Option<i64> {
         match spec {
             Some(sp) => {
                 let hs_needed = sp[0xf8] != 0 || sp[0x118] != 0 || sp[0xb8..0xc0].iter().any(|&x| x != 0);
-                if hs_needed { return na_tag("B1c40"); }        // ⬜0xe01c40 미포팅
-                let d = Dffa { self_e: dtgt, ctx: b.ctx, rec: b.rec, bb: b.bb, hs: None, inc, gate, aura, c: dc };
+                let hs = if hs_needed { Some(e01c40(b, dtgt)?) } else { None };
+                let d = Dffa { self_e: dtgt, ctx: b.ctx, rec: b.rec, bb: b.bb, hs, inc, gate, aura, c: dc };
                 let v = dffa10(&sp, &d)?;
                 let v = if ally.is_some() { decay_s14(b, t, v)? } else { v };
                 buff = e022d0(b.slot, b.ctx, b.rec, dtgt, v)?;
@@ -550,9 +550,33 @@ pub unsafe fn s13_s14(b: &BCtx, ally: Option<usize>) -> Option<i64> {
         aoe + etc + buff + hs_term
     } else {
         // S13 전용: 아군 아우라 루프 + 0xe03ed0
-        return na_tag("B13aura");
+        let wroot = rd_u64(b.ctx)? as usize;
+        let mut aura_t: i64 = 0;
+        let (an, ap) = (rd_u64(b.bb + 0x14d0)?, rd_u64(b.bb + 0x14b8)? as usize);
+        for i in 0..5usize {
+            let e = rd_u64(wroot + X_ROSTER + (rd_u64(b.rec + 0x930)? as usize) * 0x28 + i * 8)? as usize; if e == 0 { continue; }
+            if slot_i64_98(sd, sv, b.sim, b.me, e)? == 0 { continue; }
+            let h = rd_u64(e + ENT_HANDLE)?;
+            let mut rec_e = 0usize;
+            if an != 0 { if !ptr_ok(ap) { return None; }
+                for k in 0..an.min(64) as usize { let r = ap + k * 0xd8; if rd_u64(r + 0x58)? == h { rec_e = r; break; } } }
+            if rec_e == 0 { continue; }
+            if !e01c40(b, e)?.0 { continue; }
+            aura_t += super::as_callees::pct_c(b.bb, rec_e)?.min(80);
+        }
+        let trig = match e03ed0(b.slot, b.ctx, b.rec, b.bb, b.me, b.c) { Some(v) => v, None => return na_tag("B3ed0") };
+        aoe + trig + aura_t + etc + hs_term + buff
     };
     Some(if main_raw != 0 { main_raw } else if total > 0 || has { -10 } else { 0 })
+}
+
+/// slot.vt+0x98 : (inline, sim, self, 아군엔티티) -> i64. 단순 게터/위임만 처리.
+unsafe fn slot_i64_98(data: usize, vt: usize, _sim: usize, _me: usize, _e: usize) -> Option<i64> {
+    let f = rd_u64(vt + 0x98)? as usize;
+    let p = inline_self(data, vt)?;
+    if let Some(v) = super::as_callees::decode_getter(f, p) { return Some(v as i64); }
+    if let Some(r) = super::dyn_eff::impl_rva(vt, 0x98) { super::dyn_eff::unseen(0x998, r); }
+    na_tag("B98")
 }
 
 /// S14 전용 도달시간 감쇠: `buff = e022d0(..., (k*v)/6)`, `k = min(6, max(0, 6 − t))`
@@ -1064,4 +1088,88 @@ pub unsafe fn dffa10(spec: &[u8; SPEC_SIZE], a: &Dffa) -> Option<i64> {
         if s64(0xb8) != 0 && h1 { result += s64(0xb8) * a.c / 200; }
     }
     Some(result.clamp(0, 160))
+}
+
+// ── 0xe01c40 — (반격 여부, 적 대형기 준비) (897B) ────────────────────────────────────────
+//   정본 = `RE\2026-09-07_combat_score-S13S14-버프콜리4종-…-0.5.8.md` §3
+//   `(mode, prof, rec, ctx, subject, p9) -> (al, dl)` — 호출부는 `&1` 로만 쓴다.
+const FOUNTAIN: [(u64, u64); 2] = [(64000, 800000), (160000, 896000)];
+
+/// 술어 `0xe11e90`
+unsafe fn e11e90(w: &World, agents: usize, rec: usize, subject: usize, e: usize, now: u64) -> Option<bool> {
+    let reach = super::as_callees::max_reach(e, subject)?;
+    let (ex, ey) = (rd_u64(e + ENT_X)?, rd_u64(e + ENT_Y)?);
+    let (sx, sy) = (rd_u64(subject + ENT_X)?, rd_u64(subject + ENT_Y)?);
+    let (dx, dy) = (absd(ex, sx), absd(ey, sy));
+    let lim = reach.wrapping_add(30000);
+    if dx.wrapping_mul(dx).wrapping_add(dy.wrapping_mul(dy)) > lim.wrapping_mul(lim) { return Some(false); }
+    let side = rd_u64(rec + 0x930)?; if side > 1 { return None; }
+    let eside = 1 - side;
+    if rd_u8(e) == 0 && rd_u64(e + 8)? == eside {
+        for (a, bnd) in FOUNTAIN {
+            if side == 1 { if ex <= a && (bnd..=960000).contains(&ey) { return Some(false); } }
+            else { if (bnd..=960000).contains(&ex) && ey <= a { return Some(false); } }
+        }
+    }
+    let h = rd_u64(e + ENT_HANDLE)?;
+    if w.visible(side, h)? { return Some(true); }
+    let rc = w.roster_rec(h)?; if rc == 0 { return Some(false); }
+    let seen = rd_u64(agents + (eside as usize) * LANE_STRIDE + LANE_ROSTER + (rd_u32(rc + 0x9c0) as usize) * 8)?;
+    Some(now <= seen.wrapping_add(120))
+}
+
+/// 스킬 슬롯의 `vt+0x88` == 1 인가(대형기 준비). 단순 게터 impl 만 처리.
+unsafe fn skill_ready88(slot: usize) -> Option<bool> {
+    let (d, v) = (rd_u64(slot)? as usize, rd_u64(slot + 8)? as usize);
+    if !ptr_ok(v) { return None; }
+    let f = rd_u64(v + 0x88)? as usize;
+    let p = inline_self(d, v)?;
+    if let Some(x) = super::as_callees::decode_getter(f, p) { return Some(x == 1); }
+    if let Some(r) = super::dyn_eff::impl_rva(v, 0x88) { super::dyn_eff::unseen(0xb88, r); }
+    None
+}
+
+pub unsafe fn e01c40(b: &BCtx, subject: usize) -> Option<(bool, bool)> {
+    let wroot = rd_u64(b.ctx)? as usize;
+    let (wd, wv) = (rd_u64(wroot)? as usize, rd_u64(wroot + 8)? as usize);
+    if !ptr_ok(wd) || !ptr_ok(wv) { return None; }
+    let w = World { x: wroot, data: wd, vt: wv };
+    let agents = rd_u64(b.ctx + 0x10)? as usize; if !ptr_ok(agents) { return None; }
+    let cfg = rd_u64(b.sim + 8)? as usize; if !ptr_ok(cfg) { return None; }
+    let tps = rd_u64(cfg + 0x12f8)?;
+    let now = rd_u64(wd + W_TICK)?;
+    let side = rd_u64(b.rec + 0x930)?; if side > 1 { return None; }
+    let eside = 1 - side;
+
+    let mut list = [0usize; 5]; let mut n = 0usize;
+    for i in 0..5usize {
+        let e = rd_u64(wroot + X_ROSTER + (eside as usize) * 0x28 + i * 8)? as usize; if e == 0 { continue; }
+        if e11e90(&w, agents, b.rec, subject, e, now)? { list[n] = e; n += 1; }
+    }
+    if n == 0 { return Some((false, false)); }
+
+    // ① fights_back
+    let rr = super::action_score::sim_of_handle(wroot, rd_u64(subject + ENT_HANDLE)?)?;
+    let mut fights_back = false;
+    if rr != 0 {
+        let mut hdr = [0u64; 4]; hdr[0] = list.as_ptr() as u64; hdr[3] = n as u64;
+        let emp = [0u64; 4];
+        let t = super::fight_check::fight_check_memo(0, b.ctx, rr, subject, hdr.as_ptr() as usize, emp.as_ptr() as usize)?;
+        fights_back = t < 2u64.wrapping_mul(tps);
+    }
+    // ② big_ready
+    let mut big = false;
+    for k in 0..n {
+        let e = list[k];
+        let kind = rd_i32(e + ENT_KIND)?;
+        let lv = rd_u64(e + 0x5c8)?;
+        let (c1, c2, c3) = if kind == 0xd { (rd_u64(e + 0xb8)?, rd_u64(e + 0xc0)?, rd_u64(e + 0xc8)?) } else { (0, 0, 0) };
+        let ready1 = if kind == 0xd { c1 <= tps } else { true };
+        if ready1 && rd_i32(e + 0x4f8)? != -1 && skill_ready88(e + 0x4c8)? { big = true; break; }
+        let s2 = if lv >= 3 { e + 0x500 } else { crate::exe_base() + 0x33e21a0 };
+        if c2 <= tps && rd_i32(s2 + 0x30)? != -1 && skill_ready88(s2)? { big = true; break; }
+        let s3 = if lv >= 5 { e + 0x538 } else { crate::exe_base() + 0x33e21a0 };
+        if c3 <= tps && rd_i32(s3 + 0x30)? != -1 && skill_ready88(s3)? { big = true; break; }
+    }
+    Some((fights_back, big))
 }
