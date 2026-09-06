@@ -45,6 +45,8 @@ pub mod port {
     pub mod passive_line;
     pub mod defense_nexus;
     pub mod dn_reach;
+    pub mod dyn_eff;
+    pub mod passive_jungle;
 }
 use gen_fns::*;
 
@@ -274,6 +276,7 @@ macro_rules! judge_capture_ret {
 }
 
 judge_capture_ret!(cap_dn_cache, crate::judge::gen_fns::DN_CACHE);
+judge_hook_out!(passive_jungle_hook, crate::judge::gen_fns::PASSIVE_JUNGLE, crate::judge::port::passive_jungle::passive_jungle, crate::judge::port::passive_jungle::passive_jungle_live, crate::judge::tr_reset, false, "judge_live_passive_jungle");
 judge_hook_out!(defense_nexus_hook, crate::judge::gen_fns::DEFENSE_NEXUS, crate::judge::port::defense_nexus::defense_nexus, crate::judge::port::defense_nexus::defense_nexus_live, crate::judge::cap_dn_cache::reset, true, "judge_live_defense_nexus");
 judge_hook!(steal_hook, crate::judge::gen_fns::STEAL_SCORE, crate::judge::port::steal_score::steal_score, crate::judge::port::steal_score::steal_score, "judge_live_steal_score");
 judge_capture!(cap_ability_pick, crate::judge::gen_fns::ABILITY_PICK);
@@ -361,7 +364,7 @@ judge_hook_out!(serpen_hb_hook, crate::judge::gen_fns::SERPEN_HUNT_BATTLE, crate
 
 /// 등록된 훅 전부(status 덤프용). 훅을 늘리면 여기와 install() 에 한 줄씩.
 pub fn stats() -> Vec<(&'static str, &'static Stat)> {
-    vec![(STEAL_SCORE.name, &steal_hook::ST), (ABILITY_PICK.name, &cap_ability_pick::ST), (RECENTLY_SEEN.name, &cap_recent_seen::ST), (DN_CACHE.name, &cap_dn_cache::ST), (DEFENSE_NEXUS.name, &defense_nexus_hook::ST),
+    vec![(STEAL_SCORE.name, &steal_hook::ST), (ABILITY_PICK.name, &cap_ability_pick::ST), (RECENTLY_SEEN.name, &cap_recent_seen::ST), (DN_CACHE.name, &cap_dn_cache::ST), (DEFENSE_NEXUS.name, &defense_nexus_hook::ST), (PASSIVE_JUNGLE.name, &passive_jungle_hook::ST),
          (EPIC_HUNT_BATTLE.name, &epic_hb_hook::ST), (SERPEN_HUNT_BATTLE.name, &serpen_hb_hook::ST), (PASSIVE_LINE.name, &passive_line_hook::ST)]
 }
 
@@ -434,6 +437,7 @@ pub fn write_status() {
     }
     s.push_str("판정: diff=0 && na=0 이면 그 함수 DIFF=0(이번 판 표본 한정). na>0 = 가드 경로/콜리 캡처 없음 → judge_<fn>.txt 의 NA 줄 확인. ability_pick 은 캡처 전용(n=호출 수).\n");
     if let Some(p) = pth("judge_status.txt") { let _ = fs::write(p, s); }
+    if let Some(p) = pth("judge_dyn.txt") { let _ = fs::write(p, port::dyn_eff::unseen_report()); }
 }
 
 static INSTALLED: AtomicBool = AtomicBool::new(false);
@@ -453,6 +457,7 @@ pub unsafe fn install() {
     // 판단 파일은 프로세스마다 새로(누적되면 지난 판 DIFF 가 섞여 오독 — 03:05 실사고)
     for s in ALL { if let Some(p) = pth(&format!("judge_{}.txt", s.name)) { let _ = fs::remove_file(p); } }
     if let Some(p) = pth("judge_layout.txt") { let _ = fs::remove_file(p); }
+    if let Some(p) = pth("judge_dyn.txt") { let _ = fs::remove_file(p); }
     let mut log = format!("judge 계층: 게임 {} · 등록 {}함수 · judge_verify={} judge_live={}\n", GAME_VER, ALL.len(), verify as u8, tune("judge_live", 0));
     if verify {
         install_one(&mut log, &STEAL_SCORE, &steal_hook::ORIG, steal_hook::wrap as *const () as usize, "wrap");
@@ -464,6 +469,7 @@ pub unsafe fn install() {
         install_one(&mut log, &PASSIVE_LINE, &passive_line_hook::ORIG, passive_line_hook::wrap as *const () as usize, "wrap-out");
         install_one(&mut log, &DN_CACHE, &cap_dn_cache::ORIG, cap_dn_cache::wrap as *const () as usize, "capture-ret");
         install_one(&mut log, &DEFENSE_NEXUS, &defense_nexus_hook::ORIG, defense_nexus_hook::wrap as *const () as usize, "wrap-out");
+        install_one(&mut log, &PASSIVE_JUNGLE, &passive_jungle_hook::ORIG, passive_jungle_hook::wrap as *const () as usize, "wrap-out");
     } else {
         log.push_str("[judge] judge_verify=0 → 훅 미설치(원본)\n");
     }

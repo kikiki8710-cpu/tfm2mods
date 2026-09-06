@@ -165,3 +165,32 @@ pub const EFF_E8_MAX_CHILDREN: usize = 0x12a67a0;    // ×9    자식 (data,vt)[
 pub const EFF_E8_LVL3_NEXUS_TABLE: usize = 0x12b9e60;// ×1    level≥3 && nexus+0x298 표(stride 0x38, [+0x34]==1) → [self+0x40]
 pub const EFF_E8_BUFF_FLAG: usize = 0x16a8c10;       // ×1    [self+0x62]==1 && ent+0x2f8 버프 vt+0x48==1 → 9,999,999 (버프 층 미재현 → NA)
 
+// ── passive_jungle(Plan 7, 0xd2e500) · dyn_eff 전용 ── [capstone + ghidra-re 2026-09-06, 0.5.8]
+pub const PLAN_PJ_SIDE: usize = 0x48;            // 플랜 인자 +0x48 u64 side(0/≠0)
+pub const PLAN_PJ_CAMP: usize = 0x60;            // 플랜 인자 +0x60 u8 camp(0..5)
+pub const PJ_WP_D2: u64 = 14_400_000_000;        // 캠프 위치 게이트 120000² (사이트 없음 · 노브 d7_wp_dist2)
+pub const SITE_PJ_HP_SELFHEAL_IMM: usize = 0xd2ed5a; // cmp rax, 21 (노브 d7_hp_selfheal, 사이트 0xd2ed57)
+pub const SITE_PJ_HP_NORMAL_IMM: usize = 0xd2ed70;   // cmp rax, 41 (노브 d7_hp_normal, 사이트 0xd2ed6d)
+pub const ENT_F3F0: usize = 0x3f0;               // i32 흡혈 누산(>0 이면 지속회복 있음)
+pub const ENT_F3FC: usize = 0x3fc;               // i32 공속 보정 %(+100)
+pub const ENT_SLOT1: usize = 0x4c8;              // 스킬1 슬롯(Arc data·+8 vt) · flag +0x4f8
+pub const ENT_SLOT1_FLAG: usize = 0x4f8;
+pub const ENT_SLOT2: usize = 0x500;              // 스킬2 슬롯 · flag +0x530 (level≥3 에서만 검사)
+pub const ENT_SLOT2_FLAG: usize = 0x530;
+pub const ENT_PROV0_DATA: usize = 0x570;         // 평타 프로바이더 Box<dyn>(data) / +0x578 vt
+pub const ENT_PROV0_VT: usize = 0x578;
+pub const ENT_BUFF_BLOCK: usize = 0x370;         // 버프 누산 블록(ENT_VT+0x40): +0xa8/+0xb0 관통 · +0xd0/+0xd8/+0xe0/+0xf0 피해 보정
+pub const ENT_STATS: usize = 0x618;              // 스탯 스냅샷(ENT_VT+0x38): +0x10 사용
+pub const ENT_DEF_P: usize = 0x630;              // 물리 방어 / +0x638 마법 방어
+pub const ENT_DEF_M: usize = 0x638;
+pub const MAPDEF_CAMPS_PTR: usize = 0x68;        // map_def(=G+0x20 객체) 캠프 표 ptr / +0x70 len · stride 0x28 {pos0, pos1, kind u8 @0x20}
+pub const MAPDEF_CAMPS_LEN: usize = 0x70;
+// effect vt 구현체 RVA(0.5.8 정적 열거) — dyn_eff 디스패치 키
+pub const EFF28_ZERO: usize = 0x109bad0;         // (0,0) ×152
+pub const EFF28_PAIR_RAW: usize = 0x146a90;      // ([s],[s+8]) ×1
+pub const EFF28_PAIR_BYKIND: usize = 0x29b84a0;  // [s+8]==1 ? (0,[s]) : ([s],0) ×1
+pub const EFF38_ZERO: usize = 0x9db70;           // 0 ×194
+pub const EFF38_GET28: usize = 0x2f840;          // [s+0x28] ×10
+pub const EFF40_ZERO: usize = 0x9db70;           // 0 ×197
+pub const EFFA0_NONE: usize = 0x109baa0;         // type=−1 ×171
+
