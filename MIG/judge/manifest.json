@@ -3624,6 +3624,13 @@
      "date": "2026-09-06",
      "event": "mark:todo→verified",
      "note": "fight_check 순수(메모 미러·노이즈·매트릭스·dyn 15종) 5,815,961/5,815,961 DIFF=0 (20:41), NA 1,232=0x117bb30 원뿔(20:45 포팅·미검증)"
+    },
+    {
+     "ver": "0.5.8",
+     "rva": "0xeb82d0",
+     "date": "2026-09-06",
+     "event": "mark:verified→verified",
+     "note": "fight_check 순수(메모 미러·노이즈·매트릭스·dyn 16종 incl. 원뿔 0x117bb30) 5,182,148/5,182,148 DIFF=0 NA=0 (20:50)"
     }
    ],
    "sym": "(AI 계층 census 밖 — Location 없음)",
