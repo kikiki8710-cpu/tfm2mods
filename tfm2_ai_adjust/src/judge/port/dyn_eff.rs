@@ -179,6 +179,14 @@ unsafe fn effa0_buff_p(me: usize, vt: usize, ent: usize, depth: u32) -> Option<(
             let (d, v) = (rd_u64(me + 0x18 + idx)? as usize, rd_u64(me + 0x20 + idx)? as usize);
             effa0_buff_d(d, v, ent, depth + 1)
         }
+        EFFA0_CONST0 => Some((0, 0)),
+        EFFA0_STATSCALED => Some((rd_i32(me + 0x48)?, rd_i32(me + 0x80)?)),
+        EFFA0_MERGE_20_18_INLINE => { let mut acc = (-1, 0); merge_a0(&mut acc, rd_u64(me + 0x20)? as usize, rd_u64(me + 0x28)?, 0x18, ent, depth)?; Some(acc) }
+        EFFA0_SWITCH_BY_LEVEL3 => {
+            let idx = if rd_u64(ent + ENT_LEVEL)? >= 3 { 0x10 } else { 0 };
+            let (d, v) = (rd_u64(me + idx)? as usize, rd_u64(me + idx + 8)? as usize);
+            effa0_buff_d(d, v, ent, depth + 1)
+        }
         EFFA0_INLINE_STATE => { if rd_u8(me + 0x120) != 0 { Some((-1, 0)) } else { Some((rd_i32(me + 0x48)?, rd_i32(me + 0x80)?)) } }
         EFFA0_NONE => Some((-1, 0)),
         EFFA0_WIND_SPEED => Some((1, 0)),          // 0x12266f0: 상수 생성(type 1, +0x80 = 0)

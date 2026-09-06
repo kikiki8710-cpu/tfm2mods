@@ -222,3 +222,7 @@ pub const EFFA0_INLINE_STATE: usize = 0x11507c0;      // [s+0x120]!=0 → None ;
 pub const EFFA0_MERGE_08_18: usize = 0x13bfbf0;       // [s+8]/[s+0x10] stride 0x18 (0x126ec80)
 pub const EFFA0_MERGE_48_10: usize = 0x12a50c0;       // [s+0x48]/[s+0x50] stride 0x10 (0x126e6c0)
 
+pub const EFFA0_CONST0: usize = 0x16a2ee0;         // 상수 생성(type 0, vamp 0)
+pub const EFFA0_SWITCH_BY_LEVEL3: usize = 0x164eba0; // level>=3 ? 자식1 : 자식0 → +0xa0
+pub const EFFA0_STATSCALED: usize = 0x114b3f0;     // payload 안 BuffState 복사 후 스탯 비례 필드 갱신(+0x48/+0x80 은 불변)
+pub const EFFA0_MERGE_20_18_INLINE: usize = 0x12a5be0; // 병합기 인라인판([s+0x20]/[s+0x28] stride 0x18)

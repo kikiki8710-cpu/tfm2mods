@@ -80,11 +80,17 @@ pub unsafe fn estimate_damage(slot: usize, att: usize, target: usize) -> Option<
     Some(match camp { 0 => if side { 0xc0 } else { 0 }, 1 => if side { 0xf0 } else { 0x30 }, 2 => if side { 0x120 } else { 0x60 }, 3 => if side { 0x150 } else { 0x90 }, 4 => 0x180, 5 => 0x1b0, _ => return None })
 }
 /// 몬스터 e 의 초당 피해×1000: dmg*1000 / per, per = max(cd*100/max(1, spd+100), 3 if <4)
-unsafe fn monster_dps(e: usize, me: usize) -> Option<u64> {
-    let dmg = estimate_damage(e + ENT_SLOT0, e, me)?;
+unsafe fn monster_dps(e: usize, me: usize, slot_tr: usize) -> Option<u64> {
+    tr(9, 0x100 | 0x20);
+    let vt28 = rd_u64(e + ENT_SLOT0 + 8).unwrap_or(0) as usize;
+    let impl28 = dy::impl_rva(vt28, 0x28).unwrap_or(0xffff) as u64;
+    let dmg = match estimate_damage(e + ENT_SLOT0, e, me) { Some(v) => v, None => { tr(9, 0x100 | 0x21); tr(slot_tr, 0x8000_0000_0000_0000 | (impl28 & 0xffff) << 48); return None; } };
+    tr(9, 0x100 | 0x22);
     let cd = dy::prov90_cooltime(rd_u64(e + ENT_PROV0_DATA)? as usize, rd_u64(e + ENT_PROV0_VT)? as usize, e)?;
+    tr(9, 0x100 | 0x23);
     let mut spd = (rd_i32(e + ENT_F3FC)? as i64).wrapping_add(100); if spd < 2 { spd = 1; }
     let mut per = cd.wrapping_mul(100) / (spd as u64); if per < 4 { per = 3; }
+    if slot_tr < 12 { tr(slot_tr, dmg.min(0xffff) | cd.min(0xffff) << 16 | ((spd as u64) & 0xffff) << 32 | (impl28 & 0xffff) << 48); }
     Some(dmg.wrapping_mul(1000) / per)
 }
 
@@ -105,22 +111,27 @@ pub unsafe fn passive_jungle_k(a: &Args8, k: &Knobs) -> Option<MpOut> {
     let tag6 = |o: &mut MpOut| { o.push(8, 8, side_flag); o.push(0x10, 1, camp as u64); o.push(0x11, 1, 0); o.code(6); };
     // S0
     if g.home_box(team)?.contains(mx, my) && hp < maxhp { tag5(&mut o); tr(2, 0x100); return Some(o); }
-    let (tag, moba) = w.mode()?; if tag != 0 { return None; }                   // 게임: unwrap None panic
+    tr(9, 0x100 | 1);
+    let (tag, moba) = w.mode()?; if tag != 0 { tr(9, 0x100 | 2); return None; }                   // 게임: unwrap None panic
+    tr(9, 0x100 | 3);
     let off = camp_off(camp, side)?;                                            // 테이블 밖 = UB
+    tr(9, 0x100 | 4);
     let vptr = rd_u64(moba + off + 0x20)? as usize; let vlen = rd_u64(moba + off + 0x28)?;
     if vlen > 0 && !ptr_ok(vptr) { return None; }
     let tps = rd_u64(rd_u64(g.0 + G_CFG)? as usize + CFG_TPS)?;
     let map_def = rd_u64(g.0 + G_BOXES)? as usize;
+    tr(9, 0x100 | 5);
     // A
     if vlen != 0 {
         let (cx, cy) = camp_pos(map_def, camp, side as usize)?;
+        tr(9, 0x100 | 6);
         let d2 = sqd(mx, my, cx, cy); tr(3, d2.min(0xffff_ffff_ffff));
         if d2 <= k.wp_d2 {
             let mut dps: u64 = 0;
             for i in 0..vlen.min(64) as usize {
                 let e = match w.entity(rd_u64(vptr + i * 8)?) { Some(e) => e.0, None => continue };
                 if rd_i32(e + ENT_SLOT0_FLAG)? == -1 { continue; }
-                dps = dps.wrapping_add(monster_dps(e, me)?);
+                dps = dps.wrapping_add(monster_dps(e, me, 7 + i.min(1) * 4)?);
             }
             tr(4, 0x1_0000_0000 | dps.min(0xffff_ffff));
             if dps != 0 { if hp.wrapping_mul(1000) / dps > tps { tag6(&mut o); tr(2, 0x101); return Some(o); } }
@@ -128,6 +139,7 @@ pub unsafe fn passive_jungle_k(a: &Args8, k: &Knobs) -> Option<MpOut> {
         }
     }
     // S — 지속 회복(sus)
+    tr(9, 0x100 | 7);
     let sus: bool = if rd_i32(me + ENT_F3F0)? > 0 { true } else {
         let mut r: Option<bool> = None;
         if rd_i32(me + ENT_SLOT1_FLAG)? != -1 {
@@ -144,7 +156,7 @@ pub unsafe fn passive_jungle_k(a: &Args8, k: &Knobs) -> Option<MpOut> {
             }
         } }
     };
-    tr(5, 0x100 | sus as u64);
+    tr(5, 0x100 | sus as u64); tr(9, 0x100 | 8);
     // P2 — 몬스터(kind 4)가 나를 치는 중인가
     let myh = rd_u64(me + ENT_HANDLE)?;
     let mut engaged = false;
@@ -163,8 +175,8 @@ pub unsafe fn passive_jungle_k(a: &Args8, k: &Knobs) -> Option<MpOut> {
     let mut dps: u64 = 0;
     for i in 0..vlen.min(64) as usize {
         let e = match w.entity(rd_u64(vptr + i * 8)?) { Some(e) => e.0, None => continue };
-        if rd_i32(e + ENT_SLOT0_FLAG)? == -1 { return None; }
-        dps = dps.wrapping_add(monster_dps(e, me)?);
+        if rd_i32(e + ENT_SLOT0_FLAG)? == -1 { tr(9, 0x100 | 9); return None; }
+        dps = dps.wrapping_add(monster_dps(e, me, 7 + i.min(1) * 4)?);
     }
     let dps = if vlen == 0 { 1 } else { dps.max(1) };
     tr(4, 0x2_0000_0000 | dps.min(0xffff_ffff));
