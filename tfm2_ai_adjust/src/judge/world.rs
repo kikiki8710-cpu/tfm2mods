@@ -100,6 +100,18 @@ impl World {
         }
         Some(0)
     }
+    /// ★`FUN_140d31bb0(W, handle)` 순수 이식 — `roster_rec` 와 **다른 배열을 뒤진다**.
+    /// 이쪽은 로스터 10칸(`W+0x1e0..0x228`, 팀0 0..4 / 팀1 5..9)을 엔티티 포인터로 훑어
+    /// `[e+0x5c0] == handle` 인 칸의 **평행 레코드 배열** `[W+0x230+i*8]` 을 돌려준다.
+    /// ~~`roster_rec`(=`w.data` 의 레코드 리스트 선형스캔)~~ 는 대개 같은 답을 내지만
+    /// 로스터에서 빠진 유닛에서 갈린다(RE 2026-09-07, `0xd5f350` 호출부).
+    pub unsafe fn rec_by_roster(&self, h: u64) -> Option<usize> {
+        for i in 0..10usize {
+            let e = rd_u64(self.x + X_ROSTER + i * 8)? as usize;
+            if e != 0 && rd_u64(e + ENT_HANDLE)? == h { return Some(rd_u64(self.x + 0x230 + i * 8)? as usize); }
+        }
+        Some(0)
+    }
     /// vt+0xe8 순수 재현: 설정 플래그 u8.
     pub unsafe fn cfg_flag(&self) -> Option<u8> { if ptr_ok(self.data) { Some(rd_u8(self.data + W_CFG_FLAG)) } else { None } }
     /// vt+0x108 순수 재현: 사이드별 24B 설정의 주소(호출부가 필요한 필드만 읽는다).
