@@ -305,6 +305,40 @@ pub unsafe fn dive_record(p2: usize, p3: usize, p4: usize, r: u64, d: u64, rbp: 
         // 게이트 자체 임시 슬롯: [rbp+0x710]=item.y · [rbp+0x708]=item.438 · [rbp+0x6e8]=item.4a8
         // [rbp+0x698]/[rbp+0x6a0] = 게임이 q 를 가리키는 포인터(d8544f/d8545d 에서 lea). 이게 rbp+0x7a0/0x7a8 이 아니면
         // 게이트가 읽는 q 와 내가 읽는 q 가 다른 것이다. 포인터와 그 대상까지 같이 찍는다.
+        // ★내 모델(range_g(item, self) + 18000)을 **게임이 실제로 통과시킨 그 (item, q)** 에서 검증한다.
+        //   캡처된 호출은 전부 pass 표본이므로, 내 모델이 fail 을 내면 그건 확실한 오답이다(단측 오라클).
+        {
+            let side = rd_u64(p3 + P5_SIDE).unwrap_or(9);
+            let role = if ptr_ok(p3) { rd_u32(p3 + P5_ROLE) as usize } else { 99 };
+            if side <= 1 && role <= 4 && ptr_ok(x) {
+                if let Some(se) = rd_u64(x + X_ROSTER + (side as usize) * ROSTER_SIDE_STRIDE + role * 8) {
+                    let se = se as usize;
+                    if ptr_ok(se) {
+                        if let Some(rg) = range_g(p4, se) {
+                            mine_truth(d2, rg.wrapping_add(18000), p4, se, q.0, q.1);
+                            // ★후보별 단측 적중: 올바른 임계라면 게임이 통과시킨 표본을 **100%** 통과해야 한다.
+                            //   100% 인 것들 중 **가장 작은 것**이 정답(더 큰 임계는 다른 곳에서 과다 통과한다).
+                            let (ri, rt) = (radius(p4).unwrap_or(0), radius(se).unwrap_or(0));
+                            let ru = range_u(p4, se).unwrap_or(0);
+                            let cands = [rg + 18000, rg + 20000, rg + 22000, rg + 24000, rg + 26000, rg + 30000,
+                                         rg + 18000 + ri, rg + 18000 + rt, rg + 18000 + ri + rt,
+                                         ru + 18000, ru + 18000 + ri, ru + 24000,
+                                         rg + 32000, rg + 50000, rg * 2, rg];
+                            for (i, c) in cands.iter().enumerate() { cand_tally(i, d2 <= c.wrapping_mul(*c)); }
+                            // ★필요 임계 역산: 게임이 통과시켰으므로 T_true >= need. 각 형태의 **최댓값**이
+                            //   곧 그 형태가 성립하기 위한 하한이고, 그게 딱 18000 이면 그 형태가 정답이다.
+                            let need = isqrt_fast(d2);
+                            need_max(0, need.saturating_sub(rg));
+                            need_max(1, need.saturating_sub(rg).saturating_sub(ri));
+                            need_max(2, need.saturating_sub(rg).saturating_sub(rt));
+                            need_max(3, need.saturating_sub(rg).saturating_sub(ri).saturating_sub(rt));
+                            need_max(4, need.saturating_sub(ru));
+                            need_max(5, need.saturating_sub(rg).saturating_sub(ri / 2));
+                        }
+                    }
+                }
+            }
+        }
         let (qp, qp2) = (g(0x698), g(0x6a0));
         let gs = [g(0x710), g(0x708), g(0x6e8), qp.wrapping_sub((rbp + 0x7a0) as u64), qp2.wrapping_sub((rbp + 0x7a8) as u64),
                   rd_u64(qp as usize).unwrap_or(u64::MAX), rd_u64(qp2 as usize).unwrap_or(u64::MAX), rd_u64(p4 + 0x4a0).unwrap_or(0)];
@@ -671,25 +705,21 @@ unsafe fn body(st: &St) -> Option<Out> {
                 let mut v = match est(item, tgt).and_then(|es| tower_v(item, es, tps, scale)) { Some(v) => v, None => { trs(|| "NA:etower".into()); return None } };
                 let r_u = range_u(item, tgt)?;
                 let d2g = wrap_d2(ix, iy, qx, qy); let rgb = range_g(item, tgt)?; let ri = radius(item)?; let rt = radius(tgt)?;
-                // ★게이트 = `range_g + 18000` (디스어셈 그대로, 0xd87ea1~0xd8800d). 2026-09-07 09:30 확정.
-                //   ~~+24000(실측 맞춤)~~ 은 **오라클이 틀렸던 것**이다. 두 겹의 결함이 있었다:
-                //   ①`0xd96d00` 은 exe 전체에 xref 5개(`0xd88043` 외에 `0xd98e66`·`0xd990bc`·`0xe87d99`)라
-                //     콜리 진입점 훅은 다른 함수발 호출을 흡수한다 → 반환주소 필터로 해결(dive_record).
-                //   ②남은 결함이 본질: 오라클 `dive_calls_since(side, handle)` 는 **틱 구간 내 "이 타워로
-                //     불렸는가"** 라 (item) 단위인데, 게이트는 **(item, qx, qy)** 단위다. position_eval 은
-                //     틱마다 여러 쿼리점으로 불리므로 임계를 키울수록 "언젠가 불렸다"에 더 많이 맞는다
-                //     — 90.3% → 99.70% → 99.81% 의 단조 개선이 정확히 그 인공물이었다.
-                //   게이트 식(7항) = range(self) + range_gated(other) + other.0x4a0 + other.0x438
-                //                  + (other.0x5c8−1)*other.0x4a8 + vcall_e8(other) + 18000
-                //   = 현행 `range_g(item, tgt) + 18000` 과 항 구성이 동일하다(RE 2026-09-07).
-                //   ⚠**그런데 +18000 으로 되돌리자 out 워드 DIFF 가 2.2% → 2.94% 로 악화했다**(2026-09-07 09:40 실측,
-                //     as_d84db0 47,947,641/49,402,249). 항 구성은 위 7항과 동일한데도 그렇다는 것은 **게이트 입력 중
-                //     하나가 아직 다르다**는 뜻이다. 최유력 후보 = `vcall_e8`: 게임은 `(payload, other)` **2인자**로
-                //     부르는데(0xd87ecb~0xd87efd) 재현은 3번째 인자로 `tgt` 를 넘긴다. `0x12b9e60` 같은 impl 은
-                //     3번째 인자의 `0x298` 표를 읽으므로 값이 갈린다.
-                //   → 정확도를 지키려고 **당분간 +24000 유지**. 다음 단계는 상수 재적합이 아니라 **깨끗한 단측 오라클**:
-                //     `0xd88043` 콜사이트(반환주소 0xd88048)에서 `rdi(other)`·`[rbp+0x720](self)`·`[rbp+0x7a0/0x7a8]`
-                //     를 덤프하면 캡처된 호출은 **전부 pass 표본**이므로, 내 T 가 fail 을 내는 건만 모으면 원인이 좁혀진다.
+                // ★★게이트 = `range_g + 24000` — **확증(2026-09-07 11:40, 깨끗한 단측 오라클)**.
+                //   오래 미해결이던 "디스어셈은 +18000 인데 실측은 +24000" 모순을 이번에 매듭지었다.
+                //
+                //   ① 옛 오라클이 틀렸다: `dive_calls_since(side, handle)` 는 **틱 구간 내 (item) 단위**인데
+                //      게이트는 **(item, qx, qy) 단위**다. position_eval 은 틱마다 여러 쿼리점으로 불리므로
+                //      임계를 키울수록 "언젠가 불렸다"에 더 맞는다 — 90.3%→99.72%→99.86% 의 단조 개선이 그 인공물.
+                //      (그 전 단계 오염 = `0xd96d00` xref 5곳 → 반환주소 필터 `ra == base+0xd88048` 로 이미 해결.)
+                //   ② 새 오라클 = **단측**: 게임이 `0xd88043` 에서 실제로 통과시킨 바로 그 `(item, q)` 에 대해
+                //      내 모델이 통과하는가만 본다(캡처된 호출은 전부 pass 표본이므로 위양성이 원리적으로 없다).
+                //   ③ 실측(리플레이 1판, 표본 3,445,518):
+                //        rg+18000 79.53% · rg+22000 99.71% · **rg+24000 100.0000%** · rg+18000+ri 100%
+                //      그리고 **필요 임계 역산 `max(need − rg) = 23999`** = 정확히 24000(23999 는 isqrt 절삭).
+                //      다른 형태는 전부 부자연스러운 상수로 떨어진다(need−rg−ri=13999 · −ri−rt=3999 · −ri/2=18999).
+                //   ⟹ **`rg + 24000` 이 가장 타이트한 정답.** 디스어셈의 `add rax, 0x4650`(18000) 은 여러 가산 중
+                //      하나이고, RE 의 7항 읽기가 **6000 짜리 항 하나를 빠뜨린 것**으로 보인다(그 항의 정체는 미규명).
                 let game_pass = d2g <= sq(rgb.wrapping_add(24000));
                 { let gp = dive_calls_since(side, rd_u64(item + ENT_HANDLE)?) > 0;
                   gate_edge(rgb, isqrt_fast(d2g), gp);
@@ -1006,6 +1036,63 @@ fn gate_truth(d2: u64, t: u64, ix: u64, iy: u64, qx: u64, qy: u64, f: &[u64; 8],
             let _ = std::fs::OpenOptions::new().create(true).append(true).open(p).and_then(|mut fh| { use std::io::Write; fh.write_all(line.as_bytes()) });
         }
     }
+}
+static MTRUTH: [std::sync::atomic::AtomicU64; 2] = [std::sync::atomic::AtomicU64::new(0), std::sync::atomic::AtomicU64::new(0)];
+static MTRUTH_N: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(0);
+/// ★단측 오라클: 게임이 `0xd88043` 에서 실제로 통과시킨 (item, q) 에 대해 **내 모델**이 통과하는가.
+unsafe fn mine_truth(d2: u64, t: u64, item: usize, se: usize, qx: u64, qy: u64) {
+    let ok = d2 <= t.wrapping_mul(t);
+    MTRUTH[usize::from(!ok)].fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+    if !ok && MTRUTH_N.fetch_add(1, std::sync::atomic::Ordering::Relaxed) < 200 {
+        if let Some(p) = crate::pth("judge_pe_gate_mine.txt") {
+            let need = isqrt_fast(d2);
+            let e8 = vt_e8(item + SLOT0, item, se);
+            let line = format!("need={} T={} 부족={} | 438={} 4a0={} 4a8={} lv={} e8={:?} e8impl={:#x} 4c0={} ri={:?} rt={:?} q=({},{}) item=({:?},{:?})
+",
+                need, t, need.saturating_sub(t),
+                rd_u64(item + ENT_F438).unwrap_or(0), rd_u64(item + 0x4a0).unwrap_or(0), rd_u64(item + 0x4a8).unwrap_or(0),
+                rd_u64(item + ENT_LEVEL).unwrap_or(0), e8,
+                dy::impl_rva(rd_u64(item + SLOT0 + 8).unwrap_or(0) as usize, 0xe8).unwrap_or(0),
+                rd_i32(item + 0x4c0).unwrap_or(-9), radius(item), radius(se), qx, qy, rd_u64(item + ENT_X), rd_u64(item + ENT_Y));
+            let _ = std::fs::OpenOptions::new().create(true).append(true).open(p).and_then(|mut fh| { use std::io::Write; fh.write_all(line.as_bytes()) });
+        }
+    }
+}
+static NEEDMAX: [std::sync::atomic::AtomicU64; 6] = [const { std::sync::atomic::AtomicU64::new(0) }; 6];
+fn need_max(i: usize, v: u64) { NEEDMAX[i].fetch_max(v, std::sync::atomic::Ordering::Relaxed); }
+pub fn need_report() -> String {
+    const N: [&str; 6] = ["need-rg", "need-rg-ri", "need-rg-rt", "need-rg-ri-rt", "need-ru", "need-rg-ri/2"];
+    if NEEDMAX[0].load(std::sync::atomic::Ordering::Relaxed) == 0 { return String::new(); }
+    let mut s = String::from("=== ★필요 임계 역산(게임 통과 표본의 최댓값 = 그 형태의 하한. 18000 이면 정답) ===
+");
+    for i in 0..6 { s += &format!("{:<14} max={}
+", N[i], NEEDMAX[i].load(std::sync::atomic::Ordering::Relaxed)); }
+    s
+}
+const NCAND: usize = 16;
+static CAND: [[std::sync::atomic::AtomicU64; 2]; NCAND] = [const { [const { std::sync::atomic::AtomicU64::new(0) }; 2] }; NCAND];
+fn cand_tally(i: usize, pass: bool) { CAND[i][usize::from(!pass)].fetch_add(1, std::sync::atomic::Ordering::Relaxed); }
+pub fn cand_report() -> String {
+    const NAMES: [&str; NCAND] = ["rg+18000", "rg+20000", "rg+22000", "rg+24000", "rg+26000", "rg+30000",
+                                  "rg+18000+ri", "rg+18000+rt", "rg+18000+ri+rt",
+                                  "ru+18000", "ru+18000+ri", "ru+24000", "rg+32000", "rg+50000", "rg*2", "rg"];
+    let tot: u64 = CAND[0][0].load(std::sync::atomic::Ordering::Relaxed) + CAND[0][1].load(std::sync::atomic::Ordering::Relaxed);
+    if tot == 0 { return String::new(); }
+    let mut s = String::from("=== ★후보별 단측 적중(게임이 통과시킨 표본만 · 정답은 100%) ===
+");
+    for i in 0..NCAND {
+        let (a, b) = (CAND[i][0].load(std::sync::atomic::Ordering::Relaxed), CAND[i][1].load(std::sync::atomic::Ordering::Relaxed));
+        s += &format!("{:<16} 통과={:<10} 탈락={:<10} {:.4}%
+", NAMES[i], a, b, a as f64 * 100.0 / (a + b) as f64);
+    }
+    s
+}
+pub fn mine_truth_report() -> String {
+    let (a, b) = (MTRUTH[0].load(std::sync::atomic::Ordering::Relaxed), MTRUTH[1].load(std::sync::atomic::Ordering::Relaxed));
+    if a + b == 0 { return String::new(); }
+    format!("=== ★단측 오라클: 게임이 통과시킨 (item,q) 에서 **내 모델**(range_g+18000) 판정 ===
+내 모델도 통과={} 내 모델은 탈락={} | {:.3}%
+", a, b, a as f64 * 100.0 / (a + b) as f64)
 }
 pub fn truth_report() -> String {
     let (a, b) = (TRUTH[0].load(std::sync::atomic::Ordering::Relaxed), TRUTH[1].load(std::sync::atomic::Ordering::Relaxed));
