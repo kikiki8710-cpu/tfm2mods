@@ -16,9 +16,10 @@ thread_local! {
     pub static S13E: std::cell::Cell<[i64; 8]> = const { std::cell::Cell::new([0; 8]) };
 }
 pub fn s13_diag() -> String {
-    let v = S13D.with(|c| c.get()); let e = S13E.with(|c| c.get());
-    format!(" S13[aoe={} trig={} aura={} etc={} hs={} buff={} raw={} dur={}] S13E[heal={} shield={} inc={} gate={} total={} has={} ally={} raw2={}]",
-        v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7], e[0], e[1], e[2], e[3], e[4], e[5], e[6], e[7])
+    let v = S13D.with(|c| c.get()); let e = S13E.with(|c| c.get()); let f = S14D.with(|c| c.get());
+    format!(" S13[aoe={} trig={} aura={} etc={} hs={} buff={} raw={} dur={}] S13E[heal={} shield={} inc={} gate={} total={} has={} ally={} raw2={}] S14[v={} k={} vd={} st={} b1={} b2={}]",
+        v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7], e[0], e[1], e[2], e[3], e[4], e[5], e[6], e[7],
+        f[0], f[1], f[2], f[3], f[4], f[5])
 }
 /// 잎 에뮬레이터가 필요로 하는 두 컨텍스트(sim · EST 서술자 절대주소). S13/S14 진입 때 한 번 세운다.
 thread_local! {
@@ -303,11 +304,23 @@ pub unsafe fn slot_sum(data: usize, vt: usize, slot: usize, me: usize, depth: u3
     // SwitchByBuff(vt+0x40 계열): 버프 유무로 두 자식 중 하나를 **같은 슬롯**으로 테일콜
     if eb != 0 && f > eb {
         match f - eb {
-            0x16063d0 | 0x1606550 | 0x16067b0 => {
+            // ★SwitchByBuff 패밀리 7종 — **자식 슬롯이 함수마다 하드코딩**이다(RE 2026-09-07).
+            //   부모 `slot` 으로 재귀하던 구 코드는 둘이 우연히 같을 때만 맞았다.
+            0x1606360 | 0x16063d0 | 0x1606470 | 0x16064e0 | 0x16065e0 | 0x1606690 | 0x16067b0 => {
+                let cs = match f - eb { 0x1606360 => 0x50usize, 0x16063d0 => 0x40, 0x1606470 => 0x28,
+                                        0x16064e0 => 0x48, 0x16065e0 => 0xa0, 0x1606690 => 0x70, _ => 0x38 };
                 let idx = if super::dyn_eff::buff_lookup(me, rd_u64(p + 8)? as usize, rd_u64(p + 0x10)?)? != 0 { 0x10usize } else { 0 };
                 let (cd, cv) = (rd_u64(p + 0x18 + idx)? as usize, rd_u64(p + 0x20 + idx)? as usize);
                 if !ptr_ok(cd) || !ptr_ok(cv) { return None; }
-                return slot_sum(cd, cv, slot, me, depth + 1, tag);
+                return slot_sum(cd, cv, cs, me, depth + 1, tag);
+            }
+            // ★`0x1606550`·`0x1606580` 은 SwitchByBuff 가 **아니다** — buff_lookup 없이 무조건 자식0 으로
+            //   위임하는 썽크(자식 슬롯 0x80). 구 코드는 이걸 SwitchByBuff 로 처리해 버프가 있으면
+            //   자식1을 타는 조용한 DIFF 를 만들고 있었다.
+            0x1606550 | 0x1606580 => {
+                let (cd, cv) = (rd_u64(p + 0x18)? as usize, rd_u64(p + 0x20)? as usize);
+                if !ptr_ok(cd) || !ptr_ok(cv) { return None; }
+                return slot_sum(cd, cv, 0x80, me, depth + 1, tag);
             }
             // 포워딩 썽크(self=rcx). 내부 fat-ptr 로 재디스패치하되 **Arc 보정 없이** 원본 data 를 넘긴다.
             0x1153880 => { let (id, iv) = (rd_u64(p)? as usize, rd_u64(p + 8)? as usize);
@@ -420,6 +433,7 @@ pub unsafe fn slot_bool90(data: usize, vt: usize, depth: u32) -> Option<bool> {
     na_tag("B90").map(|_| false)
 }
 /// `slot.vt+0xa0(sret, inline, sim, self, EST)` 재현. `Some(None)` = tag −1(버프 없음).
+#[inline] unsafe fn rd_i32_at(a: usize) -> i32 { crate::rd_i32(a).unwrap_or(0) }
 pub unsafe fn spec_a0(data: usize, vt: usize, me: usize, depth: u32) -> Option<Option<[u8; SPEC_SIZE]>> {
     spec_a0_inline(inline_self(data, vt)?, vt, me, depth)
 }
@@ -456,6 +470,42 @@ pub unsafe fn spec_a0_inline(p: usize, vt: usize, me: usize, depth: u32) -> Opti
         0x12a5770 | 0x13be350 => fold_children(p, 8, 0x10, 0x10, me, depth),      // Vec<Arc<dyn>> {cap,ptr,len}
         0x12a50c0 => fold_children(p, 0x48, 0x50, 0x10, me, depth),
         0x1248150 => fold_children(p, 0x50, 0x58, 0x18, me, depth),
+        // SwitchByBuff sret 판 — 버프 유무로 자식0/자식1 을 고르고 **자식 슬롯 0xa0** 으로 위임(RE 2026-09-07)
+        0x16065e0 => {
+            let idx = if super::dyn_eff::buff_lookup(me, rd_u64(p + 8)? as usize, rd_u64(p + 0x10)?)? != 0 { 0x10usize } else { 0 };
+            let (cd, cv) = (rd_u64(p + 0x18 + idx)? as usize, rd_u64(p + 0x20 + idx)? as usize);
+            if !ptr_ok(cd) || !ptr_ok(cv) { return None; }
+            spec_a0(cd, cv, me, depth + 1)
+        }
+        // ★0x114b3f0 → 본체 0x1140b10: 원본 BuffSpec(0x120) 을 통째 복사한 뒤 12개 스케일 계수를
+        //   엔티티 스탯 S0..S4(= ent+0x618/0x620/0x628/0x630/0x638, 전부 하위 i32)로 가산한다.
+        //   `+0x48`(태그)·`+0x80`(vamp)은 **절대 수정하지 않는다**(RE 2026-09-07).
+        0x114b3f0 => {
+            let mut b = [0u8; SPEC_SIZE]; for i in 0..SPEC_SIZE { b[i] = rd_u8(p + i); }
+            if i32::from_le_bytes([b[0x48], b[0x49], b[0x4a], b[0x4b]]) == -1 { return Some(None); }
+            let st = |k: usize| -> Option<i32> { Some(rd_u64(me + 0x618 + k * 8)? as i32) };
+            let (s0, s1, s2, s3, s4) = (st(0)?, st(1)?, st(2)?, st(3)?, st(4)?);
+            let q = |m: usize, sc: i32| -> i32 { (rd_i32_at(p + m)).wrapping_mul(sc) / 100 };
+            let add = |b: &mut [u8; SPEC_SIZE], o: usize, v: i32| { let x = sp_i32(b, o).wrapping_add(v); sp_set_i32(b, o, x); };
+            add(&mut b, 0x8c, q(0x120, s0).wrapping_add(q(0x124, s1)));
+            add(&mut b, 0x88, q(0x128, s0).wrapping_add(q(0x12c, s3)).wrapping_add(q(0x130, s1)));
+            add(&mut b, 0x84, q(0x138, s2));
+            add(&mut b, 0x68, q(0x144, s1));
+            add(&mut b, 0x78, q(0x148, s1));
+            // 아래 3개는 i32 로 더한 뒤 ≤0 이면 0 으로 클램프하고 **u64 로** 저장(상위 32b = 0)
+            let clamp_u64 = |b: &mut [u8; SPEC_SIZE], o: usize, t: i32| {
+                let v = if t > 0 { t as u32 as i64 } else { 0 }; sp_set_i64(b, o, v);
+            };
+            let te8 = sp_i32(&b, 0xe8).wrapping_add(q(0x13c, s2)).wrapping_add(q(0x140, s4));
+            clamp_u64(&mut b, 0xe8, te8);
+            let tc8 = sp_i32(&b, 0xc8).wrapping_add(q(0x134, s1).wrapping_mul(1000));
+            clamp_u64(&mut b, 0xc8, tc8);
+            if sp_i32(&b, 0x48) == 1 {
+                let t50 = sp_i32(&b, 0x50).wrapping_add(q(0x14c, s1));
+                clamp_u64(&mut b, 0x50, t50);
+            }
+            Some(Some(b))
+        }
         // `mov rax,[rdx]; mov rdx,[rdx+8]; jmp [rdx+0xa0]` — 자식 fat-ptr 을 **보정 없이** 그대로 넘기는 위임
         0x1153860 => {
             let (cd, cv) = (rd_u64(p)? as usize, rd_u64(p + 8)? as usize);
@@ -504,7 +554,11 @@ pub unsafe fn spec_a0_inline(p: usize, vt: usize, me: usize, depth: u32) -> Opti
 }
 /// S13(자기 버프) · S14(아군 버프). `ally` = 아군 Record(S14) / None(S13).
 ///   정본 = `RE\2026-09-07_combat_score-S13S14-본체구간-정밀전사-0.5.8.md`
+thread_local! { pub static S14D: std::cell::Cell<[i64; 6]> = const { std::cell::Cell::new([0; 6]) }; }
+/// [dffa10 v, decay k, decay 후 v, e03360 st, 1차 buff, 2차 buff]
+pub fn s14_diag() -> [i64; 6] { S14D.with(|c| c.get()) }
 pub unsafe fn s13_s14(b: &BCtx, ally: Option<usize>) -> Option<i64> {
+    S14D.with(|c| c.set([0; 6]));
     set_leaf_ctx(b.sim);
     let (sd, sv, _sin) = slot3(b.slot)?;
     let t = b.tgt;
@@ -570,8 +624,11 @@ pub unsafe fn s13_s14(b: &BCtx, ally: Option<usize>) -> Option<i64> {
                 let hs = if hs_needed { Some(e01c40(b, dtgt)?) } else { None };
                 let d = Dffa { self_e: dtgt, ctx: b.ctx, rec: b.rec, bb: b.bb, hs, inc, gate, aura, c: dc };
                 let v = dffa10(&sp, &d)?;
+                S14D.with(|c| { let mut z = c.get(); z[0] = v; c.set(z); });
                 let v = if ally.is_some() { decay_s14(b, t, v)? } else { v };
+                S14D.with(|c| { let mut z = c.get(); z[2] = v; c.set(z); });
                 buff = e022d0(b.slot, b.ctx, b.rec, dtgt, v)?;
+                S14D.with(|c| { let mut z = c.get(); z[4] = buff; c.set(z); });
                 if has && buff == 0 { need_second = true; }
             }
             None => {
@@ -591,12 +648,14 @@ pub unsafe fn s13_s14(b: &BCtx, ally: Option<usize>) -> Option<i64> {
         let s2 = match spec0 { Some(x) => Some(x), None => a0 };
         let (e3, e4) = if ally.is_some() { (b.me, t) } else { (b.me, b.me) };
         let st = e03360(b, e3, e4)?;
+        S14D.with(|c| { let mut z = c.get(); z[3] = st as i64; c.set(z); });
         match s2 {
             None => buff = 0,
             Some(_) if st == 2 => buff = 0,
             Some(sp) => {
                 let v2 = e02540_bytes(b.ctx, &sp, dtgt, st)?;
                 buff = e022d0(b.slot, b.ctx, b.rec, dtgt, v2)?;
+                S14D.with(|c| { let mut z = c.get(); z[5] = buff; c.set(z); });
             }
         }
     }
@@ -648,6 +707,7 @@ unsafe fn slot_i64_98(data: usize, vt: usize, _sim: usize, me: usize, _e: usize)
 
 /// S14 전용 도달시간 감쇠: `buff = e022d0(..., (k*v)/6)`, `k = min(6, max(0, 6 − t))`
 unsafe fn decay_s14(b: &BCtx, tgt: usize, v: i64) -> Option<i64> {
+    // k 는 아래에서 S14D[1] 에 기록한다
     let (sd2, sv, sin) = slot3(b.slot)?;
     let _ = sin;
     // slot.vt+0xe8(inline, self, tgt) — 이미 재현된 dn_reach::eff_e8 을 그대로 쓴다
@@ -667,6 +727,7 @@ unsafe fn decay_s14(b: &BCtx, tgt: usize, v: i64) -> Option<i64> {
     let over = if d >= reach { (d - reach) as u64 } else { 0 };
     let t1 = (over / (rd_u64(me + 0x640)?.max(1))) as i64 / tps;
     let k = (6 - t1).max(0).min(6);
+    S14D.with(|c| { let mut z = c.get(); z[1] = k; c.set(z); });
     Some(k.wrapping_mul(v) / 6)
 }
 

@@ -58,6 +58,7 @@ pub mod port {
     pub mod combat_score;
     pub mod buff_value;
     pub mod specemu;
+    pub mod ability_pick;
 }
 use gen_fns::*;
 
@@ -252,6 +253,7 @@ macro_rules! judge_capture {
                 let seq = SEQ.fetch_add(1, Ordering::Relaxed) + 1;
                 let (r0, r1, r2) = (crate::rd_u64(p1).unwrap_or(u64::MAX), crate::rd_u64(p1 + 8).unwrap_or(0), crate::rd_u64(p1 + 0x10).unwrap_or(0));
                 LAST.with(|c| c.set((seq, r0, r1, r2)));
+                if $spec.rva == 0xe7a8c0 { crate::judge::ab_tag::cmp(r0, p4, p7); }
                 ST.n.fetch_add(1, Ordering::Relaxed);
                 r
             }
@@ -795,6 +797,20 @@ judge_hook_out!(passive_jungle_hook, crate::judge::gen_fns::PASSIVE_JUNGLE, crat
 judge_hook_out!(defense_nexus_hook, crate::judge::gen_fns::DEFENSE_NEXUS, crate::judge::port::defense_nexus::defense_nexus, crate::judge::port::defense_nexus::defense_nexus_live, crate::judge::pre_dn, true, "judge_live_defense_nexus");
 judge_hook!(steal_hook, crate::judge::gen_fns::STEAL_SCORE, crate::judge::port::steal_score::steal_score, crate::judge::port::steal_score::steal_score, "judge_live_steal_score");
 judge_capture!(cap_ability_pick, crate::judge::gen_fns::ABILITY_PICK);
+/// `ability_pick` 태그 대조(캡처와 별도 집계). 소비자는 Option 태그만 쓰므로 그것만 재현한다.
+pub mod ab_tag {
+    use std::sync::atomic::Ordering;
+    pub static ST: super::Stat = super::Stat::new();
+    /// 캡처 래퍼에서 호출: game_tag 와 재현을 대조.
+    pub unsafe fn cmp(game_tag: u64, p4: usize, p7: usize) {
+        ST.entered.fetch_add(1, Ordering::Relaxed); ST.n.fetch_add(1, Ordering::Relaxed);
+        match crate::judge::port::ability_pick::tag(p4, p7) {
+            None => { ST.na.fetch_add(1, Ordering::Relaxed); }
+            Some(m) => { if m == (game_tag != 0) as u64 { ST.ok.fetch_add(1, Ordering::Relaxed); }
+                         else { ST.diff.fetch_add(1, Ordering::Relaxed); } }
+        }
+    }
+}
 judge_hook_out!(epic_hb_hook, crate::judge::gen_fns::EPIC_HUNT_BATTLE, crate::judge::port::epic_hunt_battle::epic_hunt_battle, crate::judge::port::epic_hunt_battle::epic_hunt_battle, crate::judge::pre_ab, false, "judge_live_epic_hunt_battle");
 judge_hook_out!(passive_line_hook, crate::judge::gen_fns::PASSIVE_LINE, crate::judge::port::passive_line::passive_line, crate::judge::port::passive_line::passive_line_live, crate::judge::pre_pl, true, "judge_live_passive_line");
 
@@ -879,7 +895,7 @@ judge_hook_out!(serpen_hb_hook, crate::judge::gen_fns::SERPEN_HUNT_BATTLE, crate
 
 /// 등록된 훅 전부(status 덤프용). 훅을 늘리면 여기와 install() 에 한 줄씩.
 pub fn stats() -> Vec<(&'static str, &'static Stat)> {
-    vec![(STEAL_SCORE.name, &steal_hook::ST), (ABILITY_PICK.name, &cap_ability_pick::ST), (RECENTLY_SEEN.name, &cap_recent_seen::ST), (DN_CACHE.name, &cap_dn_cache::ST), (DEFENSE_NEXUS.name, &defense_nexus_hook::ST), (EST_DAMAGE.name, &cap_est_dmg::ST), (PASSIVE_JUNGLE.name, &passive_jungle_hook::ST), (SINGLE_LINE.name, &cap_single_line::ST), (OBJ_CAN_ATTACK.name, &cap_obj_can_attack::ST), (OBJ_ENGAGE_GATE.name, &cap_obj_engage_gate::ST), (OBJ_POKE_GATE.name, &cap_obj_poke_gate::ST), (OBJ_COULD_ARRIVE.name, &cap_obj_could_arrive::ST), (BASE_SCORE.name, &cap_base_score::ST), (COMBAT_SCORE.name, &cap_combat_score::ST), (AS_C88300.name, &cap_as_c88300_out::ST), (AS_E23170.name, &cap_as_e23170::ST), (AS_D84DB0.name, &cap_as_d84db0::ST), (AS_D96D00.name, &cap_as_d96d00::ST), (AS_D851D0.name, &cap_as_d851d0::ST), (AS_E04400.name, &cap_as_e04400::ST), (AS_EB82D0.name, &cap_as_eb82d0::ST), (AS_E0E890.name, &cap_as_e0e890::ST), (AS_D83230.name, &cap_as_d83230::ST), (AS_132B310.name, &cap_as_132b310::ST), (UTIL_C87FE0.name, &cap_util_c87fe0::ST), (BATTLE_ARM9.name, &battle_hook::ST), (EPIC_HUNT_POKE.name, &epic_hp_hook::ST), (SERPEN_HUNT_POKE.name, &serpen_hp_hook::ST),
+    vec![(STEAL_SCORE.name, &steal_hook::ST), (ABILITY_PICK.name, &cap_ability_pick::ST), ("ability_pick_tag", &ab_tag::ST), (RECENTLY_SEEN.name, &cap_recent_seen::ST), (DN_CACHE.name, &cap_dn_cache::ST), (DEFENSE_NEXUS.name, &defense_nexus_hook::ST), (EST_DAMAGE.name, &cap_est_dmg::ST), (PASSIVE_JUNGLE.name, &passive_jungle_hook::ST), (SINGLE_LINE.name, &cap_single_line::ST), (OBJ_CAN_ATTACK.name, &cap_obj_can_attack::ST), (OBJ_ENGAGE_GATE.name, &cap_obj_engage_gate::ST), (OBJ_POKE_GATE.name, &cap_obj_poke_gate::ST), (OBJ_COULD_ARRIVE.name, &cap_obj_could_arrive::ST), (BASE_SCORE.name, &cap_base_score::ST), (COMBAT_SCORE.name, &cap_combat_score::ST), (AS_C88300.name, &cap_as_c88300_out::ST), (AS_E23170.name, &cap_as_e23170::ST), (AS_D84DB0.name, &cap_as_d84db0::ST), (AS_D96D00.name, &cap_as_d96d00::ST), (AS_D851D0.name, &cap_as_d851d0::ST), (AS_E04400.name, &cap_as_e04400::ST), (AS_EB82D0.name, &cap_as_eb82d0::ST), (AS_E0E890.name, &cap_as_e0e890::ST), (AS_D83230.name, &cap_as_d83230::ST), (AS_132B310.name, &cap_as_132b310::ST), (UTIL_C87FE0.name, &cap_util_c87fe0::ST), (BATTLE_ARM9.name, &battle_hook::ST), (EPIC_HUNT_POKE.name, &epic_hp_hook::ST), (SERPEN_HUNT_POKE.name, &serpen_hp_hook::ST),
          (EPIC_HUNT_BATTLE.name, &epic_hb_hook::ST), (SERPEN_HUNT_BATTLE.name, &serpen_hb_hook::ST), (PASSIVE_LINE.name, &passive_line_hook::ST)]
 }
 

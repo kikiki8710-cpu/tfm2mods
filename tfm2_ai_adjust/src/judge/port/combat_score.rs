@@ -67,7 +67,7 @@ pub unsafe fn diag(_p1: usize, _p3: usize, _p4: usize) -> String {
     format!("risk_neg={} tower={} pos={} main={} urgent={} C={} thr_s={} chase={} bb998={} b9b0={} cast={} hp={} thr={} thrlen={}",
         v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7], v[8], v[9], v[10], v[11], v[12], v[13])
         + &format!(" game_thr={} bb970={} bb9a0={} bb988={}", v[14], v[15], v[16], v[17])
-        + &{ let q = S12D.with(|c| c.get()); let z = s12_st(); format!(" | S12[D={} X={} Ct={} kill={} score={} e01450={} e019d0={} e02020={} st={} T={} dmg={} tps={} burst={}]", q[0], q[1], q[2], q[3], q[4], q[5], q[6], q[7], z[0], z[1], z[2], z[3], z[4]) }
+        + &{ let q = S12D.with(|c| c.get()); let z = s12_st(); format!(" | S12[D={} X={} Ct={} kill={} score={} e01450={} e019d0={} e02020={} st={} T={} dmg={} tps={} burst={} pk={}]", q[0], q[1], q[2], q[3], q[4], q[5], q[6], q[7], z[0], z[1], z[2], z[3], z[4], z[5]) }
         + &{ let d = s5_diag(); format!(" S5[near={} kind={} f88={} dn={} rt={} safe={} raw9b0={}]", d[0], d[1], d[2], d[3], d[4], d[5], d[6]) }
         + &unsafe { let caps = crate::judge::cap_util_c87fe0::last_p2().unwrap_or(0);
             if crate::ptr_ok(caps) { format!(" gameR={:#x} gameBB={:#x} gameBB998={:?}{}", rd_u64(caps + 0x18).unwrap_or(0), rd_u64(caps + 0x20).unwrap_or(0),
@@ -199,6 +199,8 @@ unsafe fn slot_a8(data: usize, vt: usize, depth: u32) -> Option<Option<[u64; 6]>
     let r = super::dyn_eff::impl_rva(vt, 0xa8)?; let p = super::dyn_eff::arc_payload(data, vt)?;
     match r {
         0x109ba90 => Some(None),
+        // 0x17cc480: [tag=1, 0, self[0x28], 0, 0, self[0x18]] — 상수+self 복사뿐(RE 2026-09-07)
+        0x17cc480 => Some(Some([1, 0, rd_u64(p + 0x28)?, 0, 0, rd_u64(p + 0x18)?])),
         0x12a68e0 => { let (arr, n) = kids(p)?; if n == 0 { return Some(None); } if !ptr_ok(arr) { return None; }
             for i in 0..n.min(64) as usize {
                 let v = slot_a8(rd_u64(arr + i * 0x10)? as usize, rd_u64(arr + i * 0x10 + 8)? as usize, depth + 1)?;
@@ -218,6 +220,7 @@ unsafe fn slot_a8_p(payload: usize, vt: usize, depth: u32) -> Option<Option<[u64
     let r = super::dyn_eff::impl_rva(vt, 0xa8)?;
     match r {
         0x109ba90 => Some(None),
+        0x17cc480 => Some(Some([1, 0, rd_u64(payload + 0x28)?, 0, 0, rd_u64(payload + 0x18)?])),
         0x12a68e0 => { let (arr, n) = (rd_u64(payload + 8)? as usize, rd_u64(payload + 0x10)?);
             if n == 0 { return Some(None); } if !ptr_ok(arr) { return None; }
             for i in 0..n.min(64) as usize {
@@ -281,6 +284,7 @@ unsafe fn slot_80_pair(data: usize, vt: usize, depth: u32) -> Option<(bool, u64)
         0x1145640 => Some((true, 1)),
         0x1147250 => Some((true, rd_u64(p)?)),
         0x16adaa0 => Some((true, rd_u64(p + 0x30)?)),          // mov rdx,[rcx+0x30]; mov eax,1; ret
+        0x13bfa20 => Some((true, rd_u64(p + 8)?)),            // mov rdx,[rcx+8];    mov eax,1; ret
         0x1606550 => slot_80_pair(rd_u64(p + 0x18)? as usize, rd_u64(p + 0x20)? as usize, depth + 1),
         0x1146c40 => {
             let n = rd_u64(p + 0x28)?; if n == 0 { return Some((false, 0)); }
@@ -315,7 +319,9 @@ pub(super) unsafe fn slot_88(data: usize, vt: usize, depth: u32) -> Option<(bool
     match r {
         EFF_E8_ZERO => Some((false, 0)),
         0x1145640 => Some((true, 1)),
-        0x1147250 | 0x122f090 | 0x13bfa20 | 0x16adaa0 | 0x109bab0 => Some((true, rq!(rd_u64(p), 0x68a))),
+        0x1147250 | 0x122f090 | 0x109bab0 => Some((true, rq!(rd_u64(p), 0x68a))),
+        0x13bfa20 => Some((true, rq!(rd_u64(p + 8), 0x68a))),    // ★+8 (RE 2026-09-07). 구 코드는 p 를 읽었다
+        0x16adaa0 => Some((true, rq!(rd_u64(p + 0x30), 0x68a))), // ★+0x30
         0x17c2bd0 => Some((rq!(rd_u64(p), 0x68a) != 0, 0)),
         0x1701740 => Some((rq!(rd_u64(p + 0x48), 0x68a) != 0, 1)),
         0x1153880 => { let v2 = rq!(rd_u64(p + 8), 0x68a) as usize;
@@ -899,9 +905,13 @@ unsafe fn combat_score_inner(mode: usize, _prof: usize, rec: usize, ctx: usize, 
         // 스테로이드 창: sp.vt+0x68 의 dyn Any 가 스테로이드형이면 그 T, 아니면 slot.vt+0x88 의 (ok, T)
         let (sd, sv) = (rd_u64(slot)? as usize, rd_u64(slot + 8)? as usize);
         let mut st_add: i64 = 0;
+        let pre_st = score;                 // 스테로이드 창 전의 score
         // (A) T 결정: sp.vt+0x68 의 dyn Any TypeId 가 0x3d4f70 이고 p.0x10 != 0 이면 그 값, 아니면 slot.vt+0x88 폴백
         let mut t_win: Option<u64> = None;
-        if sp_type_id(sp) == Some(0x3d4f70) {
+        // ★게임은 TypeId **16바이트 내용**을 비교한다(`pcmpeqb`+`pmovmskb == 0xffff`, 0xd5f2e9).
+        //   ~~상수의 주소(RVA 0x3d4f70)와 비교~~ 하던 것은 틀렸다 — 실측 TypeId 주소가 56종이나
+        //   나오고 그 중 0x3d4f70 은 **하나도 없었다**(최빈 0x3412350 이 32만 회). 2026-09-07.
+        if sp_type_id_matches(sp) {
             let v = rd_u64(rd_u64(sp)? as usize + 0x10)?;
             if v != 0 { t_win = Some(v); }
         }
@@ -922,6 +932,7 @@ unsafe fn combat_score_inner(mode: usize, _prof: usize, rec: usize, ctx: usize, 
         let a2 = match e019d0(&w, sim, slot, tgt, ct, tps) { Some(v) => v, None => return na(tag8("S12_19d0")) };
         let a3 = match e02020(&w, sim, rec, slot, me, tgt, ct, tps) { Some(v) => v, None => return na(tag8("S12_2020")) };
         S12D.with(|c| c.set([d, x, ct, kill, score, a1, a2, a3])); let _ = st_add;
+        S12ST.with(|c| { let mut z = c.get(); z[5] = pre_st * 4 + safe as i64 * 2 + (t_win.is_some()) as i64; c.set(z); });
         score + a1 + a2 - a3
     } else { 0 };
     if rec_t.is_some() { let _ = main; }
@@ -993,6 +1004,17 @@ unsafe fn sp_type_id(sp: usize) -> Option<usize> {
     let tid = (g as isize + 10 + rd_i32(g + 6)? as isize) as usize;
     let b = crate::exe_base(); if b == 0 || tid <= b { return None; }
     Some(tid - b)
+}
+/// 위 TypeId 가 스테로이드형 상수(`0x1433d4f70`)와 **16바이트 동일**한가.
+unsafe fn sp_type_id_matches(sp: usize) -> bool {
+    let b = crate::exe_base(); if b == 0 { return false; }
+    let want = b.wrapping_add(0x3d4f70);
+    let got = match sp_type_id(sp) { Some(r) => b.wrapping_add(r), None => return false };
+    if !ptr_ok(got) || !ptr_ok(want) { return false; }
+    match (rd_u64(got), rd_u64(got + 8), rd_u64(want), rd_u64(want + 8)) {
+        (Some(a0), Some(a1), Some(w0), Some(w1)) => a0 == w0 && a1 == w1,
+        _ => false,
+    }
 }
 /// 0xe279f0 접근점: 사거리 안이면 (self.xy, t=0) · 밖이면 tgt 에서 self 쪽으로 (reach−15000) 지점을 그리드 보정한 좌표와 도달 틱.
 ///   tgt 가 내 진영에 안 보이면 None(게임 tag=0). capstone 전수(2026-09-07 01:30, 0xe279f0~0xe27c5c).

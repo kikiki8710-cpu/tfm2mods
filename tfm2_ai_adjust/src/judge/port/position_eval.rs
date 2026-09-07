@@ -539,6 +539,7 @@ unsafe fn vt80_flag(data: usize, vt: usize, depth: u32) -> Option<u64> {
                 if v & 1 == 1 { return Some(v); } }
             Some(0) }
         0x16adaa0 => Some(1),                     // mov rdx,[rcx+0x30]; mov eax,1; ret
+        0x13bfa20 => Some(1),                     // mov rdx,[rcx+8];    mov eax,1; ret
         _ => { dy::unseen(0x380, r); None }
     }
 }
@@ -670,20 +671,25 @@ unsafe fn body(st: &St) -> Option<Out> {
                 let mut v = match est(item, tgt).and_then(|es| tower_v(item, es, tps, scale)) { Some(v) => v, None => { trs(|| "NA:etower".into()); return None } };
                 let r_u = range_u(item, tgt)?;
                 let d2g = wrap_d2(ix, iy, qx, qy); let rgb = range_g(item, tgt)?; let ri = radius(item)?; let rt = radius(tgt)?;
-                // ⬜게이트 = `range_g + 24000` (**실측 맞춤 · 구조 미해결**). 2026-09-07 03:5x 재조사 결론:
-                //   디스어셈(d87ea1~d8800d)은 바이트 단위로 `range_g + 18000` 이 확실하고, 게이트가 읽는 값들도
-                //   **게임 프레임에서 직접 떠서** 전부 대조했다([rbp+0x710]=item.y · [rbp+0x708]=438 · [rbp+0x6e8]=4a8 ·
-                //   [rbp+0x698]/[0x6a0] 이 정확히 rbp+0x7a0/0x7a8 을 가리킴 · q·item 좌표 일치). 그런데도 게임은
-                //   d2 > (rg+18000)² 인 표본 다수에서 d96d00 을 부른다(need−rg 최소 20,377). 반대로 need=1,000 인데
-                //   부르지 않는 표본도 있어 **"d96d00 호출 = 이 거리 게이트" 자체가 성립하지 않는다**.
-                //   → 원인 미해결. out 워드 일치율만 보면 +24000(≈1.9% DIFF)이 +18000(≈2.76%)보다 낫다.
-                //   ~~+18000(디스어셈 그대로)~~ → +24000 유지(2026-09-07). 다음 세션 과제 = 게이트 앞 조건 전수.
-                // (구 근거) 디스어셈 성분: rgb = item.0x438 + item.0x4a0 + (lv−1)*item.0x4a8 + vt_e8 + radius'(item) + radius'(tgt).
-                //   ~~rg+24000(실측 맞춤)~~ 은 오라클이 잘못됐다 — "게임이 그 타워로 d96d00 을 부르는가"(dive_calls_since)
-                //   를 정답으로 삼아 99.9% 를 얻었지만, 실제 out 대조에서 게임 b=0 인데 내가 b=150 을 얹는 표본이
-                //   그대로 나왔다(judge_as_d84db0.txt #5882 등: rg+18000=113000, isqrt(d2)=115377 → 게임은 탈락).
-                //   디스어셈 성분: rgb = item.0x438 + item.0x4a0 + (lv−1)*item.0x4a8 + vt_e8 + radius'(item) + radius'(tgt),
-                //   radius'(e) = e.0x470==0 ? e.0x680 : (e.0x470+100)*e.0x680/100 — 내 range_g 와 완전히 일치한다.
+                // ★게이트 = `range_g + 18000` (디스어셈 그대로, 0xd87ea1~0xd8800d). 2026-09-07 09:30 확정.
+                //   ~~+24000(실측 맞춤)~~ 은 **오라클이 틀렸던 것**이다. 두 겹의 결함이 있었다:
+                //   ①`0xd96d00` 은 exe 전체에 xref 5개(`0xd88043` 외에 `0xd98e66`·`0xd990bc`·`0xe87d99`)라
+                //     콜리 진입점 훅은 다른 함수발 호출을 흡수한다 → 반환주소 필터로 해결(dive_record).
+                //   ②남은 결함이 본질: 오라클 `dive_calls_since(side, handle)` 는 **틱 구간 내 "이 타워로
+                //     불렸는가"** 라 (item) 단위인데, 게이트는 **(item, qx, qy)** 단위다. position_eval 은
+                //     틱마다 여러 쿼리점으로 불리므로 임계를 키울수록 "언젠가 불렸다"에 더 많이 맞는다
+                //     — 90.3% → 99.70% → 99.81% 의 단조 개선이 정확히 그 인공물이었다.
+                //   게이트 식(7항) = range(self) + range_gated(other) + other.0x4a0 + other.0x438
+                //                  + (other.0x5c8−1)*other.0x4a8 + vcall_e8(other) + 18000
+                //   = 현행 `range_g(item, tgt) + 18000` 과 항 구성이 동일하다(RE 2026-09-07).
+                //   ⚠**그런데 +18000 으로 되돌리자 out 워드 DIFF 가 2.2% → 2.94% 로 악화했다**(2026-09-07 09:40 실측,
+                //     as_d84db0 47,947,641/49,402,249). 항 구성은 위 7항과 동일한데도 그렇다는 것은 **게이트 입력 중
+                //     하나가 아직 다르다**는 뜻이다. 최유력 후보 = `vcall_e8`: 게임은 `(payload, other)` **2인자**로
+                //     부르는데(0xd87ecb~0xd87efd) 재현은 3번째 인자로 `tgt` 를 넘긴다. `0x12b9e60` 같은 impl 은
+                //     3번째 인자의 `0x298` 표를 읽으므로 값이 갈린다.
+                //   → 정확도를 지키려고 **당분간 +24000 유지**. 다음 단계는 상수 재적합이 아니라 **깨끗한 단측 오라클**:
+                //     `0xd88043` 콜사이트(반환주소 0xd88048)에서 `rdi(other)`·`[rbp+0x720](self)`·`[rbp+0x7a0/0x7a8]`
+                //     를 덤프하면 캡처된 호출은 **전부 pass 표본**이므로, 내 T 가 fail 을 내는 건만 모으면 원인이 좁혀진다.
                 let game_pass = d2g <= sq(rgb.wrapping_add(24000));
                 { let gp = dive_calls_since(side, rd_u64(item + ENT_HANDLE)?) > 0;
                   gate_edge(rgb, isqrt_fast(d2g), gp);
@@ -771,7 +777,7 @@ unsafe fn body(st: &St) -> Option<Out> {
         let n = rd_u64(x + X_SIDE_UNITS_LEN + (eside as usize) * 0x20)?; let p = rd_u64(x + X_SIDE_UNITS_PTR + (eside as usize) * 0x20)? as usize; if n != 0 && !ptr_ok(p) { return None; }
         for i in 0..n.min(256) as usize {
             let u = rd_u64(p + i * 8)? as usize; if u == 0 { return None; }
-            let (ux, uy) = xy(u)?; let d2s = sat_d2(ux, uy, qx, qy); if d2s >= 0x53d1ac101 || rd_i32(u + 0x4c0)? == -1 { continue; }
+            let (ux, uy) = xy(u)?; let d2s = sat_d2(ux, uy, qx, qy); if (d2s >> 8) >= 0x53d1ac1 || rd_i32(u + 0x4c0)? == -1 { continue; }   // ★off-by-one 정정: 게임은 (d2>>8) < 0x53d1ac1
             let v = cap(match est(u, tgt) { Some(v) => v, None => { trs(|| format!("NA:S10est{:#x}", u)); return None } }); let r = range_u(u, tgt)?; let k = rd_u64(u + ENT_KIND)?;
             let tm = if k == 7 || k as i32 == 9 { rd_i32(u + 0x88)? == 1 && rd_u64(u + 0x90)? == th } else if k as i32 == 10 { rd_i32(u + 0x70)? == 1 && rd_u64(u + 0x78)? == th } else { false };
             if d2s <= sq(r) { a_acc = a_acc.wrapping_add((if tm { v } else { v >> 1 }) as i64); }
