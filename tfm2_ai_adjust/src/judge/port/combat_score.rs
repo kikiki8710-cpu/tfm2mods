@@ -1276,6 +1276,13 @@ unsafe fn enemy_near_xy(w: &World, agents: usize, side: u64, x: u64, y: u64, now
     }
     Some(false)
 }
+/// 게임의 엔티티 동일성 판정(`0xe04400`) — **포인터도 핸들도 아니다**.
+/// `[a]==[b] && ([a]!=0 || [a+8]==[b+8])` — 태그가 0 일 때만 페이로드까지 비교하는 derive(PartialEq) 꼴.
+/// S2 게이트의 `s2_other_team` 과 같은 모양이다(그쪽은 부정형).
+#[inline] unsafe fn ident_ent(a: usize, b: usize) -> Option<bool> {
+    let (a0, b0) = (rd_u64(a)?, rd_u64(b)?);
+    Some(a0 == b0 && (a0 != 0 || rd_u64(a + 8)? == rd_u64(b + 8)?))
+}
 /// 0xe04400 특수형 조기반환. TypeId 4종만 tag=1(조기반환), 그 외는 통과.
 unsafe fn special_early(ctx: usize, _rec: usize, me: usize, sp: usize, tgt: usize) -> Option<Option<i64>> {
     // ★★게임은 TypeId 를 **16바이트 내용**으로 비교한다(`pcmpeqb`+`pmovmskb`). ~~주소 비교~~ 는
@@ -1293,38 +1300,47 @@ unsafe fn special_early(ctx: usize, _rec: usize, me: usize, sp: usize, tgt: usiz
         ptr_ok(w) && rd_u64(w) == Some(g0) && rd_u64(w + 8) == Some(g1)
     }) { Some(&k) => k, None => return Some(None) };
     E044_HIT[E044_TIDS.iter().position(|&k| k == tid).unwrap_or(0)].fetch_add(1, Ordering::Relaxed);
-    // ★`me != tgt` 는 **포인터** 비교다. 게임의 같은 계열 자기대상 판정은 **핸들 비교**(`0xd5e52d`)로
-    //   확정돼 있어 여기도 그럴 가능성이 큰데 이 함수에 대한 근거는 아직 없다 — 지금은 안 바꾸고
-    //   둘이 갈리는 횟수만 센다(0 이 아니면 그 자체가 결함 증거).
-    if let (Some(mh), Some(th)) = (rd_u64(me + ENT_HANDLE), rd_u64(tgt + ENT_HANDLE)) {
-        if (me == tgt) != (mh == th) { E044_SELFMIS.fetch_add(1, Ordering::Relaxed); }
-    }
+    // ★★자기대상 판정은 **포인터도 핸들(0x5c0)도 아니다** — `[a]==[b] && ([a]!=0 || [a+8]==[b+8])`
+    //   (태그 0 만 페이로드를 비교하는 derive(PartialEq) 꼴. drop glue `0xd21d60` 에 +0/+8 해제가
+    //   없어 둘 다 POD u64 임이 확인됐다). RE 2026-09-08.
+    //   앞서 "포인터비교≠핸들비교 = 0" 이라 안 바꿨는데, **제3의 식**이 정답이었다.
+    if (me == tgt) != ident_ent(me, tgt).unwrap_or(me == tgt) { E044_SELFMIS.fetch_add(1, Ordering::Relaxed); }
     let wroot = rd_u64(ctx)? as usize; let agents = rd_u64(ctx + 0x10)? as usize;
     let w = World { x: wroot, data: rd_u64(wroot)? as usize, vt: rd_u64(wroot + 8)? as usize };
     if !ptr_ok(w.data) || !ptr_ok(w.vt) { return None; }
-    let side = rd_u64(me + 8)?; if side > 1 { return None; }
+    // ★side 의 정본은 `rec+0x930` 이다(~~`me+8`~~ 은 우연히 같았을 뿐).
+    let side = rd_u64(_rec + REC_SIDE)?; if side > 1 { return None; }
     let now = rd_u64(w.data + W_TICK)?;
-    let (tx, ty) = xy(tgt)?;
     let v: i64 = match tid {
-        // A: 자기 대상일 때만 의미. slot0 없으면 10, 있으면 clamp(est(slot0)*25 / max(3, sp.vt90*100/max(1, self.3fc+100)), 10, 90),
-        //    단 주변에 적이 없으면 5. ⬜sp.vt+0x90(시전 계수) 미포팅이라 그 가지는 NA 로 남긴다.
+        // ★★arm 마다 보는 엔티티가 다르다 — d30 은 **tgt**(RSI), d40/d60 은 **me**(RDI).
+        //   ~~전부 뒤바꿔 쓰고 있었다~~ (RE 2026-09-08 콜러 `0xd5bde8` 인자 매핑).
+        // d30: 자기대상이 아니면 0. 주변에 적이 없으면 5. 있으면 slot0 없을 때 10,
+        //      있으면 `clamp( est(tgt.0x490)*1000 / atk_interval(tgt) / 40, 10, 90 )`.
         0x33e1d30 => {
-            if me != tgt { 0 } else {
-                let (mx, my) = xy(me)?;
-                if !enemy_near_xy(&w, agents, side, mx, my, now)? { 5 }
-                else if rd_i32(me + ENT_4C0)? == -1 { 10 }
-                else { return na(tag8("e044_A")).map(|_| None); }
+            if !ident_ent(tgt, me)? { 0 } else {
+                let (px, py) = xy(tgt)?;
+                if !enemy_near_xy(&w, agents, side, px, py, now)? { 5 }
+                else if rd_i32(tgt + ENT_4C0)? == -1 { 10 }
+                else {
+                    // ⬜미포팅으로 비워 뒀던 가지 — 게임이 90 을 돌려주던 표본의 정체가 여기였다.
+                    let e0 = est(tgt + 0x490, tgt, tgt)?;
+                    let (pd, pv) = (rd_u64(tgt + 0x570)? as usize, rd_u64(tgt + 0x578)? as usize);
+                    let cool = super::dyn_eff::prov90_cooltime(pd, pv, tgt)?;
+                    let t = ((rd_i32(tgt + 0x3fc)? as i64).wrapping_add(100)).max(1) as u64;
+                    let itv = (cool.wrapping_mul(100) / t).max(3);
+                    ((e0.wrapping_mul(1000) / itv / 40) as i64).clamp(10, 90)
+                }
             }
         }
-        0x33e1d40 => if enemy_near_xy(&w, agents, side, tx, ty, now)? { 25 } else { 8 },
+        0x33e1d40 => { let (mx, my) = xy(me)?; if enemy_near_xy(&w, agents, side, mx, my, now)? { 25 } else { 8 } },
         0x33e1d50 => {
             let n = rd_u64(w.x + 0x108 + (side as usize) * 0x20)?; let p = rd_u64(w.x + 0xf0 + (side as usize) * 0x20)? as usize;
             let mut cnt = 0i64;
             if n != 0 { if !ptr_ok(p) { return None; }
                 for i in 0..n.min(CAP_ITER) as usize { let e = rd_u64(p + i * 8)? as usize; if e != 0 && rd_i32(e + ENT_KIND)? == 7 { cnt += 1; } } }
-            if cnt == 0 { -100 } else if me == tgt { 0 } else { (18 * cnt).min(60) }
+            if cnt == 0 { -100 } else if ident_ent(tgt, me)? { 0 } else { (18 * cnt).min(60) }
         }
-        _ => if enemy_near_xy(&w, agents, side, tx, ty, now)? { 90 } else { 30 },
+        _ => { let (mx, my) = xy(me)?; if enemy_near_xy(&w, agents, side, mx, my, now)? { 90 } else { 30 } },
     };
     Some(Some(v))
 }

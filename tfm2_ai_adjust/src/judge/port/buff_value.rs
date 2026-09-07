@@ -12,7 +12,7 @@ use super::action_score::sim_of_handle;
 pub const SPEC_SIZE: usize = 0x120;
 /// DIFF 로그용 S13/S14 성분 [aoe, trig, aura_t, etc, hs_term, buff, raw, dur]
 thread_local! {
-    pub static S13D: std::cell::Cell<[i64; 10]> = const { std::cell::Cell::new([0; 10]) };
+    pub static S13D: std::cell::Cell<[i64; 17]> = const { std::cell::Cell::new([0; 17]) };
     pub static S13E: std::cell::Cell<[i64; 12]> = const { std::cell::Cell::new([0; 12]) };
     /// ★0xe03ed0(trig) 이탈지점 추적 — [exit, def!=0, tid, n, r, st, sum, cnt]
     ///   exit: 1=slot_def_b8 없음 2=def==0 3=tid 비표식·비컨테이너 4=컨테이너 비었음 5=자식에 표식 없음 9=끝까지 계산
@@ -20,8 +20,8 @@ thread_local! {
 }
 pub fn s13_diag() -> String {
     let v = S13D.with(|c| c.get()); let e = S13E.with(|c| c.get()); let f = S14D.with(|c| c.get()); let g = E3D.with(|c| c.get()); let h = AOED.with(|c| c.get()); let k = A0CH.with(|c| c.get());
-    format!(" S13[aoe={} trig={} auraT={} etc={} hs={} buff={} raw={} dur={} AURA={} b0i={:#x}] S13E[healE={} shieldE={} inc={} gate={} total={} has={} ally={} mainRaw={} healRaw={} cap={} miss={} shRaw={}] S14[v={} k={} vd={} st={} b1={} b2={} src={} raw={} fp={} ns={} a0i={:#x}] E3[exit={} def={} tid={:#x} n={} r={} st={} sum={} cnt={}] AOE[kind={} R={} n={} slf={} noe={} dst={} cap={} tot={} poff={} vt={:#x} d0i={:#x} i40={:#x}] A0CH[{:#x} {:#x} {:#x} {:#x}]",
-        v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7], v[8], v[9], e[0], e[1], e[2], e[3], e[4], e[5], e[6], e[7], e[8], e[9], e[10], e[11],
+    format!(" S13[aoe={} trig={} auraT={} etc={} hs={} buff={} raw={} dur={} AURA={} b0i={:#x} dfRaw={} s48={} s50={} tps={} cool={} itv={} k={}] S13E[healE={} shieldE={} inc={} gate={} total={} has={} ally={} mainRaw={} healRaw={} cap={} miss={} shRaw={}] S14[v={} k={} vd={} st={} b1={} b2={} src={} raw={} fp={} ns={} a0i={:#x}] E3[exit={} def={} tid={:#x} n={} r={} st={} sum={} cnt={}] AOE[kind={} R={} n={} slf={} noe={} dst={} cap={} tot={} poff={} vt={:#x} d0i={:#x} i40={:#x}] A0CH[{:#x} {:#x} {:#x} {:#x}]",
+        v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7], v[8], v[9], v[10], v[11], v[12], v[13], v[14], v[15], v[16], e[0], e[1], e[2], e[3], e[4], e[5], e[6], e[7], e[8], e[9], e[10], e[11],
         f[0], f[1], f[2], f[3], f[4], f[5], f[6], f[7], f[8], f[9], f[10], g[0], g[1], g[2], g[3], g[4], g[5], g[6], g[7],
         h[0], h[1], h[2], h[3], h[4], h[5], h[6], h[7], h[8], h[9], h[10], h[11], k[0], k[1], k[2], k[3])
 }
@@ -669,7 +669,7 @@ thread_local! { pub static S14D: std::cell::Cell<[i64; 11]> = const { std::cell:
 pub fn s14_diag() -> [i64; 11] { S14D.with(|c| c.get()) }
 pub unsafe fn s13_s14(b: &BCtx, ally: Option<usize>) -> Option<i64> {
     // ★S13D/S13E 도 함께 리셋 — 안 하면 다른 경로 표본에 직전 호출의 잔값이 찍혀 진단이 헛돌다(RE 2026-09-07)
-    S14D.with(|c| c.set([0; 11])); AOED.with(|c| c.set([0; 12])); A0CH.with(|c| c.set([0; 4])); S13D.with(|c| c.set([0; 10])); S13E.with(|c| c.set([0; 12]));
+    S14D.with(|c| c.set([0; 11])); AOED.with(|c| c.set([0; 12])); A0CH.with(|c| c.set([0; 4])); S13D.with(|c| c.set([0; 17])); S13E.with(|c| c.set([0; 12]));
     set_leaf_ctx(b.sim);
     let (sd, sv, _sin) = slot3(b.slot)?;
     let t = b.tgt;
@@ -1205,6 +1205,11 @@ pub unsafe fn e02bc0(slot: usize, ctx: usize, bb: usize, me: usize, tgt: usize, 
 unsafe fn basic_cool(me: usize) -> Option<u64> {
     let (d, v) = (rd_u64(me + 0x570)? as usize, rd_u64(me + 0x578)? as usize);
     if !ptr_ok(v) { return None; }
+    // ★★`decode_getter` 만으로는 **레벨 의존 impl**(`0x1725060`·`0x17033a0`·`0x12462a0`)을 못 읽는다.
+    //   같은 게임 값을 읽는 `fight_check::atk_interval` 은 `prov90_cooltime` 을 쓰고 그쪽은
+    //   `as_eb82d0` 훅에서 표본 1.8e7 DIFF=0 으로 검증돼 있다 — 약한 디코더 쪽을 강한 쪽에 맞춘다.
+    //   (이 값이 작게 나오면 `itv` 가 하한 3 에 붙어 aura 승수가 최대치가 되고 `raw` 가 폭발한다.)
+    if let Some(x) = super::dyn_eff::prov90_cooltime(d, v, me) { return Some(x); }
     let f = rd_u64(v + 0x90)? as usize;
     if let Some(x) = super::as_callees::decode_getter(f, d) { return Some(x); }
     if let Some(r) = super::dyn_eff::impl_rva(v, 0x90) { super::dyn_eff::unseen(0xb90, r); }
@@ -1224,6 +1229,9 @@ pub unsafe fn dffa10(spec: &[u8; SPEC_SIZE], a: &Dffa) -> Option<i64> {
     let x = rd_i64(cfg + 0x12f8)?;                                   // tps
     let mut dur: i64 = 6;
     if s32(0x48) == 1 { if x == 0 { return None; } dur = (s64(0x50) / x).clamp(1, 6); }
+    // ★`dur` 는 raw 전체에 곱해져 한 단계만 틀려도 1.2~2.5× 가 뜬다 — 관측된 포화 비율
+    //   (160/119≈1.34 · 160/80=2.0 · 160/64=2.5)이 dur 6→5/3/2 의 비율대와 겹친다(RE 2026-09-08).
+    S13D.with(|c| { let mut v = c.get(); v[11] = s32(0x48); v[12] = s64(0x50); v[13] = x; c.set(v); });
 
     let sim = rd_u64(a.ctx)? as usize; if !ptr_ok(sim) { return None; }
     let r = super::action_score::sim_of_handle(sim, rd_u64(me + ENT_HANDLE)?)?;
@@ -1270,7 +1278,10 @@ pub unsafe fn dffa10(spec: &[u8; SPEC_SIZE], a: &Dffa) -> Option<i64> {
     let kf = || -> Option<i64> {
         let cool = basic_cool(me)? as i64;
         let itv = (cool * 100 / (rd_i64(me + 0x3fc)? + 100).max(1)).max(3);
-        Some((dur * x / itv.max(1)).max(1))
+        let k = (dur * x / itv.max(1)).max(1);
+        // ★`raw` 가 통째로 aura 항인 표본(raw = k * aura)이 나와서 k 의 입력을 남긴다.
+        S13D.with(|c| { let mut z = c.get(); z[14] = cool; z[15] = itv; z[16] = k; c.set(z); });
+        Some(k)
     };
     if a.aura > 0 { raw += kf()? * a.aura; }
     if cnt > 0 && s64(0xd0) != 0 { raw += (s64(0xd0) * ehp / 100) * kf()?; }
@@ -1398,6 +1409,9 @@ pub unsafe fn dffa10(spec: &[u8; SPEC_SIZE], a: &Dffa) -> Option<i64> {
         if spec[0xf8] != 0 && h1 { result += if !h0 { a.c / 3 } else { a.c }; }
         if s64(0xb8) != 0 && h1 { result += s64(0xb8) * a.c / 200; }
     }
+    // ★`main` 이 160 에 포화하는 표본에서 **clamp 전 원값**이 없으면 과대계상 비율을 못 잰다
+    //   (게임값 119/80/64 는 상한에 안 걸린 값). RE 2026-09-08 권고.
+    S13D.with(|c| { let mut v = c.get(); v[10] = result; c.set(v); });
     Some(result.clamp(0, 160))
 }
 
