@@ -278,7 +278,7 @@ pub fn dive_calls_since(side: u64, th: u64) -> usize { let pre = PRE_N.with(|c| 
 pub fn dive_push(side: u64, th: u64, tick: u64, r: u64, d: u64, q: (u64, u64, u64), f: [u64; 8]) { DIVE.with(|c| { let (mut a, n) = c.get(); a[n % 32] = (side, th, tick, r, d); DIVE_Q.with(|qq| { let mut b = qq.get(); b[n % 32] = q; qq.set(b); }); DIVE_F.with(|ff| { let mut b = ff.get(); b[n % 32] = f; ff.set(b); }); c.set((a, n + 1)); }); }
 pub fn dive_lookup(side: u64, th: u64, tick: u64) -> Option<(u64, u64)> { DIVE.with(|c| { let (a, n) = c.get(); (n.saturating_sub(32)..n).rev().map(|i| a[i % 32]).find(|e| e.0 == side && e.1 == th && e.2 == tick).map(|e| (e.3, e.4)) }) }
 /// 훅에서 부른다: p1=mode p2=&Holder p3=sim p4=tower
-pub unsafe fn dive_record(p2: usize, p3: usize, p4: usize, r: u64, d: u64, rbp: usize, ra: usize) {
+pub unsafe fn dive_record(p2: usize, p3: usize, p4: usize, r: u64, d: u64, rbp: usize, ra: usize, gbx: u64) {
     // ★진짜 필터 = 반환주소. position_eval 본체의 콜사이트는 `call 0xd96d00` @0xd88043 → 복귀 0xd88048.
     //   다른 함수에서 온 호출은 프레임이 달라 [rbp+…] 이 전부 쓰레기다.
     let base = crate::exe_base(); if base == 0 || ra != base + 0xd88048 { return; }
@@ -315,6 +315,53 @@ pub unsafe fn dive_record(p2: usize, p3: usize, p4: usize, r: u64, d: u64, rbp: 
                     let se = se as usize;
                     if ptr_ok(se) {
                         if let Some(rg) = range_g(p4, se) {
+                            // ★RE 2026-09-07: 이 게이트의 상수는 **18000 하나뿐**이고 6000 은 exe 어디에도 없다.
+                            //   그런데 `q = [rbp+0x7a0]/[rbp+0x7a8]` 로 만든 d2 는 rg+18000 을 20% 초과한다
+                            //   ⟹ **q 슬롯이 틀렸다**는 뜻이다. 프레임을 훑어 `d2 <= (rg+18000)²` 를 만족하는
+                            //   (o, o+8) 쌍을 전수로 찾고, 모든 표본에서 통하는 오프셋만 남긴다.
+                            let t18 = rg.wrapping_add(18000);
+                            // ⚠`rbx` 로 게임의 d² 를 읽으려 했으나 **실패**: 게이트 `cmp rbx,rax`(0xd8800d) 와
+                            //   `call`(0xd88043) 사이에서 게임이 rbx 를 재사용해, 훅 진입 시점엔 항상 1 이었다
+                            //   (실측 3,481,894건 전부 `game_d2=1`). callee-saved 라도 **같은 프레임 안에서는
+                            //   자유롭게 덮어쓴다** — 호출 경계를 넘는 보존과 혼동하지 말 것.
+                            let _ = gbx;
+                            // ★RE 2026-09-07 정정 슬롯으로 T 를 다시 만들고, 성분별로 내 값과 대조한다.
+                            //   f378=item.0x438 · f380=item.0x4a0 · f388=item.0x4a8 · f408=item.0x5c8(lv)
+                            //   f390=vcall 반환 · f3d8=radius(item)(0x4c0 게이트 **미적용**) · f3e0=radius(self)
+                            if ptr_ok(rbp) {
+                                let fr = |o: usize| rd_u64(rbp + o).unwrap_or(u64::MAX);
+                                let (f378, f380, f388, f408, f390, f3d8, f3e0) =
+                                    (fr(0x378), fr(0x380), fr(0x388), fr(0x408), fr(0x390), fr(0x3d8), fr(0x3e0));
+                                let gate4c0 = rd_i32(p4 + 0x4c0).unwrap_or(-9) == 0;
+                                let rg_f = f380.wrapping_add(f378)
+                                    .wrapping_add(f408.wrapping_sub(1).wrapping_mul(f388))
+                                    .wrapping_add(f390)
+                                    .wrapping_add(if gate4c0 { f3d8 } else { 0 })
+                                    .wrapping_add(f3e0);
+                                let rg_fu = rg_f.wrapping_sub(if gate4c0 { 0 } else { 0 }).wrapping_add(if gate4c0 { 0 } else { f3d8 }); // 게이트 미적용판
+                                cmp_tally(0, d2 <= t18.wrapping_mul(t18));                       // 내 rg
+                                cmp_tally(1, d2 <= (rg_f + 18000).wrapping_mul(rg_f + 18000));    // 프레임 rg(게이트 적용)
+                                cmp_tally(2, d2 <= (rg_fu + 18000).wrapping_mul(rg_fu + 18000));  // 프레임 rg(게이트 미적용)
+                                // 성분별 불일치 집계
+                                comp_tally(0, f378 == rd_u64(p4 + ENT_F438).unwrap_or(u64::MAX));
+                                comp_tally(1, f380 == rd_u64(p4 + 0x4a0).unwrap_or(u64::MAX));
+                                comp_tally(2, f388 == rd_u64(p4 + 0x4a8).unwrap_or(u64::MAX));
+                                comp_tally(3, f408 == rd_u64(p4 + ENT_LEVEL).unwrap_or(u64::MAX));
+                                comp_tally(4, f390 == vt_e8(p4 + SLOT0, p4, se).unwrap_or(u64::MAX));
+                                comp_tally(5, f3d8 == radius(p4).unwrap_or(u64::MAX));
+                                comp_tally(6, f3e0 == radius(se).unwrap_or(u64::MAX));
+                                comp_tally(7, rg_f == rg);
+                            }
+                            if ptr_ok(rbp) {
+                                let (ix2, iy2) = (rd_u64(p4 + ENT_X).unwrap_or(0), rd_u64(p4 + ENT_Y).unwrap_or(0));
+                                for k in 0..QSCAN_N {
+                                    let o = QSCAN_BASE + k * 8;
+                                    let (cx, cy) = (rd_u64(rbp + o).unwrap_or(u64::MAX), rd_u64(rbp + o + 8).unwrap_or(u64::MAX));
+                                    let ok = cx != u64::MAX && cy != u64::MAX && cx < (1u64 << 40) && cy < (1u64 << 40)
+                                             && wrap_d2(ix2, iy2, cx, cy) <= t18.wrapping_mul(t18);
+                                    qscan(k, ok);
+                                }
+                            }
                             mine_truth(d2, rg.wrapping_add(18000), p4, se, q.0, q.1);
                             // ★후보별 단측 적중: 올바른 임계라면 게임이 통과시킨 표본을 **100%** 통과해야 한다.
                             //   100% 인 것들 중 **가장 작은 것**이 정답(더 큰 임계는 다른 곳에서 과다 통과한다).
@@ -693,7 +740,9 @@ unsafe fn body(st: &St) -> Option<Out> {
             let same = same_team_ab(i0, i8, t0, t8);
             let cnt = if same { 0 } else { match count_in_range(x, t8, item) { Some(v) => v, None => { trs(|| "NA:cnt".into()); return None } } };
             if rd_i32(item + 0x4c0)? == -1 { return None; }
-            if i0 == 0 && i8 == t8 {
+            // ★게임의 적/아군 분기는 **원시 쌍 비교**다: 적 ⟺ `(other[0] != self[0]) || (other[8] != self[8])`
+            //   (RE 0xd874d2/0xd874e0). ~~`i0 == 0 && i8 == t8`~~ 은 self 의 소유 태그가 0 일 때만 같다.
+            if i0 == t0 && i8 == t8 {
                 if rd_i32(item + ENT_KIND)? == 2 {
                     let mut first: Option<usize> = None;
                     for e in &st.e_list { let (ex, ey) = xy(e.ent)?; if wrap_d2(ix, iy, ex, ey) <= sq(range_g(item, e.ent)?) { first = Some(e.ent); break; } }
@@ -727,7 +776,17 @@ unsafe fn body(st: &St) -> Option<Out> {
                 // 진단: 게임의 실제 게이트(= 그 타워로 d96d00 호출) 대비 후보별 적중 집계
                 { let gp = dive_calls_since(side, rd_u64(item + ENT_HANDLE)?) > 0;
                   let cands = [rgb + 18000, rgb + 19000, rgb + 20000, rgb + 22000, rgb + 24000, rgb + 18000 + ri, rgb + 18000 + rt, rgb];
-                  for (i, c) in cands.iter().enumerate() { let ok = (d2g <= sq(*c)) == gp; gate_stat(i, ok); } }
+                  for (i, c) in cands.iter().enumerate() { let ok = (d2g <= sq(*c)) == gp; gate_stat(i, ok); }
+                  // ★결정적 통계: `gcalls == 0` 은 **깨끗한 음성**(그 타워로 한 번도 안 불렀다 = 게이트 탈락).
+                  //   그 표본들의 `need − rg` **최솟값**이, 게임 통과 표본의 최댓값(23999)보다 작거나 같으면
+                  //   **상수 임계로는 원리적으로 불가능**하다는 뜻이다 = 거리/기준점 자체가 다르다.
+                  if !gp {
+                      let need = isqrt_fast(d2g);
+                      neg_min(0, need.saturating_sub(rgb));
+                      let (sx, sy) = xy(tgt)?; let dself = isqrt_fast(wrap_d2(ix, iy, sx, sy));
+                      neg_min(1, dself.saturating_sub(rgb));
+                      neg_cnt();
+                  } }
                 trs(|| { let d2g = wrap_d2(ix, iy, qx, qy); let rg = range_g(item, tgt).unwrap_or(0); let ri = radius(item).unwrap_or(0); let rt = radius(tgt).unwrap_or(0);
                     let cands = [rg + 18000, rg + 18000 + ri, rg + 18000 + rt, rg + 32000, rg + 50000, rg.wrapping_sub(ri) + 18000];
                     format!("G[d2={} isq={} rg={} ri={} rt={} pass={:?}]", d2g, isqrt_fast(d2g), rg, ri, rt, cands.iter().map(|c| d2g <= sq(*c)).collect::<Vec<_>>()) });
@@ -1057,6 +1116,83 @@ unsafe fn mine_truth(d2: u64, t: u64, item: usize, se: usize, qx: u64, qy: u64) 
             let _ = std::fs::OpenOptions::new().create(true).append(true).open(p).and_then(|mut fh| { use std::io::Write; fh.write_all(line.as_bytes()) });
         }
     }
+}
+static GBX: [std::sync::atomic::AtomicU64; 4] = [const { std::sync::atomic::AtomicU64::new(0) }; 4];
+static GBXN: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(0);
+fn gbx_tally(same: bool, pass18: bool) {
+    GBX[usize::from(!same)].fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+    GBX[2 + usize::from(!pass18)].fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+}
+unsafe fn gbx_log(gbx: u64, d2: u64, rg: u64, item: usize, qx: u64, qy: u64) {
+    if GBXN.fetch_add(1, std::sync::atomic::Ordering::Relaxed) >= 60 { return; }
+    if let Some(p) = crate::pth("judge_pe_gbx.txt") {
+        let line = format!("game_d2={} mine_d2={} isq_g={} isq_m={} rg={} T18={} item=({:?},{:?}) q=({},{})
+",
+            gbx, d2, isqrt_fast(gbx), isqrt_fast(d2), rg, rg + 18000,
+            rd_u64(item + ENT_X), rd_u64(item + ENT_Y), qx, qy);
+        let _ = std::fs::OpenOptions::new().create(true).append(true).open(p).and_then(|mut f| { use std::io::Write; f.write_all(line.as_bytes()) });
+    }
+}
+pub fn gbx_report() -> String {
+    let (a, b) = (GBX[0].load(std::sync::atomic::Ordering::Relaxed), GBX[1].load(std::sync::atomic::Ordering::Relaxed));
+    if a + b == 0 { return String::new(); }
+    let (c, e) = (GBX[2].load(std::sync::atomic::Ordering::Relaxed), GBX[3].load(std::sync::atomic::Ordering::Relaxed));
+    format!("=== ★게임의 rbx(=게이트 d²) vs 내 d² ===
+같음={} 다름={} ({:.3}%)  |  게임 rbx 로 rg+18000 판정: 통과={} 탈락={} ({:.3}%)
+",
+        a, b, a as f64 * 100.0 / (a + b) as f64, c, e, c as f64 * 100.0 / (c + e) as f64)
+}
+static CMPT: [[std::sync::atomic::AtomicU64; 2]; 3] = [const { [const { std::sync::atomic::AtomicU64::new(0) }; 2] }; 3];
+fn cmp_tally(i: usize, ok: bool) { CMPT[i][usize::from(!ok)].fetch_add(1, std::sync::atomic::Ordering::Relaxed); }
+static COMPT: [[std::sync::atomic::AtomicU64; 2]; 8] = [const { [const { std::sync::atomic::AtomicU64::new(0) }; 2] }; 8];
+fn comp_tally(i: usize, same: bool) { COMPT[i][usize::from(!same)].fetch_add(1, std::sync::atomic::Ordering::Relaxed); }
+pub fn comp_report() -> String {
+    const M: [&str; 3] = ["내 rg + 18000", "프레임 rg(4c0 게이트) + 18000", "프레임 rg(게이트 미적용) + 18000"];
+    const C: [&str; 8] = ["f378 vs item.438", "f380 vs item.4a0", "f388 vs item.4a8", "f408 vs item.5c8",
+                          "f390 vs vt_e8", "f3d8 vs radius(item)", "f3e0 vs radius(self)", "rg_frame vs rg_mine"];
+    let t = CMPT[0][0].load(std::sync::atomic::Ordering::Relaxed) + CMPT[0][1].load(std::sync::atomic::Ordering::Relaxed);
+    if t == 0 { return String::new(); }
+    let mut s = String::from("=== ★모델별 단측 적중(정정 슬롯) ===
+");
+    for i in 0..3 { let (a, b) = (CMPT[i][0].load(std::sync::atomic::Ordering::Relaxed), CMPT[i][1].load(std::sync::atomic::Ordering::Relaxed));
+        s += &format!("{:<32} 통과={:<10} 탈락={:<10} {:.3}%
+", M[i], a, b, a as f64 * 100.0 / (a + b) as f64); }
+    s += "=== ★성분별 프레임↔재현 일치 ===
+";
+    for i in 0..8 { let (a, b) = (COMPT[i][0].load(std::sync::atomic::Ordering::Relaxed), COMPT[i][1].load(std::sync::atomic::Ordering::Relaxed));
+        s += &format!("{:<24} 같음={:<10} 다름={:<10} {:.3}%
+", C[i], a, b, a as f64 * 100.0 / (a + b) as f64); }
+    s
+}
+/// 프레임 q 슬롯 탐색: rbp+0x600 .. rbp+0x800 을 8바이트 간격으로 훑는다.
+const QSCAN_BASE: usize = 0x600; const QSCAN_N: usize = 64;
+static QSCAN: [[std::sync::atomic::AtomicU64; 2]; QSCAN_N] = [const { [const { std::sync::atomic::AtomicU64::new(0) }; 2] }; QSCAN_N];
+fn qscan(k: usize, ok: bool) { QSCAN[k][usize::from(!ok)].fetch_add(1, std::sync::atomic::Ordering::Relaxed); }
+pub fn qscan_report() -> String {
+    let tot = QSCAN[0][0].load(std::sync::atomic::Ordering::Relaxed) + QSCAN[0][1].load(std::sync::atomic::Ordering::Relaxed);
+    if tot == 0 { return String::new(); }
+    let mut v: Vec<(usize, u64, u64)> = (0..QSCAN_N).map(|k| (k,
+        QSCAN[k][0].load(std::sync::atomic::Ordering::Relaxed), QSCAN[k][1].load(std::sync::atomic::Ordering::Relaxed))).collect();
+    v.sort_by(|a, b| b.1.cmp(&a.1));
+    let mut s = format!("=== ★프레임 q 슬롯 탐색(게임 통과 표본 {} 건에서 d2<= (rg+18000)² 를 만족하는 (rbp+o, rbp+o+8)) ===
+", tot);
+    for (k, a, b) in v.into_iter().take(8) {
+        s += &format!("rbp+{:#05x}  만족={:<10} 불만족={:<10} {:.3}%
+", QSCAN_BASE + k * 8, a, b, a as f64 * 100.0 / (a + b) as f64);
+    }
+    s
+}
+static NEGMIN: [std::sync::atomic::AtomicU64; 2] = [const { std::sync::atomic::AtomicU64::new(u64::MAX) }; 2];
+static NEGN: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(0);
+fn neg_min(i: usize, v: u64) { NEGMIN[i].fetch_min(v, std::sync::atomic::Ordering::Relaxed); }
+fn neg_cnt() { NEGN.fetch_add(1, std::sync::atomic::Ordering::Relaxed); }
+pub fn neg_report() -> String {
+    let n = NEGN.load(std::sync::atomic::Ordering::Relaxed); if n == 0 { return String::new(); }
+    format!("=== ★깨끗한 음성(gcalls==0) 표본의 하한 (n={}) ===
+min(need_q − rg)={}  min(need_self − rg)={}
+  ⟹ 이 값이 통과표본 max(need−rg)=23999 이하면 상수 임계는 불가능
+",
+        n, NEGMIN[0].load(std::sync::atomic::Ordering::Relaxed), NEGMIN[1].load(std::sync::atomic::Ordering::Relaxed))
 }
 static NEEDMAX: [std::sync::atomic::AtomicU64; 6] = [const { std::sync::atomic::AtomicU64::new(0) }; 6];
 fn need_max(i: usize, v: u64) { NEEDMAX[i].fetch_max(v, std::sync::atomic::Ordering::Relaxed); }
