@@ -651,6 +651,24 @@ macro_rules! judge_capture_ring_cmp9_pre {
                 //   (호출 뒤에 계산하면 원본이 갱신한 블랙보드/메모를 보게 된다 — 2026-09-07 02:2x 위험항 불일치 가설).
                 let mine: Option<i64> = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| ($mine)(p1, p2, p3, p4, p5, p6, p7, p8, p9))).unwrap_or(None);
                 let r = f(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12);
+                // ★★순서 어긋남 가설 검증 — 원본 호출 **후**에도 한 번 더 계산해 어느 쪽이 게임과 맞는지 센다.
+                //   리플레이는 결정론적이므로 값이 갈린다면 원인은 비결정성이 아니라 **계산 시점**이다.
+                //   (계측 전용. 반환값·판정에는 pre 값만 쓴다.)
+                {
+                    let post: Option<i64> = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| ($mine)(p1, p2, p3, p4, p5, p6, p7, p8, p9))).unwrap_or(None);
+                    let g = r as i64;
+                    if mine != post { crate::judge::ORD_DIFFER.fetch_add(1, Ordering::Relaxed); }
+                    match (mine, post) {
+                        (Some(a), Some(b)) => {
+                            if a == g && b != g { crate::judge::ORD_PRE_WIN.fetch_add(1, Ordering::Relaxed); }
+                            if b == g && a != g { crate::judge::ORD_POST_WIN.fetch_add(1, Ordering::Relaxed); }
+                            if a != g && b != g { crate::judge::ORD_BOTH_BAD.fetch_add(1, Ordering::Relaxed); }
+                        }
+                        (None, Some(b)) if b == g => { crate::judge::ORD_POST_WIN.fetch_add(1, Ordering::Relaxed); }
+                        (Some(a), None) if a == g => { crate::judge::ORD_PRE_WIN.fetch_add(1, Ordering::Relaxed); }
+                        _ => {}
+                    }
+                }
                 RING.with(|c| { let (mut a, n) = c.get(); a[n % 16] = Cap { p1, p2, p3, p4, ret: r as u64 }; c.set((a, n + 1)); });
                 ST.n.fetch_add(1, Ordering::Relaxed);
                 let logline = |tag: &str, v: Option<i64>| {
@@ -668,6 +686,18 @@ macro_rules! judge_capture_ring_cmp9_pre {
             }
         }
     };
+}
+/// pre/post 계산 시점 실험용 카운터(combat_score 전용).
+pub static ORD_DIFFER: AtomicU64 = AtomicU64::new(0);
+pub static ORD_PRE_WIN: AtomicU64 = AtomicU64::new(0);
+pub static ORD_POST_WIN: AtomicU64 = AtomicU64::new(0);
+pub static ORD_BOTH_BAD: AtomicU64 = AtomicU64::new(0);
+pub fn ord_report() -> String {
+    let d = ORD_DIFFER.load(Ordering::Relaxed);
+    if d == 0 && ORD_PRE_WIN.load(Ordering::Relaxed) == 0 && ORD_BOTH_BAD.load(Ordering::Relaxed) == 0 { return String::new(); }
+    format!("[순서실험] pre≠post {} · pre만맞음 {} · post만맞음 {} · 둘다틀림 {}
+",
+        d, ORD_PRE_WIN.load(Ordering::Relaxed), ORD_POST_WIN.load(Ordering::Relaxed), ORD_BOTH_BAD.load(Ordering::Relaxed))
 }
 macro_rules! judge_capture_ring_cmp9 {
     ($m:ident, $spec:expr, $mine:expr) => {
@@ -983,7 +1013,7 @@ pub fn write_status() {
                     if crate::vanilla_imm_on() { "vanilla" } else { "patched" }, s);
     if let Some(p) = pth("judge_status.txt") { let _ = fs::write(p, s); }
     if let Some(p) = pth("judge_dyn.txt") { let _ = fs::write(p, port::dyn_eff::unseen_report()); }
-    if let Some(p) = pth("judge_pe_gate.txt") { let _ = fs::write(p, format!("{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}", port::position_eval::memo_report(), port::position_eval::mine_truth_report(), port::position_eval::cand_report(), port::position_eval::need_report(), port::position_eval::neg_report(), port::position_eval::qscan_report(), port::position_eval::comp_report(), port::position_eval::gbx_report(), port::position_eval::self_report(), port::position_eval::truth_report(), port::position_eval::edge_report(), port::position_eval::gate_report(), port::combat_score::na_report(), port::combat_score::a2_report(), port::combat_score::e044_report(), port::combat_score::pmask_report(), port::combat_score::cap_report(), port::position_eval::impact_report(), port::combat_score::nch_report())); }
+    if let Some(p) = pth("judge_pe_gate.txt") { let _ = fs::write(p, format!("{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}", port::position_eval::memo_report(), port::position_eval::mine_truth_report(), port::position_eval::cand_report(), port::position_eval::need_report(), port::position_eval::neg_report(), port::position_eval::qscan_report(), port::position_eval::comp_report(), port::position_eval::gbx_report(), port::position_eval::self_report(), port::position_eval::truth_report(), port::position_eval::edge_report(), port::position_eval::gate_report(), port::combat_score::na_report(), port::combat_score::a2_report(), port::combat_score::e044_report(), port::combat_score::pmask_report(), ord_report(), port::combat_score::cap_report(), port::position_eval::impact_report(), port::combat_score::nch_report())); }
 }
 
 static INSTALLED: AtomicBool = AtomicBool::new(false);

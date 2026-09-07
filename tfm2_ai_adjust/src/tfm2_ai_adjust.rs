@@ -430,7 +430,29 @@ impl std::hash::Hasher for FnvHasher {
 type TuneMap = HashMap<String, i64, FnvBuild>;
 static TUNE_PTR: AtomicPtr<TuneMap> = AtomicPtr::new(std::ptr::null_mut());
 static TUNE_PREV: AtomicPtr<TuneMap> = AtomicPtr::new(std::ptr::null_mut());   // ★누수상한: 직전 old 보관(2세대 지연 free)
+/// ★[2026-09-08] **노브 중립화 스위치** — cfg `judge_neutral_knobs = 1` 이면 `tune()` 이
+/// cfg 값을 무시하고 **호출부가 넘긴 기본값(=게임 내부값)** 을 돌려준다.
+/// 왜: 라이브 승격(`judge_live_<fn>`)된 함수는 `Knobs::from_cfg()` 로 노브를 되살리므로,
+///     `judge_keep_imm=0`(즉치 바이트패치 OFF)만으로는 "cfg 적용 해제"가 절반만 걸린다.
+///     그 상태로 리플레이 A/B 를 하면 "재현이 다른 것"과 "튜닝값이 먹은 것"이 섞여 판정 불가.
+/// ⚠제외 키: `judge*`(하네스 제어) · `hk_*`(훅 설치 게이트) · `*_repl`(대체 스위치 — `d7_repl` 처럼
+///   반드시 0 이어야 하는 것이 있다). 이 셋은 cfg 값을 그대로 쓴다.
+/// ~~cfg 425줄을 일괄 -1 로 내리기~~ 는 -1 을 못 받는 노브가 섞여 **시뮬이 00:00 에서 멈췄다**(2026-09-08 실측).
+static NEUTRAL_KNOBS: AtomicU32 = AtomicU32::new(u32::MAX);
+#[inline] fn neutral_knobs() -> bool {
+    let c = NEUTRAL_KNOBS.load(Ordering::Relaxed);
+    if c != u32::MAX { return c == 1; }
+    let p = TUNE_PTR.load(Ordering::Acquire);
+    if p.is_null() { return false; }                 // cfg 미로드 — 캐시하지 않는다
+    let v = unsafe { (*p).get("judge_neutral_knobs").copied().unwrap_or(0) };
+    NEUTRAL_KNOBS.store((v == 1) as u32, Ordering::Relaxed);
+    v == 1
+}
 #[inline] fn tune(key: &str, default: i64) -> i64 {
+    if neutral_knobs()
+        && !key.starts_with("judge") && !key.starts_with("hk_") && !key.ends_with("_repl") {
+        return default;
+    }
     if let Some(v) = tune_champ_lookup(key) { return v; }   // ★선수(챔피언)별 오버라이드 최우선(players/*.cfg bare key). CUR_CHAMP<0이면 즉시 skip(무비용).
     if let Some(v) = tune_class_lookup(key) { return v; }   // ★클래스별 오버라이드("{key}_class_<cls>"). CUR_CLASS<0이면 즉시 skip(무비용). (포지션 분기는 폐지)
     let p = TUNE_PTR.load(Ordering::Acquire);
