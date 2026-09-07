@@ -13,13 +13,16 @@ pub const SPEC_SIZE: usize = 0x120;
 /// DIFF 로그용 S13/S14 성분 [aoe, trig, aura_t, etc, hs_term, buff, raw, dur]
 thread_local! {
     pub static S13D: std::cell::Cell<[i64; 8]> = const { std::cell::Cell::new([0; 8]) };
-    pub static S13E: std::cell::Cell<[i64; 8]> = const { std::cell::Cell::new([0; 8]) };
+    pub static S13E: std::cell::Cell<[i64; 12]> = const { std::cell::Cell::new([0; 12]) };
+    /// ★0xe03ed0(trig) 이탈지점 추적 — [exit, def!=0, tid, n, r, st, sum, cnt]
+    ///   exit: 1=slot_def_b8 없음 2=def==0 3=tid 비표식·비컨테이너 4=컨테이너 비었음 5=자식에 표식 없음 9=끝까지 계산
+    pub static E3D: std::cell::Cell<[i64; 8]> = const { std::cell::Cell::new([0; 8]) };
 }
 pub fn s13_diag() -> String {
-    let v = S13D.with(|c| c.get()); let e = S13E.with(|c| c.get()); let f = S14D.with(|c| c.get());
-    format!(" S13[aoe={} trig={} aura={} etc={} hs={} buff={} raw={} dur={}] S13E[heal={} shield={} inc={} gate={} total={} has={} ally={} raw2={}] S14[v={} k={} vd={} st={} b1={} b2={}]",
-        v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7], e[0], e[1], e[2], e[3], e[4], e[5], e[6], e[7],
-        f[0], f[1], f[2], f[3], f[4], f[5])
+    let v = S13D.with(|c| c.get()); let e = S13E.with(|c| c.get()); let f = S14D.with(|c| c.get()); let g = E3D.with(|c| c.get());
+    format!(" S13[aoe={} trig={} aura={} etc={} hs={} buff={} raw={} dur={}] S13E[healE={} shieldE={} inc={} gate={} total={} has={} ally={} mainRaw={} healRaw={} cap={} miss={} shRaw={}] S14[v={} k={} vd={} st={} b1={} b2={}] E3[exit={} def={} tid={:#x} n={} r={} st={} sum={} cnt={}]",
+        v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7], e[0], e[1], e[2], e[3], e[4], e[5], e[6], e[7], e[8], e[9], e[10], e[11],
+        f[0], f[1], f[2], f[3], f[4], f[5], g[0], g[1], g[2], g[3], g[4], g[5], g[6], g[7])
 }
 /// 잎 에뮬레이터가 필요로 하는 두 컨텍스트(sim · EST 서술자 절대주소). S13/S14 진입 때 한 번 세운다.
 thread_local! {
@@ -558,7 +561,8 @@ thread_local! { pub static S14D: std::cell::Cell<[i64; 6]> = const { std::cell::
 /// [dffa10 v, decay k, decay 후 v, e03360 st, 1차 buff, 2차 buff]
 pub fn s14_diag() -> [i64; 6] { S14D.with(|c| c.get()) }
 pub unsafe fn s13_s14(b: &BCtx, ally: Option<usize>) -> Option<i64> {
-    S14D.with(|c| c.set([0; 6]));
+    // ★S13D/S13E 도 함께 리셋 — 안 하면 다른 경로 표본에 직전 호출의 잔값이 찍혀 진단이 헛돌다(RE 2026-09-07)
+    S14D.with(|c| c.set([0; 6])); S13D.with(|c| c.set([0; 8])); S13E.with(|c| c.set([0; 12]));
     set_leaf_ctx(b.sim);
     let (sd, sv, _sin) = slot3(b.slot)?;
     let t = b.tgt;
@@ -604,7 +608,7 @@ pub unsafe fn s13_s14(b: &BCtx, ally: Option<usize>) -> Option<i64> {
     };
     let heal_e = heal.min(miss.wrapping_add(2 * inc));
     let shield_e = shield_ok.min(3 * inc);
-    S13E.with(|c| c.set([heal_e, shield_e, inc, 0, heal_e + shield_e, has as i64, ally.is_some() as i64, heal]));
+    S13E.with(|c| c.set([heal_e, shield_e, inc, 0, heal_e + shield_e, has as i64, ally.is_some() as i64, 0, heal, heal_cap, miss, shield]));
     // dffa10 의 8번째 인자(gate) — S13 은 bb.0x9a0, S14 는 아군 Record 의 0x88
     let gate = match ally { Some(ra) => rd_i64(ra + 0x88)?, None => rd_i64(b.bb + 0x9a0)? };
     // dffa10 의 대상/계수 — S13 은 self·C, S14 는 tgt·C_ally
@@ -861,12 +865,13 @@ unsafe fn has_effect20(e: usize, tail4: &[u8; 4]) -> Option<bool> {
 pub unsafe fn e03ed0(slot: usize, ctx: usize, rec: usize, bb: usize, me: usize, c: i64) -> Option<i64> {
     let (sd, sv) = (rd_u64(slot)? as usize, rd_u64(slot + 8)? as usize);
     if !ptr_ok(sd) || !ptr_ok(sv) { return None; }
-    let (def, dvt) = slot_def_b8(sd, sv)?;
-    if def == 0 { return Some(0); }
+    let e3 = |k: i64, a: i64, b: i64, c2: i64| { E3D.with(|z| { let mut v = z.get(); v[0] = k; v[1] = a; v[2] = b; v[3] = c2; z.set(v); }); };
+    let (def, dvt) = match slot_def_b8(sd, sv) { Some(v) => v, None => { e3(1, 0, 0, 0); return None } };
+    if def == 0 { e3(2, 0, 0, 0); return Some(0); }
     // TypeId 가 표식형이 아니면 컨테이너 1단계만 훑어 표식형 자식을 찾는다
     let hit = if typeid_rva(dvt)? == TID_SPIRIT { def } else {
-        if typeid_rva(dvt)? != TID_CONT { return Some(0); }
-        let n = rd_u64(def + 0x10)?; if n == 0 { return Some(0); }
+        if typeid_rva(dvt)? != TID_CONT { e3(3, 1, typeid_rva(dvt)? as i64, 0); return Some(0); }
+        let n = rd_u64(def + 0x10)?; if n == 0 { e3(4, 1, typeid_rva(dvt)? as i64, 0); return Some(0); }
         let arr = rd_u64(def + 8)? as usize; if !ptr_ok(arr) { return None; }
         let mut found = 0usize;
         for i in 0..n.min(CAP_ITER) as usize {
@@ -876,11 +881,12 @@ pub unsafe fn e03ed0(slot: usize, ctx: usize, rec: usize, bb: usize, me: usize, 
             if d2 == 0 { continue; }
             if typeid_rva(dv2)? == TID_SPIRIT { found = d2; break; }
         }
-        if found == 0 { return Some(0); }
+        if found == 0 { e3(5, 1, typeid_rva(dvt)? as i64, n as i64); return Some(0); }
         found
     };
 
     let st = rd_u64(me + 0x620)?;                       // 주문력(추정) — RE §1 의 `self.0x620`
+    e3(9, 1, typeid_rva(dvt).unwrap_or(0) as i64, 0);
     let amt1 = rd_i64(hit + 0x08)?.wrapping_add((rd_u64(hit + 0x10)?.wrapping_mul(st) / 100) as i64);
     let amt2 = rd_i64(hit + 0x30)?.wrapping_add((rd_u64(hit + 0x38)?.wrapping_mul(st) / 100) as i64);
     let r = rd_u64(hit)?; let r2 = r.wrapping_mul(r);
@@ -888,6 +894,7 @@ pub unsafe fn e03ed0(slot: usize, ctx: usize, rec: usize, bb: usize, me: usize, 
     let w = rd_u64(ctx)? as usize; if !ptr_ok(w) { return None; }
     let (sx, sy) = (rd_u64(me + ENT_X)?, rd_u64(me + ENT_Y)?);
     let (mut sum, mut cnt): (i64, u64) = (0, 0);
+    E3D.with(|z| { let mut v = z.get(); v[4] = r as i64; v[5] = st as i64; z.set(v); });
 
     // 루프1 — 내 팀 5칸, "…skill1"
     for i in 0..5usize {
@@ -923,6 +930,7 @@ pub unsafe fn e03ed0(slot: usize, ctx: usize, rec: usize, bb: usize, me: usize, 
         let den = if hp < 2 { 1 } else { hp };
         sum = sum.wrapping_add(amt2.min(hp).wrapping_mul(mult) / den);
     }
+    E3D.with(|z| { let mut v = z.get(); v[6] = sum; v[7] = cnt as i64; z.set(v); });
     if cnt < 2 { return Some(0); }
     Some(sum.min(160))
 }

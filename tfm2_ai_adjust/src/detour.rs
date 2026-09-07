@@ -755,7 +755,7 @@ unsafe fn write_guard_summary() {
     let bl = GUARD_BLOCKED.load(Ordering::Relaxed);
     if ck == 0 { return; }
     if let Some(p) = pth("imm_guard_summary.txt") {   // log 플래그와 무관하게 기록(안전 보고)
-        let _ = fs::write(p, format!(
+        let _ = fs::write(p, imm_tag() + &format!(
             "checked={}/{} blocked={} unknown={}\n\
              (등록 사이트 전수 = {}. checked 가 이보다 작으면 그 배선이 아직 안 돌았거나 prefix 단계에서 걸린 것)\n\
              blocked>0 이면 그 배선 주소가 틀린 것이므로 반드시 확인할 것.\n",
@@ -780,6 +780,11 @@ static VANILLA_IMM: AtomicU32 = AtomicU32::new(u32::MAX);
     v == 1
 }
 pub fn vanilla_imm_on() -> bool { vanilla_imm() }
+/// ★vanilla 모드에서 즉치 덤프가 `applied=40/40` 을 그대로 찍어 "적용됨" 으로 오독되는 것을 막는다.
+/// 이 세션이 정확히 그 함정(로그는 40/40 인데 실제 패치 여부는 별개)에서 시작했다.
+fn imm_tag() -> String {
+    if vanilla_imm() { "[VANILLA] 즉치 패치 안 함(judge_verify=1) — 아래 값은 cfg 계산치일 뿐 실제 바이트는 원본이다. ".into() } else { String::new() }
+}
 
 #[inline] unsafe fn patch_imm_bytes(addr: usize, prefix: &[u8], imm_off: usize, width: usize, val: u64) -> bool {
     if vanilla_imm() { return true; }   // ★검증 모드 = 원본 바이트 유지(패치 시도 자체를 안 함)
@@ -884,7 +889,7 @@ unsafe fn apply_objective_imm() {
     OBJIMM_SIG.store(sig, Ordering::Relaxed);
     // ★LOG_ON 무관 직접 write(설치확증 — d19_imm.txt·itemnet_guard와 동일). write_named은 LOG_ON 게이트라 프로덕션서 미확인됐음.
     if let Some(p) = pth("obj_imm.txt") {
-        let _ = fs::write(p, format!("nx_enable={} applied={}/16 cg={}=DEAD nh={} hc={} hl={} lm={} an={}=DEAD near={} pred={} fh={} cull={} @base{:#x}\n",
+        let _ = fs::write(p, imm_tag() + &format!("nx_enable={} applied={}/16 cg={}=DEAD nh={} hc={} hl={} lm={} an={}=DEAD near={} pred={} fh={} cull={} @base{:#x}\n",
             enable, ok, cg, nh, hc, hl, lm, ag, nd, pd, fh, cd, base));
     }
 }
@@ -905,7 +910,7 @@ unsafe fn apply_vis_imm() {
     let ok = patch_imm_bytes(base + 0xc9a2b3, &[0x48,0x81,0xc6], 3, 4, v);   // add rsi, imm32   // ←s2 c8c4e3
     VISIMM_SIG.store(sig, Ordering::Relaxed);
     if let Some(p) = pth("vis_imm.txt") {
-        let _ = fs::write(p, format!("vis_window={} applied={}/1 @0xc7ee13(0.5.3) @base{:#x}\n", vw, ok as u32, base));
+        let _ = fs::write(p, imm_tag() + &format!("vis_window={} applied={}/1 @0xc7ee13(0.5.3) @base{:#x}\n", vw, ok as u32, base));
     }
 }
 
@@ -960,7 +965,7 @@ unsafe fn apply_visshort_imm() {
     }
     VISSHORT_SIG.store(sig, Ordering::Relaxed);
     if let Some(p) = pth("visshort_imm.txt") {
-        let _ = fs::write(p, format!("applied={}/25 lane={} jungle={} check={} nexus={} threat={} score={} (-1=원본120틱·상한127) @base{:#x}\n",
+        let _ = fs::write(p, imm_tag() + &format!("applied={}/25 lane={} jungle={} check={} nexus={} threat={} score={} (-1=원본120틱·상한127) @base{:#x}\n",
             ok, lane, jungle, check, nexus, threat, score, base));
     }
 }
@@ -1032,7 +1037,7 @@ unsafe fn apply_gank_imm() {
     }
     GANKIMM_SIG.store(sig, Ordering::Relaxed);
     if let Some(p) = pth("gank_imm.txt") {
-        let _ = fs::write(p, format!("applied={}/14 gk_wait={} hp_base={} window_margin={} (-1=원본: wait 10/12/15/15/10s·base70·margin x5) @base{:#x}\n",
+        let _ = fs::write(p, imm_tag() + &format!("applied={}/14 gk_wait={} hp_base={} window_margin={} (-1=원본: wait 10/12/15/15/10s·base70·margin x5) @base{:#x}\n",
             ok, wait, hpb, wm, base));
     }
 }
@@ -1093,7 +1098,7 @@ unsafe fn apply_exec_imm() {
     if let Some(p) = pth("exec_imm.txt") {
         // ⛔[08-07] wait=[dist back] 제거 — 그 두 사이트(0xe721d3·0xe727c4)는 lw_wait_dist / lw_back
         //   소관으로 일원화됐다(중복 패치였다). 적용 수도 6 → 4.
-        let _ = fs::write(p, format!("applied={}/{} judge=[cap{} slope{} floor{}] order_hold={}{} (-1=원본: 100/85/150/10) @base{:#x}\n",
+        let _ = fs::write(p, imm_tag() + &format!("applied={}/{} judge=[cap{} slope{} floor{}] order_hold={}{} (-1=원본: 100/85/150/10) @base{:#x}\n",
             ok, tot, jcap, jslp, jflr, hold,
             if taken { " (클래스별 마이크로 디투어가 담당 — 여기선 미패치가 정상)" } else { "" }, base));
     }
@@ -1215,7 +1220,7 @@ unsafe fn apply_cast_imm() {
 
     CASTIMM_SIG.store(sig, Ordering::Relaxed);
     if let Some(pp) = pth("cast_imm.txt") {
-        let _ = fs::write(pp, format!(
+        let _ = fs::write(pp, imm_tag() + &format!(
             "applied={}/{} lead[atk{} skill{} skill2{} steal{} ult{}] ult[r{} rg{} mask{}] \
              steal_hp{} unit_hits{} ally[hp{} rad{}] minion_vis{} cc_mask{} | \
              exec[sk2lv{} ultlv{} atk_margin{} atk_margin_sp{} atk_seek{} fail_min{} think{}~{}]\n\
@@ -1345,7 +1350,7 @@ unsafe fn apply_score_imm() {
 
     SCOREIMM_SIG.store(sig, Ordering::Relaxed);
     if let Some(pp) = pth("score_imm.txt") {
-        let _ = fs::write(pp, format!(
+        let _ = fs::write(pp, imm_tag() + &format!(
             "applied={}/{} adv[{} {} {} {} {}] radius[ally{} enemy{}] bonus[near{} obj{}] keep_thr{} | \
              wait[dist{} back{} r{}] safe[r{}] move[bush{} hide{} trace{}]\n\
              (-1=원본: 200/30/60/80/150 · 150000/100000 · 10/10 · -30 · 180000/180000/80000 · 80000 · 16000/12000/120000) @base{:#x}\n",
@@ -1476,7 +1481,7 @@ unsafe fn apply_score2_imm() {
 
     SCORE2_SIG.store(sig, Ordering::Relaxed);
     if let Some(pp) = pth("score2_imm.txt") {
-        let _ = fs::write(pp, format!(
+        let _ = fs::write(pp, imm_tag() + &format!(
             "applied={}/{} turret_r{} engage_r{} cell_d{} dive{} risk[{} {}/{} {}/{} {}/{}] \
              cap[focus{} kill{} pct{}] vis{} null{}\n\
              (-1=원본: 150000 · 122474 · 35000 · 15000 · 49 65/29 40/17 25/10 · 80 80 60 · 120 · -10) @base{:#x}\n",
@@ -1605,7 +1610,7 @@ unsafe fn apply_move_imm() {
 
     MOVEIMM_SIG.store(sig, Ordering::Relaxed);
     if let Some(pp) = pth("move_imm.txt") {
-        let _ = fs::write(pp, format!(
+        let _ = fs::write(pp, imm_tag() + &format!(
             "applied={}/{} cat0adv[{} {} {} {} {}] cat0[rs{} es{} bp{} nb{} ng{}] \
              tower[margin{} cap{}] cat2gain{} engage_thr{} vis{}\n\
              (-1=원본: 300 40 75 100 200 / 2 9 -2 10 950 / 30000 100 / 7 / 9999 / 120) @base{:#x}\n",
@@ -1710,7 +1715,7 @@ unsafe fn apply_db_imm() {
 
     DBIMM_SIG.store(sig, Ordering::Relaxed);
     if let Some(pp) = pth("db_imm.txt") {
-        let _ = fs::write(pp, format!(
+        let _ = fs::write(pp, imm_tag() + &format!(
             "applied={}/{} near[ally{} enemy{}] look[{} ult{}] exec{} lasthit{} skillhp{} \
              ult[rally{} rally2{} range{} mask {:#x}/{:#x}/{:#x}] lv[s2 {} ult {}] \
              safe[margin{} radius{} mem{}]\n\
@@ -1922,7 +1927,7 @@ unsafe fn apply_pe_imm() {
     for &(a, pre, off) in PE_STG.iter() { p!(base + a, pre, off, 4, b4(pst, 180)); }
     PEIMM_SIG.store(sig, Ordering::Relaxed);
     if let Some(pp) = pth("pe_imm.txt") {
-        let _ = fs::write(pp, format!(
+        let _ = fs::write(pp, imm_tag() + &format!(
             "applied={}/{} dist[collect{} filter{} near{} minion{} champ{} field{} count{}] \
              lin[reach{} band{} shot{} block{} tower{}] cap[src{} pred{}] \
              misc[far{} amp2 {} amp{} exempt{} kscale{} modemask{} kindmask{} wall{} well{} allygain{} state{}]\n\
@@ -1984,7 +1989,7 @@ unsafe fn apply_move2_imm() {
     p!(base + 0xdc1dbf, &[0x48,0x83,0x7b,0x18], 4, 1, b1(apm, 10));   // ←0.5.3 d87c92   // ←0.5.3 e07475
     MOVE2_SIG.store(sig, Ordering::Relaxed);
     if let Some(pp) = pth("move2_imm.txt") {
-        let _ = fs::write(pp, format!(
+        let _ = fs::write(pp, imm_tag() + &format!(
             "applied={}/{} snap{} coef{} margin{} bias{} well[r{} d{}] posmode{}\n\
              (-1=원본: 2000 400 6000 1500 / 260000 260000 / 10) @base{:#x}\n",
             ok, tot, snap, acf, amg, abi, wr, wd, apm, base));
@@ -2073,7 +2078,7 @@ unsafe fn apply_bv_imm() {
     }
     BV_SIG.store(sig, Ordering::Relaxed);
     if let Some(pp) = pth("bv_imm.txt") {
-        let _ = fs::write(pp, format!(
+        let _ = fs::write(pp, imm_tag() + &format!(
             "applied={}/{} cap[main{} half{}] focus[max{} radius{}] \
              buff[allyflat{} allycap{} out{} Bin{} Bout{} Din{} Dout{} Ccap{} Cnone{}]\n\
              (-1=원본: 160 80 / 3 60000 / 10 90 5 25 8 90 30 60 / -100은 -9999로 복원) @base{:#x}\n",
@@ -2130,7 +2135,7 @@ unsafe fn apply_ae_imm() {
     }
     AE_SIG.store(sig, Ordering::Relaxed);
     if let Some(pp) = pth("ae_imm.txt") {
-        let _ = fs::write(pp, format!(
+        let _ = fs::write(pp, imm_tag() + &format!(
             "applied={}/{} mask{:#x} shift[risk{} tower{} gain{}] \
              bonus[soon{} kill{} near{} struct{}] threat_limit{}\n\
              (-1=원본: 0x1f863 / 6 6 7 / 25 140 70 80 / 9999) @base{:#x}\n",
@@ -2213,7 +2218,7 @@ unsafe fn apply_th_imm() {
     }
     TH_SIG.store(sig, Ordering::Relaxed);
     if let Some(pp) = pth("th_imm.txt") {
-        let _ = fs::write(pp, format!(
+        let _ = fs::write(pp, imm_tag() + &format!(
             "applied={}/{} skill_margin{} atk_margin{} band{} cap{} collect{}\n\
              (-1=원본: 18000 50000 32000 150 200000) @base{:#x}\n",
             ok, tot, smg, amg, band, cap, coll, base));
@@ -2271,7 +2276,7 @@ unsafe fn apply_rt_imm() {
     p!(base + 0xd2ed6d, &[0x48,0x83,0xf8], 3, 1, b1(jn, 41));   // ←0.5.3 dfff00   // ←0.5.3 e621f1
     RT_SIG.store(sig, Ordering::Relaxed);
     if let Some(pp) = pth("rt_imm.txt") {
-        let _ = fs::write(pp, format!(
+        let _ = fs::write(pp, imm_tag() + &format!(
             "applied={}/{} A[slope{} base{} off{}] B[slope{} base{}] C[slope{} base{}] \
              deadline{} jungle[fight{} nofight{}]\n\
              (-1=원본: -800 80000 80 / 450 45 / 350 15 / 60 / 21 41) @base{:#x}\n",
@@ -2320,7 +2325,7 @@ unsafe fn apply_ldsc_imm() {
     }
     LDSC_SIG.store(sig, Ordering::Relaxed);
     if let Some(pp) = pth("ldsc_imm.txt") {
-        let _ = fs::write(pp, format!(
+        let _ = fs::write(pp, imm_tag() + &format!(
             "applied={}/{} vision{} skill_factor{} early_mask{:#x} lost_target{}\n\
              (-1=원본: 120 100 0x1f863 / -99999는 -9999로 복원) @base{:#x}\n",
             ok, tot, lsv, lfac, lem, lnul, base));
@@ -2448,7 +2453,7 @@ unsafe fn apply_new_imm() {
        if gusr < 0 { 22_500_000_001u64 } else { let d = gusr.max(0) as u64; d.wrapping_mul(d).wrapping_add(1) });
     NEWIMM_SIG.store(sig, Ordering::Relaxed);
     if let Some(pp) = pth("new_imm.txt") {
-        let _ = fs::write(pp, format!(
+        let _ = fs::write(pp, imm_tag() + &format!(
             "applied={}/{} flee_toggle={} @base{:#x}\n\
              ep[spread{} disk{} cap{}] | cf[near{} far{} dmg{} pad{} padult{} off{} fleekill{}] | cs[floor{}] | re[promote{} pad{} gate{}] | gu[lv{} mem{} r{}]\n\
              (-1=원본: 3000 40000 300000 / 9 25 35 15000 150000 / 30 / 2 25000 1 / 5 120 150000)\n",
@@ -2614,7 +2619,7 @@ unsafe fn apply_auction_imm() {
     }
     AUCTIMM_SIG.store(sig, Ordering::Relaxed);
     if let Some(pp) = pth("auction_imm.txt") {
-        let _ = fs::write(pp, format!(
+        let _ = fs::write(pp, imm_tag() + &format!(
             "applied={}/{} noise_toggle={} (off={}) amp={} center={} | battle[hpflee{} hpgate{} stop{} keep{} vis{}] | ld[stop{} near{} interv{} vis{} est{}] | tm_cancel_mask={} | ld1[around{} delay{} mask{} movepct{} threat{} randmin{}]\n\
              (-1=원본: amp900 center1000 / 21 41 15000 80000 120 / 15000 160000 50000 120 10 / 0xb00 / 80000 5 0x1a1 100 13 2) @base{:#x}\n",
             ok, tot, noise_ok, noff, namp, ctr, bhpf, bhpg, bstp, bkep, bvis,
@@ -2686,7 +2691,7 @@ unsafe fn apply_an_imm() {
 
     ANIMM_SIG.store(sig, Ordering::Relaxed);
     if let Some(pp) = pth("an_imm.txt") {
-        let _ = fs::write(pp, format!(
+        let _ = fs::write(pp, imm_tag() + &format!(
             "applied={}/{} home_wait={} tower_gate={} fallback={} attack_sub={} wave={} style={}              (-1=원본: 5/0/2/16/2/0) @base{:#x}
 ", ok, tot, wait, towers, fb, atk, wave, style, base));
     }
@@ -2748,7 +2753,7 @@ unsafe fn apply_auc_imm() {
 
     AUCIMM_SIG.store(sig, Ordering::Relaxed);
     if let Some(pp) = pth("auc_imm.txt") {
-        let _ = fs::write(pp, format!(
+        let _ = fs::write(pp, imm_tag() + &format!(
             "applied={}/{} gate={} undying={} hp_field={} nexus_mask={} goal={}/{}/{} delay={} pf={} skill={} score={} tag={}\n\
              (-1=원본: 1/0/0x658/0x100/928000/32000/32000/5/2/1/99999/3) @base{:#x}\n",
             ok, tot, gate, undy, hpf, nmask, gfar, gna, gnb, dly, pf, wsk, sc, tag, base));
@@ -3029,7 +3034,7 @@ unsafe fn apply_path_imm() {
 
     PATHIMM_SIG.store(sig, Ordering::Relaxed);
     if let Some(pp) = pth("path_imm.txt") {
-        let _ = fs::write(pp, format!(
+        let _ = fs::write(pp, imm_tag() + &format!(
             "applied={}/{} orth={} diag={} danger={} greedy={} | threat[floor={} cap={} scale={} default={}] wave={}\n\
              (-1=원본: 640/896/1281/7 | 2/60/30/2 | 3) @base{:#x}\n",
             ok, tot, orth, diag, dang, greedy, tfloor, tcap, tscale, tdef, wave, base));
@@ -3067,7 +3072,7 @@ unsafe fn apply_plan_imm() {
     ok += patch_imm_bytes(base + 0xe4740c, &[0x3c], 1, 1, b1(gank, 0x0b)) as u32;   // ←s2 e8e86c
     PLANIMM_SIG.store(sig, Ordering::Relaxed);
     if let Some(p) = pth("plan_imm.txt") {
-        let _ = fs::write(p, format!("applied={}/10 obj_role={} serpen_mask={} epic_phase={} ganker_gate={} (-1=원본: 1/0x1a1/0xf9/0x0b) @base{:#x}\n",
+        let _ = fs::write(p, imm_tag() + &format!("applied={}/10 obj_role={} serpen_mask={} epic_phase={} ganker_gate={} (-1=원본: 1/0x1a1/0xf9/0x0b) @base{:#x}\n",
             ok, role, smask, ephase, gank, base));
     }
 }
@@ -3146,7 +3151,7 @@ unsafe fn apply_gb_imm() {
     ok += patch_imm_bytes(base + 0xdf6777, &[0x41,0xb8], 2, 4, e_rm) as u32;                                 // reach margin   // ←s2 dcd2d7
     GBIMM_SIG.store(sig, Ordering::Relaxed);
     if let Some(p) = pth("gb_imm.txt") {
-        let _ = fs::write(p, format!("gb_enable={} applied={}/10 close={} line={} join={} scout={} op_ph={} join_ph={}=DEAD push_hp={} reach_cap={} reach_mgn={} @base{:#x}\n",
+        let _ = fs::write(p, imm_tag() + &format!("gb_enable={} applied={}/10 close={} line={} join={} scout={} op_ph={} join_ph={}=DEAD push_hp={} reach_cap={} reach_mgn={} @base{:#x}\n",
             enable, ok, cr, lr, jd, sr, op, jp, ph, rc, rm, base));
     }
 }
@@ -3238,7 +3243,7 @@ unsafe fn apply_sev_imm() {
     ok += patch_imm_bytes(base + 0xd5f0c8, &[0x48,0x83,0xf8], 3, 1, p_t3 + 1) as u32; // tr>=10 (jb = tr3+1 인코딩)   // ←s2 d958e9
     SEVIMM_SIG.store(sig, Ordering::Relaxed);
     if let Some(p) = pth("sev_imm.txt") {
-        let _ = fs::write(p, format!("sv_enable={} applied={}/33 tr=[{} {} {} {}] hp=[{} {} {}] discount=shift{} cap{} pa=[hh{} th{} hl{} tl{}] @base{:#x}\n",
+        let _ = fs::write(p, imm_tag() + &format!("sv_enable={} applied={}/33 tr=[{} {} {} {}] hp=[{} {} {}] discount=shift{} cap{} pa=[hh{} th{} hl{} tl{}] @base{:#x}\n",
             enable, ok, tr0, tr1, tr2, tr3, hp1, hp2, hp3, dsh, dcp, pa_hh, pa_th, pa_hl, pa_tl, base));
     }
 }
@@ -4043,7 +4048,7 @@ unsafe fn apply_lt_imm() {
     //   line_total.rs 와 line_attack.rs). 아래 5사이트는 死코드 — 되살리려 하지 말 것.
     LT_SIG.store(sig, Ordering::Relaxed);
     if let Some(pp) = pth("lt_imm.txt") {
-        let _ = fs::write(pp, format!("applied={}/{} lt_ally_join={} lt_around_radius={} lt_phase_mask={} @base{:#x}\n",
+        let _ = fs::write(pp, imm_tag() + &format!("applied={}/{} lt_ally_join={} lt_around_radius={} lt_phase_mask={} @base{:#x}\n",
             ok, tot, lt_ally_join, lt_around_radius, lt_phase_mask, base));
     }
 }
@@ -4080,7 +4085,7 @@ unsafe fn apply_nx_imm() {
     p!(base + 0xe94215, &[0x48,0xc7,0x85,0x58,0x01,0x00,0x00], 7, 4, v_nx_around_def);   // ←0.5.3 dede9f   // ←0.5.3 dad892
     NX_SIG.store(sig, Ordering::Relaxed);
     if let Some(pp) = pth("nx_imm.txt") {
-        let _ = fs::write(pp, format!("applied={}/{} nx_cull_dist19={} nx_around_atk={} nx_around_def={} @base{:#x}\n",
+        let _ = fs::write(pp, imm_tag() + &format!("applied={}/{} nx_cull_dist19={} nx_around_atk={} nx_around_def={} @base{:#x}\n",
             ok, tot, nx_cull_dist19, nx_around_atk, nx_around_def, base));
     }
 }
@@ -4188,7 +4193,7 @@ unsafe fn apply_hd_imm() {
     p!(base + 0xccc1ee, &[0x66,0xc7,0x40,0x10], 4, 2, v_hd_phase);   // ←0.5.3 d81b6e   // ←0.5.3 cd75ee
     HD_SIG.store(sig, Ordering::Relaxed);
     if let Some(pp) = pth("hd_imm.txt") {
-        let _ = fs::write(pp, format!("applied={}/{} hd_bush_near={} hd_path_radius={} hd_around_radius={} hd_detect_max={} hd_fight_cut={} hd_cand_select={} hd_trace_leash={} hd_vision_mem={} hd_ph0_ttl={} hd_skip_landmark={} @base{:#x}\n",
+        let _ = fs::write(pp, imm_tag() + &format!("applied={}/{} hd_bush_near={} hd_path_radius={} hd_around_radius={} hd_detect_max={} hd_fight_cut={} hd_cand_select={} hd_trace_leash={} hd_vision_mem={} hd_ph0_ttl={} hd_skip_landmark={} @base{:#x}\n",
             ok, tot, hd_bush_near, hd_path_radius, hd_around_radius, hd_detect_max, hd_fight_cut, hd_cand_select, hd_trace_leash, hd_vision_mem, hd_ph0_ttl, hd_skip_landmark, base));
     }
 }
@@ -4251,7 +4256,7 @@ unsafe fn apply_d4_imm() {
     p!(base + 0xd78d77, &[0x48,0xc7,0x44,0x24,0x40], 5, 4, v_d4_gather_radius);   // ←0.5.3 d721c7   // ←0.5.3 d676e7
     D4_SIG.store(sig, Ordering::Relaxed);
     if let Some(pp) = pth("d4_imm.txt") {
-        let _ = fs::write(pp, format!("applied={}/{} d4_ally_radius_a={} d4_ally_radius_b={} d4_early_leave={} d4_partner_dist={} d4_hp_safe={} d4_from_mid={} d4_from_mid_mode={} d4_ally_cnt={} d4_minion_cnt={} d4_gather_radius={} @base{:#x}\n",
+        let _ = fs::write(pp, imm_tag() + &format!("applied={}/{} d4_ally_radius_a={} d4_ally_radius_b={} d4_early_leave={} d4_partner_dist={} d4_hp_safe={} d4_from_mid={} d4_from_mid_mode={} d4_ally_cnt={} d4_minion_cnt={} d4_gather_radius={} @base{:#x}\n",
             ok, tot, d4_ally_radius_a, d4_ally_radius_b, d4_early_leave, d4_partner_dist, d4_hp_safe, d4_from_mid, d4_from_mid_mode, d4_ally_cnt, d4_minion_cnt, d4_gather_radius, base));
     }
 }
@@ -4352,7 +4357,7 @@ unsafe fn apply_c3_imm() {
     p!(base + 0xe03319, &[0x49,0x6b,0x8b,0x70,0x06,0x00,0x00], 7, 1, v_c3_hurt_scale);   // ←0.5.3 cc8019   // ←0.5.3 cdd1b9
     C3_SIG.store(sig, Ordering::Relaxed);
     if let Some(pp) = pth("c3_imm.txt") {
-        let _ = fs::write(pp, format!("applied={}/{} c3_enemy_near_a={} c3_enemy_near_b={} c3_minion_near={} c3_ally_hp={} c3_minion_margin={} c3_hurt_scale={} @base{:#x}\n",
+        let _ = fs::write(pp, imm_tag() + &format!("applied={}/{} c3_enemy_near_a={} c3_enemy_near_b={} c3_minion_near={} c3_ally_hp={} c3_minion_margin={} c3_hurt_scale={} @base{:#x}\n",
             ok, tot, c3_enemy_near_a, c3_enemy_near_b, c3_minion_near, c3_ally_hp, c3_minion_margin, c3_hurt_scale, base));
     }
 }
@@ -4384,7 +4389,7 @@ unsafe fn apply_lv_imm() {
     p!(base + 0xd9a0e4, &[0x49,0x83,0xbe,0xc8,0x05,0x00,0x00], 7, 1, v_ex_skill2_level_x);   // ←0.5.3 c8aae4   // ←0.5.3 db3064
     LV_SIG.store(sig, Ordering::Relaxed);
     if let Some(pp) = pth("lv_imm.txt") {
-        let _ = fs::write(pp, format!("applied={}/{} ex_ult_level_x={} ex_skill2_level_x={} @base{:#x}\n",
+        let _ = fs::write(pp, imm_tag() + &format!("applied={}/{} ex_ult_level_x={} ex_skill2_level_x={} @base{:#x}\n",
             ok, tot, ex_ult_level_x, ex_skill2_level_x, base));
     }
 }
@@ -4569,7 +4574,7 @@ unsafe fn apply_eh_imm() {
     fin3!(0xcb3bc3, &[0x08,0xd8], &[0x08,0xc0], &[0xb0,0x01]);   // fin#2 serp             ←0.5.7 de85ca
     EH_SIG.store(sig, Ordering::Relaxed);
     if let Some(pp) = pth("eh_imm.txt") {
-        let _ = fs::write(pp, format!("applied={}/{} eh_flee_clear_hp={} eh_reach_margin={} eh_recall_radius={} eh_around_radius={} eh_trace_arrive={} eh_band_low={} eh_band_high={} eh_commit_hp={} eh_commit_r_low={} eh_commit_r_high={} eh_abort_hp={} eh_abort_dist={} eh_score_norm={} @base{:#x}\n",
+        let _ = fs::write(pp, imm_tag() + &format!("applied={}/{} eh_flee_clear_hp={} eh_reach_margin={} eh_recall_radius={} eh_around_radius={} eh_trace_arrive={} eh_band_low={} eh_band_high={} eh_commit_hp={} eh_commit_r_low={} eh_commit_r_high={} eh_abort_hp={} eh_abort_dist={} eh_score_norm={} @base{:#x}\n",
             ok, tot, eh_flee_clear_hp, eh_reach_margin, eh_recall_radius, eh_around_radius, eh_trace_arrive, eh_band_low, eh_band_high, eh_commit_hp, eh_commit_r_low, eh_commit_r_high, eh_abort_hp, eh_abort_dist, eh_score_norm, base));
     }
 }
@@ -4608,7 +4613,7 @@ unsafe fn apply_init_imm() {
     p!(base + 0xeaad5b, &[0x48,0x83,0xc1], 3, 1, dm);
     INITIMM_SIG.store(sig, Ordering::Relaxed);
     if let Some(pp) = pth("init_imm.txt") {
-        let _ = fs::write(pp, format!("applied={}/{} gk2_gank_radius={} gk2_gank_hp={} eng_camp_radius={} db_retreat_margin={} @base{:#x}\n", ok, tot, gkr, gkh, egr, dbm, base));
+        let _ = fs::write(pp, imm_tag() + &format!("applied={}/{} gk2_gank_radius={} gk2_gank_hp={} eng_camp_radius={} db_retreat_margin={} @base{:#x}\n", ok, tot, gkr, gkh, egr, dbm, base));
     }
 }
 
@@ -4747,7 +4752,7 @@ unsafe fn apply_fix_skill2() {
         }
         FS2_APPLIED.store(0, Ordering::Relaxed);
         if let Some(p) = pth("fix_imm.txt") {
-            let _ = fs::write(p, format!("fix_skill2_dmg=0 (원본) @base{:#x}\n", base));
+            let _ = fs::write(p, imm_tag() + &format!("fix_skill2_dmg=0 (원본) @base{:#x}\n", base));
         }
         return;
     }
@@ -4760,7 +4765,7 @@ unsafe fn apply_fix_skill2() {
     if !(ok_a && ok_b && ok_n1 && ok_n2) {
         FS2_APPLIED.store(0, Ordering::Relaxed);
         if let Some(p) = pth("fix_imm.txt") {
-            let _ = fs::write(p, format!(
+            let _ = fs::write(p, imm_tag() + &format!(
                 "SKIP: 원본 바이트 불일치 A={} B={} N1={} N2={} @base{:#x}\n\
                  (게임 패치로 주소가 옮겨졌거나 다른 모드가 먼저 건드린 상태 — 아무것도 쓰지 않았다)\n",
                 ok_a, ok_b, ok_n1, ok_n2, base));
@@ -4787,7 +4792,7 @@ unsafe fn apply_fix_skill2() {
     let r4 = fs2_write(b, &pb);
     FS2_APPLIED.store(if r1 && r2 && r3 && r4 { 1 } else { 0 }, Ordering::Relaxed);
     if let Some(p) = pth("fix_imm.txt") {
-        let _ = fs::write(p, format!(
+        let _ = fs::write(p, imm_tag() + &format!(
             "fix_skill2_dmg=1 (수정) hookA={:#x} hookB={:#x} nop1={} nop2={} @base{:#x}\n\
              적 스킬2 피해가 위협·이득 계산에 반영됩니다(원본은 스킬1 값을 두 번 씀).\n",
             sa, sb, r1, r2, base));

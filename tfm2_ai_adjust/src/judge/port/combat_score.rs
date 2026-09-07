@@ -104,8 +104,11 @@ pub unsafe fn diag(_p1: usize, _p3: usize, _p4: usize) -> String {
         + &{ let q = S12D.with(|c| c.get()); let z = s12_st(); format!(" | S12[D={} X={} Ct={} kill={} score={} e01450={} e019d0={} e02020={} st={} T={} dmg={} selfN={} burst={} thp={} stRaw={} bonus={} q={} pk={}] A[{:?}]", q[0], q[1], q[2], q[3], q[4], q[5], q[6], q[7], z[0], z[1], z[2], z[3], z[4], z[5], z[10], z[7], z[8], z[9], ally_diag()) }
         + &{ let d = s5_diag(); format!(" S5[near={} kind={} f88={} dn={} rt={} safe={} raw9b0={} vis={} t0d={} t0a={} cdly={} alen={} th={:#x} a0={:#x} a1={:#x} pg={} d2={} a8={} tk={} cg={:#x}]", d[0], d[1], d[2], d[3], d[4], d[5], d[6], d[7], d[8], d[9], cast_dly(), d[10], d[11], d[12], d[13], d[14], d[15], d[16], d[17], d[18]) }
         + &unsafe { let caps = crate::judge::cap_util_c87fe0::last_p2().unwrap_or(0);
-            if crate::ptr_ok(caps) { format!(" gameR={:#x} gameBB={:#x} gameBB998={:?}{}", rd_u64(caps + 0x18).unwrap_or(0), rd_u64(caps + 0x20).unwrap_or(0),
-                rd_u64(caps + 0x20).and_then(|b| rd_i64(b as usize + 0x998)), format!("{} path={}", super::buff_value::s13_diag(), path_str())) } else { " caps=none".into() } }
+            // ★★`path=`·`S13[…]` 를 **caps 게이트 밖으로** 뺐다 — 잔차 23건이 전부 `caps=none` 이라
+            //   경로를 안 찍은 것처럼 보였고, 그것 때문에 조기반환으로 오진단했다(RE 2026-09-07).
+            format!("{} path={}{}", super::buff_value::s13_diag(), path_str(),
+                if crate::ptr_ok(caps) { format!(" gameR={:#x} gameBB={:#x} gameBB998={:?}", rd_u64(caps + 0x18).unwrap_or(0), rd_u64(caps + 0x20).unwrap_or(0),
+                    rd_u64(caps + 0x20).and_then(|b| rd_i64(b as usize + 0x998))) } else { " caps=none".into() }) }
 
 }
 #[inline] fn tag8(s: &str) -> u64 { let mut b = [0u8; 8]; for (i, c) in s.bytes().take(8).enumerate() { b[i] = c; } u64::from_le_bytes(b) }
@@ -772,7 +775,9 @@ unsafe fn combat_score_inner(mode: usize, _prof: usize, rec: usize, ctx: usize, 
         if mtag != 2 {
             let d = dist(me, tgt)?; let r = reach(me, slot, tgt)?;
             if r < d {
-                if rd_u8(bb + BB_1500) != 0 { return Some(-9_999_999); }
+                // ★게임은 `test byte[rbp+0x808],1`(0xd5c369) — **bit0 만** 본다.
+                //   ~~`!= 0`~~ 은 0x1500 이 2/4 일 때 재현만 리젝트한다(RE 2026-09-07).
+                if rd_u8(bb + BB_1500) & 1 != 0 { return Some(-9_999_999); }
                 if !urgent {
                     if let Some((_, _, t)) = approach(ctx, me, tgt, slot)? {
                         if t != 0 {
@@ -793,7 +798,9 @@ unsafe fn combat_score_inner(mode: usize, _prof: usize, rec: usize, ctx: usize, 
                                 let mut hdr = [0u64; 4]; hdr[0] = vis.as_ptr() as u64; hdr[3] = n as u64;
                                 let mut emp = [0u64; 4]; emp[0] = vis.as_ptr() as u64;
                                 let fc = super::fight_check::fight_check_memo(mode as u64, ctx, rec, me, hdr.as_ptr() as usize, emp.as_ptr() as usize)?;
-                                if (fc as i64) <= (cast_delay0(sp)?.wrapping_add(t) as i64) { pth_set("S2"); return Some(-9_999_999); }
+                                // ★`0xd5c4e4 ja` = **부호 없는** 비교. ~~`as i64` 부호있는 비교~~ 은
+                                //   fight_check 가 큰 u64(센티넬)를 돌려줄 때 게임과 반대로 갈린다(RE 2026-09-07).
+                                if fc <= cast_delay0(sp)?.wrapping_add(t) { pth_set("S2"); return Some(-9_999_999); }
                             }
                         }
                     }
