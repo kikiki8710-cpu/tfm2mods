@@ -47,7 +47,7 @@ fn na(tag: u64) -> Option<i64> {
 pub fn na_tag(t: &str) -> Option<i64> { na(tag8(t)) }
 thread_local! { pub static ALLYD: std::cell::Cell<[i64; 10]> = const { std::cell::Cell::new([0; 10]) }; }
 pub fn ally_diag() -> [i64; 10] { ALLYD.with(|c| c.get()) }
-thread_local! { pub static S12ST: std::cell::Cell<[i64; 12]> = const { std::cell::Cell::new([0; 12]) }; }
+thread_local! { pub static S12ST: std::cell::Cell<[i64; 16]> = const { std::cell::Cell::new([0; 16]) }; }
 /// [st, T, dmg, tps, burst, tgt.hp]
 /// S5 위험항 진단: [near!=0, near.kind, near.0x88, dist(me,near), r_t, safe, bb.0x9b0 원값]
 thread_local! { pub static S5D: std::cell::Cell<[i64; 21]> = const { std::cell::Cell::new([0; 21]) }; }
@@ -55,7 +55,7 @@ pub fn s5_diag() -> [i64; 21] { S5D.with(|c| c.get()) }
 thread_local! { pub static CDLY: std::cell::Cell<i64> = const { std::cell::Cell::new(0) }; }
 pub fn cast_dly() -> i64 { CDLY.with(|c| c.get()) }
 /// 직전 S12 호출의 스테로이드 창 기여분(진단용)
-pub fn s12_st() -> [i64; 12] { S12ST.with(|c| c.get()) }
+pub fn s12_st() -> [i64; 16] { S12ST.with(|c| c.get()) }
 /// ★스테로이드 `st` 상한 후보 대조기(검증 한정).
 /// 실측: T=60 DIFF 4건이 전부 `st` 포화 상태에서 정확히 −5 였다 → 상한이 80 이 아닐 가능성.
 /// 상수를 바꿔 맞추는 대신 후보를 **동시에 세어** 어느 것이 표본을 가장 많이 설명하는지 본다.
@@ -105,7 +105,7 @@ pub unsafe fn diag(_p1: usize, _p3: usize, _p4: usize) -> String {
     format!("risk_neg={} tower={} pos={} main={} urgent={} C={} thr_s={} chase={} bb998={} b9b0={} cast={} hp={} thr={} thrlen={}",
         v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7], v[8], v[9], v[10], v[11], v[12], v[13])
         + &format!(" game_thr={} bb970={} bb9a0={} bb988={}", v[14], v[15], v[16], v[17])
-        + &{ let q = S12D.with(|c| c.get()); let z = s12_st(); format!(" | S12[D={} X={} Ct={} kill={} score={} e01450={} e019d0={} e02020={} st={} T={} dmg={} selfN={} burst={} thp={} stRaw={} bonus={} q={} pk={}] A[{:?}]", q[0], q[1], q[2], q[3], q[4], q[5], q[6], q[7], z[0], z[1], z[2], z[3], z[4], z[5], z[10], z[7], z[8], z[9], ally_diag()) }
+        + &{ let q = S12D.with(|c| c.get()); let z = s12_st(); format!(" | S12[D={} X={} Ct={} kill={} score={} e01450={} e019d0={} e02020={} st={} T={} dmg={} selfN={} burst={} thp={} stRaw={} bonus={} q={} pk={} i88={:#x} tid={:#x} m16={} v10={}] A[{:?}]", q[0], q[1], q[2], q[3], q[4], q[5], q[6], q[7], z[0], z[1], z[2], z[3], z[4], z[5], z[10], z[7], z[8], z[9], z[12], z[13], z[14], z[15], ally_diag()) }
         + &{ let d = s5_diag(); format!(" S5[near={} kind={} f88={} dn={} rt={} safe={} raw9b0={} vis={} t0d={} t0a={} cdly={} alen={} th={:#x} a0={:#x} a1={:#x} pg={} d2={} a8={} eLen={} aLen={}] NIC[cand={} dmin={} mlen={} nstruct={}]", d[0], d[1], d[2], d[3], d[4], d[5], d[6], d[7], d[8], d[9], cast_dly(), d[10], d[11], d[12], d[13], d[14], d[15], d[16], d[19], d[20], nic_diag()[0], nic_diag()[1], nic_diag()[2], nic_diag()[3]) }
         + &unsafe { let caps = crate::judge::cap_util_c87fe0::last_p2().unwrap_or(0);
             // ★★`path=`·`S13[…]` 를 **caps 게이트 밖으로** 뺐다 — 잔차 23건이 전부 `caps=none` 이라
@@ -706,7 +706,7 @@ unsafe fn s12_steroid(w: &World, me: usize, tgt: usize, side: u64, role: usize,
     if burst >= thp { bonus = ct.min(kcap); }
     else if thp > 0 && burst.wrapping_mul(100) / thp >= imm8(SITE_SC_KILL_PCT_IMM, 60) { bonus = ct.min(kcap) / 3; }
     out += bonus;
-    S12ST.with(|c| { let z3 = c.get()[3]; c.set([out, t as i64, dmg, z3, burst, thp, st, bonus, q, 0, st_raw, 0]); });
+    S12ST.with(|c| { let zz = c.get(); c.set([out, t as i64, dmg, zz[3], burst, thp, st, bonus, q, 0, st_raw, 0, zz[12], zz[13], zz[14], zz[15]]); });
     Some(out)
 }
 
@@ -784,7 +784,7 @@ pub unsafe fn combat_score(mode: usize, _prof: usize, rec: usize, ctx: usize, bb
     pth_set("?");
     // ★진단 TLS 는 호출마다 초기화한다 — 안 하면 조기반환 경로에서 직전 호출의 값이 그대로 찍혀
     //   원인 분석이 통째로 헛돈다(2026-09-07 실측: st=76 인데 main=0 인 모순 로그).
-    S12ST.with(|c| c.set([0; 12])); ALLYD.with(|c| c.set([0; 10])); S5D.with(|c| c.set([0; 21])); S12D.with(|c| c.set([0; 8]));
+    S12ST.with(|c| c.set([0; 16])); ALLYD.with(|c| c.set([0; 10])); S5D.with(|c| c.set([0; 21])); S12D.with(|c| c.set([0; 8]));
     let r = combat_score_inner(mode, _prof, rec, ctx, bb, sp, slot, tgt, p9);
     if r.is_none() && !TAGGED.with(|c| c.get()) { let t = STG.with(|c| c.get()); na(t); }
     r
@@ -1078,6 +1078,13 @@ unsafe fn combat_score_inner(mode: usize, _prof: usize, rec: usize, ctx: usize, 
             //   (true, 0) 을 냈는지 표식으로 특정한다 — slot_88 안엔 T 를 임의로 0 으로 두는 arm 이 몇 개 있다.
             if ok88 && t88 == 0 { super::dyn_eff::unseen(0x694, super::dyn_eff::impl_rva(sv, 0x88).unwrap_or(0)); }
         }
+        // ★계측: t_win 이 None 인 이유를 특정한다(잔여 DIFF 의 유력 후보 = 스테로이드 창 미검출)
+        S12ST.with(|c| { let mut z = c.get();
+            z[12] = super::dyn_eff::impl_rva(sv, 0x88).unwrap_or(0) as i64;
+            z[13] = sp_type_id(sp).unwrap_or(0) as i64;
+            z[14] = (sp_type_id_matches(sp) as i64) * 2 + (rd_u64(sp).and_then(|q| rd_u64(q as usize + 0x10)).unwrap_or(0) != 0) as i64;
+            z[15] = rd_u64(sp).and_then(|q| rd_u64(q as usize + 0x10)).unwrap_or(0) as i64;
+            c.set(z); });
         if let Some(tw) = t_win {
             match s12_steroid(&w, me, tgt, side, role as usize, tw, ct, tps, d) {
                 Some(v) => { st_add = v; score += v; }

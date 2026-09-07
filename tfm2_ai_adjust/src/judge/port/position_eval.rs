@@ -539,7 +539,11 @@ unsafe fn vt88_flag(data: usize, vt: usize, depth: u32) -> Option<u64> {
             Some(0)
         }
         // ★`0x1151480` = `mov rdx,[rcx+0x18]; mov eax,1; ret` → flag(al&1) = 1 (RE 2026-09-07 census)
-        0x1151480 => Some(1),
+        // ★`0x122fcf0` = `(true, [p+0x10])` — 값은 안 쓰고 플래그만 (RE 2026-09-07 census)
+        0x1151480 | 0x122fcf0 => Some(1),
+        // ★`0x133e490` = `T = max(([p+0x30]!=0) as u64, [p+0x48])`, `ok=(T!=0)` (RE 2026-09-07 census)
+        //   as_d84db0 NA 1293건의 유일 원인 — combat_score 쪽 slot_88 엔 이미 있었는데 여기만 빠져 있었다.
+        0x133e490 => Some((rd_u64(p + 0x30)? != 0 || rd_u64(p + 0x48)? != 0) as u64),
         _ => { dy::unseen(0x388, r); None } }
 }
 #[inline] unsafe fn memo88(e: usize, k: usize) -> Option<u64> { match slot_of(e, k)? { None => Some(0), Some(s) => { if rd_i32(s + 0x30)? == -1 { return Some(0); } vt88_flag(rd_u64(s)? as usize, rd_u64(s + 8)? as usize, 0) } } }
