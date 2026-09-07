@@ -251,7 +251,11 @@ thread_local! { static LEAF_ME: std::cell::Cell<usize> = const { std::cell::Cell
 pub(super) fn set_leaf_me(me: usize) { LEAF_ME.with(|c| c.set(me)); }
 #[inline] fn me_of_a8() -> Option<usize> { let v = LEAF_ME.with(|c| c.get()); if v == 0 { None } else { Some(v) } }
 /// ★`(x >> 2) / 100` = `x/400`. 게임은 `shr 2` 후 `/100` 매직을 쓴다(RE 2026-09-07).
-#[inline] fn q_s2(x: u64) -> u64 { (x >> 2) / 100 }
+/// 게임의 `shr rax,2 → mul 0x28f5c28f5c28f5c3 → shr rdx,2` 는 **통째로 `x/100`** 이다
+/// (매직 = ceil(2^68/100). 앞의 `shr 2` 는 별도 나눗셈이 아니라 그 시퀀스의 일부).
+/// ~~`(x>>2)/100`~~ = `x/400` 은 **4배 축소** 버그다 — `dyn_eff::q400` 에 이미 같은 함정이
+/// 문서화돼 있었는데(2026-09-06) 2026-09-07 포팅에서 **재발**했다. 이름은 호출부 보존용.
+#[inline] fn q_s2(x: u64) -> u64 { x / 100 }
 pub(super) unsafe fn slot_a8_pub(data: usize, vt: usize, depth: u32) -> Option<Option<[u64; 6]>> { slot_a8(data, vt, depth) }
 unsafe fn slot_a8(data: usize, vt: usize, depth: u32) -> Option<Option<[u64; 6]>> {
     if depth > 40 { super::dyn_eff::unseen(0x601, depth as usize); return None; }
@@ -286,6 +290,13 @@ unsafe fn slot_a8_p(payload: usize, vt: usize, depth: u32) -> Option<Option<[u64
     match r {
         0x109ba90 => Some(None),
         0x17cc480 => Some(Some([1, 0, rd_u64(payload + 0x28)?, 0, 0, rd_u64(payload + 0x18)?])),
+        // ★썽크 전용 판에도 잎 2종을 채운다 — 지금 표본에선 안 밟히지만 정적으로 도달 가능한
+        //   경로다(RE 2026-09-08 census: `+0xa8` 은 이 6종으로 완결).
+        0x153b460 => Some(Some([1, rd_u64(payload + 0x10)?, rd_u64(payload + 0x18)?, 0, 0, rd_u64(payload + 8)?])),
+        0x1341a20 => { let s1 = rd_u64(me_of_a8()? + 0x620)?;
+            Some(Some([1, q_s2(rd_u64(payload + 0x10)?.wrapping_mul(s1)).wrapping_add(rd_u64(payload + 8)?), 0,
+                       q_s2(rd_u64(payload + 0x20)?.wrapping_mul(s1)).wrapping_add(rd_u64(payload + 0x18)?),
+                       rd_u64(payload + 0x28)?, rd_u64(payload)?])) }
         0x12a68e0 => { let (arr, n) = (rd_u64(payload + 8)? as usize, rd_u64(payload + 0x10)?);
             if n == 0 { return Some(None); } if !ptr_ok(arr) { return None; }
             for i in 0..n.min(CAP_ITER) as usize {

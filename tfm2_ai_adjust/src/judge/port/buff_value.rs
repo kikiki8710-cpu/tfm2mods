@@ -535,7 +535,7 @@ pub unsafe fn spec_a0_inline(p: usize, vt: usize, me: usize, depth: u32) -> Opti
             Some(Some(b)) }
         0x18890b0 => { let mut b = [0u8; SPEC_SIZE]; sp_set_name(&mut b, "plague_doctor_ult");                    // "plague_doctor_ult"
             let ap = rd_u64(me + 0x620)?;
-            let t = (rd_u64(p + 0x10)?.wrapping_mul(ap) >> 2) / 100;
+            let t = rd_u64(p + 0x10)?.wrapping_mul(ap) / 100;   // ★`>>2` 는 /100 시퀀스의 일부다(x/400 아님)
             sp_set_i32(&mut b, 0x48, 1); sp_set_i64(&mut b, 0x50, rd_i64(p + 0x20)?);
             sp_set_i32(&mut b, 0x58, rd_i32_at(p));
             sp_set_i32(&mut b, 0x88, rd_i32_at(p + 0x18));
@@ -868,8 +868,8 @@ unsafe fn slot98(data: usize, vt: usize, sim: usize, me: usize, e: usize, depth:
             Some(acc)
         }
         // 잎 2종 — `[r8+0x618]`(=대상엔티티의 스탯) 을 쓰는 400 나눗셈형
-        0x12c4940 => Some(rd_i64(p + 0x10)?.wrapping_add(rd_i64(p + 0x18)?.wrapping_mul(rd_i64(me + 0x618)?) / 400)),
-        0x1841c00 => Some(rd_i64(p + 0x18)?.wrapping_add(rd_i64(p + 0x20)?.wrapping_mul(rd_i64(me + 0x618)?) / 400)),
+        0x12c4940 => Some(rd_i64(p + 0x10)?.wrapping_add(rd_i64(p + 0x18)?.wrapping_mul(rd_i64(me + 0x618)?) / 100)),
+        0x1841c00 => Some(rd_i64(p + 0x18)?.wrapping_add(rd_i64(p + 0x20)?.wrapping_mul(rd_i64(me + 0x618)?) / 100)),
         // ★`0x13dbd80` — payload(rcx)도 아군(r9)도 **안 읽는다**. 대상엔티티의 inline dyn 효과
         //   `[r8+0x4c8]/[r8+0x4d0]`(태그 `[r8+0x4f8] == -1` 이면 없음)의 `vt+0x28` 을 불러 **rax+rdx** 를 돌려준다.
         //   슬롯 0x28 은 **페어 반환**이라 rax 만 읽으면 틀린다(zero-fn 도 `0x109bad0`=페어판으로 따로 있다).
