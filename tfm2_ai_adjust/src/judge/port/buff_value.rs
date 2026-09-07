@@ -19,11 +19,11 @@ thread_local! {
     pub static E3D: std::cell::Cell<[i64; 8]> = const { std::cell::Cell::new([0; 8]) };
 }
 pub fn s13_diag() -> String {
-    let v = S13D.with(|c| c.get()); let e = S13E.with(|c| c.get()); let f = S14D.with(|c| c.get()); let g = E3D.with(|c| c.get()); let h = AOED.with(|c| c.get());
-    format!(" S13[aoe={} trig={} aura={} etc={} hs={} buff={} raw={} dur={}] S13E[healE={} shieldE={} inc={} gate={} total={} has={} ally={} mainRaw={} healRaw={} cap={} miss={} shRaw={}] S14[v={} k={} vd={} st={} b1={} b2={} src={} raw={} fp={} ns={} a0i={:#x}] E3[exit={} def={} tid={:#x} n={} r={} st={} sum={} cnt={}] AOE[kind={} R={} n={} slf={} noe={} dst={} cap={} tot={} poff={} vt={:#x} u32p={} u32d={}]",
+    let v = S13D.with(|c| c.get()); let e = S13E.with(|c| c.get()); let f = S14D.with(|c| c.get()); let g = E3D.with(|c| c.get()); let h = AOED.with(|c| c.get()); let k = A0CH.with(|c| c.get());
+    format!(" S13[aoe={} trig={} aura={} etc={} hs={} buff={} raw={} dur={}] S13E[healE={} shieldE={} inc={} gate={} total={} has={} ally={} mainRaw={} healRaw={} cap={} miss={} shRaw={}] S14[v={} k={} vd={} st={} b1={} b2={} src={} raw={} fp={} ns={} a0i={:#x}] E3[exit={} def={} tid={:#x} n={} r={} st={} sum={} cnt={}] AOE[kind={} R={} n={} slf={} noe={} dst={} cap={} tot={} poff={} vt={:#x} u32p={} u32d={}] A0CH[{:#x} {:#x} {:#x} {:#x}]",
         v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7], e[0], e[1], e[2], e[3], e[4], e[5], e[6], e[7], e[8], e[9], e[10], e[11],
         f[0], f[1], f[2], f[3], f[4], f[5], f[6], f[7], f[8], f[9], f[10], g[0], g[1], g[2], g[3], g[4], g[5], g[6], g[7],
-        h[0], h[1], h[2], h[3], h[4], h[5], h[6], h[7], h[8], h[9], h[10], h[11])
+        h[0], h[1], h[2], h[3], h[4], h[5], h[6], h[7], h[8], h[9], h[10], h[11], k[0], k[1], k[2], k[3])
 }
 /// 잎 에뮬레이터가 필요로 하는 두 컨텍스트(sim · EST 서술자 절대주소). S13/S14 진입 때 한 번 세운다.
 thread_local! {
@@ -385,6 +385,10 @@ unsafe fn fold_children(p: usize, ptr_o: usize, len_o: usize, stride: usize, me:
         let e = arr + i * stride;
         let (cd, cv) = (rd_u64(e)? as usize, rd_u64(e + 8)? as usize);
         if !ptr_ok(cd) || !ptr_ok(cv) { return None; }
+        // 자식 impl RVA 기록(진단) — 어느 잎이 빈 spec 을 내는지 특정
+        { let eb = crate::exe_base(); let f = rd_u64(cv + 0xa0).unwrap_or(0) as usize;
+          let r = if eb != 0 && f > eb { (f - eb) as i64 } else { 0 };
+          A0CH.with(|c| { let mut z = c.get(); for k in 0..4 { if z[k] == 0 { z[k] = r; break; } if z[k] == r { break; } } c.set(z); }); }
         let t = match spec_a0(cd, cv, me, depth + 1)? { Some(t) => t, None => continue };
         match acc.as_mut() {
             None => acc = Some(t),
@@ -559,14 +563,17 @@ pub unsafe fn spec_a0_inline(p: usize, vt: usize, me: usize, depth: u32) -> Opti
 /// S13(자기 버프) · S14(아군 버프). `ally` = 아군 Record(S14) / None(S13).
 ///   정본 = `RE\2026-09-07_combat_score-S13S14-본체구간-정밀전사-0.5.8.md`
 /// ★0xe02bc0(aoe) 진단 — [kind, R, n, self_skip, noent, dist_skip, heal_cap, total]
-thread_local! { pub static AOED: std::cell::Cell<[i64; 12]> = const { std::cell::Cell::new([0; 12]) }; }
+thread_local! { /// ★spec_a0 fold 가 만난 자식 impl RVA (최대 4) — 빈 spec 을 내는 자식을 특정한다
+pub static A0CH: std::cell::Cell<[i64; 4]> = const { std::cell::Cell::new([0; 4]) };
+pub static AOED: std::cell::Cell<[i64; 12]> = const { std::cell::Cell::new([0; 12]) }; }
 pub fn aoe_diag() -> [i64; 12] { AOED.with(|c| c.get()) }
+pub fn a0ch_diag() -> [i64; 4] { A0CH.with(|c| c.get()) }
 thread_local! { pub static S14D: std::cell::Cell<[i64; 11]> = const { std::cell::Cell::new([0; 11]) }; }
 /// [dffa10 v, decay k, decay 후 v, e03360 st, 1차 buff, 2차 buff]
 pub fn s14_diag() -> [i64; 11] { S14D.with(|c| c.get()) }
 pub unsafe fn s13_s14(b: &BCtx, ally: Option<usize>) -> Option<i64> {
     // ★S13D/S13E 도 함께 리셋 — 안 하면 다른 경로 표본에 직전 호출의 잔값이 찍혀 진단이 헛돌다(RE 2026-09-07)
-    S14D.with(|c| c.set([0; 11])); AOED.with(|c| c.set([0; 12])); S13D.with(|c| c.set([0; 8])); S13E.with(|c| c.set([0; 12]));
+    S14D.with(|c| c.set([0; 11])); AOED.with(|c| c.set([0; 12])); A0CH.with(|c| c.set([0; 4])); S13D.with(|c| c.set([0; 8])); S13E.with(|c| c.set([0; 12]));
     set_leaf_ctx(b.sim);
     let (sd, sv, _sin) = slot3(b.slot)?;
     let t = b.tgt;

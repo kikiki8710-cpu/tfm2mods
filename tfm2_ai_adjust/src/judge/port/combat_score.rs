@@ -781,7 +781,16 @@ unsafe fn combat_score_inner(mode: usize, _prof: usize, rec: usize, ctx: usize, 
     let self_is_tgt = rd_u64(me + ENT_HANDLE)? == rd_u64(tgt + ENT_HANDLE)?;
     // ── S2 사거리 게이트 ──
     stg(tag8("S2"));
-    if mode > 1 && tgt_kind == 13 && !self_is_tgt {
+    // ★★게이트는 self 판정이 아니라 **"다른 팀"** 판정이다(`0xd5be5d~0xd5be78`).
+    //   `same_owner ⟺ (a0==b0) && (a0!=0 || a8==b8)` — S4 게이트(`0xd5ca6b`, L866)와 명령 시퀀스가 동일한데
+    //   S2 에만 정정이 안 들어가 있었다. ~~`!self_is_tgt`~~ 는 **아군 타깃**에서 게임은 S2 를 통째로 건너뛰는데
+    //   재현만 진입해 −9,999,999 를 냈다 — 잔여 DIFF 809건의 원인(RE 2026-09-07).
+    let s2_other_team = {
+        let (a0, a8) = (rd_u64(me)?, rd_u64(me + 8)?);
+        let (b0, b8) = (rd_u64(tgt)?, rd_u64(tgt + 8)?);
+        !(a0 == b0 && (a0 != 0 || a8 == b8))
+    };
+    if mode > 1 && tgt_kind == 13 && s2_other_team {
         let (mtag, _) = w.mode()?;
         if mtag != 2 {
             let d = dist(me, tgt)?; let r = reach(me, slot, tgt)?;
@@ -797,7 +806,8 @@ unsafe fn combat_score_inner(mode: usize, _prof: usize, rec: usize, ctx: usize, 
                             for i in 0..5usize {
                                 let e = rd_u64(w.x + X_ROSTER + ((1 - side) as usize) * ROSTER_SIDE_STRIDE + i * 8)? as usize;
                                 if e == 0 || n >= 8 { continue; }
-                                if d2_ee(e, me)? >= 0x53d1ac100 { continue; }
+                                // ★게임은 `ja` = `d2 > 150000²` 일 때만 제외 — 정확히 150,000 은 **통과**
+                                if d2_ee(e, me)? > 0x53d1ac100 { continue; }
                                 let h = rd_u64(e + ENT_HANDLE)?;
                                 let ok = w.visible(side, h)? || {
                                     let rc = w.roster_rec(h)?;
