@@ -83,15 +83,30 @@ unsafe fn modrm(em: &Em, p: usize, rex: u8) -> Option<Mrm> {
 
 /// `slot.vt+0xa0` 잎 impl 을 해석해 BuffSpec 을 만든다.
 ///   `inline` = 게임이 rdx 로 넘기는 값(이미 Arc 보정된 payload) · `sim`/`me` = r8/r9 · `est` = 5번째 인자.
+/// ★`vt+0x28` 전용 진입점 — sret 이 없고 인자가 한 칸씩 당겨진다:
+/// `rcx = payload · rdx = ctx(패스스루) · r8 = ent(att) · r9 = EST 서술자`, 반환 = `(rax, rdx)` = (물리, 마법).
+pub unsafe fn run_eff28(f: usize, payload: u64, ctx: u64, ent: u64, est: u64) -> Option<(u64, u64)> {
+    let em = run_regs(f, payload, ctx, ent, est, None)?;
+    Some((em.r[0]?, em.r[2]?))
+}
+/// ★non-sret 단일값 슬롯(`vt+0x40/0x88/0x98/0xb0/0x80`) 전용 — `rcx=p · rdx=arg3 · r8=me · r9=EST`, 반환 `rax`.
+pub unsafe fn run_leaf_i64(f: usize, payload: u64, me: u64, est: u64) -> Option<i64> {
+    run_regs(f, payload, 0, me, est, None).and_then(|em| em.r[0]).map(|v| v as i64)
+}
 pub unsafe fn run_spec_leaf(f: usize, inline: u64, sim: u64, me: u64, est: u64) -> Option<[u8; SPEC_SIZE]> {
+    run_regs(f, SRET, inline, sim, me, Some(est)).map(|em| em.out)
+}
+/// 공통 실행기. `stk28=Some(est)` 면 `rcx=sret·rdx=inline·r8=sim·r9=me·[rsp+0x28]=est`(= `vt+0xa0` 규약),
+/// `None` 이면 `rcx=payload·rdx=ctx·r8=ent·r9=est`(= `vt+0x28` 규약, sret 없음).
+unsafe fn run_regs(f: usize, a1: u64, a2: u64, a3: u64, a4: u64, stk28: Option<u64>) -> Option<Em> {
     if !ptr_ok(f) { return None; }
     let mut em = Em { r: [None; 16], stk: [None; 512], out: [0u8; SPEC_SIZE], xmm0_zero: false };
-    em.r[1] = Some(SRET);            // rcx = sret
-    em.r[2] = Some(inline);          // rdx
-    em.r[8] = Some(sim);             // r8
-    em.r[9] = Some(me);              // r9
+    em.r[1] = Some(a1);
+    em.r[2] = Some(a2);
+    em.r[8] = Some(a3);
+    em.r[9] = Some(a4);
     em.r[4] = Some(STK_ENTRY);       // rsp
-    em.st_stk(STK_ENTRY + 0x28, Some(est))?;   // 5번째 인자
+    if let Some(v) = stk28 { em.st_stk(STK_ENTRY + 0x28, Some(v))?; }   // 5번째 인자(sret 규약에만 있다)
     let mut ip = f;
     let mut steps = 0usize;
     loop {
@@ -118,6 +133,10 @@ pub unsafe fn run_spec_leaf(f: usize, inline: u64, sim: u64, me: u64, est: u64) 
                       let v = if let Some(rr) = mm.rm_reg { em.r[rr] } else { em.load(mm.ea?, if w { 8 } else { 4 }) };
                       em.r[mm.reg] = v; ip = q + 1 + mm.len; }
             0x8d => { let mm = modrm(&em, q + 1, rex)?; em.r[mm.reg] = Some(mm.ea?); ip = q + 1 + mm.len; }   // lea
+            // ★0x01 = `add r/m64, r64` (0x03 의 방향 반대판). mod=3 만 지원하면 충분하다(RE 2026-09-07 실측).
+            0x01 => { let mm = modrm(&em, q + 1, rex)?; let rr = mm.rm_reg?;
+                      em.r[rr] = match (em.r[rr], em.r[mm.reg]) { (Some(x), Some(y)) => Some(if w { x.wrapping_add(y) } else { x.wrapping_add(y) & 0xffff_ffff }), _ => None };
+                      ip = q + 1 + mm.len; }
             0x03 => { let mm = modrm(&em, q + 1, rex)?;                                             // add r, r/m
                       let b = if let Some(rr) = mm.rm_reg { em.r[rr] } else { em.load(mm.ea?, if w { 8 } else { 4 }) };
                       em.r[mm.reg] = match (em.r[mm.reg], b) { (Some(x), Some(y)) => Some(if w { x.wrapping_add(y) } else { x.wrapping_add(y) & 0xffff_ffff }), _ => None };
@@ -162,10 +181,11 @@ pub unsafe fn run_spec_leaf(f: usize, inline: u64, sim: u64, me: u64, est: u64) 
             }
             0xff => { let mm = modrm(&em, q + 1, rex)?; let ext = (rd_u8(q + 1) >> 3) & 7;          // call r/m64
                       if ext != 2 { return None; }
-                      let tgt = em.load(mm.ea?, 8)?;
+                      // ★mod=3 = `call <reg>` — 컴파일러가 EST 접근자를 비휘발 레지스터에 캐시해 2회 부르는 형
+                      let tgt = match mm.rm_reg { Some(rr) => em.r[rr]?, None => em.load(mm.ea?, 8)? };
                       est_call(&mut em, tgt)?;
                       ip = q + 1 + mm.len; }
-            0xc3 => return Some(em.out),
+            0xc3 => return Some(em),
             _ => return None,
         }
     }
@@ -176,12 +196,15 @@ unsafe fn est_call(em: &mut Em, tgt: u64) -> Option<()> {
     let b = crate::exe_base() as u64; if b == 0 || tgt <= b { return None; }
     let (rcx, rdx) = (em.r[1], em.r[2]);
     let ret: Option<u64> = match tgt - b {
-        0xc8c860 => Some(rd_u64(rdx? as usize + 0x660)?),        // x
-        0xc8c870 => Some(rd_u64(rdx? as usize + 0x668)?),        // y
-        0xc8c880 => Some(rd_u64(rdx? as usize + 0x670)?),        // hp
-        0xc8c890 => Some(rd_u64(rdx? as usize + 0x5c8)?),        // level
-        0xc8c8e0 => Some(rdx? + 0x618),                          // &스탯블록
-        0xc8c850 => Some(rdx? + 0x370),
+        // ★★self 는 **rcx** 다 — sret 판(0xc8c8a0)만 rcx=dst·rdx=self 이고 나머지 6종은 `mov rax,[rcx+…]` 형이다.
+        //   ~~전부 rdx~~ 로 읽던 것은 `+0xa0` 세계에선 sret 판만 불려 안 터진 **잠복 버그**였고,
+        //   `+0x28` 잎(`mov rcx,r8; call [r9+0x38]`)에 그대로 쓰면 전부 틀린다(RE 2026-09-07).
+        0xc8c860 => Some(rd_u64(rcx? as usize + 0x660)?),        // x
+        0xc8c870 => Some(rd_u64(rcx? as usize + 0x668)?),        // y
+        0xc8c880 => Some(rd_u64(rcx? as usize + 0x670)?),        // hp
+        0xc8c890 => Some(rd_u64(rcx? as usize + 0x5c8)?),        // level
+        0xc8c8e0 => Some(rcx? + 0x618),                          // &스탯블록
+        0xc8c850 => Some(rcx? + 0x370),
         // 스탯 스냅샷 복사: sret(rcx) ← self(rdx).0x618.. (9워드)
         0xc8c8a0 => {
             let (dst, src) = (rcx?, rdx? as usize);

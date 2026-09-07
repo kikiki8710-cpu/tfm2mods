@@ -271,6 +271,14 @@ pub unsafe fn slot_sum_p(payload: usize, vt: usize, slot: usize, me: usize, dept
     if let Some(v) = super::as_callees::decode_getter(f, payload) { return Some(v as i64); }
     let base = crate::exe_base();
     if base != 0 && f > base { if let Some(v) = leaf_stat_scaled(f - base, payload, me) { return Some(v); } }
+    // ★`0x12b1550`(vt+0x40) — 분기+div 라 specemu 가 못 돈다(RE 2026-09-07)
+    if base != 0 && f == base + 0x12b1550 {
+        let d = rd_u64(payload + 0x28)?; if d == 0 { return na_tag(tag); }
+        let q = rd_u64(payload + 0x20)? / d;
+        return Some((rd_u64(payload)?.wrapping_add(rd_u64(payload + 8)?.wrapping_mul(rd_u64(me + 0x620)?)).wrapping_mul(q)) as i64);
+    }
+    // ★잎이면 specemu 로 실제 실행(non-sret 규약). 손으로 옮기는 것보다 정확하다.
+    if base != 0 && f > base { if let Some(v) = super::specemu::run_leaf_i64(f, payload as u64, me as u64, (base + 0x33da3d0) as u64) { return Some(v); } }
     if let Some(r) = super::dyn_eff::impl_rva(vt, slot) { super::dyn_eff::unseen(0x800 + slot as u32, r); }
     na_tag(tag)
 }
@@ -357,6 +365,14 @@ pub unsafe fn slot_sum(data: usize, vt: usize, slot: usize, me: usize, depth: u3
     if let Some(v) = super::as_callees::decode_getter(f, p) { return Some(v as i64); }
     let base = crate::exe_base();
     if base != 0 && f > base { if let Some(v) = leaf_stat_scaled(f - base, p, me) { return Some(v); } }
+    // ★`0x12b1550`(vt+0x40) 네이티브 — 분기+div 라 specemu 불가(RE 2026-09-07)
+    if eb != 0 && f == eb + 0x12b1550 {
+        let d = rd_u64(p + 0x28)?; if d == 0 { return na_tag(tag); }
+        let q = rd_u64(p + 0x20)? / d;
+        return Some((rd_u64(p)?.wrapping_add(rd_u64(p + 8)?.wrapping_mul(rd_u64(me + 0x620)?)).wrapping_mul(q)) as i64);
+    }
+    // ★잎이면 specemu 로 실제 실행(non-sret 규약)
+    if eb != 0 && f > eb { if let Some(v) = super::specemu::run_leaf_i64(f, p as u64, me as u64, (eb + 0x33da3d0) as u64) { return Some(v); } }
     if let Some(r) = super::dyn_eff::impl_rva(vt, slot) { super::dyn_eff::unseen(0x900 + slot as u32, r); }
     na_tag(tag)
 }
@@ -637,11 +653,11 @@ pub unsafe fn s13_s14(b: &BCtx, ally: Option<usize>) -> Option<i64> {
     let b90 = slot_bool90(sd, sv, 0)?;
     // etc = (!has && aura<=0 && b90) ? (vt_a8()[0]==0 ? 5 : 0) : 0   ⬜vt+0xa8 미포팅
     let etc: i64 = if !has && aura <= 0 && b90 {
-        let f = rd_u64(sv + 0xa8)? as usize;
-        let p = inline_self(sd, sv)?;
-        let (sim2, est) = (SIM_TLS.with(|c| c.get()) as u64, EST_DESC_RVA_ABS.with(|c| c.get()));
-        match super::specemu::run_spec_leaf(f, p as u64, sim2, b.me as u64, est) {
-            Some(x) => if u64::from_le_bytes([x[0], x[1], x[2], x[3], x[4], x[5], x[6], x[7]]) == 0 { 5 } else { 0 },
+        // ★`slot_a8` 로 배선한다 — 합성형(`0x12a68e0`)·잎 계약이 거기 다 있는데
+        //   ~~specemu 직접 호출~~ 이라 합성형에서 통째로 NA 가 났다(판당 572, RE 2026-09-07).
+        match super::combat_score::slot_a8_pub(sd, sv, 0) {
+            Some(Some(v)) => if v[0] == 0 { 5 } else { 0 },
+            Some(None) => 5,
             None => { if let Some(r) = super::dyn_eff::impl_rva(sv, 0xa8) { super::dyn_eff::unseen(0x9a8, r); } return na_tag("Ba8"); }
         }
     } else { 0 };

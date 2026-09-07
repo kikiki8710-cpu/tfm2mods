@@ -108,7 +108,22 @@ pub unsafe fn eff28_damage(data: usize, vt: usize, att: usize) -> Option<(u64, u
     let rva = impl_rva(vt, 0x28)?; let me = arc_payload(data, vt)?;
     match rva {
         EFF28_ZERO => Some((0, 0)),
-        EFF28_BASE_AD => Some((rd_u64(me)?.wrapping_add(q400(rd_u64(me + 8)?.wrapping_mul(rd_u64(att + ENT_STATS)?))), 0)),
+        // ★0x146b2f0 은 EFF28_BASE_AD 와 계산식이 완전히 같다(RE 2026-09-07 census)
+        EFF28_BASE_AD | 0x146b2f0 => Some((rd_u64(me)?.wrapping_add(q400(rd_u64(me + 8)?.wrapping_mul(rd_u64(att + ENT_STATS)?))), 0)),
+        // ── ★specemu 가 분기·div 때문에 실행 못 하는 4종(네이티브 필수) — RE 2026-09-07 `eff28_slot_contracts` ──
+        //   나머지 미포팅 잎은 arm 을 두지 않는다(에뮬이 실행 가능한 것을 손으로 옮기면 오히려 나빠진다).
+        0x1145e60 => { let ad = rd_u64(att + ENT_STATS)?;                       // 판당 1,591 (최대)
+            let d = rd_u64(me + 0x30)?; let n = rd_u64(me + 0x28)? / if d < 1 { 1 } else { d } + 1;   // ★몫 +1
+            Some((rd_u64(me + 8)?.wrapping_add(q400(rd_u64(me + 0x10)?.wrapping_mul(ad))).wrapping_mul(n), 0)) }
+        0x12267a0 => { let ap = rd_u64(att + ENT_STATS + 8)?;                   // ★+1 없음
+            let d = rd_u64(me + 8)?; let n = rd_u64(me)? / if d < 1 { 1 } else { d };
+            Some((0, rd_u64(me + 0x18)?.wrapping_add(q400(rd_u64(me + 0x20)?.wrapping_mul(ap))).wrapping_mul(n))) }
+        0x1151400 => { let ap = rd_u64(att + ENT_STATS + 8)?;                   // ★분모 0 → k=0 (max 아님)
+            let d = rd_u64(me + 0x20)?; let k = if d == 0 { 0 } else { rd_u64(me + 0x18)? / d };
+            Some((0, rd_u64(me)?.wrapping_add(q400(rd_u64(me + 8)?.wrapping_mul(ap))).wrapping_mul(k))) }
+        0x13c5680 => { let ad = rd_u64(att + ENT_STATS)?;                       // 힙에 임시 Arc 를 만들어 0x1708310 을 부른다
+            Some((rd_u64(me + 0x20)?.wrapping_add(q400(rd_u64(me + 0x18)?.wrapping_mul(ad)))
+                    .wrapping_mul(rd_u64(me + 0xa0)?), 0)) }
         // 0x16ada20: p = me0 + me10 + (me8·AD)/100 + (me18·AD)/100 , m = 0 (RE 2026-09-07)
         0x16ada20 => { let ad = rd_u64(att + ENT_STATS)?;
             Some((q400(rd_u64(me + 8)?.wrapping_mul(ad)).wrapping_add(rd_u64(me)?)
@@ -216,6 +231,13 @@ pub unsafe fn eff28_damage(data: usize, vt: usize, att: usize) -> Option<(u64, u
         // ★골격 스캐너 폴백: 자식 순회 합산형이면 RVA 표 없이 처리(rax·rdx 둘 다 합산)
         _ => {
             let f = rd_u64(vt + 0x28)? as usize;
+            // ★잎이면 specemu 로 **실제 실행**한다 — `vt+0x28` 규약(sret 없음, 반환 (rax,rdx)).
+            //   손으로 옮기는 것보다 정확하다(2026-09-07 확정).
+            if composite_loops(f, 0x28).is_none() {
+                // EST 서술자는 인스턴스가 둘(0x33d8768 / 0x33da3d0)인데 슬롯 내용이 동일하다(RE 확인)
+                let eb = crate::exe_base();
+                if eb != 0 { if let Some(v) = super::specemu::run_eff28(f, me as u64, 0, att as u64, (eb + 0x33da3d0) as u64) { return Some(v); } }
+            }
             if let Some((lp, n)) = composite_loops(f, 0x28) {
                 let (mut p, mut m) = (0u64, 0u64);
                 for k in 0..n {

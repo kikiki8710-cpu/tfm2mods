@@ -231,6 +231,14 @@ unsafe fn nearest_in_chain(w: &World, side: u64, me: usize) -> Option<Option<(us
 //   단순 impl + 자식 순회 합성(자식 = [p+8] ptr · [p+0x10] len · stride 0x10)의 두 형태뿐이다(capstone 2026-09-07 03:0x).
 #[inline] unsafe fn kids(p: usize) -> Option<(usize, u64)> { Some((rd_u64(p + 8)? as usize, rd_u64(p + 0x10)?)) }
 /// slot.vt+0xa8 → Option<[u64;6]>(sret). `0x109ba90` = tag 0(None) · `0x12a68e0` = 자식 중 **첫 Some**.
+/// ★`slot_a8`/`slot_c8` 의 일부 잎은 `me`(r9) 의 스탯을 읽는데 이 함수들은 me 를 안 받는다 —
+/// `combat_score` 진입부에서 TLS 에 담아 둔다(RE 2026-09-07).
+thread_local! { static LEAF_ME: std::cell::Cell<usize> = const { std::cell::Cell::new(0) }; }
+pub(super) fn set_leaf_me(me: usize) { LEAF_ME.with(|c| c.set(me)); }
+#[inline] fn me_of_a8() -> Option<usize> { let v = LEAF_ME.with(|c| c.get()); if v == 0 { None } else { Some(v) } }
+/// ★`(x >> 2) / 100` = `x/400`. 게임은 `shr 2` 후 `/100` 매직을 쓴다(RE 2026-09-07).
+#[inline] fn q_s2(x: u64) -> u64 { (x >> 2) / 100 }
+pub(super) unsafe fn slot_a8_pub(data: usize, vt: usize, depth: u32) -> Option<Option<[u64; 6]>> { slot_a8(data, vt, depth) }
 unsafe fn slot_a8(data: usize, vt: usize, depth: u32) -> Option<Option<[u64; 6]>> {
     if depth > 40 { super::dyn_eff::unseen(0x601, depth as usize); return None; }
     let r = super::dyn_eff::impl_rva(vt, 0xa8)?; let p = super::dyn_eff::arc_payload(data, vt)?;
@@ -238,6 +246,12 @@ unsafe fn slot_a8(data: usize, vt: usize, depth: u32) -> Option<Option<[u64; 6]>
         0x109ba90 => Some(None),
         // 0x17cc480: [tag=1, 0, self[0x28], 0, 0, self[0x18]] — 상수+self 복사뿐(RE 2026-09-07)
         0x17cc480 => Some(Some([1, 0, rd_u64(p + 0x28)?, 0, 0, rd_u64(p + 0x18)?])),
+        // ★신규 2종 — 이 둘을 채우면 `slot_a8` 은 정적으로 **완결**된다(RE 2026-09-07 census)
+        0x153b460 => Some(Some([1, rd_u64(p + 0x10)?, rd_u64(p + 0x18)?, 0, 0, rd_u64(p + 8)?])),
+        0x1341a20 => { let s1 = rd_u64(me_of_a8()? + 0x620)?;
+            Some(Some([1, q_s2(rd_u64(p + 0x10)?.wrapping_mul(s1)).wrapping_add(rd_u64(p + 8)?), 0,
+                       q_s2(rd_u64(p + 0x20)?.wrapping_mul(s1)).wrapping_add(rd_u64(p + 0x18)?),
+                       rd_u64(p + 0x28)?, rd_u64(p)?])) }
         0x12a68e0 => { let (arr, n) = kids(p)?; if n == 0 { return Some(None); } if !ptr_ok(arr) { return None; }
             for i in 0..n.min(CAP_ITER) as usize {
                 let v = slot_a8(rd_u64(arr + i * 0x10)? as usize, rd_u64(arr + i * 0x10 + 8)? as usize, depth + 1)?;
@@ -301,6 +315,12 @@ unsafe fn slot_c8(data: usize, vt: usize, depth: u32) -> Option<(u64, u8, u8)> {
     let r = super::dyn_eff::impl_rva(vt, 0xc8)?; let p = super::dyn_eff::arc_payload(data, vt)?;
     match r {
         0x109bac0 => Some((0, 0, 2)),
+        // ★신규 3종 — 채우면 `slot_c8` 완결(RE 2026-09-07)
+        0x1706e70 => Some((rd_u64(p)?, 0, 1)),
+        0x170fa90 => { let s1 = rd_u64(me_of_a8()? + 0x620)?;
+            Some((rd_u64(p)?.wrapping_add(q_s2(rd_u64(p + 8)?.wrapping_mul(s1))), 0, 1)) }
+        0x1728dd0 => { let s1 = rd_u64(me_of_a8()? + 0x620)?;
+            Some((rd_u64(p)?.wrapping_add(q_s2(rd_u64(p + 8)?.wrapping_mul(s1))), 1, 0)) }
         0x12a6970 => { let (arr, n) = kids(p)?; if n == 0 { return Some((0, 0, 2)); } if !ptr_ok(arr) { return None; }
             for i in 0..n.min(CAP_ITER) as usize {
                 let v = slot_c8(rd_u64(arr + i * 0x10)? as usize, rd_u64(arr + i * 0x10 + 8)? as usize, depth + 1)?;
@@ -315,6 +335,8 @@ unsafe fn slot_80_pair(data: usize, vt: usize, depth: u32) -> Option<(bool, u64)
     if depth > 40 { super::dyn_eff::unseen(0x606, depth as usize); return None; }
     let r = super::dyn_eff::impl_rva(vt, 0x80)?;
     let p = super::dyn_eff::arc_payload(data, vt)?;
+    // ★`0x109bab0` 은 `slot_88` 에는 있는데 여기엔 빠져 있었다(RE 2026-09-07)
+    if r == 0x109bab0 { return Some((true, rd_u64(p + 0x10)?.wrapping_add(rd_u64(p + 0x18)?))); }
     match r {
         EFF_E8_ZERO => Some((false, 0)),
         EFF_TRUE | 0x122fcf0 => { super::dyn_eff::unseen(0x6a2, r); Some((true, 0)) }
@@ -373,7 +395,10 @@ pub(super) unsafe fn slot_88(data: usize, vt: usize, depth: u32) -> Option<(bool
         //   (ok=true ⟺ T≠0 인데 T 를 0 으로 고정했으니). 574 표본이 전부 T=0 이던 서명이 이것.
         0x17c2bd0 => { let v = rq!(rd_u64(p), 0x68a); Some((v != 0, v)) }
         0x1701740 => { let f = rq!(rd_u64(p + 0x48), 0x68a) != 0; if f { super::dyn_eff::unseen(0x6a4, r); } Some((f, 1)) }
-        0x1153880 => { let v2 = rq!(rd_u64(p + 8), 0x68a) as usize;
+        0x1153880 => { let cd = rq!(rd_u64(p), 0x68a) as usize; let v2 = rq!(rd_u64(p + 8), 0x68a) as usize;
+            // ★썽크는 자식 **TraitB `vt+0xb0`** 로 rcx=cd(무보정 raw) 테일콜한다. TraitB +0xb0 은
+            //   `0x9db70`(=0) 과 `0x1151480` 둘뿐이라 이걸로 완결(RE 2026-09-07).
+            if let Some(r2) = super::dyn_eff::impl_rva(v2, 0xb0) { if r2 == 0x1151480 { return Some((true, rq!(rd_u64(cd + 0x18), 0x68a))); } }
             let r2 = rq!(super::dyn_eff::impl_rva(v2, 0xb0), 0x68b);
             match r2 { EFF_E8_ZERO => Some((false, 0)), EFF_TRUE => { super::dyn_eff::unseen(0x6a1, r2); Some((true, 0)) },
                        _ => { super::dyn_eff::unseen(0x5b0, r2); None } } }
@@ -778,6 +803,7 @@ unsafe fn combat_score_inner(mode: usize, _prof: usize, rec: usize, ctx: usize, 
     // ★게임은 **핸들 비교**다(`0xd5e52d cmp rsi,[rbp+0x618]` = tgt.0x5c0 vs me.0x5c0).
     //   ~~포인터 비교(`me == tgt`)~~ 는 같은 유닛의 다른 스냅샷이 오면 false 가 되어
     //   자기대상 경로(0xd5e53a)를 S15z 로 오분류한다(RE 2026-09-07).
+    set_leaf_me(me);
     let self_is_tgt = rd_u64(me + ENT_HANDLE)? == rd_u64(tgt + ENT_HANDLE)?;
     // ── S2 사거리 게이트 ──
     stg(tag8("S2"));

@@ -276,6 +276,41 @@ pub fn pre_mark() { let n = DIVE.with(|c| c.get().1); PRE_N.with(|c| c.set(n)); 
 pub fn dive_all_since() -> Vec<(u64, u64, u64)> { let pre = PRE_N.with(|c| c.get()); DIVE.with(|c| { let (a, n) = c.get(); (pre.max(n.saturating_sub(32))..n).map(|i| (a[i % 32].1, a[i % 32].3, a[i % 32].4)).collect() }) }
 pub fn dive_calls_since(side: u64, th: u64) -> usize { let pre = PRE_N.with(|c| c.get()); DIVE.with(|c| { let (a, n) = c.get(); (pre.max(n.saturating_sub(32))..n).filter(|&i| a[i % 32].0 == side && a[i % 32].1 == th).count() }) }
 pub fn dive_push(side: u64, th: u64, tick: u64, r: u64, d: u64, q: (u64, u64, u64), f: [u64; 8]) { DIVE.with(|c| { let (mut a, n) = c.get(); a[n % 32] = (side, th, tick, r, d); DIVE_Q.with(|qq| { let mut b = qq.get(); b[n % 32] = q; qq.set(b); }); DIVE_F.with(|ff| { let mut b = ff.get(); b[n % 32] = f; ff.set(b); }); c.set((a, n + 1)); }); }
+/// ★`0xd96d00` 순수 재현 — 반환 `(dive, 다이버 핸들)`.
+/// G0(kind==2 · 0x6b9==1 · 0x6a0==0) → G1(다이브 허용 시간) → G2(0x4c0 != -1)
+/// → A(아군 5칸, 250000² 이내, kind==0xd&&0x70==1 제외, **2명 미만이면 종료**)
+/// → B(적 5칸, 가시 ∨ 최근목격 120틱, 250000² 이내)
+/// → C(전투예측 tag==2 면 취소 — ⬜`0xe083c0` 미포팅이라 지금은 "진행" 으로 가정)
+/// → D(HP ≥ 3×타워한방 인 아군 중 최대체력 최대, 동점 시 핸들 큰 쪽)
+pub unsafe fn tower_dive(w: &World, tower: usize, side: u64) -> Option<(u64, u64)> {
+    if rd_u32(tower + 0x68) != 2 { return Some((0, 0)); }
+    if rd_u8(tower + 0x6b9) != 1 { return Some((0, 0)); }
+    if rd_u64(tower + 0x6a0)? != 0 { return Some((0, 0)); }
+    if rd_i32(tower + 0x4c0)? == -1 { return Some((0, 0)); }
+    if side > 1 { return None; }
+    const D2: u64 = 250_000u64 * 250_000;
+    let base = w.x + X_ROSTER;
+    let mut allies: [usize; 5] = [0; 5]; let mut na = 0usize;
+    for i in 0..5usize {
+        let e = rd_u64(base + (side as usize) * 0x28 + i * 8)? as usize; if e == 0 { continue; }
+        if rd_u32(e + 0x68) == 0xd && rd_u32(e + 0x70) == 1 { continue; }
+        if sat_d2(rd_u64(e + ENT_X)?, rd_u64(e + ENT_Y)?, rd_u64(tower + ENT_X)?, rd_u64(tower + ENT_Y)?) > D2 { continue; }
+        allies[na] = e; na += 1;
+    }
+    if na < 2 { return Some((0, 0)); }                       // ★2명 미만이면 다이브 없음
+    // ⬜C(전투예측 0xe083c0) 미포팅 — 지금은 tag != 2 로 가정한다(=항상 진행).
+    //   이 가정이 틀린 표본은 DIFF 로 드러나므로, 그 규모를 보고 포팅 여부를 정한다.
+    // D: HP >= 3 × 타워 한 방
+    let (mut best, mut bkey) = (0usize, (0u64, 0u64));
+    for k in 0..na {
+        let a = allies[k];
+        let dmg = super::passive_jungle::estimate_damage(tower + SLOT0, tower, a, false)?.max(1);
+        if rd_u64(a + ENT_HP)? < dmg.wrapping_mul(3) { continue; }
+        let key = (rd_u64(a + ENT_MAXHP)?, rd_u64(a + ENT_HANDLE)?);
+        if best == 0 || key >= bkey { best = a; bkey = key; }   // 동점 시 뒤쪽(핸들 큰 쪽)
+    }
+    Some(if best == 0 { (0, 0) } else { (1, rd_u64(best + ENT_HANDLE)?) })
+}
 pub fn dive_lookup(side: u64, th: u64, tick: u64) -> Option<(u64, u64)> { DIVE.with(|c| { let (a, n) = c.get(); (n.saturating_sub(32)..n).rev().map(|i| a[i % 32]).find(|e| e.0 == side && e.1 == th && e.2 == tick).map(|e| (e.3, e.4)) }) }
 /// 훅에서 부른다: p1=mode p2=&Holder p3=sim p4=tower
 pub unsafe fn dive_record(p2: usize, p3: usize, p4: usize, r: u64, d: u64, rbp: usize, ra: usize, gbx: u64) {
@@ -804,7 +839,18 @@ unsafe fn body(st: &St) -> Option<Out> {
                 trs(|| format!("T[{:#x} @({},{}) q=({},{}) tgt@({:?}) v={} d2={} rg={} dive={:?} gcalls={} gq={:?} gf={:?} 438={} 4a0={} 4a8={} lv={} e8={:?} e8impl={:#x} 4c0={} 470={} 680={} tgt470={} tgt680={} tgt={:#x}]", item, ix, iy, qx, qy, xy(tgt), v, wrap_d2(ix, iy, qx, qy), range_g(item, tgt).unwrap_or(0).wrapping_add(18000), dive_lookup(side, rd_u64(item + ENT_HANDLE).unwrap_or(0), tick), dive_calls_since(side, rd_u64(item + ENT_HANDLE).unwrap_or(0)), dive_q_recent(side, rd_u64(item + ENT_HANDLE).unwrap_or(0)), dive_f_recent(side, rd_u64(item + ENT_HANDLE).unwrap_or(0)),
                     rd_u64(item + 0x438).unwrap_or(0), rd_u64(item + 0x4a0).unwrap_or(0), rd_u64(item + 0x4a8).unwrap_or(0), rd_u64(item + ENT_LEVEL).unwrap_or(0), vt_e8(item + SLOT0, item, tgt), dy::impl_rva(rd_u64(item + SLOT0 + 8).unwrap_or(0) as usize, 0xe8).unwrap_or(0), rd_i32(item + 0x4c0).unwrap_or(-9), rd_i32(item + 0x470).unwrap_or(-9), rd_u64(item + 0x680).unwrap_or(0), rd_i32(tgt + 0x470).unwrap_or(-9), rd_u64(tgt + 0x680).unwrap_or(0), tgt));
                 if game_pass {
-                    let (dive, tgt_id) = match dive_lookup(side, rd_u64(item + ENT_HANDLE)?, tick) { Some(v) => v, None => { trs(|| "NA:dive".into()); pmark("dive"); return None } };
+                    // ★★훅 미러(`dive_lookup`) 대신 **순수 재현**한다 — 미러는 재현이 게임 본체보다
+                    //   먼저 도는 하네스 규약(cmp9_pre) 때문에 그 틱엔 항상 비어 있었다(판당 3,253 NA).
+                    //   게임 메모도 세대가 (seed, tick) 이라 같은 이유로 미스이므로 직독도 답이 아니다.
+                    //   RE 2026-09-07 `d96d00-타워다이브`.
+                    // ★미러가 있으면 **미러가 정답**이다(게임이 실제로 계산한 값). 없을 때만 순수 재현으로 메운다.
+                    //   ~~순수 재현만 쓰기~~ 는 전투예측 게이트(0xe083c0 미포팅)를 "항상 진행" 으로 가정하는 탓에
+                    //   position_eval DIFF 를 0 → 124,482 로 만들었다(2026-09-07 실측).
+                    let (dive, tgt_id) = match dive_lookup(side, rd_u64(item + ENT_HANDLE)?, tick) {
+                        Some(v) => v,
+                        None => match tower_dive(&w, item, side) {
+                            Some(v) => v,
+                            None => { trs(|| "NA:dive".into()); pmark("dive"); return None } } };
                     let hit_me = tgt_id == th && (dive & 1) == 1;
                     let atk = rd_u64(item + 0x88)?;
                     if (atk & 1) == 1 && rd_u64(item + 0x98)? == th {
