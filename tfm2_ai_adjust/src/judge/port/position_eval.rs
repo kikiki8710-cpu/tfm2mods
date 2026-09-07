@@ -538,6 +538,8 @@ unsafe fn vt88_flag(data: usize, vt: usize, depth: u32) -> Option<u64> {
             for i in 0..n.min(CAP_ITER) as usize { let v = vt88_flag(rd_u64(arr + i * 0x10)? as usize, rd_u64(arr + i * 0x10 + 8)? as usize, depth + 1)?; if v & 1 == 1 { return Some((v == 1) as u64); } }
             Some(0)
         }
+        // ★`0x1151480` = `mov rdx,[rcx+0x18]; mov eax,1; ret` → flag(al&1) = 1 (RE 2026-09-07 census)
+        0x1151480 => Some(1),
         _ => { dy::unseen(0x388, r); None } }
 }
 #[inline] unsafe fn memo88(e: usize, k: usize) -> Option<u64> { match slot_of(e, k)? { None => Some(0), Some(s) => { if rd_i32(s + 0x30)? == -1 { return Some(0); } vt88_flag(rd_u64(s)? as usize, rd_u64(s + 8)? as usize, 0) } } }

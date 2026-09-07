@@ -137,6 +137,17 @@ unsafe fn run_regs(f: usize, a1: u64, a2: u64, a3: u64, a4: u64, stk28: Option<u
             0x01 => { let mm = modrm(&em, q + 1, rex)?; let rr = mm.rm_reg?;
                       em.r[rr] = match (em.r[rr], em.r[mm.reg]) { (Some(x), Some(y)) => Some(if w { x.wrapping_add(y) } else { x.wrapping_add(y) & 0xffff_ffff }), _ => None };
                       ip = q + 1 + mm.len; }
+            // ★`63 /r` = movsxd r64, r/m32 — 하위 32비트를 **부호확장**
+            0x63 => { let mm = modrm(&em, q + 1, rex)?;
+                      let b = if let Some(rr) = mm.rm_reg { em.r[rr] } else { em.load(mm.ea?, 4) };
+                      em.r[mm.reg] = b.map(|x| (x as u32 as i32 as i64) as u64);
+                      ip = q + 1 + mm.len; }
+            // ★`69 /r id` = imul r64, r/m64, imm32(부호확장)
+            0x69 => { let mm = modrm(&em, q + 1, rex)?;
+                      let b = if let Some(rr) = mm.rm_reg { em.r[rr] } else { em.load(mm.ea?, if w { 8 } else { 4 }) };
+                      let imm = rd_i32(q + 1 + mm.len)? as i64 as u64;
+                      em.r[mm.reg] = b.map(|x| if w { x.wrapping_mul(imm) } else { x.wrapping_mul(imm) & 0xffff_ffff });
+                      ip = q + 1 + mm.len + 4; }
             0x03 => { let mm = modrm(&em, q + 1, rex)?;                                             // add r, r/m
                       let b = if let Some(rr) = mm.rm_reg { em.r[rr] } else { em.load(mm.ea?, if w { 8 } else { 4 }) };
                       em.r[mm.reg] = match (em.r[mm.reg], b) { (Some(x), Some(y)) => Some(if w { x.wrapping_add(y) } else { x.wrapping_add(y) & 0xffff_ffff }), _ => None };
@@ -167,7 +178,8 @@ unsafe fn run_regs(f: usize, a1: u64, a2: u64, a3: u64, a4: u64, stk28: Option<u
                 match op2 {
                     0xaf => { let mm = modrm(&em, q + 2, rex)?;                                     // imul r, r/m
                               let b = if let Some(rr) = mm.rm_reg { em.r[rr] } else { em.load(mm.ea?, if w { 8 } else { 4 }) };
-                              em.r[mm.reg] = match (em.r[mm.reg], b) { (Some(x), Some(y)) => Some(x.wrapping_mul(y)), _ => None };
+                              // ★!w 면 32비트 결과다 — 마스킹을 안 하던 버그(RE 2026-09-07)
+                              em.r[mm.reg] = match (em.r[mm.reg], b) { (Some(x), Some(y)) => Some(if w { x.wrapping_mul(y) } else { x.wrapping_mul(y) & 0xffff_ffff }), _ => None };
                               ip = q + 2 + mm.len; }
                     0x57 => { let mm = modrm(&em, q + 2, rex)?;                                     // xorps xmm,xmm
                               if mm.rm_reg != Some(mm.reg) { return None; }

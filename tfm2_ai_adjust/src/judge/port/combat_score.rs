@@ -599,7 +599,9 @@ unsafe fn st_pn(me: usize, n: usize) -> Option<bool> {
     //   `0x1716a40` = `mov rax,[rcx+0x178]; cmp rax,1; adc rax,0; ret` = max(v,1) → 게임이 b==0 로 패닉하지 않는 이유.
     let a = {
         let (d, v) = (rd_u64(me + pa)? as usize, rd_u64(me + pa + 8)? as usize);
-        match prov_getter(d, v, 0x90) { Some(x) => x as i64,
+        // ★레벨 의존 impl(`0x1725060`/`0x17033a0`/`0x12462a0`)은 `prov_getter` 의 바이트패턴으로 안 잡힌다 —
+        //   `prov90_cooltime` 이 이미 그 셋을 갖고 있으므로 폴백한다(판당 173 NA, 2026-09-07).
+        match prov_getter(d, v, 0x90).or_else(|| super::dyn_eff::prov90_cooltime(d, v, me)) { Some(x) => x as i64,
             None => { super::dyn_eff::unseen(0x1090, super::dyn_eff::impl_rva(v, 0x90).unwrap_or(0)); return None; } }
     };
     let b = {
