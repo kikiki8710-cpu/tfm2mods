@@ -646,7 +646,10 @@ pub unsafe fn s13_s14(b: &BCtx, ally: Option<usize>) -> Option<i64> {
     // ★`aura`(vt+0xb0) 는 버프항 게이트(`has || aura>0`)를 여는 값인데 로그에 없었다 —
     //   F1 계열(has=0·6항 전부 0·게임 main 9/26)의 유일한 남은 후보다(2026-09-07).
     S13D.with(|c| { let mut z = c.get(); z[8] = aura;
-        z[9] = super::dyn_eff::impl_rva(sv, 0xb0).unwrap_or(0) as i64; c.set(z); });
+        // ★RE 권고: b0(=aura 원천) 뿐 아니라 48(shield)·98(aura_t 게이트) impl 도 함께 봐야 A/B 가 갈린다
+        z[9] = (super::dyn_eff::impl_rva(sv, 0xb0).unwrap_or(0) as i64)
+             | ((super::dyn_eff::impl_rva(sv, 0x48).unwrap_or(0) as i64) << 32);
+        c.set(z); });
 
     // spec0 = 0xe047c0(slot, ctx, tgt) · has = spec0 있음 ∨ slot.vt+0xa0 의 tag != −1
     let spec0 = match e047c0(b.slot, b.ctx, t) { Some(v) => v, None => return na_tag("B047") };
@@ -750,7 +753,10 @@ pub unsafe fn s13_s14(b: &BCtx, ally: Option<usize>) -> Option<i64> {
     }
 
     // ── 조립 ──
-    let thp = rd_i64(if ally.is_some() { t } else { b.me } + ENT_HP)?;
+    // ★★분모는 **항상 `tgt.hp`** 다(`[rbp+0x898] = arg8[0x670]`, `0xd5e558`).
+    //   ~~S13 에서 `b.me`~~ 는 self-target 표본에선 우연히 같지만 **비-self 갈래(0xd5e709)에서 틀린다**
+    //   (RE 2026-09-07). `miss` 는 `me` 기준이 맞다 — 둘은 서로 다른 엔티티를 본다.
+    let thp = rd_i64(t + ENT_HP)?;
     if thp == 0 { return None; }
     let total = heal_e.wrapping_add(shield_e);
     let mut hs_term = dc.wrapping_mul(total) / thp;
@@ -1485,6 +1491,8 @@ pub unsafe fn e03360(b: &BCtx, e3: usize, e4: usize) -> Option<u8> {
         let p = rd_u64(wroot + po + (opp as usize) * 0x20)? as usize; if !ptr_ok(p) { return None; }
         for i in 0..n.min(CAP_ITER) as usize {
             let u = rd_u64(p + i * 8)? as usize; if u == 0 { continue; }
+            // ★게임은 술어 앞에 `alive_target` 을 본다(`0xd71823`/`0xd7182c`) — 재현에 빠져 있었다
+            if rd_u8(u + 0x6b9) != 1 || rd_u64(u + 0x6a0)? != 0 { continue; }
             if order_pred(b, e4, u)? { return Some(0); }
         }
     }
