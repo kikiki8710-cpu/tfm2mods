@@ -747,6 +747,27 @@ unsafe fn e01450(w: &World, sim: usize, rec: usize, slot: usize, tgt: usize, c_t
     let _ = sim;
     Some((acc.wrapping_mul(c_t) / hp).min(imm32(SITE_BV_CAP_MAIN_IMM, 160)))
 }
+/// `0xe019d0` 결과가 0 이 아닌 S12 호출 수 — 잔여 DIFF 수와 대조해 `/2` 가 군더더기인지 가린다.
+///  실측 표본에서 `game − mine` 이 `a2` 와 정확히 같았다(10↔10 · 11↔11 · 20↔20).
+///  그게 우연이 아니라면 **a2 != 0 인 호출이 곧 DIFF 집합**이어야 한다.
+pub static A2_NZ: AtomicU64 = AtomicU64::new(0);
+pub static A2_Z: AtomicU64 = AtomicU64::new(0);
+/// `special_early`(0xe04400) 진입 수 — TypeId 를 **주소**가 아니라 **16바이트 내용**으로 비교하도록
+/// 고친 효과 확인용. arm 별 분포와, `me != tgt`(포인터)가 핸들비교와 갈리는 횟수를 함께 센다.
+pub static E044_HIT: [AtomicU64; 4] = [AtomicU64::new(0), AtomicU64::new(0), AtomicU64::new(0), AtomicU64::new(0)];
+pub static E044_SELFMIS: AtomicU64 = AtomicU64::new(0);
+pub fn e044_report() -> String {
+    let h: Vec<u64> = E044_HIT.iter().map(|a| a.load(Ordering::Relaxed)).collect();
+    if h.iter().all(|&x| x == 0) { return String::new(); }
+    format!("[e04400] arm d30={} d40={} d50={} d60={} | 포인터비교≠핸들비교 {}
+", h[0], h[1], h[2], h[3], E044_SELFMIS.load(Ordering::Relaxed))
+}
+pub fn a2_report() -> String {
+    let (nz, z) = (A2_NZ.load(Ordering::Relaxed), A2_Z.load(Ordering::Relaxed));
+    if nz + z == 0 { return String::new(); }
+    format!("[S12 a2] e019d0!=0 인 호출 {} / ==0 {} (잔여 DIFF 수와 대조)
+", nz, z)
+}
 /// 0xe019d0 — 자기 스테로이드 기여(상한 80)
 unsafe fn e019d0(w: &World, sim: usize, slot: usize, tgt: usize, c_t: i64, tps: u64) -> Option<i64> {
     let (t, f1, f2) = slot_c8(rd_u64(slot)? as usize, rd_u64(slot + 8)? as usize, 0)?;
@@ -756,8 +777,11 @@ unsafe fn e019d0(w: &World, sim: usize, slot: usize, tgt: usize, c_t: i64, tps: 
     let b = mat(w, rec_t)?;
     let n = (t / tps).max(1);
     let mut acc = 0u64;
-    if f1 != 0 { let mut x = 0u64; for k in 0..5usize { x = x.wrapping_add(rd_u64(b + 0x190 + k * 8)?); } acc = x / 10; }
-    if f2 & 1 == 1 { let mut x = 0u64; for k in 0..15usize { x = x.wrapping_add(rd_u64(b + 0x1b8 + k * 8)?); } acc = acc.wrapping_add(x / 10); }
+    // ★두 합계의 나눗셈은 **`/5`** 다. ~~`/10`~~ 은 매직 상수를 잘못 읽은 것 —
+    //   `0xe01aff MUL R10(0xCCCC..CD) / 0xe01b05 SHR R8,2` 는 2^66/5 = **unsigned /5** 이고,
+    //   `/10` 이라면 같은 매직에 `SHR 3` 이어야 한다(RE 2026-09-08). 최종 `/2` 와 상한 80 은 맞다.
+    if f1 != 0 { let mut x = 0u64; for k in 0..5usize { x = x.wrapping_add(rd_u64(b + 0x190 + k * 8)?); } acc = x / 5; }
+    if f2 & 1 == 1 { let mut x = 0u64; for k in 0..15usize { x = x.wrapping_add(rd_u64(b + 0x1b8 + k * 8)?); } acc = acc.wrapping_add(x / 5); }
     acc = acc.wrapping_mul(n).min(rd_u64(tgt + ENT_MAXHP)?);
     let hp = { let h = rd_i64(tgt + ENT_HP)?; if h >= 2 { h } else { 1 } };
     let _ = sim;
@@ -1077,7 +1101,10 @@ unsafe fn combat_score_inner(mode: usize, _prof: usize, rec: usize, ctx: usize, 
             let cap = ct.min(100);
             if d >= thp { score += cap; }
             else if kill / 2 + d >= thp { score += 3 * cap / 4; }
-            else if (est(me + 0x490, me, tgt)? as i64) + d >= thp { score += cap / 2; }
+            // ★`me+0x4c0 == -1` 이면 게임은 est2 를 **호출조차 안 하고 0 으로 두고** 지나간다
+            //   (`0xd5e6cb cmp dword [r12+0x4c0],-1; je 0xd5f293`, RE 2026-09-08). 이 분기까지 왔다는 건
+            //   이미 `d < thp` 라는 뜻이라 est2=0 이면 가산이 없다 → 게이트를 그대로 조건에 넣는다.
+            else if rd_i32(me + ENT_4C0)? != -1 && (est(me + 0x490, me, tgt)? as i64) + d >= thp { score += cap / 2; }
         }
         // 스테로이드 창: sp.vt+0x68 의 dyn Any 가 스테로이드형이면 그 T, 아니면 slot.vt+0x88 의 (ok, T)
         let (sd, sv) = (rd_u64(slot)? as usize, rd_u64(slot + 8)? as usize);
@@ -1114,6 +1141,7 @@ unsafe fn combat_score_inner(mode: usize, _prof: usize, rec: usize, ctx: usize, 
         }
         let a1 = match e01450(&w, sim, rec, slot, tgt, ct, tps) { Some(v) => v, None => return na(tag8("S12_1450")) };
         let a2 = match e019d0(&w, sim, slot, tgt, ct, tps) { Some(v) => v, None => return na(tag8("S12_19d0")) };
+        if a2 != 0 { A2_NZ.fetch_add(1, Ordering::Relaxed); } else { A2_Z.fetch_add(1, Ordering::Relaxed); }
         let a3 = match e02020(&w, sim, rec, slot, me, tgt, ct, tps) { Some(v) => v, None => return na(tag8("S12_2020")) };
         S12D.with(|c| c.set([d, x, ct, kill, score, a1, a2, a3])); let _ = st_add;
         S12ST.with(|c| { let mut z = c.get(); z[9] = pre_st * 4 + safe as i64 * 2 + (t_win.is_some()) as i64; z[11] = a1 + a2 - a3; c.set(z); });
@@ -1250,8 +1278,27 @@ unsafe fn enemy_near_xy(w: &World, agents: usize, side: u64, x: u64, y: u64, now
 }
 /// 0xe04400 특수형 조기반환. TypeId 4종만 tag=1(조기반환), 그 외는 통과.
 unsafe fn special_early(ctx: usize, _rec: usize, me: usize, sp: usize, tgt: usize) -> Option<Option<i64>> {
-    let tid = match sp_type_id(sp) { Some(t) => t, None => return na(tag8("e04400")).map(|_| None) };
-    if !matches!(tid, 0x33e1d30 | 0x33e1d40 | 0x33e1d50 | 0x33e1d60) { return Some(None); }
+    // ★★게임은 TypeId 를 **16바이트 내용**으로 비교한다(`pcmpeqb`+`pmovmskb`). ~~주소 비교~~ 는
+    //   Rust 가 같은 TypeId 상수를 CGU 마다 복제해 두기 때문에 **거의 항상 빗나간다** — 스테로이드 창에서
+    //   이미 같은 실수를 고쳤는데(2026-09-07) 여기만 남아 있었다.
+    //   실측 서명: 게임이 `-100`(0x33e1d50 의 cnt==0) · `18`(=18*cnt) · `25`/`8`(0x33e1d40) 을 돌려주는데
+    //   재현은 그 경로에 못 들어가 S12/S13/S15z 로 흘렀다. 잔여 DIFF 28표본 중 27건이 이 서명이다(2026-09-08).
+    let tid_rva = match sp_type_id(sp) { Some(t) => t, None => return na(tag8("e04400")).map(|_| None) };
+    let base = crate::exe_base(); if base == 0 { return Some(None); }
+    let got = base.wrapping_add(tid_rva); if !ptr_ok(got) { return Some(None); }
+    let (g0, g1) = match (rd_u64(got), rd_u64(got + 8)) { (Some(a), Some(b)) => (a, b), _ => return Some(None) };
+    const E044_TIDS: [usize; 4] = [0x33e1d30, 0x33e1d40, 0x33e1d50, 0x33e1d60];
+    let tid = match E044_TIDS.iter().find(|&&k| {
+        let w = base.wrapping_add(k);
+        ptr_ok(w) && rd_u64(w) == Some(g0) && rd_u64(w + 8) == Some(g1)
+    }) { Some(&k) => k, None => return Some(None) };
+    E044_HIT[E044_TIDS.iter().position(|&k| k == tid).unwrap_or(0)].fetch_add(1, Ordering::Relaxed);
+    // ★`me != tgt` 는 **포인터** 비교다. 게임의 같은 계열 자기대상 판정은 **핸들 비교**(`0xd5e52d`)로
+    //   확정돼 있어 여기도 그럴 가능성이 큰데 이 함수에 대한 근거는 아직 없다 — 지금은 안 바꾸고
+    //   둘이 갈리는 횟수만 센다(0 이 아니면 그 자체가 결함 증거).
+    if let (Some(mh), Some(th)) = (rd_u64(me + ENT_HANDLE), rd_u64(tgt + ENT_HANDLE)) {
+        if (me == tgt) != (mh == th) { E044_SELFMIS.fetch_add(1, Ordering::Relaxed); }
+    }
     let wroot = rd_u64(ctx)? as usize; let agents = rd_u64(ctx + 0x10)? as usize;
     let w = World { x: wroot, data: rd_u64(wroot)? as usize, vt: rd_u64(wroot + 8)? as usize };
     if !ptr_ok(w.data) || !ptr_ok(w.vt) { return None; }
