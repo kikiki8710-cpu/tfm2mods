@@ -977,7 +977,7 @@ pub fn write_status() {
     s.push_str("판정: diff=0 && na=0 이면 그 함수 DIFF=0(이번 판 표본 한정). na>0 = 가드 경로/콜리 캡처 없음 → judge_<fn>.txt 의 NA 줄 확인. ability_pick 은 캡처 전용(n=호출 수).\n");
     if let Some(p) = pth("judge_status.txt") { let _ = fs::write(p, s); }
     if let Some(p) = pth("judge_dyn.txt") { let _ = fs::write(p, port::dyn_eff::unseen_report()); }
-    if let Some(p) = pth("judge_pe_gate.txt") { let _ = fs::write(p, format!("{}{}{}{}{}{}{}{}{}{}{}{}", port::position_eval::memo_report(), port::position_eval::mine_truth_report(), port::position_eval::cand_report(), port::position_eval::need_report(), port::position_eval::neg_report(), port::position_eval::qscan_report(), port::position_eval::comp_report(), port::position_eval::gbx_report(), port::position_eval::truth_report(), port::position_eval::edge_report(), port::position_eval::gate_report(), port::combat_score::na_report())); }
+    if let Some(p) = pth("judge_pe_gate.txt") { let _ = fs::write(p, format!("{}{}{}{}{}{}{}{}{}{}{}{}{}", port::position_eval::memo_report(), port::position_eval::mine_truth_report(), port::position_eval::cand_report(), port::position_eval::need_report(), port::position_eval::neg_report(), port::position_eval::qscan_report(), port::position_eval::comp_report(), port::position_eval::gbx_report(), port::position_eval::self_report(), port::position_eval::truth_report(), port::position_eval::edge_report(), port::position_eval::gate_report(), port::combat_score::na_report())); }
 }
 
 static INSTALLED: AtomicBool = AtomicBool::new(false);

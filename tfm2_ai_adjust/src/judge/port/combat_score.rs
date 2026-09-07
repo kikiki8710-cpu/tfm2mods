@@ -69,7 +69,7 @@ pub unsafe fn diag(_p1: usize, _p3: usize, _p4: usize) -> String {
     format!("risk_neg={} tower={} pos={} main={} urgent={} C={} thr_s={} chase={} bb998={} b9b0={} cast={} hp={} thr={} thrlen={}",
         v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7], v[8], v[9], v[10], v[11], v[12], v[13])
         + &format!(" game_thr={} bb970={} bb9a0={} bb988={}", v[14], v[15], v[16], v[17])
-        + &{ let q = S12D.with(|c| c.get()); let z = s12_st(); format!(" | S12[D={} X={} Ct={} kill={} score={} e01450={} e019d0={} e02020={} st={} T={} dmg={} tps={} burst={} pk={}]", q[0], q[1], q[2], q[3], q[4], q[5], q[6], q[7], z[0], z[1], z[2], z[3], z[4], z[5]) }
+        + &{ let q = S12D.with(|c| c.get()); let z = s12_st(); format!(" | S12[D={} X={} Ct={} kill={} score={} e01450={} e019d0={} e02020={} st={} T={} dmg={} selfN={} burst={} pk={}]", q[0], q[1], q[2], q[3], q[4], q[5], q[6], q[7], z[0], z[1], z[2], z[3], z[4], z[5]) }
         + &{ let d = s5_diag(); format!(" S5[near={} kind={} f88={} dn={} rt={} safe={} raw9b0={} vis={} t0d={} t0a={} cdly={} alen={} th={:#x} a0={:#x} a1={:#x} pg={} d2={} a8={} tk={} cg={:#x}]", d[0], d[1], d[2], d[3], d[4], d[5], d[6], d[7], d[8], d[9], cast_dly(), d[10], d[11], d[12], d[13], d[14], d[15], d[16], d[17], d[18]) }
         + &unsafe { let caps = crate::judge::cap_util_c87fe0::last_p2().unwrap_or(0);
             if crate::ptr_ok(caps) { format!(" gameR={:#x} gameBB={:#x} gameBB998={:?}{}", rd_u64(caps + 0x18).unwrap_or(0), rd_u64(caps + 0x20).unwrap_or(0),
@@ -282,7 +282,7 @@ unsafe fn slot_80_pair(data: usize, vt: usize, depth: u32) -> Option<(bool, u64)
     let p = super::dyn_eff::arc_payload(data, vt)?;
     match r {
         EFF_E8_ZERO => Some((false, 0)),
-        EFF_TRUE | 0x122fcf0 => Some((true, 0)),
+        EFF_TRUE | 0x122fcf0 => { super::dyn_eff::unseen(0x6a2, r); Some((true, 0)) }
         0x1145640 => Some((true, 1)),
         0x1147250 => Some((true, rd_u64(p)?)),
         0x16adaa0 => Some((true, rd_u64(p + 0x30)?)),          // mov rdx,[rcx+0x30]; mov eax,1; ret
@@ -320,15 +320,17 @@ pub(super) unsafe fn slot_88(data: usize, vt: usize, depth: u32) -> Option<(bool
     macro_rules! rq { ($e:expr, $c:expr) => { match $e { Some(v) => v, None => { super::dyn_eff::unseen($c, r); return None; } } } }
     match r {
         EFF_E8_ZERO => Some((false, 0)),
-        0x1145640 => Some((true, 1)),
+        0x1145640 => { super::dyn_eff::unseen(0x6a3, r); Some((true, 1)) }
         0x1147250 | 0x122f090 | 0x109bab0 => Some((true, rq!(rd_u64(p), 0x68a))),
         0x13bfa20 => Some((true, rq!(rd_u64(p + 8), 0x68a))),    // ★+8 (RE 2026-09-07). 구 코드는 p 를 읽었다
         0x16adaa0 => Some((true, rq!(rd_u64(p + 0x30), 0x68a))), // ★+0x30
-        0x17c2bd0 => Some((rq!(rd_u64(p), 0x68a) != 0, 0)),
-        0x1701740 => Some((rq!(rd_u64(p + 0x48), 0x68a) != 0, 1)),
+        // ⚠아래 arm 들은 T 를 **임의로** 0/1 로 둔다 — 실측상 게임은 60(=tps)을 내는 경우가 있다.
+        //   어느 impl 이 그 자리에 있는지 표식으로 특정한다(2026-09-07).
+        0x17c2bd0 => { let f = rq!(rd_u64(p), 0x68a) != 0; if f { super::dyn_eff::unseen(0x6a0, r); } Some((f, 0)) }
+        0x1701740 => { let f = rq!(rd_u64(p + 0x48), 0x68a) != 0; if f { super::dyn_eff::unseen(0x6a4, r); } Some((f, 1)) }
         0x1153880 => { let v2 = rq!(rd_u64(p + 8), 0x68a) as usize;
             let r2 = rq!(super::dyn_eff::impl_rva(v2, 0xb0), 0x68b);
-            match r2 { EFF_E8_ZERO => Some((false, 0)), EFF_TRUE => Some((true, 0)),
+            match r2 { EFF_E8_ZERO => Some((false, 0)), EFF_TRUE => { super::dyn_eff::unseen(0x6a1, r2); Some((true, 0)) },
                        _ => { super::dyn_eff::unseen(0x5b0, r2); None } } }
         0x1606700 | 0x164ecc0 => { let o = if r == 0x1606700 { 0x18 } else { 0 };
             let a = slot_88(rq!(rd_u64(p + o), 0x68a) as usize, rq!(rd_u64(p + o + 8), 0x68a) as usize, depth + 1)?;
@@ -559,6 +561,7 @@ unsafe fn s12_steroid(w: &World, me: usize, tgt: usize, side: u64, role: usize,
     if side > 1 { return None; }
     let b_side = w.x + 0x280 + (side as usize) * 0xfa0;
     let mut dmg = rd_i64(b_side + role * 0x320 + tr * 8 + 0x190)?;      // ★자기 항은 col0 만
+    let dmg_self = dmg; let mut n_ally = 0i64;
     let (mx, my) = xy(me)?;                                            // ★기준점 = self (tgt 아님)
     for k in 0..5usize {
         if k == role { continue; }
@@ -567,8 +570,10 @@ unsafe fn s12_steroid(w: &World, me: usize, tgt: usize, side: u64, role: usize,
         let (ex, ey) = xy(e)?;
         if d2_xy(ex, ey, mx, my) > 0x53d1ac100 { continue; }
         let bk = b_side + k * 0x320;
+        n_ally += 1;
         for o in [0x190usize, 0x1b8, 0x1e0, 0x208] { dmg = dmg.wrapping_add(rd_i64(bk + tr * 8 + o)?); }
     }
+    S12ST.with(|c| { let mut z = c.get(); z[3] = dmg_self * 1000 + n_ally; c.set(z); });
     let den = if tps < 1 { 1 } else { tps };
     let q = ((dmg.wrapping_mul(t as i64) as u64) / den) as i64;        // ★UNSIGNED div
     if thp == 0 { return None; }
@@ -603,7 +608,7 @@ unsafe fn s12_steroid(w: &World, me: usize, tgt: usize, side: u64, role: usize,
     burst = burst.wrapping_add(d_est);
     if burst >= thp { out += ct.min(80); }
     else if thp > 0 && burst.wrapping_mul(100) / thp >= 60 { out += ct.min(80) / 3; }
-    S12ST.with(|c| c.set([out, t as i64, dmg, tps as i64, burst, thp]));
+    S12ST.with(|c| { let z3 = c.get()[3]; c.set([out, t as i64, dmg, z3, burst, thp]); });
     Some(out)
 }
 

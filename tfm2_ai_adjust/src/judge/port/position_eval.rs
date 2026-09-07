@@ -287,7 +287,10 @@ pub unsafe fn dive_record(p2: usize, p3: usize, p4: usize, r: u64, d: u64, rbp: 
     //   "게임이 이 타워로 d96d00 을 불렀는가" 오라클이 오염된다(2026-09-07 03:30 실측:
     //   q=(70,0) f=[0,0,0,0,0,0,0,18] 같은 표본 다수 → 게이트 후보 통계가 rg+24000 쪽으로 끌려감).
     //   본체 프레임에서는 [rbp+0x718] 이 곧 item(=p4) 이므로 이것으로 걸러낸다.
-    if !ptr_ok(rbp) || rd_u64(rbp + 0x718).unwrap_or(0) as usize != p4 { return; }
+    // ★`[rbp+0x718]` 은 **포인터가 아니라 스칼라 재사용 슬롯**이다(0xd879bf 에서 거리 항, 0xd87541 에서 좌표).
+    //   이걸 item 과 비교하던 필터가 표본의 43% 를 **편향되게** 버리고 있었다 — 반환주소 필터만으로 충분하다
+    //   (`0xd88043` 은 이미지 전역에서 유일한 진입로이고 우회 분기 0건, RE 2026-09-07 13:0x).
+    if !ptr_ok(rbp) { return; }
     let x = rd_u64(p2).unwrap_or(0) as usize; let data = if ptr_ok(x) { rd_u64(x).unwrap_or(0) as usize } else { 0 };
     let tick = if ptr_ok(data) { rd_u64(data + W_TICK).unwrap_or(0) } else { 0 };
     let q = if ptr_ok(rbp) { (rd_u64(rbp + 0x7a0).unwrap_or(0), rd_u64(rbp + 0x7a8).unwrap_or(0), rd_u64(rbp + 0x718).unwrap_or(0)) } else { (0, 0, 0) };
@@ -308,11 +311,19 @@ pub unsafe fn dive_record(p2: usize, p3: usize, p4: usize, r: u64, d: u64, rbp: 
         // ★내 모델(range_g(item, self) + 18000)을 **게임이 실제로 통과시킨 그 (item, q)** 에서 검증한다.
         //   캡처된 호출은 전부 pass 표본이므로, 내 모델이 fail 을 내면 그건 확실한 오답이다(단측 오라클).
         {
-            let side = rd_u64(p3 + P5_SIDE).unwrap_or(9);
-            let role = if ptr_ok(p3) { rd_u32(p3 + P5_ROLE) as usize } else { 99 };
-            if side <= 1 && role <= 4 && ptr_ok(x) {
-                if let Some(se) = rd_u64(x + X_ROSTER + (side as usize) * ROSTER_SIDE_STRIDE + role * 8) {
-                    let se = se as usize;
+            // ★self 는 유도하지 말고 게임 프레임에서 직접 읽는다 — 게이트가 쓰는 건 `[rbp+0x720]` 이고,
+            //   `0xd853da` 에서 한 번만 기록된다(RE 2026-09-07). 유도값(p2/p3 기반)과 다르면 radius(self) 가
+            //   달라져 T 가 통째로 어긋난다.
+            {
+                let se_frame = rd_u64(rbp + 0x720).unwrap_or(0) as usize;
+                let side = rd_u64(p3 + P5_SIDE).unwrap_or(9);
+                let role = if ptr_ok(p3) { rd_u32(p3 + P5_ROLE) as usize } else { 99 };
+                let se_derived = if side <= 1 && role <= 4 && ptr_ok(x) {
+                    rd_u64(x + X_ROSTER + (side as usize) * ROSTER_SIDE_STRIDE + role * 8).unwrap_or(0) as usize
+                } else { 0 };
+                self_tally(se_frame == se_derived);
+                let se = if ptr_ok(se_frame) { se_frame } else { se_derived };
+                {
                     if ptr_ok(se) {
                         if let Some(rg) = range_g(p4, se) {
                             // ★RE 2026-09-07: 이 게이트의 상수는 **18000 하나뿐**이고 6000 은 exe 어디에도 없다.
@@ -1222,6 +1233,15 @@ pub fn cand_report() -> String {
 ", NAMES[i], a, b, a as f64 * 100.0 / (a + b) as f64);
     }
     s
+}
+static SELFT: [std::sync::atomic::AtomicU64; 2] = [const { std::sync::atomic::AtomicU64::new(0) }; 2];
+fn self_tally(same: bool) { SELFT[usize::from(!same)].fetch_add(1, std::sync::atomic::Ordering::Relaxed); }
+pub fn self_report() -> String {
+    let (a, b) = (SELFT[0].load(std::sync::atomic::Ordering::Relaxed), SELFT[1].load(std::sync::atomic::Ordering::Relaxed));
+    if a + b == 0 { return String::new(); }
+    format!("=== ★self: 프레임 [rbp+0x720] vs 로스터 유도 ===
+같음={} 다름={} ({:.3}%)
+", a, b, a as f64 * 100.0 / (a + b) as f64)
 }
 pub fn mine_truth_report() -> String {
     let (a, b) = (MTRUTH[0].load(std::sync::atomic::Ordering::Relaxed), MTRUTH[1].load(std::sync::atomic::Ordering::Relaxed));
