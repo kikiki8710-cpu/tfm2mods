@@ -1277,7 +1277,11 @@ pub unsafe fn dffa10(spec: &[u8; SPEC_SIZE], a: &Dffa) -> Option<i64> {
     // 평타 횟수 k (호출마다 재계산 — 게임도 vtable 을 다시 부른다)
     let kf = || -> Option<i64> {
         let cool = basic_cool(me)? as i64;
-        let itv = (cool * 100 / (rd_i64(me + 0x3fc)? + 100).max(1)).max(3);
+        // ★★`me+0x3fc` 는 **i32** 다. ~~`rd_i64`~~ 로 읽으면 인접 4바이트가 섞여 분모가 폭발하고
+        //   `itv` 가 하한 3 에 붙어 `k` 가 최대치가 된다(실측 cool=40 인데 itv=3, k=120 → raw=10302
+        //   이 통째로 aura 항이 되어 main 이 160 에 포화했다). 같은 값을 읽는 `combat_score::atk_iv2`
+        //   와 `position_eval` 은 둘 다 `rd_i32` 이고 RE 도 `(i32)e.0x3fc` 로 확정했다(2026-09-08).
+        let itv = (cool * 100 / ((rd_i32(me + 0x3fc)? as i64) + 100).max(1)).max(3);
         let k = (dur * x / itv.max(1)).max(1);
         // ★`raw` 가 통째로 aura 항인 표본(raw = k * aura)이 나와서 k 의 입력을 남긴다.
         S13D.with(|c| { let mut z = c.get(); z[14] = cool; z[15] = itv; z[16] = k; c.set(z); });

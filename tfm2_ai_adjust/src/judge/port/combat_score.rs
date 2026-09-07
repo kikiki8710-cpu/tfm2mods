@@ -105,7 +105,7 @@ pub unsafe fn diag(_p1: usize, _p3: usize, _p4: usize) -> String {
     format!("risk_neg={} tower={} pos={} main={} urgent={} C={} thr_s={} chase={} bb998={} b9b0={} cast={} hp={} thr={} thrlen={}",
         v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7], v[8], v[9], v[10], v[11], v[12], v[13])
         + &format!(" game_thr={} bb970={} bb9a0={} bb988={}", v[14], v[15], v[16], v[17])
-        + &{ let q = S12D.with(|c| c.get()); let z = s12_st(); format!(" | S12[D={} X={} Ct={} kill={} score={} e01450={} e019d0={} e02020={} st={} T={} dmg={} selfN={} burst={} thp={} stRaw={} bonus={} q={} pk={} i88={:#x} tid={:#x} m16={} v10={} aa={} THP={} v={} slN={}] A[{:?}]", q[0], q[1], q[2], q[3], q[4], q[5], q[6], q[7], z[0], z[1], z[2], z[3], z[4], z[5], z[10], z[7], z[8], z[9], z[12], z[13], z[14], z[15], z[16], z[17], z[18], z[19], ally_diag()) }
+        + &{ let q = S12D.with(|c| c.get()); let z = s12_st(); format!(" | S12[D={} X={} Ct={} kill={} score={} e01450={} e019d0={} e02020={} st={} T={} dmg={} selfN={} burst={} thp={} stRaw={} bonus={} q={} pk={} E1450[v1={} v2={} v3={} v4={} v5={} msum={} dps={} n={} acc={} nal={}] i88={:#x} tid={:#x} m16={} v10={} aa={} THP={} v={} slN={}] A[{:?}]", q[0], q[1], q[2], q[3], q[4], q[5], q[6], q[7], z[0], z[1], z[2], z[3], z[4], z[5], z[10], z[7], z[8], z[9], { let q = e1450_diag(); q[0] }, e1450_diag()[1], e1450_diag()[2], e1450_diag()[3], e1450_diag()[4], e1450_diag()[5], e1450_diag()[6], e1450_diag()[7], e1450_diag()[8], e1450_diag()[9], z[12], z[13], z[14], z[15], z[16], z[17], z[18], z[19], ally_diag()) }
         + &{ let d = s5_diag(); format!(" S5[near={} kind={} f88={} dn={} rt={} safe={} raw9b0={} vis={} t0d={} t0a={} cdly={} alen={} th={:#x} a0={:#x} a1={:#x} pg={} d2={} a8={} eLen={} aLen={}] NIC[cand={} dmin={} mlen={} nstruct={}]", d[0], d[1], d[2], d[3], d[4], d[5], d[6], d[7], d[8], d[9], cast_dly(), d[10], d[11], d[12], d[13], d[14], d[15], d[16], d[19], d[20], nic_diag()[0], nic_diag()[1], nic_diag()[2], nic_diag()[3]) }
         + &unsafe { let caps = crate::judge::cap_util_c87fe0::last_p2().unwrap_or(0);
             // ★★`path=`·`S13[…]` 를 **caps 게이트 밖으로** 뺐다 — 잔차 23건이 전부 `caps=none` 이라
@@ -730,8 +730,9 @@ unsafe fn e01450(w: &World, sim: usize, rec: usize, slot: usize, tgt: usize, c_t
     let n = (v5 / tps).max(1);
     let side = rd_u64(rec + REC_SIDE)?; if side > 1 { return None; }
     let role_t = rd_u32(rec_t + REC_ROLE_O) as usize;
-    let (mut msum, mut dps) = (0u64, 0u64);
+    let (mut msum, mut dps) = (0u64, 0u64); let mut nally = 0i64;
     near_allies(w, side, tgt, None, |e, r3| {
+        nally += 1;
         let b = match mat(w, r3) { Some(b) => b, None => return None };
         for o in [0x190usize, 0x1b8, 0x1e0, 0x208] { msum = msum.wrapping_add(rd_u64(b + role_t * 8 + o)?); }
         dps = dps.wrapping_add(tps.wrapping_mul(100) / atk_iv2(e)?);
@@ -743,6 +744,9 @@ unsafe fn e01450(w: &World, sim: usize, rec: usize, slot: usize, tgt: usize, c_t
     let dp = if v4 != 0 { dp.min(v4) } else { dp };
     let acc = (dp.wrapping_mul(v3 as u64) as i64).wrapping_add(v1).wrapping_add((ms.wrapping_mul(v2) / 100) as i64);
     let acc = acc.min(cap2 as i64);
+    // ★`a1` 의 분자(acc)가 게임보다 짧다(실측 85 vs 135 · 88 vs 148). 어느 항인지 합계로는 못 가른다 —
+    //   슬롯 게터 5개(v1..v5)·아군 순회 결과(msum/dps/n_ally)·중간값(dp/ms)을 전부 남긴다.
+    E1450D.with(|c| c.set([v1, v2 as i64, v3, v4 as i64, v5 as i64, msum as i64, dps as i64, n as i64, acc, nally]));
     let hp = { let h = rd_i64(tgt + ENT_HP)?; if h >= 2 { h } else { 1 } };
     let _ = sim;
     Some((acc.wrapping_mul(c_t) / hp).min(imm32(SITE_BV_CAP_MAIN_IMM, 160)))
@@ -750,6 +754,8 @@ unsafe fn e01450(w: &World, sim: usize, rec: usize, slot: usize, tgt: usize, c_t
 /// `0xe019d0` 결과가 0 이 아닌 S12 호출 수 — 잔여 DIFF 수와 대조해 `/2` 가 군더더기인지 가린다.
 ///  실측 표본에서 `game − mine` 이 `a2` 와 정확히 같았다(10↔10 · 11↔11 · 20↔20).
 ///  그게 우연이 아니라면 **a2 != 0 인 호출이 곧 DIFF 집합**이어야 한다.
+thread_local! { pub static E1450D: std::cell::Cell<[i64; 10]> = const { std::cell::Cell::new([0; 10]) }; }
+pub fn e1450_diag() -> [i64; 10] { E1450D.with(|c| c.get()) }
 pub static A2_NZ: AtomicU64 = AtomicU64::new(0);
 pub static A2_Z: AtomicU64 = AtomicU64::new(0);
 /// `special_early`(0xe04400) 진입 수 — TypeId 를 **주소**가 아니라 **16바이트 내용**으로 비교하도록
