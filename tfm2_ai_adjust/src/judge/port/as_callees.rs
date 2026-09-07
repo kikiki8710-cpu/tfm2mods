@@ -208,7 +208,7 @@ const BUFF_KIND_MASK: u32 = 0x347;
 unsafe fn has_buff_in_set(o: usize) -> Option<bool> {
     let n = rd_u64(o + ENT_BUFF_LEN)?; if n == 0 { return Some(false); }
     let p = rd_u64(o + ENT_BUFF_PTR)? as usize; if !ptr_ok(p) { return None; }
-    for i in 0..n.min(256) as usize { let k = rd_u32(p + i * 0x28); if k <= 9 && (BUFF_KIND_MASK >> k) & 1 == 1 { return Some(true); } }
+    for i in 0..n.min(CAP_ITER) as usize { let k = rd_u32(p + i * 0x28); if k <= 9 && (BUFF_KIND_MASK >> k) & 1 == 1 { return Some(true); } }
     Some(false)
 }
 pub unsafe fn kind_pred(kind: u32, e: usize, o: usize) -> Option<bool> {
@@ -287,7 +287,7 @@ pub unsafe fn cmp_diag(name: &str, p1: usize, p2: usize, _p3: usize, _p4: usize)
                 let vt = rd_u64(sl + 8).unwrap_or(0); let i_e8 = super::dyn_eff::impl_rva(vt as usize, 0xe8).unwrap_or(0);
                 out += &format!(" s{}=[id={} k={} pred={:?} reach={:?} e8={:#x}]", i, id, kind, pred, reach, i_e8);
             }
-            let n = rd_u64(e + ENT_EFFS_LEN).unwrap_or(0).min(16) as usize; let p = rd_u64(e + ENT_EFFS_PTR).unwrap_or(0) as usize;
+            let n = rd_u64(e + ENT_EFFS_LEN).unwrap_or(0).min(CAP_ITER) as usize; let p = rd_u64(e + ENT_EFFS_PTR).unwrap_or(0) as usize;
             if n > 0 && ptr_ok(p) { out += " effs48=["; for i in 0..n { let v = rd_u64(p + i * 16 + 8).unwrap_or(0) as usize; out += &format!("{:#x} ", super::dyn_eff::impl_rva(v, 0x48).unwrap_or(0)); } out += "]"; }
             out
         }
@@ -516,7 +516,7 @@ pub unsafe fn eff_bool(data: usize, vt: usize, slot: usize, depth: u32) -> Optio
     let any_child = |s: usize| -> Option<bool> {
         let n = rd_u64(p + 0x10)?; if n == 0 { return Some(false); }
         let arr = rd_u64(p + 8)? as usize; if !ptr_ok(arr) { return None; }
-        for i in 0..n.min(64) as usize { let (cd, cv) = (rd_u64(arr + i * 16)? as usize, rd_u64(arr + i * 16 + 8)? as usize); if eff_bool(cd, cv, s, depth + 1)? { return Some(true); } }
+        for i in 0..n.min(CAP_ITER) as usize { let (cd, cv) = (rd_u64(arr + i * 16)? as usize, rd_u64(arr + i * 16 + 8)? as usize); if eff_bool(cd, cv, s, depth + 1)? { return Some(true); } }
         Some(false)
     };
     match (slot, r) {
@@ -527,16 +527,16 @@ pub unsafe fn eff_bool(data: usize, vt: usize, slot: usize, depth: u32) -> Optio
         (0x68, EFF68_NONZERO18) => Some(rd_u64(p + 0x18)? != 0),
         (0x68, EFF68_ANY_CHILD) => any_child(0x68),
         (0x68, 0x13bede0) => { let n = rd_u64(p + 0x58)?; if n == 0 { return Some(false); } let arr = rd_u64(p + 0x50)? as usize; if !ptr_ok(arr) { return None; }
-            for i in 0..n.min(64) as usize { let (cd, cv) = (rd_u64(arr + i * 0x18)? as usize, rd_u64(arr + i * 0x18 + 8)? as usize); if eff_bool(cd, cv, 0x68, depth + 1)? { return Some(true); } } Some(false) }
+            for i in 0..n.min(CAP_ITER) as usize { let (cd, cv) = (rd_u64(arr + i * 0x18)? as usize, rd_u64(arr + i * 0x18 + 8)? as usize); if eff_bool(cd, cv, 0x68, depth + 1)? { return Some(true); } } Some(false) }
         (0x68, 0x122e650) => {
             // any(list1 @ p+0x50, len p+0x58, stride 0x18) || any(list2 @ p+0x68, len p+0x70, stride 0x10)
             let n1 = rd_u64(p + 0x58)?;
             if n1 != 0 { let a1 = rd_u64(p + 0x50)? as usize; if !ptr_ok(a1) { return None; }
-                for i in 0..n1.min(64) as usize { let e = a1 + i * 0x18;
+                for i in 0..n1.min(CAP_ITER) as usize { let e = a1 + i * 0x18;
                     if eff_bool(rd_u64(e)? as usize, rd_u64(e + 8)? as usize, 0x68, depth + 1)? { return Some(true); } } }
             let n2 = rd_u64(p + 0x70)?;
             if n2 != 0 { let a2 = rd_u64(p + 0x68)? as usize; if !ptr_ok(a2) { return None; }
-                for i in 0..n2.min(64) as usize { let e = a2 + i * 0x10;
+                for i in 0..n2.min(CAP_ITER) as usize { let e = a2 + i * 0x10;
                     if eff_bool(rd_u64(e)? as usize, rd_u64(e + 8)? as usize, 0x68, depth + 1)? { return Some(true); } } }
             Some(false)
         }

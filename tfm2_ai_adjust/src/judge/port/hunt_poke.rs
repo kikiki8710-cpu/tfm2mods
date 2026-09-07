@@ -92,7 +92,7 @@ pub unsafe fn epic_hunt_poke(a: &Args8) -> Option<MpOut> {
             tr(3, 0x102 | pre_len.min(0xff) << 16);
             if pre_len != 0 {
                 if !ptr_ok(pre_ptr as usize) { return None; }
-                for i in 0..pre_len.min(256) as usize {
+                for i in 0..pre_len.min(CAP_ITER) as usize {
                     if let Some(e) = w.entity(rd_u64(pre_ptr as usize + i * 8)?) {
                         if sqd(rd_u64(e.0 + ENT_X)?, rd_u64(e.0 + ENT_Y)?, mx, my) < HP_PATH_NEAR_D2 { early5 = true; tr(3, 0x103 | (i as u64) << 8); break; }
                     }
@@ -182,7 +182,7 @@ pub unsafe fn serpen_hunt_poke(a: &Args8) -> Option<MpOut> {
             tr(3, 0x202 | pre_len.min(0xff) << 16);
             if pre_len != 0 {
                 if !ptr_ok(pre_ptr as usize) { return None; }
-                for i in 0..pre_len.min(256) as usize {
+                for i in 0..pre_len.min(CAP_ITER) as usize {
                     if let Some(e) = w.entity(rd_u64(pre_ptr as usize + i * 8)?) {
                         if sqd(rd_u64(e.0 + ENT_X)?, rd_u64(e.0 + ENT_Y)?, mx, my) < HP_PATH_NEAR_D2 { early5 = true; tr(3, 0x203 | (i as u64) << 8); break; }
                     }

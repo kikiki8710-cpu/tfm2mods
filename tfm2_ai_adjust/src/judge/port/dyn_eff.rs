@@ -96,7 +96,7 @@ pub unsafe fn composite_loops(f: usize, want_slot: usize) -> Option<([(usize, us
 unsafe fn sum_children_40(ptr: usize, len: u64, stride: usize, ent: usize, depth: u32) -> Option<u64> {
     if len == 0 { return Some(0); } if !ptr_ok(ptr) { return None; }
     let mut acc: u64 = 0;
-    for i in 0..len.min(64) as usize {
+    for i in 0..len.min(CAP_ITER) as usize {
         let (d, v) = (rd_u64(ptr + i * stride)? as usize, rd_u64(ptr + i * stride + 8)? as usize);
         acc = acc.wrapping_add(eff40_heal_d(d, v, ent, depth + 1)?);
     }
@@ -119,7 +119,7 @@ pub unsafe fn eff28_damage(data: usize, vt: usize, att: usize) -> Option<(u64, u
             let n = rd_u64(me + 0x28)?; if n == 0 { return Some((0, 0)); }
             let arr = rd_u64(me + 0x20)? as usize; if !ptr_ok(arr) { return None; }
             let (mut p, mut m) = (0u64, 0u64);
-            for i in 0..n.min(64) as usize { let (d, v) = (rd_u64(arr + i * 0x18)? as usize, rd_u64(arr + i * 0x18 + 8)? as usize); let (a, b) = eff28_damage(d, v, att)?; p = p.wrapping_add(a); m = m.wrapping_add(b); }
+            for i in 0..n.min(CAP_ITER) as usize { let (d, v) = (rd_u64(arr + i * 0x18)? as usize, rd_u64(arr + i * 0x18 + 8)? as usize); let (a, b) = eff28_damage(d, v, att)?; p = p.wrapping_add(a); m = m.wrapping_add(b); }
             Some((p, m))
         }
         EFF28_PAIR_RAW => Some((rd_u64(me)?, rd_u64(me + 8)?)),
@@ -128,7 +128,7 @@ pub unsafe fn eff28_damage(data: usize, vt: usize, att: usize) -> Option<(u64, u
             let n = rd_u64(me + 0x10)?; if n == 0 { return Some((0, 0)); }
             let arr = rd_u64(me + 8)? as usize; if !ptr_ok(arr) { return None; }
             let (mut p, mut m) = (0u64, 0u64);
-            for i in 0..n.min(64) as usize { let (d, v) = (rd_u64(arr + i * 0x10)? as usize, rd_u64(arr + i * 0x10 + 8)? as usize); let (a, b) = eff28_damage(d, v, att)?; p = p.wrapping_add(a); m = m.wrapping_add(b); }
+            for i in 0..n.min(CAP_ITER) as usize { let (d, v) = (rd_u64(arr + i * 0x10)? as usize, rd_u64(arr + i * 0x10 + 8)? as usize); let (a, b) = eff28_damage(d, v, att)?; p = p.wrapping_add(a); m = m.wrapping_add(b); }
             Some((p, m))
         }
         0x164eaa0 => {
@@ -154,9 +154,9 @@ pub unsafe fn eff28_damage(data: usize, vt: usize, att: usize) -> Option<(u64, u
             // Σ 리스트1(stride 0x18 @me+0x68/len me+0x70) + Σ 리스트2(stride 0x10 @me+0x80/len me+0x88) 의 (p,m)
             let (mut p, mut m) = (0u64, 0u64);
             let n1 = rd_u64(me + 0x70)?; if n1 != 0 { let arr = rd_u64(me + 0x68)? as usize; if !ptr_ok(arr) { return None; }
-                for i in 0..n1.min(64) as usize { let (d, v) = (rd_u64(arr + i * 0x18)? as usize, rd_u64(arr + i * 0x18 + 8)? as usize); let (a, b) = eff28_damage(d, v, att)?; p = p.wrapping_add(a); m = m.wrapping_add(b); } }
+                for i in 0..n1.min(CAP_ITER) as usize { let (d, v) = (rd_u64(arr + i * 0x18)? as usize, rd_u64(arr + i * 0x18 + 8)? as usize); let (a, b) = eff28_damage(d, v, att)?; p = p.wrapping_add(a); m = m.wrapping_add(b); } }
             let n2 = rd_u64(me + 0x88)?; if n2 != 0 { let arr = rd_u64(me + 0x80)? as usize; if !ptr_ok(arr) { return None; }
-                for i in 0..n2.min(64) as usize { let (d, v) = (rd_u64(arr + i * 0x10)? as usize, rd_u64(arr + i * 0x10 + 8)? as usize); let (a, b) = eff28_damage(d, v, att)?; p = p.wrapping_add(a); m = m.wrapping_add(b); } }
+                for i in 0..n2.min(CAP_ITER) as usize { let (d, v) = (rd_u64(arr + i * 0x10)? as usize, rd_u64(arr + i * 0x10 + 8)? as usize); let (a, b) = eff28_damage(d, v, att)?; p = p.wrapping_add(a); m = m.wrapping_add(b); } }
             Some((p, m))
         }
         0x1606470 => {
@@ -174,18 +174,18 @@ pub unsafe fn eff28_damage(data: usize, vt: usize, att: usize) -> Option<(u64, u
         0x12a4fb0 => {   // Σ 자식(stride 0x10 @me+0x48/len me+0x50) (capstone 2026-09-07 00:25)
             let n = rd_u64(me + 0x50)?; if n == 0 { return Some((0, 0)); } let arr = rd_u64(me + 0x48)? as usize; if !ptr_ok(arr) { return None; }
             let (mut p, mut m) = (0u64, 0u64);
-            for i in 0..n.min(64) as usize { let (d, v) = (rd_u64(arr + i * 0x10)? as usize, rd_u64(arr + i * 0x10 + 8)? as usize); let (a, b) = eff28_damage(d, v, att)?; p = p.wrapping_add(a); m = m.wrapping_add(b); }
+            for i in 0..n.min(CAP_ITER) as usize { let (d, v) = (rd_u64(arr + i * 0x10)? as usize, rd_u64(arr + i * 0x10 + 8)? as usize); let (a, b) = eff28_damage(d, v, att)?; p = p.wrapping_add(a); m = m.wrapping_add(b); }
             Some((p, m))
         }
         0x12480c0 => {   // Σ 자식(stride 0x18 @me+0x50/len me+0x58) (capstone 2026-09-06 22:40)
             let n = rd_u64(me + 0x58)?; if n == 0 { return Some((0, 0)); } let arr = rd_u64(me + 0x50)? as usize; if !ptr_ok(arr) { return None; }
             let (mut p, mut m) = (0u64, 0u64);
-            for i in 0..n.min(64) as usize { let (d, v) = (rd_u64(arr + i * 0x18)? as usize, rd_u64(arr + i * 0x18 + 8)? as usize); let (a, b) = eff28_damage(d, v, att)?; p = p.wrapping_add(a); m = m.wrapping_add(b); }
+            for i in 0..n.min(CAP_ITER) as usize { let (d, v) = (rd_u64(arr + i * 0x18)? as usize, rd_u64(arr + i * 0x18 + 8)? as usize); let (a, b) = eff28_damage(d, v, att)?; p = p.wrapping_add(a); m = m.wrapping_add(b); }
             Some((p, m))
         }
         0x16a32a0 => {   // (Σ 리스트1 @0x50/0x58 s0x18) × n + Σ 리스트2 @0x68/0x70 s0x18 ; n = me.78 / max(1, me.80) (capstone 2026-09-06 22:40)
             let sum = |po: usize, lo: usize| -> Option<(u64, u64)> { let n = rd_u64(me + lo)?; if n == 0 { return Some((0, 0)); } let arr = rd_u64(me + po)? as usize; if !ptr_ok(arr) { return None; }
-                let (mut p, mut m) = (0u64, 0u64); for i in 0..n.min(64) as usize { let (d, v) = (rd_u64(arr + i * 0x18)? as usize, rd_u64(arr + i * 0x18 + 8)? as usize); let (a, b) = eff28_damage(d, v, att)?; p = p.wrapping_add(a); m = m.wrapping_add(b); } Some((p, m)) };
+                let (mut p, mut m) = (0u64, 0u64); for i in 0..n.min(CAP_ITER) as usize { let (d, v) = (rd_u64(arr + i * 0x18)? as usize, rd_u64(arr + i * 0x18 + 8)? as usize); let (a, b) = eff28_damage(d, v, att)?; p = p.wrapping_add(a); m = m.wrapping_add(b); } Some((p, m)) };
             let (p1, m1) = sum(0x50, 0x58)?; let (p2, m2) = sum(0x68, 0x70)?;
             let per = rd_u64(me + 0x80)?.max(1); let n = rd_u64(me + 0x78)? / per;
             Some((p1.wrapping_mul(n).wrapping_add(p2), m1.wrapping_mul(n).wrapping_add(m2)))
@@ -222,7 +222,7 @@ pub unsafe fn eff28_damage(data: usize, vt: usize, att: usize) -> Option<(u64, u
                     let (lo, po, st) = lp[k];
                     let cnt = rd_u64(me + lo)?; if cnt == 0 { continue; }
                     let arr = rd_u64(me + po)? as usize; if !ptr_ok(arr) { return None; }
-                    for i in 0..cnt.min(64) as usize {
+                    for i in 0..cnt.min(CAP_ITER) as usize {
                         let e = arr + i * st;
                         let (d, v) = (rd_u64(e)? as usize, rd_u64(e + 8)? as usize);
                         if !ptr_ok(d) || !ptr_ok(v) { return None; }
@@ -248,7 +248,20 @@ pub unsafe fn eff28_trace(data: usize, vt: usize, att: usize, depth: u32) -> Str
         let arr = rd_u64(me + po).unwrap_or(0) as usize; if !ptr_ok(arr) { return String::new(); }
         (0..n as usize).map(|i| eff28_trace(rd_u64(arr + i * st).unwrap_or(0) as usize, rd_u64(arr + i * st + 8).unwrap_or(0) as usize, att, depth + 1)).collect::<Vec<_>>().join("")
     };
-    match rva { 0x12a56e0 => out += &kids(8, 0x10, 0x10), EFF28_SUM_20_18 => out += &kids(0x20, 0x28, 0x18), _ => {} }
+    match rva { 0x12a56e0 => out += &kids(8, 0x10, 0x10), EFF28_SUM_20_18 => out += &kids(0x20, 0x28, 0x18),
+        // SwitchByBuff: 어느 자식을 골랐는지와 그 자식의 계산을 그대로 펼친다
+        0x1606470 => {
+            let bl = buff_lookup(att, rd_u64(me + 8).unwrap_or(0) as usize, rd_u64(me + 0x10).unwrap_or(0));
+            let nm: String = (0..rd_u64(me + 0x10).unwrap_or(0).min(CAP_ITER) as usize)
+                .map(|i| rd_u8(rd_u64(me + 8).unwrap_or(0) as usize + i) as char).collect();
+            let idx = if matches!(bl, Some(x) if x != 0) { 1usize } else { 0 };
+            out += &format!(" nm='{}' bl={:?} idx={} ", nm, bl, idx);
+            out += &eff28_trace(rd_u64(me + 0x18 + idx * 0x10).unwrap_or(0) as usize,
+                                rd_u64(me + 0x20 + idx * 0x10).unwrap_or(0) as usize, att, depth + 1);
+            out += &format!(" alt{}", eff28_trace(rd_u64(me + 0x18 + (1 - idx) * 0x10).unwrap_or(0) as usize,
+                                rd_u64(me + 0x20 + (1 - idx) * 0x10).unwrap_or(0) as usize, att, depth + 1));
+        }
+        _ => {} }
     out + "]"
 }
 /// effect `+0x38` 최대체력 비율 피해(%)
@@ -262,18 +275,18 @@ pub unsafe fn eff38_pct(data: usize, vt: usize, _att: usize) -> Option<u64> {
             //   쌍이 만들어지고 vt 자리에 Arc data 가 들어가 `.rdata` 를 vtable 로 오독한다(=slot+0x38 의 0x34xxxxx NA).
             let mut acc = 0u64;
             for (po, lo, st) in [(0x68usize, 0x70usize, 0x18usize), (0x80, 0x88, 0x10)] { let n = rd_u64(me + lo)?; if n == 0 { continue; } let arr = rd_u64(me + po)? as usize; if !ptr_ok(arr) { return None; }
-                for i in 0..n.min(64) as usize { acc = acc.wrapping_add(eff38_pct(rd_u64(arr + i * st)? as usize, rd_u64(arr + i * st + 8)? as usize, _att)?); } }
+                for i in 0..n.min(CAP_ITER) as usize { acc = acc.wrapping_add(eff38_pct(rd_u64(arr + i * st)? as usize, rd_u64(arr + i * st + 8)? as usize, _att)?); } }
             Some(acc)
         }
         0x1248270 => {   // Σ 자식(stride 0x18 @me+0x50/len me+0x58) 의 +0x38 (capstone 2026-09-06 22:45)
             let n = rd_u64(me + 0x58)?; if n == 0 { return Some(0); } let arr = rd_u64(me + 0x50)? as usize; if !ptr_ok(arr) { return None; }
-            let mut acc = 0u64; for i in 0..n.min(64) as usize { acc = acc.wrapping_add(eff38_pct(rd_u64(arr + i * 0x18)? as usize, rd_u64(arr + i * 0x18 + 8)? as usize, _att)?); } Some(acc)
+            let mut acc = 0u64; for i in 0..n.min(CAP_ITER) as usize { acc = acc.wrapping_add(eff38_pct(rd_u64(arr + i * 0x18)? as usize, rd_u64(arr + i * 0x18 + 8)? as usize, _att)?); } Some(acc)
         }
         0x16a3610 => {   // ★꼬리 확정 2026-09-07: n*sum1 + sum2, n = me[0x78] / max(me[0x80],1) (unsigned)
             let mut sums = [0u64; 2];
             for (k, (po, lo)) in [(0x50usize, 0x58usize), (0x68, 0x70)].into_iter().enumerate() {
                 let n = rd_u64(me + lo)?; if n == 0 { continue; } let arr = rd_u64(me + po)? as usize; if !ptr_ok(arr) { return None; }
-                for i in 0..n.min(64) as usize { sums[k] = sums[k].wrapping_add(eff38_pct(rd_u64(arr + i * 0x18)? as usize, rd_u64(arr + i * 0x18 + 8)? as usize, _att)?); } }
+                for i in 0..n.min(CAP_ITER) as usize { sums[k] = sums[k].wrapping_add(eff38_pct(rd_u64(arr + i * 0x18)? as usize, rd_u64(arr + i * 0x18 + 8)? as usize, _att)?); } }
             let c = rd_u64(me + 0x80)?.max(1);
             Some((rd_u64(me + 0x78)? / c).wrapping_mul(sums[0]).wrapping_add(sums[1]))
         }
@@ -286,14 +299,14 @@ pub unsafe fn eff38_pct(data: usize, vt: usize, _att: usize) -> Option<u64> {
             let n = rd_u64(me + 0x10)?; if n == 0 { return Some(0); }
             let arr = rd_u64(me + 8)? as usize; if !ptr_ok(arr) { return None; }
             let mut acc = 0u64;
-            for i in 0..n.min(64) as usize { let (d, v) = (rd_u64(arr + i * 0x10)? as usize, rd_u64(arr + i * 0x10 + 8)? as usize); acc = acc.wrapping_add(eff38_pct(d, v, _att)?); }
+            for i in 0..n.min(CAP_ITER) as usize { let (d, v) = (rd_u64(arr + i * 0x10)? as usize, rd_u64(arr + i * 0x10 + 8)? as usize); acc = acc.wrapping_add(eff38_pct(d, v, _att)?); }
             Some(acc)
         }
         EFF38_SUM_20_18 => {
             let n = rd_u64(me + 0x28)?; if n == 0 { return Some(0); }
             let arr = rd_u64(me + 0x20)? as usize; if !ptr_ok(arr) { return None; }
             let mut acc = 0u64;
-            for i in 0..n.min(64) as usize { let (d, v) = (rd_u64(arr + i * 0x18)? as usize, rd_u64(arr + i * 0x18 + 8)? as usize); acc = acc.wrapping_add(eff38_pct(d, v, _att)?); }
+            for i in 0..n.min(CAP_ITER) as usize { let (d, v) = (rd_u64(arr + i * 0x18)? as usize, rd_u64(arr + i * 0x18 + 8)? as usize); acc = acc.wrapping_add(eff38_pct(d, v, _att)?); }
             Some(acc)
         }
         // 레벨(att.0x5c8) >= 3 이면 자식 (p+0x10,p+0x18), 아니면 (p+0,p+8) 로 그대로 위임
@@ -311,7 +324,7 @@ pub unsafe fn eff38_pct(data: usize, vt: usize, _att: usize) -> Option<u64> {
                     let (lo, po, st) = lp[k];
                     let cnt = rd_u64(me + lo)?; if cnt == 0 { continue; }
                     let arr = rd_u64(me + po)? as usize; if !ptr_ok(arr) { return None; }
-                    for i in 0..cnt.min(64) as usize {
+                    for i in 0..cnt.min(CAP_ITER) as usize {
                         let e = arr + i * st;
                         let (d, v) = (rd_u64(e)? as usize, rd_u64(e + 8)? as usize);
                         if !ptr_ok(d) || !ptr_ok(v) { return None; }
@@ -405,7 +418,7 @@ unsafe fn eff40_heal_d(data: usize, vt: usize, ent: usize, depth: u32) -> Option
 pub unsafe fn buff_lookup(ent: usize, name: usize, len: u64) -> Option<usize> {
     let n = rd_u64(ent + ENT_BUFFS_LEN)?; if n == 0 { return Some(0); }
     let base = rd_u64(ent + ENT_BUFFS_PTR)? as usize; if !ptr_ok(base) || (len > 0 && !ptr_ok(name)) { return None; }
-    for i in 0..n.min(128) as usize {
+    for i in 0..n.min(CAP_ITER) as usize {
         let b = base + i * 0x120;
         if rd_u32(b) as u64 != len { continue; }
         let mut eq = true;
@@ -417,7 +430,7 @@ pub unsafe fn buff_lookup(ent: usize, name: usize, len: u64) -> Option<usize> {
 /// BuffState 병합(0x126e6c0/0x126ec80/0x126f240 공통): 자식 중 type≠−1 인 첫 것을 채택하고 이후 자식의 +0x80(vamp, i32)을 더한다(paddd).
 unsafe fn merge_a0(acc: &mut (i32, i32), ptr: usize, len: u64, stride: usize, ent: usize, depth: u32) -> Option<()> {
     if len == 0 { return Some(()); } if !ptr_ok(ptr) { return None; }
-    for i in 0..len.min(64) as usize {
+    for i in 0..len.min(CAP_ITER) as usize {
         let (d, v) = (rd_u64(ptr + i * stride)? as usize, rd_u64(ptr + i * stride + 8)? as usize);
         let (ty, vamp) = effa0_buff_d(d, v, ent, depth + 1)?;
         if ty == -1 { continue; }

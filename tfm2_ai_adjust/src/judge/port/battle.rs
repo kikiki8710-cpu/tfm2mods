@@ -39,7 +39,7 @@ unsafe fn for_each_unit(x: usize, side: u64, mut f: impl FnMut(usize) -> Option<
     for off in X_FIXED6 { let e = rd_u64(x + off + s * 8)? as usize; if e != 0 { if f(e)? { return Some(true); } } }
     let ptr = rd_u64(x + X_MINION_PTR + s * 0x20)? as usize; let len = rd_u64(x + X_MINION_LEN + s * 0x20)?;
     if len != 0 && !ptr_ok(ptr) { return None; }
-    for i in 0..len.min(256) as usize { let e = rd_u64(ptr + i * 8)? as usize; if f(e)? { return Some(true); } }
+    for i in 0..len.min(CAP_ITER) as usize { let e = rd_u64(ptr + i * 8)? as usize; if f(e)? { return Some(true); } }
     Some(false)
 }
 

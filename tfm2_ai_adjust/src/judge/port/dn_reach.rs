@@ -41,7 +41,7 @@ pub unsafe fn eff_e8(data: usize, vt: usize, ent: usize, nexus: usize, depth: u3
         let n = rd_u64(me + 0x10)?; if n == 0 { return Some(0); }
         let arr = rd_u64(me + 8)? as usize; if !ptr_ok(arr) { return None; }
         let mut best = 0u64;
-        for i in 0..n.min(64) as usize {
+        for i in 0..n.min(CAP_ITER) as usize {
             let (d, v) = (rd_u64(arr + i * 16)? as usize, rd_u64(arr + i * 16 + 8)? as usize);
             let r = eff_e8(d, v, ent, nexus, depth + 1)?;
             best = if i == 0 { r } else { best.max(r) };
@@ -52,7 +52,7 @@ pub unsafe fn eff_e8(data: usize, vt: usize, ent: usize, nexus: usize, depth: u3
         if rd_u64(ent + ENT_LEVEL)? < 3 { return Some(0); }
         let tbl = rd_u64(nexus + 0x298)? as usize; let n = rd_u64(nexus + 0x2a0)?;
         if n == 0 { return Some(0); } if !ptr_ok(tbl) { return None; }
-        for i in 0..n.min(256) as usize { if rd_u8(tbl + i * 0x38 + 0x34) == 1 { return rd_u64(me + 0x40); } }
+        for i in 0..n.min(CAP_ITER) as usize { if rd_u8(tbl + i * 0x38 + 0x34) == 1 { return rd_u64(me + 0x40); } }
         return Some(0);
     }
     if rva == EFF_E8_BUFF_FLAG {
@@ -67,7 +67,7 @@ pub unsafe fn eff_e8(data: usize, vt: usize, ent: usize, nexus: usize, depth: u3
 pub unsafe fn buff48_any(ent: usize) -> Option<bool> {
     let n = rd_u64(ent + ENT_EFFS_LEN)?; if n == 0 { return Some(false); }
     let p = rd_u64(ent + ENT_EFFS_PTR)? as usize; if !ptr_ok(p) { return None; }
-    for i in 0..n.min(64) as usize {
+    for i in 0..n.min(CAP_ITER) as usize {
         let (d, v) = (rd_u64(p + i * 16)? as usize, rd_u64(p + i * 16 + 8)? as usize);
         let r = super::dyn_eff::impl_rva(v, 0x48)?;
         let val: u64 = match r {

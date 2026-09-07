@@ -348,3 +348,10 @@ pub const EFF68_ANY_CHILD: usize = 0x12a6cd0;        // +0x68 합성: 자식 vt+
 pub const EFF_TRUE: usize = 0xadec0;                 // 항상 1 (mov al,1; ret)
 pub const WMAP_GRID2: usize = 0x1c98;                // wmap 두 번째 30×30 표(+0x78 + 30*0xf0) — 0xcaff00 접근점 게이트
 
+/// ★게임 리스트를 도는 모든 루프의 공통 상한. 게임에는 이런 상한이 **없다** — 재현이 폭주/무한루프를
+///   피하려고 임의로 둔 것이고, 그 임의값이 세 번이나 조용한 오답을 만들었다:
+///   ①`eff_bool` depth 8 → 판당 21,642 NA ②`slot_88` depth 6 → 28,456 NA
+///   ③`buff_lookup` 순회 128 → Utsuho 가 평타마다 Permanent 버프를 dedupe 없이 append 해
+///     버프 Vec 이 수백 개가 되고 찾는 이름이 128 뒤에 놓였다(2026-09-07 RE).
+///   ⟹ 상한은 **한 곳에서** 관리하고, 실제 게임 데이터가 닿을 수 없을 만큼 크게 잡는다.
+pub const CAP_ITER: u64 = 65536;

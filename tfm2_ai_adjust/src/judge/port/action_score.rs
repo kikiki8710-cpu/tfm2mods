@@ -41,7 +41,7 @@ pub unsafe fn threat_sum(rec: usize, thr: u64) -> Option<i64> {
     let n = rd_u64(rec + AS_REC_THR_LEN)?; if n == 0 { return Some(0); }
     let p = rd_u64(rec + AS_REC_THR_PTR)? as usize; if !ptr_ok(p) { return None; }
     let mut srcs: [(u64, i64); 64] = [(0, 0); 64]; let mut m = 0usize;
-    for i in 0..n.min(256) as usize {
+    for i in 0..n.min(CAP_ITER) as usize {
         let e = p + i * 0x18; if rd_u64(e + 8)? > thr { continue; }
         let (src, amt) = (rd_u64(e)?, rd_i64(e + 0x10)?);
         if let Some(k) = srcs[..m].iter().position(|s| s.0 == src) { if amt > srcs[k].1 { srcs[k].1 = amt; } }
@@ -93,7 +93,7 @@ pub unsafe fn champ_vt30_w2(obj: usize, vt: usize) -> Option<u64> {
 }
 pub unsafe fn tags_has(ptr: usize, len: u64, v: i32) -> Option<bool> {
     if len == 0 { return Some(false); } if !ptr_ok(ptr) { return None; }
-    for i in 0..len.min(64) as usize { if rd_i32(ptr + i * 4)? == v { return Some(true); } } Some(false)
+    for i in 0..len.min(CAP_ITER) as usize { if rd_i32(ptr + i * 4)? == v { return Some(true); } } Some(false)
 }
 #[inline] fn mult_of(diff: i64, t: &[i64; 5]) -> i64 { if diff > 1 { t[4] } else if diff < -1 { t[0] } else { t[(diff + 2) as usize] } }
 /// 게임의 부호 나눗셈(매직 0xa3d70a3d70a3d70b + sar s): s=6 /100 · 7 /200 · 9 /800 — 사이트 패치로 s 가 바뀌면 그대로 따라간다.
@@ -331,7 +331,7 @@ pub unsafe fn base_score(a: &ScorerArgs) -> Option<i64> {
             let (mut m58, mut m130) = (0u64, 0u64);
             if nrec != 0 { if !ptr_ok(precs) { return None; }
                 let th_t = rd_u64(t + ENT_HANDLE)?;
-                for i in 0..nrec.min(64) as usize { let r = precs + i * AS_REC_STRIDE;
+                for i in 0..nrec.min(CAP_ITER) as usize { let r = precs + i * AS_REC_STRIDE;
                     if rd_u64(r + AS_REC_AGENT_H)? == th_t { m58 += 1; if found == 0 { found = r; } }   // ★+0x58 (t11 실측: +0x130 은 오독)
                     if rd_u64(r + AS_REC_ENT_H)? == th_t { m130 += 1; } } }
             tr(11, 0x100 | m58 | m130 << 4 | nrec.min(0xff) << 8);

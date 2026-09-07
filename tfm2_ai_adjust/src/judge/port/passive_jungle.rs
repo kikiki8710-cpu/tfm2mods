@@ -48,7 +48,7 @@ pub unsafe fn camp_pos(map_def: usize, camp: u8, side: usize) -> Option<(u64, u6
     if camp as u64 >= 8 || side >= 2 { return None; }                           // 게임: index panic
     let ptr = rd_u64(map_def + MAPDEF_CAMPS_PTR)? as usize; let n = rd_u64(map_def + MAPDEF_CAMPS_LEN)?;
     if n == 0 { return Some((0, 0)); } if !ptr_ok(ptr) { return None; }
-    for i in 0..n.min(64) as usize {
+    for i in 0..n.min(CAP_ITER) as usize {
         let e = ptr + i * 0x28;
         if rd_u8(e + 0x20) == camp { return Some((rd_u64(e + side * 0x10)?, rd_u64(e + side * 0x10 + 8)?)); }
     }
@@ -193,7 +193,7 @@ pub unsafe fn passive_jungle_k(a: &Args8, k: &Knobs) -> Option<MpOut> {
         let d2 = sqd(mx, my, cx, cy); tr(3, d2.min(0xffff_ffff_ffff) | (mst as u64) << 56);
         if d2 <= k.wp_d2 {
             let mut dps: u64 = 0; let (mut nres, mut nskip) = (0u64, 0u64);
-            for i in 0..vlen.min(64) as usize {
+            for i in 0..vlen.min(CAP_ITER) as usize {
                 let e = match w.entity(rd_u64(vptr + i * 8)?) { Some(e) => e.0, None => continue };
                 nres += 1;
                 if rd_i32(e + ENT_SLOT0_FLAG)? == -1 { nskip += 1; continue; }
@@ -231,7 +231,7 @@ pub unsafe fn passive_jungle_k(a: &Args8, k: &Knobs) -> Option<MpOut> {
     // P2 — 몬스터(kind 4)가 나를 치는 중인가
     let myh = rd_u64(me + ENT_HANDLE)?;
     let mut engaged = false;
-    for i in 0..vlen.min(64) as usize {
+    for i in 0..vlen.min(CAP_ITER) as usize {
         let e = match w.entity(rd_u64(vptr + i * 8)?) { Some(e) => e.0, None => continue };
         if rd_i32(e + ENT_KIND)? == 4 && rd_i32(e + ENT_F88)? == 1 && rd_u64(e + ENT_TARGET_H)? == myh { engaged = true; break; }
     }
@@ -244,7 +244,7 @@ pub unsafe fn passive_jungle_k(a: &Args8, k: &Knobs) -> Option<MpOut> {
     }
     // P3 — dps 재계산(거리 게이트 없음, 슬롯 flag −1 이면 게임 panic)
     let mut dps: u64 = 0;
-    for i in 0..vlen.min(64) as usize {
+    for i in 0..vlen.min(CAP_ITER) as usize {
         let e = match w.entity(rd_u64(vptr + i * 8)?) { Some(e) => e.0, None => continue };
         if rd_i32(e + ENT_SLOT0_FLAG)? == -1 { tr(9, 0x100 | 9); return None; }
         dps = dps.wrapping_add(monster_dps(e, me, 7 + i.min(1) * 4)?);

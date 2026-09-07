@@ -252,7 +252,7 @@ unsafe fn sum_list(p: usize, ptr_o: usize, len_o: usize, stride: usize, cs: usiz
     let n = rd_u64(p + len_o)?; if n == 0 { return Some(0); }
     let arr = rd_u64(p + ptr_o)? as usize; if !ptr_ok(arr) { return None; }
     let mut acc: i64 = 0;
-    for i in 0..n.min(64) as usize {
+    for i in 0..n.min(CAP_ITER) as usize {
         let e = arr + i * stride;
         let (cd, cv) = (rd_u64(e)? as usize, rd_u64(e + 8)? as usize);
         if !ptr_ok(cd) || !ptr_ok(cv) { return None; }
@@ -342,7 +342,7 @@ pub unsafe fn slot_sum(data: usize, vt: usize, slot: usize, me: usize, depth: u3
         let n = rd_u64(p + len_o)?; if n == 0 { return Some(0); }
         let arr = rd_u64(p + ptr_o)? as usize; if !ptr_ok(arr) { return None; }
         let mut acc: i64 = 0;
-        for i in 0..n.min(64) as usize {
+        for i in 0..n.min(CAP_ITER) as usize {
             let e = arr + i * stride;
             let (cd, cv) = (rd_u64(e)? as usize, rd_u64(e + 8)? as usize);
             if !ptr_ok(cd) || !ptr_ok(cv) { return None; }
@@ -377,7 +377,7 @@ unsafe fn fold_children(p: usize, ptr_o: usize, len_o: usize, stride: usize, me:
     if n == 0 { return Some(None); }
     if !ptr_ok(arr) { return None; }
     let mut acc: Option<[u8; SPEC_SIZE]> = None;
-    for i in 0..n.min(64) as usize {
+    for i in 0..n.min(CAP_ITER) as usize {
         let e = arr + i * stride;
         let (cd, cv) = (rd_u64(e)? as usize, rd_u64(e + 8)? as usize);
         if !ptr_ok(cd) || !ptr_ok(cv) { return None; }
@@ -403,7 +403,7 @@ pub unsafe fn slot_bool90(data: usize, vt: usize, depth: u32) -> Option<bool> {
     if f - eb == 0x12a71e0 {
         let n = rd_u64(p + 0x10)?; if n == 0 { return Some(false); }
         let arr = rd_u64(p + 8)? as usize; if !ptr_ok(arr) { return None; }
-        for i in 0..n.min(64) as usize {
+        for i in 0..n.min(CAP_ITER) as usize {
             let e = arr + i * 0x10;
             let (cd, cv) = (rd_u64(e)? as usize, rd_u64(e + 8)? as usize);
             if !ptr_ok(cd) || !ptr_ok(cv) { return None; }
@@ -414,7 +414,7 @@ pub unsafe fn slot_bool90(data: usize, vt: usize, depth: u32) -> Option<bool> {
     if f - eb == 0x13bf4b0 {
         let n = rd_u64(p + 0x58)?; if n == 0 { return Some(false); }
         let arr = rd_u64(p + 0x50)? as usize; if !ptr_ok(arr) { return None; }
-        for i in 0..n.min(64) as usize {
+        for i in 0..n.min(CAP_ITER) as usize {
             let e = arr + i * 0x18;
             let (cd, cv) = (rd_u64(e)? as usize, rd_u64(e + 8)? as usize);
             if !ptr_ok(cd) || !ptr_ok(cv) { return None; }
@@ -686,7 +686,7 @@ pub unsafe fn s13_s14(b: &BCtx, ally: Option<usize>) -> Option<i64> {
             let h = rd_u64(e + ENT_HANDLE)?;
             let mut rec_e = 0usize;
             if an != 0 { if !ptr_ok(ap) { return None; }
-                for k in 0..an.min(64) as usize { let r = ap + k * 0xd8; if rd_u64(r + 0x58)? == h { rec_e = r; break; } } }
+                for k in 0..an.min(CAP_ITER) as usize { let r = ap + k * 0xd8; if rd_u64(r + 0x58)? == h { rec_e = r; break; } } }
             if rec_e == 0 { continue; }
             if !e01c40(b, e)?.0 { continue; }
             aura_t += super::as_callees::pct_c(b.bb, rec_e)?.min(80);
@@ -789,7 +789,7 @@ pub unsafe fn e047c0(slot: usize, ctx: usize, me: usize) -> Option<Option<[u8; S
             let n = rd_u64(def + 0x10)?; if n == 0 { return Some(None); }
             let arr = rd_u64(def + 8)? as usize; if !ptr_ok(arr) { return None; }
             let mut found = 0usize;
-            for i in 0..n.min(64) as usize {
+            for i in 0..n.min(CAP_ITER) as usize {
                 let (cd, cv) = (rd_u64(arr + i * 0x10)? as usize, rd_u64(arr + i * 0x10 + 8)? as usize);
                 if !ptr_ok(cd) || !ptr_ok(cv) { continue; }
                 let (d2, dv2) = match slot_def_b8(cd, cv) { Some(v) => v, None => continue };
@@ -812,7 +812,7 @@ pub unsafe fn e047c0(slot: usize, ctx: usize, me: usize) -> Option<Option<[u8; S
     let arr = rd_u64(rec + 0x4a0)? as usize;
     if n != 0 && !ptr_ok(arr) { return None; }
     let (sim, est) = (SIM_TLS.with(|c| c.get()) as u64, EST_DESC_RVA_ABS.with(|c| c.get()));
-    for i in 0..n.min(32) as usize {
+    for i in 0..n.min(CAP_ITER) as usize {
         let e = arr + i * 0x10;
         let (ed, ev) = (rd_u64(e)? as usize, rd_u64(e + 8)? as usize);
         if !ptr_ok(ev) { return None; }
@@ -846,7 +846,7 @@ unsafe fn has_effect20(e: usize, tail4: &[u8; 4]) -> Option<bool> {
     let n = rd_u64(e + 0x2e8)?; if n == 0 { return Some(false); }
     let p = rd_u64(e + 0x2e0)? as usize; if !ptr_ok(p) { return None; }
     const HEAD: &[u8; 16] = b"spirit_caller_sk";
-    for i in 0..n.min(64) as usize {
+    for i in 0..n.min(CAP_ITER) as usize {
         let eff = p + i * EFF_STRIDE;
         if rd_u32(eff) != 0x14 { continue; }
         let mut ok = true;
@@ -869,7 +869,7 @@ pub unsafe fn e03ed0(slot: usize, ctx: usize, rec: usize, bb: usize, me: usize, 
         let n = rd_u64(def + 0x10)?; if n == 0 { return Some(0); }
         let arr = rd_u64(def + 8)? as usize; if !ptr_ok(arr) { return None; }
         let mut found = 0usize;
-        for i in 0..n.min(64) as usize {
+        for i in 0..n.min(CAP_ITER) as usize {
             let (cd, cv) = (rd_u64(arr + i * 0x10)? as usize, rd_u64(arr + i * 0x10 + 8)? as usize);
             if !ptr_ok(cd) || !ptr_ok(cv) { continue; }
             let (d2, dv2) = match slot_def_b8(cd, cv) { Some(v) => v, None => continue };
@@ -914,7 +914,7 @@ pub unsafe fn e03ed0(slot: usize, ctx: usize, rec: usize, bb: usize, me: usize, 
         let h = rd_u64(e + ENT_HANDLE)?;
         let mut mult = half;
         if rn != 0 && ptr_ok(rp) {
-            for k in 0..rn.min(64) as usize {
+            for k in 0..rn.min(CAP_ITER) as usize {
                 let r = rp + k * 0xd8;
                 if rd_u64(r + 0x58)? == h { mult = super::as_callees::pct_c(bb, r)?; break; }
             }
@@ -948,7 +948,7 @@ unsafe fn slot_d0(data: usize, vt: usize) -> Option<(u64, u64)> {
             0x12a6e80 => {
                 let n = rd_u64(p + 0x10)?; if n == 0 { return Some((0, 0)); }
                 let arr = rd_u64(p + 8)? as usize; if !ptr_ok(arr) { return None; }
-                for i in 0..n.min(64) as usize {
+                for i in 0..n.min(CAP_ITER) as usize {
                     let e = arr + i * 0x10;
                     let (cd, cv) = (rd_u64(e)? as usize, rd_u64(e + 8)? as usize);
                     if !ptr_ok(cd) || !ptr_ok(cv) { return None; }
@@ -987,7 +987,7 @@ pub unsafe fn e02bc0(slot: usize, ctx: usize, bb: usize, me: usize, tgt: usize, 
     let wr = World { x: w, data: wd, vt: wv };
     let (cx, cy) = (rd_u64(tgt + ENT_X)?, rd_u64(tgt + ENT_Y)?);
     let mut acc: i64 = 0;
-    for i in 0..n.min(64) as usize {
+    for i in 0..n.min(CAP_ITER) as usize {
         let rec = arr + i * 0xd8;
         let h = rd_u64(rec + 0x58)?;
         if h == tgt_h { continue; }
@@ -1134,7 +1134,7 @@ pub unsafe fn dffa10(spec: &[u8; SPEC_SIZE], a: &Dffa) -> Option<i64> {
         let mut best: Option<(i64, i64)> = None;
         if n != 0 {
             let arr = rd_u64(a.bb + BV_ENEMY_PTR)? as usize; if !ptr_ok(arr) { return None; }
-            for i in 0..n.min(64) as usize {
+            for i in 0..n.min(CAP_ITER) as usize {
                 let elem = arr + i * 0xd8;
                 let h = rd_u64(elem + 0x58)?;
                 let e = match w.entity(h) { Some(x) => x.0, None => continue };
@@ -1351,7 +1351,7 @@ pub unsafe fn e03360(b: &BCtx, e3: usize, e4: usize) -> Option<u8> {
     let n0 = rd_u64(wroot + 0xe8)?;
     if n0 != 0 {
         let p0 = rd_u64(wroot + 0xd0)? as usize; if !ptr_ok(p0) { return None; }
-        for i in 0..n0.min(64) as usize {
+        for i in 0..n0.min(CAP_ITER) as usize {
             let u = rd_u64(p0 + i * 8)? as usize; if u == 0 { continue; }
             if alive_target(u)? && order_pred(b, e4, u)? { return Some(1); }
         }
@@ -1365,7 +1365,7 @@ pub unsafe fn e03360(b: &BCtx, e3: usize, e4: usize) -> Option<u8> {
     let nm = rd_u64(wroot + X_MINION_LEN + (opp as usize) * 0x20)?;
     if nm != 0 {
         let pm = rd_u64(wroot + X_MINION_PTR + (opp as usize) * 0x20)? as usize; if !ptr_ok(pm) { return None; }
-        for i in 0..nm.min(256) as usize {
+        for i in 0..nm.min(CAP_ITER) as usize {
             let m = rd_u64(pm + i * 8)? as usize; if m == 0 { continue; }
             if alive_target(m)? && order_pred(b, e4, m)? { return Some(0); }
         }
@@ -1378,7 +1378,7 @@ pub unsafe fn e03360(b: &BCtx, e3: usize, e4: usize) -> Option<u8> {
         let n = rd_u64(wroot + lo + (opp as usize) * 0x20)?;
         if n == 0 { continue; }
         let p = rd_u64(wroot + po + (opp as usize) * 0x20)? as usize; if !ptr_ok(p) { return None; }
-        for i in 0..n.min(256) as usize {
+        for i in 0..n.min(CAP_ITER) as usize {
             let u = rd_u64(p + i * 8)? as usize; if u == 0 { continue; }
             if order_pred(b, e4, u)? { return Some(0); }
         }

@@ -48,8 +48,10 @@ pub fn na_tag(t: &str) -> Option<i64> { na(tag8(t)) }
 thread_local! { pub static S12ST: std::cell::Cell<[i64; 6]> = const { std::cell::Cell::new([0; 6]) }; }
 /// [st, T, dmg, tps, burst, tgt.hp]
 /// S5 위험항 진단: [near!=0, near.kind, near.0x88, dist(me,near), r_t, safe, bb.0x9b0 원값]
-thread_local! { pub static S5D: std::cell::Cell<[i64; 7]> = const { std::cell::Cell::new([0; 7]) }; }
-pub fn s5_diag() -> [i64; 7] { S5D.with(|c| c.get()) }
+thread_local! { pub static S5D: std::cell::Cell<[i64; 19]> = const { std::cell::Cell::new([0; 19]) }; }
+pub fn s5_diag() -> [i64; 19] { S5D.with(|c| c.get()) }
+thread_local! { pub static CDLY: std::cell::Cell<i64> = const { std::cell::Cell::new(0) }; }
+pub fn cast_dly() -> i64 { CDLY.with(|c| c.get()) }
 /// 직전 S12 호출의 스테로이드 창 기여분(진단용)
 pub fn s12_st() -> [i64; 6] { S12ST.with(|c| c.get()) }
 pub fn na_report() -> String {
@@ -68,7 +70,7 @@ pub unsafe fn diag(_p1: usize, _p3: usize, _p4: usize) -> String {
         v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7], v[8], v[9], v[10], v[11], v[12], v[13])
         + &format!(" game_thr={} bb970={} bb9a0={} bb988={}", v[14], v[15], v[16], v[17])
         + &{ let q = S12D.with(|c| c.get()); let z = s12_st(); format!(" | S12[D={} X={} Ct={} kill={} score={} e01450={} e019d0={} e02020={} st={} T={} dmg={} tps={} burst={} pk={}]", q[0], q[1], q[2], q[3], q[4], q[5], q[6], q[7], z[0], z[1], z[2], z[3], z[4], z[5]) }
-        + &{ let d = s5_diag(); format!(" S5[near={} kind={} f88={} dn={} rt={} safe={} raw9b0={}]", d[0], d[1], d[2], d[3], d[4], d[5], d[6]) }
+        + &{ let d = s5_diag(); format!(" S5[near={} kind={} f88={} dn={} rt={} safe={} raw9b0={} vis={} t0d={} t0a={} cdly={} alen={} th={:#x} a0={:#x} a1={:#x} pg={} d2={} a8={} tk={} cg={:#x}]", d[0], d[1], d[2], d[3], d[4], d[5], d[6], d[7], d[8], d[9], cast_dly(), d[10], d[11], d[12], d[13], d[14], d[15], d[16], d[17], d[18]) }
         + &unsafe { let caps = crate::judge::cap_util_c87fe0::last_p2().unwrap_or(0);
             if crate::ptr_ok(caps) { format!(" gameR={:#x} gameBB={:#x} gameBB998={:?}{}", rd_u64(caps + 0x18).unwrap_or(0), rd_u64(caps + 0x20).unwrap_or(0),
                 rd_u64(caps + 0x20).and_then(|b| rd_i64(b as usize + 0x998)), format!("{} path={}", super::buff_value::s13_diag(), path_str())) } else { " caps=none".into() } }
@@ -152,7 +154,7 @@ unsafe fn reach(e: usize, slot: usize, other: usize) -> Option<u64> {
 unsafe fn find_rec(bb: usize, ptr_off: usize, len_off: usize, handle: u64) -> Option<Option<usize>> {
     let n = rd_u64(bb + len_off)?; if n == 0 { return Some(None); }
     let p = rd_u64(bb + ptr_off)? as usize; if !ptr_ok(p) { return None; }
-    for i in 0..n.min(256) as usize { let r = p + i * AS_REC_STRIDE; if rd_u64(r + RT_HANDLE)? == handle { return Some(Some(r)); } }
+    for i in 0..n.min(CAP_ITER) as usize { let r = p + i * AS_REC_STRIDE; if rd_u64(r + RT_HANDLE)? == handle { return Some(Some(r)); } }
     Some(None)
 }
 /// 적 로스터 중 dist² < lim 이고 (보임 ∨ last_seen+120 ≥ now) 인 원소가 있는가 / 목록
@@ -202,7 +204,7 @@ unsafe fn slot_a8(data: usize, vt: usize, depth: u32) -> Option<Option<[u64; 6]>
         // 0x17cc480: [tag=1, 0, self[0x28], 0, 0, self[0x18]] — 상수+self 복사뿐(RE 2026-09-07)
         0x17cc480 => Some(Some([1, 0, rd_u64(p + 0x28)?, 0, 0, rd_u64(p + 0x18)?])),
         0x12a68e0 => { let (arr, n) = kids(p)?; if n == 0 { return Some(None); } if !ptr_ok(arr) { return None; }
-            for i in 0..n.min(64) as usize {
+            for i in 0..n.min(CAP_ITER) as usize {
                 let v = slot_a8(rd_u64(arr + i * 0x10)? as usize, rd_u64(arr + i * 0x10 + 8)? as usize, depth + 1)?;
                 if v.is_some() { return Some(v); } }
             Some(None) }
@@ -223,7 +225,7 @@ unsafe fn slot_a8_p(payload: usize, vt: usize, depth: u32) -> Option<Option<[u64
         0x17cc480 => Some(Some([1, 0, rd_u64(payload + 0x28)?, 0, 0, rd_u64(payload + 0x18)?])),
         0x12a68e0 => { let (arr, n) = (rd_u64(payload + 8)? as usize, rd_u64(payload + 0x10)?);
             if n == 0 { return Some(None); } if !ptr_ok(arr) { return None; }
-            for i in 0..n.min(64) as usize {
+            for i in 0..n.min(CAP_ITER) as usize {
                 let v = slot_a8(rd_u64(arr + i * 0x10)? as usize, rd_u64(arr + i * 0x10 + 8)? as usize, depth + 1)?;
                 if v.is_some() { return Some(v); } }
             Some(None) }
@@ -240,7 +242,7 @@ unsafe fn slot_c0(data: usize, vt: usize, depth: u32) -> Option<bool> {
     match r {
         EFF_E8_ZERO => Some(false), EFF_TRUE => Some(true),
         0x12a6b10 => { let (arr, n) = kids(p)?; if n == 0 { return Some(false); } if !ptr_ok(arr) { return None; }
-            for i in 0..n.min(64) as usize {
+            for i in 0..n.min(CAP_ITER) as usize {
                 if slot_c0(rd_u64(arr + i * 0x10)? as usize, rd_u64(arr + i * 0x10 + 8)? as usize, depth + 1)? { return Some(true); } }
             Some(false) }
         // any(list1 @p+0x50/len p+0x58, stride 0x18) || any(list2 @p+0x68/len p+0x70, stride 0x10)
@@ -248,7 +250,7 @@ unsafe fn slot_c0(data: usize, vt: usize, depth: u32) -> Option<bool> {
             for (po, lo, st) in [(0x50usize, 0x58usize, 0x18usize), (0x68, 0x70, 0x10)] {
                 let n = rd_u64(p + lo)?; if n == 0 { continue; }
                 let arr = rd_u64(p + po)? as usize; if !ptr_ok(arr) { return None; }
-                for i in 0..n.min(64) as usize {
+                for i in 0..n.min(CAP_ITER) as usize {
                     let e = arr + i * st;
                     if slot_c0(rd_u64(e)? as usize, rd_u64(e + 8)? as usize, depth + 1)? { return Some(true); }
                 }
@@ -265,7 +267,7 @@ unsafe fn slot_c8(data: usize, vt: usize, depth: u32) -> Option<(u64, u8, u8)> {
     match r {
         0x109bac0 => Some((0, 0, 2)),
         0x12a6970 => { let (arr, n) = kids(p)?; if n == 0 { return Some((0, 0, 2)); } if !ptr_ok(arr) { return None; }
-            for i in 0..n.min(64) as usize {
+            for i in 0..n.min(CAP_ITER) as usize {
                 let v = slot_c8(rd_u64(arr + i * 0x10)? as usize, rd_u64(arr + i * 0x10 + 8)? as usize, depth + 1)?;
                 if v.2 != 2 { return Some(v); } }
             Some((0, 0, 2)) }
@@ -290,7 +292,7 @@ unsafe fn slot_80_pair(data: usize, vt: usize, depth: u32) -> Option<(bool, u64)
             let n = rd_u64(p + 0x28)?; if n == 0 { return Some((false, 0)); }
             let arr = rd_u64(p + 0x20)? as usize;
             if !ptr_ok(arr) { super::dyn_eff::unseen(0x693, r); return None; }
-            for i in 0..n.min(64) as usize {
+            for i in 0..n.min(CAP_ITER) as usize {
                 let v = slot_80_pair(rd_u64(arr + i * 0x18)? as usize, rd_u64(arr + i * 0x18 + 8)? as usize, depth + 1)?;
                 if v.0 { return Some(v); }
             }
@@ -299,7 +301,7 @@ unsafe fn slot_80_pair(data: usize, vt: usize, depth: u32) -> Option<(bool, u64)
             let n = rd_u64(p + 0x10)?; if n == 0 { return Some((false, 0)); }
             let arr = rd_u64(p + 8)? as usize;
             if !ptr_ok(arr) { super::dyn_eff::unseen(0x693, r); return None; }
-            for i in 0..n.min(64) as usize {
+            for i in 0..n.min(CAP_ITER) as usize {
                 let v = slot_80_pair(rd_u64(arr + i * 0x10)? as usize, rd_u64(arr + i * 0x10 + 8)? as usize, depth + 1)?;
                 if v.0 { return Some(v); }
             }
@@ -352,7 +354,7 @@ pub(super) unsafe fn slot_88(data: usize, vt: usize, depth: u32) -> Option<(bool
                 let n = rq!(rd_u64(p + lo), 0x68c); if n == 0 { continue; }
                 let arr = rq!(rd_u64(p + po), 0x68c) as usize;
                 if !ptr_ok(arr) { super::dyn_eff::unseen(0x68d, r); return None; }
-                for i in 0..n.min(64) as usize {
+                for i in 0..n.min(CAP_ITER) as usize {
                     let (ok, v) = slot_88(rq!(rd_u64(arr + i * st), 0x68c) as usize,
                                           rq!(rd_u64(arr + i * st + 8), 0x68c) as usize, depth + 1)?;
                     if ok { best = Some(best.map_or(v, |b| b.max(v))); }
@@ -371,7 +373,7 @@ pub(super) unsafe fn slot_88(data: usize, vt: usize, depth: u32) -> Option<(bool
                     let cnt = rq!(rd_u64(p + lo), 0x68f); if cnt == 0 { continue; }
                     let arr = rq!(rd_u64(p + po), 0x68f) as usize;
                     if !ptr_ok(arr) { super::dyn_eff::unseen(0x690, r); return None; }
-                    for i in 0..cnt.min(64) as usize {
+                    for i in 0..cnt.min(CAP_ITER) as usize {
                         let e = arr + i * st;
                         // ★해독된 이 계열 impl 은 전부 "ok 자식들의 max" 였다 → 폴백도 같은 의미로 맞춘다
                         let (ok, v) = slot_88(rq!(rd_u64(e), 0x68f) as usize, rq!(rd_u64(e + 8), 0x68f) as usize, depth + 1)?;
@@ -679,7 +681,7 @@ pub unsafe fn combat_score(mode: usize, _prof: usize, rec: usize, ctx: usize, bb
     pth_set("?");
     // ★진단 TLS 는 호출마다 초기화한다 — 안 하면 조기반환 경로에서 직전 호출의 값이 그대로 찍혀
     //   원인 분석이 통째로 헛돈다(2026-09-07 실측: st=76 인데 main=0 인 모순 로그).
-    S12ST.with(|c| c.set([0; 6])); S5D.with(|c| c.set([0; 7])); S12D.with(|c| c.set([0; 8]));
+    S12ST.with(|c| c.set([0; 6])); S5D.with(|c| c.set([0; 19])); S12D.with(|c| c.set([0; 8]));
     let r = combat_score_inner(mode, _prof, rec, ctx, bb, sp, slot, tgt, p9);
     if r.is_none() && !TAGGED.with(|c| c.get()) { let t = STG.with(|c| c.get()); na(t); }
     r
@@ -754,15 +756,25 @@ unsafe fn combat_score_inner(mode: usize, _prof: usize, rec: usize, ctx: usize, 
     // ── S3 위협·적 구조물 스캔 ──
     stg(tag8("S3"));
     let cast_delay = cast_delay0(sp)?;
+    CDLY.with(|c| c.set(cast_delay as i64));
     let thr = threat_sum(bb + BB_R, cast_delay.wrapping_add(30))?;
     let my_handle = rd_u64(me + ENT_HANDLE)?;
     let seen = w.visible(1 - side, my_handle)?;
     let thr_s = if seen { thr } else { thr / 3 };
+    // ★threat 리스트 첫 엔트리(delay·amount)와 visible 을 계측 — thrlen=1 인데 thr=0 인 표본을 가르기 위함
+    S5D.with(|c| { let mut z = c.get();
+        z[7] = seen as i64;
+        if rd_u64(bb + BB_R + AS_REC_THR_LEN).unwrap_or(0) > 0 {
+            if let Some(pp) = rd_u64(bb + BB_R + AS_REC_THR_PTR) {
+                z[8] = rd_u64(pp as usize + 8).unwrap_or(0) as i64;      // delay
+                z[9] = rd_i64(pp as usize + 0x10).unwrap_or(0);          // amount
+            } }
+        c.set(z); });
     // ★구조물 경로(0xd5d762→0xd5e7e4→0xd5e913)에서는 **타깃 종류를 보지 않고** bb.0x9b0 을 넣는다.
     //   ~~`bonus9b0 = tgt_kind==13 ? bb.0x9b0 : 0`~~ 이 최대 불일치 원인이었다(2026-09-07 확정, 로그 역산으로 검증).
     //   r_t 에는 `slot_e8(near..)` 항이 없고, 비교는 `<=`, extra 의 reach 는 vt+0xe8 3번째 인자가 **near** 다.
     let raw9b0 = rd_i64(bb + BB_9B0)?;
-    let mut d5 = [0i64; 7]; d5[6] = raw9b0;
+    let mut d5 = [0i64; 19]; d5[6] = raw9b0;
     let mut bonus9b0 = if tgt_kind == 13 { raw9b0 } else { 0 };
     let mut safe = true;
     if let Some((near, _)) = nearest_in_chain(&w, 1 - side, me)? {
@@ -790,6 +802,12 @@ unsafe fn combat_score_inner(mode: usize, _prof: usize, rec: usize, ctx: usize, 
         let (b0, b8) = (rd_u64(tgt)?, rd_u64(tgt + 8)?);
         !(a0 == b0 && (a0 != 0 || a8 == b8))
     };
+    S5D.with(|c| { let mut z = c.get();
+        z[17] = tgt_kind as i64;
+        z[18] = (matches!(phase, 0 | 5 | 7 | 8) as i64)
+              | ((rd_u64(cfg + CFG_8A8).unwrap_or(u64::MAX).saturating_sub(30u64.wrapping_mul(tps)) <= now) as i64) << 1
+              | (other_team as i64) << 2 | ((tgt_kind == 13) as i64) << 3;
+        c.set(z); });
     if matches!(phase, 0 | 5 | 7 | 8) && rd_u64(cfg + CFG_8A8)?.saturating_sub(30u64.wrapping_mul(tps)) <= now && other_team && tgt_kind == 13 {
         if let Some((ax, ay, t)) = approach(ctx, me, tgt, slot)? {
             let h = (cast_delay.wrapping_add(t)).clamp(tps / 2, 2 * tps);
@@ -832,6 +850,7 @@ unsafe fn combat_score_inner(mode: usize, _prof: usize, rec: usize, ctx: usize, 
     stg(tag8("S8"));
     let mut pos_term: i64 = 0;
     let pgate = match slot_pos_gate(slot) { Some(v) => v, None => return na(tag8("S8gate")) };
+    S5D.with(|c| { let mut z = c.get(); z[14] = pgate as i64; z[15] = d2_ee(me, tgt).unwrap_or(0) as i64; c.set(z); });
     if pgate && d2_ee(me, tgt)? >= 0x49040441 {
         let (tx, ty) = xy(tgt)?;
         let (cx, cy) = ((tx / 32000).min(29), (ty / 32000).min(29));
@@ -842,6 +861,7 @@ unsafe fn combat_score_inner(mode: usize, _prof: usize, rec: usize, ctx: usize, 
             None => match super::position_eval::memo_lookup(mode, rec, ctx, qx8 as usize, qy8 as usize, 0xc) { Some(w) => w[0] as i64, None => return na(tag8("S8pe")) },
         };
         // ★게임은 위치항을 **뺀다**(실측: mine − game == 2*pos 가 3표본 정확히 일치, 2026-09-07)
+        S5D.with(|c| { let mut z = c.get(); z[16] = a8; c.set(z); });
         pos_term = -(a8.wrapping_mul(c) / 100);
     }
     // ── S9 오판 플래그 ──
@@ -880,6 +900,14 @@ unsafe fn combat_score_inner(mode: usize, _prof: usize, rec: usize, ctx: usize, 
     let th = rd_u64(tgt + ENT_HANDLE)?;
     let rec_t = find_rec(bb, BB_ENEMY_PTR, BB_ENEMY_LEN, th)?;
     let rec_a = find_rec(bb, BB_ALLY_PTR, BB_ALLY_LEN, th)?;
+    // ★S15z 가 정말 "양쪽 미발견" 인지 계측 — 아군 Vec 길이와 첫 두 핸들, 그리고 찾는 핸들
+    S5D.with(|c| { let mut z = c.get();
+        z[10] = rd_u64(bb + BB_ALLY_LEN).unwrap_or(u64::MAX) as i64;
+        z[11] = (th & 0xffff_ffff) as i64;
+        if let Some(pp) = rd_u64(bb + BB_ALLY_PTR) { let pp = pp as usize;
+            if z[10] > 0 { z[12] = (rd_u64(pp + RT_HANDLE).unwrap_or(0) & 0xffff_ffff) as i64; }
+            if z[10] > 1 { z[13] = (rd_u64(pp + AS_REC_STRIDE + RT_HANDLE).unwrap_or(0) & 0xffff_ffff) as i64; } }
+        c.set(z); });
     // S11 오판 경로: mis && 적 레코드 존재 → 거리 감쇠항만 (0xd5de97~0xd5df15)
     if mis && rec_t.is_some() {
         let dv = dist(me, tgt)? as i64;
@@ -1086,7 +1114,7 @@ unsafe fn special_early(ctx: usize, _rec: usize, me: usize, sp: usize, tgt: usiz
             let n = rd_u64(w.x + 0x108 + (side as usize) * 0x20)?; let p = rd_u64(w.x + 0xf0 + (side as usize) * 0x20)? as usize;
             let mut cnt = 0i64;
             if n != 0 { if !ptr_ok(p) { return None; }
-                for i in 0..n.min(256) as usize { let e = rd_u64(p + i * 8)? as usize; if e != 0 && rd_i32(e + ENT_KIND)? == 7 { cnt += 1; } } }
+                for i in 0..n.min(CAP_ITER) as usize { let e = rd_u64(p + i * 8)? as usize; if e != 0 && rd_i32(e + ENT_KIND)? == 7 { cnt += 1; } } }
             if cnt == 0 { -100 } else if me == tgt { 0 } else { (18 * cnt).min(60) }
         }
         _ => if enemy_near_xy(&w, agents, side, tx, ty, now)? { 90 } else { 30 },

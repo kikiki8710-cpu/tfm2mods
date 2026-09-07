@@ -52,7 +52,7 @@ unsafe fn buff_kinds(e: usize) -> Option<(bool, bool, bool, bool)> {
     let n = rd_u64(e + ENT_BUFF_LEN)?; if n == 0 { return Some((false, false, false, false)); }
     let p = rd_u64(e + ENT_BUFF_PTR)? as usize; if !ptr_ok(p) { return None; }
     let (mut h3, mut h4, mut h5, mut bad) = (false, false, false, false);
-    for i in 0..n.min(256) as usize { let k = rd_i32(p + i * 0x28)?; match k { 3 => h3 = true, 4 => h4 = true, 5 => h5 = true, 2 => {}, _ => bad = true } }
+    for i in 0..n.min(CAP_ITER) as usize { let k = rd_i32(p + i * 0x28)?; match k { 3 => h3 = true, 4 => h4 = true, 5 => h5 = true, 2 => {}, _ => bad = true } }
     Some((h3, h4, h5, bad))
 }
 /// kind 별 타이머 오프셋(JT 0x1433f24b0 / 0x143440a84): None = 타이머 없이 항상 계산(kind 0/3)
@@ -86,7 +86,7 @@ pub unsafe fn eff_vt120(data: usize, vt: usize, depth: u32) -> Option<bool> {
     let any_children = |arr_off: usize, len_off: usize, stride: usize| -> Option<bool> {
         let n = rd_u64(p + len_off)?; if n == 0 { return Some(false); }
         let arr = rd_u64(p + arr_off)? as usize; if !ptr_ok(arr) { return None; }
-        for i in 0..n.min(64) as usize {
+        for i in 0..n.min(CAP_ITER) as usize {
             let (cd, cv) = (rd_u64(arr + i * stride)? as usize, rd_u64(arr + i * stride + 8)? as usize);
             if eff_bool(cd, cv, 0x60, depth + 1)? || eff_bool(cd, cv, 0x68, depth + 1)? { return Some(true); }
         }
@@ -98,13 +98,13 @@ pub unsafe fn eff_vt120(data: usize, vt: usize, depth: u32) -> Option<bool> {
         EFF68_NONZERO18 => Some(rd_u64(p + 0x18)? != 0),
         0x1309230 | 0x14142d0 => any_children(8, 0x10, 0x10),
         0x13bede0 => { let n = rd_u64(p + 0x58)?; if n == 0 { return Some(false); } let arr = rd_u64(p + 0x50)? as usize; if !ptr_ok(arr) { return None; }
-            for i in 0..n.min(64) as usize { let (cd, cv) = (rd_u64(arr + i * 0x18)? as usize, rd_u64(arr + i * 0x18 + 8)? as usize); if eff_bool(cd, cv, 0x68, depth + 1)? { return Some(true); } } Some(false) }
+            for i in 0..n.min(CAP_ITER) as usize { let (cd, cv) = (rd_u64(arr + i * 0x18)? as usize, rd_u64(arr + i * 0x18 + 8)? as usize); if eff_bool(cd, cv, 0x68, depth + 1)? { return Some(true); } } Some(false) }
         // 0x122e650: 리스트1(stride 0x18 @p+0x50/len p+0x58) any(vt68) → 없으면 리스트2(stride 0x10 @p+0x68/len p+0x70) any(vt68) (capstone 2026-09-06 20:20)
         0x122e650 => {
             let n1 = rd_u64(p + 0x58)?; if n1 != 0 { let arr = rd_u64(p + 0x50)? as usize; if !ptr_ok(arr) { return None; }
-                for i in 0..n1.min(64) as usize { let (cd, cv) = (rd_u64(arr + i * 0x18)? as usize, rd_u64(arr + i * 0x18 + 8)? as usize); if eff_bool(cd, cv, 0x68, depth + 1)? { return Some(true); } } }
+                for i in 0..n1.min(CAP_ITER) as usize { let (cd, cv) = (rd_u64(arr + i * 0x18)? as usize, rd_u64(arr + i * 0x18 + 8)? as usize); if eff_bool(cd, cv, 0x68, depth + 1)? { return Some(true); } } }
             let n2 = rd_u64(p + 0x70)?; if n2 == 0 { return Some(false); } let arr = rd_u64(p + 0x68)? as usize; if !ptr_ok(arr) { return None; }
-            for i in 0..n2.min(64) as usize { let (cd, cv) = (rd_u64(arr + i * 0x10)? as usize, rd_u64(arr + i * 0x10 + 8)? as usize); if eff_bool(cd, cv, 0x68, depth + 1)? { return Some(true); } } Some(false) }
+            for i in 0..n2.min(CAP_ITER) as usize { let (cd, cv) = (rd_u64(arr + i * 0x10)? as usize, rd_u64(arr + i * 0x10 + 8)? as usize); if eff_bool(cd, cv, 0x68, depth + 1)? { return Some(true); } } Some(false) }
         // 0x1652b00: 단일 자식 (data @p+0x18, vt @p+0x20): vt60 ‖ vt68 ‖ vt58(sret u8 — 미재현 → unseen 0x58)
         0x1652b00 => {
             let (cd, cv) = (rd_u64(p + 0x18)? as usize, rd_u64(p + 0x20)? as usize);
@@ -146,7 +146,7 @@ unsafe fn eff80_dps(rva: usize, d: usize, e: usize, me: usize, tps: u64) -> Opti
             let inner = rd_u64(d)? as usize; if !ptr_ok(inner) { return None; }
             let n = rd_u64(inner + 0x38)?; let (mut pp, mut mm) = (0u64, 0u64);
             if n != 0 { let arr = rd_u64(inner + 0x30)? as usize; if !ptr_ok(arr) { return None; }
-                for i in 0..n.min(64) as usize { let (cd, cv) = (rd_u64(arr + i * 0x18)? as usize, rd_u64(arr + i * 0x18 + 8)? as usize); let (a, b) = dy::eff28_damage(cd, cv, e)?; pp = pp.wrapping_add(a); mm = mm.wrapping_add(b); } }
+                for i in 0..n.min(CAP_ITER) as usize { let (cd, cv) = (rd_u64(arr + i * 0x18)? as usize, rd_u64(arr + i * 0x18 + 8)? as usize); let (a, b) = dy::eff28_damage(cd, cv, e)?; pp = pp.wrapping_add(a); mm = mm.wrapping_add(b); } }
             let dmg = def_dmg(e, me, pp, 0)?.wrapping_add(def_dmg(e, me, mm, 1)?);
             let per = { let v = rd_u64(d + 0x20)?; if v == 0 { 1 } else { v } };
             Some(dmg.wrapping_mul(tps) / per)
@@ -183,7 +183,7 @@ unsafe fn eff80_dps(rva: usize, d: usize, e: usize, me: usize, tps: u64) -> Opti
             }
             let n = rd_u64(d + 0x10)?; let (mut pp, mut mm) = (0u64, 0u64);
             if n != 0 { let arr = rd_u64(d + 8)? as usize; if !ptr_ok(arr) { return None; }
-                for i in 0..n.min(64) as usize { let (cd, cv) = (rd_u64(arr + i * 0x10)? as usize, rd_u64(arr + i * 0x10 + 8)? as usize); let (a, b) = dy::eff28_damage(cd, cv, e)?; pp = pp.wrapping_add(a); mm = mm.wrapping_add(b); } }
+                for i in 0..n.min(CAP_ITER) as usize { let (cd, cv) = (rd_u64(arr + i * 0x10)? as usize, rd_u64(arr + i * 0x10 + 8)? as usize); let (a, b) = dy::eff28_damage(cd, cv, e)?; pp = pp.wrapping_add(a); mm = mm.wrapping_add(b); } }
             let dmg = def_dmg(e, me, pp, 0)?.wrapping_add(def_dmg(e, me, mm, 1)?);
             let per = { let v = rd_u64(d + 0x50)?; if v == 0 { 1 } else { v } };
             Some(dmg.wrapping_mul(tps) / per)
@@ -220,7 +220,7 @@ unsafe fn effs_sum(ent: usize, slot: usize, other: usize, tps: u64) -> Option<u6
     let n = rd_u64(ent + ENT_EFFS_LEN)?; if n == 0 { return Some(0); }
     let p = rd_u64(ent + ENT_EFFS_PTR)? as usize; if !ptr_ok(p) { return None; }
     let mut acc = 0u64;
-    for i in 0..n.min(64) as usize {
+    for i in 0..n.min(CAP_ITER) as usize {
         let (d, v) = (rd_u64(p + i * 16)? as usize, rd_u64(p + i * 16 + 8)? as usize); let r = dy::impl_rva(v, slot)?;
         let val = match slot {
             0x80 => eff80_dps(r, d, ent, other, tps)?,
@@ -307,7 +307,7 @@ pub unsafe fn fight_check(p1: u64, holder: usize, sim: usize, me: usize, a: usiz
     // A 루프
     let (ap, al) = (rd_u64(a)? as usize, rd_u64(a + 0x18)?);
     if al != 0 && !ptr_ok(ap) { return None; }
-    for i in 0..al.min(64) as usize {
+    for i in 0..al.min(CAP_ITER) as usize {
         let e = rd_u64(ap + i * 8)? as usize; if e == 0 { return None; }
         let es = sim_of_handle(x, rd_u64(e + ENT_HANDLE)?)?; if es == 0 { return None; }
         let side_o = rd_u64(es + P5_SIDE)?; if side_o > 1 { return None; }
@@ -337,7 +337,7 @@ pub unsafe fn fight_check(p1: u64, holder: usize, sim: usize, me: usize, a: usiz
     // B 루프
     let (bp, bl) = (rd_u64(b)? as usize, rd_u64(b + 0x18)?);
     if bl != 0 && !ptr_ok(bp) { return None; }
-    for i in 0..bl.min(64) as usize {
+    for i in 0..bl.min(CAP_ITER) as usize {
         let e = rd_u64(bp + i * 8)? as usize; if e == 0 { return None; }
         if rd_i32(e + SLOT0 + 0x30)? == -1 { return None; }
         let dmg = estimate_damage(e + SLOT0, e, me, false)?;
@@ -364,7 +364,7 @@ pub unsafe fn fight_check(p1: u64, holder: usize, sim: usize, me: usize, a: usiz
     terms += &format!(" | units n={} burst={} dps={} ul={}", uc, ub, ud, ul);
     // 효과 리스트
     let mut e80 = 0u64;
-    for i in 0..al.min(64) as usize { let e = rd_u64(ap + i * 8)? as usize; let v = effs_sum(e, 0x80, me, tps)?; e80 = e80.wrapping_add(v); dps = dps.wrapping_add(v); }
+    for i in 0..al.min(CAP_ITER) as usize { let e = rd_u64(ap + i * 8)? as usize; let v = effs_sum(e, 0x80, me, tps)?; e80 = e80.wrapping_add(v); dps = dps.wrapping_add(v); }
     terms += &format!(" e80={}", e80);
     TERMS.with(|c| *c.borrow_mut() = terms.clone());
     let mut ally_red = 0u64;

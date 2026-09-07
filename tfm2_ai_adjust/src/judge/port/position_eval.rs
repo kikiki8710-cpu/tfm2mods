@@ -67,7 +67,7 @@ unsafe fn eff_flag_d(data: usize, vt: usize, slot: usize, depth: u32) -> Option<
         (0xf8, 0x16065b0) => eff_flag_d(rd_u64(p + 0x18)? as usize, rd_u64(p + 0x20)? as usize, slot, depth + 1),   // 단일 자식 tail-call
         (0xf8, 0x12a6c70) => {                                                           // 자식(stride 0x10 @p+8/len p+0x10) 중 첫 al&1 → 그 rax, 없으면 0
             let n = rd_u64(p + 0x10)?; if n == 0 { return Some(0); } let arr = rd_u64(p + 8)? as usize; if !ptr_ok(arr) { return None; }
-            for i in 0..n.min(64) as usize { let v = eff_flag_d(rd_u64(arr + i * 0x10)? as usize, rd_u64(arr + i * 0x10 + 8)? as usize, slot, depth + 1)?; if v & 1 == 1 { return Some(v); } }
+            for i in 0..n.min(CAP_ITER) as usize { let v = eff_flag_d(rd_u64(arr + i * 0x10)? as usize, rd_u64(arr + i * 0x10 + 8)? as usize, slot, depth + 1)?; if v & 1 == 1 { return Some(v); } }
             Some(0)
         }
         _ => { dy::unseen(0x200 + slot as u32, r); None }
@@ -80,13 +80,13 @@ unsafe fn eff_flag_d(data: usize, vt: usize, slot: usize, depth: u32) -> Option<
 unsafe fn status_has(e: usize, kind: i32) -> Option<bool> {
     let n = rd_u64(e + 0x2d0)?; if n == 0 { return Some(false); }
     let p = rd_u64(e + 0x2c8)? as usize; if !ptr_ok(p) { return None; }
-    for i in 0..n.min(256) as usize { if rd_i32(p + i * 0x28)? == kind { return Some(true); } }
+    for i in 0..n.min(CAP_ITER) as usize { if rd_i32(p + i * 0x28)? == kind { return Some(true); } }
     Some(false)
 }
 unsafe fn status_any_not_2345(e: usize) -> Option<bool> {
     let n = rd_u64(e + 0x2d0)?; if n == 0 { return Some(false); }
     let p = rd_u64(e + 0x2c8)? as usize; if !ptr_ok(p) { return None; }
-    for i in 0..n.min(256) as usize { let k = rd_i32(p + i * 0x28)?; if ((k.wrapping_sub(6)) as u32) < 0xfffffffc { return Some(true); } }
+    for i in 0..n.min(CAP_ITER) as usize { let k = rd_i32(p + i * 0x28)?; if ((k.wrapping_sub(6)) as u32) < 0xfffffffc { return Some(true); } }
     Some(false)
 }
 #[inline] fn same_team_ab(a0: u64, a8: u64, b0: u64, b8: u64) -> bool { a0 == b0 && (a0 != 0 || a8 == b8) }
@@ -380,35 +380,35 @@ unsafe fn vt88_flag(data: usize, vt: usize, depth: u32) -> Option<u64> {
     let r = dy::impl_rva(vt, 0x88)?; let p = dy::arc_payload(data, vt)?;
     let any = |ptr_off: usize, len_off: usize, stride: usize| -> Option<u64> {
         let n = rd_u64(p + len_off)?; if n == 0 { return Some(0); } let arr = rd_u64(p + ptr_off)? as usize; if !ptr_ok(arr) { return None; }
-        for i in 0..n.min(64) as usize { if vt88_flag(rd_u64(arr + i * stride)? as usize, rd_u64(arr + i * stride + 8)? as usize, depth + 1)? & 1 == 1 { return Some(1); } } Some(0)
+        for i in 0..n.min(CAP_ITER) as usize { if vt88_flag(rd_u64(arr + i * stride)? as usize, rd_u64(arr + i * stride + 8)? as usize, depth + 1)? & 1 == 1 { return Some(1); } } Some(0)
     };
     match r { EFF_E8_ZERO => Some(0), 0x1147250 | 0x1145640 => Some(1), 0x12a57b0 => any(8, 0x10, 0x10), 0x12a61c0 => any(0x20, 0x28, 0x18),
         0x12481a0 => any(0x50, 0x58, 0x18), 0x13bfc40 => any(8, 0x10, 0x18), 0x13bfa20 | 0x16adaa0 | 0x109bab0 | 0x122f090 => Some(1),
         0x17c2bd0 => Some((rd_u64(p)? != 0) as u64),
         0x1701740 => Some((rd_u64(p + 0x48)? != 0) as u64),
         0x1146c40 => { let n = rd_u64(p + 0x28)?; if n == 0 { return Some(0); } let arr = rd_u64(p + 0x20)? as usize; if !ptr_ok(arr) { return None; }   // 자식(stride 0x18 @p+0x20/0x28) 의 vt+0x80 중 첫 al&1 의 rax
-            for i in 0..n.min(64) as usize { let v = vt80_flag(rd_u64(arr + i * 0x18)? as usize, rd_u64(arr + i * 0x18 + 8)? as usize, depth + 1)?; if v & 1 == 1 { return Some(v); } } Some(0) }
+            for i in 0..n.min(CAP_ITER) as usize { let v = vt80_flag(rd_u64(arr + i * 0x18)? as usize, rd_u64(arr + i * 0x18 + 8)? as usize, depth + 1)?; if v & 1 == 1 { return Some(v); } } Some(0) }
         0x1153880 => vtb0_flag(rd_u64(p)? as usize, rd_u64(p + 8)? as usize),
         0x164ecc0 => { let a = vt88_flag(rd_u64(p)? as usize, rd_u64(p + 8)? as usize, depth + 1)?; let b = vt88_flag(rd_u64(p + 0x10)? as usize, rd_u64(p + 0x18)? as usize, depth + 1)?; Some(if a & 1 == 1 { a } else { b }) }   // 두 자식: al1 이면 r1 아니면 r2
         0x1606700 => { let a = vt88_flag(rd_u64(p + 0x18)? as usize, rd_u64(p + 0x20)? as usize, depth + 1)?; let b = vt88_flag(rd_u64(p + 0x28)? as usize, rd_u64(p + 0x30)? as usize, depth + 1)?; Some(if a & 1 == 1 { a } else { b }) }
         0x16a3450 => {   // 리스트1(stride 0x18 @p+0x50/0x58) → 리스트2(stride 0x18 @p+0x68/0x70)
             let n1 = rd_u64(p + 0x58)?; if n1 != 0 { let arr = rd_u64(p + 0x50)? as usize; if !ptr_ok(arr) { return None; }
-                for i in 0..n1.min(64) as usize { if vt88_flag(rd_u64(arr + i * 0x18)? as usize, rd_u64(arr + i * 0x18 + 8)? as usize, depth + 1)? & 1 == 1 { return Some(1); } } }
+                for i in 0..n1.min(CAP_ITER) as usize { if vt88_flag(rd_u64(arr + i * 0x18)? as usize, rd_u64(arr + i * 0x18 + 8)? as usize, depth + 1)? & 1 == 1 { return Some(1); } } }
             any(0x68, 0x70, 0x18)
         }
         0x1340ef0 => {   // 리스트1(stride 0x18 @p+0x68/0x70) → 리스트2(stride 0x10 @p+0x80/0x88)
             let n1 = rd_u64(p + 0x70)?; if n1 != 0 { let arr = rd_u64(p + 0x68)? as usize; if !ptr_ok(arr) { return None; }
-                for i in 0..n1.min(64) as usize { if vt88_flag(rd_u64(arr + i * 0x18)? as usize, rd_u64(arr + i * 0x18 + 8)? as usize, depth + 1)? & 1 == 1 { return Some(1); } } }
+                for i in 0..n1.min(CAP_ITER) as usize { if vt88_flag(rd_u64(arr + i * 0x18)? as usize, rd_u64(arr + i * 0x18 + 8)? as usize, depth + 1)? & 1 == 1 { return Some(1); } } }
             any(0x80, 0x88, 0x10)
         }
         0x153b5a0 => {   // 리스트1(stride 0x18 @p+0x50/len p+0x58) 다음 리스트2(stride 0x10 @p+0x68/len p+0x70) 중 al&1 → 1
             let n1 = rd_u64(p + 0x58)?; if n1 != 0 { let arr = rd_u64(p + 0x50)? as usize; if !ptr_ok(arr) { return None; }
-                for i in 0..n1.min(64) as usize { if vt88_flag(rd_u64(arr + i * 0x18)? as usize, rd_u64(arr + i * 0x18 + 8)? as usize, depth + 1)? & 1 == 1 { return Some(1); } } }
+                for i in 0..n1.min(CAP_ITER) as usize { if vt88_flag(rd_u64(arr + i * 0x18)? as usize, rd_u64(arr + i * 0x18 + 8)? as usize, depth + 1)? & 1 == 1 { return Some(1); } } }
             any(0x68, 0x70, 0x10)
         }
         0x12a5100 => {   // 자식(stride 0x10 @p+0x48/len p+0x50) 중 첫 al&1 인 자식의 rax 가 정확히 1 이면 1 (capstone 2026-09-06 22:00)
             let n = rd_u64(p + 0x50)?; if n == 0 { return Some(0); } let arr = rd_u64(p + 0x48)? as usize; if !ptr_ok(arr) { return None; }
-            for i in 0..n.min(64) as usize { let v = vt88_flag(rd_u64(arr + i * 0x10)? as usize, rd_u64(arr + i * 0x10 + 8)? as usize, depth + 1)?; if v & 1 == 1 { return Some((v == 1) as u64); } }
+            for i in 0..n.min(CAP_ITER) as usize { let v = vt88_flag(rd_u64(arr + i * 0x10)? as usize, rd_u64(arr + i * 0x10 + 8)? as usize, depth + 1)?; if v & 1 == 1 { return Some((v == 1) as u64); } }
             Some(0)
         }
         _ => { dy::unseen(0x388, r); None } }
@@ -442,7 +442,7 @@ struct Act { a: usize, k: u64 }
 #[inline] unsafe fn same_team_ae(a: usize, e: usize) -> Option<bool> { Some(same_team_ab(rd_u64(a)?, rd_u64(a + 8)?, rd_u64(e)?, rd_u64(e + 8)?)) }
 unsafe fn has_status_set(e: usize) -> Option<bool> {
     let n = rd_u64(e + 0x2d0)?; if n == 0 { return Some(false); } let p = rd_u64(e + 0x2c8)? as usize; if !ptr_ok(p) { return None; }
-    for i in 0..n.min(256) as usize { let k = rd_u32(p + i * 0x28); if k <= 9 && (0x347u32 >> k) & 1 == 1 { return Some(true); } } Some(false)
+    for i in 0..n.min(CAP_ITER) as usize { let k = rd_u32(p + i * 0x28); if k <= 9 && (0x347u32 >> k) & 1 == 1 { return Some(true); } } Some(false)
 }
 /// 0x129feb0 relevant(tt, a, e) — 시전자 핸들 a.f8 기준
 unsafe fn relevant(tt: u32, a: usize, e: usize) -> Option<bool> {
@@ -506,7 +506,7 @@ unsafe fn hit(a: usize, e: usize) -> Option<bool> {
 /// Σ vt+0x28 / vt+0x38 / vt+0x40 / vt+0x48 / any vt+0x80 over a (data, vt) list
 unsafe fn list_iter<F: FnMut(usize, usize) -> Option<()>>(ptr: usize, len: u64, stride: usize, mut f: F) -> Option<()> {
     if len == 0 { return Some(()); } if !ptr_ok(ptr) { return None; }
-    for i in 0..len.min(64) as usize { f(rd_u64(ptr + i * stride)? as usize, rd_u64(ptr + i * stride + 8)? as usize)?; } Some(())
+    for i in 0..len.min(CAP_ITER) as usize { f(rd_u64(ptr + i * stride)? as usize, rd_u64(ptr + i * stride + 8)? as usize)?; } Some(())
 }
 unsafe fn eff48_shield(data: usize, vt: usize, src: usize) -> Option<u64> {
     let r = dy::impl_rva(vt, 0x48)?; let p = dy::arc_payload(data, vt)?;
@@ -530,11 +530,11 @@ unsafe fn vt80_flag(data: usize, vt: usize, depth: u32) -> Option<u64> {
         EFF_E8_ZERO => Some(0), EFF_TRUE | 0x1147250 | 0x1145640 | 0x122fcf0 => Some(1),
         0x1606550 => vt80_flag(rd_u64(p + 0x18)? as usize, rd_u64(p + 0x20)? as usize, depth + 1),
         0x12a6b80 => { let n = rd_u64(p + 0x10)?; if n == 0 { return Some(0); } let arr = rd_u64(p + 8)? as usize; if !ptr_ok(arr) { return None; }
-            for i in 0..n.min(64) as usize { let v = vt80_flag(rd_u64(arr + i * 0x10)? as usize, rd_u64(arr + i * 0x10 + 8)? as usize, depth + 1)?; if v & 1 == 1 { return Some(v); } } Some(0) }
+            for i in 0..n.min(CAP_ITER) as usize { let v = vt80_flag(rd_u64(arr + i * 0x10)? as usize, rd_u64(arr + i * 0x10 + 8)? as usize, depth + 1)?; if v & 1 == 1 { return Some(v); } } Some(0) }
         // 0x1146c40: 자식(ptr p+0x20 / len p+0x28 / stride 0x18) 중 첫 `al&1` 의 rax 전체. 없으면 0. (RE 2026-09-07)
         0x1146c40 => { let n = rd_u64(p + 0x28)?; if n == 0 { return Some(0); }
             let arr = rd_u64(p + 0x20)? as usize; if !ptr_ok(arr) { return None; }
-            for i in 0..n.min(64) as usize {
+            for i in 0..n.min(CAP_ITER) as usize {
                 let v = vt80_flag(rd_u64(arr + i * 0x18)? as usize, rd_u64(arr + i * 0x18 + 8)? as usize, depth + 1)?;
                 if v & 1 == 1 { return Some(v); } }
             Some(0) }
@@ -619,7 +619,7 @@ unsafe fn body(st: &St) -> Option<Out> {
     // S6 오브젝트
     {
         let n = rd_u64(x + X_OBJ_LEN)?; let p = rd_u64(x + X_OBJ_PTR)? as usize; if n != 0 && !ptr_ok(p) { return None; }
-        for i in 0..n.min(256) as usize {
+        for i in 0..n.min(CAP_ITER) as usize {
             let o = rd_u64(p + i * 8)? as usize; if o == 0 { return None; }
             let (ox, oy) = xy(o)?; let d2s = sat_d2(ox, oy, qx, qy); if (d2s >> 8) >= 0x53d1ac1 { continue; }
             let kind = rd_u64(o + ENT_KIND)?;
@@ -643,7 +643,7 @@ unsafe fn body(st: &St) -> Option<Out> {
         for (s, en) in [(eside, true), (side, false)] {
             for off in [0x180usize, 0x1a0, 0x1c0, 0x190, 0x1b0, 0x1d0] { let e = rd_u64(x + off + (s as usize) * 8)? as usize; if e != 0 { items.push((e, en)); } }
             let n = rd_u64(x + X_MINION_LEN + (s as usize) * 0x20)?; let p = rd_u64(x + X_MINION_PTR + (s as usize) * 0x20)? as usize; if n != 0 && !ptr_ok(p) { return None; }
-            for i in 0..n.min(256) as usize { let e = rd_u64(p + i * 8)? as usize; if e == 0 { return None; } items.push((e, en)); }
+            for i in 0..n.min(CAP_ITER) as usize { let e = rd_u64(p + i * 8)? as usize; if e == 0 { return None; } items.push((e, en)); }
         }
         trs(|| { let mut o = format!("GDIVE{:?} STRUCT[", dive_all_since()); for (it, en) in &items { if let (Some(k), Some((ix, iy))) = (rd_i32(*it + ENT_KIND), xy(*it)) { if k == 2 {
             let mut mind = u64::MAX; for h in &st.e_list { if let Some((hx, hy)) = xy(h.ent) { mind = mind.min(wrap_d2(ix, iy, hx, hy)); } }
@@ -775,7 +775,7 @@ unsafe fn body(st: &St) -> Option<Out> {
     // S10 X+0xf0 리스트(적 사이드)
     {
         let n = rd_u64(x + X_SIDE_UNITS_LEN + (eside as usize) * 0x20)?; let p = rd_u64(x + X_SIDE_UNITS_PTR + (eside as usize) * 0x20)? as usize; if n != 0 && !ptr_ok(p) { return None; }
-        for i in 0..n.min(256) as usize {
+        for i in 0..n.min(CAP_ITER) as usize {
             let u = rd_u64(p + i * 8)? as usize; if u == 0 { return None; }
             let (ux, uy) = xy(u)?; let d2s = sat_d2(ux, uy, qx, qy); if (d2s >> 8) >= 0x53d1ac1 || rd_i32(u + 0x4c0)? == -1 { continue; }   // ★off-by-one 정정: 게임은 (d2>>8) < 0x53d1ac1
             let v = cap(match est(u, tgt) { Some(v) => v, None => { trs(|| format!("NA:S10est{:#x}", u)); return None } }); let r = range_u(u, tgt)?; let k = rd_u64(u + ENT_KIND)?;
@@ -790,7 +790,7 @@ unsafe fn body(st: &St) -> Option<Out> {
     {
         let n = rd_u64(w.data + X_ACTIONS_LEN)?; let p = rd_u64(w.data + X_ACTIONS_PTR)? as usize; if n != 0 && !ptr_ok(p) { return None; }
         let r_t = radius(tgt)?;
-        for i in 0..n.min(256) as usize {
+        for i in 0..n.min(CAP_ITER) as usize {
             let a = p + i * ACTION_STRIDE;
             let (ax, ay) = (rd_u64(a + 0x100)?, rd_u64(a + 0x108)?); let d2q = wrap_d2(ax, ay, qx, qy);
             if (d2q >> 8) > 0xe8d4a50 { continue; }
