@@ -102,7 +102,7 @@ pub unsafe fn diag(_p1: usize, _p3: usize, _p4: usize) -> String {
         v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7], v[8], v[9], v[10], v[11], v[12], v[13])
         + &format!(" game_thr={} bb970={} bb9a0={} bb988={}", v[14], v[15], v[16], v[17])
         + &{ let q = S12D.with(|c| c.get()); let z = s12_st(); format!(" | S12[D={} X={} Ct={} kill={} score={} e01450={} e019d0={} e02020={} st={} T={} dmg={} selfN={} burst={} thp={} stRaw={} bonus={} q={} pk={}] A[{:?}]", q[0], q[1], q[2], q[3], q[4], q[5], q[6], q[7], z[0], z[1], z[2], z[3], z[4], z[5], z[10], z[7], z[8], z[9], ally_diag()) }
-        + &{ let d = s5_diag(); format!(" S5[near={} kind={} f88={} dn={} rt={} safe={} raw9b0={} vis={} t0d={} t0a={} cdly={} alen={} th={:#x} a0={:#x} a1={:#x} pg={} d2={} a8={} tk={} cg={:#x} eLen={} aLen={}]", d[0], d[1], d[2], d[3], d[4], d[5], d[6], d[7], d[8], d[9], cast_dly(), d[10], d[11], d[12], d[13], d[14], d[15], d[16], d[17], d[18], d[19], d[20]) }
+        + &{ let d = s5_diag(); format!(" S5[near={} kind={} f88={} dn={} rt={} safe={} raw9b0={} vis={} t0d={} t0a={} cdly={} alen={} th={:#x} a0={:#x} a1={:#x} pg={} d2={} a8={} altTS={} enear={} eLen={} aLen={}]", d[0], d[1], d[2], d[3], d[4], d[5], d[6], d[7], d[8], d[9], cast_dly(), d[10], d[11], d[12], d[13], d[14], d[15], d[16], d[17], d[18], d[19], d[20]) }
         + &unsafe { let caps = crate::judge::cap_util_c87fe0::last_p2().unwrap_or(0);
             // ★★`path=`·`S13[…]` 를 **caps 게이트 밖으로** 뺐다 — 잔차 23건이 전부 `caps=none` 이라
             //   경로를 안 찍은 것처럼 보였고, 그것 때문에 조기반환으로 오진단했다(RE 2026-09-07).
@@ -939,6 +939,23 @@ unsafe fn combat_score_inner(mode: usize, _prof: usize, rec: usize, ctx: usize, 
     // ── S7 타워 지원 ──
     stg(tag8("S7"));
     let mut tower_support: i64 = 0;
+    // ★진단: 후보 로스터를 `side` 로 잡는지 `1-side` 로 잡는지가 미확정이다(RE 는 `1-[rbp+0x850]` 로 읽음).
+    //   추측으로 바꾸지 않고 **반대편으로도 계산해** 어느 쪽이 게임값을 내는지 실측으로 가른다(2026-09-07).
+    {
+        let alt = nearest_in_chain(&w, 1 - side, me)?;
+        let mut alt_ts: i64 = -1;
+        if let Some((ae, _)) = alt {
+            let rt = rd_u64(ae + ENT_F438)?.wrapping_add(rd_u64(ae + 0x4a0)?)
+                .wrapping_add(rd_u64(ae + ENT_LEVEL)?.wrapping_sub(1).wrapping_mul(rd_u64(ae + 0x4a8)?))
+                .wrapping_add(if rd_i32(ae + ENT_4C0)? == 0 { rng_of(ae)? } else { 0 })
+                .wrapping_add(rng_of(tgt)?).wrapping_add(slot_e8(ae + 0x490, ae, tgt)?);
+            let thp = rd_u64(tgt + ENT_HP)?;
+            if thp != 0 && d2_ee(tgt, ae)? <= sq(rt) && now < rd_u64(cfg + CFG_13F8)? {
+                alt_ts = ((est(ae + 0x490, ae, tgt)? as i64).wrapping_mul(100) / thp as i64).min(100);
+            }
+        }
+        S5D.with(|c| { let mut z = c.get(); z[17] = alt_ts; z[18] = enemy_near as i64; c.set(z); });
+    }
     if let Some((na_ent, _)) = near_ally {
         let rt = rd_u64(na_ent + ENT_F438)?.wrapping_add(rd_u64(na_ent + 0x4a0)?)
             .wrapping_add(rd_u64(na_ent + ENT_LEVEL)?.wrapping_sub(1).wrapping_mul(rd_u64(na_ent + 0x4a8)?))
