@@ -726,8 +726,18 @@ pub unsafe fn s13_s14(b: &BCtx, ally: Option<usize>) -> Option<i64> {
         let miss = (rd_i64(b.me + ENT_MAXHP)? - rd_i64(b.me + ENT_HP)?).max(0);
         (inc, so, miss)
     };
+    // ⚠IR 수식은 `heal_e = smin(miss + 2S, expected_heal_target)` — **중간 단계 `min(miss, cap)` 이 없다**.
+    //   재현은 `min( min(miss,cap), miss+2S )` = `min(miss, cap, miss+2S)` 라서 `cap > miss && S > 0` 일 때
+    //   `miss` 에 눌려 버린다(예: miss=100·cap=500·S=200 → 게임 500, 재현 100).
+    //   SDK 의 game_ai LLVM IR 로 **두 갈래 모두** 확정(S14 = m05.ll:42989~43002, S13 = m05.ll:43683~43696):
+    //     %miss = max(maxhp - hp, 0) ; %1611 = miss + (S<<1) ; %1612 = smin(%1611, expected_heal_target)
+    //   ~~min/max 논쟁~~ 자체가 잘못된 프레임이었다(RE 두 건이 여기서 서로 충돌했고 한쪽은 실측에서 기각).
+    // ⛔단 IR 대로 `min(miss+2S, heal_cap)` 을 적용했더니 DIFF 0.0091% → **0.23%**(25배) 로 악화돼 되돌렸다.
+    //   수식이 아니라 **`heal_cap` ↔ IR `%1241`(=`Effect::expected_heal_target`) 대응이 미검증**인 게 원인이다.
+    //   재현의 `heal_cap` 은 `slot_sum(vt+0x40)`(dyn 트리 합)이고 IR 은 `Effect` 메서드 직접 호출이라
+    //   같은 값이라는 근거가 없다. **그 대응을 IR 로 확정하기 전 재적용 금지.**
     let heal_e = heal.min(miss.wrapping_add(2 * inc));
-    let shield_e = shield_ok.min(3 * inc);
+    let shield_e = shield_ok.min(3 * inc);   // IR: %1613 = S*3 ; smin(3S, shield_ok) ✓ 재현과 동일
     // ★S14 에서 게임의 `hs` 가 20 인데 재현 입력이 전부 0 이다. RE 두 건이 `heal_e` 계산을 다르게 말했고
     //   (min(miss, cap) vs min(max(miss, cap), miss+2*inc)), 기준 엔티티도 tgt 냐 아군이냐가 갈렸다.
     //   ★짐작으로 뒤집지 않는다 — 두 후보의 입력을 **둘 다** 찍어서 다음 판에 가린다.
