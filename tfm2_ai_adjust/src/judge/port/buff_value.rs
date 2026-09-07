@@ -19,10 +19,11 @@ thread_local! {
     pub static E3D: std::cell::Cell<[i64; 8]> = const { std::cell::Cell::new([0; 8]) };
 }
 pub fn s13_diag() -> String {
-    let v = S13D.with(|c| c.get()); let e = S13E.with(|c| c.get()); let f = S14D.with(|c| c.get()); let g = E3D.with(|c| c.get());
-    format!(" S13[aoe={} trig={} aura={} etc={} hs={} buff={} raw={} dur={}] S13E[healE={} shieldE={} inc={} gate={} total={} has={} ally={} mainRaw={} healRaw={} cap={} miss={} shRaw={}] S14[v={} k={} vd={} st={} b1={} b2={} src={} raw={} fp={} ns={} a0i={:#x}] E3[exit={} def={} tid={:#x} n={} r={} st={} sum={} cnt={}]",
+    let v = S13D.with(|c| c.get()); let e = S13E.with(|c| c.get()); let f = S14D.with(|c| c.get()); let g = E3D.with(|c| c.get()); let h = AOED.with(|c| c.get());
+    format!(" S13[aoe={} trig={} aura={} etc={} hs={} buff={} raw={} dur={}] S13E[healE={} shieldE={} inc={} gate={} total={} has={} ally={} mainRaw={} healRaw={} cap={} miss={} shRaw={}] S14[v={} k={} vd={} st={} b1={} b2={} src={} raw={} fp={} ns={} a0i={:#x}] E3[exit={} def={} tid={:#x} n={} r={} st={} sum={} cnt={}] AOE[kind={} R={} n={} slf={} noe={} dst={} cap={} tot={} poff={} vt={:#x} u32p={} u32d={}]",
         v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7], e[0], e[1], e[2], e[3], e[4], e[5], e[6], e[7], e[8], e[9], e[10], e[11],
-        f[0], f[1], f[2], f[3], f[4], f[5], f[6], f[7], f[8], f[9], f[10], g[0], g[1], g[2], g[3], g[4], g[5], g[6], g[7])
+        f[0], f[1], f[2], f[3], f[4], f[5], f[6], f[7], f[8], f[9], f[10], g[0], g[1], g[2], g[3], g[4], g[5], g[6], g[7],
+        h[0], h[1], h[2], h[3], h[4], h[5], h[6], h[7], h[8], h[9], h[10], h[11])
 }
 /// 잎 에뮬레이터가 필요로 하는 두 컨텍스트(sim · EST 서술자 절대주소). S13/S14 진입 때 한 번 세운다.
 thread_local! {
@@ -557,12 +558,15 @@ pub unsafe fn spec_a0_inline(p: usize, vt: usize, me: usize, depth: u32) -> Opti
 }
 /// S13(자기 버프) · S14(아군 버프). `ally` = 아군 Record(S14) / None(S13).
 ///   정본 = `RE\2026-09-07_combat_score-S13S14-본체구간-정밀전사-0.5.8.md`
+/// ★0xe02bc0(aoe) 진단 — [kind, R, n, self_skip, noent, dist_skip, heal_cap, total]
+thread_local! { pub static AOED: std::cell::Cell<[i64; 12]> = const { std::cell::Cell::new([0; 12]) }; }
+pub fn aoe_diag() -> [i64; 12] { AOED.with(|c| c.get()) }
 thread_local! { pub static S14D: std::cell::Cell<[i64; 11]> = const { std::cell::Cell::new([0; 11]) }; }
 /// [dffa10 v, decay k, decay 후 v, e03360 st, 1차 buff, 2차 buff]
 pub fn s14_diag() -> [i64; 11] { S14D.with(|c| c.get()) }
 pub unsafe fn s13_s14(b: &BCtx, ally: Option<usize>) -> Option<i64> {
     // ★S13D/S13E 도 함께 리셋 — 안 하면 다른 경로 표본에 직전 호출의 잔값이 찍혀 진단이 헛돌다(RE 2026-09-07)
-    S14D.with(|c| c.set([0; 11])); S13D.with(|c| c.set([0; 8])); S13E.with(|c| c.set([0; 12]));
+    S14D.with(|c| c.set([0; 11])); AOED.with(|c| c.set([0; 12])); S13D.with(|c| c.set([0; 8])); S13E.with(|c| c.set([0; 12]));
     set_leaf_ctx(b.sim);
     let (sd, sv, _sin) = slot3(b.slot)?;
     let t = b.tgt;
@@ -651,7 +655,10 @@ pub unsafe fn s13_s14(b: &BCtx, ally: Option<usize>) -> Option<i64> {
     }
     if need_second {
         // 2차 시도: S2 = spec0 또는 vt+0xa0 · (st,dd) = 0xe03360 · st==2 또는 tag −1 이면 buff = 0
-        let s2 = match spec0 { Some(x) => Some(x), None => a0 };
+        // ★★게임의 2단은 `vt+0xa0` 를 **새로 호출**하고 `spec0`(0xe047c0)을 **전혀 쓰지 않는다**
+        //   (S13 2단 0xd5fec8 / S14 2단 0xd5f8cf 둘 다). ~~`spec0` 우선~~ 은 spec0 이 있는 표본에서
+        //   재현이 더 큰 buff 를 내게 만든다 — S14 잔차 −46/−97 의 부호·크기와 맞는다(RE 2026-09-07).
+        let s2 = a0;
         let (e3, e4) = if ally.is_some() { (b.me, t) } else { (b.me, b.me) };
         let st = e03360(b, e3, e4)?;
         S14D.with(|c| { let mut z = c.get(); z[3] = st as i64; c.set(z); });
@@ -684,7 +691,9 @@ pub unsafe fn s13_s14(b: &BCtx, ally: Option<usize>) -> Option<i64> {
         hs_term = (rd_i64(ra + 0x70)? > 0 || x > 0 || rd_u64(t + ENT_MAXHP)? > rd_u64(t + ENT_HP)? || rd_i64(ra + 0x80)? != 0) as i64;
     }
     let atgt = if ally.is_some() { t } else { b.me };
-    let ah = rd_u64(atgt + ENT_HANDLE)?;
+    // ★self-skip 키(arg7)는 게임에서 `[rbp+0x618]` = **me+0x5c0 고정**이다 — 좌표(arg6)만 타깃을 따른다.
+    //   ~~`atgt + ENT_HANDLE`~~ 은 S14(atgt=아군)에서 틀린다(RE 2026-09-07).
+    let ah = rd_u64(b.me + ENT_HANDLE)?;
     let aoe = match e02bc0(b.slot, b.ctx, b.bb, b.me, atgt, ah, b.cast_delay) { Some(v) => v, None => return na_tag("B2bc0") };
     let main_raw = if ally.is_some() {
         aoe + etc + buff + hs_term
@@ -996,6 +1005,13 @@ pub unsafe fn e02bc0(slot: usize, ctx: usize, bb: usize, me: usize, tgt: usize, 
     if !ptr_ok(sd) || !ptr_ok(sv) { return None; }
     let (kind, aoe_r) = slot_d0(sd, sv)?;
     let n = rd_u64(bb + 0x14d0)?;                    // 아군 Record len
+    // ★kind 와 heal_cap 이 **둘 다** p(=inline_self) 에서 읽히는데 둘 다 0 이면 원인은 p 자체다.
+    //   data / p / vt RVA / p 주변 u32 를 같이 찍어 오프셋을 특정한다(2026-09-07).
+    {   let pp = inline_self(sd, sv).unwrap_or(0);
+        let vr = crate::exe_base(); let vrv = if vr != 0 && sv > vr { (sv - vr) as i64 } else { 0 };
+        AOED.with(|c| c.set([kind as i64, aoe_r as i64, n as i64, 0, 0, 0, 0, 0,
+                             (pp as i64).wrapping_sub(sd as i64), vrv,
+                             rd_u32(pp) as i64, rd_u32(sd) as i64])); }
     if kind != 1 || n == 0 { return Some(0); }
     let arr = rd_u64(bb + 0x14b8)? as usize; if !ptr_ok(arr) { return None; }
     let w = rd_u64(ctx)? as usize; if !ptr_ok(w) { return None; }
@@ -1007,18 +1023,20 @@ pub unsafe fn e02bc0(slot: usize, ctx: usize, bb: usize, me: usize, tgt: usize, 
     for i in 0..n.min(CAP_ITER) as usize {
         let rec = arr + i * 0xd8;
         let h = rd_u64(rec + 0x58)?;
-        if h == tgt_h { continue; }
-        let e = match wr.entity(h) { Some(x) => x.0, None => continue };
+        if h == tgt_h { AOED.with(|c| { let mut z = c.get(); z[3] += 1; c.set(z); }); continue; }
+        let e = match wr.entity(h) { Some(x) => x.0,
+            None => { AOED.with(|c| { let mut z = c.get(); z[4] += 1; c.set(z); }); continue } };
         let r = body_radius(e)?.wrapping_add(aoe_r);
         let (ex, ey) = (rd_u64(e + ENT_X)?, rd_u64(e + ENT_Y)?);
         let (dx, dy) = (absd(ex, cx), absd(ey, cy));
-        if dx.wrapping_mul(dx).wrapping_add(dy.wrapping_mul(dy)) > r.wrapping_mul(r) { continue; }
+        if dx.wrapping_mul(dx).wrapping_add(dy.wrapping_mul(dy)) > r.wrapping_mul(r) { AOED.with(|c| { let mut z = c.get(); z[5] += 1; c.set(z); }); continue; }
         let heal_cap = slot_sum(sd, sv, 0x40, me, 0, "B40")?;
         let heal = rd_u64(e + ENT_MAXHP)?.saturating_sub(rd_u64(e + ENT_HP)?).min(heal_cap.max(0) as u64) as i64;
         let x = super::action_score::threat_sum(rec, cast_delay.wrapping_add(30))?
             .wrapping_add(rd_i64(rec + 0x70)?).wrapping_add(rd_i64(rec + 0x88)?);
         let shield = slot_sum(sd, sv, 0x48, me, 0, "B48")?.min(3 * x);
         let total = shield.wrapping_add(heal);
+        AOED.with(|c| { let mut z = c.get(); z[6] = heal_cap; z[7] = total; c.set(z); });
         if total <= 0 { continue; }
         let ce = super::as_callees::pct_c(bb, rec)?;
         let hp = rd_i64(e + ENT_HP)?;
