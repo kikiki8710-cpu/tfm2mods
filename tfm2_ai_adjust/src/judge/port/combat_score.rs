@@ -356,21 +356,32 @@ pub(super) unsafe fn slot_88(data: usize, vt: usize, depth: u32) -> Option<(bool
     match r {
         EFF_E8_ZERO => Some((false, 0)),
         0x1145640 => { super::dyn_eff::unseen(0x6a3, r); Some((true, 1)) }
-        0x1147250 | 0x122f090 | 0x109bab0 => Some((true, rq!(rd_u64(p), 0x68a))),
+        0x1147250 => Some((true, rq!(rd_u64(p), 0x68a))),
+        // ★분리 필수 — 셋을 `[p+0x00]` 으로 묶어 놓은 것이 S12 잔여 DIFF 의 원인이었다(RE 2026-09-07 전수 census)
+        0x109bab0 => Some((true, rq!(rd_u64(p + 0x10), 0x68a).wrapping_add(rq!(rd_u64(p + 0x18), 0x68a)))),
+        0x122f090 => Some((true, rq!(rd_u64(p + 0x40), 0x68a))),
+        0x122fcf0 => Some((true, rq!(rd_u64(p + 0x10), 0x68a))),   // ★신규(미처리였음)
+        0x1151480 => Some((true, rq!(rd_u64(p + 0x18), 0x68a))),   // ★신규
+        0x133e490 => { let t = ((rq!(rd_u64(p + 0x30), 0x68a) != 0) as u64).max(rq!(rd_u64(p + 0x48), 0x68a));
+                       Some((t != 0, t)) }                          // ★신규
         0x13bfa20 => Some((true, rq!(rd_u64(p + 8), 0x68a))),    // ★+8 (RE 2026-09-07). 구 코드는 p 를 읽었다
         0x16adaa0 => Some((true, rq!(rd_u64(p + 0x30), 0x68a))), // ★+0x30
         // ⚠아래 arm 들은 T 를 **임의로** 0/1 로 둔다 — 실측상 게임은 60(=tps)을 내는 경우가 있다.
         //   어느 impl 이 그 자리에 있는지 표식으로 특정한다(2026-09-07).
-        0x17c2bd0 => { let f = rq!(rd_u64(p), 0x68a) != 0; if f { super::dyn_eff::unseen(0x6a0, r); } Some((f, 0)) }
+        // ★★`17c2bd0: mov rdx,[rcx]; xor eax,eax; test rdx,rdx; setne al; ret`
+        //   = `T = [p+0x00]`, `ok = (T != 0)`. ~~`(f, 0)`~~ 은 **구조적으로 절대 못 맞힌다**
+        //   (ok=true ⟺ T≠0 인데 T 를 0 으로 고정했으니). 574 표본이 전부 T=0 이던 서명이 이것.
+        0x17c2bd0 => { let v = rq!(rd_u64(p), 0x68a); Some((v != 0, v)) }
         0x1701740 => { let f = rq!(rd_u64(p + 0x48), 0x68a) != 0; if f { super::dyn_eff::unseen(0x6a4, r); } Some((f, 1)) }
         0x1153880 => { let v2 = rq!(rd_u64(p + 8), 0x68a) as usize;
             let r2 = rq!(super::dyn_eff::impl_rva(v2, 0xb0), 0x68b);
             match r2 { EFF_E8_ZERO => Some((false, 0)), EFF_TRUE => { super::dyn_eff::unseen(0x6a1, r2); Some((true, 0)) },
                        _ => { super::dyn_eff::unseen(0x5b0, r2); None } } }
+        // ★"첫 ok" 가 아니라 **ok 인 자식들의 unsigned max** — 합성형 계열과 같은 규약(RE 2026-09-07)
         0x1606700 | 0x164ecc0 => { let o = if r == 0x1606700 { 0x18 } else { 0 };
             let a = slot_88(rq!(rd_u64(p + o), 0x68a) as usize, rq!(rd_u64(p + o + 8), 0x68a) as usize, depth + 1)?;
-            if a.0 { return Some(a); }
-            slot_88(rq!(rd_u64(p + o + 0x10), 0x68a) as usize, rq!(rd_u64(p + o + 0x18), 0x68a) as usize, depth + 1) }
+            let b = slot_88(rq!(rd_u64(p + o + 0x10), 0x68a) as usize, rq!(rd_u64(p + o + 0x18), 0x68a) as usize, depth + 1)?;
+            Some(match (a.0, b.0) { (true, true) => (true, a.1.max(b.1)), (true, false) => a, (false, true) => b, _ => (false, 0) }) }
         // ★이 계열은 전부 같은 모노모픽 템플릿이다(RE 2026-09-07, 0x12a57b0/0x12a5100/0x12481a0 기계어 확인):
         //   ①모든 리스트를 **이어붙여** 순회 ②ok(al&1) 인 자식들의 **unsigned max** ③ok 가 하나도 없으면 (false, 0).
         //   예전 "리스트별로 돌다 첫 ok 에서 return" 은 자식이 2개 이상일 때 값이 달라진다.
