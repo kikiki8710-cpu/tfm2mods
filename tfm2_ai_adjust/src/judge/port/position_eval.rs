@@ -172,9 +172,9 @@ unsafe fn masks(w: &World, lanes: usize, sim: usize, side: u64, eside: u64, tick
 }
 struct Facet { cfg_tick: u64, class: u8, ss: [bool; 3] }
 unsafe fn facet(sim: usize, g: usize, tgt: usize) -> Option<Facet> {
-    let cfg = rd_u64(g + G_CFG)? as usize; if !ptr_ok(cfg) { trs(|| "FACET_NA:cfg".into()); return None; }
+    let cfg = rd_u64(g + G_CFG)? as usize; if !ptr_ok(cfg) { trs(|| "FACET_NA:cfg".into()); pmark("cfg"); return None; }
     let tag = (rd_u8(g + G_PHASE) as usize).min(8);
-    let cfg_tick = match rd_u64(cfg + CFGTICK_TBL[tag]) { Some(v) => v, None => { trs(|| "FACET_NA:cfgtick".into()); return None } };
+    let cfg_tick = match rd_u64(cfg + CFGTICK_TBL[tag]) { Some(v) => v, None => { trs(|| "FACET_NA:cfgtick".into()); pmark("cfgtick"); return None } };
     let (cd0, cv) = (rd_u64(sim + P5_CHAMP_DATA)? as usize, rd_u64(sim + P5_CHAMP_VT)? as usize);
     let cd = dy::arc_payload(cd0, cv)?;   // Box<dyn Champion> 페이로드 정렬(c580c4~c580d3) — 생 포인터를 넘기면 tags 가 쓰레기(2026-09-06 22:33)
     let fd = |what: &str| { let b = crate::exe_base(); let f30 = rd_u64(cv + 0x30).unwrap_or(0) as usize; let f28 = rd_u64(cv + 0x28).unwrap_or(0) as usize; let bytes = (0..16).map(|k| format!("{:02x}", rd_u8(f30 + k))).collect::<Vec<_>>().join(" ") + " f28:" + &(0..24).map(|k| format!("{:02x}", rd_u8(f28 + k))).collect::<Vec<_>>().join(" ");
@@ -182,7 +182,7 @@ unsafe fn facet(sim: usize, g: usize, tgt: usize) -> Option<Facet> {
     let kind = match champ_kind(cd, cv) { Some(v) => v, None => { fd("kind"); return None } };
     let (tp, tl) = match champ_tags(cd, cv) { Some(v) => v, None => { fd("tags"); return None } };
     let w2 = |need: bool| -> Option<u64> { if !need { return Some(0); } match champ_vt30_w2(cd, cv) { Some(v) => Some(v), None => { fd("vt30"); None } } };
-    let t8 = match tags_has(tp, tl, 8) { Some(v) => v, None => { trs(|| format!("FACET_NA:tags8 tp={:#x} tl={}", tp, tl)); fd("tags8"); return None } };
+    let t8 = match tags_has(tp, tl, 8) { Some(v) => v, None => { trs(|| format!("FACET_NA:tags8 tp={:#x} tl={}", tp, tl)); pmark("tags8"); fd("tags8"); return None } };
     let class: u8 = if t8 { 0 } else { match kind {
         0 => if w2(true)? < 1200 { 2 } else { 0 },
         2 => 3,
@@ -191,7 +191,7 @@ unsafe fn facet(sim: usize, g: usize, tgt: usize) -> Option<Facet> {
         _ => 2,
     } };
     let mut ss = [false; 3];
-    for k in 0..3usize { ss[k] = match slot_of(tgt, k + 1).and_then(|sl| skillshot(sl)) { Some(v) => v, None => { trs(|| format!("FACET_NA:ss{}", k)); return None } }; }
+    for k in 0..3usize { ss[k] = match slot_of(tgt, k + 1).and_then(|sl| skillshot(sl)) { Some(v) => v, None => { trs(|| format!("FACET_NA:ss{}", k)); pmark("ss"); return None } }; }
     Some(Facet { cfg_tick, class, ss })
 }
 
@@ -225,7 +225,7 @@ pub unsafe fn position_eval(mode: u64, sim: usize, holder: usize, qx: u64, qy: u
     };
     // S2
     let tick = rd_u64(w.data + W_TICK)?;
-    let (emask, amask) = match masks(&w, lanes, sim, side, eside, tick) { Some(v) => v, None => { trs(|| "NA:masks".into()); return None } };
+    let (emask, amask) = match masks(&w, lanes, sim, side, eside, tick) { Some(v) => v, None => { trs(|| "NA:masks".into()); pmark("masks"); return None } };
     trs(|| format!("M[e={:#x} a={:#x}]", emask, amask));
     let tbl_a = x + 0x280 + (side as usize) * 0xfa0 + role * 0x320;
     // S3
@@ -237,7 +237,7 @@ pub unsafe fn position_eval(mode: u64, sim: usize, holder: usize, qx: u64, qy: u
         let simb = rd_u64(x + X_SIM_TABLE + (eside as usize) * ROSTER_SIDE_STRIDE + i * 8)? as usize; if simb == 0 { return None; }
         let sideb = rd_u64(simb + P5_SIDE)?; if sideb > 1 { return None; }
         let tbl_b = x + 0x280 + (sideb as usize) * 0xfa0 + (rd_u32(simb + P5_ROLE) as usize) * 0x320;
-        let rec = match pair_record(tgt, ent, sim, simb, tbl_a, tbl_b, false) { Some(r) => r, None => { trs(|| format!("NA:pairE{}", i)); return None } };
+        let rec = match pair_record(tgt, ent, sim, simb, tbl_a, tbl_b, false) { Some(r) => r, None => { trs(|| format!("NA:pairE{}", i)); pmark("pairE"); return None } };
         e_list.push(Elem { rec, sim: simb, ent, d2 });
     }
     // S4
@@ -252,11 +252,11 @@ pub unsafe fn position_eval(mode: u64, sim: usize, holder: usize, qx: u64, qy: u
         let simb = rd_u64(x + X_SIM_TABLE + (side as usize) * ROSTER_SIDE_STRIDE + i * 8)? as usize; if simb == 0 { return None; }
         let sideb = rd_u64(simb + P5_SIDE)?; if sideb > 1 { return None; }
         let tbl_b = x + 0x280 + (sideb as usize) * 0xfa0 + (rd_u32(simb + P5_ROLE) as usize) * 0x320;
-        let rec = match pair_record(tgt, ent, sim, simb, tbl_a, tbl_b, flag) { Some(r) => r, None => { trs(|| format!("NA:pairA{}", i)); return None } };
+        let rec = match pair_record(tgt, ent, sim, simb, tbl_a, tbl_b, flag) { Some(r) => r, None => { trs(|| format!("NA:pairA{}", i)); pmark("pairA"); return None } };
         a_list.push(Elem { rec, sim: simb, ent, d2 });
     }
     // S5
-    let fc = match facet(sim, g, tgt) { Some(v) => v, None => { trs(|| "NA:facet".into()); return None } };
+    let fc = match facet(sim, g, tgt) { Some(v) => v, None => { trs(|| "NA:facet".into()); pmark("facet"); return None } };
     let st = St { mode, sim, holder, x, g, lanes, w, tgt, side, eside, role, qx, qy, purpose, gx, gy, hp, hp1, scale, vis_me, b0, tick, e_list, a_list, fc };
     body(&st)
 }
@@ -717,12 +717,12 @@ unsafe fn body(st: &St) -> Option<Out> {
             let kind = rd_u64(o + ENT_KIND)?;
             if kind == 4 {
                 if rd_u8(o + 0x88) != 0 && rd_u64(o + 0x90)? == th {
-                    let v = cap(match est(o, tgt) { Some(v) => v, None => { trs(|| format!("NA:S6est{:#x}", o)); return None } });
+                    let v = cap(match est(o, tgt) { Some(v) => v, None => { trs(|| format!("NA:S6est{:#x}", o)); pmark("S6est"); return None } });
                     if wrap_d2(ox, oy, qx, qy) <= sq(range_g(o, tgt)?) { a_acc = a_acc.wrapping_add(v as i64); }
                     else { let r = range_u(o, tgt)?.wrapping_add(32000); if d2s <= sq(r) { a_acc = a_acc.wrapping_add((v >> 1) as i64); } }
                 }
             } else if kind as i32 == 5 && rd_u64(o + 0x88)? != 0 {
-                let v = cap(match est(o, tgt) { Some(v) => v, None => { trs(|| format!("NA:S6est{:#x}", o)); return None } });
+                let v = cap(match est(o, tgt) { Some(v) => v, None => { trs(|| format!("NA:S6est{:#x}", o)); pmark("S6est"); return None } });
                 if wrap_d2(ox, oy, qx, qy) <= sq(range_g(o, tgt)?) { a_acc = a_acc.wrapping_add((if rd_u64(o + 0x90)? == th { v } else { third(v) }) as i64); }
             }
         }
@@ -749,7 +749,7 @@ unsafe fn body(st: &St) -> Option<Out> {
             if !go { continue; }
             let (i0, i8) = (rd_u64(item)?, rd_u64(item + 8)?);
             let same = same_team_ab(i0, i8, t0, t8);
-            let cnt = if same { 0 } else { match count_in_range(x, t8, item) { Some(v) => v, None => { trs(|| "NA:cnt".into()); return None } } };
+            let cnt = if same { 0 } else { match count_in_range(x, t8, item) { Some(v) => v, None => { trs(|| "NA:cnt".into()); pmark("cnt"); return None } } };
             if rd_i32(item + 0x4c0)? == -1 { return None; }
             // ★게임의 적/아군 분기는 **원시 쌍 비교**다: 적 ⟺ `(other[0] != self[0]) || (other[8] != self[8])`
             //   (RE 0xd874d2/0xd874e0). ~~`i0 == 0 && i8 == t8`~~ 은 self 의 소유 태그가 0 일 때만 같다.
@@ -758,11 +758,11 @@ unsafe fn body(st: &St) -> Option<Out> {
                     let mut first: Option<usize> = None;
                     for e in &st.e_list { let (ex, ey) = xy(e.ent)?; if wrap_d2(ix, iy, ex, ey) <= sq(range_g(item, e.ent)?) { first = Some(e.ent); break; } }
                     let e = match first { Some(e) => e, None => continue };
-                    let v = match est(item, e).and_then(|es| tower_v(item, es, tps, scale)) { Some(v) => v, None => { trs(|| "NA:mytower".into()); return None } };
+                    let v = match est(item, e).and_then(|es| tower_v(item, es, tps, scale)) { Some(v) => v, None => { trs(|| "NA:mytower".into()); pmark("mytower"); return None } };
                     if wrap_d2(ix, iy, qx, qy) <= sq(range_g(item, tgt)?) { c_acc = c_acc.wrapping_add(third(v) as i64); }
                 }
             } else if rd_i32(item + ENT_KIND)? == 2 {
-                let mut v = match est(item, tgt).and_then(|es| tower_v(item, es, tps, scale)) { Some(v) => v, None => { trs(|| "NA:etower".into()); return None } };
+                let mut v = match est(item, tgt).and_then(|es| tower_v(item, es, tps, scale)) { Some(v) => v, None => { trs(|| "NA:etower".into()); pmark("etower"); return None } };
                 let r_u = range_u(item, tgt)?;
                 let d2g = wrap_d2(ix, iy, qx, qy); let rgb = range_g(item, tgt)?; let ri = radius(item)?; let rt = radius(tgt)?;
                 // ★★게이트 = `range_g + 24000` — **확증(2026-09-07 11:40, 깨끗한 단측 오라클)**.
@@ -804,7 +804,7 @@ unsafe fn body(st: &St) -> Option<Out> {
                 trs(|| format!("T[{:#x} @({},{}) q=({},{}) tgt@({:?}) v={} d2={} rg={} dive={:?} gcalls={} gq={:?} gf={:?} 438={} 4a0={} 4a8={} lv={} e8={:?} e8impl={:#x} 4c0={} 470={} 680={} tgt470={} tgt680={} tgt={:#x}]", item, ix, iy, qx, qy, xy(tgt), v, wrap_d2(ix, iy, qx, qy), range_g(item, tgt).unwrap_or(0).wrapping_add(18000), dive_lookup(side, rd_u64(item + ENT_HANDLE).unwrap_or(0), tick), dive_calls_since(side, rd_u64(item + ENT_HANDLE).unwrap_or(0)), dive_q_recent(side, rd_u64(item + ENT_HANDLE).unwrap_or(0)), dive_f_recent(side, rd_u64(item + ENT_HANDLE).unwrap_or(0)),
                     rd_u64(item + 0x438).unwrap_or(0), rd_u64(item + 0x4a0).unwrap_or(0), rd_u64(item + 0x4a8).unwrap_or(0), rd_u64(item + ENT_LEVEL).unwrap_or(0), vt_e8(item + SLOT0, item, tgt), dy::impl_rva(rd_u64(item + SLOT0 + 8).unwrap_or(0) as usize, 0xe8).unwrap_or(0), rd_i32(item + 0x4c0).unwrap_or(-9), rd_i32(item + 0x470).unwrap_or(-9), rd_u64(item + 0x680).unwrap_or(0), rd_i32(tgt + 0x470).unwrap_or(-9), rd_u64(tgt + 0x680).unwrap_or(0), tgt));
                 if game_pass {
-                    let (dive, tgt_id) = match dive_lookup(side, rd_u64(item + ENT_HANDLE)?, tick) { Some(v) => v, None => { trs(|| "NA:dive".into()); return None } };
+                    let (dive, tgt_id) = match dive_lookup(side, rd_u64(item + ENT_HANDLE)?, tick) { Some(v) => v, None => { trs(|| "NA:dive".into()); pmark("dive"); return None } };
                     let hit_me = tgt_id == th && (dive & 1) == 1;
                     let atk = rd_u64(item + 0x88)?;
                     if (atk & 1) == 1 && rd_u64(item + 0x98)? == th {
@@ -856,7 +856,7 @@ unsafe fn body(st: &St) -> Option<Out> {
         })?;
     } else {
         // S9 노출
-        let r = match exposure(x, tgt, qx, qy, tps >> 1, tps) { Some(v) => v, None => { trs(|| "NA:expo".into()); return None } };
+        let r = match exposure(x, tgt, qx, qy, tps >> 1, tps) { Some(v) => v, None => { trs(|| "NA:expo".into()); pmark("expo"); return None } };
         let mut add: i64 = 0;
         if r != 0 {
             let hp = st.hp; let hpd = hp.wrapping_add((hp == 0) as u64); let r100 = r.wrapping_mul(100);
@@ -878,7 +878,7 @@ unsafe fn body(st: &St) -> Option<Out> {
         for i in 0..n.min(CAP_ITER) as usize {
             let u = rd_u64(p + i * 8)? as usize; if u == 0 { return None; }
             let (ux, uy) = xy(u)?; let d2s = sat_d2(ux, uy, qx, qy); if imp(4, (d2s >> 8) >= imm32(SITE_PE_FILTER_D2_SHR8_IMM, 87_890_625), (d2s >> 8) >= 87_890_625) || rd_i32(u + 0x4c0)? == -1 { continue; }   // ★off-by-one 정정: 게임은 (d2>>8) < 0x53d1ac1
-            let v = cap(match est(u, tgt) { Some(v) => v, None => { trs(|| format!("NA:S10est{:#x}", u)); return None } }); let r = range_u(u, tgt)?; let k = rd_u64(u + ENT_KIND)?;
+            let v = cap(match est(u, tgt) { Some(v) => v, None => { trs(|| format!("NA:S10est{:#x}", u)); pmark("S10est"); return None } }); let r = range_u(u, tgt)?; let k = rd_u64(u + ENT_KIND)?;
             let tm = if k == 7 || k as i32 == 9 { rd_i32(u + 0x88)? == 1 && rd_u64(u + 0x90)? == th } else if k as i32 == 10 { rd_i32(u + 0x70)? == 1 && rd_u64(u + 0x78)? == th } else { false };
             if d2s <= sq(r) { a_acc = a_acc.wrapping_add((if tm { v } else { v >> 1 }) as i64); }
             else if d2s <= sq(r.wrapping_add(32000)) { a_acc = a_acc.wrapping_add(third(v) as i64); }
@@ -902,20 +902,20 @@ unsafe fn body(st: &St) -> Option<Out> {
             if k == 4 || k == 5 || (k == 7 && a40 == 1) { continue; }
             let src = match w.entity(rd_u64(a + 0xf8)?) { Some(e) => e.0, None => continue };
             let tt = rd_u32(a + 0x12c);
-            if !(match relevant(tt, a, tgt) { Some(v) => v, None => { trs(|| format!("NA:rel{}", tt)); return None } }) { continue; }
+            if !(match relevant(tt, a, tgt) { Some(v) => v, None => { trs(|| format!("NA:rel{}", tt)); pmark("rel"); return None } }) { continue; }
             let ac = Act { a, k };
-            if !(match cover(&ac, qx, qy, r_t.wrapping_add(imm32(SITE_PE_TOWER_MARGIN_B_IMM, 18_000))) { Some(v) => v, None => { trs(|| format!("NA:cover{}", k)); return None } }) { continue; }
+            if !(match cover(&ac, qx, qy, r_t.wrapping_add(imm32(SITE_PE_TOWER_MARGIN_B_IMM, 18_000))) { Some(v) => v, None => { trs(|| format!("NA:cover{}", k)); pmark("cover"); return None } }) { continue; }
             if !same_team_ae(a, tgt)? {
-                let raw = match threat(&ac, src, tgt) { Some(v) => v, None => { trs(|| format!("NA:threat{}", k)); return None } }; let v = cap(raw);
+                let raw = match threat(&ac, src, tgt) { Some(v) => v, None => { trs(|| format!("NA:threat{}", k)); pmark("threat"); return None } }; let v = cap(raw);
                 trs(|| { let (b0, bn) = lb0(a).unwrap_or((0, 0)); let (p, n) = l50(a).unwrap_or((0, 0)); format!("ACT[{:#x} k={} tt={} raw={} v={} ticks={:?} a60={} a68={} b0={:?} l50={:?} hit={:?} ty={} src={:#x}]", a, k, tt, raw, v, ticks(a), rd_u64(a + 0x60).unwrap_or(0), rd_u64(a + 0x68).unwrap_or(0), dmg_list(b0, bn, 0x18, a, src, tgt), dmg_list(p, n, if k == 2 { 0x18 } else { 0x10 }, a, src, tgt), hit(a, tgt), rd_u32(a + 0x128), src) });
                 let mut near: Option<u64> = None;
                 for f in &st.a_list { let fe = f.ent; if !relevant(tt, a, fe)? { continue; } let (fx, fy) = xy(fe)?; if !cover(&ac, fx, fy, radius(fe)?)? { continue; } let d2f = wrap_d2(fx, fy, ax, ay); near = Some(match near { None => d2f, Some(m) => m.min(d2f) }); }
                 if k == 0 { if let Some(nr) = near { if rd_u8(a + 0x78) == 0 && nr < d2q { continue; } } f30 = 1; }
                 else if k == 2 { f31 = 1; } else { f30 = 1; }
                 a_acc = a_acc.wrapping_add(v as i64);
-                if !cc { cc = match is_cc(&ac) { Some(v) => v, None => { trs(|| format!("NA:cc{}", k)); return None } }; }
+                if !cc { cc = match is_cc(&ac) { Some(v) => v, None => { trs(|| format!("NA:cc{}", k)); pmark("cc"); return None } }; }
             } else {
-                let h = match heal_shield(&ac, src, tgt, 0x40).and_then(|a| heal_shield(&ac, src, tgt, 0x48).map(|b| a.wrapping_add(b))) { Some(v) => v, None => { trs(|| format!("NA:heal{}", k)); return None } };
+                let h = match heal_shield(&ac, src, tgt, 0x40).and_then(|a| heal_shield(&ac, src, tgt, 0x48).map(|b| a.wrapping_add(b))) { Some(v) => v, None => { trs(|| format!("NA:heal{}", k)); pmark("heal"); return None } };
                 if h != 0 { let q = (h.wrapping_mul(100) as i64).wrapping_div(st.hp1 as i64); a_acc = a_acc.wrapping_sub(q.min(150)); }
             }
         }
@@ -930,7 +930,7 @@ unsafe fn body(st: &St) -> Option<Out> {
         for rec in &st.e_list { let v = rec.rec.w[4] as i64; if rec.d2 <= rec.rec.w[0x19] { maxc = maxc.max(v); } else if rec.d2 <= rec.rec.w[0x1a] { maxc = maxc.max(sdiv2(v)); } }
     }
     for j in 1..=3usize {
-        if !(match usable(tgt, j) { Some(v) => v, None => { trs(|| "NA:usable".into()); return None } }) { continue; }
+        if !(match usable(tgt, j) { Some(v) => v, None => { trs(|| "NA:usable".into()); pmark("usable"); return None } }) { continue; }
         for rec in st.e_list.iter().chain(st.a_list.iter()) {
             let wv = &rec.rec.w; let jj = j - 1;
             if let Some(t) = tier(wv[4 + j] as i64, rec.d2, st.fc.ss[jj], wv[0x1b + 3 * jj], wv[0x1c + 3 * jj], wv[0x1d + 3 * jj], wv[0xb + jj], radius(rec.ent)?, r_me) { maxc = maxc.max(t); }
@@ -945,7 +945,7 @@ unsafe fn body(st: &St) -> Option<Out> {
         let d2 = rec.d2; let e = rec.ent; let wv = &rec.rec.w;
         if (d2 >> 10) >= 0x9502f9 && !vis { continue; }
         let v0 = wv[0] as i64;
-        let m88 = |k: usize| -> Option<bool> { match memo88(e, k) { Some(v) => Some(v == 1), None => { trs(|| format!("NA:m88_{}", k)); None } } };
+        let m88 = |k: usize| -> Option<bool> { match memo88(e, k) { Some(v) => Some(v == 1), None => { trs(|| format!("NA:m88_{}", k)); pmark("m88_"); None } } };
         let (mut can_hit, base) = if d2 <= wv[0xe] { (m88(0)?, v0.max(0)) } else if d2 <= wv[0xf] { (m88(0)?, sdiv2(v0).max(0)) } else { (false, 0) };
         let mut s = [0u64; 4];
         s[0] = if status_has(e, 3)? { (base as u64) / 3 } else { base as u64 };
@@ -960,7 +960,7 @@ unsafe fn body(st: &St) -> Option<Out> {
             else if d2 <= rb { s[k] = sdiv2(v).max(0) as u64; if !can_hit { can_hit = m88(k)?; } }
         }
         if status_has(e, 4)? { for k in 1..4 { s[k] /= 3; } }
-        if status_has(e, 5)? { for k in 1..4 { if let Some(sl) = slot_of(e, k)? { if rd_i32(sl + 0x30)? != -1 && (match vt120_of(sl) { Some(v) => v, None => { trs(|| "NA:vt120".into()); return None } }) { s[k] /= 3; } } } }
+        if status_has(e, 5)? { for k in 1..4 { if let Some(sl) = slot_of(e, k)? { if rd_i32(sl + 0x30)? != -1 && (match vt120_of(sl) { Some(v) => v, None => { trs(|| "NA:vt120".into()); pmark("vt120"); return None } }) { s[k] /= 3; } } } }
         if status_any_not_2345(e)? { for k in 0..4 { s[k] >>= 1; } }
         // 캐스팅 세그먼트
         let mut castv = 0u64;
@@ -971,8 +971,8 @@ unsafe fn body(st: &St) -> Option<Out> {
             let (ex, ey) = xy(e)?;
             if kind_pred(kind, e, tgt)? && tick >= tf && seg_dist(qx, qy, ex, ey, sx, sy)? <= width.wrapping_add(r_me).wrapping_add(20000) {
                 let (mut ph, mut mg) = (0u64, 0u64);
-                if list_iter(lp, ln, 0x18, |d, v| { let (p, m) = dy::eff28_damage(d, v, e)?; ph = ph.wrapping_add(p); mg = mg.wrapping_add(m); Some(()) }).is_none() { trs(|| "NA:cast28".into()); return None; }
-                let dmg = match conv(e, tgt, ph, 1, 0).and_then(|a| conv(e, tgt, mg, 1, 1).map(|b| a.wrapping_add(b))) { Some(v) => v, None => { trs(|| "NA:castconv".into()); return None } };
+                if list_iter(lp, ln, 0x18, |d, v| { let (p, m) = dy::eff28_damage(d, v, e)?; ph = ph.wrapping_add(p); mg = mg.wrapping_add(m); Some(()) }).is_none() { trs(|| "NA:cast28".into()); pmark("cast28"); return None; }
+                let dmg = match conv(e, tgt, ph, 1, 0).and_then(|a| conv(e, tgt, mg, 1, 1).map(|b| a.wrapping_add(b))) { Some(v) => v, None => { trs(|| "NA:castconv".into()); pmark("castconv"); return None } };
                 castv = cap(dmg); f30 = 1;
                 if !can_hit { let mut any = false; list_iter(lp, ln, 0x18, |d, v| { if vt88_flag(d, v, 0)? == 1 { any = true; } Some(()) })?; can_hit = any; }
             }
@@ -1322,6 +1322,11 @@ pub static MEMO_STAT: [std::sync::atomic::AtomicU64; 4] = [const { std::sync::at
 /// ★★임계치·마진·마스크는 **상수가 아니라 실행중 바이트**다 — ai_adjust 자신이 `pe_*` 노브로 덮어쓴다.
 /// 정적 exe 상수를 하드코딩하면 노브를 건드린 순간 그 경로가 전부 DIFF 된다.
 /// (2026-09-07 실측: tower_margin 18000→24000 · count_radius 120000²→150000² · kind_mask 0x503→0x303)
+/// ★position_eval 이 None 을 낸 **이유**를 남긴다 — combat_score 의 `S8pe` NA(판당 3,322)가
+/// 어느 블록에서 나오는지 안 보여서 원인을 못 좁히고 있었다(2026-09-07).
+thread_local! { pub static PENA: std::cell::Cell<u64> = const { std::cell::Cell::new(0) }; }
+#[inline] pub fn pmark(t: &str) { let mut b = [0u8; 8]; for (i, c) in t.bytes().take(8).enumerate() { b[i] = c; } PENA.with(|c| c.set(u64::from_le_bytes(b))); }
+pub fn last_na() -> u64 { PENA.with(|c| c.get()) }
 #[inline] unsafe fn imm32(site: usize, orig: u32) -> u64 { super::super::live_imm32(site, orig) as u64 }
 /// ★사이트별 영향도 계수(검증 한정). `live` 값과 `static` 원본값이 판정을 **실제로 뒤집는** 표본만 센다.
 /// 8곳을 한꺼번에 배선했는데 DIFF 가 오히려 늘어, **어느 사이트가 진짜로 쓰이는지**를 먼저 재야 한다.

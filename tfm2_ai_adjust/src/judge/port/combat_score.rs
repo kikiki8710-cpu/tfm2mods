@@ -934,7 +934,9 @@ unsafe fn combat_score_inner(mode: usize, _prof: usize, rec: usize, ctx: usize, 
         // 게임은 래퍼 0xd84db0 을 부른다 = TLS 메모 경유. 본체 재현이 None 이면 게임이 방금 채워 둔 메모 표를 읽는다.
         let a8 = match super::position_eval::position_eval(mode as u64, rec, ctx, qx8, qy8, 0xc) {
             Some(o) => o.a,
-            None => match super::position_eval::memo_lookup(mode, rec, ctx, qx8 as usize, qy8 as usize, 0xc) { Some(w) => w[0] as i64, None => return na(tag8("S8pe")) },
+            None => match super::position_eval::memo_lookup(mode, rec, ctx, qx8 as usize, qy8 as usize, 0xc) { Some(w) => w[0] as i64,
+                // ★position_eval 이 어느 블록에서 None 을 냈는지까지 태그에 담는다(판당 3,322건의 원인 특정용)
+                None => { let r = super::position_eval::last_na(); return na(if r != 0 { r } else { tag8("S8pe") }) } },
         };
         // ★게임은 위치항을 **뺀다**(실측: mine − game == 2*pos 가 3표본 정확히 일치, 2026-09-07)
         S5D.with(|c| { let mut z = c.get(); z[16] = a8; c.set(z); });
