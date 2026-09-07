@@ -250,7 +250,6 @@ unsafe fn nearest_in_chain(w: &World, side: u64, me: usize) -> Option<Option<(us
 thread_local! { static LEAF_ME: std::cell::Cell<usize> = const { std::cell::Cell::new(0) }; }
 pub(super) fn set_leaf_me(me: usize) { LEAF_ME.with(|c| c.set(me)); }
 #[inline] fn me_of_a8() -> Option<usize> { let v = LEAF_ME.with(|c| c.get()); if v == 0 { None } else { Some(v) } }
-/// ★`(x >> 2) / 100` = `x/400`. 게임은 `shr 2` 후 `/100` 매직을 쓴다(RE 2026-09-07).
 /// 게임의 `shr rax,2 → mul 0x28f5c28f5c28f5c3 → shr rdx,2` 는 **통째로 `x/100`** 이다
 /// (매직 = ceil(2^68/100). 앞의 `shr 2` 는 별도 나눗셈이 아니라 그 시퀀스의 일부).
 /// ~~`(x>>2)/100`~~ = `x/400` 은 **4배 축소** 버그다 — `dyn_eff::q400` 에 이미 같은 함정이
