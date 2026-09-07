@@ -80,7 +80,8 @@ unsafe fn prov_a8_charges(data: usize, vt: usize) -> Option<u64> {
 #[inline] unsafe fn prov(e: usize, off: usize) -> Option<(usize, usize)> { Some((rd_u64(e + off)? as usize, rd_u64(e + off + 8)? as usize)) }
 /// 스킬 vt+0x120 (RE §3-d 구현체 전수): false/true/[p+0x18]!=0/합성(자식 vt60‖vt68) — 나머지 unseen(0x120)
 pub unsafe fn eff_vt120(data: usize, vt: usize, depth: u32) -> Option<bool> {
-    if depth > 8 || !ptr_ok(vt) { return None; }
+    if depth > 40 { super::dyn_eff::unseen(0x630, depth as usize); return None; }
+    if !ptr_ok(vt) { return None; }
     let r = dy::impl_rva(vt, 0x120)?; let p = dy::arc_payload(data, vt)?;
     let any_children = |arr_off: usize, len_off: usize, stride: usize| -> Option<bool> {
         let n = rd_u64(p + len_off)?; if n == 0 { return Some(false); }

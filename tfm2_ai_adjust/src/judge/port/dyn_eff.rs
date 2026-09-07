@@ -80,7 +80,9 @@ pub unsafe fn composite_loops(f: usize, want_slot: usize) -> Option<([(usize, us
 }
 #[inline] pub unsafe fn impl_rva(vt: usize, slot: usize) -> Option<usize> {
     let b = exe_base(); if b == 0 || !ptr_ok(vt) { return None; }
-    let t = rd_u64(vt + slot)? as usize; if t <= b || t - b > 0x8000000 { return None; }
+    // ★.text 는 0x1000‥0x32d4600. 이전 상한(0x8000000)은 `.rdata` 를 통과시켜, 잘못 읽은 vt 에서 나온
+    //   vtable 주소가 "미재현 구현체"로 둔갑했다(2026-09-07 RE). 이제 즉시 None 이 된다.
+    let t = rd_u64(vt + slot)? as usize; if t <= b || t - b >= 0x32d4600 { return None; }
     Some(t - b)
 }
 #[inline] pub unsafe fn arc_payload(data: usize, vt: usize) -> Option<usize> {
@@ -107,6 +109,11 @@ pub unsafe fn eff28_damage(data: usize, vt: usize, att: usize) -> Option<(u64, u
     match rva {
         EFF28_ZERO => Some((0, 0)),
         EFF28_BASE_AD => Some((rd_u64(me)?.wrapping_add(q400(rd_u64(me + 8)?.wrapping_mul(rd_u64(att + ENT_STATS)?))), 0)),
+        // 0x16ada20: p = me0 + me10 + (me8·AD)/100 + (me18·AD)/100 , m = 0 (RE 2026-09-07)
+        0x16ada20 => { let ad = rd_u64(att + ENT_STATS)?;
+            Some((q400(rd_u64(me + 8)?.wrapping_mul(ad)).wrapping_add(rd_u64(me)?)
+                    .wrapping_add(rd_u64(me + 0x10)?)
+                    .wrapping_add(q400(rd_u64(me + 0x18)?.wrapping_mul(ad))), 0)) }
         EFF28_SUM_20_18 => {
             // 0x1146bb0: Σ 자식(+0x28) — rax(p)·rdx(m) 둘 다 합산
             let n = rd_u64(me + 0x28)?; if n == 0 { return Some((0, 0)); }
@@ -250,21 +257,25 @@ pub unsafe fn eff38_pct(data: usize, vt: usize, _att: usize) -> Option<u64> {
     match rva {
         EFF38_ZERO => Some(0),
         EFF38_GET28 => rd_u64(me + 0x28),
-        0x1341090 => {   // Σ 리스트1(@0x68/0x70 s0x18) + Σ 리스트2(@0x80/0x88 s0x18) 의 +0x38 (capstone 2026-09-06 22:50)
+        0x1341090 => {   // Σ 리스트1(@0x68/0x70 s0x18) + Σ 리스트2(@0x80/0x88 **s0x10**) 의 +0x38
+            // ★stride 정정 2026-09-07(RE `0x134114a add r13,0x10`). 0x18 로 훑으면 원소가 어긋나 (vt_i, data_{i+1})
+            //   쌍이 만들어지고 vt 자리에 Arc data 가 들어가 `.rdata` 를 vtable 로 오독한다(=slot+0x38 의 0x34xxxxx NA).
             let mut acc = 0u64;
-            for (po, lo) in [(0x68usize, 0x70usize), (0x80, 0x88)] { let n = rd_u64(me + lo)?; if n == 0 { continue; } let arr = rd_u64(me + po)? as usize; if !ptr_ok(arr) { return None; }
-                for i in 0..n.min(64) as usize { acc = acc.wrapping_add(eff38_pct(rd_u64(arr + i * 0x18)? as usize, rd_u64(arr + i * 0x18 + 8)? as usize, _att)?); } }
+            for (po, lo, st) in [(0x68usize, 0x70usize, 0x18usize), (0x80, 0x88, 0x10)] { let n = rd_u64(me + lo)?; if n == 0 { continue; } let arr = rd_u64(me + po)? as usize; if !ptr_ok(arr) { return None; }
+                for i in 0..n.min(64) as usize { acc = acc.wrapping_add(eff38_pct(rd_u64(arr + i * st)? as usize, rd_u64(arr + i * st + 8)? as usize, _att)?); } }
             Some(acc)
         }
         0x1248270 => {   // Σ 자식(stride 0x18 @me+0x50/len me+0x58) 의 +0x38 (capstone 2026-09-06 22:45)
             let n = rd_u64(me + 0x58)?; if n == 0 { return Some(0); } let arr = rd_u64(me + 0x50)? as usize; if !ptr_ok(arr) { return None; }
             let mut acc = 0u64; for i in 0..n.min(64) as usize { acc = acc.wrapping_add(eff38_pct(rd_u64(arr + i * 0x18)? as usize, rd_u64(arr + i * 0x18 + 8)? as usize, _att)?); } Some(acc)
         }
-        0x16a3610 => {   // Σ 리스트1(@0x50/0x58 s0x18) + Σ 리스트2(@0x68/0x70 s0x18) 의 +0x38 (꼬리 미확인: 0x16a32a0 과 같은 ×n 가능성 → 검증으로 판정)
-            let mut acc = 0u64;
-            for (po, lo) in [(0x50usize, 0x58usize), (0x68, 0x70)] { let n = rd_u64(me + lo)?; if n == 0 { continue; } let arr = rd_u64(me + po)? as usize; if !ptr_ok(arr) { return None; }
-                for i in 0..n.min(64) as usize { acc = acc.wrapping_add(eff38_pct(rd_u64(arr + i * 0x18)? as usize, rd_u64(arr + i * 0x18 + 8)? as usize, _att)?); } }
-            Some(acc)
+        0x16a3610 => {   // ★꼬리 확정 2026-09-07: n*sum1 + sum2, n = me[0x78] / max(me[0x80],1) (unsigned)
+            let mut sums = [0u64; 2];
+            for (k, (po, lo)) in [(0x50usize, 0x58usize), (0x68, 0x70)].into_iter().enumerate() {
+                let n = rd_u64(me + lo)?; if n == 0 { continue; } let arr = rd_u64(me + po)? as usize; if !ptr_ok(arr) { return None; }
+                for i in 0..n.min(64) as usize { sums[k] = sums[k].wrapping_add(eff38_pct(rd_u64(arr + i * 0x18)? as usize, rd_u64(arr + i * 0x18 + 8)? as usize, _att)?); } }
+            let c = rd_u64(me + 0x80)?.max(1);
+            Some((rd_u64(me + 0x78)? / c).wrapping_mul(sums[0]).wrapping_add(sums[1]))
         }
         0x16067b0 => {   // SwitchByBuff(+0x38 판): buff_lookup(att, [me+8], [me+0x10]) != 0 → 자식1(@0x28/0x30) 아니면 자식0(@0x18/0x20)
             let idx = if buff_lookup(_att, rd_u64(me + 8)? as usize, rd_u64(me + 0x10)?)? != 0 { 1usize } else { 0 };

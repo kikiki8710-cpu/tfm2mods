@@ -259,9 +259,19 @@ unsafe fn sum_list(p: usize, ptr_o: usize, len_o: usize, stride: usize, cs: usiz
     }
     Some(acc)
 }
+/// `slot_sum` 의 "페이로드를 직접 받는" 판 — 썽크가 넘긴 내부 포인터용(Arc 보정 금지).
+pub unsafe fn slot_sum_p(payload: usize, vt: usize, slot: usize, me: usize, depth: u32, tag: &str) -> Option<i64> {
+    if depth > 40 { super::dyn_eff::unseen(0x613, depth as usize); return na_tag(tag); }
+    let f = rd_u64(vt + slot)? as usize;
+    if let Some(v) = super::as_callees::decode_getter(f, payload) { return Some(v as i64); }
+    let base = crate::exe_base();
+    if base != 0 && f > base { if let Some(v) = leaf_stat_scaled(f - base, payload, me) { return Some(v); } }
+    if let Some(r) = super::dyn_eff::impl_rva(vt, slot) { super::dyn_eff::unseen(0x800 + slot as u32, r); }
+    na_tag(tag)
+}
 /// dyn 슬롯 값(i64). 합성이면 자식 합, 잎이면 디코드/스탯식, 그 외엔 unseen 기록 후 NA.
 pub unsafe fn slot_sum(data: usize, vt: usize, slot: usize, me: usize, depth: u32, tag: &str) -> Option<i64> {
-    if depth > 8 { return na_tag(tag); }
+    if depth > 40 { super::dyn_eff::unseen(0x610, depth as usize); return na_tag(tag); }
     let f = rd_u64(vt + slot)? as usize;          // ★절대주소(impl_rva 는 RVA)
     let p = inline_self(data, vt)?;
     // ── 골격 스캐너로 안 잡히는 변종 3종(실측 vt+0x40) ─────────────────────────────────
@@ -287,6 +297,25 @@ pub unsafe fn slot_sum(data: usize, vt: usize, slot: usize, me: usize, depth: u3
                 let s2 = sum_list(p, 0x68, 0x70, 0x10, 0x48, me, depth, tag)?;
                 return Some(s1.wrapping_add(s2));
             }
+            _ => {}
+        }
+    }
+    // SwitchByBuff(vt+0x40 계열): 버프 유무로 두 자식 중 하나를 **같은 슬롯**으로 테일콜
+    if eb != 0 && f > eb {
+        match f - eb {
+            0x16063d0 | 0x1606550 | 0x16067b0 => {
+                let idx = if super::dyn_eff::buff_lookup(me, rd_u64(p + 8)? as usize, rd_u64(p + 0x10)?)? != 0 { 0x10usize } else { 0 };
+                let (cd, cv) = (rd_u64(p + 0x18 + idx)? as usize, rd_u64(p + 0x20 + idx)? as usize);
+                if !ptr_ok(cd) || !ptr_ok(cv) { return None; }
+                return slot_sum(cd, cv, slot, me, depth + 1, tag);
+            }
+            // 포워딩 썽크(self=rcx). 내부 fat-ptr 로 재디스패치하되 **Arc 보정 없이** 원본 data 를 넘긴다.
+            0x1153880 => { let (id, iv) = (rd_u64(p)? as usize, rd_u64(p + 8)? as usize);
+                if !ptr_ok(id) || !ptr_ok(iv) { return None; }
+                return slot_sum_p(id, iv, 0xb0, me, depth + 1, tag); }
+            0x11538a0 => { let (id, iv) = (rd_u64(p)? as usize, rd_u64(p + 8)? as usize);
+                if !ptr_ok(id) || !ptr_ok(iv) { return None; }
+                return slot_sum_p(id, iv, 0x98, me, depth + 1, tag); }
             _ => {}
         }
     }
@@ -354,7 +383,7 @@ unsafe fn fold_children(p: usize, ptr_o: usize, len_o: usize, stride: usize, me:
 
 /// slot.vt+0x90 : bool. 실측 최빈 impl `0x12a71e0` = 자식(ptr p+8 / len p+0x10 / stride 0x10) 중 **하나라도 true**.
 pub unsafe fn slot_bool90(data: usize, vt: usize, depth: u32) -> Option<bool> {
-    if depth > 8 { return na_tag("B90d").map(|_| false); }
+    if depth > 40 { super::dyn_eff::unseen(0x611, depth as usize); return na_tag("B90d").map(|_| false); }
     let f = rd_u64(vt + 0x90)? as usize;
     let p = inline_self(data, vt)?;
     let eb = crate::exe_base(); if eb == 0 || f <= eb { return None; }
@@ -397,7 +426,7 @@ pub unsafe fn spec_a0(data: usize, vt: usize, me: usize, depth: u32) -> Option<O
 /// `spec_a0` 의 inline 기준판. 일부 impl(`0x1153860`)은 자식에게 **Arc 보정 없이** payload 를 그대로 넘긴다.
 pub unsafe fn spec_a0_inline(p: usize, vt: usize, me: usize, depth: u32) -> Option<Option<[u8; SPEC_SIZE]>> {
     let sim = SIM_TLS.with(|c| c.get()) as u64;
-    if depth > 8 { return na_tag("Ba0d").map(|_| None); }
+    if depth > 40 { super::dyn_eff::unseen(0x612, depth as usize); return na_tag("Ba0d").map(|_| None); }
     let f = rd_u64(vt + 0xa0)? as usize;
     let eb = crate::exe_base(); if eb == 0 || f <= eb { return None; }
     match f - eb {
@@ -1159,11 +1188,9 @@ unsafe fn e11e90(w: &World, agents: usize, rec: usize, subject: usize, e: usize,
 unsafe fn skill_ready88(slot: usize) -> Option<bool> {
     let (d, v) = (rd_u64(slot)? as usize, rd_u64(slot + 8)? as usize);
     if !ptr_ok(v) { return None; }
-    let f = rd_u64(v + 0x88)? as usize;
-    let p = inline_self(d, v)?;
-    if let Some(x) = super::as_callees::decode_getter(f, p) { return Some(x == 1); }
-    if let Some(r) = super::dyn_eff::impl_rva(v, 0x88) { super::dyn_eff::unseen(0xb88, r); }
-    None
+    // ★combat_score::slot_88 이 이 슬롯의 전체 impl 표(리스트 삼중항·max 의미)를 갖고 있다 — 재사용.
+    //   여기서는 플래그만 쓰므로 값(max)은 버린다.
+    super::combat_score::slot_88(d, v, 0).map(|(ok, _)| ok)
 }
 
 pub unsafe fn e01c40(b: &BCtx, subject: usize) -> Option<(bool, bool)> {

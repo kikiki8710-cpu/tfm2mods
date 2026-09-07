@@ -322,7 +322,7 @@ macro_rules! judge_capture_ret_cmp {
                 match mine {
                     None => { ST.na.fetch_add(1, Ordering::Relaxed); if LOGGED.fetch_add(1, Ordering::Relaxed) < 30 { logline("NA", None); } }
                     Some(v) if (v & 0xff_ffff) == game => { ST.ok.fetch_add(1, Ordering::Relaxed); }
-                    Some(v) => { ST.diff.fetch_add(1, Ordering::Relaxed); if LOGGED_D.fetch_add(1, Ordering::Relaxed) < 40 { logline("DIFF", Some(v)); } }
+                    Some(v) => { ST.diff.fetch_add(1, Ordering::Relaxed); { let k = LOGGED_D.fetch_add(1, Ordering::Relaxed); if k < 20 || (k % 512 == 0 && k < 512 * 300) { logline("DIFF", Some(v)); } } }
                 }
                 r
             }
@@ -540,7 +540,7 @@ macro_rules! judge_capture_out_cmp {
                 match mine {
                     None => { ST.na.fetch_add(1, Ordering::Relaxed); if LOGGED.fetch_add(1, Ordering::Relaxed) < 30 { logline("NA", None); } }
                     Some(m) if ($eq)(&w, &m) => { ST.ok.fetch_add(1, Ordering::Relaxed); }
-                    Some(m) => { ST.diff.fetch_add(1, Ordering::Relaxed); if LOGGED_D.fetch_add(1, Ordering::Relaxed) < 40 { logline("DIFF", Some(m)); } }
+                    Some(m) => { ST.diff.fetch_add(1, Ordering::Relaxed); { let k = LOGGED_D.fetch_add(1, Ordering::Relaxed); if k < 20 || (k % 512 == 0 && k < 512 * 300) { logline("DIFF", Some(m)); } } }
                 }
                 r
             }
@@ -655,7 +655,7 @@ macro_rules! judge_capture_ring_cmp9_pre {
                 match mine {
                     None => { ST.na.fetch_add(1, Ordering::Relaxed); if LOGGED.fetch_add(1, Ordering::Relaxed) < 30 { logline("NA", None); } }
                     Some(v) if v == r as i64 => { ST.ok.fetch_add(1, Ordering::Relaxed); }
-                    Some(v) => { ST.diff.fetch_add(1, Ordering::Relaxed); if LOGGED_D.fetch_add(1, Ordering::Relaxed) < 40 { logline("DIFF", Some(v)); } }
+                    Some(v) => { ST.diff.fetch_add(1, Ordering::Relaxed); { let k = LOGGED_D.fetch_add(1, Ordering::Relaxed); if k < 20 || (k % 512 == 0 && k < 512 * 300) { logline("DIFF", Some(v)); } } }
                 }
                 r
             }
@@ -697,7 +697,7 @@ macro_rules! judge_capture_ring_cmp9 {
                 match mine {
                     None => { ST.na.fetch_add(1, Ordering::Relaxed); if LOGGED.fetch_add(1, Ordering::Relaxed) < 30 { logline("NA", None); } }
                     Some(v) if v == r as i64 => { ST.ok.fetch_add(1, Ordering::Relaxed); }
-                    Some(v) => { ST.diff.fetch_add(1, Ordering::Relaxed); if LOGGED_D.fetch_add(1, Ordering::Relaxed) < 40 { logline("DIFF", Some(v)); } }
+                    Some(v) => { ST.diff.fetch_add(1, Ordering::Relaxed); { let k = LOGGED_D.fetch_add(1, Ordering::Relaxed); if k < 20 || (k % 512 == 0 && k < 512 * 300) { logline("DIFF", Some(v)); } } }
                 }
                 r
             }
@@ -739,7 +739,7 @@ macro_rules! judge_capture_ring_cmp {
                 match mine {
                     None => { ST.na.fetch_add(1, Ordering::Relaxed); if LOGGED.fetch_add(1, Ordering::Relaxed) < 30 { logline("NA", None); } }
                     Some(v) if v == r as u64 => { ST.ok.fetch_add(1, Ordering::Relaxed); }
-                    Some(v) => { ST.diff.fetch_add(1, Ordering::Relaxed); if LOGGED_D.fetch_add(1, Ordering::Relaxed) < 40 { logline("DIFF", Some(v)); } }
+                    Some(v) => { ST.diff.fetch_add(1, Ordering::Relaxed); { let k = LOGGED_D.fetch_add(1, Ordering::Relaxed); if k < 20 || (k % 512 == 0 && k < 512 * 300) { logline("DIFF", Some(v)); } } }
                 }
                 r
             }

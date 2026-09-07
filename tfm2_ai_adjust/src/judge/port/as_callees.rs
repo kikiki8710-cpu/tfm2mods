@@ -472,21 +472,32 @@ pub fn dest_eq(game: &[u64; 9], mine: &[u64; 9]) -> bool {
 pub unsafe fn decode_getter(f: usize, obj: usize) -> Option<u64> {
     if !ptr_ok(f) { return None; }
     let b0 = rd_u8(f); let b1 = rd_u8(f + 1); let b2 = rd_u8(f + 2);
-    if b0 == 0x48 && b1 == 0x8b && b2 == 0x81 { return rd_u64((obj as isize + rd_i32(f + 3)? as isize) as usize); }
-    if b0 == 0x48 && b1 == 0x8b && b2 == 0x41 { return rd_u64((obj as isize + rd_u8(f + 3) as i8 as isize) as usize); }
-    if b0 == 0x48 && b1 == 0x8b && b2 == 0x01 { return rd_u64(obj); }
-    if b0 == 0xb0 && rd_u8(f + 2) == 0xc3 { return Some(b1 as u64); }              // mov al, imm8; ret
-    if b0 == 0x8b && b1 == 0x81 { return Some(rd_u32((obj as isize + rd_i32(f + 2)? as isize) as usize) as u64); }
-    if b0 == 0x8b && b1 == 0x41 { return Some(rd_u32((obj as isize + rd_u8(f + 2) as i8 as isize) as usize) as u64); }
-    if b0 == 0x0f && b1 == 0xb6 && b2 == 0x81 { return Some(rd_u8((obj as isize + rd_i32(f + 3)? as isize) as usize) as u64); }
-    if b0 == 0x0f && b1 == 0xb6 && b2 == 0x41 { return Some(rd_u8((obj as isize + rd_u8(f + 3) as i8 as isize) as usize) as u64); }
-    if (b0 == 0x31 || b0 == 0x33) && b1 == 0xc0 { return Some(0); }
-    if b0 == 0xb8 { return Some(rd_u32(f + 1) as u64); }
+    // ★패턴 길이만큼 뒤에 ret(0xc3) 가 있어야 "그 게터가 전부"다. 안 그러면 더 긴 함수의 앞부분을
+    //   잘라 읽는 것이라 값이 조용히 틀린다(2026-09-07: vt+0xa8 impl 0x1716a40 이 이 경로로 0 을 냈다).
+    let ret_at = |n: usize| rd_u8(f + n) == 0xc3;
+    if b0 == 0x48 && b1 == 0x8b && b2 == 0x81 && ret_at(7) { return rd_u64((obj as isize + rd_i32(f + 3)? as isize) as usize); }
+    if b0 == 0x48 && b1 == 0x8b && b2 == 0x41 && ret_at(4) { return rd_u64((obj as isize + rd_u8(f + 3) as i8 as isize) as usize); }
+    if b0 == 0x48 && b1 == 0x8b && b2 == 0x01 && ret_at(3) { return rd_u64(obj); }
+    if b0 == 0xb0 && ret_at(2) { return Some(b1 as u64); }                          // mov al, imm8; ret
+    if b0 == 0x8b && b1 == 0x81 && ret_at(6) { return Some(rd_u32((obj as isize + rd_i32(f + 2)? as isize) as usize) as u64); }
+    if b0 == 0x8b && b1 == 0x41 && ret_at(3) { return Some(rd_u32((obj as isize + rd_u8(f + 2) as i8 as isize) as usize) as u64); }
+    if b0 == 0x0f && b1 == 0xb6 && b2 == 0x81 && ret_at(7) { return Some(rd_u8((obj as isize + rd_i32(f + 3)? as isize) as usize) as u64); }
+    if b0 == 0x0f && b1 == 0xb6 && b2 == 0x41 && ret_at(4) { return Some(rd_u8((obj as isize + rd_u8(f + 3) as i8 as isize) as usize) as u64); }
+    if (b0 == 0x31 || b0 == 0x33) && b1 == 0xc0 && ret_at(2) { return Some(0); }
+    if b0 == 0xb8 && ret_at(5) { return Some(rd_u32(f + 1) as u64); }
     None
 }
 pub unsafe fn eff_bool(data: usize, vt: usize, slot: usize, depth: u32) -> Option<bool> {
-    if depth > 8 || !ptr_ok(vt) { return None; }
-    let r = super::dyn_eff::impl_rva(vt, slot)?;
+    if depth > 40 { super::dyn_eff::unseen(0x4000 | slot as u32, depth as usize); return None; }
+    if !ptr_ok(vt) {
+        super::dyn_eff::unseen(0x2000 | slot as u32, vt & 0xffff_ffff);
+        super::dyn_eff::unseen(0x2100 | slot as u32, vt >> 32);
+        return None;
+    }
+    let r = match super::dyn_eff::impl_rva(vt, slot) {
+        Some(r) => r,
+        None => { super::dyn_eff::unseen(0x3000 | slot as u32, 0); return None; }
+    };
     let align = rd_u64(vt + 0x10)?; let p = data.wrapping_add(((align.wrapping_sub(1)) & !0xfu64) as usize).wrapping_add(0x10);
     let any_child = |s: usize| -> Option<bool> {
         let n = rd_u64(p + 0x10)?; if n == 0 { return Some(false); }

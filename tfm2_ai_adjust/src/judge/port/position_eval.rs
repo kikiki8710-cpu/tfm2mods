@@ -58,7 +58,7 @@ unsafe fn range_u(e: usize, t: usize) -> Option<u64> { Some(base_range(e, t)?.wr
 /// Effect bool 게터(vt+0xf8 skillshot 등): 0x9db70=0 · EFF_TRUE=1 · 그 외 unseen(slot)
 unsafe fn eff_flag(data: usize, vt: usize, slot: usize) -> Option<u64> { eff_flag_d(data, vt, slot, 0) }
 unsafe fn eff_flag_d(data: usize, vt: usize, slot: usize, depth: u32) -> Option<u64> {
-    if depth > 8 { return None; }
+    if depth > 40 { super::dyn_eff::unseen(0x620, depth as usize); return None; }
     let r = dy::impl_rva(vt, slot)?; let p = dy::arc_payload(data, vt)?;
     match (slot, r) {
         (_, EFF_E8_ZERO) => Some(0), (_, EFF_TRUE) => Some(1),
@@ -375,7 +375,8 @@ unsafe fn usable(e: usize, k: usize) -> Option<bool> {
 }
 /// Effect vt+0x88 플래그 트리(c872f0 값): 0x9db70=0 · 0x1147250/0x1145640=1 · 합성 0x12a57b0(stride 0x10 @+8/+0x10) · 0x12a61c0(stride 0x18 @+0x20/+0x28)
 unsafe fn vt88_flag(data: usize, vt: usize, depth: u32) -> Option<u64> {
-    if depth > 8 || !ptr_ok(vt) { return None; }
+    if depth > 40 { super::dyn_eff::unseen(0x621, depth as usize); return None; }
+    if !ptr_ok(vt) { return None; }
     let r = dy::impl_rva(vt, 0x88)?; let p = dy::arc_payload(data, vt)?;
     let any = |ptr_off: usize, len_off: usize, stride: usize| -> Option<u64> {
         let n = rd_u64(p + len_off)?; if n == 0 { return Some(0); } let arr = rd_u64(p + ptr_off)? as usize; if !ptr_ok(arr) { return None; }
@@ -522,13 +523,22 @@ unsafe fn eff48_shield(data: usize, vt: usize, src: usize) -> Option<u64> {
 }
 /// Effect vt+0x80(self) 플래그: 0x9db70=0 · EFF_TRUE/0x1147250=1 · 0x12a6b80 = 자식(stride 0x10 @p+8/0x10) 중 첫 al&1 의 rax
 unsafe fn vt80_flag(data: usize, vt: usize, depth: u32) -> Option<u64> {
-    if depth > 8 || !ptr_ok(vt) { return None; }
+    if depth > 40 { super::dyn_eff::unseen(0x622, depth as usize); return None; }
+    if !ptr_ok(vt) { return None; }
     let r = dy::impl_rva(vt, 0x80)?; let p = dy::arc_payload(data, vt)?;
     match r {
         EFF_E8_ZERO => Some(0), EFF_TRUE | 0x1147250 | 0x1145640 | 0x122fcf0 => Some(1),
         0x1606550 => vt80_flag(rd_u64(p + 0x18)? as usize, rd_u64(p + 0x20)? as usize, depth + 1),
         0x12a6b80 => { let n = rd_u64(p + 0x10)?; if n == 0 { return Some(0); } let arr = rd_u64(p + 8)? as usize; if !ptr_ok(arr) { return None; }
             for i in 0..n.min(64) as usize { let v = vt80_flag(rd_u64(arr + i * 0x10)? as usize, rd_u64(arr + i * 0x10 + 8)? as usize, depth + 1)?; if v & 1 == 1 { return Some(v); } } Some(0) }
+        // 0x1146c40: 자식(ptr p+0x20 / len p+0x28 / stride 0x18) 중 첫 `al&1` 의 rax 전체. 없으면 0. (RE 2026-09-07)
+        0x1146c40 => { let n = rd_u64(p + 0x28)?; if n == 0 { return Some(0); }
+            let arr = rd_u64(p + 0x20)? as usize; if !ptr_ok(arr) { return None; }
+            for i in 0..n.min(64) as usize {
+                let v = vt80_flag(rd_u64(arr + i * 0x18)? as usize, rd_u64(arr + i * 0x18 + 8)? as usize, depth + 1)?;
+                if v & 1 == 1 { return Some(v); } }
+            Some(0) }
+        0x16adaa0 => Some(1),                     // mov rdx,[rcx+0x30]; mov eax,1; ret
         _ => { dy::unseen(0x380, r); None }
     }
 }
