@@ -12,7 +12,7 @@ use super::action_score::sim_of_handle;
 pub const SPEC_SIZE: usize = 0x120;
 /// DIFF 로그용 S13/S14 성분 [aoe, trig, aura_t, etc, hs_term, buff, raw, dur]
 thread_local! {
-    pub static S13D: std::cell::Cell<[i64; 8]> = const { std::cell::Cell::new([0; 8]) };
+    pub static S13D: std::cell::Cell<[i64; 10]> = const { std::cell::Cell::new([0; 10]) };
     pub static S13E: std::cell::Cell<[i64; 12]> = const { std::cell::Cell::new([0; 12]) };
     /// ★0xe03ed0(trig) 이탈지점 추적 — [exit, def!=0, tid, n, r, st, sum, cnt]
     ///   exit: 1=slot_def_b8 없음 2=def==0 3=tid 비표식·비컨테이너 4=컨테이너 비었음 5=자식에 표식 없음 9=끝까지 계산
@@ -20,8 +20,8 @@ thread_local! {
 }
 pub fn s13_diag() -> String {
     let v = S13D.with(|c| c.get()); let e = S13E.with(|c| c.get()); let f = S14D.with(|c| c.get()); let g = E3D.with(|c| c.get()); let h = AOED.with(|c| c.get()); let k = A0CH.with(|c| c.get());
-    format!(" S13[aoe={} trig={} aura={} etc={} hs={} buff={} raw={} dur={}] S13E[healE={} shieldE={} inc={} gate={} total={} has={} ally={} mainRaw={} healRaw={} cap={} miss={} shRaw={}] S14[v={} k={} vd={} st={} b1={} b2={} src={} raw={} fp={} ns={} a0i={:#x}] E3[exit={} def={} tid={:#x} n={} r={} st={} sum={} cnt={}] AOE[kind={} R={} n={} slf={} noe={} dst={} cap={} tot={} poff={} vt={:#x} d0i={:#x} i40={:#x}] A0CH[{:#x} {:#x} {:#x} {:#x}]",
-        v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7], e[0], e[1], e[2], e[3], e[4], e[5], e[6], e[7], e[8], e[9], e[10], e[11],
+    format!(" S13[aoe={} trig={} auraT={} etc={} hs={} buff={} raw={} dur={} AURA={} b0i={:#x}] S13E[healE={} shieldE={} inc={} gate={} total={} has={} ally={} mainRaw={} healRaw={} cap={} miss={} shRaw={}] S14[v={} k={} vd={} st={} b1={} b2={} src={} raw={} fp={} ns={} a0i={:#x}] E3[exit={} def={} tid={:#x} n={} r={} st={} sum={} cnt={}] AOE[kind={} R={} n={} slf={} noe={} dst={} cap={} tot={} poff={} vt={:#x} d0i={:#x} i40={:#x}] A0CH[{:#x} {:#x} {:#x} {:#x}]",
+        v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7], v[8], v[9], e[0], e[1], e[2], e[3], e[4], e[5], e[6], e[7], e[8], e[9], e[10], e[11],
         f[0], f[1], f[2], f[3], f[4], f[5], f[6], f[7], f[8], f[9], f[10], g[0], g[1], g[2], g[3], g[4], g[5], g[6], g[7],
         h[0], h[1], h[2], h[3], h[4], h[5], h[6], h[7], h[8], h[9], h[10], h[11], k[0], k[1], k[2], k[3])
 }
@@ -631,7 +631,7 @@ thread_local! { pub static S14D: std::cell::Cell<[i64; 11]> = const { std::cell:
 pub fn s14_diag() -> [i64; 11] { S14D.with(|c| c.get()) }
 pub unsafe fn s13_s14(b: &BCtx, ally: Option<usize>) -> Option<i64> {
     // ★S13D/S13E 도 함께 리셋 — 안 하면 다른 경로 표본에 직전 호출의 잔값이 찍혀 진단이 헛돌다(RE 2026-09-07)
-    S14D.with(|c| c.set([0; 11])); AOED.with(|c| c.set([0; 12])); A0CH.with(|c| c.set([0; 4])); S13D.with(|c| c.set([0; 8])); S13E.with(|c| c.set([0; 12]));
+    S14D.with(|c| c.set([0; 11])); AOED.with(|c| c.set([0; 12])); A0CH.with(|c| c.set([0; 4])); S13D.with(|c| c.set([0; 10])); S13E.with(|c| c.set([0; 12]));
     set_leaf_ctx(b.sim);
     let (sd, sv, _sin) = slot3(b.slot)?;
     let t = b.tgt;
@@ -643,6 +643,10 @@ pub unsafe fn s13_s14(b: &BCtx, ally: Option<usize>) -> Option<i64> {
     let heal = heal0.min(heal_cap.max(0) as u64) as i64;
     let shield = slot_sum(sd, sv, 0x48, b.me, 0, "B48")?;
     let aura = slot_sum(sd, sv, 0xb0, b.me, 0, "Bb0")?;
+    // ★`aura`(vt+0xb0) 는 버프항 게이트(`has || aura>0`)를 여는 값인데 로그에 없었다 —
+    //   F1 계열(has=0·6항 전부 0·게임 main 9/26)의 유일한 남은 후보다(2026-09-07).
+    S13D.with(|c| { let mut z = c.get(); z[8] = aura;
+        z[9] = super::dyn_eff::impl_rva(sv, 0xb0).unwrap_or(0) as i64; c.set(z); });
 
     // spec0 = 0xe047c0(slot, ctx, tgt) · has = spec0 있음 ∨ slot.vt+0xa0 의 tag != −1
     let spec0 = match e047c0(b.slot, b.ctx, t) { Some(v) => v, None => return na_tag("B047") };
