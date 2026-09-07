@@ -50,8 +50,8 @@ pub fn ally_diag() -> [i64; 10] { ALLYD.with(|c| c.get()) }
 thread_local! { pub static S12ST: std::cell::Cell<[i64; 20]> = const { std::cell::Cell::new([0; 20]) }; }
 /// [st, T, dmg, tps, burst, tgt.hp]
 /// S5 위험항 진단: [near!=0, near.kind, near.0x88, dist(me,near), r_t, safe, bb.0x9b0 원값]
-thread_local! { pub static S5D: std::cell::Cell<[i64; 21]> = const { std::cell::Cell::new([0; 21]) }; }
-pub fn s5_diag() -> [i64; 21] { S5D.with(|c| c.get()) }
+thread_local! { pub static S5D: std::cell::Cell<[i64; 23]> = const { std::cell::Cell::new([0; 23]) }; }
+pub fn s5_diag() -> [i64; 23] { S5D.with(|c| c.get()) }
 thread_local! { pub static CDLY: std::cell::Cell<i64> = const { std::cell::Cell::new(0) }; }
 pub fn cast_dly() -> i64 { CDLY.with(|c| c.get()) }
 /// 직전 S12 호출의 스테로이드 창 기여분(진단용)
@@ -106,7 +106,7 @@ pub unsafe fn diag(_p1: usize, _p3: usize, _p4: usize) -> String {
         v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7], v[8], v[9], v[10], v[11], v[12], v[13])
         + &format!(" game_thr={} bb970={} bb9a0={} bb988={}", v[14], v[15], v[16], v[17])
         + &{ let q = S12D.with(|c| c.get()); let z = s12_st(); format!(" | S12[D={} X={} Ct={} kill={} score={} e01450={} e019d0={} e02020={} st={} T={} dmg={} selfN={} burst={} thp={} stRaw={} bonus={} q={} pk={} E1450[v1={} v2={} v3={} v4={} v5={} msum={} dps={} n={} acc={} nal={} a8i={:#x}] i88={:#x} tid={:#x} m16={} v10={} aa={} THP={} v={} slN={}] A[{:?}]", q[0], q[1], q[2], q[3], q[4], q[5], q[6], q[7], z[0], z[1], z[2], z[3], z[4], z[5], z[10], z[7], z[8], z[9], { let q = e1450_diag(); q[0] }, e1450_diag()[1], e1450_diag()[2], e1450_diag()[3], e1450_diag()[4], e1450_diag()[5], e1450_diag()[6], e1450_diag()[7], e1450_diag()[8], e1450_diag()[9], e1450_diag()[10], z[12], z[13], z[14], z[15], z[16], z[17], z[18], z[19], ally_diag()) }
-        + &{ let d = s5_diag(); format!(" S5[near={} kind={} f88={} dn={} rt={} safe={} raw9b0={} vis={} t0d={} t0a={} cdly={} alen={} th={:#x} a0={:#x} a1={:#x} pg={} d2={} a8={} eLen={} aLen={} a8m={} a8r={}] NIC[cand={} dmin={} mlen={} nstruct={}]", d[0], d[1], d[2], d[3], d[4], d[5], d[6], d[7], d[8], d[9], cast_dly(), d[10], d[11], d[12], d[13], d[14], d[15], d[16], d[19], d[20], d[17], d[18], nic_diag()[0], nic_diag()[1], nic_diag()[2], nic_diag()[3]) }
+        + &{ let d = s5_diag(); format!(" S5[near={} kind={} f88={} dn={} rt={} safe={} raw9b0={} vis={} t0d={} t0a={} cdly={} alen={} th={:#x} a0={:#x} a1={:#x} pg={} d2={} a8={} pmask={:#x} pfirst={} a8m={} a8r={}] NIC[cand={} dmin={} mlen={} nstruct={}]", d[0], d[1], d[2], d[3], d[4], d[5], d[6], d[7], d[8], d[9], cast_dly(), d[10], d[11], d[12], d[13], d[14], d[15], d[16], d[21], d[22], d[17], d[18], nic_diag()[0], nic_diag()[1], nic_diag()[2], nic_diag()[3]) }
         + &unsafe { let caps = crate::judge::cap_util_c87fe0::last_p2().unwrap_or(0);
             // ★★`path=`·`S13[…]` 를 **caps 게이트 밖으로** 뺐다 — 잔차 23건이 전부 `caps=none` 이라
             //   경로를 안 찍은 것처럼 보였고, 그것 때문에 조기반환으로 오진단했다(RE 2026-09-07).
@@ -769,6 +769,28 @@ unsafe fn e01450(w: &World, sim: usize, rec: usize, slot: usize, tgt: usize, c_t
 ///  그게 우연이 아니라면 **a2 != 0 인 호출이 곧 DIFF 집합**이어야 한다.
 thread_local! { pub static E1450D: std::cell::Cell<[i64; 11]> = const { std::cell::Cell::new([0; 11]) }; }
 pub fn e1450_diag() -> [i64; 11] { E1450D.with(|c| c.get()) }
+/// `pos_term` 블록이 실행될 때 purpose 0..15 로 메모를 두드려 **어느 키로 열리는지** 집계한다.
+/// 덤프 표본 추출에 의존하지 않도록 전역 카운터로 둔다(그 계열이 표본에 안 잡히는 판이 많다).
+pub static PMASK_HIT: [AtomicU64; 16] = [AtomicU64::new(0), AtomicU64::new(0), AtomicU64::new(0), AtomicU64::new(0),
+                                         AtomicU64::new(0), AtomicU64::new(0), AtomicU64::new(0), AtomicU64::new(0),
+                                         AtomicU64::new(0), AtomicU64::new(0), AtomicU64::new(0), AtomicU64::new(0),
+                                         AtomicU64::new(0), AtomicU64::new(0), AtomicU64::new(0), AtomicU64::new(0)];
+pub static PMASK_RUN: AtomicU64 = AtomicU64::new(0);
+/// 메모가 **적중한** 호출에서 재현값과 일치하는지 — 이게 `position_eval` 재현이 이 인자 조합에서
+/// 맞는지를 직접 재는 유일한 척도다(`as_d84db0` 훅은 게임 **자신의** 호출만 본다).
+pub static A8_SAME: AtomicU64 = AtomicU64::new(0);
+pub static A8_DIFF: AtomicU64 = AtomicU64::new(0);
+pub static A8_RNONE: AtomicU64 = AtomicU64::new(0);
+pub fn pmask_report() -> String {
+    let n = PMASK_RUN.load(Ordering::Relaxed); if n == 0 { return String::new(); }
+    let mut s = format!("[S8 pos] 블록 실행 {} · purpose 별 메모 적중:", n);
+    for (i, a) in PMASK_HIT.iter().enumerate() { let v = a.load(Ordering::Relaxed); if v != 0 { s += &format!(" {}={}", i, v); } }
+    s += &format!("
+  메모적중 시 재현 대조: 일치 {} · 불일치 {} · 재현None {}
+",
+        A8_SAME.load(Ordering::Relaxed), A8_DIFF.load(Ordering::Relaxed), A8_RNONE.load(Ordering::Relaxed));
+    s
+}
 pub static A2_NZ: AtomicU64 = AtomicU64::new(0);
 pub static A2_Z: AtomicU64 = AtomicU64::new(0);
 /// `special_early`(0xe04400) 진입 수 — TypeId 를 **주소**가 아니라 **16바이트 내용**으로 비교하도록
@@ -837,7 +859,7 @@ pub unsafe fn combat_score(mode: usize, _prof: usize, rec: usize, ctx: usize, bb
     pth_set("?");
     // ★진단 TLS 는 호출마다 초기화한다 — 안 하면 조기반환 경로에서 직전 호출의 값이 그대로 찍혀
     //   원인 분석이 통째로 헛돈다(2026-09-07 실측: st=76 인데 main=0 인 모순 로그).
-    S12ST.with(|c| c.set([0; 20])); ALLYD.with(|c| c.set([0; 10])); S5D.with(|c| c.set([0; 21])); S12D.with(|c| c.set([0; 8]));
+    S12ST.with(|c| c.set([0; 20])); ALLYD.with(|c| c.set([0; 10])); S5D.with(|c| c.set([0; 23])); S12D.with(|c| c.set([0; 8]));
     let r = combat_score_inner(mode, _prof, rec, ctx, bb, sp, slot, tgt, p9);
     if r.is_none() && !TAGGED.with(|c| c.get()) { let t = STG.with(|c| c.get()); na(t); }
     r
@@ -1034,10 +1056,28 @@ unsafe fn combat_score_inner(mode: usize, _prof: usize, rec: usize, ctx: usize, 
         //   (S15z 7표본에서 `pos` 가 −92~−108 로 다른데 편차가 정확히 −24 로 일정 = `a8` 이 20 부족),
         //   같은 세션에 `dive_lookup` 미러를 재현으로 갈아끼웠다가 position_eval DIFF 가 0→124,482 로
         //   터진 전례가 있다. **메모(미러) 우선, 없을 때만 재현**으로 뒤집는다(2026-09-08).
+        // ★★메모가 거의 항상 미스다(`a8m=i64::MIN`). `position_eval` 자체는 5.1e7 표본에서 DIFF=0 이므로
+        //   틀린 건 함수가 아니라 **내가 넘기는 인자**다. 게임이 방금 채운 메모는 게임이 쓴 키로만 열리므로
+        //   **어느 purpose 로 열리는지**가 곧 정답이다 — 0..15 를 전부 두드려 적중 마스크를 남긴다.
+        //   (실측 근거: `as_d84db0` 훅이 본 게임 자신의 호출은 purpose 0/2/3/7/8 이고 **12(0xc) 는 없었다**.)
+        PMASK_RUN.fetch_add(1, Ordering::Relaxed);
+        let mut pmask: i64 = 0; let mut pfirst: i64 = i64::MIN;
+        for pu in 0..16usize {
+            if let Some(w) = super::position_eval::memo_lookup(mode, rec, ctx, qx8 as usize, qy8 as usize, pu) {
+                pmask |= 1 << pu; PMASK_HIT[pu].fetch_add(1, Ordering::Relaxed);
+                if pfirst == i64::MIN { pfirst = w[0] as i64; }
+            }
+        }
+        S5D.with(|c| { let mut z = c.get(); z[21] = pmask; z[22] = pfirst; c.set(z); });
         let a8_memo = super::position_eval::memo_lookup(mode, rec, ctx, qx8 as usize, qy8 as usize, 0xc).map(|w| w[0] as i64);
         let a8_repro = super::position_eval::position_eval(mode as u64, rec, ctx, qx8, qy8, 0xc).map(|o| o.a);
         // 둘이 갈리는지 계측 — 갈린다면 어느 쪽이 게임인지 DIFF 가 말해 준다
         S5D.with(|c| { let mut z = c.get(); z[17] = a8_memo.unwrap_or(i64::MIN); z[18] = a8_repro.unwrap_or(i64::MIN); c.set(z); });
+        match (a8_memo, a8_repro) {
+            (Some(x), Some(y)) => { if x == y { A8_SAME.fetch_add(1, Ordering::Relaxed); } else { A8_DIFF.fetch_add(1, Ordering::Relaxed); } }
+            (Some(_), None) => { A8_RNONE.fetch_add(1, Ordering::Relaxed); }
+            _ => {}
+        }
         let a8 = match a8_memo.or(a8_repro) {
             Some(v) => v,
             // ★position_eval 이 어느 블록에서 None 을 냈는지까지 태그에 담는다
