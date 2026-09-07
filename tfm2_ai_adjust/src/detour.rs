@@ -764,7 +764,25 @@ unsafe fn write_guard_summary() {
     }
 }
 
+/// ★★검증 모드에서는 즉치 패치를 **통째로 끔다**(유저 지시 2026-09-07).
+/// judge 계층은 `game == mine` 을 비트 대조하는데, 그 "game" 이 cfg 로 개조된 게임이면
+/// 대조 자체가 성립하지 않는다 — 실제로 `sc_focus_cap=75`(원본 80) 등 4종 때문에
+/// combat_score DIFF 의 대부분이 나고 있었고, 디스어셈(정적)과 실측(런타임)이
+/// 영원히 어긋나 S7 게이트 같은 미제를 만들었다.
+/// `judge_verify=1`(= 이 cfg 의 자체 설명이 "게임 원본 실행 + 대조만") 이면 스킵.
+/// 검증 중에도 노브를 살리고 싶으면 `judge_keep_imm=1`.
+static VANILLA_IMM: AtomicU32 = AtomicU32::new(u32::MAX);
+#[inline] fn vanilla_imm() -> bool {
+    let c = VANILLA_IMM.load(Ordering::Relaxed);
+    if c != u32::MAX { return c == 1; }
+    let v = (tune("judge_verify", 0) == 1 && tune("judge_keep_imm", 0) == 0) as u32;
+    VANILLA_IMM.store(v, Ordering::Relaxed);
+    v == 1
+}
+pub fn vanilla_imm_on() -> bool { vanilla_imm() }
+
 #[inline] unsafe fn patch_imm_bytes(addr: usize, prefix: &[u8], imm_off: usize, width: usize, val: u64) -> bool {
+    if vanilla_imm() { return true; }   // ★검증 모드 = 원본 바이트 유지(패치 시도 자체를 안 함)
     if !readable(addr, imm_off + width) { return false; }
     for (i, &b) in prefix.iter().enumerate() {
         if rd_u8(addr + i) != b { return false; }   // opcode 불일치 = RVA 어긋남 → skip(크래시 방지)
