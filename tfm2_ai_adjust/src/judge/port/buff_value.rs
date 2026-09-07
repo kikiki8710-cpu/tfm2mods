@@ -20,7 +20,7 @@ thread_local! {
 }
 pub fn s13_diag() -> String {
     let v = S13D.with(|c| c.get()); let e = S13E.with(|c| c.get()); let f = S14D.with(|c| c.get()); let g = E3D.with(|c| c.get()); let h = AOED.with(|c| c.get()); let k = A0CH.with(|c| c.get());
-    format!(" S13[aoe={} trig={} aura={} etc={} hs={} buff={} raw={} dur={}] S13E[healE={} shieldE={} inc={} gate={} total={} has={} ally={} mainRaw={} healRaw={} cap={} miss={} shRaw={}] S14[v={} k={} vd={} st={} b1={} b2={} src={} raw={} fp={} ns={} a0i={:#x}] E3[exit={} def={} tid={:#x} n={} r={} st={} sum={} cnt={}] AOE[kind={} R={} n={} slf={} noe={} dst={} cap={} tot={} poff={} vt={:#x} u32p={} u32d={}] A0CH[{:#x} {:#x} {:#x} {:#x}]",
+    format!(" S13[aoe={} trig={} aura={} etc={} hs={} buff={} raw={} dur={}] S13E[healE={} shieldE={} inc={} gate={} total={} has={} ally={} mainRaw={} healRaw={} cap={} miss={} shRaw={}] S14[v={} k={} vd={} st={} b1={} b2={} src={} raw={} fp={} ns={} a0i={:#x}] E3[exit={} def={} tid={:#x} n={} r={} st={} sum={} cnt={}] AOE[kind={} R={} n={} slf={} noe={} dst={} cap={} tot={} poff={} vt={:#x} d0i={:#x} i40={:#x}] A0CH[{:#x} {:#x} {:#x} {:#x}]",
         v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7], e[0], e[1], e[2], e[3], e[4], e[5], e[6], e[7], e[8], e[9], e[10], e[11],
         f[0], f[1], f[2], f[3], f[4], f[5], f[6], f[7], f[8], f[9], f[10], g[0], g[1], g[2], g[3], g[4], g[5], g[6], g[7],
         h[0], h[1], h[2], h[3], h[4], h[5], h[6], h[7], h[8], h[9], h[10], h[11], k[0], k[1], k[2], k[3])
@@ -370,6 +370,13 @@ const FOLD_I64: [usize; 14] = [0x98, 0xa0, 0xa8, 0xb0, 0xb8, 0xc0, 0xc8, 0xd0, 0
 const FOLD_BOOL: [usize; 3] = [0xf8, 0x118, 0x119];
 
 #[inline] fn sp_i32(b: &[u8; SPEC_SIZE], o: usize) -> i32 { i32::from_le_bytes([b[o], b[o + 1], b[o + 2], b[o + 3]]) }
+/// ★BuffSpec 앞부분은 **이름**이다 — `[0x00]` u32 len + `[0x04..]` 바이트.
+/// 게임의 vt+0xa0 잎들은 전부 이름을 쓴다. 이름을 빼먹으면 이름을 키로 쓰는 하류(버프 조회 등)가 어긋난다
+/// (2026-09-07 실측: 이름 없이 배선했더니 DIFF 0.089% → 0.195% 로 악화).
+#[inline] fn sp_set_name(b: &mut [u8; SPEC_SIZE], nm: &str) {
+    let by = nm.as_bytes(); b[0..4].copy_from_slice(&(by.len() as u32).to_le_bytes());
+    b[4..4 + by.len()].copy_from_slice(by);
+}
 #[inline] fn sp_set_i32(b: &mut [u8; SPEC_SIZE], o: usize, v: i32) { b[o..o + 4].copy_from_slice(&v.to_le_bytes()); }
 #[inline] fn sp_i64(b: &[u8; SPEC_SIZE], o: usize) -> i64 { let mut a = [0u8; 8]; a.copy_from_slice(&b[o..o + 8]); i64::from_le_bytes(a) }
 #[inline] fn sp_set_i64(b: &mut [u8; SPEC_SIZE], o: usize, v: i64) { b[o..o + 8].copy_from_slice(&v.to_le_bytes()); }
@@ -454,6 +461,41 @@ pub unsafe fn spec_a0_inline(p: usize, vt: usize, me: usize, depth: u32) -> Opti
     match f - eb {
         0x109baa0 => Some(None),                                                  // 기본 impl: +0x48 = −1
         // inline+0x120 플래그가 서면 없음, 아니면 inline 에 저장된 spec 을 그대로 복사
+        // ── ★vt+0xa0 미처리 12종 네이티브 배선 (RE 2026-09-07 `vt+0xa0-미처리12종-전량해독`) ──
+        //   전부 sret 를 0 으로 초기화한 뒤 아래 필드만 기록한다(게임이 xorps+movups 로 명시 제로필).
+        //   `p` 는 Arc 보정 후, `arg3` 은 12종 전부 미사용, 스탯은 `me`(caster) 기준.
+        //   ⚠specemu 로는 `0x12266f0`(0x66 prefix)·`0x133e390`(분기)·`0x18890b0`(0x01)이 실패해
+        //     표본이 NA 로 버려지고 있었다 — 네이티브가 정답.
+        // ⚠EMU-OK 5종(`0x12bc970`·`0x12c21b0`·`0x12aa290`·`0x17c9e90`·`0x17cd2e0`)은 **arm 을 두지 않는다** —
+        //   RE 가 specemu 로 완벽 실행됨을 확인했고, 손으로 다시 쓰면 게임이 쓰는 필드를 빠뜨리기만 한다
+        //   (2026-09-07 실측: 8종 전부 손으로 쓰니 DIFF 0.089% → 0.195%, 이름을 채워도 0.237%).
+        //   아래 3종은 specemu 가 명령 미지원으로 **실패**하던 것들이라 네이티브가 유일한 방법이다.
+        0x12266f0 => { let mut b = [0u8; SPEC_SIZE]; sp_set_name(&mut b, "wind_mage_skill1_speed");                    // "wind_mage_skill1_speed"
+            sp_set_i32(&mut b, 0x48, 1); sp_set_i64(&mut b, 0x50, rd_i64(p + 8)?);
+            sp_set_i32(&mut b, 0x88, rd_i32_at(p + 0x28)); Some(Some(b)) }
+        0x133e390 => {                                                   // "icemage_ult_slow" (조건부)
+            let d = rd_i64(p + 0x40)?; if d == 0 { return Some(None); }  // tag −1
+            let mut b = [0u8; SPEC_SIZE]; sp_set_name(&mut b, "icemage_ult_slow");
+            sp_set_i32(&mut b, 0x48, 1); sp_set_i64(&mut b, 0x50, d);
+            sp_set_i32(&mut b, 0x88, 0i32.wrapping_sub(rd_i32_at(p + 0x38)));   // ★부호 반전
+            Some(Some(b)) }
+        0x18890b0 => { let mut b = [0u8; SPEC_SIZE]; sp_set_name(&mut b, "plague_doctor_ult");                    // "plague_doctor_ult"
+            let ap = rd_u64(me + 0x620)?;
+            let t = (rd_u64(p + 0x10)?.wrapping_mul(ap) >> 2) / 100;
+            sp_set_i32(&mut b, 0x48, 1); sp_set_i64(&mut b, 0x50, rd_i64(p + 0x20)?);
+            sp_set_i32(&mut b, 0x58, rd_i32_at(p));
+            sp_set_i32(&mut b, 0x88, rd_i32_at(p + 0x18));
+            sp_set_i32(&mut b, 0x8c, (t as i32).wrapping_add(rd_i32_at(p + 8)));
+            b[0x118] = 1; Some(Some(b)) }
+        // fold 3종 (삼중항은 RE 검증 완료)
+        0x13bfbf0 => fold_children(p, 8, 0x10, 0x18, me, depth),
+        0x1455d70 => fold_children(p, 0x20, 0x28, 0x18, me, depth),
+        0x1340e80 => { let a1 = fold_children(p, 0x68, 0x70, 0x18, me, depth)?;
+            let a2 = fold_children(p, 0x80, 0x88, 0x10, me, depth)?;
+            Some(match (a1, a2) { (None, x) => x, (x, None) => x,
+                (Some(mut x), Some(y)) => { for o in FOLD_I32 { let v = sp_i32(&x, o).wrapping_add(sp_i32(&y, o)); sp_set_i32(&mut x, o, v); }
+                    for o in FOLD_I64 { let v = sp_i64(&x, o).wrapping_add(sp_i64(&y, o)); sp_set_i64(&mut x, o, v); }
+                    for o in FOLD_BOOL { x[o] |= y[o]; } Some(x) } }) }
         0x11507c0 => {
             if rd_u8(p + 0x120) != 0 { return Some(None); }
             let mut b = [0u8; SPEC_SIZE]; for i in 0..SPEC_SIZE { b[i] = rd_u8(p + i); }
@@ -1016,9 +1058,10 @@ pub unsafe fn e02bc0(slot: usize, ctx: usize, bb: usize, me: usize, tgt: usize, 
     //   data / p / vt RVA / p 주변 u32 를 같이 찍어 오프셋을 특정한다(2026-09-07).
     {   let pp = inline_self(sd, sv).unwrap_or(0);
         let vr = crate::exe_base(); let vrv = if vr != 0 && sv > vr { (sv - vr) as i64 } else { 0 };
+        let ir = |slot: usize| -> i64 { super::dyn_eff::impl_rva(sv, slot).unwrap_or(0) as i64 };
         AOED.with(|c| c.set([kind as i64, aoe_r as i64, n as i64, 0, 0, 0, 0, 0,
                              (pp as i64).wrapping_sub(sd as i64), vrv,
-                             rd_u32(pp) as i64, rd_u32(sd) as i64])); }
+                             ir(0xd0), ir(0x40)])); }
     if kind != 1 || n == 0 { return Some(0); }
     let arr = rd_u64(bb + 0x14b8)? as usize; if !ptr_ok(arr) { return None; }
     let w = rd_u64(ctx)? as usize; if !ptr_ok(w) { return None; }
