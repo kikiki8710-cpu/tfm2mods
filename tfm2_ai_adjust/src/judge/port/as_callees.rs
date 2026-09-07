@@ -485,6 +485,20 @@ pub unsafe fn decode_getter(f: usize, obj: usize) -> Option<u64> {
     if b0 == 0x0f && b1 == 0xb6 && b2 == 0x41 && ret_at(4) { return Some(rd_u8((obj as isize + rd_u8(f + 3) as i8 as isize) as usize) as u64); }
     if (b0 == 0x31 || b0 == 0x33) && b1 == 0xc0 && ret_at(2) { return Some(0); }
     if b0 == 0xb8 && ret_at(5) { return Some(rd_u32(f + 1) as u64); }
+    // cmp qword [rcx+d32], 0 ; setne/sete al ; ret   (0x146b0d0 = ability_pick vt+0x50, RE 2026-09-07)
+    //   `.pdata` 미등재 leaf 라 Ghidra 가 함수로 잡지도 못한다 — 개별 RVA 등재 대신 패턴으로 흡수한다.
+    if b0 == 0x48 && b1 == 0x83 && b2 == 0xb9 && rd_u8(f + 7) == 0x00
+        && rd_u8(f + 8) == 0x0f && (rd_u8(f + 9) == 0x95 || rd_u8(f + 9) == 0x94)
+        && rd_u8(f + 10) == 0xc0 && ret_at(11) {
+        let v = rd_u64((obj as isize + rd_i32(f + 3)? as isize) as usize)?;
+        return Some(((v != 0) == (rd_u8(f + 9) == 0x95)) as u64);
+    }
+    if b0 == 0x48 && b1 == 0x83 && b2 == 0x79 && rd_u8(f + 4) == 0x00
+        && rd_u8(f + 5) == 0x0f && (rd_u8(f + 6) == 0x95 || rd_u8(f + 6) == 0x94)
+        && rd_u8(f + 7) == 0xc0 && ret_at(8) {
+        let v = rd_u64((obj as isize + rd_u8(f + 3) as i8 as isize) as usize)?;
+        return Some(((v != 0) == (rd_u8(f + 6) == 0x95)) as u64);
+    }
     None
 }
 pub unsafe fn eff_bool(data: usize, vt: usize, slot: usize, depth: u32) -> Option<bool> {
