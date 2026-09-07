@@ -20,9 +20,9 @@ thread_local! {
 }
 pub fn s13_diag() -> String {
     let v = S13D.with(|c| c.get()); let e = S13E.with(|c| c.get()); let f = S14D.with(|c| c.get()); let g = E3D.with(|c| c.get());
-    format!(" S13[aoe={} trig={} aura={} etc={} hs={} buff={} raw={} dur={}] S13E[healE={} shieldE={} inc={} gate={} total={} has={} ally={} mainRaw={} healRaw={} cap={} miss={} shRaw={}] S14[v={} k={} vd={} st={} b1={} b2={}] E3[exit={} def={} tid={:#x} n={} r={} st={} sum={} cnt={}]",
+    format!(" S13[aoe={} trig={} aura={} etc={} hs={} buff={} raw={} dur={}] S13E[healE={} shieldE={} inc={} gate={} total={} has={} ally={} mainRaw={} healRaw={} cap={} miss={} shRaw={}] S14[v={} k={} vd={} st={} b1={} b2={} src={} raw={} fp={} ns={} a0i={:#x}] E3[exit={} def={} tid={:#x} n={} r={} st={} sum={} cnt={}]",
         v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7], e[0], e[1], e[2], e[3], e[4], e[5], e[6], e[7], e[8], e[9], e[10], e[11],
-        f[0], f[1], f[2], f[3], f[4], f[5], g[0], g[1], g[2], g[3], g[4], g[5], g[6], g[7])
+        f[0], f[1], f[2], f[3], f[4], f[5], f[6], f[7], f[8], f[9], f[10], g[0], g[1], g[2], g[3], g[4], g[5], g[6], g[7])
 }
 /// 잎 에뮬레이터가 필요로 하는 두 컨텍스트(sim · EST 서술자 절대주소). S13/S14 진입 때 한 번 세운다.
 thread_local! {
@@ -557,12 +557,12 @@ pub unsafe fn spec_a0_inline(p: usize, vt: usize, me: usize, depth: u32) -> Opti
 }
 /// S13(자기 버프) · S14(아군 버프). `ally` = 아군 Record(S14) / None(S13).
 ///   정본 = `RE\2026-09-07_combat_score-S13S14-본체구간-정밀전사-0.5.8.md`
-thread_local! { pub static S14D: std::cell::Cell<[i64; 6]> = const { std::cell::Cell::new([0; 6]) }; }
+thread_local! { pub static S14D: std::cell::Cell<[i64; 11]> = const { std::cell::Cell::new([0; 11]) }; }
 /// [dffa10 v, decay k, decay 후 v, e03360 st, 1차 buff, 2차 buff]
-pub fn s14_diag() -> [i64; 6] { S14D.with(|c| c.get()) }
+pub fn s14_diag() -> [i64; 11] { S14D.with(|c| c.get()) }
 pub unsafe fn s13_s14(b: &BCtx, ally: Option<usize>) -> Option<i64> {
     // ★S13D/S13E 도 함께 리셋 — 안 하면 다른 경로 표본에 직전 호출의 잔값이 찍혀 진단이 헛돌다(RE 2026-09-07)
-    S14D.with(|c| c.set([0; 6])); S13D.with(|c| c.set([0; 8])); S13E.with(|c| c.set([0; 12]));
+    S14D.with(|c| c.set([0; 11])); S13D.with(|c| c.set([0; 8])); S13E.with(|c| c.set([0; 12]));
     set_leaf_ctx(b.sim);
     let (sd, sv, _sin) = slot3(b.slot)?;
     let t = b.tgt;
@@ -579,6 +579,8 @@ pub unsafe fn s13_s14(b: &BCtx, ally: Option<usize>) -> Option<i64> {
     let spec0 = match e047c0(b.slot, b.ctx, t) { Some(v) => v, None => return na_tag("B047") };
     let a0 = spec_a0(sd, sv, b.me, 0)?;
     let has = spec0.is_some() || a0.is_some();
+    // ★어느 vt+0xa0 impl 이 a0 을 만들었는지 — a0 이 전부 0 으로 나오는 표본의 원인 특정용(2026-09-07)
+    S14D.with(|c| { let mut z = c.get(); z[10] = super::dyn_eff::impl_rva(sv, 0xa0).unwrap_or(0) as i64; c.set(z); });
     let b90 = slot_bool90(sd, sv, 0)?;
     // etc = (!has && aura<=0 && b90) ? (vt_a8()[0]==0 ? 5 : 0) : 0   ⬜vt+0xa8 미포팅
     let etc: i64 = if !has && aura <= 0 && b90 {
@@ -653,13 +655,20 @@ pub unsafe fn s13_s14(b: &BCtx, ally: Option<usize>) -> Option<i64> {
         let (e3, e4) = if ally.is_some() { (b.me, t) } else { (b.me, b.me) };
         let st = e03360(b, e3, e4)?;
         S14D.with(|c| { let mut z = c.get(); z[3] = st as i64; c.set(z); });
+        S14D.with(|c| { let mut z = c.get(); z[9] = 1; c.set(z); });   // need_second 진입 표식
         match s2 {
             None => buff = 0,
             Some(_) if st == 2 => buff = 0,
             Some(sp) => {
                 let v2 = e02540_bytes(b.ctx, &sp, dtgt, st)?;
                 buff = e022d0(b.slot, b.ctx, b.rec, dtgt, v2)?;
-                S14D.with(|c| { let mut z = c.get(); z[5] = buff; c.set(z); });
+                // ★어떤 spec 이 쓰였고(1=spec0 / 2=a0) e02540 원값·spec 지문이 무엇인지 —
+                //   "e02540 가 0" 이 spec 이 비어서인지 계산이 틀려서인지 가른다(RE 2026-09-07)
+                let fp: i64 = [0x58usize, 0x5c, 0x60, 0x64, 0x80, 0x8c, 0x90, 0x104].iter()
+                    .map(|&o| i32::from_le_bytes([sp[o], sp[o + 1], sp[o + 2], sp[o + 3]]) as i64).sum::<i64>()
+                    + [0xa8usize, 0xb0, 0xc8].iter().map(|&o| sp_i64(&sp, o)).sum::<i64>();
+                S14D.with(|c| { let mut z = c.get(); z[5] = buff; z[6] = if spec0.is_some() { 1 } else { 2 };
+                                z[7] = v2; z[8] = fp; c.set(z); });
             }
         }
     }
