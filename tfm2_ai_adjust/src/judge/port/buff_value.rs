@@ -871,8 +871,40 @@ unsafe fn slot98(data: usize, vt: usize, sim: usize, me: usize, e: usize, depth:
             let (a, b) = super::dyn_eff::eff28_damage(cd, cv, me)?;
             Some((a.wrapping_add(b)) as i64)
         }
+        // ★`0x115c2f0` = 래퍼의 `+0x98` 쎗크 — `rcx=[p]; vt=[p+8]; jmp [vt+0x88]` 로 자식의 **`+0x88`** 에
+        //   **Arc 보정 없이 raw 자식 데이터**를 넘긴다. 나머지 3인자(rdx/r8/r9)는 tail-jmp 라 그대로 통과.
+        //   게임 전체에서 이 배선은 vtable `0x1434188a0` 하나뿐이고 자식 `+0x88` 은 `0x16a3d90` 이다.
+        0x115c2f0 => {
+            let (cd, cv) = (rd_u64(p)? as usize, rd_u64(p + 8)? as usize);
+            if !ptr_ok(cv) { return None; }
+            match super::dyn_eff::impl_rva(cv, 0x88) {
+                Some(0x16a3d90) => guardian_aura(cd, sim, me, e),
+                r2 => {
+                    super::dyn_eff::unseen(0x598, r2.unwrap_or(0));
+                    match super::combat_score::slot_88_rawp(cd, cv, depth + 1) {
+                        Some((ok, _)) => Some(ok as i64), None => na_tag("B98") }
+                }
+            }
+        }
         _ => slot_sum(data, vt, 0x98, me, 0, "B98"),
     }
+}
+/// `0x16a3d90` — guardian_spirit 궁의 힐 오라 값. ★**`(al, rdx)` 쌍이 아니라 RAX 단일 i64** 이고
+/// 호출부는 `test rax,rax` 로 **64비트 전체**를 본다(al 만 보면 하위바이트 0 인 값에서 오판한다).
+/// `fn(rcx = spec payload(size 0x50), rdx = sim, r8 = 오라 주인, r9 = 후보 엔티티) -> i64` (RE 2026-09-08)
+unsafe fn guardian_aura(spec: usize, sim: usize, owner: usize, cand: usize) -> Option<i64> {
+    if rd_i32(cand + ENT_KIND)? != 0xd { return Some(0); }
+    let (a0, b0) = (rd_u64(cand)?, rd_u64(owner)?);
+    if a0 != b0 { return Some(0); }
+    if a0 == 0 && rd_u64(cand + 8)? != rd_u64(owner + 8)? { return Some(0); }
+    if rd_u64(cand + ENT_HP)? == 0 { return Some(0); }
+    let (dx, dy) = (absd(rd_u64(owner + ENT_X)?, rd_u64(cand + ENT_X)?),
+                    absd(rd_u64(owner + ENT_Y)?, rd_u64(cand + ENT_Y)?));
+    let r = rd_u64(spec + 0x28)?;
+    if dx.wrapping_mul(dx).wrapping_add(dy.wrapping_mul(dy)) > r.wrapping_mul(r) { return Some(0); }
+    let tps = rd_i64(rd_u64(sim + 8)? as usize + 0x12f8)?;
+    let base = rd_i64(spec + 0x30)?.wrapping_add(rd_i64(spec + 0x38)?.wrapping_mul(rd_i64(owner + 0x620)?) / 100);
+    Some(base.wrapping_mul(tps) / rd_i64(spec + 0x40)?.max(1))
 }
 
 /// S14 전용 도달시간 감쇠: `buff = e022d0(..., (k*v)/6)`, `k = min(6, max(0, 6 − t))`
