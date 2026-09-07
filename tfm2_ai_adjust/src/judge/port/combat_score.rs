@@ -50,8 +50,8 @@ pub fn ally_diag() -> [i64; 10] { ALLYD.with(|c| c.get()) }
 thread_local! { pub static S12ST: std::cell::Cell<[i64; 12]> = const { std::cell::Cell::new([0; 12]) }; }
 /// [st, T, dmg, tps, burst, tgt.hp]
 /// S5 위험항 진단: [near!=0, near.kind, near.0x88, dist(me,near), r_t, safe, bb.0x9b0 원값]
-thread_local! { pub static S5D: std::cell::Cell<[i64; 19]> = const { std::cell::Cell::new([0; 19]) }; }
-pub fn s5_diag() -> [i64; 19] { S5D.with(|c| c.get()) }
+thread_local! { pub static S5D: std::cell::Cell<[i64; 21]> = const { std::cell::Cell::new([0; 21]) }; }
+pub fn s5_diag() -> [i64; 21] { S5D.with(|c| c.get()) }
 thread_local! { pub static CDLY: std::cell::Cell<i64> = const { std::cell::Cell::new(0) }; }
 pub fn cast_dly() -> i64 { CDLY.with(|c| c.get()) }
 /// 직전 S12 호출의 스테로이드 창 기여분(진단용)
@@ -102,7 +102,7 @@ pub unsafe fn diag(_p1: usize, _p3: usize, _p4: usize) -> String {
         v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7], v[8], v[9], v[10], v[11], v[12], v[13])
         + &format!(" game_thr={} bb970={} bb9a0={} bb988={}", v[14], v[15], v[16], v[17])
         + &{ let q = S12D.with(|c| c.get()); let z = s12_st(); format!(" | S12[D={} X={} Ct={} kill={} score={} e01450={} e019d0={} e02020={} st={} T={} dmg={} selfN={} burst={} thp={} stRaw={} bonus={} q={} pk={}] A[{:?}]", q[0], q[1], q[2], q[3], q[4], q[5], q[6], q[7], z[0], z[1], z[2], z[3], z[4], z[5], z[10], z[7], z[8], z[9], ally_diag()) }
-        + &{ let d = s5_diag(); format!(" S5[near={} kind={} f88={} dn={} rt={} safe={} raw9b0={} vis={} t0d={} t0a={} cdly={} alen={} th={:#x} a0={:#x} a1={:#x} pg={} d2={} a8={} tk={} cg={:#x}]", d[0], d[1], d[2], d[3], d[4], d[5], d[6], d[7], d[8], d[9], cast_dly(), d[10], d[11], d[12], d[13], d[14], d[15], d[16], d[17], d[18]) }
+        + &{ let d = s5_diag(); format!(" S5[near={} kind={} f88={} dn={} rt={} safe={} raw9b0={} vis={} t0d={} t0a={} cdly={} alen={} th={:#x} a0={:#x} a1={:#x} pg={} d2={} a8={} tk={} cg={:#x} eLen={} aLen={}]", d[0], d[1], d[2], d[3], d[4], d[5], d[6], d[7], d[8], d[9], cast_dly(), d[10], d[11], d[12], d[13], d[14], d[15], d[16], d[17], d[18], d[19], d[20]) }
         + &unsafe { let caps = crate::judge::cap_util_c87fe0::last_p2().unwrap_or(0);
             // ★★`path=`·`S13[…]` 를 **caps 게이트 밖으로** 뺐다 — 잔차 23건이 전부 `caps=none` 이라
             //   경로를 안 찍은 것처럼 보였고, 그것 때문에 조기반환으로 오진단했다(RE 2026-09-07).
@@ -770,7 +770,7 @@ pub unsafe fn combat_score(mode: usize, _prof: usize, rec: usize, ctx: usize, bb
     pth_set("?");
     // ★진단 TLS 는 호출마다 초기화한다 — 안 하면 조기반환 경로에서 직전 호출의 값이 그대로 찍혀
     //   원인 분석이 통째로 헛돈다(2026-09-07 실측: st=76 인데 main=0 인 모순 로그).
-    S12ST.with(|c| c.set([0; 12])); ALLYD.with(|c| c.set([0; 10])); S5D.with(|c| c.set([0; 19])); S12D.with(|c| c.set([0; 8]));
+    S12ST.with(|c| c.set([0; 12])); ALLYD.with(|c| c.set([0; 10])); S5D.with(|c| c.set([0; 21])); S12D.with(|c| c.set([0; 8]));
     let r = combat_score_inner(mode, _prof, rec, ctx, bb, sp, slot, tgt, p9);
     if r.is_none() && !TAGGED.with(|c| c.get()) { let t = STG.with(|c| c.get()); na(t); }
     r
@@ -983,6 +983,12 @@ unsafe fn combat_score_inner(mode: usize, _prof: usize, rec: usize, ctx: usize, 
         if d2_ee(me, tgt)? <= sq(reach(me, slot, tgt)?) {
             let th = rd_u64(tgt + ENT_HANDLE)?;
             let rec_t = find_rec(bb, BB_ENEMY_PTR, BB_ENEMY_LEN, th)?;
+            // ★경로 선택(S12/S14/S13/S15z)은 이 두 Record 조회가 좌우한다 — 여섯 항이 전부 0 인데
+            //   게임 main 이 4 라면 **게임이 다른 경로를 탔다**는 뜻이므로, 조회 입력을 찍는다(2026-09-07).
+            S5D.with(|c| { let mut z = c.get();
+                z[19] = rd_u64(bb + BB_ENEMY_LEN).unwrap_or(0) as i64;
+                z[20] = rd_u64(bb + 0x14d0).unwrap_or(0) as i64;   // 아군 Record len
+                c.set(z); });
             let dv = dist(me, tgt)? as i64;
             // ★적 Record 에 없으면 게임은 **조기반환하지 않고 S11(0xd5de82)로 폴백**한다(RE 0xd5e393, 2026-09-07).
             //   구조물 타깃은 bb.0x14d8 에 절대 없으므로 예전 `_ => 100 + …` 폴백이 통째로 오답이었다.
