@@ -86,6 +86,10 @@ pub fn cap_report() -> String {
 /// (2026-09-07 실측: fcap=75·kcap=70 이어서 S12 잔차 5/10/3 이 나왔다).
 #[inline] unsafe fn imm8(site: usize, orig: i64) -> i64 { super::super::live_imm8(site, orig as u8) as i64 }
 #[inline] unsafe fn imm32(site: usize, orig: i64) -> i64 { super::super::live_imm32(site, orig as u32) as i64 }
+/// ⛔`0xd729b0` 진입점 캡처는 **크래시**했다(2026-09-07 23:01, `c0000005` @ `exe+0xd72a48`,
+/// 함수 내부 vec 루프에서 쓰레기 주소 역참조). 12바이트 프롤로그 패치가 이 함수엔 안전하지 않다.
+/// 재시도 금지 — 필요하면 **호출부 쪽**(`0xd5cf83` 직전)에 다른 방식으로 걸 것.
+pub fn nch_report() -> String { String::new() }
 pub fn na_report() -> String {
     let mut v: Vec<(u64, u64)> = (0..32).filter_map(|i| { let k = NA_KEYS[i].load(Ordering::Relaxed); if k == 0 { None } else { Some((k, NA_CNTS[i].load(Ordering::Relaxed))) } }).collect();
     v.sort_by(|a, b| b.1.cmp(&a.1));
