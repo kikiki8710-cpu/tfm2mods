@@ -381,6 +381,13 @@ unsafe fn slot_80_pair(data: usize, vt: usize, depth: u32) -> Option<(bool, u64)
     }
 }
 /// slot.vt+0x88 → (flag, T). `0x1147250` = (1, [p]) · `0x1145640` = (1,1) · `0x12a57b0` = 자식 중 첫 flag&1
+/// `slot_88` 인데 **이미 payload 인 포인터**를 받는 판. 교차 위임 썽크(`0x115c2f0` 등)는
+/// 자식에게 **Arc 보정 없이 raw 데이터**를 그대로 넘기므로, `arc_payload` 를 되돌린 뒤 재사용한다.
+pub(super) unsafe fn slot_88_rawp(payload: usize, vt: usize, depth: u32) -> Option<(bool, u64)> {
+    let align = rd_u64(vt + 0x10)?;
+    let off = (((align.wrapping_sub(1)) & !0xfu64) as usize).wrapping_add(0x10);
+    slot_88(payload.wrapping_sub(off), vt, depth)
+}
 pub(super) unsafe fn slot_88(data: usize, vt: usize, depth: u32) -> Option<(bool, u64)> {
     if depth > 40 { super::dyn_eff::unseen(0x604, depth as usize); return None; }
     let r = match super::dyn_eff::impl_rva(vt, 0x88) {
@@ -1062,7 +1069,7 @@ unsafe fn combat_score_inner(mode: usize, _prof: usize, rec: usize, ctx: usize, 
         let (sd, sv) = (rd_u64(slot)? as usize, rd_u64(slot + 8)? as usize);
         let mut st_add: i64 = 0;
         let pre_st = score;                 // 스테로이드 창 전의 score
-        // (A) T 결정: sp.vt+0x68 의 dyn Any TypeId 가 0x3d4f70 이고 p.0x10 != 0 이면 그 값, 아니면 slot.vt+0x88 폴백
+        // (A) T 결정: sp.vt+0x68 의 dyn Any TypeId 가 0x33d4f70 이고 p.0x10 != 0 이면 그 값, 아니면 slot.vt+0x88 폴백
         let mut t_win: Option<u64> = None;
         // ★게임은 TypeId **16바이트 내용**을 비교한다(`pcmpeqb`+`pmovmskb == 0xffff`, 0xd5f2e9).
         //   ~~상수의 주소(RVA 0x3d4f70)와 비교~~ 하던 것은 틀렸다 — 실측 TypeId 주소가 56종이나
@@ -1171,7 +1178,11 @@ unsafe fn sp_type_id(sp: usize) -> Option<usize> {
 /// 위 TypeId 가 스테로이드형 상수(`0x1433d4f70`)와 **16바이트 동일**한가.
 unsafe fn sp_type_id_matches(sp: usize) -> bool {
     let b = crate::exe_base(); if b == 0 { return false; }
-    let want = b.wrapping_add(0x3d4f70);
+    // ★★상수의 진짜 RVA = `0x33d4f70` (`0xd5f2f1: pcmpeqb xmm0,[rip+0x2675c77]`, RE 2026-09-07).
+    //   ~~`0x3d4f70`~~ 은 자릿수 하나가 빠진 오기라 **`.text` 한복판**을 가리켰다 — 그래서 이 비교가
+    //   **한 번도 참이 될 수 없었고**, 스테로이드 창이 (A) 경로로는 절대 안 열렸다.
+    //   16바이트 = 80 9A 7A FF E5 89 EC C3 / 6A 4E A2 AD 47 04 4D 7F (소유 타입 = serpen_hunt sub_plan)
+    let want = b.wrapping_add(0x33d4f70);
     let got = match sp_type_id(sp) { Some(r) => b.wrapping_add(r), None => return false };
     if !ptr_ok(got) || !ptr_ok(want) { return false; }
     match (rd_u64(got), rd_u64(got + 8), rd_u64(want), rd_u64(want + 8)) {

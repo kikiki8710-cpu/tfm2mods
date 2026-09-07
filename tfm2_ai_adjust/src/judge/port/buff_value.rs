@@ -271,6 +271,25 @@ pub unsafe fn slot_sum_p(payload: usize, vt: usize, slot: usize, me: usize, dept
     if let Some(v) = super::as_callees::decode_getter(f, payload) { return Some(v as i64); }
     let base = crate::exe_base();
     if base != 0 && f > base { if let Some(v) = leaf_stat_scaled(f - base, payload, me) { return Some(v); } }
+    // ★`0x13dbd80`(vt+0x98) — payload 도 아군도 안 읽고 **대상 엔티티(me)** 의 inline dyn 효과
+    //   `[me+0x4c8]/[me+0x4d0]`(태그 `[me+0x4f8]==-1` 이면 없음)의 `vt+0x28`(**페어 반환**)을 불러 `rax+rdx`.
+    //   `slot98` 에도 같은 arm 이 있지만 `vt+0xb0`(aura) 가 자식으로 내려오면 여기로 들어온다(NA `Bb0` 의 원인).
+    if base != 0 && slot == 0x98 && f == base + 0x13dbd80 {
+        if rd_i32(me + 0x4f8)? == -1 { return Some(0); }
+        let (cd, cv) = (rd_u64(me + 0x4c8)? as usize, rd_u64(me + 0x4d0)? as usize);
+        if !ptr_ok(cv) { return na_tag(tag); }
+        let (a, b) = match super::dyn_eff::eff28_damage(cd, cv, me) { Some(v) => v, None => return na_tag(tag) };
+        return Some(a.wrapping_add(b) as i64);
+    }
+    // ★`0x115c2f0`(vt+0x98, 291개 중 1개) = `rax=[rcx]; rcx=[rcx+8]; r10=[rcx+0x88]; rcx=rax; jmp r10`
+    //   → 자식 **`vt+0x88`** 로 **Arc 보정 없이 raw 자식 데이터**를 넘기는 **교차 위임**(0x98→0x88).
+    //   `delegate_pair` 는 둘째 명령을 `mov rdx,…` 로만 매칭해서 이 형태를 못 잡는다(잠복 NA, RE 2026-09-07).
+    //   tail-jmp 라 rax(=자식의 al)가 그대로 반환값이 된다 → `ok as i64`.
+    if base != 0 && f == base + 0x115c2f0 {
+        let cd = rd_u64(payload)? as usize; let cv = rd_u64(payload + 8)? as usize;
+        return match super::combat_score::slot_88_rawp(cd, cv, depth + 1) {
+            Some((ok, _)) => Some(ok as i64), None => na_tag(tag) };
+    }
     // ★`0x12b1550`(vt+0x40) — 분기+div 라 specemu 가 못 돈다(RE 2026-09-07)
     if base != 0 && f == base + 0x12b1550 {
         let d = rd_u64(payload + 0x28)?; if d == 0 { return na_tag(tag); }
@@ -365,6 +384,25 @@ pub unsafe fn slot_sum(data: usize, vt: usize, slot: usize, me: usize, depth: u3
     if let Some(v) = super::as_callees::decode_getter(f, p) { return Some(v as i64); }
     let base = crate::exe_base();
     if base != 0 && f > base { if let Some(v) = leaf_stat_scaled(f - base, p, me) { return Some(v); } }
+    // ★`0x13dbd80`(vt+0x98) — payload 도 아군도 안 읽고 **대상 엔티티(me)** 의 inline dyn 효과
+    //   `[me+0x4c8]/[me+0x4d0]`(태그 `[me+0x4f8]==-1` 이면 없음)의 `vt+0x28`(**페어 반환**)을 불러 `rax+rdx`.
+    //   `slot98` 에도 같은 arm 이 있지만 `vt+0xb0`(aura) 가 자식으로 내려오면 여기로 들어온다(NA `Bb0` 의 원인).
+    if eb != 0 && slot == 0x98 && f == eb + 0x13dbd80 {
+        if rd_i32(me + 0x4f8)? == -1 { return Some(0); }
+        let (cd, cv) = (rd_u64(me + 0x4c8)? as usize, rd_u64(me + 0x4d0)? as usize);
+        if !ptr_ok(cv) { return na_tag(tag); }
+        let (a, b) = match super::dyn_eff::eff28_damage(cd, cv, me) { Some(v) => v, None => return na_tag(tag) };
+        return Some(a.wrapping_add(b) as i64);
+    }
+    // ★`0x115c2f0`(vt+0x98, 291개 중 1개) = `rax=[rcx]; rcx=[rcx+8]; r10=[rcx+0x88]; rcx=rax; jmp r10`
+    //   → 자식 **`vt+0x88`** 로 **Arc 보정 없이 raw 자식 데이터**를 넘기는 **교차 위임**(0x98→0x88).
+    //   `delegate_pair` 는 둘째 명령을 `mov rdx,…` 로만 매칭해서 이 형태를 못 잡는다(잠복 NA, RE 2026-09-07).
+    //   tail-jmp 라 rax(=자식의 al)가 그대로 반환값이 된다 → `ok as i64`.
+    if eb != 0 && f == eb + 0x115c2f0 {
+        let cd = rd_u64(p)? as usize; let cv = rd_u64(p + 8)? as usize;
+        return match super::combat_score::slot_88_rawp(cd, cv, depth + 1) {
+            Some((ok, _)) => Some(ok as i64), None => na_tag(tag) };
+    }
     // ★`0x12b1550`(vt+0x40) 네이티브 — 분기+div 라 specemu 불가(RE 2026-09-07)
     if eb != 0 && f == eb + 0x12b1550 {
         let d = rd_u64(p + 0x28)?; if d == 0 { return na_tag(tag); }
@@ -798,8 +836,43 @@ pub unsafe fn s13_s14(b: &BCtx, ally: Option<usize>) -> Option<i64> {
 }
 
 /// slot.vt+0x98 : (inline, sim, self, 아군엔티티) -> i64. 단순 게터/위임만 처리.
-unsafe fn slot_i64_98(data: usize, vt: usize, _sim: usize, me: usize, _e: usize) -> Option<i64> {
-    slot_sum(data, vt, 0x98, me, 0, "B98")
+/// `slot.vt+0x98` : `(rcx=payload, rdx=ctx/sim, r8=대상엔티티, r9=아군엔티티) -> i64`.
+/// ★★게임의 아군 아우라 루프 게이트. **인자 규약이 0x40/0x48 계열과 다르다**(ctx 가 끼어들어 한 칸 밀린다) —
+///   그래서 `slot_sum` → `specemu::run_leaf_i64(f, payload, me, est)` 로 흘리면 `[r8+0x618]` 을 읽는 잎이
+///   **est 서술자를 엔티티로 착각해 조용히 틀린 값**을 낸다(NA 도 안 뜬다). 그래서 여기서 직접 처리한다.
+/// RE 2026-09-07: `vt+0xa0 == 0x109baa0` 인 vtable 194개 중 `+0x98` 이 zero-fn 이 아닌 것은 **딱 4종**.
+unsafe fn slot_i64_98(data: usize, vt: usize, sim: usize, me: usize, e: usize) -> Option<i64> {
+    slot98(data, vt, sim, me, e, 0)
+}
+unsafe fn slot98(data: usize, vt: usize, sim: usize, me: usize, e: usize, depth: u32) -> Option<i64> {
+    if depth > 40 { super::dyn_eff::unseen(0x698, depth as usize); return na_tag("B98"); }
+    let r = match super::dyn_eff::impl_rva(vt, 0x98) { Some(r) => r, None => return slot_sum(data, vt, 0x98, me, 0, "B98") };
+    let p = inline_self(data, vt)?;
+    match r {
+        // 합성형 — Vec(ptr `p+0x08` / len `p+0x10` / stride 0x10), **인자를 그대로 전달**해 합산
+        0x12a6f60 => {
+            let n = rd_u64(p + 0x10)?; if n == 0 { return Some(0); }
+            let arr = rd_u64(p + 8)? as usize; if !ptr_ok(arr) { return None; }
+            let mut acc = 0i64;
+            for i in 0..n.min(CAP_ITER) as usize {
+                acc = acc.wrapping_add(slot98(rd_u64(arr + i * 0x10)? as usize, rd_u64(arr + i * 0x10 + 8)? as usize, sim, me, e, depth + 1)?); }
+            Some(acc)
+        }
+        // 잎 2종 — `[r8+0x618]`(=대상엔티티의 스탯) 을 쓰는 400 나눗셈형
+        0x12c4940 => Some(rd_i64(p + 0x10)?.wrapping_add(rd_i64(p + 0x18)?.wrapping_mul(rd_i64(me + 0x618)?) / 400)),
+        0x1841c00 => Some(rd_i64(p + 0x18)?.wrapping_add(rd_i64(p + 0x20)?.wrapping_mul(rd_i64(me + 0x618)?) / 400)),
+        // ★`0x13dbd80` — payload(rcx)도 아군(r9)도 **안 읽는다**. 대상엔티티의 inline dyn 효과
+        //   `[r8+0x4c8]/[r8+0x4d0]`(태그 `[r8+0x4f8] == -1` 이면 없음)의 `vt+0x28` 을 불러 **rax+rdx** 를 돌려준다.
+        //   슬롯 0x28 은 **페어 반환**이라 rax 만 읽으면 틀린다(zero-fn 도 `0x109bad0`=페어판으로 따로 있다).
+        0x13dbd80 => {
+            if rd_i32(me + 0x4f8)? == -1 { return Some(0); }
+            let (cd, cv) = (rd_u64(me + 0x4c8)? as usize, rd_u64(me + 0x4d0)? as usize);
+            if !ptr_ok(cv) { return None; }
+            let (a, b) = super::dyn_eff::eff28_damage(cd, cv, me)?;
+            Some((a.wrapping_add(b)) as i64)
+        }
+        _ => slot_sum(data, vt, 0x98, me, 0, "B98"),
+    }
 }
 
 /// S14 전용 도달시간 감쇠: `buff = e022d0(..., (k*v)/6)`, `k = min(6, max(0, 6 − t))`

@@ -673,6 +673,27 @@ unsafe fn vt80_flag(data: usize, vt: usize, depth: u32) -> Option<u64> {
             Some(0) }
         0x16adaa0 => Some(1),                     // mov rdx,[rcx+0x30]; mov eax,1; ret
         0x13bfa20 => Some(1),                     // mov rdx,[rcx+8];    mov eax,1; ret
+        // ★`vt+0x80` impl 전수 census(293 vtable, 17종 — RE 2026-09-07). 아래 6종이 빠져 있었다.
+        //   `vt80_flag` 는 값(rdx)이 아니라 **al 플래그만** 나르므로 al 만 옮긴다.
+        0x1151480 | 0x122f090 | 0x109bab0 => Some(1),                    // 전부 al=1(값만 다름)
+        0x1701740 => Some((rd_u64(p + 0x48)? != 0) as u64),              // al=([p+0x48]!=0), rdx=1
+        0x133e490 => Some((rd_u64(p + 0x30)? != 0 || rd_u64(p + 0x48)? != 0) as u64),   // al=(max(([p+0x30]!=0),[p+0x48])!=0)
+        // ★`0x164eb80` = **1자식 forwarder**(자식0 = p+0x00/p+0x08), 자식의 **`+0x80`** 로 tail-jmp.
+        //   같은 concrete 타입의 `+0x88`(`0x164ecc0`)은 2자식 max 지만 `+0x80` 은 자식0 하나만 본다 —
+        //   이 비대칭을 놓치면 자식1 쪽 결과가 새어든다(RE 2026-09-07). pe NA `cc9` 의 원인.
+        0x164eb80 => vt80_flag(rd_u64(p)? as usize, rd_u64(p + 8)? as usize, depth + 1),
+        // ★`0x1340cc0` = 리스트 A(p+0x68/len p+0x70/stride 0x18) 우선, A 에 ok 가 없으면
+        //   리스트 B(p+0x80/len p+0x88/stride 0x10). 값은 ok 자식들의 max 지만 여기선 플래그만.
+        0x1340cc0 => {
+            let any = |po: usize, lo: usize, st: usize| -> Option<u64> {
+                let n = rd_u64(p + lo)?; if n == 0 { return Some(0); }
+                let arr = rd_u64(p + po)? as usize; if !ptr_ok(arr) { return None; }
+                for i in 0..n.min(CAP_ITER) as usize {
+                    if vt80_flag(rd_u64(arr + i * st)? as usize, rd_u64(arr + i * st + 8)? as usize, depth + 1)? & 1 == 1 { return Some(1); } }
+                Some(0) };
+            let a = any(0x68, 0x70, 0x18)?; if a & 1 == 1 { return Some(a); }
+            any(0x80, 0x88, 0x10)
+        }
         _ => { dy::unseen(0x380, r); None }
     }
 }
