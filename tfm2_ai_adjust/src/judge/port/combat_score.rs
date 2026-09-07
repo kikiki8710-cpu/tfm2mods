@@ -102,7 +102,7 @@ pub unsafe fn diag(_p1: usize, _p3: usize, _p4: usize) -> String {
         v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7], v[8], v[9], v[10], v[11], v[12], v[13])
         + &format!(" game_thr={} bb970={} bb9a0={} bb988={}", v[14], v[15], v[16], v[17])
         + &{ let q = S12D.with(|c| c.get()); let z = s12_st(); format!(" | S12[D={} X={} Ct={} kill={} score={} e01450={} e019d0={} e02020={} st={} T={} dmg={} selfN={} burst={} thp={} stRaw={} bonus={} q={} pk={}] A[{:?}]", q[0], q[1], q[2], q[3], q[4], q[5], q[6], q[7], z[0], z[1], z[2], z[3], z[4], z[5], z[10], z[7], z[8], z[9], ally_diag()) }
-        + &{ let d = s5_diag(); format!(" S5[near={} kind={} f88={} dn={} rt={} safe={} raw9b0={} vis={} t0d={} t0a={} cdly={} alen={} th={:#x} a0={:#x} a1={:#x} pg={} d2={} a8={} altTS={} enear={} eLen={} aLen={}] NIC[cand={} dmin={} mlen={} nstruct={}]", d[0], d[1], d[2], d[3], d[4], d[5], d[6], d[7], d[8], d[9], cast_dly(), d[10], d[11], d[12], d[13], d[14], d[15], d[16], d[17], d[18], d[19], d[20], nic_diag()[0], nic_diag()[1], nic_diag()[2], nic_diag()[3]) }
+        + &{ let d = s5_diag(); format!(" S5[near={} kind={} f88={} dn={} rt={} safe={} raw9b0={} vis={} t0d={} t0a={} cdly={} alen={} th={:#x} a0={:#x} a1={:#x} pg={} d2={} a8={} eLen={} aLen={}] NIC[cand={} dmin={} mlen={} nstruct={}]", d[0], d[1], d[2], d[3], d[4], d[5], d[6], d[7], d[8], d[9], cast_dly(), d[10], d[11], d[12], d[13], d[14], d[15], d[16], d[19], d[20], nic_diag()[0], nic_diag()[1], nic_diag()[2], nic_diag()[3]) }
         + &unsafe { let caps = crate::judge::cap_util_c87fe0::last_p2().unwrap_or(0);
             // ★★`path=`·`S13[…]` 를 **caps 게이트 밖으로** 뺐다 — 잔차 23건이 전부 `caps=none` 이라
             //   경로를 안 찍은 것처럼 보였고, 그것 때문에 조기반환으로 오진단했다(RE 2026-09-07).
@@ -218,7 +218,10 @@ unsafe fn nearest_in_chain(w: &World, side: u64, me: usize) -> Option<Option<(us
     // ★후보 필터: dist(cand, self)² >> 8 <= 0x53d1ac0 (= 150,000 이내). 누락 시 먼 타워를 잡아
     //   구조물 경로로 과도하게 들어간다(RE 0xd72aad, 2026-09-07). 갱신은 strict `<`(동률이면 먼저 온 것).
     let mut consider = |e: usize, best: &mut Option<(usize, u64)>| -> Option<()> {
-        let (ex, ey) = xy(e)?; let d = d2_xy(ex, ey, mx, my);
+        // ★게임은 널 체크를 안 하지만(널이 안 들어오므로), 재현이 널을 역참조하면 NA 가 된다.
+        //   읽기 실패는 **NA 가 아니라 skip** 으로 흡수한다(2026-09-07 실측: 제거만 하니 NA 104).
+        let (ex, ey) = match xy(e) { Some(v) => v, None => return Some(()) };
+        let d = d2_xy(ex, ey, mx, my);
         ncand += 1; dmin = dmin.min((d >> 8) as i64);
         if (d >> 8) > 0x53d1ac0 { return Some(()); }
         if best.map_or(true, |(_, bd)| d < bd) { *best = Some((e, d)); }
@@ -227,7 +230,8 @@ unsafe fn nearest_in_chain(w: &World, side: u64, me: usize) -> Option<Option<(us
     for off in STRUCT_OFFS { let e = rd_u64(w.x + off + (side as usize) * 8)? as usize; if e != 0 { nstruct += 1; consider(e, &mut best)?; } }
     let n = rd_u64(w.x + X_MINION_LEN + (side as usize) * 0x20)?; let p = rd_u64(w.x + X_MINION_PTR + (side as usize) * 0x20)? as usize;
     if n != 0 { if !ptr_ok(p) { return None; }
-        for i in 0..n.min(4096) as usize { let e = rd_u64(p + i * 8)? as usize; if e != 0 { consider(e, &mut best)?; } } }
+        // ★게임의 vec 루프는 **원소 널 체크를 안 한다**(`0xd72a6c` 가 곧바로 `+0x660` 역참조) — RE 2026-09-07
+        for i in 0..n.min(4096) as usize { let e = rd_u64(p + i * 8)? as usize; consider(e, &mut best)?; } }
     NIC.with(|c| c.set([ncand, if dmin == i64::MAX { -1 } else { dmin }, n as i64, nstruct]));
     Some(best)
 }
@@ -945,23 +949,8 @@ unsafe fn combat_score_inner(mode: usize, _prof: usize, rec: usize, ctx: usize, 
     // ── S7 타워 지원 ──
     stg(tag8("S7"));
     let mut tower_support: i64 = 0;
-    // ★진단: 후보 로스터를 `side` 로 잡는지 `1-side` 로 잡는지가 미확정이다(RE 는 `1-[rbp+0x850]` 로 읽음).
-    //   추측으로 바꾸지 않고 **반대편으로도 계산해** 어느 쪽이 게임값을 내는지 실측으로 가른다(2026-09-07).
-    {
-        let alt = nearest_in_chain(&w, 1 - side, me)?;
-        let mut alt_ts: i64 = -1;
-        if let Some((ae, _)) = alt {
-            let rt = rd_u64(ae + ENT_F438)?.wrapping_add(rd_u64(ae + 0x4a0)?)
-                .wrapping_add(rd_u64(ae + ENT_LEVEL)?.wrapping_sub(1).wrapping_mul(rd_u64(ae + 0x4a8)?))
-                .wrapping_add(if rd_i32(ae + ENT_4C0)? == 0 { rng_of(ae)? } else { 0 })
-                .wrapping_add(rng_of(tgt)?).wrapping_add(slot_e8(ae + 0x490, ae, tgt)?);
-            let thp = rd_u64(tgt + ENT_HP)?;
-            if thp != 0 && d2_ee(tgt, ae)? <= sq(rt) && now < rd_u64(cfg + CFG_13F8)? {
-                alt_ts = ((est(ae + 0x490, ae, tgt)? as i64).wrapping_mul(100) / thp as i64).min(100);
-            }
-        }
-        S5D.with(|c| { let mut z = c.get(); z[17] = alt_ts; z[18] = enemy_near as i64; c.set(z); });
-    }
+    // ★`1-side` 실험 폐기 — RE 2026-09-07 이 `0xd5cf83`(S7) 은 `side`, `0xd5c993`(S3) 은 `1-side` 임을
+    //   바이트로 확정했고 재현이 이미 그렇게 분리돼 있다. 게이트 4항목도 전부 "동일" 판정.
     if let Some((na_ent, _)) = near_ally {
         let rt = rd_u64(na_ent + ENT_F438)?.wrapping_add(rd_u64(na_ent + 0x4a0)?)
             .wrapping_add(rd_u64(na_ent + ENT_LEVEL)?.wrapping_sub(1).wrapping_mul(rd_u64(na_ent + 0x4a8)?))
@@ -969,8 +958,8 @@ unsafe fn combat_score_inner(mode: usize, _prof: usize, rec: usize, ctx: usize, 
             .wrapping_add(rng_of(tgt)?).wrapping_add(slot_e8(na_ent + 0x490, na_ent, tgt)?);
         if enemy_near && d2_ee(tgt, na_ent)? <= sq(rt) && now < rd_u64(cfg + CFG_13F8)? {
             let thp = rd_u64(tgt + ENT_HP)?; if thp == 0 { return None; }
-            tower_support = (est(na_ent + 0x490, na_ent, tgt)? as i64).wrapping_mul(100) / thp as i64;
-            tower_support = tower_support.min(100);
+            // ★게임은 **부호 없는** 나눗셈(`div`)이다 — RE 2026-09-07
+            tower_support = ((est(na_ent + 0x490, na_ent, tgt)?.wrapping_mul(100) / thp) as i64).min(100);
         }
     }
     // ── S8 위치항 ──
