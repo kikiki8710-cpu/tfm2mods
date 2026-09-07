@@ -678,6 +678,10 @@ pub unsafe fn s13_s14(b: &BCtx, ally: Option<usize>) -> Option<i64> {
     let heal0 = if hp <= maxhp { missing_raw } else { 0 };
 
     let heal_cap = slot_sum(sd, sv, 0x40, b.me, 0, "B40")?;
+    // ★★`min` 이 맞다. RE(2026-09-08)가 `max(miss, vt+0x40())` 이라고 했지만 **실측이 기각했다** —
+    //   `max` 로 바꾸니 combat_score DIFF 가 0.004% → **5.65%** 로 폭발했다(`healE=313`·`cap=66` 표본에서
+    //   `max` 는 313, `min` 은 66 이고 게임의 `hs` 는 66 쪽과 맞는다). ⛔`max` 재시도 금지.
+    //   `miss>0`·`cap=0` 인데 게임이 0 아닌 `hs` 를 내던 별건은 `heal_cap`(=`slot_sum vt+0x40`) 자체를 봐야 한다.
     let heal = heal0.min(heal_cap.max(0) as u64) as i64;
     let shield = slot_sum(sd, sv, 0x48, b.me, 0, "B48")?;
     let aura = slot_sum(sd, sv, 0xb0, b.me, 0, "Bb0")?;

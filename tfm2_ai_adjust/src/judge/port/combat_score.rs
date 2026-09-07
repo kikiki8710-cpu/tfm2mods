@@ -106,7 +106,7 @@ pub unsafe fn diag(_p1: usize, _p3: usize, _p4: usize) -> String {
         v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7], v[8], v[9], v[10], v[11], v[12], v[13])
         + &format!(" game_thr={} bb970={} bb9a0={} bb988={}", v[14], v[15], v[16], v[17])
         + &{ let q = S12D.with(|c| c.get()); let z = s12_st(); format!(" | S12[D={} X={} Ct={} kill={} score={} e01450={} e019d0={} e02020={} st={} T={} dmg={} selfN={} burst={} thp={} stRaw={} bonus={} q={} pk={} E1450[v1={} v2={} v3={} v4={} v5={} msum={} dps={} n={} acc={} nal={} a8i={:#x}] i88={:#x} tid={:#x} m16={} v10={} aa={} THP={} v={} slN={}] A[{:?}]", q[0], q[1], q[2], q[3], q[4], q[5], q[6], q[7], z[0], z[1], z[2], z[3], z[4], z[5], z[10], z[7], z[8], z[9], { let q = e1450_diag(); q[0] }, e1450_diag()[1], e1450_diag()[2], e1450_diag()[3], e1450_diag()[4], e1450_diag()[5], e1450_diag()[6], e1450_diag()[7], e1450_diag()[8], e1450_diag()[9], e1450_diag()[10], z[12], z[13], z[14], z[15], z[16], z[17], z[18], z[19], ally_diag()) }
-        + &{ let d = s5_diag(); format!(" S5[near={} kind={} f88={} dn={} rt={} safe={} raw9b0={} vis={} t0d={} t0a={} cdly={} alen={} th={:#x} a0={:#x} a1={:#x} pg={} d2={} a8={} eLen={} aLen={}] NIC[cand={} dmin={} mlen={} nstruct={}]", d[0], d[1], d[2], d[3], d[4], d[5], d[6], d[7], d[8], d[9], cast_dly(), d[10], d[11], d[12], d[13], d[14], d[15], d[16], d[19], d[20], nic_diag()[0], nic_diag()[1], nic_diag()[2], nic_diag()[3]) }
+        + &{ let d = s5_diag(); format!(" S5[near={} kind={} f88={} dn={} rt={} safe={} raw9b0={} vis={} t0d={} t0a={} cdly={} alen={} th={:#x} a0={:#x} a1={:#x} pg={} d2={} a8={} eLen={} aLen={} a8m={} a8r={}] NIC[cand={} dmin={} mlen={} nstruct={}]", d[0], d[1], d[2], d[3], d[4], d[5], d[6], d[7], d[8], d[9], cast_dly(), d[10], d[11], d[12], d[13], d[14], d[15], d[16], d[19], d[20], d[17], d[18], nic_diag()[0], nic_diag()[1], nic_diag()[2], nic_diag()[3]) }
         + &unsafe { let caps = crate::judge::cap_util_c87fe0::last_p2().unwrap_or(0);
             // ★★`path=`·`S13[…]` 를 **caps 게이트 밖으로** 뺐다 — 잔차 23건이 전부 `caps=none` 이라
             //   경로를 안 찍은 것처럼 보였고, 그것 때문에 조기반환으로 오진단했다(RE 2026-09-07).
@@ -1028,12 +1028,20 @@ unsafe fn combat_score_inner(mode: usize, _prof: usize, rec: usize, ctx: usize, 
         let (tx, ty) = xy(tgt)?;
         let (cx, cy) = ((tx / 32000).min(29), (ty / 32000).min(29));
         let (qx8, qy8) = (cx * 32000 + 16000, cy * 32000 + 16000);
-        // 게임은 래퍼 0xd84db0 을 부른다 = TLS 메모 경유. 본체 재현이 None 이면 게임이 방금 채워 둔 메모 표를 읽는다.
-        let a8 = match super::position_eval::position_eval(mode as u64, rec, ctx, qx8, qy8, 0xc) {
-            Some(o) => o.a,
-            None => match super::position_eval::memo_lookup(mode, rec, ctx, qx8 as usize, qy8 as usize, 0xc) { Some(w) => w[0] as i64,
-                // ★position_eval 이 어느 블록에서 None 을 냈는지까지 태그에 담는다(판당 3,322건의 원인 특정용)
-                None => { let r = super::position_eval::last_na(); return na(if r != 0 { r } else { tag8("S8pe") }) } },
+        // 게임은 래퍼 `0xd84db0` 을 부른다 = **TLS 메모 경유**. 그래서 게임이 방금 채워 둔 메모 표에는
+        // **게임 자신의 값**이 들어 있다.
+        // ★★~~재현 우선 → 메모 폴백~~ 은 **미러 우선 원칙과 반대**였다. 실측에서 `a8` 이 일정하게 20 짧고
+        //   (S15z 7표본에서 `pos` 가 −92~−108 로 다른데 편차가 정확히 −24 로 일정 = `a8` 이 20 부족),
+        //   같은 세션에 `dive_lookup` 미러를 재현으로 갈아끼웠다가 position_eval DIFF 가 0→124,482 로
+        //   터진 전례가 있다. **메모(미러) 우선, 없을 때만 재현**으로 뒤집는다(2026-09-08).
+        let a8_memo = super::position_eval::memo_lookup(mode, rec, ctx, qx8 as usize, qy8 as usize, 0xc).map(|w| w[0] as i64);
+        let a8_repro = super::position_eval::position_eval(mode as u64, rec, ctx, qx8, qy8, 0xc).map(|o| o.a);
+        // 둘이 갈리는지 계측 — 갈린다면 어느 쪽이 게임인지 DIFF 가 말해 준다
+        S5D.with(|c| { let mut z = c.get(); z[17] = a8_memo.unwrap_or(i64::MIN); z[18] = a8_repro.unwrap_or(i64::MIN); c.set(z); });
+        let a8 = match a8_memo.or(a8_repro) {
+            Some(v) => v,
+            // ★position_eval 이 어느 블록에서 None 을 냈는지까지 태그에 담는다
+            None => { let r = super::position_eval::last_na(); return na(if r != 0 { r } else { tag8("S8pe") }) },
         };
         // ★게임은 위치항을 **뺀다**(실측: mine − game == 2*pos 가 3표본 정확히 일치, 2026-09-07)
         S5D.with(|c| { let mut z = c.get(); z[16] = a8; c.set(z); });
