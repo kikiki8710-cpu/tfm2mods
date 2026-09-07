@@ -658,6 +658,7 @@ macro_rules! judge_capture_ring_cmp9_pre {
                     let line = format!("[{} #{}] {} game={}({:#x}) mine={} | p1={:#x} p2={:#x} p3={:#x} p4={:#x} p5={:#x} p6={:#x} p7={:#x} | {}\n", $spec.name, ST.n.load(Ordering::Relaxed), tag, r as i64, r, v.map(|x| format!("{}({:#x})", x, x as u64)).unwrap_or("NA".into()), p1, p2, p3, p4, p5, p6, p7, diag);
                     if let Some(p) = crate::pth(&format!("judge_{}.txt", $spec.name)) { let _ = std::fs::OpenOptions::new().create(true).append(true).open(p).and_then(|mut f| { use std::io::Write; f.write_all(line.as_bytes()) }); }
                 };
+                if let Some(v) = mine { crate::judge::port::combat_score::cap_tally(r as i64, v); }   // S12 스테로이드 상한 후보 대조(검증 한정)
                 match mine {
                     None => { ST.na.fetch_add(1, Ordering::Relaxed); if LOGGED.fetch_add(1, Ordering::Relaxed) < 30 { logline("NA", None); } }
                     Some(v) if v == r as i64 => { ST.ok.fetch_add(1, Ordering::Relaxed); }
@@ -977,7 +978,7 @@ pub fn write_status() {
     s.push_str("판정: diff=0 && na=0 이면 그 함수 DIFF=0(이번 판 표본 한정). na>0 = 가드 경로/콜리 캡처 없음 → judge_<fn>.txt 의 NA 줄 확인. ability_pick 은 캡처 전용(n=호출 수).\n");
     if let Some(p) = pth("judge_status.txt") { let _ = fs::write(p, s); }
     if let Some(p) = pth("judge_dyn.txt") { let _ = fs::write(p, port::dyn_eff::unseen_report()); }
-    if let Some(p) = pth("judge_pe_gate.txt") { let _ = fs::write(p, format!("{}{}{}{}{}{}{}{}{}{}{}{}{}", port::position_eval::memo_report(), port::position_eval::mine_truth_report(), port::position_eval::cand_report(), port::position_eval::need_report(), port::position_eval::neg_report(), port::position_eval::qscan_report(), port::position_eval::comp_report(), port::position_eval::gbx_report(), port::position_eval::self_report(), port::position_eval::truth_report(), port::position_eval::edge_report(), port::position_eval::gate_report(), port::combat_score::na_report())); }
+    if let Some(p) = pth("judge_pe_gate.txt") { let _ = fs::write(p, format!("{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}", port::position_eval::memo_report(), port::position_eval::mine_truth_report(), port::position_eval::cand_report(), port::position_eval::need_report(), port::position_eval::neg_report(), port::position_eval::qscan_report(), port::position_eval::comp_report(), port::position_eval::gbx_report(), port::position_eval::self_report(), port::position_eval::truth_report(), port::position_eval::edge_report(), port::position_eval::gate_report(), port::combat_score::na_report(), port::combat_score::cap_report(), port::position_eval::impact_report())); }
 }
 
 static INSTALLED: AtomicBool = AtomicBool::new(false);

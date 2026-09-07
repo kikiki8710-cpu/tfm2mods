@@ -172,6 +172,26 @@ pub const PLAN_PJ_CAMP: usize = 0x60;            // 플랜 인자 +0x60 u8 camp(
 pub const PJ_WP_D2: u64 = 14_400_000_000;        // 캠프 위치 게이트 120000² (사이트 없음 · 노브 d7_wp_dist2)
 pub const SITE_PJ_HP_SELFHEAL_IMM: usize = 0xd2ed5a; // cmp rax, 21 (노브 d7_hp_selfheal, 사이트 0xd2ed57)
 pub const SITE_PJ_HP_NORMAL_IMM: usize = 0xd2ed70;   // cmp rax, 41 (노브 d7_hp_normal, 사이트 0xd2ed6d)
+// ★★combat_score 계열이 **자기 모드의 바이트패치 대상**인 즉치들(detour.rs:1425-1445, 1980-2027).
+//   재현이 exe 원본 상수를 쓰면 노브를 건드린 순간 전부 DIFF 된다 — 반드시 **실행중 바이트**를 읽을 것.
+//   값은 imm 위치(명령 시작 + prefix 길이)이다. RE 2026-09-07 `S12잔차-정체는-자기모드-바이트패치`.
+// position_eval(0xd851d0 본체) 의 패치 즉치 — RE 2026-09-07 `position_eval-패치즉치18곳-재현매핑`.
+//   현재 cfg 기준 **원본과 다른 것만** 상수화했다(같은 값이면 읽어도 무해하나 노브를 바꾸면 즉시 깨진다).
+pub const SITE_PE_TOWER_MARGIN_A_IMM: usize = 0xd87ffa; // add rax,18000 — S7 타워 게이트(사이트 0xd87ff8) · 노브 pe_tower_margin
+pub const SITE_PE_TOWER_MARGIN_B_IMM: usize = 0xd89280; // add r9,18000  — S11 액션 장판 cover (사이트 0xd8927d)
+pub const SITE_PE_COUNT_D2_INC_IMM: usize = 0xd8b66d;   // movabs 120000²+1 (사이트 0xd8b66b) · 노브 pe_count_radius
+pub const SITE_PE_COUNT_D2_IMM: usize = 0xd8beec;       // movabs 120000²   (사이트 0xd8beea)
+pub const SITE_PE_KIND_MASK_IMM: usize = 0xd86a08;      // mov ecx,0x503 (사이트 0xd86a07) · 노브 pe_kind_mask
+pub const SITE_PE_FILTER_D2_SHR8_IMM: usize = 0xd86f21; // cmp …,87890625 (사이트 0xd86f1e 외 5곳 동값)
+pub const SITE_PE_NEAR_D2_SHR8_IMM: usize = 0xd8715d;   // cmp …,19140625 (사이트 0xd8715a · 0xd87b4a)
+pub const SITE_PE_FIELD_D2_SHR8_IMM: usize = 0xd890f3;  // cmp …,244140624 (사이트 0xd890f0)
+pub const SITE_SC_FOCUS_CAP_IMM: usize = 0xd5f5cd;   // cmp rax,80  (노브 sc_focus_cap)  사이트 0xd5f5ca
+pub const SITE_SC_KILL_CAP_IMM: usize = 0xd5fd8f;    // cmp rcx,80  (노브 sc_kill_cap)   사이트 0xd5fd8c · 쌍 0xd5fe81
+pub const SITE_SC_KILL_PCT_IMM: usize = 0xd5fe69;    // cmp rax,60  (노브 sc_kill_pct)   사이트 0xd5fe66
+pub const SITE_SC_DIVE_MARGIN_IMM: usize = 0xd5e92f; // add rax,15000 imm32 (노브 sc_dive_margin) 사이트 0xd5e92d
+pub const SITE_BV_CAP_MAIN_IMM: usize = 0xe01880;    // cmp rcx,160 imm32 (노브 bv_cap_main) — e01450 소유분
+pub const SITE_BV_CAP_HALF_E019D0_IMM: usize = 0xe01bfe; // cmp rcx,80 (노브 bv_cap_half) — e019d0 소유분
+pub const SITE_BV_CAP_HALF_E02020_IMM: usize = 0xe0228e; // cmp rcx,80 (노브 bv_cap_half) — e02020 소유분
 pub const ENT_F3F0: usize = 0x3f0;               // i32 흡혈 누산(>0 이면 지속회복 있음)
 pub const ENT_F3FC: usize = 0x3fc;               // i32 공속 보정 %(+100)
 pub const ENT_SLOT1: usize = 0x4c8;              // 스킬1 슬롯(Arc data·+8 vt) · flag +0x4f8

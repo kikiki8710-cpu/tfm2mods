@@ -442,7 +442,7 @@ pub unsafe fn exposure(x: usize, tgt: usize, qx: u64, qy: u64, t_raw: u64, tps: 
     let mut acc = 0u64;
     units(x, eside, |u| {
         let (ux, uy) = xy(u)?; let d2s = sat_d2(ux, uy, qx, qy);
-        if d2s < 0x35a4e9001 && rd_i32(u + ENT_KIND)? == 1 && rd_i32(u + 0x4c0)? != -1 {
+        if imp(7, d2s < 0x3_5a4e_9001, d2s < imm64(SITE_PE_COUNT_D2_INC_IMM, 0x3_5a4e_9001)) && rd_i32(u + ENT_KIND)? == 1 && rd_i32(u + 0x4c0)? != -1 {
             let es = est(u, tgt)?; if es == 0 { return Some(()); }
             let iv = atk_iv(u)?; let hits = es.wrapping_mul(tp) / iv;
             let w1 = if rd_i32(u + 0x88)? == 1 { if rd_u64(u + 0x90)? == th { 100 } else { wk } } else { 80u64 };
@@ -713,7 +713,7 @@ unsafe fn body(st: &St) -> Option<Out> {
         let n = rd_u64(x + X_OBJ_LEN)?; let p = rd_u64(x + X_OBJ_PTR)? as usize; if n != 0 && !ptr_ok(p) { return None; }
         for i in 0..n.min(CAP_ITER) as usize {
             let o = rd_u64(p + i * 8)? as usize; if o == 0 { return None; }
-            let (ox, oy) = xy(o)?; let d2s = sat_d2(ox, oy, qx, qy); if (d2s >> 8) >= 0x53d1ac1 { continue; }
+            let (ox, oy) = xy(o)?; let d2s = sat_d2(ox, oy, qx, qy); if imp(0, (d2s >> 8) >= imm32(SITE_PE_FILTER_D2_SHR8_IMM, 87_890_625), (d2s >> 8) >= 87_890_625) { continue; }
             let kind = rd_u64(o + ENT_KIND)?;
             if kind == 4 {
                 if rd_u8(o + 0x88) != 0 && rd_u64(o + 0x90)? == th {
@@ -742,9 +742,9 @@ unsafe fn body(st: &St) -> Option<Out> {
             o += &format!("{}{:#x}:d2={} eh={} ", if *en { "E" } else { "A" }, rd_u64(*it + ENT_HANDLE).unwrap_or(0), sat_d2(ix, iy, qx, qy), mind); } } } o + "]" });
         for (item, enemy) in items {
             let (ix, iy) = xy(item)?;
-            let mut go = (sat_d2(ix, iy, qx, qy) >> 8) < 0x53d1ac1;
+            let mut go = { let z = sat_d2(ix, iy, qx, qy) >> 8; imp(1, z < imm32(SITE_PE_FILTER_D2_SHR8_IMM, 87_890_625), z < 87_890_625) };
             // ★양쪽 체인 모두 E(적 영웅) 리스트를 쓴다 — 게임 d86f2b(적 체인)·d8702d(내 체인) 둘 다 [rbp+0x5d0]/[0x5e8]=E (2026-09-06 23:00 정정, RE 의 "내 아이템이면 M" 은 오류)
-            if !go { for h in &st.e_list { let (hx, hy) = xy(h.ent)?; if (wrap_d2(ix, iy, hx, hy) >> 8) < 0x1241011 { go = true; break; } } }
+            if !go { for h in &st.e_list { let (hx, hy) = xy(h.ent)?; if { let z = wrap_d2(ix, iy, hx, hy) >> 8; imp(2, z < imm32(SITE_PE_NEAR_D2_SHR8_IMM, 19_140_625), z < 19_140_625) } { go = true; break; } } }
             let _ = enemy;
             if !go { continue; }
             let (i0, i8) = (rd_u64(item)?, rd_u64(item + 8)?);
@@ -780,7 +780,7 @@ unsafe fn body(st: &St) -> Option<Out> {
                 //      다른 형태는 전부 부자연스러운 상수로 떨어진다(need−rg−ri=13999 · −ri−rt=3999 · −ri/2=18999).
                 //   ⟹ **`rg + 24000` 이 가장 타이트한 정답.** 디스어셈의 `add rax, 0x4650`(18000) 은 여러 가산 중
                 //      하나이고, RE 의 7항 읽기가 **6000 짜리 항 하나를 빠뜨린 것**으로 보인다(그 항의 정체는 미규명).
-                let game_pass = d2g <= sq(rgb.wrapping_add(24000));
+                let game_pass = d2g <= sq(rgb.wrapping_add(imm32(SITE_PE_TOWER_MARGIN_A_IMM, 18_000)));
                 { let gp = dive_calls_since(side, rd_u64(item + ENT_HANDLE)?) > 0;
                   gate_edge(rgb, isqrt_fast(d2g), gp);
                   if gp != game_pass { gate_log(d2g, rgb, ri, rt, rd_u64(item + ENT_F438)?, rd_u64(item + 0x4a0)?, rd_u64(item + 0x4a8)?, rd_u64(item + ENT_LEVEL)?, rd_i32(item + 0x4c0)? as i64, rd_i32(item + 0x470)? as i64, rd_u64(item + 0x680)?, rd_i32(tgt + 0x470)? as i64, rd_u64(tgt + 0x680)?, gp); } }
@@ -839,14 +839,14 @@ unsafe fn body(st: &St) -> Option<Out> {
     let phase = rd_u8(g + G_PHASE); let thr = rd_u64(cfg + CFG_8A8)?.saturating_sub(30u64.wrapping_mul(tps));
     let phase_late = phase <= 8 && (0x1a1u32 >> phase) & 1 == 1 && tick >= thr;
     let mut count_mode = false;
-    if !phase_late && st.purpose <= 10 && (0x503u32 >> st.purpose) & 1 == 1 {
+    if !phase_late && st.purpose <= 10 && imp(6, (imm32(SITE_PE_KIND_MASK_IMM, 0x503) as u32 >> st.purpose) & 1 == 1, (0x503u32 >> st.purpose) & 1 == 1) {
         if t0 & 1 == 1 { count_mode = true; }
         else { match w.mode() { Some((0, md)) => { if rd_u64(md + 0x240 + (eside as usize) * 8)? == 0 { count_mode = true; } } Some(_) => count_mode = true, None => return None } }
     }
     if count_mode {
         let (mut ca, mut cb): (Option<u64>, Option<u64>) = (None, None);
         units(x, eside, |u| {
-            let (ux, uy) = xy(u)?; let d2s = sat_d2(ux, uy, qx, qy); if (d2s >> 8) >= 0x53d1ac1 { return Some(()); }
+            let (ux, uy) = xy(u)?; let d2s = sat_d2(ux, uy, qx, qy); if imp(3, (d2s >> 8) >= imm32(SITE_PE_FILTER_D2_SHR8_IMM, 87_890_625), (d2s >> 8) >= 87_890_625) { return Some(()); }
             let (atk, to, use_b) = if rd_i32(u + ENT_KIND)? == 1 { let atk = rd_u8(u + 0x88); (atk, atk == 1 && rd_u64(u + 0x90)? != th, rd_u8(u + 0x118) != 0) } else { (1u8, false, false) };
             let v0 = if use_b { match cb { Some(v) => v, None => { let v = cap(est(u, tgt)?); cb = Some(v); v } } } else { match ca { Some(v) => v, None => { let v = cap(est(u, tgt)?); ca = Some(v); v } } };
             let mut v = v0 as i64;
@@ -877,7 +877,7 @@ unsafe fn body(st: &St) -> Option<Out> {
         let n = rd_u64(x + X_SIDE_UNITS_LEN + (eside as usize) * 0x20)?; let p = rd_u64(x + X_SIDE_UNITS_PTR + (eside as usize) * 0x20)? as usize; if n != 0 && !ptr_ok(p) { return None; }
         for i in 0..n.min(CAP_ITER) as usize {
             let u = rd_u64(p + i * 8)? as usize; if u == 0 { return None; }
-            let (ux, uy) = xy(u)?; let d2s = sat_d2(ux, uy, qx, qy); if (d2s >> 8) >= 0x53d1ac1 || rd_i32(u + 0x4c0)? == -1 { continue; }   // ★off-by-one 정정: 게임은 (d2>>8) < 0x53d1ac1
+            let (ux, uy) = xy(u)?; let d2s = sat_d2(ux, uy, qx, qy); if imp(4, (d2s >> 8) >= imm32(SITE_PE_FILTER_D2_SHR8_IMM, 87_890_625), (d2s >> 8) >= 87_890_625) || rd_i32(u + 0x4c0)? == -1 { continue; }   // ★off-by-one 정정: 게임은 (d2>>8) < 0x53d1ac1
             let v = cap(match est(u, tgt) { Some(v) => v, None => { trs(|| format!("NA:S10est{:#x}", u)); return None } }); let r = range_u(u, tgt)?; let k = rd_u64(u + ENT_KIND)?;
             let tm = if k == 7 || k as i32 == 9 { rd_i32(u + 0x88)? == 1 && rd_u64(u + 0x90)? == th } else if k as i32 == 10 { rd_i32(u + 0x70)? == 1 && rd_u64(u + 0x78)? == th } else { false };
             if d2s <= sq(r) { a_acc = a_acc.wrapping_add((if tm { v } else { v >> 1 }) as i64); }
@@ -893,7 +893,7 @@ unsafe fn body(st: &St) -> Option<Out> {
         for i in 0..n.min(CAP_ITER) as usize {
             let a = p + i * ACTION_STRIDE;
             let (ax, ay) = (rd_u64(a + 0x100)?, rd_u64(a + 0x108)?); let d2q = wrap_d2(ax, ay, qx, qy);
-            if (d2q >> 8) > 0xe8d4a50 { continue; }
+            if imp(5, (d2q >> 8) > imm32(SITE_PE_FIELD_D2_SHR8_IMM, 244_140_624), (d2q >> 8) > 244_140_624) { continue; }
             if rd_u8(a + 0x131) == 0 {
                 let ok = same_team_ae(a, tgt)? && rd_u64(a + 0xa0)? == 10 && { let np = rd_u64(a + 0x98)? as usize; ptr_ok(np) && (0..10).all(|j| rd_u8(np + j) == b"knight_ult"[j]) };
                 if !ok { continue; }
@@ -904,7 +904,7 @@ unsafe fn body(st: &St) -> Option<Out> {
             let tt = rd_u32(a + 0x12c);
             if !(match relevant(tt, a, tgt) { Some(v) => v, None => { trs(|| format!("NA:rel{}", tt)); return None } }) { continue; }
             let ac = Act { a, k };
-            if !(match cover(&ac, qx, qy, r_t.wrapping_add(18000)) { Some(v) => v, None => { trs(|| format!("NA:cover{}", k)); return None } }) { continue; }
+            if !(match cover(&ac, qx, qy, r_t.wrapping_add(imm32(SITE_PE_TOWER_MARGIN_B_IMM, 18_000))) { Some(v) => v, None => { trs(|| format!("NA:cover{}", k)); return None } }) { continue; }
             if !same_team_ae(a, tgt)? {
                 let raw = match threat(&ac, src, tgt) { Some(v) => v, None => { trs(|| format!("NA:threat{}", k)); return None } }; let v = cap(raw);
                 trs(|| { let (b0, bn) = lb0(a).unwrap_or((0, 0)); let (p, n) = l50(a).unwrap_or((0, 0)); format!("ACT[{:#x} k={} tt={} raw={} v={} ticks={:?} a60={} a68={} b0={:?} l50={:?} hit={:?} ty={} src={:#x}]", a, k, tt, raw, v, ticks(a), rd_u64(a + 0x60).unwrap_or(0), rd_u64(a + 0x68).unwrap_or(0), dmg_list(b0, bn, 0x18, a, src, tgt), dmg_list(p, n, if k == 2 { 0x18 } else { 0x10 }, a, src, tgt), hit(a, tgt), rd_u32(a + 0x128), src) });
@@ -995,7 +995,12 @@ unsafe fn body(st: &St) -> Option<Out> {
     trs(|| format!("S14[a={} sumE={} half28={}]", a_acc, sum_e, half28));
     // S15
     if sum_e > 0 {
-        let na = st.a_list.iter().filter(|r| r.d2 < 0x35a4e9001).count(); let ne = st.e_list.iter().filter(|r| r.d2 < 0x35a4e9001).count();
+        // ★★L445·L998·L1022 의 120000² 는 `pe_count_radius` 사이트(0xd8b66b/0xd8beea)가 **아니다**.
+    //   RE 2026-09-07 은 그렇게 대응시켰지만 실측이 반증했다 — live(150000²) 로 바꾸면 판정이 2.05%(488만 건)
+    //   뒤집히면서 DIFF 가 2.1181% → 2.1871% 로 **악화**한다. 정적 원본으로 되돌리면 1.6534%.
+    //   ⟹ 이 세 줄이 모델하는 게임 코드는 패치 대상이 아닌 다른 120000² 이다(사이트 미특정).
+    let cd2 = 0x3_5a4e_9001u64;
+        let na = st.a_list.iter().filter(|r| r.d2 < cd2).count(); let ne = st.e_list.iter().filter(|r| r.d2 < cd2).count();
         trs(|| format!("S15[na={} ne={} ad2={:?} ed2={:?}]", na, ne, st.a_list.iter().map(|r| r.d2).collect::<Vec<_>>(), st.e_list.iter().map(|r| r.d2).collect::<Vec<_>>()));
         if na == 0 && ne >= 2 { let n = ne.min(4) as i64; a_acc = a_acc.wrapping_add(sum_e.wrapping_mul(n).wrapping_mul(25) / 100); }
     }
@@ -1019,7 +1024,7 @@ unsafe fn body(st: &St) -> Option<Out> {
             if tags_has(tp, tl, 8)? { continue; }
             match kind { 4 | 3 => continue, 0 => { if champ_vt30_w2(cd, cv)? >= 0x4b0 { continue; } } _ => {} }
             let ae = rec.ent; let (ax, ay) = xy(ae)?;
-            if sat_d2(ax, ay, qx, qy) > 0x35a4e9000 { continue; }
+            if sat_d2(ax, ay, qx, qy) > 0x3_5a4e_9000 { continue; }   // A/B: 정적 원본
             for er in &st.e_list {
                 let (ex, ey) = xy(er.ent)?; let d2ae = wrap_d2(ax, ay, ex, ey);
                 if er.d2 >= d2ae { continue; }
@@ -1314,6 +1319,29 @@ thread_local! { static PRE_HIT: std::cell::Cell<(bool, [u64; 9])> = const { std:
 pub fn game_body_ran() -> bool { crate::judge::cap_as_d851d0::count() > PRE_BODY.with(|c| c.get()) }
 /// pre_memo 판정 대조 집계 [히트일치, 히트오판(내 히트·게임 미스), 미스오판(내 미스·게임 히트), 미스일치]
 pub static MEMO_STAT: [std::sync::atomic::AtomicU64; 4] = [const { std::sync::atomic::AtomicU64::new(0) }; 4];
+/// ★★임계치·마진·마스크는 **상수가 아니라 실행중 바이트**다 — ai_adjust 자신이 `pe_*` 노브로 덮어쓴다.
+/// 정적 exe 상수를 하드코딩하면 노브를 건드린 순간 그 경로가 전부 DIFF 된다.
+/// (2026-09-07 실측: tower_margin 18000→24000 · count_radius 120000²→150000² · kind_mask 0x503→0x303)
+#[inline] unsafe fn imm32(site: usize, orig: u32) -> u64 { super::super::live_imm32(site, orig) as u64 }
+/// ★사이트별 영향도 계수(검증 한정). `live` 값과 `static` 원본값이 판정을 **실제로 뒤집는** 표본만 센다.
+/// 8곳을 한꺼번에 배선했는데 DIFF 가 오히려 늘어, **어느 사이트가 진짜로 쓰이는지**를 먼저 재야 한다.
+pub static IMPACT: [std::sync::atomic::AtomicU64; 8] = [const { std::sync::atomic::AtomicU64::new(0) }; 8];
+pub static IMPACT_N: [std::sync::atomic::AtomicU64; 8] = [const { std::sync::atomic::AtomicU64::new(0) }; 8];
+#[inline] fn imp(i: usize, live: bool, stat: bool) -> bool {
+    IMPACT_N[i].fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+    if live != stat { IMPACT[i].fetch_add(1, std::sync::atomic::Ordering::Relaxed); }
+    live
+}
+pub fn impact_report() -> String {
+    let nm = ["filter>=(716)", "filter<(745)", "near<(747)", "filter>=(849)", "filter>=(880)", "field>(896)", "kindmask(842)", "count/tower"];
+    let mut s = String::from("[PEimm] live≠static 로 판정이 뒤집힌 표본
+");
+    for i in 0..8 { let n = IMPACT_N[i].load(std::sync::atomic::Ordering::Relaxed); if n == 0 { continue; }
+        s += &format!("  {:<16} flip={} / n={} ({:.4}%)
+", nm[i], IMPACT[i].load(std::sync::atomic::Ordering::Relaxed), n, IMPACT[i].load(std::sync::atomic::Ordering::Relaxed) as f64 * 100.0 / n as f64); }
+    s
+}
+#[inline] unsafe fn imm64(site: usize, orig: u64) -> u64 { super::super::live_imm64(site, orig) }
 pub fn memo_report() -> String {
     let g = |i: usize| MEMO_STAT[i].load(std::sync::atomic::Ordering::Relaxed);
     let t = g(0) + g(1) + g(2) + g(3);

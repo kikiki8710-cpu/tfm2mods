@@ -45,7 +45,9 @@ fn na(tag: u64) -> Option<i64> {
 }
 /// 다른 모듈(buff_value 등)에서 미포팅 지점을 집계할 때 쓰는 공개 창구
 pub fn na_tag(t: &str) -> Option<i64> { na(tag8(t)) }
-thread_local! { pub static S12ST: std::cell::Cell<[i64; 6]> = const { std::cell::Cell::new([0; 6]) }; }
+thread_local! { pub static ALLYD: std::cell::Cell<[i64; 10]> = const { std::cell::Cell::new([0; 10]) }; }
+pub fn ally_diag() -> [i64; 10] { ALLYD.with(|c| c.get()) }
+thread_local! { pub static S12ST: std::cell::Cell<[i64; 12]> = const { std::cell::Cell::new([0; 12]) }; }
 /// [st, T, dmg, tps, burst, tgt.hp]
 /// S5 위험항 진단: [near!=0, near.kind, near.0x88, dist(me,near), r_t, safe, bb.0x9b0 원값]
 thread_local! { pub static S5D: std::cell::Cell<[i64; 19]> = const { std::cell::Cell::new([0; 19]) }; }
@@ -53,7 +55,37 @@ pub fn s5_diag() -> [i64; 19] { S5D.with(|c| c.get()) }
 thread_local! { pub static CDLY: std::cell::Cell<i64> = const { std::cell::Cell::new(0) }; }
 pub fn cast_dly() -> i64 { CDLY.with(|c| c.get()) }
 /// 직전 S12 호출의 스테로이드 창 기여분(진단용)
-pub fn s12_st() -> [i64; 6] { S12ST.with(|c| c.get()) }
+pub fn s12_st() -> [i64; 12] { S12ST.with(|c| c.get()) }
+/// ★스테로이드 `st` 상한 후보 대조기(검증 한정).
+/// 실측: T=60 DIFF 4건이 전부 `st` 포화 상태에서 정확히 −5 였다 → 상한이 80 이 아닐 가능성.
+/// 상수를 바꿔 맞추는 대신 후보를 **동시에 세어** 어느 것이 표본을 가장 많이 설명하는지 본다.
+pub const CAPCAND: [i64; 6] = [80, 75, 70, 90, 100, 60];
+pub static CAPHIT: [AtomicU64; 6] = [AtomicU64::new(0), AtomicU64::new(0), AtomicU64::new(0), AtomicU64::new(0), AtomicU64::new(0), AtomicU64::new(0)];
+pub static CAPTOT: AtomicU64 = AtomicU64::new(0);
+pub static CAPSAT: AtomicU64 = AtomicU64::new(0);
+pub fn cap_tally(game: i64, mine: i64) {
+    let z = s12_st();
+    let (raw, st) = (z[10], z[6]);
+    if z[1] == 0 { return; }
+    CAPTOT.fetch_add(1, Ordering::Relaxed);
+    if raw > 60 { CAPSAT.fetch_add(1, Ordering::Relaxed); }
+    for i in 0..6 { if mine - st + raw.min(CAPCAND[i]) == game { CAPHIT[i].fetch_add(1, Ordering::Relaxed); } }
+}
+pub fn cap_report() -> String {
+    let t = CAPTOT.load(Ordering::Relaxed);
+    if t == 0 { return String::new(); }
+    let mut s = format!("[S12cap] tot={} sat(raw>60)={}
+", t, CAPSAT.load(Ordering::Relaxed));
+    for i in 0..6 { s += &format!("  cap={:>3} hit={} ({:.3}%)
+", CAPCAND[i], CAPHIT[i].load(Ordering::Relaxed), CAPHIT[i].load(Ordering::Relaxed) as f64 * 100.0 / t as f64); }
+    s
+}
+/// ★★상한·임계치는 **상수가 아니라 실행중 바이트**다.
+/// ai_adjust 자신이 이 즉치들을 노브(`sc_*`/`bv_*`) 값으로 덮어쓴다(detour.rs:1425-1445, 1980-2027).
+/// exe 원본 상수를 하드코딩하면 노브를 건드린 순간 그 경로가 전부 DIFF 된다
+/// (2026-09-07 실측: fcap=75·kcap=70 이어서 S12 잔차 5/10/3 이 나왔다).
+#[inline] unsafe fn imm8(site: usize, orig: i64) -> i64 { super::super::live_imm8(site, orig as u8) as i64 }
+#[inline] unsafe fn imm32(site: usize, orig: i64) -> i64 { super::super::live_imm32(site, orig as u32) as i64 }
 pub fn na_report() -> String {
     let mut v: Vec<(u64, u64)> = (0..32).filter_map(|i| { let k = NA_KEYS[i].load(Ordering::Relaxed); if k == 0 { None } else { Some((k, NA_CNTS[i].load(Ordering::Relaxed))) } }).collect();
     v.sort_by(|a, b| b.1.cmp(&a.1));
@@ -69,7 +101,7 @@ pub unsafe fn diag(_p1: usize, _p3: usize, _p4: usize) -> String {
     format!("risk_neg={} tower={} pos={} main={} urgent={} C={} thr_s={} chase={} bb998={} b9b0={} cast={} hp={} thr={} thrlen={}",
         v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7], v[8], v[9], v[10], v[11], v[12], v[13])
         + &format!(" game_thr={} bb970={} bb9a0={} bb988={}", v[14], v[15], v[16], v[17])
-        + &{ let q = S12D.with(|c| c.get()); let z = s12_st(); format!(" | S12[D={} X={} Ct={} kill={} score={} e01450={} e019d0={} e02020={} st={} T={} dmg={} selfN={} burst={} pk={}]", q[0], q[1], q[2], q[3], q[4], q[5], q[6], q[7], z[0], z[1], z[2], z[3], z[4], z[5]) }
+        + &{ let q = S12D.with(|c| c.get()); let z = s12_st(); format!(" | S12[D={} X={} Ct={} kill={} score={} e01450={} e019d0={} e02020={} st={} T={} dmg={} selfN={} burst={} thp={} stRaw={} bonus={} q={} pk={}] A[{:?}]", q[0], q[1], q[2], q[3], q[4], q[5], q[6], q[7], z[0], z[1], z[2], z[3], z[4], z[5], z[10], z[7], z[8], z[9], ally_diag()) }
         + &{ let d = s5_diag(); format!(" S5[near={} kind={} f88={} dn={} rt={} safe={} raw9b0={} vis={} t0d={} t0a={} cdly={} alen={} th={:#x} a0={:#x} a1={:#x} pg={} d2={} a8={} tk={} cg={:#x}]", d[0], d[1], d[2], d[3], d[4], d[5], d[6], d[7], d[8], d[9], cast_dly(), d[10], d[11], d[12], d[13], d[14], d[15], d[16], d[17], d[18]) }
         + &unsafe { let caps = crate::judge::cap_util_c87fe0::last_p2().unwrap_or(0);
             if crate::ptr_ok(caps) { format!(" gameR={:#x} gameBB={:#x} gameBB998={:?}{}", rd_u64(caps + 0x18).unwrap_or(0), rd_u64(caps + 0x20).unwrap_or(0),
@@ -571,13 +603,21 @@ unsafe fn s12_steroid(w: &World, me: usize, tgt: usize, side: u64, role: usize,
         if d2_xy(ex, ey, mx, my) > 0x53d1ac100 { continue; }
         let bk = b_side + k * 0x320;
         n_ally += 1;
-        for o in [0x190usize, 0x1b8, 0x1e0, 0x208] { dmg = dmg.wrapping_add(rd_i64(bk + tr * 8 + o)?); }
+        // ★아군별 기여와 거리를 개별로 남긴다 — 게임이 어느 아군을 빼는지 보려면 합계로는 알 수 없다.
+        let mut per = 0i64;
+        for o in [0x190usize, 0x1b8, 0x1e0, 0x208] { let v = rd_i64(bk + tr * 8 + o)?; per = per.wrapping_add(v); }
+        ALLYD.with(|c| { let mut z = c.get();
+            if (n_ally as usize) <= 5 { z[(n_ally as usize - 1) * 2] = per;
+                                        z[(n_ally as usize - 1) * 2 + 1] = isqrt_fast(d2_xy(ex, ey, mx, my)) as i64; }
+            c.set(z); });
+        dmg = dmg.wrapping_add(per);
     }
     S12ST.with(|c| { let mut z = c.get(); z[3] = dmg_self * 1000 + n_ally; c.set(z); });
     let den = if tps < 1 { 1 } else { tps };
     let q = ((dmg.wrapping_mul(t as i64) as u64) / den) as i64;        // ★UNSIGNED div
     if thp == 0 { return None; }
-    let st = (q.wrapping_mul(ct) / thp).min(80);                       // ★SIGNED div
+    let st_raw = q.wrapping_mul(ct) / thp;                             // ★SIGNED div
+    let st = st_raw.min(imm8(SITE_SC_FOCUS_CAP_IMM, 80));
     // ── (D) 버스트(슬롯0~3 즉시딜 합)
     let kind = rd_u64(me + ENT_KIND)?;
     let mut burst: i64 = 0;
@@ -606,9 +646,12 @@ unsafe fn s12_steroid(w: &World, me: usize, tgt: usize, side: u64, role: usize,
     // ── (E) 합산 & 보너스
     let mut out = st;
     burst = burst.wrapping_add(d_est);
-    if burst >= thp { out += ct.min(80); }
-    else if thp > 0 && burst.wrapping_mul(100) / thp >= 60 { out += ct.min(80) / 3; }
-    S12ST.with(|c| { let z3 = c.get()[3]; c.set([out, t as i64, dmg, z3, burst, thp]); });
+    let mut bonus = 0i64;
+    let kcap = imm8(SITE_SC_KILL_CAP_IMM, 80);
+    if burst >= thp { bonus = ct.min(kcap); }
+    else if thp > 0 && burst.wrapping_mul(100) / thp >= imm8(SITE_SC_KILL_PCT_IMM, 60) { bonus = ct.min(kcap) / 3; }
+    out += bonus;
+    S12ST.with(|c| { let z3 = c.get()[3]; c.set([out, t as i64, dmg, z3, burst, thp, st, bonus, q, 0, st_raw, 0]); });
     Some(out)
 }
 
@@ -637,7 +680,7 @@ unsafe fn e01450(w: &World, sim: usize, rec: usize, slot: usize, tgt: usize, c_t
     let acc = acc.min(cap2 as i64);
     let hp = { let h = rd_i64(tgt + ENT_HP)?; if h >= 2 { h } else { 1 } };
     let _ = sim;
-    Some((acc.wrapping_mul(c_t) / hp).min(160))
+    Some((acc.wrapping_mul(c_t) / hp).min(imm32(SITE_BV_CAP_MAIN_IMM, 160)))
 }
 /// 0xe019d0 — 자기 스테로이드 기여(상한 80)
 unsafe fn e019d0(w: &World, sim: usize, slot: usize, tgt: usize, c_t: i64, tps: u64) -> Option<i64> {
@@ -653,7 +696,7 @@ unsafe fn e019d0(w: &World, sim: usize, slot: usize, tgt: usize, c_t: i64, tps: 
     acc = acc.wrapping_mul(n).min(rd_u64(tgt + ENT_MAXHP)?);
     let hp = { let h = rd_i64(tgt + ENT_HP)?; if h >= 2 { h } else { 1 } };
     let _ = sim;
-    Some(((acc.wrapping_mul(c_t as u64) as i64) / hp / 2).min(80))
+    Some(((acc.wrapping_mul(c_t as u64) as i64) / hp / 2).min(imm8(SITE_BV_CAP_HALF_E019D0_IMM, 80)))
 }
 /// 0xe02020 — 아군 스테로이드 기여(상한 80, 최종 감산 항)
 #[allow(clippy::too_many_arguments)]
@@ -676,7 +719,7 @@ unsafe fn e02020(w: &World, sim: usize, rec: usize, slot: usize, me: usize, tgt:
     acc = acc.wrapping_mul(n).min(rd_u64(tgt + ENT_MAXHP)?);
     let hp = { let h = rd_i64(tgt + ENT_HP)?; if h >= 2 { h } else { 1 } };
     let _ = sim;
-    Some(((acc.wrapping_mul(c_t as u64) as i64) / hp / 2).min(80))
+    Some(((acc.wrapping_mul(c_t as u64) as i64) / hp / 2).min(imm8(SITE_BV_CAP_HALF_E02020_IMM, 80)))
 }
 
 /// 본체. 반환 None = 미재현(NA).
@@ -686,7 +729,7 @@ pub unsafe fn combat_score(mode: usize, _prof: usize, rec: usize, ctx: usize, bb
     pth_set("?");
     // ★진단 TLS 는 호출마다 초기화한다 — 안 하면 조기반환 경로에서 직전 호출의 값이 그대로 찍혀
     //   원인 분석이 통째로 헛돈다(2026-09-07 실측: st=76 인데 main=0 인 모순 로그).
-    S12ST.with(|c| c.set([0; 6])); S5D.with(|c| c.set([0; 19])); S12D.with(|c| c.set([0; 8]));
+    S12ST.with(|c| c.set([0; 12])); ALLYD.with(|c| c.set([0; 10])); S5D.with(|c| c.set([0; 19])); S12D.with(|c| c.set([0; 8]));
     let r = combat_score_inner(mode, _prof, rec, ctx, bb, sp, slot, tgt, p9);
     if r.is_none() && !TAGGED.with(|c| c.get()) { let t = STG.with(|c| c.get()); na(t); }
     r
@@ -789,7 +832,7 @@ unsafe fn combat_score_inner(mode: usize, _prof: usize, rec: usize, ctx: usize, 
             let r_t = rd_u64(near + ENT_F438)?.wrapping_add(rd_u64(near + 0x4a0)?)
                 .wrapping_add(rd_u64(near + ENT_LEVEL)?.wrapping_sub(1).wrapping_mul(rd_u64(near + 0x4a8)?))
                 .wrapping_add(rng_of(near)?).wrapping_add(rng_of(me)?)
-                .wrapping_add(15000).wrapping_add(extra);
+                .wrapping_add(imm32(SITE_SC_DIVE_MARGIN_IMM, 15000) as u64).wrapping_add(extra);
             d5[3] = dist(me, near)? as i64; d5[4] = r_t as i64;
             safe = dist(me, near)? <= r_t;
             d5[5] = safe as i64;
@@ -965,7 +1008,7 @@ unsafe fn combat_score_inner(mode: usize, _prof: usize, rec: usize, ctx: usize, 
         let a2 = match e019d0(&w, sim, slot, tgt, ct, tps) { Some(v) => v, None => return na(tag8("S12_19d0")) };
         let a3 = match e02020(&w, sim, rec, slot, me, tgt, ct, tps) { Some(v) => v, None => return na(tag8("S12_2020")) };
         S12D.with(|c| c.set([d, x, ct, kill, score, a1, a2, a3])); let _ = st_add;
-        S12ST.with(|c| { let mut z = c.get(); z[5] = pre_st * 4 + safe as i64 * 2 + (t_win.is_some()) as i64; c.set(z); });
+        S12ST.with(|c| { let mut z = c.get(); z[9] = pre_st * 4 + safe as i64 * 2 + (t_win.is_some()) as i64; z[11] = a1 + a2 - a3; c.set(z); });
         score + a1 + a2 - a3
     } else { 0 };
     if rec_t.is_some() { let _ = main; }
