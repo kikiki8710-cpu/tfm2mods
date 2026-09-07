@@ -102,7 +102,7 @@ pub unsafe fn diag(_p1: usize, _p3: usize, _p4: usize) -> String {
         v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7], v[8], v[9], v[10], v[11], v[12], v[13])
         + &format!(" game_thr={} bb970={} bb9a0={} bb988={}", v[14], v[15], v[16], v[17])
         + &{ let q = S12D.with(|c| c.get()); let z = s12_st(); format!(" | S12[D={} X={} Ct={} kill={} score={} e01450={} e019d0={} e02020={} st={} T={} dmg={} selfN={} burst={} thp={} stRaw={} bonus={} q={} pk={}] A[{:?}]", q[0], q[1], q[2], q[3], q[4], q[5], q[6], q[7], z[0], z[1], z[2], z[3], z[4], z[5], z[10], z[7], z[8], z[9], ally_diag()) }
-        + &{ let d = s5_diag(); format!(" S5[near={} kind={} f88={} dn={} rt={} safe={} raw9b0={} vis={} t0d={} t0a={} cdly={} alen={} th={:#x} a0={:#x} a1={:#x} pg={} d2={} a8={} altTS={} enear={} eLen={} aLen={}]", d[0], d[1], d[2], d[3], d[4], d[5], d[6], d[7], d[8], d[9], cast_dly(), d[10], d[11], d[12], d[13], d[14], d[15], d[16], d[17], d[18], d[19], d[20]) }
+        + &{ let d = s5_diag(); format!(" S5[near={} kind={} f88={} dn={} rt={} safe={} raw9b0={} vis={} t0d={} t0a={} cdly={} alen={} th={:#x} a0={:#x} a1={:#x} pg={} d2={} a8={} altTS={} enear={} eLen={} aLen={}] NIC[cand={} dmin={} mlen={} nstruct={}]", d[0], d[1], d[2], d[3], d[4], d[5], d[6], d[7], d[8], d[9], cast_dly(), d[10], d[11], d[12], d[13], d[14], d[15], d[16], d[17], d[18], d[19], d[20], nic_diag()[0], nic_diag()[1], nic_diag()[2], nic_diag()[3]) }
         + &unsafe { let caps = crate::judge::cap_util_c87fe0::last_p2().unwrap_or(0);
             // ★★`path=`·`S13[…]` 를 **caps 게이트 밖으로** 뺐다 — 잔차 23건이 전부 `caps=none` 이라
             //   경로를 안 찍은 것처럼 보였고, 그것 때문에 조기반환으로 오진단했다(RE 2026-09-07).
@@ -208,21 +208,27 @@ unsafe fn enemy_visible_near(w: &World, agents: usize, side: u64, from: usize, l
     Some(false)
 }
 /// 0xd729b0 형: 체인(적/아군 구조물 6 + 미니언 Vec)에서 self 에 가장 가까운 원소
+thread_local! { pub static NIC: std::cell::Cell<[i64; 4]> = const { std::cell::Cell::new([0; 4]) }; }
+pub fn nic_diag() -> [i64; 4] { NIC.with(|c| c.get()) }
+/// ★게이트① 진단 — [후보 수(널 아님), 임계 무시 최소 d2>>8, 미니언 len, 구조물 널 아님 수]
 unsafe fn nearest_in_chain(w: &World, side: u64, me: usize) -> Option<Option<(usize, u64)>> {
     let (mx, my) = xy(me)?;
     let mut best: Option<(usize, u64)> = None;
+    let (mut ncand, mut dmin, mut nstruct) = (0i64, i64::MAX, 0i64);
     // ★후보 필터: dist(cand, self)² >> 8 <= 0x53d1ac0 (= 150,000 이내). 누락 시 먼 타워를 잡아
     //   구조물 경로로 과도하게 들어간다(RE 0xd72aad, 2026-09-07). 갱신은 strict `<`(동률이면 먼저 온 것).
     let mut consider = |e: usize, best: &mut Option<(usize, u64)>| -> Option<()> {
         let (ex, ey) = xy(e)?; let d = d2_xy(ex, ey, mx, my);
+        ncand += 1; dmin = dmin.min((d >> 8) as i64);
         if (d >> 8) > 0x53d1ac0 { return Some(()); }
         if best.map_or(true, |(_, bd)| d < bd) { *best = Some((e, d)); }
         Some(())
     };
-    for off in STRUCT_OFFS { let e = rd_u64(w.x + off + (side as usize) * 8)? as usize; if e != 0 { consider(e, &mut best)?; } }
+    for off in STRUCT_OFFS { let e = rd_u64(w.x + off + (side as usize) * 8)? as usize; if e != 0 { nstruct += 1; consider(e, &mut best)?; } }
     let n = rd_u64(w.x + X_MINION_LEN + (side as usize) * 0x20)?; let p = rd_u64(w.x + X_MINION_PTR + (side as usize) * 0x20)? as usize;
     if n != 0 { if !ptr_ok(p) { return None; }
         for i in 0..n.min(4096) as usize { let e = rd_u64(p + i * 8)? as usize; if e != 0 { consider(e, &mut best)?; } } }
+    NIC.with(|c| c.set([ncand, if dmin == i64::MAX { -1 } else { dmin }, n as i64, nstruct]));
     Some(best)
 }
 
