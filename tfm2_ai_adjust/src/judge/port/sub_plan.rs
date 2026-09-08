@@ -120,6 +120,57 @@ unsafe fn arm_line_ganker(sf: usize, player: usize, data: usize) -> Option<MpOut
     Some(o)
 }
 
+/// `LineGankCoverPlan::target_bush_v30`(m10.ll, cover.rs L135~194) — 커버 쪽 부시 인덱스.
+///   호출 규약(실코드 0xcafbe5): `f(self[0x28], side, role, x, ctx)` + **호출 전 `roster[side][role] != null` 가드**.
+unsafe fn target_bush_v30(phase: u8, side: u64, role: u32, x: usize, ctx: usize) -> Option<u64> {
+    if side >= 2 || role >= 5 { return None; }
+    let s = side as usize; let s0 = side == 0;
+    // L135: 국면별 타워 두 칸 중 살아 있는 쪽
+    let (o1, o2) = match phase { 0 => (384usize, 400usize), 1 => (416, 432), 2 => (448, 464), _ => return None };
+    let t1 = rd_u64(x + o1 + s * 8)? as usize;
+    let tower = if t1 == 0 { rd_u64(x + o2 + s * 8)? as usize } else { t1 };
+    if tower == 0 {                                       // L137~140: 타워가 없으면 상수
+        return Some(match phase { 0 => if s0 { 2 } else { 16 }, 1 => if s0 { 4 } else { 17 }, _ => if s0 { 9 } else { 21 } });
+    }
+    if !ptr_ok(tower) { return None; }
+    let me = rd_u64(x + X_ROSTER + s * 0x28 + role as usize * 8)? as usize;
+    if me == 0 { return None; }                           // 게임은 unwrap panic
+    let big = rd_u64(tower + 104)? == 2;                  // L147
+    let hi = rd_u8(tower + 296) > 4;                      // L150/164/180
+    let zero136 = rd_u64(tower + 136)? == 0;              // L153/183
+    // (cfg[4800] - me.y) < me.x — v41 국면1 과 같은 대각 판정
+    let flip = || -> Option<bool> {
+        let cfg = rd_u64(ctx + 8)? as usize; if !ptr_ok(cfg) { return None; }
+        Some(rd_u64(cfg + 4800)?.wrapping_sub(rd_u64(me + ENT_Y)?) < rd_u64(me + ENT_X)?)
+    };
+    Some(match phase {
+        0 => { if !big { return None; }                   // 게임은 unreachable
+               if hi { if s0 { 3 } else { 6 } }           // L151
+               else if zero136 { if s0 { 3 } else { 6 } } // L156
+               else if s0 { 6 } else { 3 } }              // L154
+        1 => { if big && hi {                             // L165~168
+                   if flip()? { if s0 { 13 } else { 18 } } else if s0 { 8 } else { 12 }
+               } else if flip()? { 14 } else { 11 } }     // L171
+        _ => { if !big { return None; }                   // 게임은 unreachable
+               if hi { if s0 { 15 } else { 20 } }         // L181
+               else if zero136 { if s0 { 15 } else { 20 } } // L186
+               else if s0 { 20 } else { 15 } }            // L184
+    })
+}
+
+/// arm 9 — LineGankCover. ★호출 전 `roster[side][role] == null` 이면 **다른 경로**(0xcafdd2)로 샌다 → NA.
+unsafe fn arm_gank_cover(sf: usize, player: usize, data: usize) -> Option<MpOut> {
+    let side = rd_u64(player + P5_SIDE)?; if side > 1 { return None; }
+    let role = rd_u32(player + P5_ROLE); if role >= 5 { return None; }
+    let x = rd_u64(data)? as usize; let ctx = rd_u64(data + 8)? as usize;
+    if !ptr_ok(x) || !ptr_ok(ctx) { return None; }
+    if rd_u64(x + X_ROSTER + (side as usize) * 0x28 + role as usize * 8)? == 0 { let _ = na_tag("SP_cover_null"); return None; }
+    let r = target_bush_v30(rd_u8(sf + 0x28), side, role, x, ctx)?;
+    let mut o = MpOut::default();
+    o.push(8, 8, r); o.push(0x10, 2, 1); o.push(0x12, 1, 0); o.code(9);
+    Some(o)
+}
+
 /// ★`BigPlan::sub_plan` 본체. 각 arm 은 **자기 플랜의 `*Plan::sub_plan`**(= 이미 포팅·검증된 핸들러)에 위임한다.
 ///   위임 시 `p2` 는 게임과 같이 **`self + 8`**(플랜 payload) 로 바꿔 넘긴다(IR: `%19 = gep %1, i64 8`).
 pub unsafe fn big_plan_sub_plan(a: &Args8) -> Option<MpOut> {
@@ -162,7 +213,7 @@ pub unsafe fn big_plan_sub_plan(a: &Args8) -> Option<MpOut> {
               else { super::defense_nexus::defense_nexus(&inner_dn) },
         2 => { let _ = na_tag("SP_single_line"); None }        // 0.5.8 미발화(entered=0)
         8 => arm_line_ganker(sf, player, data),
-        9 => { let _ = na_tag("SP_gank_cover"); None }
+        9 => arm_gank_cover(sf, player, data),
         11 => { let _ = na_tag("SP_epic_battle"); None }
         13 => { let _ = na_tag("SP_serpen_battle"); None }
         _ => { let _ = na_tag("SP_unreachable"); None }        // 게임은 unreachable
