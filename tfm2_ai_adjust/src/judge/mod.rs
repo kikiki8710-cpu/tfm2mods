@@ -138,6 +138,7 @@ impl Stat {
 /// shadow 는 RNG-free 함수에만(원본 실행이 부수효과 없을 때). 첫 승격은 shadow 로 시작해 DIFF 계측을 유지한다.
 /// ★대체구현용 노브 적용판. 재현값 `v` 에 함수별 노브를 얹어 **게임 대신 내보낼 값**을 만든다.
 ///   전부 기본 중립(-1) = 재현값 그대로 → live 를 켜도 게임과 동일하게 흘러간다(대체 가능성 실증).
+pub type F16 = unsafe extern "C" fn(usize, usize, usize, usize, usize, usize, usize, usize, usize, usize, usize, usize, usize, usize, usize, usize) -> usize;
 thread_local! { pub static HOOK_EXTRA: std::cell::Cell<(usize, usize, usize, usize)> = const { std::cell::Cell::new((0, 0, 0, 0)) }; }   // (p9,p10,p11,p12) — ScorerArgs 가 p8 까지라 넘치는 인자용
 #[inline] pub fn tune_pub(key: &str, d: i64) -> i64 { tune(key, d) }
 #[inline] pub fn live_knob(name: &str, v: i64) -> i64 {
@@ -629,6 +630,43 @@ macro_rules! judge_capture_sret72 {
                     let diag = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| crate::judge::port::sub_plan::sp_diag(p2, p5, p6))).unwrap_or_default();
                     let gt = crate::rd_u64(p1).unwrap_or(u64::MAX);
                     let line = format!("[{} #{} tid={}] {} game_tag={} | p2={:#x} p5={:#x} p6={:#x} | {}\n", $spec.name, ST.n.load(Ordering::Relaxed), crate::judge::cur_tid(), tag, gt, p2, p5, p6, diag);
+                    if let Some(p) = crate::pth(&format!("judge_{}.txt", $spec.name)) { let _ = std::fs::OpenOptions::new().create(true).append(true).open(p).and_then(|mut f| { use std::io::Write; f.write_all(line.as_bytes()) }); }
+                };
+                match ok {
+                    None => { ST.na.fetch_add(1, Ordering::Relaxed); if LOGGED.fetch_add(1, Ordering::Relaxed) < 20 { logline("NA"); } }
+                    Some(true) => { ST.ok.fetch_add(1, Ordering::Relaxed); }
+                    Some(false) => { ST.diff.fetch_add(1, Ordering::Relaxed); { let k = LOGGED_D.fetch_add(1, Ordering::Relaxed); if k < 40 || (k % 256 == 0 && k < 256 * 200) { logline("DIFF"); } } }
+                }
+                r
+            }
+        }
+    };
+}
+/// ★14~16인자 + sret 64B(FightPrediction) 함수용 post 대조. 12인자 래퍼로는 13번째 이후가 유실되므로 전용 F16 을 쓴다.
+///   Win64 배치 실측(0xe05450): RCX=sret RDX=version R8=data R9=champ · +0x28..+0x70 = 5~14번째.
+macro_rules! judge_capture_sret64 {
+    ($m:ident, $spec:expr, $mine:expr) => {
+        pub mod $m {
+            use std::sync::atomic::{AtomicUsize, AtomicU64, Ordering};
+            pub static ORIG: AtomicUsize = AtomicUsize::new(0);
+            pub static ST: super::Stat = super::Stat::new();
+            static LOGGED: AtomicU64 = AtomicU64::new(0); static LOGGED_D: AtomicU64 = AtomicU64::new(0);
+            #[allow(clippy::too_many_arguments)]
+            pub unsafe extern "C" fn wrap(p1: usize, p2: usize, p3: usize, p4: usize, p5: usize, p6: usize, p7: usize, p8: usize,
+                                          p9: usize, p10: usize, p11: usize, p12: usize, p13: usize, p14: usize, p15: usize, p16: usize) -> usize {
+                let orig = ORIG.load(Ordering::Relaxed);
+                if orig == 0 { return 0; }
+                let f: super::F16 = core::mem::transmute(orig);
+                ST.entered.fetch_add(1, Ordering::Relaxed);
+                let r = f(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14, p15, p16);
+                ST.n.fetch_add(1, Ordering::Relaxed);
+                let mine = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| ($mine)(p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14))).unwrap_or(None);
+                let game = crate::judge::port::fight_model::FightPrediction::from_sret(p1);
+                let ok = match (mine, game) { (Some(a), Some(b)) => Some(a == b), _ => None };
+                let logline = |tag: &str| {
+                    let line = format!("[{} #{} tid={}] {} game={:?} mine={:?} | ver={} champ={:#x} la={} lb={} dir={} tower={:#x} acc={} arrn={} base={}\n",
+                        $spec.name, ST.n.load(Ordering::Relaxed), crate::judge::cur_tid(), tag, game, mine,
+                        p2, p4, p6, p8, p9 as i8, p10, p11, p13, p14 as i64);
                     if let Some(p) = crate::pth(&format!("judge_{}.txt", $spec.name)) { let _ = std::fs::OpenOptions::new().create(true).append(true).open(p).and_then(|mut f| { use std::io::Write; f.write_all(line.as_bytes()) }); }
                 };
                 match ok {
@@ -1191,6 +1229,7 @@ judge_capture_ring_cmp9!(cap_combat_score, crate::judge::gen_fns::COMBAT_SCORE, 
    //   (메모 없이 순수 재현해도 같은 값) **게임이 본 상태에 가장 가까운 시점**이다.
    //   ORD 실험도 같은 결론: post만맞음 130 · pre만맞음 0.
 judge_capture_ring_cmp!(cap_as_eb82d0, crate::judge::gen_fns::AS_EB82D0, |p1, _p2, p3, p4, p5, p6, p7, _p8| unsafe { crate::judge::port::fight_check::fight_check_memo(p1 as u64, p3, p4, p5, p6, p7) });   // fight_check (2단계: 순수 재현+메모 미러 대조)
+judge_capture_sret64!(cap_rff, crate::judge::gen_fns::RESOLVE_FIGHT_FULL, crate::judge::port::fight_model::rff_cmp);   // resolve_fight_full 직접 대조(sret 64B 전 필드)
 judge_hook_out!(cap_sub_plan, crate::judge::gen_fns::SUB_PLAN, crate::judge::port::sub_plan::big_plan_sub_plan, crate::judge::port::sub_plan::big_plan_sub_plan, crate::judge::pre_tr, true, "judge_live_sub_plan");   // ★BigPlan::sub_plan — 모든 플랜의 서브플랜 결정 깔때기. arm 은 이미 검증된 각 플랜 포트에 위임, 대조는 쓰기집합만.
 judge_capture_ring_cmp9_bool!(cap_tower_dive, crate::judge::gen_fns::TOWER_DIVE, |p1, _p2, p3, p4, p5, p6, p7, _p8, _p9| unsafe { crate::judge::port::fight_model::tower_dive_cmp(p1 as u64, p3, p4, p5, p6, p7) });   // tower_dive_is_viable (post 대조)
 judge_capture_ring_cmp!(cap_as_e0e890, crate::judge::gen_fns::AS_E0E890, |p1, p2, _p3, _p4, _p5, _p6, _p7, _p8| unsafe { crate::judge::port::as_callees::max_reach(p1, p2) });   // 최대사거리 (2단계: 순수 재현 대조)
@@ -1376,7 +1415,7 @@ judge_hook_out!(serpen_hb_hook, crate::judge::gen_fns::SERPEN_HUNT_BATTLE, crate
 
 /// 등록된 훅 전부(status 덤프용). 훅을 늘리면 여기와 install() 에 한 줄씩.
 pub fn stats() -> Vec<(&'static str, &'static Stat)> {
-    vec![(STEAL_SCORE.name, &steal_hook::ST), (ABILITY_PICK.name, &cap_ability_pick::ST), ("ability_pick_tag", &ab_tag::ST), ("ability_pick_full", &ab_tag::FULL), (TOWER_DIVE.name, &cap_tower_dive::ST), (SUB_PLAN.name, &cap_sub_plan::ST), (RECENTLY_SEEN.name, &cap_recent_seen::ST), (DN_CACHE.name, &cap_dn_cache::ST), (DEFENSE_NEXUS.name, &defense_nexus_hook::ST), (EST_DAMAGE.name, &cap_est_dmg::ST), (PASSIVE_JUNGLE.name, &passive_jungle_hook::ST), (SINGLE_LINE.name, &cap_single_line::ST), (OBJ_CAN_ATTACK.name, &cap_obj_can_attack::ST), (OBJ_ENGAGE_GATE.name, &cap_obj_engage_gate::ST), (OBJ_POKE_GATE.name, &cap_obj_poke_gate::ST), (OBJ_COULD_ARRIVE.name, &cap_obj_could_arrive::ST), (BASE_SCORE.name, &cap_base_score::ST), (COMBAT_SCORE.name, &cap_combat_score::ST), (AS_C88300.name, &cap_as_c88300_out::ST), (AS_E23170.name, &cap_as_e23170::ST), (AS_D84DB0.name, &cap_as_d84db0::ST), (AS_D96D00.name, &cap_as_d96d00::ST), ("siege_stance", &port::position_eval::SIEGE_ST), (AS_D851D0.name, &cap_as_d851d0::ST), (AS_E04400.name, &cap_as_e04400::ST), (AS_EB82D0.name, &cap_as_eb82d0::ST), (AS_E0E890.name, &cap_as_e0e890::ST), (AS_D83230.name, &cap_as_d83230::ST), (A0_FOLD.name, &cap_a0_fold::ST), (V55_SPIRIT.name, &cap_v55_spirit::ST), (ABMS.name, &cap_abms::ST), (NCSV.name, &cap_ncsv::ST), (NCSW.name, &cap_ncsw::ST), (DFFA10.name, &cap_dffa10::ST), (TDB.name, &cap_tdb::ST), (DEFC.name, &cap_defc::ST), (V54_AOE.name, &cap_v54_aoe::ST), (MW_RISK.name, &cap_mw_risk::ST), (V55_MARK.name, &cap_v55_mark::ST), (V55_SEAL.name, &cap_v55_seal::ST), (V55_BANISH.name, &cap_v55_banish::ST), (AS_132B310.name, &cap_as_132b310::ST), (UTIL_C87FE0.name, &cap_util_c87fe0::ST), (BATTLE_ARM9.name, &battle_hook::ST), (EPIC_HUNT_POKE.name, &epic_hp_hook::ST), (SERPEN_HUNT_POKE.name, &serpen_hp_hook::ST),
+    vec![(STEAL_SCORE.name, &steal_hook::ST), (ABILITY_PICK.name, &cap_ability_pick::ST), ("ability_pick_tag", &ab_tag::ST), ("ability_pick_full", &ab_tag::FULL), (TOWER_DIVE.name, &cap_tower_dive::ST), (SUB_PLAN.name, &cap_sub_plan::ST), (RESOLVE_FIGHT_FULL.name, &cap_rff::ST), (RECENTLY_SEEN.name, &cap_recent_seen::ST), (DN_CACHE.name, &cap_dn_cache::ST), (DEFENSE_NEXUS.name, &defense_nexus_hook::ST), (EST_DAMAGE.name, &cap_est_dmg::ST), (PASSIVE_JUNGLE.name, &passive_jungle_hook::ST), (SINGLE_LINE.name, &cap_single_line::ST), (OBJ_CAN_ATTACK.name, &cap_obj_can_attack::ST), (OBJ_ENGAGE_GATE.name, &cap_obj_engage_gate::ST), (OBJ_POKE_GATE.name, &cap_obj_poke_gate::ST), (OBJ_COULD_ARRIVE.name, &cap_obj_could_arrive::ST), (BASE_SCORE.name, &cap_base_score::ST), (COMBAT_SCORE.name, &cap_combat_score::ST), (AS_C88300.name, &cap_as_c88300_out::ST), (AS_E23170.name, &cap_as_e23170::ST), (AS_D84DB0.name, &cap_as_d84db0::ST), (AS_D96D00.name, &cap_as_d96d00::ST), ("siege_stance", &port::position_eval::SIEGE_ST), (AS_D851D0.name, &cap_as_d851d0::ST), (AS_E04400.name, &cap_as_e04400::ST), (AS_EB82D0.name, &cap_as_eb82d0::ST), (AS_E0E890.name, &cap_as_e0e890::ST), (AS_D83230.name, &cap_as_d83230::ST), (A0_FOLD.name, &cap_a0_fold::ST), (V55_SPIRIT.name, &cap_v55_spirit::ST), (ABMS.name, &cap_abms::ST), (NCSV.name, &cap_ncsv::ST), (NCSW.name, &cap_ncsw::ST), (DFFA10.name, &cap_dffa10::ST), (TDB.name, &cap_tdb::ST), (DEFC.name, &cap_defc::ST), (V54_AOE.name, &cap_v54_aoe::ST), (MW_RISK.name, &cap_mw_risk::ST), (V55_MARK.name, &cap_v55_mark::ST), (V55_SEAL.name, &cap_v55_seal::ST), (V55_BANISH.name, &cap_v55_banish::ST), (AS_132B310.name, &cap_as_132b310::ST), (UTIL_C87FE0.name, &cap_util_c87fe0::ST), (BATTLE_ARM9.name, &battle_hook::ST), (EPIC_HUNT_POKE.name, &epic_hp_hook::ST), (SERPEN_HUNT_POKE.name, &serpen_hp_hook::ST),
          (EPIC_HUNT_BATTLE.name, &epic_hb_hook::ST), (SERPEN_HUNT_BATTLE.name, &serpen_hb_hook::ST), (PASSIVE_LINE.name, &passive_line_hook::ST)]
 }
 
@@ -1518,6 +1557,7 @@ pub unsafe fn install() {
             install_one(&mut log, &AS_EB82D0, &cap_as_eb82d0::ORIG, cap_as_eb82d0::wrap as *const () as usize, "capture-ring");
             // ★SUB_PLAN(`0xcaf9f0` = BigPlan::sub_plan, capstone 확정) — 진입부를 이 모드가 mp_capture 로 먼저 잡았으므로
             //   **체인 훅**(hook.rs, 2026-09-09)으로 그 바깥에 선다: 게임 → judge wrap → mp_capture → 원본.
+            install_one(&mut log, &RESOLVE_FIGHT_FULL, &cap_rff::ORIG, cap_rff::wrap as *const () as usize, "capture-sret64");
             install_one(&mut log, &SUB_PLAN, &cap_sub_plan::ORIG, cap_sub_plan::wrap as *const () as usize, "hook-out(chain)");
             install_one(&mut log, &TOWER_DIVE, &cap_tower_dive::ORIG, cap_tower_dive::wrap as *const () as usize, "capture-bool");
             install_one(&mut log, &AS_E0E890, &cap_as_e0e890::ORIG, cap_as_e0e890::wrap as *const () as usize, "capture-ring");

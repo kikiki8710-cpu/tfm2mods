@@ -787,9 +787,41 @@ pub unsafe fn td_diag(version: u64, player: usize, data: usize, team_plan: usize
         let sp = rd_u64(target + ENT_SPEED)?.max(1);
         // stake 경로면 그 내부까지
         let st = if p7 & 1 == 1 { tower_dive_is_viable(version, player, data, team_plan, target, true).and_then(|_| Some(STAKE_LAST.with(|c| c.get()))) } else { None };
-        Some(format!("v={} side={} role={} tps={} ne={}(na{}) nl={} tower={:?} flee_lim={} tm={} tick={} stake(al,bd,base_ln,p2_ln,p1net,resc,en,base_net,focus)={:?} bound_last(near,lim,die)={:?}",
+        // l1(아군 200000²) · l2(적 s7) 멤버와 판정 근거
+        let th = rd_u64(target + ENT_HANDLE)?;
+        let mut l1s = String::new(); let mut l2s = String::new();
+        for i in 0..5usize {
+            let e = rd_u64(x + X_ROSTER + (side as usize) * 0x28 + i * 8)? as usize;
+            if e != 0 { let d = d2(e, target)?; l1s += &format!(" a{}:h{} d2={} {}", i, rd_u64(e + ENT_HANDLE)?, d, if d < 40_000_000_001 { "IN" } else { "out" }); }
+            let o = rd_u64(x + X_ROSTER + (opp as usize) * 0x28 + i * 8)? as usize;
+            if o != 0 {
+                let oh = rd_u64(o + ENT_HANDLE)?; let d = d2(o, target)?;
+                let vis = w.visible(side, oh).unwrap_or(false);
+                let rec = recent_visible(&w, bb, side, tick, o).unwrap_or(false);
+                l2s += &format!(" e{}:h{} d2={} self={} vis={} rec={} {}", i, oh, d, oh == th, vis, rec,
+                                if tdiv_s7_ok(&w, bb, side, tick, target, o).unwrap_or(false) { "IN" } else { "out" });
+            }
+        }
+        Some(format!("v={} side={} role={} tps={} ne={}(na{}) nl={} tower={:?} flee_lim={} tm={} tick={} stake(al,bd,base_ln,p2_ln,p1net,resc,en,base_net,focus)={:?} bound_last(near,lim,die)={:?} | L1[{}] | L2[{}]",
                      version, side, role, tps, ne, na_e, nl,
-                     tw.map(|o| o.map(|t| rd_u64(t + ENT_HANDLE).unwrap_or(0))), d.saturating_sub(160_000) / sp, p7 & 1, tick, st, BOUND_LAST.with(|c| c.get())))
+                     tw.map(|o| o.map(|t| rd_u64(t + ENT_HANDLE).unwrap_or(0))), d.saturating_sub(160_000) / sp, p7 & 1, tick, st, BOUND_LAST.with(|c| c.get()), l1s, l2s))
     };
     f().unwrap_or_else(|| "diag NA".into())
+}
+
+/// 훅 어댑터 — 게임 `resolve_fight_full`(0xe05450) 인자를 그대로 받아 재현값을 만든다.
+///   `(version, data, champ, allies_ptr, allies_len, enemies_ptr, enemies_len, dir, tower, acc, arr_ptr, arr_len, baseline)`
+#[allow(clippy::too_many_arguments)]
+pub unsafe fn rff_cmp(version: usize, data: usize, champ: usize, ap: usize, al: usize, ep: usize, el: usize,
+                      dir: usize, tower: usize, acc: usize, arp: usize, arl: usize, base: usize) -> Option<FightPrediction> {
+    if !ptr_ok(data) || !ptr_ok(champ) { return None; }
+    if al > 8 || el > 8 || arl > 8 { return None; }          // 재현 키가 8칸이라 그 이상은 대조 안 함
+    let mut allies: Vec<usize> = Vec::with_capacity(al);
+    for i in 0..al { let e = rd_u64(ap + i * 8)? as usize; if !ptr_ok(e) { return None; } allies.push(e); }
+    let mut enemies: Vec<usize> = Vec::with_capacity(el);
+    for i in 0..el { let e = rd_u64(ep + i * 8)? as usize; if !ptr_ok(e) { return None; } enemies.push(e); }
+    let mut arr: Vec<i64> = Vec::with_capacity(arl);
+    for i in 0..arl { arr.push(rd_i64(arp + i * 8)?); }
+    let tw = if tower == 0 { None } else { if !ptr_ok(tower) { return None; } Some(tower) };
+    resolve_fight_full(version as u64, data, champ, &allies, &enemies, dir as u8 as i8, tw, acc as u64, &arr, base as i64)
 }
