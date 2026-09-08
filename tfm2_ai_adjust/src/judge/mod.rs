@@ -1137,7 +1137,8 @@ pub mod ab_tag {
                              // ★[2026-09-08] 판마다 0~217 로 흔들리는 잔여 — 표본을 남겨 정체를 본다
                              if LOGGED.fetch_add(1, Ordering::Relaxed) < 60 {
                                  let diag = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| crate::judge::port::ability_pick::diag(p4, p7))).unwrap_or_default();
-                                 let pick = if game_tag != 0 { crate::judge::port::ability_pick::db_entry(p7, r1) } else { String::new() };
+                                 // sret 페어 = (own 인덱스 %60, db 인덱스) — IR m14.ll upgrade_item 후보 Vec<(usize,usize)>
+                                 let pick = if game_tag != 0 { format!("own{}→db{}={}", r1, r2, crate::judge::port::ability_pick::db_entry(p7, r2)) } else { String::new() };
                                  let line = format!("[ability_pick_tag #{} tid={}] DIFF game_tag={:#x} mine={} | p4={:#x} p7={:#x} | pre_gold={} post_gold={} game_pick=({},{}) {} | {}
 ", ST.n.load(Ordering::Relaxed), crate::judge::cur_tid(), game_tag, m, p4, p7, pre_gold, crate::rd_u64(p4 + 0x998).unwrap_or(0), r1, r2, pick, diag);
                                  if let Some(p) = crate::pth("judge_ability_pick_tag.txt") { let _ = std::fs::OpenOptions::new().create(true).append(true).open(p).and_then(|mut f| { use std::io::Write; f.write_all(line.as_bytes()) }); }

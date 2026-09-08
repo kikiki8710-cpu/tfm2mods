@@ -117,7 +117,7 @@ pub unsafe fn diag(p5: usize, g: usize) -> String {
         for i in 0..own_len.min(16) as usize {
             let e = own_ptr + i * 0x10; let (d, v) = (rd_u64(e)? as usize, rd_u64(e + 8)? as usize);
             let names = g_ptr(v, 0x80, d)?; let (nptr, nlen) = (rd_u64(names + 8)? as usize, rd_u64(names + 0x10)?);
-            for k in 0..nlen.min(8) as usize {
+            for k in 0..nlen.min(64) as usize {
                 let name = str_of(nptr + k * 0x18)?;
                 let nm = if name.1 != 0 && name.1 < 64 { String::from_utf8_lossy(std::slice::from_raw_parts(name.0 as *const u8, name.1 as usize)).into_owned() } else { "?".into() };
                 match lookup(db_ptr, db_len, name)? {
