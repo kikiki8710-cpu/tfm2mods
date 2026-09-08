@@ -102,7 +102,38 @@ pub unsafe fn run_leaf_i64_sim(f: usize, payload: u64, sim: u64, ent: u64, est: 
     run_regs(f, payload, sim, ent, est, None).and_then(|em| em.r[0]).map(|v| v as i64)
 }
 pub unsafe fn run_spec_leaf(f: usize, inline: u64, sim: u64, me: u64, est: u64) -> Option<[u8; SPEC_SIZE]> {
+    if let Some(so) = copy_shape(f) { return copy_spec(inline as usize, so); }
     run_regs(f, SRET, inline, sim, me, Some(est)).map(|em| em.out)
+}
+/// ★어빌리티 `vt+0x78`(BuffSpec 획득) 의 "**payload 에 저장된 spec 을 통째 복사**" 모양 2종 (2026-09-08, 0.5.8 실측 `0x1078df0` x4352 · `0x10770a0` x120).
+///   둘 다 memcpy(0x1431a01a3)+xmm 복사라 미니 에뮬(xmm=0 전용)로는 못 돌린다 → 바이트 시그니처로 인식해 순수 복사로 처리.
+///   A: `push rsi/rdi/rbx; sub rsp,0x70; mov rdi,rdx; mov rdx,[rdx+8]; mov rbx,[rdi+0x10]; cmp rbx,0x41` … `movups xmm0,[rdi+0xb8]; movups [rsi+0x58],xmm0`
+///      = 이름(len=[p+0x10]·bytes=[p+8]) + 필드 전부 `[p+0x60+o]` (0xa8=0x48+0x60 … 0x178=0x118+0x60 전부 일치).
+///   B: `push rsi/rdi/rbx; sub rsp,0xa0; mov rbx,rdx; mov rsi,rcx; add rdx,0x60; mov r8d,0x120; call memcpy` → 그대로 `[p+0x60..+0x120]`,
+///      이후 `[sret+0]==0` 이면 이름을 [p+8]/[p+0x10] 로 채움.
+///   반환 = payload 안 spec 시작 오프셋(둘 다 0x60).
+unsafe fn copy_shape(f: usize) -> Option<usize> {
+    if !ptr_ok(f) { return None; }
+    let sig = |a: usize, b: &[u8]| -> bool { b.iter().enumerate().all(|(i, x)| rd_u8(a + i) == *x) };
+    const A: [u8; 22] = [0x56, 0x57, 0x53, 0x48, 0x83, 0xec, 0x70, 0x48, 0x89, 0xd7, 0x48, 0x8b, 0x52, 0x08, 0x48, 0x8b, 0x5f, 0x10, 0x48, 0x83, 0xfb, 0x41];
+    const A2: [u8; 11] = [0x0f, 0x10, 0x87, 0xb8, 0x00, 0x00, 0x00, 0x0f, 0x11, 0x46, 0x58];
+    const B: [u8; 27] = [0x56, 0x57, 0x53, 0x48, 0x81, 0xec, 0xa0, 0x00, 0x00, 0x00, 0x48, 0x89, 0xd3, 0x48, 0x89, 0xce, 0x48, 0x83, 0xc2, 0x60, 0x41, 0xb8, 0x20, 0x01, 0x00, 0x00, 0xe8];
+    if sig(f, &A) && sig(f + 0x83, &A2) { return Some(0x60); }
+    if sig(f, &B) { return Some(0x60); }
+    None
+}
+unsafe fn copy_spec(p: usize, so: usize) -> Option<[u8; SPEC_SIZE]> {
+    if !ptr_ok(p) { return None; }
+    let mut out = [0u8; SPEC_SIZE];
+    for k in (0..SPEC_SIZE).step_by(8) { out[k..k + 8].copy_from_slice(&rd_u64(p + so + k)?.to_le_bytes()); }
+    if u32::from_le_bytes([out[0], out[1], out[2], out[3]]) == 0 {
+        let len = rd_u64(p + 0x10)? as usize; let src = rd_u64(p + 8)? as usize;
+        if len <= 0x40 && ptr_ok(src) {
+            out[0..4].copy_from_slice(&(len as u32).to_le_bytes());
+            for i in 0..len { out[4 + i] = rd_u8(src + i); }
+        }
+    }
+    Some(out)
 }
 /// 공통 실행기. `stk28=Some(est)` 면 `rcx=sret·rdx=inline·r8=sim·r9=me·[rsp+0x28]=est`(= `vt+0xa0` 규약),
 /// `None` 이면 `rcx=payload·rdx=ctx·r8=ent·r9=est`(= `vt+0x28` 규약, sret 없음).

@@ -16,16 +16,20 @@ thread_local! {
     /// S13 아군 아우라 루프 추적 — [impl98, 엔티티수, slot98!=0, rec찾음, crisis통과, 합]
     pub static AURAD: std::cell::Cell<[i64; 6]> = const { std::cell::Cell::new([0; 6]) };
     pub static S13E: std::cell::Cell<[i64; 24]> = const { std::cell::Cell::new([0; 24]) };
+    /// ★[2026-09-08] `vt+0x40` fold(impl 0x12a5660) 의 자식 추적 — (자식 impl RVA, 자식 값) 최대 8쌍 + [16]=n
+    ///   잔여 2상황이 "게임보다 ~3.3배 작다" 인데 어느 자식이 빠지는지 특정용. depth==0 · slot==0x40 에서만 기록.
+    pub static F40: std::cell::Cell<[i64; 17]> = const { std::cell::Cell::new([0; 17]) };
+    pub static F40_ON: std::cell::Cell<bool> = const { std::cell::Cell::new(false) };
     /// ★0xe03ed0(trig) 이탈지점 추적 — [exit, def!=0, tid, n, r, st, sum, cnt]
     ///   exit: 1=slot_def_b8 없음 2=def==0 3=tid 비표식·비컨테이너 4=컨테이너 비었음 5=자식에 표식 없음 9=끝까지 계산
     pub static E3D: std::cell::Cell<[i64; 8]> = const { std::cell::Cell::new([0; 8]) };
 }
 pub fn s13_diag() -> String {
-    let v = S13D.with(|c| c.get()); let e = S13E.with(|c| c.get()); let f = S14D.with(|c| c.get()); let g = E3D.with(|c| c.get()); let h = AOED.with(|c| c.get()); let k = A0CH.with(|c| c.get()); let m = AURAD.with(|c| c.get());
-    format!(" S13[aoe={} trig={} auraT={} etc={} hs={} buff={} raw={} dur={} AURA={} b0i={:#x} dfRaw={} s48={} s50={} tps={} cool={} itv={} k={}] S13E[healE={} shieldE={} inc={} gate={} total={} has={} ally={} mainRaw={} healRaw={} cap={} miss={} shRaw={} altCap={} meMiss={} ra70={} ra80={} ra88={} tMax={} alyHp={} alyMax={} alyMiss={} tHp={} cap0={} sh0={}] S14[v={} k={} vd={} st={} b1={} b2={} src={} raw={} fp={} ns={} a0i={:#x}] E3[exit={} def={} tid={:#x} n={} r={} st={} sum={} cnt={}] AOE[kind={} R={} n={} slf={} noe={} dst={} cap={} tot={} poff={} vt={:#x} d0i={:#x} i40={:#x}] A0CH[{:#x} {:#x} {:#x} {:#x}] AURA13[i98={:#x} n={} s98={} rec={} cri={} sum={}]",
+    let v = S13D.with(|c| c.get()); let e = S13E.with(|c| c.get()); let f = S14D.with(|c| c.get()); let g = E3D.with(|c| c.get()); let h = AOED.with(|c| c.get()); let k = A0CH.with(|c| c.get()); let m = AURAD.with(|c| c.get()); let f40 = F40.with(|c| c.get());
+    format!(" S13[aoe={} trig={} auraT={} etc={} hs={} buff={} raw={} dur={} AURA={} b0i={:#x} dfRaw={} s48={} s50={} tps={} cool={} itv={} k={}] S13E[healE={} shieldE={} inc={} gate={} total={} has={} ally={} mainRaw={} healRaw={} cap={} miss={} shRaw={} altCap={} meMiss={} ra70={} ra80={} ra88={} tMax={} alyHp={} alyMax={} alyMiss={} tHp={} cap0={} sh0={}] S14[v={} k={} vd={} st={} b1={} b2={} src={} raw={} fp={} ns={} a0i={:#x}] E3[exit={} def={} tid={:#x} n={} r={} st={} sum={} cnt={}] AOE[kind={} R={} n={} slf={} noe={} dst={} cap={} tot={} poff={} vt={:#x} d0i={:#x} i40={:#x}] A0CH[{:#x} {:#x} {:#x} {:#x}] AURA13[i98={:#x} n={} s98={} rec={} cri={} sum={}] F40[n={} {:#x}:{} {:#x}:{} {:#x}:{} {:#x}:{} {:#x}:{} {:#x}:{} {:#x}:{}]",
         v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7], v[8], v[9], v[10], v[11], v[12], v[13], v[14], v[15], v[16], e[0], e[1], e[2], e[3], e[4], e[5], e[6], e[7], e[8], e[9], e[10], e[11], e[12], e[13], e[14], e[15], e[16], e[17], e[18], e[19], e[20], e[21], e[22], e[23],
         f[0], f[1], f[2], f[3], f[4], f[5], f[6], f[7], f[8], f[9], f[10], g[0], g[1], g[2], g[3], g[4], g[5], g[6], g[7],
-        h[0], h[1], h[2], h[3], h[4], h[5], h[6], h[7], h[8], h[9], h[10], h[11], k[0], k[1], k[2], k[3], m[0], m[1], m[2], m[3], m[4], m[5])
+        h[0], h[1], h[2], h[3], h[4], h[5], h[6], h[7], h[8], h[9], h[10], h[11], k[0], k[1], k[2], k[3], m[0], m[1], m[2], m[3], m[4], m[5], f40[16], f40[0], f40[1], f40[2], f40[3], f40[4], f40[5], f40[6], f40[7], f40[8], f40[9], f40[10], f40[11], f40[12], f40[13])
 }
 /// 잎 에뮬레이터가 필요로 하는 두 컨텍스트(sim · EST 서술자 절대주소). S13/S14 진입 때 한 번 세운다.
 thread_local! {
@@ -148,7 +152,8 @@ unsafe fn e02540_impl<F: Fn(usize, usize) -> Option<u64>>(ctx: usize, rd: F, me:
         for k in 0..5usize { let e = rd_u64(base + k * 8)? as usize; if e != 0 && d2(e, me)? < D2_60K { cnt += 1; } }
         if cnt > 1 { acc += ((1000 - ratio).wrapping_mul((s32(0x90)? as u32 / 5) as i64) / 500).min(15); }
     }
-    if s32(0x80)? > 0 && (st != 0 || rd_i64(me + ENT_HP)? < hmax) {
+    // ★st 는 `&(bool,bool)` 페어의 **첫 바이트만** 본다(IR m10.ll:34945 `%343 = trunc (load i8 %3)`; 2026-09-08 ncsv 오라클 20 vs 25/26 원인 — 둘째 비트까지 보던 것).
+    if s32(0x80)? > 0 && (st & 1 != 0 || rd_i64(me + ENT_HP)? < hmax) {
         acc += (ratio.wrapping_mul((s32(0x80)? as u32 / 5) as i64) / 500).min(15);
     }
     Some((acc / 2).min(40))
@@ -382,14 +387,23 @@ pub unsafe fn slot_sum(data: usize, vt: usize, slot: usize, me: usize, depth: u3
         return slot_sum(cd, cv, cs, me, depth + 1, tag);
     }
     if let Some((len_o, ptr_o, stride, cs)) = composite_shape(f) {
-        let n = rd_u64(p + len_o)?; if n == 0 { return Some(0); }
+        let n = rd_u64(p + len_o)?;
+        // ★전 깊이 추적: (depth<<56 | rva) 와 값 쌍을 순서대로 최대 8쌍 — 손자 단계에서 갈리는 자식을 특정
+        let trace = slot == 0x40 && F40_ON.with(|c| c.get());
+        if trace && depth == 0 { F40.with(|c| { let mut z = c.get(); z[16] = n as i64; c.set(z); }); }
+        if n == 0 { return Some(0); }
         let arr = rd_u64(p + ptr_o)? as usize; if !ptr_ok(arr) { return None; }
         let mut acc: i64 = 0;
         for i in 0..n.min(CAP_ITER) as usize {
             let e = arr + i * stride;
             let (cd, cv) = (rd_u64(e)? as usize, rd_u64(e + 8)? as usize);
             if !ptr_ok(cd) || !ptr_ok(cv) { return None; }
-            acc = acc.wrapping_add(slot_sum(cd, cv, cs, me, depth + 1, tag)?);
+            let v = slot_sum(cd, cv, cs, me, depth + 1, tag)?;
+            if trace {
+                let r = super::dyn_eff::impl_rva(cv, cs).unwrap_or(0) as i64 | ((depth as i64) << 56);
+                F40.with(|c| { let mut z = c.get(); let k = z[15] as usize; if k < 7 { z[k * 2] = r; z[k * 2 + 1] = v; z[15] = (k + 1) as i64; } c.set(z); });
+            }
+            acc = acc.wrapping_add(v);
         }
         return Some(acc);
     }
@@ -690,9 +704,12 @@ pub fn a0ch_diag() -> [i64; 4] { A0CH.with(|c| c.get()) }
 thread_local! { pub static S14D: std::cell::Cell<[i64; 11]> = const { std::cell::Cell::new([0; 11]) }; }
 /// [dffa10 v, decay k, decay 후 v, e03360 st, 1차 buff, 2차 buff]
 pub fn s14_diag() -> [i64; 11] { S14D.with(|c| c.get()) }
+/// dffa10 훅 DIFF 로그용 — 직전 dffa10 내부 단계값(DFFAD) 문자열
+pub fn dffa_diag() -> String { let z = DFFAD.with(|c| c.get()); format!("DF[{}]", z.iter().map(|v| v.to_string()).collect::<Vec<_>>().join(",")) }
+thread_local! { pub static DFFAD: std::cell::Cell<[i64; 12]> = const { std::cell::Cell::new([0; 12]) }; }
 pub unsafe fn s13_s14(b: &BCtx, ally: Option<usize>) -> Option<i64> {
     // ★S13D/S13E 도 함께 리셋 — 안 하면 다른 경로 표본에 직전 호출의 잔값이 찍혀 진단이 헛돌다(RE 2026-09-07)
-    S14D.with(|c| c.set([0; 11])); AOED.with(|c| c.set([0; 12])); A0CH.with(|c| c.set([0; 4])); S13D.with(|c| c.set([0; 17])); S13E.with(|c| c.set([0; 24])); AURAD.with(|c| c.set([0; 6]));
+    S14D.with(|c| c.set([0; 11])); AOED.with(|c| c.set([0; 12])); A0CH.with(|c| c.set([0; 4])); S13D.with(|c| c.set([0; 17])); S13E.with(|c| c.set([0; 24])); F40.with(|c| c.set([0; 17])); AURAD.with(|c| c.set([0; 6]));
     set_leaf_ctx(b.sim);
     let (sd, sv, _sin) = slot3(b.slot)?;
     let t = b.tgt;
@@ -700,7 +717,9 @@ pub unsafe fn s13_s14(b: &BCtx, ally: Option<usize>) -> Option<i64> {
     let missing_raw = maxhp.wrapping_sub(hp);
     let heal0 = if hp <= maxhp { missing_raw } else { 0 };
 
+    F40_ON.with(|c| c.set(true));
     let heal_cap = slot_sum(sd, sv, 0x40, b.me, 0, "B40")?;
+    F40_ON.with(|c| c.set(false));
     // ★★`min` 이 맞다. RE(2026-09-08)가 `max(miss, vt+0x40())` 이라고 했지만 **실측이 기각했다** —
     //   `max` 로 바꾸니 combat_score DIFF 가 0.004% → **5.65%** 로 폭발했다(`healE=313`·`cap=66` 표본에서
     //   `max` 는 313, `min` 은 66 이고 게임의 `hs` 는 66 쪽과 맞는다). ⛔`max` 재시도 금지.
@@ -742,7 +761,7 @@ pub unsafe fn s13_s14(b: &BCtx, ally: Option<usize>) -> Option<i64> {
         if r10 > 0 || x > 0 { so = shield; }
         (r10.wrapping_add(r14).wrapping_add(x), so, (missing_raw as i64).max(0))
     } else {
-        let (g9a0, g988) = (rd_i64(b.bb + 0x9a0)?, rd_i64(b.bb + 0x988)?);
+        let (g9a0, g988) = (super::combat_score::bbf(b.bb, 0x9a0)?, super::combat_score::bbf(b.bb, 0x988)?);
         let mut so = if (g9a0 | g988) == 0 { 0 } else { shield };
         if b.inc_base > 0 { so = shield; }
         let inc = b.inc_base.wrapping_add(g988).wrapping_add(g9a0);
@@ -791,7 +810,7 @@ pub unsafe fn s13_s14(b: &BCtx, ally: Option<usize>) -> Option<i64> {
                          alt_cap, me_miss, ra70, ra80, ra88, rd_i64(t + ENT_MAXHP).unwrap_or(-1),
                          aly_hp, aly_max, aly_miss, rd_i64(t + ENT_HP).unwrap_or(-1), cap0, sh0]));
     // dffa10 의 8번째 인자(gate) — S13 은 bb.0x9a0, S14 는 아군 Record 의 0x88
-    let gate = match ally { Some(ra) => rd_i64(ra + 0x88)?, None => rd_i64(b.bb + 0x9a0)? };
+    let gate = match ally { Some(ra) => rd_i64(ra + 0x88)?, None => super::combat_score::bbf(b.bb, 0x9a0)? };
     // dffa10 의 대상/계수 — S13 은 self·C, S14 는 tgt·C_ally
     let (dtgt, dc) = match ally {
         Some(ra) => (t, super::as_callees::pct_c(b.bb, ra)?),
@@ -830,10 +849,12 @@ pub unsafe fn s13_s14(b: &BCtx, ally: Option<usize>) -> Option<i64> {
     }
     if need_second {
         // 2차 시도: S2 = spec0 또는 vt+0xa0 · (st,dd) = 0xe03360 · st==2 또는 tag −1 이면 buff = 0
-        // ★★게임의 2단은 `vt+0xa0` 를 **새로 호출**하고 `spec0`(0xe047c0)을 **전혀 쓰지 않는다**
-        //   (S13 2단 0xd5fec8 / S14 2단 0xd5f8cf 둘 다). ~~`spec0` 우선~~ 은 spec0 이 있는 표본에서
-        //   재현이 더 큰 buff 를 내게 만든다 — S14 잔차 −46/−97 의 부호·크기와 맞는다(RE 2026-09-07).
-        let s2 = a0;
+        // ★★[2026-09-08 정정] 2단 spec = **`spec0.or_else(|| vt+0xa0 폴드)`** — spec0 우선, 없을 때만 a0.
+        //   IR m05.ll:43886(S14) / 43305(S13): `Option<BuffState>::or_else(sret %30, self=%41, env)` 에서
+        //   `%41` 은 `v55_target_dependent_buff` 의 sret(42912/43566) 이고 env 클로저가 vt+0xa0 폴드다.
+        //   ~~게임의 2단은 vt+0xa0 만 쓰고 spec0 을 전혀 안 쓴다(RE 2026-09-07)~~ 는 당시 spec0 이 TypeId **주소** 비교
+        //   버그로 잘못 None 이던 표본에서 나온 오판(잔차 부호가 우연히 맞았다). NCSV_IN 오라클 실측: 게임 2단 spec 지문 34/18 = spec0.
+        let s2 = match spec0 { Some(x) => Some(x), None => a0 };
         let (e3, e4) = if ally.is_some() { (b.me, t) } else { (b.me, b.me) };
         let st = e03360(b, e3, e4)?;
         S14D.with(|c| { let mut z = c.get(); z[3] = st as i64; c.set(z); });
@@ -964,6 +985,8 @@ unsafe fn slot98(data: usize, vt: usize, sim: usize, me: usize, e: usize, depth:
         // ★[2026-09-08] 여기로 떨어지면 **인자 규약이 다른 `slot_sum` 으로 흘러 조용히 0/오답**이 된다.
         //   S13 아우라 루프가 통째로 죽어 있던 원인이 이 자리다(`i98=0x12a6f60` 의 자식 impl 미배선).
         //   `judge_dyn.txt` 의 `slot+0x998` 줄이 곧 미배선 `vt+0x98` impl 목록이다.
+        // `xor eax,eax; ret` — 아우라 없음(0.5.8 실측 65만 회, judge_dyn 소음 제거용 명시 arm)
+        0x9db70 => Some(0),
         _ => { super::dyn_eff::unseen(0x998, r); slot_sum(data, vt, 0x98, me, 0, "B98") }
     }
 }
@@ -1029,6 +1052,18 @@ pub const TID_CONT: usize = 0x33e1cf0;
 
 /// `vt+0x18`(Any::type_id) impl 이 복사해 오는 **정적 TypeId 상수의 RVA**.
 ///   codegen: `mov rax,rcx` + `movups xmm0,[rip+d]` … (`0x48 0x89 0xc8 0x0f 0x10 0x05 d32`)
+/// ★TypeId 는 **값(i128) 비교**여야 한다 — 같은 TypeId 상수가 rdata 에 여러 사본으로 존재
+///   (2026-09-08 실측: 컨테이너 TypeId 가 `0x33e1cf0` 와 `0x3436e08` 두 곳, 값 동일 → RVA 비교는 두 번째 사본을 놓쳐 tag −1 오판 334/196k).
+///   게임 IR(`v55_target_dependent_buff` m10.ll:38675)도 `icmp eq i128` 값 비교.
+unsafe fn typeid_val(vt: usize) -> Option<u128> {
+    let r = typeid_rva(vt)?; let a = crate::exe_base() + r;
+    Some(rd_u64(a)? as u128 | ((rd_u64(a + 8)? as u128) << 64))
+}
+/// 기준 TypeId 상수의 **값**(RVA 상수 → exe 에서 1회 로드)
+unsafe fn tid_const(rva: usize) -> Option<u128> {
+    let a = crate::exe_base() + rva;
+    Some(rd_u64(a)? as u128 | ((rd_u64(a + 8)? as u128) << 64))
+}
 unsafe fn typeid_rva(vt: usize) -> Option<usize> {
     let g = rd_u64(vt + 0x18)? as usize; if !ptr_ok(g) { return None; }
     if !(rd_u8(g) == 0x48 && rd_u8(g + 1) == 0x89 && rd_u8(g + 2) == 0xc8 && rd_u8(g + 3) == 0x0f && rd_u8(g + 4) == 0x10 && rd_u8(g + 5) == 0x05) {
@@ -1058,15 +1093,21 @@ unsafe fn slot_def_b8(data: usize, vt: usize) -> Option<(usize, usize)> {
 }
 
 /// `0xe047c0`. 성공하면 `Some(BuffSpec)`(0x120 바이트 · i32 필드만 채움), 실패(=tag −1)면 `Some(None)`.
+/// e047c0 종료 분기 코드 — [1 def null · 2 컨테이너 빔 · 3 buff 자식 없음 · 4 다른 TypeId · 5 rec null · 6 성공] + tid rva + def
+thread_local! { pub static E47X: std::cell::Cell<(i64, i64, i64)> = const { std::cell::Cell::new((0, 0, 0)) }; }
 pub unsafe fn e047c0(slot: usize, ctx: usize, me: usize) -> Option<Option<[u8; SPEC_SIZE]>> {
+    E47X.with(|c| c.set((0, 0, 0)));
     let (sd, sv) = (rd_u64(slot)? as usize, rd_u64(slot + 8)? as usize);
     if !ptr_ok(sd) || !ptr_ok(sv) { return None; }
     let (def, dvt) = slot_def_b8(sd, sv)?;
-    if def == 0 { return Some(None); }
+    if def == 0 { E47X.with(|c| c.set((1, 0, 0))); return Some(None); }
     let tid = typeid_rva(dvt)?;
-    let hit = if tid == TID_BUFF { def }
-        else if tid == TID_CONT {
-            let n = rd_u64(def + 0x10)?; if n == 0 { return Some(None); }
+    E47X.with(|c| c.set((4, tid as i64, def as i64)));
+    let (tv, t_buff, t_cont) = (typeid_val(dvt)?, tid_const(TID_BUFF)?, tid_const(TID_CONT)?);
+    E47X.with(|c| c.set((7, tid as i64, def as i64)));
+    let hit = if tv == t_buff { def }
+        else if tv == t_cont {
+            let n = rd_u64(def + 0x10)?; if n == 0 { E47X.with(|c| c.set((2, tid as i64, def as i64))); return Some(None); }
             let arr = rd_u64(def + 8)? as usize; if !ptr_ok(arr) { return None; }
             let mut found = 0usize;
             for i in 0..n.min(CAP_ITER) as usize {
@@ -1074,15 +1115,17 @@ pub unsafe fn e047c0(slot: usize, ctx: usize, me: usize) -> Option<Option<[u8; S
                 if !ptr_ok(cd) || !ptr_ok(cv) { continue; }
                 let (d2, dv2) = match slot_def_b8(cd, cv) { Some(v) => v, None => continue };
                 if d2 == 0 { continue; }
-                if typeid_rva(dv2)? == TID_BUFF { found = d2; break; }
+                E47X.with(|c| c.set((8, i as i64, rd_u64(dv2 + 0x18).unwrap_or(0).wrapping_sub(crate::exe_base() as u64) as i64)));
+                if typeid_val(dv2)? == t_buff { found = d2; break; }
             }
-            if found == 0 { return Some(None); }
+            if found == 0 { E47X.with(|c| c.set((3, tid as i64, n as i64))); return Some(None); }
             found
         } else { return Some(None) };
 
     let w = rd_u64(ctx)? as usize; if !ptr_ok(w) { return None; }
     let rec = super::action_score::sim_of_handle(w, rd_u64(me + ENT_HANDLE)?)?;
-    if rec == 0 { return Some(None); }
+    if rec == 0 { E47X.with(|c| c.set((5, tid as i64, rd_u64(me + ENT_HANDLE).unwrap_or(0) as i64))); return Some(None); }
+    E47X.with(|c| c.set((6, tid as i64, rec as i64)));
     let mult = rd_u32(hit) as i32;                     // 매칭된 def 의 +0x00 = 퍼센트
 
     // 챔피언 어빌리티 전부의 BuffSpec 성분합 (전부 i32 wrapping) — 각 어빌리티는 `vt+0x78` sret
@@ -1145,8 +1188,9 @@ pub unsafe fn e03ed0(slot: usize, ctx: usize, rec: usize, bb: usize, me: usize, 
     let (def, dvt) = match slot_def_b8(sd, sv) { Some(v) => v, None => { e3(1, 0, 0, 0); return None } };
     if def == 0 { e3(2, 0, 0, 0); return Some(0); }
     // TypeId 가 표식형이 아니면 컨테이너 1단계만 훑어 표식형 자식을 찾는다
-    let hit = if typeid_rva(dvt)? == TID_SPIRIT { def } else {
-        if typeid_rva(dvt)? != TID_CONT { e3(3, 1, typeid_rva(dvt)? as i64, 0); return Some(0); }
+    let (t_sp, t_cont) = (tid_const(TID_SPIRIT)?, tid_const(TID_CONT)?);
+    let hit = if typeid_val(dvt)? == t_sp { def } else {
+        if typeid_val(dvt)? != t_cont { e3(3, 1, typeid_rva(dvt)? as i64, 0); return Some(0); }
         let n = rd_u64(def + 0x10)?; if n == 0 { e3(4, 1, typeid_rva(dvt)? as i64, 0); return Some(0); }
         let arr = rd_u64(def + 8)? as usize; if !ptr_ok(arr) { return None; }
         let mut found = 0usize;
@@ -1155,7 +1199,7 @@ pub unsafe fn e03ed0(slot: usize, ctx: usize, rec: usize, bb: usize, me: usize, 
             if !ptr_ok(cd) || !ptr_ok(cv) { continue; }
             let (d2, dv2) = match slot_def_b8(cd, cv) { Some(v) => v, None => continue };
             if d2 == 0 { continue; }
-            if typeid_rva(dv2)? == TID_SPIRIT { found = d2; break; }
+            if typeid_val(dv2)? == t_sp { found = d2; break; }
         }
         if found == 0 { e3(5, 1, typeid_rva(dvt)? as i64, n as i64); return Some(0); }
         found

@@ -65,6 +65,23 @@ thread_local! { pub static S12ST: std::cell::Cell<[i64; 20]> = const { std::cell
 /// [st, T, dmg, tps, burst, tgt.hp]
 /// S5 위험항 진단: [near!=0, near.kind, near.0x88, dist(me,near), r_t, safe, bb.0x9b0 원값]
 thread_local! { pub static S5D: std::cell::Cell<[i64; 30]> = const { std::cell::Cell::new([0; 30]) }; }
+/// ★[2026-09-08] 블랙보드 휘발 필드 **진입 시점 스냅샷**. `combat_score` 는 post 대조라 원본 실행 뒤에 읽는데,
+///   `bb.0x998/0x9b0/0x988/0x9a0` 는 다른 스레드(플래너)가 그 사이 갱신할 수 있다(실측: 여섯 항 0 인 S13 표본에서
+///   `inner` 가 게임보다 ~550 짧음 — 남은 후보가 bb.0x998 뿐). 훅 진입에서 값을 떠 두고 재현은 이것을 읽는다.
+thread_local! { pub static BBSNAP: std::cell::Cell<(usize, [i64; 4])> = const { std::cell::Cell::new((0, [0; 4])) }; }
+pub unsafe fn bb_snapshot(bb: usize) {
+    if !ptr_ok(bb) { BBSNAP.with(|c| c.set((0, [0; 4]))); return; }
+    let v = [rd_i64(bb + 0x998).unwrap_or(0), rd_i64(bb + 0x9b0).unwrap_or(0), rd_i64(bb + 0x988).unwrap_or(0), rd_i64(bb + 0x9a0).unwrap_or(0)];
+    BBSNAP.with(|c| c.set((bb, v)));
+}
+/// bb 휘발 필드 읽기 — 스냅샷이 같은 bb 면 그것, 아니면 직독
+pub unsafe fn bbf(bb: usize, off: usize) -> Option<i64> {
+    let (sb, v) = BBSNAP.with(|c| c.get());
+    if sb == bb { return Some(match off { 0x998 => v[0], 0x9b0 => v[1], 0x988 => v[2], 0x9a0 => v[3], _ => rd_i64(bb + off)? }); }
+    rd_i64(bb + off)
+}
+/// tower_support 게이트 진단 [found, kind, 4c0, enemy_near, d2, rt², now<13f8, est]
+thread_local! { pub static TSD: std::cell::Cell<[i64; 8]> = const { std::cell::Cell::new([0; 8]) }; }
 /// ★[2026-09-08] `pos_term` 이 진짜 범인인지 가르는 사후 오라클.
 ///   DIFF 로그는 **원본 호출 뒤**에 찍히므로, 그 시점엔 게임이 방금 이 셀을 계산해 메모에 넣어 뒀다.
 ///   같은 키로 다시 조회해 `a8` 의 정답을 직접 본다(pre 시점엔 항상 미스라 알 수 없었다).
@@ -136,13 +153,13 @@ pub unsafe fn diag(_p1: usize, _p3: usize, _p4: usize) -> String {
     let v = LAST.with(|c| c.get());
     format!("risk_neg={} tower={} pos={} main={} urgent={} C={} thr_s={} chase={} bb998={} b9b0={} cast={} hp={} thr={} thrlen={}",
         v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7], v[8], v[9], v[10], v[11], v[12], v[13])
-        + &format!(" game_thr={} bb970={} bb9a0={} bb988={} inner={} raw9b0={}", v[14], v[15], v[16], v[17], v[18], v[19])
+        + &format!(" game_thr={} bb970={} bb9a0={} bb988={} inner={} raw9b0={} SNAP[998={} 9b0={} 988={} 9a0={} | post998={}]", v[14], v[15], v[16], v[17], v[18], v[19], BBSNAP.with(|c| c.get()).1[0], BBSNAP.with(|c| c.get()).1[1], BBSNAP.with(|c| c.get()).1[2], BBSNAP.with(|c| c.get()).1[3], v[8])
         + &{ let q = S12D.with(|c| c.get()); let z = s12_st(); format!(" | S12[D={} X={} Ct={} kill={} score={} e01450={} e019d0={} e02020={} st={} T={} dmg={} selfN={} burst={} thp={} stRaw={} bonus={} q={} pk={} E1450[v1={} v2={} v3={} v4={} v5={} msum={} dps={} n={} acc={} nal={} a8i={:#x}] i88={:#x} tid={:#x} m16={} v10={} aa={} THP={} v={} slN={}] A[{:?}]", q[0], q[1], q[2], q[3], q[4], q[5], q[6], q[7], z[0], z[1], z[2], z[3], z[4], z[5], z[10], z[7], z[8], z[9], { let q = e1450_diag(); q[0] }, e1450_diag()[1], e1450_diag()[2], e1450_diag()[3], e1450_diag()[4], e1450_diag()[5], e1450_diag()[6], e1450_diag()[7], e1450_diag()[8], e1450_diag()[9], e1450_diag()[10], z[12], z[13], z[14], z[15], z[16], z[17], z[18], z[19], ally_diag()) }
-        + &{ let d = s5_diag(); format!(" S5[near={} kind={} f88={} dn={} rt={} safe={} raw9b0={} vis={} t0d={} t0a={} cdly={} alen={} th={:#x} a0={:#x} a1={:#x} pg={} d2={} a8={} pmask={:#x} pfirst={} a8m={} a8r={}] NIC[cand={} dmin={} mlen={} nstruct={}] CH[k={} g={:#x} ap={} a={} b={} keep={} v={}] E20[c0={} ok={} t={} ic0={:#x} i88={:#x} rec={} acc={} n={}] POST[a8m={} a8r={} t0={} t1={}]", d[0], d[1], d[2], d[3], d[4], d[5], d[6], d[7], d[8], d[9], cast_dly(), d[10], d[11], d[12], d[13], d[14], d[15], d[16], d[21], d[22], d[23], d[24], nic_diag()[0], nic_diag()[1], nic_diag()[2], nic_diag()[3], d[17], d[20], d[25], d[26], d[27], d[28], d[29], e20_diag()[0], e20_diag()[1], e20_diag()[2], e20_diag()[3], e20_diag()[4], e20_diag()[5], e20_diag()[6], e20_diag()[7], { let q = pos_post_probe(); q.0 }, pos_post_probe().1, pos_post_probe().2, pos_post_probe().3) }
+        + &{ let d = s5_diag(); format!(" S5[near={} kind={} f88={} dn={} rt={} safe={} raw9b0={} vis={} t0d={} t0a={} cdly={} alen={} th={:#x} a0={:#x} a1={:#x} pg={} d2={} a8={} pmask={:#x} pfirst={} a8m={} a8r={}] NIC[cand={} dmin={} mlen={} nstruct={}] CH[k={} g={:#x} ap={} a={} b={} keep={} v={}] E20[c0={} ok={} t={} ic0={:#x} i88={:#x} rec={} acc={} n={}] POST[a8m={} a8r={} t0={} t1={}] TS[f={} k={} c4={} en={} d2={} rt2={} tok={} est={}]", d[0], d[1], d[2], d[3], d[4], d[5], d[6], d[7], d[8], d[9], cast_dly(), d[10], d[11], d[12], d[13], d[14], d[15], d[16], d[21], d[22], d[23], d[24], nic_diag()[0], nic_diag()[1], nic_diag()[2], nic_diag()[3], d[17], d[20], d[25], d[26], d[27], d[28], d[29], e20_diag()[0], e20_diag()[1], e20_diag()[2], e20_diag()[3], e20_diag()[4], e20_diag()[5], e20_diag()[6], e20_diag()[7], { let q = pos_post_probe(); q.0 }, pos_post_probe().1, pos_post_probe().2, pos_post_probe().3, { let t = TSD.with(|c| c.get()); t[0] }, TSD.with(|c| c.get())[1], TSD.with(|c| c.get())[2], TSD.with(|c| c.get())[3], TSD.with(|c| c.get())[4], TSD.with(|c| c.get())[5], TSD.with(|c| c.get())[6], TSD.with(|c| c.get())[7]) }
         + &unsafe { let caps = crate::judge::cap_util_c87fe0::last_p2().unwrap_or(0);
             // ★★`path=`·`S13[…]` 를 **caps 게이트 밖으로** 뺐다 — 잔차 23건이 전부 `caps=none` 이라
             //   경로를 안 찍은 것처럼 보였고, 그것 때문에 조기반환으로 오진단했다(RE 2026-09-07).
-            format!("{} path={}{}", super::buff_value::s13_diag(), path_str(),
+            format!("{} {} path={}{}", super::buff_value::s13_diag(), crate::judge::call_delta(), path_str(),
                 if crate::ptr_ok(caps) { format!(" gameR={:#x} gameBB={:#x} gameBB998={:?}", rd_u64(caps + 0x18).unwrap_or(0), rd_u64(caps + 0x20).unwrap_or(0),
                     rd_u64(caps + 0x20).and_then(|b| rd_i64(b as usize + 0x998))) } else { " caps=none".into() }) }
 
@@ -649,6 +666,22 @@ unsafe fn st_pn(me: usize, n: usize) -> Option<bool> {
         let inl = match super::dyn_eff::arc_payload(sd, sv) { Some(v) => v, None => return na_tag("STp_ap").map(|_| false) };
         match super::as_callees::decode_getter(f, inl) {
             Some(v) => { if v == 1 { return Some(false); } }
+            // ★[2026-09-08] `0x1309230` = 자식 합성 술어: 자식 목록(`[p+8]` ptr · `[p+0x10]` len · stride 0x10)을
+            //   돌며 **먼저 `vt+0x60`** 이 하나라도 true 면 1, 아니면 **`vt+0x68`** 로 한 번 더, 둘 다 없으면 0
+            //   (capstone 실측; 0.5.8 리플레이 1판 x4 = combat_score 마지막 NA 4건 = `ST_pn`).
+            None if super::dyn_eff::impl_rva(sv, 0x120) == Some(0x1309230) => {
+                let (arr, n) = (rd_u64(inl + 8)? as usize, rd_u64(inl + 0x10)?);
+                if n != 0 && !ptr_ok(arr) { return None; }
+                let mut any = false;
+                'outer: for off in [0x60usize, 0x68] {
+                    for i in 0..n.min(CAP_ITER) as usize {
+                        let (cd, cv) = (rd_u64(arr + i * 0x10)? as usize, rd_u64(arr + i * 0x10 + 8)? as usize);
+                        if !ptr_ok(cd) || !ptr_ok(cv) { return None; }
+                        if super::as_callees::eff_bool(cd, cv, off, 0)? { any = true; break 'outer; }
+                    }
+                }
+                if any { return Some(false); }
+            }
             None => { super::dyn_eff::unseen(0x1120, super::dyn_eff::impl_rva(sv, 0x120).unwrap_or(0)); return None; }
         }
     }
@@ -1010,7 +1043,7 @@ unsafe fn combat_score_inner(mode: usize, _prof: usize, rec: usize, ctx: usize, 
     // ★구조물 경로(0xd5d762→0xd5e7e4→0xd5e913)에서는 **타깃 종류를 보지 않고** bb.0x9b0 을 넣는다.
     //   ~~`bonus9b0 = tgt_kind==13 ? bb.0x9b0 : 0`~~ 이 최대 불일치 원인이었다(2026-09-07 확정, 로그 역산으로 검증).
     //   r_t 에는 `slot_e8(near..)` 항이 없고, 비교는 `<=`, extra 의 reach 는 vt+0xe8 3번째 인자가 **near** 다.
-    let raw9b0 = rd_i64(bb + BB_9B0)?;
+    let raw9b0 = bbf(bb, BB_9B0)?;
     let mut d5 = [0i64; 19]; d5[6] = raw9b0;
     let mut bonus9b0 = if tgt_kind == 13 { raw9b0 } else { 0 };
     let mut safe = tgt_kind == 13;   // ★IR: safe == (tgt_kind == 13) — 근처 구조물 없는 갈래(%338)도 동일
@@ -1025,7 +1058,7 @@ unsafe fn combat_score_inner(mode: usize, _prof: usize, rec: usize, ctx: usize, 
             d5[3] = dist(me, near)? as i64; d5[4] = r_t as i64;
             let within = dist(me, near)? <= r_t;
             d5[5] = within as i64;
-            bonus9b0 = if within || tgt_kind == 13 { rd_i64(bb + BB_9B0)? } else { 0 };
+            bonus9b0 = if within || tgt_kind == 13 { bbf(bb, BB_9B0)? } else { 0 };
             // ★★IR 이 `safe` 를 **`tgt_kind == 13` 그 자체**로 확정한다(m05.ll:41049~41070).
             //   `%443 = A||K` 로 %446 에 들어가서 `%447 = %445 = !A||K` 를 받으므로 `(A||K)&&(!A||K) = K`.
             //   근처 구조물이 없는 갈래(%338)도 `br %121` 이라 마찬가지로 `K`.
@@ -1074,7 +1107,7 @@ unsafe fn combat_score_inner(mode: usize, _prof: usize, rec: usize, ctx: usize, 
     stg(tag8("S5"));
     let c = pct_c(bb, bb + BB_R)?; let c_val = c;
     if hp == 0 { return None; }
-    let inner_dbg = (rd_i64(bb + BB_998)?).wrapping_add(chase).wrapping_add(bonus9b0).wrapping_add(thr_s);
+    let inner_dbg = (bbf(bb, BB_998)?).wrapping_add(chase).wrapping_add(bonus9b0).wrapping_add(thr_s);
     let risk_neg: i64 = if urgent { -1 } else { !(inner_dbg.wrapping_mul(c) / hp as i64) };
     // ── S6 아군 구조물·적 근접 ──
     stg(tag8("S6"));
@@ -1085,11 +1118,16 @@ unsafe fn combat_score_inner(mode: usize, _prof: usize, rec: usize, ctx: usize, 
     let mut tower_support: i64 = 0;
     // ★`1-side` 실험 폐기 — RE 2026-09-07 이 `0xd5cf83`(S7) 은 `side`, `0xd5c993`(S3) 은 `1-side` 임을
     //   바이트로 확정했고 재현이 이미 그렇게 분리돼 있다. 게이트 4항목도 전부 "동일" 판정.
+    TSD.with(|c| c.set([0; 8]));
     if let Some((na_ent, _)) = near_ally {
         let rt = rd_u64(na_ent + ENT_F438)?.wrapping_add(rd_u64(na_ent + 0x4a0)?)
             .wrapping_add(rd_u64(na_ent + ENT_LEVEL)?.wrapping_sub(1).wrapping_mul(rd_u64(na_ent + 0x4a8)?))
             .wrapping_add(if rd_i32(na_ent + ENT_4C0)? == 0 { rng_of(na_ent)? } else { 0 })
             .wrapping_add(rng_of(tgt)?).wrapping_add(slot_e8(na_ent + 0x490, na_ent, tgt)?);
+        // ★[2026-09-08] tower_support 게이트 진단 — S13 잔여(여섯 항 0·-10 폴백인데 game 이 +5~+20)의 유일한 양수 후보
+        TSD.with(|c| c.set([1, rd_i32(na_ent + ENT_KIND).unwrap_or(-9) as i64, rd_i32(na_ent + ENT_4C0).unwrap_or(-9) as i64, enemy_near as i64,
+            d2_ee(tgt, na_ent).unwrap_or(0) as i64, sq(rt) as i64, (now < rd_u64(cfg + CFG_13F8).unwrap_or(0)) as i64,
+            est(na_ent + 0x490, na_ent, tgt).map(|v| v as i64).unwrap_or(-1)]));
         if enemy_near && d2_ee(tgt, na_ent)? <= sq(rt) && now < rd_u64(cfg + CFG_13F8)? {
             let thp = rd_u64(tgt + ENT_HP)?; if thp == 0 { return None; }
             // ★게임은 **부호 없는** 나눗셈(`div`)이다 — RE 2026-09-07
@@ -1307,22 +1345,31 @@ unsafe fn combat_score_inner(mode: usize, _prof: usize, rec: usize, ctx: usize, 
     Some((w, sim, rd_u64(cfg + 0x12f8)?))
 }
 /// `v55_mark_value(mode, slot, ctx, rec, bb, me, tgt, ct, p9)`
-pub unsafe fn v55_mark_cmp(_mode: usize, slot: usize, ctx: usize, rec: usize, _bb: usize, _me: usize, tgt: usize, ct: usize, _p9: usize) -> Option<i64> {
+thread_local! { pub static NCSV_LAST: std::cell::Cell<(i64, i64, i64, i64)> = const { std::cell::Cell::new((0, 0, 0, 0)) }; }
+pub fn ncsv_last() -> (i64, i64, i64, i64) { NCSV_LAST.with(|c| c.get()) }
+/// ★오라클 훅은 게임의 combat_score **안에서** 발화한다 — 이때 `LEAF_ME`(slot_a8/slot_c8 잎이 읽는 `me`) 는
+///   직전 재현 호출의 잔재라 다른 엔티티일 수 있다(2026-09-08 v55_mark 오라클 44건: `0x1341a20` 잎의 `me.0x620` 이 어긋남).
+///   게임이 잎에 넘기는 me = `desc.vt+0x38(me)`(=stat_ref, IR m10.ll:33100 `%5`) 이므로 훅 인자의 me 로 잠시 바꾼다.
+unsafe fn with_leaf_me<T>(me: usize, f: impl FnOnce() -> T) -> T {
+    let old = LEAF_ME.with(|c| c.get()); if me != 0 { set_leaf_me(me); }
+    let r = f(); LEAF_ME.with(|c| c.set(old)); r
+}
+pub unsafe fn v55_mark_cmp(_mode: usize, slot: usize, ctx: usize, rec: usize, _bb: usize, me: usize, tgt: usize, ct: usize, _p9: usize) -> Option<i64> {
     let (w, sim, tps) = ctx_world(ctx)?;
     if !ptr_ok(slot) || !ptr_ok(rec) || !ptr_ok(tgt) { return None; }
-    e01450(&w, sim, rec, slot, tgt, ct as i64, tps)
+    with_leaf_me(me, || e01450(&w, sim, rec, slot, tgt, ct as i64, tps))
 }
 /// `v55_seal_value(mode, slot, ctx, me, tgt, ct)`
-pub unsafe fn v55_seal_cmp(_mode: usize, slot: usize, ctx: usize, _me: usize, tgt: usize, ct: usize, _p7: usize, _p8: usize, _p9: usize) -> Option<i64> {
+pub unsafe fn v55_seal_cmp(_mode: usize, slot: usize, ctx: usize, me: usize, tgt: usize, ct: usize, _p7: usize, _p8: usize, _p9: usize) -> Option<i64> {
     let (w, sim, tps) = ctx_world(ctx)?;
     if !ptr_ok(slot) || !ptr_ok(tgt) { return None; }
-    e019d0(&w, sim, slot, tgt, ct as i64, tps)
+    with_leaf_me(me, || e019d0(&w, sim, slot, tgt, ct as i64, tps))
 }
 /// `v55_banish_penalty(mode, slot, ctx, rec, me, tgt, ct)`
 pub unsafe fn v55_banish_cmp(_mode: usize, slot: usize, ctx: usize, rec: usize, me: usize, tgt: usize, ct: usize, _p8: usize, _p9: usize) -> Option<i64> {
     let (w, sim, tps) = ctx_world(ctx)?;
     if !ptr_ok(slot) || !ptr_ok(rec) || !ptr_ok(me) || !ptr_ok(tgt) { return None; }
-    e02020(&w, sim, rec, slot, me, tgt, ct as i64, tps)
+    with_leaf_me(me, || e02020(&w, sim, rec, slot, me, tgt, ct as i64, tps))
 }
 
 /// `enemy_minion_wave_risk_damage_at(mode, ctx, me, x, y, h)` — 0xd95d00 직접 대조
@@ -1338,6 +1385,36 @@ pub unsafe fn v54_aoe_cmp(_mode: usize, slot: usize, ctx: usize, bb: usize, me: 
     if !ptr_ok(slot) || !ptr_ok(ctx) || !ptr_ok(bb) || !ptr_ok(me) || !ptr_ok(tgt) || !ptr_ok(sp) { return None; }
     let cd = cast_delay0(sp)?;
     super::buff_value::e02bc0(slot, ctx, bb, me, tgt, skip as u64, cd)
+}
+
+/// `v55_spirit_trigger_value(slot, ctx, rec, bb, me, C)` — 0xe03ed0 직접 대조(S13 `trig` 항)
+pub unsafe fn v55_spirit_cmp(slot: usize, ctx: usize, rec: usize, bb: usize, me: usize, c: usize, _p7: usize, _p8: usize, _p9: usize) -> Option<i64> {
+    if !ptr_ok(slot) || !ptr_ok(ctx) || !ptr_ok(rec) || !ptr_ok(bb) || !ptr_ok(me) { return None; }
+    super::buff_value::e03ed0(slot, ctx, rec, bb, me, c as i64)
+}
+/// `area_buff_multi_scale(mode, slot, ctx, rec, tgt, value)` — 0xe022d0 직접 대조(S13/S14 `buff` 항의 바깥 껍질)
+pub unsafe fn abms_cmp(_mode: usize, slot: usize, ctx: usize, rec: usize, tgt: usize, value: usize, _p7: usize, _p8: usize, _p9: usize) -> Option<i64> {
+    if !ptr_ok(slot) || !ptr_ok(ctx) || !ptr_ok(rec) || !ptr_ok(tgt) { return None; }
+    super::buff_value::e022d0(slot, ctx, rec, tgt, value as i64)
+}
+/// `noncombat_steroid_value(ctx, spec[288], tgt, &(i8,i8) | null)` — 0xe03360 직접 대조(`buff` 항의 안쪽)
+///   4번째 인자: null 이면 tag 2(=취소), 아니면 (crisis_a, crisis_b) 바이트 페어. 재현의 `st` 인코딩과 맞춘다.
+pub unsafe fn ncsv_cmp(ctx: usize, spec: usize, tgt: usize, pair: usize, _p5: usize, _p6: usize, _p7: usize, _p8: usize, _p9: usize) -> Option<i64> {
+    if !ptr_ok(ctx) || !ptr_ok(spec) || !ptr_ok(tgt) { return None; }
+    let st: u8 = if pair == 0 { 2 } else if !ptr_ok(pair) { return None } else { (rd_u8(pair) & 1) | ((rd_u8(pair + 1) & 1) << 1) };
+    // 게임이 2단(ncsv)에 넘긴 spec 의 지문·st·tgt 를 남겨 재현 S14 의 `fp` 와 대조한다(CALLS[...] 에 찍힘)
+    let fp: i64 = [0x58usize, 0x5c, 0x60, 0x64, 0x80, 0x8c, 0x90, 0x104].iter().map(|&o| rd_u32(spec + o) as i32 as i64).sum::<i64>()
+        + [0xa8usize, 0xb0, 0xc8].iter().map(|&o| rd_i64(spec + o).unwrap_or(0)).sum::<i64>();
+    NCSV_LAST.with(|c| c.set((fp, st as i64, tgt as i64, rd_u32(spec + 0x48) as i32 as i64)));
+    super::buff_value::e02540(ctx, spec, tgt, st)
+}
+/// `noncombat_steroid_window(rec, ctx, me, tgt) -> {i8,i8}` — 0xe03360. 게임 반환 rax = (first | second<<8).
+///   재현 `e03360(b, me, tgt) -> st(u8)` 는 first 만 돌려주므로 하위 8비트만 대조한다.
+pub unsafe fn ncsw_cmp(rec: usize, ctx: usize, me: usize, tgt: usize, _p5: usize, _p6: usize, _p7: usize, _p8: usize, _p9: usize) -> Option<i64> {
+    if !ptr_ok(rec) || !ptr_ok(ctx) || !ptr_ok(me) || !ptr_ok(tgt) { return None; }
+    let (w, sim, _tps) = ctx_world(ctx)?;
+    let b = super::buff_value::BCtx { mode: 2, prof: 0, rec, ctx, bb: 0, sp: 0, slot: 0, tgt, me, p9: 0, sim, w: w.x, c: 0, inc_base: 0, cast_delay: 0 };
+    super::buff_value::e03360(&b, me, tgt).map(|v| v as i64)
 }
 
 // ── 아직 못 옮긴 dyn 게터(도달 빈도만 집계) ─────────────────────────────────────────────

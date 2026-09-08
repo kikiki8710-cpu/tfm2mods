@@ -98,6 +98,44 @@ unsafe fn lookup(db_ptr: usize, db_len: u64, name: (usize, u64)) -> Option<Optio
     Some(found)
 }
 
+
+/// DIFF 로그용 — `tag()` 의 판단 재료를 전부 찍는다(보유 아이템·티어·후보별 가용/티어/가격).
+pub unsafe fn diag(p5: usize, g: usize) -> String {
+    let mut out = String::new();
+    let f = || -> Option<String> {
+        let own_len = rd_u64(p5 + 0x4a8)?; let own_ptr = rd_u64(p5 + 0x4a0)? as usize;
+        let db = rd_u64(g + 0x30)? as usize; let (db_ptr, db_len) = (rd_u64(db + 8)? as usize, rd_u64(db + 0x10)?);
+        let gold = rd_u64(p5 + 0x998)?;
+        let mut s = format!("own={} gold={} db_len={} |", own_len, gold, db_len);
+        let mut max_tier = 0u64;
+        for i in 0..own_len.min(16) as usize {
+            let e = own_ptr + i * 0x10; let (d, v) = (rd_u64(e)? as usize, rd_u64(e + 8)? as usize);
+            let t = g_u64(v, 0x70, d)?; if t <= 3 && t > max_tier { max_tier = t; }
+            s += &format!(" own{}:t{}", i, t);
+        }
+        s += &format!(" | maxT={} |", max_tier);
+        for i in 0..own_len.min(16) as usize {
+            let e = own_ptr + i * 0x10; let (d, v) = (rd_u64(e)? as usize, rd_u64(e + 8)? as usize);
+            let names = g_ptr(v, 0x80, d)?; let (nptr, nlen) = (rd_u64(names + 8)? as usize, rd_u64(names + 0x10)?);
+            for k in 0..nlen.min(8) as usize {
+                let name = str_of(nptr + k * 0x18)?;
+                let nm = if name.1 != 0 && name.1 < 64 { String::from_utf8_lossy(std::slice::from_raw_parts(name.0 as *const u8, name.1 as usize)).into_owned() } else { "?".into() };
+                match lookup(db_ptr, db_len, name)? {
+                    None => { s += &format!(" {}:nodb", nm); }
+                    Some(idx) => {
+                        let c = db_ptr + idx as usize * 0x10; let (cd, cv) = (rd_u64(c)? as usize, rd_u64(c + 8)? as usize);
+                        let (av, ti, pr) = (g_u64(cv, 0x50, cd)? & 1, g_u64(cv, 0x70, cd)?, g_u64(cv, 0x68, cd)?);
+                        s += &format!(" {}:av{} t{} p{}{}", nm, av, ti, pr, if av == 1 && ti > max_tier && pr <= gold { "*" } else { "" });
+                    }
+                }
+            }
+        }
+        Some(s)
+    };
+    out += &f().unwrap_or_else(|| "NA".into());
+    out
+}
+
 /// 반환 = `Option` 태그(0 = None · 1 = Some). None = 미재현(NA).
 pub unsafe fn tag(p5: usize, g: usize) -> Option<u64> {
     if !ptr_ok(p5) || !ptr_ok(g) { return None; }

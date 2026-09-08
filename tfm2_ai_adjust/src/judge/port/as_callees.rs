@@ -263,6 +263,7 @@ pub unsafe fn max_reach(e: usize, o: usize) -> Option<u64> {
 pub unsafe fn cmp_diag8(name: &str, p1: usize, p2: usize, p3: usize, p4: usize, p5: usize, p6: usize, p7: usize, p8: usize) -> String {
     if name == "as_132b310" { return super::position_eval::threat_diag(p1, p3, p4); }
     if name == "combat_score" { return super::combat_score::diag(p1, p3, p4); }
+    if name == "v55_mark" { let q = super::combat_score::e1450_diag(); return format!("E1450[v1={} v2={} v3={} v4={} v5={} msum={} dps={} n={} acc={} nal={} a8i={:#x}]", q[0], q[1], q[2], q[3], q[4], q[5], q[6], q[7], q[8], q[9], q[10]); }
     cmp_diag8_x(name, p1, p2, p3, p4, p5, p6, p7, p8)
 }
 #[allow(clippy::too_many_arguments)]
