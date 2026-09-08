@@ -36,6 +36,7 @@ thread_local! {
     static SIM_TLS: std::cell::Cell<usize> = const { std::cell::Cell::new(0) };
     static EST_DESC_RVA_ABS: std::cell::Cell<u64> = const { std::cell::Cell::new(0) };
 }
+pub fn leaf_ctx() -> usize { SIM_TLS.with(|c| c.get()) }
 pub unsafe fn set_leaf_ctx(sim: usize) { SIM_TLS.with(|c| c.set(sim)); EST_DESC_RVA_ABS.with(|c| c.set((crate::exe_base() + 0x33da3d0) as u64)); }
 const BV_ENEMY_PTR: usize = 0x14d8; const BV_ENEMY_LEN: usize = 0x14f0;
 
@@ -346,6 +347,18 @@ pub unsafe fn slot_sum(data: usize, vt: usize, slot: usize, me: usize, depth: u3
                 let s2 = sum_list(p, 0x68, 0x70, 0x10, 0x48, me, depth, tag)?;
                 return Some(s1.wrapping_add(s2));
             }
+            // ★[2026-09-08] 0x13409d0(vt+0x40 두-Vec 합)의 vt+0x48 짝 — Σ[0x68/0x70 s0x18].vt48 + Σ[0x80/0x88 s0x10].vt48
+            //   (ghidra-re, RE6-09-08_vt48-실드-구현체-8종). siege FMshld NA 29.5만/판 의 원인.
+            0x1340bd0 => {
+                let s1 = sum_list(p, 0x68, 0x70, 0x18, 0x48, me, depth, tag)?;
+                let s2 = sum_list(p, 0x80, 0x88, 0x10, 0x48, me, depth, tag)?;
+                return Some(s1.wrapping_add(s2));
+            }
+            // 같은 RE 의 단일 리스트 4종(골격 스캐너가 못 잡을 때의 보험)
+            0x12a6a90 => { return sum_list(p, 0x08, 0x10, 0x10, 0x48, me, depth, tag); }
+            0x12a5b60 => { return sum_list(p, 0x20, 0x28, 0x18, 0x48, me, depth, tag); }
+            0x12a5040 => { return sum_list(p, 0x48, 0x50, 0x10, 0x48, me, depth, tag); }
+            0x13bed60 => { return sum_list(p, 0x50, 0x58, 0x18, 0x48, me, depth, tag); }
             _ => {}
         }
     }

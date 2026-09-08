@@ -53,6 +53,7 @@ pub mod port {
     pub mod action_score;
     pub mod as_callees;
     pub mod fight_check;
+    pub mod fight_model;
     pub mod dn_cache;
     pub mod position_eval;
     pub mod combat_score;
@@ -240,6 +241,7 @@ macro_rules! judge_capture {
             pub static ST: super::Stat = super::Stat::new();
             static SEQ: AtomicU64 = AtomicU64::new(0);
             thread_local! { static LAST: Cell<(u64, u64, u64, u64)> = const { Cell::new((0, 0, 0, 0)) }; }   // (seq, r0, r1, r2)
+            thread_local! { static RNG_SNAP: std::cell::RefCell<[u8; 0x140]> = const { std::cell::RefCell::new([0u8; 0x140]) }; }
             pub fn reset() { LAST.with(|c| c.set((0, 0, 0, 0))); }
             /// 리셋 이후 이 스레드에서 캡처된 결과. None = 콜리가 안 불렸다(부모 경로 불일치 → NA).
             pub fn take() -> Option<(u64, u64, u64)> { LAST.with(|c| { let v = c.get(); if v.0 == 0 { None } else { Some((v.1, v.2, v.3)) } }) }
@@ -250,11 +252,16 @@ macro_rules! judge_capture {
                 let f: super::F12 = core::mem::transmute(orig);
                 ST.entered.fetch_add(1, Ordering::Relaxed);
                 let pre_gold = if $spec.rva == 0xe7a8c0 { crate::rd_u64(p4 + 0x998).unwrap_or(u64::MAX) } else { 0 };
+                // ★StdRng(p3) 상태를 원본 호출 **전에** 복사(0x140B: buf[64]·idx·key·counter·nonce) — 재현이 같은 난수로 뽑도록
+                let snap_ok = if $spec.rva == 0xe7a8c0 && crate::ptr_ok(p3) {
+                    RNG_SNAP.with(|c| { let mut b = c.borrow_mut(); let mut ok = true; for i in 0..0x28usize { match crate::rd_u64(p3 + i * 8) { Some(v) => b[i * 8..i * 8 + 8].copy_from_slice(&v.to_le_bytes()), None => { ok = false; break; } } } ok })
+                } else { false };
                 let r = f(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12);
                 let seq = SEQ.fetch_add(1, Ordering::Relaxed) + 1;
                 let (r0, r1, r2) = (crate::rd_u64(p1).unwrap_or(u64::MAX), crate::rd_u64(p1 + 8).unwrap_or(0), crate::rd_u64(p1 + 0x10).unwrap_or(0));
                 LAST.with(|c| c.set((seq, r0, r1, r2)));
-                if $spec.rva == 0xe7a8c0 { crate::judge::ab_tag::cmp2(r0, r1, r2, pre_gold, p4, p7); }
+                if $spec.rva == 0xe7a8c0 { crate::judge::ab_tag::cmp2(r0, r1, r2, pre_gold, p4, p7);
+                    if snap_ok { RNG_SNAP.with(|c| { let b = c.borrow(); crate::judge::ab_tag::cmp_full(r0, r1, r2, p4, p7, b.as_ptr() as usize); }); } }
                 ST.n.fetch_add(1, Ordering::Relaxed);
                 r
             }
@@ -641,7 +648,7 @@ macro_rules! judge_capture_pair {
     };
 }
 judge_capture_pair!(cap_as_e04400, crate::judge::gen_fns::AS_E04400, |_p1: usize, _p2: usize, _p3: usize, p4: usize, r: u64, d: u64, _rbp: usize, _ra: usize, _rbx: u64| { crate::judge::port::combat_score::e04400_record(p4, r, d) });   // 특수형 조기반환(combat_score 전용 콜리)
-judge_capture_pair!(cap_as_d96d00, crate::judge::gen_fns::AS_D96D00, |_p1: usize, p2: usize, p3: usize, p4: usize, r: u64, d: u64, rbp: usize, ra: usize, rbx: u64| unsafe { crate::judge::port::position_eval::dive_record(p2, p3, p4, r, d, rbp, ra, rbx) });   // 타워다이브 (순수 경계: 전투 시뮬 0xe05450 → 캡처)
+judge_capture_pair!(cap_as_d96d00, crate::judge::gen_fns::AS_D96D00, |p1: usize, p2: usize, p3: usize, p4: usize, r: u64, d: u64, rbp: usize, ra: usize, rbx: u64| unsafe { crate::judge::port::position_eval::siege_oracle(p1, p2, p3, p4, r, d); crate::judge::port::position_eval::dive_record(p2, p3, p4, r, d, rbp, ra, rbx) });   // 타워다이브 (순수 경계: 전투 시뮬 0xe05450 → 캡처)
 /// capture_ring + 대조: 링(find/last)은 그대로 두고, `$mine(p1..p4)`(Option<u64>) 를 rax 전체와 대조한다(ok/diff/na, DIFF ≤40줄). 콜리 순수 포팅 검증용.
 macro_rules! judge_capture_ring_cmp9_pre {
     ($m:ident, $spec:expr, $mine:expr) => {
@@ -1127,6 +1134,21 @@ pub mod ab_tag {
     /// 캡처 래퍼에서 호출: game_tag 와 재현을 대조.
     pub unsafe fn cmp(game_tag: u64, p4: usize, p7: usize) { cmp2(game_tag, 0, 0, u64::MAX, p4, p7) }
     /// r1/r2 = 게임 sret 의 (idx, price) · pre_gold = 원본 호출 **전** 의 rec.0x998
+    /// ★완전 재현 대조(sret 3워드). `snap` = 훅 진입 시 복사한 StdRng 상태.
+    pub static FULL: super::Stat = super::Stat::new();
+    static FULL_LOG: AtomicU64 = AtomicU64::new(0);
+    pub unsafe fn cmp_full(game_tag: u64, r1: u64, r2: u64, p4: usize, p7: usize, snap: usize) {
+        FULL.entered.fetch_add(1, Ordering::Relaxed); FULL.n.fetch_add(1, Ordering::Relaxed);
+        let mine = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| crate::judge::port::ability_pick::pick(p4, p7, snap))).unwrap_or(None);
+        let g = ((game_tag & 1), r1, r2);
+        let (tag, ok) = match mine { None => ("NA", false), Some(m) => if m.0 == g.0 && (m.0 == 0 || (m.1 == g.1 && m.2 == g.2)) { ("OK", true) } else { ("DIFF", false) } };
+        match tag { "NA" => { FULL.na.fetch_add(1, Ordering::Relaxed); } "OK" => { FULL.ok.fetch_add(1, Ordering::Relaxed); } _ => { FULL.diff.fetch_add(1, Ordering::Relaxed); } }
+        if !ok { let k = FULL_LOG.fetch_add(1, Ordering::Relaxed); if k < 40 || (k % 512 == 0 && k < 512 * 100) {
+            let diag = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| crate::judge::port::ability_pick::diag(p4, p7))).unwrap_or_default();
+            let line = format!("[ability_pick_full #{} tid={}] {} game={:?} mine={:?} | rng.idx={} | {}\n", FULL.n.load(Ordering::Relaxed), crate::judge::cur_tid(), tag, g, mine, crate::rd_u64(snap + 0x100).unwrap_or(0), format!("game_db[{}]={} mine_db[{}]={} | {}", r2, crate::judge::port::ability_pick::db_entry(p7, r2), mine.map(|m| m.2).unwrap_or(0), crate::judge::port::ability_pick::db_entry(p7, mine.map(|m| m.2).unwrap_or(0)), diag));
+            if let Some(p) = crate::pth("judge_ability_pick_full.txt") { let _ = std::fs::OpenOptions::new().create(true).append(true).open(p).and_then(|mut f| { use std::io::Write; f.write_all(line.as_bytes()) }); }
+        } }
+    }
     pub unsafe fn cmp2(game_tag: u64, r1: u64, r2: u64, pre_gold: u64, p4: usize, p7: usize) {
         ST.entered.fetch_add(1, Ordering::Relaxed); ST.n.fetch_add(1, Ordering::Relaxed);
         match crate::judge::port::ability_pick::tag(p4, p7) {
@@ -1231,7 +1253,7 @@ judge_hook_out!(serpen_hb_hook, crate::judge::gen_fns::SERPEN_HUNT_BATTLE, crate
 
 /// 등록된 훅 전부(status 덤프용). 훅을 늘리면 여기와 install() 에 한 줄씩.
 pub fn stats() -> Vec<(&'static str, &'static Stat)> {
-    vec![(STEAL_SCORE.name, &steal_hook::ST), (ABILITY_PICK.name, &cap_ability_pick::ST), ("ability_pick_tag", &ab_tag::ST), (RECENTLY_SEEN.name, &cap_recent_seen::ST), (DN_CACHE.name, &cap_dn_cache::ST), (DEFENSE_NEXUS.name, &defense_nexus_hook::ST), (EST_DAMAGE.name, &cap_est_dmg::ST), (PASSIVE_JUNGLE.name, &passive_jungle_hook::ST), (SINGLE_LINE.name, &cap_single_line::ST), (OBJ_CAN_ATTACK.name, &cap_obj_can_attack::ST), (OBJ_ENGAGE_GATE.name, &cap_obj_engage_gate::ST), (OBJ_POKE_GATE.name, &cap_obj_poke_gate::ST), (OBJ_COULD_ARRIVE.name, &cap_obj_could_arrive::ST), (BASE_SCORE.name, &cap_base_score::ST), (COMBAT_SCORE.name, &cap_combat_score::ST), (AS_C88300.name, &cap_as_c88300_out::ST), (AS_E23170.name, &cap_as_e23170::ST), (AS_D84DB0.name, &cap_as_d84db0::ST), (AS_D96D00.name, &cap_as_d96d00::ST), (AS_D851D0.name, &cap_as_d851d0::ST), (AS_E04400.name, &cap_as_e04400::ST), (AS_EB82D0.name, &cap_as_eb82d0::ST), (AS_E0E890.name, &cap_as_e0e890::ST), (AS_D83230.name, &cap_as_d83230::ST), (A0_FOLD.name, &cap_a0_fold::ST), (V55_SPIRIT.name, &cap_v55_spirit::ST), (ABMS.name, &cap_abms::ST), (NCSV.name, &cap_ncsv::ST), (NCSW.name, &cap_ncsw::ST), (DFFA10.name, &cap_dffa10::ST), (TDB.name, &cap_tdb::ST), (DEFC.name, &cap_defc::ST), (V54_AOE.name, &cap_v54_aoe::ST), (MW_RISK.name, &cap_mw_risk::ST), (V55_MARK.name, &cap_v55_mark::ST), (V55_SEAL.name, &cap_v55_seal::ST), (V55_BANISH.name, &cap_v55_banish::ST), (AS_132B310.name, &cap_as_132b310::ST), (UTIL_C87FE0.name, &cap_util_c87fe0::ST), (BATTLE_ARM9.name, &battle_hook::ST), (EPIC_HUNT_POKE.name, &epic_hp_hook::ST), (SERPEN_HUNT_POKE.name, &serpen_hp_hook::ST),
+    vec![(STEAL_SCORE.name, &steal_hook::ST), (ABILITY_PICK.name, &cap_ability_pick::ST), ("ability_pick_tag", &ab_tag::ST), ("ability_pick_full", &ab_tag::FULL), (RECENTLY_SEEN.name, &cap_recent_seen::ST), (DN_CACHE.name, &cap_dn_cache::ST), (DEFENSE_NEXUS.name, &defense_nexus_hook::ST), (EST_DAMAGE.name, &cap_est_dmg::ST), (PASSIVE_JUNGLE.name, &passive_jungle_hook::ST), (SINGLE_LINE.name, &cap_single_line::ST), (OBJ_CAN_ATTACK.name, &cap_obj_can_attack::ST), (OBJ_ENGAGE_GATE.name, &cap_obj_engage_gate::ST), (OBJ_POKE_GATE.name, &cap_obj_poke_gate::ST), (OBJ_COULD_ARRIVE.name, &cap_obj_could_arrive::ST), (BASE_SCORE.name, &cap_base_score::ST), (COMBAT_SCORE.name, &cap_combat_score::ST), (AS_C88300.name, &cap_as_c88300_out::ST), (AS_E23170.name, &cap_as_e23170::ST), (AS_D84DB0.name, &cap_as_d84db0::ST), (AS_D96D00.name, &cap_as_d96d00::ST), ("siege_stance", &port::position_eval::SIEGE_ST), (AS_D851D0.name, &cap_as_d851d0::ST), (AS_E04400.name, &cap_as_e04400::ST), (AS_EB82D0.name, &cap_as_eb82d0::ST), (AS_E0E890.name, &cap_as_e0e890::ST), (AS_D83230.name, &cap_as_d83230::ST), (A0_FOLD.name, &cap_a0_fold::ST), (V55_SPIRIT.name, &cap_v55_spirit::ST), (ABMS.name, &cap_abms::ST), (NCSV.name, &cap_ncsv::ST), (NCSW.name, &cap_ncsw::ST), (DFFA10.name, &cap_dffa10::ST), (TDB.name, &cap_tdb::ST), (DEFC.name, &cap_defc::ST), (V54_AOE.name, &cap_v54_aoe::ST), (MW_RISK.name, &cap_mw_risk::ST), (V55_MARK.name, &cap_v55_mark::ST), (V55_SEAL.name, &cap_v55_seal::ST), (V55_BANISH.name, &cap_v55_banish::ST), (AS_132B310.name, &cap_as_132b310::ST), (UTIL_C87FE0.name, &cap_util_c87fe0::ST), (BATTLE_ARM9.name, &battle_hook::ST), (EPIC_HUNT_POKE.name, &epic_hp_hook::ST), (SERPEN_HUNT_POKE.name, &serpen_hp_hook::ST),
          (EPIC_HUNT_BATTLE.name, &epic_hb_hook::ST), (SERPEN_HUNT_BATTLE.name, &serpen_hb_hook::ST), (PASSIVE_LINE.name, &passive_line_hook::ST)]
 }
 

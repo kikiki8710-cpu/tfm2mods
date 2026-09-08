@@ -25,9 +25,21 @@ use std::cell::RefCell;
 
 /// 이름 문자열(`&str`) 을 DB 인덱스로. 게임은 TLS HashMap 캐시를 쓰지만(성능 전용) 여기서는
 /// **(db_ptr, db_len) 세대 + 이름 포인터** 로 키를 잡은 작은 메모로 대체한다 — 결과는 동일하다.
+/// ★[2026-09-08] 게임 `item_index_by_key`(g02.ll:157331) 의 TLS `ITEM_INDEX_MEMO` 와 **같은 규칙**으로 미러:
+///   유효키 = (db_len, db[0].vt58 바이트, db[len-1].vt58 바이트) — **db_ptr 은 키가 아니다**. 불일치 시 전체 재구축,
+///   같은 이름이 여러 번이면 **첫 인덱스 승리**(`entry().or_insert`). 첫 판 DIFF 87(game=13/mine=74) 은 (db_ptr,len) 키로
+///   재구축 시점이 게임과 달랐던 것이 의심되어 규칙을 맞춘다.
 thread_local! {
-    static NAME_MEMO: RefCell<(usize, u64, Vec<((usize, u64), Option<u64>)>)> =
-        const { RefCell::new((0, 0, Vec::new())) };
+    static NAME_MEMO: RefCell<(u64, Vec<u8>, Vec<u8>, std::collections::HashMap<Vec<u8>, u64>)> =
+        RefCell::new((u64::MAX, Vec::new(), Vec::new(), std::collections::HashMap::new()));
+}
+unsafe fn key_bytes(db_ptr: usize, j: u64) -> Option<Vec<u8>> {
+    let e = db_ptr + j as usize * 0x10;
+    let (cd, cv) = (rd_u64(e)? as usize, rd_u64(e + 8)? as usize);
+    if !ptr_ok(cd) || !ptr_ok(cv) { return None; }
+    let (bp, bl) = str_of(g_ptr(cv, 0x58, cd)?)?;
+    if bl > 4096 { return None; } if bl != 0 && !ptr_ok(bp) { return None; }
+    Some((0..bl as usize).map(|i| rd_u8(bp + i)).collect())
 }
 
 /// `vt+slot` 이 돌려주는 u64(단순 게터). obj = **data 원본**.
@@ -75,27 +87,17 @@ unsafe fn bytes_eq(a: usize, b: usize, n: u64) -> Option<bool> {
 
 /// DB 에서 이름과 일치하는 첫 원소의 인덱스(`position`). 게임 `0x105fae0` 와 동치.
 unsafe fn lookup(db_ptr: usize, db_len: u64, name: (usize, u64)) -> Option<Option<u64>> {
-    // 세대 검사 후 메모 조회
-    let hit = NAME_MEMO.with(|c| {
-        let m = c.borrow();
-        if m.0 == db_ptr && m.1 == db_len { m.2.iter().find(|(k, _)| *k == name).map(|(_, v)| *v) } else { None }
-    });
-    if let Some(v) = hit { return Some(v); }
-    let mut found: Option<u64> = None;
-    for j in 0..db_len.min(4096) {
-        let e = db_ptr + j as usize * 0x10;
-        let (cd, cv) = (rd_u64(e)? as usize, rd_u64(e + 8)? as usize);
-        if !ptr_ok(cd) || !ptr_ok(cv) { return None; }
-        let sp = g_ptr(cv, 0x58, cd)?;
-        let (bp, bl) = str_of(sp)?;
-        if bl == name.1 && bytes_eq(bp, name.0, bl)? { found = Some(j); break; }
+    if db_len == 0 { return Some(None); }
+    let first = key_bytes(db_ptr, 0)?; let last = key_bytes(db_ptr, db_len - 1)?;
+    let valid = NAME_MEMO.with(|c| { let m = c.borrow(); m.0 == db_len && m.1 == first && m.2 == last });
+    if !valid {
+        let mut map: std::collections::HashMap<Vec<u8>, u64> = std::collections::HashMap::with_capacity(db_len.min(4096) as usize);
+        for j in 0..db_len.min(4096) { let k = key_bytes(db_ptr, j)?; map.entry(k).or_insert(j); }
+        NAME_MEMO.with(|c| { *c.borrow_mut() = (db_len, first, last, map); });
     }
-    NAME_MEMO.with(|c| {
-        let mut m = c.borrow_mut();
-        if m.0 != db_ptr || m.1 != db_len { *m = (db_ptr, db_len, Vec::new()); }
-        if m.2.len() < 4096 { m.2.push((name, found)); }
-    });
-    Some(found)
+    if name.1 > 4096 { return None; }
+    let nb: Vec<u8> = (0..name.1 as usize).map(|i| rd_u8(name.0 + i)).collect();
+    Some(NAME_MEMO.with(|c| c.borrow().3.get(&nb).copied()))
 }
 
 
@@ -195,4 +197,54 @@ pub unsafe fn db_entry(g: usize, idx: u64) -> String {
         Some(format!("{}:av{} t{} p{}", nm, av, ti, pr))
     };
     f().unwrap_or_else(|| "NA".into())
+}
+
+/// ★[2026-09-08] `upgrade_item`(0xe7a8c0, IR m14.ll:6620) **완전 재현** — sret `(tag, own_idx, db_idx)`.
+///   후보 = 보유 아이템 i 의 `vt+0x80` 이름 목록 순으로 db 조회 → 가용(vt+0x50) · 티어(vt+0x70) > max_tier · 가격(vt+0x68) ≤ 골드 인 (i, db_idx).
+///   비면 tag 0. 아니면 `StdRng::gen_range(0..n)`(rand 0.8 Lemire, u64 2워드 경로)로 인덱스 → tag 1.
+///   `rng_state` = 훅 진입 시 **복사해 둔** StdRng 상태(0x140B; 게임이 소비하기 전 값) — `crate::RngSim` 이 그 복사본을 읽는다.
+pub unsafe fn pick(p5: usize, g: usize, rng_state: usize) -> Option<(u64, u64, u64)> {
+    if !ptr_ok(p5) || !ptr_ok(g) { return None; }
+    let own_len = rd_u64(p5 + 0x4a8)?; if own_len > 4096 { return None; }
+    let own_ptr = rd_u64(p5 + 0x4a0)? as usize;
+    if own_len != 0 && !ptr_ok(own_ptr) { return None; }
+    let db = rd_u64(g + 0x30)? as usize; if !ptr_ok(db) { return None; }
+    let (db_ptr, db_len) = (rd_u64(db + 8)? as usize, rd_u64(db + 0x10)?);
+    if db_len != 0 && !ptr_ok(db_ptr) { return None; }
+    let gold = rd_u64(p5 + 0x998)?;
+    let mut max_tier: u64 = 0;
+    for i in 0..own_len as usize {
+        let e = own_ptr + i * 0x10;
+        let (d, v) = (rd_u64(e)? as usize, rd_u64(e + 8)? as usize);
+        if !ptr_ok(d) || !ptr_ok(v) { return None; }
+        let t = g_u64(v, 0x70, d)?;
+        if t <= 3 && t > max_tier { max_tier = t; }
+    }
+    let mut cands: Vec<(u64, u64)> = Vec::new();
+    for i in 0..own_len as usize {
+        let e = own_ptr + i * 0x10;
+        let (d, v) = (rd_u64(e)? as usize, rd_u64(e + 8)? as usize);
+        let names = g_ptr(v, 0x80, d)?;
+        let (nptr, nlen) = (rd_u64(names + 8)? as usize, rd_u64(names + 0x10)?);
+        if nlen > 4096 { return None; }
+        if nlen != 0 && !ptr_ok(nptr) { return None; }
+        for k in 0..nlen as usize {
+            let name = str_of(nptr + k * 0x18)?;
+            if name.1 != 0 && !ptr_ok(name.0) { return None; }
+            let idx = match lookup(db_ptr, db_len, name)? { Some(x) => x, None => continue };
+            if idx >= db_len { return None; }
+            let c = db_ptr + idx as usize * 0x10;
+            let (cd, cv) = (rd_u64(c)? as usize, rd_u64(c + 8)? as usize);
+            if !ptr_ok(cd) || !ptr_ok(cv) { return None; }
+            if g_u64(cv, 0x50, cd)? & 1 == 0 { continue; }
+            if g_u64(cv, 0x70, cd)? <= max_tier { continue; }
+            if g_u64(cv, 0x68, cd)? > gold { continue; }
+            cands.push((i as u64, idx));
+        }
+    }
+    if cands.is_empty() { return Some((0, 0, 0)); }
+    let mut rng = crate::RngSim::new(rng_state)?;
+    let j = rng.gen_range(0, cands.len() as u64 - 1)? as usize;
+    if j >= cands.len() { return None; }
+    Some((1, cands[j].0, cands[j].1))
 }

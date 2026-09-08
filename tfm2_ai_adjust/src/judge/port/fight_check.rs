@@ -135,7 +135,7 @@ unsafe fn def_dmg(att: usize, tgt: usize, mut amount: u64, flag: u32) -> Option<
     let v = amount.wrapping_mul(100) / resist; Some(if v == 0 { 1 } else { v })
 }
 /// 효과 vt+0x80(data, G, e=공격자, self) → DPS 기여 (구현체별, 디컴 2026-09-06 20:25). 미재현 → unseen(0x180)
-unsafe fn eff80_dps(rva: usize, d: usize, e: usize, me: usize, tps: u64) -> Option<u64> {
+pub(super) unsafe fn eff80_dps(rva: usize, d: usize, e: usize, me: usize, tps: u64) -> Option<u64> {
     match rva {
         EFF_E8_ZERO => Some(0),
         0x16b96e0 => {
@@ -238,7 +238,7 @@ unsafe fn effs_sum(ent: usize, slot: usize, other: usize, tps: u64) -> Option<u6
     Some(acc)
 }
 /// 술어 3종(0x129ed50 / 0x128cf70 / 0x129d130): "지금 스킬 k 시전 가능"
-unsafe fn pred_skill(e: usize, k: u32) -> Option<bool> {
+pub(super) unsafe fn pred_skill(e: usize, k: u32) -> Option<bool> {
     let (_, h4, h5, bad) = buff_kinds(e)?; if h4 { return Some(false); }
     let lv = rd_u64(e + ENT_LEVEL)?;
     let (slot, cd_off, prov_off, chg_off, has_slot) = match k {
@@ -260,7 +260,7 @@ unsafe fn pred_skill(e: usize, k: u32) -> Option<bool> {
     Some(has_slot)
 }
 /// 공격간격 = max(3, prov(0x570).vt90*100 / max(1, (i32)e.3fc+100))
-unsafe fn atk_interval(e: usize) -> Option<u64> {
+pub(super) unsafe fn atk_interval(e: usize) -> Option<u64> {
     let (pd, pv) = prov(e, PROV_ATK)?; let base = dy::prov90_cooltime(pd, pv, e)?;
     let t = (rd_i32(e + ENT_3FC)? as i64).wrapping_add(100); let t = if t < 2 { 1 } else { t } as u64;
     Some((base.wrapping_mul(100) / t).max(3))

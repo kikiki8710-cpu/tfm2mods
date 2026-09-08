@@ -391,6 +391,25 @@ pub fn dive_cmp_report() -> String {
 }
 pub fn dive_lookup(side: u64, th: u64, tick: u64) -> Option<(u64, u64)> { DIVE.with(|c| { let (a, n) = c.get(); (n.saturating_sub(32)..n).rev().map(|i| a[i % 32]).find(|e| e.0 == side && e.1 == th && e.2 == tick).map(|e| (e.3, e.4)) }) }
 /// 훅에서 부른다: p1=mode p2=&Holder p3=sim p4=tower
+/// ★[2026-09-08] `v47_siege_stance` 순수 재현 오라클 — 훅 반환 (r=tag, d=handle) 과 `fight_model::siege_stance` 를 호출마다 대조.
+pub static SIEGE_ST: crate::judge::Stat = crate::judge::Stat::new();
+static SIEGE_LOG: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(0);
+static SIEGE_LOG_D: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(0);
+pub unsafe fn siege_oracle(p1: usize, p2: usize, p3: usize, p4: usize, r: u64, d: u64) {
+    use std::sync::atomic::Ordering;
+    SIEGE_ST.entered.fetch_add(1, Ordering::Relaxed); SIEGE_ST.n.fetch_add(1, Ordering::Relaxed);
+    let mine = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| super::fight_model::siege_stance(p1 as u64, p2, p3, p4))).unwrap_or(None);
+    let game = ((r & 1), if r & 1 == 1 { d } else { 0 });
+    let (tag, ok) = match mine { None => ("NA", false), Some(m) => if m.0 == game.0 && (m.0 == 0 || m.1 == game.1) { ("OK", true) } else { ("DIFF", false) } };
+    match tag { "NA" => { SIEGE_ST.na.fetch_add(1, Ordering::Relaxed); } "OK" => { SIEGE_ST.ok.fetch_add(1, Ordering::Relaxed); } _ => { SIEGE_ST.diff.fetch_add(1, Ordering::Relaxed); } }
+    if !ok { let k = (if tag == "DIFF" { &SIEGE_LOG_D } else { &SIEGE_LOG }).fetch_add(1, Ordering::Relaxed); if k < 40 || (k % 512 == 0 && k < 512 * 200) {
+        let (na, ne, line, net) = super::fight_model::SIEGE_LAST.with(|c| c.get());
+        let line = format!("[siege #{} tid={}] {} game=({},{:#x}) mine={:?} | p1={} p2={:#x} p3={:#x} p4={:#x} | allies={} enemies={} line={} net={} phase={} side={}\n",
+            SIEGE_ST.n.load(Ordering::Relaxed), crate::judge::cur_tid(), tag, game.0, game.1, mine, p1, p2, p3, p4, na, ne, line, net,
+            rd_u64(p2 + 8).map(|c| rd_u8(c as usize + 0x38)).unwrap_or(99), rd_u64(p3 + P5_SIDE).unwrap_or(9));
+        if let Some(p) = crate::pth("judge_siege.txt") { let _ = std::fs::OpenOptions::new().create(true).append(true).open(p).and_then(|mut f| { use std::io::Write; f.write_all(line.as_bytes()) }); }
+    } }
+}
 pub unsafe fn dive_record(p2: usize, p3: usize, p4: usize, r: u64, d: u64, rbp: usize, ra: usize, gbx: u64) {
     // ★진짜 필터 = 반환주소. position_eval 본체의 콜사이트는 `call 0xd96d00` @0xd88043 → 복귀 0xd88048.
     //   다른 함수에서 온 호출은 프레임이 달라 [rbp+…] 이 전부 쓰레기다.
@@ -719,7 +738,7 @@ unsafe fn list_iter<F: FnMut(usize, usize) -> Option<()>>(ptr: usize, len: u64, 
     if len == 0 { return Some(()); } if !ptr_ok(ptr) { return None; }
     for i in 0..len.min(CAP_ITER) as usize { f(rd_u64(ptr + i * stride)? as usize, rd_u64(ptr + i * stride + 8)? as usize)?; } Some(())
 }
-unsafe fn eff48_shield(data: usize, vt: usize, src: usize) -> Option<u64> {
+pub(super) unsafe fn eff48_shield(data: usize, vt: usize, src: usize) -> Option<u64> {
     let r = dy::impl_rva(vt, 0x48)?; let p = dy::arc_payload(data, vt)?;
     match r {
         EFF_E8_ZERO => Some(0),

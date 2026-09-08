@@ -610,7 +610,7 @@ unsafe fn st_p0(me: usize) -> Option<bool> {
     Some(rd_u64(me + off)? == 0)
 }
 /// `0x12a0180` — 타깃 필터. sel = `slotN+0x28`(u32)
-unsafe fn st_valid_target(sel: u32, me: usize, tgt: usize) -> Option<bool> {
+pub(super) unsafe fn st_valid_target(sel: u32, me: usize, tgt: usize) -> Option<bool> {
     if !(rd_u8(tgt + 0x6b9) == 1 && rd_u64(tgt + 0x6a0)? == 0) { return Some(false); }
     let (a0, a8) = (rd_u64(me)?, rd_u64(me + 8)?);
     let (b0, b8) = (rd_u64(tgt)?, rd_u64(tgt + 8)?);
