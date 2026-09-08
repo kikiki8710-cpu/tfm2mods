@@ -1618,7 +1618,7 @@ pub unsafe fn e01c40(b: &BCtx, subject: usize) -> Option<(bool, bool)> {
     let agents = rd_u64(b.ctx + 0x10)? as usize; if !ptr_ok(agents) { return None; }
     let cfg = rd_u64(b.sim + 8)? as usize; if !ptr_ok(cfg) { return None; }
     let tps = rd_u64(cfg + 0x12f8)?;
-    let now = rd_u64(wd + W_TICK)?;
+    let now = w.tick()?;
     let side = rd_u64(b.rec + 0x930)?; if side > 1 { return None; }
     let eside = 1 - side;
 
@@ -1668,7 +1668,7 @@ pub unsafe fn e03360(b: &BCtx, e3: usize, e4: usize) -> Option<u8> {
     let agents = rd_u64(b.ctx + 0x10)? as usize; if !ptr_ok(agents) { return None; }
     let side = rd_u64(b.rec + 0x930)?; if side > 1 { return None; }
     let opp = 1 - side;
-    let now = rd_u64(wd + W_TICK)?;
+    let now = w.tick()?;
 
     let reach_of = |e: usize| -> Option<i64> {
         let base = if rd_i32(e + 0x4c0)? == -1 { 0 }

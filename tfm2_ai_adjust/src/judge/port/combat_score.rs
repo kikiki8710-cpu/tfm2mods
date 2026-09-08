@@ -87,11 +87,11 @@ thread_local! { pub static TSD: std::cell::Cell<[i64; 8]> = const { std::cell::C
 ///   같은 키로 다시 조회해 `a8` 의 정답을 직접 본다(pre 시점엔 항상 미스라 알 수 없었다).
 thread_local! { pub static POSK: std::cell::Cell<(usize, usize, usize, u64, u64)> = const { std::cell::Cell::new((0, 0, 0, 0, 0)) }; }
 /// pos 블록 진입 시의 tick — 사후 조회 때와 같은 틱인지 본다(다르면 원인은 "상태가 변했다"가 아니라 "틱이 넘어갔다")
-thread_local! { pub static POSTICK: std::cell::Cell<(u64, usize)> = const { std::cell::Cell::new((0, 0)) }; }
+thread_local! { pub static POSTICK: std::cell::Cell<(u64, usize, usize)> = const { std::cell::Cell::new((0, 0, 0)) }; }
 pub unsafe fn pos_post_probe() -> (i64, i64, i64, i64) {
     let (mode, rec, ctx, qx, qy) = POSK.with(|c| c.get());
-    let (t0, wd) = POSTICK.with(|c| c.get());
-    let t1 = if wd != 0 { rd_u64(wd + W_TICK).unwrap_or(u64::MAX) } else { u64::MAX };
+    let (t0, wd, wv) = POSTICK.with(|c| c.get());
+    let t1 = if wd != 0 { crate::judge::world::game_tick(wd, wv).unwrap_or(u64::MAX) } else { u64::MAX };
     if ctx == 0 { return (i64::MIN, i64::MIN, t0 as i64, t1 as i64); }
     let m = super::position_eval::memo_lookup(mode, rec, ctx, qx as usize, qy as usize, 0xc).map(|w| w[0] as i64);
     let r = super::position_eval::position_eval(mode as u64, rec, ctx, qx, qy, 0xc).map(|o| o.a);
@@ -954,7 +954,7 @@ unsafe fn combat_score_inner(mode: usize, _prof: usize, rec: usize, ctx: usize, 
     if me == 0 { return None; }
     let cfg = rd_u64(sim + 8)? as usize; if !ptr_ok(cfg) { return None; }
     let tps = rd_u64(cfg + CFG_TPS)?;
-    let now = rd_u64(w.data + W_TICK)?;
+    let now = w.tick()?;
     let (hp, maxhp) = (rd_u64(me + ENT_HP)?, rd_u64(me + ENT_MAXHP)?);
     let urgent = if rd_u8(me + ENT_488) != 0 { true }
         else if mode < 2 { false }
@@ -1163,7 +1163,7 @@ unsafe fn combat_score_inner(mode: usize, _prof: usize, rec: usize, ctx: usize, 
         }
         S5D.with(|c| { let mut z = c.get(); z[21] = pmask; z[22] = pfirst; c.set(z); });
         POSK.with(|c| c.set((mode, rec, ctx, qx8, qy8)));
-        POSTICK.with(|c| c.set((rd_u64(w.data + W_TICK).unwrap_or(0), w.data)));
+        POSTICK.with(|c| c.set((w.tick().unwrap_or(0), w.data, w.vt)));
         let a8_memo = super::position_eval::memo_lookup(mode, rec, ctx, qx8 as usize, qy8 as usize, 0xc).map(|w| w[0] as i64);
         let a8_repro = super::position_eval::position_eval(mode as u64, rec, ctx, qx8, qy8, 0xc).map(|o| o.a);
         // 둘이 갈리는지 계측 — 갈린다면 어느 쪽이 게임인지 DIFF 가 말해 준다
@@ -1559,7 +1559,7 @@ unsafe fn special_early(ctx: usize, _rec: usize, me: usize, sp: usize, tgt: usiz
     if !ptr_ok(w.data) || !ptr_ok(w.vt) { return None; }
     // ★side 의 정본은 `rec+0x930` 이다(~~`me+8`~~ 은 우연히 같았을 뿐).
     let side = rd_u64(_rec + REC_SIDE)?; if side > 1 { return None; }
-    let now = rd_u64(w.data + W_TICK)?;
+    let now = w.tick()?;
     let v: i64 = match tid {
         // ★★arm 마다 보는 엔티티가 다르다 — d30 은 **tgt**(RSI), d40/d60 은 **me**(RDI).
         //   ~~전부 뒤바꿔 쓰고 있었다~~ (RE 2026-09-08 콜러 `0xd5bde8` 인자 매핑).

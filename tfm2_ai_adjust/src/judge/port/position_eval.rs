@@ -225,7 +225,7 @@ pub unsafe fn position_eval(mode: u64, sim: usize, holder: usize, qx: u64, qy: u
         if inb { 9999 } else { 0 }
     };
     // S2
-    let tick = rd_u64(w.data + W_TICK)?;
+    let tick = w.tick()?;
     let (emask, amask) = match masks(&w, lanes, sim, side, eside, tick) { Some(v) => v, None => { trs(|| "NA:masks".into()); pmark("masks"); return None } };
     trs(|| format!("M[e={:#x} a={:#x}]", emask, amask));
     let tbl_a = x + 0x280 + (side as usize) * 0xfa0 + role * 0x320;
@@ -405,7 +405,7 @@ pub unsafe fn dive_record(p2: usize, p3: usize, p4: usize, r: u64, d: u64, rbp: 
     //   (`0xd88043` 은 이미지 전역에서 유일한 진입로이고 우회 분기 0건, RE 2026-09-07 13:0x).
     if !ptr_ok(rbp) { return; }
     let x = rd_u64(p2).unwrap_or(0) as usize; let data = if ptr_ok(x) { rd_u64(x).unwrap_or(0) as usize } else { 0 };
-    let tick = if ptr_ok(data) { rd_u64(data + W_TICK).unwrap_or(0) } else { 0 };
+    let tick = if ptr_ok(data) { crate::judge::world::game_tick(data, rd_u64(x + 8).unwrap_or(0) as usize).unwrap_or(0) } else { 0 };
     let q = if ptr_ok(rbp) { (rd_u64(rbp + 0x7a0).unwrap_or(0), rd_u64(rbp + 0x7a8).unwrap_or(0), rd_u64(rbp + 0x718).unwrap_or(0)) } else { (0, 0, 0) };
     let g = |o: usize| if ptr_ok(rbp) { rd_u64(rbp + o).unwrap_or(u64::MAX) } else { 0 };
     let f = [g(0x378), g(0x380), g(0x388), g(0x390), g(0x3d8), g(0x3e0), g(0x408), g(0x720)];
@@ -1552,7 +1552,8 @@ pub unsafe fn memo_lookup(mode: usize, sim: usize, holder: usize, qx: usize, qy:
         if !ptr_ok(sim) || !ptr_ok(holder) { return None; }
         let x = rd_u64(holder)? as usize; if !ptr_ok(x) { return None; }
         let data = rd_u64(x)? as usize; if !ptr_ok(data) { return None; }
-        let (seed, tick) = (rd_u64(data + W_SEED)?, rd_u64(data + W_TICK)?);
+        let wv = rd_u64(x + 8)? as usize;
+        let (seed, tick) = (crate::judge::world::game_seed(data, wv)?, crate::judge::world::game_tick(data, wv)?);
         let cell = wrap_cell()?;
         if rd_u8(cell + 0x18) != 1 || rd_u64(cell)? != 0 { return None; }
         if rd_u64(cell + 0x10)? != seed { return None; }
@@ -1586,7 +1587,7 @@ pub fn pe_eq(g: &[u64; 9], m: &[u64; 9]) -> bool { g[..6] == m[..6] && (g[6] & 0
 /// 진단 문자열(DIFF 로그용)
 pub unsafe fn diag(p2: usize, p3: usize, p4: usize) -> String {
     let side = rd_u64(p3 + P5_SIDE).unwrap_or(9); let role = if ptr_ok(p3) { rd_u32(p3 + P5_ROLE) } else { 99 };
-    let x = rd_u64(p4).unwrap_or(0) as usize; let tick = if ptr_ok(x) { rd_u64(x).and_then(|d| rd_u64(d as usize + W_TICK)).unwrap_or(0) } else { 0 };
+    let x = rd_u64(p4).unwrap_or(0) as usize; let tick = if ptr_ok(x) { rd_u64(x).and_then(|d| crate::judge::world::game_tick(d as usize, rd_u64(x + 8).unwrap_or(0) as usize)).unwrap_or(0) } else { 0 };
     let unseen = dy::unseen_report(); let un: Vec<&str> = unseen.lines().skip(1).take(4).collect();
     let (p5, p6, p7) = LAST_ARGS.with(|c| c.get());
     TRACE.with(|t| *t.borrow_mut() = Some(String::new()));

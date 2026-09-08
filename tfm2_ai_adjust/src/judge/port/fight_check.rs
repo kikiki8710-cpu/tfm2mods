@@ -293,7 +293,7 @@ pub unsafe fn fight_check(p1: u64, holder: usize, sim: usize, me: usize, a: usiz
     let cfg = rd_u64(g + 8)? as usize; if !ptr_ok(cfg) { return None; }
     let meh = rd_u64(me + ENT_HANDLE)?;
     let rec = sim_of_handle(x, meh)?; if rec == 0 { return None; }
-    let tps = rd_u64(cfg + CFG_TPS)?; let tick = rd_u64(w.data + W_TICK)?;
+    let tps = rd_u64(cfg + CFG_TPS)?; let tick = w.tick()?;
     let d = (if tps == 0 { 1 } else { tps }).wrapping_mul(2);
     let q = ((rd_i64(sim + SIM_450)?).wrapping_mul(rd_i64(sim + SIM_218)?)) as u64 / 1000;
     let c = q.min(100); let span0 = 900u64.wrapping_sub(c.wrapping_mul(9)); let mid = 1000u64.wrapping_sub(span0 >> 1); let span = span0 | 1;
@@ -386,10 +386,24 @@ pub unsafe fn fight_check(p1: u64, holder: usize, sim: usize, me: usize, a: usiz
 }
 
 // ── 메모 래퍼(0xeb82d0) 미러: 에포크 (seed, tick) + 키
-#[derive(Clone, Copy, PartialEq, Eq)]
+//   ★[2026-09-08] 게임 `DieTickCache` = `HashMap<DieTickKey, usize>` **무제한** + 에포크 (seed=+0xec90, tick=+0xec98; Game/SingleLane/DeathMatch 동일, g15.ll:190300).
+//   ~~Vec 1,024 상한~~ 은 한 틱에 키가 1,024 개를 넘는 구간(presim 버스트)에서 게임은 stale 캐시값·나는 새 계산 → "한 스레드·한 구간" DIFF 버스트(192/434/682 실측).
+#[derive(Clone, Copy, PartialEq, Eq, Hash)]
 struct Key { a: [u64; 8], b: [u64; 12], p1: u64, k928: u64, selfh: u64, la: u8, lb: u8 }
-thread_local! { pub static LAST: std::cell::Cell<[u64; 10]> = const { std::cell::Cell::new([0; 10]) }; pub static TERMS: std::cell::RefCell<String> = const { std::cell::RefCell::new(String::new()) }; static MEMO: std::cell::RefCell<((u64, u64), Vec<(Key, u64)>)> = const { std::cell::RefCell::new(((0, 0), Vec::new())) }; }
+thread_local! { pub static LAST: std::cell::Cell<[u64; 10]> = const { std::cell::Cell::new([0; 10]) }; pub static TERMS: std::cell::RefCell<String> = const { std::cell::RefCell::new(String::new()) }; static MEMO: std::cell::RefCell<((u64, u64), std::collections::HashMap<Key, u64>)> = std::cell::RefCell::new(((0, 0), std::collections::HashMap::new())); }
 pub fn memo_reset() { MEMO.with(|c| { let mut m = c.borrow_mut(); m.0 = (0, 0); m.1.clear(); }); }
+/// 옛 상한(1,024)을 넘긴 삽입 수 · 한 에포크 최대 엔트리 수 — 버스트 가설 확증용
+pub static MEMO_OVER: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(0);
+pub static MEMO_MAX: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(0);
+pub static MISS_N: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(0);
+pub static MISS_DIFF: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(0);
+pub fn memo_cap_report() -> String {
+    let (o, m) = (MEMO_OVER.load(std::sync::atomic::Ordering::Relaxed), MEMO_MAX.load(std::sync::atomic::Ordering::Relaxed));
+    if m == 0 { return String::new(); }
+    format!("[fight_check memo] 에포크당 최대 엔트리 {} · 옛 상한(1024) 초과 삽입 {} · miss {} 중 재현≠게임 {}
+", m, o,
+        MISS_N.load(std::sync::atomic::Ordering::Relaxed), MISS_DIFF.load(std::sync::atomic::Ordering::Relaxed))
+}
 /// eb82d0(p1, _, holder, sim, self, &A, &B) 계약 그대로. lenA<9 && lenB<13 이면 메모, 아니면 직접 계산.
 pub unsafe fn fight_check_memo(p1: u64, holder: usize, sim: usize, me: usize, a: usize, b: usize) -> Option<u64> {
     if !ptr_ok(holder) || !ptr_ok(a) || !ptr_ok(b) || !ptr_ok(sim) || !ptr_ok(me) { return None; }
@@ -397,14 +411,23 @@ pub unsafe fn fight_check_memo(p1: u64, holder: usize, sim: usize, me: usize, a:
     if !(la < 9 && lb < 13) { return fight_check(p1, holder, sim, me, a, b); }
     let x = rd_u64(holder)? as usize; if !ptr_ok(x) { return None; }
     let wd = rd_u64(x)? as usize; if !ptr_ok(wd) { return None; }
-    let epoch = (rd_u64(wd + W_SEED_EC90)?, rd_u64(wd + W_TICK)?);
+    let wv = rd_u64(x + 8)? as usize; if !ptr_ok(wv) { return None; }
+    let epoch = (crate::judge::world::game_seed(wd, wv)?, crate::judge::world::game_tick(wd, wv)?);
     let mut key = Key { a: [0; 8], b: [0; 12], p1, k928: rd_u64(sim + P5_MEMO_KEY)?, selfh: rd_u64(me + ENT_HANDLE)?, la: la as u8, lb: lb as u8 };
     let ap = rd_u64(a)? as usize; for i in 0..la as usize { let e = rd_u64(ap + i * 8)? as usize; key.a[i] = rd_u64(e + ENT_HANDLE)?; }
     let bp = rd_u64(b)? as usize; for i in 0..lb as usize { let e = rd_u64(bp + i * 8)? as usize; key.b[i] = rd_u64(e + ENT_HANDLE)?; }
-    let hit = MEMO.with(|c| { let mut m = c.borrow_mut(); if m.0 != epoch { m.0 = epoch; m.1.clear(); } m.1.iter().find(|e| e.0 == key).map(|e| e.1) });
+    let hit = MEMO.with(|c| { let mut m = c.borrow_mut(); if m.0 != epoch { m.0 = epoch; m.1.clear(); } m.1.get(&key).copied() });
     if let Some(v) = hit { TERMS.with(|c| *c.borrow_mut() = " (memo hit — terms stale)".into()); return Some(v); }
     let v = fight_check(p1, holder, sim, me, a, b)?;
-    MEMO.with(|c| { let mut m = c.borrow_mut(); if m.1.len() < 1024 { m.1.push((key, v)); } });
+    // ★[2026-09-08] miss 에서만 재현값을 대조하고, 캐시엔 **게임 반환값**을 넣는다(DieTickCache 미러 = 게임이 그 틱에 실제로 굳힌 값).
+    //   실측: 잔여 DIFF 전부가 "내 memo hit ↔ 게임 cache hit" 인데 채운 시점의 상태가 달라(dps 833 vs ~820) 틱 내내 1~10 어긋남 = 채움 시점 레이스.
+    let gr = crate::judge::GAME_R.with(|c| c.get());
+    if gr != u64::MAX && gr != v { MISS_DIFF.fetch_add(1, std::sync::atomic::Ordering::Relaxed); }
+    MISS_N.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+    let store = if gr != u64::MAX { gr } else { v };
+    MEMO.with(|c| { let mut m = c.borrow_mut(); m.1.insert(key, store);
+        let n = m.1.len() as u64; MEMO_MAX.fetch_max(n, std::sync::atomic::Ordering::Relaxed);
+        if n > 1024 { MEMO_OVER.fetch_add(1, std::sync::atomic::Ordering::Relaxed); } });
     Some(v)
 }
 /// 진단 문자열(DIFF/NA 줄)

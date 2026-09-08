@@ -65,7 +65,7 @@ pub unsafe fn lane_pred(team_enemy: usize, data: usize, vt: usize, rec_self: usi
     let idx = rd_u32(rec + REC_ROLE) as usize;
     let last = rd_u64(team_enemy + LANE_ROSTER + idx * 8)?;
     // ★창(win) = 호출자가 준다: 검증 = 라이브 즉치(0x1323a5b, 노브 vw_check) / live = dd_lane_margin. 정적 0x78 은 cfg 90 일 때 2% 가 갈렸다(09-06).
-    Some((if last.wrapping_add(win) >= rd_u64(data + W_TICK)? { 2 } else { 0 }, last))
+    Some((if last.wrapping_add(win) >= w.tick()? { 2 } else { 0 }, last))
 }
 
 /// 0x16047b0 — 예측 억제 게이트(순수 해시). (A, B)
@@ -88,7 +88,7 @@ pub unsafe fn near_target_count(mem: usize, _p3: usize, _rng: usize, rec: usize,
     let hd = Holder::new(p6)?; let w = hd.world()?; let g = hd.g()?;
     let cfg = rd_u64(g.0 + G_CFG)? as usize; if !ptr_ok(cfg) || !ptr_ok(mem) || !ptr_ok(rec) { return None; }
     let tr = rd_u64(cfg + CFG_TPS)?;
-    let seed = rd_u64(w.data + W_SEED)?; let now = rd_u64(w.data + W_TICK)?;
+    let seed = w.seed()?; let now = w.tick()?;
     let (tag, _) = w.mode()?;
     if tag == 2 { return None; }                                           // RNG 경로(비-MOBA) — 재현 안 함
     if rd_u8(rec + REC_464) == 1 {

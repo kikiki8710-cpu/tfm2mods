@@ -63,7 +63,7 @@ pub unsafe fn count_enemy_seen(sim: usize, p6: usize, x: u64, y: u64, r: u64, hp
         let seen = if w.visible(side, h)? { true } else {
             let rec = w.roster_rec(h)?; if rec == 0 { false } else {
                 let last = rd_u64(ln + LANE_ROSTER + rd_u32(rec + REC_ROLE) as usize * 8)?;
-                rd_u64(w.data + W_TICK)? <= last.wrapping_add(0x78) } };
+                w.tick()? <= last.wrapping_add(0x78) } };
         if seen { n += 1; } }
     Some(n)
 }
@@ -172,7 +172,7 @@ pub unsafe fn poke_timer_gate(sim: usize, p6: usize, p7: usize, order: usize, se
         (rd_u64(order + ORDER_TS5)?, rd_u64(p7 + P7_SERPEN_TA - 0x10)?, T1_PTR, T1_LEN)
     };
     let w = Holder::new(p6)?.world()?;
-    let tick = rd_u64(w.data + W_TICK)?;
+    let tick = w.tick()?;
     let pre = PRE_T.with(|c| c.get()); let k = serpen as usize * 3;
     let (tlen_v, hval) = if pre[k] != 0 { (pre[k + 1], pre[k + 2]) } else {
         let (tag, mode) = w.mode()?; if tag != 0 { return None; }                       // 게임: unwrap None panic
@@ -276,7 +276,7 @@ pub unsafe fn engage_gate(order: usize, sim: usize, p6: usize, p7: usize, m: u8)
     tr(5, 0x100 | best_i as u64 | (role as u64) << 4 | (cnt) << 8);
     if best_i != role { return Some(false); }
     if poke_timer_gate(sim, p6, p7, order, m == 5)? { tr(9, 0x104); return Some(true); }
-    let tick = rd_u64(w.data + W_TICK)?; let tps = rd_u64(rd_u64(g + G_CFG)? as usize + CFG_TPS)?;
+    let tick = w.tick()?; let tps = rd_u64(rd_u64(g + G_CFG)? as usize + CFG_TPS)?;
     let ts = rd_u64(order + if m == 4 { ORDER_TS4 } else { ORDER_TS5 })?;
     let gok = grid_ok(&w, side, cx / 32000, cy / 32000)?;
     tr(6, 0x100 | gok as u64 | ((cx / 32000) & 0xff) << 8 | ((cy / 32000) & 0xff) << 16 | side << 24 | (rd_i32(w.data + W_GRID + side as usize * W_GRID_SIDE + (cy / 32000) as usize * W_GRID_ROW + (cx / 32000) as usize * 4).unwrap_or(-99) as u64 & 0xffff) << 32);

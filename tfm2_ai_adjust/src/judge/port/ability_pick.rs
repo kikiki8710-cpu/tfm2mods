@@ -183,3 +183,16 @@ pub unsafe fn tag(p5: usize, g: usize) -> Option<u64> {
     }
     Some(0)
 }
+
+/// 게임이 고른 후보 `(idx, price)` 의 db 엔트리(이름·가용·티어·가격) — ability_pick_tag DIFF 의 방향을 가른다
+pub unsafe fn db_entry(g: usize, idx: u64) -> String {
+    let f = || -> Option<String> {
+        let db = rd_u64(g + 0x30)? as usize; let (db_ptr, db_len) = (rd_u64(db + 8)? as usize, rd_u64(db + 0x10)?);
+        if idx >= db_len { return Some(format!("idx {} >= len {}", idx, db_len)); }
+        let c = db_ptr + idx as usize * 0x10; let (cd, cv) = (rd_u64(c)? as usize, rd_u64(c + 8)? as usize);
+        let (av, ti, pr) = (g_u64(cv, 0x50, cd)? & 1, g_u64(cv, 0x70, cd)?, g_u64(cv, 0x68, cd)?);
+        let nm = g_ptr(cv, 0x78, cd).and_then(|n| str_of(n)).map(|name| if name.1 != 0 && name.1 < 64 { String::from_utf8_lossy(std::slice::from_raw_parts(name.0 as *const u8, name.1 as usize)).into_owned() } else { "?".into() }).unwrap_or("?".into());
+        Some(format!("{}:av{} t{} p{}", nm, av, ti, pr))
+    };
+    f().unwrap_or_else(|| "NA".into())
+}

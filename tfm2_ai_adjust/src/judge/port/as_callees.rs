@@ -60,7 +60,7 @@ pub unsafe fn snapshot(sim: usize, x: usize, lanes: usize, me: usize) -> Option<
     if !ptr_ok(w.data) || !ptr_ok(w.vt) { return None; }
     let my = rd_u64(sim + P5_SIDE)?; if my > 1 { return None; }
     let en = 1 - my;
-    let tick = rd_u64(w.data + W_TICK)?;
+    let tick = w.tick()?;
     let (mx, my_y) = xy(me)?;
     let d2 = |e: usize| -> Option<u64> { let (ex, ey) = xy(e)?; Some(sqd(ex, ey, mx, my_y)) };
     // 인지: 지금 보이거나, 로스터 레코드의 마지막 목격 틱 + 0x78 이 현재 틱 이상

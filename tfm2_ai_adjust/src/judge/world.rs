@@ -9,7 +9,29 @@ use super::layout::*;
 #[derive(Clone, Copy)]
 pub struct World { pub x: usize, pub data: usize, pub vt: usize }
 
+/// ★[2026-09-08] `AbstractGame` vt 게터 정적 디코드 — `vt+0x20 = seed()` · `vt+0x28 = tick()`.
+///   Game/SingleLaneGame/DeathMatchGame 은 `[self+0xec90]/[self+0xec98]` 이지만 **`ExpectedGame`(presim 전용)은
+///   `tick() = [self+0x90]`(자기 필드) · `seed() = 내부 게임 vt+0x20 으로 위임`**(_gaibc/m04.ll:67448 · _gcbc/g08.ll:203429).
+///   고정 오프셋 `W_TICK` 직독은 presim 스레드에서 틱이 어긋나 해시 계수·메모 에포크·시각 비교가 전부 틀렸다
+///   (as_eb82d0/as_d84db0 의 스레드 2개 한정 대칭 DIFF 버스트의 원인). 디코드 실패 시 위임 1단(내부 fat ptr)으로 재귀.
+pub unsafe fn ag_get(data: usize, vt: usize, slot: usize, depth: u32) -> Option<u64> {
+    if !ptr_ok(data) || !ptr_ok(vt) { return None; }
+    let f = rd_u64(vt + slot)? as usize;
+    if let Some(v) = crate::judge::port::as_callees::decode_getter(f, data) { return Some(v); }
+    if depth < 3 {
+        let (d2, v2) = (rd_u64(data)? as usize, rd_u64(data + 8)? as usize);
+        let b = exe_base();
+        if ptr_ok(d2) && ptr_ok(v2) && b != 0 && v2 > b && v2 - b < 0x4000000 { return ag_get(d2, v2, slot, depth + 1); }
+    }
+    crate::judge::port::dyn_eff::unseen(0x2000 + slot as u32, f.wrapping_sub(exe_base()));
+    None
+}
+pub unsafe fn game_tick(data: usize, vt: usize) -> Option<u64> { ag_get(data, vt, 0x28, 0) }
+pub unsafe fn game_seed(data: usize, vt: usize) -> Option<u64> { ag_get(data, vt, 0x20, 0) }
+
 impl World {
+    #[inline] pub unsafe fn tick(&self) -> Option<u64> { game_tick(self.data, self.vt) }
+    #[inline] pub unsafe fn seed(&self) -> Option<u64> { game_seed(self.data, self.vt) }
     pub unsafe fn from_holder(p6: usize) -> Option<World> {
         if !ptr_ok(p6) { return None; }
         let x = rd_u64(p6)? as usize;

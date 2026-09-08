@@ -66,7 +66,7 @@ pub unsafe fn nexus_threat(p5: usize, p6: usize, k: &Knobs) -> Option<bool> {
     let lanes = rd_u64(p6 + HOLDER_LANES)? as usize; if !ptr_ok(lanes) { return None; }
     let lane_o = lanes + (other as usize) * LANE_STRIDE;
     let (nx, ny) = (rd_u64(nexus + ENT_X)?, rd_u64(nexus + ENT_Y)?);
-    let tick = rd_u64(w.data + W_TICK)?;
+    let tick = w.tick()?;
     for r in 0..5u32 {
         let e = w.roster(other, r)?; if e == 0 { continue; }
         let eh = rd_u64(e + ENT_HANDLE)?;
@@ -166,7 +166,7 @@ pub unsafe fn defense_nexus_k(a: &Args8, k: &Knobs) -> Option<MpOut> {
                 REACH_MISMATCH.fetch_add(1, Ordering::Relaxed); tr(8, 0x100 | (flags & 0xffff) << 1 | reach as u64);
                 if REACH_LOGGED.fetch_add(1, Ordering::Relaxed) < 40 {
                     super::super::append_direct("judge_dn_reach.txt", &format!("[reach MISMATCH] game_bit8={} mine={} side={} tick={} | {}\n",
-                        (flags >> 8) & 1, reach as u8, side, rd_u64(w.data + W_TICK).unwrap_or(0), super::dn_reach::dbg_fmt()));
+                        (flags >> 8) & 1, reach as u8, side, w.tick().unwrap_or(0), super::dn_reach::dbg_fmt()));
                 }
             }
         }

@@ -91,7 +91,7 @@ pub unsafe fn passive_line_k(a: &Args8, k: &Knobs) -> Option<MpOut> {
     // ── 2. 미드(f0==2) 특수블록: (plan&0xfe)==8 && sf==f0 이면 건너뛴다 ──
     let skip_mid = (plan & 0xfe) == 8 && sf == f0;
     if !skip_mid && f0 == 2 {
-        let tick = rd_u64(w.data + W_TICK)?;                                   // vt+0x28
+        let tick = w.tick()?;                                   // vt+0x28
         let phase = rd_u8(g.0 + G_PHASE);
         let mut to_main = false;
         if phase < 9 && ((0x1a1u32 >> (phase & 0x1f)) & 1) != 0 {
@@ -193,7 +193,7 @@ pub unsafe fn passive_line_k(a: &Args8, k: &Knobs) -> Option<MpOut> {
         else { c15 = (rd_i64(lane_self + lane_sub(lane) + LR_F10)? < 0x7d1) as u8; }
     } else {
         // MAIN: 150000 안 적 중 (보임 || 로스터 레코드 있고 레인 임계+0x78 >= tick) 하나라도 있으면 HIT
-        let tick = rd_u64(w.data + W_TICK)?;
+        let tick = w.tick()?;
         let mut hit = false;
         for r in 0..5u32 {
             let e = w.roster(other, r)?;

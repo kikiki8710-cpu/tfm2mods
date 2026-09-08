@@ -249,11 +249,12 @@ macro_rules! judge_capture {
                 if orig == 0 { return 0; }
                 let f: super::F12 = core::mem::transmute(orig);
                 ST.entered.fetch_add(1, Ordering::Relaxed);
+                let pre_gold = if $spec.rva == 0xe7a8c0 { crate::rd_u64(p4 + 0x998).unwrap_or(u64::MAX) } else { 0 };
                 let r = f(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12);
                 let seq = SEQ.fetch_add(1, Ordering::Relaxed) + 1;
                 let (r0, r1, r2) = (crate::rd_u64(p1).unwrap_or(u64::MAX), crate::rd_u64(p1 + 8).unwrap_or(0), crate::rd_u64(p1 + 0x10).unwrap_or(0));
                 LAST.with(|c| c.set((seq, r0, r1, r2)));
-                if $spec.rva == 0xe7a8c0 { crate::judge::ab_tag::cmp(r0, p4, p7); }
+                if $spec.rva == 0xe7a8c0 { crate::judge::ab_tag::cmp2(r0, r1, r2, pre_gold, p4, p7); }
                 ST.n.fetch_add(1, Ordering::Relaxed);
                 r
             }
@@ -431,6 +432,7 @@ macro_rules! judge_capture_ring {
                 if orig == 0 { return 0; }
                 let f: super::F12 = core::mem::transmute(orig);
                 ST.entered.fetch_add(1, Ordering::Relaxed);
+                let ts = crate::judge::tid_stat($spec.name); ts.n.fetch_add(1, Ordering::Relaxed);
                 let r = f(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12);
                 RING.with(|c| { let (mut a, n) = c.get(); a[n % 16] = Cap { p1, p2, p3, p4, ret: r as u64 }; c.set((a, n + 1)); });
                 ST.n.fetch_add(1, Ordering::Relaxed);
@@ -534,6 +536,7 @@ macro_rules! judge_capture_out_cmp {
                 if orig == 0 { return 0; }
                 let f: super::F12 = core::mem::transmute(orig);
                 ST.entered.fetch_add(1, Ordering::Relaxed);
+                let ts = crate::judge::tid_stat($spec.name); ts.n.fetch_add(1, Ordering::Relaxed);
                 ($pre)(p1, p2, p3, p4, p5, p6, p7, p8);
                 let r = f(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12);
                 let mut w = [0u64; 9];
@@ -550,10 +553,18 @@ macro_rules! judge_capture_out_cmp {
                 match mine {
                     None => { ST.na.fetch_add(1, Ordering::Relaxed); if LOGGED.fetch_add(1, Ordering::Relaxed) < 30 { logline("NA", None); } }
                     Some(m) if ($eq)(&w, &m) => { ST.ok.fetch_add(1, Ordering::Relaxed); }
-                    Some(m) => { ST.diff.fetch_add(1, Ordering::Relaxed); { let k = LOGGED_D.fetch_add(1, Ordering::Relaxed); if k < 20 || (k % 512 == 0 && k < 512 * 300) { logline("DIFF", Some(m)); } } }
+                    Some(m) => { ST.diff.fetch_add(1, Ordering::Relaxed); ts.diff.fetch_add(1, Ordering::Relaxed);
+                        // ★[2026-09-08] 레이스 판별(위 ring_cmp 와 동일)
+                        let mine2: Option<[u64; 9]> = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| ($mine)(p1, p2, p3, p4, p5, p6, p7, p8))).unwrap_or(None);
+                        let same = mine2.map(|x| ($eq)(&m, &x)).unwrap_or(false);
+                        if !same { UNST.fetch_add(1, Ordering::Relaxed); }
+                        if mine2.map(|x| ($eq)(&w, &x)).unwrap_or(false) { UNST_G.fetch_add(1, Ordering::Relaxed); }
+                        { let k = LOGGED_D.fetch_add(1, Ordering::Relaxed); if k < 20 || (k % 512 == 0 && k < 512 * 300) { logline(&format!("DIFF mine2same={} unst={} unst_g={}", same, UNST.load(Ordering::Relaxed), UNST_G.load(Ordering::Relaxed)), Some(m)); } } }
                 }
                 r
             }
+            pub static UNST: AtomicU64 = AtomicU64::new(0);
+            pub static UNST_G: AtomicU64 = AtomicU64::new(0);
         }
     };
 }
@@ -825,6 +836,32 @@ pub mod cap_dffa10 {
 /// ★[2026-09-08] combat_score 한 호출 동안 **게임이 실제로 부른** 하위 함수와 그 반환값 — 잔여 S13 의 항 특정용.
 ///   진입 시 각 링의 n 을 떠 두고, diag 시점(원본 뒤)에 델타>0 이면 `last()` 가 그 호출의 반환값이다.
 thread_local! { pub static CALLSNAP: std::cell::Cell<[u64; 8]> = const { std::cell::Cell::new([0; 8]) }; }
+/// 링 훅이 재현을 부르기 직전에 넣어 두는 **게임 반환값** — 미러 메모가 miss 때 자기 값 대신 이걸 저장해
+/// "캐시 채움 시점 레이스"(게임은 S0 에서 채우고 나는 S1 에서 채워 그 틱 내내 어긋남)를 검증에서 걷어낸다.
+thread_local! { pub static GAME_R: std::cell::Cell<u64> = const { std::cell::Cell::new(u64::MAX) }; }
+/// ★[2026-09-08] 스레드별 (호출 수, DIFF 수) — 잔여 DIFF 가 **메인 sim 스레드**에서도 나는지(로직) / presim 워커에서만 나는지(레이스) 가른다.
+pub struct TidStat { pub name: &'static str, pub tid: u32, pub n: AtomicU64, pub diff: AtomicU64 }
+pub static TID_TAB: std::sync::Mutex<Vec<std::sync::Arc<TidStat>>> = std::sync::Mutex::new(Vec::new());
+thread_local! { static TID_MY: std::cell::RefCell<Vec<(&'static str, std::sync::Arc<TidStat>)>> = const { std::cell::RefCell::new(Vec::new()) }; }
+pub fn tid_stat(name: &'static str) -> std::sync::Arc<TidStat> {
+    TID_MY.with(|c| {
+        let mut v = c.borrow_mut();
+        if let Some((_, a)) = v.iter().find(|(n, _)| *n == name) { return a.clone(); }
+        let a = std::sync::Arc::new(TidStat { name, tid: cur_tid(), n: AtomicU64::new(0), diff: AtomicU64::new(0) });
+        TID_TAB.lock().unwrap_or_else(|e| e.into_inner()).push(a.clone());
+        v.push((name, a.clone())); a
+    })
+}
+pub fn tid_report() -> String {
+    let t = TID_TAB.lock().unwrap_or_else(|e| e.into_inner());
+    let mut rows: Vec<(&str, u32, u64, u64)> = t.iter().map(|a| (a.name, a.tid, a.n.load(Ordering::Relaxed), a.diff.load(Ordering::Relaxed))).collect();
+    rows.sort_by(|a, b| a.0.cmp(b.0).then(b.2.cmp(&a.2)));
+    let mut s = String::from("[tid] 훅별 스레드 분포 (n=호출, diff)
+");
+    for (name, tid, n, d) in rows { if d > 0 || n > 1_000_000 { s += &format!("  {:<12} tid={:<6} n={:<10} diff={}
+", name, tid, n, d); } }
+    s
+}
 pub fn call_snapshot() {
     let v = [cap_v54_aoe::ST.n.load(Ordering::Relaxed), cap_v55_spirit::ST.n.load(Ordering::Relaxed), cap_abms::ST.n.load(Ordering::Relaxed),
              cap_dffa10::ST.n.load(Ordering::Relaxed), cap_ncsv::ST.n.load(Ordering::Relaxed), cap_defc::ST.n.load(Ordering::Relaxed),
@@ -989,9 +1026,11 @@ macro_rules! judge_capture_ring_cmp {
                 if orig == 0 { return 0; }
                 let f: super::F12 = core::mem::transmute(orig);
                 ST.entered.fetch_add(1, Ordering::Relaxed);
+                let ts = crate::judge::tid_stat($spec.name); ts.n.fetch_add(1, Ordering::Relaxed);
                 let r = f(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12);
                 RING.with(|c| { let (mut a, n) = c.get(); a[n % 16] = Cap { p1, p2, p3, p4, ret: r as u64 }; c.set((a, n + 1)); });
                 ST.n.fetch_add(1, Ordering::Relaxed);
+                crate::judge::GAME_R.with(|c| c.set(r as u64));
                 let mine: Option<u64> = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| ($mine)(p1, p2, p3, p4, p5, p6, p7, p8))).unwrap_or(None);
                 let logline = |tag: &str, v: Option<u64>| {
                     let diag = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| crate::judge::port::as_callees::cmp_diag8($spec.name, p1, p2, p3, p4, p5, p6, p7, p8))).unwrap_or_default();
@@ -1001,10 +1040,17 @@ macro_rules! judge_capture_ring_cmp {
                 match mine {
                     None => { ST.na.fetch_add(1, Ordering::Relaxed); if LOGGED.fetch_add(1, Ordering::Relaxed) < 30 { logline("NA", None); } }
                     Some(v) if v == r as u64 => { ST.ok.fetch_add(1, Ordering::Relaxed); }
-                    Some(v) => { ST.diff.fetch_add(1, Ordering::Relaxed); { let k = LOGGED_D.fetch_add(1, Ordering::Relaxed); if k < 20 || (k % 512 == 0 && k < 512 * 300) { logline("DIFF", Some(v)); } } }
+                    Some(v) => { ST.diff.fetch_add(1, Ordering::Relaxed); ts.diff.fetch_add(1, Ordering::Relaxed);
+                        // ★[2026-09-08] 레이스 판별: 같은 인자로 **한 번 더** 계산해 mine2 ≠ mine 이면 월드가 우리 밑에서 바뀌는 중(타이밍), 항상 같으면 로직.
+                        let mine2: Option<u64> = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| ($mine)(p1, p2, p3, p4, p5, p6, p7, p8))).unwrap_or(None);
+                        if mine2 != Some(v) { UNST.fetch_add(1, Ordering::Relaxed); }
+                        if mine2 == Some(r as u64) { UNST_G.fetch_add(1, Ordering::Relaxed); }
+                        { let k = LOGGED_D.fetch_add(1, Ordering::Relaxed); if k < 20 || (k % 512 == 0 && k < 512 * 300) { logline(&format!("DIFF mine2={:?} unst={} unst_g={}", mine2, UNST.load(Ordering::Relaxed), UNST_G.load(Ordering::Relaxed)), Some(v)); } } }
                 }
                 r
             }
+            pub static UNST: AtomicU64 = AtomicU64::new(0);
+            pub static UNST_G: AtomicU64 = AtomicU64::new(0);
         }
     };
 }
@@ -1077,7 +1123,9 @@ pub mod ab_tag {
     pub static ST: super::Stat = super::Stat::new();
     static LOGGED: AtomicU64 = AtomicU64::new(0);
     /// 캡처 래퍼에서 호출: game_tag 와 재현을 대조.
-    pub unsafe fn cmp(game_tag: u64, p4: usize, p7: usize) {
+    pub unsafe fn cmp(game_tag: u64, p4: usize, p7: usize) { cmp2(game_tag, 0, 0, u64::MAX, p4, p7) }
+    /// r1/r2 = 게임 sret 의 (idx, price) · pre_gold = 원본 호출 **전** 의 rec.0x998
+    pub unsafe fn cmp2(game_tag: u64, r1: u64, r2: u64, pre_gold: u64, p4: usize, p7: usize) {
         ST.entered.fetch_add(1, Ordering::Relaxed); ST.n.fetch_add(1, Ordering::Relaxed);
         match crate::judge::port::ability_pick::tag(p4, p7) {
             None => { ST.na.fetch_add(1, Ordering::Relaxed); }
@@ -1087,8 +1135,9 @@ pub mod ab_tag {
                              // ★[2026-09-08] 판마다 0~217 로 흔들리는 잔여 — 표본을 남겨 정체를 본다
                              if LOGGED.fetch_add(1, Ordering::Relaxed) < 60 {
                                  let diag = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| crate::judge::port::ability_pick::diag(p4, p7))).unwrap_or_default();
-                                 let line = format!("[ability_pick_tag #{} tid={}] DIFF game_tag={:#x} mine={} | p4={:#x} p7={:#x} | {}
-", ST.n.load(Ordering::Relaxed), crate::judge::cur_tid(), game_tag, m, p4, p7, diag);
+                                 let pick = if game_tag != 0 { crate::judge::port::ability_pick::db_entry(p7, r1) } else { String::new() };
+                                 let line = format!("[ability_pick_tag #{} tid={}] DIFF game_tag={:#x} mine={} | p4={:#x} p7={:#x} | pre_gold={} post_gold={} game_pick=({},{}) {} | {}
+", ST.n.load(Ordering::Relaxed), crate::judge::cur_tid(), game_tag, m, p4, p7, pre_gold, crate::rd_u64(p4 + 0x998).unwrap_or(0), r1, r2, pick, diag);
                                  if let Some(p) = crate::pth("judge_ability_pick_tag.txt") { let _ = std::fs::OpenOptions::new().create(true).append(true).open(p).and_then(|mut f| { use std::io::Write; f.write_all(line.as_bytes()) }); }
                              }
                          } }
@@ -1262,7 +1311,8 @@ pub fn write_status() {
                     if crate::vanilla_imm_on() { "vanilla" } else { "patched" }, s);
     if let Some(p) = pth("judge_status.txt") { let _ = fs::write(p, s); }
     if let Some(p) = pth("judge_dyn.txt") { let _ = fs::write(p, port::dyn_eff::unseen_report()); }
-    if let Some(p) = pth("judge_pe_gate.txt") { let _ = fs::write(p, format!("{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}", port::combat_score::path_report(), cap_a0_fold::field_report(), cap_tdb::field_report(), port::position_eval::dive_cmp_report(), port::position_eval::memo_report(), port::position_eval::mine_truth_report(), port::position_eval::cand_report(), port::position_eval::need_report(), port::position_eval::neg_report(), port::position_eval::qscan_report(), port::position_eval::comp_report(), port::position_eval::gbx_report(), port::position_eval::self_report(), port::position_eval::truth_report(), port::position_eval::edge_report(), port::position_eval::gate_report(), port::combat_score::na_report(), port::combat_score::a2_report(), port::combat_score::e044_report(), port::combat_score::pmask_report(), ord_report(), port::combat_score::cap_report(), port::position_eval::impact_report(), port::combat_score::nch_report())); }
+    if let Some(p) = pth("judge_pe_gate.txt") { let _ = fs::write(p, format!("{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}", port::combat_score::path_report(), cap_a0_fold::field_report(), cap_tdb::field_report(), port::position_eval::dive_cmp_report(), port::position_eval::memo_report(), port::position_eval::mine_truth_report(), port::position_eval::cand_report(), port::position_eval::need_report(), port::position_eval::neg_report(), port::position_eval::qscan_report(), port::position_eval::comp_report(), port::position_eval::gbx_report(), port::position_eval::self_report(), port::position_eval::truth_report(), port::position_eval::edge_report(), port::position_eval::gate_report(), port::combat_score::na_report(), port::fight_check::memo_cap_report(), tid_report(), format!("[race] eb82d0 unst={} unst_g={} | d84db0 unst={} unst_g={}
+", cap_as_eb82d0::UNST.load(Ordering::Relaxed), cap_as_eb82d0::UNST_G.load(Ordering::Relaxed), cap_as_d84db0::UNST.load(Ordering::Relaxed), cap_as_d84db0::UNST_G.load(Ordering::Relaxed)), port::combat_score::a2_report(), port::combat_score::e044_report(), port::combat_score::pmask_report(), ord_report(), port::combat_score::cap_report(), port::position_eval::impact_report(), port::combat_score::nch_report())); }
 }
 
 static INSTALLED: AtomicBool = AtomicBool::new(false);

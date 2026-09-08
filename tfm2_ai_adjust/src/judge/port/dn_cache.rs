@@ -87,7 +87,8 @@ pub unsafe fn bits(rec: usize, holder: usize) -> Option<u32> {
     let b0 = bit0(rec, w.x)?; let b1 = dn_reach::reach(rec, holder)?; let b2 = bit16(rec, w.x)?;
     Some((b0 as u32) | ((b1 as u32) << 8) | ((b2 as u32) << 16))
 }
-thread_local! { static MEMO: std::cell::RefCell<((u64, u64), Vec<(u64, u32)>)> = const { std::cell::RefCell::new(((0, 0), Vec::new())) }; }
+// ★[2026-09-08] 게임 메모는 무제한 HashMap — ~~256 상한~~ 은 버스트 구간에서 게임(stale)↔재현(fresh) 불일치를 만든다(fight_check 와 같은 함정).
+thread_local! { static MEMO: std::cell::RefCell<((u64, u64), std::collections::HashMap<u64, u32>)> = std::cell::RefCell::new(((0, 0), std::collections::HashMap::new())); }
 pub fn memo_reset() { MEMO.with(|c| { let mut m = c.borrow_mut(); m.0 = (0, 0); m.1.clear(); }); }
 /// 0xc87850 계약: p2 = caps [&seed, &tick, rec, holder]
 pub unsafe fn bits_memo(p2: usize) -> Option<u64> {
@@ -96,10 +97,10 @@ pub unsafe fn bits_memo(p2: usize) -> Option<u64> {
     let epoch = (rd_u64(ps)?, rd_u64(pt)?);
     let rec = rd_u64(p2 + 0x10)? as usize; let holder = rd_u64(p2 + 0x18)? as usize; if !ptr_ok(rec) || !ptr_ok(holder) { return None; }
     let key = rd_u64(rec + P5_MEMO_KEY)?;
-    let hit = MEMO.with(|c| { let mut m = c.borrow_mut(); if m.0 != epoch { m.0 = epoch; m.1.clear(); } m.1.iter().find(|e| e.0 == key).map(|e| e.1) });
+    let hit = MEMO.with(|c| { let mut m = c.borrow_mut(); if m.0 != epoch { m.0 = epoch; m.1.clear(); } m.1.get(&key).copied() });
     if let Some(v) = hit { return Some(v as u64); }
     let v = bits(rec, holder)?;
-    MEMO.with(|c| { let mut m = c.borrow_mut(); if m.1.len() < 256 { m.1.push((key, v)); } });
+    MEMO.with(|c| { let mut m = c.borrow_mut(); m.1.insert(key, v); });
     Some(v as u64)
 }
 pub unsafe fn diag(p2: usize) -> String {
@@ -153,7 +154,7 @@ pub unsafe fn bits_verify(p2: usize, pre: u64) -> Option<u64> {
         if ptr_ok(p2) { if let (Some(ps), Some(pt), Some(rec)) = (rd_u64(p2), rd_u64(p2 + 8), rd_u64(p2 + 0x10)) {
             let (ps, pt, rec) = (ps as usize, pt as usize, rec as usize);
             if ptr_ok(ps) && ptr_ok(pt) && ptr_ok(rec) { if let (Some(sv), Some(tv), Some(key)) = (rd_u64(ps), rd_u64(pt), rd_u64(rec + P5_MEMO_KEY)) {
-                MEMO.with(|c| { let mut m = c.borrow_mut(); if m.0 != (sv, tv) { m.0 = (sv, tv); m.1.clear(); } if !m.1.iter().any(|e| e.0 == key) && m.1.len() < 256 { m.1.push((key, pre as u32)); } }); } } } }
+                MEMO.with(|c| { let mut m = c.borrow_mut(); if m.0 != (sv, tv) { m.0 = (sv, tv); m.1.clear(); } m.1.entry(key).or_insert(pre as u32); }); } } } }
         return Some(pre);
     }
     bits_memo(p2)

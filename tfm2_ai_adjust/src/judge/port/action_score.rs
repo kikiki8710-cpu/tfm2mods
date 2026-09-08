@@ -149,7 +149,7 @@ pub unsafe fn base_score(a: &ScorerArgs) -> Option<i64> {
         let b = bits()?;
         if b & 0x100 != 0 { true } else if hp.wrapping_mul(100) <= maxhp.max(1).wrapping_mul(35) { false } else { b & 0x10001 != 0 } };
     tr(1, 0x100 | (snap.e.is_some() as u64) | (snap.s.is_some() as u64) << 1 | (snap.e2.is_some() as u64) << 2 | (snap.near.is_some() as u64) << 3 | (r13 as u64) << 4 | (cc as u64) << 5 | (snap.mask as u64) << 8 | (snap.count as u64) << 16);
-    let tick = rd_u64(w.data + W_TICK)?; let cfg = rd_u64(g.0 + G_CFG)? as usize; if !ptr_ok(cfg) { return None; }
+    let tick = w.tick()?; let cfg = rd_u64(g.0 + G_CFG)? as usize; if !ptr_ok(cfg) { return None; }
     let tick_cap = rd_u64(cfg + CFG_TICK_CAP)?;
     let c_val = || -> Option<i64> { cap_util_c87fe0::last().map(|v| v as i64) };
     let rec_self = bb + AS_BB_REC;
