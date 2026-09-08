@@ -318,7 +318,7 @@ macro_rules! judge_capture_ret_cmp {
                 let game = (r as u64) & 0xff_ffff;
                 let logline = |tag: &str, v: Option<u64>| {
                     let diag = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| ($diag)(p1, p2, p3, p4))).unwrap_or_default();
-                    let line = format!("[{} #{}] {} game={:#x} mine={} | p1={:#x} p2={:#x} | {}\n", $spec.name, ST.n.load(Ordering::Relaxed), tag, game, v.map(|x| format!("{:#x}", x)).unwrap_or("NA".into()), p1, p2, diag);
+                    let line = format!("[{} #{} tid={}] {} game={:#x} mine={} | p1={:#x} p2={:#x} | {}\n", $spec.name, ST.n.load(Ordering::Relaxed), crate::judge::cur_tid(), tag, game, v.map(|x| format!("{:#x}", x)).unwrap_or("NA".into()), p1, p2, diag);
                     if let Some(p) = crate::pth(&format!("judge_{}.txt", $spec.name)) { let _ = std::fs::OpenOptions::new().create(true).append(true).open(p).and_then(|mut f| { use std::io::Write; f.write_all(line.as_bytes()) }); }
                 };
                 match mine {
@@ -352,6 +352,14 @@ pub mod cap_est_dmg {
         let r = f(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12);
         RING.with(|c| { let (mut a, n) = c.get(); a[n % 16] = Cap { slot: p1, att: p3, target: p5, ret: r as u64 }; c.set((a, n + 1)); });
         ST.n.fetch_add(1, Ordering::Relaxed);
+        // ★[2026-09-08] 캡처만 하던 것을 **대조**로 승격 — S12 의 `d`(=Effect::expected_damage_target)가
+        //   마지막 미검증 잎이었다. `judge_cap_est=1` 로 설치된다.
+        let mine = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| crate::judge::port::passive_jungle::estimate_damage(p1, p3, p5, false))).unwrap_or(None);
+        match mine {
+            None => { ST.na.fetch_add(1, Ordering::Relaxed); }
+            Some(v) if v == r as u64 => { ST.ok.fetch_add(1, Ordering::Relaxed); }
+            Some(_) => { ST.diff.fetch_add(1, Ordering::Relaxed); }
+        }
         r
     }
 }
@@ -536,7 +544,7 @@ macro_rules! judge_capture_out_cmp {
                 let logline = |tag: &str, m: Option<[u64; 9]>| {
                     let fmt = |a: &[u64; 9]| a.iter().map(|v| format!("{:#x}", v)).collect::<Vec<_>>().join(" ");
                     let diag = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| crate::judge::port::as_callees::cmp_diag($spec.name, p1, p2, p3, p4))).unwrap_or_default();
-                    let line = format!("[{} #{}] {} game=[{}] mine=[{}] | p1={:#x} p2={:#x} p3={:#x} p4={:#x} p5={:#x} | {}\n", $spec.name, ST.n.load(Ordering::Relaxed), tag, fmt(&w), m.map(|x| fmt(&x)).unwrap_or("NA".into()), p1, p2, p3, p4, p5, diag);
+                    let line = format!("[{} #{} tid={}] {} game=[{}] mine=[{}] | p1={:#x} p2={:#x} p3={:#x} p4={:#x} p5={:#x} | {}\n", $spec.name, ST.n.load(Ordering::Relaxed), crate::judge::cur_tid(), tag, fmt(&w), m.map(|x| fmt(&x)).unwrap_or("NA".into()), p1, p2, p3, p4, p5, diag);
                     if let Some(p) = crate::pth(&format!("judge_{}.txt", $spec.name)) { let _ = std::fs::OpenOptions::new().create(true).append(true).open(p).and_then(|mut f| { use std::io::Write; f.write_all(line.as_bytes()) }); }
                 };
                 match mine {
@@ -655,7 +663,7 @@ macro_rules! judge_capture_ring_cmp9_pre {
                 ST.n.fetch_add(1, Ordering::Relaxed);
                 let logline = |tag: &str, v: Option<i64>| {
                     let diag = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| crate::judge::port::as_callees::cmp_diag8($spec.name, p1, p2, p3, p4, p5, p6, p7, p8))).unwrap_or_default();
-                    let line = format!("[{} #{}] {} game={}({:#x}) mine={} | p1={:#x} p2={:#x} p3={:#x} p4={:#x} p5={:#x} p6={:#x} p7={:#x} | {}\n", $spec.name, ST.n.load(Ordering::Relaxed), tag, r as i64, r, v.map(|x| format!("{}({:#x})", x, x as u64)).unwrap_or("NA".into()), p1, p2, p3, p4, p5, p6, p7, diag);
+                    let line = format!("[{} #{} tid={}] {} game={}({:#x}) mine={} | p1={:#x} p2={:#x} p3={:#x} p4={:#x} p5={:#x} p6={:#x} p7={:#x} | {}\n", $spec.name, ST.n.load(Ordering::Relaxed), crate::judge::cur_tid(), tag, r as i64, r, v.map(|x| format!("{}({:#x})", x, x as u64)).unwrap_or("NA".into()), p1, p2, p3, p4, p5, p6, p7, diag);
                     if let Some(p) = crate::pth(&format!("judge_{}.txt", $spec.name)) { let _ = std::fs::OpenOptions::new().create(true).append(true).open(p).and_then(|mut f| { use std::io::Write; f.write_all(line.as_bytes()) }); }
                 };
                 if let Some(v) = mine { crate::judge::port::combat_score::cap_tally(r as i64, v); }   // S12 스테로이드 상한 후보 대조(검증 한정)
@@ -664,31 +672,19 @@ macro_rules! judge_capture_ring_cmp9_pre {
                     Some(v) if v == r as i64 => { ST.ok.fetch_add(1, Ordering::Relaxed); }
                     Some(v) => { ST.diff.fetch_add(1, Ordering::Relaxed); { let k = LOGGED_D.fetch_add(1, Ordering::Relaxed); if k < 2000 { logline("DIFF", Some(v)); } } }   // ★잔여가 수백 건뿐 — 전수 로깅(20건 표본은 반복 상황 하나에 다 먹힌다)
                 }
-                // ★[2026-09-08] post 계산을 **로깅 뒤로** 옮겼다 — 진단 TLS(LAST/S12D/…)를 덮어써서
-                //   DIFF 로그가 post 값을 찍고 있었다(성분 합이 game 과 정확히 일치해 원인 분석이 통째로 헛돌았다).
-                // ★★순서 어긋남 가설 검증 — 원본 호출 **후**에도 한 번 더 계산해 어느 쪽이 게임과 맞는지 센다.
-                //   리플레이는 결정론적이므로 값이 갈린다면 원인은 비결정성이 아니라 **계산 시점**이다.
-                //   (계측 전용. 반환값·판정에는 pre 값만 쓴다.)
-                {
-                    let post: Option<i64> = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| ($mine)(p1, p2, p3, p4, p5, p6, p7, p8, p9))).unwrap_or(None);
-                    let g = r as i64;
-                    if mine != post { crate::judge::ORD_DIFFER.fetch_add(1, Ordering::Relaxed); }
-                    match (mine, post) {
-                        (Some(a), Some(b)) => {
-                            if a == g && b != g { crate::judge::ORD_PRE_WIN.fetch_add(1, Ordering::Relaxed); }
-                            if b == g && a != g { crate::judge::ORD_POST_WIN.fetch_add(1, Ordering::Relaxed); }
-                            if a != g && b != g { crate::judge::ORD_BOTH_BAD.fetch_add(1, Ordering::Relaxed); }
-                        }
-                        (None, Some(b)) if b == g => { crate::judge::ORD_POST_WIN.fetch_add(1, Ordering::Relaxed); }
-                        (Some(a), None) if a == g => { crate::judge::ORD_PRE_WIN.fetch_add(1, Ordering::Relaxed); }
-                        _ => {}
-                    }
-                }
+                // ★[2026-09-08] 순서(pre/post) 실험 블록 제거 — 결론이 났고(pre만맞음=0 · post만맞음 130),
+                //   재계산이 **호출당 2회**라 경로 카운터가 전부 2배로 찍히고 리플레이도 2배 느렸다.
+                //   판정은 계속 pre 로 한다(라이브 대체는 게임 메모를 못 본다).
                 r
             }
         }
     };
 }
+/// ★[2026-09-08] 잔여 DIFF 가 **배경 presim 스레드**에 몰려 있는지 가른다.
+///   리플레이는 결정론적인데 판마다 잔여가 232~370 으로 흔들리고, 같은 상황이 반복 기록된다 —
+///   병렬 presim 이 상태를 갱신하는 중에 훅이 읽으면 재현/원본이 서로 다른 스냅샷을 보게 된다.
+#[link(name = "kernel32")] unsafe extern "system" { fn GetCurrentThreadId() -> u32; }
+pub fn cur_tid() -> u32 { unsafe { GetCurrentThreadId() } }
 /// pre/post 계산 시점 실험용 카운터(combat_score 전용).
 pub static ORD_DIFFER: AtomicU64 = AtomicU64::new(0);
 pub static ORD_PRE_WIN: AtomicU64 = AtomicU64::new(0);
@@ -730,7 +726,7 @@ macro_rules! judge_capture_ring_cmp9 {
                 let mine: Option<i64> = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| ($mine)(p1, p2, p3, p4, p5, p6, p7, p8, p9))).unwrap_or(None);
                 let logline = |tag: &str, v: Option<i64>| {
                     let diag = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| crate::judge::port::as_callees::cmp_diag8($spec.name, p1, p2, p3, p4, p5, p6, p7, p8))).unwrap_or_default();
-                    let line = format!("[{} #{}] {} game={}({:#x}) mine={} | p1={:#x} p2={:#x} p3={:#x} p4={:#x} p5={:#x} p6={:#x} p7={:#x} | {}\n", $spec.name, ST.n.load(Ordering::Relaxed), tag, r as i64, r, v.map(|x| format!("{}({:#x})", x, x as u64)).unwrap_or("NA".into()), p1, p2, p3, p4, p5, p6, p7, diag);
+                    let line = format!("[{} #{} tid={}] {} game={}({:#x}) mine={} | p1={:#x} p2={:#x} p3={:#x} p4={:#x} p5={:#x} p6={:#x} p7={:#x} | {}\n", $spec.name, ST.n.load(Ordering::Relaxed), crate::judge::cur_tid(), tag, r as i64, r, v.map(|x| format!("{}({:#x})", x, x as u64)).unwrap_or("NA".into()), p1, p2, p3, p4, p5, p6, p7, diag);
                     if let Some(p) = crate::pth(&format!("judge_{}.txt", $spec.name)) { let _ = std::fs::OpenOptions::new().create(true).append(true).open(p).and_then(|mut f| { use std::io::Write; f.write_all(line.as_bytes()) }); }
                 };
                 match mine {
@@ -772,7 +768,7 @@ macro_rules! judge_capture_ring_cmp {
                 let mine: Option<u64> = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| ($mine)(p1, p2, p3, p4, p5, p6, p7, p8))).unwrap_or(None);
                 let logline = |tag: &str, v: Option<u64>| {
                     let diag = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| crate::judge::port::as_callees::cmp_diag8($spec.name, p1, p2, p3, p4, p5, p6, p7, p8))).unwrap_or_default();
-                    let line = format!("[{} #{}] {} game={}({:#x}) mine={} | p1={:#x} p2={:#x} p3={:#x} p4={:#x} p5={:#x} p6={:#x} p7={:#x} | {}\n", $spec.name, ST.n.load(Ordering::Relaxed), tag, r as i64, r, v.map(|x| format!("{}({:#x})", x as i64, x)).unwrap_or("NA".into()), p1, p2, p3, p4, p5, p6, p7, diag);
+                    let line = format!("[{} #{} tid={}] {} game={}({:#x}) mine={} | p1={:#x} p2={:#x} p3={:#x} p4={:#x} p5={:#x} p6={:#x} p7={:#x} | {}\n", $spec.name, ST.n.load(Ordering::Relaxed), crate::judge::cur_tid(), tag, r as i64, r, v.map(|x| format!("{}({:#x})", x as i64, x)).unwrap_or("NA".into()), p1, p2, p3, p4, p5, p6, p7, diag);
                     if let Some(p) = crate::pth(&format!("judge_{}.txt", $spec.name)) { let _ = std::fs::OpenOptions::new().create(true).append(true).open(p).and_then(|mut f| { use std::io::Write; f.write_all(line.as_bytes()) }); }
                 };
                 match mine {
@@ -790,6 +786,11 @@ judge_capture_ring_cmp9_pre!(cap_combat_score, crate::judge::gen_fns::COMBAT_SCO
 judge_capture_ring_cmp!(cap_as_eb82d0, crate::judge::gen_fns::AS_EB82D0, |p1, _p2, p3, p4, p5, p6, p7, _p8| unsafe { crate::judge::port::fight_check::fight_check_memo(p1 as u64, p3, p4, p5, p6, p7) });   // fight_check (2단계: 순수 재현+메모 미러 대조)
 judge_capture_ring_cmp!(cap_as_e0e890, crate::judge::gen_fns::AS_E0E890, |p1, p2, _p3, _p4, _p5, _p6, _p7, _p8| unsafe { crate::judge::port::as_callees::max_reach(p1, p2) });   // 최대사거리 (2단계: 순수 재현 대조)
 judge_capture_ring_cmp!(cap_as_132b310, crate::judge::gen_fns::AS_132B310, |p1, _p2, p3, p4, _p5, _p6, _p7, _p8| unsafe { crate::judge::port::position_eval::threat_cmp(p1, p3, p4) });   // S11 액션 위협(threat) — A ±1 추적용
+judge_capture_ring_cmp9!(cap_v54_aoe, crate::judge::gen_fns::V54_AOE, |p1, p2, p3, p4, p5, p6, p7, p8, p9| unsafe { crate::judge::port::combat_score::v54_aoe_cmp(p1, p2, p3, p4, p5, p6, p7, p8, p9) });   // S13+S14 분류 오라클 + aoe 값 대조
+judge_capture_ring_cmp9!(cap_mw_risk, crate::judge::gen_fns::MW_RISK, |p1, p2, p3, p4, p5, p6, p7, p8, p9| unsafe { crate::judge::port::combat_score::mw_risk_cmp(p1, p2, p3, p4, p5, p6, p7, p8, p9) });   // chase 의 a/b 원천 — 재현 `exposure` 검증
+judge_capture_ring_cmp9!(cap_v55_mark, crate::judge::gen_fns::V55_MARK, |p1, p2, p3, p4, p5, p6, p7, p8, p9| unsafe { crate::judge::port::combat_score::v55_mark_cmp(p1, p2, p3, p4, p5, p6, p7, p8, p9) });     // S12 a1 — 호출 단위 오라클
+judge_capture_ring_cmp9!(cap_v55_seal, crate::judge::gen_fns::V55_SEAL, |p1, p2, p3, p4, p5, p6, p7, p8, p9| unsafe { crate::judge::port::combat_score::v55_seal_cmp(p1, p2, p3, p4, p5, p6, p7, p8, p9) });        // S12 a2
+judge_capture_ring_cmp9!(cap_v55_banish, crate::judge::gen_fns::V55_BANISH, |p1, p2, p3, p4, p5, p6, p7, p8, p9| unsafe { crate::judge::port::combat_score::v55_banish_cmp(p1, p2, p3, p4, p5, p6, p7, p8, p9) });   // S12 a3
 judge_capture_ring_cmp!(cap_as_d83230, crate::judge::gen_fns::AS_D83230, |p1, _p2, p3, _p4, _p5, _p6, _p7, _p8| unsafe { crate::judge::port::action_score::threat_sum(p1, p3 as u64).map(|v| v as u64) });   // 위협합 (2단계: 순수 재현 교차대조)
 pub fn as_reset_all() { cap_util_c87fe0::reset(); cap_combat_score::reset(); cap_as_c88300_out::reset(); cap_as_e23170::reset(); cap_as_d84db0::reset(); cap_as_eb82d0::reset(); cap_as_e0e890::reset(); cap_as_d83230::reset(); cap_as_132b310::reset(); cap_dn_cache::reset(); cap_est_dmg::reset(); }
 judge_scorer_cmp!(cap_base_score, crate::judge::gen_fns::BASE_SCORE, |_p1: usize, _p2: usize, _p3: usize, _p4: usize, _p5: usize, _p6: usize| { crate::judge::as_reset_all(); }, crate::judge::port::action_score::base_score);
@@ -932,7 +933,7 @@ judge_hook_out!(serpen_hb_hook, crate::judge::gen_fns::SERPEN_HUNT_BATTLE, crate
 
 /// 등록된 훅 전부(status 덤프용). 훅을 늘리면 여기와 install() 에 한 줄씩.
 pub fn stats() -> Vec<(&'static str, &'static Stat)> {
-    vec![(STEAL_SCORE.name, &steal_hook::ST), (ABILITY_PICK.name, &cap_ability_pick::ST), ("ability_pick_tag", &ab_tag::ST), (RECENTLY_SEEN.name, &cap_recent_seen::ST), (DN_CACHE.name, &cap_dn_cache::ST), (DEFENSE_NEXUS.name, &defense_nexus_hook::ST), (EST_DAMAGE.name, &cap_est_dmg::ST), (PASSIVE_JUNGLE.name, &passive_jungle_hook::ST), (SINGLE_LINE.name, &cap_single_line::ST), (OBJ_CAN_ATTACK.name, &cap_obj_can_attack::ST), (OBJ_ENGAGE_GATE.name, &cap_obj_engage_gate::ST), (OBJ_POKE_GATE.name, &cap_obj_poke_gate::ST), (OBJ_COULD_ARRIVE.name, &cap_obj_could_arrive::ST), (BASE_SCORE.name, &cap_base_score::ST), (COMBAT_SCORE.name, &cap_combat_score::ST), (AS_C88300.name, &cap_as_c88300_out::ST), (AS_E23170.name, &cap_as_e23170::ST), (AS_D84DB0.name, &cap_as_d84db0::ST), (AS_D96D00.name, &cap_as_d96d00::ST), (AS_D851D0.name, &cap_as_d851d0::ST), (AS_E04400.name, &cap_as_e04400::ST), (AS_EB82D0.name, &cap_as_eb82d0::ST), (AS_E0E890.name, &cap_as_e0e890::ST), (AS_D83230.name, &cap_as_d83230::ST), (AS_132B310.name, &cap_as_132b310::ST), (UTIL_C87FE0.name, &cap_util_c87fe0::ST), (BATTLE_ARM9.name, &battle_hook::ST), (EPIC_HUNT_POKE.name, &epic_hp_hook::ST), (SERPEN_HUNT_POKE.name, &serpen_hp_hook::ST),
+    vec![(STEAL_SCORE.name, &steal_hook::ST), (ABILITY_PICK.name, &cap_ability_pick::ST), ("ability_pick_tag", &ab_tag::ST), (RECENTLY_SEEN.name, &cap_recent_seen::ST), (DN_CACHE.name, &cap_dn_cache::ST), (DEFENSE_NEXUS.name, &defense_nexus_hook::ST), (EST_DAMAGE.name, &cap_est_dmg::ST), (PASSIVE_JUNGLE.name, &passive_jungle_hook::ST), (SINGLE_LINE.name, &cap_single_line::ST), (OBJ_CAN_ATTACK.name, &cap_obj_can_attack::ST), (OBJ_ENGAGE_GATE.name, &cap_obj_engage_gate::ST), (OBJ_POKE_GATE.name, &cap_obj_poke_gate::ST), (OBJ_COULD_ARRIVE.name, &cap_obj_could_arrive::ST), (BASE_SCORE.name, &cap_base_score::ST), (COMBAT_SCORE.name, &cap_combat_score::ST), (AS_C88300.name, &cap_as_c88300_out::ST), (AS_E23170.name, &cap_as_e23170::ST), (AS_D84DB0.name, &cap_as_d84db0::ST), (AS_D96D00.name, &cap_as_d96d00::ST), (AS_D851D0.name, &cap_as_d851d0::ST), (AS_E04400.name, &cap_as_e04400::ST), (AS_EB82D0.name, &cap_as_eb82d0::ST), (AS_E0E890.name, &cap_as_e0e890::ST), (AS_D83230.name, &cap_as_d83230::ST), (V54_AOE.name, &cap_v54_aoe::ST), (MW_RISK.name, &cap_mw_risk::ST), (V55_MARK.name, &cap_v55_mark::ST), (V55_SEAL.name, &cap_v55_seal::ST), (V55_BANISH.name, &cap_v55_banish::ST), (AS_132B310.name, &cap_as_132b310::ST), (UTIL_C87FE0.name, &cap_util_c87fe0::ST), (BATTLE_ARM9.name, &battle_hook::ST), (EPIC_HUNT_POKE.name, &epic_hp_hook::ST), (SERPEN_HUNT_POKE.name, &serpen_hp_hook::ST),
          (EPIC_HUNT_BATTLE.name, &epic_hb_hook::ST), (SERPEN_HUNT_BATTLE.name, &serpen_hb_hook::ST), (PASSIVE_LINE.name, &passive_line_hook::ST)]
 }
 
@@ -1015,7 +1016,7 @@ pub fn write_status() {
                     if crate::vanilla_imm_on() { "vanilla" } else { "patched" }, s);
     if let Some(p) = pth("judge_status.txt") { let _ = fs::write(p, s); }
     if let Some(p) = pth("judge_dyn.txt") { let _ = fs::write(p, port::dyn_eff::unseen_report()); }
-    if let Some(p) = pth("judge_pe_gate.txt") { let _ = fs::write(p, format!("{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}", port::position_eval::memo_report(), port::position_eval::mine_truth_report(), port::position_eval::cand_report(), port::position_eval::need_report(), port::position_eval::neg_report(), port::position_eval::qscan_report(), port::position_eval::comp_report(), port::position_eval::gbx_report(), port::position_eval::self_report(), port::position_eval::truth_report(), port::position_eval::edge_report(), port::position_eval::gate_report(), port::combat_score::na_report(), port::combat_score::a2_report(), port::combat_score::e044_report(), port::combat_score::pmask_report(), ord_report(), port::combat_score::cap_report(), port::position_eval::impact_report(), port::combat_score::nch_report())); }
+    if let Some(p) = pth("judge_pe_gate.txt") { let _ = fs::write(p, format!("{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}", port::combat_score::path_report(), port::position_eval::memo_report(), port::position_eval::mine_truth_report(), port::position_eval::cand_report(), port::position_eval::need_report(), port::position_eval::neg_report(), port::position_eval::qscan_report(), port::position_eval::comp_report(), port::position_eval::gbx_report(), port::position_eval::self_report(), port::position_eval::truth_report(), port::position_eval::edge_report(), port::position_eval::gate_report(), port::combat_score::na_report(), port::combat_score::a2_report(), port::combat_score::e044_report(), port::combat_score::pmask_report(), ord_report(), port::combat_score::cap_report(), port::position_eval::impact_report(), port::combat_score::nch_report())); }
 }
 
 static INSTALLED: AtomicBool = AtomicBool::new(false);
@@ -1073,6 +1074,11 @@ pub unsafe fn install() {
             install_one(&mut log, &AS_EB82D0, &cap_as_eb82d0::ORIG, cap_as_eb82d0::wrap as *const () as usize, "capture-ring");
             install_one(&mut log, &AS_E0E890, &cap_as_e0e890::ORIG, cap_as_e0e890::wrap as *const () as usize, "capture-ring");
             install_one(&mut log, &AS_D83230, &cap_as_d83230::ORIG, cap_as_d83230::wrap as *const () as usize, "capture-ring");
+            install_one(&mut log, &V54_AOE, &cap_v54_aoe::ORIG, cap_v54_aoe::wrap as *const () as usize, "capture-ring");
+            install_one(&mut log, &MW_RISK, &cap_mw_risk::ORIG, cap_mw_risk::wrap as *const () as usize, "capture-ring");
+            install_one(&mut log, &V55_MARK, &cap_v55_mark::ORIG, cap_v55_mark::wrap as *const () as usize, "capture-ring");
+            install_one(&mut log, &V55_SEAL, &cap_v55_seal::ORIG, cap_v55_seal::wrap as *const () as usize, "capture-ring");
+            install_one(&mut log, &V55_BANISH, &cap_v55_banish::ORIG, cap_v55_banish::wrap as *const () as usize, "capture-ring");
             install_one(&mut log, &AS_132B310, &cap_as_132b310::ORIG, cap_as_132b310::wrap as *const () as usize, "capture-ring");
             install_one(&mut log, &BASE_SCORE, &cap_base_score::ORIG, cap_base_score::wrap as *const () as usize, "scorer-cmp");
         }

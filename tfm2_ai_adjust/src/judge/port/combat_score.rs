@@ -31,7 +31,21 @@ static NA_CNTS: [AtomicU64; 32] = [const { AtomicU64::new(0) }; 32];
 thread_local! { static STG: std::cell::Cell<u64> = const { std::cell::Cell::new(0) }; static TAGGED: std::cell::Cell<bool> = const { std::cell::Cell::new(false) };
                 /// 이번 호출이 **어느 반환 경로**로 나갔는지(DIFF 진단용)
                 pub static PATH: std::cell::Cell<u64> = const { std::cell::Cell::new(0) }; }
-#[inline] fn pth_set(t: &str) { PATH.with(|c| c.set(tag8(t))); }
+/// ★[2026-09-08] 경로 분류 오라클 — 게임의 S12 진입 횟수는 `v55_mark` 훅의 `entered` 와 **정확히 같아야** 한다
+///   (블록 %1034 에서 v55 3종을 무조건 부른다). 내 S12 카운트가 다르면 분류 자체가 틀린 것이다.
+pub static PATH_CNT: [AtomicU64; 10] = [const { AtomicU64::new(0) }; 10];
+const PIDX: [&str; 10] = ["S12", "S13", "S14", "S15z", "S11mis", "E0특수형", "E1하드리젝", "S2리젝", "S10처형", "other"];
+#[inline] fn pth_cnt(i: usize) { PATH_CNT[i].fetch_add(1, Ordering::Relaxed); }
+pub fn path_report() -> String {
+    let v: Vec<String> = (0..10).map(|i| format!("{}={}", PIDX[i], PATH_CNT[i].load(Ordering::Relaxed))).collect();
+    format!("[경로] {}
+", v.join(" "))
+}
+#[inline] fn pth_set(t: &str) {
+    PATH.with(|c| c.set(tag8(t)));
+    match t { "S12" => pth_cnt(0), "S13" => pth_cnt(1), "S14" => pth_cnt(2), "S15z" => pth_cnt(3), "S11mis" => pth_cnt(4),
+             "E0" => pth_cnt(5), "E1" => pth_cnt(6), "S2" => pth_cnt(7), "S10" => pth_cnt(8), _ => {} }
+}
 pub fn path_str() -> String { let v = PATH.with(|c| c.get()); v.to_le_bytes().iter().take_while(|b| **b != 0).map(|b| *b as char).collect() }
 #[inline] fn stg(t: u64) { STG.with(|c| c.set(t)); }
 fn na(tag: u64) -> Option<i64> {
@@ -904,7 +918,7 @@ unsafe fn combat_score_inner(mode: usize, _prof: usize, rec: usize, ctx: usize, 
         };
     // ── S1 특수형 조기반환(0xe04400) ──
     stg(tag8("S1"));
-    if let Some(v) = special_early(ctx, rec, me, sp, tgt)? { return Some(v); }
+    if let Some(v) = special_early(ctx, rec, me, sp, tgt)? { pth_set("E0"); return Some(v); }
     let tgt_kind = rd_i32(tgt + ENT_KIND)?;
     // ★게임은 **핸들 비교**다(`0xd5e52d cmp rsi,[rbp+0x618]` = tgt.0x5c0 vs me.0x5c0).
     //   ~~포인터 비교(`me == tgt`)~~ 는 같은 유닛의 다른 스냅샷이 오면 false 가 되어
@@ -929,7 +943,7 @@ unsafe fn combat_score_inner(mode: usize, _prof: usize, rec: usize, ctx: usize, 
             if r < d {
                 // ★게임은 `test byte[rbp+0x808],1`(0xd5c369) — **bit0 만** 본다.
                 //   ~~`!= 0`~~ 은 0x1500 이 2/4 일 때 재현만 리젝트한다(RE 2026-09-07).
-                if rd_u8(bb + BB_1500) & 1 != 0 { return Some(-9_999_999); }
+                if rd_u8(bb + BB_1500) & 1 != 0 { pth_set("E1"); return Some(-9_999_999); }
                 if !urgent {
                     if let Some((_, _, t)) = approach(ctx, me, tgt, slot)? {
                         if t != 0 {
@@ -1259,6 +1273,54 @@ unsafe fn combat_score_inner(mode: usize, _prof: usize, rec: usize, ctx: usize, 
     LAST.with(|c| c.set([risk_neg, tower_support, pos_term, main, urgent as i64, c_val, thr_s, chase, rd_i64(bb + BB_998).unwrap_or(-1), bonus9b0, cast_delay as i64, hp as i64, thr, rd_u64(bb + BB_R + AS_REC_THR_LEN).unwrap_or(0) as i64, crate::judge::cap_as_d83230::last().map(|v| v as i64).unwrap_or(-999), rd_i64(bb + 0x970).unwrap_or(0), rd_i64(bb + 0x9a0).unwrap_or(0), rd_i64(bb + 0x988).unwrap_or(0), inner_dbg, raw9b0]));
     pth_set(if rec_t.is_some() { "S12" } else { "S15z" });
     Some(risk_neg + tower_support + pos_term + main)
+}
+
+
+// ── v55 3종 직접 대조용 공개 래퍼 (2026-09-08) ────────────────────────────────────────────
+//   S12 잔여의 정체를 `score` / `a1` / `a2` / `a3` 중 어디인지 **호출 단위 오라클**로 가른다.
+//   게임 함수 = `v55_mark_value`(0xe01450) · `v55_seal_value`(0xe019d0) · `v55_banish_penalty`(0xe02020).
+//   인자 순서는 IR 호출부(m05.ll:42508/42511/42514)에서 확정했다.
+#[inline] unsafe fn ctx_world(ctx: usize) -> Option<(World, usize, u64)> {
+    if !ptr_ok(ctx) { return None; }
+    let x = rd_u64(ctx)? as usize; let sim = rd_u64(ctx + 8)? as usize;
+    if !ptr_ok(x) || !ptr_ok(sim) { return None; }
+    let w = World { x, data: rd_u64(x)? as usize, vt: rd_u64(x + 8)? as usize };
+    if !ptr_ok(w.data) || !ptr_ok(w.vt) { return None; }
+    let cfg = rd_u64(sim + 8)? as usize; if !ptr_ok(cfg) { return None; }
+    Some((w, sim, rd_u64(cfg + 0x12f8)?))
+}
+/// `v55_mark_value(mode, slot, ctx, rec, bb, me, tgt, ct, p9)`
+pub unsafe fn v55_mark_cmp(_mode: usize, slot: usize, ctx: usize, rec: usize, _bb: usize, _me: usize, tgt: usize, ct: usize, _p9: usize) -> Option<i64> {
+    let (w, sim, tps) = ctx_world(ctx)?;
+    if !ptr_ok(slot) || !ptr_ok(rec) || !ptr_ok(tgt) { return None; }
+    e01450(&w, sim, rec, slot, tgt, ct as i64, tps)
+}
+/// `v55_seal_value(mode, slot, ctx, me, tgt, ct)`
+pub unsafe fn v55_seal_cmp(_mode: usize, slot: usize, ctx: usize, _me: usize, tgt: usize, ct: usize, _p7: usize, _p8: usize, _p9: usize) -> Option<i64> {
+    let (w, sim, tps) = ctx_world(ctx)?;
+    if !ptr_ok(slot) || !ptr_ok(tgt) { return None; }
+    e019d0(&w, sim, slot, tgt, ct as i64, tps)
+}
+/// `v55_banish_penalty(mode, slot, ctx, rec, me, tgt, ct)`
+pub unsafe fn v55_banish_cmp(_mode: usize, slot: usize, ctx: usize, rec: usize, me: usize, tgt: usize, ct: usize, _p8: usize, _p9: usize) -> Option<i64> {
+    let (w, sim, tps) = ctx_world(ctx)?;
+    if !ptr_ok(slot) || !ptr_ok(rec) || !ptr_ok(me) || !ptr_ok(tgt) { return None; }
+    e02020(&w, sim, rec, slot, me, tgt, ct as i64, tps)
+}
+
+/// `enemy_minion_wave_risk_damage_at(mode, ctx, me, x, y, h)` — 0xd95d00 직접 대조
+pub unsafe fn mw_risk_cmp(_mode: usize, ctx: usize, me: usize, x: usize, y: usize, h: usize, _p7: usize, _p8: usize, _p9: usize) -> Option<i64> {
+    let (w, _sim, tps) = ctx_world(ctx)?;
+    if !ptr_ok(me) { return None; }
+    super::position_eval::exposure(w.x, me, x as u64, y as u64, h as u64, tps).map(|v| v as i64)
+}
+
+/// `v54_aoe_ally_heal_value(mode, slot, ctx, bb, me, tgt, skip_key, sp)` — 0xe02bc0 직접 대조.
+///   S13/S14 arm 양쪽에서 **호출당 1회** 불리므로 `entered` = 게임의 (S13+S14) 분류 수다.
+pub unsafe fn v54_aoe_cmp(_mode: usize, slot: usize, ctx: usize, bb: usize, me: usize, tgt: usize, skip: usize, sp: usize, _p9: usize) -> Option<i64> {
+    if !ptr_ok(slot) || !ptr_ok(ctx) || !ptr_ok(bb) || !ptr_ok(me) || !ptr_ok(tgt) || !ptr_ok(sp) { return None; }
+    let cd = cast_delay0(sp)?;
+    super::buff_value::e02bc0(slot, ctx, bb, me, tgt, skip as u64, cd)
 }
 
 // ── 아직 못 옮긴 dyn 게터(도달 빈도만 집계) ─────────────────────────────────────────────
