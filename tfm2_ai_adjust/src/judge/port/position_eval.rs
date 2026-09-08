@@ -10,6 +10,7 @@ use super::super::layout::*;
 use super::dyn_eff as dy;
 use super::passive_jungle::estimate_damage;
 use super::as_callees::{eff_bool, kind_pred, isqrt_fast};
+use std::sync::atomic::{AtomicU64, Ordering};
 use super::action_score::{sim_of_handle, champ_kind, champ_tags, champ_vt30_w2, tags_has};
 use super::fight_check::eff_vt120;
 use super::dn_reach::eff_e8;
@@ -310,6 +311,83 @@ pub unsafe fn tower_dive(w: &World, tower: usize, side: u64) -> Option<(u64, u64
         if best == 0 || key >= bkey { best = a; bkey = key; }   // 동점 시 뒤쪽(핸들 큰 쪽)
     }
     Some(if best == 0 { (0, 0) } else { (1, rd_u64(best + ENT_HANDLE)?) })
+}
+
+/// ★[2026-09-08] `tower_dive` 의 D단계(누가 다이브하는가) 규칙을 **미러 오라클로 실측 결정**한다.
+///   현재 재현은 `max by (maxhp, handle)` 인데 미러와 62% 어긋난다(370,643/595,208).
+///   후보 8종의 핸들을 전부 돌려주고 호출부에서 미러와 대조해 적중을 센다.
+///   V0 max(maxhp,h) · V1 min(maxhp,h) · V2 max maxhp/작은h · V3 min maxhp/작은h
+///   V4 min h · V5 max h · V6 min hp · V7 max hp
+pub unsafe fn tower_dive_cands(w: &World, tower: usize, side: u64) -> Option<Option<[u64; 8]>> {
+    if rd_u32(tower + 0x68) != 2 { return Some(None); }
+    if rd_u8(tower + 0x6b9) != 1 { return Some(None); }
+    if rd_u64(tower + 0x6a0)? != 0 { return Some(None); }
+    if rd_i32(tower + 0x4c0)? == -1 { return Some(None); }
+    if side > 1 { return None; }
+    const D2: u64 = 250_000u64 * 250_000;
+    let base = w.x + X_ROSTER;
+    let mut allies: [usize; 5] = [0; 5]; let mut na = 0usize;
+    for i in 0..5usize {
+        let e = rd_u64(base + (side as usize) * 0x28 + i * 8)? as usize; if e == 0 { continue; }
+        if rd_u32(e + 0x68) == 0xd && rd_u32(e + 0x70) == 1 { continue; }
+        if sat_d2(rd_u64(e + ENT_X)?, rd_u64(e + ENT_Y)?, rd_u64(tower + ENT_X)?, rd_u64(tower + ENT_Y)?) > D2 { continue; }
+        allies[na] = e; na += 1;
+    }
+    if na < 2 { return Some(None); }
+    let mut out = [0u64; 8]; let mut any = false;
+    let mut bk: [Option<(u64, u64)>; 8] = [None; 8];
+    for k in 0..na {
+        let a = allies[k];
+        let dmg = estimate_damage(tower + SLOT0, tower, a, false)?.max(1);
+        let hp = rd_u64(a + ENT_HP)?;
+        if hp < dmg.wrapping_mul(3) { continue; }
+        let mx = rd_u64(a + ENT_MAXHP)?; let h = rd_u64(a + ENT_HANDLE)?;
+        any = true;
+        let keys: [(u64, u64); 8] = [(mx, h), (mx, h), (mx, u64::MAX - h), (mx, u64::MAX - h), (h, 0), (h, 0), (hp, 0), (hp, 0)];
+        for v in 0..8usize {
+            let take = match bk[v] {
+                None => true,
+                Some(cur) => if v % 2 == 0 { keys[v] >= cur } else { keys[v] < cur },   // 짝수=max(동점 뒤), 홀수=min(동점 앞)
+            };
+            // V2/V3 는 (maxhp, 작은 핸들) 우선 · V4 min h · V5 max h · V6 min hp · V7 max hp
+            let take = match v { 2 => matches!(bk[v], None) || keys[v] >= bk[v].unwrap(),
+                                 3 => matches!(bk[v], None) || keys[v] < bk[v].unwrap(),
+                                 4 | 6 => matches!(bk[v], None) || keys[v] < bk[v].unwrap(),
+                                 5 | 7 => matches!(bk[v], None) || keys[v] >= bk[v].unwrap(),
+                                 _ => take };
+            if take { bk[v] = Some(keys[v]); out[v] = h; }
+        }
+    }
+    Some(if any { Some(out) } else { None })
+}
+/// 미러 vs 순수 재현 대조 — [비교, 일치, dive불일치, tgt불일치, 재현과다, 재현과소, 미러미스]
+pub static DIVE_CMP: [AtomicU64; 7] = [const { AtomicU64::new(0) }; 7];
+/// D단계 규칙 후보 8종의 적중(미러 dive==1 표본 한정) + [8]=표본수
+pub static DIVE_V: [AtomicU64; 9] = [const { AtomicU64::new(0) }; 9];
+pub fn dive_cmp_report() -> String {
+    let n = DIVE_CMP[0].load(Ordering::Relaxed);
+    let miss = DIVE_CMP[6].load(Ordering::Relaxed);
+    if n == 0 && miss == 0 { return String::new(); }
+    format!("=== 타워다이브 미러 vs 순수재현 (미러 있을 때만) ===
+  비교={} 일치={} ({:.4}%) | dive불일치={} tgt불일치={} | 재현과다(0→1)={} 재현과소(1→0)={} | 미러미스(재현만 사용)={}
+",
+        n, DIVE_CMP[1].load(Ordering::Relaxed),
+        if n > 0 { DIVE_CMP[1].load(Ordering::Relaxed) as f64 * 100.0 / n as f64 } else { 0.0 },
+        DIVE_CMP[2].load(Ordering::Relaxed), DIVE_CMP[3].load(Ordering::Relaxed),
+        DIVE_CMP[4].load(Ordering::Relaxed), DIVE_CMP[5].load(Ordering::Relaxed), miss)
+    + &{
+        let t = DIVE_V[8].load(Ordering::Relaxed);
+        if t == 0 { String::new() } else {
+            let nm = ["V0 max(mx,h)", "V1 min(mx,h)", "V2 max mx/작은h", "V3 min mx/작은h", "V4 min h", "V5 max h", "V6 min hp", "V7 max hp"];
+            let mut s = format!("  D단계 규칙 후보(미러 dive==1 표본 {}건):
+", t);
+            let mut v: Vec<(u64, &str)> = (0..8).map(|i| (DIVE_V[i].load(Ordering::Relaxed), nm[i])).collect();
+            v.sort_by(|a, b| b.0.cmp(&a.0));
+            for (c, n) in v { s += &format!("    {:<16} 적중={} ({:.3}%)
+", n, c, c as f64 * 100.0 / t as f64); }
+            s
+        }
+    }
 }
 pub fn dive_lookup(side: u64, th: u64, tick: u64) -> Option<(u64, u64)> { DIVE.with(|c| { let (a, n) = c.get(); (n.saturating_sub(32)..n).rev().map(|i| a[i % 32]).find(|e| e.0 == side && e.1 == th && e.2 == tick).map(|e| (e.3, e.4)) }) }
 /// 훅에서 부른다: p1=mode p2=&Holder p3=sim p4=tower
@@ -873,9 +951,34 @@ unsafe fn body(st: &St) -> Option<Out> {
                     // ★미러가 있으면 **미러가 정답**이다(게임이 실제로 계산한 값). 없을 때만 순수 재현으로 메운다.
                     //   ~~순수 재현만 쓰기~~ 는 전투예측 게이트(0xe083c0 미포팅)를 "항상 진행" 으로 가정하는 탓에
                     //   position_eval DIFF 를 0 → 124,482 로 만들었다(2026-09-07 실측).
-                    let (dive, tgt_id) = match dive_lookup(side, rd_u64(item + ENT_HANDLE)?, tick) {
+                    // ★[2026-09-08] 미러가 **있을 때** 순수 재현과 대조해 재현의 오차율을 잰다.
+                    //   `combat_score` 의 pre 계산은 미러가 늘 비어 순수 재현만 쓰는데, 그 순수 재현이
+                    //   틀린 것이 잔여 DIFF 의 단일 원인이다(RE 2026-09-08). 어디가 틀린지부터 가른다.
+                    //   ⚠계측은 타워마다 `tower_dive` 를 한 번 더 돌리므로 **기본 OFF**(cfg `judge_dive_probe=1`).
+                    let probe = crate::tune("judge_dive_probe", 0) != 0;
+                    let mirror = dive_lookup(side, rd_u64(item + ENT_HANDLE)?, tick);
+                    let pure = if mirror.is_none() || probe { tower_dive(&w, item, side) } else { None };
+                    if let (true, Some(m), Some(p)) = (probe, mirror, pure) {
+                        DIVE_CMP[0].fetch_add(1, Ordering::Relaxed);
+                        if m == p { DIVE_CMP[1].fetch_add(1, Ordering::Relaxed); }
+                        else {
+                            if m.0 != p.0 { DIVE_CMP[2].fetch_add(1, Ordering::Relaxed); }
+                            if m.1 != p.1 { DIVE_CMP[3].fetch_add(1, Ordering::Relaxed); }
+                            // 미러 0 · 재현 1 = 재현이 다이브를 과다 인정(= 전투예측 게이트 누락과 부합)
+                            if m.0 == 0 && p.0 == 1 { DIVE_CMP[4].fetch_add(1, Ordering::Relaxed); }
+                            if m.0 == 1 && p.0 == 0 { DIVE_CMP[5].fetch_add(1, Ordering::Relaxed); }
+                        }
+                    } else if mirror.is_none() { DIVE_CMP[6].fetch_add(1, Ordering::Relaxed); }
+                    // ★D단계 규칙 후보 전수 대조 — 미러가 다이브를 인정한 표본에서만
+                    if let (true, Some(m)) = (probe, mirror) { if m.0 == 1 {
+                        if let Some(Some(c)) = tower_dive_cands(&w, item, side) {
+                            DIVE_V[8].fetch_add(1, Ordering::Relaxed);
+                            for v in 0..8usize { if c[v] == m.1 { DIVE_V[v].fetch_add(1, Ordering::Relaxed); } }
+                        }
+                    } }
+                    let (dive, tgt_id) = match mirror {
                         Some(v) => v,
-                        None => match tower_dive(&w, item, side) {
+                        None => match pure {
                             Some(v) => v,
                             None => { trs(|| "NA:dive".into()); pmark("dive"); return None } } };
                     let hit_me = tgt_id == th && (dive & 1) == 1;

@@ -65,6 +65,17 @@ thread_local! { pub static S12ST: std::cell::Cell<[i64; 20]> = const { std::cell
 /// [st, T, dmg, tps, burst, tgt.hp]
 /// S5 위험항 진단: [near!=0, near.kind, near.0x88, dist(me,near), r_t, safe, bb.0x9b0 원값]
 thread_local! { pub static S5D: std::cell::Cell<[i64; 30]> = const { std::cell::Cell::new([0; 30]) }; }
+/// ★[2026-09-08] `pos_term` 이 진짜 범인인지 가르는 사후 오라클.
+///   DIFF 로그는 **원본 호출 뒤**에 찍히므로, 그 시점엔 게임이 방금 이 셀을 계산해 메모에 넣어 뒀다.
+///   같은 키로 다시 조회해 `a8` 의 정답을 직접 본다(pre 시점엔 항상 미스라 알 수 없었다).
+thread_local! { pub static POSK: std::cell::Cell<(usize, usize, usize, u64, u64)> = const { std::cell::Cell::new((0, 0, 0, 0, 0)) }; }
+pub unsafe fn pos_post_probe() -> (i64, i64) {
+    let (mode, rec, ctx, qx, qy) = POSK.with(|c| c.get());
+    if ctx == 0 { return (i64::MIN, i64::MIN); }
+    let m = super::position_eval::memo_lookup(mode, rec, ctx, qx as usize, qy as usize, 0xc).map(|w| w[0] as i64);
+    let r = super::position_eval::position_eval(mode as u64, rec, ctx, qx, qy, 0xc).map(|o| o.a);
+    (m.unwrap_or(i64::MIN), r.unwrap_or(i64::MIN))
+}
 /// `e02020`(=`v55_banish_penalty`) 조기반환 추적 — [c0, ok88, t88, i_c0, i_88, rec_t, acc, n]
 thread_local! { pub static E20D: std::cell::Cell<[i64; 8]> = const { std::cell::Cell::new([0; 8]) }; }
 pub fn e20_diag() -> [i64; 8] { E20D.with(|c| c.get()) }
@@ -123,7 +134,7 @@ pub unsafe fn diag(_p1: usize, _p3: usize, _p4: usize) -> String {
         v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7], v[8], v[9], v[10], v[11], v[12], v[13])
         + &format!(" game_thr={} bb970={} bb9a0={} bb988={} inner={} raw9b0={}", v[14], v[15], v[16], v[17], v[18], v[19])
         + &{ let q = S12D.with(|c| c.get()); let z = s12_st(); format!(" | S12[D={} X={} Ct={} kill={} score={} e01450={} e019d0={} e02020={} st={} T={} dmg={} selfN={} burst={} thp={} stRaw={} bonus={} q={} pk={} E1450[v1={} v2={} v3={} v4={} v5={} msum={} dps={} n={} acc={} nal={} a8i={:#x}] i88={:#x} tid={:#x} m16={} v10={} aa={} THP={} v={} slN={}] A[{:?}]", q[0], q[1], q[2], q[3], q[4], q[5], q[6], q[7], z[0], z[1], z[2], z[3], z[4], z[5], z[10], z[7], z[8], z[9], { let q = e1450_diag(); q[0] }, e1450_diag()[1], e1450_diag()[2], e1450_diag()[3], e1450_diag()[4], e1450_diag()[5], e1450_diag()[6], e1450_diag()[7], e1450_diag()[8], e1450_diag()[9], e1450_diag()[10], z[12], z[13], z[14], z[15], z[16], z[17], z[18], z[19], ally_diag()) }
-        + &{ let d = s5_diag(); format!(" S5[near={} kind={} f88={} dn={} rt={} safe={} raw9b0={} vis={} t0d={} t0a={} cdly={} alen={} th={:#x} a0={:#x} a1={:#x} pg={} d2={} a8={} pmask={:#x} pfirst={} a8m={} a8r={}] NIC[cand={} dmin={} mlen={} nstruct={}] CH[k={} g={:#x} ap={} a={} b={} keep={} v={}] E20[c0={} ok={} t={} ic0={:#x} i88={:#x} rec={} acc={} n={}]", d[0], d[1], d[2], d[3], d[4], d[5], d[6], d[7], d[8], d[9], cast_dly(), d[10], d[11], d[12], d[13], d[14], d[15], d[16], d[21], d[22], d[23], d[24], nic_diag()[0], nic_diag()[1], nic_diag()[2], nic_diag()[3], d[17], d[20], d[25], d[26], d[27], d[28], d[29], e20_diag()[0], e20_diag()[1], e20_diag()[2], e20_diag()[3], e20_diag()[4], e20_diag()[5], e20_diag()[6], e20_diag()[7]) }
+        + &{ let d = s5_diag(); format!(" S5[near={} kind={} f88={} dn={} rt={} safe={} raw9b0={} vis={} t0d={} t0a={} cdly={} alen={} th={:#x} a0={:#x} a1={:#x} pg={} d2={} a8={} pmask={:#x} pfirst={} a8m={} a8r={}] NIC[cand={} dmin={} mlen={} nstruct={}] CH[k={} g={:#x} ap={} a={} b={} keep={} v={}] E20[c0={} ok={} t={} ic0={:#x} i88={:#x} rec={} acc={} n={}] POST[a8m={} a8r={}]", d[0], d[1], d[2], d[3], d[4], d[5], d[6], d[7], d[8], d[9], cast_dly(), d[10], d[11], d[12], d[13], d[14], d[15], d[16], d[21], d[22], d[23], d[24], nic_diag()[0], nic_diag()[1], nic_diag()[2], nic_diag()[3], d[17], d[20], d[25], d[26], d[27], d[28], d[29], e20_diag()[0], e20_diag()[1], e20_diag()[2], e20_diag()[3], e20_diag()[4], e20_diag()[5], e20_diag()[6], e20_diag()[7], pos_post_probe().0, pos_post_probe().1) }
         + &unsafe { let caps = crate::judge::cap_util_c87fe0::last_p2().unwrap_or(0);
             // ★★`path=`·`S13[…]` 를 **caps 게이트 밖으로** 뺐다 — 잔차 23건이 전부 `caps=none` 이라
             //   경로를 안 찍은 것처럼 보였고, 그것 때문에 조기반환으로 오진단했다(RE 2026-09-07).
@@ -1109,6 +1120,7 @@ unsafe fn combat_score_inner(mode: usize, _prof: usize, rec: usize, ctx: usize, 
             }
         }
         S5D.with(|c| { let mut z = c.get(); z[21] = pmask; z[22] = pfirst; c.set(z); });
+        POSK.with(|c| c.set((mode, rec, ctx, qx8, qy8)));
         let a8_memo = super::position_eval::memo_lookup(mode, rec, ctx, qx8 as usize, qy8 as usize, 0xc).map(|w| w[0] as i64);
         let a8_repro = super::position_eval::position_eval(mode as u64, rec, ctx, qx8, qy8, 0xc).map(|o| o.a);
         // 둘이 갈리는지 계측 — 갈린다면 어느 쪽이 게임인지 DIFF 가 말해 준다
