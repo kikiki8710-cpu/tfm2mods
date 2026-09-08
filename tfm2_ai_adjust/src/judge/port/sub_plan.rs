@@ -83,6 +83,43 @@ unsafe fn arm_line(sf: usize, variant: u64) -> Option<MpOut> {
     Some(o)
 }
 
+/// `LineGankerPlan::target_bush_v41`(m08.ll, ganker.rs L311~349) — 국면(phase)·팀·역할로 **부시 인덱스**.
+///   호출 규약(실코드 0xcafd72): `f(self[0x30], player.side, player.role, x, ctx)`. ctx 의 cfg = `ctx[8]`.
+unsafe fn target_bush_v41(phase: u8, side: u64, role: u32, x: usize, ctx: usize) -> Option<u64> {
+    if side >= 2 || role >= 5 { return None; }           // 게임은 bounds panic
+    let s = side as usize;
+    let pick = |t: [u64; 7], off: usize| -> Option<u64> {
+        let k = rd_u64(x + off + s * 8)?; if k >= 7 { return None; }   // 게임은 panic
+        Some(t[k as usize])
+    };
+    match phase {
+        0 => pick(if side == 0 { [16, 6, 3, 3, 3, 2, 2] } else { [2, 3, 6, 6, 6, 16, 16] }, 8640),
+        2 => pick(if side == 0 { [21, 20, 15, 15, 15, 9, 7] } else { [9, 15, 20, 20, 20, 21, 23] }, 8672),
+        1 => {
+            let me = rd_u64(x + X_ROSTER + s * 0x28 + role as usize * 8)? as usize;
+            if me == 0 { return None; }                  // 게임은 unwrap panic
+            let cfg = rd_u64(ctx + 8)? as usize; if !ptr_ok(cfg) { return None; }
+            // flip = (cfg[4800] - me.y) < me.x  — 맵 대각 기준 위/아래
+            let flip = rd_u64(cfg + 4800)?.wrapping_sub(rd_u64(me + ENT_Y)?) < rd_u64(me + ENT_X)?;
+            let (a, b, c) = (if flip { 14 } else { 11 }, if flip { 21 } else { 17 }, if flip { 9 } else { 4 });
+            let (t0, t5) = if side == 0 { (b, c) } else { (c, b) };
+            pick([t0, a, a, a, a, t5, t5], 8656)
+        }
+        _ => None,                                       // 게임은 unreachable
+    }
+}
+
+/// arm 8 — LineGanker. 공통 꼬리 = `code 9 · [8]=ret · word[0x10]=1 · [0x12]=0`(실코드 0xcafd95~0xcafda3).
+unsafe fn arm_line_ganker(sf: usize, player: usize, data: usize) -> Option<MpOut> {
+    let side = rd_u64(player + P5_SIDE)?; let role = rd_u32(player + P5_ROLE);
+    let x = rd_u64(data)? as usize; let ctx = rd_u64(data + 8)? as usize;
+    if !ptr_ok(x) || !ptr_ok(ctx) { return None; }
+    let r = target_bush_v41(rd_u8(sf + 0x30), side, role, x, ctx)?;
+    let mut o = MpOut::default();
+    o.push(8, 8, r); o.push(0x10, 2, 1); o.push(0x12, 1, 0); o.code(9);
+    Some(o)
+}
+
 /// ★`BigPlan::sub_plan` 본체. 각 arm 은 **자기 플랜의 `*Plan::sub_plan`**(= 이미 포팅·검증된 핸들러)에 위임한다.
 ///   위임 시 `p2` 는 게임과 같이 **`self + 8`**(플랜 payload) 로 바꿔 넘긴다(IR: `%19 = gep %1, i64 8`).
 pub unsafe fn big_plan_sub_plan(a: &Args8) -> Option<MpOut> {
@@ -124,7 +161,7 @@ pub unsafe fn big_plan_sub_plan(a: &Args8) -> Option<MpOut> {
         15 => if lv("judge_live_defense_nexus") { super::defense_nexus::defense_nexus_live(&inner_dn) }
               else { super::defense_nexus::defense_nexus(&inner_dn) },
         2 => { let _ = na_tag("SP_single_line"); None }        // 0.5.8 미발화(entered=0)
-        8 => { let _ = na_tag("SP_line_ganker"); None }
+        8 => arm_line_ganker(sf, player, data),
         9 => { let _ = na_tag("SP_gank_cover"); None }
         11 => { let _ = na_tag("SP_epic_battle"); None }
         13 => { let _ = na_tag("SP_serpen_battle"); None }
