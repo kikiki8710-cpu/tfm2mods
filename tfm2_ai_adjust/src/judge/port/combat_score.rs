@@ -50,8 +50,11 @@ pub fn ally_diag() -> [i64; 10] { ALLYD.with(|c| c.get()) }
 thread_local! { pub static S12ST: std::cell::Cell<[i64; 20]> = const { std::cell::Cell::new([0; 20]) }; }
 /// [st, T, dmg, tps, burst, tgt.hp]
 /// S5 위험항 진단: [near!=0, near.kind, near.0x88, dist(me,near), r_t, safe, bb.0x9b0 원값]
-thread_local! { pub static S5D: std::cell::Cell<[i64; 23]> = const { std::cell::Cell::new([0; 23]) }; }
-pub fn s5_diag() -> [i64; 23] { S5D.with(|c| c.get()) }
+thread_local! { pub static S5D: std::cell::Cell<[i64; 30]> = const { std::cell::Cell::new([0; 30]) }; }
+/// `e02020`(=`v55_banish_penalty`) 조기반환 추적 — [c0, ok88, t88, i_c0, i_88, rec_t, acc, n]
+thread_local! { pub static E20D: std::cell::Cell<[i64; 8]> = const { std::cell::Cell::new([0; 8]) }; }
+pub fn e20_diag() -> [i64; 8] { E20D.with(|c| c.get()) }
+pub fn s5_diag() -> [i64; 30] { S5D.with(|c| c.get()) }
 thread_local! { pub static CDLY: std::cell::Cell<i64> = const { std::cell::Cell::new(0) }; }
 pub fn cast_dly() -> i64 { CDLY.with(|c| c.get()) }
 /// 직전 S12 호출의 스테로이드 창 기여분(진단용)
@@ -98,15 +101,15 @@ pub fn na_report() -> String {
     for (k, c) in v { let t: String = k.to_le_bytes().iter().take_while(|b| **b != 0).map(|b| *b as char).collect(); s += &format!("{:<10} x{}\n", t, c); }
     s
 }
-thread_local! { pub static S12D: std::cell::Cell<[i64; 8]> = const { std::cell::Cell::new([0; 8]) }; pub static LAST: std::cell::Cell<[i64; 18]> = const { std::cell::Cell::new([0; 18]) }; }
+thread_local! { pub static S12D: std::cell::Cell<[i64; 8]> = const { std::cell::Cell::new([0; 8]) }; pub static LAST: std::cell::Cell<[i64; 20]> = const { std::cell::Cell::new([0; 20]) }; }
 /// DIFF 로그용 단계 값
 pub unsafe fn diag(_p1: usize, _p3: usize, _p4: usize) -> String {
     let v = LAST.with(|c| c.get());
     format!("risk_neg={} tower={} pos={} main={} urgent={} C={} thr_s={} chase={} bb998={} b9b0={} cast={} hp={} thr={} thrlen={}",
         v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7], v[8], v[9], v[10], v[11], v[12], v[13])
-        + &format!(" game_thr={} bb970={} bb9a0={} bb988={}", v[14], v[15], v[16], v[17])
+        + &format!(" game_thr={} bb970={} bb9a0={} bb988={} inner={} raw9b0={}", v[14], v[15], v[16], v[17], v[18], v[19])
         + &{ let q = S12D.with(|c| c.get()); let z = s12_st(); format!(" | S12[D={} X={} Ct={} kill={} score={} e01450={} e019d0={} e02020={} st={} T={} dmg={} selfN={} burst={} thp={} stRaw={} bonus={} q={} pk={} E1450[v1={} v2={} v3={} v4={} v5={} msum={} dps={} n={} acc={} nal={} a8i={:#x}] i88={:#x} tid={:#x} m16={} v10={} aa={} THP={} v={} slN={}] A[{:?}]", q[0], q[1], q[2], q[3], q[4], q[5], q[6], q[7], z[0], z[1], z[2], z[3], z[4], z[5], z[10], z[7], z[8], z[9], { let q = e1450_diag(); q[0] }, e1450_diag()[1], e1450_diag()[2], e1450_diag()[3], e1450_diag()[4], e1450_diag()[5], e1450_diag()[6], e1450_diag()[7], e1450_diag()[8], e1450_diag()[9], e1450_diag()[10], z[12], z[13], z[14], z[15], z[16], z[17], z[18], z[19], ally_diag()) }
-        + &{ let d = s5_diag(); format!(" S5[near={} kind={} f88={} dn={} rt={} safe={} raw9b0={} vis={} t0d={} t0a={} cdly={} alen={} th={:#x} a0={:#x} a1={:#x} pg={} d2={} a8={} pmask={:#x} pfirst={} a8m={} a8r={}] NIC[cand={} dmin={} mlen={} nstruct={}]", d[0], d[1], d[2], d[3], d[4], d[5], d[6], d[7], d[8], d[9], cast_dly(), d[10], d[11], d[12], d[13], d[14], d[15], d[16], d[21], d[22], d[17], d[18], nic_diag()[0], nic_diag()[1], nic_diag()[2], nic_diag()[3]) }
+        + &{ let d = s5_diag(); format!(" S5[near={} kind={} f88={} dn={} rt={} safe={} raw9b0={} vis={} t0d={} t0a={} cdly={} alen={} th={:#x} a0={:#x} a1={:#x} pg={} d2={} a8={} pmask={:#x} pfirst={} a8m={} a8r={}] NIC[cand={} dmin={} mlen={} nstruct={}] CH[k={} g={:#x} ap={} a={} b={} keep={} v={}] E20[c0={} ok={} t={} ic0={:#x} i88={:#x} rec={} acc={} n={}]", d[0], d[1], d[2], d[3], d[4], d[5], d[6], d[7], d[8], d[9], cast_dly(), d[10], d[11], d[12], d[13], d[14], d[15], d[16], d[21], d[22], d[23], d[24], nic_diag()[0], nic_diag()[1], nic_diag()[2], nic_diag()[3], d[17], d[20], d[25], d[26], d[27], d[28], d[29], e20_diag()[0], e20_diag()[1], e20_diag()[2], e20_diag()[3], e20_diag()[4], e20_diag()[5], e20_diag()[6], e20_diag()[7]) }
         + &unsafe { let caps = crate::judge::cap_util_c87fe0::last_p2().unwrap_or(0);
             // ★★`path=`·`S13[…]` 를 **caps 게이트 밖으로** 뺐다 — 잔차 23건이 전부 `caps=none` 이라
             //   경로를 안 찍은 것처럼 보였고, 그것 때문에 조기반환으로 오진단했다(RE 2026-09-07).
@@ -823,6 +826,7 @@ unsafe fn e019d0(w: &World, sim: usize, slot: usize, tgt: usize, c_t: i64, tps: 
     //   `/10` 이라면 같은 매직에 `SHR 3` 이어야 한다(RE 2026-09-08). 최종 `/2` 와 상한 80 은 맞다.
     if f1 != 0 { let mut x = 0u64; for k in 0..5usize { x = x.wrapping_add(rd_u64(b + 0x190 + k * 8)?); } acc = x / 5; }
     if f2 & 1 == 1 { let mut x = 0u64; for k in 0..15usize { x = x.wrapping_add(rd_u64(b + 0x1b8 + k * 8)?); } acc = acc.wrapping_add(x / 5); }
+    E20D.with(|c| { let mut z = c.get(); z[6] = acc as i64; c.set(z); });
     acc = acc.wrapping_mul(n).min(rd_u64(tgt + ENT_MAXHP)?);
     let hp = { let h = rd_i64(tgt + ENT_HP)?; if h >= 2 { h } else { 1 } };
     let _ = sim;
@@ -832,11 +836,22 @@ unsafe fn e019d0(w: &World, sim: usize, slot: usize, tgt: usize, c_t: i64, tps: 
 #[allow(clippy::too_many_arguments)]
 unsafe fn e02020(w: &World, sim: usize, rec: usize, slot: usize, me: usize, tgt: usize, c_t: i64, tps: u64) -> Option<i64> {
     let (sd, sv) = (rd_u64(slot)? as usize, rd_u64(slot + 8)? as usize);
-    if !slot_c0(sd, sv, 0)? { return Some(0); }
-    let (ok, t) = slot_88(sd, sv, 0)?; if !ok { return Some(0); }
+    // ★[2026-09-08] S12 잔여의 유력 후보 — 게임의 `-a3`(=`v55_banish_penalty`, 상한 80)이 통째로 빠져 있다.
+    //   실측: S12 잔차 `game-mine` 이 **전부 음수이고 크기가 80 이하**(=`-banish` 의 치역과 정확히 일치).
+    //   어느 게이트에서 0 으로 빠지는지 표식으로 특정한다.
+    let c0 = slot_c0(sd, sv, 0)?;
+    E20D.with(|c| { let mut z = c.get(); z[0] = c0 as i64;
+        z[3] = super::dyn_eff::impl_rva(sv, 0xc0).unwrap_or(0) as i64;
+        z[4] = super::dyn_eff::impl_rva(sv, 0x88).unwrap_or(0) as i64; c.set(z); });
+    if !c0 { return Some(0); }
+    let (ok, t) = slot_88(sd, sv, 0)?;
+    E20D.with(|c| { let mut z = c.get(); z[1] = ok as i64; z[2] = t as i64; c.set(z); });
+    if !ok { return Some(0); }
     if tps == 0 { return None; }
     let n = (t / tps).max(1);
-    let rec_t = w.roster_rec(rd_u64(tgt + ENT_HANDLE)?)?; if rec_t == 0 { return Some(0); }
+    let rec_t = w.roster_rec(rd_u64(tgt + ENT_HANDLE)?)?;
+    E20D.with(|c| { let mut z = c.get(); z[5] = rec_t as i64; z[7] = n as i64; c.set(z); });
+    if rec_t == 0 { return Some(0); }
     let side = rd_u64(rec + REC_SIDE)?; if side > 1 { return None; }
     let role_t = rd_u32(rec_t + REC_ROLE_O) as usize;
     let me_h = rd_u64(me + ENT_HANDLE)?;
@@ -859,7 +874,7 @@ pub unsafe fn combat_score(mode: usize, _prof: usize, rec: usize, ctx: usize, bb
     pth_set("?");
     // ★진단 TLS 는 호출마다 초기화한다 — 안 하면 조기반환 경로에서 직전 호출의 값이 그대로 찍혀
     //   원인 분석이 통째로 헛돈다(2026-09-07 실측: st=76 인데 main=0 인 모순 로그).
-    S12ST.with(|c| c.set([0; 20])); ALLYD.with(|c| c.set([0; 10])); S5D.with(|c| c.set([0; 23])); S12D.with(|c| c.set([0; 8]));
+    S12ST.with(|c| c.set([0; 20])); ALLYD.with(|c| c.set([0; 10])); E20D.with(|c| c.set([0; 8])); S5D.with(|c| c.set([0; 30])); S12D.with(|c| c.set([0; 8]));
     let r = combat_score_inner(mode, _prof, rec, ctx, bb, sp, slot, tgt, p9);
     if r.is_none() && !TAGGED.with(|c| c.get()) { let t = STG.with(|c| c.get()); na(t); }
     r
@@ -969,7 +984,7 @@ unsafe fn combat_score_inner(mode: usize, _prof: usize, rec: usize, ctx: usize, 
     let raw9b0 = rd_i64(bb + BB_9B0)?;
     let mut d5 = [0i64; 19]; d5[6] = raw9b0;
     let mut bonus9b0 = if tgt_kind == 13 { raw9b0 } else { 0 };
-    let mut safe = true;
+    let mut safe = tgt_kind == 13;   // ★IR: safe == (tgt_kind == 13) — 근처 구조물 없는 갈래(%338)도 동일
     if let Some((near, _)) = nearest_in_chain(&w, 1 - side, me)? {
         d5[0] = 1; d5[1] = rd_i32(near + ENT_KIND)? as i64; d5[2] = rd_u64(near + 0x88)? as i64;
         if rd_i32(near + ENT_KIND)? == 2 && rd_u64(near + 0x88)? == 0 {
@@ -979,10 +994,14 @@ unsafe fn combat_score_inner(mode: usize, _prof: usize, rec: usize, ctx: usize, 
                 .wrapping_add(rng_of(near)?).wrapping_add(rng_of(me)?)
                 .wrapping_add(imm32(SITE_SC_DIVE_MARGIN_IMM, 15000) as u64).wrapping_add(extra);
             d5[3] = dist(me, near)? as i64; d5[4] = r_t as i64;
-            safe = dist(me, near)? <= r_t;
-            d5[5] = safe as i64;
-            bonus9b0 = if safe || tgt_kind == 13 { rd_i64(bb + BB_9B0)? } else { 0 };
-            safe = safe || tgt_kind == 13;
+            let within = dist(me, near)? <= r_t;
+            d5[5] = within as i64;
+            bonus9b0 = if within || tgt_kind == 13 { rd_i64(bb + BB_9B0)? } else { 0 };
+            // ★★IR 이 `safe` 를 **`tgt_kind == 13` 그 자체**로 확정한다(m05.ll:41049~41070).
+            //   `%443 = A||K` 로 %446 에 들어가서 `%447 = %445 = !A||K` 를 받으므로 `(A||K)&&(!A||K) = K`.
+            //   근처 구조물이 없는 갈래(%338)도 `br %121` 이라 마찬가지로 `K`.
+            //   ~~`dist<=r_t || kind13`~~ 은 A 항이 남아 있었다 — `within` 은 `bonus9b0` 게이트에만 쓴다.
+            safe = tgt_kind == 13;
         }
     }
     // ── S4 추격 위험 ──
@@ -1001,8 +1020,16 @@ unsafe fn combat_score_inner(mode: usize, _prof: usize, rec: usize, ctx: usize, 
               | ((rd_u64(cfg + CFG_8A8).unwrap_or(u64::MAX).saturating_sub(30u64.wrapping_mul(tps)) <= now) as i64) << 1
               | (other_team as i64) << 2 | ((tgt_kind == 13) as i64) << 3;
         c.set(z); });
-    if matches!(phase, 0 | 5 | 7 | 8) && rd_u64(cfg + CFG_8A8)?.saturating_sub(30u64.wrapping_mul(tps)) <= now && other_team && tgt_kind == 13 {
-        if let Some((ax, ay, t)) = approach(ctx, me, tgt, slot)? {
+    let ch_gate = matches!(phase, 0 | 5 | 7 | 8) && rd_u64(cfg + CFG_8A8)?.saturating_sub(30u64.wrapping_mul(tps)) <= now && other_team && safe;
+    S5D.with(|c| { let mut z = c.get(); z[19] = tgt_kind as i64;
+        z[20] = (matches!(phase, 0 | 5 | 7 | 8) as i64)
+              | ((rd_u64(cfg + CFG_8A8)?.saturating_sub(30u64.wrapping_mul(tps)) <= now) as i64) << 1
+              | (other_team as i64) << 2 | (safe as i64) << 3;
+        c.set(z); Some(()) }).unwrap_or(());
+    if ch_gate {
+        let ap = approach(ctx, me, tgt, slot)?;
+        S5D.with(|c| { let mut z = c.get(); z[25] = if ap.is_some() { 2 } else { 1 }; c.set(z); });
+        if let Some((ax, ay, t)) = ap {
             let h = (cast_delay.wrapping_add(t)).clamp(tps / 2, 2 * tps);
             let (mx, my) = xy(me)?;
             let a = super::position_eval::exposure(w.x, me, mx, my, h, tps)?;
@@ -1011,16 +1038,15 @@ unsafe fn combat_score_inner(mode: usize, _prof: usize, rec: usize, ctx: usize, 
             let b_pct = b.wrapping_mul(100) / hp.max(1);
             let keep = b != 0 && (hp <= b || b_pct > 49 || (hp_pct < 66 && b_pct > 29) || (hp_pct < 41 && b_pct > 17) || (hp_pct < 26 && b_pct > 9));
             chase = ((if keep { b } else { 0 }) as i64).wrapping_sub((a / 2) as i64).max(0);
+            S5D.with(|c| { let mut z = c.get(); z[26] = a as i64; z[27] = b as i64; z[28] = keep as i64; z[29] = chase; c.set(z); });
         }
     }
     // ── S5 위험항 ──
     stg(tag8("S5"));
     let c = pct_c(bb, bb + BB_R)?; let c_val = c;
     if hp == 0 { return None; }
-    let risk_neg: i64 = if urgent { -1 } else {
-        let inner = (rd_i64(bb + BB_998)?).wrapping_add(chase).wrapping_add(bonus9b0).wrapping_add(thr_s);
-        !(inner.wrapping_mul(c) / hp as i64)
-    };
+    let inner_dbg = (rd_i64(bb + BB_998)?).wrapping_add(chase).wrapping_add(bonus9b0).wrapping_add(thr_s);
+    let risk_neg: i64 = if urgent { -1 } else { !(inner_dbg.wrapping_mul(c) / hp as i64) };
     // ── S6 아군 구조물·적 근접 ──
     stg(tag8("S6"));
     let near_ally = nearest_in_chain(&w, side, me)?;
@@ -1072,7 +1098,7 @@ unsafe fn combat_score_inner(mode: usize, _prof: usize, rec: usize, ctx: usize, 
         let a8_memo = super::position_eval::memo_lookup(mode, rec, ctx, qx8 as usize, qy8 as usize, 0xc).map(|w| w[0] as i64);
         let a8_repro = super::position_eval::position_eval(mode as u64, rec, ctx, qx8, qy8, 0xc).map(|o| o.a);
         // 둘이 갈리는지 계측 — 갈린다면 어느 쪽이 게임인지 DIFF 가 말해 준다
-        S5D.with(|c| { let mut z = c.get(); z[17] = a8_memo.unwrap_or(i64::MIN); z[18] = a8_repro.unwrap_or(i64::MIN); c.set(z); });
+        S5D.with(|c| { let mut z = c.get(); z[23] = a8_memo.unwrap_or(i64::MIN); z[24] = a8_repro.unwrap_or(i64::MIN); c.set(z); });
         match (a8_memo, a8_repro) {
             (Some(x), Some(y)) => { if x == y { A8_SAME.fetch_add(1, Ordering::Relaxed); } else { A8_DIFF.fetch_add(1, Ordering::Relaxed); } }
             (Some(_), None) => { A8_RNONE.fetch_add(1, Ordering::Relaxed); }
@@ -1226,11 +1252,11 @@ unsafe fn combat_score_inner(mode: usize, _prof: usize, rec: usize, ctx: usize, 
                              rd_i64(bb + BB_998).unwrap_or(-1), bonus9b0, cast_delay as i64, hp as i64, thr,
                              rd_u64(bb + BB_R + AS_REC_THR_LEN).unwrap_or(0) as i64,
                              crate::judge::cap_as_d83230::last().map(|v| v as i64).unwrap_or(-999),
-                             rd_i64(bb + 0x970).unwrap_or(0), rd_i64(bb + 0x9a0).unwrap_or(0), rd_i64(bb + 0x988).unwrap_or(0)]));
+                             rd_i64(bb + 0x970).unwrap_or(0), rd_i64(bb + 0x9a0).unwrap_or(0), rd_i64(bb + 0x988).unwrap_or(0), inner_dbg, raw9b0]));
         pth_set(if rec_a.is_some() { "S14" } else { "S13" }); return Some(risk_neg + tower_support + pos_term + m);
     }
     let _ = (bonus9b0, thr_s, sp, my_handle, seen);
-    LAST.with(|c| c.set([risk_neg, tower_support, pos_term, main, urgent as i64, c_val, thr_s, chase, rd_i64(bb + BB_998).unwrap_or(-1), bonus9b0, cast_delay as i64, hp as i64, thr, rd_u64(bb + BB_R + AS_REC_THR_LEN).unwrap_or(0) as i64, crate::judge::cap_as_d83230::last().map(|v| v as i64).unwrap_or(-999), rd_i64(bb + 0x970).unwrap_or(0), rd_i64(bb + 0x9a0).unwrap_or(0), rd_i64(bb + 0x988).unwrap_or(0)]));
+    LAST.with(|c| c.set([risk_neg, tower_support, pos_term, main, urgent as i64, c_val, thr_s, chase, rd_i64(bb + BB_998).unwrap_or(-1), bonus9b0, cast_delay as i64, hp as i64, thr, rd_u64(bb + BB_R + AS_REC_THR_LEN).unwrap_or(0) as i64, crate::judge::cap_as_d83230::last().map(|v| v as i64).unwrap_or(-999), rd_i64(bb + 0x970).unwrap_or(0), rd_i64(bb + 0x9a0).unwrap_or(0), rd_i64(bb + 0x988).unwrap_or(0), inner_dbg, raw9b0]));
     pth_set(if rec_t.is_some() { "S12" } else { "S15z" });
     Some(risk_neg + tower_support + pos_term + main)
 }

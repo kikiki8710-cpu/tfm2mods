@@ -13,17 +13,19 @@ pub const SPEC_SIZE: usize = 0x120;
 /// DIFF 로그용 S13/S14 성분 [aoe, trig, aura_t, etc, hs_term, buff, raw, dur]
 thread_local! {
     pub static S13D: std::cell::Cell<[i64; 17]> = const { std::cell::Cell::new([0; 17]) };
+    /// S13 아군 아우라 루프 추적 — [impl98, 엔티티수, slot98!=0, rec찾음, crisis통과, 합]
+    pub static AURAD: std::cell::Cell<[i64; 6]> = const { std::cell::Cell::new([0; 6]) };
     pub static S13E: std::cell::Cell<[i64; 22]> = const { std::cell::Cell::new([0; 22]) };
     /// ★0xe03ed0(trig) 이탈지점 추적 — [exit, def!=0, tid, n, r, st, sum, cnt]
     ///   exit: 1=slot_def_b8 없음 2=def==0 3=tid 비표식·비컨테이너 4=컨테이너 비었음 5=자식에 표식 없음 9=끝까지 계산
     pub static E3D: std::cell::Cell<[i64; 8]> = const { std::cell::Cell::new([0; 8]) };
 }
 pub fn s13_diag() -> String {
-    let v = S13D.with(|c| c.get()); let e = S13E.with(|c| c.get()); let f = S14D.with(|c| c.get()); let g = E3D.with(|c| c.get()); let h = AOED.with(|c| c.get()); let k = A0CH.with(|c| c.get());
-    format!(" S13[aoe={} trig={} auraT={} etc={} hs={} buff={} raw={} dur={} AURA={} b0i={:#x} dfRaw={} s48={} s50={} tps={} cool={} itv={} k={}] S13E[healE={} shieldE={} inc={} gate={} total={} has={} ally={} mainRaw={} healRaw={} cap={} miss={} shRaw={} altCap={} meMiss={} ra70={} ra80={} ra88={} tMax={} alyHp={} alyMax={} alyMiss={} tHp={}] S14[v={} k={} vd={} st={} b1={} b2={} src={} raw={} fp={} ns={} a0i={:#x}] E3[exit={} def={} tid={:#x} n={} r={} st={} sum={} cnt={}] AOE[kind={} R={} n={} slf={} noe={} dst={} cap={} tot={} poff={} vt={:#x} d0i={:#x} i40={:#x}] A0CH[{:#x} {:#x} {:#x} {:#x}]",
+    let v = S13D.with(|c| c.get()); let e = S13E.with(|c| c.get()); let f = S14D.with(|c| c.get()); let g = E3D.with(|c| c.get()); let h = AOED.with(|c| c.get()); let k = A0CH.with(|c| c.get()); let m = AURAD.with(|c| c.get());
+    format!(" S13[aoe={} trig={} auraT={} etc={} hs={} buff={} raw={} dur={} AURA={} b0i={:#x} dfRaw={} s48={} s50={} tps={} cool={} itv={} k={}] S13E[healE={} shieldE={} inc={} gate={} total={} has={} ally={} mainRaw={} healRaw={} cap={} miss={} shRaw={} altCap={} meMiss={} ra70={} ra80={} ra88={} tMax={} alyHp={} alyMax={} alyMiss={} tHp={}] S14[v={} k={} vd={} st={} b1={} b2={} src={} raw={} fp={} ns={} a0i={:#x}] E3[exit={} def={} tid={:#x} n={} r={} st={} sum={} cnt={}] AOE[kind={} R={} n={} slf={} noe={} dst={} cap={} tot={} poff={} vt={:#x} d0i={:#x} i40={:#x}] A0CH[{:#x} {:#x} {:#x} {:#x}] AURA13[i98={:#x} n={} s98={} rec={} cri={} sum={}]",
         v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7], v[8], v[9], v[10], v[11], v[12], v[13], v[14], v[15], v[16], e[0], e[1], e[2], e[3], e[4], e[5], e[6], e[7], e[8], e[9], e[10], e[11], e[12], e[13], e[14], e[15], e[16], e[17], e[18], e[19], e[20], e[21],
         f[0], f[1], f[2], f[3], f[4], f[5], f[6], f[7], f[8], f[9], f[10], g[0], g[1], g[2], g[3], g[4], g[5], g[6], g[7],
-        h[0], h[1], h[2], h[3], h[4], h[5], h[6], h[7], h[8], h[9], h[10], h[11], k[0], k[1], k[2], k[3])
+        h[0], h[1], h[2], h[3], h[4], h[5], h[6], h[7], h[8], h[9], h[10], h[11], k[0], k[1], k[2], k[3], m[0], m[1], m[2], m[3], m[4], m[5])
 }
 /// 잎 에뮬레이터가 필요로 하는 두 컨텍스트(sim · EST 서술자 절대주소). S13/S14 진입 때 한 번 세운다.
 thread_local! {
@@ -647,6 +649,10 @@ pub unsafe fn spec_a0_inline(p: usize, vt: usize, me: usize, depth: u32) -> Opti
         }
         // ★잎(챔피언 어빌리티별 스펙 빌더)은 미니 에뮬레이터로 해석한다. 모르는 명령이면 None → NA(조용히 틀리지 않음).
         _ => {
+            // ★[2026-09-08] specemu 로 해석되는 impl 을 **성공 경로에서도** 표식으로 남긴다.
+            //   NA 가 안 뜨니 진단표에 흔적이 없어 "조용히 틀리는 자리"가 숨는다(`vt+0x98` 에서 이미 당했다).
+            //   `judge_dyn.txt` 의 `slot+0x9a1` 줄이 곧 specemu 의존 impl 목록이다.
+            if let Some(r) = super::dyn_eff::impl_rva(vt, 0xa0) { super::dyn_eff::unseen(0x9a1, r); }
             if let Some(bspec) = super::specemu::run_spec_leaf(f, p as u64, sim, me as u64, EST_DESC_RVA_ABS.with(|c| c.get())) {
                 if i32::from_le_bytes([bspec[0x48], bspec[0x49], bspec[0x4a], bspec[0x4b]]) == -1 { return Some(None); }
                 return Some(Some(bspec));
@@ -669,7 +675,7 @@ thread_local! { pub static S14D: std::cell::Cell<[i64; 11]> = const { std::cell:
 pub fn s14_diag() -> [i64; 11] { S14D.with(|c| c.get()) }
 pub unsafe fn s13_s14(b: &BCtx, ally: Option<usize>) -> Option<i64> {
     // ★S13D/S13E 도 함께 리셋 — 안 하면 다른 경로 표본에 직전 호출의 잔값이 찍혀 진단이 헛돌다(RE 2026-09-07)
-    S14D.with(|c| c.set([0; 11])); AOED.with(|c| c.set([0; 12])); A0CH.with(|c| c.set([0; 4])); S13D.with(|c| c.set([0; 17])); S13E.with(|c| c.set([0; 22]));
+    S14D.with(|c| c.set([0; 11])); AOED.with(|c| c.set([0; 12])); A0CH.with(|c| c.set([0; 4])); S13D.with(|c| c.set([0; 17])); S13E.with(|c| c.set([0; 22])); AURAD.with(|c| c.set([0; 6]));
     set_leaf_ctx(b.sim);
     let (sd, sv, _sin) = slot3(b.slot)?;
     let t = b.tgt;
@@ -844,9 +850,13 @@ pub unsafe fn s13_s14(b: &BCtx, ally: Option<usize>) -> Option<i64> {
         hs_term = (rd_i64(ra + 0x70)? > 0 || x > 0 || rd_u64(t + ENT_MAXHP)? > rd_u64(t + ENT_HP)? || rd_i64(ra + 0x80)? != 0) as i64;
     }
     let atgt = if ally.is_some() { t } else { b.me };
-    // ★self-skip 키(arg7)는 게임에서 `[rbp+0x618]` = **me+0x5c0 고정**이다 — 좌표(arg6)만 타깃을 따른다.
-    //   ~~`atgt + ENT_HANDLE`~~ 은 S14(atgt=아군)에서 틀린다(RE 2026-09-07).
-    let ah = rd_u64(b.me + ENT_HANDLE)?;
+    // ★★self-skip 키(arg7) = **`tgt.0x5c0`**(=arg8 의 핸들). ~~`me + ENT_HANDLE`~~ 은 틀렸다 —
+    //   그 RE(2026-09-07, `[rbp+0x618]` 판독)를 **IR 이 기각**했다(m05.ll:42047~42050 · 42279~42280:
+    //   `%846 = getelementptr %7, 1472` → `%847` 이 곧 arg7). `%7` 이 tgt 인 근거 = 같은 포인터의
+    //   `+1576`/`+1648` 을 maxhp/hp 로 쓰는 자리(m05.ll:42989~42992)가 이미 `tgt` 로 확정돼 있다.
+    //   증상: S14(tgt=아군)에서 아군 타깃 자신이 aoe 루프에 남아 **hs_term 과 정확히 이중계상**됐다
+    //   (실측 표본 `aoe=94·hs=94·game main=94` / `aoe=69·hs=69·game main=69`, 2026-09-08).
+    let ah = rd_u64(t + ENT_HANDLE)?;
     let aoe = match e02bc0(b.slot, b.ctx, b.bb, b.me, atgt, ah, b.cast_delay) { Some(v) => v, None => return na_tag("B2bc0") };
     let main_raw = if ally.is_some() {
         aoe + etc + buff + hs_term
@@ -855,16 +865,22 @@ pub unsafe fn s13_s14(b: &BCtx, ally: Option<usize>) -> Option<i64> {
         let wroot = rd_u64(b.ctx)? as usize;
         let mut aura_t: i64 = 0;
         let (an, ap) = (rd_u64(b.bb + 0x14d0)?, rd_u64(b.bb + 0x14b8)? as usize);
+        AURAD.with(|c| { let mut z = c.get(); z[0] = super::dyn_eff::impl_rva(sv, 0x98).unwrap_or(0) as i64; c.set(z); });
         for i in 0..5usize {
             let e = rd_u64(wroot + X_ROSTER + (rd_u64(b.rec + 0x930)? as usize) * 0x28 + i * 8)? as usize; if e == 0 { continue; }
+            AURAD.with(|c| { let mut z = c.get(); z[1] += 1; c.set(z); });
             if slot_i64_98(sd, sv, b.sim, b.me, e)? == 0 { continue; }
+            AURAD.with(|c| { let mut z = c.get(); z[2] += 1; c.set(z); });
             let h = rd_u64(e + ENT_HANDLE)?;
             let mut rec_e = 0usize;
             if an != 0 { if !ptr_ok(ap) { return None; }
                 for k in 0..an.min(CAP_ITER) as usize { let r = ap + k * 0xd8; if rd_u64(r + 0x58)? == h { rec_e = r; break; } } }
             if rec_e == 0 { continue; }
+            AURAD.with(|c| { let mut z = c.get(); z[3] += 1; c.set(z); });
             if !e01c40(b, e)?.0 { continue; }
-            aura_t += super::as_callees::pct_c(b.bb, rec_e)?.min(80);
+            let add = super::as_callees::pct_c(b.bb, rec_e)?.min(80);
+            AURAD.with(|c| { let mut z = c.get(); z[4] += 1; z[5] += add; c.set(z); });
+            aura_t += add;
         }
         let trig = match e03ed0(b.slot, b.ctx, b.rec, b.bb, b.me, b.c) { Some(v) => v, None => return na_tag("B3ed0") };
         S13D.with(|c| { let mut v = c.get(); v[1] = trig; v[2] = aura_t; c.set(v); });
@@ -926,7 +942,10 @@ unsafe fn slot98(data: usize, vt: usize, sim: usize, me: usize, e: usize, depth:
                 }
             }
         }
-        _ => slot_sum(data, vt, 0x98, me, 0, "B98"),
+        // ★[2026-09-08] 여기로 떨어지면 **인자 규약이 다른 `slot_sum` 으로 흘러 조용히 0/오답**이 된다.
+        //   S13 아우라 루프가 통째로 죽어 있던 원인이 이 자리다(`i98=0x12a6f60` 의 자식 impl 미배선).
+        //   `judge_dyn.txt` 의 `slot+0x998` 줄이 곧 미배선 `vt+0x98` impl 목록이다.
+        _ => { super::dyn_eff::unseen(0x998, r); slot_sum(data, vt, 0x98, me, 0, "B98") }
     }
 }
 /// `0x16a3d90` — guardian_spirit 궁의 힐 오라 값. ★**`(al, rdx)` 쌍이 아니라 RAX 단일 i64** 이고

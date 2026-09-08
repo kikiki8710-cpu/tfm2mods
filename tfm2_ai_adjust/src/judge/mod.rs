@@ -651,6 +651,21 @@ macro_rules! judge_capture_ring_cmp9_pre {
                 //   (호출 뒤에 계산하면 원본이 갱신한 블랙보드/메모를 보게 된다 — 2026-09-07 02:2x 위험항 불일치 가설).
                 let mine: Option<i64> = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| ($mine)(p1, p2, p3, p4, p5, p6, p7, p8, p9))).unwrap_or(None);
                 let r = f(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12);
+                RING.with(|c| { let (mut a, n) = c.get(); a[n % 16] = Cap { p1, p2, p3, p4, ret: r as u64 }; c.set((a, n + 1)); });
+                ST.n.fetch_add(1, Ordering::Relaxed);
+                let logline = |tag: &str, v: Option<i64>| {
+                    let diag = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| crate::judge::port::as_callees::cmp_diag8($spec.name, p1, p2, p3, p4, p5, p6, p7, p8))).unwrap_or_default();
+                    let line = format!("[{} #{}] {} game={}({:#x}) mine={} | p1={:#x} p2={:#x} p3={:#x} p4={:#x} p5={:#x} p6={:#x} p7={:#x} | {}\n", $spec.name, ST.n.load(Ordering::Relaxed), tag, r as i64, r, v.map(|x| format!("{}({:#x})", x, x as u64)).unwrap_or("NA".into()), p1, p2, p3, p4, p5, p6, p7, diag);
+                    if let Some(p) = crate::pth(&format!("judge_{}.txt", $spec.name)) { let _ = std::fs::OpenOptions::new().create(true).append(true).open(p).and_then(|mut f| { use std::io::Write; f.write_all(line.as_bytes()) }); }
+                };
+                if let Some(v) = mine { crate::judge::port::combat_score::cap_tally(r as i64, v); }   // S12 스테로이드 상한 후보 대조(검증 한정)
+                match mine {
+                    None => { ST.na.fetch_add(1, Ordering::Relaxed); if LOGGED.fetch_add(1, Ordering::Relaxed) < 30 { logline("NA", None); } }
+                    Some(v) if v == r as i64 => { ST.ok.fetch_add(1, Ordering::Relaxed); }
+                    Some(v) => { ST.diff.fetch_add(1, Ordering::Relaxed); { let k = LOGGED_D.fetch_add(1, Ordering::Relaxed); if k < 2000 { logline("DIFF", Some(v)); } } }   // ★잔여가 수백 건뿐 — 전수 로깅(20건 표본은 반복 상황 하나에 다 먹힌다)
+                }
+                // ★[2026-09-08] post 계산을 **로깅 뒤로** 옮겼다 — 진단 TLS(LAST/S12D/…)를 덮어써서
+                //   DIFF 로그가 post 값을 찍고 있었다(성분 합이 game 과 정확히 일치해 원인 분석이 통째로 헛돌았다).
                 // ★★순서 어긋남 가설 검증 — 원본 호출 **후**에도 한 번 더 계산해 어느 쪽이 게임과 맞는지 센다.
                 //   리플레이는 결정론적이므로 값이 갈린다면 원인은 비결정성이 아니라 **계산 시점**이다.
                 //   (계측 전용. 반환값·판정에는 pre 값만 쓴다.)
@@ -668,19 +683,6 @@ macro_rules! judge_capture_ring_cmp9_pre {
                         (Some(a), None) if a == g => { crate::judge::ORD_PRE_WIN.fetch_add(1, Ordering::Relaxed); }
                         _ => {}
                     }
-                }
-                RING.with(|c| { let (mut a, n) = c.get(); a[n % 16] = Cap { p1, p2, p3, p4, ret: r as u64 }; c.set((a, n + 1)); });
-                ST.n.fetch_add(1, Ordering::Relaxed);
-                let logline = |tag: &str, v: Option<i64>| {
-                    let diag = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| crate::judge::port::as_callees::cmp_diag8($spec.name, p1, p2, p3, p4, p5, p6, p7, p8))).unwrap_or_default();
-                    let line = format!("[{} #{}] {} game={}({:#x}) mine={} | p1={:#x} p2={:#x} p3={:#x} p4={:#x} p5={:#x} p6={:#x} p7={:#x} | {}\n", $spec.name, ST.n.load(Ordering::Relaxed), tag, r as i64, r, v.map(|x| format!("{}({:#x})", x, x as u64)).unwrap_or("NA".into()), p1, p2, p3, p4, p5, p6, p7, diag);
-                    if let Some(p) = crate::pth(&format!("judge_{}.txt", $spec.name)) { let _ = std::fs::OpenOptions::new().create(true).append(true).open(p).and_then(|mut f| { use std::io::Write; f.write_all(line.as_bytes()) }); }
-                };
-                if let Some(v) = mine { crate::judge::port::combat_score::cap_tally(r as i64, v); }   // S12 스테로이드 상한 후보 대조(검증 한정)
-                match mine {
-                    None => { ST.na.fetch_add(1, Ordering::Relaxed); if LOGGED.fetch_add(1, Ordering::Relaxed) < 30 { logline("NA", None); } }
-                    Some(v) if v == r as i64 => { ST.ok.fetch_add(1, Ordering::Relaxed); }
-                    Some(v) => { ST.diff.fetch_add(1, Ordering::Relaxed); { let k = LOGGED_D.fetch_add(1, Ordering::Relaxed); if k < 20 || (k % 512 == 0 && k < 512 * 300) { logline("DIFF", Some(v)); } } }
                 }
                 r
             }
