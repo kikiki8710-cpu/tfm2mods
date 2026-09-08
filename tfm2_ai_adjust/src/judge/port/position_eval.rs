@@ -1228,7 +1228,10 @@ unsafe fn body(st: &St) -> Option<Out> {
             let tb = st.x + 0x280 + (sb as usize) * 0xfa0 + rb * 0x320;
             let raw: Vec<u64> = (0..4).map(|k| rd_u64(tb + 0x28 * k + ra8).unwrap_or(0)).collect();
             let raw2: Vec<u64> = (0..4).map(|k| rd_u64(tb + 0x190 + 0x28 * k + ra8).unwrap_or(0)).collect();
-            format!("P3[e={:#x} d2={} vis={} s={:?} cast={} can={} cc={} T={} rec03={:?} hp={} R={:?} Rh={:?} usable={:?} tri={:?} 0xe={} 0xf={}]", e, d2, vis, s, castv, can_hit, cc, t,
+            let kinds: Vec<i32> = { let n = rd_u64(e + 0x2d0).unwrap_or(0).min(12); let p = rd_u64(e + 0x2c8).unwrap_or(0) as usize;
+                if p == 0 { vec![] } else { (0..n as usize).map(|i| rd_i32(p + i * 0x28).unwrap_or(-9)).collect() } };
+            let st345 = (status_has(e, 3), status_has(e, 4), status_has(e, 5), status_any_not_2345(e));
+            format!("P3[e={:#x} d2={} vis={} s={:?} cast={} can={} cc={} T={} st345={:?} kinds={:?} rec03={:?} hp={} R={:?} Rh={:?} usable={:?} tri={:?} 0xe={} 0xf={}]", e, d2, vis, s, castv, can_hit, cc, t, st345, kinds,
                 &wv[0..4], st.hp, raw, raw2, (1..=3).map(|k| usable(e, k)).collect::<Vec<_>>(), (0..3).map(|j| (wv[0x10 + 3 * j], wv[0x11 + 3 * j], wv[0x12 + 3 * j])).collect::<Vec<_>>(), wv[0xe], wv[0xf]) });
         if st.vis_me == 0 { let h = sdiv2(t); half28 = half28.wrapping_add(t.wrapping_sub(h)); t = h; }
         S14_CAND.with(|c| c.borrow_mut().push([t, t_pre, t_sum, t_max, (t_sum as u64 >> 1) as i64, (t_max as u64 >> 1) as i64, t_pre / 3, 0]));
