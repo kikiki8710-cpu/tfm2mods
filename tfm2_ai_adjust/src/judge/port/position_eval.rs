@@ -957,7 +957,14 @@ unsafe fn body(st: &St) -> Option<Out> {
                     //   ⚠계측은 타워마다 `tower_dive` 를 한 번 더 돌리므로 **기본 OFF**(cfg `judge_dive_probe=1`).
                     let probe = crate::tune("judge_dive_probe", 0) != 0;
                     let mirror = dive_lookup(side, rd_u64(item + ENT_HANDLE)?, tick);
-                    let pure = if mirror.is_none() || probe { tower_dive(&w, item, side) } else { None };
+                    // ★[2026-09-08] 미러 미스일 때 **원본 `v47_siege_stance` 를 직접 부른다**(cfg judge_dive_call).
+                    //   순수 재현 `tower_dive` 에는 취소 게이트 C(`resolve_fight_full` 의 `out+0x38 == 2`)가 없어
+                    //   다이브를 7.2% 과다 인정하고, 그것이 `combat_score` 잔여 DIFF 의 단일 원인이다(RE 2026-09-08).
+                    //   ⛔이건 **검증용 미러**다 — live 대체 전에는 `resolve_fight_uncached` 순수 포팅이 필요하다.
+                    let called = if mirror.is_none() && crate::tune("judge_dive_call", 0) != 0 {
+                        crate::judge::siege_stance_call(st.mode as usize, st.holder, st.sim, item)
+                    } else { None };
+                    let pure = if (mirror.is_none() && called.is_none()) || probe { tower_dive(&w, item, side) } else { None };
                     if let (true, Some(m), Some(p)) = (probe, mirror, pure) {
                         DIVE_CMP[0].fetch_add(1, Ordering::Relaxed);
                         if m == p { DIVE_CMP[1].fetch_add(1, Ordering::Relaxed); }
@@ -976,7 +983,7 @@ unsafe fn body(st: &St) -> Option<Out> {
                             for v in 0..8usize { if c[v] == m.1 { DIVE_V[v].fetch_add(1, Ordering::Relaxed); } }
                         }
                     } }
-                    let (dive, tgt_id) = match mirror {
+                    let (dive, tgt_id) = match mirror.or(called) {
                         Some(v) => v,
                         None => match pure {
                             Some(v) => v,

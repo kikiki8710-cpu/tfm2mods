@@ -91,7 +91,15 @@ pub unsafe fn run_eff28(f: usize, payload: u64, ctx: u64, ent: u64, est: u64) ->
 }
 /// ★non-sret 단일값 슬롯(`vt+0x40/0x88/0x98/0xb0/0x80`) 전용 — `rcx=p · rdx=arg3 · r8=me · r9=EST`, 반환 `rax`.
 pub unsafe fn run_leaf_i64(f: usize, payload: u64, me: u64, est: u64) -> Option<i64> {
-    run_regs(f, payload, 0, me, est, None).and_then(|em| em.r[0]).map(|v| v as i64)
+    run_leaf_i64_sim(f, payload, 0, me, est)
+}
+/// ★[2026-09-08] `vt+0x40`(expected_heal_target 안쪽) 규약 = `(rcx=payload, rdx=sim(64B), r8=tgt, r9=desc(88B))`.
+///   game_core IR `Effect::expected_heal_target`(g06.ll:52315)에서 확정:
+///     `%27 = slot.vt+0x40(inline_self, %1(sim 64B), %2(tgt), %3(desc 88B))`
+///     `return umin(대상 missing hp, %27)`
+///   ~~`rdx = 0`~~ 으로 넘기던 것이 잎에서 `[rdx+…]` 를 읽을 때 통째로 어긋난다.
+pub unsafe fn run_leaf_i64_sim(f: usize, payload: u64, sim: u64, ent: u64, est: u64) -> Option<i64> {
+    run_regs(f, payload, sim, ent, est, None).and_then(|em| em.r[0]).map(|v| v as i64)
 }
 pub unsafe fn run_spec_leaf(f: usize, inline: u64, sim: u64, me: u64, est: u64) -> Option<[u8; SPEC_SIZE]> {
     run_regs(f, SRET, inline, sim, me, Some(est)).map(|em| em.out)

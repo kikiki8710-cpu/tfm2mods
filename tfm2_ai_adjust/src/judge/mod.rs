@@ -685,6 +685,97 @@ macro_rules! judge_capture_ring_cmp9_pre {
 ///   병렬 presim 이 상태를 갱신하는 중에 훅이 읽으면 재현/원본이 서로 다른 스냅샷을 보게 된다.
 #[link(name = "kernel32")] unsafe extern "system" { fn GetCurrentThreadId() -> u32; }
 pub fn cur_tid() -> u32 { unsafe { GetCurrentThreadId() } }
+
+/// ★`vt+0xa0` 합성 impl `0x12a5770` 직접 대조 — 288B BuffSpec 전체를 바이트 비교한다.
+///   규약(IR m15.ll:26919 확정): `(rcx=sret, rdx=inline_self, r8=sim, r9=me, [rsp+0x28]=88B 정적 서술자)`.
+pub mod cap_a0_fold {
+    use std::sync::atomic::{AtomicUsize, AtomicU64, Ordering};
+    pub static ORIG: AtomicUsize = AtomicUsize::new(0);
+    pub static ST: super::Stat = super::Stat::new();
+    static LOGGED: AtomicU64 = AtomicU64::new(0);
+    /// [첫 불일치 오프셋 히스토그램용] 어느 필드가 갈리는지 — 0x120 을 8바이트 단위 36칸으로
+    pub static FIELD: [AtomicU64; 36] = [const { AtomicU64::new(0) }; 36];
+    pub fn field_report() -> String {
+        let t: u64 = FIELD.iter().map(|a| a.load(Ordering::Relaxed)).sum();
+        if t == 0 { return String::new(); }
+        let mut v: Vec<(usize, u64)> = (0..36).map(|i| (i, FIELD[i].load(Ordering::Relaxed))).filter(|x| x.1 > 0).collect();
+        v.sort_by(|a, b| b.1.cmp(&a.1));
+        format!("=== a0_fold(0x12a5770) 불일치 필드(8B 단위) ===
+  {}
+",
+            v.iter().map(|(i, c)| format!("+{:#x}={}", i * 8, c)).collect::<Vec<_>>().join(" "))
+    }
+    pub unsafe extern "C" fn wrap(p1: usize, p2: usize, p3: usize, p4: usize, p5: usize, p6: usize, p7: usize, p8: usize,
+                                  p9: usize, p10: usize, p11: usize, p12: usize) -> usize {
+        let orig = ORIG.load(Ordering::Relaxed); if orig == 0 { return 0; }
+        let f: super::F12 = core::mem::transmute(orig);
+        ST.entered.fetch_add(1, Ordering::Relaxed);
+        let r = f(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12);
+        ST.n.fetch_add(1, Ordering::Relaxed);
+        // p1=sret p2=inline_self p3=sim p4=me
+        let mine = std::panic::catch_unwind(std::panic::AssertUnwindSafe(||
+            crate::judge::port::buff_value::fold_children_pub(p2, 8, 0x10, 0x10, p4, p3))).unwrap_or(None);
+        match mine {
+            None | Some(None) => { ST.na.fetch_add(1, Ordering::Relaxed); }
+            Some(Some(m)) => {
+                // ★게임은 288B 중 **의미 있는 필드만** 쓰고 나머지는 스택 잔재로 남긴다
+                //   (실측: `922cff8e80`·`19c12d00e90`·`7ffa00000001` 같은 포인터가 그대로 보임).
+                //   그래서 전 바이트 비교는 오탐이다 — `fold_children` 이 실제로 쓰는 자리만 본다.
+                const FI32: [usize; 18] = [0x58, 0x5c, 0x60, 0x64, 0x68, 0x6c, 0x70, 0x74, 0x78, 0x7c, 0x80, 0x84, 0x88, 0x8c, 0x90, 0xfc, 0x100, 0x104];
+                const FI64: [usize; 14] = [0x98, 0xa0, 0xa8, 0xb0, 0xb8, 0xc0, 0xc8, 0xd0, 0xd8, 0xe0, 0xe8, 0xf0, 0x108, 0x110];
+                const FBOOL: [usize; 3] = [0xf8, 0x118, 0x119];
+                let mut bad = false;
+                let mut mark = |o: usize| { FIELD[(o / 8).min(35)].fetch_add(1, Ordering::Relaxed); };
+                for o in FI32 {
+                    let g = crate::rd_u32(p1 + o) as i32;
+                    let mv = i32::from_le_bytes([m[o], m[o + 1], m[o + 2], m[o + 3]]);
+                    if g != mv { mark(o); bad = true; }
+                }
+                for o in FI64 {
+                    let g = crate::rd_i64(p1 + o).unwrap_or(0);
+                    let mut b = [0u8; 8]; b.copy_from_slice(&m[o..o + 8]);
+                    if g != i64::from_le_bytes(b) { mark(o); bad = true; }
+                }
+                for o in FBOOL {
+                    if crate::rd_u8(p1 + o) != m[o] { mark(o); bad = true; }
+                }
+                if bad {
+                    ST.diff.fetch_add(1, Ordering::Relaxed);
+                    if LOGGED.fetch_add(1, Ordering::Relaxed) < 12 {
+                        let fmt = |off: usize| -> String { (0..36).map(|i| format!("{:x}", crate::rd_u64(off + i * 8).unwrap_or(0))).collect::<Vec<_>>().join(",") };
+                        let mine_s = (0..36).map(|i| { let mut b = [0u8; 8]; b.copy_from_slice(&m[i * 8..i * 8 + 8]); format!("{:x}", u64::from_le_bytes(b)) }).collect::<Vec<_>>().join(",");
+                        let line = format!("[a0_fold #{}] DIFF
+  game=[{}]
+  mine=[{}]
+", ST.n.load(Ordering::Relaxed), fmt(p1), mine_s);
+                        if let Some(p) = crate::pth("judge_a0_fold.txt") { let _ = std::fs::OpenOptions::new().create(true).append(true).open(p).and_then(|mut f| { use std::io::Write; f.write_all(line.as_bytes()) }); }
+                    }
+                } else { ST.ok.fetch_add(1, Ordering::Relaxed); }
+            }
+        }
+        r
+    }
+}
+
+/// ★[2026-09-08] 타워다이브 **취소 게이트 확증용** shadow-call.
+///   RE 확정: `0xd96d00` = `tower_discipline::v47_siege_stance`, 취소 조건은
+///   `resolve_fight_full(0xe05450)` 결과의 `out+0x38 == 2`(`FightLine::Disengage`).
+///   `resolve_fight_uncached`(IR 3,500줄) 완전 재현은 별건이라, 먼저 **원본을 직접 불러**
+///   "C 하나가 40,330건 전부의 원인인가"를 판별한다.
+///   ⚠cfg `judge_dive_call`(기본 0)로만 켠다 — 게임함수 shadow-call 은 AV 위험이 있다.
+///   ⚠원본 트램폴린(`cap_as_d96d00::ORIG`)을 부르므로 훅을 다시 타지 않는다(무한재귀 없음).
+pub unsafe fn siege_stance_call(mode: usize, holder: usize, rec: usize, tower: usize) -> Option<(u64, u64)> {
+    let orig = cap_as_d96d00::ORIG.load(Ordering::Relaxed);
+    if orig == 0 { return None; }
+    if !crate::ptr_ok(holder) || !crate::ptr_ok(rec) || !crate::ptr_ok(tower) { return None; }
+    type F4 = unsafe extern "C" fn(usize, usize, usize, usize) -> u64;
+    // 반환은 (rax, rdx) 페어라 Rust 시그니처로는 rax 만 받는다 — rdx 는 dive_record 링으로 회수한다.
+    let f: unsafe extern "C" fn(usize, usize, usize, usize) -> DivePair = core::mem::transmute(orig);
+    let _ = None::<F4>;
+    let r = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| f(mode, holder, rec, tower))).ok()?;
+    Some((r.a, r.b))
+}
+#[repr(C)] pub struct DivePair { pub a: u64, pub b: u64 }
 /// pre/post 계산 시점 실험용 카운터(combat_score 전용).
 pub static ORD_DIFFER: AtomicU64 = AtomicU64::new(0);
 pub static ORD_PRE_WIN: AtomicU64 = AtomicU64::new(0);
@@ -782,7 +873,11 @@ macro_rules! judge_capture_ring_cmp {
     };
 }
 judge_capture_ring_cmp!(cap_util_c87fe0, crate::judge::gen_fns::UTIL_C87FE0, |_p1, p2, _p3, _p4, _p5, _p6, _p7, _p8| unsafe { crate::judge::port::as_callees::pct_c_from_args(p2) });   // 백분위 C (2단계: 0xd390a0 순수 재현 대조)
-judge_capture_ring_cmp9_pre!(cap_combat_score, crate::judge::gen_fns::COMBAT_SCORE, |p1, p2, p3, p4, p5, p6, p7, p8, p9| unsafe { crate::judge::port::combat_score::combat_score(p1, p2, p3, p4, p5, p6, p7, p8, p9) });   // 전투행동 점수(2단계: 순수 재현 대조)
+judge_capture_ring_cmp9!(cap_combat_score, crate::judge::gen_fns::COMBAT_SCORE, |p1, p2, p3, p4, p5, p6, p7, p8, p9| unsafe { crate::judge::port::combat_score::combat_score(p1, p2, p3, p4, p5, p6, p7, p8, p9) });   // ★[2026-09-08] pre → **post** 전환. 근거: 사후 오라클에서 `postA8m(게임 메모) == postA8r(순수 재현)` 이
+   //   전 표본 일치하는데 **pre 재현만 일정하게 어긋난다**(tick 은 동일). 즉 pre 계산 시점과 게임이 실제로
+   //   계산하는 시점 사이에 **월드 상태가 변한다**(배경 presim 병렬). post 는 메모를 훔쳐 보는 게 아니라
+   //   (메모 없이 순수 재현해도 같은 값) **게임이 본 상태에 가장 가까운 시점**이다.
+   //   ORD 실험도 같은 결론: post만맞음 130 · pre만맞음 0.
 judge_capture_ring_cmp!(cap_as_eb82d0, crate::judge::gen_fns::AS_EB82D0, |p1, _p2, p3, p4, p5, p6, p7, _p8| unsafe { crate::judge::port::fight_check::fight_check_memo(p1 as u64, p3, p4, p5, p6, p7) });   // fight_check (2단계: 순수 재현+메모 미러 대조)
 judge_capture_ring_cmp!(cap_as_e0e890, crate::judge::gen_fns::AS_E0E890, |p1, p2, _p3, _p4, _p5, _p6, _p7, _p8| unsafe { crate::judge::port::as_callees::max_reach(p1, p2) });   // 최대사거리 (2단계: 순수 재현 대조)
 judge_capture_ring_cmp!(cap_as_132b310, crate::judge::gen_fns::AS_132B310, |p1, _p2, p3, p4, _p5, _p6, _p7, _p8| unsafe { crate::judge::port::position_eval::threat_cmp(p1, p3, p4) });   // S11 액션 위협(threat) — A ±1 추적용
@@ -933,7 +1028,7 @@ judge_hook_out!(serpen_hb_hook, crate::judge::gen_fns::SERPEN_HUNT_BATTLE, crate
 
 /// 등록된 훅 전부(status 덤프용). 훅을 늘리면 여기와 install() 에 한 줄씩.
 pub fn stats() -> Vec<(&'static str, &'static Stat)> {
-    vec![(STEAL_SCORE.name, &steal_hook::ST), (ABILITY_PICK.name, &cap_ability_pick::ST), ("ability_pick_tag", &ab_tag::ST), (RECENTLY_SEEN.name, &cap_recent_seen::ST), (DN_CACHE.name, &cap_dn_cache::ST), (DEFENSE_NEXUS.name, &defense_nexus_hook::ST), (EST_DAMAGE.name, &cap_est_dmg::ST), (PASSIVE_JUNGLE.name, &passive_jungle_hook::ST), (SINGLE_LINE.name, &cap_single_line::ST), (OBJ_CAN_ATTACK.name, &cap_obj_can_attack::ST), (OBJ_ENGAGE_GATE.name, &cap_obj_engage_gate::ST), (OBJ_POKE_GATE.name, &cap_obj_poke_gate::ST), (OBJ_COULD_ARRIVE.name, &cap_obj_could_arrive::ST), (BASE_SCORE.name, &cap_base_score::ST), (COMBAT_SCORE.name, &cap_combat_score::ST), (AS_C88300.name, &cap_as_c88300_out::ST), (AS_E23170.name, &cap_as_e23170::ST), (AS_D84DB0.name, &cap_as_d84db0::ST), (AS_D96D00.name, &cap_as_d96d00::ST), (AS_D851D0.name, &cap_as_d851d0::ST), (AS_E04400.name, &cap_as_e04400::ST), (AS_EB82D0.name, &cap_as_eb82d0::ST), (AS_E0E890.name, &cap_as_e0e890::ST), (AS_D83230.name, &cap_as_d83230::ST), (V54_AOE.name, &cap_v54_aoe::ST), (MW_RISK.name, &cap_mw_risk::ST), (V55_MARK.name, &cap_v55_mark::ST), (V55_SEAL.name, &cap_v55_seal::ST), (V55_BANISH.name, &cap_v55_banish::ST), (AS_132B310.name, &cap_as_132b310::ST), (UTIL_C87FE0.name, &cap_util_c87fe0::ST), (BATTLE_ARM9.name, &battle_hook::ST), (EPIC_HUNT_POKE.name, &epic_hp_hook::ST), (SERPEN_HUNT_POKE.name, &serpen_hp_hook::ST),
+    vec![(STEAL_SCORE.name, &steal_hook::ST), (ABILITY_PICK.name, &cap_ability_pick::ST), ("ability_pick_tag", &ab_tag::ST), (RECENTLY_SEEN.name, &cap_recent_seen::ST), (DN_CACHE.name, &cap_dn_cache::ST), (DEFENSE_NEXUS.name, &defense_nexus_hook::ST), (EST_DAMAGE.name, &cap_est_dmg::ST), (PASSIVE_JUNGLE.name, &passive_jungle_hook::ST), (SINGLE_LINE.name, &cap_single_line::ST), (OBJ_CAN_ATTACK.name, &cap_obj_can_attack::ST), (OBJ_ENGAGE_GATE.name, &cap_obj_engage_gate::ST), (OBJ_POKE_GATE.name, &cap_obj_poke_gate::ST), (OBJ_COULD_ARRIVE.name, &cap_obj_could_arrive::ST), (BASE_SCORE.name, &cap_base_score::ST), (COMBAT_SCORE.name, &cap_combat_score::ST), (AS_C88300.name, &cap_as_c88300_out::ST), (AS_E23170.name, &cap_as_e23170::ST), (AS_D84DB0.name, &cap_as_d84db0::ST), (AS_D96D00.name, &cap_as_d96d00::ST), (AS_D851D0.name, &cap_as_d851d0::ST), (AS_E04400.name, &cap_as_e04400::ST), (AS_EB82D0.name, &cap_as_eb82d0::ST), (AS_E0E890.name, &cap_as_e0e890::ST), (AS_D83230.name, &cap_as_d83230::ST), (A0_FOLD.name, &cap_a0_fold::ST), (V54_AOE.name, &cap_v54_aoe::ST), (MW_RISK.name, &cap_mw_risk::ST), (V55_MARK.name, &cap_v55_mark::ST), (V55_SEAL.name, &cap_v55_seal::ST), (V55_BANISH.name, &cap_v55_banish::ST), (AS_132B310.name, &cap_as_132b310::ST), (UTIL_C87FE0.name, &cap_util_c87fe0::ST), (BATTLE_ARM9.name, &battle_hook::ST), (EPIC_HUNT_POKE.name, &epic_hp_hook::ST), (SERPEN_HUNT_POKE.name, &serpen_hp_hook::ST),
          (EPIC_HUNT_BATTLE.name, &epic_hb_hook::ST), (SERPEN_HUNT_BATTLE.name, &serpen_hb_hook::ST), (PASSIVE_LINE.name, &passive_line_hook::ST)]
 }
 
@@ -1016,7 +1111,7 @@ pub fn write_status() {
                     if crate::vanilla_imm_on() { "vanilla" } else { "patched" }, s);
     if let Some(p) = pth("judge_status.txt") { let _ = fs::write(p, s); }
     if let Some(p) = pth("judge_dyn.txt") { let _ = fs::write(p, port::dyn_eff::unseen_report()); }
-    if let Some(p) = pth("judge_pe_gate.txt") { let _ = fs::write(p, format!("{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}", port::combat_score::path_report(), port::position_eval::dive_cmp_report(), port::position_eval::memo_report(), port::position_eval::mine_truth_report(), port::position_eval::cand_report(), port::position_eval::need_report(), port::position_eval::neg_report(), port::position_eval::qscan_report(), port::position_eval::comp_report(), port::position_eval::gbx_report(), port::position_eval::self_report(), port::position_eval::truth_report(), port::position_eval::edge_report(), port::position_eval::gate_report(), port::combat_score::na_report(), port::combat_score::a2_report(), port::combat_score::e044_report(), port::combat_score::pmask_report(), ord_report(), port::combat_score::cap_report(), port::position_eval::impact_report(), port::combat_score::nch_report())); }
+    if let Some(p) = pth("judge_pe_gate.txt") { let _ = fs::write(p, format!("{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}", port::combat_score::path_report(), cap_a0_fold::field_report(), port::position_eval::dive_cmp_report(), port::position_eval::memo_report(), port::position_eval::mine_truth_report(), port::position_eval::cand_report(), port::position_eval::need_report(), port::position_eval::neg_report(), port::position_eval::qscan_report(), port::position_eval::comp_report(), port::position_eval::gbx_report(), port::position_eval::self_report(), port::position_eval::truth_report(), port::position_eval::edge_report(), port::position_eval::gate_report(), port::combat_score::na_report(), port::combat_score::a2_report(), port::combat_score::e044_report(), port::combat_score::pmask_report(), ord_report(), port::combat_score::cap_report(), port::position_eval::impact_report(), port::combat_score::nch_report())); }
 }
 
 static INSTALLED: AtomicBool = AtomicBool::new(false);
@@ -1074,6 +1169,7 @@ pub unsafe fn install() {
             install_one(&mut log, &AS_EB82D0, &cap_as_eb82d0::ORIG, cap_as_eb82d0::wrap as *const () as usize, "capture-ring");
             install_one(&mut log, &AS_E0E890, &cap_as_e0e890::ORIG, cap_as_e0e890::wrap as *const () as usize, "capture-ring");
             install_one(&mut log, &AS_D83230, &cap_as_d83230::ORIG, cap_as_d83230::wrap as *const () as usize, "capture-ring");
+            install_one(&mut log, &A0_FOLD, &cap_a0_fold::ORIG, cap_a0_fold::wrap as *const () as usize, "capture-a0");
             install_one(&mut log, &V54_AOE, &cap_v54_aoe::ORIG, cap_v54_aoe::wrap as *const () as usize, "capture-ring");
             install_one(&mut log, &MW_RISK, &cap_mw_risk::ORIG, cap_mw_risk::wrap as *const () as usize, "capture-ring");
             install_one(&mut log, &V55_MARK, &cap_v55_mark::ORIG, cap_v55_mark::wrap as *const () as usize, "capture-ring");

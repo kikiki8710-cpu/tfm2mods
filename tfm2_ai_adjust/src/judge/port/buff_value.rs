@@ -299,7 +299,8 @@ pub unsafe fn slot_sum_p(payload: usize, vt: usize, slot: usize, me: usize, dept
         return Some((rd_u64(payload)?.wrapping_add(rd_u64(payload + 8)?.wrapping_mul(rd_u64(me + 0x620)?)).wrapping_mul(q)) as i64);
     }
     // ★잎이면 specemu 로 실제 실행(non-sret 규약). 손으로 옮기는 것보다 정확하다.
-    if base != 0 && f > base { if let Some(v) = super::specemu::run_leaf_i64(f, payload as u64, me as u64, (base + 0x33da3d0) as u64) { return Some(v); } }
+    if base != 0 && f > base { let sim = SIM_TLS.with(|c| c.get()) as u64;
+        if let Some(v) = super::specemu::run_leaf_i64_sim(f, payload as u64, sim, me as u64, (base + 0x33da3d0) as u64) { return Some(v); } }
     if let Some(r) = super::dyn_eff::impl_rva(vt, slot) { super::dyn_eff::unseen(0x800 + slot as u32, r); }
     na_tag(tag)
 }
@@ -412,7 +413,8 @@ pub unsafe fn slot_sum(data: usize, vt: usize, slot: usize, me: usize, depth: u3
         return Some((rd_u64(p)?.wrapping_add(rd_u64(p + 8)?.wrapping_mul(rd_u64(me + 0x620)?)).wrapping_mul(q)) as i64);
     }
     // ★잎이면 specemu 로 실제 실행(non-sret 규약)
-    if eb != 0 && f > eb { if let Some(v) = super::specemu::run_leaf_i64(f, p as u64, me as u64, (eb + 0x33da3d0) as u64) { return Some(v); } }
+    if eb != 0 && f > eb { let sim = SIM_TLS.with(|c| c.get()) as u64;
+        if let Some(v) = super::specemu::run_leaf_i64_sim(f, p as u64, sim, me as u64, (eb + 0x33da3d0) as u64) { return Some(v); } }
     if let Some(r) = super::dyn_eff::impl_rva(vt, slot) { super::dyn_eff::unseen(0x900 + slot as u32, r); }
     na_tag(tag)
 }
@@ -438,6 +440,12 @@ const FOLD_BOOL: [usize; 3] = [0xf8, 0x118, 0x119];
 #[inline] fn sp_set_i64(b: &mut [u8; SPEC_SIZE], o: usize, v: i64) { b[o..o + 8].copy_from_slice(&v.to_le_bytes()); }
 
 /// 자식 배열 (ptr@p+ptr_o, len@p+len_o, stride) 을 `0x126e6c0` 규칙으로 접는다.
+/// ★[2026-09-08] `vt+0xa0` 합성 impl `0x12a5770` 을 **직접 후킹해 288B sret 을 통째로 대조**하기 위한 공개 창구.
+///   S14 잔차(여섯 항 0 → −10 폴백, 게임은 1/7/12)의 유일한 후보가 이 fold 다(`a0i=0x12a5770 fp=0`).
+pub unsafe fn fold_children_pub(p: usize, ptr_o: usize, len_o: usize, stride: usize, me: usize, sim: usize) -> Option<Option<[u8; SPEC_SIZE]>> {
+    set_leaf_ctx(sim);
+    fold_children(p, ptr_o, len_o, stride, me, 0)
+}
 unsafe fn fold_children(p: usize, ptr_o: usize, len_o: usize, stride: usize, me: usize, depth: u32) -> Option<Option<[u8; SPEC_SIZE]>> {
     let n = rd_u64(p + len_o)?;
     let arr = rd_u64(p + ptr_o)? as usize;
