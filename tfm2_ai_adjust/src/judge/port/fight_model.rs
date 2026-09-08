@@ -446,3 +446,340 @@ pub unsafe fn judge_accuracy(param: usize) -> Option<u64> {
     Some(v.min(100).wrapping_mul(9).wrapping_add(100))
 }
 #[inline] pub fn na(tag: &str) -> Option<FightPrediction> { let _ = na_tag(tag); None }
+
+
+// ══════════════════════════════════════════════════════════════════════════════════════════════
+// ★[2026-09-08] `tower_dive_is_viable`(0xe07430, m10.ll:42838, fight_model.rs L935~1045) 순수 재현
+//   + 그 콜리 `resolve_fight_stake`(m10.ll:42357, L571~600) · `ally_is_bound`(m10.ll:39193)
+//   + `battle::max_range_cached`(m10.ll:50689 = MaxRangeCache 미러 + 이미 포팅된 `as_callees::max_reach`)
+//   + `path_finder::is_enemy_well_danger`(m03.ll:144500) · `AbstractGameWithCache::iter_towers_without_nexus`(g15.ll:108971)
+//   ⚠**version ≤ 1 경로는 미포팅(NA)** — 그 갈래에서만 `is_unreasonable_tower_dive_enemy` 서브트리
+//     (can_tower_focused 458줄 · Game::adjust_position 552줄 · towers 466줄 …)가 필요한데,
+//     0.5.8 리플레이는 version > 1 이라 죽은 코드다. NA 가 실제로 잡히면 그때 포팅한다.
+// ══════════════════════════════════════════════════════════════════════════════════════════════
+
+const ENT_SPEED: usize = 0x640;      // 이동속도(=1600)
+const ENT_SZ_PCT: usize = 0x470;     // 크기 보정 %(i32)
+const ENT_SZ: usize = 0x680;         // 기본 크기
+const ENT_R438: usize = 0x438;       // 사거리 가산
+
+/// `Entity::size` = `pct==0 ? sz : (pct+100)*sz/100` (max_range·타워 사거리에서 양쪽 크기를 더한다)
+#[inline] unsafe fn esize(e: usize) -> Option<u64> {
+    let p = rd_i32(e + ENT_SZ_PCT)? as i64; let r = rd_u64(e + ENT_SZ)?;
+    Some(if p == 0 { r } else { ((p + 100) as u64).wrapping_mul(r) / 100 })
+}
+/// `Entity::distance`(g06.ll:84197) = `utils::distance`(g06.ll:87697) = **정수 √(dx²+dy²)**
+#[inline] unsafe fn edist(a: usize, b: usize) -> Option<u64> {
+    let (ax, ay) = xy(a)?; let (bx, by) = xy(b)?;
+    Some(super::obj_helpers::isqrt(sqd(ax, ay, bx, by)))
+}
+
+// ── battle::max_range_cached — TLS `MaxRangeCache` 미러 ────────────────────────────────────────
+//   키 = **로스터 평면 인덱스 쌍**(엔티티 포인터가 아니다) · 에포크 = (seed, tick) · 값 = `max_range(a,b)`.
+//   둘 중 하나라도 로스터에 없으면(타워 등) **캐시를 안 탄다** = 매번 계산.
+//   ⚠presim 오버레이로 같은 틱에 상태가 바뀌어도 게임은 **첫 값**을 돌려준다 — 미러 없이는 조용한 DIFF.
+thread_local! {
+    static MR_MEMO: std::cell::RefCell<((u64, u64), std::collections::HashMap<(u8, u8), u64>)> =
+        std::cell::RefCell::new(((0, 0), std::collections::HashMap::new()));
+}
+pub fn mr_memo_reset() { MR_MEMO.with(|c| { let mut m = c.borrow_mut(); m.0 = (0, 0); m.1.clear(); }); }
+/// `x+0x1e0` 의 10칸(팀0 5 + 팀1 5)에서 핸들 위치를 찾는다. 없으면 `Some(None)`.
+unsafe fn roster_flat_idx(x: usize, h: u64) -> Option<Option<u8>> {
+    for i in 0..10usize {
+        let p = rd_u64(x + X_ROSTER + i * 8)? as usize;
+        if p == 0 { continue; }
+        if rd_u64(p + ENT_HANDLE)? == h { return Some(Some(i as u8)); }
+    }
+    Some(None)
+}
+pub unsafe fn max_range_cached(data: usize, a: usize, b: usize) -> Option<u64> {
+    if !ptr_ok(a) || !ptr_ok(b) { return None; }
+    let x = rd_u64(data)? as usize; if !ptr_ok(x) { return None; }
+    let ia = roster_flat_idx(x, rd_u64(a + ENT_HANDLE)?)?;
+    let ib = roster_flat_idx(x, rd_u64(b + ENT_HANDLE)?)?;
+    let (ia, ib) = match (ia, ib) { (Some(p), Some(q)) => (p, q), _ => return super::as_callees::max_reach(a, b) };
+    let (wd, wv) = (rd_u64(x)? as usize, rd_u64(x + 8)? as usize);
+    if !ptr_ok(wd) || !ptr_ok(wv) { return None; }
+    let epoch = (crate::judge::world::game_seed(wd, wv)?, crate::judge::world::game_tick(wd, wv)?);
+    let hit = MR_MEMO.with(|c| { let mut m = c.borrow_mut(); if m.0 != epoch { m.0 = epoch; m.1.clear(); } m.1.get(&(ia, ib)).copied() });
+    if let Some(v) = hit { return Some(v); }
+    let v = super::as_callees::max_reach(a, b)?;
+    MR_MEMO.with(|c| { c.borrow_mut().1.insert((ia, ib), v); });
+    Some(v)
+}
+
+/// `path_finder::is_enemy_well_danger`(m03.ll:144500) — 적 우물 근처인가(팀별 코너 두 사각형).
+unsafe fn is_enemy_well_danger(player: usize, ex: u64, ey: u64) -> Option<bool> {
+    let side = rd_u64(player + P5_SIDE)?;
+    Some(if side == 1 {
+        if ex <= 64_000 && ey.wrapping_sub(800_000) <= 160_000 { true }
+        else { ex <= 160_000 && ey.wrapping_sub(896_000) <= 64_000 }
+    } else if ex.wrapping_sub(800_000) <= 160_000 && ey <= 64_000 { true }
+    else { ex.wrapping_sub(896_000) <= 64_000 && ey <= 160_000 })
+}
+
+/// `Blackboard::is_recent_visible(bb[1-side], game, vt, player, e)`(g07.ll:157005) — siege B 와 같은 식.
+unsafe fn recent_visible(w: &World, bb: usize, side: u64, tick: u64, e: usize) -> Option<bool> {
+    let h = rd_u64(e + ENT_HANDLE)?;
+    if w.visible(side, h)? { return Some(true); }
+    let rec = w.roster_rec(h)?;
+    if rec == 0 { return Some(false); }
+    let role = rd_u32(rec + P5_ROLE) as usize; if role >= 5 { return None; }
+    let opp = 1 - side;
+    Some(rd_u64(bb + (opp as usize) * BB_STRIDE + 0x1e0 + role * 8)?.wrapping_add(120) >= tick)
+}
+
+/// `check_kill_die_tick`(0xeb82d0) 호출 — 게임의 bumpalo `Vec<&Entity>`{ptr@0, bump@8, cap@0x10, len@0x18} 를
+/// 스택에 흉내 내 이미 포팅된 `fight_check::fight_check_memo`(DieTickCache 미러 포함)에 넘긴다.
+unsafe fn ckdt(version: u64, data: usize, player: usize, me: usize, a: &[usize], b: &[usize]) -> Option<u64> {
+    let ba: Vec<u64> = a.iter().map(|&e| e as u64).collect();
+    let bb: Vec<u64> = b.iter().map(|&e| e as u64).collect();
+    let ha: [u64; 4] = [ba.as_ptr() as u64, 0, ba.len() as u64, ba.len() as u64];
+    let hb: [u64; 4] = [bb.as_ptr() as u64, 0, bb.len() as u64, bb.len() as u64];
+    super::fight_check::fight_check_memo(version, data, player, me, ha.as_ptr() as usize, hb.as_ptr() as usize)
+}
+
+/// `fight_model::ally_is_bound`(m10.ll:39193) — 이 아군이 "적에게 묶여 있는가".
+///   근접적 = `dist²(e, ally) ≤ (max_range_cached(data, e, ally) + 30000)²` 인 적. 없으면 false.
+///   lim = 근접적들의 `usub_sat(range+30000, dist)/max(ally.speed,1)` 최소값. 반환 = `die_tick(ally) ≤ lim`.
+unsafe fn ally_is_bound(version: u64, data: usize, player: usize, ally: usize, enemies: &[usize]) -> Option<bool> {
+    let mut near: Vec<usize> = Vec::with_capacity(enemies.len());
+    for &e in enemies {
+        let r = max_range_cached(data, e, ally)?.wrapping_add(30_000);
+        if d2(e, ally)? <= r.wrapping_mul(r) { near.push(e); }
+    }
+    if near.is_empty() { return Some(false); }
+    let sp = rd_u64(ally + ENT_SPEED)?.max(1);
+    let mut lim = u64::MAX;
+    for &e in &near {
+        let r = max_range_cached(data, e, ally)?.wrapping_add(30_000);
+        let t = r.saturating_sub(edist(e, ally)?) / sp;
+        if t < lim { lim = t; }
+    }
+    Some(ckdt(version, data, player, ally, &near, &[])? <= lim)
+}
+
+/// `fight_model::resolve_fight_stake`(m10.ll:42357, L571~600).
+///   version<2 → `resolve_fight_full` 그대로. 아니면 ①`bound` 아군(챔프 제외)만 골라 ②전체 예측(base)
+///   ③bound 만의 예측 p1(dir=0) ④전체 + `baseline = p1.net` 예측 p2 → `p2.line_absolute = base.line`.
+///   `p2.line != base.line` 이면 p2.rescue 를 **bound 중 (거리², 핸들) 최소** 아군으로 교체.
+#[allow(clippy::too_many_arguments)]
+pub unsafe fn resolve_fight_stake(version: u64, data: usize, player: usize, champ: usize,
+                                  allies: &[usize], enemies: &[usize], committed_dir: i8,
+                                  tower: Option<usize>, judge_accuracy: u64) -> Option<FightPrediction> {
+    if version < 2 {
+        return resolve_fight_full(version, data, champ, allies, enemies, committed_dir, tower, judge_accuracy, &[], 0);
+    }
+    let ch = rd_u64(champ + ENT_HANDLE)?;
+    let mut bound: Vec<usize> = Vec::with_capacity(allies.len());
+    for &e in allies {
+        if rd_u64(e + ENT_HANDLE)? == ch { continue; }
+        if ally_is_bound(version, data, player, e, enemies)? { bound.push(e); }
+    }
+    let base = resolve_fight_full(version, data, champ, allies, enemies, committed_dir, tower, judge_accuracy, &[], 0)?;
+    if bound.is_empty() { return Some(base); }
+    let p1 = resolve_fight_full(version, data, champ, &bound, enemies, 0, tower, judge_accuracy, &[], 0)?;
+    let mut p2 = resolve_fight_full(version, data, champ, allies, enemies, committed_dir, tower, judge_accuracy, &[], p1.net)?;
+    p2.line_abs = base.line;
+    if p2.line != base.line {
+        let mut best: Option<((u64, u64), u64)> = None;
+        for &e in &bound {
+            let k = (d2(e, champ)?, rd_u64(e + ENT_HANDLE)?);
+            if best.map_or(true, |b| k < b.0) { best = Some((k, k.1)); }
+        }
+        p2.rescue = best.map(|b| b.1);
+    }
+    Some(p2)
+}
+
+/// `AbstractGameWithCache::iter_towers_without_nexus(x, side)`(g15.ll:108971) → 대상과 가장 가까운 타워
+/// (`min_by_key(dist²)`, 동점은 앞쪽) 중 **대상을 때릴 수 있는** 것만. 고정 6칸 순서 = 384·416·448·400·432·464(+8·side),
+/// 이어서 `x+304+32·side` 의 Vec(ptr@0, len@24). 사거리식엔 **+15000** 이 붙는다(L971).
+unsafe fn pick_tower(x: usize, side: u64, target: usize) -> Option<Option<usize>> {
+    let s = side as usize;
+    let mut list: Vec<usize> = Vec::with_capacity(16);
+    for off in [384usize, 416, 448, 400, 432, 464] {
+        let p = rd_u64(x + off + s * 8)? as usize;
+        if p != 0 { if !ptr_ok(p) { return None; } list.push(p); }
+    }
+    let vb = x + 304 + s * 32;
+    let n = rd_u64(vb + 24)?; if n > 256 { return None; }
+    if n != 0 {
+        let p = rd_u64(vb)? as usize; if !ptr_ok(p) { return None; }
+        for i in 0..n as usize { let e = rd_u64(p + i * 8)? as usize; if e != 0 { list.push(e); } }
+    }
+    let mut best: Option<(u64, usize)> = None;
+    for &t in &list { let k = d2(t, target)?; if best.map_or(true, |b| k < b.0) { best = Some((k, t)); } }
+    let t = match best { Some((_, t)) => t, None => return Some(None) };
+    if rd_i32(t + SLOT0 + 0x30)? == -1 { return na_opt("TDunw"); }   // 게임은 unwrap 패닉 — 실측되면 조사
+    let range = rd_u64(t + SLOT0 + 0x10)?
+        .wrapping_add(15_000)
+        .wrapping_add(rd_u64(t + ENT_R438)?)
+        .wrapping_add(rd_u64(t + E_LV)?.wrapping_sub(1).wrapping_mul(rd_u64(t + SLOT0 + 0x18)?))
+        .wrapping_add(esize(target)?)
+        .wrapping_add(esize(t)?);
+    Some(if edist(t, target)? > range { None } else { Some(t) })
+}
+#[inline] unsafe fn na_opt(tag: &str) -> Option<Option<usize>> { let _ = na_tag(tag); None }
+#[inline] unsafe fn na_b(tag: &str) -> Option<bool> { let _ = na_tag(tag); None }
+
+/// L951 의 적 필터(closure #0, m10.ll:56215).
+///   ①`dist²(e, champ) > (max(max_range(champ,e), max_range(e,champ)) + 30000)²` 면 제외
+///   ②최근 시야에 없으면 제외 ③version>1: **적 챔프이면서 적 우물 위험**이면 제외.
+#[allow(clippy::too_many_arguments)]
+pub(super) unsafe fn tdiv_enemy_ok(version: u64, w: &World, data: usize, bb: usize, tick: u64,
+                        player: usize, champ: usize, e: usize) -> Option<bool> {
+    let r = max_range_cached(data, champ, e)?.max(max_range_cached(data, e, champ)?).wrapping_add(30_000);
+    if d2(e, champ)? > r.wrapping_mul(r) { return Some(false); }
+    let side = rd_u64(player + P5_SIDE)?; if side > 1 { return None; }
+    if !recent_visible(w, bb, side, tick, e)? { return Some(false); }
+    if version <= 1 { return na_b("TDv1e"); }        // is_unreasonable_tower_dive_enemy 갈래 미포팅
+    let is_enemy_champ = rd_u64(e)? == 0 && rd_u64(e + 8)? == 1 - side;
+    let bad = if is_enemy_champ { is_enemy_well_danger(player, rd_u64(e + ENT_X)?, rd_u64(e + ENT_Y)?)? } else { false };
+    Some(!bad)
+}
+
+/// L1019 의 적 필터(closure s7_0, m10.ll:56457): 대상 자신이거나, `dist² ≤ 150000²` 이면서 최근 시야.
+unsafe fn tdiv_s7_ok(w: &World, bb: usize, side: u64, tick: u64, target: usize, e: usize) -> Option<bool> {
+    if rd_u64(e + ENT_HANDLE)? == rd_u64(target + ENT_HANDLE)? { return Some(true); }
+    if d2(e, target)? >= 22_500_000_001 { return Some(false); }     // < 150000²+1
+    recent_visible(w, bb, side, tick, e)
+}
+
+/// ★`fight_model::tower_dive_is_viable`(0xe07430) — 반환 = `line != Disengage`.
+///   인자(래퍼 기준) `p1`=version · `p2`=rnd · **`p3`=player** · **`p4`=data** · `p5`=team_plan · `p6`=target · `p7`=team_model · `p8`=debug
+#[allow(clippy::too_many_arguments)]
+pub unsafe fn tower_dive_is_viable(version: u64, player: usize, data: usize, team_plan: usize,
+                                   target: usize, team_model: bool) -> Option<bool> {
+    if !ptr_ok(player) || !ptr_ok(data) || !ptr_ok(team_plan) || !ptr_ok(target) { return None; }
+    let side = rd_u64(player + P5_SIDE)?; if side > 1 { return None; }
+    let role = rd_u32(player + P5_ROLE) as usize; if role >= 5 { return None; }
+    let x = rd_u64(data)? as usize; if !ptr_ok(x) { return None; }
+    let champ = rd_u64(x + X_ROSTER + (side as usize) * 0x28 + role * 8)? as usize;
+    if champ == 0 { return Some(false); }                       // L945
+    if !ptr_ok(champ) { return None; }
+    let ctx = rd_u64(data + 8)? as usize; if !ptr_ok(ctx) { return None; }
+    let tps = tps_of(ctx)?;                                     // L948
+    let bb = rd_u64(data + 16)? as usize; if !ptr_ok(bb) { return None; }
+    let (wd, wv) = (rd_u64(x)? as usize, rd_u64(x + 8)? as usize);
+    if !ptr_ok(wd) || !ptr_ok(wv) { return None; }
+    let w = World { x, data: wd, vt: wv };
+    let tick = w.tick()?;
+    let opp = 1 - side;
+
+    // L951 — 챔프 주변의 적
+    let mut near_enemies: Vec<usize> = Vec::with_capacity(5);
+    for i in 0..5usize {
+        let e = rd_u64(x + X_ROSTER + (opp as usize) * 0x28 + i * 8)? as usize;
+        if e == 0 { continue; } if !ptr_ok(e) { return None; }
+        if tdiv_enemy_ok(version, &w, data, bb, tick, player, champ, e)? { near_enemies.push(e); }
+    }
+    // L959 — team_plan[i] 태그 0 이고 챔프에서 120000 안인 아군
+    let mut near_allies: Vec<usize> = Vec::with_capacity(5);
+    for i in 0..5usize {
+        if rd_u64(team_plan + i * 16)? != 0 { continue; }
+        let e = rd_u64(x + X_ROSTER + (side as usize) * 0x28 + i * 8)? as usize;
+        if e == 0 { continue; } if !ptr_ok(e) { return None; }
+        if d2(e, champ)? >= 14_400_000_001 { continue; }        // < 120000²+1
+        near_allies.push(e);
+    }
+    // L969~972 — 대상에 가장 가까운(그리고 대상을 때릴 수 있는) 상대 팀 타워
+    let tower = pick_tower(x, opp, target)?;
+    // L976/978 — 내가 죽는 틱 / 대상이 죽는 틱
+    let tv: Vec<usize> = tower.into_iter().collect();
+    let my_die = ckdt(version, data, player, champ, &near_enemies, &tv)?;
+    let tgt_die = ckdt(version, data, player, target, &near_allies, &[])?;
+    if version <= 1 { return na_b("TDv1"); }                    // L989 레거시 갈래 미포팅
+
+    // L990~993 — 대상이 자기 진영으로 도망칠 여유보다 늦게 죽으면 불가
+    let (hx, hy) = if side == 1 { (0u64, 960_000u64) } else { (960_000u64, 0u64) };
+    let d = super::obj_helpers::dist(rd_u64(target + ENT_X)?, rd_u64(target + ENT_Y)?, hx, hy);
+    let sp = rd_u64(target + ENT_SPEED)?.max(1);
+    if tgt_die > d.saturating_sub(160_000) / sp { return Some(false); }
+
+    // L1000~1003 — 타워 사거리에서 빠져나오는 데 걸리는 틱(여기 사거리식엔 +15000 이 없다)
+    let extra = match tower {
+        None => 0u64,
+        Some(t) => {
+            if rd_i32(t + SLOT0 + 0x30)? == -1 { 0 } else {
+                let range = rd_u64(t + ENT_R438)?
+                    .wrapping_add(rd_u64(t + SLOT0 + 0x10)?)
+                    .wrapping_add(rd_u64(t + E_LV)?.wrapping_sub(1).wrapping_mul(rd_u64(t + SLOT0 + 0x18)?))
+                    .wrapping_add(esize(t)?)
+                    .wrapping_add(esize(champ)?);
+                range.saturating_sub(edist(t, target)?) / rd_u64(champ + ENT_SPEED)?.max(1)
+            }
+        }
+    };
+    // L1008/1015
+    let viable = tgt_die.saturating_add(extra.wrapping_add(tps >> 1)) < my_die;
+    if !team_model || viable { return Some(viable); }
+
+    // L1016~1042 — 팀 모델: stake 예측의 line 으로 판단
+    let mut l1: Vec<usize> = Vec::with_capacity(5);
+    for i in 0..5usize {
+        let e = rd_u64(x + X_ROSTER + (side as usize) * 0x28 + i * 8)? as usize;
+        if e == 0 { continue; }
+        if d2(e, target)? >= 40_000_000_001 { continue; }       // < 200000²+1
+        l1.push(e);
+    }
+    let mut l2: Vec<usize> = Vec::with_capacity(5);
+    for i in 0..5usize {
+        let e = rd_u64(x + X_ROSTER + (opp as usize) * 0x28 + i * 8)? as usize;
+        if e == 0 { continue; }
+        if tdiv_s7_ok(&w, bb, side, tick, target, e)? { l2.push(e); }
+    }
+    let acc = judge_accuracy(player + 384)?;
+    let st = resolve_fight_stake(version, data, player, champ, &l1, &l2, 0, tower, acc)?;
+    let mut line = st.line;                                     // L1028
+    if let Some(h) = st.rescue {                                // L1029~1035
+        match w.entity(h) {
+            None => line = st.line_abs,
+            Some(e2) => {
+                let r = max_range_cached(data, target, e2.0)?.max(max_range_cached(data, e2.0, target)?)
+                        .wrapping_add(30_000);
+                if d2(target, e2.0)? > r.wrapping_mul(r) { line = st.line_abs; }
+            }
+        }
+    }
+    Some(line != LINE_DISENGAGE)                                // L1042
+}
+
+/// 오라클: 게임 반환(bool) ↔ 재현. `p7` 하위 1비트 = team_model.
+pub unsafe fn tower_dive_cmp(p1: u64, p3: usize, p4: usize, p5: usize, p6: usize, p7: usize) -> Option<i64> {
+    tower_dive_is_viable(p1, p3, p4, p5, p6, p7 & 1 != 0).map(|b| b as i64)
+}
+
+/// DIFF 진단: tower_dive 의 판단 재료를 한 줄로.
+pub unsafe fn td_diag(version: u64, player: usize, data: usize, team_plan: usize, target: usize, p7: usize) -> String {
+    let f = || -> Option<String> {
+        let side = rd_u64(player + P5_SIDE)?; let role = rd_u32(player + P5_ROLE) as usize;
+        let x = rd_u64(data)? as usize;
+        let champ = rd_u64(x + X_ROSTER + (side as usize) * 0x28 + role * 8)? as usize;
+        if champ == 0 { return Some(format!("side={} role={} champ=NULL", side, role)); }
+        let ctx = rd_u64(data + 8)? as usize; let tps = tps_of(ctx)?;
+        let bb = rd_u64(data + 16)? as usize;
+        let w = World { x, data: rd_u64(x)? as usize, vt: rd_u64(x + 8)? as usize };
+        let tick = w.tick()?; let opp = 1 - side;
+        let mut ne = 0u32; let mut na_e = 0u32;
+        for i in 0..5usize {
+            let e = rd_u64(x + X_ROSTER + (opp as usize) * 0x28 + i * 8)? as usize; if e == 0 { continue; }
+            match tdiv_enemy_ok(version, &w, data, bb, tick, player, champ, e) { Some(true) => ne += 1, Some(false) => {}, None => na_e += 1 }
+        }
+        let mut nl = 0u32;
+        for i in 0..5usize {
+            if rd_u64(team_plan + i * 16)? != 0 { continue; }
+            let e = rd_u64(x + X_ROSTER + (side as usize) * 0x28 + i * 8)? as usize; if e == 0 { continue; }
+            if d2(e, champ)? >= 14_400_000_001 { continue; }
+            nl += 1;
+        }
+        let tw = pick_tower(x, opp, target);
+        let (hx, hy) = if side == 1 { (0u64, 960_000u64) } else { (960_000u64, 0u64) };
+        let d = super::obj_helpers::dist(rd_u64(target + ENT_X)?, rd_u64(target + ENT_Y)?, hx, hy);
+        let sp = rd_u64(target + ENT_SPEED)?.max(1);
+        Some(format!("v={} side={} role={} tps={} ne={}(na{}) nl={} tower={:?} flee_lim={} tm={} tick={}",
+                     version, side, role, tps, ne, na_e, nl,
+                     tw.map(|o| o.map(|t| rd_u64(t + ENT_HANDLE).unwrap_or(0))), d.saturating_sub(160_000) / sp, p7 & 1, tick))
+    };
+    f().unwrap_or_else(|| "diag NA".into())
+}
