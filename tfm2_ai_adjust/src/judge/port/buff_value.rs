@@ -15,15 +15,15 @@ thread_local! {
     pub static S13D: std::cell::Cell<[i64; 17]> = const { std::cell::Cell::new([0; 17]) };
     /// S13 아군 아우라 루프 추적 — [impl98, 엔티티수, slot98!=0, rec찾음, crisis통과, 합]
     pub static AURAD: std::cell::Cell<[i64; 6]> = const { std::cell::Cell::new([0; 6]) };
-    pub static S13E: std::cell::Cell<[i64; 22]> = const { std::cell::Cell::new([0; 22]) };
+    pub static S13E: std::cell::Cell<[i64; 24]> = const { std::cell::Cell::new([0; 24]) };
     /// ★0xe03ed0(trig) 이탈지점 추적 — [exit, def!=0, tid, n, r, st, sum, cnt]
     ///   exit: 1=slot_def_b8 없음 2=def==0 3=tid 비표식·비컨테이너 4=컨테이너 비었음 5=자식에 표식 없음 9=끝까지 계산
     pub static E3D: std::cell::Cell<[i64; 8]> = const { std::cell::Cell::new([0; 8]) };
 }
 pub fn s13_diag() -> String {
     let v = S13D.with(|c| c.get()); let e = S13E.with(|c| c.get()); let f = S14D.with(|c| c.get()); let g = E3D.with(|c| c.get()); let h = AOED.with(|c| c.get()); let k = A0CH.with(|c| c.get()); let m = AURAD.with(|c| c.get());
-    format!(" S13[aoe={} trig={} auraT={} etc={} hs={} buff={} raw={} dur={} AURA={} b0i={:#x} dfRaw={} s48={} s50={} tps={} cool={} itv={} k={}] S13E[healE={} shieldE={} inc={} gate={} total={} has={} ally={} mainRaw={} healRaw={} cap={} miss={} shRaw={} altCap={} meMiss={} ra70={} ra80={} ra88={} tMax={} alyHp={} alyMax={} alyMiss={} tHp={}] S14[v={} k={} vd={} st={} b1={} b2={} src={} raw={} fp={} ns={} a0i={:#x}] E3[exit={} def={} tid={:#x} n={} r={} st={} sum={} cnt={}] AOE[kind={} R={} n={} slf={} noe={} dst={} cap={} tot={} poff={} vt={:#x} d0i={:#x} i40={:#x}] A0CH[{:#x} {:#x} {:#x} {:#x}] AURA13[i98={:#x} n={} s98={} rec={} cri={} sum={}]",
-        v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7], v[8], v[9], v[10], v[11], v[12], v[13], v[14], v[15], v[16], e[0], e[1], e[2], e[3], e[4], e[5], e[6], e[7], e[8], e[9], e[10], e[11], e[12], e[13], e[14], e[15], e[16], e[17], e[18], e[19], e[20], e[21],
+    format!(" S13[aoe={} trig={} auraT={} etc={} hs={} buff={} raw={} dur={} AURA={} b0i={:#x} dfRaw={} s48={} s50={} tps={} cool={} itv={} k={}] S13E[healE={} shieldE={} inc={} gate={} total={} has={} ally={} mainRaw={} healRaw={} cap={} miss={} shRaw={} altCap={} meMiss={} ra70={} ra80={} ra88={} tMax={} alyHp={} alyMax={} alyMiss={} tHp={} cap0={} sh0={}] S14[v={} k={} vd={} st={} b1={} b2={} src={} raw={} fp={} ns={} a0i={:#x}] E3[exit={} def={} tid={:#x} n={} r={} st={} sum={} cnt={}] AOE[kind={} R={} n={} slf={} noe={} dst={} cap={} tot={} poff={} vt={:#x} d0i={:#x} i40={:#x}] A0CH[{:#x} {:#x} {:#x} {:#x}] AURA13[i98={:#x} n={} s98={} rec={} cri={} sum={}]",
+        v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7], v[8], v[9], v[10], v[11], v[12], v[13], v[14], v[15], v[16], e[0], e[1], e[2], e[3], e[4], e[5], e[6], e[7], e[8], e[9], e[10], e[11], e[12], e[13], e[14], e[15], e[16], e[17], e[18], e[19], e[20], e[21], e[22], e[23],
         f[0], f[1], f[2], f[3], f[4], f[5], f[6], f[7], f[8], f[9], f[10], g[0], g[1], g[2], g[3], g[4], g[5], g[6], g[7],
         h[0], h[1], h[2], h[3], h[4], h[5], h[6], h[7], h[8], h[9], h[10], h[11], k[0], k[1], k[2], k[3], m[0], m[1], m[2], m[3], m[4], m[5])
 }
@@ -305,6 +305,15 @@ pub unsafe fn slot_sum_p(payload: usize, vt: usize, slot: usize, me: usize, dept
     na_tag(tag)
 }
 /// dyn 슬롯 값(i64). 합성이면 자식 합, 잎이면 디코드/스탯식, 그 외엔 unseen 기록 후 NA.
+/// ★[2026-09-08] 진단 전용: `rdx=0`(옛 규약) 으로 계산한 값. `rdx=sim`(IR 확정) 과 나란히 찍어
+///   S14 회귀가 정말 이 규약 때문인지 가른다 — `ability_pick_tag` 는 sim 으로 217→0 이 됐다.
+pub unsafe fn slot_sum_rdx0(data: usize, vt: usize, slot: usize, me: usize) -> Option<i64> {
+    let f = rd_u64(vt + slot)? as usize;
+    let p = inline_self(data, vt)?;
+    let eb = crate::exe_base();
+    if eb != 0 && f > eb { return super::specemu::run_leaf_i64_sim(f, p as u64, 0, me as u64, (eb + 0x33da3d0) as u64); }
+    None
+}
 pub unsafe fn slot_sum(data: usize, vt: usize, slot: usize, me: usize, depth: u32, tag: &str) -> Option<i64> {
     if depth > 40 { super::dyn_eff::unseen(0x610, depth as usize); return na_tag(tag); }
     let f = rd_u64(vt + slot)? as usize;          // ★절대주소(impl_rva 는 RVA)
@@ -683,7 +692,7 @@ thread_local! { pub static S14D: std::cell::Cell<[i64; 11]> = const { std::cell:
 pub fn s14_diag() -> [i64; 11] { S14D.with(|c| c.get()) }
 pub unsafe fn s13_s14(b: &BCtx, ally: Option<usize>) -> Option<i64> {
     // ★S13D/S13E 도 함께 리셋 — 안 하면 다른 경로 표본에 직전 호출의 잔값이 찍혀 진단이 헛돌다(RE 2026-09-07)
-    S14D.with(|c| c.set([0; 11])); AOED.with(|c| c.set([0; 12])); A0CH.with(|c| c.set([0; 4])); S13D.with(|c| c.set([0; 17])); S13E.with(|c| c.set([0; 22])); AURAD.with(|c| c.set([0; 6]));
+    S14D.with(|c| c.set([0; 11])); AOED.with(|c| c.set([0; 12])); A0CH.with(|c| c.set([0; 4])); S13D.with(|c| c.set([0; 17])); S13E.with(|c| c.set([0; 24])); AURAD.with(|c| c.set([0; 6]));
     set_leaf_ctx(b.sim);
     let (sd, sv, _sin) = slot3(b.slot)?;
     let t = b.tgt;
@@ -776,9 +785,11 @@ pub unsafe fn s13_s14(b: &BCtx, ally: Option<usize>) -> Option<i64> {
             None
         })().unwrap_or((-1, -1, -1)),
         None => (-1, -1, -1) };
+    let cap0 = slot_sum_rdx0(sd, sv, 0x40, b.me).unwrap_or(i64::MIN);
+    let sh0 = slot_sum_rdx0(sd, sv, 0x48, b.me).unwrap_or(i64::MIN);
     S13E.with(|c| c.set([heal_e, shield_e, inc, 0, heal_e + shield_e, has as i64, ally.is_some() as i64, 0, heal, heal_cap, miss, shield,
                          alt_cap, me_miss, ra70, ra80, ra88, rd_i64(t + ENT_MAXHP).unwrap_or(-1),
-                         aly_hp, aly_max, aly_miss, rd_i64(t + ENT_HP).unwrap_or(-1)]));
+                         aly_hp, aly_max, aly_miss, rd_i64(t + ENT_HP).unwrap_or(-1), cap0, sh0]));
     // dffa10 의 8번째 인자(gate) — S13 은 bb.0x9a0, S14 는 아군 Record 의 0x88
     let gate = match ally { Some(ra) => rd_i64(ra + 0x88)?, None => rd_i64(b.bb + 0x9a0)? };
     // dffa10 의 대상/계수 — S13 은 self·C, S14 는 tgt·C_ally
