@@ -542,6 +542,7 @@ unsafe fn ckdt(version: u64, data: usize, player: usize, me: usize, a: &[usize],
 /// `fight_model::ally_is_bound`(m10.ll:39193) — 이 아군이 "적에게 묶여 있는가".
 ///   근접적 = `dist²(e, ally) ≤ (max_range_cached(data, e, ally) + 30000)²` 인 적. 없으면 false.
 ///   lim = 근접적들의 `usub_sat(range+30000, dist)/max(ally.speed,1)` 최소값. 반환 = `die_tick(ally) ≤ lim`.
+thread_local! { pub static BOUND_LAST: std::cell::Cell<(u64, u64, u64)> = const { std::cell::Cell::new((0, 0, 0)) }; }   // (near, lim, die)
 unsafe fn ally_is_bound(version: u64, data: usize, player: usize, ally: usize, enemies: &[usize]) -> Option<bool> {
     let mut near: Vec<usize> = Vec::with_capacity(enemies.len());
     for &e in enemies {
@@ -556,7 +557,9 @@ unsafe fn ally_is_bound(version: u64, data: usize, player: usize, ally: usize, e
         let t = r.saturating_sub(edist(e, ally)?) / sp;
         if t < lim { lim = t; }
     }
-    Some(ckdt(version, data, player, ally, &near, &[])? <= lim)
+    let die = ckdt(version, data, player, ally, &near, &[])?;
+    BOUND_LAST.with(|c| c.set((near.len() as u64, lim, die)));
+    Some(die <= lim)
 }
 
 /// `fight_model::resolve_fight_stake`(m10.ll:42357, L571~600).
@@ -564,7 +567,7 @@ unsafe fn ally_is_bound(version: u64, data: usize, player: usize, ally: usize, e
 ///   ③bound 만의 예측 p1(dir=0) ④전체 + `baseline = p1.net` 예측 p2 → `p2.line_absolute = base.line`.
 ///   `p2.line != base.line` 이면 p2.rescue 를 **bound 중 (거리², 핸들) 최소** 아군으로 교체.
 #[allow(clippy::too_many_arguments)]
-thread_local! { pub static STAKE_LAST: std::cell::Cell<(u64, u64, u64, u64, i64, u64)> = const { std::cell::Cell::new((0, 0, 0, 0, 0, 0)) }; }   // (allies, bound, base.line, p2.line, p1.net, rescue)
+thread_local! { pub static STAKE_LAST: std::cell::Cell<(u64, u64, u64, u64, i64, u64, u64, i64, u64)> = const { std::cell::Cell::new((0, 0, 0, 0, 0, 0, 0, 0, 0)) }; }   // (al, bd, base_ln, p2_ln, p1net, resc, en, base_net, base_focus)   // (allies, bound, base.line, p2.line, p1.net, rescue)
 pub unsafe fn resolve_fight_stake(version: u64, data: usize, player: usize, champ: usize,
                                   allies: &[usize], enemies: &[usize], committed_dir: i8,
                                   tower: Option<usize>, judge_accuracy: u64) -> Option<FightPrediction> {
@@ -579,7 +582,7 @@ pub unsafe fn resolve_fight_stake(version: u64, data: usize, player: usize, cham
     }
     let base = resolve_fight_full(version, data, champ, allies, enemies, committed_dir, tower, judge_accuracy, &[], 0)?;
     if bound.is_empty() {
-        STAKE_LAST.with(|c| c.set((allies.len() as u64, 0, base.line as u64, base.line as u64, 0, base.rescue.unwrap_or(u64::MAX))));
+        STAKE_LAST.with(|c| c.set((allies.len() as u64, 0, base.line as u64, base.line as u64, 0, base.rescue.unwrap_or(u64::MAX), enemies.len() as u64, base.net, base.focus.unwrap_or(u64::MAX))));
         return Some(base);
     }
     let p1 = resolve_fight_full(version, data, champ, &bound, enemies, 0, tower, judge_accuracy, &[], 0)?;
@@ -593,7 +596,7 @@ pub unsafe fn resolve_fight_stake(version: u64, data: usize, player: usize, cham
         }
         p2.rescue = best.map(|b| b.1);
     }
-    STAKE_LAST.with(|c| c.set((allies.len() as u64, bound.len() as u64, base.line as u64, p2.line as u64, p1.net, p2.rescue.unwrap_or(u64::MAX))));
+    STAKE_LAST.with(|c| c.set((allies.len() as u64, bound.len() as u64, base.line as u64, p2.line as u64, p1.net, p2.rescue.unwrap_or(u64::MAX), enemies.len() as u64, base.net, base.focus.unwrap_or(u64::MAX))));
     Some(p2)
 }
 
@@ -784,9 +787,9 @@ pub unsafe fn td_diag(version: u64, player: usize, data: usize, team_plan: usize
         let sp = rd_u64(target + ENT_SPEED)?.max(1);
         // stake 경로면 그 내부까지
         let st = if p7 & 1 == 1 { tower_dive_is_viable(version, player, data, team_plan, target, true).and_then(|_| Some(STAKE_LAST.with(|c| c.get()))) } else { None };
-        Some(format!("v={} side={} role={} tps={} ne={}(na{}) nl={} tower={:?} flee_lim={} tm={} tick={} stake(al,bd,base_ln,p2_ln,p1net,resc)={:?}",
+        Some(format!("v={} side={} role={} tps={} ne={}(na{}) nl={} tower={:?} flee_lim={} tm={} tick={} stake(al,bd,base_ln,p2_ln,p1net,resc,en,base_net,focus)={:?} bound_last(near,lim,die)={:?}",
                      version, side, role, tps, ne, na_e, nl,
-                     tw.map(|o| o.map(|t| rd_u64(t + ENT_HANDLE).unwrap_or(0))), d.saturating_sub(160_000) / sp, p7 & 1, tick, st))
+                     tw.map(|o| o.map(|t| rd_u64(t + ENT_HANDLE).unwrap_or(0))), d.saturating_sub(160_000) / sp, p7 & 1, tick, st, BOUND_LAST.with(|c| c.get())))
     };
     f().unwrap_or_else(|| "diag NA".into())
 }
