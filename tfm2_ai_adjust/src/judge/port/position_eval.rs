@@ -271,6 +271,41 @@ pub fn dive_f_recent(side: u64, th: u64) -> Vec<[u64; 8]> { let pre = PRE_N.with
 /// 진단: 최근 d96d00 호출 시 콜러(position_eval 본체) 프레임의 qx/qy/item ([rbp+0x7a0]/[0x7a8]/[0x718])
 pub fn dive_q_recent(side: u64, th: u64) -> Vec<(u64, u64, u64)> { let pre = PRE_N.with(|c| c.get()); DIVE.with(|c| { let (a, n) = c.get(); DIVE_Q.with(|q| { let qa = q.get(); (pre.max(n.saturating_sub(32))..n).filter(|&i| a[i % 32].0 == side && a[i % 32].1 == th).map(|i| qa[i % 32]).collect() }) }) }
 thread_local! { static PRE_N: std::cell::Cell<usize> = const { std::cell::Cell::new(0) }; }
+// ★[2026-09-09] S14 자동 이분 — 적별 후보값을 남겨, DIFF 때 "게임 합계를 만드는 조합"을 역산한다.
+//   잔여 DIFF(64.3M 중 842)가 "적 한 명의 t 가 게임에서 더 작다"까지 좁혀졌는데 게임 내부 분해가 안 보인다.
+//   후보 = [최종 t, 반감 전 t, sum 경로, max 경로, sum>>1, max>>1, t/3, 0] 8종 × 적 수 → 조합 탐색.
+pub const S14C: usize = 8;
+thread_local! { pub static GAME_A: std::cell::Cell<i64> = const { std::cell::Cell::new(0) }; }
+thread_local! {
+    pub static S14_CAND: std::cell::RefCell<Vec<[i64; S14C]>> = const { std::cell::RefCell::new(Vec::new()) };
+    pub static S14_PRE: std::cell::Cell<i64> = const { std::cell::Cell::new(0) };
+}
+/// 게임 a(=post-S14 a_acc 로 가정) 를 만드는 조합을 찾아 문자열로. 최대 5적 × 8후보 = 32768.
+pub fn s14_solve(game_a: i64) -> String {
+    S14_CAND.with(|c| {
+        let v = c.borrow();
+        if v.is_empty() || v.len() > 5 { return format!("s14solve: n={}", v.len()); }
+        let pre = S14_PRE.with(|p| p.get());
+        let want = game_a - pre;
+        let names = ["t", "t_pre", "sum", "max", "sum>>1", "max>>1", "t/3", "0"];
+        let n = v.len();
+        let mut hits: Vec<String> = Vec::new();
+        let total = S14C.pow(n as u32);
+        for code in 0..total {
+            let mut acc = 0i64; let mut k = code;
+            for e in v.iter() { acc += e[k % S14C]; k /= S14C; }
+            if acc == want {
+                let mut k = code; let mut parts: Vec<&str> = Vec::new();
+                for _ in 0..n { parts.push(names[k % S14C]); k /= S14C; }
+                hits.push(parts.join("+"));
+                if hits.len() >= 6 { break; }
+            }
+        }
+        format!("s14solve[pre={} want={} cand={:?}] => {}", pre, want,
+                v.iter().map(|e| e.to_vec()).collect::<Vec<_>>(),
+                if hits.is_empty() { "NONE".to_string() } else { hits.join(" | ") })
+    })
+}
 pub fn pre_mark() { let n = DIVE.with(|c| c.get().1); PRE_N.with(|c| c.set(n)); }
 /// 이번 position_eval 호출 중 게임이 d96d00 을 (side, th) 로 부른 횟수
 /// 이번 호출 중 게임이 d96d00 을 부른 (tower handle, rax, rdx) 전부
@@ -1141,6 +1176,8 @@ unsafe fn body(st: &St) -> Option<Out> {
     c_acc = c_acc.wrapping_add(maxc);
     trs(|| format!("S13[maxc={}]", maxc));
     // S14 적 챔프 P3
+    S14_CAND.with(|c| c.borrow_mut().clear());
+    S14_PRE.with(|p| p.set(a_acc));
     let (mut sum_e, mut half28): (i64, i64) = (0, 0);
     let vis = w.visible(eside, th)?;
     for rec in &st.e_list {
@@ -1179,8 +1216,10 @@ unsafe fn body(st: &St) -> Option<Out> {
                 if !can_hit { let mut any = false; list_iter(lp, ln, 0x18, |d, v| { if vt88_flag(d, v, 0)? == 1 { any = true; } Some(()) })?; can_hit = any; }
             }
         }
-        let mut t: i64 = if can_hit || cc { (s[0].wrapping_add(s[1]).wrapping_add(s[2]).wrapping_add(s[3]).wrapping_add(castv)) as i64 }
-                         else { (s[0] as i64).max(s[1] as i64).max(s[2] as i64).max(s[3] as i64).wrapping_add(castv as i64) };
+        let t_sum = (s[0].wrapping_add(s[1]).wrapping_add(s[2]).wrapping_add(s[3]).wrapping_add(castv)) as i64;
+        let t_max = (s[0] as i64).max(s[1] as i64).max(s[2] as i64).max(s[3] as i64).wrapping_add(castv as i64);
+        let mut t: i64 = if can_hit || cc { t_sum } else { t_max };
+        let t_pre = t;
         if (st.fc.class & 6) == 2 && t > 0 && !st.a_list.is_empty() {
             let (ex, ey) = xy(e)?;
             for ar in &st.a_list { let (ax, ay) = xy(ar.ent)?; if wrap_d2(ax, ay, ex, ey) < d2 { if seg_dist(ax, ay, qx, qy, ex, ey)? <= radius(ar.ent)?.wrapping_add(28000) { t = ((t as u64) >> 1) as i64; break; } } }
@@ -1192,6 +1231,7 @@ unsafe fn body(st: &St) -> Option<Out> {
             format!("P3[e={:#x} d2={} vis={} s={:?} cast={} can={} cc={} T={} rec03={:?} hp={} R={:?} Rh={:?} usable={:?} tri={:?} 0xe={} 0xf={}]", e, d2, vis, s, castv, can_hit, cc, t,
                 &wv[0..4], st.hp, raw, raw2, (1..=3).map(|k| usable(e, k)).collect::<Vec<_>>(), (0..3).map(|j| (wv[0x10 + 3 * j], wv[0x11 + 3 * j], wv[0x12 + 3 * j])).collect::<Vec<_>>(), wv[0xe], wv[0xf]) });
         if st.vis_me == 0 { let h = sdiv2(t); half28 = half28.wrapping_add(t.wrapping_sub(h)); t = h; }
+        S14_CAND.with(|c| c.borrow_mut().push([t, t_pre, t_sum, t_max, (t_sum as u64 >> 1) as i64, (t_max as u64 >> 1) as i64, t_pre / 3, 0]));
         a_acc = a_acc.wrapping_add(t); sum_e = sum_e.wrapping_add(t);
     }
     trs(|| format!("S14[a={} sumE={} half28={}]", a_acc, sum_e, half28));
@@ -1604,6 +1644,10 @@ pub unsafe fn pe_from_args(p2: usize, p3: usize, p4: usize, p5: usize, p6: usize
 }
 pub fn pe_eq(g: &[u64; 9], m: &[u64; 9]) -> bool { g[..6] == m[..6] && (g[6] & 0xffff) == (m[6] & 0xffff) }
 /// 진단 문자열(DIFF 로그용)
+pub unsafe fn diag_g(p2: usize, p3: usize, p4: usize, game_a: i64) -> String {
+    let base = diag(p2, p3, p4);
+    format!("{} | {}", base, s14_solve(game_a))
+}
 pub unsafe fn diag(p2: usize, p3: usize, p4: usize) -> String {
     let side = rd_u64(p3 + P5_SIDE).unwrap_or(9); let role = if ptr_ok(p3) { rd_u32(p3 + P5_ROLE) } else { 99 };
     let x = rd_u64(p4).unwrap_or(0) as usize; let tick = if ptr_ok(x) { rd_u64(x).and_then(|d| crate::judge::world::game_tick(d as usize, rd_u64(x + 8).unwrap_or(0) as usize)).unwrap_or(0) } else { 0 };

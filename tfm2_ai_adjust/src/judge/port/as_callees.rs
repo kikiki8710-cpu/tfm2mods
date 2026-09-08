@@ -273,7 +273,7 @@ pub unsafe fn cmp_diag8_x(name: &str, p1: usize, p2: usize, p3: usize, p4: usize
 }
 pub unsafe fn cmp_diag(name: &str, p1: usize, p2: usize, _p3: usize, _p4: usize) -> String {
     match name {
-        "as_d84db0" => super::position_eval::diag(p2, _p3, _p4),
+        "as_d84db0" => super::position_eval::diag_g(p2, _p3, _p4, super::position_eval::GAME_A.with(|c| c.get())),
         "as_e0e890" => {
             let (e, o) = (p1, p2);
             if !ptr_ok(e) || !ptr_ok(o) { return "bad ptr".into(); }
