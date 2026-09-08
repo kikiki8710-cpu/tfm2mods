@@ -32,6 +32,43 @@ pub unsafe fn game_seed(data: usize, vt: usize) -> Option<u64> { ag_get(data, vt
 impl World {
     #[inline] pub unsafe fn tick(&self) -> Option<u64> { game_tick(self.data, self.vt) }
     #[inline] pub unsafe fn seed(&self) -> Option<u64> { game_seed(self.data, self.vt) }
+    /// ★[2026-09-08] 이 World 가 `ExpectedGame`(presim 전용 AbstractGame 구현체)인가 — 판정 = `vt+0x28`(tick) 게터가
+    ///   `mov rax,[rcx+0x90]; ret`(ExpectedGame.tick 필드). 레이아웃(_gcbc/g08.ll DI): `game:&dyn AbstractGame`(+0/+8) ·
+    ///   `mutable_entities: HashMap<usize, Entity>`(+0x10, RawTable ctrl +0x10 · bucket_mask +0x18 · items +0x28) ·
+    ///   `mutable_projectiles`(+0x50) · `tick`(+0x90). **기본 게임 오프셋(W_*)을 이 객체에 대고 읽으면 전부 쓰레기**다.
+    pub unsafe fn is_expected(&self) -> bool {
+        let f = rd_u64(self.vt + 0x28).unwrap_or(0) as usize;
+        ptr_ok(f) && rd_u8(f) == 0x48 && rd_u8(f + 1) == 0x8b && rd_u8(f + 2) == 0x81 && rd_i32(f + 3) == Some(0x90) && rd_u8(f + 7) == 0xc3
+    }
+    /// ExpectedGame 이면 내부 게임(`[data]`,`[data+8]`)으로 내려간다(최대 3단). W_* 고정 오프셋 읽기는 **반드시** 이 결과에 대고 한다.
+    ///   ExpectedGame 의 AbstractGame 메서드는 `is_visible/is_visible_cell/get_game_mode/cfg/side_cfg/...` 전부 내부 위임
+    ///   (_gcbc/g08.ll:200059 등) — `get_entity_by_id` 만 예외(오버레이 우선, `entity()` 참조).
+    pub unsafe fn base(&self) -> World {
+        let mut w = *self;
+        for _ in 0..3 {
+            if !w.is_expected() { break; }
+            let (d, v) = (rd_u64(w.data).unwrap_or(0) as usize, rd_u64(w.data + 8).unwrap_or(0) as usize);
+            if !ptr_ok(d) || !ptr_ok(v) { break; }
+            w = World { x: w.x, data: d, vt: v };
+        }
+        w
+    }
+    /// `ExpectedGame::get_entity_by_id`(g08.ll:201090) 의 오버레이 조회: `mutable_entities` 에 h 가 있으면 그 **수정본 Entity**.
+    ///   hashbrown RawTable: ctrl=[+0x10] · bucket_mask=[+0x18] · items=[+0x28]; 버킷 i 는 `ctrl - (i+1)*0x6c8`, `{key u64, Entity 0x6c0}`.
+    ///   해시 탐색 대신 전 버킷 선형 조회(ctrl 바이트 최상위 비트 0 = 채워짐) — 결과는 동일(키 유일).
+    pub unsafe fn overlay_entity(&self, h: u64) -> Option<usize> {
+        let d = self.data;
+        let items = rd_u64(d + 0x28)?; if items == 0 { return None; }
+        let ctrl = rd_u64(d + 0x10)? as usize; let mask = rd_u64(d + 0x18)?;
+        if !ptr_ok(ctrl) || mask > 4096 { return None; }
+        for i in 0..=mask as usize {
+            if rd_u8(ctrl + i) & 0x80 != 0 { continue; }
+            let start = ctrl.wrapping_sub((i + 1) * (ENT_STRIDE + 8));
+            if !ptr_ok(start) { return None; }
+            if rd_u64(start)? == h { return Some(start + 8); }
+        }
+        None
+    }
     pub unsafe fn from_holder(p6: usize) -> Option<World> {
         if !ptr_ok(p6) { return None; }
         let x = rd_u64(p6)? as usize;
@@ -52,6 +89,7 @@ impl World {
     /// WorldOps `vt+0x1f0`(핸들 → 엔티티) 순수 재현. ⬜0.5.8 오프셋 = 가설(layout.rs W_*) — 검증 = 스코어러 DIFF=0 + ghidra-re 대조.
     /// 게임 반환 NULL ↔ None. 읽기 실패도 None(구분이 필요해지면 Result 로 바꾼다).
     pub unsafe fn entity(&self, h: u64) -> Option<Ent> {
+        if self.is_expected() { if let Some(e) = self.overlay_entity(h) { return Some(Ent(e)); } return self.base().entity(h); }
         let g = self.data;
         if h < rd_u64(g + W_L3_CNT)? {
             let t3 = rd_u64(g + W_L3_TBL)? as usize;
@@ -71,6 +109,7 @@ impl World {
 
     /// vt+0x40 순수 재현: 모드 태그(0=MOBA) 와 모드 데이터 포인터. [ghidra-re 2026-09-06]
     pub unsafe fn mode(&self) -> Option<(u8, usize)> {
+        if self.is_expected() { return self.base().mode(); }
         if !ptr_ok(self.data) { return None; }
         // ★태그는 vtable 별 상수(모노모픽) — vt+0x40 구현 RVA 로 판정한다(순수 read). `w+0xecc2` 바이트는 보조 기록용.
         //   [2026-09-06 03:05 검증판] 바이트 기준 판정은 500/500 NA(tag!=0) — 그 바이트는 모드 태그가 아니었다.
@@ -91,10 +130,12 @@ impl World {
     /// vt+0xf8 순수 재현: 핸들 h 가 viewer side 에 지금 보이는가. [ghidra-re 2026-09-06 = 0.5.0 vt0x68 동일]
     pub unsafe fn visible(&self, viewer_side: u64, h: u64) -> Option<bool> {
         if viewer_side > 1 { return None; }
+        if self.is_expected() { return self.base().visible(viewer_side, h); }
         match self.entity_slotmap(h)? { Some(e) => Some(rd_u64(e + ENT_VIS_BASE + (viewer_side as usize) * ENT_VIS_STRIDE)? == 0), None => Some(false) }
     }
     /// 슬롯맵 경로만(싱글턴 폴백 없음) — vt+0xf8 이 쓰는 형태.
     pub unsafe fn entity_slotmap(&self, h: u64) -> Option<Option<usize>> {
+        if self.is_expected() { return self.base().entity_slotmap(h); }
         let g = self.data;
         if h < rd_u64(g + W_L3_CNT)? {
             let t3 = rd_u64(g + W_L3_TBL)? as usize;
@@ -112,6 +153,7 @@ impl World {
     }
     /// vt+0x150 순수 재현: 핸들 → AI 로스터 레코드(0 = 없음). 선형스캔 stride 0x9e0. [ghidra-re 2026-09-06]
     pub unsafe fn roster_rec(&self, h: u64) -> Option<usize> {
+        if self.is_expected() { return self.base().roster_rec(h); }
         let cnt = rd_u64(self.data + W_ROSTER_REC_CNT)?;
         if cnt == 0 { return Some(0); }
         let base = rd_u64(self.data + W_ROSTER_REC_BASE)? as usize;
@@ -135,11 +177,11 @@ impl World {
         Some(0)
     }
     /// vt+0xe8 순수 재현: 설정 플래그 u8.
-    pub unsafe fn cfg_flag(&self) -> Option<u8> { if ptr_ok(self.data) { Some(rd_u8(self.data + W_CFG_FLAG)) } else { None } }
+    pub unsafe fn cfg_flag(&self) -> Option<u8> { let b = self.base(); if ptr_ok(b.data) { Some(rd_u8(b.data + W_CFG_FLAG)) } else { None } }
     /// vt+0x108 순수 재현: 사이드별 24B 설정의 주소(호출부가 필요한 필드만 읽는다).
-    pub unsafe fn side_cfg(&self, side: u64) -> Option<usize> { if side > 1 { return None; } Some(self.data + W_SIDE_CFG + (side as usize) * W_SIDE_CFG_STRIDE) }
+    pub unsafe fn side_cfg(&self, side: u64) -> Option<usize> { if side > 1 { return None; } Some(self.base().data + W_SIDE_CFG + (side as usize) * W_SIDE_CFG_STRIDE) }
     /// vt+0x290 순수 재현: 사이드 킬 카운터 (side0, side1).
-    pub unsafe fn kills(&self) -> Option<(u64, u64)> { Some((rd_u64(self.data + W_KILLS)?, rd_u64(self.data + W_KILLS + 8)?)) }
+    pub unsafe fn kills(&self) -> Option<(u64, u64)> { let b = self.base(); Some((rd_u64(b.data + W_KILLS)?, rd_u64(b.data + W_KILLS + 8)?)) }
 
     /// 로스터: X+0x1e0 + side*0x28 + role*8 → 엔티티 ptr(0 = 없음). recall `0xcc5fc0` 실측.
     pub unsafe fn roster(&self, side: u64, role: u32) -> Option<usize> {

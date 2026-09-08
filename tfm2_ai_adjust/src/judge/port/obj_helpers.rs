@@ -182,7 +182,7 @@ pub unsafe fn poke_timer_gate(sim: usize, p6: usize, p7: usize, order: usize, se
     if hval == u64::MAX { return None; }
     let hp_ptr = 0usize;
     let t = match w.entity(hval) { Some(e) => e.0, None => {
-        let l3c = rd_u64(w.data + W_L3_CNT).unwrap_or(0); let tag = if hval < l3c { rd_i32(rd_u64(w.data + W_L3_TBL).unwrap_or(0) as usize + hval as usize * W_SLOT_STRIDE).unwrap_or(-9) } else { -8 };
+        let l3c = rd_u64(w.base().data + W_L3_CNT).unwrap_or(0); let tag = if hval < l3c { rd_i32(rd_u64(w.base().data + W_L3_TBL).unwrap_or(0) as usize + hval as usize * W_SLOT_STRIDE).unwrap_or(-9) } else { -8 };
         tr(3, 0x4_0000 | hval.min(0xffff) << 20 | (l3c.min(0xffff)) << 36 | ((tag as u64) & 0xff) << 52);
         tr(2, hp_ptr as u64); tr(1, rd_u64(p6 + tlen).unwrap_or(0) | (rd_u64(p6 + tptr).unwrap_or(0) & 0xffff_ffff) << 32);
         return Some(false) } };
@@ -225,7 +225,7 @@ pub unsafe fn band_pred(g: usize, m: u8, e: usize) -> Option<bool> {
 pub unsafe fn grid_ok(w: &World, side: u64, gx: u64, gy: u64) -> Option<bool> {
     if gx >= 30 || gy >= 30 { return Some(false); }
     if side > 1 { return None; }
-    Some(rd_i32(w.data + W_GRID + side as usize * W_GRID_SIDE + gy as usize * W_GRID_ROW + gx as usize * 4)? > 0)
+    Some(rd_i32(w.base().data + W_GRID + side as usize * W_GRID_SIDE + gy as usize * W_GRID_ROW + gx as usize * 4)? > 0)
 }
 /// 0xdcc100 — 안 보이는 적 챔피언(hp% > 49)이 마지막 관측 이후 오브젝티브 150000 안까지 올 수 있었나.
 pub unsafe fn enemy_could_arrive(w: &World, lanes_base: usize, side: u64, order: usize, cx: u64, cy: u64, tick: u64) -> Option<bool> {
@@ -279,7 +279,7 @@ pub unsafe fn engage_gate(order: usize, sim: usize, p6: usize, p7: usize, m: u8)
     let tick = w.tick()?; let tps = rd_u64(rd_u64(g + G_CFG)? as usize + CFG_TPS)?;
     let ts = rd_u64(order + if m == 4 { ORDER_TS4 } else { ORDER_TS5 })?;
     let gok = grid_ok(&w, side, cx / 32000, cy / 32000)?;
-    tr(6, 0x100 | gok as u64 | ((cx / 32000) & 0xff) << 8 | ((cy / 32000) & 0xff) << 16 | side << 24 | (rd_i32(w.data + W_GRID + side as usize * W_GRID_SIDE + (cy / 32000) as usize * W_GRID_ROW + (cx / 32000) as usize * 4).unwrap_or(-99) as u64 & 0xffff) << 32);
+    tr(6, 0x100 | gok as u64 | ((cx / 32000) & 0xff) << 8 | ((cy / 32000) & 0xff) << 16 | side << 24 | (rd_i32(w.base().data + W_GRID + side as usize * W_GRID_SIDE + (cy / 32000) as usize * W_GRID_ROW + (cx / 32000) as usize * 4).unwrap_or(-99) as u64 & 0xffff) << 32);
     tr(7, tick.min(0xfffff) | ts.min(0xfffff) << 20 | tps.min(0xff) << 40);
     if tick <= tps.wrapping_mul(2).wrapping_add(ts) && gok { tr(9, 0x105); return enemy_could_arrive(&w, rd_u64(p6 + HOLDER_LANES)? as usize, side, order, cx, cy, tick); }
     tr(9, 0x106); Some(true)

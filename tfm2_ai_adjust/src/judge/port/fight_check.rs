@@ -110,6 +110,12 @@ pub unsafe fn eff_vt120(data: usize, vt: usize, depth: u32) -> Option<bool> {
             let (cd, cv) = (rd_u64(p + 0x18)? as usize, rd_u64(p + 0x20)? as usize);
             if eff_bool(cd, cv, 0x60, depth + 1)? || eff_bool(cd, cv, 0x68, depth + 1)? { return Some(true); }
             let r58 = dy::impl_rva(cv, 0x58)?; dy::unseen(0x58, r58); None }
+        // 0x1652b60: 0x1652b00 과 동형이나 자식 fat ptr 이 **p+0/p+8** (capstone 2026-09-08 19:5x — presim(ExpectedGame) 경로 개방 후 처음 도달, x2312)
+        0x1652b60 => {
+            let (cd, cv) = (rd_u64(p)? as usize, rd_u64(p + 8)? as usize);
+            if !ptr_ok(cd) || !ptr_ok(cv) { return None; }
+            if eff_bool(cd, cv, 0x60, depth + 1)? || eff_bool(cd, cv, 0x68, depth + 1)? { return Some(true); }
+            let r58 = dy::impl_rva(cv, 0x58)?; dy::unseen(0x58, r58); None }
         _ => { dy::unseen(0x120, r); None }
     }
 }

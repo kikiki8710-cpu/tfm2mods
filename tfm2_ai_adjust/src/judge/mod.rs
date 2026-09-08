@@ -1032,6 +1032,8 @@ macro_rules! judge_capture_ring_cmp {
                 ST.n.fetch_add(1, Ordering::Relaxed);
                 crate::judge::GAME_R.with(|c| c.set(r as u64));
                 let mine: Option<u64> = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| ($mine)(p1, p2, p3, p4, p5, p6, p7, p8))).unwrap_or(None);
+                // ★재현 안에서 다른 포트(combat_score S2 등)가 fight_check_memo 를 부를 때 이 훅의 r 이 새지 않도록 즉시 지운다
+                crate::judge::GAME_R.with(|c| c.set(u64::MAX));
                 let logline = |tag: &str, v: Option<u64>| {
                     let diag = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| crate::judge::port::as_callees::cmp_diag8($spec.name, p1, p2, p3, p4, p5, p6, p7, p8))).unwrap_or_default();
                     let line = format!("[{} #{} tid={}] {} game={}({:#x}) mine={} | p1={:#x} p2={:#x} p3={:#x} p4={:#x} p5={:#x} p6={:#x} p7={:#x} | {}\n", $spec.name, ST.n.load(Ordering::Relaxed), crate::judge::cur_tid(), tag, r as i64, r, v.map(|x| format!("{}({:#x})", x as i64, x)).unwrap_or("NA".into()), p1, p2, p3, p4, p5, p6, p7, diag);

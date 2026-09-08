@@ -217,7 +217,7 @@ pub unsafe fn position_eval(mode: u64, sim: usize, holder: usize, qx: u64, qy: u
     let hp = rd_u64(tgt + ENT_HP)?; let hp1 = if hp == 0 { 1 } else { hp };
     let inv = 0x1_0000_0000u64 / hp1; let scale = inv.wrapping_mul(100);
     let eside = 1 - side;
-    let vis_me = (rd_i32(w.data + W_GRID + (eside as usize) * W_GRID_SIDE + gyc * W_GRID_ROW + gxc * 4)? > 0) as u8;
+    let vis_me = (rd_i32(w.base().data + W_GRID + (eside as usize) * W_GRID_SIDE + gyc * W_GRID_ROW + gxc * 4)? > 0) as u8;
     // S1
     let b0: i64 = {
         let inb = if side == 1 { (qx <= 64000 && qy.wrapping_sub(800000) < 160001) || (qx <= 160000 && qy.wrapping_sub(896000) < 64001) }
