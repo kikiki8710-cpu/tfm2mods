@@ -1,40 +1,28 @@
 //! `plan_legacy::types::BigPlan::sub_plan`(RVA `0xcaf9f0`) — **모든 플랜의 서브플랜 결정이 지나는 깔때기**.
 //!   정본 = SDK IR `_gaibc\m02.ll` `BigPlan::sub_plan`(types.rs L233~250) + 인라인된 각 플랜 `sub_plan`.
+//!   ★RVA 확정 근거(2026-09-09, capstone): 0xcaf9f0 안에 `cmp r11,[r9+r10+0x6d70]`(진영 사각형, r10=side*32)
+//!     → `[r8+0x660]/[0x668]`(x,y) 범위 → `[r8+0x670] < [r8+0x628]`(hp<maxhp) → `mov r9d,5` 가 그대로 있다.
+//!     이는 IR `AttackNexusPlan::sub_plan`(attack_nexus.rs L36~52) 과 완전 일치한다.
 //!   계약: `sub_plan(sret[72], self, version, p3, player, data, p6, p7, p8, p9)` — Win64 로
 //!     `p1=sret · p2=self · p3=version · p4=p3 · p5=player · p6=data · p7.. = 나머지`.
 //!   분기 = `idx = if self[0] > 1 { self[0] - 2 } else { 4 }` 의 16-arm 스위치(`self[0] != 6` 가정).
 //!
-//! ★출력은 **arm 마다 쓰는 바이트가 다르다**(나머지는 미초기화 쓰레기) → 재현도 (값, 기록마스크) 로 돌려주고
-//!   대조는 **마스크된 바이트만** 한다. 전 바이트를 비교하면 쓰레기 때문에 가짜 DIFF 가 난다.
+//! ★출력은 **arm 마다 쓰는 바이트가 다르다**(나머지는 콜러 스택 잔재) → `MpOut` 쓰기집합으로 돌려주고
+//!   대조는 **쓴 바이트만** 한다. 전 바이트 비교는 가짜 DIFF 를 만든다(이 모드가 2026-07-22 에 같은 성질로 크래시).
+//!   각 플랜 arm 은 이미 개별 RVA 로 포팅·검증된 핸들러에 **위임**한다 — 그것들이 곧 `*Plan::sub_plan` 이다.
 #![allow(dead_code)]
 use crate::*;
 use super::super::layout::*;
+use super::super::{Args8, MpOut};
 use super::combat_score::na_tag;
 
-/// 72B sret + 기록 마스크
-#[derive(Clone, Copy)]
-pub struct SubPlanOut { pub b: [u8; 72], pub m: [u8; 72] }
-impl SubPlanOut {
-    fn new() -> SubPlanOut { SubPlanOut { b: [0; 72], m: [0; 72] } }
-    #[inline] fn w8(&mut self, o: usize, v: u8) { self.b[o] = v; self.m[o] = 1; }
-    #[inline] fn w64(&mut self, o: usize, v: u64) {
-        let by = v.to_le_bytes();
-        for i in 0..8 { self.b[o + i] = by[i]; self.m[o + i] = 1; }
-    }
-    /// 게임이 쓴 sret 과 마스크 구간만 비교
-    pub unsafe fn eq_game(&self, p: usize) -> Option<bool> {
-        for i in 0..72 { if self.m[i] != 0 && rd_u8(p + i) != self.b[i] { return Some(false); } }
-        Some(true)
-    }
-    pub fn tag(&self) -> u64 { u64::from_le_bytes(self.b[0..8].try_into().unwrap()) }
-}
-
 const AN_REGION: usize = 28016;      // cfg + 28016 + side*32 = 팀별 (lx, ly, rx, ry)
-const TOWERV_LEN: usize = 328;       // x + 328 + side*32 = 그 팀 여분 타워 Vec 의 len
+const TOWERV_LEN: usize = 328;
+#[inline] fn lv(key: &str) -> bool { crate::judge::live_mode(key) == 2 }       // x + 328 + side*32 = 그 팀 여분 타워 Vec 의 len
 
 /// arm 14 — `AttackNexusPlan::sub_plan`(m12.ll:34867, attack_nexus.rs L36~52)
-unsafe fn arm_attack_nexus(sf: usize, player: usize, data: usize) -> Option<SubPlanOut> {
-    let mut o = SubPlanOut::new();
+unsafe fn arm_attack_nexus(sf: usize, player: usize, data: usize) -> Option<MpOut> {
+    let mut o = MpOut::default();
     let side = rd_u64(player + P5_SIDE)?; if side > 1 { return None; }
     let role = rd_u32(player + P5_ROLE) as usize; if role >= 5 { return None; }
     let x = rd_u64(data)? as usize; if !ptr_ok(x) { return None; }
@@ -46,75 +34,113 @@ unsafe fn arm_attack_nexus(sf: usize, player: usize, data: usize) -> Option<SubP
     let (lx, ly, rx, ry) = (rd_u64(reg)?, rd_u64(reg + 8)?, rd_u64(reg + 16)?, rd_u64(reg + 24)?);
     let (mx, my) = (rd_u64(me + ENT_X)?, rd_u64(me + ENT_Y)?);
     if mx >= lx && mx <= rx && my >= ly && my <= ry && rd_u64(me + ENT_HP)? < rd_u64(me + ENT_MAXHP)? {
-        o.w64(0, 5); return Some(o);                         // 진영 안 + 체력 부족 → 5
+        o.code(5); return Some(o);                           // 진영 안 + 체력 부족 → 5
     }
     let opp = 1 - side;
-    if rd_u64(x + TOWERV_LEN + (opp as usize) * 32)? == 0 { o.w64(0, 16); return Some(o); }
-    o.w8(8, 0); o.w8(9, rd_u8(sf + 8)); o.w8(10, 2); o.w64(0, 2);
+    if rd_u64(x + TOWERV_LEN + (opp as usize) * 32)? == 0 { o.code(16); return Some(o); }
+    o.push(8, 1, 0); o.push(9, 1, rd_u8(sf + 8) as u64); o.push(10, 1, 2); o.code(2);
     Some(o)
 }
 
 /// arm 3 — 인라인(types.rs L237, 콜리 L880): 지원 목표·목표점·전술을 그대로 옮겨 담고 태그 7
-unsafe fn arm_support(sf: usize) -> Option<SubPlanOut> {
-    let mut o = SubPlanOut::new();
-    let st0 = rd_u64(sf + 8)?; let st1 = rd_u64(sf + 16)?;
-    let g0 = rd_u64(sf + 96)?; let g1 = rd_u64(sf + 104)?;
+unsafe fn arm_support(sf: usize) -> Option<MpOut> {
+    let mut o = MpOut::default();
     let tactic = rd_u8(sf + 147); let with_dive = rd_u8(sf + 144);
-    o.w64(8, st0); o.w64(16, st1); o.w64(24, g0); o.w64(32, g1); o.w64(40, 0);
-    o.w8(48, ((tactic != 1) && (with_dive & 1 == 1)) as u8);
-    o.w8(49, with_dive); o.w8(50, 0); o.w8(51, 0); o.w8(52, tactic); o.w8(53, 0);
-    o.w64(0, 7);
+    o.push(8, 8, rd_u64(sf + 8)?);
+    o.push(16, 8, rd_u64(sf + 16)?);
+    o.push(24, 8, rd_u64(sf + 96)?);
+    o.push(32, 8, rd_u64(sf + 104)?);
+    o.push(40, 8, 0);
+    o.push(48, 1, ((tactic != 1) && (with_dive & 1 == 1)) as u64);
+    o.push(49, 1, with_dive as u64);
+    o.push(50, 2, 0);                                        // +50, +51 = 0 (2바이트 묶음)
+    o.push(52, 1, tactic as u64);
+    o.push(53, 1, 0);
+    o.code(7);
     Some(o)
 }
 
 /// arm 4 — 인라인(types.rs L238, 콜리 L1669) = **라인전(plan 0·1, 실측 최다)**. 태그 = `self[0]` 그대로.
-unsafe fn arm_line(sf: usize, variant: u64) -> Option<SubPlanOut> {
-    let mut o = SubPlanOut::new();
-    o.w64(0, variant);
-    o.w64(8, rd_u64(sf + 8)?);
-    for i in 0..24 { o.w8(16 + i, rd_u8(sf + 168 + i)); }     // memcpy 24B
-    o.w64(40, rd_u64(sf + 232)?);
-    o.w64(48, rd_u64(sf + 240)?);
-    o.w64(56, rd_u64(sf + 288)?);
-    o.w8(64, rd_u8(sf + 371)); o.w8(65, rd_u8(sf + 368)); o.w8(66, rd_u8(sf + 372));
-    o.w8(67, rd_u8(sf + 374)); o.w8(68, rd_u8(sf + 375)); o.w8(69, rd_u8(sf + 376));
+unsafe fn arm_line(sf: usize, variant: u64) -> Option<MpOut> {
+    let mut o = MpOut::default();
+    o.code(variant);
+    o.push(8, 8, rd_u64(sf + 8)?);
+    // memcpy 24B: self+168 → out+16 (8바이트 3개로 쪼갠다 — MpWrite 최대 len 8)
+    o.push(0x10, 8, rd_u64(sf + 0xa8)?);   // movups [rsi+0x10] ← [rdx+0xa8] (16B)
+    o.push(0x18, 8, rd_u64(sf + 0xb0)?);
+    o.push(0x20, 8, rd_u64(sf + 0xb8)?);   // mov [rsi+0x20] ← [rdx+0xb8]
+    o.push(0x28, 8, rd_u64(sf + 0xe8)?);   // movups [rsi+0x28] ← [rdx+0xe8] (16B)
+    o.push(0x30, 8, rd_u64(sf + 0xf0)?);
+    o.push(0x38, 8, rd_u64(sf + 0x120)?);  // mov [rsi+0x38] ← [rdx+0x120]
+    // 0x40 = self[0x173] · 0x41..0x45 = `movq/punpcklbw/pshufd/pshuflw/pshufd/packuswb/movd` 4바이트 셔플
+    //   (실코드 0xcafb8a~0xcafbad 해독: self+0x170 의 8바이트 b0..b7 → [b0, b4, b6, b7]) · 0x45 = self[0x178]
+    o.push(0x40, 1, rd_u8(sf + 0x173) as u64);
+    o.push(0x41, 1, rd_u8(sf + 0x170) as u64);
+    o.push(0x42, 1, rd_u8(sf + 0x174) as u64);
+    o.push(0x43, 1, rd_u8(sf + 0x176) as u64);
+    o.push(0x44, 1, rd_u8(sf + 0x177) as u64);
+    o.push(0x45, 1, rd_u8(sf + 0x178) as u64);
     Some(o)
 }
 
-/// ★`BigPlan::sub_plan` 본체. 미포팅 arm 은 `na_tag("SPn")` 으로 남긴다(어느 플랜이 실제로 뜨는지 측정용).
-pub unsafe fn big_plan_sub_plan(sf: usize, _version: u64, player: usize, data: usize) -> Option<SubPlanOut> {
+/// ★`BigPlan::sub_plan` 본체. 각 arm 은 **자기 플랜의 `*Plan::sub_plan`**(= 이미 포팅·검증된 핸들러)에 위임한다.
+///   위임 시 `p2` 는 게임과 같이 **`self + 8`**(플랜 payload) 로 바꿔 넘긴다(IR: `%19 = gep %1, i64 8`).
+pub unsafe fn big_plan_sub_plan(a: &Args8) -> Option<MpOut> {
+    let sf = a.p2; let player = a.p5; let data = a.p6;
     if !ptr_ok(sf) { return None; }
     let v = rd_u64(sf)?;
     let idx = if v > 1 { v.wrapping_sub(2) } else { 4 };
+    crate::judge::tr(11, 0x5000_0000 | (v << 8) | (idx & 0xff));   // ★DIFF 로그에 variant/arm 을 남긴다
+    // ★위임 인자 매핑(실코드 0xcafcec~0xcafd07 등 전 arm 공통):
+    //   callee(out, self+8, version, p4, **player**, **data**, **caller p8**, **caller p10**)
+    //   = IR `PlanX::sub_plan(sret %0, %19, %2, %3, %4, %5, %7, %9)`. p7/p8 을 그대로 넘기면 어긋난다.
+    let (_, p10, _, _) = crate::judge::HOOK_EXTRA.with(|c| c.get());
+    // arm 마다 **넘기는 인자가 다르다**(실코드 호출부 전수, 슬롯 0x20=5번째 … 0x40=9번째):
+    //   0xccc010/0xccc3c0 : 5=p5 6=p6 7=p7
+    //   0xdf0e90/0xdefcd0 : 5=p5 6=p6 7=p7 8=p8 9=p10
+    //   0xd2c5d0/0xd781e0 : 5=p5 6=p6 7=p8 8=p10      ← p7 을 건너뛴다
+    //   0xd2da10          : 5=p5 6=p6 7=p7 8=p10
+    //   0xdfdfc0/0xd2e500 : 5=p5 6=p6 7=p10
+    let base = Args8 { p2: sf + 8, ..*a };
+    let inner_skip7 = Args8 { p7: a.p8, p8: p10, ..base };     // passive_line · single_line
+    let inner_p10_7 = Args8 { p7: p10, ..base };               // battle · passive_jungle
+    let inner_dn    = Args8 { p8: p10, ..base };               // defense_nexus
+    let inner       = base;                                    // epic/serpen poke(9인자) · 그 외
     match idx {
-        0 => { let mut o = SubPlanOut::new(); o.w64(0, 5); Some(o) }
-        6 => { let mut o = SubPlanOut::new(); o.w64(0, 5); Some(o) }
+        0 | 6 => { let mut o = MpOut::default(); o.code(5); Some(o) }
         3 => arm_support(sf),
         4 => arm_line(sf, v),
         14 => arm_attack_nexus(sf + 8, player, data),
-        1 => { let _ = na_tag("SP_passive_line"); None }
-        2 => { let _ = na_tag("SP_single_line"); None }
-        5 => { let _ = na_tag("SP_passive_jungle"); None }
-        7 => { let _ = na_tag("SP_battle"); None }
+        // ★위임 arm 이 **자기 훅에서 live(shadow) 치환 중**이면 out 에는 노브 적용판이 들어 있다.
+        //   그때는 재현도 `_live` 판을 써야 대조가 성립한다(안 그러면 knob_eff 만큼 가짜 DIFF).
+        1 => if lv("judge_live_passive_line") { super::passive_line::passive_line_live(&inner_skip7) }
+             else { super::passive_line::passive_line(&inner_skip7) },
+        5 => if lv("judge_live_passive_jungle") { super::passive_jungle::passive_jungle_live(&inner_p10_7) }
+             else { super::passive_jungle::passive_jungle(&inner_p10_7) },
+        7 => if lv("judge_live_battle") { super::battle::battle_live(&inner_p10_7) }
+             else { super::battle::battle(&inner_p10_7) },
+        10 => super::hunt_poke::epic_hunt_poke(&inner),
+        12 => super::hunt_poke::serpen_hunt_poke(&inner),
+        15 => if lv("judge_live_defense_nexus") { super::defense_nexus::defense_nexus_live(&inner_dn) }
+              else { super::defense_nexus::defense_nexus(&inner_dn) },
+        2 => { let _ = na_tag("SP_single_line"); None }        // 0.5.8 미발화(entered=0)
         8 => { let _ = na_tag("SP_line_ganker"); None }
         9 => { let _ = na_tag("SP_gank_cover"); None }
-        10 => { let _ = na_tag("SP_epic_poke"); None }
         11 => { let _ = na_tag("SP_epic_battle"); None }
-        12 => { let _ = na_tag("SP_serpen_poke"); None }
         13 => { let _ = na_tag("SP_serpen_battle"); None }
-        15 => { let _ = na_tag("SP_defense_nexus"); None }
-        _ => { let _ = na_tag("SP_unreachable"); None }       // 게임은 unreachable
+        _ => { let _ = na_tag("SP_unreachable"); None }        // 게임은 unreachable
     }
 }
 
 /// 진단 — arm 번호와 태그를 남긴다.
-pub unsafe fn sp_diag(sf: usize, player: usize, data: usize) -> String {
+pub unsafe fn sp_diag(a: &Args8) -> String {
     let f = || -> Option<String> {
-        let v = rd_u64(sf)?;
+        let v = rd_u64(a.p2)?;
         let idx = if v > 1 { v.wrapping_sub(2) } else { 4 };
-        let side = if ptr_ok(player) { rd_u64(player + P5_SIDE)? } else { 9 };
-        let mine = big_plan_sub_plan(sf, 0, player, data);
-        Some(format!("variant={} arm={} side={} mine_tag={:?}", v, idx, side, mine.map(|m| m.tag())))
+        let side = if ptr_ok(a.p5) { rd_u64(a.p5 + P5_SIDE)? } else { 9 };
+        let mine = big_plan_sub_plan(a);
+        Some(format!("variant={} arm={} side={} mine_code={:?} n={:?}", v, idx, side,
+                     mine.as_ref().and_then(|m| m.get_code()), mine.as_ref().map(|m| m.n)))
     };
     f().unwrap_or_else(|| "sp diag NA".into())
 }

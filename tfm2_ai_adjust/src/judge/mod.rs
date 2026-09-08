@@ -136,6 +136,19 @@ impl Stat {
 #[inline] pub fn live() -> bool { tune("judge_live", 0) != 0 }
 /// ★함수별 live 게이트: 마스터 `judge_live=1` **그리고** `judge_live_<fn>` = 1(live: 원본 건너뛰고 mine) / 2(shadow: 원본도 돌려 대조 기록하되 **mine 을 반환**).
 /// shadow 는 RNG-free 함수에만(원본 실행이 부수효과 없을 때). 첫 승격은 shadow 로 시작해 DIFF 계측을 유지한다.
+/// ★대체구현용 노브 적용판. 재현값 `v` 에 함수별 노브를 얹어 **게임 대신 내보낼 값**을 만든다.
+///   전부 기본 중립(-1) = 재현값 그대로 → live 를 켜도 게임과 동일하게 흘러간다(대체 가능성 실증).
+thread_local! { pub static HOOK_EXTRA: std::cell::Cell<(usize, usize, usize, usize)> = const { std::cell::Cell::new((0, 0, 0, 0)) }; }   // (p9,p10,p11,p12) — ScorerArgs 가 p8 까지라 넘치는 인자용
+#[inline] pub fn tune_pub(key: &str, d: i64) -> i64 { tune(key, d) }
+#[inline] pub fn live_knob(name: &str, v: i64) -> i64 {
+    match name {
+        // 타워 다이브 강제: -1 중립 / 0 항상 불가 / 1 항상 가능
+        "tower_dive" => { let k = tune("td_force", -1); if k == 0 || k == 1 { k } else { v } }
+        // 교전 점수 배율(%). -1/100 = 중립. 200 = 두 배로 보게 만들어 더 적극적으로 붙는다.
+        "combat_score" => { let k = tune("cs_scale", -1); if k > 0 && k != 100 { v.saturating_mul(k) / 100 } else { v } }
+        _ => v,
+    }
+}
 #[inline] pub fn live_mode(key: &str) -> i64 { if tune("judge_live", 0) == 0 || !laycheck::ok_for_live() { 0 } else { tune(key, 0) } }   // layout FAIL 이면 live 전부 차단
 
 /// 포팅 내부 추적값(DIFF 원인 분리용). 포팅이 `tr(i, v)` 로 채우고 record 가 DIFF/NA 줄에 같이 찍는다. thread-local·고정배열(alloc 없음).
@@ -206,6 +219,7 @@ macro_rules! judge_hook_out {
                 if orig == 0 { return 0; }
                 let f: super::F12 = core::mem::transmute(orig);
                 let a = super::ScorerArgs { p1, p2, p3, p4, p5, p6, p7, p8 };
+                super::HOOK_EXTRA.with(|c| c.set((p9, p10, p11, p12)));
                 let en = ST.entered.fetch_add(1, Ordering::Relaxed) + 1;
                 if en <= 3 { super::append_direct(&format!("judge_{}.txt", $spec.name), &format!("[{} ENTER #{}] out={:#x} p2={:#x} p5={:#x} p6={:#x} p7={:#x}\n", $spec.name, en, p1, p2, p5, p6, p7)); }
                 $pre(p1, p2, p3, p4, p5, p6);
@@ -262,7 +276,18 @@ macro_rules! judge_capture {
                 let (r0, r1, r2) = (crate::rd_u64(p1).unwrap_or(u64::MAX), crate::rd_u64(p1 + 8).unwrap_or(0), crate::rd_u64(p1 + 0x10).unwrap_or(0));
                 LAST.with(|c| c.set((seq, r0, r1, r2)));
                 if $spec.rva == 0xe7a8c0 { crate::judge::ab_tag::cmp2(r0, r1, r2, pre_gold, p4, p7);
-                    if snap_ok { RNG_SNAP.with(|c| { let b = c.borrow(); crate::judge::ab_tag::cmp_full(r0, r1, r2, p4, p7, b.as_ptr() as usize); }); } }
+                    if snap_ok { RNG_SNAP.with(|c| { let b = c.borrow(); crate::judge::ab_tag::cmp_full(r0, r1, r2, p4, p7, b.as_ptr() as usize); });
+                        // ★대체구현(live shadow): 원본이 이미 RNG 를 소비했으므로 **출력만** 재현값으로 덮어쓴다.
+                        if crate::judge::live_mode("judge_live_ability_pick") == 2 {
+                            let mine = RNG_SNAP.with(|c| { let b = c.borrow(); crate::judge::port::ability_pick::pick(p4, p7, b.as_ptr() as usize) });
+                            if let Some(mn) = mine {
+                                let forced = if crate::judge::tune_pub("ap_force", -1) == 0 { (0, 0, 0) } else { mn };
+                                if crate::wr_u64(p1, forced.0) && crate::wr_u64(p1 + 8, forced.1) && crate::wr_u64(p1 + 16, forced.2) {
+                                    crate::judge::ab_tag::FULL.live.fetch_add(1, Ordering::Relaxed);
+                                    if forced != mn { crate::judge::ab_tag::FULL.knob_eff.fetch_add(1, Ordering::Relaxed); }
+                                }
+                            }
+                        } } }
                 ST.n.fetch_add(1, Ordering::Relaxed);
                 r
             }
@@ -1042,6 +1067,16 @@ macro_rules! judge_capture_ring_cmp9 {
                     Some(v) if v == r as i64 => { ST.ok.fetch_add(1, Ordering::Relaxed); }
                     Some(v) => { ST.diff.fetch_add(1, Ordering::Relaxed); { let k = LOGGED_D.fetch_add(1, Ordering::Relaxed); if k < 20 || (k % 512 == 0 && k < 512 * 300) { logline("DIFF", Some(v)); } } }
                 }
+                // ★대체구현(live shadow=2): 원본을 돌린 뒤 **재현값(노브 적용)** 을 반환한다. mode 1(원본 생략)은
+                //   이 계열이 게임 캐시/RNG 를 건드리므로 쓰지 않는다. 기본 노브는 중립이라 켜도 게임과 동일하게 흐른다.
+                if let Some(v) = mine {
+                    if super::live_mode(&format!("judge_live_{}", $spec.name)) == 2 {
+                        let lv = super::live_knob($spec.name, v);
+                        if lv != v { ST.knob_eff.fetch_add(1, Ordering::Relaxed); }
+                        ST.live.fetch_add(1, Ordering::Relaxed);
+                        return lv as usize;
+                    }
+                }
                 r
             }
         }
@@ -1067,6 +1102,19 @@ macro_rules! judge_capture_ring_cmp9_bool {
                 ST.n.fetch_add(1, Ordering::Relaxed);
                 let g = (r as u64) & 1;
                 let mine: Option<i64> = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| ($mine)(p1, p2, p3, p4, p5, p6, p7, p8, p9))).unwrap_or(None);
+                // ★대체구현(live): `judge_live=1` + `judge_live_<fn>=2`(shadow) 면 **원본을 돌린 뒤 재현값을 반환**한다.
+                //   mode 1(원본 생략)은 이 함수 계열엔 쓰지 않는다 — 원본이 DieTickCache 등 게임 캐시를 채우는 부수효과가 있다.
+                if let Some(v) = mine {
+                    if super::live_mode(&format!("judge_live_{}", $spec.name)) == 2 {
+                        let lv = super::live_knob($spec.name, v);
+                        if lv != v { ST.knob_eff.fetch_add(1, Ordering::Relaxed); }
+                        ST.live.fetch_add(1, Ordering::Relaxed);
+                        // 대조 통계는 아래에서 그대로 기록하고, 반환만 재현값으로 바꾼다.
+                        let ret = (r & !1usize) | (lv as usize & 1);
+                        match mine { Some(v2) if v2 as u64 == g => { ST.ok.fetch_add(1, Ordering::Relaxed); } _ => { ST.diff.fetch_add(1, Ordering::Relaxed); } }
+                        return ret;
+                    }
+                }
                 let logline = |tag: &str, v: Option<i64>| {
                     let diag = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| crate::judge::port::fight_model::td_diag(p1 as u64, p3, p4, p5, p6, p7))).unwrap_or_default();
                     let line = format!("[{} #{} tid={}] {} game={}({:#x}) mine={} | p1={:#x} p3={:#x} p4={:#x} p5={:#x} p6={:#x} p7={:#x} | {}
@@ -1143,7 +1191,7 @@ judge_capture_ring_cmp9!(cap_combat_score, crate::judge::gen_fns::COMBAT_SCORE, 
    //   (메모 없이 순수 재현해도 같은 값) **게임이 본 상태에 가장 가까운 시점**이다.
    //   ORD 실험도 같은 결론: post만맞음 130 · pre만맞음 0.
 judge_capture_ring_cmp!(cap_as_eb82d0, crate::judge::gen_fns::AS_EB82D0, |p1, _p2, p3, p4, p5, p6, p7, _p8| unsafe { crate::judge::port::fight_check::fight_check_memo(p1 as u64, p3, p4, p5, p6, p7) });   // fight_check (2단계: 순수 재현+메모 미러 대조)
-judge_capture_sret72!(cap_sub_plan, crate::judge::gen_fns::SUB_PLAN, crate::judge::port::sub_plan::big_plan_sub_plan);   // BigPlan::sub_plan (post 대조 · 마스크 비교)
+judge_hook_out!(cap_sub_plan, crate::judge::gen_fns::SUB_PLAN, crate::judge::port::sub_plan::big_plan_sub_plan, crate::judge::port::sub_plan::big_plan_sub_plan, crate::judge::pre_tr, true, "judge_live_sub_plan");   // ★BigPlan::sub_plan — 모든 플랜의 서브플랜 결정 깔때기. arm 은 이미 검증된 각 플랜 포트에 위임, 대조는 쓰기집합만.
 judge_capture_ring_cmp9_bool!(cap_tower_dive, crate::judge::gen_fns::TOWER_DIVE, |p1, _p2, p3, p4, p5, p6, p7, _p8, _p9| unsafe { crate::judge::port::fight_model::tower_dive_cmp(p1 as u64, p3, p4, p5, p6, p7) });   // tower_dive_is_viable (post 대조)
 judge_capture_ring_cmp!(cap_as_e0e890, crate::judge::gen_fns::AS_E0E890, |p1, p2, _p3, _p4, _p5, _p6, _p7, _p8| unsafe { crate::judge::port::as_callees::max_reach(p1, p2) });   // 최대사거리 (2단계: 순수 재현 대조)
 judge_capture_ring_cmp!(cap_as_132b310, crate::judge::gen_fns::AS_132B310, |p1, _p2, p3, p4, _p5, _p6, _p7, _p8| unsafe { crate::judge::port::position_eval::threat_cmp(p1, p3, p4) });   // S11 액션 위협(threat) — A ±1 추적용
@@ -1468,8 +1516,9 @@ pub unsafe fn install() {
             //   (2026-09-07 01:10, exe+0xccab25 접근위반). 4인자 이하(d96d00)만 이 매크로로 감쌀 수 있다.
             install_one(&mut log, &AS_D84DB0, &cap_as_d84db0::ORIG, cap_as_d84db0::wrap as *const () as usize, "capture-out");
             install_one(&mut log, &AS_EB82D0, &cap_as_eb82d0::ORIG, cap_as_eb82d0::wrap as *const () as usize, "capture-ring");
-            // ⛔SUB_PLAN 훅 보류 — 0xcaf9f0 은 `BigPlan::sub_plan` 이 아니라 **MovePriority 플랜 핸들러 디스패처**(이 모드가 MOVEPRI 로 이미 후킹).
-            //   `BigPlan::sub_plan`(72B sret) 의 RVA 는 미확정. port/sub_plan.rs 는 계약만 보존.
+            // ★SUB_PLAN(`0xcaf9f0` = BigPlan::sub_plan, capstone 확정) — 진입부를 이 모드가 mp_capture 로 먼저 잡았으므로
+            //   **체인 훅**(hook.rs, 2026-09-09)으로 그 바깥에 선다: 게임 → judge wrap → mp_capture → 원본.
+            install_one(&mut log, &SUB_PLAN, &cap_sub_plan::ORIG, cap_sub_plan::wrap as *const () as usize, "hook-out(chain)");
             install_one(&mut log, &TOWER_DIVE, &cap_tower_dive::ORIG, cap_tower_dive::wrap as *const () as usize, "capture-bool");
             install_one(&mut log, &AS_E0E890, &cap_as_e0e890::ORIG, cap_as_e0e890::wrap as *const () as usize, "capture-ring");
             install_one(&mut log, &AS_D83230, &cap_as_d83230::ORIG, cap_as_d83230::wrap as *const () as usize, "capture-ring");

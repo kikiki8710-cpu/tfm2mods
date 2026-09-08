@@ -3,8 +3,8 @@
 //!   · orig_len = 옮기는 바이트 수 = 명령 경계(≥12). aiport 가 capstone 으로 계산하고 rip-상대/분기 명령이 없음을 확인해 둔 값.
 //!   · 바이트가 하나라도 다르면 미설치(Err) — 스테일 RVA·패치판·다른 모드의 선행 훅 전부 여기서 걸러진다(fail-safe).
 //!   · 반환 = 트램폴린 주소(= 게임 원본을 그대로 부르는 함수 포인터). wrap 이 이걸로 원본을 실행한다.
-//! ⚠ 체인 후킹(진입부가 이미 외부 훅)은 지원하지 않는다 — judge 대상 함수는 다른 모드가 훅하지 않는 AI 내부 함수뿐이라는 전제.
-//!   만약 필요해지면 CLAUDE.md §3 체인 규약(`48 b8 <tgt> ff e0` 감지 → tgt 로 점프)을 여기 추가한다.
+//! ★체인 후킹 지원(2026-09-09) — 진입부가 이미 `48 b8 <tgt> ff e0` 면 그 tgt 로 점프하는 스텁을 만들어 **바깥 훅**이 된다.
+//!   이 모드 자신이 `install_replace_detour` 로 먼저 잡은 함수(예: 0xcaf9f0 BigPlan::sub_plan)를 judge 가 사후 대조하려면 이게 필요하다.
 use crate::*;
 
 pub unsafe fn install_wrap_bytes(rva: usize, prolog: &[u8], cap_fn: usize) -> Result<usize, &'static str> {
@@ -14,6 +14,29 @@ pub unsafe fn install_wrap_bytes(rva: usize, prolog: &[u8], cap_fn: usize) -> Re
     if mbase == 0 { return Err("module 0"); }
     let fn_addr = mbase + rva;
     if !readable(fn_addr, orig_len + 4) { return Err("fn unreadable"); }
+    // ★[2026-09-09] 체인 후킹(CLAUDE.md §3) — 진입부가 이미 `48 b8 <tgt:8> ff e0` 면 **원본 대신 tgt**(선행 훅의 스텁)로 간다.
+    //   선행 훅이 원본 프롤로그를 자기 스텁으로 이미 옮겼으므로 여기선 **옮길 프롤로그가 없다** = 스텁은 `jmp tgt` 한 줄.
+    //   진입부는 12B 만 덮어쓴다(나머지는 선행 훅이 남긴 nop). ⚠늦게 설치하는 쪽이 바깥이 된다 — judge 는 모드 detour 뒤에 설치된다.
+    if *(fn_addr as *const u8) == 0x48 && *((fn_addr + 1) as *const u8) == 0xb8
+        && *((fn_addr + 10) as *const u8) == 0xff && *((fn_addr + 11) as *const u8) == 0xe0 {
+        let tgt = core::ptr::read_unaligned((fn_addr + 2) as *const usize);
+        if tgt == cap_fn { return Err("체인: 이미 내가 훅함"); }
+        if !ptr_ok(tgt) || !readable(tgt, 4) { return Err("체인 tgt 비정상"); }
+        const MEM_CR2: u32 = 0x1000 | 0x2000; const RWX2: u32 = 0x40;
+        let stub = stub_reg(VirtualAlloc(0, 64, MEM_CR2, RWX2), 64, rva);
+        if stub == 0 { return Err("VirtualAlloc(chain)"); }
+        let mut s: Vec<u8> = Vec::with_capacity(14);
+        s.extend_from_slice(&[0xff, 0x25, 0x00, 0x00, 0x00, 0x00]); s.extend_from_slice(&tgt.to_le_bytes());   // jmp [rip+0]; dq tgt
+        core::ptr::copy_nonoverlapping(s.as_ptr(), stub as *mut u8, s.len());
+        let mut patch = [0u8; 12];
+        patch[0] = 0x48; patch[1] = 0xb8; patch[2..10].copy_from_slice(&cap_fn.to_le_bytes()); patch[10] = 0xff; patch[11] = 0xe0;
+        let mut old: u32 = 0;
+        if VirtualProtect(fn_addr, 12, RWX2, &mut old) == 0 { return Err("VirtualProtect(chain)"); }
+        core::ptr::copy_nonoverlapping(patch.as_ptr(), fn_addr as *mut u8, 12);
+        VirtualProtect(fn_addr, 12, old, &mut old);
+        FlushInstructionCache(GetCurrentProcess(), fn_addr, 12);
+        return Ok(stub);
+    }
     for i in 0..orig_len {
         if *((fn_addr + i) as *const u8) != prolog[i] {
             return Err(if *(fn_addr as *const u8) == 0x48 && *((fn_addr + 1) as *const u8) == 0xb8 { "진입부가 이미 훅됨(48 b8) — 체인 미지원" } else { "프롤로그 바이트 불일치(스테일 RVA/패치판) — 미설치" });

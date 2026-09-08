@@ -564,6 +564,7 @@ unsafe fn ally_is_bound(version: u64, data: usize, player: usize, ally: usize, e
 ///   ③bound 만의 예측 p1(dir=0) ④전체 + `baseline = p1.net` 예측 p2 → `p2.line_absolute = base.line`.
 ///   `p2.line != base.line` 이면 p2.rescue 를 **bound 중 (거리², 핸들) 최소** 아군으로 교체.
 #[allow(clippy::too_many_arguments)]
+thread_local! { pub static STAKE_LAST: std::cell::Cell<(u64, u64, u64, u64, i64, u64)> = const { std::cell::Cell::new((0, 0, 0, 0, 0, 0)) }; }   // (allies, bound, base.line, p2.line, p1.net, rescue)
 pub unsafe fn resolve_fight_stake(version: u64, data: usize, player: usize, champ: usize,
                                   allies: &[usize], enemies: &[usize], committed_dir: i8,
                                   tower: Option<usize>, judge_accuracy: u64) -> Option<FightPrediction> {
@@ -577,7 +578,10 @@ pub unsafe fn resolve_fight_stake(version: u64, data: usize, player: usize, cham
         if ally_is_bound(version, data, player, e, enemies)? { bound.push(e); }
     }
     let base = resolve_fight_full(version, data, champ, allies, enemies, committed_dir, tower, judge_accuracy, &[], 0)?;
-    if bound.is_empty() { return Some(base); }
+    if bound.is_empty() {
+        STAKE_LAST.with(|c| c.set((allies.len() as u64, 0, base.line as u64, base.line as u64, 0, base.rescue.unwrap_or(u64::MAX))));
+        return Some(base);
+    }
     let p1 = resolve_fight_full(version, data, champ, &bound, enemies, 0, tower, judge_accuracy, &[], 0)?;
     let mut p2 = resolve_fight_full(version, data, champ, allies, enemies, committed_dir, tower, judge_accuracy, &[], p1.net)?;
     p2.line_abs = base.line;
@@ -589,6 +593,7 @@ pub unsafe fn resolve_fight_stake(version: u64, data: usize, player: usize, cham
         }
         p2.rescue = best.map(|b| b.1);
     }
+    STAKE_LAST.with(|c| c.set((allies.len() as u64, bound.len() as u64, base.line as u64, p2.line as u64, p1.net, p2.rescue.unwrap_or(u64::MAX))));
     Some(p2)
 }
 
@@ -777,9 +782,11 @@ pub unsafe fn td_diag(version: u64, player: usize, data: usize, team_plan: usize
         let (hx, hy) = if side == 1 { (0u64, 960_000u64) } else { (960_000u64, 0u64) };
         let d = super::obj_helpers::dist(rd_u64(target + ENT_X)?, rd_u64(target + ENT_Y)?, hx, hy);
         let sp = rd_u64(target + ENT_SPEED)?.max(1);
-        Some(format!("v={} side={} role={} tps={} ne={}(na{}) nl={} tower={:?} flee_lim={} tm={} tick={}",
+        // stake 경로면 그 내부까지
+        let st = if p7 & 1 == 1 { tower_dive_is_viable(version, player, data, team_plan, target, true).and_then(|_| Some(STAKE_LAST.with(|c| c.get()))) } else { None };
+        Some(format!("v={} side={} role={} tps={} ne={}(na{}) nl={} tower={:?} flee_lim={} tm={} tick={} stake(al,bd,base_ln,p2_ln,p1net,resc)={:?}",
                      version, side, role, tps, ne, na_e, nl,
-                     tw.map(|o| o.map(|t| rd_u64(t + ENT_HANDLE).unwrap_or(0))), d.saturating_sub(160_000) / sp, p7 & 1, tick))
+                     tw.map(|o| o.map(|t| rd_u64(t + ENT_HANDLE).unwrap_or(0))), d.saturating_sub(160_000) / sp, p7 & 1, tick, st))
     };
     f().unwrap_or_else(|| "diag NA".into())
 }
