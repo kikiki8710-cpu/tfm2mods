@@ -174,7 +174,7 @@ def main():
     else:
         paths = [target]
 
-    npass = nfail = 0
+    npass = nfail = nwarn = 0
     for p in paths:
         try:
             spec = json.load(io.open(p, encoding='utf-8'))
@@ -196,8 +196,11 @@ def main():
                 print('[PASS] %s%s' % (tag, '  (경고 %d)' % len(warn) if warn else ''))
             for w in warn:
                 print('        ⚠ %s' % w)
+            nwarn += len(warn)
     print()
-    print('통과 %d / 반려 %d' % (npass, nfail))
+    # ⚠경고를 요약에 안 찍으면 사실상 안 보인다(감사에서 드러남).
+    #   C3(오프셋)는 gep 접힘 때문에 일부러 경고로 두지만, **몇 건인지는 보여야** 한다.
+    print('통과 %d / 반려 %d / 경고 %d건' % (npass, nfail, nwarn))
     return 1 if nfail else 0
 
 

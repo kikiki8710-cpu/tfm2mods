@@ -3,6 +3,13 @@
 TFM2 게임의 AI 판단 계층(`game_ai` 크레이트)을 **LLVM IR 원본**에서 읽어 함수 명세를 만든다.
 목표는 "이 함수가 무엇을 어떤 조건으로 판정하는가"를 **나중에 사람이 읽고 개조 지점을 고를 수 있을 만큼** 적는 것.
 
+## 0-0. ★먼저 이 네 줄만 지켜도 절반은 간다
+
+1. **오프셋은 `reads`(읽기)/`writes`(쓰기)에만.** `constants` 는 판정에 쓰이는 값만 — 자세한 표는 §3.
+2. **모르면 `unknown`.** 같은 것 2회 시도해서 안 되면 즉시 내려놓아라. 감점 아니다.
+3. **도구 넷을 먼저 쳐라** — `distruct`(구조체) `dienum`(열거형) `fnparts`(클로저 위치) `divtable`(vtable 슬롯). §1.
+4. **JSON 은 Write 도구로 써라.** heredoc 은 깨진다.
+
 ## 0. 대전제 — 추측을 쓰지 마라
 
 이 작업의 가치는 **정확성**에 있다. 분량이 아니다.
@@ -23,6 +30,24 @@ PYTHONIOENCODING=utf-8 python distruct.py Entity 0x640        # 오프셋 → �
 PYTHONIOENCODING=utf-8 python distruct.py LegacyPlanHandler
 ```
 구조체 7,355개 · 필드 17,003개가 들어 있다(전 IR 1회 스캔). **DWARF 를 손으로 타기 전에 반드시 여기부터 찾아봐라.**
+
+### ★★`fnparts.py` (함수 조각 위치) — **본문 읽기 전에 먼저 쳐라**
+1~3차 `unknown` 478건 중 **64건(13.4%)이 "판정의 알맹이가 담당 범위 밖"** 이었다.
+이터레이터 술어는 담당 줄범위엔 `call_mut` 심만 남고 본체가 **다른 `.ll`** 에 있다.
+```bash
+PYTHONIOENCODING=utf-8 python fnparts.py defensive_crisis
+```
+→ 클로저·이터레이터·`call_mut` 심의 **파일과 줄범위**를 전부 찍어준다.
+⚠"본문에 술어가 없다"고 결론내기 전에 **반드시** 이걸 돌려라.
+
+### ★★`divtable.py` (dyn 트레이트 vtable 슬롯) — "원리적으로 불가"가 아니다
+`unknown` 478건 중 **36건(7.5%)이 vtable 슬롯 이름**이었고 대부분 "game_core DWARF 가
+없어 원리적 불가"로 포기했다. **틀렸다.** vtable **전역 상수**에 함수포인터가 순서대로 들어 있다.
+```bash
+PYTHONIOENCODING=utf-8 python divtable.py AbstractGame 0x28    # → tick
+PYTHONIOENCODING=utf-8 python divtable.py AbstractGame 0x100   # → is_visible_cell
+PYTHONIOENCODING=utf-8 python divtable.py AbstractGame 0x1f0   # → get_entity_by_id
+```
 
 ### ★★그리고 `dienum.py` (열거형 태그 사전)
 `distruct.py` 가 구조체를 맡고, **열거형은 이쪽**이다. 2차 배치 담당자 거의 전원이
@@ -129,7 +154,12 @@ grep -n "^define.*<함수명>" /c/tfm2mods/_gaibc/*.ll
  },
 
  "reads": [
-   {"base": "Entity", "offset": "0x640", "name": "speed", "note": "이동속도. 확정(ally_is_bound RE)"}
+   {"base": "Entity", "offset": "0x640", "name": "speed", "note": "읽기만 하는 필드"}
+ ],
+
+ "writes": [
+   {"base": "LegacyPlanHandler", "offset": "0x5e8", "name": "plan", "value": "새 BigPlan",
+    "note": "★생성자·상태변경 함수는 여기에. reads 에 섞지 마라"}
  ],
 
  "constants": [

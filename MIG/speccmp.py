@@ -89,9 +89,15 @@ def sets_of(spec):
     # LLVM 내장(`llvm.lifetime.*`·`llvm.umax.*` 등)은 게임 코드가 아니라 컴파일러 산물이다.
     # 한쪽이 적고 한쪽이 안 적었다고 "이해가 다르다"고 볼 수 없어 양쪽에서 뺀다.
     calls = {c for c in calls if not c.startswith('llvm')}
-    reads = {norm_off(r.get('offset')) for r in spec.get('reads', [])}
-    reads.discard(None)
-    return consts, calls, reads
+    # ⚠`reads` 와 `writes` 를 **합쳐서** 본다. 양식에 writes 가 없던 시절 한쪽은
+    #   생성자 36필드를 자기가 만든 `writes` 에, 다른 쪽은 `reads` 에 넣어
+    #   필드 일치도가 10% 로 찍혔다 — **둘 다 맞았는데 칸만 달랐다**(2차 vs 3차 실측).
+    fields = set()
+    for key in ('reads', 'writes'):
+        for r in spec.get(key, []):
+            fields.add(norm_off(r.get('offset')))
+    fields.discard(None)
+    return consts, calls, fields
 
 
 def split_consts(c1, c2, r1, r2):
