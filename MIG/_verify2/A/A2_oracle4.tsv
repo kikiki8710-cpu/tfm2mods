@@ -1,0 +1,6 @@
+towers	extra_init=false	count=16
+towers	extra_init=true	count=32
+split	n=0	line_exists=true	morgard=true	epic1=600	threat=false	champs=5	visible=5	near=0	morgard_def=Gather	hld=false
+split	n=1	line_exists=true	morgard=true	epic1=600	threat=false	champs=5	visible=5	near=1	morgard_def=Gather	hld=false
+split	n=2	line_exists=true	morgard=true	epic1=600	threat=false	champs=5	visible=5	near=2	morgard_def=Gather	hld=false
+split	n=3	line_exists=true	morgard=true	epic1=600	threat=false	champs=5	visible=5	near=3	morgard_def=Gather	hld=false

@@ -1,0 +1,44 @@
+tps_default	0
+fountains_len	2
+fountain	0	(0, 896000, 64000, 960000)
+fountain	1	(892000, 0, 960000, 64000)
+nexus_pos	[(96000, 864000), (864000, 96000)]
+getname	ForcePassive	"ForcePasive"	end_plan=9
+getname	ActiveRecall	"ActiveRecall"	end_plan=6
+getname	EpicHuntAndPoke	"EpicHuntAndPoke"	end_plan=4
+getname	EpicHuntAndBattle	"EpicHuntAndBattle"	end_plan=4
+getname	SerpenHuntAndPoke	"SerpenHuntAndPoke"	end_plan=5
+getname	SerpenHuntAndBattle	"SerpenHuntAndBattle"	end_plan=5
+getname	AttackNexus	"AttackNexus"	end_plan=8
+getname	DefenseNexus	"DefenseNexus"	end_plan=8
+subplan_default_tag	5
+subplan_size	72
+bsg_size	16
+champ	0	0	Some((18, 15000, 913000, 1, 1))
+champ	0	1	Some((19, 32000, 928000, 1, 1))
+champ	0	2	Some((20, 49000, 911000, 1, 1))
+champ	0	3	Some((21, 15000, 938000, 1, 1))
+champ	0	4	Some((22, 49000, 946000, 1, 1))
+champ	1	0	Some((23, 913000, 15000, 1, 1))
+champ	1	1	Some((24, 928000, 32000, 1, 1))
+champ	1	2	Some((25, 911000, 49000, 1, 1))
+champ	1	3	Some((26, 938000, 15000, 1, 1))
+champ	1	4	Some((27, 946000, 49000, 1, 1))
+o07	ver=0	tag=11	EpicHunt(EpicHuntSubPlan { need_recall: false })
+o07	ver=1	tag=11	EpicHunt(EpicHuntSubPlan { need_recall: false })
+o07	ver=2	tag=11	EpicHunt(EpicHuntSubPlan { need_recall: false })
+o07	ver=3	tag=11	EpicHunt(EpicHuntSubPlan { need_recall: false })
+o07	ver=40	tag=11	EpicHunt(EpicHuntSubPlan { need_recall: false })
+o07	ver=50	tag=11	EpicHunt(EpicHuntSubPlan { need_recall: false })
+o07	ver=60	tag=11	EpicHunt(EpicHuntSubPlan { need_recall: false })
+o08	ver=0	true
+o08	ver=1	true
+o08	ver=2	true
+o08	ver=24	true
+o08	ver=50	true
+o08	ver=60	true
+o09	ver=0	false
+o09	ver=1	false
+o09	ver=2	false
+o09	ver=3	false
+o09	ver=50	false

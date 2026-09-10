@@ -1,0 +1,62 @@
+morgard	tut=None	morgard_exists=true	line_exists(Top,Mid,Bot)=true,true,true
+morgard	tut=First	morgard_exists=false	line_exists(Top,Mid,Bot)=false,false,true
+morgard	tut=TopSolo	morgard_exists=false	line_exists(Top,Mid,Bot)=true,false,false
+morgard	tut=Bottom	morgard_exists=false	line_exists(Top,Mid,Bot)=false,false,true
+morgard	tut=MidSolo	morgard_exists=false	line_exists(Top,Mid,Bot)=false,true,false
+morgard	tut=MidBottom	morgard_exists=false	line_exists(Top,Mid,Bot)=false,true,true
+morgard	tut=JungleOnly	morgard_exists=false	line_exists(Top,Mid,Bot)=false,false,false
+morgard	tut=Line	morgard_exists=true	line_exists(Top,Mid,Bot)=true,true,true
+morgard	tut=Total	morgard_exists=true	line_exists(Top,Mid,Bot)=true,true,true
+cache	team=0	twin_towers.len=4
+cache	team=1	twin_towers.len=4
+moba	remain_epic_time(0)=0	(1)=0
+dcrisis	t0p0	ver=1	die_imminent=false	cc_threat=false
+dcrisis	t0p0	ver=3	die_imminent=false	cc_threat=false
+dcrisis	t0p1	ver=1	die_imminent=false	cc_threat=false
+dcrisis	t0p1	ver=3	die_imminent=false	cc_threat=false
+dcrisis	t0p2	ver=1	die_imminent=false	cc_threat=false
+dcrisis	t0p2	ver=3	die_imminent=false	cc_threat=false
+dcrisis	t0p3	ver=1	die_imminent=false	cc_threat=false
+dcrisis	t0p3	ver=3	die_imminent=false	cc_threat=false
+dcrisis	t0p4	ver=1	die_imminent=false	cc_threat=false
+dcrisis	t0p4	ver=3	die_imminent=false	cc_threat=false
+dcrisis	t1p0	ver=1	die_imminent=false	cc_threat=false
+dcrisis	t1p0	ver=3	die_imminent=false	cc_threat=false
+dcrisis	t1p1	ver=1	die_imminent=false	cc_threat=false
+dcrisis	t1p1	ver=3	die_imminent=false	cc_threat=false
+dcrisis	t1p2	ver=1	die_imminent=false	cc_threat=false
+dcrisis	t1p2	ver=3	die_imminent=false	cc_threat=false
+dcrisis	t1p3	ver=1	die_imminent=false	cc_threat=false
+dcrisis	t1p3	ver=3	die_imminent=false	cc_threat=false
+dcrisis	t1p4	ver=1	die_imminent=false	cc_threat=false
+dcrisis	t1p4	ver=3	die_imminent=false	cc_threat=false
+hld	t0p0	Top=false Mid=false Bottom=false
+hld	t0p1	Top=false Mid=false Bottom=false
+hld	t0p2	Top=false Mid=false Bottom=false
+hld	t0p3	Top=false Mid=false Bottom=false
+hld	t0p4	Top=false Mid=false Bottom=false
+hld	t1p0	Top=false Mid=false Bottom=false
+hld	t1p1	Top=false Mid=false Bottom=false
+hld	t1p2	Top=false Mid=false Bottom=false
+hld	t1p3	Top=false Mid=false Bottom=false
+hld	t1p4	Top=false Mid=false Bottom=false
+anp	t0p0	x=15000 y=913000	in_fountain=true	hp=1 max=1	LineDefense(LineDefenseSubPlan { line: Top, minion_action_type: Push, style: Aggressive }) | LineDefense(LineDefenseSubPlan { line: Mid, minion_action_type: Push, style: Aggressive }) | LineDefense(LineDefenseSubPlan { line: Bottom, minion_action_type: Push, style: Aggressive })
+anp	t0p1	x=32000 y=928000	in_fountain=true	hp=1 max=1	LineDefense(LineDefenseSubPlan { line: Top, minion_action_type: Push, style: Aggressive }) | LineDefense(LineDefenseSubPlan { line: Mid, minion_action_type: Push, style: Aggressive }) | LineDefense(LineDefenseSubPlan { line: Bottom, minion_action_type: Push, style: Aggressive })
+anp	t0p2	x=49000 y=911000	in_fountain=true	hp=1 max=1	LineDefense(LineDefenseSubPlan { line: Top, minion_action_type: Push, style: Aggressive }) | LineDefense(LineDefenseSubPlan { line: Mid, minion_action_type: Push, style: Aggressive }) | LineDefense(LineDefenseSubPlan { line: Bottom, minion_action_type: Push, style: Aggressive })
+anp	t0p3	x=15000 y=938000	in_fountain=true	hp=1 max=1	LineDefense(LineDefenseSubPlan { line: Top, minion_action_type: Push, style: Aggressive }) | LineDefense(LineDefenseSubPlan { line: Mid, minion_action_type: Push, style: Aggressive }) | LineDefense(LineDefenseSubPlan { line: Bottom, minion_action_type: Push, style: Aggressive })
+anp	t0p4	x=49000 y=946000	in_fountain=true	hp=1 max=1	LineDefense(LineDefenseSubPlan { line: Top, minion_action_type: Push, style: Aggressive }) | LineDefense(LineDefenseSubPlan { line: Mid, minion_action_type: Push, style: Aggressive }) | LineDefense(LineDefenseSubPlan { line: Bottom, minion_action_type: Push, style: Aggressive })
+anp	t1p0	x=913000 y=15000	in_fountain=true	hp=1 max=1	LineDefense(LineDefenseSubPlan { line: Top, minion_action_type: Push, style: Aggressive }) | LineDefense(LineDefenseSubPlan { line: Mid, minion_action_type: Push, style: Aggressive }) | LineDefense(LineDefenseSubPlan { line: Bottom, minion_action_type: Push, style: Aggressive })
+anp	t1p1	x=928000 y=32000	in_fountain=true	hp=1 max=1	LineDefense(LineDefenseSubPlan { line: Top, minion_action_type: Push, style: Aggressive }) | LineDefense(LineDefenseSubPlan { line: Mid, minion_action_type: Push, style: Aggressive }) | LineDefense(LineDefenseSubPlan { line: Bottom, minion_action_type: Push, style: Aggressive })
+anp	t1p2	x=911000 y=49000	in_fountain=true	hp=1 max=1	LineDefense(LineDefenseSubPlan { line: Top, minion_action_type: Push, style: Aggressive }) | LineDefense(LineDefenseSubPlan { line: Mid, minion_action_type: Push, style: Aggressive }) | LineDefense(LineDefenseSubPlan { line: Bottom, minion_action_type: Push, style: Aggressive })
+anp	t1p3	x=938000 y=15000	in_fountain=true	hp=1 max=1	LineDefense(LineDefenseSubPlan { line: Top, minion_action_type: Push, style: Aggressive }) | LineDefense(LineDefenseSubPlan { line: Mid, minion_action_type: Push, style: Aggressive }) | LineDefense(LineDefenseSubPlan { line: Bottom, minion_action_type: Push, style: Aggressive })
+anp	t1p4	x=946000 y=49000	in_fountain=true	hp=1 max=1	LineDefense(LineDefenseSubPlan { line: Top, minion_action_type: Push, style: Aggressive }) | LineDefense(LineDefenseSubPlan { line: Mid, minion_action_type: Push, style: Aggressive }) | LineDefense(LineDefenseSubPlan { line: Bottom, minion_action_type: Push, style: Aggressive })
+ult	t0p0	level=1	can_ult=false	None
+ult	t0p1	level=1	can_ult=false	None
+ult	t0p2	level=1	can_ult=false	None
+ult	t0p3	level=1	can_ult=false	None
+ult	t0p4	level=1	can_ult=false	None
+ult	t1p0	level=1	can_ult=false	None
+ult	t1p1	level=1	can_ult=false	None
+ult	t1p2	level=1	can_ult=false	None
+ult	t1p3	level=1	can_ult=false	None
+ult	t1p4	level=1	can_ult=false	None

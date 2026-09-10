@@ -1,0 +1,68 @@
+setting	tps_default	0
+setting	tps_now	60
+judge_acc	judgement=0	acc=100	mine=100
+judge_acc	judgement=1	acc=109	mine=109
+judge_acc	judgement=10	acc=190	mine=190
+judge_acc	judgement=11	acc=199	mine=199
+judge_acc	judgement=50	acc=550	mine=550
+judge_acc	judgement=99	acc=991	mine=991
+judge_acc	judgement=100	acc=1000	mine=1000
+judge_acc	judgement=101	acc=1000	mine=1000
+judge_acc	judgement=111	acc=1000	mine=1000
+judge_acc	judgement=200	acc=1000	mine=1000
+judge_acc	judgement=1000	acc=1000	mine=1000
+upd	mental=0	gap=0	before=1000	after=1000	mine=1000	MATCH
+upd	mental=0	gap=1	before=1000	after=667	mine=667	MATCH
+upd	mental=0	gap=2	before=1000	after=334	mine=334	MATCH
+upd	mental=0	gap=3	before=1000	after=109	mine=109	MATCH
+upd	mental=0	gap=4	before=1000	after=109	mine=109	MATCH
+upd	mental=0	gap=10	before=1000	after=109	mine=109	MATCH
+upd	mental=30	gap=0	before=1000	after=1000	mine=1000	MATCH
+upd	mental=30	gap=1	before=1000	after=766	mine=766	MATCH
+upd	mental=30	gap=2	before=1000	after=532	mine=532	MATCH
+upd	mental=30	gap=3	before=1000	after=307	mine=307	MATCH
+upd	mental=30	gap=4	before=1000	after=307	mine=307	MATCH
+upd	mental=30	gap=10	before=1000	after=307	mine=307	MATCH
+upd	mental=50	gap=0	before=1000	after=1000	mine=1000	MATCH
+upd	mental=50	gap=1	before=1000	after=829	mine=829	MATCH
+upd	mental=50	gap=2	before=1000	after=667	mine=667	MATCH
+upd	mental=50	gap=3	before=1000	after=505	mine=505	MATCH
+upd	mental=50	gap=4	before=1000	after=505	mine=505	MATCH
+upd	mental=50	gap=10	before=1000	after=505	mine=505	MATCH
+upd	mental=80	gap=0	before=1000	after=1000	mine=1000	MATCH
+upd	mental=80	gap=1	before=1000	after=928	mine=928	MATCH
+upd	mental=80	gap=2	before=1000	after=865	mine=865	MATCH
+upd	mental=80	gap=3	before=1000	after=802	mine=802	MATCH
+upd	mental=80	gap=4	before=1000	after=802	mine=802	MATCH
+upd	mental=80	gap=10	before=1000	after=802	mine=802	MATCH
+upd	mental=100	gap=0	before=1000	after=1000	mine=1000	MATCH
+upd	mental=100	gap=1	before=1000	after=1000	mine=1000	MATCH
+upd	mental=100	gap=2	before=1000	after=1000	mine=1000	MATCH
+upd	mental=100	gap=3	before=1000	after=1000	mine=1000	MATCH
+upd	mental=100	gap=4	before=1000	after=1000	mine=1000	MATCH
+upd	mental=100	gap=10	before=1000	after=1000	mine=1000	MATCH
+upd	mental=200	gap=0	before=1000	after=1000	mine=1000	MATCH
+upd	mental=200	gap=1	before=1000	after=1000	mine=1000	MATCH
+upd	mental=200	gap=2	before=1000	after=1000	mine=1000	MATCH
+upd	mental=200	gap=3	before=1000	after=1000	mine=1000	MATCH
+upd	mental=200	gap=4	before=1000	after=1000	mine=1000	MATCH
+upd	mental=200	gap=10	before=1000	after=1000	mine=1000	MATCH
+upd_seq	mental=50	[1000, 505, 505, 505, 505, 505, 505]
+as_index	decl=0	Top	idx=0
+as_index	decl=1	Jungle	idx=1
+as_index	decl=2	Mid	idx=2
+as_index	decl=3	Bottom	idx=3
+as_index	decl=4	Support	idx=4
+fountain	team=0	(0, 896000, 64000, 960000)
+fountain	team=1	(892000, 0, 960000, 64000)
+ent	t0p0	x=15000	y=913000	radius()=0	team=Player(0)
+ent	t0p1	x=32000	y=928000	radius()=0	team=Player(0)
+ent	t0p2	x=49000	y=911000	radius()=0	team=Player(0)
+ent	t0p3	x=15000	y=938000	radius()=0	team=Player(0)
+ent	t0p4	x=49000	y=946000	radius()=0	team=Player(0)
+ent	t1p0	x=913000	y=15000	radius()=0	team=Player(1)
+ent	t1p1	x=928000	y=32000	radius()=0	team=Player(1)
+ent	t1p2	x=911000	y=49000	radius()=0	team=Player(1)
+ent	t1p3	x=938000	y=15000	radius()=0	team=Player(1)
+ent	t1p4	x=946000	y=49000	radius()=0	team=Player(1)
+vis	a_from_b=false	b_from_a=false	a_from_a=false

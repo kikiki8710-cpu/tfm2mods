@@ -1,0 +1,1 @@
+[{"corpus": "gai", "file": "m09.ll", "line": 14828, "text": "%2135 = call fastcc noundef zeroext i1 @_RNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old4epicNtNtB6_9team_plan8TeamPlan22v3_epicops_buff_window(ptr noalias noundef align 8 dereferenceable(1064) %0, i64 noundef %1, ptr "}]

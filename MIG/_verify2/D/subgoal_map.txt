@@ -1,0 +1,52 @@
+m05.ll:27330   sub_goal := 4      RunAway          single_battle.rs:132
+m05.ll:27371   sub_goal := 4      RunAway          single_battle.rs:141
+m05.ll:29002   sub_goal := %788   (계산값 %788)       single_battle.rs:199
+m05.ll:29058   sub_goal := 7      End              single_battle.rs:211
+m05.ll:29131   sub_goal := 7      End              single_battle.rs:223
+m05.ll:29183   sub_goal := 7      End              single_battle.rs:235
+m05.ll:29227   sub_goal := 7      End              single_battle.rs:246
+m05.ll:29281   sub_goal := 7      End              single_battle.rs:282
+m05.ll:29323   sub_goal := 7      End              single_battle.rs:296
+m05.ll:29339   sub_goal := 7      End              single_battle.rs:301
+m05.ll:30805   sub_goal := %1482  (계산값 %1482)      single_battle.rs:469  <=  single_battle.rs:342
+m05.ll:30891   sub_goal := 7      End              single_battle.rs:484  <=  single_battle.rs:342
+m05.ll:31129   sub_goal := 4      RunAway          single_battle.rs:505  <=  single_battle.rs:342
+m05.ll:31226   sub_goal := 7      End              single_battle.rs:0  <=  single_battle.rs:342
+m05.ll:31289   sub_goal := 7      End              single_battle.rs:558  <=  single_battle.rs:342
+m05.ll:32418   sub_goal := 0      Trace            single_battle.rs:636  <=  single_battle.rs:342
+m05.ll:32574   sub_goal := 3      KitingBack       single_battle.rs:656  <=  single_battle.rs:342
+m05.ll:32617   sub_goal := 4      RunAway          single_battle.rs:661  <=  single_battle.rs:342
+m05.ll:32637   sub_goal := 7      End              single_battle.rs:653  <=  single_battle.rs:342
+m05.ll:32704   sub_goal := %2284  (계산값 %2284)      single_battle.rs:672  <=  single_battle.rs:342
+m05.ll:32769   sub_goal := 7      End              single_battle.rs:689  <=  single_battle.rs:342
+m05.ll:32868   sub_goal := 3      KitingBack       single_battle.rs:714  <=  single_battle.rs:342
+m05.ll:32904   sub_goal := 4      RunAway          single_battle.rs:719  <=  single_battle.rs:342
+m05.ll:32951   sub_goal := 2      Kiting           single_battle.rs:778  <=  single_battle.rs:342
+m05.ll:32985   sub_goal := 2      Kiting           single_battle.rs:790  <=  single_battle.rs:342
+m05.ll:33002   sub_goal := 2      Kiting           single_battle.rs:803  <=  single_battle.rs:342
+m05.ll:33017   sub_goal := 3      KitingBack       single_battle.rs:801  <=  single_battle.rs:342
+m05.ll:33027   sub_goal := 2      Kiting           single_battle.rs:798  <=  single_battle.rs:342
+m05.ll:33063   sub_goal := 4      RunAway          single_battle.rs:796  <=  single_battle.rs:342
+m05.ll:33106   sub_goal := 4      RunAway          single_battle.rs:786  <=  single_battle.rs:342
+m05.ll:33129   sub_goal := 0      Trace            single_battle.rs:746  <=  single_battle.rs:342
+m05.ll:33150   sub_goal := 0      Trace            single_battle.rs:757  <=  single_battle.rs:342
+m05.ll:33162   sub_goal := 2      Kiting           single_battle.rs:759  <=  single_battle.rs:342
+m05.ll:33180   sub_goal := 2      Kiting           single_battle.rs:773  <=  single_battle.rs:342
+m05.ll:33216   sub_goal := 4      RunAway          single_battle.rs:771  <=  single_battle.rs:342
+m05.ll:33239   sub_goal := 2      Kiting           single_battle.rs:764  <=  single_battle.rs:342
+m05.ll:33244   sub_goal := 3      KitingBack       single_battle.rs:762  <=  single_battle.rs:342
+m05.ll:33249   sub_goal := 0      Trace            single_battle.rs:754  <=  single_battle.rs:342
+m05.ll:33254   sub_goal := 2      Kiting           single_battle.rs:752  <=  single_battle.rs:342
+m05.ll:33288   sub_goal := 3      KitingBack       single_battle.rs:727  <=  single_battle.rs:342
+m05.ll:33323   sub_goal := 2      Kiting           single_battle.rs:742  <=  single_battle.rs:342
+m05.ll:33331   sub_goal := 4      RunAway          single_battle.rs:740  <=  single_battle.rs:342
+m05.ll:33357   sub_goal := 3      KitingBack       single_battle.rs:811  <=  single_battle.rs:342
+m05.ll:33374   sub_goal := 3      KitingBack       single_battle.rs:818  <=  single_battle.rs:342
+m05.ll:33423   sub_goal := 0      Trace            single_battle.rs:833  <=  single_battle.rs:342
+m05.ll:33428   sub_goal := 2      Kiting           single_battle.rs:836  <=  single_battle.rs:342
+m05.ll:33433   sub_goal := 3      KitingBack       single_battle.rs:839  <=  single_battle.rs:342
+m05.ll:33503   sub_goal := 3      KitingBack       single_battle.rs:861  <=  single_battle.rs:342
+m05.ll:33547   sub_goal := 4      RunAway          single_battle.rs:735  <=  single_battle.rs:342
+m05.ll:33566   sub_goal := %2646  (계산값 %2646)      single_battle.rs:535  <=  single_battle.rs:342
+m05.ll:34310   sub_goal := 7      End              single_battle.rs:317
+m05.ll:34382   sub_goal := 7      End              single_battle.rs:334

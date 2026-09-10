@@ -1,0 +1,27 @@
+{
+ "game": "0.5.8",
+ "date": "2026-09-11",
+ "what": "game_ai 판단함수 20개 상세 명세. 1~6차 IR 독해 + 2026-09-10 미확정 해소 + 2026-09-11 rmeta SourceMap·rustc 프로브 / fight_model 심층부 / 조준·라인술어·채팅후속 배치.",
+ "source": "C:\\tfm2mods\\MIG\\_spec\\r1..r6 + resolved_2026-09-10.json",
+ "rounds": "함수당 최대 6번 독립 재작성. 최종 라운드 교차검증 = 판정상수 일치 100%.",
+ "counts": {
+  "functions": 20,
+  "reads": 352,
+  "writes": 90,
+  "constants": 185,
+  "calls": 128,
+  "knobs": 98,
+  "new_knobs": 112,
+  "resolved": 122,
+  "unknown": 158,
+  "still_unknown": 9,
+  "joined_to_map": 15
+ },
+ "corrections": [
+  "2026-09-11 tcxdict 감사: ~~PlayerState+0x2496~~ 은 10진 2496 을 16진으로 오기한 것. PlayerState 는 2528B(0x9E0) 라 0x2496 은 범위 밖. 2496(10진) = 0x9c0 = info.position ⟹ \"== 1\" 의 참뜻은 포지션 == 1(정글러). 판정 의미는 불변, 코드 반영 이력 없음(문서만).",
+  "2026-09-11 rust-src 설치: 포맷 템플릿 문법을 역산 → **소스 원문**으로 교체. 우리 역산 표에 오류 2건(비트25 alternate 오기 / 0x80 오분류) + 누락 3건이 있었다. ★교훈: rustc 내부 인코딩은 \"관측 불가\"가 아니라 **소스 컴포넌트를 설치하면 읽을 수 있다**.",
+  "2026-09-11 IR 정밀독해 배치: epic.rs 655~678 의 \"재료 부재로 종결\" 판정을 정정. MIR 경로만 막힌 것이었고 「줄 길이 산술 + tcx + IR 분기 유무」로 5줄 중 4줄이 확정됐다. ★교훈: \"남은 건 exe 디스어셈뿐\" 이라고 쓰기 전에 **가진 재료의 조합**을 다 시도했는지 보라.",
+  "2026-09-11 **정정이 resolved[] 로그에만 있고 본 표는 옛 값이었다**(stalecheck.py 로 10건 적발). §7 정정형 기록은 '옛 줄을 그 자리에서 고치라'는 뜻인데 changelog append 로 끝냈던 것. tcxaudit 은 base+offset 만 보므로 이 오염을 못 잡는다 — apply13.py 로 본 표에 반영 완료.",
+  "2026-09-11 배치C 정정을 본 표에 반영(apply2.py): 13·14 `is_top_side` 극성 반전 — IR 술어 `ry < x` 는 **!is_top_side** 다(오라클 실행 확정). 14 에 `target_bush_v41`(실제 은신 목표)·`*_lead` 3필드 전표 추가 — v30!=v41 구간에서 TargetMissing 취소가 원리적으로 발화하지 않는다."
+ ]
+}

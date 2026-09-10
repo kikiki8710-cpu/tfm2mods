@@ -1,0 +1,45 @@
+tower	id=2	team=Player(0)	x=48000	y=272000
+tower	id=3	team=Player(1)	x=272000	y=48000
+tower	id=4	team=Player(0)	x=48000	y=528000
+tower	id=5	team=Player(1)	x=528000	y=48000
+tower	id=6	team=Player(0)	x=368000	y=592000
+tower	id=7	team=Player(1)	x=592000	y=368000
+tower	id=8	team=Player(0)	x=240000	y=720000
+tower	id=9	team=Player(1)	x=720000	y=240000
+tower	id=10	team=Player(0)	x=688000	y=912000
+tower	id=11	team=Player(1)	x=912000	y=688000
+tower	id=12	team=Player(0)	x=432000	y=912000
+tower	id=13	team=Player(1)	x=912000	y=432000
+tower	id=14	team=Player(0)	x=111000	y=784000
+tower	id=15	team=Player(0)	x=176000	y=848000
+tower	id=16	team=Player(1)	x=784000	y=111000
+tower	id=17	team=Player(1)	x=848000	y=176000
+tower	id=30	team=Player(0)	x=48000	y=272000
+tower	id=31	team=Player(1)	x=272000	y=48000
+tower	id=32	team=Player(0)	x=48000	y=528000
+tower	id=33	team=Player(1)	x=528000	y=48000
+tower	id=34	team=Player(0)	x=368000	y=592000
+tower	id=35	team=Player(1)	x=592000	y=368000
+tower	id=36	team=Player(0)	x=240000	y=720000
+tower	id=37	team=Player(1)	x=720000	y=240000
+tower	id=38	team=Player(0)	x=688000	y=912000
+tower	id=39	team=Player(1)	x=912000	y=688000
+tower	id=40	team=Player(0)	x=432000	y=912000
+tower	id=41	team=Player(1)	x=912000	y=432000
+tower	id=42	team=Player(0)	x=111000	y=784000
+tower	id=43	team=Player(0)	x=176000	y=848000
+tower	id=44	team=Player(1)	x=784000	y=111000
+tower	id=45	team=Player(1)	x=848000	y=176000
+tower0	(48000, 272000)
+hldN	near=0	epic1=600	morgard=Gather	hld=false
+hldN	near=1	epic1=600	morgard=Gather	hld=false
+hldN	near=2	epic1=600	morgard=Gather	hld=false
+hldN	near=3	epic1=600	morgard=Gather	hld=false
+hldN	near=4	epic1=600	morgard=Gather	hld=false
+hldN	near=5	epic1=600	morgard=Gather	hld=false
+dcrisisB	tps=60	max_range=0	dsq=1000000	gate=true	die=60	die<2tps=true	die_imm=true	cc=false
+dcrisisB	tps=6	max_range=0	dsq=1000000	gate=true	die=60	die<2tps=false	die_imm=false	cc=false
+dcrisisB	tps=1	max_range=0	dsq=1000000	gate=true	die=60	die<2tps=false	die_imm=false	cc=false
+anpC	in_fountain	x=15000 y=913000 hp=500/999	Recall(RecallSubPlan)
+anpC	outside	x=500000 y=500000 hp=500/999	LineDefense(LineDefenseSubPlan { line: Mid, minion_action_type: Push, style: Aggressive })
+anpC	no_enemy_tower	removed=16	twin1len=0	AttackNexus(AttackNexusSubPlan)

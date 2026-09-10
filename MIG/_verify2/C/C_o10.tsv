@@ -1,0 +1,27 @@
+objid	Morgard/None	None
+objid	Morgard/Setup	None
+objid	Morgard/Assemble	None
+objid	Morgard/Hunt	None
+objid	Morgard/Hunt+battle	None
+objid	Serpen/Hunt	None
+objid	Serpen/None	None
+hitpair	ax=15000 ay=913000 bx=913000 by=15000	dx=898000 dy=898000	d2=1612808000000
+hit	margin=0	false
+hit	margin=25000	false
+hit	margin=100000	false
+hit	margin=500000	false
+hit	margin=1000000	false
+hit	margin=1200000	false
+hit	margin=1260000	false
+hit	margin=1270000	false
+hit	margin=1300000	false
+hit	margin=2000000	false
+hit_threshold	margin=3000000	(=이 값 이상이면 true)
+lead	top=[2, 2]	mid=[2, 2]	bottom=[2, 2]
+region_point	[8, 3, 0, -6, 6, 7, 0, 0, 6, 7, -3, -3, -7, 3, 2, -2, 0, 0, -6, 7, -7, -3, 6, -6, 3, -7, -8]
+leadcalc	line=Top	team=0	seq=[0, 5, 22, 17, 18, 20, 26]	mine=0	game=2	★MISMATCH
+leadcalc	line=Top	team=1	seq=[26, 20, 18, 17, 22, 5, 0]	mine=3	game=2	★MISMATCH
+leadcalc	line=Mid	team=0	seq=[0, 19, 4, 6, 3, 12, 26]	mine=0	game=2	★MISMATCH
+leadcalc	line=Mid	team=1	seq=[26, 12, 3, 6, 4, 19, 0]	mine=3	game=2	★MISMATCH
+leadcalc	line=Bottom	team=0	seq=[0, 9, 8, 16, 23, 25, 26]	mine=0	game=2	★MISMATCH
+leadcalc	line=Bottom	team=1	seq=[26, 25, 23, 16, 8, 9, 0]	mine=3	game=2	★MISMATCH

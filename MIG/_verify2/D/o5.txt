@@ -1,0 +1,171 @@
+﻿meta	tick_per_second	60
+meta	champs	10	towers	20
+dump	C0Top	pos=(15000,913000)	level=1	radius=0	radius_mult=0	sbc_range=0	attack_effect=true	range=0	growth=0	casting="Targeting"	target="Enemy"
+dump	C0Jungle	pos=(32000,928000)	level=1	radius=0	radius_mult=0	sbc_range=0	attack_effect=true	range=0	growth=0	casting="Targeting"	target="Enemy"
+dump	C0Mid	pos=(49000,911000)	level=1	radius=0	radius_mult=0	sbc_range=0	attack_effect=true	range=0	growth=0	casting="Targeting"	target="Enemy"
+dump	C0Bottom	pos=(15000,938000)	level=1	radius=0	radius_mult=0	sbc_range=0	attack_effect=true	range=0	growth=0	casting="Targeting"	target="Enemy"
+dump	C0Support	pos=(49000,946000)	level=1	radius=0	radius_mult=0	sbc_range=0	attack_effect=true	range=0	growth=0	casting="Targeting"	target="Enemy"
+dump	C1Top	pos=(913000,15000)	level=1	radius=0	radius_mult=0	sbc_range=0	attack_effect=true	range=0	growth=0	casting="Targeting"	target="Enemy"
+dump	C1Jungle	pos=(928000,32000)	level=1	radius=0	radius_mult=0	sbc_range=0	attack_effect=true	range=0	growth=0	casting="Targeting"	target="Enemy"
+dump	C1Mid	pos=(911000,49000)	level=1	radius=0	radius_mult=0	sbc_range=0	attack_effect=true	range=0	growth=0	casting="Targeting"	target="Enemy"
+dump	C1Bottom	pos=(938000,15000)	level=1	radius=0	radius_mult=0	sbc_range=0	attack_effect=true	range=0	growth=0	casting="Targeting"	target="Enemy"
+dump	C1Support	pos=(946000,49000)	level=1	radius=0	radius_mult=0	sbc_range=0	attack_effect=true	range=0	growth=0	casting="Targeting"	target="Enemy"
+dump	T0#0	pos=(48000,272000)	level=1	radius=10000	radius_mult=0	sbc_range=0	attack_effect=true	range=0	growth=0	casting="Targeting"	target="Enemy"
+dump	T0#1	pos=(368000,592000)	level=1	radius=10000	radius_mult=0	sbc_range=0	attack_effect=true	range=0	growth=0	casting="Targeting"	target="Enemy"
+dump	T0#2	pos=(688000,912000)	level=1	radius=10000	radius_mult=0	sbc_range=0	attack_effect=true	range=0	growth=0	casting="Targeting"	target="Enemy"
+dump	T0#3	pos=(48000,528000)	level=1	radius=10000	radius_mult=0	sbc_range=0	attack_effect=true	range=0	growth=0	casting="Targeting"	target="Enemy"
+dump	T0#4	pos=(240000,720000)	level=1	radius=10000	radius_mult=0	sbc_range=0	attack_effect=true	range=0	growth=0	casting="Targeting"	target="Enemy"
+dump	T0#5	pos=(432000,912000)	level=1	radius=10000	radius_mult=0	sbc_range=0	attack_effect=true	range=0	growth=0	casting="Targeting"	target="Enemy"
+dump	T0#6	pos=(111000,784000)	level=1	radius=10000	radius_mult=0	sbc_range=0	attack_effect=true	range=0	growth=0	casting="Targeting"	target="Enemy"
+dump	T0#7	pos=(176000,848000)	level=1	radius=10000	radius_mult=0	sbc_range=0	attack_effect=true	range=0	growth=0	casting="Targeting"	target="Enemy"
+dump	T0#8	pos=(111000,784000)	level=1	radius=10000	radius_mult=0	sbc_range=0	attack_effect=true	range=0	growth=0	casting="Targeting"	target="Enemy"
+dump	T0#9	pos=(176000,848000)	level=1	radius=10000	radius_mult=0	sbc_range=0	attack_effect=true	range=0	growth=0	casting="Targeting"	target="Enemy"
+dump	T1#0	pos=(272000,48000)	level=1	radius=10000	radius_mult=0	sbc_range=0	attack_effect=true	range=0	growth=0	casting="Targeting"	target="Enemy"
+dump	T1#1	pos=(592000,368000)	level=1	radius=10000	radius_mult=0	sbc_range=0	attack_effect=true	range=0	growth=0	casting="Targeting"	target="Enemy"
+dump	T1#2	pos=(912000,688000)	level=1	radius=10000	radius_mult=0	sbc_range=0	attack_effect=true	range=0	growth=0	casting="Targeting"	target="Enemy"
+dump	T1#3	pos=(528000,48000)	level=1	radius=10000	radius_mult=0	sbc_range=0	attack_effect=true	range=0	growth=0	casting="Targeting"	target="Enemy"
+dump	T1#4	pos=(720000,240000)	level=1	radius=10000	radius_mult=0	sbc_range=0	attack_effect=true	range=0	growth=0	casting="Targeting"	target="Enemy"
+dump	T1#5	pos=(912000,432000)	level=1	radius=10000	radius_mult=0	sbc_range=0	attack_effect=true	range=0	growth=0	casting="Targeting"	target="Enemy"
+dump	T1#6	pos=(784000,111000)	level=1	radius=10000	radius_mult=0	sbc_range=0	attack_effect=true	range=0	growth=0	casting="Targeting"	target="Enemy"
+dump	T1#7	pos=(848000,176000)	level=1	radius=10000	radius_mult=0	sbc_range=0	attack_effect=true	range=0	growth=0	casting="Targeting"	target="Enemy"
+dump	T1#8	pos=(784000,111000)	level=1	radius=10000	radius_mult=0	sbc_range=0	attack_effect=true	range=0	growth=0	casting="Targeting"	target="Enemy"
+dump	T1#9	pos=(848000,176000)	level=1	radius=10000	radius_mult=0	sbc_range=0	attack_effect=true	range=0	growth=0	casting="Targeting"	target="Enemy"
+is_in_range	SUMMARY	ok=900	mismatch=0
+gatediff	SUMMARY	diff=0
+max_range_nearly_can_use	tick=0	0
+max_range_nearly_can_use	tick=1	0
+max_range_nearly_can_use	tick=20	0
+max_range_nearly_can_use	tick=39	0
+max_range_nearly_can_use	tick=40	0
+max_range_nearly_can_use	tick=49	0
+max_range_nearly_can_use	tick=50	0
+max_range_nearly_can_use	tick=59	0
+max_range_nearly_can_use	tick=60	0
+max_range_nearly_can_use	tick=61	0
+max_range_nearly_can_use	tick=100	0
+max_range_nearly_can_use	tick=200	0
+max_range_nearly_can_use	tick=100000	0
+max_range_nearly_can_use	caster=T0#0;tick=0	10000
+max_range_nearly_can_use	caster=T0#0;tick=40	10000
+max_range_nearly_can_use	caster=T0#0;tick=60	10000
+max_range_nearly_can_use	caster=T0#0;tick=100000	10000
+best_jungle_goal	t0Top	mine=Bee	game=Bee	MATCH
+best_jungle_goal	t0Jungle	mine=Bee	game=Bee	MATCH
+best_jungle_goal	t0Mid	mine=Bee	game=Bee	MATCH
+best_jungle_goal	t0Bottom	mine=Bee	game=Bee	MATCH
+best_jungle_goal	t0Support	mine=Bee	game=Bee	MATCH
+best_jungle_goal	t1Top	mine=Bee	game=Bee	MATCH
+best_jungle_goal	t1Jungle	mine=Bee	game=Bee	MATCH
+best_jungle_goal	t1Mid	mine=Bee	game=Bee	MATCH
+best_jungle_goal	t1Bottom	mine=Bee	game=Bee	MATCH
+best_jungle_goal	t1Support	mine=Bee	game=Bee	MATCH
+best_jungle_goal	SUMMARY	match=10	mismatch=0
+is_cleared	team=0;camp=Rhino	false	side=false
+is_cleared	team=0;camp=Mushroom	false	side=false
+is_cleared	team=0;camp=Bee	false	side=false
+is_cleared	team=0;camp=Stump	false	side=false
+is_cleared	team=1;camp=Rhino	false	side=false
+is_cleared	team=1;camp=Mushroom	false	side=false
+is_cleared	team=1;camp=Bee	false	side=false
+is_cleared	team=1;camp=Stump	false	side=false
+engage_requires_dive	t0Top->T1#0	true
+engage_requires_dive	t0Top->T1#1	true
+engage_requires_dive	t0Top->T1#2	true
+engage_requires_dive	t0Top->T1#3	true
+engage_requires_dive	t0Top->T1#4	true
+engage_requires_dive	t0Top->T1#5	true
+engage_requires_dive	t0Top->T1#6	true
+engage_requires_dive	t0Top->T1#7	true
+engage_requires_dive	t0Top->T1#8	true
+engage_requires_dive	t0Top->T1#9	true
+engage_requires_dive	t0Jungle->T1#0	true
+engage_requires_dive	t0Jungle->T1#1	true
+engage_requires_dive	t0Jungle->T1#2	true
+engage_requires_dive	t0Jungle->T1#3	true
+engage_requires_dive	t0Jungle->T1#4	true
+engage_requires_dive	t0Jungle->T1#5	true
+engage_requires_dive	t0Jungle->T1#6	true
+engage_requires_dive	t0Jungle->T1#7	true
+engage_requires_dive	t0Jungle->T1#8	true
+engage_requires_dive	t0Jungle->T1#9	true
+engage_requires_dive	t0Mid->T1#0	true
+engage_requires_dive	t0Mid->T1#1	true
+engage_requires_dive	t0Mid->T1#2	true
+engage_requires_dive	t0Mid->T1#3	true
+engage_requires_dive	t0Mid->T1#4	true
+engage_requires_dive	t0Mid->T1#5	true
+engage_requires_dive	t0Mid->T1#6	true
+engage_requires_dive	t0Mid->T1#7	true
+engage_requires_dive	t0Mid->T1#8	true
+engage_requires_dive	t0Mid->T1#9	true
+engage_requires_dive	t0Bottom->T1#0	true
+engage_requires_dive	t0Bottom->T1#1	true
+engage_requires_dive	t0Bottom->T1#2	true
+engage_requires_dive	t0Bottom->T1#3	true
+engage_requires_dive	t0Bottom->T1#4	true
+engage_requires_dive	t0Bottom->T1#5	true
+engage_requires_dive	t0Bottom->T1#6	true
+engage_requires_dive	t0Bottom->T1#7	true
+engage_requires_dive	t0Bottom->T1#8	true
+engage_requires_dive	t0Bottom->T1#9	true
+engage_requires_dive	t0Support->T1#0	true
+engage_requires_dive	t0Support->T1#1	true
+engage_requires_dive	t0Support->T1#2	true
+engage_requires_dive	t0Support->T1#3	true
+engage_requires_dive	t0Support->T1#4	true
+engage_requires_dive	t0Support->T1#5	true
+engage_requires_dive	t0Support->T1#6	true
+engage_requires_dive	t0Support->T1#7	true
+engage_requires_dive	t0Support->T1#8	true
+engage_requires_dive	t0Support->T1#9	true
+engage_requires_dive	t1Top->T0#0	true
+engage_requires_dive	t1Top->T0#1	true
+engage_requires_dive	t1Top->T0#2	true
+engage_requires_dive	t1Top->T0#3	true
+engage_requires_dive	t1Top->T0#4	true
+engage_requires_dive	t1Top->T0#5	true
+engage_requires_dive	t1Top->T0#6	true
+engage_requires_dive	t1Top->T0#7	true
+engage_requires_dive	t1Top->T0#8	true
+engage_requires_dive	t1Top->T0#9	true
+engage_requires_dive	t1Jungle->T0#0	true
+engage_requires_dive	t1Jungle->T0#1	true
+engage_requires_dive	t1Jungle->T0#2	true
+engage_requires_dive	t1Jungle->T0#3	true
+engage_requires_dive	t1Jungle->T0#4	true
+engage_requires_dive	t1Jungle->T0#5	true
+engage_requires_dive	t1Jungle->T0#6	true
+engage_requires_dive	t1Jungle->T0#7	true
+engage_requires_dive	t1Jungle->T0#8	true
+engage_requires_dive	t1Jungle->T0#9	true
+engage_requires_dive	t1Mid->T0#0	true
+engage_requires_dive	t1Mid->T0#1	true
+engage_requires_dive	t1Mid->T0#2	true
+engage_requires_dive	t1Mid->T0#3	true
+engage_requires_dive	t1Mid->T0#4	true
+engage_requires_dive	t1Mid->T0#5	true
+engage_requires_dive	t1Mid->T0#6	true
+engage_requires_dive	t1Mid->T0#7	true
+engage_requires_dive	t1Mid->T0#8	true
+engage_requires_dive	t1Mid->T0#9	true
+engage_requires_dive	t1Bottom->T0#0	true
+engage_requires_dive	t1Bottom->T0#1	true
+engage_requires_dive	t1Bottom->T0#2	true
+engage_requires_dive	t1Bottom->T0#3	true
+engage_requires_dive	t1Bottom->T0#4	true
+engage_requires_dive	t1Bottom->T0#5	true
+engage_requires_dive	t1Bottom->T0#6	true
+engage_requires_dive	t1Bottom->T0#7	true
+engage_requires_dive	t1Bottom->T0#8	true
+engage_requires_dive	t1Bottom->T0#9	true
+engage_requires_dive	t1Support->T0#0	true
+engage_requires_dive	t1Support->T0#1	true
+engage_requires_dive	t1Support->T0#2	true
+engage_requires_dive	t1Support->T0#3	true
+engage_requires_dive	t1Support->T0#4	true
+engage_requires_dive	t1Support->T0#5	true
+engage_requires_dive	t1Support->T0#6	true
+engage_requires_dive	t1Support->T0#7	true
+engage_requires_dive	t1Support->T0#8	true
+engage_requires_dive	t1Support->T0#9	true
+engage_requires_dive	SUMMARY	true_count=100	pairs=300
