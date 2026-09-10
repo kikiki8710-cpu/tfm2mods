@@ -1,0 +1,32 @@
+{
+ "function": "game_ai::plan_legacy::rule_scope::valid_lines",
+ "oracle": "SDK rlib 직접 링크(LTO) 실행 결과 / SDK sdk_058 / 게임 0.5.8",
+ "note": "튜토리얼별 유효 라인 목록(&'static [LineType]) — 입력=tutorial 뿐",
+ "tutorial_order": [
+  "None",
+  "First",
+  "TopSolo",
+  "Bottom",
+  "MidSolo",
+  "MidBottom",
+  "JungleOnly",
+  "Line",
+  "Total"
+ ],
+ "rows": [
+  {
+   "input": "",
+   "by_tutorial": {
+    "None": "Top,Mid,Bottom",
+    "First": "Bottom",
+    "TopSolo": "Top",
+    "Bottom": "Bottom",
+    "MidSolo": "Mid",
+    "MidBottom": "Mid,Bottom",
+    "JungleOnly": "",
+    "Line": "Top,Mid,Bottom",
+    "Total": "Top,Mid,Bottom"
+   }
+  }
+ ]
+}

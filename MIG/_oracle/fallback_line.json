@@ -1,0 +1,60 @@
+{
+ "function": "game_ai::plan_legacy::rule_scope::fallback_line",
+ "oracle": "SDK rlib 직접 링크(LTO) 실행 결과 / SDK sdk_058 / 게임 0.5.8",
+ "note": "line_exists면 그대로, 아니면 대체 라인",
+ "tutorial_order": [
+  "None",
+  "First",
+  "TopSolo",
+  "Bottom",
+  "MidSolo",
+  "MidBottom",
+  "JungleOnly",
+  "Line",
+  "Total"
+ ],
+ "rows": [
+  {
+   "input": "line=Mid",
+   "by_tutorial": {
+    "None": "Mid",
+    "First": "Bottom",
+    "TopSolo": "Top",
+    "Bottom": "Bottom",
+    "MidSolo": "Mid",
+    "MidBottom": "Mid",
+    "JungleOnly": "Bottom",
+    "Line": "Mid",
+    "Total": "Mid"
+   }
+  },
+  {
+   "input": "line=Bottom",
+   "by_tutorial": {
+    "None": "Bottom",
+    "First": "Bottom",
+    "TopSolo": "Top",
+    "Bottom": "Bottom",
+    "MidSolo": "Mid",
+    "MidBottom": "Bottom",
+    "JungleOnly": "Bottom",
+    "Line": "Bottom",
+    "Total": "Bottom"
+   }
+  },
+  {
+   "input": "line=Top",
+   "by_tutorial": {
+    "None": "Top",
+    "First": "Bottom",
+    "TopSolo": "Top",
+    "Bottom": "Bottom",
+    "MidSolo": "Mid",
+    "MidBottom": "Bottom",
+    "JungleOnly": "Bottom",
+    "Line": "Top",
+    "Total": "Top"
+   }
+  }
+ ]
+}

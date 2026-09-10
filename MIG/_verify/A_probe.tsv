@@ -1,0 +1,36 @@
+FOUNTAIN	0	0	896000	64000	960000
+NEXUS	0	96000	864000
+FOUNTAIN	1	892000	0	960000	64000
+NEXUS	1	864000	96000
+START	Top	0	80000	820000
+START	Top	1	820000	80000
+START	Mid	0	144000	817000
+START	Mid	1	817000	144000
+START	Bottom	0	144000	880000
+START	Bottom	1	880000	144000
+SPAWN_EPIC	None	0	true
+SPAWN_EPIC	First	1	false
+SPAWN_EPIC	TopSolo	2	false
+SPAWN_EPIC	Bottom	3	false
+SPAWN_EPIC	MidSolo	4	false
+SPAWN_EPIC	MidBottom	5	false
+SPAWN_EPIC	JungleOnly	6	false
+SPAWN_EPIC	Line	7	true
+SPAWN_EPIC	Total	8	true
+JUDGE_ACC_DEFAULT	100	0
+SIZE	AthleteParameter	744
+SIZE	PlayerState	2528
+PRED	Nexus.is_nexus	true
+PRED	Nexus.is_tower	false
+PRED	Nexus.is_any_type_minion	false
+PRED	Nexus.is_any_jungle	false
+PRED	Nexus.is_jungle(0)	false
+PRED	Nexus.is_minion(Top)	false
+SIZE	LineType	1
+TAG	LineType::Top	0
+TAG	LineType::Mid	1
+TAG	LineType::Bottom	2
+DEFAULT	LineType	Top
+SIZE	MapDef	28112
+SIZE	GameSetting	5432
+SETTING	tick_per_second	0

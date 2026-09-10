@@ -1,0 +1,59 @@
+{
+ "function": "game_ai::plan_legacy::rule_scope::steal_target_allowed",
+ "oracle": "SDK rlib 직접 링크(LTO) 실행 결과 / SDK sdk_058 / 게임 0.5.8",
+ "note": "Epic→morgard_exists / Serpen→serpen_exists",
+ "tutorial_order": [
+  "None",
+  "First",
+  "TopSolo",
+  "Bottom",
+  "MidSolo",
+  "MidBottom",
+  "JungleOnly",
+  "Line",
+  "Total"
+ ],
+ "rows": [
+  {
+   "input": "tgt=Epic",
+   "by_tutorial": {
+    "None": "true",
+    "First": "false",
+    "TopSolo": "false",
+    "Bottom": "false",
+    "MidSolo": "false",
+    "MidBottom": "false",
+    "JungleOnly": "false",
+    "Line": "true",
+    "Total": "true"
+   },
+   "allow_tutorials": [
+    0,
+    7,
+    8
+   ],
+   "class": "EPIC"
+  },
+  {
+   "input": "tgt=Serpen",
+   "by_tutorial": {
+    "None": "true",
+    "First": "false",
+    "TopSolo": "false",
+    "Bottom": "false",
+    "MidSolo": "false",
+    "MidBottom": "true",
+    "JungleOnly": "false",
+    "Line": "true",
+    "Total": "true"
+   },
+   "allow_tutorials": [
+    0,
+    5,
+    7,
+    8
+   ],
+   "class": "SERPEN"
+  }
+ ]
+}

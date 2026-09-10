@@ -1,0 +1,42 @@
+META	width=960000	height=960000
+SIDE	x=0	y=0	x+y=0	is_top_side=true	is_bottom_side=false	ry_lt_x=false
+SIDE	x=100000	y=100000	x+y=200000	is_top_side=true	is_bottom_side=false	ry_lt_x=false
+SIDE	x=80000	y=820000	x+y=900000	is_top_side=true	is_bottom_side=false	ry_lt_x=false
+SIDE	x=820000	y=80000	x+y=900000	is_top_side=true	is_bottom_side=false	ry_lt_x=false
+SIDE	x=480000	y=480000	x+y=960000	is_top_side=true	is_bottom_side=true	ry_lt_x=false
+SIDE	x=959999	y=959999	x+y=1919998	is_top_side=false	is_bottom_side=true	ry_lt_x=true
+SIDE	x=900000	y=0	x+y=900000	is_top_side=true	is_bottom_side=false	ry_lt_x=false
+SIDE	x=0	y=900000	x+y=900000	is_top_side=true	is_bottom_side=false	ry_lt_x=false
+SIDE	x=864000	y=96000	x+y=960000	is_top_side=true	is_bottom_side=true	ry_lt_x=false
+BUSH	id=1	cells=5	cx=35200	cy=35200	is_top_side=true
+BUSH	id=2	cells=3	cx=656000	cy=16000	is_top_side=true
+BUSH	id=3	cells=3	cx=272000	cy=144000	is_top_side=true
+BUSH	id=4	cells=2	cx=656000	cy=160000	is_top_side=true
+BUSH	id=5	cells=1	cx=400000	cy=208000	is_top_side=true
+BUSH	id=6	cells=3	cx=144000	cy=272000	is_top_side=true
+BUSH	id=7	cells=3	cx=944000	cy=304000	is_top_side=false
+BUSH	id=8	cells=1	cx=464000	cy=304000	is_top_side=true
+BUSH	id=9	cells=4	cx=848000	cy=416000	is_top_side=false
+BUSH	id=10	cells=1	cx=208000	cy=400000	is_top_side=true
+BUSH	id=11	cells=3	cx=410667	cy=410667	is_top_side=true
+BUSH	id=12	cells=1	cx=304000	cy=464000	is_top_side=true
+BUSH	id=13	cells=3	cx=677333	cy=506667	is_top_side=false
+BUSH	id=14	cells=3	cx=549333	cy=549333	is_top_side=false
+BUSH	id=15	cells=5	cx=816000	cy=656000	is_top_side=false
+BUSH	id=16	cells=3	cx=16000	cy=656000	is_top_side=true
+BUSH	id=17	cells=2	cx=160000	cy=656000	is_top_side=true
+BUSH	id=18	cells=3	cx=506667	cy=677333	is_top_side=false
+BUSH	id=19	cells=3	cx=944000	cy=816000	is_top_side=false
+BUSH	id=20	cells=5	cx=656000	cy=816000	is_top_side=false
+BUSH	id=21	cells=4	cx=416000	cy=848000	is_top_side=false
+BUSH	id=22	cells=4	cx=928000	cy=928000	is_top_side=false
+BUSH	id=23	cells=3	cx=304000	cy=944000	is_top_side=false
+BUSH	id=24	cells=3	cx=816000	cy=944000	is_top_side=false
+NEXUS	[(96000, 864000), (864000, 96000)]	FOUNT	[(0, 896000, 64000, 960000), (892000, 0, 960000, 64000)]
+START	team=0	line=Top	pos=(80000, 820000)
+START	team=0	line=Mid	pos=(144000, 817000)
+START	team=0	line=Bottom	pos=(144000, 880000)
+START	team=1	line=Top	pos=(820000, 80000)
+START	team=1	line=Mid	pos=(817000, 144000)
+START	team=1	line=Bottom	pos=(880000, 144000)
+BUSHIDS	min=Some(1)	max=Some(24)	count=24

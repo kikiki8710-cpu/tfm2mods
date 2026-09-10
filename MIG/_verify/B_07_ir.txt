@@ -1,0 +1,220 @@
+48918 define void @_RNvMNtNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old4epic15hunt_and_battleNtB2_21EpicHuntAndBattlePlan8sub_plan(ptr dead_on_unwind noalias noundef writable writeonly sret([72 x i8]) align 8 captures(none) dereferenceable(72) %0, ptr noalias noundef readonly align 8 captures(none) dereferenceable(16) %1, i64 noundef %2, ptr noalias noundef align 16 dereferenceable(320) %3, ptr noalias noundef readonly align 8 captures(address, read_provenance) dereferenceable(2528) %4, ptr noalias noundef readonly align 8 captures(none) dereferenceable(24) %5, ptr noalias noundef readonly align 8 captures(none) dereferenceable(248) %6, ptr noalias readnone align 8 captures(none) %7) unnamed_addr #1 !dbg !54369 {
+48919   %9 = alloca [24 x i8], align 8
+48920     #dbg_value(ptr %1, !54374, !DIExpression(), !54398)
+48921     #dbg_value(i64 %2, !54375, !DIExpression(), !54398)
+48922     #dbg_value(ptr %3, !54376, !DIExpression(), !54398)
+48923     #dbg_value(ptr %4, !54377, !DIExpression(), !54398)
+48924     #dbg_value(ptr %5, !54378, !DIExpression(), !54398)
+48925     #dbg_value(ptr %6, !54379, !DIExpression(), !54398)
+48926     #dbg_value(ptr poison, !54380, !DIExpression(), !54398)
+48927     #dbg_value(i64 0, !54399, !DIExpression(), !54403)
+48928     #dbg_value(i64 0, !54405, !DIExpression(), !54409)
+48929     #dbg_declare(ptr poison, !54411, !DIExpression(), !54424)
+48930   %10 = getelementptr inbounds nuw i8, ptr %4, i64 2352, !dbg !54426
+48931   %11 = load i64, ptr %10, align 8, !dbg !54426, !noundef !8
+48932     #dbg_value(i64 %11, !54427, !DIExpression(), !54431)
+48933   %12 = icmp ult i64 %11, 2, !dbg !54426
+48934   br i1 %12, label %14, label %13, !dbg !54426
+48935 
+48936 13:                                               ; preds = %8
+48937   tail call void @_RNvNtCsjihNppCmMEE_4core9panicking18panic_bounds_check(i64 noundef %11, i64 noundef 2, ptr noalias noundef readonly align 8 captures(address, read_provenance) dereferenceable(24) @anon.94acafa22d01e083ca1cc62f01598c8f.230) #31, !dbg !54426
+48938   unreachable, !dbg !54426
+48939 
+48940 14:                                               ; preds = %8
+48941     #dbg_value(ptr %4, !54433, !DIExpression(DW_OP_plus_uconst, 2496, DW_OP_stack_value), !54436)
+48942   %15 = getelementptr inbounds nuw i8, ptr %4, i64 2496, !dbg !54437
+48943   %16 = load i32, ptr %15, align 8, !dbg !54437, !range !18931, !noundef !8
+48944   %17 = zext nneg i32 %16 to i64, !dbg !54437
+48945   %18 = load ptr, ptr %5, align 8, !dbg !54426, !nonnull !8, !align !9477, !noundef !8
+48946   %19 = getelementptr inbounds nuw i8, ptr %18, i64 480, !dbg !54426
+48947   %20 = getelementptr inbounds nuw [5 x ptr], ptr %19, i64 %11, !dbg !54426
+48948   %21 = getelementptr inbounds nuw ptr, ptr %20, i64 %17, !dbg !54426
+48949   %22 = load ptr, ptr %21, align 8, !dbg !54426, !align !9477, !noundef !8
+48950     #dbg_value(ptr %22, !54438, !DIExpression(), !54443)
+48951   %23 = icmp eq ptr %22, null, !dbg !54444
+48952   br i1 %23, label %30, label %24, !dbg !54444, !prof !13068
+48953 
+48954 24:                                               ; preds = %14
+48955     #dbg_value(ptr %22, !54381, !DIExpression(), !54445)
+48956   %25 = getelementptr inbounds nuw i8, ptr %22, i64 1648, !dbg !54446
+48957   %26 = load i64, ptr %25, align 8, !dbg !54446, !noundef !8
+48958   %27 = getelementptr inbounds nuw i8, ptr %22, i64 1576, !dbg !54446
+48959   %28 = load i64, ptr %27, align 8, !dbg !54446, !noundef !8
+48960   %29 = icmp eq i64 %28, 0, !dbg !54446
+48961   br i1 %29, label %42, label %31, !dbg !54446
+48962 
+48963 30:                                               ; preds = %14
+48964   tail call void @_RNvNtCsjihNppCmMEE_4core6option13unwrap_failed(ptr noalias noundef readonly align 8 captures(address, read_provenance) dereferenceable(24) @anon.94acafa22d01e083ca1cc62f01598c8f.231) #31, !dbg !54447
+48965   unreachable, !dbg !54447
+48966 
+48967 31:                                               ; preds = %24
+48968   %32 = mul i64 %26, 100, !dbg !54446
+48969   %33 = udiv i64 %32, %28, !dbg !54446
+48970     #dbg_value(i64 %33, !54383, !DIExpression(), !54448)
+48971   %34 = load ptr, ptr %18, align 8, !dbg !54404, !nonnull !8, !noundef !8
+48972   %35 = getelementptr inbounds nuw i8, ptr %18, i64 8, !dbg !54404
+48973   %36 = load ptr, ptr %35, align 8, !dbg !54404, !nonnull !8, !align !9477, !noundef !8
+48974   %37 = getelementptr inbounds nuw i8, ptr %36, i64 64, !dbg !54404
+48975   %38 = load ptr, ptr %37, align 8, !dbg !54404, !invariant.load !8, !nonnull !8
+48976   %39 = tail call { i64, ptr } %38(ptr noundef nonnull %34), !dbg !54404
+48977   %40 = extractvalue { i64, ptr } %39, 0, !dbg !54404
+48978     #dbg_value(i64 %40, !54449, !DIExpression(DW_OP_LLVM_fragment, 0, 64), !54454)
+48979     #dbg_value(ptr poison, !54449, !DIExpression(DW_OP_LLVM_fragment, 64, 64), !54454)
+48980   %41 = icmp eq i64 %40, 0, !dbg !54455
+48981   br i1 %41, label %43, label %124, !dbg !54455, !prof !16618
+48982 
+48983 42:                                               ; preds = %24
+48984   tail call void @_RNvNtNtCsjihNppCmMEE_4core9panicking11panic_const23panic_const_div_by_zero(ptr noalias noundef readonly align 8 captures(address, read_provenance) dereferenceable(24) @anon.94acafa22d01e083ca1cc62f01598c8f.232) #31, !dbg !54446
+48985   unreachable, !dbg !54446
+48986 
+48987 43:                                               ; preds = %31
+48988   %44 = extractvalue { i64, ptr } %39, 1, !dbg !54404
+48989     #dbg_value(ptr %44, !54449, !DIExpression(DW_OP_LLVM_fragment, 64, 64), !54454)
+48990   %45 = icmp ne ptr %44, null
+48991   tail call void @llvm.assume(i1 %45)
+48992     #dbg_value(ptr %44, !54456, !DIExpression(), !54461)
+48993     #dbg_value(ptr %44, !54462, !DIExpression(DW_OP_plus_uconst, 408, DW_OP_stack_value), !54465)
+48994     #dbg_value(ptr %44, !54466, !DIExpression(DW_OP_plus_uconst, 408, DW_OP_stack_value), !54469)
+48995     #dbg_value(ptr %44, !54471, !DIExpression(DW_OP_plus_uconst, 408, DW_OP_stack_value), !54474)
+48996   %46 = getelementptr inbounds nuw i8, ptr %44, i64 424, !dbg !54475
+48997   %47 = load i64, ptr %46, align 8, !dbg !54475, !noundef !8
+48998     #dbg_value(ptr poison, !54402, !DIExpression(DW_OP_LLVM_fragment, 0, 64), !54403)
+48999     #dbg_value(ptr poison, !54408, !DIExpression(DW_OP_LLVM_fragment, 0, 64), !54409)
+49000     #dbg_value(i64 %47, !54402, !DIExpression(DW_OP_LLVM_fragment, 64, 64), !54403)
+49001     #dbg_value(i64 %47, !54408, !DIExpression(DW_OP_LLVM_fragment, 64, 64), !54409)
+49002   %48 = icmp eq i64 %47, 0, !dbg !54476
+49003   br i1 %48, label %56, label %49, !dbg !54476
+49004 
+49005 49:                                               ; preds = %43
+49006   %50 = getelementptr inbounds nuw i8, ptr %44, i64 416, !dbg !54477
+49007   %51 = load ptr, ptr %50, align 8, !dbg !54477, !nonnull !8, !noundef !8
+49008     #dbg_value(ptr %51, !54402, !DIExpression(DW_OP_LLVM_fragment, 0, 64), !54403)
+49009     #dbg_value(ptr %51, !54408, !DIExpression(DW_OP_LLVM_fragment, 0, 64), !54409)
+49010     #dbg_value(ptr %51, !54484, !DIExpression(), !54498)
+49011     #dbg_value(ptr %34, !54495, !DIExpression(DW_OP_LLVM_fragment, 0, 64), !54498)
+49012     #dbg_value(ptr %36, !54495, !DIExpression(DW_OP_LLVM_fragment, 64, 64), !54498)
+49013     #dbg_value(ptr %51, !54496, !DIExpression(), !54499)
+49014     #dbg_value(ptr %51, !54500, !DIExpression(), !54506)
+49015   %52 = load i64, ptr %51, align 8, !dbg !54508, !noundef !8
+49016   %53 = getelementptr inbounds nuw i8, ptr %36, i64 496, !dbg !54508
+49017   %54 = load ptr, ptr %53, align 8, !dbg !54508, !invariant.load !8, !nonnull !8
+49018   %55 = tail call noundef align 8 ptr %54(ptr noundef nonnull %34, i64 noundef %52), !dbg !54508
+49019     #dbg_value(ptr %55, !54385, !DIExpression(), !54509)
+49020     #dbg_value(ptr %55, !54421, !DIExpression(), !54510)
+49021   br label %56, !dbg !54511
+49022 
+49023 56:                                               ; preds = %49, %43
+49024   %57 = phi ptr [ %55, %49 ], [ null, %43 ], !dbg !54498
+49025     #dbg_value(ptr %57, !54421, !DIExpression(), !54510)
+49026     #dbg_value(ptr %57, !54385, !DIExpression(), !54509)
+49027   %58 = getelementptr inbounds nuw i8, ptr %5, i64 8, !dbg !54432
+49028   %59 = load ptr, ptr %58, align 8, !dbg !54432, !nonnull !8, !align !9477, !noundef !8
+49029     #dbg_value(ptr poison, !54430, !DIExpression(), !54431)
+49030   %60 = getelementptr inbounds nuw i8, ptr %59, i64 32, !dbg !54432
+49031   %61 = load ptr, ptr %60, align 8, !dbg !54432, !nonnull !8, !align !9477, !noundef !8
+49032     #dbg_value(ptr %61, !54430, !DIExpression(), !54431)
+49033   %62 = getelementptr inbounds nuw i8, ptr %61, i64 28016, !dbg !54512
+49034   %63 = getelementptr inbounds nuw { i64, i64, i64, i64 }, ptr %62, i64 %11, !dbg !54512
+49035   %64 = load i64, ptr %63, align 8, !dbg !54512, !noundef !8
+49036     #dbg_value(i64 %64, !54387, !DIExpression(), !54513)
+49037     #dbg_value(i64 poison, !54389, !DIExpression(), !54513)
+49038   %65 = getelementptr inbounds nuw i8, ptr %63, i64 16, !dbg !54512
+49039   %66 = load i64, ptr %65, align 8, !dbg !54512, !noundef !8
+49040     #dbg_value(i64 %66, !54390, !DIExpression(), !54513)
+49041     #dbg_value(i64 poison, !54391, !DIExpression(), !54513)
+49042   %67 = getelementptr inbounds nuw i8, ptr %22, i64 1632, !dbg !54514
+49043   %68 = load i64, ptr %67, align 8, !dbg !54514, !noundef !8
+49044   %69 = icmp uge i64 %68, %64, !dbg !54514
+49045   %70 = icmp ule i64 %68, %66, !dbg !54514
+49046   %71 = and i1 %69, %70, !dbg !54514
+49047   br i1 %71, label %72, label %82, !dbg !54514
+49048 
+49049 72:                                               ; preds = %56
+49050   %73 = getelementptr inbounds nuw i8, ptr %63, i64 24, !dbg !54512
+49051   %74 = load i64, ptr %73, align 8, !dbg !54512, !noundef !8
+49052     #dbg_value(i64 %74, !54391, !DIExpression(), !54513)
+49053   %75 = getelementptr inbounds nuw i8, ptr %63, i64 8, !dbg !54512
+49054   %76 = load i64, ptr %75, align 8, !dbg !54512, !noundef !8
+49055     #dbg_value(i64 %76, !54389, !DIExpression(), !54513)
+49056   %77 = getelementptr inbounds nuw i8, ptr %22, i64 1640, !dbg !54514
+49057   %78 = load i64, ptr %77, align 8, !dbg !54514, !noundef !8
+49058   %79 = icmp uge i64 %78, %76, !dbg !54514
+49059   %80 = icmp ule i64 %78, %74
+49060   %81 = and i1 %79, %80, !dbg !54514
+49061   br label %82, !dbg !54514
+49062 
+49063 82:                                               ; preds = %72, %56
+49064   %83 = phi i1 [ false, %56 ], [ %81, %72 ], !dbg !54514
+49065     #dbg_value(i8 poison, !54392, !DIExpression(), !54515)
+49066   call void @llvm.lifetime.start.p0(ptr nonnull %9), !dbg !54516
+49067   call void @_RNvCshdEBA0ozCnw_7game_ai12upgrade_item(ptr noalias noundef nonnull sret([24 x i8]) align 8 captures(none) dereferenceable(24) %9, i64 noundef %2, ptr noalias noundef nonnull align 16 dereferenceable(320) %3, ptr noalias noundef nonnull readonly align 8 captures(address, read_provenance) dereferenceable(2528) %4, ptr noundef nonnull %34, ptr noalias noundef nonnull readonly align 8 captures(address, read_provenance) dereferenceable(816) %36, ptr noalias noundef nonnull readonly align 8 captures(address, read_provenance) dereferenceable(64) %59), !dbg !54516
+49068     #dbg_value(ptr %9, !54517, !DIExpression(), !54524)
+49069   %84 = load i64, ptr %9, align 8, !dbg !54525, !range !12115, !noundef !8
+49070   %85 = icmp ne i64 %84, 0, !dbg !54526
+49071     #dbg_value(i1 %85, !54394, !DIExpression(DW_OP_LLVM_convert, 1, DW_ATE_unsigned, DW_OP_LLVM_convert, 8, DW_ATE_unsigned, DW_OP_stack_value), !54528)
+49072   call void @llvm.lifetime.end.p0(ptr nonnull %9), !dbg !54516
+49073   %86 = icmp eq ptr %57, null, !dbg !54529
+49074   br i1 %86, label %99, label %87, !dbg !54529
+49075 
+49076 87:                                               ; preds = %82
+49077     #dbg_value(ptr %57, !54422, !DIExpression(), !54530)
+49078     #dbg_value(ptr %57, !54531, !DIExpression(), !54536)
+49079   %88 = getelementptr inbounds nuw i8, ptr %57, i64 1648, !dbg !54538
+49080   %89 = load i64, ptr %88, align 8, !dbg !54538, !noundef !8
+49081   %90 = getelementptr inbounds nuw i8, ptr %57, i64 1576, !dbg !54538
+49082   %91 = load i64, ptr %90, align 8, !dbg !54538, !noundef !8
+49083   %92 = icmp eq i64 %89, %91, !dbg !54538
+49084   br i1 %92, label %93, label %99, !dbg !54425
+49085 
+49086 93:                                               ; preds = %87
+49087   %94 = icmp ult i64 %33, 51, !dbg !54425
+49088   %95 = or i1 %94, %85, !dbg !54425
+49089   %96 = icmp ult i64 %26, %28, !dbg !54425
+49090   %97 = and i1 %96, %83, !dbg !54425
+49091   %98 = or i1 %97, %95, !dbg !54425
+49092   br i1 %98, label %122, label %99, !dbg !54425
+49093 
+49094 99:                                               ; preds = %93, %87, %82
+49095   %100 = getelementptr inbounds nuw i8, ptr %6, i64 152, !dbg !54539
+49096   %101 = load i64, ptr %100, align 8, !dbg !54539, !noundef !8
+49097   %102 = getelementptr inbounds nuw i8, ptr %59, i64 8, !dbg !54539
+49098   %103 = load ptr, ptr %102, align 8, !dbg !54539, !nonnull !8, !align !9477, !noundef !8
+49099   %104 = getelementptr inbounds nuw i8, ptr %103, i64 4856, !dbg !54539
+49100   %105 = load i64, ptr %104, align 8, !dbg !54539, !noundef !8
+49101   %106 = add i64 %105, %101, !dbg !54539
+49102   %107 = getelementptr inbounds nuw i8, ptr %6, i64 160, !dbg !54539
+49103   %108 = load i64, ptr %107, align 8, !dbg !54539, !noundef !8
+49104   %109 = icmp ugt i64 %106, %108, !dbg !54539
+49105   %110 = load i64, ptr %1, align 8, !range !12115
+49106   %111 = trunc nuw i64 %110 to i1
+49107   %112 = select i1 %109, i1 %111, i1 false, !dbg !54539
+49108   br i1 %112, label %115, label %113, !dbg !54539
+49109 
+49110 113:                                              ; preds = %99
+49111   %114 = getelementptr inbounds nuw i8, ptr %0, i64 8, !dbg !54540
+49112   store i8 0, ptr %114, align 8, !dbg !54540
+49113   br label %122, !dbg !54541
+49114 
+49115 115:                                              ; preds = %99
+49116   %116 = getelementptr inbounds nuw i8, ptr %1, i64 8, !dbg !54542
+49117   %117 = load i64, ptr %116, align 8, !dbg !54542, !noundef !8
+49118     #dbg_value(i64 %117, !54396, !DIExpression(), !54543)
+49119   %118 = getelementptr inbounds nuw i8, ptr %0, i64 8, !dbg !54544
+49120   store i64 %117, ptr %118, align 8, !dbg !54544
+49121   %119 = getelementptr inbounds nuw i8, ptr %0, i64 16, !dbg !54544
+49122   store i8 1, ptr %119, align 8, !dbg !54544
+49123   %120 = getelementptr inbounds nuw i8, ptr %0, i64 17, !dbg !54544
+49124   store i8 0, ptr %120, align 1, !dbg !54544
+49125   %121 = getelementptr inbounds nuw i8, ptr %0, i64 18, !dbg !54544
+49126   store i8 0, ptr %121, align 2, !dbg !54544
+49127   br label %122, !dbg !54545
+49128 
+49129 122:                                              ; preds = %115, %113, %93
+49130   %123 = phi i64 [ 9, %115 ], [ 11, %113 ], [ 5, %93 ]
+49131   store i64 %123, ptr %0, align 8, !dbg !54528
+49132   ret void, !dbg !54541
+49133 
+49134 124:                                              ; preds = %31
+49135   tail call void @_RNvNtCsjihNppCmMEE_4core6option13unwrap_failed(ptr noalias noundef readonly align 8 captures(address, read_provenance) dereferenceable(24) @anon.94acafa22d01e083ca1cc62f01598c8f.233) #31, !dbg !54547
+49136   unreachable, !dbg !54547
+49137 }

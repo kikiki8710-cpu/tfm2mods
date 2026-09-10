@@ -49,14 +49,7 @@ SYM = re.compile(r'@(_RN[A-Za-z0-9_$.]+)')
 def shorten(s):
     def rep(m):
         n = m.group(1)
-        # v0 mangling: keep alphabetic runs that follow length digits
-        parts = re.findall(r'(\d+)([A-Za-z_][A-Za-z0-9_]*)', n)
-        segs = []
-        for ln_, txt in parts:
-            k = int(ln_)
-            segs.append(txt[:k])
-        segs = [x for x in segs if not re.fullmatch(r'[A-Za-z]', x)]
-        return '@' + '::'.join(segs[-4:])
+        return '@' + n[-56:]
     return SYM.sub(rep, s)
 
 
@@ -75,4 +68,4 @@ for i in range(L - b - 1, min(L + a, len(lines))):
     body = re.sub(r',?\s*!(dbg|alias\.scope|noalias|range|noundef|nonnull|invariant\.load|align|tbaa|prof)\s*![0-9]+', '', ln)
     body = re.sub(r'(ptr|i64|i8|i32|i1) (noalias |noundef |nonnull |readonly |align \d+ |captures\([^)]*\) |dereferenceable\(\d+\) |dereferenceable_or_null\(\d+\) |zeroext |dead_on_unwind |writable |writeonly |dead_on_return )+', r'\1 ', body)
     body = shorten(body)
-    print('%-7d %-110s %s' % (i + 1, body[:110], t))
+    print('%-7d %-118s %s' % (i + 1, body[:118], t))

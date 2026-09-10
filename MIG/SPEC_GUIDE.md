@@ -3,11 +3,15 @@
 TFM2 게임의 AI 판단 계층(`game_ai` 크레이트)을 **LLVM IR 원본**에서 읽어 함수 명세를 만든다.
 목표는 "이 함수가 무엇을 어떤 조건으로 판정하는가"를 **나중에 사람이 읽고 개조 지점을 고를 수 있을 만큼** 적는 것.
 
+> **4종 세트 중 "작성 규격" 편.** 상황별 방법 선택은 **`METHOD_MAP.md`**, 재료를 꺼내는 법은 **`IR_TOOLKIT.md`**,
+> 배치를 굴리는 절차(라운드 수·수렴 판정·병합·저장)는 **`SPEC_RUNBOOK.md`** 에 있다.
+> 명세를 쓰는 사람은 이 문서만 끝까지 읽으면 된다.
+
 ## 0-0. ★먼저 이 네 줄만 지켜도 절반은 간다
 
 1. **오프셋은 `reads`(읽기)/`writes`(쓰기)에만.** `constants` 는 판정에 쓰이는 값만 — 자세한 표는 §3.
 2. **모르면 `unknown`.** 같은 것 2회 시도해서 안 되면 즉시 내려놓아라. 감점 아니다.
-3. **도구 넷을 먼저 쳐라** — `distruct`(구조체) `dienum`(열거형) `fnparts`(클로저 위치) `divtable`(vtable 슬롯). §1.
+3. **도구 넷을 먼저 쳐라** — ~~`distruct`/`dienum`~~ → **`tcxdict`(구조체·열거형 정본, 2026-09-11 대체)** `fnparts`(클로저 위치) `divtable`(vtable 슬롯). §1.
 4. **JSON 은 Write 도구로 써라.** heredoc 은 깨진다.
 
 ## 0. 대전제 — 추측을 쓰지 마라
@@ -20,7 +24,37 @@ TFM2 게임의 AI 판단 계층(`game_ai` 크레이트)을 **LLVM IR 원본**에
 
 ## 1. 재료
 
-### ★★먼저 이것부터 — `distruct.py` (오프셋 사전)
+### ★★★2026-09-11 정정 — 사전이 바뀌었다: `tcxdict.py` 를 먼저 쳐라
+
+~~`distruct.py`(구조체) / `dienum.py`(열거형) 부터~~ → **`tcxdict.py` 부터.**
+구사전은 DWARF 역산이라 **키가 leaf 이름 하나**였고, 그래서 **동명 타입을 조용히 덮어썼다.**
+새 사전은 **rustc 컴파일러의 `TyCtxt`/`layout_of` 를 직접 덤프**한 것이라 그 값이 정본이다.
+
+```bash
+cd /c/tfm2mods/MIG
+python -X utf8 tcxdict.py MapDef              # 구조체 전체 필드(최상위, 오프셋순)
+python -X utf8 tcxdict.py Entity 0x628        # ★오프셋 → 필드 (중첩 관통, 절대 오프셋)
+python -X utf8 tcxdict.py Entity --deep       # 전 필드를 절대 오프셋으로 전개
+python -X utf8 tcxdict.py --enum SubPlan      # 태그 전표(논리인덱스 + **실제 메모리태그** 둘 다)
+python -X utf8 tcxdict.py --enum MainObjective 0
+python -X utf8 tcxdict.py --ambig             # 동명 다중(모호) 전량
+```
+출력 형식은 `distruct`/`dienum` 과 거의 같다. 달라진 것만:
+- 헤더에 **full def_path · 소스 파일:줄 · 가시성**이 붙는다.
+- **이름이 모호하면 답을 주지 않고 "★모호" + 후보 전량(각각 size 포함)을 준다.** 그때는 full path 로 다시 물어라.
+- 같은 이름의 **열거형 variant** 가 있으면 경고한다(⚠구사전의 최대 함정 — `ViewEffect` 는 독립 struct 48B 와 `DataEffectDef::ViewEffect` variant(페이로드 +0x8) 둘이 있는데 구사전엔 variant 판만 들어 있었다. 독립 struct 로 알고 조회하면 **전 필드가 +8 밀린다**).
+- `Vec`/`String`/`Option`/배열 내부가 **컴파일러가 계산한 실제 오프셋**으로 뚫린다(구사전은 통짜/관례 추정이었다).
+- 열거형은 **논리 인덱스 · 선언 discr · 메모리 태그**를 나눠 준다. "태그 ≠ variant 인덱스" 를 손으로 환산할 일이 없어졌다.
+
+★**구사전 커버리지 결손(실측)**: 게임 struct leaf 의 **31.8%**, 열거형 leaf 의 **39.7%** 가 구사전엔 **키조차 없었다.**
+"사전에 없다"를 "존재하지 않는다"로 읽지 마라. `distruct`/`dienum` 은 이제 **tcxdict 에 없을 때만 보는 2차 폴백**이고,
+**충돌하면 tcx 가 정본**이다(상세·근거 = `IR_TOOLKIT.md §6-b`).
+
+⚠**여전히 `divtable.py` 소관**: vtable 슬롯은 구조체가 아니라 tcxdict 에 없다.
+
+---
+
+### ~~★★먼저 이것부터~~ (2차 폴백) — `distruct.py` (오프셋 사전)
 **1차 배치에서 담당자 20명 전원이 같은 데서 시간을 잃었다: 시간의 60~70%가 "이 `+0x8c` 가 무슨 필드인가"를 알려고 `!N → 멤버 → 타입 → variant → 멤버` 를 손으로 5~6단 타는 데 갔다.** 그건 이제 사전 조회다.
 
 ```bash

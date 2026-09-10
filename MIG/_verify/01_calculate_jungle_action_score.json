@@ -1,0 +1,287 @@
+{
+ "id": "action_score__calculate_jungle_action_score",
+ "name": "calculate_jungle_action_score",
+ "sym": "_RNvNtCshdEBA0ozCnw_7game_ai12action_score29calculate_jungle_action_score",
+ "src": "game-ai\\src\\action_score.rs",
+ "src_line": 520,
+ "layer": "점수화·술어",
+ "ir": {
+  "file": "m05.ll",
+  "frm": 39984,
+  "to": 40103
+ },
+ "base_round": "r4",
+ "rounds": 4,
+ "one_line": "정글러의 액션 대상(t)을 대상 종류별 계수 x 예상피해/HP 비율로 점수화",
+ "signature": {
+  "params": [
+   {
+    "i": 1,
+    "name": "_rnd",
+    "type": "&mut rand::rngs::std::StdRng (320B)",
+    "note": "본문에서 전혀 안 씀(소스에서도 `_` 접두 = 미사용 확정)"
+   },
+   {
+    "i": 2,
+    "name": "player",
+    "type": "&PlayerState (2528B)",
+    "note": "info.team, info.position 두 필드만 읽어 챔피언 엔티티를 찾는 용도"
+   },
+   {
+    "i": 3,
+    "name": "data",
+    "type": "&OperationData (24B)",
+    "note": "cache(+0x0), context(+0x8) 사용. blackboard(+0x10)는 안 씀"
+   },
+   {
+    "i": 4,
+    "name": "_parameter",
+    "type": "&game_ai::score_parameter::ScoreParameter (5384B)",
+    "note": "본문에서 전혀 안 씀 — 이 함수의 계수는 전부 하드코딩 리터럴"
+   },
+   {
+    "i": 5,
+    "name": "_action",
+    "type": "&Box<dyn game_core::setting::action::Action> (16B)",
+    "note": "본문에서 전혀 안 씀"
+   },
+   {
+    "i": 6,
+    "name": "effect",
+    "type": "&game_core::simulation::effect::Effect (56B)",
+    "note": "expected_damage_target 의 self 로 통째로 전달. 필드 접근 없음"
+   },
+   {
+    "i": 7,
+    "name": "t",
+    "type": "&game_core::simulation::entity::Entity (1728B)",
+    "note": "평가 대상 엔티티. ty(+0x68) / ty.Jungle.info.camp_type.0(+0x98) / hp(+0x670) 를 읽음"
+   }
+  ],
+  "returns": "i64 — 액션 점수. LLVM 이 range(i64 i64::MIN, 206) 으로 추론 = 상한 205(=coef 200 + based 5). 하한은 무제한(음수 coef x 과잉피해)"
+ },
+ "logic": "순수 함수(store 0개, 모든 인자 readonly/readnone). 부작용은 panic 뿐.\n\n// :522\nteam = player.info.team                      // PlayerState+0x930, usize\nif team >= 2 { panic_bounds_check }\npos  = player.info.position.as_index()        // PlayerState+0x9c0, entity.rs:580-581, 0..=4\nchamp = data.cache.player_champion[team][pos] // AbstractGameWithCache+0x1e0, [[Option<&Entity>;5];2]\nif champ.is_none() { Option::unwrap 실패 panic }\n\n// :523  champ 는 &dyn AbstractEntity 로 코어싱돼 (데이터ptr, vtable=anon.17) 2워드로 전달됨.\n//        anon.17 = Entity as AbstractEntity 의 vtable(divtable 로 확인: slot0=drop_glue, size 0x6c0, slot0x18=x)\nvalue = effect.expected_damage_target(data.context, champ as &dyn AbstractEntity, t)   // i64\n\n// :524\nhp = t.hp                                     // Entity+0x670\n\n// :526~536  else-if 체인이 EntityType 판별자(Entity+0x68) switch 하나로 접힘.\n//           소스 순서는 !dbg 줄번호로 복원: 526 → 528 → 530/531 → 536\ncoef = if t.ty.is_nexus()  { 200 }                       // :526  tag 3\n     else if t.ty.is_tower() { 80 }                      // :528  tag 2\n     else if t.ty.is_jungle() {                          // :530  tag 4 && ty.Jungle.info.camp_type.0 < 2\n            if hp > value { 20 } else { 40 }             // :531  signed 비교(icmp sgt), select\n     }\n     else if t.ty.is_minion() { -10 } else { 0 };        // :536  tag 1 / 그 외 전부\n// ⚠ tag 4(Jungle)이지만 camp_type.0 >= 2 인 대상은 default 로 떨어져 coef = 0\n// ⚠ Champion(tag 13)·Epic(5)·Serpen(6) 등도 전부 coef = 0 → 점수 0\n\n// :542  위와 같은 is_jungle() 술어를 한 번 더 평가(판별자 재비교 + camp_type.0 재로드)\nbased = if t.ty.is_jungle() { 5 } else { 0 };\n\n// :548  hp == 0 이면 panic_const_div_by_zero, (hp == -1 && coef*value == i64::MIN)이면 panic_const_div_overflow\nreturn min(coef, coef * value / hp) + based;             // sdiv(내림 아님 — 0 방향 절삭), Ord::min(cmp.rs:1078)\n\n// 의미: coef * (예상피해/대상HP) 를 coef 로 상한. 즉 '치명타 한 방에 잡을 수 있으면 계수 만점,\n//       아니면 깎아내리는 비율 점수'. 곱셈이 먼저라 정수 절삭 손실은 작다.\n// ⚠ coef 가 음수(Minion, -10)인 경우 min 의 방향이 뒤집힌다: 예상피해가 HP 를 넘길수록\n//   coef*value/hp 가 더 작아져(더 음수) min 이 그걸 고른다 = 미니언 오버킬이 더 큰 감점.\n//   반대로 피해가 HP 미만이면 항상 -10 으로 클램프된다.",
+ "reads": [
+  {
+   "base": "PlayerState",
+   "offset": "0x930",
+   "name": "info.team",
+   "note": "usize. 2 미만 아니면 panic_bounds_check(len=2) — player_champion 첫 인덱스"
+  },
+  {
+   "base": "PlayerState",
+   "offset": "0x9c0",
+   "name": "info.position",
+   "note": "Position(i32, range 0..5). Position::as_index()(entity.rs:580-581)로 0..=4 인덱스화 — player_champion 둘째 인덱스"
+  },
+  {
+   "base": "OperationData",
+   "offset": "0x0",
+   "name": "cache",
+   "note": "&AbstractGameWithCache"
+  },
+  {
+   "base": "OperationData",
+   "offset": "0x8",
+   "name": "context",
+   "note": "&Context(64B). expected_damage_target 2번째 인자로 전달"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x1e0",
+   "name": "player_champion",
+   "note": "[[Option<&Entity>;5];2] (80B). [team][position] 로 인덱싱해 champ 획득. None 이면 Option::unwrap 실패 panic"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x68",
+   "name": "ty (EntityType 판별자)",
+   "note": "i64, range 0..14. switch 로 1=Minion / 2=Tower / 3=Nexus / 4=Jungle 분기. 나머지(0 None, 5 Epic, 6 Serpen, 7 Ghoul, 8 SmallJiangshi, 9 Bear, 10 Eagle, 11 Revenant, 12 Illusion, 13 Champion)는 default"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x98",
+   "name": "ty.Jungle.info.camp_type.__0",
+   "note": "EntityType+0x30 = Variant4(Jungle).info(+0x8).camp_type(+0x28).__0. tuple$<usize, JungleType> 의 usize 쪽. is_jungle() 이 이 값 < 2 를 요구"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x670",
+   "name": "hp",
+   "note": "usize 필드지만 i64 로 로드해 signed 비교/sdiv 에 사용. 0 이면 panic_const_div_by_zero"
+  }
+ ],
+ "writes": [],
+ "constants": [
+  {
+   "value": 2,
+   "src_line": 522,
+   "meaning": "player_champion 첫 축 길이 = 2(팀 수). team >= 2 면 panic_bounds_check"
+  },
+  {
+   "value": 3,
+   "src_line": 526,
+   "meaning": "EntityType 판별자 3 = Nexus (is_nexus(), entity.rs:1399-1400 인라인)"
+  },
+  {
+   "value": 200,
+   "src_line": 526,
+   "meaning": "대상이 Nexus 일 때의 계수 coef — 이 함수 최대 계수"
+  },
+  {
+   "value": 2,
+   "src_line": 528,
+   "meaning": "EntityType 판별자 2 = Tower"
+  },
+  {
+   "value": 80,
+   "src_line": 528,
+   "meaning": "대상이 Tower 일 때의 계수 coef"
+  },
+  {
+   "value": 4,
+   "src_line": 530,
+   "meaning": "EntityType 판별자 4 = Jungle"
+  },
+  {
+   "value": 2,
+   "src_line": 530,
+   "meaning": "is_jungle() 내부 임계(entity.rs:1378): ty.Jungle.info.camp_type.__0 < 2 여야 정글로 인정. 판별자 4 라도 이 값이 2 이상이면 coef=0, based=0"
+  },
+  {
+   "value": 20,
+   "src_line": 531,
+   "meaning": "Jungle 이면서 hp > value(예상피해)일 때의 계수 = 이번 이펙트로 못 잡는 캠프"
+  },
+  {
+   "value": 40,
+   "src_line": 531,
+   "meaning": "Jungle 이면서 hp <= value 일 때의 계수 = 이번 이펙트로 처치 가능한 캠프(두 배 우대)"
+  },
+  {
+   "value": 1,
+   "src_line": 536,
+   "meaning": "EntityType 판별자 1 = Minion"
+  },
+  {
+   "value": -10,
+   "src_line": 536,
+   "meaning": "대상이 Minion 일 때의 계수 — 정글러가 미니언을 때리는 것에 대한 감점"
+  },
+  {
+   "value": 0,
+   "src_line": 536,
+   "meaning": "그 외 모든 EntityType(Champion 포함!)의 계수 = 0 → 점수 0"
+  },
+  {
+   "value": 5,
+   "src_line": 542,
+   "meaning": "based 보너스. is_jungle() 이면 최종 점수에 +5 (동점 시 정글 캠프 우선)"
+  }
+ ],
+ "calls": [
+  "game_core::simulation::effect::Effect::expected_damage_target",
+  "llvm.smin.i64",
+  "core::panicking::panic_bounds_check",
+  "core::option::unwrap_failed",
+  "core::panicking::panic_const::panic_const_div_by_zero",
+  "core::panicking::panic_const::panic_const_div_overflow"
+ ],
+ "knobs": [
+  {
+   "what": "Nexus 계수",
+   "where": "action_score.rs:526 (m05.ll:40016, phi [200, %22])",
+   "value": 200,
+   "effect": "올리면 정글러가 넥서스 타격 액션을 다른 모든 대상보다 더 강하게 선호. 내리면 넥서스 다이브를 덜 함. 상한 205 의 대부분이 이 값이라 리턴 range 도 같이 움직인다"
+  },
+  {
+   "what": "Tower 계수",
+   "where": "action_score.rs:528 (m05.ll:40016, phi [80, %37])",
+   "value": 80,
+   "effect": "올리면 정글러가 포탑 공격을 정글 캠프(20/40)보다 더 우선. 40 이하로 내리면 포탑보다 캠프를 먼저 친다"
+  },
+  {
+   "what": "Jungle 캠프 계수(처치 불가)",
+   "where": "action_score.rs:531 (m05.ll:40045, select false-arm)",
+   "value": 20,
+   "effect": "올리면 이번 이펙트로 못 잡는 캠프도 계속 때리게 됨. 내리면 딜이 모자란 캠프를 빨리 포기"
+  },
+  {
+   "what": "Jungle 캠프 계수(처치 가능)",
+   "where": "action_score.rs:531 (m05.ll:40045, select true-arm)",
+   "value": 40,
+   "effect": "올리면 막타 낼 수 있는 캠프를 더 집요하게 마무리. 80 이상이면 포탑보다 캠프 막타를 우선하게 된다"
+  },
+  {
+   "what": "Minion 계수(감점)",
+   "where": "action_score.rs:536 (m05.ll:40016, phi [-10, %46])",
+   "value": -10,
+   "effect": "0 으로 올리면 정글러가 미니언을 쳐도 무감점(라인 개입/막타 스틸 증가). 더 내리면 미니언 근처를 강하게 회피. 음수라 min 방향이 뒤집혀 오버킬일수록 감점이 커지는 부작용도 같이 커진다"
+  },
+  {
+   "what": "정글 보너스 based",
+   "where": "action_score.rs:542 (m05.ll:40085, select ? 5 : 0)",
+   "value": 5,
+   "effect": "올리면 계수가 같거나 비슷한 대상들 사이에서 정글 캠프가 항상 이김. 40 이상으로 올리면 캠프가 포탑을 추월"
+  },
+  {
+   "what": "is_jungle 의 camp_type.0 임계",
+   "where": "game-core\\src\\simulation\\entity.rs:1378 (m05.ll:40040 / 40082, icmp ult .., 2)",
+   "value": 2,
+   "effect": "이 함수 밖(game_core)의 값이지만 여기 판정을 지배한다. 올리면 지금 default(coef 0)로 떨어지는 상위 camp_type 캠프들까지 20/40 계수 + 보너스 5 를 받게 됨 = 정글러가 그 캠프를 처음으로 타깃팅. 내리면(=1) 캠프 절반이 무점수화"
+  }
+ ],
+ "unknown": [
+  "camp_type.__0(usize, Entity+0x98)의 의미. DWARF 로 타입만 확정됨 — EntityType::Jungle(Variant4).info: jungle::Jungle 의 camp_type: tuple$<usize, JungleType>. '< 2' 가 캠프 그룹/티어/스폰차수 중 무엇인지는 미확정(추정도 근거 없음). JungleType 자체는 0 Rhino/1 Mushroom/2 Stump/3 Bee/4 Morgard/5 Serpen 이지만 비교 대상은 JungleType(__1)이 아니라 __0 이다",
+  "is_jungle()·is_nexus()·is_minion() 의 소스 본문. 전 24개 .ll 에 독립 define 이 없고(grep 'define.*EntityType9is_jungle' → 0건) 전부 인라인+switch 접힘이라, is_nexus=판별자3 / is_minion=판별자1 은 관측 사실이지만 '술어 이름'은 !dbg 로 확인된 is_jungle·is_nexus 둘뿐이다. tag 1 → -10 경로의 술어 이름(is_minion 으로 추정)은 미확정",
+  "Effect::expected_damage_target(game_core) 내부 미확인 — 별도 크레이트라 _gaibc 에 본문 없음. value 의 단위(절대 피해량인지 스케일된 값인지) 불명. 다만 hp 와 같은 축으로 나눠지므로 HP 와 동일 단위로 추정",
+  "effect(56B) 내부 필드를 이 함수는 한 번도 읽지 않아 어떤 이펙트인지 여기서는 알 수 없다. 대상 종류만 보고 채점하므로 이펙트 종류별 차등은 expected_damage_target 안에 있다",
+  "소스 527·529·532~535·537~541 줄에 대응하는 IR 이 하나도 없다. 중괄호/공백인지 최적화로 소멸한 코드인지 확인 불가(원본 .rs 없음)",
+  "writes 가 빈 배열인 이유: 이 함수에는 store 명령이 0개이고 모든 포인터 인자가 readonly/readnone(%0 은 readnone) 이라 쓰기 없음이 확정이다. '조사 못 함'이 아니다",
+  "함수 이름이 jungle 이지만 정글 캠프 전용이 아니라 '정글러(포지션) 액션 점수'다. 호출부를 안 봐서 어떤 액션 후보 루프에서 t 가 공급되는지는 미확인"
+ ],
+ "exe": {
+  "addr": "d5ba80",
+  "module": "action_score",
+  "bytes": 366,
+  "instrs": 93,
+  "evidence": "fp",
+  "callers": [
+   "12857f0"
+  ],
+  "callees": [
+   "cc5a10"
+  ]
+ },
+ "resolved": [
+  {
+   "was": "camp_type.__0(Entity+0x98)의 의미 — 캠프 그룹/티어/스폰차수 중 무엇인가",
+   "now": "★확정 = 팀 인덱스(0=블루 / 1=레드). store 지점 = JungleCampState::spawn 의 map 클로저(_gcbc/g09.ll:47809): camp_type.__0 = (!is_blue_side) as usize, camp_type.__1 = self.ty. ⟹ camp_type 은 get_camp_state(team, ty) 인자쌍과 정확히 같은 (team, ty) 쌍이다.",
+   "파급": "★따라서 is_jungle 판정 'ty==4 && camp_type.__0 < 2'(m05.ll:40059~40063, 40088~40090)의 뒷항은 이 생산 경로에서 항상 참 = 사실상 죽은 가드다. __0 은 bool 에서 나오므로 {0,1} 뿐이고, 같은 클로저의 태그 phi 가 ty=4 Morgard → EntityType::Epic(5), ty=5 Serpen → EntityType::Serpen(6), ty 0~3 만 EntityType::Jungle(4) 로 분기하므로 태그4 인 시점에 이미 중립이 배제된다.",
+   "confidence": "확정(단 EntityType::Jungle 의 다른 생산 경로 유무는 미확정 — _gcbc 에 alloca [480 x i8] 이 76곳이라 전수 확인 못 함. '죽은 가드' 결론의 적용 범위는 JungleCampState::spawn 이 유일 생산자일 때 한정)"
+  },
+  {
+   "was": "Effect::expected_damage_target 의 value 단위",
+   "now": "★확정 = 절대 피해량(HP 포인트). 방어/마저 경감까지 끝낸 실제 HP 감소량이다. 본체 _gcbc/g06.ll:52355~52846. return umax(raw_phys*100/(def_eff+100),1) + umax(raw_magic*100/(mr_eff+100),1). hp*r/100 로 %성분을 절대값으로 환산하므로 스케일된 값이 아니다. ⟹ hp 로 나누면 그대로 '최대체력 대비 비율'."
+  },
+  {
+   "was": "is_minion 술어 이름 — !dbg 로 확인된 것은 is_jungle·is_nexus 둘뿐",
+   "now": "★**확정 — `entity.rs:1256`**(2026-09-11 rmeta SourceMap + rustc 프로브). ~~1381~~ 은 **오답**이었다 — 그 줄은 `is_any_jungle` 이고 `is_jungle` 이 1377 이다. `EntityType::is_minion(&self, <인자1>) -> bool` 시그니처 줄 56자. 인접: `is_any_type_minion` 1260 / `is_top_minion` 1264 / `is_mid_minion` 1268 / `is_bottom_minion` 1272 / `is_epic` 1369 / `is_serpen` 1373 / `is_tower` 1385. 검산 = 시그니처 길이 공식 `26 + len(name)` 이 IR 확정 줄 14개 전부와 일치. **태그 1 = Minion 은 종전대로 확정.** 전문 = RE6-09-11_rmeta-SourceMap-rustc프로브-Span복원.md",
+   "보너스_계수표": "`min(coef, coef*dmg/target.hp) + (ty==Jungle && camp_type.0<2 ? 5 : 0)`(m05.ll:40062~40071). coef = Nexus(3) 200 / Tower(2) 80 / **Minion(1) −10** / Jungle(4) 는 `camp_type.0<2` 면 (`target.hp > dmg` ? 20 : 40) 아니면 **0** / 그 외 0."
+  }
+ ],
+ "new_knobs": [
+  {
+   "what": "is_jungle 의 죽은 가드",
+   "where": "m05.ll:40059~40063 (camp_type.__0 < 2)",
+   "effect": "항상 참이므로 여기에 조건을 끼워 넣으면 정글 스코어 가산(+5, m05.ll:40092)을 팀별로 차등화할 수 있다"
+  },
+  {
+   "what": "정글 캠프 티어 컷",
+   "where": "_gaibc/m05.ll:40036",
+   "value": "camp_type.0 < 2",
+   "effect": "티어 2 이상 캠프는 계수 **0** = 사실상 무시된다"
+  }
+ ],
+ "still_unknown": []
+}

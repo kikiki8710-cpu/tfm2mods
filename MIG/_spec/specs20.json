@@ -1,8 +1,8 @@
 {
  "meta": {
   "game": "0.5.8",
-  "date": "2026-09-10",
-  "what": "game_ai 판단함수 20개 상세 명세. 1~6차 IR 독해 + 2026-09-10 미확정 해소.",
+  "date": "2026-09-11",
+  "what": "game_ai 판단함수 20개 상세 명세. 1~6차 IR 독해 + 2026-09-10 미확정 해소 + 2026-09-11 rmeta SourceMap·rustc 프로브 / fight_model 심층부 / 조준·라인술어·채팅후속 배치.",
   "source": "C:\\tfm2mods\\MIG\\_spec\\r1..r6 + resolved_2026-09-10.json",
   "rounds": "함수당 최대 6번 독립 재작성. 최종 라운드 교차검증 = 판정상수 일치 100%.",
   "counts": {
@@ -15,9 +15,14 @@
    "new_knobs": 109,
    "resolved": 104,
    "unknown": 157,
-   "still_unknown": 22,
+   "still_unknown": 7,
    "joined_to_map": 15
-  }
+  },
+  "corrections": [
+   "2026-09-11 tcxdict 감사: ~~PlayerState+0x2496~~ 은 10진 2496 을 16진으로 오기한 것. PlayerState 는 2528B(0x9E0) 라 0x2496 은 범위 밖. 2496(10진) = 0x9c0 = info.position ⟹ \"== 1\" 의 참뜻은 포지션 == 1(정글러). 판정 의미는 불변, 코드 반영 이력 없음(문서만).",
+   "2026-09-11 rust-src 설치: 포맷 템플릿 문법을 역산 → **소스 원문**으로 교체. 우리 역산 표에 오류 2건(비트25 alternate 오기 / 0x80 오분류) + 누락 3건이 있었다. ★교훈: rustc 내부 인코딩은 \"관측 불가\"가 아니라 **소스 컴포넌트를 설치하면 읽을 수 있다**.",
+   "2026-09-11 IR 정밀독해 배치: epic.rs 655~678 의 \"재료 부재로 종결\" 판정을 정정. MIR 경로만 막힌 것이었고 「줄 길이 산술 + tcx + IR 분기 유무」로 5줄 중 4줄이 확정됐다. ★교훈: \"남은 건 exe 디스어셈뿐\" 이라고 쓰기 전에 **가진 재료의 조합**을 다 시도했는지 보라."
+  ]
  },
  "shared": {
   "is_recent_visible": {
@@ -276,7 +281,7 @@
   "전투_위협모델": {
    "확정": "★`check_kill_die_tick_uncached`(fight_check.rs:970, _gaibc/m15.ll:31120~33055)의 적 챔피언 루프 — **슬롯별 상수 계수는 존재하지 않는다.** 가중치는 테이블 룩업이고 곱해지는 것은 **명중 정확도 난수 하나뿐**이다.",
    "테이블": "`AbstractGameWithCache.player_champion_cache`(+0x280, `[2][5] ChampionCache`, 각 800B). 주소식 = `cache + 640 + (적팀)*4000 + (적포지션)*800 + <슬롯오프셋> + (내포지션)*8`.\n  nuke 쪽: attack +0x0 / skill +0x28 / skill2 +0x50 / ult +0x78\n  dps 쪽: attack_per_sec +0x190 / skill_per_sec +0x1b8 / skill2_per_sec +0x1e0",
-   "난수": "`judge_accuracy`(PlayerState+0x180) 기반 균등 난수. `h = (1000-acc)>>1`, `range_min = 1000-h`, `range_max = 1000+h`, `기여 = 테이블값 * roll / 1000`. 난수 = **splitmix64**, 시드 = `(player.info.id * 0x9E3779B97F4A7C15) ^ (내챔프 Entity+0x5c0 << 24) ^ (tick / (tps*2))` ⟹ **2초 버킷**(같은 2초 안에는 같은 난수열). ⚠RNG 상태는 **기여한 슬롯에서만 전진**한다(스킵된 슬롯은 난수를 소비하지 않는다).",
+   "난수": "★**정정(2026-09-11 검증배치 A)**: ~~`judge_accuracy`(PlayerState+0x180)~~ 는 **필드가 아니다**. `tcxdict PlayerState 0x180` = **`info.parameter : AthleteParameter`(744B) 의 시작 주소**이고, `judge_accuracy` 는 그 위의 **인라인 안 된 pub 메서드**(`player.rs:337`, 본체 `_gcbc/g15.ll:125794`). ⚠**`+0x180` 에서 u64 를 읽으면 `Vec<String>` 포인터를 읽는다** — 재구현 시 조용히 쓰레기가 된다.\n본체(반환 `range(i64 100, 1001)`): `j = param+0x98(stat.judgement)` · `r = param+0x2d0(judgement_mental_ratio)` · `x = umin(r*j/1000, 100)` · **`return x*9 + 100`** ⟹ **치역 100~1000(9 간격 이산)**. 오라클 실행 확증: `AthleteParameter::new(&AthleteStat::default()).judge_accuracy() == 100`.\n⟹ ~~\"0~1000\"~~ → **100~1000**, ~~\"0 이면 ×0.500~1.500\"~~ 은 **도달 불가**(최악 acc=100 → h=450 → **×0.550~1.450**).\n★신규 노브 2개: **`AthleteStat.judgement`(param+0x98)** 와 **`judgement_mental_ratio`(param+0x2d0 = PlayerState+0x450)** — 후자가 **멘탈에 따라 판단 정확도를 흔드는 곱수**이고 명세 어디에도 없었다. `min(..,100)` 포화 존재.\n(이하 종전 서술) `judge_accuracy`(PlayerState+0x180) 기반 균등 난수. `h = (1000-acc)>>1`, `range_min = 1000-h`, `range_max = 1000+h`, `기여 = 테이블값 * roll / 1000`. 난수 = **splitmix64**, 시드 = `(player.info.id * 0x9E3779B97F4A7C15) ^ (내챔프 Entity+0x5c0 << 24) ^ (tick / (tps*2))` ⟹ **2초 버킷**(같은 2초 안에는 같은 난수열). ⚠RNG 상태는 **기여한 슬롯에서만 전진**한다(스킵된 슬롯은 난수를 소비하지 않는다).",
    "★쓸수있음_vs_없음": "**전부냐 0이냐 — 부분 계수가 없다.** `if can_X(champ) || X_cooldown(champ).map_or(true, |c| c <= tps) { nuke = max(nuke, table[X]*roll/1000) }`. dps 쪽은 `attack: !is_block_attack` / `skill·skill2: !is_block_skill && (!is_block_move_skill || eff.casting==None || !eff.ty.can_move())`. ⚠**skill2 는 `is_block_skill2` 가 아니라 `is_block_skill` 을 재사용**한다.",
    "★누산_방식_정정": "`nuke` = 챔피언 1명 안에서 **4슬롯의 max**(`llvm.umax`, m15.ll:31666) → `enemy_nuke` += 그 max ⟹ **챔피언별 최대 한 방의 합**. 반면 `enemy_dps` = 3슬롯 × 챔피언 전부의 **합**. (이전 서술의 '둘 다 누적'은 절반만 맞다.)",
    "미니언_위험표_게이트": "★확정 — 두 번째 항 = **`game_ai::minion_wave_risk::enemy_minion_wave_has_epic_buff`**(minion_wave_risk.rs:92~96). 실체는 `MobaMode::remain_epic_time(1 - target팀)` = **`epic_minion_buff_time[적팀]`**(MobaMode+0x240 — 이미 확정된 그 필드와 동일). ⟹ `if champion_action || 적팀 에픽 미니언 버프 잔여시간 ≠ 0 { 엄격표 } else { 완화표 }`. **적 미니언 웨이브에 에픽 버프가 켜져 있으면 훨씬 낮은 데미지에서도 '위험'으로 판정한다.**"
@@ -335,7 +340,7 @@
      "ir": "phi [true,%2] ×3"
     }
    ],
-   "와일드카드_아님": "★`_ => true` 가 아니라 4·5·6 이 **명시 case 로 열거**돼 있다. 근거 = switch 의 default 가 `label %4 → unreachable`(m13.ll:53955~53963). 와일드카드였다면 default 가 true 블록이 되고 unreachable 블록이 생기지 않는다. 다만 4/5/6 각각의 소스 줄번호는 복원 불가(true 경로에 !dbg 가 switch 줄 91 밖에 없다).",
+   "와일드카드_아님": "★`_ => true` 가 아니라 4·5·6 이 **명시 case 로 열거**돼 있다(IR switch 기준). 근거 = switch 의 default 가 `label %4 → unreachable`(m13.ll:53955~53963). ★**보완(2026-09-11)**: 소스에서는 개별 case 3개가 아니라 **`|` 결합 arm 한 줄 = `rule_scope.rs:96`** 이다 — `    BigGoal::Nexus { .. } | BigGoal::Battle { .. } | BigGoal::Recall => true,` (문자수 77 = 4+21+3+22+3+15+9, rmeta SourceMap 줄표와 정확히 일치). `|` 패턴 arm 이 switch 에서 case 여러 개로 펴지는 것이라 두 서술은 모순이 아니다. 나머지 arm 줄번호도 확정: 91 match / 92 Line / 93 Epic / 94 Serpen / 95 Jungle / 96 Nexus·Battle·Recall.",
    "일반경기_무영향": "`TutorialType=0(None)=일반 경기` 는 6표 전부 통과한다 ⟹ 이 게이트들은 **튜토리얼 전용 노브**이고 일반 경기 동작에는 영향이 없다."
   },
   "SubPlan_merge": {
@@ -615,26 +620,29 @@
    "읽는_곳_전수": "`_gaibc` + `_gcbc` 전수 확인 — `+0x8` 을 **id 로 쓰는 소비처는 없다**. `Chat::as_call`(_gcbc/g15.ll:249205)은 태그 3/4/6 만 매치하고 그중 6 만 `+0x8` 을 읽는다. `handle_chat_inner` 도 3/4/6 만. `Chat::misunderstand` 는 24↔33 을 맞바꾸며 페이로드를 **그대로 복사**만 한다. `chat_allowed` 는 그룹 분류만 하고 페이로드 미접근."
   },
   "포맷템플릿_문법": {
-   "확정": "★rustc `fmt::Arguments` 압축 템플릿 문법을 역산했다(전 크레이트 템플릿 상수 6,127개 전수 디코드). \"`\\C0` 옵코드는 rustc 내부 인코딩이라 IR 에 명세가 없다 = 원리적 불가\" 판정이 **뒤집혔다.**",
-   "문법": [
+   "확정": "★**2026-09-11 전면 정정 — 역산이 아니라 rustc 소스 원문으로 확정했다.** `rust-src`/`rustc-src` 컴포넌트를 설치하니 인코더와 비트 정의가 그대로 있다: `rustc-src\rust\\compiler\rustc_ast_lowering\\src\format.rs:336~425`(인코더) + `src\rust\\library\\core\\src\fmt\\mod.rs:316~331`(flags 비트). ⟹ 이건 **관측할 문제가 아니라 명세를 읽을 문제**였다. 「비트 3~6 관측 불가」 판정은 **무효**.",
+   "바이트": [
     {
      "byte": "0x00",
-     "의미": "종료"
+     "의미": "종료(zero terminator)"
     },
     {
      "byte": "0x01~0x7F = N",
-     "의미": "**리터럴 런** — 뒤이어 N 바이트 UTF-8 텍스트"
+     "의미": "**짧은 리터럴 런** — 뒤이어 N 바이트 UTF-8"
     },
     {
-     "byte": "0x80~0xFF",
-     "의미": "**인자 플레이스홀더**(순차 소비). 하위 비트가 뒤따르는 옵션 블록을 지정"
+     "byte": "0x80",
+     "의미": "★**긴 리터럴 런** — 뒤이어 **u16 LE 길이**, 그 다음 바이트열. ~~우리가 `0x80~0xFF` 를 통째로 플레이스홀더로 적은 것은 오류~~ (이 코드베이스에 127바이트 넘는 리터럴이 없어 한 번도 안 나타났다)"
+    },
+    {
+     "byte": "0xC0 | 옵션비트",
+     "의미": "**플레이스홀더**. 시작 바이트는 항상 `0xC0` 이고 아래 옵션 비트가 OR 된다"
     }
    ],
-   "플레이스홀더_비트": "0x01 → `flags: u32`(LE 4B) / 0x02 → `width: u16` / 0x04 → `precision: u16` / `0xC0` = 옵션 전무. 관측된 조합 = C0/C1/C3/C5/C7 뿐.",
-   "flags_비트": "비트0~20 = fill 문자(실측 전부 0x20) / 비트24 = 0-패딩 / 비트25 = alternate(#) / 비트27 = width 있음 / 비트28 = precision 있음 / 비트29~30 = Alignment 2비트(3=기본)",
-   "교차검증": "리터럴 길이가 전부 맞는다 — `\\06Plan: \\C0\\00`(6) · `\\10Main Objective: \\C0\\00`(16) · `\\0AV46DEATH T\\C0\\01 \\C0\\06 tick~\\C0\\07 label=\\C0\\00`(10/1/6/7)",
-   "결론": "`@anon…62 = \"\\C0\\00\"` = **리터럴 0바이트 + 옵션 없는 플레이스홀더 1개**가 문법으로 확정. `?`(Debug)는 템플릿이 아니라 **인자 배열의 fmt 함수포인터**가 정한다 ⟹ `\"{:?}\"` 결론이 옵코드로도 뒷받침된다.",
-   "잔여": "비트3~6 — 6,127개가 전부 `0b11xxxxxx` 라 이 빌드의 재료로는 관측 불가(rustc 소스 필요)."
+   "옵션비트": "`bytecode[i] |= ...` (format.rs:393~416) — ★우리 표는 0~2 만 알고 **3·4·5 를 몰랐다**:\n  bit0 = flags u32(LE 4B) 뒤따름\n  bit1 = width 값(u16) 뒤따름\n  bit2 = precision 값(u16) 뒤따름\n  ★bit3 = **명시 인자 인덱스(u16) 뒤따름** — 암묵 순서와 다를 때만\n  ★bit4 = width 가 **간접**(인자에서 공급)\n  ★bit5 = precision 이 **간접**\n관측된 C0/C1/C3/C5/C7 은 전부 `0xC0 + {}, {0}, {0,1}, {0,2}, {0,1,2}` 로 정합.",
+   "flags_비트": "★**정정 포함** (`core\\src\fmt\\mod.rs` `mod flags`):\n  0~20 = **fill 문자**(char). ⟹ ~~「비트 3~6 미확정」~~ 은 **질문 자체가 틀렸다** — 그 비트들은 fill 문자의 일부다\n  21 = SIGN_PLUS   22 = SIGN_MINUS   ← 우리 표에 없던 것\n  **23 = ALTERNATE(`#`)**  ← ~~우리가 25 라고 적은 것은 오류~~\n  24 = SIGN_AWARE_ZERO_PAD(0-패딩)\n  **25 = DEBUG_LOWER_HEX   26 = DEBUG_UPPER_HEX**  ← 우리 표에 없던 것\n  27 = WIDTH_FLAG   28 = PRECISION_FLAG\n  29~30 = ALIGN (0 Left / 1 Right / 2 Center / **3 None=기본**)\n`default_flags = 0x6000_0020` = align 3 + fill `' '`(0x20) ⟹ **flags 가 기본값과 같으면 아예 안 실린다**",
+   "교차검증": "우리가 역산한 리터럴 길이 검산은 전부 맞았다 — `\u0006Plan: \\C0\u0000`(6) · `\bMain Objective: \\C0\u0000`(16) · `\u0000AV46DEATH T\\C0\u0001 \\C0\u0006 tick~\\C0\u0007 label=\\C0\u0000`(10/1/6/7). 실측 6,127개가 전부 `0b11xxxxxx` 였던 것도 이제 설명된다: **시작 바이트가 항상 `0xC0` 이고 옵션 비트는 하위 6비트에만 OR 되기 때문**이다.",
+   "결론": "`@anon…62 = \"\\C0\u0000\"` = 옵션 없는 플레이스홀더 1개 + 종료 ⟹ 포맷 문자열 `\"{}\"` 골격. 실제 `{:?}` 여부는 템플릿이 아니라 **인자 배열의 fmt 함수포인터**(`ArgumentType::Format(format_trait)`)가 정한다 — 종전 결론 유지."
   },
   "ff_call_계측_8칸": {
    "확정": "★`handle_chat_inner` 의 Battle 계열(태그 3/4/6) arm 분해축이 `LegacyPlanHandler` 의 계측 배열과 **1:1**이다. rmeta 주석 `(수신, 무시, 교전중, 손못뗌, 원거리, 저체력, 즉발불발, 합류)` 와 **순서까지 정확히 일치** — 주석↔IR 교차검증 성공.",
@@ -724,7 +732,7 @@
    "확정": "★**\"Top 절반 = 화면 위쪽\" 확정.** 이전엔 \"렌더러 소관이라 _gaibc/_gcbc 에 없다\"로 미확정이었는데 **`_gvbc`(game_view)를 안 봤던 것**이다.",
    "미니맵": "`GameView::render_minimap`(_gvbc/v10.ll:248308) — 엔티티 `screen = (panel.x + ev.x/3.0, panel.y + ev.y/3.0)`(v10.ll:251158~251164), 카메라 사각형도 동일하게 `/3.0`(v10.ll:251049~251052, 월드 클램프 상한 960.0). **x/y 어디에도 부호 반전·`height - y` 가 없다** ⟹ 월드 y 증가 = 화면 y 증가(아래쪽).",
    "Top영역": "`is_near_top_line`(_gcbc/g09.ll:159311) Top ⟺ `x + y < height` / `is_near_bottom_line`(g09.ll:159902) Bottom ⟺ `x + y ≥ height` / `is_in_top_jungle`(g09.ll:158917) 동일 반평면. ⟹ Top = **작은 x·작은 y** ⟹ 미니맵/화면의 **왼쪽 위**.",
-   "부수": "맵 폭/높이 = MapDef `+0x12b8`(width)/`+0x12c0`(height), 라인 밴드 반폭 192000, 대각 이격 96000. 미니맵 스케일 1/3 · 오프셋 +20(월드 960 → 패널 320)."
+   "부수": "맵 폭/높이 = **GameSetting** `+0x12b8`(width)/`+0x12c0`(height) [정정 2026-09-11 tcx: ~~MapDef~~ 오귀속 — MapDef 0x12b8 은 walls[19][14]], 라인 밴드 반폭 192000, 대각 이격 96000. 미니맵 스케일 1/3 · 오프셋 +20(월드 960 → 패널 320)."
   },
   "resolve_fight": {
    "사슬": "`resolve_fight`(fight_model.rs:310, _gaibc/m10.ll:39395, 얇은 래퍼) → `resolve_fight_full`(:324, m10.ll:39915, ResolveFightCache thread_local 캐시 래퍼) → `resolve_fight_uncached`(:378, m10.ll:43974~47451).",
@@ -1166,9 +1174,7 @@
      "effect": "투사체 회피 조향의 근접·조향 임계"
     }
    ],
-   "still_unknown": [
-    "`get_input_target` 의 정확도·리드 계산식 — 지역변수명·호출그래프까지만(요지). 수식은 미추출"
-   ]
+   "still_unknown": []
   },
   {
    "id": "action_score__calculate_jungle_action_score",
@@ -1316,11 +1322,6 @@
      "meaning": "EntityType 판별자 4 = Jungle"
     },
     {
-     "value": 2,
-     "src_line": 530,
-     "meaning": "is_jungle() 내부 임계(entity.rs:1378): ty.Jungle.info.camp_type.__0 < 2 여야 정글로 인정. 판별자 4 라도 이 값이 2 이상이면 coef=0, based=0"
-    },
-    {
      "value": 20,
      "src_line": 531,
      "meaning": "Jungle 이면서 hp > value(예상피해)일 때의 계수 = 이번 이펙트로 못 잡는 캠프"
@@ -1395,12 +1396,6 @@
      "where": "action_score.rs:542 (m05.ll:40085, select ? 5 : 0)",
      "value": 5,
      "effect": "올리면 계수가 같거나 비슷한 대상들 사이에서 정글 캠프가 항상 이김. 40 이상으로 올리면 캠프가 포탑을 추월"
-    },
-    {
-     "what": "is_jungle 의 camp_type.0 임계",
-     "where": "game-core\\src\\simulation\\entity.rs:1378 (m05.ll:40040 / 40082, icmp ult .., 2)",
-     "value": 2,
-     "effect": "이 함수 밖(game_core)의 값이지만 여기 판정을 지배한다. 올리면 지금 default(coef 0)로 떨어지는 상위 camp_type 캠프들까지 20/40 계수 + 보너스 5 를 받게 됨 = 정글러가 그 캠프를 처음으로 타깃팅. 내리면(=1) 캠프 절반이 무점수화"
     }
    ],
    "unknown": [
@@ -1438,8 +1433,16 @@
     },
     {
      "was": "is_minion 술어 이름 — !dbg 로 확인된 것은 is_jungle·is_nexus 둘뿐",
-     "now": "★**rmeta 식별자 테이블로 뒤집혔다.** IR 3크레이트 전량에 `is_minion` 심볼/DISubprogram 0건이지만, `rmetagrep game_core is_minion` → hit @0x9e47 — `EntityType` 식별자 테이블에 `is_any_type_minion`·`is_top_minion`·`is_mid_minion`·`is_bottom_minion` 바로 앞에 **실재**한다. 라인 배치도 일치(`is_jungle` 1377 → **1381 빈 슬롯** → `is_tower` 1385). ⟹ **술어 = `EntityType::is_minion`**(위치 entity.rs:1381 은 정황 추정), **태그 1 = Minion 은 확정**.",
+     "now": "★**확정 — `entity.rs:1256`**(2026-09-11 rmeta SourceMap + rustc 프로브). ~~1381~~ 은 **오답**이었다 — 그 줄은 `is_any_jungle` 이고 `is_jungle` 이 1377 이다. `EntityType::is_minion(&self, <인자1>) -> bool` 시그니처 줄 56자. 인접: `is_any_type_minion` 1260 / `is_top_minion` 1264 / `is_mid_minion` 1268 / `is_bottom_minion` 1272 / `is_epic` 1369 / `is_serpen` 1373 / `is_tower` 1385. 검산 = 시그니처 길이 공식 `26 + len(name)` 이 IR 확정 줄 14개 전부와 일치. **태그 1 = Minion 은 종전대로 확정.** 전문 = RE6-09-11_rmeta-SourceMap-rustc프로브-Span복원.md",
      "보너스_계수표": "`min(coef, coef*dmg/target.hp) + (ty==Jungle && camp_type.0<2 ? 5 : 0)`(m05.ll:40062~40071). coef = Nexus(3) 200 / Tower(2) 80 / **Minion(1) −10** / Jungle(4) 는 `camp_type.0<2` 면 (`target.hp > dmg` ? 20 : 40) 아니면 **0** / 그 외 0."
+    },
+    {
+     "was": "`is_jungle()` 내부 임계 `camp_type.__0 < 2` = 정글 캠프 티어 컷 (constants 1 + knobs 1 + new_knobs 1)",
+     "now": "★★**정정(2026-09-11 검증배치 A) — 그 노브는 존재하지 않는다. 3항목 삭제.**\n`EntityType::is_jungle` 은 **인자를 받는다**: `pub is_jungle(&self, usize) -> bool`(entity.rs:1377, mir=True). MIR 본문 = `_7 = (((*_1 as Jungle).0).2).0 : usize` / `_6 = Eq(move _7, copy _2)` — **상수 2 가 어디에도 없다**. IR 의 `icmp ult camp_type.0, 2` 는 **`x==0 || x==1` 의 LLVM 접힘**이다.\n소스 복원(줄 길이 ±0): `530` = `  } else if t.ty.is_jungle(0) || t.ty.is_jungle(1) {`(52자) · `542` = `  let based = if t.ty.is_jungle(0) || t.ty.is_jungle(1) {`(57자) · `536` = `  } else if t.ty.is_any_type_minion() {`(39자).\n⟹ **진짜 노브는 티어가 아니라 「어느 팀 캠프를 세느냐」다**: 소스가 `is_jungle(0) || is_jungle(1)` = **양 팀 캠프 전부**로 못박혀 있다. `is_jungle(player.info.team)` 이면 아군 진영 캠프만, `is_jungle(1 - team)` 이면 카운터정글 전용이 된다.\n⚠이 3항목은 같은 파일의 `resolved`(`camp_type.__0` = 팀 인덱스)와 **서로 모순**이었고 `resolved` 가 맞았다.\n★교훈: **IR 에 `< N` 상수가 보인다고 소스 임계로 읽지 마라.** 호출 술어의 **tcx 시그니처를 먼저 보라** — 인자를 받는 술어면 그 상수는 십중팔구 접힘이다."
+    },
+    {
+     "was": "`-10` 경로의 술어 이름 = `is_minion`(entity.rs:1256) 로 확정",
+     "now": "★**정정(2026-09-11 검증배치 A)**: 실제는 **`is_any_type_minion`**(entity.rs:**1260**)이다. `is_minion(&self, LineType)` 은 **LineType 판별자 비교를 반드시 수반**하는데(MIR `_9=discriminant(Minion.0.0); _10=discriminant(_2); _6=Eq(_9,_10)`), `m05.ll:40027` switch 는 **태그 1 → 곧바로 `phi [-10]`** 이고 LineType 로드·비교가 **0개**이며 이 함수엔 LineType 지역변수도 없다. `is_any_type_minion` MIR = `Eq(discriminant, 1)` 한 줄로 IR 과 정확히 일치(+ 줄 길이 39자 ±0). **태그 1 = Minion 자체는 유효.**"
     }
    ],
    "new_knobs": [
@@ -1447,17 +1450,9 @@
      "what": "is_jungle 의 죽은 가드",
      "where": "m05.ll:40059~40063 (camp_type.__0 < 2)",
      "effect": "항상 참이므로 여기에 조건을 끼워 넣으면 정글 스코어 가산(+5, m05.ll:40092)을 팀별로 차등화할 수 있다"
-    },
-    {
-     "what": "정글 캠프 티어 컷",
-     "where": "_gaibc/m05.ll:40036",
-     "value": "camp_type.0 < 2",
-     "effect": "티어 2 이상 캠프는 계수 **0** = 사실상 무시된다"
     }
    ],
-   "still_unknown": [
-    "`is_minion` 이 entity.rs **1381** 이라는 것은 라인 배치 정황(1377↔1385 사이 4줄 슬롯) — **추정**. 미탐색 재료 = rmeta Span"
-   ]
+   "still_unknown": []
   },
   {
    "id": "attack_nexus__sub_plan",
@@ -2503,6 +2498,10 @@
     {
      "was": "get_start_position 2번째 인자(5432B 구조체) 타입명",
      "now": "★확정 = **`&GameSetting`**(DWARF `!122698 name:\"setting\"` → `ref$<game_core::setting::GameSetting>`, `distruct GameSetting` = 5432B 정확히 일치). ⚠**본문에서 한 번도 로드되지 않는다** — 라인 시작 좌표가 전부 리터럴 하드코딩이다. 좌표표는 `_shared.맵_좌표계.get_start_position`."
+    },
+    {
+     "was": "`morgard_exists` 가 (b)(c) 조건을 포함한다는 구조 서술 / \"소스 표기 확정 불가\" / \"{0,7,8} 은 추정\"",
+     "now": "★**정정 + 범위정정(2026-09-11 검증배치 A)**\n**① 구조 오류**: `morgard_exists` 는 (b)(c)를 **포함하지 않는다**. tcx 시그니처가 `pub morgard_exists(&GameContext) -> bool`(mir=True) — **인자에 `game` 이 아예 없어서** 구조상 들어갈 수 없다. MIR 전문 = `_3 = discriminant(ctx.tutorial)` @runner.rs:263 → `switchInt -> [0:true, 7:true, 8:true, otherwise:false]` **튜토리얼 게이트 한 줄이 전부**다. (b)(c)는 `defense_nexus.rs:549` 의 **별개 항**이다 — `dloc` inlinedAt 루트가 그것을 가른다: `!66990` 은 `spawn_epic ← morgard_exists ← :549` 인데 `!66998`(as_moba)·`!67010`(remain_epic_time)에는 **`morgard_exists` 프레임이 없다**.\n  본문 복원 ±0: `pub fn morgard_exists(context: &GameContext) -> bool { context.tutorial.spawn_epic() }` (rule_scope.rs L45=54자 / **L46=31자** = `  context.tutorial.spawn_epic()` / L47=1자, MIR span `46:20-46:32` 로 칸까지 일치)\n**② 「소스 표기 확정 불가」는 과했다 — 확정됨**: `defense_nexus.rs` 문자수 L544=**39** = `  if !line_exists(data.context, line) {` ±0 (L545 `    return false;`=17, L546 `  }`=3) ⟹ **`if !… { return false; }` 형태 확정**. L549=**134** = `  if !morgard_exists(data.context) || data.cache.game.get_game_mode().as_moba().unwrap().remain_epic_time(1 - player.info.team) == 0 {` ±0 ⟹ **`!morgard_exists(..)` 확정**(둘째 항은 검산 일치이나 유일성 미보장).\n**③ 「{0,7,8} 은 추정」도 과했다 — 오라클 실행으로 확정**: `TutorialType::spawn_epic()` 전 9값 실행 = None0 **true** / First1~JungleOnly6 전부 false / Line7 **true** / Total8 **true**. MIR switch 와 일치.\n**④ 부수 확정**: `champions(&self, usize, &Bump)` 의 2번째 인자 = **팀**(본체 `_gcbc/g15.ll:109887~109895`, `%8=cache+480(player_champion)`, `%9=[5 x ptr] gep index %2`) · `MobaMode+0x240 = epic_minion_buff_time[0]`(tcx, MobaMode 640B), `remain_epic_time(team) = self.<f2>[team]` **시간 산술 없이 배열 직독**.\n**⑤ 좌표표에 팀 표기 누락**: 기재된 Top 820000/80000 · Mid 817000/144000 · Bottom 880000/144000 은 **team1 값만**이다. 오라클 실측 = Top t0 (80000,820000) / t1 (820000,80000) · Mid t0 (144000,817000) / t1 (817000,144000) · Bottom t0 (144000,880000) / t1 (880000,144000).\n**⑥ 부수 확증**: 프로브의 `GameSetting::default()` 가 `tick_per_second=0` 인 영행렬인데도 좌표가 정상값으로 나왔다 ⟹ 「`setting` 은 본문에서 한 번도 로드되지 않는다」가 **실행으로 확증**됐다."
     }
    ],
    "new_knobs": [
@@ -2513,10 +2512,7 @@
      "effect": "챔피언·미니언 라인 진입 지점 이동. `setting` 미참조라 설정으로는 못 바꾸고 **바이트패치/재구현만** 가능"
     }
    ],
-   "still_unknown": [
-    "morgard_exists 의 소스 표기(if m vs if !m) — 인라인이라 원리적으로 확정 불가",
-    "★`morgard_exists` 표기 불가 **재료 범위 확정**: ①인라인 IR(define 없음 + column 0건) ②rmeta 문서주석 2,925개 중 해당 0건 ③rmeta 식별자 테이블(이름만 존재 @0xc735, rule_scope 게이트 계열 확인). 미탐색 = **rmeta MIR/Span 섹션**"
-   ]
+   "still_unknown": []
   },
   {
    "id": "dive_episode__v50_fold_dive_episode",
@@ -3753,7 +3749,7 @@
     }
    ],
    "still_unknown": [
-    "L36 앞 두 OR 항(hp_ratio<51 vs can_upgrade_item)의 소스 순서 — **원리적 불가 확정**(모듈 전체 DILocation 에 column 0건 + 같은 or 명령의 피연산자). 판정 결과에는 영향 없음"
+    "`hunt_and_battle.rs:36` 두 OR 항(`hp_ratio < 51` vs `upgrade_item(..).is_some()`)의 소스 순서 — ★**재료 부재로 종결. 5경로 전부 막힌 것을 실측 확인(2026-09-11 검증배치 B)**:\n  ① MIR — `mir=0 xinl=0`(rmeta 미인코딩)\n  ② `DILocation.column` — 전 모듈 0\n  ③ **패닉 Location 컬럼 — L36 에 패닉 가능 연산이 하나도 없어 상수 자체가 없다**(이 파일 Location 은 21:17·21:95·23:93·29:17·29:95·31:20·32:58·56:58 **8개뿐**, 36행 없음)\n  ④ **줄 길이 산술 — `A||B` 와 `B||A` 는 길이가 같다. 방법의 불변량이라 원리적 불가**\n  ⑤ ★**IR 피연산자 순서 — 정보량 0으로 반증됨**. ~~「순서 보존 경향상 `hp_ratio<51` 이 좌항일 가능성」~~ 이라는 추정은 **무효**다: 같은 식의 바깥 `or` 가 `or(%97, %95)` 로 **소스 역순**이고, 두 or 모두 **정의 순서(rank) 내림차순**으로 설명된다. 게다가 `can_upgrade_item`(%85)은 L35 호출 결과라 소스에서 좌항이든 우항이든 **반드시 `%94`(L36 생성)보다 먼저 정의**되므로 관측된 `or(%94,%85)` 는 **어느 소스 순서에서도 동일하게 나온다**.\n미탐색 = 게임 exe 디스어셈(같은 IR 산물이라 기대치 낮음) · 개발사 소스. **판정 결과에는 영향 없다.**"
    ]
   },
   {
@@ -4078,6 +4074,10 @@
     {
      "was": "v24_objective_setup_should_release_to_passive 내부 미독해",
      "now": "★확정(objective_discipline.rs:180~197, _gaibc/m09.ll:22104~22175).\n  `match target { Morgard(4) => objective == Some(Morgard{phase:Setup}), Serpen(5) => Some(Serpen{phase:Setup}), _ => return false }`\n  `camp = MapDef::camp_pos(map, target, player.team == 0)`\n  `if v23_recent_visible_enemies_near_point(player, data, camp.x, camp.y, radius=180000, recent=40틱) != 0 { return false }`\n  `if AbstractGame::is_visible_cell(team, camp.x/32000, camp.y/32000)(vt+0x100) { return true }`\n  `return v23_objective_setup_pressure_line(player, data, lanes, 2) != -1`  (lanes: Morgard → [Top, Mid] / Serpen → [Bottom, Mid])"
+    },
+    {
+     "was": "`live_list.first()` 로 기재",
+     "now": "★**정정(2026-09-11 검증배치 B)**: 실제는 **`live_list.get(0)`** 이다. 인라인 체인 `!19322` 실측 = `index.rs:219 get<usize>` → `mod.rs:576 get<usize,usize>`(= `<[T]>::get`, `slice\\mod.rs:572` 선언) → `hunt_and_poke.rs:193`. `slice::first()` 는 `get` 을 부르지 않고 슬라이스 패턴으로 구현돼 있어 소스가 `first()` 였다면 `fn=first` 프레임이 나와야 하는데 **없다**. ⟹ **두 명세(07/08)가 서로 어긋나 있었고 틀린 쪽이 08.** ★방법론: 인라인 체인의 **`DISubprogram(name:)`** 을 보면 `파일:줄` 만으로는 못 가르는 것이 이름으로 즉시 갈린다."
     }
    ],
    "new_knobs": [
@@ -4339,8 +4339,8 @@
     {
      "what": "대형 성립 인원 조건",
      "where": "fight_check.rs:1316,1321,1331",
-     "value": 1,
-     "effect": "rear>0 / flank>1 / (flank>0&&front>0) / front>1 의 문턱값들. 전부 0 으로 낮추면 아군 한 명만 조건에 맞아도 항상 유리 판정, 올리면 다수 포위가 갖춰져야만 교전한다"
+     "value": "{fight_check.rs:1316 → 0, 1321 → (flank>1) OR (flank>0 && front>0), 1331 → 1}",
+     "effect": "★**정정(2026-09-11)**: ~~단일 스칼라 `1`~~ 로 적으면 \"임계가 전부 1\"로 오독된다. 실제 비교 상수는 **0 과 1 이 섞여 있다** — `1316 rear>0` / `1321 (flank>1) || (flank>0 && front>0)` / `1331 front>1`. ★안쪽 `&&` 는 `select i1 %95, i1 %96, false` 로 **단축평가가 보존**돼 `flank>0` 이 좌항임이 확정(바깥 `||` 순서만 미확정). rear>0 / flank>1 / (flank>0&&front>0) / front>1 의 문턱값들. 전부 0 으로 낮추면 아군 한 명만 조건에 맞아도 항상 유리 판정, 올리면 다수 포위가 갖춰져야만 교전한다"
     }
    ],
    "unknown": [
@@ -4386,6 +4386,10 @@
     {
      "was": "미니언 위험표 선택 조건의 두 번째 항 — get_game_mode() 반환 구조체 +576+enemy_team*8 이 무엇인지(추정)",
      "now": "★확정 — `_shared.전투_위협모델.미니언_위험표_게이트` 참조. 실체는 **`enemy_minion_wave_has_epic_buff`** = `MobaMode::remain_epic_time(1 - target팀)` = `epic_minion_buff_time[적팀]`(MobaMode+0x240, 이미 확정된 그 필드). ⟹ **적 미니언 웨이브에 에픽 버프가 켜져 있으면 엄격표를 쓴다.**"
+    },
+    {
+     "was": "유일 호출처 · version 리터럴 0",
+     "now": "★**정정(2026-09-11 검증배치 B)**: ~~「유일 호출처 = `should_disengage_object_hunt`(m15.ll:33271), version 리터럴 0」~~ 은 **거짓**이다. 전수 실측 결과 **호출부 8곳**이고 그중 **7곳이 런타임 `version` SSA 값**을 넘긴다:\n  `m13.ll:18805` `LegacyPlanHandler::update`(%1561) · `35679`(%484)·`37141`(%1007)·`39946`(%2204)·`40936`(%2579)·`41820`(%2959)·`42834`(%3337) = `handle_interact_battle`\n  `m15.ll:33271` `should_disengage_object_hunt` — **여기만** 리터럴 0\n`engage_range = 200000` 은 8곳 전부 일치.\n★**파급**: 이 함수는 `version` 을 `enemy_minion_line_action_danger_damage_at` 로 그대로 흘린다. 「version 은 늘 0 이라 사실상 무의미」로 읽히던 항목이 **주 경로에서는 살아 있는 버전 게이트**다. **재구현 시 version 을 0 으로 하드코딩하면 안 된다.**\n부수: 명세의 `exe.callers: []` 도 실체와 어긋난다 — **exe 조인 실패**라는 사실로 적어야 한다."
     }
    ],
    "new_knobs": [
@@ -4699,6 +4703,10 @@
     {
      "was": "MainObjective 태그 0/1 이외에서의 원본 동작 — LLVM 이 `_ => None` 팔을 제거해 복원 불가",
      "now": "★**\"복원 불가\"가 뒤집혔다.** `fnparts` 로 아웃오브라인 본체를 찾았다 — `_gaibc/m10.ll:49498~49608`(fight_model.rs:1178~1186), 게이트 없는 원본이라 `_ => None` 팔이 살아 있다. **0 Morgard → epic.live_list 첫 원소 / 1 Serpen → serpen.live_list 첫 원소 / 2~11 전부 None.** 전문 = `_shared.objective_매핑표.objective_entity_id`."
+    },
+    {
+     "was": "`is_recent_visible` 확정 사실이 logic/unknown 에 미반영, 120틱이 knobs 에 없음",
+     "now": "➕**보강(2026-09-11 검증배치 C)**: `is_recent_visible` = **\"내 팀이 최근 2.0초(120틱 고정) 안에 본 적인가\"** 가 `_shared` 에서 이미 확정됐는데 이 명세의 `logic`/`unknown` 에 반영이 안 돼 있었다. **120 은 노브인데 `knobs` 에 없다** — 추가 대상."
     }
    ],
    "new_knobs": [
@@ -5076,7 +5084,7 @@
    "resolved": [
     {
      "was": "goal_allowed 의 Nexus/Battle/Recall 이 어느 줄의 어떤 패턴인지 확인 불가",
-     "now": "★확정 — `_ => true` 가 **아니다.** 4·5·6 이 명시 case 로 열거돼 있고 default 는 unreachable 이다. 전체 판정표와 대상별 튜토리얼 화이트리스트 6종은 `_shared.rule_scope_게이트` 참조. **줄번호만** 복원 불가(줄 96 결합 arm 추정)."
+     "now": "★확정 — `_ => true` 가 **아니다.** IR switch 에서 4·5·6 이 명시 case 로 열거돼 있고 default 는 unreachable 이다. ★**줄번호도 확정(2026-09-11)**: 소스에서는 `|` 결합 arm 한 줄 **`rule_scope.rs:96`**(문자수 77 검산 일치). arm 줄표 = 91 match / 92 Line / 93 Epic / 94 Serpen / 95 Jungle / 96 Nexus·Battle·Recall. 전체 판정표와 대상별 튜토리얼 화이트리스트 6종은 `_shared.rule_scope_게이트` 참조."
     },
     {
      "was": "AbstractGame::get_game_mode 가 { i64, ptr } 를 반환하는데 ptr(GameMode 페이로드)이 무엇인지 모름",
@@ -5112,7 +5120,7 @@
     },
     {
      "was": "코드 20·25·28 의 발화 조건 — 위치는 확정했으나 조건식은 안 읽었다",
-     "now": "★확정.\n**28**(handler.rs:716~722): `!counter_jungle_route_init(+0x1806)` ∧ `PlayerState+0x2496 == 1` ∧ `player_count` 이 1..=7 **밖** ∧ `strategy+18 == 2` → 래치 후 `PassiveJunglePlan::new_counter_jungle`. **판당 1회.**\n**20**(handler.rs:938): 공통 종착점. 도달 5경로 = ①:789 `PlayerState+0x2496 != 1` ②:851 BigPlan tag==9 ③:916 tag!=10 ④:931 `main_objective != None` ⑤:933(tag 8 + objective 기록 직후). 직후 939 에서 memcpy(384)로 교체.\n**25**(handler.rs:1240~1247): :1200 BigPlan tag!=9 → `passive_plan()` → `mf_ret25_src[min(src,31)]++`(1241) → `v2_apply_assign_commit`(1246) → `mf_note_swap(25)`(1247) → 1248 교체. 즉 **25 = \"본류 판단이 끝나 패시브로 되돌아가는 재선택\"**이고 내부 발원은 25가 가리므로 `mf_ret25_src`(+0x1658, `array$<usize>` 32엔트리) 히스토그램으로 따로 수확한다(주석과 일치)."
+     "now": "★확정.\n**28**(handler.rs:716~722): `!counter_jungle_route_init(+0x1806)` ∧ `PlayerState+0x9c0(info.position) == 1` ∧ `player_count` 이 1..=7 **밖** ∧ `strategy+18 == 2` → 래치 후 `PassiveJunglePlan::new_counter_jungle`. **판당 1회.**\n**20**(handler.rs:938): 공통 종착점. 도달 5경로 = ①:789 `PlayerState+0x9c0(info.position) != 1` ②:851 BigPlan tag==9 ③:916 tag!=10 ④:931 `main_objective != None` ⑤:933(tag 8 + objective 기록 직후). 직후 939 에서 memcpy(384)로 교체.\n**25**(handler.rs:1240~1247): :1200 BigPlan tag!=9 → `passive_plan()` → `mf_ret25_src[min(src,31)]++`(1241) → `v2_apply_assign_commit`(1246) → `mf_note_swap(25)`(1247) → 1248 교체. 즉 **25 = \"본류 판단이 끝나 패시브로 되돌아가는 재선택\"**이고 내부 발원은 25가 가리므로 `mf_ret25_src`(+0x1658, `array$<usize>` 32엔트리) 히스토그램으로 따로 수확한다(주석과 일치)."
     },
     {
      "was": "DefenseNexus merge 에 인라인된 헬퍼(!65699)의 정체",
@@ -5228,11 +5236,8 @@
     }
    ],
    "still_unknown": [
-    "goal_allowed 의 Nexus/Battle/Recall arm 소스 줄번호 — true 경로 !dbg 가 match scrutinee 줄(91)뿐. 동작은 확정, 줄번호만 불가",
-    "SubPlan::merge 의 EpicCheck/EpicHunt/SerpenCheck/SerpenHunt 4 arm 의 소스 줄번호 — 본문이 비어 `{}` 블록이 곧장 ret 으로 접혀 !dbg 가 187(match 줄)뿐. 동작(무변경)은 확정",
-    "`_mf_src` 값에 대응하는 사람이 붙인 이름 — 필드가 u8 이지 열거형이 아니라 DWARF 에 이름 테이블이 없다. **IR 만으로는 원리적 복원 불가**(소스가 있어야 함)",
-    "라인 술어의 3쌍 카운트(`%1089`/`%1101` 등)가 어떤 filter 인지 — **재료 문제가 아니라 아직 안 봤다**. `fnparts passive_plan::closure` 로 `s7_0/s8_0/s9_0` 본체를 보면 된다",
-    "`SubPlan::merge` 빈 4 arm 의 **개별 줄 배정**(구간 190~193 은 확정) — 빈 본문이라 DILocation 미생성(IR 재료 한정). ⚠부수 확정: `EpicPoke(12)`·`SerpenPoke(15)`는 switch 에 없어 **항상 덮어쓰기**(기존 표에 없던 비대칭)"
+    "`SubPlan::merge` 빈 arm 의 줄 배정 — ★**확정(2026-09-11 tcx 독립 확증)**. L188 Hide / L189 Jungle / **L190 SerpenCheck / L191 EpicCheck / L192 EpicHunt / L193 SerpenHunt** / L194 Steal / L196 DefenseNexus. 근거 2중: ①rmeta SourceMap 줄표에서 `줄길이 − 2×len(name) = 63` 이 네 줄 모두 일치 ②tcx 상 리프 `XxxSubPlan::merge` 가 **정확히 8개**이고 이름 길이 {4,5,6,8,9,10,11,12}가 전부 상이해 8줄과 **유일 대응**(상수 61/65/59/67 은 존재하지 않는 이름 길이를 요구해 배제). ⚠**형태 정정**: \"빈 4 arm\" 이 아니라 **8개 arm 이 같은 RHS(리프 merge 위임)를 공유**하는 구조로 보인다. ⚠부수: `EpicPoke(12)`·`SerpenPoke(15)` 는 switch 에 없어 **항상 덮어쓰기**. 전문 = RE6-09-11_rustc-dev-커스텀드라이버-tcx덤프-MIR가용성판정-0.5.8.md",
+    "`_mf_src` 값에 대응하는 사람이 붙인 이름(`MF_SRC_NAMES` / `FF_BAIL_NAMES` / `MF_OBJCLR_NAMES`) — ★**부재 확정 · 재탐색 금지(2026-09-11, 범위 확장 완료)**. 탐색 범위:\n  ① SDK `sdk_058\\mod-sdk\\deps` 의 **rlib·rmeta 308개 전량 바이트 스캔**\n  ② IR 3크레이트(`_gaibc`/`_gcbc`/`_gvbc`) 전량 + rmeta MIR/Span 경로\n  ③ 게임 exe (`TeamfightManager2.exe`, `TFM2ModUploader.exe`)\n  ④ ★**게임 데이터·에셋 번들 전체 — 2,622파일 / 2.95GB**(`bundle_unpacked_full` 1.1GB · `TFM2.gg` 567MB · `db` · `config` · `ModData` · `bundle.game_data` · `mod-sdk-stable`). ASCII·UTF-16LE 양쪽 + **zlib/gzip 압축조각 1,625개를 풀어서** 재검색. 도구 = `MIG\bundlegrep.py`\n⟹ **전 범위 히트 0건.** 유일한 출현은 game_ai rmeta `@0x527ff3` 의 한국어 문서주석 문장(`코드는 simulator MF_SRC_NAMES와 1:1`)뿐이고, 그 주석이 직접 **개발사 내부 시뮬레이터** 소유임을 지목한다. ⟹ 배포되는 어떤 아티팩트에도 실체가 없다. **개발사 소스 없이는 불가.**"
    ]
   },
   {
@@ -5626,7 +5631,7 @@
      ],
      "도출_사슬": "(a) 0/7/8 셋 다 `.min(3)`→3, `.min(4)`→4 ⟹ **≥4** (b) rule_scope.rs:39 Jungle arm 이 {0,8} 은 통과·{7} 은 탈락시키므로 `pc(0)=pc(8) ≠ pc(7)` ⟹ `pc(7)=4`, `pc(0)=pc(8)≥5` (c) 포지션 5개가 상한. ⚠**리터럴 5 는 IR 어디에도 안 남는다**(전 호출부가 3/4 로 clamp) — 그래서 5 는 확정이 아니라 **도출**이다.",
      "의미": "**'그 튜토리얼에서 존재하는 포지션 수'** — `position_exists` 의 4개 arm 과 정확히 일치(TopSolo=Top만=1, First/Bottom=Bottom+Support=2, MidBottom=Mid+Bottom+Support=3, Line=정글 제외 4, Total/None=5).",
-     "Jungle_arm": "`Position::Jungle => *tutorial == TutorialType::JungleOnly || tutorial.player_count() == 5` (m13.ll:29471~29474). ⚠`==5` / `>=5` / `>4` 는 결과가 같아 **연산자 종류와 `||` 좌우 순서는 구분 불가**.",
+     "Jungle_arm": "`Position::Jungle => tutorial.player_count() == 5 || *tutorial == TutorialType::JungleOnly` (★2026-09-11 tcx MIR 로 **좌우 순서 확정** — 좌항 player_count 비교가 단락, 우항이 derive PartialEq 인라인 `Eq(disc,6)`. ~~좌우 순서 구분 불가~~ 정정). ⚠남은 `== 5` vs `>= 5`(및 `> 4`) 는 player_count 최댓값이 5라 외연 동일 ⟹ **표기 불가(원리적)·재조사 금지**. 동작 확정 = 통과 집합 {None(0), JungleOnly(6), Total(8)}. 근거 = REPORT tfm2_ai_adjust RE 2026-09-11 tcx MIR가용성판정 §6.",
      "자매함수": "chat_allowed 안에 인라인된 것들도 같이 확정 — `spawn_epic`(runner.rs:262) → {0,7,8} / `spawn_serpen`(:266) → {0,5,7,8} / `spawn_line_minion(line)`(:274) → Top{0,2,7,8}·Mid{0,4,5,7,8}·Bottom{0,1,3,5,7,8}"
     },
     {
@@ -5639,14 +5644,9 @@
        "ir": "53249"
       },
       {
-       "태그": "2,5,8,9,10,11,12,13,14,42,44,45,46",
-       "판정": "line_exists(chat.line@+0x1, tut)",
-       "ir": "53489"
-      },
-      {
-       "태그": "50 GankPlan",
-       "판정": "동일하되 line 이 chat+0x2",
-       "ir": "53434"
+       "태그": "2,5,8,9,10,11,12,13,14,42,44,45,46 + **50 GankPlan**",
+       "판정": "line_exists(chat.line, tut) — ★같은 or-패턴 arm(rule_scope.rs:131). GankPlan 만 line 필드가 chat+0x2(나머지 13개는 +0x1)라 phi 로 갈릴 뿐 판정·허용집합은 동일",
+       "ir": "53489 / 53434(GankPlan phi)"
       },
       {
        "태그": "18 CounterJungle",
@@ -5849,6 +5849,14 @@
     {
      "was": "handle_chat_inner 각 arm 의 세부 계산식(HideLine gen_range 확률식 / Battle arm 의 resolve_join_stake·tower_dive_is_viable 조건)",
      "now": "★대부분 확정.\n**HideLine(11·12), chat.rs:46~107**: `gank_hp_gate = 70 - roaming_ratio*20/1000`(70~50). `gank_score >= 0` 이면 무조건 수락, **음수일 때만 롤**: ★`should_join = !(rnd.gen_range(0..1000) < ego_ratio*700/1000)` — ego 1000 이면 **70% 확률로 콜 무시**, 0 이면 절대 무시 안 함.\n**Battle(3·4·6), chat.rs:139~241**: `battle_hp_gate = 60 - aggressive_ratio*20/1000`(60~40), `max_move_sec = roaming_ratio*2/1000 + 4`(4~6초).\n★`tower_dive_is_viable` 은 **BattleDive(태그 4) 콜에 한해**, ①거리 ②HP 게이트 ③`dive_abandoned`·`dive_quiet` 없음 ④**직전 다이브 포기 후 `tps*4+1` 틱 경과** 4개를 전부 통과했을 때만 호출된다(앞 4개가 게이트).\n★`resolve_join_stake`(_gaibc/m10.ll:41001~42354) 반환 = `Option<FightPrediction>`(64B, None = +0x0 == -1 니치). 구조 = focus_target@+0x0 / soaker@+0x10 / rescue_ally@+0x20 / net_value@+0x30 / **line@+0x38** / line_absolute@+0x39. `FightLine` = **Commit(0)/CommitAfterJoin(1)/Disengage(2)/Hold(3)**(rmeta 주석과 일치).\n**저울의 역할**: `Commit` 이면 거리·체력 게이트 기각을 **뒤집어 합류**시키고, `Disengage` 면 게이트를 통과했어도 **거부**한다. `can_help()` 만은 절대 우회 불가(AND 바깥). 최종식 = `can_help && ((old_pass && !stake_veto) || stake_commit)`."
+    },
+    {
+     "was": "`\\C0` 비트 3~6 — 이 빌드 템플릿 6,127개가 전부 `0b11xxxxxx` 라 관측 불가(재료 한정)",
+     "now": "★**해소(2026-09-11)** — `\\C0` 템플릿 flags 비트는 **관측 대상이 아니라 rustc 소스에 정의**돼 있었다. `rust-src`/`rustc-src` 설치 후 `rustc_ast_lowering\\src\format.rs:336~425`(인코더)와 `core\\src\fmt\\mod.rs:316~331`(flags)로 **전량 확정**. 「비트 3~6 미확정」은 **질문 자체가 틀렸다** — 0~20 이 통째로 fill 문자다. 부수로 우리 표의 오류 2건도 잡혔다: ~~비트25=alternate~~ → **23**(25/26은 DEBUG_HEX), ~~0x80~0xFF = 플레이스홀더~~ → **0x80 은 긴 리터럴 런**(u16 길이 뒤따름). 누락 3건(옵션 bit3 명시 인자인덱스 / bit4·5 간접 width·precision)도 보강. 전문 = `shared.포맷템플릿_문법`"
+    },
+    {
+     "was": "(미커버) handle_chat_inner 4건",
+     "now": "➕**보강(2026-09-11 검증배치 C)** — 명세에 없던 4건:\n① **`chat.rs:245~290` = 합류 거절 후 글로벌 궁 예약** 통째 누락 (`+0x530 pending_global_ult_target: Option<(usize,usize)>` = 대상 id + `tick + tps*3`)\n② **`exit_src` 17~21 의 기록 조건** = `version <= 1 && plan == Battle(9)`(m13.ll:32256·32313) ⟹ **현행 v3 에서 이 계측이 0 인 게 정상**이라는 뜻\n③ `stake`/`stake_commit`/`stake_veto` 줄번호(chat.rs:212/215/216)\n④ `ff_call_*` 8칸 계측표\n⚠**부수 함정**: `m13.ll:33188` 의 `store i8 21` 은 `ff_battle_exit` 가 아니라 **`mf_swap.0`(+0x1610)** 이다."
     }
    ],
    "new_knobs": [
@@ -5950,13 +5958,7 @@
     }
    ],
    "still_unknown": [
-    "player_count() 가 None(0)/Total(8) 에 대해 반환하는 리터럴 5 — 관측 가능한 전 호출부가 .min(3)/.min(4) 로 clamp 해 5가 한 번도 나타나지 않는다. '≥5 이고 7보다 크다'까지가 IR 확정이고 5 자체는 포지션 정원에 의한 **도출**",
-    "rule_scope.rs:39 의 비교 연산자와 || 좌우 순서 — ==5 / >=5 / >4 가 결과집합이 동일해 원리적으로 구분 불가",
-    "chat.rs:20 에 명시적 `return;` 이 있는지 vs `return self.handle_chat_inner(..)` 인지 — 줄번호가 19 하나뿐이라 구분 불가(동작 동일)",
-    "`tower_dive_is_viable` **내부** — 호출 게이트만 확정. 본체는 old::fight_model, 별도 배치 필요",
-    "`resolve_join_stake` **내부**(_gaibc/m10.ll:41001~42354, 1,353줄) — 계약(인자·반환·FightLine 코드표)만 확정",
-    "chat.rs:245~290 거절 후 후속 반응(ult_effect/nearby_enemies/ally_id) — 이번 범위 밖",
-    "`\\C0` 비트 3~6 — 이 빌드의 템플릿 6,127개가 전부 `0b11xxxxxx` 라 **관측 불가**. rustc 소스/버전 특정 필요"
+    "`rule_scope.rs:39` 의 `== 5` vs `>= 5` — ★**표기 불가로 종결 · 재조사 금지(2026-09-11)**. `||` 좌우 순서는 확정(좌 `player_count()==5` / 우 `tut == TutorialType::JungleOnly`) — MIR 단락 구조로 직접 증명됐고 오라클 실행으로도 재확인. `> 4` 는 컬럼 산술(56~64열이 정확히 9자)로 배제. 남은 두 표현은 `player_count()` 최댓값이 5라 **진리값 집합이 완전히 동일** ⟹ MIR·LLVM IR·기계어 어디에도 차이가 안 남는다. 오라클로도 못 갈린다(**외연이 같은 표현은 실행으로 절대 안 갈린다**). 전문 = RE6-09-11_rustc-dev-커스텀드라이버-tcx덤프-MIR가용성판정-0.5.8.md"
    ]
   },
   {
@@ -6444,6 +6446,14 @@
     {
      "was": "\"Top 절반 = 화면 위쪽\" 의 최종 한 걸음 — 렌더러 소관이라 _gaibc/_gcbc 에 없다",
      "now": "★**확정 — `_gvbc`(game_view)를 안 봤던 것이다.** 전문 = `_shared.맵_화면방향`. `GameView::render_minimap`(v10.ll:248308)이 월드→화면을 `/3.0` 스케일만 하고 **부호 반전이 없다**. `is_near_top_line`(g09.ll:159311)의 Top ⟺ `x+y < height` 와 합치면 **Top = 작은 x·작은 y = 화면 왼쪽 위**."
+    },
+    {
+     "was": "logic 의 `is_top_side` 본문식 표기 (자기 파일 resolved 와 내부 모순)",
+     "now": "★**정정(2026-09-11 검증배치 C) — 극성 반전 표기 오류**: IR 의 `icmp ult (height − y), x` 를 `is_top_side` **본문식**이라 적었는데, 그건 **그 부정**이다. `height−y < x` ⟺ `x+y > height` ⟺ **`!is_top_side`**. ⟹ 우리가 발표한 **공식 `is_top_side = (x + y ≤ height)` 자체는 맞다**(Top = 작은 x·작은 y). 틀린 것은 **IR 비교식에 붙인 이름표**뿐이고, 동작 서술은 우연히 맞았다. 다만 **뜻이 정확히 뒤집혀 재구현자를 오도**하므로 정정한다.\n★**오라클 실행으로 확정**: `is_top_side` 는 `vis=pub` · `mir=1` 이라 그냥 돌릴 수 있었다 — 표본 9개 전부 `ry_lt_x == !is_top_side`, 대각선(`x+y == height`)은 **top/bottom 양쪽 true**.\n🔁**범위정정**: 「별도 define 이 없어(전량 인라인) 확정 불가」 판정은 **과했다** — `tcxq grep game_core is_top_side` 한 번이면 `pub`·`mir=1` 이 보이고 **오라클·MIR 두 경로가 열려 있었다**. 판정 어휘는 **미탐색**이 맞다."
+    },
+    {
+     "was": "부시 ID 1·22·23·24 는 갱킹 은신 후보에서 **영구 제외**",
+     "now": "🔁**범위정정(2026-09-11 검증배치 C)**: 그 주장은 **`target_bush_v30` 한정**으로만 맞다. 형제 **`target_bush_v41`** 이 부시 **7·23** 을 반환한다. 두 함수를 합친 **실제 미사용 = 1, 5, 10, 19, 22, 24**."
     }
    ],
    "new_knobs": [
@@ -6876,10 +6886,20 @@
     {
      "was": "EntityType::is_tower2 라는 이름과 실제 판정((판별자==2) && (Tower.ty > 4))이 어긋나 보이는 것",
      "now": "★**모순이 아니다 — 확정.** `dienum TowerType`(태그=인덱스, 밀림 없음) = 0 Top / 1 Mid / 2 Bottom / 3 TwinA / 4 TwinB / **5 Top2 / 6 Mid2 / 7 Bottom2**. ⟹ `ty > 4` = {Top2, Mid2, Bottom2} = **2차 타워 3종**. `Tower2` 라는 *variant* 가 없었을 뿐 `TowerType` 의 `*2` 계열을 가리키는 이름이 맞다. 오프셋: `EntityType` 태그 2 = Tower, 페이로드 `enum+0x8 info: Tower(192B)`, `Tower+0xb8 ty: TowerType` ⟹ **EntityType 선두 기준 절대 +0xc0**. ⚠본문 IR 은 `_gcbc`·`_gaibc` 통틀어 define 0건(전 호출지점 인라인)이라 **원리적 복원 불가**지만, DWARF + TowerType 전표로 **간접 확정**했으므로 실질 공백은 없다."
+    },
+    {
+     "was": "logic·constants·knobs 세 곳의 `is_top_side` 표기",
+     "now": "★**정정(2026-09-11 검증배치 C) — 극성 반전 표기 오류**: IR 의 `icmp ult (height − y), x` 를 `is_top_side` **본문식**이라 적었는데, 그건 **그 부정**이다. `height−y < x` ⟺ `x+y > height` ⟺ **`!is_top_side`**. ⟹ 우리가 발표한 **공식 `is_top_side = (x + y ≤ height)` 자체는 맞다**(Top = 작은 x·작은 y). 틀린 것은 **IR 비교식에 붙인 이름표**뿐이고, 동작 서술은 우연히 맞았다. 다만 **뜻이 정확히 뒤집혀 재구현자를 오도**하므로 정정한다.\n★**오라클 실행으로 확정**: `is_top_side` 는 `vis=pub` · `mir=1` 이라 그냥 돌릴 수 있었다 — 표본 9개 전부 `ry_lt_x == !is_top_side`, 대각선(`x+y == height`)은 **top/bottom 양쪽 true**.\n🔁**범위정정**: 「별도 define 이 없어(전량 인라인) 확정 불가」 판정은 **과했다** — `tcxq grep game_core is_top_side` 한 번이면 `pub`·`mir=1` 이 보이고 **오라클·MIR 두 경로가 열려 있었다**. 판정 어휘는 **미탐색**이 맞다.\n⚠이 함수는 `logic`·`constants`·`knobs` **세 군데가 전부 오염**됐다(예: `constants` 의 \"14 = is_top_side 참\" → **거짓**이 맞다)."
+    },
+    {
+     "was": "(누락) `target_bush_v41` 이 명세에 통째로 없음",
+     "now": "★★**대형 누락(2026-09-11 검증배치 C)** — `update` 는 `target_bush_v30` 을 인라인해 **\"도착\"을 판정**하는데, **`LineGankerPlan::sub_plan`(m08.ll:94960)은 무조건 `target_bush_v41` 을 불러 `SubPlan::Hide{bush}` 를 만든다** = **챔피언이 실제로 가는 곳**. 둘 다 버전 게이트가 없고 **호출자별 하드와이어**다.\n⟹ ★**`v30 ≠ v41` 인 구간에서는 `CancelReason::TargetMissing` 취소가 원리적으로 발화하지 않는다.** (실례: Top·team0·`top_lead=0` → v41 은 부시 **16** 으로 보내는데 v30 의 반환집합은 `{2,3,6}`)\n`v41` 전표의 인덱스 = **`*_lead[team]`**(`top/mid/bottom_lead @0x21c0/0x21d0/0x21e0`). 부시 중심좌표로 검산하니 **lead 가 커질수록 매복 덤불이 우리 진영 → 적 진영으로 단조 이동** — `_shared` 의 `*_lead` 정의와 정합."
     }
    ],
    "new_knobs": [],
-   "still_unknown": []
+   "still_unknown": [
+    "⚠**메인 세션 브리핑 오류 정정(2026-09-11)**: 「`handler.rs:2189~2191` 의 `lead < 3` 이 이 함수에 있다」는 **틀렸다** — `LineGankerPlan::update` 전수 grep 결과 **lead 오프셋 0건**이다. 실제 소비처 = `m13.ll:8916`(`passive_plan`) · `m09.ll:63268` 외 5 · `m05.ll:44960` 외 2 · `m15.ll:55322` 외 1. **미탐색**."
+   ]
   },
   {
    "id": "modes__single_try_engage",
@@ -7208,6 +7228,14 @@
      "now": "★**소비처가 존재하지 않는다 — 노브가 아니다.** 생성 사이트 14곳 전부 리터럴 60(m04.ll:30013, m10.ll:13227/13279/13559, m13.ll:16235/33426/33460/33846/33893/33985/34347/34396/43169/44982), 변수로 채우는 곳 0곳. 수신자 4종(SinglePlanBattle::new m05.ll:26897, new_dive m05.ll:34390, BattlePlan::new m10.ll:23214, DeathMatchBattle::new m05.ll:17695)은 goal 24B 를 통째 memcpy 해 +0x40 에 넣기만 하고 __0(=goal+8)만 읽는다. base_sub_goal(m10.ll:29294)도 +0(tag)·+8 만. SinglePlanBattle::update(m05.ll:27043~34389) 전체에 +80(=main_goal.__1) 접근 0건. __1 을 읽는 유일한 코드 = BattlePlanGoal::Debug::fmt(m10.ll:61999) — **로그 출력 전용**.",
      "적용_범위": "★'0.5.8 game_ai IR 범위 안에서는' 산술·비교에 전혀 쓰이지 않으므로 틱 예산인지 유효기간인지 구분할 근거가 없다. BattlePlanGoal 은 game_ai 전용 타입이라 game_core 로 넘어가지도 않는다. 다음 세션에서 Ghidra exe 전역 xref 또는 값 변경 A/B 는 여전히 유효한 접근이다.",
      "함정_방지": "지금 이 60 을 바꿔도 동작이 변하지 않는다. '노브 목록'에 넣으면 안 된다."
+    },
+    {
+     "was": "`team_plan` 을 `&mut` 로 하위에 전달 (signature note · logic 245/255 · reads note 3곳)",
+     "now": "★**정정(2026-09-11 검증배치 D) — 거짓**. tcx 정본:\n  `single_try_engage : fn(&LegacyPlanHandler, usize, &mut StdRng, &PlayerState, &OperationData, usize, &mut DebugFrameData) -> Option<SinglePlanBattle>`\n  `single_tower_dive_is_viable : fn(…, &TeamPlan, &Entity, &mut DebugFrameData) -> bool`\n  `SinglePlanBattle::update : fn(&mut SinglePlanBattle, …, &TeamPlan, &mut DebugFrameData)`\n`self` 부터가 **공유 `&LegacyPlanHandler`** 라 `&mut self.team_plan` 은 성립 불가이고 두 피호출자 모두 **공유 `&TeamPlan`** 을 받는다. ⟹ **이 계열의 `team_plan` 부작용은 존재하지 않는다.** `&mut` 인 것은 `rnd`·`debug`·`battle` 뿐.\n부수: `SinglePlanBattle::new/new_dive` 의 goal 은 `&BattlePlanGoal` 이 아니라 **by-value `BattlePlanGoal`**(ABI indirect 라 IR 에선 ptr)."
+    },
+    {
+     "was": "`iter_towers_without_nexus` 구성 미확정 / `engage_requires_dive` 판정식 미확정",
+     "now": "➕**보강(검증배치 D)** — 본체 `_gcbc/g15.ll:108971~109045`:\n`[top_tower, mid_tower, bottom_tower, top_tower2, mid_tower2, bottom_tower2][team]`(+0x180/0x1a0/0x1c0/0x190/0x1b0/0x1d0, **이 순서 그대로**) `.into_iter().flatten()` `.chain(twin_towers[team](+0x130, bumpalo Vec<&Entity>).iter().copied())`\n★꼬리는 \"나머지 타워 슬라이스\"가 아니라 정확히 **`twin_towers[team]`**(쌍둥이 타워) — 249행 주석 부정확. `nexus`(+0x170)는 별도 필드라 실제로 제외됨 ✓\n`engage_requires_dive(player, data, e)` = `iter_towers_without_nexus(**1 − player.info.team**)``.any(|t| t.attack_effect.casting != -1 && Effect::is_in_range(&t.attack_effect, t, e))` = **\"대상이 적 타워 아무거나의 평타 사거리 안인가\"**. 거리 임계는 이 층에 없고 전부 `Effect::is_in_range` 안(**미탐색**)."
     }
    ],
    "new_knobs": [],
@@ -7645,6 +7673,10 @@
     {
      "was": "EffectType vtable +0x28/+0x30/+0x38 의 정확한 이름 — 2회 시도 후 포기(추정)",
      "now": "★확정 — **추정이 전부 정확했다.** `divtable EffectType` 가 `_gcbc/g02.ll` 의 정적 vtable 전역(`@anon.75300de3978c94cc946f88c448be65c0.1131` DokkaebiUltExplosionEffect / `.1293` CombineEffect, 각 35슬롯·296B·일치율 94%)에서 심볼 이름을 그대로 읽어냈다: **`0x28 expected_damage` / `0x30 expected_damage_structure` / `0x38 expected_target_hp_ratio`**. 전 34슬롯 표는 `_shared.EffectType_vtable` 참조."
+    },
+    {
+     "was": "'거의 쓸 수 있다' 여유 인자 중 계산값 `%33` 의 정체",
+     "now": "➕**보강(검증배치 D)**: `m14.ll:60620~60624` = `load[env+24]` → `+4856` → load. **`4856 = 0x12f8` = `GameSetting.tick_per_second`** ⟹ **이 호출부의 여유는 정확히 1초**다. 실전 tps=60 이면 40/50/60 = **0.67 / 0.83 / 1.00초**이고 **이 한 곳만 tps 스케일을 따라간다**. 호출자 = `LineDefenseSubPlan::unsafe_v19_non_champion_walkup` 클로저, 결과에 `+20000` 가산(m14.ll:60625).\n✅**호출부 13곳 전수 확인** — 40/50/60 분포(40×5·60×5·50×2) + 계산값 1 이 명세 좌표와 완전 일치, 오류 0."
     }
    ],
    "new_knobs": [
@@ -7670,7 +7702,9 @@
      "effect": "쿨감 상한(하한 틱)"
     }
    ],
-   "still_unknown": []
+   "still_unknown": [
+    "⚠**문서위생(검증배치 D)**: 이 명세의 `unknown[]` 에 **이미 `resolved[]` 가 뒤집은 판정 3건이 원문 그대로** 남아 있다 — ①\"cooldown 이 남은 틱인지 **추정**\" ②\"`Effect::range_adjust` 본체 확인 불가\" ③\"`CastingTarget::check` 본체 미확인\". **셋 다 확정된 사실**이다(`_shared.cooldown_확정`·`EffectType_vtable`). `unknown` 만 grep 하는 세션이 확정된 것을 다시 판다 — `~~취소선~~ → resolved 참조`로 정리 필요."
+   ]
   },
   {
    "id": "old_death_battle__new",
@@ -8092,6 +8126,10 @@
     {
      "was": "Chat 의 enum+0x8 이 Battle계 이외 태그(24 SerpenPrepare, 33 MorgardPrepare)에서도 '엔티티 id' 인지",
      "now": "★**아니다 — 스폰까지 남은 \"초\"다.** 전문 = `_shared.Chat_스폰예고`. `__0 = udiv(next_respawn_tick - now, tps)`, 발화는 **남은 시간이 20초를 처음 밑도는 순간 1회**. `_gaibc`+`_gcbc` 전수 확인 결과 이 값을 id 로 쓰는 소비처는 없다."
+    },
+    {
+     "was": "`main_objective` = `Option<Option<MainObjective>>`(3B) / `flee_die` 센티널 = `usize::MAX`",
+     "now": "★**정정 2건(검증배치 D)**\n① **타입 오류**: `+0x17b main_objective` 는 tcx 정본상 **`Option<MainObjective>`(3B) 단일 Option** 이다(`SinglePlanBattle+0x8d` 도 동일). **이중 Option 으로 읽으면 니치가 한 겹 어긋나 재구현 코드가 실제로 틀린다.**\n   ➕그 결과 `unknown`(0x17c/0x17d 정체)이 닫힌다: `MainObjective` 3B, 태그 `+0x0`(0..11), `Morgard`/`Serpen` 페이로드 = **`phase: ObjectPhase @+0x1` · `with_battle: bool @+0x2`**. None 니치는 태그바이트 `0xff` 하나이고 **`0x17c/0x17d` 는 그 phase/with_battle 자리**.\n② **센티널 이름 오류(경미)**: `+0x118 flee_die` 의 저장값 `9223372036854775807 = 0x7FFF…FF` 는 **`i64::MAX`**(= `usize::MAX/2`)다. 같은 명세의 `logic` 블록은 `i64::MAX` 로 맞게 적혀 있어 **두 곳이 서로 모순**이었다."
     }
    ],
    "new_knobs": [
@@ -8103,8 +8141,7 @@
     }
    ],
    "still_unknown": [
-    "Chat 24/33 페이로드 `__1`(항상 0)의 용도 — 생성부는 전부 리터럴 0, 소비부는 복사/비교뿐이라 관측만으로 확정 불가. `misunderstand` 의 로컬명 `t`(vs `v`)로 보아 시간류로 **추정**되나 근거가 이름뿐",
-    "★재료 범위 확정: `Chat::{Serpen,Morgard}Prepare.__1` 은 **IR 3크레이트(생성부 리터럴 0·소비 0) + rmeta 주석 0건 + 게임 i18n 번들(`text\\chat.i18n` 의 serpen.prepare 3종은 플레이스홀더가 아예 없는 고정 문구)** 범위에서 **죽은 슬롯**이다. 의도한 이름/용도는 미확정. 미탐색 = rmeta MIR/Span · exe 디컴. 부수: `_gvbc` 는 `Chat` 을 한 번도 참조하지 않는다(UI 소비부 없음)"
+    "`Chat::{Serpen,Morgard}Prepare.__1` — ★**\"이름이 없다\"로 닫힘(2026-09-11)**. `Chat` 은 game_ai 가 아니라 `game-core\\src\\simulation\\state\\player.rs` 정의이고 `SerpenPrepare` @765 / `MorgardPrepare` @776 **둘 다 튜플 variant**(rustc 진단: \"is a tuple variant\") ⟹ rmeta 필드 테이블의 이름이 `0`/`1` 뿐이라 **의도를 알려주는 이름이 애초에 존재할 수 없다**. 값 자체는 종전대로 **항상 리터럴 0 · 소비처 0건 = 죽은 슬롯**. 줄표 검산 L765 = 30자 = `  SerpenPrepare(usize, usize),`. 전문 = RE6-09-11_rmeta-SourceMap-rustc프로브-Span복원.md"
    ]
   },
   {
@@ -8462,6 +8499,10 @@
     {
      "was": "TeamColorStrategy::random 의 필드별 Some/None 확률",
      "now": "★**전제가 틀렸다 — 필드별 확률 차이가 없다.** 전문 = `_shared.TeamColorStrategy_random`. `n = gen_range(5..=9)` 개를 셔플로 골라 setter 를 돌리고 setter 는 무조건 Some 을 채운다 ⟹ **P(Some) = 7/12 ≈ 58.3%, 12필드 전부 동일**. ★그리고 이 경로는 `thread_rng()` — **게임 결정론 PRNG 가 아니다**(리플레이 무관)."
+    },
+    {
+     "was": "피호출자 시그니처 2건 / `Chat::Press`·`PressChange` 의 src_line = 682",
+     "now": "★**정정 2건(검증배치 D)**\n① **argpromotion 아티팩트**: `v3_epicops_repair_need(team, data.cache, plan)` 로 적었으나 tcx 정본은 **`fn(player: &PlayerState, data: &OperationData, plan: &BigPlan) -> u8`**. `v3_group_press_line(team, cache, ctx, skip)` 도 실제는 **`fn(&PlayerState, &OperationData, Option<LineType>) -> Option<LineType>`(3인자)**. LLVM 이 internal 함수의 `&Struct` 인자를 *로드하는 필드값*으로 치환한 것이다(판별 = tcx `sig` + DWARF `DILocalVariable(arg:N)`).\n   ➕**부수 소득**: promotion 은 *모든* 용도가 그 로드일 때만 일어나므로 — `v3_epicops_repair_need` 는 **player 에서 `info.team` 만, data 에서 `cache` 만 읽는다**(그 외 접근 0). 재구현 근거로 쓸 수 있다.\n② **줄번호 오류**: `constants[21]`/`constants[22]` 의 `src_line = 682` 와 `logic` 주석 \"682줄의 is_none\" 은 **틀렸다**. `dloc !14971` 체인 = `option.rs:633 is_some` ← **`option.rs:682 is_none`** ← **`epic.rs:673`** ⟹ **682 는 `core/src/option.rs` 줄번호**(숫자 우연 일치)다. `Chat::Press`/`PressChange` push 는 **`epic.rs:674`/`676`**. 같은 명세의 `still_unknown` 은 674/676·673 으로 **맞게** 적혀 있어 `constants`/`logic` 만 갱신 누락 — ⚠`constants` 를 기계 소비하는 도구가 잘못 앵커링한다.\n참고: `epic.rs:682` 는 **실재 줄**(`!14808`, 함수 꼬리) — \"682 가 없다\"가 아니라 \"682 는 그 문장이 아니다\"."
     }
    ],
    "new_knobs": [
@@ -8593,9 +8634,8 @@
     }
    ],
    "still_unknown": [
-    "epic.rs 655~657 / 659~663 / 671 / 674~675 / 677~678 — 대응하는 !DILocation 자체가 없음(중괄호·상수접힘 추정)",
-    "`CommitAfterJoin` 을 실제로 생산하는 지점 — `_gaibc` 의 fight_model 안에는 없다(확정). `resolve_join_stake`(fight_model.rs:680)·`battle::update_v32` 경로는 미조사(불가 아님, 안 읽었을 뿐)",
-    "`resolve_fight_uncached` 본문(3,477줄) 중 net_value 계산부(fight_participants·fight_dps 합산) — 출력 지점만 확정"
+    "`epic.rs` 655~678 — ★**대부분 확정(2026-09-11). 직전 「재료 부재로 종결, 남은 건 exe 디스어셈뿐」 판정은 과했다.**\n**막힌 것은 MIR 경로뿐**이었고, 「**줄 길이 산술**(rmeta_srcmap) + tcx ADT 필드명·태그 + IR 분기 유무」 조합으로 뚫렸다.\n★전제도 틀렸었다: DILocation 전수 집계 결과 **`659`·`674`·`676` 은 사실 IR 이 있다**. 진짜 미해명은 `655·656·670·675·681` 이었고 **그중 4개 확정**:\n  L654~657 = `self.objective = Some(MainObjective::Serpen {` / `  phase: ObjectPhase::Setup,` / `  with_battle: true,` / `});`\n    (근거: 세 스토어가 전부 `!dbg epic.rs:654` 단일 + 사이에 분기 없음 ⟹ 655 는 `if` 가 될 수 없는 **계속행**. `MainObjective::Serpen{phase, with_battle}` 가 tcx 상 네임드 필드라 표기가 강제되고 `ObjectPhase` 태그 1 = `Setup` 이 길이를 ±0 으로 맞춘다)\n  L675 = `} else {` / L681 = `false`\n  L674/676 = `self.chats.push(Chat::Press(epic_line, 0));` / `…PressChange…` (IR `select(v3_press_chat_line.is_none(), 21, 22)`. 두 줄 길이차 6 = `len(\"PressChange\")−len(\"Press\")` 로 자기정합)\n**남은 것**: ①674/676 의 **1자 잔차**(양쪽 동일) ②`667~670` 이터레이터/클로저 체인 본문(**미탐색** — IR 은 `player_champion[team][i].is_some()` 필터 + `v3_epic_formation_role(...)` 5회 언롤까지 확인) ③`648~650`·`662~663`·`685~686` 의 한글 `//` 주석 원문(**재료 부재** — 라인주석은 rmeta 미포함).\n전문 = RE\\2026-09-11_IR정밀독해-exit_src16_23-region_point-battle잔여-epic줄복원.md",
+    "`FightLine::CommitAfterJoin`(1) 의 생산 지점 — ★**\"죽은 variant\" 로 닫힘(2026-09-11)**. `FightPrediction.line`(+0x38)/`line_absolute`(+0x39) 로의 store 를 `_gaibc` 전량 gep 체인 누적 스캔한 결과 **값 1 을 쓰는 코드 0건**. 유일한 진짜 생산자 `fight_model.rs:520`(m10.ll:47092/47105)의 phi 값역이 **{0,2,3}**. 후보였던 `resolve_join_stake`·`battle::update_v32` 는 **둘 다 복사만** 한다(탈락). 소비 측 switch 에는 케이스가 살아 있으나 **Hold 와 같은 블록으로 접혀** 있다. ⚠적용 범위: `_gaibc`·`_gcbc`·`_gvbc` IR 한정. 미탐색 = 미추출 rlib(`libengine_*`) · rmeta MIR · exe. 전문 = RE6-09-11_fight_model-심층부4건-join_stake-tower_dive-net_value.md"
    ]
   },
   {
@@ -8974,6 +9014,10 @@
     {
      "was": "m12.ll:22671 의 vtable +0x40 슬롯이 Option<&JungleRunner> 를 돌려주는 게터라는 것까지만 확인",
      "now": "★확정 — **`game.get_game_mode().as_moba().unwrap().jungle_runner`**. `_gaibc/m12.ll:22671~22697`: `%37 = vtable[+0x40](game)` → `{tag, ptr}`, `tag == 0` 일 때만 통과(아니면 `unwrap_failed`) = `as_moba().unwrap()`, `%44 = payload + 24` 를 `get_camp_state` 에 `dereferenceable(480)` 로 전달. `distruct MobaMode 0x18` → **`jungle_runner : JungleRunner (480B)`** 로 정확히 일치. 폴백 fold 자체도 확정: 키 = `get_camp_state(...)+0x18 next_respawn_tick` ⟹ **리스폰이 가장 빠른 캠프**."
+    },
+    {
+     "was": "(검증)",
+     "now": "✅**오라클 end-to-end 10/10 MATCH(검증배치 D)** — SDK 실제 반환값과 명세 규칙(\"미클리어 캠프 중 제곱거리 최소, 동점이면 배열 앞\")의 손계산이 팀×포지션 **10칸 전부 일치**. **오류 0.**\n실행이 부수로 확인해 준 것: `MapDef::camp_pos` 좌표표가 `resolved.좌표표` 와 **완전 일치** · `is_cleared`/`is_side_cleared` 가 초기 상태 전부 false ⟹ `not_cleared_camps`=4 ⟹ **본선 경로가 실제로 돌았다**(폴백 아님) · `now_camp=Some(Bee)` 를 줘도 결과 불변 ⟹ **`now_camp` 는 챔프 없을 때만**."
     }
    ],
    "new_knobs": [

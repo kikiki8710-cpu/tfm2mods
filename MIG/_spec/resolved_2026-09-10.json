@@ -4,7 +4,10 @@
   "game": "0.5.8",
   "what": "1~6차 명세의 unknown 을 _gcbc(game_core IR) 와 aux 범위 조사로 해소한 결과. 함수별 명세에 덧입히는 오버레이.",
   "source": "6갈래 병렬 조사(시야/범위밖조각/이펙트술어/정글맵/전투판정/vtable·코드체계)",
-  "rule": "여기 적힌 것은 전부 IR 로 확인된 사실이다. 추정은 confidence=추정 으로 표시했다."
+  "rule": "여기 적힌 것은 전부 IR 로 확인된 사실이다. 추정은 confidence=추정 으로 표시했다.",
+  "corrections": [
+   "2026-09-11 tcxdict 감사: ~~PlayerState+0x2496~~ 은 10진 2496 을 16진으로 오기한 것. PlayerState 는 2528B(0x9E0) 라 0x2496 은 범위 밖. 2496(10진) = 0x9c0 = info.position ⟹ \"== 1\" 의 참뜻은 포지션 == 1(정글러). 판정 의미는 불변, 코드 반영 이력 없음(문서만)."
+  ]
  },
  "_shared": {
   "is_recent_visible": {
@@ -263,7 +266,7 @@
   "전투_위협모델": {
    "확정": "★`check_kill_die_tick_uncached`(fight_check.rs:970, _gaibc/m15.ll:31120~33055)의 적 챔피언 루프 — **슬롯별 상수 계수는 존재하지 않는다.** 가중치는 테이블 룩업이고 곱해지는 것은 **명중 정확도 난수 하나뿐**이다.",
    "테이블": "`AbstractGameWithCache.player_champion_cache`(+0x280, `[2][5] ChampionCache`, 각 800B). 주소식 = `cache + 640 + (적팀)*4000 + (적포지션)*800 + <슬롯오프셋> + (내포지션)*8`.\n  nuke 쪽: attack +0x0 / skill +0x28 / skill2 +0x50 / ult +0x78\n  dps 쪽: attack_per_sec +0x190 / skill_per_sec +0x1b8 / skill2_per_sec +0x1e0",
-   "난수": "`judge_accuracy`(PlayerState+0x180) 기반 균등 난수. `h = (1000-acc)>>1`, `range_min = 1000-h`, `range_max = 1000+h`, `기여 = 테이블값 * roll / 1000`. 난수 = **splitmix64**, 시드 = `(player.info.id * 0x9E3779B97F4A7C15) ^ (내챔프 Entity+0x5c0 << 24) ^ (tick / (tps*2))` ⟹ **2초 버킷**(같은 2초 안에는 같은 난수열). ⚠RNG 상태는 **기여한 슬롯에서만 전진**한다(스킵된 슬롯은 난수를 소비하지 않는다).",
+   "난수": "★**정정(2026-09-11 검증배치 A)**: ~~`judge_accuracy`(PlayerState+0x180)~~ 는 **필드가 아니다**. `tcxdict PlayerState 0x180` = **`info.parameter : AthleteParameter`(744B) 의 시작 주소**이고, `judge_accuracy` 는 그 위의 **인라인 안 된 pub 메서드**(`player.rs:337`, 본체 `_gcbc/g15.ll:125794`). ⚠**`+0x180` 에서 u64 를 읽으면 `Vec<String>` 포인터를 읽는다** — 재구현 시 조용히 쓰레기가 된다.\n본체(반환 `range(i64 100, 1001)`): `j = param+0x98(stat.judgement)` · `r = param+0x2d0(judgement_mental_ratio)` · `x = umin(r*j/1000, 100)` · **`return x*9 + 100`** ⟹ **치역 100~1000(9 간격 이산)**. 오라클 실행 확증: `AthleteParameter::new(&AthleteStat::default()).judge_accuracy() == 100`.\n⟹ ~~\"0~1000\"~~ → **100~1000**, ~~\"0 이면 ×0.500~1.500\"~~ 은 **도달 불가**(최악 acc=100 → h=450 → **×0.550~1.450**).\n★신규 노브 2개: **`AthleteStat.judgement`(param+0x98)** 와 **`judgement_mental_ratio`(param+0x2d0 = PlayerState+0x450)** — 후자가 **멘탈에 따라 판단 정확도를 흔드는 곱수**이고 명세 어디에도 없었다. `min(..,100)` 포화 존재.\n(이하 종전 서술) `judge_accuracy`(PlayerState+0x180) 기반 균등 난수. `h = (1000-acc)>>1`, `range_min = 1000-h`, `range_max = 1000+h`, `기여 = 테이블값 * roll / 1000`. 난수 = **splitmix64**, 시드 = `(player.info.id * 0x9E3779B97F4A7C15) ^ (내챔프 Entity+0x5c0 << 24) ^ (tick / (tps*2))` ⟹ **2초 버킷**(같은 2초 안에는 같은 난수열). ⚠RNG 상태는 **기여한 슬롯에서만 전진**한다(스킵된 슬롯은 난수를 소비하지 않는다).",
    "★쓸수있음_vs_없음": "**전부냐 0이냐 — 부분 계수가 없다.** `if can_X(champ) || X_cooldown(champ).map_or(true, |c| c <= tps) { nuke = max(nuke, table[X]*roll/1000) }`. dps 쪽은 `attack: !is_block_attack` / `skill·skill2: !is_block_skill && (!is_block_move_skill || eff.casting==None || !eff.ty.can_move())`. ⚠**skill2 는 `is_block_skill2` 가 아니라 `is_block_skill` 을 재사용**한다.",
    "★누산_방식_정정": "`nuke` = 챔피언 1명 안에서 **4슬롯의 max**(`llvm.umax`, m15.ll:31666) → `enemy_nuke` += 그 max ⟹ **챔피언별 최대 한 방의 합**. 반면 `enemy_dps` = 3슬롯 × 챔피언 전부의 **합**. (이전 서술의 '둘 다 누적'은 절반만 맞다.)",
    "미니언_위험표_게이트": "★확정 — 두 번째 항 = **`game_ai::minion_wave_risk::enemy_minion_wave_has_epic_buff`**(minion_wave_risk.rs:92~96). 실체는 `MobaMode::remain_epic_time(1 - target팀)` = **`epic_minion_buff_time[적팀]`**(MobaMode+0x240 — 이미 확정된 그 필드와 동일). ⟹ `if champion_action || 적팀 에픽 미니언 버프 잔여시간 ≠ 0 { 엄격표 } else { 완화표 }`. **적 미니언 웨이브에 에픽 버프가 켜져 있으면 훨씬 낮은 데미지에서도 '위험'으로 판정한다.**"
@@ -322,7 +325,7 @@
      "ir": "phi [true,%2] ×3"
     }
    ],
-   "와일드카드_아님": "★`_ => true` 가 아니라 4·5·6 이 **명시 case 로 열거**돼 있다. 근거 = switch 의 default 가 `label %4 → unreachable`(m13.ll:53955~53963). 와일드카드였다면 default 가 true 블록이 되고 unreachable 블록이 생기지 않는다. 다만 4/5/6 각각의 소스 줄번호는 복원 불가(true 경로에 !dbg 가 switch 줄 91 밖에 없다).",
+   "와일드카드_아님": "★`_ => true` 가 아니라 4·5·6 이 **명시 case 로 열거**돼 있다(IR switch 기준). 근거 = switch 의 default 가 `label %4 → unreachable`(m13.ll:53955~53963). ★**보완(2026-09-11)**: 소스에서는 개별 case 3개가 아니라 **`|` 결합 arm 한 줄 = `rule_scope.rs:96`** 이다 — `    BigGoal::Nexus { .. } | BigGoal::Battle { .. } | BigGoal::Recall => true,` (문자수 77 = 4+21+3+22+3+15+9, rmeta SourceMap 줄표와 정확히 일치). `|` 패턴 arm 이 switch 에서 case 여러 개로 펴지는 것이라 두 서술은 모순이 아니다. 나머지 arm 줄번호도 확정: 91 match / 92 Line / 93 Epic / 94 Serpen / 95 Jungle / 96 Nexus·Battle·Recall.",
    "일반경기_무영향": "`TutorialType=0(None)=일반 경기` 는 6표 전부 통과한다 ⟹ 이 게이트들은 **튜토리얼 전용 노브**이고 일반 경기 동작에는 영향이 없다."
   },
   "SubPlan_merge": {
@@ -602,26 +605,29 @@
    "읽는_곳_전수": "`_gaibc` + `_gcbc` 전수 확인 — `+0x8` 을 **id 로 쓰는 소비처는 없다**. `Chat::as_call`(_gcbc/g15.ll:249205)은 태그 3/4/6 만 매치하고 그중 6 만 `+0x8` 을 읽는다. `handle_chat_inner` 도 3/4/6 만. `Chat::misunderstand` 는 24↔33 을 맞바꾸며 페이로드를 **그대로 복사**만 한다. `chat_allowed` 는 그룹 분류만 하고 페이로드 미접근."
   },
   "포맷템플릿_문법": {
-   "확정": "★rustc `fmt::Arguments` 압축 템플릿 문법을 역산했다(전 크레이트 템플릿 상수 6,127개 전수 디코드). \"`\\C0` 옵코드는 rustc 내부 인코딩이라 IR 에 명세가 없다 = 원리적 불가\" 판정이 **뒤집혔다.**",
-   "문법": [
+   "확정": "★**2026-09-11 전면 정정 — 역산이 아니라 rustc 소스 원문으로 확정했다.** `rust-src`/`rustc-src` 컴포넌트를 설치하니 인코더와 비트 정의가 그대로 있다: `rustc-src\rust\\compiler\rustc_ast_lowering\\src\format.rs:336~425`(인코더) + `src\rust\\library\\core\\src\fmt\\mod.rs:316~331`(flags 비트). ⟹ 이건 **관측할 문제가 아니라 명세를 읽을 문제**였다. 「비트 3~6 관측 불가」 판정은 **무효**.",
+   "바이트": [
     {
      "byte": "0x00",
-     "의미": "종료"
+     "의미": "종료(zero terminator)"
     },
     {
      "byte": "0x01~0x7F = N",
-     "의미": "**리터럴 런** — 뒤이어 N 바이트 UTF-8 텍스트"
+     "의미": "**짧은 리터럴 런** — 뒤이어 N 바이트 UTF-8"
     },
     {
-     "byte": "0x80~0xFF",
-     "의미": "**인자 플레이스홀더**(순차 소비). 하위 비트가 뒤따르는 옵션 블록을 지정"
+     "byte": "0x80",
+     "의미": "★**긴 리터럴 런** — 뒤이어 **u16 LE 길이**, 그 다음 바이트열. ~~우리가 `0x80~0xFF` 를 통째로 플레이스홀더로 적은 것은 오류~~ (이 코드베이스에 127바이트 넘는 리터럴이 없어 한 번도 안 나타났다)"
+    },
+    {
+     "byte": "0xC0 | 옵션비트",
+     "의미": "**플레이스홀더**. 시작 바이트는 항상 `0xC0` 이고 아래 옵션 비트가 OR 된다"
     }
    ],
-   "플레이스홀더_비트": "0x01 → `flags: u32`(LE 4B) / 0x02 → `width: u16` / 0x04 → `precision: u16` / `0xC0` = 옵션 전무. 관측된 조합 = C0/C1/C3/C5/C7 뿐.",
-   "flags_비트": "비트0~20 = fill 문자(실측 전부 0x20) / 비트24 = 0-패딩 / 비트25 = alternate(#) / 비트27 = width 있음 / 비트28 = precision 있음 / 비트29~30 = Alignment 2비트(3=기본)",
-   "교차검증": "리터럴 길이가 전부 맞는다 — `\\06Plan: \\C0\\00`(6) · `\\10Main Objective: \\C0\\00`(16) · `\\0AV46DEATH T\\C0\\01 \\C0\\06 tick~\\C0\\07 label=\\C0\\00`(10/1/6/7)",
-   "결론": "`@anon…62 = \"\\C0\\00\"` = **리터럴 0바이트 + 옵션 없는 플레이스홀더 1개**가 문법으로 확정. `?`(Debug)는 템플릿이 아니라 **인자 배열의 fmt 함수포인터**가 정한다 ⟹ `\"{:?}\"` 결론이 옵코드로도 뒷받침된다.",
-   "잔여": "비트3~6 — 6,127개가 전부 `0b11xxxxxx` 라 이 빌드의 재료로는 관측 불가(rustc 소스 필요)."
+   "옵션비트": "`bytecode[i] |= ...` (format.rs:393~416) — ★우리 표는 0~2 만 알고 **3·4·5 를 몰랐다**:\n  bit0 = flags u32(LE 4B) 뒤따름\n  bit1 = width 값(u16) 뒤따름\n  bit2 = precision 값(u16) 뒤따름\n  ★bit3 = **명시 인자 인덱스(u16) 뒤따름** — 암묵 순서와 다를 때만\n  ★bit4 = width 가 **간접**(인자에서 공급)\n  ★bit5 = precision 이 **간접**\n관측된 C0/C1/C3/C5/C7 은 전부 `0xC0 + {}, {0}, {0,1}, {0,2}, {0,1,2}` 로 정합.",
+   "flags_비트": "★**정정 포함** (`core\\src\fmt\\mod.rs` `mod flags`):\n  0~20 = **fill 문자**(char). ⟹ ~~「비트 3~6 미확정」~~ 은 **질문 자체가 틀렸다** — 그 비트들은 fill 문자의 일부다\n  21 = SIGN_PLUS   22 = SIGN_MINUS   ← 우리 표에 없던 것\n  **23 = ALTERNATE(`#`)**  ← ~~우리가 25 라고 적은 것은 오류~~\n  24 = SIGN_AWARE_ZERO_PAD(0-패딩)\n  **25 = DEBUG_LOWER_HEX   26 = DEBUG_UPPER_HEX**  ← 우리 표에 없던 것\n  27 = WIDTH_FLAG   28 = PRECISION_FLAG\n  29~30 = ALIGN (0 Left / 1 Right / 2 Center / **3 None=기본**)\n`default_flags = 0x6000_0020` = align 3 + fill `' '`(0x20) ⟹ **flags 가 기본값과 같으면 아예 안 실린다**",
+   "교차검증": "우리가 역산한 리터럴 길이 검산은 전부 맞았다 — `\u0006Plan: \\C0\u0000`(6) · `\bMain Objective: \\C0\u0000`(16) · `\u0000AV46DEATH T\\C0\u0001 \\C0\u0006 tick~\\C0\u0007 label=\\C0\u0000`(10/1/6/7). 실측 6,127개가 전부 `0b11xxxxxx` 였던 것도 이제 설명된다: **시작 바이트가 항상 `0xC0` 이고 옵션 비트는 하위 6비트에만 OR 되기 때문**이다.",
+   "결론": "`@anon…62 = \"\\C0\u0000\"` = 옵션 없는 플레이스홀더 1개 + 종료 ⟹ 포맷 문자열 `\"{}\"` 골격. 실제 `{:?}` 여부는 템플릿이 아니라 **인자 배열의 fmt 함수포인터**(`ArgumentType::Format(format_trait)`)가 정한다 — 종전 결론 유지."
   },
   "ff_call_계측_8칸": {
    "확정": "★`handle_chat_inner` 의 Battle 계열(태그 3/4/6) arm 분해축이 `LegacyPlanHandler` 의 계측 배열과 **1:1**이다. rmeta 주석 `(수신, 무시, 교전중, 손못뗌, 원거리, 저체력, 즉발불발, 합류)` 와 **순서까지 정확히 일치** — 주석↔IR 교차검증 성공.",
@@ -711,7 +717,7 @@
    "확정": "★**\"Top 절반 = 화면 위쪽\" 확정.** 이전엔 \"렌더러 소관이라 _gaibc/_gcbc 에 없다\"로 미확정이었는데 **`_gvbc`(game_view)를 안 봤던 것**이다.",
    "미니맵": "`GameView::render_minimap`(_gvbc/v10.ll:248308) — 엔티티 `screen = (panel.x + ev.x/3.0, panel.y + ev.y/3.0)`(v10.ll:251158~251164), 카메라 사각형도 동일하게 `/3.0`(v10.ll:251049~251052, 월드 클램프 상한 960.0). **x/y 어디에도 부호 반전·`height - y` 가 없다** ⟹ 월드 y 증가 = 화면 y 증가(아래쪽).",
    "Top영역": "`is_near_top_line`(_gcbc/g09.ll:159311) Top ⟺ `x + y < height` / `is_near_bottom_line`(g09.ll:159902) Bottom ⟺ `x + y ≥ height` / `is_in_top_jungle`(g09.ll:158917) 동일 반평면. ⟹ Top = **작은 x·작은 y** ⟹ 미니맵/화면의 **왼쪽 위**.",
-   "부수": "맵 폭/높이 = MapDef `+0x12b8`(width)/`+0x12c0`(height), 라인 밴드 반폭 192000, 대각 이격 96000. 미니맵 스케일 1/3 · 오프셋 +20(월드 960 → 패널 320)."
+   "부수": "맵 폭/높이 = **GameSetting** `+0x12b8`(width)/`+0x12c0`(height) [정정 2026-09-11 tcx: ~~MapDef~~ 오귀속 — MapDef 0x12b8 은 walls[19][14]], 라인 밴드 반폭 192000, 대각 이격 96000. 미니맵 스케일 1/3 · 오프셋 +20(월드 960 → 패널 320)."
   },
   "resolve_fight": {
    "사슬": "`resolve_fight`(fight_model.rs:310, _gaibc/m10.ll:39395, 얇은 래퍼) → `resolve_fight_full`(:324, m10.ll:39915, ResolveFightCache thread_local 캐시 래퍼) → `resolve_fight_uncached`(:378, m10.ll:43974~47451).",
@@ -1529,7 +1535,7 @@
   "resolved_2": [
    {
     "was": "is_minion 술어 이름 — !dbg 로 확인된 것은 is_jungle·is_nexus 둘뿐",
-    "now": "★**rmeta 식별자 테이블로 뒤집혔다.** IR 3크레이트 전량에 `is_minion` 심볼/DISubprogram 0건이지만, `rmetagrep game_core is_minion` → hit @0x9e47 — `EntityType` 식별자 테이블에 `is_any_type_minion`·`is_top_minion`·`is_mid_minion`·`is_bottom_minion` 바로 앞에 **실재**한다. 라인 배치도 일치(`is_jungle` 1377 → **1381 빈 슬롯** → `is_tower` 1385). ⟹ **술어 = `EntityType::is_minion`**(위치 entity.rs:1381 은 정황 추정), **태그 1 = Minion 은 확정**.",
+    "now": "★**확정 — `entity.rs:1256`**(2026-09-11 rmeta SourceMap + rustc 프로브). ~~1381~~ 은 **오답**이었다 — 그 줄은 `is_any_jungle` 이고 `is_jungle` 이 1377 이다. `EntityType::is_minion(&self, <인자1>) -> bool` 시그니처 줄 56자. 인접: `is_any_type_minion` 1260 / `is_top_minion` 1264 / `is_mid_minion` 1268 / `is_bottom_minion` 1272 / `is_epic` 1369 / `is_serpen` 1373 / `is_tower` 1385. 검산 = 시그니처 길이 공식 `26 + len(name)` 이 IR 확정 줄 14개 전부와 일치. **태그 1 = Minion 은 종전대로 확정.** 전문 = RE6-09-11_rmeta-SourceMap-rustc프로브-Span복원.md",
     "보너스_계수표": "`min(coef, coef*dmg/target.hp) + (ty==Jungle && camp_type.0<2 ? 5 : 0)`(m05.ll:40062~40071). coef = Nexus(3) 200 / Tower(2) 80 / **Minion(1) −10** / Jungle(4) 는 `camp_type.0<2` 면 (`target.hp > dmg` ? 20 : 40) 아니면 **0** / 그 외 0."
    }
   ],
@@ -2047,7 +2053,7 @@
     ],
     "도출_사슬": "(a) 0/7/8 셋 다 `.min(3)`→3, `.min(4)`→4 ⟹ **≥4** (b) rule_scope.rs:39 Jungle arm 이 {0,8} 은 통과·{7} 은 탈락시키므로 `pc(0)=pc(8) ≠ pc(7)` ⟹ `pc(7)=4`, `pc(0)=pc(8)≥5` (c) 포지션 5개가 상한. ⚠**리터럴 5 는 IR 어디에도 안 남는다**(전 호출부가 3/4 로 clamp) — 그래서 5 는 확정이 아니라 **도출**이다.",
     "의미": "**'그 튜토리얼에서 존재하는 포지션 수'** — `position_exists` 의 4개 arm 과 정확히 일치(TopSolo=Top만=1, First/Bottom=Bottom+Support=2, MidBottom=Mid+Bottom+Support=3, Line=정글 제외 4, Total/None=5).",
-    "Jungle_arm": "`Position::Jungle => *tutorial == TutorialType::JungleOnly || tutorial.player_count() == 5` (m13.ll:29471~29474). ⚠`==5` / `>=5` / `>4` 는 결과가 같아 **연산자 종류와 `||` 좌우 순서는 구분 불가**.",
+    "Jungle_arm": "`Position::Jungle => tutorial.player_count() == 5 || *tutorial == TutorialType::JungleOnly` (★2026-09-11 tcx MIR 로 **좌우 순서 확정** — 좌항 player_count 비교가 단락, 우항이 derive PartialEq 인라인 `Eq(disc,6)`. ~~좌우 순서 구분 불가~~ 정정). ⚠남은 `== 5` vs `>= 5`(및 `> 4`) 는 player_count 최댓값이 5라 외연 동일 ⟹ **표기 불가(원리적)·재조사 금지**. 동작 확정 = 통과 집합 {None(0), JungleOnly(6), Total(8)}. 근거 = REPORT tfm2_ai_adjust RE 2026-09-11 tcx MIR가용성판정 §6.",
     "자매함수": "chat_allowed 안에 인라인된 것들도 같이 확정 — `spawn_epic`(runner.rs:262) → {0,7,8} / `spawn_serpen`(:266) → {0,5,7,8} / `spawn_line_minion(line)`(:274) → Top{0,2,7,8}·Mid{0,4,5,7,8}·Bottom{0,1,3,5,7,8}"
    },
    {
@@ -2313,7 +2319,7 @@
   ],
   "still_unknown": [
    "player_count() 가 None(0)/Total(8) 에 대해 반환하는 리터럴 5 — 관측 가능한 전 호출부가 .min(3)/.min(4) 로 clamp 해 5가 한 번도 나타나지 않는다. '≥5 이고 7보다 크다'까지가 IR 확정이고 5 자체는 포지션 정원에 의한 **도출**",
-   "rule_scope.rs:39 의 비교 연산자와 || 좌우 순서 — ==5 / >=5 / >4 가 결과집합이 동일해 원리적으로 구분 불가",
+   "~~rule_scope.rs:39 의 비교 연산자와 || 좌우 순서~~ → 2026-09-11 tcx MIR: 좌우 순서 확정(좌 player_count()==5 / 우 tut==JungleOnly). 남은 ==5 vs >=5(>4) 만 표기 불가(원리적)·재조사 금지 · 동작 확정 = 통과 {0,6,8}",
    "chat.rs:20 에 명시적 `return;` 이 있는지 vs `return self.handle_chat_inner(..)` 인지 — 줄번호가 19 하나뿐이라 구분 불가(동작 동일)",
    "`tower_dive_is_viable` **내부** — 호출 게이트만 확정. 본체는 old::fight_model, 별도 배치 필요",
    "`resolve_join_stake` **내부**(_gaibc/m10.ll:41001~42354, 1,353줄) — 계약(인자·반환·FightLine 코드표)만 확정",
@@ -2705,7 +2711,7 @@
   "resolved": [
    {
     "was": "goal_allowed 의 Nexus/Battle/Recall 이 어느 줄의 어떤 패턴인지 확인 불가",
-    "now": "★확정 — `_ => true` 가 **아니다.** 4·5·6 이 명시 case 로 열거돼 있고 default 는 unreachable 이다. 전체 판정표와 대상별 튜토리얼 화이트리스트 6종은 `_shared.rule_scope_게이트` 참조. **줄번호만** 복원 불가(줄 96 결합 arm 추정)."
+    "now": "★확정 — `_ => true` 가 **아니다.** IR switch 에서 4·5·6 이 명시 case 로 열거돼 있고 default 는 unreachable 이다. ★**줄번호도 확정(2026-09-11)**: 소스에서는 `|` 결합 arm 한 줄 **`rule_scope.rs:96`**(문자수 77 검산 일치). arm 줄표 = 91 match / 92 Line / 93 Epic / 94 Serpen / 95 Jungle / 96 Nexus·Battle·Recall. 전체 판정표와 대상별 튜토리얼 화이트리스트 6종은 `_shared.rule_scope_게이트` 참조."
    },
    {
     "was": "AbstractGame::get_game_mode 가 { i64, ptr } 를 반환하는데 ptr(GameMode 페이로드)이 무엇인지 모름",
@@ -2800,7 +2806,7 @@
    },
    {
     "was": "코드 20·25·28 의 발화 조건 — 위치는 확정했으나 조건식은 안 읽었다",
-    "now": "★확정.\n**28**(handler.rs:716~722): `!counter_jungle_route_init(+0x1806)` ∧ `PlayerState+0x2496 == 1` ∧ `player_count` 이 1..=7 **밖** ∧ `strategy+18 == 2` → 래치 후 `PassiveJunglePlan::new_counter_jungle`. **판당 1회.**\n**20**(handler.rs:938): 공통 종착점. 도달 5경로 = ①:789 `PlayerState+0x2496 != 1` ②:851 BigPlan tag==9 ③:916 tag!=10 ④:931 `main_objective != None` ⑤:933(tag 8 + objective 기록 직후). 직후 939 에서 memcpy(384)로 교체.\n**25**(handler.rs:1240~1247): :1200 BigPlan tag!=9 → `passive_plan()` → `mf_ret25_src[min(src,31)]++`(1241) → `v2_apply_assign_commit`(1246) → `mf_note_swap(25)`(1247) → 1248 교체. 즉 **25 = \"본류 판단이 끝나 패시브로 되돌아가는 재선택\"**이고 내부 발원은 25가 가리므로 `mf_ret25_src`(+0x1658, `array$<usize>` 32엔트리) 히스토그램으로 따로 수확한다(주석과 일치)."
+    "now": "★확정.\n**28**(handler.rs:716~722): `!counter_jungle_route_init(+0x1806)` ∧ `PlayerState+0x9c0(info.position) == 1` ∧ `player_count` 이 1..=7 **밖** ∧ `strategy+18 == 2` → 래치 후 `PassiveJunglePlan::new_counter_jungle`. **판당 1회.**\n**20**(handler.rs:938): 공통 종착점. 도달 5경로 = ①:789 `PlayerState+0x9c0(info.position) != 1` ②:851 BigPlan tag==9 ③:916 tag!=10 ④:931 `main_objective != None` ⑤:933(tag 8 + objective 기록 직후). 직후 939 에서 memcpy(384)로 교체.\n**25**(handler.rs:1240~1247): :1200 BigPlan tag!=9 → `passive_plan()` → `mf_ret25_src[min(src,31)]++`(1241) → `v2_apply_assign_commit`(1246) → `mf_note_swap(25)`(1247) → 1248 교체. 즉 **25 = \"본류 판단이 끝나 패시브로 되돌아가는 재선택\"**이고 내부 발원은 25가 가리므로 `mf_ret25_src`(+0x1658, `array$<usize>` 32엔트리) 히스토그램으로 따로 수확한다(주석과 일치)."
    },
    {
     "was": "DefenseNexus merge 에 인라인된 헬퍼(!65699)의 정체",
