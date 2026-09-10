@@ -1,0 +1,84 @@
+{
+ "name": "single_try_engage",
+ "sym": "_RNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy7handler5modesNtB4_17LegacyPlanHandler17single_try_engage",
+ "src": "game-ai\\src\\plan_legacy\\handler\\modes.rs",
+ "src_line": 241,
+ "ir_file": "m13.ll",
+ "ir_from": 33374,
+ "ir_to": 33739,
+
+ "one_line": "지정 대상 1인 교전 플랜을 만들어 1틱 굴려보고 도주/종료로 귀결되면 버리는 시험 함수",
+
+ "signature": {
+  "params": [
+   {"i": 1, "name": "(sret)", "type": "*mut Option<SinglePlanBattle>(144B)", "note": "반환값 자리. i64 -1 = None 판별자"},
+   {"i": 2, "name": "self", "type": "&mut LegacyPlanHandler(6168B)", "note": "team_plan(+0xf8), positioning_score(+0x990)만 사용"},
+   {"i": 3, "name": "version", "type": "usize", "note": "AI 버전. 이 함수 본문엔 version 분기 없음 — 하위 호출로 전달만"},
+   {"i": 4, "name": "rnd", "type": "&mut StdRng(320B)", "note": "직접 안 뽑고 dive_is_viable/update 로 전달"},
+   {"i": 5, "name": "player", "type": "&PlayerState(2528B)", "note": "player.info.team(+0x930)만 직접 읽음"},
+   {"i": 6, "name": "data", "type": "&OperationData(24B)", "note": "data.cache(+0x0) = &AbstractGameWithCache(8840B)"},
+   {"i": 7, "name": "target_id", "type": "usize", "note": "교전 대상 엔티티 핸들. entity 조회 + TryKill 목표에 그대로 박힘"},
+   {"i": 8, "name": "debug", "type": "&mut DebugFrameData(224B)", "note": "하위 호출로 전달만"}
+  ],
+  "returns": "Option<SinglePlanBattle>(144B, sret) — Some=이 교전을 시도할 만함 / None=포기"
+ },
+
+ "reads": [
+  {"base": "OperationData", "offset": "0x0", "name": "cache", "note": "&AbstractGameWithCache(8840B). gep 없이 바로 load 라 본문에 오프셋 숫자 안 보임"},
+  {"base": "AbstractGameWithCache(vtable)", "offset": "0x1f0", "name": "entity(id) 슬롯", "note": "cache+0x8 의 vtable 에서 496바이트 슬롯. (data_ptr, target_id) -> Option<&Entity(1728B)>. 함수 내 2회 호출"},
+  {"base": "PlayerState", "offset": "0x930", "name": "info.team", "note": "i64 팀 인덱스. 1 - team 으로 상대팀 산출"},
+  {"base": "Entity", "offset": "0x660", "name": "x", "note": "distance_sq 입력 (entity.rs:2157 distance_sq 인라인)"},
+  {"base": "Entity", "offset": "0x668", "name": "y", "note": "distance_sq 입력"},
+  {"base": "Entity", "offset": "0x68", "name": "ty (EntityType 태그)", "note": "range [0,14). 2 == EntityType::Tower"},
+  {"base": "Entity", "offset": "0x128", "name": "ty.Tower.info.ty (TowerType)", "note": "u8. Top0/Mid1/Bottom2/TwinA3/TwinB4/Top2=5/Mid2=6/Bottom2=7"},
+  {"base": "LegacyPlanHandler", "offset": "0xf8", "name": "team_plan", "note": "dive_is_viable 과 battle.update 에 &mut 로 전달"},
+  {"base": "LegacyPlanHandler", "offset": "0x990", "name": "positioning_score", "note": "battle.update 에 readonly 2760B 로 전달"},
+  {"base": "SinglePlanBattle", "offset": "0x58", "name": "sub_goal", "note": "BattleSubPlanGoal 태그. update 후 커밋 판정에 사용"},
+  {"base": "SinglePlanBattle", "offset": "0x68", "name": "chats", "note": "Vec<Chat>. 포기 경로에서만 drop"},
+  {"base": "SinglePlanBattle", "offset": "0x8c", "name": "dive_tower", "note": "Option<TowerType> 를 i8 로. -1 = None"}
+ ],
+
+ "constants": [
+  {"value": 60, "src_line": 248, "meaning": "BattlePlanGoal::TryKill(target_id, 60) 의 두 번째 필드. 248행(다이브)과 253행(일반) 양쪽에 동일한 리터럴"},
+  {"value": 1, "src_line": 249, "meaning": "1 - player.info.team = 상대팀 인덱스 (팀 반전 상수, 임계값 아님)"},
+  {"value": 6, "src_line": 249, "meaning": "iter_towers_without_nexus 가 돌려주는 고정 타워 슬롯 배열 길이 6 (Option<&Entity>;6 을 Flatten 한 뒤 슬라이스와 Chain)"},
+  {"value": 2, "src_line": 250, "meaning": "EntityType::Tower 판별자 = 2. 최근접 엔티티가 타워일 때만 dive_tower 를 채움"},
+  {"value": -1, "src_line": 250, "meaning": "None 판별자. dive_tower(i8) 의 None, 그리고 반환 Option<SinglePlanBattle> 의 None(store i64 -1)"},
+  {"value": 3, "src_line": 256, "meaning": "BattleSubPlanGoal::KitingBack — 커밋 거부 사유 1"},
+  {"value": 4, "src_line": 256, "meaning": "BattleSubPlanGoal::RunAway — 커밋 거부 사유 2"},
+  {"value": 7, "src_line": 256, "meaning": "BattleSubPlanGoal::End — 커밋 거부 사유 3"}
+ ],
+
+ "calls": [
+  "game_ai::tower_discipline::engage_requires_dive",
+  "game_ai::plan_legacy::old::single_battle::single_tower_dive_is_viable",
+  "game_ai::plan_legacy::old::single_battle::SinglePlanBattle3new",
+  "game_ai::plan_legacy::old::single_battle::SinglePlanBattle8new_dive",
+  "core::ptr::drop_glue"
+ ],
+
+ "logic": "fn single_try_engage(&mut self, version, rnd, player, data, target_id, debug) -> Option<SinglePlanBattle>   // modes.rs:241\n\ngame = *data.cache                                       // &AbstractGameWithCache(8840B)\nentity_of = |id| (game.vtable[+0x1f0])(game.data, id)    // Option<&Entity(1728B)>\n\n// [242] closure$0 + Option::is_some_and\nin_tower = match entity_of(target_id) {\n    None    => false,\n    Some(e) => tower_discipline::engage_requires_dive(player, data, e)\n}\n\n// [243] in_tower 로 갈리는 두 갈래로 battle 생성\nif !in_tower {\n    // [253]\n    battle = SinglePlanBattle::new(version, BattlePlanGoal::TryKill(target_id, 60), data, player)\n} else {\n    // [244] 재조회. 여기서 None 이면 그대로 함수 종료(None)\n    let Some(target) = entity_of(target_id) else { return None }\n\n    // [245] 다이브가 성립하는지 게이트. false 면 즉시 None\n    if !single_battle::single_tower_dive_is_viable(version, rnd, player, data,\n                                                  &mut self.team_plan /*+0xf8*/, target, debug) {\n        return None\n    }\n\n    // [248]\n    let mut b = SinglePlanBattle::new_dive(version, BattlePlanGoal::TryKill(target_id, 60), data, player)\n\n    // [249~250] 다이브해서 들이받을 타워를 고른다\n    b.dive_tower /*+0x8c, i8*/ =\n        game.iter_towers_without_nexus(1 - player.info.team /*+0x930*/)   // 상대팀 타워(넥서스 제외)\n            .min_by_key(|t| t.distance_sq(target))    // target 과의 (dx^2+dy^2) 최소. abs_diff 로 무부호 계산\n            .and_then(|x| if x.ty /*+0x68*/ == EntityType::Tower(2) {\n                              Some(x.ty.Tower.info.ty /*+0x128, TowerType*/)\n                          } else { None });           // None 이면 -1 저장\n\n    // [251]\n    battle = b\n}\n\n// [255] 만든 플랜을 실제로 한 번 굴린다 (여기서 sub_goal 이 확정된다)\nbattle.update(version, rnd, player, data,\n              &self.positioning_score /*+0x990, 2760B*/, &mut self.team_plan /*+0xf8*/, debug)\n\n// [256] 커밋 판정 — 굴려본 결과가 '도주/종료' 계열이면 이 교전 자체를 채택하지 않는다\ncommitted = !matches!(battle.sub_goal /*+0x58*/, KitingBack | RunAway | End)   // 3 | 4 | 7\n\nif committed {\n    Some(battle)          // 144B 를 sret 로 memcpy\n} else {\n    // [257] 판별자 -1(None) 을 쓰고 battle.chats(Vec<Chat>, +0x68) 만 명시적으로 drop\n    None\n}\n\n[호출 형태 주의] 아래는 IR 에서 `call` 이 아니라 `invoke`(언와인드 경로 있음)라 calls 배열엔 넣지 않았다:\n  - game_core::simulation::AbstractGameWithCache::iter_towers_without_nexus (line 249)\n  - Copied<slice::Iter<&Entity>>::next (min_by_key 첫 원소를 수동 전진시키는 부분)\n  - Iterator::min_by_key -> min_by -> fold 단일 특수화 심볼 (첫 원소와 첫 키를 인자로 받아 나머지를 접는 형태)\n  - SinglePlanBattle::update (line 255)\n  - Vec<Chat>::drop / RawVec<Chat>::drop (line 257 포기 경로)\n엔티티 조회는 vtable 간접호출이라 심볼이 없다.\n\n[언와인드] cleanuppad 2개: 249~250 구간에서 언와인드하면 임시 b 를, 255(update)에서 언와인드하면 battle 을 drop_glue<SinglePlanBattle> 로 정리한다.\n\n[구조 요약] 이 함수는 '교전 후보를 실제 플랜으로 만들어 1틱 시뮬해보고, 결과가 마음에 안 들면 통째로 버리는' 시험(try) 패턴이다. 실질 판정은 (a) 242행 다이브 필요 여부, (b) 245행 다이브 성립 여부, (c) 255행 update 가 내놓는 sub_goal, 이 셋에 있다.",
+
+ "knobs": [
+  {"what": "다이브 성립 게이트 (single_tower_dive_is_viable)", "where": "modes.rs:245", "value": "bool",
+   "effect": "false 로 고정하면 '타워 사정권 대상'에 대한 교전 시도가 전부 사라진다(타워 밖 교전만 남음). true 로 고정하면 성립성 심사를 건너뛰고 항상 다이브 플랜을 만들어 update 까지 굴려본다 = 무모한 다이브가 늘어난다"},
+  {"what": "다이브 필요 판정 (engage_requires_dive)", "where": "modes.rs:242", "value": "bool",
+   "effect": "false 로 고정하면 대상이 타워 사정권이어도 항상 일반 SinglePlanBattle::new 경로로 가서 dive_tower 가 안 잡힌다(다이브 전용 처리가 통째로 빠짐). true 로 고정하면 타워와 무관한 대상까지 다이브 심사를 거친다"},
+  {"what": "커밋 거부 sub_goal 집합 {KitingBack, RunAway, End}", "where": "modes.rs:256", "value": [3, 4, 7],
+   "effect": "집합을 줄이면(예: 4=RunAway 제외) 굴려본 결과가 '도망'으로 나온 교전도 채택되어 교전 개시가 공격적으로 변한다. 집합을 늘리면(예: 2=Kiting 추가) 더 까다롭게 걸러 교전 시도 자체가 줄어든다"},
+  {"what": "dive_tower 선정 기준 = target 과의 제곱거리 최소", "where": "modes.rs:249", "value": "distance_sq(t, target)",
+   "effect": "기준을 바꾸면(예: 체력 최저 타워, 나와 가까운 타워) 같은 다이브에서 끼고 싸우는 타워가 달라진다. 후보는 상대팀(1-team) 타워 중 넥서스를 뺀 전부"},
+  {"what": "dive_tower 의 EntityType==Tower 게이트", "where": "modes.rs:250", "value": 2,
+   "effect": "이 게이트가 떨어지면 dive_tower=None(-1) 이 되어, 다이브 플랜인데도 '어느 타워를 낀 다이브인지'가 빈 채로 update 로 넘어간다. 게이트를 넓히면(넥서스 등) 타워가 아닌 구조물도 다이브 대상으로 기록된다"}
+ ],
+
+ "unknown": [
+  "BattlePlanGoal::TryKill 의 두 번째 필드 60 의 의미 — 이 함수는 리터럴을 박아 넣기만 하고 읽지 않는다. 지속틱/제한시간/우선도 중 무엇인지는 SinglePlanBattle::new / new_dive(single_battle.rs:48 부근) 본문을 봐야 확정된다. 248행과 253행에서 값이 같으므로 다이브 여부와 무관한 고정값인 것만 확실",
+  "engage_requires_dive / single_tower_dive_is_viable / SinglePlanBattle::update 의 내부는 안 봤다. 특히 update 가 sub_goal(+0x58)을 어떤 조건으로 KitingBack/RunAway/End 로 떨어뜨리는지가 이 함수의 실질 판정인데 여기엔 없다",
+  "AbstractGameWithCache vtable +0x1f0 슬롯을 'entity(id) -> Option<&Entity>' 로 본 근거는 인자(핸들 usize) + 반환(dereferenceable(1728) = Entity 크기) + 이후 사용처(distance_sq, EntityType 태그 읽기)뿐이다. 슬롯의 실제 이름은 이 IR 범위에서 확인 못 했다",
+  "iter_towers_without_nexus 가 돌려주는 Chain 의 두 번째 항(Copied<slice::Iter<&Entity>>)이 무엇을 담는지 — 고정 6슬롯 배열 외에 추가 타워 목록이 붙는 구조인 것만 보이고 그 출처는 game_core 쪽이라 안 봤다",
+  "self.positioning_score(+0x990, 2760B)와 self.team_plan(+0xf8)의 내용 — 이 함수는 포인터만 넘기고 직접 읽지 않는다",
+  "min_by_key 동률(같은 거리) 시 어느 타워가 뽑히는지 — fold 특수화가 별도 심볼로 빠져 있어 tie-break 방향(< 인지 <= 인지)은 이 범위에서 확정 못 함",
+  "in_tower=false 경로(253행)에서는 dive_tower 를 건드리지 않는다. SinglePlanBattle::new 가 그 필드를 무엇으로 초기화하는지는 안 봤다"
+ ]
+}

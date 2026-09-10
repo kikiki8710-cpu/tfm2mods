@@ -1,0 +1,96 @@
+{
+ "name": "calculate_jungle_action_score",
+ "sym": "_RNvNtCshdEBA0ozCnw_7game_ai12action_score29calculate_jungle_action_score",
+ "src": "game-ai\\src\\action_score.rs",
+ "src_line": 520,
+ "ir_file": "m05.ll",
+ "ir_from": 39984,
+ "ir_to": 40103,
+
+ "one_line": "대상 종류별 계수 x (예상피해/대상HP) 비율로 중립오브젝트 타격 점수를 낸다",
+
+ "signature": {
+  "params": [
+   {"i": 1, "name": "_rnd", "type": "&mut rand::rngs::std::StdRng (320B)", "note": "본문에서 전혀 안 씀(readnone). 난수 개입 없음"},
+   {"i": 2, "name": "player", "type": "&game_core::simulation::state::player::PlayerState (2528B)", "note": "점수를 내는 주체 플레이어. team(+0x930)/포지션(+0x9c0)만 읽어 자기 챔피언을 찾는 용도"},
+   {"i": 3, "name": "data", "type": "&game_core::simulation::state::player::OperationData (24B)", "note": "포인터 2개를 씀 — +0x0(챔피언 테이블 보유 구조체), +0x8(expected_damage_target의 2번 인자, 64B)"},
+   {"i": 4, "name": "_parameter", "type": "&game_ai::score_parameter::ScoreParameter (5384B)", "note": "본문에서 전혀 안 씀 — 이 함수의 계수는 전부 하드코딩 리터럴이다(외부 튜닝 불가)"},
+   {"i": 5, "name": "_action", "type": "&Box<dyn game_core::setting::action::Action> (16B)", "note": "본문에서 전혀 안 씀"},
+   {"i": 6, "name": "effect", "type": "&game_core::simulation::effect::Effect (56B)", "note": "평가 대상 이펙트(스킬/평타). expected_damage_target의 self"},
+   {"i": 7, "name": "t", "type": "&game_core::simulation::entity::Entity (1728B)", "note": "타격 대상 엔티티. EntityType(+0x68/+0x98)과 HP(+0x670)를 읽음"}
+  ],
+  "returns": "i64 — 액션 점수. LLVM range 속성상 상한 205(=200+5), 하한 없음(음수 가능)"
+ },
+
+ "reads": [
+  {"base": "PlayerState", "offset": "0x930", "name": "team", "note": "usize. 길이 2 배열 인덱스로 쓰여 bounds check(<2). 0/1 = 양 팀"},
+  {"base": "PlayerState", "offset": "0x9c0", "name": "position", "note": "Position enum(i32, range [0,5)). entity.rs:580-581 Position::as_index() 인라인 결과"},
+  {"base": "OperationData", "offset": "0x0", "name": "state_ptr", "note": "역참조해 챔피언 테이블 소유 구조체를 얻음"},
+  {"base": "*(OperationData+0x0)", "offset": "0x1e0", "name": "champions[2][5]", "note": "[[Option<&Entity>;5];2]. [team][position]으로 색인해 자기 챔피언을 꺼냄(None이면 unwrap 패닉)"},
+  {"base": "OperationData", "offset": "0x8", "name": "?(64B ref)", "note": "expected_damage_target의 2번 인자로 그대로 전달. 정체 미확인"},
+  {"base": "Entity(t)", "offset": "0x68", "name": "entity_type.discriminant", "note": "i64, range [0,14). switch의 판정 키. is_nexus()가 이 값을 읽는다(entity.rs:1400)"},
+  {"base": "Entity(t)", "offset": "0x98", "name": "entity_type.payload", "note": "i64. 디버그정보상 이름 team. is_jungle()이 <2 인지 본다(entity.rs:1378)"},
+  {"base": "Entity(t)", "offset": "0x670", "name": "hp", "note": "i64. 최종 나눗셈의 분모 — 0이면 div-by-zero 패닉"}
+ ],
+
+ "constants": [
+  {"value": 2352, "src_line": 522, "meaning": "0x930 — PlayerState.team 오프셋"},
+  {"value": 2, "src_line": 522, "meaning": "팀 배열 길이(bounds check). 별개로 entity.rs:1378 is_jungle의 payload<2 비교에도 같은 리터럴이 쓰임"},
+  {"value": 2496, "src_line": 522, "meaning": "0x9c0 — PlayerState.position 오프셋"},
+  {"value": 480, "src_line": 522, "meaning": "0x1e0 — 챔피언 테이블 [[Option<&Entity>;5];2] 오프셋"},
+  {"value": 1648, "src_line": 524, "meaning": "0x670 — Entity.hp 오프셋"},
+  {"value": 104, "src_line": 526, "meaning": "0x68 — Entity.entity_type(판별자) 오프셋"},
+  {"value": 152, "src_line": 530, "meaning": "0x98 — Entity.entity_type 페이로드(team) 오프셋"},
+  {"value": 3, "src_line": 526, "meaning": "EntityType 판별자 3 → 계수 200 (is_nexus 계열로 추정)"},
+  {"value": 200, "src_line": 526, "meaning": "판별자 3 대상 계수(최대). 최종 점수 상한 200을 만든다"},
+  {"value": 80, "src_line": 528, "meaning": "판별자 2 대상 계수"},
+  {"value": 4, "src_line": 530, "meaning": "EntityType 판별자 4 → is_jungle 후보(페이로드<2 이면 정글)"},
+  {"value": 20, "src_line": 531, "meaning": "정글 대상인데 hp > 예상피해(= 못 죽임)일 때의 계수"},
+  {"value": 40, "src_line": 531, "meaning": "정글 대상이고 예상피해 >= hp(= 죽일 수 있음)일 때의 계수"},
+  {"value": 1, "src_line": 526, "meaning": "EntityType 판별자 1 → 계수 -10"},
+  {"value": -10, "src_line": 536, "meaning": "판별자 1 대상 계수(음수 = 때리면 손해로 본다)"},
+  {"value": 0, "src_line": 536, "meaning": "그 밖의 EntityType 계수 0 (= 점수 0, 사실상 무가치)"},
+  {"value": 5, "src_line": 542, "meaning": "based — is_jungle 대상이면 무조건 더해주는 가산점(비율과 무관한 고정 보너스)"},
+  {"value": -9223372036854775808, "src_line": 548, "meaning": "i64::MIN — sdiv 오버플로 패닉 가드(hp==-1 && coef*value==i64::MIN). 임계값 아님"}
+ ],
+
+ "calls": [
+  "game_core::simulation::effect::Effect::expected_damage_target",
+  "core::panicking::panic_bounds_check",
+  "core::option::unwrap_failed",
+  "core::panicking::panic_const::panic_const_div_by_zero",
+  "core::panicking::panic_const::panic_const_div_overflow",
+  "llvm.smin.i64"
+ ],
+
+ "logic": "// action_score.rs:520\nfn calculate_jungle_action_score(_rnd, player, data, _parameter, _action, effect, t) -> i64 {\n\n// L522 — 점수를 내는 주체(자기 챔피언) 획득\n  team = player[+0x930] as usize            // len=2 bounds check, 넘으면 panic_bounds_check\n  pos  = Position::as_index(player[+0x9c0]) // 0..4 (entity.rs:580-581 인라인)\n  champ = (*(data+0x0))[+0x1e0][team][pos]  // Option<&Entity>\n  if champ == None { unwrap_failed() }      // option.rs:1011/1013 인라인\n\n// L523 — 이 이펙트가 대상 t 에게 줄 것으로 기대되는 피해량\n  value = Effect::expected_damage_target(effect, *(data+0x8), champ, <static 88B>, t)\n\n// L524\n  hp = t[+0x670]                            // 대상 현재 HP (i64)\n\n// L526~536 — 대상 종류별 계수 (LLVM 이 술어 체인을 판별자 switch 로 접었다)\n  disc = t.entity_type 판별자 = t[+0x68]     // i64, [0,14)\n  coef = match disc {\n    3 => 200,                               // is_nexus() 로 추정 (L526 에 is_nexus 가 인라인됨)\n    2 => 80,                                // L528. 술어 이름 미확인\n    4 if t[+0x98] < 2 =>                    // L530 = EntityType::is_jungle() (entity.rs:1377-1378)\n           if hp > value { 20 } else { 40 } // L531 — 죽일 수 있으면(피해>=HP) 40, 못 죽이면 20\n    4 => 0,                                 // 판별자 4 이지만 payload>=2 (정글 아님)\n    1 => -10,                               // 때릴수록 손해로 보는 대상\n    _ => 0,                                 // L536\n  }\n\n// L542 — 비율과 무관한 고정 가산점\n  based = if is_jungle(t.entity_type) { 5 } else { 0 }   // = (disc==4 && t[+0x98]<2)\n\n// L548~549 — 최종 점수\n  if hp == 0 { panic_const_div_by_zero() }\n  if hp == -1 && coef*value == i64::MIN { panic_const_div_overflow() }\n  return min(coef, coef * value / hp) + based     // core::cmp::Ord::min (cmp.rs:1073/1078)\n}\n\n// 의미 해석:\n//   coef*value/hp = 계수 x (예상피해 / 대상HP) = 대상 체력의 몇 퍼센트를 깎느냐로 계수를 비례 배분.\n//   min(coef, ...) 은 비율이 1을 넘어도(오버킬) 양수 계수를 계수값으로 캡한다.\n//   반대로 coef 가 음수(-10)면 비율<=1 인 동안 min 은 항상 -10 로 고정되고,\n//   오버킬(value>hp)일 때만 -10 보다 더 낮아진다 = 판별자 1 대상에 과잉투자하면 더 감점.\n//   반환 상한 205 = 200(넥서스 계수) + 5(정글 가산점) 로, LLVM range 속성과 일치한다.",
+
+ "knobs": [
+  {"what": "판별자 3(넥서스 추정) 계수", "where": "action_score.rs:526", "value": 200,
+   "effect": "올리면 이 대상 타격 액션이 다른 모든 후보를 압도한다(최종 점수 상한 자체가 올라감). 내리면 후순위가 된다"},
+  {"what": "판별자 2 대상 계수", "where": "action_score.rs:528", "value": 80,
+   "effect": "올리면 그 종류 오브젝트를 정글캠프(20/40)보다 더 우선한다"},
+  {"what": "정글 대상 못 죽임 계수", "where": "action_score.rs:531", "value": 20,
+   "effect": "올리면 한 방에 못 잡는 캠프도 계속 때리려 한다. 내리면 킬각이 아닐 때 정글을 더 쉽게 포기한다"},
+  {"what": "정글 대상 죽일 수 있음 계수", "where": "action_score.rs:531", "value": 40,
+   "effect": "올리면 막타(스틸 포함) 가능한 캠프에 훨씬 강하게 달라붙는다. 20과의 격차가 곧 막타 우선도다"},
+  {"what": "판별자 1 대상 계수", "where": "action_score.rs:536", "value": -10,
+   "effect": "음수라 이 대상 타격은 감점이다. 0 이상으로 올리면 회피하지 않게 되고, 더 내리면 강하게 기피한다"},
+  {"what": "정글 고정 가산점 based", "where": "action_score.rs:542", "value": 5,
+   "effect": "비율과 무관하게 정글 대상에만 더해진다. 올리면 피해 비율이 미미해도(=곧 죽일 수 없어도) 정글이 동점 후보를 이긴다"},
+  {"what": "is_jungle 판정 임계 payload<2", "where": "game-core/src/simulation/entity.rs:1378", "value": 2,
+   "effect": "올리면 페이로드 값이 더 큰 중립 엔티티까지 정글로 취급되어 20/40 계수와 +5 가산점을 받는다(이 함수 밖의 다른 호출자에도 영향)"}
+ ],
+
+ "unknown": [
+  "판별자 3 <-> is_nexus() 대응은 추정이다. 근거는 L526 에 EntityType::is_nexus(entity.rs:1399-1400)가 인라인되어 판별자를 로드한다는 것뿐이고, 술어->판별자 매핑 자체는 본문에 남아 있지 않다(switch 로 접힘). EntityType 정의(!208)를 따로 읽어야 확정 가능",
+  "판별자 2(계수 80)와 판별자 1(계수 -10)이 각각 어떤 EntityType 변종인지 미확인 — 해당 술어가 전부 인라인되어 별도 DISubprogram 이 남지 않았다. 판별자 범위는 [0,14) 이므로 변종은 14개",
+  "is_jungle 의 페이로드(t+0x98)가 디버그정보상 이름이 team 이고 dbg_value 로 상수 0/1 이 남아 있는데, 팀에 속한 몬스터=정글캠프, 그 외=중립 대형오브젝트 라는 해석은 추정이다",
+  "expected_damage_target 의 4번 인자 @anon.fdc8f8a40baf2989242b37eb35661f10.17 (88B 정적)의 내용 미확인 — 이 함수 안에서는 고정 상수 참조라 분기 영향 없음",
+  "expected_damage_target 본체는 안 봤다. value 가 어떤 스탯/방어력/치명타를 반영하는지 불명 = 이 함수의 실질 입력 분포를 모른다",
+  "OperationData(24B) +0x0 이 가리키는 구조체의 정체 미확인(+0x1e0 에 [[Option<&Entity>;5];2] 가 있다는 것만 확인). +0x8(64B) 의 타입도 미확인",
+  "함수명은 jungle 이지만 넥서스/판별자2/판별자1 도 점수화한다. 호출자(어떤 액션 후보에 대해 이 함수가 불리는지)는 이 범위 밖이라 미조사 — 정글 액션 후보에만 쓰이는지 확인 필요",
+  "_rnd/_parameter/_action 3개 인자가 본문에서 전혀 안 쓰인다. 시그니처 통일 때문인지 다른 버전에서 쓰였는지는 이 함수만으로는 알 수 없다. 특히 ScoreParameter 미사용 = 이 함수 계수는 설정으로 못 바꾼다",
+  "AI 버전 게이트에 해당하는 인자가 없다 — 버전 분기는 이 함수 상위에서 이뤄지는 것으로 보이나 미확인"
+ ]
+}

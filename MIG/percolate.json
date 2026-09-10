@@ -1,0 +1,700 @@
+{
+ "_설정": {
+  "r": 3,
+  "cap": 200,
+  "margin": true,
+  "mutual": true,
+  "fp": "gate",
+  "fp_min": 0.5,
+  "hop2": false,
+  "씨앗": 745
+ },
+ "_측정": "hold-out 10시드(정답지=A/B등급 366개, 30% 제거, 학습에 C등급 포함): 복원율 41.9% · 정확도 94.4% · 오답률 5.6% · 함정시험 오탐률 3.4%. 대조군(지문 단독, 호출그래프 미사용) = 복원율 60.4% · 정확도 92.2%.",
+ "_경고": "hold-out 정확도는 **정답이 존재하는 모집단**에서만 잰 값이다. exe 함수의 96.8%는 DLL 에 짝이 없어 \"매칭 없음\"이 정답이며, 그 모집단의 오탐률은 함정 시험(decoy) 수치로 따로 봐야 한다. 주입 전 사람이 눈으로 확인할 것.",
+ "rows": [
+  {
+   "addr": "0x1431a0760",
+   "rva": 52037472,
+   "mangled": "_RNvMs3_NtCs9LexZzt9XJB_5alloc7raw_vecINtB5_6RawVecTyyEE8grow_oneCs97f5S1uJLkH_9game_core",
+   "aliases": [
+    "_RNvMs3_NtCs9LexZzt9XJB_5alloc7raw_vecINtB5_6RawVecTjyEE8grow_oneCs97f5S1uJLkH_9game_core",
+    "_RNvMs3_NtCs9LexZzt9XJB_5alloc7raw_vecINtB5_6RawVecTjNtNtNtNtCs97f5S1uJLkH_9game_core10simulation5state6player8LineTypehEE8grow_oneCshdEBA0ozCnw_7game_ai",
+    "_RNvMs3_NtCs9LexZzt9XJB_5alloc7raw_vecINtB5_6RawVecTjNtNtNtNtCs97f5S1uJLkH_9game_core10simulation5state6player8LineTypeEE8grow_oneCshdEBA0ozCnw_7game_ai",
+    "_RNvMs3_NtCs9LexZzt9XJB_5alloc7raw_vecINtB5_6RawVecINtNtB7_5boxed3BoxDNtNtNtCs97f5S1uJLkH_9game_core10simulation6effect10EffectBuffEL_EE8grow_oneB1b_",
+    "_RNvMs3_NtCs9LexZzt9XJB_5alloc7raw_vecINtB5_6RawVecNtNtNtNtCs97f5S1uJLkH_9game_core10simulation4game5frame9GameEventE8grow_oneBU_",
+    "_RNvMs3_NtCs9LexZzt9XJB_5alloc7raw_vecINtB5_6RawVecINtNtB7_4sync3ArcDNtNtNtNtCs97f5S1uJLkH_9game_core10simulation6effect4type10EffectTypeEL_EE8grow_oneB1c_",
+    "_RNvMs3_NtCs9LexZzt9XJB_5alloc7raw_vecINtB5_6RawVecTyINtNtB7_4sync3ArcNtNtCshdEBA0ozCnw_7game_ai9free_dist11FreeDistMapEEE8grow_oneB19_"
+   ],
+   "mod": "mod",
+   "witness": 20.0,
+   "w_callee": 0,
+   "w_caller": 20,
+   "w_2hop": 0,
+   "jaccard": null,
+   "bytes": 0
+  },
+  {
+   "addr": "0x1431ad5b0",
+   "rva": 52090288,
+   "mangled": "_RNvMs3_NtCs9LexZzt9XJB_5alloc7raw_vecINtB5_6RawVecINtNtCsjihNppCmMEE_4core3cmp7ReverseTmmtEEE8grow_oneCshdEBA0ozCnw_7game_ai",
+   "aliases": [],
+   "mod": "mod",
+   "witness": 17.0,
+   "w_callee": 0,
+   "w_caller": 17,
+   "w_2hop": 0,
+   "jaccard": null,
+   "bytes": 0
+  },
+  {
+   "addr": "0x140e388c0",
+   "rva": 14911680,
+   "mangled": "_RNvMs_NtNtCshdEBA0ozCnw_7game_ai11plan_legacy8sub_planNtB4_7SubPlan5score",
+   "aliases": [],
+   "mod": "mod",
+   "witness": 16.0,
+   "w_callee": 14,
+   "w_caller": 2,
+   "w_2hop": 0,
+   "jaccard": 1.0,
+   "bytes": 966
+  },
+  {
+   "addr": "0x140dbf680",
+   "rva": 14415488,
+   "mangled": "_RNvMs1_NtNtCshdEBA0ozCnw_7game_ai12small_action6aroundNtB5_22SmallActionPositioning9get_input",
+   "aliases": [],
+   "mod": "around",
+   "witness": 14.0,
+   "w_callee": 13,
+   "w_caller": 1,
+   "w_2hop": 0,
+   "jaccard": 1.0,
+   "bytes": 3451
+  },
+  {
+   "addr": "0x1431a3863",
+   "rva": 52050019,
+   "mangled": "_RNvMs0_NtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old6battleNtB5_10BattlePlan3new",
+   "aliases": [],
+   "mod": "battle",
+   "witness": 14.0,
+   "w_callee": 0,
+   "w_caller": 14,
+   "w_2hop": 0,
+   "jaccard": null,
+   "bytes": 0
+  },
+  {
+   "addr": "0x140dbbd60",
+   "rva": 14400864,
+   "mangled": "_RNvMs0_NtNtCshdEBA0ozCnw_7game_ai12small_action6aroundNtB5_23SmallActionAroundRegion9get_input",
+   "aliases": [],
+   "mod": "around",
+   "witness": 12.0,
+   "w_callee": 11,
+   "w_caller": 1,
+   "w_2hop": 0,
+   "jaccard": 0.645,
+   "bytes": 4947
+  },
+  {
+   "addr": "0x140cd05f0",
+   "rva": 13436400,
+   "mangled": "_RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy8sub_plan6battle18base_battle_action",
+   "aliases": [],
+   "mod": "battle",
+   "witness": 10.0,
+   "w_callee": 9,
+   "w_caller": 1,
+   "w_2hop": 0,
+   "jaccard": 1.0,
+   "bytes": 21149
+  },
+  {
+   "addr": "0x140e0a650",
+   "rva": 14722640,
+   "mangled": "_RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old11fight_model23can_enemy_hit_objective",
+   "aliases": [],
+   "mod": "fight_model",
+   "witness": 9.0,
+   "w_callee": 1,
+   "w_caller": 8,
+   "w_2hop": 0,
+   "jaccard": 1.0,
+   "bytes": 1420
+  },
+  {
+   "addr": "0x140de1bc0",
+   "rva": 14556096,
+   "mangled": "_RNvMs9_NtNtCs9LexZzt9XJB_5alloc11collections11binary_heapINtB5_10BinaryHeapINtNtCsjihNppCmMEE_4core3cmp7ReverseTmmtEEE3popCshdEBA0ozCnw_7game_ai",
+   "aliases": [],
+   "mod": "mod",
+   "witness": 9.0,
+   "w_callee": 0,
+   "w_caller": 9,
+   "w_2hop": 0,
+   "jaccard": null,
+   "bytes": 0
+  },
+  {
+   "addr": "0x140caf9f0",
+   "rva": 13302256,
+   "mangled": "_RNvMNtNtCshdEBA0ozCnw_7game_ai11plan_legacy5typesNtB2_7BigPlan8sub_plan",
+   "aliases": [],
+   "mod": "types",
+   "witness": 7.0,
+   "w_callee": 6,
+   "w_caller": 1,
+   "w_2hop": 0,
+   "jaccard": 0.744,
+   "bytes": 1049
+  },
+  {
+   "addr": "0x140cd6940",
+   "rva": 13461824,
+   "mangled": "_RNvXs1_NtNtNtCsjihNppCmMEE_4core3ops8function5implsQNCNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy8sub_plan11serpen_huntNtBT_17SerpenHuntSubPlan17action_candidatess2_0INtB7_5FnMutTRRNtNtBZ_12small_action15SmallActionPlayEE8call_mutBZ_",
+   "aliases": [],
+   "mod": "function",
+   "witness": 6.0,
+   "w_callee": 5,
+   "w_caller": 1,
+   "w_2hop": 0,
+   "jaccard": 0.593,
+   "bytes": 2597
+  },
+  {
+   "addr": "0x140ecb870",
+   "rva": 15513712,
+   "mangled": "_RNvXs1_NtNtNtCsjihNppCmMEE_4core3ops8function5implsQNCNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy8sub_plan9epic_huntNtBT_15EpicHuntSubPlan17action_candidatess3_0INtB7_5FnMutTRRNtNtBZ_12small_action15SmallActionPlayEE8call_mutBZ_",
+   "aliases": [],
+   "mod": "function",
+   "witness": 6.0,
+   "w_callee": 5,
+   "w_caller": 1,
+   "w_2hop": 0,
+   "jaccard": 0.593,
+   "bytes": 2597
+  },
+  {
+   "addr": "0x140c5f090",
+   "rva": 12972176,
+   "mangled": "_RINvMs2_NtNtCs9ec1k27omRZ_3std6thread5localINtB6_8LocalKeyINtNtCsjihNppCmMEE_4core4cell7RefCellINtNtCs9LexZzt9XJB_5alloc5boxed3BoxNtNtCshdEBA0ozCnw_7game_ai10path_field12FieldScratchEEE4withNCINvB26_17solve_with_policyNCINvMNtB28_11path_finderNtB3A_10PathFinder20calculate_path_fieldNCNvMs1_NtNtB28_12small_action12move_actionsNtB4F_17SmallActionRecall9get_inputs8_0E0NCB3w_s_0Es_0NtB26_15PathFieldResultEB28_",
+   "aliases": [
+    "_RINvMs2_NtNtCs9ec1k27omRZ_3std6thread5localINtB6_8LocalKeyINtNtCsjihNppCmMEE_4core4cell7RefCellINtNtCs9LexZzt9XJB_5alloc5boxed3BoxNtNtCshdEBA0ozCnw_7game_ai10path_field12FieldScratchEEE4withNCINvB26_17solve_with_policyNCINvMNtB28_11path_finderNtB3A_10PathFinder20calculate_path_fieldNCNvMs1_NtNtB28_12small_action12move_actionsNtB4F_17SmallActionRecall9get_inputs9_0E0NCB3w_s_0Es_0NtB26_15PathFieldResultEB28_"
+   ],
+   "mod": "local",
+   "witness": 5.0,
+   "w_callee": 5,
+   "w_caller": 0,
+   "w_2hop": 0,
+   "jaccard": 1.0,
+   "bytes": 5505
+  },
+  {
+   "addr": "0x140d1a630",
+   "rva": 13739568,
+   "mangled": "_RNCNvMs1_NtNtCshdEBA0ozCnw_7game_ai12small_action12move_actionsNtB7_17SmallActionRecall9get_inputs8_0Bb_",
+   "aliases": [
+    "_RNCNvMs1_NtNtCshdEBA0ozCnw_7game_ai12small_action12move_actionsNtB7_17SmallActionRecall9get_inputs9_0Bb_"
+   ],
+   "mod": "move_actions",
+   "witness": 5.0,
+   "w_callee": 3,
+   "w_caller": 2,
+   "w_2hop": 0,
+   "jaccard": 1.0,
+   "bytes": 1578
+  },
+  {
+   "addr": "0x140d1b150",
+   "rva": 13742416,
+   "mangled": "_RNCNvMs_NtNtCshdEBA0ozCnw_7game_ai12small_action12move_actionsNtB6_18SmallActionRunAway9get_inputsf_0Ba_",
+   "aliases": [
+    "_RNCNvMs_NtNtCshdEBA0ozCnw_7game_ai12small_action12move_actionsNtB6_18SmallActionRunAway9get_inputsi_0Ba_"
+   ],
+   "mod": "move_actions",
+   "witness": 5.0,
+   "w_callee": 4,
+   "w_caller": 1,
+   "w_2hop": 0,
+   "jaccard": 1.0,
+   "bytes": 1677
+  },
+  {
+   "addr": "0x140e03360",
+   "rva": 14693216,
+   "mangled": "_RNvNtCshdEBA0ozCnw_7game_ai10buff_value24noncombat_steroid_window",
+   "aliases": [],
+   "mod": "buff_value",
+   "witness": 5.0,
+   "w_callee": 4,
+   "w_caller": 1,
+   "w_2hop": 0,
+   "jaccard": 0.75,
+   "bytes": 2922
+  },
+  {
+   "addr": "0x140cd7660",
+   "rva": 13465184,
+   "mangled": "_RNvXs1_NtNtNtCsjihNppCmMEE_4core3ops8function5implsQNCNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy8sub_plan9epic_pokeNtBT_15EpicPokeSubPlan17action_candidatess0_0INtB7_5FnMutTRRNtNtBZ_12small_action15SmallActionPlayEE8call_mutBZ_",
+   "aliases": [],
+   "mod": "function",
+   "witness": 5.0,
+   "w_callee": 4,
+   "w_caller": 1,
+   "w_2hop": 0,
+   "jaccard": 0.542,
+   "bytes": 2518
+  },
+  {
+   "addr": "0x140e9fdc0",
+   "rva": 15334848,
+   "mangled": "_RNvXs1_NtNtNtCsjihNppCmMEE_4core3ops8function5implsQNCNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy8sub_plan11serpen_pokeNtBT_17SerpenPokeSubPlan17action_candidatess0_0INtB7_5FnMutTRRNtNtBZ_12small_action15SmallActionPlayEE8call_mutBZ_",
+   "aliases": [],
+   "mod": "function",
+   "witness": 5.0,
+   "w_callee": 4,
+   "w_caller": 1,
+   "w_2hop": 0,
+   "jaccard": 0.542,
+   "bytes": 2518
+  },
+  {
+   "addr": "0x140c5ded0",
+   "rva": 12967632,
+   "mangled": "_RINvMs2_NtNtCs9ec1k27omRZ_3std6thread5localINtB6_8LocalKeyINtNtCsjihNppCmMEE_4core4cell7RefCellINtNtCs9LexZzt9XJB_5alloc5boxed3BoxNtNtCshdEBA0ozCnw_7game_ai10path_field12FieldScratchEEE4withNCINvB26_17solve_with_policyNCINvMNtB28_11path_finderNtB3A_10PathFinder20calculate_path_fieldNCNvMs0_NtNtB28_12small_action6aroundNtB4F_23SmallActionAroundRegion9get_inputs2_0E0NCB3w_s_0Es_0NtB26_15PathFieldResultEB28_",
+   "aliases": [
+    "_RINvMs2_NtNtCs9ec1k27omRZ_3std6thread5localINtB6_8LocalKeyINtNtCsjihNppCmMEE_4core4cell7RefCellINtNtCs9LexZzt9XJB_5alloc5boxed3BoxNtNtCshdEBA0ozCnw_7game_ai10path_field12FieldScratchEEE4withNCINvB26_17solve_with_policyNCINvMNtB28_11path_finderNtB3A_10PathFinder20calculate_path_fieldNCNvMs0_NtNtB28_12small_action6aroundNtB4F_23SmallActionAroundRegion9get_inputs_0E0NCB3w_s_0Es_0NtB26_15PathFieldResultEB28_"
+   ],
+   "mod": "local",
+   "witness": 4.0,
+   "w_callee": 4,
+   "w_caller": 0,
+   "w_2hop": 0,
+   "jaccard": 1.0,
+   "bytes": 4372
+  },
+  {
+   "addr": "0x140c654d0",
+   "rva": 12997840,
+   "mangled": "_RINvMs2_NtNtCs9ec1k27omRZ_3std6thread5localINtB6_8LocalKeyINtNtCsjihNppCmMEE_4core4cell7RefCellINtNtCs9LexZzt9XJB_5alloc5boxed3BoxNtNtCshdEBA0ozCnw_7game_ai10path_field12FieldScratchEEE4withNCINvB26_17solve_with_policyNCINvMNtB28_11path_finderNtB3A_10PathFinder20calculate_path_fieldNCNvMs6_NtNtB28_12small_action6aroundNtB4F_21SmallActionAroundBush9get_input0E0NCB3w_s_0Es_0NtB26_15PathFieldResultEB28_",
+   "aliases": [
+    "_RINvMs2_NtNtCs9ec1k27omRZ_3std6thread5localINtB6_8LocalKeyINtNtCsjihNppCmMEE_4core4cell7RefCellINtNtCs9LexZzt9XJB_5alloc5boxed3BoxNtNtCshdEBA0ozCnw_7game_ai10path_field12FieldScratchEEE4withNCINvB26_17solve_with_policyNCINvMNtB28_11path_finderNtB3A_10PathFinder20calculate_path_fieldNCNvMs6_NtNtB28_12small_action6aroundNtB4F_21SmallActionAroundBush9get_inputs_0E0NCB3w_s_0Es_0NtB26_15PathFieldResultEB28_"
+   ],
+   "mod": "local",
+   "witness": 4.0,
+   "w_callee": 4,
+   "w_caller": 0,
+   "w_2hop": 0,
+   "jaccard": 1.0,
+   "bytes": 4265
+  },
+  {
+   "addr": "0x140c687e0",
+   "rva": 13010912,
+   "mangled": "_RINvMs2_NtNtCs9ec1k27omRZ_3std6thread5localINtB6_8LocalKeyINtNtCsjihNppCmMEE_4core4cell7RefCellINtNtCs9LexZzt9XJB_5alloc5boxed3BoxNtNtCshdEBA0ozCnw_7game_ai10path_field12FieldScratchEEE4withNCINvB26_17solve_with_policyNCINvMNtB28_11path_finderNtB3A_10PathFinder20calculate_path_fieldNCNvMs_NtNtB28_12small_action12move_actionsNtB4E_18SmallActionRunAway9get_inputsh_0E0NCB3w_s_0Es_0NtB26_15PathFieldResultEB28_",
+   "aliases": [],
+   "mod": "local",
+   "witness": 4.0,
+   "w_callee": 4,
+   "w_caller": 0,
+   "w_2hop": 0,
+   "jaccard": 1.0,
+   "bytes": 4562
+  },
+  {
+   "addr": "0x140c6bd50",
+   "rva": 13024592,
+   "mangled": "_RINvMs2_NtNtCs9ec1k27omRZ_3std6thread5localINtB6_8LocalKeyINtNtCsjihNppCmMEE_4core4cell7RefCellINtNtCs9LexZzt9XJB_5alloc5boxed3BoxNtNtCshdEBA0ozCnw_7game_ai10path_field12FieldScratchEEE4withNCINvB26_17solve_with_policyNCINvMNtB28_11path_finderNtB3A_10PathFinder20calculate_path_fieldNCNvMs_NtNtB28_12small_action5traceNtB4E_16SmallActionTrace9get_inputs3_0E0NCB3w_s_0Es_0NtB26_15PathFieldResultEB28_",
+   "aliases": [
+    "_RINvMs2_NtNtCs9ec1k27omRZ_3std6thread5localINtB6_8LocalKeyINtNtCsjihNppCmMEE_4core4cell7RefCellINtNtCs9LexZzt9XJB_5alloc5boxed3BoxNtNtCshdEBA0ozCnw_7game_ai10path_field12FieldScratchEEE4withNCINvB26_17solve_with_policyNCINvMNtB28_11path_finderNtB3A_10PathFinder20calculate_path_fieldNCNvMs_NtNtB28_12small_action5traceNtB4E_16SmallActionTrace9get_inputs4_0E0NCB3w_s_0Es_0NtB26_15PathFieldResultEB28_"
+   ],
+   "mod": "local",
+   "witness": 4.0,
+   "w_callee": 4,
+   "w_caller": 0,
+   "w_2hop": 0,
+   "jaccard": 1.0,
+   "bytes": 4876
+  },
+  {
+   "addr": "0x140d19eb0",
+   "rva": 13737648,
+   "mangled": "_RNCNvMNtNtCshdEBA0ozCnw_7game_ai12small_action6aroundNtB4_17SmallActionAround9get_inputs1_0B8_",
+   "aliases": [
+    "_RNCNvMNtNtCshdEBA0ozCnw_7game_ai12small_action6aroundNtB4_17SmallActionAround9get_inputs4_0B8_"
+   ],
+   "mod": "around",
+   "witness": 4.0,
+   "w_callee": 3,
+   "w_caller": 1,
+   "w_2hop": 0,
+   "jaccard": 1.0,
+   "bytes": 993
+  },
+  {
+   "addr": "0x140d3b070",
+   "rva": 13873264,
+   "mangled": "_RNvNtCshdEBA0ozCnw_7game_ai5utils9dps_ratio",
+   "aliases": [],
+   "mod": "utils",
+   "witness": 4.0,
+   "w_callee": 0,
+   "w_caller": 4,
+   "w_2hop": 0,
+   "jaccard": 1.0,
+   "bytes": 560
+  },
+  {
+   "addr": "0x140e0b030",
+   "rva": 14725168,
+   "mangled": "_RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old11fight_model26resolve_fight_stake_roster",
+   "aliases": [],
+   "mod": "fight_model",
+   "witness": 4.0,
+   "w_callee": 2,
+   "w_caller": 2,
+   "w_2hop": 0,
+   "jaccard": 1.0,
+   "bytes": 1445
+  },
+  {
+   "addr": "0x140e595b0",
+   "rva": 15046064,
+   "mangled": "_RNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy7handler4chatNtB4_17LegacyPlanHandler11handle_chat",
+   "aliases": [],
+   "mod": "chat",
+   "witness": 4.0,
+   "w_callee": 3,
+   "w_caller": 1,
+   "w_2hop": 0,
+   "jaccard": 1.0,
+   "bytes": 905
+  },
+  {
+   "addr": "0x140d47340",
+   "rva": 13923136,
+   "mangled": "_RINvYINtNtNtCsjihNppCmMEE_4core5slice4iter4IterRNtNtNtCs97f5S1uJLkH_9game_core10simulation6entity6EntityENtNtNtNtBa_4iter6traits8iterator8Iterator10max_by_keyjNCNvMs0_NtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old6battleNtB2F_10BattlePlan10update_v32sK_0EB2L_",
+   "aliases": [
+    "_RINvYINtNtNtCsjihNppCmMEE_4core5slice4iter4IterRNtNtNtCs97f5S1uJLkH_9game_core10simulation6entity6EntityENtNtNtNtBa_4iter6traits8iterator8Iterator10max_by_keyjNCNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old12death_battleNtB2C_16DeathMatchBattle10update_v32sp_0EB2I_",
+    "_RINvYINtNtNtCsjihNppCmMEE_4core5slice4iter4IterRNtNtNtCs97f5S1uJLkH_9game_core10simulation6entity6EntityENtNtNtNtBa_4iter6traits8iterator8Iterator10max_by_keyjNCNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old13single_battleNtB2C_16SinglePlanBattle10update_v32sp_0EB2I_"
+   ],
+   "mod": "iterator",
+   "witness": 4.0,
+   "w_callee": 1,
+   "w_caller": 3,
+   "w_2hop": 0,
+   "jaccard": null,
+   "bytes": 0
+  },
+  {
+   "addr": "0x140da2000",
+   "rva": 14295040,
+   "mangled": "_RINvNtCshdEBA0ozCnw_7game_ai10path_field10settle_oneNCINvMNtB4_11path_finderNtBU_10PathFinder20calculate_path_fieldNCNvMs1_NtNtB4_12small_action12move_actionsNtB1X_17SmallActionRecall9get_inputs8_0E0EB4_",
+   "aliases": [
+    "_RINvNtCshdEBA0ozCnw_7game_ai10path_field10settle_oneNCINvMNtB4_11path_finderNtBU_10PathFinder20calculate_path_fieldNCNvMs1_NtNtB4_12small_action12move_actionsNtB1X_17SmallActionRecall9get_inputs9_0E0EB4_"
+   ],
+   "mod": "path_field",
+   "witness": 4.0,
+   "w_callee": 3,
+   "w_caller": 1,
+   "w_2hop": 0,
+   "jaccard": null,
+   "bytes": 0
+  },
+  {
+   "addr": "0x140da2d70",
+   "rva": 14298480,
+   "mangled": "_RINvNtCshdEBA0ozCnw_7game_ai10path_field10settle_oneNCINvMNtB4_11path_finderNtBU_10PathFinder20calculate_path_fieldNCNvMs6_NtNtB4_12small_action6aroundNtB1X_21SmallActionAroundBush9get_input0E0EB4_",
+   "aliases": [
+    "_RINvNtCshdEBA0ozCnw_7game_ai10path_field10settle_oneNCINvMNtB4_11path_finderNtBU_10PathFinder20calculate_path_fieldNCNvMs6_NtNtB4_12small_action6aroundNtB1X_21SmallActionAroundBush9get_inputs_0E0EB4_"
+   ],
+   "mod": "path_field",
+   "witness": 4.0,
+   "w_callee": 3,
+   "w_caller": 1,
+   "w_2hop": 0,
+   "jaccard": null,
+   "bytes": 1441
+  },
+  {
+   "addr": "0x140da3750",
+   "rva": 14301008,
+   "mangled": "_RINvNtCshdEBA0ozCnw_7game_ai10path_field10settle_oneNCINvMNtB4_11path_finderNtBU_10PathFinder20calculate_path_fieldNCNvMs_NtNtB4_12small_action12move_actionsNtB1W_18SmallActionRunAway9get_inputsh_0E0EB4_",
+   "aliases": [],
+   "mod": "path_field",
+   "witness": 4.0,
+   "w_callee": 3,
+   "w_caller": 1,
+   "w_2hop": 0,
+   "jaccard": null,
+   "bytes": 1614
+  },
+  {
+   "addr": "0x1431a3b60",
+   "rva": 52050784,
+   "mangled": "_RINvXNtCsMBkRBYhlca_4rand3seqSTllllxENtB3_11SliceRandom6chooseNtNtNtB5_4rngs3std6StdRngECshdEBA0ozCnw_7game_ai",
+   "aliases": [
+    "_RINvXNtCsMBkRBYhlca_4rand3seqSTyyxENtB3_11SliceRandom6chooseNtNtNtB5_4rngs3std6StdRngECshdEBA0ozCnw_7game_ai"
+   ],
+   "mod": "mod",
+   "witness": 4.0,
+   "w_callee": 0,
+   "w_caller": 4,
+   "w_2hop": 0,
+   "jaccard": null,
+   "bytes": 0
+  },
+  {
+   "addr": "0x1431a3b80",
+   "rva": 52050816,
+   "mangled": "_RINvMs2_NtNtCs9ec1k27omRZ_3std6thread5localINtB6_8LocalKeyINtNtCsjihNppCmMEE_4core4cell7RefCellTyjjINtNtNtNtBa_11collections4hash3map7HashMapjxNtNtCs9EYcZKFYzm_5ahash12random_state11RandomStateEEEE4withNCNvNtCshdEBA0ozCnw_7game_ai5utils17champion_hp_value0xEB3k_",
+   "aliases": [],
+   "mod": "local",
+   "witness": 4.0,
+   "w_callee": 0,
+   "w_caller": 4,
+   "w_2hop": 0,
+   "jaccard": null,
+   "bytes": 0
+  },
+  {
+   "addr": "0x140c7f0f0",
+   "rva": 13103344,
+   "mangled": "_RINvMs2_NtNtCs9ec1k27omRZ_3std6thread5localINtB6_8LocalKeyINtNtCsjihNppCmMEE_4core4cell7RefCellNtNtCshdEBA0ozCnw_7game_ai13position_eval17AttackDamageCacheEE4withNCNvB1x_29expected_attack_damage_cached0jEB1z_",
+   "aliases": [],
+   "mod": "local",
+   "witness": 3.0,
+   "w_callee": 0,
+   "w_caller": 3,
+   "w_2hop": 0,
+   "jaccard": 1.0,
+   "bytes": 591
+  },
+  {
+   "addr": "0x140caf0d0",
+   "rva": 13299920,
+   "mangled": "_RNvMNtNtCshdEBA0ozCnw_7game_ai11plan_legacy5typesNtB2_7BigPlan6is_end",
+   "aliases": [],
+   "mod": "types",
+   "witness": 3.0,
+   "w_callee": 2,
+   "w_caller": 1,
+   "w_2hop": 0,
+   "jaccard": 1.0,
+   "bytes": 522
+  },
+  {
+   "addr": "0x140caf500",
+   "rva": 13300992,
+   "mangled": "_RNvMNtNtCshdEBA0ozCnw_7game_ai11plan_legacy5typesNtB2_7BigPlan8get_name",
+   "aliases": [],
+   "mod": "types",
+   "witness": 3.0,
+   "w_callee": 0,
+   "w_caller": 3,
+   "w_2hop": 0,
+   "jaccard": 1.0,
+   "bytes": 1252
+  },
+  {
+   "addr": "0x140cf5660",
+   "rva": 13588064,
+   "mangled": "_RINvMNtCshdEBA0ozCnw_7game_ai11path_finderNtB3_10PathFinder14calculate_pathNCNvMNtNtB5_12small_action11lane_minionNtB1g_29SmallActionLaneMinionPosition9get_inputs_0EB5_",
+   "aliases": [],
+   "mod": "path_finder",
+   "witness": 3.0,
+   "w_callee": 3,
+   "w_caller": 0,
+   "w_2hop": 0,
+   "jaccard": 1.0,
+   "bytes": 6982
+  },
+  {
+   "addr": "0x140d1a480",
+   "rva": 13739136,
+   "mangled": "_RNCNvMs0_NtNtCshdEBA0ozCnw_7game_ai12small_action6aroundNtB7_23SmallActionAroundRegion9get_inputs2_0Bb_",
+   "aliases": [
+    "_RNCNvMs0_NtNtCshdEBA0ozCnw_7game_ai12small_action6aroundNtB7_23SmallActionAroundRegion9get_inputs_0Bb_"
+   ],
+   "mod": "around",
+   "witness": 3.0,
+   "w_callee": 2,
+   "w_caller": 1,
+   "w_2hop": 0,
+   "jaccard": 1.0,
+   "bytes": 421
+  },
+  {
+   "addr": "0x140d69690",
+   "rva": 14063248,
+   "mangled": "_RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy8sub_plan13battle_common30v21_support_pressure_too_risky",
+   "aliases": [],
+   "mod": "battle_common",
+   "witness": 3.0,
+   "w_callee": 1,
+   "w_caller": 2,
+   "w_2hop": 0,
+   "jaccard": 1.0,
+   "bytes": 2282
+  },
+  {
+   "addr": "0x140d717e0",
+   "rva": 14096352,
+   "mangled": "_RINvXs_NtNtNtCsjihNppCmMEE_4core4iter8adapters5chainINtB5_5ChainIBP_INtNtB7_6copied6CopiedINtNtNtBb_5slice4iter4IterRNtNtNtCs97f5S1uJLkH_9game_core10simulation6entity6EntityEEB14_EB14_ENtNtNtB9_6traits8iterator8Iterator8try_folduNCINvNvB2X_3any5checkB1Q_NCNvNtCshdEBA0ozCnw_7game_ai10buff_value24noncombat_steroid_windows5_0E0INtNtNtBb_3ops12control_flow11ControlFlowuEEB4a_",
+   "aliases": [],
+   "mod": "chain",
+   "witness": 3.0,
+   "w_callee": 2,
+   "w_caller": 1,
+   "w_2hop": 0,
+   "jaccard": 1.0,
+   "bytes": 286
+  },
+  {
+   "addr": "0x140d97e90",
+   "rva": 14253712,
+   "mangled": "_RNvNtCshdEBA0ozCnw_7game_ai16tower_discipline22v30_line_action_stance",
+   "aliases": [],
+   "mod": "tower_discipline",
+   "witness": 3.0,
+   "w_callee": 2,
+   "w_caller": 1,
+   "w_2hop": 0,
+   "jaccard": 0.929,
+   "bytes": 891
+  },
+  {
+   "addr": "0x140c606c0",
+   "rva": 12977856,
+   "mangled": "_RINvMs2_NtNtCs9ec1k27omRZ_3std6thread5localINtB6_8LocalKeyINtNtCsjihNppCmMEE_4core4cell7RefCellINtNtCs9LexZzt9XJB_5alloc5boxed3BoxNtNtCshdEBA0ozCnw_7game_ai10path_field12FieldScratchEEE4withNCINvB26_17solve_with_policyNCINvMNtB28_11path_finderNtB3A_10PathFinder20calculate_path_fieldNCNvMNtNtB28_12small_action6aroundNtB4C_17SmallActionAround9get_inputs1_0E0NCB3w_s_0Es_0NtB26_15PathFieldResultEB28_",
+   "aliases": [
+    "_RINvMs2_NtNtCs9ec1k27omRZ_3std6thread5localINtB6_8LocalKeyINtNtCsjihNppCmMEE_4core4cell7RefCellINtNtCs9LexZzt9XJB_5alloc5boxed3BoxNtNtCshdEBA0ozCnw_7game_ai10path_field12FieldScratchEEE4withNCINvB26_17solve_with_policyNCINvMNtB28_11path_finderNtB3A_10PathFinder20calculate_path_fieldNCNvMNtNtB28_12small_action6aroundNtB4C_17SmallActionAround9get_inputs4_0E0NCB3w_s_0Es_0NtB26_15PathFieldResultEB28_"
+   ],
+   "mod": "local",
+   "witness": 3.0,
+   "w_callee": 3,
+   "w_caller": 0,
+   "w_2hop": 0,
+   "jaccard": 0.774,
+   "bytes": 5505
+  },
+  {
+   "addr": "0x140da0520",
+   "rva": 14288160,
+   "mangled": "_RINvNtCshdEBA0ozCnw_7game_ai10path_field10settle_oneNCINvMNtB4_11path_finderNtBU_10PathFinder20calculate_path_fieldNCNvMNtNtB4_12small_action11lane_minionNtB1U_29SmallActionLaneMinionPosition9get_input0E0EB4_",
+   "aliases": [
+    "_RINvNtCshdEBA0ozCnw_7game_ai10path_field10settle_oneNCINvMNtB4_11path_finderNtBU_10PathFinder20calculate_path_fieldNCNvMNtNtB4_12small_action11lane_minionNtB1U_29SmallActionLaneMinionPosition9get_inputs_0E0EB4_"
+   ],
+   "mod": "path_field",
+   "witness": 3.0,
+   "w_callee": 3,
+   "w_caller": 0,
+   "w_2hop": 0,
+   "jaccard": null,
+   "bytes": 1484
+  },
+  {
+   "addr": "0x140da0af0",
+   "rva": 14289648,
+   "mangled": "_RINvNtCshdEBA0ozCnw_7game_ai10path_field10settle_oneNCINvMNtB4_11path_finderNtBU_10PathFinder20calculate_path_fieldNCNvMNtNtB4_12small_action6aroundNtB1U_17SmallActionAround9get_inputs1_0E0EB4_",
+   "aliases": [
+    "_RINvNtCshdEBA0ozCnw_7game_ai10path_field10settle_oneNCINvMNtB4_11path_finderNtBU_10PathFinder20calculate_path_fieldNCNvMNtNtB4_12small_action6aroundNtB1U_17SmallActionAround9get_inputs4_0E0EB4_"
+   ],
+   "mod": "path_field",
+   "witness": 3.0,
+   "w_callee": 3,
+   "w_caller": 0,
+   "w_2hop": 0,
+   "jaccard": null,
+   "bytes": 0
+  },
+  {
+   "addr": "0x140da1630",
+   "rva": 14292528,
+   "mangled": "_RINvMs2_NtNtCs9ec1k27omRZ_3std6thread5localINtB6_8LocalKeyINtNtCsjihNppCmMEE_4core4cell7RefCellINtNtCs9LexZzt9XJB_5alloc5boxed3BoxNtNtCshdEBA0ozCnw_7game_ai10path_field12FieldScratchEEE4withNCINvB26_17solve_with_policyNCINvMNtB28_11path_finderNtB3A_10PathFinder20calculate_path_fieldNCNvMs0_NtNtB28_12small_action6aroundNtB4F_23SmallActionAroundRegion9get_inputs1_0E0NCB3w_s_0Es_0NtB26_15PathFieldResultEB28_",
+   "aliases": [],
+   "mod": "local",
+   "witness": 3.0,
+   "w_callee": 2,
+   "w_caller": 1,
+   "w_2hop": 0,
+   "jaccard": null,
+   "bytes": 1497
+  },
+  {
+   "addr": "0x140da1c10",
+   "rva": 14294032,
+   "mangled": "_RINvNtCshdEBA0ozCnw_7game_ai10path_field10settle_oneNCINvMNtB4_11path_finderNtBU_10PathFinder20calculate_path_fieldNCNvMs0_NtNtB4_12small_action6aroundNtB1X_23SmallActionAroundRegion9get_inputs2_0E0EB4_",
+   "aliases": [
+    "_RINvNtCshdEBA0ozCnw_7game_ai10path_field10settle_oneNCINvMNtB4_11path_finderNtBU_10PathFinder20calculate_path_fieldNCNvMs0_NtNtB4_12small_action6aroundNtB1X_23SmallActionAroundRegion9get_inputs_0E0EB4_"
+   ],
+   "mod": "path_field",
+   "witness": 3.0,
+   "w_callee": 2,
+   "w_caller": 1,
+   "w_2hop": 0,
+   "jaccard": null,
+   "bytes": 0
+  },
+  {
+   "addr": "0x140da3320",
+   "rva": 14299936,
+   "mangled": "_RINvNtCshdEBA0ozCnw_7game_ai10path_field10settle_oneNCINvMNtB4_11path_finderNtBU_10PathFinder20calculate_path_fieldNCNvMs_NtNtB4_12small_action12move_actionsNtB1W_18SmallActionRunAway9get_inputsf_0E0EB4_",
+   "aliases": [
+    "_RINvNtCshdEBA0ozCnw_7game_ai10path_field10settle_oneNCINvMNtB4_11path_finderNtBU_10PathFinder20calculate_path_fieldNCNvMs_NtNtB4_12small_action12move_actionsNtB1W_18SmallActionRunAway9get_inputsi_0E0EB4_"
+   ],
+   "mod": "path_field",
+   "witness": 3.0,
+   "w_callee": 3,
+   "w_caller": 0,
+   "w_2hop": 0,
+   "jaccard": null,
+   "bytes": 0
+  },
+  {
+   "addr": "0x140da41c0",
+   "rva": 14303680,
+   "mangled": "_RINvNtCshdEBA0ozCnw_7game_ai10path_field10settle_oneNCINvMNtB4_11path_finderNtBU_10PathFinder20calculate_path_fieldNCNvMs_NtNtB4_12small_action5traceNtB1W_16SmallActionTrace9get_inputs3_0E0EB4_",
+   "aliases": [
+    "_RINvNtCshdEBA0ozCnw_7game_ai10path_field10settle_oneNCINvMNtB4_11path_finderNtBU_10PathFinder20calculate_path_fieldNCNvMs_NtNtB4_12small_action5traceNtB1W_16SmallActionTrace9get_inputs4_0E0EB4_"
+   ],
+   "mod": "path_field",
+   "witness": 3.0,
+   "w_callee": 2,
+   "w_caller": 1,
+   "w_2hop": 0,
+   "jaccard": null,
+   "bytes": 0
+  },
+  {
+   "addr": "0x140e0c4f0",
+   "rva": 14730480,
+   "mangled": "_RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old11fight_model38objective_entity_id_for_main_objective",
+   "aliases": [],
+   "mod": "fight_model",
+   "witness": 3.0,
+   "w_callee": 0,
+   "w_caller": 3,
+   "w_2hop": 0,
+   "jaccard": null,
+   "bytes": 111
+  },
+  {
+   "addr": "0x1432ceca0",
+   "rva": 53275808,
+   "mangled": "_RINvMs2_NtNtCs9ec1k27omRZ_3std6thread5localINtB6_8LocalKeyINtNtCsjihNppCmMEE_4core4cell7RefCellINtNtCs9LexZzt9XJB_5alloc5boxed3BoxNtNtCshdEBA0ozCnw_7game_ai10path_field12FieldScratchEEE4withNCINvB26_17solve_with_policyNCINvMNtB28_11path_finderNtB3A_10PathFinder20calculate_path_fieldNCNvMNtNtB28_12small_action6aroundNtB4C_17SmallActionAround9get_inputs3_0E0NCB3w_s_0Es_0NtB26_15PathFieldResultEB28_",
+   "aliases": [
+    "_RINvMs2_NtNtCs9ec1k27omRZ_3std6thread5localINtB6_8LocalKeyINtNtCsjihNppCmMEE_4core4cell7RefCellINtNtCs9LexZzt9XJB_5alloc5boxed3BoxNtNtCshdEBA0ozCnw_7game_ai10path_field12FieldScratchEEE4withNCINvB26_17solve_with_policyNCINvMNtB28_11path_finderNtB3A_10PathFinder20calculate_path_fieldNCNvMs3_NtNtB28_12small_action6aroundNtB4F_25SmallActionAroundPosition9get_inputs2_0E0NCB3w_s_0Es_0NtB26_15PathFieldResultEB28_"
+   ],
+   "mod": "local",
+   "witness": 3.0,
+   "w_callee": 0,
+   "w_caller": 3,
+   "w_2hop": 0,
+   "jaccard": null,
+   "bytes": 0
+  }
+ ]
+}

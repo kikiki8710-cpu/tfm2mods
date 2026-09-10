@@ -1,0 +1,88 @@
+{
+ "name": "max_range_nearly_can_use",
+ "sym": "_RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old6battle24max_range_nearly_can_use",
+ "src": "game-ai\\src\\plan_legacy\\old\\battle.rs",
+ "src_line": 2397,
+ "ir_file": "m10.ll",
+ "ir_from": 51913,
+ "ir_to": 52374,
+
+ "one_line": "champ의 평타/스킬/스킬2/궁 중 tick 안에 쓸 수 있는 것의 최대 유효사거리",
+
+ "signature": {
+  "params": [
+   {"i": 1, "name": "champ", "type": "&Entity(1728B=0x6c0)", "note": "시전자. 4개 이펙트 슬롯·쿨다운·레벨·반지름을 전부 여기서 읽음"},
+   {"i": 2, "name": "target", "type": "&Entity(1728B=0x6c0)", "note": "대상. CastingTarget::check / range_adjust 인자 + 자기 반지름만 사거리에 가산"},
+   {"i": 3, "name": "tick", "type": "usize", "note": "쿨다운 허용치. 슬롯의 잔여쿨 > tick 이면 그 슬롯을 후보에서 제외 (= '곧 사용 가능' 창)"}
+  ],
+  "returns": "u64 — 조건을 통과한 슬롯들의 사거리 최댓값. 하나도 없으면 0"
+ },
+
+ "reads": [
+  {"base": "Entity", "offset": "0x68", "name": "kind(enum 0..=13)", "note": "attack/skill/skill2/ult_cooldown 이 전부 이 값으로 분기. IR range 메타 !10463 = [0,14)"},
+  {"base": "Entity", "offset": "0xb0", "name": "attack_cooldown(kind 8,13)", "note": "entity.rs:1753 arm"},
+  {"base": "Entity", "offset": "0xb8", "name": "skill_cooldown(kind 13) / attack_cooldown(kind 1)", "note": "entity.rs:1775 + attack_cooldown 의 kind==1 arm"},
+  {"base": "Entity", "offset": "0xc0", "name": "skill2_cooldown(kind 13)", "note": "entity.rs:1790"},
+  {"base": "Entity", "offset": "0xc8", "name": "ult_cooldown(kind 13) / attack_cooldown(kind 9)", "note": "entity.rs:1805 + entity.rs:1754 arm"},
+  {"base": "Entity", "offset": "0xd0", "name": "attack_cooldown(kind 12)", "note": "entity.rs:1757 arm"},
+  {"base": "Entity", "offset": "0xd8", "name": "attack_cooldown(kind 11)", "note": "entity.rs:1756 arm"},
+  {"base": "Entity", "offset": "0xe8", "name": "attack_cooldown(kind 4,7)", "note": "entity.rs:1750 arm"},
+  {"base": "Entity", "offset": "0xf0", "name": "attack_cooldown(kind 10)", "note": "entity.rs:1755 arm"},
+  {"base": "Entity", "offset": "0x110", "name": "attack_cooldown(kind 2)", "note": "entity.rs:1758 arm"},
+  {"base": "Entity", "offset": "0x1f0", "name": "attack_cooldown(kind 5,6)", "note": "entity.rs:1760 arm"},
+  {"base": "Entity", "offset": "0x438", "name": "(사거리 가산항, 의미 미확정)", "note": "Effect::range(effect.rs:26) 안에서 caster 측에서 무조건 더해짐. 4개 슬롯 전부 동일"},
+  {"base": "Entity", "offset": "0x470", "name": "radius_mult(i32, %)", "note": "entity.rs:1511. 0 이면 배율 미적용. champ·target 양쪽에서 읽음"},
+  {"base": "Entity", "offset": "0x490", "name": "attack_effect: Option<Effect>(56B)", "note": "슬롯1. 이후 슬롯은 +56 간격(0x4c8/0x500/0x538)"},
+  {"base": "Entity", "offset": "0x4c8", "name": "skill_effect: Option<Effect>", "note": "슬롯2. 레벨 게이트 없음"},
+  {"base": "Entity", "offset": "0x500", "name": "skill2_effect: Option<Effect>", "note": "슬롯3. entity.rs:1693 에서 level>2 일 때만 이 주소, 아니면 정적 None(@anon....40)"},
+  {"base": "Entity", "offset": "0x538", "name": "ult_effect: Option<Effect>", "note": "슬롯4. entity.rs:1701 에서 level>4 일 때만 이 주소, 아니면 정적 None"},
+  {"base": "Entity", "offset": "0x5c8", "name": "level(u64)", "note": "Effect::range 의 (level-1) 배율 + 슬롯3/4 개방 게이트에 공용"},
+  {"base": "Entity", "offset": "0x680", "name": "radius_base(u64)", "note": "entity.rs:1513/1515. champ·target 양쪽"},
+  {"base": "Effect", "offset": "0x10", "name": "range_base(u64)", "note": "effect.rs:26"},
+  {"base": "Effect", "offset": "0x18", "name": "range_per_level(u64)", "note": "effect.rs:26. (level-1) 배"},
+  {"base": "Effect", "offset": "0x28", "name": "casting_target: CastingTarget(4B)", "note": "check(champ,target) 의 self"},
+  {"base": "Effect", "offset": "0x30", "name": "Option<Effect> 판별자(i32)", "note": "option.rs:742. -1 = None. IR range 메타 !9450 = [-1,4)"}
+ ],
+
+ "constants": [
+  {"value": -1, "src_line": 742, "meaning": "option.rs:742 — Option<Effect> 의 None 판별자. Effect+0x30 이 -1 이면 슬롯 비어있음. 같은 -1 이 effect.rs:26 의 (level-1) 계산(add i64 level, -1)에도 쓰임"},
+  {"value": 13, "src_line": 1775, "meaning": "entity.rs:1775/1790/1805 — skill/skill2/ult_cooldown 이 실제 잔여쿨 필드를 읽는 유일한 kind 값. 그 외 kind 는 쿨다운 0(= 항상 사용 가능) 취급"},
+  {"value": 2, "src_line": 1693, "meaning": "entity.rs:1693 — skill2_effect 개방 조건 level > 2 (레벨 3부터)"},
+  {"value": 4, "src_line": 1701, "meaning": "entity.rs:1701 — ult_effect 개방 조건 level > 4 (레벨 5부터)"},
+  {"value": 100, "src_line": 1515, "meaning": "entity.rs:1515 — 반지름 퍼센트 기준. radius = base * (mult + 100) / 100. mult 는 % 단위 증감"}
+ ],
+
+ "calls": [
+  "_RNvMs_NtNtNtCs97f5S1uJLkH_9game_core10simulation6effect4typeNtB4_13CastingTarget5check",
+  "_RNvMNtNtCs97f5S1uJLkH_9game_core10simulation6effectNtB2_6Effect12range_adjust",
+  "llvm.umax.i64"
+ ],
+
+ "logic": "fn max_range_nearly_can_use(champ: &Entity, target: &Entity, tick: usize) -> u64 {\n  let mut range: u64 = 0;                                   // battle.rs:2398\n\n  // == 슬롯1: 평타 이펙트 champ+0x490 ==  battle.rs:2399~2405\n  if let Some(e) = champ.attack_effect.as_ref() {           // e+0x30 != -1\n    if e.casting_target(+0x28).check(champ, target) {        // 2402\n      let cd = champ.attack_cooldown();                      // entity.rs:1747, match champ[0x68]\n      //   kind 0,3   -> 0   (쿨다운 없음 — LLVM이 `0 > tick == false` 로 접어 비교가 사라짐)\n      //   kind 1     -> champ[0xb8]\n      //   kind 2     -> champ[0x110]   (1758)\n      //   kind 4,7   -> champ[0xe8]    (1750)\n      //   kind 5,6   -> champ[0x1f0]   (1760)\n      //   kind 8,13  -> champ[0xb0]    (1753)\n      //   kind 9     -> champ[0xc8]    (1754)\n      //   kind 10    -> champ[0xf0]    (1755)\n      //   kind 11    -> champ[0xd8]    (1756)\n      //   kind 12    -> champ[0xd0]    (1757)\n      if !(cd > tick) {                                      // = cd <= tick 이면 후보\n        range = range.max( e.range(champ)                    // 2403\n                         + e.range_adjust(champ, target)\n                         + champ.radius() + target.radius() );\n      }\n    }\n  }\n\n  // == 슬롯2: 스킬 이펙트 champ+0x4c8 ==  battle.rs:2407~2412\n  if let Some(e) = champ.skill_effect.as_ref() {\n    if e.casting_target.check(champ, target) {                // 2409\n      let cd = if champ[0x68] == 13 { champ[0xb8] } else { 0 };   // entity.rs:1775\n      if !(cd > tick) {\n        range = range.max( e.range(champ) + e.range_adjust(champ,target)\n                         + champ.radius() + target.radius() );   // 2410\n      }\n    }\n  }\n\n  // == 슬롯3: 스킬2 champ+0x500 ==  battle.rs:2414~2419\n  //  entity.rs:1693 -> level(0x5c8) > 2 일 때만 실제 필드, 아니면 정적 None(@anon....40, 태그 -1)\n  if let Some(e) = champ.skill2_effect() {\n    if e.casting_target.check(champ, target) {                // 2416\n      let cd = if champ[0x68] == 13 { champ[0xc0] } else { 0 };   // entity.rs:1790\n      if !(cd > tick) {\n        range = range.max( 위와 동일한 4항 합 );                  // 2417\n      }\n    }\n  }\n\n  // == 슬롯4: 궁극기 champ+0x538 ==  battle.rs:2421~2426\n  //  entity.rs:1701 -> level > 4 일 때만 실제 필드, 아니면 정적 None\n  if let Some(e) = champ.ult_effect() {\n    if e.casting_target.check(champ, target) {                // 2423\n      let cd = if champ[0x68] == 13 { champ[0xc8] } else { 0 };   // entity.rs:1805\n      if !(cd > tick) {\n        range = range.max( 위와 동일한 4항 합 );                  // 2424\n      }\n    }\n  }\n\n  range                                                        // battle.rs:2429\n}\n\n-- 인라인된 보조 함수 --\nEffect::range(&self, caster) -> u64            // effect.rs:25~26\n  = caster[0x438] + self[+0x10] + self[+0x18] * (caster.level[0x5c8] - 1)\n\nEntity::radius(&self) -> u64                   // entity.rs:1509~1516\n  let m = self[0x470] as i32;\n  if m == 0 { self[0x680] } else { self[0x680] * (m + 100) / 100 }\n\n※ 최종 사거리 합산 순서(IR 그대로):\n   caster[0x438] + eff[0x10] + eff[0x18]*(lv-1) + range_adjust + champ.radius() + target.radius()\n※ 슬롯1은 range 초기값이 0 이라 max() 가 접혀 그냥 대입이 됐고, 슬롯2~4 는 llvm.umax.i64 로 남아 있다.\n※ 세 게이트가 AND 로 걸린다: (1)슬롯이 Some (2)CastingTarget::check 통과 (3)잔여쿨 <= tick. 하나라도 실패하면 그 슬롯은 건너뛰고 누적값을 그대로 넘긴다.\n※ 반환값은 '지금 실제로 쓸 수 있는 사거리'가 아니라 'tick 안에 쓸 수 있게 되는 것까지 포함한 최대 사거리'다 — 함수명의 nearly 가 그 뜻.",
+
+ "knobs": [
+  {"what": "쿨다운 허용창 tick (호출부가 넘기는 3번째 인자)", "where": "battle.rs:2397 (비교는 2402/2409/2416/2423)", "value": 0,
+   "effect": "크게 넘길수록 잔여쿨이 남은 스킬까지 '곧 쓸 수 있음'으로 쳐서 반환 사거리가 커진다 → AI가 더 멀리서도 교전 가능하다고 판단. 0 이면 지금 당장 쿨이 돈 스킬만. 값 자체는 이 함수에 없고 호출부가 정한다"},
+  {"what": "스킬2 개방 레벨 게이트", "where": "entity.rs:1693 (level > 2)", "value": 2,
+   "effect": "내리면 더 낮은 레벨부터 스킬2 사거리가 후보에 들어가 반환값이 커진다(사거리 판단 한정 — 실제 시전 가능 여부는 별개 경로)"},
+  {"what": "궁극기 개방 레벨 게이트", "where": "entity.rs:1701 (level > 4)", "value": 4,
+   "effect": "내리면 더 낮은 레벨부터 궁 사거리가 후보에 들어가 반환값이 커진다"},
+  {"what": "스킬 계열 쿨다운을 실제로 보는 kind 값", "where": "entity.rs:1775/1790/1805 (kind == 13)", "value": 13,
+   "effect": "kind != 13 인 엔티티는 스킬/스킬2/궁 잔여쿨이 0 으로 취급돼 쿨다운 게이트를 항상 통과한다. 이 상수를 바꾸면 어떤 엔티티 종류가 쿨다운 검사를 받는지가 바뀐다"},
+  {"what": "반지름 퍼센트 기준값", "where": "entity.rs:1515 (base * (mult+100) / 100)", "value": 100,
+   "effect": "champ·target 반지름이 사거리에 그대로 더해지므로, mult(0x470)를 올리면 두 유닛의 몸 크기만큼 유효사거리가 늘어난다(엣지-투-엣지 사거리 계산)"}
+ ],
+
+ "unknown": [
+  "Entity+0x438 의 의미 미확정 — Effect::range(effect.rs:26) 안에서 caster 측 값으로 무조건 더해지는 사거리 가산항이라는 사실만 확정. '사거리 보너스'로 보이지만 IR만으로는 단정 불가",
+  "Entity+0x68 enum 의 타입 이름과 각 변형(0~13)의 의미 미확정. kind==13 에서만 0xb0/0xb8/0xc0/0xc8 4개 쿨다운 필드가 평타/스킬/스킬2/궁으로 연속 사용되므로 '챔피언'으로 **추정**되나 미검증. 검증법 = entity.rs 의 해당 enum 정의 또는 다른 함수에서 13 분기의 용례 대조",
+  "attack_cooldown 의 kind==1 분기는 별도 기본블록 없이 switch 진입블록에서 phi 로 접혀 있어 소스 줄번호를 못 얻었다(오프셋 0xb8 만 확정). kind 0/3 은 상수 0 으로 접혀 오프셋도 줄번호도 없음",
+  "tick 의 단위·의미 미확정. 잔여쿨 필드와 부호없는 ugt 로 직접 비교된다는 사실만 확정 — '남은 틱 여유창'인지 '절대 시각'인지는 호출부를 안 봐서 모름",
+  "CastingTarget::check(effect.rs 의 type 모듈) 내부 미확인 — 어떤 조건에서 false 가 되는지(사거리? 아군/적군? 상태이상?) 모름. 이 함수의 최대 게이트라 개조 시 반드시 같이 봐야 함",
+  "Effect::range_adjust 내부 미확인 — champ/target 을 모두 받아 사거리에 가산되는 값이라는 것만 확정",
+  "Entity+0x470(radius_mult)이 i32 로 로드돼 sext 되는 것만 확정. '%' 단위라는 해석은 (m+100)/100 계산식에서 나온 추정",
+  "이 함수의 호출부(누가 어떤 tick 을 넘기는지) 미확인 — battle.rs 내 xref 를 안 봤다",
+  "battle.rs:2400/2404~2406/2411~2413/2418~2420/2425~2428 에 해당하는 소스 원문은 복원하지 않았다(중괄호 등으로 dbg 에 줄번호가 안 나옴)",
+  "슬롯3/4 의 정적 None 대체(@anon.ff23c5838f81fa2a3acb125bb4b6e568.40)는 태그 -1 만 유효하고 나머지 48바이트가 undef 다 — 즉 게이트 미달 시 항상 None 으로 걸러진다는 것까지만 확정"
+ ]
+}

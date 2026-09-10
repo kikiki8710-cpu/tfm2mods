@@ -1,0 +1,85 @@
+{
+ "name": "handle_chat",
+ "sym": "_RNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy7handler4chatNtB4_17LegacyPlanHandler11handle_chat",
+ "src": "game-ai\\src\\plan_legacy\\handler\\chat.rs",
+ "src_line": 8,
+ "ir_file": "m13.ll",
+ "ir_from": 29383,
+ "ir_to": 29689,
+
+ "one_line": "수신 채팅을 자기채팅·라인존재·채팅허용 3단 게이트로 거른 뒤 handle_chat_inner로 넘기는 래퍼(트레이스면 플랜 전후 기록)",
+
+ "signature": {
+  "params": [
+   {"i": 1, "name": "self", "type": "&mut LegacyPlanHandler(6168B)", "note": "plan(+0x5e8)/team_plan.objective(+0x517)/pending_trace_events(+0x858)만 이 함수에서 접근"},
+   {"i": 2, "name": "version", "type": "usize", "note": "이 함수 본문에선 분기 없음. handle_chat_inner로 그대로 전달"},
+   {"i": 3, "name": "rnd", "type": "&mut rand::rngs::std::StdRng(320B)", "note": "본문 미사용, inner로 전달만"},
+   {"i": 4, "name": "player", "type": "&PlayerState(2528B)", "note": "+0x9c0 position만 읽음"},
+   {"i": 5, "name": "data", "type": "&OperationData(24B)", "note": "+0x00 cache:&AbstractGameWithCache, +0x08 context:&GameContext, +0x10 blackboard"},
+   {"i": 6, "name": "from", "type": "Position(i32, range 0..5)", "note": "Top=0,Jungle=1,Mid=2,Bottom=3,Support=4. 채팅을 보낸 라인"},
+   {"i": 7, "name": "chat", "type": "&Chat(enum2, 24B)", "note": "종류 판정은 rule_scope::chat_allowed에 위임. 여기선 Debug 포맷만"},
+   {"i": 8, "name": "misunderstood", "type": "bool", "note": "본문 판정에 안 씀. inner 전달 + 트레이스 이벤트 +0x84에 저장"},
+   {"i": 9, "name": "debug", "type": "&mut DebugFrameData(224B)", "note": "본문 미사용, inner로 전달만"}
+  ],
+  "returns": "void — 게이트에 걸리면 아무 것도 안 하고 반환"
+ },
+
+ "reads": [
+  {"base": "PlayerState", "offset": "0x9c0", "name": "position", "note": "Position(i32). from과 비교해 자기 채팅 차단"},
+  {"base": "OperationData", "offset": "0x8", "name": "context", "note": "&GameContext(64B)"},
+  {"base": "GameContext", "offset": "0x38", "name": "tutorial", "note": "TutorialType u8: 0=None,1=First,2=TopSolo,3=Bottom,4=MidSolo,5=MidBottom,6=JungleOnly,7=Line,8=Total"},
+  {"base": "GameContext", "offset": "0x39", "name": "trace_level", "note": "TraceLevel u8: 0=Off,1=Summary,2=Detailed. 0이면 트레이스 생략"},
+  {"base": "LegacyPlanHandler", "offset": "0x5e8", "name": "plan", "note": "BigPlan(384B). get_name() 대상"},
+  {"base": "LegacyPlanHandler", "offset": "0x517", "name": "team_plan.objective", "note": "Option<MainObjective>(3B). team_plan(+0xf8) 내부 +0x41f. Debug 포맷"},
+  {"base": "LegacyPlanHandler", "offset": "0x858", "name": "pending_trace_events.cap", "note": "Vec<PendingTraceEvent> 시작(RawVec.cap)"},
+  {"base": "LegacyPlanHandler", "offset": "0x860", "name": "pending_trace_events.ptr", "note": "요소 크기 184B"},
+  {"base": "LegacyPlanHandler", "offset": "0x868", "name": "pending_trace_events.len", "note": "push 후 +1"}
+ ],
+
+ "constants": [
+  {"value": 2496, "src_line": 9, "meaning": "PlayerState+0x9c0 = position. from과 == 비교(Position::eq, entity.rs:563 인라인)"},
+  {"value": 56, "src_line": 12, "meaning": "GameContext+0x38 = tutorial(TutorialType). position_exists의 유일한 입력 (트레이스 이벤트 +0x38 오프셋과 값이 겹침)"},
+  {"value": -8, "src_line": 12, "meaning": "Jungle 분기의 접힌 술어 add i8 t,-8 — player_count()(runner.rs:294) 비교가 변형집합 판정으로 접힘"},
+  {"value": -7, "src_line": 12, "meaning": "같은 술어의 icmp ult 임계(=249u8). (t-8) <u 249 ⟺ t==0 또는 t>=8"},
+  {"value": 57, "src_line": 18, "meaning": "GameContext+0x39 = trace_level. TraceLevel::is_enabled(trace.rs:14~15) 인라인"},
+  {"value": 1512, "src_line": 22, "meaning": "LegacyPlanHandler+0x5e8 = plan(BigPlan 384B)"},
+  {"value": 1303, "src_line": 23, "meaning": "LegacyPlanHandler+0x517 = team_plan.objective(Option<MainObjective>)"},
+  {"value": 2136, "src_line": 27, "meaning": "LegacyPlanHandler+0x858 = pending_trace_events(Vec) 시작 = RawVec.cap"},
+  {"value": 2144, "src_line": 27, "meaning": "+0x860 = Vec.ptr"},
+  {"value": 2152, "src_line": 27, "meaning": "+0x868 = Vec.len"},
+  {"value": 184, "src_line": 27, "meaning": "PendingTraceEvent 크기(=0xb8). IR 레이아웃 { {i64,[21 x i64]}, i64 }"},
+  {"value": -9223372036854775793, "src_line": 27, "meaning": "이벤트 +0x00에 쓰는 태그. 비트패턴 0x800000000000000F — PendingTraceEvent 열거 변형 판별자"},
+  {"value": 40, "src_line": 28, "meaning": "data.cache.game(&dyn AbstractGame)의 vtable+0x28 슬롯. i64 반환값을 이벤트 +0xb0에 저장"},
+  {"value": 176, "src_line": 27, "meaning": "이벤트 +0xb0 = vtable+0x28 호출 결과(i64)"},
+  {"value": 128, "src_line": 27, "meaning": "이벤트 +0x80 = from(i32)"},
+  {"value": 132, "src_line": 27, "meaning": "이벤트 +0x84 = misunderstood(u8)"}
+ ],
+
+ "calls": [
+  "game_ai::plan_legacy::rule_scope::chat_allowed",
+  "game_ai::plan_legacy::handler::chat::LegacyPlanHandler::handle_chat_inner",
+  "game_ai::plan_legacy::types::BigPlan::get_name",
+  "core::ptr::drop_glue"
+ ],
+
+ "logic": "handle_chat(self, version, rnd, player, data, from, chat, misunderstood, debug):\n\n// [게이트1] chat.rs:9 — 자기 자신이 보낸 채팅이면 즉시 반환\nif from == player.position(+0x9c0) { return }        // Position::eq, entity.rs:563 인라인\n\nctx = data.context(+0x8)          // &GameContext\nt   = ctx.tutorial(+0x38)         // TutorialType u8\n\n// [게이트2] chat.rs:12 — rule_scope::position_exists(ctx, from) (rule_scope.rs:36~42) 완전 인라인.\n//   '그 라인이 이 튜토리얼 구성에 존재하는가'. 전부 tutorial 값만으로 결정된다.\nexists = match from {\n  Top(0)               => t in {0 None, 2 TopSolo, 7 Line, 8 Total}                      // spawn_top_minion,    runner.rs:282, rule_scope.rs:38\n  Jungle(1)            => (t==0) || (t==6 JungleOnly) || (t>=8)                           // player_count(),      runner.rs:294, rule_scope.rs:39 — 비교식이 접혀 변형집합만 남음\n  Mid(2)               => t in {0 None, 4 MidSolo, 5 MidBottom, 7 Line, 8 Total}          // spawn_mid_minion,    runner.rs:286, rule_scope.rs:40\n  Bottom(3)|Support(4) => t in {0 None, 1 First, 3 Bottom, 5 MidBottom, 7 Line, 8 Total}  // spawn_bottom_minion, runner.rs:290, rule_scope.rs:41\n}\nif !exists { return }\n\n// [게이트3] chat.rs:12 — 이 채팅 자체가 규칙범위에서 허용되는가\nif !rule_scope::chat_allowed(ctx, chat) { return }   // 내부 미조사\n\n// [분기] chat.rs:18 — TraceLevel::is_enabled(trace.rs:14~15) 인라인 = (trace_level != Off)\nif ctx.trace_level(+0x39) == 0 {\n  self.handle_chat_inner(version, rnd, player, data, from, chat, misunderstood, debug);  // chat.rs:19\n  return\n}\n\n// [트레이스 경로] chat.rs:22~33 — 판정 자체는 전혀 안 바뀌고 전/후 상태만 기록한다\nplan_before      = self.plan(+0x5e8).get_name()                            // :22\nobjective_before = format!(\"{:?}\", self.team_plan.objective(+0x517))       // :23\nself.handle_chat_inner(...)                                                // :24  (실제 판단은 전부 여기)\nplan_after       = self.plan.get_name()                                    // :25\nobjective_after  = format!(\"{:?}\", self.team_plan.objective)               // :26\ntick_or_time     = (*(data.cache.game.vtable + 0x28))(data.cache.game.ptr) // :28  i64 반환\nself.pending_trace_events(+0x858).push(PendingTraceEvent{                  // :27~33\n   +0x00 tag              = 0x800000000000000F,\n   +0x08 chat_dbg         = format!(\"{:?}\", chat),        // :31\n   +0x20 plan_before,       +0x38 plan_after,\n   +0x50 objective_before,  +0x68 objective_after,\n   +0x80 from(i32), +0x84 misunderstood(u8), +0xb0 tick_or_time\n})\n// push 상세: len(+0x868) == cap(+0x858) 이면 RawVec::grow_one, 이후 ptr(+0x860)[len] 에 184B memcpy, len += 1\n\n[주의] format_inner(alloc::fmt::format), RawVec<PendingTraceEvent>::grow_one, drop_glue<PendingTraceEvent> 는\n본문에 실제로 있으나 전부 `invoke`(언와인딩 경로 보유)라 qcspec 의 C2(`call` 만 매칭)에 안 잡혀 calls 배열에서 뺐다.\ncleanuppad 블록(%50/%54/%60/%72/%92~%107)은 전부 예외 언와인딩 시 String/이벤트 drop 처리로 판정 로직과 무관.",
+
+ "knobs": [
+  {"what": "자기 채팅 차단 게이트", "where": "chat.rs:9 (IR: icmp eq i32 %5, %22)", "value": 2496,
+   "effect": "이 비교를 무력화하면 자기 자신이 보낸 채팅도 handle_chat_inner 로 들어간다(현재는 무조건 버려짐). 그대로 두면 자문자답형 반응은 절대 생기지 않는다"},
+  {"what": "라인 존재 게이트(position_exists)", "where": "rule_scope.rs:36~42 / GameContext+0x38 tutorial", "value": 56,
+   "effect": "tutorial 값에 따라 특정 라인발 채팅이 통째로 무시된다. tutorial=0(None, 일반 경기)이면 5개 라인 전부 통과 → 일반 경기에서는 사실상 상시 통과이고, 튜토리얼 구성에서만 실질 필터로 작동한다. 상시 true 로 바꾸면 튜토리얼에서도 없는 라인의 채팅을 처리하게 된다"},
+  {"what": "트레이스 기록 스위치", "where": "chat.rs:18 / GameContext+0x39 trace_level", "value": 57,
+   "effect": "0(Off)이면 inner 만 호출. 1/2 로 올리면 채팅 1건마다 문자열 5개를 힙 할당해 184B 이벤트로 pending_trace_events 에 쌓는다(판정 결과는 동일, 비용·메모리만 증가)"}
+ ],
+
+ "unknown": [
+  "rule_scope::chat_allowed(ctx, chat) 내부 — 호출만 보이고 본문은 안 봤다. 채팅 종류별 허용 판정이 여기 있을 것",
+  "handle_chat_inner 내부 — 실제 채팅 반응 판단은 전부 여기 있고 이 함수 범위 밖",
+  "data.cache.game 의 vtable+0x28 메서드 이름/의미 — i64 를 반환해 트레이스 이벤트 +0xb0 에 저장. 위치상 tick(경기 시각)으로 추정되나 IR 에서 이름 확인 불가(vtable 은 game_core 산출물). 판정에는 안 쓰임",
+  "position_exists 의 Jungle 분기 원래 비교식 — player_count()(runner.rs:294) 반환값을 무엇과 비교했는지는 상수접힘으로 사라졌고 결과 변형집합 {0, 6, >=8} 만 관측됨",
+  "PendingTraceEvent 태그 0x800000000000000F 가 그 열거의 몇 번째 변형인지 — 이 함수에서는 상수 저장만 보임",
+  "version(p2)/rnd(p3)/debug(p9) 는 이 함수 본문에서 전혀 안 쓰이고 inner 로 전달만 된다. inner 에서의 용도는 미확인",
+  "team_plan 자체의 기준 오프셋(+0xf8=248B)은 DI 메타데이터로 역산한 값이고 IR 본문에는 합쳐진 +0x517 만 나타난다"
+ ]
+}

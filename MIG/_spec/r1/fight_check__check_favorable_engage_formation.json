@@ -1,0 +1,83 @@
+{
+ "name": "check_favorable_engage_formation",
+ "sym": "_RNvNtCshdEBA0ozCnw_7game_ai11fight_check32check_favorable_engage_formation",
+ "src": "game-ai\\src\\fight_check.rs",
+ "src_line": 1196,
+ "ir_file": "m15.ll",
+ "ir_from": 35410,
+ "ir_to": 35850,
+
+ "one_line": "적 후퇴선(적 본진 방향) 기준 아군 5인의 포위 진형이 교전에 유리한지 판정",
+
+ "signature": {
+  "params": [
+   {"i": 1, "name": "version", "type": "usize", "note": "AI 버전 게이트. 이 함수 본문에는 version 분기가 전혀 없고, minion_wave_risk 호출에 그대로 넘기기만 한다"},
+   {"i": 2, "name": "player", "type": "&PlayerState(2528B)", "note": "내 챔프의 team(+0x930)·position(+0x9c0)만 읽는다"},
+   {"i": 3, "name": "data", "type": "&OperationData(24B)", "note": "필드0=엔티티 슬롯 테이블 보유 구조체 ptr, 필드1(+0x8)=시뮬레이션 상태 ptr. 여기서 MapDef와 엔티티 슬롯 배열을 얻는다"},
+   {"i": 4, "name": "target_enemy", "type": "&Entity(1728B)", "note": "교전 대상 적. 이 적의 좌표(+0x660/+0x668)가 모든 거리·각도 계산의 기준점"},
+   {"i": 5, "name": "engage_range", "type": "u64", "note": "교전 사거리(월드 단위). +100000 해서 아군 참여 판정 반경으로 쓴다"}
+  ],
+  "returns": "bool — true=진형이 유리하다(교전 가도 됨) / false=불리(교전 보류)"
+ },
+
+ "reads": [
+  {"base": "PlayerState", "offset": "0x930", "name": "team", "note": "usize 0/1. 2 이상이면 panic_bounds_check (fight_check.rs:1203)"},
+  {"base": "PlayerState", "offset": "0x9c0", "name": "position", "note": "i32. Position::as_index()(entity.rs:580~581)로 0~4 슬롯 인덱스"},
+  {"base": "OperationData", "offset": "0x0", "name": "board_ptr", "note": "엔티티 슬롯 테이블을 가진 구조체"},
+  {"base": "OperationData", "offset": "0x8", "name": "sim_ptr", "note": "여기서 +0x8=게임상태, +0x20=MapDef 를 얻는다"},
+  {"base": "board", "offset": "0x1e0", "name": "entity_slots[2][5]", "note": "[5 x ptr] 를 team 으로 인덱싱(스트라이드 40B) 후 슬롯으로 인덱싱. null=빈 슬롯(Option<&Entity>)"},
+  {"base": "sim.+0x8(게임상태)", "offset": "0x12f8", "name": "unknown_scalar", "note": "값을 shl 1(=x2) 해서 enemy_minion_line_action_danger_damage_at 6번째 인자로 전달. 의미 미확인"},
+  {"base": "sim", "offset": "0x20", "name": "map_def", "note": "MapDef 포인터"},
+  {"base": "MapDef", "offset": "0x6d70", "name": "fountain[team]", "note": "MapDef::fountain()(map_def.rs:234~235). {i64 x4}=(elx,ely,erx,ery) 사각형, 스트라이드 32B, enemy_team(=1-team)으로 인덱싱"},
+  {"base": "Entity", "offset": "0x660", "name": "x", "note": "월드 X"},
+  {"base": "Entity", "offset": "0x668", "name": "y", "note": "월드 Y"},
+  {"base": "Entity", "offset": "0x5c0", "name": "self_key(정체 미확인)", "note": "ally 와 champ 의 이 값이 같으면 continue = 자기 자신 제외용 키 (fight_check.rs:1235)"},
+  {"base": "Entity", "offset": "0x628", "name": "hp_max(추정)", "note": "HP비율의 분모. 0이면 panic_const_div_by_zero"},
+  {"base": "Entity", "offset": "0x670", "name": "hp_cur(추정)", "note": "HP비율의 분자(x100)"}
+ ],
+
+ "constants": [
+  {"value": 2, "src_line": 1203, "meaning": "team 인덱스 상한(bounds check). 팀은 2개"},
+  {"value": 1, "src_line": 1204, "meaning": "enemy_team = 1 - team. 1223/1256 의 '< 1' 퇴화 가드에도 같은 1"},
+  {"value": 100000, "src_line": 1246, "meaning": "max_engage_dist = engage_range + 100000. 셀=32000 기준 약 3.1셀의 여유폭 — 아군이 '교전에 참여 가능'하다고 볼 반경 가산치"},
+  {"value": 40, "src_line": 1240, "meaning": "아군 HP 하한 40%. hp*100/hp_max < 40 이면 그 아군은 진형 계산에서 제외"},
+  {"value": 100, "src_line": 1286, "meaning": "각도 임계의 분자 배수. 1240 의 HP퍼센트 환산에도 같은 100 사용"},
+  {"value": 9, "src_line": 1286, "meaning": "각도 임계의 분모 배수. x_sq*100 > len_product_sq*9 는 (x/(|a||b|))^2 > 0.09 즉 |cos| 또는 |sin| > 0.3"},
+  {"value": 4, "src_line": 1233, "meaning": "루프 계속 조건 'idx < 4' — 슬롯 0~4 총 5회. 별개로 1280 의 dot_sq*4 는 IR 에서 'shl i128 %176, 2' 로 나온다(리터럴 4 아님)"},
+  {"value": 5, "src_line": 1340, "meaning": "champ_to_base_sq * 5 <= enemy_to_base_sq * 6 — 최종 거리비 임계의 좌변 배수. 엔티티 슬롯 배열 [5 x ptr] 의 5 와 같은 리터럴"},
+  {"value": 6, "src_line": 1340, "meaning": "우변 배수. 5/6 비율 = 거리제곱비 1.2 = 실거리비 약 1.095배까지 내 챔프가 적 본진에서 더 멀어도 허용"}
+ ],
+
+ "calls": ["game_ai::minion_wave_risk::enemy_minion_line_action_danger_damage_at"],
+
+ "logic": "// fight_check.rs:1196~1348\nfn check_favorable_engage_formation(version, player, data, target_enemy, engage_range) -> bool {\n\n  // [1203] 내 챔프 얻기\n  team = player[0x930];                       // 2 이상이면 panic\n  pos  = player[0x9c0] as usize;              // Position::as_index()\n  slots = data[0x0][0x1e0] + team*40;         // &[Option<&Entity>; 5]\n  champ = slots[pos].unwrap();                // null 이면 unwrap_failed panic\n  enemy_team = 1 - team;                      // [1204]\n\n  // [1208~1209] 미니언 라인 위험 게이트\n  tx = target_enemy[0x660]; ty = target_enemy[0x668];\n  k  = data[0x8][0x8][0x12f8] * 2;\n  if enemy_minion_line_action_danger_damage_at(version, data, champ, tx, ty, k, true, false) != 0 {\n      return false;                           // 적 미니언 라인 피해가 예상되면 진형 계산 없이 즉시 불리\n  }\n\n  // [1214~1216] 적 본진(분수) 중심\n  (elx, ely, erx, ery) = MapDef::fountain(map, enemy_team);   // map_def.rs:234~235, MapDef+0x6d70 + enemy_team*32\n  enemy_base_x = (erx + elx) / 2;             // [1215] (IR 은 (erx+elx) >> 1)\n  enemy_base_y = (ery + ely) / 2;             // [1216]\n\n  // [1219~1223] 적의 '후퇴 벡터' = 적 -> 적 본진 (i128 연산)\n  retreat_dx = enemy_base_x - tx;             // [1219]\n  retreat_dy = enemy_base_y - ty;             // [1220]\n  retreat_len_sq = retreat_dx^2 + retreat_dy^2;   // [1221]\n  if retreat_len_sq < 1 { return true; }      // [1223] 적이 이미 본진 중심 = 무조건 유리\n\n  front_allies = 0; flank_allies = 0; rear_allies = 0;   // [1229~1231]\n\n  // [1294]/[1334] 공통항 (LLVM 이 루프 밖으로 끌어냄)\n  enemy_to_base_sq = |tx-enemy_base_x|^2 + |ty-enemy_base_y|^2;\n  max_engage_dist  = engage_range + 100000;   // [1246]\n\n  for ap in 0..5 {                            // [1233] 내 팀 슬롯 5칸 전수\n    ally = slots[ap]; if ally == null { continue; }        // [1234]\n    if ally[0x5c0] == champ[0x5c0] { continue; }           // [1235] 자기 자신 제외\n    if ally[0x670]*100 / ally[0x628] < 40 { continue; }    // [1240] HP 40% 미만 아군은 셈에서 뺀다\n\n    // [1245~1247] 교전권 밖 아군 제외\n    ally_to_enemy_dist_sq = |ally.x-tx|^2 + |ally.y-ty|^2; // Entity::distance_sq\n    if ally_to_enemy_dist_sq > max_engage_dist^2 { continue; }\n\n    // [1252~1254] 아군 -> 적 벡터 (i128)\n    ally_dx = tx - ally.x; ally_dy = ty - ally.y;\n    ally_len_sq = ally_dx^2 + ally_dy^2;\n    if ally_len_sq < 1 { front_allies += 1; continue; }     // [1256~1258] 적과 겹쳐 있으면 전면으로 셈\n\n    dot   = ally_dx*retreat_dx + ally_dy*retreat_dy;        // [1264]\n    cross = ally_dx*retreat_dy - ally_dy*retreat_dx;        // [1267]\n    len_product_sq = ally_len_sq * retreat_len_sq;          // [1270]\n    dot_sq   = dot*dot;                                     // [1278]\n    cross_sq = cross*cross;                                 // [1279]\n\n    // 아래 3개는 sqrt 없이 제곱 비교로 각도를 판정한다\n    is_front             = dot > 0 && dot_sq*4   > len_product_sq;      // [1280] cos^2 > 1/4 -> 적 후퇴방향과 60도 이내(아군이 적의 퇴로 쪽에 있음)\n    is_rear_direction    = dot < 0 && dot_sq*100 > len_product_sq*9;    // [1283] cos < -0.3 -> 아군이 적 본진의 반대편\n    is_significant_flank = cross_sq*100 > len_product_sq*9;             // [1286] |sin| > 0.3 -> 측면각 약 17.5도 초과\n\n    if is_front {                                          // [1288]\n        front_allies += 1;                                 // [1289]\n    } else if is_rear_direction {                          // [1290]\n        to_base_dist_sq = |ally.x-enemy_base_x|^2 + |ally.y-enemy_base_y|^2;   // [1293]\n        if to_base_dist_sq < enemy_to_base_sq { rear_allies  += 1; }  // [1296,1298] 아군이 적보다 적 본진에 더 가깝다 = 진짜 퇴로 차단\n        else                                  { flank_allies += 1; }  // [1300]\n    } else if is_significant_flank {                        // [1302]\n        flank_allies += 1;                                 // [1304]\n    } else {\n        front_allies += 1;                                 // [1307]\n    }\n  }\n\n  // ---- 진형 판정 ----\n  if rear_allies > 0 { return true; }                      // [1316] 퇴로 차단 아군이 1명이라도 있으면 유리\n  if flank_allies > 1 || (flank_allies > 0 && front_allies > 0) { return true; }  // [1321] 협공 성립\n  if front_allies <= 1 { return false; }                   // [1331] 전면 아군이 2명 미만이면 불리\n\n  // [1334~1340] 전면 2명 이상뿐일 때의 마지막 조건: 위치 우위\n  champ_to_base_sq = |champ.x-enemy_base_x|^2 + |champ.y-enemy_base_y|^2;   // [1335]\n  return champ_to_base_sq * 5 <= enemy_to_base_sq * 6;     // [1340] 내가 적 본진에서 적보다 크게 멀지 않을 것(실거리비 <= 약 1.095)\n}\n\n// 가드(재현 대상 아님): panic_bounds_check(1203), Option::unwrap_failed(1203), panic_const_div_by_zero(1240)\n// 반환 경로 요약: false = [1208 미니언위험] / [1331 front<=1] / [1340 거리비 불통과]\n//                 true  = [1223 퇴화] / [1316 rear>0] / [1321 협공] / [1340 거리비 통과]",
+
+ "knobs": [
+  {"what": "아군 HP 하한", "where": "fight_check.rs:1240", "value": 40,
+   "effect": "내리면 부상 아군도 진형 인원으로 세어 교전 승인이 쉬워진다. 올리면 건강한 아군만 세므로 교전을 더 사린다"},
+  {"what": "교전 참여 반경 가산치", "where": "fight_check.rs:1246", "value": 100000,
+   "effect": "올리면 멀리 있는 아군까지 진형 계산에 포함되어 교전 승인 빈도가 늘고(합류하지 않은 아군을 세는 오판도 함께 는다), 내리면 실제로 밀집했을 때만 교전한다"},
+  {"what": "전면 판정 각도 배수", "where": "fight_check.rs:1280", "value": 4,
+   "effect": "dot_sq*4 > len_product_sq 의 4. 키우면 더 넓은 각도(60도 초과)까지 front 로 세어 1321/1331 을 통과하기 쉬워지고, 줄이면 적 퇴로 정면에 바짝 선 아군만 front 로 센다. 단 IR 상 shl 2 로 접혀 있어 바이트패치 대상 리터럴은 아니다"},
+  {"what": "후방 판정 각도 배수", "where": "fight_check.rs:1283", "value": 9,
+   "effect": "dot_sq*100 > len_product_sq*9 의 9 를 내리면 더 넓은 각도의 아군이 rear 후보가 되고(본진 거리 조건까지 통과하면) rear_allies 가 늘어 1316 에서 즉시 true 가 잘 나온다. 올리면 적 정반대편에 정확히 선 아군만 인정"},
+  {"what": "측면 판정 각도 배수", "where": "fight_check.rs:1286", "value": 9,
+   "effect": "내리면 거의 일직선인 아군도 flank 로 세어 1321 협공 조건이 쉽게 성립(교전 승인 증가). 올리면 확실히 옆에서 도는 아군만 flank 이고, 탈락분은 1307 로 흘러 front 가 된다"},
+  {"what": "최종 위치 우위 비율", "where": "fight_check.rs:1340", "value": 6,
+   "effect": "champ_to_base_sq*5 <= enemy_to_base_sq*6. 6 을 올리거나 5 를 내리면 내가 적 본진에서 더 멀어도 정면 교전을 승인(공격적). 반대로 하면 내가 적보다 본진 쪽에 있을 때만 정면 교전을 승인"},
+  {"what": "진형 카운트 게이트", "where": "fight_check.rs:1316 / 1321 / 1331", "value": 1,
+   "effect": "1316 의 rear>0, 1321 의 flank>1 및 (flank>0 && front>0), 1331 의 front>1 문턱. 낮추면 소수 인원으로도 교전 승인, 높이면 확실한 다인 포위에서만 승인"}
+ ],
+
+ "unknown": [
+  "Entity+0x5c0 의 정체 — ally 와 champ 의 값이 같으면 자기 자신으로 보고 건너뛴다. 두 엔티티가 모두 같은 팀 슬롯 배열에서 나오므로 'team' 필드일 수는 없다(그러면 전원 스킵). id 또는 슬롯 인덱스로 추정하나 이 함수만으로는 확정 불가",
+  "Entity+0x628(분모) / +0x670(분자) 의 실제 필드명 — 'x*100/y < 40' 형태와 div-by-zero 패닉으로 hp_cur/hp_max 로 추정했을 뿐, DI 메타데이터에 필드명이 없어 미확정",
+  "data[0x8][0x8][0x12f8] 값의 의미 — x2 해서 enemy_minion_line_action_danger_damage_at 의 6번째 인자로만 쓰인다. tick/경과시간 계열로 추정하나 근거 없음",
+  "enemy_minion_line_action_danger_damage_at 내부는 보지 않음. 이 함수의 첫 게이트(!=0 이면 즉시 false)라 실질 영향이 큰데 반환값 0/비0 의 의미는 미확인. 마지막 두 인자 (true, false) 의 뜻도 미확인",
+  "version(arg1) 은 이 함수 본문에서 어떤 분기도 만들지 않는다(danger 함수로 전달만). minion_wave_risk 쪽 버전 분기 유무는 미확인",
+  "OperationData(24B) 의 세 번째 워드(+0x10)는 이 함수에서 읽지 않는다",
+  "board+0x1e0 테이블의 스트라이드가 [5 x ptr]=40B 인 것은 IR 그대로지만, 그 앞뒤 필드가 무엇인지는 미확인",
+  "fountain 4워드를 (elx,ely,erx,ery)로 부르는 것은 DILocalVariable 이름 그대로이나(1214), 좌표계상 어느 꼭짓점 쌍인지는 map_def.rs:234 본문을 안 봐서 미확정",
+  "이 함수를 누가 호출하는지(교전 결정 어느 단계에서 쓰이는지)는 담당 범위 밖이라 확인하지 않음"
+ ]
+}

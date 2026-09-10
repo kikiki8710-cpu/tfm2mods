@@ -1,0 +1,109 @@
+{
+ "name": "update",
+ "sym": "_RNvMNtNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old9line_gank6gankerNtB2_14LineGankerPlan6update",
+ "src": "game-ai\\src\\plan_legacy\\old\\line_gank\\ganker.rs",
+ "src_line": 39,
+ "ir_file": "m08.ll",
+ "ir_from": 94569,
+ "ir_to": 94941,
+
+ "one_line": "갱커의 갱크 지속/취소 판정 — 저체력이거나 목표 부시 도착 후 적이 없으면 Cancel",
+
+ "signature": {
+  "params": [
+   {"i": 1, "name": "self", "type": "&mut LineGankerPlan(48B)", "note": "+0x00 chats:Vec<Chat>(cap,ptr,len) / +0x18 setup_limit / +0x20 wait_limit / +0x28 line:LineType(0=Top,1=Mid,2=Bottom) / +0x29 phase:LineGankerPhase. 이 함수는 chats에 push하고 phase=Cancel(태그 8)만 쓴다"},
+   {"i": 2, "name": "_version", "type": "usize", "note": "AI 버전. 본문에서 전혀 안 읽음 — 이 함수엔 버전 분기 없음"},
+   {"i": 3, "name": "_rnd", "type": "&mut StdRng(320B)", "note": "readnone — 미사용. 이 판정에 난수 없음"},
+   {"i": 4, "name": "player", "type": "&PlayerState(2528B)", "note": "info.team(+0x930), info.position(+0x9c0)만 읽음"},
+   {"i": 5, "name": "data", "type": "&OperationData(24B)", "note": "+0x00 cache:&AbstractGameWithCache / +0x08 context:&GameContext / +0x10 blackboard(미사용)"},
+   {"i": 6, "name": "goal_data", "type": "&GoalData(248B)", "note": "has_near_line_enemy 호출에만 사용"},
+   {"i": 7, "name": "_positioning_score", "type": "&PositioningScoreData(224B)", "note": "readnone — 미사용"},
+   {"i": 8, "name": "_debug", "type": "&mut DebugFrameData", "note": "readnone — 미사용"}
+  ],
+  "returns": "void — 부작용으로 self.chats.push(Chat::Cancel(reason)) + self.phase = LineGankerPhase::Cancel(태그 8)"
+ },
+
+ "reads": [
+  {"base": "PlayerState", "offset": "0x930", "name": "info.team", "note": "usize 0/1. 2 이상이면 panic_bounds_check(ganker.rs:43)"},
+  {"base": "PlayerState", "offset": "0x9c0", "name": "info.position", "note": "Position enum 0..4. Position::as_index(entity.rs:580)로 usize화"},
+  {"base": "AbstractGameWithCache", "offset": "0x1e0", "name": "player_champion", "note": "[[Option<&Entity>;5];2] 를 [team][pos]로. None이면 unwrap panic"},
+  {"base": "AbstractGameWithCache", "offset": "0x180", "name": "top_tower", "note": "[Option<&Entity>;2]. 라인 스트라이드 32 → +line*32 하면 mid_tower(0x1a0)/bottom_tower(0x1c0)"},
+  {"base": "AbstractGameWithCache", "offset": "0x190", "name": "top_tower2", "note": "2차 포탑. 마찬가지로 +line*32 → mid_tower2(0x1b0)/bottom_tower2(0x1d0)"},
+  {"base": "OperationData", "offset": "0x8", "name": "context", "note": "&GameContext"},
+  {"base": "GameContext", "offset": "0x20", "name": "map", "note": "&MapDef(28112B)"},
+  {"base": "GameSetting", "offset": "0x12c0", "name": "height", "note": "is_top_side가 쓰는 맵 세로 크기. context.setting(+0x8) 경유"},
+  {"base": "MapDef", "offset": "0x1c98", "name": "bushes", "note": "[[usize;30];30] 부시 ID 격자. [y/32000][x/32000]로 인덱싱"},
+  {"base": "Entity", "offset": "0x68", "name": "ty", "note": "EntityType 태그(i64, range 0..13). ==2 가 Tower"},
+  {"base": "Entity", "offset": "0x70", "name": "ty payload = Tower", "note": "Tower 구조체(192B) 시작. info:&Tower"},
+  {"base": "Entity", "offset": "0x88", "name": "Tower.nearest_enemy", "note": "Option<(usize,usize)> — is_some만 확인(포탑이 물고 있는 적이 있는가)"},
+  {"base": "Entity", "offset": "0x128", "name": "Tower.ty", "note": "TowerType(0=Top,1=Mid,2=Bottom,3=TwinA,4=TwinB,5=Top2,6=Mid2,7=Bottom2). >4 = is_second_tower"},
+  {"base": "Entity", "offset": "0x628", "name": "stat_cached.hp", "note": "최대 체력(분모). stat_cached(0x618)+0x10"},
+  {"base": "Entity", "offset": "0x660", "name": "x", "note": "갱커 챔프 좌표"},
+  {"base": "Entity", "offset": "0x668", "name": "y", "note": "갱커 챔프 좌표"},
+  {"base": "Entity", "offset": "0x670", "name": "hp", "note": "현재 체력(분자)"},
+  {"base": "LineGankerPlan", "offset": "0x28", "name": "line", "note": "LineType 0/1/2 — 담당 라인"},
+  {"base": "LineGankerPlan", "offset": "0x29", "name": "phase", "note": "쓰기 전용. 8 = LineGankerPhase::Cancel (6=WaitResponse, 7=Setup, 0..5=ChangeJungle)"}
+ ],
+
+ "constants": [
+  {"value": 2, "src_line": 43, "meaning": "team 배열 길이(팀 2개). player.info.team>=2 면 bounds panic"},
+  {"value": 100, "src_line": 44, "meaning": "hp_ratio 백분율 배수: hp*100/max_hp"},
+  {"value": 41, "src_line": 47, "meaning": "★체력 임계. hp_ratio < 41 (체력 41% 미만)이면 갱크 취소(LowHpSelf)"},
+  {"value": 4, "src_line": 264, "meaning": "TowerType > 4 = is_second_tower (5=Top2,6=Mid2,7=Bottom2). 즉 1차 포탑이 이미 파괴된 상태"},
+  {"value": 5, "src_line": 249, "meaning": "line*32 계산의 시프트량(shl i8 line,5). 포탑 배열 라인 스트라이드 32바이트"},
+  {"value": 32000, "src_line": 55, "meaning": "좌표→격자 셀 변환(셀 크기 32000). 임계값 아님"},
+  {"value": 29, "src_line": 55, "meaning": "격자 인덱스 clamp 상한(30x30 격자의 마지막 인덱스)"},
+  {"value": 30, "src_line": 55, "meaning": "MapDef.bushes 격자 한 변 길이 30"},
+  {"value": 17, "src_line": 48, "meaning": "Chat 열거형 태그 17 = Chat::Cancel(CancelReason). push되는 24B 값의 첫 바이트"},
+  {"value": 8, "src_line": 280, "meaning": "부시 ID(Mid·2차포탑·아래쪽·team0) 겸 LineGankerPhase::Cancel 태그값 8 — 두 용도 모두 본문에 있음"},
+  {"value": 16, "src_line": 252, "meaning": "부시 ID: 포탑 전멸 Top 라인, team=1"},
+  {"value": 21, "src_line": 254, "meaning": "부시 ID: 포탑 전멸 Bottom 라인, team=1"},
+  {"value": 9, "src_line": 254, "meaning": "부시 ID: 포탑 전멸 Bottom 라인, team=0"},
+  {"value": 3, "src_line": 265, "meaning": "부시 ID: Top 라인 기본(team=0)"},
+  {"value": 6, "src_line": 265, "meaning": "부시 ID: Top 라인 기본(team=1)"},
+  {"value": 13, "src_line": 282, "meaning": "부시 ID: Mid·2차포탑·위쪽(is_top_side)·team=0"},
+  {"value": 18, "src_line": 282, "meaning": "부시 ID: Mid·2차포탑·위쪽·team=1"},
+  {"value": 12, "src_line": 280, "meaning": "부시 ID: Mid·2차포탑·아래쪽·team=1"},
+  {"value": 14, "src_line": 285, "meaning": "부시 ID: Mid·1차포탑 생존·위쪽 (팀 무관)"},
+  {"value": 11, "src_line": 285, "meaning": "부시 ID: Mid·1차포탑 생존·아래쪽 (팀 무관)"},
+  {"value": 15, "src_line": 295, "meaning": "부시 ID: Bottom 라인 기본(team=0)"},
+  {"value": 20, "src_line": 295, "meaning": "부시 ID: Bottom 라인 기본(team=1)"}
+ ],
+
+ "calls": [
+  "game_ai::goal_data::GoalData::has_near_line_enemy",
+  "alloc::raw_vec::RawVec<game_core::simulation::state::player::Chat>::grow_one",
+  "llvm.umin.i64",
+  "llvm.assume",
+  "core::panicking::panic_bounds_check",
+  "core::option::unwrap_failed",
+  "core::panicking::panic_const::panic_const_div_by_zero",
+  "_RNvNtCsjihNppCmMEE_4core9panicking5panic"
+ ],
+
+ "logic": "== update (ganker.rs:39) ==\n43: team = player.info.team              // 0/1, >=2 면 bounds panic\n    pos  = player.info.position.as_index()    // Position 0..4\n    champ = data.cache.player_champion[team][pos].unwrap()   // None이면 panic\n44: hp_ratio = champ.hp * 100 / champ.stat_cached.hp   // max_hp==0 이면 div-by-zero panic\n47: if hp_ratio < 41 {\n      self.chats.push(Chat::Cancel(CancelReason::LowHpSelf /*0*/));\n      self.phase = LineGankerPhase::Cancel /*8*/;\n      return;                        // ★갱커 자신이 체력 41% 미만 → 갱크 포기\n    }\n54: bush = self.target_bush_v30(player, data)    // 전부 인라인됨(아래)\n55: champ_bush = data.context.map.bushes[ clamp(champ.y/32000,0,29) ][ clamp(champ.x/32000,0,29) ]\n56: if champ_bush != bush { return; }             // 아직 목표 부시에 도착 안 함 → 아무 것도 안 함\n57: if goal_data.has_near_line_enemy(self.line, data.context.map) { return; }   // 근처에 적이 있으면 계속 대기\n    self.chats.push(Chat::Cancel(CancelReason::TargetMissing /*2*/));\n    self.phase = LineGankerPhase::Cancel /*8*/;\n    // ★목표 부시에 도착했는데 그 라인 근처에 적이 없다 = 갱크 대상 실종 → 취소\n\n== target_bush_v30 (ganker.rs:248, 100% 인라인) ==\n249: tower = data.cache.tower(self.line, team)\n       = tower1[line][team].or(tower2[line][team])\n         // AbstractGameWithCache +0x180 + line*32 + team*8 (1차), +0x190 + line*32 + team*8 (2차)\n250: if tower.is_none() {                  // 그 라인 포탑이 1·2차 모두 파괴됨\n251:   match self.line {\n252:     Top    => if team==0 { 2 } else { 16 }\n253:     Mid    => if team==0 { 4 } else { 17 }\n254:     Bottom => if team==0 { 9 } else { 21 }\n       }\n258: } else {\n259:   match self.line {\n263:     Top => { let EntityType::Tower(info) = tower.ty else { /*274*/ unreachable!() };\n264:       if tower.ty.is_tower2() {             // TowerType > 4 → 1차 포탑 이미 파괴\n265:         if team==0 { 3 } else { 6 }\n           } else if info.nearest_enemy.is_some() {    // 267: 포탑이 물고 있는 적이 있는가\n268:         if team==0 { 6 } else { 3 }           // ★팀 대응이 뒤집힌 유일한 분기\n           } else {\n270:         if team==0 { 3 } else { 6 }\n           } }\n278:     Mid => {\n           if tower.ty.is_tower2() {              // Mid는 포탑 엔티티가 아니어도 panic 안 하고 else로 감\n279:         if is_top_side(context, champ.x, champ.y) { /*282*/ if team==0 {13} else {18} }\n             else                                     { /*280*/ if team==0 { 8} else {12} }\n           } else {\n285:         if is_top_side(context, champ.x, champ.y) { 14 } else { 11 }    // ★팀 무관\n           } }\n293:     Bottom => { let EntityType::Tower(info) = tower.ty else { /*304*/ unreachable!() };\n294:       if tower.ty.is_tower2() { /*295*/ if team==0 {15} else {20} }\n           else if info.nearest_enemy.is_some() { /*298*/ if team==0 {20} else {15} }\n           else { /*300*/ if team==0 {15} else {20} } }\n       }\n     }\n\n== is_top_side (map_regions.rs:21, 인라인) ==\n22: ry = context.setting.height - y\n24: return ry < x         // 맵 반대각선 기준 '위(탑)쪽' 판정\n\n== 참고 ==\n- Top/Bottom 은 부시 2종만(3/6, 15/20), Mid 만 4종 + 좌표 분기(8/12/13/18 vs 11/14)를 쓴다.\n- 포탑 전멸 전용 부시 ID 6개(2/16, 4/17, 9/21)가 따로 있다.\n- 이 함수는 이동 명령을 내리지 않는다. 부시 도착 여부를 읽기만 하고 '취소할지'만 판단한다(이동은 다른 단계).",
+
+ "knobs": [
+  {"what": "갱크 취소 체력 임계", "where": "ganker.rs:47 (IR m08.ll 94605행 `icmp ult i64 %32, 41`)", "value": 41,
+   "effect": "올리면 더 높은 체력에서도 갱크를 포기 → 갱크 성공률 하락·소극적. 내리면 저체력에도 갱크를 밀어붙여 갱커가 더 자주 죽는다. 0이면 체력 사유 취소가 사라진다"},
+  {"what": "포탑 생존 시 라인별 대기 부시 ID", "where": "ganker.rs:265/268/270(Top), 280/282/285(Mid), 295/298/300(Bottom)", "value": 0,
+   "effect": "갱커가 '도착했다'고 인정하는 부시가 바뀐다 → 취소 판정 위치 자체가 이동. 맵에 없는 ID를 넣으면 champ_bush 와 영영 불일치해 TargetMissing 취소 경로가 죽고 갱크가 무한 대기한다"},
+  {"what": "포탑 전멸 시 대기 부시 ID", "where": "ganker.rs:252/253/254", "value": 0,
+   "effect": "라인 포탑이 모두 깨진 뒤 갱커가 서는 부시를 바꾼다. 후반 갱크 위치에만 영향"},
+  {"what": "2차 포탑 판정 경계(TowerType>4)", "where": "tower.rs:100 — 이 함수엔 264/278/294 세 곳에 인라인", "value": 4,
+   "effect": "이 사이트 한정으로 내리면(예: 2) 1차 포탑 상태에서도 '2차 포탑용 부시'를 써 갱커가 다른 부시에 선다. 단 is_second_tower 는 게임 전역 술어라 원본 함수를 고치면 부작용 범위가 넓다"}
+ ],
+
+ "unknown": [
+  "부시 ID 숫자(2~21)가 맵상 실제 어느 부시인지 — MapDef.bushes(30x30 격자) 값 체계는 맵 데이터 쪽이라 이 함수만으론 대응 못 함",
+  "GoalData::has_near_line_enemy 내부 판정(무엇을 '근처 적'으로 보는지, 거리 임계) — 별도 함수라 안 봄",
+  "Top(265 vs 270)·Bottom(295 vs 300)에서 서로 다른 소스 줄이 같은 값(team0=3/15, team1=6/20)을 내는 이유. 268/298만 뒤집힘 — 의도인지 소스 오타인지 판단 불가",
+  "Mid의 285 분기만 team 을 안 보는 이유(11/14 고정) — 의도 여부 불명",
+  "self.setup_limit(+0x18)·wait_limit(+0x20)은 이 함수에서 전혀 안 읽힘. 어느 함수가 쓰는지 미확인",
+  "phase 가 Cancel(8)이 된 뒤 상위 플랜이 무엇을 하는지(실제 후퇴 명령 등)는 이 함수 밖",
+  "OperationData.blackboard(+0x10) 미사용",
+  "Chat::Cancel 이 push 되는 self.chats 를 누가 소비하는지(로그/연출/실제 명령) 미확인",
+  "_version(p2)이 완전히 미사용 — 호출되는 부시 함수가 target_bush_v30 하나뿐이며, 다른 버전 함수가 별도 심볼로 존재하는지는 이 범위에서 확인 못 함",
+  "champ.hp 가 실드/버프 보정 전후 어느 쪽인지 미확인(stat_cached.hp 를 최대치로 쓴다는 것만 확인)"
+ ]
+}

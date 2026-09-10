@@ -1,0 +1,100 @@
+{
+ "name": "sub_plan",
+ "sym": "_RNvMNtNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old4epic15hunt_and_battleNtB2_21EpicHuntAndBattlePlan8sub_plan",
+ "src": "game-ai\\src\\plan_legacy\\old\\epic\\hunt_and_battle.rs",
+ "src_line": 28,
+ "ir_file": "m02.ll",
+ "ir_from": 48918,
+ "ir_to": 49137,
+
+ "one_line": "에픽 상황에서 귀환/부시매복/에픽사냥 중 무엇을 할지 고르는 서브플랜 선택기",
+
+ "signature": {
+  "params": [
+   {"i": 0, "name": "(sret)", "type": "&mut SubPlan(72B)", "note": "반환값 out-param. enum2$<game_ai::plan_legacy::sub_plan::SubPlan>, tag=i64 @+0x0"},
+   {"i": 1, "name": "self", "type": "&EpicHuntAndBattlePlan(16B)", "note": "필드 1개 = target_bush: Option<usize> (판별자 @+0x0, 값 @+0x8)"},
+   {"i": 2, "name": "version", "type": "usize", "note": "AI 버전 게이트. 이 함수 본문에선 분기 없음 — upgrade_item 으로 그대로 전달만"},
+   {"i": 3, "name": "rnd", "type": "&mut rand::rngs::std::StdRng(320B)", "note": "본문에서 직접 안 씀. upgrade_item 으로 전달만"},
+   {"i": 4, "name": "player", "type": "&PlayerState(2528B)", "note": "PlayerState.info(GamePlayer) 의 team/position 만 읽고, 통째로 upgrade_item 에 전달"},
+   {"i": 5, "name": "data", "type": "&OperationData(24B)", "note": "cache:&AbstractGameWithCache @+0x0, context:&GameContext @+0x8, blackboard @+0x10(미사용)"},
+   {"i": 6, "name": "goal_data", "type": "&GoalData(248B)", "note": "goal_data.epic(EpicStanceData @+0x78) 의 두 tick 값만 읽음"},
+   {"i": 7, "name": "_debug", "type": "&mut DebugFrameData", "note": "미사용 (IR 에서 ptr poison — 완전히 죽은 인자)"}
+  ],
+  "returns": "SubPlan(72B) — 이 함수가 내는 값은 3가지뿐: tag5=Recall / tag9=Hide{bush,out_line,check_move,enemy_spotted_me} / tag11=EpicHunt{need_recall}"
+ },
+
+ "reads": [
+  {"base": "PlayerState(.info: GamePlayer)", "offset": "0x930", "name": "team", "note": "usize. 0/1. 2 이상이면 panic_bounds_check(배열 인덱스로 쓰임)"},
+  {"base": "PlayerState(.info: GamePlayer)", "offset": "0x9c0", "name": "position", "note": "Position enum(i32, 0..=4) = Top/Jungle/Mid/Bottom/Support. Position::as_index() 가 그대로 이 값"},
+  {"base": "AbstractGameWithCache", "offset": "0x0", "name": "game", "note": "&dyn AbstractGame 팻포인터: 데이터ptr @+0x0, vtable ptr @+0x8(816B)"},
+  {"base": "AbstractGameWithCache", "offset": "0x1e0", "name": "player_champion", "note": "[[Option<&Entity>;5];2]. [team][position] 로 인덱싱해 champ 를 얻음(None 이면 unwrap 패닉)"},
+  {"base": "Entity(champ/epic)", "offset": "0x628", "name": "stat_cached.hp", "note": "최대 HP(캐시 스탯). 0 이면 나눗셈 패닉"},
+  {"base": "Entity(champ/epic)", "offset": "0x670", "name": "hp", "note": "현재 HP"},
+  {"base": "Entity(champ)", "offset": "0x660", "name": "x", "note": "u64 좌표"},
+  {"base": "Entity(champ)", "offset": "0x668", "name": "y", "note": "u64 좌표"},
+  {"base": "MobaMode", "offset": "0x198", "name": "jungle_runner.epic.live_list", "note": "Vec<usize>(에픽 캠프 살아있는 엔티티 id 목록). MobaMode+0x18=jungle_runner, +0x180=epic(JungleCampState), +0x0=live_list"},
+  {"base": "MobaMode", "offset": "0x1a0", "name": "jungle_runner.epic.live_list.ptr", "note": "Vec 데이터 포인터"},
+  {"base": "MobaMode", "offset": "0x1a8", "name": "jungle_runner.epic.live_list.len", "note": "Vec 길이. 0 이면 epic=None"},
+  {"base": "OperationData", "offset": "0x8", "name": "context", "note": "&GameContext"},
+  {"base": "GameContext", "offset": "0x20", "name": "map", "note": "&MapDef"},
+  {"base": "GameContext", "offset": "0x8", "name": "setting", "note": "&GameSetting"},
+  {"base": "GameSetting", "offset": "0x12f8", "name": "tick_per_second", "note": "1초당 틱 수. 41행 게이트의 가산항"},
+  {"base": "MapDef", "offset": "0x6d70", "name": "fountains", "note": "[(u64,u64,u64,u64);2]. [team] 로 32B 인덱싱 → (lx, ly, rx, ry) 사각형"},
+  {"base": "GoalData(.epic: EpicStanceData @+0x78)", "offset": "0x98", "name": "epic.epic_ally_tick", "note": "EpicStanceData +0x20"},
+  {"base": "GoalData(.epic: EpicStanceData @+0x78)", "offset": "0xa0", "name": "epic.epic_ally_killed_tick", "note": "EpicStanceData +0x28"},
+  {"base": "dyn AbstractGame vtable", "offset": "0x40", "name": "(간접호출) -> GameMode", "note": "vt+0x40 (game) → GameMode(16B). 반환값에 GameMode::as_moba() 적용, 판별자!=0 이면 unwrap 패닉"},
+  {"base": "dyn AbstractGame vtable", "offset": "0x1f0", "name": "(간접호출) -> Option<&Entity>", "note": "vt+0x1f0 (game, id:usize) → 엔티티 조회. 32행 클로저 본문"}
+ ],
+
+ "constants": [
+  {"value": 2, "src_line": 29, "meaning": "player_champion 배열의 팀 수 = 2. team>=2 면 panic_bounds_check"},
+  {"value": 480, "src_line": 29, "meaning": "0x1e0 — AbstractGameWithCache.player_champion 오프셋"},
+  {"value": 100, "src_line": 31, "meaning": "hp_ratio 를 퍼센트로 만드는 스케일 (hp*100/max_hp, 정수 나눗셈)"},
+  {"value": 0, "src_line": 32, "meaning": "live_list.get(0) 의 인덱스 — 에픽 캠프의 **첫 번째** 엔티티만 본다"},
+  {"value": 51, "src_line": 36, "meaning": "hp_ratio < 51, 즉 체력비율 50% 이하면 참 (백분율 임계)"},
+  {"value": 5, "src_line": 38, "meaning": "SubPlan 판별자 5 = Recall (DWARF DISCR_EXACT 로 확정)"},
+  {"value": 9, "src_line": 43, "meaning": "SubPlan 판별자 9 = Hide (부시 매복)"},
+  {"value": 11, "src_line": 47, "meaning": "SubPlan 판별자 11 = EpicHunt"},
+  {"value": 1, "src_line": 43, "meaning": "Hide.out_line = AroundBushOutlineType::Outline (0=None,1=Outline,2=Inline)"},
+  {"value": 4856, "src_line": 41, "meaning": "0x12f8 — GameSetting.tick_per_second 오프셋"},
+  {"value": 152, "src_line": 41, "meaning": "0x98 — goal_data.epic.epic_ally_tick"},
+  {"value": 160, "src_line": 41, "meaning": "0xa0 — goal_data.epic.epic_ally_killed_tick"}
+ ],
+
+ "calls": [
+  "game_ai::upgrade_item",
+  "core::option::unwrap_failed",
+  "core::panicking::panic_bounds_check",
+  "core::panicking::panic_const::panic_const_div_by_zero"
+ ],
+
+ "logic": "// hunt_and_battle.rs:28  EpicHuntAndBattlePlan::sub_plan\n// self = EpicHuntAndBattlePlan { target_bush: Option<usize> }\n\n// [29행] 내 챔피언 얻기 (없으면 패닉)\nteam = player.info.team                       // PlayerState+0x930, >=2 면 bounds panic\npos  = player.info.position.as_index()        // PlayerState+0x9c0, 0..=4 (Top/Jungle/Mid/Bottom/Support)\nchamp = data.cache.player_champion[team][pos].unwrap()   // cache+0x1e0 + team*40 + pos*8\n\n// [31행] 내 체력 비율(%) — 정수 나눗셈\nif champ.stat_cached.hp == 0 { panic!(div by zero) }\nhp_ratio = champ.hp * 100 / champ.stat_cached.hp     // 0x670 * 100 / 0x628\n\n// [32행] 에픽 몬스터 엔티티 (없을 수 있음)\ngame = data.cache.game                        // &dyn AbstractGame (데이터ptr, vtable)\nmoba = (vt+0x40)(game) .as_moba().unwrap()    // GameMode 가 Moba 가 아니면 패닉\nlive = moba.jungle_runner.epic.live_list      // Vec<usize> @ MobaMode+0x198\nepic: Option<&Entity> =\n    if live.len == 0 { None }\n    else { (vt+0x1f0)(game, live[0]) }         // 첫 원소만 본다 (and_then + closure$0)\n\n// [33행] 우리 팀 분수(fountain) 사각형\n(lx, ly, rx, ry) = data.context.map.fountains[team]   // MapDef+0x6d70 + team*32\n\n// [34행] 분수(회복지대) 안에 있는가 — x 범위부터 검사, 실패하면 y 는 안 봄\nis_in_heal_area = (champ.x >= lx && champ.x <= rx) && (champ.y >= ly && champ.y <= ry)\n\n// [35행] 지금 아이템을 올릴 수 있는가\ncan_upgrade_item = game_ai::upgrade_item(version, rnd, player, game, data.context).is_some()\n                   // 반환 Option<(usize,usize)> 의 존재 여부만 쓴다 (내용은 버림)\n\n// [36행] 에픽이 '무손상'(= 아무도 안 건드림)이고, 지금 본진으로 돌아갈 이유가 있으면 귀환\nif epic.is_some_and(|e| e.hp == e.stat_cached.hp)\n   && ( hp_ratio < 51                                        // 체력 50% 이하\n        || can_upgrade_item                                  // 살 아이템이 있음\n        || (champ.hp < champ.stat_cached.hp && is_in_heal_area) )  // 다쳤는데 이미 분수 안\n{\n    return SubPlan::Recall            // tag=5, 페이로드 없음(RecallSubPlan = ZST)\n}\n// (IR 상 결합 순서: ((champ.hp<max && is_in_heal_area) || (hp_ratio<51 || can_upgrade_item)))\n\n// [41행] 에픽 타이밍 게이트 && 매복할 부시가 지정돼 있는가 (단축평가 AND)\nif  goal_data.epic.epic_ally_tick + data.context.setting.tick_per_second\n        > goal_data.epic.epic_ally_killed_tick\n    && self.target_bush.is_some()\n{\n    // [42~43행] 부시에 숨어 매복\n    target_bush = self.target_bush.unwrap()       // self+0x8\n    return SubPlan::Hide(HideSubPlan {\n        bush: target_bush,                        // ret+0x8\n        out_line: AroundBushOutlineType::Outline, // ret+0x10 = 1\n        check_move: false,                        // ret+0x11 = 0\n        enemy_spotted_me: false,                  // ret+0x12 = 0\n    })                                            // tag=9\n} else {\n    // [47행] 그 외에는 에픽 사냥\n    return SubPlan::EpicHunt(EpicHuntSubPlan { need_recall: false })  // tag=11, ret+0x8 = 0\n}\n\n// 정리: 이 함수의 출력은 Recall / Hide / EpicHunt 3가지뿐이다.\n//  - Recall 조건이 최우선이고, 그 다음이 Hide, 나머지 전부 EpicHunt(기본값).\n//  - epic 이 None 이거나 에픽이 이미 피해를 입었으면 36행 게이트는 무조건 거짓 → 절대 Recall 안 함.",
+
+ "knobs": [
+  {"what": "귀환 체력비율 임계", "where": "hunt_and_battle.rs:36", "value": 51,
+   "effect": "hp_ratio < 51 (=체력 50% 이하). 올리면 더 높은 체력에서도 에픽을 두고 귀환하고, 내리면 피가 더 빠질 때까지 버틴다. 0 으로 두면 체력 사유로는 절대 귀환 안 함(다른 두 사유는 살아있음)"},
+  {"what": "에픽 무손상 요구", "where": "hunt_and_battle.rs:36 (closure$1: e.hp == e.stat_cached.hp)",
+   "value": 0,
+   "effect": "이 술어를 항상 참으로 바꾸면 에픽이 이미 깎여 있어도 귀환을 허용(= 교전 중에도 본진행). 항상 거짓으로 바꾸면 이 플랜에서 Recall 이 사라지고 Hide/EpicHunt 만 나온다"},
+  {"what": "에픽 타이밍 게이트의 가산항", "where": "hunt_and_battle.rs:41", "value": 4856,
+   "effect": "GameSetting.tick_per_second(1초)를 epic_ally_tick 에 더해 epic_ally_killed_tick 과 비교한다. 이 가산항을 키우면 게이트가 참이 되는 구간이 넓어져 **부시 매복(Hide)** 이 더 자주 나오고, 0 으로 만들면 대부분 EpicHunt 로 직행한다"},
+  {"what": "에픽 후보 인덱스", "where": "hunt_and_battle.rs:32", "value": 0,
+   "effect": "live_list 의 0번 엔티티만 '에픽'으로 본다. 캠프에 몹이 여러 마리인 경우 다른 인덱스를 보게 하면 36행 무손상 판정 대상이 바뀐다"},
+  {"what": "Hide 페이로드 고정값", "where": "hunt_and_battle.rs:43", "value": 1,
+   "effect": "out_line=Outline(1) / check_move=false / enemy_spotted_me=false 로 하드코딩. out_line 을 Inline(2) 로 바꾸면 부시 안쪽에 서고, check_move=true 로 바꾸면 이동 재검사 동작이 켜진다(하위 플랜 소비자 동작은 이 함수 밖)"},
+  {"what": "EpicHunt.need_recall", "where": "hunt_and_battle.rs:47", "value": 0,
+   "effect": "항상 false 로 나간다. true 로 고정하면 에픽 사냥 플랜이 '사냥 후 귀환' 성격으로 바뀐다(실제 효과는 EpicHunt 소비 측에 있음)"}
+ ],
+
+ "unknown": [
+  "arg7 `_debug`(&mut DebugFrameData) 는 IR 에서 `ptr poison` — 이 함수에서 전혀 안 쓰임",
+  "arg2 `version`, arg3 `rnd` 는 이 함수 본문에서 분기/사용 없음. upgrade_item 으로 전달만 하므로 버전 분기가 있다면 그 안쪽이다",
+  "game_ai::upgrade_item 내부는 안 봤다. 여기선 반환 Option<(usize,usize)> 의 is_some 만 쓰고 (usize,usize) 페이로드는 버린다 — 그 두 값이 무엇인지 모름",
+  "dyn AbstractGame vtable 슬롯 +0x40 / +0x1f0 의 트레이트 메서드 **이름**은 이 IR 범위로는 확정 불가. 계약만 확인됨: +0x40 (game)->GameMode(16B), +0x1f0 (game, id:usize)->Option<&Entity>(널 가능 ptr)",
+  "41행 게이트 `epic_ally_tick + tick_per_second > epic_ally_killed_tick` 의 **의미**는 확정 못 했다. 두 필드(EpicStanceData.epic_ally_tick @+0x20, epic_ally_killed_tick @+0x28)를 누가 언제 갱신하는지가 이 함수 밖이라, '아군이 에픽을 최근에 잡았다/못 잡았다' 중 어느 쪽인지 단정 불가. 수식 자체는 IR 그대로 확정",
+  "SubPlan 판별자↔이름 매핑은 DWARF enum2$ 의 DISCR_EXACT extraData 로 읽었다(5=Recall, 9=Hide, 11=EpicHunt). Variant6(DeathBattle)만 extraData 가 없어 8로 **추정**되나 이 함수와는 무관",
+  "36행 OR 3항의 **소스상 기술 순서**는 알 수 없다. IR 은 ((champ.hp<max && is_in_heal_area) || (hp_ratio<51 || can_upgrade_item)) 로 접혀 있고 셋 다 부작용이 없어 순서가 관측되지 않는다",
+  "Position::as_index() 는 인라인돼 필드값(i32, range 0..5)을 그대로 쓴다 — 별도 매핑 테이블이 있는지는 이 범위에서 확인 불가",
+  "`is_in_heal_area` 라는 이름은 소스 변수명(DILocalVariable, 34행)이며 읽는 데이터는 MapDef.fountains 사각형이다. '분수=회복지대' 가정은 이름 근거이고 실제 회복 처리는 이 함수 밖"
+ ]
+}

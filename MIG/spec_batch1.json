@@ -1,0 +1,202 @@
+[
+ {
+  "name": "ult",
+  "sym": "!56306",
+  "src": "game-ai\\\\src\\\\abstract_input.rs",
+  "src_line": 280,
+  "ir_file": "m04.ll",
+  "ir_from": 43967,
+  "ir_to": 44365,
+  "ir_lines": 398
+ },
+ {
+  "name": "calculate_jungle_action_score",
+  "sym": "!44328",
+  "src": "game-ai\\\\src\\\\action_score.rs",
+  "src_line": 520,
+  "ir_file": "m05.ll",
+  "ir_from": 39984,
+  "ir_to": 40103,
+  "ir_lines": 119
+ },
+ {
+  "name": "defensive_crisis",
+  "sym": "!40590",
+  "src": "game-ai\\\\src\\\\buff_value.rs",
+  "src_line": 17,
+  "ir_file": "m10.ll",
+  "ir_from": 33864,
+  "ir_to": 34294,
+  "ir_lines": 430
+ },
+ {
+  "name": "check_favorable_engage_formation",
+  "sym": "!46157",
+  "src": "game-ai\\\\src\\\\fight_check.rs",
+  "src_line": 1196,
+  "ir_file": "m15.ll",
+  "ir_from": 35410,
+  "ir_to": 35850,
+  "ir_lines": 440
+ },
+ {
+  "name": "v3_fall_back_to_passive",
+  "sym": "!21920",
+  "src": "game-ai\\\\src\\\\plan_legacy\\\\handler.rs",
+  "src_line": 416,
+  "ir_file": "m13.ll",
+  "ir_from": 12238,
+  "ir_to": 12479,
+  "ir_lines": 241
+ },
+ {
+  "name": "handle_chat",
+  "sym": "!36266",
+  "src": "game-ai\\\\src\\\\plan_legacy\\\\handler\\\\chat.rs",
+  "src_line": 8,
+  "ir_file": "m13.ll",
+  "ir_from": 29383,
+  "ir_to": 29689,
+  "ir_lines": 306
+ },
+ {
+  "name": "v50_fold_dive_episode",
+  "sym": "!35901",
+  "src": "game-ai\\\\src\\\\plan_legacy\\\\handler\\\\dive_episode.rs",
+  "src_line": 125,
+  "ir_file": "m13.ll",
+  "ir_from": 28946,
+  "ir_to": 29380,
+  "ir_lines": 434
+ },
+ {
+  "name": "v2_response_retreat_stance",
+  "sym": "!48701",
+  "src": "game-ai\\\\src\\\\plan_legacy\\\\handler\\\\engage.rs",
+  "src_line": 13,
+  "ir_file": "m13.ll",
+  "ir_from": 45212,
+  "ir_to": 45626,
+  "ir_lines": 414
+ },
+ {
+  "name": "single_try_engage",
+  "sym": "!38540",
+  "src": "game-ai\\\\src\\\\plan_legacy\\\\handler\\\\modes.rs",
+  "src_line": 241,
+  "ir_file": "m13.ll",
+  "ir_from": 33374,
+  "ir_to": 33739,
+  "ir_lines": 365
+ },
+ {
+  "name": "sub_plan",
+  "sym": "!62810",
+  "src": "game-ai\\\\src\\\\plan_legacy\\\\old\\\\attack_nexus.rs",
+  "src_line": 31,
+  "ir_file": "m12.ll",
+  "ir_from": 34867,
+  "ir_to": 34976,
+  "ir_lines": 109
+ },
+ {
+  "name": "max_range_nearly_can_use",
+  "sym": "!56143",
+  "src": "game-ai\\\\src\\\\plan_legacy\\\\old\\\\battle.rs",
+  "src_line": 2397,
+  "ir_file": "m10.ll",
+  "ir_from": 51913,
+  "ir_to": 52374,
+  "ir_lines": 461
+ },
+ {
+  "name": "new",
+  "sym": "!26946",
+  "src": "game-ai\\\\src\\\\plan_legacy\\\\old\\\\death_battle.rs",
+  "src_line": 746,
+  "ir_file": "m05.ll",
+  "ir_from": 17695,
+  "ir_to": 17825,
+  "ir_lines": 130
+ },
+ {
+  "name": "handle_line_defense",
+  "sym": "!66939",
+  "src": "game-ai\\\\src\\\\plan_legacy\\\\old\\\\defense_nexus.rs",
+  "src_line": 543,
+  "ir_file": "m04.ll",
+  "ir_from": 58175,
+  "ir_to": 58644,
+  "ir_lines": 469
+ },
+ {
+  "name": "v3_epicops_buff_window",
+  "sym": "!14691",
+  "src": "game-ai\\\\src\\\\plan_legacy\\\\old\\\\epic.rs",
+  "src_line": 634,
+  "ir_file": "m09.ll",
+  "ir_from": 6879,
+  "ir_to": 7264,
+  "ir_lines": 385
+ },
+ {
+  "name": "sub_plan",
+  "sym": "!54369",
+  "src": "game-ai\\\\src\\\\plan_legacy\\\\old\\\\epic\\\\hunt_and_battle.rs",
+  "src_line": 28,
+  "ir_file": "m02.ll",
+  "ir_from": 48918,
+  "ir_to": 49137,
+  "ir_lines": 219
+ },
+ {
+  "name": "is_end",
+  "sym": "!18857",
+  "src": "game-ai\\\\src\\\\plan_legacy\\\\old\\\\epic\\\\hunt_and_poke.rs",
+  "src_line": 163,
+  "ir_file": "m10.ll",
+  "ir_from": 7655,
+  "ir_to": 7899,
+  "ir_lines": 244
+ },
+ {
+  "name": "should_end_object_finish_kill_priority_battle",
+  "sym": "!55242",
+  "src": "game-ai\\\\src\\\\plan_legacy\\\\old\\\\fight_model.rs",
+  "src_line": 1214,
+  "ir_file": "m10.ll",
+  "ir_from": 49611,
+  "ir_to": 50100,
+  "ir_lines": 489
+ },
+ {
+  "name": "target_bush_v30",
+  "sym": "!23052",
+  "src": "game-ai\\\\src\\\\plan_legacy\\\\old\\\\line_gank\\\\cover.rs",
+  "src_line": 134,
+  "ir_file": "m10.ll",
+  "ir_from": 11483,
+  "ir_to": 11731,
+  "ir_lines": 248
+ },
+ {
+  "name": "update",
+  "sym": "!55507",
+  "src": "game-ai\\\\src\\\\plan_legacy\\\\old\\\\line_gank\\\\ganker.rs",
+  "src_line": 39,
+  "ir_file": "m08.ll",
+  "ir_from": 94569,
+  "ir_to": 94941,
+  "ir_lines": 372
+ },
+ {
+  "name": "best_jungle_goal",
+  "sym": "!71466",
+  "src": "game-ai\\\\src\\\\plan_legacy\\\\old\\\\passive_jungle.rs",
+  "src_line": 806,
+  "ir_file": "m04.ll",
+  "ir_from": 62570,
+  "ir_to": 62978,
+  "ir_lines": 408
+ }
+]

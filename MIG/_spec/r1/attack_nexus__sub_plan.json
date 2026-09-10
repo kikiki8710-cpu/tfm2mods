@@ -1,0 +1,95 @@
+{
+ "name": "AttackNexusPlan::sub_plan",
+ "sym": "_RNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old12attack_nexusNtB2_15AttackNexusPlan8sub_plan",
+ "src": "game-ai\\src\\plan_legacy\\old\\attack_nexus.rs",
+ "src_line": 31,
+ "ir_file": "m12.ll",
+ "ir_from": 34867,
+ "ir_to": 34976,
+
+ "one_line": "넥서스 공격 플랜에서 챔피언 1인의 서브플랜을 Recall/LineDefense/AttackNexus 중 하나로 결정",
+
+ "signature": {
+  "params": [
+   {"i": 0, "name": "(sret ret)", "type": "SubPlan(72B, tag=u64 @+0x0)", "note": "반환값 out-param. 태그만 쓰거나 +0x8~0xa 에 LineDefenseSubPlan 3바이트를 채운다"},
+   {"i": 1, "name": "self", "type": "&AttackNexusPlan(16B){team:usize@0x0, line:LineType@0x8}", "note": "self.line(+0x8)만 읽는다. self.team(+0x0)은 이 함수에서 안 읽음"},
+   {"i": 2, "name": "version", "type": "usize", "note": "AI 버전 게이트. 이 함수 본문에서 전혀 안 쓰임 = 버전 분기 없음"},
+   {"i": 3, "name": "rnd", "type": "&mut StdRng(320B)", "note": "readnone — 난수 사용 없음(완전 결정론적)"},
+   {"i": 4, "name": "player", "type": "&PlayerState(2528B)", "note": "info.team(+0x930), info.position(+0x9c0) 두 개만 읽음"},
+   {"i": 5, "name": "data", "type": "&OperationData(24B){cache@0x0, context@0x8, blackboard@0x10}", "note": "cache=&AbstractGameWithCache, context=&GameContext. blackboard 는 안 읽음"},
+   {"i": 6, "name": "_team_plan", "type": "&TeamPlan", "note": "readnone — 미사용(소스에서도 이름 앞 _)"},
+   {"i": 7, "name": "_debug", "type": "&mut DebugFrameData(224B)", "note": "readnone — 미사용"}
+  ],
+  "returns": "SubPlan — tag 5=Recall(페이로드 없음) / tag 2=LineDefense(LineDefenseSubPlan 3B) / tag 16=AttackNexus(페이로드 없음)"
+ },
+
+ "reads": [
+  {"base": "PlayerState(GamePlayer info)", "offset": "0x930", "name": "info.team", "note": "usize 0/1. 배열 인덱스로 쓰이며 len=2 로 bounds-check(초과 시 panic_bounds_check)"},
+  {"base": "PlayerState(GamePlayer info)", "offset": "0x9c0", "name": "info.position", "note": "i32, !range [0,5). Position::as_index()(entity.rs:580-581) 인라인 결과 = 판별자 그대로"},
+  {"base": "OperationData", "offset": "0x8", "name": "context", "note": "&GameContext"},
+  {"base": "GameContext", "offset": "0x20", "name": "map", "note": "&MapDef"},
+  {"base": "AbstractGameWithCache(data.cache)", "offset": "0x1e0", "name": "player_champion", "note": "[[Option<&Entity>;5];2]. [team][pos] 접근 후 unwrap (None 이면 unwrap_failed 패닉)"},
+  {"base": "AbstractGameWithCache(data.cache)", "offset": "0x148", "name": "twin_towers[1-team].len", "note": "twin_towers 본체는 +0x130 ([bumpalo::Vec<&Entity>;2], stride 0x20), len 은 Vec+0x18 → 0x130+0x18=0x148 (+0x20*(1-team)). IR 에는 접힌 값 328 로만 보인다"},
+  {"base": "MapDef", "offset": "0x6d70", "name": "fountains", "note": "[[u64;4];2] (팀당 32B 사각형). MapDef::fountain(team)(map_def.rs:234-235) 인라인. [+0]lx [+8]ly [+0x10]rx [+0x18]ry"},
+  {"base": "Entity(champ)", "offset": "0x660", "name": "x", "note": "u64 좌표"},
+  {"base": "Entity(champ)", "offset": "0x668", "name": "y", "note": "u64 좌표"},
+  {"base": "Entity(champ)", "offset": "0x670", "name": "hp", "note": "현재 HP"},
+  {"base": "Entity(champ)", "offset": "0x628", "name": "stat_cached.hp", "note": "stat_cached(Entity+0x618, EntityStat 72B)의 hp 필드(+0x10) = 최대 HP"},
+  {"base": "AttackNexusPlan(self)", "offset": "0x8", "name": "line", "note": "LineType u8, !range [0,3) = Top0/Mid1/Bottom2. LineDefense 페이로드로 그대로 복사"}
+ ],
+
+ "constants": [
+  {"value": 2352, "src_line": 36, "meaning": "0x930 — PlayerState.info.team 오프셋"},
+  {"value": 2, "src_line": 36, "meaning": "팀 수 2 (player_champion 바깥 배열 길이 = bounds-check 상한). 동시에 LineDefense 의 태그값 2, MinionActionType::Push 의 값 2 로도 등장"},
+  {"value": 2496, "src_line": 36, "meaning": "0x9c0 — PlayerState.info.position 오프셋"},
+  {"value": 480, "src_line": 36, "meaning": "0x1e0 — AbstractGameWithCache.player_champion 오프셋"},
+  {"value": 5, "src_line": 36, "meaning": "포지션 수 5 ([5 x ptr] 스트라이드). 동시에 Recall 의 태그값 5 (phi)"},
+  {"value": 28016, "src_line": 37, "meaning": "0x6d70 — MapDef.fountains 오프셋"},
+  {"value": 32, "src_line": 37, "meaning": "GameContext.map 오프셋 0x20. 겸 fountains/twin_towers 원소 스트라이드 32B"},
+  {"value": 1632, "src_line": 38, "meaning": "0x660 — Entity.x"},
+  {"value": 1640, "src_line": 38, "meaning": "0x668 — Entity.y"},
+  {"value": 1648, "src_line": 41, "meaning": "0x670 — Entity.hp (현재 HP)"},
+  {"value": 1576, "src_line": 41, "meaning": "0x628 — Entity.stat_cached.hp (최대 HP)"},
+  {"value": 1, "src_line": 45, "meaning": "적 팀 인덱스 = 1 - team (sub nuw nsw i64 1, team)"},
+  {"value": 328, "src_line": 45, "meaning": "0x148 — twin_towers[0].len 의 접힌 오프셋(0x130 + 0x18)"},
+  {"value": 16, "src_line": 45, "meaning": "AttackNexus 의 태그값 16 (phi). 겸 fountains 원소 내 rx 오프셋 +0x10"},
+  {"value": 0, "src_line": 48, "meaning": "LineDefenseSubPlan.style = LineStyle::Aggressive(0)"},
+  {"value": 9, "src_line": 48, "meaning": "반환 버퍼 +0x9 = LineDefenseSubPlan.line 슬롯"},
+  {"value": 10, "src_line": 48, "meaning": "반환 버퍼 +0xa = LineDefenseSubPlan.minion_action_type 슬롯 (여기 저장되는 값 2 = Push)"},
+  {"value": 24, "src_line": 37, "meaning": "fountains 원소 내 ry 오프셋 +0x18. 겸 bumpalo Vec 의 len 필드 오프셋 +0x18"}
+ ],
+
+ "calls": [
+  "core::panicking::panic_bounds_check",
+  "core::option::unwrap_failed"
+ ],
+
+ "logic": "// attack_nexus.rs:31~52. 인라인되어 사라진 것: Position::as_index(entity.rs:580), MapDef::fountain(map_def.rs:234),\n// Option::unwrap(option.rs:1010), bumpalo Vec::is_empty/len(vec.rs:1635/1616)\nfn sub_plan(self: &AttackNexusPlan, version, rnd, player: &PlayerState, data: &OperationData, _team_plan, _debug) -> SubPlan {\n  // ---- L36 : 이 플레이어의 챔피언 엔티티 얻기\n  let team = player.info.team;                          // +0x930, usize\n  if team >= 2 { panic_bounds_check(team, 2) }          // player_champion 바깥 배열 길이 2\n  let pos  = player.info.position as u32;               // +0x9c0, !range [0,5) — as_index 인라인\n  let champ: &Entity = data.cache.player_champion[team][pos].unwrap();  // cache+0x1e0, None 이면 unwrap_failed\n\n  // ---- L37 : 자기 팀 분수대 사각형 (MapDef::fountain(team) 인라인)\n  let map = data.context.map;                           // data+0x8 -> GameContext+0x20\n  let f   = &map.fountains[team];                       // MapDef+0x6d70 + 32*team\n  let (lx, ly, rx, ry) = (f[0], f[1], f[2], f[3]);      // +0x0, +0x8, +0x10, +0x18\n\n  // ---- L38 : is_in_heal_area — 분수대 사각형 안인가 (부호 없는 비교)\n  let is_in_heal_area = champ.x >= lx && champ.x <= rx   // 0x660: uge lx && ule rx\n                     && champ.y >= ly && champ.y <= ry;  // 0x668: !(ult ly) && !(ugt ry)\n\n  // ---- L41 : 분수대 안이고 아직 풀피가 아니면 계속 회복\n  if is_in_heal_area && champ.hp < champ.stat_cached.hp {  // 0x670 ult 0x628\n      return SubPlan::Recall(..);                          // tag = 5\n  }\n\n  // ---- L45 : 적 팀 쌍둥이 포탑이 남아 있는가\n  let has_enemy_twin_tower = !data.cache.twin_towers[1 - team].is_empty();  // len(+0x148) != 0\n\n  // ---- L47~48\n  if has_enemy_twin_tower {\n      return SubPlan::LineDefense(LineDefenseSubPlan {    // tag = 2\n          style:              LineStyle::Aggressive,      // ret+0x8 = 0\n          line:               self.line,                  // ret+0x9 = self+0x8 (Top0/Mid1/Bottom2)\n          minion_action_type: MinionActionType::Push,     // ret+0xa = 2\n      });\n  }\n\n  // ---- 적 쌍둥이 포탑이 전멸했을 때만 실제로 넥서스를 친다\n  SubPlan::AttackNexus(..)                               // tag = 16\n}\n\n// 분기 3개가 전부다. 순서: (1) 분수대 회복 → (2) 적 쌍둥이 포탑 생존 → LineDefense(Push) → (3) AttackNexus.\n//\n// 태그값 확정 근거: DWARF 의 enum2$<SubPlan> 에서 variantN 의 DISCR_EXACT = N+2 이다.\n//   variant0 LineDefense=2, variant3 Recall=5, variant14 AttackNexus=16.\n//   교차검증: LineDefense 만 페이로드(LineDefenseSubPlan 3B @ +0x8)를 갖고 Recall/AttackNexus 는 ZST 인데,\n//   IR 도 tag=2 경로에서만 +0x8/+0x9/+0xa 3바이트를 쓰고 나머지 두 경로는 tag 만 쓴다 — 정확히 일치.",
+
+ "knobs": [
+  {"what": "분수대 이탈 HP 임계", "where": "attack_nexus.rs:41", "value": 1576,
+   "effect": "현재 조건은 hp < stat_cached.hp, 즉 완전 회복 전까지 분수대를 안 떠난다. 우변(Entity+0x628, 최대 HP)을 max_hp*0.7 등으로 낮추면 덜 회복하고 빨리 재합류(교전 참여율↑, 생존율↓), 그대로 두면 항상 풀피까지 대기"},
+  {"what": "회복 영역 판정 사각형", "where": "attack_nexus.rs:38 (MapDef+0x6d70)", "value": 28016,
+   "effect": "fountains[team] 사각형을 넓히면 분수대 근처 넓은 범위에서도 Recall 이 유지되어 더 오래 머물고, 좁히면 분수대 정중앙에서만 회복 판정이 서서 조기 이탈한다"},
+  {"what": "적 쌍둥이 포탑 게이트", "where": "attack_nexus.rs:45,47", "value": 328,
+   "effect": "적 twin_towers 가 하나라도 남아 있으면 넥서스 공격 대신 무조건 LineDefense(Push)로 되돌린다. 이 판정을 항상 false 로 만들면 포탑이 남아도 넥서스로 돌진(무리한 다이브), 항상 true 로 만들면 절대 넥서스를 치지 않는다"},
+  {"what": "폴백 라인 행동 = Push", "where": "attack_nexus.rs:48 (반환 버퍼 +0xa)", "value": 10,
+   "effect": "저장값 2(MinionActionType::Push)를 1(Normal) 또는 0(Pull)로 바꾸면, 포탑이 남아 넥서스를 못 칠 때 라인을 미는 대신 유지/당기는 성향이 된다"},
+  {"what": "폴백 라인 스타일 = Aggressive", "where": "attack_nexus.rs:48 (반환 버퍼 +0x8)", "value": 0,
+   "effect": "저장값 0(LineStyle::Aggressive)을 1(Defensive)로 바꾸면 넥서스 공격 대기 중의 라인 운영이 수비적으로 바뀐다"},
+  {"what": "폴백 라인 선택 = self.line", "where": "attack_nexus.rs:48 (self+0x8 → 반환 버퍼 +0x9)", "value": 9,
+   "effect": "LineDefense 로 되돌아갈 때 가는 라인이 플랜이 원래 배정한 self.line 그대로다. 고정값(예: Mid=1)으로 바꾸면 포탑이 남았을 때 전원이 특정 라인으로 몰린다"}
+ ],
+
+ "unknown": [
+  "version(p2)·rnd(p3)·_team_plan(p6)·_debug(p7) 은 본문에서 한 번도 읽히지 않는다(readnone/미사용) — 이 함수에는 AI 버전 분기도 난수도 없다. 상위 호출자가 version 으로 다른 plan 을 고르는지는 이 범위 밖이라 확인 못 함",
+  "self.team(AttackNexusPlan+0x0)은 이 함수에서 안 읽힌다. 팀은 player.info.team 을 쓴다 — 둘이 항상 같은 값인지는 이 함수만으로는 알 수 없음",
+  "twin_towers[i] 가 '팀 i 소유의 쌍둥이 포탑'이라는 소유 규약은, 소스 변수명 has_enemy_twin_tower(L45)와 인덱스가 1-team 이라는 사실에서 나온 추론이다. twin_towers 를 채우는 코드(AbstractGameWithCache 갱신부)는 보지 않았다",
+  "has_enemy_twin_tower 의 DIExpression 이 DW_OP_not 2회라 부호가 모호했다. 분기 방향(len==0 → AttackNexus, len!=0 → LineDefense)으로 실행 의미는 확정했으나, 소스 표기가 !is_empty() 인지 len()>0 인지까지는 단정 못 함",
+  "Position 판별자 0~4 가 각각 어느 포지션(Top/Jungle/Mid/Bottom/Support)인지 대응은 확인하지 않았다. 여기서는 player_champion 안쪽 배열 인덱스로만 쓰인다",
+  "LineDefenseSubPlan{style, line, minion_action_type} 이 하위 단계에서 어떻게 소비되는지는 이 함수 밖(LineDefense 처리부 미확인). knob 의 '효과' 서술은 열거자 이름(Aggressive/Defensive, Pull/Normal/Push)에 근거한 것이며 소비부를 읽고 확인한 것이 아님",
+  "SubPlan 태그는 2..18 만 쓰이고 0,1 에 해당하는 variant 가 DWARF 에 없다. 태그 0/1 이 무엇인지(니치 최적화/미사용)는 확인 못 함. 다만 이 함수가 쓰는 2/5/16 의 대응은 페이로드 레이아웃으로 교차검증됨",
+  "MapDef::fountain 이 돌려주는 사각형이 절대 좌표(셀=32000 단위)인지 다른 단위인지는 본문에 상수가 없어 판단 불가. Entity.x/y 와 직접 대소 비교하므로 최소한 같은 단위계임은 확실",
+  "Entity.stat_cached 가 '최대 HP'라는 해석은 EntityStat 의 필드명 hp 와 위치(stat/stat_cached 쌍)에 근거한다. stat_cached 를 갱신하는 코드는 안 봄"
+ ]
+}
