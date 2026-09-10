@@ -5335,6 +5335,578 @@
      "0x1431a3863": 1
     }
    }
+  },
+  "obj_count_my": {
+   "role": "helper",
+   "status": "todo",
+   "history": [
+    {
+     "ver": "0.5.8",
+     "rva": "0xec9840",
+     "size": 930,
+     "date": "2026-09-10",
+     "event": "add"
+    }
+   ],
+   "sym": "game-ai\\src\\plan_legacy\\team_plan\\objective_helpers.rs",
+   "cur": {
+    "rva": "0xec9840",
+    "end": "0xec9be2",
+    "size": 930,
+    "orig_len": 14,
+    "prolog": "56 57 53 48 83 ec 20 48 8b 89 30 09 00 00",
+    "prolog_insns": [
+     "push rsi",
+     "push rdi",
+     "push rbx",
+     "sub rsp, 0x20",
+     "mov rcx, qword ptr [rcx + 0x930]"
+    ],
+    "reloc": "ok",
+    "jmpin": 0,
+    "n": 250,
+    "sym": "game-ai\\src\\plan_legacy\\team_plan\\objective_helpers.rs",
+    "lines": [
+     12,
+     1905
+    ],
+    "callees": [
+     "0x31a3863",
+     "0x31a3b40"
+    ],
+    "offs": {
+     "0x8": 2,
+     "0x10": 3,
+     "0x18": 3,
+     "0x20": 3,
+     "0x60": 1,
+     "0x68": 1,
+     "0x1e0": 1,
+     "0x628": 5,
+     "0x660": 5,
+     "0x668": 5,
+     "0x670": 5,
+     "0x930": 1
+    },
+    "vslots": {},
+    "imms": {
+     "0x20": 7,
+     "0x64": 5,
+     "0x1e0": 2,
+     "0x140ec98a8": 2,
+     "0x140ec98c2": 1,
+     "0x140ec98f8": 1,
+     "0x140ec990b": 1,
+     "0x140ec9914": 1,
+     "0x140ec996d": 1,
+     "0x140ec997a": 2,
+     "0x140ec99b0": 1,
+     "0x140ec99c3": 1,
+     "0x140ec99d0": 1,
+     "0x140ec9a21": 2,
+     "0x140ec9a2e": 2,
+     "0x140ec9a64": 1,
+     "0x140ec9a7b": 1,
+     "0x140ec9a88": 1,
+     "0x140ec9ad9": 2,
+     "0x140ec9ae7": 1,
+     "0x140ec9af4": 1,
+     "0x140ec9b41": 2,
+     "0x140ec9b6b": 1,
+     "0x140ec9b6f": 1,
+     "0x140ec9b78": 1,
+     "0x140ec9bb3": 1,
+     "0x140ec9bb6": 3,
+     "0x140ec9bc1": 5,
+     "0x140ec9bcf": 1,
+     "0x1431a3863": 1,
+     "0x1431a3b40": 1
+    }
+   }
+  },
+  "obj_count_enemy_seen": {
+   "role": "helper",
+   "status": "todo",
+   "history": [
+    {
+     "ver": "0.5.8",
+     "rva": "0xecacc0",
+     "size": 1586,
+     "date": "2026-09-10",
+     "event": "add"
+    }
+   ],
+   "sym": "game-ai\\src\\plan_legacy\\team_plan\\objective_helpers.rs",
+   "cur": {
+    "rva": "0xecacc0",
+    "end": "0xecb2f2",
+    "size": 1586,
+    "orig_len": 12,
+    "prolog": "41 57 41 56 41 55 41 54 56 57 55 53",
+    "prolog_insns": [
+     "push r15",
+     "push r14",
+     "push r13",
+     "push r12",
+     "push rsi",
+     "push rdi",
+     "push rbp",
+     "push rbx"
+    ],
+    "reloc": "ok",
+    "jmpin": 0,
+    "n": 407,
+    "sym": "game-ai\\src\\plan_legacy\\team_plan\\objective_helpers.rs",
+    "lines": [
+     12,
+     1905
+    ],
+    "callees": [
+     "0x31a3863",
+     "0x31a3b40"
+    ],
+    "offs": {
+     "0x8": 2,
+     "0x10": 2,
+     "0x18": 1,
+     "0x20": 7,
+     "0x28": 11,
+     "0x30": 2,
+     "0xa0": 1,
+     "0xa8": 9,
+     "0xf8": 5,
+     "0x150": 5,
+     "0x1e0": 6,
+     "0x5c0": 5,
+     "0x628": 5,
+     "0x660": 5,
+     "0x668": 5,
+     "0x670": 5,
+     "0x930": 1,
+     "0x9c0": 5
+    },
+    "vslots": {
+     "0x28": 5,
+     "0xf8": 5,
+     "0x150": 5
+    },
+    "imms": {
+     "0x20": 5,
+     "0x38": 2,
+     "0x64": 5,
+     "0x78": 5,
+     "0x1e0": 1,
+     "0x2e8": 1,
+     "0x140ecad63": 1,
+     "0x140ecad6d": 1,
+     "0x140ecadaf": 3,
+     "0x140ecadb2": 2,
+     "0x140ecadfa": 1,
+     "0x140ecae04": 1,
+     "0x140ecae46": 2,
+     "0x140ecae48": 2,
+     "0x140ecae4b": 1,
+     "0x140ecae88": 1,
+     "0x140ecae92": 1,
+     "0x140ecaed4": 2,
+     "0x140ecaed6": 2,
+     "0x140ecaed9": 1,
+     "0x140ecaf16": 1,
+     "0x140ecaf20": 1,
+     "0x140ecaf62": 2,
+     "0x140ecaf64": 2,
+     "0x140ecaf67": 1,
+     "0x140ecafa0": 1,
+     "0x140ecafaa": 1,
+     "0x140ecafe6": 3,
+     "0x140ecafe8": 2,
+     "0x140ecafeb": 1,
+     "0x140ecafff": 1,
+     "0x140ecb08f": 1,
+     "0x140ecb10f": 1,
+     "0x140ecb18f": 1,
+     "0x140ecb20f": 1,
+     "0x140ecb27c": 1,
+     "0x140ecb282": 1,
+     "0x140ecb292": 1,
+     "0x140ecb294": 1,
+     "0x140ecb2a7": 1,
+     "0x140ecb2a9": 1,
+     "0x140ecb2bc": 1,
+     "0x140ecb2be": 1,
+     "0x140ecb2d1": 5,
+     "0x140ecb2df": 1,
+     "0x1431a3863": 1,
+     "0x1431a3b40": 1
+    }
+   }
+  },
+  "obj_my_ready": {
+   "role": "helper",
+   "status": "todo",
+   "history": [
+    {
+     "ver": "0.5.8",
+     "rva": "0xeca430",
+     "size": 1378,
+     "date": "2026-09-10",
+     "event": "add"
+    }
+   ],
+   "sym": "game-ai\\src\\plan_legacy\\team_plan\\objective_helpers.rs",
+   "cur": {
+    "rva": "0xeca430",
+    "end": "0xeca992",
+    "size": 1378,
+    "orig_len": 12,
+    "prolog": "41 57 41 56 41 55 41 54 56 57 55 53",
+    "prolog_insns": [
+     "push r15",
+     "push r14",
+     "push r13",
+     "push r12",
+     "push rsi",
+     "push rdi",
+     "push rbp",
+     "push rbx"
+    ],
+    "reloc": "ok",
+    "jmpin": 0,
+    "n": 368,
+    "sym": "game-ai\\src\\plan_legacy\\team_plan\\objective_helpers.rs",
+    "lines": [
+     12,
+     1905
+    ],
+    "callees": [
+     "0xffa3e0",
+     "0x1453260",
+     "0x31a3863",
+     "0x31a3b40"
+    ],
+    "offs": {
+     "0x8": 3,
+     "0x10": 3,
+     "0x18": 1,
+     "0x20": 3,
+     "0x27": 2,
+     "0x28": 6,
+     "0x30": 6,
+     "0x38": 3,
+     "0x40": 2,
+     "0x48": 2,
+     "0x50": 2,
+     "0x58": 2,
+     "0x60": 1,
+     "0x68": 1,
+     "0x70": 1,
+     "0x1e0": 1,
+     "0x628": 5,
+     "0x660": 5,
+     "0x668": 5,
+     "0x670": 5,
+     "0x930": 1,
+     "0x21c0": 1
+    },
+    "vslots": {},
+    "imms": {
+     "0x20": 5,
+     "0x27": 2,
+     "0x28": 8,
+     "0x50": 1,
+     "0x64": 5,
+     "0x78": 2,
+     "0x185": 1,
+     "0x1ab": 1,
+     "0x1b1": 1,
+     "0x1e0": 2,
+     "0x2e8": 1,
+     "0x3e7": 1,
+     "0xbb7": 1,
+     "0xe8d4a51": 5,
+     "0x140eca499": 1,
+     "0x140eca4b3": 1,
+     "0x140eca4cd": 2,
+     "0x140eca592": 1,
+     "0x140eca59d": 1,
+     "0x140eca61b": 4,
+     "0x140eca637": 1,
+     "0x140eca668": 1,
+     "0x140eca673": 1,
+     "0x140eca6d7": 3,
+     "0x140eca6d9": 1,
+     "0x140eca6dc": 2,
+     "0x140eca71b": 1,
+     "0x140eca726": 1,
+     "0x140eca78a": 3,
+     "0x140eca78c": 1,
+     "0x140eca78f": 1,
+     "0x140eca7ce": 1,
+     "0x140eca7d9": 1,
+     "0x140eca83d": 3,
+     "0x140eca83f": 1,
+     "0x140eca842": 1,
+     "0x140eca881": 1,
+     "0x140eca88c": 1,
+     "0x140eca8f0": 3,
+     "0x140eca8f2": 1,
+     "0x140eca8f5": 1,
+     "0x140eca953": 2,
+     "0x140eca955": 10,
+     "0x140eca966": 1,
+     "0x140eca96e": 5,
+     "0x140eca97c": 1,
+     "0x140ffa3e0": 1,
+     "0x141453260": 5,
+     "0x1431a3863": 1,
+     "0x1431a3b40": 1
+    }
+   }
+  },
+  "obj_pref": {
+   "role": "helper",
+   "status": "todo",
+   "history": [
+    {
+     "ver": "0.5.8",
+     "rva": "0xeca9a0",
+     "size": 787,
+     "date": "2026-09-10",
+     "event": "add"
+    }
+   ],
+   "sym": "game-ai\\src\\plan_legacy\\team_plan\\objective_helpers.rs",
+   "cur": {
+    "rva": "0xeca9a0",
+    "end": "0xecacb3",
+    "size": 787,
+    "orig_len": 12,
+    "prolog": "41 57 41 56 41 55 41 54 56 57 55 53",
+    "prolog_insns": [
+     "push r15",
+     "push r14",
+     "push r13",
+     "push r12",
+     "push rsi",
+     "push rdi",
+     "push rbp",
+     "push rbx"
+    ],
+    "reloc": "ok",
+    "jmpin": 0,
+    "n": 200,
+    "sym": "game-ai\\src\\plan_legacy\\team_plan\\objective_helpers.rs",
+    "lines": [
+     80
+    ],
+    "callees": [
+     "0x31a3863"
+    ],
+    "offs": {
+     "0x8": 1,
+     "0x10": 6,
+     "0x20": 4,
+     "0x38": 1,
+     "0x930": 1,
+     "0x21c0": 3
+    },
+    "vslots": {},
+    "imms": {
+     "0x28": 3,
+     "0x50": 1,
+     "0xff": 3,
+     "0x185": 2,
+     "0x1ab": 1,
+     "0x1b1": 1,
+     "0x2e8": 1,
+     "0x3e8": 1,
+     "0x7d0": 3,
+     "0x2710": 1,
+     "0x140ecaa03": 1,
+     "0x140ecaa20": 1,
+     "0x140ecaa50": 1,
+     "0x140ecaa64": 2,
+     "0x140ecaa9b": 4,
+     "0x140ecaab0": 1,
+     "0x140ecaad0": 2,
+     "0x140ecaadc": 1,
+     "0x140ecab07": 1,
+     "0x140ecab20": 4,
+     "0x140ecab2c": 1,
+     "0x140ecab53": 1,
+     "0x140ecab80": 3,
+     "0x140ecab90": 2,
+     "0x140ecab99": 1,
+     "0x140ecaba3": 1,
+     "0x140ecabb0": 2,
+     "0x140ecabf5": 1,
+     "0x140ecac20": 1,
+     "0x140ecac40": 1,
+     "0x140ecac60": 1,
+     "0x140ecac80": 1,
+     "0x140ecac8f": 11,
+     "0x140ecaca0": 4,
+     "0x1431a3863": 1
+    }
+   }
+  },
+  "obj_min_by": {
+   "role": "helper",
+   "status": "todo",
+   "history": [
+    {
+     "ver": "0.5.8",
+     "rva": "0xe2fa70",
+     "size": 733,
+     "date": "2026-09-10",
+     "event": "add"
+    }
+   ],
+   "sym": "game-ai\\src\\plan_legacy\\team_plan\\objective_discipline.rs",
+   "cur": {
+    "rva": "0xe2fa70",
+    "end": "0xe2fd4d",
+    "size": 733,
+    "orig_len": 12,
+    "prolog": "41 57 41 56 41 55 41 54 56 57 55 53",
+    "prolog_insns": [
+     "push r15",
+     "push r14",
+     "push r13",
+     "push r12",
+     "push rsi",
+     "push rdi",
+     "push rbp",
+     "push rbx"
+    ],
+    "reloc": "ok",
+    "jmpin": 0,
+    "n": 170,
+    "sym": "game-ai\\src\\plan_legacy\\team_plan\\objective_discipline.rs",
+    "lines": [
+     117
+    ],
+    "callees": [
+     "0x12a07d0",
+     "0x31a3a40",
+     "0x31a3b40"
+    ],
+    "offs": {
+     "0x8": 3,
+     "0x10": 6,
+     "0x18": 1,
+     "0x20": 6,
+     "0x28": 1,
+     "0x30": 6,
+     "0x40": 5,
+     "0x48": 1,
+     "0x50": 3,
+     "0x58": 3,
+     "0x60": 2,
+     "0x68": 2,
+     "0x70": 2,
+     "0x78": 2,
+     "0x80": 3,
+     "0x90": 1,
+     "0x98": 2,
+     "0xa0": 1,
+     "0xa8": 1,
+     "0x628": 1,
+     "0x660": 2,
+     "0x668": 2,
+     "0x670": 1,
+     "0x12b8": 2,
+     "0x12c0": 2
+    },
+    "vslots": {},
+    "imms": {
+     "-0x2ee00": 2,
+     "0x20": 1,
+     "0x27": 2,
+     "0x64": 1,
+     "0xb8": 2,
+     "0xfa00": 2,
+     "0x2ee01": 2,
+     "0x140e2fae0": 6,
+     "0x140e2faf4": 1,
+     "0x140e2fb14": 1,
+     "0x140e2fb50": 1,
+     "0x140e2fb5a": 1,
+     "0x140e2fbc4": 1,
+     "0x140e2fc03": 6,
+     "0x140e2fca6": 1,
+     "0x140e2fcd1": 1,
+     "0x140e2fce9": 1,
+     "0x140e2fcfb": 1,
+     "0x140e2fd0f": 1,
+     "0x140e2fd3f": 1,
+     "0x1412a07d0": 1,
+     "0x1431a3a40": 1,
+     "0x1431a3b40": 1
+    }
+   }
+  },
+  "obj_band_pred": {
+   "role": "helper",
+   "status": "todo",
+   "history": [
+    {
+     "ver": "0.5.8",
+     "rva": "0xe3b570",
+     "size": 273,
+     "date": "2026-09-10",
+     "event": "add"
+    }
+   ],
+   "sym": "game-ai\\src\\plan_legacy\\team_plan\\objective_discipline.rs",
+   "cur": {
+    "rva": "0xe3b570",
+    "end": "0xe3b681",
+    "size": 273,
+    "orig_len": 15,
+    "prolog": "48 83 ec 28 4c 8b 42 08 4d 8b 90 28 06 00 00",
+    "prolog_insns": [
+     "sub rsp, 0x28",
+     "mov r8, qword ptr [rdx + 8]",
+     "mov r10, qword ptr [r8 + 0x628]"
+    ],
+    "reloc": "ok",
+    "jmpin": 0,
+    "n": 70,
+    "sym": "game-ai\\src\\plan_legacy\\team_plan\\objective_discipline.rs",
+    "lines": [
+     117
+    ],
+    "callees": [
+     "0x31a3b40"
+    ],
+    "offs": {
+     "0x8": 4,
+     "0x628": 1,
+     "0x660": 2,
+     "0x668": 2,
+     "0x670": 1,
+     "0x12b8": 2,
+     "0x12c0": 2
+    },
+    "vslots": {},
+    "imms": {
+     "-0x2ee00": 2,
+     "0x20": 1,
+     "0x27": 2,
+     "0x28": 4,
+     "0x64": 1,
+     "0xfa00": 2,
+     "0x2ee01": 2,
+     "0x140e3b5b3": 1,
+     "0x140e3b5be": 1,
+     "0x140e3b617": 3,
+     "0x140e3b619": 5,
+     "0x140e3b61e": 1,
+     "0x140e3b673": 1,
+     "0x1431a3b40": 1
+    }
+   }
   }
  }
 }

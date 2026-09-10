@@ -221,6 +221,24 @@ pub unsafe fn band_pred(g: usize, m: u8, e: usize) -> Option<bool> {
         _ => false,
     })
 }
+/// 0xe3b570 캡처 대조용 **ABI 어댑터** — 게임의 실제 인자는 2개뿐이다(RE 2026-09-10).
+///   p1 = `&&{ [0]=&m(u8), [8]=ctxA }` (★이중 역참조) · p2 = `&(idx: u64, ent: *Entity)` → 챔피언은 `[p2+8]`.
+///   ⚠p3 에서 엔티티를 읽으면 쓰레기라 즉사한다. 논리 파라미터 3개(g/m/e)가 ABI 2슬롯에 접혀 있다.
+pub unsafe fn band_pred_abi(p1: usize, p2: usize) -> Option<bool> {
+    let env = rd_u64(p1)? as usize; if !ptr_ok(env) { return None; }
+    let mp = rd_u64(env)? as usize; if !ptr_ok(mp) { return None; }
+    let g = rd_u64(env + 8)? as usize; if !ptr_ok(g) { return None; }
+    let e = rd_u64(p2 + 8)? as usize; if !ptr_ok(e) { return None; }
+    band_pred(g, rd_u8(mp), e)
+}
+
+/// 0xeca9a0 캡처 대조용 **ABI 어댑터** — Rust `&[u8]` 이 (ptr, len) **두 슬롯**으로 풀려 온다(p3/p4).
+///   ⚠원소는 objective kind(4/5)가 아니라 **레인 id 0/1/2** 다(exe rodata 실측 {0,1} / {2,1}).
+pub unsafe fn objective_pref_abi(sim: usize, p6: usize, ptr: usize, len: usize) -> Option<u8> {
+    if !ptr_ok(ptr) || len == 0 || len > 16 { return None; }
+    objective_pref(sim, p6, core::slice::from_raw_parts(ptr as *const u8, len))
+}
+
 /// WorldOps vt+0x100 (0x184acb0) — 사이드 영향력 그리드 30×30 의 셀(gx,gy) > 0.
 pub unsafe fn grid_ok(w: &World, side: u64, gx: u64, gy: u64) -> Option<bool> {
     if gx >= 30 || gy >= 30 { return Some(false); }

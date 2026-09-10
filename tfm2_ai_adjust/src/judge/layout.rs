@@ -133,7 +133,7 @@ pub const MP_CODE_SERPEN_HB: u64 = 0xe;
 
 // ── ★이 모드의 바이트패치 사이트(즉치 RVA) — 포팅 범위 안에 있는 것 ── [orig_table.rs 교차검사 2026-09-06, 0.5.8]
 //   재현 대상은 정적 exe 가 아니라 **바이트패치가 적용된 실행 이미지**다. 포팅은 이 즉치를 라이브로 읽는다(judge::live_imm8/16).
-//   목록 갱신 = `python MIGiport.py sites` (포팅 함수·콜리 범위 ∩ orig_table.rs). 라이브 승격 시 그 노브를 포팅 안으로 옮기고 사이트 패치는 은퇴.
+//   목록 갱신 = `python MIG\aiport.py sites` (포팅 함수·콜리 범위 ∩ orig_table.rs). 라이브 승격 시 그 노브를 포팅 안으로 옮기고 사이트 패치는 은퇴.
 pub const SITE_VW_CHECK_IMM: usize = 0x1323a5b;      // recently_seen `add rbx, imm8` (노브 vw_check, 원본 0x78) — 5판을 태운 그 자리
 pub const SITE_VW_LANE_IMM: usize = 0xd2cd11;        // passive_line MAIN `add rdi, imm8` ×5 중 첫 사이트(노브 vw_lane, 5곳 동일값, 원본 0x78)
 pub const SITE_HD_PHASE_EPIC_IMM: usize = 0xccc1f2;  // epic hunt_and_battle `mov word [rax+0x10], imm16`(노브 hd_phase, 원본 1)
@@ -267,7 +267,10 @@ pub const X_FIXED6: [usize; 6] = [0x180, 0x1a0, 0x1c0, 0x190, 0x1b0, 0x1d0]; // 
 pub const EFFA0_MERGE_68_18_80_10: usize = 0x1340e80; // 두 범위([s+0x68]/0x70 stride 0x18 + [s+0x80]/0x88 stride 0x10, 병합기 0x126f240) — 15:22 리플레이 신규 ×7124
 pub const EFFA0_CONST1_ENCH2: usize = 0x12bc970; // 상수 생성(type 1, vamp 0) enchanter_skill2 (.pdata 없는 leaf) — 15:22 리플레이 신규 ×1052
 // ── obj_helpers(hunt_and_poke 콜리 계층) — 2026-09-06 16:00 (디컴 0xeca200/0xeca430/0xec9840/0xecacc0/0xdd5db0/0xdcc100/0xec9bf0/0xeca9a0)
-pub const X_OBJ_CNT: usize = 0x21c0;             // X+0x21c0 + kind*0x10 + side*8 : 오브젝티브 확보 카운터(u64)
+pub const X_OBJ_CNT: usize = 0x21c0;             // X+0x21c0 + lane*0x10 + side*8 : ★2026-09-10 정정 —
+//   ~~오브젝티브 확보 카운터~~ → **그 레인의 전선 단계 0..6**(lane 0=탑/1=미드/2=봇). 산술은 그대로라
+//   objective_pref 는 DIFF=0(96,317)이었지만 **이름이 오도**했다. reader 8곳(0xd61130 등) · writer 미규명.
+//   근거 = RE 2026-09-10 c9eb60/db8ba0 (ganker__target_bush 가 이 값을 7원소 룩업 인덱스로 씀).
 pub const LANE_OBJ_T: usize = 0x10;              // lanes+side*0x2e8 (+0/+0x28/+0x50 = kind 0/1/2) +0x10 i64 시각 · +0x20 i32 횟수
 pub const LANE_OBJ_N: usize = 0x20;
 pub const ORDER_TS4: usize = 0x80;               // order(p8) +0x80 에픽 / +0x88 세르펜 타임스탬프
@@ -375,3 +378,54 @@ pub const WMAP_GRID2: usize = 0x1c98;                // wmap 두 번째 30×30 �
 ///     버프 Vec 이 수백 개가 되고 찾는 이름이 128 뒤에 놓였다(2026-09-07 RE).
 ///   ⟹ 상한은 **한 곳에서** 관리하고, 실제 게임 데이터가 닿을 수 없을 만큼 크게 잡는다.
 pub const CAP_ITER: u64 = 65536;
+
+
+// ══════════════════════════════════════════════════════════════════════════
+// ★2026-09-10 확정분 (RE 4건) — 정본 = REPORT\tfm2_ai_adjust\RE\2026-09-10_*.md
+// ══════════════════════════════════════════════════════════════════════════
+
+// ── GameCtx 계층 (Plan 핸들러 p6 wrapper 의 +8 = ctxA) ──
+pub const CTXA_CFG: usize = 0x08;        // ctxA+0x08 -> 상수블록 B
+pub const CFG_MAP_W: usize = 0x12b8;     //   B+0x12b8 = 맵 가로
+pub const CFG_MAP_H: usize = 0x12c0;     //   B+0x12c0 = 맵 세로
+pub const CFG_TD_TIME: usize = 0x12f8;   //   B+0x12f8 = 타워다이브에서 >>1 해 TTK 에 가산하는 시간상수
+pub const CTXA_GRIDROOT: usize = 0x20;   // ctxA+0x20 -> +0x1c98 에 30x30 수풀 id 그리드(셀 32000)
+pub const CTXA_DBGFLAG: usize = 0x3b;    // ctxA+0x3b = 디버그 로그 플래그(byte). 켜지면 format_args! 경로가 돈다
+pub const BUSH_GRID: usize = 0x1c98;     //   [[u64;30];30] · 인덱스 [y/32000][x/32000] (각 축 0x1d 클램프)
+pub const BUSH_CELL: u64 = 32_000;       //   셀 크기 · 셀 중심 = cell*32000 + 16000
+// 수풀 id 집합(확정) = {2,3,6,7,9,11,14,15,16,17,20,21,23} · id<->실좌표는 런타임 그리드 의존(정적 추출 불가)
+
+// ── ScoreParameter (424B = 0x1a8) · score_parameter__new(0xd815e0) 산출 ──
+pub const SP_SIZE: usize = 0x1a8;
+pub const SP_THREAT_B: usize = 0x00;     // +0x00,08,10,18 : a5측 위협 4종 = (table[pos]+..)*100/hp · **150 클램프**
+pub const SP_THREAT_A: usize = 0x20;     // +0x20,28,30,38 : a4측 동일 4종
+pub const SP_REACH_OTHER: usize = 0x40;  // +0x40,48,50 : 상대 스킬1~3 도달거리(base + 18000)
+pub const SP_REACH_SELF: usize = 0x58;   // +0x58,60,68 : 자기 3종
+pub const SP_BAND_BASE: usize = 0x80;    // +0x80~0x118 : 각 사거리의 r² / (r+32000)² / (r/2)² 밴드
+pub const SP_R2_BASE: usize = 0xc8;      // +0xc8,d0 : 기본사거리 r² / (r+32000)²
+pub const SP_SCALE_A: usize = 0x120;     // +0x120 = (pct*25 + 300)/100   (pct = min(a5+0x1f0, 100))
+pub const SP_SCALE_B: usize = 0x128;     // +0x128 = (pct*60 + 500)/100
+pub const SP_SKILL_FLAGS: usize = 0x1a0; // +0x1a0/1a1/1a2 : bool x3 (스킬 vt+0xf8 == 1)
+pub const SP_NICHE: usize = 0x1a2;       // ★+0x1a2 = 캐시 Option 니치(2 = 비어있음)
+pub const SP_VEC_STRIDE: usize = 0x1c0;  // 소비 형태: 448B Vec 엔트리
+pub const SP_VEC_OTHER: usize = 0x1a8;   //   +0x1a8 = 상대 유닛 ptr
+pub const SP_VEC_SUBJ: usize = 0x1b0;    //   +0x1b0 = 위협 주체 ptr
+pub const SP_VEC_D2: usize = 0x1b8;      //   +0x1b8 = 거리²(포화 u64) · 후보 컷오프 d² >= 0x9502F9001(200000²+1)
+
+// ── position_eval TLS 메모 캐시 4층 (전부 CACHE.with(..) 단일화본 = rlib IR 에 본체 없음) ──
+//   RVA        실명                           LocalKey     히트/미스 카운터        미스 시 본체
+//   0xc7ee80   position_eval_cache_probe      0x1433DCE18  0x144853FA0/FA8       0xd851d0
+//   0xc7f0f0   cached_damage_against          0x1433DCFD0  0x144854030/038       0x1412857f0
+//   0xc7f370   cached_units_in_range_of       0x1433DCFE0  0x144854020/028       0xe3b690(폴드)
+//   0xc7f640   score_parameter_cached         0x1433DCFD8  0x144854010/018       0xd815e0
+//   0xc7ebc0   side_visibility_masks_cached   0x1433DCE08  (없음)                본체 인라인
+pub const CACHE_STAT_ON: usize = 0x1448538a9;   // 캐시 통계 활성 플래그(공용)
+pub const VISION_MEM_TICKS: u64 = 0x78;         // 0xc7ebc0 : 최근목격 기억 120틱
+
+// ── 확정된 RVA <-> 실명 (2026-09-10) ──
+//   0xe04c60 ally_is_bound        · 0xeb82d0 check_kill_die_tick
+//   0xe0cf10 max_range_cached     · 0x1412a07d0 dist(선형거리)
+//   0xc9eb60 collect_allies_near  · 0xdb8ba0 ganker__target_bush · 0xdb9430 ganker__next_plan
+//   0x1412857f0 estimate_damage_to · 0xe3b690 count_in_range_fold
+pub const GANK_ARRIVE_R: u64 = 0x249f0;   // 150000 · ganker__next_plan 도착 반경
+pub const ALLY_BOUND_PAD: u64 = 30_000;   // ally_is_bound : max_range 에 더하는 여유

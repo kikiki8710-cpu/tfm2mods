@@ -551,11 +551,19 @@ unsafe fn ally_is_bound(version: u64, data: usize, player: usize, ally: usize, e
     }
     if near.is_empty() { return Some(false); }
     let sp = rd_u64(ally + ENT_SPEED)?.max(1);
-    let mut lim = u64::MAX;
+    // ★★2026-09-10 정정: 여기는 **max** 다(원본 `.map(..).max()`). ~~min~~ 이었고 그게 tower_dive
+    //   잔차 0.49%(125/25,673)의 단일 원인이었다. 근거 3중:
+    //     ① IR: DISubprogram `max<Map<Iter<&Entity>, ally_is_bound::closure_env$1>>` (iterator.rs:3250 → max_by)
+    //     ② exe `0x140e04e68: CMP RBX,RAX ; CMOVBE RBX,RAX` = if(acc <= new) acc = new  ⟹ max
+    //     ③ 디컴 `if (uVar7 <= uVar9) { uVar7 = uVar9; }`
+    //   원본 실명 = game_ai::plan_legacy::old::fight_model::ally_is_bound @ RVA 0xe04c60 (fight_model.rs:531~551).
+    //   ⚠나머지(near 필터·+30000·제곱비교·speed +0x640·정수내림·포화뺄셈·`die <= lim` 방향·2번째 리스트 빈배열)는
+    //     전부 맞았다 — 부호가 뒤집혔을 거라 의심했지만 `SETBE` 로 `die <= lim` 이 확정됐다.
+    let mut lim = 0u64;                       // near 는 비어있지 않음이 보장 + 모든 항 ≥ 0 이라 0 시작이 동치
     for &e in &near {
         let r = max_range_cached(data, e, ally)?.wrapping_add(30_000);
         let t = r.saturating_sub(edist(e, ally)?) / sp;
-        if t < lim { lim = t; }
+        if t > lim { lim = t; }
     }
     let die = ckdt(version, data, player, ally, &near, &[])?;
     BOUND_LAST.with(|c| c.set((near.len() as u64, lim, die)));
