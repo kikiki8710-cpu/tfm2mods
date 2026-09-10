@@ -1,0 +1,91 @@
+{
+ "name": "max_range_nearly_can_use",
+ "sym": "_RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old6battle24max_range_nearly_can_use",
+ "src": "game-ai\\src\\plan_legacy\\old\\battle.rs",
+ "src_line": 2397,
+ "ir_file": "m10.ll",
+ "ir_from": 51913,
+ "ir_to": 52374,
+
+ "one_line": "champ 의 평타/스킬/스킬2/궁 중 tick 틱 내 쓸 수 있는 것들의 실사거리 최댓값",
+
+ "signature": {
+   "params": [
+     {"i": 1, "name": "champ", "type": "&Entity(1728B)", "note": "시전자. ty·쿨다운·레벨·radius·stat_buff_cached 를 전부 여기서 읽는다"},
+     {"i": 2, "name": "target", "type": "&Entity(1728B)", "note": "대상. CastingTarget::check 의 두번째 인자 + target.radius() 가 사거리에 더해진다"},
+     {"i": 3, "name": "tick", "type": "usize", "note": "쿨다운 허용 여유(틱). 남은 쿨 > tick 이면 그 이펙트는 제외. 호출부는 40/50/60 리터럴을 넘긴다(m02.ll:13159/13199/15125, m14.ll:14280/14359, m15.ll:14745/14785/16295) — '거의(nearly) 쓸 수 있다'의 '거의'가 이 값"}
+   ],
+   "returns": "u64 — 조건을 통과한 이펙트들의 사거리 최댓값. 하나도 통과 못 하면 0"
+ },
+
+ "reads": [
+   {"base": "Entity", "offset": "0x68", "name": "ty (판별자, i64, range[0,14))", "note": "EntityType 태그. 평타 분기에서 14-way switch, 스킬/스킬2/궁 분기에서는 ==13(Champion) 비교로만 쓰임"},
+   {"base": "Entity", "offset": "0xb0", "name": "ty.Champion.attack_cooldown / ty.SmallJiangshi.info.attack_cooldown", "note": "EntityType+0x48. switch case 13, 8 이 이 오프셋으로 합쳐짐(같은 오프셋이라 LLVM 이 블록 병합)"},
+   {"base": "Entity", "offset": "0xb8", "name": "ty.Champion.skill_cooldown / ty.Minion.info.attack_cooldown", "note": "EntityType+0x50. 평타 분기 case 1(Minion) 과 스킬 분기(Champion) 가 같은 바이트를 서로 다른 의미로 읽는다"},
+   {"base": "Entity", "offset": "0xc0", "name": "ty.Champion.skill2_cooldown", "note": "EntityType+0x58. 스킬2 분기에서만"},
+   {"base": "Entity", "offset": "0xc8", "name": "ty.Champion.ult_cooldown / ty.Bear.info.attack_cooldown", "note": "EntityType+0x60"},
+   {"base": "Entity", "offset": "0xd0", "name": "ty.Illusion.info.attack_cooldown", "note": "switch case 12"},
+   {"base": "Entity", "offset": "0xd8", "name": "ty.Revenant.info.attack_cooldown", "note": "switch case 11"},
+   {"base": "Entity", "offset": "0xe8", "name": "ty.Jungle.info.attack_cooldown / ty.Ghoul.info.attack_cooldown", "note": "switch case 4,7 — 두 info 구조체에서 우연히 같은 오프셋(0x78)이라 병합"},
+   {"base": "Entity", "offset": "0xf0", "name": "ty.Eagle.info.attack_cooldown", "note": "switch case 10"},
+   {"base": "Entity", "offset": "0x110", "name": "ty.Tower.info.attack_cooldown", "note": "switch case 2"},
+   {"base": "Entity", "offset": "0x1f0", "name": "ty.Epic.info.attack_cooldown / ty.Serpen.info.attack_cooldown", "note": "switch case 5,6 (둘 다 info+0x180). Epic/Serpen info 는 472B 라 EntityType 480B 와 맞아떨어진다(크기 교차검증)"},
+   {"base": "Entity", "offset": "0x438", "name": "stat_buff_cached.range", "note": "BuffState+0xc8. 4개 이펙트 모두의 사거리에 평평하게 더해진다"},
+   {"base": "Entity", "offset": "0x470", "name": "stat_buff_cached.radius_mult (i32)", "note": "BuffState+0x100. champ 와 target 양쪽에서 각각 읽는다"},
+   {"base": "Entity", "offset": "0x490", "name": "attack_effect: Option<Effect>(56B)", "note": "Effect 본체 시작 주소"},
+   {"base": "Entity", "offset": "0x4a0", "name": "attack_effect.range", "note": "Effect+0x10"},
+   {"base": "Entity", "offset": "0x4a8", "name": "attack_effect.growth_range", "note": "Effect+0x18"},
+   {"base": "Entity", "offset": "0x4b8", "name": "attack_effect.target: CastingTarget(4B)", "note": "Effect+0x28. CastingTarget::check 의 &self"},
+   {"base": "Entity", "offset": "0x4c0", "name": "attack_effect.casting: CastingType(i32, range[-1,4))", "note": "Effect+0x30. Option<Effect> 의 니치 판별자를 겸한다 — -1 이면 None"},
+   {"base": "Entity", "offset": "0x4c8", "name": "skill_effect: Option<Effect>", "note": ""},
+   {"base": "Entity", "offset": "0x4d8", "name": "skill_effect.range", "note": "Effect+0x10"},
+   {"base": "Entity", "offset": "0x4e0", "name": "skill_effect.growth_range", "note": "Effect+0x18"},
+   {"base": "Entity", "offset": "0x4f0", "name": "skill_effect.target", "note": "Effect+0x28"},
+   {"base": "Entity", "offset": "0x4f8", "name": "skill_effect.casting (니치)", "note": "Effect+0x30, -1=None"},
+   {"base": "Entity", "offset": "0x500", "name": "skill2_effect: Option<Effect>", "note": "level>2 일 때만 이 포인터를 쓰고, 아니면 정적 None(@anon...40)을 쓴다"},
+   {"base": "Entity", "offset": "0x538", "name": "ult_effect: Option<Effect>", "note": "level>4 일 때만. 아니면 정적 None"},
+   {"base": "Entity", "offset": "0x5c8", "name": "level", "note": "(level-1) 이 growth_range 계수, 그리고 level>2 / level>4 스킬2·궁 개방 게이트"},
+   {"base": "Entity", "offset": "0x680", "name": "radius", "note": "champ 와 target 양쪽. radius_mult 로 스케일된 뒤 사거리에 더해진다"},
+   {"base": "Effect", "offset": "0x10", "name": "range", "note": "skill2/ult 경로는 %90/%157 포인터 기준 +16 으로 읽는다(같은 필드)"},
+   {"base": "Effect", "offset": "0x18", "name": "growth_range", "note": "skill2/ult 경로 +24"},
+   {"base": "Effect", "offset": "0x28", "name": "target: CastingTarget", "note": "skill2/ult 경로 +40"},
+   {"base": "Effect", "offset": "0x30", "name": "casting: CastingType (Option 니치)", "note": "skill2/ult 경로 +48, -1=None"}
+ ],
+
+ "writes": [],
+
+ "constants": [
+   {"value": -1, "src_line": 2401, "meaning": "Option<Effect>::None 의 니치 값 — Effect.casting(CastingType,i32,범위 -1..3)이 -1 이면 이펙트 없음. Option::as_ref(core/option.rs:742)가 인라인된 형태. 동시에 (level-1) 계산의 add i64 %level, -1 로도 등장"},
+   {"value": 13, "src_line": 2409, "meaning": "EntityType::Champion 태그. 스킬/스킬2/궁 쿨다운 게이트는 '챔피언일 때만' 걸린다(비챔피언은 스킬 쿨 0 취급)"},
+   {"value": 2, "src_line": 2414, "meaning": "스킬2 개방 레벨 게이트 — Entity::skill2_effect(entity.rs:1693)가 level>2 일 때만 Some 을 준다"},
+   {"value": 4, "src_line": 2421, "meaning": "궁 개방 레벨 게이트 — Entity::ult_effect(entity.rs:1701)가 level>4 일 때만 Some 을 준다"},
+   {"value": 100, "src_line": 2403, "meaning": "Entity::radius(entity.rs:1515)의 퍼센트 기준 — radius*(radius_mult+100)/100. radius_mult==0 이면 곱셈 자체를 건너뛴다"},
+   {"value": 0, "src_line": 2398, "meaning": "range 누적 초기값(하나도 못 쓰면 그대로 반환) 겸 radius_mult==0 빠른 경로 비교값"},
+   {"value": 3, "src_line": 2402, "meaning": "EntityType::Nexus 태그 — 태그 0(None)과 함께 평타 쿨다운 게이트를 건너뛰고 곧장 사거리 계산으로 간다(Entity::attack_cooldown 에 해당 팔이 없음)"}
+ ],
+
+ "calls": [
+   "game_core::simulation::effect::type::CastingTarget::check",
+   "game_core::simulation::effect::Effect::range_adjust",
+   "llvm.umax.i64"
+ ],
+
+ "logic": "fn max_range_nearly_can_use(champ: &Entity, target: &Entity, tick: usize) -> u64\n\nrange = 0                                  // battle.rs:2398\n\n// ---- 평타 (battle.rs:2399~2403) ----\nif let Some(e) = champ.attack_effect {     // Entity+0x490, casting(+0x30) != -1 이면 Some\n  if e.target.check(champ, target) {       // CastingTarget::check(&e.target, champ, target)\n    // Entity::attack_cooldown() 인라인 (entity.rs:1747) — ty(+0x68) 14-way switch\n    //   0 None / 3 Nexus  -> 쿨 게이트 없음(곧장 통과)\n    //   1 Minion   -> +0xb8      2 Tower  -> +0x110\n    //   4 Jungle   -> +0xe8      5 Epic   -> +0x1f0\n    //   6 Serpen   -> +0x1f0     7 Ghoul  -> +0xe8\n    //   8 SmallJiangshi -> +0xb0  9 Bear  -> +0xc8\n    //  10 Eagle    -> +0xf0     11 Revenant -> +0xd8\n    //  12 Illusion -> +0xd0     13 Champion -> +0xb0\n    let cd = champ.ty.attack_cooldown();\n    if cd <= tick {                        // cd > tick 이면 이 이펙트 폐기\n      range = e.range(champ)                            // effect.rs:26\n            + e.range_adjust(champ, target)             // game_core 호출(본문 없음)\n            + champ.radius() + target.radius();         // entity.rs:1511~1515\n      // e.range(champ) = e.range + e.growth_range*(champ.level-1) + champ.stat_buff_cached.range\n      // Entity::radius() = if radius_mult==0 { radius } else { radius*(radius_mult+100)/100 }\n    }\n  }\n}\n\n// ---- 스킬 (battle.rs:2407~2410) ----\nif let Some(e) = champ.skill_effect {      // Entity+0x4c8\n  if e.target.check(champ, target) {\n    // Entity::skill_cooldown() 인라인 (entity.rs:1774): ty==Champion 이면 +0xb8, 아니면 0\n    let skip = (champ.ty == Champion) && (champ.ty.skill_cooldown > tick);\n    if !skip {\n      range = max(range, e.range(champ) + e.range_adjust(champ,target)\n                         + champ.radius() + target.radius());\n    }\n  }\n}\n\n// ---- 스킬2 (battle.rs:2414~2417) ----\n// Entity::skill2_effect() (entity.rs:1693): champ.level > 2 이면 &champ.skill2_effect(+0x500),\n// 아니면 정적 None 상수(@anon.ff23c5...40 = casting 자리에 0xFFFFFFFF)를 가리킨다 → 레벨 3 미만은 무조건 폐기\nif let Some(e) = champ.skill2_effect() {\n  if e.target.check(champ, target) {\n    let skip = (champ.ty == Champion) && (champ.ty.skill2_cooldown /*+0xc0*/ > tick);\n    if !skip {\n      range = max(range, e.range + e.growth_range*(champ.level-1)\n                         + champ.stat_buff_cached.range\n                         + e.range_adjust(champ,target)\n                         + champ.radius() + target.radius());\n    }\n  }\n}\n\n// ---- 궁 (battle.rs:2421~2424) ----\n// Entity::ult_effect() (entity.rs:1701): champ.level > 4 일 때만 &champ.ult_effect(+0x538), 아니면 정적 None\nif let Some(e) = champ.ult_effect() {\n  if e.target.check(champ, target) {\n    let skip = (champ.ty == Champion) && (champ.ty.ult_cooldown /*+0xc8*/ > tick);\n    if !skip {\n      range = max(range, ... 동일 계산 ...);\n    }\n  }\n}\n\nreturn range                               // battle.rs:2429\n\n주의 1) 평타 결과에는 max 가 없다 — 초기값이 0 이라 컴파일러가 max(x,0)=x 로 접었다. 나머지 셋은 llvm.umax(=core::cmp::Ord::max, cmp.rs:1039).\n주의 2) '쿨다운 게이트'는 4단계 모두 폐기(early-skip)일 뿐, range 를 0 으로 만들지 않는다. 앞 단계가 통과했으면 그 값이 그대로 남는다.\n주의 3) 함수 전체가 순수 읽기다(두 ptr 파라미터 모두 IR 에서 readonly, 본문에 store 가 하나도 없음) — 그래서 writes 가 비어 있다.",
+
+ "knobs": [
+   {"what": "'거의 쓸 수 있다' 판정의 쿨다운 여유(tick 인자)", "where": "이 함수 밖 — 호출부 리터럴: m02.ll:13159(40) / 13199(60) / 15125(50) / 41529(40) / 41608(60), m14.ll:14280(40) / 14359(60) / 25719(40) / 25790(60), m15.ll:14745(40) / 14785(60) / 16295(50). m14.ll:60624 는 계산된 값(%33)을 넘김", "value": 40, "effect": "올리면 쿨이 더 많이 남은 스킬까지 '곧 쓸 수 있다'로 쳐서 반환 사거리가 커진다 = AI 가 더 멀리서부터 그 스킬을 전제로 자세를 잡는다. 내리면 거의 쿨이 다 돈 스킬만 반영돼 사거리 추정이 보수적이 된다"},
+   {"what": "스킬2 개방 레벨 게이트", "where": "entity.rs:1693 (Entity::skill2_effect, 이 함수에 인라인 — IR 51913~52374 중 `icmp ugt i64 %87, 2`)", "value": 2, "effect": "내리면 저레벨 챔피언도 스킬2 사거리를 최댓값 후보로 쓴다(더 멀리서 교전 시작). 올리면 그 반대"},
+   {"what": "궁 개방 레벨 게이트", "where": "entity.rs:1701 (Entity::ult_effect, 인라인 — `icmp ugt i64 %87, 4`)", "value": 4, "effect": "내리면 5레벨 미만에도 궁 사거리가 반영돼 AI 가 훨씬 먼 거리에서 '사거리 안'이라 판단한다"},
+   {"what": "스킬 쿨다운 게이트를 챔피언에만 거는 것", "where": "entity.rs:1774/1789/1804 (skill_cooldown/skill2_cooldown/ult_cooldown, 인라인 — `icmp eq i64 %ty, 13` + select)", "value": 13, "effect": "이 비교를 무력화(항상 false)하면 비챔피언 엔티티의 스킬 쿨은 이미 0 취급이라 변화 없고, 반대로 챔피언에서 이 게이트를 없애면 쿨 중인 스킬 사거리까지 항상 반영돼 AI 가 상시 최대 사거리로 행동한다"},
+   {"what": "radius_mult 퍼센트 기준값", "where": "entity.rs:1515 (Entity::radius, 인라인 — `add nsw i64 %mult, 100` / `udiv i64 %v, 100`)", "value": 100, "effect": "champ·target 양쪽 반경이 사거리에 그대로 더해지므로, 이 식을 키우면 큰 유닛 상대 사거리 판정이 후해진다"}
+ ],
+
+ "unknown": [
+   "Effect::range_adjust 본체 — game_core 심볼이고 _gaibc 24개 .ll 어디에도 define 이 없다(전부 declare). 이펙트 타입별로 사거리를 얼마나 보정하는지 확인 불가. 관측 사실: (&Effect, &Entity champ, &Entity target) -> i64 를 받아 최종 합에 그대로 더해진다",
+   "CastingTarget::check 본체 — 같은 이유로 define 없음. CastingTarget 열거형은 14종(Ally/AllyChampion/AllyChampionInCC/AllyNotSelf/AllyOnlySelf/Enemy/EnemyWithoutTower/EnemyChampion/EnemyChampionInCC/EnemyChampionRecentlyAttacked/Both/BothWithoutTower/BothChampion/None)이라는 것까지만 dienum 으로 확인. 어느 값이 어떤 필터인지의 실제 판정식은 미확인",
+   "champ.ty 의 각 variant 별 attack_cooldown 이 '남은 틱'인지 '준비되는 절대 틱'인지 — 본문만으로는 확정 불가. 호출부가 40/50/60 리터럴을 넘기는 것으로 보아 '남은 틱'(즉 tick=허용 여유)으로 읽는 것이 자연스럽다고 판단했으나 이는 **추정**이다. 확정하려면 cooldown 필드에 write 하는 game_core 쪽 코드를 봐야 한다",
+   "호출부 상수 40/50/60 은 이 함수 본문에 없으므로 constants 에 넣지 않고 knobs 에만 실었다(SPEC_GUIDE §담당 범위 밖 규칙). m14.ll:60624 의 %33 이 무슨 값인지는 담당 범위 밖이라 안 봄",
+   "평타 switch 에서 태그 0(None)/3(Nexus)이 쿨 게이트를 건너뛰는 것이 '해당 팔이 0 을 반환해 접힌 것'인지 '애초에 게이트 자체가 없는 것'인지는 구분 불가 — Entity::attack_cooldown 이 인라인돼 반환값 경로가 사라졌다. 결과는 어느 쪽이든 동일(통과)",
+   "battle.rs:2399/2407/2414/2421 의 원본 소스 텍스트는 확인 불가 — 이 저장소에 game-ai 소스 트리가 없다(C:\\tfm2mods 및 sdk_058 에 game-ai/src 없음). 줄번호는 DWARF !DILocation 에서만 복원했다"
+ ]
+}
