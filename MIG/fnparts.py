@@ -145,8 +145,23 @@ def main():
         return
     print('`%s` 의 조각 %d개' % (want, len(hits)))
     print()
-    print('%-9s %8s %8s %6s  %-12s %s' % ('파일', '시작', '끝', '줄수', '종류', '이름 성분'))
-    for fn, a, b, n, kind, parts in sorted(hits, key=lambda h: (h[4] != '본체', -h[3])):
+    # ⚠5차 실측(위험): `fnparts target_bush_v30` 이 **다른 타입**의 동명 메서드
+    #   (`LineGankCoverPlan::target_bush_v30`)를 본체로 내놨다. 담당 함수가 쓰는 건
+    #   `LineGankerPlan::target_bush_v30`(인라인). 그대로 믿으면 **엉뚱한 함수 본문을
+    #   읽고 명세에 반영**한다(수풀 ID 표가 통째로 달라졌을 것).
+    owners = sorted({p[-2] for _f, _a, _b, _n, _k, p in hits if len(p) >= 2})
+    if len(owners) > 1:
+        print('⚠소유 타입/모듈이 %d종이다 — **동명 다른 함수가 섞여 있다**: %s'
+              % (len(owners), ' / '.join(owners[:6])))
+        print('  담당 함수의 소유 타입을 확인하고 골라라. `fnparts <소유타입>` 으로 좁힐 수 있다.')
+        print()
+    print('%-9s %8s %8s %6s  %-12s %s' % ('파일', '시작', '끝', '줄수', '종류', '소유::이름'))
+    # ⚠5차 지적: 줄수 내림차순이라 **관련 없는 큰 조각이 위로** 온다.
+    #   본체 먼저, 그다음 질의 이름이 마지막 성분인 것, 그다음 줄수.
+    def rank(h):
+        last = h[5][-1] if h[5] else ''
+        return (h[4] != '본체', want not in last, -h[3])
+    for fn, a, b, n, kind, parts in sorted(hits, key=rank):
         print('%-9s %8d %8d %6d  %-12s %s' % (fn, a, b, n, kind, '::'.join(parts)))
     print()
     nsub = count_disub(want)

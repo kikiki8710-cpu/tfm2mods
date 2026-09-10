@@ -163,6 +163,11 @@ def main():
         total = (max(sl) + 8) if sl else 0
         print('=== %s  (%s · 슬롯 %d개 · vtable 총 %dB · `%s` 일치율 %.0f%%) ==='
               % (name[:44], fn, len(sl), total, want, own_ratio(sl) * 100))
+        # ⚠5차 지적: 출력 심볼은 이 vtable 전역을 만든 **특정 impl** 것이다.
+        #   슬롯 번호 ↔ 메서드 이름 대응은 트레이트 공통이라 유효하지만,
+        #   "런타임에 이 impl 이 호출된다"로 읽으면 오독이다.
+        print('    ※슬롯 번호↔메서드 이름만 유효하다. 심볼의 impl 은 이 vtable 전역 기준일 뿐 —')
+        print('      런타임에 어느 구현체가 꽂히는지는 이 도구로 알 수 없다.')
         if q is not None:
             sym = sl.get(q)
             if sym:

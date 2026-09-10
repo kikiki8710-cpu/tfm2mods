@@ -42,9 +42,16 @@ RE_MEMBER = re.compile(
 RE_KV = re.compile(r'\b(baseType|size|align|offset): (![0-9]+|[0-9]+)')
 RE_TUPLE = re.compile(r'^(![0-9]+) = !\{(.*)\}$', re.M)
 RE_NAMED = re.compile(r'^(![0-9]+) = !D\w+\([^\n]*?name: "([^"]*)"', re.M)
+# ⚠5차 지적: 배열·튜플처럼 **이름이 없는** 합성 타입이 전부 `?` 로 나와 정보가 통째로 버려진다
+#   (`fountains ? (64B)`, `player_champion ? (80B)`, `walls ? (7200B)` — 22필드 중 10개).
+#   담당자들이 크기로 역산하느라 매번 손이 갔다. 원소 타입을 합성해 준다.
+RE_ARR = re.compile(
+    r'^(![0-9]+) = !DICompositeType\(tag: DW_TAG_array_type, baseType: (![0-9]+)'
+    r'[^\n]*?size: ([0-9]+)', re.M)
 
 
 def build():
+    arrays = {}     # 파일 -> [(id, baseType, size_bits)]
     comps = {}      # id -> (tag, name, size_bits, elements_id)
     members = {}    # id -> (name, basetype_id, size_bits, offset_bits)
     tuples = {}     # id -> [ids]
@@ -66,6 +73,16 @@ def build():
             tuples[(fn, mid)] = [(fn, x.strip()) for x in body.split(',') if x.strip().startswith('!')]
         for mid, name in RE_NAMED.findall(text):
             names[(fn, mid)] = name
+        arrays[fn] = RE_ARR.findall(text)
+
+    # 배열 타입 이름 합성: `array$<T, N>` (T 이름을 못 찾으면 원소 크기라도 보인다)
+    for fn2, lst in arrays.items():
+        for mid, bt, sz in lst:
+            k2 = (fn2, mid)
+            if k2 in names:
+                continue
+            et = names.get((fn2, bt), '?')
+            names[k2] = 'array$<%s>(총 %dB)' % (et, int(sz) // 8)
 
     out = {}
     for key, (tag, name, size, el) in comps.items():
@@ -166,10 +183,23 @@ def main():
     exact = [k for k in d if k.lower() == want.lower()]
     pre = [k for k in d if k.lower().startswith(want.lower()) and k not in exact]
     sub = [k for k in d if want.lower() in k.lower() and k not in exact and k not in pre]
-    hits = exact if exact else (sorted(pre) + sorted(sub))
+    # ⚠5차 실측: `Map` 을 물으면 `core::iter::Map` 이, `Tower` 를 물으면 `vtable_type$` 이
+    #   먼저 나온다. 게임 타입을 앞으로 보내고, 후보가 여럿이면 **크기와 함께 전부** 보여줘
+    #   담당자가 IR 의 `dereferenceable(N)` 로 고를 수 있게 한다.
+    def std(k):
+        return k.startswith(('core::', 'alloc::', 'std::')) or 'vtable_type$' in k
+    exact.sort(key=std)
+    pre = sorted(pre, key=lambda k: (std(k), len(k)))
+    sub = sorted(sub, key=lambda k: (std(k), len(k)))
+    hits = exact if exact else (pre + sub)
     if not hits:
         print('없음: %s' % want)
         return
+    if len(hits) > 1:
+        print('⚠동명 후보 %d개 — **IR 의 dereferenceable(N) 로 골라라**:' % len(hits))
+        for k in hits[:6]:
+            print('   %-58s %6dB · 필드 %d' % (k[:58], d[k]['size'], len(d[k]['fields'])))
+        print()
     for k in hits[:3]:
         v = d[k]
         print('=== %s (%dB · 필드 %d) ===' % (k, v['size'], len(v['fields'])))

@@ -150,8 +150,15 @@ def check(spec):
         try:
             n = int(str(off), 16) if str(off).lower().startswith('0x') else int(off)
         except ValueError:
-            warn.append('C3 오프셋: 해석 불가 %r' % off)
-            continue
+            # ⚠5차 지적: `Vec` 원소 쓰기처럼 **고정 구조체 오프셋이 아닌 쓰기**를 적을 자리가
+            #   양식에 없어서, 서술형(`"0x8 -> chats.ptr[len]+0"`)을 넣으면 경고가 났다.
+            #   서술형은 정상적인 표현이므로 앞머리의 16진수만 뽑아 검사하고, 없으면 넘어간다.
+            m0 = re.match(r'\s*(0[xX][0-9a-fA-F]+|[0-9]+)', str(off))
+            if m0:
+                off = m0.group(1)
+                n = int(off, 16) if off.lower().startswith('0x') else int(off)
+            else:
+                continue
         if n == 0:
             continue
         if str(n) not in ints:

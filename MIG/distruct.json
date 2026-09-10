@@ -6,7 +6,7 @@
 "off": 0,
 "off_hex": "0x0",
 "size": 16,
-"type": "?"
+"type": "array$<u64>(총 16B)"
 },
 {
 "name": "buffer",
@@ -39,21 +39,21 @@
 "off": 16,
 "off_hex": "0x10",
 "size": 64,
-"type": "?"
+"type": "array$<Vec<ref$<game_core::simulation::entity::Entity> >>(총 64B)"
 },
 {
 "name": "mid_minions",
 "off": 80,
 "off_hex": "0x50",
 "size": 64,
-"type": "?"
+"type": "array$<Vec<ref$<game_core::simulation::entity::Entity> >>(총 64B)"
 },
 {
 "name": "bottom_minions",
 "off": 144,
 "off_hex": "0x90",
 "size": 64,
-"type": "?"
+"type": "array$<Vec<ref$<game_core::simulation::entity::Entity> >>(총 64B)"
 },
 {
 "name": "jungles",
@@ -67,119 +67,119 @@
 "off": 240,
 "off_hex": "0xf0",
 "size": 64,
-"type": "?"
+"type": "array$<Vec<ref$<game_core::simulation::entity::Entity> >>(총 64B)"
 },
 {
 "name": "twin_towers",
 "off": 304,
 "off_hex": "0x130",
 "size": 64,
-"type": "?"
+"type": "array$<Vec<ref$<game_core::simulation::entity::Entity> >>(총 64B)"
 },
 {
 "name": "nexus",
 "off": 368,
 "off_hex": "0x170",
 "size": 16,
-"type": "?"
+"type": "array$<enum2$<core::option::Option<ref$<game_core::simulation::entity::Entity> > >>(총 16B)"
 },
 {
 "name": "top_tower",
 "off": 384,
 "off_hex": "0x180",
 "size": 16,
-"type": "?"
+"type": "array$<enum2$<core::option::Option<ref$<game_core::simulation::entity::Entity> > >>(총 16B)"
 },
 {
 "name": "top_tower2",
 "off": 400,
 "off_hex": "0x190",
 "size": 16,
-"type": "?"
+"type": "array$<enum2$<core::option::Option<ref$<game_core::simulation::entity::Entity> > >>(총 16B)"
 },
 {
 "name": "mid_tower",
 "off": 416,
 "off_hex": "0x1a0",
 "size": 16,
-"type": "?"
+"type": "array$<enum2$<core::option::Option<ref$<game_core::simulation::entity::Entity> > >>(총 16B)"
 },
 {
 "name": "mid_tower2",
 "off": 432,
 "off_hex": "0x1b0",
 "size": 16,
-"type": "?"
+"type": "array$<enum2$<core::option::Option<ref$<game_core::simulation::entity::Entity> > >>(총 16B)"
 },
 {
 "name": "bottom_tower",
 "off": 448,
 "off_hex": "0x1c0",
 "size": 16,
-"type": "?"
+"type": "array$<enum2$<core::option::Option<ref$<game_core::simulation::entity::Entity> > >>(총 16B)"
 },
 {
 "name": "bottom_tower2",
 "off": 464,
 "off_hex": "0x1d0",
 "size": 16,
-"type": "?"
+"type": "array$<enum2$<core::option::Option<ref$<game_core::simulation::entity::Entity> > >>(총 16B)"
 },
 {
 "name": "player_champion",
 "off": 480,
 "off_hex": "0x1e0",
 "size": 80,
-"type": "?"
+"type": "array$<?>(총 80B)"
 },
 {
 "name": "player_state",
 "off": 560,
 "off_hex": "0x230",
 "size": 80,
-"type": "?"
+"type": "array$<?>(총 80B)"
 },
 {
 "name": "player_champion_cache",
 "off": 640,
 "off_hex": "0x280",
 "size": 8000,
-"type": "?"
+"type": "array$<?>(총 8000B)"
 },
 {
 "name": "top_lead",
 "off": 8640,
 "off_hex": "0x21c0",
 "size": 16,
-"type": "?"
+"type": "array$<usize>(총 16B)"
 },
 {
 "name": "mid_lead",
 "off": 8656,
 "off_hex": "0x21d0",
 "size": 16,
-"type": "?"
+"type": "array$<usize>(총 16B)"
 },
 {
 "name": "bottom_lead",
 "off": 8672,
 "off_hex": "0x21e0",
 "size": 16,
-"type": "?"
+"type": "array$<usize>(총 16B)"
 },
 {
 "name": "champion_versions",
 "off": 8688,
 "off_hex": "0x21f0",
 "size": 40,
-"type": "?"
+"type": "array$<?>(총 40B)"
 },
 {
 "name": "region_point",
 "off": 8728,
 "off_hex": "0x2218",
 "size": 108,
-"type": "?"
+"type": "array$<i32>(총 108B)"
 }
 ],
 "size": 8840
@@ -371,7 +371,7 @@
 "off": 1040,
 "off_hex": "0x410",
 "size": 32,
-"type": "?"
+"type": "array$<usize>(총 32B)"
 },
 {
 "name": "freeze_anchor",
@@ -385,35 +385,35 @@
 "off": 1088,
 "off_hex": "0x440",
 "size": 48,
-"type": "?"
+"type": "array$<usize>(총 48B)"
 },
 {
 "name": "freeze_plan",
 "off": 1136,
 "off_hex": "0x470",
 "size": 48,
-"type": "?"
+"type": "array$<usize>(총 48B)"
 },
 {
 "name": "freeze_field_action",
 "off": 1184,
 "off_hex": "0x4a0",
 "size": 48,
-"type": "?"
+"type": "array$<usize>(총 48B)"
 },
 {
 "name": "stay_home_full_nobuy_plan",
 "off": 1232,
 "off_hex": "0x4d0",
 "size": 48,
-"type": "?"
+"type": "array$<usize>(총 48B)"
 },
 {
 "name": "noinput_lapse_action",
 "off": 1280,
 "off_hex": "0x500",
 "size": 48,
-"type": "?"
+"type": "array$<usize>(총 48B)"
 },
 {
 "name": "plan_system",
@@ -560,7 +560,7 @@
 "off": 10624,
 "off_hex": "0x2980",
 "size": 24,
-"type": "?"
+"type": "array$<usize>(총 24B)"
 },
 {
 "name": "lapse_chances",
@@ -588,7 +588,7 @@
 "off": 10672,
 "off_hex": "0x29b0",
 "size": 24,
-"type": "?"
+"type": "array$<usize>(총 24B)"
 },
 {
 "name": "last_eval_nearby_enemies",
@@ -724,7 +724,7 @@
 "off": 0,
 "off_hex": "0x0",
 "size": 4096,
-"type": "?"
+"type": "array$<MaybeUninit<u8>>(총 4096B)"
 }
 ],
 "size": 4096
@@ -743,7 +743,7 @@
 "off": 0,
 "off_hex": "0x0",
 "size": 4096,
-"type": "?"
+"type": "array$<MaybeUninit<u8>>(총 4096B)"
 }
 ],
 "size": 4096
@@ -762,7 +762,7 @@
 "off": 0,
 "off_hex": "0x0",
 "size": 4096,
-"type": "?"
+"type": "array$<MaybeUninit<u8>>(총 4096B)"
 }
 ],
 "size": 4096
@@ -781,7 +781,7 @@
 "off": 0,
 "off_hex": "0x0",
 "size": 4096,
-"type": "?"
+"type": "array$<MaybeUninit<u8>>(총 4096B)"
 }
 ],
 "size": 4096
@@ -800,7 +800,7 @@
 "off": 0,
 "off_hex": "0x0",
 "size": 4096,
-"type": "?"
+"type": "array$<MaybeUninit<u8>>(총 4096B)"
 }
 ],
 "size": 4096
@@ -1325,7 +1325,7 @@
 "off": 0,
 "off_hex": "0x0",
 "size": 256,
-"type": "?"
+"type": "array$<u32>(총 256B)"
 }
 ],
 "size": 256
@@ -1344,7 +1344,7 @@
 "off": 4,
 "off_hex": "0x4",
 "size": 64,
-"type": "?"
+"type": "array$<MaybeUninit<u8>>(총 64B)"
 }
 ],
 "size": 68
@@ -1380,7 +1380,7 @@
 "off": 0,
 "off_hex": "0x0",
 "size": 16,
-"type": "?"
+"type": "array$<u64>(총 16B)"
 }
 ],
 "size": 16
@@ -2660,49 +2660,49 @@
 "off": 120,
 "off_hex": "0x78",
 "size": 120,
-"type": "?"
+"type": "array$<enum2$<core::option::Option<enum2$<game_core::simulation::game::blackboard::SmallAction> > >>(총 120B)"
 },
 {
 "name": "big_goal",
 "off": 240,
 "off_hex": "0xf0",
 "size": 160,
-"type": "?"
+"type": "array$<tuple$<usize,enum2$<core::option::Option<enum2$<game_core::simulation::ai_interface::BigGoal> > > >>(총 160B)"
 },
 {
 "name": "champion_side",
 "off": 400,
 "off_hex": "0x190",
 "size": 80,
-"type": "?"
+"type": "array$<tuple$<game_core::simulation::game::blackboard::ChampionSide,usize>>(총 80B)"
 },
 {
 "name": "last_visible",
 "off": 480,
 "off_hex": "0x1e0",
 "size": 40,
-"type": "?"
+"type": "array$<usize>(총 40B)"
 },
 {
 "name": "last_reveal_tick",
 "off": 520,
 "off_hex": "0x208",
 "size": 40,
-"type": "?"
+"type": "array$<usize>(총 40B)"
 },
 {
 "name": "last_reveal_hidden_span",
 "off": 560,
 "off_hex": "0x230",
 "size": 40,
-"type": "?"
+"type": "array$<usize>(총 40B)"
 },
 {
 "name": "last_visible_pos",
 "off": 600,
 "off_hex": "0x258",
 "size": 80,
-"type": "?"
+"type": "array$<tuple$<u64,u64>>(총 80B)"
 },
 {
 "name": "prev_serpen_count",
@@ -2744,7 +2744,7 @@
 "off": 720,
 "off_hex": "0x2d0",
 "size": 20,
-"type": "?"
+"type": "array$<i32>(총 20B)"
 },
 {
 "name": "prev_epic_alive",
@@ -3656,7 +3656,7 @@
 "off": 0,
 "off_hex": "0x0",
 "size": 32,
-"type": "?"
+"type": "array$<tuple$<u64,u64>>(총 32B)"
 },
 {
 "name": "ty",
@@ -4087,7 +4087,7 @@
 "off": 0,
 "off_hex": "0x0",
 "size": 480,
-"type": "?"
+"type": "array$<?>(총 480B)"
 },
 {
 "name": "seed",
@@ -4214,140 +4214,140 @@
 "off": 0,
 "off_hex": "0x0",
 "size": 40,
-"type": "?"
+"type": "array$<usize>(총 40B)"
 },
 {
 "name": "skill",
 "off": 40,
 "off_hex": "0x28",
 "size": 40,
-"type": "?"
+"type": "array$<usize>(총 40B)"
 },
 {
 "name": "skill2",
 "off": 80,
 "off_hex": "0x50",
 "size": 40,
-"type": "?"
+"type": "array$<usize>(총 40B)"
 },
 {
 "name": "ult",
 "off": 120,
 "off_hex": "0x78",
 "size": 40,
-"type": "?"
+"type": "array$<usize>(총 40B)"
 },
 {
 "name": "skill_heal",
 "off": 160,
 "off_hex": "0xa0",
 "size": 40,
-"type": "?"
+"type": "array$<usize>(총 40B)"
 },
 {
 "name": "skill2_heal",
 "off": 200,
 "off_hex": "0xc8",
 "size": 40,
-"type": "?"
+"type": "array$<usize>(총 40B)"
 },
 {
 "name": "ult_heal",
 "off": 240,
 "off_hex": "0xf0",
 "size": 40,
-"type": "?"
+"type": "array$<usize>(총 40B)"
 },
 {
 "name": "skill_shield",
 "off": 280,
 "off_hex": "0x118",
 "size": 40,
-"type": "?"
+"type": "array$<usize>(총 40B)"
 },
 {
 "name": "skill2_shield",
 "off": 320,
 "off_hex": "0x140",
 "size": 40,
-"type": "?"
+"type": "array$<usize>(총 40B)"
 },
 {
 "name": "ult_shield",
 "off": 360,
 "off_hex": "0x168",
 "size": 40,
-"type": "?"
+"type": "array$<usize>(총 40B)"
 },
 {
 "name": "attack_per_sec",
 "off": 400,
 "off_hex": "0x190",
 "size": 40,
-"type": "?"
+"type": "array$<usize>(총 40B)"
 },
 {
 "name": "skill_per_sec",
 "off": 440,
 "off_hex": "0x1b8",
 "size": 40,
-"type": "?"
+"type": "array$<usize>(총 40B)"
 },
 {
 "name": "skill2_per_sec",
 "off": 480,
 "off_hex": "0x1e0",
 "size": 40,
-"type": "?"
+"type": "array$<usize>(총 40B)"
 },
 {
 "name": "ult_per_sec",
 "off": 520,
 "off_hex": "0x208",
 "size": 40,
-"type": "?"
+"type": "array$<usize>(총 40B)"
 },
 {
 "name": "skill_heal_sec",
 "off": 560,
 "off_hex": "0x230",
 "size": 40,
-"type": "?"
+"type": "array$<usize>(총 40B)"
 },
 {
 "name": "skill2_heal_sec",
 "off": 600,
 "off_hex": "0x258",
 "size": 40,
-"type": "?"
+"type": "array$<usize>(총 40B)"
 },
 {
 "name": "skill_shield_sec",
 "off": 640,
 "off_hex": "0x280",
 "size": 40,
-"type": "?"
+"type": "array$<usize>(총 40B)"
 },
 {
 "name": "skill2_shield_sec",
 "off": 680,
 "off_hex": "0x2a8",
 "size": 40,
-"type": "?"
+"type": "array$<usize>(총 40B)"
 },
 {
 "name": "ult_heal_sec",
 "off": 720,
 "off_hex": "0x2d0",
 "size": 40,
-"type": "?"
+"type": "array$<usize>(총 40B)"
 },
 {
 "name": "ult_shield_sec",
 "off": 760,
 "off_hex": "0x2f8",
 "size": 40,
-"type": "?"
+"type": "array$<usize>(총 40B)"
 }
 ],
 "size": 800
@@ -5890,7 +5890,7 @@
 "off": 0,
 "off_hex": "0x0",
 "size": 48,
-"type": "?"
+"type": "array$<enum2$<core::option::Option<tuple$<u64,u64> > >>(총 48B)"
 },
 {
 "name": "recent_deaths",
@@ -6416,14 +6416,14 @@
 "off": 0,
 "off_hex": "0x0",
 "size": 64,
-"type": "?"
+"type": "array$<usize>(총 64B)"
 },
 {
 "name": "tower",
 "off": 64,
 "off_hex": "0x40",
 "size": 96,
-"type": "?"
+"type": "array$<usize>(총 96B)"
 },
 {
 "name": "version",
@@ -8368,7 +8368,7 @@
 "off": 0,
 "off_hex": "0x0",
 "size": 160,
-"type": "?"
+"type": "array$<tuple$<u64,u64,u64,u32>>(총 160B)"
 },
 {
 "name": "count",
@@ -8460,7 +8460,7 @@
 "off": 56,
 "off_hex": "0x38",
 "size": 48,
-"type": "?"
+"type": "array$<enum2$<game_core::simulation::game::data::VisibleState>>(총 48B)"
 },
 {
 "name": "ty",
@@ -8670,7 +8670,7 @@
 "off": 1672,
 "off_hex": "0x688",
 "size": 16,
-"type": "?"
+"type": "array$<usize>(총 16B)"
 },
 {
 "name": "invisible_tick",
@@ -9091,7 +9091,7 @@
 "off": 0,
 "off_hex": "0x0",
 "size": 2,
-"type": "?"
+"type": "array$<bool>(총 2B)"
 }
 ],
 "size": 2
@@ -9431,14 +9431,14 @@
 "off": 304,
 "off_hex": "0x130",
 "size": 56,
-"type": "?"
+"type": "array$<u64>(총 56B)"
 },
 {
 "name": "dy2",
 "off": 360,
 "off_hex": "0x168",
 "size": 56,
-"type": "?"
+"type": "array$<u64>(총 56B)"
 },
 {
 "name": "is_skill_linear_move",
@@ -10050,7 +10050,7 @@
 "off": 0,
 "off_hex": "0x0",
 "size": 84800,
-"type": "?"
+"type": "array$<?>(총 84800B)"
 },
 {
 "name": "seed",
@@ -10557,21 +10557,21 @@
 "off": 24,
 "off_hex": "0x18",
 "size": 3600,
-"type": "?"
+"type": "array$<u32>(총 3600B)"
 },
 {
 "name": "cost_gen",
 "off": 3624,
 "off_hex": "0xe28",
 "size": 3600,
-"type": "?"
+"type": "array$<u32>(총 3600B)"
 },
 {
 "name": "settled_gen",
 "off": 7224,
 "off_hex": "0x1c38",
 "size": 3600,
-"type": "?"
+"type": "array$<u32>(총 3600B)"
 },
 {
 "name": "generation",
@@ -22367,7 +22367,7 @@
 "off": 0,
 "off_hex": "0x0",
 "size": 640,
-"type": "?"
+"type": "array$<?>(총 640B)"
 },
 {
 "name": "seed",
@@ -23086,91 +23086,91 @@
 "off": 61336,
 "off_hex": "0xef98",
 "size": 16,
-"type": "?"
+"type": "array$<usize>(총 16B)"
 },
 {
 "name": "dive_deaths",
 "off": 61352,
 "off_hex": "0xefa8",
 "size": 16,
-"type": "?"
+"type": "array$<usize>(총 16B)"
 },
 {
 "name": "aura_deaths",
 "off": 61368,
 "off_hex": "0xefb8",
 "size": 16,
-"type": "?"
+"type": "array$<usize>(총 16B)"
 },
 {
 "name": "steroid_casts",
 "off": 61384,
 "off_hex": "0xefc8",
 "size": 16,
-"type": "?"
+"type": "array$<usize>(총 16B)"
 },
 {
 "name": "steroid_waste",
 "off": 61400,
 "off_hex": "0xefd8",
 "size": 16,
-"type": "?"
+"type": "array$<usize>(총 16B)"
 },
 {
 "name": "mark_casts",
 "off": 61416,
 "off_hex": "0xefe8",
 "size": 16,
-"type": "?"
+"type": "array$<usize>(총 16B)"
 },
 {
 "name": "steroid_casts_total",
 "off": 61432,
 "off_hex": "0xeff8",
 "size": 16,
-"type": "?"
+"type": "array$<usize>(총 16B)"
 },
 {
 "name": "steroid_objtank_casts",
 "off": 61448,
 "off_hex": "0xf008",
 "size": 16,
-"type": "?"
+"type": "array$<usize>(총 16B)"
 },
 {
 "name": "steroid_aa_receiver_attack",
 "off": 61464,
 "off_hex": "0xf018",
 "size": 32,
-"type": "?"
+"type": "array$<tuple$<usize,usize>>(총 32B)"
 },
 {
 "name": "steroid_cd_area",
 "off": 61496,
 "off_hex": "0xf038",
 "size": 32,
-"type": "?"
+"type": "array$<tuple$<usize,usize>>(총 32B)"
 },
 {
 "name": "steroid_self_casts",
 "off": 61528,
 "off_hex": "0xf058",
 "size": 16,
-"type": "?"
+"type": "array$<usize>(총 16B)"
 },
 {
 "name": "steroid_recv_attack_all",
 "off": 61544,
 "off_hex": "0xf068",
 "size": 32,
-"type": "?"
+"type": "array$<tuple$<usize,usize>>(총 32B)"
 },
 {
 "name": "steroid_self_near_ally",
 "off": 61576,
 "off_hex": "0xf088",
 "size": 16,
-"type": "?"
+"type": "array$<usize>(총 16B)"
 }
 ],
 "size": 61592
@@ -24134,7 +24134,7 @@
 "off": 5336,
 "off_hex": "0x14d8",
 "size": 32,
-"type": "?"
+"type": "array$<f64>(총 32B)"
 },
 {
 "name": "deathmatch_time_limit_sec",
@@ -24452,7 +24452,7 @@
 "off": 0,
 "off_hex": "0x0",
 "size": 120,
-"type": "?"
+"type": "array$<enum2$<core::option::Option<game_ai::goal_data::EnemyRegionInfo> >>(총 120B)"
 },
 {
 "name": "epic",
@@ -25759,7 +25759,7 @@
 "off": 0,
 "off_hex": "0x0",
 "size": 4,
-"type": "?"
+"type": "array$<u8>(총 4B)"
 },
 {
 "name": "len",
@@ -29706,7 +29706,7 @@
 "off": 0,
 "off_hex": "0x0",
 "size": 112,
-"type": "?"
+"type": "array$<tuple$<u64,u64>>(총 112B)"
 },
 {
 "name": "line",
@@ -29744,7 +29744,7 @@
 "off": 8,
 "off_hex": "0x8",
 "size": 56,
-"type": "?"
+"type": "array$<usize>(총 56B)"
 },
 {
 "name": "line",
@@ -30401,21 +30401,21 @@
 "off": 5696,
 "off_hex": "0x1640",
 "size": 24,
-"type": "?"
+"type": "array$<usize>(총 24B)"
 },
 {
 "name": "mf_ret25_src",
 "off": 5720,
 "off_hex": "0x1658",
 "size": 256,
-"type": "?"
+"type": "array$<usize>(총 256B)"
 },
 {
 "name": "ff_line_counts",
 "off": 5976,
 "off_hex": "0x1758",
 "size": 32,
-"type": "?"
+"type": "array$<usize>(총 32B)"
 },
 {
 "name": "ff_retreat_commits",
@@ -30457,7 +30457,7 @@
 "off": 6048,
 "off_hex": "0x17a0",
 "size": 88,
-"type": "?"
+"type": "array$<i64>(총 88B)"
 },
 {
 "name": "dm_seen_deaths",
@@ -42533,56 +42533,56 @@
 "off": 120,
 "off_hex": "0x78",
 "size": 7200,
-"type": "?"
+"type": "array$<?>(총 7200B)"
 },
 {
 "name": "bushes",
 "off": 7320,
 "off_hex": "0x1c98",
 "size": 7200,
-"type": "?"
+"type": "array$<?>(총 7200B)"
 },
 {
 "name": "regions",
 "off": 14520,
 "off_hex": "0x38b8",
 "size": 7200,
-"type": "?"
+"type": "array$<?>(총 7200B)"
 },
 {
 "name": "region_dist",
 "off": 21720,
 "off_hex": "0x54d8",
 "size": 5832,
-"type": "?"
+"type": "array$<?>(총 5832B)"
 },
 {
 "name": "region_centers",
 "off": 27552,
 "off_hex": "0x6ba0",
 "size": 432,
-"type": "?"
+"type": "array$<tuple$<u64,u64>>(총 432B)"
 },
 {
 "name": "nexus_pos",
 "off": 27984,
 "off_hex": "0x6d50",
 "size": 32,
-"type": "?"
+"type": "array$<tuple$<u64,u64>>(총 32B)"
 },
 {
 "name": "fountains",
 "off": 28016,
 "off_hex": "0x6d70",
 "size": 64,
-"type": "?"
+"type": "array$<tuple$<u64,u64,u64,u64>>(총 64B)"
 },
 {
 "name": "is_line_region",
 "off": 28080,
 "off_hex": "0x6db0",
 "size": 27,
-"type": "?"
+"type": "array$<bool>(총 27B)"
 }
 ],
 "size": 28112
@@ -42684,7 +42684,7 @@
 "off": 0,
 "off_hex": "0x0",
 "size": 1600,
-"type": "?"
+"type": "array$<?>(총 1600B)"
 },
 {
 "name": "seed",
@@ -42746,7 +42746,7 @@
 "off": 0,
 "off_hex": "0x0",
 "size": 528,
-"type": "?"
+"type": "array$<DriftsortRun>(총 528B)"
 }
 ],
 "size": 528
@@ -42758,7 +42758,7 @@
 "off": 0,
 "off_hex": "0x0",
 "size": 24,
-"type": "?"
+"type": "array$<enum2$<core::option::Option<ref$<game_core::simulation::entity::Entity> > >>(총 24B)"
 }
 ],
 "size": 24
@@ -42770,7 +42770,7 @@
 "off": 0,
 "off_hex": "0x0",
 "size": 48,
-"type": "?"
+"type": "array$<tuple$<game_core::simulation::entity::jungle::JungleType,usize>>(총 48B)"
 }
 ],
 "size": 48
@@ -42782,7 +42782,7 @@
 "off": 0,
 "off_hex": "0x0",
 "size": 1120,
-"type": "?"
+"type": "array$<tuple$<u64,u64>>(총 1120B)"
 }
 ],
 "size": 1120
@@ -42794,7 +42794,7 @@
 "off": 0,
 "off_hex": "0x0",
 "size": 32,
-"type": "?"
+"type": "array$<tuple$<usize,enum2$<game_core::simulation::state::player::Chat> >>(총 32B)"
 }
 ],
 "size": 32
@@ -42806,7 +42806,7 @@
 "off": 0,
 "off_hex": "0x0",
 "size": 16,
-"type": "?"
+"type": "array$<tuple$<usize,usize>>(총 16B)"
 }
 ],
 "size": 16
@@ -42818,7 +42818,7 @@
 "off": 0,
 "off_hex": "0x0",
 "size": 1,
-"type": "?"
+"type": "array$<u8>(총 1B)"
 }
 ],
 "size": 1
@@ -42830,7 +42830,7 @@
 "off": 0,
 "off_hex": "0x0",
 "size": 2,
-"type": "?"
+"type": "array$<u8>(총 2B)"
 }
 ],
 "size": 2
@@ -42842,7 +42842,7 @@
 "off": 0,
 "off_hex": "0x0",
 "size": 4,
-"type": "?"
+"type": "array$<u8>(총 4B)"
 }
 ],
 "size": 4
@@ -42854,7 +42854,7 @@
 "off": 0,
 "off_hex": "0x0",
 "size": 66,
-"type": "?"
+"type": "array$<u8>(총 66B)"
 }
 ],
 "size": 66
@@ -42866,7 +42866,7 @@
 "off": 0,
 "off_hex": "0x0",
 "size": 70,
-"type": "?"
+"type": "array$<u8>(총 70B)"
 }
 ],
 "size": 70
@@ -42878,7 +42878,7 @@
 "off": 0,
 "off_hex": "0x0",
 "size": 8,
-"type": "?"
+"type": "array$<u8>(총 8B)"
 }
 ],
 "size": 8
@@ -42890,7 +42890,7 @@
 "off": 0,
 "off_hex": "0x0",
 "size": 8,
-"type": "?"
+"type": "array$<usize>(총 8B)"
 }
 ],
 "size": 8
@@ -44255,7 +44255,7 @@
 "off": 0,
 "off_hex": "0x0",
 "size": 144,
-"type": "?"
+"type": "array$<i64>(총 144B)"
 },
 {
 "name": "entity_id",
@@ -44487,7 +44487,7 @@
 "off": 0,
 "off_hex": "0x0",
 "size": 2304,
-"type": "?"
+"type": "array$<MinionHpTrajectory>(총 2304B)"
 },
 {
 "name": "count",
@@ -44560,28 +44560,28 @@
 "off": 576,
 "off_hex": "0x240",
 "size": 16,
-"type": "?"
+"type": "array$<usize>(총 16B)"
 },
 {
 "name": "epic_count",
 "off": 592,
 "off_hex": "0x250",
 "size": 16,
-"type": "?"
+"type": "array$<usize>(총 16B)"
 },
 {
 "name": "serpen_count",
 "off": 608,
 "off_hex": "0x260",
 "size": 16,
-"type": "?"
+"type": "array$<usize>(총 16B)"
 },
 {
 "name": "missed_cs_line_phase",
 "off": 624,
 "off_hex": "0x270",
 "size": 16,
-"type": "?"
+"type": "array$<usize>(총 16B)"
 }
 ],
 "size": 640
@@ -49272,28 +49272,28 @@
 "off": 0,
 "off_hex": "0x0",
 "size": 14400,
-"type": "?"
+"type": "array$<tuple$<u64,u64>>(총 14400B)"
 },
 {
 "name": "pre",
 "off": 14400,
 "off_hex": "0x3840",
 "size": 7200,
-"type": "?"
+"type": "array$<usize>(총 7200B)"
 },
 {
 "name": "dist",
 "off": 21600,
 "off_hex": "0x5460",
 "size": 7200,
-"type": "?"
+"type": "array$<usize>(총 7200B)"
 },
 {
 "name": "visited_gen",
 "off": 28800,
 "off_hex": "0x7080",
 "size": 3600,
-"type": "?"
+"type": "array$<u32>(총 3600B)"
 },
 {
 "name": "generation",
@@ -49326,21 +49326,21 @@
 "off": 16,
 "off_hex": "0x10",
 "size": 2,
-"type": "?"
+"type": "array$<u8>(총 2B)"
 },
 {
 "name": "ally_mask",
 "off": 18,
 "off_hex": "0x12",
 "size": 2,
-"type": "?"
+"type": "array$<u8>(총 2B)"
 },
 {
 "name": "computed",
 "off": 20,
 "off_hex": "0x14",
 "size": 2,
-"type": "?"
+"type": "array$<bool>(총 2B)"
 }
 ],
 "size": 24
@@ -50304,7 +50304,7 @@
 "off": 16,
 "off_hex": "0x10",
 "size": 48,
-"type": "?"
+"type": "array$<MaybeUninit<enum2$<core::option::Option<ref$<game_core::simulation::entity::Entity> > > >>(총 48B)"
 }
 ],
 "size": 64
@@ -50342,7 +50342,7 @@
 "off": 16,
 "off_hex": "0x10",
 "size": 184,
-"type": "?"
+"type": "array$<MaybeUninit<enum2$<game_ai::small_action::SmallActionPlay> >>(총 184B)"
 }
 ],
 "size": 200
@@ -50361,7 +50361,7 @@
 "off": 16,
 "off_hex": "0x10",
 "size": 2,
-"type": "?"
+"type": "array$<MaybeUninit<game_core::simulation::entity::jungle::JungleType>>(총 2B)"
 }
 ],
 "size": 24
@@ -50380,7 +50380,7 @@
 "off": 16,
 "off_hex": "0x10",
 "size": 4,
-"type": "?"
+"type": "array$<MaybeUninit<game_core::simulation::entity::jungle::JungleType>>(총 4B)"
 }
 ],
 "size": 24
@@ -50399,7 +50399,7 @@
 "off": 16,
 "off_hex": "0x10",
 "size": 2,
-"type": "?"
+"type": "array$<MaybeUninit<game_core::simulation::state::player::LineType>>(총 2B)"
 }
 ],
 "size": 24
@@ -50418,7 +50418,7 @@
 "off": 16,
 "off_hex": "0x10",
 "size": 3,
-"type": "?"
+"type": "array$<MaybeUninit<game_core::simulation::state::player::LineType>>(총 3B)"
 }
 ],
 "size": 24
@@ -50437,7 +50437,7 @@
 "off": 16,
 "off_hex": "0x10",
 "size": 24,
-"type": "?"
+"type": "array$<MaybeUninit<ref$<enum2$<core::option::Option<game_core::simulation::effect::Effect> > > >>(총 24B)"
 }
 ],
 "size": 40
@@ -50456,7 +50456,7 @@
 "off": 16,
 "off_hex": "0x10",
 "size": 48,
-"type": "?"
+"type": "array$<MaybeUninit<tuple$<game_core::simulation::state::player::LineType,ref$<bumpalo::collections::vec::Vec<ref$<game_core::simulation::entity::Entity> > > > >>(총 48B)"
 }
 ],
 "size": 64
@@ -50475,7 +50475,7 @@
 "off": 16,
 "off_hex": "0x10",
 "size": 64,
-"type": "?"
+"type": "array$<MaybeUninit<tuple$<i32,i32> >>(총 64B)"
 }
 ],
 "size": 80
@@ -50494,7 +50494,7 @@
 "off": 16,
 "off_hex": "0x10",
 "size": 192,
-"type": "?"
+"type": "array$<MaybeUninit<tuple$<i64,i64> >>(총 192B)"
 }
 ],
 "size": 208
@@ -50513,7 +50513,7 @@
 "off": 16,
 "off_hex": "0x10",
 "size": 256,
-"type": "?"
+"type": "array$<MaybeUninit<tuple$<i64,i64> >>(총 256B)"
 }
 ],
 "size": 272
@@ -50532,7 +50532,7 @@
 "off": 16,
 "off_hex": "0x10",
 "size": 64,
-"type": "?"
+"type": "array$<MaybeUninit<tuple$<isize,isize> >>(총 64B)"
 }
 ],
 "size": 80
@@ -50551,7 +50551,7 @@
 "off": 16,
 "off_hex": "0x10",
 "size": 40,
-"type": "?"
+"type": "array$<MaybeUninit<tuple$<u64,enum2$<game_core::simulation::state::player::Input> > >>(총 40B)"
 }
 ],
 "size": 56
@@ -50570,7 +50570,7 @@
 "off": 16,
 "off_hex": "0x10",
 "size": 48,
-"type": "?"
+"type": "array$<MaybeUninit<tuple$<u64,usize> >>(총 48B)"
 }
 ],
 "size": 64
@@ -50589,7 +50589,7 @@
 "off": 16,
 "off_hex": "0x10",
 "size": 64,
-"type": "?"
+"type": "array$<MaybeUninit<tuple$<usize,usize> >>(총 64B)"
 }
 ],
 "size": 80
@@ -50608,7 +50608,7 @@
 "off": 16,
 "off_hex": "0x10",
 "size": 1136,
-"type": "?"
+"type": "array$<MaybeUninit<tuple$<usize,usize> >>(총 1136B)"
 }
 ],
 "size": 1152
@@ -50627,7 +50627,7 @@
 "off": 16,
 "off_hex": "0x10",
 "size": 16,
-"type": "?"
+"type": "array$<MaybeUninit<usize>>(총 16B)"
 }
 ],
 "size": 32
@@ -50966,7 +50966,7 @@
 "off": 0,
 "off_hex": "0x0",
 "size": 2744,
-"type": "?"
+"type": "array$<?>(총 2744B)"
 },
 {
 "name": "cx",
@@ -51483,7 +51483,7 @@
 "off": 0,
 "off_hex": "0x0",
 "size": 480,
-"type": "?"
+"type": "array$<tuple$<u64,u64,u64>>(총 480B)"
 },
 {
 "name": "zone_count",
@@ -56852,14 +56852,14 @@
 "off": 0,
 "off_hex": "0x0",
 "size": 64,
-"type": "?"
+"type": "array$<usize>(총 64B)"
 },
 {
 "name": "enemy",
 "off": 64,
 "off_hex": "0x40",
 "size": 64,
-"type": "?"
+"type": "array$<usize>(총 64B)"
 },
 {
 "name": "version",
@@ -56894,7 +56894,7 @@
 "off": 160,
 "off_hex": "0xa0",
 "size": 8,
-"type": "?"
+"type": "array$<u8>(총 8B)"
 },
 {
 "name": "baseline",
@@ -58227,21 +58227,21 @@
 "off": 0,
 "off_hex": "0x0",
 "size": 16,
-"type": "?"
+"type": "array$<usize>(총 16B)"
 },
 {
 "name": "tower_score",
 "off": 16,
 "off_hex": "0x10",
 "size": 16,
-"type": "?"
+"type": "array$<usize>(총 16B)"
 },
 {
 "name": "epic_buff_time",
 "off": 32,
 "off_hex": "0x20",
 "size": 16,
-"type": "?"
+"type": "array$<usize>(총 16B)"
 },
 {
 "name": "tick",
@@ -58961,7 +58961,7 @@
 "off": 0,
 "off_hex": "0x0",
 "size": 16,
-"type": "?"
+"type": "array$<i8>(총 16B)"
 }
 ],
 "size": 16
@@ -58973,7 +58973,7 @@
 "off": 0,
 "off_hex": "0x0",
 "size": 16,
-"type": "?"
+"type": "array$<u8>(총 16B)"
 }
 ],
 "size": 16
@@ -62820,7 +62820,7 @@
 "off": 0,
 "off_hex": "0x0",
 "size": 80,
-"type": "?"
+"type": "array$<enum2$<core::option::Option<usize> >>(총 80B)"
 },
 {
 "name": "obj_spawn",
@@ -62890,7 +62890,7 @@
 "off": 448,
 "off_hex": "0x1c0",
 "size": 80,
-"type": "?"
+"type": "array$<enum2$<core::option::Option<game_ai::plan_legacy::team_plan::AllyRegionInfo> >>(총 80B)"
 },
 {
 "name": "mf_obj_clear",
@@ -62960,7 +62960,7 @@
 "off": 888,
 "off_hex": "0x378",
 "size": 64,
-"type": "?"
+"type": "array$<?>(총 64B)"
 },
 {
 "name": "epic_steal_attempt_count",
@@ -63002,7 +63002,7 @@
 "off": 992,
 "off_hex": "0x3e0",
 "size": 16,
-"type": "?"
+"type": "array$<usize>(총 16B)"
 },
 {
 "name": "last_call_tick",
@@ -63342,7 +63342,7 @@
 "off": 0,
 "off_hex": "0x0",
 "size": 32,
-"type": "?"
+"type": "array$<tuple$<u64,u64>>(총 32B)"
 },
 {
 "name": "ty",
@@ -63382,7 +63382,7 @@
 "off": 24,
 "off_hex": "0x18",
 "size": 384,
-"type": "?"
+"type": "array$<TowerDodgeInfo>(총 384B)"
 },
 {
 "name": "memo_inside_mask",
@@ -63612,7 +63612,7 @@
 "off": 0,
 "off_hex": "0x0",
 "size": 48,
-"type": "?"
+"type": "array$<enum2$<core::option::Option<tuple$<u64,u64> > >>(총 48B)"
 },
 {
 "name": "players",
@@ -63855,7 +63855,7 @@
 "off": 0,
 "off_hex": "0x0",
 "size": 48,
-"type": "?"
+"type": "array$<enum2$<core::option::Option<tuple$<u64,u64> > >>(총 48B)"
 },
 {
 "name": "players",
@@ -64155,7 +64155,7 @@
 "off": 0,
 "off_hex": "0x0",
 "size": 16,
-"type": "?"
+"type": "array$<ptr_const$<tuple$<> >>(총 16B)"
 }
 ],
 "size": 16
@@ -69808,42 +69808,42 @@
 "off": 0,
 "off_hex": "0x0",
 "size": 80,
-"type": "?"
+"type": "array$<tuple$<u64,u64>>(총 80B)"
 },
 {
 "name": "mia_call_ticks",
 "off": 80,
 "off_hex": "0x50",
 "size": 40,
-"type": "?"
+"type": "array$<usize>(총 40B)"
 },
 {
 "name": "last_visible_ticks",
 "off": 120,
 "off_hex": "0x78",
 "size": 40,
-"type": "?"
+"type": "array$<usize>(총 40B)"
 },
 {
 "name": "last_checked_ticks",
 "off": 160,
 "off_hex": "0xa0",
 "size": 40,
-"type": "?"
+"type": "array$<usize>(총 40B)"
 },
 {
 "name": "last_visible_distance",
 "off": 200,
 "off_hex": "0xc8",
 "size": 40,
-"type": "?"
+"type": "array$<u64>(총 40B)"
 },
 {
 "name": "last_hp_ratio",
 "off": 240,
 "off_hex": "0xf0",
 "size": 40,
-"type": "?"
+"type": "array$<usize>(총 40B)"
 },
 {
 "name": "last_mia_call_tick",
@@ -70052,7 +70052,7 @@
 "off": 0,
 "off_hex": "0x0",
 "size": 32,
-"type": "?"
+"type": "array$<enum2$<core::option::Option<usize> >>(총 32B)"
 },
 {
 "name": "last_score_event",
@@ -70115,7 +70115,7 @@
 "off": 2224,
 "off_hex": "0x8b0",
 "size": 21600,
-"type": "?"
+"type": "array$<?>(총 21600B)"
 },
 {
 "name": "entity_fields",
@@ -70129,7 +70129,7 @@
 "off": 23848,
 "off_hex": "0x5d28",
 "size": 21600,
-"type": "?"
+"type": "array$<?>(총 21600B)"
 },
 {
 "name": "champion_ids",
@@ -70206,7 +70206,7 @@
 "off": 46000,
 "off_hex": "0xb3b0",
 "size": 48,
-"type": "?"
+"type": "array$<Strategy>(총 48B)"
 },
 {
 "name": "caster_proj_count",
@@ -70227,14 +70227,14 @@
 "off": 46160,
 "off_hex": "0xb450",
 "size": 7200,
-"type": "?"
+"type": "array$<?>(총 7200B)"
 },
 {
 "name": "exist_map",
 "off": 53360,
 "off_hex": "0xd070",
 "size": 7200,
-"type": "?"
+"type": "array$<?>(총 7200B)"
 },
 {
 "name": "seed",
@@ -70255,14 +70255,14 @@
 "off": 60576,
 "off_hex": "0xeca0",
 "size": 16,
-"type": "?"
+"type": "array$<usize>(총 16B)"
 },
 {
 "name": "missed_cs",
 "off": 60592,
 "off_hex": "0xecb0",
 "size": 16,
-"type": "?"
+"type": "array$<usize>(총 16B)"
 },
 {
 "name": "is_start",
@@ -70359,7 +70359,7 @@
 "off": 0,
 "off_hex": "0x0",
 "size": 384,
-"type": "?"
+"type": "array$<tuple$<u64,u64,u64,u32>>(총 384B)"
 },
 {
 "name": "count",
@@ -70378,7 +70378,7 @@
 "off": 0,
 "off_hex": "0x0",
 "size": 16,
-"type": "?"
+"type": "array$<i64>(총 16B)"
 }
 ],
 "size": 16
@@ -144857,7 +144857,7 @@
 "off": 24,
 "off_hex": "0x18",
 "size": 96,
-"type": "?"
+"type": "array$<enum2$<core::option::Option<enum2$<core::option::Option<tuple$<u64,u64,u64> > > > >>(총 96B)"
 }
 ],
 "size": 120
@@ -144933,7 +144933,7 @@
 "off": 0,
 "off_hex": "0x0",
 "size": 80,
-"type": "?"
+"type": "array$<tuple$<u64,u64>>(총 80B)"
 },
 {
 "name": "__1",
@@ -144952,7 +144952,7 @@
 "off": 0,
 "off_hex": "0x0",
 "size": 3600,
-"type": "?"
+"type": "array$<u32>(총 3600B)"
 },
 {
 "name": "__1",
@@ -144971,7 +144971,7 @@
 "off": 0,
 "off_hex": "0x0",
 "size": 256,
-"type": "?"
+"type": "array$<usize>(총 256B)"
 },
 {
 "name": "__1",
@@ -153534,7 +153534,7 @@
 "off": 40,
 "off_hex": "0x28",
 "size": 2304,
-"type": "?"
+"type": "array$<tuple$<u64,u64,u64,i64,usize,i64>>(총 2304B)"
 }
 ],
 "size": 2344
@@ -153574,7 +153574,7 @@
 "off": 32,
 "off_hex": "0x20",
 "size": 288,
-"type": "?"
+"type": "array$<tuple$<u8,i64,i64,i64,i64,u64>>(총 288B)"
 }
 ],
 "size": 320
@@ -154074,7 +154074,7 @@
 "off": 8,
 "off_hex": "0x8",
 "size": 2304,
-"type": "?"
+"type": "array$<tuple$<u64,u64,u64,i64,usize,i64>>(총 2304B)"
 }
 ],
 "size": 2312
@@ -154093,7 +154093,7 @@
 "off": 8,
 "off_hex": "0x8",
 "size": 288,
-"type": "?"
+"type": "array$<tuple$<u8,i64,i64,i64,i64,u64>>(총 288B)"
 }
 ],
 "size": 296

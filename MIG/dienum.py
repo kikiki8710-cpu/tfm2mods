@@ -48,6 +48,7 @@ RE_TUP = re.compile(r'^(![0-9]+) = !\{(.*)\}$', re.M)
 RE_ENUMT = re.compile(
     r'^(![0-9]+) = !DICompositeType\(tag: DW_TAG_enumeration_type, name: "([^"]*)"'
     r'[^\n]*?elements: (![0-9]+)', re.M)
+RE_ANYNAME = re.compile(r'^(![0-9]+) = !D\w+\([^\n]*?name: "([^"]*)"', re.M)
 RE_ENUMR = re.compile(r'^(![0-9]+) = !DIEnumerator\(name: "([^"]*)", value: (-?[0-9]+)', re.M)
 
 
@@ -76,6 +77,8 @@ def build():
         tups = {}
         for mid, body in RE_TUP.findall(text):
             tups[mid] = [x.strip() for x in body.split(',') if x.strip().startswith('!')]
+        # 구조체가 아닌 타입(기본형·포인터 등)의 이름도 필요하다 — 페이로드 필드 타입 표시용
+        names_of = dict(RE_ANYNAME.findall(text))
 
         # 1) 순수 C 형 열거형(DW_TAG_enumeration_type) — 이름:값 직결
         for mid, name, el in RE_ENUMT.findall(text):
@@ -102,7 +105,7 @@ def build():
             ename = re.sub(r'^enum2\$<|>$', '', ename)
             variants, default, payload = {}, None, {}
             for vid in vids:
-                tag, vname, psize, poff, ptype = None, None, 0, None, None
+                tag, vname, psize, poff, ptype, pbt = None, None, 0, None, None, None
                 for e in tups.get(elems_of.get(vid, ''), []):
                     m = mems.get(e)
                     if not m:
@@ -117,7 +120,7 @@ def build():
                         # ★페이로드: 그 variant 구조체 이름과 **enum 안에서의 바이트 오프셋**.
                         #   4차에서 3명이 독립적으로 요청했고, `MainObjective` 를
                         #   "byte1=tag" 로 오독한 사고의 직접 원인이었다.
-                        ptype, poff = vname, _off // 8
+                        ptype, poff, pbt = vname, _off // 8, bt
                 if vname is None:
                     vname = structs.get(vid, '?')
                 if tag is None:
@@ -125,13 +128,55 @@ def build():
                 else:
                     variants[str(tag)] = vname
                     if ptype:
-                        payload[str(tag)] = dict(type=ptype, off=poff)
+                        # ★★5차 수정 — 조용한 오답 2종을 동시에 없앤다.
+                        #  ①이전에는 payload 를 **이름**으로만 저장하고 조회 시
+                        #    distruct.json 에서 베어 이름(`"Ult"` `"Serpen"`)으로 찾았다.
+                        #    다른 열거형의 동명 variant / 동명 엔티티가 덮어써서
+                        #    3B 열거형에 470B 구조체가 붙는 사고가 났다.
+                        #  ②페이로드 필드 오프셋에 **래퍼 `__0` 자신의 오프셋을 안 더했다**.
+                        #    8B 판별자를 쓰는 열거형에서 전 필드가 8바이트씩 밀렸다.
+                        #    (1B 태그 열거형은 우연히 맞아서 더 위험했다.)
+                        #  ⟹ 이름 조회를 버리고 **같은 DWARF 패스에서 직접 해석**하고,
+                        #    래퍼 오프셋을 누적한 절대값으로 저장한다.
+                        def expand(bt0, base, depth=0):
+                            """variant 구조체의 멤버를 절대 오프셋으로 편다.
+
+                            ⚠튜플 variant 는 `__0` 래퍼 한 겹이 더 있다 — 거기서 멈추면
+                              `enum+0x8 __0 : Champion` 만 보이고 정작 필요한
+                              `skill_cooldown` 이 안 나온다(5차 담당자가 원한 것).
+                              한 겹짜리 래퍼면 **뚫고 들어간다.**
+                            """
+                            res = []
+                            for e2 in tups.get(elems_of.get(bt0, ''), []):
+                                m2 = mems.get(e2)
+                                if not m2 or m2[2]:
+                                    continue
+                                n2, _e2, _s2, o2, b2 = m2
+                                res.append((n2, base + o2 // 8, b2))
+                            if depth < 2 and len(res) == 1 and res[0][0] in ('__0', 'value'):
+                                inner = expand(res[0][2], res[0][1], depth + 1)
+                                if inner:
+                                    return inner
+                            return res
+
+                        flds = [dict(name=n3, off=o3,
+                                     type=structs.get(b3) or names_of.get(b3, '?'))
+                                for n3, o3, b3 in expand(pbt, poff)]
+                        payload[str(tag)] = dict(type=ptype, off=poff, fields=flds)
             if variants:
                 prev = out.get(ename)
                 if prev is None or len(variants) > len(prev.get('variants', {})):
                     d = dict(kind='rust_enum', variants=variants)
                     if payload:
+                        # ★담당자들이 손으로 하던 크기 교차검증을 도구가 한다.
+                        #   "3B 열거형에 288B 필드가 있을 리 없다" 를 기계가 알아채게.
+                        esz = size_of.get(scope, 0) // 8
+                        for t2, pl in payload.items():
+                            over = [f for f in pl['fields'] if esz and f['off'] >= esz]
+                            if over:
+                                pl['suspect'] = esz
                         d['payload'] = payload
+                        d['size'] = esz
                     if default:
                         d['default'] = default        # DISCR_EXACT 없는 갈래(나머지 전부)
                     out[ename] = d
@@ -182,6 +227,11 @@ def main():
         s = k.split('<')[0].rstrip(':')
         return s.split('::')[-1].lower()
 
+    # ⚠5차 지적: 부분일치 목록에 `LineType> `, `LineType> > ` 같은 **제네릭 문자열 조각**이
+    #   별개 타입인 양 나열돼 담당자가 "내가 잘못된 타입을 보고 있나" 하고 되짚었다.
+    #   닫는 꺾쇠가 남은 이름은 파싱 잔해이므로 후보에서 제외한다.
+    d = {k: v for k, v in d.items() if '>' not in k.strip().rstrip('>').strip()
+         or k.count('<') >= k.count('>')}
     exact = [k for k in d if k.lower() == w]
     leafhit = [k for k in d if leafname(k) == w and k not in exact]
     # Option/Result 같은 래퍼는 뒤로 민다
@@ -202,6 +252,19 @@ def main():
             leaves.setdefault(leafname(k), k)
         near = difflib.get_close_matches(w, list(leaves), n=6, cutoff=0.5)
         sub = [k for k in d if any(t in k.lower() for t in (w[:6], w[-6:]) if len(t) >= 4)][:6]
+        # ⚠5차 지적(3명): 질의 이름이 **구조체**면 `Option<X>` 래퍼만 보여주거나 "없음" 이라
+        #   나와서, 작성자가 "이름 없는 variant 를 가진 열거형"으로 오독할 위험이 컸다.
+        #   distruct 에 있으면 **구조체라고 못 박고 그쪽으로 보낸다.**
+        ds0 = os.path.join(HERE, 'distruct.json')
+        if os.path.exists(ds0):
+            dd0 = json.load(io.open(ds0, encoding='utf-8'))
+            st = [k for k in dd0 if k.split('<')[0].split('::')[-1].lower() == w]
+            if st:
+                print('`%s` 는 **열거형이 아니라 구조체**다 (%dB · 필드 %d).'
+                      % (want, dd0[st[0]]['size'], len(dd0[st[0]]['fields'])))
+                print('  → `python distruct.py %s` 를 써라. 이 도구(dienum)는 열거형 전용이다.'
+                      % want)
+                return
         print('없음: %s' % want)
         if near:
             print('  혹시 이것? %s' % ' / '.join(leaves[n].split('::')[-1] for n in near))
@@ -227,19 +290,29 @@ def main():
             t = str(int(q, 0))
             print('  태그 %s → %s' % (q, v['variants'].get(t, '(없음)')))
             pl = (v.get('payload') or {}).get(t)
+            if not pl and v.get('kind') == 'enum':
+                print('  페이로드 없음 — C형 열거형(값만 있는 태그)이다.')
             if pl:
-                print('  페이로드 %s @ enum+%s' % (pl['type'], hex(pl['off'])))
-                ds = os.path.join(HERE, 'distruct.json')
-                if os.path.exists(ds):
-                    dd = json.load(io.open(ds, encoding='utf-8'))
-                    hit = dd.get(pl['type']) or next(
-                        (dd[k2] for k2 in dd if k2.split('::')[-1] == pl['type']), None)
-                    if hit:
-                        for f in hit['fields'][:14]:
-                            print('    enum+%-6s %-24s %s (%dB)'
-                                  % (hex(pl['off'] + f['off']), f['name'], f['type'], f['size']))
-                    else:
-                        print('    (distruct 에 %s 없음 — 필드 없는 variant 일 수 있다)' % pl['type'])
+                # ★★5차 수정: distruct.json 이름 조회를 **버렸다**. 그게 동명 충돌의 원인이었다.
+                #   이제 빌드 시점에 같은 DWARF 패스에서 해석해 둔 필드를 그대로 쓴다.
+                flds = pl.get('fields')
+                if pl.get('suspect'):
+                    print('  ⚠페이로드 해석이 의심스럽다 — 필드가 enum 크기(%dB)를 넘는다.'
+                          % pl['suspect'])
+                    print('    동명 타입 오결합일 수 있으니 **DWARF 로 직접 확인**하라.')
+                if flds:
+                    print('  페이로드 %s (enum+%s 부터)' % (pl['type'], hex(pl['off'])))
+                    for f in flds[:16]:
+                        print('    enum+%-6s %-24s %s' % (hex(f['off']), f['name'], f['type']))
+                    # 튜플 variant(`__0` 한 겹)는 안쪽 구조체를 따로 봐야 한다.
+                    if len(flds) == 1 and flds[0]['name'] in ('__0', 'value'):
+                        print('    ⟹ 안쪽은 `python distruct.py %s` 로 보고,'
+                              % str(flds[0]['type']).split('<')[0].split('::')[-1])
+                        print('       거기 오프셋에 **enum+%s 를 더하라**.' % hex(flds[0]['off']))
+                elif flds is not None:
+                    print('  페이로드 없음 (fieldless variant) — 태그만 있는 갈래다.')
+                else:
+                    print('  (이 사전 판본엔 페이로드 정보가 없다 — `--build` 를 다시 돌려라)')
         else:
             print('  %-6s %s' % ('태그', 'variant  (태그 = DWARF DISCR_EXACT 값 그대로)'))
             for t in sorted(v['variants'], key=int):
