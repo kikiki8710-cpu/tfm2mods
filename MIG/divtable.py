@@ -32,6 +32,11 @@ if hasattr(sys.stdout, 'reconfigure'):
     sys.stdout.reconfigure(encoding='utf-8', errors='replace')
 
 IRDIR = r'C:\tfm2mods\_gaibc'
+# ★2026-09-10: game_core 본문 IR. 1~6차는 "`Arc<dyn Trait>` 은 vtable 전역이 `_gaibc` 에
+#   없어 원리적으로 불가"로 8건을 포기했는데 **거짓이었다** — `EffectType` impl 들의 정적
+#   vtable 전역이 `_gcbc` 에 있다(`g04.ll:927` AttackEffect, 34슬롯·296B, DWARF 와 일치).
+#   그래서 `_gaibc` 에서 못 찾으면 자동으로 여기를 본다.
+COREDIR = r'C:\tfm2mods\_gcbc'
 # 전역 상수 한 줄 전체를 잡는다(값 목록이 매우 길다).
 RE_GLOB = re.compile(r'^(@[\w.]+) = (?:private )?(?:unnamed_addr )?constant <\{([^\n]*)$', re.M)
 
@@ -98,12 +103,12 @@ def slots_of(valpart):
     return out
 
 
-def find(want):
+def find(want, irdir=IRDIR):
     res = []
-    for fn in sorted(os.listdir(IRDIR)):
+    for fn in sorted(os.listdir(irdir)):
         if not fn.endswith('.ll'):
             continue
-        text = io.open(os.path.join(IRDIR, fn), encoding='utf-8', errors='replace').read()
+        text = io.open(os.path.join(irdir, fn), encoding='utf-8', errors='replace').read()
         for name, val in RE_GLOB.findall(text):
             if want.lower() not in val.lower():
                 continue
@@ -124,10 +129,9 @@ def main():
         a = sys.argv[2]
         q = int(a, 16) if a.lower().startswith('0x') else int(a)
 
-    res = find(want)
-    if not res:
-        print('없음: %s' % want)
-        return
+    res = find(want)  # _gaibc 먼저(빠른 경로)
+    # ⚠후보가 **하나도 없을 때도** game_core 폴백을 타야 한다. 처음엔 여기서 바로
+    #   `없음` 을 찍고 return 해서 `divtable EffectType` 이 폴백에 닿지도 못했다.
     # ⚠4차 실측(조용한 오답): `divtable Entity 0x28` 이 `AbstractGame::tick` 을 자신 있게 뱉었다.
     #   값 문자열에 'Entity' 가 우연히 들어 있었을 뿐 Entity 의 vtable 이 아니다.
     #   **요청 이름이 슬롯 심볼의 이름 성분으로 실제 등장하는지** 확인한다.
@@ -145,6 +149,19 @@ def main():
         n = sum(1 for sym in sl.values() if want in mangled_parts(sym))
         return n / float(len(sl))
     good = [r for r in res if own_ratio(r[2]) >= 0.5]
+    if not good and os.path.isdir(COREDIR):
+        # ★`_gaibc` 에 과반 일치 vtable 이 없으면 game_core(`_gcbc`)를 본다.
+        #   `EffectType`·`Action`·`EffectBuff` 처럼 game_core 트레이트의 정적 vtable 전역이
+        #   거기 있다. 1~6차가 "원리적 불가"로 포기한 8건이 전부 이 경로로 풀린다.
+        print('※ `_gaibc` 에 과반 일치 vtable 이 없어 `_gcbc`(game_core)를 훑는다 — 오래 걸린다.')
+        res = find(want, COREDIR)
+        good = [r for r in res if own_ratio(r[2]) >= 0.5]
+        if good:
+            print('★`_gcbc`(game_core) 에서 찾았다 — 줄번호는 `C:\\tfm2mods\\_gcbc\\<파일>` 기준.')
+            print()
+    if not good and not res:
+        print('없음: %s  (두 IR 어디에도 이 이름이 든 vtable 전역이 없다)' % want)
+        return
     if not good:
         best = max(((own_ratio(r[2]), r) for r in res), key=lambda x: x[0], default=(0, None))
         print('⚠`%s` 의 vtable 을 못 찾았다 — 가장 근접한 후보도 슬롯의 %.0f%% 에만 등장.'

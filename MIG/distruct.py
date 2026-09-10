@@ -29,6 +29,12 @@ if hasattr(sys.stdout, 'reconfigure'):
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 IRDIR = r'C:\tfm2mods\_gaibc'
+# ★2026-09-10: 사전은 game_ai + game_core 두 IR 을 모두 훑는다.
+#   1~6차 명세에서 game_core 타입이 사전에 없어 담당자들이 손으로 DWARF 를 탔다.
+#   빌드는 1회성이라 두 벌을 다 넣는 게 이득이다(구조체 7,355 -> 26,416 / 필드 17,003 -> 75,746).
+#   ⚠질의 속도는 그대로다(사전 조회지 IR 스캔이 아니다). 빌드만 11초 -> 60초.
+COREDIR = r'C:\tfm2mods\_gcbc'
+IRDIRS = [d for d in (IRDIR, COREDIR) if os.path.isdir(d)]
 OUT = os.path.join(HERE, 'distruct.json')
 
 RE_COMP = re.compile(
@@ -62,10 +68,10 @@ def build():
     names = {}      # id -> name (타입 이름 표시용)
     derived = {}    # id -> (tag, baseType)  — 이름 없는 파생타입 사슬
 
-    for fn in sorted(os.listdir(IRDIR)):
+    for _d, fn in [(d, f) for d in IRDIRS for f in sorted(os.listdir(d))]:
         if not fn.endswith('.ll'):
             continue
-        text = io.open(os.path.join(IRDIR, fn), encoding='utf-8', errors='replace').read()
+        text = io.open(os.path.join(_d, fn), encoding='utf-8', errors='replace').read()
         for mid, tag, name, size, el in RE_COMP.findall(text):
             key = (fn, mid)
             comps[key] = (tag, name, int(size), (fn, el))
@@ -197,13 +203,19 @@ def resolve_nested(d, sname, q, v, depth=0, path='', base=0):
               % (pad, hex(absoff), here, f['type'], f['size'], span))
         if depth >= 5 or inner == 0 and f['size'] <= 8:
             return
-        # 필드 타입 이름으로 사전을 다시 뒤져 한 단계 더 내려간다
-        for cand in base_name(f['type']):
-            sub = d.get(cand)
-            if sub and sub['size'] == f['size'] and cand != sname and sub['fields']:
-                print('%s  └ 질의 %s 는 이 %s 안쪽 +%s' % (pad, hex(q + base), cand, hex(inner)))
-                resolve_nested(d, cand, inner, sub, depth + 1, here, base + f['off'])
-                return
+        # 필드 타입 이름으로 사전을 다시 뒤져 한 단계 더 내려간다.
+        # ⚠★_gcbc 를 사전에 넣자마자 여기서 조용한 퇴행이 났다: 사전에 `Vec` 이라는
+        #   **맨이름 키**(24B, 필드 `__0@0x8` — 전혀 다른 뉴타입)가 새로 생겼고,
+        #   `base_name` 이 뱉는 `'Vec'` 을 `d.get` 이 그대로 집어 `Vec<usize>` 대신
+        #   그 엉뚱한 판으로 내려갔다. 크기(24B)가 우연히 같아 걸러지지도 않았고,
+        #   결과는 "아무 필드도 못 찾음"(len 줄이 통째로 사라짐)이었다.
+        #   ⟹ **정확한 타입 문자열 → 정규화 일치 → 맨이름** 순으로만 고른다.
+        exact_k = str(f['type'])
+        sub = d.get(exact_k)
+        if sub and sub['size'] == f['size'] and exact_k != sname and sub['fields']:
+            print('%s  └ 질의 %s 는 이 %s 안쪽 +%s' % (pad, hex(q + base), exact_k, hex(inner)))
+            resolve_nested(d, exact_k, inner, sub, depth + 1, here, base + f['off'])
+            return
         # ⚠6차 지적: `Vec`/`String` 에서 하강이 멈췄다("더 못 내려감 — Vec<usize,..Global>").
         #   담당자가 `+0x8=ptr, +0x10=len` 을 **사용 패턴으로 역추론**해 `unknown` 에 실었다.
         #   원인은 키 형태 불일치뿐이다 — 사전엔 `Vec<usize>` 로 있는데 필드 타입은
@@ -233,6 +245,19 @@ def resolve_nested(d, sname, q, v, depth=0, path='', base=0):
                 print('%s     ⚠필드 **이름·오프셋만** 믿어라. 원소 타입은 이 필드의 것(%s)이다.'
                       % (pad, str(f['type'])[:60]))
                 resolve_nested(d, k2, inner, sub, depth + 1, here, base + f['off'])
+                return
+        # 마지막 수단: 타입 문자열 안의 이름 성분(`ref$<..::MapDef>` → `MapDef`).
+        # ⚠맨이름 사고 재발 방지 — **1글자·제네릭 컨테이너 이름은 제외**하고,
+        #   질의 오프셋이 그 후보의 필드 구간에 실제로 떨어질 때만 내려간다.
+        for cand in base_name(f['type']):
+            if cand in ('Vec', 'String', 'Box', 'Arc', 'Rc', 'Option', 'Global', 'alloc'):
+                continue
+            sub = d.get(cand)
+            if (sub and sub['size'] == f['size'] and cand != sname and sub['fields']
+                    and any(g['off'] <= inner < g['off'] + max(g['size'], 1)
+                            for g in sub['fields'])):
+                print('%s  └ 질의 %s 는 이 %s 안쪽 +%s' % (pad, hex(q + base), cand, hex(inner)))
+                resolve_nested(d, cand, inner, sub, depth + 1, here, base + f['off'])
                 return
         if inner:
             print('%s  └ ★질의 %s = 이 필드 시작 +%s (더 못 내려감 — %s)'

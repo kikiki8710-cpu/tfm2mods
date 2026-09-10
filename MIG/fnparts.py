@@ -22,6 +22,11 @@ if hasattr(sys.stdout, 'reconfigure'):
     sys.stdout.reconfigure(encoding='utf-8', errors='replace')
 
 IRDIR = r'C:\tfm2mods\_gaibc'
+# ★2026-09-10: game_core 본문 IR. `_gaibc` 에 `declare` 만 있는 함수의 `define` 이 여기 있다.
+#   1~6차 명세에서 최소 9건이 "game_core 는 본문이 없다"며 unknown 으로 갔는데 거짓이었다.
+#   그 실패 모드를 도구가 대신 처리한다 — `_gaibc` 에서 못 찾으면 자동으로 여기를 본다.
+#   ⚠기본 폴백으로 두는 이유: `_gcbc`(992MB)는 `_gaibc`(303MB)의 3배라 항상 훑으면 느리다.
+COREDIR = r'C:\tfm2mods\_gcbc'
 RE_DEF = re.compile(r'^define\b[^\n]*?@("[^"]+"|[\w.$]+)\(', re.M)
 
 
@@ -47,14 +52,14 @@ def mangled_parts(sym):
     return out
 
 
-def count_disub(want):
+def count_disub(want, irdir=IRDIR):
     """DWARF 에 클로저·서브프로그램이 있는데 `define` 이 없으면 = **전부 인라인**.
     4차에서 3명이 "조각이 정말 없는 건지 못 찾은 건지" 몰라 재확인 grep 을 돌렸다."""
     n = 0
-    for fn in sorted(os.listdir(IRDIR)):
+    for fn in sorted(os.listdir(irdir)):
         if not fn.endswith('.ll'):
             continue
-        for ln in io.open(os.path.join(IRDIR, fn), encoding='utf-8', errors='replace'):
+        for ln in io.open(os.path.join(irdir, fn), encoding='utf-8', errors='replace'):
             if '!DISubprogram(' in ln and want in ln:
                 n += 1
     return n
@@ -74,12 +79,12 @@ def count_declares(want):
     return n
 
 
-def scan(want):
+def scan(want, irdir=IRDIR):
     hits = []
-    for fn in sorted(os.listdir(IRDIR)):
+    for fn in sorted(os.listdir(irdir)):
         if not fn.endswith('.ll'):
             continue
-        path = os.path.join(IRDIR, fn)
+        path = os.path.join(irdir, fn)
         lines = io.open(path, encoding='utf-8', errors='replace').read().split('\n')
         cur, start, sym = None, 0, ''
         for i, ln in enumerate(lines):
@@ -146,15 +151,25 @@ def main():
         if not hits:
             print('`%s` 범위에서 못 찾음 — 범위 없이 다시 쳐 보라.' % scope)
             return
+    core = False
+    if not hits and os.path.isdir(COREDIR):
+        # ★`_gaibc` 에 없으면 game_core 본문(`_gcbc`)을 자동으로 본다.
+        #   구버전은 여기서 "외부 심볼이라 본문 없음"이라고 단정했고, 그 말을 믿은
+        #   담당자들이 9건을 unknown 으로 내렸다. 이제 도구가 직접 찾아본다.
+        print('※ `_gaibc`(game_ai)에 없어 `_gcbc`(game_core)를 훑는다 — 몇 초 걸린다.')
+        hits = scan(want, COREDIR)
+        core = bool(hits)
     if not hits:
         nd = count_declares(want)
         if nd:
-            print('본체 없음 — `declare` 만 %d건.' % nd)
-            print('  ⟹ **외부 크레이트 심볼**(game_core 등)이라 이 IR 에 본문이 없다.')
-            print('     이름을 바꿔가며 재시도하지 마라. `unknown` 에 "외부 심볼"로 적으면 된다.')
+            print('본체 없음 — `_gaibc` 에 `declare` 만 %d건이고 `_gcbc` 에도 define 이 없다.' % nd)
+            print('  ⟹ 이름 성분이 틀렸거나, 두 크레이트 어디에도 없는 심볼이다.')
         else:
             print('없음: %s  (이름 성분이 정확한지 확인 — 예: sub_plan, defensive_crisis)' % want)
         return
+    if core:
+        print('★`_gcbc`(game_core) 에서 찾았다 — 아래 줄번호는 **`C:\\tfm2mods\\_gcbc\\<파일>`** 기준이다.')
+        print()
     print('`%s` 의 조각 %d개' % (want, len(hits)))
     print()
     # ⚠5차 실측(위험): `fnparts target_bush_v30` 이 **다른 타입**의 동명 메서드
@@ -176,7 +191,7 @@ def main():
     for fn, a, b, n, kind, parts, _own in sorted(hits, key=rank):
         print('%-9s %8d %8d %6d  %-12s %s' % (fn, a, b, n, kind, '::'.join(parts)))
     print()
-    nsub = count_disub(want)
+    nsub = count_disub(want, COREDIR if core else IRDIR)
     if nsub > len(hits):
         print('※ DWARF 서브프로그램 %d개 vs 별도 define %d개 — 차이 %d개는 **전부 인라인**돼'
               % (nsub, len(hits), nsub - len(hits)))

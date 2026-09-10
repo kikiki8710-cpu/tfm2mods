@@ -32,6 +32,12 @@ if hasattr(sys.stdout, 'reconfigure'):
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 IRDIR = r'C:\tfm2mods\_gaibc'
+# ★2026-09-10: 사전은 game_ai + game_core 두 IR 을 모두 훑는다.
+#   1~6차 명세에서 game_core 타입이 사전에 없어 담당자들이 손으로 DWARF 를 탔다.
+#   빌드는 1회성이라 두 벌을 다 넣는 게 이득이다(구조체 7,355 -> 26,416 / 필드 17,003 -> 75,746).
+#   ⚠질의 속도는 그대로다(사전 조회지 IR 스캔이 아니다). 빌드만 11초 -> 60초.
+COREDIR = r'C:\tfm2mods\_gcbc'
+IRDIRS = [d for d in (IRDIR, COREDIR) if os.path.isdir(d)]
 OUT = os.path.join(HERE, 'dienum.json')
 
 # ⚠선택 그룹 + 게으른 매칭을 섞으면 scope/size/elements 가 전부 빈 채로도 매칭된다
@@ -54,10 +60,10 @@ RE_ENUMR = re.compile(r'^(![0-9]+) = !DIEnumerator\(name: "([^"]*)", value: (-?[
 
 def build():
     out = {}
-    for fn in sorted(os.listdir(IRDIR)):
+    for _d, fn in [(d, f) for d in IRDIRS for f in sorted(os.listdir(d))]:
         if not fn.endswith('.ll'):
             continue
-        text = io.open(os.path.join(IRDIR, fn), encoding='utf-8', errors='replace').read()
+        text = io.open(os.path.join(_d, fn), encoding='utf-8', errors='replace').read()
         structs, scope_of, elems_of, size_of = {}, {}, {}, {}
         for mid, name, rest in RE_STRUCT.findall(text):
             kv = dict(RE_SKV.findall(rest))
