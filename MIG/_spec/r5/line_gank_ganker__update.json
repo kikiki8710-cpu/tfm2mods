@@ -1,0 +1,125 @@
+{
+ "name": "update",
+ "sym": "_RNvMNtNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old9line_gank6gankerNtB2_14LineGankerPlan6update",
+ "src": "game-ai\\src\\plan_legacy\\old\\line_gank\\ganker.rs",
+ "src_line": 39,
+ "ir_file": "m08.ll",
+ "ir_from": 94569,
+ "ir_to": 94941,
+
+ "one_line": "갱커 챔프의 HP·현재수풀을 보고 갱크 취소(Chat::Cancel + phase=Cancel)를 낼지 판정하는 상태변경 함수",
+
+ "signature": {
+  "params": [
+   {"i": 1, "name": "self", "type": "&mut LineGankerPlan(48B)", "note": "★상태변경 대상. chats(Vec<Chat>) 와 phase 를 쓴다. line(0x28) 은 읽기만"},
+   {"i": 2, "name": "_version", "type": "usize", "note": "AI 버전 게이트. ★이 함수에선 전혀 안 쓰인다(dbg_value 외 참조 0). target_bush_v41 이 같은 파일에 존재(m08.ll 94136~94351)하지만 update 는 target_bush_v30 만 인라인한다 = 버전 분기 없음"},
+   {"i": 3, "name": "_rnd", "type": "&mut StdRng(320B)", "note": "readnone. 본문에서 안 쓰임"},
+   {"i": 4, "name": "player", "type": "&PlayerState(2528B)", "note": "info.team / info.position 만 읽는다"},
+   {"i": 5, "name": "data", "type": "&OperationData(24B)", "note": "cache(+0x0), context(+0x8) 를 읽는다. blackboard(+0x10) 미사용"},
+   {"i": 6, "name": "goal_data", "type": "&GoalData(248B)", "note": "has_near_line_enemy 호출에만 넘긴다"},
+   {"i": 7, "name": "_positioning_score", "type": "&PositioningScoreData(2760B)", "note": "본문에서 안 쓰임"},
+   {"i": 8, "name": "_debug", "type": "&mut DebugFrameData(224B)", "note": "readnone. 본문에서 안 쓰임"}
+  ],
+  "returns": "void — 결과는 self.chats push + self.phase 쓰기로만 나간다"
+ },
+
+ "reads": [
+  {"base": "LineGankerPlan", "offset": "0x0", "name": "chats.cap", "note": "Vec 용량. push 시 len 과 비교(grow_one 필요 판단). ★gep 없이 ptr %0 직접 load 라 C3 에 안 잡힐 수 있음"},
+  {"base": "LineGankerPlan", "offset": "0x8", "name": "chats.ptr", "note": "Chat 원소 stride = 24B({i8,[23 x i8]})"},
+  {"base": "LineGankerPlan", "offset": "0x10", "name": "chats.len", "note": "읽고 +1 해서 다시 씀(writes 참조)"},
+  {"base": "LineGankerPlan", "offset": "0x28", "name": "line", "note": "LineType(1B, range 0..3). 0=Top 1=Mid 2=Bottom. target_bush_v30 과 has_near_line_enemy 양쪽의 입력"},
+  {"base": "PlayerState", "offset": "0x930", "name": "info.team", "note": "usize. 2 미만 bounds-check(초과 시 panic_bounds_check). player_champion/tower 배열의 팀 인덱스이자 수풀 ID 좌우 반전 스위치"},
+  {"base": "PlayerState", "offset": "0x9c0", "name": "info.position", "note": "Position(u32, range 0..5). Position::as_index()(entity.rs:580) 로 0..4 인덱스화"},
+  {"base": "OperationData", "offset": "0x0", "name": "cache", "note": "&AbstractGameWithCache"},
+  {"base": "OperationData", "offset": "0x8", "name": "context", "note": "&GameContext"},
+  {"base": "AbstractGameWithCache", "offset": "0x1e0", "name": "player_champion", "note": "[[Option<&Entity>;5];2]. player_champion[team][pos_index] → champ. None 이면 unwrap 패닉(ganker.rs:43)"},
+  {"base": "AbstractGameWithCache", "offset": "0x180", "name": "top_tower(+line*32)", "note": "AbstractGameWithCache::tower(line,team) 인라인. base 0x180 + line*32 + team*8 → line=0 top_tower / 1 mid_tower / 2 bottom_tower 의 [team] 슬롯"},
+  {"base": "AbstractGameWithCache", "offset": "0x190", "name": "top_tower2(+line*32)", "note": "같은 식으로 *_tower2[team]. 위 값이 null 일 때만 쓰는 Option::or 의 뒷항"},
+  {"base": "Entity", "offset": "0x628", "name": "stat_cached.hp", "note": "champ 의 최대 HP. 0 이면 div-by-zero 패닉(ganker.rs:44)"},
+  {"base": "Entity", "offset": "0x670", "name": "hp", "note": "champ 의 현재 HP"},
+  {"base": "Entity", "offset": "0x660", "name": "x", "note": "champ 좌표 X. 수풀 격자 인덱스(x/32000)와 is_top_side 입력"},
+  {"base": "Entity", "offset": "0x668", "name": "y", "note": "champ 좌표 Y"},
+  {"base": "Entity", "offset": "0x68", "name": "ty(discriminant)", "note": "tower 엔티티의 EntityType 판별자(i64, range 0..14). ==2 가 Tower. Top/Bottom 은 2 가 아니면 unreachable 패닉(ganker.rs:274 / 304)"},
+  {"base": "Entity", "offset": "0x88", "name": "ty.Tower.nearest_enemy", "note": "Tower 페이로드는 Entity+0x70 부터. Tower.nearest_enemy(+0x18) = Option<(usize,usize)>, 태그 0=None. Top/Bottom 의 2차 분기 조건(ganker.rs:267 / 297)"},
+  {"base": "Entity", "offset": "0x128", "name": "ty.Tower.ty", "note": "Tower.ty(+0xb8) = TowerType(1B, range 0..8). >4(Top2=5/Mid2=6/Bottom2=7) 가 TowerType::is_second_tower → EntityType::is_tower2"},
+  {"base": "GameContext", "offset": "0x8", "name": "setting", "note": "&GameSetting"},
+  {"base": "GameContext", "offset": "0x20", "name": "map", "note": "&MapDef(28112B)"},
+  {"base": "GameSetting", "offset": "0x12c0", "name": "height", "note": "u64. is_top_side 의 ry = height - y 계산에 쓰임"},
+  {"base": "MapDef", "offset": "0x1c98", "name": "bushes", "note": "[[usize;30];30] (7200B). bushes[y/32000][x/32000] = 그 셀의 수풀 ID"}
+ ],
+
+ "writes": [
+  {"base": "LineGankerPlan", "offset": "0x8", "name": "chats.ptr[len]+0 (태그)", "value": "17 (Chat::Cancel)",
+   "note": "Vec<Chat>::push 인라인. 두 경로 모두 태그 17"},
+  {"base": "LineGankerPlan", "offset": "0x8", "name": "chats.ptr[len]+1 (페이로드)", "value": "0 = CancelReason::LowHpSelf (ganker.rs:48) / 2 = CancelReason::TargetMissing (ganker.rs:58)",
+   "note": "★dienum 으로 확인: Chat::Cancel 페이로드는 enum+0x1 의 CancelReason(1B)"},
+  {"base": "LineGankerPlan", "offset": "0x10", "name": "chats.len", "value": "len + 1", "note": "push 후 길이 갱신"},
+  {"base": "LineGankerPlan", "offset": "0x0", "name": "chats (RawVec 0x0~0x18)", "value": "grow_one 시 cap/ptr 재할당", "note": "len==cap 일 때만 RawVec::grow_one 호출 → 그 안에서 ptr/cap 이 바뀐다"},
+  {"base": "LineGankerPlan", "offset": "0x29", "name": "phase", "value": "8 = LineGankerPhase::Cancel",
+   "note": "★두 취소 경로가 합류하는 블록 182 에서 1회만 쓴다. dienum LineGankerPhase = 니치 밀림(6=WaitResponse 7=Setup 8=Cancel, DISCR 없는 나머지=ChangeJungle). 즉 8 은 variant 인덱스가 아니라 Cancel"}
+ ],
+
+ "constants": [
+  {"value": 2, "src_line": 43, "meaning": "player.info.team 의 bounds-check 상한(팀 2개). 또한 EntityType::Tower 판별자 값(=2)으로도 재사용됨"},
+  {"value": 100, "src_line": 44, "meaning": "hp_ratio = hp * 100 / max_hp — 퍼센트 환산 분자"},
+  {"value": 41, "src_line": 47, "meaning": "★HP 비율 임계. hp_ratio < 41 이면 자기 저체력으로 갱크 취소"},
+  {"value": 4, "src_line": 264, "meaning": "TowerType::is_second_tower 의 임계 — tower_ty > 4 (5=Top2 6=Mid2 7=Bottom2) 이면 2차(안쪽) 타워"},
+  {"value": 3, "src_line": 265, "meaning": "Top 라인 목표 수풀 ID(team==0 쪽). 265/270 에서 동일 값"},
+  {"value": 6, "src_line": 265, "meaning": "Top 라인 목표 수풀 ID(team!=0 쪽). 268 에서는 team==0 쪽으로 뒤집힌다"},
+  {"value": 2, "src_line": 252, "meaning": "타워 전멸(None) + Top + team==0 일 때의 수풀 ID"},
+  {"value": 16, "src_line": 252, "meaning": "타워 전멸 + Top + team!=0 수풀 ID"},
+  {"value": 4, "src_line": 253, "meaning": "타워 전멸 + Mid + team==0 수풀 ID"},
+  {"value": 17, "src_line": 253, "meaning": "타워 전멸 + Mid + team!=0 수풀 ID (Chat::Cancel 태그 17 과 값이 겹치지만 무관)"},
+  {"value": 9, "src_line": 254, "meaning": "타워 전멸 + Bottom + team==0 수풀 ID"},
+  {"value": 21, "src_line": 254, "meaning": "타워 전멸 + Bottom + team!=0 수풀 ID"},
+  {"value": 8, "src_line": 280, "meaning": "Mid + 2차타워 + !is_top_side + team==0 수풀 ID"},
+  {"value": 12, "src_line": 280, "meaning": "Mid + 2차타워 + !is_top_side + team!=0 수풀 ID"},
+  {"value": 13, "src_line": 282, "meaning": "Mid + 2차타워 + is_top_side + team==0 수풀 ID"},
+  {"value": 18, "src_line": 282, "meaning": "Mid + 2차타워 + is_top_side + team!=0 수풀 ID"},
+  {"value": 11, "src_line": 285, "meaning": "Mid + 1차타워 생존 + !is_top_side 수풀 ID (★이 분기만 team 무관)"},
+  {"value": 14, "src_line": 285, "meaning": "Mid + 1차타워 생존 + is_top_side 수풀 ID (★team 무관)"},
+  {"value": 15, "src_line": 295, "meaning": "Bottom 라인 목표 수풀 ID(team==0 쪽). 295/300 동일"},
+  {"value": 20, "src_line": 295, "meaning": "Bottom 라인 목표 수풀 ID(team!=0 쪽). 298 에서 뒤집힘"},
+  {"value": 32000, "src_line": 55, "meaning": "셀 크기 — 좌표를 격자 인덱스로 나누는 변환 상수(임계값 아님)"},
+  {"value": 29, "src_line": 55, "meaning": "격자 인덱스 상한 클램프(umin). bushes 가 30x30 이므로 0..29"},
+  {"value": 17, "src_line": 48, "meaning": "Chat 열거형 태그 17 = Chat::Cancel (dienum 확인, 태그=variant 인덱스, 밀림 없음)"},
+  {"value": 0, "src_line": 48, "meaning": "CancelReason::LowHpSelf — 저체력 취소 사유"},
+  {"value": 2, "src_line": 58, "meaning": "CancelReason::TargetMissing — 목표 소실 취소 사유"},
+  {"value": 8, "src_line": 62, "meaning": "LineGankerPhase::Cancel 태그(니치 밀림 확인됨 — variant 인덱스 아님)"}
+ ],
+
+ "calls": [
+  "core::panicking::panic_bounds_check",
+  "core::option::unwrap_failed",
+  "core::panicking::panic_const::panic_const_div_by_zero",
+  "core::panicking::panic",
+  "alloc::raw_vec::RawVec::grow_one",
+  "game_ai::goal_data::GoalData::has_near_line_enemy",
+  "llvm.umin.i64",
+  "llvm.assume"
+ ],
+
+ "logic": "fn update(self:&mut LineGankerPlan, _version, _rnd, player, data, goal_data, _positioning_score, _debug)\n\n// --- ganker.rs:43 ---\nteam = player.info.team              // usize, 2 미만이 아니면 panic_bounds_check\npos  = player.info.position.as_index()   // 0..4\nchamp = data.cache.player_champion[team][pos].unwrap()   // None 이면 unwrap 패닉\n\n// --- ganker.rs:44,47 ---\nmax_hp = champ.stat_cached.hp        // 0 이면 div-by-zero 패닉\nhp_ratio = champ.hp * 100 / max_hp\nif hp_ratio < 41 {                                   // :47\n    self.chats.push(Chat::Cancel(CancelReason::LowHpSelf))   // :48  (태그17, 페이로드0)\n    self.phase = LineGankerPhase::Cancel                     // 값 8\n    return\n}\n\n// --- ganker.rs:54 : bush = self.target_bush_v30(...) (전량 인라인, 원본 :248~:305) ---\nline = self.line                       // LineType 0=Top 1=Mid 2=Bottom\ntower = cache.tower(line, team)        // :249 — (0x180 + line*32)[team] .or( (0x190 + line*32)[team] )\n                                       //        = *_tower[team] 이 null 이면 *_tower2[team]\n\nif tower.is_none() {                   // :250 — 그 라인 타워가 둘 다 사라진 상태\n    bush = match line {\n        Top    => if team==0 {2} else {16},   // :252\n        Mid    => if team==0 {4} else {17},   // :253\n        Bottom => if team==0 {9} else {21},   // :254\n    }\n} else {                               // :258~ tower 존재\n    match line {\n    // ---- Top (:263) ----\n    Top => {\n        let Tower(info) = tower.ty else { unreachable!() }   // ty!=2 → panic \"internal error: entered unreachable code\" (:274)\n        if tower.ty.is_tower2() {                            // :264  (Tower.ty > 4)\n            bush = if team==0 {3} else {6}                   // :265\n        } else if info.nearest_enemy.is_some() {             // :267  (Entity+0x88 태그 != 0)\n            bush = if team==0 {6} else {3}                   // :268  ★좌우 반전\n        } else {\n            bush = if team==0 {3} else {6}                   // :270\n        }\n    }\n    // ---- Mid (:278) ---- ※ Top/Bottom 과 달리 ty!=Tower 여도 패닉하지 않고 :285 로 간다\n    Mid => {\n        if tower.ty.is_tower2() {                            // :278\n            if is_top_side(context, champ.x, champ.y) {      // :279\n                bush = if team==0 {13} else {18}             // :282\n            } else {\n                bush = if team==0 {8} else {12}              // :280\n            }\n        } else {\n            bush = if is_top_side(context, champ.x, champ.y) {14} else {11}   // :285  ★team 무관\n        }\n    }\n    // ---- Bottom (:293) ----\n    Bottom => {\n        let Tower(info) = tower.ty else { unreachable!() }   // ty!=2 → panic (:304)\n        if tower.ty.is_tower2() {                            // :294\n            bush = if team==0 {15} else {20}                 // :295\n        } else if info.nearest_enemy.is_some() {             // :297\n            bush = if team==0 {20} else {15}                 // :298  ★좌우 반전\n        } else {\n            bush = if team==0 {15} else {20}                 // :300\n        }\n    }\n    }\n}\n// is_top_side(ctx,x,y) (game_core map_regions.rs:21~24, 인라인)\n//   = { let ry = ctx.setting.height - y; ry < x }\n\n// --- ganker.rs:55 ---\ngx = min(champ.x / 32000, 29)\ngy = min(champ.y / 32000, 29)\nchamp_bush = context.map.bushes[gy][gx]        // MapDef+0x1c98, [[usize;30];30]\n\n// --- ganker.rs:56 ---\nif champ_bush != bush { return }                // 아직 목표 수풀에 도착 안 함 → 아무것도 안 함\n\n// --- ganker.rs:57 ---\nif goal_data.has_near_line_enemy(line, context.map) { return }   // 갱크 대상이 아직 라인 근처에 있음 → 유지\n\n// --- ganker.rs:58 ---\nself.chats.push(Chat::Cancel(CancelReason::TargetMissing))\nself.phase = LineGankerPhase::Cancel            // 값 8\n",
+
+ "knobs": [
+  {"what": "자기 저체력 갱크 취소 임계(HP%)", "where": "ganker.rs:47 (IR m08.ll 94619 `icmp ult i64 %32, 41`)", "value": 41,
+   "effect": "올리면 조금만 다쳐도 갱크를 접는다(소극적). 내리면 피가 거의 없어도 갱크를 밀어붙인다. 0 으로 두면 이 취소 경로가 사실상 죽는다"},
+  {"what": "목표 수풀 ID 표(라인 x 타워상태 x 팀)", "where": "ganker.rs:252~300 (target_bush_v30, update 안에 전량 인라인)", "value": "Top {2,16}/{3,6}, Mid {4,17}/{8,12}/{13,18}/{11,14}, Bottom {9,21}/{15,20}",
+   "effect": "갱커가 '어느 수풀에 도착해야 판정을 시작하는가'를 정한다. 다른 ID 로 바꾸면 매복 위치가 바뀌고, 실제 이동 경로가 그 수풀로 안 가면 champ_bush==bush 가 영영 성립하지 않아 이 update 는 아무 일도 안 하게 된다(갱크가 취소되지 않고 무한 대기)"},
+  {"what": "Mid 1차타워 생존 분기의 팀 무관성", "where": "ganker.rs:285", "value": "11 / 14",
+   "effect": "다른 모든 분기는 team 으로 좌우가 뒤집히는데 이 분기만 안 뒤집힌다. 여기에 team 반전을 넣으면 한쪽 팀 미드 갱크 매복 지점이 달라진다"},
+  {"what": "격자 클램프 상한", "where": "ganker.rs:55", "value": 29,
+   "effect": "맵 격자가 30x30 이라는 전제. 맵 크기를 바꾸면 여기와 MapDef.bushes 크기를 함께 바꿔야 한다(그냥 올리면 배열 밖을 읽는다)"}
+ ],
+
+ "unknown": [
+  "AbstractGameWithCache::{top,mid,bottom}_tower[i] 의 i 가 '그 타워를 소유한 팀'인지 '그 팀이 공격하는 상대 타워'인지 미확정. 본문은 player.info.team 을 그대로 넣을 뿐이고, tower() 본체(game_core, m08.ll 범위 밖)를 안 봤다. 관측 사실: player_champion[team][pos] 은 같은 team 인덱스로 '자기 챔프'를 꺼내므로 team 인덱스가 소유 팀일 가능성이 높지만 확인 안 함",
+  "ganker.rs:274 / :304 의 unreachable 이 소스에서 `let ... else { unreachable!() }` 인지 `match { _ => unreachable!() }` 인지 확정 불가 — target_bush_v30 은 별도 define 이 없어(fnparts 확인: LineGankerPlan::target_bush_v30 조각 0개, 전량 인라인) 원형 복원 불가",
+  "Mid 분기(:278)만 EntityType!=Tower 를 패닉시키지 않고 :285 로 빠지는 이유 미확정. is_tower2() 가 `matches!(Tower{..})` 를 안에서 처리하는 반면 Top/Bottom 은 payload(info.nearest_enemy)를 꺼내야 해서 destructure 가 필요했다는 게 유력한 설명이지만 소스 확인 불가",
+  "ganker.rs:279 의 소스 if 극성(`if is_top_side` 인지 `if !is_top_side` 인지) 불명 — 줄번호가 280(else 쪽 값) < 282(then 쪽 값) 로 역전돼 있다. IR 상 매핑(is_top_side==true → 13/18, false → 8/12)은 확정",
+  "self.phase = Cancel 의 소스 줄번호 확정 불가 — 두 경로가 블록 182 로 합류하며 !dbg 가 line:0 으로 접혔다",
+  "GoalData::has_near_line_enemy 내부는 안 봄(m08.ll 에 define 없음, declare 만). 반환 true 면 '유지', false 면 '목표 소실로 취소'라는 극성만 본문에서 확정",
+  "bush ID(2,3,4,6,8,9,11~21)가 MapDef.bushes 안에서 실제로 어떤 수풀에 대응하는지는 맵 데이터 문제라 IR 로 확인 불가",
+  "divtable 는 이 함수에 적용할 곳이 없었다 — dyn 호출·vtable 슬롯 로드가 본문에 0건(cache+0x0 의 `dyn AbstractGame` 은 안 건드린다)"
+ ]
+}

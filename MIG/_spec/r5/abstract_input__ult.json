@@ -1,0 +1,113 @@
+{
+ "name": "ult",
+ "sym": "_RNvNtCshdEBA0ozCnw_7game_ai14abstract_input3ult",
+ "src": "game-ai\\src\\abstract_input.rs",
+ "src_line": 280,
+ "ir_file": "m04.ll",
+ "ir_from": 43967,
+ "ir_to": 44365,
+
+ "one_line": "궁극기 시전 가능 여부를 판정해 Ult 입력을 내거나, 사거리 밖이면 접근 이동 입력을 낸다",
+
+ "signature": {
+  "params": [
+   {"i": 0, "name": "(sret)", "type": "&mut Option<Input>(32B)", "note": "반환값 출력 슬롯. tag@+0x0(i64), 페이로드@+0x8(24B). -1=None"},
+   {"i": 1, "name": "version", "type": "usize", "note": "AI 버전 게이트. 이 함수 본문에는 version 분기가 없다 — get_input_target / safe_move_avoiding_enemy_well 로 그대로 전달만 한다"},
+   {"i": 2, "name": "rnd", "type": "&mut rand::rngs::std::StdRng(320B)", "note": "본문에서 직접 안 씀. get_input_target 에만 전달"},
+   {"i": 3, "name": "player", "type": "&PlayerState(2528B)", "note": "info.team(0x930) / info.position(0x9c0) 만 읽어 자기 챔피언을 찾는 데 씀"},
+   {"i": 4, "name": "data", "type": "&OperationData(24B)", "note": "+0x0 cache(AbstractGameWithCache) · +0x8 context(GameContext). +0x10 blackboard 는 안 씀"},
+   {"i": 5, "name": "positioning_score", "type": "&PositioningScoreData(2760B)", "note": "본문에서 직접 안 씀. get_input_target 에만 전달"},
+   {"i": 6, "name": "target", "type": "&Entity(1728B)", "note": "궁극기를 쓸 대상 엔티티. 좌표·반지름·시야상태를 읽는다"}
+  ],
+  "returns": "Option<Input>(32B, sret) — None(tag=-1) / Some(Input::Ult{target:InputTarget}) (tag=5) / Some(<safe_move_avoiding_enemy_well 이 채운 이동 입력>)"
+ },
+
+ "reads": [
+  {"base": "PlayerState", "offset": "0x930", "name": "info.team", "note": "usize. 2 미만인지 bounds-check 후 player_champion 1차 인덱스로 사용"},
+  {"base": "PlayerState", "offset": "0x9c0", "name": "info.position", "note": "Position(i32, range[0,5)). Position::as_index(entity.rs:580) 인라인 → player_champion 2차 인덱스"},
+  {"base": "OperationData", "offset": "0x0", "name": "cache", "note": "&AbstractGameWithCache. gep 없이 직접 load 라 본문에 오프셋 리터럴이 안 보인다"},
+  {"base": "OperationData", "offset": "0x8", "name": "context", "note": "&GameContext. adjust_position 인자를 뽑는 데만 씀"},
+  {"base": "AbstractGameWithCache", "offset": "0x1e0", "name": "player_champion", "note": "[[Option<&Entity>;5];2] (80B). [team][pos_index] 로 자기 챔피언 포인터를 뽑고 null 이면 None 반환"},
+  {"base": "GameContext", "offset": "0x20", "name": "map", "note": "&MapDef(28112B) — Game::adjust_position 1번째 인자"},
+  {"base": "GameContext", "offset": "0x8", "name": "setting", "note": "&GameSetting(5432B) — Game::adjust_position 2번째 인자"},
+  {"base": "Entity(champ)", "offset": "0x0", "name": "team(TeamType 태그)", "note": "i64 range[0,2). 0=Player,1=Neutral. TeamType::player_team(entity.rs:1135) 인라인"},
+  {"base": "Entity(champ)", "offset": "0x8", "name": "team.0 (팀 인덱스)", "note": "TeamType::Player 페이로드. target.visible_state 인덱스로 씀(2 미만 bounds-check)"},
+  {"base": "Entity(champ)", "offset": "0x5c8", "name": "level", "note": "ult_effect(entity.rs:1700) 인라인 — level>4 여야 실제 ult_effect 를, 아니면 상수 None 을 가리킨다. 또 (level-1)*growth_range 사거리 성장에도 쓰임"},
+  {"base": "Entity(champ)", "offset": "0x538", "name": "ult_effect", "note": "Option<Effect>(56B). level>4 일 때 이 주소가 effect 포인터가 된다"},
+  {"base": "Entity(champ)", "offset": "0x660", "name": "x", "note": "거리계산·접근점 계산"},
+  {"base": "Entity(champ)", "offset": "0x668", "name": "y", "note": "거리계산·접근점 계산"},
+  {"base": "Entity(champ)", "offset": "0x680", "name": "radius", "note": "Entity::radius(entity.rs:1509) 인라인. casting==Targeting 일 때만 사거리에 더해짐"},
+  {"base": "Entity(champ)", "offset": "0x470", "name": "stat_buff_cached.radius_mult", "note": "i32 %. 0이 아니면 radius*(mult+100)/100"},
+  {"base": "Entity(champ)", "offset": "0x438", "name": "stat_buff_cached.range", "note": "Effect::range(effect.rs:26) 인라인 — 사거리 버프 가산분"},
+  {"base": "Entity(target)", "offset": "0x38", "name": "visible_state", "note": "[VisibleState;2] (48B, stride 24). [champ_team] 태그==0(Visible) 인지 검사 (VisibleState::is_visible, game/data.rs:121)"},
+  {"base": "Entity(target)", "offset": "0x660", "name": "x", "note": "거리·접근점, 그리고 미시야 시 이동 목표"},
+  {"base": "Entity(target)", "offset": "0x668", "name": "y", "note": "거리·접근점, 그리고 미시야 시 이동 목표"},
+  {"base": "Entity(target)", "offset": "0x680", "name": "radius", "note": "사거리에 항상 가산(대상 히트박스 보정)"},
+  {"base": "Entity(target)", "offset": "0x470", "name": "stat_buff_cached.radius_mult", "note": "target.radius() 계산용"},
+  {"base": "Effect", "offset": "0x0", "name": "ty (Arc<dyn EffectType> 데이터 포인터)", "note": "gep 없이 직접 load"},
+  {"base": "Effect", "offset": "0x8", "name": "ty (Arc<dyn EffectType> vtable 포인터)", "note": "여기서 +0xf8/+0x118 슬롯을 간접호출한다"},
+  {"base": "Effect", "offset": "0x10", "name": "range", "note": "기본 사거리"},
+  {"base": "Effect", "offset": "0x18", "name": "growth_range", "note": "레벨당 사거리 증가분. (level-1) 배"},
+  {"base": "Effect", "offset": "0x28", "name": "target (CastingTarget)", "note": "CastingTarget::check(champ,target) 의 self"},
+  {"base": "Effect", "offset": "0x30", "name": "casting (CastingType)", "note": "★같은 오프셋이 두 역할이다 — Option<Effect> 의 니치 판별자(-1=None)이자 CastingType 값(0=Targeting,1=Position,2=Direction,3=None). 본문에서 두 번 로드하는데 첫 로드는 range[-1,4), 두 번째는 range[0,4)"},
+  {"base": "dyn EffectType vtable", "offset": "0x10", "name": "align", "note": "ArcInner 데이터 오프셋 계산 (16 + ((align-1) & ~15))"},
+  {"base": "dyn EffectType vtable", "offset": "0xf8", "name": "unknown (슬롯 idx 28)", "note": "fn(&dyn EffectType) -> {i64,i64}. casting==Direction 경로에서 반환 .0 == 1 인지 검사"},
+  {"base": "dyn EffectType vtable", "offset": "0x118", "name": "unknown (슬롯 idx 32)", "note": "fn(&dyn EffectType) -> bool. casting==Position 경로에서 참인지 검사"}
+ ],
+
+ "writes": [
+  {"base": "Option<Input> (sret %0)", "offset": "0x0", "name": "tag", "value": "-1(None) 또는 5(Input::Ult)",
+   "note": "이 함수가 하는 유일한 쓰기. None 경로 4곳(champ 없음/can_ult false/ult_effect None/CastingTarget::check false)이 전부 -1 을 쓴다"},
+  {"base": "Option<Input> (sret %0)", "offset": "0x8", "name": "Input::Ult.target", "value": "get_input_target 이 채운 InputTarget 24B 를 memcpy",
+   "note": "Input enum 총 32B, Ult 페이로드는 target:InputTarget 하나뿐(enum+0x8)"},
+  {"base": "Option<Input> (sret %0)", "offset": "0x0", "name": "(위임 쓰기)", "value": "safe_move_avoiding_enemy_well 이 직접 sret 에 채움",
+   "note": "접근 이동 경로 2곳(블록 138·219)은 %0 을 그대로 넘겨 피호출자가 결과를 쓴다"}
+ ],
+
+ "constants": [
+  {"value": 4, "src_line": 1700, "meaning": "champ.level > 4 여야 궁극기 슬롯이 유효 — 즉 레벨 5부터 궁 사용 가능. (Entity::ult_effect, entity.rs:1700~1701 인라인)"},
+  {"value": -1, "src_line": 286, "meaning": "Option<Effect> 의 니치 None 값(Effect+0x30 == -1). 또 Option<InputTarget> None(라인 325), 그리고 반환 Option<Input> 의 None 태그로도 같은 -1 이 쓰인다"},
+  {"value": 0, "src_line": 191, "meaning": "CastingType::Targeting 태그. 이때만 champ 자신의 radius 를 사거리에 더한다 (effect_range_with_radii, abstract_input.rs:191). 같은 0 이 VisibleState::Visible 태그 비교(라인 328)로도 쓰인다"},
+  {"value": 1, "src_line": 293, "meaning": "CastingType::Position 태그(switch case). 또 라인 310 에서 vtable+0xf8 반환 튜플의 .0 == 1 비교값으로도 쓰인다"},
+  {"value": 2, "src_line": 293, "meaning": "CastingType::Direction 태그(switch case). 같은 2 가 team<2 · visible_state[team] 의 배열 길이 bounds-check 로도 나온다"},
+  {"value": 100, "src_line": 1515, "meaning": "radius_mult 퍼센트 기준값 — radius*(radius_mult+100)/100 (Entity::radius, entity.rs:1511~1515 인라인). champ·target 양쪽에서 각각 등장"},
+  {"value": 150000, "src_line": 333, "meaning": "★접근 목표점의 사거리 여유. from_distance = effect_range_with_radii(...).saturating_sub(150000). 좌표단위 셀=32000 이므로 약 4.7셀"},
+  {"value": 5, "src_line": 326, "meaning": "Input::Ult 의 열거형 태그(DISCR_EXACT 5, 밀림 없음)"}
+ ],
+
+ "calls": [
+  "core::panicking::panic_bounds_check",
+  "game_core::simulation::entity::Entity::can_ult",
+  "game_core::simulation::effect::type::CastingTarget::check",
+  "game_ai::abstract_input::linear_cast_range_with_margin",
+  "game_core::simulation::entity::Entity::cooldown_reduce",
+  "game_ai::abstract_input::get_input_target",
+  "game_core::utils::isqrt",
+  "game_core::simulation::effect::Effect::range_adjust",
+  "game_core::simulation::game::Game::adjust_position",
+  "game_ai::abstract_input::safe_move_avoiding_enemy_well",
+  "core::panicking::panic_const::panic_const_div_by_zero",
+  "core::panicking::panic_const::panic_const_div_overflow"
+ ],
+
+ "logic": "fn ult(version, rnd, player, data, positioning_score, target) -> Option<Input>   // abstract_input.rs:280\n\n// --- 1) 자기 챔피언 얻기 (281) ---\nteam = player.info.team              // PlayerState+0x930\nif team >= 2 { panic_bounds_check }\npos  = player.info.position.as_index()   // PlayerState+0x9c0, i32 in [0,5)\nchamp = data.cache.player_champion[team][pos]    // AbstractGameWithCache+0x1e0, [[Option<&Entity>;5];2]\nif champ == null { return None }         // 블록 25\n\n// --- 2) 궁 사용 가능? (282~283) ---\nif !Entity::can_ult(champ) { return None }        // 블록 27\n\n// --- 3) 궁 이펙트 (286) ---\n// Entity::ult_effect(entity.rs:1700) 인라인:\neffect = if champ.level > 4 { &champ.ult_effect }   // Entity+0x5c8 > 4, Entity+0x538\n         else { &<정적 상수 Option::<Effect>::None> } // @anon....16 = 48바이트 undef + FF FF FF FF\nif effect.casting(=Effect+0x30) == -1 { return None }   // Option 니치 None, 블록 40\n\n// --- 4) 대상 적합성 (288~289) ---\nif !CastingTarget::check(&effect.target /*Effect+0x28*/, champ, target) { return None }  // 블록 41\n\n// --- 5) 시전 타입별 사거리 선검사 (293~313) ---\n// switch effect.casting  { 1 => Position, 2 => Direction, else(0 Targeting / 3 None) => 곧바로 6) }\nmatch effect.casting {\n  CastingType::Position => {                      // 블록 44, 라인 296\n     if !(*effect.ty)[vtable+0x118]() { goto 6) }       // bool 반환. 슬롯 이름 unknown\n     range = linear_cast_range_with_margin(effect, champ, target)   // 라인 297\n     if distance_sq(champ.x,champ.y, target.x,target.y) > range*range { goto 7) }  // 라인 299\n     goto 6)\n  }\n  CastingType::Direction => {                     // 블록 57, 라인 310\n     if (*effect.ty)[vtable+0xf8]().0 != 1 { goto 6) }  // {i64,i64} 반환, .0==1 인지. 슬롯 이름 unknown\n     range = linear_cast_range_with_margin(effect, champ, target)   // 라인 311\n     if distance_sq(champ.x,champ.y, target.x,target.y) > range*range { goto 7) }  // 라인 313\n     goto 6)\n  }\n  _ => goto 6)\n}\n// distance_sq(game-core/utils.rs:6~9) = abs_diff(ax,bx)^2 + abs_diff(ay,by)^2  (부호없음, 인라인)\n\n// --- 6) 실제 입력 만들기 (블록 95) ---\ncd = Entity::cooldown_reduce(champ, true)\ninput_target: Option<InputTarget> =\n    get_input_target(version, rnd, player, data, positioning_score, target, effect, cd)\nif input_target.tag == -1 { goto 7) }             // 라인 325\nreturn Some(Input::Ult { target: input_target })  // 라인 326: sret+0x8 에 24B memcpy, sret+0x0 = 5\n\n// --- 7) 사거리 밖/타깃 실패 → 접근 이동 (블록 122, 라인 328~341) ---\n// Entity::is_visible_from(self=target, entity=champ) 인라인 (entity.rs:1481~1483)\nvisible = match champ.team {                       // Entity+0x0 태그\n            TeamType::Neutral => true,             // player_team()=None → 기본 true\n            TeamType::Player(t) => { if t>=2 {panic_bounds_check}\n                                     target.visible_state[t].tag == 0 /*Visible*/ }  // Entity+0x38, stride 24\n          }\nif !visible {                                      // 라인 340 (블록 138)\n    return safe_move_avoiding_enemy_well(version, player, data, champ, target.x, target.y)\n}\n// 보일 때 = 사거리 안쪽으로 붙는 목표점 계산 (라인 329~338, 블록 143~232)\ndx = champ.x - target.x                            // i64 부호 뺄셈 (여기선 abs_diff 아님)\ndy = champ.y - target.y\nsz = game_core::utils::isqrt(dx*dx + dy*dy)\n\n// effect_range_with_radii(abstract_input.rs:190~192) 인라인:\nchamp_r = if effect.casting == CastingType::Targeting { champ.radius() } else { 0 }\n//   Entity::radius() = if buff.radius_mult==0 { radius } else { radius*(radius_mult+100)/100 }\ntotal_range = effect.range                                   // Effect+0x10\n            + champ_r\n            + champ.stat_buff_cached.range                   // Entity+0x438\n            + (champ.level - 1) * effect.growth_range        // Entity+0x5c8, Effect+0x18\n            + Effect::range_adjust(effect, champ, target)\n            + target.radius()\nfrom_distance = total_range.saturating_sub(150000)           // 라인 333\n\nif sz == 0 { panic_const_div_by_zero }\nx = target.x + (from_distance * dx) / sz                     // 라인 334 (sdiv)\ny = target.y + (from_distance * dy) / sz                     // 라인 335\n(x, y) = Game::adjust_position(data.context.map, data.context.setting, x, y)  // 라인 336\nreturn safe_move_avoiding_enemy_well(version, player, data, champ, x, y)      // 라인 338\n",
+
+ "knobs": [
+  {"what": "접근 목표점 사거리 여유", "where": "abstract_input.rs:333 (IR m04.ll:44313, llvm.usub.sat.i64(i64 %205, i64 150000))", "value": 150000,
+   "effect": "궁 사거리 밖일 때 이동해 갈 지점을 '대상으로부터 total_range - 150000' 거리에 잡는다. 올리면 목표점이 대상에 더 가까워져 더 깊이 파고들고(공격적·위험), 내리면 사거리 가장자리에 머문다. total_range 가 150000 이하인 짧은 궁이면 saturating 으로 0 이 되어 대상 위치까지 붙는다"},
+  {"what": "궁극기 해금 레벨", "where": "entity.rs:1700~1701 인라인 (IR m04.ll:44025, icmp ugt i64 %30, 4)", "value": 4,
+   "effect": "champ.level > 4 일 때만 ult_effect 를 실제 필드로 본다. 내리면 더 낮은 레벨부터 궁을 쓴다(0 으로 하면 1레벨부터). 올리면 궁 사용 시점이 늦어진다"},
+  {"what": "반지름 버프 퍼센트 기준", "where": "entity.rs:1511~1515 인라인 (IR m04.ll:44266(%171)·44298(%194), add nsw ..., 100 / udiv ..., 100)", "value": 100,
+   "effect": "radius*(radius_mult+100)/100. 기준값을 바꾸면 반지름 버프의 스케일이 통째로 달라져 사거리 합산에 영향(권장 X — 계산식 변경이 아니라 radius_mult 쪽을 만지는 게 맞다)"}
+ ],
+
+ "unknown": [
+  "Arc<dyn EffectType> vtable 슬롯 +0xf8(idx 28, -> {i64,i64}) 과 +0x118(idx 32, -> bool) 의 함수 이름. divtable.py EffectType 0x118 = '없음: EffectType' — 지침 §1 에 명시된 대로 Arc<dyn Trait> 는 vtable 전역이 _gaibc 에 없어 원리적으로 조회 불가. 1회 시도 후 중단. 관측 사실만: +0x118 은 인자 없는 bool 게터로 casting==Position 경로의 '선형 시전인가' 게이트, +0xf8 은 2워드 열거형/튜플을 돌려주고 .0==1 인지 비교(casting==Direction 경로)",
+  "linear_cast_range_with_margin(abstract_input.rs:195, m04.ll:43272~43370) 이 빼는 '마진'도 vtable 슬롯 +0x110(idx 31, -> i64) 호출 결과다. 리터럴 상수가 아니라 constants 에 적을 값이 없다. 정의상 = effect_range_with_radii(effect,champ,target).saturating_sub(vt+0x110(effect.ty)) — 담당 줄범위 밖이라 본문 대조는 43272~43370 을 별도로 읽어 확인했다",
+  "Entity::can_ult / Entity::cooldown_reduce / get_input_target / safe_move_avoiding_enemy_well / Effect::range_adjust / Game::adjust_position 의 내부는 안 봄(호출만 확인). 특히 get_input_target 이 어떤 조건에서 None 을 내는지가 이 함수의 최종 분기를 좌우하지만 범위 밖",
+  "param 2(rnd: &mut StdRng)·param 5(positioning_score)는 이 함수 본문에서 전혀 읽지 않는다 — 전부 get_input_target 으로 전달만. 실제 용도는 그쪽 명세에서 봐야 함",
+  "param 1(version)에 대한 분기가 이 함수엔 없다. 버전 게이트가 하위 호출부에 있는지는 미확인",
+  "블록 44/57 의 switch 는 CastingType 0(Targeting)/3(None)을 default 로 묶어 버려, 원본 소스가 `== Position` 두 조건을 && 로 쓴 건지 match 인지 확정 불가(상수접힘). 관측된 것은 '1 → 블록44, 2 → 블록57, 나머지 → 블록95' 뿐",
+  "★도구 결함(보고용): dienum.py Input 5 가 페이로드를 'time@+0x8, speed_mult@+0x10, input@+0x18 (48B)' 로 돌려주는데 **틀렸다**. 실제 DWARF(!6390 size=256bit=32B, Variant5 !6441)는 `Ult { target: InputTarget @ enum+0x8 }` 하나뿐이고 IR 도 24B memcpy + i64 5 저장이다. 원인은 distruct.json 이 variant 페이로드 구조체를 **베어 이름 'Ult'** 로 저장해 동명 variant(48B 짜리 다른 열거형의 Ult)와 충돌하기 때문. dienum 이 상위 enum 크기와 페이로드 크기를 교차검증하지 않는다"
+ ]
+}

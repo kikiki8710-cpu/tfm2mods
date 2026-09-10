@@ -1,0 +1,94 @@
+{
+ "name": "defensive_crisis",
+ "sym": "_RNvNtCshdEBA0ozCnw_7game_ai10buff_value16defensive_crisis",
+ "src": "game-ai\\src\\buff_value.rs",
+ "src_line": 17,
+ "ir_file": "m10.ll",
+ "ir_from": 33864,
+ "ir_to": 34294,
+
+ "one_line": "target 주변 적 챔피언을 모아 (곧 죽는가, 적이 쓸 CC가 준비됐는가) 두 bool을 낸다",
+
+ "signature": {
+  "params": [
+   {"i": 1, "name": "version", "type": "usize", "note": "AI 버전. 본체에선 분기 없이 effect_cc_time / check_kill_die_tick / (필터 클로저의)is_ignored_well_enemy 로 그대로 전달"},
+   {"i": 2, "name": "rnd", "type": "&mut rand::rngs::std::StdRng(320B)", "note": "본체에서 직접 안 씀. check_kill_die_tick 에만 넘김"},
+   {"i": 3, "name": "player", "type": "&PlayerState(2528B)", "note": "판단 주체 플레이어. info.team(0x930)으로 적팀 인덱스 산출"},
+   {"i": 4, "name": "data", "type": "&OperationData(24B)", "note": "cache/context/blackboard 3개 참조 묶음"},
+   {"i": 5, "name": "target", "type": "&Entity(1728B)", "note": "위기 판정 대상 엔티티(아군 챔피언). id(0x5c0)로 소유 플레이어를 역조회"},
+   {"i": 6, "name": "debug", "type": "&mut DebugFrameData(224B)", "note": "본체에서 직접 안 씀. check_kill_die_tick 에만 넘김"}
+  ],
+  "returns": "(bool, bool) — .0 = die_imminent(2*tps 안에 죽을 예측), .1 = 근처 적 중 지금 쓸 수 있는 CC 효과 보유자가 있음. IR 반환은 { i1, i1 }"
+ },
+
+ "reads": [
+  {"base": "OperationData", "offset": "0x0", "name": "cache", "note": "&AbstractGameWithCache(8840B)"},
+  {"base": "OperationData", "offset": "0x8", "name": "context", "note": "&GameContext(64B)"},
+  {"base": "OperationData", "offset": "0x10", "name": "blackboard", "note": "&[Blackboard;2] — 본체에서 로드해 필터 클로저 env 에 실어 보냄"},
+  {"base": "GameContext", "offset": "0x0", "name": "pool", "note": "&bumpalo::Bump — near_enemies Vec 할당처"},
+  {"base": "GameContext", "offset": "0x8", "name": "setting", "note": "&GameSetting(5432B)"},
+  {"base": "GameSetting", "offset": "0x12f8", "name": "tick_per_second", "note": "지역변수 tps (buff_value.rs:19). 4856=0x12f8"},
+  {"base": "AbstractGameWithCache", "offset": "0x0", "name": "game", "note": "dyn AbstractGame 팻포인터. +0=데이터 ptr, +8=vtable ptr — 둘 다 로드해 클로저 env 로 전달"},
+  {"base": "AbstractGameWithCache", "offset": "0x1e0", "name": "player_champion", "note": "[[Option<&Entity>;5];2]. 480 + (1-player.info.team)*40 로 적팀 5칸 슬라이스를 잡는다"},
+  {"base": "PlayerState", "offset": "0x930", "name": "info.team", "note": "2352. 적팀 인덱스 = 1 - info.team"},
+  {"base": "Entity", "offset": "0x5c0", "name": "id", "note": "1472. target 의 챔피언 id → player_by_champion_id"},
+  {"base": "Entity", "offset": "0x68", "name": "ty(tag)", "note": "104. enum2<EntityType> 판별자. ==13(Champion)이면 쿨타임 3종을 읽고, 아니면 쿨타임을 0으로 둔다"},
+  {"base": "Entity", "offset": "0xb8", "name": "ty.Champion.skill_cooldown", "note": "184 = ty(0x68) + 페이로드오프셋 0x8 + 0x48"},
+  {"base": "Entity", "offset": "0xc0", "name": "ty.Champion.skill2_cooldown", "note": "192"},
+  {"base": "Entity", "offset": "0xc8", "name": "ty.Champion.ult_cooldown", "note": "200"},
+  {"base": "Entity", "offset": "0x4c8", "name": "skill_effect", "note": "1224. Option<Effect>(56B). 레벨 게이트 없이 항상 slots[0]"},
+  {"base": "Entity", "offset": "0x4f8", "name": "skill_effect.discriminant", "note": "1272 = 0x4c8+48. i32, -1 이면 None"},
+  {"base": "Entity", "offset": "0x500", "name": "skill2_effect", "note": "1280. level>2 일 때만 slots[1] 로, 아니면 정적 None 상수(@anon...40)를 쓴다"},
+  {"base": "Entity", "offset": "0x538", "name": "ult_effect", "note": "1336. level>4 일 때만 slots[2]"},
+  {"base": "Entity", "offset": "0x5c8", "name": "level", "note": "1480. skill2/ult 슬롯 유효성 게이트"},
+  {"base": "Option<Effect>", "offset": "0x30", "name": "discriminant", "note": "슬롯 포인터 +48 의 i32. -1=None (slots[1],[2] 검사에 사용)"},
+  {"base": "bumpalo::collections::Vec<&Entity>", "offset": "0x18", "name": "len", "note": "24. near_enemies 공백 판정(줄 30)과 루프 종료 계산에 사용"},
+  {"base": "Entity", "offset": "0x660", "name": "x", "note": "1632. ★필터 클로저(m10.ll 55868~55976, 담당범위 밖)에서만 읽음"},
+  {"base": "Entity", "offset": "0x668", "name": "y", "note": "1640. ★필터 클로저에서만 읽음"}
+ ],
+
+ "writes": [],
+
+ "constants": [
+  {"value": 1, "src_line": 22, "meaning": "적팀 인덱스 = 1 - player.info.team (2팀 전제). sub i64 1, %20"},
+  {"value": 13, "src_line": 43, "meaning": "EntityType::Champion 태그값. entity.rs:1775 skill_cooldown() 인라인. dienum 확인: EntityType 은 태그==variant 인덱스(밀림 없음)"},
+  {"value": 2, "src_line": 44, "meaning": "level > 2 여야 skill2_effect 슬롯이 유효. entity.rs:1693 인라인"},
+  {"value": 4, "src_line": 45, "meaning": "level > 4 여야 ult_effect 슬롯이 유효. entity.rs:1701 인라인"},
+  {"value": -1, "src_line": 48, "meaning": "Option<Effect>::None 판별자(i32). Option::as_ref(option.rs:742) 인라인 결과"},
+  {"value": 1, "src_line": 48, "meaning": "effect_cc_time 반환 Option<usize> 의 Some 태그. ==1 이면 그 스킬이 CC를 건다 → 즉시 true 반환"},
+  {"value": 2, "src_line": 35, "meaning": "die < tps*2 (=2초 안에 죽을 예측) 의 승수 2. ⚠본문엔 리터럴 2 가 없고 shl i64 %tps, 1 로 접혀 있다"}
+ ],
+
+ "calls": [
+  "bumpalo::collections::vec::from_iter_in",
+  "game_core::simulation::AbstractGameWithCache::player_by_champion_id",
+  "game_ai::fight_check::effect_cc_time",
+  "game_ai::fight_check::check_kill_die_tick",
+  "bumpalo::collections::vec::clone",
+  "core::ptr::drop_glue",
+  "core::ops::drop::Drop::drop",
+  "core::panicking::panic_bounds_check"
+ ],
+
+ "logic": "fn defensive_crisis(version, rnd, player, data, target, debug) -> (bool, bool)\n\n// [19] 틱 기준\ntps = data.context.setting.tick_per_second            // GameSetting+0x12f8\n\n// [21~29] 근처 적 챔피언 수집 (bump 할당)\nenemy = 1 - player.info.team                          // PlayerState+0x930, 범위밖이면 panic_bounds_check(len=2)\nnear_enemies: Vec<&Entity, &Bump> =\n  data.cache.player_champion[enemy]                   // AbstractGameWithCache+0x1e0, [Option<&Entity>;5]\n    .iter().flatten()                                 // iter_champions 의 FilterMap 클로저\n    .filter(|e| <필터 클로저: 아래 별항>)\n    .collect_in(data.context.pool)\n\n// [30] 근처 적이 없으면 위기 아님\nif near_enemies.len() == 0 { return (false, false) }\n\n// [32~35] 죽음 임박 판정\ndie_imminent =\n  match data.cache.player_by_champion_id(target.id) {  // Entity+0x5c0\n    null => false,                                     // 소유 플레이어를 못 찾으면 판정 포기\n    tp   => {\n      die = fight_check::check_kill_die_tick(\n              version, rnd, data, tp, target,\n              near_enemies.clone(),      // 적 목록\n              Vec::new_in(pool),         // 빈 Vec (아군 목록 자리 — 항상 비어 있다)\n              debug)\n      die < tps * 2                       // [35] 2초 안에 죽는다\n    }\n  }\n// ※ near_enemies 가 clone 뒤 len==0 이면 (die_imminent, false) 로 조기 반환\n\n// [41~50] 적이 지금 쓸 수 있는 CC 스킬을 갖고 있는가\ncc_ready = near_enemies.iter().any(|e| {\n  slots = [                                           // [42~46]\n    (&e.skill_effect,  if e.ty==Champion { e.ty.skill_cooldown  } else { 0 }),   // [43]\n    (if e.level>2 { &e.skill2_effect } else { &NONE },\n                       if e.ty==Champion { e.ty.skill2_cooldown } else { 0 }),   // [44]\n    (if e.level>4 { &e.ult_effect    } else { &NONE },\n                       if e.ty==Champion { e.ty.ult_cooldown    } else { 0 }),   // [45]\n  ]\n  slots.iter().any(|(ef, cd)| {                       // [47] 순서 = skill → skill2 → ult, 단락평가\n    if *cd > tps { return false }                     // [48] 쿨이 1초(=tps)보다 많이 남았으면 무시\n    if ef.discriminant == -1 { return false }         //      None 이면 무시\n    fight_check::effect_cc_time(version, ef).is_some() //     CC 시간이 있으면 true\n  })\n})\n\nreturn (die_imminent, cc_ready)                        // [53]\n\n\n=== 필터 클로저 (buff_value.rs:22~27 · IR 는 m10.ll 55868~55976, 담당범위 밖) ===\n|e: &Entity| -> bool {\n  mr = plan_legacy::old::battle::max_range(e, target)            // [23]\n  dx = |e.x - target.x|; dy = |e.y - target.y|                   // u64 부호없는 절대차\n  if dx*dx + dy*dy > (mr + 30000)^2 { return false }             // [24] 제곱거리 비교\n  if fight_model::is_ignored_well_enemy(version, player, e) { return false }  // [25]\n     //  ↳ 인라인 본문: e.team == TeamType::Player(1 - player.info.team)\n     //    && path_finder::is_enemy_well_danger(version, player, e.x, e.y)\n  data.blackboard[1 - player.info.team]                          // [26]\n      .is_recent_visible(cache.game /*dyn 팻포인터*/, player, e)\n}\n\n=== 예외 경로 ===\n- near_enemies 인덱싱이 2 이상이면 core::panicking::panic_bounds_check 로 패닉(도달 불가 설계).\n- effect_cc_time / check_kill_die_tick / Vec::clone 은 invoke — 언와인드 시 cleanuppad 에서 near_enemies 를 drop 한다.",
+
+ "knobs": [
+  {"what": "죽음 임박 시간창", "where": "buff_value.rs:35 (m10.ll:34019 `shl i64 %17, 1`)", "value": 2,
+   "effect": "tps*N 의 N. 올리면 더 이른 시점부터 die_imminent=true (겁많은 후퇴), 내리면 진짜 직전까지 버틴다"},
+  {"what": "근처 적 판정 여유거리", "where": "buff_value.rs:24 (m10.ll:55916 `add i64 %9, 30000`) — ★담당 범위 밖 클로저라 constants 에 못 넣음", "value": 30000,
+   "effect": "max_range 에 더하는 여유 거리(셀=32000 이므로 약 0.94셀). 올리면 더 먼 적까지 near_enemies 에 들어와 위기 판정이 잦아진다"},
+  {"what": "CC 스킬 '준비됨' 쿨 임계", "where": "buff_value.rs:48 (m10.ll:34144 `icmp ugt i64 %85, %17`)", "value": "tps (1초)",
+   "effect": "남은 쿨이 이 값 이하인 슬롯만 위협으로 본다. 올리면 아직 쿨인 CC도 위협으로 계산해 .1 이 자주 true"},
+  {"what": "skill2/ult 슬롯 레벨 게이트", "where": "buff_value.rs:44,45 (entity.rs:1693,1701 인라인)", "value": "2 / 4",
+   "effect": "적 레벨이 이보다 커야 해당 슬롯을 검사. 올리면 저레벨 구간에서 적 CC를 아예 안 세고, 내리면 더 일찍 센다"}
+ ],
+
+ "unknown": [
+  "writes 가 빈 배열인 이유 — 본체는 어떤 구조체 필드에도 write 하지 않는다(스택 alloca·bump Vec 채우기만). rnd(StdRng)·debug(DebugFrameData)는 &mut 로 받지만 본체에선 손대지 않고 check_kill_die_tick 에 그대로 넘기므로, 실제 상태 변경은 그 함수 내부에 있다 — 그 내부는 안 봤다.",
+  "필터 클로저(m10.ll 55868~55976)와 수집 루프(m01.ll 37431~37606)는 담당 줄범위(33864~34294) 밖이라, 거기 있는 상수 30000 과 호출 max_range / is_enemy_well_danger / Blackboard::is_recent_visible 은 QC C1/C2 규칙상 constants·calls 에 넣지 않고 knobs·logic 에만 적었다.",
+  "check_kill_die_tick 의 7번째 인자로 넘기는 빈 Vec(ptr=dangling 8, len=0, cap=0)이 무엇을 담는 자리인지 — 이 함수는 항상 빈 채로 넘긴다. 인자 이름을 확정하려면 check_kill_die_tick 본문을 봐야 하는데 담당 범위 밖이라 안 봤다.",
+  "effect_cc_time 이 반환하는 Option<usize> 의 payload(두 번째 i64)는 이 함수가 쓰지 않는다(extractvalue 0 만 씀). 값의 의미(CC 지속틱 추정)는 미확인.",
+  "die_imminent 계산에서 tp==null(소유 플레이어 없음)인 경로는 die_imminent=false 로 고정된다. 원본 소스가 if-let 인지 match 인지는 !dbg 로 구분 불가.",
+  "AbstractGameWithCache+0x1e0(player_champion)의 원소 타입이 Option<&Entity> 라는 것은 IR 의 FilterMap<Iter<Option<&Entity>>> 제네릭 인자로 판단한 것이고, distruct 는 이 필드를 '? (80B)'로만 준다(크기 80 = 2*5*8 은 일치)."
+ ]
+}

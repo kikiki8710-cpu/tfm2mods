@@ -1,0 +1,311 @@
+{
+ "name": "max_range_nearly_can_use",
+ "sym": "_RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old6battle24max_range_nearly_can_use",
+ "src": "game-ai\\src\\plan_legacy\\old\\battle.rs",
+ "src_line": 2397,
+ "ir_file": "m10.ll",
+ "ir_from": 51913,
+ "ir_to": 52374,
+ "one_line": "champ의 평타/스킬/스킬2/궁 4개 Effect 중 tick 이내에 쓸 수 있는 것들의 최대 사거리를 반환",
+ "signature": {
+  "params": [
+   {
+    "i": 1,
+    "name": "champ",
+    "type": "&Entity(1728B)",
+    "note": "시전자. DWARF !56145. dereferenceable(1728)로 Entity 확정"
+   },
+   {
+    "i": 2,
+    "name": "target",
+    "type": "&Entity(1728B)",
+    "note": "대상. CastingTarget::check 의 2번째 인자 + radius 합산에만 쓰임"
+   },
+   {
+    "i": 3,
+    "name": "tick",
+    "type": "u64",
+    "note": "쿨다운 허용치. 각 슬롯의 남은 쿨다운이 tick 이하이면 '곧 쓸 수 있다'로 간주해 사거리 후보에 넣는다"
+   }
+  ],
+  "returns": "u64 — 후보 4슬롯 중 최대 총사거리. 쓸 수 있는 슬롯이 하나도 없으면 0"
+ },
+ "reads": [
+  {
+   "base": "Entity",
+   "offset": "0x68",
+   "name": "ty (EntityType 태그, i64, range[0,14))",
+   "note": "attack_cooldown()/skill_cooldown() 등이 인라인되며 switch 로 접힘. 태그==13(Champion) 비교는 스킬2·궁 쿨다운 경로에 남아 있다"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x70",
+   "name": "ty 페이로드 베이스",
+   "note": "dienum EntityType 기준 enum+0x0 = Entity+0x70. 아래 쿨다운 오프셋은 전부 이 베이스 + variant 필드"
+  },
+  {
+   "base": "Entity",
+   "offset": "0xb0",
+   "name": "ty.{Champion,SmallJiangshi}.attack_cooldown",
+   "note": "IR 176. switch case 13, 8"
+  },
+  {
+   "base": "Entity",
+   "offset": "0xb8",
+   "name": "ty.Minion.attack_cooldown / ty.Champion.skill_cooldown",
+   "note": "IR 184. switch case 1 의 평타 쿨다운이자, Champion 페이로드에선 skill_cooldown(enum+0x48) — 두 용도가 같은 주소를 공유한다"
+  },
+  {
+   "base": "Entity",
+   "offset": "0xc0",
+   "name": "ty.Champion.skill2_cooldown",
+   "note": "IR 192. 슬롯3 게이트"
+  },
+  {
+   "base": "Entity",
+   "offset": "0xc8",
+   "name": "ty.Bear.attack_cooldown / ty.Champion.ult_cooldown",
+   "note": "IR 200. switch case 9 의 평타 쿨다운이자 Champion 의 궁 쿨다운(enum+0x58)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0xd0",
+   "name": "ty.Illusion.attack_cooldown",
+   "note": "IR 208. switch case 12"
+  },
+  {
+   "base": "Entity",
+   "offset": "0xd8",
+   "name": "ty.Revenant.attack_cooldown",
+   "note": "IR 216. switch case 11"
+  },
+  {
+   "base": "Entity",
+   "offset": "0xe8",
+   "name": "ty.{Jungle,Ghoul}.attack_cooldown",
+   "note": "IR 232. switch case 4, 7"
+  },
+  {
+   "base": "Entity",
+   "offset": "0xf0",
+   "name": "ty.Eagle.attack_cooldown",
+   "note": "IR 240. switch case 10"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x110",
+   "name": "ty.Tower.attack_cooldown",
+   "note": "IR 272. switch case 2"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x1f0",
+   "name": "ty.{Epic,Serpen}.attack_cooldown",
+   "note": "IR 496. switch case 5, 6 (BuffState 288B 뒤라 오프셋이 크다)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x438",
+   "name": "stat_buff_cached.range",
+   "note": "IR 1080. Effect::range() 합산항. 4슬롯 전부 champ(%0) 것만 쓴다"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x470",
+   "name": "stat_buff_cached.radius_mult (i32)",
+   "note": "IR 1136. champ 과 target 양쪽에서 읽는다. Entity::radius() 인라인분"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x490",
+   "name": "attack_effect : Option<Effect>(56B)",
+   "note": "IR 1168. 슬롯1 베이스. range_adjust 인자로 그대로 넘어감"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x4a0",
+   "name": "attack_effect.range",
+   "note": "IR 1184"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x4a8",
+   "name": "attack_effect.growth_range",
+   "note": "IR 1192"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x4b8",
+   "name": "attack_effect.target : CastingTarget",
+   "note": "IR 1208. CastingTarget::check 의 self"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x4c0",
+   "name": "attack_effect.casting : Option<CastingType>(i32, range[-1,4))",
+   "note": "IR 1216. -1 이 Option<Effect> 의 니치 = None. Option::as_ref(option.rs:742) 인라인"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x4c8",
+   "name": "skill_effect : Option<Effect>(56B)",
+   "note": "IR 1224. 슬롯2 베이스"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x4d8",
+   "name": "skill_effect.range",
+   "note": "IR 1240"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x4e0",
+   "name": "skill_effect.growth_range",
+   "note": "IR 1248"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x4f0",
+   "name": "skill_effect.target : CastingTarget",
+   "note": "IR 1264"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x4f8",
+   "name": "skill_effect.casting (니치)",
+   "note": "IR 1272"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x500",
+   "name": "skill2_effect : Option<Effect>(56B)",
+   "note": "IR 1280. level>2 일 때만 이 포인터, 아니면 더미 전역 @anon...40 (casting=-1=None)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x538",
+   "name": "ult_effect : Option<Effect>(56B)",
+   "note": "IR 1336. level>4 일 때만 이 포인터, 아니면 같은 더미 전역"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x5c8",
+   "name": "level (usize)",
+   "note": "IR 1480. (level-1)*growth_range 성장항 + 슬롯3/4 해금 게이트에 쓰임"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x680",
+   "name": "radius (usize)",
+   "note": "IR 1664. champ 과 target 양쪽에서 읽는다"
+  },
+  {
+   "base": "Effect",
+   "offset": "0x10",
+   "name": "range",
+   "note": "슬롯3/4 는 선택된 포인터(%90/%157) 상대로 접근 — IR 리터럴 16"
+  },
+  {
+   "base": "Effect",
+   "offset": "0x18",
+   "name": "growth_range",
+   "note": "IR 리터럴 24"
+  },
+  {
+   "base": "Effect",
+   "offset": "0x28",
+   "name": "target : CastingTarget",
+   "note": "IR 리터럴 40 (슬롯3/4 경로)"
+  },
+  {
+   "base": "Effect",
+   "offset": "0x30",
+   "name": "casting (Option 니치)",
+   "note": "IR 리터럴 48 (슬롯3/4 경로)"
+  }
+ ],
+ "writes": [],
+ "constants": [
+  {
+   "value": -1,
+   "src_line": 742,
+   "meaning": "Option<Effect> 의 니치 판별값. Effect.casting(i32, range[-1,4))가 -1 이면 그 슬롯은 None → 건너뜀. option.rs:742 Option::as_ref 인라인분. 같은 -1 이 level-1(성장항, effect.rs:26)에도 쓰인다"
+  },
+  {
+   "value": 13,
+   "src_line": 1775,
+   "meaning": "EntityType::Champion 태그. 슬롯2/3/4 쿨다운은 Champion 일 때만 실재 — 아니면 쿨다운 0 취급이라 게이트가 항상 통과(entity.rs:1775/1790/1805)"
+  },
+  {
+   "value": 2,
+   "src_line": 1693,
+   "meaning": "skill2_effect 해금 레벨 게이트: level > 2 여야 슬롯3 이 존재(entity.rs:1693)"
+  },
+  {
+   "value": 4,
+   "src_line": 1701,
+   "meaning": "ult_effect 해금 레벨 게이트: level > 4 여야 슬롯4 가 존재(entity.rs:1701)"
+  },
+  {
+   "value": 100,
+   "src_line": 1515,
+   "meaning": "radius_mult 퍼센트 기준값. radius * (mult+100) / 100 (entity.rs:1515). mult==0 이면 곱 없이 radius 그대로(1513)"
+  },
+  {
+   "value": 0,
+   "src_line": 1748,
+   "meaning": "attack_cooldown switch 의 EntityType::None(0) case — Nexus(3)와 함께 쿨다운 필드가 없어 쿨다운 게이트를 건너뛰고 바로 사거리 계산으로 간다"
+  },
+  {
+   "value": 3,
+   "src_line": 1748,
+   "meaning": "같은 switch 의 EntityType::Nexus(3) case — 위와 동일하게 쿨다운 검사 없음"
+  }
+ ],
+ "calls": [
+  "game_core::simulation::effect::type::CastingTarget::check",
+  "game_core::simulation::effect::Effect::range_adjust",
+  "llvm.umax.i64"
+ ],
+ "logic": "fn max_range_nearly_can_use(champ: &Entity, target: &Entity, tick: u64) -> u64   // battle.rs:2397\n  let mut range: u64 = 0;                                   // 2398\n\n  // ── 슬롯1: 평타 (battle.rs:2399~2404) ──\n  if let Some(e) = champ.attack_effect {                    // Entity+0x4c0(casting) != -1\n      if e.target.check(champ, target)                      // Entity+0x4b8, CastingTarget::check\n         && champ.attack_cooldown() <= tick {               // entity.rs:1748 switch(ty)\n          // switch(Entity+0x68) → 페이로드(Entity+0x70) 안의 attack_cooldown 오프셋:\n          //   0 None / 3 Nexus  → 필드 없음 = 쿨다운 검사 자체를 건너뜀(무조건 통과)\n          //   1 Minion→+0xb8  2 Tower→+0x110  4 Jungle,7 Ghoul→+0xe8  5 Epic,6 Serpen→+0x1f0\n          //   8 SmallJiangshi,13 Champion→+0xb0  9 Bear→+0xc8  10 Eagle→+0xf0\n          //   11 Revenant→+0xd8  12 Illusion→+0xd0\n          range = total_range(e, champ, target);            // 2403. range 가 0 이라 max() 가 접혀 사라짐\n      }\n  }\n\n  // ── 슬롯2: 스킬 (2407~2411) ──\n  if let Some(e) = champ.skill_effect {                     // Entity+0x4f8 != -1\n      if e.target.check(champ, target)                      // Entity+0x4f0\n         && champ.skill_cooldown() <= tick {                // entity.rs:1775 — ty==13 일 때만 Entity+0xb8, 아니면 0\n          range = max(range, total_range(e, champ, target)); // 2410\n      }\n  }\n\n  // ── 슬롯3: 스킬2 (2414~2418) ──\n  let s2 = if champ.level > 2 { &champ.skill2_effect } else { &DUMMY_NONE }; // entity.rs:1693\n  if let Some(e) = s2 {                                     // (선택된 ptr)+0x30 != -1\n      if e.target.check(champ, target)                      // (ptr)+0x28\n         && champ.skill2_cooldown() <= tick {               // entity.rs:1790 — ty==13 일 때만 Entity+0xc0\n          range = max(range, total_range(e, champ, target)); // 2417\n      }\n  }\n\n  // ── 슬롯4: 궁 (2421~2425) ──\n  let ul = if champ.level > 4 { &champ.ult_effect } else { &DUMMY_NONE };    // entity.rs:1701\n  if let Some(e) = ul {                                     // (ptr)+0x30 != -1\n      if e.target.check(champ, target)                      // (ptr)+0x28\n         && champ.ult_cooldown() <= tick {                  // entity.rs:1805 — ty==13 일 때만 Entity+0xc8\n          range = max(range, total_range(e, champ, target)); // 2424\n      }\n  }\n  return range;                                             // 2429\n\n// total_range = battle.rs 2403/2410/2417/2424 한 줄이 이렇게 펼쳐진다\nfn total_range(e: &Effect, champ, target) -> u64 {\n    // Effect::range (effect.rs:25~26)\n    let base = champ.stat_buff_cached.range          // Entity+0x438\n             + e.range                               // Effect+0x10\n             + (champ.level - 1) * e.growth_range    // Entity+0x5c8, Effect+0x18\n             + e.range_adjust(champ, target);        // 외부 호출(본체 없음)\n    base + radius_of(champ) + radius_of(target)\n}\nfn radius_of(x: &Entity) -> u64 {                    // Entity::radius, entity.rs:1509~1515\n    let mult = x.stat_buff_cached.radius_mult as i64; // Entity+0x470 (i32→sext)\n    if mult == 0 { x.radius }                        // 1513\n    else { x.radius * (mult + 100) / 100 }           // 1515, udiv\n}\n\n// ★주의 1: 4슬롯 모두 '레벨 성장항'과 'stat_buff_cached.range'는 champ 것만 쓴다. target 에서 읽는 건 radius(0x680)와 radius_mult(0x470) 둘뿐.\n// ★주의 2: DUMMY_NONE = @anon.ff23c5838f81fa2a3acb125bb4b6e568.40 — 48바이트 undef + 0xFFFFFFFF(=casting None) 로 만든 상수 Effect. 레벨 미달 슬롯을 None 으로 만드는 장치다.\n// ★주의 3: 슬롯1은 short-circuit 순서가 (Option 존재) → (target 적합) → (쿨다운) 이고, 슬롯2~4 도 동일하다. 쿨다운 게이트는 icmp ugt(cooldown, tick) 이 참이면 '건너뜀'이므로 통과 조건은 cooldown <= tick.",
+ "knobs": [
+  {
+   "what": "쿨다운 허용치 tick (호출자가 넘김)",
+   "where": "battle.rs:2397 p3",
+   "value": 0,
+   "effect": "값 자체는 호출자가 정한다. 크게 넣을수록 '아직 쿨인 스킬'까지 사거리 후보로 인정 → 반환 사거리가 커지고, 이 값을 쓰는 상위 판단(교전 진입/추격 거리)이 더 공격적으로 된다. 0 이면 지금 당장 쓸 수 있는 것만 센다"
+  },
+  {
+   "what": "스킬2 해금 레벨 게이트",
+   "where": "game-core/src/simulation/entity.rs:1693 (level > 2)",
+   "value": 2,
+   "effect": "내리면 저레벨에서도 스킬2 사거리가 후보에 들어가 AI 가 더 먼 거리에서 교전 가능으로 판단. 올리면 반대"
+  },
+  {
+   "what": "궁 해금 레벨 게이트",
+   "where": "game-core/src/simulation/entity.rs:1701 (level > 4)",
+   "value": 4,
+   "effect": "내리면 궁 사거리가 일찍 최대치로 반영돼 AI 의 유효 사거리 인식이 크게 늘어난다"
+  },
+  {
+   "what": "반경 배율 기준값 100",
+   "where": "game-core/src/simulation/entity.rs:1515",
+   "value": 100,
+   "effect": "radius*(mult+100)/100 의 분모. 낮추면 같은 mult 로도 반경이 폭증해 총사거리가 부풀고, AI 가 실제보다 멀리서 '닿는다'고 판단한다"
+  },
+  {
+   "what": "쿨다운 비교 방향",
+   "where": "IR m10.ll 52016 / 52115 / 52214 / 52304 (icmp ugt cooldown, tick)",
+   "value": 0,
+   "effect": "이 비교를 뒤집거나 항상 false 로 만들면 쿨다운과 무관하게 4슬롯 전부가 후보가 되어 반환값이 항상 '최대 사거리'가 된다 = AI 가 상시 궁 사거리 기준으로 거리 판단"
+  }
+ ],
+ "unknown": [
+  "Effect::range_adjust 의 내부 — _gaibc 에는 declare 만 있고 define 이 없다(game_core 크레이트 산출물). 어떤 조건으로 얼마를 더하는지 미확인. 다만 부호 있는 감산 여지는 있음(반환 i64 를 그대로 add).",
+  "CastingTarget::check 의 내부 — 마찬가지로 declare 뿐. CastingTarget 태그 14종(Ally/AllyChampion/.../BothChampion/None)이 champ↔target 관계를 어떻게 판정하는지 미확인.",
+  "호출자가 p3(tick)에 실제로 무엇을 넣는지 — 이 함수 본문만으로는 단위(틱 수)를 확정할 수 없다. '남은 쿨다운 <= tick' 비교로 미루어 쿨다운과 같은 단위인 것만 확실.",
+  "battle.rs:2403 원문에서 max() 가 실제로 쓰였는지 — 슬롯1은 range 초깃값이 0 이라 umax 가 상수접힘으로 사라졌다. 소스가 `range = ...` 인지 `range = range.max(...)` 인지 IR 만으로는 구분 불가(2410/2417/2424 는 llvm.umax.i64 로 남아 있음).",
+  "Entity 0x70 페이로드 베이스는 dienum EntityType 출력 + dbg_value 의 DW_OP_plus_uconst 112 로 교차검증했으나, IR 본문에는 절대 오프셋(176/184/...)만 남아 있어 gep 리터럴 112 자체는 코드에 없다.",
+  "divtable.py EffectType → '없음' (Arc<dyn EffectType> 이라 정적 vtable 전역이 _gaibc 에 없음, SPEC_GUIDE §1 의 알려진 한계와 일치). attack_effect.ty 등 Effect+0x0 은 이 함수에서 읽지 않으므로 판정엔 영향 없음."
+ ]
+}
