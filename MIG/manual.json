@@ -197,5 +197,41 @@
   "bytes": 630,
   "via": "RE",
   "_근거": "RE 09-10: (visible_mask, alive_mask) 2×u8 반환(RAX/RDX — Ghidra 는 단일 byte 로 오독) · TLS 캐시 내장(LocalKey 0x1433DCE08, 계산 본체 인라인) · 시야 기억 120틱(0x78). ★우리 소스의 'masks' 주석과 형제 RE 의 '캐시 프로브' 관찰이 **둘 다 맞음**"
+ },
+ {
+  "addr": "0x140d214e0",
+  "rva": 13767904,
+  "mangled": "_manual_dodge_unnecessary_tower_cell_with_context",
+  "name": "dodge_unnecessary_tower_cell_with_context",
+  "mod": "path_finder",
+  "jaccard": 1.0,
+  "contain": 1.0,
+  "bytes": 548,
+  "via": "RE",
+  "_근거": "RE 2026-09-10 길찾기허브4종. IR !DISubprogram path_finder.rs:1418 + exe 패닉 Location path_finder.rs:1311(nearest_enemy_tower_distance_sq 인라인) + .pdata 548B. 9인자 프로토타입 Ghidra 주입 완료."
+ },
+ {
+  "addr": "0x140d1fec0",
+  "rva": 13762240,
+  "mangled": "_manual_dodge_enemy_well_cell",
+  "name": "dodge_enemy_well_cell",
+  "mod": "path_finder",
+  "jaccard": 1.0,
+  "contain": 1.0,
+  "bytes": 482,
+  "via": "RE",
+  "_근거": "RE 2026-09-10 길찾기허브4종. IR !DISubprogram path_finder.rs:1073 + 우물 박스 즉치(64000/160000/784000/880000/960000) 일치 + .pdata 482B. 6인자."
+ },
+ {
+  "addr": "0x140d97300",
+  "rva": 14250752,
+  "mangled": "_manual_v22_can_tower_focus_position",
+  "name": "v22_can_tower_focus_position",
+  "mod": "tower_discipline",
+  "jaccard": 1.0,
+  "contain": 1.0,
+  "bytes": 1019,
+  "via": "RE",
+  "_근거": "RE 2026-09-10 길찾기허브4종. dodge_unnecessary_tower_cell_with_context(0xd214e0) 의 게이트 호출 대상 + IR 실명. .pdata 1019B. 6인자. ⚠본체 미조사."
  }
 ]
