@@ -92,16 +92,22 @@ def build():
         # 구조체가 아닌 타입(기본형·포인터 등)의 이름도 필요하다 — 페이로드 필드 타입 표시용
         names_of = dict(RE_ANYNAME.findall(text))
 
+        # ⚠★성능: 열거자를 **파일당 한 번** 인덱싱한다.
+        #   이전 판은 열거자 하나마다 `re.search` 로 **파일 전체(60~75MB)를 다시 훑었다**.
+        #   `RE_ENUMR` 를 위에 정의해 놓고 쓰지 않은 채로. 7,016개 열거형 × 평균 10개
+        #   열거자 × 70MB = 빌드가 **40분**을 넘겼다(같은 데이터를 distruct 는 58초).
+        #   2026-09-10 실측 후 수정.
+        enumr = {m[0]: (m[1], m[2]) for m in RE_ENUMR.findall(text)}
+
         # 1) 순수 C 형 열거형(DW_TAG_enumeration_type) — 이름:값 직결
         for mid, name, el in RE_ENUMT.findall(text):
             if name in ('VariantNames',):
                 continue
             vals = {}
             for e in tups.get(el, []):
-                m = re.search(r'^%s = !DIEnumerator\(name: "([^"]*)", value: (-?[0-9]+)' % re.escape(e),
-                              text, re.M)
+                m = enumr.get(e)
                 if m:
-                    vals[int(m.group(2))] = m.group(1)
+                    vals[int(m[1])] = m[0]
             prev = out.get(name)
             if vals and (prev is None or
                          (rank, -len(vals)) < (prev.get('_rank', 99), -len(prev['variants']))):
