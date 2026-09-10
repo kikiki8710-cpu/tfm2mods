@@ -51,6 +51,47 @@ game_view 는 324MB → **25초**에 끝났다. 디스크만 있으면 비싸지
 
 ---
 
+---
+
+## 1-b. ★★`lib.rmeta` — 개발자가 쓴 주석이 그대로 들어 있다 (2026-09-11 발견)
+
+rlib 에는 `.ll` 로 안 뽑는 멤버가 하나 더 있다: **`lib.rmeta`**(game_core 는 131MB).
+Rust 메타데이터라 **비공개 필드 이름·소스 경로·그리고 문서화 주석 원문**이 들어 있다.
+
+```bash
+cd /c/tfm2mods/MIG
+PYTHONIOENCODING=utf-8 python rmetadocs.py            # 3개 크레이트 → _docs\*.txt (7초)
+```
+
+**실측(0.5.8)**: 한국어 주석 **2,925개 · 132,551자**
+
+| 크레이트 | rmeta | 주석 |
+|---|---|---|
+| `game_core` | 131.0 MB | **1,975개** |
+| `game_ai` | 7.5 MB | **807개** |
+| `game_view` | 33.9 MB | 143개 |
+
+이건 **IR 에 없는 정보**다. 예:
+```
+0=None 1=Serpen 2=Morgard 3=Repair 4=PressEpic 5=SplitEpic 6=수비 7=Nexus 8=PressTower 9=기타
+[v48] 시전자 슬롯(0=skill, 1=skill2, 2=ult)의 논타겟 투사체 프로필
+path[i]로 진입하는 엣지를 계획이 어떤 등급으로 알고 골랐는가 (0=Allow, 1=Soft, 2=Danger, 3=Deadly)
+v7: Epic/Serpen 처치 시점 감지 — 관측팀(1-team) 기준으로 team 팀의 시야 밖 챔피언 위치를 오브젝트 위치로 인식 갱신
+```
+즉 **우리가 IR 에서 역추적하던 코드표를 개발자가 이미 적어 뒀다.**
+`_docs\*.txt` 를 **먼저 grep 하라** — IR 을 읽기 전에.
+
+⚠**주석은 소스와 어긋날 수 있다**(stale comment). IR 사실과 충돌하면 **IR 이 정본**이다.
+다만 위 `v7` 주석은 `apply_object_kill_inference` 와 `blackboard[T]` 의미를 정확히 확인해 줬다 —
+**교차검증 재료로는 최상급**이다.
+
+★**아직 안 캔 것**: rmeta 에는 (크레이트 설정에 따라) `#[inline]`·제네릭 함수의 **MIR** 과
+**Span(줄+열)** 도 들어갈 수 있다. 디코더가 필요해 이 세션에서는 확인하지 않았다.
+"IR 에 `column:` 이 없어 같은 줄 안의 순서를 못 정한다"는 판정은 **IR 한정**이고,
+**rmeta 경로는 미탐색**이다. `_ => None` 팔이 접혔다고 포기하기 전에 여기를 보라.
+
+---
+
 ## 2. 작업 순서 — 이 순서를 지키면 대부분 20분 안에 끝난다
 
 ### ① 사전부터 조회한다 (손으로 DWARF 타지 마라)

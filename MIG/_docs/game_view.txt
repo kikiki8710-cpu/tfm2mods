@@ -1,0 +1,144 @@
+? bind 기반 라벨에 대회명을 설정하는 공용 함수.
+s 밴픽 UI, 홈 "다음 경기" 등 `#asset/base/text/ui?match.league_tag` 형태로 표시하는 곳에서 사용.
+8 컨디션 툴팁에 붙일 스카우터 소견 한 줄.
+i 머리말을 달아 "시스템 설명"이 아니라 "스카우터가 본 소견"으로 읽히게 하고,
+a 본문은 현재 컨디션이 아니라 선수의 기질을 말한다는 점을 분명히 한다
+\ (바로 위에 현재 컨디션 등급이 있어 그대로 두면 같은 말로 읽힌다).
+@ 개인 훈련 팝업의 모든 입력 요소를 disabled 토글
+M 포지션/언어 숙련도 패널 채움 (별 표시 + 성장분 노란 별)
+^ 훈련 효율 계산: 코치 능력 합 / 선수 수
+q 공식: efficiency = (coach_stat_sum / player_count) * (program_pct / 100) * (training_time_pct / 100) * scaling
+결과: 1~100 클램핑
+- 코치 스탯 합계 + 팀 선수 수 계산
+} `show_champion_tooltip` 와 동일하지만, 위치 클램프 영역(`clamp_rect`)과 좌표 기준 부모(`parent_rect`)를
+분리한다. 부모 노드(예: 팝업) 안에 두면서도 특정 영역(예: 픽 슬롯 아래 그리드 영역)으로만 제한해
+E 툴팁이 상단 요소를 가리지 않도록 할 때 사용한다.
+p 챔피언 툴팁을 부모 노드 기준 고정 위치(local_x, local_y)에 도킹한다(커서 추적 없음).
+X 그리드 옆 고정 정보 패널로 쓸 때 사용 — 목록을 가리지 않는다.
+7 옵션 드롭다운에 노출할 언어 코드 목록.
+N 기본 제공 언어를 먼저(고정 순서) 두고, `asset/base/text/ui`의
+a `option.language_list`에만 존재하는 코드를 뒤에 붙인다. 덕분에 번역 모드가
+^ 에셋 override로 새 로케일을 추가하면 코드 수정 없이 선택 가능해진다.
+b 기본 제공 언어. 모드가 추가한 로케일은 `available_languages`가 뒤에 잇는다.
+M 팝업 내장용: 탭 전환을 UIOutEvent 없이 내부에서 직접 처리
+S 모드별 능력치 행 표시 토글 — 무의미한 능력치 행을 숨긴다.
+[ 12개 능력치 행(`#last_hit` … `#ego`)이 부모의 `TopToBottom` 직속 자식이면
+Z `visible:false`가 공간을 접어 자동 리플로우된다(node.rs `update_sub_rect`).
+o `base_path`는 그 12행의 부모 경로(예 player_detail = "data.info"). 빈 문자열이면 루트 직속.
+i 숨긴 행 수를 반환한다(고정 높이 팝업에서 행 수만큼 높이를 줄이는 데 쓴다).
+q flat 모드(포지션 없음)에서 포지션 표시 노드를 숨긴다(positioned 모드면 그대로 보임).
+y `paths`(루트 기준 절대 경로) 각각을 `visible = positioned` 처리. 헤더 컬럼·슬롯 아이콘/라벨 등
+y 단순 표시 노드용. 없는 경로는 무시. LeftToRight 그리드(헤더/슬롯 폭 동일)에서 헤더+슬롯을
+= 같이 넘기면 접힘이 일치해 정렬이 유지된다.
+n 국제 대회 녹아웃 최종 순위 (1위부터, 최대 8위). 조별 탈락 팀은 포함되지 않는다.
+X 공백 기간 생략 가능 여부 + 종료 목표 날짜 (클라이언트 측 판정).
+p 서버측 `Database::current_intl_break_target_date` 와 동일한 의미. 차이는 데이터 컨테이너만.
+a YearSchedule의 패치 이벤트(SeasonPatch/MajorPatch/MinorPatch)를 시간순으로 적용해
+L 주어진 날짜 시점의 version_key("year.major.minor")를 역산한다.
+w 주어진 버전 문자열(또는 비어있는 경우 fallback_date)에 해당하는 과거 챔피언 sheet을 반환.
+d 세트 단위 캐시 공유 (워커는 불변 사용) — ServerState::banpick_scorer_cache 참조.
+e 패치 단위 Arc 캐시 공유 — 매 턴 시트 전체를 clone하던 것을 포인터 복사로.
+network 기반 조합 승률 평가 scorer. None이면 능력치 차이만으로 승률 결정 (management_random_mode 등 빠른 시뮬용).
+T 관전 가능 상태 변경 시 모든 클라에 SpectatableMatchesUpdate broadcast
+2 (split borrow를 위해 HashSet 참조만 받음)
+B 관전/스킵 시점에 build되는 spectate match end 데이터.
+v 주의: `last_blue_win`은 게임 시뮬레이션 기준의 블루팀 승리 플래그(= SetGameResult.is_team1_win).
+N 여기서 match team1 기준 `last_team1win`으로 변환해서 저장한다.
+run_room_server 반환 타입
+@ 게임 시작 (멀티 리그일 때 플레이어 매핑 포함)
+" 방 종료 (호스트 나감 등)
+G 룸 서버. 게임 시작 시 GameStart, 방 종료 시 Closed 반환.
+G 특정 팀의 전체 공식전 상대 전적을 서버 DB에서 계산
+P 재무 + 협상 + 브로드캐스트 전체 수행 (InPlay 상태에서 호출)
+] 협상 로직만 수행 (broadcast=true면 결과 브로드캐스트, false면 DB 반영만)
+W 재계약 협상 처리 — 이적시장 독립. 시장과 무관하게 상시 동작.
+h 각 팀의 계약 만료 임박 선수에게 오퍼 → 선수 즉시 평가 → accept/counter/reject.
+J accept된 경우 athlete.recruit_requests에 accepted paper를 push하고
+a recruit_done (athlete_id → team_id)을 반환. 호출자가 `database.recruit_athlete` 호출.
+P 훈련 + 협상 + 브로드캐스트 전체 수행 (InPlay 상태에서 호출)
+@ i18n reason key로 변환 (patch.reason.{key} 형태로 사용)
+o 진단 목록을 콤마 구분 reason key 문자열로 변환 (변형 번호 + 메타/장기 접두사 포함)
+P 진단 결과에 따라 의도적으로 패치할 필드를 선택하여 적용
+? Database 없이 개별 컴포넌트로 챔피언 패치 적용
+J 시뮬레이터 등 외부에서도 동일 로직을 직접 호출 가능
+H 챔피언 진단: 통계를 바탕으로 왜 강한지/약한지 판단
+_ 챔피언별 통계 수집 (champion_patch_statistics 기반 + MatchStat 기반 픽률/승률)
+% 너프/버프 타겟 선정 + 진단
+V 픽이 안 되는 챔피언 목록 (available이지만 통계가 없거나 극소량)
+C 패치 강도 설정에 따른 너프/버프 수 및 강도 결정
+d meta_stale_count: 3패치 이상 연속 메타인 챔피언 수 (많을수록 패치 대상 확대)
+T 승률 편차 + 메타/미픽 연속에 따라 패치 강도를 동적으로 조정
+m 사전 시뮬레이션 지평(7일 — push_background_simulations의 리그 경기 지평과 동일) 안의
+l 솔로랭크 매치가 없는 날짜에 매치를 생성한다. 리그 경기처럼 미리 만들어 둬야
+t 유저가 경기 관전 등으로 머무는 동안 백그라운드 사전 시뮬레이션 대상이 될 수 있다.
+q 결과 반영은 기존과 동일하게 result_time 도래 시 apply_completed_match_results에서 처리되고,
+z 패치 적용 시에는 PatchSystem이 미래 행을 삭제해 다음 보충 때 새 패치 기준으로 재생성된다.
+H AI 팀이 플레이어 팀에게 연습경기를 요청하는 시스템
+; 시즌/대회/승강 관련 뉴스를 모아 처리한다.
+] handle_news에서 매일 00:00에 호출되는 것을 전제로 중복 방지 로직 포함.
+경영 시뮬 플레이어 팀 자동 응답 — 사람이 없는 플레이어 팀의 대기 중 결정 이벤트를 첫 선택지로
+결정한다(선택지 순서는 이벤트 정의 순이라 결정론). 응답 대기가 기한 정지 → InPlay 전환 → 시뮬 조기
+종료로 이어지지 않게 하는 용도라, 결과 브로드캐스트는 하지 않는다(시뮬에는 클라이언트 화면이 없다).
+b data-driven 챔피언의 에셋을 기존 렌더링 파이프라인과 호환되도록 바인딩.
+< - PNG sprite → 합성 RectAnimationSet + #sheet 리매핑
+C - aseprite sprite + anim_prefix → prefix 기반 태그 재매핑
+h 팀 로고를 ImageProperty에 적용. 커스텀 로고("custom:" 접두사)면 source를 변경하고,
+B 일반 로고면 스프라이트 시트의 rect_tag으로 설정.
+D region_id를 짧은 약어로 (0=KR, 1=CN, 2=EU, 3=NA, 4=SA, 5=JP).
+X 현재 값의 10%를 기준으로 깔끔한 단위(1, 2, 5
+10^n)를 계산합니다.
+0 현재 값을 깔끔한 단위로 올립니다.
+0 현재 값을 깔끔한 단위로 내립니다.
+W 게임 모드. 배경/맵 비주얼을 모드별로 그리는 데 쓴다. 기본 Moba.
+L 관전자 late-join 시 view.played_tick과 leader 게임 tick의 오프셋
+T (events[0] = 게임 tick = tick_offset인 경우 sync_target_tick 비교를 보정)
+Z sync 일시정지 상태 (diff < -300 한 번 도달하면 diff >= 0 회복까지 유지)
+] 마지막으로 GamePlaySync 받은 시각 (패킷 지연 허용 범위 계산에만 사용)
+7 부활 시 ult_dead → ult_resurrection 순차 재생
+i EffectApplyedInfo.time (틱 단위)만큼 애니메이션을 루프 재생하는 이펙트 뷰 시스템
+/ 바람술사 궁극기 투사체 뷰 시스템
+O - 형상(shape) 반지름 변화에 따라 스프라이트 크기가 축소됨
+S 플라스크 파열 색 테마 — 스킬마다 깨지는 물약 색을 맞춘다.
+? (평타·스킬1은 녹색 산성, 궁극기는 보라 부식)
+Y 플라스크 착탄 임팩트 종류 — 스킬별로 파열 연출을 다르게 한다.
+# 평타: 작고 간결한 임팩트
+! 스킬1: 풍부한 산성 파열
+; 궁극기: 플라스크 파열을 따로 띄우지 않음.
+z 장판(구름)이 타깃을 따라다니므로 착탄 임팩트는 구름 시스템이 자기 중앙에 직접 그린다.
+= 드루이드 궁극기 바닥 영역 투사체 뷰 시스템
+- 테두리 1px #a5d4ff
+( - 내부 동일 색상 투명도 77/255
+F 드루이드 궁극기 투사체 뷰 시스템 (곰/독수리 영혼)
+9 - 회전 없이, 진행방향에 따라 flip_x만 적용
+a 플레이어 팀의 상대 전적 (opponent_team_id -> (wins, losses)) - 전체 공식전 통산
+L 리그 플레이오프 결과: comp_id -> (우승 팀 ID, 준우승 팀 ID)
+I 토너먼트 결승 결과: comp_id -> (우승 팀 ID, 준우승 팀 ID)
+?고뵆?덉씠???곗뒿
+V 멀티플레이 리그에 참여 중인 모든 플레이어 팀 ID (관전 판별용)
+V StartBack 단편 전송에서 마지막으로 관측한 received 프래그먼트 수.
+실제 진전이 있을 때만 대기 타임아웃을 리셋하기 위한 값(중복 프래그먼트만 도착하는 stall에서 무한 로딩 방지).
+낅즺 ??Room?쇰줈 ?뚯븘
+대떎 AthleteSelectDone??
+??(UI ?꾪솚 ?쒖뿉??unread ?곹깭 ?좎?)
+Y StartBack ?섏떊 ???꾩냽 ?⑦궥(YearSchedule ?? ?
+?고뵆?덉씠 ?댁쟻?쒖쫵
+> 국제 대회 공백 기간 생략 모드 (빠른 진행 중)
+3 멀티플레이 공백 기간 생략 동의 상태
+경기장 설정 (서버에서 StartBack으로 전달받음). UI에서 capacity/입장권가/유지비/업그레이드비 조회용.
+i 관전 모드 MatchResult에서 진행하기 누른 후 다음 세트 banpick 시작 대기 중인 match
+c 서버에서 받은 현재 관전 가능한 match_id 집합 (오늘의 경기 UI 버튼 표시용)
+? 아직 열리지 않은 국제전 ? 빈 순위표 UI만 표시
+U 이 슬롯 챔피언의 개인 전술(자동/AD/주문/공속/방어/마저/체력).
+K 블루/레드 팀 전술(거시 전략). 기본값은 Strategy::default().
+MatchResult 화면에서 진행하기를 누른 관전자: 다음 세트 banpick이 시작되면 SpectateStart로 알려달라
+선수의 활성 니즈 — 협상 저울(슈퍼오퍼 요구 등)을 유저가 사전에 알 수 있게 견적에 실어 보낸다
+E 멀티플레이 리그 플레이어 팀 ID 목록 (관전 기능용)
+U 경기장 설정 (capacity, 입장권 가격, 유지비, 업그레이드 비용 등)
+a 블루/레드 팀 전술(시뮬레이션에 그대로 적용). 기본값은 Strategy::default().
+n 어느 경기·세트의 결과인지. 클라는 현재 InGame 씬과 대조해서 다른 경기의 결과를
+p 결과 화면에 적용하지 않는다. 이게 없으면 도착한 스킵 결과를 무조건 현재 화면에
+f 적용해서, 방금 본 경기와 다른 결과가 뜨고 GamePlayDone으로 그대로 커밋된다.
+> 1-based 세트 번호 (`GameStartData.set`과 동일 규약).
+V 관전 가능한 match_id 전체 집합 갱신 (오늘의 경기 UI 버튼 표시용)
+> 패치 진단 결과 — 챔피언이 왜 강한지/약한지
+$![Spectate] champion_info 없음:
