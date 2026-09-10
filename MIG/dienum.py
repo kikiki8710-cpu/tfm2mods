@@ -100,9 +100,9 @@ def build():
             if not ename:
                 continue
             ename = re.sub(r'^enum2\$<|>$', '', ename)
-            variants, default = {}, None
+            variants, default, payload = {}, None, {}
             for vid in vids:
-                tag, vname, psize = None, None, 0
+                tag, vname, psize, poff, ptype = None, None, 0, None, None
                 for e in tups.get(elems_of.get(vid, ''), []):
                     m = mems.get(e)
                     if not m:
@@ -114,16 +114,24 @@ def build():
                         # ⚠멤버 이름은 대개 `value` 라 쓸모없다. **baseType 이 가리키는
                         #   구조체의 이름**이 진짜 variant 이름이다(None/Tower/Champion…).
                         vname = structs.get(bt) or nm
+                        # ★페이로드: 그 variant 구조체 이름과 **enum 안에서의 바이트 오프셋**.
+                        #   4차에서 3명이 독립적으로 요청했고, `MainObjective` 를
+                        #   "byte1=tag" 로 오독한 사고의 직접 원인이었다.
+                        ptype, poff = vname, _off // 8
                 if vname is None:
                     vname = structs.get(vid, '?')
                 if tag is None:
                     default = vname
                 else:
                     variants[str(tag)] = vname
+                    if ptype:
+                        payload[str(tag)] = dict(type=ptype, off=poff)
             if variants:
                 prev = out.get(ename)
                 if prev is None or len(variants) > len(prev.get('variants', {})):
                     d = dict(kind='rust_enum', variants=variants)
+                    if payload:
+                        d['payload'] = payload
                     if default:
                         d['default'] = default        # DISCR_EXACT 없는 갈래(나머지 전부)
                     out[ename] = d
@@ -216,7 +224,22 @@ def main():
         print('=== %s (%s · variant %d) — %s ===' % (k, v['kind'], len(v['variants']), mark))
         if len(args) > 1:
             q = args[1]
-            print('  태그 %s → %s' % (q, v['variants'].get(str(int(q, 0)), '(없음)')))
+            t = str(int(q, 0))
+            print('  태그 %s → %s' % (q, v['variants'].get(t, '(없음)')))
+            pl = (v.get('payload') or {}).get(t)
+            if pl:
+                print('  페이로드 %s @ enum+%s' % (pl['type'], hex(pl['off'])))
+                ds = os.path.join(HERE, 'distruct.json')
+                if os.path.exists(ds):
+                    dd = json.load(io.open(ds, encoding='utf-8'))
+                    hit = dd.get(pl['type']) or next(
+                        (dd[k2] for k2 in dd if k2.split('::')[-1] == pl['type']), None)
+                    if hit:
+                        for f in hit['fields'][:14]:
+                            print('    enum+%-6s %-24s %s (%dB)'
+                                  % (hex(pl['off'] + f['off']), f['name'], f['type'], f['size']))
+                    else:
+                        print('    (distruct 에 %s 없음 — 필드 없는 variant 일 수 있다)' % pl['type'])
         else:
             print('  %-6s %s' % ('태그', 'variant  (태그 = DWARF DISCR_EXACT 값 그대로)'))
             for t in sorted(v['variants'], key=int):

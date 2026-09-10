@@ -56,8 +56,31 @@ PYTHONIOENCODING=utf-8 python divtable.py AbstractGame 0x1f0   # → get_entity_
 PYTHONIOENCODING=utf-8 python dienum.py SubPlan        # 태그 전표
 PYTHONIOENCODING=utf-8 python dienum.py SubPlan 5      # 태그 5 가 무엇인지
 ```
+★**태그를 주면 페이로드 레이아웃까지 나온다**(5차 신설). 4차에서 3명이 독립적으로 요청했고,
+`MainObjective` 를 "byte1 이 태그" 로 오독한 사고의 직접 원인이던 공백이다.
+```bash
+PYTHONIOENCODING=utf-8 python dienum.py MainObjective 0
+#   태그 0 → Morgard
+#   페이로드 Morgard @ enum+0x1
+#     enum+0x1  phase        ObjectPhase (1B)
+#     enum+0x2  with_battle  bool (1B)
+```
+⚠**태그 값**과 **태그 위치**는 별개 함정이다. 3바이트 열거형에서 어느 바이트가 태그인지
+가정하지 마라 — 위 출력의 `enum+오프셋` 이 절대 기준이다.
+
 ⚠**사전에 없거나 미심쩍으면 DWARF 로 확인하라.** 이 사전은 손을 줄이는 도구지 면제권이 아니다.
 아래 "태그 ≠ variant 인덱스" 규칙은 **그대로 유효**하다.
+
+### 도구 4종의 알려진 한계 (5차 시점 · 이걸 넘어서려 시간 쓰지 마라)
+- **`divtable` 은 `Arc<dyn Trait>` 처럼 런타임에 들어오는 vtable 에는 무력**하다. `_gaibc` 에
+  그 vtable 전역이 아예 없다(`EffectType` 이 그 예). 정적 `@vtable` 참조에만 통한다.
+  ⚠일치율이 헤더에 찍힌다 — **50% 미만이면 도구가 거부**한다. 억지로 다른 이름으로 캐지 마라.
+- **`fnparts` 는 `define` 이 있는 조각만** 찾는다. "DWARF 서브프로그램 N개 vs define M개"
+  줄이 뜨면 나머지는 **전부 인라인**이라는 뜻이다 — 더 뒤지지 마라.
+- **`distruct` 는 동명 타입에 약하다**. `Map` 을 물으면 `core::iter::Map` 이, `Chat` 을 물으면
+  32B 구조체판이 나올 수 있다. **크기(IR 의 `dereferenceable(N)`)로 반드시 교차검증**하라.
+- 상수 접힘(`x*4` → `shl 2`, 인라인으로 사라진 비교식)은 **원리적으로 복원 불가**다.
+  관측 사실만 적고 `unknown` 으로 내려라.
 ⚠한계: ① 이름이 같은 구조체가 여러 판 있으면 **필드가 가장 많은 판**을 담았다 — 크기가 안 맞으면 손으로 확인하라 ② 열거형의 variant 페이로드는 아직 안 담겨 있다(구조체 멤버만) ③ 중첩 구조체는 안 펼쳐져 있다(`PlayerState.info: GamePlayer` 처럼 한 단계 더 들어가야 하는 경우가 있다).
 
 - IR 원본 = `C:\tfm2mods\_gaibc\*.ll` (24개, 총 303MB — **절대 통째로 읽지 마라**)
