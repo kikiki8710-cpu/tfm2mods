@@ -131,14 +131,25 @@ def main():
     # ⚠4차 실측(조용한 오답): `divtable Entity 0x28` 이 `AbstractGame::tick` 을 자신 있게 뱉었다.
     #   값 문자열에 'Entity' 가 우연히 들어 있었을 뿐 Entity 의 vtable 이 아니다.
     #   **요청 이름이 슬롯 심볼의 이름 성분으로 실제 등장하는지** 확인한다.
-    def owns(sl):
-        for sym in sl.values():
-            if want in mangled_parts(sym):
-                return True
-        return False
-    good = [r for r in res if owns(r[2])]
+    # ⚠★4차 최악의 결함: `divtable Effect` 가 `AbstractGame` vtable 을 **경고 없이** 반환했다.
+    #   'Effect' 가 그 vtable 의 어느 메서드 이름에 한 번 등장했다는 이유뿐이었다.
+    #   담당자 증언: "0x118 을 그대로 믿었으면 완전히 틀린 이름을 명세에 박을 뻔했다."
+    #   ⟹ 진짜 트레이트 vtable 이면 그 이름이 **슬롯 대부분**에 등장한다. 과반을 요구한다.
+    if not want.strip():
+        print('트레이트 이름을 줘라. (예: AbstractGame / AbstractEntity)')
+        return
+
+    def own_ratio(sl):
+        if not sl:
+            return 0.0
+        n = sum(1 for sym in sl.values() if want in mangled_parts(sym))
+        return n / float(len(sl))
+    good = [r for r in res if own_ratio(r[2]) >= 0.5]
     if not good:
-        print('⚠`%s` 의 vtable 이 아니다 — 그 이름이 슬롯 심볼에 성분으로 없다.' % want)
+        best = max(((own_ratio(r[2]), r) for r in res), key=lambda x: x[0], default=(0, None))
+        print('⚠`%s` 의 vtable 을 못 찾았다 — 가장 근접한 후보도 슬롯의 %.0f%% 에만 등장.'
+              % (want, best[0] * 100))
+        print('  **슬롯 이름을 그대로 믿지 마라.** 다른 트레이트의 vtable 일 가능성이 크다.')
         print('  (값 문자열에 우연히 포함됐을 뿐일 수 있다. 트레이트 이름으로 다시 쳐라:')
         print('   예 AbstractGame / AbstractEntity / EffectType)')
         print('  ※ 구조체 필드 오프셋을 찾는 거라면 이 도구가 아니라 `distruct.py` 다.')
@@ -150,8 +161,8 @@ def main():
         # ⚠4차 제안: `dereferenceable(816)` 대조를 하려면 총 바이트가 필요한데
         #   슬롯 개수만 찍어서 담당자가 100*8+16 을 손으로 역산했다.
         total = (max(sl) + 8) if sl else 0
-        print('=== %s  (%s · 슬롯 %d개 · vtable 총 %dB) ==='
-              % (name[:44], fn, len(sl), total))
+        print('=== %s  (%s · 슬롯 %d개 · vtable 총 %dB · `%s` 일치율 %.0f%%) ==='
+              % (name[:44], fn, len(sl), total, want, own_ratio(sl) * 100))
         if q is not None:
             sym = sl.get(q)
             if sym:
