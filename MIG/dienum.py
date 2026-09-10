@@ -63,6 +63,12 @@ def build():
     for _d, fn in [(d, f) for d in IRDIRS for f in sorted(os.listdir(d))]:
         if not fn.endswith('.ll'):
             continue
+        # ⚠★디렉터리 우선순위. `_gcbc` 를 넣자마자 `LineType`(Top/Mid/Bottom)이 EXIF
+        #   `Exposure/Pixaspect` 로, `LineStyle` 이 `Normal/Curved` 로, `State` 가 zlib
+        #   디코더 상태로 덮어써졌다. 종전 규칙이 "variant 많은 쪽이 이긴다" 였는데
+        #   라이브러리 열거형이 대개 더 크다. `LineType 0=Top` 은 명세 여러 곳이 쓰는
+        #   값이라 그대로 뒀으면 조용한 오답이었다. **game_ai 판이 항상 이긴다.**
+        rank = IRDIRS.index(_d)
         text = io.open(os.path.join(_d, fn), encoding='utf-8', errors='replace').read()
         structs, scope_of, elems_of, size_of = {}, {}, {}, {}
         for mid, name, rest in RE_STRUCT.findall(text):
@@ -96,8 +102,11 @@ def build():
                               text, re.M)
                 if m:
                     vals[int(m.group(2))] = m.group(1)
-            if vals and (name not in out or len(vals) > len(out[name]['variants'])):
-                out[name] = dict(kind='enum', variants={str(k): v for k, v in vals.items()})
+            prev = out.get(name)
+            if vals and (prev is None or
+                         (rank, -len(vals)) < (prev.get('_rank', 99), -len(prev['variants']))):
+                out[name] = dict(kind='enum', _rank=rank,
+                                 variants={str(k): v for k, v in vals.items()})
 
         # 2) Rust 대수적 열거형 — VariantN 구조체의 DISCR_EXACT 가 진짜 태그
         byscope = defaultdict(list)
@@ -171,8 +180,10 @@ def build():
                         payload[str(tag)] = dict(type=ptype, off=poff, fields=flds)
             if variants:
                 prev = out.get(ename)
-                if prev is None or len(variants) > len(prev.get('variants', {})):
-                    d = dict(kind='rust_enum', variants=variants)
+                # ⚠디렉터리 우선 — 위 C형 열거형과 같은 이유(game_ai 판이 항상 이긴다).
+                if prev is None or ((rank, -len(variants))
+                                    < (prev.get('_rank', 99), -len(prev.get('variants', {})))):
+                    d = dict(kind='rust_enum', _rank=rank, variants=variants)
                     if payload:
                         # ★담당자들이 손으로 하던 크기 교차검증을 도구가 한다.
                         #   "3B 열거형에 288B 필드가 있을 리 없다" 를 기계가 알아채게.

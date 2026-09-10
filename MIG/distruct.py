@@ -68,9 +68,11 @@ def build():
     names = {}      # id -> name (타입 이름 표시용)
     derived = {}    # id -> (tag, baseType)  — 이름 없는 파생타입 사슬
 
+    dirrank = {}    # 파일이름 -> IRDIRS 인덱스(0 = game_ai, 1 = game_core)
     for _d, fn in [(d, f) for d in IRDIRS for f in sorted(os.listdir(d))]:
         if not fn.endswith('.ll'):
             continue
+        dirrank[fn] = IRDIRS.index(_d)
         text = io.open(os.path.join(_d, fn), encoding='utf-8', errors='replace').read()
         for mid, tag, name, size, el in RE_COMP.findall(text):
             key = (fn, mid)
@@ -148,9 +150,15 @@ def build():
             continue
         fields.sort(key=lambda f: f['off'])
         prev = out.get(name)
-        # 같은 이름이 여러 cgu 에 있으면 **필드가 가장 많은 것**을 채택(가장 완전한 판)
-        if prev is None or len(fields) > len(prev['fields']):
-            out[name] = dict(size=size // 8, fields=fields)
+        # 같은 이름이 여러 cgu 에 있으면 **필드가 가장 많은 것**을 채택(가장 완전한 판).
+        # ⚠★단 **디렉터리 우선순위가 먼저**다. `_gcbc`(game_core·서드파티)를 사전에
+        #   넣자마자 게임 타입 36개가 동명 라이브러리 타입에 덮어써졌다 —
+        #   `Rect`/`Circle`/`Attack`/`Animation`/`Guard`/`Start`/`Simple`/
+        #   `Variant8·12·19·43`/`closure_env$*` 25개. 라이브러리 타입이 대개 더 커서
+        #   "큰 쪽이 이긴다" 규칙에 그대로 졌다. game_ai 판이 항상 이겨야 한다.
+        rank = dirrank.get(key[0], 99)
+        if prev is None or (rank, -len(fields)) < (prev['_rank'], -len(prev['fields'])):
+            out[name] = dict(size=size // 8, fields=fields, _rank=rank)
     return out
 
 
