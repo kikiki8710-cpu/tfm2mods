@@ -38,7 +38,18 @@ def ir_lines(fn):
 
 def body(spec):
     ls = ir_lines(spec['ir_file'])
-    return ls[spec['ir_from'] - 1: spec['ir_to']]
+    out = ls[spec['ir_from'] - 1: spec['ir_to']]
+    # ⚠6차 지적(사각지대): 필터 술어가 `call_mut` 심에 인라인되면 **판정 상수의 3분의 1이
+    #   담당 범위 밖**에 있다(defensive_crisis: 30000·max_range·is_ignored_well_enemy·
+    #   is_recent_visible 4건). 지침대로 knobs/unknown 에 실었지만 C1/C2 가 손을 못 대
+    #   **기계 검증 없이** 남았다. ⟹ 보조 범위를 선언하면 같이 검사한다.
+    #   `"aux": [{"ir_file":"m10.ll","ir_from":55868,"ir_to":55990}, ...]`
+    for a in (spec.get('aux') or []):
+        try:
+            out += ir_lines(a['ir_file'])[a['ir_from'] - 1: a['ir_to']]
+        except Exception:
+            pass
+    return out
 
 
 def leaf(sym):
@@ -91,14 +102,25 @@ def check(spec):
     err, warn = [], []
     b = body(spec)
     text = '\n'.join(b)
+    # C4 는 **주 범위만** 본다(보조 범위를 붙인 b 로 검사하면 끝줄이 어긋난다).
+    prim = ir_lines(spec['ir_file'])[spec['ir_from'] - 1: spec['ir_to']]
 
     # C4 범위
-    if not b or not b[0].startswith('define'):
-        err.append('C4 범위: ir_from 줄이 define 이 아님 (%r)' % (b[0][:60] if b else ''))
-    elif spec.get('sym') and spec['sym'] not in b[0]:
+    if not prim or not prim[0].startswith('define'):
+        err.append('C4 범위: ir_from 줄이 define 이 아님 (%r)' % (prim[0][:60] if prim else ''))
+    elif spec.get('sym') and spec['sym'] not in prim[0]:
         err.append('C4 범위: define 줄에 sym 이 없음')
-    if b and b[-1].strip() != '}':
+    if prim and prim[-1].strip() != '}':
         err.append('C4 범위: ir_to 줄이 본체 끝(}) 이 아님')
+    for a in (spec.get('aux') or []):
+        try:
+            ax = ir_lines(a['ir_file'])[a['ir_from'] - 1: a['ir_to']]
+        except Exception:
+            err.append('C4 범위: aux 파일을 못 읽음 (%r)' % a.get('ir_file'))
+            continue
+        if not ax or not ax[0].startswith('define') or ax[-1].strip() != '}':
+            err.append('C4 범위: aux %s %s~%s 가 define~} 가 아님'
+                       % (a.get('ir_file'), a.get('ir_from'), a.get('ir_to')))
 
     # C5 정직
     if 'unknown' not in spec:
@@ -117,6 +139,16 @@ def check(spec):
             continue
         if str(v) not in ints:
             err.append('C1 상수: %s 가 본문에 없음 (근거 없는 값)' % v)
+        # ⚠6차 지적: `tps*2` 가 `shl 1` 로 접혀 있어 `value`=1(시프트량)을 등록해야
+        #   C1 을 통과한다. 그러면 **상수 목록만 훑는 사람에겐 "임계가 1"로 읽힌다.**
+        #   ⟹ `folded_from` 에 소스 수준 값을 적게 하고, 접힘이 의심되면 요구한다.
+        if c.get('folded_from') is not None and not str(c.get('meaning', '')).strip():
+            err.append('C1 상수: folded_from 을 적었으면 meaning 에 접힘을 설명하라 (%s)' % v)
+        if (c.get('folded_from') is None and str(v) in ('1', '2', '3', '4', '5', '6')
+                and re.search(r'\bshl\b[^\n]*\b%s\b' % re.escape(str(v)), text)
+                and 'shl' not in str(c.get('meaning', ''))):
+            warn.append('C1 상수: %s 가 `shl` 피연산자로 보인다 — 시프트량이면 '
+                        '`folded_from`(실제 배수)과 meaning 을 적어라' % v)
 
     # C2 호출
     # ⚠2026-09-10 정정 2건(1차 배치 실측 - 둘 다 작성자에게 **사실 왜곡**을 강요했다):

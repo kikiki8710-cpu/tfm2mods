@@ -227,11 +227,19 @@ def main():
         s = k.split('<')[0].rstrip(':')
         return s.split('::')[-1].lower()
 
+    def leafname0(k):
+        """표시용 — **바깥 타입명**(대소문자 보존). `A<B<..C> >` 는 `A<…>` 로."""
+        s = k.split('<')[0].rstrip(':').split('::')[-1]
+        return (s + '<…>') if '<' in k else s
+
     # ⚠5차 지적: 부분일치 목록에 `LineType> `, `LineType> > ` 같은 **제네릭 문자열 조각**이
     #   별개 타입인 양 나열돼 담당자가 "내가 잘못된 타입을 보고 있나" 하고 되짚었다.
     #   닫는 꺾쇠가 남은 이름은 파싱 잔해이므로 후보에서 제외한다.
-    d = {k: v for k, v in d.items() if '>' not in k.strip().rstrip('>').strip()
-         or k.count('<') >= k.count('>')}
+    #   ⚠★6차 정정: **위 진단이 틀렸다.** `LineType> ` 는 파싱 잔해가 아니라
+    #     `ControlFlow<...ControlFlow<..LineType,Infallible> >,tuple$<> >` 라는 **정상 타입**을
+    #     `k.split('::')[-1][:28]` 로 잘라 보여준 **표시 버그**였다. 5차 수정이 엉뚱한 데를
+    #     때렸고(그래서 안 고쳐졌고), 이름 필터로 지웠다면 멀쩡한 항목을 날렸을 것이다.
+    #     ⟹ 사전은 건드리지 않는다. 아래 부분일치 **출력** 쪽에서 바깥 타입명으로 보여준다.
     exact = [k for k in d if k.lower() == w]
     leafhit = [k for k in d if leafname(k) == w and k not in exact]
     # Option/Result 같은 래퍼는 뒤로 민다
@@ -301,7 +309,14 @@ def main():
                           % pl['suspect'])
                     print('    동명 타입 오결합일 수 있으니 **DWARF 로 직접 확인**하라.')
                 if flds:
-                    print('  페이로드 %s (enum+%s 부터)' % (pl['type'], hex(pl['off'])))
+                    # ⚠6차 지적: 오프셋이 DWARF 선언 순서대로 나와 뒤섞여 보였다
+                    #   (`+0x48,0x50,0x58,0x60,0x68` 다음에 `+0x38`, `+0x8`, `+0x70`).
+                    #   읽는 데 지장은 없었으나 **밀림 오독 위험**이 있어 오프셋순으로 정렬한다.
+                    flds = sorted(flds, key=lambda f: f['off'])
+                    # ⚠6차 지적(2명): "enum+0x0 부터" 로 읽히는데 실제 첫 필드는 +0x1 이라
+                    #   한 칸 밀렸나 되짚었다. 아래 줄의 오프셋이 **enum 선두 기준 절대값**임을 명시.
+                    print('  페이로드 %s — 페이로드 시작 enum+%s / 아래는 **enum 선두 기준 절대 오프셋**'
+                          % (pl['type'], hex(pl['off'])))
                     for f in flds[:16]:
                         print('    enum+%-6s %-24s %s' % (hex(f['off']), f['name'], f['type']))
                     # 튜플 variant(`__0` 한 겹)는 안쪽 구조체를 따로 봐야 한다.
@@ -322,16 +337,30 @@ def main():
         print()
     # ⚠4차 실측(위험): `Option<ref$<MobaMode>>` 니치판은 0=None 인데, 실제 반환은
     #   16B 태그판이라 tag==0 이 Some 이었다. 이름만 보고 믿으면 **분기가 정반대**가 된다.
+    # ⚠6차 지적(노이즈): `dienum LineType`(Option 아님)에도 "같은 이름의 Option 이 19종…"
+    #   블록이 딸려 나왔다. 부분일치에 `Option<LineType>` 들이 섞였다는 이유뿐이라
+    #   질의와 무관한 경고였다. **정확일치가 답을 다 준 경우엔 띄우지 않는다** —
+    #   경고가 상시 뜨면 진짜 위험할 때(4차 사례) 무시하게 된다.
     opts = [k for k in hits + partial if 'option::Option' in k]
-    if len(opts) > 1:
+    if len(opts) > 1 and (not hits or 'option' in w or
+                          any('option::Option' in k for k in hits)):
         print('⚠같은 이름의 Option 이 %d종 있다 — 니치판(0/255=None)과 태그판(0=Some)이' % len(opts))
         print('  섞여 있을 수 있다. **반환 타입의 실제 크기(16B=태그판)를 IR 로 확인하고** 골라라.')
         for k in opts[:4]:
             print('   · %s' % k[:88])
         print()
     if hits and partial:
-        print('(부분일치 %d건은 생략 — 이름에 포함만 된 다른 타입들: %s)'
-              % (len(partial), ', '.join(k.split('::')[-1][:28] for k in partial[:4])))
+        # ⚠이터레이터 내부 타입(`ControlFlow`·`Result` 래핑)은 명세 작성과 무관한 잡음이라
+        #   따로 세어서 개수만 알린다. 남은 것만 **바깥 타입명**으로 보여준다.
+        noise = [k for k in partial if k.startswith(('core::ops::control_flow::',
+                                                     'core::iter::', 'core::result::'))]
+        real = [k for k in partial if k not in noise]
+        if real:
+            print('(부분일치 %d건은 생략 — 이름에 포함만 된 다른 타입들: %s)'
+                  % (len(real), ', '.join(leafname0(k) for k in real[:4])))
+        if noise:
+            print('(그 외 %d건은 이터레이터 내부 타입(ControlFlow 등) — 무시해도 된다.)'
+                  % len(noise))
 
 
 if __name__ == '__main__':

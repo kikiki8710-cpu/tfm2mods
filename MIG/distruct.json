@@ -130,21 +130,21 @@
 "off": 480,
 "off_hex": "0x1e0",
 "size": 80,
-"type": "array$<?>(총 80B)"
+"type": "array$<array$<enum2$<core::option::Option<ref$<game_core::simulation::entity::Entity> > >>(총 40B)>(총 80B)"
 },
 {
 "name": "player_state",
 "off": 560,
 "off_hex": "0x230",
 "size": 80,
-"type": "array$<?>(총 80B)"
+"type": "array$<array$<enum2$<core::option::Option<ref$<game_core::simulation::state::player::PlayerState> > >>(총 40B)>(총 80B)"
 },
 {
 "name": "player_champion_cache",
 "off": 640,
 "off_hex": "0x280",
 "size": 8000,
-"type": "array$<?>(총 8000B)"
+"type": "array$<array$<ChampionCache>(총 4000B)>(총 8000B)"
 },
 {
 "name": "top_lead",
@@ -172,7 +172,7 @@
 "off": 8688,
 "off_hex": "0x21f0",
 "size": 40,
-"type": "array$<?>(총 40B)"
+"type": "array$<array$<u32>(총 20B)>(총 40B)"
 },
 {
 "name": "region_point",
@@ -4087,7 +4087,7 @@
 "off": 0,
 "off_hex": "0x0",
 "size": 480,
-"type": "array$<?>(총 480B)"
+"type": "array$<array$<enum2$<core::option::Option<tuple$<usize,i64,i64,i64,i64> > >>(총 240B)>(총 480B)"
 },
 {
 "name": "seed",
@@ -10050,7 +10050,7 @@
 "off": 0,
 "off_hex": "0x0",
 "size": 84800,
-"type": "array$<?>(총 84800B)"
+"type": "array$<array$<array$<array$<?>(총 4240B)>(총 8480B)>(총 42400B)>(총 84800B)"
 },
 {
 "name": "seed",
@@ -22367,7 +22367,7 @@
 "off": 0,
 "off_hex": "0x0",
 "size": 640,
-"type": "array$<?>(총 640B)"
+"type": "array$<array$<enum2$<core::option::Option<game_ai::FinishAggregates> >>(총 320B)>(총 640B)"
 },
 {
 "name": "seed",
@@ -42533,28 +42533,28 @@
 "off": 120,
 "off_hex": "0x78",
 "size": 7200,
-"type": "array$<?>(총 7200B)"
+"type": "array$<array$<usize>(총 240B)>(총 7200B)"
 },
 {
 "name": "bushes",
 "off": 7320,
 "off_hex": "0x1c98",
 "size": 7200,
-"type": "array$<?>(총 7200B)"
+"type": "array$<array$<usize>(총 240B)>(총 7200B)"
 },
 {
 "name": "regions",
 "off": 14520,
 "off_hex": "0x38b8",
 "size": 7200,
-"type": "array$<?>(총 7200B)"
+"type": "array$<array$<usize>(총 240B)>(총 7200B)"
 },
 {
 "name": "region_dist",
 "off": 21720,
 "off_hex": "0x54d8",
 "size": 5832,
-"type": "array$<?>(총 5832B)"
+"type": "array$<array$<usize>(총 216B)>(총 5832B)"
 },
 {
 "name": "region_centers",
@@ -42684,7 +42684,7 @@
 "off": 0,
 "off_hex": "0x0",
 "size": 1600,
-"type": "array$<?>(총 1600B)"
+"type": "array$<array$<enum2$<core::option::Option<u64> >>(총 160B)>(총 1600B)"
 },
 {
 "name": "seed",
@@ -50966,7 +50966,7 @@
 "off": 0,
 "off_hex": "0x0",
 "size": 2744,
-"type": "array$<?>(총 2744B)"
+"type": "array$<array$<PositioningScore>(총 392B)>(총 2744B)"
 },
 {
 "name": "cx",
@@ -62960,7 +62960,7 @@
 "off": 888,
 "off_hex": "0x378",
 "size": 64,
-"type": "array$<?>(총 64B)"
+"type": "array$<array$<usize>(총 32B)>(총 64B)"
 },
 {
 "name": "epic_steal_attempt_count",
@@ -70115,7 +70115,7 @@
 "off": 2224,
 "off_hex": "0x8b0",
 "size": 21600,
-"type": "array$<?>(총 21600B)"
+"type": "array$<array$<Vec<usize,alloc::alloc::Global>>(총 720B)>(총 21600B)"
 },
 {
 "name": "entity_fields",
@@ -70129,7 +70129,7 @@
 "off": 23848,
 "off_hex": "0x5d28",
 "size": 21600,
-"type": "array$<?>(총 21600B)"
+"type": "array$<array$<Vec<tuple$<usize,usize>,alloc::alloc::Global>>(총 720B)>(총 21600B)"
 },
 {
 "name": "champion_ids",
@@ -70227,14 +70227,14 @@
 "off": 46160,
 "off_hex": "0xb450",
 "size": 7200,
-"type": "array$<?>(총 7200B)"
+"type": "array$<array$<array$<i32>(총 120B)>(총 3600B)>(총 7200B)"
 },
 {
 "name": "exist_map",
 "off": 53360,
 "off_hex": "0xd070",
 "size": 7200,
-"type": "array$<?>(총 7200B)"
+"type": "array$<array$<array$<i32>(총 120B)>(총 3600B)>(총 7200B)"
 },
 {
 "name": "seed",

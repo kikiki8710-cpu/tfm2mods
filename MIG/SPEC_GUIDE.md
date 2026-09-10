@@ -31,6 +31,14 @@ PYTHONIOENCODING=utf-8 python distruct.py LegacyPlanHandler
 ```
 구조체 7,355개 · 필드 17,003개가 들어 있다(전 IR 1회 스캔). **DWARF 를 손으로 타기 전에 반드시 여기부터 찾아봐라.**
 
+★**오프셋을 같이 주면 중첩을 끝까지 뚫는다**(절대 오프셋으로 답한다). 6차 신설로 이제 뚫는 범위:
+- 중첩 구조체: `distruct PlayerState 0x930` → `info.team`
+- **배열 원소 타입**: `array$<enum2$<..Option<&Entity> > >(총 16B)`, 중첩 배열도 `array$<array$<usize>(총 240B)>(총 7200B)` (~~`array$<?>`~~ 는 없어졌다)
+- **`Vec`/`String` 내부**: `distruct MobaMode 0x1a8` → `live_list.len`, `0x1a0` → `live_list.buf.inner.ptr`
+- 같은 이름의 **열거형**이 있으면 `dienum` 으로 넘겨준다(`Chat`·`CastingTarget`·`CancelReason`).
+  후보가 전부 `vtable_type$`/표준라이브러리면 "게임 타입이 아니다"라고 말해 준다.
+⚠단 **오프셋 없이** 타입만 물으면 최상위 필드 목록만 나온다. 중첩이 필요하면 오프셋을 줘라.
+
 ### ★★`fnparts.py` (함수 조각 위치) — **본문 읽기 전에 먼저 쳐라**
 1~3차 `unknown` 478건 중 **64건(13.4%)이 "판정의 알맹이가 담당 범위 밖"** 이었다.
 이터레이터 술어는 담당 줄범위엔 `call_mut` 심만 남고 본체가 **다른 `.ll`** 에 있다.
@@ -39,6 +47,11 @@ PYTHONIOENCODING=utf-8 python fnparts.py defensive_crisis
 ```
 → 클로저·이터레이터·`call_mut` 심의 **파일과 줄범위**를 전부 찍어준다.
 ⚠"본문에 술어가 없다"고 결론내기 전에 **반드시** 이걸 돌려라.
+- 조각이 담당 함수의 것이면 그 범위를 **`aux` 로 선언**하면 QC 가 같이 검증한다(§ "담당 범위 밖" 참조).
+- ★**소유 타입 열을 봐라.** 같은 이름의 메서드가 다른 타입에 있으면 그걸 읽고 명세에 박는 사고가 난다
+  (5차 실측: `LineGankCoverPlan::target_bush_v30` ≠ 담당 함수의 `LineGankerPlan::target_bush_v30`).
+  ~~"소유 타입 2종" 경고가 뜨면 조각을 버려라~~ → **6차 정정**: 그 경고가 망글 백레퍼런스 오파싱으로
+  가짜(`e_y`·`U_IN`)를 내던 게 고쳐졌다. 이제 소유자는 이름 바로 앞 성분으로 잡는다.
 
 ### ★★`divtable.py` (dyn 트레이트 vtable 슬롯) — "원리적으로 불가"가 아니다
 `unknown` 478건 중 **36건(7.5%)이 vtable 슬롯 이름**이었고 대부분 "game_core DWARF 가
@@ -61,12 +74,15 @@ PYTHONIOENCODING=utf-8 python dienum.py SubPlan 5      # 태그 5 가 무엇인�
 ```bash
 PYTHONIOENCODING=utf-8 python dienum.py MainObjective 0
 #   태그 0 → Morgard
-#   페이로드 Morgard @ enum+0x1
-#     enum+0x1  phase        ObjectPhase (1B)
-#     enum+0x2  with_battle  bool (1B)
+#   페이로드 Morgard — 페이로드 시작 enum+0x0 / 아래는 **enum 선두 기준 절대 오프셋**
+#     enum+0x1    phase        ObjectPhase
+#     enum+0x2    with_battle  bool
 ```
 ⚠**태그 값**과 **태그 위치**는 별개 함정이다. 3바이트 열거형에서 어느 바이트가 태그인지
 가정하지 마라 — 위 출력의 `enum+오프셋` 이 절대 기준이다.
+- "페이로드 시작 enum+0x0" 인데 첫 필드가 `+0x1` 인 것은 정상이다(0번 바이트가 태그).
+  6차에 두 명이 "한 칸 밀렸나" 하고 되짚어서 문구를 못 박았다. **필드 줄의 오프셋이 절대값**이다.
+- 필드는 **오프셋 순으로 정렬**돼 나온다(6차 신설 — 전엔 DWARF 선언 순이라 뒤섞여 보였다).
 
 ⚠**사전에 없거나 미심쩍으면 DWARF 로 확인하라.** 이 사전은 손을 줄이는 도구지 면제권이 아니다.
 아래 "태그 ≠ variant 인덱스" 규칙은 **그대로 유효**하다.
@@ -81,7 +97,12 @@ PYTHONIOENCODING=utf-8 python dienum.py MainObjective 0
   32B 구조체판이 나올 수 있다. **크기(IR 의 `dereferenceable(N)`)로 반드시 교차검증**하라.
 - 상수 접힘(`x*4` → `shl 2`, 인라인으로 사라진 비교식)은 **원리적으로 복원 불가**다.
   관측 사실만 적고 `unknown` 으로 내려라.
-⚠한계: ① 이름이 같은 구조체가 여러 판 있으면 **필드가 가장 많은 판**을 담았다 — 크기가 안 맞으면 손으로 확인하라 ② 열거형의 variant 페이로드는 아직 안 담겨 있다(구조체 멤버만) ③ 중첩 구조체는 안 펼쳐져 있다(`PlayerState.info: GamePlayer` 처럼 한 단계 더 들어가야 하는 경우가 있다).
+⚠한계: ① 이름이 같은 구조체가 여러 판 있으면 **필드가 가장 많은 판**을 담았다 — 크기가 안 맞으면 손으로 확인하라 ② 배열 필드의 **원소 타입**은 아직 `array$<?>` 로 남는다(총 바이트만 정확하다 — 원소 타입은 IR 의 `[N x T]` 로 확인하라) ③ `Vec`/`String` 은 통짜 24B/32B 로만 나온다(내부 `ptr`/`len`/`cap` 3필드 미노출 — `+0x8=ptr, +0x10=len` 관례를 IR 사용 패턴으로 확인하라).
+
+  ★~~"중첩 구조체는 안 펼쳐져 있다"~~ → **거짓. 3·4·5·6차에서 5번 지적됐다.**
+  `distruct <타입> <오프셋>` 형태로 **오프셋을 같이 주면** 중첩을 끝까지 뚫고 **절대 오프셋**으로 답한다
+  (`distruct PlayerState 0x930` → `info.team`). 손으로 뺄셈하지 마라 — 실제로 그렇게 낭비한 사례가 있다.
+  단 **오프셋 없이** 타입만 물으면 최상위 필드만 나온다. 그건 목록 조회지 한계가 아니다.
 
 - IR 원본 = `C:\tfm2mods\_gaibc\*.ll` (24개, 총 303MB — **절대 통째로 읽지 마라**)
 - 담당 함수의 **정확한 줄범위**가 지시에 있다. 그 범위만 읽어라:
@@ -134,9 +155,28 @@ grep -n "^define.*<함수명>" /c/tfm2mods/_gaibc/*.ll
 로 전 파일을 훑어라. 1차 배치에서 2명이 이걸로 헛돌았다.
 
 ### 담당 범위 **밖**에 있는 상수·호출 처리법 (규칙 통일)
-클로저가 범위 밖이면 그 안의 상수는 `constants` 에 넣으면 QC C1 이 반려한다. 그때는:
+★**6차 신설 — 먼저 `aux` 로 범위를 넓혀라.** `fnparts` 가 알려준 조각(`call_mut` 심·클로저·fold)이
+담당 함수의 것이 확실하면, JSON 최상위에 **보조 범위**를 선언하면 그 안의 상수·호출도 `constants`/`calls`
+에 정상 등록되고 **QC 가 기계 검증한다**:
+```json
+"aux": [{"ir_file": "m10.ll", "ir_from": 55868, "ir_to": 55990}]
+```
+(6차 실측: `defensive_crisis` 는 판정 상수의 1/3(30000·`max_range`·`is_ignored_well_enemy`·
+`is_recent_visible`)이 필터 술어 심 안에 있어 **검증 없이** 남았다. 이제 검증된다.
+보조 범위도 `define`~`}` 여야 한다 — 아니면 C4 가 반려한다.)
+
+그래도 못 넣는 경우(다른 함수 소유가 확실한 조각 등)에만:
 - `constants` **에서 빼고**, `knobs` 에 값 + **어느 파일 몇 줄에 있는지**를 싣고, `unknown` 에 "왜 constants 에 없는지"를 적는다.
 - 절대 **그냥 지우지 마라.**
+
+### 접힌 상수는 `folded_from` 으로 (6차 신설)
+`tps * 2` 는 IR 에 `shl 1` 로 나와 리터럴 2가 없다. `value: 1` 만 적으면 상수 목록을 훑는
+사람이 **"임계가 1"로 오독**한다. 소스 수준 값을 같이 실어라:
+```json
+{"value": 1, "folded_from": 2, "meaning": "tps*2 (= 2초). `shl i64 %tps, 1` 로 접힘"}
+```
+`folded_from` 을 적었으면 `meaning` 이 비면 안 된다(C1 반려). `shl` 피연산자로 보이는데
+안 적었으면 **경고**가 뜬다.
 
 ### 확정 안 되면 **2회 시도 후 `unknown`**
 1차 배치에서 가장 많이 낭비된 패턴 = "IR 과 디버그정보가 어긋나는 지점"을 끝까지 확정하려다 못 하고 결국 `unknown` 으로 내려놓기까지의 왕복. 대표 사례:

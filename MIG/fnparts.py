@@ -111,8 +111,19 @@ def scan(want):
                     m2 = re.search(re.escape(want) + r'([sS]?[0-9_]*)', sym)
                     if m2 and m2.group(1):
                         tail = '  <%s%s>' % (want[:10], m2.group(1)[:6])
+                    # ⚠6차 실측(가짜 경고): 소유자를 `parts[-2]` 로 잡으면 **제네릭 인자
+                    #   꼬리**에서 성분을 집는다. `handle_line_defense` 의 fold 조각 심볼은
+                    #   `...13defense_nexus19handle_line_defense0E0E...B4U_INvB2o_7compareB3e_y`
+                    #   인데, `B4U_`·`B3e_` 는 백레퍼런스(`B<base62>_`)라 길이접두로 오파싱돼
+                    #   `U_IN`·`e_y` 라는 **실재하지 않는 소유 타입**이 나왔고, "동명 다른 함수가
+                    #   섞였다"는 가짜 경고가 떴다. 담당자가 그 경고를 믿고 조각을 버렸다면
+                    #   필터 술어를 통째로 놓쳤을 것이다.
+                    #   ⟹ 소유자는 **`want` 바로 앞 성분**이다(진짜 경로는 `owner::want` 순서).
+                    ip = parts.index(want) if want in parts else len(parts) - 1
+                    owner = parts[ip - 1] if ip >= 1 else ''
+                    shown = parts[max(0, ip - 2):ip + 1]
                     hits.append((fn, start + 1, i + 1, i - start, kind,
-                                 parts[-3:] + ([tail.strip()] if tail else [])))
+                                 shown + ([tail.strip()] if tail else []), owner))
                 cur = None
     return hits
 
@@ -130,7 +141,8 @@ def main():
         scope, want = parts[-2], parts[-1]
     hits = scan(want)
     if scope:
-        hits = [h for h in hits if any(scope in p for p in h[5]) or scope in h[0]]
+        hits = [h for h in hits if any(scope in p for p in h[5]) or scope in h[0]
+                or scope in h[6]]
         if not hits:
             print('`%s` 범위에서 못 찾음 — 범위 없이 다시 쳐 보라.' % scope)
             return
@@ -149,7 +161,7 @@ def main():
     #   (`LineGankCoverPlan::target_bush_v30`)를 본체로 내놨다. 담당 함수가 쓰는 건
     #   `LineGankerPlan::target_bush_v30`(인라인). 그대로 믿으면 **엉뚱한 함수 본문을
     #   읽고 명세에 반영**한다(수풀 ID 표가 통째로 달라졌을 것).
-    owners = sorted({p[-2] for _f, _a, _b, _n, _k, p in hits if len(p) >= 2})
+    owners = sorted({h[6] for h in hits if h[6]})
     if len(owners) > 1:
         print('⚠소유 타입/모듈이 %d종이다 — **동명 다른 함수가 섞여 있다**: %s'
               % (len(owners), ' / '.join(owners[:6])))
@@ -161,7 +173,7 @@ def main():
     def rank(h):
         last = h[5][-1] if h[5] else ''
         return (h[4] != '본체', want not in last, -h[3])
-    for fn, a, b, n, kind, parts in sorted(hits, key=rank):
+    for fn, a, b, n, kind, parts, _own in sorted(hits, key=rank):
         print('%-9s %8d %8d %6d  %-12s %s' % (fn, a, b, n, kind, '::'.join(parts)))
     print()
     nsub = count_disub(want)
@@ -173,7 +185,7 @@ def main():
     big = [h for h in hits if h[3] >= 20 and h[4] != '본체']
     if big:
         print('⚠담당 범위 밖일 가능성이 큰 조각(20줄 이상, 본체 아님):')
-        for fn, a, b, n, kind, parts in sorted(big, key=lambda h: -h[3])[:8]:
+        for fn, a, b, n, kind, parts, _own in sorted(big, key=lambda h: -h[3])[:8]:
             print('   %s %d~%d (%d줄, %s)' % (fn, a, b, n, kind))
 
 

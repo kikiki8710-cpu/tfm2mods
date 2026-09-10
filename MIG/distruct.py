@@ -48,6 +48,10 @@ RE_NAMED = re.compile(r'^(![0-9]+) = !D\w+\([^\n]*?name: "([^"]*)"', re.M)
 RE_ARR = re.compile(
     r'^(![0-9]+) = !DICompositeType\(tag: DW_TAG_array_type, baseType: (![0-9]+)'
     r'[^\n]*?size: ([0-9]+)', re.M)
+# 이름 없는 파생타입(포인터·참조·const 등) — 배열 원소 타입을 사슬로 되짚기 위해.
+RE_DERIV = re.compile(
+    r'^(![0-9]+) = !DIDerivedType\(tag: (DW_TAG_\w+)(?![^\n]*\bname: )'
+    r'[^\n]*?baseType: (![0-9]+)', re.M)
 
 
 def build():
@@ -56,6 +60,7 @@ def build():
     members = {}    # id -> (name, basetype_id, size_bits, offset_bits)
     tuples = {}     # id -> [ids]
     names = {}      # id -> name (타입 이름 표시용)
+    derived = {}    # id -> (tag, baseType)  — 이름 없는 파생타입 사슬
 
     for fn in sorted(os.listdir(IRDIR)):
         if not fn.endswith('.ll'):
@@ -73,16 +78,50 @@ def build():
             tuples[(fn, mid)] = [(fn, x.strip()) for x in body.split(',') if x.strip().startswith('!')]
         for mid, name in RE_NAMED.findall(text):
             names[(fn, mid)] = name
+        for mid, tg, bt in RE_DERIV.findall(text):
+            derived[(fn, mid)] = (tg, bt)
         arrays[fn] = RE_ARR.findall(text)
 
     # 배열 타입 이름 합성: `array$<T, N>` (T 이름을 못 찾으면 원소 크기라도 보인다)
-    for fn2, lst in arrays.items():
-        for mid, bt, sz in lst:
-            k2 = (fn2, mid)
-            if k2 in names:
-                continue
-            et = names.get((fn2, bt), '?')
-            names[k2] = 'array$<%s>(총 %dB)' % (et, int(sz) // 8)
+    # ⚠6차 지적(2명): 원소 타입이 `?` 로 남는 게 많았다(`array$<?>(총 80B)`).
+    #   담당자가 `[[Option<&Entity>;5];2]` 를 IR 의 `[5 x ptr]` + 제네릭 인자에서
+    #   **손으로 복원**했다. 원인 둘: ① 중첩 배열은 안쪽 배열 이름이 **아직 안 만들어진**
+    #   상태에서 조회된다(한 패스뿐) ② 포인터·참조 원소는 `name:` 이 없는 DIDerivedType 이다.
+    #   ⟹ 고정점까지 반복하고, 이름 없는 파생타입은 baseType 사슬을 따라간다.
+    def typename(fn2, bt, depth=0):
+        k = (fn2, bt)
+        if k in names:
+            return names[k]
+        if depth >= 4:
+            return '?'
+        tag = derived.get(k)
+        if tag is not None:
+            tg, inner = tag
+            if inner and inner != '!0':
+                nm = typename(fn2, inner, depth + 1)
+                if nm != '?':
+                    if tg in ('DW_TAG_pointer_type', 'DW_TAG_reference_type'):
+                        return '&' + nm
+                    return nm
+            if tg in ('DW_TAG_pointer_type', 'DW_TAG_reference_type'):
+                return 'ptr'
+        return '?'
+
+    for _round in range(4):
+        changed = False
+        for fn2, lst in arrays.items():
+            for mid, bt, sz in lst:
+                k2 = (fn2, mid)
+                cur = names.get(k2)
+                if cur and '?' not in cur:
+                    continue
+                et = typename(fn2, bt)
+                new = 'array$<%s>(총 %dB)' % (et, int(sz) // 8)
+                if new != cur:
+                    names[k2] = new
+                    changed = True
+        if not changed:
+            break
 
     out = {}
     for key, (tag, name, size, el) in comps.items():
@@ -123,6 +162,18 @@ def base_name(t):
         yield m
 
 
+def norm_type(t):
+    """타입 문자열을 비교 가능한 형태로. 경로는 잎만, 기본 할당자는 제거, 공백 제거.
+
+    `Vec<usize,alloc::alloc::Global>` 과 `Vec<usize>` 를 같게, `Vec<Box<dyn ..>>` 는 다르게.
+    """
+    t = str(t).replace(' ', '')
+    t = t.replace(',alloc::alloc::Global', '').replace('alloc::alloc::Global', '')
+    t = re.sub(r'[A-Za-z_][A-Za-z0-9_]*(?:::[A-Za-z_][A-Za-z0-9_]*)+',
+               lambda m: m.group(0).split('::')[-1], t)
+    return t.replace('ref$', '').replace('<>', '').rstrip(',')
+
+
 def resolve_nested(d, sname, q, v, depth=0, path='', base=0):
     """오프셋 q 가 어느 필드인지 **중첩 구조체를 따라 내려가며** 찾는다.
 
@@ -152,6 +203,36 @@ def resolve_nested(d, sname, q, v, depth=0, path='', base=0):
             if sub and sub['size'] == f['size'] and cand != sname and sub['fields']:
                 print('%s  └ 질의 %s 는 이 %s 안쪽 +%s' % (pad, hex(q + base), cand, hex(inner)))
                 resolve_nested(d, cand, inner, sub, depth + 1, here, base + f['off'])
+                return
+        # ⚠6차 지적: `Vec`/`String` 에서 하강이 멈췄다("더 못 내려감 — Vec<usize,..Global>").
+        #   담당자가 `+0x8=ptr, +0x10=len` 을 **사용 패턴으로 역추론**해 `unknown` 에 실었다.
+        #   원인은 키 형태 불일치뿐이다 — 사전엔 `Vec<usize>` 로 있는데 필드 타입은
+        #   할당자 인자까지 붙은 `Vec<usize,alloc::alloc::Global>` 이라 `d.get` 이 빗나갔다.
+        #   ⟹ **잎 이름 + 크기**로 한 번 더 찾는다(크기 일치를 요구하므로 24B alloc 판과
+        #     32B bumpalo 판이 섞이지 않는다).
+        #   ⚠★단 **크기만 맞으면 아무거나** 집으면 안 된다. 첫 구현은 `Vec<usize>` 자리에
+        #     같은 24B 인 `Vec<Box<dyn EntityPassiveRunner>>` 를 집어 필드명은 맞는데
+        #     **타입명을 틀리게** 찍었다(모든 `Vec<T>` 레이아웃이 같아 크기로는 구별 불가).
+        #     ⟹ 제네릭 인자까지 정규화해 **같은 타입일 때만** 조용히 내려간다.
+        leaf = str(f['type']).split('<')[0].split('::')[-1].strip()
+        if leaf:
+            tgt = norm_type(f['type'])
+            cands = [(k2, sub) for k2, sub in d.items()
+                     if k2.split('<')[0].split('::')[-1] == leaf
+                     and sub['size'] == f['size'] and k2 != sname and sub['fields']]
+            same = [c for c in cands if norm_type(c[0]) == tgt]
+            if same:
+                k2, sub = same[0]
+                print('%s  └ 질의 %s 는 이 %s 안쪽 +%s' % (pad, hex(q + base), k2, hex(inner)))
+                resolve_nested(d, k2, inner, sub, depth + 1, here, base + f['off'])
+                return
+            if cands:
+                k2, sub = cands[0]
+                print('%s  └ 질의 %s: 이 타입의 사전 항목이 없어 **같은 이름·같은 크기의 다른'
+                      ' 인스턴스**(%s) 레이아웃으로 내려간다.' % (pad, hex(q + base), k2[:60]))
+                print('%s     ⚠필드 **이름·오프셋만** 믿어라. 원소 타입은 이 필드의 것(%s)이다.'
+                      % (pad, str(f['type'])[:60]))
+                resolve_nested(d, k2, inner, sub, depth + 1, here, base + f['off'])
                 return
         if inner:
             print('%s  └ ★질의 %s = 이 필드 시작 +%s (더 못 내려감 — %s)'
@@ -192,9 +273,37 @@ def main():
     pre = sorted(pre, key=lambda k: (std(k), len(k)))
     sub = sorted(sub, key=lambda k: (std(k), len(k)))
     hits = exact if exact else (pre + sub)
+    # ⚠6차 지적(2명): `distruct Chat` 은 32B **구조체**를 주는데 담당 함수가 쓰는 건 24B
+    #   `enum2$<..Chat>` **열거형**이었고, `distruct CastingTarget` 은 Debug impl 의
+    #   `vtable_type$` 만 뱉었다. 둘 다 "이 도구 소관이 아니다"라고 말해 주지 않아서
+    #   담당자가 사전에 없다고 판단할 뻔했다. ⟹ 같은 이름의 열거형이 있으면 넘긴다.
+    def enum_hint():
+        p = os.path.join(HERE, 'dienum.json')
+        if not os.path.exists(p):
+            return []
+        try:
+            de = json.load(io.open(p, encoding='utf-8'))
+        except Exception:
+            return []
+        w = want.lower()
+        return [k for k in de if k.split('<')[0].rstrip(':').split('::')[-1].lower() == w][:3]
+
+    eh = enum_hint()
+    if eh and (not hits or all(std(k) for k in hits)
+               or any(('enum2$' in f['type'] and f['type'].split('<')[0]
+                       or '') and want.lower() in f['type'].lower()
+                      for k in hits[:1] for f in d[k]['fields'])):
+        print('※ 같은 이름의 **열거형**이 있다 — `python dienum.py %s` 로 봐라.' % want)
+        for k in eh:
+            print('   · %s' % k[:88])
+        print()
     if not hits:
-        print('없음: %s' % want)
+        print('없음: %s%s' % (want, '' if eh else '  (열거형이면 `dienum.py`, 함수면 `fnparts.py`)'))
         return
+    if all(std(k) for k in hits):
+        print('⚠후보가 전부 표준 라이브러리/`vtable_type$` 다 — **게임 타입이 아니다.**')
+        print('  이 이름의 게임 구조체는 이 사전에 없다. 열거형(`dienum.py`)인지 먼저 확인하라.')
+        print()
     if len(hits) > 1:
         print('⚠동명 후보 %d개 — **IR 의 dereferenceable(N) 로 골라라**:' % len(hits))
         for k in hits[:6]:
