@@ -36,9 +36,13 @@ OUT = os.path.join(HERE, 'dienum.json')
 
 # ⚠선택 그룹 + 게으른 매칭을 섞으면 scope/size/elements 가 전부 빈 채로도 매칭된다
 #   (1차 빌드가 대수형 열거형을 0개로 낸 원인). 줄 전체를 잡고 키:값으로 뽑는다.
+# ⚠★`enum2$<X>` 래퍼는 **DW_TAG_union_type** 이다(structure_type 아님).
+#   VariantN 구조체의 scope 가 이 union 을 가리키는데, structure_type 만 잡으면
+#   부모를 영영 못 찾아 대수형 열거형이 0개로 나온다(1~3차 빌드가 전부 이걸로 실패).
 RE_STRUCT = re.compile(
-    r'^(![0-9]+) = !DICompositeType\(tag: DW_TAG_structure_type, name: "([^"]*)"(.*)$', re.M)
-RE_SKV = re.compile(r'(scope|size|elements): (![0-9]+|[0-9]+)')
+    r'^(![0-9]+) = !DICompositeType\(tag: DW_TAG_(?:structure|union)_type, name: "([^"]*)"(.*)$',
+    re.M)
+RE_SKV = re.compile(r'(scope|size|elements): (![0-9]+|[0-9]+)')
 RE_MEM = re.compile(r'^(![0-9]+) = !DIDerivedType\(tag: DW_TAG_member, name: "([^"]*)"(.*)$', re.M)
 RE_TUP = re.compile(r'^(![0-9]+) = !\{(.*)\}$', re.M)
 RE_ENUMT = re.compile(
@@ -64,9 +68,11 @@ def build():
         for mid, name, rest in RE_MEM.findall(text):
             ex = re.search(r'extraData: i64 (-?[0-9]+)', rest)
             static = 'DIFlagStaticMember' in rest
-            off = re.search(r'\boffset: ([0-9]+)', rest)
+            off = re.search(r'offset: ([0-9]+)', rest)
+            bt = re.search(r'baseType: (![0-9]+)', rest)
             mems[mid] = (name, int(ex.group(1)) if ex else None, static,
-                         int(off.group(1)) if off else 0)
+                         int(off.group(1)) if off else 0,
+                         bt.group(1) if bt else '')
         tups = {}
         for mid, body in RE_TUP.findall(text):
             tups[mid] = [x.strip() for x in body.split(',') if x.strip().startswith('!')]
@@ -101,11 +107,13 @@ def build():
                     m = mems.get(e)
                     if not m:
                         continue
-                    nm, ex, static, _off = m
+                    nm, ex, static, _off, bt = m
                     if nm == 'DISCR_EXACT' and static:
                         tag = ex
                     elif not static and vname is None:
-                        vname = nm
+                        # ⚠멤버 이름은 대개 `value` 라 쓸모없다. **baseType 이 가리키는
+                        #   구조체의 이름**이 진짜 variant 이름이다(None/Tower/Champion…).
+                        vname = structs.get(bt) or nm
                 if vname is None:
                     vname = structs.get(vid, '?')
                 if tag is None:

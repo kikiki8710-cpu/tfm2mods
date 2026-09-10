@@ -1,0 +1,87 @@
+{
+ "name": "best_jungle_goal",
+ "sym": "_RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old14passive_jungle16best_jungle_goal",
+ "src": "game-ai\\src\\plan_legacy\\old\\passive_jungle.rs",
+ "src_line": 806,
+ "ir_file": "m04.ll",
+ "ir_from": 62570,
+ "ir_to": 62978,
+
+ "one_line": "정글러가 다음에 갈 캠프 1개를 고른다 — 미클리어 캠프 중 챔프 최근접, 없으면 리스폰 임박순",
+
+ "signature": {
+  "params": [
+   {"i": 1, "name": "version", "type": "usize", "note": "AI 버전 게이트. 이 함수 본문에는 분기가 전혀 없다. 스택에 저장(%13)해 주소만 필터 클로저에 캡처되고, is_cleared 의 3번째 인자 `_version`(미사용)으로만 흘러간다"},
+   {"i": 2, "name": "rnd", "type": "&mut rand::rngs::std::StdRng(320B)", "note": "line 829 의 jungle_camps.choose(rnd) 에서만 소비된다. 그 외 경로에서는 RNG 를 건드리지 않음"},
+   {"i": 3, "name": "player", "type": "&PlayerState(2528B)", "note": "player.info(GamePlayer) 의 team(+0x930)·position(+0x9c0) 만 읽는다"},
+   {"i": 4, "name": "data", "type": "&OperationData(24B)", "note": "cache(+0)=&AbstractGameWithCache, context(+8)=&GameContext, blackboard(+0x10)=미사용"},
+   {"i": 5, "name": "team_plan", "type": "&TeamPlan", "note": "본문에서 직접 읽지 않음. 필터 클로저에 캡처돼 is_cleared 로 전달만 된다"},
+   {"i": 6, "name": "now_camp", "type": "Option<JungleType> (i8, None=-1)", "note": "니치 인코딩. -1=None, 0..5=Some(JungleType). champ 가 None 인 경로에서만 쓰인다"},
+   {"i": 7, "name": "debug", "type": "&mut DebugFrameData(224B)", "note": "본문에서 직접 읽지도 쓰지도 않음. 클로저에 캡처돼 is_cleared 의 `_debug`(미사용)로만 전달"}
+  ],
+  "returns": "JungleType (i8, range 0..6) — 0=Rhino 1=Mushroom 2=Stump 3=Bee 4=Morgard 5=Serpen. Option 이 아니라 항상 캠프 1개를 확정 반환(못 고르면 unwrap 패닉)"
+ },
+
+ "reads": [
+  {"base": "GamePlayer(=PlayerState+0)", "offset": "0x930", "name": "team", "note": "usize. distruct 확정. get_camp_state 인자·player_champion 1차 인덱스·camp_pos 의 blue 여부(team==0) 로 3번 쓰인다"},
+  {"base": "GamePlayer(=PlayerState+0)", "offset": "0x9c0", "name": "position", "note": "Position(i32, range 0..5). Position::as_index() 가 인라인돼 항등(판별자 그대로)이 됐다. player_champion 2차 인덱스"},
+  {"base": "OperationData", "offset": "0x8", "name": "context", "note": "&GameContext(64B)"},
+  {"base": "GameContext", "offset": "0x0", "name": "pool", "note": "&bumpalo::Bump — not_cleared_camps Vec 의 아레나로 from_iter_in 에 전달"},
+  {"base": "GameContext", "offset": "0x20", "name": "map", "note": "&MapDef(28112B) — camp_pos 의 self"},
+  {"base": "AbstractGameWithCache(=OperationData.cache)", "offset": "0x0", "name": "game.data", "note": "dyn 트레이트 객체 fat ptr 의 데이터 포인터"},
+  {"base": "AbstractGameWithCache", "offset": "0x8", "name": "game.vtable", "note": "fat ptr 의 vtable 포인터"},
+  {"base": "vtable", "offset": "0x40", "name": "(슬롯명 미상)", "note": "간접 호출. { i64 tag, ptr payload } 반환 → 곧바로 GameMode::as_moba(game.rs:230) 가 인라인돼 tag==0 이면 payload=&MobaMode, 아니면 Option::unwrap 패닉"},
+  {"base": "AbstractGameWithCache", "offset": "0x1e0", "name": "player_champion", "note": "[[Option<&Entity>;5];2] (80B). gep [5 x ptr] 로 team, 이어서 gep ptr 로 position 인덱싱. null = None"},
+  {"base": "MobaMode", "offset": "0x18", "name": "jungle_runner", "note": "JungleRunner(480B). MobaMode::jungle_runner(game.rs:213) 가 인라인돼 단순 +0x18 이 됐다"},
+  {"base": "JungleCampState", "offset": "0x18", "name": "next_respawn_tick", "note": "usize. get_camp_state 결과의 +0x18. 첫 번째 min_by_key 의 키"},
+  {"base": "Entity", "offset": "0x660", "name": "x", "note": "u64 좌표. champ 위치"},
+  {"base": "Entity", "offset": "0x668", "name": "y", "note": "u64 좌표. champ 위치"},
+  {"base": "bumpalo Vec<JungleType>", "offset": "0x18", "name": "len", "note": "is_empty() 판정(line 817)과 IntoIter 의 end 포인터 계산에 쓰인다. ptr 은 +0x0"}
+ ],
+
+ "constants": [
+  {"value": 0, "src_line": 807, "meaning": "jungle_camps[0] = JungleType::Rhino"},
+  {"value": 1, "src_line": 807, "meaning": "jungle_camps[1] = JungleType::Mushroom"},
+  {"value": 3, "src_line": 807, "meaning": "jungle_camps[2] = JungleType::Bee (배열 순서가 열거형 순서와 다르다 — 3 이 2보다 먼저)"},
+  {"value": 2, "src_line": 807, "meaning": "jungle_camps[3] = JungleType::Stump. 동시에 line 823 의 player_champion 팀 인덱스 상한(2팀)으로도 등장한다(panic_bounds_check(team, 2))"},
+  {"value": 4, "src_line": 807, "meaning": "jungle_camps 길이 4 — array::IntoIter 의 end, choose() 에 넘기는 슬라이스 len. Morgard(4)/Serpen(5) 는 후보에서 아예 빠져 있다"},
+  {"value": -1, "src_line": 825, "meaning": "Option<JungleType> 의 None 니치값. now_camp==-1 판정(825) 및 두 min_by_key 결과의 unwrap 판정(821·836)에 공통으로 쓰인다"}
+ ],
+
+ "calls": [
+  "bumpalo::collections::vec::from_iter_in",
+  "game_core::simulation::entity::jungle::JungleRunner::get_camp_state",
+  "game_core::simulation::map_def::MapDef::camp_pos",
+  "rand::seq::SliceRandom::choose",
+  "core::iter::adapters::map::Map::fold",
+  "core::option::unwrap_failed",
+  "core::panicking::panic_bounds_check",
+  "core::ptr::drop_glue"
+ ],
+
+ "logic": "// ── 807 ──────────────────────────────────────────────\nlet jungle_camps: [JungleType; 4] = [Rhino(0), Mushroom(1), Bee(3), Stump(2)];\n\n// ── 814~815 : '아직 안 깬 캠프'만 bump 아레나 Vec 으로 모은다 ──\n// IR: Vec::from_iter_in( Map<Filter<array::IntoIter<JungleType,4>, C0>, C1>, data.context.pool )\n// C0(=closure#0, 815) 는 별도 define(m04.ll:66311) 에 있고 본문은:\n//     |camp| !is_cleared(camp, player.info.team, version, rnd, player, data, team_plan, 0, debug)\n// C1(=closure#1) 은 캡처 0바이트(ZST)이고 IR 상 원소를 그대로 통과시킨다(항등).\nlet not_cleared_camps: Vec<JungleType, &Bump> =\n    jungle_camps.into_iter()\n        .filter(|c| !is_cleared(*c, player.info.team, version, rnd, player, data, team_plan, 0, debug))\n        .map(|c| c)\n        .collect_in(data.context.pool);\n\n// ── 817~821 : 깰 캠프가 하나도 없다 → 가장 빨리 리젠되는 캠프로 미리 간다 ──\nif not_cleared_camps.is_empty() {\n    // 키 클로저 C2(=closure#2, 818~819) 캡처 = (game.data, game.vtable, player)\n    return jungle_camps.into_iter().min_by_key(|c| {\n        let moba = (data.cache.game.vtable[0x40])(data.cache.game.data)  // -> GameMode {tag, payload}\n                        .as_moba().unwrap();                              // tag != 0 이면 패닉\n        let jr: &JungleRunner = &moba.jungle_runner;                      // MobaMode+0x18\n        jr.get_camp_state(player.info.team, *c).next_respawn_tick         // JungleCampState+0x18\n    }).unwrap();   // 821. min_by_key 는 동점이면 '먼저 온 것' → 배열 순서 Rhino>Mushroom>Bee>Stump 가 타이브레이크\n}\n\n// ── 823 : 내 챔프 엔티티를 캐시에서 찾는다 ──\n// player_champion: [[Option<&Entity>;5];2] @ AbstractGameWithCache+0x1e0\nif player.info.team >= 2 { panic_bounds_check(team, 2); }\nlet champ: Option<&Entity> =\n    data.cache.player_champion[player.info.team][player.info.position as usize];  // null=None\n\n// ── 824~830 : 챔프가 없다(죽음/미스폰 추정) → 지금 목표 유지, 그것도 없으면 랜덤 ──\nif champ.is_none() {\n    return match now_camp {\n        Some(c) => c,                                   // 825, now_camp != -1\n        None    => *jungle_camps.choose(rnd).unwrap(),  // 829, 4개 중 균등 랜덤\n    };\n    // ⚠랜덤 추첨 대상은 not_cleared_camps 가 아니라 원본 jungle_camps 4개 전부다(IR 상 %12 = 배열 alloca).\n}\n\n// ── 832~836 : 챔프가 있다 → 미클리어 캠프 중 '가장 가까운' 것 ──\n// 키 클로저 C3(=closure#3, 833~835) 캡처 = (map, player, champ)\nlet champ = champ.unwrap();\nreturn not_cleared_camps.into_iter().min_by_key(|c| {\n    let (cx, cy) = data.context.map.camp_pos(*c, player.info.team == 0);   // 834\n    game_core::utils::distance_sq(champ.x, champ.y, cx, cy)                // 835\n    // IR 실체: dx = abs_diff(champ.x, cx); dy = abs_diff(champ.y, cy); dx*dx + dy*dy (u64, 제곱거리)\n}).unwrap();   // 836. 여기서도 동점이면 not_cleared_camps 의 앞쪽(=jungle_camps 순서)이 이긴다\n// ── 838 : 함수 끝 ──",
+
+ "knobs": [
+  {"what": "후보 캠프 배열 jungle_camps", "where": "passive_jungle.rs:807 (IR m04.ll:62594~62600)", "value": "[0,1,3,2] = [Rhino, Mushroom, Bee, Stump]",
+   "effect": "정글 동선의 전체 후보 집합이자 동점 시 우선순위다. Morgard(4)·Serpen(5) 는 여기 없어서 이 함수로는 절대 선택되지 않는다(오브젝트는 다른 경로에서 다뤄지는 것으로 보임). 원소를 빼면 그 캠프를 영영 안 가고, 순서를 바꾸면 거리·리젠이 동점일 때의 선호가 바뀐다"},
+  {"what": "'깰 캠프 없음' 일 때의 정렬 키", "where": "passive_jungle.rs:818~819 → JungleCampState+0x18 next_respawn_tick", "value": "next_respawn_tick 최소",
+   "effect": "가장 빨리 리젠될 캠프 앞에서 대기하는 동작을 만든다. 키를 respawn_count 로 바꾸면 '덜 먹은 캠프 우선', 거리 항을 더하면 '가까우면서 곧 리젠' 으로 바뀐다. 이 경로는 now_camp 를 완전히 무시한다(직전 목표 유지 안 함)"},
+  {"what": "'깰 캠프 있음' 일 때의 정렬 키", "where": "passive_jungle.rs:833~835 → game_core::utils::distance_sq", "value": "제곱거리 최소(가중치 없음)",
+   "effect": "순수 최근접이라 정글 동선이 항상 '옆 캠프'로 흐른다. 캠프별 가중치(예: 버프 캠프에 0.8배)를 곱하면 특정 캠프를 선호하게 만들 수 있고, 여기에 적 정글러 위치 항을 빼면 카운터정글 회피가 된다"},
+  {"what": "챔프 부재 시 폴백", "where": "passive_jungle.rs:825~829 (choose(jungle_camps, len=4, rnd))", "value": "now_camp 우선, 없으면 4개 균등 랜덤",
+   "effect": "미클리어 여부를 전혀 안 본다. 랜덤 대신 not_cleared_camps 에서 뽑게 바꾸면 부활 직후 동선이 덜 튄다. 또한 이 경로는 RNG 를 1회 소비하므로 시드 재현(리플레이) 관점에서 민감한 지점이다"},
+  {"what": "후보 필터 조건", "where": "passive_jungle.rs:815 의 클로저 (IR define m04.ll:66311, is_cleared 자체는 passive_jungle.rs:841)", "value": "!is_cleared(camp, team, .., offset=0, ..)",
+   "effect": "이 술어가 후보 집합 전체를 결정한다. 필터를 없애면 항상 '가장 가까운 캠프'로만 가고(리젠 대기 경로 자체가 죽는다), 반대로 조건을 좁히면 not_cleared 가 비어 818 경로(리스폰 임박순)로 자주 떨어진다"}
+ ],
+
+ "unknown": [
+  "vtable +0x40 슬롯의 메서드 이름 — dyn 트레이트(game_core 측)의 vtable 이라 _gaibc 의 DWARF 에 이름이 없다. 관측 사실만: 인자는 self 하나, 반환은 {i64 tag, ptr payload} 이고 곧바로 GameMode::as_moba 가 인라인돼 tag==0 을 Moba 로 본다. 2회 시도(심볼 grep / DISubprogram 역추적) 후 포기",
+  "is_cleared(passive_jungle.rs:841)의 8번째 인자 `offset` 의 의미 — 이 함수는 항상 0 을 넘긴다. is_cleared 본문은 담당 범위 밖이라 안 봤다. 이름·주변 지역변수(next_spawn_tick@849, dist@853, move_tick@854)로 보아 '이동시간을 감안한 미래 시점 보정' 으로 보이지만 추정이다",
+  "filter 클로저의 `!is_cleared(...)` 호출과 상수 0(offset) 은 담당 줄범위(62570~62978) 밖의 별도 define(m04.ll:66311~66343)에 있어 SPEC_GUIDE §2 규칙대로 constants/calls 에서 뺐다. calls 에도 is_cleared 는 넣지 않았다(본문에 call 이 없다)",
+  "map 클로저 closure#1(`s_`)의 소스 본문 — DISubprogram 이 생성돼 있지 않고(전 .ll grep) 캡처 0바이트 ZST 이며, from_iter_in(m01.ll:20914~) 에서 원소 i8 이 변형 없이 그대로 store 된다. 항등인 것은 확실하나 소스에 뭐라고 적혀 있는지(`.map(|c| c)` / `.copied()` 등)는 확정 못 함",
+  "line 824(champ.is_none())와 line 832(else if let Some(champ))가 소스에서 정확히 `if/else if` 인지 `match` 인지 — IR 은 단일 null 비교 분기라 구분이 남지 않았다. 분기 순서·조건 자체는 확정",
+  "player_champion[team][position] 이 None 이 되는 실제 상황(사망/미스폰/관전 등) — 이 함수 안에서는 판별 불가",
+  "MapDef::camp_pos 의 세 번째 bool 인자 이름 — game_core 크레이트 정의라 DWARF 가 없다. 넘기는 값이 `player.info.team == 0` 인 것은 확정이고, JungleCampState 에 is_blue_side 필드가 있는 점으로 보아 '블루 진영 여부'로 보이나 이름은 미확정",
+  "one_line/knobs 의 '정글러' 표현 — 이 함수는 position 을 인덱스로만 쓰고 Jungle 인지 검사하지 않는다. 정글러 전용이라는 보장은 호출자 쪽에 있을 것이나 확인하지 않았다"
+ ]
+}

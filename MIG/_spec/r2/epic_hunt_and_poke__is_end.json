@@ -1,0 +1,93 @@
+{
+ "name": "is_end",
+ "sym": "_RNvMNtNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old4epic13hunt_and_pokeNtB2_19EpicHuntAndPokePlan6is_end",
+ "src": "game-ai\\src\\plan_legacy\\old\\epic\\hunt_and_poke.rs",
+ "src_line": 163,
+ "ir_file": "m10.ll",
+ "ir_from": 7655,
+ "ir_to": 7899,
+
+ "one_line": "모르가드(에픽) 사냥/견제 플랜을 접어야 하는지 판정 — 목표이탈·적 이탈·에픽 부재+리스폰 15초 초과",
+
+ "signature": {
+  "params": [
+   {"i": 1, "name": "self", "type": "&EpicHuntAndPokePlan(32B)", "note": "본문에서 단 한 번도 gep 되지 않음 — 4개 필드(v46_flee_threats/focus_epic_only/vision_only/v46_flee) 전부 미사용"},
+   {"i": 2, "name": "version", "type": "usize", "note": "AI 버전 게이트. 이 함수에선 분기 없음 — v24_objective_setup_should_release_to_passive 에 그대로 전달만 함"},
+   {"i": 3, "name": "_rnd", "type": "&mut rand::rngs::std::StdRng(320B)", "note": "readnone — 미사용"},
+   {"i": 4, "name": "player", "type": "&PlayerState(2528B)", "note": "+0x930(info.team) 만 읽음"},
+   {"i": 5, "name": "data", "type": "&OperationData(24B)", "note": "{cache: &AbstractGameWithCache, context: &GameContext, blackboard: &[Blackboard;2]}"},
+   {"i": 6, "name": "team_plan", "type": "&TeamPlan(1064B)", "note": "+0x41f objective 태그 / +0x420 phase 만 읽음(그 외엔 v24_... 로 전달)"},
+   {"i": 7, "name": "_debug", "type": "&mut DebugFrameData(224B)", "note": "readnone — 미사용"}
+  ],
+  "returns": "bool — true = 이 플랜을 종료(끝났다고 판정)"
+ },
+
+ "reads": [
+  {"base": "TeamPlan", "offset": "0x41f", "name": "objective (Option<MainObjective> 태그)", "note": "255=None, 0=Morgard, 1=Serpen, 2=Defense, 3=DefenseLine, 4=Nexus, 5=PressEpic, 6=SplitEpic, 7=Repair, 8=Gank, 9=Dive, 10=PressTower, 11=ComebackPick (DWARF DISCR_EXACT = variant index, None=255). IR range !{i8 -1, i8 12} 로 교차확인. 본문은 ==0(Morgard)만 비교"},
+  {"base": "TeamPlan", "offset": "0x420", "name": "objective 페이로드 Morgard.phase (ObjectPhase)", "note": "0=None,1=Setup,2=Assemble,3=Hunt. 본문은 ==1(Setup) 만 비교"},
+  {"base": "OperationData", "offset": "0x0", "name": "cache: &AbstractGameWithCache", "note": "gep 없이 load ptr — 데시멀 0 은 본문에 있으나 이 접근에 대응하는 gep 는 접힘"},
+  {"base": "OperationData", "offset": "0x8", "name": "context: &GameContext", "note": ""},
+  {"base": "OperationData", "offset": "0x10", "name": "blackboard: &[Blackboard;2]", "note": "필터 클로저 환경에 실려 나감(본문에선 주소만 로드)"},
+  {"base": "GameContext", "offset": "0x8", "name": "setting: &GameSetting", "note": ""},
+  {"base": "GameContext", "offset": "0x20", "name": "map: &MapDef(28112B)", "note": "camp_pos 수신자"},
+  {"base": "GameSetting", "offset": "0x12f8", "name": "tick_per_second", "note": "4856. *15 = 15초"},
+  {"base": "PlayerState", "offset": "0x930", "name": "info.team (usize, 0/1)", "note": "PlayerState.info: GamePlayer 안쪽 오프셋(중첩). bounds-check len=2 로 0/1 확인"},
+  {"base": "AbstractGameWithCache", "offset": "0x1e0", "name": "player_champion: [[Option<&Entity>;5];2]", "note": "480. iter_champions(team) 이 인라인되어 [5 x ptr] 배열 인덱싱으로 남음"},
+  {"base": "Entity", "offset": "0x660", "name": "x (u64)", "note": "1632"},
+  {"base": "Entity", "offset": "0x668", "name": "y (u64)", "note": "1640"},
+  {"base": "MobaMode", "offset": "0x198", "name": "jungle_runner.epic.live_list: Vec<usize>", "note": "408. dbg 상 Vec 자기주소가 +408"},
+  {"base": "MobaMode", "offset": "0x1a0", "name": "live_list.ptr", "note": "416"},
+  {"base": "MobaMode", "offset": "0x1a8", "name": "live_list.len", "note": "424. ==0 이면 get(0)=None"},
+  {"base": "MobaMode", "offset": "0x1b0", "name": "jungle_runner.epic.next_respawn_tick: usize", "note": "432"},
+  {"base": "dyn AbstractGame vtable(816B)", "offset": "0x28", "name": "tick() -> usize", "note": "40. 다른 호출부에서 이 슬롯 결과가 지역변수 tick 으로 잡힘(m10.ll 자동스캔)"},
+  {"base": "dyn AbstractGame vtable(816B)", "offset": "0x40", "name": "mode() -> GameMode{i64 tag, ptr}", "note": "64. 결과에 GameMode::as_moba 가 인라인됨(tag==0 → Moba)"},
+  {"base": "dyn AbstractGame vtable(816B)", "offset": "0x100", "name": "(team, cell_x, cell_y) -> bool 셀 시야 판정", "note": "256. 교차확인: m08.ll:110039 SmallActionAroundHide::check_cell(around.rs:412) 이 같은 슬롯을 부르고 결과를 지역변수 is_start_visible 에 담음"},
+  {"base": "dyn AbstractGame vtable(816B)", "offset": "0x1f0", "name": "(entity_id: usize) -> Option<&Entity>", "note": "496. closure$2 의 DWARF 타입(Option<&usize> -> Option<&Entity>)으로 확정"}
+ ],
+
+ "constants": [
+  {"value": 4, "src_line": 164, "meaning": "JungleType::Morgard — take_active/take_setup_like/camp_pos/v24_... 에 넘기는 캠프 종류(DWARF JungleType: 0 Rhino,1 Mushroom,2 Stump,3 Bee,4 Morgard,5 Serpen)"},
+  {"value": 0, "src_line": 164, "meaning": "objective 태그 비교값 — MainObjective::Morgard. objective_target()==Some(Morgard) 비교가 상수접힘되어 태그==0 만 남음"},
+  {"value": 1, "src_line": 172, "meaning": "ObjectPhase::Setup — take_setup_like 의 phase 비교값. (동일 리터럴 1 이 `sub i64 1, team` = 적팀 인덱스 계산에도 쓰임)"},
+  {"value": 2, "src_line": 180, "meaning": "player_champion 배열의 팀 수(=2). panic_bounds_check 의 len 인자로 나타남"},
+  {"value": 5, "src_line": 180, "meaning": "팀당 챔피언 슬롯 수 5 — [5 x ptr] 배열, dbg_value(i64 5) 로 slice len 5"},
+  {"value": 40, "src_line": 180, "meaning": "5칸 * 8B = 40 — slice iter 의 end 포인터(%58+40). 곱셈이 리터럴 40 으로 접힘"},
+  {"value": 32000, "src_line": 179, "meaning": "셀 크기. camp_pos 를 셀좌표로 변환(x/32000, y/32000) — 임계값이 아니라 좌표 변환"},
+  {"value": 22500000000, "src_line": 184, "meaning": "150000^2 — 캠프↔최근접 적챔프 제곱거리 임계(초과하면 종료). 비교는 ugt 라 '150000 초과'"},
+  {"value": 15, "src_line": 194, "meaning": "tick_per_second * 15 = 15초. 에픽 리스폰까지 남은 틱이 이보다 크면 종료"}
+ ],
+
+ "calls": [
+  "game_core::simulation::map_def::MapDef::camp_pos",
+  "game_ai::plan_legacy::team_plan::objective_discipline::TeamPlan::v24_objective_setup_should_release_to_passive",
+  "core::iter::traits::iterator::Iterator::min_by_key",
+  "core::panicking::panic_bounds_check",
+  "core::option::unwrap_failed",
+  "llvm.usub.sat.i64"
+ ],
+
+ "logic": "fn is_end(&self, version, _rnd, player, data, team_plan, _debug) -> bool\n\n// L164  team_plan.take_active(JungleType::Morgard) == false 면 즉시 종료\n//       (take_active(team_plan.rs:243) -> objective_target(team_plan.rs:230~231) 가 인라인 + 상수접힘되어\n//        IR 에는 `team_plan.objective 태그(+0x41f) == 0(Morgard)` 비교만 남음)\nif team_plan.objective 태그 != 0 /*Morgard 아님(None=255 포함)*/ { return true }\n\n// L169\nlet camp_pos: (u64,u64) = data.context.map.camp_pos(JungleType::Morgard, player.info.team == 0);\n\n// L172  take_setup_like(team_plan.rs:257~258) 인라인\nlet setup_like = (team_plan.objective 태그 == 0/*Morgard*/) && (team_plan.objective.phase(+0x420) == 1/*Setup*/);\n\n// L173\nif setup_like {\n    // L174\n    if TeamPlan::v24_objective_setup_should_release_to_passive(team_plan, version, player, data, JungleType::Morgard) {\n        return true;\n    }\n    // L179  아군 팀 시야로 에픽 캠프 셀이 보이는가 (vtable+0x100)\n    if data.cache.game.<vt+0x100>(player.info.team, camp_pos.0/32000, camp_pos.1/32000) {\n        // L180~181  적팀 챔피언 5칸을 훑어 '최근에 본' 적 중 캠프에 가장 가까운 하나\n        //   iter_champions(1 - player.info.team) = AbstractGameWithCache.player_champion[1-team] ([Option<&Entity>;5])\n        //   filter 술어(closure$0, 담당 범위 밖에 인라인) =\n        //       data.blackboard[1 - player.info.team].is_recent_visible(data.cache.game, player, e)\n        //   min_by_key 키 = distance_sq(e.x, e.y, camp_pos.0, camp_pos.1)\n        let nearest_to_camp_enemy = ...min_by_key(...);\n        // L183\n        if let Some(n) = nearest_to_camp_enemy {\n            // L184  abs_diff 로 dx,dy 를 만들어 dx*dx+dy*dy\n            if distance_sq(n.x, n.y, camp_pos.0, camp_pos.1) > 22500000000 /*150000^2*/ { return true; }\n        } else {\n            return true;   // 조건에 맞는 적 챔피언이 하나도 없으면 종료\n        }\n    }\n}\n\n// L193  에픽 몬스터 엔티티가 현재 살아 있는가\nlet moba = data.cache.game.<vt+0x40 mode>().as_moba().unwrap();   // GameMode 태그 0 == Moba, 아니면 unwrap_failed 패닉\nlet epic = moba.jungle_runner.epic.live_list.get(0)              // len(+0x1a8)==0 이면 None\n              .and_then(|e| data.cache.game.<vt+0x1f0 entity>(*e));   // closure$2\n\n// L194  살아 있으면 종료 아님. 죽어 있으면 '리스폰까지 15초 초과' 일 때만 종료\nif epic.is_some() { return false }\nlet moba = data.cache.game.<vt+0x40 mode>().as_moba().unwrap();   // 소스가 다시 한 번 호출(IR 에 두 번 나타남)\nreturn moba.jungle_runner.epic.next_respawn_tick.saturating_sub(data.cache.game.<vt+0x28 tick>())\n       > data.context.setting.tick_per_second * 15;\n\n// 반환 경로 요약(IR phi 기준)\n//   true  : L164 목표가 Morgard 아님 / L174 규율계층이 패시브 해제 지시 / L183 적 없음 / L184 최근접 적이 150000 초과\n//   false : L194 에픽이 살아 있음\n//   식값  : L194 리스폰 잔여틱 > tps*15",
+
+ "knobs": [
+  {"what": "캠프↔최근접 적챔프 제곱거리 임계", "where": "hunt_and_poke.rs:184", "value": 22500000000,
+   "effect": "150000^2. 올리면 적이 더 멀리 벗어나도 '아직 근처'로 보아 플랜을 유지(에픽 견제를 오래 끈다). 내리면 적이 조금만 떨어져도 즉시 종료 — Setup 단계에서 플랜이 잘 깨진다"},
+  {"what": "에픽 리스폰 대기 허용 시간(초)", "where": "hunt_and_poke.rs:194", "value": 15,
+   "effect": "tick_per_second * 15. 올리면 에픽이 죽어 없어도 리스폰이 더 멀 때까지 플랜을 유지(미리 자리 잡음). 내리면 에픽이 죽자마자 거의 즉시 플랜 종료"},
+  {"what": "판정 대상 캠프", "where": "hunt_and_poke.rs:164/169/172/174", "value": 4,
+   "effect": "JungleType::Morgard(4). 5(Serpen)로 바꾸면 objective/캠프좌표/규율판정이 전부 세르펜 기준이 되어 이 플랜이 세르펜 오브젝트에 붙는다(같은 파일의 serpen 판이 별도 존재하므로 실제로는 중복이 됨)"},
+  {"what": "Setup 단계 게이트", "where": "team_plan.rs:258 (hunt_and_poke.rs:172 에서 인라인)", "value": 1,
+   "effect": "ObjectPhase::Setup(1). 2(Assemble)/3(Hunt)로 바꾸면 시야·적거리 기반 조기종료 블록(L174~L185)이 그 단계에서만 동작하게 된다. 0(None)으로 두면 사실상 항상 꺼진다"}
+ ],
+
+ "unknown": [
+  "dyn AbstractGame 의 vtable 슬롯 정식 메서드명 — game_core 트레이트라 _gaibc DWARF 에 이름이 없다(원리적 불가). 오프셋과 동작만 확정: +0x28 tick()(다른 호출부 지역변수 tick), +0x40 mode()->GameMode(as_moba 인라인), +0x100 (team,cx,cy)->bool 셀시야(m08.ll:110039 check_cell 의 is_start_visible 로 교차확인), +0x1f0 (usize)->Option<&Entity>.",
+  "MapDef::camp_pos 의 3번째 bool 인자 의미 — 본문이 넘기는 값은 `player.info.team == 0` 임이 확정이나, camp_pos 는 _gaibc 전체에 declare 만 있고 define 이 없어 '어느 진영 기준 좌표인지'는 확정 불가. 전 파일 호출부를 훑어보면 이 bool 을 쓰는 캠프는 4(Morgard)/5(Serpen) 뿐이다.",
+  "필터 술어 closure$0 는 담당 줄범위(7655~7899) 밖이다 — min_by_key 특수화(m10.ll 6028~6234) 안에 인라인돼 있다. 그래서 그 안의 호출(game_core::simulation::game::blackboard::Blackboard::is_recent_visible)과 오프셋(Blackboard 원소 744B, player+2352, Entity+1632/+1640)은 constants/calls 에 넣지 않았다. 관측 사실: `data.blackboard[1 - player.info.team].is_recent_visible(&dyn game, player, e)` (m10.ll:6100~6110).",
+  "위 blackboard 인덱스가 왜 `1 - player.info.team`(=상대팀 인덱스)인지 의미 미확정. 챔피언 배열 인덱싱도 같은 `1 - team` 이라 '적팀 슬롯'인 것은 맞지만, blackboard 배열의 인덱스 규약(관찰자 팀인지 관찰대상 팀인지)은 이 함수만으로 결정 불가.",
+  "min_by_key 가 동점(같은 제곱거리)일 때 어느 엔티티를 남기는지는 특수화 함수(범위 밖) 안의 compare 로 접혀 있어 본문에서 확인 불가.",
+  "self(&EpicHuntAndPokePlan) 의 4개 필드(v46_flee_threats/focus_epic_only/vision_only/v46_flee)가 이 함수에서 전혀 읽히지 않는다. 의도된 것인지(is_end 는 상태 무관 판정) 아니면 다른 버전 분기에서만 쓰는지는 sub_plan 쪽을 봐야 하는데 안 봤다.",
+  "v24_objective_setup_should_release_to_passive 내부는 보지 않음 — version 인자가 실제로 어떻게 쓰이는지(버전 게이트 유무)는 그 함수 명세 소관.",
+  "take_active / take_setup_like / objective_target 는 전부 인라인되어 define 이 없다. objective_target 이 Option<JungleType> 을 돌려주고 Morgard=4 와 비교한다는 것은 DWARF(!19143 반환타입 Option<JungleType>, JungleType::Morgard=4, MainObjective::Morgard DISCR_EXACT=0)로 역산한 것이고, IR 에는 상수접힘 결과인 `태그==0` 만 남아 있다.",
+  "L193 과 L194 가 as_moba().unwrap() 을 각각 따로 호출한다(IR 에 vtable+0x40 호출이 2회). 소스가 정말 두 번 쓴 것인지 LLVM 이 중복호출을 못 지운 것인지는 IR 만으로는 구분 불가 — 다만 vtable 간접호출이라 CSE 가 안 됐을 가능성이 크다."
+ ]
+}

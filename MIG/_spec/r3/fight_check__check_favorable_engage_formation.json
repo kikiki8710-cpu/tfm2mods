@@ -1,0 +1,99 @@
+{
+ "name": "check_favorable_engage_formation",
+ "sym": "_RNvNtCshdEBA0ozCnw_7game_ai11fight_check32check_favorable_engage_formation",
+ "src": "game-ai\\src\\fight_check.rs",
+ "src_line": 1196,
+ "ir_file": "m15.ll",
+ "ir_from": 35410,
+ "ir_to": 35850,
+
+ "one_line": "아군 5인이 적을 퇴로 기준 앞/측면/뒤 어디서 둘러쌌는지 세어 교전 대형이 유리한지 판정",
+
+ "signature": {
+  "params": [
+   {"i": 1, "name": "version", "type": "usize", "note": "이 함수 본문에서 분기에 안 쓰임. enemy_minion_line_action_danger_damage_at 에 그대로 전달만 함"},
+   {"i": 2, "name": "player", "type": "&PlayerState(2528B)", "note": "info.team(0x930)·info.position(0x9c0)만 읽음. 자기 챔피언을 캐시에서 꺼내는 키"},
+   {"i": 3, "name": "data", "type": "&OperationData(24B)", "note": "cache(+0x0)=&AbstractGameWithCache, context(+0x8)=&GameContext. blackboard(+0x10)은 안 읽음"},
+   {"i": 4, "name": "target_enemy", "type": "&Entity(1728B)", "note": "교전 대상 적. x(0x660)/y(0x668)만 읽음"},
+   {"i": 5, "name": "engage_range", "type": "u64", "note": "아군을 '교전 참여 가능'으로 볼 거리. 실제 판정엔 +100000 마진을 더해 제곱비교"}
+  ],
+  "returns": "bool — true=아군 대형이 이 적을 물기에 유리함"
+ },
+
+ "reads": [
+  {"base": "PlayerState", "offset": "0x930", "name": "info.team", "note": "0 또는 1. 값>=2 면 panic_bounds_check(len=2). enemy_team = 1 - team"},
+  {"base": "PlayerState", "offset": "0x9c0", "name": "info.position", "note": "Position 열거형(0..5). Position::as_index()(entity.rs:580)로 usize 화 → player_champion[team][pos] 인덱스"},
+  {"base": "OperationData", "offset": "0x0", "name": "cache", "note": "&AbstractGameWithCache. IR 에선 gep 없이 ptr %2 를 바로 load 하므로 0 리터럴이 안 보임"},
+  {"base": "OperationData", "offset": "0x8", "name": "context", "note": "&GameContext"},
+  {"base": "AbstractGameWithCache", "offset": "0x1e0", "name": "player_champion", "note": "80B = [[Option<&Entity>;5];2]. [team][pos]=champ(None 이면 unwrap_failed 패닉), [team][0..5]=아군 순회 대상"},
+  {"base": "GameContext", "offset": "0x8", "name": "setting", "note": "&GameSetting"},
+  {"base": "GameContext", "offset": "0x20", "name": "map", "note": "&MapDef"},
+  {"base": "GameSetting", "offset": "0x12f8", "name": "tick_per_second", "note": "×2 하여 미니언 위험 조회 창(2초)으로 사용"},
+  {"base": "MapDef", "offset": "0x6d70", "name": "fountains", "note": "64B = [{lx,ly,rx,ry}:i64 ;2]. MapDef::fountain(enemy_team)(map_def.rs:234) 인라인. enemy_base 중심 = ((lx+rx)/2,(ly+ry)/2)"},
+  {"base": "Entity", "offset": "0x5c0", "name": "id", "note": "아군 순회 중 champ.id 와 같으면 자기 자신이므로 skip (팀 비교 아님 — 엔티티 식별자)"},
+  {"base": "Entity", "offset": "0x628", "name": "stat_cached.hp", "note": "최대 HP. 0 이면 panic_const_div_by_zero"},
+  {"base": "Entity", "offset": "0x670", "name": "hp", "note": "현재 HP. hp*100/stat_cached.hp < 40 이면 그 아군은 대형 카운트에서 제외"},
+  {"base": "Entity", "offset": "0x660", "name": "x", "note": "champ / ally / target_enemy 모두 같은 오프셋으로 읽음"},
+  {"base": "Entity", "offset": "0x668", "name": "y", "note": "champ / ally / target_enemy 모두 같은 오프셋으로 읽음"}
+ ],
+
+ "constants": [
+  {"value": 2, "src_line": 1214, "meaning": "미니언 위험 조회 창 = tick_per_second * 2 (2초). IR 에선 shl i64 %30, 1 로 접혀 리터럴 2 는 본문의 팀 배열 bounds(len=2) 쪽에만 보인다"},
+  {"value": 1, "src_line": 1204, "meaning": "enemy_team = 1 - team (sub nuw nsw i64 1, team) — 2팀 게임의 팀 반전"},
+  {"value": 1, "src_line": 1223, "meaning": "퇴로벡터 길이제곱 축퇴 검사. retreat_len_sq < 1 (=0) 이면 즉시 true 반환"},
+  {"value": 100, "src_line": 1240, "meaning": "HP 비율 계산의 백분율 스케일 (hp*100/max_hp)"},
+  {"value": 40, "src_line": 1240, "meaning": "아군 HP 하한 40%. 미만이면 대형 집계에서 제외"},
+  {"value": 100000, "src_line": 1246, "meaning": "max_engage_dist = engage_range + 100000. 좌표단위 셀=32000 기준 약 3.1셀의 여유 마진"},
+  {"value": 1, "src_line": 1256, "meaning": "ally_len_sq < 1 (=아군이 적과 같은 칸) 이면 각도 계산 없이 front_allies += 1"},
+  {"value": 4, "src_line": 1280, "meaning": "is_front = dot>0 && dot_sq*4 > len_product_sq → cos^2 > 1/4 → 퇴로축에서 60도 이내. IR 에선 shl i128 dot_sq, 2 로 접혀 리터럴 4 는 루프 상한(ap<4) 쪽에만 보인다"},
+  {"value": 100, "src_line": 1283, "meaning": "is_rear_direction 판정의 좌변 스케일 (dot_sq*100)"},
+  {"value": 9, "src_line": 1283, "meaning": "is_rear_direction = dot<0 && dot_sq*100 > len_product_sq*9 → cos^2 > 0.09 → 퇴로 반대축에서 약 107.5도 이상"},
+  {"value": 100, "src_line": 1286, "meaning": "is_significant_flank 판정의 좌변 스케일 (cross_sq*100)"},
+  {"value": 9, "src_line": 1286, "meaning": "is_significant_flank = cross_sq*100 > len_product_sq*9 → sin^2 > 0.09 → 퇴로축에서 약 17.5도 이상 벗어남"},
+  {"value": 1, "src_line": 1321, "meaning": "flank_allies > 1 (즉 2명 이상) 이면 즉시 유리 판정"},
+  {"value": 1, "src_line": 1331, "meaning": "front_allies > 1 (즉 2명 이상) 이 아니면 즉시 false"},
+  {"value": 5, "src_line": 1340, "meaning": "최종 비교 좌변 계수 — champ_to_base_sq * 5"},
+  {"value": 6, "src_line": 1340, "meaning": "최종 비교 우변 계수 — enemy_to_base_sq * 6. 즉 champ_to_base_sq <= 1.2 * enemy_to_base_sq (제곱거리 기준 1.2배, 실거리로는 약 1.095배)"}
+ ],
+
+ "calls": [
+  "game_ai::minion_wave_risk::enemy_minion_line_action_danger_damage_at",
+  "core::option::unwrap_failed",
+  "core::panicking::panic_bounds_check",
+  "core::panicking::panic_const::panic_const_div_by_zero"
+ ],
+
+ "logic": "fn check_favorable_engage_formation(version, player, data, target_enemy, engage_range) -> bool\n\n// --- 준비 (1203~1204)\nteam = player.info.team            // >=2 이면 panic_bounds_check(len=2)\npos  = player.info.position.as_index()\nchamp = data.cache.player_champion[team][pos].unwrap()   // None 이면 panic\nenemy_team = 1 - team\n\n// --- 게이트 1: 적 위치로 붙으면 미니언에게 맞는가 (1208~1209)\nd = minion_wave_risk::enemy_minion_line_action_danger_damage_at(\n        version, data, champ,\n        target_enemy.x, target_enemy.y,\n        data.context.setting.tick_per_second * 2,\n        true, false)\nif d != 0 { return false }          // 미니언 피해가 예상되면 대형 볼 것 없이 불리\n\n// --- 적의 퇴로 벡터 (1214~1223)\n(elx, ely, erx, ery) = data.context.map.fountain(enemy_team)\nenemy_base_x = (elx + erx) / 2      // (add 후 lshr 1)\nenemy_base_y = (ely + ery) / 2\nretreat_dx = (enemy_base_x as i128) - (target_enemy.x as i128)\nretreat_dy = (enemy_base_y as i128) - (target_enemy.y as i128)\nretreat_len_sq = retreat_dx^2 + retreat_dy^2\nif retreat_len_sq < 1 { return true }   // 적이 이미 자기 분수 중심 = 퇴로 정의 불가 → 유리로 간주\n\n// --- 미리 계산되는 값 (LLVM 이 루프 밖으로 호이스팅)\nmax_engage_dist   = engage_range + 100000\nenemy_to_base_sq  = distance_sq(target_enemy.x, target_enemy.y, enemy_base_x, enemy_base_y)\n\n// --- 아군 대형 집계 (1229~1313)\nfront_allies = 0; flank_allies = 0; rear_allies = 0\nfor ap in 0..5 {\n    ally = data.cache.player_champion[team][ap]\n    if ally.is_none() { continue }                       // 1234\n    if ally.id == champ.id { continue }                  // 1235 (자기 자신 제외)\n    if ally.hp * 100 / ally.stat_cached.hp < 40 { continue }   // 1240 (체력 40% 미만 제외)\n\n    ally_to_enemy_dist_sq = distance_sq(ally.x, ally.y, target_enemy.x, target_enemy.y)  // 1245\n    if ally_to_enemy_dist_sq > max_engage_dist * max_engage_dist { continue }            // 1247\n\n    ally_dx = (target_enemy.x as i128) - (ally.x as i128)    // 1252  (아군 -> 적 벡터)\n    ally_dy = (target_enemy.y as i128) - (ally.y as i128)    // 1253\n    ally_len_sq = ally_dx^2 + ally_dy^2                       // 1254\n    if ally_len_sq < 1 { front_allies += 1; continue }        // 1256~1258 (겹쳐 있음)\n\n    dot            = ally_dx*retreat_dx + ally_dy*retreat_dy  // 1264\n    cross          = ally_dx*retreat_dy - ally_dy*retreat_dx  // 1267\n    len_product_sq = ally_len_sq * retreat_len_sq             // 1270\n    dot_sq         = dot*dot                                  // 1278\n    cross_sq       = cross*cross                              // 1279\n\n    is_front             = dot > 0 && dot_sq * 4   > len_product_sq        // 1280\n    is_rear_direction    = dot < 0 && dot_sq * 100 > len_product_sq * 9    // 1283\n    is_significant_flank =            cross_sq * 100 > len_product_sq * 9  // 1286\n\n    if is_front {                     // 1288\n        front_allies += 1             // 1289\n    } else if is_rear_direction {     // 1290\n        to_base_dist_sq       = distance_sq(ally.x, ally.y, enemy_base_x, enemy_base_y)  // 1293\n        enemy_to_base_dist_sq = enemy_to_base_sq                                         // 1294\n        if to_base_dist_sq < enemy_to_base_dist_sq {  // 1296  아군이 적보다 적 본진에 더 가깝다\n            rear_allies += 1                          // 1298  (퇴로 차단 성공)\n        } else {\n            flank_allies += 1                         // 1300\n        }\n    } else if is_significant_flank {  // 1302\n        flank_allies += 1             // 1304\n    } else {\n        front_allies += 1             // 1307\n    }\n}\n\n// --- 최종 판정 (1316~1340)\nif rear_allies > 0 { return true }                                        // 1316\nif flank_allies > 1 || (flank_allies > 0 && front_allies > 0) { return true }  // 1321\nif front_allies > 1 {                                                     // 1331\n    // enemy_to_base_sq 는 위에서 계산한 값 재사용 (LLVM CSE)              // 1334\n    champ_to_base_sq = distance_sq(champ.x, champ.y, enemy_base_x, enemy_base_y)  // 1335\n    return champ_to_base_sq * 5 <= enemy_to_base_sq * 6                   // 1340\n}\nreturn false\n\n// 기하 해석: retreat 벡터는 '적 -> 적 본진'. ally 벡터는 '아군 -> 적'.\n//  dot>0 = 아군이 적 본진 반대편(적을 본진 쪽으로 밀어내는 위치) -> front\n//  dot<0 = 아군이 적과 적 본진 사이(퇴로 위) -> 추가로 적보다 본진에 더 가까우면 rear, 아니면 flank\n//  퇴로축에서 크게 벗어난 각도 -> flank",
+
+ "knobs": [
+  {"what": "아군 HP 하한(대형 집계 제외선)", "where": "fight_check.rs:1240", "value": 40,
+   "effect": "올리면 더 건강한 아군만 대형으로 인정 → 유리 판정이 줄어 교전을 덜 건다. 내리면 빈사 아군도 머릿수로 세어 무리한 교전이 늘어난다"},
+  {"what": "교전 참여 거리 마진", "where": "fight_check.rs:1246", "value": 100000,
+   "effect": "max_engage_dist = engage_range + 이 값. 올리면 멀리 있는 아군까지 대형에 포함돼 유리 판정이 잦아지고, 내리면 딱 붙은 아군만 세어 교전이 보수적이 된다 (좌표 셀=32000)"},
+  {"what": "front 판정 각도 임계(cos^2)", "where": "fight_check.rs:1280", "value": 4,
+   "effect": "dot_sq*4 > len_product_sq. 계수를 올리면 임계 각도가 넓어져(더 옆에 있어도 front) front_allies 가 늘고, 내리면 퇴로축 정면에 가까운 아군만 front 로 세어 flank/기타로 흘러간다"},
+  {"what": "rear/flank 판정 각도 임계 비 (100:9)", "where": "fight_check.rs:1283, 1286", "value": 9,
+   "effect": "우변 계수 9(=cos^2 또는 sin^2 > 0.09). 올리면 퇴로축에 훨씬 더 정확히 서 있어야 rear/flank 로 인정돼 두 카운터가 줄고, 내리면 조금만 비껴 있어도 flank 로 세어 '측면 2명' 유리 판정이 쉬워진다"},
+  {"what": "rear 1명이면 무조건 유리", "where": "fight_check.rs:1316", "value": 0,
+   "effect": "rear_allies > 0 비교의 임계. 1 로 올리면 퇴로 차단 2명부터 유리로 보게 되어 물기 조건이 크게 빡빡해진다"},
+  {"what": "flank 단독 유리 인원", "where": "fight_check.rs:1321", "value": 1,
+   "effect": "flank_allies > 1. 내리면(0) 측면 1명만으로도 유리 판정이라 난입 교전이 급증하고, 올리면 측면 3명이 필요해진다"},
+  {"what": "front 단독 최소 인원", "where": "fight_check.rs:1331", "value": 1,
+   "effect": "front_allies > 1 이 아니면 즉시 false. 내리면(0) 정면 1명만으로도 아래 거리 조건만 통과하면 교전을 걸게 된다"},
+  {"what": "front-only 경로의 본진 거리 비율", "where": "fight_check.rs:1340", "value": 6,
+   "effect": "champ_to_base_sq*5 <= enemy_to_base_sq*6 (제곱기준 1.2배). 우변 계수를 올리면 내 챔피언이 적 본진에서 훨씬 멀어도 정면 교전을 허용해 딥다이브가 늘고, 내리면 적보다 본진에 가까울 때만 물게 되어 보수적이 된다"},
+  {"what": "미니언 위험 조회 창", "where": "fight_check.rs:1214", "value": 2,
+   "effect": "tick_per_second * 2 (2초). 올리면 더 먼 미래의 미니언 피해까지 보고 교전을 포기해 전투가 줄고, 내리면 미니언 무시가 늘어난다"}
+ ],
+
+ "unknown": [
+  "p1 version 이 무엇을 게이팅하는지 — 이 함수 본문엔 version 으로 갈리는 분기가 하나도 없고 enemy_minion_line_action_danger_damage_at 로 전달만 된다",
+  "enemy_minion_line_action_danger_damage_at 의 마지막 두 bool 인자(true, false)의 의미 — 그 함수 본문은 담당 범위 밖이라 읽지 않았다",
+  "그 함수의 반환값 단위(damage 인지 tick 인지) — 여기서는 !=0 여부만 쓴다",
+  "OperationData.blackboard(+0x10) 은 이 함수에서 한 번도 안 읽힌다",
+  "constants 의 4(is_front 계수)와 2(tick 배수)는 IR 에서 각각 shl i128 dot_sq,2 / shl i64 tps,1 로 접혀 있어 리터럴로는 본문에 없다. 본문에 보이는 동명의 4/2 는 각각 루프 상한(ap<4)과 팀 배열 길이(len=2)라 출처가 다르다",
+  "소스 1205~1207, 1224~1228, 1236~1239, 1241~1244, 1248~1251, 1257~1263, 1271~1277, 1309~1315, 1322~1330, 1341~1347 구간에 대응하는 IR 이 없어(주석/공백/상수접힘) 원 소스 문장을 복원할 수 없다",
+  "Entity.stat_cached.hp(0x628)가 '최대 HP' 라는 것은 distruct.py 의 EntityStat.hp 필드명과 hp*100/그 값 < 40 이라는 사용법으로부터의 해석이다. EntityStat 정의 자체는 확인했으나 '최대치' 라는 의미는 이 함수 본문만으로는 단정 불가",
+  "front/flank/rear 라는 이름의 게임적 의미(누가 '앞'인가)는 DWARF 변수명 그대로다. 기하학적으로는 dot>0 이 '적 본진 반대편'이라 이름과 직관이 반대로 느껴질 수 있으나, 그 이름 부여의 의도는 본문에서 확인 불가"
+ ]
+}

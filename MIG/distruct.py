@@ -106,15 +106,21 @@ def base_name(t):
         yield m
 
 
-def resolve_nested(d, sname, q, v, depth=0, path=''):
-    """오프셋 q 가 어느 필드인지 **중첩 구조체를 따라 내려가며** 찾는다."""
+def resolve_nested(d, sname, q, v, depth=0, path='', base=0):
+    """오프셋 q 가 어느 필드인지 **중첩 구조체를 따라 내려가며** 찾는다.
+
+    ⚠2차 배치 버그보고: 단계마다 상대 오프셋을 찍어 "어느 게 맞는 값인지" 헷갈렸다
+      (MobaMode 0x198/0x1a8/0x1b0 이 셋 다 같은 (384) 로 보였다).
+      → **누적 절대 오프셋**을 앞에 찍고 상대값은 괄호로 병기한다.
+    """
     pad = '  ' * (depth + 1)
     for f in v['fields']:
         if not (f['off'] <= q < f['off'] + max(f['size'], 1)):
             continue
         here = (path + '.' if path else '') + f['name']
-        print('%s%s (%d) → %-28s : %s (%dB)'
-              % (pad, hex(q if depth else f['off']), f['off'], here, f['type'][:40], f['size']))
+        rel = '' if depth == 0 else '   (%s 안 +%s)' % (sname[:18], hex(f['off']))
+        print('%s%s → %-30s : %s (%dB)%s'
+              % (pad, hex(base + f['off']), here, f['type'][:38], f['size'], rel))
         inner = q - f['off']
         if depth >= 5 or inner == 0 and f['size'] <= 8:
             return
@@ -123,7 +129,7 @@ def resolve_nested(d, sname, q, v, depth=0, path=''):
             sub = d.get(cand)
             if sub and sub['size'] == f['size'] and cand != sname and sub['fields']:
                 print('%s  ↓ %s 안쪽 +%s' % (pad, cand, hex(inner)))
-                resolve_nested(d, cand, inner, sub, depth + 1, here)
+                resolve_nested(d, cand, inner, sub, depth + 1, here, base + f['off'])
                 return
         if inner:
             print('%s  (더 못 내려감 — %s 내부 +%s)' % (pad, f['type'][:30], hex(inner)))

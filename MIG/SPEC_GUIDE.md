@@ -23,6 +23,16 @@ PYTHONIOENCODING=utf-8 python distruct.py Entity 0x640        # 오프셋 → �
 PYTHONIOENCODING=utf-8 python distruct.py LegacyPlanHandler
 ```
 구조체 7,355개 · 필드 17,003개가 들어 있다(전 IR 1회 스캔). **DWARF 를 손으로 타기 전에 반드시 여기부터 찾아봐라.**
+
+### ★★그리고 `dienum.py` (열거형 태그 사전)
+`distruct.py` 가 구조체를 맡고, **열거형은 이쪽**이다. 2차 배치 담당자 거의 전원이
+"구조체는 즉답인데 열거형은 여전히 손"이라고 보고해 만들었다.
+```bash
+PYTHONIOENCODING=utf-8 python dienum.py SubPlan        # 태그 전표
+PYTHONIOENCODING=utf-8 python dienum.py SubPlan 5      # 태그 5 가 무엇인지
+```
+⚠**사전에 없거나 미심쩍으면 DWARF 로 확인하라.** 이 사전은 손을 줄이는 도구지 면제권이 아니다.
+아래 "태그 ≠ variant 인덱스" 규칙은 **그대로 유효**하다.
 ⚠한계: ① 이름이 같은 구조체가 여러 판 있으면 **필드가 가장 많은 판**을 담았다 — 크기가 안 맞으면 손으로 확인하라 ② 열거형의 variant 페이로드는 아직 안 담겨 있다(구조체 멤버만) ③ 중첩 구조체는 안 펼쳐져 있다(`PlayerState.info: GamePlayer` 처럼 한 단계 더 들어가야 하는 경우가 있다).
 
 - IR 원본 = `C:\tfm2mods\_gaibc\*.ll` (24개, 총 303MB — **절대 통째로 읽지 마라**)
@@ -138,6 +148,22 @@ grep -n "^define.*<함수명>" /c/tfm2mods/_gaibc/*.ll
  "unknown": ["p3 가 무엇인지 — 본문에서 안 쓰임", "0xd97300 내부는 안 봄"]
 }
 ```
+
+### ★★`constants` 와 `reads` 의 경계 (2차 배치에서 사람마다 갈렸다 — 이제 규칙으로 고정)
+**구조체 오프셋은 `reads` 에만 적는다. `constants` 에는 넣지 마라.**
+`constants` 는 **판정에 쓰이는 값**만 — 임계값·계수·마스크·상수 파라미터.
+
+| 값 | 어디에 | 예 |
+|---|---|---|
+| 구조체 필드 오프셋 | `reads` **만** | `0x670`(hp), `0x930`(info.team) |
+| 거리·시간·비율 임계 | `constants` | `22500000001`(150000²), `41`(HP%) |
+| 비트마스크·비교값 | `constants` | `65534`, `768` |
+| 열거형 태그값 | `constants` | `store i64 5` 의 5 |
+| 좌표 변환 상수 | `constants` (의미를 밝힐 것) | `32000`(셀), `16000`(셀중심) |
+| 배열 인덱스·stride | 적지 않는다 | `5`(슬롯수), `40`(stride) |
+
+⚠2차 대조에서 한쪽이 오프셋을 `constants` 에도 적어 **불일치가 최대 13건 부풀었다**(사실은 둘 다 맞았다).
+이건 정확도 문제가 아니라 **양식 문제**였고, 그래서 규칙으로 고정한다.
 
 ### 필드별 주의
 - **`constants`**: `value` 는 **본문에 실제로 있는 숫자 그대로**. QC가 대조한다. 계산해서 바꾼 값(예: 제곱근)은 `meaning` 에만 쓰고 `value` 는 원본 그대로.
