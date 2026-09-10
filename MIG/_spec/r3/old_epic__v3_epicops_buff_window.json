@@ -1,0 +1,92 @@
+{
+ "name": "v3_epicops_buff_window",
+ "sym": "_RNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old4epicNtNtB6_9team_plan8TeamPlan22v3_epicops_buff_window",
+ "src": "game-ai\\src\\plan_legacy\\old\\epic.rs",
+ "src_line": 634,
+ "ir_file": "m09.ll",
+ "ir_from": 6879,
+ "ir_to": 7264,
+
+ "one_line": "수리/세르펜 목표를 세우고, 못 세우면 에픽 압박 라인 변경을 채팅으로 공지한다",
+
+ "signature": {
+  "params": [
+   {"i": 1, "name": "self", "type": "&mut TeamPlan(1064B)", "note": "objective(+0x41f)·v3_press_chat_line(+0x41e)·chats(+0xc0)·eo_serpen_punish_issues(+0x410) 를 쓴다"},
+   {"i": 2, "name": "version", "type": "usize", "note": "IR range(i64 2, 0) = 항상 >=2. 이 함수 자체엔 분기 없고 v3_serpen_contest_clear_win 에 그대로 넘김"},
+   {"i": 3, "name": "rnd", "type": "&mut rand::rngs::std::StdRng(320B)", "note": "PlayerState::strategy 에만 전달"},
+   {"i": 4, "name": "player", "type": "&PlayerState(2528B)", "note": "info.team(+0x930), info.position(+0x9c0) 을 직접 읽음"},
+   {"i": 5, "name": "data", "type": "&OperationData(24B)", "note": "data.cache(+0x0, &AbstractGameWithCache) 만 역참조한다"},
+   {"i": 6, "name": "goal_data", "type": "&game_ai::goal_data::GoalData(248B)", "note": "is_object_being_taken_by_enemy 에만 전달. 본문에서 직접 읽지 않음"},
+   {"i": 7, "name": "plan", "type": "&enum2$<BigPlan>(384B)", "note": "v3_epicops_repair_need 에만 전달. 본문에서 직접 읽지 않음"}
+  ],
+  "returns": "bool — true = 이번 호출에서 self.objective 를 세웠다(Repair 또는 Serpen). 압박라인 공지 경로는 전부 false"
+ },
+
+ "reads": [
+  {"base": "PlayerState", "offset": "0x930", "name": "info.team", "note": "usize. 팀 인덱스(0/1). cache.player_champion 인덱스 및 repair_need 인자. 배열길이 2 로 bounds-check 됨"},
+  {"base": "PlayerState", "offset": "0x9c0", "name": "info.position", "note": "Position(i32, range 0..5). as_index() 가 인라인돼 zext 만 남음. announcer 비교에 사용"},
+  {"base": "OperationData", "offset": "0x0", "name": "cache", "note": "&AbstractGameWithCache. 이 함수가 data 에서 읽는 유일한 필드"},
+  {"base": "AbstractGameWithCache", "offset": "0x0", "name": "game (fat ptr data)", "note": "&dyn AbstractGame 의 데이터 포인터. PlayerState::strategy 4번째 인자"},
+  {"base": "AbstractGameWithCache", "offset": "0x8", "name": "game (fat ptr vtable)", "note": "dereferenceable(816)=vtable 102슬롯. PlayerState::strategy 5번째 인자"},
+  {"base": "AbstractGameWithCache", "offset": "0x1e0", "name": "player_champion", "note": "80B = [[Option<&Champion>;5];2]. gep [5 x ptr] 로 team 인덱싱(stride 40) 후 슬롯 0..4 를 null 비교(=is_some)"},
+  {"base": "Strategy", "offset": "0x4", "name": "morgard_use", "note": "MorgardUseStrategy(8B enum: Gather=5 / Split14=6 / Split131=니치). i64 로 통째로 로드해 v3_epic_group_line·v3_epic_formation_role 에 전달"},
+  {"base": "TeamPlan", "offset": "0xc0", "name": "chats.cap", "note": "Vec<Chat> 의 RawVec cap. grow_one 대상 포인터이기도 함(&self.chats)"},
+  {"base": "TeamPlan", "offset": "0xc8", "name": "chats.ptr", "note": "Vec<Chat> 데이터 포인터. 원소 크기 24B({i8,[23 x i8]})"},
+  {"base": "TeamPlan", "offset": "0xd0", "name": "chats.len", "note": "push 마다 +1"},
+  {"base": "TeamPlan", "offset": "0x410", "name": "eo_serpen_punish_issues", "note": "usize. 세르펜 확정승 경로에서 +1 (읽고 쓴다)"},
+  {"base": "TeamPlan", "offset": "0x41e", "name": "v3_press_chat_line", "note": "Option<LineType>(1B, None=-1/255). 직전에 공지한 압박 라인. 읽고 마지막에 덮어씀"},
+  {"base": "TeamPlan", "offset": "0x41f", "name": "objective (태그 바이트)", "note": "Option<MainObjective>(3B) 의 판별자. 255=None"},
+  {"base": "TeamPlan", "offset": "0x420", "name": "objective.payload[0]", "note": "MainObjective::Serpen.phase (ObjectPhase). Serpen 경로에서만 씀"},
+  {"base": "TeamPlan", "offset": "0x421", "name": "objective.payload[1]", "note": "MainObjective::Serpen.with_battle (bool). Serpen 경로에서만 씀"}
+ ],
+
+ "constants": [
+  {"value": 7, "src_line": 637, "meaning": "MainObjective::Repair 의 DISCR_EXACT=7. objective 태그바이트(+0x41f)에 저장. 필드 없는 variant 라 페이로드 미기록. 642줄에서도 동일"},
+  {"value": 23, "src_line": 638, "meaning": "Chat::Repair 의 DISCR_EXACT=23. chats 에 push 하는 태그"},
+  {"value": 1, "src_line": 654, "meaning": "세르펜 경로에서 +0x41f/+0x420/+0x421 에 각각 1 저장 = MainObjective::Serpen{phase:ObjectPhase::Setup(1), with_battle:true(1)} (Serpen 의 DISCR_EXACT 도 1)"},
+  {"value": 25, "src_line": 658, "meaning": "Chat::SerpenSetup 의 DISCR_EXACT=25"},
+  {"value": -1, "src_line": 665, "meaning": "Option<LineType> 의 None 니치값(u8 255). group_line.is_none() 판정(665) 과 self.v3_press_chat_line.is_none() 판정(673) 에 모두 쓰임"},
+  {"value": 2, "src_line": 670, "meaning": "Option<V3EpicFormation> 의 None DISCR_EXACT=2 (Some 은 0..1 = is_split 바이트). `icmp ne %byte0, 2` = is_some()"},
+  {"value": 21, "src_line": 673, "meaning": "Chat::Press 의 DISCR_EXACT=21. v3_press_chat_line 이 None 이었을 때(=첫 공지) 선택"},
+  {"value": 22, "src_line": 673, "meaning": "Chat::PressChange 의 DISCR_EXACT=22. 이미 공지한 라인이 있었을 때 선택"},
+  {"value": 0, "src_line": 638, "meaning": "Chat::Repair/SerpenSetup/Press/PressChange 의 usize 페이로드(변형 +0x8)에 항상 0 을 넣는다"}
+ ],
+
+ "calls": [
+  "game_ai::plan_legacy::old::epic::v3_epicops_repair_need",
+  "game_ai::plan_legacy::team_plan::objective_helpers::is_object_being_taken_by_enemy",
+  "game_ai::plan_legacy::old::serpen::v3_serpen_contest_clear_win",
+  "game_core::simulation::state::player::PlayerState::strategy",
+  "game_ai::plan_legacy::old::epic::v3_epic_group_line",
+  "game_ai::plan_legacy::old::epic::v3_epic_formation_role",
+  "game_core::simulation::entity::Position::from_index",
+  "alloc::raw_vec::RawVec::grow_one",
+  "core::panicking::panic_bounds_check"
+ ],
+
+ "logic": "team  = player.info.team            // PlayerState+0x930 (0 또는 1)\ncache = data.cache                  // OperationData+0x0\n\n// ── 635: 수리 필요 판정이 최우선 ────────────────────────────\nmatch v3_epicops_repair_need(team, cache, plan) {   // u8, range 0..2\n  1 => { self.objective = Some(MainObjective::Repair);   // 637: +0x41f = 7\n         self.chats.push(Chat::Repair(0));               // 638: 태그 23\n         return true }                                   // 639\n  2 => { self.objective = Some(MainObjective::Repair);   // 642: +0x41f = 7 (채팅 없음)\n         return true }                                   // 643\n  _ => {}                                                // 0 이면 계속\n}\n\n// ── 651: 적이 오브젝트를 가져가는 중인가 ────────────────────\nif is_object_being_taken_by_enemy(player, data, goal_data, self, /*5번째 인자*/ true) {\n    // ── 652: 세르펜 경합에서 확정승인가\n    if v3_serpen_contest_clear_win(version, player, data, self) {\n        self.eo_serpen_punish_issues += 1;                       // 653: +0x410\n        self.objective = Some(MainObjective::Serpen {            // 654: +0x41f/0x420/0x421 = 1,1,1\n            phase: ObjectPhase::Setup, with_battle: true });\n        self.chats.push(Chat::SerpenSetup(0));                   // 658: 태그 25\n        return true;\n    }\n    // 확정승이 아니면 아래 압박라인 로직으로 폴스루(651 이 false 일 때와 같은 블록)\n}\n\n// ── 664 이후: '에픽 압박 라인 공지' 구간. 이 구간은 어떤 경로로 나가든 false 를 반환한다 ──\nstrategy   = player.strategy(rnd, cache.game);   // 664, 24B Strategy 를 스택에 sret\nmu         = strategy.morgard_use;               // Strategy+0x4 를 i64 로 로드\ngroup_line = v3_epic_group_line(mu, player, data);   // 665, Option<LineType> (i8, None=-1)\nif group_line == None { return false }               // 665: v3_press_chat_line 은 건드리지 않음\n\nif self.v3_press_chat_line == Some(group_line) { return false }   // 666: 변화 없으면 아무것도 안 함\n\n// ── 667~671: 공지 담당자(announcer) 찾기. (0..5).find, LLVM 에서 5회 완전 언롤됨 ──\nannouncer: Option<usize> = (0..5).find(|&x| {\n      cache.player_champion[team][x].is_some()                       // 668: null 포인터 비교\n   && v3_epic_formation_role(mu, Position::from_index(x), player, data)  // 669: -> Option<V3EpicFormation>\n          .is_some_and(|f| !f.is_split)                              // 670: byte0!=2 && byte0의 최하위비트==0\n});\n// x 순서 = Position::from_index 순서 = 0 Top / 1 Jungle / 2 Mid / 3 Bottom / 4 Support\n// V3EpicFormation{ is_split: bool @+0, line: LineType @+1 } 중 line 은 여기서 안 쓴다(IR 상 poison)\n\n// ── 672: 내가 그 담당자일 때만 채팅한다 ──\nif announcer == Some(player.info.position.as_index()) {   // PlayerState+0x9c0 (as_index 인라인)\n    let first = self.v3_press_chat_line.is_none();        // 673: +0x41e == -1 ?\n    self.chats.push( if first { Chat::Press(group_line, 0) }        // 태그 21\n                     else     { Chat::PressChange(group_line, 0) } );  // 태그 22\n}\n\nself.v3_press_chat_line = Some(group_line);   // 679: 담당자든 아니든 항상 갱신\nreturn false;                                 // 682\n\n// 반환값 요약: true 는 %23(repair=1) · %29(repair=2) · %56(serpen) 세 블록에서만 나온다.\n// 즉 'self.objective 를 이번 호출에서 세웠는가' 이고, 압박라인 공지는 목표를 세우지 않으므로 false.",
+
+ "knobs": [
+  {"what": "수리 목표의 우선순위(가장 앞 게이트)", "where": "epic.rs:635", "value": "v3_epicops_repair_need != 0",
+   "effect": "여기서 1/2 가 나오면 세르펜·압박라인 판정을 아예 건너뛰고 objective=Repair 로 확정하고 즉시 종료한다. 이 게이트를 죽이면 수리보다 세르펜/압박이 우선하게 된다"},
+  {"what": "수리 공지 여부(1 vs 2)", "where": "epic.rs:637 / 642", "value": "1 = Chat::Repair 도 push, 2 = objective 만 설정",
+   "effect": "repair_need 를 2 로 만들면 목표는 같지만 팀 채팅에 수리 콜이 안 뜬다(중복 공지 억제로 보임)"},
+  {"what": "세르펜 응징 조건", "where": "epic.rs:651~652", "value": "is_object_being_taken_by_enemy(..., true) && v3_serpen_contest_clear_win(...)",
+   "effect": "둘 다 참일 때만 objective=Serpen{Setup,with_battle:true} + SerpenSetup 채팅. 후자를 완화하면 오브젝트 경합에 더 자주 붙고, 막으면 압박라인 공지만 남는다"},
+  {"what": "압박 라인 공지의 중복 억제", "where": "epic.rs:666", "value": "self.v3_press_chat_line == Some(group_line) 이면 즉시 종료",
+   "effect": "이 비교를 없애면 매 호출마다 Press/PressChange 채팅이 다시 나간다(스팸). +0x41e 를 강제로 None 으로 만들면 다음 공지가 PressChange 대신 Press 로 나간다"},
+  {"what": "공지 담당자 선정 술어", "where": "epic.rs:668~670", "value": "슬롯이 차 있고 && v3_epic_formation_role(..).is_some_and(|f| !f.is_split)",
+   "effect": "!f.is_split 를 f.is_split 로 뒤집거나 조건을 없애면 담당자로 뽑히는 포지션이 달라진다. 담당자는 Top→Jungle→Mid→Bottom→Support 순 첫 매치 1명뿐"},
+  {"what": "'나만 말한다' 게이트", "where": "epic.rs:672", "value": "announcer == Some(player.info.position.as_index())",
+   "effect": "이 비교를 제거하면 조건을 만족하는 모든 플레이어가 같은 압박 채팅을 중복으로 push 한다"}
+ ],
+
+ "unknown": [
+  "v3_epicops_repair_need(epic.rs:833, m09.ll:64975~) 의 반환 0/1/2 각각의 '조건'은 담당 범위 밖이라 안 봤다. 이 함수에서 관측되는 사실은 1=목표설정+채팅 / 2=목표설정만 / 0=계속 뿐이다. DWARF 상 반환 타입은 이름 있는 열거형이 아니라 u8 typedef 로 나온다",
+  "is_object_being_taken_by_enemy 의 5번째 인자 상수 true 의 의미(어떤 모드/포함여부 플래그인지) — 피호출부 본문을 안 봐서 미확정. IR 에는 `i1 noundef zeroext true` 로만 나오므로 constants 에는 넣지 않았다(정수 리터럴이 아님)",
+  "Chat::Repair/SerpenSetup/Press/PressChange 의 usize 페이로드에 항상 0 을 넣는데, 그 필드가 무엇인지(틱? 대상?) DWARF 멤버명이 `__0` 이라 확정 불가",
+  "`(0..5)` 의 상한 리터럴 5 는 LLVM 이 5회 완전 언롤해서 본문에 숫자로 남아 있지 않다. 슬롯 오프셋 +0/+8/+16/+24/+32 와 Position::from_index(0..4) 호출 5개, 그리고 player_champion 필드 크기 80B(=2*5*8) 로 확정했다. 같은 이유로 팀 배열 stride 40 도 constants 에 넣지 않았다",
+  "채팅 push 구간(대략 674~678줄)의 정확한 소스 줄번호 — 해당 명령들의 !dbg 가 line 0(scope=667줄 렉시컬블록) 으로 접혀 복원 불가. 672(담당자 비교)·673(is_none)·679(v3_press_chat_line 대입)·682(return) 는 확정",
+  "이 함수 이름의 'buff_window' 가 무엇을 가리키는지 본문만으로는 안 보인다. 본문이 실제로 하는 일은 (수리/세르펜 목표 설정) + (에픽 압박 라인 변경 공지) 두 가지뿐이고 '버프' 관련 필드 접근은 없다"
+ ]
+}

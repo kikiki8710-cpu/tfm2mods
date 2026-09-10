@@ -1,0 +1,91 @@
+{
+ "name": "best_jungle_goal",
+ "sym": "_RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old14passive_jungle16best_jungle_goal",
+ "src": "game-ai\\src\\plan_legacy\\old\\passive_jungle.rs",
+ "src_line": 806,
+ "ir_file": "m04.ll",
+ "ir_from": 62570,
+ "ir_to": 62978,
+
+ "one_line": "정글러가 다음에 갈 캠프를 고른다 — 미클리어 캠프 중 최근접, 없으면 최속 리스폰",
+
+ "signature": {
+  "params": [
+   {"i": 1, "name": "version", "type": "usize", "note": "AI 버전 게이트. 이 함수 본문엔 분기 없음. is_cleared 로만 전달되고 거기서도 `_version`(미사용)"},
+   {"i": 2, "name": "rnd", "type": "&mut rand::rngs::std::StdRng(320B)", "note": "L829 의 무작위 캠프 선택에만 쓰임"},
+   {"i": 3, "name": "player", "type": "&PlayerState(2528B)", "note": "info.team(+0x930) / info.position(+0x9c0) 를 읽는다"},
+   {"i": 4, "name": "data", "type": "&OperationData(24B)", "note": "cache(+0x0) / context(+0x8) 경유로 게임 모드·맵·bump 할당자를 얻는다"},
+   {"i": 5, "name": "team_plan", "type": "&TeamPlan", "note": "본문에선 안 읽고 is_cleared 로만 전달"},
+   {"i": 6, "name": "now_camp", "type": "Option<JungleType>(i8, range -1..5)", "note": "-1=None. 챔피언 엔티티가 없을 때의 폴백 값으로만 쓰임(L825~829)"},
+   {"i": 7, "name": "debug", "type": "&mut DebugFrameData(224B)", "note": "본문에선 안 읽고 is_cleared 로만 전달(거기서도 `_debug`=미사용)"}
+  ],
+  "returns": "JungleType (i8, range 0..5) — 이번 판단에서 향할 정글 캠프. Option 이 아니라 항상 값을 낸다"
+ },
+
+ "reads": [
+  {"base": "PlayerState", "offset": "0x930", "name": "info.team", "note": "usize. 팀 인덱스(0=블루 추정). L818 get_camp_state 인자 · L823 player_champion 1차 인덱스 · L834 camp_pos 의 is_blue(team==0)"},
+  {"base": "PlayerState", "offset": "0x9c0", "name": "info.position", "note": "Position(i32, range 0..4). Position::as_index(entity.rs:581)가 인라인돼 zext 한 값이 그대로 2차 인덱스"},
+  {"base": "OperationData", "offset": "0x0", "name": "cache", "note": "&AbstractGameWithCache"},
+  {"base": "OperationData", "offset": "0x8", "name": "context", "note": "&GameContext"},
+  {"base": "AbstractGameWithCache", "offset": "0x0", "name": "game", "note": "dyn 팻포인터 — +0x0=데이터 포인터, +0x8=vtable 포인터"},
+  {"base": "AbstractGameWithCache", "offset": "0x1e0", "name": "player_champion", "note": "[[Option<&Entity>; 5]; 2] (80B). player_champion[team][position] 로 색인, null=None"},
+  {"base": "(dyn AbstractGame vtable)", "offset": "0x40", "name": "(슬롯 이름 미확정)", "note": "호출 결과가 GameMode(16B {i64 tag, ptr}). tag==0 → Moba(&MobaMode). 이름은 unknown 참조"},
+  {"base": "GameContext", "offset": "0x0", "name": "pool", "note": "&bumpalo::Bump. not_cleared_camps Vec 의 할당자로 from_iter_in 에 넘어감"},
+  {"base": "GameContext", "offset": "0x20", "name": "map", "note": "&MapDef(28112B). L834 camp_pos 의 수신자"},
+  {"base": "MobaMode", "offset": "0x18", "name": "jungle_runner", "note": "&JungleRunner(480B). MobaMode::jungle_runner(game.rs:213)가 인라인된 결과"},
+  {"base": "JungleCampState", "offset": "0x18", "name": "next_respawn_tick", "note": "usize. get_camp_state 반환값에서 읽는 min_by_key 키(L819)"},
+  {"base": "Entity", "offset": "0x660", "name": "x", "note": "u64. 아군 정글 챔피언 좌표. distance_sq 의 x1"},
+  {"base": "Entity", "offset": "0x668", "name": "y", "note": "u64. distance_sq 의 y1"},
+  {"base": "bumpalo::collections::Vec<JungleType>", "offset": "0x0", "name": "buf.ptr", "note": "요소 포인터. IntoIter 시작점"},
+  {"base": "bumpalo::collections::Vec<JungleType>", "offset": "0x18", "name": "len", "note": "usize. L817 is_empty 판정(len==0) 및 IntoIter 끝점(ptr+len)"}
+ ],
+
+ "constants": [
+  {"value": 0, "src_line": 807, "meaning": "jungle_camps[0] = JungleType::Rhino (태그 0). dienum.py JungleType 로 확인"},
+  {"value": 1, "src_line": 807, "meaning": "jungle_camps[1] = JungleType::Mushroom (태그 1)"},
+  {"value": 3, "src_line": 807, "meaning": "jungle_camps[2] = JungleType::Bee (태그 3) — 배열 순서가 태그 순서가 아니다(Bee 가 Stump 앞)"},
+  {"value": 2, "src_line": 807, "meaning": "jungle_camps[3] = JungleType::Stump (태그 2). 같은 리터럴 2 가 L823 의 player_champion 팀 차원 경계값(panic_bounds_check 상한)으로도 등장"},
+  {"value": 0, "src_line": 819, "meaning": "GameMode 의 Moba 변형 판별자 DISCR_EXACT=0 (DWARF Variant0=Moba(&MobaMode) 로 교차확인). as_moba 는 tag!=0 이면 None → unwrap 패닉"},
+  {"value": -1, "src_line": 825, "meaning": "Option<JungleType>::None 의 니치 태그. now_camp==-1 판정(L825)과 min_by_key 결과 unwrap 판정(L821·L836)에 모두 쓰인다"}
+ ],
+
+ "calls": [
+  "bumpalo::collections::vec::from_iter_in",
+  "core::option::unwrap_failed",
+  "game_core::simulation::entity::jungle::JungleRunner::get_camp_state",
+  "core::iter::adapters::map::fold",
+  "game_core::simulation::map_def::MapDef::camp_pos",
+  "rand::seq::SliceRandom::choose",
+  "core::panicking::panic_bounds_check",
+  "bumpalo::collections::vec::Vec::drop",
+  "bumpalo::collections::raw_vec::RawVec::drop",
+  "core::ptr::drop_glue"
+ ],
+
+ "logic": "best_jungle_goal(version, rnd, player, data, team_plan, now_camp, debug) -> JungleType\n\nL807  jungle_camps: [JungleType;4] = [Rhino(0), Mushroom(1), Bee(3), Stump(2)]\n      (IR: %12 에 store i8 0 / 1 / 3 / 2. Epic·Serpen 은 후보가 아니다)\n\nL814~815  not_cleared_camps = jungle_camps.into_iter()\n              .filter(|c| !is_cleared(*c, player.info.team, version, rnd, player, data, team_plan, 0, debug))\n              .map(항등)\n              .collect_in(data.context.pool)     // bumpalo Vec<JungleType>\n          - 필터 극성은 확정: 클로저 call_mut(m04.ll:66311~66341)이 is_cleared 결과를 xor true 한다.\n          - is_cleared 의 3·4·9번째 인자(version, rnd, debug)는 IR 에서 poison 으로 전달 = 미사용.\n          - 8번째 인자 offset 은 리터럴 0.\n\nL817  if not_cleared_camps.len() == 0 {          // IR: %11+0x18 로드 == 0\nL818~821   // 남은 캠프가 하나도 없음 → 4개 후보 중 '가장 빨리 리스폰되는' 캠프\n           let jr = data.cache.game.<vtable+0x40>()   // -> GameMode\n                      .as_moba().unwrap()             // tag==0(Moba) 아니면 unwrap_failed 패닉\n                      .jungle_runner();               // &MobaMode + 0x18\n           return jungle_camps.into_iter()\n                    .min_by_key(|c| jr.get_camp_state(player.info.team, c).next_respawn_tick)\n                    .unwrap();                        // 배열이 4개이므로 항상 Some\n      }\n\n      // ---- 여기부터는 남은(=미클리어) 캠프가 1개 이상 ----\nL823  let team = player.info.team;                    // player+0x930, team>=2 면 panic_bounds_check(team, 2)\n      let pos  = player.info.position as usize;       // player+0x9c0 (Position::as_index 인라인)\n      let champ: Option<&Entity> = data.cache.player_champion[team][pos];   // cache+0x1e0, [2][5] 배열\n\nL825  if champ.is_none() {\nL829~831  // 내 정글 챔피언 엔티티가 없다(사망/미스폰 등)\n          return match now_camp {\n              Some(c) => c,                            // now_camp != -1 이면 그대로 유지\n              None    => *jungle_camps.choose(rnd).unwrap(),   // 4개 중 무작위(None 이면 unwrap_failed)\n          };\n      }\n\nL832~836  // 챔피언이 있다 → 남은 캠프 중 챔피언에서 '가장 가까운' 캠프\n      let is_blue = (team == 0);\n      return not_cleared_camps.into_iter()\n               .min_by_key(|c| {\n                   let (cx, cy) = data.context.map.camp_pos(c, is_blue);        // L834\n                   distance_sq(champ.x, champ.y, cx, cy)                        // L835 (game-core/src/utils.rs:6)\n                   // distance_sq = abs_diff(x1,x2)^2 + abs_diff(y1,y2)^2, u64 산술(제곱근 없음)\n               })\n               .unwrap();                              // 비어있지 않으므로 항상 Some\n\n동점 처리: min_by_key 는 첫 최소값을 유지하므로(fold 가 `<` 가 아니라 `Ordering::Greater 일 때만 교체`),\n키가 같으면 jungle_camps 배열 순서(Rhino→Mushroom→Bee→Stump) 또는 not_cleared_camps 삽입 순서(= 같은 배열 순서)가\n그대로 우선순위가 된다.\n\n반환 경로 요약(IR 블록):\n  - blk 32~61  : 전부 클리어 → next_respawn_tick 최소 캠프\n  - blk 135~143: 챔피언 없음 + now_camp==None → rnd 무작위\n  - blk 88→137 : 챔피언 없음 + now_camp==Some → now_camp 유지\n  - blk 90~127 : 챔피언 있음 → 미클리어 캠프 중 distance_sq 최소",
+
+ "knobs": [
+  {"what": "정글 후보 캠프 목록/순서", "where": "passive_jungle.rs:807 (IR m04.ll:62593~62599)", "value": "[Rhino(0), Mushroom(1), Bee(3), Stump(2)]",
+   "effect": "여기 없는 캠프(Epic=4, Serpen=5)는 이 함수가 절대 목표로 내놓지 않는다. 원소를 빼면 그 캠프를 영영 안 가고, 순서를 앞으로 옮기면 키 동점 시 우선 선택된다"},
+  {"what": "미클리어 판정 앞당김 오프셋 (is_cleared 8번째 인자)", "where": "passive_jungle.rs:815 — IR 은 클로저 shim m04.ll:66339 (`i64 noundef 0`)", "value": 0,
+   "effect": "is_cleared 가 이 offset 만큼 앞을 내다보고 '클리어됨'을 판정한다(내부는 안 봄). 올리면 후보에서 빠지거나 들어오는 캠프 집합이 달라져 L817 의 empty 분기 진입 빈도가 바뀐다 — 방향은 is_cleared 내부를 봐야 확정"},
+  {"what": "전부 클리어됐을 때의 선택 키", "where": "passive_jungle.rs:819 (JungleCampState+0x18 next_respawn_tick)", "value": "next_respawn_tick 최소",
+   "effect": "리스폰이 가장 이른 캠프로 미리 이동해 대기한다. 키를 거리로 바꾸면 '가까운 데서 대기', 상수로 고정하면 배열 첫 원소(Rhino) 고정이 된다"},
+  {"what": "남은 캠프가 있을 때의 선택 키", "where": "passive_jungle.rs:833~835 (distance_sq(champ, camp_pos))", "value": "distance_sq 최소",
+   "effect": "순수 최근접이다. 키에 캠프별 가중치를 곱하면(예: Bee 에 0.8) 그 캠프를 더 자주 가고, 값을 키우면 덜 간다. 제곱거리라 가중치 효과가 비선형이다"},
+  {"what": "챔피언 엔티티가 없을 때의 폴백", "where": "passive_jungle.rs:825~829", "value": "now_camp 유지, None 이면 rnd 무작위",
+   "effect": "여기를 고정값으로 바꾸면 챔피언 사망 직후의 목표가 결정적이 된다. 무작위 경로는 rnd 를 소비하므로 손대면 이후 시뮬레이션의 PRNG 스트림이 어긋난다(리플레이 재현성 파손)"}
+ ],
+
+ "unknown": [
+  "dyn AbstractGame vtable +0x40 슬롯의 메서드 이름 — game_core 의 dyn 트레이트 vtable 이름은 _gaibc DWARF 에 없다(SPEC_GUIDE §2 가 말한 원리적 불가 사례). 확정된 것은 반환형이 GameMode(16B, {i64 tag, ptr})라는 것과, 직후 as_moba(game.rs:230~231)가 tag==0 을 Some 으로 받는다는 것뿐",
+  "Map 의 클로저(closure$1)가 소스에서 무엇이었는지 — 이 클로저만 DISubprogram 이 없다. from_iter_in(m01.ll:20914~21050)에서 필터 통과한 바이트 %35 를 그대로 Vec 에 push 하므로 **항등**이라고 판단했으나, 소스가 `.map(|c| *c)` 인지 `.copied()` 인지는 확정 못 함(동작에는 영향 없음)",
+  "is_cleared(passive_jungle.rs:841) 내부는 안 봄 — 필터 극성(`!is_cleared`)과 인자 배선만 확정했다. 어떤 조건으로 '클리어'로 보는지는 별도 명세 필요",
+  "is_cleared 에 넘기는 offset 리터럴 0 은 담당 IR 범위(62570~62978) 밖(클로저 shim m04.ll:66339)에 있어 constants 에 넣지 않고 knobs 에만 실었다 — SPEC_GUIDE §2 '범위 밖 상수' 규칙",
+  "MapDef::camp_pos 의 3번째 인자 이름 — 본문에서 `team == 0` 를 bool 로 넘기는 것은 확정이나, camp_pos 의 DISubprogram 이 m04.ll 에 없어(선언만) 파라미터 이름은 미확정. is_blue 로 추정(JungleCampState 에 is_blue_side 필드가 있고 JungleRunner 가 blue_*/red_* 로 캠프를 쌍으로 두는 것이 방증)",
+  "팀 인덱스 0 이 블루인지 레드인지 — camp_pos 에 team==0 을 넘긴다는 사실만 IR 로 확정되고, 그 bool 의 의미는 camp_pos 내부에 있다",
+  "jungle_camps 배열 길이 4 는 SPEC_GUIDE §3 표에 따라 '배열 인덱스·stride' 로 보고 constants 에서 제외했다(choose 에도 `i64 noundef 4` 로 넘어간다)",
+  "player_champion 의 2·5 차원값도 같은 이유로 constants 에서 제외(2 는 태그값 2 로 이미 등재돼 값 자체는 목록에 있다)",
+  "(해소됨 — 기록만 남김) min_by_key 동점 처리는 fold 인스턴스 m12.ll:22713 의 `icmp slt i8 <Ordering>, 1` → `select` 로 '누적값이 Less/Equal 이면 유지'가 확정됐다. 즉 동점 시 먼저 나온 원소가 이긴다. 두 번째 fold(m12.ll:34621) 본문은 같은 제네릭 인스턴스라 동일하다고 보았고 직접 대조하지는 않았다"
+ ]
+}

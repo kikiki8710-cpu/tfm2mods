@@ -1,0 +1,85 @@
+{
+ "name": "should_end_object_finish_kill_priority_battle",
+ "sym": "_RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old11fight_model45should_end_object_finish_kill_priority_battle",
+ "src": "game-ai\\src\\plan_legacy\\old\\fight_model.rs",
+ "src_line": 1214,
+ "ir_file": "m10.ll",
+ "ir_from": 49611,
+ "ir_to": 50100,
+
+ "one_line": "모르가드/세르펜 Hunt 국면에서, 목표 몹을 때릴 수 있는 적 챔피언이 하나도 없으면 전투 종료(true)",
+
+ "signature": {
+  "params": [
+   {"i": 1, "name": "version", "type": "usize", "note": "AI 버전. 이 함수 본문에선 분기하지 않고 is_enemy_well_danger 로만 그대로 전달"},
+   {"i": 2, "name": "rnd", "type": "&mut rand::rngs::std::StdRng (320B)", "note": "PlayerState::strategy 호출에만 넘어감. 이 함수 본문에서 직접 사용 없음"},
+   {"i": 3, "name": "player", "type": "&PlayerState (2528B)", "note": "info.team(+0x930) 을 읽어 적 팀 인덱스를 만든다"},
+   {"i": 4, "name": "data", "type": "&OperationData (24B)", "note": "+0x0 cache(&AbstractGameWithCache), +0x10 blackboard(&[Blackboard;2]). +0x8 context 는 안 읽음"},
+   {"i": 5, "name": "main_objective", "type": "MainObjective (i24, 3B)", "note": "byte0=variant tag(0=Morgard,1=Serpen), byte1=ObjectPhase, byte2=with_battle"}
+  ],
+  "returns": "bool — true=이 오브젝트 전투를 끝내야 함 / false=계속(또는 게이트 불충족)"
+ },
+
+ "reads": [
+  {"base": "OperationData", "offset": "0x0", "name": "cache", "note": "&AbstractGameWithCache. IR %11"},
+  {"base": "OperationData", "offset": "0x10", "name": "blackboard", "note": "&[Blackboard;2] (Blackboard 1개 744B). IR %62"},
+  {"base": "AbstractGameWithCache", "offset": "0x0", "name": "game.data_ptr", "note": "&dyn AbstractGame 의 데이터 포인터. IR %12"},
+  {"base": "AbstractGameWithCache", "offset": "0x8", "name": "game.vtable", "note": "&dyn AbstractGame 의 vtable(816B). IR %14/%21"},
+  {"base": "AbstractGameWithCache", "offset": "0x1e0", "name": "player_champion", "note": "[[Option<&Entity>;5];2]. 행 stride 40, [enemy_team] 행의 슬롯 5개를 언롤로 순회(+0,8,16,24,32)"},
+  {"base": "dyn AbstractGame vtable", "offset": "0x40", "name": "(슬롯) -> GameMode", "note": "{i64 tag, ptr payload} 반환. 이름 미상(game_core DWARF 없음)"},
+  {"base": "dyn AbstractGame vtable", "offset": "0x1f0", "name": "(슬롯) fn(&self, usize) -> Option<&Entity>", "note": "엔티티 id 조회. 이름 미상"},
+  {"base": "PlayerState", "offset": "0x930", "name": "info.team", "note": "usize. 적 팀 = 1 - 이 값 (IR %56)"},
+  {"base": "Strategy", "offset": "0xf", "name": "object_finish", "note": "ObjectFinishStrategy(1B). PlayerState::strategy 가 sret 로 채운 24B 버퍼의 +15"},
+  {"base": "MobaMode", "offset": "0x198", "name": "jungle_runner.epic", "note": "JungleCampState(48B) = jungle_runner(+0x18) + epic(+0x180). Morgard 목표일 때"},
+  {"base": "MobaMode", "offset": "0x1a0", "name": "jungle_runner.epic.live_list.ptr", "note": "Vec<usize> 의 데이터 포인터(RawVec 레이아웃 {cap,ptr,len})"},
+  {"base": "MobaMode", "offset": "0x1a8", "name": "jungle_runner.epic.live_list.len", "note": "0 이면 목표 없음 → true 반환"},
+  {"base": "MobaMode", "offset": "0x1c8", "name": "jungle_runner.serpen", "note": "JungleCampState(48B) = jungle_runner(+0x18) + serpen(+0x1b0). Serpen 목표일 때"},
+  {"base": "MobaMode", "offset": "0x1d0", "name": "jungle_runner.serpen.live_list.ptr", "note": ""},
+  {"base": "MobaMode", "offset": "0x1d8", "name": "jungle_runner.serpen.live_list.len", "note": "0 이면 목표 없음 → true 반환"},
+  {"base": "Entity", "offset": "0x0", "name": "team.tag", "note": "enum2$<TeamType>(16B) 의 판별자. 0=Player, 1=Neutral"},
+  {"base": "Entity", "offset": "0x8", "name": "team.payload", "note": "TeamType::Player(usize) 의 팀 인덱스"},
+  {"base": "Entity", "offset": "0x660", "name": "x", "note": "u64. is_enemy_well_danger 인자"},
+  {"base": "Entity", "offset": "0x668", "name": "y", "note": "u64. is_enemy_well_danger 인자"}
+ ],
+
+ "constants": [
+  {"value": 65534, "src_line": 1216, "meaning": "0xFFFE — MainObjective(i24) 마스크. byte0 의 bit1~7 과 byte1 전체만 남기고 byte2(with_battle) 는 버린다"},
+  {"value": 768, "src_line": 1216, "meaning": "0x0300 — 마스크 결과의 기대값. byte1(phase)==3=ObjectPhase::Hunt 이고 byte0(tag) 가 0 또는 1(Morgard/Serpen)일 때만 통과"},
+  {"value": 0, "src_line": 1220, "meaning": "ObjectFinishStrategy::KillPriority 태그. strategy.object_finish 가 이 값이 아니면(=BattlePriority=1) 즉시 false"},
+  {"value": 0, "src_line": 1180, "meaning": "GameMode::Moba 의 DISCR_EXACT. 게임모드가 Moba 가 아니면 true 반환"},
+  {"value": 0, "src_line": 1179, "meaning": "MainObjective::Morgard 의 DISCR_EXACT(byte0==0). 이면 epic 캠프, 아니면(1=Serpen) serpen 캠프"},
+  {"value": 0, "src_line": 755, "meaning": "TeamType::Player 의 DISCR_EXACT. is_ignored_well_enemy 안에서 enemy.team 이 Player(적팀) 인지 비교"},
+  {"value": 25000, "src_line": 1233, "meaning": "can_enemy_hit_objective 의 3번째 인자(사거리 여유값). 그 함수 안에서 Effect::is_in_range_ex 의 마지막 인자로 전달된다"}
+ ],
+
+ "calls": [
+  "game_core::simulation::state::player::PlayerState::strategy",
+  "game_core::simulation::game::blackboard::Blackboard::is_recent_visible",
+  "game_ai::path_finder::is_enemy_well_danger",
+  "game_ai::plan_legacy::old::fight_model::can_enemy_hit_objective",
+  "core::panicking::panic_bounds_check"
+ ],
+
+ "logic": "fn should_end_object_finish_kill_priority_battle(version, rnd, player, data, main_objective) -> bool\n\n// ── L1216 진입 게이트 ───────────────────────────────\nif (main_objective_bits & 0xFFFE) != 0x0300 { return false }\n//   = main_objective 가 Morgard{phase:Hunt,..} 또는 Serpen{phase:Hunt,..} 일 때만 계속.\n//     byte0=tag(0=Morgard/1=Serpen), byte1=ObjectPhase(3=Hunt), byte2=with_battle 는 무시.\n\n// ── L1220 전략 게이트 ──────────────────────────────\nlet st: Strategy = PlayerState::strategy(player, rnd, data.cache.game.data, data.cache.game.vtable);  // sret 24B\nif st.object_finish /*+0xf*/ != ObjectFinishStrategy::KillPriority /*0*/ { return false }\n//   IR 은 PartialEq::ne 가 인라인돼 `icmp eq i8 tag, 0` 로 남아 있다.\n\n// ── L1224~1225 목표 엔티티 확보 ─────────────────────\n// objective_entity_id_for_main_objective(fight_model.rs:1179~1183) 가 통째로 인라인됨\nlet game = data.cache.game;                     // AbstractGameWithCache +0x0(data) / +0x8(vtable)\nlet mode: GameMode = game.vtable[+0x40](game.data);      // {tag:i64, payload:ptr}\nif mode.tag != 0 /*Moba*/ { return true }                // as_moba() == None\nlet m: &MobaMode = mode.payload;\nlet camp = if main_objective.tag == 0 { m.jungle_runner.epic   /* MobaMode+0x198 */ }   // L1181\n           else                      { m.jungle_runner.serpen /* MobaMode+0x1c8 */ };  // L1183\nif camp.live_list.len == 0 { return true }               // .get(0) == None → and_then 이 None\nlet id: usize = camp.live_list[0];                       // .get(0).copied()\nlet objective: Option<&Entity> = game.vtable[+0x1f0](game.data, id);   // L1225 클로저\nif objective.is_none() { return true }\n\n// ── L1229~1230 적 챔피언 5칸 순회 (any) ──────────────\nlet et = 1 - player.info.team;                  // PlayerState +0x930\nif et >= 2 { panic_bounds_check(et, 2) }        // iter_champions(team) 의 배열 경계검사\nlet row = &data.cache.player_champion[et];      // AbstractGameWithCache +0x1e0, 행 stride 40\n// LLVM 이 5칸을 완전히 언롤함(슬롯 오프셋 +0,+8,+16,+24,+32)\nfor slot in 0..5 {\n    let enemy: Option<&Entity> = row[slot];\n    let Some(enemy) = enemy else { continue };                       // filter_map (None 스킵)\n    // L1231\n    if !Blackboard::is_recent_visible(&data.blackboard[et], game.data, game.vtable, player, enemy) { continue }\n    // L1232 — fight_model::is_ignored_well_enemy(version, player, enemy) 가 인라인됨\n    //   L755: enemy.team(+0x0 tag==0 && +0x8 payload==et)  == TeamType::Player(et)\n    //   L756: path_finder::is_enemy_well_danger(version, player, enemy.x /*+0x660*/, enemy.y /*+0x668*/)\n    if enemy.team == TeamType::Player(et)\n       && is_enemy_well_danger(version, player, enemy.x, enemy.y) { continue }\n    // L1233\n    if can_enemy_hit_objective(enemy, objective, 25000) { return false }   // any() == true\n}\n// L1235\nreturn true      // 아무 적도 목표를 때릴 수 없다 → 전투 종료\n\n// ── 반환값 정리(IR %170 phi) ────────────────────────\n// false : 진입 게이트 실패(%5) / object_finish != KillPriority(%10) /\n//         적 하나라도 can_enemy_hit_objective == true (%81,%102,%123,%144,%165)\n// true  : 게임모드가 Moba 아님(%27,%28) / live_list 비었음(%29,%37) /\n//         엔티티 조회 실패(%45) / 5칸 다 돌았는데 아무도 못 때림(%167)",
+
+ "knobs": [
+  {"what": "진입 국면 게이트(phase == Hunt)", "where": "fight_model.rs:1216", "value": 768,
+   "effect": "0x0300 의 상위 바이트(=ObjectPhase)를 바꾸면 Setup(1)/Assemble(2) 국면에서도 이 종료판정이 돌게 된다. 지금은 Hunt 에서만 동작하므로, 이 상수를 바꾸면 오브젝트 세팅 단계에서도 전투를 접는 판단이 생긴다"},
+  {"what": "전략 게이트(object_finish == KillPriority)", "where": "fight_model.rs:1220", "value": 0,
+   "effect": "비교값을 1(BattlePriority)로 바꾸면 정반대 전략을 고른 팀에서만 이 종료판정이 동작한다. 비교 자체를 없애면 두 전략 모두에서 '적이 목표를 못 때리면 전투 종료'가 켜진다"},
+  {"what": "목표 타격 가능 판정의 사거리 여유", "where": "fight_model.rs:1233", "value": 25000,
+   "effect": "올리면 더 멀리 있는 적도 '목표를 때릴 수 있다'로 쳐서 false(전투 계속)가 늘어난다. 내리면 true(전투 종료)가 늘어 오브젝트 싸움을 더 빨리 접는다. 게임 좌표 기준 1셀=32000 이므로 25000 은 약 0.78셀"}
+ ],
+
+ "unknown": [
+  "vtable 슬롯 +0x40(GameMode 반환)과 +0x1f0(usize -> Option<&Entity>)의 메서드 이름 — dyn AbstractGame 의 vtable 이고 game_core 크레이트 DWARF 가 _gaibc 에 없어 원리적으로 확정 불가. 반환 타입은 각각 as_moba 의 self 타입(!7463=GameMode)과 line 1225 클로저의 반환타입(!3997=Option<&Entity>)으로 확정했다",
+  "Blackboard::is_recent_visible 본문 — _gaibc 24개 .ll 어디에도 define 이 없다(declare 뿐, game_core 소속). 특히 인자로 넘기는 블랙보드가 data.blackboard[1 - player.info.team](=적 팀 인덱스)라 '누구 기준의 가시성인가'가 직관과 어긋나 보이는데, 본문을 못 봐서 확정하지 못했다. 인덱스가 %56 인 것은 IR 상 확실하다",
+  "PlayerState::strategy 본문 — game_core 소속이라 define 없음. &mut StdRng 를 받으므로 난수가 개입할 가능성이 있으나 확정 불가. 이 함수가 보는 것은 반환 24B 중 +0xf(object_finish) 한 바이트뿐이다",
+  "can_enemy_hit_objective 본문은 담당 줄범위 밖(m10.ll:47454~)이라 그 안의 상수(19600000000=140000^2 거리 임계 등)는 constants 에 넣지 않았다. 25000 이 Effect::is_in_range_ex 의 마지막 인자로 전달된다는 것까지만 확인했다",
+  "path_finder::is_enemy_well_danger 본문도 담당 범위 밖 — '적 우물(well) 위험구역'의 실제 판정식은 안 봤다",
+  "objective_entity_id_for_main_objective(fight_model.rs:1179~1183)와 is_ignored_well_enemy(fight_model.rs:754~756)는 완전히 인라인돼 call 명령이 없다. 그래서 calls 에 넣지 않고 logic 에 서술했다",
+  "MainObjective 의 나머지 10개 variant(Defense/DefenseLine/Nexus/PressEpic/SplitEpic/Repair/Gank/Dive/PressTower/ComebackPick)는 L1216 마스크에서 전부 탈락한다. 다만 IR 은 마스크 한 방으로 접혀 있어 원 소스가 match 였는지 matches! 였는지는 복원 불가",
+  "with_battle(main_objective byte2)를 이 함수가 한 번도 안 보는 것이 의도인지 — 마스크 0xFFFE 가 byte2 를 통째로 버린다는 사실만 확인",
+  "블랙보드 배열 원소 크기 744B 는 IR 의 gep 타입 리터럴을 직접 계산해 얻은 값이다. Blackboard 의 필드 이름은 distruct 에서 확인하지 않았다(이 함수가 필드를 직접 읽지 않아 불필요)"
+ ]
+}

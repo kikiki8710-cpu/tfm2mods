@@ -1,0 +1,78 @@
+{
+ "name": "v2_response_retreat_stance",
+ "sym": "_RNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy7handler6engageNtB4_17LegacyPlanHandler26v2_response_retreat_stance",
+ "src": "game-ai\\src\\plan_legacy\\handler\\engage.rs",
+ "src_line": 13,
+ "ir_file": "m13.ll",
+ "ir_from": 45212,
+ "ir_to": 45626,
+
+ "one_line": "후퇴 상황에서 '카이팅백(가장 가까운 적을 focus)'과 '완전 도주' 중 하나를 고르는 판정",
+
+ "signature": {
+   "params": [
+     {"i": 1, "name": "self", "type": "&LegacyPlanHandler", "note": "본문에서 전혀 쓰이지 않음(dbg_value 가 poison). ZST/제거됨"},
+     {"i": 2, "name": "version", "type": "usize", "note": "AI 버전 게이트. version<2 면 즉시 RunAway. 그 외엔 is_ignored_well_enemy·check_kill_die_tick 로 그대로 전달"},
+     {"i": 3, "name": "rnd", "type": "&mut rand::rngs::std::StdRng(320B)", "note": "이 함수 본문에선 안 씀. check_kill_die_tick 로만 전달"},
+     {"i": 4, "name": "player", "type": "&PlayerState(2528B)", "note": "info.team(0x930)·info.position(0x9c0) 만 직접 읽음"},
+     {"i": 5, "name": "data", "type": "&OperationData(24B)", "note": "cache(+0x0)/context(+0x8)/blackboard(+0x10) 3개 참조 묶음"},
+     {"i": 6, "name": "debug", "type": "&mut DebugFrameData(224B)", "note": "본문 미사용. check_kill_die_tick 로만 전달"}
+   ],
+   "returns": "enum2<game_ai::plan_legacy::old::battle::BattleSubPlanGoal> — {i64 tag, i64 payload}. 이 함수는 tag 3=KitingBack{focus: usize} 또는 tag 4=RunAway(페이로드 없음, undef) 만 반환. DWARF 상 DISCR_EXACT == variant index (니치 밀림 없음): 0=Trace 1=Protect 2=Kiting 3=KitingBack 4=RunAway 5=Assassin 6=AssassinReady 7=End"
+ },
+
+ "reads": [
+   {"base": "PlayerState(=GamePlayer info)", "offset": "0x930", "name": "info.team", "note": "usize. len 2 로 bounds-check 후 player_champion 1차 인덱스로 사용 (distruct: GamePlayer 0x930 = team)"},
+   {"base": "PlayerState(=GamePlayer info)", "offset": "0x9c0", "name": "info.position", "note": "Position(4B, range 0..5). Position::as_index()(entity.rs:580) 로 zext 되어 player_champion 2차 인덱스"},
+   {"base": "OperationData", "offset": "0x0", "name": "cache", "note": "&AbstractGameWithCache"},
+   {"base": "OperationData", "offset": "0x8", "name": "context", "note": "&GameContext(64B)"},
+   {"base": "OperationData", "offset": "0x10", "name": "blackboard", "note": "&[Blackboard;2]. 클로저에 캡처되어 [1-team] 원소(744B)로 쓰임"},
+   {"base": "AbstractGameWithCache", "offset": "0x0", "name": "game", "note": "ref$<dyn AbstractGame> — +0x0 데이터포인터, +0x8 vtable 포인터를 각각 로드해 클로저에 캡처"},
+   {"base": "AbstractGameWithCache", "offset": "0x1e0", "name": "player_champion", "note": "[[Option<&Entity>;5];2] (80B). gep [5 x ptr] 로 팀 stride 40B, 그 안에서 position 인덱스"},
+   {"base": "GameContext", "offset": "0x0", "name": "pool", "note": "&bumpalo::Bump. near_enemies Vec 과 빈 Vec 의 할당자"},
+   {"base": "GameContext", "offset": "0x8", "name": "setting", "note": "&GameSetting(5432B)"},
+   {"base": "GameSetting", "offset": "0x12f8", "name": "tick_per_second", "note": "usize. die 와 직접 비교하는 임계 (distruct 확정)"},
+   {"base": "Entity", "offset": "0x660", "name": "x", "note": "distance_sq(entity.rs:2157) 안에서 abs_diff 대상"},
+   {"base": "Entity", "offset": "0x668", "name": "y", "note": "distance_sq 안에서 abs_diff 대상"},
+   {"base": "Entity", "offset": "0x5c0", "name": "id", "note": "nearest.id — KitingBack.focus 로 반환되는 값 (distruct: Entity 0x5c0 = id)"}
+ ],
+
+ "constants": [
+   {"value": 2, "src_line": 14, "meaning": "AI 버전 게이트 — version < 2 이면 판정 없이 RunAway(tag 4). (같은 값 2가 line 17 의 team 배열 bounds-check 상한으로도 등장)"},
+   {"value": 1, "src_line": 20, "meaning": "적 팀 인덱스 = 1 - player.info.team (2팀 게임이라 XOR 대신 뺄셈)"},
+   {"value": 3, "src_line": 36, "meaning": "반환 태그 3 = BattleSubPlanGoal::KitingBack{focus}"},
+   {"value": 4, "src_line": 38, "meaning": "반환 태그 4 = BattleSubPlanGoal::RunAway (모든 조기이탈 경로의 기본값)"}
+ ],
+
+ "calls": [
+   "core::panicking::panic_bounds_check",
+   "core::ops::function::impls::call_mut",
+   "core::iter::traits::iterator::Iterator::min_by_key",
+   "bumpalo::collections::vec::from_iter_in",
+   "game_ai::fight_check::check_kill_die_tick"
+ ],
+
+ "logic": "fn v2_response_retreat_stance(self, version, rnd, player, data, debug) -> BattleSubPlanGoal\n\n// L14 --------------------------------------------------------------\nif version < 2 { return RunAway }                 // IR: icmp ult i64 %0, 2 -> block 130, tag 4\n\n// L17 --------------------------------------------------------------\nteam = player.info.team                            // player+0x930, bounds-check(len=2), 넘으면 panic_bounds_check\npos  = player.info.position.as_index()             // player+0x9c0, i32(range 0..5) -> zext\ncache = data.cache                                 // data+0x0\nchamp = cache.player_champion[team][pos]           // cache+0x1e0, [[Option<&Entity>;5];2], 팀 stride 40B\nif champ == null { return RunAway }                // Option<&Entity> = 널포인터 니치\n\n// L20~L24 ----------------------------------------------------------\nenemy = 1 - team\nslots = &cache.player_champion[enemy][0..5]        // iter_champions(cache, enemy) 인라인 결과 = (ptr, len 5)\nnearest = slots.iter()\n    .filter_map(|o| o)                             // null 슬롯 제거\n    .filter(|c| {                                  // engage.rs closure$0, 본문은 m12.ll:41916~42000\n        // L21\n        if !data.blackboard[1 - player.info.team].is_recent_visible(cache.game, player, c) { return false }\n        // L22\n        if game_ai::plan_legacy::old::fight_model::is_ignored_well_enemy(version, player, c) { return false }\n        // L23\n        c.distance_sq(champ) < 40000000001         // = 200000^2 + 1  <=>  거리 <= 200000 (6.25셀)\n    })\n    .min_by_key(|c| c.distance_sq(champ))          // L24\n\n// IR 상 세부: 첫 통과 원소를 찾는 부분이 슬롯 5개(+0/+8/+16/+24/+32)로 완전 언롤돼 있고,\n// 그 원소의 distance_sq 를 초기 누적값으로 만들어 나머지를 Map/Filter/FilterMap fold(m12.ll:12391)에 넘긴다.\n// 5개 모두 탈락하면 block 76 -> RunAway.\n\n// L25 --------------------------------------------------------------\nlet Some(nearest) = nearest else { return RunAway }\n\n// L26~L30 ----------------------------------------------------------\nnear_enemies: Vec<&Entity, &Bump> =\n    Vec::from_iter_in(\n        slots.iter().filter_map(|o| o).filter(|c| {   // engage.rs closure$2, m12.ll:42001~42085\n            // L28 / L29 / L30 — closure$0 과 술어 3개가 동일하고 거리 임계만 다르다\n            data.blackboard[1 - player.info.team].is_recent_visible(cache.game, player, c)\n            && !is_ignored_well_enemy(version, player, c)\n            && c.distance_sq(champ) < 22500000001    // = 150000^2 + 1  <=>  거리 <= 150000 (4.6875셀)\n        }),\n        data.context.pool)                            // context+0x0 = &Bump\n\n// L31~L32 ----------------------------------------------------------\ndie = game_ai::fight_check::check_kill_die_tick(\n          version, rnd, data, player, champ,\n          near_enemies,                               // 위에서 만든 Vec\n          Vec::new_in(data.context.pool),             // L32: 항상 비어 있는 Vec(len=0,cap=0, ptr=dangling 8)\n          debug)                                      // -> i64\n\n// L33 --------------------------------------------------------------\nif die > data.context.setting.tick_per_second {       // context+0x8 -> setting+0x12f8\n    // L36\n    return KitingBack { focus: nearest.id }           // tag 3, payload = nearest+0x5c0\n}\n// L38\nreturn RunAway                                        // tag 4\n\n// 요약: '1초보다 오래 버틸 수 있으면' 가장 가까운(200000 이내·시야에 잡히는·무시대상 아닌) 적을\n//        focus 삼아 뒤로 빼며 싸우고(KitingBack), 그보다 빨리 죽을 것 같으면 그냥 도망친다(RunAway).",
+
+ "knobs": [
+   {"what": "focus 후보 탐색 반경(제곱)", "where": "engage.rs:23 (closure$0 본문 = m12.ll:41916~42000)", "value": 40000000001,
+    "effect": "200000^2+1. 올리면 더 멀리 있는 적까지 '가장 가까운 적'후보가 되어 KitingBack 의 focus 가 멀어지고, RunAway 로 빠지는 경우(후보 0개)가 줄어든다. 내리면 근처에 적이 없을 때 바로 RunAway."},
+   {"what": "죽음 예측에 넣을 근접 적 반경(제곱)", "where": "engage.rs:30 (closure$2 본문 = m12.ll:42001~42085)", "value": 22500000001,
+    "effect": "150000^2+1. 올리면 check_kill_die_tick 에 더 많은 적이 들어가 die(생존 틱)가 작아져 RunAway 쪽으로 기운다. 내리면 die 가 커져 KitingBack(맞서 싸우기) 쪽으로 기운다."},
+   {"what": "카이팅백 허용 생존시간 임계", "where": "engage.rs:33 (m13.ll 45610 부근, %118 ugt %122)", "value": "GameSetting.tick_per_second (0x12f8) — 코드에 리터럴 없음, 사실상 1초",
+    "effect": "die > 1초 이면 KitingBack, 아니면 RunAway. 비교식에 배수를 넣어 2초 등으로 올리면 어지간해선 도망(RunAway)만 하고, 0 으로 내리면 거의 항상 KitingBack 으로 맞선다."},
+   {"what": "AI 버전 게이트", "where": "engage.rs:14 (m13.ll 45233)", "value": 2,
+    "effect": "version < 2 면 이 판정 자체를 건너뛰고 무조건 RunAway. 게이트를 없애면 구버전 AI 도 카이팅백 판정을 타게 된다."}
+ ],
+
+ "unknown": [
+   "거리 임계 40000000001 / 22500000001 은 담당 IR 범위(m13.ll 45212~45626) 밖인 클로저 본문(m12.ll:41916 closure$0, m12.ll:42001 closure$2)에 있어서 SPEC_GUIDE §담당범위밖 규칙대로 constants 에서 빼고 knobs 에만 실었다. 두 클로저는 술어 3개가 완전히 동일하고 이 상수만 다르다.",
+   "같은 이유로 Blackboard::is_recent_visible 과 fight_model::is_ignored_well_enemy 는 담당 범위 본문의 call 에 없어(클로저 안에서만 호출) calls 에서 뺐다. 실제 호출 사실은 m12.ll:41936/41944, 42020/42028 에서 확인.",
+   "data.blackboard 를 `1 - player.info.team` 으로 인덱싱하는 이유를 확정 못 했다. Blackboard 필드가 last_visible/last_visible_pos/last_reveal_tick(각 [5]) 이라 'Blackboard[T] = 팀 T 챔피언에 대한 관측 기록'이라는 해석이 자연스럽지만 이는 필드명 기반 **추정**이고, is_recent_visible 본문은 안 봤다.",
+   "check_kill_die_tick 내부는 안 봤다. 반환값 die 의 단위가 '틱'이라는 것은 GameSetting.tick_per_second 와 직접 ugt 비교한다는 사실에서 나온 **추정**이며, die 가 '내가 죽기까지 남은 틱'인지 '적을 죽이기까지'인지는 함수명(kill_die)만으로는 확정 불가.",
+   "check_kill_die_tick 의 7번째 인자로 넘기는 **항상 빈 Vec**(engage.rs:32, Vec::new_in(pool))이 무슨 목록인지 모른다 — 이 호출 지점에서는 언제나 len=0/cap=0 이다.",
+   "self(&LegacyPlanHandler)는 본문에서 한 번도 참조되지 않는다(dbg_value 가 poison). 실제로 안 쓰는지, 인라인/최적화로 사라진 것인지는 이 범위만으로는 확정 불가.",
+   "min_by_key 의 fold 본체(m12.ll:12391)는 범위 밖이라 안 읽었다. 동률(같은 거리)일 때 어느 쪽이 남는지는 Rust 표준 min_by_key 의 '먼저 온 것 유지' 규칙을 따를 것으로 **추정**만 함.",
+   "rnd(StdRng)와 debug(DebugFrameData)는 이 함수 본문에서 읽지 않고 그대로 전달만 한다 — check_kill_die_tick 내부에서 난수를 쓰는지(=판정이 비결정적인지) 확인 못 했다."
+ ]
+}

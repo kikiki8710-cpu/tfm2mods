@@ -132,7 +132,19 @@ def build():
 
 def main():
     args = sys.argv[1:]
-    if not args or args[0] == '--build':
+    # ⚠인자 없이 실행하면 **전체 재빌드**(10분+)가 걸리던 것을 막는다.
+    #   3차 배치에서 담당자 둘이 이걸로 2분씩 날리고 결국 DWARF 로 우회했다.
+    #   빌드는 `--build` 를 명시할 때만.
+    if not args:
+        print(__doc__)
+        if os.path.exists(OUT):
+            import json as _j
+            _d = _j.load(io.open(OUT, encoding='utf-8'))
+            print('현재 사전: 열거형 %d개 (%s)' % (len(_d), OUT))
+        else:
+            print('⚠사전이 아직 없다 — `python dienum.py --build` 로 만들어라(10분+).')
+        return
+    if args[0] == '--build':
         d = build()
         io.open(OUT, 'w', encoding='utf-8', newline='').write(
             json.dumps(d, ensure_ascii=False, indent=0, sort_keys=True))

@@ -1,0 +1,90 @@
+{
+ "name": "calculate_jungle_action_score",
+ "sym": "_RNvNtCshdEBA0ozCnw_7game_ai12action_score29calculate_jungle_action_score",
+ "src": "game-ai\\src\\action_score.rs",
+ "src_line": 520,
+ "ir_file": "m05.ll",
+ "ir_from": 39984,
+ "ir_to": 40103,
+
+ "one_line": "정글러가 어떤 대상(넥서스/타워/정글캠프/미니언)을 때릴지 — 대상 종류별 계수 x 예상피해/HP 로 점수화",
+
+ "signature": {
+  "params": [
+   {"i": 1, "name": "_rnd", "type": "&mut rand::rngs::std::StdRng", "note": "본문에서 전혀 안 씀(readnone). 이름 앞 _ 로도 확인"},
+   {"i": 2, "name": "player", "type": "&PlayerState(2528B)", "note": "info.team(+0x930)·info.position(+0x9c0)만 읽어 내 챔피언을 찾는 용도"},
+   {"i": 3, "name": "data", "type": "&OperationData(24B)", "note": "cache(+0x0)=AbstractGameWithCache, context(+0x8)=GameContext 만 씀"},
+   {"i": 4, "name": "_parameter", "type": "&game_ai::score_parameter::ScoreParameter(5384B)", "note": "본문에서 안 씀. 즉 이 함수의 계수는 ScoreParameter 로 튜닝 불가·전부 하드코딩"},
+   {"i": 5, "name": "_action", "type": "&Box<dyn game_core::setting::action::Action>(16B)", "note": "본문에서 안 씀"},
+   {"i": 6, "name": "effect", "type": "&game_core::simulation::effect::Effect(56B)", "note": "예상 피해량 계산의 주체(스킬/평타 이펙트)"},
+   {"i": 7, "name": "t", "type": "&game_core::simulation::entity::Entity(1728B)", "note": "점수를 매길 대상 엔티티(target)"}
+  ],
+  "returns": "i64 — 행동 점수. LLVM range 메타 = (i64::MIN, 206) 이라 상한 205(=200+5). 값이 클수록 그 대상을 우선 공격"
+ },
+
+ "reads": [
+  {"base": "PlayerState", "offset": "0x930", "name": "info.team", "note": "usize. 2로 bounds-check(패닉 경로 존재) 후 player_champion[team] 인덱스로 사용"},
+  {"base": "PlayerState", "offset": "0x9c0", "name": "info.position", "note": "Position(4B). i32 range [0,5) 로 로드 — Position::as_index(entity.rs:580) 인라인. 라인/포지션 인덱스"},
+  {"base": "OperationData", "offset": "0x0", "name": "cache", "note": "&AbstractGameWithCache. gep 없이 바로 load(오프셋 0)"},
+  {"base": "OperationData", "offset": "0x8", "name": "context", "note": "&GameContext(64B). expected_damage_target 의 2번째 인자로 전달"},
+  {"base": "AbstractGameWithCache", "offset": "0x1e0", "name": "player_champion", "note": "[[Option<&Entity>;5];2] (80B). [team][position] 로 인덱싱해 내 챔피언을 꺼내고 unwrap(None이면 패닉)"},
+  {"base": "Entity(t)", "offset": "0x670", "name": "hp", "note": "usize. 최종식의 나눗셈 분모. 0이면 div-by-zero 패닉 경로"},
+  {"base": "Entity(t)", "offset": "0x68", "name": "ty (EntityType 판별자)", "note": "i64, range [0,14). 이 값으로 switch — 계수 선택의 핵심"},
+  {"base": "Entity(t)", "offset": "0x98", "name": "ty::Jungle.info.camp_type.0", "note": "usize. EntityType 페이로드(+0x8)의 Jungle(208B) 안 camp_type:(usize,JungleType) 의 첫 원소. is_jungle() 인라인이 이걸 <2 로 비교하며, 그 지역변수명이 DWARF 상 team(entity.rs:1377)"}
+ ],
+
+ "constants": [
+  {"value": 2, "src_line": 522, "meaning": "player_champion 배열의 팀 차원 상한(=팀 수 2). player.info.team 이 2 이상이면 panic_bounds_check"},
+  {"value": 3, "src_line": 526, "meaning": "EntityType 태그 3 = Nexus. DISCR_EXACT 확인 결과 이 열거형은 니치 밀림 없이 태그==variant 인덱스"},
+  {"value": 200, "src_line": 526, "meaning": "대상이 넥서스일 때의 계수 coef"},
+  {"value": 2, "src_line": 528, "meaning": "EntityType 태그 2 = Tower"},
+  {"value": 80, "src_line": 528, "meaning": "대상이 타워일 때의 계수 coef"},
+  {"value": 4, "src_line": 530, "meaning": "EntityType 태그 4 = Jungle"},
+  {"value": 2, "src_line": 530, "meaning": "is_jungle() 판정 임계 — camp_type.0 < 2 여야 '팀 진영 정글캠프'로 인정(2 이상은 중립/오브젝트로 추정). 이 조건이 깨지면 계수 0"},
+  {"value": 20, "src_line": 531, "meaning": "정글캠프이고 hp > value(예상피해)일 때의 계수 — 한 방에 못 잡는 캠프"},
+  {"value": 40, "src_line": 531, "meaning": "정글캠프이고 hp <= value 일 때의 계수 — 마무리 가능한 캠프에 2배 가중"},
+  {"value": 1, "src_line": 536, "meaning": "EntityType 태그 1 = Minion"},
+  {"value": -10, "src_line": 536, "meaning": "대상이 미니언일 때의 계수(음수 = 정글러는 미니언을 회피)"},
+  {"value": 0, "src_line": 536, "meaning": "그 외 모든 EntityType(None/Epic/Serpen/Ghoul/SmallJiangshi/Bear/Eagle/Revenant/Illusion/Champion) 및 camp_type.0>=2 인 정글의 계수"},
+  {"value": 5, "src_line": 542, "meaning": "based 보너스 — is_jungle() 이면 최종 점수에 +5, 아니면 +0"}
+ ],
+
+ "calls": [
+  "game_core::simulation::effect::Effect::expected_damage_target",
+  "llvm.smin.i64",
+  "core::panicking::panic_bounds_check",
+  "core::option::unwrap_failed",
+  "core::panicking::panic_const::panic_const_div_by_zero",
+  "core::panicking::panic_const::panic_const_div_overflow"
+ ],
+
+ "logic": "fn calculate_jungle_action_score(_rnd, player, data, _parameter, _action, effect, t) -> i64\n\n// L522\nteam = player.info.team              // PlayerState+0x930, team>=2 면 panic_bounds_check(bound=2)\npos  = player.info.position.as_index()  // PlayerState+0x9c0, range [0,5) — as_index 인라인(entity.rs:580)\nchamp = data.cache.player_champion[team][pos]   // AbstractGameWithCache+0x1e0, [[Option<&Entity>;5];2]\nif champ is None { panic }           // Option::unwrap 인라인(option.rs:1010). 분기예측 메타 !prof 는 None 을 2000:1 로 비정상 취급\n\n// L523 — champ 은 (데이터포인터, Entity의 AbstractEntity vtable) 팻포인터로 쪼개져 전달됨\nvalue = effect.expected_damage_target(data.context, champ as &dyn AbstractEntity, t)   // i64\n\n// L524\nhp = t.hp                            // Entity+0x670\n\n// L526~536 — 소스는 else-if 체인이지만 LLVM 에선 t.ty 판별자(Entity+0x68) 하나에 대한 switch 로 접힘\n// (is_nexus/is_tower/is_jungle/is_minion 전부 인라인되어 사라짐)\ncoef = match t.ty.tag {\n  3 /*Nexus*/  => 200,                        // L526 is_nexus() (entity.rs:1399)\n  2 /*Tower*/  => 80,                         // L528 is_tower()\n  4 /*Jungle*/ => {                           // L530 is_jungle() (entity.rs:1377)\n      camp_team = t.ty.Jungle.info.camp_type.0 // Entity+0x98\n      if camp_team < 2 {                       // is_jungle() 의 실제 술어\n          if hp > value { 20 } else { 40 }     // L531 — icmp sgt %hp,%value ? 20 : 40\n      } else { 0 }                             // is_jungle()==false → 아래 else 로 흘러 0\n  },\n  1 /*Minion*/ => -10,                        // L536\n  _            => 0,                          // L536 (None/Epic/Serpen/Ghoul/SmallJiangshi/Bear/Eagle/Revenant/Illusion/Champion)\n}\n\n// L542 — is_jungle() 를 한 번 더 인라인 평가(같은 두 로드)\nbased = if t.ty.tag == 4 && t.ty.Jungle.info.camp_type.0 < 2 { 5 } else { 0 }\n\n// L548 — 여기서 hp==0 이면 panic_const_div_by_zero, (coef*value)==i64::MIN && hp==-1 이면 div_overflow\nreturn min(coef * value / hp, coef) + based    // llvm.smin(i64), sdiv(부호 있는 나눗셈)\n// dbg 상 self=(coef*value/hp), other=coef 이므로 소스 표기는 (coef * value / hp).min(coef) + based\n\n// 요약: 계수 coef 가 '이 대상 종류의 점수 상한'이자 '피해 효율의 배율' 두 역할을 겸한다.\n// 예상피해가 대상 HP 이상이면 coef*value/hp >= coef 라 상한 coef 로 잘리고,\n// HP 가 클수록 점수가 선형으로 깎인다. 정글캠프만 +5 의 고정 가산을 받는다.",
+
+ "knobs": [
+  {"what": "넥서스 계수", "where": "action_score.rs:526", "value": 200,
+   "effect": "올리면 정글러가 넥서스 타격을 다른 무엇보다 우선(사실상 점수 상한이 올라감). 내리면 넥서스 철거를 미룬다"},
+  {"what": "타워 계수", "where": "action_score.rs:528", "value": 80,
+   "effect": "올리면 정글러가 정글캠프(20/40)보다 타워 철거를 자주 고른다. 0 근처로 내리면 타워를 사실상 안 친다"},
+  {"what": "정글캠프 계수(마무리 불가)", "where": "action_score.rs:531", "value": 20,
+   "effect": "예상피해 < 대상 HP 인 캠프의 가치. 올리면 큰 캠프도 초반부터 물고 늘어진다"},
+  {"what": "정글캠프 계수(마무리 가능)", "where": "action_score.rs:531", "value": 40,
+   "effect": "한 방에 잡을 수 있는 캠프의 가치. 올리면 '막타 가능한 캠프' 편식이 심해지고, 20과 같게 두면 HP 기반 우선순위가 사라진다"},
+  {"what": "미니언 계수", "where": "action_score.rs:536", "value": -10,
+   "effect": "음수라 미니언 점수가 항상 음수(=회피). 양수로 바꾸면 정글러가 라인 CS를 먹으러 간다"},
+  {"what": "정글캠프 고정 가산 based", "where": "action_score.rs:542", "value": 5,
+   "effect": "정글캠프에만 붙는 상한 밖 보너스. 올리면 타워/넥서스 점수와의 격차가 줄어 정글 도는 시간이 늘어난다. min() 밖이라 상한 clamp 를 우회하는 유일한 항"},
+  {"what": "is_jungle 판정 임계 camp_type.0 < 2", "where": "game-core/src/simulation/entity.rs:1378 (인라인)", "value": 2,
+   "effect": "이 값을 키우면 camp_type.0 가 2 이상인 캠프(중립/오브젝트 추정)까지 계수 20/40 + based 5 를 받게 되어 정글러가 그쪽으로 몰린다. 단 game-core 쪽이라 game_ai 만 고쳐선 못 바꾼다"}
+ ],
+
+ "unknown": [
+  "Effect::expected_damage_target 내부는 안 봄 — value 가 어떤 스케일(실피해량인지 가중치인지)인지 미확정. 다만 hp 와 직접 비교(hp > value)하므로 HP 와 같은 단위인 것은 확실",
+  "camp_type.0 의 의미를 'team(진영)'으로 본 근거는 DWARF 지역변수명 하나뿐(is_jungle 안의 team, entity.rs:1377) + 인라인 잔여 dbg_value 가 0/1 상수라는 정황. JungleType(camp_type.1)은 이 함수가 읽지 않아 2 이상이 실제로 무엇인지(에픽/중립 캠프?) 확정 못 함",
+  "is_tower() 는 태그==2 단독으로만 관측됨. is_nexus()/is_minion() 도 마찬가지 — 인라인 후 페이로드 조건이 남지 않았으나, 원래 술어에 추가 조건이 있었는데 상수접힘으로 사라졌을 가능성은 배제 못 함(2회 확인 후 중단)",
+  "미니언(-10)과 default(0) 두 분기의 br dbg 가 둘 다 action_score.rs:536 이라 소스상 else-if 순서를 줄번호로 확정하지 못함. 단 단일 판별자 switch 라 의미상 순서 무관",
+  "action_score.rs:537~541 에 해당하는 코드가 IR 에 전혀 없음(주석이거나 완전히 제거된 코드)",
+  "_parameter(ScoreParameter 5384B)·_action·_rnd 3개 인자가 본문에서 미사용 — 시그니처 통일용으로 추정하나 확정 못 함",
+  "expected_damage_target 의 4번째 인자 @anon.fdc8f8a40baf2989242b37eb35661f10.17 은 Entity 의 AbstractEntity vtable(drop_glue/x/y/hp/get_stat/stat_ref/buff_state/level/get_buff_by_name)로 확인됨 → champ 의 팻포인터 후반부. 상수처럼 보이지만 판정값이 아니라 constants 에 넣지 않음",
+  "이 함수의 호출자·호출 문맥(어떤 액션 후보 집합에 대해 돌려지는지)은 담당 줄범위 밖이라 안 봄"
+ ]
+}

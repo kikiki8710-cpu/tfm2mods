@@ -1,0 +1,103 @@
+{
+ "name": "new",
+ "sym": "_RNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old12death_battleNtB2_16DeathMatchBattle3new",
+ "src": "game-ai\\src\\plan_legacy\\old\\death_battle.rs",
+ "src_line": 746,
+ "ir_file": "m05.ll",
+ "ir_from": 17695,
+ "ir_to": 17825,
+
+ "one_line": "DeathMatchBattle(384B) 생성자 — 목표가 TryKill이면 Battle 채팅을 심고 나머지 필드를 초기값으로 채운다",
+
+ "signature": {
+  "params": [
+   {"i": 1, "name": "(sret)", "type": "*mut DeathMatchBattle(384B)", "note": "반환값 out-param. writeonly. 이 함수의 모든 store 대상"},
+   {"i": 2, "name": "version", "type": "usize", "note": "AI 버전 게이트. 이 함수에선 분기 없음 — base_sub_goal 로 그대로 전달만 함"},
+   {"i": 3, "name": "goal", "type": "BattlePlanGoal(24B, byval)", "note": "태그 i64 @+0x0. 0=TryKill(usize,usize) 1=Support(usize) 2=Response 3=Avoid. !range !20208={0,4} 로 4개 확정. TryKill.__0 @+0x8, __1 @+0x10"},
+   {"i": 4, "name": "data", "type": "&OperationData(24B)", "note": "cache@0x0 / context@0x8 / blackboard@0x10. 여기선 cache 와 base_sub_goal 전달에만 쓰임"},
+   {"i": 5, "name": "player", "type": "&PlayerState(2528B)", "note": "본문에서 직접 역참조 없음. base_sub_goal 에 그대로 전달만 함"}
+  ],
+  "returns": "DeathMatchBattle (sret 384B) — 새 데스매치 전투 플랜 상태"
+ },
+
+ "reads": [
+  {"base": "BattlePlanGoal(param goal)", "offset": "0x0", "note": "열거형 태그. icmp eq 0 → TryKill 인지 판정 (death_battle.rs:749). gep 없이 ptr %2 직접 load 라 C3 에는 안 보임"},
+  {"base": "BattlePlanGoal(param goal)", "offset": "0x8", "note": "TryKill.__0 = target(usize). DILocalVariable 'target' @death_battle.rs:749"},
+  {"base": "OperationData(param data)", "offset": "0x0", "note": "cache: &AbstractGameWithCache. gep 없이 ptr %3 직접 load"},
+  {"base": "AbstractGameWithCache", "offset": "0x0", "note": "game: &dyn AbstractGame — 팻포인터 (data@+0x0, vtable@+0x8)"},
+  {"base": "AbstractGameWithCache.game(팻포인터)", "offset": "0x8", "note": "vtable 포인터"},
+  {"base": "dyn AbstractGame vtable", "offset": "0x28", "note": "슬롯 5(=40/8). invariant.load 로 로드해 data 포인터 하나만 넘겨 호출, i64 반환 → start_tick 에 저장 (death_battle.rs:754). 슬롯 이름 미확정 → unknown 참조"},
+  {"base": "Vec<Chat>(로컬 chats)", "offset": "0x8", "note": "RawVec.ptr — grow_one 후 재로드해 원소를 써넣는 위치"},
+  {"base": "Vec<Chat>(로컬 chats)", "offset": "0x10", "note": "len. push 후 1 저장"},
+  {"base": "DeathMatchBattle(out)", "offset": "0x0", "note": "[write] support_target: Option<usize> = None (i64 태그 0)"},
+  {"base": "DeathMatchBattle(out)", "offset": "0x10", "note": "[write] region: Option<BattleRegion> = None (i64 태그 0)"},
+  {"base": "DeathMatchBattle(out)", "offset": "0x30", "note": "[write] well_runaway: Option<usize> = None"},
+  {"base": "DeathMatchBattle(out)", "offset": "0x40", "note": "[write] death_focus: Option<usize> = None"},
+  {"base": "DeathMatchBattle(out)", "offset": "0x50", "note": "[write] seal_basis: Option<(usize,usize,usize)> = None"},
+  {"base": "DeathMatchBattle(out)", "offset": "0x70", "note": "[write] hold_scene_basis: Option<(usize,usize,usize)> = None"},
+  {"base": "DeathMatchBattle(out)", "offset": "0x90", "note": "[write] repo_scene_basis: Option<(usize,usize)> = None"},
+  {"base": "DeathMatchBattle(out)", "offset": "0xa8", "note": "[write] flee_dir: Option<(i64,i64)> = None"},
+  {"base": "DeathMatchBattle(out)", "offset": "0xc0", "note": "[write] far_noout_since: Option<usize> = None"},
+  {"base": "DeathMatchBattle(out)", "offset": "0xd0", "note": "[write] main_goal: BattlePlanGoal — 인자 goal 을 memcpy 24B 로 그대로 보관"},
+  {"base": "DeathMatchBattle(out)", "offset": "0xe8", "note": "[write] sub_goal: BattleSubPlanGoal(16B) — base_sub_goal 반환 {i64,i64} 의 0번(+0xe8) / 1번(+0xf0)"},
+  {"base": "DeathMatchBattle(out)", "offset": "0xf8", "note": "[write] chats: Vec<Chat> — 로컬 chats 를 memcpy 24B"},
+  {"base": "DeathMatchBattle(out)", "offset": "0x110", "note": "[write] start_tick: usize — vtable+0x28 호출 결과(현재 틱 추정)"},
+  {"base": "DeathMatchBattle(out)", "offset": "0x118", "note": "[write] flee_die: usize = i64::MAX 센티널"},
+  {"base": "DeathMatchBattle(out)", "offset": "0x120", "note": "[write] 0x120~0x16f 80바이트를 memset 0 — trade_lean/lean_last_tick/scene_change_tick/last_act_tick/idle_spec_tick/last_swing_tick/ep_follow_until/idle_prev_pos(16B)/last_unseal_tick 전부 0"},
+  {"base": "DeathMatchBattle(out)", "offset": "0x170", "note": "[write] with_dive = false"},
+  {"base": "DeathMatchBattle(out)", "offset": "0x171", "note": "[write] help_called = false"},
+  {"base": "DeathMatchBattle(out)", "offset": "0x172", "note": "[write] dive_abandoned = false"},
+  {"base": "DeathMatchBattle(out)", "offset": "0x173", "note": "[write] dodge_commit = false"},
+  {"base": "DeathMatchBattle(out)", "offset": "0x174", "note": "[write] last_stand = false"},
+  {"base": "DeathMatchBattle(out)", "offset": "0x175", "note": "[write] had_ult_ready = false"},
+  {"base": "DeathMatchBattle(out)", "offset": "0x176", "note": "[write] stance: DeathStance = 0 = Commit"},
+  {"base": "DeathMatchBattle(out)", "offset": "0x177", "note": "[write] tactic: BattleTactic = 0 = Standard"},
+  {"base": "DeathMatchBattle(out)", "offset": "0x178", "note": "[write] scene: DmScene = 0 = Stand"},
+  {"base": "DeathMatchBattle(out)", "offset": "0x179", "note": "[write] scene_last_from: DmScene = 0 = Stand"},
+  {"base": "DeathMatchBattle(out)", "offset": "0x17a", "note": "[write] dive_tower: Option<TowerType> = None (니치 태그 255 = i8 -1)"},
+  {"base": "DeathMatchBattle(out)", "offset": "0x17b", "note": "[write] main_objective: Option<Option<MainObjective>> = None (니치 태그 255 = i8 -1)"},
+  {"base": "DeathMatchBattle(out)", "offset": "0x17e", "note": "[write] lean_last_sign: i8 = 0"}
+ ],
+
+ "constants": [
+  {"value": 0, "src_line": 749, "meaning": "BattlePlanGoal 태그 0 = TryKill. `icmp eq i64 %9, 0` — 이 태그일 때만 Battle 채팅을 심는다. DISCR_EXACT 로 확인(0=TryKill 1=Support 2=Response 3=Avoid, 니치 밀림 없음)"},
+  {"value": 3, "src_line": 749, "meaning": "Chat 열거형 태그 3 = Chat::Battle(usize,usize). DISCR_EXACT 로 확인. 페이로드 __0@+0x8=target, __1@+0x10=0"},
+  {"value": 9223372036854775807, "src_line": 753, "meaning": "i64::MAX — flee_die(@0x118) 초기 센티널. '아직 도주-사망 판정 없음'을 뜻하는 무한대 대용"},
+  {"value": -1, "src_line": 753, "meaning": "니치 최적화된 Option 의 None 태그 255(i8 -1). dive_tower(@0x17a) 와 main_objective(@0x17b) 두 곳. DWARF DISCR_EXACT=255 로 확인"},
+  {"value": 8, "src_line": 747, "meaning": "Vec::new() 의 dangling 포인터 값(=align_of::<Chat>()). 임계값이 아니라 빈 Vec 표현"}
+ ],
+
+ "calls": [
+  "alloc::raw_vec::RawVec::grow_one",
+  "game_ai::plan_legacy::old::battle::BattlePlanGoal::base_sub_goal",
+  "core::ptr::drop_glue"
+ ],
+
+ "logic": "fn DeathMatchBattle::new(version: usize, goal: BattlePlanGoal, data: &OperationData, player: &PlayerState) -> DeathMatchBattle\n\n// L747\nlet mut chats: Vec<Chat> = Vec::new();          // RawVec{cap=0, ptr=dangling(8)}, len=0\n\n// L749  — 유일한 분기\nif goal.tag == 0 {                               // BattlePlanGoal::TryKill(target, _)\n    let target = *(goal + 0x8);                  // TryKill.__0 : usize\n    chats.grow_one();                            // cap 0 -> 1 (push 의 slow path, 인라인됨)\n    let p = chats.raw.ptr;\n    p[0x0] = 3u8;                                // Chat::Battle\n    p[0x8] = target;                             // Chat::Battle.__0\n    p[0x10] = 0;                                 // Chat::Battle.__1\n    chats.len = 1;\n}\n// tag 1(Support) / 2(Response) / 3(Avoid) 는 아무것도 안 함 -> chats 는 빈 채로 남는다\n\n// L753\nlet sub_goal: BattleSubPlanGoal = BattlePlanGoal::base_sub_goal(&goal, version, player, data);\n//   -> { i64, i64 } 로 반환, out+0xe8 / out+0xf0 에 각각 저장\n\n// L754\nlet g = *(data.cache);                           // &dyn AbstractGame (팻포인터)\nlet start_tick: usize = (g.vtable[0x28])(g.data);  // 슬롯 5, 인자는 self 뿐, i64 반환\n\n// L753~755  — 구조체 리터럴 (Self { .. }) 을 sret 버퍼에 직접 기록\nSelf {\n    // --- 전부 None ---\n    support_target:   None,   // 0x000  Option<usize>           i64 태그 0\n    region:           None,   // 0x010  Option<BattleRegion>    i64 태그 0\n    well_runaway:     None,   // 0x030  Option<usize>\n    death_focus:      None,   // 0x040  Option<usize>\n    seal_basis:       None,   // 0x050  Option<(usize,usize,usize)>\n    hold_scene_basis: None,   // 0x070  Option<(usize,usize,usize)>\n    repo_scene_basis: None,   // 0x090  Option<(usize,usize)>\n    flee_dir:         None,   // 0x0a8  Option<(i64,i64)>\n    far_noout_since:  None,   // 0x0c0  Option<usize>\n    dive_tower:       None,   // 0x17a  Option<TowerType>          니치 태그 255\n    main_objective:   None,   // 0x17b  Option<Option<MainObjective>> 니치 태그 255\n\n    // --- 인자/호출 결과에서 옴 ---\n    main_goal:  goal,         // 0x0d0  memcpy 24B (인자 goal 원본 보존)\n    sub_goal:   sub_goal,     // 0x0e8  base_sub_goal 결과\n    chats:      chats,        // 0x0f8  memcpy 24B (위에서 만든 Vec 이동)\n    start_tick: start_tick,   // 0x110  플랜 생성 시각 = 이후 모든 경과시간의 기준점\n\n    // --- 센티널/0 ---\n    flee_die: i64::MAX,       // 0x118  '미발생' 센티널\n    // 0x120..0x170 = memset(0, 80B):\n    trade_lean: 0,            // 0x120  i64\n    lean_last_tick: 0,        // 0x128\n    scene_change_tick: 0,     // 0x130\n    last_act_tick: 0,         // 0x138\n    idle_spec_tick: 0,        // 0x140\n    last_swing_tick: 0,       // 0x148\n    ep_follow_until: 0,       // 0x150\n    idle_prev_pos: (0, 0),    // 0x158  tuple<u64,u64>\n    last_unseal_tick: 0,      // 0x168\n\n    // --- bool 전부 false ---\n    with_dive: false,         // 0x170\n    help_called: false,       // 0x171\n    dive_abandoned: false,    // 0x172\n    dodge_commit: false,      // 0x173\n    last_stand: false,        // 0x174\n    had_ult_ready: false,     // 0x175\n\n    // --- 열거형 초기 상태 ---\n    stance:          DeathStance::Commit,   // 0x176  태그 0 (다른 값: 1=Reposition 2=HoldForSpawn)\n    tactic:          BattleTactic::Standard,// 0x177  태그 0 (1=Frontline 2=BacklineDPS 3=SkillBurst 4=Peel 5=AllIn 6=Disengage)\n    scene:           DmScene::Stand,        // 0x178  태그 0 (1=Engage 2=Withdraw 3=Hold 4=Reposition 5=LastStand 6=Fallback)\n    scene_last_from: DmScene::Stand,        // 0x179  태그 0\n    lean_last_sign:  0,                     // 0x17e  i8\n}\n\n// 언와인드 경로(%16): grow_one / base_sub_goal / vtable 호출 중 패닉하면\n//   cleanuppad 에서 chats(Vec<Chat>) 의 drop_glue 만 호출하고 재전파.\n\n★판단에 직결되는 초기값 정리\n - start_tick 만이 '외부에서 읽어오는' 값이다(현재 틱). 나머지는 전부 상수.\n - flee_die = i64::MAX 라서 'flee_die 이후인가' 류 비교는 초기에 항상 거짓이 된다.\n - scene/scene_last_from 이 둘 다 Stand 이고 scene_change_tick=0 이라\n   '씬이 바뀐 지 N틱' 계산은 생성 직후 start_tick 만큼 큰 값이 된다(0 기준).\n - chats 는 TryKill 일 때만 원소 1개(Battle(target,0)), 그 외 목표에선 빈 Vec.",
+
+ "knobs": [
+  {"what": "Battle 채팅을 심는 목표 종류", "where": "death_battle.rs:749 (IR m05.ll:17709 `icmp eq i64 %9, 0`)", "value": 0,
+   "effect": "TryKill(태그 0)일 때만 chats 에 Chat::Battle(target,0) 이 들어간다. 비교값을 1/2/3 으로 바꾸면 Support/Response/Avoid 목표에서 대신 전투 콜을 하게 되고, 조건을 무조건 참으로 만들면 모든 데스매치 플랜이 아군에게 전투 신호를 보낸다. 반대로 조건을 거짓으로 만들면 아군 호응이 사라진다"},
+  {"what": "flee_die 초기 센티널", "where": "death_battle.rs:753 (out+0x118)", "value": 9223372036854775807,
+   "effect": "i64::MAX 라서 '이미 도주-사망 상태인가' 판정이 초기에 전부 거짓. 작은 값(예: 0)으로 내리면 생성 직후부터 그 조건이 참이 되어 도주/포기 로직이 즉시 켜진다"},
+  {"what": "초기 stance", "where": "death_battle.rs:753 (out+0x176)", "value": 0,
+   "effect": "0=Commit(교전 각오)로 시작. 1=Reposition 으로 바꾸면 생성 직후 자리잡기부터, 2=HoldForSpawn 으로 바꾸면 리스폰 대기부터 시작한다"},
+  {"what": "초기 tactic", "where": "death_battle.rs:753 (out+0x177)", "value": 0,
+   "effect": "0=Standard. 1=Frontline/2=BacklineDPS/3=SkillBurst/4=Peel/5=AllIn/6=Disengage 로 바꾸면 첫 틱의 전술 프리셋이 달라진다(이후 갱신 로직이 덮어쓸 수 있음)"},
+  {"what": "초기 scene / scene_last_from", "where": "death_battle.rs:753 (out+0x178, +0x179)", "value": 0,
+   "effect": "둘 다 0=Stand(정지). Engage(1)로 바꾸면 플랜이 교전 상태로 태어나고, scene_change_tick 이 0 이라 '씬 유지시간' 가드가 처음부터 통과된다"},
+  {"what": "Chat::Battle 의 두 번째 페이로드", "where": "death_battle.rs:749 (out 아님 — chats 원소 +0x10)", "value": 0,
+   "effect": "항상 0 으로 고정. 이 값이 아군 호응 강도/우선순위로 쓰인다면 올리는 것이 개입 지점이 되지만, 의미는 이 함수 밖(Chat 소비처)에서 정해진다 — unknown 참조"}
+ ],
+
+ "unknown": [
+  "dyn AbstractGame vtable 슬롯 +0x28(=슬롯 5)의 실제 메서드 이름 — game_core 크레이트의 DWARF 가 _gaibc 에 없어 원리적으로 이 IR 만으로는 확정 불가. 반환 i64 가 곧바로 start_tick(usize) 에 저장되므로 '현재 틱'으로 **추정**한다. 검증하려면 같은 vtable 슬롯을 부르는 다른 함수의 결과 사용처를 교차 확인해야 함",
+  "BattlePlanGoal::base_sub_goal 내부는 읽지 않음(담당 범위 밖, m05.ll 다른 위치). 반환은 {i64,i64} = BattleSubPlanGoal(16B) 이며 sub_goal(@0xe8)에 그대로 들어간다는 것만 확인",
+  "인자 player(&PlayerState 2528B) 는 이 함수 본문에서 한 번도 역참조되지 않는다 — base_sub_goal 로만 전달. 따라서 player 의 어떤 필드가 초기값에 영향을 주는지는 base_sub_goal 을 봐야 알 수 있음",
+  "인자 version 도 분기 없이 base_sub_goal 로 전달만 됨 — 버전별 차이는 그 함수 안에 있음",
+  "TryKill 의 두 번째 페이로드(goal+0x10, __1: usize)는 이 함수에서 읽지 않는다. 무엇인지 미확정",
+  "Chat::Battle(target, 0) 의 __1 이 0 으로 고정된 이유/의미 미확정 — Chat 소비처(game_core 쪽)를 봐야 함",
+  "Vec::push 는 인라인되어 push 심볼이 본문에 없다(grow_one 만 보임). constants 의 8(dangling ptr)도 Vec::new 인라인 산물이라 판정 임계값이 아님 — 형식상 constants 에 넣되 의미는 '빈 Vec 표현'",
+  "memcpy/memset 의 길이 24·80 과 gep stride 는 구조체 크기라 constants 에서 제외했다(SPEC_GUIDE §3 규칙). 80 = 0x120~0x16f 구간 폭이라는 사실은 logic 에 서술"
+ ]
+}

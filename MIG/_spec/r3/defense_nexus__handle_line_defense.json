@@ -1,0 +1,98 @@
+{
+ "name": "handle_line_defense",
+ "sym": "_RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old13defense_nexus19handle_line_defense",
+ "src": "game-ai\\src\\plan_legacy\\old\\defense_nexus.rs",
+ "src_line": 543,
+ "ir_file": "m04.ll",
+ "ir_from": 58175,
+ "ir_to": 58644,
+
+ "one_line": "지정 라인의 아군 타워 주변에 보이는 적 챔피언 수를 세어 라인 방어를 발동할지 판정",
+
+ "signature": {
+  "params": [
+   {"i": 1, "name": "_version", "type": "usize", "note": "본문에서 전혀 안 씀(이름부터 _ 시작). AI 버전 게이트 분기 없음"},
+   {"i": 2, "name": "rnd", "type": "&mut rand::rngs::std::StdRng(320B)", "note": "직접 안 씀. PlayerState::strategy 로 그대로 전달(라인 575)"},
+   {"i": 3, "name": "player", "type": "&PlayerState(2528B)", "note": "info.team(+0x930) 을 읽고, strategy()/is_recent_visible()/has_line_defense_threat() 로 전달"},
+   {"i": 4, "name": "data", "type": "&OperationData(24B)", "note": "+0x0 cache(&AbstractGameWithCache) / +0x8 context(&GameContext) / +0x10 blackboard(&[Blackboard;2])"},
+   {"i": 5, "name": "line", "type": "LineType(u8, range 0..3)", "note": "0=Top 1=Mid 2=Bottom (dienum LineType). 타워 오프셋 선택 switch 와 get_start_position 인자에 쓰임"},
+   {"i": 6, "name": "_debug", "type": "&mut DebugFrameData(224B)", "note": "readnone — 본문에서 전혀 안 씀"}
+  ],
+  "returns": "bool — true = 이 라인 방어를 채택해야 함 (마지막 판정은 Strategy.morgard_defense 에 따라 갈림)"
+ },
+
+ "reads": [
+  {"base": "OperationData", "offset": "0x0", "name": "cache", "note": "&AbstractGameWithCache(8840B). gep 없이 load(ptr %3) 이라 C3 에는 안 보임"},
+  {"base": "OperationData", "offset": "0x8", "name": "context", "note": "&GameContext(64B). line_exists 인자 + tutorial/setting/pool 접근 기점"},
+  {"base": "OperationData", "offset": "0x10", "name": "blackboard", "note": "&[Blackboard;2]. Blackboard 1개 = 744B (is_recent_visible 의 dereferenceable(744) 로 확인)"},
+  {"base": "GameContext", "offset": "0x0", "name": "pool", "note": "&bumpalo::Bump. AbstractGameWithCache::champions 4번째 인자로 전달(라인 571). gep 없이 load"},
+  {"base": "GameContext", "offset": "0x8", "name": "setting", "note": "&GameSetting(5432B). LineType::get_start_position 2번째 인자(라인 555~556)"},
+  {"base": "GameContext", "offset": "0x38", "name": "tutorial", "note": "TutorialType(u8). rule_scope::morgard_exists 가 인라인되며 읽는 유일한 필드(라인 549)"},
+  {"base": "PlayerState", "offset": "0x930", "name": "info.team", "note": "usize. 자기 팀. 1-team 이 상대 팀 인덱스로 쓰임"},
+  {"base": "AbstractGameWithCache", "offset": "0x0", "name": "game (dyn 앞 워드 = 객체 포인터)", "note": "gep 없이 load(ptr %22)"},
+  {"base": "AbstractGameWithCache", "offset": "0x8", "name": "game (dyn 뒤 워드 = vtable 포인터)", "note": "dereferenceable(816) — vtable 102슬롯"},
+  {"base": "<dyn AbstractGame vtable>", "offset": "0x40", "name": "(이름 미상 슬롯)", "note": "호출 결과 = enum2$<GameMode>{i64 tag, ptr}. 이름은 game_core DWARF 부재로 확정 불가"},
+  {"base": "MobaMode", "offset": "0x240", "name": "remain_epic_time[team]", "note": "i64 배열(2팀, stride 8). MobaMode::remain_epic_time(game.rs:210) 이 인라인된 것"},
+  {"base": "AbstractGameWithCache", "offset": "0x130", "name": "twin_towers[team]", "note": "팀당 32B({{ptr,ptr,i64},i64}) = bumpalo Vec<&Entity>"},
+  {"base": "AbstractGameWithCache", "offset": "0x180", "name": "top_tower[team]", "note": "Option<&Entity> 2개(팀 인덱스). line==Top 일 때 1순위"},
+  {"base": "AbstractGameWithCache", "offset": "0x190", "name": "top_tower2[team]", "note": "line==Top 일 때 2순위(1순위가 null 이면 사용)"},
+  {"base": "AbstractGameWithCache", "offset": "0x1a0", "name": "mid_tower[team]", "note": "line==Mid 1순위"},
+  {"base": "AbstractGameWithCache", "offset": "0x1b0", "name": "mid_tower2[team]", "note": "line==Mid 2순위"},
+  {"base": "AbstractGameWithCache", "offset": "0x1c0", "name": "bottom_tower[team]", "note": "line==Bottom 1순위"},
+  {"base": "AbstractGameWithCache", "offset": "0x1d0", "name": "bottom_tower2[team]", "note": "line==Bottom 2순위"},
+  {"base": "bumpalo::Vec<&Entity>", "offset": "0x0", "name": "ptr", "note": "twin_towers[team] 와 champions() 결과 양쪽에서 동일 레이아웃으로 읽음. gep 없이 load"},
+  {"base": "bumpalo::Vec<&Entity>", "offset": "0x18", "name": "len", "note": "twin_towers[team].len / champions().len (둘 다 +24)"},
+  {"base": "Entity", "offset": "0x5c0", "name": "id", "note": "타워의 id. has_line_defense_threat 4번째 인자(라인 567)"},
+  {"base": "Entity", "offset": "0x660", "name": "x", "note": "거리 계산용(타워/트윈타워/적 챔피언 모두)"},
+  {"base": "Entity", "offset": "0x668", "name": "y", "note": "거리 계산용"},
+  {"base": "Strategy", "offset": "0xe", "name": "morgard_defense", "note": "MorgardDefenseStrategy(u8). 0=Gather 1=Battle (dienum). 최종 판정 분기(라인 576~578)"}
+ ],
+
+ "constants": [
+  {"value": 6, "src_line": 549, "meaning": "rule_scope::morgard_exists 인라인 게이트. (context.tutorial - 1) <u 6, 즉 tutorial ∈ 1..=6 (First/TopSolo/Bottom/MidSolo/MidBottom/JungleOnly) 이면 즉시 false 반환. 통과하는 값은 0=None, 7=Line, 8=Total"},
+  {"value": -1, "src_line": 549, "meaning": "위 범위검사의 add nsw i8 %tutorial, -1 (그리고 라인 578 의 near_enemy_champion-1). 원래 소스의 matches! 패턴이 범위검사로 접힌 흔적"},
+  {"value": 40000000001, "src_line": 572, "meaning": "200000^2 + 1 — 타워와 적 챔피언 사이 제곱거리 임계. d2 <u 40000000001 은 실거리 <= 200000 과 동치. 게임 셀 32000 기준 약 6.25셀"},
+  {"value": 2, "src_line": 578, "meaning": "morgard_defense == Battle 분기의 범위폭. (near_enemy_champion - 1) <u 2 → 근처 적이 정확히 1명 또는 2명일 때만 true"},
+  {"value": 1, "src_line": 578, "meaning": "morgard_defense == Gather 분기의 하한. near_enemy_champion >u 1 → 2명 이상일 때 true. (같은 값 1이 상대팀 인덱스 1-team 계산에도 쓰임)"}
+ ],
+
+ "calls": [
+  "game_ai::plan_legacy::rule_scope::line_exists",
+  "game_core::simulation::state::player::LineType::get_start_position",
+  "core::iter::adapters::map::fold",
+  "game_ai::plan_legacy::old::defense_nexus::has_line_defense_threat",
+  "game_core::simulation::AbstractGameWithCache::champions",
+  "game_core::simulation::game::blackboard::Blackboard::is_recent_visible",
+  "game_core::simulation::state::player::PlayerState::strategy",
+  "core::ptr::drop_glue",
+  "bumpalo::collections::vec::drop",
+  "bumpalo::collections::raw_vec::drop",
+  "core::panicking::panic_bounds_check",
+  "core::option::unwrap_failed"
+ ],
+
+ "logic": "// p1 _version, p6 _debug 미사용. p2 rnd 는 strategy() 로 통과 전달만.\nctx = data.context                       // OperationData+0x8\n\n// --- 544 ---\nif !rule_scope::line_exists(ctx, line) { return false }\n\n// --- 549 : rule_scope::morgard_exists 가 통째로 인라인됨 ---\n//     본문에 남은 것은 TutorialType::spawn_epic(runner.rs:262) 의 범위검사뿐\nif (ctx.tutorial - 1) <u 6 { return false }      // tutorial ∈ 1..=6 이면 종료. 0/7/8 만 통과\n\n// --- 549 (같은 줄) : 게임모드 취득 + 에픽 잔여시간 게이트 ---\ncache = data.cache                       // &AbstractGameWithCache\ngame  = cache.game                       // dyn: obj=+0x0, vtable=+0x8\nmode  = vtable[+0x40](game.obj)          // -> enum2$<GameMode> { i64 tag, ptr payload }\nif mode.tag != 0 { core::option::unwrap_failed() }   // GameMode::as_moba(game.rs:230).unwrap()\nmoba  = mode.payload                     // &MobaMode\nteam  = player.info.team                 // PlayerState+0x930\nother = 1 - team                         // 상대 팀 (>=2 면 panic_bounds_check)\nif moba.remain_epic_time[other] == 0 { return false }   // MobaMode+0x240 + other*8\n\n// --- 553 : AbstractGameWithCache::tower(line, team) 인라인 ---\nswitch line {                             // 판별자는 switch 로 접혀 사라짐\n  Top    => (a,b) = (0x180, 0x190)\n  Mid    => (a,b) = (0x1a0, 0x1b0)\n  Bottom => (a,b) = (0x1c0, 0x1d0)\n}\nif team >= 2 { panic_bounds_check }\nline_tower = cache[a][team].or(cache[b][team])        // Option::or (option.rs:1618) — 1순위 우선\n\n// --- 554~559 : 트윈타워 중 라인 시작점에 가장 가까운 것 ---\ntw = cache.twin_towers[team]              // +0x130 + team*32, Vec<&Entity>{ptr@+0x0, len@+0x18}\nnearest = if tw.len == 0 { None } else {\n    tw.iter().min_by_key(|e| {            // 첫 원소는 인라인 전개, 나머지는 m12 의 fold 로\n        (sx, sy) = LineType::get_start_position(line, ctx.setting, player.info.team)   // 556\n        dx = abs_diff(e.x, sx); dy = abs_diff(e.y, sy)                                 // 557\n        dx*dx + dy*dy                     // key = 제곱거리\n    })                                    // 동점이면 앞선 원소 유지(compare<=0 시 기존 유지)\n}\ntower_opt = line_tower.or(nearest.map(|x| *x))       // 559\nif tower_opt.is_none() { return false }               // 565 (뒤이은 unwrap 은 LLVM 이 무해화)\ntower = tower_opt.unwrap()\n\n// --- 567 ---\nif !has_line_defense_threat(player, data, line, tower.id /*Entity+0x5c0*/) { return false }\n\n// --- 571~572 ---\nenemies = cache.champions(other, ctx.pool)            // bumpalo Vec<&Entity>, 상대 팀\nnear_enemy_champion = 0\nfor c in enemies {\n    if data.blackboard[other].is_recent_visible(game /*dyn 2워드*/, player, c)          // 572\n       && (Entity::distance_sq(tower, c) <u 40000000001)  // 200000^2+1 → 실거리 <= 200000\n    { near_enemy_champion += 1 }\n}\ndrop(enemies)\n\n// --- 575~578 ---\nstrategy = PlayerState::strategy(player, rnd, game)   // Strategy 24B\ndefense  = strategy.morgard_defense                   // Strategy+0xe\nreturn match defense {\n    Battle (1) => (near_enemy_champion - 1) <u 2,     // 근처 적이 1명 또는 2명일 때만 true\n    Gather (0) => near_enemy_champion >u 1,           // 근처 적이 2명 이상이면 true\n}\n// (%173 은 select i1 %is_battle, %171, %172 로 접혀 있음)",
+
+ "knobs": [
+  {"what": "타워 근접 적 챔피언 판정 반경(제곱)", "where": "defense_nexus.rs:572", "value": 40000000001,
+   "effect": "올리면 타워에서 더 멀리 떨어진 적도 '근처 적'으로 세어 라인 방어가 더 자주 발동. 내리면 타워에 바짝 붙은 적만 세어 방어가 거의 안 걸림. 실거리 임계 = sqrt(값-1), 현재 200000 (약 6.25셀)"},
+  {"what": "Battle 전략의 적 인원 상한", "where": "defense_nexus.rs:578", "value": 2,
+   "effect": "(count-1) <u 2 의 2. 늘리면 적이 3명 이상 몰려 있어도 라인 방어를 채택한다. 현재는 3명 이상이면 오히려 false(=한타/포기 쪽으로 넘김)"},
+  {"what": "Gather 전략의 적 인원 하한", "where": "defense_nexus.rs:578", "value": 1,
+   "effect": "count >u 1 의 1. 0으로 내리면 적 1명만 있어도 모여서 방어. 올리면 더 많이 몰려야 방어"},
+  {"what": "튜토리얼 게이트(morgard_exists)", "where": "defense_nexus.rs:549 (rule_scope.rs:45~46 + runner.rs:262)", "value": 6,
+   "effect": "(tutorial-1) <u 6 범위를 줄이면 지금 배제되는 튜토리얼 모드(First~JungleOnly)에서도 라인 방어 로직이 돌게 된다. 일반 게임(tutorial=None=0)에는 영향 없음"}
+ ],
+
+ "unknown": [
+  "morgard_exists / TutorialType::spawn_epic 의 극성(원문이 `if !morgard_exists` 인지 `if morgard_exists` 인지) 미확정. 두 함수 모두 24개 .ll 전체에 define 이 없고(grep -l 'define.*morgard_exists' / 'define.*spawn_epic' → 0건) 분기로만 접혀 있다. IR 로 확정된 사실은 '(context.tutorial-1) <u 6 이면 false 반환' 하나뿐이라 logic/constants 에는 그 형태로만 적었다",
+  "dyn AbstractGame vtable +0x40 슬롯의 트레이트 메서드 이름 — game_core 크레이트 DWARF 가 _gaibc 에 없어 원리적으로 확정 불가. 반환이 enum2$<GameMode>{i64 tag, ptr} 이고 tag==0 일 때 MobaMode 페이로드(as_moba, game.rs:230)라는 것만 확정",
+  "MobaMode 는 distruct 사전에 없음(python distruct.py MobaMode → '없음'). +0x240 이 remain_epic_time 배열이라는 근거는 DWARF 의 MobaMode::remain_epic_time(game.rs:210) 인라인 스코프뿐이고, 필드명/단위(틱? 프레임?)는 미확인",
+  "remain_epic_time 을 자기 팀이 아니라 상대 팀 인덱스(1-team)로 읽는 이유 미확정. 인자명이 'team'(!67008)인 것만 확정",
+  "blackboard 를 [1-team] 로 인덱싱하는 이유 미확정 — 배열이 '각 팀이 가진 시야 블랙보드'인지 '상대팀 관측 기록'인지 본문만으로는 판단 불가",
+  "line_exists / has_line_defense_threat / get_start_position / is_recent_visible / champions / PlayerState::strategy 내부는 안 봄(담당 범위 밖)",
+  "LineType::get_start_position 의 3번째 인자 이름 미확인. 호출값이 player.info.team 이라는 것만 확정(m04 58379줄, m12 fold 30622줄 동일)",
+  "min_by_key 의 tie-break 는 m12 의 fold(compare 결과 <1 이면 기존 유지)로 '앞선 원소 유지'라고 읽었으나, twin_towers 의 원소 순서가 무엇으로 정해지는지는 모름",
+  "블록 161 의 icmp ule + llvm.assume(count <= len) 은 Iterator::count 의 범위 힌트로 보이며 판정에 영향 없음(추정)"
+ ]
+}

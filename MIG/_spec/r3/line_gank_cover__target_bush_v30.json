@@ -1,0 +1,96 @@
+{
+ "name": "target_bush_v30",
+ "sym": "_RNvMNtNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old9line_gank5coverNtB2_17LineGankCoverPlan15target_bush_v30",
+ "src": "game-ai\\src\\plan_legacy\\old\\line_gank\\cover.rs",
+ "src_line": 134,
+ "ir_file": "m10.ll",
+ "ir_from": 11483,
+ "ir_to": 11731,
+
+ "one_line": "라인갱크 커버 플랜이 숨을 부시(수풀) 번호를 라인·팀·타워상태로 고르는 순수 매핑 함수",
+
+ "signature": {
+  "params": [
+   {"i": 1, "name": "self", "type": "&LineGankCoverPlan(40B)", "note": "실제로 쓰이는 필드는 self.line(LineType, +0x20) 하나. IR 에선 argpromotion 되어 i8 %0 으로 들어온다(0=Top,1=Mid,2=Bottom, 그 외 unreachable)"},
+   {"i": 2, "name": "player", "type": "&PlayerState(2528B)", "note": "쓰이는 필드는 info.team(+0x930, usize)와 info.position(+0x9c0, Position)뿐. 각각 i64 %1, i32 %2 로 promotion 됨 — 그래서 0x930/0x9c0 gep 이 본문에 없다(0x9c0 은 dbg_value 의 DW_OP_plus_uconst 2496 으로만 보임)"},
+   {"i": 3, "name": "data", "type": "&OperationData(24B)", "note": "data.cache(&AbstractGameWithCache, +0x0) = ptr %3, data.context(&GameContext, +0x8) = ptr %4 로 분해되어 들어옴. data.blackboard(+0x10)는 안 쓰인다"}
+  ],
+  "returns": "usize — 부시(수풀) 인덱스. IR 이 range(i64 2, 22) 로 못 박음 = 2..=21. 실제로 나오는 값은 2,3,4,6,8,9,11,12,13,14,15,16,17,18,20,21 (16종)"
+ },
+
+ "reads": [
+  {"base": "AbstractGameWithCache", "offset": "0x180", "name": "top_tower", "note": "[Option<&Entity>; 2] (team 으로 인덱싱). line=Top 일 때 1차 후보"},
+  {"base": "AbstractGameWithCache", "offset": "0x190", "name": "top_tower2", "note": "line=Top 일 때 top_tower 가 None 이면 쓰는 폴백"},
+  {"base": "AbstractGameWithCache", "offset": "0x1a0", "name": "mid_tower", "note": "line=Mid 1차 후보"},
+  {"base": "AbstractGameWithCache", "offset": "0x1b0", "name": "mid_tower2", "note": "line=Mid 폴백"},
+  {"base": "AbstractGameWithCache", "offset": "0x1c0", "name": "bottom_tower", "note": "line=Bottom 1차 후보"},
+  {"base": "AbstractGameWithCache", "offset": "0x1d0", "name": "bottom_tower2", "note": "line=Bottom 폴백"},
+  {"base": "AbstractGameWithCache", "offset": "0x1e0", "name": "player_champion", "note": "[[Option<&Entity>; 5]; 2] (80B). [team][position.as_index()] 로 접근 → champ. gep 은 480 + team*40 + pos*8"},
+  {"base": "Entity(tower)", "offset": "0x68", "name": "ty(=EntityType) 판별자", "note": "i64, range 0..13. DWARF DISCR_EXACT 확인 결과 니치 밀림 없이 tag==variant index. tag 2 = Tower(payload = Tower 구조체)"},
+  {"base": "Entity(tower)", "offset": "0x70", "name": "ty 페이로드 = &Tower", "note": "EntityType::Tower 의 Tower 본체 시작. 소스의 `info` 변수(cover.rs:149 / 179). 주소만 잡고 필드는 아래 0x88/0x128 로 읽는다"},
+  {"base": "Entity(tower)", "offset": "0x88", "name": "ty.Tower.nearest_enemy 판별자", "note": "Tower+0x18 = Option<(usize,usize)>. i64 range 0..1, 0=None. Top/Bottom 분기에서만 읽음"},
+  {"base": "Entity(tower)", "offset": "0x128", "name": "ty.Tower.ty(=TowerType)", "note": "Tower+0xb8, u8 range 0..7. 0Top 1Mid 2Bottom 3TwinA 4TwinB 5Top2 6Mid2 7Bottom2"},
+  {"base": "Entity(champ)", "offset": "0x660", "name": "x", "note": "u64. Mid 분기에서만 is_top_side 입력으로 사용"},
+  {"base": "Entity(champ)", "offset": "0x668", "name": "y", "note": "u64. 위와 동일"},
+  {"base": "GameContext", "offset": "0x8", "name": "setting(&GameSetting)", "note": "Mid 분기에서만 역참조"},
+  {"base": "GameSetting", "offset": "0x12c0", "name": "height", "note": "u64. is_top_side 의 ry = height - y 에 쓰임"},
+  {"base": "PlayerState", "offset": "0x9c0", "name": "info.position", "note": "Position(4B). 본문엔 promotion 되어 i32 %2 로만 존재 — dbg_value 의 DW_OP_plus_uconst 2496 으로 출처를 확인했다"}
+ ],
+
+ "constants": [
+  {"value": 2, "src_line": 149, "meaning": "EntityType 판별자 == 2 → Tower 변종(DWARF DISCR_EXACT 로 확인). 같은 값 2 가 team 인덱스 상한(bounds check len)과 Top/tower없음/team0 부시번호로도 쓰인다"},
+  {"value": 4, "src_line": 150, "meaning": "TowerType > 4 → is_second_tower (5=Top2, 6=Mid2, 7=Bottom2). 같은 값 4 가 Mid/tower없음/team0 부시번호로도 쓰인다"},
+  {"value": 0, "src_line": 153, "meaning": "Option<(usize,usize)> 판별자 0 = None → nearest_enemy.is_some() 은 (판별자 != 0)"},
+  {"value": 2, "src_line": 138, "meaning": "부시번호: line=Top, 타워 전멸(None), team==0"},
+  {"value": 16, "src_line": 138, "meaning": "부시번호: line=Top, 타워 전멸, team!=0"},
+  {"value": 4, "src_line": 139, "meaning": "부시번호: line=Mid, 타워 전멸, team==0"},
+  {"value": 17, "src_line": 139, "meaning": "부시번호: line=Mid, 타워 전멸, team!=0"},
+  {"value": 9, "src_line": 140, "meaning": "부시번호: line=Bottom, 타워 전멸, team==0"},
+  {"value": 21, "src_line": 140, "meaning": "부시번호: line=Bottom, 타워 전멸, team!=0"},
+  {"value": 3, "src_line": 151, "meaning": "부시번호: Top + (2차타워이거나, 1차타워인데 nearest_enemy 없음) + team==0. 151/156 두 곳에서 같은 조합"},
+  {"value": 6, "src_line": 151, "meaning": "부시번호: 위 3 의 team!=0 짝. 단 154(1차타워+적있음)에서는 team==0 쪽으로 뒤집힌다"},
+  {"value": 8, "src_line": 166, "meaning": "부시번호: Mid + 2차타워 + !is_top_side + team==0"},
+  {"value": 12, "src_line": 166, "meaning": "부시번호: Mid + 2차타워 + !is_top_side + team!=0"},
+  {"value": 13, "src_line": 168, "meaning": "부시번호: Mid + 2차타워 + is_top_side + team==0"},
+  {"value": 18, "src_line": 168, "meaning": "부시번호: Mid + 2차타워 + is_top_side + team!=0"},
+  {"value": 14, "src_line": 171, "meaning": "부시번호: Mid + 2차타워 아님 + is_top_side. ★team 무관(이 분기만 팀을 안 본다)"},
+  {"value": 11, "src_line": 171, "meaning": "부시번호: Mid + 2차타워 아님 + !is_top_side. ★team 무관"},
+  {"value": 15, "src_line": 181, "meaning": "부시번호: Bottom + (2차타워이거나, 1차타워인데 nearest_enemy 없음) + team==0. 181/186 동일"},
+  {"value": 20, "src_line": 181, "meaning": "부시번호: 위 15 의 team!=0 짝. 184(1차타워+적있음)에서는 team==0 쪽으로 뒤집힌다"},
+  {"value": 40, "src_line": 160, "meaning": "unreachable!() 패닉 문자열 \"internal error: entered unreachable code\" 의 길이(40). 판정값 아님 — 패닉 사이트 식별용으로만 기록"}
+ ],
+
+ "calls": [
+  "core::panicking::panic_bounds_check",
+  "core::option::unwrap_failed",
+  "core::panicking::panic"
+ ],
+
+ "logic": "fn target_bush_v30(&self, player: &PlayerState, data: &OperationData) -> usize   // cover.rs:134~194\n\n// --- 135: 담당 라인의 타워를 뽑는다 (AbstractGameWithCache::tower, simulation.rs:1822~1826 인라인)\n//     tower(line, team) = match line { Top => top_tower, Mid => mid_tower, Bottom => bottom_tower }[team]\n//                          .or( 같은 라인의 *_tower2[team] )        // Option::or, option.rs:1622\n//     team >= 2 면 panic_bounds_check (bounds len 2)\nlet tower: Option<&Entity> = self.line 별 (1차타워[team]).or(2차타워[team]);\n\n// --- 136~142: 그 라인 타워가 하나도 없으면 라인/팀만으로 즉시 결정\nif tower.is_none() {                       // 136 (Option::is_none, option.rs:681-682)\n    return match self.line {               // 137\n        Top    => if team == 0 { 2 } else { 16 },   // 138\n        Mid    => if team == 0 { 4 } else { 17 },   // 139\n        Bottom => if team == 0 { 9 } else { 21 },   // 140\n    };\n}\n\n// --- 144: 여기서부터 tower 는 Some. (unwrap 이 인라인되고 패닉 경로는 136 덕에 소거됨)\nlet tower = tower.unwrap();\n// --- 145: 내 챔피언. player_champion[team][player.info.position.as_index()].unwrap()\n//     None 이면 core::option::unwrap_failed 로 패닉\nlet champ: &Entity = data.cache.player_champion[team][pos].unwrap();\n\n// 공통 술어(블록 36 에서 한 번 계산해 세 라인이 공유):\n//   is_tower_variant = (tower.ty 판별자 == 2)                       // EntityType::Tower\n//   is_second_tower  = (tower.ty.Tower.ty as u8 > 4)                // TowerType 5/6/7 = *2\n//   is_tower2()      = is_tower_variant && is_second_tower          // entity.rs:1308-1309\n\nmatch self.line {                          // 147\n\n  // ============ Top (149~161) ============\n  Top => {\n    if let EntityType::Tower(info) = &tower.ty {          // 149  (판별자 != 2 면 160 의 unreachable!())\n        if tower.ty.is_tower2() {                         // 150  (= TowerType > 4)\n            if team == 0 { 3 } else { 6 }                 // 151\n        } else {                                          // 152\n            if info.nearest_enemy.is_some() {             // 153  (Tower+0x18 판별자 != 0)\n                if team == 0 { 6 } else { 3 }             // 154  ★여기만 3/6 이 뒤집힌다\n            } else {\n                if team == 0 { 3 } else { 6 }             // 156\n            }\n        }\n    } else { unreachable!() }                             // 160  (panic, col 11)\n  }\n\n  // ============ Mid (164~172) — 유일하게 좌표(맵 사이드)를 본다 ============\n  Mid => {\n    if tower.ty.is_tower2() {                             // 164\n        // is_top_side(data.context, champ.x, champ.y)     // map_regions.rs:21~24\n        //   ry = context.setting.height - champ.y ;  return ry < champ.x\n        if !is_top_side(ctx, champ.x, champ.y) {          // 165 (IR 분기 극성이 반전 = 소스가 부정형)\n            if team == 0 { 8 } else { 12 }                // 166\n        } else {\n            if team == 0 { 13 } else { 18 }               // 168\n        }\n    } else {\n        // ★이 가지만 team 을 전혀 안 본다\n        if is_top_side(ctx, champ.x, champ.y) { 14 } else { 11 }   // 171\n    }\n  }\n\n  // ============ Bottom (179~191) — Top 과 완전 동형, 값만 15/20 ============\n  Bottom => {\n    if let EntityType::Tower(info) = &tower.ty {          // 179  (아니면 190 unreachable!())\n        if tower.ty.is_tower2() {                         // 180\n            if team == 0 { 15 } else { 20 }               // 181\n        } else {\n            if info.nearest_enemy.is_some() {             // 183\n                if team == 0 { 20 } else { 15 }           // 184  ★뒤집힘\n            } else {\n                if team == 0 { 15 } else { 20 }           // 186\n            }\n        }\n    } else { unreachable!() }                             // 190\n  }\n}                                                          // ret at 194\n\n// 요약표 (부시번호)\n//  라인   타워없음        2차타워        1차타워+적있음   1차타워+적없음\n//  Top    2 / 16          3 / 6          6 / 3            3 / 6      (team0 / team1)\n//  Bot    9 / 21          15 / 20        20 / 15          15 / 20\n//  Mid    4 / 17          2차: !topside 8/12, topside 13/18 | 1차: topside→14, else 11 (팀무관)",
+
+ "knobs": [
+  {"what": "타워 전멸 시 라인별 대피 부시", "where": "cover.rs:138/139/140", "value": "Top 2|16, Mid 4|17, Bottom 9|21",
+   "effect": "1·2차 타워가 모두 사라진 라인에서 커버 플랜이 서 있을 수풀. 바꾸면 '타워 밀린 라인에서 어디 숨어 갱을 노리는가'가 바뀐다"},
+  {"what": "Top/Bottom 의 기본 커버 부시", "where": "cover.rs:151/156 · 181/186", "value": "Top 3|6, Bottom 15|20",
+   "effect": "team0 이 3(Top)/15(Bottom), team1 이 6/20 을 쓴다. 두 값을 서로 바꾸면 아군/적군 진영 쪽 수풀이 뒤바뀐다"},
+  {"what": "'타워가 적을 물고 있을 때' 부시 반전", "where": "cover.rs:154 · 184", "value": "Top 6|3, Bottom 20|15",
+   "effect": "1차 타워가 살아 있고 nearest_enemy 가 Some 이면 좌우 수풀을 뒤집는다(타워 반대편에서 협공). 이 반전을 없애면 항상 같은 쪽 수풀만 쓴다"},
+  {"what": "is_second_tower 판정 임계", "where": "tower.rs:100 (TowerType > 4)", "value": 4,
+   "effect": "올리면(예: >5) Top2 가 1차 타워 취급이 되어 nearest_enemy 경로로 빠지고, 내리면 TwinB 같은 타입까지 2차 타워로 본다"},
+  {"what": "Mid 2차타워 시 맵 사이드별 부시", "where": "cover.rs:166/168", "value": "아래쪽 8|12, 위쪽 13|18",
+   "effect": "챔피언이 맵 대각선 기준 어느 쪽에 있느냐로 미드 위/아래 수풀을 고른다. 값을 맞바꾸면 반대편 수풀로 돌아간다"},
+  {"what": "Mid 1차타워 시 부시(팀 무시)", "where": "cover.rs:171", "value": "topside 14, 아니면 11",
+   "effect": "미드 1차 타워가 살아 있을 때만 쓰는 두 수풀. 이 가지만 team 을 안 보므로, 팀별로 다르게 하고 싶으면 여기에 team 조건을 새로 넣어야 한다"},
+  {"what": "is_top_side 기준선", "where": "game-core\\src\\simulation\\map_regions.rs:22-24", "value": "ry = setting.height - champ.y; ry < champ.x",
+   "effect": "맵의 반대각선(y = height - x)을 경계로 위/아래를 가른다. height 를 바꾸면 미드 커버 수풀 선택 경계가 통째로 이동한다"}
+ ],
+
+ "unknown": [
+  "부시 번호 2~21 이 실제 맵의 어느 수풀인지 — 이 함수는 인덱스를 반환할 뿐이고 인덱스→좌표 변환은 호출자(또는 map_regions/region_point)에 있다. 담당 범위 밖이라 안 봤다.",
+  "cover.rs:165 의 소스 표현 — IR 은 is_top_side 를 직접 인라인해 놓고 br 극성이 반대(참이면 168, 거짓이면 166)라 소스는 `!is_top_side(..)` 로 판단했지만, `is_bottom_side` 같은 별도 래퍼일 가능성을 완전히 배제하진 못했다(래퍼였다면 inlinedAt 사슬이 한 단 더 있어야 하는데 없다는 게 근거).",
+  "player.info.team(+0x930) 과 self.line(+0x20) 은 argpromotion 으로 사라져 본문에 gep 이 없다 — 출처는 DWARF 타입(OperationData/PlayerState/LineGankCoverPlan)과 인라인된 tower() 의 dbg_value 인자 매핑으로만 확정했다. team 오프셋 0x930 은 본문 대조 불가.",
+  "`v30` 접미가 무엇의 버전인지(AI 버전 게이트인지 단순 명명인지) — 이 함수 본문엔 버전 인자도 버전 분기도 없다. 호출자 쪽을 봐야 알 수 있는데 담당 범위 밖.",
+  "Mid 분기에만 unreachable!() 방어가 없는 이유 — Top/Bottom 은 EntityType::Tower 가 아니면 패닉하는데 Mid 는 그냥 else 로 흘려보낸다(비대칭이 의도인지 실수인지 IR 로는 판단 불가).",
+  "champ 이 None 일 때(unwrap_failed) 실제로 도달 가능한지 — 이 함수 안에서는 방어가 없다."
+ ]
+}
