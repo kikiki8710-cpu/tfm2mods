@@ -1,0 +1,145 @@
+[
+ {
+  "addr": "0x140cfac80",
+  "names": [
+   "get_input",
+   "get_input_cl"
+  ]
+ },
+ {
+  "addr": "0x140c83df0",
+  "names": [
+   "get_input",
+   "get_input_cl",
+   "get_input_cl"
+  ]
+ },
+ {
+  "addr": "0x140c84ea0",
+  "names": [
+   "get_input",
+   "get_input_cl",
+   "get_input_cl"
+  ]
+ },
+ {
+  "addr": "0x140dc7e60",
+  "names": [
+   "clone",
+   "is_enemy_danger_cell"
+  ]
+ },
+ {
+  "addr": "0x140e3b690",
+  "names": [
+   "v30_line_action_stance",
+   "v3_pve_monster_aggro_damage"
+  ]
+ },
+ {
+  "addr": "0x140e3bd30",
+  "names": [
+   "v30_line_action_stance",
+   "v3_pve_monster_aggro_damage"
+  ]
+ },
+ {
+  "addr": "0x140e3bee0",
+  "names": [
+   "v30_line_action_stance",
+   "v3_pve_monster_aggro_damage"
+  ]
+ },
+ {
+  "addr": "0x140e3c090",
+  "names": [
+   "v30_line_action_stance",
+   "v3_pve_monster_aggro_damage"
+  ]
+ },
+ {
+  "addr": "0x140e3c240",
+  "names": [
+   "v30_line_action_stance",
+   "v3_pve_monster_aggro_damage"
+  ]
+ },
+ {
+  "addr": "0x140c9b390",
+  "names": [
+   "dm_ability_value",
+   "sub_plan",
+   "update_v32",
+   "v25_scoped_battle_objective"
+  ]
+ },
+ {
+  "addr": "0x140c9e660",
+  "names": [
+   "clone",
+   "update"
+  ]
+ },
+ {
+  "addr": "0x140e32470",
+  "names": [
+   "get_input",
+   "is_end",
+   "next_plan"
+  ]
+ },
+ {
+  "addr": "0x140e32600",
+  "names": [
+   "get_input",
+   "is_end",
+   "next_plan"
+  ]
+ },
+ {
+  "addr": "0x140e32790",
+  "names": [
+   "get_input",
+   "is_end",
+   "next_plan"
+  ]
+ },
+ {
+  "addr": "0x140e31960",
+  "names": [
+   "get_input",
+   "is_end",
+   "next_plan"
+  ]
+ },
+ {
+  "addr": "0x140e2fd50",
+  "names": [
+   "get_input",
+   "is_end",
+   "next_plan"
+  ]
+ },
+ {
+  "addr": "0x140e30080",
+  "names": [
+   "get_input",
+   "is_end",
+   "next_plan"
+  ]
+ },
+ {
+  "addr": "0x140d73c30",
+  "names": [
+   "dm_bounded_reach",
+   "max_poke_range"
+  ]
+ },
+ {
+  "addr": "0x140e202b0",
+  "names": [
+   "action_candidates",
+   "v3_tower_burst_feasible"
+  ]
+ }
+]

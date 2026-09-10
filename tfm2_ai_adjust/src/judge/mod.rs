@@ -35,6 +35,14 @@ pub mod gen_fns;
 pub mod layout;
 pub mod world;
 pub mod hook;
+pub mod probe;
+pub mod agent_link;
+pub mod agent_twin;
+pub mod fn_bisect;
+pub mod sweep;
+pub mod seq_trace;
+pub mod probe_tbl;
+pub mod typeid_tbl;
 pub mod laycheck;
 pub mod port {
     pub mod steal_score;
@@ -1498,6 +1506,11 @@ pub fn write_status() {
                     if crate::vanilla_imm_on() { "vanilla" } else { "patched" }, s);
     if let Some(p) = pth("judge_status.txt") { let _ = fs::write(p, s); }
     if let Some(p) = pth("judge_dyn.txt") { let _ = fs::write(p, port::dyn_eff::unseen_report()); }
+    if tune("judge_probe", 0) != 0 { if let Some(p) = pth("judge_probe.txt") { let _ = fs::write(p, unsafe { probe::report() }); } }
+    if tune("agent_link", 0) != 0 { agent_link::write_files(); }
+    if tune("fn_sweep", 0) != 0 { if let Some(p) = pth("judge_sweep.txt") { let _ = fs::write(p, sweep::report()); } }
+    if tune("fn_bisect", 0) != 0 { if let Some(p) = pth("judge_fn_bisect.txt") { let _ = fs::write(p, fn_bisect::report()); } }
+    if tune("seq_trace", 0) != 0 { if let Some(p) = pth("judge_seq_trace.txt") { let _ = fs::write(p, seq_trace::report()); } }
     if let Some(p) = pth("judge_pe_gate.txt") { let _ = fs::write(p, format!("{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}", port::combat_score::path_report(), cap_a0_fold::field_report(), cap_tdb::field_report(), port::position_eval::dive_cmp_report(), port::position_eval::memo_report(), port::position_eval::mine_truth_report(), port::position_eval::cand_report(), port::position_eval::need_report(), port::position_eval::neg_report(), port::position_eval::qscan_report(), port::position_eval::comp_report(), port::position_eval::gbx_report(), port::position_eval::self_report(), port::position_eval::truth_report(), port::position_eval::edge_report(), port::position_eval::gate_report(), port::combat_score::na_report(), port::fight_check::memo_cap_report(), tid_report(), format!("[race] eb82d0 unst={} unst_g={} | d84db0 unst={} unst_g={}
 ", cap_as_eb82d0::UNST.load(Ordering::Relaxed), cap_as_eb82d0::UNST_G.load(Ordering::Relaxed), cap_as_d84db0::UNST.load(Ordering::Relaxed), cap_as_d84db0::UNST_G.load(Ordering::Relaxed)), port::combat_score::a2_report(), port::combat_score::e044_report(), port::combat_score::pmask_report(), ord_report(), port::combat_score::cap_report(), port::position_eval::impact_report(), port::combat_score::nch_report())); }
 }
@@ -1515,7 +1528,10 @@ unsafe fn install_one(log: &mut String, spec: &FnSpec, orig_slot: &AtomicUsize, 
 /// 로드 시점 1회(훅 설치 블록 끝, cfg 로드 후). 실패해도 게임 무영향(미설치 = 원본).
 pub unsafe fn install() {
     if INSTALLED.swap(true, Ordering::Relaxed) { return; }
-    let verify = tune("judge_verify", 0) != 0;
+    // ★judge_hooks(기본 1) = 0 이면 **검증용 shadow 훅 자체를 안 건다**.
+    //   진단 전용: agent_link 트윈 비교에서 게임 쪽에만 훅이 걸려 생기는 비대칭을 제거하려고.
+    //   judge_verify 는 1 로 둔다 — 그래야 즉치 바이트패치 578개가 계속 꺼진다(judge_keep_imm=0).
+    let verify = tune("judge_verify", 0) != 0 && tune("judge_hooks", 1) != 0;
     // 판단 파일은 프로세스마다 새로(누적되면 지난 판 DIFF 가 섞여 오독 — 03:05 실사고)
     for s in ALL { if let Some(p) = pth(&format!("judge_{}.txt", s.name)) { let _ = fs::remove_file(p); } }
     if let Some(p) = pth("judge_layout.txt") { let _ = fs::remove_file(p); }
@@ -1589,6 +1605,22 @@ pub unsafe fn install() {
     } else {
         log.push_str("[judge] judge_verify=0 → 훅 미설치(원본)\n");
     }
+    // ★발화 빈도 프로브(cfg `judge_probe=1`, 기본 꺼짐) — 남은 포팅 후보 91개에 **카운트 전용** 훅.
+    //   목적은 재현이 아니라 범위 산정이다: 정적 콜그래프에는 있지만 실제 경기에서 한 번도 안 타는
+    //   죽은 코드를 빼려는 계측(선례 = tower_dive 의 version≤1 전용 서브트리 1,900줄).
+    agent_link::install_fixed_rng(&mut log);
+    // ★난수원 고정(진단) — 반드시 다른 설치보다 먼저
+    // ★AI 계층 통째 교체(agent_link · cfg `agent_link` 1=원본+다이제스트 / 2=내 사본+다이제스트). judge_verify 와 독립.
+    agent_link::install(&mut log);
+    if tune("judge_probe", 0) != 0 {
+        let (ok, n) = probe::install_all();
+        log.push_str(&format!("[probe] 발화계측 프로브 {}/{} 설치
+", ok, n));
+    }
+    // ★함수 단위 이분 탐색(진단, cfg `fn_bisect`) — judge 훅보다 **늦게** 설치해 바깥(체인)에 선다.
+    fn_bisect::install(&mut log);
+    sweep::install(&mut log);
+    seq_trace::install(&mut log);   // ★게임/사본 양쪽 내부 호출 순서 대조(진단, cfg seq_trace)
     append_log(&log);
     if let Some(p) = pth("judge_install.txt") { let _ = fs::write(p, &log); }
     write_status();

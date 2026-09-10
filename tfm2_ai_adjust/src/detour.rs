@@ -955,7 +955,8 @@ unsafe fn apply_visshort_imm() {
     // ── threat: sev[A] 헬퍼 0xd36b00(add r12, 비트마스크형)·sev[B] 헬퍼 0xc4d6f0(add r15) ──
     ok += patch_imm_bytes(base + 0xc7ed62, &[0x49,0x83,0xc4], 3, 1, enc(threat)) as u32;   // ←s2 c70ce2
     ok += patch_imm_bytes(base + 0xca6211, &[0x49,0x83,0xc7], 3, 1, enc(threat)) as u32;   // ←s2 c985d1
-    // ── score: sev[E] 본체(0xc7f640) add rsi ×5 + 헬퍼 0xcc8060 add rbx ×1·add rsi ×4 ──
+    // ── score: sev[E] 본체(~~0xc7f640~~ ⚠0.5.3 주소·현행 미재핀) add rsi ×5 + 헬퍼 0xcc8060 add rbx ×1·add rsi ×4 ──
+    //   ⚠본체 주소만 스테일이고 **아래 패치 사이트(0xd5d0xx)는 0.5.8 재핀된 것**이라 동작에는 영향 없다.
     for rva in [0xd5d067usize, 0xd5d135, 0xd5d1f8, 0xd5d2bb, 0xd5d37a] {
         ok += patch_imm_bytes(base + rva, &[0x48,0x83,0xc6], 3, 1, enc(score)) as u32;
     }
@@ -1359,7 +1360,12 @@ unsafe fn apply_score_imm() {
     }
 }
 
-// ★★[08-03] 전투행동 점수 공식(`0xc7f640` = action_score.rs 974~1452) byte-patch.
+// ★★[08-03] 전투행동 점수 공식(~~`0xc7f640` = action_score.rs 974~1452~~) byte-patch.
+//   ⚠⚠**주소 정정(2026-09-10, 0.5.8 RE)**: 현행 `0xc7f640` 은 **`position_eval__score_parameter_cached`**
+//   (position_eval.rs 217~223 · ScoreParameter 424B TLS 캐시)다. 위 주소는 **0.5.3 시절 값**이고 패치 이후 이동했다
+//   — 전투행동 점수 공식 본체의 **0.5.8 주소는 미재핀**이다.
+//   ★교훈: RVA 를 적은 주석은 **버전 태그가 없으면 다음 세션을 속인다** — 이번에 이 줄 때문에 0xc7f640 을
+//   "이미 아는 함수"로 분류해 엉뚱한 이름을 박을 뻔했다. 근거 = REPORT\RE\2026-09-10_c7f640-…
 //   근거 = RE\2026-08-03_전투행동-점수공식-c7f640-c7d7e0-0.5.3.md
 //   점수 = ①아군포탑지원(+, 최대100) + ②자기위험비용(−) + ③셀위협비용(−) + ④본체가치
 //   ★유효성: 모드 미대체 구간 ⟹ byte-patch 유효.

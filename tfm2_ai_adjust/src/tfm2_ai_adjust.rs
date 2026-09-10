@@ -9,6 +9,8 @@
 //   - think: CAP_PB→로스터 열거, ctx.team()/hp()와 self 매칭 확인. 행동은 그대로(검증 단계).
 //   - override는 cfg(enabled, 기본 OFF)로 게이트. Phase 2부터 결정 재구현 채움.
 
+// ★[2026-09-09] SDK game_ai 비트코드 rlib 을 이 DLL 에 링크(judge::agent_link). build_inj.ps1 의 --extern game_ai(패치판 deps_ailink 우선).
+extern crate game_ai;
 use mod_api::*;
 use std::path::PathBuf;
 use std::collections::HashMap;

@@ -802,9 +802,9 @@ pub unsafe fn td_diag(version: u64, player: usize, data: usize, team_plan: usize
                                 if tdiv_s7_ok(&w, bb, side, tick, target, o).unwrap_or(false) { "IN" } else { "out" });
             }
         }
-        Some(format!("v={} side={} role={} tps={} ne={}(na{}) nl={} tower={:?} flee_lim={} tm={} tick={} stake(al,bd,base_ln,p2_ln,p1net,resc,en,base_net,focus)={:?} bound_last(near,lim,die)={:?} | L1[{}] | L2[{}]",
+        Some(format!("v={} side={} role={} tps={} ne={}(na{}) nl={} tower={:?} flee_lim={} tm={} tick={} stake(al,bd,base_ln,p2_ln,p1net,resc,en,base_net,focus)={:?} bound_last(near,lim,die)={:?} | L1[{}] | L2[{}] | GAME_RFF[{}]",
                      version, side, role, tps, ne, na_e, nl,
-                     tw.map(|o| o.map(|t| rd_u64(t + ENT_HANDLE).unwrap_or(0))), d.saturating_sub(160_000) / sp, p7 & 1, tick, st, BOUND_LAST.with(|c| c.get()), l1s, l2s))
+                     tw.map(|o| o.map(|t| rd_u64(t + ENT_HANDLE).unwrap_or(0))), d.saturating_sub(160_000) / sp, p7 & 1, tick, st, BOUND_LAST.with(|c| c.get()), l1s, l2s, rff_ring_fmt()))
     };
     f().unwrap_or_else(|| "diag NA".into())
 }
@@ -823,5 +823,29 @@ pub unsafe fn rff_cmp(version: usize, data: usize, champ: usize, ap: usize, al: 
     let mut arr: Vec<i64> = Vec::with_capacity(arl);
     for i in 0..arl { arr.push(rd_i64(arp + i * 8)?); }
     let tw = if tower == 0 { None } else { if !ptr_ok(tower) { return None; } Some(tower) };
+    rff_record(champ, ap, al, ep, el, dir, tower, acc, base);
     resolve_fight_full(version as u64, data, champ, &allies, &enemies, dir as u8 as i8, tw, acc as u64, &arr, base as i64)
+}
+
+/// ★게임이 실제로 `resolve_fight_full` 에 넘긴 인자 링(최근 6건). tower_dive DIFF 때 내 l1/l2 와 대조한다.
+///   (champ_h, dir, tower_h, acc, baseline, ally handles, enemy handles)
+#[derive(Clone, Copy, Default)]
+pub struct RffArgs { pub champ: u64, pub dir: i8, pub tower: u64, pub acc: u64, pub base: i64, pub a: [u64; 8], pub la: u8, pub b: [u64; 8], pub lb: u8 }
+thread_local! { pub static RFF_RING: std::cell::RefCell<(Vec<RffArgs>, usize)> = const { std::cell::RefCell::new((Vec::new(), 0)) }; }
+#[allow(clippy::too_many_arguments)]
+pub unsafe fn rff_record(champ: usize, ap: usize, al: usize, ep: usize, el: usize, dir: usize, tower: usize, acc: usize, base: usize) {
+    if al > 8 || el > 8 { return; }
+    let mut r = RffArgs { champ: rd_u64(champ + ENT_HANDLE).unwrap_or(0), dir: dir as u8 as i8,
+                          tower: if tower == 0 { u64::MAX } else { rd_u64(tower + ENT_HANDLE).unwrap_or(0) },
+                          acc: acc as u64, base: base as i64, a: [0; 8], la: al as u8, b: [0; 8], lb: el as u8 };
+    for i in 0..al { let e = rd_u64(ap + i * 8).unwrap_or(0) as usize; r.a[i] = rd_u64(e + ENT_HANDLE).unwrap_or(0); }
+    for i in 0..el { let e = rd_u64(ep + i * 8).unwrap_or(0) as usize; r.b[i] = rd_u64(e + ENT_HANDLE).unwrap_or(0); }
+    RFF_RING.with(|c| { let mut v = c.borrow_mut(); if v.0.len() < 6 { v.0.push(r); } else { let n = v.1 % 6; v.0[n] = r; } v.1 += 1; });
+}
+pub fn rff_ring_fmt() -> String {
+    RFF_RING.with(|c| { let v = c.borrow();
+        v.0.iter().map(|r| format!("(champ{} dir{} tw{} base{} A{:?} B{:?})", r.champ, r.dir,
+            if r.tower == u64::MAX { -1i64 } else { r.tower as i64 }, r.base,
+            &r.a[..r.la as usize], &r.b[..r.lb as usize])).collect::<Vec<_>>().join(" ")
+    })
 }

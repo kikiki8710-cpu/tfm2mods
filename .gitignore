@@ -110,3 +110,18 @@ sylas/.openai_key
 sylas/.gemini_key
 *.openai_key
 *.gemini_key
+
+
+# ──────────────────────────────────────────────────────────────────
+# ── MIG 파생물/캐시 제외 (2026-09-10) ─ 위 "!/MIG/**" 가 전부를 화이트리스트에 넣지만
+#    아래는 **재생성 가능한 산출물·런타임 로그**라 저장소에 넣지 않는다.
+#    (그대로 두면 _digest 1.1GB + decomp 37MB + ir_index 27MB 가 커밋된다)
+# ──────────────────────────────────────────────────────────────────
+/MIG/_digest/
+/MIG/decomp/
+/MIG/logsnap/
+/MIG/__pycache__/
+/MIG/ir_index.json
+/MIG/cg_exe.json
+/MIG/cg_dll.json
+/MIG/_dllmatch_lib.py
