@@ -105,6 +105,17 @@ PYTHONIOENCODING=utf-8 python dienum.py MainObjective 0
   단 **오프셋 없이** 타입만 물으면 최상위 필드만 나온다. 그건 목록 조회지 한계가 아니다.
 
 - IR 원본 = `C:\tfm2mods\_gaibc\*.ll` (24개, 총 303MB — **절대 통째로 읽지 마라**)
+- ★★**`game_core` 본문도 있다 — `C:\tfm2mods\_gcbc\g00.ll ~ g15.ll` (16개, 총 992MB).**
+  ~~"game_core 는 별도 크레이트라 본문이 없다 ⟹ 확인 불가"~~ 는 **거짓이다.** 1~6차 명세에서
+  최소 9건이 이 이유로 `unknown` 에 실렸는데, `_gcbc` 는 2026-09-08부터 있었고 이 문서가
+  가리키지 않았을 뿐이다. `_gaibc` 에 `declare` 만 있으면 **`_gcbc` 에서 `define` 을 찾아라**:
+  ```bash
+  grep -n "^define.*is_recent_visible" /c/tfm2mods/_gcbc/*.ll
+  ```
+  (`Blackboard::is_recent_visible` · `Effect::range_adjust` · `Entity::can_ult` ·
+   `CastingTarget::check` · `expected_damage_target` · `MapDef::camp_pos` ·
+   `JungleRunner::get_camp_state` 전부 여기 본문이 있다.)
+  ⚠단 `_gcbc` 는 `_gaibc` 의 3배 크기다. **반드시 `grep -n "^define"` 로 줄을 찾고 그 범위만 `sed`** 로 읽어라.
 - 담당 함수의 **정확한 줄범위**가 지시에 있다. 그 범위만 읽어라:
   ```bash
   sed -n '49611,50100p' /c/tfm2mods/_gaibc/m10.ll
@@ -181,7 +192,9 @@ grep -n "^define.*<함수명>" /c/tfm2mods/_gaibc/*.ll
 ### 확정 안 되면 **2회 시도 후 `unknown`**
 1차 배치에서 가장 많이 낭비된 패턴 = "IR 과 디버그정보가 어긋나는 지점"을 끝까지 확정하려다 못 하고 결국 `unknown` 으로 내려놓기까지의 왕복. 대표 사례:
 - 인라인만 존재해 `define` 이 없는 헬퍼(`morgard_exists` 등) → 극성(`if m` vs `if !m`) 확정 불가
-- `game_core` 트레이트의 vtable 슬롯 이름 → 그 크레이트 DWARF 가 `_gaibc` 에 없어 **원리적으로 불가**
+- ~~`game_core` 트레이트의 vtable 슬롯 이름 → 그 크레이트 DWARF 가 `_gaibc` 에 없어 원리적으로 불가~~
+  → **2026-09-10 정정: `_gcbc\g*.ll` 에 game_core 본문·DWARF 가 전부 있다.** 위 §1 참조.
+  거기서 `define` 을 찾고, 정적 vtable 전역이 있으면 `divtable` 대신 직접 슬롯을 세라.
 - 상수접힘으로 사라진 원래 비교식
 
 **같은 것을 2번 시도해서 안 되면 즉시 `unknown` 에 "무엇을·왜 확정 못 했는지 + 관측된 사실"을 적고 넘어가라.** 그게 감점이 아니라 정답이다.
