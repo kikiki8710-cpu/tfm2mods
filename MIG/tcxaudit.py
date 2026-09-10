@@ -13,6 +13,10 @@ u"""tcxaudit — 이미 발표한 오프셋 주장을 **tcx 정본 사전(tcxdic
   밀림       동명 struct/enum-variant 혼동으로 +N 어긋남(= distruct 의 대표 결함)
   확인불가   사전에 그 타입이 없다 / 대상이 vtable·bump alloc 등 구조체가 아니다
 
+⚠`~~취소선~~`(§7 정정형 기록의 **이미 정정된 옛 값**) 안의 오프셋은 스캔에서 제외한다(2026-09-11).
+  그것을 잡으면 정정을 쓸 때마다 영구 오탐이 하나씩 쌓인다(실측: `~~PlayerState+0x2496~~` 이
+  배치 A·D 감사에서 나란히 「오귀속」으로 잡혔다). 제외 건수는 리포트 머리에 찍는다 — 조용한 억제 금지.
+
 사용: python -X utf8 tcxaudit.py            (전량)
       python -X utf8 tcxaudit.py --only specs
 """
@@ -261,6 +265,7 @@ class Audit(object):
     def __init__(self):
         self.rows = []
         self.cnt = Counter()
+        self.masked = Counter()      # 파일별로 ~~취소선~~ 안에서 건너뛴 오프셋 주장 수
 
     def add(self, verdict, src, base, off, claim, got, note=""):
         self.rows.append((verdict, src, base, off, claim, got, note))
@@ -411,6 +416,10 @@ def report(A):
     print(u"\n" + "=" * 100)
     print(u"## 마이그레이션 감사 결과 — tcx 정본 사전 대조 (게임 0.5.8)")
     print(u"총 %d건  " % len(A.rows) + "  ".join(u"%s=%d" % (k, A.cnt[k]) for k in order))
+    if A.masked:
+        print(u"※ ~~취소선~~(이미 정정된 옛 값)이라 스캔에서 제외한 오프셋 주장 %d건 — %s"
+              % (sum(A.masked.values()),
+                 ", ".join(u"%s %d" % (k, v) for k, v in sorted(A.masked.items()))))
     print("=" * 100)
     for v in order:
         rows = [r for r in A.rows if r[0] == v]
@@ -451,7 +460,27 @@ PROSE_SKIP = set("""vt vtable rsp rbp rax rcx rdx rdi rsi rip base ptr buf self 
 game data ctx rec me W w slot spec node buffer stack frame arg args obj addr""".split())
 
 
+# ★`~~취소선~~` = **이미 정정된 옛 값**이다(§7 정정형 기록 규약).
+# 스캔하면 정정을 쓸 때마다 영구 오탐이 하나씩 쌓인다 — 2026-09-11 실측:
+# `~~PlayerState+0x2496~~` 가 배치 A·D 감사에서 나란히 「오귀속」으로 잡혔다.
+# 길이를 보존해 공백으로 덮는다(문맥 창 text[m.start()-60:] 정렬 유지).
+STRIKE = re.compile(r"~~(?!~).+?~~")
+
+
+def mask_struck(text):
+    n = [0]
+
+    def rep(m):
+        n[0] += len(PROSE.findall(m.group(0)))
+        return u" " * len(m.group(0))
+
+    return STRIKE.sub(rep, text), n[0]
+
+
 def prose_scan(A, text, srclabel):
+    text, nmask = mask_struck(text)
+    if nmask:
+        A.masked[srclabel] += nmask
     seen = set()
     for m in PROSE.finditer(text):
         nm, hx = m.group(1), m.group(2)
