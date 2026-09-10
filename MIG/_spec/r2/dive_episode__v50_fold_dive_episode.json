@@ -1,0 +1,102 @@
+{
+ "name": "v50_fold_dive_episode",
+ "sym": "_RNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy7handler12dive_episodeNtB4_17LegacyPlanHandler21v50_fold_dive_episode",
+ "src": "game-ai\\src\\plan_legacy\\handler\\dive_episode.rs",
+ "src_line": 125,
+ "ir_file": "m13.ll",
+ "ir_from": 28946,
+ "ir_to": 29380,
+
+ "one_line": "진행중 다이브(V50DiveEpLive)를 종료 확정해 에피소드 레코드로 접어 Vec에 push한다",
+
+ "signature": {
+  "params": [
+   {"i": 1, "name": "self", "type": "&mut LegacyPlanHandler(6168B)", "note": "DWARF !20143 = ref_mut$<LegacyPlanHandler>"},
+   {"i": 2, "name": "_version", "type": "usize", "note": "IR에서 완전 소거(#dbg_value i64 poison). 본문 미사용 + 호출부도 안 넘김(m13.ll:23653/23856은 인자 3개). AI 버전 게이트 없음"},
+   {"i": 3, "name": "_tps", "type": "usize", "note": "동일하게 poison. 본문 미사용"},
+   {"i": 4, "name": "aborted", "type": "bool", "note": "IR %1. 에피소드의 aborted 필드 + abort_src 채택 여부를 결정"},
+   {"i": 5, "name": "end_reason", "type": "u8", "note": "IR %2. 7과 비교하는 게이트(src:139) + 에피소드 end_reason 필드로 그대로 저장"}
+  ],
+  "returns": "() — 반환값 없음. 부작용은 self.last_dive_abandon_tick 갱신 / self.v50_dive_ep_live = None / self.v50_dive_episodes.push"
+ },
+
+ "reads": [
+  {"base": "LegacyPlanHandler", "offset": "0x570", "name": "v50_dive_ep_live", "note": "Option<V50DiveEpLive>(120B). 니치 = 내부 prev_holder_hp 태그. load range !14067={-1,2} → -1이면 None. 확정(distruct.py 역조회)"},
+  {"base": "V50DiveEpLive", "offset": "0x580", "name": "start_tick", "note": "핸들러 기준 0x570+0x10. 에피소드 start_tick(+0x10)으로 복사"},
+  {"base": "V50DiveEpLive", "offset": "0x588", "name": "last_tick", "note": "0x570+0x18. ①last_dive_abandon_tick의 max 인자 ②에피소드 end_tick(+0x18)"},
+  {"base": "V50DiveEpLive", "offset": "0x590", "name": "ep_ticks", "note": "0x570+0x20 → 에피소드 +0x20"},
+  {"base": "V50DiveEpLive", "offset": "0x598", "name": "in_range_ticks", "note": "0x570+0x28. ==0 이 abandon 게이트의 첫 조건 → 에피소드 +0x28"},
+  {"base": "V50DiveEpLive", "offset": "0x5a0", "name": "holder_ticks", "note": "0x570+0x30 → 에피소드 +0x30"},
+  {"base": "V50DiveEpLive", "offset": "0x5a8", "name": "team_holder_ticks", "note": "0x570+0x38. ==0 이 abandon 게이트 두번째 조건(src:138) → 에피소드 +0x38"},
+  {"base": "V50DiveEpLive", "offset": "0x5b0", "name": "minion_cover_ticks", "note": "0x570+0x40 → 에피소드 +0x40"},
+  {"base": "V50DiveEpLive", "offset": "0x5b8", "name": "soaked_hp", "note": "0x570+0x48 → 에피소드 +0x48"},
+  {"base": "V50DiveEpLive", "offset": "0x5c8", "name": "max_catch_break", "note": "0x570+0x58 → 에피소드 +0x00"},
+  {"base": "V50DiveEpLive", "offset": "0x5d0", "name": "uncatch_total", "note": "0x570+0x60 → 에피소드 +0x08"},
+  {"base": "V50DiveEpLive", "offset": "0x5d8", "name": "target_pos", "note": "0x570+0x68, i32(Position) → 에피소드 +0x54"},
+  {"base": "V50DiveEpLive", "offset": "0x5dc", "name": "start_race_adv", "note": "0x570+0x6c, i32 → 에피소드 +0x50"},
+  {"base": "V50DiveEpLive", "offset": "0x5e0", "name": "start_in_range", "note": "0x570+0x70, bool. `and i8 %,1`로 정규화 후 에피소드 +0x60"},
+  {"base": "V50DiveEpLive", "offset": "0x5e1", "name": "tower", "note": "0x570+0x71 TowerType → 에피소드 +0x5f"},
+  {"base": "V50DiveEpLive", "offset": "0x5e2", "name": "start_model", "note": "0x570+0x72 → 에피소드 +0x59"},
+  {"base": "V50DiveEpLive", "offset": "0x5e3", "name": "start_na", "note": "0x570+0x73 → 에피소드 +0x5a"},
+  {"base": "V50DiveEpLive", "offset": "0x5e4", "name": "start_ne", "note": "0x570+0x74 → 에피소드 +0x5b"},
+  {"base": "V50DiveEpLive", "offset": "0x5e5", "name": "start_tgt_hp", "note": "0x570+0x75 → 에피소드 +0x5c"},
+  {"base": "LegacyPlanHandler", "offset": "0x5e8", "name": "plan", "note": "BigPlan(384B). get_name()의 &self 인자(dereferenceable(384))"},
+  {"base": "LegacyPlanHandler", "offset": "0x888", "name": "v50_dive_episodes.cap", "note": "Vec<V50DiveEpisode>의 RawVec cap. grow_one 인자 + len==cap 비교"},
+  {"base": "LegacyPlanHandler", "offset": "0x890", "name": "v50_dive_episodes.ptr", "note": "요소 포인터. elem 크기 104B({i64 x10,i32,i32,i8 x10,[6 x i8]})"},
+  {"base": "LegacyPlanHandler", "offset": "0x898", "name": "v50_dive_episodes.len", "note": "길이. push 후 +1 저장"},
+  {"base": "LegacyPlanHandler", "offset": "0x1480", "name": "last_dive_abandon_tick", "note": "read-modify-write: umax(자기값, live.last_tick)"},
+  {"base": "LegacyPlanHandler", "offset": "0x1811", "name": "v50_dive_ep_abort_src", "note": "aborted==true 일 때만 채택(src:167), 아니면 0"}
+ ],
+
+ "constants": [
+  {"value": -1, "src_line": 131, "meaning": "Option<V50DiveEpLive> 의 니치 값 = None. ①진입 게이트 is_some 판정(icmp ne -1) ②src:156 take() 시 +0x570 에 기록 ③take 직전 값이 -1이면 push 스킵"},
+  {"value": 0, "src_line": 138, "meaning": "in_range_ticks==0 / team_holder_ticks==0 비교값(=틱이 하나도 없음). 별개로 src:167 abort_src 의 기본값 0"},
+  {"value": 7, "src_line": 139, "meaning": "end_reason 게이트 — end_reason==7 이면 last_dive_abandon_tick 갱신을 건너뛴다"},
+  {"value": 11, "src_line": 146, "meaning": "\"PassiveLine\" 문자열 길이 — starts_with 인자"},
+  {"value": 13, "src_line": 147, "meaning": "\"PassiveJungle\" 길이"},
+  {"value": 8, "src_line": 148, "meaning": "\"LineGank\" 길이. (동시에 end_plan 코드 8 = Nexus 포함)"},
+  {"value": 4, "src_line": 149, "meaning": "\"Epic\" 길이. (동시에 end_plan 코드 4 = Epic)"},
+  {"value": 6, "src_line": 150, "meaning": "\"Serpen\"/\"Recall\"/\"Battle\" 길이(3곳 공통 6). (동시에 end_plan 코드 6 = Recall계열)"},
+  {"value": 12, "src_line": 151, "meaning": "\"ActiveRecall\" 길이"},
+  {"value": 5, "src_line": 153, "meaning": "\"Nexus\" 길이. (동시에 end_plan 코드 5 = Serpen)"},
+  {"value": 1, "src_line": 146, "meaning": "end_plan 코드 1 = PassiveLine 접두. 또한 start_in_range 를 bool로 정규화하는 `and i8 %,1` 의 마스크"},
+  {"value": 2, "src_line": 147, "meaning": "end_plan 코드 2 = PassiveJungle 접두"},
+  {"value": 3, "src_line": 148, "meaning": "end_plan 코드 3 = LineGank 접두"},
+  {"value": 9, "src_line": 153, "meaning": "end_plan 코드 9 = 어느 패턴에도 안 걸린 기타 플랜"}
+ ],
+
+ "calls": [
+  "game_ai::plan_legacy::types::BigPlan::get_name",
+  "core::slice::starts_with",
+  "core::str::pattern::Pattern::is_contained_in",
+  "alloc::raw_vec::RawVec::grow_one",
+  "core::ptr::drop_glue",
+  "alloc::vec::Vec::drop",
+  "alloc::raw_vec::RawVec::drop",
+  "llvm.umax.i64"
+ ],
+
+ "logic": "fn v50_fold_dive_episode(&mut self, _version: usize, _tps: usize, aborted: bool, end_reason: u8)\n// _version/_tps 는 IR 에서 poison(완전 소거). 실인자는 (self, aborted, end_reason) 3개뿐.\n\n// ── [1] '헛수고한 다이브'면 포기 시각을 갱신 (src 131~141) ──\n// IR: %11 = select(is_some, in_range_ticks==0, false) → true 면 138 블록, false 면 곧장 [2]로\nlet live = self.v50_dive_ep_live;                  // Option<V50DiveEpLive> @ +0x570, 니치 -1 = None\nif live.is_some()\n   && live.in_range_ticks == 0                     // +0x598 == 0  (※이 비교만 !dbg 소실 — unknown 참조)\n   && live.team_holder_ticks == 0                  // +0x5a8 == 0  (src:138)\n   && end_reason != 7                              // (src:139)\n{\n    // src:140  — umax 로 접힌 Ord::max\n    self.last_dive_abandon_tick = max(self.last_dive_abandon_tick /* +0x1480 */,\n                                      live.last_tick /* +0x588 */);\n}\n// ⚠[1] 은 live 를 소비하지 않는다(as_ref). 조건이 어떻든 [2],[3] 은 항상 실행된다.\n\n// ── [2] 종료 시점의 BigPlan 이름을 1바이트 코드로 접음 (src 145~153) ──\nlet n: String = self.plan.get_name();              // self.plan(BigPlan,384B) @ +0x5e8\nlet end_plan: u8 =\n     if n.starts_with(\"PassiveLine\")   { 1 }       // src:146\nelse if n.starts_with(\"PassiveJungle\") { 2 }       // src:147\nelse if n.starts_with(\"LineGank\")      { 3 }       // src:148\nelse if n.contains(\"Epic\")             { 4 }       // src:149  (str::contains → Pattern::is_contained_in)\nelse if n.contains(\"Serpen\")           { 5 }       // src:150\nelse if n.starts_with(\"ActiveRecall\")  { 6 }       // src:151  ┐ 두 블록(%56,%61)이 같은 phi 값 6\nelse if n.starts_with(\"Recall\")        { 6 }       // src:151  ┘ = 소스는 `||` 한 줄\nelse if n.starts_with(\"Battle\")        { 7 }       // src:152\nelse if n.contains(\"Nexus\")            { 8 }       // src:153\nelse                                   { 9 };      // src:153 (select %70 ? 8 : 9)\ndrop(n);                                           // src:155 (String/RawVec drop glue)\n\n// ── [3] live 를 꺼내 확정 에피소드로 push (src 156~169) ──\n// IR: 먼저 live 의 20개 필드를 전부 레지스터로 로드한 뒤 +0x570 에 -1(None) 을 store.\n//     = core::mem::replace(&mut self.v50_dive_ep_live, None)  (Option::take, src:156)\nlet taken = self.v50_dive_ep_live.take();\nif taken.is_none() { return; }                     // 로드해 둔 옛 태그가 -1 이면 그대로 종료\n\n// src:157  Vec::push_mut — len==cap 이면 RawVec::grow_one, 그다음 ptr.add(len) 에 ptr::write, len+=1\nself.v50_dive_episodes.push(V50DiveEpisode {        // elem 104B\n    max_catch_break:    live.max_catch_break,       // +0x5c8 → +0x00\n    uncatch_total:      live.uncatch_total,         // +0x5d0 → +0x08\n    start_tick:         live.start_tick,            // +0x580 → +0x10\n    end_tick:           live.last_tick,             // +0x588 → +0x18   ★live.last_tick 이 end_tick 이 된다\n    ep_ticks:           live.ep_ticks,              // +0x590 → +0x20\n    in_range_ticks:     live.in_range_ticks,        // +0x598 → +0x28\n    holder_ticks:       live.holder_ticks,          // +0x5a0 → +0x30\n    team_holder_ticks:  live.team_holder_ticks,     // +0x5a8 → +0x38\n    minion_cover_ticks: live.minion_cover_ticks,    // +0x5b0 → +0x40\n    soaked_hp:          live.soaked_hp,             // +0x5b8 → +0x48\n    start_race_adv:     live.start_race_adv,        // +0x5dc → +0x50 (i32)\n    target_pos:         live.target_pos,            // +0x5d8 → +0x54 (i32/Position)\n    abort_src:          if aborted { self.v50_dive_ep_abort_src /* +0x1811 */ } else { 0 },  // src:167\n    start_model:        live.start_model,           // +0x5e2 → +0x59\n    start_na:           live.start_na,              // +0x5e3 → +0x5a\n    start_ne:           live.start_ne,              // +0x5e4 → +0x5b\n    start_tgt_hp:       live.start_tgt_hp,          // +0x5e5 → +0x5c\n    end_reason:         end_reason,                 // 파라미터 그대로 → +0x5d\n    end_plan:           end_plan,                   // [2]의 코드 → +0x5e\n    tower:              live.tower,                 // +0x5e1 → +0x5f\n    start_in_range:     live.start_in_range & 1,    // +0x5e0 → +0x60 (bool 정규화)\n    aborted:            aborted as u8,              // 파라미터 → +0x61\n});\n// ⚠live 의 prev_holder_hp(+0x570,16B)·gap_ticks(+0x5c0) 는 읽지 않는다 = 에피소드에 안 남는다.",
+
+ "knobs": [
+  {"what": "다이브 '포기' 기록 게이트 — end_reason 예외값", "where": "dive_episode.rs:139", "value": 7,
+   "effect": "end_reason==7 인 종료만 last_dive_abandon_tick 갱신에서 빠진다. 이 7을 존재하지 않는 값으로 바꾸면 모든 종료가 포기로 기록되어 last_dive_abandon_tick 이 더 자주(더 최근으로) 올라간다. ⚠이 필드를 읽는 쪽은 이 함수 밖이라 최종 게임 영향은 미확인"},
+  {"what": "다이브 '포기' 판정 조건 — 성과 틱 임계", "where": "dive_episode.rs:131(in_range_ticks) / 138(team_holder_ticks)", "value": 0,
+   "effect": "지금은 '사거리 안에 든 틱이 0 이고 아군 홀더 틱도 0' 인 완전 무성과 다이브만 포기로 친다. 이 0 을 임계값(예: <5)으로 바꾸면 '거의 성과 없던' 다이브까지 포기로 잡혀 last_dive_abandon_tick 이 넓게 갱신된다"},
+  {"what": "종료 플랜 분류 테이블(end_plan 코드)", "where": "dive_episode.rs:146~153", "value": 9,
+   "effect": "BigPlan 표시이름의 접두/포함 문자열로 1~8 을 매기고 나머지는 9. 매칭이 이름 문자열 기반이라 플랜 이름이 바뀌면 조용히 9로 떨어진다. 새 플랜 카테고리를 통계에 분리해 넣고 싶으면 이 체인에 분기를 추가하는 것이 개입 지점(앞 분기가 먼저 이기므로 순서가 곧 우선순위: PassiveLine>PassiveJungle>LineGank>Epic>Serpen>Recall계열>Battle>Nexus)"},
+  {"what": "abort_src 채택 조건", "where": "dive_episode.rs:167", "value": 0,
+   "effect": "aborted==false 면 self.v50_dive_ep_abort_src 를 무시하고 0 을 기록한다. 조건을 없애면 중단이 아닌 정상 종료에도 마지막 abort 원인이 섞여 들어간다"}
+ ],
+
+ "unknown": [
+  "end_reason 의 의미 체계 — 7 이 무엇인지 확정 못 함. 관측 사실: 호출부(m13.ll:23538 의 phi %3508)가 1/2/3/8 및 중첩 phi %3506 에서 4/5/6/7 을 만들어 0~8 범위를 쓴다. 이름 매핑은 담당 범위 밖이라 미조사(2회 시도 후 중단)",
+  "in_range_ticks==0 (gep +0x598, icmp eq 0) 의 소스 줄번호 — 이 load/icmp 3개 명령에는 !dbg 가 아예 없다. LLVM 이 src:131 의 is_some 분기와 select 로 합치면서 위치정보가 소실됐다. 조건 자체(오프셋·비교값·AND 결합)는 IR 로 확정이지만 원래 몇 줄이었는지는 복원 불가",
+  "_version(arg2)/_tps(arg3) 가 무엇인지 — 본문에서 전혀 안 쓰이고(#dbg_value i64 poison) 호출부도 안 넘긴다. 다른 v50_* 훅과 시그니처를 맞추려고 남긴 자리로 추정되나 근거 없음",
+  "last_dive_abandon_tick(+0x1480) 과 v50_dive_episodes(+0x888) 의 소비처 — 이 함수는 쓰기만 한다. 누가 읽어 어떤 판단에 쓰는지는 담당 범위 밖(미조사)",
+  "v50_dive_ep_abort_src(+0x1811) 를 세팅하는 지점 — 범위 밖. 여기서는 읽기만 한다",
+  "BigPlan::get_name() 이 실제로 어떤 문자열을 만드는지 — 호출만 하고 본문은 안 봄. 따라서 코드 9(기타)에 실제로 어떤 플랜들이 떨어지는지는 미확인",
+  "V50DiveEpisode 가 game_core::simulation::ai_interface 타입이라는 것(심볼로 확정)까지만 확인. 게임 본체가 이 Vec 을 어떻게 쓰는지는 game_core DWARF 가 _gaibc 에 없어 이 재료로는 확인 불가",
+  "live.prev_holder_hp(+0x570, Option<usize> 16B) 와 gap_ticks(+0x5c0) 는 이 함수가 한 번도 읽지 않는다 — 폐기되는 것인지 다른 곳에서 이미 소비되는지 미확인"
+ ]
+}

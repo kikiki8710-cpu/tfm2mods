@@ -1,0 +1,103 @@
+{
+ "name": "handle_line_defense",
+ "sym": "_RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old13defense_nexus19handle_line_defense",
+ "src": "game-ai\\src\\plan_legacy\\old\\defense_nexus.rs",
+ "src_line": 543,
+ "ir_file": "m04.ll",
+ "ir_from": 58175,
+ "ir_to": 58644,
+
+ "one_line": "상대가 에픽버프 보유 중일 때 해당 라인 타워를 지킬지 판정",
+
+ "signature": {
+  "params": [
+   {"i": 1, "name": "_version", "type": "usize", "note": "본문에서 전혀 안 쓰임(이름도 _ 접두). AI 버전 게이트 없음"},
+   {"i": 2, "name": "rnd", "type": "&mut StdRng(320B)", "note": "PlayerState::strategy(575줄) 로만 전달됨. 이 함수 자체는 난수를 뽑지 않음"},
+   {"i": 3, "name": "player", "type": "&PlayerState(2528B)", "note": "team(=info.team, +0x930) 과 has_line_defense_threat/is_recent_visible/strategy 인자로 사용"},
+   {"i": 4, "name": "data", "type": "&OperationData(24B)", "note": "{+0x00 cache:&AbstractGameWithCache, +0x08 context:&GameContext, +0x10 blackboard:&[Blackboard;2]}"},
+   {"i": 5, "name": "line", "type": "LineType(i8, range 0..3)", "note": "Top=0 / Mid=1 / Bottom=2. alloca %10 에 담겨 참조로 전달됨"},
+   {"i": 6, "name": "_debug", "type": "&mut DebugFrameData(224B)", "note": "readnone — 본문에서 전혀 안 읽고 안 씀"}
+  ],
+  "returns": "bool — true = 이 라인의 라인 수비 조건 성립. 앞의 5개 게이트를 전부 통과한 뒤, 최종값은 '타워 근처 적 챔피언 수'와 Strategy.morgard_defense 조합으로 결정된다(578줄)"
+ },
+
+ "reads": [
+  {"base": "OperationData", "offset": "0x8", "name": "context", "note": "&GameContext. line_exists / tutorial / setting / pool 의 출처"},
+  {"base": "OperationData", "offset": "0x10", "name": "blackboard", "note": "&[Blackboard;2] (각 744B). 572줄 필터에서 [1-team] 로 인덱싱"},
+  {"base": "GameContext", "offset": "0x38", "name": "tutorial", "note": "TutorialType(i8, range 0..9). 549줄 게이트가 이 값만 본다"},
+  {"base": "GameContext", "offset": "0x8", "name": "setting", "note": "&GameSetting(5432B). LineType::get_start_position 2번째 인자(555~556줄)"},
+  {"base": "PlayerState", "offset": "0x930", "name": "info.team", "note": "usize 0/1. 확정(distruct: GamePlayer 안쪽 +0x930). enemy = 1 - team"},
+  {"base": "AbstractGameWithCache", "offset": "0x40", "name": "(vtable slot +0x40)", "note": "data.cache.game 은 &dyn 팻포인터(+0x00 data, +0x08 vtable). vtable+0x40 를 호출해 GameMode 를 받는다. 슬롯 이름 미상"},
+  {"base": "MobaMode", "offset": "0x240", "name": "epic_minion_buff_time", "note": "[usize;2]. remain_epic_time(game.rs:210) = self[team]. 549줄에서 [1-team](상대팀) 값이 0 이면 즉시 false"},
+  {"base": "AbstractGameWithCache", "offset": "0x180", "name": "top_tower", "note": "[Option<&Entity>;2]. line=Top 일 때 1차 타워 배열(phi 상수 384)"},
+  {"base": "AbstractGameWithCache", "offset": "0x190", "name": "top_tower2", "note": "line=Top 일 때 2차 타워 배열(phi 상수 400)"},
+  {"base": "AbstractGameWithCache", "offset": "0x1a0", "name": "mid_tower", "note": "line=Mid (phi 상수 416)"},
+  {"base": "AbstractGameWithCache", "offset": "0x1b0", "name": "mid_tower2", "note": "line=Mid (phi 상수 432)"},
+  {"base": "AbstractGameWithCache", "offset": "0x1c0", "name": "bottom_tower", "note": "line=Bottom (phi 상수 448)"},
+  {"base": "AbstractGameWithCache", "offset": "0x1d0", "name": "bottom_tower2", "note": "line=Bottom (phi 상수 464)"},
+  {"base": "AbstractGameWithCache", "offset": "0x130", "name": "twin_towers", "note": "[Vec<&Entity,&Bump>;2] (원소 32B). 554줄에서 [team] 사용 — 라인 타워가 전부 None 일 때의 대체 후보"},
+  {"base": "bumpalo::collections::Vec", "offset": "0x18", "name": "len", "note": "Vec 레이아웃 {{ptr,ptr,cap},len} — 데이터 ptr=+0x00, len=+0x18"},
+  {"base": "Entity", "offset": "0x660", "name": "x", "note": "u64 좌표. 557줄 거리키·572줄 distance_sq"},
+  {"base": "Entity", "offset": "0x668", "name": "y", "note": "u64 좌표"},
+  {"base": "Entity", "offset": "0x5c0", "name": "id", "note": "usize. 567줄 has_line_defense_threat 4번째 인자로 타워 id 를 넘긴다"},
+  {"base": "Strategy", "offset": "0xe", "name": "morgard_defense", "note": "MorgardDefenseStrategy(i8, range 0..2): Gather=0 / Battle=1. 576줄"}
+ ],
+
+ "constants": [
+  {"value": 6, "src_line": 549, "meaning": "`(tutorial - 1) <u 6` — tutorial ∈ First(1)..JungleOnly(6) 이면 즉시 false. TutorialType::spawn_epic(runner.rs:263)이 rule_scope::morgard_exists(rule_scope.rs:46) 안에 통째로 인라인된 형태"},
+  {"value": -1, "src_line": 549, "meaning": "위 범위검사용 `add nsw i8 tutorial, -1`"},
+  {"value": 1, "src_line": 549, "meaning": "`sub i64 1, team` — 상대 팀 인덱스 계산(팀은 0/1)"},
+  {"value": 2, "src_line": 549, "meaning": "팀 배열 길이 2 — epic_minion_buff_time / 타워 배열의 panic_bounds_check 상한이자 `icmp ult team, 2`"},
+  {"value": 384, "src_line": 553, "meaning": "line=Top → cache+0x180(top_tower) 선택(switch→phi)"},
+  {"value": 400, "src_line": 553, "meaning": "line=Top → cache+0x190(top_tower2)"},
+  {"value": 416, "src_line": 553, "meaning": "line=Mid → cache+0x1a0(mid_tower)"},
+  {"value": 432, "src_line": 553, "meaning": "line=Mid → cache+0x1b0(mid_tower2)"},
+  {"value": 448, "src_line": 553, "meaning": "line=Bottom → cache+0x1c0(bottom_tower)"},
+  {"value": 464, "src_line": 553, "meaning": "line=Bottom → cache+0x1d0(bottom_tower2)"},
+  {"value": 3, "src_line": 554, "meaning": "`shl nuw nsw i64 len, 3` = len*8 — twin_towers Vec 의 끝 포인터 계산(원소 &Entity 8B). 곱셈이 shl 로 접혀 리터럴 8 은 본문에 없다"},
+  {"value": 40000000001, "src_line": 572, "meaning": "200000^2 + 1 — 타워 주변 적 챔피언 카운트 반경(제곱거리 비교). `dist_sq <u 40000000001` ⇔ 거리 ≤ 200000 ≈ 6.25셀(셀=32000)"}
+ ],
+
+ "calls": [
+  "game_ai::plan_legacy::rule_scope::line_exists",
+  "game_ai::plan_legacy::old::defense_nexus::has_line_defense_threat",
+  "game_core::simulation::state::player::LineType::get_start_position",
+  "game_core::simulation::AbstractGameWithCache::champions",
+  "game_core::simulation::game::blackboard::Blackboard::is_recent_visible",
+  "game_core::simulation::state::player::PlayerState::strategy",
+  "core::iter::adapters::map::fold",
+  "core::option::unwrap_failed",
+  "core::panicking::panic_bounds_check",
+  "core::ptr::drop_glue",
+  "bumpalo::collections::vec::drop"
+ ],
+
+ "logic": "team  = player.info.team        // PlayerState+0x930, 0 또는 1\nenemy = 1 - team\ncache = data.cache              // OperationData+0x00, &AbstractGameWithCache\nctx   = data.context            // OperationData+0x08, &GameContext\n\n// --- 게이트 1 (544줄)\nif !rule_scope::line_exists(ctx, line) { return false }\n\n// --- 게이트 2 (549줄) : 좌항 먼저 평가되는 단축평가 2개\n//  (2-a) 튜토리얼/시나리오 게이트 — rule_scope::morgard_exists(rule_scope.rs:46) 이 인라인됨.\n//        그 안에서 TutorialType::spawn_epic(runner.rs:263) 이 다시 인라인되어\n//        `(ctx.tutorial - 1) <u 6` 한 줄만 남았다.\nif (ctx.tutorial as u8).wrapping_sub(1) < 6 { return false }   // tutorial ∈ {First,TopSolo,Bottom,MidSolo,MidBottom,JungleOnly}\n//  (2-b) 상대 팀 에픽(모르가드) 미니언 버프가 남아 있어야 한다\nlet moba = cache.game.vtable[0x40]()      // GameMode 반환 {i64 태그, ptr 페이로드}\n                 .as_moba().unwrap()      // 태그 워드 != 0 이면 core::option::unwrap_failed 패닉\nif moba.epic_minion_buff_time[enemy] == 0 { return false }     // MobaMode+0x240 + enemy*8\n\n// --- 타워 선정 (553~565줄)\nlet tower_opt: Option<&Entity> =\n    cache.tower(line, team)                       // simulation.rs:1822 인라인\n        //  = <line>_tower[team].or(<line>_tower2[team])\n        //    Top 0x180/0x190 · Mid 0x1a0/0x1b0 · Bottom 0x1c0/0x1d0\n    .or(                                          // 554줄, Option::or (eager)\n        cache.twin_towers[team]                   // 0x130 + team*32, bumpalo Vec<&Entity>\n            .iter()\n            .min_by_key(|e| {                     // 555줄 (closure$0 본문 556~557줄)\n                 let (sx, sy) = line.get_start_position(ctx.setting, team);   // 556줄\n                 game_core::utils::distance_sq(e.x, e.y, sx, sy)              // 557줄\n                 //  = |e.x-sx|^2 + |e.y-sy|^2 (abs_diff 2회 → 제곱합)\n             })\n            .map(|e| *e)                          // 559줄, Option::map(closure$1) = &&Entity → &Entity\n    );\n// 560~564줄(정확한 소스형태 미확인): None 이면 return false\nif tower_opt.is_none() { return false }\nlet tower = tower_opt.unwrap();                   // 565줄\n\n// --- 게이트 3 (567줄)\nif !has_line_defense_threat(player, data, line, tower.id) { return false }   // tower.id = Entity+0x5c0\n\n// --- 타워 근처 적 챔피언 수 (571~572줄)\nlet champs = cache.champions(enemy, ctx.pool);    // bumpalo Vec<&Entity>, 함수 끝에서 drop\nlet near_enemy_champion = champs.iter().filter(|c| {          // 572줄 (closure$2)\n        data.blackboard[enemy].is_recent_visible(cache.game, player, c)   // && 단축평가\n     && c.distance_sq(tower) < 40000000001                    // entity.rs:2157 인라인, 거리 ≤ 200000\n    }).count();\n\n// --- 최종 판정 (575~578줄)\nlet defense = player.strategy(rnd, cache.game).morgard_defense;   // 575~576줄, Strategy+0x0e\nreturn match defense {                                            // 578줄, select 로 접힘\n    Battle(1) => (near_enemy_champion - 1) <u 2,   // 근접 적 1명 또는 2명일 때만 true\n    Gather(0) => near_enemy_champion > 1,          // 근접 적 2명 이상이면 true\n};\n\n// 반환 false 로 빠지는 경로 5개(19번 블록 phi): line_exists 실패 / tutorial 게이트 /\n// epic 버프 0 / 타워 후보 없음 / has_line_defense_threat 실패.\n// 마지막 1개만 578줄 계산값(%173)을 그대로 반환한다.",
+
+ "knobs": [
+  {"what": "타워 근처 적 챔피언 카운트 반경(제곱거리 임계)", "where": "defense_nexus.rs:572 (m04.ll:58583 `icmp ult i64 %151, 40000000001`)", "value": 40000000001,
+   "effect": "200000^2+1. 올리면 더 멀리 있는 적까지 '타워 근처'로 세어 near_enemy_champion 이 커지고, Gather(≥2) 조건이 쉽게 만족돼 라인 수비가 더 자주 성립한다. 반대로 Battle(1~2) 조건은 3명 이상이 잡히면 오히려 깨질 수 있다(상한이 있는 조건이라 단조롭지 않다). 내리면 타워에 딱 붙은 적만 셈"},
+  {"what": "Battle 전략의 근접 적 상한", "where": "defense_nexus.rs:578 (m04.ll:58634~58635 `add i64 %162,-1` / `icmp ult %170, 2`)", "value": 2,
+   "effect": "morgard_defense == Battle 일 때 근접 적이 1~2명이어야 true. 이 2를 키우면 적이 3명 이상 몰려도 라인 수비를 시도(불리한 교전 유발), 1로 줄이면 1명일 때만 수비"},
+  {"what": "Gather 전략의 근접 적 하한", "where": "defense_nexus.rs:578 (m04.ll:58636 `icmp ugt i64 %162, 1`)", "value": 1,
+   "effect": "morgard_defense == Gather 일 때 근접 적 > 1(=2명 이상)이어야 true. 0 으로 낮추면 적 1명만 있어도 라인 수비가 성립하고, 2 로 올리면 3명 이상이어야 성립"},
+  {"what": "상대 팀 에픽(모르가드) 버프 게이트", "where": "defense_nexus.rs:549 (MobaMode+0x240 `epic_minion_buff_time[1-team] == 0` → return false)", "value": 0,
+   "effect": "이 게이트를 없애면(항상 통과) 상대가 에픽 버프를 안 들고 있어도 라인 수비 판정이 돌아간다. 현재는 '상대가 에픽 버프 보유 중'일 때만 이 핸들러가 살아난다 — 이 함수가 사실상 죽어 보이는 주된 이유"},
+  {"what": "튜토리얼/시나리오 게이트", "where": "defense_nexus.rs:549 (`(ctx.tutorial-1) <u 6` → return false)", "value": 6,
+   "effect": "tutorial 이 First(1)~JungleOnly(6) 이면 무조건 false. 일반 경기(None=0)·Line(7)·Total(8) 에서만 통과. 상수를 0 으로 만들면 모든 튜토리얼에서도 라인 수비 판정이 돈다"}
+ ],
+
+ "unknown": [
+  "rule_scope::morgard_exists 의 소스 극성 — 관측된 동작은 확정(`tutorial ∈ 1..=6 이면 return false`)이지만, 소스가 `if !morgard_exists(ctx) { return false }`(morgard_exists = !spawn_epic) 인지 `if morgard_exists(ctx) { return false }`(morgard_exists = spawn_epic) 인지는 IR 로 구분 불가. 두 함수 모두 전 .ll 에 standalone define 이 없고(전부 인라인) 부정이 분기 방향으로 접혔다. 교차확인: m13.ll:6618~6619 에 같은 술어의 부정형(`add i8 t,-7` + `icmp ult i8 .., -6` = t ∉ 1..6)이 morgard 경로로 분기하는 형태로 존재 — 두 해석 모두와 모순 없음. 추정: 이름 의미상 morgard_exists ⇔ tutorial ∉ {1..6}(일반경기·Line·Total 에서 에픽 몬스터 존재)",
+  "TutorialType::spawn_epic(runner.rs:262~263) 의 반환 의미 — 값 1..=6 에서 true 라는 사실만 확정. '에픽을 스폰한다'는 이름과 일반경기(None=0)에서 false 라는 관측이 어긋나 보이는데, define 이 없어 원문 확인 불가",
+  "소스 560~564줄의 정확한 형태 — tower_opt 가 None 일 때 false 를 반환하는 건 확정(105번 블록 → 19번 ret false)이지만 `?` / `let-else` / `if is_none` 중 무엇인지는 dbg 줄번호가 없어 미확정. 565줄에 Option::unwrap(option.rs:1010) 이 인라인돼 있고 그 패닉 경로는 제거됐다",
+  "min_by_key 의 fold 본체(`..min_by_key3key..4fold..`)는 담당 줄범위 밖의 제네릭 함수 — 동점 처리(min_by 는 첫 최소값 유지) 등 내부는 읽지 않았다. 범위 안에는 첫 원소의 키 계산만 인라인돼 있다",
+  "Blackboard 인덱스가 `1 - player.info.team`(상대 팀) 인 것은 확정이지만, '상대 팀 블랙보드에 상대 챔피언의 피탐지 기록이 들어 있다'는 해석은 추정. Blackboard::is_recent_visible 내부는 읽지 않았다",
+  "AbstractGameWithCache::tower 가 `<line>_tower[team].or(<line>_tower2[team])` 인 건 확정이지만, 둘 중 어느 쪽이 외곽/내곽 타워인지는 이 함수만으로는 미상",
+  "cache.game 의 vtable 슬롯 +0x40(GameMode 반환)의 트레이트 메서드 이름 — game_core 의 dyn 트레이트 vtable 정보가 _gaibc DWARF 에 없어 원리적으로 확인 불가",
+  "AbstractGameWithCache::champions(enemy, pool) 이 어떤 챔피언을 담는지(생존자만인지, 순서 등) — 외부 호출이라 내부 미확인",
+  "PlayerState::strategy(rnd, game) 내부 — rnd 를 실제로 소비하는지(즉 morgard_defense 가 프레임마다 흔들리는지) 미확인. 이 함수는 rnd 를 여기로만 넘긴다",
+  "p1 `_version` 과 p6 `_debug` 는 본문에서 전혀 사용되지 않음(_debug 는 readnone) — 버전 분기 없음",
+  "MobaMode+0x240 의 필드명 epic_minion_buff_time 은 distruct.json 기준이고 인라인된 접근자 이름은 remain_epic_time(game.rs:210) 이다. '에픽 미니언 버프 잔여 시간'이라는 의미는 필드명 근거의 추정"
+ ]
+}

@@ -1,0 +1,72 @@
+{
+ "name": "new",
+ "sym": "_RNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old12death_battleNtB2_16DeathMatchBattle3new",
+ "src": "game-ai\\src\\plan_legacy\\old\\death_battle.rs",
+ "src_line": 746,
+ "ir_file": "m05.ll",
+ "ir_from": 17695,
+ "ir_to": 17825,
+
+ "one_line": "DeathMatchBattle(384B) 생성자 — 목표/서브목표/시작틱 세팅 후 나머지 33필드를 중립 초기값으로 채운다",
+
+ "signature": {
+  "params": [
+   {"i": 0, "name": "(sret)", "type": "*mut DeathMatchBattle(384B)", "note": "반환값 out-param. sret([384 x i8]) — 이 함수는 전부 여기에 쓴다"},
+   {"i": 1, "name": "version", "type": "usize", "note": "AI 버전 게이트. ★이 함수 본문에선 분기에 안 쓰이고 base_sub_goal 로 그대로 전달만 됨(피호출 쪽 인자명도 `_version` = 거기서도 미사용)"},
+   {"i": 2, "name": "goal", "type": "BattlePlanGoal(24B, 값전달·indirect)", "note": "enum2$<BattlePlanGoal>. DISCR=variant index 그대로: 0=TryKill(usize,usize) 1=Support(usize) 2=Response 3=Avoid. !range !20208 = [0,4)"},
+   {"i": 3, "name": "data", "type": "&OperationData(24B)", "note": "{0x0 cache:&AbstractGameWithCache, 0x8 context, 0x10 blackboard}. 여기선 cache 만 쓴다"},
+   {"i": 4, "name": "player", "type": "&PlayerState(2528B)", "note": "본문에서 직접 읽지 않음 — base_sub_goal 로 그대로 전달만"}
+  ],
+  "returns": "DeathMatchBattle (384B, sret 로 기록)"
+ },
+
+ "reads": [
+  {"base": "BattlePlanGoal(goal)", "offset": "0x0", "name": "discriminant", "note": "load i64 + icmp eq 0 → TryKill 인지 판정 (death_battle.rs:749)"},
+  {"base": "BattlePlanGoal::TryKill(goal)", "offset": "0x8", "name": "__0 (target)", "note": "TryKill 의 첫 usize. DILocalVariable 이름이 실제로 `target`(749행). __1(+0x10)은 안 읽음"},
+  {"base": "OperationData(data)", "offset": "0x0", "name": "cache", "note": "&AbstractGameWithCache"},
+  {"base": "AbstractGameWithCache", "offset": "0x0", "name": "game", "note": "&dyn AbstractGame 팻포인터 — data ptr@+0x0, vtable ptr@+0x8"},
+  {"base": "dyn AbstractGame vtable", "offset": "0x40", "name": "슬롯(현재 틱 getter)", "note": "vtable+0x28(=40) 슬롯 호출 → i64. 같은 슬롯 호출 결과가 m05.ll:13188 에서 DILocalVariable `tick`(death_battle.rs:225)으로 이름 붙는 것으로 교차확인. 이름 자체는 game_core DWARF 부재로 미확정"}
+ ],
+
+ "constants": [
+  {"value": 8, "src_line": 747, "meaning": "Vec::new() 의 dangling 포인터 `inttoptr (i64 8 to ptr)` = Chat 의 align(8). 임계값 아님"},
+  {"value": 3, "src_line": 749, "meaning": "Chat 열거형 태그 3 = Chat::Battle(usize,usize). DISCR_EXACT=3 확인 + 페이로드(+0x8,+0x10 usize 2개) 레이아웃 교차검증 완료"},
+  {"value": 1, "src_line": 749, "meaning": "push 후 chats.len = 1"},
+  {"value": 24, "src_line": 753, "meaning": "memcpy 크기 24B — chats(Vec 3워드) / main_goal(BattlePlanGoal) 둘 다 24B"},
+  {"value": 9223372036854775807, "src_line": 753, "meaning": "i64::MAX — flee_die(0x118) 초기값. '도주 사망 예정 틱 없음' 센티널(=사실상 무한대)"},
+  {"value": -1, "src_line": 753, "meaning": "i8 -1(=0xff) — 니치 None. dive_tower(0x17a) Option<TowerType> None=DISCR_EXACT 255, main_objective(0x17b) Option<MainObjective> Some=0..11 이므로 255=None"},
+  {"value": 80, "src_line": 753, "meaning": "memset 크기 80B — 0x120~0x16f 를 0 으로. trade_lean/lean_last_tick/scene_change_tick/last_act_tick/idle_spec_tick/last_swing_tick/ep_follow_until(각 8B) + idle_prev_pos(16B) + last_unseal_tick(8B) = 정확히 80B"},
+  {"value": 0, "src_line": 753, "meaning": "나머지 Option 필드 태그 0 = None, bool 필드 false, DeathStance::Commit / BattleTactic::Standard / DmScene::Stand 가 전부 0"}
+ ],
+
+ "calls": [
+  "alloc::raw_vec::RawVec::grow_one",
+  "game_ai::plan_legacy::old::battle::BattlePlanGoal::base_sub_goal",
+  "core::ptr::drop_glue",
+  "llvm.memcpy.p0.p0.i64",
+  "llvm.memset.p0.i64"
+ ],
+
+ "logic": "fn DeathMatchBattle::new(version: usize, goal: BattlePlanGoal, data: &OperationData, player: &PlayerState) -> DeathMatchBattle\n\n// --- 747행 ---\nlet mut chats = Vec::<Chat>::new();           // {cap:0, ptr:0x8(dangling), len:0}\n\n// --- 749행 (유일한 분기) ---\nif goal.discr == 0 {                          // BattlePlanGoal::TryKill\n    let target: usize = goal.+0x8;            // TryKill.__0  (TryKill.__1 은 안 읽음)\n    RawVec::<Chat>::grow_one(&mut chats);     // 용량 확보(용량 0 → 성장)\n    chats.ptr[0] = Chat::Battle(target, 0);   // 태그 i8 3 @+0, target @+0x8, 0 @+0x10\n    chats.len = 1;\n}\n// else(Support/Response/Avoid) → chats 는 빈 채로 남는다\n\n// --- 753행 ---\nlet sub = BattlePlanGoal::base_sub_goal(&goal, version, player, data);  // -> {i64,i64} = BattleSubPlanGoal(16B)\n// ⚠인자 순서 주의: IR 호출은 (goal, version, player, data). 피호출 쪽 인자명은 (self,_version,player,data)\n\n// --- 754행 ---\nlet tick: usize = (*data.cache).game.<vtable+0x28>();   // 현재 게임 틱\n\n// --- 752~784행: 구조체 리터럴 (분기 없음, 전 필드 무조건 대입) ---\nDeathMatchBattle {\n  // 인자/호출에서 오는 값 (판단에 직결되는 3개)\n  0x0d0 main_goal        = goal          (memcpy 24B, 753행)\n  0x0e8 sub_goal         = sub           (i64 두 개: extractvalue0 -> +0xe8, extractvalue1 -> +0xf0, 753행)\n  0x0f8 chats            = chats         (memcpy 24B, 755행)\n  0x110 start_tick       = tick          (754행)\n\n  // 센티널\n  0x118 flee_die         = 9223372036854775807 (i64::MAX)\n  0x17a dive_tower       = None (i8 0xff, 니치)\n  0x17b main_objective   = None (i8 0xff, 니치)\n\n  // Option = None (태그 i64 0 만 기록, 페이로드는 미초기화)\n  0x000 support_target   = None   (Option<usize>)\n  0x010 region           = None   (Option<BattleRegion>)\n  0x030 well_runaway     = None   (Option<usize>)\n  0x040 death_focus      = None   (Option<usize>)\n  0x050 seal_basis       = None   (Option<(usize,usize,usize)>)\n  0x070 hold_scene_basis = None   (Option<(usize,usize,usize)>)\n  0x090 repo_scene_basis = None   (Option<(usize,usize)>)\n  0x0a8 flee_dir         = None   (Option<(i64,i64)>)\n  0x0c0 far_noout_since  = None   (Option<usize>)\n\n  // memset 80B (0x120..0x170) 로 일괄 0\n  0x120 trade_lean=0  0x128 lean_last_tick=0  0x130 scene_change_tick=0\n  0x138 last_act_tick=0  0x140 idle_spec_tick=0  0x148 last_swing_tick=0\n  0x150 ep_follow_until=0  0x158 idle_prev_pos=(0,0)  0x168 last_unseal_tick=0\n\n  // bool = false\n  0x170 with_dive=false  0x171 help_called=false  0x172 dive_abandoned=false\n  0x173 dodge_commit=false  0x174 last_stand=false  0x175 had_ult_ready=false\n\n  // 열거형 = 0번 variant\n  0x176 stance          = DeathStance::Commit(0)\n  0x177 tactic          = BattleTactic::Standard(0)\n  0x178 scene           = DmScene::Stand(0)\n  0x179 scene_last_from = DmScene::Stand(0)\n  0x17e lean_last_sign  = 0 (i8)\n}\n\n// 언와인딩 경로(블록 16): grow_one / base_sub_goal / vtable 호출이 패닉하면\n// cleanuppad 에서 chats(Vec<Chat>) 를 drop_glue 로 해제 후 재던짐.\n\n★판단에 직결되는 초기값 요약\n - start_tick 은 '지금 틱' 이므로 이후 모든 경과시간 판정의 기준점이다.\n - flee_die = i64::MAX 라 '도주 중 사망 예정' 비교는 초기엔 항상 미충족.\n - stance=Commit / scene=Stand / tactic=Standard 라 전투는 '교전 확정 자세 + 정지 장면 + 표준 전술' 로 시작한다.\n - TryKill 목표일 때만 팀 채팅에 Chat::Battle(target,0) 이 한 건 예약된다(다른 목표는 무음).\n - 나머지 모든 상태(지역, 봉인/홀드/재배치 기준점, 도주방향, 다이브 타워, 팀 오브젝티브)는 None 이라\n   첫 update 에서 각 판정이 '기준 없음' 경로로 진입한다.",
+
+ "knobs": [
+  {"what": "TryKill 목표 시 팀 채팅 예약", "where": "death_battle.rs:749 (IR m05.ll:17709~17752)", "value": 3,
+   "effect": "Chat 태그 3(=Chat::Battle)을 다른 태그로 바꾸면 아군에게 나가는 개전 신호 종류가 바뀐다. if 문 자체를 제거하면 개전 신호가 안 나가 아군 호응(합류/커버) 트리거가 사라진다"},
+  {"what": "flee_die 초기 센티널", "where": "death_battle.rs:753 (IR m05.ll:17804)", "value": 9223372036854775807,
+   "effect": "내리면 생성 직후부터 '도주 사망 예정 틱'이 이미 지난 것으로 취급될 수 있어 도주 관련 판정이 즉시 발동한다. 올릴 여지는 없음(이미 i64::MAX)"},
+  {"what": "초기 자세/장면/전술", "where": "death_battle.rs:753 (IR m05.ll:17774~17815, 0x176/0x177/0x178/0x179)", "value": 0,
+   "effect": "stance 를 1(Reposition)/2(HoldForSpawn), scene 을 1(Engage)~6(Fallback), tactic 을 1(Frontline)~6(Disengage) 로 바꾸면 전투 진입 첫 프레임의 기본 행동 성향이 바뀐다. 다만 이후 update 가 매 틱 재평가하므로 지속 효과는 미검증"},
+  {"what": "dive_tower / main_objective 초기 None", "where": "death_battle.rs:753 (IR m05.ll:17782, 17792)", "value": -1,
+   "effect": "0xff 이외 값(0..11 등)을 넣으면 다이브 대상 타워/팀 오브젝티브가 생성 시점부터 지정된 것으로 취급된다"}
+ ],
+
+ "unknown": [
+  "vtable+0x28(=40) 슬롯의 **정식 메서드 이름** — game_core 크레이트 DWARF 가 _gaibc 에 없어 vtable_type$ 이 `__methodN` 으로만 나온다. '현재 틱 getter' 라는 건 같은 슬롯 결과가 m05.ll:13188 에서 `tick`(death_battle.rs:225) 지역변수로 이름 붙는 것으로 확정했지만 이름 자체는 원리적으로 확정 불가.",
+  "BattlePlanGoal::TryKill 의 두 번째 필드(__1, +0x10)의 의미 — 이 함수는 읽지 않는다.",
+  "base_sub_goal 내부(m10.ll / m12.ll 에 define)는 이번 범위 밖이라 안 봄. sub_goal(BattleSubPlanGoal 16B)이 어떤 값이 되는지는 미확인.",
+  "player(&PlayerState 2528B)가 이 함수 본문에서 어떤 필드로도 읽히지 않음 — 전량 base_sub_goal 로 넘어간다. 따라서 player 의 어떤 필드가 초기값에 영향을 주는지는 이 범위에서 판단 불가.",
+  "version 이 base_sub_goal 에서도 `_version` 이라 미사용 — 실제로 AI 버전 게이트가 어디서 걸리는지 이 경로에선 확인 불가.",
+  "chats 원소 타입 이름 혼동 주의: 이 함수가 쓰는 것은 `enum2$<game_core::simulation::state::player::Chat>`(24B, 태그 i8 + usize 2개)다. distruct.py 가 `Chat` 으로 돌려주는 32B 구조체(chat/from)는 **다른 타입**이며(사전 한계 ①: 동명 구조체 중 필드 많은 판을 담음) 여기 쓰이지 않는다.",
+  "Option 필드들은 태그(i64 0)만 기록하고 페이로드 바이트는 초기화하지 않는다 — 태그가 0 인 한 안전하지만, 태그를 바이트패치로 1(Some)로 바꾸면 쓰레기 페이로드를 읽게 된다(모드 개조 시 주의). 실제 크래시 여부는 미검증."
+ ]
+}

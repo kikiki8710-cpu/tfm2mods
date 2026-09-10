@@ -25,7 +25,43 @@ if hasattr(sys.stdout, 'reconfigure'):
     sys.stdout.reconfigure(encoding='utf-8', errors='replace')
 
 
+def mangled_leaf(sym):
+    """Rust v0 망글이면 **마지막 이름 성분**을 뽑는다.
+
+    ⚠1차 대조에서 드러난 잡음: 같은 피호출을 한쪽은 `_RNvXs1_..RawVec..4drop..` 망글로,
+      한쪽은 `drop` 으로 적으면 서로 다른 항목으로 세어져 호출 일치도가 40% 로 찍힌다.
+      (구버전 qcspec 이 짧은 이름을 반려해서 망글을 쓰게 만든 흔적이다.)
+    """
+    s = str(sym)
+    if not s.startswith('_R'):
+        return None
+    out, i, n = [], 0, len(s)
+    while i < n:
+        if s[i].isdigit() and (i == 0 or not s[i - 1].isdigit()):
+            j = i
+            while j < n and s[j].isdigit():
+                j += 1
+            ln = int(s[i:j])
+            if 0 < ln <= n - j:
+                cand = s[j:j + ln]
+                if re.fullmatch(r'[A-Za-z_][A-Za-z0-9_]*', cand):
+                    out.append(cand)
+            i = j
+        else:
+            i += 1
+    # ⚠망글 끝에 `Cs<해시>_<크레이트>` 꼬리가 붙으면 마지막 성분이 **크레이트 이름**이 된다
+    #   (`..4dropCshdEBA0ozCnw_7game_ai` -> `game_ai`). 그건 함수 이름이 아니다.
+    CRATES = {'game_ai', 'game_core', 'core', 'alloc', 'std', 'bumpalo',
+              'hashbrown', 'rand', 'rand_chacha', 'ahash', 'getrandom'}
+    while len(out) > 1 and out[-1] in CRATES:
+        out.pop()
+    return out[-1] if out else None
+
+
 def leaf(sym):
+    m = mangled_leaf(sym)
+    if m:
+        return m
     s = str(sym).strip('"@')
     for _ in range(8):
         s2 = re.sub(r'<[^<>]*>', '', s)
@@ -50,9 +86,27 @@ def sets_of(spec):
     consts = {c.get('value') for c in spec.get('constants', []) if c.get('value') is not None}
     calls = {leaf(c if isinstance(c, str) else c.get('name', '')) for c in spec.get('calls', [])}
     calls.discard('')
+    # LLVM 내장(`llvm.lifetime.*`·`llvm.umax.*` 등)은 게임 코드가 아니라 컴파일러 산물이다.
+    # 한쪽이 적고 한쪽이 안 적었다고 "이해가 다르다"고 볼 수 없어 양쪽에서 뺀다.
+    calls = {c for c in calls if not c.startswith('llvm')}
     reads = {norm_off(r.get('offset')) for r in spec.get('reads', [])}
     reads.discard(None)
     return consts, calls, reads
+
+
+def split_consts(c1, c2, r1, r2):
+    """상수 불일치를 **진짜 불일치**와 **분류 차이**로 가른다.
+
+    ⚠1차 대조에서 드러난 것: 한쪽이 구조체 오프셋(104·2352·…)을 `constants` 에도 적고
+      다른 쪽은 `reads` 에만 적으면, 사실은 둘 다 맞는데 상수 일치도가 63% 로 찍힌다.
+      **양식 모호성을 정확도로 오독하게 된다.** 오프셋으로 설명되는 차이는 따로 센다.
+    """
+    offs = r1 | r2
+    raw = c1 ^ c2
+    filed = {v for v in raw if v in offs}          # 분류 차이(한쪽이 오프셋을 상수로도 적음)
+    real = raw - filed                             # 진짜 불일치
+    core1, core2 = c1 - offs, c2 - offs            # 오프셋을 뺀 '판정 상수'
+    return real, filed, core1, core2
 
 
 def jac(a, b):
@@ -79,7 +133,8 @@ def main():
     print('공통 %d개' % len(names) + (' · %s 에만 %d' % (d1, len(only1)) if only1 else '')
           + (' · %s 에만 %d' % (d2, len(only2)) if only2 else ''))
     print()
-    print('%-46s %6s %6s %6s   %s' % ('명세', '상수', '호출', '필드', '불일치(한쪽에만)'))
+    print('%-44s %6s %6s %6s  %3s %3s'
+          % ('명세', '판정상수', '호출', '필드', '불일치', '분류차'))
     tot = [0, 0, 0]
     diffs = []
     for n in names:
@@ -87,19 +142,22 @@ def main():
         s2 = json.load(io.open(os.path.join(d2, n), encoding='utf-8'))
         c1, k1, r1 = sets_of(s1)
         c2, k2, r2 = sets_of(s2)
-        jc, jk, jr = jac(c1, c2), jac(k1, k2), jac(r1, r2)
+        real, filed, core1, core2 = split_consts(c1, c2, r1, r2)
+        jc, jk, jr = jac(core1, core2), jac(k1, k2), jac(r1, r2)
         tot[0] += jc
         tot[1] += jk
         tot[2] += jr
-        miss = len(c1 ^ c2) + len(k1 ^ k2) + len(r1 ^ r2)
-        print('%-46s %5.0f%% %5.0f%% %5.0f%%   %d' % (n[:-5][:46], jc * 100, jk * 100, jr * 100, miss))
-        diffs.append((n, c1 ^ c2, k1 ^ k2, r1 ^ r2, s1, s2))
+        print('%-44s %5.0f%% %5.0f%% %5.0f%%  %3d %3d'
+              % (n[:-5][:44], jc * 100, jk * 100, jr * 100,
+                 len(real) + len(k1 ^ k2) + len(r1 ^ r2), len(filed)))
+        diffs.append((n, real, k1 ^ k2, r1 ^ r2, s1, s2))
 
     m = len(names) or 1
     print()
-    print('평균 일치도 —  상수 %.1f%% · 호출 %.1f%% · 구조체필드 %.1f%%'
+    print('평균 일치도 —  판정상수 %.1f%% · 호출 %.1f%% · 구조체필드 %.1f%%'
           % (tot[0] / m * 100, tot[1] / m * 100, tot[2] / m * 100))
     print('⚠일치는 **하한**이다 — 둘 다 같은 걸 놓쳤으면 일치로 나온다.')
+    print('  「분류차」= 한쪽이 구조체 오프셋을 constants 에도 적은 것. 사실 차이가 아니라 양식 차이다.')
 
     if detail is not None:
         print()
