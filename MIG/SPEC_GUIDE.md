@@ -189,6 +189,25 @@ grep -n "^define.*<함수명>" /c/tfm2mods/_gaibc/*.ll
 `folded_from` 을 적었으면 `meaning` 이 비면 안 된다(C1 반려). `shl` 피연산자로 보이는데
 안 적었으면 **경고**가 뜬다.
 
+### ★`!dbg` 가 없어 보여도 **`inlinedAt` 루트까지 타라** (2026-09-10 신설)
+"소스 줄이 소실됐다 / 원리적으로 복원 불가"로 내린 판정이 **실제로 뒤집힌 사례가 있다.**
+`!DILocation` 은 `scope:` 만 보면 인라인된 헬퍼(`push`·`Option::ne`·`iterator.rs`)를 가리켜
+엉뚱한 파일·줄이 나온다. **`inlinedAt:` 를 끝까지 따라가면 원래 호출 줄이 나온다.**
+
+```bash
+# !14974 의 뿌리를 찾는다 — inlinedAt 이 없어질 때까지 반복
+grep -n '^!14974 = ' /c/tfm2mods/_gaibc/m09.ll
+#   !DILocation(line: 1, scope: !..., inlinedAt: !14770)   ← scope 만 보면 line 1 (쓸모없음)
+grep -n '^!14770 = ' /c/tfm2mods/_gaibc/m09.ll
+#   !DILocation(line: 676, scope: !...)                    ← ★루트 = epic.rs:676
+```
+실측: `v3_epicops_buff_window` 의 "655~663·671~678 복원 불가" 판정이 이 방법으로
+**653·654·658·664~670·672·673·676·679 로 복원**됐다. 남은 것만 진짜 부재다.
+
+⚠**단 `column:` 은 이 빌드에 아예 없다**(전 모듈 0건). 그래서 **같은 줄 안의 순서**
+(`A || B` 의 A/B 상대 순서 등)는 여전히 원리적으로 복원 불가다. 줄번호와 줄 안 순서를
+구분해서 판정하라.
+
 ### 확정 안 되면 **2회 시도 후 `unknown`**
 1차 배치에서 가장 많이 낭비된 패턴 = "IR 과 디버그정보가 어긋나는 지점"을 끝까지 확정하려다 못 하고 결국 `unknown` 으로 내려놓기까지의 왕복. 대표 사례:
 - 인라인만 존재해 `define` 이 없는 헬퍼(`morgard_exists` 등) → 극성(`if m` vs `if !m`) 확정 불가

@@ -85,6 +85,10 @@ OVKEY = {
     'v50_fold_dive_episode': 'dive_episode__v50_fold_dive_episode',
     'death_battle__new': 'old_death_battle__new',
     'update__line_gank_ganker': 'line_gank_ganker__update',
+    'v3_fall_back_to_passive': 'handler__v3_fall_back_to_passive',
+    'handle_chat': 'handler_chat__handle_chat',
+    'hunt_and_battle__sub_plan': 'epic_hunt_and_battle__sub_plan',
+    'v3_epicops_buff_window2': 'old_epic__v3_epicops_buff_window',
 }
 # 소스 경로 → 계층
 LAYER = [
@@ -159,15 +163,18 @@ def main():
         else:
             rec['exe'] = None
             rec['no_map_reason'] = NOMAP.get(sid, '지도에서 못 찾음(사유 미확인)')
-        # 오버레이
-        ok = next((k for k, v in OVKEY.items() if v == sid), None)
-        o = ov.get(ok) if ok else None
-        if o:
-            rec['resolved'] = (o.get('resolved') or []) + (o.get('resolved_2') or [])
-            rec['new_knobs'] = (o.get('new_knobs') or []) + (o.get('new_knobs_2') or [])
-            rec['still_unknown'] = o.get('still_unknown') or []
-        else:
-            rec['resolved'], rec['new_knobs'], rec['still_unknown'] = [], [], []
+        # 오버레이 — 한 함수에 오버레이 키가 여러 개일 수 있으므로 **전부 합친다**
+        # (처음엔 next() 로 하나만 집어서 뒤에 추가한 조사 결과가 조용히 사라질 뻔했다).
+        rec['resolved'], rec['new_knobs'], rec['still_unknown'] = [], [], []
+        for k, v in OVKEY.items():
+            if v != sid:
+                continue
+            o = ov.get(k)
+            if not o:
+                continue
+            rec['resolved'] += (o.get('resolved') or []) + (o.get('resolved_2') or [])
+            rec['new_knobs'] += (o.get('new_knobs') or []) + (o.get('new_knobs_2') or [])
+            rec['still_unknown'] += o.get('still_unknown') or []
         specs.append(rec)
 
     doc = dict(meta=dict(
