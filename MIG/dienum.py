@@ -165,8 +165,23 @@ def main():
         return
     d = json.load(io.open(OUT, encoding='utf-8'))
     want = args[0]
-    exact = [k for k in d if k.lower() == want.lower()]
-    hits = exact if exact else sorted(k for k in d if want.lower() in k.lower())
+    # ⚠래퍼가 앞서면 안 된다. `SubPlan` 을 물었는데 `Option<enum2$<..SubPlan>>` 이
+    #   먼저 나와서 담당자들이 "사전에 없다"고 판단했다(3차 실측).
+    #   **마지막 경로 성분이 정확히 일치**하는 것을 최우선으로 한다.
+    w = want.lower()
+
+    def leafname(k):
+        s = k.split('<')[0].rstrip(':')
+        return s.split('::')[-1].lower()
+
+    exact = [k for k in d if k.lower() == w]
+    leafhit = [k for k in d if leafname(k) == w and k not in exact]
+    # Option/Result 같은 래퍼는 뒤로 민다
+    wrap = lambda k: k.startswith(('core::', 'alloc::', 'std::'))
+    leafhit.sort(key=lambda k: (wrap(k), len(k)))
+    rest = sorted((k for k in d if w in k.lower() and k not in exact and k not in leafhit),
+                  key=lambda k: (wrap(k), len(k)))
+    hits = exact + leafhit + rest
     if not hits:
         print('없음: %s' % want)
         return
