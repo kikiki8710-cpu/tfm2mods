@@ -1,0 +1,99 @@
+{
+ "name": "defensive_crisis",
+ "sym": "_RNvNtCshdEBA0ozCnw_7game_ai10buff_value16defensive_crisis",
+ "src": "game-ai\\src\\buff_value.rs",
+ "src_line": 17,
+ "ir_file": "m10.ll",
+ "ir_from": 33864,
+ "ir_to": 34294,
+
+ "one_line": "target 주변 적 챔피언을 모아 (2초 내 사망 임박, 1초 내 CC 피격 임박) 두 위기 플래그를 낸다",
+
+ "signature": {
+  "params": [
+   {"i": 1, "name": "version", "type": "usize", "note": "AI 버전. 본문에서 분기하지 않고 is_ignored_well_enemy / effect_cc_time / check_kill_die_tick 로 그대로 전달만 함"},
+   {"i": 2, "name": "rnd", "type": "&mut rand::rngs::std::StdRng(320B)", "note": "본문에서 직접 안 씀. check_kill_die_tick 에만 전달"},
+   {"i": 3, "name": "player", "type": "&PlayerState(2528B)", "note": "판단 주체 팀. info.team(+0x930) 으로 적팀 인덱스(1-team) 를 만든다"},
+   {"i": 4, "name": "data", "type": "&OperationData(24B)", "note": "+0x0 cache(AbstractGameWithCache 8840B) / +0x8 context(GameContext) / +0x10 blackboard(팀별 744B 배열)"},
+   {"i": 5, "name": "target", "type": "&Entity(1728B)", "note": "위기를 판정할 대상 챔피언. 근접 적 수집의 기준점이자 사망예측 대상"},
+   {"i": 6, "name": "debug", "type": "&mut DebugFrameData(224B)", "note": "본문에서 직접 안 씀. check_kill_die_tick 에만 전달"}
+  ],
+  "returns": "{i1, i1} = (die_imminent, cc_imminent) — .0=target 이 tps*2 틱(2초) 안에 죽을 것으로 예측됨 / .1=근접 적 중 tps 틱(1초) 안에 쓸 수 있는 CC 스킬 보유자가 있음"
+ },
+
+ "reads": [
+  {"base": "OperationData", "offset": "0x0", "name": "cache", "note": "&AbstractGameWithCache(8840B). player_champion 배열과 player_by_champion_id 에 사용"},
+  {"base": "OperationData", "offset": "0x8", "name": "context", "note": "&GameContext. 여기서 pool(+0x0)·setting(+0x8) 을 재차 로드"},
+  {"base": "OperationData", "offset": "0x10", "name": "blackboard", "note": "팀별 Blackboard 배열 포인터. 클로저#0 이 [1-team] 원소(744B)로 is_recent_visible 호출"},
+  {"base": "GameContext", "offset": "0x0", "name": "pool", "note": "&bumpalo::Bump — near_enemies Vec 과 빈 Vec 의 할당자"},
+  {"base": "GameContext", "offset": "0x8", "name": "setting", "note": "&GameSetting"},
+  {"base": "GameSetting", "offset": "0x12f8", "name": "tick_per_second", "note": "tps. 모든 시간 임계의 단위 (본문 gep 4856)"},
+  {"base": "PlayerState", "offset": "0x930", "name": "info.team", "note": "아군 팀 인덱스. 적팀 = 1 - team (gep 2352)"},
+  {"base": "AbstractGameWithCache", "offset": "0x1e0", "name": "player_champion", "note": "[[*Entity;5];2] (80B). player_champion[1-team] 5칸을 순회 = 적 챔피언 목록 (gep 480)"},
+  {"base": "AbstractGameWithCache", "offset": "0x0", "name": "game", "note": "ref$<dyn AbstractGame> 팻포인터 (데이터 +0x0 / vtable +0x8, deref 816B). 클로저#0 이 is_recent_visible 에 넘김"},
+  {"base": "Entity(target)", "offset": "0x5c0", "name": "id", "note": "player_by_champion_id 인자 (gep 1472)"},
+  {"base": "Vec<&Entity>", "offset": "0x18", "name": "len", "note": "near_enemies.len(). 0 이면 즉시 (false,false) 반환 (gep 24)"},
+  {"base": "Vec<&Entity>", "offset": "0x0", "name": "ptr", "note": "버퍼 시작. len*8 을 더해 끝 포인터를 만들어 순회"},
+  {"base": "Entity(적)", "offset": "0x68", "name": "ty 판별자", "note": "EntityType 태그. 13(Champion) 일 때만 쿨타임 3종을 읽는다 (gep 104)"},
+  {"base": "Entity(적)", "offset": "0xb8", "name": "ty.Champion.skill_cooldown", "note": "entity.rs:1774 Entity::skill_cooldown. Champion 페이로드(+0x70)의 +0x48 (gep 184)"},
+  {"base": "Entity(적)", "offset": "0xc0", "name": "ty.Champion.skill2_cooldown", "note": "entity.rs:1789 Entity::skill2_cooldown (gep 192)"},
+  {"base": "Entity(적)", "offset": "0xc8", "name": "ty.Champion.ult_cooldown", "note": "entity.rs:1804 Entity::ult_cooldown (gep 200)"},
+  {"base": "Entity(적)", "offset": "0x5c8", "name": "level", "note": "entity.rs:1692/1700 에서 skill2_effect 는 level>2, ult_effect 는 level>4 일 때만 Some (gep 1480)"},
+  {"base": "Entity(적)", "offset": "0x4c8", "name": "skill_effect", "note": "Option<Effect>(56B). 레벨 조건 없이 항상 그 자리를 가리킴 (gep 1224)"},
+  {"base": "Entity(적)", "offset": "0x500", "name": "skill2_effect", "note": "Option<Effect>. level<=2 면 대신 @anon...40(판별자 -1 = None) 을 가리킴 (gep 1280)"},
+  {"base": "Entity(적)", "offset": "0x538", "name": "ult_effect", "note": "Option<Effect>. level<=4 면 대신 @anon...40(None) 을 가리킴 (gep 1336)"},
+  {"base": "Option<Effect>", "offset": "0x30", "name": "casting (니치 판별자)", "note": "i32. -1 이면 None. skill_effect 는 0x4c8+0x30=1272 로 접혀 나옴 (gep 48 / 1272)"},
+  {"base": "Entity", "offset": "0x660", "name": "x", "note": "★담당 범위 밖(클로저#0 = m10.ll 55868~55976). distance_sq(e,target) 과 is_enemy_well_danger 좌표 인자"},
+  {"base": "Entity", "offset": "0x668", "name": "y", "note": "★담당 범위 밖(클로저#0). 위와 동일"},
+  {"base": "Entity", "offset": "0x0", "name": "team (TeamType 판별자)", "note": "★담당 범위 밖(클로저#0). 0=Player, 1=Neutral"},
+  {"base": "Entity", "offset": "0x8", "name": "team.Player 페이로드(팀 인덱스)", "note": "★담당 범위 밖(클로저#0). is_ignored_well_enemy 가 1-player.team 과 비교"}
+ ],
+
+ "writes": [],
+
+ "constants": [
+  {"value": 1, "src_line": 22, "meaning": "적팀 인덱스 = 1 - player.info.team (`sub i64 1, %20`). player_champion 2팀 배열의 반대편"},
+  {"value": 1, "src_line": 35, "meaning": "die_imminent 임계 계수 — `shl i64 %tps, 1` = tps*2 틱(=2초). 곱수 2 는 shl 로 접혀 리터럴이 없다"},
+  {"value": 13, "src_line": 42, "meaning": "EntityType::Champion 태그(dienum EntityType 13=Champion). 이 태그일 때만 스킬 쿨타임 3종을 실제로 읽고, 아니면 전부 0 취급"},
+  {"value": 2, "src_line": 42, "meaning": "skill2_effect 해금 레벨 조건 — entity.rs:1693 `level > 2` 여야 Some, 아니면 None 상수를 가리킴"},
+  {"value": 4, "src_line": 42, "meaning": "ult_effect 해금 레벨 조건 — entity.rs:1701 `level > 4` 여야 Some"},
+  {"value": -1, "src_line": 47, "meaning": "Option<Effect> 의 니치 판별자 None 값(Effect+0x30 casting: CastingType, range -1..4). -1 이면 그 스킬 슬롯을 건너뛴다"},
+  {"value": 1, "src_line": 48, "meaning": "effect_cc_time 반환 Option<usize> 의 Some 태그. `.is_some()` (core/macros/mod.rs:430 matches!) 이 이 1 과의 비교로 접혔다"}
+ ],
+
+ "calls": [
+  "bumpalo::collections::vec::from_iter_in",
+  "core::panicking::panic_bounds_check",
+  "game_core::simulation::AbstractGameWithCache::player_by_champion_id",
+  "game_ai::fight_check::effect_cc_time",
+  "game_ai::fight_check::check_kill_die_tick",
+  "bumpalo::collections::vec::Vec::clone",
+  "bumpalo::collections::vec::Vec::drop",
+  "core::ptr::drop_glue"
+ ],
+
+ "logic": "fn defensive_crisis(version, rnd, player, data, target, debug) -> (bool, bool)\n\n// --- L19 ---\ntps = data.context.setting.tick_per_second            // GameSetting+0x12f8\nenemy_team = 1 - player.info.team                      // PlayerState+0x930, 범위 2 밖이면 panic_bounds_check\n\n// --- L21~26: 근접 적 챔피언 수집 ---\nnear_enemies: Vec<&Entity, &Bump> =\n    game_cache.player_champion[enemy_team]             // AbstractGameWithCache+0x1e0, [ *Entity ; 5 ]\n      .iter().filter_map(|o| o.as_ref())               // AbstractGameWithCache::iter_champions (game.rs:1904)\n      .filter(|e| {                                    // ★클로저#0 = m10.ll 55868~55976 (담당 범위 밖)\n          let r = plan_legacy::old::battle::max_range(e, target);              // L23\n          if Entity::distance_sq(e, target) > (r + 30000)^2 { return false }   // L24 (dx,dy = abs_diff, dx*dx+dy*dy)\n          if fight_model::is_ignored_well_enemy(version, player, e) { return false } // L25\n              //   ↑ e.team == TeamType::Player(enemy_team) 이고\n              //     path_finder::is_enemy_well_danger(version, player, e.x, e.y) 이면 true = 제외\n          data.blackboard[enemy_team].is_recent_visible(game_dyn, player, e)   // L26\n      })\n      .collect_in(data.context.pool)\n\nif near_enemies.len() == 0 { return (false, false) }   // L30 진입 전 조기탈출\n\n// --- L30~35: 첫 번째 bool = die_imminent ---\ntp = AbstractGameWithCache::player_by_champion_id(cache, target.id)   // L32, Entity+0x5c0\nif tp == null {\n    die_imminent = false                               // 소유 플레이어를 못 찾으면 사망예측 자체를 건너뛴다\n} else {\n    die = fight_check::check_kill_die_tick(version, rnd, data, tp, target,\n                                           near_enemies.clone(), Vec::new_in(pool), debug)  // L33\n    die_imminent = die < tps * 2                       // L35 (`shl tps,1`) = 2초 안에 죽는다고 예측\n}\nif near_enemies.len() == 0 { return (die_imminent, false) }   // 재로드 후 재확인\n\n// --- L41~52: 두 번째 bool = CC 임박 ---\ncc_imminent = near_enemies.iter().any(|e| {            // L41 클로저#1 (본문에 인라인됨)\n    let is_champ = (e.ty 판별자 == 13/*Champion*/);\n    let slots: [(&Option<Effect>, usize); 3] = [       // L42\n        ( &e.skill_effect  /*+0x4c8, 항상*/       , if is_champ { e.skill_cooldown  } else { 0 } ),\n        ( if e.level > 2 { &e.skill2_effect /*+0x500*/ } else { &NONE }, if is_champ { e.skill2_cooldown } else { 0 } ),\n        ( if e.level > 4 { &e.ult_effect    /*+0x538*/ } else { &NONE }, if is_champ { e.ult_cooldown    } else { 0 } ),\n    ];\n    slots.iter().any(|(effect, cooldown)| {            // L47 (3칸 전부 IR 에 완전 언롤됨)\n        if *cooldown > tps { return false }             //   1초 안에 쓸 수 없는 스킬은 제외\n        match effect.as_ref() {                         //   Effect+0x30 == -1 이면 None → 제외\n            None => false,\n            Some(ef) => fight_check::effect_cc_time(version, ef).is_some(),  // L48 CC 계열 이펙트인가\n        }\n    })\n})\n\nreturn (die_imminent, cc_imminent)                     // L53\n\n// 주의: 두 bool 은 독립이 아니다 — CC 루프에서 true 가 나오면 즉시 탈출하므로\n//       그 시점의 die_imminent 값을 그대로 들고 나간다(값 자체는 위에서 확정 완료).\n// 주의: rnd(&mut StdRng) 와 debug(&mut DebugFrameData) 는 이 함수가 직접 건드리지 않고\n//       check_kill_die_tick 로만 흘려보낸다. 그래서 writes 가 비어 있다.\n// 정리(unwind 포함): near_enemies 는 반환 직전 Vec/RawVec Drop 으로 해제된다.",
+
+ "knobs": [
+  {"what": "근접 적 판정 반경 여유", "where": "buff_value.rs:24 (클로저#0, m10.ll 55868~55976 의 `add i64 %9, 30000`)", "value": 30000,
+   "effect": "적의 max_range 에 더해지는 여유 거리. 올리면 더 먼 적까지 near_enemies 에 들어와 사망예측·CC 위기 판정이 잦아지고(수비적으로 변함), 내리면 코앞의 적만 위기로 본다. 셀 32000 기준 약 0.94셀"},
+  {"what": "사망 임박 임계", "where": "buff_value.rs:35", "value": 2,
+   "effect": "tps * 2 = 2초. 올리면 더 이른 시점부터 die_imminent=true 가 되어 방어/후퇴 판단이 빨라지고, 내리면 죽기 직전에야 위기로 인식한다. IR 에는 `shl tps,1` 로 접혀 있음"},
+  {"what": "CC 스킬 준비 임계", "where": "buff_value.rs:47", "value": "tps (1초)",
+   "effect": "적 스킬 쿨타임이 이 값 이하일 때만 위협으로 센다. 올리면 아직 쿨인 스킬까지 위협으로 봐서 cc_imminent 가 자주 켜지고, 0 으로 내리면 지금 당장 쓸 수 있는 스킬만 센다"},
+  {"what": "스킬2/궁 해금 레벨", "where": "entity.rs:1693 / 1701 (인라인됨)", "value": "level > 2 / level > 4",
+   "effect": "이 조건을 못 넘으면 해당 슬롯은 None 상수(@anon..40)를 가리켜 CC 후보에서 아예 빠진다. 낮추면 저레벨 적의 스킬2/궁도 위협으로 계산된다"}
+ ],
+
+ "unknown": [
+  "30000(반경 여유) 을 constants 에 넣지 않은 이유 — 그 값이 있는 클로저#0 본문이 담당 줄범위(33864~34294) 밖(m10.ll 55868~55976)이라 QC C1 대조 대상이 아니다. 값·위치는 knobs 에 실었다.",
+  "fight_check::effect_cc_time 내부 미확인 — 반환이 Option<usize>(!40936 `is_some<usize>` 로 확정) 라는 것과 이 함수는 .is_some() 만 쓴다는 것까지만 확인. 어떤 이펙트를 CC 로 치는지, Some 안의 usize(=CC 지속 틱?)가 무엇인지는 안 봤다.",
+  "fight_check::check_kill_die_tick 내부 미확인 — 반환 i64 를 tps*2 와 비교하므로 '몇 틱 뒤에 죽는가'로 읽었으나, 죽지 않을 때의 반환값(u64::MAX 인지 큰 상수인지)을 확인하지 않았다.",
+  "check_kill_die_tick 의 7번째 인자로 넘기는 빈 Vec(`ptr inttoptr(8)`, len=cap=0, 할당자=pool) 이 무슨 목록인지 미확인 — 이 함수는 항상 빈 채로 넘긴다.",
+  "plan_legacy::old::battle::max_range / path_finder::is_enemy_well_danger / Blackboard::is_recent_visible 내부 미확인(전부 담당 범위 밖 호출).",
+  "두 번째 반환 bool 의 소스 변수명 미확정 — dbg 변수가 붙어 있지 않다(첫 번째는 !40604 `die_imminent`, buff_value.rs:30 으로 확정). 'CC 임박' 은 본문 동작으로 붙인 설명명이다.",
+  "data.blackboard 원소 타입 이름 미확정 — 744B(gep 에 익명 구조체로 전개됨)이고 Blackboard::is_recent_visible 의 self 로 쓰이므로 Blackboard 로 적었으나 배열 원소 타입의 DWARF 이름은 확인하지 않았다.",
+  "AbstractGameWithCache+0x0 팻포인터의 데이터/vtable 순서 — deref 816B 가 붙은 +0x8 쪽을 vtable 로 읽었다(러스트 dyn 관례 + vtable 크기 표기). 슬롯 이름까지는 확인하지 않았다.",
+  "version(arg1) 은 이 함수 안에서 어떤 분기에도 쓰이지 않는다 — 세 하위 호출로 전달만 된다. 버전별 차이는 그 함수들 안에 있다."
+ ]
+}

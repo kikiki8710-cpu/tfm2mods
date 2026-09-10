@@ -128,16 +128,39 @@ def main():
     if not res:
         print('없음: %s' % want)
         return
+    # ⚠4차 실측(조용한 오답): `divtable Entity 0x28` 이 `AbstractGame::tick` 을 자신 있게 뱉었다.
+    #   값 문자열에 'Entity' 가 우연히 들어 있었을 뿐 Entity 의 vtable 이 아니다.
+    #   **요청 이름이 슬롯 심볼의 이름 성분으로 실제 등장하는지** 확인한다.
+    def owns(sl):
+        for sym in sl.values():
+            if want in mangled_parts(sym):
+                return True
+        return False
+    good = [r for r in res if owns(r[2])]
+    if not good:
+        print('⚠`%s` 의 vtable 이 아니다 — 그 이름이 슬롯 심볼에 성분으로 없다.' % want)
+        print('  (값 문자열에 우연히 포함됐을 뿐일 수 있다. 트레이트 이름으로 다시 쳐라:')
+        print('   예 AbstractGame / AbstractEntity / EffectType)')
+        print('  ※ 구조체 필드 오프셋을 찾는 거라면 이 도구가 아니라 `distruct.py` 다.')
+        return
+    res = good
     # 슬롯이 가장 많은 것 = 진짜 트레이트 vtable(작은 건 클로저 vtable)
     res.sort(key=lambda r: -len(r[2]))
     for fn, name, sl in res[:2]:
-        print('=== %s  (%s · 슬롯 %d개) ===' % (name[:44], fn, len(sl)))
+        # ⚠4차 제안: `dereferenceable(816)` 대조를 하려면 총 바이트가 필요한데
+        #   슬롯 개수만 찍어서 담당자가 100*8+16 을 손으로 역산했다.
+        total = (max(sl) + 8) if sl else 0
+        print('=== %s  (%s · 슬롯 %d개 · vtable 총 %dB) ==='
+              % (name[:44], fn, len(sl), total))
         if q is not None:
             sym = sl.get(q)
             if sym:
                 p = mangled_parts(sym)
                 print('  %s → %s' % (hex(q), '::'.join(p[-3:]) or sym))
-                print('     %s' % sym[:110])
+                # ⚠앞을 남기고 자르면 `..._13get_game` 처럼 **꼬리(_mode)가 사라져** 오독한다.
+                #   4차 실측: 그 탓에 담당자가 슬롯 계산을 2라운드 의심했다. 가운데를 생략한다.
+                print('     %s' % (sym if len(sym) <= 120
+                                   else sym[:60] + ' … ' + sym[-55:]))
             else:
                 near = sorted(sl)
                 print('  %s → (그 오프셋에 항목 없음). 가진 오프셋 예: %s'

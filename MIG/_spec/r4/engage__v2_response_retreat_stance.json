@@ -1,0 +1,81 @@
+{
+ "name": "v2_response_retreat_stance",
+ "sym": "_RNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy7handler6engageNtB4_17LegacyPlanHandler26v2_response_retreat_stance",
+ "src": "game-ai\\src\\plan_legacy\\handler\\engage.rs",
+ "src_line": 13,
+ "ir_file": "m13.ll",
+ "ir_from": 45212,
+ "ir_to": 45626,
+
+ "one_line": "후퇴 태세: 가장 가까운 적을 찾아 죽기까지 1초 넘게 버티면 KitingBack, 아니면 RunAway",
+
+ "signature": {
+  "params": [
+   {"i": 1, "name": "self", "type": "&LegacyPlanHandler(6168B)", "note": "IR 인자로 안 넘어옴(#dbg_value(ptr poison)) — 본문에서 self 필드를 하나도 안 읽어 최적화로 소거됨"},
+   {"i": 2, "name": "version", "type": "usize", "note": "IR %0. AI 버전 게이트. version<2면 즉시 RunAway. 그대로 클로저 캡처(&version)와 check_kill_die_tick 으로 전달"},
+   {"i": 3, "name": "rnd", "type": "&mut rand::rngs::std::StdRng(320B, align16)", "note": "IR %1. 이 본문에선 안 씀 — check_kill_die_tick 에 그대로 넘김"},
+   {"i": 4, "name": "player", "type": "&PlayerState(2528B)", "note": "IR %2. team/position 을 읽고, 클로저 캡처 + check_kill_die_tick 의 judger 로 전달"},
+   {"i": 5, "name": "data", "type": "&OperationData(24B)", "note": "IR %3. {cache, context, blackboard}"},
+   {"i": 6, "name": "debug", "type": "&mut DebugFrameData(224B)", "note": "IR %4. 이 본문에선 안 씀 — check_kill_die_tick 에 그대로 넘김"}
+  ],
+  "returns": "BattleSubPlanGoal (i128 = {tag:i64, payload:i64}) — tag 3=KitingBack{focus: usize}, tag 4=RunAway(페이로드 undef). DISCR_EXACT 확인 결과 이 열거형은 태그==variant 인덱스(니치 밀림 없음)"
+ },
+
+ "reads": [
+  {"base": "OperationData", "offset": "0x0", "name": "cache", "note": "&AbstractGameWithCache"},
+  {"base": "OperationData", "offset": "0x8", "name": "context", "note": "&GameContext"},
+  {"base": "OperationData", "offset": "0x10", "name": "blackboard", "note": "&[Blackboard;2] — 클로저 캡처로만 넘기고 본문에선 역참조 안 함"},
+  {"base": "PlayerState", "offset": "0x930", "name": "info.team", "note": "usize. 배열 인덱스로 쓰기 전 len=2 bounds-check. 적 팀 인덱스 = 1-team"},
+  {"base": "PlayerState", "offset": "0x9c0", "name": "info.position", "note": "Position(u32, !range [0,5)) → Position::as_index() (entity.rs:580) 인라인. player_champion[team] 안의 슬롯 인덱스"},
+  {"base": "AbstractGameWithCache", "offset": "0x0", "name": "game", "note": "&dyn AbstractGame 팻포인터 16B — +0x0 데이터ptr, +0x8 vtable(816B=슬롯100+size/align, divtable 로 확인). 둘 다 클로저가 Blackboard::is_recent_visible 로 그대로 전달"},
+  {"base": "AbstractGameWithCache", "offset": "0x1e0", "name": "player_champion", "note": "[[Option<&Entity>;5];2] (80B). [team][position] = 내 챔피언, [1-team] 전체 5칸 = 적 챔피언 배열(이터레이션 대상)"},
+  {"base": "Entity", "offset": "0x660", "name": "x", "note": "min_by_key 시드 원소의 거리 계산(Entity::distance_sq, entity.rs:2157) — 나머지 원소는 범위 밖 fold(m12.ll)에서 같은 식으로 읽음"},
+  {"base": "Entity", "offset": "0x668", "name": "y", "note": "위와 동일"},
+  {"base": "Entity", "offset": "0x5c0", "name": "id", "note": "최종 승자(nearest)의 id → KitingBack{focus} 페이로드. src_line 36"},
+  {"base": "GameContext", "offset": "0x0", "name": "pool", "note": "&bumpalo::Bump — near_enemies Vec 과 빈 towers Vec 의 할당자"},
+  {"base": "GameContext", "offset": "0x8", "name": "setting", "note": "&GameSetting"},
+  {"base": "GameSetting", "offset": "0x12f8", "name": "tick_per_second", "note": "usize. die 틱과 비교하는 임계(=1초). src_line 33"}
+ ],
+
+ "writes": [],
+
+ "constants": [
+  {"value": 2, "src_line": 14, "meaning": "AI 버전 게이트 — version<2 면 본문 전체를 건너뛰고 RunAway. (같은 리터럴 2가 team 인덱스 bounds-check 길이로도 쓰임)"},
+  {"value": 1, "src_line": 20, "meaning": "적 팀 인덱스 = 1 - player.info.team (2팀 고정 전제)"},
+  {"value": 3, "src_line": 36, "meaning": "BattleSubPlanGoal::KitingBack 의 태그값(DISCR_EXACT=3, variant 인덱스와 동일)"},
+  {"value": 4, "src_line": 38, "meaning": "BattleSubPlanGoal::RunAway 의 태그값(DISCR_EXACT=4). 모든 조기탈출 경로의 기본 반환"}
+ ],
+
+ "calls": [
+  "core::panicking::panic_bounds_check",
+  "core::ops::function::impls::call_mut",
+  "core::iter::adapters::map::fold",
+  "bumpalo::collections::vec::from_iter_in",
+  "game_ai::fight_check::check_kill_die_tick"
+ ],
+
+ "logic": "fn v2_response_retreat_stance(self, version, rnd, player, data, debug) -> BattleSubPlanGoal\n\nL14  if version < 2 { return RunAway }                       // IR %14: icmp ult %0, 2\n\nL17  team = player.info.team                                 // +0x930, bounds-check team<2\n     pos  = player.info.position.as_index()                  // +0x9c0, range [0,5)\n     champ = data.cache.player_champion[team][pos]           // cache+0x1e0, [5 x ptr] stride 40\n     if champ == null { return RunAway }                     // Option<&Entity> 니치 = null\n\nL20  enemies = data.cache.iter_champions(1 - team)           // cache.player_champion[1-team] 5칸을\n                                                             // filter_map(|slot| slot) 로 null 제거 (인라인됨)\nL21..L23  pred(e) =                                          // 클로저 = closure_env$0, 본체는 m12.ll:41916~41998\n        data.blackboard[1 - team].is_recent_visible(data.cache.game, player, e)   // L21\n     && !fight_model::is_ignored_well_enemy(version, player, e)                    // L22\n     && champ.distance_sq(e) < 40000000001                                         // L23 (= <= 200000^2)\n     // 세 조건은 && 단축평가. 하나라도 false 면 그 적은 제외.\n\nL24  nearest = enemies.filter(pred).min_by_key(|e| champ.distance_sq(e))\n     // IR 은 이걸 둘로 쪼갬:\n     //  (a) 담당 본문에서 5칸을 수동 언롤(%30,%52,%58,%64,%70)하며 pred 가 true 인 **첫 원소**를 찾음.\n     //      하나도 없으면 nearest=None → L25 로.\n     //  (b) 그 첫 원소의 키(dx^2+dy^2, Entity::distance_sq)를 시드로 나머지를 fold.\n     //      fold 본체 = m12.ll:12391~12638 (같은 pred 를 다시 평가하고 키 최소를 고름).\n     // dx = x.abs_diff(other.x) (icmp+select 로 접힘), key = dx*dx + dy*dy.\n\nL25  if nearest == None { return RunAway }                   // IR %103\n\nL26/L30  near_enemies: Vec<&Entity, &Bump> =\n         data.cache.iter_champions(1 - team)\n           .filter(|e| is_recent_visible && !is_ignored_well_enemy && champ.distance_sq(e) < 22500000001)\n           .collect_in(data.context.pool)\n     // 클로저 = closure_env$2, 본체 m12.ll:42001~42083. L20 의 pred 와 **완전히 같고 거리 임계만 다름**\n     // (200000^2 → 150000^2). 수집 루프 본체는 m01.ll:33865~34040(bumpalo from_iter_in).\n\nL31/L32  die = fight_check::check_kill_die_tick(\n              version, rnd, data,\n              judger = player, focus = champ,\n              enemy  = near_enemies,\n              towers = Vec::new_in(data.context.pool),   // L32 — 항상 **빈 Vec**\n              debug)\n\nL33  if die > data.context.setting.tick_per_second {\nL36      return KitingBack { focus: nearest.id }            // tag 3, payload = nearest+0x5c0\n     }\nL38  return RunAway                                         // tag 4\n\n// 이 함수는 게임 구조체에 아무것도 쓰지 않는다. store 는 전부 스택 로컬\n// (클로저 캡처 묶음 %9/%11, 빈 Vec %10)이며, 부수효과는 rnd/debug 를\n// check_kill_die_tick 에 넘기는 것뿐이다.\n\n// 의미 요약: '적이 근처에 있는데 내가 1초 이상 버틸 수 있으면 카이팅하며 물러나고(KitingBack),\n// 곧 죽을 것 같거나 볼 수 있는 적이 아예 없으면 그냥 도망(RunAway)'.",
+
+ "knobs": [
+  {"what": "AI 버전 게이트", "where": "engage.rs:14 (m13.ll:45232)", "value": 2,
+   "effect": "version<2 면 이 함수는 무조건 RunAway. 낮추면 구버전 AI에도 KitingBack 판정이 열리고, 올리면 이 함수가 사실상 죽는다(항상 RunAway)"},
+  {"what": "min_by_key 대상 적 탐색 반경(제곱)", "where": "engage.rs:23 — 클로저 본체는 m12.ll:41992 (담당 줄범위 밖)", "value": 40000000001,
+   "effect": "200000^2+1. `dist_sq < 이 값`이므로 실질 반경 200000(=6.25셀). 올리면 더 먼 적까지 '가장 가까운 적' 후보가 되어 RunAway 대신 KitingBack 이 나올 여지가 커지고, 내리면 적을 못 찾아 RunAway 로 떨어진다"},
+  {"what": "near_enemies(사망시점 계산에 넣을 적) 반경(제곱)", "where": "engage.rs:30 — 클로저 본체는 m12.ll:42077 (담당 줄범위 밖)", "value": 22500000001,
+   "effect": "150000^2+1, 실질 반경 150000(=4.6875셀). 올리면 더 많은 적이 위협 계산에 들어가 die 가 작아지고 → RunAway 쪽으로, 내리면 die 가 커져 KitingBack 쪽으로 기운다"},
+  {"what": "생존 시간 임계", "where": "engage.rs:33 — GameSetting.tick_per_second(+0x12f8)", "value": "tick_per_second (1초)",
+   "effect": "die > 1초면 KitingBack. 이 비교값을 키우면 더 오래 버틸 때만 카이팅하고 대부분 RunAway, 줄이면 거의 항상 KitingBack"},
+  {"what": "towers 인자", "where": "engage.rs:32 (m13.ll:45596~45600)", "value": "빈 Vec (cap=0,len=0)",
+   "effect": "check_kill_die_tick 의 towers 를 항상 비워 넘긴다 = 이 판정은 **타워 피해를 사망시점 계산에 넣지 않는다**. 여기에 실제 타워 목록을 넣으면 타워 아래 후퇴 판정이 보수적으로 바뀐다"}
+ ],
+
+ "unknown": [
+  "거리 임계 40000000001 / 22500000001 은 `constants` 에 못 넣었다 — 두 값 모두 담당 줄범위(m13.ll 45212~45626) 밖의 클로저 본체(m12.ll:41992, m12.ll:42077)에 있어 QC C1 이 반려한다. SPEC_GUIDE §'담당 범위 밖 상수' 규칙대로 knobs 로만 실었다.",
+  "is_recent_visible / is_ignored_well_enemy 도 같은 이유로 `calls` 에 없다 — 담당 본문에는 call_mut 심만 있고 실제 call 은 m12.ll 의 클로저 안에 있다.",
+  "self(&LegacyPlanHandler)의 용도 — IR 인자로 아예 안 넘어오고 #dbg_value 도 poison 이라, 소스에 self 를 쓰는 코드가 있었는지 없었는지 IR만으로는 확정 불가(관측 사실: 본문·클로저 어디서도 LegacyPlanHandler 필드를 안 읽는다).",
+  "blackboard 인덱스가 1-team(적 팀)인 이유 — 관측 사실은 확정(closure %11 = sub 1, player.info.team). Blackboard 가 last_visible/last_reveal_tick 등 [5]칸 배열을 갖는 것으로 보아 'blackboard[t] = 팀 t 챔피언 5명의 피관측 기록'으로 읽는 게 자연스럽지만, is_recent_visible 본체를 안 봐서 **추정**이다.",
+  "min_by_key 동점 처리 — fold(m12.ll:12611의 compare + `icmp slt i8 %91, 1`)를 끝까지 따라가지 않았다. Rust min_by_key 표준 의미(첫 최소 유지)로 적었으나 IR 수준 확정은 안 했다.",
+  "L20 과 L26 의 술어가 소스에서 정말 두 개의 별도 클로저인지, 아니면 임계만 파라미터로 받는 헬퍼가 두 번 인라인된 것인지 — DWARF 는 closure_env$0 / closure_env$2 로 서로 다른 클로저라고 말한다(closure_env$1 = min_by_key 키 클로저, engage.rs:24). 다만 두 본체가 명령 단위로 동일해 소스 형태는 미확정.",
+  "반환 페이로드가 undef 인 경로(RunAway)에서 상위 호출자가 payload 워드를 어떻게 다루는지는 안 봤다."
+ ]
+}

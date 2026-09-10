@@ -1,0 +1,87 @@
+{
+ "name": "should_end_object_finish_kill_priority_battle",
+ "sym": "_RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old11fight_model45should_end_object_finish_kill_priority_battle",
+ "src": "game-ai\\src\\plan_legacy\\old\\fight_model.rs",
+ "src_line": 1214,
+ "ir_file": "m10.ll",
+ "ir_from": 49611,
+ "ir_to": 50100,
+
+ "one_line": "몰가드/세르펜 Hunt 단계에서 '처치우선(KillPriority)' 오브젝트 전투를 끝낼지 판정",
+
+ "signature": {
+  "params": [
+   {"i": 1, "name": "version", "type": "usize", "note": "AI 버전. 이 함수 자체는 분기 없이 is_enemy_well_danger 로 그대로 전달만 한다"},
+   {"i": 2, "name": "rnd", "type": "&mut StdRng(320B)", "note": "직접 쓰지 않고 PlayerState::strategy 에만 넘긴다(전략 롤에 쓰이는 듯)"},
+   {"i": 3, "name": "player", "type": "&PlayerState(2528B)", "note": "info.team(0x930) 만 직접 읽고, 나머지는 strategy/is_enemy_well_danger 로 전달"},
+   {"i": 4, "name": "data", "type": "&OperationData(24B)", "note": "cache(0x0)·blackboard(0x10) 사용. context(0x8) 는 이 함수에서 안 씀"},
+   {"i": 5, "name": "main_objective", "type": "enum2<MainObjective>(3B, i24 로 전달)", "note": "byte0=tag(0=Morgard,1=Serpen,...), byte1=phase(ObjectPhase), byte2=with_battle"}
+  ],
+  "returns": "bool — true=이 오브젝트 전투를 종료해야 함 / false=계속(또는 애초에 이 판정 대상이 아님)"
+ },
+
+ "reads": [
+  {"base": "OperationData", "offset": "0x0", "name": "cache", "note": "&AbstractGameWithCache"},
+  {"base": "OperationData", "offset": "0x10", "name": "blackboard", "note": "&[Blackboard;2] — 744B stride 로 [1-player.team] 인덱싱(IR gep 구조체 크기 실측 744)"},
+  {"base": "AbstractGameWithCache", "offset": "0x0", "name": "game.data", "note": "&dyn AbstractGame 의 데이터 포인터"},
+  {"base": "AbstractGameWithCache", "offset": "0x8", "name": "game.vtable", "note": "&dyn AbstractGame 의 vtable(816B) — strategy/is_recent_visible 에도 그대로 전달"},
+  {"base": "AbstractGameWithCache", "offset": "0x1e0", "name": "player_champion", "note": "[[Option<&Entity>;5];2]. [1-player.team] 팀의 5칸을 완전 언롤로 순회(iter_champions 인라인)"},
+  {"base": "dyn AbstractGame vtable", "offset": "0x40", "name": "get_game_mode", "note": "divtable.py AbstractGame 0x40 로 확정. 반환 enum2<GameMode>(16B), 판별자 0 = Moba"},
+  {"base": "dyn AbstractGame vtable", "offset": "0x1f0", "name": "get_entity_by_id", "note": "divtable.py AbstractGame 0x1f0 로 확정. (game, id) -> *const Entity(null 가능)"},
+  {"base": "PlayerState", "offset": "0x930", "name": "info.team", "note": "usize. enemy = 1 - team (0..1 범위 벗어나면 panic_bounds_check)"},
+  {"base": "Strategy", "offset": "0xf", "name": "object_finish", "note": "PlayerState::strategy 가 sret 로 채운 24B 임시(%6)의 +15. ObjectFinishStrategy 0=KillPriority,1=BattlePriority"},
+  {"base": "MobaMode", "offset": "0x1a0", "name": "jungle_runner.epic.live_list.ptr", "note": "Morgard 분기. Vec<usize> 본체는 0x198(cap/ptr/len=0x198/0x1a0/0x1a8)"},
+  {"base": "MobaMode", "offset": "0x1a8", "name": "jungle_runner.epic.live_list.len", "note": "Morgard 분기. 0 이면 즉시 true"},
+  {"base": "MobaMode", "offset": "0x1d0", "name": "jungle_runner.serpen.live_list.ptr", "note": "Serpen 분기. Vec<usize> 본체는 0x1c8"},
+  {"base": "MobaMode", "offset": "0x1d8", "name": "jungle_runner.serpen.live_list.len", "note": "Serpen 분기. 0 이면 즉시 true"},
+  {"base": "Entity", "offset": "0x0", "name": "team.tag", "note": "enum2<TeamType> 판별자(0=Player,1=Neutral). is_ignored_well_enemy 인라인분"},
+  {"base": "Entity", "offset": "0x8", "name": "team.payload", "note": "TeamType::Player 페이로드 = 팀 인덱스(usize). enemy 와 비교"},
+  {"base": "Entity", "offset": "0x660", "name": "x", "note": "is_enemy_well_danger 인자"},
+  {"base": "Entity", "offset": "0x668", "name": "y", "note": "is_enemy_well_danger 인자"}
+ ],
+
+ "writes": [],
+
+ "constants": [
+  {"value": 65534, "src_line": 1216, "meaning": "main_objective(3B) 마스크 0x00FFFE — tag 의 bit0 와 with_battle(byte2) 를 지운다. 즉 with_battle 은 판정에 안 쓰임"},
+  {"value": 768, "src_line": 1216, "meaning": "0x000300 — 마스크 후 기대값. byte1(phase)==3(ObjectPhase::Hunt) 이고 tag 의 bit1~7==0 → tag ∈ {0=Morgard, 1=Serpen}. 불일치면 false 반환"},
+  {"value": 0, "src_line": 1220, "meaning": "ObjectFinishStrategy::KillPriority 판별자. strategy().object_finish 가 이 값이 아니면(=BattlePriority) false 반환"},
+  {"value": 0, "src_line": 1180, "meaning": "GameMode 판별자 0 = Moba. GameMode::as_moba() 가 None(≠0)이면 true 반환"},
+  {"value": 0, "src_line": 1232, "meaning": "TeamType 판별자 0 = Player. is_ignored_well_enemy 안에서 entity.team 이 Player(enemy) 인지 확인"},
+  {"value": 25000, "src_line": 1233, "meaning": "can_enemy_hit_objective 의 3번째 인자 — '적이 오브젝트를 때릴 수 있다'로 볼 사거리 여유(게임 좌표 단위, 셀=32000 기준 약 0.78셀). 5칸 호출 전부 동일 리터럴"}
+ ],
+
+ "calls": [
+  "game_core::simulation::state::player::PlayerState::strategy",
+  "game_core::simulation::game::blackboard::Blackboard::is_recent_visible",
+  "game_ai::path_finder::is_enemy_well_danger",
+  "game_ai::plan_legacy::old::fight_model::can_enemy_hit_objective",
+  "core::panicking::panic_bounds_check"
+ ],
+
+ "logic": "// 반환 true = '이 오브젝트 전투를 끝내라'\nenemy = 1 - player.info.team            // 0x930. enemy>=2 면 panic_bounds_check(len=2)\n\n// [1216] 목표 게이트 — 몰가드/세르펜의 Hunt 단계만 대상\nif (main_objective & 0xFFFE) != 0x0300 { return false }\n//   = tag ∈ {0 Morgard, 1 Serpen} && phase == ObjectPhase::Hunt(3)\n//   with_battle(byte2) 는 마스크로 지워져 판정에 영향 없음\nis_morgard = (main_objective as u8) == 0\n\n// [1220] 전략 게이트\nlet s = PlayerState::strategy(player, rnd, cache.game.data, cache.game.vtable)  // 24B\nif s.object_finish != ObjectFinishStrategy::KillPriority { return false }\n\n// [1178~1182] objective_entity_id_for_main_objective(data, main_objective) — 인라인\nlet mode = (cache.game.vtable+0x40)(cache.game.data)          // AbstractGame::get_game_mode -> enum2<GameMode>\nif mode.discr != 0 /*Moba 아님*/ { return true }\nlet moba = mode.payload\nlet list = if is_morgard { moba.jungle_runner.epic.live_list }   // Vec<usize> @0x198\n           else          { moba.jungle_runner.serpen.live_list } // Vec<usize> @0x1c8\nif list.len == 0 { return true }        // .get(0) == None\nlet obj_id = list[0]                    // 첫 원소만 본다(.get(0).copied())\n\n// [1224~1225]\nlet obj = (cache.game.vtable+0x1f0)(cache.game.data, obj_id)   // AbstractGame::get_entity_by_id\nif obj == null { return true }\n\n// [1229~1233] 적 팀 챔피언 5칸을 순서대로 (LLVM 이 완전 언롤)\nfor slot in 0..5 {\n    let e = cache.player_champion[enemy][slot]\n    if e == null { continue }                                   // iter_champions 의 filter_map\n    if !data.blackboard[enemy].is_recent_visible(cache.game.data, cache.game.vtable, player, e) { continue }   // [1231]\n    // [1232] is_ignored_well_enemy(version, player, e) — 인라인됨\n    if e.team == TeamType::Player(enemy)\n       && path_finder::is_enemy_well_danger(version, player, e.x, e.y) { continue }\n    if fight_model::can_enemy_hit_objective(e, obj, 25000) { return false }   // [1233] 한 명이라도 걸리면 계속 싸운다\n}\nreturn true                              // [1235] 아무도 못 때린다 → 전투 종료\n\n// 요약: return = !(적 챔피언 중에 '최근 목격됨' && '적 우물권 무시대상 아님' && '오브젝트를 25000 이내로 때릴 수 있음' 인 자가 있음)",
+
+ "knobs": [
+  {"what": "적이 오브젝트를 때릴 수 있다고 볼 사거리 여유", "where": "fight_model.rs:1233 (can_enemy_hit_objective 3번째 인자, IR 5곳 모두 25000)", "value": 25000,
+   "effect": "올리면 더 먼 적도 '오브젝트를 위협 중'으로 잡혀 전투를 안 끝낸다(오브젝트 앞 교전 지속). 내리면 적이 조금만 물러나도 전투를 끝내고 오브젝트 처리로 넘어간다"},
+  {"what": "판정 대상 오브젝트 단계 게이트", "where": "fight_model.rs:1216 (mask 65534 / expect 768)", "value": 768,
+   "effect": "byte1 을 1(Setup)·2(Assemble) 로 바꾸면 그 단계에서도 이 종료판정이 돌게 된다. 현재는 Hunt(3) 에서만 동작하고 그 외 단계에선 무조건 false(=종료 안 함)"},
+  {"what": "전략 게이트", "where": "fight_model.rs:1220 (object_finish == KillPriority)", "value": 0,
+   "effect": "1(BattlePriority)로 바꾸면 이 종료판정이 '전투우선' 전략 팀에만 적용된다. 지금은 KillPriority 팀만 이 경로를 탄다"},
+  {"what": "오브젝트 대상 선택 = live_list 의 첫 원소만", "where": "fight_model.rs:1178~1182 (objective_entity_id_for_main_objective, .get(0))", "value": 0,
+   "effect": "에픽/세르펜이 동시에 여러 마리 살아 있어도 인덱스 0 한 마리만 위협 판정 기준이 된다. 인덱스를 바꾸거나 전체 순회로 바꾸면 다중 오브젝트 상황의 판단이 달라진다"},
+  {"what": "우물권 적 무시 조건", "where": "fight_model.rs:1232 (is_ignored_well_enemy → path_finder::is_enemy_well_danger)", "value": -1,
+   "effect": "이 술어가 true 인 적은 '오브젝트를 때릴 수 있어도' 무시된다. 즉 적 우물 위험지대에 있는 적은 위협으로 안 친다 → 이 게이트를 끄면 전투 종료가 훨씬 덜 일어난다. (value=-1 은 임계 상수가 아니라 술어라는 표시)"}
+ ],
+
+ "unknown": [
+  "blackboard 배열의 인덱싱 규약 — IR 상 확실한 건 '인덱스 = 1 - player.info.team' 과 stride 744B 뿐이다. 그 슬롯이 '적 팀이 가진 블랙보드'인지 '적 팀에 대한 우리 관측'인지는 Blackboard 내부/타 호출부를 안 봐서 확정 못 함",
+  "Blackboard::is_recent_visible 내부 미열람 — '최근 목격' 의 시간 임계값이 이 함수 범위 밖에 있다(game_core 쪽). 실질 노브가 거기 있을 가능성이 높다",
+  "fight_model::can_enemy_hit_objective 내부 미열람 — 25000 이 순수 거리 여유인지, 사거리+여유의 합인지 확정 못 함(제곱거리 비교 여부 포함)",
+  "path_finder::is_enemy_well_danger 내부 미열람 — version(p1) 이 이 함수에서 유일하게 소비되는 곳이라 버전별 분기가 거기 있을 수 있음",
+  "ObjectPhase::Hunt 의 리터럴 3 은 본문에 단독으로 없다 — 마스크/비교가 65534/768 로 접혀 있어서다. constants 에는 접힌 원본값(768)만 실었고 3 은 meaning 에만 썼다",
+  "p2(rnd) 가 실제로 소비되는지 — 이 함수 본문에는 store 가 하나도 없고 rnd 는 PlayerState::strategy 에만 전달된다. strategy 가 RNG 를 굴리는지(=이 판정이 비결정적인지) 확정 못 함. writes 를 빈 배열로 둔 이유도 이것(직접 쓰기 0건)",
+  "MainObjective 의 with_battle(byte2) 가 마스크로 지워지는 것이 의도인지 버그인지 판단 불가 — IR 사실만 적었다",
+  "objective_entity_id_for_main_objective 는 이 함수에 완전 인라인돼 별도 define 이 없다(m10.ll/m05.ll 전수 grep). 따라서 Morgard/Serpen 이외 태그(2~11)에서 그 헬퍼가 무엇을 반환하는지는 여기선 관측 불가 — 게이트(1216)가 이미 0/1 로 좁혀 그 경로가 죽어 있다"
+ ]
+}

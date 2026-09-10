@@ -1,0 +1,93 @@
+{
+ "name": "sub_plan",
+ "sym": "_RNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old12attack_nexusNtB2_15AttackNexusPlan8sub_plan",
+ "src": "game-ai\\src\\plan_legacy\\old\\attack_nexus.rs",
+ "src_line": 31,
+ "ir_file": "m12.ll",
+ "ir_from": 34867,
+ "ir_to": 34976,
+
+ "one_line": "넥서스 공격 플랜의 서브플랜 선택 — 샘에서 회복중이면 Recall, 적 쌍둥이탑이 남아있으면 LineDefense, 다 밀었으면 AttackNexus",
+
+ "signature": {
+  "params": [
+   {"i": 1, "name": "self", "type": "&AttackNexusPlan(16B)", "note": "필드 team:usize@0x0 · line:LineType@0x8. 본문은 line 만 읽는다(team 은 안 씀 — team 은 player.info.team 에서 가져옴)"},
+   {"i": 2, "name": "version", "type": "usize", "note": "AI 버전 게이트. ★이 함수에선 한 번도 참조되지 않음(분기 없음)"},
+   {"i": 3, "name": "rnd", "type": "&mut StdRng(320B)", "note": "readnone — 난수 미사용"},
+   {"i": 4, "name": "player", "type": "&PlayerState(2528B)", "note": "info.team(0x930) · info.position(0x9c0) 만 읽음"},
+   {"i": 5, "name": "data", "type": "&OperationData(24B)", "note": "cache(0x0) · context(0x8) 사용. blackboard(0x10) 미사용"},
+   {"i": 6, "name": "_team_plan", "type": "&TeamPlan", "note": "readnone — 미사용(이름의 _ 접두와 일치)"},
+   {"i": 7, "name": "_debug", "type": "&mut DebugFrameData(224B)", "note": "readnone — 미사용"}
+  ],
+  "returns": "SubPlan (sret 72B) — Recall(tag5) / AttackNexus(tag16) / LineDefense(tag2, 페이로드 3바이트)"
+ },
+
+ "reads": [
+  {"base": "PlayerState", "offset": "0x930", "name": "info.team", "note": "usize. 0 또는 1 이어야 함 — >=2 면 panic_bounds_check(len=2). attack_nexus.rs:36"},
+  {"base": "PlayerState", "offset": "0x9c0", "name": "info.position", "note": "Position(4B enum, !range [0,5) = Top/Jungle/Mid/Bottom/Support). Position::as_index(entity.rs:580) 가 인라인돼 판별자를 그대로 usize 로 zext"},
+  {"base": "OperationData", "offset": "0x0", "name": "cache", "note": "&AbstractGameWithCache. gep 가 접혀(offset 0) 본문엔 리터럴 0 이 안 보임"},
+  {"base": "OperationData", "offset": "0x8", "name": "context", "note": "&GameContext"},
+  {"base": "GameContext", "offset": "0x20", "name": "map", "note": "&MapDef"},
+  {"base": "AbstractGameWithCache", "offset": "0x1e0", "name": "player_champion", "note": "[[Option<&Entity>;5];2] (80B). champ = player_champion[team][position], stride 40(팀) + 8(포지션). None 이면 Option::unwrap 실패로 패닉"},
+  {"base": "AbstractGameWithCache", "offset": "0x148", "name": "twin_towers[0].len", "note": "twin_towers 는 0x130 에 있는 [bumpalo::Vec<&Entity>;2] (팀당 32B). len 은 Vec 안 +0x18 → 0x130+0x18=0x148, 팀 stride 32. 본문은 twin_towers[1-team] 을 읽는다"},
+  {"base": "MapDef", "offset": "0x6d70", "name": "fountains", "note": "[(u64,u64,u64,u64);2] (64B). MapDef::fountain(team)(map_def.rs:234) 인라인 — fountains[team], stride 32"},
+  {"base": "MapDef.fountains[team]", "offset": "0x0", "name": "lx", "note": "샘(회복지역) 사각형 좌측 x"},
+  {"base": "MapDef.fountains[team]", "offset": "0x8", "name": "ly", "note": "샘 사각형 상단 y"},
+  {"base": "MapDef.fountains[team]", "offset": "0x10", "name": "rx", "note": "샘 사각형 우측 x"},
+  {"base": "MapDef.fountains[team]", "offset": "0x18", "name": "ry", "note": "샘 사각형 하단 y"},
+  {"base": "Entity", "offset": "0x660", "name": "x", "note": "champ 의 x 좌표(u64)"},
+  {"base": "Entity", "offset": "0x668", "name": "y", "note": "champ 의 y 좌표(u64)"},
+  {"base": "Entity", "offset": "0x670", "name": "hp", "note": "현재 HP"},
+  {"base": "Entity", "offset": "0x628", "name": "stat_cached.hp", "note": "최대 HP (stat_cached 는 0x618, EntityStat 안 +0x10)"},
+  {"base": "AttackNexusPlan", "offset": "0x8", "name": "line", "note": "LineType(Top=0/Mid=1/Bottom=2). LineDefense 반환 시 그대로 실려나감"}
+ ],
+
+ "writes": [
+  {"base": "SubPlan(sret 반환버퍼 %0)", "offset": "0x0", "name": "판별자(tag)", "value": "5 | 2 | 16",
+   "note": "phi 로 모임: 5=Recall(블록49), 2=LineDefense(블록61), 16=AttackNexus(블록55)"},
+  {"base": "SubPlan(sret) LineDefense 페이로드", "offset": "0x8", "name": "LineDefenseSubPlan.style", "value": "0 = LineStyle::Aggressive",
+   "note": "LineDefenseSubPlan 은 SubPlan 페이로드 offset 64bit(=바이트8)부터. 필드 비트오프셋 style=0, line=8, minion_action_type=16"},
+  {"base": "SubPlan(sret) LineDefense 페이로드", "offset": "0x9", "name": "LineDefenseSubPlan.line", "value": "self.line 그대로 복사",
+   "note": "AttackNexusPlan+0x8 에서 읽은 LineType"},
+  {"base": "SubPlan(sret) LineDefense 페이로드", "offset": "0xa", "name": "LineDefenseSubPlan.minion_action_type", "value": "2 = MinionActionType::Push",
+   "note": "Pull=0 / Normal=1 / Push=2"}
+ ],
+
+ "constants": [
+  {"value": 2, "src_line": 36, "meaning": "팀 배열 길이 — player.info.team 이 2 이상이면 panic_bounds_check(len=2). 즉 팀은 0/1 뿐"},
+  {"value": 5, "src_line": 42, "meaning": "SubPlan::Recall 태그값 (dienum SubPlan: DISCR 5 = Recall). 샘 안 + HP 미만일 때 반환"},
+  {"value": 1, "src_line": 45, "meaning": "적 팀 인덱스 계산 `1 - team` 의 1 (sub nuw nsw i64 1, %10)"},
+  {"value": 0, "src_line": 45, "meaning": "twin_towers[1-team].len() == 0 비교값 — bumpalo Vec::is_empty 인라인. 동시에 LineStyle::Aggressive(0) 저장값이기도 함"},
+  {"value": 16, "src_line": 46, "meaning": "SubPlan::AttackNexus 태그값 (DISCR 16). 적 쌍둥이탑이 하나도 안 남았을 때 반환"},
+  {"value": 2, "src_line": 48, "meaning": "SubPlan::LineDefense 태그값(DISCR 2) 및 MinionActionType::Push(2) — 같은 리터럴 2가 두 용도로 본문에 존재"}
+ ],
+
+ "calls": [
+  "core::panicking::panic_bounds_check",
+  "core::option::unwrap_failed"
+ ],
+
+ "logic": "fn AttackNexusPlan::sub_plan(&self, version, rnd, player, data, _team_plan, _debug) -> SubPlan\n\n// ── L36 : 내 챔피언 얻기 ──────────────────────────────\nteam = player.info.team                       // PlayerState+0x930, team>=2 면 패닉(len=2)\npos  = player.info.position.as_index()        // PlayerState+0x9c0 (i32 range[0,5)) 을 zext, entity.rs:580 인라인\nchamp = data.cache.player_champion[team][pos].unwrap()\n        // AbstractGameWithCache+0x1e0 + 40*team + 8*pos, null 이면 option::unwrap_failed\n\n// ── L37 : 우리 팀 샘(fountain) 사각형 ────────────────\n(lx, ly, rx, ry) = data.context.map.fountain(team)\n        // MapDef+0x6d70 + 32*team 의 (u64,u64,u64,u64), map_def.rs:234~235 인라인\n\n// ── L38 : 샘 안에 있나 ───────────────────────────────\nin_x = (champ.x >= lx) && (champ.x <= rx)     // Entity+0x660\nif !in_x { goto NOT_IN_AREA }                 // 블록24 -> 55\nin_y = !((champ.y < ly) || (champ.y > ry))    // Entity+0x668\nif !in_y { goto NOT_IN_AREA }                 // 블록39 -> 55\nis_in_heal_area = in_x && in_y                // = true 인 경로만 아래로\n\n// ── L41 : 샘 안 + 체력 미만 → 계속 회복 ──────────────\nif champ.hp < champ.stat_cached.hp {          // Entity+0x670 < Entity+0x628\n    return SubPlan::Recall                    // tag 5\n}\n// (HP 가 꽉 찼으면 아래로 떨어진다)\n\nNOT_IN_AREA:\n// ── L45 : 적 쌍둥이탑이 남아있나 ─────────────────────\nhas_enemy_twin_tower = !data.cache.twin_towers[1 - team].is_empty()\n        // AbstractGameWithCache+0x130 + 32*(1-team), Vec.len 은 +0x18 (=본문 오프셋 328/360)\n        // bumpalo::collections::vec::Vec::is_empty(vec.rs:1635) -> len(vec.rs:1616) 인라인\n\n// ── L47/48 : 최종 분기 ───────────────────────────────\nif !has_enemy_twin_tower {\n    return SubPlan::AttackNexus               // tag 16 — 적 쌍둥이탑 전멸 = 넥서스 직행\n}\nreturn SubPlan::LineDefense(LineDefenseSubPlan {\n    style:              LineStyle::Aggressive,   // 0\n    line:               self.line,               // AttackNexusPlan+0x8 (LineType)\n    minion_action_type: MinionActionType::Push,  // 2\n})                                            // tag 2\n\n// ★주의: Recall 은 '샘으로 귀환하라'가 아니라 '이미 샘 안에 서 있고 HP 가 안 찼으니\n//   그대로 회복을 유지하라' 다. 샘 밖에서는 HP 가 아무리 낮아도 이 함수는 Recall 을 내지 않는다.\n// ★version / rnd / _team_plan / _debug 는 본문에서 전혀 쓰이지 않는다(버전 게이트 없음, 난수 없음).",
+
+ "knobs": [
+  {"what": "샘 회복 유지 조건 (HP 상한)", "where": "attack_nexus.rs:41 (IR m12.ll:34946~34951, champ+0x670 < champ+0x628)", "value": "champ.hp < champ.stat_cached.hp",
+   "effect": "'HP 최대치 미만'을 '최대치의 x%' 같은 완화 조건으로 바꾸면 샘에서 더 빨리 나가고, 반대로 두면 풀피가 될 때까지 절대 안 나온다. 현재는 1이라도 깎여 있으면 계속 샘에 머문다"},
+  {"what": "넥서스 공격 개시 게이트", "where": "attack_nexus.rs:45~47 (IR m12.ll:34955~34962, twin_towers[1-team].is_empty())", "value": "적 쌍둥이탑 Vec 이 비어 있을 것",
+   "effect": "이 조건을 무시하고 무조건 AttackNexus 를 내면 쌍둥이탑을 남긴 채 넥서스로 돌진한다(=탑 사거리에 갈려 죽음). 반대로 조건을 더 빡세게(예: 억제기까지) 하면 넥서스 러시가 늦어진다"},
+  {"what": "쌍둥이탑이 남았을 때의 대체 행동", "where": "attack_nexus.rs:48 (IR m12.ll:34964~34971)", "value": "LineDefense{style=Aggressive(0), line=self.line, minion_action_type=Push(2)}",
+   "effect": "style 을 Defensive(1) 로 바꾸면 넥서스 플랜인데도 수비적으로 라인을 잡고, minion_action_type 을 Pull(0)/Normal(1) 로 바꾸면 미니언을 밀지 않는다. 즉 '넥서스 공격 페이즈의 라인 압박 강도' 노브"},
+  {"what": "샘 사각형 범위", "where": "MapDef.fountains[team] (MapDef+0x6d70, map_def.rs:234) — 데이터쪽", "value": "(lx, ly, rx, ry)",
+   "effect": "맵 데이터 값이라 이 함수에선 못 바꾸지만, 넓히면 '샘 안'으로 판정되는 구역이 커져 회복 대기 시간이 길어진다"}
+ ],
+
+ "unknown": [
+  "`version`(p2) 이 무엇을 게이트하는 값인지 — 이 함수 본문에서 단 한 번도 참조되지 않아 여기서는 확정 불가. AI 버전 분기가 없다는 사실만 확실하다",
+  "has_enemy_twin_tower 의 dbg 표현이 이상하다: `#dbg_value(i1 %60, !62934, DIExpression(DW_OP_not, DW_OP_not, ...))` 로 NOT 이 두 번 걸려 있어 문자대로면 항등(= len==0)이 된다. 하지만 ①변수명이 has_enemy_twin_tower 이고 ②%60(len==0) 이 true 일 때 AttackNexus 로 가므로, 의미상 has_enemy_twin_tower = !is_empty() 가 맞다. 2회 확인 후 dbg 표현 쪽을 컴파일러 아티팩트로 판단하고 내려놨음",
+  "AttackNexusPlan.team(+0x0) 은 이 함수에서 안 읽는다 — team 은 player.info.team 으로 다시 구한다. 둘이 항상 같은지(다를 수 있는지)는 이 함수만으론 확정 불가",
+  "Position::as_index 가 인라인돼 '판별자를 그대로 usize 로' 쓰는 것까지만 확인됨(load i32 !range[0,5] → zext). 판별자↔인덱스 매핑에 재배치가 있는지는 as_index 본체(entity.rs:580)를 안 봤으므로 미확정",
+  "블록24(x 범위 밖) / 블록39(y 범위 밖) / 블록49(HP 풀) 세 경로가 모두 블록55 로 합류하므로 `is_in_heal_area` 라는 지역변수 자체는 최적화로 사라졌다. 소스에 `if is_in_heal_area && hp<max` 형태였는지 중첩 if 였는지는 IR 로는 구분 불가(결과 동작은 동일)",
+  "reads 의 `OperationData+0x0`(cache) 은 gep 오프셋 0 이 접혀 본문에 리터럴 0 으로는 안 보인다(QC C3 경고 대상). DWARF !14558 로 확정한 값",
+  "`AbstractGameWithCache.twin_towers`(0x130) 의 원소 타입을 distruct 는 `?`(64B) 로만 돌려준다. 인라인된 bumpalo Vec::is_empty/len 의 !dbg 로 '팀당 32B bumpalo Vec, len@+0x18' 까지는 확정했으나 앞 24B(ptr/ptr/cap)의 정확한 필드명은 미확인",
+  "이 함수는 vtable 디스패치를 하나도 하지 않아 divtable 로 확인할 슬롯이 없었다(cache.game 의 dyn AbstractGame 은 여기서 안 건드림)"
+ ]
+}

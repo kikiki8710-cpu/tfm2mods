@@ -1,0 +1,112 @@
+{
+ "name": "v3_fall_back_to_passive",
+ "sym": "_RNvMNtNtCshdEBA0ozCnw_7game_ai11plan_legacy7handlerNtB2_17LegacyPlanHandler23v3_fall_back_to_passive",
+ "src": "game-ai\\src\\plan_legacy\\handler.rs",
+ "src_line": 416,
+ "ir_file": "m13.ll",
+ "ir_from": 12238,
+ "ir_to": 12479,
+
+ "one_line": "AI v3 이상에서 현재 플랜을 패시브 플랜으로 되돌리는 폴백 — 튜토리얼 스코프 허용 시에만 적용",
+
+ "signature": {
+   "params": [
+     {"i": 1, "name": "self", "type": "&mut LegacyPlanHandler(6168B)", "note": "플랜·서브플랜·카운터 기록 대상"},
+     {"i": 2, "name": "version", "type": "usize", "note": "AI 버전 게이트. version < 2 면 아무것도 안 하고 즉시 return (handler.rs:417)"},
+     {"i": 3, "name": "rnd", "type": "&mut rand::rngs::std::StdRng(320B, align16)", "note": "본문에서 직접 안 씀 — passive_plan / BigPlan::sub_plan 으로 전달만"},
+     {"i": 4, "name": "player", "type": "&PlayerState(2528B)", "note": "본문에서 직접 안 읽음 — 하위 호출로 전달만"},
+     {"i": 5, "name": "data", "type": "&OperationData(24B)", "note": "data.cache(=&AbstractGameWithCache) 와 data.context(=&GameContext) 를 직접 읽는다"},
+     {"i": 6, "name": "debug", "type": "&mut DebugFrameData(224B)", "note": "본문에서 직접 안 씀 — 하위 호출로 전달만"}
+   ],
+   "returns": "void — 반환값 없이 self.plan / self.sub_plan / 카운터를 갱신하거나, 조건 불만족 시 아무것도 안 함"
+ },
+
+ "reads": [
+   {"base": "OperationData", "offset": "0x0", "name": "cache", "note": "&AbstractGameWithCache"},
+   {"base": "OperationData", "offset": "0x8", "name": "context", "note": "&GameContext — tutorial 판정에 사용"},
+   {"base": "AbstractGameWithCache", "offset": "0x0", "name": "game.data_ptr", "note": "dyn AbstractGame 팻포인터의 데이터 포인터"},
+   {"base": "AbstractGameWithCache", "offset": "0x8", "name": "game.vtable", "note": "dyn AbstractGame 팻포인터의 vtable 포인터"},
+   {"base": "dyn AbstractGame vtable", "offset": "0x40", "name": "get_game_mode", "note": "divtable.py AbstractGame 0x40 → AbstractGame::get_game_mode. {i64 태그, ptr} 반환. 본문에서 2회 호출(417 게이트 통과 후 421, 424)"},
+   {"base": "dyn AbstractGame vtable", "offset": "0x28", "name": "tick", "note": "divtable.py AbstractGame 0x28 → AbstractGame::tick. i64 반환. 허용 판정 통과 후에만 호출(handler.rs:432)"},
+   {"base": "GameContext", "offset": "0x38", "name": "tutorial", "note": "TutorialType(u8, 0..8). rule_scope 의 모든 허용 판정이 이 한 바이트만 본다"},
+   {"base": "BigGoal", "offset": "0x0", "name": "tag", "note": "BigPlan::goal() 이 sret 로 채운 24B BigGoal 의 판별자(0..6). DISCR_EXACT == variant index"},
+   {"base": "BigGoal", "offset": "0x1", "name": "Line.line", "note": "tag==0(Line) 일 때의 페이로드 LineType(0=Top,1=Mid,2=Bottom)"},
+   {"base": "LegacyPlanHandler", "offset": "0x0", "name": "data", "note": "GoalData(248B) — BigPlan::sub_plan 의 인자로 &self(248B) 형태로 전달"},
+   {"base": "LegacyPlanHandler", "offset": "0xf8", "name": "team_plan", "note": "TeamPlan(1064B) — BigPlan::sub_plan 인자"},
+   {"base": "LegacyPlanHandler", "offset": "0x990", "name": "positioning_score", "note": "PositioningScoreData(2760B) — BigPlan::sub_plan 인자"},
+   {"base": "LegacyPlanHandler", "offset": "0x5e8", "name": "plan", "note": "쓰기 직전 old 값을 drop, 이후 sub_plan 계산 시 &self.plan 으로 다시 읽음"},
+   {"base": "LegacyPlanHandler", "offset": "0x1628", "name": "v3_lapse_passive_fallbacks", "note": "+1 하기 위해 읽음(read-modify-write)"}
+ ],
+
+ "writes": [
+   {"base": "BigPlan(지역변수 plan, 384B)", "offset": "0x0", "name": "tag", "value": "4",
+    "note": "GameMode::SingleLane 경로에서만. 4 = BigPlan::SinglePlanLine (dienum BigPlan)"},
+   {"base": "BigPlan(지역변수 plan)", "offset": "0x8", "name": "SinglePlanLine.chats", "value": "빈 Vec (cap/len 0, dangling ptr 0x8)",
+    "note": "+0x8=0, +0x10=inttoptr(8), +0x18=0 세 워드가 Vec::new()"},
+   {"base": "BigPlan(지역변수 plan)", "offset": "0x20", "name": "SinglePlanLine.in_recall", "value": "0 (false)", "note": ""},
+   {"base": "BigPlan(지역변수 plan)", "offset": "0x21", "name": "SinglePlanLine.line", "value": "1 = LineType::Mid", "note": "싱글레인 모드라 미드 고정"},
+   {"base": "LegacyPlanHandler", "offset": "0x1610", "name": "mf_swap.0", "value": "29",
+    "note": "handler.rs:432 mf_note_swap(src=29, tick) 인라인. 29 = 이 폴백을 가리키는 src 코드"},
+   {"base": "LegacyPlanHandler", "offset": "0x1618", "name": "mf_swap.1", "value": "AbstractGame::tick() 결과", "note": "같은 mf_note_swap 인라인(handler.rs:410)"},
+   {"base": "LegacyPlanHandler", "offset": "0x1628", "name": "v3_lapse_passive_fallbacks", "value": "+1", "note": "handler.rs:433 — 이 폴백이 실제로 적용된 횟수 카운터"},
+   {"base": "LegacyPlanHandler", "offset": "0x5e8", "name": "plan", "value": "새로 만든 BigPlan(384B memcpy)",
+    "note": "handler.rs:434. 기존 plan 은 drop_glue 로 먼저 파기. 예외 경로 대비로 임시 %9 에 복사본을 둔다"},
+   {"base": "LegacyPlanHandler", "offset": "0x768", "name": "sub_plan", "value": "SubPlan::merge(&mut self.sub_plan, &새 SubPlan)",
+    "note": "handler.rs:435~436 — 새 plan 으로 BigPlan::sub_plan 을 구해 기존 sub_plan 에 merge"}
+ ],
+
+ "constants": [
+   {"value": 2, "src_line": 417, "meaning": "AI 버전 하한. version < 2 면 즉시 return — v2 미만에는 이 폴백 자체가 없다"},
+   {"value": 2, "src_line": 421, "meaning": "GameMode::DeathMatch 태그. 데스매치면 즉시 return"},
+   {"value": 1, "src_line": 424, "meaning": "GameMode::SingleLane 태그. 이 모드면 passive_plan 을 부르지 않고 SinglePlanLine 을 직접 만든다"},
+   {"value": 4, "src_line": 425, "meaning": "BigPlan 판별자 4 = SinglePlanLine (DISCR_EXACT, variant2)"},
+   {"value": 1, "src_line": 425, "meaning": "LineType::Mid — 싱글레인 플랜의 라인 고정값"},
+   {"value": 0, "src_line": 425, "meaning": "in_recall = false"},
+   {"value": 0, "src_line": 429, "meaning": "TutorialType::None — 모든 허용집합(라인/에픽/세르펜/정글)에 공통 포함"},
+   {"value": 1, "src_line": 429, "meaning": "TutorialType::First — Bottom 라인 목표 허용집합에만 포함"},
+   {"value": 2, "src_line": 429, "meaning": "TutorialType::TopSolo — Top 라인 목표 허용집합"},
+   {"value": 3, "src_line": 429, "meaning": "TutorialType::Bottom — Bottom 라인 목표 허용집합"},
+   {"value": 4, "src_line": 429, "meaning": "TutorialType::MidSolo — Mid 라인 목표 허용집합"},
+   {"value": 5, "src_line": 429, "meaning": "TutorialType::MidBottom — Mid/Bottom 라인 + Serpen 허용집합"},
+   {"value": 6, "src_line": 429, "meaning": "TutorialType::JungleOnly — Jungle 목표를 추가로 허용시키는 별도 항(icmp eq)"},
+   {"value": 7, "src_line": 429, "meaning": "TutorialType::Line — 라인 3종 + Epic + Serpen 허용집합"},
+   {"value": 8, "src_line": 429, "meaning": "TutorialType::Total — 전 목표 허용집합"},
+   {"value": -7, "src_line": 429, "meaning": "Epic 허용 판정 바이어스: (tutorial + (-7)) as u8 < 250 → tutorial ∈ {0,7,8}. Jungle 판정에서는 상한(=u8 249)으로도 쓰임"},
+   {"value": -6, "src_line": 429, "meaning": "Epic 판정의 부호없는 상한(i8 -6 = u8 250) — 범위비교로 접힌 집합검사"},
+   {"value": -8, "src_line": 429, "meaning": "Jungle 허용 판정 바이어스: (tutorial + (-8)) as u8 < 249 → tutorial ∈ {0,8}"},
+   {"value": 29, "src_line": 432, "meaning": "mf_note_swap 의 src 코드 — '패시브 폴백으로 플랜 교체' 를 뜻하는 태그"}
+ ],
+
+ "calls": [
+   "game_ai::plan_legacy::handler::LegacyPlanHandler::passive_plan",
+   "game_ai::plan_legacy::types::BigPlan::goal",
+   "game_ai::plan_legacy::types::BigPlan::sub_plan",
+   "game_ai::plan_legacy::sub_plan::SubPlan::merge",
+   "core::ptr::drop_glue"
+ ],
+
+ "logic": "fn v3_fall_back_to_passive(self, version, rnd, player, data, debug):\n  // handler.rs:417 — 버전 게이트\n  if version < 2: return                       // v2 미만은 이 폴백 없음\n\n  // handler.rs:421 — 게임모드 게이트\n  game = data.cache.game            // &dyn AbstractGame (data ptr +0, vtable +8)\n  if game.get_game_mode() /*vtable+0x40*/ == GameMode::DeathMatch(2): return\n\n  // handler.rs:424~427 — 폴백으로 쓸 플랜 만들기\n  if game.get_game_mode() == GameMode::SingleLane(1):\n      plan = BigPlan::SinglePlanLine( SinglePlanLine{ chats: Vec::new(), in_recall: false, line: LineType::Mid } )\n      // IR: plan+0=4(tag), plan+8/0x10/0x18=빈 Vec, plan+0x20=0, plan+0x21=1\n  else:\n      plan = self.passive_plan(version, rnd, player, data, debug)   // 392B sret → 앞 384B 만 plan 으로 복사\n\n  // handler.rs:429 — rule_scope::plan_allowed(context, &plan) 이 전부 인라인됨\n  ctx = data.context\n  goal = BigPlan::goal(&plan)                  // rule_scope.rs:101 → BigGoal(24B sret)\n  t = ctx.tutorial                             // GameContext+0x38, TutorialType u8\n  allowed = match goal.tag:                    // rule_scope::goal_allowed, rule_scope.rs:90~95\n     0 Line(line) =>                           // rule_scope.rs:92 → line_exists(ctx, line) (rule_scope.rs:24~25)\n                                               //   → TutorialType::spawn_line_minion(line) (runner.rs:274~278)\n         line==Top(0)    -> t in {None(0), TopSolo(2), Line(7), Total(8)}                    // spawn_top_minion, runner.rs:283\n         line==Mid(1)    -> t in {None(0), MidSolo(4), MidBottom(5), Line(7), Total(8)}      // spawn_mid_minion, runner.rs:287\n         line==Bottom(2) -> t in {None(0), First(1), Bottom(3), MidBottom(5), Line(7), Total(8)} // spawn_bottom_minion, runner.rs:291\n     2 Epic   =>                               // rule_scope.rs:93 → morgard_exists(ctx) (rule_scope.rs:45~46)\n                                               //   → TutorialType::spawn_epic (runner.rs:262~263)\n         t in {None(0), Line(7), Total(8)}     // IR: (u8)(t-7) < 250\n     3 Serpen =>                               // rule_scope.rs:94 → serpen_exists(ctx) (rule_scope.rs:49~50)\n                                               //   → TutorialType::spawn_serpen (runner.rs:266~267)\n         t in {None(0), MidBottom(5), Line(7), Total(8)}\n     1 Jungle =>                               // rule_scope.rs:95 (인라인 스코프는 TutorialType::player_count, runner.rs:294~295)\n         t in {None(0), JungleOnly(6), Total(8)}   // IR: ((u8)(t-8) < 249) || (t == 6)\n     4 Nexus | 5 Battle | 6 Recall => true     // 튜토리얼 스코프 검사 없음, 항상 허용\n\n  if !allowed:\n      drop(plan); return                       // handler.rs:437 — 아무것도 안 바꾸고 종료\n\n  // 허용된 경우에만 상태 반영\n  self.mf_note_swap(src=29, tick=game.tick() /*vtable+0x28*/)   // handler.rs:432 → self.mf_swap = (29, tick)\n  self.v3_lapse_passive_fallbacks += 1                          // handler.rs:433\n  self.plan = plan                                              // handler.rs:434 (기존 plan drop 후 384B memcpy)\n  sp = BigPlan::sub_plan(&self.plan, version, rnd, player, data,\n                         &self.data(0x0,248B), &mut self.team_plan(0xf8),\n                         &self.positioning_score(0x990), debug)  // handler.rs:435\n  SubPlan::merge(&mut self.sub_plan(0x768), &sp)                 // handler.rs:436\n  return                                                        // handler.rs:437\n",
+
+ "knobs": [
+   {"what": "AI 버전 하한", "where": "handler.rs:417", "value": 2,
+    "effect": "2 를 내리면 v1 게임에서도 패시브 폴백이 돌게 되고, 올리면 해당 버전 미만에서 이 폴백이 통째로 죽는다(플랜이 이전 값 그대로 유지됨)"},
+   {"what": "데스매치 제외", "where": "handler.rs:421", "value": 2,
+    "effect": "GameMode::DeathMatch(2) 비교를 없애면 데스매치에서도 패시브 폴백이 걸려 AI가 교전을 중단하고 물러난다"},
+   {"what": "싱글레인 고정 라인", "where": "handler.rs:425", "value": 1,
+    "effect": "1(Mid) 을 0/2 로 바꾸면 싱글레인 모드 폴백 플랜의 목표 라인이 Top/Bottom 으로 바뀐다"},
+   {"what": "튜토리얼 스코프 허용집합", "where": "rule_scope.rs:90~95 (goal_allowed / line_exists / morgard_exists / serpen_exists)", "value": 0,
+    "effect": "각 switch 의 tutorial 케이스를 넓히면 튜토리얼/제한 모드에서도 해당 목표(라인·에픽·세르펜·정글)의 패시브 플랜이 채택된다. 반대로 케이스를 빼면 그 목표의 폴백이 통째로 버려져 플랜이 갱신되지 않는다. 일반 대전은 tutorial=None(0) 이라 전 케이스가 이미 허용이므로 실전 영향은 없다"},
+   {"what": "mf_swap src 코드", "where": "handler.rs:432", "value": 29,
+    "effect": "진단용 태그값. 바꿔도 판정에는 영향 없고 로그/집계 구분만 달라진다"}
+ ],
+
+ "unknown": [
+   "rule_scope.rs:95 (Jungle 허용)의 원래 소스 표현식 — 인라인 스코프가 TutorialType::player_count(runner.rs:294~295) 로 찍히는데, IR 에는 카운트 반환·비교가 남지 않고 tutorial 태그 집합검사 {0,6,8} 로 완전히 접혀 있다. 다른 모듈(m04.ll:16516~16528)의 player_count 인라인 사이트는 {0,2,4,6,7,8}/{1,3}/{5} 3그룹으로 갈리므로 이 집합과 맞지 않는다 → 'player_count() 를 어떤 값과 비교했는가'를 확정하지 못했다(2회 시도 후 중단). 관측 사실은 t in {None,JungleOnly,Total} 뿐.",
+   "goal_allowed 의 소스 줄 92~95 중 라인 92=Line, 93=Epic, 94=Serpen, 95=Jungle 은 !DILocation inlinedAt 사슬로 확정했으나, Nexus/Battle/Recall 이 어느 줄의 어떤 패턴(`_ => true` 인지 개별 arm 인지)인지는 IR 에 블록이 하나로 합쳐져(label %61) 확인 불가",
+   "AbstractGame::get_game_mode 가 { i64, ptr } 를 반환하는데 ptr 부분(GameMode 페이로드)은 이 함수에서 전혀 쓰지 않아 무엇인지 모름",
+   "get_game_mode 를 handler.rs:421 과 424 에서 두 번 호출한다(CSE 안 됨). 두 번째 호출이 다른 값을 반환할 수 있는지(=trait 구현이 상태의존인지)는 game_core DWARF 가 _gaibc 에 없어 확인 불가",
+   "passive_plan 이 392B sret 인데 384B 만 plan 으로 복사한다. 뒤 8B 가 무엇인지(패딩인지 별도 반환값인지) 이 범위에서는 확인 불가",
+   "rnd(%2) · player(%3) · debug(%5) 는 본문에서 직접 읽지 않고 passive_plan / BigPlan::sub_plan 으로만 전달 — 내부 사용처는 안 봄",
+   "BigPlan::sub_plan · SubPlan::merge · passive_plan 내부는 담당 범위 밖이라 안 봄"
+ ]
+}

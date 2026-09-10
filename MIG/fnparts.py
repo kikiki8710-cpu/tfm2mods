@@ -36,12 +36,42 @@ def mangled_parts(sym):
             ln = int(sym[i:j])
             if 0 < ln <= n - j:
                 c = sym[j:j + ln]
-                if re.fullmatch(r'[A-Za-z_][A-Za-z0-9_]*', c):
+                # ⚠백레퍼런스(`B2L_`·`s_`)에서 길이를 잘못 집으면 `J_`·`_12Abs` 같은
+                #   쓰레기 성분이 나온다(4차 실측: fold 조각이 `J_::compare::r` 로 표시됨).
+                #   밑줄 시작·1글자·언더바 끝은 이름이 아니다.
+                if re.fullmatch(r'[A-Za-z][A-Za-z0-9_]*', c) and len(c) >= 2 and not c.endswith('_'):
                     out.append(c)
             i = j
         else:
             i += 1
     return out
+
+
+def count_disub(want):
+    """DWARF 에 클로저·서브프로그램이 있는데 `define` 이 없으면 = **전부 인라인**.
+    4차에서 3명이 "조각이 정말 없는 건지 못 찾은 건지" 몰라 재확인 grep 을 돌렸다."""
+    n = 0
+    for fn in sorted(os.listdir(IRDIR)):
+        if not fn.endswith('.ll'):
+            continue
+        for ln in io.open(os.path.join(IRDIR, fn), encoding='utf-8', errors='replace'):
+            if '!DISubprogram(' in ln and want in ln:
+                n += 1
+    return n
+
+
+def count_declares(want):
+    """`define` 은 없고 `declare` 만 있는 경우 = **외부 크레이트 심볼**(본체가 이 IR 에 없다).
+    4차 보고: `fnparts range_adjust` 가 '이름 오타 의심'을 띄워 작성자가 이름만 계속 바꿔
+    재시도하게 만들었다. 실제 원인은 game_core 외부 심볼이었다."""
+    n = 0
+    for fn in sorted(os.listdir(IRDIR)):
+        if not fn.endswith('.ll'):
+            continue
+        for ln in io.open(os.path.join(IRDIR, fn), encoding='utf-8', errors='replace'):
+            if ln.startswith('declare') and want in ln:
+                n += 1
+    return n
 
 
 def scan(want):
@@ -57,7 +87,10 @@ def scan(want):
                 m = RE_DEF.match(ln)
                 if m:
                     sym = m.group(1).strip('"')
-                    cur = want in mangled_parts(sym) or want in sym
+                    # ⚠`or want in sym` 를 두면 부분일치 오탐이 난다 — 4차 실측:
+                    #   `fnparts CastingTarget` 이 `fmt::Debug::fmt` 을 조각으로 반환했다.
+                    #   **엉뚱한 함수 본문을 읽게 되는** 조용한 오답이라 제거한다.
+                    cur = want in mangled_parts(sym)
                     start = i
             elif ln == '}' and cur is not None:
                 if cur:
@@ -71,7 +104,15 @@ def scan(want):
                     elif any(p in ('fold', 'next', 'from_iter_in', 'min_by_key',
                                    'max_by_key', 'filter', 'map') for p in parts):
                         kind = '이터레이터'
-                    hits.append((fn, start + 1, i + 1, i - start, kind, parts[-3:]))
+                    # ⚠클로저 두 개가 둘 다 `entity::Entity::call_mut` 로 뭉개져
+                    #   어느 것이 어느 술어인지 구분이 안 됐다(4차 보고).
+                    #   담당 함수 이름 뒤에 붙는 접미(`...retreat_stance0`, `s0_0`)를 살린다.
+                    tail = ''
+                    m2 = re.search(re.escape(want) + r'([sS]?[0-9_]*)', sym)
+                    if m2 and m2.group(1):
+                        tail = '  <%s%s>' % (want[:10], m2.group(1)[:6])
+                    hits.append((fn, start + 1, i + 1, i - start, kind,
+                                 parts[-3:] + ([tail.strip()] if tail else [])))
                 cur = None
     return hits
 
@@ -81,16 +122,39 @@ def main():
         print(__doc__)
         return
     want = sys.argv[1]
+    # ⚠`sub_plan` 처럼 흔한 이름은 조각이 473개까지 나온다(4차 실측).
+    #   `attack_nexus::sub_plan` 형태를 지원해 모듈로 좁힌다.
+    scope = None
+    if '::' in want:
+        parts = [p for p in want.split('::') if p]
+        scope, want = parts[-2], parts[-1]
     hits = scan(want)
+    if scope:
+        hits = [h for h in hits if any(scope in p for p in h[5]) or scope in h[0]]
+        if not hits:
+            print('`%s` 범위에서 못 찾음 — 범위 없이 다시 쳐 보라.' % scope)
+            return
     if not hits:
-        print('없음: %s  (이름 성분이 정확한지 확인 — 예: sub_plan, defensive_crisis)' % want)
+        nd = count_declares(want)
+        if nd:
+            print('본체 없음 — `declare` 만 %d건.' % nd)
+            print('  ⟹ **외부 크레이트 심볼**(game_core 등)이라 이 IR 에 본문이 없다.')
+            print('     이름을 바꿔가며 재시도하지 마라. `unknown` 에 "외부 심볼"로 적으면 된다.')
+        else:
+            print('없음: %s  (이름 성분이 정확한지 확인 — 예: sub_plan, defensive_crisis)' % want)
         return
     print('`%s` 의 조각 %d개' % (want, len(hits)))
     print()
     print('%-9s %8s %8s %6s  %-12s %s' % ('파일', '시작', '끝', '줄수', '종류', '이름 성분'))
-    for fn, a, b, n, kind, parts in sorted(hits, key=lambda h: -h[3]):
+    for fn, a, b, n, kind, parts in sorted(hits, key=lambda h: (h[4] != '본체', -h[3])):
         print('%-9s %8d %8d %6d  %-12s %s' % (fn, a, b, n, kind, '::'.join(parts)))
     print()
+    nsub = count_disub(want)
+    if nsub > len(hits):
+        print('※ DWARF 서브프로그램 %d개 vs 별도 define %d개 — 차이 %d개는 **전부 인라인**돼'
+              % (nsub, len(hits), nsub - len(hits)))
+        print('   별도 조각이 없다. (클로저가 본문 안에 녹아 있다는 뜻 — 더 뒤지지 마라.)')
+        print()
     big = [h for h in hits if h[3] >= 20 and h[4] != '본체']
     if big:
         print('⚠담당 범위 밖일 가능성이 큰 조각(20줄 이상, 본체 아님):')

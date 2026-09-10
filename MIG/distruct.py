@@ -118,21 +118,29 @@ def resolve_nested(d, sname, q, v, depth=0, path='', base=0):
         if not (f['off'] <= q < f['off'] + max(f['size'], 1)):
             continue
         here = (path + '.' if path else '') + f['name']
-        rel = '' if depth == 0 else '   (%s 안 +%s)' % (sname[:18], hex(f['off']))
-        print('%s%s → %-30s : %s (%dB)%s'
-              % (pad, hex(base + f['off']), here, f['type'][:38], f['size'], rel))
+        absoff = base + f['off']
         inner = q - f['off']
+        # ⚠4차 버그보고: 좌측 오프셋이 **컨테이너 시작**으로 고정 출력돼 질의값과 헷갈렸다
+        #   (0x1a8 을 물어도 0x1a0 을 물어도 좌측이 0x198). 게다가 같은 줄의 두 델타가
+        #   서로 다른 기준이라 모순처럼 보였다. → 필드 구간을 명시하고, 질의가 어디에
+        #   떨어지는지를 마지막 줄에 못 박는다.
+        span = '[%s~%s]' % (hex(absoff), hex(absoff + max(f['size'], 1)))
+        print('%s%-8s %-30s : %s (%dB) %s'
+              % (pad, hex(absoff), here, f['type'], f['size'], span))
         if depth >= 5 or inner == 0 and f['size'] <= 8:
             return
         # 필드 타입 이름으로 사전을 다시 뒤져 한 단계 더 내려간다
         for cand in base_name(f['type']):
             sub = d.get(cand)
             if sub and sub['size'] == f['size'] and cand != sname and sub['fields']:
-                print('%s  ↓ %s 안쪽 +%s' % (pad, cand, hex(inner)))
+                print('%s  └ 질의 %s 는 이 %s 안쪽 +%s' % (pad, hex(q + base), cand, hex(inner)))
                 resolve_nested(d, cand, inner, sub, depth + 1, here, base + f['off'])
                 return
         if inner:
-            print('%s  (더 못 내려감 — %s 내부 +%s)' % (pad, f['type'][:30], hex(inner)))
+            print('%s  └ ★질의 %s = 이 필드 시작 +%s (더 못 내려감 — %s)'
+                  % (pad, hex(q + base), hex(inner), f['type']))
+        else:
+            print('%s  └ ★질의 %s = 이 필드의 시작' % (pad, hex(q + base)))
         return
 
 
@@ -170,11 +178,14 @@ def main():
             # ★중첩을 끝까지 파고든다. 1차 배치에서 담당자들이 가장 많이 막힌 게 바로
             #   `PlayerState+0x930` 처럼 **최상위 멤버 목록에 없는** 오프셋이었다
             #   (실제로는 `PlayerState.info: GamePlayer` 안에 있었다).
+            print('질의 %s:' % hex(q))
             resolve_nested(d, k, q, v)
         else:
             for f in v['fields']:
-                print('  %-8s %-30s %-28s %dB'
-                      % (f['off_hex'], f['name'], f['type'][:28], f['size']))
+                # ⚠타입명을 자르지 마라. 4차 담당자 보고: 잘린 타입명 때문에
+                #   `OperationData.cache` 의 실제 타입을 알려고 .ll 을 다시 grep 해야 했다.
+                print('  %-8s %-30s %s (%dB)'
+                      % (f['off_hex'], f['name'], f['type'], f['size']))
         print()
 
 

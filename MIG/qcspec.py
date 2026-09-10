@@ -142,7 +142,8 @@ def check(spec):
         err.append('C2 호출: %s 를 본문에서 못 찾음' % nm)
 
     # C3 오프셋 (gep 의 바이트 오프셋은 10진수로 나온다)
-    for r in spec.get('reads', []):
+    # ⚠`writes` 를 신설해 놓고 검사는 `reads` 만 돌아 **사각지대**였다(4차 담당자 보고).
+    for r in list(spec.get('reads', [])) + list(spec.get('writes', [])):
         off = r.get('offset')
         if off is None:
             continue

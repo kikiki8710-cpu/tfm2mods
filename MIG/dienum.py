@@ -181,22 +181,61 @@ def main():
     leafhit.sort(key=lambda k: (wrap(k), len(k)))
     rest = sorted((k for k in d if w in k.lower() and k not in exact and k not in leafhit),
                   key=lambda k: (wrap(k), len(k)))
-    hits = exact + leafhit + rest
+    hits = exact + leafhit
+    # ⚠부분일치를 같은 화면에 섞으면 `TeamType 0 → Player` 와 `Option<..TeamType> 0 → (없음)`
+    #   이 나란히 떠서 오독한다(4차에서 3명이 지적). 정확일치가 있으면 부분일치는 목록만.
+    partial = rest
     if not hits:
+        # ⚠4차 담당자 보고: "없음" 이 **진짜 없음인지 이름을 잘못 줬는지 구별이 안 돼서,
+        #   그대로 믿었으면 오답을 냈을 수 있다." 근접 후보를 반드시 같이 보여준다.
+        import difflib
+        leaves = {}
+        for k in d:
+            leaves.setdefault(leafname(k), k)
+        near = difflib.get_close_matches(w, list(leaves), n=6, cutoff=0.5)
+        sub = [k for k in d if any(t in k.lower() for t in (w[:6], w[-6:]) if len(t) >= 4)][:6]
         print('없음: %s' % want)
+        if near:
+            print('  혹시 이것? %s' % ' / '.join(leaves[n].split('::')[-1] for n in near))
+        if sub:
+            print('  부분일치 후보:')
+            for k in sub[:5]:
+                print('    %s' % k[:90])
+        if not near and not sub:
+            print('  (사전 %d개 중 비슷한 이름도 없음 — 정말 열거형이 아닐 수 있다.' % len(d))
+            print('   소스 타입이 그냥 u8/usize 면 열거형 사전에 있을 수 없다.)')
         return
     for k in hits[:3]:
         v = d[k]
-        print('=== %s (%s · variant %d) ===' % (k, v['kind'], len(v['variants'])))
+        # ⚠4차 담당자 제안: 출력만 봐선 "니치 밀림 없음"인지 "우연히 일치"인지 구분이 안 된다.
+        #   태그 집합이 0..N-1 과 같은지 **명시**하면 이 배치 최대 함정이 사실상 사라진다.
+        tags = sorted(int(x) for x in v['variants'])
+        flat = (tags == list(range(len(tags))))
+        mark = ('태그 = variant 인덱스 (밀림 없음)' if flat
+                else '★니치 밀림 — 태그 ≠ variant 인덱스. 그대로 쓰지 말 것')
+        print('=== %s (%s · variant %d) — %s ===' % (k, v['kind'], len(v['variants']), mark))
         if len(args) > 1:
             q = args[1]
             print('  태그 %s → %s' % (q, v['variants'].get(str(int(q, 0)), '(없음)')))
         else:
+            print('  %-6s %s' % ('태그', 'variant  (태그 = DWARF DISCR_EXACT 값 그대로)'))
             for t in sorted(v['variants'], key=int):
-                print('  %4s  %s' % (t, v['variants'][t]))
+                print('  %-6s %s' % (t, v['variants'][t]))
             if v.get('default'):
                 print('  (기본) %s   ← DISCR_EXACT 없음 = 나머지 전부' % v['default'])
         print()
+    # ⚠4차 실측(위험): `Option<ref$<MobaMode>>` 니치판은 0=None 인데, 실제 반환은
+    #   16B 태그판이라 tag==0 이 Some 이었다. 이름만 보고 믿으면 **분기가 정반대**가 된다.
+    opts = [k for k in hits + partial if 'option::Option' in k]
+    if len(opts) > 1:
+        print('⚠같은 이름의 Option 이 %d종 있다 — 니치판(0/255=None)과 태그판(0=Some)이' % len(opts))
+        print('  섞여 있을 수 있다. **반환 타입의 실제 크기(16B=태그판)를 IR 로 확인하고** 골라라.')
+        for k in opts[:4]:
+            print('   · %s' % k[:88])
+        print()
+    if hits and partial:
+        print('(부분일치 %d건은 생략 — 이름에 포함만 된 다른 타입들: %s)'
+              % (len(partial), ', '.join(k.split('::')[-1][:28] for k in partial[:4])))
 
 
 if __name__ == '__main__':

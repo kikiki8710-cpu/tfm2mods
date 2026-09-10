@@ -1,0 +1,103 @@
+{
+ "name": "handle_chat",
+ "sym": "_RNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy7handler4chatNtB4_17LegacyPlanHandler11handle_chat",
+ "src": "game-ai\\src\\plan_legacy\\handler\\chat.rs",
+ "src_line": 8,
+ "ir_file": "m13.ll",
+ "ir_from": 29383,
+ "ir_to": 29689,
+
+ "one_line": "아군 채팅 수신 게이트 — 자기발화/튜토리얼 미존재 포지션/규칙범위 밖이면 무시하고, 통과하면 handle_chat_inner 호출(트레이스 켜져 있으면 전후 플랜 스냅샷을 CallHandled 이벤트로 적재)",
+
+ "signature": {
+   "params": [
+     {"i": 1, "name": "self", "type": "&mut LegacyPlanHandler(6168B)", "note": "plan/team_plan.objective 를 읽고 pending_trace_events 에 push"},
+     {"i": 2, "name": "version", "type": "usize", "note": "이 본문에선 분기에 쓰이지 않음 — handle_chat_inner 로 그대로 전달만"},
+     {"i": 3, "name": "rnd", "type": "&mut rand::rngs::std::StdRng(320B)", "note": "이 본문에선 안 씀 — 전달만"},
+     {"i": 4, "name": "player", "type": "&PlayerState(2528B)", "note": "수신자(이 AI가 조종하는 선수). +0x9c0 position 만 읽음"},
+     {"i": 5, "name": "data", "type": "&OperationData(24B)", "note": "cache(+0x0)=&dyn AbstractGameWithCache, context(+0x8)=&GameContext"},
+     {"i": 6, "name": "from", "type": "Position (i32, range 0..5)", "note": "발화자 포지션. 0=Top 1=Jungle 2=Mid 3=Bottom 4=Support"},
+     {"i": 7, "name": "chat", "type": "&Chat(24B, enum 57 variant)", "note": "수신한 콜. 이 본문에선 chat_allowed 인자 + Debug 포맷에만 씀"},
+     {"i": 8, "name": "misunderstood", "type": "bool", "note": "오해(잘못 알아들음) 플래그. 이 본문에선 분기 안 하고 트레이스 이벤트에만 기록 후 inner 로 전달"},
+     {"i": 9, "name": "debug", "type": "&mut DebugFrameData(224B)", "note": "이 본문에선 안 씀 — 전달만"}
+   ],
+   "returns": "void — 게이트에 걸리면 아무 것도 안 하고 조기 반환"
+ },
+
+ "reads": [
+   {"base": "PlayerState", "offset": "0x9c0", "name": "info.position", "note": "수신자 자신의 포지션(Position i32). from 과 같으면 즉시 반환 = 자기 발화 무시 (chat.rs:9, PartialEq 인라인)"},
+   {"base": "OperationData", "offset": "0x0", "name": "cache", "note": "&dyn AbstractGameWithCache 팻포인터의 데이터 절반(%65 에서 다시 로드) — tick 조회용, 트레이스 경로에서만"},
+   {"base": "OperationData", "offset": "0x8", "name": "context", "note": "&GameContext(64B) — 튜토리얼/트레이스레벨 게이트의 원천이자 chat_allowed 의 1번 인자"},
+   {"base": "GameContext", "offset": "0x38", "name": "tutorial", "note": "TutorialType(i8). rule_scope::position_exists 가 인라인돼 from 별 switch 로 접혔다 (chat.rs:12)"},
+   {"base": "GameContext", "offset": "0x39", "name": "trace_level", "note": "TraceLevel(i8). TraceLevel::is_enabled 인라인 = (trace_level != Off) (trace.rs:14~15 → chat.rs:18)"},
+   {"base": "AbstractGameWithCache", "offset": "0x8", "name": "game(vtable 절반)", "note": "cache.game 은 &dyn AbstractGame 팻포인터 — +0x0=데이터, +0x8=vtable"},
+   {"base": "AbstractGame vtable", "offset": "0x28", "name": "tick", "note": "divtable.py 확인: 슬롯 0x28 = ExpectedGame::AbstractGame::tick. 간접 호출로 i64 tick 을 얻어 PendingTraceEvent.tick 에 넣는다"},
+   {"base": "LegacyPlanHandler", "offset": "0x5e8", "name": "plan", "note": "BigPlan(384B). BigPlan::get_name 을 inner 호출 전(plan_before)·후(plan_after) 두 번 부른다"},
+   {"base": "LegacyPlanHandler", "offset": "0x517", "name": "team_plan.objective", "note": "Option<MainObjective>(3B). Debug 포맷을 inner 호출 전·후 두 번(objective_before/after)"},
+   {"base": "LegacyPlanHandler", "offset": "0x858", "name": "pending_trace_events.cap", "note": "Vec 의 RawVec.cap. len 과 같으면 grow_one"},
+   {"base": "LegacyPlanHandler", "offset": "0x860", "name": "pending_trace_events.ptr", "note": "Vec 버퍼 시작 주소. 원소 stride 184B"},
+   {"base": "LegacyPlanHandler", "offset": "0x868", "name": "pending_trace_events.len", "note": "push 위치이자 push 후 +1 되는 대상"}
+ ],
+
+ "writes": [
+   {"base": "LegacyPlanHandler", "offset": "0x868", "name": "pending_trace_events.len", "value": "len + 1",
+    "note": "트레이스 경로에서만. 게임 판정에는 영향 없는 관측용 버퍼"},
+   {"base": "LegacyPlanHandler", "offset": "0x860[len]", "name": "pending_trace_events[len]", "value": "PendingTraceEvent(184B)",
+    "note": "스택에 조립한 184B 를 memcpy. 원소 = { event: TraceEventType(176B), tick: usize(+0xb0) }"},
+   {"base": "TraceEventType", "offset": "0x0", "name": "discriminant", "value": "-9223372036854775793",
+    "note": "dienum 확인: TraceEventType::CallHandled"},
+   {"base": "TraceEventType::CallHandled", "offset": "0x8", "name": "chat", "value": "format!(\"{:?}\", chat)", "note": "chat.rs:29 대입 / 포맷 생성은 :31"},
+   {"base": "TraceEventType::CallHandled", "offset": "0x20", "name": "plan_before", "value": "self.plan.get_name() (inner 호출 전)", "note": "chat.rs:22 생성 → :33 대입"},
+   {"base": "TraceEventType::CallHandled", "offset": "0x38", "name": "plan_after", "value": "self.plan.get_name() (inner 호출 후)", "note": "chat.rs:25 생성 → :34 대입"},
+   {"base": "TraceEventType::CallHandled", "offset": "0x50", "name": "objective_before", "value": "format!(\"{:?}\", self.team_plan.objective) (전)", "note": "chat.rs:23 생성 → :35 대입"},
+   {"base": "TraceEventType::CallHandled", "offset": "0x68", "name": "objective_after", "value": "format!(\"{:?}\", self.team_plan.objective) (후)", "note": "chat.rs:26 생성 → :36 대입"},
+   {"base": "TraceEventType::CallHandled", "offset": "0x80", "name": "from", "value": "from (Position i32)", "note": ""},
+   {"base": "TraceEventType::CallHandled", "offset": "0x84", "name": "misunderstood", "value": "misunderstood(bool → i8)", "note": ""},
+   {"base": "PendingTraceEvent", "offset": "0xb0", "name": "tick", "value": "cache.game.tick() (vtable +0x28)", "note": ""}
+ ],
+
+ "constants": [
+   {"value": 0, "src_line": 12, "meaning": "TutorialType::None 태그 — 4개 포지션 arm 전부에서 통과값(튜토리얼이 아니면 항상 채팅 수신). 같은 값 0 은 chat.rs:18 의 TraceLevel::Off 비교(icmp eq i8 %42, 0)와 Position::Top 케이스에도 쓰인다"},
+   {"value": 1, "src_line": 12, "meaning": "TutorialType::First 태그 — Bottom/Support arm 에서만 통과. (같은 값이 switch 의 Position::Jungle 케이스로도 등장)"},
+   {"value": 2, "src_line": 12, "meaning": "TutorialType::TopSolo 태그 — Top arm 에서만 통과. (Position::Mid 케이스 값이기도 함)"},
+   {"value": 3, "src_line": 12, "meaning": "TutorialType::Bottom 태그 — Bottom/Support arm 통과. (Position::Bottom 케이스 값이기도 함)"},
+   {"value": 4, "src_line": 12, "meaning": "TutorialType::MidSolo 태그 — Mid arm 통과. (Position::Support 케이스 값이기도 함)"},
+   {"value": 5, "src_line": 12, "meaning": "TutorialType::MidBottom 태그 — Mid arm 과 Bottom/Support arm 둘 다 통과"},
+   {"value": 6, "src_line": 12, "meaning": "TutorialType::JungleOnly 태그 — Jungle arm 에서 icmp eq i8 %28, 6 으로 단독 비교"},
+   {"value": 7, "src_line": 12, "meaning": "TutorialType::Line 태그 — Top/Mid/Bottom·Support arm 통과(정글만 제외)"},
+   {"value": 8, "src_line": 12, "meaning": "TutorialType::Total 태그 — 4개 arm 전부 통과(풀 5:5 튜토리얼)"},
+   {"value": -8, "src_line": 12, "meaning": "Jungle arm 의 접힌 범위검사 add i8 %28, -8 — TutorialType::Total(8) 을 0 으로 옮기는 오프셋"},
+   {"value": -7, "src_line": 12, "meaning": "같은 검사의 상한 icmp ult i8 %34, -7 (=u8 249). (%28-8) <u 249 ⟺ %28 ∈ {0, 8} = {None, Total}. 여기에 ==6(JungleOnly) 을 or 한 것이 Jungle 통과집합"},
+   {"value": -9223372036854775793, "src_line": 27, "meaning": "TraceEventType 판별자 = CallHandled (기준 -9223372036854775808 + 15). 니치 최적화라 variant 인덱스와 다르며 dienum.py DISCR_EXACT 로 확인"}
+ ],
+
+ "calls": [
+   "game_ai::plan_legacy::rule_scope::chat_allowed",
+   "game_ai::plan_legacy::handler::chat::LegacyPlanHandler::handle_chat_inner",
+   "game_ai::plan_legacy::types::BigPlan::get_name",
+   "alloc::fmt::format::format_inner",
+   "alloc::raw_vec::RawVec::grow_one",
+   "core::ptr::drop_glue"
+ ],
+
+ "logic": "fn handle_chat(self, version, rnd, player, data, from: Position, chat: &Chat, misunderstood: bool, debug)\n\n// ---- 게이트 1 : 자기 자신의 발화는 무시 (chat.rs:9)\nif from == player.info.position {            // PlayerState +0x9c0, Position::eq 인라인(entity.rs:563)\n    return;\n}\n\n// ---- 게이트 2 : 튜토리얼에서 그 포지션이 존재하는가 (chat.rs:12)\n// rule_scope::position_exists(from, tutorial) 이 통째로 인라인돼\n// from 별 switch + tutorial 태그 switch 로 접혔다. tut = data.context.tutorial (GameContext +0x38)\nlet ok = match from {\n    Top    => tut in {None(0), TopSolo(2), Line(7), Total(8)},                    // rule_scope.rs:38  ← TutorialType::spawn_top_minion\n    Jungle => tut in {None(0), JungleOnly(6), Total(8)},                          // rule_scope.rs:39  ← TutorialType::player_count\n    Mid    => tut in {None(0), MidSolo(4), MidBottom(5), Line(7), Total(8)},      // rule_scope.rs:40  ← TutorialType::spawn_mid_minion\n    Bottom | Support => tut in {None(0), First(1), Bottom(3), MidBottom(5), Line(7), Total(8)}, // rule_scope.rs:41 ← TutorialType::spawn_bottom_minion\n};\nif !ok { return; }\n\n// ---- 게이트 3 : 규칙 범위(같은 chat.rs:12 줄)\nif !rule_scope::chat_allowed(data.context, chat) { return; }   // 내부 미조사\n\n// ---- 트레이스 분기 (chat.rs:18)\nif data.context.trace_level == TraceLevel::Off {   // GameContext +0x39, TraceLevel::is_enabled 인라인\n    self.handle_chat_inner(version, rnd, player, data, from, chat, misunderstood, debug);  // chat.rs:19\n    return;\n}\n\n// ---- 트레이스 ON 경로 : inner 를 전후로 감싸 스냅샷 (chat.rs:22~37)\nlet plan_before      = self.plan.get_name();                              // +0x5e8, chat.rs:22\nlet objective_before = format!(\"{:?}\", self.team_plan.objective);         // +0x517, chat.rs:23\nself.handle_chat_inner(version, rnd, player, data, from, chat, misunderstood, debug); // chat.rs:24\nlet plan_after       = self.plan.get_name();                              // chat.rs:25\nlet objective_after  = format!(\"{:?}\", self.team_plan.objective);         // chat.rs:26\nself.pending_trace_events.push(PendingTraceEvent {                        // +0x858 Vec, chat.rs:27\n    event: TraceEventType::CallHandled {\n        chat: format!(\"{:?}\", chat),   // chat.rs:31 → 필드 +0x8\n        plan_before,                   // +0x20\n        plan_after,                    // +0x38\n        objective_before,              // +0x50\n        objective_after,               // +0x68\n        from,                          // +0x80\n        misunderstood,                 // +0x84\n    },\n    tick: data.cache.game.tick(),      // 간접호출: vtable +0x28 → +0xb0\n});\n// push 는 인라인: cap(+0x858)==len(+0x868) 이면 RawVec::grow_one, 그 뒤 ptr(+0x860)+len*184 에 184B memcpy, len += 1\nreturn;\n\n// 언와인딩 경로(50/54/60/72/100~107)는 만들어둔 String 들을 drop_glue 로 해제하는 정리 코드뿐 — 판정 로직 없음.\n// 주의: 판정에 실제로 쓰이는 인자는 player.position / from / data.context 뿐이고,\n//       version·rnd·debug 는 이 함수에서 한 번도 읽히지 않고 그대로 inner 로 넘어간다.",
+
+ "knobs": [
+   {"what": "자기 발화 무시 게이트", "where": "game-ai\\src\\plan_legacy\\handler\\chat.rs:9", "value": "from == player.info.position → return",
+    "effect": "이 비교를 없애면 자기가 낸 콜에도 자기 AI가 반응하게 된다(자기 콜에 대한 자문자답). 유지가 정상"},
+   {"what": "튜토리얼 포지션 존재 게이트(position_exists)", "where": "game-ai\\src\\plan_legacy\\rule_scope.rs:36~42 (chat.rs:12 에 인라인)", "value": "from 별 허용 TutorialType 태그 집합 {Top:0,2,7,8 / Jungle:0,6,8 / Mid:0,4,5,7,8 / Bottom·Support:0,1,3,5,7,8}",
+    "effect": "특정 튜토리얼 태그를 arm 에 추가하면 그 튜토리얼에서 해당 포지션이 콜을 받아 반응하기 시작하고, 빼면 그 포지션이 콜을 전부 무시한다. 일반 경기(tutorial=None(0))는 모든 arm 에 0 이 있어 항상 통과하므로 이 노브는 튜토리얼 전용"},
+   {"what": "트레이스 레벨 게이트", "where": "GameContext +0x39 trace_level (chat.rs:18)", "value": "Off(0) / Summary(1) / Detailed(2)",
+    "effect": "Off 가 아니면 콜 처리 전후 플랜·오브젝티브 문자열을 만들어 pending_trace_events 에 CallHandled 로 쌓는다. 판정 결과는 바뀌지 않고 관측/디버그용 비용(포맷 + Vec 증가)만 는다. 모드에서 콜 처리 로그를 뽑고 싶으면 여기를 켜는 게 최소 개입 지점"}
+ ],
+
+ "unknown": [
+   "Jungle arm(rule_scope.rs:39)의 원래 비교식 — TutorialType::player_count(runner.rs:294)가 인라인 전용이라 _gaibc 24개 .ll 어디에도 define 이 없다(grep '^define.*TutorialType12player_count' 무결과). 결과 집합 {None(0), JungleOnly(6), Total(8)} 은 add/icmp 로 확정했지만, 원래 소스가 player_count() 를 어떤 상수와 비교했는지는 상수접힘으로 소실 — 2회 시도 후 포기",
+   "rule_scope::chat_allowed(GameContext, &Chat) 내부는 안 봄 — 어떤 Chat 종류를 어떤 조건으로 막는지는 별도 명세 필요. 담당 줄범위 밖",
+   "handle_chat_inner(m13.ll 29692~33371) 내부는 안 봄 — 실제 콜 반응(플랜 전환) 로직은 전부 거기 있다. 이 함수는 게이트 + 트레이스 래퍼일 뿐",
+   "format! 템플릿 @anon.282069a2ed2ad3a275929b639963fb55.62 는 2바이트 압축 constant(c\"\\C0\\00\")라 문자열 조각이 없다 — Debug 포맷 인자 1개짜리(\"{:?}\")로 추정. 리터럴 조각을 직접 확인하지는 못함",
+   "chat.rs:18 의 소스 형태가 `if !is_enabled { inner(); return; }` 인지 `if is_enabled { ... } else { inner(); }` 인지 IR(br + 두 진입 블록)만으로는 확정 불가. 동작은 동일",
+   "misunderstood(p8) 가 이 함수에서 분기에 안 쓰이는 것은 확정이지만, inner 안에서 어떻게 쓰이는지는 미조사",
+   "PendingTraceEvent 원소 크기 184(= gep 타입 {{i64,[21 x i64]},i64})와 dbg_value i64 184 는 stride 라서 SPEC_GUIDE §3 표에 따라 constants 에 넣지 않았다"
+ ]
+}

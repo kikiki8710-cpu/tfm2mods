@@ -1,0 +1,103 @@
+{
+ "name": "handle_line_defense",
+ "sym": "_RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old13defense_nexus19handle_line_defense",
+ "src": "game-ai\\src\\plan_legacy\\old\\defense_nexus.rs",
+ "src_line": 543,
+ "ir_file": "m04.ll",
+ "ir_from": 58175,
+ "ir_to": 58644,
+
+ "one_line": "적 에픽버프 중 해당 라인을 방어할지 판정 — 기준타워 근처 적 챔피언 수를 세어 전략별 범위와 비교",
+
+ "signature": {
+   "params": [
+     {"i": 1, "name": "_version", "type": "usize", "note": "AI 버전 게이트. 본문에서 전혀 안 쓰임(이름도 언더스코어)"},
+     {"i": 2, "name": "rnd", "type": "&mut rand::rngs::std::StdRng(320B, align16)", "note": "이 함수가 직접 안 씀. PlayerState::strategy() 로 그대로 전달만"},
+     {"i": 3, "name": "player", "type": "&PlayerState(2528B)", "note": "player.info.team(+0x930)만 직접 읽음. 나머지는 피호출자에 전달"},
+     {"i": 4, "name": "data", "type": "&OperationData(24B)", "note": "{cache:+0x0 &AbstractGameWithCache, context:+0x8 &GameContext, blackboard:+0x10 &[Blackboard;2]}"},
+     {"i": 5, "name": "line", "type": "LineType(i8, range 0..3)", "note": "0=Top 1=Mid 2=Bottom. switch 로 타워 배열 오프셋을 고른다"},
+     {"i": 6, "name": "_debug", "type": "&mut DebugFrameData(224B)", "note": "readnone — 본문에서 전혀 안 쓰임"}
+   ],
+   "returns": "bool — true=이 라인 방어 조건 성립(기준타워 근처 적 챔피언 수가 전략별 범위 안). 5개 조기탈출 경로는 전부 false"
+ },
+
+ "reads": [
+   {"base": "OperationData", "offset": "0x0", "name": "cache", "note": "&AbstractGameWithCache(8840B). line 549 이후 사용"},
+   {"base": "OperationData", "offset": "0x8", "name": "context", "note": "&GameContext(64B). line 544 line_exists 인자"},
+   {"base": "OperationData", "offset": "0x10", "name": "blackboard", "note": "&[Blackboard;2]. line 572 에서 [1-player.info.team] 로 인덱싱"},
+   {"base": "GameContext", "offset": "0x0", "name": "pool", "note": "&bumpalo::Bump. line 571 champions() 에 전달"},
+   {"base": "GameContext", "offset": "0x8", "name": "setting", "note": "&GameSetting(5432B). line 556 get_start_position 인자 + min_by_key 클로저 캡처"},
+   {"base": "GameContext", "offset": "0x38", "name": "tutorial", "note": "TutorialType(i8). line 549 morgard_exists 가 인라인되어 여기를 직접 읽는다"},
+   {"base": "PlayerState", "offset": "0x930", "name": "info.team", "note": "usize. 내 팀 인덱스. 적 팀 = 1 - 이 값"},
+   {"base": "AbstractGameWithCache", "offset": "0x0", "name": "game", "note": "dyn AbstractGame 팻포인터의 데이터 ptr"},
+   {"base": "AbstractGameWithCache", "offset": "0x8", "name": "game(vtable)", "note": "dyn AbstractGame 의 vtable ptr(816B). 슬롯 +0x40 = get_game_mode"},
+   {"base": "AbstractGame vtable", "offset": "0x40", "name": "get_game_mode", "note": "divtable.py AbstractGame 0x40 으로 확인. invariant.load 로 슬롯 로드 후 간접호출"},
+   {"base": "AbstractGameWithCache", "offset": "0x130", "name": "twin_towers", "note": "[Vec<&Entity>;2](32B stride). [player.info.team] 을 min_by_key 대상 슬라이스로 씀"},
+   {"base": "bumpalo Vec<&Entity>", "offset": "0x18", "name": "len", "note": "twin_towers[team] 및 champions() 결과의 길이(+0x0 = 데이터 ptr)"},
+   {"base": "AbstractGameWithCache", "offset": "0x180", "name": "top_tower", "note": "[Option<&Entity>;2]. line=Top 일 때 1순위"},
+   {"base": "AbstractGameWithCache", "offset": "0x190", "name": "top_tower2", "note": "[Option<&Entity>;2]. line=Top 일 때 2순위(.or)"},
+   {"base": "AbstractGameWithCache", "offset": "0x1a0", "name": "mid_tower", "note": "line=Mid 1순위"},
+   {"base": "AbstractGameWithCache", "offset": "0x1b0", "name": "mid_tower2", "note": "line=Mid 2순위"},
+   {"base": "AbstractGameWithCache", "offset": "0x1c0", "name": "bottom_tower", "note": "line=Bottom 1순위"},
+   {"base": "AbstractGameWithCache", "offset": "0x1d0", "name": "bottom_tower2", "note": "line=Bottom 2순위"},
+   {"base": "MobaMode", "offset": "0x240", "name": "epic_minion_buff_time", "note": "[u64;2]. MobaMode::remain_epic_time(team) 이 인라인되어 [1-내팀] 을 읽는다"},
+   {"base": "Entity", "offset": "0x5c0", "name": "id", "note": "기준타워의 id. has_line_defense_threat 4번째 인자로 전달"},
+   {"base": "Entity", "offset": "0x660", "name": "x", "note": "twin_tower 후보 / 적 챔피언 좌표"},
+   {"base": "Entity", "offset": "0x668", "name": "y", "note": "위와 동일"},
+   {"base": "Strategy", "offset": "0xe", "name": "morgard_defense", "note": "MorgardDefenseStrategy(0=Gather,1=Battle). PlayerState::strategy() 결과(24B sret)에서 읽음"}
+ ],
+
+ "writes": [],
+
+ "constants": [
+   {"value": 6, "src_line": 549, "meaning": "TutorialType 태그 검사 — (tutorial - 1) <u 6 ⟺ tutorial ∈ {1 First,2 TopSolo,3 Bottom,4 MidSolo,5 MidBottom,6 JungleOnly}. 참이면 즉시 false. (morgard_exists → TutorialType::spawn_epic 이 인라인된 형태)"},
+   {"value": 1, "src_line": 549, "meaning": "적 팀 인덱스 = 1 - player.info.team (sub i64 1, team)"},
+   {"value": 40000000001, "src_line": 572, "meaning": "200000^2 + 1 — 기준타워 주변 '가까운 적 챔피언' 판정 거리(제곱비교). dist2 < 40000000001 ⟺ 거리 ≤ 200000 ≈ 6.25셀(1셀=32000)"},
+   {"value": 1, "src_line": 578, "meaning": "Gather 분기 하한 — near_enemy_champion >u 1 (즉 2명 이상)"},
+   {"value": 2, "src_line": 578, "meaning": "Battle 분기 범위 — (near_enemy_champion - 1) <u 2 ⟺ near ∈ {1,2}"}
+ ],
+
+ "calls": [
+   "game_ai::plan_legacy::rule_scope::line_exists",
+   "game_core::simulation::state::player::LineType::get_start_position",
+   "core::iter::traits::iterator::Iterator::min_by_key",
+   "game_ai::plan_legacy::old::defense_nexus::has_line_defense_threat",
+   "game_core::simulation::AbstractGameWithCache::champions",
+   "game_core::simulation::game::blackboard::Blackboard::is_recent_visible",
+   "game_core::simulation::state::player::PlayerState::strategy",
+   "core::ptr::drop_glue",
+   "bumpalo::collections::vec::drop",
+   "bumpalo::collections::raw_vec::drop",
+   "core::panicking::panic_bounds_check",
+   "core::option::unwrap_failed"
+ ],
+
+ "logic": "fn handle_line_defense(_version, rnd, player, data, line, _debug) -> bool\n\nlet ctx   = data.context;            // +0x8\nlet cache = data.cache;              // +0x0\nlet team  = player.info.team;        // +0x930\nlet enemy = 1 - team;                // 배열 길이 2 로 bounds-check\n\n// --- 544: 이 라인이 이 판에 존재하는가 ---\nif !rule_scope::line_exists(ctx, line) { return false }\n\n// --- 549: 튜토리얼 게이트 (morgard_exists 가 인라인됨) ---\n//   실제 IR: t = ctx.tutorial(+0x38); if (t - 1) <u 6 { return false }\n//   → tutorial ∈ {First,TopSolo,Bottom,MidSolo,MidBottom,JungleOnly} 이면 false\nif (ctx.tutorial as u8).wrapping_sub(1) < 6 { return false }\n\n// --- 549: 적 팀의 에픽(모르가드) 미니언 버프가 남아 있어야 한다 ---\nlet moba = (*cache.game).get_game_mode()   // vtable slot +0x40\n             .as_moba()                    // GameMode 태그 0 == Moba, 아니면 Option::unwrap_failed\n             .unwrap();\nif moba.epic_minion_buff_time[enemy] == 0 { return false }   // = remain_epic_time(enemy)\n\n// --- 553~559: 기준 타워 고르기 ---\n// 553: cache.tower(line, team)\n//   line==Top    -> top_tower[team]   .or(top_tower2[team])      (+0x180 / +0x190)\n//   line==Mid    -> mid_tower[team]   .or(mid_tower2[team])      (+0x1a0 / +0x1b0)\n//   line==Bottom -> bottom_tower[team].or(bottom_tower2[team])   (+0x1c0 / +0x1d0)\nlet mut tower: Option<&Entity> = cache.line_tower(line)[team]\n                                   .or(cache.line_tower2(line)[team]);\n\n// 554~559: 라인 타워가 모두 없으면 twin_towers[team] 중 라인 시작지점에 가장 가까운 것\nlet start = line.get_start_position(ctx.setting, team);          // 556, (i64,i64)\ntower = tower.or(\n    cache.twin_towers[team].iter()                               // +0x130 + team*32\n        .min_by_key(|t| {                                        // 555\n            let d = line.get_start_position(ctx.setting, player.info.team); // 556 (클로저 안에서 재계산)\n            let dx = abs_diff(t.x, d.0);                         // 557, Entity +0x660\n            let dy = abs_diff(t.y, d.1);                         //      Entity +0x668\n            dx*dx + dy*dy                                        // 제곱거리(sqrt 없음)\n        })                                                       // 동률이면 첫 원소 유지(compare <= 0 이면 acc 유지)\n        .map(|t| *t)                                             // 559\n);\nlet tower = match tower { Some(t) => t, None => return false };  // 565 부근(unwrap 이 널체크로 접힘)\n\n// --- 567: 이 라인에 실제 위협이 있는가 ---\nif !has_line_defense_threat(player, data, line, tower.id /*+0x5c0*/) { return false }\n\n// --- 571~572: 기준 타워 근처의 '보이는' 적 챔피언 수 ---\nlet enemies = cache.champions(enemy, ctx.pool);   // bumpalo Vec<&Entity>\nlet bb = &data.blackboard[enemy];                 // Blackboard(744B)\nlet mut near_enemy_champion = 0usize;\nfor c in enemies {\n    if !bb.is_recent_visible(cache.game, player, c) { continue }   // 짧은회로: 0 가산\n    let dx = abs_diff(c.x, tower.x);\n    let dy = abs_diff(c.y, tower.y);\n    if dx*dx + dy*dy < 40000000001 { near_enemy_champion += 1 }    // 200000^2 + 1\n}\n// (enemies 는 여기서 drop — Vec/RawVec drop 호출, 언와인드 경로 있음)\n\n// --- 575~578: 전략별 최종 판정 ---\nlet strategy = player.strategy(rnd, cache.game);          // 575, Strategy(24B)\nlet defense  = strategy.morgard_defense;                  // 576, +0xe (0=Gather,1=Battle)\nreturn if defense == Battle {\n    (near_enemy_champion - 1) <u 2      // 578: near ∈ {1,2}\n} else {                                 // Gather\n    near_enemy_champion > 1              // 578: near >= 2\n};                                       // 585: ret\n\n// 조기 false 경로 정리(IR 블록 %19 의 phi):\n//   %6   진입      : line_exists == false\n//   %14            : tutorial ∈ 1..=6\n//   %38            : epic_minion_buff_time[enemy] == 0\n//   %105           : 라인타워도 twin_tower 도 없음(둘 다 None)\n//   %109           : has_line_defense_threat == false\n//   %166           : 최종 판정값 %173",
+
+ "knobs": [
+   {"what": "기준타워 근처 적 챔피언 인정 거리(제곱)", "where": "defense_nexus.rs:572 (m04.ll:58599)", "value": 40000000001,
+    "effect": "올리면 더 멀리 있는 적 챔피언까지 '타워 근처'로 세어 near_enemy_champion 이 커진다 → Gather 전략에선 라인방어가 더 쉽게 켜지고, Battle 전략에선 오히려 2명 초과가 되어 꺼질 수 있다(상한이 있으므로 단조롭지 않다). 현재값 = 200000^2+1 ≈ 6.25셀"},
+   {"what": "Battle 전략의 적 챔피언 수 범위", "where": "defense_nexus.rs:578 (m04.ll:58637~58639)", "value": 2,
+    "effect": "(near-1) <u 2 의 2 를 키우면 Battle 전략에서 더 많은 적이 몰려 있어도 라인방어를 시도한다(예: 3 으로 하면 1~3명). 줄이면 1명일 때만 방어"},
+   {"what": "Gather 전략의 적 챔피언 하한", "where": "defense_nexus.rs:578 (m04.ll:58638)", "value": 1,
+    "effect": "near > 1 의 1 을 0 으로 낮추면 적이 1명만 붙어도 라인방어를 켠다(방어 성향 증가). 올리면 대규모로 몰릴 때만 방어"},
+   {"what": "튜토리얼 유형 게이트 범위", "where": "defense_nexus.rs:549 (m04.ll:58198~58199)", "value": 6,
+    "effect": "(tutorial-1) <u 6 의 6 을 0 으로 만들면 이 게이트가 사실상 무력화되어 어떤 튜토리얼에서도 라인방어 판정이 진행된다"},
+   {"what": "기준 타워 우선순위", "where": "defense_nexus.rs:553~559 (AbstractGameWithCache +0x180/0x190/0x1a0/0x1b0/0x1c0/0x1d0, +0x130)", "value": 0,
+    "effect": "숫자 노브가 아니라 선택 규칙. 현재는 '해당 라인의 외곽타워 → 없으면 그 라인의 2번 타워 → 그것도 없으면 twin_towers 중 라인 시작점 최근접'. 이 순서를 바꾸면 방어 기준점(그리고 근처 적 카운트의 중심)이 통째로 이동한다"}
+ ],
+
+ "unknown": [
+   "morgard_exists(rule_scope.rs:45) 와 TutorialType::spawn_epic(runner.rs:262) 의 극성 — 두 함수 모두 전 24개 .ll 에 define/declare 가 없고 인라인 흔적(DISubprogram)만 있다. 시도 2회(① grep '^define.*morgard_exists|spawn_epic' 전파일 ② m09.ll 에서 같은 비교식의 zext/select/xor 형태 사이트 탐색) 모두 실패. 다만 이 함수 기준의 결과는 확정: ctx.tutorial ∈ 1..=6 이면 즉시 false. 소스가 'if morgard_exists(ctx) {return false}' 인지 'if !morgard_exists(ctx)' 인지, spawn_epic 이 matches! 인지 !matches! 인지는 미확정",
+   "data.blackboard[1 - player.info.team] 의 의미 — 인덱스가 '적 팀'인 것은 IR 로 확정(같은 %36 이 champions(enemy) 와 remain_epic_time(enemy) 에도 쓰임)이나, Blackboard[i] 가 '팀 i 가 가진 지식'인지 '팀 i 를 관측한 지식'인지는 is_recent_visible 본문을 안 봐서 미확정. 전자라면 '적이 자기 챔피언을 본다'가 되어 어색하므로 후자로 추정하나 근거 없음",
+   "rule_scope::line_exists 내부(무엇을 보고 라인 존재를 판정하는지) 미확인 — 담당 범위 밖",
+   "has_line_defense_threat(player, data, line, tower_id) 내부 미확인 — 같은 파일의 별도 함수",
+   "PlayerState::strategy(rnd, game) 내부 미확인. rnd(&mut StdRng) 가 여기서 소비/전진되는지 불명 — 이 함수 본문은 rnd 를 읽지도 쓰지도 않고 전달만 한다",
+   "AbstractGameWithCache::champions 가 '살아있는 챔피언만'인지 등 필터 조건 미확인. 반환은 bumpalo Vec<&Entity> 이고 이 함수가 drop 한다",
+   "writes 가 빈 배열인 이유 — 이 함수는 게임 상태에 아무것도 쓰지 않는 순수 판정 함수다. 스택 alloca(min_by_key 클로저 env 40B, champions 결과 Vec 32B, Strategy sret 24B, line 사본 1B) 에만 store 한다. 다만 PlayerState::strategy() 내부가 rnd 를 변형할 가능성은 배제 못 함",
+   "AbstractGameWithCache 의 twin_towers(+0x130) 가 정확히 어떤 타워 집합인지 — 필드명으로만 알 수 있고(distruct.py) 넥서스 쌍둥이 타워로 추정",
+   "반환 true 를 호출자가 어떻게 쓰는지(어떤 SubPlan 이 설치되는지) — 호출자 미확인",
+   "_version(p1) 이 무엇을 뜻하는지 — 본문에서 전혀 사용되지 않음(이름부터 언더스코어)",
+   "min_by_key 의 실제 fold 본체는 담당 범위 밖(m12.ll 30536~30687). 읽어서 키 계산식이 본문 첫 원소 경로와 동일함을 확인했고, 동률 시 첫 원소를 유지함(compare 결과 <1 이면 acc 유지)도 확인. 그 안의 상수는 본문에 없으므로 constants 에 넣지 않았다(별도 상수 없음)"
+ ]
+}
