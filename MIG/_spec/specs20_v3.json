@@ -29,8 +29,8 @@
   ],
   "counts": {
    "functions": 20,
-   "open": 66,
-   "closed": 101,
+   "open": 63,
+   "closed": 104,
    "knobs": 221,
    "callees": 275,
    "callees_unresolved": 33,
@@ -10244,11 +10244,6 @@
      "q": "get_game_mode 를 handler.rs:421 과 424 에서 두 번 호출한다(CSE 안 됨). 두 번째 호출이 다른 값을 반환할 수 있는지(=trait 구현이 상태의존인지)는 game_core DWARF 가 _gaibc 에 없어 확인 불가",
      "class": "미탐색",
      "ev": 3
-    },
-    {
-     "q": "`_mf_src` 값에 대응하는 사람이 붙인 이름(`MF_SRC_NAMES` / `FF_BAIL_NAMES` / `MF_OBJCLR_NAMES`) — ★**부재 확정 · 재탐색 금지(2026-09-11, 범위 확장 완료)**. 탐색 범위:\n  ① SDK `sdk_058\\mod-sdk\\deps` 의 **rlib·rmeta 308개 전량 바이트 스캔**\n  ② IR 3크레이트(`_gaibc`/`_gcbc`/`_gvbc`) 전량 + rmeta MIR/Span 경로\n  ③ 게임 exe (`TeamfightManager2.exe`, `TFM2ModUploader.exe`)\n  ④ ★**게임 데이터·에셋 번들 전체 — 2,622파일 / 2.95GB**(`bundle_unpacked_full` 1.1GB · `TFM2.gg` 567MB · `db` · `config` · `ModData` · `bundle.game_data` · `mod-sdk-stable`). ASCII·UTF-16LE 양쪽 + **zlib/gzip 압축조각 1,625개를 풀어서** 재검색. 도구 = `MIG\bundlegrep.py`\n⟹ **전 범위 히트 0건.** 유일한 출현은 game_ai rmeta `@0x527ff3` 의 한국어 문서주석 문장(`코드는 simulator MF_SRC_NAMES와 1:1`)뿐이고, 그 주석이 직접 **개발사 내부 시뮬레이터** 소유임을 지목한다. ⟹ 배포되는 어떤 아티팩트에도 실체가 없다. **개발사 소스 없이는 불가.**",
-     "class": "미탐색",
-     "ev": 3
     }
    ],
    "closed": [
@@ -10271,6 +10266,10 @@
     {
      "q": "`SubPlan::merge` 빈 arm 의 줄 배정 — ★**확정(2026-09-11 tcx 독립 확증)**. L188 Hide / L189 Jungle / **L190 SerpenCheck / L191 EpicCheck / L192 EpicHunt / L193 SerpenHunt** / L194 Steal / L196 DefenseNexus. 근거 2중: ①rmeta SourceMap 줄표에서 `줄길이 − 2×len(name) = 63` 이 네 줄 모두 일치 ②tcx 상 리프 `XxxSubPlan::merge` 가 **정확히 8개**이고 이름 길이 {4,5,6,8,9,10,11,12}가 전부 상이해 8줄과 **유일 대응**(상수 61/65/59/67 은 존재하지 않는 이름 길이를 요구해 배제). ⚠**형태 정정**: \"빈 4 arm\" 이 아니라 **8개 arm 이 같은 RHS(리프 merge 위임)를 공유**하는 구조로 보인다. ⚠부수: `EpicPoke(12)`·`SerpenPoke(15)` 는 switch 에 없어 **항상 덮어쓰기**. 전문 = RE6-09-11_rustc-dev-커스텀드라이버-tcx덤프-MIR가용성판정-0.5.8.md",
      "why": "본문에 해소 표기가 있다"
+    },
+    {
+     "q": "`_mf_src` 값에 대응하는 사람이 붙인 이름(`MF_SRC_NAMES` / `FF_BAIL_NAMES` / `MF_OBJCLR_NAMES`) — ★**부재 확정 · 재탐색 금지(2026-09-11, 범위 확장 완료)**. 탐색 범위:\n  ① SDK `sdk_058\\mod-sdk\\deps` 의 **rlib·rmeta 308개 전량 바이트 스캔**\n  ② IR 3크레이트(`_gaibc`/`_gcbc`/`_gvbc`) 전량 + rmeta MIR/Span 경로\n  ③ 게임 exe (`TeamfightManager2.exe`, `TFM2ModUploader.exe`)\n  ④ ★**게임 데이터·에셋 번들 전체 — 2,622파일 / 2.95GB**(`bundle_unpacked_full` 1.1GB · `TFM2.gg` 567MB · `db` · `config` · `ModData` · `bundle.game_data` · `mod-sdk-stable`). ASCII·UTF-16LE 양쪽 + **zlib/gzip 압축조각 1,625개를 풀어서** 재검색. 도구 = `MIG\bundlegrep.py`\n⟹ **전 범위 히트 0건.** 유일한 출현은 game_ai rmeta `@0x527ff3` 의 한국어 문서주석 문장(`코드는 simulator MF_SRC_NAMES와 1:1`)뿐이고, 그 주석이 직접 **개발사 내부 시뮬레이터** 소유임을 지목한다. ⟹ 배포되는 어떤 아티팩트에도 실체가 없다. **개발사 소스 없이는 불가.**",
+     "why": "부재 확정 · 재탐색 금지(2026-09-11 범위 확장 완료: SDK deps rlib/rmeta + IR 3 + exe + 게임 번들 2.95GB/zlib 1,625조각 → 히트 0). 어휘는 **재료 부재(전 범위)** 가 정확하다"
     }
    ],
    "open_note": "★3차는 **`open[]` 만** 보면 된다. `closed[]` 는 이미 닫힌 것(삭제하지 않고 남긴다). 판정 어휘 = 미탐색 / 재료 부재(범위 열거 필수) / 표기 불가. 「불가」를 쓰기 전에 `METHOD_MAP §0` 을 볼 것.",
@@ -13373,11 +13372,6 @@
      "q": "Chat 원소의 나머지 22바이트(payload+2..24)는 store 되지 않는다 — 초기화 안 된 채로 남는지 Chat 이 실제로 2바이트만 유효한지 확인 안 함",
      "class": "미탐색",
      "ev": 4
-    },
-    {
-     "q": "⚠**메인 세션 브리핑 오류 정정(2026-09-11)**: 「`handler.rs:2189~2191` 의 `lead < 3` 이 이 함수에 있다」는 **틀렸다** — `LineGankerPlan::update` 전수 grep 결과 **lead 오프셋 0건**이다. 실제 소비처 = `m13.ll:8916`(`passive_plan`) · `m09.ll:63268` 외 5 · `m05.ll:44960` 외 2 · `m15.ll:55322` 외 1. **미탐색**.",
-     "class": "미탐색",
-     "ev": 4
     }
    ],
    "closed": [
@@ -13400,6 +13394,10 @@
     {
      "q": "⚠**일반화 금지**(2026-09-11 배치C): `_version` 미사용은 **이 함수(update) 본문에 한해** 맞다. 형제 `sub_plan` 이 `target_bush_v41` 을 부르므로 '이 플랜에 버전 게이트가 없다'로 플랜 전체에 일반화하면 안 된다. 미탐색 = `target_bush_v41` 의 Mid 분기 IR 재확인 · `*_lead` 를 누가 갱신하는지",
      "why": "3차 배치C: 산출식 확정(team 부호 포함, 6/6)"
+    },
+    {
+     "q": "⚠**메인 세션 브리핑 오류 정정(2026-09-11)**: 「`handler.rs:2189~2191` 의 `lead < 3` 이 이 함수에 있다」는 **틀렸다** — `LineGankerPlan::update` 전수 grep 결과 **lead 오프셋 0건**이다. 실제 소비처 = `m13.ll:8916`(`passive_plan`) · `m09.ll:63268` 외 5 · `m05.ll:44960` 외 2 · `m15.ll:55322` 외 1. **미탐색**.",
+     "why": "이 항목은 미확정 질문이 아니라 **메인 세션 브리핑 오류의 정정 기록**이다(LineGankerPlan::update 에 lead 오프셋 0건, 실제 소비처는 다른 4곳). history 로 가는 것이 맞다"
     }
    ],
    "open_note": "★3차는 **`open[]` 만** 보면 된다. `closed[]` 는 이미 닫힌 것(삭제하지 않고 남긴다). 판정 어휘 = 미탐색 / 재료 부재(범위 열거 필수) / 표기 불가. 「불가」를 쓰기 전에 `METHOD_MAP §0` 을 볼 것.",
@@ -17250,11 +17248,6 @@
      "q": "Chat::Repair / SerpenSetup / Press / PressChange 가 공통으로 갖는 usize 필드(enum+0x8)에 항상 0 을 넣는데, dienum 이 준 이름이 __0/__1 뿐이라 그 0 의 의미(틱? 대상 id?) 확정 불가",
      "class": "미탐색",
      "ev": 4
-    },
-    {
-     "q": "`FightLine::CommitAfterJoin`(1) 의 생산 지점 — ★**\"죽은 variant\" 로 닫힘(2026-09-11)**. `FightPrediction.line`(+0x38)/`line_absolute`(+0x39) 로의 store 를 `_gaibc` 전량 gep 체인 누적 스캔한 결과 **값 1 을 쓰는 코드 0건**. 유일한 진짜 생산자 `fight_model.rs:520`(m10.ll:47092/47105)의 phi 값역이 **{0,2,3}**. 후보였던 `resolve_join_stake`·`battle::update_v32` 는 **둘 다 복사만** 한다(탈락). 소비 측 switch 에는 케이스가 살아 있으나 **Hold 와 같은 블록으로 접혀** 있다. ⚠적용 범위: `_gaibc`·`_gcbc`·`_gvbc` IR 한정. 미탐색 = 미추출 rlib(`libengine_*`) · rmeta MIR · exe. 전문 = RE6-09-11_fight_model-심층부4건-join_stake-tower_dive-net_value.md",
-     "class": "미탐색",
-     "ev": 3
     }
    ],
    "closed": [
@@ -17285,6 +17278,10 @@
     {
      "q": "`epic.rs` 655~678 — ★**대부분 확정(2026-09-11). 직전 「재료 부재로 종결, 남은 건 exe 디스어셈뿐」 판정은 과했다.**\n**막힌 것은 MIR 경로뿐**이었고, 「**줄 길이 산술**(rmeta_srcmap) + tcx ADT 필드명·태그 + IR 분기 유무」 조합으로 뚫렸다.\n★전제도 틀렸었다: DILocation 전수 집계 결과 **`659`·`674`·`676` 은 사실 IR 이 있다**. 진짜 미해명은 `655·656·670·675·681` 이었고 **그중 4개 확정**:\n  L654~657 = `self.objective = Some(MainObjective::Serpen {` / `  phase: ObjectPhase::Setup,` / `  with_battle: true,` / `});`\n    (근거: 세 스토어가 전부 `!dbg epic.rs:654` 단일 + 사이에 분기 없음 ⟹ 655 는 `if` 가 될 수 없는 **계속행**. `MainObjective::Serpen{phase, with_battle}` 가 tcx 상 네임드 필드라 표기가 강제되고 `ObjectPhase` 태그 1 = `Setup` 이 길이를 ±0 으로 맞춘다)\n  L675 = `} else {` / L681 = `false`\n  L674/676 = `self.chats.push(Chat::Press(epic_line, 0));` / `…PressChange…` (IR `select(v3_press_chat_line.is_none(), 21, 22)`. 두 줄 길이차 6 = `len(\"PressChange\")−len(\"Press\")` 로 자기정합)\n**남은 것**: ①674/676 의 **1자 잔차**(양쪽 동일) ②`667~670` 이터레이터/클로저 체인 본문(**미탐색** — IR 은 `player_champion[team][i].is_some()` 필터 + `v3_epic_formation_role(...)` 5회 언롤까지 확인) ③`648~650`·`662~663`·`685~686` 의 한글 `//` 주석 원문(**재료 부재** — 라인주석은 rmeta 미포함).\n전문 = RE\\2026-09-11_IR정밀독해-exit_src16_23-region_point-battle잔여-epic줄복원.md",
      "why": "본문에 해소 표기가 있다"
+    },
+    {
+     "q": "`FightLine::CommitAfterJoin`(1) 의 생산 지점 — ★**\"죽은 variant\" 로 닫힘(2026-09-11)**. `FightPrediction.line`(+0x38)/`line_absolute`(+0x39) 로의 store 를 `_gaibc` 전량 gep 체인 누적 스캔한 결과 **값 1 을 쓰는 코드 0건**. 유일한 진짜 생산자 `fight_model.rs:520`(m10.ll:47092/47105)의 phi 값역이 **{0,2,3}**. 후보였던 `resolve_join_stake`·`battle::update_v32` 는 **둘 다 복사만** 한다(탈락). 소비 측 switch 에는 케이스가 살아 있으나 **Hold 와 같은 블록으로 접혀** 있다. ⚠적용 범위: `_gaibc`·`_gcbc`·`_gvbc` IR 한정. 미탐색 = 미추출 rlib(`libengine_*`) · rmeta MIR · exe. 전문 = RE6-09-11_fight_model-심층부4건-join_stake-tower_dive-net_value.md",
+     "why": "죽은 variant 로 닫힘 — `_gaibc` 전량 gep 체인 누적 스캔 결과 값 1 을 쓰는 곳이 없다. 어휘는 **재료 부재(범위 = _gaibc·_gcbc·_gvbc)** 가 정확하다(3차 배치D P-14 지적)"
     }
    ],
    "open_note": "★3차는 **`open[]` 만** 보면 된다. `closed[]` 는 이미 닫힌 것(삭제하지 않고 남긴다). 판정 어휘 = 미탐색 / 재료 부재(범위 열거 필수) / 표기 불가. 「불가」를 쓰기 전에 `METHOD_MAP §0` 을 볼 것.",

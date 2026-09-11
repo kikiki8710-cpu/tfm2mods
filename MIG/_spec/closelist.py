@@ -183,3 +183,19 @@ CLOSE += [
     (18, u"v3_epic_group_line", u"3차 배치D: 진리표 80칸 + None 경로 도달 확인"),
     (19, u"get_camp_state", u"3차 배치D: 포인터 동일성 전수표 + 특례 2건"),
 ]
+
+# ── 3차 후속: 본문이 스스로 "닫힘/확정"이라고 말하는데 open 에 남아 있던 3건 ──
+# (v2 still_unknown 9건 중 3건. 배치 D 가 P-14 로 18 을 지적했고, 대조해 보니 11·14 도 같았다.
+#  DONE_MARK 자동 판정이 "부재 확정"·"죽은 variant 로 닫힘"·"브리핑 오류 정정" 같은
+#  다른 표현을 못 잡은 것이다 — 표현 변형을 못 쫓는 것은 2차의 stalecheck 과 같은 결함.)
+CLOSE += [
+    (11, u"MF_SRC_NAMES",
+     u"부재 확정 · 재탐색 금지(2026-09-11 범위 확장 완료: SDK deps rlib/rmeta + IR 3 + exe + "
+     u"게임 번들 2.95GB/zlib 1,625조각 → 히트 0). 어휘는 **재료 부재(전 범위)** 가 정확하다"),
+    (14, u"lead < 3",
+     u"이 항목은 미확정 질문이 아니라 **메인 세션 브리핑 오류의 정정 기록**이다"
+     u"(LineGankerPlan::update 에 lead 오프셋 0건, 실제 소비처는 다른 4곳). history 로 가는 것이 맞다"),
+    (18, u"CommitAfterJoin",
+     u"죽은 variant 로 닫힘 — `_gaibc` 전량 gep 체인 누적 스캔 결과 값 1 을 쓰는 곳이 없다. "
+     u"어휘는 **재료 부재(범위 = _gaibc·_gcbc·_gvbc)** 가 정확하다(3차 배치D P-14 지적)"),
+]
