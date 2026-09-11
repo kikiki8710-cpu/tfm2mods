@@ -1,0 +1,21 @@
+[package]
+name = "tfm2_item_build"
+version = "0.1.0"
+edition = "2021"
+
+# tfm2_item_tactics 의 "빌드 적용" 계층 재구현 (스테이블 ABI).
+# UI·모드아이템 읽기는 기존 tfm2_item_tactics(legacy ABI)가 계속 담당하고,
+# 이 모드는 그 결과물(item_tactics_sel.txt)만 읽어 실제 빌드에 적용한다.
+#
+# 한 DLL 은 legacy/stable ABI 를 겸할 수 없어서(로더가 tfm2_mod_entry_stable 존재 시
+# legacy 경로를 쓰지 않음) 모드를 둘로 나눈다.
+#
+# 빌드: %USERPROFILE%\.cargo\bin\cargo.exe build --release   (툴체인 무관)
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+mod-api-stable = { path = "../sdk_058_stable/mod-api-stable" }
+
+[workspace]
