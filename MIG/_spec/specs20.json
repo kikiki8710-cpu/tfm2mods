@@ -28,7 +28,8 @@
    "2026-09-11 **2차 반증검증** 배치 C·D(10~19) 정정을 본 표에 반영(patch2b.py). 실오류 = 12 p7 `&Chat` → `Chat`(값 전달, rustc 실컴파일 거부) / 18 5번 인자 bool → WavePriorityObject / 16 level>2·>4 → MIR 정본 >=3·>=5. 신규 확정 = 15 Effect::is_in_range 완전식(900/900)·sub_goal 52사이트+노브4 / 14 has_near_line_enemy(3/3)·*_lead 갱신자·부시 선택기 셋·is_cancel / 12 14,950행 전수+노브2 / 11 오라클 전수(정정 0) / 10 120틱 노브+RNG 무영향 / 16 AI 과대추정. ★1차의 「오라클 구성 불가」가 2세션 연속 거짓이었다.",
    "2026-09-11 v3 정리 중 자체 감사에서 적발: 04 reads 의 `Blackboard 0x0/0x28/0x50` 한 행 묶음이 tcxaudit 오귀속으로 잡혔다 — **오프셋을 묶어 적으면 기계 검사가 무력화된다**. 라인별 3행으로 분리.",
    "2026-09-11 v3 정리 중 자체 실측으로 **배치 D 의 「타워 팀당 10개(6+4, twin 2쌍 좌표 중복)」가 오라클 설정 버그(init_tower 재호출) 오염**임을 확인. 진짜 = 팀당 8개(6+2), 좌표 중복 0. 배치 A 가 그 함정을 경고했으나 **경고를 쓴 배치 자신의 템플릿이 그 형태**였다. 오라클 레시피 함정 8개를 `shared.오라클_레시피_함정` 으로 정본화.",
-   "2026-09-11 **3차 반증검증** 4갈래 정정 반영(patch3.py). ★3차의 잔존 오염원은 사실상 하나였다 — **`logic` 산문이 표/history 의 정정을 못 받는다**(배치 D 실오류 5건 중 3건 · A E1/E2 · C E8 · B E2). 재발은 specgate G5/G6 가 막는다. 판정 반전 1건 = 14 의 TargetMissing 은 **발화한다**(자연상태 v30==v41 12/12). ★내 도구 결함 2건 = siblings 망글링 파싱이 20개 전부 실패 + specgate G3 가 plan==null 을 통과. ★내 브리핑 오류 3건 = 05 end_reason 범위 오판 · 07 「두 OR 항」 오기 · 16 「재료 부재」 오판. ★오라클 오염 원인 확정 = GameSetting::default() 의 44개 필드가 0(정본 템플릿 _verify3\\TEMPLATE.rs 신설)."
+   "2026-09-11 **3차 반증검증** 4갈래 정정 반영(patch3.py). ★3차의 잔존 오염원은 사실상 하나였다 — **`logic` 산문이 표/history 의 정정을 못 받는다**(배치 D 실오류 5건 중 3건 · A E1/E2 · C E8 · B E2). 재발은 specgate G5/G6 가 막는다. 판정 반전 1건 = 14 의 TargetMissing 은 **발화한다**(자연상태 v30==v41 12/12). ★내 도구 결함 2건 = siblings 망글링 파싱이 20개 전부 실패 + specgate G3 가 plan==null 을 통과. ★내 브리핑 오류 3건 = 05 end_reason 범위 오판 · 07 「두 OR 항」 오기 · 16 「재료 부재」 오판. ★오라클 오염 원인 확정 = GameSetting::default() 의 44개 필드가 0(정본 템플릿 _verify3\\TEMPLATE.rs 신설).",
+   "2026-09-11 3차 후속: 14 writes 의 `0x18/0x20` 묶음 행을 2행으로 분리(dir=\"-\")하고, mem.chk 를 `tcxaudit` 실제 판정으로 교체했다 — 초판은 `TD.norm_base`(실제로는 tcxaudit 소속)를 불러 AttributeError 가 try 에 걸려 **449행 전부 '조회실패'** 였다(값이 무의미했다)."
   ]
  },
  "shared": {
@@ -6958,10 +6959,19 @@
     },
     {
      "base": "LineGankerPlan",
-     "offset": "0x18/0x20",
-     "name": "setup_limit / wait_limit",
+     "offset": "0x18",
+     "name": "setup_limit",
      "value": "(변경 없음)",
-     "note": "이 함수는 두 리밋을 읽지도 쓰지도 않는다 — 참고용"
+     "dir": "-",
+     "note": "이 함수는 이 리밋을 **읽지도 쓰지도 않는다** — 참고용 행이다(`dir: \"-\"`). ⚠한 행에 오프셋을 묶어 적으면 tcxaudit 기계 검사가 무력화되므로 라인별로 쪼갰다(3차 배치C 지적, BRIEF §5)."
+    },
+    {
+     "base": "LineGankerPlan",
+     "offset": "0x20",
+     "name": "wait_limit",
+     "value": "(변경 없음)",
+     "dir": "-",
+     "note": "이 함수는 이 리밋을 **읽지도 쓰지도 않는다** — 참고용 행이다(`dir: \"-\"`). ⚠한 행에 오프셋을 묶어 적으면 tcxaudit 기계 검사가 무력화되므로 라인별로 쪼갰다(3차 배치C 지적, BRIEF §5)."
     }
    ],
    "constants": [

@@ -26,6 +26,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 import spec3lib as L
 import tcxdict as TD
+import tcxaudit as TA          # ★norm_base·Audit 은 여기 있다(tcxdict 아님)
 sys.path.insert(0, os.path.join(HERE, '_spec'))
 import closelist as CL
 
@@ -202,18 +203,22 @@ def conv(i, sp):
     for dirk, field in (("r", "reads"), ("w", "writes")):
         for x in sp.get(field) or []:
             base, off = x.get("base"), x.get("offset")
-            chk = None
+            # ★`tcxaudit` 의 실제 감사 판정을 그대로 박는다(OK / 오귀속 / 밀림 / 부분일치 / 확인불가).
+            #   ⚠초판은 `TD.norm_base` 를 불렀는데 그 함수는 `tcxdict` 가 아니라 `tcxaudit` 에 있어
+            #     AttributeError 가 try 에 걸려 **449행 전부 "조회실패"** 였다(값도 무의미했다).
             try:
-                nb = TD.norm_base(base or "")
-                if nb.startswith("@SKIP"):
-                    chk = u"SKIP: " + nb[6:]
-                else:
-                    st, cs = TD.resolve_name(nb, strict=True)
-                    chk = u"타입미해결" if st == "none" else u"타입해결"
-            except Exception:
-                chk = u"조회실패"
+                A = TA.Audit()
+                A.check(u"spec", base or u"", off or u"", x.get("name"))
+                r = A.rows[-1] if A.rows else None
+                chk = r[0] if r else u"판정없음"
+                if r and r[6] and chk != u"OK":
+                    chk = u"%s(%s)" % (chk, str(r[6])[:40])
+            except Exception as e:
+                chk = u"조회실패(%s)" % type(e).__name__
             row = dict(x)                      # ★원본 승계 — 골라 담으면 새 키가 사라진다
-            row.update({"dir": dirk, "chk": chk, "ev": evtier(x.get("note"))})
+            # v2 행에 명시적 `dir` 이 있으면 존중한다("-" = 읽지도 쓰지도 않는 참조용 행)
+            row.update({"dir": x.get("dir") or dirk, "chk": chk,
+                        "ev": evtier(x.get("note"))})
             mem.append(row)
     o["mem"] = mem
 

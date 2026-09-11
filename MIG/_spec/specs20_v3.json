@@ -24,7 +24,8 @@
    "2026-09-11 **2차 반증검증** 배치 C·D(10~19) 정정을 본 표에 반영(patch2b.py). 실오류 = 12 p7 `&Chat` → `Chat`(값 전달, rustc 실컴파일 거부) / 18 5번 인자 bool → WavePriorityObject / 16 level>2·>4 → MIR 정본 >=3·>=5. 신규 확정 = 15 Effect::is_in_range 완전식(900/900)·sub_goal 52사이트+노브4 / 14 has_near_line_enemy(3/3)·*_lead 갱신자·부시 선택기 셋·is_cancel / 12 14,950행 전수+노브2 / 11 오라클 전수(정정 0) / 10 120틱 노브+RNG 무영향 / 16 AI 과대추정. ★1차의 「오라클 구성 불가」가 2세션 연속 거짓이었다.",
    "2026-09-11 v3 정리 중 자체 감사에서 적발: 04 reads 의 `Blackboard 0x0/0x28/0x50` 한 행 묶음이 tcxaudit 오귀속으로 잡혔다 — **오프셋을 묶어 적으면 기계 검사가 무력화된다**. 라인별 3행으로 분리.",
    "2026-09-11 v3 정리 중 자체 실측으로 **배치 D 의 「타워 팀당 10개(6+4, twin 2쌍 좌표 중복)」가 오라클 설정 버그(init_tower 재호출) 오염**임을 확인. 진짜 = 팀당 8개(6+2), 좌표 중복 0. 배치 A 가 그 함정을 경고했으나 **경고를 쓴 배치 자신의 템플릿이 그 형태**였다. 오라클 레시피 함정 8개를 `shared.오라클_레시피_함정` 으로 정본화.",
-   "2026-09-11 **3차 반증검증** 4갈래 정정 반영(patch3.py). ★3차의 잔존 오염원은 사실상 하나였다 — **`logic` 산문이 표/history 의 정정을 못 받는다**(배치 D 실오류 5건 중 3건 · A E1/E2 · C E8 · B E2). 재발은 specgate G5/G6 가 막는다. 판정 반전 1건 = 14 의 TargetMissing 은 **발화한다**(자연상태 v30==v41 12/12). ★내 도구 결함 2건 = siblings 망글링 파싱이 20개 전부 실패 + specgate G3 가 plan==null 을 통과. ★내 브리핑 오류 3건 = 05 end_reason 범위 오판 · 07 「두 OR 항」 오기 · 16 「재료 부재」 오판. ★오라클 오염 원인 확정 = GameSetting::default() 의 44개 필드가 0(정본 템플릿 _verify3\\TEMPLATE.rs 신설)."
+   "2026-09-11 **3차 반증검증** 4갈래 정정 반영(patch3.py). ★3차의 잔존 오염원은 사실상 하나였다 — **`logic` 산문이 표/history 의 정정을 못 받는다**(배치 D 실오류 5건 중 3건 · A E1/E2 · C E8 · B E2). 재발은 specgate G5/G6 가 막는다. 판정 반전 1건 = 14 의 TargetMissing 은 **발화한다**(자연상태 v30==v41 12/12). ★내 도구 결함 2건 = siblings 망글링 파싱이 20개 전부 실패 + specgate G3 가 plan==null 을 통과. ★내 브리핑 오류 3건 = 05 end_reason 범위 오판 · 07 「두 OR 항」 오기 · 16 「재료 부재」 오판. ★오라클 오염 원인 확정 = GameSetting::default() 의 44개 필드가 0(정본 템플릿 _verify3\\TEMPLATE.rs 신설).",
+   "2026-09-11 3차 후속: 14 writes 의 `0x18/0x20` 묶음 행을 2행으로 분리(dir=\"-\")하고, mem.chk 를 `tcxaudit` 실제 판정으로 교체했다 — 초판은 `TD.norm_base`(실제로는 tcxaudit 소속)를 불러 AttributeError 가 try 에 걸려 **449행 전부 '조회실패'** 였다(값이 무의미했다)."
   ],
   "counts": {
    "functions": 20,
@@ -34,7 +35,7 @@
    "callees": 275,
    "callees_unresolved": 33,
    "caller_sites": 56,
-   "mem": 449,
+   "mem": 450,
    "consts": 186
   }
  },
@@ -867,7 +868,7 @@
      "name": "info.team",
      "note": "usize. player_champion 배열의 1차 인덱스. 2 미만인지 bounds-check(len=2)",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -876,7 +877,7 @@
      "name": "info.position",
      "note": "Position(4B, range 0..4). Position::as_index() 로 2차 인덱스(0..4)",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -885,7 +886,7 @@
      "name": "cache",
      "note": "&AbstractGameWithCache",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -894,7 +895,7 @@
      "name": "context",
      "note": "&GameContext. adjust_position 인자 뽑는 데만 씀",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -903,7 +904,7 @@
      "name": "player_champion",
      "note": "[[Option<&Entity>;5];2] (80B). [team][position] 로 자기 챔피언 champ 를 얻는다. null=None",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -912,7 +913,7 @@
      "name": "setting",
      "note": "&GameSetting(5432B). Game::adjust_position 2번째 인자",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -921,7 +922,7 @@
      "name": "map",
      "note": "&MapDef(28112B). Game::adjust_position 1번째 인자",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -930,7 +931,7 @@
      "name": "team(태그)",
      "note": "TeamType 판별자(i64, range 0..1). 0=Player, 1=Neutral. TeamType::player_team() 인라인",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -939,7 +940,7 @@
      "name": "team(페이로드)",
      "note": "Player 일 때의 팀 인덱스 usize. visible_state 인덱스로 씀(bounds-check len=2)",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -948,7 +949,7 @@
      "name": "visible_state",
      "note": "[VisibleState;2] (원소 24B: {i64 태그,[2 x i64]}). target.visible_state[champ.team] 의 태그를 읽는다",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -957,7 +958,7 @@
      "name": "stat_buff_cached.range",
      "note": "usize. stat_buff_cached(0x370)+0xc8. Effect::range 합산항",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -966,7 +967,7 @@
      "name": "stat_buff_cached.radius_mult",
      "note": "i32. stat_buff_cached(0x370)+0x100. Entity::radius() 에서 %보정 ★`as usize` 로 **부호확장**돼 쓰인다(MIR entity.rs:1511 `_2 = move _3 as usize (IntToInt)`, IR `sext i32 %9 to i64` @m04.ll:43306 · `%33` @43339). 이후 `100 + mult` 는 wrapping usize 산술",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 3
     },
     {
@@ -975,7 +976,7 @@
      "name": "ult_effect",
      "note": "Option<Effect>(56B). Entity::ult_effect() 인라인 — level>4 일 때만 이 필드, 아니면 정적 None",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -984,7 +985,7 @@
      "name": "level",
      "note": "usize. level>4 게이트 + Effect::range 의 (level-1)*growth_range",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -993,7 +994,7 @@
      "name": "x",
      "note": "u64 좌표",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -1002,7 +1003,7 @@
      "name": "y",
      "note": "u64 좌표",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -1011,7 +1012,7 @@
      "name": "radius",
      "note": "usize. Entity::radius() 원본값",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -1020,7 +1021,7 @@
      "name": "ty(Arc 데이터 포인터)",
      "note": "Arc<dyn EffectType> 의 앞 워드(ArcInner*)",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -1029,7 +1030,7 @@
      "name": "ty(vtable 포인터)",
      "note": "Arc<dyn EffectType> 의 뒤 워드. 여기서 +0x10=align, +0xf8/+0x118=메서드 슬롯을 읽는다",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -1038,7 +1039,7 @@
      "name": "range",
      "note": "u64. 기본 사거리",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -1047,7 +1048,7 @@
      "name": "growth_range",
      "note": "u64. 레벨당 사거리 증가분",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -1056,7 +1057,7 @@
      "name": "target",
      "note": "CastingTarget(4B). CastingTarget::check 의 self",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -1065,7 +1066,7 @@
      "name": "casting",
      "note": "CastingType(i32). ★Option<Effect> 의 니치도 같은 자리 — range -1..3 로 읽으면 -1=None, range 0..3 로 읽으면 0=Targeting/1=Position/2=Direction/3=None",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -1074,7 +1075,7 @@
      "name": "align",
      "note": "Arc 페이로드 오프셋 계산용(ABI). 슬롯 배치 = 0x0 drop / 0x8 size / 0x10 align / 0x18~ 메서드",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "확인불가(vtable 슬롯)",
      "ev": 4
     },
     {
@@ -1083,7 +1084,7 @@
      "name": "(이름 미상)",
      "note": "fn(&self)->(i64,i64). Direction 캐스팅일 때 .0==1 인지 검사",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "확인불가(vtable 슬롯)",
      "ev": 4
     },
     {
@@ -1092,7 +1093,7 @@
      "name": "(이름 미상)",
      "note": "fn(&self)->bool. Position 캐스팅일 때 참이어야 사거리 검사로 진행",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "확인불가(vtable 슬롯)",
      "ev": 4
     },
     {
@@ -1102,7 +1103,7 @@
      "value": "-1 (None) 또는 5 (Input::Ult)",
      "note": "-1 은 4곳(챔피언 없음 281 / can_ult 실패 283 / ult_effect None 286 / CastingTarget::check 실패 289)에서 저장",
      "dir": "w",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -1112,7 +1113,7 @@
      "value": "get_input_target 이 채운 InputTarget 24B",
      "note": "memcpy 24B. Input::Ult 페이로드는 enum+0x8 에 위치(dienum Input 5)",
      "dir": "w",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -1122,7 +1123,7 @@
      "value": "safe_move_avoiding_enemy_well 의 sret 출력",
      "note": "궁을 못 쓰는 경우 이동 입력으로 덮어씀(338행/340행)",
      "dir": "w",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     }
    ],
@@ -1789,7 +1790,7 @@
      "name": "info.team",
      "note": "usize. 2 미만 아니면 panic_bounds_check(len=2) — player_champion 첫 인덱스",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -1798,7 +1799,7 @@
      "name": "info.position",
      "note": "Position(i32, range 0..5). Position::as_index()(entity.rs:580-581)로 0..=4 인덱스화 — player_champion 둘째 인덱스",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -1807,7 +1808,7 @@
      "name": "cache",
      "note": "&AbstractGameWithCache",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -1816,7 +1817,7 @@
      "name": "context",
      "note": "&Context(64B). expected_damage_target 2번째 인자로 전달",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -1825,7 +1826,7 @@
      "name": "player_champion",
      "note": "[[Option<&Entity>;5];2] (80B). [team][position] 로 인덱싱해 champ 획득. None 이면 Option::unwrap 실패 panic",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -1834,7 +1835,7 @@
      "name": "ty (EntityType 판별자)",
      "note": "i64, range 0..14. switch 로 1=Minion / 2=Tower / 3=Nexus / 4=Jungle 분기. 나머지(0 None, 5 Epic, 6 Serpen, 7 Ghoul, 8 SmallJiangshi, 9 Bear, 10 Eagle, 11 Revenant, 12 Illusion, 13 Champion)는 default",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -1843,7 +1844,7 @@
      "name": "ty.Jungle.info.camp_type.__0",
      "note": "tuple(usize, JungleType) 의 usize 쪽 = **팀 인덱스(0 블루 / 1 레드)**. 소스는 `is_jungle(0) || is_jungle(1)`(인자와 **동등 비교**, entity.rs:1377 `fn(&EntityType, usize) -> bool`)이고 ~~`< 2` 요구~~ 는 LLVM 접힘이다(2차 배치A)",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -1852,7 +1853,7 @@
      "name": "hp",
      "note": "usize 필드지만 i64 로 로드해 signed 비교/sdiv 에 사용. 0 이면 panic_const_div_by_zero",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     }
    ],
@@ -2275,7 +2276,7 @@
      "name": "info.team",
      "note": "usize. 0 또는 1 이어야 함 — >=2 면 panic_bounds_check(len=2). attack_nexus.rs:36",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -2284,7 +2285,7 @@
      "name": "info.position",
      "note": "Position(4B enum, !range [0,5) = Top/Jungle/Mid/Bottom/Support). Position::as_index(entity.rs:580) 가 인라인돼 판별자를 그대로 usize 로 zext",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -2293,7 +2294,7 @@
      "name": "cache",
      "note": "&AbstractGameWithCache. gep 가 접혀(offset 0) 본문엔 리터럴 0 이 안 보임",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -2302,7 +2303,7 @@
      "name": "context",
      "note": "&GameContext",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -2311,7 +2312,7 @@
      "name": "map",
      "note": "&MapDef",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -2320,7 +2321,7 @@
      "name": "player_champion",
      "note": "[[Option<&Entity>;5];2] (80B). champ = player_champion[team][position], stride 40(팀) + 8(포지션). None 이면 Option::unwrap 실패로 패닉",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -2329,7 +2330,7 @@
      "name": "twin_towers[0].len",
      "note": "twin_towers 는 0x130 에 있는 [bumpalo::Vec<&Entity>;2] (팀당 32B). len 은 Vec 안 +0x18 → 0x130+0x18=0x148, 팀 stride 32. 본문은 twin_towers[1-team] 을 읽는다",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -2338,7 +2339,7 @@
      "name": "fountains",
      "note": "[(u64,u64,u64,u64);2] (64B). MapDef::fountain(team)(map_def.rs:234) 인라인 — fountains[team], stride 32",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -2347,7 +2348,7 @@
      "name": "lx",
      "note": "샘(회복지역) 사각형 좌측 x",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -2356,7 +2357,7 @@
      "name": "ly",
      "note": "샘 사각형 상단 y",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -2365,7 +2366,7 @@
      "name": "rx",
      "note": "샘 사각형 우측 x",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -2374,7 +2375,7 @@
      "name": "ry",
      "note": "샘 사각형 하단 y",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -2383,7 +2384,7 @@
      "name": "x",
      "note": "champ 의 x 좌표(u64)",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -2392,7 +2393,7 @@
      "name": "y",
      "note": "champ 의 y 좌표(u64)",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -2401,7 +2402,7 @@
      "name": "hp",
      "note": "현재 HP",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -2410,7 +2411,7 @@
      "name": "stat_cached.hp",
      "note": "최대 HP (stat_cached 는 0x618, EntityStat 안 +0x10)",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -2419,7 +2420,7 @@
      "name": "line",
      "note": "LineType(Top=0/Mid=1/Bottom=2). LineDefense 반환 시 그대로 실려나감",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -2429,7 +2430,7 @@
      "value": "5 | 2 | 16",
      "note": "phi 로 모임: 5=Recall(블록49), 2=LineDefense(블록61), 16=AttackNexus(블록55)",
      "dir": "w",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -2439,7 +2440,7 @@
      "value": "0 = LineStyle::Aggressive",
      "note": "LineDefenseSubPlan 은 SubPlan 페이로드 offset 64bit(=바이트8)부터. 필드 비트오프셋 style=0, line=8, minion_action_type=16",
      "dir": "w",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -2449,7 +2450,7 @@
      "value": "self.line 그대로 복사",
      "note": "AttackNexusPlan+0x8 에서 읽은 LineType",
      "dir": "w",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -2459,7 +2460,7 @@
      "value": "2 = MinionActionType::Push",
      "note": "Pull=0 / Normal=1 / Push=2",
      "dir": "w",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     }
    ],
@@ -2900,7 +2901,7 @@
      "name": "cache",
      "note": "&AbstractGameWithCache. 적팀 챔프 배열·player_by_champion_id·game(dyn) 출처",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -2909,7 +2910,7 @@
      "name": "context",
      "note": "&GameContext",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -2918,7 +2919,7 @@
      "name": "blackboard",
      "note": "&[Blackboard;2]. 클로저 캡처로만 쓰이고 실제 인덱싱은 call_mut 심(범위 밖)에서 일어남",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -2927,7 +2928,7 @@
      "name": "pool",
      "note": "&bumpalo::Bump — near_enemies Vec 의 할당자",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -2936,7 +2937,7 @@
      "name": "setting",
      "note": "&GameSetting(5432B)",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -2945,7 +2946,7 @@
      "name": "tick_per_second",
      "note": "= tps. 이 함수의 두 시간 임계의 기준단위(IR 오프셋 4856)",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -2954,7 +2955,7 @@
      "name": "info.team",
      "note": "usize. enemy_ix = 1 - team 으로 적팀 인덱스를 만든다(범위밖이면 panic_bounds_check(len=2))",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -2963,7 +2964,7 @@
      "name": "player_champion",
      "note": "[[Option<&Entity>;5];2] (80B). [enemy_ix] 를 [5 x ptr] stride 40 으로 인덱싱 = iter_champions",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -2972,7 +2973,7 @@
      "name": "game (dyn AbstractGame 데이터 포인터)",
      "note": "cache+0x0/+0x8 = &dyn AbstractGame 의 (data, vtable). 클로저 캡처용으로만 로드",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -2981,7 +2982,7 @@
      "name": "id",
      "note": "usize. player_by_champion_id 의 인자 (⚠team 이 아니라 엔티티 id)",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -2990,7 +2991,7 @@
      "name": "ptr",
      "note": "near_enemies 의 버퍼 시작",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -2999,7 +3000,7 @@
      "name": "len",
      "note": "0 이면 즉시 (false,false) 반환. 루프 끝점 = ptr + len*8",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -3008,7 +3009,7 @@
      "name": "ty (EntityType 태그)",
      "note": "i64, range [0,14). ==13 → Champion 이라야 쿨다운 3개를 읽는다",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -3017,7 +3018,7 @@
      "name": "ty.Champion.skill_cooldown",
      "note": "EntityType enum+0x50. Champion 이 아니면 0 으로 취급",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -3026,7 +3027,7 @@
      "name": "ty.Champion.skill2_cooldown",
      "note": "EntityType enum+0x58",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -3035,7 +3036,7 @@
      "name": "ty.Champion.ult_cooldown",
      "note": "EntityType enum+0x60",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -3044,7 +3045,7 @@
      "name": "skill_effect: Option<Effect>(56B)",
      "note": "레벨 게이트 없이 항상 후보",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -3053,7 +3054,7 @@
      "name": "skill_effect.casting: CastingType(i32)",
      "note": "⚠Option<Effect> 의 니치 판별자. == -1 이면 None (Effect 시작 +0x30)",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -3062,7 +3063,7 @@
      "name": "skill2_effect: Option<Effect>(56B)",
      "note": "level > 2 일 때만 실제 필드, 아니면 정적 None(@anon...40, +0x30 이 0xFFFFFFFF)",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -3071,7 +3072,7 @@
      "name": "ult_effect: Option<Effect>(56B)",
      "note": "level > 4 일 때만 실제 필드, 아니면 정적 None",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -3080,7 +3081,7 @@
      "name": "level",
      "note": "usize. skill2/ult 슬롯 개방 게이트",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -3089,7 +3090,7 @@
      "name": "casting: CastingType(i32)",
      "note": "슬롯2·3 의 Option 니치 판별자를 %ptr+48 로 읽는다(슬롯1 은 entity+0x4f8 로 접힘)",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     }
    ],
@@ -3794,7 +3795,7 @@
      "name": "cache",
      "note": "&AbstractGameWithCache(8840B). %22",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -3803,7 +3804,7 @@
      "name": "context",
      "note": "&GameContext(64B). %12 — line_exists 의 인자",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -3812,7 +3813,7 @@
      "name": "blackboard",
      "note": "&[Blackboard;2]. %123 — 571줄 필터에서 [적팀] 원소를 씀",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -3821,7 +3822,7 @@
      "name": "pool",
      "note": "&bumpalo::Bump. champions() 3번째 인자(%116)",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -3830,7 +3831,7 @@
      "name": "setting",
      "note": "&GameSetting(5432B). LineType::get_start_position 2번째 인자(%72)",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -3839,7 +3840,7 @@
      "name": "tutorial",
      "note": "TutorialType(1B, range 0..9). 549줄 morgard_exists 인라인의 첫 게이트(%16)",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -3848,7 +3849,7 @@
      "name": "game",
      "note": "&dyn AbstractGame 팻포인터. +0x0=data(%23), +0x8=vtable(%25, dereferenceable(816))",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -3857,7 +3858,7 @@
      "name": "get_game_mode",
      "note": "divtable AbstractGame 0x40 → get_game_mode (일치율 98%, vtable 816B=IR deref 와 일치). 반환 {i64,ptr}=Option<&MobaMode>",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "확인불가(vtable 슬롯)",
      "ev": 4
     },
     {
@@ -3866,7 +3867,7 @@
      "name": "epic_minion_buff_time[team]",
      "note": "MobaMode::remain_epic_time(team) 이 인라인된 자리(game.rs:210). team=적팀 인덱스",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -3875,7 +3876,7 @@
      "name": "info.team",
      "note": "usize. %35=아군팀, %36=1-%35=적팀",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -3884,7 +3885,7 @@
      "name": "twin_towers[아군팀]",
      "note": "Vec<&Entity>(32B stride). 559줄 min_by_key 대상",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -3893,7 +3894,7 @@
      "name": "top_tower[아군팀]",
      "note": "line==Top 일 때 %54=384",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -3902,7 +3903,7 @@
      "name": "top_tower2[아군팀]",
      "note": "line==Top 일 때 %55=400",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -3911,7 +3912,7 @@
      "name": "mid_tower[아군팀]",
      "note": "line==Mid 일 때 %54=416",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -3920,7 +3921,7 @@
      "name": "mid_tower2[아군팀]",
      "note": "line==Mid 일 때 %55=432",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -3929,7 +3930,7 @@
      "name": "bottom_tower[아군팀]",
      "note": "line==Bottom 일 때 %54=448",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -3938,7 +3939,7 @@
      "name": "bottom_tower2[아군팀]",
      "note": "line==Bottom 일 때 %55=464",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -3947,7 +3948,7 @@
      "name": "len",
      "note": "twin_towers 벡터(%68)와 champions 결과 벡터(%119) 둘 다 +0x0=ptr, +0x18=len 으로 읽음",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -3956,7 +3957,7 @@
      "name": "id",
      "note": "usize. 567줄 has_line_defense_threat 의 4번째 인자(%112)",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -3965,7 +3966,7 @@
      "name": "x",
      "note": "u64. 거리 제곱 계산(타워/트윈타워/적 챔피언 모두)",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -3974,7 +3975,7 @@
      "name": "y",
      "note": "u64. 거리 제곱 계산",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -3983,7 +3984,7 @@
      "name": "morgard_defense",
      "note": "MorgardDefenseStrategy(1B, range 0..2): 0=Gather 1=Battle. 576줄, PlayerState::strategy 의 sret 버퍼(%8)+14",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -3992,7 +3993,7 @@
      "name": "top_minion_state",
      "note": "BrainMinionParameter(40B). `has_line_defense_threat`(defense_nexus.rs:588)가 line 으로 switch 해 고른다 — IR `data+0x10 -> gep Blackboard, team` 뒤 `switch line {0:+0, 1:+40, 2:+80}` (2026-09-11 2차배치A). ★한 행에 오프셋을 묶으면 기계 검사가 안 되므로 라인별로 쪼갰다",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -4001,7 +4002,7 @@
      "name": "mid_minion_state",
      "note": "BrainMinionParameter(40B). `has_line_defense_threat`(defense_nexus.rs:588)가 line 으로 switch 해 고른다 — IR `data+0x10 -> gep Blackboard, team` 뒤 `switch line {0:+0, 1:+40, 2:+80}` (2026-09-11 2차배치A). ★한 행에 오프셋을 묶으면 기계 검사가 안 되므로 라인별로 쪼갰다",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -4010,7 +4011,7 @@
      "name": "bottom_minion_state",
      "note": "BrainMinionParameter(40B). `has_line_defense_threat`(defense_nexus.rs:588)가 line 으로 switch 해 고른다 — IR `data+0x10 -> gep Blackboard, team` 뒤 `switch line {0:+0, 1:+40, 2:+80}` (2026-09-11 2차배치A). ★한 행에 오프셋을 묶으면 기계 검사가 안 되므로 라인별로 쪼갰다",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -4019,7 +4020,7 @@
      "name": "from_mid",
      "note": "i64. `< -3000` 이면 라인 밀림 위협 (2차배치A)",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -4028,7 +4029,7 @@
      "name": "minion_count",
      "note": "i32. `< -2` 이면 미니언 수 열세 위협 (2차배치A)",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     }
    ],
@@ -4499,7 +4500,7 @@
      "name": "v50_dive_ep_live (Option<V50DiveEpLive> 판별자 = prev_holder_hp 태그 슬롯)",
      "note": "-1 = None. !range !14067 = {-1,0,1}. 진입 게이트와 take 양쪽에서 읽음",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -4508,7 +4509,7 @@
      "name": "v50_dive_ep_live.start_tick",
      "note": "= V50DiveEpLive+0x10",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -4517,7 +4518,7 @@
      "name": "v50_dive_ep_live.last_tick",
      "note": "= +0x18. 포기시각 max() 입력이자 레코드 end_tick",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -4526,7 +4527,7 @@
      "name": "v50_dive_ep_live.ep_ticks",
      "note": "= +0x20",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -4535,7 +4536,7 @@
      "name": "v50_dive_ep_live.in_range_ticks",
      "note": "= +0x28. ==0 이어야 포기집계 블록으로 진입",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -4544,7 +4545,7 @@
      "name": "v50_dive_ep_live.holder_ticks",
      "note": "= +0x30",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -4553,7 +4554,7 @@
      "name": "v50_dive_ep_live.team_holder_ticks",
      "note": "= +0x38. ==0 이면 no_contact(dive_episode.rs:138)",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -4562,7 +4563,7 @@
      "name": "v50_dive_ep_live.minion_cover_ticks",
      "note": "= +0x40",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -4571,7 +4572,7 @@
      "name": "v50_dive_ep_live.soaked_hp",
      "note": "= +0x48",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -4580,7 +4581,7 @@
      "name": "v50_dive_ep_live.max_catch_break",
      "note": "= +0x58. 레코드의 첫 필드(+0x0)로 감",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -4589,7 +4590,7 @@
      "name": "v50_dive_ep_live.uncatch_total",
      "note": "= +0x60",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -4598,7 +4599,7 @@
      "name": "v50_dive_ep_live.target_pos",
      "note": "= +0x68, i32 Position",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -4607,7 +4608,7 @@
      "name": "v50_dive_ep_live.start_race_adv",
      "note": "= +0x6c, i32",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -4616,7 +4617,7 @@
      "name": "v50_dive_ep_live.start_in_range",
      "note": "= +0x70, bool. 저장 시 &1 로 정규화",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -4625,7 +4626,7 @@
      "name": "v50_dive_ep_live.tower",
      "note": "= +0x71, TowerType",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -4634,7 +4635,7 @@
      "name": "v50_dive_ep_live.start_model",
      "note": "= +0x72",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -4643,7 +4644,7 @@
      "name": "v50_dive_ep_live.start_na",
      "note": "= +0x73",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -4652,7 +4653,7 @@
      "name": "v50_dive_ep_live.start_ne",
      "note": "= +0x74",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -4661,7 +4662,7 @@
      "name": "v50_dive_ep_live.start_tgt_hp",
      "note": "= +0x75",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -4670,7 +4671,7 @@
      "name": "plan (BigPlan, 384B)",
      "note": "BigPlan::get_name 인자. 이름 문자열로 end_plan 코드를 분류(dive_episode.rs:145~153)",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -4679,7 +4680,7 @@
      "name": "last_dive_abandon_tick",
      "note": "max() 의 좌변(self). 읽고 다시 씀",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -4688,7 +4689,7 @@
      "name": "v50_dive_ep_abort_src",
      "note": "aborted==true 일 때만 레코드 abort_src 로 복사(dive_episode.rs:167)",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -4697,7 +4698,7 @@
      "name": "v50_dive_episodes.cap (RawVec cap)",
      "note": "len==cap 이면 grow_one",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -4706,7 +4707,7 @@
      "name": "v50_dive_episodes.ptr",
      "note": "push 대상 버퍼 시작",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -4715,7 +4716,7 @@
      "name": "v50_dive_episodes.len",
      "note": "push 인덱스",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -4725,7 +4726,7 @@
      "value": "max(last_dive_abandon_tick, live.last_tick)",
      "note": "dive_episode.rs:140. 조건부 — in_range_ticks==0 && team_holder_ticks==0 && end_reason!=7 일 때만. llvm.umax.i64",
      "dir": "w",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -4735,7 +4736,7 @@
      "value": "-1 (None)",
      "note": "dive_episode.rs:156 의 Option::take. 무조건 실행(성공/실패 무관) — 진행중 에피소드가 항상 소멸한다",
      "dir": "w",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -4745,7 +4746,7 @@
      "value": "live 스냅샷 + end_reason/end_plan/aborted/abort_src",
      "note": "dive_episode.rs:157~. 필드 대응은 logic 참조",
      "dir": "w",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -4755,7 +4756,7 @@
      "value": "len + 1",
      "note": "push 완료",
      "dir": "w",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -4765,7 +4766,7 @@
      "value": "RawVec::grow_one 결과",
      "note": "len==cap 일 때만 간접적으로 갱신(grow_one 이 cap+ptr 를 다시 씀)",
      "dir": "w",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     }
    ],
@@ -5666,7 +5667,7 @@
      "name": "cache",
      "note": "&AbstractGameWithCache",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -5675,7 +5676,7 @@
      "name": "context",
      "note": "&GameContext",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -5684,7 +5685,7 @@
      "name": "blackboard",
      "note": "&[Blackboard;2] — 클로저 캡처로만 넘기고 본문에선 역참조 안 함",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -5693,7 +5694,7 @@
      "name": "info.team",
      "note": "usize. 배열 인덱스로 쓰기 전 len=2 bounds-check. 적 팀 인덱스 = 1-team",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -5702,7 +5703,7 @@
      "name": "info.position",
      "note": "Position(u32, !range [0,5)) → Position::as_index() (entity.rs:580) 인라인. player_champion[team] 안의 슬롯 인덱스",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -5711,7 +5712,7 @@
      "name": "game",
      "note": "&dyn AbstractGame 팻포인터 16B — +0x0 데이터ptr, +0x8 vtable(816B=슬롯100+size/align, divtable 로 확인). 둘 다 클로저가 Blackboard::is_recent_visible 로 그대로 전달",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -5720,7 +5721,7 @@
      "name": "player_champion",
      "note": "[[Option<&Entity>;5];2] (80B). [team][position] = 내 챔피언, [1-team] 전체 5칸 = 적 챔피언 배열(이터레이션 대상)",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -5729,7 +5730,7 @@
      "name": "x",
      "note": "min_by_key 시드 원소의 거리 계산(Entity::distance_sq, entity.rs:2157) — 나머지 원소는 범위 밖 fold(m12.ll)에서 같은 식으로 읽음",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -5738,7 +5739,7 @@
      "name": "y",
      "note": "위와 동일",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -5747,7 +5748,7 @@
      "name": "id",
      "note": "최종 승자(nearest)의 id → KitingBack{focus} 페이로드. src_line 36",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -5756,7 +5757,7 @@
      "name": "pool",
      "note": "&bumpalo::Bump — near_enemies Vec 과 빈 towers Vec 의 할당자",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -5765,7 +5766,7 @@
      "name": "setting",
      "note": "&GameSetting",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -5774,7 +5775,7 @@
      "name": "tick_per_second",
      "note": "usize. die 틱과 비교하는 임계(=1초). src_line 33",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     }
    ],
@@ -6448,7 +6449,7 @@
      "name": "info.team",
      "note": "팀 인덱스. 2 이상이면 panic_bounds_check",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -6457,7 +6458,7 @@
      "name": "info.position",
      "note": "Position(i32, range 0..=4). as_index() 인라인 — 그대로 0~4 인덱스로 씀",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -6466,7 +6467,7 @@
      "name": "cache",
      "note": "&AbstractGameWithCache",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -6475,7 +6476,7 @@
      "name": "context",
      "note": "&GameContext",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -6484,7 +6485,7 @@
      "name": "game",
      "note": "&dyn AbstractGame 팻포인터 — 데이터ptr @+0x0, vtable @+0x8",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -6493,7 +6494,7 @@
      "name": "player_champion",
      "note": "[[Option<&Entity>;5];2] (80B). [team]*40 + [pos]*8 로 인덱싱. null 이면 option::unwrap_failed",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -6502,7 +6503,7 @@
      "name": "get_game_mode",
      "note": "divtable 확인. GameMode(128bit) 반환 — 판별자 0=Moba",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "확인불가(vtable 슬롯(구조체 아님) — divtable.py 소관)",
      "ev": 4
     },
     {
@@ -6511,7 +6512,7 @@
      "name": "get_entity_by_id",
      "note": "divtable 확인. (id: usize) -> Option<&Entity>(널러블 ptr)",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "확인불가(vtable 슬롯(구조체 아님) — divtable.py 소관)",
      "ev": 4
     },
     {
@@ -6520,7 +6521,7 @@
      "name": "jungle_runner.epic.live_list.ptr",
      "note": "Vec<usize> 는 0x198 시작이나 실제 레이아웃이 {cap@+0, ptr@+8, len@+16} 로 재정렬됨",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -6529,7 +6530,7 @@
      "name": "jungle_runner.epic.live_list.len",
      "note": "0 이면 epic=None. 아니면 [0] 번째 id 만 씀",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -6538,7 +6539,7 @@
      "name": "setting",
      "note": "&GameSetting",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -6547,7 +6548,7 @@
      "name": "map",
      "note": "&MapDef",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -6556,7 +6557,7 @@
      "name": "tick_per_second",
      "note": "line41 에픽 타이밍 게이트의 여유값(1초분 tick)",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -6565,7 +6566,7 @@
      "name": "fountains",
      "note": "[ (lx,ly,rx,ry); 2 ] · stride 32B. team 으로 인덱싱. 내부 +0=lx, +8=ly, +16=rx, +24=ry ★오라클 실측(0.5.8 moba, 2차배치B) = `[(0, 896000, 64000, 960000), (892000, 0, 960000, 64000)]`. 명명 구조체가 아니라 **4-튜플 (u64,u64,u64,u64)** 이고 `f.0<=f.2 · f.1<=f.3`(min/max 코너). `fountains[i]` = 팀 i **자기** 분수대",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 2
     },
     {
@@ -6574,7 +6575,7 @@
      "name": "hp",
      "note": "champ(현재 HP) 와 epic(현재 HP) 양쪽에서 읽음",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -6583,7 +6584,7 @@
      "name": "stat_cached.hp",
      "note": "최대 HP. 0 이면 panic_const_div_by_zero",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -6592,7 +6593,7 @@
      "name": "x",
      "note": "champ 좌표 — 분수대 사각형 판정",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -6601,7 +6602,7 @@
      "name": "y",
      "note": "champ 좌표 — 분수대 사각형 판정",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -6610,7 +6611,7 @@
      "name": "epic.epic_ally_tick",
      "note": "EpicStanceData(0x78) 내부 +0x20",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -6619,7 +6620,7 @@
      "name": "epic.epic_ally_killed_tick",
      "note": "EpicStanceData(0x78) 내부 +0x28",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -6628,7 +6629,7 @@
      "name": "target_bush 판별자",
      "note": "Option<usize> 태그. trunc i1 로 is_some 판정",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -6637,7 +6638,7 @@
      "name": "target_bush 값",
      "note": "Some 일 때의 부시 인덱스(usize)",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -6647,7 +6648,7 @@
      "value": "5 | 9 | 11",
      "note": "phi 로 모임: 5=Recall, 9=Hide, 11=EpicHunt",
      "dir": "w",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -6657,7 +6658,7 @@
      "value": "self.target_bush 값",
      "note": "태그 9 경로에서만 i64 로 기록",
      "dir": "w",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -6667,7 +6668,7 @@
      "value": "0(false)",
      "note": "태그 11 경로에서 i8 0 기록 — 같은 오프셋을 1바이트로 씀",
      "dir": "w",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -6677,7 +6678,7 @@
      "value": "1 (AroundBushOutlineType::Outline)",
      "note": "0=None,1=Outline,2=Inline",
      "dir": "w",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -6687,7 +6688,7 @@
      "value": "0(false)",
      "note": "",
      "dir": "w",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -6697,7 +6698,7 @@
      "value": "0(false)",
      "note": "",
      "dir": "w",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     }
    ],
@@ -7234,7 +7235,7 @@
      "name": "objective",
      "note": "Option<MainObjective>(3B)의 태그 바이트. !range !19221 = {i8 -1, i8 12} → 유효값 {255}∪{0..11}, 255=None, 0=Morgard. 두 번 로드(L164 게이트, L172 setup_like)",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -7243,7 +7244,7 @@
      "name": "objective.Morgard.phase",
      "note": "MainObjective enum+0x1 = ObjectPhase(1B). dienum MainObjective 0 으로 확인. 태그==0 문맥에서만 읽는다",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -7252,7 +7253,7 @@
      "name": "info.team",
      "note": "usize. camp_pos 의 blue-side 인자 / is_visible_cell 인자 / 1-team(적팀 인덱스) 산출에 사용",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -7261,7 +7262,7 @@
      "name": "cache",
      "note": "&AbstractGameWithCache. gep 없이 plain load 라 C3 에는 안 잡힐 수 있음",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -7270,7 +7271,7 @@
      "name": "context",
      "note": "&GameContext",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -7279,7 +7280,7 @@
      "name": "blackboard",
      "note": "&[Blackboard; 2] — 필터 클로저 환경으로 전달(본문에선 로드만)",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -7288,7 +7289,7 @@
      "name": "setting",
      "note": "&GameSetting",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -7297,7 +7298,7 @@
      "name": "map",
      "note": "&MapDef(28112B) — dereferenceable(28112) 로 크기 교차검증됨",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -7306,7 +7307,7 @@
      "name": "tick_per_second",
      "note": "usize. 15배 해서 리스폰 대기 임계로 사용",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -7315,7 +7316,7 @@
      "name": "game.data_ptr",
      "note": "&dyn AbstractGame 팻포인터의 데이터 절반",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -7324,7 +7325,7 @@
      "name": "game.vtable",
      "note": "&dyn AbstractGame 팻포인터의 vtable 절반(816B — divtable 이 보고한 vtable 총 크기와 일치)",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -7333,7 +7334,7 @@
      "name": "player_champion",
      "note": "[[Option<&Entity>;5];2] (80B). gep [5 x ptr] 를 인덱스 (1-team) 으로 — 즉 적팀 챔피언 5칸 슬라이스. iter_champions(simulation.rs:1904(=선언줄)) 인라인 ⚠1차의 「인라인 루트가 1905 이므로 1904 는 1줄 차」는 **오독**이다(2차배치B): tcx 실측 `iter_champions` 선언 = 1904:3-1904:85, 그 안의 `{closure#0}`(filter_map 술어) = 1905:50-1905:53. 루트가 1905 인 것은 클로저 줄이기 때문이고 **1904 가 맞다**. 같은 함정 2건: `Position::as_index` 580/581 · `Entity::distance_sq` 2157/2158",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 3
     },
     {
@@ -7342,7 +7343,7 @@
      "name": "tick",
      "note": "divtable AbstractGame 0x28 (일치율 98%). 현재 틱 반환",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "확인불가(vtable 슬롯)",
      "ev": 4
     },
     {
@@ -7351,7 +7352,7 @@
      "name": "get_game_mode",
      "note": "divtable AbstractGame 0x40. 반환 {i64 tag, ptr payload} = GameMode(128b). tag 0 = Moba",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "확인불가(vtable 슬롯)",
      "ev": 4
     },
     {
@@ -7360,7 +7361,7 @@
      "name": "is_visible_cell",
      "note": "divtable AbstractGame 0x100. (team, cell_x, cell_y) -> bool",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "확인불가(vtable 슬롯)",
      "ev": 4
     },
     {
@@ -7369,7 +7370,7 @@
      "name": "get_entity_by_id",
      "note": "divtable AbstractGame 0x1f0. (usize id) -> Option<&Entity>(널=None)",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "확인불가(vtable 슬롯)",
      "ev": 4
     },
     {
@@ -7378,7 +7379,7 @@
      "name": "jungle_runner.epic.live_list.ptr",
      "note": "MobaMode+0x198 = jungle_runner.epic.live_list: Vec<usize>. 이 판의 Vec 배치는 {?@+0x0, ptr@+0x8, len@+0x10}",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -7387,7 +7388,7 @@
      "name": "jungle_runner.epic.live_list.len",
      "note": "==0 이면 `get(0)` = None 으로 접힘 (~~first()~~ — 2026-09-11 검증배치 B: `first()` 는 `get` 을 부르지 않고 슬라이스 패턴으로 구현돼 있어 인라인 체인에 `fn=first` 프레임이 있어야 하는데 없고, 실제 체인은 `slice/mod.rs:572 get<usize,usize>`)",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -7396,7 +7397,7 @@
      "name": "jungle_runner.epic.next_respawn_tick",
      "note": "usize. JungleCampState(48B) 의 +0x18. distruct 로 0x198/0x1b0 둘 다 교차검증",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -7405,7 +7406,7 @@
      "name": "x",
      "note": "u64 월드 좌표",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -7414,7 +7415,7 @@
      "name": "y",
      "note": "u64 월드 좌표",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     }
    ],
@@ -8056,7 +8057,7 @@
      "name": "info.team",
      "note": "0/1. 2 미만 bounds-check 후 player_champion[team] 인덱스로 사용. enemy_team = 1 - team",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -8065,7 +8066,7 @@
      "name": "info.position",
      "note": "i32 range[0,5]. Position 열거형(0=Top,1=Jungle,2=Mid,3=Bottom,4=Support). player_champion[team][position] 로 자기 챔피언(champ) 획득",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -8074,7 +8075,7 @@
      "name": "cache",
      "note": "&AbstractGameWithCache",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -8083,7 +8084,7 @@
      "name": "context",
      "note": "&GameContext",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -8092,7 +8093,7 @@
      "name": "player_champion",
      "note": "[[Option<&Entity>;5];2] (80B). champ 획득 + 아군 5칸 순회 양쪽에 씀",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -8101,7 +8102,7 @@
      "name": "setting",
      "note": "&GameSetting",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -8110,7 +8111,7 @@
      "name": "map",
      "note": "&MapDef",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -8119,7 +8120,7 @@
      "name": "tick_per_second",
      "note": "×2 해서 미니언 위험 조회 구간(2초)으로 넘김",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -8128,7 +8129,7 @@
      "name": "fountains",
      "note": "[{u64,u64,u64,u64};2] (64B). fountains[enemy_team] = (elx,ely,erx,ery) 사각형. 중심이 enemy_base",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -8137,7 +8138,7 @@
      "name": "id",
      "note": "champ.id 와 ally.id 를 비교해 자기 자신을 순회에서 제외(1235행)",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -8146,7 +8147,7 @@
      "name": "stat_cached.hp",
      "note": "최대 HP. 0 이면 div-by-zero 패닉",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -8155,7 +8156,7 @@
      "name": "x",
      "note": "champ / ally / target_enemy 모두 이 필드",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -8164,7 +8165,7 @@
      "name": "y",
      "note": "champ / ally / target_enemy 모두 이 필드",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -8173,7 +8174,7 @@
      "name": "hp",
      "note": "현재 HP. hp*100/stat_cached.hp < 40 인 아군은 카운트에서 제외",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     }
    ],
@@ -8544,7 +8545,7 @@
      "name": "tag",
      "note": "0=Morgard, 1=Serpen. 1216 게이트에서 마스크로, 1179 match 에서 trunc i24->i8 로 다시 본다",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -8553,7 +8554,7 @@
      "name": "phase (ObjectPhase)",
      "note": "1216 게이트가 == 3(Hunt) 을 요구. 본문엔 리터럴 3 이 없고 768(=3<<8)로 접혀 있다",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -8562,7 +8563,7 @@
      "name": "with_battle (bool)",
      "note": "★마스크 65534 밖 = 이 함수는 with_battle 을 전혀 검사하지 않는다",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -8571,7 +8572,7 @@
      "name": "object_finish (ObjectFinishStrategy 1B)",
      "note": "== 0(KillPriority) 이어야 통과. distruct Strategy 로 24B/+0xf 교차검증 ★실행 확인(2차배치C): `Strategy` 는 24B 이고 raw 덤프의 `+0xf` 바이트가 Debug 의 `object_finish` 와 1:1(기본값 1=BattlePriority). `_verify2/C/C_o10b.tsv`",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 2
     },
     {
@@ -8580,7 +8581,7 @@
      "name": "info.team (usize)",
      "note": "IR 의 gep +2352. 적 팀 = 1 - 이 값",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -8589,7 +8590,7 @@
      "name": "cache (&AbstractGameWithCache)",
      "note": "",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -8598,7 +8599,7 @@
      "name": "blackboard (&[Blackboard;2])",
      "note": "gep +16. Blackboard 1개 = 744B (dereferenceable(744) 로 교차검증)",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -8607,7 +8608,7 @@
      "name": "game.data (&dyn AbstractGame 의 데이터 포인터)",
      "note": "game 필드는 16B 팻포인터",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -8616,7 +8617,7 @@
      "name": "game.vtable (&dyn AbstractGame 의 vtable)",
      "note": "dereferenceable(816) = AbstractGame vtable 크기와 일치",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -8625,7 +8626,7 @@
      "name": "player_champion ([[Option<&Entity>;5];2], 80B)",
      "note": "gep +480, 팀당 stride 40B. iter_champions(적팀) 이 여기를 5칸 순회(IR 에선 완전 언롤)",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -8634,7 +8635,7 @@
      "name": "get_game_mode",
      "note": "divtable AbstractGame 0x40. {i64 discr, ptr} 반환 → GameMode",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "확인불가(vtable 슬롯)",
      "ev": 4
     },
     {
@@ -8643,7 +8644,7 @@
      "name": "get_entity_by_id",
      "note": "divtable AbstractGame 0x1f0. gep +496",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "확인불가(vtable 슬롯)",
      "ev": 4
     },
     {
@@ -8652,7 +8653,7 @@
      "name": "jungle_runner.epic.live_list.cap",
      "note": "gep +408. MobaMode+0x18=jungle_runner, JungleRunner+0x180=epic, JungleCampState+0x0=live_list(Vec<usize>)",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -8661,7 +8662,7 @@
      "name": "jungle_runner.epic.live_list.ptr",
      "note": "gep +416 — Morgard 경로가 여기서 [0] 을 읽는다",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -8670,7 +8671,7 @@
      "name": "jungle_runner.epic.live_list.len",
      "note": "gep +424. 0 이면 즉시 true 반환",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -8679,7 +8680,7 @@
      "name": "jungle_runner.serpen.live_list.cap",
      "note": "gep +456. JungleRunner+0x1b0=serpen",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -8688,7 +8689,7 @@
      "name": "jungle_runner.serpen.live_list.ptr",
      "note": "gep +464 — Serpen 경로가 여기서 [0] 을 읽는다",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -8697,7 +8698,7 @@
      "name": "jungle_runner.serpen.live_list.len",
      "note": "gep +472. 0 이면 즉시 true 반환",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -8706,7 +8707,7 @@
      "name": "team.tag (TeamType 판별자)",
      "note": "== 0(Player) 인지 본다 (TeamType 16B)",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -8715,7 +8716,7 @@
      "name": "team.Player.0 (팀 인덱스 usize)",
      "note": "gep +8. 1-player.team 과 비교",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -8724,7 +8725,7 @@
      "name": "x (u64)",
      "note": "gep +1632. is_enemy_well_danger 인자",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -8733,7 +8734,7 @@
      "name": "y (u64)",
      "note": "gep +1640. is_enemy_well_danger 인자",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     }
    ],
@@ -9129,7 +9130,7 @@
      "name": "cache",
      "note": "&AbstractGameWithCache",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -9138,7 +9139,7 @@
      "name": "context",
      "note": "&GameContext — tutorial 판정에 사용",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -9147,7 +9148,7 @@
      "name": "game.data_ptr",
      "note": "dyn AbstractGame 팻포인터의 데이터 포인터",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -9156,7 +9157,7 @@
      "name": "game.vtable",
      "note": "dyn AbstractGame 팻포인터의 vtable 포인터",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -9165,7 +9166,7 @@
      "name": "get_game_mode",
      "note": "divtable.py AbstractGame 0x40 → AbstractGame::get_game_mode. {i64 태그, ptr} 반환. 본문에서 2회 호출(417 게이트 통과 후 421, 424)",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "확인불가(vtable 슬롯(구조체 아님) — divtable.py 소관)",
      "ev": 4
     },
     {
@@ -9174,7 +9175,7 @@
      "name": "tick",
      "note": "divtable.py AbstractGame 0x28 → AbstractGame::tick. i64 반환. 허용 판정 통과 후에만 호출(handler.rs:432)",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "확인불가(vtable 슬롯(구조체 아님) — divtable.py 소관)",
      "ev": 4
     },
     {
@@ -9183,7 +9184,7 @@
      "name": "tutorial",
      "note": "TutorialType(u8, 0..8). rule_scope 의 모든 허용 판정이 이 한 바이트만 본다",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -9192,7 +9193,7 @@
      "name": "tag",
      "note": "BigPlan::goal() 이 sret 로 채운 24B BigGoal 의 판별자(0..6). DISCR_EXACT == variant index",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -9201,7 +9202,7 @@
      "name": "Line.line",
      "note": "tag==0(Line) 일 때의 페이로드 LineType(0=Top,1=Mid,2=Bottom)",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -9210,7 +9211,7 @@
      "name": "data",
      "note": "GoalData(248B) — BigPlan::sub_plan 의 인자로 &self(248B) 형태로 전달",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -9219,7 +9220,7 @@
      "name": "team_plan",
      "note": "TeamPlan(1064B) — BigPlan::sub_plan 인자",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -9228,7 +9229,7 @@
      "name": "positioning_score",
      "note": "PositioningScoreData(2760B) — BigPlan::sub_plan 인자",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -9237,7 +9238,7 @@
      "name": "plan",
      "note": "쓰기 직전 old 값을 drop, 이후 sub_plan 계산 시 &self.plan 으로 다시 읽음",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -9246,7 +9247,7 @@
      "name": "v3_lapse_passive_fallbacks",
      "note": "+1 하기 위해 읽음(read-modify-write)",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -9256,7 +9257,7 @@
      "value": "4",
      "note": "GameMode::SingleLane 경로에서만. 4 = BigPlan::SinglePlanLine (dienum BigPlan)",
      "dir": "w",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -9266,7 +9267,7 @@
      "value": "빈 Vec (cap/len 0, dangling ptr 0x8)",
      "note": "+0x8=0, +0x10=inttoptr(8), +0x18=0 세 워드가 Vec::new()",
      "dir": "w",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -9276,7 +9277,7 @@
      "value": "0 (false)",
      "note": "",
      "dir": "w",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -9286,7 +9287,7 @@
      "value": "1 = LineType::Mid",
      "note": "싱글레인 모드라 미드 고정",
      "dir": "w",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -9296,7 +9297,7 @@
      "value": "29",
      "note": "handler.rs:432 mf_note_swap(src=29, tick) 인라인. 29 = 이 폴백을 가리키는 src 코드",
      "dir": "w",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -9306,7 +9307,7 @@
      "value": "AbstractGame::tick() 결과",
      "note": "같은 mf_note_swap 인라인(handler.rs:410)",
      "dir": "w",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -9316,7 +9317,7 @@
      "value": "+1",
      "note": "handler.rs:433 — 이 폴백이 실제로 적용된 횟수 카운터",
      "dir": "w",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -9326,7 +9327,7 @@
      "value": "새로 만든 BigPlan(384B memcpy)",
      "note": "handler.rs:434. 기존 plan 은 drop_glue 로 먼저 파기. 예외 경로 대비로 임시 %9 에 복사본을 둔다",
      "dir": "w",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -9336,7 +9337,7 @@
      "value": "SubPlan::merge(&mut self.sub_plan, &새 SubPlan)",
      "note": "handler.rs:435~436 — 새 plan 으로 BigPlan::sub_plan 을 구해 기존 sub_plan 에 merge",
      "dir": "w",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     }
    ],
@@ -10447,7 +10448,7 @@
      "name": "info.position",
      "note": "수신자 자신의 포지션(Position i32). from 과 같으면 즉시 반환 = 자기 발화 무시 (chat.rs:9, PartialEq 인라인)",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -10456,7 +10457,7 @@
      "name": "cache",
      "note": "&dyn AbstractGameWithCache 팻포인터의 데이터 절반(%65 에서 다시 로드) — tick 조회용, 트레이스 경로에서만",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -10465,7 +10466,7 @@
      "name": "context",
      "note": "&GameContext(64B) — 튜토리얼/트레이스레벨 게이트의 원천이자 chat_allowed 의 1번 인자",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -10474,7 +10475,7 @@
      "name": "tutorial",
      "note": "TutorialType(i8). rule_scope::position_exists 가 인라인돼 from 별 switch 로 접혔다 (chat.rs:12)",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -10483,7 +10484,7 @@
      "name": "trace_level",
      "note": "TraceLevel(i8). TraceLevel::is_enabled 인라인 = (trace_level != Off) (trace.rs:14~15 → chat.rs:18)",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -10492,7 +10493,7 @@
      "name": "game(vtable 절반)",
      "note": "cache.game 은 &dyn AbstractGame 팻포인터 — +0x0=데이터, +0x8=vtable",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -10501,7 +10502,7 @@
      "name": "tick",
      "note": "divtable.py 확인: 슬롯 0x28 = ExpectedGame::AbstractGame::tick. 간접 호출로 i64 tick 을 얻어 PendingTraceEvent.tick 에 넣는다",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "확인불가(vtable 슬롯)",
      "ev": 4
     },
     {
@@ -10510,7 +10511,7 @@
      "name": "plan",
      "note": "BigPlan(384B). BigPlan::get_name 을 inner 호출 전(plan_before)·후(plan_after) 두 번 부른다",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -10519,7 +10520,7 @@
      "name": "team_plan.objective",
      "note": "Option<MainObjective>(3B). Debug 포맷을 inner 호출 전·후 두 번(objective_before/after)",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -10528,7 +10529,7 @@
      "name": "pending_trace_events.cap",
      "note": "Vec 의 RawVec.cap. len 과 같으면 grow_one",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -10537,7 +10538,7 @@
      "name": "pending_trace_events.ptr",
      "note": "Vec 버퍼 시작 주소. 원소 stride 184B",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -10546,7 +10547,7 @@
      "name": "pending_trace_events.len",
      "note": "push 위치이자 push 후 +1 되는 대상",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -10556,7 +10557,7 @@
      "value": "len + 1",
      "note": "트레이스 경로에서만. 게임 판정에는 영향 없는 관측용 버퍼",
      "dir": "w",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -10566,7 +10567,7 @@
      "value": "PendingTraceEvent(184B)",
      "note": "스택에 조립한 184B 를 memcpy. 원소 = { event: TraceEventType(176B), tick: usize(+0xb0) }",
      "dir": "w",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -10576,7 +10577,7 @@
      "value": "-9223372036854775793",
      "note": "dienum 확인: TraceEventType::CallHandled",
      "dir": "w",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -10586,7 +10587,7 @@
      "value": "format!(\"{:?}\", chat)",
      "note": "chat.rs:29 대입 / 포맷 생성은 :31",
      "dir": "w",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -10596,7 +10597,7 @@
      "value": "self.plan.get_name() (inner 호출 전)",
      "note": "chat.rs:22 생성 → :33 대입",
      "dir": "w",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -10606,7 +10607,7 @@
      "value": "self.plan.get_name() (inner 호출 후)",
      "note": "chat.rs:25 생성 → :34 대입",
      "dir": "w",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -10616,7 +10617,7 @@
      "value": "format!(\"{:?}\", self.team_plan.objective) (전)",
      "note": "chat.rs:23 생성 → :35 대입",
      "dir": "w",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -10626,7 +10627,7 @@
      "value": "format!(\"{:?}\", self.team_plan.objective) (후)",
      "note": "chat.rs:26 생성 → :36 대입",
      "dir": "w",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -10636,7 +10637,7 @@
      "value": "from (Position i32)",
      "note": "",
      "dir": "w",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -10646,7 +10647,7 @@
      "value": "misunderstood(bool → i8)",
      "note": "",
      "dir": "w",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -10656,7 +10657,7 @@
      "value": "cache.game.tick() (vtable +0x28)",
      "note": "",
      "dir": "w",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -10666,7 +10667,7 @@
      "value": "RawVec::grow_one 결과",
      "note": "트레이스 ON 첫 push 에서 재할당. logic 에는 적혀 있었으나 writes 표에 빠져 있었다. 실측 diff 0x858..0x859 (2차배치C)",
      "dir": "w",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -10676,7 +10677,7 @@
      "value": "새 힙 주소",
      "note": "동상. 실측 diff 0x860..0x866 (2차배치C)",
      "dir": "w",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     }
    ],
@@ -11800,7 +11801,7 @@
      "name": "top_tower[team]",
      "note": "[Option<&Entity>;2] — line=Top 일 때 1순위 타워",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -11809,7 +11810,7 @@
      "name": "top_tower2[team]",
      "note": "top_tower 가 None 이면 폴백(Option::or, option.rs:1622)",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -11818,7 +11819,7 @@
      "name": "mid_tower[team]",
      "note": "line=Mid 1순위",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -11827,7 +11828,7 @@
      "name": "mid_tower2[team]",
      "note": "line=Mid 폴백",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -11836,7 +11837,7 @@
      "name": "bottom_tower[team]",
      "note": "line=Bottom 1순위",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -11845,7 +11846,7 @@
      "name": "bottom_tower2[team]",
      "note": "line=Bottom 폴백",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -11854,7 +11855,7 @@
      "name": "player_champion[team][position]",
      "note": "[[Option<&Entity>;5];2] 80B. unwrap — None 이면 unwrap_failed 패닉(cover.rs:145:95)",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -11863,7 +11864,7 @@
      "name": "ty (EntityType 판별자)",
      "note": "타워 엔티티. ==2 → EntityType::Tower. is_tower2()의 1단계(entity.rs:1308)",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -11872,7 +11873,7 @@
      "name": "ty payload = &Tower (변수명 info)",
      "note": "EntityType::Tower 페이로드. Top(L149)/Bottom(L179) 분기에서만 꺼냄. 태그!=2 면 unreachable!()(L160/L190)",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -11881,7 +11882,7 @@
      "name": "Tower.nearest_enemy 판별자",
      "note": "Tower+0x18, Option<(usize,usize)> 의 태그. !=0 이면 is_some(option.rs:632)",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -11890,7 +11891,7 @@
      "name": "Tower.ty (TowerType)",
      "note": "Tower+0xb8, i8 range[0,8). >4 → Top2/Mid2/Bottom2 = is_second_tower(tower.rs:99~100)",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -11899,7 +11900,7 @@
      "name": "x",
      "note": "player_champion 으로 얻은 아군 챔피언 좌표 x. Mid 분기에서만 사용",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -11908,7 +11909,7 @@
      "name": "y",
      "note": "같은 챔피언 좌표 y. Mid 분기에서만 사용",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -11917,7 +11918,7 @@
      "name": "setting (&GameSetting)",
      "note": "is_top_side(map_regions.rs:21)가 받는 context 에서 꺼냄",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -11926,7 +11927,7 @@
      "name": "height",
      "note": "u64. map_regions.rs:22 의 ry = height - y",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     }
    ],
@@ -12645,7 +12646,7 @@
      "name": "chats(Vec<Chat>) cap",
      "note": "push 시 cap==len 비교용. gep 없이 ptr %0 직접 load 라 본문에 리터럴 0 은 안 보임",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -12654,7 +12655,7 @@
      "name": "chats.len",
      "note": "push 경로에서 읽고 +1 로 되씀",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -12663,7 +12664,7 @@
      "name": "line: LineType(0=Top,1=Mid,2=Bottom)",
      "note": "target_bush_v30 인라인의 switch 키 + has_near_line_enemy 2번째 인자. ganker.rs:54",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -12672,7 +12673,7 @@
      "name": "info.team: usize",
      "note": "player_champion[team] 인덱스(bounds check len=2) 겸 좌우 미러링 판정(team==0?) 키",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -12681,7 +12682,7 @@
      "name": "info.position: Position(i32, range 0..5)",
      "note": "Position::as_index(entity.rs:580) 인라인 → player_champion[team][pos] 인덱스",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -12690,7 +12691,7 @@
      "name": "cache: &AbstractGameWithCache(8840B)",
      "note": "gep 없이 %4 직접 load",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -12699,7 +12700,7 @@
      "name": "context: &GameContext(64B)",
      "note": "",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -12708,7 +12709,7 @@
      "name": "player_champion[2][5]: Option<&Entity>",
      "note": "IR 리터럴 480. +team*40 +pos*8. unwrap 실패 시 panic(ganker.rs:43)",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -12717,7 +12718,7 @@
      "name": "top_tower[2]: Option<&Entity>",
      "note": "IR 리터럴 384. 실제 인덱싱은 384 + line*32 → line0=top_tower/line1=mid_tower(0x1a0)/line2=bottom_tower(0x1c0). line*32 는 shl 5 로 접힘",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -12726,7 +12727,7 @@
      "name": "top_tower2[2]: Option<&Entity>",
      "note": "IR 리터럴 400. 400 + line*32 → mid_tower2(0x1b0)/bottom_tower2(0x1d0). tower.or(tower2) 의 두번째 항",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -12735,7 +12736,7 @@
      "name": "stat_cached.hp: usize",
      "note": "champ 의 최대 HP(분모). 0 이면 div_by_zero panic",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -12744,7 +12745,7 @@
      "name": "hp: usize",
      "note": "champ 의 현재 HP(분자)",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -12753,7 +12754,7 @@
      "name": "x: u64",
      "note": "champ 좌표. is_top_side 인자 + bushes 열 인덱스(/32000)",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -12762,7 +12763,7 @@
      "name": "y: u64",
      "note": "champ 좌표. is_top_side 인자 + bushes 행 인덱스(/32000)",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -12771,7 +12772,7 @@
      "name": "ty: EntityType 판별자(i64, range 0..14)",
      "note": "tower 쪽 Entity. ==2 → EntityType::Tower. EntityType::is_tower2(entity.rs:1308) 의 앞단",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -12780,7 +12781,7 @@
      "name": "ty 페이로드 = Tower(192B) 시작",
      "note": "dbg_value 로만 등장(DW_OP_plus_uconst 112). 아래 두 오프셋의 기준",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -12789,7 +12790,7 @@
      "name": "ty.Tower.nearest_enemy 태그(Option<(usize,usize)>, range 0..2)",
      "note": "Tower+0x18. 0=None. Top/Bottom 라인에서만 검사",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -12798,7 +12799,7 @@
      "name": "ty.Tower.ty: TowerType(i8, range 0..8)",
      "note": "Tower+0xb8. TowerType::is_second_tower(tower.rs:99) = tag>4 (5=Top2,6=Mid2,7=Bottom2)",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -12807,7 +12808,7 @@
      "name": "setting: &GameSetting(5432B)",
      "note": "is_top_side 안에서만 씀",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -12816,7 +12817,7 @@
      "name": "map: &MapDef(28112B)",
      "note": "IR 리터럴 32. bushes 조회 + has_near_line_enemy 3번째 인자",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -12825,7 +12826,7 @@
      "name": "height: u64",
      "note": "map_regions::is_top_side 의 ry = height - y",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -12834,7 +12835,7 @@
      "name": "bushes: [30][30] usize (7200B)",
      "note": "champ_bush = bushes[clamp(y/32000,0,29)][clamp(x/32000,0,29)]",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -12844,7 +12845,7 @@
      "value": "Chat::Cancel(CancelReason::LowHpSelf) (ganker.rs:48) 또는 Chat::Cancel(CancelReason::TargetMissing) (ganker.rs:58)",
      "note": "Chat 원소 24B, 원소+0 에 태그 17(=Cancel), 원소+1 에 사유 바이트(0=LowHpSelf / 2=TargetMissing). 용량 부족 시 RawVec::grow_one 선행",
      "dir": "w",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -12854,7 +12855,7 @@
      "value": "len + 1",
      "note": "push 의 길이 갱신",
      "dir": "w",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -12864,18 +12865,28 @@
      "value": "8 = LineGankerPhase::Cancel",
      "note": "★두 취소 경로가 합류한 블록 %182 에서 한 번만 store. 니치 밀림 있는 열거형(6=WaitResponse,7=Setup,8=Cancel,그외=ChangeJungle)",
      "dir": "w",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
      "base": "LineGankerPlan",
-     "offset": "0x18/0x20",
-     "name": "setup_limit / wait_limit",
+     "offset": "0x18",
+     "name": "setup_limit",
      "value": "(변경 없음)",
-     "note": "이 함수는 두 리밋을 읽지도 쓰지도 않는다 — 참고용",
-     "dir": "w",
-     "chk": "조회실패",
-     "ev": 4
+     "dir": "-",
+     "note": "이 함수는 이 리밋을 **읽지도 쓰지도 않는다** — 참고용 행이다(`dir: \"-\"`). ⚠한 행에 오프셋을 묶어 적으면 tcxaudit 기계 검사가 무력화되므로 라인별로 쪼갰다(3차 배치C 지적, BRIEF §5).",
+     "chk": "OK",
+     "ev": 3
+    },
+    {
+     "base": "LineGankerPlan",
+     "offset": "0x20",
+     "name": "wait_limit",
+     "value": "(변경 없음)",
+     "dir": "-",
+     "note": "이 함수는 이 리밋을 **읽지도 쓰지도 않는다** — 참고용 행이다(`dir: \"-\"`). ⚠한 행에 오프셋을 묶어 적으면 tcxaudit 기계 검사가 무력화되므로 라인별로 쪼갰다(3차 배치C 지적, BRIEF §5).",
+     "chk": "OK",
+     "ev": 3
     }
    ],
    "consts": [
@@ -13542,7 +13553,7 @@
      "name": "cache",
      "note": "&AbstractGameWithCache. 여기서 게임 핸들을 얻는다",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -13551,7 +13562,7 @@
      "name": "game.data_ptr",
      "note": "&dyn AbstractGame 팻포인터의 데이터 포인터",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -13560,7 +13571,7 @@
      "name": "game.vtable",
      "note": "&dyn AbstractGame 팻포인터의 vtable 포인터",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -13569,7 +13580,7 @@
      "name": "get_entity_by_id",
      "note": "divtable.py AbstractGame 0x1f0 → ExpectedGame::AbstractGame::get_entity_by_id 로 확인. 이 함수에서 2번 간접호출(242행·244행)",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "확인불가(vtable 슬롯(구조체 아님) — divtable.py 소관)",
      "ev": 4
     },
     {
@@ -13578,7 +13589,7 @@
      "name": "info.team",
      "note": "1 - team 으로 적팀 번호를 만들어 iter_towers_without_nexus 에 넘김",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -13587,7 +13598,7 @@
      "name": "team_plan",
      "note": "`single_tower_dive_is_viable`(245행)·`SinglePlanBattle::update`(255행)에 **`&TeamPlan`(공유)** 로 전달 — ~~&mut 로 전달 · 피호출자가 변경할 수 있음~~ 은 거짓(2026-09-11 검증배치 D, tcx sig)",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 3
     },
     {
@@ -13596,7 +13607,7 @@
      "name": "positioning_score",
      "note": "PositioningScoreData(2760B). update 에 읽기전용으로 전달",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -13605,7 +13616,7 @@
      "name": "ty",
      "note": "EntityType 판별자(range 0..14). ==2(Tower) 인지만 본다 — 250행",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -13614,7 +13625,7 @@
      "name": "ty.Tower.0",
      "note": "ty 판별자(+0x68)+0xc0 = Tower variant 페이로드 i8 = TowerType. dive_tower 로 들어감",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -13623,7 +13634,7 @@
      "name": "x",
      "note": "distance_sq 용 — 후보 타워와 target 양쪽에서 읽음",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -13632,7 +13643,7 @@
      "name": "y",
      "note": "distance_sq 용",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -13641,7 +13652,7 @@
      "name": "sub_goal",
      "note": "update 후 판별자(range 0..8)를 switch — 채택 여부 판정의 유일한 근거",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -13651,7 +13662,7 @@
      "value": "Option<TowerType> — target 에 가장 가까운 적 타워의 TowerType, 없으면 None(0xff)",
      "note": "249~250행. 스택 로컬(%14)에만 쓰고 그 뒤 battle(%15)로 memcpy 되어 반환값에 실림",
      "dir": "w",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -13661,7 +13672,7 @@
      "value": "0 = TryKill",
      "note": "new/new_dive 에 넘길 main_goal 인자를 스택에 조립",
      "dir": "w",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -13671,7 +13682,7 @@
      "value": "target_id",
      "note": "",
      "dir": "w",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -13681,7 +13692,7 @@
      "value": "60",
      "note": "의미 미확정 — unknown 참조",
      "dir": "w",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -13691,7 +13702,7 @@
      "value": "-1",
      "note": "대상없음(244행)·다이브불가(245행)·미채택(257행) 세 경로 전부 여기로",
      "dir": "w",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -13701,7 +13712,7 @@
      "value": "battle 144바이트 통째 memcpy",
      "note": "257행 committed==true 경로",
      "dir": "w",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     }
    ],
@@ -14372,7 +14383,7 @@
     },
     {
      "q": "iter_towers_without_nexus 가 반환하는 6칸 Option 배열이 정확히 어떤 타워 슬롯인지 — AbstractGameWithCache 의 top_tower/top_tower2/mid_tower/... 필드들로 보이나 game_core 쪽 본문을 안 봐서 순서·구성 미확정",
-     "why": "1차 배치D: 6칸 순서 + twin_towers 꼬리 확정, 2차 오라클 팀당 10개"
+     "why": "1차 배치D: 6칸 순서 + twin_towers 꼬리 확정. ★3차 배치D 재측정 = **팀당 8개(6칸+twin 2), 좌표중복 0** — ~~2차 오라클 팀당 10개~~ 는 init_tower 재호출 오염값이었다(포인터 동일성으로 확정)"
     },
     {
      "q": "engage_requires_dive / single_tower_dive_is_viable 내부 판정식은 안 봄(담당 범위 밖). 이 함수는 bool 만 소비",
@@ -14532,7 +14543,7 @@
      "name": "ty (판별자, i64, range[0,14))",
      "note": "EntityType 태그. 평타 분기에서 14-way switch, 스킬/스킬2/궁 분기에서는 ==13(Champion) 비교로만 쓰임",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -14541,7 +14552,7 @@
      "name": "ty.Champion.attack_cooldown / ty.SmallJiangshi.info.attack_cooldown",
      "note": "EntityType+0x48. switch case 13, 8 이 이 오프셋으로 합쳐짐(같은 오프셋이라 LLVM 이 블록 병합)",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -14550,7 +14561,7 @@
      "name": "ty.Champion.skill_cooldown / ty.Minion.info.attack_cooldown",
      "note": "EntityType+0x50. 평타 분기 case 1(Minion) 과 스킬 분기(Champion) 가 같은 바이트를 서로 다른 의미로 읽는다",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -14559,7 +14570,7 @@
      "name": "ty.Champion.skill2_cooldown",
      "note": "EntityType+0x58. 스킬2 분기에서만",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -14568,7 +14579,7 @@
      "name": "ty.Champion.ult_cooldown / ty.Bear.info.attack_cooldown",
      "note": "EntityType+0x60",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -14577,7 +14588,7 @@
      "name": "ty.Illusion.info.attack_cooldown",
      "note": "switch case 12",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -14586,7 +14597,7 @@
      "name": "ty.Revenant.info.attack_cooldown",
      "note": "switch case 11",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -14595,7 +14606,7 @@
      "name": "ty.Jungle.info.attack_cooldown / ty.Ghoul.info.attack_cooldown",
      "note": "switch case 4,7 — 두 info 구조체에서 우연히 같은 오프셋(0x78)이라 병합",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -14604,7 +14615,7 @@
      "name": "ty.Eagle.info.attack_cooldown",
      "note": "switch case 10",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -14613,7 +14624,7 @@
      "name": "ty.Tower.info.attack_cooldown",
      "note": "switch case 2",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -14622,7 +14633,7 @@
      "name": "ty.Epic.info.attack_cooldown / ty.Serpen.info.attack_cooldown",
      "note": "switch case 5,6 (둘 다 info+0x180). Epic/Serpen info 는 472B 라 EntityType 480B 와 맞아떨어진다(크기 교차검증)",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -14631,7 +14642,7 @@
      "name": "stat_buff_cached.range",
      "note": "BuffState+0xc8. 4개 이펙트 모두의 사거리에 평평하게 더해진다",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -14640,7 +14651,7 @@
      "name": "stat_buff_cached.radius_mult (i32)",
      "note": "BuffState+0x100. champ 와 target 양쪽에서 각각 읽는다",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -14649,7 +14660,7 @@
      "name": "attack_effect: Option<Effect>(56B)",
      "note": "Effect 본체 시작 주소",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -14658,7 +14669,7 @@
      "name": "attack_effect.range",
      "note": "Effect+0x10",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -14667,7 +14678,7 @@
      "name": "attack_effect.growth_range",
      "note": "Effect+0x18",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -14676,7 +14687,7 @@
      "name": "attack_effect.target: CastingTarget(4B)",
      "note": "Effect+0x28. CastingTarget::check 의 &self",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -14685,7 +14696,7 @@
      "name": "attack_effect.casting: CastingType(i32, range[-1,4))",
      "note": "Effect+0x30. Option<Effect> 의 니치 판별자를 겸한다 — -1 이면 None",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -14694,7 +14705,7 @@
      "name": "skill_effect: Option<Effect>",
      "note": "",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -14703,7 +14714,7 @@
      "name": "skill_effect.range",
      "note": "Effect+0x10",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -14712,7 +14723,7 @@
      "name": "skill_effect.growth_range",
      "note": "Effect+0x18",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -14721,7 +14732,7 @@
      "name": "skill_effect.target",
      "note": "Effect+0x28",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -14730,7 +14741,7 @@
      "name": "skill_effect.casting (니치)",
      "note": "Effect+0x30, -1=None",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -14739,7 +14750,7 @@
      "name": "skill2_effect: Option<Effect>",
      "note": "level>2 일 때만 이 포인터를 쓰고, 아니면 정적 None(@anon...40)을 쓴다",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -14748,7 +14759,7 @@
      "name": "ult_effect: Option<Effect>",
      "note": "level>4 일 때만. 아니면 정적 None",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -14757,7 +14768,7 @@
      "name": "level",
      "note": "(level-1) 이 growth_range 계수, 그리고 level>2 / level>4 스킬2·궁 개방 게이트",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -14766,7 +14777,7 @@
      "name": "radius",
      "note": "champ 와 target 양쪽. radius_mult 로 스케일된 뒤 사거리에 더해진다",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -14775,7 +14786,7 @@
      "name": "range",
      "note": "skill2/ult 경로는 %90/%157 포인터 기준 +16 으로 읽는다(같은 필드)",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -14784,7 +14795,7 @@
      "name": "growth_range",
      "note": "skill2/ult 경로 +24",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -14793,7 +14804,7 @@
      "name": "target: CastingTarget",
      "note": "skill2/ult 경로 +40",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -14802,7 +14813,7 @@
      "name": "casting: CastingType (Option 니치)",
      "note": "skill2/ult 경로 +48, -1=None",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     }
    ],
@@ -15327,7 +15338,7 @@
      "name": "tag",
      "note": "!range !20208 = [0,4) → 0=TryKill 1=Support 2=Response 3=Avoid (DISCR_EXACT 확인: tag==variant index)",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -15336,7 +15347,7 @@
      "name": "__0 (target)",
      "note": "usize. DILocalVariable name=\"target\" (death_battle.rs:749). tag==0 일 때만 로드",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -15345,7 +15356,7 @@
      "name": "cache",
      "note": "&AbstractGameWithCache",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -15354,7 +15365,7 @@
      "name": "game.data_ptr",
      "note": "game: &dyn AbstractGame 팻포인터의 데이터 절반",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -15363,7 +15374,7 @@
      "name": "game.vtable_ptr",
      "note": "팻포인터의 vtable 절반",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -15372,7 +15383,7 @@
      "name": "tick",
      "note": "divtable.py AbstractGame 0x28 → ExpectedGame::AbstractGame::tick. 반환 i64 = 현재 틱",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "확인불가(vtable 슬롯)",
      "ev": 4
     },
     {
@@ -15382,7 +15393,7 @@
      "value": "0 (None)",
      "note": "Option<usize>, i64 판별자 0=None",
      "dir": "w",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -15392,7 +15403,7 @@
      "value": "0 (None)",
      "note": "Option<BattleRegion>",
      "dir": "w",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -15402,7 +15413,7 @@
      "value": "0 (None)",
      "note": "Option<usize>",
      "dir": "w",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -15412,7 +15423,7 @@
      "value": "0 (None)",
      "note": "Option<usize>",
      "dir": "w",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -15422,7 +15433,7 @@
      "value": "0 (None)",
      "note": "Option<(usize,usize,usize)>",
      "dir": "w",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -15432,7 +15443,7 @@
      "value": "0 (None)",
      "note": "Option<(usize,usize,usize)>",
      "dir": "w",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -15442,7 +15453,7 @@
      "value": "0 (None)",
      "note": "Option<(usize,usize)>",
      "dir": "w",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -15452,7 +15463,7 @@
      "value": "0 (None)",
      "note": "Option<(i64,i64)>",
      "dir": "w",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -15462,7 +15473,7 @@
      "value": "0 (None)",
      "note": "Option<usize>",
      "dir": "w",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -15472,7 +15483,7 @@
      "value": "p2 goal 그대로(24B memcpy)",
      "note": "BattlePlanGoal. 인자를 통째로 이동. !dbg death_battle.rs:753",
      "dir": "w",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -15482,7 +15493,7 @@
      "value": "BattlePlanGoal::base_sub_goal(goal, version, player, data).0",
      "note": "BattleSubPlanGoal(16B). 반환 {i64,i64} 의 extractvalue 0",
      "dir": "w",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -15492,7 +15503,7 @@
      "value": "base_sub_goal(...).1",
      "note": "같은 필드의 뒤쪽 8B (extractvalue 1)",
      "dir": "w",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -15502,7 +15513,7 @@
      "value": "지역 Vec<Chat> (24B memcpy)",
      "note": "TryKill 이면 원소 1개(Chat::Battle(target,0)), 아니면 빈 Vec(ptr=dangling 8, len=0, cap=0). !dbg 755",
      "dir": "w",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -15512,7 +15523,7 @@
      "value": "data.cache.game.tick()",
      "note": "vtable+0x28 간접호출 결과. !dbg death_battle.rs:754",
      "dir": "w",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -15522,7 +15533,7 @@
      "value": "9223372036854775807 (i64::MAX)",
      "note": "**`i64::MAX`** 센티널 = '아직 도주사망 판정 없음' (저장값 9223372036854775807 = 0x7FFF...FF. ~~usize::MAX~~ 는 오기 — 같은 명세의 logic 블록은 i64::MAX 로 맞게 적혀 두 곳이 모순이었다. 2026-09-11 검증배치 D)",
      "dir": "w",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -15532,7 +15543,7 @@
      "value": "0",
      "note": "memset(0x120, 0, 80) 로 일괄 0 — 아래 0x168 까지 같은 memset",
      "dir": "w",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -15542,7 +15553,7 @@
      "value": "0",
      "note": "memset 범위",
      "dir": "w",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -15552,7 +15563,7 @@
      "value": "0",
      "note": "memset 범위",
      "dir": "w",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -15562,7 +15573,7 @@
      "value": "0",
      "note": "memset 범위",
      "dir": "w",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -15572,7 +15583,7 @@
      "value": "0",
      "note": "memset 범위",
      "dir": "w",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -15582,7 +15593,7 @@
      "value": "0",
      "note": "memset 범위",
      "dir": "w",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -15592,7 +15603,7 @@
      "value": "0",
      "note": "memset 범위",
      "dir": "w",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -15602,7 +15613,7 @@
      "value": "(0, 0)",
      "note": "tuple<u64,u64>, memset 범위",
      "dir": "w",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -15612,7 +15623,7 @@
      "value": "0",
      "note": "memset 범위 끝(0x120+80=0x170)",
      "dir": "w",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -15622,7 +15633,7 @@
      "value": "false",
      "note": "bool",
      "dir": "w",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -15632,7 +15643,7 @@
      "value": "false",
      "note": "bool",
      "dir": "w",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -15642,7 +15653,7 @@
      "value": "false",
      "note": "bool",
      "dir": "w",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -15652,7 +15663,7 @@
      "value": "false",
      "note": "bool",
      "dir": "w",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -15662,7 +15673,7 @@
      "value": "false",
      "note": "bool",
      "dir": "w",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -15672,7 +15683,7 @@
      "value": "false",
      "note": "bool",
      "dir": "w",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -15682,7 +15693,7 @@
      "value": "0 = DeathStance::Commit",
      "note": "dienum DeathStance: 0=Commit 1=Reposition 2=HoldForSpawn (C 라이크 enum이라 태그=인덱스)",
      "dir": "w",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -15692,7 +15703,7 @@
      "value": "0 = BattleTactic::Standard",
      "note": "dienum BattleTactic: 0=Standard 1=Frontline 2=BacklineDPS 3=SkillBurst 4=Peel 5=AllIn 6=Disengage",
      "dir": "w",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -15702,7 +15713,7 @@
      "value": "0 = DmScene::Stand",
      "note": "dienum DmScene: 0=Stand 1=Engage 2=Withdraw 3=Hold 4=Reposition 5=LastStand 6=Fallback",
      "dir": "w",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -15712,7 +15723,7 @@
      "value": "0 = DmScene::Stand",
      "note": "직전 장면도 Stand 로 시작",
      "dir": "w",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -15722,7 +15733,7 @@
      "value": "-1 (0xff) = None",
      "note": "Option<TowerType> 1B 니치 — 0xff 가 None",
      "dir": "w",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -15732,7 +15743,7 @@
      "value": "-1 (0xff) = None",
      "note": "**`Option<MainObjective>`(3B) 단일 Option** — ~~Option<Option<MainObjective>>~~ 은 **타입 오류**(2026-09-11 검증배치 D, tcx 정본). 이중으로 읽으면 **니치가 한 겹 어긋나 재구현이 실제로 틀린다**. 태그 바이트(+0x17b)만 0xff 로 쓰고 0x17c/0x17d 는 안 씀",
      "dir": "w",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 3
     },
     {
@@ -15742,7 +15753,7 @@
      "value": "0",
      "note": "i8",
      "dir": "w",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     }
    ],
@@ -16194,7 +16205,7 @@
      "name": "info.team",
      "note": "usize. v3_epicops_repair_need 의 1번 인자이자 cache.player_champion[team] 의 팀 인덱스. 사용 직전 team<2 경계검사(panic_bounds_check)를 받는다",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -16203,7 +16214,7 @@
      "name": "info.position",
      "note": "Position(i32, range 0..5). Position::as_index() 로 usize 화해서 announcer 와 비교 — '내가 발표자인가' 판정",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -16212,7 +16223,7 @@
      "name": "cache",
      "note": "&AbstractGameWithCache. gep 없이 바로 load 된다",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -16221,7 +16232,7 @@
      "name": "game(데이터 포인터)",
      "note": "ref$<dyn AbstractGame> 의 첫 워드. PlayerState::strategy 의 3번 인자로 전달",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -16230,7 +16241,7 @@
      "name": "game(vtable 포인터)",
      "note": "dyn 의 둘째 워드. IR 이 dereferenceable(816) 로 표시하는데 divtable.py 가 보고한 AbstractGame vtable 총 크기 816B(슬롯 100개)와 정확히 일치해 vtable 로 확정",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -16239,7 +16250,7 @@
      "name": "player_champion",
      "note": "array 총 80B = [5 x ptr] x 2팀. player_champion[team][x] 를 x=0..4 로 훑으며 null(=None) 여부를 본다",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -16248,7 +16259,7 @@
      "name": "morgard_use",
      "note": "MorgardUseStrategy(8B enum). i64 로 통째 읽어 v3_epic_group_line·v3_epic_formation_role 의 1번 인자로 넘긴다",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -16257,7 +16268,7 @@
      "name": "chats.cap",
      "note": "Vec<Chat> 의 용량. len==cap 이면 RawVec::grow_one",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -16266,7 +16277,7 @@
      "name": "chats.ptr",
      "note": "Vec<Chat> 데이터 포인터. 원소 stride 24B({i8,[23 x i8]})",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -16275,7 +16286,7 @@
      "name": "chats.len",
      "note": "Vec<Chat> 길이. 읽고 +1 해서 되쓴다",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -16284,7 +16295,7 @@
      "name": "eo_serpen_punish_issues",
      "note": "usize. 세르펜 징벌 경로에서 읽어 +1",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -16293,7 +16304,7 @@
      "name": "v3_press_chat_line",
      "note": "Option<LineType>(1B, None=0xFF). ① group_line 과 같으면 즉시 종료 ② None 이면 Chat::Press, Some 이면 Chat::PressChange 선택",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -16303,7 +16314,7 @@
      "value": "Some(MainObjective::Repair) — 태그 바이트 7",
      "note": "repair_need 가 1 또는 2 일 때. dienum MainObjective 7 = Repair(페이로드 없음)이라 태그 1바이트만 쓴다",
      "dir": "w",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -16313,7 +16324,7 @@
      "value": "Some(MainObjective::Serpen{phase, with_battle}) — +0x41f=1, +0x420=1, +0x421=1",
      "note": "dienum MainObjective 1 = Serpen, 페이로드 enum+0x1 phase(ObjectPhase), enum+0x2 with_battle(bool). 저장값 1/1 = phase=Setup, with_battle=true",
      "dir": "w",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -16323,7 +16334,7 @@
      "value": "기존값 + 1",
      "note": "세르펜 징벌 경로 카운터",
      "dir": "w",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -16333,7 +16344,7 @@
      "value": "Chat::Repair(0) | Chat::SerpenSetup(0) | Chat::Press(group_line, 0) | Chat::PressChange(group_line, 0)",
      "note": "원소 24B. 태그 @+0, Press/PressChange 는 LineType @+1, 공통 usize 필드 @+8 에 항상 0 을 넣는다",
      "dir": "w",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -16343,7 +16354,7 @@
      "value": "group_line (Some(LineType) 또는 -1=None 은 오지 않음)",
      "note": "압박 경로 마지막에 무조건 갱신 — 채팅을 실제로 뿌렸든(내가 발표자) 안 뿌렸든 갱신한다",
      "dir": "w",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     }
    ],
@@ -17463,7 +17474,7 @@
      "name": "cache",
      "note": "&AbstractGameWithCache. 818/823줄에서 사용",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -17472,7 +17483,7 @@
      "name": "context",
      "note": "&GameContext. 815줄(bump 할당자)·833줄(map)에서 사용",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -17481,7 +17492,7 @@
      "name": "pool",
      "note": "&bumpalo::Bump — not_cleared_camps Vec 의 할당자로 from_iter_in 에 전달",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -17490,7 +17501,7 @@
      "name": "map",
      "note": "&MapDef(28112B) — camp_pos 호출 대상",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -17499,7 +17510,7 @@
      "name": "game.data_ptr",
      "note": "ref$<dyn AbstractGame> 의 데이터 포인터",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -17508,7 +17519,7 @@
      "name": "game.vtable",
      "note": "ref$<dyn AbstractGame> 의 vtable 포인터",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -17517,7 +17528,7 @@
      "name": "get_game_mode",
      "note": "divtable.py AbstractGame 0x40 으로 확정. 반환 {i64 tag, ptr}, tag==0 이면 Some(&MobaMode) — 아니면 option::unwrap_failed",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "확인불가(vtable 슬롯(구조체 아님) — divtable.py 소관)",
      "ev": 4
     },
     {
@@ -17526,7 +17537,7 @@
      "name": "jungle_runner",
      "note": "DWARF !4879 offset:192bit=24B, size:3840bit=480B → JungleRunner. get_camp_state 의 self",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 3
     },
     {
@@ -17535,7 +17546,7 @@
      "name": "next_respawn_tick",
      "note": "★폴백 경로의 정렬 키. get_camp_state() 결과의 +24",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -17544,7 +17555,7 @@
      "name": "player_champion",
      "note": "[[Option<&Entity>;5];2] (80B). [team][position] 로 인덱싱 — stride 40(=[5 x ptr]), 요소 8",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -17553,7 +17564,7 @@
      "name": "info.team",
      "note": "0/1. ①player_champion 1차 인덱스(≥2면 panic_bounds_check) ②get_camp_state 인자 ③camp_pos 의 is_blue(team==0)",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -17562,7 +17573,7 @@
      "name": "info.position",
      "note": "Position(i32, range 0..5). player_champion 2차 인덱스",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -17571,7 +17582,7 @@
      "name": "x",
      "note": "내 챔프 x — 캠프까지 제곱거리 계산",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -17580,7 +17591,7 @@
      "name": "y",
      "note": "내 챔프 y",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -17589,7 +17600,7 @@
      "name": "ptr",
      "note": "not_cleared_camps 데이터 포인터(IntoIter 시작)",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     },
     {
@@ -17598,7 +17609,7 @@
      "name": "len",
      "note": "not_cleared_camps 길이. ==0 이면 폴백 경로(817줄)",
      "dir": "r",
-     "chk": "조회실패",
+     "chk": "OK",
      "ev": 4
     }
    ],
