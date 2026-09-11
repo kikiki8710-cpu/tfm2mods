@@ -1,0 +1,661 @@
+r11	tut=None	pos=Top	ver=0	ok=true	ndiff=0	mf_swap=(0,0)	fallbacks=0	plan_changed=false	diff=
+r11	tut=None	pos=Top	ver=1	ok=true	ndiff=0	mf_swap=(0,0)	fallbacks=0	plan_changed=false	diff=
+r11	tut=None	pos=Top	ver=2	ok=true	ndiff=25	mf_swap=(29,0)	fallbacks=1	plan_changed=false	diff=0x5f8..0x5fb,0x600..0x606,0x708..0x70e,0x710..0x713,0x718..0x71d,0x720..0x725,0x728..0x72e,0x730..0x735,0x738..0x73d,0x740..0x745,0x748..0x74b,0x750..0x755,0x758..0x75e,0x760..0x766,0x768..0x769,0x770..0x776,0x778..0x77e,0x780..0x781,0x788..0x78c,0x790..0x795,0x798..0x79e,0x7a0..0x7a2,0x7a8..0x7aa,0x1610..0x1611,0x1628..0x1629
+r11	tut=None	pos=Top	ver=3	ok=true	ndiff=17	mf_swap=(29,0)	fallbacks=1	plan_changed=false	diff=0x5f8..0x5fb,0x600..0x606,0x708..0x70e,0x710..0x713,0x718..0x71d,0x720..0x725,0x728..0x72e,0x730..0x731,0x738..0x739,0x740..0x746,0x748..0x74b,0x750..0x755,0x758..0x75e,0x760..0x766,0x768..0x769,0x1610..0x1611,0x1628..0x1629
+r11	tut=None	pos=Top	ver=5	ok=true	ndiff=17	mf_swap=(29,0)	fallbacks=1	plan_changed=false	diff=0x5f8..0x5fb,0x600..0x606,0x708..0x70e,0x710..0x713,0x718..0x71d,0x720..0x725,0x728..0x72e,0x730..0x731,0x738..0x739,0x740..0x746,0x748..0x74b,0x750..0x755,0x758..0x75e,0x760..0x766,0x768..0x769,0x1610..0x1611,0x1628..0x1629
+r11	tut=None	pos=Jungle	ver=0	ok=true	ndiff=0	mf_swap=(0,0)	fallbacks=0	plan_changed=false	diff=
+r11	tut=None	pos=Jungle	ver=1	ok=true	ndiff=0	mf_swap=(0,0)	fallbacks=0	plan_changed=false	diff=
+r11	tut=None	pos=Jungle	ver=2	ok=true	ndiff=50	mf_swap=(29,0)	fallbacks=1	plan_changed=true	diff=0x618..0x61e,0x622..0x626,0x628..0x629,0x630..0x636,0x638..0x639,0x640..0x641,0x652..0x656,0x658..0x659,0x65a..0x65d,0x660..0x665,0x668..0x669,0x670..0x675,0x678..0x67b,0x680..0x686,0x688..0x68c,0x690..0x696,0x698..0x69e,0x6a8..0x6ae,0x6b8..0x6be,0x6c0..0x6c6,0x6c8..0x6ce,0x6d0..0x6d1,0x6d2..0x6d6,0x6d8..0x6dd,0x6e0..0x6e5,0x6e8..0x6ee,0x6f0..0x6f3,0x6f8..0x706,0x708..0x70e,0x710..0x716,0x718..0x71a,0x720..0x725,0x728..0x72e,0x730..0x731,0x738..0x739,0x740..0x746,0x748..0x74b,0x750..0x755,0x758..0x75e,0x760..0x766,0x768..0x769,0x772..0x773,0x778..0x77e,0x780..0x781,0x788..0x791,0x798..0x79e,0x7a2..0x7a6,0x7a8..0x7a9,0x1610..0x1611,0x1628..0x1629
+r11	tut=None	pos=Jungle	ver=3	ok=true	ndiff=44	mf_swap=(29,0)	fallbacks=1	plan_changed=true	diff=0x618..0x61e,0x622..0x626,0x628..0x629,0x630..0x636,0x638..0x639,0x640..0x641,0x650..0x651,0x652..0x656,0x658..0x659,0x65a..0x65d,0x660..0x665,0x668..0x669,0x670..0x675,0x678..0x67b,0x680..0x686,0x688..0x68e,0x690..0x695,0x698..0x69e,0x6a8..0x6ae,0x6b8..0x6be,0x6c0..0x6c6,0x6c8..0x6ce,0x6d0..0x6d1,0x6d2..0x6d6,0x6d8..0x6dd,0x6e0..0x6e5,0x6e8..0x6ee,0x6f0..0x6f3,0x6f8..0x706,0x708..0x70e,0x710..0x716,0x718..0x71a,0x720..0x725,0x728..0x72e,0x730..0x731,0x738..0x739,0x740..0x746,0x748..0x74b,0x750..0x755,0x758..0x75e,0x760..0x766,0x768..0x769,0x1610..0x1611,0x1628..0x1629
+r11	tut=None	pos=Jungle	ver=5	ok=true	ndiff=44	mf_swap=(29,0)	fallbacks=1	plan_changed=true	diff=0x618..0x61e,0x622..0x626,0x628..0x629,0x630..0x636,0x638..0x639,0x640..0x641,0x650..0x651,0x652..0x656,0x658..0x659,0x65a..0x65d,0x660..0x665,0x668..0x669,0x670..0x675,0x678..0x67b,0x680..0x686,0x688..0x68e,0x690..0x695,0x698..0x69e,0x6a8..0x6ae,0x6b8..0x6be,0x6c0..0x6c6,0x6c8..0x6ce,0x6d0..0x6d1,0x6d2..0x6d6,0x6d8..0x6dd,0x6e0..0x6e5,0x6e8..0x6ee,0x6f0..0x6f3,0x6f8..0x706,0x708..0x70e,0x710..0x716,0x718..0x71a,0x720..0x725,0x728..0x72e,0x730..0x731,0x738..0x739,0x740..0x746,0x748..0x74b,0x750..0x755,0x758..0x75e,0x760..0x766,0x768..0x769,0x1610..0x1611,0x1628..0x1629
+r11	tut=None	pos=Mid	ver=0	ok=true	ndiff=0	mf_swap=(0,0)	fallbacks=0	plan_changed=false	diff=
+r11	tut=None	pos=Mid	ver=1	ok=true	ndiff=0	mf_swap=(0,0)	fallbacks=0	plan_changed=false	diff=
+r11	tut=None	pos=Mid	ver=2	ok=true	ndiff=24	mf_swap=(29,0)	fallbacks=1	plan_changed=false	diff=0x5f8..0x5fb,0x600..0x606,0x708..0x70e,0x710..0x713,0x718..0x71d,0x720..0x725,0x728..0x72e,0x730..0x731,0x738..0x739,0x740..0x746,0x748..0x74b,0x750..0x755,0x758..0x75e,0x760..0x766,0x768..0x769,0x771..0x773,0x778..0x77e,0x780..0x781,0x788..0x791,0x798..0x79e,0x7a2..0x7a6,0x7a8..0x7a9,0x1610..0x1611,0x1628..0x1629
+r11	tut=None	pos=Mid	ver=3	ok=true	ndiff=17	mf_swap=(29,0)	fallbacks=1	plan_changed=false	diff=0x5f8..0x5fb,0x600..0x606,0x708..0x70e,0x710..0x713,0x718..0x71d,0x720..0x725,0x728..0x72e,0x730..0x731,0x738..0x739,0x740..0x746,0x748..0x74b,0x750..0x755,0x758..0x75e,0x760..0x766,0x768..0x769,0x1610..0x1611,0x1628..0x1629
+r11	tut=None	pos=Mid	ver=5	ok=true	ndiff=17	mf_swap=(29,0)	fallbacks=1	plan_changed=false	diff=0x5f8..0x5fb,0x600..0x606,0x708..0x70e,0x710..0x713,0x718..0x71d,0x720..0x725,0x728..0x72e,0x730..0x731,0x738..0x739,0x740..0x746,0x748..0x74b,0x750..0x755,0x758..0x75e,0x760..0x766,0x768..0x769,0x1610..0x1611,0x1628..0x1629
+r11	tut=None	pos=Bottom	ver=0	ok=true	ndiff=0	mf_swap=(0,0)	fallbacks=0	plan_changed=false	diff=
+r11	tut=None	pos=Bottom	ver=1	ok=true	ndiff=0	mf_swap=(0,0)	fallbacks=0	plan_changed=false	diff=
+r11	tut=None	pos=Bottom	ver=2	ok=true	ndiff=18	mf_swap=(29,0)	fallbacks=1	plan_changed=false	diff=0x5f8..0x5fb,0x600..0x606,0x708..0x70e,0x710..0x713,0x718..0x71d,0x720..0x725,0x728..0x72e,0x730..0x731,0x738..0x739,0x740..0x746,0x748..0x74b,0x750..0x755,0x758..0x75e,0x760..0x766,0x768..0x769,0x771..0x772,0x1610..0x1611,0x1628..0x1629
+r11	tut=None	pos=Bottom	ver=3	ok=true	ndiff=17	mf_swap=(29,0)	fallbacks=1	plan_changed=false	diff=0x5f8..0x5fb,0x600..0x606,0x708..0x70e,0x710..0x713,0x718..0x71d,0x720..0x725,0x728..0x72e,0x730..0x731,0x738..0x739,0x740..0x746,0x748..0x74b,0x750..0x755,0x758..0x75e,0x760..0x766,0x768..0x769,0x1610..0x1611,0x1628..0x1629
+r11	tut=None	pos=Bottom	ver=5	ok=true	ndiff=17	mf_swap=(29,0)	fallbacks=1	plan_changed=false	diff=0x5f8..0x5fb,0x600..0x606,0x708..0x70e,0x710..0x713,0x718..0x71d,0x720..0x725,0x728..0x72e,0x730..0x731,0x738..0x739,0x740..0x746,0x748..0x74b,0x750..0x755,0x758..0x75e,0x760..0x766,0x768..0x769,0x1610..0x1611,0x1628..0x1629
+r11	tut=None	pos=Support	ver=0	ok=true	ndiff=0	mf_swap=(0,0)	fallbacks=0	plan_changed=false	diff=
+r11	tut=None	pos=Support	ver=1	ok=true	ndiff=0	mf_swap=(0,0)	fallbacks=0	plan_changed=false	diff=
+r11	tut=None	pos=Support	ver=2	ok=true	ndiff=19	mf_swap=(29,0)	fallbacks=1	plan_changed=true	diff=0x5f8..0x5fb,0x600..0x606,0x706..0x707,0x708..0x70e,0x710..0x713,0x718..0x71d,0x720..0x725,0x728..0x72e,0x730..0x731,0x738..0x739,0x740..0x746,0x748..0x74b,0x750..0x755,0x758..0x75e,0x760..0x766,0x768..0x769,0x771..0x772,0x1610..0x1611,0x1628..0x1629
+r11	tut=None	pos=Support	ver=3	ok=true	ndiff=18	mf_swap=(29,0)	fallbacks=1	plan_changed=true	diff=0x5f8..0x5fb,0x600..0x606,0x706..0x707,0x708..0x70e,0x710..0x713,0x718..0x71d,0x720..0x725,0x728..0x72e,0x730..0x731,0x738..0x739,0x740..0x746,0x748..0x74b,0x750..0x755,0x758..0x75e,0x760..0x766,0x768..0x769,0x1610..0x1611,0x1628..0x1629
+r11	tut=None	pos=Support	ver=5	ok=true	ndiff=18	mf_swap=(29,0)	fallbacks=1	plan_changed=true	diff=0x5f8..0x5fb,0x600..0x606,0x706..0x707,0x708..0x70e,0x710..0x713,0x718..0x71d,0x720..0x725,0x728..0x72e,0x730..0x731,0x738..0x739,0x740..0x746,0x748..0x74b,0x750..0x755,0x758..0x75e,0x760..0x766,0x768..0x769,0x1610..0x1611,0x1628..0x1629
+r12	tut=None	recv=Top	from=Top	chat=BattleHelp	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=None	recv=Top	from=Top	chat=GankRequest	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=None	recv=Top	from=Top	chat=Start	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=None	recv=Top	from=Jungle	chat=BattleHelp	ok=true	ndiff=2	ff_recv=1	trace_len=0
+r12	tut=None	recv=Top	from=Jungle	chat=GankRequest	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=None	recv=Top	from=Jungle	chat=Start	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=None	recv=Top	from=Mid	chat=BattleHelp	ok=true	ndiff=2	ff_recv=1	trace_len=0
+r12	tut=None	recv=Top	from=Mid	chat=GankRequest	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=None	recv=Top	from=Mid	chat=Start	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=None	recv=Top	from=Bottom	chat=BattleHelp	ok=true	ndiff=2	ff_recv=1	trace_len=0
+r12	tut=None	recv=Top	from=Bottom	chat=GankRequest	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=None	recv=Top	from=Bottom	chat=Start	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=None	recv=Top	from=Support	chat=BattleHelp	ok=true	ndiff=2	ff_recv=1	trace_len=0
+r12	tut=None	recv=Top	from=Support	chat=GankRequest	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=None	recv=Top	from=Support	chat=Start	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=None	recv=Jungle	from=Top	chat=BattleHelp	ok=true	ndiff=2	ff_recv=1	trace_len=0
+r12	tut=None	recv=Jungle	from=Top	chat=GankRequest	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=None	recv=Jungle	from=Top	chat=Start	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=None	recv=Jungle	from=Jungle	chat=BattleHelp	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=None	recv=Jungle	from=Jungle	chat=GankRequest	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=None	recv=Jungle	from=Jungle	chat=Start	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=None	recv=Jungle	from=Mid	chat=BattleHelp	ok=true	ndiff=2	ff_recv=1	trace_len=0
+r12	tut=None	recv=Jungle	from=Mid	chat=GankRequest	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=None	recv=Jungle	from=Mid	chat=Start	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=None	recv=Jungle	from=Bottom	chat=BattleHelp	ok=true	ndiff=2	ff_recv=1	trace_len=0
+r12	tut=None	recv=Jungle	from=Bottom	chat=GankRequest	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=None	recv=Jungle	from=Bottom	chat=Start	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=None	recv=Jungle	from=Support	chat=BattleHelp	ok=true	ndiff=2	ff_recv=1	trace_len=0
+r12	tut=None	recv=Jungle	from=Support	chat=GankRequest	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=None	recv=Jungle	from=Support	chat=Start	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=None	recv=Mid	from=Top	chat=BattleHelp	ok=true	ndiff=2	ff_recv=1	trace_len=0
+r12	tut=None	recv=Mid	from=Top	chat=GankRequest	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=None	recv=Mid	from=Top	chat=Start	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=None	recv=Mid	from=Jungle	chat=BattleHelp	ok=true	ndiff=2	ff_recv=1	trace_len=0
+r12	tut=None	recv=Mid	from=Jungle	chat=GankRequest	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=None	recv=Mid	from=Jungle	chat=Start	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=None	recv=Mid	from=Mid	chat=BattleHelp	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=None	recv=Mid	from=Mid	chat=GankRequest	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=None	recv=Mid	from=Mid	chat=Start	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=None	recv=Mid	from=Bottom	chat=BattleHelp	ok=true	ndiff=2	ff_recv=1	trace_len=0
+r12	tut=None	recv=Mid	from=Bottom	chat=GankRequest	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=None	recv=Mid	from=Bottom	chat=Start	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=None	recv=Mid	from=Support	chat=BattleHelp	ok=true	ndiff=2	ff_recv=1	trace_len=0
+r12	tut=None	recv=Mid	from=Support	chat=GankRequest	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=None	recv=Mid	from=Support	chat=Start	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r11	tut=First	pos=Top	ver=0	ok=true	ndiff=0	mf_swap=(0,0)	fallbacks=0	plan_changed=false	diff=
+r11	tut=First	pos=Top	ver=1	ok=true	ndiff=0	mf_swap=(0,0)	fallbacks=0	plan_changed=false	diff=
+r11	tut=First	pos=Top	ver=2	ok=true	ndiff=0	mf_swap=(0,0)	fallbacks=0	plan_changed=false	diff=
+r11	tut=First	pos=Top	ver=3	ok=true	ndiff=0	mf_swap=(0,0)	fallbacks=0	plan_changed=false	diff=
+r11	tut=First	pos=Top	ver=5	ok=true	ndiff=0	mf_swap=(0,0)	fallbacks=0	plan_changed=false	diff=
+r11	tut=First	pos=Jungle	ver=0	ok=true	ndiff=0	mf_swap=(0,0)	fallbacks=0	plan_changed=false	diff=
+r11	tut=First	pos=Jungle	ver=1	ok=true	ndiff=0	mf_swap=(0,0)	fallbacks=0	plan_changed=false	diff=
+r11	tut=First	pos=Jungle	ver=2	ok=true	ndiff=0	mf_swap=(0,0)	fallbacks=0	plan_changed=false	diff=
+r11	tut=First	pos=Jungle	ver=3	ok=true	ndiff=0	mf_swap=(0,0)	fallbacks=0	plan_changed=false	diff=
+r11	tut=First	pos=Jungle	ver=5	ok=true	ndiff=0	mf_swap=(0,0)	fallbacks=0	plan_changed=false	diff=
+r11	tut=First	pos=Mid	ver=0	ok=true	ndiff=0	mf_swap=(0,0)	fallbacks=0	plan_changed=false	diff=
+r11	tut=First	pos=Mid	ver=1	ok=true	ndiff=0	mf_swap=(0,0)	fallbacks=0	plan_changed=false	diff=
+r11	tut=First	pos=Mid	ver=2	ok=true	ndiff=0	mf_swap=(0,0)	fallbacks=0	plan_changed=false	diff=
+r11	tut=First	pos=Mid	ver=3	ok=true	ndiff=0	mf_swap=(0,0)	fallbacks=0	plan_changed=false	diff=
+r11	tut=First	pos=Mid	ver=5	ok=true	ndiff=0	mf_swap=(0,0)	fallbacks=0	plan_changed=false	diff=
+r11	tut=First	pos=Bottom	ver=0	ok=true	ndiff=0	mf_swap=(0,0)	fallbacks=0	plan_changed=false	diff=
+r11	tut=First	pos=Bottom	ver=1	ok=true	ndiff=0	mf_swap=(0,0)	fallbacks=0	plan_changed=false	diff=
+r11	tut=First	pos=Bottom	ver=2	ok=true	ndiff=18	mf_swap=(29,0)	fallbacks=1	plan_changed=false	diff=0x5f8..0x5fb,0x600..0x606,0x708..0x70e,0x710..0x713,0x718..0x71d,0x720..0x725,0x728..0x72e,0x730..0x731,0x738..0x739,0x740..0x746,0x748..0x74b,0x750..0x755,0x758..0x75e,0x760..0x766,0x768..0x769,0x770..0x773,0x1610..0x1611,0x1628..0x1629
+r11	tut=First	pos=Bottom	ver=3	ok=true	ndiff=17	mf_swap=(29,0)	fallbacks=1	plan_changed=false	diff=0x5f8..0x5fb,0x600..0x606,0x708..0x70e,0x710..0x713,0x718..0x71d,0x720..0x725,0x728..0x72e,0x730..0x731,0x738..0x739,0x740..0x746,0x748..0x74b,0x750..0x755,0x758..0x75e,0x760..0x766,0x768..0x769,0x1610..0x1611,0x1628..0x1629
+r11	tut=First	pos=Bottom	ver=5	ok=true	ndiff=17	mf_swap=(29,0)	fallbacks=1	plan_changed=false	diff=0x5f8..0x5fb,0x600..0x606,0x708..0x70e,0x710..0x713,0x718..0x71d,0x720..0x725,0x728..0x72e,0x730..0x731,0x738..0x739,0x740..0x746,0x748..0x74b,0x750..0x755,0x758..0x75e,0x760..0x766,0x768..0x769,0x1610..0x1611,0x1628..0x1629
+r11	tut=First	pos=Support	ver=0	ok=true	ndiff=0	mf_swap=(0,0)	fallbacks=0	plan_changed=false	diff=
+r11	tut=First	pos=Support	ver=1	ok=true	ndiff=0	mf_swap=(0,0)	fallbacks=0	plan_changed=false	diff=
+r11	tut=First	pos=Support	ver=2	ok=true	ndiff=17	mf_swap=(29,0)	fallbacks=1	plan_changed=false	diff=0x5f8..0x5fb,0x600..0x606,0x708..0x70e,0x710..0x713,0x718..0x71d,0x720..0x725,0x728..0x72e,0x730..0x731,0x738..0x739,0x740..0x746,0x748..0x74b,0x750..0x755,0x758..0x75e,0x760..0x766,0x768..0x769,0x1610..0x1611,0x1628..0x1629
+r11	tut=First	pos=Support	ver=3	ok=true	ndiff=17	mf_swap=(29,0)	fallbacks=1	plan_changed=false	diff=0x5f8..0x5fb,0x600..0x606,0x708..0x70e,0x710..0x713,0x718..0x71d,0x720..0x725,0x728..0x72e,0x730..0x731,0x738..0x739,0x740..0x746,0x748..0x74b,0x750..0x755,0x758..0x75e,0x760..0x766,0x768..0x769,0x1610..0x1611,0x1628..0x1629
+r11	tut=First	pos=Support	ver=5	ok=true	ndiff=17	mf_swap=(29,0)	fallbacks=1	plan_changed=false	diff=0x5f8..0x5fb,0x600..0x606,0x708..0x70e,0x710..0x713,0x718..0x71d,0x720..0x725,0x728..0x72e,0x730..0x731,0x738..0x739,0x740..0x746,0x748..0x74b,0x750..0x755,0x758..0x75e,0x760..0x766,0x768..0x769,0x1610..0x1611,0x1628..0x1629
+r12	tut=First	recv=Top	from=Top	chat=BattleHelp	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=First	recv=Top	from=Top	chat=GankRequest	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=First	recv=Top	from=Top	chat=Start	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=First	recv=Top	from=Jungle	chat=BattleHelp	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=First	recv=Top	from=Jungle	chat=GankRequest	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=First	recv=Top	from=Jungle	chat=Start	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=First	recv=Top	from=Mid	chat=BattleHelp	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=First	recv=Top	from=Mid	chat=GankRequest	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=First	recv=Top	from=Mid	chat=Start	ok=true	ndiff=0	ff_recv=0	trace_len=0
+
+thread 'main' (476) panicked at game-ai\src\utils.rs:574:33:
+called `Option::unwrap()` on a `None` value
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+r12	tut=First	recv=Top	from=Bottom	chat=BattleHelp	ok=false	ndiff=1	ff_recv=1	trace_len=0
+r12	tut=First	recv=Top	from=Bottom	chat=GankRequest	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=First	recv=Top	from=Bottom	chat=Start	ok=true	ndiff=0	ff_recv=0	trace_len=0
+
+thread 'main' (476) panicked at game-ai\src\utils.rs:574:33:
+called `Option::unwrap()` on a `None` value
+r12	tut=First	recv=Top	from=Support	chat=BattleHelp	ok=false	ndiff=1	ff_recv=1	trace_len=0
+r12	tut=First	recv=Top	from=Support	chat=GankRequest	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=First	recv=Top	from=Support	chat=Start	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=First	recv=Jungle	from=Top	chat=BattleHelp	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=First	recv=Jungle	from=Top	chat=GankRequest	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=First	recv=Jungle	from=Top	chat=Start	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=First	recv=Jungle	from=Jungle	chat=BattleHelp	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=First	recv=Jungle	from=Jungle	chat=GankRequest	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=First	recv=Jungle	from=Jungle	chat=Start	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=First	recv=Jungle	from=Mid	chat=BattleHelp	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=First	recv=Jungle	from=Mid	chat=GankRequest	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=First	recv=Jungle	from=Mid	chat=Start	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=First	recv=Jungle	from=Bottom	chat=BattleHelp	ok=true	ndiff=2	ff_recv=1	trace_len=0
+r12	tut=First	recv=Jungle	from=Bottom	chat=GankRequest	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=First	recv=Jungle	from=Bottom	chat=Start	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=First	recv=Jungle	from=Support	chat=BattleHelp	ok=true	ndiff=2	ff_recv=1	trace_len=0
+r12	tut=First	recv=Jungle	from=Support	chat=GankRequest	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=First	recv=Jungle	from=Support	chat=Start	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=First	recv=Mid	from=Top	chat=BattleHelp	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=First	recv=Mid	from=Top	chat=GankRequest	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=First	recv=Mid	from=Top	chat=Start	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=First	recv=Mid	from=Jungle	chat=BattleHelp	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=First	recv=Mid	from=Jungle	chat=GankRequest	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=First	recv=Mid	from=Jungle	chat=Start	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=First	recv=Mid	from=Mid	chat=BattleHelp	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=First	recv=Mid	from=Mid	chat=GankRequest	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=First	recv=Mid	from=Mid	chat=Start	ok=true	ndiff=0	ff_recv=0	trace_len=0
+
+thread 'main' (476) panicked at game-ai\src\utils.rs:574:33:
+called `Option::unwrap()` on a `None` value
+r12	tut=First	recv=Mid	from=Bottom	chat=BattleHelp	ok=false	ndiff=1	ff_recv=1	trace_len=0
+r12	tut=First	recv=Mid	from=Bottom	chat=GankRequest	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=First	recv=Mid	from=Bottom	chat=Start	ok=true	ndiff=0	ff_recv=0	trace_len=0
+
+thread 'main' (476) panicked at game-ai\src\utils.rs:574:33:
+called `Option::unwrap()` on a `None` value
+r12	tut=First	recv=Mid	from=Support	chat=BattleHelp	ok=false	ndiff=1	ff_recv=1	trace_len=0
+r12	tut=First	recv=Mid	from=Support	chat=GankRequest	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=First	recv=Mid	from=Support	chat=Start	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r11	tut=TopSolo	pos=Top	ver=0	ok=true	ndiff=0	mf_swap=(0,0)	fallbacks=0	plan_changed=false	diff=
+r11	tut=TopSolo	pos=Top	ver=1	ok=true	ndiff=0	mf_swap=(0,0)	fallbacks=0	plan_changed=false	diff=
+r11	tut=TopSolo	pos=Top	ver=2	ok=true	ndiff=19	mf_swap=(29,0)	fallbacks=1	plan_changed=false	diff=0x5f8..0x5fb,0x600..0x606,0x708..0x70e,0x710..0x713,0x718..0x71d,0x720..0x725,0x728..0x72e,0x730..0x735,0x738..0x73d,0x740..0x745,0x748..0x74b,0x750..0x755,0x758..0x75e,0x760..0x766,0x768..0x769,0x770..0x771,0x772..0x773,0x1610..0x1611,0x1628..0x1629
+r11	tut=TopSolo	pos=Top	ver=3	ok=true	ndiff=17	mf_swap=(29,0)	fallbacks=1	plan_changed=false	diff=0x5f8..0x5fb,0x600..0x606,0x708..0x70e,0x710..0x713,0x718..0x71d,0x720..0x725,0x728..0x72e,0x730..0x731,0x738..0x739,0x740..0x746,0x748..0x74b,0x750..0x755,0x758..0x75e,0x760..0x766,0x768..0x769,0x1610..0x1611,0x1628..0x1629
+r11	tut=TopSolo	pos=Top	ver=5	ok=true	ndiff=17	mf_swap=(29,0)	fallbacks=1	plan_changed=false	diff=0x5f8..0x5fb,0x600..0x606,0x708..0x70e,0x710..0x713,0x718..0x71d,0x720..0x725,0x728..0x72e,0x730..0x731,0x738..0x739,0x740..0x746,0x748..0x74b,0x750..0x755,0x758..0x75e,0x760..0x766,0x768..0x769,0x1610..0x1611,0x1628..0x1629
+r11	tut=TopSolo	pos=Jungle	ver=0	ok=true	ndiff=0	mf_swap=(0,0)	fallbacks=0	plan_changed=false	diff=
+r11	tut=TopSolo	pos=Jungle	ver=1	ok=true	ndiff=0	mf_swap=(0,0)	fallbacks=0	plan_changed=false	diff=
+r11	tut=TopSolo	pos=Jungle	ver=2	ok=true	ndiff=0	mf_swap=(0,0)	fallbacks=0	plan_changed=false	diff=
+r11	tut=TopSolo	pos=Jungle	ver=3	ok=true	ndiff=0	mf_swap=(0,0)	fallbacks=0	plan_changed=false	diff=
+r11	tut=TopSolo	pos=Jungle	ver=5	ok=true	ndiff=0	mf_swap=(0,0)	fallbacks=0	plan_changed=false	diff=
+r11	tut=TopSolo	pos=Mid	ver=0	ok=true	ndiff=0	mf_swap=(0,0)	fallbacks=0	plan_changed=false	diff=
+r11	tut=TopSolo	pos=Mid	ver=1	ok=true	ndiff=0	mf_swap=(0,0)	fallbacks=0	plan_changed=false	diff=
+r11	tut=TopSolo	pos=Mid	ver=2	ok=true	ndiff=0	mf_swap=(0,0)	fallbacks=0	plan_changed=false	diff=
+r11	tut=TopSolo	pos=Mid	ver=3	ok=true	ndiff=0	mf_swap=(0,0)	fallbacks=0	plan_changed=false	diff=
+r11	tut=TopSolo	pos=Mid	ver=5	ok=true	ndiff=0	mf_swap=(0,0)	fallbacks=0	plan_changed=false	diff=
+r11	tut=TopSolo	pos=Bottom	ver=0	ok=true	ndiff=0	mf_swap=(0,0)	fallbacks=0	plan_changed=false	diff=
+r11	tut=TopSolo	pos=Bottom	ver=1	ok=true	ndiff=0	mf_swap=(0,0)	fallbacks=0	plan_changed=false	diff=
+r11	tut=TopSolo	pos=Bottom	ver=2	ok=true	ndiff=0	mf_swap=(0,0)	fallbacks=0	plan_changed=false	diff=
+r11	tut=TopSolo	pos=Bottom	ver=3	ok=true	ndiff=0	mf_swap=(0,0)	fallbacks=0	plan_changed=false	diff=
+r11	tut=TopSolo	pos=Bottom	ver=5	ok=true	ndiff=0	mf_swap=(0,0)	fallbacks=0	plan_changed=false	diff=
+r11	tut=TopSolo	pos=Support	ver=0	ok=true	ndiff=0	mf_swap=(0,0)	fallbacks=0	plan_changed=false	diff=
+r11	tut=TopSolo	pos=Support	ver=1	ok=true	ndiff=0	mf_swap=(0,0)	fallbacks=0	plan_changed=false	diff=
+r11	tut=TopSolo	pos=Support	ver=2	ok=true	ndiff=0	mf_swap=(0,0)	fallbacks=0	plan_changed=false	diff=
+r11	tut=TopSolo	pos=Support	ver=3	ok=true	ndiff=0	mf_swap=(0,0)	fallbacks=0	plan_changed=false	diff=
+r11	tut=TopSolo	pos=Support	ver=5	ok=true	ndiff=0	mf_swap=(0,0)	fallbacks=0	plan_changed=false	diff=
+r12	tut=TopSolo	recv=Top	from=Top	chat=BattleHelp	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=TopSolo	recv=Top	from=Top	chat=GankRequest	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=TopSolo	recv=Top	from=Top	chat=Start	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=TopSolo	recv=Top	from=Jungle	chat=BattleHelp	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=TopSolo	recv=Top	from=Jungle	chat=GankRequest	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=TopSolo	recv=Top	from=Jungle	chat=Start	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=TopSolo	recv=Top	from=Mid	chat=BattleHelp	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=TopSolo	recv=Top	from=Mid	chat=GankRequest	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=TopSolo	recv=Top	from=Mid	chat=Start	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=TopSolo	recv=Top	from=Bottom	chat=BattleHelp	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=TopSolo	recv=Top	from=Bottom	chat=GankRequest	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=TopSolo	recv=Top	from=Bottom	chat=Start	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=TopSolo	recv=Top	from=Support	chat=BattleHelp	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=TopSolo	recv=Top	from=Support	chat=GankRequest	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=TopSolo	recv=Top	from=Support	chat=Start	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=TopSolo	recv=Jungle	from=Top	chat=BattleHelp	ok=true	ndiff=2	ff_recv=1	trace_len=0
+r12	tut=TopSolo	recv=Jungle	from=Top	chat=GankRequest	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=TopSolo	recv=Jungle	from=Top	chat=Start	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=TopSolo	recv=Jungle	from=Jungle	chat=BattleHelp	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=TopSolo	recv=Jungle	from=Jungle	chat=GankRequest	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=TopSolo	recv=Jungle	from=Jungle	chat=Start	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=TopSolo	recv=Jungle	from=Mid	chat=BattleHelp	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=TopSolo	recv=Jungle	from=Mid	chat=GankRequest	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=TopSolo	recv=Jungle	from=Mid	chat=Start	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=TopSolo	recv=Jungle	from=Bottom	chat=BattleHelp	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=TopSolo	recv=Jungle	from=Bottom	chat=GankRequest	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=TopSolo	recv=Jungle	from=Bottom	chat=Start	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=TopSolo	recv=Jungle	from=Support	chat=BattleHelp	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=TopSolo	recv=Jungle	from=Support	chat=GankRequest	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=TopSolo	recv=Jungle	from=Support	chat=Start	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=TopSolo	recv=Mid	from=Top	chat=BattleHelp	ok=true	ndiff=2	ff_recv=1	trace_len=0
+r12	tut=TopSolo	recv=Mid	from=Top	chat=GankRequest	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=TopSolo	recv=Mid	from=Top	chat=Start	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=TopSolo	recv=Mid	from=Jungle	chat=BattleHelp	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=TopSolo	recv=Mid	from=Jungle	chat=GankRequest	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=TopSolo	recv=Mid	from=Jungle	chat=Start	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=TopSolo	recv=Mid	from=Mid	chat=BattleHelp	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=TopSolo	recv=Mid	from=Mid	chat=GankRequest	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=TopSolo	recv=Mid	from=Mid	chat=Start	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=TopSolo	recv=Mid	from=Bottom	chat=BattleHelp	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=TopSolo	recv=Mid	from=Bottom	chat=GankRequest	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=TopSolo	recv=Mid	from=Bottom	chat=Start	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=TopSolo	recv=Mid	from=Support	chat=BattleHelp	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=TopSolo	recv=Mid	from=Support	chat=GankRequest	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=TopSolo	recv=Mid	from=Support	chat=Start	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r11	tut=Bottom	pos=Top	ver=0	ok=true	ndiff=0	mf_swap=(0,0)	fallbacks=0	plan_changed=false	diff=
+r11	tut=Bottom	pos=Top	ver=1	ok=true	ndiff=0	mf_swap=(0,0)	fallbacks=0	plan_changed=false	diff=
+r11	tut=Bottom	pos=Top	ver=2	ok=true	ndiff=0	mf_swap=(0,0)	fallbacks=0	plan_changed=false	diff=
+r11	tut=Bottom	pos=Top	ver=3	ok=true	ndiff=0	mf_swap=(0,0)	fallbacks=0	plan_changed=false	diff=
+r11	tut=Bottom	pos=Top	ver=5	ok=true	ndiff=0	mf_swap=(0,0)	fallbacks=0	plan_changed=false	diff=
+r11	tut=Bottom	pos=Jungle	ver=0	ok=true	ndiff=0	mf_swap=(0,0)	fallbacks=0	plan_changed=false	diff=
+r11	tut=Bottom	pos=Jungle	ver=1	ok=true	ndiff=0	mf_swap=(0,0)	fallbacks=0	plan_changed=false	diff=
+r11	tut=Bottom	pos=Jungle	ver=2	ok=true	ndiff=0	mf_swap=(0,0)	fallbacks=0	plan_changed=false	diff=
+r11	tut=Bottom	pos=Jungle	ver=3	ok=true	ndiff=0	mf_swap=(0,0)	fallbacks=0	plan_changed=false	diff=
+r11	tut=Bottom	pos=Jungle	ver=5	ok=true	ndiff=0	mf_swap=(0,0)	fallbacks=0	plan_changed=false	diff=
+r11	tut=Bottom	pos=Mid	ver=0	ok=true	ndiff=0	mf_swap=(0,0)	fallbacks=0	plan_changed=false	diff=
+r11	tut=Bottom	pos=Mid	ver=1	ok=true	ndiff=0	mf_swap=(0,0)	fallbacks=0	plan_changed=false	diff=
+r11	tut=Bottom	pos=Mid	ver=2	ok=true	ndiff=0	mf_swap=(0,0)	fallbacks=0	plan_changed=false	diff=
+r11	tut=Bottom	pos=Mid	ver=3	ok=true	ndiff=0	mf_swap=(0,0)	fallbacks=0	plan_changed=false	diff=
+r11	tut=Bottom	pos=Mid	ver=5	ok=true	ndiff=0	mf_swap=(0,0)	fallbacks=0	plan_changed=false	diff=
+r11	tut=Bottom	pos=Bottom	ver=0	ok=true	ndiff=0	mf_swap=(0,0)	fallbacks=0	plan_changed=false	diff=
+r11	tut=Bottom	pos=Bottom	ver=1	ok=true	ndiff=0	mf_swap=(0,0)	fallbacks=0	plan_changed=false	diff=
+r11	tut=Bottom	pos=Bottom	ver=2	ok=true	ndiff=19	mf_swap=(29,0)	fallbacks=1	plan_changed=false	diff=0x5f8..0x5fb,0x600..0x606,0x708..0x70e,0x710..0x713,0x718..0x71d,0x720..0x725,0x728..0x72e,0x730..0x731,0x738..0x739,0x740..0x746,0x748..0x74b,0x750..0x755,0x758..0x75e,0x760..0x766,0x768..0x769,0x770..0x771,0x772..0x773,0x1610..0x1611,0x1628..0x1629
+r11	tut=Bottom	pos=Bottom	ver=3	ok=true	ndiff=17	mf_swap=(29,0)	fallbacks=1	plan_changed=false	diff=0x5f8..0x5fb,0x600..0x606,0x708..0x70e,0x710..0x713,0x718..0x71d,0x720..0x725,0x728..0x72e,0x730..0x731,0x738..0x739,0x740..0x746,0x748..0x74b,0x750..0x755,0x758..0x75e,0x760..0x766,0x768..0x769,0x1610..0x1611,0x1628..0x1629
+r11	tut=Bottom	pos=Bottom	ver=5	ok=true	ndiff=17	mf_swap=(29,0)	fallbacks=1	plan_changed=false	diff=0x5f8..0x5fb,0x600..0x606,0x708..0x70e,0x710..0x713,0x718..0x71d,0x720..0x725,0x728..0x72e,0x730..0x731,0x738..0x739,0x740..0x746,0x748..0x74b,0x750..0x755,0x758..0x75e,0x760..0x766,0x768..0x769,0x1610..0x1611,0x1628..0x1629
+r11	tut=Bottom	pos=Support	ver=0	ok=true	ndiff=0	mf_swap=(0,0)	fallbacks=0	plan_changed=false	diff=
+r11	tut=Bottom	pos=Support	ver=1	ok=true	ndiff=0	mf_swap=(0,0)	fallbacks=0	plan_changed=false	diff=
+r11	tut=Bottom	pos=Support	ver=2	ok=true	ndiff=17	mf_swap=(29,0)	fallbacks=1	plan_changed=false	diff=0x5f8..0x5fb,0x600..0x606,0x708..0x70e,0x710..0x713,0x718..0x71d,0x720..0x725,0x728..0x72e,0x730..0x731,0x738..0x739,0x740..0x746,0x748..0x74b,0x750..0x755,0x758..0x75e,0x760..0x766,0x768..0x769,0x1610..0x1611,0x1628..0x1629
+r11	tut=Bottom	pos=Support	ver=3	ok=true	ndiff=17	mf_swap=(29,0)	fallbacks=1	plan_changed=false	diff=0x5f8..0x5fb,0x600..0x606,0x708..0x70e,0x710..0x713,0x718..0x71d,0x720..0x725,0x728..0x72e,0x730..0x731,0x738..0x739,0x740..0x746,0x748..0x74b,0x750..0x755,0x758..0x75e,0x760..0x766,0x768..0x769,0x1610..0x1611,0x1628..0x1629
+r11	tut=Bottom	pos=Support	ver=5	ok=true	ndiff=17	mf_swap=(29,0)	fallbacks=1	plan_changed=false	diff=0x5f8..0x5fb,0x600..0x606,0x708..0x70e,0x710..0x713,0x718..0x71d,0x720..0x725,0x728..0x72e,0x730..0x731,0x738..0x739,0x740..0x746,0x748..0x74b,0x750..0x755,0x758..0x75e,0x760..0x766,0x768..0x769,0x1610..0x1611,0x1628..0x1629
+r12	tut=Bottom	recv=Top	from=Top	chat=BattleHelp	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=Bottom	recv=Top	from=Top	chat=GankRequest	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=Bottom	recv=Top	from=Top	chat=Start	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=Bottom	recv=Top	from=Jungle	chat=BattleHelp	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=Bottom	recv=Top	from=Jungle	chat=GankRequest	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=Bottom	recv=Top	from=Jungle	chat=Start	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=Bottom	recv=Top	from=Mid	chat=BattleHelp	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=Bottom	recv=Top	from=Mid	chat=GankRequest	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=Bottom	recv=Top	from=Mid	chat=Start	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=Bottom	recv=Top	from=Bottom	chat=BattleHelp	ok=true	ndiff=2	ff_recv=1	trace_len=0
+r12	tut=Bottom	recv=Top	from=Bottom	chat=GankRequest	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=Bottom	recv=Top	from=Bottom	chat=Start	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=Bottom	recv=Top	from=Support	chat=BattleHelp	ok=true	ndiff=2	ff_recv=1	trace_len=0
+r12	tut=Bottom	recv=Top	from=Support	chat=GankRequest	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=Bottom	recv=Top	from=Support	chat=Start	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=Bottom	recv=Jungle	from=Top	chat=BattleHelp	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=Bottom	recv=Jungle	from=Top	chat=GankRequest	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=Bottom	recv=Jungle	from=Top	chat=Start	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=Bottom	recv=Jungle	from=Jungle	chat=BattleHelp	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=Bottom	recv=Jungle	from=Jungle	chat=GankRequest	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=Bottom	recv=Jungle	from=Jungle	chat=Start	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=Bottom	recv=Jungle	from=Mid	chat=BattleHelp	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=Bottom	recv=Jungle	from=Mid	chat=GankRequest	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=Bottom	recv=Jungle	from=Mid	chat=Start	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=Bottom	recv=Jungle	from=Bottom	chat=BattleHelp	ok=true	ndiff=2	ff_recv=1	trace_len=0
+r12	tut=Bottom	recv=Jungle	from=Bottom	chat=GankRequest	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=Bottom	recv=Jungle	from=Bottom	chat=Start	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=Bottom	recv=Jungle	from=Support	chat=BattleHelp	ok=true	ndiff=2	ff_recv=1	trace_len=0
+r12	tut=Bottom	recv=Jungle	from=Support	chat=GankRequest	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=Bottom	recv=Jungle	from=Support	chat=Start	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=Bottom	recv=Mid	from=Top	chat=BattleHelp	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=Bottom	recv=Mid	from=Top	chat=GankRequest	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=Bottom	recv=Mid	from=Top	chat=Start	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=Bottom	recv=Mid	from=Jungle	chat=BattleHelp	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=Bottom	recv=Mid	from=Jungle	chat=GankRequest	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=Bottom	recv=Mid	from=Jungle	chat=Start	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=Bottom	recv=Mid	from=Mid	chat=BattleHelp	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=Bottom	recv=Mid	from=Mid	chat=GankRequest	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=Bottom	recv=Mid	from=Mid	chat=Start	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=Bottom	recv=Mid	from=Bottom	chat=BattleHelp	ok=true	ndiff=2	ff_recv=1	trace_len=0
+r12	tut=Bottom	recv=Mid	from=Bottom	chat=GankRequest	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=Bottom	recv=Mid	from=Bottom	chat=Start	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=Bottom	recv=Mid	from=Support	chat=BattleHelp	ok=true	ndiff=2	ff_recv=1	trace_len=0
+r12	tut=Bottom	recv=Mid	from=Support	chat=GankRequest	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=Bottom	recv=Mid	from=Support	chat=Start	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r11	tut=MidSolo	pos=Top	ver=0	ok=true	ndiff=0	mf_swap=(0,0)	fallbacks=0	plan_changed=false	diff=
+r11	tut=MidSolo	pos=Top	ver=1	ok=true	ndiff=0	mf_swap=(0,0)	fallbacks=0	plan_changed=false	diff=
+r11	tut=MidSolo	pos=Top	ver=2	ok=true	ndiff=0	mf_swap=(0,0)	fallbacks=0	plan_changed=false	diff=
+r11	tut=MidSolo	pos=Top	ver=3	ok=true	ndiff=0	mf_swap=(0,0)	fallbacks=0	plan_changed=false	diff=
+r11	tut=MidSolo	pos=Top	ver=5	ok=true	ndiff=0	mf_swap=(0,0)	fallbacks=0	plan_changed=false	diff=
+r11	tut=MidSolo	pos=Jungle	ver=0	ok=true	ndiff=0	mf_swap=(0,0)	fallbacks=0	plan_changed=false	diff=
+r11	tut=MidSolo	pos=Jungle	ver=1	ok=true	ndiff=0	mf_swap=(0,0)	fallbacks=0	plan_changed=false	diff=
+r11	tut=MidSolo	pos=Jungle	ver=2	ok=true	ndiff=0	mf_swap=(0,0)	fallbacks=0	plan_changed=false	diff=
+r11	tut=MidSolo	pos=Jungle	ver=3	ok=true	ndiff=0	mf_swap=(0,0)	fallbacks=0	plan_changed=false	diff=
+r11	tut=MidSolo	pos=Jungle	ver=5	ok=true	ndiff=0	mf_swap=(0,0)	fallbacks=0	plan_changed=false	diff=
+r11	tut=MidSolo	pos=Mid	ver=0	ok=true	ndiff=0	mf_swap=(0,0)	fallbacks=0	plan_changed=false	diff=
+r11	tut=MidSolo	pos=Mid	ver=1	ok=true	ndiff=0	mf_swap=(0,0)	fallbacks=0	plan_changed=false	diff=
+r11	tut=MidSolo	pos=Mid	ver=2	ok=true	ndiff=18	mf_swap=(29,0)	fallbacks=1	plan_changed=false	diff=0x5f8..0x5fb,0x600..0x606,0x708..0x70e,0x710..0x713,0x718..0x71d,0x720..0x725,0x728..0x72e,0x730..0x731,0x738..0x739,0x740..0x746,0x748..0x74b,0x750..0x755,0x758..0x75e,0x760..0x766,0x768..0x769,0x770..0x773,0x1610..0x1611,0x1628..0x1629
+r11	tut=MidSolo	pos=Mid	ver=3	ok=true	ndiff=17	mf_swap=(29,0)	fallbacks=1	plan_changed=false	diff=0x5f8..0x5fb,0x600..0x606,0x708..0x70e,0x710..0x713,0x718..0x71d,0x720..0x725,0x728..0x72e,0x730..0x731,0x738..0x739,0x740..0x746,0x748..0x74b,0x750..0x755,0x758..0x75e,0x760..0x766,0x768..0x769,0x1610..0x1611,0x1628..0x1629
+r11	tut=MidSolo	pos=Mid	ver=5	ok=true	ndiff=17	mf_swap=(29,0)	fallbacks=1	plan_changed=false	diff=0x5f8..0x5fb,0x600..0x606,0x708..0x70e,0x710..0x713,0x718..0x71d,0x720..0x725,0x728..0x72e,0x730..0x731,0x738..0x739,0x740..0x746,0x748..0x74b,0x750..0x755,0x758..0x75e,0x760..0x766,0x768..0x769,0x1610..0x1611,0x1628..0x1629
+r11	tut=MidSolo	pos=Bottom	ver=0	ok=true	ndiff=0	mf_swap=(0,0)	fallbacks=0	plan_changed=false	diff=
+r11	tut=MidSolo	pos=Bottom	ver=1	ok=true	ndiff=0	mf_swap=(0,0)	fallbacks=0	plan_changed=false	diff=
+r11	tut=MidSolo	pos=Bottom	ver=2	ok=true	ndiff=0	mf_swap=(0,0)	fallbacks=0	plan_changed=false	diff=
+r11	tut=MidSolo	pos=Bottom	ver=3	ok=true	ndiff=0	mf_swap=(0,0)	fallbacks=0	plan_changed=false	diff=
+r11	tut=MidSolo	pos=Bottom	ver=5	ok=true	ndiff=0	mf_swap=(0,0)	fallbacks=0	plan_changed=false	diff=
+r11	tut=MidSolo	pos=Support	ver=0	ok=true	ndiff=0	mf_swap=(0,0)	fallbacks=0	plan_changed=false	diff=
+r11	tut=MidSolo	pos=Support	ver=1	ok=true	ndiff=0	mf_swap=(0,0)	fallbacks=0	plan_changed=false	diff=
+r11	tut=MidSolo	pos=Support	ver=2	ok=true	ndiff=0	mf_swap=(0,0)	fallbacks=0	plan_changed=false	diff=
+r11	tut=MidSolo	pos=Support	ver=3	ok=true	ndiff=0	mf_swap=(0,0)	fallbacks=0	plan_changed=false	diff=
+r11	tut=MidSolo	pos=Support	ver=5	ok=true	ndiff=0	mf_swap=(0,0)	fallbacks=0	plan_changed=false	diff=
+r12	tut=MidSolo	recv=Top	from=Top	chat=BattleHelp	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=MidSolo	recv=Top	from=Top	chat=GankRequest	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=MidSolo	recv=Top	from=Top	chat=Start	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=MidSolo	recv=Top	from=Jungle	chat=BattleHelp	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=MidSolo	recv=Top	from=Jungle	chat=GankRequest	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=MidSolo	recv=Top	from=Jungle	chat=Start	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=MidSolo	recv=Top	from=Mid	chat=BattleHelp	ok=true	ndiff=2	ff_recv=1	trace_len=0
+r12	tut=MidSolo	recv=Top	from=Mid	chat=GankRequest	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=MidSolo	recv=Top	from=Mid	chat=Start	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=MidSolo	recv=Top	from=Bottom	chat=BattleHelp	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=MidSolo	recv=Top	from=Bottom	chat=GankRequest	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=MidSolo	recv=Top	from=Bottom	chat=Start	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=MidSolo	recv=Top	from=Support	chat=BattleHelp	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=MidSolo	recv=Top	from=Support	chat=GankRequest	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=MidSolo	recv=Top	from=Support	chat=Start	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=MidSolo	recv=Jungle	from=Top	chat=BattleHelp	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=MidSolo	recv=Jungle	from=Top	chat=GankRequest	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=MidSolo	recv=Jungle	from=Top	chat=Start	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=MidSolo	recv=Jungle	from=Jungle	chat=BattleHelp	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=MidSolo	recv=Jungle	from=Jungle	chat=GankRequest	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=MidSolo	recv=Jungle	from=Jungle	chat=Start	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=MidSolo	recv=Jungle	from=Mid	chat=BattleHelp	ok=true	ndiff=2	ff_recv=1	trace_len=0
+r12	tut=MidSolo	recv=Jungle	from=Mid	chat=GankRequest	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=MidSolo	recv=Jungle	from=Mid	chat=Start	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=MidSolo	recv=Jungle	from=Bottom	chat=BattleHelp	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=MidSolo	recv=Jungle	from=Bottom	chat=GankRequest	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=MidSolo	recv=Jungle	from=Bottom	chat=Start	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=MidSolo	recv=Jungle	from=Support	chat=BattleHelp	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=MidSolo	recv=Jungle	from=Support	chat=GankRequest	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=MidSolo	recv=Jungle	from=Support	chat=Start	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=MidSolo	recv=Mid	from=Top	chat=BattleHelp	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=MidSolo	recv=Mid	from=Top	chat=GankRequest	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=MidSolo	recv=Mid	from=Top	chat=Start	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=MidSolo	recv=Mid	from=Jungle	chat=BattleHelp	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=MidSolo	recv=Mid	from=Jungle	chat=GankRequest	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=MidSolo	recv=Mid	from=Jungle	chat=Start	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=MidSolo	recv=Mid	from=Mid	chat=BattleHelp	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=MidSolo	recv=Mid	from=Mid	chat=GankRequest	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=MidSolo	recv=Mid	from=Mid	chat=Start	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=MidSolo	recv=Mid	from=Bottom	chat=BattleHelp	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=MidSolo	recv=Mid	from=Bottom	chat=GankRequest	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=MidSolo	recv=Mid	from=Bottom	chat=Start	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=MidSolo	recv=Mid	from=Support	chat=BattleHelp	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=MidSolo	recv=Mid	from=Support	chat=GankRequest	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=MidSolo	recv=Mid	from=Support	chat=Start	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r11	tut=MidBottom	pos=Top	ver=0	ok=true	ndiff=0	mf_swap=(0,0)	fallbacks=0	plan_changed=false	diff=
+r11	tut=MidBottom	pos=Top	ver=1	ok=true	ndiff=0	mf_swap=(0,0)	fallbacks=0	plan_changed=false	diff=
+r11	tut=MidBottom	pos=Top	ver=2	ok=true	ndiff=0	mf_swap=(0,0)	fallbacks=0	plan_changed=false	diff=
+r11	tut=MidBottom	pos=Top	ver=3	ok=true	ndiff=0	mf_swap=(0,0)	fallbacks=0	plan_changed=false	diff=
+r11	tut=MidBottom	pos=Top	ver=5	ok=true	ndiff=0	mf_swap=(0,0)	fallbacks=0	plan_changed=false	diff=
+r11	tut=MidBottom	pos=Jungle	ver=0	ok=true	ndiff=0	mf_swap=(0,0)	fallbacks=0	plan_changed=false	diff=
+r11	tut=MidBottom	pos=Jungle	ver=1	ok=true	ndiff=0	mf_swap=(0,0)	fallbacks=0	plan_changed=false	diff=
+r11	tut=MidBottom	pos=Jungle	ver=2	ok=true	ndiff=0	mf_swap=(0,0)	fallbacks=0	plan_changed=false	diff=
+r11	tut=MidBottom	pos=Jungle	ver=3	ok=true	ndiff=0	mf_swap=(0,0)	fallbacks=0	plan_changed=false	diff=
+r11	tut=MidBottom	pos=Jungle	ver=5	ok=true	ndiff=0	mf_swap=(0,0)	fallbacks=0	plan_changed=false	diff=
+r11	tut=MidBottom	pos=Mid	ver=0	ok=true	ndiff=0	mf_swap=(0,0)	fallbacks=0	plan_changed=false	diff=
+r11	tut=MidBottom	pos=Mid	ver=1	ok=true	ndiff=0	mf_swap=(0,0)	fallbacks=0	plan_changed=false	diff=
+r11	tut=MidBottom	pos=Mid	ver=2	ok=true	ndiff=17	mf_swap=(29,0)	fallbacks=1	plan_changed=false	diff=0x5f8..0x5fb,0x600..0x606,0x708..0x70e,0x710..0x713,0x718..0x71d,0x720..0x725,0x728..0x72e,0x730..0x731,0x738..0x739,0x740..0x746,0x748..0x74b,0x750..0x755,0x758..0x75e,0x760..0x766,0x768..0x769,0x1610..0x1611,0x1628..0x1629
+r11	tut=MidBottom	pos=Mid	ver=3	ok=true	ndiff=17	mf_swap=(29,0)	fallbacks=1	plan_changed=false	diff=0x5f8..0x5fb,0x600..0x606,0x708..0x70e,0x710..0x713,0x718..0x71d,0x720..0x725,0x728..0x72e,0x730..0x731,0x738..0x739,0x740..0x746,0x748..0x74b,0x750..0x755,0x758..0x75e,0x760..0x766,0x768..0x769,0x1610..0x1611,0x1628..0x1629
+r11	tut=MidBottom	pos=Mid	ver=5	ok=true	ndiff=17	mf_swap=(29,0)	fallbacks=1	plan_changed=false	diff=0x5f8..0x5fb,0x600..0x606,0x708..0x70e,0x710..0x713,0x718..0x71d,0x720..0x725,0x728..0x72e,0x730..0x731,0x738..0x739,0x740..0x746,0x748..0x74b,0x750..0x755,0x758..0x75e,0x760..0x766,0x768..0x769,0x1610..0x1611,0x1628..0x1629
+r11	tut=MidBottom	pos=Bottom	ver=0	ok=true	ndiff=0	mf_swap=(0,0)	fallbacks=0	plan_changed=false	diff=
+r11	tut=MidBottom	pos=Bottom	ver=1	ok=true	ndiff=0	mf_swap=(0,0)	fallbacks=0	plan_changed=false	diff=
+r11	tut=MidBottom	pos=Bottom	ver=2	ok=true	ndiff=18	mf_swap=(29,0)	fallbacks=1	plan_changed=false	diff=0x5f8..0x5fb,0x600..0x606,0x708..0x70e,0x710..0x713,0x718..0x71d,0x720..0x725,0x728..0x72e,0x730..0x731,0x738..0x739,0x740..0x746,0x748..0x74b,0x750..0x755,0x758..0x75e,0x760..0x766,0x768..0x769,0x771..0x772,0x1610..0x1611,0x1628..0x1629
+r11	tut=MidBottom	pos=Bottom	ver=3	ok=true	ndiff=17	mf_swap=(29,0)	fallbacks=1	plan_changed=false	diff=0x5f8..0x5fb,0x600..0x606,0x708..0x70e,0x710..0x713,0x718..0x71d,0x720..0x725,0x728..0x72e,0x730..0x731,0x738..0x739,0x740..0x746,0x748..0x74b,0x750..0x755,0x758..0x75e,0x760..0x766,0x768..0x769,0x1610..0x1611,0x1628..0x1629
+r11	tut=MidBottom	pos=Bottom	ver=5	ok=true	ndiff=17	mf_swap=(29,0)	fallbacks=1	plan_changed=false	diff=0x5f8..0x5fb,0x600..0x606,0x708..0x70e,0x710..0x713,0x718..0x71d,0x720..0x725,0x728..0x72e,0x730..0x731,0x738..0x739,0x740..0x746,0x748..0x74b,0x750..0x755,0x758..0x75e,0x760..0x766,0x768..0x769,0x1610..0x1611,0x1628..0x1629
+r11	tut=MidBottom	pos=Support	ver=0	ok=true	ndiff=0	mf_swap=(0,0)	fallbacks=0	plan_changed=false	diff=
+r11	tut=MidBottom	pos=Support	ver=1	ok=true	ndiff=0	mf_swap=(0,0)	fallbacks=0	plan_changed=false	diff=
+r11	tut=MidBottom	pos=Support	ver=2	ok=true	ndiff=19	mf_swap=(29,0)	fallbacks=1	plan_changed=true	diff=0x5f8..0x5fb,0x600..0x606,0x706..0x707,0x708..0x70e,0x710..0x713,0x718..0x71d,0x720..0x725,0x728..0x72e,0x730..0x731,0x738..0x739,0x740..0x746,0x748..0x74b,0x750..0x755,0x758..0x75e,0x760..0x766,0x768..0x769,0x771..0x772,0x1610..0x1611,0x1628..0x1629
+r11	tut=MidBottom	pos=Support	ver=3	ok=true	ndiff=18	mf_swap=(29,0)	fallbacks=1	plan_changed=true	diff=0x5f8..0x5fb,0x600..0x606,0x706..0x707,0x708..0x70e,0x710..0x713,0x718..0x71d,0x720..0x725,0x728..0x72e,0x730..0x731,0x738..0x739,0x740..0x746,0x748..0x74b,0x750..0x755,0x758..0x75e,0x760..0x766,0x768..0x769,0x1610..0x1611,0x1628..0x1629
+r11	tut=MidBottom	pos=Support	ver=5	ok=true	ndiff=18	mf_swap=(29,0)	fallbacks=1	plan_changed=true	diff=0x5f8..0x5fb,0x600..0x606,0x706..0x707,0x708..0x70e,0x710..0x713,0x718..0x71d,0x720..0x725,0x728..0x72e,0x730..0x731,0x738..0x739,0x740..0x746,0x748..0x74b,0x750..0x755,0x758..0x75e,0x760..0x766,0x768..0x769,0x1610..0x1611,0x1628..0x1629
+r12	tut=MidBottom	recv=Top	from=Top	chat=BattleHelp	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=MidBottom	recv=Top	from=Top	chat=GankRequest	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=MidBottom	recv=Top	from=Top	chat=Start	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=MidBottom	recv=Top	from=Jungle	chat=BattleHelp	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=MidBottom	recv=Top	from=Jungle	chat=GankRequest	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=MidBottom	recv=Top	from=Jungle	chat=Start	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=MidBottom	recv=Top	from=Mid	chat=BattleHelp	ok=true	ndiff=2	ff_recv=1	trace_len=0
+r12	tut=MidBottom	recv=Top	from=Mid	chat=GankRequest	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=MidBottom	recv=Top	from=Mid	chat=Start	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=MidBottom	recv=Top	from=Bottom	chat=BattleHelp	ok=true	ndiff=2	ff_recv=1	trace_len=0
+r12	tut=MidBottom	recv=Top	from=Bottom	chat=GankRequest	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=MidBottom	recv=Top	from=Bottom	chat=Start	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=MidBottom	recv=Top	from=Support	chat=BattleHelp	ok=true	ndiff=2	ff_recv=1	trace_len=0
+r12	tut=MidBottom	recv=Top	from=Support	chat=GankRequest	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=MidBottom	recv=Top	from=Support	chat=Start	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=MidBottom	recv=Jungle	from=Top	chat=BattleHelp	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=MidBottom	recv=Jungle	from=Top	chat=GankRequest	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=MidBottom	recv=Jungle	from=Top	chat=Start	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=MidBottom	recv=Jungle	from=Jungle	chat=BattleHelp	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=MidBottom	recv=Jungle	from=Jungle	chat=GankRequest	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=MidBottom	recv=Jungle	from=Jungle	chat=Start	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=MidBottom	recv=Jungle	from=Mid	chat=BattleHelp	ok=true	ndiff=2	ff_recv=1	trace_len=0
+r12	tut=MidBottom	recv=Jungle	from=Mid	chat=GankRequest	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=MidBottom	recv=Jungle	from=Mid	chat=Start	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=MidBottom	recv=Jungle	from=Bottom	chat=BattleHelp	ok=true	ndiff=2	ff_recv=1	trace_len=0
+r12	tut=MidBottom	recv=Jungle	from=Bottom	chat=GankRequest	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=MidBottom	recv=Jungle	from=Bottom	chat=Start	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=MidBottom	recv=Jungle	from=Support	chat=BattleHelp	ok=true	ndiff=2	ff_recv=1	trace_len=0
+r12	tut=MidBottom	recv=Jungle	from=Support	chat=GankRequest	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=MidBottom	recv=Jungle	from=Support	chat=Start	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=MidBottom	recv=Mid	from=Top	chat=BattleHelp	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=MidBottom	recv=Mid	from=Top	chat=GankRequest	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=MidBottom	recv=Mid	from=Top	chat=Start	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=MidBottom	recv=Mid	from=Jungle	chat=BattleHelp	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=MidBottom	recv=Mid	from=Jungle	chat=GankRequest	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=MidBottom	recv=Mid	from=Jungle	chat=Start	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=MidBottom	recv=Mid	from=Mid	chat=BattleHelp	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=MidBottom	recv=Mid	from=Mid	chat=GankRequest	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=MidBottom	recv=Mid	from=Mid	chat=Start	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=MidBottom	recv=Mid	from=Bottom	chat=BattleHelp	ok=true	ndiff=2	ff_recv=1	trace_len=0
+r12	tut=MidBottom	recv=Mid	from=Bottom	chat=GankRequest	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=MidBottom	recv=Mid	from=Bottom	chat=Start	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=MidBottom	recv=Mid	from=Support	chat=BattleHelp	ok=true	ndiff=2	ff_recv=1	trace_len=0
+r12	tut=MidBottom	recv=Mid	from=Support	chat=GankRequest	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=MidBottom	recv=Mid	from=Support	chat=Start	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r11	tut=JungleOnly	pos=Top	ver=0	ok=true	ndiff=0	mf_swap=(0,0)	fallbacks=0	plan_changed=false	diff=
+r11	tut=JungleOnly	pos=Top	ver=1	ok=true	ndiff=0	mf_swap=(0,0)	fallbacks=0	plan_changed=false	diff=
+r11	tut=JungleOnly	pos=Top	ver=2	ok=true	ndiff=0	mf_swap=(0,0)	fallbacks=0	plan_changed=false	diff=
+r11	tut=JungleOnly	pos=Top	ver=3	ok=true	ndiff=0	mf_swap=(0,0)	fallbacks=0	plan_changed=false	diff=
+r11	tut=JungleOnly	pos=Top	ver=5	ok=true	ndiff=0	mf_swap=(0,0)	fallbacks=0	plan_changed=false	diff=
+r11	tut=JungleOnly	pos=Jungle	ver=0	ok=true	ndiff=0	mf_swap=(0,0)	fallbacks=0	plan_changed=false	diff=
+r11	tut=JungleOnly	pos=Jungle	ver=1	ok=true	ndiff=0	mf_swap=(0,0)	fallbacks=0	plan_changed=false	diff=
+r11	tut=JungleOnly	pos=Jungle	ver=2	ok=true	ndiff=49	mf_swap=(29,0)	fallbacks=1	plan_changed=true	diff=0x622..0x626,0x630..0x631,0x638..0x639,0x640..0x641,0x651..0x656,0x658..0x659,0x65a..0x65d,0x660..0x665,0x668..0x669,0x670..0x675,0x678..0x67b,0x680..0x686,0x688..0x68c,0x690..0x696,0x698..0x69e,0x6a8..0x6a9,0x6aa..0x6ae,0x6b0..0x6b2,0x6b8..0x6be,0x6c0..0x6c6,0x6c8..0x6ce,0x6d0..0x6d1,0x6d2..0x6d6,0x6d8..0x6dd,0x6e0..0x6e5,0x6e8..0x6ee,0x6f0..0x6f3,0x6f8..0x706,0x708..0x70e,0x710..0x716,0x718..0x71a,0x720..0x725,0x728..0x72e,0x730..0x731,0x738..0x739,0x740..0x746,0x748..0x74b,0x750..0x755,0x758..0x75e,0x760..0x766,0x768..0x769,0x771..0x773,0x778..0x77e,0x780..0x781,0x788..0x791,0x7a2..0x7a6,0x7a8..0x7a9,0x1610..0x1611,0x1628..0x1629
+r11	tut=JungleOnly	pos=Jungle	ver=3	ok=true	ndiff=43	mf_swap=(29,0)	fallbacks=1	plan_changed=true	diff=0x622..0x626,0x630..0x631,0x638..0x639,0x640..0x641,0x650..0x656,0x658..0x659,0x65a..0x65d,0x660..0x665,0x668..0x669,0x670..0x675,0x678..0x67b,0x680..0x686,0x688..0x68e,0x690..0x695,0x698..0x69e,0x6a8..0x6a9,0x6aa..0x6ae,0x6b0..0x6b2,0x6b8..0x6be,0x6c0..0x6c6,0x6c8..0x6ce,0x6d0..0x6d1,0x6d2..0x6d6,0x6d8..0x6dd,0x6e0..0x6e5,0x6e8..0x6ee,0x6f0..0x6f3,0x6f8..0x706,0x708..0x70e,0x710..0x716,0x718..0x71a,0x720..0x725,0x728..0x72e,0x730..0x731,0x738..0x739,0x740..0x746,0x748..0x74b,0x750..0x755,0x758..0x75e,0x760..0x766,0x768..0x769,0x1610..0x1611,0x1628..0x1629
+r11	tut=JungleOnly	pos=Jungle	ver=5	ok=true	ndiff=43	mf_swap=(29,0)	fallbacks=1	plan_changed=true	diff=0x622..0x626,0x630..0x631,0x638..0x639,0x640..0x641,0x650..0x656,0x658..0x659,0x65a..0x65d,0x660..0x665,0x668..0x669,0x670..0x675,0x678..0x67b,0x680..0x686,0x688..0x68e,0x690..0x695,0x698..0x69e,0x6a8..0x6a9,0x6aa..0x6ae,0x6b0..0x6b2,0x6b8..0x6be,0x6c0..0x6c6,0x6c8..0x6ce,0x6d0..0x6d1,0x6d2..0x6d6,0x6d8..0x6dd,0x6e0..0x6e5,0x6e8..0x6ee,0x6f0..0x6f3,0x6f8..0x706,0x708..0x70e,0x710..0x716,0x718..0x71a,0x720..0x725,0x728..0x72e,0x730..0x731,0x738..0x739,0x740..0x746,0x748..0x74b,0x750..0x755,0x758..0x75e,0x760..0x766,0x768..0x769,0x1610..0x1611,0x1628..0x1629
+r11	tut=JungleOnly	pos=Mid	ver=0	ok=true	ndiff=0	mf_swap=(0,0)	fallbacks=0	plan_changed=false	diff=
+r11	tut=JungleOnly	pos=Mid	ver=1	ok=true	ndiff=0	mf_swap=(0,0)	fallbacks=0	plan_changed=false	diff=
+r11	tut=JungleOnly	pos=Mid	ver=2	ok=true	ndiff=0	mf_swap=(0,0)	fallbacks=0	plan_changed=false	diff=
+r11	tut=JungleOnly	pos=Mid	ver=3	ok=true	ndiff=0	mf_swap=(0,0)	fallbacks=0	plan_changed=false	diff=
+r11	tut=JungleOnly	pos=Mid	ver=5	ok=true	ndiff=0	mf_swap=(0,0)	fallbacks=0	plan_changed=false	diff=
+r11	tut=JungleOnly	pos=Bottom	ver=0	ok=true	ndiff=0	mf_swap=(0,0)	fallbacks=0	plan_changed=false	diff=
+r11	tut=JungleOnly	pos=Bottom	ver=1	ok=true	ndiff=0	mf_swap=(0,0)	fallbacks=0	plan_changed=false	diff=
+r11	tut=JungleOnly	pos=Bottom	ver=2	ok=true	ndiff=0	mf_swap=(0,0)	fallbacks=0	plan_changed=false	diff=
+r11	tut=JungleOnly	pos=Bottom	ver=3	ok=true	ndiff=0	mf_swap=(0,0)	fallbacks=0	plan_changed=false	diff=
+r11	tut=JungleOnly	pos=Bottom	ver=5	ok=true	ndiff=0	mf_swap=(0,0)	fallbacks=0	plan_changed=false	diff=
+r11	tut=JungleOnly	pos=Support	ver=0	ok=true	ndiff=0	mf_swap=(0,0)	fallbacks=0	plan_changed=false	diff=
+r11	tut=JungleOnly	pos=Support	ver=1	ok=true	ndiff=0	mf_swap=(0,0)	fallbacks=0	plan_changed=false	diff=
+r11	tut=JungleOnly	pos=Support	ver=2	ok=true	ndiff=0	mf_swap=(0,0)	fallbacks=0	plan_changed=false	diff=
+r11	tut=JungleOnly	pos=Support	ver=3	ok=true	ndiff=0	mf_swap=(0,0)	fallbacks=0	plan_changed=false	diff=
+r11	tut=JungleOnly	pos=Support	ver=5	ok=true	ndiff=0	mf_swap=(0,0)	fallbacks=0	plan_changed=false	diff=
+r12	tut=JungleOnly	recv=Top	from=Top	chat=BattleHelp	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=JungleOnly	recv=Top	from=Top	chat=GankRequest	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=JungleOnly	recv=Top	from=Top	chat=Start	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=JungleOnly	recv=Top	from=Jungle	chat=BattleHelp	ok=true	ndiff=2	ff_recv=1	trace_len=0
+r12	tut=JungleOnly	recv=Top	from=Jungle	chat=GankRequest	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=JungleOnly	recv=Top	from=Jungle	chat=Start	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=JungleOnly	recv=Top	from=Mid	chat=BattleHelp	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=JungleOnly	recv=Top	from=Mid	chat=GankRequest	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=JungleOnly	recv=Top	from=Mid	chat=Start	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=JungleOnly	recv=Top	from=Bottom	chat=BattleHelp	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=JungleOnly	recv=Top	from=Bottom	chat=GankRequest	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=JungleOnly	recv=Top	from=Bottom	chat=Start	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=JungleOnly	recv=Top	from=Support	chat=BattleHelp	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=JungleOnly	recv=Top	from=Support	chat=GankRequest	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=JungleOnly	recv=Top	from=Support	chat=Start	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=JungleOnly	recv=Jungle	from=Top	chat=BattleHelp	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=JungleOnly	recv=Jungle	from=Top	chat=GankRequest	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=JungleOnly	recv=Jungle	from=Top	chat=Start	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=JungleOnly	recv=Jungle	from=Jungle	chat=BattleHelp	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=JungleOnly	recv=Jungle	from=Jungle	chat=GankRequest	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=JungleOnly	recv=Jungle	from=Jungle	chat=Start	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=JungleOnly	recv=Jungle	from=Mid	chat=BattleHelp	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=JungleOnly	recv=Jungle	from=Mid	chat=GankRequest	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=JungleOnly	recv=Jungle	from=Mid	chat=Start	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=JungleOnly	recv=Jungle	from=Bottom	chat=BattleHelp	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=JungleOnly	recv=Jungle	from=Bottom	chat=GankRequest	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=JungleOnly	recv=Jungle	from=Bottom	chat=Start	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=JungleOnly	recv=Jungle	from=Support	chat=BattleHelp	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=JungleOnly	recv=Jungle	from=Support	chat=GankRequest	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=JungleOnly	recv=Jungle	from=Support	chat=Start	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=JungleOnly	recv=Mid	from=Top	chat=BattleHelp	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=JungleOnly	recv=Mid	from=Top	chat=GankRequest	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=JungleOnly	recv=Mid	from=Top	chat=Start	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=JungleOnly	recv=Mid	from=Jungle	chat=BattleHelp	ok=true	ndiff=2	ff_recv=1	trace_len=0
+r12	tut=JungleOnly	recv=Mid	from=Jungle	chat=GankRequest	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=JungleOnly	recv=Mid	from=Jungle	chat=Start	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=JungleOnly	recv=Mid	from=Mid	chat=BattleHelp	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=JungleOnly	recv=Mid	from=Mid	chat=GankRequest	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=JungleOnly	recv=Mid	from=Mid	chat=Start	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=JungleOnly	recv=Mid	from=Bottom	chat=BattleHelp	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=JungleOnly	recv=Mid	from=Bottom	chat=GankRequest	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=JungleOnly	recv=Mid	from=Bottom	chat=Start	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=JungleOnly	recv=Mid	from=Support	chat=BattleHelp	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=JungleOnly	recv=Mid	from=Support	chat=GankRequest	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=JungleOnly	recv=Mid	from=Support	chat=Start	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r11	tut=Line	pos=Top	ver=0	ok=true	ndiff=0	mf_swap=(0,0)	fallbacks=0	plan_changed=false	diff=
+r11	tut=Line	pos=Top	ver=1	ok=true	ndiff=0	mf_swap=(0,0)	fallbacks=0	plan_changed=false	diff=
+r11	tut=Line	pos=Top	ver=2	ok=true	ndiff=23	mf_swap=(29,0)	fallbacks=1	plan_changed=false	diff=0x5f8..0x5fb,0x600..0x606,0x708..0x70e,0x710..0x713,0x718..0x71d,0x720..0x725,0x728..0x72e,0x730..0x735,0x738..0x73d,0x740..0x745,0x748..0x74b,0x750..0x755,0x758..0x75e,0x760..0x766,0x768..0x769,0x772..0x773,0x778..0x77e,0x780..0x781,0x788..0x791,0x7a2..0x7a6,0x7a8..0x7a9,0x1610..0x1611,0x1628..0x1629
+r11	tut=Line	pos=Top	ver=3	ok=true	ndiff=17	mf_swap=(29,0)	fallbacks=1	plan_changed=false	diff=0x5f8..0x5fb,0x600..0x606,0x708..0x70e,0x710..0x713,0x718..0x71d,0x720..0x725,0x728..0x72e,0x730..0x731,0x738..0x739,0x740..0x746,0x748..0x74b,0x750..0x755,0x758..0x75e,0x760..0x766,0x768..0x769,0x1610..0x1611,0x1628..0x1629
+r11	tut=Line	pos=Top	ver=5	ok=true	ndiff=17	mf_swap=(29,0)	fallbacks=1	plan_changed=false	diff=0x5f8..0x5fb,0x600..0x606,0x708..0x70e,0x710..0x713,0x718..0x71d,0x720..0x725,0x728..0x72e,0x730..0x731,0x738..0x739,0x740..0x746,0x748..0x74b,0x750..0x755,0x758..0x75e,0x760..0x766,0x768..0x769,0x1610..0x1611,0x1628..0x1629
+r11	tut=Line	pos=Jungle	ver=0	ok=true	ndiff=0	mf_swap=(0,0)	fallbacks=0	plan_changed=false	diff=
+r11	tut=Line	pos=Jungle	ver=1	ok=true	ndiff=0	mf_swap=(0,0)	fallbacks=0	plan_changed=false	diff=
+r11	tut=Line	pos=Jungle	ver=2	ok=true	ndiff=0	mf_swap=(0,0)	fallbacks=0	plan_changed=false	diff=
+r11	tut=Line	pos=Jungle	ver=3	ok=true	ndiff=0	mf_swap=(0,0)	fallbacks=0	plan_changed=false	diff=
+r11	tut=Line	pos=Jungle	ver=5	ok=true	ndiff=0	mf_swap=(0,0)	fallbacks=0	plan_changed=false	diff=
+r11	tut=Line	pos=Mid	ver=0	ok=true	ndiff=0	mf_swap=(0,0)	fallbacks=0	plan_changed=false	diff=
+r11	tut=Line	pos=Mid	ver=1	ok=true	ndiff=0	mf_swap=(0,0)	fallbacks=0	plan_changed=false	diff=
+r11	tut=Line	pos=Mid	ver=2	ok=true	ndiff=18	mf_swap=(29,0)	fallbacks=1	plan_changed=false	diff=0x5f8..0x5fb,0x600..0x606,0x708..0x70e,0x710..0x713,0x718..0x71d,0x720..0x725,0x728..0x72e,0x730..0x731,0x738..0x739,0x740..0x746,0x748..0x74b,0x750..0x755,0x758..0x75e,0x760..0x766,0x768..0x769,0x771..0x772,0x1610..0x1611,0x1628..0x1629
+r11	tut=Line	pos=Mid	ver=3	ok=true	ndiff=17	mf_swap=(29,0)	fallbacks=1	plan_changed=false	diff=0x5f8..0x5fb,0x600..0x606,0x708..0x70e,0x710..0x713,0x718..0x71d,0x720..0x725,0x728..0x72e,0x730..0x731,0x738..0x739,0x740..0x746,0x748..0x74b,0x750..0x755,0x758..0x75e,0x760..0x766,0x768..0x769,0x1610..0x1611,0x1628..0x1629
+r11	tut=Line	pos=Mid	ver=5	ok=true	ndiff=17	mf_swap=(29,0)	fallbacks=1	plan_changed=false	diff=0x5f8..0x5fb,0x600..0x606,0x708..0x70e,0x710..0x713,0x718..0x71d,0x720..0x725,0x728..0x72e,0x730..0x731,0x738..0x739,0x740..0x746,0x748..0x74b,0x750..0x755,0x758..0x75e,0x760..0x766,0x768..0x769,0x1610..0x1611,0x1628..0x1629
+r11	tut=Line	pos=Bottom	ver=0	ok=true	ndiff=0	mf_swap=(0,0)	fallbacks=0	plan_changed=false	diff=
+r11	tut=Line	pos=Bottom	ver=1	ok=true	ndiff=0	mf_swap=(0,0)	fallbacks=0	plan_changed=false	diff=
+r11	tut=Line	pos=Bottom	ver=2	ok=true	ndiff=18	mf_swap=(29,0)	fallbacks=1	plan_changed=false	diff=0x5f8..0x5fb,0x600..0x606,0x708..0x70e,0x710..0x713,0x718..0x71d,0x720..0x725,0x728..0x72e,0x730..0x731,0x738..0x739,0x740..0x746,0x748..0x74b,0x750..0x755,0x758..0x75e,0x760..0x766,0x768..0x769,0x771..0x772,0x1610..0x1611,0x1628..0x1629
+r11	tut=Line	pos=Bottom	ver=3	ok=true	ndiff=17	mf_swap=(29,0)	fallbacks=1	plan_changed=false	diff=0x5f8..0x5fb,0x600..0x606,0x708..0x70e,0x710..0x713,0x718..0x71d,0x720..0x725,0x728..0x72e,0x730..0x731,0x738..0x739,0x740..0x746,0x748..0x74b,0x750..0x755,0x758..0x75e,0x760..0x766,0x768..0x769,0x1610..0x1611,0x1628..0x1629
+r11	tut=Line	pos=Bottom	ver=5	ok=true	ndiff=17	mf_swap=(29,0)	fallbacks=1	plan_changed=false	diff=0x5f8..0x5fb,0x600..0x606,0x708..0x70e,0x710..0x713,0x718..0x71d,0x720..0x725,0x728..0x72e,0x730..0x731,0x738..0x739,0x740..0x746,0x748..0x74b,0x750..0x755,0x758..0x75e,0x760..0x766,0x768..0x769,0x1610..0x1611,0x1628..0x1629
+r11	tut=Line	pos=Support	ver=0	ok=true	ndiff=0	mf_swap=(0,0)	fallbacks=0	plan_changed=false	diff=
+r11	tut=Line	pos=Support	ver=1	ok=true	ndiff=0	mf_swap=(0,0)	fallbacks=0	plan_changed=false	diff=
+r11	tut=Line	pos=Support	ver=2	ok=true	ndiff=19	mf_swap=(29,0)	fallbacks=1	plan_changed=true	diff=0x5f8..0x5fb,0x600..0x606,0x706..0x707,0x708..0x70e,0x710..0x713,0x718..0x71d,0x720..0x725,0x728..0x72e,0x730..0x731,0x738..0x739,0x740..0x746,0x748..0x74b,0x750..0x755,0x758..0x75e,0x760..0x766,0x768..0x769,0x771..0x772,0x1610..0x1611,0x1628..0x1629
+r11	tut=Line	pos=Support	ver=3	ok=true	ndiff=18	mf_swap=(29,0)	fallbacks=1	plan_changed=true	diff=0x5f8..0x5fb,0x600..0x606,0x706..0x707,0x708..0x70e,0x710..0x713,0x718..0x71d,0x720..0x725,0x728..0x72e,0x730..0x731,0x738..0x739,0x740..0x746,0x748..0x74b,0x750..0x755,0x758..0x75e,0x760..0x766,0x768..0x769,0x1610..0x1611,0x1628..0x1629
+r11	tut=Line	pos=Support	ver=5	ok=true	ndiff=18	mf_swap=(29,0)	fallbacks=1	plan_changed=true	diff=0x5f8..0x5fb,0x600..0x606,0x706..0x707,0x708..0x70e,0x710..0x713,0x718..0x71d,0x720..0x725,0x728..0x72e,0x730..0x731,0x738..0x739,0x740..0x746,0x748..0x74b,0x750..0x755,0x758..0x75e,0x760..0x766,0x768..0x769,0x1610..0x1611,0x1628..0x1629
+r12	tut=Line	recv=Top	from=Top	chat=BattleHelp	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=Line	recv=Top	from=Top	chat=GankRequest	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=Line	recv=Top	from=Top	chat=Start	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=Line	recv=Top	from=Jungle	chat=BattleHelp	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=Line	recv=Top	from=Jungle	chat=GankRequest	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=Line	recv=Top	from=Jungle	chat=Start	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=Line	recv=Top	from=Mid	chat=BattleHelp	ok=true	ndiff=2	ff_recv=1	trace_len=0
+r12	tut=Line	recv=Top	from=Mid	chat=GankRequest	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=Line	recv=Top	from=Mid	chat=Start	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=Line	recv=Top	from=Bottom	chat=BattleHelp	ok=true	ndiff=2	ff_recv=1	trace_len=0
+r12	tut=Line	recv=Top	from=Bottom	chat=GankRequest	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=Line	recv=Top	from=Bottom	chat=Start	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=Line	recv=Top	from=Support	chat=BattleHelp	ok=true	ndiff=2	ff_recv=1	trace_len=0
+r12	tut=Line	recv=Top	from=Support	chat=GankRequest	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=Line	recv=Top	from=Support	chat=Start	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=Line	recv=Jungle	from=Top	chat=BattleHelp	ok=true	ndiff=2	ff_recv=1	trace_len=0
+r12	tut=Line	recv=Jungle	from=Top	chat=GankRequest	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=Line	recv=Jungle	from=Top	chat=Start	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=Line	recv=Jungle	from=Jungle	chat=BattleHelp	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=Line	recv=Jungle	from=Jungle	chat=GankRequest	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=Line	recv=Jungle	from=Jungle	chat=Start	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=Line	recv=Jungle	from=Mid	chat=BattleHelp	ok=true	ndiff=2	ff_recv=1	trace_len=0
+r12	tut=Line	recv=Jungle	from=Mid	chat=GankRequest	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=Line	recv=Jungle	from=Mid	chat=Start	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=Line	recv=Jungle	from=Bottom	chat=BattleHelp	ok=true	ndiff=2	ff_recv=1	trace_len=0
+r12	tut=Line	recv=Jungle	from=Bottom	chat=GankRequest	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=Line	recv=Jungle	from=Bottom	chat=Start	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=Line	recv=Jungle	from=Support	chat=BattleHelp	ok=true	ndiff=2	ff_recv=1	trace_len=0
+r12	tut=Line	recv=Jungle	from=Support	chat=GankRequest	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=Line	recv=Jungle	from=Support	chat=Start	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=Line	recv=Mid	from=Top	chat=BattleHelp	ok=true	ndiff=2	ff_recv=1	trace_len=0
+r12	tut=Line	recv=Mid	from=Top	chat=GankRequest	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=Line	recv=Mid	from=Top	chat=Start	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=Line	recv=Mid	from=Jungle	chat=BattleHelp	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=Line	recv=Mid	from=Jungle	chat=GankRequest	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=Line	recv=Mid	from=Jungle	chat=Start	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=Line	recv=Mid	from=Mid	chat=BattleHelp	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=Line	recv=Mid	from=Mid	chat=GankRequest	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=Line	recv=Mid	from=Mid	chat=Start	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=Line	recv=Mid	from=Bottom	chat=BattleHelp	ok=true	ndiff=2	ff_recv=1	trace_len=0
+r12	tut=Line	recv=Mid	from=Bottom	chat=GankRequest	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=Line	recv=Mid	from=Bottom	chat=Start	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=Line	recv=Mid	from=Support	chat=BattleHelp	ok=true	ndiff=2	ff_recv=1	trace_len=0
+r12	tut=Line	recv=Mid	from=Support	chat=GankRequest	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=Line	recv=Mid	from=Support	chat=Start	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r11	tut=Total	pos=Top	ver=0	ok=true	ndiff=0	mf_swap=(0,0)	fallbacks=0	plan_changed=false	diff=
+r11	tut=Total	pos=Top	ver=1	ok=true	ndiff=0	mf_swap=(0,0)	fallbacks=0	plan_changed=false	diff=
+r11	tut=Total	pos=Top	ver=2	ok=true	ndiff=18	mf_swap=(29,0)	fallbacks=1	plan_changed=false	diff=0x5f8..0x5fb,0x600..0x601,0x708..0x70e,0x710..0x713,0x718..0x71d,0x720..0x725,0x728..0x72e,0x730..0x735,0x738..0x73d,0x740..0x745,0x748..0x74b,0x750..0x755,0x758..0x75e,0x760..0x766,0x768..0x769,0x771..0x772,0x1610..0x1611,0x1628..0x1629
+r11	tut=Total	pos=Top	ver=3	ok=true	ndiff=17	mf_swap=(29,0)	fallbacks=1	plan_changed=false	diff=0x5f8..0x5fb,0x600..0x601,0x708..0x70e,0x710..0x713,0x718..0x71d,0x720..0x725,0x728..0x72e,0x730..0x731,0x738..0x739,0x740..0x746,0x748..0x74b,0x750..0x755,0x758..0x75e,0x760..0x766,0x768..0x769,0x1610..0x1611,0x1628..0x1629
+r11	tut=Total	pos=Top	ver=5	ok=true	ndiff=17	mf_swap=(29,0)	fallbacks=1	plan_changed=false	diff=0x5f8..0x5fb,0x600..0x601,0x708..0x70e,0x710..0x713,0x718..0x71d,0x720..0x725,0x728..0x72e,0x730..0x731,0x738..0x739,0x740..0x746,0x748..0x74b,0x750..0x755,0x758..0x75e,0x760..0x766,0x768..0x769,0x1610..0x1611,0x1628..0x1629
+r11	tut=Total	pos=Jungle	ver=0	ok=true	ndiff=0	mf_swap=(0,0)	fallbacks=0	plan_changed=false	diff=
+r11	tut=Total	pos=Jungle	ver=1	ok=true	ndiff=0	mf_swap=(0,0)	fallbacks=0	plan_changed=false	diff=
+r11	tut=Total	pos=Jungle	ver=2	ok=true	ndiff=51	mf_swap=(29,0)	fallbacks=1	plan_changed=true	diff=0x618..0x61e,0x622..0x626,0x628..0x629,0x631..0x636,0x638..0x639,0x640..0x641,0x652..0x656,0x658..0x65d,0x660..0x665,0x668..0x669,0x670..0x675,0x678..0x67b,0x680..0x686,0x688..0x68c,0x690..0x696,0x698..0x69e,0x6a8..0x6a9,0x6aa..0x6ae,0x6b0..0x6b2,0x6b8..0x6be,0x6c0..0x6c6,0x6c8..0x6ce,0x6d0..0x6d1,0x6d2..0x6d6,0x6d8..0x6dd,0x6e0..0x6e5,0x6e8..0x6ee,0x6f0..0x6f3,0x6f8..0x706,0x708..0x70e,0x710..0x716,0x718..0x71a,0x720..0x725,0x728..0x72e,0x730..0x731,0x738..0x739,0x740..0x746,0x748..0x74b,0x750..0x755,0x758..0x75e,0x760..0x766,0x768..0x769,0x772..0x773,0x778..0x77e,0x780..0x781,0x788..0x791,0x798..0x79e,0x7a2..0x7a6,0x7a8..0x7a9,0x1610..0x1611,0x1628..0x1629
+r11	tut=Total	pos=Jungle	ver=3	ok=true	ndiff=45	mf_swap=(29,0)	fallbacks=1	plan_changed=true	diff=0x618..0x61e,0x622..0x626,0x628..0x629,0x630..0x636,0x638..0x639,0x640..0x641,0x650..0x651,0x652..0x656,0x658..0x65d,0x660..0x665,0x668..0x669,0x670..0x675,0x678..0x67b,0x680..0x686,0x688..0x68e,0x690..0x695,0x698..0x69e,0x6a8..0x6a9,0x6aa..0x6ae,0x6b0..0x6b2,0x6b8..0x6be,0x6c0..0x6c6,0x6c8..0x6ce,0x6d0..0x6d1,0x6d2..0x6d6,0x6d8..0x6dd,0x6e0..0x6e5,0x6e8..0x6ee,0x6f0..0x6f3,0x6f8..0x706,0x708..0x70e,0x710..0x716,0x718..0x71a,0x720..0x725,0x728..0x72e,0x730..0x731,0x738..0x739,0x740..0x746,0x748..0x74b,0x750..0x755,0x758..0x75e,0x760..0x766,0x768..0x769,0x1610..0x1611,0x1628..0x1629
+r11	tut=Total	pos=Jungle	ver=5	ok=true	ndiff=45	mf_swap=(29,0)	fallbacks=1	plan_changed=true	diff=0x618..0x61e,0x622..0x626,0x628..0x629,0x631..0x636,0x638..0x639,0x640..0x641,0x650..0x651,0x652..0x656,0x658..0x65d,0x660..0x665,0x668..0x669,0x670..0x675,0x678..0x67b,0x680..0x686,0x688..0x68e,0x690..0x695,0x698..0x69e,0x6a8..0x6a9,0x6aa..0x6ae,0x6b0..0x6b2,0x6b8..0x6be,0x6c0..0x6c6,0x6c8..0x6ce,0x6d0..0x6d1,0x6d2..0x6d6,0x6d8..0x6dd,0x6e0..0x6e5,0x6e8..0x6ee,0x6f0..0x6f3,0x6f8..0x706,0x708..0x70e,0x710..0x716,0x718..0x71a,0x720..0x725,0x728..0x72e,0x730..0x731,0x738..0x739,0x740..0x746,0x748..0x74b,0x750..0x755,0x758..0x75e,0x760..0x766,0x768..0x769,0x1610..0x1611,0x1628..0x1629
+r11	tut=Total	pos=Mid	ver=0	ok=true	ndiff=0	mf_swap=(0,0)	fallbacks=0	plan_changed=false	diff=
+r11	tut=Total	pos=Mid	ver=1	ok=true	ndiff=0	mf_swap=(0,0)	fallbacks=0	plan_changed=false	diff=
+r11	tut=Total	pos=Mid	ver=2	ok=true	ndiff=24	mf_swap=(29,0)	fallbacks=1	plan_changed=false	diff=0x5f8..0x5fb,0x600..0x601,0x708..0x70e,0x710..0x713,0x718..0x71d,0x720..0x725,0x728..0x72e,0x730..0x731,0x738..0x739,0x740..0x746,0x748..0x74b,0x750..0x755,0x758..0x75e,0x760..0x766,0x768..0x769,0x771..0x773,0x778..0x77e,0x780..0x781,0x788..0x791,0x798..0x79e,0x7a2..0x7a6,0x7a8..0x7a9,0x1610..0x1611,0x1628..0x1629
+r11	tut=Total	pos=Mid	ver=3	ok=true	ndiff=17	mf_swap=(29,0)	fallbacks=1	plan_changed=false	diff=0x5f8..0x5fb,0x600..0x601,0x708..0x70e,0x710..0x713,0x718..0x71d,0x720..0x725,0x728..0x72e,0x730..0x731,0x738..0x739,0x740..0x746,0x748..0x74b,0x750..0x755,0x758..0x75e,0x760..0x766,0x768..0x769,0x1610..0x1611,0x1628..0x1629
+r11	tut=Total	pos=Mid	ver=5	ok=true	ndiff=17	mf_swap=(29,0)	fallbacks=1	plan_changed=false	diff=0x5f8..0x5fb,0x600..0x601,0x708..0x70e,0x710..0x713,0x718..0x71d,0x720..0x725,0x728..0x72e,0x730..0x731,0x738..0x739,0x740..0x746,0x748..0x74b,0x750..0x755,0x758..0x75e,0x760..0x766,0x768..0x769,0x1610..0x1611,0x1628..0x1629
+r11	tut=Total	pos=Bottom	ver=0	ok=true	ndiff=0	mf_swap=(0,0)	fallbacks=0	plan_changed=false	diff=
+r11	tut=Total	pos=Bottom	ver=1	ok=true	ndiff=0	mf_swap=(0,0)	fallbacks=0	plan_changed=false	diff=
+r11	tut=Total	pos=Bottom	ver=2	ok=true	ndiff=18	mf_swap=(29,0)	fallbacks=1	plan_changed=false	diff=0x5f8..0x5fb,0x600..0x601,0x708..0x70e,0x710..0x713,0x718..0x71d,0x720..0x725,0x728..0x72e,0x730..0x731,0x738..0x739,0x740..0x746,0x748..0x74b,0x750..0x755,0x758..0x75e,0x760..0x766,0x768..0x769,0x771..0x772,0x1610..0x1611,0x1628..0x1629
+r11	tut=Total	pos=Bottom	ver=3	ok=true	ndiff=17	mf_swap=(29,0)	fallbacks=1	plan_changed=false	diff=0x5f8..0x5fb,0x600..0x601,0x708..0x70e,0x710..0x713,0x718..0x71d,0x720..0x725,0x728..0x72e,0x730..0x731,0x738..0x739,0x740..0x746,0x748..0x74b,0x750..0x755,0x758..0x75e,0x760..0x766,0x768..0x769,0x1610..0x1611,0x1628..0x1629
+r11	tut=Total	pos=Bottom	ver=5	ok=true	ndiff=17	mf_swap=(29,0)	fallbacks=1	plan_changed=false	diff=0x5f8..0x5fb,0x600..0x601,0x708..0x70e,0x710..0x713,0x718..0x71d,0x720..0x725,0x728..0x72e,0x730..0x731,0x738..0x739,0x740..0x746,0x748..0x74b,0x750..0x755,0x758..0x75e,0x760..0x766,0x768..0x769,0x1610..0x1611,0x1628..0x1629
+r11	tut=Total	pos=Support	ver=0	ok=true	ndiff=0	mf_swap=(0,0)	fallbacks=0	plan_changed=false	diff=
+r11	tut=Total	pos=Support	ver=1	ok=true	ndiff=0	mf_swap=(0,0)	fallbacks=0	plan_changed=false	diff=
+r11	tut=Total	pos=Support	ver=2	ok=true	ndiff=19	mf_swap=(29,0)	fallbacks=1	plan_changed=true	diff=0x5f8..0x5fb,0x600..0x601,0x706..0x707,0x708..0x70e,0x710..0x713,0x718..0x71d,0x720..0x725,0x728..0x72e,0x730..0x731,0x738..0x739,0x740..0x746,0x748..0x74b,0x750..0x755,0x758..0x75e,0x760..0x766,0x768..0x769,0x771..0x772,0x1610..0x1611,0x1628..0x1629
+r11	tut=Total	pos=Support	ver=3	ok=true	ndiff=18	mf_swap=(29,0)	fallbacks=1	plan_changed=true	diff=0x5f8..0x5fb,0x600..0x601,0x706..0x707,0x708..0x70e,0x710..0x713,0x718..0x71d,0x720..0x725,0x728..0x72e,0x730..0x731,0x738..0x739,0x740..0x746,0x748..0x74b,0x750..0x755,0x758..0x75e,0x760..0x766,0x768..0x769,0x1610..0x1611,0x1628..0x1629
+r11	tut=Total	pos=Support	ver=5	ok=true	ndiff=18	mf_swap=(29,0)	fallbacks=1	plan_changed=true	diff=0x5f8..0x5fb,0x600..0x601,0x706..0x707,0x708..0x70e,0x710..0x713,0x718..0x71d,0x720..0x725,0x728..0x72e,0x730..0x731,0x738..0x739,0x740..0x746,0x748..0x74b,0x750..0x755,0x758..0x75e,0x760..0x766,0x768..0x769,0x1610..0x1611,0x1628..0x1629
+r12	tut=Total	recv=Top	from=Top	chat=BattleHelp	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=Total	recv=Top	from=Top	chat=GankRequest	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=Total	recv=Top	from=Top	chat=Start	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=Total	recv=Top	from=Jungle	chat=BattleHelp	ok=true	ndiff=2	ff_recv=1	trace_len=0
+r12	tut=Total	recv=Top	from=Jungle	chat=GankRequest	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=Total	recv=Top	from=Jungle	chat=Start	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=Total	recv=Top	from=Mid	chat=BattleHelp	ok=true	ndiff=2	ff_recv=1	trace_len=0
+r12	tut=Total	recv=Top	from=Mid	chat=GankRequest	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=Total	recv=Top	from=Mid	chat=Start	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=Total	recv=Top	from=Bottom	chat=BattleHelp	ok=true	ndiff=2	ff_recv=1	trace_len=0
+r12	tut=Total	recv=Top	from=Bottom	chat=GankRequest	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=Total	recv=Top	from=Bottom	chat=Start	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=Total	recv=Top	from=Support	chat=BattleHelp	ok=true	ndiff=2	ff_recv=1	trace_len=0
+r12	tut=Total	recv=Top	from=Support	chat=GankRequest	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=Total	recv=Top	from=Support	chat=Start	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=Total	recv=Jungle	from=Top	chat=BattleHelp	ok=true	ndiff=2	ff_recv=1	trace_len=0
+r12	tut=Total	recv=Jungle	from=Top	chat=GankRequest	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=Total	recv=Jungle	from=Top	chat=Start	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=Total	recv=Jungle	from=Jungle	chat=BattleHelp	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=Total	recv=Jungle	from=Jungle	chat=GankRequest	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=Total	recv=Jungle	from=Jungle	chat=Start	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=Total	recv=Jungle	from=Mid	chat=BattleHelp	ok=true	ndiff=2	ff_recv=1	trace_len=0
+r12	tut=Total	recv=Jungle	from=Mid	chat=GankRequest	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=Total	recv=Jungle	from=Mid	chat=Start	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=Total	recv=Jungle	from=Bottom	chat=BattleHelp	ok=true	ndiff=2	ff_recv=1	trace_len=0
+r12	tut=Total	recv=Jungle	from=Bottom	chat=GankRequest	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=Total	recv=Jungle	from=Bottom	chat=Start	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=Total	recv=Jungle	from=Support	chat=BattleHelp	ok=true	ndiff=2	ff_recv=1	trace_len=0
+r12	tut=Total	recv=Jungle	from=Support	chat=GankRequest	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=Total	recv=Jungle	from=Support	chat=Start	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=Total	recv=Mid	from=Top	chat=BattleHelp	ok=true	ndiff=2	ff_recv=1	trace_len=0
+r12	tut=Total	recv=Mid	from=Top	chat=GankRequest	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=Total	recv=Mid	from=Top	chat=Start	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=Total	recv=Mid	from=Jungle	chat=BattleHelp	ok=true	ndiff=2	ff_recv=1	trace_len=0
+r12	tut=Total	recv=Mid	from=Jungle	chat=GankRequest	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=Total	recv=Mid	from=Jungle	chat=Start	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=Total	recv=Mid	from=Mid	chat=BattleHelp	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=Total	recv=Mid	from=Mid	chat=GankRequest	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=Total	recv=Mid	from=Mid	chat=Start	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=Total	recv=Mid	from=Bottom	chat=BattleHelp	ok=true	ndiff=2	ff_recv=1	trace_len=0
+r12	tut=Total	recv=Mid	from=Bottom	chat=GankRequest	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=Total	recv=Mid	from=Bottom	chat=Start	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=Total	recv=Mid	from=Support	chat=BattleHelp	ok=true	ndiff=2	ff_recv=1	trace_len=0
+r12	tut=Total	recv=Mid	from=Support	chat=GankRequest	ok=true	ndiff=0	ff_recv=0	trace_len=0
+r12	tut=Total	recv=Mid	from=Support	chat=Start	ok=true	ndiff=0	ff_recv=0	trace_len=0
+objid2	Morgard/None/wb=false	=>Some(777)
+objid2	Serpen/None/wb=false	=>Some(555)
+objid2	Morgard/None/wb=true	=>Some(777)
+objid2	Serpen/None/wb=true	=>Some(555)
+objid2	Morgard/Hunt/wb=false	=>Some(777)
+objid2	Serpen/Hunt/wb=false	=>Some(555)
+objid2	Morgard/Hunt/wb=true	=>Some(777)
+objid2	Serpen/Hunt/wb=true	=>Some(555)
+objid2	Defense	=>None
+objid2	Repair	=>None
+objid2	DefenseLine(Top)	=>None
+objid2	Nexus(Top)	=>None
+objid2	PressEpic(Top)	=>None
+objid2	SplitEpic(Top)	=>None
+objid2	Gank(Top)	=>None
+objid2	Dive(Top)	=>None
+objid2	PressTower(Top)	=>None
+objid2	Comeback(Top)	=>None

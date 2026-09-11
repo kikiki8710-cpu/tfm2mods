@@ -1,0 +1,43 @@
+SANITY	tower_ids=16	nexus_ids=2	champion_ids=10	width=0	height=0
+lane_seq	line=Top	team=0	seq=[0, 5, 22, 17, 18, 20, 26]
+lane_seq	line=Top	team=1	seq=[26, 20, 18, 17, 22, 5, 0]
+lane_seq	line=Mid	team=0	seq=[0, 19, 4, 6, 3, 12, 26]
+lane_seq	line=Mid	team=1	seq=[26, 12, 3, 6, 4, 19, 0]
+lane_seq	line=Bottom	team=0	seq=[0, 9, 8, 16, 23, 25, 26]
+lane_seq	line=Bottom	team=1	seq=[26, 25, 23, 16, 8, 9, 0]
+lead	tick=0	top=[2, 2]	mid=[2, 2]	bottom=[2, 2]	rp_nonzero=22	rp=[8, 3, 0, -6, 6, 7, 0, 0, 6, 7, -3, -3, -7, 3, 2, -2, 0, 0, -6, 7, -7, -3, 6, -6, 3, -7, -8]
+lead	tick=60	top=[2, 2]	mid=[2, 2]	bottom=[2, 2]	rp_nonzero=22	rp=[8, 3, 0, -6, 6, 7, 0, 0, 6, 7, -3, -3, -7, 3, 2, -2, 0, 0, -6, 7, -7, -3, 6, -6, 3, -7, -8]
+lead	tick=600	top=[2, 2]	mid=[2, 2]	bottom=[2, 2]	rp_nonzero=22	rp=[8, 3, 0, -6, 6, 7, 0, 0, 6, 7, -3, -3, -7, 3, 2, -2, 0, 0, -6, 7, -7, -3, 6, -6, 3, -7, -8]
+lead	tick=1800	top=[2, 2]	mid=[2, 2]	bottom=[2, 2]	rp_nonzero=22	rp=[8, 3, 0, -6, 6, 7, 0, 0, 6, 7, -3, -3, -7, 3, 2, -2, 0, 0, -6, 7, -7, -3, 6, -6, 3, -7, -8]
+lead	tick=3600	top=[2, 2]	mid=[2, 2]	bottom=[2, 2]	rp_nonzero=22	rp=[8, 3, 0, -6, 6, 7, 0, 0, 6, 7, -3, -3, -7, 3, 2, -2, 0, 0, -6, 7, -7, -3, 6, -6, 3, -7, -8]
+lead	tick=7200	top=[2, 2]	mid=[2, 2]	bottom=[2, 2]	rp_nonzero=22	rp=[8, 3, 0, -6, 6, 7, 0, 0, 6, 7, -3, -3, -7, 3, 2, -2, 0, 0, -6, 7, -7, -3, 6, -6, 3, -7, -8]
+ENT	enemy_champ id=23 x=0 y=0 radius=0 nontarget_avoid=0
+ENT	ally_champ  id=18 x=0 y=0 radius=0
+ENT	tower0      id=2 x=48000 y=272000 radius=10000 ty=Tower { info: Tower { stat: EntityStat { attack: 1, magic_power: 1, hp: 1, defence: 1, magic_resistance: 1, move_speed: 1, hp_regen: 0, stack: 0, crit_chance: 0 }, attack_cooldown: 0, action: TowerAction { attack: TowerProjectileAction { name: "blue_tower_attack", action_name: "", attack: 0, attack_ratio: 0, range: 0, speed: 0, cooltime: 0, duration: 0, start_timing: 0, cancelable: false, y_offset: 0, can_use_with_move: false } }, state: Idle, nearest_enemy: None, last_hit: None, ty: Top, exp: 0, gold: 0 } }
+hit	champ->champ	d=0	min_margin=Some(0)
+hit	champ->champ	d=1000	min_margin=Some(1000)
+hit	champ->champ	d=5000	min_margin=Some(5000)
+hit	champ->champ	d=10000	min_margin=Some(10000)
+hit	champ->champ	d=25000	min_margin=Some(25000)
+hit	champ->champ	d=50000	min_margin=Some(50000)
+hit	champ->champ	d=100000	min_margin=Some(100000)
+hit	champ->champ	d=200000	min_margin=None
+hit	champ->champ	d=400000	min_margin=None
+hit	champ->tower	d=0	min_margin=Some(0)
+hit	champ->tower	d=1000	min_margin=Some(0)
+hit	champ->tower	d=5000	min_margin=Some(0)
+hit	champ->tower	d=10000	min_margin=Some(0)
+hit	champ->tower	d=25000	min_margin=Some(15000)
+hit	champ->tower	d=50000	min_margin=Some(40000)
+hit	champ->tower	d=100000	min_margin=Some(90000)
+hit	champ->tower	d=200000	min_margin=None
+hit	champ->tower	d=400000	min_margin=None
+hit	tower->champ	d=0	min_margin=Some(0)
+hit	tower->champ	d=1000	min_margin=Some(0)
+hit	tower->champ	d=5000	min_margin=Some(0)
+hit	tower->champ	d=10000	min_margin=Some(0)
+hit	tower->champ	d=25000	min_margin=Some(15000)
+hit	tower->champ	d=50000	min_margin=Some(40000)
+hit	tower->champ	d=100000	min_margin=Some(90000)
+hit	tower->champ	d=200000	min_margin=None
+hit	tower->champ	d=400000	min_margin=None

@@ -116,11 +116,21 @@ def gate2(i, sp):
 SIB = ("sub_plan", "next_plan", "is_end", "update", "on_enter", "on_exit")
 
 
+FREE_FN = {0, 1, 3, 4, 9, 10, 16, 19}   # 실측으로 자유 함수(impl 타입 없음)인 것만
+
+
 def gate3(i, sp):
     if IS_V3:
         sb = sp.get("siblings") or {}
         if sb.get("plan") and not sb.get("entries"):
             flag("G3", i, u"siblings.plan=%s 인데 entries 가 비었다 — 자동 열거 실패" % sb.get("plan"))
+        # ★`plan == null` 을 무조건 통과시키면 안 된다.
+        #   초판이 그렇게 만들어서, 망글링 파싱 버그로 **20개 전부 plan=null** 이 된 것을 못 잡았다
+        #   (3차 배치 C 가 13·14 에서 손으로 적발 — G3 가 막으려던 실패와 같은 형태).
+        #   자유 함수 화이트리스트에 없는데 null 이면 파싱 실패를 의심해야 한다.
+        elif not sb.get("plan") and i not in FREE_FN:
+            flag("G3", i, u"siblings.plan == null 인데 자유 함수 화이트리스트에 없다 "
+                          u"— 망글링 파싱 실패를 의심하라", (sp.get("sym") or u"")[:90])
         return
     sym = (sp.get("sym") or "") + " " + (sp.get("name") or "")
     cands = [x for x in re.findall(r"\d+([A-Z][A-Za-z0-9]*)", sym) if x.endswith("Plan")]
@@ -177,8 +187,95 @@ def gate4(i, sp):
              % len(missing), ", ".join(missing[:8]))
 
 
-GATES = {"G1": gate1, "G2": gate2, "G3": gate3, "G4": gate4}
-NAMES = {"G1": u"자기모순", "G2": u"호출부 전수", "G3": u"형제 함수", "G4": u"술어 시그니처"}
+# ── G5. `sig.tcx`(정본) ↔ `sig.params[].type` 의 &/&mut 대조 ────────────
+# 3차 배치 B 가 손으로 적발한 유형: `08 params[5]` 이 `&mut TeamPlan` 인데 tcx 는 `&TeamPlan`.
+# **같은 스펙 안에 정답이 이미 있었다** — 기계로 잡힌다.
+TYNAME = re.compile(r"([A-Za-z_][A-Za-z0-9_]*)")
+
+
+def split_args(tcx):
+    u"""`fn(A, B, C) -> R` 의 최상위 인자만 쪼갠다. 중첩 `<>`·`()` 안의 콤마는 무시한다.
+
+    ⚠문자열 매칭(`"&TeamPlan" in tcx`)으로 하면 안 된다 — tcx 는 완전경로
+    `&game_ai::plan_legacy::team_plan::TeamPlan` 을 쓰므로 매치가 실패하고
+    **알려진 양성(08 params[6])을 놓친다**(초판이 그래서 0건이었다)."""
+    m = re.match(r"\s*fn\s*\((.*)\)\s*(?:->.*)?$", tcx, re.S)
+    if not m:
+        return []
+    body, out, depth, cur = m.group(1), [], 0, []
+    for ch in body:
+        if ch in "<([":
+            depth += 1
+        elif ch in ">)]":
+            depth -= 1
+        if ch == "," and depth == 0:
+            out.append("".join(cur).strip())
+            cur = []
+        else:
+            cur.append(ch)
+    if "".join(cur).strip():
+        out.append("".join(cur).strip())
+    return out
+
+
+def gate5(i, sp):
+    if not IS_V3:
+        return
+    sg = sp.get("sig") or {}
+    tcx = sg.get("tcx") or u""
+    args = split_args(tcx)
+    # ★`(sret)` 슬롯은 **ABI 산물이고 소스 인자가 아니다** — tcx sig 에는 없다.
+    #   빼지 않으면 00·07·15 가 전부 "개수 불일치"로 잡히는데 그건 오류가 아니다
+    #   (명세가 `(sret)` 라고 정확히 표기해 둔 것이다).
+    params = [p for p in (sg.get("params") or [])
+              if "sret" not in str(p.get("name") or "").lower()]
+    if not args or not params:
+        return
+    if len(args) != len(params):
+        flag("G5", i, u"sig.tcx 인자 %d개 vs params %d개 — 개수가 다르다" % (len(args), len(params)),
+             u" | ".join(a[:34] for a in args))
+        return
+    for p, a in zip(params, args):
+        t = STRIKE.sub(u" ", str(p.get("type") or u""))
+        has_mut = "&mut" in t.replace(" ", "")
+        want_mut = a.replace(" ", "").startswith("&mut")
+        if has_mut != want_mut:
+            flag("G5", i, u"params[%s](%s) 의 가변성이 tcx 와 다르다 — 명세 `%s` / tcx `%s`"
+                 % (p.get("i"), p.get("name"), t[:40], a[:60]))
+
+
+# ── G6. `logic` ↔ 정본(mem/consts/callees) 어긋남 ──────────────────────
+# ★3차의 잔존 오염원은 사실상 이것 하나였다 — `logic` 산문이 표의 정정을 못 받는다
+# (3차 배치 D 의 실오류 5건 중 3건, 배치 A 의 E1/E2, 배치 C 의 E8).
+# 정본에 있는 「신값」이 logic 에 없고 「구값」이 logic 에 살아 있으면 잡는다.
+LOGIC_PAIRS = [
+    (u"&mut ", u"공유"),          # &mut 표기 ↔ 공유 참조 확정
+]
+
+
+def gate6(i, sp):
+    if not IS_V3:
+        return
+    lg = STRIKE.sub(u" ", sp.get("logic") or u"")
+    if not lg:
+        return
+    # 정본 note/meaning 이 `~~구~~ → 신` 으로 정정한 옛 값이 logic 에 그대로 남아 있는가
+    for field in ("mem", "consts", "knobs"):
+        for x in sp.get(field) or []:
+            blob = json.dumps(x, ensure_ascii=False)
+            for m in re.finditer(r"~~([^~]{4,60})~~", blob):
+                old = m.group(1).strip("`* ")
+                if len(old) < 5:
+                    continue
+                if old in lg:
+                    flag("G6", i, u"%s 가 `~~%s~~` 로 정정했는데 logic 에 그 옛 값이 살아 있다"
+                         % (field, old[:50]), x.get("name") or x.get("what") or u"")
+                    break
+
+
+GATES = {"G1": gate1, "G2": gate2, "G3": gate3, "G4": gate4, "G5": gate5, "G6": gate6}
+NAMES = {"G1": u"자기모순", "G2": u"호출부 전수", "G3": u"형제 함수", "G4": u"술어 시그니처",
+         "G5": u"sig 정본 대조", "G6": u"logic 미반영"}
 
 
 def main():

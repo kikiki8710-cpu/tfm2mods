@@ -121,15 +121,48 @@ def harvest_callees(sp):
     return sorted(n for n in names if n and n not in SKIP and len(n) > 3)
 
 
-PLANTY = re.compile(r"\d+([A-Z][A-Za-z0-9]*Plan)\b")
+# ★망글링 심볼에서 타입명을 뽑는다. rustc v0 망글링은 `<길이><이름>` 이라
+#   길이접두를 **정확히 세어** 잘라야 한다.
+#   ⚠초판은 `\d+([A-Z][A-Za-z0-9]*Plan)\b` 를 썼는데 `17LineGankCoverPlan15target_bush_v30` 처럼
+#     `Plan` 뒤에 바로 숫자가 붙으면 워드경계가 성립하지 않아 **20개 전부 매치 0** 이었다.
+#     그리고 specgate G3 가 `plan==null` 을 무조건 통과시켜 이 구멍을 못 잡았다
+#     (3차 배치 C 가 13·14 에서 적발 — G3 가 막으려던 실패와 같은 형태).
+LENPFX = re.compile(r"(\d+)([A-Za-z_][A-Za-z0-9_]*)")
+
+
+def mangled_names(sym):
+    u"""망글링 심볼 안의 `<길이><이름>` 후보를 **겹침 허용**으로 전부 돌려준다.
+
+    ⚠순차 워커로 만들면 안 된다 — `NtB2_17LineGankCoverPlan` 에서 `2` 를 길이로 읽어
+    `_1` 을 소비해 버리고 그 뒤 `17LineGankCoverPlan` 을 놓친다(실측 1/20).
+    모든 시작 위치를 독립적으로 시도하고 길이가 맞는 것만 채택한다."""
+    u"""⚠`re.finditer` 로도 안 된다 — 겹치지 않으므로 `…0ozCnw_7game_ai…` 의 `0` 이
+    길이 0 으로 매치되며 문자열 전체를 삼킨다(실측 0/20). 위치를 직접 훑는다."""
+    out = []
+    for i in range(len(sym)):
+        if not sym[i].isdigit() or (i and sym[i - 1].isdigit()):
+            continue
+        j = i
+        while j < len(sym) and sym[j].isdigit():
+            j += 1
+        n = int(sym[i:j])
+        if n < 1 or j + n > len(sym):
+            continue
+        name = sym[j:j + n]
+        if re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*", name):
+            out.append(name)
+    return out
 
 
 def plan_type(sp):
-    m = PLANTY.findall((sp.get("sym") or u"") + u" " + (sp.get("id") or u""))
-    if m:
-        return m[-1]
-    m2 = re.search(r"([A-Z][A-Za-z0-9]*Plan)\b", sp.get("name") or u"")
-    return m2.group(1) if m2 else None
+    u"""이 함수가 달려 있는 **impl 타입**을 돌려준다(자유 함수면 None).
+
+    ⚠"Plan 으로 끝나는 것"만 찾으면 `LegacyPlanHandler`(05·06·11·12·15)·`DeathMatchBattle`(17)
+    처럼 형제가 실제로 중요한 타입을 놓친다 — 3차 배치 C 가 `LegacyPlanHandler` 형제로
+    `handle_chat_inner` 계열을 찾아냈다. **UpperCamel 이름 중 마지막 것**을 쓴다."""
+    ups = [n for n in mangled_names(sp.get("sym") or u"")
+           if n[:1].isupper() and "_" not in n]
+    return ups[-1] if ups else None
 
 
 # ── 변환 ─────────────────────────────────────────────────────────────

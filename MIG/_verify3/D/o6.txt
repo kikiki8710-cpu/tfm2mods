@@ -1,0 +1,143 @@
+=== 19 get_camp_state mapping (pointer identity) ===
+19	team=0	camp=Rhino	-> field=blue_rhino	is_blue_side=true	ty=Rhino	next_respawn_tick=0	respawn_count=0	live=0
+19	team=0	camp=Mushroom	-> field=blue_mushroom	is_blue_side=true	ty=Mushroom	next_respawn_tick=0	respawn_count=0	live=0
+19	team=0	camp=Stump	-> field=blue_stump	is_blue_side=true	ty=Stump	next_respawn_tick=0	respawn_count=0	live=0
+19	team=0	camp=Bee	-> field=blue_bee	is_blue_side=true	ty=Bee	next_respawn_tick=0	respawn_count=0	live=0
+19	team=0	camp=Morgard	-> field=epic	is_blue_side=false	ty=Morgard	next_respawn_tick=0	respawn_count=0	live=0
+19	team=0	camp=Serpen	-> ★PANIC (jungle.rs:713 unreachable!("team value must be 0 or 1"))
+19	team=1	camp=Rhino	-> field=red_rhino	is_blue_side=false	ty=Rhino	next_respawn_tick=0	respawn_count=0	live=0
+19	team=1	camp=Mushroom	-> field=red_mushroom	is_blue_side=false	ty=Mushroom	next_respawn_tick=0	respawn_count=0	live=0
+19	team=1	camp=Stump	-> field=red_stump	is_blue_side=false	ty=Stump	next_respawn_tick=0	respawn_count=0	live=0
+19	team=1	camp=Bee	-> field=red_bee	is_blue_side=false	ty=Bee	next_respawn_tick=0	respawn_count=0	live=0
+19	team=1	camp=Morgard	-> field=epic	is_blue_side=false	ty=Morgard	next_respawn_tick=0	respawn_count=0	live=0
+19	team=1	camp=Serpen	-> ★PANIC (jungle.rs:713 unreachable!("team value must be 0 or 1"))
+19	team=2	camp=Rhino	-> ★PANIC (jungle.rs:713 unreachable!("team value must be 0 or 1"))
+19	team=2	camp=Mushroom	-> ★PANIC (jungle.rs:713 unreachable!("team value must be 0 or 1"))
+19	team=2	camp=Stump	-> ★PANIC (jungle.rs:713 unreachable!("team value must be 0 or 1"))
+19	team=2	camp=Bee	-> ★PANIC (jungle.rs:713 unreachable!("team value must be 0 or 1"))
+19	team=2	camp=Morgard	-> field=epic	is_blue_side=false	ty=Morgard	next_respawn_tick=0	respawn_count=0	live=0
+19	team=2	camp=Serpen	-> ★PANIC (jungle.rs:713 unreachable!("team value must be 0 or 1"))
+19	team=5	camp=Rhino	-> ★PANIC (jungle.rs:713 unreachable!("team value must be 0 or 1"))
+19	team=5	camp=Mushroom	-> ★PANIC (jungle.rs:713 unreachable!("team value must be 0 or 1"))
+19	team=5	camp=Stump	-> ★PANIC (jungle.rs:713 unreachable!("team value must be 0 or 1"))
+19	team=5	camp=Bee	-> ★PANIC (jungle.rs:713 unreachable!("team value must be 0 or 1"))
+19	team=5	camp=Morgard	-> field=epic	is_blue_side=false	ty=Morgard	next_respawn_tick=0	respawn_count=0	live=0
+19	team=5	camp=Serpen	-> ★PANIC (jungle.rs:713 unreachable!("team value must be 0 or 1"))
+=== 17 BattlePlanGoal::base_sub_goal(version, player, data) ===
+17	ver=0	goal=TryKill(C1Top,60)	t0Top=End	t0Jungle=End	t1Top=Trace { focus: 23 }
+17	ver=0	goal=TryKill(C1Top,0)	t0Top=End	t0Jungle=End	t1Top=Trace { focus: 23 }
+17	ver=0	goal=TryKill(C0Jgl,60)	t0Top=Trace { focus: 19 }	t0Jungle=Trace { focus: 19 }	t1Top=End
+17	ver=0	goal=TryKill(self,60)	t0Top=Trace { focus: 18 }	t0Jungle=Trace { focus: 18 }	t1Top=End
+17	ver=0	goal=TryKill(T1#0,60)	t0Top=Trace { focus: 3 }	t0Jungle=Trace { focus: 3 }	t1Top=Trace { focus: 3 }
+17	ver=0	goal=TryKill(bogus,60)	t0Top=Trace { focus: 999999 }	t0Jungle=Trace { focus: 999999 }	t1Top=Trace { focus: 999999 }
+17	ver=0	goal=Support(C0Jgl)	t0Top=Trace { focus: 19 }	t0Jungle=Trace { focus: 19 }	t1Top=End
+17	ver=0	goal=Support(C1Top)	t0Top=End	t0Jungle=End	t1Top=Trace { focus: 23 }
+17	ver=0	goal=Support(bogus)	t0Top=Trace { focus: 999999 }	t0Jungle=Trace { focus: 999999 }	t1Top=Trace { focus: 999999 }
+17	ver=0	goal=Response	t0Top=RunAway	t0Jungle=RunAway	t1Top=RunAway
+17	ver=0	goal=Avoid	t0Top=RunAway	t0Jungle=RunAway	t1Top=RunAway
+17	ver=1	goal=TryKill(C1Top,60)	t0Top=End	t0Jungle=End	t1Top=Trace { focus: 23 }
+17	ver=1	goal=TryKill(C1Top,0)	t0Top=End	t0Jungle=End	t1Top=Trace { focus: 23 }
+17	ver=1	goal=TryKill(C0Jgl,60)	t0Top=Trace { focus: 19 }	t0Jungle=Trace { focus: 19 }	t1Top=End
+17	ver=1	goal=TryKill(self,60)	t0Top=Trace { focus: 18 }	t0Jungle=Trace { focus: 18 }	t1Top=End
+17	ver=1	goal=TryKill(T1#0,60)	t0Top=Trace { focus: 3 }	t0Jungle=Trace { focus: 3 }	t1Top=Trace { focus: 3 }
+17	ver=1	goal=TryKill(bogus,60)	t0Top=Trace { focus: 999999 }	t0Jungle=Trace { focus: 999999 }	t1Top=Trace { focus: 999999 }
+17	ver=1	goal=Support(C0Jgl)	t0Top=Trace { focus: 19 }	t0Jungle=Trace { focus: 19 }	t1Top=End
+17	ver=1	goal=Support(C1Top)	t0Top=End	t0Jungle=End	t1Top=Trace { focus: 23 }
+17	ver=1	goal=Support(bogus)	t0Top=Trace { focus: 999999 }	t0Jungle=Trace { focus: 999999 }	t1Top=Trace { focus: 999999 }
+17	ver=1	goal=Response	t0Top=RunAway	t0Jungle=RunAway	t1Top=RunAway
+17	ver=1	goal=Avoid	t0Top=RunAway	t0Jungle=RunAway	t1Top=RunAway
+17	ver=2	goal=TryKill(C1Top,60)	t0Top=End	t0Jungle=End	t1Top=Trace { focus: 23 }
+17	ver=2	goal=TryKill(C1Top,0)	t0Top=End	t0Jungle=End	t1Top=Trace { focus: 23 }
+17	ver=2	goal=TryKill(C0Jgl,60)	t0Top=Trace { focus: 19 }	t0Jungle=Trace { focus: 19 }	t1Top=End
+17	ver=2	goal=TryKill(self,60)	t0Top=Trace { focus: 18 }	t0Jungle=Trace { focus: 18 }	t1Top=End
+17	ver=2	goal=TryKill(T1#0,60)	t0Top=Trace { focus: 3 }	t0Jungle=Trace { focus: 3 }	t1Top=Trace { focus: 3 }
+17	ver=2	goal=TryKill(bogus,60)	t0Top=Trace { focus: 999999 }	t0Jungle=Trace { focus: 999999 }	t1Top=Trace { focus: 999999 }
+17	ver=2	goal=Support(C0Jgl)	t0Top=Trace { focus: 19 }	t0Jungle=Trace { focus: 19 }	t1Top=End
+17	ver=2	goal=Support(C1Top)	t0Top=End	t0Jungle=End	t1Top=Trace { focus: 23 }
+17	ver=2	goal=Support(bogus)	t0Top=Trace { focus: 999999 }	t0Jungle=Trace { focus: 999999 }	t1Top=Trace { focus: 999999 }
+17	ver=2	goal=Response	t0Top=RunAway	t0Jungle=RunAway	t1Top=RunAway
+17	ver=2	goal=Avoid	t0Top=RunAway	t0Jungle=RunAway	t1Top=RunAway
+17	ver=3	goal=TryKill(C1Top,60)	t0Top=End	t0Jungle=End	t1Top=Trace { focus: 23 }
+17	ver=3	goal=TryKill(C1Top,0)	t0Top=End	t0Jungle=End	t1Top=Trace { focus: 23 }
+17	ver=3	goal=TryKill(C0Jgl,60)	t0Top=Trace { focus: 19 }	t0Jungle=Trace { focus: 19 }	t1Top=End
+17	ver=3	goal=TryKill(self,60)	t0Top=Trace { focus: 18 }	t0Jungle=Trace { focus: 18 }	t1Top=End
+17	ver=3	goal=TryKill(T1#0,60)	t0Top=Trace { focus: 3 }	t0Jungle=Trace { focus: 3 }	t1Top=Trace { focus: 3 }
+17	ver=3	goal=TryKill(bogus,60)	t0Top=Trace { focus: 999999 }	t0Jungle=Trace { focus: 999999 }	t1Top=Trace { focus: 999999 }
+17	ver=3	goal=Support(C0Jgl)	t0Top=Trace { focus: 19 }	t0Jungle=Trace { focus: 19 }	t1Top=End
+17	ver=3	goal=Support(C1Top)	t0Top=End	t0Jungle=End	t1Top=Trace { focus: 23 }
+17	ver=3	goal=Support(bogus)	t0Top=Trace { focus: 999999 }	t0Jungle=Trace { focus: 999999 }	t1Top=Trace { focus: 999999 }
+17	ver=3	goal=Response	t0Top=RunAway	t0Jungle=RunAway	t1Top=RunAway
+17	ver=3	goal=Avoid	t0Top=RunAway	t0Jungle=RunAway	t1Top=RunAway
+17	ver=30	goal=TryKill(C1Top,60)	t0Top=End	t0Jungle=End	t1Top=Trace { focus: 23 }
+17	ver=30	goal=TryKill(C1Top,0)	t0Top=End	t0Jungle=End	t1Top=Trace { focus: 23 }
+17	ver=30	goal=TryKill(C0Jgl,60)	t0Top=Trace { focus: 19 }	t0Jungle=Trace { focus: 19 }	t1Top=End
+17	ver=30	goal=TryKill(self,60)	t0Top=Trace { focus: 18 }	t0Jungle=Trace { focus: 18 }	t1Top=End
+17	ver=30	goal=TryKill(T1#0,60)	t0Top=Trace { focus: 3 }	t0Jungle=Trace { focus: 3 }	t1Top=Trace { focus: 3 }
+17	ver=30	goal=TryKill(bogus,60)	t0Top=Trace { focus: 999999 }	t0Jungle=Trace { focus: 999999 }	t1Top=Trace { focus: 999999 }
+17	ver=30	goal=Support(C0Jgl)	t0Top=Trace { focus: 19 }	t0Jungle=Trace { focus: 19 }	t1Top=End
+17	ver=30	goal=Support(C1Top)	t0Top=End	t0Jungle=End	t1Top=Trace { focus: 23 }
+17	ver=30	goal=Support(bogus)	t0Top=Trace { focus: 999999 }	t0Jungle=Trace { focus: 999999 }	t1Top=Trace { focus: 999999 }
+17	ver=30	goal=Response	t0Top=RunAway	t0Jungle=RunAway	t1Top=RunAway
+17	ver=30	goal=Avoid	t0Top=RunAway	t0Jungle=RunAway	t1Top=RunAway
+17	ver=32	goal=TryKill(C1Top,60)	t0Top=End	t0Jungle=End	t1Top=Trace { focus: 23 }
+17	ver=32	goal=TryKill(C1Top,0)	t0Top=End	t0Jungle=End	t1Top=Trace { focus: 23 }
+17	ver=32	goal=TryKill(C0Jgl,60)	t0Top=Trace { focus: 19 }	t0Jungle=Trace { focus: 19 }	t1Top=End
+17	ver=32	goal=TryKill(self,60)	t0Top=Trace { focus: 18 }	t0Jungle=Trace { focus: 18 }	t1Top=End
+17	ver=32	goal=TryKill(T1#0,60)	t0Top=Trace { focus: 3 }	t0Jungle=Trace { focus: 3 }	t1Top=Trace { focus: 3 }
+17	ver=32	goal=TryKill(bogus,60)	t0Top=Trace { focus: 999999 }	t0Jungle=Trace { focus: 999999 }	t1Top=Trace { focus: 999999 }
+17	ver=32	goal=Support(C0Jgl)	t0Top=Trace { focus: 19 }	t0Jungle=Trace { focus: 19 }	t1Top=End
+17	ver=32	goal=Support(C1Top)	t0Top=End	t0Jungle=End	t1Top=Trace { focus: 23 }
+17	ver=32	goal=Support(bogus)	t0Top=Trace { focus: 999999 }	t0Jungle=Trace { focus: 999999 }	t1Top=Trace { focus: 999999 }
+17	ver=32	goal=Response	t0Top=RunAway	t0Jungle=RunAway	t1Top=RunAway
+17	ver=32	goal=Avoid	t0Top=RunAway	t0Jungle=RunAway	t1Top=RunAway
+17	ver=50	goal=TryKill(C1Top,60)	t0Top=End	t0Jungle=End	t1Top=Trace { focus: 23 }
+17	ver=50	goal=TryKill(C1Top,0)	t0Top=End	t0Jungle=End	t1Top=Trace { focus: 23 }
+17	ver=50	goal=TryKill(C0Jgl,60)	t0Top=Trace { focus: 19 }	t0Jungle=Trace { focus: 19 }	t1Top=End
+17	ver=50	goal=TryKill(self,60)	t0Top=Trace { focus: 18 }	t0Jungle=Trace { focus: 18 }	t1Top=End
+17	ver=50	goal=TryKill(T1#0,60)	t0Top=Trace { focus: 3 }	t0Jungle=Trace { focus: 3 }	t1Top=Trace { focus: 3 }
+17	ver=50	goal=TryKill(bogus,60)	t0Top=Trace { focus: 999999 }	t0Jungle=Trace { focus: 999999 }	t1Top=Trace { focus: 999999 }
+17	ver=50	goal=Support(C0Jgl)	t0Top=Trace { focus: 19 }	t0Jungle=Trace { focus: 19 }	t1Top=End
+17	ver=50	goal=Support(C1Top)	t0Top=End	t0Jungle=End	t1Top=Trace { focus: 23 }
+17	ver=50	goal=Support(bogus)	t0Top=Trace { focus: 999999 }	t0Jungle=Trace { focus: 999999 }	t1Top=Trace { focus: 999999 }
+17	ver=50	goal=Response	t0Top=RunAway	t0Jungle=RunAway	t1Top=RunAway
+17	ver=50	goal=Avoid	t0Top=RunAway	t0Jungle=RunAway	t1Top=RunAway
+=== 18 v3_epic_group_line / v3_epic_formation_role / v3_serpen_contest_clear_win ===
+18	strat=Gather	team=0	group_line=Some(Mid)	roles: Top=Some(V3EpicFormation { line: Mid, is_split: false }) Jungle=Some(V3EpicFormation { line: Mid, is_split: false }) Mid=Some(V3EpicFormation { line: Mid, is_split: false }) Bottom=Some(V3EpicFormation { line: Mid, is_split: false }) Support=Some(V3EpicFormation { line: Mid, is_split: false })
+18	strat=Gather	team=1	group_line=Some(Mid)	roles: Top=Some(V3EpicFormation { line: Mid, is_split: false }) Jungle=Some(V3EpicFormation { line: Mid, is_split: false }) Mid=Some(V3EpicFormation { line: Mid, is_split: false }) Bottom=Some(V3EpicFormation { line: Mid, is_split: false }) Support=Some(V3EpicFormation { line: Mid, is_split: false })
+18	strat=Split14(Top)	team=0	group_line=Some(Mid)	roles: Top=Some(V3EpicFormation { line: Bottom, is_split: true }) Jungle=Some(V3EpicFormation { line: Mid, is_split: false }) Mid=Some(V3EpicFormation { line: Mid, is_split: false }) Bottom=Some(V3EpicFormation { line: Mid, is_split: false }) Support=Some(V3EpicFormation { line: Mid, is_split: false })
+18	strat=Split14(Top)	team=1	group_line=Some(Mid)	roles: Top=Some(V3EpicFormation { line: Bottom, is_split: true }) Jungle=Some(V3EpicFormation { line: Mid, is_split: false }) Mid=Some(V3EpicFormation { line: Mid, is_split: false }) Bottom=Some(V3EpicFormation { line: Mid, is_split: false }) Support=Some(V3EpicFormation { line: Mid, is_split: false })
+18	strat=Split14(Jungle)	team=0	group_line=Some(Mid)	roles: Top=Some(V3EpicFormation { line: Mid, is_split: false }) Jungle=Some(V3EpicFormation { line: Bottom, is_split: true }) Mid=Some(V3EpicFormation { line: Mid, is_split: false }) Bottom=Some(V3EpicFormation { line: Mid, is_split: false }) Support=Some(V3EpicFormation { line: Mid, is_split: false })
+18	strat=Split14(Jungle)	team=1	group_line=Some(Mid)	roles: Top=Some(V3EpicFormation { line: Mid, is_split: false }) Jungle=Some(V3EpicFormation { line: Bottom, is_split: true }) Mid=Some(V3EpicFormation { line: Mid, is_split: false }) Bottom=Some(V3EpicFormation { line: Mid, is_split: false }) Support=Some(V3EpicFormation { line: Mid, is_split: false })
+18	strat=Split14(Mid)	team=0	group_line=Some(Mid)	roles: Top=Some(V3EpicFormation { line: Mid, is_split: false }) Jungle=Some(V3EpicFormation { line: Mid, is_split: false }) Mid=Some(V3EpicFormation { line: Bottom, is_split: true }) Bottom=Some(V3EpicFormation { line: Mid, is_split: false }) Support=Some(V3EpicFormation { line: Mid, is_split: false })
+18	strat=Split14(Mid)	team=1	group_line=Some(Mid)	roles: Top=Some(V3EpicFormation { line: Mid, is_split: false }) Jungle=Some(V3EpicFormation { line: Mid, is_split: false }) Mid=Some(V3EpicFormation { line: Bottom, is_split: true }) Bottom=Some(V3EpicFormation { line: Mid, is_split: false }) Support=Some(V3EpicFormation { line: Mid, is_split: false })
+18	strat=Split14(Bottom)	team=0	group_line=Some(Mid)	roles: Top=Some(V3EpicFormation { line: Mid, is_split: false }) Jungle=Some(V3EpicFormation { line: Mid, is_split: false }) Mid=Some(V3EpicFormation { line: Mid, is_split: false }) Bottom=Some(V3EpicFormation { line: Bottom, is_split: true }) Support=Some(V3EpicFormation { line: Mid, is_split: false })
+18	strat=Split14(Bottom)	team=1	group_line=Some(Mid)	roles: Top=Some(V3EpicFormation { line: Mid, is_split: false }) Jungle=Some(V3EpicFormation { line: Mid, is_split: false }) Mid=Some(V3EpicFormation { line: Mid, is_split: false }) Bottom=Some(V3EpicFormation { line: Bottom, is_split: true }) Support=Some(V3EpicFormation { line: Mid, is_split: false })
+18	strat=Split14(Support)	team=0	group_line=Some(Mid)	roles: Top=Some(V3EpicFormation { line: Mid, is_split: false }) Jungle=Some(V3EpicFormation { line: Mid, is_split: false }) Mid=Some(V3EpicFormation { line: Mid, is_split: false }) Bottom=Some(V3EpicFormation { line: Mid, is_split: false }) Support=Some(V3EpicFormation { line: Bottom, is_split: true })
+18	strat=Split14(Support)	team=1	group_line=Some(Mid)	roles: Top=Some(V3EpicFormation { line: Mid, is_split: false }) Jungle=Some(V3EpicFormation { line: Mid, is_split: false }) Mid=Some(V3EpicFormation { line: Mid, is_split: false }) Bottom=Some(V3EpicFormation { line: Mid, is_split: false }) Support=Some(V3EpicFormation { line: Bottom, is_split: true })
+18	strat=Split131(Top,Bottom)	team=0	group_line=Some(Mid)	roles: Top=Some(V3EpicFormation { line: Top, is_split: true }) Jungle=Some(V3EpicFormation { line: Mid, is_split: false }) Mid=Some(V3EpicFormation { line: Mid, is_split: false }) Bottom=Some(V3EpicFormation { line: Bottom, is_split: true }) Support=Some(V3EpicFormation { line: Mid, is_split: false })
+18	strat=Split131(Top,Bottom)	team=1	group_line=Some(Mid)	roles: Top=Some(V3EpicFormation { line: Top, is_split: true }) Jungle=Some(V3EpicFormation { line: Mid, is_split: false }) Mid=Some(V3EpicFormation { line: Mid, is_split: false }) Bottom=Some(V3EpicFormation { line: Bottom, is_split: true }) Support=Some(V3EpicFormation { line: Mid, is_split: false })
+18	strat=Split131(Mid,Support)	team=0	group_line=Some(Mid)	roles: Top=Some(V3EpicFormation { line: Mid, is_split: false }) Jungle=Some(V3EpicFormation { line: Mid, is_split: false }) Mid=Some(V3EpicFormation { line: Top, is_split: true }) Bottom=Some(V3EpicFormation { line: Mid, is_split: false }) Support=Some(V3EpicFormation { line: Bottom, is_split: true })
+18	strat=Split131(Mid,Support)	team=1	group_line=Some(Mid)	roles: Top=Some(V3EpicFormation { line: Mid, is_split: false }) Jungle=Some(V3EpicFormation { line: Mid, is_split: false }) Mid=Some(V3EpicFormation { line: Top, is_split: true }) Bottom=Some(V3EpicFormation { line: Mid, is_split: false }) Support=Some(V3EpicFormation { line: Bottom, is_split: true })
+18	serpen_contest_clear_win	ver=0	team=0	true
+18	serpen_contest_clear_win	ver=0	team=1	true
+18	serpen_contest_clear_win	ver=1	team=0	true
+18	serpen_contest_clear_win	ver=1	team=1	true
+18	serpen_contest_clear_win	ver=2	team=0	true
+18	serpen_contest_clear_win	ver=2	team=1	true
+18	serpen_contest_clear_win	ver=3	team=0	true
+18	serpen_contest_clear_win	ver=3	team=1	true
+18	serpen_contest_clear_win	ver=30	team=0	true
+18	serpen_contest_clear_win	ver=30	team=1	true
+18	serpen_contest_clear_win	ver=32	team=0	true
+18	serpen_contest_clear_win	ver=32	team=1	true
+18	serpen_contest_clear_win	ver=50	team=0	true
+18	serpen_contest_clear_win	ver=50	team=1	true
+18	strategy	team=0	morgard_use=Gather
+18	strategy	team=1	morgard_use=Gather
+=== 15 single_tower_dive_is_viable — true 조건 탐색 ===
+15	atk=100 thp=2000 tdef=30 twr_hp=2000 allies=0	erd=true	viable: v0=false v3=false v32=false v50=false
+15	atk=2000 thp=200 tdef=0 twr_hp=2000 allies=0	erd=true	viable: v0=false v3=false v32=false v50=false
+15	atk=5000 thp=50 tdef=0 twr_hp=100 allies=0	erd=true	viable: v0=false v3=false v32=false v50=false
+15	atk=5000 thp=50 tdef=0 twr_hp=100 allies=4	erd=true	viable: v0=true v3=true v32=true v50=true
+15	atk=100 thp=2000 tdef=30 twr_hp=100 allies=4	erd=true	viable: v0=true v3=true v32=true v50=true
+15	atk=5000 thp=50 tdef=0 twr_hp=1 allies=4	erd=true	viable: v0=true v3=true v32=true v50=true

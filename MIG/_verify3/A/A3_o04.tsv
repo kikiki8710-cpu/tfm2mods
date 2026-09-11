@@ -1,0 +1,55 @@
+step0	minion_spawn_tick=6	minions=6	towers=16
+row	pushed=false	mcount=0	target=false	minions=6	retarget=0	def=Gather	n=0	near=0	threat=false	hld=false
+row	pushed=false	mcount=0	target=false	minions=6	retarget=0	def=Gather	n=1	near=1	threat=false	hld=false
+row	pushed=false	mcount=0	target=false	minions=6	retarget=0	def=Gather	n=2	near=2	threat=false	hld=false
+row	pushed=false	mcount=0	target=false	minions=6	retarget=0	def=Gather	n=3	near=3	threat=false	hld=false
+row	pushed=false	mcount=0	target=false	minions=6	retarget=0	def=Gather	n=4	near=4	threat=false	hld=false
+row	pushed=false	mcount=0	target=false	minions=6	retarget=0	def=Battle	n=0	near=0	threat=false	hld=false
+row	pushed=false	mcount=0	target=false	minions=6	retarget=0	def=Battle	n=1	near=1	threat=false	hld=false
+row	pushed=false	mcount=0	target=false	minions=6	retarget=0	def=Battle	n=2	near=2	threat=false	hld=false
+row	pushed=false	mcount=0	target=false	minions=6	retarget=0	def=Battle	n=3	near=3	threat=false	hld=false
+row	pushed=false	mcount=0	target=false	minions=6	retarget=0	def=Battle	n=4	near=4	threat=false	hld=false
+row	pushed=true	mcount=0	target=false	minions=6	retarget=0	def=Gather	n=0	near=0	threat=false	hld=false
+row	pushed=true	mcount=0	target=false	minions=6	retarget=0	def=Gather	n=1	near=1	threat=false	hld=false
+row	pushed=true	mcount=0	target=false	minions=6	retarget=0	def=Gather	n=2	near=2	threat=false	hld=false
+row	pushed=true	mcount=0	target=false	minions=6	retarget=0	def=Gather	n=3	near=3	threat=false	hld=false
+row	pushed=true	mcount=0	target=false	minions=6	retarget=0	def=Gather	n=4	near=4	threat=false	hld=false
+row	pushed=true	mcount=0	target=false	minions=6	retarget=0	def=Battle	n=0	near=0	threat=false	hld=false
+row	pushed=true	mcount=0	target=false	minions=6	retarget=0	def=Battle	n=1	near=1	threat=false	hld=false
+row	pushed=true	mcount=0	target=false	minions=6	retarget=0	def=Battle	n=2	near=2	threat=false	hld=false
+row	pushed=true	mcount=0	target=false	minions=6	retarget=0	def=Battle	n=3	near=3	threat=false	hld=false
+row	pushed=true	mcount=0	target=false	minions=6	retarget=0	def=Battle	n=4	near=4	threat=false	hld=false
+row	pushed=false	mcount=-3	target=false	minions=6	retarget=0	def=Gather	n=0	near=0	threat=false	hld=false
+row	pushed=false	mcount=-3	target=false	minions=6	retarget=0	def=Gather	n=1	near=1	threat=false	hld=false
+row	pushed=false	mcount=-3	target=false	minions=6	retarget=0	def=Gather	n=2	near=2	threat=false	hld=false
+row	pushed=false	mcount=-3	target=false	minions=6	retarget=0	def=Gather	n=3	near=3	threat=false	hld=false
+row	pushed=false	mcount=-3	target=false	minions=6	retarget=0	def=Gather	n=4	near=4	threat=false	hld=false
+row	pushed=false	mcount=-3	target=false	minions=6	retarget=0	def=Battle	n=0	near=0	threat=false	hld=false
+row	pushed=false	mcount=-3	target=false	minions=6	retarget=0	def=Battle	n=1	near=1	threat=false	hld=false
+row	pushed=false	mcount=-3	target=false	minions=6	retarget=0	def=Battle	n=2	near=2	threat=false	hld=false
+row	pushed=false	mcount=-3	target=false	minions=6	retarget=0	def=Battle	n=3	near=3	threat=false	hld=false
+row	pushed=false	mcount=-3	target=false	minions=6	retarget=0	def=Battle	n=4	near=4	threat=false	hld=false
+row	pushed=true	mcount=0	target=true	minions=6	retarget=3	def=Gather	n=0	near=0	threat=true	hld=false
+row	pushed=true	mcount=0	target=true	minions=6	retarget=3	def=Gather	n=1	near=1	threat=true	hld=false
+row	pushed=true	mcount=0	target=true	minions=6	retarget=3	def=Gather	n=2	near=2	threat=true	hld=true
+row	pushed=true	mcount=0	target=true	minions=6	retarget=3	def=Gather	n=3	near=3	threat=true	hld=true
+row	pushed=true	mcount=0	target=true	minions=6	retarget=3	def=Gather	n=4	near=4	threat=true	hld=true
+row	pushed=true	mcount=0	target=true	minions=6	retarget=3	def=Battle	n=0	near=0	threat=true	hld=false
+row	pushed=true	mcount=0	target=true	minions=6	retarget=3	def=Battle	n=1	near=1	threat=true	hld=true
+row	pushed=true	mcount=0	target=true	minions=6	retarget=3	def=Battle	n=2	near=2	threat=true	hld=true
+row	pushed=true	mcount=0	target=true	minions=6	retarget=3	def=Battle	n=3	near=3	threat=true	hld=false
+row	pushed=true	mcount=0	target=true	minions=6	retarget=3	def=Battle	n=4	near=4	threat=true	hld=false
+row	pushed=false	mcount=-3	target=true	minions=6	retarget=3	def=Gather	n=0	near=0	threat=true	hld=false
+row	pushed=false	mcount=-3	target=true	minions=6	retarget=3	def=Gather	n=1	near=1	threat=true	hld=false
+row	pushed=false	mcount=-3	target=true	minions=6	retarget=3	def=Gather	n=2	near=2	threat=true	hld=true
+row	pushed=false	mcount=-3	target=true	minions=6	retarget=3	def=Gather	n=3	near=3	threat=true	hld=true
+row	pushed=false	mcount=-3	target=true	minions=6	retarget=3	def=Gather	n=4	near=4	threat=true	hld=true
+row	pushed=false	mcount=-3	target=true	minions=6	retarget=3	def=Battle	n=0	near=0	threat=true	hld=false
+row	pushed=false	mcount=-3	target=true	minions=6	retarget=3	def=Battle	n=1	near=1	threat=true	hld=true
+row	pushed=false	mcount=-3	target=true	minions=6	retarget=3	def=Battle	n=2	near=2	threat=true	hld=true
+row	pushed=false	mcount=-3	target=true	minions=6	retarget=3	def=Battle	n=3	near=3	threat=true	hld=false
+row	pushed=false	mcount=-3	target=true	minions=6	retarget=3	def=Battle	n=4	near=4	threat=true	hld=false
+bound	dx=199999	d2=39999600001	hld=true
+bound	dx=200000	d2=40000000000	hld=true
+bound	dx=200001	d2=40000400001	hld=false
+bound	dx=200002	d2=40000800004	hld=false

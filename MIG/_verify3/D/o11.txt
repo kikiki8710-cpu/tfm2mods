@@ -1,0 +1,19 @@
+15e	thp=50	ally_stack=true	twr_hp=100	enemy_move=false	erd=true	viable=true
+15e	thp=2000	ally_stack=true	twr_hp=100	enemy_move=false	erd=true	viable=true
+15e	thp=50	ally_stack=false	twr_hp=100	enemy_move=false	erd=true	viable=true
+15e	thp=50	ally_stack=true	twr_hp=1	enemy_move=false	erd=true	viable=true
+15e	thp=50	ally_stack=true	twr_hp=100	enemy_move=true	erd=true	viable=true
+15e	thp=2000	ally_stack=false	twr_hp=1	enemy_move=false	erd=true	viable=true
+--- target hp bisect in the o7/o8 world (ally_stack=true, twr_hp=100) ---
+15e	bisect thp=1	viable=true
+15e	bisect thp=10	viable=true
+15e	bisect thp=50	viable=true
+15e	bisect thp=100	viable=true
+15e	bisect thp=200	viable=true
+15e	bisect thp=400	viable=true
+15e	bisect thp=500	viable=true
+15e	bisect thp=600	viable=true
+15e	bisect thp=800	viable=true
+15e	bisect thp=1000	viable=true
+15e	bisect thp=1500	viable=true
+15e	bisect thp=2000	viable=true

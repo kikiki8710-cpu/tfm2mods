@@ -1,0 +1,777 @@
+### logic 
+"fn defensive_crisis(version, rnd, player, data, target, debug) -> DefensiveCrisis\n\n[L19] tps = data.context(+0x8).setting(+0x8).tick_per_second(+0x12f8)\n[L21] enemy_ix = 1 - player.info.team(+0x930)     // ult 2 이면 panic_bounds_check(len=2)\n\n[L21~26] near_enemies: Vec<&Entity, &Bump> =\n    data.cache.player_champion(+0x1e0)[enemy_ix]      // [Option<&Entity>;5], stride 40\n      .iter().filter_map(id)                          // = AbstractGameWithCache::iter_champions (Some 만)\n      .filter(|e| {                                   // ★클로저 본체는 담당 범위 밖:\n                                                      //   m10.ll 55868~55976 (Entity::call_mut 심)\n        [L23] r = plan_legacy::old::battle::max_range(e, target)\n        [L24] if Entity::distance_sq(e, target) > (r + 30000)^2 { return false }\n              //  distance_sq = abs_diff(x)^2 + abs_diff(y)^2, 좌표는 Entity+0x660/+0x668\n        [L25] if fight_model::is_ignored_well_enemy(version, player, e) { return false }\n              //  = (e.team(+0x0) == TeamType::Player(enemy_ix))\n              //    && path_finder::is_enemy_well_danger(version, player, e.x, e.y)\n              //  즉 '적 진영 샘(well) 위험구역에 서 있는 적'은 세지 않는다\n        [L26] return data.blackboard(+0x10)[enemy_ix]\n                 .is_recent_visible(data.cache.game(&dyn AbstractGame), player, e)\n      })\n      .collect_in(data.context.pool(+0x0))            // bumpalo Vec::from_iter_in\n\n[L30] if near_enemies.len(+0x18) == 0 { return DefensiveCrisis{ die_imminent:false, cc_threat:false } }\n      //  ⚠LLVM 이 여기서 아래 두 계산을 통째로 건너뛴다(둘 다 false 로 접힘)\n\n// ── 출력 1: die_imminent ───────────────────────────────\n[L30] die_imminent = false\n[L32] tp = data.cache.player_by_champion_id(target.id(+0x5c0))   // Option<&PlayerState>, null 검사\n      if tp != null {\n[L33]   die = fight_check::check_kill_die_tick(\n                 version, rnd, data,\n                 judger = tp,                       // target 을 소유한 플레이어\n                 focus  = target,\n                 enemy  = near_enemies.clone(),     // 같은 pool 에 복제\n                 towers = Vec::new_in(pool),        // ★항상 빈 벡터 (ptr=dangling(8), cap=0, len=0)\n                 debug)\n[L35]   die_imminent = (die < tps << 1)             // = die < tps*2  (2초 이내 사망)\n      }\n      // tp == null 이면 die_imminent 는 false 로 남는다\n\n// ── 출력 2: cc_threat ──────────────────────────────────\n[L41] cc_threat = near_enemies.iter().any(|e| {\n[L42]   (c1,c2,c3) = if e.ty(+0x68) == 13 /*Champion*/ {\n                        (e.ty.skill_cooldown(+0xb8), e.ty.skill2_cooldown(+0xc0), e.ty.ult_cooldown(+0xc8))\n                     } else { (0,0,0) }\n        slots = [ (&e.skill_effect(+0x4c8),                                  c1),\n                  (if e.level(+0x5c8) > 2 { &e.skill2_effect(+0x500) } else { &NONE }, c2),\n                  (if e.level        > 4 { &e.ult_effect(+0x538)   } else { &NONE }, c3) ]\n[L47]   slots.iter().any(|(opt, cool)| {\n[L48]     cool <= tps                                   // 1초 안에 쓸 수 있는 스킬만\n          && opt.is_some()                              // 니치: (*opt)+0x30 != -1\n          && fight_check::effect_cc_time(version, opt.unwrap()).is_some()\n                                                        // 그 이펙트가 군중제어(CC) 시간을 갖는가\n        })\n      })\n      // 세 슬롯은 IR 에서 완전히 펼쳐져 슬롯1→슬롯2→슬롯3 순으로 검사되고,\n      // 하나라도 참이면 즉시 cc_threat=true 로 빠져나온다(남은 적은 안 본다).\n\n[L53] return DefensiveCrisis{ die_imminent, cc_threat }\n\n※ 부작용: 게임 구조체에 직접 쓰는 곳은 없다. rnd/debug 는 &mut 로 check_kill_die_tick 에\n  넘어가므로 그쪽에서 변할 수 있고, near_enemies 는 bump pool 에 할당됐다가 반환 전 drop 된다."
+### mem 22
+[
+ {
+  "base": "OperationData",
+  "offset": "0x0",
+  "name": "cache",
+  "note": "&AbstractGameWithCache. 적팀 챔프 배열·player_by_champion_id·game(dyn) 출처",
+  "dir": "r",
+  "chk": "조회실패",
+  "ev": 4
+ },
+ {
+  "base": "OperationData",
+  "offset": "0x8",
+  "name": "context",
+  "note": "&GameContext",
+  "dir": "r",
+  "chk": "조회실패",
+  "ev": 4
+ },
+ {
+  "base": "OperationData",
+  "offset": "0x10",
+  "name": "blackboard",
+  "note": "&[Blackboard;2]. 클로저 캡처로만 쓰이고 실제 인덱싱은 call_mut 심(범위 밖)에서 일어남",
+  "dir": "r",
+  "chk": "조회실패",
+  "ev": 4
+ },
+ {
+  "base": "GameContext",
+  "offset": "0x0",
+  "name": "pool",
+  "note": "&bumpalo::Bump — near_enemies Vec 의 할당자",
+  "dir": "r",
+  "chk": "조회실패",
+  "ev": 4
+ },
+ {
+  "base": "GameContext",
+  "offset": "0x8",
+  "name": "setting",
+  "note": "&GameSetting(5432B)",
+  "dir": "r",
+  "chk": "조회실패",
+  "ev": 4
+ },
+ {
+  "base": "GameSetting",
+  "offset": "0x12f8",
+  "name": "tick_per_second",
+  "note": "= tps. 이 함수의 두 시간 임계의 기준단위(IR 오프셋 4856)",
+  "dir": "r",
+  "chk": "조회실패",
+  "ev": 4
+ },
+ {
+  "base": "PlayerState",
+  "offset": "0x930",
+  "name": "info.team",
+  "note": "usize. enemy_ix = 1 - team 으로 적팀 인덱스를 만든다(범위밖이면 panic_bounds_check(len=2))",
+  "dir": "r",
+  "chk": "조회실패",
+  "ev": 4
+ },
+ {
+  "base": "AbstractGameWithCache",
+  "offset": "0x1e0",
+  "name": "player_champion",
+  "note": "[[Option<&Entity>;5];2] (80B). [enemy_ix] 를 [5 x ptr] stride 40 으로 인덱싱 = iter_champions",
+  "dir": "r",
+  "chk": "조회실패",
+  "ev": 4
+ },
+ {
+  "base": "AbstractGameWithCache",
+  "offset": "0x0",
+  "name": "game (dyn AbstractGame 데이터 포인터)",
+  "note": "cache+0x0/+0x8 = &dyn AbstractGame 의 (data, vtable). 클로저 캡처용으로만 로드",
+  "dir": "r",
+  "chk": "조회실패",
+  "ev": 4
+ },
+ {
+  "base": "Entity(target)",
+  "offset": "0x5c0",
+  "name": "id",
+  "note": "usize. player_by_champion_id 의 인자 (⚠team 이 아니라 엔티티 id)",
+  "dir": "r",
+  "chk": "조회실패",
+  "ev": 4
+ },
+ {
+  "base": "Vec<&Entity>(bumpalo, 32B)",
+  "offset": "0x0",
+  "name": "ptr",
+  "note": "near_enemies 의 버퍼 시작",
+  "dir": "r",
+  "chk": "조회실패",
+  "ev": 4
+ },
+ {
+  "base": "Vec<&Entity>(bumpalo, 32B)",
+  "offset": "0x18",
+  "name": "len",
+  "note": "0 이면 즉시 (false,false) 반환. 루프 끝점 = ptr + len*8",
+  "dir": "r",
+  "chk": "조회실패",
+  "ev": 4
+ },
+ {
+  "base": "Entity(near_enemies 원소)",
+  "offset": "0x68",
+  "name": "ty (EntityType 태그)",
+  "note": "i64, range [0,14). ==13 → Champion 이라야 쿨다운 3개를 읽는다",
+  "dir": "r",
+  "chk": "조회실패",
+  "ev": 4
+ },
+ {
+  "base": "Entity(near_enemies 원소)",
+  "offset": "0xb8",
+  "name": "ty.Champion.skill_cooldown",
+  "note": "EntityType enum+0x50. Champion 이 아니면 0 으로 취급",
+  "dir": "r",
+  "chk": "조회실패",
+  "ev": 4
+ },
+ {
+  "base": "Entity(near_enemies 원소)",
+  "offset": "0xc0",
+  "name": "ty.Champion.skill2_cooldown",
+  "note": "EntityType enum+0x58",
+  "dir": "r",
+  "chk": "조회실패",
+  "ev": 4
+ },
+ {
+  "base": "Entity(near_enemies 원소)",
+  "offset": "0xc8",
+  "name": "ty.Champion.ult_cooldown",
+  "note": "EntityType enum+0x60",
+  "dir": "r",
+  "chk": "조회실패",
+  "ev": 4
+ },
+ {
+  "base": "Entity(near_enemies 원소)",
+  "offset": "0x4c8",
+  "name": "skill_effect: Option<Effect>(56B)",
+  "note": "레벨 게이트 없이 항상 후보",
+  "dir": "r",
+  "chk": "조회실패",
+  "ev": 4
+ },
+ {
+  "base": "Entity(near_enemies 원소)",
+  "offset": "0x4f8",
+  "name": "skill_effect.casting: CastingType(i32)",
+  "note": "⚠Option<Effect> 의 니치 판별자. == -1 이면 None (Effect 시작 +0x30)",
+  "dir": "r",
+  "chk": "조회실패",
+  "ev": 4
+ },
+ {
+  "base": "Entity(near_enemies 원소)",
+  "offset": "0x500",
+  "name": "skill2_effect: Option<Effect>(56B)",
+  "note": "level > 2 일 때만 실제 필드, 아니면 정적 None(@anon...40, +0x30 이 0xFFFFFFFF)",
+  "dir": "r",
+  "chk": "조회실패",
+  "ev": 4
+ },
+ {
+  "base": "Entity(near_enemies 원소)",
+  "offset": "0x538",
+  "name": "ult_effect: Option<Effect>(56B)",
+  "note": "level > 4 일 때만 실제 필드, 아니면 정적 None",
+  "dir": "r",
+  "chk": "조회실패",
+  "ev": 4
+ },
+ {
+  "base": "Entity(near_enemies 원소)",
+  "offset": "0x5c8",
+  "name": "level",
+  "note": "usize. skill2/ult 슬롯 개방 게이트",
+  "dir": "r",
+  "chk": "조회실패",
+  "ev": 4
+ },
+ {
+  "base": "Effect",
+  "offset": "0x30",
+  "name": "casting: CastingType(i32)",
+  "note": "슬롯2·3 의 Option 니치 판별자를 %ptr+48 로 읽는다(슬롯1 은 entity+0x4f8 로 접힘)",
+  "dir": "r",
+  "chk": "조회실패",
+  "ev": 4
+ }
+]
+### consts 7
+[
+ {
+  "value": 1,
+  "src_line": 21,
+  "meaning": "enemy_ix = 1 - player.info.team — 적팀 인덱스(대상 챔프 배열·블랙보드 둘 다 이 인덱스)",
+  "kind": "인덱스",
+  "ev": 4
+ },
+ {
+  "value": 13,
+  "src_line": 42,
+  "meaning": "EntityType 태그 13 = Champion. 이 태그일 때만 스킬 쿨다운 3개를 실값으로 읽고, 아니면 (0,0,0)",
+  "kind": "태그",
+  "ev": 4
+ },
+ {
+  "value": 2,
+  "src_line": 42,
+  "meaning": "Entity.level > 2 여야 skill2_effect 슬롯이 열린다(entity.rs:1693 접근자 인라인). 아니면 정적 None",
+  "kind": "임계",
+  "ev": 4
+ },
+ {
+  "value": 4,
+  "src_line": 42,
+  "meaning": "Entity.level > 4 여야 ult_effect 슬롯이 열린다(entity.rs:1701 접근자 인라인). 아니면 정적 None",
+  "kind": "임계",
+  "ev": 4
+ },
+ {
+  "value": -1,
+  "src_line": 48,
+  "meaning": "Option<Effect> 니치 None 표식 — Effect+0x30(casting: CastingType) 이 -1 이면 스킬 이펙트 없음",
+  "kind": "센티널",
+  "ev": 4
+ },
+ {
+  "value": 1,
+  "src_line": 35,
+  "meaning": "die_imminent 임계 tps*2 가 `shl i64 %tps, 1` 로 접힘 — 리터럴 2 는 본문에 없다. 즉 '2초 안에 죽는가'",
+  "kind": "임계",
+  "ev": 4
+ },
+ {
+  "value": 1,
+  "src_line": 48,
+  "meaning": "effect_cc_time 이 돌려준 Option<usize> 의 Some 판별자(=1). is_some() 이 discr==1 비교로 인라인됨",
+  "kind": "태그",
+  "ev": 4
+ }
+]
+### knobs 21
+[
+ {
+  "what": "사망 임박 시간창 (die_imminent)",
+  "where": "buff_value.rs:35 (IR m10.ll:34019 `shl i64 %17, 1`)",
+  "value": 2,
+  "effect": "tps*2 틱 = 2초. 올리면 더 여유 있는 상황도 '곧 죽는다'로 보아 방어/후퇴 판단이 빨라지고, 내리면 진짜 마지막 순간에만 위기로 본다. 리터럴 2 는 shl 1 로 접혀 IR 에 없다 ★**실행 확증(tps 를 실제로 60 으로 세팅, 2차배치A)**: 같은 판(die_tick=60 고정)에서 tps=60 → `60<120` **true** / tps=6 → `60<12` **false** / tps=1 → **false** (`A2_oracle3.tsv` dcrisisB) ⟹ 임계 `die < tps*2` 실행 확정. ⚠1차는 `GameSetting::default()` 의 `tick_per_second=0` 때문에 이 확인을 못 했다",
+  "src": "기존",
+  "ev": 2
+ },
+ {
+  "what": "CC기 준비 시간창 (cc_threat)",
+  "where": "buff_value.rs:48 (IR m10.ll:34144 `icmp ugt %85, %17`)",
+  "value": 1,
+  "effect": "쿨다운 <= tps(=1초)인 스킬만 위협으로 센다. 올리면 더 먼 미래의 CC 도 위협으로 잡아 과민해지고, 0 으로 내리면 지금 당장 쓸 수 있는 스킬만 본다",
+  "src": "기존",
+  "ev": 4
+ },
+ {
+  "what": "주변 적 판정 반경 여유분",
+  "where": "buff_value.rs:24 — ★담당 범위 밖(m10.ll 55868~55976, call_mut 심 내부)",
+  "value": 30000,
+  "effect": "적 e 가 `max_range(e,target) + 30000` 안에 있어야 near_enemies 에 든다(제곱 비교). 셀 크기 32000 에 가까운 값 = 약 한 칸. 올리면 더 먼 적까지 위기 계산에 포함된다 ★실행 확증(2차배치A): `game_ai::max_range(foe,me)=0` 인데 제곱거리 1,000,000 이 `(0+30000)^2 = 9e8` 이하라 **필터 통과** → die_imminent 계산 진입. `game_ai::max_range` 는 크레이트 루트 재수출로 **직접 호출 가능**",
+  "src": "기존",
+  "ev": 2
+ },
+ {
+  "what": "skill2 슬롯 개방 레벨",
+  "where": "buff_value.rs:42 를 통해 인라인된 entity.rs:1693 (IR m10.ll:34081 `icmp ugt %76, 2`)",
+  "value": 2,
+  "effect": "Entity.level > 2 여야 skill2_effect 를 위협 후보로 본다. 내리면 저레벨 적의 2번 스킬도 CC 위협으로 계산된다",
+  "src": "기존",
+  "ev": 4
+ },
+ {
+  "what": "ult 슬롯 개방 레벨",
+  "where": "buff_value.rs:42 를 통해 인라인된 entity.rs:1701 (IR m10.ll:34086 `icmp ugt %76, 4`)",
+  "value": 4,
+  "effect": "Entity.level > 4 여야 ult_effect 를 위협 후보로 본다. 내리면 저레벨 적의 궁극기도 CC 위협으로 계산된다",
+  "src": "기존",
+  "ev": 4
+ },
+ {
+  "what": "towers 인자를 항상 빈 벡터로 넘김",
+  "where": "buff_value.rs:33 (IR m10.ll:34264~34268, `inttoptr(8)` + memset 0)",
+  "value": 0,
+  "effect": "check_kill_die_tick 의 towers 목록이 비어 있어 '포탑 딜'은 사망 예측에서 빠진다. 여기에 실제 포탑을 채우면 포탑 사거리 안의 위기 판정이 훨씬 민감해진다",
+  "src": "기존",
+  "ev": 4
+ },
+ {
+  "what": "die_tick 의 초→틱 계수",
+  "where": "fight_check.rs:1107 = m15.ll:32956 (mul i64 %703, 60)",
+  "value": 60,
+  "effect": "전 사망예측 공통 배율. 올리면 AI 가 전반적으로 과감해지고 내리면 겁이 많아진다",
+  "src": "신규",
+  "ev": 4
+ },
+ {
+  "what": "judge_accuracy 기반 추정 오차",
+  "where": "`AthleteStat.judgement` = AthleteParameter+0x98 (= PlayerState+0x218) — tcx 확정(AthleteStat 232B, judgement +0x98; AthleteParameter.stat 는 +0x0). `judgement_base()` = `min(stat.judgement, 100)` 이라 **실효 상한 100**",
+  "value": "초기값 **1000**(`AthleteParameter::new`, g15.ll:126475 `store i64 1000`). 갱신식:\n  if dm_score_gap > 0 {\n    gap_norm    = min(dm_score_gap, 3) * 1000 / 3;\n    degradation = (100 - min(stat.mental, 100)) * gap_norm / 100 * 110 / 100;\n    target      = max(1000.saturating_sub(degradation), 10);\n    judgement_mental_ratio = min(judgement_mental_ratio, target);   // ★min = 단조 감소(래칫)\n  }\n★`_gcbc` 전 16파일 스캔 결과 `+0x2d0` 필드 store 는 **`new`(1000)와 이 한 줄 둘뿐** ⟹ 한 번 내려간 값은 update 로 절대 안 올라온다",
+  "effect": "**멘탈 × 팀 점수차(dm_score_gap)** 두 축으로 판단 정확도를 깎는다 — '멘탈 나간 선수가 오판한다'의 구현 경로가 이 한 쌍이다. 오라클 진리표 **48/48 MATCH**(`_verify2\\A\\A2_oracle1.tsv`): mental>=100 → 어떤 gap 에서도 1000(무손상) / mental=80 → 928/865/802 / mental=50 → 829/667/505 / mental=0 → 667/334/**109**(사실상 최저). `min(gap,3)` 이라 **gap 3에서 포화**. 반복 호출 [1000,505,505,…] 로 되돌아오지 않는다(래칫 확인). ★**개입 지점 3개**: `min(gap,3)` 의 3 / `110/100` 의 110 / `max(..,10)` 의 하한 10 ★오라클 전수 진리표(2차배치A): judgement 0/1/10/11/50/99/100/101/111/200/1000 → acc 100/109/190/199/550/991/1000×4. `judgement` 는 **100 에서 포화**, acc 는 **9 간격 이산**. 손계산 `min(judgement*jmr/1000,100)*9+100` 과 11/11 일치",
+  "src": "신규",
+  "ev": 2
+ },
+ {
+  "what": "적 우물 위험구역 사각형",
+  "where": "m03.ll:144528~144558",
+  "value": "팀0: (0,800000,64000,960000) ∪ (0,896000,160000,960000) / 팀1: 대칭",
+  "effect": "넓히면 적 우물 근처 적을 더 넓게 '무시 대상'으로 봐 다이브를 덜 시도",
+  "src": "신규",
+  "ev": 4
+ },
+ {
+  "what": "적 위협 산정 정확도 폭",
+  "where": "m15.ll:31294~31297 (h = (1000-judge_accuracy)>>1)",
+  "value": "h",
+  "effect": "h 를 0 으로 고정하면 난수 제거 → 적 dps/nuke 추정이 **선수 능력치와 무관하게 정확**해진다. 키우면 판단이 도박이 된다",
+  "src": "신규",
+  "ev": 4
+ },
+ {
+  "what": "위협 판정 윈도우",
+  "where": "m15.ll:31432·31504·31688·31780 (cd > tps)",
+  "value": "tps",
+  "effect": "`tps*N` 으로 늘리면 \"N초 안에 쓸 수 있는\" 슬롯이 전부 위협으로 잡혀 **AI 가 훨씬 겁이 많아진다**",
+  "src": "신규",
+  "ev": 4
+ },
+ {
+  "what": "RNG 버킷 길이",
+  "where": "m15.ll:31289 (bucket = tick / (tps*2))",
+  "value": "tps*2 (2초)",
+  "effect": "키우면 판단이 더 오래 고정(플리커 감소), 작게 하면 매 틱 흔들린다",
+  "src": "신규",
+  "ev": 4
+ },
+ {
+  "what": "nuke 합산 방식",
+  "where": "m15.ll:31666 (llvm.umax)",
+  "value": "max",
+  "effect": "max → sum 으로 바꾸면 다스킬 챔프의 위협이 폭증한다",
+  "src": "신규",
+  "ev": 4
+ },
+ {
+  "what": "위협 DPS 의 분모 = 쿨타임",
+  "where": "_gcbc/g15.ll:105194 등 (tps*dmg / me.*_cooltime())",
+  "value": "쿨타임",
+  "effect": "쿨감 조작이 **AI 의 적 위협 인식에 직접** 반영된다",
+  "src": "신규",
+  "ev": 4
+ },
+ {
+  "what": "stat_version 증분 무효화",
+  "where": "Entity+0x6b4 / g15.ll:105462",
+  "value": "u32",
+  "effect": "강제로 흔들면 캐시 전량 재계산 — 디버그·개입 훅 지점",
+  "src": "신규",
+  "ev": 4
+ },
+ {
+  "what": "방어 관통식",
+  "where": "_gcbc/g06.ll:52772",
+  "value": "def = def*(100−pen)/100",
+  "effect": "pen ≥ 100 이면 saturating 으로 def 0",
+  "src": "신규",
+  "ev": 4
+ },
+ {
+  "what": "최종 피해식",
+  "where": "g06.ll:52706·52846",
+  "value": "max(1, dmg*100/(def+100)), AD·AP 따로 감산 후 합산",
+  "effect": "감산 곡선 자체를 바꾸는 지점",
+  "src": "신규",
+  "ev": 4
+ },
+ {
+  "what": "최대체력 비례 4항",
+  "where": "BuffState +0xd0/+0xd8/+0xe0/+0xf0",
+  "value": "평타%·자기최대체력%·스킬%·도트증폭",
+  "effect": "%기반 피해의 원천",
+  "src": "신규",
+  "ev": 4
+ },
+ {
+  "what": "expected_target_hp_ratio(vt+0x38)",
+  "where": "g06.ll:52505",
+  "value": "ad += target.hp*thr/100",
+  "effect": "★감산 **전에** 더해진다",
+  "src": "신규",
+  "ev": 4
+ },
+ {
+  "what": "판단 능력치 원본",
+  "where": "`AthleteStat.judgement` = AthleteParameter+0x98 (= PlayerState+0x218)",
+  "value": "선수 능력치",
+  "effect": "judge_accuracy 의 입력. 올리면 위협 추정이 정확해진다 — 2026-09-11 검증배치 A 신규 발굴(명세 어디에도 없었다)",
+  "src": "신규",
+  "ev": 5
+ },
+ {
+  "what": "**멘탈 -> 판단 곱수**",
+  "where": "`AthleteParameter.judgement_mental_ratio` = param+0x2d0 (= PlayerState+0x450)",
+  "value": "곱한 뒤 `min(.., 100)` 포화",
+  "effect": "**멘탈 상태에 따라 판단 정확도를 흔드는 곱수.** 이것 하나로 '멘탈 나간 선수가 오판한다'가 구현돼 있다. 고정하면 멘탈이 판단에 미치는 영향이 사라진다 — 2026-09-11 검증배치 A 신규 발굴. WARN 갱신 주체(`AthleteParameter::update`)는 **미탐색**",
+  "src": "신규",
+  "ev": 4
+ }
+]
+### callees 25
+[
+ {
+  "name": "check_kill_die_tick",
+  "path": "game_ai::check_kill_die_tick",
+  "vis": "pub",
+  "sig": "fn(usize, &mut rand::rngs::std::StdRng, &game_core::OperationData, &game_core::PlayerState, &game_core::Entity, bumpalo::collections::vec::Vec< &game_core::Entity>, bumpalo::collections::vec::Vec< &game_core::Entity>, &mut game_core::DebugFrameData) -> usize",
+  "at": "game-ai\\src\\fight_check.rs:917",
+  "mir": false,
+  "xinl": false,
+  "ev": 3
+ },
+ {
+  "name": "defensive_crisis",
+  "path": "game_ai::defensive_crisis",
+  "vis": "pub",
+  "sig": "fn(usize, &mut rand::rngs::std::StdRng, &game_core::PlayerState, &game_core::OperationData, &game_core::Entity, &mut game_core::DebugFrameData) -> game_ai::DefensiveCrisis",
+  "at": "game-ai\\src\\buff_value.rs:17",
+  "mir": false,
+  "xinl": false,
+  "ev": 3
+ },
+ {
+  "name": "distance_sq",
+  "path": "game_core::Entity::distance_sq",
+  "vis": "pub",
+  "sig": "fn(&game_core::Entity, &game_core::Entity) -> u64",
+  "at": "game-core\\src\\simulation\\entity.rs:2157",
+  "mir": true,
+  "xinl": true,
+  "ev": 3
+ },
+ {
+  "name": "distance_sq",
+  "path": "game_core::utils::distance_sq",
+  "vis": "pub",
+  "sig": "fn(u64, u64, u64, u64) -> u64",
+  "at": "game-core\\src\\utils.rs:6",
+  "mir": true,
+  "xinl": true,
+  "ev": 3
+ },
+ {
+  "name": "drop",
+  "path": "<game_core::prof::ProfTimer as std::ops::Drop>::drop",
+  "vis": "pub",
+  "sig": "fn(&mut game_core::prof::ProfTimer)",
+  "at": "game-core\\src\\simulation\\prof.rs:184",
+  "mir": true,
+  "xinl": true,
+  "ev": 3
+ },
+ {
+  "name": "effect_cc_time",
+  "path": "game_ai::effect_cc_time",
+  "vis": "pub",
+  "sig": "fn(usize, &game_core::Effect) -> std::option::Option<usize>",
+  "at": "game-ai\\src\\fight_check.rs:379",
+  "mir": false,
+  "xinl": false,
+  "ev": 3
+ },
+ {
+  "name": "is_enemy_well_danger",
+  "path": "game_ai::is_enemy_well_danger",
+  "vis": "pub",
+  "sig": "fn(usize, &game_core::PlayerState, u64, u64) -> bool",
+  "at": "game-ai\\src\\path_finder.rs:1032",
+  "mir": false,
+  "xinl": false,
+  "ev": 3
+ },
+ {
+  "name": "is_ignored_well_enemy",
+  "path": "game_ai::plan_legacy::old::is_ignored_well_enemy",
+  "vis": "pub",
+  "sig": "fn(usize, &game_core::PlayerState, &game_core::Entity) -> bool",
+  "at": "game-ai\\src\\plan_legacy\\old\\fight_model.rs:754",
+  "mir": false,
+  "xinl": false,
+  "ev": 3
+ },
+ {
+  "name": "is_recent_visible",
+  "path": "game_core::Blackboard::is_recent_visible",
+  "vis": "pub",
+  "sig": "fn(&game_core::Blackboard, &dyn [Binder { value: Trait(game_core::AbstractGame), bound_vars: [] }] + , &game_core::PlayerState, &game_core::Entity) -> bool",
+  "at": "game-core\\src\\simulation\\game\\blackboard.rs:346",
+  "mir": false,
+  "xinl": false,
+  "ev": 3
+ },
+ {
+  "name": "iter_champions",
+  "path": "game_core::AbstractGameWithCache::<'a, 'b>::iter_champions",
+  "vis": "pub",
+  "sig": "fn(&game_core::AbstractGameWithCache<'a/#0, 'b/#1>, usize) -> Alias(AliasTy { args: ['a/#0, 'b/#1, 'a/#0, ], kind: Opaque { def_id: DefId(14:5759 ~ game_core[6a30]::simulation::{impl#5}::iter_champions::{opaque#0}) }, .. })",
+  "at": "game-core\\src\\simulation.rs:1904",
+  "mir": true,
+  "xinl": true,
+  "ev": 3
+ },
+ {
+  "name": "level",
+  "path": "<game_ai::WindowStatView<'_> as game_core::AbstractEntity>::level",
+  "vis": "pub",
+  "sig": "fn(&game_ai::WindowStatView</#0>) -> usize",
+  "at": "game-ai\\src\\fight_check.rs:96",
+  "mir": true,
+  "xinl": true,
+  "ev": 3
+ },
+ {
+  "name": "level",
+  "path": "game_core::AbstractEntity::level",
+  "vis": "pub",
+  "sig": "fn(&Self/#0) -> usize",
+  "at": "game-core\\src\\simulation\\entity.rs:718",
+  "mir": false,
+  "xinl": false,
+  "ev": 3
+ },
+ {
+  "name": "level",
+  "path": "<game_core::Entity as game_core::AbstractEntity>::level",
+  "vis": "pub",
+  "sig": "fn(&game_core::Entity) -> usize",
+  "at": "game-core\\src\\simulation\\entity.rs:772",
+  "mir": true,
+  "xinl": true,
+  "ev": 3
+ },
+ {
+  "name": "max_range",
+  "path": "game_ai::max_range",
+  "vis": "pub",
+  "sig": "fn(&game_core::Entity, &game_core::Entity) -> u64",
+  "at": "game-ai\\src\\plan_legacy\\old\\battle.rs:2234",
+  "mir": false,
+  "xinl": false,
+  "ev": 3
+ },
+ {
+  "name": "player_by_champion_id",
+  "path": "game_core::AbstractGameWithCache::<'a, 'b>::player_by_champion_id",
+  "vis": "pub",
+  "sig": "fn(&game_core::AbstractGameWithCache<'a/#0, 'b/#1>, usize) -> std::option::Option<&'a/#0 game_core::PlayerState>",
+  "at": "game-core\\src\\simulation.rs:1915",
+  "mir": true,
+  "xinl": true,
+  "ev": 3
+ },
+ {
+  "name": "skill2_cooldown",
+  "path": "game_core::Entity::skill2_cooldown",
+  "vis": "pub",
+  "sig": "fn(&game_core::Entity) -> usize",
+  "at": "game-core\\src\\simulation\\entity.rs:1789",
+  "mir": true,
+  "xinl": true,
+  "ev": 3
+ },
+ {
+  "name": "skill2_effect",
+  "path": "game_core::Entity::skill2_effect",
+  "vis": "pub",
+  "sig": "fn(&game_core::Entity) -> &std::option::Option<game_core::Effect>",
+  "at": "game-core\\src\\simulation\\entity.rs:1692",
+  "mir": true,
+  "xinl": true,
+  "ev": 3
+ },
+ {
+  "name": "skill_cooldown",
+  "path": "game_core::Entity::skill_cooldown",
+  "vis": "pub",
+  "sig": "fn(&game_core::Entity) -> usize",
+  "at": "game-core\\src\\simulation\\entity.rs:1774",
+  "mir": true,
+  "xinl": true,
+  "ev": 3
+ },
+ {
+  "name": "skill_effect",
+  "path": "game_core::Entity::skill_effect",
+  "vis": "pub",
+  "sig": "fn(&game_core::Entity) -> &std::option::Option<game_core::Effect>",
+  "at": "game-core\\src\\simulation\\entity.rs:1688",
+  "mir": true,
+  "xinl": true,
+  "ev": 3
+ },
+ {
+  "name": "team",
+  "path": "game_core::PlayerAiContext::<'a, 'b, 'r>::team",
+  "vis": "pub",
+  "sig": "fn(&game_core::PlayerAiContext<'a/#0, 'b/#1, 'r/#2>) -> usize",
+  "at": "game-core\\src\\mod_ai.rs:583",
+  "mir": true,
+  "xinl": true,
+  "ev": 3
+ },
+ {
+  "name": "team",
+  "path": "game_view::ClientDatabase::team",
+  "vis": "pub",
+  "sig": "fn(&game_view::ClientDatabase, usize) -> std::option::Option<&game_core::Team>",
+  "at": "game-view\\src\\logic\\client\\data.rs:968",
+  "mir": false,
+  "xinl": false,
+  "ev": 3
+ },
+ {
+  "name": "team",
+  "path": "game_view::ClientData::team",
+  "vis": "pub",
+  "sig": "fn(&game_view::ClientData, usize) -> std::option::Option<std::cell::Ref< game_core::Team>>",
+  "at": "game-view\\src\\logic\\client\\data.rs:1651",
+  "mir": false,
+  "xinl": false,
+  "ev": 3
+ },
+ {
+  "name": "tick_per_second",
+  "path": "game_view::view::effect::nightmare::tick_per_second",
+  "vis": "in:game_view::view::effect::nightmare",
+  "sig": "fn(&engine_core::assets::Assets) -> f32",
+  "at": "game-view\\src\\view\\effect\\nightmare.rs:31",
+  "mir": false,
+  "xinl": false,
+  "ev": 3
+ },
+ {
+  "name": "ult_cooldown",
+  "path": "game_core::Entity::ult_cooldown",
+  "vis": "pub",
+  "sig": "fn(&game_core::Entity) -> usize",
+  "at": "game-core\\src\\simulation\\entity.rs:1804",
+  "mir": true,
+  "xinl": true,
+  "ev": 3
+ },
+ {
+  "name": "ult_effect",
+  "path": "game_core::Entity::ult_effect",
+  "vis": "pub",
+  "sig": "fn(&game_core::Entity) -> &std::option::Option<game_core::Effect>",
+  "at": "game-core\\src\\simulation\\entity.rs:1700",
+  "mir": true,
+  "xinl": true,
+  "ev": 3
+ }
+]
+### callees_unmatched 2
+{
+ "names": [
+  "player_champion",
+  "pool",
+  "setting"
+ ],
+ "note": "tcx 3크레이트에 같은 leaf 이름의 Fn/AssocFn 이 없는 것들. 대부분 std·클로저·매크로이거나 `logic` 산문에서 긁힌 잡음이다. ⚠단 **여기 이름이 실제 게임 술어인데 이름이 달라서 못 잡힌 경우**가 섞일 수 있으니, 3차에서 판정에 쓰이는 술어가 이 목록에 있으면 손으로 확인할 것."
+}
+### callers 5
+{
+ "count": 3,
+ "sites": [
+  "m05.ll:43115",
+  "m05.ll:43804",
+  "m05.ll:44220"
+ ],
+ "scope": "_gaibc(game_ai) 전량 call/invoke 스캔",
+ "note": "★자동 열거(spec3lib.callsites, 0.7초). 1차가 09 를 「유일 호출처」로 적었다가 실제 8곳이었다 — 세지 않고 쓰는 일을 구조적으로 막는다. exe 쪽 `callers: []` 는 '호출자 없음'이 아니라 **조인 실패**다.",
+ "ev": 4
+}
+### siblings 4
+{
+ "plan": null,
+ "count": 0,
+ "entries": [],
+ "note": "Plan 타입 메서드가 아니다(자유 함수)."
+}
+### calls_raw 8
+[
+ "bumpalo::collections::vec::from_iter_in",
+ "game_core::simulation::AbstractGameWithCache::player_by_champion_id",
+ "game_ai::fight_check::check_kill_die_tick",
+ "game_ai::fight_check::effect_cc_time",
+ "clone",
+ "drop",
+ "drop_glue",
+ "core::panicking::panic_bounds_check"
+]
+### history 9
+[
+ {
+  "was": "★30000 과 max_range / is_ignored_well_enemy / is_enemy_well_danger / is_recent_visible 이 전부 담당 범위 밖",
+  "now": "aux 범위 m10.ll:55868~55976 (buff_value.rs closure$0 = line 22~26) 로 전부 확인.",
+  "aux": [
+   {
+    "ir_file": "m10.ll",
+    "ir_from": 55868,
+    "ir_to": 55976
+   }
+  ],
+  "filter": "filter(c): dist_sq(c,target) <= (max_range(c,target) + 30000)^2 && !is_ignored_well_enemy(version,player,c) && is_recent_visible(blackboard[1-player.team], game, player, c)",
+  "상수": [
+   {
+    "value": 30000,
+    "ir": "m10.ll:55916",
+    "meaning": "max_range(c,target) 결과에 더하는 여유분. 바로 다음 줄에서 제곱해 제곱거리와 비교"
+   }
+  ],
+  "호출": [
+   "battle::max_range(c, target)  @m10.ll:55883",
+   "path_finder::is_enemy_well_danger(version, player, c.x, c.y)  @m10.ll:55948 — true 면 즉시 거른다",
+   "Blackboard::is_recent_visible(...)  @m10.ll:55966 — 반환값이 그대로 필터 결과"
+  ]
+ },
+ {
+  "was": "is_ignored_well_enemy 를 calls 에 넣어야 하나",
+  "now": "★정정 — 호출이 아니라 인라인이다(m10.ll:55934~55948, fight_model.rs:754). is_ignored_well_enemy(version,player,c) = if c.team == Player(1-player.team) { is_enemy_well_danger(version,player,c.x,c.y) } else { false }. calls 가 아니라 logic 에 서술해야 한다."
+ },
+ {
+  "was": "check_kill_die_tick 반환값이 '사망까지 남은 틱'이라는 것은 추정",
+  "now": "★확정. _gaibc/m15.ll:27042 (fight_check.rs:917) 은 캐시 래퍼, 본체는 m15.ll:31120~33053. 최종식 die_tick = ((revive_hp + focus.hp) ⊖sat enemy_nuke) * 60 / max(enemy_dps,1) (m15.ll:32953~32995). focus.stat_buff_cached.undying(+0x488)이면 i64::MAX 반환."
+ },
+ {
+  "was": "towers 인자를 항상 빈 Vec 으로 넘기는 이유",
+  "now": "★확정 — towers 루프(fight_check.rs:1049~1054 = m15.ll:32240~32420)가 타워마다 expected_damage_target 을 불러 enemy_dps 와 enemy_nuke 양쪽에 더한다. 빈 Vec 이면 타워 기여가 0 ⟹ die_tick 이 실제보다 길게(=안전하게) 나온다. 실측: 전 54개 호출부 중 빈 Vec 43개 / 실제 타워 11개. ★범위 한정 판정: 타워 딜은 '타워 다이브 판정 계열'(tower_dive_is_viable, single_tower_dive_is_viable, update_v32, action_candidates)에서만 들어가고 위기감지·후퇴태세에서는 전부 빠진다."
+ },
+ {
+  "was": "effect_cc_time 의 Some 값이 무엇인지",
+  "now": "★확정 = CC 지속 틱. _gaibc/m15.ll:25822~25838(fight_check.rs:379)은 얇은 디스패처로 Effect 의 Arc<dyn EffectType> vtable +0x88 을 호출한다. 슬롯 실측(_gcbc/g04.ll:990): 0x80=expected_cc_time, 0x88=expected_cc_time_deep. ⟹ 부르는 건 deep 판(하위 이펙트까지 재귀해 max). StunEffect 구현이 Some(self.duration) 을 그대로 돌려준다(_gcbc/g04.ll:156490~156494). version 인자는 쓰이지 않는다."
+ },
+ {
+  "was": "CC 로 치는 이펙트가 무엇인지",
+  "now": "expected_cc_time* 가 무조건 Some 을 돌려주는 EffectType 구현(전 _gcbc 스캔: 항상 Some 63건 / 항상 None 324건 / 조건부·재귀 70건): Stun, Airborne, Knockback, Bind, Grab, Pull, Taunt, Fear, Charm, Banish, BlockAttack, BlockSkill, BlockMoveSkill, StatScaledBlockAttack, StatScaledBlockSkill + 챔피언 전용 DokkaebiUltHit, LightningMageUlt, WindMageUlt/Hit, HammererUlt, TaoistUltHit, HitmanSkill. ★행동 차단류 Block* 도 CC 로 계산된다."
+ },
+ {
+  "was": "enemy 챔피언 루프(fight_check.rs:1000~1045)의 슬롯별 가중치 상수 — 2회 시도 후 중단",
+  "now": "★확정 — **슬롯별 상수 계수는 존재하지 않는다.** 가중치는 `ChampionCache` 테이블 룩업이고 곱해지는 것은 judge_accuracy 기반 난수 하나뿐이다. 전문 = `_shared.전투_위협모델`. ★누산 방식 정정: `nuke` = 챔피언 1명 안에서 **4슬롯의 max**, `enemy_nuke` += 그 max ⟹ **챔피언별 최대 한 방의 합**. `enemy_dps` 만 3슬롯×전 챔피언의 합."
+ },
+ {
+  "was": "ChampionCache 테이블을 채우는 곳(= 진짜 데미지 모델) — 이번 범위 밖",
+  "now": "★확정. 전문 = `_shared.위협모델_ChampionCache`. `AbstractGameWithCache::new_with_prev_cache`(_gcbc/g15.ll:102716~108634)가 채우고 **`MobaBrain::run_input_phase` 에서 매 틱 재구축**된다. ★인덱스가 필드군마다 다르다(공격류=적팀 index, 힐/실드류=아군 index). ★`stat_version`(Entity+0x6b4) 기반 **증분 무효화**가 있어 안 바뀐 쌍은 재계산하지 않는다."
+ },
+ {
+  "was": "can_move() 의 런타임 구현체 — Arc<dyn> 이라 IR 로 불가(도구 한계)",
+  "now": "★**목록은 확정**(런타임 선택만 불가). 전문 = `_shared.can_move_구현체`. 총 134개 구현 / 항상 true **9개**(이전 \"8개\" 정정) / 조건부 16개."
+ }
+]

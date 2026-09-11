@@ -136,3 +136,50 @@ def closed_reason(i, txt):
         if j == i and needle in txt:
             return why
     return None
+
+# ══════════ 3차 반증검증(2026-09-11)이 닫은 것 ══════════
+# 근거 = RE\2026-09-11_20함수-3차반증검증-배치{A,B,C,D}.md
+CLOSE += [
+    # ── 배치 A ────────────────────────────────────────────────────────
+    (0, u"linear_cast_range_with_margin", u"3차 배치A: history[4](a) 에 이미 답이 있었다(과열림)"),
+    (0, u"get_input_target", u"3차 배치A: abstract_input.rs 345~655 확정, None 반환 정확히 3곳"),
+    (0, u"safe_move_avoiding_enemy_well", u"3차 배치A: history[0]+[1] 에 이미 답이 있었다(과열림)"),
+    (0, u"Effect::range_adjust", u"3차 배치D: vtable +0xe8 위임 + 반환 u64 확정"),
+    (0, u"Entity::can_ult", u"3차 배치A: history[4](c) 에 이미 답이 있었다(과열림)"),
+    (3, u"is_ignored_well_enemy", u"3차: shared.is_recent_visible + 우물 판정 확정"),
+    (3, u"effect_cc_time", u"3차 배치A: 단일 vtable 디스패치 + version 완전 미사용(오라클 1,150회)"),
+    (4, u"is_recent_visible", u"shared.is_recent_visible.blackboard_인덱스_의미 = 확정(과열림)"),
+    # ── 배치 B ────────────────────────────────────────────────────────
+    (5, u"end_reason", u"3차 배치B: 호출자 IR(v50_track_dive_episode)에서 0~8 의미 전량 확정"),
+    (5, u"end_plan", u"3차 배치B: 문자열 매칭이 원문 + 오라클 get_name 8종"),
+    (5, u"prev_holder_hp", u"3차 배치B: tcx 에 그 필드가 아예 없다"),
+    (5, u"last_dive_abandon_tick", u"3차 배치B: 소비 게이트 8곳 전부 tick > 값+1+4×tps"),
+    (7, u"hp_ratio", u"3차 배치B: 오라클 8/8, 경계 정확히 50/51"),
+    (8, u"is_recent_visible", u"shared 에 완전 규정 + 영향 목록에 is_end 포함(과열림)"),
+    (8, u"as_moba", u"3차 배치B: <Game as AbstractGame>::get_game_mode MIR 이 순수 함수"),
+    (8, u"vtable", u"3차 배치B: 슬롯 = 0x20 + 8×(트레이트 선언 순서), divtable 6/6"),
+    (8, u"15", u"3차 배치B: 오라클 13/13, 임계 정확히 900"),
+    (9, u"enemy_minion_line_action_danger_damage_at", u"3차 배치B: 전문 확정(임계표 전량)"),
+    (9, u"version", u"3차 배치B: 피호출자 2단 i64 poison + 오라클 diff 0 = 죽은 인자"),
+    # ── 배치 C ────────────────────────────────────────────────────────
+    (10, u"is_enemy_well_danger", u"3차 배치C: 전문 확정 + version 미사용(오라클 격자 전수)"),
+    (10, u"can_enemy_hit_objective", u"3차 배치C: 25000 = 선형 거리 여유치 + 하드컷 19.6e9"),
+    (10, u"objective_entity_id_for_main_objective", u"3차 배치C: 태그 전수 진리표"),
+    (11, u"passive_plan", u"3차 배치C: tcx sig 가 (BigPlan, u8) — 뒤 8B 는 별도 반환값"),
+    (11, u"player_count", u"3차 배치C: 값표 전수 → 비교값 5 확정(==5 vs >=5 는 표기 불가)"),
+    (12, u"포맷", u"3차 배치C: shared.포맷템플릿_문법 + IR Debug::fmt store 3곳"),
+    (13, u"is_top_side", u"3차 배치C: 오라클 실행 확정(ry_lt_x == !is_top_side)"),
+    (13, u"bushes", u"3차 배치C: MapDef.bushes 값 사전(id 1~24 + 중심좌표)"),
+    (14, u"has_near_line_enemy", u"3차 배치C: IR 전수 + 오라클 3/3"),
+    (14, u"_lead", u"3차 배치C: 산출식 확정(team 부호 포함, 6/6)"),
+    (14, u"positioning_score", u"3차 배치C: DWARF 로 확정(시그니처가 소스 39/40/41 3줄)"),
+    # ── 배치 D ────────────────────────────────────────────────────────
+    (15, u"TryKill", u"3차 배치D: __1 을 0~99999 로 흔들어도 산출 동일(노브 아님)"),
+    (15, u"engage_requires_dive", u"3차 배치D: 합성 엔티티 2,073,600쌍 mismatch 0"),
+    (16, u"battle.rs:2399", u"3차 배치D: 줄 길이 산술로 4블록 동시 일치 복원(재료 부재 아님)"),
+    (17, u"base_sub_goal", u"3차 배치D: pub 전수 진리표(가시성 6축 배제)"),
+    (18, u"Prepare", u"3차 배치D: 17 closed 와 같은 근거(Chat 튜플 variant = 이름 부재)"),
+    (18, u"epic.rs", u"3차 배치D: closed 가 L654~657 복원 + 전제 반박(과열림)"),
+    (18, u"v3_epic_group_line", u"3차 배치D: 진리표 80칸 + None 경로 도달 확인"),
+    (19, u"get_camp_state", u"3차 배치D: 포인터 동일성 전수표 + 특례 2건"),
+]

@@ -1,0 +1,27 @@
+BIS	tps=60	Kiting_max_d=100000 (Kiting) / next_d=100001 (Trace)
+BIS	tps=60	last_nonRunAway_d=250000 (Trace) / RunAway_from_d=250001 (RunAway)
+BIS	tps=60	Kiting_max_tick=120 (Kiting) / next_tick=121 (RunAway)	tps*2=120	tps*2+1=121
+AXIS	tps=60	d=100000	x=Kiting	y=Kiting	diag=Kiting
+AXIS	tps=60	d=200000	x=Trace	y=Trace	diag=Trace
+AXIS	tps=60	d=250000	x=Trace	y=Trace	diag=Trace
+AXIS	tps=60	d=260000	x=RunAway	y=RunAway	diag=RunAway
+AXIS	tps=60	d=270000	x=RunAway	y=RunAway	diag=RunAway
+AXIS	tps=60	d=280000	x=RunAway	y=RunAway	diag=RunAway
+BIS	tps=30	Kiting_max_d=100000 (Kiting) / next_d=100001 (Trace)
+BIS	tps=30	last_nonRunAway_d=250000 (Trace) / RunAway_from_d=250001 (RunAway)
+BIS	tps=30	Kiting_max_tick=120 (Kiting) / next_tick=121 (RunAway)	tps*2=60	tps*2+1=61
+AXIS	tps=30	d=100000	x=Kiting	y=Kiting	diag=Kiting
+AXIS	tps=30	d=200000	x=Trace	y=Trace	diag=Trace
+AXIS	tps=30	d=250000	x=Trace	y=Trace	diag=Trace
+AXIS	tps=30	d=260000	x=RunAway	y=RunAway	diag=RunAway
+AXIS	tps=30	d=270000	x=RunAway	y=RunAway	diag=RunAway
+AXIS	tps=30	d=280000	x=RunAway	y=RunAway	diag=RunAway
+BIS	tps=90	Kiting_max_d=100000 (Kiting) / next_d=100001 (Trace)
+BIS	tps=90	last_nonRunAway_d=250000 (Trace) / RunAway_from_d=250001 (RunAway)
+BIS	tps=90	Kiting_max_tick=120 (Kiting) / next_tick=121 (RunAway)	tps*2=180	tps*2+1=181
+AXIS	tps=90	d=100000	x=Kiting	y=Kiting	diag=Kiting
+AXIS	tps=90	d=200000	x=Trace	y=Trace	diag=Trace
+AXIS	tps=90	d=250000	x=Trace	y=Trace	diag=Trace
+AXIS	tps=90	d=260000	x=RunAway	y=RunAway	diag=RunAway
+AXIS	tps=90	d=270000	x=RunAway	y=RunAway	diag=RunAway
+AXIS	tps=90	d=280000	x=RunAway	y=RunAway	diag=RunAway

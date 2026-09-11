@@ -1,0 +1,26 @@
+=== 17-b base_sub_goal vs world.visible_map / exist_map ===
+17b	base visible_map nonzero: t0=13 t1=13 / exist_map nonzero: t0=13 t1=13
+17b	base	t0Top TryKill(23)=End	t0Top TryKill(3=enemy tower)=Trace { focus: 3 }	t1Top TryKill(23)=Trace { focus: 23 }	t1Top TryKill(18)=End
+17b	visible_map[0]=1	t0Top TryKill(23)=End	t0Top TryKill(3=enemy tower)=Trace { focus: 3 }	t1Top TryKill(23)=Trace { focus: 23 }	t1Top TryKill(18)=End
+17b	+exist_map[0]=1	t0Top TryKill(23)=End	t0Top TryKill(3=enemy tower)=Trace { focus: 3 }	t1Top TryKill(23)=Trace { focus: 23 }	t1Top TryKill(18)=End
+17b	enemy champ adjacent (no vis)	t0Top TryKill(23)=Trace { focus: 23 }	t0Top TryKill(3=enemy tower)=Trace { focus: 3 }	t1Top TryKill(23)=Trace { focus: 23 }	t1Top TryKill(18)=End
+17b	adjacent + visible_map[0]=1	t0Top TryKill(23)=Trace { focus: 23 }	t0Top TryKill(3=enemy tower)=Trace { focus: 3 }	t1Top TryKill(23)=Trace { focus: 23 }	t1Top TryKill(18)=End
+17b	E23.team := Player(0)	t0Top TryKill(23)=Trace { focus: 23 }	t0Top TryKill(3=enemy tower)=Trace { focus: 3 }	t1Top TryKill(23)=End	t1Top TryKill(18)=End
+17b	champion_entity_owner=[(18, 0), (19, 1), (20, 2), (21, 3), (22, 4), (23, 5), (24, 6), (25, 7), (26, 8), (27, 9)]
+=== 15-b single_tower_dive_is_viable : RNG 의존성 ===
+15b	same_rng_advancing(seed7) x20 = TTTTTTTTTTTTTTTTTTTT
+15b	fresh_seed 0..19        = TTTTTTTTTTTTTTTTTTTT
+15b	tower_hp=1	viable=true
+15b	tower_hp=50	viable=true
+15b	tower_hp=100	viable=true
+15b	tower_hp=200	viable=true
+15b	tower_hp=500	viable=true
+15b	tower_hp=1000	viable=true
+15b	tower_hp=2000	viable=true
+15b	tower_hp=5000	viable=true
+15b	target_hp=1	viable=true
+15b	target_hp=50	viable=true
+15b	target_hp=200	viable=true
+15b	target_hp=500	viable=true
+15b	target_hp=1000	viable=true
+15b	target_hp=2000	viable=true

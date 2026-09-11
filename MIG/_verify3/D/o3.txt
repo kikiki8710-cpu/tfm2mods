@@ -1,0 +1,165 @@
+--- Z: dive path enable check ---
+Z	off=0	erd=true
+Z	off=5000	erd=true
+Z	off=9000	erd=true
+Z	off=9999	erd=true
+Z	off=10000	erd=true
+Z	off=10001	erd=false
+Z	off=12000	erd=false
+Z	off=20000	erd=false
+--- A: version sweep ---
+A	ver=0	NODIVE in_tower=false sg=RunAway some=false	|	DIVE in_tower=true viable=Some(false) sg=- some=false dive_tower=None
+A	ver=1	NODIVE in_tower=false sg=RunAway some=false	|	DIVE in_tower=true viable=Some(false) sg=- some=false dive_tower=None
+A	ver=2	NODIVE in_tower=false sg=RunAway some=false	|	DIVE in_tower=true viable=Some(false) sg=- some=false dive_tower=None
+A	ver=3	NODIVE in_tower=false sg=RunAway some=false	|	DIVE in_tower=true viable=Some(false) sg=- some=false dive_tower=None
+A	ver=4	NODIVE in_tower=false sg=RunAway some=false	|	DIVE in_tower=true viable=Some(false) sg=- some=false dive_tower=None
+A	ver=5	NODIVE in_tower=false sg=RunAway some=false	|	DIVE in_tower=true viable=Some(false) sg=- some=false dive_tower=None
+A	ver=10	NODIVE in_tower=false sg=RunAway some=false	|	DIVE in_tower=true viable=Some(false) sg=- some=false dive_tower=None
+A	ver=30	NODIVE in_tower=false sg=RunAway some=false	|	DIVE in_tower=true viable=Some(false) sg=- some=false dive_tower=None
+A	ver=31	NODIVE in_tower=false sg=RunAway some=false	|	DIVE in_tower=true viable=Some(false) sg=- some=false dive_tower=None
+A	ver=32	NODIVE in_tower=false sg=RunAway some=false	|	DIVE in_tower=true viable=Some(false) sg=- some=false dive_tower=None
+A	ver=33	NODIVE in_tower=false sg=RunAway some=false	|	DIVE in_tower=true viable=Some(false) sg=- some=false dive_tower=None
+A	ver=50	NODIVE in_tower=false sg=RunAway some=false	|	DIVE in_tower=true viable=Some(false) sg=- some=false dive_tower=None
+A	ver=100	NODIVE in_tower=false sg=RunAway some=false	|	DIVE in_tower=true viable=Some(false) sg=- some=false dive_tower=None
+--- B: single_tower_dive_is_viable — champion targets only ---
+B	ver=0	tgt=on_T1#0	actor_d=10000	viable=false
+B	ver=0	tgt=on_T1#0	actor_d=30000	viable=false
+B	ver=0	tgt=on_T1#0	actor_d=100000	viable=false
+B	ver=0	tgt=on_T1#0	actor_d=300000	viable=false
+B	ver=0	tgt=near_T1#0	actor_d=10000	viable=false
+B	ver=0	tgt=near_T1#0	actor_d=30000	viable=false
+B	ver=0	tgt=near_T1#0	actor_d=100000	viable=false
+B	ver=0	tgt=near_T1#0	actor_d=300000	viable=false
+B	ver=0	tgt=home	actor_d=10000	viable=false
+B	ver=0	tgt=home	actor_d=30000	viable=false
+B	ver=0	tgt=home	actor_d=100000	viable=false
+B	ver=0	tgt=home	actor_d=300000	viable=false
+B	ver=1	tgt=on_T1#0	actor_d=10000	viable=false
+B	ver=1	tgt=on_T1#0	actor_d=30000	viable=false
+B	ver=1	tgt=on_T1#0	actor_d=100000	viable=false
+B	ver=1	tgt=on_T1#0	actor_d=300000	viable=false
+B	ver=1	tgt=near_T1#0	actor_d=10000	viable=false
+B	ver=1	tgt=near_T1#0	actor_d=30000	viable=false
+B	ver=1	tgt=near_T1#0	actor_d=100000	viable=false
+B	ver=1	tgt=near_T1#0	actor_d=300000	viable=false
+B	ver=1	tgt=home	actor_d=10000	viable=false
+B	ver=1	tgt=home	actor_d=30000	viable=false
+B	ver=1	tgt=home	actor_d=100000	viable=false
+B	ver=1	tgt=home	actor_d=300000	viable=false
+B	ver=2	tgt=on_T1#0	actor_d=10000	viable=false
+B	ver=2	tgt=on_T1#0	actor_d=30000	viable=false
+B	ver=2	tgt=on_T1#0	actor_d=100000	viable=false
+B	ver=2	tgt=on_T1#0	actor_d=300000	viable=false
+B	ver=2	tgt=near_T1#0	actor_d=10000	viable=false
+B	ver=2	tgt=near_T1#0	actor_d=30000	viable=false
+B	ver=2	tgt=near_T1#0	actor_d=100000	viable=false
+B	ver=2	tgt=near_T1#0	actor_d=300000	viable=false
+B	ver=2	tgt=home	actor_d=10000	viable=false
+B	ver=2	tgt=home	actor_d=30000	viable=false
+B	ver=2	tgt=home	actor_d=100000	viable=false
+B	ver=2	tgt=home	actor_d=300000	viable=false
+B	ver=3	tgt=on_T1#0	actor_d=10000	viable=false
+B	ver=3	tgt=on_T1#0	actor_d=30000	viable=false
+B	ver=3	tgt=on_T1#0	actor_d=100000	viable=false
+B	ver=3	tgt=on_T1#0	actor_d=300000	viable=false
+B	ver=3	tgt=near_T1#0	actor_d=10000	viable=false
+B	ver=3	tgt=near_T1#0	actor_d=30000	viable=false
+B	ver=3	tgt=near_T1#0	actor_d=100000	viable=false
+B	ver=3	tgt=near_T1#0	actor_d=300000	viable=false
+B	ver=3	tgt=home	actor_d=10000	viable=false
+B	ver=3	tgt=home	actor_d=30000	viable=false
+B	ver=3	tgt=home	actor_d=100000	viable=false
+B	ver=3	tgt=home	actor_d=300000	viable=false
+B	ver=30	tgt=on_T1#0	actor_d=10000	viable=false
+B	ver=30	tgt=on_T1#0	actor_d=30000	viable=false
+B	ver=30	tgt=on_T1#0	actor_d=100000	viable=false
+B	ver=30	tgt=on_T1#0	actor_d=300000	viable=false
+B	ver=30	tgt=near_T1#0	actor_d=10000	viable=false
+B	ver=30	tgt=near_T1#0	actor_d=30000	viable=false
+B	ver=30	tgt=near_T1#0	actor_d=100000	viable=false
+B	ver=30	tgt=near_T1#0	actor_d=300000	viable=false
+B	ver=30	tgt=home	actor_d=10000	viable=false
+B	ver=30	tgt=home	actor_d=30000	viable=false
+B	ver=30	tgt=home	actor_d=100000	viable=false
+B	ver=30	tgt=home	actor_d=300000	viable=false
+B	ver=32	tgt=on_T1#0	actor_d=10000	viable=false
+B	ver=32	tgt=on_T1#0	actor_d=30000	viable=false
+B	ver=32	tgt=on_T1#0	actor_d=100000	viable=false
+B	ver=32	tgt=on_T1#0	actor_d=300000	viable=false
+B	ver=32	tgt=near_T1#0	actor_d=10000	viable=false
+B	ver=32	tgt=near_T1#0	actor_d=30000	viable=false
+B	ver=32	tgt=near_T1#0	actor_d=100000	viable=false
+B	ver=32	tgt=near_T1#0	actor_d=300000	viable=false
+B	ver=32	tgt=home	actor_d=10000	viable=false
+B	ver=32	tgt=home	actor_d=30000	viable=false
+B	ver=32	tgt=home	actor_d=100000	viable=false
+B	ver=32	tgt=home	actor_d=300000	viable=false
+B	ver=50	tgt=on_T1#0	actor_d=10000	viable=false
+B	ver=50	tgt=on_T1#0	actor_d=30000	viable=false
+B	ver=50	tgt=on_T1#0	actor_d=100000	viable=false
+B	ver=50	tgt=on_T1#0	actor_d=300000	viable=false
+B	ver=50	tgt=near_T1#0	actor_d=10000	viable=false
+B	ver=50	tgt=near_T1#0	actor_d=30000	viable=false
+B	ver=50	tgt=near_T1#0	actor_d=100000	viable=false
+B	ver=50	tgt=near_T1#0	actor_d=300000	viable=false
+B	ver=50	tgt=home	actor_d=10000	viable=false
+B	ver=50	tgt=home	actor_d=30000	viable=false
+B	ver=50	tgt=home	actor_d=100000	viable=false
+B	ver=50	tgt=home	actor_d=300000	viable=false
+--- C: distance sweep, non-dive path (target at home) ---
+C	d=0	in_tower=false	sg=RunAway	some=false
+C	d=1000	in_tower=false	sg=RunAway	some=false
+C	d=10000	in_tower=false	sg=RunAway	some=false
+C	d=50000	in_tower=false	sg=RunAway	some=false
+C	d=100000	in_tower=false	sg=RunAway	some=false
+C	d=150000	in_tower=false	sg=RunAway	some=false
+C	d=190000	in_tower=false	sg=RunAway	some=false
+C	d=199000	in_tower=false	sg=RunAway	some=false
+C	d=199999	in_tower=false	sg=RunAway	some=false
+C	d=200000	in_tower=false	sg=RunAway	some=false
+C	d=200001	in_tower=false	sg=RunAway	some=false
+C	d=210000	in_tower=false	sg=RunAway	some=false
+C	d=250000	in_tower=false	sg=RunAway	some=false
+C	d=290000	in_tower=false	sg=RunAway	some=false
+C	d=299999	in_tower=false	sg=RunAway	some=false
+C	d=300000	in_tower=false	sg=RunAway	some=false
+C	d=300001	in_tower=false	sg=RunAway	some=false
+C	d=350000	in_tower=false	sg=RunAway	some=false
+C	d=400000	in_tower=false	sg=RunAway	some=false
+C	d=500000	in_tower=false	sg=RunAway	some=false
+C	d=800000	in_tower=false	sg=RunAway	some=false
+--- C2: actor hp sweep (d=100000) ---
+C2	hp%=100	hp=1	sg=RunAway	some=false
+C2	hp%=75	hp=0	sg=RunAway	some=false
+C2	hp%=50	hp=0	sg=RunAway	some=false
+C2	hp%=30	hp=0	sg=RunAway	some=false
+C2	hp%=20	hp=0	sg=RunAway	some=false
+C2	hp%=10	hp=0	sg=RunAway	some=false
+C2	hp%=5	hp=0	sg=RunAway	some=false
+C2	hp%=1	hp=0	sg=RunAway	some=false
+--- C3: TARGET hp sweep (d=100000) ---
+C3	hp%=100	sg=RunAway	some=false
+C3	hp%=50	sg=RunAway	some=false
+C3	hp%=20	sg=RunAway	some=false
+C3	hp%=10	sg=RunAway	some=false
+C3	hp%=5	sg=RunAway	some=false
+C3	hp%=1	sg=RunAway	some=false
+--- D: TryKill.__1 A/B ---
+D	goal1=60	sg=RunAway	some=false
+D	goal1=0	sg=RunAway	some=false
+D	goal1=1	sg=RunAway	some=false
+D	goal1=30	sg=RunAway	some=false
+D	goal1=120	sg=RunAway	some=false
+D	goal1=99999	sg=RunAway	some=false
+D_dive	goal1=60	in_tower=true	viable=Some(false)	sg=-	some=false	dive_tower=None
+D_dive	goal1=0	in_tower=true	viable=Some(false)	sg=-	some=false	dive_tower=None
+D_dive	goal1=99999	in_tower=true	viable=Some(false)	sg=-	some=false	dive_tower=None
+--- E: target id 변주 (non-champion 은 erd 만 확인) ---
+E	bogus	id=999999	entity_found=false	erd=false
+E	ally_champ	id=19	entity_found=true	erd=false
+E	enemy_champ	id=23	entity_found=true	erd=false
+E	own_tower	id=2	entity_found=true	erd=false
+E	enemy_tower	id=3	entity_found=true	erd=true
+E2	bogus_id	in_tower=false	sg=RunAway	some=false
+E2	ally_champ	in_tower=false	sg=RunAway	some=false
+E2	self	in_tower=false	sg=RunAway	some=false

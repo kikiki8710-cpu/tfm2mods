@@ -1,0 +1,591 @@
+### logic 
+"fn handle_line_defense(_version, rnd, player, data, line, _debug) -> bool\n\n// --- 544줄: 그 라인이 맵에 존재하는가\nif !rule_scope::line_exists(data.context /*64B*/, line) { return false }            // IR blk6\n\n// --- 549줄: rule_scope::morgard_exists(...) 가 통째로 인라인됨 (define 없음)\n//     (a) runner.rs:263  TutorialType::spawn_epic\nlet t = data.context.tutorial as u8;\nif t.wrapping_sub(1) < 6 { return false }   // t ∈ 1..=6(First,TopSolo,Bottom,MidSolo,MidBottom,JungleOnly) 이면 종료\n                                            // 통과하는 값 = 0(None) · 7(Line) · 8(Total)   // IR blk14\n//     (b) game.rs:231  game.get_game_mode().as_moba().unwrap()   ← None 이면 option::unwrap_failed 패닉(IR blk174)\nlet moba: &MobaMode = (*data.cache.game).get_game_mode()[vtable+0x40].as_moba().unwrap();  // IR blk21\nlet my_team  = player.info.team;            // +0x930\nlet enemy    = 1 - my_team;                 // 0..1 범위 밖이면 panic_bounds_check(len=2)\n//     (c) game.rs:210  MobaMode::remain_epic_time(enemy)\nif moba.epic_minion_buff_time[enemy] == 0 { return false }                          // IR blk38\n// ⇒ 여기까지가 '적팀에 몰가드(에픽) 미니언 버프가 살아 있다' 게이트\n\n// --- 553줄: AbstractGameWithCache::tower(line, my_team) 인라인 (simulation.rs:1822)\n//     line 별로 (기본타워, 보조타워2) 배열쌍을 골라 Option::or\nlet (a, b) = match line { Top => (0x180, 0x190), Mid => (0x1a0, 0x1b0), Bottom => (0x1c0, 0x1d0) };\nlet t1: Option<&Entity> = cache[a][my_team];\nlet t2: Option<&Entity> = cache[b][my_team];\nlet tower0 = t1.or(t2);                       // %63 = if t1.is_none() { t2 } else { t1 }\n\n// --- 554~559줄: 없으면 트윈타워 중 라인 시작지점에 가장 가까운 것\nlet start = LineType::get_start_position(&line, data.context.setting /*5432B*/, my_team); // 556줄, (i64,i64)\nlet twins = &cache.twin_towers[my_team];      // +0x130, Vec<&Entity>\nlet nearest = twins.iter()\n    .min_by_key(|e| { let dx = |e.x - start.0|; let dy = |e.y - start.1|; dx*dx + dy*dy })  // 부호없는 차의 절댓값\n    .map(|x| *x);                             // 559줄 — 빈 벡터면 None (동점이면 먼저 나온 원소 유지)\nlet tower = tower0.or(nearest);\n\n// --- 565줄: 둘 다 없으면 종료 (원본은 is_none 체크 + unwrap 형태 — unwrap 패닉 경로가 제거돼 있음)\nlet tower: &Entity = match tower { Some(t) => t, None => return false };            // IR blk105→19\n\n// --- 567줄: 이 라인에 실제 위협이 있는가\nif !defense_nexus::has_line_defense_threat(player, data, line, tower.id /*+0x5c0*/) { return false }  // IR blk109\n\n// --- 571~573줄: 타워 주변 '최근에 보인' 적 챔피언 수\nlet mut near_enemy_champion = 0;\nfor e in data.cache.champions(enemy, data.context.pool) {      // Vec<&Entity>, 끝나면 Drop 호출\n    // 572줄 closure$2\n    if data.blackboard[enemy].is_recent_visible(data.cache.game /*dyn*/, player, e) {\n        let dx = |e.x - tower.x|; let dy = |e.y - tower.y|;\n        if dx*dx + dy*dy < 40000000001 { near_enemy_champion += 1 }   // 거리 ≤ 200000 (6.25셀)\n    }\n}\n\n// --- 575~578줄: 전략별 인원 구간 판정\nlet strategy = player.strategy(rnd, data.cache.game);          // Strategy(24B) sret\nlet defense  = strategy.morgard_defense;                       // +0xe : 0=Gather 1=Battle\nreturn if defense == Battle { (near_enemy_champion - 1) <u 2 }  // 1명 또는 2명일 때만 true\n       else                 { near_enemy_champion >  1 };       // Gather: 2명 이상이면 true\n"
+### mem 27
+[
+ {
+  "base": "OperationData",
+  "offset": "0x0",
+  "name": "cache",
+  "note": "&AbstractGameWithCache(8840B). %22",
+  "dir": "r",
+  "chk": "조회실패",
+  "ev": 4
+ },
+ {
+  "base": "OperationData",
+  "offset": "0x8",
+  "name": "context",
+  "note": "&GameContext(64B). %12 — line_exists 의 인자",
+  "dir": "r",
+  "chk": "조회실패",
+  "ev": 4
+ },
+ {
+  "base": "OperationData",
+  "offset": "0x10",
+  "name": "blackboard",
+  "note": "&[Blackboard;2]. %123 — 571줄 필터에서 [적팀] 원소를 씀",
+  "dir": "r",
+  "chk": "조회실패",
+  "ev": 4
+ },
+ {
+  "base": "GameContext",
+  "offset": "0x0",
+  "name": "pool",
+  "note": "&bumpalo::Bump. champions() 3번째 인자(%116)",
+  "dir": "r",
+  "chk": "조회실패",
+  "ev": 4
+ },
+ {
+  "base": "GameContext",
+  "offset": "0x8",
+  "name": "setting",
+  "note": "&GameSetting(5432B). LineType::get_start_position 2번째 인자(%72)",
+  "dir": "r",
+  "chk": "조회실패",
+  "ev": 4
+ },
+ {
+  "base": "GameContext",
+  "offset": "0x38",
+  "name": "tutorial",
+  "note": "TutorialType(1B, range 0..9). 549줄 morgard_exists 인라인의 첫 게이트(%16)",
+  "dir": "r",
+  "chk": "조회실패",
+  "ev": 4
+ },
+ {
+  "base": "AbstractGameWithCache",
+  "offset": "0x0",
+  "name": "game",
+  "note": "&dyn AbstractGame 팻포인터. +0x0=data(%23), +0x8=vtable(%25, dereferenceable(816))",
+  "dir": "r",
+  "chk": "조회실패",
+  "ev": 4
+ },
+ {
+  "base": "AbstractGame vtable",
+  "offset": "0x40",
+  "name": "get_game_mode",
+  "note": "divtable AbstractGame 0x40 → get_game_mode (일치율 98%, vtable 816B=IR deref 와 일치). 반환 {i64,ptr}=Option<&MobaMode>",
+  "dir": "r",
+  "chk": "조회실패",
+  "ev": 4
+ },
+ {
+  "base": "MobaMode",
+  "offset": "0x240",
+  "name": "epic_minion_buff_time[team]",
+  "note": "MobaMode::remain_epic_time(team) 이 인라인된 자리(game.rs:210). team=적팀 인덱스",
+  "dir": "r",
+  "chk": "조회실패",
+  "ev": 4
+ },
+ {
+  "base": "PlayerState",
+  "offset": "0x930",
+  "name": "info.team",
+  "note": "usize. %35=아군팀, %36=1-%35=적팀",
+  "dir": "r",
+  "chk": "조회실패",
+  "ev": 4
+ },
+ {
+  "base": "AbstractGameWithCache",
+  "offset": "0x130",
+  "name": "twin_towers[아군팀]",
+  "note": "Vec<&Entity>(32B stride). 559줄 min_by_key 대상",
+  "dir": "r",
+  "chk": "조회실패",
+  "ev": 4
+ },
+ {
+  "base": "AbstractGameWithCache",
+  "offset": "0x180",
+  "name": "top_tower[아군팀]",
+  "note": "line==Top 일 때 %54=384",
+  "dir": "r",
+  "chk": "조회실패",
+  "ev": 4
+ },
+ {
+  "base": "AbstractGameWithCache",
+  "offset": "0x190",
+  "name": "top_tower2[아군팀]",
+  "note": "line==Top 일 때 %55=400",
+  "dir": "r",
+  "chk": "조회실패",
+  "ev": 4
+ },
+ {
+  "base": "AbstractGameWithCache",
+  "offset": "0x1a0",
+  "name": "mid_tower[아군팀]",
+  "note": "line==Mid 일 때 %54=416",
+  "dir": "r",
+  "chk": "조회실패",
+  "ev": 4
+ },
+ {
+  "base": "AbstractGameWithCache",
+  "offset": "0x1b0",
+  "name": "mid_tower2[아군팀]",
+  "note": "line==Mid 일 때 %55=432",
+  "dir": "r",
+  "chk": "조회실패",
+  "ev": 4
+ },
+ {
+  "base": "AbstractGameWithCache",
+  "offset": "0x1c0",
+  "name": "bottom_tower[아군팀]",
+  "note": "line==Bottom 일 때 %54=448",
+  "dir": "r",
+  "chk": "조회실패",
+  "ev": 4
+ },
+ {
+  "base": "AbstractGameWithCache",
+  "offset": "0x1d0",
+  "name": "bottom_tower2[아군팀]",
+  "note": "line==Bottom 일 때 %55=464",
+  "dir": "r",
+  "chk": "조회실패",
+  "ev": 4
+ },
+ {
+  "base": "bumpalo Vec<&Entity>",
+  "offset": "0x18",
+  "name": "len",
+  "note": "twin_towers 벡터(%68)와 champions 결과 벡터(%119) 둘 다 +0x0=ptr, +0x18=len 으로 읽음",
+  "dir": "r",
+  "chk": "조회실패",
+  "ev": 4
+ },
+ {
+  "base": "Entity",
+  "offset": "0x5c0",
+  "name": "id",
+  "note": "usize. 567줄 has_line_defense_threat 의 4번째 인자(%112)",
+  "dir": "r",
+  "chk": "조회실패",
+  "ev": 4
+ },
+ {
+  "base": "Entity",
+  "offset": "0x660",
+  "name": "x",
+  "note": "u64. 거리 제곱 계산(타워/트윈타워/적 챔피언 모두)",
+  "dir": "r",
+  "chk": "조회실패",
+  "ev": 4
+ },
+ {
+  "base": "Entity",
+  "offset": "0x668",
+  "name": "y",
+  "note": "u64. 거리 제곱 계산",
+  "dir": "r",
+  "chk": "조회실패",
+  "ev": 4
+ },
+ {
+  "base": "Strategy",
+  "offset": "0xe",
+  "name": "morgard_defense",
+  "note": "MorgardDefenseStrategy(1B, range 0..2): 0=Gather 1=Battle. 576줄, PlayerState::strategy 의 sret 버퍼(%8)+14",
+  "dir": "r",
+  "chk": "조회실패",
+  "ev": 4
+ },
+ {
+  "base": "Blackboard",
+  "offset": "0x0",
+  "name": "top_minion_state",
+  "note": "BrainMinionParameter(40B). `has_line_defense_threat`(defense_nexus.rs:588)가 line 으로 switch 해 고른다 — IR `data+0x10 -> gep Blackboard, team` 뒤 `switch line {0:+0, 1:+40, 2:+80}` (2026-09-11 2차배치A). ★한 행에 오프셋을 묶으면 기계 검사가 안 되므로 라인별로 쪼갰다",
+  "dir": "r",
+  "chk": "조회실패",
+  "ev": 4
+ },
+ {
+  "base": "Blackboard",
+  "offset": "0x28",
+  "name": "mid_minion_state",
+  "note": "BrainMinionParameter(40B). `has_line_defense_threat`(defense_nexus.rs:588)가 line 으로 switch 해 고른다 — IR `data+0x10 -> gep Blackboard, team` 뒤 `switch line {0:+0, 1:+40, 2:+80}` (2026-09-11 2차배치A). ★한 행에 오프셋을 묶으면 기계 검사가 안 되므로 라인별로 쪼갰다",
+  "dir": "r",
+  "chk": "조회실패",
+  "ev": 4
+ },
+ {
+  "base": "Blackboard",
+  "offset": "0x50",
+  "name": "bottom_minion_state",
+  "note": "BrainMinionParameter(40B). `has_line_defense_threat`(defense_nexus.rs:588)가 line 으로 switch 해 고른다 — IR `data+0x10 -> gep Blackboard, team` 뒤 `switch line {0:+0, 1:+40, 2:+80}` (2026-09-11 2차배치A). ★한 행에 오프셋을 묶으면 기계 검사가 안 되므로 라인별로 쪼갰다",
+  "dir": "r",
+  "chk": "조회실패",
+  "ev": 4
+ },
+ {
+  "base": "BrainMinionParameter",
+  "offset": "0x10",
+  "name": "from_mid",
+  "note": "i64. `< -3000` 이면 라인 밀림 위협 (2차배치A)",
+  "dir": "r",
+  "chk": "조회실패",
+  "ev": 4
+ },
+ {
+  "base": "BrainMinionParameter",
+  "offset": "0x20",
+  "name": "minion_count",
+  "note": "i32. `< -2` 이면 미니언 수 열세 위협 (2차배치A)",
+  "dir": "r",
+  "chk": "조회실패",
+  "ev": 4
+ }
+]
+### consts 5
+[
+ {
+  "value": -1,
+  "src_line": 549,
+  "meaning": "runner.rs:263 TutorialType::spawn_epic 인라인 — (tutorial as u8).wrapping_sub(1). 578줄의 (near-1) 계산에도 같은 -1 이 쓰임",
+  "kind": "임계",
+  "ev": 4
+ },
+ {
+  "value": 6,
+  "src_line": 549,
+  "meaning": "위 결과와의 부호없는 비교 상한: tutorial-1 <u 6 → 즉시 false 반환. 통과 조건은 tutorial ∈ {0=None, 7=Line, 8=Total}",
+  "kind": "임계",
+  "ev": 4
+ },
+ {
+  "value": 40000000001,
+  "src_line": 572,
+  "meaning": "200000^2 + 1 — 타워~적 챔피언 제곱거리 임계(d2 < 이 값 ⟺ 거리 ≤ 200000 = 6.25셀). 셀=32000",
+  "kind": "임계",
+  "ev": 4
+ },
+ {
+  "value": 1,
+  "src_line": 578,
+  "meaning": "Gather 분기의 하한 비교값: near_enemy_champion >u 1 (= 2명 이상). 같은 리터럴이 549줄의 적팀 인덱스 산출 `1 - my_team` 에도 쓰임",
+  "kind": "인덱스",
+  "ev": 4
+ },
+ {
+  "value": 2,
+  "src_line": 578,
+  "meaning": "Battle 분기의 구간 폭: (near_enemy_champion - 1) <u 2 (= 1명 또는 2명). 배열 길이 2(팀 수) 경계검사 상수와 리터럴이 겹침",
+  "kind": "임계",
+  "ev": 4
+ }
+]
+### knobs 7
+[
+ {
+  "what": "타워 주변 '근처 적 챔피언' 판정 반경(제곱)",
+  "where": "defense_nexus.rs:572 (IR m04.ll:58583 `icmp ult i64 %151, 40000000001`)",
+  "value": 40000000001,
+  "effect": "올리면 더 멀리 있는 적까지 '근처'로 세어 near_enemy_champion 이 커진다 → Gather 전략에선 라인 방어가 더 잘 발동하고, Battle 전략에선 오히려 상한 2명을 넘겨 발동이 줄 수 있다(양방향). 값은 거리의 제곱이므로 반경 R 을 원하면 R*R+1 로 넣어야 한다",
+  "src": "기존",
+  "ev": 4
+ },
+ {
+  "what": "Battle 전략의 발동 인원 구간 폭",
+  "where": "defense_nexus.rs:578 (IR m04.ll:58635 `icmp ult i64 %170, 2`)",
+  "value": 2,
+  "effect": "올리면 (1..=N) 구간이 넓어져 적이 더 많이 몰려 있어도 라인 방어를 채택한다. 0 으로 내리면 Battle 전략에서 라인 방어가 사실상 죽는다",
+  "src": "기존",
+  "ev": 4
+ },
+ {
+  "what": "Gather 전략의 발동 최소 인원",
+  "where": "defense_nexus.rs:578 (IR m04.ll:58636 `icmp ugt i64 %162, 1`)",
+  "value": 1,
+  "effect": "이 값보다 많아야(>) 발동하므로 0 으로 내리면 적 1명만 있어도 라인 방어를 채택, 올리면 더 많이 몰려야 발동한다",
+  "src": "기존",
+  "ev": 4
+ },
+ {
+  "what": "튜토리얼 게이트 상한",
+  "where": "defense_nexus.rs:549 ← rule_scope.rs:46 ← runner.rs:263 (IR m04.ll:58200 `icmp ult i8 %17, 6`)",
+  "value": 6,
+  "effect": "이 비교를 무력화하면(예: 0) 모든 TutorialType 에서 라인 방어 판정이 살아난다. 일반 게임은 tutorial=None(0) 이라 이미 통과하므로 실전 영향은 없고 튜토리얼 전용 노브다",
+  "src": "기존",
+  "ev": 4
+ },
+ {
+  "what": "라인 시작 좌표 6종",
+  "where": "_gcbc/g15.ll:115838~115839",
+  "value": "**team0** Top (80000,820000) · Mid (144000,817000) · Bottom (144000,880000) / **team1** Top (820000,80000) · Mid (817000,144000) · Bottom (880000,144000) (~~팀 표기 없이 team1 값만 적혀 있었다~~ — 오라클 실측, 2차배치A)",
+  "effect": "챔피언·미니언 라인 진입 지점 이동. `setting` 미참조라 설정으로는 못 바꾸고 **바이트패치/재구현만** 가능",
+  "src": "신규",
+  "ev": 4
+ },
+ {
+  "what": "라인 방어 위협 게이트 — 라인 밀림 임계",
+  "where": "defense_nexus.rs:589 (m04.ll:60446 `icmp slt i64 %22, -3000`)",
+  "value": -3000,
+  "effect": "`blackboard[내팀].<line>_minion_state.from_mid`(BrainMinionParameter+0x10)가 이보다 작아야(우리 쪽으로 밀렸어야) 위협 판정에 진입한다. 0 쪽으로 올리면 조금만 밀려도 라인 방어를 검토",
+  "src": "신규",
+  "ev": 4
+ },
+ {
+  "what": "라인 방어 위협 게이트 — 미니언 수 열세 임계",
+  "where": "defense_nexus.rs:589~590 (m04.ll:60451 `icmp slt i32 %26, -2`)",
+  "value": -2,
+  "effect": "`minion_count`(+0x20)가 이보다 작아야 위협. 두 조건은 **OR** 이라 하나만 만족해도 다음 단계(적 미니언 타깃 확인)로 간다",
+  "src": "신규",
+  "ev": 4
+ }
+]
+### callees 17
+[
+ {
+  "name": "as_moba",
+  "path": "game_core::GameMode::<'a>::as_moba",
+  "vis": "pub",
+  "sig": "fn(game_core::GameMode<'a/#0>) -> std::option::Option<&'a/#0 game_core::MobaMode>",
+  "at": "game-core\\src\\simulation\\game.rs:230",
+  "mir": true,
+  "xinl": true,
+  "ev": 3
+ },
+ {
+  "name": "champions",
+  "path": "game_core::AbstractGameWithCache::<'a, 'b>::champions",
+  "vis": "pub",
+  "sig": "fn(&game_core::AbstractGameWithCache<'a/#0, 'b/#1>, usize, &'b/#1 bumpalo::Bump) -> bumpalo::collections::vec::Vec< &game_core::Entity>",
+  "at": "game-core\\src\\simulation.rs:1896",
+  "mir": false,
+  "xinl": false,
+  "ev": 3
+ },
+ {
+  "name": "drop",
+  "path": "<game_core::prof::ProfTimer as std::ops::Drop>::drop",
+  "vis": "pub",
+  "sig": "fn(&mut game_core::prof::ProfTimer)",
+  "at": "game-core\\src\\simulation\\prof.rs:184",
+  "mir": true,
+  "xinl": true,
+  "ev": 3
+ },
+ {
+  "name": "get_game_mode",
+  "path": "<game_core::Game as game_core::AbstractGame>::get_game_mode",
+  "vis": "pub",
+  "sig": "fn(&game_core::Game) -> game_core::GameMode",
+  "at": "game-core\\src\\simulation\\game.rs:1707",
+  "mir": true,
+  "xinl": true,
+  "ev": 3
+ },
+ {
+  "name": "get_game_mode",
+  "path": "<game_core::SingleLaneGame as game_core::AbstractGame>::get_game_mode",
+  "vis": "pub",
+  "sig": "fn(&game_core::SingleLaneGame) -> game_core::GameMode",
+  "at": "game-core\\src\\simulation\\game.rs:4248",
+  "mir": true,
+  "xinl": true,
+  "ev": 3
+ },
+ {
+  "name": "get_game_mode",
+  "path": "<game_core::DeathMatchGame as game_core::AbstractGame>::get_game_mode",
+  "vis": "pub",
+  "sig": "fn(&game_core::DeathMatchGame) -> game_core::GameMode",
+  "at": "game-core\\src\\simulation\\game.rs:5052",
+  "mir": true,
+  "xinl": true,
+  "ev": 3
+ },
+ {
+  "name": "get_start_position",
+  "path": "game_core::LineType::get_start_position",
+  "vis": "pub",
+  "sig": "fn(&game_core::LineType, &game_core::GameSetting, usize) -> (u64, u64)",
+  "at": "game-core\\src\\simulation\\state\\player.rs:1013",
+  "mir": false,
+  "xinl": false,
+  "ev": 3
+ },
+ {
+  "name": "handle_line_defense",
+  "path": "game_ai::plan_legacy::old::handle_line_defense",
+  "vis": "pub",
+  "sig": "fn(usize, &mut rand::rngs::std::StdRng, &game_core::PlayerState, &game_core::OperationData, game_core::LineType, &mut game_core::DebugFrameData) -> bool",
+  "at": "game-ai\\src\\plan_legacy\\old\\defense_nexus.rs:543",
+  "mir": false,
+  "xinl": false,
+  "ev": 3
+ },
+ {
+  "name": "has_line_defense_threat",
+  "path": "game_ai::plan_legacy::old::has_line_defense_threat",
+  "vis": "pub",
+  "sig": "fn(&game_core::PlayerState, &game_core::OperationData, game_core::LineType, usize) -> bool",
+  "at": "game-ai\\src\\plan_legacy\\old\\defense_nexus.rs:587",
+  "mir": false,
+  "xinl": false,
+  "ev": 3
+ },
+ {
+  "name": "is_recent_visible",
+  "path": "game_core::Blackboard::is_recent_visible",
+  "vis": "pub",
+  "sig": "fn(&game_core::Blackboard, &dyn [Binder { value: Trait(game_core::AbstractGame), bound_vars: [] }] + , &game_core::PlayerState, &game_core::Entity) -> bool",
+  "at": "game-core\\src\\simulation\\game\\blackboard.rs:346",
+  "mir": false,
+  "xinl": false,
+  "ev": 3
+ },
+ {
+  "name": "line_exists",
+  "path": "game_ai::plan_legacy::rule_scope::line_exists",
+  "vis": "pub",
+  "sig": "fn(&game_core::GameContext, game_core::LineType) -> bool",
+  "at": "game-ai\\src\\plan_legacy\\rule_scope.rs:24",
+  "mir": false,
+  "xinl": false,
+  "ev": 3
+ },
+ {
+  "name": "morgard_exists",
+  "path": "game_ai::plan_legacy::rule_scope::morgard_exists",
+  "vis": "pub",
+  "sig": "fn(&game_core::GameContext) -> bool",
+  "at": "game-ai\\src\\plan_legacy\\rule_scope.rs:45",
+  "mir": true,
+  "xinl": true,
+  "ev": 3
+ },
+ {
+  "name": "remain_epic_time",
+  "path": "game_core::MobaMode::remain_epic_time",
+  "vis": "pub",
+  "sig": "fn(&game_core::MobaMode, usize) -> usize",
+  "at": "game-core\\src\\simulation\\game.rs:210",
+  "mir": true,
+  "xinl": true,
+  "ev": 3
+ },
+ {
+  "name": "strategy",
+  "path": "<game_core::Game as game_core::AbstractGame>::strategy",
+  "vis": "pub",
+  "sig": "fn(&game_core::Game, usize) -> game_core::Strategy",
+  "at": "game-core\\src\\simulation\\game.rs:1830",
+  "mir": true,
+  "xinl": true,
+  "ev": 3
+ },
+ {
+  "name": "strategy",
+  "path": "game_core::PlayerState::strategy",
+  "vis": "pub",
+  "sig": "fn(&game_core::PlayerState, &mut rand::rngs::std::StdRng, &dyn [Binder { value: Trait(game_core::AbstractGame), bound_vars: [] }] + ) -> game_core::Strategy",
+  "at": "game-core\\src\\simulation\\state\\player.rs:1576",
+  "mir": false,
+  "xinl": false,
+  "ev": 3
+ },
+ {
+  "name": "strategy",
+  "path": "<game_core::ExpectedGame<'a> as game_core::AbstractGame>::strategy",
+  "vis": "pub",
+  "sig": "fn(&game_core::ExpectedGame<'a/#0>, usize) -> game_core::Strategy",
+  "at": "game-core\\src\\simulation\\expected_game.rs:57",
+  "mir": false,
+  "xinl": false,
+  "ev": 3
+ },
+ {
+  "name": "tower",
+  "path": "game_core::AbstractGameWithCache::<'a, 'b>::tower",
+  "vis": "pub",
+  "sig": "fn(&game_core::AbstractGameWithCache<'a/#0, 'b/#1>, game_core::LineType, usize) -> std::option::Option<&game_core::Entity>",
+  "at": "game-core\\src\\simulation.rs:1822",
+  "mir": true,
+  "xinl": true,
+  "ev": 3
+ }
+]
+### callees_unmatched 2
+{
+ "names": [
+  "wrapping_sub"
+ ],
+ "note": "tcx 3크레이트에 같은 leaf 이름의 Fn/AssocFn 이 없는 것들. 대부분 std·클로저·매크로이거나 `logic` 산문에서 긁힌 잡음이다. ⚠단 **여기 이름이 실제 게임 술어인데 이름이 달라서 못 잡힌 경우**가 섞일 수 있으니, 3차에서 판정에 쓰이는 술어가 이 목록에 있으면 손으로 확인할 것."
+}
+### callers 5
+{
+ "count": 4,
+ "sites": [
+  "m09.ll:9206",
+  "m09.ll:9272",
+  "m09.ll:9353",
+  "m13.ll:31086"
+ ],
+ "scope": "_gaibc(game_ai) 전량 call/invoke 스캔",
+ "note": "★자동 열거(spec3lib.callsites, 0.7초). 1차가 09 를 「유일 호출처」로 적었다가 실제 8곳이었다 — 세지 않고 쓰는 일을 구조적으로 막는다. exe 쪽 `callers: []` 는 '호출자 없음'이 아니라 **조인 실패**다.",
+ "ev": 4
+}
+### siblings 4
+{
+ "plan": null,
+ "count": 0,
+ "entries": [],
+ "note": "Plan 타입 메서드가 아니다(자유 함수)."
+}
+### calls_raw 12
+[
+ "game_ai::plan_legacy::rule_scope::line_exists",
+ "core::panicking::panic_bounds_check",
+ "core::option::unwrap_failed",
+ "game_core::simulation::state::player::LineType::get_start_position",
+ "core::iter::traits::iterator::Iterator::min_by_key",
+ "game_ai::plan_legacy::old::defense_nexus::has_line_defense_threat",
+ "game_core::simulation::AbstractGameWithCache::champions",
+ "game_core::simulation::game::blackboard::Blackboard::is_recent_visible",
+ "game_core::simulation::state::player::PlayerState::strategy",
+ "core::ptr::drop_glue",
+ "bumpalo::collections::vec::Vec::drop",
+ "bumpalo::collections::raw_vec::RawVec::drop"
+]
+### history 5
+[
+ {
+  "was": "fold 본체의 키 계산식이 담당범위와 동일한지",
+  "now": "★완전히 동일. 확인 항목 5개(get_start_position 호출·entity+0x660/+0x668 로드·dx select·dy select·dx²+dy²)가 바이트 단위로 같다. m04.ll:58373~58403 ↔ m12.ll:30621~30651.",
+  "aux": [
+   {
+    "ir_file": "m12.ll",
+    "ir_from": 30536,
+    "ir_to": 30687
+   }
+  ],
+  "상수": "판정 상수 0건. 필터 없음 — 순수 Map + min_by_key."
+ },
+ {
+  "was": "blackboard 인덱스 의미",
+  "now": "_shared.is_recent_visible.blackboard_인덱스_의미 참조 — 확정됨."
+ },
+ {
+  "was": "get_start_position 2번째 인자(5432B 구조체) 타입명",
+  "now": "★확정 = **`&GameSetting`**(DWARF `!122698 name:\"setting\"` → `ref$<game_core::setting::GameSetting>`, `distruct GameSetting` = 5432B 정확히 일치). ⚠**본문에서 한 번도 로드되지 않는다** — 라인 시작 좌표가 전부 리터럴 하드코딩이다. 좌표표는 `_shared.맵_좌표계.get_start_position`."
+ },
+ {
+  "was": "`morgard_exists` 가 (b)(c) 조건을 포함한다는 구조 서술 / \"소스 표기 확정 불가\" / \"{0,7,8} 은 추정\"",
+  "now": "★**정정 + 범위정정(2026-09-11 검증배치 A)**\n**① 구조 오류**: `morgard_exists` 는 (b)(c)를 **포함하지 않는다**. tcx 시그니처가 `pub morgard_exists(&GameContext) -> bool`(mir=True) — **인자에 `game` 이 아예 없어서** 구조상 들어갈 수 없다. MIR 전문 = `_3 = discriminant(ctx.tutorial)` @runner.rs:263 → `switchInt -> [0:true, 7:true, 8:true, otherwise:false]` **튜토리얼 게이트 한 줄이 전부**다. (b)(c)는 `defense_nexus.rs:549` 의 **별개 항**이다 — `dloc` inlinedAt 루트가 그것을 가른다: `!66990` 은 `spawn_epic ← morgard_exists ← :549` 인데 `!66998`(as_moba)·`!67010`(remain_epic_time)에는 **`morgard_exists` 프레임이 없다**.\n  본문 복원 ±0: `pub fn morgard_exists(context: &GameContext) -> bool { context.tutorial.spawn_epic() }` (rule_scope.rs L45=54자 / **L46=31자** = `  context.tutorial.spawn_epic()` / L47=1자, MIR span `46:20-46:32` 로 칸까지 일치)\n**② 「소스 표기 확정 불가」는 과했다 — 확정됨**: `defense_nexus.rs` 문자수 L544=**39** = `  if !line_exists(data.context, line) {` ±0 (L545 `    return false;`=17, L546 `  }`=3) ⟹ **`if !… { return false; }` 형태 확정**. L549=**134** = `  if !morgard_exists(data.context) || data.cache.game.get_game_mode().as_moba().unwrap().remain_epic_time(1 - player.info.team) == 0 {` ±0 ⟹ **`!morgard_exists(..)` 확정**(둘째 항은 검산 일치이나 유일성 미보장).\n**③ 「{0,7,8} 은 추정」도 과했다 — 오라클 실행으로 확정**: `TutorialType::spawn_epic()` 전 9값 실행 = None0 **true** / First1~JungleOnly6 전부 false / Line7 **true** / Total8 **true**. MIR switch 와 일치.\n**④ 부수 확정**: `champions(&self, usize, &Bump)` 의 2번째 인자 = **팀**(본체 `_gcbc/g15.ll:109887~109895`, `%8=cache+480(player_champion)`, `%9=[5 x ptr] gep index %2`) · `MobaMode+0x240 = epic_minion_buff_time[0]`(tcx, MobaMode 640B), `remain_epic_time(team) = self.<f2>[team]` **시간 산술 없이 배열 직독**.\n**⑤ 좌표표에 팀 표기 누락**: 기재된 Top 820000/80000 · Mid 817000/144000 · Bottom 880000/144000 은 **team1 값만**이다. 오라클 실측 = Top t0 (80000,820000) / t1 (820000,80000) · Mid t0 (144000,817000) / t1 (817000,144000) · Bottom t0 (144000,880000) / t1 (880000,144000).\n**⑥ 부수 확증**: 프로브의 `GameSetting::default()` 가 `tick_per_second=0` 인 영행렬인데도 좌표가 정상값으로 나왔다 ⟹ 「`setting` 은 본문에서 한 번도 로드되지 않는다」가 **실행으로 확증**됐다."
+ },
+ {
+  "was": "`has_line_defense_threat(player, data, line, tower.id)` 는 _gaibc 에 define 이 없는 외부 선언",
+  "now": "★**define 이 있다**(2026-09-11 2차배치A): `_gaibc/m04.ll:60400`(defense_nexus.rs:587~604), pub.\n  let bm = data.blackboard[player.info.team].<line>_minion_state;            // :588\n       //  Blackboard +0x0 top / +0x28 mid / +0x50 bottom (각 BrainMinionParameter 40B)\n       //  IR: data+0x10 -> gep Blackboard, team -> switch line {0:+0, 1:+40, 2:+80}\n  if bm.from_mid(+0x10,i64) < -3000 || bm.minion_count(+0x20,i32) < -2 {     // :589~590\n    data.cache.minions(1 - team, pool).any(|m|                               // :594 ★적팀 미니언\n         map_regions::is_near_line(ctx.map, m.x(+0x660), m.y(+0x668), line)  // :595\n      && m.ty(+0x68) == 1 /*Minion*/                                         // :599\n      && m.ty.Minion.<target: Option<usize>>(tag +0x88 / val +0x90) == Some(tower_id))  // :600\n  } else { false }\n⟹ **'라인이 밀렸다(from_mid<-3000) 또는 미니언 수가 밀린다(minion_count<-2)' AND '그 타워를 노리는 적 미니언이 있다'**. ★오라클 항별 분해(`A2_oracle4.tsv`): line_exists=true·morgard=true·epic1=600·visible=5/5·near=0~3 인데도 **threat=false** 라 handle_line_defense 가 false 였다 ⟹ 실패 원인을 이 게이트로 실행 특정."
+ }
+]

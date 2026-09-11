@@ -1,0 +1,36 @@
+=== 17-c base_sub_goal(TryKill(champion)) 거리 임계 ===
+17c	Trace_max_d=999999 (code 1)	next_d=1000000 (code 1)   [1=Trace 0=End]
+17c	d=999999	y축=1	대각=1
+17c	d=1000000	y축=1	대각=1
+17c	non-champion target enemy_tower(3)	code=1
+17c	non-champion target own_tower(2)	code=1
+17c	non-champion target bogus	code=1
+17c	Support(23)	d=999999 -> Trace { focus: 23 }	d=1000000 -> Trace { focus: 23 }
+=== 15-c single_tower_dive_is_viable : false 가 되는 축 ===
+15c	default_stat hp=1 rng=0 actor_d=10000	erd=true	viable=false
+15c	default_stat hp=1 rng=0 actor_d=20000	erd=true	viable=false
+15c	default_stat hp=1 rng=0 actor_d=50000	erd=true	viable=false
+15c	default_stat hp=1 rng=0 actor_d=100000	erd=true	viable=false
+15c	default_stat hp=1 rng=0 actor_d=200000	erd=true	viable=false
+15c	default_stat hp=1 rng=0 actor_d=500000	erd=true	viable=false
+15c	opened atk=5000 hp=2000 rng=50000 actor_d=10000	erd=true	viable=false
+15c	opened atk=5000 hp=2000 rng=50000 actor_d=20000	erd=true	viable=false
+15c	opened atk=5000 hp=2000 rng=50000 actor_d=50000	erd=true	viable=false
+15c	opened atk=5000 hp=2000 rng=50000 actor_d=100000	erd=true	viable=false
+15c	opened atk=5000 hp=2000 rng=50000 actor_d=200000	erd=true	viable=false
+15c	opened atk=5000 hp=2000 rng=50000 actor_d=500000	erd=true	viable=false
+15c	atk=0	erd=true	viable=false
+15c	atk=1	erd=true	viable=false
+15c	atk=10	erd=true	viable=false
+15c	atk=100	erd=true	viable=false
+15c	atk=1000	erd=true	viable=false
+15c	atk=5000	erd=true	viable=false
+15c	eff_range=0	erd=true	viable=false
+15c	eff_range=1000	erd=true	viable=false
+15c	eff_range=10000	erd=true	viable=false
+15c	eff_range=50000	erd=true	viable=false
+15c	eff_range=200000	erd=true	viable=false
+15c	defence=0	erd=true	viable=false
+15c	defence=30	erd=true	viable=false
+15c	defence=300	erd=true	viable=false
+15c	defence=3000	erd=true	viable=false

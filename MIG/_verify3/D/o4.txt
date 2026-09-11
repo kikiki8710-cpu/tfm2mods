@@ -1,0 +1,88 @@
+meta	baseline_stat_cached_hp_before_patch=1 (실측) -> now 2000
+--- F: distance sweep after stat opening (tick=0) ---
+F	d=0	sg=Kiting { focus: 23 }	committed=true
+F	d=1000	sg=Kiting { focus: 23 }	committed=true
+F	d=30000	sg=Kiting { focus: 23 }	committed=true
+F	d=49999	sg=Kiting { focus: 23 }	committed=true
+F	d=50000	sg=Kiting { focus: 23 }	committed=true
+F	d=50001	sg=Kiting { focus: 23 }	committed=true
+F	d=60000	sg=Kiting { focus: 23 }	committed=true
+F	d=100000	sg=Kiting { focus: 23 }	committed=true
+F	d=199999	sg=Trace { focus: 23 }	committed=true
+F	d=200000	sg=Trace { focus: 23 }	committed=true
+F	d=200001	sg=Trace { focus: 23 }	committed=true
+F	d=250000	sg=Trace { focus: 23 }	committed=true
+F	d=299999	sg=RunAway	committed=false
+F	d=300000	sg=RunAway	committed=false
+F	d=300001	sg=RunAway	committed=false
+F	d=400000	sg=RunAway	committed=false
+--- G: tick & start_tick sweep (d=30000) ---
+G	tick=0	st=now:Kiting { focus: 23 }	st=0:Kiting { focus: 23 }	st=0+help:Kiting { focus: 23 }
+G	tick=29	st=now:Kiting { focus: 23 }	st=0:Kiting { focus: 23 }	st=0+help:Kiting { focus: 23 }
+G	tick=30	st=now:Kiting { focus: 23 }	st=0:Kiting { focus: 23 }	st=0+help:Kiting { focus: 23 }
+G	tick=31	st=now:Kiting { focus: 23 }	st=0:Kiting { focus: 23 }	st=0+help:Kiting { focus: 23 }
+G	tick=100	st=now:Kiting { focus: 23 }	st=0:Kiting { focus: 23 }	st=0+help:Kiting { focus: 23 }
+G	tick=119	st=now:Kiting { focus: 23 }	st=0:Kiting { focus: 23 }	st=0+help:Kiting { focus: 23 }
+G	tick=120	st=now:Kiting { focus: 23 }	st=0:Kiting { focus: 23 }	st=0+help:Kiting { focus: 23 }
+G	tick=121	st=now:RunAway	st=0:RunAway	st=0+help:RunAway
+G	tick=200	st=now:RunAway	st=0:RunAway	st=0+help:RunAway
+G	tick=1000	st=now:RunAway	st=0:RunAway	st=0+help:RunAway
+--- H: hp sweep (d=30000, tick=0) ---
+H	actor	hp%=100	sg=Kiting { focus: 23 }
+H	actor	hp%=70	sg=Kiting { focus: 23 }
+H	actor	hp%=50	sg=Kiting { focus: 23 }
+H	actor	hp%=30	sg=Kiting { focus: 23 }
+H	actor	hp%=20	sg=Kiting { focus: 23 }
+H	actor	hp%=10	sg=Kiting { focus: 23 }
+H	actor	hp%=5	sg=Kiting { focus: 23 }
+H	actor	hp%=1	sg=Kiting { focus: 23 }
+H	target	hp%=100	sg=Kiting { focus: 23 }
+H	target	hp%=70	sg=Kiting { focus: 23 }
+H	target	hp%=50	sg=Kiting { focus: 23 }
+H	target	hp%=30	sg=Kiting { focus: 23 }
+H	target	hp%=20	sg=Kiting { focus: 23 }
+H	target	hp%=10	sg=Kiting { focus: 23 }
+H	target	hp%=5	sg=Kiting { focus: 23 }
+H	target	hp%=1	sg=Kiting { focus: 23 }
+--- I: attack_effect.range sweep (d=100000, tick=0) ---
+I	range=0	sg=Kiting { focus: 23 }
+I	range=10000	sg=Kiting { focus: 23 }
+I	range=50000	sg=Kiting { focus: 23 }
+I	range=99999	sg=Kiting { focus: 23 }
+I	range=100000	sg=Kiting { focus: 23 }
+I	range=100001	sg=Kiting { focus: 23 }
+I	range=150000	sg=Kiting { focus: 23 }
+I	range=400000	sg=Kiting { focus: 23 }
+--- J: dive path with opened stats ---
+J	off=0	in_tower=true	viable=Some(false)	sg=-	committed=false
+J	off=5000	in_tower=true	viable=Some(false)	sg=-	committed=false
+J	off=10000	in_tower=true	viable=Some(false)	sg=-	committed=false
+J	off=14000	in_tower=true	viable=Some(false)	sg=-	committed=false
+J	off=14999	in_tower=true	viable=Some(false)	sg=-	committed=false
+J	off=15000	in_tower=true	viable=Some(false)	sg=-	committed=false
+J	off=15001	in_tower=false	viable=None	sg=Kiting { focus: 23 }	committed=true
+J	off=20000	in_tower=false	viable=None	sg=Kiting { focus: 23 }	committed=true
+--- K: version sweep after stat opening ---
+K	ver=0	sg=Kiting { focus: 23 }	committed=true
+K	ver=1	sg=Kiting { focus: 23 }	committed=true
+K	ver=2	sg=Kiting { focus: 23 }	committed=true
+K	ver=3	sg=Kiting { focus: 23 }	committed=true
+K	ver=4	sg=Kiting { focus: 23 }	committed=true
+K	ver=5	sg=Kiting { focus: 23 }	committed=true
+K	ver=30	sg=Kiting { focus: 23 }	committed=true
+K	ver=31	sg=Kiting { focus: 23 }	committed=true
+K	ver=32	sg=Kiting { focus: 23 }	committed=true
+K	ver=33	sg=Kiting { focus: 23 }	committed=true
+K	ver=50	sg=Kiting { focus: 23 }	committed=true
+--- K2: version sweep, dive path ---
+K2	ver=0	in_tower=true	viable=Some(false)	sg=-	committed=false
+K2	ver=1	in_tower=true	viable=Some(false)	sg=-	committed=false
+K2	ver=2	in_tower=true	viable=Some(false)	sg=-	committed=false
+K2	ver=3	in_tower=true	viable=Some(false)	sg=-	committed=false
+K2	ver=4	in_tower=true	viable=Some(false)	sg=-	committed=false
+K2	ver=5	in_tower=true	viable=Some(false)	sg=-	committed=false
+K2	ver=30	in_tower=true	viable=Some(false)	sg=-	committed=false
+K2	ver=31	in_tower=true	viable=Some(false)	sg=-	committed=false
+K2	ver=32	in_tower=true	viable=Some(false)	sg=-	committed=false
+K2	ver=33	in_tower=true	viable=Some(false)	sg=-	committed=false
+K2	ver=50	in_tower=true	viable=Some(false)	sg=-	committed=false

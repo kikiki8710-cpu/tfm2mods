@@ -1,0 +1,562 @@
+{
+ "i": 10,
+ "id": "fight_model__should_end_object_finish_kill_priority_battle",
+ "name": "should_end_object_finish_kill_priority_battle",
+ "sym": "_RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old11fight_model45should_end_object_finish_kill_priority_battle",
+ "src": "game-ai\\src\\plan_legacy\\old\\fight_model.rs",
+ "src_line": 1214,
+ "layer": "레거시 플랜",
+ "ir": {
+  "file": "m10.ll",
+  "frm": 49611,
+  "to": 50100
+ },
+ "one_line": "오브젝트(Morgard/Serpen) 사냥 전투를 끝낼지 — 그 오브젝트를 때릴 수 있는 적 챔피언이 하나도 안 보이면 true",
+ "sig": {
+  "tcx": "fn(usize, &mut rand::rngs::std::StdRng, &game_core::PlayerState, &game_core::OperationData, game_ai::plan_legacy::team_plan::MainObjective) -> bool",
+  "vis": "in:game_ai",
+  "path": "game_ai::plan_legacy::old::fight_model::should_end_object_finish_kill_priority_battle",
+  "mir": false,
+  "ev": 3,
+  "params": [
+   {
+    "i": 1,
+    "name": "version",
+    "type": "usize",
+    "role": "AI 버전. 이 함수 자체엔 분기 없음 — path_finder::is_enemy_well_danger 에 그대로 전달만 함",
+    "ev": 4
+   },
+   {
+    "i": 2,
+    "name": "rnd",
+    "type": "&mut rand::rngs::std::StdRng (320B, align 16)",
+    "role": "본문에서 직접 읽지/쓰지 않음. PlayerState::strategy 에 그대로 넘기기만 한다",
+    "ev": 4
+   },
+   {
+    "i": 3,
+    "name": "player",
+    "type": "&PlayerState (2528B)",
+    "role": "info.team(0x930) 을 읽어 적 팀 인덱스(1-team) 를 만든다",
+    "ev": 4
+   },
+   {
+    "i": 4,
+    "name": "data",
+    "type": "&OperationData (24B)",
+    "role": "{cache:&AbstractGameWithCache, context:&GameContext, blackboard:&[Blackboard;2]}. context(+0x8)는 이 함수에서 안 쓴다",
+    "ev": 4
+   },
+   {
+    "i": 5,
+    "name": "main_objective",
+    "type": "MainObjective (i24 = 3바이트 열거형, 레지스터 전달)",
+    "role": "byte0=태그 / byte1=phase(ObjectPhase) / byte2=with_battle(bool) — dienum MainObjective 0 출력 기준",
+    "ev": 4
+   }
+  ],
+  "ret": "bool — true = 이 오브젝트 마무리 전투를 종료해야 함 / false = 유지"
+ },
+ "logic": "// 진입 게이트 (fight_model.rs:1216) — MainObjective 3바이트를 통째로 마스크 비교\nif (main_objective & 0xFFFE) != 0x0300 { return false }\n//   ⇒ tag(+0x0) ∈ {0=Morgard, 1=Serpen}  AND  phase(+0x1) == 3(Hunt)\n//   ⇒ with_battle(+0x2) 는 마스크 밖 = 검사하지 않는다\n\n// 전략 게이트 (1220)\nlet st: Strategy = PlayerState::strategy(player, rnd, game.data, game.vtable);   // 24B sret\nif st.object_finish /* +0xf */ != ObjectFinishStrategy::KillPriority /* 0 */ { return false }\n\n// 오브젝트 엔티티 찾기 (1224) — objective_entity_id_for_main_objective(fight_model.rs:1178~1183) 가 인라인됨\nlet mode = (*game.vtable[0x40])(game.data);          // AbstractGame::get_game_mode -> {discr, ptr}\nif mode.as_moba().is_none() /* discr != 0 */ { return true }   // 비-Moba 모드면 종료\nlet moba: &MobaMode = mode.payload;\nlet id: usize = match tag {\n  0 /*Morgard*/ => {                                  // 1181\n      if moba.jungle_runner.epic.live_list.len()   == 0 { return true }\n      moba.jungle_runner.epic.live_list[0]\n  }\n  1 /*Serpen*/  => {                                  // 1183\n      if moba.jungle_runner.serpen.live_list.len() == 0 { return true }\n      moba.jungle_runner.serpen.live_list[0]\n  }\n  // 다른 태그 팔은 1216 게이트 때문에 도달 불가 → LLVM 이 제거\n};\nlet objective: &Entity = (*game.vtable[0x1f0])(game.data, id);   // get_entity_by_id, 1225\nif objective == null { return true }                             // 1224\n\n// 적 챔피언 주사 (1229~1233)\nlet e_team = 1 - player.info.team;                    // 1229. e_team >= 2 면 panic_bounds_check(e_team, 2)\nlet bb     = &data.blackboard[e_team];                // 1230 // `Blackboard[T].last_visible[pos]` = '팀 (1−T) 가 팀 T 의 pos 챔프를 마지막으로 본 틱' ⟹ T=e_team 이므로 1−T=내 팀 = **「내 팀이 본 적인가」**(`_shared.is_recent_visible` 확정)\nfor enemy in data.cache.player_champion[e_team] {     // 슬롯 5개, IR 에서 완전 언롤(+0,+8,+16,+24,+32)\n    if enemy.is_none() { continue }\n    if !bb.is_recent_visible(game.data, game.vtable, player, enemy) { continue }   // 1231\n\n    // 1232: is_ignored_well_enemy(version, player, enemy) 인라인 (fight_model.rs:754~756)\n    if enemy.team == TeamType::Player(e_team)\n       && path_finder::is_enemy_well_danger(version, player, enemy.x, enemy.y) { continue }\n\n    if can_enemy_hit_objective(enemy, objective, 25000) { return false }           // 1233\n}\nreturn true;                                          // 1235\n\n// 요약: should_end = !(적 챔피언 중 '최근 보이고' && '우물위험 무시대상이 아니고' && '오브젝트를 여유 25000 안에서 때릴 수 있는' 자가 하나라도 있음)",
+ "logic_note": "★재구현용 의사코드다. **오프셋·상수·시그니처의 정본은 `mem`/`consts`/`callees`/`sig.tcx` 이고, 여기와 어긋나면 그쪽이 맞다.** (v2 에서 정정이 표에만 반영되고 이 블록이 옛 값으로 남는 사고가 반복됐다)",
+ "mem": [
+  {
+   "base": "MainObjective(인자 %4, i24)",
+   "offset": "0x0",
+   "name": "tag",
+   "note": "0=Morgard, 1=Serpen. 1216 게이트에서 마스크로, 1179 match 에서 trunc i24->i8 로 다시 본다",
+   "dir": "r",
+   "chk": "조회실패",
+   "ev": 4
+  },
+  {
+   "base": "MainObjective(인자 %4, i24)",
+   "offset": "0x1",
+   "name": "phase (ObjectPhase)",
+   "note": "1216 게이트가 == 3(Hunt) 을 요구. 본문엔 리터럴 3 이 없고 768(=3<<8)로 접혀 있다",
+   "dir": "r",
+   "chk": "조회실패",
+   "ev": 4
+  },
+  {
+   "base": "MainObjective(인자 %4, i24)",
+   "offset": "0x2",
+   "name": "with_battle (bool)",
+   "note": "★마스크 65534 밖 = 이 함수는 with_battle 을 전혀 검사하지 않는다",
+   "dir": "r",
+   "chk": "조회실패",
+   "ev": 4
+  },
+  {
+   "base": "Strategy(PlayerState::strategy 반환 24B)",
+   "offset": "0xf",
+   "name": "object_finish (ObjectFinishStrategy 1B)",
+   "note": "== 0(KillPriority) 이어야 통과. distruct Strategy 로 24B/+0xf 교차검증 ★실행 확인(2차배치C): `Strategy` 는 24B 이고 raw 덤프의 `+0xf` 바이트가 Debug 의 `object_finish` 와 1:1(기본값 1=BattlePriority). `_verify2/C/C_o10b.tsv`",
+   "dir": "r",
+   "chk": "조회실패",
+   "ev": 2
+  },
+  {
+   "base": "PlayerState",
+   "offset": "0x930",
+   "name": "info.team (usize)",
+   "note": "IR 의 gep +2352. 적 팀 = 1 - 이 값",
+   "dir": "r",
+   "chk": "조회실패",
+   "ev": 4
+  },
+  {
+   "base": "OperationData",
+   "offset": "0x0",
+   "name": "cache (&AbstractGameWithCache)",
+   "note": "",
+   "dir": "r",
+   "chk": "조회실패",
+   "ev": 4
+  },
+  {
+   "base": "OperationData",
+   "offset": "0x10",
+   "name": "blackboard (&[Blackboard;2])",
+   "note": "gep +16. Blackboard 1개 = 744B (dereferenceable(744) 로 교차검증)",
+   "dir": "r",
+   "chk": "조회실패",
+   "ev": 4
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x0",
+   "name": "game.data (&dyn AbstractGame 의 데이터 포인터)",
+   "note": "game 필드는 16B 팻포인터",
+   "dir": "r",
+   "chk": "조회실패",
+   "ev": 4
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x8",
+   "name": "game.vtable (&dyn AbstractGame 의 vtable)",
+   "note": "dereferenceable(816) = AbstractGame vtable 크기와 일치",
+   "dir": "r",
+   "chk": "조회실패",
+   "ev": 4
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x1e0",
+   "name": "player_champion ([[Option<&Entity>;5];2], 80B)",
+   "note": "gep +480, 팀당 stride 40B. iter_champions(적팀) 이 여기를 5칸 순회(IR 에선 완전 언롤)",
+   "dir": "r",
+   "chk": "조회실패",
+   "ev": 4
+  },
+  {
+   "base": "AbstractGame vtable",
+   "offset": "0x40",
+   "name": "get_game_mode",
+   "note": "divtable AbstractGame 0x40. {i64 discr, ptr} 반환 → GameMode",
+   "dir": "r",
+   "chk": "조회실패",
+   "ev": 4
+  },
+  {
+   "base": "AbstractGame vtable",
+   "offset": "0x1f0",
+   "name": "get_entity_by_id",
+   "note": "divtable AbstractGame 0x1f0. gep +496",
+   "dir": "r",
+   "chk": "조회실패",
+   "ev": 4
+  },
+  {
+   "base": "MobaMode",
+   "offset": "0x198",
+   "name": "jungle_runner.epic.live_list.cap",
+   "note": "gep +408. MobaMode+0x18=jungle_runner, JungleRunner+0x180=epic, JungleCampState+0x0=live_list(Vec<usize>)",
+   "dir": "r",
+   "chk": "조회실패",
+   "ev": 4
+  },
+  {
+   "base": "MobaMode",
+   "offset": "0x1a0",
+   "name": "jungle_runner.epic.live_list.ptr",
+   "note": "gep +416 — Morgard 경로가 여기서 [0] 을 읽는다",
+   "dir": "r",
+   "chk": "조회실패",
+   "ev": 4
+  },
+  {
+   "base": "MobaMode",
+   "offset": "0x1a8",
+   "name": "jungle_runner.epic.live_list.len",
+   "note": "gep +424. 0 이면 즉시 true 반환",
+   "dir": "r",
+   "chk": "조회실패",
+   "ev": 4
+  },
+  {
+   "base": "MobaMode",
+   "offset": "0x1c8",
+   "name": "jungle_runner.serpen.live_list.cap",
+   "note": "gep +456. JungleRunner+0x1b0=serpen",
+   "dir": "r",
+   "chk": "조회실패",
+   "ev": 4
+  },
+  {
+   "base": "MobaMode",
+   "offset": "0x1d0",
+   "name": "jungle_runner.serpen.live_list.ptr",
+   "note": "gep +464 — Serpen 경로가 여기서 [0] 을 읽는다",
+   "dir": "r",
+   "chk": "조회실패",
+   "ev": 4
+  },
+  {
+   "base": "MobaMode",
+   "offset": "0x1d8",
+   "name": "jungle_runner.serpen.live_list.len",
+   "note": "gep +472. 0 이면 즉시 true 반환",
+   "dir": "r",
+   "chk": "조회실패",
+   "ev": 4
+  },
+  {
+   "base": "Entity(적 챔피언)",
+   "offset": "0x0",
+   "name": "team.tag (TeamType 판별자)",
+   "note": "== 0(Player) 인지 본다 (TeamType 16B)",
+   "dir": "r",
+   "chk": "조회실패",
+   "ev": 4
+  },
+  {
+   "base": "Entity(적 챔피언)",
+   "offset": "0x8",
+   "name": "team.Player.0 (팀 인덱스 usize)",
+   "note": "gep +8. 1-player.team 과 비교",
+   "dir": "r",
+   "chk": "조회실패",
+   "ev": 4
+  },
+  {
+   "base": "Entity(적 챔피언)",
+   "offset": "0x660",
+   "name": "x (u64)",
+   "note": "gep +1632. is_enemy_well_danger 인자",
+   "dir": "r",
+   "chk": "조회실패",
+   "ev": 4
+  },
+  {
+   "base": "Entity(적 챔피언)",
+   "offset": "0x668",
+   "name": "y (u64)",
+   "note": "gep +1640. is_enemy_well_danger 인자",
+   "dir": "r",
+   "chk": "조회실패",
+   "ev": 4
+  }
+ ],
+ "consts": [
+  {
+   "value": 65534,
+   "src_line": 1216,
+   "meaning": "MainObjective 3바이트 진입 마스크 0x00FFFE — byte0 의 bit0 만 남기고(태그 0/1 허용) byte1(phase) 전체를 보고 byte2(with_battle) 는 통째로 무시한다",
+   "kind": "태그",
+   "ev": 4
+  },
+  {
+   "value": 768,
+   "src_line": 1216,
+   "meaning": "마스크 결과 기대값 0x000300 — byte1(phase)==3(ObjectPhase::Hunt) & byte0(tag)∈{0=Morgard,1=Serpen}. 리터럴 3 은 3<<8 로 접혀 본문에 없다",
+   "kind": "임계",
+   "ev": 4
+  },
+  {
+   "value": 0,
+   "src_line": 1220,
+   "meaning": "ObjectFinishStrategy::KillPriority 의 태그값. strategy.object_finish(+0xf) 가 이 값이 아니면 즉시 false",
+   "kind": "태그",
+   "ev": 4
+  },
+  {
+   "value": 1,
+   "src_line": 1229,
+   "meaning": "적 팀 인덱스 = 1 - player.info.team (팀 2개 전제). iter_champions 와 blackboard 인덱스 양쪽에 같은 값이 쓰인다",
+   "kind": "인덱스",
+   "ev": 4
+  },
+  {
+   "value": 25000,
+   "src_line": 1233,
+   "meaning": "can_enemy_hit_objective 의 3번째 인자 — 적이 오브젝트를 '때릴 수 있다'고 볼 여유치. 게임 좌표 단위(셀=32000)로 보면 셀의 약 0.78배",
+   "kind": "임계",
+   "ev": 4
+  }
+ ],
+ "knobs": [
+  {
+   "what": "적이 오브젝트를 때릴 수 있다고 보는 여유치",
+   "where": "fight_model.rs:1233 (can_enemy_hit_objective 3번째 인자)",
+   "value": 25000,
+   "effect": "올리면 더 먼 적까지 '때릴 수 있음'으로 쳐서 전투를 안 끝낸다(오브젝트 앞에 더 오래 눌러앉음). 내리면 적이 바짝 붙어야만 유지 → 오브젝트 마무리 전투를 빨리 접는다",
+   "src": "기존",
+   "ev": 4
+  },
+  {
+   "what": "진입 phase 게이트",
+   "where": "fight_model.rs:1216 (마스크 65534 == 768)",
+   "value": 768,
+   "effect": "768(=phase 3 Hunt) 을 다른 값으로 바꾸면 다른 오브젝트 페이즈(1=Setup, 2=Assemble)에서도 이 종료판정이 돌게 된다. 0 으로 두면 phase==None 일 때만 돈다",
+   "src": "기존",
+   "ev": 4
+  },
+  {
+   "what": "진입 마스크 폭",
+   "where": "fight_model.rs:1216 (65534)",
+   "value": 65534,
+   "effect": "현재 byte2(with_battle) 가 마스크 밖이라 전투동반 여부와 무관하게 판정한다. 마스크를 0xFFFFFE 류로 넓히면 with_battle 조건까지 게이트에 넣을 수 있고, 0xFFFF 로 좁히면(=태그 고정) Morgard/Serpen 중 하나만 대상이 된다",
+   "src": "기존",
+   "ev": 4
+  },
+  {
+   "what": "전략 게이트",
+   "where": "fight_model.rs:1220 (strategy.object_finish == KillPriority)",
+   "value": 0,
+   "effect": "0→1 로 바꾸면 BattlePriority 전략일 때만 이 종료판정이 돈다. 게이트를 없애면 두 전략 모두에서 '적이 안 보이면 전투 종료'가 걸린다",
+   "src": "기존",
+   "ev": 4
+  },
+  {
+   "what": "\"최근 목격\" 시간창",
+   "where": "game_core blackboard.rs:346 `Blackboard::is_recent_visible` (`_gcbc/g07.ll:157005~157050`) — fight_model.rs:1231 호출",
+   "value": 120,
+   "effect": "`last_visible[pos] + 120 >= tick` 이면 '최근에 봤다'. tps=60 이라 **2.0초 고정이며 `tick_per_second` 로 스케일되지 않는다.** 올리면 적이 시야에서 사라져도 한동안 '아직 근처'로 쳐서 오브젝트 마무리 전투를 안 끝내고, 내리면 시야 끊기는 즉시 접는다. 형제 4개 중 big_action 계열은 같은 배열에 600틱을 쓴다(`_shared.is_recent_visible_4형제`). ⚠1차가 '노브인데 표에 없다'고 지적한 것이 `resolved` 에만 있었다(2차배치C)",
+   "src": "기존",
+   "ev": 4
+  },
+  {
+   "what": "objective→entity id 표",
+   "where": "m10.ll:49508~49512 switch",
+   "value": "0/1 만",
+   "effect": "다른 variant 를 열면 게이트를 통과시킨 뒤 실제 대상 id 가 생긴다",
+   "src": "신규",
+   "ev": 4
+  }
+ ],
+ "callees": [
+  {
+   "name": "as_moba",
+   "path": "game_core::GameMode::<'a>::as_moba",
+   "vis": "pub",
+   "sig": "fn(game_core::GameMode<'a/#0>) -> std::option::Option<&'a/#0 game_core::MobaMode>",
+   "at": "game-core\\src\\simulation\\game.rs:230",
+   "mir": true,
+   "xinl": true,
+   "ev": 3
+  },
+  {
+   "name": "can_enemy_hit_objective",
+   "path": "game_ai::plan_legacy::old::can_enemy_hit_objective",
+   "vis": "pub",
+   "sig": "fn(&game_core::Entity, &game_core::Entity, u64) -> bool",
+   "at": "game-ai\\src\\plan_legacy\\old\\fight_model.rs:1188",
+   "mir": false,
+   "xinl": false,
+   "ev": 3
+  },
+  {
+   "name": "is_enemy_well_danger",
+   "path": "game_ai::is_enemy_well_danger",
+   "vis": "pub",
+   "sig": "fn(usize, &game_core::PlayerState, u64, u64) -> bool",
+   "at": "game-ai\\src\\path_finder.rs:1032",
+   "mir": false,
+   "xinl": false,
+   "ev": 3
+  },
+  {
+   "name": "is_ignored_well_enemy",
+   "path": "game_ai::plan_legacy::old::is_ignored_well_enemy",
+   "vis": "pub",
+   "sig": "fn(usize, &game_core::PlayerState, &game_core::Entity) -> bool",
+   "at": "game-ai\\src\\plan_legacy\\old\\fight_model.rs:754",
+   "mir": false,
+   "xinl": false,
+   "ev": 3
+  },
+  {
+   "name": "is_recent_visible",
+   "path": "game_core::Blackboard::is_recent_visible",
+   "vis": "pub",
+   "sig": "fn(&game_core::Blackboard, &dyn [Binder { value: Trait(game_core::AbstractGame), bound_vars: [] }] + , &game_core::PlayerState, &game_core::Entity) -> bool",
+   "at": "game-core\\src\\simulation\\game\\blackboard.rs:346",
+   "mir": false,
+   "xinl": false,
+   "ev": 3
+  },
+  {
+   "name": "objective_entity_id_for_main_objective",
+   "path": "game_ai::plan_legacy::old::objective_entity_id_for_main_objective",
+   "vis": "pub",
+   "sig": "fn(&game_core::OperationData, game_ai::plan_legacy::team_plan::MainObjective) -> std::option::Option<usize>",
+   "at": "game-ai\\src\\plan_legacy\\old\\fight_model.rs:1178",
+   "mir": false,
+   "xinl": false,
+   "ev": 3
+  },
+  {
+   "name": "strategy",
+   "path": "<game_core::Game as game_core::AbstractGame>::strategy",
+   "vis": "pub",
+   "sig": "fn(&game_core::Game, usize) -> game_core::Strategy",
+   "at": "game-core\\src\\simulation\\game.rs:1830",
+   "mir": true,
+   "xinl": true,
+   "ev": 3
+  },
+  {
+   "name": "strategy",
+   "path": "game_core::PlayerState::strategy",
+   "vis": "pub",
+   "sig": "fn(&game_core::PlayerState, &mut rand::rngs::std::StdRng, &dyn [Binder { value: Trait(game_core::AbstractGame), bound_vars: [] }] + ) -> game_core::Strategy",
+   "at": "game-core\\src\\simulation\\state\\player.rs:1576",
+   "mir": false,
+   "xinl": false,
+   "ev": 3
+  },
+  {
+   "name": "strategy",
+   "path": "<game_core::ExpectedGame<'a> as game_core::AbstractGame>::strategy",
+   "vis": "pub",
+   "sig": "fn(&game_core::ExpectedGame<'a/#0>, usize) -> game_core::Strategy",
+   "at": "game-core\\src\\simulation\\expected_game.rs:57",
+   "mir": false,
+   "xinl": false,
+   "ev": 3
+  }
+ ],
+ "callees_unmatched": {
+  "names": [
+   "phase",
+   "with_battle"
+  ],
+  "note": "tcx 3크레이트에 같은 leaf 이름의 Fn/AssocFn 이 없는 것들. 대부분 std·클로저·매크로이거나 `logic` 산문에서 긁힌 잡음이다. ⚠단 **여기 이름이 실제 게임 술어인데 이름이 달라서 못 잡힌 경우**가 섞일 수 있으니, 3차에서 판정에 쓰이는 술어가 이 목록에 있으면 손으로 확인할 것."
+ },
+ "callees_note": "★tcx 에서 **자동 생성**한다(mkspec3.py). 사람이 채우는 필드로 두면 빈다 — 01 의 「정글 캠프 티어 컷」 유령 노브가 `is_jungle(&self, usize)` 시그니처를 안 본 탓에 생겼다. **인자를 받는 술어면 IR 의 임계 상수는 접힘일 수 있다.**",
+ "callers": {
+  "count": 3,
+  "sites": [
+   "m05.ll:19959",
+   "m05.ll:29032",
+   "m10.ll:26341"
+  ],
+  "scope": "_gaibc(game_ai) 전량 call/invoke 스캔",
+  "note": "★자동 열거(spec3lib.callsites, 0.7초). 1차가 09 를 「유일 호출처」로 적었다가 실제 8곳이었다 — 세지 않고 쓰는 일을 구조적으로 막는다. exe 쪽 `callers: []` 는 '호출자 없음'이 아니라 **조인 실패**다.",
+  "ev": 4
+ },
+ "siblings": {
+  "plan": null,
+  "count": 0,
+  "entries": [],
+  "note": "Plan 타입 메서드가 아니다(자유 함수)."
+ },
+ "open": [
+  {
+   "q": "can_enemy_hit_objective(fight_model.rs:1233) 내부 미확인 — 25000 이 거리(제곱 아님)인지, 사거리+여유인지, 시간인지 단위 미확정. 담당 범위 밖이라 본문을 안 봤다.",
+   "class": "미탐색",
+   "ev": 4
+  },
+  {
+   "q": "path_finder::is_enemy_well_danger 내부 미확인 — version 이 여기서만 쓰이므로 버전 분기는 전적으로 이 함수 몫이다.",
+   "class": "미탐색",
+   "ev": 4
+  },
+  {
+   "q": "MainObjective 태그 0/1 이외에서의 원본 동작 — 1216 게이트가 먼저 걸러내므로 인라인된 objective_entity_id_for_main_objective 의 `_ => None` 팔이 LLVM 에서 제거됐다. 원본 함수에는 있을 것으로 보이나 이 범위에서는 복원 불가.",
+   "class": "미탐색",
+   "ev": 4
+  },
+  {
+   "q": "phase 리터럴 3 이 본문에 없다 — 768(=3<<8) 로 상수접힘. constants 에는 실제 본문 값 768 만 올렸다.",
+   "class": "미탐색",
+   "ev": 4
+  },
+  {
+   "q": "적 챔피언 슬롯 5칸은 IR 에서 완전 언롤돼 루프 변수가 없다. 5 라는 상수는 배열 길이라 constants 에 넣지 않았다(SPEC_GUIDE §3 표 규칙).",
+   "class": "미탐색",
+   "ev": 4
+  },
+  {
+   "q": "AbstractGame vtable 슬롯 이름(0x40 get_game_mode / 0x1f0 get_entity_by_id)은 divtable 이 'ExpectedGame' impl 기준으로 준 것이다. 런타임에 어느 구현체가 꽂히는지는 이 도구로 알 수 없다(도구 자체 경고).",
+   "class": "미탐색",
+   "ev": 4
+  }
+ ],
+ "closed": [
+  {
+   "q": "blackboard 인덱스의 의미 — data.blackboard[1 - player.info.team](=적 팀) 을 is_recent_visible 의 self 로 넘긴다. iter_champions 와 완전히 같은 값(%56)을 쓰는 것은 IR 로 확정했으나, '적 팀의 blackboard 로 적 챔피언의 가시성을 묻는' 의미가 무엇인지는 확정 못 함. is_recent_visible 이 player 인자도 함께 받으므로 관측자는 그쪽에서 정해질 가능성이 있다.",
+   "why": "_shared.is_recent_visible 확정"
+  },
+  {
+   "q": "Blackboard::is_recent_visible 본체 — _gaibc 전체에 define 이 없다(declare 만). game_core 쪽 코드라 '최근'의 기준(틱 수 등)을 확인할 수 없다. grep 'define.*Blackboard17is_recent_visible' /c/tfm2mods/_gaibc/*.ll 결과 0건.",
+   "why": "2차 배치C: _gcbc/g07.ll:157005~157050 에 있었다(_gaibc 에 declare 만)"
+  },
+  {
+   "q": "p2 rnd(&mut StdRng, 320B) — 이 함수 본문에서 직접 읽거나 쓰지 않고 PlayerState::strategy 에 그대로 전달만 한다. strategy 가 난수를 소비하는지(=이 함수가 RNG 상태를 전진시키는 부작용이 있는지)는 확인 못 했다. writes 를 빈 배열로 둔 이유가 이것이다 — 이 함수 자신은 어떤 필드에도 store 하지 않는다(본문에 store 명령 0개).",
+   "why": "2차 배치C: RNG 무영향 실행 확정(난수열 5/5 동일)"
+  }
+ ],
+ "open_note": "★3차는 **`open[]` 만** 보면 된다. `closed[]` 는 이미 닫힌 것(삭제하지 않고 남긴다). 판정 어휘 = 미탐색 / 재료 부재(범위 열거 필수) / 표기 불가. 「불가」를 쓰기 전에 `METHOD_MAP §0` 을 볼 것.",
+ "history": [
+  {
+   "was": "can_enemy_hit_objective 의 25000 이 거리인지 시간인지",
+   "now": "★확정 = 거리 오프셋(월드 좌표, 제곱 아님). 3번째 인자 이름 = range_margin (_gaibc/m10.ll:116959 !53081, fight_model.rs:1188). 본문(m10.ll:47454~47623)은 그대로 Effect::is_in_range_ex 의 8번째 인자로 넘긴다. is_in_range_ex 본문(_gcbc/g06.ll:51807~51890): total = effect.range + offset + caster+0x680 + (caster+0x5c8-1)*effect+0x18 + range_adjust + 보정들; return dx²+dy² <= total². ⟹ 제곱 전 사거리에 그대로 더해진다. 1셀=32000 이므로 25000 ≈ 0.78셀."
+  },
+  {
+   "was": "같은 함수의 다른 큰 상수",
+   "now": "19600000000 = 140000² 은 steal_position_range (fight_model.rs:1189, m10.ll:47501). 적↔오브젝트 거리가 140000(=4.375셀) 초과면 즉시 false."
+  },
+  {
+   "was": "blackboard 인덱스 의미 / is_recent_visible 본체",
+   "now": "_shared 참조 — 둘 다 확정됨."
+  },
+  {
+   "was": "is_enemy_well_danger 의 버전별 분기표",
+   "now": "★정정 — 버전 분기표는 존재하지 않는다. _gaibc/m03.ll:144500~144563(path_finder.rs:1032)에서 version(%0)은 dbg_value 로만 등장하고 본문에서 한 번도 쓰이지 않는다. 분기는 전부 player.info.team 기준의 두 사각형 OR: 적팀0 → (0,800000,64000,960000) ∪ (0,896000,160000,960000), 적팀1 → 대칭. 경계 포함(icmp ult ..., 64001)."
+  },
+  {
+   "was": "MainObjective 태그 0/1 이외에서의 원본 동작 — LLVM 이 `_ => None` 팔을 제거해 복원 불가",
+   "now": "★**\"복원 불가\"가 뒤집혔다.** `fnparts` 로 아웃오브라인 본체를 찾았다 — `_gaibc/m10.ll:49498~49608`(fight_model.rs:1178~1186), 게이트 없는 원본이라 `_ => None` 팔이 살아 있다. **0 Morgard → epic.live_list 첫 원소 / 1 Serpen → serpen.live_list 첫 원소 / 2~11 전부 None.** 전문 = `_shared.objective_매핑표.objective_entity_id`."
+  },
+  {
+   "was": "`is_recent_visible` 확정 사실이 logic/unknown 에 미반영, 120틱이 knobs 에 없음",
+   "now": "➕**보강(2026-09-11 검증배치 C)**: `is_recent_visible` = **\"내 팀이 최근 2.0초(120틱 고정) 안에 본 적인가\"** 가 `_shared` 에서 이미 확정됐는데 이 명세의 `logic`/`unknown` 에 반영이 안 돼 있었다. **120 은 노브인데 `knobs` 에 없다** — 추가 대상."
+  },
+  {
+   "was": "p2 rnd — `strategy` 가 난수를 소비하는지(RNG 부작용) 확인 못 했다",
+   "now": "★**소비하지 않는다**(실행 확정, 2026-09-11 2차배치C, `C_o10b.rs`): `PlayerState::strategy` 호출 전후로 같은 시드의 난수열이 **완전 동일(5/5)**, 반환 `Strategy` 도 RNG 상태와 무관 ⟹ 이 함수는 **RNG 부작용이 없고 `writes: []` 가 옳다**. 적용 범위 = Moba·tick 0·`TeamColorStrategy` 12필드 전부 None(기본 팀). 랜덤 전략은 `thread_rng()` 를 쓰므로(`_shared.TeamColorStrategy_random`) 인자 rnd 와 무관."
+  }
+ ],
+ "history_note": "v2 `resolved[]` 원문 그대로(정정 이력). **본문이 아니라 참조용**이다 — 여기 있는 사실이 `mem`/`consts`/`knobs`/`callees` 에 반영됐는지는 `specgate.py` 가 검사한다.",
+ "exe": {
+  "addr": "e12050",
+  "module": "fight_model",
+  "bytes": 456,
+  "instrs": 115,
+  "evidence": "fp",
+  "callers": [],
+  "callees": []
+ },
+ "calls_raw": [
+  "game_core::simulation::state::player::PlayerState::strategy",
+  "game_core::simulation::game::blackboard::Blackboard::is_recent_visible",
+  "game_ai::path_finder::is_enemy_well_danger",
+  "game_ai::plan_legacy::old::fight_model::can_enemy_hit_objective",
+  "core::panicking::panic_bounds_check"
+ ],
+ "base_round": "r6",
+ "rounds": 6
+}

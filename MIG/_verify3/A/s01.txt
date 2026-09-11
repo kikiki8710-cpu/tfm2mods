@@ -1,0 +1,367 @@
+### logic 
+"순수 함수(store 0개, 모든 인자 readonly/readnone). 부작용은 panic 뿐.\n\n// :522\nteam = player.info.team                      // PlayerState+0x930, usize\nif team >= 2 { panic_bounds_check }\npos  = player.info.position.as_index()        // PlayerState+0x9c0, entity.rs:580-581, 0..=4\nchamp = data.cache.player_champion[team][pos] // AbstractGameWithCache+0x1e0, [[Option<&Entity>;5];2]\nif champ.is_none() { Option::unwrap 실패 panic }\n\n// :523  champ 는 &dyn AbstractEntity 로 코어싱돼 (데이터ptr, vtable=anon.17) 2워드로 전달됨.\n//        anon.17 = Entity as AbstractEntity 의 vtable(divtable 로 확인: slot0=drop_glue, size 0x6c0, slot0x18=x)\nvalue = effect.expected_damage_target(data.context, champ as &dyn AbstractEntity, t)   // i64\n\n// :524\nhp = t.hp                                     // Entity+0x670\n\n// :526~536  else-if 체인이 EntityType 판별자(Entity+0x68) switch 하나로 접힘.\n//           소스 순서는 !dbg 줄번호로 복원: 526 → 528 → 530/531 → 536\ncoef = if t.ty.is_nexus()  { 200 }                       // :526  tag 3\n     else if t.ty.is_tower() { 80 }                      // :528  tag 2\n     else if t.ty.is_jungle(0) || t.ty.is_jungle(1) {                          // :530  tag 4 && camp_type.0 in {0,1} = 양 팀 캠프 전부 (~~< 2 임계~~ 는 LLVM 접힘)\n            if hp <= value { 40 } else { 20 }            // ★then/else 반전형 확정 — L531=20자라 `if hp > value {`(19자)는 길이가 안 맞는다(2차 배치A)             // :531  signed 비교(icmp sgt), select\n     }\n     else if t.ty.is_any_type_minion() { -10 } else { 0 };        // :536  tag 1 / 그 외 전부\n// ⚠ tag 4(Jungle)이지만 ~~camp_type.0 >= 2 면 coef 0~~ 은 **거짓** — camp_type.0 은 팀 인덱스라 {0,1} 뿐이고 IR 의 `ult 2` 는 `x==0||x==1` 의 접힘이다(2차 배치A)\n// ⚠ Champion(tag 13)·Epic(5)·Serpen(6) 등도 전부 coef = 0 → 점수 0\n\n// :542  같은 `is_jungle(0)||is_jungle(1)` 를 한 번 더 평가(판별자 재비교 + camp_type.0 재로드)\nbased = if t.ty.is_jungle(0) || t.ty.is_jungle(1) { 5 } else { 0 };   // L542=57자 ±0\n\n// :548  hp == 0 이면 panic_const_div_by_zero, (hp == -1 && coef*value == i64::MIN)이면 panic_const_div_overflow\nreturn min(coef, coef * value / hp) + based;             // sdiv(내림 아님 — 0 방향 절삭), Ord::min(cmp.rs:1078)\n\n// 의미: coef * (예상피해/대상HP) 를 coef 로 상한. 즉 '치명타 한 방에 잡을 수 있으면 계수 만점,\n//       아니면 깎아내리는 비율 점수'. 곱셈이 먼저라 정수 절삭 손실은 작다.\n// ⚠ coef 가 음수(Minion, -10)인 경우 min 의 방향이 뒤집힌다: 예상피해가 HP 를 넘길수록\n//   coef*value/hp 가 더 작아져(더 음수) min 이 그걸 고른다 = 미니언 오버킬이 더 큰 감점.\n//   반대로 피해가 HP 미만이면 항상 -10 으로 클램프된다."
+### mem 8
+[
+ {
+  "base": "PlayerState",
+  "offset": "0x930",
+  "name": "info.team",
+  "note": "usize. 2 미만 아니면 panic_bounds_check(len=2) — player_champion 첫 인덱스",
+  "dir": "r",
+  "chk": "조회실패",
+  "ev": 4
+ },
+ {
+  "base": "PlayerState",
+  "offset": "0x9c0",
+  "name": "info.position",
+  "note": "Position(i32, range 0..5). Position::as_index()(entity.rs:580-581)로 0..=4 인덱스화 — player_champion 둘째 인덱스",
+  "dir": "r",
+  "chk": "조회실패",
+  "ev": 4
+ },
+ {
+  "base": "OperationData",
+  "offset": "0x0",
+  "name": "cache",
+  "note": "&AbstractGameWithCache",
+  "dir": "r",
+  "chk": "조회실패",
+  "ev": 4
+ },
+ {
+  "base": "OperationData",
+  "offset": "0x8",
+  "name": "context",
+  "note": "&Context(64B). expected_damage_target 2번째 인자로 전달",
+  "dir": "r",
+  "chk": "조회실패",
+  "ev": 4
+ },
+ {
+  "base": "AbstractGameWithCache",
+  "offset": "0x1e0",
+  "name": "player_champion",
+  "note": "[[Option<&Entity>;5];2] (80B). [team][position] 로 인덱싱해 champ 획득. None 이면 Option::unwrap 실패 panic",
+  "dir": "r",
+  "chk": "조회실패",
+  "ev": 4
+ },
+ {
+  "base": "Entity",
+  "offset": "0x68",
+  "name": "ty (EntityType 판별자)",
+  "note": "i64, range 0..14. switch 로 1=Minion / 2=Tower / 3=Nexus / 4=Jungle 분기. 나머지(0 None, 5 Epic, 6 Serpen, 7 Ghoul, 8 SmallJiangshi, 9 Bear, 10 Eagle, 11 Revenant, 12 Illusion, 13 Champion)는 default",
+  "dir": "r",
+  "chk": "조회실패",
+  "ev": 4
+ },
+ {
+  "base": "Entity",
+  "offset": "0x98",
+  "name": "ty.Jungle.info.camp_type.__0",
+  "note": "tuple(usize, JungleType) 의 usize 쪽 = **팀 인덱스(0 블루 / 1 레드)**. 소스는 `is_jungle(0) || is_jungle(1)`(인자와 **동등 비교**, entity.rs:1377 `fn(&EntityType, usize) -> bool`)이고 ~~`< 2` 요구~~ 는 LLVM 접힘이다(2차 배치A)",
+  "dir": "r",
+  "chk": "조회실패",
+  "ev": 4
+ },
+ {
+  "base": "Entity",
+  "offset": "0x670",
+  "name": "hp",
+  "note": "usize 필드지만 i64 로 로드해 signed 비교/sdiv 에 사용. 0 이면 panic_const_div_by_zero",
+  "dir": "r",
+  "chk": "조회실패",
+  "ev": 4
+ }
+]
+### consts 12
+[
+ {
+  "value": 2,
+  "src_line": 522,
+  "meaning": "player_champion 첫 축 길이 = 2(팀 수). team >= 2 면 panic_bounds_check",
+  "kind": "임계",
+  "ev": 4
+ },
+ {
+  "value": 3,
+  "src_line": 526,
+  "meaning": "EntityType 판별자 3 = Nexus (is_nexus(), entity.rs:1399-1400 인라인)",
+  "kind": "태그",
+  "ev": 4
+ },
+ {
+  "value": 200,
+  "src_line": 526,
+  "meaning": "대상이 Nexus 일 때의 계수 coef — 이 함수 최대 계수",
+  "kind": "임계",
+  "ev": 4
+ },
+ {
+  "value": 2,
+  "src_line": 528,
+  "meaning": "EntityType 판별자 2 = Tower",
+  "kind": "태그",
+  "ev": 4
+ },
+ {
+  "value": 80,
+  "src_line": 528,
+  "meaning": "대상이 Tower 일 때의 계수 coef",
+  "kind": "임계",
+  "ev": 4
+ },
+ {
+  "value": 4,
+  "src_line": 530,
+  "meaning": "EntityType 판별자 4 = Jungle",
+  "kind": "태그",
+  "ev": 4
+ },
+ {
+  "value": 20,
+  "src_line": 531,
+  "meaning": "Jungle 이면서 hp > value(예상피해)일 때의 계수 = 이번 이펙트로 못 잡는 캠프 ★소스 L531 은 **`if hp <= value { 40 } else { 20 }` 형태**(20 이 else-arm) — rmeta_srcmap L531=20자. 어느 표기인지(`hp <= value` / `value >= hp`, 둘 다 11자)는 **표기 불가**이나 **arm 반전 구조는 확정**(2차 배치A)",
+  "kind": "임계",
+  "ev": 3
+ },
+ {
+  "value": 40,
+  "src_line": 531,
+  "meaning": "Jungle 이면서 hp <= value 일 때의 계수 = 이번 이펙트로 처치 가능한 캠프(두 배 우대) ★소스 L531 은 **`if hp <= value { 40 } else { 20 }` 형태**(20 이 else-arm) — rmeta_srcmap L531=20자. 어느 표기인지(`hp <= value` / `value >= hp`, 둘 다 11자)는 **표기 불가**이나 **arm 반전 구조는 확정**(2차 배치A)",
+  "kind": "임계",
+  "ev": 3
+ },
+ {
+  "value": 1,
+  "src_line": 536,
+  "meaning": "EntityType 판별자 1 = Minion",
+  "kind": "태그",
+  "ev": 4
+ },
+ {
+  "value": -10,
+  "src_line": 536,
+  "meaning": "대상이 Minion 일 때의 계수 — 정글러가 미니언을 때리는 것에 대한 감점",
+  "kind": "임계",
+  "ev": 4
+ },
+ {
+  "value": 0,
+  "src_line": 536,
+  "meaning": "그 외 모든 EntityType(Champion 포함!)의 계수 = 0 → 점수 0",
+  "kind": "임계",
+  "ev": 4
+ },
+ {
+  "value": 5,
+  "src_line": 542,
+  "meaning": "based 보너스. is_jungle() 이면 최종 점수에 +5 (동점 시 정글 캠프 우선)",
+  "kind": "임계",
+  "ev": 4
+ }
+]
+### knobs 7
+[
+ {
+  "what": "Nexus 계수",
+  "where": "action_score.rs:526 (m05.ll:40016, phi [200, %22])",
+  "value": 200,
+  "effect": "올리면 정글러가 넥서스 타격 액션을 다른 모든 대상보다 더 강하게 선호. 내리면 넥서스 다이브를 덜 함. 상한 205 의 대부분이 이 값이라 리턴 range 도 같이 움직인다",
+  "src": "기존",
+  "ev": 4
+ },
+ {
+  "what": "Tower 계수",
+  "where": "action_score.rs:528 (m05.ll:40016, phi [80, %37])",
+  "value": 80,
+  "effect": "올리면 정글러가 포탑 공격을 정글 캠프(20/40)보다 더 우선. 40 이하로 내리면 포탑보다 캠프를 먼저 친다",
+  "src": "기존",
+  "ev": 4
+ },
+ {
+  "what": "Jungle 캠프 계수(처치 불가)",
+  "where": "action_score.rs:531 (m05.ll:40045, select false-arm)",
+  "value": 20,
+  "effect": "올리면 이번 이펙트로 못 잡는 캠프도 계속 때리게 됨. 내리면 딜이 모자란 캠프를 빨리 포기",
+  "src": "기존",
+  "ev": 4
+ },
+ {
+  "what": "Jungle 캠프 계수(처치 가능)",
+  "where": "action_score.rs:531 (m05.ll:40045, select true-arm)",
+  "value": 40,
+  "effect": "올리면 막타 낼 수 있는 캠프를 더 집요하게 마무리. 80 이상이면 포탑보다 캠프 막타를 우선하게 된다",
+  "src": "기존",
+  "ev": 4
+ },
+ {
+  "what": "Minion 계수(감점)",
+  "where": "action_score.rs:536 (m05.ll:40016, phi [-10, %46])",
+  "value": -10,
+  "effect": "0 으로 올리면 정글러가 미니언을 쳐도 무감점(라인 개입/막타 스틸 증가). 더 내리면 미니언 근처를 강하게 회피. 음수라 min 방향이 뒤집혀 오버킬일수록 감점이 커지는 부작용도 같이 커진다",
+  "src": "기존",
+  "ev": 4
+ },
+ {
+  "what": "정글 보너스 based",
+  "where": "action_score.rs:542 (m05.ll:40085, select ? 5 : 0)",
+  "value": 5,
+  "effect": "올리면 계수가 같거나 비슷한 대상들 사이에서 정글 캠프가 항상 이김. 40 이상으로 올리면 캠프가 포탑을 추월",
+  "src": "기존",
+  "ev": 4
+ },
+ {
+  "what": "정글 캠프의 **소유 팀** 게이트",
+  "where": "action_score.rs:530 · 542 — 소스는 `t.ty.is_jungle(0) || t.ty.is_jungle(1)`(줄길이 52자/57자 ±0 검산). IR `icmp ult camp_type.__0, 2`(m05.ll:40059~40063)는 **그 OR 의 LLVM 접힘**이지 소스 임계가 아니다",
+  "effect": "`is_jungle(player.info.team)` 으로 바꾸면 **아군 진영 캠프만**, `is_jungle(1 - team)` 이면 **카운터정글 전용**이 된다(camp_type.__0 = 팀 인덱스). 정글 스코어 가산 +5(m05.ll:40092)도 같이 따라간다. WARN ~~「camp_type.__0 < 2 = 정글 캠프 티어 컷」~~ 은 **거짓**(2026-09-11 검증배치 A) — `EntityType::is_jungle(&self, usize)`(entity.rs:1377)는 **인자와의 동등 비교**이고 상수 2 는 소스에 없다. 「죽은 가드」도 아니다",
+  "src": "신규",
+  "ev": 3
+ }
+]
+### callees 8
+[
+ {
+  "name": "as_index",
+  "path": "game_core::Position::as_index",
+  "vis": "pub",
+  "sig": "fn(&game_core::Position) -> usize",
+  "at": "game-core\\src\\simulation\\entity.rs:580",
+  "mir": true,
+  "xinl": true,
+  "ev": 3
+ },
+ {
+  "name": "as_index",
+  "path": "game_core::BigGoal::as_index",
+  "vis": "pub",
+  "sig": "fn(&game_core::BigGoal) -> usize",
+  "at": "game-core\\src\\simulation\\ai_interface.rs:338",
+  "mir": false,
+  "xinl": false,
+  "ev": 3
+ },
+ {
+  "name": "expected_damage_target",
+  "path": "game_core::Effect::expected_damage_target",
+  "vis": "pub",
+  "sig": "fn(&game_core::Effect, &game_core::GameContext, &dyn [Binder { value: Trait(game_core::AbstractEntity), bound_vars: [] }] + , &game_core::Entity) -> usize",
+  "at": "game-core\\src\\simulation\\effect.rs:91",
+  "mir": false,
+  "xinl": false,
+  "ev": 3
+ },
+ {
+  "name": "expected_damage_target",
+  "path": "game_core::Projectile::expected_damage_target",
+  "vis": "pub",
+  "sig": "fn(&game_core::Projectile, &game_core::GameContext, &game_core::Entity, &game_core::Entity) -> usize",
+  "at": "game-core\\src\\simulation\\projectile.rs:1287",
+  "mir": false,
+  "xinl": false,
+  "ev": 3
+ },
+ {
+  "name": "is_any_type_minion",
+  "path": "game_core::EntityType::is_any_type_minion",
+  "vis": "pub",
+  "sig": "fn(&game_core::EntityType) -> bool",
+  "at": "game-core\\src\\simulation\\entity.rs:1260",
+  "mir": true,
+  "xinl": true,
+  "ev": 3
+ },
+ {
+  "name": "is_jungle",
+  "path": "game_core::EntityType::is_jungle",
+  "vis": "pub",
+  "sig": "fn(&game_core::EntityType, usize) -> bool",
+  "at": "game-core\\src\\simulation\\entity.rs:1377",
+  "mir": true,
+  "xinl": true,
+  "ev": 3
+ },
+ {
+  "name": "is_nexus",
+  "path": "game_core::EntityType::is_nexus",
+  "vis": "pub",
+  "sig": "fn(&game_core::EntityType) -> bool",
+  "at": "game-core\\src\\simulation\\entity.rs:1399",
+  "mir": true,
+  "xinl": true,
+  "ev": 3
+ },
+ {
+  "name": "is_tower",
+  "path": "game_core::EntityType::is_tower",
+  "vis": "pub",
+  "sig": "fn(&game_core::EntityType) -> bool",
+  "at": "game-core\\src\\simulation\\entity.rs:1385",
+  "mir": true,
+  "xinl": true,
+  "ev": 3
+ }
+]
+### callees_unmatched 2
+{
+ "names": [
+  "llvm.smin.i64",
+  "vtable"
+ ],
+ "note": "tcx 3크레이트에 같은 leaf 이름의 Fn/AssocFn 이 없는 것들. 대부분 std·클로저·매크로이거나 `logic` 산문에서 긁힌 잡음이다. ⚠단 **여기 이름이 실제 게임 술어인데 이름이 달라서 못 잡힌 경우**가 섞일 수 있으니, 3차에서 판정에 쓰이는 술어가 이 목록에 있으면 손으로 확인할 것."
+}
+### callers 5
+{
+ "count": 3,
+ "sites": [
+  "m02.ll:40037",
+  "m02.ll:40081",
+  "m02.ll:40124"
+ ],
+ "scope": "_gaibc(game_ai) 전량 call/invoke 스캔",
+ "note": "★자동 열거(spec3lib.callsites, 0.7초). 1차가 09 를 「유일 호출처」로 적었다가 실제 8곳이었다 — 세지 않고 쓰는 일을 구조적으로 막는다. exe 쪽 `callers: []` 는 '호출자 없음'이 아니라 **조인 실패**다.",
+ "ev": 4
+}
+### siblings 4
+{
+ "plan": null,
+ "count": 0,
+ "entries": [],
+ "note": "Plan 타입 메서드가 아니다(자유 함수)."
+}
+### calls_raw 6
+[
+ "game_core::simulation::effect::Effect::expected_damage_target",
+ "llvm.smin.i64",
+ "core::panicking::panic_bounds_check",
+ "core::option::unwrap_failed",
+ "core::panicking::panic_const::panic_const_div_by_zero",
+ "core::panicking::panic_const::panic_const_div_overflow"
+]
+### history 5
+[
+ {
+  "was": "camp_type.__0(Entity+0x98)의 의미 — 캠프 그룹/티어/스폰차수 중 무엇인가",
+  "now": "★확정 = 팀 인덱스(0=블루 / 1=레드). store 지점 = JungleCampState::spawn 의 map 클로저(_gcbc/g09.ll:47809): camp_type.__0 = (!is_blue_side) as usize, camp_type.__1 = self.ty. ⟹ camp_type 은 get_camp_state(team, ty) 인자쌍과 정확히 같은 (team, ty) 쌍이다.",
+  "파급": "★따라서 is_jungle 판정 'ty==4 && camp_type.__0 < 2'(m05.ll:40059~40063, 40088~40090)의 뒷항은 이 생산 경로에서 항상 참 = 사실상 죽은 가드다. __0 은 bool 에서 나오므로 {0,1} 뿐이고, 같은 클로저의 태그 phi 가 ty=4 Morgard → EntityType::Epic(5), ty=5 Serpen → EntityType::Serpen(6), ty 0~3 만 EntityType::Jungle(4) 로 분기하므로 태그4 인 시점에 이미 중립이 배제된다.",
+  "confidence": "확정(단 EntityType::Jungle 의 다른 생산 경로 유무는 미확정 — _gcbc 에 alloca [480 x i8] 이 76곳이라 전수 확인 못 함. '죽은 가드' 결론의 적용 범위는 JungleCampState::spawn 이 유일 생산자일 때 한정)"
+ },
+ {
+  "was": "Effect::expected_damage_target 의 value 단위",
+  "now": "★확정 = 절대 피해량(HP 포인트). 방어/마저 경감까지 끝낸 실제 HP 감소량이다. 본체 _gcbc/g06.ll:52355~52846. return umax(raw_phys*100/(def_eff+100),1) + umax(raw_magic*100/(mr_eff+100),1). hp*r/100 로 %성분을 절대값으로 환산하므로 스케일된 값이 아니다. ⟹ hp 로 나누면 그대로 '최대체력 대비 비율'."
+ },
+ {
+  "was": "is_minion 술어 이름 — !dbg 로 확인된 것은 is_jungle·is_nexus 둘뿐",
+  "now": "★**확정 — `entity.rs:1256`**(2026-09-11 rmeta SourceMap + rustc 프로브). ~~1381~~ 은 **오답**이었다 — 그 줄은 `is_any_jungle` 이고 `is_jungle` 이 1377 이다. `EntityType::is_minion(&self, <인자1>) -> bool` 시그니처 줄 56자. 인접: `is_any_type_minion` 1260 / `is_top_minion` 1264 / `is_mid_minion` 1268 / `is_bottom_minion` 1272 / `is_epic` 1369 / `is_serpen` 1373 / `is_tower` 1385. 검산 = 시그니처 길이 공식 `26 + len(name)` 이 IR 확정 줄 14개 전부와 일치. **태그 1 = Minion 은 종전대로 확정.** 전문 = RE6-09-11_rmeta-SourceMap-rustc프로브-Span복원.md",
+  "보너스_계수표": "`min(coef, coef*dmg/target.hp) + (ty==Jungle && camp_type.0<2 ? 5 : 0)`(m05.ll:40062~40071). coef = Nexus(3) 200 / Tower(2) 80 / **Minion(1) −10** / Jungle(4) 는 `camp_type.0<2` 면 (`target.hp > dmg` ? 20 : 40) 아니면 **0** / 그 외 0."
+ },
+ {
+  "was": "`is_jungle()` 내부 임계 `camp_type.__0 < 2` = 정글 캠프 티어 컷 (constants 1 + knobs 1 + new_knobs 1)",
+  "now": "★★**정정(2026-09-11 검증배치 A) — 그 노브는 존재하지 않는다. 3항목 삭제.**\n`EntityType::is_jungle` 은 **인자를 받는다**: `pub is_jungle(&self, usize) -> bool`(entity.rs:1377, mir=True). MIR 본문 = `_7 = (((*_1 as Jungle).0).2).0 : usize` / `_6 = Eq(move _7, copy _2)` — **상수 2 가 어디에도 없다**. IR 의 `icmp ult camp_type.0, 2` 는 **`x==0 || x==1` 의 LLVM 접힘**이다.\n소스 복원(줄 길이 ±0): `530` = `  } else if t.ty.is_jungle(0) || t.ty.is_jungle(1) {`(52자) · `542` = `  let based = if t.ty.is_jungle(0) || t.ty.is_jungle(1) {`(57자) · `536` = `  } else if t.ty.is_any_type_minion() {`(39자).\n⟹ **진짜 노브는 티어가 아니라 「어느 팀 캠프를 세느냐」다**: 소스가 `is_jungle(0) || is_jungle(1)` = **양 팀 캠프 전부**로 못박혀 있다. `is_jungle(player.info.team)` 이면 아군 진영 캠프만, `is_jungle(1 - team)` 이면 카운터정글 전용이 된다.\n⚠이 3항목은 같은 파일의 `resolved`(`camp_type.__0` = 팀 인덱스)와 **서로 모순**이었고 `resolved` 가 맞았다.\n★교훈: **IR 에 `< N` 상수가 보인다고 소스 임계로 읽지 마라.** 호출 술어의 **tcx 시그니처를 먼저 보라** — 인자를 받는 술어면 그 상수는 십중팔구 접힘이다."
+ },
+ {
+  "was": "`-10` 경로의 술어 이름 = `is_minion`(entity.rs:1256) 로 확정",
+  "now": "★**정정(2026-09-11 검증배치 A)**: 실제는 **`is_any_type_minion`**(entity.rs:**1260**)이다. `is_minion(&self, LineType)` 은 **LineType 판별자 비교를 반드시 수반**하는데(MIR `_9=discriminant(Minion.0.0); _10=discriminant(_2); _6=Eq(_9,_10)`), `m05.ll:40027` switch 는 **태그 1 → 곧바로 `phi [-10]`** 이고 LineType 로드·비교가 **0개**이며 이 함수엔 LineType 지역변수도 없다. `is_any_type_minion` MIR = `Eq(discriminant, 1)` 한 줄로 IR 과 정확히 일치(+ 줄 길이 39자 ±0). **태그 1 = Minion 자체는 유효.**"
+ }
+]

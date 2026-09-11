@@ -1,0 +1,107 @@
+pcount	tut=None	player_count=5	full_match=true	spawn_jungle=true	spawn_epic=true	spawn_serpen=true
+pcount	tut=First	player_count=2	full_match=false	spawn_jungle=false	spawn_epic=false	spawn_serpen=false
+pcount	tut=TopSolo	player_count=1	full_match=false	spawn_jungle=false	spawn_epic=false	spawn_serpen=false
+pcount	tut=Bottom	player_count=2	full_match=false	spawn_jungle=false	spawn_epic=false	spawn_serpen=false
+pcount	tut=MidSolo	player_count=1	full_match=false	spawn_jungle=false	spawn_epic=false	spawn_serpen=false
+pcount	tut=MidBottom	player_count=3	full_match=false	spawn_jungle=false	spawn_epic=false	spawn_serpen=true
+pcount	tut=JungleOnly	player_count=1	full_match=false	spawn_jungle=true	spawn_epic=false	spawn_serpen=false
+pcount	tut=Line	player_count=4	full_match=false	spawn_jungle=false	spawn_epic=true	spawn_serpen=true
+pcount	tut=Total	player_count=5	full_match=true	spawn_jungle=true	spawn_epic=true	spawn_serpen=true
+goal_allowed	tut=None	Line(Top)=true Line(Mid)=true Line(Bottom)=true Jungle(Rhino,0)=true Jungle(Rhino,1)=true Epic=true Serpen=true Nexus(0)=true Nexus(1)=true Battle(None)=true Battle(Some0)=true Recall=true
+pos_exists	tut=None	Top=true Jungle=true Mid=true Bottom=true Support=true
+line_exists	tut=None	Top=true Mid=true Bottom=true	morgard=true	serpen=true
+chat_allowed	tut=None	Start=true Mia=true JungleCheck=true Battle=true BattleDive=true BattleLine=true BattleHelp=true BattleStop=true GankRequest=true CoverLine=true GankLineCover=true HideLine=true LineCover=true DefenseLine=true Ok=true Reject=true Cancel=true CounterJungle=true Lead=true Split=true Press=true Repair=true SerpenPrepare=true MorgardPrepare=true AttackNexus=true DefenseNexus=true GankDive=true PressTower=true ComebackPick=true PlayCall=true GankPlan=true EarlyPlan=true ReadySignal=true
+mo_allowed	tut=None	Morgard(None,false)=true Serpen(None,false)=true Morgard(None,true)=true Serpen(None,true)=true Morgard(Setup,false)=true Serpen(Setup,false)=true Morgard(Setup,true)=true Serpen(Setup,true)=true Morgard(Assemble,false)=true Serpen(Assemble,false)=true Morgard(Assemble,true)=true Serpen(Assemble,true)=true Morgard(Hunt,false)=true Serpen(Hunt,false)=true Morgard(Hunt,true)=true Serpen(Hunt,true)=true Defense=true Repair=true DefenseLine(Top)=true Nexus(Top)=true PressEpic(Top)=true SplitEpic(Top)=true Gank(Top)=true Dive(Top)=true PressTower(Top)=true Comeback(Top)=true DefenseLine(Mid)=true Nexus(Mid)=true PressEpic(Mid)=true SplitEpic(Mid)=true Gank(Mid)=true Dive(Mid)=true PressTower(Mid)=true Comeback(Mid)=true DefenseLine(Bottom)=true Nexus(Bottom)=true PressEpic(Bottom)=true SplitEpic(Bottom)=true Gank(Bottom)=true Dive(Bottom)=true PressTower(Bottom)=true Comeback(Bottom)=true
+goal_allowed	tut=First	Line(Top)=false Line(Mid)=false Line(Bottom)=true Jungle(Rhino,0)=false Jungle(Rhino,1)=false Epic=false Serpen=false Nexus(0)=true Nexus(1)=true Battle(None)=true Battle(Some0)=true Recall=true
+pos_exists	tut=First	Top=false Jungle=false Mid=false Bottom=true Support=true
+line_exists	tut=First	Top=false Mid=false Bottom=true	morgard=false	serpen=false
+chat_allowed	tut=First	Start=true Mia=false JungleCheck=false Battle=true BattleDive=true BattleLine=false BattleHelp=true BattleStop=true GankRequest=false CoverLine=false GankLineCover=false HideLine=false LineCover=false DefenseLine=false Ok=true Reject=true Cancel=true CounterJungle=false Lead=true Split=false Press=false Repair=true SerpenPrepare=false MorgardPrepare=false AttackNexus=false DefenseNexus=true GankDive=false PressTower=false ComebackPick=false PlayCall=false GankPlan=false EarlyPlan=true ReadySignal=true
+goal_allowed	tut=TopSolo	Line(Top)=true Line(Mid)=false Line(Bottom)=false Jungle(Rhino,0)=false Jungle(Rhino,1)=false Epic=false Serpen=false Nexus(0)=true Nexus(1)=true Battle(None)=true Battle(Some0)=true Recall=true
+pos_exists	tut=TopSolo	Top=true Jungle=false Mid=false Bottom=false Support=false
+line_exists	tut=TopSolo	Top=true Mid=false Bottom=false	morgard=false	serpen=false
+chat_allowed	tut=TopSolo	Start=true Mia=true JungleCheck=true Battle=true BattleDive=true BattleLine=true BattleHelp=true BattleStop=true GankRequest=true CoverLine=true GankLineCover=true HideLine=true LineCover=true DefenseLine=true Ok=true Reject=true Cancel=true CounterJungle=false Lead=true Split=false Press=false Repair=true SerpenPrepare=false MorgardPrepare=false AttackNexus=true DefenseNexus=true GankDive=true PressTower=true ComebackPick=true PlayCall=false GankPlan=true EarlyPlan=true ReadySignal=true
+goal_allowed	tut=Bottom	Line(Top)=false Line(Mid)=false Line(Bottom)=true Jungle(Rhino,0)=false Jungle(Rhino,1)=false Epic=false Serpen=false Nexus(0)=true Nexus(1)=true Battle(None)=true Battle(Some0)=true Recall=true
+pos_exists	tut=Bottom	Top=false Jungle=false Mid=false Bottom=true Support=true
+line_exists	tut=Bottom	Top=false Mid=false Bottom=true	morgard=false	serpen=false
+chat_allowed	tut=Bottom	Start=true Mia=false JungleCheck=false Battle=true BattleDive=true BattleLine=false BattleHelp=true BattleStop=true GankRequest=false CoverLine=false GankLineCover=false HideLine=false LineCover=false DefenseLine=false Ok=true Reject=true Cancel=true CounterJungle=false Lead=true Split=false Press=false Repair=true SerpenPrepare=false MorgardPrepare=false AttackNexus=false DefenseNexus=true GankDive=false PressTower=false ComebackPick=false PlayCall=false GankPlan=false EarlyPlan=true ReadySignal=true
+goal_allowed	tut=MidSolo	Line(Top)=false Line(Mid)=true Line(Bottom)=false Jungle(Rhino,0)=false Jungle(Rhino,1)=false Epic=false Serpen=false Nexus(0)=true Nexus(1)=true Battle(None)=true Battle(Some0)=true Recall=true
+pos_exists	tut=MidSolo	Top=false Jungle=false Mid=true Bottom=false Support=false
+line_exists	tut=MidSolo	Top=false Mid=true Bottom=false	morgard=false	serpen=false
+chat_allowed	tut=MidSolo	Start=true Mia=false JungleCheck=false Battle=true BattleDive=true BattleLine=false BattleHelp=true BattleStop=true GankRequest=false CoverLine=false GankLineCover=false HideLine=false LineCover=false DefenseLine=false Ok=true Reject=true Cancel=true CounterJungle=false Lead=true Split=false Press=false Repair=true SerpenPrepare=false MorgardPrepare=false AttackNexus=false DefenseNexus=true GankDive=false PressTower=false ComebackPick=false PlayCall=false GankPlan=false EarlyPlan=true ReadySignal=true
+goal_allowed	tut=MidBottom	Line(Top)=false Line(Mid)=true Line(Bottom)=true Jungle(Rhino,0)=false Jungle(Rhino,1)=false Epic=false Serpen=true Nexus(0)=true Nexus(1)=true Battle(None)=true Battle(Some0)=true Recall=true
+pos_exists	tut=MidBottom	Top=false Jungle=false Mid=true Bottom=true Support=true
+line_exists	tut=MidBottom	Top=false Mid=true Bottom=true	morgard=false	serpen=true
+chat_allowed	tut=MidBottom	Start=true Mia=false JungleCheck=false Battle=true BattleDive=true BattleLine=false BattleHelp=true BattleStop=true GankRequest=false CoverLine=false GankLineCover=false HideLine=false LineCover=false DefenseLine=false Ok=true Reject=true Cancel=true CounterJungle=false Lead=true Split=false Press=false Repair=true SerpenPrepare=true MorgardPrepare=false AttackNexus=false DefenseNexus=true GankDive=false PressTower=false ComebackPick=false PlayCall=false GankPlan=false EarlyPlan=true ReadySignal=true
+goal_allowed	tut=JungleOnly	Line(Top)=false Line(Mid)=false Line(Bottom)=false Jungle(Rhino,0)=true Jungle(Rhino,1)=true Epic=false Serpen=false Nexus(0)=true Nexus(1)=true Battle(None)=true Battle(Some0)=true Recall=true
+pos_exists	tut=JungleOnly	Top=false Jungle=true Mid=false Bottom=false Support=false
+line_exists	tut=JungleOnly	Top=false Mid=false Bottom=false	morgard=false	serpen=false
+chat_allowed	tut=JungleOnly	Start=true Mia=false JungleCheck=false Battle=true BattleDive=true BattleLine=false BattleHelp=true BattleStop=true GankRequest=false CoverLine=false GankLineCover=false HideLine=false LineCover=false DefenseLine=false Ok=true Reject=true Cancel=true CounterJungle=true Lead=true Split=false Press=false Repair=true SerpenPrepare=false MorgardPrepare=false AttackNexus=false DefenseNexus=true GankDive=false PressTower=false ComebackPick=false PlayCall=false GankPlan=false EarlyPlan=true ReadySignal=true
+goal_allowed	tut=Line	Line(Top)=true Line(Mid)=true Line(Bottom)=true Jungle(Rhino,0)=false Jungle(Rhino,1)=false Epic=true Serpen=true Nexus(0)=true Nexus(1)=true Battle(None)=true Battle(Some0)=true Recall=true
+pos_exists	tut=Line	Top=true Jungle=false Mid=true Bottom=true Support=true
+line_exists	tut=Line	Top=true Mid=true Bottom=true	morgard=true	serpen=true
+chat_allowed	tut=Line	Start=true Mia=true JungleCheck=true Battle=true BattleDive=true BattleLine=true BattleHelp=true BattleStop=true GankRequest=true CoverLine=true GankLineCover=true HideLine=true LineCover=true DefenseLine=true Ok=true Reject=true Cancel=true CounterJungle=false Lead=true Split=true Press=true Repair=true SerpenPrepare=true MorgardPrepare=true AttackNexus=true DefenseNexus=true GankDive=true PressTower=true ComebackPick=true PlayCall=true GankPlan=true EarlyPlan=true ReadySignal=true
+goal_allowed	tut=Total	Line(Top)=true Line(Mid)=true Line(Bottom)=true Jungle(Rhino,0)=true Jungle(Rhino,1)=true Epic=true Serpen=true Nexus(0)=true Nexus(1)=true Battle(None)=true Battle(Some0)=true Recall=true
+pos_exists	tut=Total	Top=true Jungle=true Mid=true Bottom=true Support=true
+line_exists	tut=Total	Top=true Mid=true Bottom=true	morgard=true	serpen=true
+chat_allowed	tut=Total	Start=true Mia=true JungleCheck=true Battle=true BattleDive=true BattleLine=true BattleHelp=true BattleStop=true GankRequest=true CoverLine=true GankLineCover=true HideLine=true LineCover=true DefenseLine=true Ok=true Reject=true Cancel=true CounterJungle=true Lead=true Split=true Press=true Repair=true SerpenPrepare=true MorgardPrepare=true AttackNexus=true DefenseNexus=true GankDive=true PressTower=true ComebackPick=true PlayCall=true GankPlan=true EarlyPlan=true ReadySignal=true
+gamemode	call1=Some(0x16dd969e90)	call2=Some(0x16dd969e90)	same=true
+objid	Morgard/None/wb=false	=>None
+objid	Serpen/None/wb=false	=>None
+objid	Morgard/None/wb=true	=>None
+objid	Serpen/None/wb=true	=>None
+objid	Morgard/Setup/wb=false	=>None
+objid	Serpen/Setup/wb=false	=>None
+objid	Morgard/Setup/wb=true	=>None
+objid	Serpen/Setup/wb=true	=>None
+objid	Morgard/Assemble/wb=false	=>None
+objid	Serpen/Assemble/wb=false	=>None
+objid	Morgard/Assemble/wb=true	=>None
+objid	Serpen/Assemble/wb=true	=>None
+objid	Morgard/Hunt/wb=false	=>None
+objid	Serpen/Hunt/wb=false	=>None
+objid	Morgard/Hunt/wb=true	=>None
+objid	Serpen/Hunt/wb=true	=>None
+objid	Defense	=>None
+objid	Repair	=>None
+objid	DefenseLine(Top)	=>None
+objid	Nexus(Top)	=>None
+objid	PressEpic(Top)	=>None
+objid	SplitEpic(Top)	=>None
+objid	Gank(Top)	=>None
+objid	Dive(Top)	=>None
+objid	PressTower(Top)	=>None
+objid	Comeback(Top)	=>None
+strategy	team=0	Strategy { focused: Top, early_jungle: GrowthAndCover, early_serpen: Must, early_serpen_top: Must, object_buildup: Gather, object_battle: Poking, morgard_use: Gather, tower_press: Dive, morgard_defense: Gather, object_finish: BattlePriority, minion_wave: WavePriority, game_finish: Flexible, dm_tactic: Standard }
+strategy	team=1	Strategy { focused: Top, early_jungle: GrowthAndCover, early_serpen: Must, early_serpen_top: Must, object_buildup: Gather, object_battle: Poking, morgard_use: Gather, tower_press: Dive, morgard_defense: Gather, object_finish: BattlePriority, minion_wave: WavePriority, game_finish: Flexible, dm_tactic: Standard }
+well	ver=0	team=0	n_true=8	pts=[(840000, 0), (900000, 0), (960000, 0), (840000, 60000), (900000, 60000), (960000, 60000), (900000, 120000), (960000, 120000)]
+well	ver=0	team=1	n_true=8	pts=[(0, 840000), (60000, 840000), (0, 900000), (60000, 900000), (120000, 900000), (0, 960000), (60000, 960000), (120000, 960000)]
+well	ver=1	team=0	n_true=8	pts=[(840000, 0), (900000, 0), (960000, 0), (840000, 60000), (900000, 60000), (960000, 60000), (900000, 120000), (960000, 120000)]
+well	ver=1	team=1	n_true=8	pts=[(0, 840000), (60000, 840000), (0, 900000), (60000, 900000), (120000, 900000), (0, 960000), (60000, 960000), (120000, 960000)]
+well	ver=2	team=0	n_true=8	pts=[(840000, 0), (900000, 0), (960000, 0), (840000, 60000), (900000, 60000), (960000, 60000), (900000, 120000), (960000, 120000)]
+well	ver=2	team=1	n_true=8	pts=[(0, 840000), (60000, 840000), (0, 900000), (60000, 900000), (120000, 900000), (0, 960000), (60000, 960000), (120000, 960000)]
+well	ver=3	team=0	n_true=8	pts=[(840000, 0), (900000, 0), (960000, 0), (840000, 60000), (900000, 60000), (960000, 60000), (900000, 120000), (960000, 120000)]
+well	ver=3	team=1	n_true=8	pts=[(0, 840000), (60000, 840000), (0, 900000), (60000, 900000), (120000, 900000), (0, 960000), (60000, 960000), (120000, 960000)]
+well	ver=4	team=0	n_true=8	pts=[(840000, 0), (900000, 0), (960000, 0), (840000, 60000), (900000, 60000), (960000, 60000), (900000, 120000), (960000, 120000)]
+well	ver=4	team=1	n_true=8	pts=[(0, 840000), (60000, 840000), (0, 900000), (60000, 900000), (120000, 900000), (0, 960000), (60000, 960000), (120000, 960000)]
+well	ver=5	team=0	n_true=8	pts=[(840000, 0), (900000, 0), (960000, 0), (840000, 60000), (900000, 60000), (960000, 60000), (900000, 120000), (960000, 120000)]
+well	ver=5	team=1	n_true=8	pts=[(0, 840000), (60000, 840000), (0, 900000), (60000, 900000), (120000, 900000), (0, 960000), (60000, 960000), (120000, 960000)]
+well_edge	team=0	corner=(0,960000)	f(0)=false
+well_edge	team=0	corner=(960000,0)	last_true_diag=64000	first_false=64001
+well_edge	team=1	corner=(0,960000)	last_true_diag=64000	first_false=64001
+well_edge	team=1	corner=(960000,0)	f(0)=false
+recentvis	tick=300	last_visible=300	back=0	res=true
+recentvis	tick=300	last_visible=200	back=100	res=true
+recentvis	tick=300	last_visible=181	back=119	res=true
+recentvis	tick=300	last_visible=180	back=120	res=true
+recentvis	tick=300	last_visible=179	back=121	res=false
+recentvis	tick=300	last_visible=100	back=200	res=false
+recentvis	tick=300	last_visible=0	back=600	res=false
+recentvis	tick=300	last_visible=0	back=601	res=false
+hpgate	maxhp=1000	hp=390	ratio=39	ok=true	lowhp=true
+hpgate	maxhp=1000	hp=400	ratio=40	ok=true	lowhp=true
+hpgate	maxhp=1000	hp=405	ratio=40	ok=true	lowhp=true
+hpgate	maxhp=1000	hp=409	ratio=40	ok=true	lowhp=true
+hpgate	maxhp=1000	hp=410	ratio=41	ok=true	lowhp=false
+hpgate	maxhp=1000	hp=411	ratio=41	ok=true	lowhp=false
+hpgate	maxhp=1000	hp=420	ratio=42	ok=true	lowhp=false
+hpgate	maxhp=1000	hp=1000	ratio=100	ok=true	lowhp=false

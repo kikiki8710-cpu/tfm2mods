@@ -1,0 +1,28 @@
+meta	tower id=2	hp=1	stat.hp=1	stat_cached.hp=1	attack=1	radius=10000
+meta	tower id=3	hp=1	stat.hp=1	stat_cached.hp=1	attack=1	radius=10000
+meta	tower id=4	hp=1	stat.hp=1	stat_cached.hp=1	attack=1	radius=10000
+meta	champ id=18	hp=1	stat.hp=1	stat_cached.hp=1	attack=1
+15d	default_tower_hp	viable=false
+15d	all_tower_hp=1	viable=false
+15d	all_tower_hp=100	viable=false
+15d	all_tower_hp=1000	viable=false
+15d	all_tower_hp=5000	viable=false
+15d	all_tower_hp=10000	viable=false
+15d	all_tower_hp=20000	viable=false
+15d	all_tower_hp=50000	viable=false
+15d	all_tower_hp=100000	viable=false
+15d	all_tower_hp=200000	viable=false
+15d	all_tower_hp=500000	viable=false
+15d	all_tower_hp=1000000	viable=false
+15d	bisect endpoints: hp=1 -> false / hp=2000000 -> false
+15d	tower_hp=100000 champ_hp=2000	viable=false
+15d	tower_hp=100000 champ_hp=10000	viable=false
+15d	tower_hp=100000 champ_hp=50000	viable=false
+15d	tower_hp=100000 champ_hp=200000	viable=false
+15d	tower_hp=100000 champ_hp=1000000	viable=false
+15d	tower_hp=100000 tower_atk=0	viable=false
+15d	tower_hp=100000 tower_atk=1	viable=false
+15d	tower_hp=100000 tower_atk=10	viable=false
+15d	tower_hp=100000 tower_atk=100	viable=false
+15d	tower_hp=100000 tower_atk=1000	viable=false
+15d	tower_hp=100000 tower_atk=10000	viable=false

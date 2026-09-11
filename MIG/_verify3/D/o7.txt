@@ -1,0 +1,26 @@
+=== 17-a base_sub_goal: visible_state 를 손으로 바꿔 본다 (target=23, actor=t0Top) ===
+17a	base	E23.visible_state=[Unknown, Unknown]	invisible_tick=0	can_target=true
+17a	base	E19(ally).visible_state=[Unknown, Unknown]
+17a	base	E3(enemy tower).visible_state=[Unknown, Unknown]
+17a	E23.visible_state[0]=Visible	t0Top TryKill=End	Support=End	|	t1Top TryKill=Trace { focus: 23 }
+17a	E23.visible_state[0]=Unknown	t0Top TryKill=End	Support=End	|	t1Top TryKill=Trace { focus: 23 }
+17a	E23.visible_state[0]=Invisible	t0Top TryKill=End	Support=End	|	t1Top TryKill=Trace { focus: 23 }
+17a	visible+can_target=false	t0Top TryKill=End
+17a	visible+invisible_tick=999	t0Top TryKill=End
+17a	visible+hp=0	t0Top TryKill=End
+=== 15-a single_tower_dive_is_viable: 근처 아군 수 임계 ===
+15a	near_team0_champs=1	erd=true	v0=true	v3=true	v32=true
+15a	near_team0_champs=2	erd=true	v0=true	v3=true	v32=true
+15a	near_team0_champs=3	erd=true	v0=true	v3=true	v32=true
+15a	near_team0_champs=4	erd=true	v0=true	v3=true	v32=true
+15a	near_team0_champs=5	erd=true	v0=true	v3=true	v32=true
+=== 18-a v3_epic_group_line : TutorialType 스윕 ===
+18a	tut=None	group_line(Gather)=Some(Mid)	group_line(Split14Top)=Some(Mid)
+18a	tut=First	group_line(Gather)=Some(Bottom)	group_line(Split14Top)=None
+18a	tut=TopSolo	group_line(Gather)=Some(Top)	group_line(Split14Top)=Some(Top)
+18a	tut=Bottom	group_line(Gather)=Some(Bottom)	group_line(Split14Top)=None
+18a	tut=MidSolo	group_line(Gather)=Some(Mid)	group_line(Split14Top)=Some(Mid)
+18a	tut=MidBottom	group_line(Gather)=Some(Mid)	group_line(Split14Top)=Some(Mid)
+18a	tut=JungleOnly	group_line(Gather)=None	group_line(Split14Top)=None
+18a	tut=Line	group_line(Gather)=Some(Mid)	group_line(Split14Top)=Some(Mid)
+18a	tut=Total	group_line(Gather)=Some(Mid)	group_line(Split14Top)=Some(Mid)

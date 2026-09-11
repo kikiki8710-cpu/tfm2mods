@@ -1,0 +1,136 @@
+census	tower_ids=16	team0=8	team1=8	dupe0=0	dupe1=0
+census	twin_towers	2	2
+itertowers	team=0	n=8	expect_n=8	PTR_IDENTICAL=true	nexus_in_iter=false
+itertowers	team=0;i=0	id=2	pos=(48000,272000)	radius=10000	ae=true	casting="Targeting"
+itertowers	team=0;i=1	id=6	pos=(368000,592000)	radius=10000	ae=true	casting="Targeting"
+itertowers	team=0;i=2	id=10	pos=(688000,912000)	radius=10000	ae=true	casting="Targeting"
+itertowers	team=0;i=3	id=4	pos=(48000,528000)	radius=10000	ae=true	casting="Targeting"
+itertowers	team=0;i=4	id=8	pos=(240000,720000)	radius=10000	ae=true	casting="Targeting"
+itertowers	team=0;i=5	id=12	pos=(432000,912000)	radius=10000	ae=true	casting="Targeting"
+itertowers	team=0;i=6	id=14	pos=(111000,784000)	radius=10000	ae=true	casting="Targeting"
+itertowers	team=0;i=7	id=15	pos=(176000,848000)	radius=10000	ae=true	casting="Targeting"
+itertowers	team=1	n=8	expect_n=8	PTR_IDENTICAL=true	nexus_in_iter=false
+itertowers	team=1;i=0	id=3	pos=(272000,48000)	radius=10000	ae=true	casting="Targeting"
+itertowers	team=1;i=1	id=7	pos=(592000,368000)	radius=10000	ae=true	casting="Targeting"
+itertowers	team=1;i=2	id=11	pos=(912000,688000)	radius=10000	ae=true	casting="Targeting"
+itertowers	team=1;i=3	id=5	pos=(528000,48000)	radius=10000	ae=true	casting="Targeting"
+itertowers	team=1;i=4	id=9	pos=(720000,240000)	radius=10000	ae=true	casting="Targeting"
+itertowers	team=1;i=5	id=13	pos=(912000,432000)	radius=10000	ae=true	casting="Targeting"
+itertowers	team=1;i=6	id=16	pos=(784000,111000)	radius=10000	ae=true	casting="Targeting"
+itertowers	team=1;i=7	id=17	pos=(848000,176000)	radius=10000	ae=true	casting="Targeting"
+meta	tick_per_second	60	champs	10	towers	16
+iir_real	SUMMARY	ok=676	mismatch=0	game_true=26	game_false=650
+eff_range	SUMMARY	ok=26	mismatch=0
+ent_radius	SUMMARY	ok=26	mismatch=0
+iir_syn	SUMMARY	n=1440	ok=2073600	mismatch=0	game_true=836256	game_false=1237344
+eff_range_syn	SUMMARY	ok=1440	mismatch=0
+ent_radius_syn	SUMMARY	ok=1440	mismatch=0
+erd	SUMMARY	pairs=260	true_count=80	reprod_ok=260	reprod_mismatch=0
+erd	SELFTOWER	true=80	enemy_tower_targets=80
+erd_true	t0Top->T1#0
+erd_true	t0Top->T1#1
+erd_true	t0Top->T1#2
+erd_true	t0Top->T1#3
+erd_true	t0Top->T1#4
+erd_true	t0Top->T1#5
+erd_true	t0Top->T1#6
+erd_true	t0Top->T1#7
+erd_true	t0Jungle->T1#0
+erd_true	t0Jungle->T1#1
+erd_true	t0Jungle->T1#2
+erd_true	t0Jungle->T1#3
+erd_true	t0Jungle->T1#4
+erd_true	t0Jungle->T1#5
+erd_true	t0Jungle->T1#6
+erd_true	t0Jungle->T1#7
+erd_true	t0Mid->T1#0
+erd_true	t0Mid->T1#1
+erd_true	t0Mid->T1#2
+erd_true	t0Mid->T1#3
+erd_true	t0Mid->T1#4
+erd_true	t0Mid->T1#5
+erd_true	t0Mid->T1#6
+erd_true	t0Mid->T1#7
+erd_true	t0Bottom->T1#0
+erd_true	t0Bottom->T1#1
+erd_true	t0Bottom->T1#2
+erd_true	t0Bottom->T1#3
+erd_true	t0Bottom->T1#4
+erd_true	t0Bottom->T1#5
+erd_true	t0Bottom->T1#6
+erd_true	t0Bottom->T1#7
+erd_true	t0Support->T1#0
+erd_true	t0Support->T1#1
+erd_true	t0Support->T1#2
+erd_true	t0Support->T1#3
+erd_true	t0Support->T1#4
+erd_true	t0Support->T1#5
+erd_true	t0Support->T1#6
+erd_true	t0Support->T1#7
+erd_true	t1Top->T0#0
+erd_true	t1Top->T0#1
+erd_true	t1Top->T0#2
+erd_true	t1Top->T0#3
+erd_true	t1Top->T0#4
+erd_true	t1Top->T0#5
+erd_true	t1Top->T0#6
+erd_true	t1Top->T0#7
+erd_true	t1Jungle->T0#0
+erd_true	t1Jungle->T0#1
+erd_true	t1Jungle->T0#2
+erd_true	t1Jungle->T0#3
+erd_true	t1Jungle->T0#4
+erd_true	t1Jungle->T0#5
+erd_true	t1Jungle->T0#6
+erd_true	t1Jungle->T0#7
+erd_true	t1Mid->T0#0
+erd_true	t1Mid->T0#1
+erd_true	t1Mid->T0#2
+erd_true	t1Mid->T0#3
+erd_true	t1Mid->T0#4
+erd_true	t1Mid->T0#5
+erd_true	t1Mid->T0#6
+erd_true	t1Mid->T0#7
+erd_true	t1Bottom->T0#0
+erd_true	t1Bottom->T0#1
+erd_true	t1Bottom->T0#2
+erd_true	t1Bottom->T0#3
+erd_true	t1Bottom->T0#4
+erd_true	t1Bottom->T0#5
+erd_true	t1Bottom->T0#6
+erd_true	t1Bottom->T0#7
+erd_true	t1Support->T0#0
+erd_true	t1Support->T0#1
+erd_true	t1Support->T0#2
+erd_true	t1Support->T0#3
+erd_true	t1Support->T0#4
+erd_true	t1Support->T0#5
+erd_true	t1Support->T0#6
+erd_true	t1Support->T0#7
+bjg	t0Top	mine=Bee	game=Bee	MATCH
+bjg	t0Jungle	mine=Bee	game=Bee	MATCH
+bjg	t0Mid	mine=Bee	game=Bee	MATCH
+bjg	t0Bottom	mine=Bee	game=Bee	MATCH
+bjg	t0Support	mine=Bee	game=Bee	MATCH
+bjg	t1Top	mine=Bee	game=Bee	MATCH
+bjg	t1Jungle	mine=Bee	game=Bee	MATCH
+bjg	t1Mid	mine=Bee	game=Bee	MATCH
+bjg	t1Bottom	mine=Bee	game=Bee	MATCH
+bjg	t1Support	mine=Bee	game=Bee	MATCH
+bjg	SUMMARY	match=10	mismatch=0
+is_cleared	team=0;camp=Rhino	false	side=false
+is_cleared	team=0;camp=Mushroom	false	side=false
+is_cleared	team=0;camp=Bee	false	side=false
+is_cleared	team=0;camp=Stump	false	side=false
+is_cleared	team=1;camp=Rhino	false	side=false
+is_cleared	team=1;camp=Mushroom	false	side=false
+is_cleared	team=1;camp=Bee	false	side=false
+is_cleared	team=1;camp=Stump	false	side=false
+mrncu	champ;tick=0	0
+mrncu	champ;tick=40	0
+mrncu	champ;tick=60	0
+mrncu	champ;tick=100000	0
+mrncu	caster=T0#0;tick=0	10000
+mrncu	caster=T0#0;tick=40	10000
+mrncu	caster=T0#0;tick=60	10000
+mrncu	caster=T0#0;tick=100000	10000
