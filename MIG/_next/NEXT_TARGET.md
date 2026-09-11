@@ -144,3 +144,124 @@ version	ret	diff_runs	diff_bytes	first_runs
 - 줄 길이 표: `rmeta_srcmap game_ai handler.rs <시작> <끝>` — 먼저 함수 끝 줄을 확정해야 한다.
 - 89종 피호출 심볼의 `callees` 표는 **`mkspec3.py` 가 자동 생성**한다(사람이 쓸 일 아님).
 - `LegacyPlanHandler` 형제 **41개**도 `siblings` 가 자동 생성한다(`spec3lib.py sib LegacyPlanHandler`).
+
+---
+
+# 6. ★prior-work 조회 결과 (§7 착수 전 필수) — **판정 [부분]**
+
+재시도금지·폐기 판정은 **없다.** 그러나 이 함수는 **처음부터가 아니다** — 프로젝트에서 가장 오래
+다뤄온 함수이고 0.5.8 자산이 이미 다 깔려 있다. **내 §1~§5 계획을 아래대로 고친다.**
+
+## 6-1. 심볼 등호는 **이미 확정돼 있었다** (내가 5분 쓰려던 것 — 불요)
+`C:	fm2mods\MIG\dllmatch.json` 에 문자 단위로 박혀 있다(직접 확인):
+```json
+{"addr":"0x140e4c5c0","rva":14992832,
+ "mangled":"_RNvMNtNtCshdEBA0ozCnw_7game_ai11plan_legacy7handlerNtB2_17LegacyPlanHandler6update",
+ "name":"update","mod":"handler","jaccard":0.972,"contain":0.995,"bytes":42054}
+```
+`dllmatch.py` 는 정본이다(`MEM\DONE.md:143` **DONE** · 3축 = 오프셋지문+콜그래프전파+DWARF줄).
+⟹ **`0xe4c5c0`(42,054B) == `handler.rs:685 update` 확정.** `name2rva`/`panicloc` 로 다시 확정하지 마라.
+
+## 6-2. ★내 §1-2 가 틀렸다 — 자식 명세는 **5개가 아니라 7개**
+IR 본문의 **직접 call 만** 봐서 2개를 놓쳤다:
+- **`11 v3_fall_back_to_passive`** = `handler.rs`(**update 와 같은 파일**)
+- **`06 v2_response_retreat_stance`** = `handler\engage.rs`
+⟹ handler 계열 명세 = **05 · 06 · 09 · 11 · 12 · 15 · 17 (7개)**.
+
+## 6-3. 구버전에 **game==mine 재현·런타임검증까지 끝난 블록**이 있다 — 페이즈게이트
+`ANA\_archive\plan_v2-판단함수-계산식-정본.md:105~130` §2 「드라이버 / 페이즈 게이트」 **✅공식재현·런타임검증**
+```
+objective  = min(C * A / 1000, 100)
+threshold  = objective*9 + min(B,100)*2 + 100      (cap 1000)
+roll < threshold → transition_engine 호출 + demote
+   A = athlete+0x218 (실효 판단력) · B = +0x238 (에고) · C = +0x380 (동적)
+```
+**개입 실증까지 됨**: `pg_a=30` 주입 → 라인전→능동 전환률 100% → 57%.
+⚠파일 상단 `[STALE-RVA]` = 주소는 0.4.12~13, **공식·구조는 영구 유효**. 메모리 정본 = `MEM	fm2-phasegate-judgement.md`.
+⟹ **이 블록은 다시 읽지 말고 승계**한다. 할 일은 0.5.8 좌표로 옮겨 붙이는 것뿐.
+
+## 6-4. 0.5.8 디컴이 이미 있다 — **새로 뜨지 마라**
+- Ghidra 디컴 **32,528행 + capstone 선형 디스어셈** = `MIG\decomp\0.5.8\plan_legacy\handler.md:217`
+  (`## 0xe4c5c0 — 원본 행 977~2281`, 42,054B). 과거 "디컴 실패"였다가 timeout 2400s/800MB 로 성공한 그 함수다.
+- 0.5.7→0.5.8 diff = `MIG\aidiff_057_058.md:706` (`0xe723c0 → 0xe4c5c0 EDITED`, 41,844→42,054B)
+- `aimap.json` 의 `0xe4c5c0` 패닉 줄 8개 = `977·1039·1059·1303·1364·1508·1619·2281`(직접 확인)
+
+## 6-5. ★`0xe5d5d0 handle_interact_battle` 과 **한 세트로** 봐야 한다
+그동안 "engage 32KB"로만 불린 것의 정체 = **구 `transition_engine`**. 페이즈게이트가 `roll < thr` 일 때
+호출하는 **바로 그 전환엔진**이다. 구조규명 문서가 이미 있다(`discovered-PROGRAM-STRUCTURE.md:371` + §3c).
+⟹ **update 단독으로 읽으면 전환 경로의 절반이 빈다.**
+
+## 6-6. 형제 실명·RVA 전량 매핑돼 있다 (새 작업 0)
+`dllmatch.json` 조회로 IR 심볼 → exe RVA 가 바로 나온다. handler 계열 주요분:
+
+| RVA | 크기 | 실명 | jaccard |
+|---|---|---|---|
+| `0xe4c5c0` | 42,054 | **`update`** ← 대상 | 0.972 |
+| `0xe46bc0` | 11,615 | ★**`passive_plan`** (update 의 직접 콜리) | **1.0** |
+| `0xe6b800` | 5,680 | `check_kill` | 0.837 |
+| `0xe4b070` | 1,371 | `v2_apply_assign_commit` | 1.0 |
+| `0xe6d000` | 1,152 | `calculate_nexus_defense_count` | 0.971 |
+| `0xe70c70` | 809 | `take_misunderstood_received_chat` | 1.0 |
+| `0xe4abc0` | 768 | `sanitize_rule_scope` | 1.0 |
+| `0xe4a780` | 583 | `v3_assign_anchor` | 1.0 |
+| `0xe6fe60` | 445 | `v3_fall_back_to_passive` | **0.121** ⚠ |
+
+## 6-7. ★★신규 발견 — `dllmatch.json` 676행 중 **94행이 jaccard < 0.6** 이다
+`MEM\INDEX.md:257` 의 품질 기록("676행·주소중복 0·심볼중복 0·자체검증 7/7")은 **유일성**에 대한 것이고
+**신뢰도가 아니다.** 우리 20개 명세의 `exe.addr` 를 dllmatch 와 전수 대조한 결과(직접 실행):
+
+| 결과 | 수 |
+|---|---|
+| **주소 불일치** | **0** ← 좋은 소식 |
+| 일치하나 **jaccard < 0.6** | **6** |
+| dllmatch 에 없음 / spec.exe 없음 | 6 |
+
+신뢰도 낮은 6건 = `04 handle_line_defense`(j 0.499) · `10 should_end_object_finish_kill_priority_battle`(0.221) ·
+`11 v3_fall_back_to_passive`(0.121) · `12 handle_chat`(0.137) · `15 single_try_engage`(0.25) ·
+`16 max_range_nearly_can_use`(0.235).
+그 밖에 `defensive_crisis` 는 dllmatch 가 `mod=vec`(j 0.5)로 잡고 있고 우리 spec 엔 `exe.addr` 가 없다.
+
+⟹ **주소 자체는 다 맞았지만, dllmatch 의 이름 신뢰도를 확인 없이 쓰면 안 된다.**
+exe 쪽 작업(디스어셈·훅·바이트패치)에 RVA 를 쓸 때는 `jaccard`/`contain` 을 같이 읽고,
+0.6 미만이면 **패닉 줄 대조로 한 번 더 확정**할 것. 이름충돌 19건은 `MIG\dupconflict.json`
+(**자동수정 금지·보류**, `DONE.md:132`).
+
+## 6-8. 적용되는 인접 판정 (재시도금지 계열)
+- `DONE.md:83` **재시도금지(문자열 탐색)** — `MF_SRC_NAMES`/`FF_BAIL_NAMES`/`MF_OBJCLR_NAMES` 는
+  배포물 전량 부재(사내 상수) ⟹ **update 의 텔레메트리 코드 이름 찾기 금지.**
+- `reimpl-tracker.md:36` ④ ⛔**판정(버전무관)** — ★**"전면 교체 후 AB 대조로 결과 동일"은 성립하지 않는다**
+  (PRNG 공유 상태). 실무 경로는 **함수 단위 DIFF=0 누적**이다.
+  ⟹ 14,476줄을 통째 교체·대조하려 들면 이 벽에 박는다.
+- `reimpl-tracker.md:82` ⑥ **항상 100% 다른 잡음 필드(판단 금지 9종)** =
+  `team_plan`·`battle_start_state`·`positioning_score`·`plan`·`sub_plan`·`debug`/`big_debug`/`small_debug`·`sthfn_stack`
+  ⟹ 내 §3 스냅샷 diff 에서 **이 9종을 먼저 마스킹**해야 신호가 보인다.
+- `DONE.md:80~82` **DONE** — `mf_swap` 코드 0~29 전량 복원(순수 텔레메트리) · 진단코드표 5종 · exit_src 이중 필드.
+- `100퍼-잔여-트래커.md:478` **보류** — agent_link 트윈 비트동일 원인 미확정(`get_input` 99.974~99.978% 가 현 상한).
+
+## 6-9. ★이 함수가 tracker 의 **⬜1순위**다
+`ANA@퍼-잔여-트래커.md:474` (= `MEM	fm2-judge-layer.md:286`)
+> ⬜(2026-09-09, 0.5.8·judge·**신규·다음 과제**) ★★judge 커버리지 6.0% → **플랜 핸들러 5종 포팅** —
+> 미포팅 상위는 전부 플랜 핸들러 = **`0xe4c5c0`(handler 42KB)** · `0xe5d5d0`(engage 32KB) ·
+> `0xdf36e0`(old/battle 29KB) · `0xdda220`(objective_discipline 24KB) · `0xd8eff0`(score_parameter 25KB)
+> ⟹ 죽어 있는 movepri 노브(`dd_*`·`d4_*`·`ep_*`·`sn_*`·`bt_*`)를 되살리는 길도 이 재포팅.
+
+★**착수 전 교훈 (68)** = 큰 함수는 IR 로 **분기별 도달 가능성부터** 가른다(사장 서브트리는 NA,
+실측 NA=0 확인 → tower_dive 에서 **작업량 1/4**). 도구 = **`C:	fm2mods\MIG\irann.py`**.
+⟹ 14,476줄·`br` 730 이므로 **이 함수에서 이득이 최대**다. 첫 작업으로 이걸 돌린다.
+
+## 6-10. 모드 측 후킹/재구현 — **미착수 확인**
+`tfm2_ai_adjust\src\judge\gen_fns.rs`·`probe_tbl.rs` 에 `0xe4c5c0` **0건**.
+`MODS\MIGRATION.md` 에도 미등재 = 모드 상수로 배선된 적 없음.
+handler 계열은 호출수 프로브만 등록돼 있고 `role:"plan_handler"` 포팅 목록에 handler.rs 함수가 없다.
+⚠`gen_fns.rs` 의 `status` 문자열은 **썩는다**(교훈 69 — `as_d851d0` 가 "todo"인데 실제로는 DIFF=0 이었다).
+
+# 7. 갱신된 착수 순서
+
+1. **`irann.py` 로 분기 도달 가능성 선별**(교훈 68) — 사장 서브트리를 NA 로 봉인. 여기서 작업량이 갈린다.
+2. **페이즈게이트 블록은 승계**(§6-3) — 다시 읽지 말고 0.5.8 좌표로 옮긴다.
+3. **이미 읽힌 블록 스킵**: `mf_swap` 기록부(`handler.rs:953·998`) · `exit_src 22`(`:1758`) ·
+   `entry_src 6`(`:614`) · `update_on_dead`(`:635`, 트윈 100%) · 자식 명세 **7개**.
+4. `handle_interact_battle`(`0xe5d5d0`)를 **한 세트로** 편성(§6-5).
+5. 오라클 진리표(§3) + 스냅샷 diff — 단 **잡음 필드 9종 마스킹**(§6-8).
+6. 검증은 **함수 단위 DIFF=0 누적**(통째 AB 대조 금지).
+7. 결론은 record-keeper 로 `DONE.md`+`INDEX.md §2`+`100퍼-잔여-트래커.md:474` 체크오프.
