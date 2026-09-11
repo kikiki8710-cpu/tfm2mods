@@ -65,6 +65,21 @@ ALIAS = {
     "BattlePlanGoal(p2 goal)": "game_ai::plan_legacy::old::BattlePlanGoal",
     "BattlePlanGoal(스택 24B 임시)": "game_ai::plan_legacy::old::BattlePlanGoal",
     "MainObjective(인자 %4, i24)": "game_ai::plan_legacy::team_plan::MainObjective",
+    # ── 트레이트 사전등록 (2026-09-11, 차기 대상 LegacyPlanHandler::update 준비) ──
+    # `resolve_name` 은 **타입 사전**이라 트레이트를 못 찾는다(구조체·열거형만 들어 있다).
+    # 그래서 `AbstractGame+0x28` 같은 **vtable 슬롯 표기가 `확인불가` 로 떨어진다.**
+    # 기존 `dyn AbstractGame vtable` 관례와 같은 방식으로 맨이름도 @SKIP 으로 박아 둔다
+    # — 그러면 감사가 "확인불가"가 아니라 "SKIP: 트레이트" 로 정확히 말한다.
+    "AbstractGame": "@SKIP:트레이트 — vtable 슬롯은 divtable.py 소관",
+    "ChampionInfo": "@SKIP:트레이트 — 구현체 61종(ChampionInfo 61종 전부 pub)",
+    "EffectType": "@SKIP:트레이트 — vtable 슬롯은 divtable.py 소관",
+    "ItemInfo": "@SKIP:트레이트",
+    "ModeBrain": "@SKIP:트레이트",
+    "AiAgent": "@SKIP:트레이트",
+    "Action": "@SKIP:트레이트 — Action::effect() 는 pub(193건)",
+    "PlayerInputAi": "@SKIP:트레이트",
+    "EntityPassiveRunner": "@SKIP:트레이트",
+    "BanpickRunner": "@SKIP:트레이트",
 }
 
 # shared 그룹 이름 -> 베이스 타입 (그룹명에서 기계적으로 못 뽑는 것만)

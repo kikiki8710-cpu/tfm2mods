@@ -1,0 +1,562 @@
+[
+ {
+  "off": 0,
+  "name": "data",
+  "ty": "game_ai::GoalData"
+ },
+ {
+  "off": 248,
+  "name": "team_plan",
+  "ty": "game_ai::plan_legacy::team_plan::TeamPlan"
+ },
+ {
+  "off": 1312,
+  "name": "battle_start_tick",
+  "ty": "std::option::Option<usize>"
+ },
+ {
+  "off": 1328,
+  "name": "pending_global_ult_target",
+  "ty": "std::option::Option<(usize, usize)>"
+ },
+ {
+  "off": 1352,
+  "name": "v3_dest",
+  "ty": "std::option::Option<(u64, u64)>"
+ },
+ {
+  "off": 1376,
+  "name": "judge_noise_plan",
+  "ty": "std::option::Option<std::mem::Discriminant<game_ai::plan_legacy::types::BigPlan>>"
+ },
+ {
+  "off": 1392,
+  "name": "v50_dive_ep_live",
+  "ty": "std::option::Option<game_ai::plan_legacy::handler::dive_episode::V50DiveEpLive>"
+ },
+ {
+  "off": 1512,
+  "name": "plan",
+  "ty": "game_ai::plan_legacy::types::BigPlan"
+ },
+ {
+  "off": 1896,
+  "name": "sub_plan",
+  "ty": "game_ai::plan_legacy::sub_plan::SubPlan"
+ },
+ {
+  "off": 1968,
+  "name": "misunderstood_received_chats",
+  "ty": "std::vec::Vec<(usize, game_core::Position, game_core::Chat), std::alloc::Global>"
+ },
+ {
+  "off": 1992,
+  "name": "chats",
+  "ty": "std::vec::Vec<game_core::Chat, std::alloc::Global>"
+ },
+ {
+  "off": 2016,
+  "name": "chats_wait",
+  "ty": "std::vec::Vec<(usize, game_core::Chat), std::alloc::Global>"
+ },
+ {
+  "off": 2040,
+  "name": "received_chats",
+  "ty": "std::vec::Vec<(usize, game_core::Position, game_core::Chat), std::alloc::Global>"
+ },
+ {
+  "off": 2064,
+  "name": "gank_periods",
+  "ty": "std::vec::Vec<(usize, usize), std::alloc::Global>"
+ },
+ {
+  "off": 2088,
+  "name": "gank_score_attempts",
+  "ty": "std::vec::Vec<(i32, usize, usize), std::alloc::Global>"
+ },
+ {
+  "off": 2112,
+  "name": "prev_plan_name",
+  "ty": "std::string::String"
+ },
+ {
+  "off": 2136,
+  "name": "pending_trace_events",
+  "ty": "std::vec::Vec<game_core::PendingTraceEvent, std::alloc::Global>"
+ },
+ {
+  "off": 2160,
+  "name": "v46_lane_recall_trigger_ticks",
+  "ty": "std::vec::Vec<(usize, game_core::LineType), std::alloc::Global>"
+ },
+ {
+  "off": 2184,
+  "name": "v50_dive_episodes",
+  "ty": "std::vec::Vec<game_core::V50DiveEpisode, std::alloc::Global>"
+ },
+ {
+  "off": 2208,
+  "name": "v46_lane_flee_episodes",
+  "ty": "std::vec::Vec<(usize, game_core::LineType, u8), std::alloc::Global>"
+ },
+ {
+  "off": 2232,
+  "name": "flee_ring",
+  "ty": "std::vec::Vec<(usize, u8, u8, u8), std::alloc::Global>"
+ },
+ {
+  "off": 2256,
+  "name": "flee_death_retrospects",
+  "ty": "std::vec::Vec<(usize, u8, u8, u8), std::alloc::Global>"
+ },
+ {
+  "off": 2280,
+  "name": "v54_cj_call_ticks",
+  "ty": "std::vec::Vec<usize, std::alloc::Global>"
+ },
+ {
+  "off": 2304,
+  "name": "v54_reentry_ticks",
+  "ty": "std::vec::Vec<usize, std::alloc::Global>"
+ },
+ {
+  "off": 2328,
+  "name": "battle_start_state",
+  "ty": "std::option::Option<game_ai::BattleStartState>"
+ },
+ {
+  "off": 2440,
+  "name": "dm_death_latch",
+  "ty": "(bool, bool, bool, bool, bool, bool, bool, bool)"
+ },
+ {
+  "off": 2448,
+  "name": "positioning_score",
+  "ty": "game_core::PositioningScoreData"
+ },
+ {
+  "off": 5208,
+  "name": "requested_gank_line",
+  "ty": "std::option::Option<(game_core::LineType, usize)>"
+ },
+ {
+  "off": 5224,
+  "name": "version",
+  "ty": "usize"
+ },
+ {
+  "off": 5232,
+  "name": "gank_cancel_tick",
+  "ty": "usize"
+ },
+ {
+  "off": 5240,
+  "name": "dive_cancel_tick",
+  "ty": "usize"
+ },
+ {
+  "off": 5248,
+  "name": "last_dive_abandon_tick",
+  "ty": "usize"
+ },
+ {
+  "off": 5256,
+  "name": "last_response_bail_tick",
+  "ty": "usize"
+ },
+ {
+  "off": 5264,
+  "name": "last_lost_fight",
+  "ty": "(usize, usize)"
+ },
+ {
+  "off": 5280,
+  "name": "gank_attempt_count",
+  "ty": "usize"
+ },
+ {
+  "off": 5288,
+  "name": "gank_request_count",
+  "ty": "usize"
+ },
+ {
+  "off": 5296,
+  "name": "last_gank_request_tick",
+  "ty": "usize"
+ },
+ {
+  "off": 5304,
+  "name": "last_jungle_lead_action_tick",
+  "ty": "usize"
+ },
+ {
+  "off": 5312,
+  "name": "comeback_pick_attempt_count",
+  "ty": "usize"
+ },
+ {
+  "off": 5320,
+  "name": "comeback_pick_success_count",
+  "ty": "usize"
+ },
+ {
+  "off": 5328,
+  "name": "v46_lane_recall_danger_ticks",
+  "ty": "usize"
+ },
+ {
+  "off": 5336,
+  "name": "v46_lane_recall_veto_wave",
+  "ty": "usize"
+ },
+ {
+  "off": 5344,
+  "name": "v46_lane_recall_veto_crash",
+  "ty": "usize"
+ },
+ {
+  "off": 5352,
+  "name": "v46_lane_recall_veto_heal",
+  "ty": "usize"
+ },
+ {
+  "off": 5360,
+  "name": "v46_lane_recall_stage2_saves",
+  "ty": "usize"
+ },
+ {
+  "off": 5368,
+  "name": "v46_lane_recall_commit_clears",
+  "ty": "usize"
+ },
+ {
+  "off": 5376,
+  "name": "v46_lane_recall_wave_enemy_half",
+  "ty": "usize"
+ },
+ {
+  "off": 5384,
+  "name": "v46_lane_recall_wave_my_half",
+  "ty": "usize"
+ },
+ {
+  "off": 5392,
+  "name": "v46_lane_flee_triggers",
+  "ty": "usize"
+ },
+ {
+  "off": 5400,
+  "name": "v46_lane_flee_hold_ticks",
+  "ty": "usize"
+ },
+ {
+  "off": 5408,
+  "name": "v46_lane_flee_hold_acute_ticks",
+  "ty": "usize"
+ },
+ {
+  "off": 5416,
+  "name": "v46_lane_flee_hold_refuge_ticks",
+  "ty": "usize"
+ },
+ {
+  "off": 5424,
+  "name": "v46_lane_flee_hold_cover_ticks",
+  "ty": "usize"
+ },
+ {
+  "off": 5432,
+  "name": "v46_lane_flee_nohit_episodes",
+  "ty": "usize"
+ },
+ {
+  "off": 5440,
+  "name": "v48_dodge_step_picks",
+  "ty": "usize"
+ },
+ {
+  "off": 5448,
+  "name": "v48_dodge_flee_picks",
+  "ty": "usize"
+ },
+ {
+  "off": 5456,
+  "name": "v48_claim_until_tick",
+  "ty": "usize"
+ },
+ {
+  "off": 5464,
+  "name": "v48_last_non_target_hit",
+  "ty": "usize"
+ },
+ {
+  "off": 5472,
+  "name": "v48_claim_window_ticks",
+  "ty": "usize"
+ },
+ {
+  "off": 5480,
+  "name": "v48_claim_window_hits",
+  "ty": "usize"
+ },
+ {
+  "off": 5488,
+  "name": "v48_other_hits",
+  "ty": "usize"
+ },
+ {
+  "off": 5496,
+  "name": "v48_claim_hit_locked",
+  "ty": "usize"
+ },
+ {
+  "off": 5504,
+  "name": "v48_claim_hit_moving",
+  "ty": "usize"
+ },
+ {
+  "off": 5512,
+  "name": "v48_claim_hit_idle",
+  "ty": "usize"
+ },
+ {
+  "off": 5520,
+  "name": "v48_cast_cc",
+  "ty": "usize"
+ },
+ {
+  "off": 5528,
+  "name": "v48_cast_locked",
+  "ty": "usize"
+ },
+ {
+  "off": 5536,
+  "name": "v48_cast_free_near",
+  "ty": "usize"
+ },
+ {
+  "off": 5544,
+  "name": "v48_cast_free_far",
+  "ty": "usize"
+ },
+ {
+  "off": 5552,
+  "name": "flee_prev_death_count",
+  "ty": "usize"
+ },
+ {
+  "off": 5560,
+  "name": "ff_call_recv",
+  "ty": "usize"
+ },
+ {
+  "off": 5568,
+  "name": "ff_call_ignored",
+  "ty": "usize"
+ },
+ {
+  "off": 5576,
+  "name": "ff_call_in_battle",
+  "ty": "usize"
+ },
+ {
+  "off": 5584,
+  "name": "ff_call_no_help",
+  "ty": "usize"
+ },
+ {
+  "off": 5592,
+  "name": "ff_call_too_far",
+  "ty": "usize"
+ },
+ {
+  "off": 5600,
+  "name": "ff_call_low_hp",
+  "ty": "usize"
+ },
+ {
+  "off": 5608,
+  "name": "ff_call_bail",
+  "ty": "usize"
+ },
+ {
+  "off": 5616,
+  "name": "ff_call_join",
+  "ty": "usize"
+ },
+ {
+  "off": 5624,
+  "name": "ff_battle_exit",
+  "ty": "(u8, u8, usize, u8, u8)"
+ },
+ {
+  "off": 5640,
+  "name": "ff_battle_exit_latch",
+  "ty": "(u8, u8, u8, u8, u8, u8, u8, u8)"
+ },
+ {
+  "off": 5648,
+  "name": "mf_swap",
+  "ty": "(u8, usize)"
+ },
+ {
+  "off": 5664,
+  "name": "v3_lapse_end_fires",
+  "ty": "usize"
+ },
+ {
+  "off": 5672,
+  "name": "v3_lapse_passive_fallbacks",
+  "ty": "usize"
+ },
+ {
+  "off": 5680,
+  "name": "v3_lapse_noinput_rescues",
+  "ty": "usize"
+ },
+ {
+  "off": 5688,
+  "name": "v3_lapse_move_forces",
+  "ty": "usize"
+ },
+ {
+  "off": 5696,
+  "name": "v3_home_ladder",
+  "ty": "[usize; 3_usize]"
+ },
+ {
+  "off": 5720,
+  "name": "mf_ret25_src",
+  "ty": "[usize; 32_usize]"
+ },
+ {
+  "off": 5976,
+  "name": "ff_line_counts",
+  "ty": "[usize; 4_usize]"
+ },
+ {
+  "off": 6008,
+  "name": "ff_retreat_commits",
+  "ty": "usize"
+ },
+ {
+  "off": 6016,
+  "name": "ff_retreat_hold_ticks",
+  "ty": "usize"
+ },
+ {
+  "off": 6024,
+  "name": "ff_dive_promotions",
+  "ty": "usize"
+ },
+ {
+  "off": 6032,
+  "name": "ff_retreat_releases",
+  "ty": "usize"
+ },
+ {
+  "off": 6040,
+  "name": "ff_zone_giveups",
+  "ty": "usize"
+ },
+ {
+  "off": 6048,
+  "name": "judge_noise_ratio",
+  "ty": "[i64; 11_usize]"
+ },
+ {
+  "off": 6136,
+  "name": "dm_seen_deaths",
+  "ty": "usize"
+ },
+ {
+  "off": 6144,
+  "name": "v2_obj_part",
+  "ty": "std::option::Option<u8>"
+ },
+ {
+  "off": 6146,
+  "name": "v2_assign",
+  "ty": "std::option::Option<(u8, game_core::LineType)>"
+ },
+ {
+  "off": 6148,
+  "name": "v3_last_stand",
+  "ty": "bool"
+ },
+ {
+  "off": 6149,
+  "name": "v3_final_stand",
+  "ty": "bool"
+ },
+ {
+  "off": 6150,
+  "name": "counter_jungle_route_init",
+  "ty": "bool"
+ },
+ {
+  "off": 6151,
+  "name": "v2_armed",
+  "ty": "bool"
+ },
+ {
+  "off": 6152,
+  "name": "v3_armed",
+  "ty": "bool"
+ },
+ {
+  "off": 6153,
+  "name": "v3_turnback_scene_prev",
+  "ty": "bool"
+ },
+ {
+  "off": 6154,
+  "name": "v3_epicops_armed",
+  "ty": "bool"
+ },
+ {
+  "off": 6155,
+  "name": "dm_rejoining",
+  "ty": "bool"
+ },
+ {
+  "off": 6156,
+  "name": "v2_egowave_line",
+  "ty": "game_core::LineType"
+ },
+ {
+  "off": 6157,
+  "name": "active_gank_line",
+  "ty": "std::option::Option<game_core::LineType>"
+ },
+ {
+  "off": 6158,
+  "name": "v3_dest_obj",
+  "ty": "std::option::Option<game_ai::plan_legacy::team_plan::MainObjective>"
+ },
+ {
+  "off": 6161,
+  "name": "v50_dive_ep_abort_src",
+  "ty": "u8"
+ },
+ {
+  "off": 6162,
+  "name": "v3_cand_src",
+  "ty": "u8"
+ },
+ {
+  "off": 6163,
+  "name": "v3_bail_goal",
+  "ty": "u8"
+ },
+ {
+  "off": 6164,
+  "name": "v48_last_cast_state",
+  "ty": "u8"
+ },
+ {
+  "off": 6165,
+  "name": "v2_egowave",
+  "ty": "u8"
+ }
+]
