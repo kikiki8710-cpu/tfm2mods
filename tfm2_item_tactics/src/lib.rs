@@ -1275,6 +1275,112 @@ fn ct_row_champ(row: &Node) -> Option<String> {
 //   구 force_comptest_slot_layout()은 네이티브 4상태 박스를 매프레임 write 했는데, 그 방식은
 //   ①히트박스가 안 따라와 클릭 관통 ②게임 재계산과 충돌해 떨림 을 유발한다(comptest_unlock 실측).
 //   ⟹ 좌표는 템플릿 선언값만 사용, 네이티브는 숨기기만 한다.
+// ★임시 진단(2026-09-11): 조합테스트 팝업 노드 실태 1회 덤프.
+//   riot build_editor 를 숨긴 자리에 **게임 네이티브 blue0..red4 행**이 남아 있는지 확인용.
+//   LOG_ENABLED 게이트 바깥 — 확인 끝나면 PROBE_CT_NODES=false 로 끌 것.
+const PROBE_CT_NODES: bool = false; // 확인 완료(2026-09-11) — 필요할 때만 켠다
+static CTP_DONE: AtomicBool = AtomicBool::new(false);
+fn probe_comptest_nodes(root: &Node) {
+    if !PROBE_CT_NODES || CTP_DONE.load(Ordering::Relaxed) { return; }
+    // 조합테스트 팝업이 실제로 떠 있을 때만
+    // ★riot 이 build_editor 를 주입한 **뒤** 시점을 찍어야 한다(초기 프레임은 주입 전이라 무의미).
+    if find_node(root, "build_editor").is_none() { return; }
+    CTP_DONE.store(true, Ordering::Relaxed);
+    fn rec(n: &Node, d: usize, out: &mut String) {
+        if d > 5 || out.len() > 120_000 { return; }
+        out.push_str(&format!("{}#{} vis={} ty={} kids={}
+",
+            "  ".repeat(d), n.id.as_str(), n.visible, n.runner.type_name(), n.child.len()));
+        for c in n.child.iter() { rec(c, d + 1, out); }
+    }
+    let mut out = String::new();
+    for anchor in ["comp_test_popup", "tactics", "builds"] {
+        if let Some(nd) = find_node(root, anchor) {
+            out.push_str(&format!("===== subtree from #{anchor} =====
+"));
+            rec(nd, 0, &mut out);
+            break;
+        }
+    }
+    out.push_str("
+===== find_node 요약 =====
+");
+    for id in ["comp_test_popup","tactics","builds","build_editor","rows","blue0","blue4","red0","red4","personal","row0"] {
+        match find_node(root, id) {
+            Some(n) => out.push_str(&format!("{id:18} 있음 vis={} kids={} ty={}
+", n.visible, n.child.len(), n.runner.type_name())),
+            None => out.push_str(&format!("{id:18} 없음
+")),
+        }
+    }
+    if let Some(d) = mod_dir() { let _ = fs::write(d.join("ct_nodes_probe2.txt"), out); }
+}
+// ★★2026-09-11 유저 지시 "조합테스트의 아이템 지정 UI(롤아이템모드 것) 없애줘".
+//   riot_items_tfm2 는 **네이티브 모드**(riot_items_tfm2.dll)이고, `comp_test_popup.tactics.builds`
+//   아래에 `build_editor` 노드를 **런타임 주입**한다 ⟹ `mod.override_info` 로는 못 끈다(실측:
+//   asset/base/ui/layout/training 오버라이드를 지우고 재시작해도 UI 그대로).
+//   ⟹ 게임/타 모드 노드를 지우지 않고 **매 프레임 visible=false 로 덮는다**(멱등 — 이미 false 면 write 없음).
+//   지정은 legacy 일반 전술화면에서 하고, tfm2_item_build 의 스코프 폴백(@b:/@r: 없으면 일반 지정)이
+//   조합테스트에 그대로 적용한다 ⟹ 지정 창구가 하나로 통일된다.
+//   ⚠riot 의 **적용**(item-builds.json → 빌드)은 이걸로 안 꺼진다. 그 파일이 비어 있어야 완전히 비킨다.
+const HIDE_RIOT_BUILD_EDITOR: bool = true; // 마스터 킬스위치(코드). 유저 토글은 아래 riot_ui.cfg.
+// ── riot 조합테스트 UI 토글 (cfg `riot_ui.cfg`, dll 옆) ──
+//   riot_ui = 0  →  riot 편집기를 숨기고 **이 모드의 4칸 표**를 쓴다 (기본)
+//   riot_ui = 1  →  riot 편집기를 그대로 쓴다 (이 모드 표는 안 나옴)
+//   ⚠**`4items.cfg` 에 넣으면 안 된다** — 그 파일의 파서가 우리·riot 양쪽 모두 `rfind('=')`,
+//     즉 **마지막 '=' 뒤**만 스캔한다. 키를 하나 더 넣으면 slots 파싱이 그 키를 보게 돼 깨진다.
+//   재시작 불요 — 조합테스트 화면이 떠 있는 동안 120프레임마다 재읽기.
+static RIOT_UI: AtomicU64 = AtomicU64::new(0);
+static RIOT_UI_TICK: AtomicU64 = AtomicU64::new(0);
+fn load_riot_ui() -> u64 {
+    let Some(d) = mod_dir() else { return 0 };
+    let Ok(txt) = fs::read_to_string(d.join("riot_ui.cfg")) else { return 0 };
+    for line in txt.lines() {
+        let l = line.trim();
+        if l.is_empty() || l.starts_with('#') { continue; }
+        let Some((k, v)) = l.split_once('=') else { continue };
+        if k.trim() != "riot_ui" { continue; }
+        return if v.trim().starts_with('1') { 1 } else { 0 };
+    }
+    0
+}
+static RBE_SEEN: AtomicU64 = AtomicU64::new(0); // build_editor 노드 발견 프레임수
+static RBE_HID: AtomicU64 = AtomicU64::new(0);  // 실제로 visible→false 로 덮은 횟수
+fn hide_riot_build_editor(root: &mut Node) {
+    if !HIDE_RIOT_BUILD_EDITOR { return; }
+    // riot 편집기가 주입돼 있고 **조합테스트 팝업의 전술 탭이 실제로 떠 있을 때만** 개입한다.
+    //   (`builds` 강제 표시가 다른 화면으로 새면 handle_comptest_screen 의 CT_OPEN 판정이 깨진다.)
+    if find_node(root, "build_editor").is_none() { return; }
+    let up = find_node(root, "comp_test_popup").map(|n| n.visible).unwrap_or(false)
+        && find_node(root, "tactics").map(|n| n.visible).unwrap_or(false);
+    if !up { return; }
+    // ★유저 토글 재읽기(재시작 불요). tick 0 = 첫 프레임에도 반드시 읽는다.
+    if RIOT_UI_TICK.fetch_add(1, Ordering::Relaxed) % 120 == 0 {
+        RIOT_UI.store(load_riot_ui(), Ordering::Relaxed);
+    }
+    if RIOT_UI.load(Ordering::Relaxed) == 1 {
+        // ★riot UI 사용 — 단 "손만 떼면" 안 된다.
+        //   riot 은 `builds.visible=false` 는 매 프레임 되돌리지만 **`build_editor.visible=true` 는 그렇지 않다**
+        //   ⟹ 우리가 꺼둔 상태로 토글하면 둘 다 꺼져 빈 화면이 된다(실측 2026-09-11).
+        //   우리가 끈 것은 우리가 되돌린다(멱등).
+        if let Some(n) = find_mut(root, "build_editor") {
+            if !n.visible { n.visible = true; }
+        }
+        return;
+    }
+    RBE_SEEN.fetch_add(1, Ordering::Relaxed);
+    if let Some(n) = find_mut(root, "build_editor") {
+        if n.visible { n.visible = false; RBE_HID.fetch_add(1, Ordering::Relaxed); }
+    }
+    // ★★riot 은 자기 편집기를 띄우면서 **네이티브 `#builds` 컨테이너를 vis=false 로 끈다**(2026-09-11 실측:
+    //   riot 주입 후 `builds vis=false` / `build_editor vis=true`). 그런데 그 컨테이너 **안에는**
+    //   게임 행 `blue0..red4`(vis=true)와 **우리가 주입한 `it4_s0..it4_slot3` 드롭다운이 그대로 살아 있다.**
+    //   ⟹ 컨테이너만 되살리면 legacy 의 4칸 개인전술이 그 자리에 그대로 나온다.
+    //   (구 판단 "legacy 조합테스트 주입은 죽었다"는 **오판**이었다 — 주입은 정상, 부모가 꺼져 있었을 뿐.)
+    if let Some(b) = find_mut(root, "builds") {
+        if !b.visible { b.visible = true; }
+    }
+}
 // 조합테스트 네이티브 item0/1/2 숨김 — 모드소유 드롭다운이 그 자리를 대신한다.
 fn hide_comptest_native_dds(root: &mut Node) {
     for rid in CT_ROWS.iter() {
@@ -3126,6 +3232,11 @@ impl ModExtension for ItemTacticsExt {
         { let t = perf::tsc();
           let _ = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| { handle_tactics_screen(ui); }));
           perf::rec(perf::S_POST_TACTICS, t); }
+        // ★★riot 빌드 편집기 숨김 + 네이티브 #builds 되살리기 — **handle_comptest_screen 보다 먼저.**
+        //   riot 이 매 프레임 `builds.visible=false` 로 되돌리므로, 뒤에 두면 핸들러가 항상 false 를 보고
+        //   드롭다운 옵션을 한 번도 배선하지 못한다(실측: 행은 그려지는데 옵션이 전부 빈칸).
+        let _ = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| probe_comptest_nodes(&ui.root)));
+        let _ = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| hide_riot_build_editor(&mut ui.root)));
         { let t = perf::tsc();
           let _ = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| { handle_comptest_screen(ui); }));
           perf::rec(perf::S_POST_COMPTEST, t); }
@@ -5081,7 +5192,7 @@ static SCENE_BLUEB: AtomicU64 = AtomicU64::new(u64::MAX);
 // ★★타입드 헤지(07-11): SDK db.replay_view→match_replays→blue/red_team_id (side0=blue/side1=red 정본, MatchReplayData).
 //   scene 직독(SCENE_T1/T2/BLUEB)과 크로스체크 = "두 소스가 완전히 같은 team_id를 주나" 검증용. DIAG_ENABLED 게이트.
 //   ⚠MatchReplayData=완성/기록된 매치라 라이브 진행 중엔 미기록(MRD=MAX) 가능 → 비교는 매치 기록 후 유효.
-const DIAG_BUY_OFF: bool = false; // buy 주입 전체 스위치(true=주입/식별 OFF)
+const DIAG_BUY_OFF: bool = true; // buy 주입 전체 스위치(true=주입/식별 OFF)  // ★2026-09-11 ON: 빌드 적용을 tfm2_item_build(stable ABI)로 이관. 이 모드는 UI+모드템+sel 저장만 담당.
 fn install_replace_4th() {
     if DIAG_BUY_OFF { return; }
     if BUY_PROBE_INSTALLED.load(Ordering::Relaxed) != 0 { return; }
