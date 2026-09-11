@@ -571,7 +571,10 @@ unsafe extern "C" fn mh_on_match_start(_userdata: *mut c_void, ctx: *mut SimCtxV
             {
                 log_players(base, plen);
                 if is_cmv {
-                    let net = scan_for_net(base); // base = players 배열 = 게임 힙 힌트
+                    // ★스캔은 "실제로 쓸 경기"에서만 — 밴픽 롤아웃·메뉴 배경에서 돌리면
+                    //   세이브 로드 전이라 신경망이 없어 헛스캔으로 시도만 소모한다.
+                    let real = is_view || looks_like_comptest(base, plen, pcap);
+                    let net = if real { scan_for_net(base) } else { None };
                     let na = ACTIVE_FINALS.lock().unwrap_or_else(|e| e.into_inner()).len();
                     logline(&format!(
                         "  [NET] net={:x?} fn_ok={} | 활성 최종템 후보 {}개 | fwd호출 {} / stale {}",
@@ -660,7 +663,13 @@ const ITEMNET_FORWARD_RVA: usize = 0x11e1b10;
 const NET_PROLOGUE: [u8; 12] = [0x55, 0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x53];
 
 static ITEMNET: AtomicUsize = AtomicUsize::new(0);
-static NET_SCAN_DONE: AtomicBool = AtomicBool::new(false);
+/// 힙 스캔 시도 횟수. ★일회성이면 안 된다 —
+/// 첫 시도는 게임 시작 직후(메뉴 배경 시뮬)에 걸리는데 그때는 세이브를 불러오기 전이라
+/// 아이템 신경망이 아직 메모리에 없다(실측 2026-09-11: 리전 1739 / 2.7GB 훑어 후보 0개,
+/// 그 뒤 1350회 전부 net=None, AUTO4 발동 0회).
+static NET_SCAN_TRIES: AtomicUsize = AtomicUsize::new(0);
+/// 스캔은 2초 넘게 걸려 경기 시작을 지연시킨다 ⟹ 시도 횟수를 묶는다.
+const NET_SCAN_MAX_TRIES: usize = 6;
 /// 엔진이 score_item 후보로 넘겨준 인덱스 = **활성 tier>=4 최종템**. is_active 대용.
 static ACTIVE_FINALS: Mutex<Vec<usize>> = Mutex::new(Vec::new());
 
@@ -691,7 +700,9 @@ fn net_sig_at(a: usize) -> bool {
 fn scan_for_net(heap_hint: usize) -> Option<usize> {
     let cur = ITEMNET.load(Ordering::Relaxed);
     if cur != 0 { return Some(cur); }
-    if NET_SCAN_DONE.swap(true, Ordering::Relaxed) { return None; }
+    if NET_SCAN_TRIES.fetch_add(1, Ordering::Relaxed) >= NET_SCAN_MAX_TRIES {
+        return None;
+    }
 
     let t0 = std::time::Instant::now();
     let mut addr: usize = 0x10000;
