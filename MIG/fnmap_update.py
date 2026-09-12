@@ -43,7 +43,7 @@ ADD = [
     (3,  "buff_value",      "defensive_crisis",        "e01c40"),
     (5,  "handler",         "v50_fold_dive_episode",   "e59190"),
     (7,  "hunt_and_battle", "sub_plan",                "ccc010"),
-    (13, "line_gank_cover", "target_bush_v30",         "df1c80"),
+    (13, "line_gank/cover", "target_bush_v30",         "df1c80"),   # module = 명세 exe.module 과 동일해야 mkmap_html 조인(module__name)
     (21, "epic",            "v3_epic_group_line",      "dea4a0"),
 ]
 # 이미 맞게 있던 것 (idx, addr) — ev1 노트만 붙인다
@@ -111,7 +111,7 @@ def main():
         if e is None:
             added.add(a)
             info = aim.get("0x" + a) or {}
-            e = dict(a=a, n=nm, m=mod, b=info.get("bytes", 0), i=info.get("ins", 0), l=info.get("lines", []), v="re", f=[], x=note, ai=1, o=[], c=[])
+            e = dict(a=a, n=nm, m=mod, b=info.get("bytes", 0), i=info.get("ins", 0), l=info.get("lines", []), v="re", f="", x=note, ai=1, o=[], c=[])   # ★f 는 문자열(플래그 글자 H/D/O) — 배열이면 JS `d.f.split` 예외로 클릭 무반응
             data.append(e); by[a] = e; mapset.add(a)
         else:
             if e["n"] != nm:
@@ -127,6 +127,10 @@ def main():
     e = by[HOST02]
     e["n"] = u"BigPlan::sub_plan (host)"; e["m"] = "types"; e["v"] = "re"
     e["x"] = u"#02 AttackNexusPlan::sub_plan 은 독립 함수 없음 — 이 호스트의 점프테이블 idx14 arm 0xcafa57 에 인라인(09-12 ghidra) · midpin ev1 %s" % ev1.get(2, "")
+    # ── ②-b ev1 DIFF 0 함수 = 「재현/소유」 플래그 O (링크사본 비트동일 = 재현 확보)
+    for idx, a in {**OK, **{x[0]: x[5] for x in FIX}, **{x[0]: x[3] for x in ADD}, 2: HOST02}.items():
+        if u"DIFF 0" in ev1.get(idx, "") and "O" not in (by[a].get("f") or ""):
+            by[a]["f"] = (by[a].get("f") or "") + "O"
     # ── ③ 관계 재계산(exe 콜그래프 · 지도 집합 내부 엣지만 · 방향: c=호출자 o=콜리)
     touched = [x[5] for x in FIX] + [x[3] for x in ADD] + list(OK.values()) + [HOST02] + [x[3] for x in FIX]
     changed = {}
