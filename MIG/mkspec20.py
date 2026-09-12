@@ -25,11 +25,9 @@ ROUNDS = ['r6', 'r5', 'r4', 'r3', 'r2', 'r1']
 OUT = os.path.join(HERE, '_spec', 'specs20.json')
 
 # 지도(아티팩트) 저장본 — exe 주소 조인용. 없으면 주소 없이 만든다.
+# 2026-09-13: 세션 tool-results 경로(silerus worktree · 휘발) → REPORT 정본(master)으로 교체.
 MAP_HTML = os.path.join(
-    r'C:\Users\jungs\.claude\projects',
-    r'C--Users-jungs-Desktop-claude-tfm2--claude-worktrees-silerus-mode-continue-aed092',
-    r'e778e0a6-0076-4d33-8f11-c684449b5443\tool-results',
-    r'artifact-6beb477e-1789022031-0994.html')
+    r'C:\Users\jungs\Desktop\claude\tfm2\mods_report\tfm2_ai_adjust', u'AI함수지도.html')
 
 # 명세 파일명 → (지도 모듈, 지도 이름). 지도는 exe 기준이라 소스 경로와 모듈명이 다르다.
 MAPKEY = {
@@ -123,6 +121,17 @@ def load_map():
 
 
 def main():
+    # ★가드(2026-09-13): 정본 v2 는 1~12차 정정이 `applypatch.py` 로 **직접 누적**된 파일이고
+    #   r1..r6 엔 그 정정이 없다. 여기서 재생성하면 정정 전량이 r6 원본으로 덮인다.
+    #   ⟹ 정본이 r-파일보다 새로우면 거부. 신규 함수 추가 = `addspec.py`, 정정 = `applypatch.py`.
+    if os.path.exists(OUT) and '--force' not in sys.argv:
+        newest_r = max(os.path.getmtime(os.path.join(SPEC, r, f))
+                       for r in ROUNDS if os.path.isdir(os.path.join(SPEC, r))
+                       for f in os.listdir(os.path.join(SPEC, r)))
+        if os.path.getmtime(OUT) > newest_r:
+            print(u'✗ 거부: %s 가 r1..r6 보다 새롭다(applypatch 정정 누적본). 재생성하면 정정이 사라진다.\n'
+                  u'   신규 함수 추가 = addspec.py · 정정 = applypatch.py · 정말 초기화하려면 --force' % OUT)
+            sys.exit(1)
     ov = json.load(io.open(os.path.join(SPEC, 'resolved_2026-09-10.json'), encoding='utf-8'))
     gmap, gmap_all = load_map()
     specs = []

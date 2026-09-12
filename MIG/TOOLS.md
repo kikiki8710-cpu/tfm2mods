@@ -6,7 +6,7 @@
 
 **어떤 상황에 무엇을 집는가 = `METHOD_MAP.md` §0**(라우팅표). 이 문서는 *무엇이 있는가* 만 센다.
 
-전체 140개 · 생성 시각 기준 자동 집계 (`_` 로 시작하는 1회용 스크래치는 제외)
+전체 141개 · 생성 시각 기준 자동 집계 (`_` 로 시작하는 1회용 스크래치는 제외)
 
 ## ★사전 — 타입·오프셋을 묻는 곳
 
@@ -226,6 +226,7 @@ IR 의 이름을 exe RVA 에 잇거나, exe 함수에 이름을 붙인다.
 |---|---|
 | `abiagree.py` | abiagree.py — **exe 의 함수가 IR `define` 과 같은 ABI 로 컴파일됐는가.** (2026-09-12 신설) |
 | `addrgate.py` | addrgate.py — **`exe.addr` 을 지문 점수로 게이트한다**(신호 S6). (2026-09-12 신설) |
+| `addspec.py` | addspec.py — 명세 정본(`_spec\\specs20.json` v2)에 **함수 1개를 추가**한다. (2026-09-13 신설) |
 | `callerprof.py` | callerprof.py — **「누가 이 주소를 부르는가」로 주소를 검증한다**(신호 S4). (2026-09-12 신설) |
 | `callsites.py` | callsites.py — exe `.text` 를 raw 스캔해 **특정 RVA 를 겨누는 `call`/`jmp rel32` 를 전수** 센다. |
 | `disrva.py` | disrva.py — 현행 exe 의 RVA 구간을 capstone 으로 디스어셈블해 찍는다 (Ghidra 없이 빠르게 · 읽기 전용). |

@@ -1047,5 +1047,6 @@ B에 아래를 덧붙인다:
 - [ ] **이전 배치가 아직 도는지 확인** — 같은 산출물에 두 배치를 띄우면 경합으로 덮어쓴다(2회 발생)
 - [ ] 라운드마다 `qcspec` → `speccmp` → **판정상수 100% 될 때까지 잔여만 재투입**
 - [ ] S6 재료 확장 배치 → `resolved_<날짜>.json` 오버레이
-- [ ] `mkspec20` → `mkspec_md` → `mkmap_html`, **JSON 이 정본**
+- [ ] ⛔**기존 정본에 함수를 더할 땐 `mkspec20` 을 돌리지 말 것**(r1..r6 로 통째 재생성 = applypatch 정정 소실 · 2026-09-13 가드) → **`addspec.py <id> <라운드JSON> --exe 0x…`** → `mkspec3.py` → `specgate --only N`. 절차 전문 = `REPORT\tfm2_judge_verify\04_분석방법_정리.md §8`
+- [ ] (처음부터 새 정본을 만들 때만) `mkspec20 --force` → `mkspec_md` → `mkmap_html`, **JSON 이 정본**
 - [ ] RE 원문 즉시 저장(§11) · `02_구현정보.md` 갱신 · `03_시행착오.md` 에 실패 기록 · record-keeper 로 `MEM`/`ANA` 반영(§9)
