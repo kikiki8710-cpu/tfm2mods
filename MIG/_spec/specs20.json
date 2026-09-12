@@ -2119,7 +2119,21 @@
     "writes 가 빈 배열인 것은 미조사가 아니라 확인된 사실 — 본문의 store 는 전부 스택(클로저 환경 %9, 빈 Vec %7)과 bumpalo Vec 버퍼뿐이고 게임 구조체 필드에 쓰는 곳이 없다. 다만 rnd(&mut StdRng)·debug(&mut DebugFrameData) 는 check_kill_die_tick 에서 변경될 수 있다 → ★해소(6차 배치A): **변하지 않는다**. `defensive_crisis` 호출 전후로 `StdRng` 320B 와 `DebugFrameData` 224B 를 통째로 바이트 diff 한 결과 **14/14 케이스 전부 `rnd_changed=false · debug_changed=false`**(A6_o5.tsv). ★범위: `check_kill_die_tick` 이 실제로 실행된 케이스(die_imminent 계산 진입)만 잰 값이고, `debug`/`rnd` 를 쓰는 다른 입력이 있을 가능성까지 배제하지는 않는다.",
     "fnparts 기준 DWARF 서브프로그램 23개 중 별도 define 은 3개뿐 — 나머지 20개(iter_champions, distance_sq, abs_diff, is_some, is_some_and, TeamType PartialEq, Entity 접근자들 등)는 전부 인라인이라 개별 조각으로 존재하지 않는다. ★보강(6차 배치A): 별도 define 3개는 **본체(m10.ll:33864~34294) · call_mut 심(m10.ll:55868~55976) · 이터레이터(m01.ll:37431~37606, 175줄)** 인데 `history[0]` 의 `aux` 에는 **call_mut 심만** 올라가 있다 — m01.ll 쪽 이터레이터 조각은 아직 아무 라운드도 읽지 않았다(미탐색)."
    ],
-   "exe": null,
+   "exe": {
+    "addr": "e01c40",
+    "module": "buff_value",
+    "bytes": 897,
+    "instrs": 209,
+    "evidence": "runtime(ev1 DIFF 0 39,459 · 09-12) + rlib patches.json 노출",
+    "callers": [
+     "d5bbf0"
+    ],
+    "callees": [
+     "ca1ca0",
+     "caa6a0",
+     "eb82d0"
+    ]
+   },
    "no_map_reason": "지도(exe 641개)에 `buff_value::defensive_crisis` 항목이 없다. 같은 모듈의 다른 함수는 있으므로 ★해소(11차 배치A) — **exe 에 독립 함수가 있다**: `python -X utf8 name2rva.py defensive_crisis` = `defensive_crisis  [buff_value.rs:0~53]  m10.ll` → `0xe11e90     437B  패닉줄 [26]`. ⟹ 인라인된 게 아니라 **지도(exe 641개)의 AI 계층 선별에서 빠진 것**이다. ⚠`exe` 칸(addr/bytes/instrs/callers/callees)은 아직 비어 있고, 채우려면 `dllmatch.py`·`cg.py` 로 호출/피호출까지 떠야 한다.",
    "resolved": [
     {
@@ -3048,7 +3062,20 @@
     "RawVec::grow_one 내부(재할당 정책) — ★**해소(11차 배치B)**: `define` 이 `_gaibc/m03.ll:142039` 에 있다(`RawVec<V50DiveEpisode>::grow_one`). 본문 = `%3 = load i64, ptr %0`(cap) → `%4 = shl nuw i64 %3, 1` → `%5 = tail call i64 @llvm.umax.i64(i64 %4, i64 4)` → `RawVecInner::finish_grow` ⟹ **cap' = max(2×cap, 4)** (4 = `MIN_NON_ZERO_CAP`, 원소 104B ≤ 1024 이므로). len==cap 일 때만 불리므로 2×cap ≥ cap+1 은 항상 성립하고, 할당 실패는 `raw_vec::handle_error` 로 중단된다. ⟹ 재구현에서 표준 `Vec::push` 를 그대로 써도 동일하다",
     "self+0x1480 last_dive_abandon_tick 을 읽어 실제로 무엇을 억제하는지는 이 함수 밖 — 소비 측 미확인"
    ],
-   "exe": null,
+   "exe": {
+    "addr": "e59190",
+    "module": "handler",
+    "bytes": 889,
+    "instrs": 202,
+    "evidence": "ghidra(09-12 확정) + runtime(ev1 DIFF 0 2,884 · SELF_DIFF)",
+    "callers": [
+     "e4c5c0"
+    ],
+    "callees": [
+     "caf500",
+     "e77230"
+    ]
+   },
    "no_map_reason": "지도에 `dive_episode` 모듈 자체가 없다. 진단·통계 경로라 AI 판단 계층 선별에서 제외된 것으로 보인다(미확인).",
    "resolved": [
     {
@@ -3861,7 +3888,19 @@
     "L36 세 OR 항의 소스상 원래 순서 — LLVM 이 %94|%85, %96&%83 으로 재결합해 한 블록에 몰아넣었고 !dbg 가 전부 line 36 이라 소스 순서를 줄번호로 복원할 수 없다. 논리값은 순서와 무관하므로 판정에는 영향 없음",
     "SubPlan 반환 시 Recall(태그5) 경로는 sret 의 페이로드 영역을 전혀 안 쓴다(태그만 기록) — 호출측이 비초기화 바이트를 읽지 않는다는 전제. 확인 안 함"
    ],
-   "exe": null,
+   "exe": {
+    "addr": "ccc010",
+    "module": "hunt_and_battle",
+    "bytes": 591,
+    "instrs": 143,
+    "evidence": "ghidra(확정 · ai_adjust judge 훅 선점 주소와 동일) · 1단계 프로브 설치 OK · 리플레이 미발화",
+    "callers": [
+     "caf9f0"
+    ],
+    "callees": [
+     "e7a8c0"
+    ]
+   },
    "no_map_reason": "지도에 `hunt_and_battle::hunt_and_battle`(caddr ccc010 / ccc3c0, 591B, 근거=기존기록)가 있는데 이름이 달라 자동 조인이 안 된다. 같은 것인지 미확인이라 붙이지 않았다.",
    "resolved": [
     {

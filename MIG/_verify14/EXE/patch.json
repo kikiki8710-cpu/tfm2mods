@@ -1,0 +1,16 @@
+{
+ "round": 14,
+ "batch": "EXE",
+ "note": "2026-09-13 · 명세 v2 `exe` 가 null 이던 3함수(#03·#05·#07)에 원장 §1 확정 RVA 를 채움 — 함수지도(mkmap_html) 조인·probe20 표 생성이 exe.addr 을 요구. bytes/instrs = exe .pdata RUNTIME_FUNCTION + capstone 실측(scratchpad exe_bounds.py) · callers/callees = cg_exe.json 직접 확인(CRT 0x31a…/0x31c… 제외). 근거: #03 = rlib 패치 노출 후 ev1 DIFF 0 39,459(런타임 DIFF 0 = 주소 증명 · ANA §20-L) · #05 = ghidra 확정 + ev1 DIFF 0 2,884(§20-G) · #07 = ghidra 확정 0xccc010(DONE.md · aimap 591B/143ins 일치) · 미발화.",
+ "errors": [
+  {"path": "/specs[3]/exe", "kind": "누락", "old": null,
+   "new": {"addr": "e01c40", "module": "buff_value", "bytes": 897, "instrs": 209, "evidence": "runtime(ev1 DIFF 0 39,459 · 09-12) + rlib patches.json 노출", "callers": ["d5bbf0"], "callees": ["ca1ca0", "caa6a0", "eb82d0"]},
+   "evidence": "원장 §1 #03 = 0xe01c40 · ScalarPair(rax:rdx) P8 · RE 2026-09-12_sweep20_03_defensive_crisis_ScalarPair_DIFF0.txt · .pdata 897B/209ins · cg_exe: 호출자 d5bbf0(calculate_interaction_action_score) · 피호출 ca1ca0/caa6a0/eb82d0", "behavior_change": false, "found_by": "new"},
+  {"path": "/specs[5]/exe", "kind": "누락", "old": null,
+   "new": {"addr": "e59190", "module": "handler", "bytes": 889, "instrs": 202, "evidence": "ghidra(09-12 확정) + runtime(ev1 DIFF 0 2,884 · SELF_DIFF)", "callers": ["e4c5c0"], "callees": ["caf500", "e77230"]},
+   "evidence": "원장 §1 #05 = 0xe59190 · DONE.md 「0xe59190=v50_fold_dive_episode(#05·ev1 DIFF=0)」 · RE 2026-09-12_13함수_동시검증_확정판 · .pdata 889B/202ins · cg_exe: 호출자 e4c5c0(LegacyPlanHandler::update)", "behavior_change": false, "found_by": "new"},
+  {"path": "/specs[7]/exe", "kind": "누락", "old": null,
+   "new": {"addr": "ccc010", "module": "hunt_and_battle", "bytes": 591, "instrs": 143, "evidence": "ghidra(확정 · ai_adjust judge 훅 선점 주소와 동일) · 1단계 프로브 설치 OK · 리플레이 미발화", "callers": ["caf9f0"], "callees": ["e7a8c0"]},
+   "evidence": "원장 §1 #07 = 0xccc010(미발화) · DONE.md 「ai_adjust 가 실제 후킹한 judge 훅 = 0xcaf9f0(#02)·0xccc010(#07)」 · aimap.json 0xccc010 = plan_legacy/old/epic/hunt_and_battle 591B/143ins(.pdata 실측 일치) · cg_exe: 호출자 caf9f0(BigPlan::sub_plan 호스트)", "behavior_change": false, "found_by": "new"}
+ ]
+}

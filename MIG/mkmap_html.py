@@ -24,15 +24,12 @@ if hasattr(sys.stdout, 'reconfigure'):
     sys.stdout.reconfigure(encoding='utf-8', errors='replace')
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-SRC = os.path.join(
-    r'C:\Users\jungs\.claude\projects',
-    r'C--Users-jungs-Desktop-claude-tfm2--claude-worktrees-silerus-mode-continue-aed092',
-    r'e778e0a6-0076-4d33-8f11-c684449b5443\tool-results',
-    r'artifact-6beb477e-1789022031-0994.html')
+# 2026-09-13: 기반 = `fnmap_update.py` 가 현행 사실(RVA 정정·ev1)로 갱신한 사본. 원본 아티팩트는
+#   `_spec\fnmap_base_2026-09-10.html` 로 보존(옛 SRC 는 세션 tool-results 휘발 경로였다).
+SRC = os.path.join(HERE, '_spec', 'fnmap_base_current.html')
 SPECS = os.path.join(HERE, '_spec', 'specs20.json')
-DST = os.path.join(
-    r'C:\Users\jungs\Desktop\claude\tfm2\.claude\worktrees',
-    r'silerus-mode-continue-aed092\mods_report\tfm2_ai_adjust\AI함수지도.html')
+# 2026-09-13: 출력 = REPORT 정본(master). 옛 DST(silerus worktree)는 stale.
+DST = os.path.join(r'C:\Users\jungs\Desktop\claude\tfm2\mods_report\tfm2_ai_adjust', u'AI함수지도.html')
 
 CSS = r'''
 /* ── 상세 명세 패널 (2026-09-10 추가) ───────────────── */

@@ -3767,7 +3767,21 @@
     }
    ],
    "history_note": "v2 `resolved[]` 원문 그대로(정정 이력). **본문이 아니라 참조용**이다 — 여기 있는 사실이 `mem`/`consts`/`knobs`/`callees` 에 반영됐는지는 `specgate.py` 가 검사한다.",
-   "exe": null,
+   "exe": {
+    "addr": "e01c40",
+    "module": "buff_value",
+    "bytes": 897,
+    "instrs": 209,
+    "evidence": "runtime(ev1 DIFF 0 39,459 · 09-12) + rlib patches.json 노출",
+    "callers": [
+     "d5bbf0"
+    ],
+    "callees": [
+     "ca1ca0",
+     "caa6a0",
+     "eb82d0"
+    ]
+   },
    "calls_raw": [
     "bumpalo::collections::vec::from_iter_in",
     "game_core::simulation::AbstractGameWithCache::player_by_champion_id",
@@ -5668,7 +5682,20 @@
     }
    ],
    "history_note": "v2 `resolved[]` 원문 그대로(정정 이력). **본문이 아니라 참조용**이다 — 여기 있는 사실이 `mem`/`consts`/`knobs`/`callees` 에 반영됐는지는 `specgate.py` 가 검사한다.",
-   "exe": null,
+   "exe": {
+    "addr": "e59190",
+    "module": "handler",
+    "bytes": 889,
+    "instrs": 202,
+    "evidence": "ghidra(09-12 확정) + runtime(ev1 DIFF 0 2,884 · SELF_DIFF)",
+    "callers": [
+     "e4c5c0"
+    ],
+    "callees": [
+     "caf500",
+     "e77230"
+    ]
+   },
    "calls_raw": [
     "game_ai::plan_legacy::types::BigPlan::get_name",
     "core::slice::starts_with",
@@ -7245,7 +7272,19 @@
     }
    ],
    "history_note": "v2 `resolved[]` 원문 그대로(정정 이력). **본문이 아니라 참조용**이다 — 여기 있는 사실이 `mem`/`consts`/`knobs`/`callees` 에 반영됐는지는 `specgate.py` 가 검사한다.",
-   "exe": null,
+   "exe": {
+    "addr": "ccc010",
+    "module": "hunt_and_battle",
+    "bytes": 591,
+    "instrs": 143,
+    "evidence": "ghidra(확정 · ai_adjust judge 훅 선점 주소와 동일) · 1단계 프로브 설치 OK · 리플레이 미발화",
+    "callers": [
+     "caf9f0"
+    ],
+    "callees": [
+     "e7a8c0"
+    ]
+   },
    "calls_raw": [
     "game_ai::upgrade_item",
     "core::option::unwrap_failed",
