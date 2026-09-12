@@ -1,0 +1,99 @@
+{
+ "name": "calculate_nexus_defense_count",
+ "sym": "_RNvNtNtCshdEBA0ozCnw_7game_ai11plan_legacy7handler29calculate_nexus_defense_count",
+ "src": "game-ai\\src\\plan_legacy\\handler.rs",
+ "src_line": 2328,
+ "ir_file": "m13.ll",
+ "ir_from": 56190,
+ "ir_to": 56961,
+ "aux": [{"ir_file": "m12.ll", "ir_from": 42894, "ir_to": 42979}],
+
+ "one_line": "넥서스 근처 적 챔프 수 + 라인 열세/에픽 가산 vs 구조물을 치는 적 미니언 수 바닥값 중 큰 쪽 = 넥서스 수비 필요 인원",
+
+ "signature": {
+  "params": [
+   {"i": 1, "name": "version", "type": "usize", "note": "i64 %0. 본문에서 안 읽힘(분기 없음)"},
+   {"i": 2, "name": "rnd", "type": "&mut StdRng", "note": "ptr %1 readnone — 본문에서 안 씀"},
+   {"i": 3, "name": "player", "type": "&PlayerState(2528B)", "note": "info.team(+0x930) 만 읽는다"},
+   {"i": 4, "name": "data", "type": "&OperationData(24B)", "note": "cache(+0x0)·context(+0x8) 사용"},
+   {"i": 5, "name": "debug", "type": "&mut DebugFrameData", "note": "ptr %4 readnone — 본문에서 안 씀"}
+  ],
+  "returns": "usize — 넥서스 방어에 붙여야 할 인원 수 = max(minion_floor, champ_based)"
+ },
+
+ "reads": [
+  {"base": "OperationData", "offset": "0x0", "name": "cache", "note": "&AbstractGameWithCache"},
+  {"base": "OperationData", "offset": "0x8", "name": "context", "note": "&GameContext"},
+  {"base": "GameContext", "offset": "0x0", "name": "pool", "note": "&Bump. minions()/champions() 의 할당자(gep 없이 ctx 선두 load)"},
+  {"base": "GameContext", "offset": "0x38", "name": "tutorial", "note": "TutorialType(i8). ①rule_scope::morgard_exists = spawn_epic() 인라인(runner.rs:263): (tutorial-1) <u 6 이면 false ②rule_scope::valid_lines 스위치(L2333)"},
+  {"base": "PlayerState", "offset": "0x930", "name": "info.team", "note": "usize. 아군 팀 인덱스. >=2 이면 panic_bounds_check"},
+  {"base": "AbstractGameWithCache", "offset": "0x0", "name": "game (&dyn AbstractGame data)", "note": "vtable 호출: +0x40 get_game_mode / +0xf8 is_visible / +0x1f0 get_entity_by_id(클로저 내)"},
+  {"base": "AbstractGameWithCache", "offset": "0x8", "name": "game vtable", "note": ""},
+  {"base": "AbstractGameWithCache", "offset": "0x170", "name": "nexus[team]", "note": "[Option<&Entity>;2] stride 8. None 이면 unwrap_failed 패닉"},
+  {"base": "AbstractGameWithCache", "offset": "0x21c0", "name": "top_lead/mid_lead/bottom_lead [line][team]", "note": "[usize;2]×3 (line*16 + team*8). AbstractGameWithCache::line_lead 인라인. == 0 이면 그 라인 '약한 상태'"},
+  {"base": "MobaMode", "offset": "0x240", "name": "epic_minion_buff_time[enemy]", "note": "usize. MobaMode::remain_epic_time(1-team) 인라인(game.rs:210). != 0 → enemy_has_epic"},
+  {"base": "Entity(nexus / 적 미니언 / 적 챔프)", "offset": "0x660", "name": "x", "note": "distance_sq 계산"},
+  {"base": "Entity(nexus / 적 미니언 / 적 챔프)", "offset": "0x668", "name": "y", "note": "distance_sq 계산"},
+  {"base": "Entity(적 챔프)", "offset": "0x5c0", "name": "id", "note": "is_visible(team, id) 인자"},
+  {"base": "Entity(적 미니언, aux 클로저)", "offset": "0x68", "name": "ty@tag", "note": "EntityType 태그. ==1(Minion) 이어야 함. 대상 엔티티 쪽은 3(Nexus)/2(Tower) 분기"},
+  {"base": "Entity(적 미니언, aux 클로저)", "offset": "0x88", "name": "ty@Minion.info.nearest_enemy@tag", "note": "Option<usize> 태그(EntityType+0x20 = Minion+0x18). 1=Some 이어야 함"},
+  {"base": "Entity(적 미니언, aux 클로저)", "offset": "0x90", "name": "ty@Minion.info.nearest_enemy@Some.0", "note": "usize 대상 엔티티 id → get_entity_by_id"},
+  {"base": "Entity(미니언 대상, aux 클로저)", "offset": "0x128", "name": "ty@Tower.info.ty (TowerType)", "note": "i8. (v-3) <u 2 ⇒ 3 TwinA / 4 TwinB 만 통과"},
+  {"base": "Vec<&Entity>(bumpalo,32B) minions/champions", "offset": "0x0", "name": "ptr", "note": ""},
+  {"base": "Vec<&Entity>(bumpalo,32B) minions/champions", "offset": "0x18", "name": "len", "note": ""}
+ ],
+
+ "writes": [],
+
+ "constants": [
+  {"value": 6, "src_line": 2329, "meaning": "morgard_exists = tutorial.spawn_epic(): (tutorial-1) <u 6 (=1..=6, First~JungleOnly) 이면 에픽 없음 → enemy_has_epic=false. 0 None/7 Line/8 Total 만 에픽 판 (`add nsw i8 %21, -1`)"},
+  {"value": -1, "src_line": 2329, "meaning": "위 범위검사용 tutorial-1"},
+  {"value": 0, "src_line": 2329, "meaning": "①get_game_mode() 태그 0 = Moba 만 허용(아니면 unwrap_failed 패닉) ②remain_epic_time(enemy) != 0 → enemy_has_epic"},
+  {"value": 1, "src_line": 2329, "meaning": "enemy = 1 - team"},
+  {"value": 2, "src_line": 2329, "meaning": "team/enemy 인덱스 상한(panic_bounds_check len=2)"},
+  {"value": 0, "src_line": 2334, "meaning": "weak_lead_state = valid_lines(tutorial) 중 하나라도 line_lead[line][team] == 0"},
+  {"value": 22500000001, "src_line": 2338, "meaning": "150000²+1 — very_weak_lead_state: 적 미니언이 우리 넥서스에서 150000(≈4.7셀) 이내에 하나라도 있는가 (`icmp ult dist², 22500000001`)"},
+  {"value": 90000000001, "src_line": 2341, "meaning": "300000²+1 — near_nexus_enemy_count: 우리 넥서스에서 300000(≈9.4셀) 이내 + is_visible 인 적 챔프 수"},
+  {"value": 2, "src_line": 2343, "meaning": "champ_based 가산: enemy_has_epic && very_weak → +2 (그 외 weak/very_weak 는 +1, 없으면 +0)"},
+  {"value": 5, "src_line": 2369, "meaning": "structure_minions > 5 → minion_floor=2; 1..=5 → 1; 0 → 0"},
+  {"value": 1, "src_line": 2362, "meaning": "aux 클로저: 미니언 ty 태그 1(Minion) 이고 nearest_enemy 태그 1(Some) 이어야 대상 조회"},
+  {"value": 3, "src_line": 2364, "meaning": "aux 클로저: 대상 ty 태그 3 = Nexus → 구조물 미니언으로 센다 (본문의 `shl i64 %92, 3` 은 &Entity 포인터 stride ×8 이라 이 상수와 무관)"},
+  {"value": 2, "src_line": 2364, "meaning": "aux 클로저: 대상 ty 태그 2 = Tower 이면 TowerType 검사로"},
+  {"value": -3, "src_line": 2364, "meaning": "aux 클로저: (TowerType - 3) <u 2 ⇒ TwinA(3)/TwinB(4) 쌍둥이 타워만 구조물로 인정(tower.rs:91 인라인)"}
+ ],
+
+ "calls": [
+  "game_core::simulation::AbstractGameWithCache::minions",
+  "game_core::simulation::AbstractGameWithCache::champions",
+  "game_core::simulation::AbstractGameWithCache::iter_minions",
+  "core::iter::adapters::chain::fold",
+  "size_hint",
+  "drop",
+  "drop_glue",
+  "core::panicking::panic_bounds_check",
+  "core::option::unwrap_failed"
+ ],
+
+ "logic": "fn calculate_nexus_defense_count(version, rnd, player, data, debug) -> usize\n\n[L2329] context = data.context(+0x8)\n        enemy_has_epic = if rule_scope::morgard_exists(context)          // = context.tutorial(+0x38).spawn_epic()\n                                                                          //   = !(tutorial-1 <u 6) ⇔ tutorial ∈ {None0, Line7, Total8}\n          {\n            let GameMode::Moba(m) = data.cache.game.get_game_mode()      // vtable+0x40, 태그 0 아니면 unwrap_failed 패닉\n            m.remain_epic_time(1 - player.info.team(+0x930)) != 0        // MobaMode+0x240 [enemy]\n          } else { false }\n[L2330] team = player.info.team ; nexus = data.cache.nexus(+0x170)[team].unwrap()   // 없으면 패닉\n\n[L2333] lines = rule_scope::valid_lines(context.tutorial)      // 스위치(rule_scope.rs:14~19):\n          // First1/Bottom3 → [Bottom] · TopSolo2 → [Top] · MidSolo4 → [Mid] · MidBottom5 → [Mid,Bottom]\n          // JungleOnly6 → [] · None0/Line7/Total8 → [Top,Mid,Bottom]\n[L2334] weak_lead_state = lines.iter().copied().any(|line| data.cache.line_lead(team, line) == 0)\n          // = cache[0x21c0 + line*16 + team*8] == 0  ([top|mid|bottom]_lead[team])\n\n[L2337] enemy_minions = data.cache.minions(1 - team, context.pool)\n[L2338] very_weak_lead_state = enemy_minions.iter().any(|m| distance_sq(m, nexus) < 22500000001)   // <= 150000\n\n[L2340] enemy_champs = data.cache.champions(1 - team, context.pool)\n[L2341] near_nexus_enemy_count = enemy_champs.iter().filter(|c|\n            distance_sq(c, nexus) < 90000000001                          // <= 300000\n            && game.is_visible(team, c.id(+0x5c0))                        // vtable+0xf8\n          ).count()\n\n[L2343] champ_based = near_nexus_enemy_count +\n          if enemy_has_epic { if very_weak_lead_state { 2 } else { weak_lead_state as usize } }\n          else               { very_weak_lead_state as usize }\n          // IR: %276 = enemy_has_epic ? (very_weak ? 2 : weak) : very_weak\n\n[L2361] structure_minions = data.cache.iter_minions(1 - team)            // Chain 이터레이터(56B)\n[L2362]   .filter(|m| {                                                  // ★closure#3 = aux m12.ll 42894~42979\n            m.ty(+0x68) == 1 /*Minion*/ && m.ty.Minion.info.nearest_enemy(+0x88).is_some()\n[L2363]     && match game.get_entity_by_id(m.nearest_enemy.id(+0x90)) {   // vtable+0x1f0\n[L2364]          Some(e) => match e.ty(+0x68) { 3 /*Nexus*/ => true,\n                                                2 /*Tower*/ => e.ty.Tower.info.ty(+0x128) ∈ {TwinA3, TwinB4},\n                                                _ => false },\n                 None => false }\n          }).count()\n[L2369] minion_floor = if structure_minions > 5 { 2 } else if structure_minions != 0 { 1 } else { 0 }\n[L2370] return max(minion_floor, champ_based)   // llvm.umax\n\n※ version/rnd/debug 는 안 쓰인다. 부작용 없음(bump Vec 2개 할당·drop 뿐).",
+
+ "knobs": [
+  {"what": "매우 약한 라인 판정 반경(적 미니언↔우리 넥서스)", "where": "handler.rs:2338 (IR m13.ll:56492 `icmp ult i64 %121, 22500000001`)", "value": 22500000001,
+   "effect": "150000². 올리면 더 먼 미니언도 '넥서스 코앞'으로 봐 very_weak 가 자주 켜져 수비 인원(+1/+2)이 늘고, 내리면 진짜 넥서스에 붙었을 때만"},
+  {"what": "넥서스 근처 적 챔프 반경", "where": "handler.rs:2341 (IR m13.ll:56592 `icmp ult i64 %156, 90000000001`)", "value": 90000000001,
+   "effect": "300000². 올리면 더 먼(보이는) 적 챔프까지 1:1 대응 인원으로 세서 수비가 두터워지고, 내리면 넥서스 바로 근처만"},
+  {"what": "에픽 버프 + 넥서스 근접 미니언 가산", "where": "handler.rs:2343 (IR m13.ll:56920 `select i1 %125, i64 2, ...`)", "value": 2,
+   "effect": "적이 에픽 버프를 갖고 미니언이 넥서스에 붙어 있으면 +2. 올리면 에픽 푸시에 더 많이 수비, 1 로 내리면 일반 푸시와 같게"},
+  {"what": "구조물 공격 미니언 수 바닥값 임계", "where": "handler.rs:2369 (IR m13.ll:56942 `icmp ugt i64 %282, 5`)", "value": 5,
+   "effect": "넥서스/쌍둥이타워를 치는 적 미니언이 6+ 이면 최소 2명, 1~5 면 최소 1명. 내리면 소수 미니언에도 2명이 붙는다"},
+  {"what": "구조물로 인정하는 타워 종류", "where": "handler.rs:2364 (aux m12.ll:42952 `add nsw i8 %30, -3` / `icmp ult i8 %31, 2`)", "value": "TwinA(3)/TwinB(4)",
+   "effect": "외곽 타워(Top/Mid/Bottom/…2)를 치는 미니언은 안 센다. 범위를 넓히면 라인 타워 푸시에도 넥서스 수비 인원이 잡힌다"}
+ ],
+
+ "unknown": [
+  "line_lead(cache+0x21c0…) 값의 의미 체계(0 이 '열세'인지 '푸시 안 됨'인지)는 game_core 쪽 계산을 안 읽어 미확인 — 이 함수는 `== 0` 을 '약한 라인' 으로 쓴다는 사실만 확정. 사이드 관측: 같은 모듈 v23_objective_setup_pressure_line 은 `lead > 2` 를 게이트로 씀(0~2+ 정수 척도로 추정)",
+  "get_game_mode() 가 Moba 가 아닐 때(SingleLane/DeathMatch) unwrap_failed 로 패닉하는 경로가 실제로 도달 가능한지(호출자가 튜토리얼/모드 게이트를 거는지) 미확인",
+  "is_visible(vtable+0xf8)·get_entity_by_id(vtable+0x1f0)·get_game_mode(vtable+0x40) 이름은 divtable(ExpectedGame 정적 vtable) 기준 — 런타임 구현체는 다를 수 있음",
+  "L2368 근처의 size_hint 호출 6건은 Chain::count 의 상한 assume 계산(llvm.assume)일 뿐 판정에 기여하지 않는다 — calls 에는 'size_hint' 로만 등재",
+  "fnparts 조각 중 m11.ll 25471·26245·26955, m06.ll 7832 (이터레이터 fold 인스턴스)와 m12.ll 40879(동일 내용의 두 번째 call_mut 복제본)는 aux 에 넣지 않았다 — 42894 본과 명령 단위 동일"
+ ]
+}

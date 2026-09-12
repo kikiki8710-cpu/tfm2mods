@@ -1,0 +1,86 @@
+{
+ "e3b570": [],
+ "e33890": [],
+ "db8ba0": [],
+ "e3b020": [
+  [
+   "_RINvXs0_NtNtNtCsjihNppCmMEE_4core4iter8adapters3mapINtB6_3MapINtNtB8_6filter6FilterINtNtB8_10filter_map9FilterMapINtNtNtBc_5slice4iter4IterINtNtBc_6option6OptionRNtNtNtCs97f5S1uJLkH_9game_core10simulation6entity6EntityEENCNvMs3_B2E_NtB2E_21AbstractGameWithCache14iter_champions0ENCNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy7handler6engageNtB4A_17LegacyPlanHandler26v2_response_retreat_stance0ENCINvNvNtNtNtBa_6traits8iterator8Iterator10min_by_key3keyB2z_yNCB4v_s_0E0EB6s_4foldTyB2z_ENCINvNvB6s_6min_by4foldB7G_INvB6q_7compareB2z_yEE0EB4E_",
+   "m12.ll",
+   247,
+   12391
+  ],
+  [
+   "_RNvXs1_NtNtNtCsjihNppCmMEE_4core3ops8function5implsQNCNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy7handler6engageNtBV_17LegacyPlanHandler26v2_response_retreat_stance0INtB7_5FnMutTRRNtNtNtCs97f5S1uJLkH_9game_core10simulation6entity6EntityEE8call_mutBZ_",
+   "m12.ll",
+   82,
+   41916
+  ]
+ ],
+ "ca4a80": [
+  [
+   "_RINvMNtNtCshWfHDMLkPaX_7bumpalo11collections3vecINtB3_3VecRNtNtNtCs97f5S1uJLkH_9game_core10simulation6entity6EntityE6retainNCNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy7handler5modesNtB24_17LegacyPlanHandler22single_handle_solokill0EB28_",
+   "m01.ll",
+   179,
+   45072
+  ]
+ ],
+ "dcc100": [],
+ "ca5310": [],
+ "e2fa70": [],
+ "e32920": [
+  [
+   "_RINvXs0_NtNtNtCsjihNppCmMEE_4core4iter8adapters3mapINtB6_3MapINtNtB8_6filter6FilterINtNtB8_10filter_map9FilterMapINtNtNtBc_5slice4iter4IterINtNtBc_6option6OptionRNtNtNtCs97f5S1uJLkH_9game_core10simulation6entity6EntityEENCNvMs3_B2E_NtB2E_21AbstractGameWithCache14iter_champions0ENCNvMs0_NtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old6battleNtB4B_10BattlePlan10update_v32sd_0ENCINvNvNtNtNtBa_6traits8iterator8Iterator10min_by_key3keyB2z_yNCB4v_se_0E0EB67_4foldTyB2z_ENCINvNvB67_6min_by4foldB7m_INvB65_7compareB2z_yEE0EB4H_",
+   "m12.ll",
+   267,
+   15117
+  ],
+  [
+   "_RNvMs0_NtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old6battleNtB5_10BattlePlan10update_v32",
+   "m10.ll",
+   9071,
+   13739
+  ]
+ ],
+ "ca4cc0": [
+  [
+   "_RINvMNtNtCshWfHDMLkPaX_7bumpalo11collections3vecINtB3_3VecRNtNtNtCs97f5S1uJLkH_9game_core10simulation6entity6EntityE6retainNCNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy7handler6engageNtB24_17LegacyPlanHandler15handle_solokills0_0EB28_",
+   "m01.ll",
+   253,
+   45456
+  ]
+ ],
+ "c9eb60": [
+  [
+   "_RINvMNtNtCshWfHDMLkPaX_7bumpalo11collections3vecINtB3_3VecRNtNtNtCs97f5S1uJLkH_9game_core10simulation6entity6EntityE12from_iter_inINtNtNtNtCsjihNppCmMEE_4core4iter8adapters6filter6FilterINtNtB29_10filter_map9FilterMapINtNtNtB2d_3ops5range5RangejENCNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old11fight_model20tower_dive_is_viables5_0ENCB3Y_s6_0EEB46_",
+   "m01.ll",
+   213,
+   30978
+  ]
+ ],
+ "c9e660": [],
+ "c9b390": [],
+ "deeda0": [
+  [
+   "_RINvYINtNtNtNtCsjihNppCmMEE_4core4iter8adapters6filter6FilterINtNtB8_10filter_map9FilterMapINtNtNtBc_5slice4iter4IterINtNtBc_6option6OptionRNtNtNtCs97f5S1uJLkH_9game_core10simulation6entity6EntityEENCNvMs3_B2i_NtB2i_21AbstractGameWithCache14iter_champions0ENCNvMNtNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old4epic13hunt_and_pokeNtB4c_19EpicHuntAndPokePlan6is_end0ENtNtNtBa_6traits8iterator8Iterator10min_by_keyyNCB49_s_0EB4k_",
+   "m10.ll",
+   168,
+   6028
+  ],
+  [
+   "_RINvXs0_NtNtNtCsjihNppCmMEE_4core4iter8adapters3mapINtB6_3MapINtNtB8_6filter6FilterINtNtB8_10filter_map9FilterMapINtNtNtBc_5slice4iter4IterINtNtBc_6option6OptionRNtNtNtCs97f5S1uJLkH_9game_core10simulation6entity6EntityEENCNvMs3_B2E_NtB2E_21AbstractGameWithCache14iter_champions0ENCNvMNtNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old4epic13hunt_and_pokeNtB4y_19EpicHuntAndPokePlan6is_end0ENCINvNvNtNtNtBa_6traits8iterator8Iterator10min_by_key3keyB2z_yNCB4v_s_0E0EB6k_4foldTyB2z_ENCINvNvB6k_6min_by4foldB7y_INvB6i_7compareB2z_yEE0EB4G_",
+   "m12.ll",
+   212,
+   13847
+  ]
+ ],
+ "caf0d0": [
+  [
+   "_RNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old13active_recallNtB2_16ActiveRecallPlan6is_end",
+   "m09.ll",
+   42,
+   5239
+  ]
+ ],
+ "dccc60": [],
+ "de1ee0": []
+}

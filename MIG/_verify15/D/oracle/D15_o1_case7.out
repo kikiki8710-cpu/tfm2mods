@@ -1,0 +1,66 @@
+setting_ok	true	width=960000	height=960000	tps=60	champ_radius=10000	visible=130000
+[ctxFirst+epic1+weak0]	INTEG	towers=16	twin0=2	twin1=2	tick=0	(기대 16/2/2)
+[ctxFirst+epic1+weak0]	A36	team=0	lead=[0, 2, 2]	weak=true	epic_enemy=true	spawn_epic=false	expect=0	got=0	MATCH
+[ctxFirst+epic1+weak0]	A36	team=1	lead=[2, 2, 2]	weak=false	epic_enemy=false	spawn_epic=false	expect=0	got=0	MATCH
+[ctxFirst+epic1+weak0]	B37	team=0	(dist²,id,pos) 오름차순=[(4418000000, 20, 2), (8192000000, 19, 1), (8933000000, 22, 4), (8962000000, 18, 0), (12037000000, 21, 3)]
+[ctxFirst+epic1+weak0]	B37	team=0 pos=0 me=18 ex=[] need=0	got=false	exp=false	MATCH
+[ctxFirst+epic1+weak0]	B37	team=0 pos=0 me=18 ex=[] need=1	got=false	exp=false	MATCH
+[ctxFirst+epic1+weak0]	B37	team=0 pos=0 exclude=[me] need=5	got=false	exp=false	MATCH
+[ctxFirst+epic1+weak0]	B37	team=0 pos=1 me=19 ex=[] need=0	got=false	exp=false	MATCH
+[ctxFirst+epic1+weak0]	B37	team=0 pos=1 me=19 ex=[] need=1	got=false	exp=false	MATCH
+[ctxFirst+epic1+weak0]	B37	team=0 pos=1 exclude=[me] need=5	got=false	exp=false	MATCH
+[ctxFirst+epic1+weak0]	B37	team=0 pos=2 me=20 ex=[] need=0	got=false	exp=false	MATCH
+[ctxFirst+epic1+weak0]	B37	team=0 pos=2 me=20 ex=[] need=1	got=true	exp=true	MATCH
+[ctxFirst+epic1+weak0]	B37	team=0 pos=2 exclude=[me] need=5	got=false	exp=false	MATCH
+[ctxFirst+epic1+weak0]	B37	team=0 pos=3 me=21 ex=[] need=0	got=false	exp=false	MATCH
+[ctxFirst+epic1+weak0]	B37	team=0 pos=3 me=21 ex=[] need=1	got=false	exp=false	MATCH
+[ctxFirst+epic1+weak0]	B37	team=0 pos=3 exclude=[me] need=5	got=false	exp=false	MATCH
+[ctxFirst+epic1+weak0]	B37	team=0 pos=4 me=22 ex=[] need=0	got=false	exp=false	MATCH
+[ctxFirst+epic1+weak0]	B37	team=0 pos=4 me=22 ex=[] need=1	got=false	exp=false	MATCH
+[ctxFirst+epic1+weak0]	B37	team=0 pos=4 exclude=[me] need=5	got=false	exp=false	MATCH
+[ctxFirst+epic1+weak0]	B37	team=1	(dist²,id,pos) 오름차순=[(4418000000, 25, 2), (8192000000, 24, 1), (8933000000, 27, 4), (8962000000, 23, 0), (12037000000, 26, 3)]
+[ctxFirst+epic1+weak0]	B37	team=1 pos=0 me=23 ex=[] need=0	got=false	exp=false	MATCH
+[ctxFirst+epic1+weak0]	B37	team=1 pos=0 me=23 ex=[] need=1	got=false	exp=false	MATCH
+[ctxFirst+epic1+weak0]	B37	team=1 pos=0 exclude=[me] need=5	got=false	exp=false	MATCH
+[ctxFirst+epic1+weak0]	B37	team=1 pos=1 me=24 ex=[] need=0	got=false	exp=false	MATCH
+[ctxFirst+epic1+weak0]	B37	team=1 pos=1 me=24 ex=[] need=1	got=false	exp=false	MATCH
+[ctxFirst+epic1+weak0]	B37	team=1 pos=1 exclude=[me] need=5	got=false	exp=false	MATCH
+[ctxFirst+epic1+weak0]	B37	team=1 pos=2 me=25 ex=[] need=0	got=false	exp=false	MATCH
+[ctxFirst+epic1+weak0]	B37	team=1 pos=2 me=25 ex=[] need=1	got=true	exp=true	MATCH
+[ctxFirst+epic1+weak0]	B37	team=1 pos=2 exclude=[me] need=5	got=false	exp=false	MATCH
+[ctxFirst+epic1+weak0]	B37	team=1 pos=3 me=26 ex=[] need=0	got=false	exp=false	MATCH
+[ctxFirst+epic1+weak0]	B37	team=1 pos=3 me=26 ex=[] need=1	got=false	exp=false	MATCH
+[ctxFirst+epic1+weak0]	B37	team=1 pos=3 exclude=[me] need=5	got=false	exp=false	MATCH
+[ctxFirst+epic1+weak0]	B37	team=1 pos=4 me=27 ex=[] need=0	got=false	exp=false	MATCH
+[ctxFirst+epic1+weak0]	B37	team=1 pos=4 me=27 ex=[] need=1	got=false	exp=false	MATCH
+[ctxFirst+epic1+weak0]	B37	team=1 pos=4 exclude=[me] need=5	got=false	exp=false	MATCH
+[ctxFirst+epic1+weak0]	B37	SUMMARY	match=190/190
+[ctxFirst+epic1+weak0]	C38	team=0	towers(1)=9	iter_towers_without_nexus=8	nexus_in_towers=1
+[ctxFirst+epic1+weak0]	C38	team=0 tower#0 lv=1 range=0 growth=0 statr=0 trad=10000 crad=10000 d=0	thr=35000	dist=34999	got=true	exp=true	MATCH
+[ctxFirst+epic1+weak0]	C38	team=0 tower#0 lv=1 range=0 growth=0 statr=0 trad=10000 crad=10000 d=0	thr=35000	dist=35000	got=true	exp=true	MATCH
+[ctxFirst+epic1+weak0]	C38	team=0 tower#0 lv=1 range=0 growth=0 statr=0 trad=10000 crad=10000 d=0	thr=35000	dist=35001	got=false	exp=false	MATCH
+[ctxFirst+epic1+weak0]	C38	team=0 tower#0 lv=1 range=0 growth=0 statr=0 trad=10000 crad=10000 d=5000	thr=40000	dist=39999	got=true	exp=true	MATCH
+[ctxFirst+epic1+weak0]	C38	team=0 tower#0 lv=1 range=0 growth=0 statr=0 trad=10000 crad=10000 d=5000	thr=40000	dist=40000	got=true	exp=true	MATCH
+[ctxFirst+epic1+weak0]	C38	team=0 tower#0 lv=1 range=0 growth=0 statr=0 trad=10000 crad=10000 d=5000	thr=40000	dist=40001	got=false	exp=false	MATCH
+[ctxFirst+epic1+weak0]	C38	team=0 tower#1 lv=1 range=0 growth=0 statr=0 trad=10000 crad=10000 d=0	thr=35000	dist=34999	got=true	exp=true	MATCH
+[ctxFirst+epic1+weak0]	C38	team=0 tower#1 lv=1 range=0 growth=0 statr=0 trad=10000 crad=10000 d=0	thr=35000	dist=35000	got=true	exp=true	MATCH
+[ctxFirst+epic1+weak0]	C38	team=0 tower#1 lv=1 range=0 growth=0 statr=0 trad=10000 crad=10000 d=0	thr=35000	dist=35001	got=false	exp=false	MATCH
+[ctxFirst+epic1+weak0]	C38	team=0 tower#1 lv=1 range=0 growth=0 statr=0 trad=10000 crad=10000 d=5000	thr=40000	dist=39999	got=true	exp=true	MATCH
+[ctxFirst+epic1+weak0]	C38	team=0 tower#1 lv=1 range=0 growth=0 statr=0 trad=10000 crad=10000 d=5000	thr=40000	dist=40000	got=true	exp=true	MATCH
+[ctxFirst+epic1+weak0]	C38	team=0 tower#1 lv=1 range=0 growth=0 statr=0 trad=10000 crad=10000 d=5000	thr=40000	dist=40001	got=false	exp=false	MATCH
+[ctxFirst+epic1+weak0]	C38	tower#8 attack_effect=None
+[ctxFirst+epic1+weak0]	C38	team=1	towers(0)=9	iter_towers_without_nexus=8	nexus_in_towers=1
+[ctxFirst+epic1+weak0]	C38	team=1 tower#0 lv=1 range=0 growth=0 statr=0 trad=10000 crad=10000 d=0	thr=35000	dist=34999	got=true	exp=true	MATCH
+[ctxFirst+epic1+weak0]	C38	team=1 tower#0 lv=1 range=0 growth=0 statr=0 trad=10000 crad=10000 d=0	thr=35000	dist=35000	got=true	exp=true	MATCH
+[ctxFirst+epic1+weak0]	C38	team=1 tower#0 lv=1 range=0 growth=0 statr=0 trad=10000 crad=10000 d=0	thr=35000	dist=35001	got=false	exp=false	MATCH
+[ctxFirst+epic1+weak0]	C38	team=1 tower#0 lv=1 range=0 growth=0 statr=0 trad=10000 crad=10000 d=5000	thr=40000	dist=39999	got=true	exp=true	MATCH
+[ctxFirst+epic1+weak0]	C38	team=1 tower#0 lv=1 range=0 growth=0 statr=0 trad=10000 crad=10000 d=5000	thr=40000	dist=40000	got=true	exp=true	MATCH
+[ctxFirst+epic1+weak0]	C38	team=1 tower#0 lv=1 range=0 growth=0 statr=0 trad=10000 crad=10000 d=5000	thr=40000	dist=40001	got=false	exp=false	MATCH
+[ctxFirst+epic1+weak0]	C38	team=1 tower#1 lv=1 range=0 growth=0 statr=0 trad=10000 crad=10000 d=0	thr=35000	dist=34999	got=true	exp=true	MATCH
+[ctxFirst+epic1+weak0]	C38	team=1 tower#1 lv=1 range=0 growth=0 statr=0 trad=10000 crad=10000 d=0	thr=35000	dist=35000	got=true	exp=true	MATCH
+[ctxFirst+epic1+weak0]	C38	team=1 tower#1 lv=1 range=0 growth=0 statr=0 trad=10000 crad=10000 d=0	thr=35000	dist=35001	got=false	exp=false	MATCH
+[ctxFirst+epic1+weak0]	C38	team=1 tower#1 lv=1 range=0 growth=0 statr=0 trad=10000 crad=10000 d=5000	thr=40000	dist=39999	got=true	exp=true	MATCH
+[ctxFirst+epic1+weak0]	C38	team=1 tower#1 lv=1 range=0 growth=0 statr=0 trad=10000 crad=10000 d=5000	thr=40000	dist=40000	got=true	exp=true	MATCH
+[ctxFirst+epic1+weak0]	C38	team=1 tower#1 lv=1 range=0 growth=0 statr=0 trad=10000 crad=10000 d=5000	thr=40000	dist=40001	got=false	exp=false	MATCH
+[ctxFirst+epic1+weak0]	C38	tower#8 attack_effect=None
+[ctxFirst+epic1+weak0]	C38	SUMMARY	match=96/96

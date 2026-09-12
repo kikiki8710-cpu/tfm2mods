@@ -56,7 +56,7 @@ def main():
         one_line=j.get("one_line"), signature=j.get("signature"), logic=j.get("logic"),
         **{k: (j.get(k) or []) for k in LISTS})
     if exe:
-        rec["exe"] = dict(addr=int(exe, 16), module=j.get("module"), bytes=None, instrs=None,
+        rec["exe"] = dict(addr="%x" % int(exe, 16),   # 기존 20함수와 같은 16진 문자열(0x 없음) — int 로 넣으면 rvaverify 가 죽는다(09-13) module=j.get("module"), bytes=None, instrs=None,
                           evidence=evd or "manual", callers=[], callees=[])
     else:
         rec["exe"] = None

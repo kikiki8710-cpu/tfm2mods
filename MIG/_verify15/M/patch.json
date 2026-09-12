@@ -1,0 +1,15 @@
+{
+ "round": 15, "batch": "M",
+ "errors": [
+  {"path": "/specs[35]/exe", "kind": "실오류", "old": null,
+   "new": {"addr": "e06df0", "module": "fight_model", "bytes": 1112, "instrs": null, "evidence": "ghidra", "callers": ["cbf3bc", "df5ac8", "df5d7d", "e07cb4"], "callees": ["e05450", "ca4900", "e04c60"]},
+   "evidence": "ghidra-re 2026-09-13(Ghidra 8080·0.5.8): 0xe06df0(1112B · Body e06df0–e07247) 안 resolve_fight_full 0xe05450 호출 4회(e06e9c/e06f75/e06ff3/e07067) = IR m10.ll:42357 의 4콜(인자 0 / inttoptr 8 패턴까지) 일치 · xref 4곳 = IR 호출자 4곳(action_candidates·update_v32×2·tower_dive_is_viable) 1:1 · ally_is_bound=0xe04c60 경유 from_iter_in 클로저 구조 일치. 옛 0xe126b0 은 is_unreasonable_tower_dive_enemy count 클로저(기각)",
+   "behavior_change": false, "found_by": "new"},
+  {"path": "/specs[39]/exe", "kind": "실오류", "old": null,
+   "new": {"addr": "ec9400", "module": "objective_helpers", "bytes": 569, "instrs": null, "evidence": "ghidra", "callers": ["e1dc32", "ec96e4"], "callees": ["12a07d0"]},
+   "evidence": "ghidra-re 2026-09-13: 0xec9400(569B · Body ec9400–ec9639) — 라인타입 0/1/2 → +0x10/+0x50/+0x90 · len>8 · lines+0x170/+0x180+line*0x20 · 1차 타워 기본좌표 6상수 side 스왑 select · utils::distance(0x12a07d0) 4회 + Entity::distance 인라인 · panic Location objective_helpers.rs:227:21 · xref = find_wave_priority_clear_line fold(0xe1db70)·호스트 0xec9640. 옛 0xe2f230 은 wave_priority_clearer_position 의 min_by_key fold(기각)",
+   "behavior_change": false, "found_by": "new"}
+ ],
+ "ev_up": [],
+ "brief_errors": ["지도(AI함수지도)·dllmatch 가 resolve_fight_stake→0xe126b0(jac 0.39)·is_wave_priority_start_line→0xe2f230(0.44)·resolve_fight_stake_roster→0xe32df0 으로 오매칭 — 정본 = 0xe06df0 / 0xec9400 / 0xe0b030(1444B). ally_is_bound = 0xe04c60."]
+}

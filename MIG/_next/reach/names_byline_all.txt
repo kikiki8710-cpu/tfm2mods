@@ -1,0 +1,45 @@
+
+0xe3b570 band_pred [objective_discipline] 273B l=[117] 호출자=['dd5db0']
+
+0xe33890 ? [steal] 305B l=[22] 호출자=['d9aa80']
+
+0xdb8ba0 target_bush [ganker] 698B l=[319, 322, 337, 346] 호출자=['caf9f0', 'db9430']
+
+0xe3b020 ? [engage] 449B l=[21] 호출자=['e657a0']
+            247줄 m12.ll:12391  core::iter8adapters3mapINtB6_3MapINtNtB8_6filter6FilterINtNtB8_10filter_map9FilterMapINtNtNtBc_5slice4iter4IterINtNtBc_6option6OptionRNtNtNtCs97f5S1uJ
+             82줄 m12.ll:41916  ai::plan_legacy7handler6engageNtBV_17LegacyPlanHandler26v2_response_retreat_stance0INtB7_5FnMutTRRNtNtNtCs97f5S1uJLkH_9game_core10simulation6entity6En
+
+0xca4a80 Vec<&Entity>::retain 모노모프(single_handle_solokill) [modes] 571B l=[281] 호출자=['e4c5c0']
+            179줄 m01.ll:45072  _RINvMNtNtCshWfHDMLkPaX_7bumpalo11collections3vecINtB3_3VecRNtNtNtCs97f5S1uJLkH_9game_core10simulation6entity6EntityE6retainNCNvMNtNtNtCshdEBA0ozCnw_7
+
+0xdcc100 enemy_could_arrive [objective_discipline] 631B l=[160, 162, 165] 호출자=['dd5db0']
+
+0xca5310 ? [position_eval] 716B l=[1290, 1292, 1294] 호출자=['d8ca70']
+
+0xe2fa70 objective_min_by [objective_discipline] 733B l=[117] 호출자=['dd5db0']
+
+0xe32920 base_battle_action [battle] 825B l=[948] 호출자=['df36e0']
+            267줄 m12.ll:15117  core::iter8adapters3mapINtB6_3MapINtNtB8_6filter6FilterINtNtB8_10filter_map9FilterMapINtNtNtBc_5slice4iter4IterINtNtBc_6option6OptionRNtNtNtCs97f5S1uJ
+           9071줄 m10.ll:13739  ai::plan_legacy3old6battleNtB5_10BattlePlan10update_v32
+
+0xca4cc0 ? [engage] 845B l=[193] 호출자=['e5d5d0']
+            253줄 m01.ll:45456  _RINvMNtNtCshWfHDMLkPaX_7bumpalo11collections3vecINtB3_3VecRNtNtNtCs97f5S1uJLkH_9game_core10simulation6entity6EntityE6retainNCNvMNtNtNtCshdEBA0ozCnw_7
+
+0xc9eb60 collect_allies_near [fight_model] 883B l=[1017] 호출자=['e07430']
+            213줄 m01.ll:30978  core::iter8adapters6filter6FilterINtNtB29_10filter_map9FilterMapINtNtNtB2d_3ops5range5RangejENCNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old11fight_
+
+0xc9e660 ? [passive_jungle] 1193B l=[714, 715, 716] 호출자=['d40f10']
+
+0xc9b390 ? [single_battle] 1452B l=[913, 914, 915] 호출자=['d60920']
+
+0xdeeda0 ? [hunt_and_poke] 386B l=[180] 호출자=['defa20']
+            168줄 m10.ll:6028  core::iter8adapters6filter6FilterINtNtB8_10filter_map9FilterMapINtNtNtBc_5slice4iter4IterINtNtBc_6option6OptionRNtNtNtCs97f5S1uJLkH_9game_core10simula
+            212줄 m12.ll:13847  core::iter8adapters3mapINtB6_3MapINtNtB8_6filter6FilterINtNtB8_10filter_map9FilterMapINtNtNtBc_5slice4iter4IterINtNtBc_6option6OptionRNtNtNtCs97f5S1uJ
+
+0xcaf0d0 ? [active_recall] 522B l=[22] 호출자=['e4c5c0']
+             42줄 m09.ll:5239  ai::plan_legacy3old13active_recallNtB2_16ActiveRecallPlan6is_end
+
+0xdccc60 ? [goal_data] 2888B l=[31, 98, 118] 호출자=['e4c5c0']
+
+0xde1ee0 ? [goal_data] 4642B l=[343, 568] 호출자=['dccc60']
+-> names_byline.json

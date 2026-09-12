@@ -46,6 +46,11 @@ D = json.load(io.open(V3, encoding="utf-8"))
 M, S = D["meta"], D["specs"]
 
 BATCH = (("A", 0, 4), ("B", 5, 9), ("C", 10, 14), ("D", 15, 19))
+# ★`--idx lo-hi`(09-13 · r7 잎 20~39 부터): 그 범위를 4등분해 A~D 로 배정한다. 없으면 20함수 기본값.
+if "--idx" in sys.argv:
+    _lo, _hi = [int(x) for x in sys.argv[sys.argv.index("--idx") + 1].split("-")]
+    _n = _hi - _lo + 1; _q = (_n + 3) // 4
+    BATCH = tuple((t, _lo + k * _q, min(_hi, _lo + (k + 1) * _q - 1)) for k, t in enumerate("ABCD") if _lo + k * _q <= _hi)
 
 # ★게이트 수를 **손으로 적지 마라.** 7차에 `G12` 수치가 세 곳에 다르게 적혀 있었다.
 try:

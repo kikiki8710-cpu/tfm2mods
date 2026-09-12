@@ -52,7 +52,10 @@ AIMAP = r"C:\tfm2mods\MIG\aimap.json"
 IRDIR = r"C:\tfm2mods\_gaibc"
 
 # 런타임으로 이미 증명된 것(대조 DIFF=0). 주소가 틀렸다면 갈렸을 표본 수.
-PROVEN = {9: 254119, 1: 481514, 8: 761970}
+PROVEN = {9: 254119, 1: 481514, 8: 761970,
+          # r7 잎(09-13): ai_adjust judge 계층 DIFF=0(DONE.md「judge obj_helpers 5종 DIFF=0·NA0(09-10 1판)」·「judge upgrade_item … 3.33e6」)
+          #   #24/#29 는 S1 이 「선언줄 이전의 인라인 헬퍼 줄(objective_helpers.rs:12)」만 잡혀 오경보 — 런타임이 주소를 증명한다.
+          24: 131631, 29: 263083, 26: 96317, 21: 3330000}   # 표본 = REPORT ai_adjust 03 §「첫 판에 9건 DIFF=0」(09-10) · upgrade_item = judge-layer §26
 # ghidra-re 가 2026-09-12 에 확정한 정정값.
 FIXED = {4: ("d3cfa0", u"0xd3e4b0 = has_line_defense_threat 였다"),
          16: ("e0daa0", u"0xc809d0 = LocalKey::with(TLS 메모) 였다")}

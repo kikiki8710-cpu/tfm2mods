@@ -1,0 +1,109 @@
+{
+ "name": "i_am_chosen_defender",
+ "sym": "_RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old13defense_nexus20i_am_chosen_defender",
+ "src": "game-ai\\src\\plan_legacy\\old\\defense_nexus.rs",
+ "src_line": 297,
+ "ir_file": "m04.ll",
+ "ir_from": 58647,
+ "ir_to": 59462,
+ "aux": [{"ir_file": "m04.ll", "ir_from": 15665, "ir_to": 15883}],
+
+ "one_line": "아군 5명을 (푸셔 감당 가능, 웨이브 클리어 점수, 넥서스 거리, id) 키로 줄 세워 내가 상위 need_count 안에 드는지",
+
+ "signature": {
+  "params": [
+   {"i": 1, "name": "player", "type": "&PlayerState(2528B)", "note": "판단 주체. info.team(+0x930)·info.position 태그(+0x9c0) 로 내 챔피언을 찾고, is_recent_visible 에 넘긴다"},
+   {"i": 2, "name": "data", "type": "&OperationData(24B)", "note": "cache(+0x0)·context(+0x8)·blackboard(+0x10) 모두 사용"},
+   {"i": 3, "name": "need_count", "type": "usize", "note": "필요 수비 인원. 0 이면 즉시 false"},
+   {"i": 4, "name": "exclude", "type": "&[usize] (ptr %3, len %4)", "note": "제외할 챔피언 id 목록. 내 id 가 있으면 false, 아군 id 가 있으면 순위 비교에서 제외"}
+  ],
+  "returns": "bool — true = 나보다 키가 작은(더 적합한) 미제외 아군 수 < need_count ⇒ 내가 수비수로 뽑힘"
+ },
+
+ "reads": [
+  {"base": "PlayerState", "offset": "0x930", "name": "info.team", "note": "usize. >=2 면 panic_bounds_check"},
+  {"base": "PlayerState", "offset": "0x9c0", "name": "info.position@tag", "note": "i32 태그를 그대로 [5] 배열 인덱스로 씀(zext)"},
+  {"base": "OperationData", "offset": "0x0", "name": "cache", "note": "&AbstractGameWithCache"},
+  {"base": "OperationData", "offset": "0x8", "name": "context", "note": "&GameContext — key 클로저에서 expected_damage_target 인자"},
+  {"base": "OperationData", "offset": "0x10", "name": "blackboard", "note": "&[Blackboard;2]. [1-team](적팀) 블랙보드의 is_recent_visible 을 부른다"},
+  {"base": "AbstractGameWithCache", "offset": "0x0", "name": "game (&dyn AbstractGame data)", "note": "is_recent_visible 인자 + vtable+0x1f0 get_entity_by_id(L317)"},
+  {"base": "AbstractGameWithCache", "offset": "0x8", "name": "game vtable", "note": ""},
+  {"base": "AbstractGameWithCache", "offset": "0x170", "name": "nexus[team]", "note": "[Option<&Entity>;2]. None → false"},
+  {"base": "AbstractGameWithCache", "offset": "0x1e0", "name": "player_champion[team][pos]", "note": "[[Option<&Entity>;5];2] stride 40/8. 내 챔프 None → false. [1-team] 은 iter_champions(적 챔프) 원본, [team][0..5] 는 아군 순위 루프"},
+  {"base": "Entity", "offset": "0x0", "name": "team@tag (TeamType)", "note": "L318: 미니언 대상 엔티티의 팀 태그 0=Player 이어야"},
+  {"base": "Entity", "offset": "0x8", "name": "team@Player.0", "note": "L318: == 내 team 이어야(우리 구조물을 치는 미니언)"},
+  {"base": "Entity", "offset": "0x68", "name": "ty@tag (EntityType)", "note": "L316: 1=Minion / L318: 대상 3=Nexus·2=Tower"},
+  {"base": "Entity(적 미니언)", "offset": "0x88", "name": "ty@Minion.info.nearest_enemy@tag", "note": "Option<usize>. 1=Some"},
+  {"base": "Entity(적 미니언)", "offset": "0x90", "name": "ty@Minion.info.nearest_enemy@Some.0", "note": "대상 id → get_entity_by_id"},
+  {"base": "Entity(대상 타워)", "offset": "0x128", "name": "ty@Tower.info.ty (TowerType)", "note": "(v-3) <u 2 ⇒ TwinA/TwinB 만"},
+  {"base": "Entity", "offset": "0x5c0", "name": "id", "note": "exclude 대조·자기 제외·키 4번째 성분"},
+  {"base": "Entity", "offset": "0x660", "name": "x", "note": "distance_sq(적 챔프↔넥서스 / 아군↔넥서스)"},
+  {"base": "Entity", "offset": "0x668", "name": "y", "note": ""},
+  {"base": "Entity(aux key 클로저: ally)", "offset": "0x4c0", "name": "attack_effect@tag", "note": "i32 니치. -1 이면 None → 평타 점수 0"},
+  {"base": "Entity(aux)", "offset": "0x490", "name": "attack_effect (Effect 56B)", "note": "expected_damage_target 의 &Effect"},
+  {"base": "Entity(aux)", "offset": "0x4f8", "name": "skill_effect@tag", "note": "-1 이면 None"},
+  {"base": "Entity(aux)", "offset": "0x4c8", "name": "skill_effect", "note": ""},
+  {"base": "Entity(aux)", "offset": "0x500", "name": "skill2_effect", "note": "level > 2 일 때만, 아니면 정적 None(@anon.16, +0x30 == -1)"},
+  {"base": "Entity(aux)", "offset": "0x538", "name": "ult_effect", "note": "level > 4 일 때만"},
+  {"base": "Entity(aux)", "offset": "0x5c8", "name": "level", "note": "usize. 슬롯 개방 게이트"},
+  {"base": "Effect(aux)", "offset": "0x30", "name": "casting@tag (Option<Effect> 니치)", "note": "-1 이면 None (슬롯2·3)"}
+ ],
+
+ "writes": [],
+
+ "constants": [
+  {"value": 0, "src_line": 298, "meaning": "need_count == 0 → false"},
+  {"value": 2, "src_line": 301, "meaning": "team 인덱스 상한(panic_bounds_check len=2) / L318 대상 태그 2=Tower"},
+  {"value": 1, "src_line": 315, "meaning": "enemy = 1 - team (iter_minions·iter_champions·blackboard 모두 적팀 인덱스)"},
+  {"value": 1, "src_line": 316, "meaning": "미니언 ty 태그 1=Minion"},
+  {"value": 1, "src_line": 317, "meaning": "nearest_enemy Option 태그 1=Some (trunc i1)"},
+  {"value": 0, "src_line": 318, "meaning": "대상 엔티티 team 태그 0=Player (trunc i1 false) 이고 team 값 == 내 team"},
+  {"value": 3, "src_line": 318, "meaning": "대상 ty 태그 3=Nexus → 웨이브에 산입"},
+  {"value": -3, "src_line": 318, "meaning": "(TowerType-3) <u 2 ⇒ TwinA(3)/TwinB(4) 쌍둥이 타워를 치는 미니언만 산입(tower.rs:91 인라인)"},
+  {"value": 1, "src_line": 323, "meaning": "wave_size += 1"},
+  {"value": 1, "src_line": 329, "meaning": "wave_size = max(wave_size, 1) — 미니언이 없어도 클리어 점수 계산은 1 웨이브 기준"},
+  {"value": -1, "src_line": 332, "meaning": "pusher_dist 초기값 u64::MAX (Option<usize> 대신 센티넬)"},
+  {"value": 90000000001, "src_line": 339, "meaning": "300000²+1 — 넥서스 300000 이내 + 최근 가시인 적 챔프 중 최근접 = pusher"},
+  {"value": 4, "src_line": 353, "meaning": "아군 슬롯 루프 0..5 의 종료 비교 `icmp ult %172, 4`"},
+  {"value": 1, "src_line": 364, "meaning": "better += 1 (키가 나보다 작은 아군)"},
+  {"value": 63, "src_line": 348, "meaning": "aux: cant_handle_pusher = expected_trade_net_hp(data, ally, pusher) < 0 → `lshr 63` 부호비트 추출"},
+  {"value": -1, "src_line": 460, "meaning": "aux: Option<Effect> 니치 None (attack/skill/skill2/ult 슬롯의 casting 태그)"},
+  {"value": 2, "src_line": 464, "meaning": "aux: level > 2 여야 skill2 슬롯 열림(entity.rs:1693 접근자)"},
+  {"value": 4, "src_line": 465, "meaning": "aux: level > 4 여야 ult 슬롯 열림(entity.rs:1701)"},
+  {"value": 0, "src_line": 474, "meaning": "aux: area_skill_clear — 기대 피해 > 0 이고 is_area 일 때만 dmg*wave_size 가산(`icmp sgt i64 %40, 0`)"}
+ ],
+
+ "calls": [
+  "game_core::simulation::AbstractGameWithCache::iter_minions",
+  "next",
+  "game_core::simulation::AbstractGameWithCache::iter_champions",
+  "game_core::simulation::game::blackboard::Blackboard::is_recent_visible",
+  "core::panicking::panic_bounds_check",
+  "game_ai::plan_legacy::old::battle::expected_trade_net_hp",
+  "game_core::simulation::effect::Effect::expected_damage_target",
+  "game_core::simulation::effect::Effect::is_area"
+ ],
+
+ "logic": "fn i_am_chosen_defender(player, data, need_count, exclude) -> bool\n\n[L298] if need_count == 0 { return false }\n[L301] team = player.info.team(+0x930); nexus = data.cache.nexus(+0x170)[team]?   // None → false\n[L304] my_champ = data.cache.player_champion(+0x1e0)[team][player.info.position 태그(+0x9c0)]?   // None → false\n[L308] if exclude.contains(&my_champ.id(+0x5c0)) { return false }   // 8개 청크 unrolled + 나머지 루프(and !7 / and 7 는 contains 최적화)\n\n// ── 우리 구조물(넥서스/쌍둥이 타워)을 치는 적 미니언 웨이브 ────────────\n[L313] rep_minion: Option<&Entity> = None; wave_size = 0\n[L315] for m in data.cache.iter_minions(1 - team) {                 // Chain 이터레이터, next() 3구간\n[L316]   if m.ty(+0x68) != 1 /*Minion*/ { continue }\n[L317]   let Some(id) = m.ty.Minion.info.nearest_enemy(+0x88/+0x90) else { continue }\n         let Some(s) = game.get_entity_by_id(id) /*vtable+0x1f0*/ else { continue }\n[L318]   if !(s.team(+0x0) == TeamType::Player(team)) { continue }          // 우리 편 구조물\n         if !(s.ty == 3 /*Nexus*/ || (s.ty == 2 /*Tower*/ && s.ty.Tower.info.ty(+0x128) ∈ {TwinA,TwinB})) { continue }\n[L323]   wave_size += 1\n[L324]   if rep_minion.is_none() { [L325] rep_minion = Some(m) }   // 첫 번째 해당 미니언이 대표\n       }\n[L329] wave_size = max(wave_size, 1)\n\n// ── 푸셔(넥서스 근처 최근접 적 챔프) ────────────────────────────────\n[L332] pusher = None; pusher_dist = u64::MAX\n[L334] for c in data.cache.iter_champions(1 - team) {               // player_champion[enemy] 의 Some 만\n[L335]   if !data.blackboard(+0x10)[1 - team].is_recent_visible(game, player, c) { continue }\n[L338]   d = distance_sq(c, nexus)\n[L339]   if d < 90000000001 /*300000²*/ && d < pusher_dist { [L341] pusher = Some(c); pusher_dist = d }\n       }\n\n// ── 키 = (cant_handle_pusher, -clear, dist², id)  낮을수록 적합 ──────\n[L345] key = |ally: &Entity| {                                       // ★closure#0 = aux m04.ll 15665~15883\n[L346]   cant_handle_pusher = pusher.map_or(false, |p| battle::expected_trade_net_hp(data, ally, p) < 0)\n[L347]   clear = rep_minion.map_or(0, |minion| defense_wave_clear_score(ally, ctx, minion, wave_size))\n           // defense_nexus.rs:455 인라인:\n           //   score  = attack_effect.is_some() ? Effect::expected_damage_target(&ally.attack_effect(+0x490), ctx, ally as &dyn AbstractEntity, minion) : 0\n           //   score += area_skill_clear(skill_effect(+0x4c8))                       // 469: Some && dmg>0 && is_area ? dmg*wave_size : 0\n           //   score += area_skill_clear(level(+0x5c8)>2 ? skill2_effect(+0x500) : None)\n           //   score += area_skill_clear(level>4 ? ult_effect(+0x538) : None)\n[L348]   (cant_handle_pusher, -(clear as i64), distance_sq(ally, nexus), ally.id)\n       }\n[L351] my_key = key(my_champ)\n[L353] better = 0\n[L354] for p in 0..5 { let Some(ally) = data.cache.player_champion[team][p] else { continue }\n[L357]   if ally.id == my_champ.id { continue }\n[L360]   if exclude.contains(&ally.id) { continue }\n[L363]   if key(ally) < my_key { [L364] better += 1 }     // 튜플 사전순: bool(false<true) → i64 signed → u64 → u64\n       }\n[L367] return better < need_count\n\n※ 부작용 없음. 순위는 '푸셔를 감당할 수 있는가 → 웨이브 클리어 기대치 높은 순 → 넥서스에 가까운 순 → id 작은 순'.",
+
+ "knobs": [
+  {"what": "푸셔 탐색 반경(적 챔프↔우리 넥서스)", "where": "defense_nexus.rs:339 (IR m04.ll:59375 `icmp ult i64 %272, 90000000001`)", "value": 90000000001,
+   "effect": "300000². 올리면 더 먼 적 챔프도 '푸셔'로 잡혀 cant_handle_pusher 가 순위 1순위 기준으로 자주 개입하고, 내리면 넥서스 바로 근처에서만"},
+  {"what": "웨이브에 산입하는 구조물 종류", "where": "defense_nexus.rs:318 (IR m04.ll:59431 `add nsw i8 %307, -3` / `icmp ult i8 %308, 2`)", "value": "Nexus / TwinA / TwinB",
+   "effect": "외곽 타워를 치는 미니언은 wave_size·rep_minion 에 안 들어간다. 넓히면 라인 푸시에도 광역기 챔프가 수비수로 뽑힌다"},
+  {"what": "wave_size 하한", "where": "defense_nexus.rs:329 (IR m04.ll:58991 `llvm.umax.i64(%99, 1)`)", "value": 1,
+   "effect": "광역 스킬 클리어 점수 = dmg × wave_size. 하한을 올리면 미니언이 적어도 광역기 챔프가 우선 선발된다"},
+  {"what": "스킬 슬롯 개방 레벨", "where": "defense_nexus.rs:464~465 (aux m04.ll:15733/15771 `icmp ugt %50, 2` / `icmp ugt %50, 4`)", "value": "2 / 4",
+   "effect": "level ≤2 면 skill2, ≤4 면 ult 이 클리어 점수에서 빠진다(Entity 접근자 인라인 — 게임 규칙이라 사실상 고정)"},
+  {"what": "키 우선순위", "where": "defense_nexus.rs:348", "value": "(cant_handle_pusher, -clear, dist², id)",
+   "effect": "성분 순서를 바꾸면 선발 기준이 바뀐다(예: 거리 우선). 현재는 '푸셔 감당 가능' 이 절대 우선"}
+ ],
+
+ "unknown": [
+  "expected_trade_net_hp(battle.rs:2493)·Effect::expected_damage_target·is_area·Blackboard::is_recent_visible 내부는 안 읽었다(별도 함수·game_core) — 여기선 호출 계약(인자·부호 판정)만 확정",
+  "L363 키 비교의 튜플 성분 순서(bool@16 → i64@0 → u64@8 → u64@24)는 IR 비교 순서로 복원한 것 — 메모리 오프셋은 rustc 재배치 순이라 소스 튜플 선언 순과 다를 수 있으나 비교 순서 = 선언 순이라 논리는 확정",
+  "L308/L360 exclude.contains 의 `and 1152921504606846968`(= !7)·`and 7`·8 단위 unroll 은 slice::contains 의 청크 최적화 — 판정 상수가 아니라 constants 에서 뺐다",
+  "iter_minions 의 Chain 3구간(next() 호출 3개)이 어떤 미니언 집합(라인별?)을 잇는지는 game_core 미독 — 이 함수는 전 구간을 균일하게 훑는다",
+  "player.info.position 태그(i32)를 인덱스로 쓰므로 position 열거형의 태그 0..4 가 슬롯 순서라는 가정 — tcxdict --enum 으로 확인 안 함(범위 밖)"
+ ]
+}

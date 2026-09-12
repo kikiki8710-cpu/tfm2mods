@@ -1,0 +1,185 @@
+{
+ "d472b0": [
+  [
+   "_RINvYINtNtNtCsjihNppCmMEE_4core5slice4iter4IterNtNtNtNtCs97f5S1uJLkH_9game_core10simulation5state6player8LineTypeENtNtNtNtBa_4iter6traits8iterator8Iterator8try_folduNCINvNtNtB1U_8adapters6copied13copy_try_foldBJ_uINtNtNtBa_3ops12control_flow11ControlFlowuENCINvNvB1O_3any5checkBJ_NCNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old6serpen18check_serpen_setup0E0E0B3p_EB4E_",
+   "m05.ll",
+   105,
+   9908
+  ]
+ ],
+ "deb970": [
+  [
+   "_RNvXs1_NtNtNtCsjihNppCmMEE_4core4iter8adapters6filterINtB5_6FilterINtNtB7_10filter_map9FilterMapINtNtNtBb_5slice4iter4IterINtNtBb_6option6OptionRNtNtNtCs97f5S1uJLkH_9game_core10simulation6entity6EntityEENCNvMs3_B2n_NtB2n_21AbstractGameWithCache14iter_champions0ENCNvNtNtCshdEBA0ozCnw_7game_ai11plan_legacy9team_plan30check_opportunistic_tower_push0ENtNtNtB9_6traits8iterator8Iterator5countB4k_",
+   "m09.ll",
+   97,
+   67786
+  ]
+ ],
+ "deb8f0": [
+  [
+   "_RNvXs1_NtNtNtCsjihNppCmMEE_4core4iter8adapters6filterINtB5_6FilterINtNtB7_10filter_map9FilterMapINtNtNtBb_5slice4iter4IterINtNtBb_6option6OptionRNtNtNtCs97f5S1uJLkH_9game_core10simulation6entity6EntityEENCNvMs3_B2n_NtB2n_21AbstractGameWithCache14iter_champions0ENCNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy9team_plan20objective_disciplineNtB4j_8TeamPlan39v24_objective_setup_lane_pressure_readys_0ENtNtNtB9_6traits8iterator8Iterator5countB4n_",
+   "m09.ll",
+   97,
+   67686
+  ]
+ ],
+ "c9bea0": [
+  [
+   "_RNvXs1_NtNtNtCsjihNppCmMEE_4core3ops8function5implsQNCNvMs0_NtCshdEBA0ozCnw_7game_ai9goal_dataNtBW_16SerpenStanceData11update_plans1_0INtB7_5FnMutTRjEE8call_mutBY_",
+   "m09.ll",
+   36,
+   65740
+  ]
+ ],
+ "c9c160": [
+  [
+   "_RNvXs1_NtNtNtCsjihNppCmMEE_4core3ops8function5implsQNCNvMs_NtCshdEBA0ozCnw_7game_ai9goal_dataNtBV_14EpicStanceData11update_plans1_0INtB7_5FnMutTRjEE8call_mutBX_",
+   "m09.ll",
+   36,
+   66247
+  ]
+ ],
+ "c9c000": [
+  [
+   "_RNvXs1_NtNtNtCsjihNppCmMEE_4core3ops8function5implsQNCNvMs0_NtCshdEBA0ozCnw_7game_ai9goal_dataNtBW_16SerpenStanceData11update_plans3_0INtB7_5FnMutTRjEE8call_mutBY_",
+   "m09.ll",
+   37,
+   65955
+  ]
+ ],
+ "c9c2c0": [
+  [
+   "_RNvXs1_NtNtNtCsjihNppCmMEE_4core3ops8function5implsQNCNvMs_NtCshdEBA0ozCnw_7game_ai9goal_dataNtBV_14EpicStanceData11update_plans3_0INtB7_5FnMutTRjEE8call_mutBX_",
+   "m09.ll",
+   37,
+   66429
+  ]
+ ],
+ "e3b570": [],
+ "ca3530": [
+  [
+   "_RNvXs1_NtNtNtCsjihNppCmMEE_4core3ops8function5implsQNCNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old6serpen27v3_serpen_contest_clear_win0INtB7_5FnMutTRRNtNtNtCs97f5S1uJLkH_9game_core10simulation6entity6EntityEE8call_mutBY_",
+   "m05.ll",
+   22,
+   62463
+  ]
+ ],
+ "e33890": [],
+ "deb9f0": [
+  [
+   "_RNvXs1_NtNtNtCsjihNppCmMEE_4core4iter8adapters6filterINtB5_6FilterINtNtB7_10filter_map9FilterMapINtNtNtBb_5slice4iter4IterINtNtBb_6option6OptionRNtNtNtCs97f5S1uJLkH_9game_core10simulation6entity6EntityEENCNvMs3_B2n_NtB2n_21AbstractGameWithCache14iter_champions0ENCNvNtNtCshdEBA0ozCnw_7game_ai11plan_legacy9team_plan30check_opportunistic_tower_pushs0_0ENtNtNtB9_6traits8iterator8Iterator5countB4k_",
+   "m09.ll",
+   165,
+   67886
+  ]
+ ],
+ "db8ba0": [],
+ "e346e0": [
+  [
+   "_RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old14passive_jungle16best_jungle_goal",
+   "m04.ll",
+   408,
+   62570
+  ]
+ ],
+ "ca2790": [
+  [
+   "_RNvXs1_NtNtNtCsjihNppCmMEE_4core3ops8function5implsQNCNvNtNtCshdEBA0ozCnw_7game_ai11plan_legacy7handler14check_kill_v150INtB7_5FnMutTRRNtNtNtCs97f5S1uJLkH_9game_core10simulation6entity6EntityEE8call_mutBW_",
+   "m13.ll",
+   63,
+   58598
+  ]
+ ],
+ "e70330": [
+  [
+   "_RNvXs1_NtNtNtCsjihNppCmMEE_4core4iter8adapters6filterINtB5_6FilterINtNtB7_10filter_map9FilterMapINtNtNtBb_5slice4iter4IterINtNtBb_6option6OptionRNtNtNtCs97f5S1uJLkH_9game_core10simulation6entity6EntityEENCNvMs3_B2n_NtB2n_21AbstractGameWithCache14iter_champions0ENCNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy7handler4chatNtB4j_17LegacyPlanHandler17handle_chat_inners4_0ENtNtNtB9_6traits8iterator8Iterator5countB4n_",
+   "m13.ll",
+   188,
+   59130
+  ]
+ ],
+ "ca31c0": [
+  [
+   "_RNvXs1_NtNtNtCsjihNppCmMEE_4core3ops8function5implsQNCNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old14passive_jungle36evaluate_gank_opportunity_with_score0INtB7_5FnMutTRRNtNtNtCs97f5S1uJLkH_9game_core10simulation6entity6EntityEE8call_mutBY_",
+   "m04.ll",
+   49,
+   66344
+  ]
+ ],
+ "e3b020": [],
+ "dec010": [
+  [
+   "_RNvXs1_NtNtNtCsjihNppCmMEE_4core4iter8adapters6filterINtB5_6FilterINtNtNtBb_3ops5range5RangejENCNvNtNtCshdEBA0ozCnw_7game_ai11plan_legacy9team_plan30check_opportunistic_tower_pushs_0ENtNtNtB9_6traits8iterator8Iterator5countB1C_",
+   "m09.ll",
+   216,
+   68915
+  ]
+ ],
+ "deb6f0": [
+  [
+   "_RNvXs1_NtNtNtCsjihNppCmMEE_4core4iter8adapters6filterINtB5_6FilterINtNtB7_10filter_map9FilterMapINtNtNtBb_5slice4iter4IterINtNtBb_6option6OptionRNtNtNtCs97f5S1uJLkH_9game_core10simulation6entity6EntityEENCNvMs3_B2n_NtB2n_21AbstractGameWithCache14iter_champions0ENCNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy9team_plan20objective_disciplineNtB4j_8TeamPlan39v24_objective_setup_lane_pressure_readys0_0ENtNtNtB9_6traits8iterator8Iterator5countB4n_",
+   "m09.ll",
+   273,
+   67410
+  ]
+ ],
+ "c9b990": [
+  [
+   "_RNvXs1_NtNtNtCsjihNppCmMEE_4core3ops8function5implsQNCNvMs0_NtCshdEBA0ozCnw_7game_ai9goal_dataNtBW_16SerpenStanceData11update_plans4_0INtB7_5FnMutTjEE8call_mutBY_",
+   "m09.ll",
+   35,
+   65995
+  ]
+ ],
+ "ca4a80": [],
+ "c9bc10": [
+  [
+   "_RNvXs1_NtNtNtCsjihNppCmMEE_4core3ops8function5implsQNCNvMs0_NtCshdEBA0ozCnw_7game_ai9goal_dataNtBW_16SerpenStanceData11update_plans5_0INtB7_5FnMutTjEE8call_mutBY_",
+   "m09.ll",
+   36,
+   66033
+  ]
+ ],
+ "dcc100": [],
+ "ca5310": [],
+ "e2fa70": [],
+ "e32920": [
+  [
+   "_RNvMs0_NtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old6battleNtB5_10BattlePlan10update_v32",
+   "m10.ll",
+   9071,
+   13739
+  ]
+ ],
+ "ca4cc0": [],
+ "c9eb60": [],
+ "ca85d0": [
+  [
+   "_RNvXs1_NtNtNtCsjihNppCmMEE_4core3ops8function5implsQNCNvMs0_NtCshdEBA0ozCnw_7game_ai9goal_dataNtBW_16SerpenStanceData11update_plans0_0INtB7_5FnMutTRjEE8call_mutBY_",
+   "m09.ll",
+   84,
+   65653
+  ]
+ ],
+ "ca8ae0": [
+  [
+   "_RNvXs1_NtNtNtCsjihNppCmMEE_4core3ops8function5implsQNCNvMs_NtCshdEBA0ozCnw_7game_ai9goal_dataNtBV_14EpicStanceData11update_plans0_0INtB7_5FnMutTRjEE8call_mutBX_",
+   "m09.ll",
+   86,
+   66158
+  ]
+ ],
+ "c9e660": [],
+ "c9b390": [],
+ "deeda0": [
+  [
+   "_RINvYINtNtNtNtCsjihNppCmMEE_4core4iter8adapters6filter6FilterINtNtB8_10filter_map9FilterMapINtNtNtBc_5slice4iter4IterINtNtBc_6option6OptionRNtNtNtCs97f5S1uJLkH_9game_core10simulation6entity6EntityEENCNvMs3_B2i_NtB2i_21AbstractGameWithCache14iter_champions0ENCNvMNtNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old4epic13hunt_and_pokeNtB4c_19EpicHuntAndPokePlan6is_end0ENtNtNtBa_6traits8iterator8Iterator10min_by_keyyNCB49_s_0EB4k_",
+   "m10.ll",
+   168,
+   6028
+  ]
+ ],
+ "caf0d0": [],
+ "dccc60": [],
+ "de1ee0": []
+}

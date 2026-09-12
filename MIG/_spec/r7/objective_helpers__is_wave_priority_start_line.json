@@ -1,0 +1,70 @@
+{
+ "name": "is_wave_priority_start_line",
+ "sym": "_RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy9team_plan17objective_helpers27is_wave_priority_start_line",
+ "src": "game-ai\\src\\plan_legacy\\team_plan\\objective_helpers.rs",
+ "src_line": 221,
+ "ir_file": "m15.ll",
+ "ir_from": 52851,
+ "ir_to": 53084,
+
+ "one_line": "그 라인에 적 미니언이 9+ 이고 그중 하나라도 우리 1차 타워(또는 그 기본 위치)보다 넥서스에 가까운가",
+
+ "signature": {
+  "params": [
+   {"i": 1, "name": "player", "type": "&PlayerState(2528B)", "note": "info.team(+0x930) 만 읽는다"},
+   {"i": 2, "name": "data", "type": "&OperationData(24B)", "note": "cache(+0x0) 만 읽는다"},
+   {"i": 3, "name": "line", "type": "LineType(i8: 0 Top/1 Mid/2 Bottom)", "note": "검사할 라인. 그 외 값은 unreachable"}
+  ],
+  "returns": "bool — true = 적 웨이브가 우리 1차 타워 안쪽까지 들어와 있어 '웨이브 우선' 으로 시작해야 할 라인"
+ },
+
+ "reads": [
+  {"base": "OperationData", "offset": "0x0", "name": "cache", "note": "&AbstractGameWithCache"},
+  {"base": "PlayerState", "offset": "0x930", "name": "info.team", "note": "usize. enemy = 1 - team. 둘 다 >=2 면 panic_bounds_check"},
+  {"base": "AbstractGameWithCache", "offset": "0x10", "name": "top_minions[team]", "note": "[bumpalo Vec<&Entity>;2] 32B stride. line==Top 일 때 [enemy] 의 len(+0x18)·ptr(+0x0)"},
+  {"base": "AbstractGameWithCache", "offset": "0x50", "name": "mid_minions[team]", "note": "line==Mid"},
+  {"base": "AbstractGameWithCache", "offset": "0x90", "name": "bottom_minions[team]", "note": "line==Bottom"},
+  {"base": "Vec<&Entity>(bumpalo,32B) line_minions[enemy]", "offset": "0x18", "name": "len", "note": "enemy_count. <=8 이면 false"},
+  {"base": "Vec<&Entity>(bumpalo,32B) line_minions[enemy]", "offset": "0x0", "name": "ptr", "note": "L233 순회"},
+  {"base": "AbstractGameWithCache", "offset": "0x170", "name": "nexus[team]", "note": "[Option<&Entity>;2]. None → false"},
+  {"base": "AbstractGameWithCache", "offset": "0x180", "name": "top_tower[team] / mid_tower(+0x1a0) / bottom_tower(+0x1c0)", "note": "AbstractGameWithCache::first_tower(line, team) 인라인(simulation.rs:1815): 0x180 + line*32 + team*8. None 이면 기본 좌표 사용"},
+  {"base": "Entity(1차 타워 / 넥서스)", "offset": "0x660", "name": "x", "note": "utils::distance 인자"},
+  {"base": "Entity(1차 타워 / 넥서스)", "offset": "0x668", "name": "y", "note": ""}
+ ],
+
+ "writes": [],
+
+ "constants": [
+  {"value": 1, "src_line": 222, "meaning": "enemy = 1 - player.info.team"},
+  {"value": 2, "src_line": 222, "meaning": "team/enemy 인덱스 상한(panic_bounds_check len=2). (본문의 `shl nuw nsw i8 %2, 5` 는 레지스터 %2=line 을 32배(first_tower 배열 stride)하는 것이라 이 상수와 무관)"},
+  {"value": 8, "src_line": 223, "meaning": "enemy_count > 8 (적 미니언 9마리 이상) 이어야 후속 검사 (`icmp ugt i64 %21, 8`)"},
+  {"value": 0, "src_line": 230, "meaning": "first_tower_position: team == 0 이면 (x,y) 를 뒤집는다(TowerType::get_position 인라인, tower.rs:105/110/115)"},
+  {"value": 48000, "src_line": 239, "meaning": "Top 1차 타워 기본 좌표: team0 (48000, 272000) / team1 (272000, 48000) — 타워가 파괴돼 None 일 때만"},
+  {"value": 272000, "src_line": 239, "meaning": "Top 기본 좌표 성분"},
+  {"value": 368000, "src_line": 240, "meaning": "Mid 1차 타워 기본 좌표: team0 (368000, 592000) / team1 (592000, 368000)"},
+  {"value": 592000, "src_line": 240, "meaning": "Mid 기본 좌표 성분"},
+  {"value": 688000, "src_line": 241, "meaning": "Bottom 1차 타워 기본 좌표: team0 (688000, 912000) / team1 (912000, 688000)"},
+  {"value": 912000, "src_line": 241, "meaning": "Bottom 기본 좌표 성분"}
+ ],
+
+ "calls": [
+  "game_core::utils::distance",
+  "game_core::simulation::entity::Entity::distance",
+  "core::panicking::panic_bounds_check"
+ ],
+
+ "logic": "fn is_wave_priority_start_line(player, data, line) -> bool\n\n[L222] team = player.info.team(+0x930); enemy = 1 - team\n       line_minions = match line { Top => cache.top_minions(+0x10), Mid => mid_minions(+0x50), Bottom => bottom_minions(+0x90) }\n       enemy_count = line_minions[enemy].len(+0x18)\n[L223] return enemy_count > 8 && is_enemy_wave_inside_ally_first_tower(player, data, line)\n\n// ── is_enemy_wave_inside_ally_first_tower (objective_helpers.rs:227~234, 인라인) ──\n[L227] let Some(nexus) = cache.nexus(+0x170)[team] else { return false }\n[L228] tower = cache.first_tower(line, team)        // [top|mid|bottom]_tower[team] (0x180 + line*32 + team*8)\n[L229] (tx, ty) = tower.map(|t| (t.x(+0x660), t.y(+0x668)))\n[L230]   .unwrap_or_else(|| first_tower_position(line, team))   // 238~241 → TowerType::get_position 인라인:\n           //   Top:    team0 (48000, 272000)  / team1 (272000, 48000)\n           //   Mid:    team0 (368000, 592000) / team1 (592000, 368000)\n           //   Bottom: team0 (688000, 912000) / team1 (912000, 688000)\n[L231] tower_distance = utils::distance(tx, ty, nexus.x, nexus.y)   // 1차 타워 ↔ 우리 넥서스 거리\n[L233] line_minions[enemy].iter()\n[L234]   .any(|m| Entity::distance(m, nexus) < tower_distance)     // 타워보다 넥서스에 가까운 적 미니언이 있는가\n\n※ 부작용 없음. 판정은 '큰 웨이브(9+)' 와 '타워 안쪽 침투' 둘 다 필요(AND, 단락 평가 — 9 이하면 넥서스/타워는 안 본다).",
+
+ "knobs": [
+  {"what": "웨이브 크기 임계", "where": "objective_helpers.rs:223 (IR m15.ll:52887 `icmp ugt i64 %21, 8`)", "value": 8,
+   "effect": "적 미니언이 9마리 이상일 때만 웨이브 우선. 내리면(예: 5) 작은 웨이브 침투에도 라인이 우선 처리되고, 올리면 큰 웨이브만"},
+  {"what": "침투 기준선 = 1차 타워 위치(파괴 시 기본 좌표)", "where": "objective_helpers.rs:228~231", "value": "first_tower / first_tower_position",
+   "effect": "타워가 없어도 원래 타워 자리를 기준으로 본다. 2차 타워로 바꾸면 더 깊이 들어온 웨이브만 잡는다"}
+ ],
+
+ "unknown": [
+  "utils::distance / Entity::distance 의 정의(정수 sqrt 유클리드 여부)는 game_core 미독 — 두 호출이 같은 단위(실거리)라 비교 자체는 정합",
+  "top/mid/bottom_minions[team] 벡터가 어느 시점의 스냅샷인지(가시성 필터 여부)는 AbstractGameWithCache 생성부 미독",
+  "L230 unwrap_or_else 의 closure#1 은 인라인돼 별도 define 없음 — 좌표는 본문 select 로 직접 확정(team==0 이면 (48000,272000) 순, 아니면 뒤집힘)"
+ ]
+}

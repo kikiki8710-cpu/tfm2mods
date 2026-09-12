@@ -1,0 +1,69 @@
+{
+ "name": "v3_epic_formation_role",
+ "sym": "_RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old4epic22v3_epic_formation_role",
+ "src": "game-ai\\src\\plan_legacy\\old\\epic.rs",
+ "src_line": 781,
+ "ir_file": "m09.ll",
+ "ir_from": 64777,
+ "ir_to": 64972,
+
+ "one_line": "모르가드(에픽) 운용 전략(Gather/Split14/Split131)과 내 포지션으로 '분할 담당 라인'인지 '본대 압박 라인'인지 배정",
+
+ "signature": {
+  "params": [
+   {"i": 1, "name": "morgard_use", "type": "MorgardUseStrategy(8B, i64 로 전달)", "note": "tcxdict --enum: 니치 인코딩. low32 태그 5=Gather / 6=Split14(+0x4 position) / 0..4(=untagged)=Split131{+0x0 position1, +0x4 position2}. IR: %5=trunc low32, %6=lshr 32 (m09.ll:64778~64779)"},
+   {"i": 2, "name": "position", "type": "Position(i32, range 0..5)", "note": "판단 주체 선수의 포지션. tcxdict --enum Position: 0 Top/1 Jungle/2 Mid/3 Bottom/4 Support"},
+   {"i": 3, "name": "player", "type": "&PlayerState(2528B)", "note": "info.team(+0x930) 만 읽는다"},
+   {"i": 4, "name": "data", "type": "&OperationData(24B)", "note": "+0x0 cache, +0x8 context 를 읽어 하위 호출에 넘긴다"}
+  ],
+  "returns": "Option<V3EpicFormation>(2B) = { i8 is_split(0=false/1=true, 2=None 니치), i8 line: LineType(0 Top/1 Mid/2 Bottom) } — None 은 v3_group_press_line 이 None(-1) 을 돌려줄 때만"
+ },
+
+ "reads": [
+  {"base": "PlayerState", "offset": "0x930", "name": "info.team", "note": "gep 2352. v3_group_press_line 의 1인자·player_champion[team] 인덱스(범위밖이면 panic_bounds_check len=2, m09.ll:64878)"},
+  {"base": "OperationData", "offset": "0x0", "name": "cache", "note": "&AbstractGameWithCache. get_game_mode 호출·player_champion 조회·v3_group_press_line 2인자"},
+  {"base": "OperationData", "offset": "0x8", "name": "context", "note": "&GameContext(64B). line_exists 1인자·v3_group_press_line 3인자"},
+  {"base": "AbstractGameWithCache", "offset": "0x0", "name": "game (dyn AbstractGame data ptr)", "note": "Split14 경로 far_line 계산 시 get_game_mode 의 self (m09.ll:64809)"},
+  {"base": "AbstractGameWithCache", "offset": "0x8", "name": "game (dyn AbstractGame vtable ptr)", "note": "vtable+0x40 = get_game_mode (divtable AbstractGame 0x40)"},
+  {"base": "GameMode(16B enum, 반환값)", "offset": "0x0", "name": "판별자", "note": "0=Moba 면 페이로드 &MobaMode 사용, 아니면 far_line=Top (as_moba 인라인, game.rs:231; 여기선 unwrap 이 아니라 None 분기 있음)"},
+  {"base": "MobaMode", "offset": "0x1b0", "name": "jungle_runner.epic.next_respawn_tick", "note": "gep 432 = epic_tick (v3_split14_far_line 인라인, epic.rs:855)"},
+  {"base": "MobaMode", "offset": "0x1e0", "name": "jungle_runner.serpen.next_respawn_tick", "note": "gep 480 = serpen_tick (epic.rs:856)"},
+  {"base": "AbstractGameWithCache", "offset": "0x1e0", "name": "player_champion [[Option<&Entity>;5];2]", "note": "gep 480 → [team][position1] / [team][position2] 가 null(None) 인지 = position1_absent / position2_absent (Split131 경로, m09.ll:64887~64906)"}
+ ],
+
+ "writes": [],
+
+ "constants": [
+  {"value": 4, "src_line": 782, "meaning": "MorgardUseStrategy 니치 판별: low32 > 4 이면 태그(5 Gather / 6 Split14), 아니면(0..4 = 유효 Position) untagged Split131 (m09.ll:64785)"},
+  {"value": -5, "src_line": 782, "meaning": "태그 5/6 → switch 인덱스 0(Gather)/1(Split14) 로 정규화 (niche_start=5)"},
+  {"value": 2, "src_line": 782, "meaning": "니치 밖(low32<=4) 이면 switch 인덱스 2 = Split131. 또 LineType::Bottom 태그 2 / Option<V3EpicFormation> None 니치 2 로도 쓰임"},
+  {"value": -1, "src_line": 784, "meaning": "Option<LineType> None. v3_group_press_line 의 exclude 인자(None) 및 그 반환값 None 판정 (Gather·Split131 폴백 경로)"},
+  {"value": 0, "src_line": 857, "meaning": "LineType::Top 태그 0 (far_line 기본값·Split131 1순위 라인) / is_split=false"},
+  {"value": 1, "src_line": 804, "meaning": "LineType::Mid 태그 1 (Split131 3순위) / is_split=true"},
+  {"value": 5, "src_line": 796, "meaning": "player_champion[team][pos] 의 pos 상한(Position 5종) — panic_bounds_check len=5 (m09.ll:64897·64920)"},
+  {"value": 21474836480, "folded_from": 5, "src_line": 797, "meaning": "= 5<<32. morgard_use 전체 i64 < 5<<32 ⇔ high32(position2) < 5 의 접힌 비교 (m09.ll:64898)"},
+  {"value": 4294967295, "src_line": 796, "meaning": "0xFFFFFFFF 마스크 — i64 에서 low32(position1) 추출 (m09.ll:64881)"}
+ ],
+
+ "calls": [
+  "game_ai::plan_legacy::old::epic::v3_group_press_line",
+  "game_ai::plan_legacy::rule_scope::line_exists",
+  "core::panicking::panic_bounds_check"
+ ],
+
+ "logic": "fn v3_epic_formation_role(morgard_use: MorgardUseStrategy, position: Position, player: &PlayerState, data: &OperationData) -> Option<V3EpicFormation>\n// V3EpicFormation { is_split: bool, line: LineType }\n\n[L782] match morgard_use {\n\n  // ── Gather (태그 5) ────────────────────────────────\n  MorgardUseStrategy::Gather => {\n[L784]  v3_group_press_line(player /*team=+0x930*/, data /*cache,context*/, exclude=None(-1))\n            .map(|line| V3EpicFormation{ is_split:false, line })      // closure$0, None(-1) 이면 None\n  }\n\n  // ── Split14 (태그 6, position=split_position) ──────\n  MorgardUseStrategy::Split14 { position: split_position } => {\n[L787]  far_line: LineType = v3_split14_far_line(data) 인라인 (epic.rs:854~857):\n            match data.cache.game.get_game_mode() {           // vtable+0x40\n              GameMode::Moba(moba) => {                        // tag==0\n[L855]          epic_tick   = moba.jungle_runner.epic.next_respawn_tick   (+0x1b0)\n[L856]          serpen_tick = moba.jungle_runner.serpen.next_respawn_tick (+0x1e0)\n[L857]          if epic_tick > serpen_tick { Top } else { Bottom }      // icmp ugt → select 0 : 2\n              }\n              _ => Top                                          // phi [0, %20]\n            }\n[L788]  if split_position == position && line_exists(data.context, far_line) {\n            return Some(V3EpicFormation{ is_split:true, line: far_line })\n        }\n[L791]  v3_group_press_line(player, data, exclude=Some(far_line))\n            .map(|line| V3EpicFormation{ is_split:false, line })      // closure$1\n  }\n\n  // ── Split131 (untagged, position1/position2) ───────\n  MorgardUseStrategy::Split131 { position1, position2 } => {\n[L796]  team = player.info.team (+0x930)          // team>=2 → panic_bounds_check(len 2)\n        position1_absent = data.cache.player_champion(+0x1e0)[team][position1 as usize].is_none()   // pos>=5 → panic(len 5)\n[L797]  position2_absent = data.cache.player_champion[team][position2 as usize].is_none()\n[L798]  if line_exists(data.context, Top) {\n[L799]      if position1 == position || (position2 == position && position1_absent) {\n                return Some(V3EpicFormation{ is_split:true, line: Top })\n            }\n        }\n[L801]  if line_exists(data.context, Bottom) {\n[L802]      if position2 == position || (position1 == position && position2_absent) {\n                return Some(V3EpicFormation{ is_split:true, line: Bottom })\n            }\n        }\n[L804]  if line_exists(data.context, Mid) {\n            return Some(V3EpicFormation{ is_split:false, line: Mid })\n        }\n[L807]  v3_group_press_line(player, data, exclude=None(-1))\n            .map(|line| V3EpicFormation{ is_split:false, line })      // closure$2\n  }\n}\n[L811] ret\n\n※ 의미: Split14 = 1명이 '먼 라인'(에픽 리스폰이 서펜보다 늦으면 Top, 아니면 Bottom)을 홀로 맡고 나머지는 본대 압박.\n   Split131 = position1 이 Top, position2 가 Bottom 을 맡되, 한쪽 담당 챔프가 없으면(None) 남은 사람이 대신. 셋째 라인 Mid 가 있으면 본대는 Mid.\n※ line_exists 가 false 인 라인은 배정하지 않고 다음 후보로 넘어간다. 모든 폴백은 v3_group_press_line 이 정한다.\n※ 부작용 없음. 패닉: team>=2, position1/2>=5 (bounds check).",
+
+ "knobs": [
+  {"what": "Split14 먼 라인 선택 기준", "where": "epic.rs:857 (v3_split14_far_line 인라인, IR m09.ll:64821 `icmp ugt %34, %36`)", "value": "epic.next_respawn_tick > serpen.next_respawn_tick ? Top : Bottom",
+   "effect": "비교를 뒤집으면 분할 담당자가 반대 라인으로 간다. Moba 모드가 아니면 항상 Top"},
+  {"what": "Split131 라인 우선순위", "where": "epic.rs:798~804 (line_exists Top → Bottom → Mid 순)", "value": "Top(0) → Bottom(2) → Mid(1)",
+   "effect": "line_exists 호출 순서를 바꾸면 position1/position2 가 맡는 라인이 바뀐다. 현재 position1=Top, position2=Bottom, 본대=Mid"}
+ ],
+
+ "unknown": [
+  "epic.rs:799 / :802 의 `||`·`&&` 결합 순서(소스 표기)는 column 정보 부재로 복원 불가 — 외연은 IR 의 and/or 로 확정(위 logic 대로)",
+  "v3_group_press_line(m09.ll:64423~) 본문은 담당 범위 밖이라 안 읽음 — '본대 압박 라인' 선정 기준은 그 함수 명세 참조",
+  "rule_scope::line_exists(m13.ll:53138~) 내부(어떤 맵/컨텍스트 조건으로 라인 존재를 판정하는지)는 안 읽음",
+  "morgard_use 가 어디서 결정되는지(팀 전략 설정 → MorgardUseStrategy) 는 호출부 범위 밖"
+ ]
+}

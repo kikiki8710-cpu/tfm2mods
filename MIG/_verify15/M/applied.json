@@ -1,0 +1,9 @@
+{
+ "round": "15",
+ "batch": "M",
+ "errors_applied": 0,
+ "ev_applied": 0,
+ "failed": 2,
+ "stamps": {},
+ "restamped": true
+}

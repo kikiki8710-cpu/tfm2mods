@@ -1,0 +1,92 @@
+{
+ "name": "upgrade_item",
+ "sym": "_RNvCshdEBA0ozCnw_7game_ai12upgrade_item",
+ "src": "game-ai\\src\\lib.rs",
+ "src_line": 1603,
+ "ir_file": "m14.ll",
+ "ir_from": 6620,
+ "ir_to": 7067,
+
+ "one_line": "보유 아이템의 next_tier 후보 중 (활성 · 내 최대티어(4미만 기준)보다 높은 티어 · 가격≤골드) 인 것을 모아 무작위 1개를 (내 슬롯 i, item_list 인덱스) 로 돌려준다",
+
+ "signature": {
+  "params": [
+   {"i": 0, "name": "(sret)", "type": "*mut Option<(usize,usize)>(24B)", "note": "+0x0 태그(0=None,1=Some) / +0x8 내 아이템 슬롯 인덱스 i / +0x10 context.item_list 인덱스"},
+   {"i": 1, "name": "version", "type": "usize", "note": "본문에서 안 쓰임(dbg_value 없음, 분기 없음)"},
+   {"i": 2, "name": "rnd", "type": "&mut StdRng", "note": "후보가 2개 이상일 때 gen_range(0..len) 로 1개 선택"},
+   {"i": 3, "name": "player", "type": "&PlayerState(2528B)", "note": "info.items(+0x4a0/0x4a8) 와 info.gold(+0x998) 만 읽음"},
+   {"i": 4, "name": "game(data ptr)", "type": "&dyn AbstractGame (data 절반)", "note": "readnone — 본문에서 전혀 안 씀"},
+   {"i": 5, "name": "game(vtable ptr)", "type": "&dyn AbstractGame (vtable 절반)", "note": "본문에서 안 씀"},
+   {"i": 6, "name": "context", "type": "&GameContext(64B)", "note": "pool(+0x0, 후보 Vec 할당자) 와 item_list(+0x30)"}
+  ],
+  "returns": "Option<(usize, usize)> — Some((내 items 슬롯 i, 업그레이드 대상의 item_list 인덱스)) / None(후보 없음)"
+ },
+
+ "reads": [
+  {"base": "GameContext", "offset": "0x0", "name": "pool", "note": "&bumpalo::Bump — candidate Vec<(usize,usize)> 의 할당자"},
+  {"base": "GameContext", "offset": "0x30", "name": "item_list", "note": "&Vec<Box<dyn ItemInfo>> — 전체 아이템 사전"},
+  {"base": "Vec<Box<dyn ItemInfo>>(item_list)", "offset": "0x8", "name": "ptr", "note": "원소 16B = Box<dyn ItemInfo> 팻포인터 (data +0, vtable +8)"},
+  {"base": "Vec<Box<dyn ItemInfo>>(item_list)", "offset": "0x10", "name": "len", "note": "item_index_by_key 의 슬라이스 길이·bounds check"},
+  {"base": "PlayerState", "offset": "0x4a0", "name": "info.items.buf.ptr", "note": "내 아이템 Vec<Box<dyn ItemInfo>> 버퍼(원소 16B)"},
+  {"base": "PlayerState", "offset": "0x4a8", "name": "info.items.len", "note": "내 아이템 수. 0 이면 my_max_tier=0, 후보 0 → None"},
+  {"base": "PlayerState", "offset": "0x998", "name": "info.gold", "note": "usize. 후보 price 가 이보다 크면 제외"},
+  {"base": "dyn ItemInfo vtable", "offset": "0x50", "name": "is_active", "note": "divtable ItemInfo 0x50 (g02.ll vtable, 일치율 81%). false 면 후보 제외"},
+  {"base": "dyn ItemInfo vtable", "offset": "0x68", "name": "price", "note": "usize. > gold 면 제외"},
+  {"base": "dyn ItemInfo vtable", "offset": "0x70", "name": "tier", "note": "usize. 내 아이템에는 <4 필터+max, 후보에는 > my_max_tier 조건"},
+  {"base": "dyn ItemInfo vtable", "offset": "0x80", "name": "next_tier", "note": "-> &Vec<String> (다음 티어 아이템 키 목록)"},
+  {"base": "Vec<String>(next_tier 반환)", "offset": "0x8", "name": "ptr", "note": "원소 24B String"},
+  {"base": "Vec<String>(next_tier 반환)", "offset": "0x10", "name": "len", "note": ""},
+  {"base": "String(next_tier 원소)", "offset": "0x8", "name": "ptr", "note": "item_index_by_key 의 &str 인자"},
+  {"base": "String(next_tier 원소)", "offset": "0x10", "name": "len", "note": ""},
+  {"base": "bumpalo Vec<(usize,usize)>(candidate, 32B 지역)", "offset": "0x0", "name": "ptr", "note": "초기 dangling(8). 원소 16B (i, index)"},
+  {"base": "bumpalo Vec<(usize,usize)>(candidate)", "offset": "0x10", "name": "cap", "note": "len==cap 이면 reserve_internal_or_panic"},
+  {"base": "bumpalo Vec<(usize,usize)>(candidate)", "offset": "0x18", "name": "len", "note": "0 이면 None. gen_range(0..len) 의 상한"}
+ ],
+
+ "writes": [
+  {"base": "Option<(usize,usize)>(sret)", "offset": "0x0", "name": "태그", "value": "0 (None) / 1 (Some)", "note": "L1637 None / L1634 Some"},
+  {"base": "Option<(usize,usize)>(sret)", "offset": "0x8", "name": "Some.0 = 내 슬롯 i", "value": "candidate[rnd].0", "note": ""},
+  {"base": "Option<(usize,usize)>(sret)", "offset": "0x10", "name": "Some.1 = item_list 인덱스", "value": "candidate[rnd].1", "note": ""},
+  {"base": "bumpalo Vec<(usize,usize)>(candidate, 지역)", "offset": "0x0", "name": "ptr/bump/cap/len 초기화 및 push", "value": "(i, index) 누적", "note": "지역 변수라 외부 상태 변경 없음. 함수 끝에 Drop"}
+ ],
+
+ "constants": [
+  {"value": 4, "src_line": 1610, "meaning": "my_max_tier 계산 시 tier() < 4 인 내 아이템만 센다(티어 4 이상 아이템은 최대티어 계산에서 제외). 두 루프(첫 매치 탐색·max fold) 모두 같은 4"},
+  {"value": 0, "src_line": 1610, "meaning": "tier<4 인 아이템이 하나도 없으면 my_max_tier = 0 (phi 기본값 — unwrap_or(0) 또는 동등 표현)"},
+  {"value": 0, "src_line": 1637, "meaning": "Option 태그 0 = None (후보 비었을 때)"},
+  {"value": 1, "src_line": 1634, "meaning": "Option 태그 1 = Some"},
+  {"value": 0, "src_line": 1634, "meaning": "gen_range 하한 0 — 후보 인덱스 0..len"}
+ ],
+
+ "calls": [
+  "core::iter::traits::iterator::Iterator::fold",
+  "game_core::setting::item::item_index_by_key",
+  "bumpalo::collections::raw_vec::RawVec::reserve_internal_or_panic",
+  "rand::rng::Rng::gen_range",
+  "core::ops::drop::Drop::drop",
+  "core::ptr::drop_glue",
+  "core::panicking::panic_bounds_check",
+  "llvm.memset.p0.i64"
+ ],
+
+ "logic": "fn upgrade_item(_version, rnd, player, _game, context) -> Option<(usize, usize)>\n// L1604~1605\nlet pool = context.pool; let item_list = context.item_list;   // +0x0 / +0x30\n// L1610 (클로저 L1614): 내 아이템 중 tier<4 인 것의 최대 tier, 없으면 0\nlet my_max_tier = player.info.items.iter().filter(|it| it.tier() < 4).map(|it| it.tier()).max().unwrap_or(0);\n   // IR: 1차 루프로 tier<4 인 첫 원소를 찾고(없으면 0), 2차 루프로 first 를 잡은 뒤 fold(max_by Ord::cmp)\n// L1621\nlet mut candidate: bumpalo Vec<(usize,usize)> = Vec::new_in(pool);\n// L1622\nfor (i, my_item) in player.info.items.iter().enumerate() {\n  // L1623\n  for nxt in my_item.next_tier().iter() {            // vtable+0x80 -> &Vec<String>\n    // L1625\n    if let Some(index) = item_index_by_key(item_list, nxt) {   // Option<usize> {tag, idx}\n      let it = &item_list[index];                    // bounds check\n      // L1626 (단락 평가 순서 = IR 순서)\n      if it.is_active()                              // vtable+0x50\n         && it.tier() > my_max_tier                  // vtable+0x70, ugt\n         && !(it.price() > player.info.gold)         // vtable+0x68 vs +0x998  ⇔ price <= gold\n      {\n        candidate.push((i, index));                  // L1627\n      }\n    }\n  }\n}\n// L1633\nif candidate.is_empty() { return None; }             // L1637\n// L1634\nlet k = rnd.gen_range(0..candidate.len());\nSome(candidate[k])",
+
+ "knobs": [
+  {"what": "최대티어 산정에서 제외할 티어 하한", "where": "lib.rs:1610", "value": 4,
+   "effect": "tier<4 만 센다. 내리면(예: 3) 3티어 아이템도 my_max_tier 에서 빠져 더 낮은 티어로의 '업그레이드'도 후보가 된다. 올리면 고티어 보유 시 후보가 줄어든다(후보 조건이 tier > my_max_tier 이므로)"},
+  {"what": "후보 조건 tier > my_max_tier", "where": "lib.rs:1626", "value": "strict >",
+   "effect": ">= 로 바꾸면 같은 티어 간 교체도 업그레이드 후보가 된다"},
+  {"what": "가격 조건 price <= gold", "where": "lib.rs:1626", "value": "price > gold 면 제외",
+   "effect": "골드 여유분(예: gold - 예비금)을 두면 업그레이드가 늦어진다"},
+  {"what": "후보 선택 방식", "where": "lib.rs:1634", "value": "균등 무작위",
+   "effect": "가격/티어 가중 선택으로 바꾸면 rnd 소비가 달라져 시드 재현이 깨진다"}
+ ],
+
+ "unknown": [
+  "my_max_tier 의 소스 표기(`filter(..).map(..).max().unwrap_or(0)` vs `filter_map(..).max()` 등)는 외연이 같아 표기 불가 — IR 은 1차 탐색 루프 + max_by fold(심볼에 upgrade_item 클로저 s_0·s0_0) 로 나온다",
+  "L1626 세 조건의 소스 순서는 IR 평가 순서(is_active → tier → price)로 적었다. column 정보가 없어 한 줄 안 순서는 IR 단락 순서를 근거로 한다",
+  "version(%1)·game(%4,%5) 은 본문에서 사용 흔적 0 — 왜 시그니처에 있는지는 트레이트 AiAgent::upgrade_item 규격 때문으로 추정(lib.rs:440/1193 의 래퍼 미확인, 미탐색)",
+  "item_index_by_key(game_core item.rs:367) 는 TLS 메모(ITEM_INDEX_MEMO)로 키→인덱스를 찾는다(g02.ll:157331 본문 앞부분만 확인). 키 불일치 시 None 인 것 외 세부는 미탐색",
+  "ItemInfo vtable 슬롯 이름은 divtable(g02.ll 정적 vtable, 일치율 81%) 기준. 런타임에 꽂히는 구현체별 tier/price 값은 이 함수 밖"
+ ]
+}

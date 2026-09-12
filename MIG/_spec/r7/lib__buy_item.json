@@ -1,0 +1,108 @@
+{
+ "name": "buy_item",
+ "sym": "_RNvCshdEBA0ozCnw_7game_ai8buy_item",
+ "src": "game-ai\\src\\lib.rs",
+ "src_line": 1477,
+ "ir_file": "m14.ll",
+ "ir_from": 8267,
+ "ir_to": 8721,
+
+ "one_line": "저티어(<4) 보유템이 없고 보유 ≤2개일 때, 활성·구매가능·tier0 아이템 중 챔피언 카테고리(근접/원거리/마법/유틸/암살)와 기본 HP 에 따라 허용 카테고리를 골라 후보를 만들고 무작위 1개 item_list 인덱스를 돌려준다",
+
+ "signature": {
+  "params": [
+   {"i": 0, "name": "version", "type": "usize", "note": "본문에서 안 쓰임(dbg_value 없음, 분기 없음)"},
+   {"i": 1, "name": "rnd", "type": "&mut StdRng", "note": "gen_range(0..candidate.len()) 로 최종 1개 선택"},
+   {"i": 2, "name": "player", "type": "&PlayerState(2528B)", "note": "info.items(+0x4a0/+0x4a8) · info.champion(+0x510 Arc<dyn ChampionInfo>) · info.gold(+0x998)"},
+   {"i": 3, "name": "game(data ptr)", "type": "&dyn AbstractGame data 절반", "note": "readnone — 안 씀"},
+   {"i": 4, "name": "game(vtable ptr)", "type": "&dyn AbstractGame vtable 절반", "note": "안 씀"},
+   {"i": 5, "name": "context", "type": "&GameContext(64B)", "note": "pool(+0x0) · item_list(+0x30)"}
+  ],
+  "returns": "Option<usize> = {i64 tag(0=None,1=Some), i64 item_list 인덱스}"
+ },
+
+ "reads": [
+  {"base": "PlayerState", "offset": "0x4a0", "name": "info.items.buf.ptr", "note": "Box<dyn ItemInfo> 16B 원소. has_low_tier_item 스캔"},
+  {"base": "PlayerState", "offset": "0x4a8", "name": "info.items.len", "note": "①>2 면 후보 0 ②==2 / {0,2} vs 1 로 카테고리 규칙 분기"},
+  {"base": "PlayerState", "offset": "0x510", "name": "info.champion (Arc<dyn ChampionInfo> data ptr)", "note": "ArcInner 헤더(16B, vtable align 정렬) 건너뛰어 내부 참조를 만든다"},
+  {"base": "PlayerState", "offset": "0x518", "name": "info.champion vtable ptr", "note": "슬롯 +0x10 align / +0x20 category() / +0x30 stat() (divtable ChampionInfo 93%)"},
+  {"base": "PlayerState", "offset": "0x998", "name": "info.gold", "note": "price > gold 면 제외"},
+  {"base": "GameContext", "offset": "0x0", "name": "pool", "note": "candidate Vec<usize>(bumpalo) 할당자"},
+  {"base": "GameContext", "offset": "0x30", "name": "item_list", "note": "&Vec<Box<dyn ItemInfo>> 전체 아이템 사전 — 후보 인덱스의 기준"},
+  {"base": "Vec<Box<dyn ItemInfo>>(item_list)", "offset": "0x8", "name": "ptr", "note": ""},
+  {"base": "Vec<Box<dyn ItemInfo>>(item_list)", "offset": "0x10", "name": "len", "note": ""},
+  {"base": "dyn ItemInfo vtable", "offset": "0x50", "name": "is_active", "note": "false → 제외"},
+  {"base": "dyn ItemInfo vtable", "offset": "0x68", "name": "price", "note": "> gold → 제외"},
+  {"base": "dyn ItemInfo vtable", "offset": "0x70", "name": "tier", "note": "보유템 스캔(<4) 및 후보 조건(==0)"},
+  {"base": "dyn ItemInfo vtable", "offset": "0xa0", "name": "category", "note": "-> ItemCategory(i32): 0 AD/1 AttackSpeed/2 Defense/3 MagicResistance/4 Magic/5 Hp/6 Support"},
+  {"base": "dyn ChampionInfo vtable", "offset": "0x20", "name": "category", "note": "-> ChampionCategory(i32): 0 Melee/1 Range/2 Magician/3 Util/4 Assassin. 5 이상은 unreachable"},
+  {"base": "dyn ChampionInfo vtable", "offset": "0x30", "name": "stat", "note": "-> EntityStat(72B, sret). Melee/Util 규칙에서만 호출(최대 2회)"},
+  {"base": "EntityStat(stat() 반환)", "offset": "0x10", "name": "hp", "note": "기본 HP. 1550 / 1800 임계와 비교"},
+  {"base": "bumpalo Vec<usize>(candidate, 32B 지역)", "offset": "0x10", "name": "cap", "note": "len==cap → reserve_internal_or_panic"},
+  {"base": "bumpalo Vec<usize>(candidate)", "offset": "0x18", "name": "len", "note": "0 → None. gen_range 상한"},
+  {"base": "bumpalo Vec<usize>(candidate)", "offset": "0x0", "name": "ptr", "note": "candidate[k] 로드"}
+ ],
+
+ "writes": [
+  {"base": "bumpalo Vec<usize>(candidate, 지역)", "offset": "0x0", "name": "ptr/bump/cap/len 초기화 · push(i)", "value": "item_list 인덱스 i 누적", "note": "지역 변수, 외부 상태 변경 없음. 종료 시 Drop"}
+ ],
+
+ "constants": [
+  {"value": 4, "src_line": 1480, "meaning": "has_low_tier_item = 보유템 중 tier() < 4 가 하나라도 있으면 → 즉시 None(구매 대신 업그레이드 대상이 있다는 뜻)"},
+  {"value": 2, "src_line": 1496, "meaning": "보유템 수 > 2 이면 모든 아이템 skip(=후보 0 → None). 즉 보유 0~2개일 때만 신규 구매"},
+  {"value": 0, "src_line": 1508, "meaning": "tier() == 0 인 아이템만 구매 후보(기초 아이템)"},
+  {"value": 2, "src_line": 1514, "meaning": "ItemCategory 2 = Defense → is_defensive"},
+  {"value": 3, "src_line": 1514, "meaning": "ItemCategory 3 = MagicResistance → is_defensive"},
+  {"value": 5, "src_line": 1514, "meaning": "ItemCategory 5 = Hp → is_defensive"},
+  {"value": 4, "src_line": 1515, "meaning": "ItemCategory 4 = Magic → is_magic"},
+  {"value": 2, "src_line": 1526, "meaning": "category < 2 ⇔ AD(0) 또는 AttackSpeed(1) = 공격형 아이템. L1539/L1559/L1570 도 같은 비교"},
+  {"value": 0, "src_line": 1518, "meaning": "ChampionCategory 0 = Melee 분기"},
+  {"value": 1, "src_line": 1518, "meaning": "ChampionCategory 1 = Range 분기"},
+  {"value": 2, "src_line": 1518, "meaning": "ChampionCategory 2 = Magician 분기"},
+  {"value": 3, "src_line": 1518, "meaning": "ChampionCategory 3 = Util 분기"},
+  {"value": 4, "src_line": 1518, "meaning": "ChampionCategory 4 = Assassin 분기"},
+  {"value": 1550, "src_line": 1523, "meaning": "Melee: 기본 HP(stat().hp) < 1550 이면 '저HP 근접' 규칙. Util(L1582)도 같은 1550 임계"},
+  {"value": 1800, "src_line": 1536, "meaning": "Melee: HP ≥1550 이고 < 1800 이면 '중간HP 근접' 규칙, ≥1800 이면 방어템만"},
+  {"value": 2, "src_line": 1537, "meaning": "Melee 중간HP: 보유템이 정확히 2개면 공격형, 아니면 방어형"},
+  {"value": 0, "src_line": 1524, "meaning": "보유템 수 match {0 | 2 => 공격형, _ => 방어형} (Melee 저HP L1524, Assassin L1557 동일 패턴)"},
+  {"value": 0, "src_line": 1600, "meaning": "Option 태그 0 = None"},
+  {"value": 1, "src_line": 1600, "meaning": "Option 태그 1 = Some"},
+  {"value": 0, "src_line": 1596, "meaning": "gen_range 하한 0"}
+ ],
+
+ "calls": [
+  "rand::rng::Rng::gen_range",
+  "bumpalo::collections::raw_vec::RawVec::reserve_internal_or_panic",
+  "core::ops::drop::Drop::drop",
+  "core::ptr::drop_glue",
+  "core::panicking::panic_bounds_check",
+  "llvm.memset.p0.i64",
+  "llvm.assume"
+ ],
+
+ "logic": "fn buy_item(_version, rnd, player, _game, context) -> Option<usize>\n// L1480\nlet has_low_tier_item = player.info.items.iter().any(|x| x.tier() < 4);   // vtable+0x70\nif has_low_tier_item { return None; }\n// L1487~1491\nlet pool = context.pool; let item_list = context.item_list;\nlet mut candidate: bumpalo Vec<usize> = Vec::new_in(pool);\n// L1493\nlet tag = player.info.champion.category();                      // ChampionCategory (vtable+0x20)\n// L1495\nfor (i, item) in item_list.iter().enumerate() {\n  if player.info.items.len() > 2 { continue; }                   // L1496 (루프 불변)\n  if !item.is_active() { continue; }                             // L1500 vtable+0x50\n  if item.price() > player.info.gold { continue; }               // L1504 vtable+0x68 vs +0x998\n  if item.tier() != 0 { continue; }                              // L1508\n  let category = item.category();                                // L1512 vtable+0xa0 (ItemCategory)\n  let is_defensive = matches!(category, Defense(2) | MagicResistance(3) | Hp(5));   // L1514\n  let is_magic = category == Magic(4);                           // L1515\n  let n = player.info.items.len();\n  let ok = match tag {                                           // L1518\n    Melee(0) => {                                                // L1523\n      let hp = player.info.champion.stat().hp;                   // vtable+0x30, EntityStat+0x10\n      if hp < 1550 { match n { 0 | 2 => category < 2, _ => is_defensive } }        // L1524~1531\n      else if player.info.champion.stat().hp < 1800 {                              // L1536 (stat() 재호출)\n        if n == 2 { category < 2 } else { is_defensive } }                          // L1537~1544\n      else { is_defensive }                                                         // L1551\n    }\n    Assassin(4) => match n { 0 | 2 => category < 2, _ => is_defensive },           // L1557~1564\n    Range(1) => category < 2,                                                       // L1570\n    Magician(2) => is_magic,                                                        // L1575\n    Util(3) => { let hp = player.info.champion.stat().hp;                           // L1582\n                 if hp < 1550 { is_magic } else { is_defensive } }                  // L1583/1586\n    _ => unreachable,\n  };\n  if ok { candidate.push(i); }                                   // L1592\n}\n// L1595\nif candidate.is_empty() { return None; }\n// L1596\nSome(candidate[rnd.gen_range(0..candidate.len())])",
+
+ "knobs": [
+  {"what": "구매 대신 업그레이드로 넘기는 보유템 티어 상한", "where": "lib.rs:1480", "value": 4,
+   "effect": "tier<4 보유템이 하나라도 있으면 신규 구매 안 함. 값을 내리면(예: 3) 3티어 보유 중에도 기초템을 더 산다"},
+  {"what": "신규 구매 허용 보유템 수 상한", "where": "lib.rs:1496", "value": 2,
+   "effect": "보유 3개 이상이면 구매 없음. 슬롯 확장 모드(4칸)와 맞물려 3 으로 올리면 4번째 기초템을 산다"},
+  {"what": "근접 챔피언 저HP/중HP 경계", "where": "lib.rs:1523 / 1536", "value": "1550 / 1800",
+   "effect": "기본 HP 가 낮은 근접은 공격템 우선(0·2개째), 높으면 방어템만. 올리면 더 많은 근접이 공격템을 산다"},
+  {"what": "유틸 챔피언 HP 경계", "where": "lib.rs:1582", "value": 1550,
+   "effect": "HP<1550 유틸은 마법템, 아니면 방어템"},
+  {"what": "'공격형' 카테고리 판정", "where": "lib.rs:1526 등", "value": "category < 2 (AD·AttackSpeed)",
+   "effect": "Support(6)·Magic(4) 은 근접/원거리/암살 후보에 절대 안 들어감"},
+  {"what": "후보 선택", "where": "lib.rs:1596", "value": "균등 무작위",
+   "effect": "가중치 도입 시 rnd 소비 변화로 시드 재현 깨짐"}
+ ],
+
+ "unknown": [
+  "L1480 의 소스 표기(`any(|x| x.tier() < 4)` vs `iter().find(..).is_some()` 등)는 표기 불가(외연 동일). IR 은 첫 매치에서 즉시 None 반환",
+  "L1536 에서 stat() 을 다시 호출하는 것(sret 72B 두 번째 alloca)은 IR 사실 — 소스가 `player.info.champion.stat().hp` 를 두 번 쓴 것으로 보이나 지역변수 재사용 여부는 표기 불가. stat() 이 결정적이면 결과 동일",
+  "version(%0)·game(%3,%4) 미사용 — AiAgent 트레이트 규격 추정(lib.rs:437/1173 래퍼 미확인, 미탐색)",
+  "ChampionCategory 5 이상은 `unreachable` — 열거형이 5 variant 라 발생 불가",
+  "ItemCategory Support(6) 는 어떤 챔피언 카테고리에서도 후보가 되지 않는다(is_defensive·is_magic·<2 어디에도 없음) — 의도인지는 소스 주석 부재로 미확인",
+  "candidate.push 앞 `icmp ult len, 2^59` assume 는 slice 길이 상한 가정(컴파일러 삽입)이라 상수 목록에서 제외"
+ ]
+}

@@ -1,0 +1,628 @@
+setting_ok	true	width=960000	height=960000	tps=60	champ_radius=10000	visible=130000
+SHOP	0	ad0	tier=0	price=300	cat=0	active=true	idx_by_key=Some(0)
+SHOP	1	as0	tier=0	price=400	cat=1	active=true	idx_by_key=Some(1)
+SHOP	2	def0	tier=0	price=500	cat=2	active=true	idx_by_key=Some(2)
+SHOP	3	mr0	tier=0	price=500	cat=3	active=true	idx_by_key=Some(3)
+SHOP	4	mag0	tier=0	price=450	cat=4	active=true	idx_by_key=Some(4)
+SHOP	5	hp0	tier=0	price=350	cat=5	active=true	idx_by_key=Some(5)
+SHOP	6	sup0	tier=0	price=100	cat=6	active=true	idx_by_key=Some(6)
+SHOP	7	ad1	tier=1	price=1200	cat=0	active=true	idx_by_key=Some(7)
+SHOP	8	ad2	tier=2	price=2500	cat=0	active=true	idx_by_key=Some(8)
+SHOP	9	ad2x	tier=2	price=9999	cat=0	active=true	idx_by_key=Some(9)
+SHOP	10	inactive0	tier=0	price=100	cat=0	active=false	idx_by_key=Some(10)
+SHOP	11	ad1_inactive	tier=1	price=100	cat=0	active=false	idx_by_key=Some(11)
+SHOP	12	t4	tier=4	price=100	cat=0	active=true	idx_by_key=Some(12)
+SHOP	13	t5	tier=5	price=100	cat=0	active=true	idx_by_key=Some(13)
+SHOP	14	t3	tier=3	price=100	cat=2	active=true	idx_by_key=Some(14)
+ITEM_INDEX_MISSING	None
+CHAMP	Swordman	cat=0	stat.hp=1234
+CHAMP	Archer	cat=0	stat.hp=1234
+CHAMP	Pythoness	cat=0	stat.hp=1234
+CHAMP	Priest	cat=0	stat.hp=1234
+CHAMP	Ninja	cat=0	stat.hp=1234
+CHAMP	Knight	cat=0	stat.hp=1234
+CHAMP	Fighter	cat=0	stat.hp=1234
+CHAMP	Monk	cat=0	stat.hp=1234
+CHAMP	Pyromancer	cat=0	stat.hp=1234
+CHAMP	IceMage	cat=0	stat.hp=1234
+CHAMP	Soldier	cat=0	stat.hp=1234
+REP	[Some("Swordman"), None, None, None, None]
+PID	0	item_builds_len=0
+CHAMP_PATCHED	cat_req=0	cat_got=0	stat.hp=5
+BUY	cat=0(Swordman(cat-patched))	hp=1000	owned=[]	gold=10000	game=Some(0)	mine=Some(0)	cands=Some([0, 1])	MATCH
+BUY	cat=0(Swordman(cat-patched))	hp=1000	owned=[]	gold=350	game=Some(0)	mine=Some(0)	cands=Some([0])	MATCH
+BUY	cat=0(Swordman(cat-patched))	hp=1000	owned=[]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=0(Swordman(cat-patched))	hp=1000	owned=[ad1]	gold=10000	game=None	mine=None	cands=None	MATCH
+BUY	cat=0(Swordman(cat-patched))	hp=1000	owned=[ad1]	gold=350	game=None	mine=None	cands=None	MATCH
+BUY	cat=0(Swordman(cat-patched))	hp=1000	owned=[ad1]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=0(Swordman(cat-patched))	hp=1000	owned=[t4]	gold=10000	game=Some(2)	mine=Some(2)	cands=Some([2, 3, 5])	MATCH
+BUY	cat=0(Swordman(cat-patched))	hp=1000	owned=[t4]	gold=350	game=Some(5)	mine=Some(5)	cands=Some([5])	MATCH
+BUY	cat=0(Swordman(cat-patched))	hp=1000	owned=[t4]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=0(Swordman(cat-patched))	hp=1000	owned=[t4,t5]	gold=10000	game=Some(0)	mine=Some(0)	cands=Some([0, 1])	MATCH
+BUY	cat=0(Swordman(cat-patched))	hp=1000	owned=[t4,t5]	gold=350	game=Some(0)	mine=Some(0)	cands=Some([0])	MATCH
+BUY	cat=0(Swordman(cat-patched))	hp=1000	owned=[t4,t5]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=0(Swordman(cat-patched))	hp=1000	owned=[t4,t5,t4]	gold=10000	game=None	mine=None	cands=None	MATCH
+BUY	cat=0(Swordman(cat-patched))	hp=1000	owned=[t4,t5,t4]	gold=350	game=None	mine=None	cands=None	MATCH
+BUY	cat=0(Swordman(cat-patched))	hp=1000	owned=[t4,t5,t4]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=0(Swordman(cat-patched))	hp=1000	owned=[t3]	gold=10000	game=None	mine=None	cands=None	MATCH
+BUY	cat=0(Swordman(cat-patched))	hp=1000	owned=[t3]	gold=350	game=None	mine=None	cands=None	MATCH
+BUY	cat=0(Swordman(cat-patched))	hp=1000	owned=[t3]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=0(Swordman(cat-patched))	hp=1549	owned=[]	gold=10000	game=Some(0)	mine=Some(0)	cands=Some([0, 1])	MATCH
+BUY	cat=0(Swordman(cat-patched))	hp=1549	owned=[]	gold=350	game=Some(0)	mine=Some(0)	cands=Some([0])	MATCH
+BUY	cat=0(Swordman(cat-patched))	hp=1549	owned=[]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=0(Swordman(cat-patched))	hp=1549	owned=[ad1]	gold=10000	game=None	mine=None	cands=None	MATCH
+BUY	cat=0(Swordman(cat-patched))	hp=1549	owned=[ad1]	gold=350	game=None	mine=None	cands=None	MATCH
+BUY	cat=0(Swordman(cat-patched))	hp=1549	owned=[ad1]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=0(Swordman(cat-patched))	hp=1549	owned=[t4]	gold=10000	game=Some(2)	mine=Some(2)	cands=Some([2, 3, 5])	MATCH
+BUY	cat=0(Swordman(cat-patched))	hp=1549	owned=[t4]	gold=350	game=Some(5)	mine=Some(5)	cands=Some([5])	MATCH
+BUY	cat=0(Swordman(cat-patched))	hp=1549	owned=[t4]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=0(Swordman(cat-patched))	hp=1549	owned=[t4,t5]	gold=10000	game=Some(0)	mine=Some(0)	cands=Some([0, 1])	MATCH
+BUY	cat=0(Swordman(cat-patched))	hp=1549	owned=[t4,t5]	gold=350	game=Some(0)	mine=Some(0)	cands=Some([0])	MATCH
+BUY	cat=0(Swordman(cat-patched))	hp=1549	owned=[t4,t5]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=0(Swordman(cat-patched))	hp=1549	owned=[t4,t5,t4]	gold=10000	game=None	mine=None	cands=None	MATCH
+BUY	cat=0(Swordman(cat-patched))	hp=1549	owned=[t4,t5,t4]	gold=350	game=None	mine=None	cands=None	MATCH
+BUY	cat=0(Swordman(cat-patched))	hp=1549	owned=[t4,t5,t4]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=0(Swordman(cat-patched))	hp=1549	owned=[t3]	gold=10000	game=None	mine=None	cands=None	MATCH
+BUY	cat=0(Swordman(cat-patched))	hp=1549	owned=[t3]	gold=350	game=None	mine=None	cands=None	MATCH
+BUY	cat=0(Swordman(cat-patched))	hp=1549	owned=[t3]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=0(Swordman(cat-patched))	hp=1550	owned=[]	gold=10000	game=Some(2)	mine=Some(2)	cands=Some([2, 3, 5])	MATCH
+BUY	cat=0(Swordman(cat-patched))	hp=1550	owned=[]	gold=350	game=Some(5)	mine=Some(5)	cands=Some([5])	MATCH
+BUY	cat=0(Swordman(cat-patched))	hp=1550	owned=[]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=0(Swordman(cat-patched))	hp=1550	owned=[ad1]	gold=10000	game=None	mine=None	cands=None	MATCH
+BUY	cat=0(Swordman(cat-patched))	hp=1550	owned=[ad1]	gold=350	game=None	mine=None	cands=None	MATCH
+BUY	cat=0(Swordman(cat-patched))	hp=1550	owned=[ad1]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=0(Swordman(cat-patched))	hp=1550	owned=[t4]	gold=10000	game=Some(2)	mine=Some(2)	cands=Some([2, 3, 5])	MATCH
+BUY	cat=0(Swordman(cat-patched))	hp=1550	owned=[t4]	gold=350	game=Some(5)	mine=Some(5)	cands=Some([5])	MATCH
+BUY	cat=0(Swordman(cat-patched))	hp=1550	owned=[t4]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=0(Swordman(cat-patched))	hp=1550	owned=[t4,t5]	gold=10000	game=Some(0)	mine=Some(0)	cands=Some([0, 1])	MATCH
+BUY	cat=0(Swordman(cat-patched))	hp=1550	owned=[t4,t5]	gold=350	game=Some(0)	mine=Some(0)	cands=Some([0])	MATCH
+BUY	cat=0(Swordman(cat-patched))	hp=1550	owned=[t4,t5]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=0(Swordman(cat-patched))	hp=1550	owned=[t4,t5,t4]	gold=10000	game=None	mine=None	cands=None	MATCH
+BUY	cat=0(Swordman(cat-patched))	hp=1550	owned=[t4,t5,t4]	gold=350	game=None	mine=None	cands=None	MATCH
+BUY	cat=0(Swordman(cat-patched))	hp=1550	owned=[t4,t5,t4]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=0(Swordman(cat-patched))	hp=1550	owned=[t3]	gold=10000	game=None	mine=None	cands=None	MATCH
+BUY	cat=0(Swordman(cat-patched))	hp=1550	owned=[t3]	gold=350	game=None	mine=None	cands=None	MATCH
+BUY	cat=0(Swordman(cat-patched))	hp=1550	owned=[t3]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=0(Swordman(cat-patched))	hp=1799	owned=[]	gold=10000	game=Some(2)	mine=Some(2)	cands=Some([2, 3, 5])	MATCH
+BUY	cat=0(Swordman(cat-patched))	hp=1799	owned=[]	gold=350	game=Some(5)	mine=Some(5)	cands=Some([5])	MATCH
+BUY	cat=0(Swordman(cat-patched))	hp=1799	owned=[]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=0(Swordman(cat-patched))	hp=1799	owned=[ad1]	gold=10000	game=None	mine=None	cands=None	MATCH
+BUY	cat=0(Swordman(cat-patched))	hp=1799	owned=[ad1]	gold=350	game=None	mine=None	cands=None	MATCH
+BUY	cat=0(Swordman(cat-patched))	hp=1799	owned=[ad1]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=0(Swordman(cat-patched))	hp=1799	owned=[t4]	gold=10000	game=Some(2)	mine=Some(2)	cands=Some([2, 3, 5])	MATCH
+BUY	cat=0(Swordman(cat-patched))	hp=1799	owned=[t4]	gold=350	game=Some(5)	mine=Some(5)	cands=Some([5])	MATCH
+BUY	cat=0(Swordman(cat-patched))	hp=1799	owned=[t4]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=0(Swordman(cat-patched))	hp=1799	owned=[t4,t5]	gold=10000	game=Some(0)	mine=Some(0)	cands=Some([0, 1])	MATCH
+BUY	cat=0(Swordman(cat-patched))	hp=1799	owned=[t4,t5]	gold=350	game=Some(0)	mine=Some(0)	cands=Some([0])	MATCH
+BUY	cat=0(Swordman(cat-patched))	hp=1799	owned=[t4,t5]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=0(Swordman(cat-patched))	hp=1799	owned=[t4,t5,t4]	gold=10000	game=None	mine=None	cands=None	MATCH
+BUY	cat=0(Swordman(cat-patched))	hp=1799	owned=[t4,t5,t4]	gold=350	game=None	mine=None	cands=None	MATCH
+BUY	cat=0(Swordman(cat-patched))	hp=1799	owned=[t4,t5,t4]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=0(Swordman(cat-patched))	hp=1799	owned=[t3]	gold=10000	game=None	mine=None	cands=None	MATCH
+BUY	cat=0(Swordman(cat-patched))	hp=1799	owned=[t3]	gold=350	game=None	mine=None	cands=None	MATCH
+BUY	cat=0(Swordman(cat-patched))	hp=1799	owned=[t3]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=0(Swordman(cat-patched))	hp=1800	owned=[]	gold=10000	game=Some(2)	mine=Some(2)	cands=Some([2, 3, 5])	MATCH
+BUY	cat=0(Swordman(cat-patched))	hp=1800	owned=[]	gold=350	game=Some(5)	mine=Some(5)	cands=Some([5])	MATCH
+BUY	cat=0(Swordman(cat-patched))	hp=1800	owned=[]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=0(Swordman(cat-patched))	hp=1800	owned=[ad1]	gold=10000	game=None	mine=None	cands=None	MATCH
+BUY	cat=0(Swordman(cat-patched))	hp=1800	owned=[ad1]	gold=350	game=None	mine=None	cands=None	MATCH
+BUY	cat=0(Swordman(cat-patched))	hp=1800	owned=[ad1]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=0(Swordman(cat-patched))	hp=1800	owned=[t4]	gold=10000	game=Some(2)	mine=Some(2)	cands=Some([2, 3, 5])	MATCH
+BUY	cat=0(Swordman(cat-patched))	hp=1800	owned=[t4]	gold=350	game=Some(5)	mine=Some(5)	cands=Some([5])	MATCH
+BUY	cat=0(Swordman(cat-patched))	hp=1800	owned=[t4]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=0(Swordman(cat-patched))	hp=1800	owned=[t4,t5]	gold=10000	game=Some(2)	mine=Some(2)	cands=Some([2, 3, 5])	MATCH
+BUY	cat=0(Swordman(cat-patched))	hp=1800	owned=[t4,t5]	gold=350	game=Some(5)	mine=Some(5)	cands=Some([5])	MATCH
+BUY	cat=0(Swordman(cat-patched))	hp=1800	owned=[t4,t5]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=0(Swordman(cat-patched))	hp=1800	owned=[t4,t5,t4]	gold=10000	game=None	mine=None	cands=None	MATCH
+BUY	cat=0(Swordman(cat-patched))	hp=1800	owned=[t4,t5,t4]	gold=350	game=None	mine=None	cands=None	MATCH
+BUY	cat=0(Swordman(cat-patched))	hp=1800	owned=[t4,t5,t4]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=0(Swordman(cat-patched))	hp=1800	owned=[t3]	gold=10000	game=None	mine=None	cands=None	MATCH
+BUY	cat=0(Swordman(cat-patched))	hp=1800	owned=[t3]	gold=350	game=None	mine=None	cands=None	MATCH
+BUY	cat=0(Swordman(cat-patched))	hp=1800	owned=[t3]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=0(Swordman(cat-patched))	hp=3000	owned=[]	gold=10000	game=Some(2)	mine=Some(2)	cands=Some([2, 3, 5])	MATCH
+BUY	cat=0(Swordman(cat-patched))	hp=3000	owned=[]	gold=350	game=Some(5)	mine=Some(5)	cands=Some([5])	MATCH
+BUY	cat=0(Swordman(cat-patched))	hp=3000	owned=[]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=0(Swordman(cat-patched))	hp=3000	owned=[ad1]	gold=10000	game=None	mine=None	cands=None	MATCH
+BUY	cat=0(Swordman(cat-patched))	hp=3000	owned=[ad1]	gold=350	game=None	mine=None	cands=None	MATCH
+BUY	cat=0(Swordman(cat-patched))	hp=3000	owned=[ad1]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=0(Swordman(cat-patched))	hp=3000	owned=[t4]	gold=10000	game=Some(2)	mine=Some(2)	cands=Some([2, 3, 5])	MATCH
+BUY	cat=0(Swordman(cat-patched))	hp=3000	owned=[t4]	gold=350	game=Some(5)	mine=Some(5)	cands=Some([5])	MATCH
+BUY	cat=0(Swordman(cat-patched))	hp=3000	owned=[t4]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=0(Swordman(cat-patched))	hp=3000	owned=[t4,t5]	gold=10000	game=Some(2)	mine=Some(2)	cands=Some([2, 3, 5])	MATCH
+BUY	cat=0(Swordman(cat-patched))	hp=3000	owned=[t4,t5]	gold=350	game=Some(5)	mine=Some(5)	cands=Some([5])	MATCH
+BUY	cat=0(Swordman(cat-patched))	hp=3000	owned=[t4,t5]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=0(Swordman(cat-patched))	hp=3000	owned=[t4,t5,t4]	gold=10000	game=None	mine=None	cands=None	MATCH
+BUY	cat=0(Swordman(cat-patched))	hp=3000	owned=[t4,t5,t4]	gold=350	game=None	mine=None	cands=None	MATCH
+BUY	cat=0(Swordman(cat-patched))	hp=3000	owned=[t4,t5,t4]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=0(Swordman(cat-patched))	hp=3000	owned=[t3]	gold=10000	game=None	mine=None	cands=None	MATCH
+BUY	cat=0(Swordman(cat-patched))	hp=3000	owned=[t3]	gold=350	game=None	mine=None	cands=None	MATCH
+BUY	cat=0(Swordman(cat-patched))	hp=3000	owned=[t3]	gold=50	game=None	mine=None	cands=None	MATCH
+CHAMP_PATCHED	cat_req=1	cat_got=1	stat.hp=5
+BUY	cat=1(Swordman(cat-patched))	hp=1000	owned=[]	gold=10000	game=Some(0)	mine=Some(0)	cands=Some([0, 1])	MATCH
+BUY	cat=1(Swordman(cat-patched))	hp=1000	owned=[]	gold=350	game=Some(0)	mine=Some(0)	cands=Some([0])	MATCH
+BUY	cat=1(Swordman(cat-patched))	hp=1000	owned=[]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=1(Swordman(cat-patched))	hp=1000	owned=[ad1]	gold=10000	game=None	mine=None	cands=None	MATCH
+BUY	cat=1(Swordman(cat-patched))	hp=1000	owned=[ad1]	gold=350	game=None	mine=None	cands=None	MATCH
+BUY	cat=1(Swordman(cat-patched))	hp=1000	owned=[ad1]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=1(Swordman(cat-patched))	hp=1000	owned=[t4]	gold=10000	game=Some(0)	mine=Some(0)	cands=Some([0, 1])	MATCH
+BUY	cat=1(Swordman(cat-patched))	hp=1000	owned=[t4]	gold=350	game=Some(0)	mine=Some(0)	cands=Some([0])	MATCH
+BUY	cat=1(Swordman(cat-patched))	hp=1000	owned=[t4]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=1(Swordman(cat-patched))	hp=1000	owned=[t4,t5]	gold=10000	game=Some(0)	mine=Some(0)	cands=Some([0, 1])	MATCH
+BUY	cat=1(Swordman(cat-patched))	hp=1000	owned=[t4,t5]	gold=350	game=Some(0)	mine=Some(0)	cands=Some([0])	MATCH
+BUY	cat=1(Swordman(cat-patched))	hp=1000	owned=[t4,t5]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=1(Swordman(cat-patched))	hp=1000	owned=[t4,t5,t4]	gold=10000	game=None	mine=None	cands=None	MATCH
+BUY	cat=1(Swordman(cat-patched))	hp=1000	owned=[t4,t5,t4]	gold=350	game=None	mine=None	cands=None	MATCH
+BUY	cat=1(Swordman(cat-patched))	hp=1000	owned=[t4,t5,t4]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=1(Swordman(cat-patched))	hp=1000	owned=[t3]	gold=10000	game=None	mine=None	cands=None	MATCH
+BUY	cat=1(Swordman(cat-patched))	hp=1000	owned=[t3]	gold=350	game=None	mine=None	cands=None	MATCH
+BUY	cat=1(Swordman(cat-patched))	hp=1000	owned=[t3]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=1(Swordman(cat-patched))	hp=1549	owned=[]	gold=10000	game=Some(0)	mine=Some(0)	cands=Some([0, 1])	MATCH
+BUY	cat=1(Swordman(cat-patched))	hp=1549	owned=[]	gold=350	game=Some(0)	mine=Some(0)	cands=Some([0])	MATCH
+BUY	cat=1(Swordman(cat-patched))	hp=1549	owned=[]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=1(Swordman(cat-patched))	hp=1549	owned=[ad1]	gold=10000	game=None	mine=None	cands=None	MATCH
+BUY	cat=1(Swordman(cat-patched))	hp=1549	owned=[ad1]	gold=350	game=None	mine=None	cands=None	MATCH
+BUY	cat=1(Swordman(cat-patched))	hp=1549	owned=[ad1]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=1(Swordman(cat-patched))	hp=1549	owned=[t4]	gold=10000	game=Some(0)	mine=Some(0)	cands=Some([0, 1])	MATCH
+BUY	cat=1(Swordman(cat-patched))	hp=1549	owned=[t4]	gold=350	game=Some(0)	mine=Some(0)	cands=Some([0])	MATCH
+BUY	cat=1(Swordman(cat-patched))	hp=1549	owned=[t4]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=1(Swordman(cat-patched))	hp=1549	owned=[t4,t5]	gold=10000	game=Some(0)	mine=Some(0)	cands=Some([0, 1])	MATCH
+BUY	cat=1(Swordman(cat-patched))	hp=1549	owned=[t4,t5]	gold=350	game=Some(0)	mine=Some(0)	cands=Some([0])	MATCH
+BUY	cat=1(Swordman(cat-patched))	hp=1549	owned=[t4,t5]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=1(Swordman(cat-patched))	hp=1549	owned=[t4,t5,t4]	gold=10000	game=None	mine=None	cands=None	MATCH
+BUY	cat=1(Swordman(cat-patched))	hp=1549	owned=[t4,t5,t4]	gold=350	game=None	mine=None	cands=None	MATCH
+BUY	cat=1(Swordman(cat-patched))	hp=1549	owned=[t4,t5,t4]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=1(Swordman(cat-patched))	hp=1549	owned=[t3]	gold=10000	game=None	mine=None	cands=None	MATCH
+BUY	cat=1(Swordman(cat-patched))	hp=1549	owned=[t3]	gold=350	game=None	mine=None	cands=None	MATCH
+BUY	cat=1(Swordman(cat-patched))	hp=1549	owned=[t3]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=1(Swordman(cat-patched))	hp=1550	owned=[]	gold=10000	game=Some(0)	mine=Some(0)	cands=Some([0, 1])	MATCH
+BUY	cat=1(Swordman(cat-patched))	hp=1550	owned=[]	gold=350	game=Some(0)	mine=Some(0)	cands=Some([0])	MATCH
+BUY	cat=1(Swordman(cat-patched))	hp=1550	owned=[]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=1(Swordman(cat-patched))	hp=1550	owned=[ad1]	gold=10000	game=None	mine=None	cands=None	MATCH
+BUY	cat=1(Swordman(cat-patched))	hp=1550	owned=[ad1]	gold=350	game=None	mine=None	cands=None	MATCH
+BUY	cat=1(Swordman(cat-patched))	hp=1550	owned=[ad1]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=1(Swordman(cat-patched))	hp=1550	owned=[t4]	gold=10000	game=Some(0)	mine=Some(0)	cands=Some([0, 1])	MATCH
+BUY	cat=1(Swordman(cat-patched))	hp=1550	owned=[t4]	gold=350	game=Some(0)	mine=Some(0)	cands=Some([0])	MATCH
+BUY	cat=1(Swordman(cat-patched))	hp=1550	owned=[t4]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=1(Swordman(cat-patched))	hp=1550	owned=[t4,t5]	gold=10000	game=Some(0)	mine=Some(0)	cands=Some([0, 1])	MATCH
+BUY	cat=1(Swordman(cat-patched))	hp=1550	owned=[t4,t5]	gold=350	game=Some(0)	mine=Some(0)	cands=Some([0])	MATCH
+BUY	cat=1(Swordman(cat-patched))	hp=1550	owned=[t4,t5]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=1(Swordman(cat-patched))	hp=1550	owned=[t4,t5,t4]	gold=10000	game=None	mine=None	cands=None	MATCH
+BUY	cat=1(Swordman(cat-patched))	hp=1550	owned=[t4,t5,t4]	gold=350	game=None	mine=None	cands=None	MATCH
+BUY	cat=1(Swordman(cat-patched))	hp=1550	owned=[t4,t5,t4]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=1(Swordman(cat-patched))	hp=1550	owned=[t3]	gold=10000	game=None	mine=None	cands=None	MATCH
+BUY	cat=1(Swordman(cat-patched))	hp=1550	owned=[t3]	gold=350	game=None	mine=None	cands=None	MATCH
+BUY	cat=1(Swordman(cat-patched))	hp=1550	owned=[t3]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=1(Swordman(cat-patched))	hp=1799	owned=[]	gold=10000	game=Some(0)	mine=Some(0)	cands=Some([0, 1])	MATCH
+BUY	cat=1(Swordman(cat-patched))	hp=1799	owned=[]	gold=350	game=Some(0)	mine=Some(0)	cands=Some([0])	MATCH
+BUY	cat=1(Swordman(cat-patched))	hp=1799	owned=[]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=1(Swordman(cat-patched))	hp=1799	owned=[ad1]	gold=10000	game=None	mine=None	cands=None	MATCH
+BUY	cat=1(Swordman(cat-patched))	hp=1799	owned=[ad1]	gold=350	game=None	mine=None	cands=None	MATCH
+BUY	cat=1(Swordman(cat-patched))	hp=1799	owned=[ad1]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=1(Swordman(cat-patched))	hp=1799	owned=[t4]	gold=10000	game=Some(0)	mine=Some(0)	cands=Some([0, 1])	MATCH
+BUY	cat=1(Swordman(cat-patched))	hp=1799	owned=[t4]	gold=350	game=Some(0)	mine=Some(0)	cands=Some([0])	MATCH
+BUY	cat=1(Swordman(cat-patched))	hp=1799	owned=[t4]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=1(Swordman(cat-patched))	hp=1799	owned=[t4,t5]	gold=10000	game=Some(0)	mine=Some(0)	cands=Some([0, 1])	MATCH
+BUY	cat=1(Swordman(cat-patched))	hp=1799	owned=[t4,t5]	gold=350	game=Some(0)	mine=Some(0)	cands=Some([0])	MATCH
+BUY	cat=1(Swordman(cat-patched))	hp=1799	owned=[t4,t5]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=1(Swordman(cat-patched))	hp=1799	owned=[t4,t5,t4]	gold=10000	game=None	mine=None	cands=None	MATCH
+BUY	cat=1(Swordman(cat-patched))	hp=1799	owned=[t4,t5,t4]	gold=350	game=None	mine=None	cands=None	MATCH
+BUY	cat=1(Swordman(cat-patched))	hp=1799	owned=[t4,t5,t4]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=1(Swordman(cat-patched))	hp=1799	owned=[t3]	gold=10000	game=None	mine=None	cands=None	MATCH
+BUY	cat=1(Swordman(cat-patched))	hp=1799	owned=[t3]	gold=350	game=None	mine=None	cands=None	MATCH
+BUY	cat=1(Swordman(cat-patched))	hp=1799	owned=[t3]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=1(Swordman(cat-patched))	hp=1800	owned=[]	gold=10000	game=Some(0)	mine=Some(0)	cands=Some([0, 1])	MATCH
+BUY	cat=1(Swordman(cat-patched))	hp=1800	owned=[]	gold=350	game=Some(0)	mine=Some(0)	cands=Some([0])	MATCH
+BUY	cat=1(Swordman(cat-patched))	hp=1800	owned=[]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=1(Swordman(cat-patched))	hp=1800	owned=[ad1]	gold=10000	game=None	mine=None	cands=None	MATCH
+BUY	cat=1(Swordman(cat-patched))	hp=1800	owned=[ad1]	gold=350	game=None	mine=None	cands=None	MATCH
+BUY	cat=1(Swordman(cat-patched))	hp=1800	owned=[ad1]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=1(Swordman(cat-patched))	hp=1800	owned=[t4]	gold=10000	game=Some(0)	mine=Some(0)	cands=Some([0, 1])	MATCH
+BUY	cat=1(Swordman(cat-patched))	hp=1800	owned=[t4]	gold=350	game=Some(0)	mine=Some(0)	cands=Some([0])	MATCH
+BUY	cat=1(Swordman(cat-patched))	hp=1800	owned=[t4]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=1(Swordman(cat-patched))	hp=1800	owned=[t4,t5]	gold=10000	game=Some(0)	mine=Some(0)	cands=Some([0, 1])	MATCH
+BUY	cat=1(Swordman(cat-patched))	hp=1800	owned=[t4,t5]	gold=350	game=Some(0)	mine=Some(0)	cands=Some([0])	MATCH
+BUY	cat=1(Swordman(cat-patched))	hp=1800	owned=[t4,t5]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=1(Swordman(cat-patched))	hp=1800	owned=[t4,t5,t4]	gold=10000	game=None	mine=None	cands=None	MATCH
+BUY	cat=1(Swordman(cat-patched))	hp=1800	owned=[t4,t5,t4]	gold=350	game=None	mine=None	cands=None	MATCH
+BUY	cat=1(Swordman(cat-patched))	hp=1800	owned=[t4,t5,t4]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=1(Swordman(cat-patched))	hp=1800	owned=[t3]	gold=10000	game=None	mine=None	cands=None	MATCH
+BUY	cat=1(Swordman(cat-patched))	hp=1800	owned=[t3]	gold=350	game=None	mine=None	cands=None	MATCH
+BUY	cat=1(Swordman(cat-patched))	hp=1800	owned=[t3]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=1(Swordman(cat-patched))	hp=3000	owned=[]	gold=10000	game=Some(0)	mine=Some(0)	cands=Some([0, 1])	MATCH
+BUY	cat=1(Swordman(cat-patched))	hp=3000	owned=[]	gold=350	game=Some(0)	mine=Some(0)	cands=Some([0])	MATCH
+BUY	cat=1(Swordman(cat-patched))	hp=3000	owned=[]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=1(Swordman(cat-patched))	hp=3000	owned=[ad1]	gold=10000	game=None	mine=None	cands=None	MATCH
+BUY	cat=1(Swordman(cat-patched))	hp=3000	owned=[ad1]	gold=350	game=None	mine=None	cands=None	MATCH
+BUY	cat=1(Swordman(cat-patched))	hp=3000	owned=[ad1]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=1(Swordman(cat-patched))	hp=3000	owned=[t4]	gold=10000	game=Some(0)	mine=Some(0)	cands=Some([0, 1])	MATCH
+BUY	cat=1(Swordman(cat-patched))	hp=3000	owned=[t4]	gold=350	game=Some(0)	mine=Some(0)	cands=Some([0])	MATCH
+BUY	cat=1(Swordman(cat-patched))	hp=3000	owned=[t4]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=1(Swordman(cat-patched))	hp=3000	owned=[t4,t5]	gold=10000	game=Some(0)	mine=Some(0)	cands=Some([0, 1])	MATCH
+BUY	cat=1(Swordman(cat-patched))	hp=3000	owned=[t4,t5]	gold=350	game=Some(0)	mine=Some(0)	cands=Some([0])	MATCH
+BUY	cat=1(Swordman(cat-patched))	hp=3000	owned=[t4,t5]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=1(Swordman(cat-patched))	hp=3000	owned=[t4,t5,t4]	gold=10000	game=None	mine=None	cands=None	MATCH
+BUY	cat=1(Swordman(cat-patched))	hp=3000	owned=[t4,t5,t4]	gold=350	game=None	mine=None	cands=None	MATCH
+BUY	cat=1(Swordman(cat-patched))	hp=3000	owned=[t4,t5,t4]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=1(Swordman(cat-patched))	hp=3000	owned=[t3]	gold=10000	game=None	mine=None	cands=None	MATCH
+BUY	cat=1(Swordman(cat-patched))	hp=3000	owned=[t3]	gold=350	game=None	mine=None	cands=None	MATCH
+BUY	cat=1(Swordman(cat-patched))	hp=3000	owned=[t3]	gold=50	game=None	mine=None	cands=None	MATCH
+CHAMP_PATCHED	cat_req=2	cat_got=2	stat.hp=5
+BUY	cat=2(Swordman(cat-patched))	hp=1000	owned=[]	gold=10000	game=Some(4)	mine=Some(4)	cands=Some([4])	MATCH
+BUY	cat=2(Swordman(cat-patched))	hp=1000	owned=[]	gold=350	game=None	mine=None	cands=None	MATCH
+BUY	cat=2(Swordman(cat-patched))	hp=1000	owned=[]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=2(Swordman(cat-patched))	hp=1000	owned=[ad1]	gold=10000	game=None	mine=None	cands=None	MATCH
+BUY	cat=2(Swordman(cat-patched))	hp=1000	owned=[ad1]	gold=350	game=None	mine=None	cands=None	MATCH
+BUY	cat=2(Swordman(cat-patched))	hp=1000	owned=[ad1]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=2(Swordman(cat-patched))	hp=1000	owned=[t4]	gold=10000	game=Some(4)	mine=Some(4)	cands=Some([4])	MATCH
+BUY	cat=2(Swordman(cat-patched))	hp=1000	owned=[t4]	gold=350	game=None	mine=None	cands=None	MATCH
+BUY	cat=2(Swordman(cat-patched))	hp=1000	owned=[t4]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=2(Swordman(cat-patched))	hp=1000	owned=[t4,t5]	gold=10000	game=Some(4)	mine=Some(4)	cands=Some([4])	MATCH
+BUY	cat=2(Swordman(cat-patched))	hp=1000	owned=[t4,t5]	gold=350	game=None	mine=None	cands=None	MATCH
+BUY	cat=2(Swordman(cat-patched))	hp=1000	owned=[t4,t5]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=2(Swordman(cat-patched))	hp=1000	owned=[t4,t5,t4]	gold=10000	game=None	mine=None	cands=None	MATCH
+BUY	cat=2(Swordman(cat-patched))	hp=1000	owned=[t4,t5,t4]	gold=350	game=None	mine=None	cands=None	MATCH
+BUY	cat=2(Swordman(cat-patched))	hp=1000	owned=[t4,t5,t4]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=2(Swordman(cat-patched))	hp=1000	owned=[t3]	gold=10000	game=None	mine=None	cands=None	MATCH
+BUY	cat=2(Swordman(cat-patched))	hp=1000	owned=[t3]	gold=350	game=None	mine=None	cands=None	MATCH
+BUY	cat=2(Swordman(cat-patched))	hp=1000	owned=[t3]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=2(Swordman(cat-patched))	hp=1549	owned=[]	gold=10000	game=Some(4)	mine=Some(4)	cands=Some([4])	MATCH
+BUY	cat=2(Swordman(cat-patched))	hp=1549	owned=[]	gold=350	game=None	mine=None	cands=None	MATCH
+BUY	cat=2(Swordman(cat-patched))	hp=1549	owned=[]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=2(Swordman(cat-patched))	hp=1549	owned=[ad1]	gold=10000	game=None	mine=None	cands=None	MATCH
+BUY	cat=2(Swordman(cat-patched))	hp=1549	owned=[ad1]	gold=350	game=None	mine=None	cands=None	MATCH
+BUY	cat=2(Swordman(cat-patched))	hp=1549	owned=[ad1]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=2(Swordman(cat-patched))	hp=1549	owned=[t4]	gold=10000	game=Some(4)	mine=Some(4)	cands=Some([4])	MATCH
+BUY	cat=2(Swordman(cat-patched))	hp=1549	owned=[t4]	gold=350	game=None	mine=None	cands=None	MATCH
+BUY	cat=2(Swordman(cat-patched))	hp=1549	owned=[t4]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=2(Swordman(cat-patched))	hp=1549	owned=[t4,t5]	gold=10000	game=Some(4)	mine=Some(4)	cands=Some([4])	MATCH
+BUY	cat=2(Swordman(cat-patched))	hp=1549	owned=[t4,t5]	gold=350	game=None	mine=None	cands=None	MATCH
+BUY	cat=2(Swordman(cat-patched))	hp=1549	owned=[t4,t5]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=2(Swordman(cat-patched))	hp=1549	owned=[t4,t5,t4]	gold=10000	game=None	mine=None	cands=None	MATCH
+BUY	cat=2(Swordman(cat-patched))	hp=1549	owned=[t4,t5,t4]	gold=350	game=None	mine=None	cands=None	MATCH
+BUY	cat=2(Swordman(cat-patched))	hp=1549	owned=[t4,t5,t4]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=2(Swordman(cat-patched))	hp=1549	owned=[t3]	gold=10000	game=None	mine=None	cands=None	MATCH
+BUY	cat=2(Swordman(cat-patched))	hp=1549	owned=[t3]	gold=350	game=None	mine=None	cands=None	MATCH
+BUY	cat=2(Swordman(cat-patched))	hp=1549	owned=[t3]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=2(Swordman(cat-patched))	hp=1550	owned=[]	gold=10000	game=Some(4)	mine=Some(4)	cands=Some([4])	MATCH
+BUY	cat=2(Swordman(cat-patched))	hp=1550	owned=[]	gold=350	game=None	mine=None	cands=None	MATCH
+BUY	cat=2(Swordman(cat-patched))	hp=1550	owned=[]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=2(Swordman(cat-patched))	hp=1550	owned=[ad1]	gold=10000	game=None	mine=None	cands=None	MATCH
+BUY	cat=2(Swordman(cat-patched))	hp=1550	owned=[ad1]	gold=350	game=None	mine=None	cands=None	MATCH
+BUY	cat=2(Swordman(cat-patched))	hp=1550	owned=[ad1]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=2(Swordman(cat-patched))	hp=1550	owned=[t4]	gold=10000	game=Some(4)	mine=Some(4)	cands=Some([4])	MATCH
+BUY	cat=2(Swordman(cat-patched))	hp=1550	owned=[t4]	gold=350	game=None	mine=None	cands=None	MATCH
+BUY	cat=2(Swordman(cat-patched))	hp=1550	owned=[t4]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=2(Swordman(cat-patched))	hp=1550	owned=[t4,t5]	gold=10000	game=Some(4)	mine=Some(4)	cands=Some([4])	MATCH
+BUY	cat=2(Swordman(cat-patched))	hp=1550	owned=[t4,t5]	gold=350	game=None	mine=None	cands=None	MATCH
+BUY	cat=2(Swordman(cat-patched))	hp=1550	owned=[t4,t5]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=2(Swordman(cat-patched))	hp=1550	owned=[t4,t5,t4]	gold=10000	game=None	mine=None	cands=None	MATCH
+BUY	cat=2(Swordman(cat-patched))	hp=1550	owned=[t4,t5,t4]	gold=350	game=None	mine=None	cands=None	MATCH
+BUY	cat=2(Swordman(cat-patched))	hp=1550	owned=[t4,t5,t4]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=2(Swordman(cat-patched))	hp=1550	owned=[t3]	gold=10000	game=None	mine=None	cands=None	MATCH
+BUY	cat=2(Swordman(cat-patched))	hp=1550	owned=[t3]	gold=350	game=None	mine=None	cands=None	MATCH
+BUY	cat=2(Swordman(cat-patched))	hp=1550	owned=[t3]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=2(Swordman(cat-patched))	hp=1799	owned=[]	gold=10000	game=Some(4)	mine=Some(4)	cands=Some([4])	MATCH
+BUY	cat=2(Swordman(cat-patched))	hp=1799	owned=[]	gold=350	game=None	mine=None	cands=None	MATCH
+BUY	cat=2(Swordman(cat-patched))	hp=1799	owned=[]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=2(Swordman(cat-patched))	hp=1799	owned=[ad1]	gold=10000	game=None	mine=None	cands=None	MATCH
+BUY	cat=2(Swordman(cat-patched))	hp=1799	owned=[ad1]	gold=350	game=None	mine=None	cands=None	MATCH
+BUY	cat=2(Swordman(cat-patched))	hp=1799	owned=[ad1]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=2(Swordman(cat-patched))	hp=1799	owned=[t4]	gold=10000	game=Some(4)	mine=Some(4)	cands=Some([4])	MATCH
+BUY	cat=2(Swordman(cat-patched))	hp=1799	owned=[t4]	gold=350	game=None	mine=None	cands=None	MATCH
+BUY	cat=2(Swordman(cat-patched))	hp=1799	owned=[t4]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=2(Swordman(cat-patched))	hp=1799	owned=[t4,t5]	gold=10000	game=Some(4)	mine=Some(4)	cands=Some([4])	MATCH
+BUY	cat=2(Swordman(cat-patched))	hp=1799	owned=[t4,t5]	gold=350	game=None	mine=None	cands=None	MATCH
+BUY	cat=2(Swordman(cat-patched))	hp=1799	owned=[t4,t5]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=2(Swordman(cat-patched))	hp=1799	owned=[t4,t5,t4]	gold=10000	game=None	mine=None	cands=None	MATCH
+BUY	cat=2(Swordman(cat-patched))	hp=1799	owned=[t4,t5,t4]	gold=350	game=None	mine=None	cands=None	MATCH
+BUY	cat=2(Swordman(cat-patched))	hp=1799	owned=[t4,t5,t4]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=2(Swordman(cat-patched))	hp=1799	owned=[t3]	gold=10000	game=None	mine=None	cands=None	MATCH
+BUY	cat=2(Swordman(cat-patched))	hp=1799	owned=[t3]	gold=350	game=None	mine=None	cands=None	MATCH
+BUY	cat=2(Swordman(cat-patched))	hp=1799	owned=[t3]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=2(Swordman(cat-patched))	hp=1800	owned=[]	gold=10000	game=Some(4)	mine=Some(4)	cands=Some([4])	MATCH
+BUY	cat=2(Swordman(cat-patched))	hp=1800	owned=[]	gold=350	game=None	mine=None	cands=None	MATCH
+BUY	cat=2(Swordman(cat-patched))	hp=1800	owned=[]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=2(Swordman(cat-patched))	hp=1800	owned=[ad1]	gold=10000	game=None	mine=None	cands=None	MATCH
+BUY	cat=2(Swordman(cat-patched))	hp=1800	owned=[ad1]	gold=350	game=None	mine=None	cands=None	MATCH
+BUY	cat=2(Swordman(cat-patched))	hp=1800	owned=[ad1]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=2(Swordman(cat-patched))	hp=1800	owned=[t4]	gold=10000	game=Some(4)	mine=Some(4)	cands=Some([4])	MATCH
+BUY	cat=2(Swordman(cat-patched))	hp=1800	owned=[t4]	gold=350	game=None	mine=None	cands=None	MATCH
+BUY	cat=2(Swordman(cat-patched))	hp=1800	owned=[t4]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=2(Swordman(cat-patched))	hp=1800	owned=[t4,t5]	gold=10000	game=Some(4)	mine=Some(4)	cands=Some([4])	MATCH
+BUY	cat=2(Swordman(cat-patched))	hp=1800	owned=[t4,t5]	gold=350	game=None	mine=None	cands=None	MATCH
+BUY	cat=2(Swordman(cat-patched))	hp=1800	owned=[t4,t5]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=2(Swordman(cat-patched))	hp=1800	owned=[t4,t5,t4]	gold=10000	game=None	mine=None	cands=None	MATCH
+BUY	cat=2(Swordman(cat-patched))	hp=1800	owned=[t4,t5,t4]	gold=350	game=None	mine=None	cands=None	MATCH
+BUY	cat=2(Swordman(cat-patched))	hp=1800	owned=[t4,t5,t4]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=2(Swordman(cat-patched))	hp=1800	owned=[t3]	gold=10000	game=None	mine=None	cands=None	MATCH
+BUY	cat=2(Swordman(cat-patched))	hp=1800	owned=[t3]	gold=350	game=None	mine=None	cands=None	MATCH
+BUY	cat=2(Swordman(cat-patched))	hp=1800	owned=[t3]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=2(Swordman(cat-patched))	hp=3000	owned=[]	gold=10000	game=Some(4)	mine=Some(4)	cands=Some([4])	MATCH
+BUY	cat=2(Swordman(cat-patched))	hp=3000	owned=[]	gold=350	game=None	mine=None	cands=None	MATCH
+BUY	cat=2(Swordman(cat-patched))	hp=3000	owned=[]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=2(Swordman(cat-patched))	hp=3000	owned=[ad1]	gold=10000	game=None	mine=None	cands=None	MATCH
+BUY	cat=2(Swordman(cat-patched))	hp=3000	owned=[ad1]	gold=350	game=None	mine=None	cands=None	MATCH
+BUY	cat=2(Swordman(cat-patched))	hp=3000	owned=[ad1]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=2(Swordman(cat-patched))	hp=3000	owned=[t4]	gold=10000	game=Some(4)	mine=Some(4)	cands=Some([4])	MATCH
+BUY	cat=2(Swordman(cat-patched))	hp=3000	owned=[t4]	gold=350	game=None	mine=None	cands=None	MATCH
+BUY	cat=2(Swordman(cat-patched))	hp=3000	owned=[t4]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=2(Swordman(cat-patched))	hp=3000	owned=[t4,t5]	gold=10000	game=Some(4)	mine=Some(4)	cands=Some([4])	MATCH
+BUY	cat=2(Swordman(cat-patched))	hp=3000	owned=[t4,t5]	gold=350	game=None	mine=None	cands=None	MATCH
+BUY	cat=2(Swordman(cat-patched))	hp=3000	owned=[t4,t5]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=2(Swordman(cat-patched))	hp=3000	owned=[t4,t5,t4]	gold=10000	game=None	mine=None	cands=None	MATCH
+BUY	cat=2(Swordman(cat-patched))	hp=3000	owned=[t4,t5,t4]	gold=350	game=None	mine=None	cands=None	MATCH
+BUY	cat=2(Swordman(cat-patched))	hp=3000	owned=[t4,t5,t4]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=2(Swordman(cat-patched))	hp=3000	owned=[t3]	gold=10000	game=None	mine=None	cands=None	MATCH
+BUY	cat=2(Swordman(cat-patched))	hp=3000	owned=[t3]	gold=350	game=None	mine=None	cands=None	MATCH
+BUY	cat=2(Swordman(cat-patched))	hp=3000	owned=[t3]	gold=50	game=None	mine=None	cands=None	MATCH
+CHAMP_PATCHED	cat_req=3	cat_got=3	stat.hp=5
+BUY	cat=3(Swordman(cat-patched))	hp=1000	owned=[]	gold=10000	game=Some(4)	mine=Some(4)	cands=Some([4])	MATCH
+BUY	cat=3(Swordman(cat-patched))	hp=1000	owned=[]	gold=350	game=None	mine=None	cands=None	MATCH
+BUY	cat=3(Swordman(cat-patched))	hp=1000	owned=[]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=3(Swordman(cat-patched))	hp=1000	owned=[ad1]	gold=10000	game=None	mine=None	cands=None	MATCH
+BUY	cat=3(Swordman(cat-patched))	hp=1000	owned=[ad1]	gold=350	game=None	mine=None	cands=None	MATCH
+BUY	cat=3(Swordman(cat-patched))	hp=1000	owned=[ad1]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=3(Swordman(cat-patched))	hp=1000	owned=[t4]	gold=10000	game=Some(4)	mine=Some(4)	cands=Some([4])	MATCH
+BUY	cat=3(Swordman(cat-patched))	hp=1000	owned=[t4]	gold=350	game=None	mine=None	cands=None	MATCH
+BUY	cat=3(Swordman(cat-patched))	hp=1000	owned=[t4]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=3(Swordman(cat-patched))	hp=1000	owned=[t4,t5]	gold=10000	game=Some(4)	mine=Some(4)	cands=Some([4])	MATCH
+BUY	cat=3(Swordman(cat-patched))	hp=1000	owned=[t4,t5]	gold=350	game=None	mine=None	cands=None	MATCH
+BUY	cat=3(Swordman(cat-patched))	hp=1000	owned=[t4,t5]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=3(Swordman(cat-patched))	hp=1000	owned=[t4,t5,t4]	gold=10000	game=None	mine=None	cands=None	MATCH
+BUY	cat=3(Swordman(cat-patched))	hp=1000	owned=[t4,t5,t4]	gold=350	game=None	mine=None	cands=None	MATCH
+BUY	cat=3(Swordman(cat-patched))	hp=1000	owned=[t4,t5,t4]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=3(Swordman(cat-patched))	hp=1000	owned=[t3]	gold=10000	game=None	mine=None	cands=None	MATCH
+BUY	cat=3(Swordman(cat-patched))	hp=1000	owned=[t3]	gold=350	game=None	mine=None	cands=None	MATCH
+BUY	cat=3(Swordman(cat-patched))	hp=1000	owned=[t3]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=3(Swordman(cat-patched))	hp=1549	owned=[]	gold=10000	game=Some(4)	mine=Some(4)	cands=Some([4])	MATCH
+BUY	cat=3(Swordman(cat-patched))	hp=1549	owned=[]	gold=350	game=None	mine=None	cands=None	MATCH
+BUY	cat=3(Swordman(cat-patched))	hp=1549	owned=[]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=3(Swordman(cat-patched))	hp=1549	owned=[ad1]	gold=10000	game=None	mine=None	cands=None	MATCH
+BUY	cat=3(Swordman(cat-patched))	hp=1549	owned=[ad1]	gold=350	game=None	mine=None	cands=None	MATCH
+BUY	cat=3(Swordman(cat-patched))	hp=1549	owned=[ad1]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=3(Swordman(cat-patched))	hp=1549	owned=[t4]	gold=10000	game=Some(4)	mine=Some(4)	cands=Some([4])	MATCH
+BUY	cat=3(Swordman(cat-patched))	hp=1549	owned=[t4]	gold=350	game=None	mine=None	cands=None	MATCH
+BUY	cat=3(Swordman(cat-patched))	hp=1549	owned=[t4]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=3(Swordman(cat-patched))	hp=1549	owned=[t4,t5]	gold=10000	game=Some(4)	mine=Some(4)	cands=Some([4])	MATCH
+BUY	cat=3(Swordman(cat-patched))	hp=1549	owned=[t4,t5]	gold=350	game=None	mine=None	cands=None	MATCH
+BUY	cat=3(Swordman(cat-patched))	hp=1549	owned=[t4,t5]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=3(Swordman(cat-patched))	hp=1549	owned=[t4,t5,t4]	gold=10000	game=None	mine=None	cands=None	MATCH
+BUY	cat=3(Swordman(cat-patched))	hp=1549	owned=[t4,t5,t4]	gold=350	game=None	mine=None	cands=None	MATCH
+BUY	cat=3(Swordman(cat-patched))	hp=1549	owned=[t4,t5,t4]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=3(Swordman(cat-patched))	hp=1549	owned=[t3]	gold=10000	game=None	mine=None	cands=None	MATCH
+BUY	cat=3(Swordman(cat-patched))	hp=1549	owned=[t3]	gold=350	game=None	mine=None	cands=None	MATCH
+BUY	cat=3(Swordman(cat-patched))	hp=1549	owned=[t3]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=3(Swordman(cat-patched))	hp=1550	owned=[]	gold=10000	game=Some(2)	mine=Some(2)	cands=Some([2, 3, 5])	MATCH
+BUY	cat=3(Swordman(cat-patched))	hp=1550	owned=[]	gold=350	game=Some(5)	mine=Some(5)	cands=Some([5])	MATCH
+BUY	cat=3(Swordman(cat-patched))	hp=1550	owned=[]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=3(Swordman(cat-patched))	hp=1550	owned=[ad1]	gold=10000	game=None	mine=None	cands=None	MATCH
+BUY	cat=3(Swordman(cat-patched))	hp=1550	owned=[ad1]	gold=350	game=None	mine=None	cands=None	MATCH
+BUY	cat=3(Swordman(cat-patched))	hp=1550	owned=[ad1]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=3(Swordman(cat-patched))	hp=1550	owned=[t4]	gold=10000	game=Some(2)	mine=Some(2)	cands=Some([2, 3, 5])	MATCH
+BUY	cat=3(Swordman(cat-patched))	hp=1550	owned=[t4]	gold=350	game=Some(5)	mine=Some(5)	cands=Some([5])	MATCH
+BUY	cat=3(Swordman(cat-patched))	hp=1550	owned=[t4]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=3(Swordman(cat-patched))	hp=1550	owned=[t4,t5]	gold=10000	game=Some(2)	mine=Some(2)	cands=Some([2, 3, 5])	MATCH
+BUY	cat=3(Swordman(cat-patched))	hp=1550	owned=[t4,t5]	gold=350	game=Some(5)	mine=Some(5)	cands=Some([5])	MATCH
+BUY	cat=3(Swordman(cat-patched))	hp=1550	owned=[t4,t5]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=3(Swordman(cat-patched))	hp=1550	owned=[t4,t5,t4]	gold=10000	game=None	mine=None	cands=None	MATCH
+BUY	cat=3(Swordman(cat-patched))	hp=1550	owned=[t4,t5,t4]	gold=350	game=None	mine=None	cands=None	MATCH
+BUY	cat=3(Swordman(cat-patched))	hp=1550	owned=[t4,t5,t4]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=3(Swordman(cat-patched))	hp=1550	owned=[t3]	gold=10000	game=None	mine=None	cands=None	MATCH
+BUY	cat=3(Swordman(cat-patched))	hp=1550	owned=[t3]	gold=350	game=None	mine=None	cands=None	MATCH
+BUY	cat=3(Swordman(cat-patched))	hp=1550	owned=[t3]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=3(Swordman(cat-patched))	hp=1799	owned=[]	gold=10000	game=Some(2)	mine=Some(2)	cands=Some([2, 3, 5])	MATCH
+BUY	cat=3(Swordman(cat-patched))	hp=1799	owned=[]	gold=350	game=Some(5)	mine=Some(5)	cands=Some([5])	MATCH
+BUY	cat=3(Swordman(cat-patched))	hp=1799	owned=[]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=3(Swordman(cat-patched))	hp=1799	owned=[ad1]	gold=10000	game=None	mine=None	cands=None	MATCH
+BUY	cat=3(Swordman(cat-patched))	hp=1799	owned=[ad1]	gold=350	game=None	mine=None	cands=None	MATCH
+BUY	cat=3(Swordman(cat-patched))	hp=1799	owned=[ad1]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=3(Swordman(cat-patched))	hp=1799	owned=[t4]	gold=10000	game=Some(2)	mine=Some(2)	cands=Some([2, 3, 5])	MATCH
+BUY	cat=3(Swordman(cat-patched))	hp=1799	owned=[t4]	gold=350	game=Some(5)	mine=Some(5)	cands=Some([5])	MATCH
+BUY	cat=3(Swordman(cat-patched))	hp=1799	owned=[t4]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=3(Swordman(cat-patched))	hp=1799	owned=[t4,t5]	gold=10000	game=Some(2)	mine=Some(2)	cands=Some([2, 3, 5])	MATCH
+BUY	cat=3(Swordman(cat-patched))	hp=1799	owned=[t4,t5]	gold=350	game=Some(5)	mine=Some(5)	cands=Some([5])	MATCH
+BUY	cat=3(Swordman(cat-patched))	hp=1799	owned=[t4,t5]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=3(Swordman(cat-patched))	hp=1799	owned=[t4,t5,t4]	gold=10000	game=None	mine=None	cands=None	MATCH
+BUY	cat=3(Swordman(cat-patched))	hp=1799	owned=[t4,t5,t4]	gold=350	game=None	mine=None	cands=None	MATCH
+BUY	cat=3(Swordman(cat-patched))	hp=1799	owned=[t4,t5,t4]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=3(Swordman(cat-patched))	hp=1799	owned=[t3]	gold=10000	game=None	mine=None	cands=None	MATCH
+BUY	cat=3(Swordman(cat-patched))	hp=1799	owned=[t3]	gold=350	game=None	mine=None	cands=None	MATCH
+BUY	cat=3(Swordman(cat-patched))	hp=1799	owned=[t3]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=3(Swordman(cat-patched))	hp=1800	owned=[]	gold=10000	game=Some(2)	mine=Some(2)	cands=Some([2, 3, 5])	MATCH
+BUY	cat=3(Swordman(cat-patched))	hp=1800	owned=[]	gold=350	game=Some(5)	mine=Some(5)	cands=Some([5])	MATCH
+BUY	cat=3(Swordman(cat-patched))	hp=1800	owned=[]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=3(Swordman(cat-patched))	hp=1800	owned=[ad1]	gold=10000	game=None	mine=None	cands=None	MATCH
+BUY	cat=3(Swordman(cat-patched))	hp=1800	owned=[ad1]	gold=350	game=None	mine=None	cands=None	MATCH
+BUY	cat=3(Swordman(cat-patched))	hp=1800	owned=[ad1]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=3(Swordman(cat-patched))	hp=1800	owned=[t4]	gold=10000	game=Some(2)	mine=Some(2)	cands=Some([2, 3, 5])	MATCH
+BUY	cat=3(Swordman(cat-patched))	hp=1800	owned=[t4]	gold=350	game=Some(5)	mine=Some(5)	cands=Some([5])	MATCH
+BUY	cat=3(Swordman(cat-patched))	hp=1800	owned=[t4]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=3(Swordman(cat-patched))	hp=1800	owned=[t4,t5]	gold=10000	game=Some(2)	mine=Some(2)	cands=Some([2, 3, 5])	MATCH
+BUY	cat=3(Swordman(cat-patched))	hp=1800	owned=[t4,t5]	gold=350	game=Some(5)	mine=Some(5)	cands=Some([5])	MATCH
+BUY	cat=3(Swordman(cat-patched))	hp=1800	owned=[t4,t5]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=3(Swordman(cat-patched))	hp=1800	owned=[t4,t5,t4]	gold=10000	game=None	mine=None	cands=None	MATCH
+BUY	cat=3(Swordman(cat-patched))	hp=1800	owned=[t4,t5,t4]	gold=350	game=None	mine=None	cands=None	MATCH
+BUY	cat=3(Swordman(cat-patched))	hp=1800	owned=[t4,t5,t4]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=3(Swordman(cat-patched))	hp=1800	owned=[t3]	gold=10000	game=None	mine=None	cands=None	MATCH
+BUY	cat=3(Swordman(cat-patched))	hp=1800	owned=[t3]	gold=350	game=None	mine=None	cands=None	MATCH
+BUY	cat=3(Swordman(cat-patched))	hp=1800	owned=[t3]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=3(Swordman(cat-patched))	hp=3000	owned=[]	gold=10000	game=Some(2)	mine=Some(2)	cands=Some([2, 3, 5])	MATCH
+BUY	cat=3(Swordman(cat-patched))	hp=3000	owned=[]	gold=350	game=Some(5)	mine=Some(5)	cands=Some([5])	MATCH
+BUY	cat=3(Swordman(cat-patched))	hp=3000	owned=[]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=3(Swordman(cat-patched))	hp=3000	owned=[ad1]	gold=10000	game=None	mine=None	cands=None	MATCH
+BUY	cat=3(Swordman(cat-patched))	hp=3000	owned=[ad1]	gold=350	game=None	mine=None	cands=None	MATCH
+BUY	cat=3(Swordman(cat-patched))	hp=3000	owned=[ad1]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=3(Swordman(cat-patched))	hp=3000	owned=[t4]	gold=10000	game=Some(2)	mine=Some(2)	cands=Some([2, 3, 5])	MATCH
+BUY	cat=3(Swordman(cat-patched))	hp=3000	owned=[t4]	gold=350	game=Some(5)	mine=Some(5)	cands=Some([5])	MATCH
+BUY	cat=3(Swordman(cat-patched))	hp=3000	owned=[t4]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=3(Swordman(cat-patched))	hp=3000	owned=[t4,t5]	gold=10000	game=Some(2)	mine=Some(2)	cands=Some([2, 3, 5])	MATCH
+BUY	cat=3(Swordman(cat-patched))	hp=3000	owned=[t4,t5]	gold=350	game=Some(5)	mine=Some(5)	cands=Some([5])	MATCH
+BUY	cat=3(Swordman(cat-patched))	hp=3000	owned=[t4,t5]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=3(Swordman(cat-patched))	hp=3000	owned=[t4,t5,t4]	gold=10000	game=None	mine=None	cands=None	MATCH
+BUY	cat=3(Swordman(cat-patched))	hp=3000	owned=[t4,t5,t4]	gold=350	game=None	mine=None	cands=None	MATCH
+BUY	cat=3(Swordman(cat-patched))	hp=3000	owned=[t4,t5,t4]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=3(Swordman(cat-patched))	hp=3000	owned=[t3]	gold=10000	game=None	mine=None	cands=None	MATCH
+BUY	cat=3(Swordman(cat-patched))	hp=3000	owned=[t3]	gold=350	game=None	mine=None	cands=None	MATCH
+BUY	cat=3(Swordman(cat-patched))	hp=3000	owned=[t3]	gold=50	game=None	mine=None	cands=None	MATCH
+CHAMP_PATCHED	cat_req=4	cat_got=4	stat.hp=5
+BUY	cat=4(Swordman(cat-patched))	hp=1000	owned=[]	gold=10000	game=Some(0)	mine=Some(0)	cands=Some([0, 1])	MATCH
+BUY	cat=4(Swordman(cat-patched))	hp=1000	owned=[]	gold=350	game=Some(0)	mine=Some(0)	cands=Some([0])	MATCH
+BUY	cat=4(Swordman(cat-patched))	hp=1000	owned=[]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=4(Swordman(cat-patched))	hp=1000	owned=[ad1]	gold=10000	game=None	mine=None	cands=None	MATCH
+BUY	cat=4(Swordman(cat-patched))	hp=1000	owned=[ad1]	gold=350	game=None	mine=None	cands=None	MATCH
+BUY	cat=4(Swordman(cat-patched))	hp=1000	owned=[ad1]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=4(Swordman(cat-patched))	hp=1000	owned=[t4]	gold=10000	game=Some(2)	mine=Some(2)	cands=Some([2, 3, 5])	MATCH
+BUY	cat=4(Swordman(cat-patched))	hp=1000	owned=[t4]	gold=350	game=Some(5)	mine=Some(5)	cands=Some([5])	MATCH
+BUY	cat=4(Swordman(cat-patched))	hp=1000	owned=[t4]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=4(Swordman(cat-patched))	hp=1000	owned=[t4,t5]	gold=10000	game=Some(0)	mine=Some(0)	cands=Some([0, 1])	MATCH
+BUY	cat=4(Swordman(cat-patched))	hp=1000	owned=[t4,t5]	gold=350	game=Some(0)	mine=Some(0)	cands=Some([0])	MATCH
+BUY	cat=4(Swordman(cat-patched))	hp=1000	owned=[t4,t5]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=4(Swordman(cat-patched))	hp=1000	owned=[t4,t5,t4]	gold=10000	game=None	mine=None	cands=None	MATCH
+BUY	cat=4(Swordman(cat-patched))	hp=1000	owned=[t4,t5,t4]	gold=350	game=None	mine=None	cands=None	MATCH
+BUY	cat=4(Swordman(cat-patched))	hp=1000	owned=[t4,t5,t4]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=4(Swordman(cat-patched))	hp=1000	owned=[t3]	gold=10000	game=None	mine=None	cands=None	MATCH
+BUY	cat=4(Swordman(cat-patched))	hp=1000	owned=[t3]	gold=350	game=None	mine=None	cands=None	MATCH
+BUY	cat=4(Swordman(cat-patched))	hp=1000	owned=[t3]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=4(Swordman(cat-patched))	hp=1549	owned=[]	gold=10000	game=Some(0)	mine=Some(0)	cands=Some([0, 1])	MATCH
+BUY	cat=4(Swordman(cat-patched))	hp=1549	owned=[]	gold=350	game=Some(0)	mine=Some(0)	cands=Some([0])	MATCH
+BUY	cat=4(Swordman(cat-patched))	hp=1549	owned=[]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=4(Swordman(cat-patched))	hp=1549	owned=[ad1]	gold=10000	game=None	mine=None	cands=None	MATCH
+BUY	cat=4(Swordman(cat-patched))	hp=1549	owned=[ad1]	gold=350	game=None	mine=None	cands=None	MATCH
+BUY	cat=4(Swordman(cat-patched))	hp=1549	owned=[ad1]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=4(Swordman(cat-patched))	hp=1549	owned=[t4]	gold=10000	game=Some(2)	mine=Some(2)	cands=Some([2, 3, 5])	MATCH
+BUY	cat=4(Swordman(cat-patched))	hp=1549	owned=[t4]	gold=350	game=Some(5)	mine=Some(5)	cands=Some([5])	MATCH
+BUY	cat=4(Swordman(cat-patched))	hp=1549	owned=[t4]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=4(Swordman(cat-patched))	hp=1549	owned=[t4,t5]	gold=10000	game=Some(0)	mine=Some(0)	cands=Some([0, 1])	MATCH
+BUY	cat=4(Swordman(cat-patched))	hp=1549	owned=[t4,t5]	gold=350	game=Some(0)	mine=Some(0)	cands=Some([0])	MATCH
+BUY	cat=4(Swordman(cat-patched))	hp=1549	owned=[t4,t5]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=4(Swordman(cat-patched))	hp=1549	owned=[t4,t5,t4]	gold=10000	game=None	mine=None	cands=None	MATCH
+BUY	cat=4(Swordman(cat-patched))	hp=1549	owned=[t4,t5,t4]	gold=350	game=None	mine=None	cands=None	MATCH
+BUY	cat=4(Swordman(cat-patched))	hp=1549	owned=[t4,t5,t4]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=4(Swordman(cat-patched))	hp=1549	owned=[t3]	gold=10000	game=None	mine=None	cands=None	MATCH
+BUY	cat=4(Swordman(cat-patched))	hp=1549	owned=[t3]	gold=350	game=None	mine=None	cands=None	MATCH
+BUY	cat=4(Swordman(cat-patched))	hp=1549	owned=[t3]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=4(Swordman(cat-patched))	hp=1550	owned=[]	gold=10000	game=Some(0)	mine=Some(0)	cands=Some([0, 1])	MATCH
+BUY	cat=4(Swordman(cat-patched))	hp=1550	owned=[]	gold=350	game=Some(0)	mine=Some(0)	cands=Some([0])	MATCH
+BUY	cat=4(Swordman(cat-patched))	hp=1550	owned=[]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=4(Swordman(cat-patched))	hp=1550	owned=[ad1]	gold=10000	game=None	mine=None	cands=None	MATCH
+BUY	cat=4(Swordman(cat-patched))	hp=1550	owned=[ad1]	gold=350	game=None	mine=None	cands=None	MATCH
+BUY	cat=4(Swordman(cat-patched))	hp=1550	owned=[ad1]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=4(Swordman(cat-patched))	hp=1550	owned=[t4]	gold=10000	game=Some(2)	mine=Some(2)	cands=Some([2, 3, 5])	MATCH
+BUY	cat=4(Swordman(cat-patched))	hp=1550	owned=[t4]	gold=350	game=Some(5)	mine=Some(5)	cands=Some([5])	MATCH
+BUY	cat=4(Swordman(cat-patched))	hp=1550	owned=[t4]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=4(Swordman(cat-patched))	hp=1550	owned=[t4,t5]	gold=10000	game=Some(0)	mine=Some(0)	cands=Some([0, 1])	MATCH
+BUY	cat=4(Swordman(cat-patched))	hp=1550	owned=[t4,t5]	gold=350	game=Some(0)	mine=Some(0)	cands=Some([0])	MATCH
+BUY	cat=4(Swordman(cat-patched))	hp=1550	owned=[t4,t5]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=4(Swordman(cat-patched))	hp=1550	owned=[t4,t5,t4]	gold=10000	game=None	mine=None	cands=None	MATCH
+BUY	cat=4(Swordman(cat-patched))	hp=1550	owned=[t4,t5,t4]	gold=350	game=None	mine=None	cands=None	MATCH
+BUY	cat=4(Swordman(cat-patched))	hp=1550	owned=[t4,t5,t4]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=4(Swordman(cat-patched))	hp=1550	owned=[t3]	gold=10000	game=None	mine=None	cands=None	MATCH
+BUY	cat=4(Swordman(cat-patched))	hp=1550	owned=[t3]	gold=350	game=None	mine=None	cands=None	MATCH
+BUY	cat=4(Swordman(cat-patched))	hp=1550	owned=[t3]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=4(Swordman(cat-patched))	hp=1799	owned=[]	gold=10000	game=Some(0)	mine=Some(0)	cands=Some([0, 1])	MATCH
+BUY	cat=4(Swordman(cat-patched))	hp=1799	owned=[]	gold=350	game=Some(0)	mine=Some(0)	cands=Some([0])	MATCH
+BUY	cat=4(Swordman(cat-patched))	hp=1799	owned=[]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=4(Swordman(cat-patched))	hp=1799	owned=[ad1]	gold=10000	game=None	mine=None	cands=None	MATCH
+BUY	cat=4(Swordman(cat-patched))	hp=1799	owned=[ad1]	gold=350	game=None	mine=None	cands=None	MATCH
+BUY	cat=4(Swordman(cat-patched))	hp=1799	owned=[ad1]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=4(Swordman(cat-patched))	hp=1799	owned=[t4]	gold=10000	game=Some(2)	mine=Some(2)	cands=Some([2, 3, 5])	MATCH
+BUY	cat=4(Swordman(cat-patched))	hp=1799	owned=[t4]	gold=350	game=Some(5)	mine=Some(5)	cands=Some([5])	MATCH
+BUY	cat=4(Swordman(cat-patched))	hp=1799	owned=[t4]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=4(Swordman(cat-patched))	hp=1799	owned=[t4,t5]	gold=10000	game=Some(0)	mine=Some(0)	cands=Some([0, 1])	MATCH
+BUY	cat=4(Swordman(cat-patched))	hp=1799	owned=[t4,t5]	gold=350	game=Some(0)	mine=Some(0)	cands=Some([0])	MATCH
+BUY	cat=4(Swordman(cat-patched))	hp=1799	owned=[t4,t5]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=4(Swordman(cat-patched))	hp=1799	owned=[t4,t5,t4]	gold=10000	game=None	mine=None	cands=None	MATCH
+BUY	cat=4(Swordman(cat-patched))	hp=1799	owned=[t4,t5,t4]	gold=350	game=None	mine=None	cands=None	MATCH
+BUY	cat=4(Swordman(cat-patched))	hp=1799	owned=[t4,t5,t4]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=4(Swordman(cat-patched))	hp=1799	owned=[t3]	gold=10000	game=None	mine=None	cands=None	MATCH
+BUY	cat=4(Swordman(cat-patched))	hp=1799	owned=[t3]	gold=350	game=None	mine=None	cands=None	MATCH
+BUY	cat=4(Swordman(cat-patched))	hp=1799	owned=[t3]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=4(Swordman(cat-patched))	hp=1800	owned=[]	gold=10000	game=Some(0)	mine=Some(0)	cands=Some([0, 1])	MATCH
+BUY	cat=4(Swordman(cat-patched))	hp=1800	owned=[]	gold=350	game=Some(0)	mine=Some(0)	cands=Some([0])	MATCH
+BUY	cat=4(Swordman(cat-patched))	hp=1800	owned=[]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=4(Swordman(cat-patched))	hp=1800	owned=[ad1]	gold=10000	game=None	mine=None	cands=None	MATCH
+BUY	cat=4(Swordman(cat-patched))	hp=1800	owned=[ad1]	gold=350	game=None	mine=None	cands=None	MATCH
+BUY	cat=4(Swordman(cat-patched))	hp=1800	owned=[ad1]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=4(Swordman(cat-patched))	hp=1800	owned=[t4]	gold=10000	game=Some(2)	mine=Some(2)	cands=Some([2, 3, 5])	MATCH
+BUY	cat=4(Swordman(cat-patched))	hp=1800	owned=[t4]	gold=350	game=Some(5)	mine=Some(5)	cands=Some([5])	MATCH
+BUY	cat=4(Swordman(cat-patched))	hp=1800	owned=[t4]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=4(Swordman(cat-patched))	hp=1800	owned=[t4,t5]	gold=10000	game=Some(0)	mine=Some(0)	cands=Some([0, 1])	MATCH
+BUY	cat=4(Swordman(cat-patched))	hp=1800	owned=[t4,t5]	gold=350	game=Some(0)	mine=Some(0)	cands=Some([0])	MATCH
+BUY	cat=4(Swordman(cat-patched))	hp=1800	owned=[t4,t5]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=4(Swordman(cat-patched))	hp=1800	owned=[t4,t5,t4]	gold=10000	game=None	mine=None	cands=None	MATCH
+BUY	cat=4(Swordman(cat-patched))	hp=1800	owned=[t4,t5,t4]	gold=350	game=None	mine=None	cands=None	MATCH
+BUY	cat=4(Swordman(cat-patched))	hp=1800	owned=[t4,t5,t4]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=4(Swordman(cat-patched))	hp=1800	owned=[t3]	gold=10000	game=None	mine=None	cands=None	MATCH
+BUY	cat=4(Swordman(cat-patched))	hp=1800	owned=[t3]	gold=350	game=None	mine=None	cands=None	MATCH
+BUY	cat=4(Swordman(cat-patched))	hp=1800	owned=[t3]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=4(Swordman(cat-patched))	hp=3000	owned=[]	gold=10000	game=Some(0)	mine=Some(0)	cands=Some([0, 1])	MATCH
+BUY	cat=4(Swordman(cat-patched))	hp=3000	owned=[]	gold=350	game=Some(0)	mine=Some(0)	cands=Some([0])	MATCH
+BUY	cat=4(Swordman(cat-patched))	hp=3000	owned=[]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=4(Swordman(cat-patched))	hp=3000	owned=[ad1]	gold=10000	game=None	mine=None	cands=None	MATCH
+BUY	cat=4(Swordman(cat-patched))	hp=3000	owned=[ad1]	gold=350	game=None	mine=None	cands=None	MATCH
+BUY	cat=4(Swordman(cat-patched))	hp=3000	owned=[ad1]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=4(Swordman(cat-patched))	hp=3000	owned=[t4]	gold=10000	game=Some(2)	mine=Some(2)	cands=Some([2, 3, 5])	MATCH
+BUY	cat=4(Swordman(cat-patched))	hp=3000	owned=[t4]	gold=350	game=Some(5)	mine=Some(5)	cands=Some([5])	MATCH
+BUY	cat=4(Swordman(cat-patched))	hp=3000	owned=[t4]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=4(Swordman(cat-patched))	hp=3000	owned=[t4,t5]	gold=10000	game=Some(0)	mine=Some(0)	cands=Some([0, 1])	MATCH
+BUY	cat=4(Swordman(cat-patched))	hp=3000	owned=[t4,t5]	gold=350	game=Some(0)	mine=Some(0)	cands=Some([0])	MATCH
+BUY	cat=4(Swordman(cat-patched))	hp=3000	owned=[t4,t5]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=4(Swordman(cat-patched))	hp=3000	owned=[t4,t5,t4]	gold=10000	game=None	mine=None	cands=None	MATCH
+BUY	cat=4(Swordman(cat-patched))	hp=3000	owned=[t4,t5,t4]	gold=350	game=None	mine=None	cands=None	MATCH
+BUY	cat=4(Swordman(cat-patched))	hp=3000	owned=[t4,t5,t4]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY	cat=4(Swordman(cat-patched))	hp=3000	owned=[t3]	gold=10000	game=None	mine=None	cands=None	MATCH
+BUY	cat=4(Swordman(cat-patched))	hp=3000	owned=[t3]	gold=350	game=None	mine=None	cands=None	MATCH
+BUY	cat=4(Swordman(cat-patched))	hp=3000	owned=[t3]	gold=50	game=None	mine=None	cands=None	MATCH
+BUY_SUMMARY	match=540	mismatch=0
+UPG	owned=[]	gold=10000	game=None	mine=None	cands=None	MATCH
+UPG	owned=[]	gold=3000	game=None	mine=None	cands=None	MATCH
+UPG	owned=[]	gold=1199	game=None	mine=None	cands=None	MATCH
+UPG	owned=[]	gold=1200	game=None	mine=None	cands=None	MATCH
+UPG	owned=[]	gold=99	game=None	mine=None	cands=None	MATCH
+UPG	owned=[ad0]	gold=10000	game=Some((0, 7))	mine=Some((0, 7))	cands=Some([(0, 7)])	MATCH
+UPG	owned=[ad0]	gold=3000	game=Some((0, 7))	mine=Some((0, 7))	cands=Some([(0, 7)])	MATCH
+UPG	owned=[ad0]	gold=1199	game=None	mine=None	cands=None	MATCH
+UPG	owned=[ad0]	gold=1200	game=Some((0, 7))	mine=Some((0, 7))	cands=Some([(0, 7)])	MATCH
+UPG	owned=[ad0]	gold=99	game=None	mine=None	cands=None	MATCH
+UPG	owned=[ad0,ad1]	gold=10000	game=Some((1, 8))	mine=Some((1, 8))	cands=Some([(1, 8), (1, 9)])	MATCH
+UPG	owned=[ad0,ad1]	gold=3000	game=Some((1, 8))	mine=Some((1, 8))	cands=Some([(1, 8)])	MATCH
+UPG	owned=[ad0,ad1]	gold=1199	game=None	mine=None	cands=None	MATCH
+UPG	owned=[ad0,ad1]	gold=1200	game=None	mine=None	cands=None	MATCH
+UPG	owned=[ad0,ad1]	gold=99	game=None	mine=None	cands=None	MATCH
+UPG	owned=[ad0,t4]	gold=10000	game=Some((0, 7))	mine=Some((0, 7))	cands=Some([(0, 7), (1, 13)])	MATCH
+UPG	owned=[ad0,t4]	gold=3000	game=Some((0, 7))	mine=Some((0, 7))	cands=Some([(0, 7), (1, 13)])	MATCH
+UPG	owned=[ad0,t4]	gold=1199	game=Some((1, 13))	mine=Some((1, 13))	cands=Some([(1, 13)])	MATCH
+UPG	owned=[ad0,t4]	gold=1200	game=Some((0, 7))	mine=Some((0, 7))	cands=Some([(0, 7), (1, 13)])	MATCH
+UPG	owned=[ad0,t4]	gold=99	game=None	mine=None	cands=None	MATCH
+UPG	owned=[t4]	gold=10000	game=Some((0, 13))	mine=Some((0, 13))	cands=Some([(0, 13)])	MATCH
+UPG	owned=[t4]	gold=3000	game=Some((0, 13))	mine=Some((0, 13))	cands=Some([(0, 13)])	MATCH
+UPG	owned=[t4]	gold=1199	game=Some((0, 13))	mine=Some((0, 13))	cands=Some([(0, 13)])	MATCH
+UPG	owned=[t4]	gold=1200	game=Some((0, 13))	mine=Some((0, 13))	cands=Some([(0, 13)])	MATCH
+UPG	owned=[t4]	gold=99	game=None	mine=None	cands=None	MATCH
+UPG	owned=[ad1,ad2]	gold=10000	game=None	mine=None	cands=None	MATCH
+UPG	owned=[ad1,ad2]	gold=3000	game=None	mine=None	cands=None	MATCH
+UPG	owned=[ad1,ad2]	gold=1199	game=None	mine=None	cands=None	MATCH
+UPG	owned=[ad1,ad2]	gold=1200	game=None	mine=None	cands=None	MATCH
+UPG	owned=[ad1,ad2]	gold=99	game=None	mine=None	cands=None	MATCH
+UPG	owned=[t3]	gold=10000	game=Some((0, 12))	mine=Some((0, 12))	cands=Some([(0, 12)])	MATCH
+UPG	owned=[t3]	gold=3000	game=Some((0, 12))	mine=Some((0, 12))	cands=Some([(0, 12)])	MATCH
+UPG	owned=[t3]	gold=1199	game=Some((0, 12))	mine=Some((0, 12))	cands=Some([(0, 12)])	MATCH
+UPG	owned=[t3]	gold=1200	game=Some((0, 12))	mine=Some((0, 12))	cands=Some([(0, 12)])	MATCH
+UPG	owned=[t3]	gold=99	game=None	mine=None	cands=None	MATCH
+UPG	owned=[t3,ad0]	gold=10000	game=Some((0, 12))	mine=Some((0, 12))	cands=Some([(0, 12)])	MATCH
+UPG	owned=[t3,ad0]	gold=3000	game=Some((0, 12))	mine=Some((0, 12))	cands=Some([(0, 12)])	MATCH
+UPG	owned=[t3,ad0]	gold=1199	game=Some((0, 12))	mine=Some((0, 12))	cands=Some([(0, 12)])	MATCH
+UPG	owned=[t3,ad0]	gold=1200	game=Some((0, 12))	mine=Some((0, 12))	cands=Some([(0, 12)])	MATCH
+UPG	owned=[t3,ad0]	gold=99	game=None	mine=None	cands=None	MATCH
+UPG	owned=[ad1,t4]	gold=10000	game=Some((1, 13))	mine=Some((1, 13))	cands=Some([(0, 8), (0, 9), (1, 13)])	MATCH
+UPG	owned=[ad1,t4]	gold=3000	game=Some((0, 8))	mine=Some((0, 8))	cands=Some([(0, 8), (1, 13)])	MATCH
+UPG	owned=[ad1,t4]	gold=1199	game=Some((1, 13))	mine=Some((1, 13))	cands=Some([(1, 13)])	MATCH
+UPG	owned=[ad1,t4]	gold=1200	game=Some((1, 13))	mine=Some((1, 13))	cands=Some([(1, 13)])	MATCH
+UPG	owned=[ad1,t4]	gold=99	game=None	mine=None	cands=None	MATCH
+UPG	owned=[t4,ad1]	gold=10000	game=Some((1, 9))	mine=Some((1, 9))	cands=Some([(0, 13), (1, 8), (1, 9)])	MATCH
+UPG	owned=[t4,ad1]	gold=3000	game=Some((0, 13))	mine=Some((0, 13))	cands=Some([(0, 13), (1, 8)])	MATCH
+UPG	owned=[t4,ad1]	gold=1199	game=Some((0, 13))	mine=Some((0, 13))	cands=Some([(0, 13)])	MATCH
+UPG	owned=[t4,ad1]	gold=1200	game=Some((0, 13))	mine=Some((0, 13))	cands=Some([(0, 13)])	MATCH
+UPG	owned=[t4,ad1]	gold=99	game=None	mine=None	cands=None	MATCH
+UPG_SUMMARY	match=50	mismatch=0
+DONE	setting_ok=true

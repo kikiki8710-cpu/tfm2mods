@@ -1,0 +1,94 @@
+=== [35] resolve_fight_stake
+  mem[0] OperationData 0x8 context ev=4 -> ★0x8       context                                              &'{erased} game_core::GameContext<'{erased}, '
+  mem[1] GameContext 0x0 pool ev=4 -> ★0x0       pool                                                 &'{erased} bumpalo::Bump                      
+  mem[2] Entity 0x5c0 id ev=4 -> ★0x5c0     id                                                   usize                                         
+  mem[3] Entity 0x660 x ev=4 -> ★0x660     x                                                    u64                                           
+  mem[4] Entity 0x668 y ev=4 -> ★0x668     y                                                    u64                                           
+  mem[5] Vec<&Entity>(bumpalo, 32B) remaining 0x0 ptr -> SKIP(tcx 사전에 타입 없음)
+  mem[6] Vec<&Entity>(bumpalo, 32B) remaining 0x18 len -> SKIP(tcx 사전에 타입 없음)
+  mem[7] FightPrediction 0x30 net_value ev=4 -> ★0x30      net_value                                            i64                                           
+  mem[8] FightPrediction 0x38 line ev=4 -> ★0x38      line@tag                                             tag:1B                                        
+  mem[9] FightPrediction 0x38 line ev=4 -> ★0x38      line@tag                                             tag:1B                                        
+  mem[10] FightPrediction 0x39 line_absolute ev=4 -> ★0x39      line_absolute@tag                                    tag:1B                                        
+  mem[11] FightPrediction 0x20 rescue_ally@tag ev=4 -> ★0x20      rescue_ally@tag                                      tag:8B                                        
+  mem[12] FightPrediction 0x28 rescue_ally@Some.0 ev=4 -> ★0x28      rescue_ally@Some.0                                   usize                                         
+  mem[13] sret %0 0x0 FightPrediction 전체(64B) -> SKIP(tcx 사전에 타입 없음)
+=== [36] calculate_nexus_defense_count
+  mem[0] OperationData 0x0 cache ev=4 -> ★0x0       cache                                                &'{erased} game_core::AbstractGameWithCache<'{
+  mem[1] OperationData 0x8 context ev=4 -> ★0x8       context                                              &'{erased} game_core::GameContext<'{erased}, '
+  mem[2] GameContext 0x0 pool ev=4 -> ★0x0       pool                                                 &'{erased} bumpalo::Bump                      
+  mem[3] GameContext 0x38 tutorial ev=4 -> ★0x38      tutorial@tag                                         tag:1B                                        
+  mem[4] PlayerState 0x930 info.team ev=4 -> ★0x930     info.team                                            usize                                         
+  mem[5] AbstractGameWithCache 0x0 game (&dyn AbstractGame data) ev=4 -> ★0x0       game                                                 &'{erased} dyn [Binder { value: Trait(game_cor
+  mem[6] AbstractGameWithCache 0x8 game vtable ev=4 -> NOHIT:     0x0       game                                                 &'{erased} dyn [Binder { value: T
+  mem[7] AbstractGameWithCache 0x170 nexus[team] ev=4 -> ★0x170     nexus[0]@Some.0                                      &'{erased} game_core::Entity                  
+  mem[8] AbstractGameWithCache 0x21c0 top_lead/mid_lead/bottom_lead [line][team] ev=4 -> ★0x21c0    top_lead[0]                                          usize                                         
+  mem[9] MobaMode 0x240 epic_minion_buff_time[enemy] ev=4 -> ★0x240     epic_minion_buff_time[0]                             usize                                         
+  mem[10] Entity 0x660 x ev=4 -> ★0x660     x                                                    u64                                           
+  mem[11] Entity 0x668 y ev=4 -> ★0x668     y                                                    u64                                           
+  mem[12] Entity 0x5c0 id ev=4 -> ★0x5c0     id                                                   usize                                         
+  mem[13] Entity 0x68 ty@tag ev=4 -> ★0x68      ty@tag                                               tag:8B                                        
+  mem[14] Entity 0x88 ty@Minion.info.nearest_enemy@tag ev=4 -> ★0x88      ty@Bear.info.nearest_enemy@tag                       tag:8B                                        
+  mem[15] Entity 0x90 ty@Minion.info.nearest_enemy@Some.0 ev=4 -> ★0x90      ty@Bear.info.nearest_enemy@Some.0                    usize                                         
+  mem[16] Entity 0x128 ty@Tower.info.ty (TowerType) ev=4 -> ★0x128     ty@Eagle.info.stat.hp_regen                          usize                                         
+  mem[17] Vec<&Entity>(bumpalo,32B) minions/champions 0x0 ptr -> SKIP(tcx 사전에 타입 없음)
+  mem[18] Vec<&Entity>(bumpalo,32B) minions/champions 0x18 len -> SKIP(tcx 사전에 타입 없음)
+=== [37] i_am_chosen_defender
+  mem[0] PlayerState 0x930 info.team ev=4 -> ★0x930     info.team                                            usize                                         
+  mem[1] PlayerState 0x9c0 info.position@tag ev=4 -> ★0x9c0     info.position@tag                                    tag:4B                                        
+  mem[2] OperationData 0x0 cache ev=4 -> ★0x0       cache                                                &'{erased} game_core::AbstractGameWithCache<'{
+  mem[3] OperationData 0x8 context ev=4 -> ★0x8       context                                              &'{erased} game_core::GameContext<'{erased}, '
+  mem[4] OperationData 0x10 blackboard ev=4 -> ★0x10      blackboard                                           &'{erased} [game_core::Blackboard; 2_usize]   
+  mem[5] AbstractGameWithCache 0x0 game (&dyn AbstractGame data) ev=4 -> ★0x0       game                                                 &'{erased} dyn [Binder { value: Trait(game_cor
+  mem[6] AbstractGameWithCache 0x8 game vtable ev=4 -> NOHIT:     0x0       game                                                 &'{erased} dyn [Binder { value: T
+  mem[7] AbstractGameWithCache 0x170 nexus[team] ev=4 -> ★0x170     nexus[0]@Some.0                                      &'{erased} game_core::Entity                  
+  mem[8] AbstractGameWithCache 0x1e0 player_champion[team][pos] ev=4 -> ★0x1e0     player_champion[0][0]@Some.0                         &'{erased} game_core::Entity                  
+  mem[9] Entity 0x0 team@tag (TeamType) ev=4 -> ★0x0       team@tag                                             tag:8B                                        
+  mem[10] Entity 0x8 team@Player.0 ev=4 -> ★0x8       team@Player.0                                        usize                                         
+  mem[11] Entity 0x68 ty@tag (EntityType) ev=4 -> ★0x68      ty@tag                                               tag:8B                                        
+  mem[12] Entity 0x88 ty@Minion.info.nearest_enemy@tag ev=4 -> ★0x88      ty@Bear.info.nearest_enemy@tag                       tag:8B                                        
+  mem[13] Entity 0x90 ty@Minion.info.nearest_enemy@Some.0 ev=4 -> ★0x90      ty@Bear.info.nearest_enemy@Some.0                    usize                                         
+  mem[14] Entity 0x128 ty@Tower.info.ty (TowerType) ev=4 -> ★0x128     ty@Eagle.info.stat.hp_regen                          usize                                         
+  mem[15] Entity 0x5c0 id ev=4 -> ★0x5c0     id                                                   usize                                         
+  mem[16] Entity 0x660 x ev=4 -> ★0x660     x                                                    u64                                           
+  mem[17] Entity 0x668 y ev=4 -> ★0x668     y                                                    u64                                           
+  mem[18] Entity 0x4c0 attack_effect@tag ev=4 -> ★0x4c0     attack_effect@Some.0.casting@tag                     tag:4B                                        
+  mem[19] Entity 0x490 attack_effect (Effect 56B) ev=4 -> ★0x490     attack_effect@Some.0.ty.ptr.pointer                  pattern_type!(*const alloc::sync::ArcInner<dyn
+  mem[20] Entity 0x4f8 skill_effect@tag ev=4 -> ★0x4f8     skill_effect@Some.0.casting@tag                      tag:4B                                        
+  mem[21] Entity 0x4c8 skill_effect ev=4 -> ★0x4c8     skill_effect@Some.0.ty.ptr.pointer                   pattern_type!(*const alloc::sync::ArcInner<dyn
+  mem[22] Entity 0x500 skill2_effect ev=4 -> ★0x500     skill2_effect@Some.0.ty.ptr.pointer                  pattern_type!(*const alloc::sync::ArcInner<dyn
+  mem[23] Entity 0x538 ult_effect ev=4 -> ★0x538     ult_effect@Some.0.ty.ptr.pointer                     pattern_type!(*const alloc::sync::ArcInner<dyn
+  mem[24] Entity 0x5c8 level ev=4 -> ★0x5c8     level                                                usize                                         
+  mem[25] Effect 0x30 casting@tag (Option<Effect> 니치) ev=4 -> ★0x30      casting@tag                                          tag:4B                                        
+=== [38] can_tower_focused_when_battle
+  mem[0] AbstractGameWithCache 0x0 game (&dyn AbstractGame data) ev=4 -> ★0x0       game                                                 &'{erased} dyn [Binder { value: Trait(game_cor
+  mem[1] AbstractGameWithCache 0x8 game vtable ev=4 -> NOHIT:     0x0       game                                                 &'{erased} dyn [Binder { value: T
+  mem[2] GameContext 0x8 setting ev=4 -> ★0x8       setting                                              &'{erased} game_core::GameSetting             
+  mem[3] GameSetting 0x13f8 tower_attack_disable_tick ev=4 -> ★0x13f8    tower_attack_disable_tick                            usize                                         
+  mem[4] GameContext 0x0 pool ev=4 -> ★0x0       pool                                                 &'{erased} bumpalo::Bump                      
+  mem[5] PlayerState 0x930 info.team ev=4 -> ★0x930     info.team                                            usize                                         
+  mem[6] PlayerState 0x9c0 info.position@tag ev=4 -> ★0x9c0     info.position@tag                                    tag:4B                                        
+  mem[7] AbstractGameWithCache 0x1e0 player_champion[team][pos] ev=4 -> ★0x1e0     player_champion[0][0]@Some.0                         &'{erased} game_core::Entity                  
+  mem[8] Vec<&Entity>(bumpalo,32B) towers 0x0 ptr -> SKIP(tcx 사전에 타입 없음)
+  mem[9] Vec<&Entity>(bumpalo,32B) towers 0x18 len -> SKIP(tcx 사전에 타입 없음)
+  mem[10] Entity 0x4c0 attack_effect@tag ev=4 -> ★0x4c0     attack_effect@Some.0.casting@tag                     tag:4B                                        
+  mem[11] Entity 0x4a0 attack_effect.range ev=4 -> ★0x4a0     attack_effect@Some.0.range                           u64                                           
+  mem[12] Entity 0x4a8 attack_effect.growth_range ev=4 -> ★0x4a8     attack_effect@Some.0.growth_range                    u64                                           
+  mem[13] Entity 0x5c8 level ev=4 -> ★0x5c8     level                                                usize                                         
+  mem[14] Entity 0x438 stat_buff_cached.range ev=4 -> ★0x438     stat_buff_cached.range                               usize                                         
+  mem[15] Entity 0x660 x ev=4 -> ★0x660     x                                                    u64                                           
+  mem[16] Entity 0x668 y ev=4 -> ★0x668     y                                                    u64                                           
+  mem[17] Entity 0x470 stat_buff_cached.radius_mult ev=4 -> ★0x470     stat_buff_cached.radius_mult                         i32                                           
+  mem[18] Entity 0x680 radius ev=4 -> ★0x680     radius                                               usize                                         
+=== [39] is_wave_priority_start_line
+  mem[0] OperationData 0x0 cache ev=4 -> ★0x0       cache                                                &'{erased} game_core::AbstractGameWithCache<'{
+  mem[1] PlayerState 0x930 info.team ev=4 -> ★0x930     info.team                                            usize                                         
+  mem[2] AbstractGameWithCache 0x10 top_minions[team] ev=4 -> ★0x10      top_minions[0].buf.ptr.pointer                       pattern_type!(*const &'{erased} game_core::Ent
+  mem[3] AbstractGameWithCache 0x50 mid_minions[team] ev=4 -> ★0x50      mid_minions[0].buf.ptr.pointer                       pattern_type!(*const &'{erased} game_core::Ent
+  mem[4] AbstractGameWithCache 0x90 bottom_minions[team] ev=4 -> ★0x90      bottom_minions[0].buf.ptr.pointer                    pattern_type!(*const &'{erased} game_core::Ent
+  mem[5] Vec<&Entity>(bumpalo,32B) line_minions[enemy] 0x18 len -> SKIP(tcx 사전에 타입 없음)
+  mem[6] Vec<&Entity>(bumpalo,32B) line_minions[enemy] 0x0 ptr -> SKIP(tcx 사전에 타입 없음)
+  mem[7] AbstractGameWithCache 0x170 nexus[team] ev=4 -> ★0x170     nexus[0]@Some.0                                      &'{erased} game_core::Entity                  
+  mem[8] AbstractGameWithCache 0x180 top_tower[team] / mid_tower(+0x1a0) / bottom_tower(+0x1c0) ev=4 -> ★0x180     top_tower[0]@Some.0                                  &'{erased} game_core::Entity                  
+  mem[9] Entity 0x660 x ev=4 -> ★0x660     x                                                    u64                                           
+  mem[10] Entity 0x668 y ev=4 -> ★0x668     y                                                    u64                                           

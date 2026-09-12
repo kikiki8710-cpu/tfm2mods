@@ -1,0 +1,68 @@
+{
+ "name": "v23_recent_visible_enemies_near_point",
+ "sym": "_RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy9team_plan17objective_helpers37v23_recent_visible_enemies_near_point",
+ "src": "game-ai\\src\\plan_legacy\\team_plan\\objective_helpers.rs",
+ "src_line": 31,
+ "ir_file": "m15.ll",
+ "ir_from": 55548,
+ "ir_to": 56099,
+
+ "one_line": "점 (x,y) 반경 range 안의 적 챔프 중 HP비율>=min 이고 최근 가시인 수를 센다",
+
+ "signature": {
+  "params": [
+   {"i": 1, "name": "player", "type": "&PlayerState(2528B)", "note": "판단 주체. info.team(+0x930) 으로 적팀 인덱스를 만들고 is_recent_visible 에 그대로 넘긴다"},
+   {"i": 2, "name": "data", "type": "&OperationData(24B)", "note": "cache(+0x0)·blackboard(+0x10) 만 읽음(context 는 안 읽음)"},
+   {"i": 3, "name": "x", "type": "u64", "note": "기준점 x (월드 좌표)"},
+   {"i": 4, "name": "y", "type": "u64", "note": "기준점 y"},
+   {"i": 5, "name": "range", "type": "u64", "note": "반경. 본문에서 range*range 로 제곱해 distance_sq 와 비교(경계 포함)"},
+   {"i": 6, "name": "min_hp_ratio", "type": "usize", "note": "HP 백분율 하한. hp*100/max_hp < min 이면 제외 (v23_healthy 인라인, objective_helpers.rs:12)"}
+  ],
+  "returns": "usize — 조건을 만족하는 적 챔피언 수 (0~5)"
+ },
+
+ "reads": [
+  {"base": "PlayerState", "offset": "0x930", "name": "info.team", "note": "usize. enemy_ix = 1 - team. >=2 면 panic_bounds_check(len=2, iter_champions 인라인 simulation.rs:1905)"},
+  {"base": "OperationData", "offset": "0x0", "name": "cache", "note": "&AbstractGameWithCache"},
+  {"base": "OperationData", "offset": "0x10", "name": "blackboard", "note": "&[Blackboard;2](744B stride). [enemy_ix] 가 is_recent_visible 의 self"},
+  {"base": "AbstractGameWithCache", "offset": "0x1e0", "name": "player_champion[enemy_ix]", "note": "[[Option<&Entity>;5];2] (IR gep %12,480 → [5 x ptr] × enemy_ix). null = None 은 건너뜀. 5칸이 완전히 언롤됨"},
+  {"base": "AbstractGameWithCache", "offset": "0x0", "name": "game (dyn AbstractGame data ptr)", "note": "is_recent_visible 인자(루프 밖 1회 로드)"},
+  {"base": "AbstractGameWithCache", "offset": "0x8", "name": "game (dyn AbstractGame vtable ptr)", "note": ""},
+  {"base": "Entity(적 챔프)", "offset": "0x628", "name": "stat_cached.hp", "note": "usize 최대 HP. ==0 이면 panic_const_div_by_zero(가드 없음 — v21_should_defer_support_target 의 max(.,1) 과 다름)"},
+  {"base": "Entity(적 챔프)", "offset": "0x670", "name": "hp", "note": "usize 현재 HP. hp*100/stat_cached.hp"},
+  {"base": "Entity(적 챔프)", "offset": "0x660", "name": "x", "note": "distance_sq(e, (x,y))"},
+  {"base": "Entity(적 챔프)", "offset": "0x668", "name": "y", "note": ""}
+ ],
+
+ "writes": [],
+
+ "constants": [
+  {"value": 1, "src_line": 32, "meaning": "enemy_ix = 1 - player.info.team — 적팀 인덱스"},
+  {"value": 2, "src_line": 32, "meaning": "panic_bounds_check 배열 길이(player_champion / blackboard [;2]) — 판정값 아님"},
+  {"value": 100, "src_line": 12, "meaning": "v23_healthy: hp_ratio = hp*100 / stat_cached.hp — 백분율 변환(objective_helpers.rs:12, 이 함수에 인라인)"}
+ ],
+
+ "calls": [
+  "game_core::simulation::game::blackboard::Blackboard::is_recent_visible",
+  "core::panicking::panic_bounds_check",
+  "core::panicking::panic_const::panic_const_div_by_zero"
+ ],
+
+ "logic": "fn v23_recent_visible_enemies_near_point(player, data, x, y, range, min_hp_ratio) -> usize\n\n[L32] enemy_ix = 1 - player.info.team(+0x930)           // >=2 → panic_bounds_check(len=2)\n[L33] range_sq = range * range                            // IR %20 (루프 밖 1회)\n      count = data.cache(+0x0).iter_champions(enemy_ix)   // simulation.rs:1905 인라인 = player_champion(+0x1e0)[enemy_ix] 의 Some(&Entity) 만\n        .filter(|e| {                                     // closure$0 (objective_helpers.rs:34~36), 5칸 완전 언롤\n[L34]       v23_healthy(e, min_hp_ratio)                  // objective_helpers.rs:12 인라인:\n            //   = e.hp(+0x670) * 100 / e.stat_cached.hp(+0x628) >= min_hp_ratio\n            //   (IR: icmp ult ratio, min → 작으면 탈락 / stat_cached.hp==0 → panic_const_div_by_zero)\n[L35]       && Entity::distance_sq(e, (x, y)) <= range_sq // abs_diff(e.x,x)^2 + abs_diff(e.y,y)^2 (icmp ugt 면 탈락)\n[L36]       && data.blackboard(+0x10)[enemy_ix].is_recent_visible(cache.game(+0x0/+0x8), player, e)\n            //   = game.is_visible(player.team, e.id) || last_visible[e.position]+120 >= tick (blackboard.rs:348~350)\n        })\n        .count()                                          // IR: zext i1 → add 누적(accum.rs:55 fold)\n[L39] return count\n\n※ 세 조건의 평가 순서(IR 분기): healthy → 거리 → is_recent_visible. 앞에서 탈락하면 뒤는 평가 안 함(단락).\n※ 부작용 없음. 호출 비용: 슬롯당 최대 1회 is_recent_visible(vtable 호출 2~3회).",
+
+ "knobs": [
+  {"what": "HP 백분율 하한 (min_hp_ratio)", "where": "인자 6 — 호출자가 정함. 비교식은 objective_helpers.rs:12 (IR m15.ll `icmp ult i64 %32, %5`)", "value": "인자",
+   "effect": "올리면 저체력 적은 '위협'으로 안 세어 오브젝트 압박/셋업이 공격적으로 되고, 0 이면 HP 무관하게 전부 센다"},
+  {"what": "반경 (range)", "where": "인자 5 — 호출자가 정함. 비교식은 objective_helpers.rs:35 (IR `icmp ugt i64 %50, %20`)", "value": "인자",
+   "effect": "제곱 비교·경계 포함. 올리면 더 먼 적까지 센다"},
+  {"what": "최근 가시 시간창 (is_recent_visible 내부, 담당 범위 밖)", "where": "game-core blackboard.rs:350 (_gcbc g07.ll:157005~ `add i64 %24, 120`)", "value": 120,
+   "effect": "120틱(2초@60tps) 안에 본 적까지 센다. 별도 define 이라 constants 에 없음"}
+ ],
+
+ "unknown": [
+  "이 함수 본문에는 판정 리터럴이 100(백분율) 하나뿐이고 임계는 전부 인자(range, min_hp_ratio)다 — 실제 노브 값은 호출자(objective_helpers 의 다른 v23_* 함수들로 추정)에 있으며 미탐색",
+  "v23_healthy(objective_helpers.rs:12) 가 `>=` 인지 `!(<)` 인지 소스 표기는 표기 불가 — 동작(ratio < min 이면 탈락)은 IR icmp ult 로 확정",
+  "iter_champions(simulation.rs:1905) 가 player_champion 의 Some 만 돌려주는 것은 IR(null 검사 → skip)로 확정. 죽은 챔프(hp 0)가 Some 으로 남는지 None 이 되는지는 game_core 소관이라 미확인 — hp 0 이면 healthy 가 0 < min 으로 걸러지므로(min>0 일 때) 결과엔 영향 없음",
+  "distance_sq 의 두 번째 인자가 (x,y) 튜플인지 별도 두 인자인지는 표기 불가(utils.rs:7~9 abs_diff 두 번 + 제곱합으로만 보임)"
+ ]
+}

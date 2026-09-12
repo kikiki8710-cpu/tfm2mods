@@ -1,0 +1,62 @@
+{
+ "name": "v23_healthy_allies_near_point",
+ "sym": "_RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy9team_plan17objective_helpers29v23_healthy_allies_near_point",
+ "src": "game-ai\\src\\plan_legacy\\team_plan\\objective_helpers.rs",
+ "src_line": 25,
+ "ir_file": "m15.ll",
+ "ir_from": 53341,
+ "ir_to": 53830,
+
+ "one_line": "내 팀 챔피언(최대 5) 중 HP% ≥ min_hp_ratio 이고 (x,y) 로부터 range 이내인 인원 수를 센다",
+
+ "signature": {
+  "params": [
+   {"i": 0, "name": "player", "type": "&PlayerState(2528B)", "note": "info.team(+0x930) 만 읽음 — 어느 팀 챔피언을 셀지"},
+   {"i": 1, "name": "data", "type": "&OperationData(24B)", "note": "cache(+0x0) 의 player_champion[team] 만 사용"},
+   {"i": 2, "name": "x", "type": "u64", "note": "기준점 x"},
+   {"i": 3, "name": "y", "type": "u64", "note": "기준점 y"},
+   {"i": 4, "name": "range", "type": "u64", "note": "반경. range² 와 dist² 를 비교(ule)"},
+   {"i": 5, "name": "min_hp_ratio", "type": "usize", "note": "HP 백분율 하한(0~100 스케일). hp*100/max_hp < 이 값이면 제외"}
+  ],
+  "returns": "usize — 조건을 만족한 아군 챔피언 수 (IR range(0,6) = 0~5)"
+ },
+
+ "reads": [
+  {"base": "PlayerState", "offset": "0x930", "name": "info.team", "note": "usize. >=2 면 panic_bounds_check(len 2)"},
+  {"base": "OperationData", "offset": "0x0", "name": "cache", "note": "&AbstractGameWithCache"},
+  {"base": "AbstractGameWithCache", "offset": "0x1e0", "name": "player_champion[team][0..5]", "note": "[2][5] Option<&Entity>(null 니치). iter_champions(team) 인라인 — 5슬롯 완전 언롤, null 은 skip"},
+  {"base": "Entity(아군 챔피언)", "offset": "0x628", "name": "stat_cached.hp (최대 HP)", "note": "0 이면 panic_const_div_by_zero"},
+  {"base": "Entity(아군 챔피언)", "offset": "0x670", "name": "hp", "note": "hp*100/stat_cached.hp 로 백분율"},
+  {"base": "Entity(아군 챔피언)", "offset": "0x660", "name": "x", "note": "abs_diff 로 dx"},
+  {"base": "Entity(아군 챔피언)", "offset": "0x668", "name": "y", "note": "abs_diff 로 dy"}
+ ],
+
+ "writes": [],
+
+ "constants": [
+  {"value": 100, "src_line": 12, "meaning": "v23_healthy(objective_helpers.rs:12) 인라인 — HP 백분율 hp*100/max_hp. 클로저 L27 에서 호출"},
+  {"value": 2, "src_line": 26, "meaning": "player_champion 1차 배열 길이 2(팀). team>=2 면 panic_bounds_check"},
+  {"value": 0, "src_line": 28, "meaning": "count 초기값 0 (fold init)"}
+ ],
+
+ "calls": [
+  "core::panicking::panic_const::panic_const_div_by_zero",
+  "core::panicking::panic_bounds_check"
+ ],
+
+ "logic": "fn v23_healthy_allies_near_point(player, data, x, y, range, min_hp_ratio) -> usize\n// L26\nlet team = player.info.team;                                   // +0x930, bounds 2\n// L27~28\ndata.cache.iter_champions(team)                                // player_champion[team] 의 Some 만 (5슬롯 언롤)\n  .filter(|e| v23_healthy(e, min_hp_ratio)                     // objective_helpers.rs:12: e.hp*100 / e.stat_cached.hp >= min_hp_ratio  (ult 로 '미만이면 false')\n           && (x.abs_diff(e.x))² + (y.abs_diff(e.y))² <= range*range)   // 단락: healthy 먼저, 그 다음 거리\n  .count()\n// max_hp == 0 인 슬롯이 있으면 div_by_zero 패닉. 사망(hp=0) 챔피언은 min_hp_ratio>0 이면 자동 제외",
+
+ "knobs": [
+  {"what": "HP 하한·반경은 전부 인자(min_hp_ratio, range)", "where": "objective_helpers.rs:25 시그니처", "value": "호출자가 정함",
+   "effect": "이 함수 안에 고정 임계는 없다. 호출자별 값(예: _docs 의 '건강(≥40%)' 언급)은 호출처에서 확인해야 한다"},
+  {"what": "거리 비교 포함/배제", "where": "objective_helpers.rs:27", "value": "dist² <= range² (ule, 경계 포함)",
+   "effect": "< 로 바꾸면 정확히 range 거리인 아군이 빠진다"}
+ ],
+
+ "unknown": [
+  "v23_healthy(objective_helpers.rs:12) 의 정확한 시그니처(인자 순서·반환)는 인라인돼 IR 동작(hp*100/max_hp >= min_hp_ratio)만 확정 — _gaibc 전 파일에 별도 define 없음(grep 0건, fnparts: 서브프로그램 12 vs define 1 = 전부 인라인)",
+  "L27 클로저 안에서 healthy 와 거리 조건의 소스 순서는 IR 단락 순서(healthy → 거리)로 적었다(column 없음)",
+  "사망/미스폰 챔피언이 player_champion 에 None 으로 오는지 Some(hp=0) 으로 오는지는 이 함수 밖(cache 구성, 미탐색) — 후자면 min_hp_ratio=0 호출 시 죽은 아군도 센다",
+  "호출자가 넘기는 range·min_hp_ratio 실제 값은 이 명세 범위 밖"
+ ]
+}

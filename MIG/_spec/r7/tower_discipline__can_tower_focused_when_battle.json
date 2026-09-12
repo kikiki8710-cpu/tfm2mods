@@ -1,0 +1,82 @@
+{
+ "name": "can_tower_focused_when_battle",
+ "sym": "_RNvNtCshdEBA0ozCnw_7game_ai16tower_discipline29can_tower_focused_when_battle",
+ "src": "game-ai\\src\\tower_discipline.rs",
+ "src_line": 56,
+ "ir_file": "m07.ll",
+ "ir_from": 51100,
+ "ir_to": 51309,
+
+ "one_line": "(x,y)+여유 d 가 어느 적 타워의 (사거리+양쪽 반지름+15000) 안에 들어 타워에 맞을 수 있는 위치인가",
+
+ "signature": {
+  "params": [
+   {"i": 1, "name": "context", "type": "&GameContext(64B)", "note": "pool(+0x0)=towers Vec 할당자, setting(+0x8).tower_attack_disable_tick(+0x13f8)"},
+   {"i": 2, "name": "cache", "type": "&AbstractGameWithCache(8840B)", "note": "game(dyn, tick 호출)·player_champion(+0x1e0)·towers()"},
+   {"i": 3, "name": "player", "type": "&PlayerState(2528B)", "note": "info.team(+0x930)·info.position 태그(+0x9c0) 로 내 챔프 조회"},
+   {"i": 4, "name": "x", "type": "u64", "note": "검사할 좌표 x"},
+   {"i": 5, "name": "y", "type": "u64", "note": "검사할 좌표 y"},
+   {"i": 6, "name": "d", "type": "u64", "note": "추가 여유 거리(호출자가 주는 마진). 타워 사거리에 더해진다"}
+  ],
+  "returns": "bool — true = 타워 공격 활성 구간이고 내 챔프가 있으며 적 타워 중 하나라도 distance((x,y),tower) <= 사거리+타워반지름+내반지름+d+15000"
+ },
+
+ "reads": [
+  {"base": "AbstractGameWithCache", "offset": "0x0", "name": "game (&dyn AbstractGame data)", "note": "vtable+0x28 tick() 호출"},
+  {"base": "AbstractGameWithCache", "offset": "0x8", "name": "game vtable", "note": ""},
+  {"base": "GameContext", "offset": "0x8", "name": "setting", "note": "&GameSetting"},
+  {"base": "GameSetting", "offset": "0x13f8", "name": "tower_attack_disable_tick", "note": "usize. tick >= 이 값이면 즉시 false (IR 오프셋 5112)"},
+  {"base": "GameContext", "offset": "0x0", "name": "pool", "note": "&Bump. towers() 할당자 (ctx 선두 load)"},
+  {"base": "PlayerState", "offset": "0x930", "name": "info.team", "note": "usize. >=2 면 panic_bounds_check"},
+  {"base": "PlayerState", "offset": "0x9c0", "name": "info.position@tag", "note": "i32 → [5] 인덱스"},
+  {"base": "AbstractGameWithCache", "offset": "0x1e0", "name": "player_champion[team][pos]", "note": "[[Option<&Entity>;5];2]. None → false"},
+  {"base": "Vec<&Entity>(bumpalo,32B) towers", "offset": "0x0", "name": "ptr", "note": ""},
+  {"base": "Vec<&Entity>(bumpalo,32B) towers", "offset": "0x18", "name": "len", "note": "0 이면 false"},
+  {"base": "Entity(적 타워 t)", "offset": "0x4c0", "name": "attack_effect@tag", "note": "i32 니치. -1(None) 이면 그 타워는 건너뜀"},
+  {"base": "Entity(t)", "offset": "0x4a0", "name": "attack_effect.range", "note": "u64 기본 사거리"},
+  {"base": "Entity(t)", "offset": "0x4a8", "name": "attack_effect.growth_range", "note": "u64 레벨당 사거리 증가"},
+  {"base": "Entity(t)", "offset": "0x5c8", "name": "level", "note": "(level-1)*growth_range"},
+  {"base": "Entity(t)", "offset": "0x438", "name": "stat_buff_cached.range", "note": "usize 사거리 버프 가산 (Effect::range 인라인 effect.rs:26)"},
+  {"base": "Entity(t)", "offset": "0x660", "name": "x", "note": "utils::distance 인자"},
+  {"base": "Entity(t)", "offset": "0x668", "name": "y", "note": ""},
+  {"base": "Entity(t / champ)", "offset": "0x470", "name": "stat_buff_cached.radius_mult", "note": "i32 %. Entity::radius() 인라인(entity.rs:1511~1515): 0 이면 radius 그대로, 아니면 radius*(100+mult)/100"},
+  {"base": "Entity(t / champ)", "offset": "0x680", "name": "radius", "note": "usize 충돌 반지름"}
+ ],
+
+ "writes": [],
+
+ "constants": [
+  {"value": 2, "src_line": 62, "meaning": "team 인덱스 상한(panic_bounds_check len=2)"},
+  {"value": 1, "src_line": 64, "meaning": "enemy = 1 - team → cache.towers(enemy)"},
+  {"value": -1, "src_line": 67, "meaning": "attack_effect Option 니치 None — 공격 이펙트 없는 타워는 건너뜀"},
+  {"value": -1, "src_line": 68, "meaning": "Effect::range 인라인: (level - 1) * growth_range"},
+  {"value": 15000, "src_line": 70, "meaning": "추가 여유 마진 (셀 32000 의 약 절반). dist <= range + 반지름들 + d + 15000"},
+  {"value": 0, "src_line": 70, "meaning": "Entity::radius 인라인: radius_mult == 0 이면 곱셈 생략"},
+  {"value": 100, "src_line": 70, "meaning": "Entity::radius 인라인: radius * (100 + mult) / 100 (퍼센트)"}
+ ],
+
+ "calls": [
+  "game_core::simulation::AbstractGameWithCache::towers",
+  "game_core::utils::distance",
+  "drop",
+  "core::panicking::panic_bounds_check"
+ ],
+
+ "logic": "fn can_tower_focused_when_battle(context, cache, player, x, y, d) -> bool\n\n[L57] if !(cache.game.tick() /*vtable+0x28*/ < context.setting(+0x8).tower_attack_disable_tick(+0x13f8)) { return false }\n      // 타워 공격 비활성 시각 이후엔 타워 위협 없음\n\n// ── 클로저(L61~77, 본문에 인라인) ─────────────────────────────\n[L62] team = player.info.team(+0x930)\n      let Some(champ) = cache.player_champion(+0x1e0)[team][player.info.position 태그(+0x9c0)] else { return false }\n[L64] towers = cache.towers(1 - team, context.pool)          // 적 타워 Vec<&Entity,&Bump>\n[L66] return towers.iter().any(|t| {\n[L67]   let Some(attack) = t.attack_effect(+0x4c0 != -1) else { return false }\n[L68]   range = attack.range(t)                               // Effect::range 인라인(effect.rs:26):\n              = attack.range(+0x4a0) + (t.level(+0x5c8) - 1) * attack.growth_range(+0x4a8) + t.stat_buff_cached.range(+0x438)\n[L69]   dist = utils::distance(x, y, t.x(+0x660), t.y(+0x668))\n[L70]   dist <= range + t.radius() + champ.radius() + d + 15000\n              // Entity::radius() 인라인(entity.rs:1511~1515): mult=stat_buff_cached.radius_mult(+0x470);\n              //   mult==0 ? radius(+0x680) : radius*(100+mult)/100\n              // IR: %113 = dist >u 합 → 다음 타워 / 아니면 즉시 true\n      })\n      // towers 는 반환 전 drop\n\n※ 부작용 없음. 합산 순서(IR): (d+15000) + attack.range + stat_range + (level-1)*growth + t.radius + champ.radius.",
+
+ "knobs": [
+  {"what": "타워 위험 판정 추가 마진", "where": "tower_discipline.rs:70 (IR m07.ll:51201 `add i64 %5, 15000`)", "value": 15000,
+   "effect": "올리면 타워 사거리보다 더 바깥까지 '맞을 수 있는 위치'로 봐 전투 중 타워 근처를 더 피하고, 내리면 사거리 경계까지 붙는다"},
+  {"what": "타워 공격 활성 구간 게이트", "where": "tower_discipline.rs:57 (IR m07.ll:51118 `icmp ult i64 %14, %18`) — 값은 GameSetting.tower_attack_disable_tick(+0x13f8)", "value": "setting.tower_attack_disable_tick",
+   "effect": "설정값을 내리면 그 틱 이후 이 함수가 항상 false → AI 가 타워를 무시. 게임 규칙 설정이라 AI 노브라기보다 세팅"},
+  {"what": "호출자 여유 d", "where": "tower_discipline.rs:56 인자", "value": "호출자 지정",
+   "effect": "호출자가 큰 d 를 주면 더 보수적으로 타워권을 넓게 본다"}
+ ],
+
+ "unknown": [
+  "utils::distance(x,y,x2,y2) 의 정확한 정의(유클리드 정수 sqrt 인지)는 game_core 미독 — 제곱비교가 아니라 실거리 비교라는 사실만 확정(dist 와 사거리 합을 직접 비교)",
+  "AbstractGameWithCache::towers(team, pool) 가 살아있는 타워만 주는지(파괴된 타워 제외 여부)는 game_core 미독",
+  "tick() 은 divtable(ExpectedGame 정적 vtable) 기준 슬롯 +0x28 이름 — 런타임 구현체 동일 여부 미확인",
+  "_docs 의 v47 주석(\"can_tower_focused 와 동형이되 시즈 스탠스…\")은 자매 함수 것으로 보이며 이 함수엔 스탠스 분기가 없다(IR 상 타워 대상 확인 없음)"
+ ]
+}

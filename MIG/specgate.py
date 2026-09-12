@@ -149,7 +149,7 @@ def gate2(i, sp):
 SIB = ("sub_plan", "next_plan", "is_end", "update", "on_enter", "on_exit")
 
 
-FREE_FN = {0, 1, 3, 4, 9, 10, 16, 19}   # 실측으로 자유 함수(impl 타입 없음)인 것만
+FREE_FN = {0, 1, 3, 4, 9, 10, 16, 19} | set(range(21, 33)) | set(range(34, 40))   # 실측으로 자유 함수(impl 타입 없음)인 것만 · 21~32·34~39 = r7 잎(심볼 _RNvNt/_RNvC · 09-13)
 
 
 def gate3(i, sp):

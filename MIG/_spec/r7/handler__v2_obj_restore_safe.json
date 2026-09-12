@@ -1,0 +1,198 @@
+{
+ "name": "v2_obj_restore_safe",
+ "sym": "_RNvMNtNtCshdEBA0ozCnw_7game_ai11plan_legacy7handlerNtB2_17LegacyPlanHandler19v2_obj_restore_safe",
+ "src": "game-ai\\src\\plan_legacy\\handler.rs",
+ "src_line": 501,
+ "ir_file": "m13.ll",
+ "ir_from": 11386,
+ "ir_to": 11527,
+ "aux": [
+  {
+   "ir_file": "m13.ll",
+   "ir_from": 58204,
+   "ir_to": 58285
+  }
+ ],
+ "one_line": "오브젝트 후 회복(restore)이 안전한지: 150000 안 '최근 가시' 적 챔프가 없거나, 있어도 2초 안에 안 죽으면 true",
+ "signature": {
+  "params": [
+   {
+    "i": 0,
+    "name": "self",
+    "type": "&LegacyPlanHandler",
+    "note": "DISubprogram arg1 은 self 이나 본문에서 전혀 안 읽혀 internal fastcc 승격 시 제거됨(IR 인자는 version/rnd/player/data/debug 5개)"
+   },
+   {
+    "i": 1,
+    "name": "version",
+    "type": "usize",
+    "note": "본문 분기엔 안 쓰임. 스택(%10)에 저장해 check_kill_die_tick 와 필터 클로저(is_ignored_well_enemy) 에 전달"
+   },
+   {
+    "i": 2,
+    "name": "rnd",
+    "type": "&mut StdRng(320B, align16)",
+    "note": "check_kill_die_tick 에만 전달"
+   },
+   {
+    "i": 3,
+    "name": "player",
+    "type": "&PlayerState(2528B)",
+    "note": "info.team(+0x930)·info.position(+0x9c0) 읽고, judger 로 check_kill_die_tick 에 전달"
+   },
+   {
+    "i": 4,
+    "name": "data",
+    "type": "&OperationData(24B)",
+    "note": "+0x0 cache / +0x8 context / +0x10 blackboard"
+   },
+   {
+    "i": 5,
+    "name": "debug",
+    "type": "&mut DebugFrameData",
+    "note": "check_kill_die_tick 에만 전달"
+   }
+  ],
+  "returns": "bool — true = 회복해도 안전 (내 챔프 없음 / 근처 가시 적 없음 / 예상 사망 틱 > tps*2)"
+ },
+ "reads": [
+  {
+   "base": "PlayerState",
+   "offset": "0x930",
+   "name": "info.team",
+   "note": "gep 2352. >=2 → panic_bounds_check(len 2). 클로저 안에서도 1-team 으로 다시 읽음 (m13.ll:58236)"
+  },
+  {
+   "base": "PlayerState",
+   "offset": "0x9c0",
+   "name": "info.position (Position i32 태그)",
+   "note": "gep 2496, as_index(entity.rs:581) → player_champion[team][position]"
+  },
+  {
+   "base": "OperationData",
+   "offset": "0x0",
+   "name": "cache",
+   "note": "&AbstractGameWithCache"
+  },
+  {
+   "base": "OperationData",
+   "offset": "0x8",
+   "name": "context",
+   "note": "&GameContext. pool(+0x0)·setting(+0x8)"
+  },
+  {
+   "base": "OperationData",
+   "offset": "0x10",
+   "name": "blackboard",
+   "note": "&[Blackboard;2]. 클로저 캡처 → [1-team].is_recent_visible (aux m13.ll:58255~58262, Blackboard stride = 그 gep 구조체 크기)"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x1e0",
+   "name": "player_champion [[Option<&Entity>;5];2]",
+   "note": "gep 480. [team][position] = champ (null → return true). [1-team] 5칸 = iter_champions 의 슬라이스 (m13.ll:11407~11419)"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x0",
+   "name": "game (dyn AbstractGame data ptr)",
+   "note": "클로저 캡처 → is_recent_visible 인자"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x8",
+   "name": "game (dyn AbstractGame vtable ptr)",
+   "note": "클로저 캡처"
+  },
+  {
+   "base": "GameContext",
+   "offset": "0x0",
+   "name": "pool: &Bump",
+   "note": "near_enemies 와 빈 towers Vec 의 할당자 (m13.ll:11449~11450)"
+  },
+  {
+   "base": "GameContext",
+   "offset": "0x8",
+   "name": "setting: &GameSetting",
+   "note": ""
+  },
+  {
+   "base": "GameSetting",
+   "offset": "0x12f8",
+   "name": "tick_per_second",
+   "note": "gep 4856 = tps. 임계 tps*2 (m13.ll:11512~11514)"
+  },
+  {
+   "base": "Vec<&Entity>(bumpalo, 32B)",
+   "offset": "0x18",
+   "name": "len",
+   "note": "near_enemies.is_empty() → true 반환 (m13.ll:11454)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x660",
+   "name": "x",
+   "note": "aux 클로저: gep 1632. 적 e 와 내 champ 의 x (distance_sq 인라인, entity.rs:2158)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x668",
+   "name": "y",
+   "note": "aux 클로저: gep 1640"
+  }
+ ],
+ "writes": [],
+ "constants": [
+  {
+   "value": 2,
+   "src_line": 504,
+   "meaning": "player_champion / blackboard 의 팀 배열 길이 2 — panic_bounds_check(len 2) (본체 m13.ll:11400, aux 58270)"
+  },
+  {
+   "value": 1,
+   "src_line": 506,
+   "meaning": "enemy team = 1 - team (본체 %26, aux %35). 또 tps*2 가 `shl i64 %tps, 1` 로 접혀 리터럴 2 없음 (handler.rs:515)"
+  },
+  {
+   "value": 1,
+   "folded_from": 2,
+   "src_line": 515,
+   "meaning": "안전 임계 tps*2 (=2초). `shl i64 %59, 1` (m13.ll:11514). my_die > tps*2 이면 안전"
+  },
+  {
+   "value": 22500000001,
+   "src_line": 507,
+   "meaning": "aux 클로저: 150000^2 + 1. distance_sq(e, champ) < 이 값 ⇔ 거리 <= 150000 (약 4.7셀) 인 적만 near_enemies 후보 (m13.ll:58254)"
+  }
+ ],
+ "calls": [
+  "bumpalo::collections::vec::from_iter_in",
+  "game_ai::fight_check::check_kill_die_tick",
+  "game_core::simulation::game::blackboard::Blackboard::is_recent_visible",
+  "game_ai::plan_legacy::old::fight_model::is_ignored_well_enemy",
+  "drop",
+  "core::panicking::panic_bounds_check"
+ ],
+ "logic": "fn LegacyPlanHandler::v2_obj_restore_safe(&self, version, rnd, player, data, debug) -> bool\n// ⚠internal fastcc 로 인자 승격됨: IR 인자 = (version i64, rnd, player, data, debug). self 는 본문에서 안 읽혀 제거됨\n\n[L504] team = player.info.team (+0x930)                         // >=2 → panic\n        champ: &Entity = match data.cache.player_champion(+0x1e0)[team][player.info.position(+0x9c0) as usize] {\n            Some(c) => c,\n            None    => return true                                 // 내 챔프 없음 → 안전(phi [true, %15])\n        }\n\n[L505~509] near_enemies: Vec<&Entity, &Bump> =\n        data.cache.iter_champions(1 - team)                       // player_champion[1-team] 5칸, Some 만 (simulation.rs:1905)\n          .filter(|e| {                                            // ★aux: m13.ll 58204~58285 (call_mut 심)\n[L507]        Entity::distance_sq(e, champ) < 22500000001          // abs_diff(x)^2 + abs_diff(y)^2, x=+0x660 y=+0x668 → 150000 이내\n[L508]        && data.blackboard(+0x10)[1 - player.team].is_recent_visible(game, player, e)   // 최근 시야에 잡힌 적\n[L509]        && !fight_model::is_ignored_well_enemy(version, player, e)   // 적 샘 위험구역의 적은 무시\n          })\n          .collect_in(data.context.pool(+0x0))                     // from_iter_in\n\n[L510] if near_enemies.is_empty() { drop; return true }           // 근처 가시 적 없음 → 안전\n\n[L513] my_die = fight_check::check_kill_die_tick(\n            version, rnd, data,\n            judger = player, focus = champ,\n            enemy  = near_enemies,                                  // memcpy 로 소유권 이동\n[L514]      towers = Vec::new_in(pool),                             // 항상 빈 벡터 (ptr=dangling 8, cap 0, len 0)\n            debug)\n[L515] return my_die > tps * 2                                     // tps = context.setting.tick_per_second(+0x12f8), shl 1\n[L516] }\n\n※ 즉 '2초(tps*2) 안에 죽지 않는다' 고 예측되면 회복(restore) 을 허용. 정확히 tps*2 틱이면 false(ugt).\n※ 부작용: rnd/debug 는 check_kill_die_tick 안에서 변할 수 있음. near_enemies 는 bump pool 에 할당·이동.",
+ "knobs": [
+  {
+   "what": "회복 안전 시간창",
+   "where": "handler.rs:515 (IR m13.ll:11514 `shl i64 %59, 1` → 11515 `icmp ugt %55, %60`)",
+   "value": 2,
+   "effect": "tps*2 틱 = 2초. 올리면 더 오래 살아남아야 안전으로 보아 회복을 덜 하고(보수적), 내리면 위험해도 회복을 시도한다. 리터럴 2 는 shl 1 로 접혀 IR 에 없다"
+  },
+  {
+   "what": "근처 적 탐색 반경",
+   "where": "handler.rs:507 — aux m13.ll:58254 (call_mut 심)",
+   "value": 22500000001,
+   "effect": "150000^2+1. 내 챔프에서 150000 이내(제곱비교 <) 의 적만 사망 예측에 포함. 올리면 더 먼 적까지 위협으로 세어 회복이 더 자주 '불안전' 판정"
+  }
+ ],
+ "unknown": [
+  "self(&LegacyPlanHandler) 는 DISubprogram 상 arg1 로 존재하나 본문이 안 읽어 fastcc 에서 제거됨 — 핸들러 상태에 의존하지 않는 판정임은 확정",
+  "check_kill_die_tick(m?.ll) 내부(사망 틱 예측 방식)는 담당 범위 밖 — TLS 메모 캐시가 있다는 METHOD_MAP 주의사항만 인지",
+  "is_recent_visible / is_ignored_well_enemy 의 내부 조건은 안 읽음(각각 _gcbc / fight_model 소속)",
+  "Blackboard 구조체 크기(stride) 는 aux 의 gep 구조체 리터럴로만 관측, tcxdict 로 별도 확인 안 함",
+  "towers=Vec::new_in 의 dangling ptr 리터럴 8 (`inttoptr (i64 8 to ptr)`) 은 판정 상수가 아니라 정렬값이라 constants 에서 제외"
+ ]
+}

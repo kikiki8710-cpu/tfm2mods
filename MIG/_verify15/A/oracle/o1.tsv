@@ -1,0 +1,285 @@
+setting_ok	true	width=960000	height=960000	tps=60	champ_radius=10000	visible=130000
+towers	16	twin0=2	twin1=2
+ALLY	id=18	x=15000	y=913000	hp=1	max=1	dist_sq_from_c0=0
+ALLY	id=19	x=32000	y=928000	hp=1	max=1	dist_sq_from_c0=514000000
+ALLY	id=20	x=49000	y=911000	hp=1	max=1	dist_sq_from_c0=1160000000
+ALLY	id=21	x=15000	y=938000	hp=1	max=1	dist_sq_from_c0=625000000
+ALLY	id=22	x=49000	y=946000	hp=1	max=1	dist_sq_from_c0=2245000000
+V23	range=0	min_hp=0	game=1	mine(ule)=1	alt(ult)=0	MATCH(판별 ule)
+V23	range=0	min_hp=1	game=1	mine(ule)=1	alt(ult)=0	MATCH(판별 ule)
+V23	range=0	min_hp=50	game=1	mine(ule)=1	alt(ult)=0	MATCH(판별 ule)
+V23	range=0	min_hp=99	game=1	mine(ule)=1	alt(ult)=0	MATCH(판별 ule)
+V23	range=0	min_hp=100	game=1	mine(ule)=1	alt(ult)=0	MATCH(판별 ule)
+V23	range=0	min_hp=101	game=0	mine(ule)=0	alt(ult)=0	MATCH
+V23	range=1	min_hp=0	game=1	mine(ule)=1	alt(ult)=1	MATCH
+V23	range=1	min_hp=1	game=1	mine(ule)=1	alt(ult)=1	MATCH
+V23	range=1	min_hp=50	game=1	mine(ule)=1	alt(ult)=1	MATCH
+V23	range=1	min_hp=99	game=1	mine(ule)=1	alt(ult)=1	MATCH
+V23	range=1	min_hp=100	game=1	mine(ule)=1	alt(ult)=1	MATCH
+V23	range=1	min_hp=101	game=0	mine(ule)=0	alt(ult)=0	MATCH
+V23	range=1000	min_hp=0	game=1	mine(ule)=1	alt(ult)=1	MATCH
+V23	range=1000	min_hp=1	game=1	mine(ule)=1	alt(ult)=1	MATCH
+V23	range=1000	min_hp=50	game=1	mine(ule)=1	alt(ult)=1	MATCH
+V23	range=1000	min_hp=99	game=1	mine(ule)=1	alt(ult)=1	MATCH
+V23	range=1000	min_hp=100	game=1	mine(ule)=1	alt(ult)=1	MATCH
+V23	range=1000	min_hp=101	game=0	mine(ule)=0	alt(ult)=0	MATCH
+V23	range=100000	min_hp=0	game=5	mine(ule)=5	alt(ult)=5	MATCH
+V23	range=100000	min_hp=1	game=5	mine(ule)=5	alt(ult)=5	MATCH
+V23	range=100000	min_hp=50	game=5	mine(ule)=5	alt(ult)=5	MATCH
+V23	range=100000	min_hp=99	game=5	mine(ule)=5	alt(ult)=5	MATCH
+V23	range=100000	min_hp=100	game=5	mine(ule)=5	alt(ult)=5	MATCH
+V23	range=100000	min_hp=101	game=0	mine(ule)=0	alt(ult)=0	MATCH
+V23	range=10000000	min_hp=0	game=5	mine(ule)=5	alt(ult)=5	MATCH
+V23	range=10000000	min_hp=1	game=5	mine(ule)=5	alt(ult)=5	MATCH
+V23	range=10000000	min_hp=50	game=5	mine(ule)=5	alt(ult)=5	MATCH
+V23	range=10000000	min_hp=99	game=5	mine(ule)=5	alt(ult)=5	MATCH
+V23	range=10000000	min_hp=100	game=5	mine(ule)=5	alt(ult)=5	MATCH
+V23	range=10000000	min_hp=101	game=0	mine(ule)=0	alt(ult)=0	MATCH
+V23	range=0	min_hp=0	game=1	mine(ule)=1	alt(ult)=0	MATCH(판별 ule)
+V23	range=0	min_hp=1	game=1	mine(ule)=1	alt(ult)=0	MATCH(판별 ule)
+V23	range=0	min_hp=50	game=1	mine(ule)=1	alt(ult)=0	MATCH(판별 ule)
+V23	range=0	min_hp=99	game=1	mine(ule)=1	alt(ult)=0	MATCH(판별 ule)
+V23	range=0	min_hp=100	game=1	mine(ule)=1	alt(ult)=0	MATCH(판별 ule)
+V23	range=0	min_hp=101	game=0	mine(ule)=0	alt(ult)=0	MATCH
+V23	range=0	min_hp=0	game=1	mine(ule)=1	alt(ult)=0	MATCH(판별 ule)
+V23	range=0	min_hp=1	game=1	mine(ule)=1	alt(ult)=0	MATCH(판별 ule)
+V23	range=0	min_hp=50	game=1	mine(ule)=1	alt(ult)=0	MATCH(판별 ule)
+V23	range=0	min_hp=99	game=1	mine(ule)=1	alt(ult)=0	MATCH(판별 ule)
+V23	range=0	min_hp=100	game=1	mine(ule)=1	alt(ult)=0	MATCH(판별 ule)
+V23	range=0	min_hp=101	game=0	mine(ule)=0	alt(ult)=0	MATCH
+V23	range=1	min_hp=0	game=1	mine(ule)=1	alt(ult)=1	MATCH
+V23	range=1	min_hp=1	game=1	mine(ule)=1	alt(ult)=1	MATCH
+V23	range=1	min_hp=50	game=1	mine(ule)=1	alt(ult)=1	MATCH
+V23	range=1	min_hp=99	game=1	mine(ule)=1	alt(ult)=1	MATCH
+V23	range=1	min_hp=100	game=1	mine(ule)=1	alt(ult)=1	MATCH
+V23	range=1	min_hp=101	game=0	mine(ule)=0	alt(ult)=0	MATCH
+V23	range=2	min_hp=0	game=1	mine(ule)=1	alt(ult)=1	MATCH
+V23	range=2	min_hp=1	game=1	mine(ule)=1	alt(ult)=1	MATCH
+V23	range=2	min_hp=50	game=1	mine(ule)=1	alt(ult)=1	MATCH
+V23	range=2	min_hp=99	game=1	mine(ule)=1	alt(ult)=1	MATCH
+V23	range=2	min_hp=100	game=1	mine(ule)=1	alt(ult)=1	MATCH
+V23	range=2	min_hp=101	game=0	mine(ule)=0	alt(ult)=0	MATCH
+V23	range=22670	min_hp=0	game=1	mine(ule)=1	alt(ult)=1	MATCH
+V23	range=22670	min_hp=1	game=1	mine(ule)=1	alt(ult)=1	MATCH
+V23	range=22670	min_hp=50	game=1	mine(ule)=1	alt(ult)=1	MATCH
+V23	range=22670	min_hp=99	game=1	mine(ule)=1	alt(ult)=1	MATCH
+V23	range=22670	min_hp=100	game=1	mine(ule)=1	alt(ult)=1	MATCH
+V23	range=22670	min_hp=101	game=0	mine(ule)=0	alt(ult)=0	MATCH
+V23	range=22671	min_hp=0	game=1	mine(ule)=1	alt(ult)=1	MATCH
+V23	range=22671	min_hp=1	game=1	mine(ule)=1	alt(ult)=1	MATCH
+V23	range=22671	min_hp=50	game=1	mine(ule)=1	alt(ult)=1	MATCH
+V23	range=22671	min_hp=99	game=1	mine(ule)=1	alt(ult)=1	MATCH
+V23	range=22671	min_hp=100	game=1	mine(ule)=1	alt(ult)=1	MATCH
+V23	range=22671	min_hp=101	game=0	mine(ule)=0	alt(ult)=0	MATCH
+V23	range=22672	min_hp=0	game=2	mine(ule)=2	alt(ult)=2	MATCH
+V23	range=22672	min_hp=1	game=2	mine(ule)=2	alt(ult)=2	MATCH
+V23	range=22672	min_hp=50	game=2	mine(ule)=2	alt(ult)=2	MATCH
+V23	range=22672	min_hp=99	game=2	mine(ule)=2	alt(ult)=2	MATCH
+V23	range=22672	min_hp=100	game=2	mine(ule)=2	alt(ult)=2	MATCH
+V23	range=22672	min_hp=101	game=0	mine(ule)=0	alt(ult)=0	MATCH
+V23	range=22673	min_hp=0	game=2	mine(ule)=2	alt(ult)=2	MATCH
+V23	range=22673	min_hp=1	game=2	mine(ule)=2	alt(ult)=2	MATCH
+V23	range=22673	min_hp=50	game=2	mine(ule)=2	alt(ult)=2	MATCH
+V23	range=22673	min_hp=99	game=2	mine(ule)=2	alt(ult)=2	MATCH
+V23	range=22673	min_hp=100	game=2	mine(ule)=2	alt(ult)=2	MATCH
+V23	range=22673	min_hp=101	game=0	mine(ule)=0	alt(ult)=0	MATCH
+V23	range=34057	min_hp=0	game=3	mine(ule)=3	alt(ult)=3	MATCH
+V23	range=34057	min_hp=1	game=3	mine(ule)=3	alt(ult)=3	MATCH
+V23	range=34057	min_hp=50	game=3	mine(ule)=3	alt(ult)=3	MATCH
+V23	range=34057	min_hp=99	game=3	mine(ule)=3	alt(ult)=3	MATCH
+V23	range=34057	min_hp=100	game=3	mine(ule)=3	alt(ult)=3	MATCH
+V23	range=34057	min_hp=101	game=0	mine(ule)=0	alt(ult)=0	MATCH
+V23	range=34058	min_hp=0	game=3	mine(ule)=3	alt(ult)=3	MATCH
+V23	range=34058	min_hp=1	game=3	mine(ule)=3	alt(ult)=3	MATCH
+V23	range=34058	min_hp=50	game=3	mine(ule)=3	alt(ult)=3	MATCH
+V23	range=34058	min_hp=99	game=3	mine(ule)=3	alt(ult)=3	MATCH
+V23	range=34058	min_hp=100	game=3	mine(ule)=3	alt(ult)=3	MATCH
+V23	range=34058	min_hp=101	game=0	mine(ule)=0	alt(ult)=0	MATCH
+V23	range=34059	min_hp=0	game=4	mine(ule)=4	alt(ult)=4	MATCH
+V23	range=34059	min_hp=1	game=4	mine(ule)=4	alt(ult)=4	MATCH
+V23	range=34059	min_hp=50	game=4	mine(ule)=4	alt(ult)=4	MATCH
+V23	range=34059	min_hp=99	game=4	mine(ule)=4	alt(ult)=4	MATCH
+V23	range=34059	min_hp=100	game=4	mine(ule)=4	alt(ult)=4	MATCH
+V23	range=34059	min_hp=101	game=0	mine(ule)=0	alt(ult)=0	MATCH
+V23	range=34060	min_hp=0	game=4	mine(ule)=4	alt(ult)=4	MATCH
+V23	range=34060	min_hp=1	game=4	mine(ule)=4	alt(ult)=4	MATCH
+V23	range=34060	min_hp=50	game=4	mine(ule)=4	alt(ult)=4	MATCH
+V23	range=34060	min_hp=99	game=4	mine(ule)=4	alt(ult)=4	MATCH
+V23	range=34060	min_hp=100	game=4	mine(ule)=4	alt(ult)=4	MATCH
+V23	range=34060	min_hp=101	game=0	mine(ule)=0	alt(ult)=0	MATCH
+V23	range=24999	min_hp=0	game=2	mine(ule)=2	alt(ult)=2	MATCH
+V23	range=24999	min_hp=1	game=2	mine(ule)=2	alt(ult)=2	MATCH
+V23	range=24999	min_hp=50	game=2	mine(ule)=2	alt(ult)=2	MATCH
+V23	range=24999	min_hp=99	game=2	mine(ule)=2	alt(ult)=2	MATCH
+V23	range=24999	min_hp=100	game=2	mine(ule)=2	alt(ult)=2	MATCH
+V23	range=24999	min_hp=101	game=0	mine(ule)=0	alt(ult)=0	MATCH
+V23	range=25000	min_hp=0	game=3	mine(ule)=3	alt(ult)=2	MATCH(판별 ule)
+V23	range=25000	min_hp=1	game=3	mine(ule)=3	alt(ult)=2	MATCH(판별 ule)
+V23	range=25000	min_hp=50	game=3	mine(ule)=3	alt(ult)=2	MATCH(판별 ule)
+V23	range=25000	min_hp=99	game=3	mine(ule)=3	alt(ult)=2	MATCH(판별 ule)
+V23	range=25000	min_hp=100	game=3	mine(ule)=3	alt(ult)=2	MATCH(판별 ule)
+V23	range=25000	min_hp=101	game=0	mine(ule)=0	alt(ult)=0	MATCH
+V23	range=25001	min_hp=0	game=3	mine(ule)=3	alt(ult)=3	MATCH
+V23	range=25001	min_hp=1	game=3	mine(ule)=3	alt(ult)=3	MATCH
+V23	range=25001	min_hp=50	game=3	mine(ule)=3	alt(ult)=3	MATCH
+V23	range=25001	min_hp=99	game=3	mine(ule)=3	alt(ult)=3	MATCH
+V23	range=25001	min_hp=100	game=3	mine(ule)=3	alt(ult)=3	MATCH
+V23	range=25001	min_hp=101	game=0	mine(ule)=0	alt(ult)=0	MATCH
+V23	range=25002	min_hp=0	game=3	mine(ule)=3	alt(ult)=3	MATCH
+V23	range=25002	min_hp=1	game=3	mine(ule)=3	alt(ult)=3	MATCH
+V23	range=25002	min_hp=50	game=3	mine(ule)=3	alt(ult)=3	MATCH
+V23	range=25002	min_hp=99	game=3	mine(ule)=3	alt(ult)=3	MATCH
+V23	range=25002	min_hp=100	game=3	mine(ule)=3	alt(ult)=3	MATCH
+V23	range=25002	min_hp=101	game=0	mine(ule)=0	alt(ult)=0	MATCH
+V23	range=47380	min_hp=0	game=4	mine(ule)=4	alt(ult)=4	MATCH
+V23	range=47380	min_hp=1	game=4	mine(ule)=4	alt(ult)=4	MATCH
+V23	range=47380	min_hp=50	game=4	mine(ule)=4	alt(ult)=4	MATCH
+V23	range=47380	min_hp=99	game=4	mine(ule)=4	alt(ult)=4	MATCH
+V23	range=47380	min_hp=100	game=4	mine(ule)=4	alt(ult)=4	MATCH
+V23	range=47380	min_hp=101	game=0	mine(ule)=0	alt(ult)=0	MATCH
+V23	range=47381	min_hp=0	game=4	mine(ule)=4	alt(ult)=4	MATCH
+V23	range=47381	min_hp=1	game=4	mine(ule)=4	alt(ult)=4	MATCH
+V23	range=47381	min_hp=50	game=4	mine(ule)=4	alt(ult)=4	MATCH
+V23	range=47381	min_hp=99	game=4	mine(ule)=4	alt(ult)=4	MATCH
+V23	range=47381	min_hp=100	game=4	mine(ule)=4	alt(ult)=4	MATCH
+V23	range=47381	min_hp=101	game=0	mine(ule)=0	alt(ult)=0	MATCH
+V23	range=47382	min_hp=0	game=5	mine(ule)=5	alt(ult)=5	MATCH
+V23	range=47382	min_hp=1	game=5	mine(ule)=5	alt(ult)=5	MATCH
+V23	range=47382	min_hp=50	game=5	mine(ule)=5	alt(ult)=5	MATCH
+V23	range=47382	min_hp=99	game=5	mine(ule)=5	alt(ult)=5	MATCH
+V23	range=47382	min_hp=100	game=5	mine(ule)=5	alt(ult)=5	MATCH
+V23	range=47382	min_hp=101	game=0	mine(ule)=0	alt(ult)=0	MATCH
+V23	range=47383	min_hp=0	game=5	mine(ule)=5	alt(ult)=5	MATCH
+V23	range=47383	min_hp=1	game=5	mine(ule)=5	alt(ult)=5	MATCH
+V23	range=47383	min_hp=50	game=5	mine(ule)=5	alt(ult)=5	MATCH
+V23	range=47383	min_hp=99	game=5	mine(ule)=5	alt(ult)=5	MATCH
+V23	range=47383	min_hp=100	game=5	mine(ule)=5	alt(ult)=5	MATCH
+V23	range=47383	min_hp=101	game=0	mine(ule)=0	alt(ult)=0	MATCH
+V23_SUMMARY	match=150	mismatch=0
+HPSET	id=19	hp=360	max=1000	pct=36
+V23HP	min_hp=0	game=5	mine=5	MATCH
+V23HP	min_hp=35	game=5	mine=5	MATCH
+V23HP	min_hp=36	game=5	mine=5	MATCH
+V23HP	min_hp=37	game=4	mine=4	MATCH
+V23HP	min_hp=100	game=4	mine=4	MATCH
+V23HP	min_hp=101	game=0	mine=0	MATCH
+TOWERS	enemy_count=9	champ_id=18	champ_radius=10000	radius_mult=0
+TOWER	#0	id=3	tag=2	ne_tag=0	x=272000	y=48000	eff.range=0	growth=0	level=1	sb_range=0	radius=10000	range(t)=0	R=35000	Ralt=20000
+CTF	#0	R-1	x=306999	y=48000	game=true	mine=true	alt(no15000)=false	MATCH(판별 15000)
+CTF	#0	R	x=307000	y=48000	game=true	mine=true	alt(no15000)=false	MATCH(판별 15000)
+CTF	#0	R+1	x=307001	y=48000	game=false	mine=false	alt(no15000)=false	MATCH
+CTF	#0	Ralt	x=292000	y=48000	game=true	mine=true	alt(no15000)=true	MATCH
+CTF	#0	Ralt+1	x=292001	y=48000	game=true	mine=true	alt(no15000)=false	MATCH(판별 15000)
+CTF	#0	R+15000	x=322000	y=48000	game=false	mine=false	alt(no15000)=false	MATCH
+TOWER	#1	id=7	tag=2	ne_tag=0	x=592000	y=368000	eff.range=0	growth=0	level=1	sb_range=0	radius=10000	range(t)=0	R=35000	Ralt=20000
+CTF	#1	R-1	x=626999	y=368000	game=true	mine=true	alt(no15000)=false	MATCH(판별 15000)
+CTF	#1	R	x=627000	y=368000	game=true	mine=true	alt(no15000)=false	MATCH(판별 15000)
+CTF	#1	R+1	x=627001	y=368000	game=false	mine=false	alt(no15000)=false	MATCH
+CTF	#1	Ralt	x=612000	y=368000	game=true	mine=true	alt(no15000)=true	MATCH
+CTF	#1	Ralt+1	x=612001	y=368000	game=true	mine=true	alt(no15000)=false	MATCH(판별 15000)
+CTF	#1	R+15000	x=642000	y=368000	game=false	mine=false	alt(no15000)=false	MATCH
+TOWER	#2	id=11	tag=2	ne_tag=0	x=912000	y=688000	eff.range=0	growth=0	level=1	sb_range=0	radius=10000	range(t)=0	R=35000	Ralt=20000
+CTF	#2	R-1	x=946999	y=688000	game=true	mine=true	alt(no15000)=false	MATCH(판별 15000)
+CTF	#2	R	x=947000	y=688000	game=true	mine=true	alt(no15000)=false	MATCH(판별 15000)
+CTF	#2	R+1	x=947001	y=688000	game=false	mine=false	alt(no15000)=false	MATCH
+CTF	#2	Ralt	x=932000	y=688000	game=true	mine=true	alt(no15000)=true	MATCH
+CTF	#2	Ralt+1	x=932001	y=688000	game=true	mine=true	alt(no15000)=false	MATCH(판별 15000)
+CTF	#2	R+15000	x=962000	y=688000	game=false	mine=false	alt(no15000)=false	MATCH
+TOWER	#3	id=5	tag=2	ne_tag=0	x=528000	y=48000	eff.range=0	growth=0	level=1	sb_range=0	radius=10000	range(t)=0	R=35000	Ralt=20000
+CTF	#3	R-1	x=562999	y=48000	game=true	mine=true	alt(no15000)=false	MATCH(판별 15000)
+CTF	#3	R	x=563000	y=48000	game=true	mine=true	alt(no15000)=false	MATCH(판별 15000)
+CTF	#3	R+1	x=563001	y=48000	game=false	mine=false	alt(no15000)=false	MATCH
+CTF	#3	Ralt	x=548000	y=48000	game=true	mine=true	alt(no15000)=true	MATCH
+CTF	#3	Ralt+1	x=548001	y=48000	game=true	mine=true	alt(no15000)=false	MATCH(판별 15000)
+CTF	#3	R+15000	x=578000	y=48000	game=false	mine=false	alt(no15000)=false	MATCH
+TOWER	#4	id=9	tag=2	ne_tag=0	x=720000	y=240000	eff.range=0	growth=0	level=1	sb_range=0	radius=10000	range(t)=0	R=35000	Ralt=20000
+CTF	#4	R-1	x=754999	y=240000	game=true	mine=true	alt(no15000)=false	MATCH(판별 15000)
+CTF	#4	R	x=755000	y=240000	game=true	mine=true	alt(no15000)=false	MATCH(판별 15000)
+CTF	#4	R+1	x=755001	y=240000	game=false	mine=false	alt(no15000)=false	MATCH
+CTF	#4	Ralt	x=740000	y=240000	game=true	mine=true	alt(no15000)=true	MATCH
+CTF	#4	Ralt+1	x=740001	y=240000	game=true	mine=true	alt(no15000)=false	MATCH(판별 15000)
+CTF	#4	R+15000	x=770000	y=240000	game=false	mine=false	alt(no15000)=false	MATCH
+TOWER	#5	id=13	tag=2	ne_tag=0	x=912000	y=432000	eff.range=0	growth=0	level=1	sb_range=0	radius=10000	range(t)=0	R=35000	Ralt=20000
+CTF	#5	R-1	x=946999	y=432000	game=true	mine=true	alt(no15000)=false	MATCH(판별 15000)
+CTF	#5	R	x=947000	y=432000	game=true	mine=true	alt(no15000)=false	MATCH(판별 15000)
+CTF	#5	R+1	x=947001	y=432000	game=false	mine=false	alt(no15000)=false	MATCH
+CTF	#5	Ralt	x=932000	y=432000	game=true	mine=true	alt(no15000)=true	MATCH
+CTF	#5	Ralt+1	x=932001	y=432000	game=true	mine=true	alt(no15000)=false	MATCH(판별 15000)
+CTF	#5	R+15000	x=962000	y=432000	game=false	mine=false	alt(no15000)=false	MATCH
+TOWER	#6	id=16	tag=2	ne_tag=0	x=784000	y=111000	eff.range=0	growth=0	level=1	sb_range=0	radius=10000	range(t)=0	R=35000	Ralt=20000
+CTF	#6	R-1	x=818999	y=111000	game=true	mine=true	alt(no15000)=false	MATCH(판별 15000)
+CTF	#6	R	x=819000	y=111000	game=true	mine=true	alt(no15000)=false	MATCH(판별 15000)
+CTF	#6	R+1	x=819001	y=111000	game=false	mine=false	alt(no15000)=false	MATCH
+CTF	#6	Ralt	x=804000	y=111000	game=true	mine=true	alt(no15000)=true	MATCH
+CTF	#6	Ralt+1	x=804001	y=111000	game=true	mine=true	alt(no15000)=false	MATCH(판별 15000)
+CTF	#6	R+15000	x=834000	y=111000	game=false	mine=false	alt(no15000)=false	MATCH
+TOWER	#7	id=17	tag=2	ne_tag=0	x=848000	y=176000	eff.range=0	growth=0	level=1	sb_range=0	radius=10000	range(t)=0	R=35000	Ralt=20000
+CTF	#7	R-1	x=882999	y=176000	game=true	mine=true	alt(no15000)=false	MATCH(판별 15000)
+CTF	#7	R	x=883000	y=176000	game=true	mine=true	alt(no15000)=false	MATCH(판별 15000)
+CTF	#7	R+1	x=883001	y=176000	game=false	mine=false	alt(no15000)=false	MATCH
+CTF	#7	Ralt	x=868000	y=176000	game=true	mine=true	alt(no15000)=true	MATCH
+CTF	#7	Ralt+1	x=868001	y=176000	game=true	mine=true	alt(no15000)=false	MATCH(판별 15000)
+CTF	#7	R+15000	x=898000	y=176000	game=false	mine=false	alt(no15000)=false	MATCH
+TOWER	#8	id=1	tag=3	attack_effect=None → skip
+CTF_SUMMARY	match=48	mismatch=0	discriminating=24
+TOWER2	#0	id=3	eff.range=50000	growth=700	level=3	sb_range=333	t.radius=10000	t.mult=20	c.radius=10000	c.mult=50	R(api)=93733	R(fields)=93733	same
+CTF2	#0	R-1	x=365732	game=true	mine=true	MATCH
+CTF2	#0	R	x=365733	game=true	mine=true	MATCH
+CTF2	#0	R+1	x=365734	game=false	mine=false	MATCH
+TOWER2	#1	id=7	eff.range=51000	growth=700	level=3	sb_range=333	t.radius=10000	t.mult=20	c.radius=10000	c.mult=50	R(api)=94733	R(fields)=94733	same
+CTF2	#1	R-1	x=686732	game=true	mine=true	MATCH
+CTF2	#1	R	x=686733	game=true	mine=true	MATCH
+CTF2	#1	R+1	x=686734	game=false	mine=false	MATCH
+TOWER2	#2	id=11	eff.range=52000	growth=700	level=3	sb_range=333	t.radius=10000	t.mult=20	c.radius=10000	c.mult=50	R(api)=95733	R(fields)=95733	same
+CTF2	#2	R-1	x=1007732	game=true	mine=true	MATCH
+CTF2	#2	R	x=1007733	game=true	mine=true	MATCH
+CTF2	#2	R+1	x=1007734	game=false	mine=false	MATCH
+TOWER2	#3	id=5	eff.range=53000	growth=700	level=3	sb_range=333	t.radius=10000	t.mult=20	c.radius=10000	c.mult=50	R(api)=96733	R(fields)=96733	same
+CTF2	#3	R-1	x=624732	game=true	mine=true	MATCH
+CTF2	#3	R	x=624733	game=true	mine=true	MATCH
+CTF2	#3	R+1	x=624734	game=false	mine=false	MATCH
+TOWER2	#4	id=9	eff.range=54000	growth=700	level=3	sb_range=333	t.radius=10000	t.mult=20	c.radius=10000	c.mult=50	R(api)=97733	R(fields)=97733	same
+CTF2	#4	R-1	x=817732	game=true	mine=true	MATCH
+CTF2	#4	R	x=817733	game=true	mine=true	MATCH
+CTF2	#4	R+1	x=817734	game=true	mine=true	MATCH
+TOWER2	#5	id=13	eff.range=55000	growth=700	level=3	sb_range=333	t.radius=10000	t.mult=20	c.radius=10000	c.mult=50	R(api)=98733	R(fields)=98733	same
+CTF2	#5	R-1	x=1010732	game=true	mine=true	MATCH
+CTF2	#5	R	x=1010733	game=true	mine=true	MATCH
+CTF2	#5	R+1	x=1010734	game=false	mine=false	MATCH
+TOWER2	#6	id=16	eff.range=56000	growth=700	level=3	sb_range=333	t.radius=10000	t.mult=20	c.radius=10000	c.mult=50	R(api)=99733	R(fields)=99733	same
+CTF2	#6	R-1	x=883732	game=true	mine=true	MATCH
+CTF2	#6	R	x=883733	game=true	mine=true	MATCH
+CTF2	#6	R+1	x=883734	game=true	mine=true	MATCH
+TOWER2	#7	id=17	eff.range=57000	growth=700	level=3	sb_range=333	t.radius=10000	t.mult=20	c.radius=10000	c.mult=50	R(api)=100733	R(fields)=100733	same
+CTF2	#7	R-1	x=948732	game=true	mine=true	MATCH
+CTF2	#7	R	x=948733	game=true	mine=true	MATCH
+CTF2	#7	R+1	x=948734	game=false	mine=false	MATCH
+CTF2_SUMMARY	match=24	mismatch=0
+CTF_NE	case=me	ne_tag=1	ne_id=18	R	x=178267	game=true	mine=true	others=false	MATCH
+CTF_NE	case=me	ne_tag=1	ne_id=18	R+1	x=178266	game=true	mine=true	others=false	MATCH
+CTF_NE	case=me	ne_tag=1	ne_id=18	far	x=0	game=true	mine=true	others=false	MATCH
+CTF_NE	case=other	ne_tag=1	ne_id=23	R	x=178267	game=true	mine=true	others=false	MATCH
+CTF_NE	case=other	ne_tag=1	ne_id=23	R+1	x=178266	game=false	mine=false	others=false	MATCH
+CTF_NE	case=other	ne_tag=1	ne_id=23	far	x=0	game=false	mine=false	others=false	MATCH
+CTF_GATE	disable_tick=0	tick=0	at_tower	game=false	mine=false	MATCH
+EPIC_LIVE	before=0	serpen_before=0
+V27	kind=2(None)	game=false	mine=false	MATCH
+V27	target mismatch	game=false	mine=false	MATCH
+V27	until==tick	game=false	mine=false	MATCH
+V27_PAYLOAD	until=tick+1	wait=(1,2)	until=1	target=4	kind=0	same_as_stored=true
+V27	until=tick+1	game=true	mine=true	MATCH
+V27_PAYLOAD	kind=1 HardDisengage	wait=(7,8)	until=5	target=5	kind=1	same_as_stored=true
+V27	kind=1 HardDisengage	game=true	mine=true	MATCH
+V27_PAYLOAD	Rhino target	wait=(3,4)	until=5	target=0	kind=0	same_as_stored=true
+V27	Rhino target	game=true	mine=true	MATCH
+V27_HP	pct=350	hp=350	max=1000	ratio=35	game=false	mine=false	MATCH
+V27_HP_SERPEN	pct=350	game=true	mine=true	MATCH
+V27_HP	pct=359	hp=359	max=1000	ratio=35	game=false	mine=false	MATCH
+V27_HP_SERPEN	pct=359	game=true	mine=true	MATCH
+V27_HP	pct=360	hp=360	max=1000	ratio=36	game=true	mine=true	MATCH
+V27_HP_SERPEN	pct=360	game=true	mine=true	MATCH
+V27_HP	pct=361	hp=361	max=1000	ratio=36	game=true	mine=true	MATCH
+V27_HP_SERPEN	pct=361	game=true	mine=true	MATCH
+V27_HP	pct=1000	hp=1000	max=1000	ratio=100	game=true	mine=true	MATCH
+V27_HP_SERPEN	pct=1000	game=true	mine=true	MATCH
+DONE	setting_ok=true

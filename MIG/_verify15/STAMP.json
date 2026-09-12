@@ -1,0 +1,82 @@
+{
+ "A": {
+  "dossier": "8c4845abc6a8980f",
+  "specs": [
+   "spec_20_v27_active_objective_discipline.md",
+   "spec_21_upgrade_item.md",
+   "spec_22_can_tower_focused.md",
+   "spec_23_buy_item.md",
+   "spec_24_v23_healthy_allies_near_point.md"
+  ],
+  "spec_hashes": {
+   "spec_20_v27_active_objective_discipline.md": "0165e29f87bebb61",
+   "spec_21_upgrade_item.md": "1c6d4efab310cd8e",
+   "spec_22_can_tower_focused.md": "cd67ce433207c5ca",
+   "spec_23_buy_item.md": "5f852f0029a585a5",
+   "spec_24_v23_healthy_allies_near_point.md": "db5619d5bab59b2a"
+  },
+  "mkdossier": "501a2f51605bec42",
+  "v3": "03d55ff89412a202",
+  "built": "2026-09-13 08:00:48"
+ },
+ "B": {
+  "dossier": "1da1e69b46a3b62f",
+  "specs": [
+   "spec_25_v22_visible_enemy_is_runaway_threat.md",
+   "spec_26_v23_objective_setup_pressure_line.md",
+   "spec_27_nexus_under_direct_attack.md",
+   "spec_28_v21_should_defer_support_target.md",
+   "spec_29_v23_recent_visible_enemies_near_point.md"
+  ],
+  "spec_hashes": {
+   "spec_25_v22_visible_enemy_is_runaway_threat.md": "a1a76edba2b3f24e",
+   "spec_26_v23_objective_setup_pressure_line.md": "a8da4d67ffe282ce",
+   "spec_27_nexus_under_direct_attack.md": "aea695930db05d29",
+   "spec_28_v21_should_defer_support_target.md": "f721ed7ce609e397",
+   "spec_29_v23_recent_visible_enemies_near_point.md": "596ed6a0afb25191"
+  },
+  "mkdossier": "501a2f51605bec42",
+  "v3": "03d55ff89412a202",
+  "built": "2026-09-13 08:00:49"
+ },
+ "C": {
+  "dossier": "87966421f167e253",
+  "specs": [
+   "spec_30_objective_is_damaged.md",
+   "spec_31_v3_epic_formation_role.md",
+   "spec_32_serpen_giveup_chat_reason.md",
+   "spec_33_v2_obj_restore_safe.md",
+   "spec_34_has_line_defense_threat.md"
+  ],
+  "spec_hashes": {
+   "spec_30_objective_is_damaged.md": "ce8f9896db575b8e",
+   "spec_31_v3_epic_formation_role.md": "15189d0ea0336070",
+   "spec_32_serpen_giveup_chat_reason.md": "7727626dcb9512d6",
+   "spec_33_v2_obj_restore_safe.md": "a42639a9ea938cbf",
+   "spec_34_has_line_defense_threat.md": "70ae121f94a41de2"
+  },
+  "mkdossier": "501a2f51605bec42",
+  "v3": "03d55ff89412a202",
+  "built": "2026-09-13 08:00:49"
+ },
+ "D": {
+  "dossier": "bb2ce050c8df1b6d",
+  "specs": [
+   "spec_35_resolve_fight_stake.md",
+   "spec_36_calculate_nexus_defense_count.md",
+   "spec_37_i_am_chosen_defender.md",
+   "spec_38_can_tower_focused_when_battle.md",
+   "spec_39_is_wave_priority_start_line.md"
+  ],
+  "spec_hashes": {
+   "spec_35_resolve_fight_stake.md": "5c0c5b5790f2a50e",
+   "spec_36_calculate_nexus_defense_count.md": "9b352fcd0841c1a9",
+   "spec_37_i_am_chosen_defender.md": "955ae15fbc58ff3c",
+   "spec_38_can_tower_focused_when_battle.md": "908d37323b09315c",
+   "spec_39_is_wave_priority_start_line.md": "ab4268b953213e50"
+  },
+  "mkdossier": "501a2f51605bec42",
+  "v3": "03d55ff89412a202",
+  "built": "2026-09-13 08:00:49"
+ }
+}

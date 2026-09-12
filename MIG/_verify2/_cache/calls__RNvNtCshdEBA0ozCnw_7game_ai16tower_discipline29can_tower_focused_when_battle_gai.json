@@ -1,0 +1,1 @@
+[{"corpus": "gai", "file": "m10.ll", "line": 49244, "text": "%55 = tail call noundef zeroext i1 @_RNvNtCshdEBA0ozCnw_7game_ai16tower_discipline29can_tower_focused_when_battle(ptr noalias noundef nonnull readonly align 8 captures(address, read_provenance) dereferenceable(64) %30, p"}]

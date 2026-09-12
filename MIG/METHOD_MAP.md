@@ -39,6 +39,8 @@
 | **배치 결과를 어떻게 받나** | **`mkpatch`**(배치가 씀) → **`applypatch`**(내가 붙임) | — | — |
 | **정본이 지저분하다** | **`cleanspec --dry`** | — | — |
 | ★**어떤 축이 아직 검사 안 되나** | **`SPEC_RUNBOOK §S5-c`** 표 | `specgate --gate G12/G13` | — |
+| ★**분기 도달 가능성 / 사장(NA) 코드**(큰 함수 서브트리) | **`reach.py`**(한 함수 CFG 상수 접기 · `--version 2 --gamemode 0`) → **`reach_tree.py`**(제약/무제약 BFS 차집합 · `_next\reach\tree_<rva>.json`) ① | `irann.py` 손 독해 ① | 런타임 1단계 프로브 발화 0 ⑧ |
+| ★**미명명 exe 함수의 이름**(dllmatch 미연결·오매칭 의심) | **`namebyline.py`**(패닉 Location 줄지문) + **`namebycaller.py`**(호출자 exe 콜리↔IR 콜리 차집합) ①⑦ — 바이트↔IR 줄수 비까지 세 축 일치 | `dllmatch.py`(jaccard ≥0.9 만) | Ghidra 진입부 대조 ⑧ |
 
 ★**도구가 115개다. 이름을 외우지 말고 이 표와 `TOOLS.md` 를 봐라.**
 `TOOLS.md` = *무엇이 있는가*(자동 생성, 분류별) / 이 표 = *어떤 상황에 무엇을 집는가*.

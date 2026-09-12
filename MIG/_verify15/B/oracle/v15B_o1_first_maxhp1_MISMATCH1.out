@@ -1,0 +1,47 @@
+setting_ok	true	width=960000	height=960000	tps=60	champ_radius=10000	visible=130000
+towers	16	twin0=2	twin1=2
+tick	0
+offset_of	Entity.x=0x660	y=0x668	hp=0x670	id=0x5c0	ty=0x68	stat_cached=0x618	team=0x0
+offset_of	Cache.nexus=0x170	player_champion=0x1e0	top_lead=0x21c0	mid_lead=0x21d0	bottom_lead=0x21e0	top_minions=0x10	mid_minions=0x50	bottom_minions=0x90
+offset_of	Blackboard.last_visible=0x1e0	top_ms=0x0	mid_ms=0x28	bottom_ms=0x50	BMP.from_mid=0x10	minion_count=0x20	PlayerState.info=0x0	OperationData.blackboard=0x10	GameSetting.tps=0x12f8
+enemy_ids	[23, 24, 25, 26, 27]	enemy_pos_tags	[0, 1, 2, 3, 4]
+is_visible(team0, enemy0)	false
+is_visible(team0, enemy1)	false
+is_visible(team0, enemy2)	false
+is_visible(team0, enemy3)	false
+is_visible(team0, enemy4)	false
+o29	range=200000	minhp=0	got=3	expect=3	MATCH
+o29	range=200000	minhp=50	got=1	expect=2	MISMATCH
+o29	range=200000	minhp=51	got=1	expect=1	MATCH
+o29	range=199999	minhp=0	got=2	expect=2	MATCH
+o29	range=200001	minhp=0	got=4	expect=4	MATCH
+o29	range=0	minhp=0	got=1	expect=1	MATCH
+o29	range=400000	minhp=0	got=5	expect=5	MATCH
+o29	range=400000	minhp=100	got=3	expect=3	MATCH
+o29_novis	last_visible=0,tick=0	got=5	(120틱 창 안이면 5, 창 밖+fog 면 is_visible 참인 수)
+o26	all0 tie→first	got=Some(0)	expect=Some(0)	MATCH
+o26	tie order MBT→Mid	got=Some(1)	expect=Some(1)	MATCH
+o26	top excl(3,2000,2) mid100 bot50→Bottom	got=Some(2)	expect=Some(2)	MATCH
+o26	top lead2(not excl) score24000 vs 30000→Top	got=Some(0)	expect=Some(0)	MATCH
+o26	top fm1999(not excl)→Top	got=Some(0)	expect=Some(0)	MATCH
+o26	top mc1(not excl)→Top	got=Some(0)	expect=Some(0)	MATCH
+o26	all excl→None	got=None	expect=None	MATCH
+o26	neg mc: mid -5 → -5000 min→Mid	got=Some(1)	expect=Some(1)	MATCH
+o26	lead weight: top lead1 fm0 vs mid fm9999→Mid	got=Some(1)	expect=Some(1)	MATCH
+o26	lead weight: top lead1 fm0 vs mid fm10000→Top(tie first)	got=Some(0)	expect=Some(0)	MATCH
+o26	mc weight: top mc1 fm0 vs mid fm999→Mid	got=Some(1)	expect=Some(1)	MATCH
+o26	only Bottom	got=Some(2)	expect=Some(2)	MATCH
+o26	empty→None	got=None	expect=None	MATCH
+o26	dup lines [Mid,Mid]→Mid	got=Some(1)	expect=Some(1)	MATCH
+nexus0	id=0	x=96000	y=864000
+o27	all far	got=false	expect=false	MATCH
+o27	enemy0 d=240000 recent	got=true	expect=true	MATCH
+o27	enemy0 d=240001 recent	got=false	expect=false	MATCH
+o27	enemy0 d=240000 last_visible=0 (is_visible=false tick=0)	got=true	expect=true	MATCH
+o27	minion nearest_enemy=Some(nexus.id) (top_minions len 0→1)	got=true	expect=true	MATCH
+o27	minion nearest_enemy=Some(other)	got=false	expect=false	MATCH
+o27	minion nearest_enemy=None	got=false	expect=false	MATCH
+o27	ty=Tower(2) nearest=Some(nexus.id)	got=false	expect=false	MATCH
+o27	same minion in bottom_minions	got=true	expect=true	MATCH
+o27	minion in OWN team list → ignored	got=false	expect=false	MATCH
+expect	towers=16 twin=2/2

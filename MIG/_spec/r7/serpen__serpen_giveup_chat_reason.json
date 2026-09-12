@@ -1,0 +1,62 @@
+{
+ "name": "serpen_giveup_chat_reason",
+ "sym": "_RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old6serpen25serpen_giveup_chat_reason",
+ "src": "game-ai\\src\\plan_legacy\\old\\serpen.rs",
+ "src_line": 217,
+ "ir_file": "m05.ll",
+ "ir_from": 52986,
+ "ir_to": 53100,
+
+ "one_line": "서펜 포기 채팅 사유: 서펜이 살아 있으면 아군/적 서펜 스택 수를 비교해 StackAhead/Outnumbered 를 고른다",
+
+ "signature": {
+  "params": [
+   {"i": 1, "name": "player", "type": "&PlayerState(2528B)", "note": "info.team(+0x930) 만 읽는다"},
+   {"i": 2, "name": "data", "type": "&OperationData(24B)", "note": "+0x0 cache(→ dyn AbstractGame get_game_mode), +0x8 context(→ tutorial)"}
+  ],
+  "returns": "Option<SerpenGiveUpReason>(1B, i8 range 0..3) — 0 StackAhead / 1 Outnumbered / 2 None (tcxdict --enum SerpenGiveUpReason). None = 서펜 규칙 비활성 또는 서펜 미생존"
+ },
+
+ "reads": [
+  {"base": "OperationData", "offset": "0x8", "name": "context", "note": "&GameContext (m05.ll:52989)"},
+  {"base": "GameContext", "offset": "0x38", "name": "tutorial: TutorialType(1B)", "note": "rule_scope::serpen_exists → TutorialType::spawn_serpen(runner.rs:267) 인라인. switch 0/5/7/8 만 통과 (m05.ll:52994~53000)"},
+  {"base": "OperationData", "offset": "0x0", "name": "cache", "note": "&AbstractGameWithCache (m05.ll:53003)"},
+  {"base": "AbstractGameWithCache", "offset": "0x0", "name": "game (dyn AbstractGame data ptr)", "note": "get_game_mode 의 self"},
+  {"base": "AbstractGameWithCache", "offset": "0x8", "name": "game (dyn AbstractGame vtable ptr)", "note": "vtable+0x40 = get_game_mode (divtable AbstractGame). 이 함수는 get_game_mode 를 3번 호출한다(L222·L225·L226 각각 as_moba().unwrap())"},
+  {"base": "GameMode(16B enum, 반환값)", "offset": "0x0", "name": "판별자", "note": "0=Moba 아니면 unwrap_failed 패닉 (as_moba 인라인 game.rs:231) — 3곳 모두"},
+  {"base": "GameMode(16B enum, 반환값)", "offset": "0x8", "name": "Moba 페이로드 &MobaMode", "note": ""},
+  {"base": "MobaMode", "offset": "0x1d8", "name": "jungle_runner.serpen.live_list.len", "note": "gep 472. 0(is_empty) 이면 None 반환 (m05.ll:53020~53024)"},
+  {"base": "MobaMode", "offset": "0x260", "name": "serpen_count [usize;2]", "note": "gep 608 + team*8. MobaMode::serpen_count(team) 헬퍼(game.rs:211) 인라인. [team] = my, [1-team] = enemy. team>=2 → panic_bounds_check(len 2)"},
+  {"base": "PlayerState", "offset": "0x930", "name": "info.team", "note": "gep 2352 (m05.ll:53042)"}
+ ],
+
+ "writes": [],
+
+ "constants": [
+  {"value": 0, "src_line": 218, "meaning": "TutorialType::None 태그 0 — spawn_serpen 허용. 또 GameMode 판별자 0=Moba, live_list.len==0 검사, SerpenGiveUpReason::StackAhead 태그 0"},
+  {"value": 5, "src_line": 218, "meaning": "TutorialType::MidBottom 태그 5 — spawn_serpen 허용"},
+  {"value": 7, "src_line": 218, "meaning": "TutorialType::Line 태그 7 — spawn_serpen 허용"},
+  {"value": 8, "src_line": 218, "meaning": "TutorialType::Total 태그 8 — spawn_serpen 허용. 그 외(First/TopSolo/Bottom/MidSolo/JungleOnly)는 서펜 규칙 없음 → None"},
+  {"value": 2, "src_line": 232, "meaning": "Option<SerpenGiveUpReason> None 니치 태그 2 (반환) / serpen_count 배열 길이 2 (bounds check)"},
+  {"value": 1, "src_line": 226, "meaning": "enemy team = 1 - team (sub nuw nsw 1, %team). 또 Outnumbered 태그 1 (zext i1)"},
+  {"value": 1152921504606846976, "src_line": 222, "meaning": "2^60 — Vec::len 의 llvm.assume 상한(isize::MAX/8). 판정 아님, 컴파일러 힌트"}
+ ],
+
+ "calls": [
+  "core::option::unwrap_failed",
+  "core::panicking::panic_bounds_check"
+ ],
+
+ "logic": "fn serpen_giveup_chat_reason(player: &PlayerState, data: &OperationData) -> Option<SerpenGiveUpReason>\n\n[L218] if !rule_scope::serpen_exists(data.context) { return None }\n        // 인라인: context.tutorial(+0x38).spawn_serpen()  (runner.rs:267)\n        //   = matches!(tutorial, None(0) | MidBottom(5) | Line(7) | Total(8))\n\n[L222] let moba = data.cache.game.get_game_mode().as_moba().unwrap();   // ⚠Moba 아니면 패닉\n        if moba.jungle_runner.serpen.live_list(+0x1d8 len).is_empty() { return None }   // 서펜 미생존 → None\n\n[L225] let team = player.info.team (+0x930)                              // >=2 → panic_bounds_check\n        let my_serpen_count    = get_game_mode().as_moba().unwrap().serpen_count(+0x260)[team]      // game.rs:211 serpen_count(team) 인라인\n[L226] let enemy_serpen_count = get_game_mode().as_moba().unwrap().serpen_count[1 - team]\n\n[L227] return Some( if my_serpen_count <= enemy_serpen_count { Outnumbered(1) } else { StackAhead(0) } )\n        // IR: %51 = icmp ule my, enemy ; zext → i8 (m05.ll:53081~53082)\n\n[L232] ret\n\n※ 의미: 서펜 스택에서 아군이 앞서면(my > enemy) 포기 사유 = StackAhead(이미 앞서니 굳이 안 싸움),\n   같거나 뒤지면 Outnumbered(열세). 동률(my == enemy)은 Outnumbered 쪽.\n※ 부작용 없음. get_game_mode 를 3회 호출하지만 순수 조회.",
+
+ "knobs": [
+  {"what": "포기 사유 분기 비교", "where": "serpen.rs:227 (IR m05.ll:53081 `icmp ule %39, %50`)", "value": "my_serpen_count <= enemy_serpen_count → Outnumbered",
+   "effect": "채팅 사유 선택에만 영향(StackAhead ↔ Outnumbered). ule 를 ult 로 바꾸면 동률일 때 StackAhead 로 표시된다. 판정 자체(포기 여부)는 이 함수가 아니라 호출부가 한다"}
+ ],
+
+ "unknown": [
+  "이 사유가 실제로 어떤 채팅 문구/행동으로 이어지는지(호출부 serpen.rs 의 give-up 판정)는 담당 범위 밖",
+  "SerpenGiveUpReason 변형 이름(StackAhead/Outnumbered)과 my<=enemy 의 대응은 IR zext(0/1)+tcxdict 태그로 확정했으나, 소스가 `if my > enemy {StackAhead} else {Outnumbered}` 인지 `if my <= enemy {Outnumbered} else {StackAhead}` 인지는 표기 불가(외연 동일)",
+  "serpen_count 가 '처치 스택 수'인지 '버프 스택'인지는 game_core 쪽 정의(MobaMode.serpen_count 갱신처) 를 안 읽어 확정 못 함 — 필드명 기준 추정"
+ ]
+}

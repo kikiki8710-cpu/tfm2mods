@@ -1,0 +1,140 @@
+== 20 v27_active_objective_discipline
+  consts 0 {"value": 2, "src_line": 486, "meaning": "Option<ObjectiveDisciplineState> 의 None 니치 태그(kind 바이트 +0x19 == 2). 읽기(`self.objective_discipline?`)와 쓰기(None 반환) 양쪽에 같은 값", "kind": "센티널", "ev": 4}
+  consts 1 {"value": 0, "src_line": 490, "meaning": "GameMode 태그 0 = Moba. 아니면 unwrap_failed(v27_objective_entity 인라인, objective_discipline.rs:326/328)", "kind": "태그", "ev": 4}
+  consts 2 {"value": 4, "src_line": 490, "meaning": "JungleType 태그 4 = Morgard → epic.live_list.first() 를 오브젝트 엔티티로 (switch case)", "kind": "태그", "ev": 4}
+  consts 3 {"value": 5, "src_line": 490, "meaning": "JungleType 태그 5 = Serpen → serpen.live_list.first() 를 오브젝트 엔티티로 (switch case)", "kind": "태그", "ev": 4}
+  consts 4 {"value": 100, "src_line": 491, "meaning": "HP 백분율 계산 hp*100/stat_cached.hp", "kind": "계수", "ev": 4}
+  consts 5 {"value": 36, "src_line": 491, "meaning": "오브젝트 HP% < 36 이면 규율 해제(None) — 곧 잡히는 오브젝트에는 규율(대기/이탈)을 적용하지 않음", "kind": "임계", "ev": 4}
+  knobs 0 {"what": "오브젝트 HP% 규율 해제 임계", "where": "objective_discipline.rs:491", "value": 36, "effect": "올리면 오브젝트 HP 가 더 높을 때부터 규율(SafeWait/HardDisengage)이 풀려 팀이 일찍 오브젝트에 들어간다. 내리면 거의 죽을 때까지 규율을 유지한다. 0 이면 HP 조건으로는 절대 해제 안 됨", "ev": 4}
+  knobs 1 {"what": "규율 만료 비교", "where": "objective_discipline.rs:487", "value": "until_tick > tick (strict)", "effect": "until_tick 은 이 함수가 쓰지 않고 다른 곳에서 세팅 — 여기서는 비교만. >= 로 바꾸면 1틱 더 유효", "ev": 4}
+  callee 0 get_entity_by_id game_core::AbstractGame::get_entity_by_id 4
+  callee 1 get_entity_by_id <game_core::Game as game_core::AbstractGame>::get_entity_by_id 4
+  callee 2 get_entity_by_id <game_core::SingleLaneGame as game_core::AbstractGame>::get_entity_by_ 4
+  callee 3 get_game_mode game_core::AbstractGame::get_game_mode 4
+  callee 4 get_game_mode <game_core::Game as game_core::AbstractGame>::get_game_mode 4
+  callee 5 get_game_mode <game_core::SingleLaneGame as game_core::AbstractGame>::get_game_mode 4
+  callee 6 tick game_core::CCState::tick 4
+  callee 7 tick game_core::AbstractGame::tick 4
+  callee 8 tick game_core::PlayerAiContext::<'a, 'b, 'r>::tick 4
+  callee 9 v27_active_objective_discipline game_ai::plan_legacy::team_plan::objective_discipline::<impl game_ai:: 4
+  callee 10 v27_objective_entity game_ai::plan_legacy::team_plan::objective_discipline::<impl game_ai:: 4
+  params [(0, '(sret)'), (1, 'self'), (2, 'version'), (3, 'data'), (4, 'target')]
+  mem [(0, 'TeamPlan', '0x130', 4), (1, 'TeamPlan', '0x140', 4), (2, 'TeamPlan', '0x148', 4), (3, 'TeamPlan', '0x149', 3), (4, 'TeamPlan', '0x14a', 4), (5, 'OperationData', '0x0', 4), (6, 'AbstractGameWithCache', '0x0', 4), (7, 'AbstractGameWithCache', '0x8', 3), (8, 'GameMode(16B enum)', '0x0', 4), (9, 'GameMode', '0x8', 4), (10, 'MobaMode', '0x1a0', 4), (11, 'MobaMode', '0x1a8', 4), (12, 'MobaMode', '0x1d0', 4), (13, 'MobaMode', '0x1d8', 4), (14, 'Entity(오브젝트)', '0x628', 4), (15, 'Entity(오브젝트)', '0x670', 4), (16, 'Option<ObjectiveDiscip', '0x19', 4), (17, 'Option<ObjectiveDiscip', '0x0', 4)]
+== 21 upgrade_item
+  consts 0 {"value": 4, "src_line": 1610, "meaning": "my_max_tier 계산 시 tier() < 4 인 내 아이템만 센다(티어 4 이상 아이템은 최대티어 계산에서 제외). 두 루프(첫 매치 탐색·max fold) 모두 같은 4", "kind": "임계", "ev": 4}
+  consts 1 {"value": 0, "src_line": 1610, "meaning": "tier<4 인 아이템이 하나도 없으면 my_max_tier = 0 (phi 기본값 — unwrap_or(0) 또는 동등 표현)", "kind": "태그", "ev": 4}
+  consts 2 {"value": 0, "src_line": 1637, "meaning": "Option 태그 0 = None (후보 비었을 때)", "kind": "태그", "ev": 4}
+  consts 3 {"value": 1, "src_line": 1634, "meaning": "Option 태그 1 = Some", "kind": "태그", "ev": 4}
+  consts 4 {"value": 0, "src_line": 1634, "meaning": "gen_range 하한 0 — 후보 인덱스 0..len", "kind": "태그", "ev": 4}
+  knobs 0 {"what": "최대티어 산정에서 제외할 티어 하한", "where": "lib.rs:1610", "value": 4, "effect": "tier<4 만 센다. 내리면(예: 3) 3티어 아이템도 my_max_tier 에서 빠져 더 낮은 티어로의 '업그레이드'도 후보가 된다. 올리면 고티어 보유 시 후보가 줄어든다(후보 조건이 tier > my_max_tier 이므로)", "ev": 4}
+  knobs 1 {"what": "후보 조건 tier > my_max_tier", "where": "lib.rs:1626", "value": "strict >", "effect": ">= 로 바꾸면 같은 티어 간 교체도 업그레이드 후보가 된다", "ev": 4}
+  knobs 2 {"what": "가격 조건 price <= gold", "where": "lib.rs:1626", "value": "price > gold 면 제외", "effect": "골드 여유분(예: gold - 예비금)을 두면 업그레이드가 늦어진다", "ev": 4}
+  knobs 3 {"what": "후보 선택 방식", "where": "lib.rs:1634", "value": "균등 무작위", "effect": "가격/티어 가중 선택으로 바꾸면 rnd 소비가 달라져 시드 재현이 깨진다", "ev": 4}
+  callee 0 is_active game_core::ItemInfo::is_active 4
+  callee 1 is_active <game_core::ModItemEntry as game_core::ItemInfo>::is_active 4
+  callee 2 is_empty game_core::PatchSetting::is_empty 4
+  callee 3 is_empty game_core::ModAiRegistry::is_empty 4
+  callee 4 is_empty game_core::PublicChampionEvidence::is_empty 4
+  callee 5 item_index_by_key game_core::item_index_by_key 3
+  callee 6 next_tier game_core::ItemInfo::next_tier 4
+  callee 7 next_tier <game_core::ModItemEntry as game_core::ItemInfo>::next_tier 4
+  callee 8 next_tier <game_core::BaseItemInfo as game_core::ItemInfo>::next_tier 4
+  callee 9 price game_core::ItemInfo::price 4
+  callee 10 price <game_core::ModItemEntry as game_core::ItemInfo>::price 4
+  callee 11 price <game_core::BaseItemInfo as game_core::ItemInfo>::price 4
+  callee 12 push <game_core::Staff as engine_core::spitz::SpitzDatable>::serialize::pus 4
+  callee 13 push <game_core::Athlete as engine_core::spitz::SpitzDatable>::serialize::p 4
+  callee 14 push <game_core::Contract as engine_core::spitz::SpitzDatable>::serialize:: 4
+  callee 15 tier game_core::ItemInfo::tier 4
+  callee 16 tier <game_core::ModItemEntry as game_core::ItemInfo>::tier 4
+  callee 17 tier <game_core::BaseItemInfo as game_core::ItemInfo>::tier 4
+  callee 18 upgrade_item game_ai::upgrade_item 3
+  params [(0, '(sret)'), (1, 'version'), (2, 'rnd'), (3, 'player'), (4, 'game(data ptr)'), (5, 'game(vtable ptr)'), (6, 'context')]
+  mem [(0, 'GameContext', '0x0', 4), (1, 'GameContext', '0x30', 4), (2, 'Vec<Box<dyn ItemInfo>>', '0x8', 4), (3, 'Vec<Box<dyn ItemInfo>>', '0x10', 4), (4, 'PlayerState', '0x4a0', 4), (5, 'PlayerState', '0x4a8', 4), (6, 'PlayerState', '0x998', 4), (7, 'dyn ItemInfo vtable', '0x50', 3), (8, 'dyn ItemInfo vtable', '0x68', 4), (9, 'dyn ItemInfo vtable', '0x70', 4), (10, 'dyn ItemInfo vtable', '0x80', 4), (11, 'Vec<String>(next_tier ', '0x8', 4), (12, 'Vec<String>(next_tier ', '0x10', 4), (13, 'String(next_tier 원소)', '0x8', 4), (14, 'String(next_tier 원소)', '0x10', 4), (15, 'bumpalo Vec<(usize,usi', '0x0', 4), (16, 'bumpalo Vec<(usize,usi', '0x10', 4), (17, 'bumpalo Vec<(usize,usi', '0x18', 4), (18, 'Option<(usize,usize)>(', '0x0', 4), (19, 'Option<(usize,usize)>(', '0x8', 4), (20, 'Option<(usize,usize)>(', '0x10', 4), (21, 'bumpalo Vec<(usize,usi', '0x0', 4)]
+== 22 can_tower_focused
+  consts 0 {"value": 2, "src_line": 20, "meaning": "EntityType 태그 2 = Tower — towers() 결과 중 타워 엔티티만 검사", "kind": "태그", "ev": 4}
+  consts 1 {"value": 2, "src_line": 34, "meaning": "타워가 다른 대상을 조준 중일 때: 타워 사거리 안 내 미니언 수 cnt < 2 여야 '나를 조준할 수 있음' 후보", "kind": "임계", "ev": 4}
+  consts 2 {"value": 15000, "src_line": 25, "meaning": "Effect::range(effect.rs:26) 인라인 — 사거리 = range + 15000 + stat_buff_cached.range + (level-1)*growth_range. L40 경로에도 동일", "kind": "계수", "ev": 4}
+  consts 3 {"value": -1, "src_line": 25, "meaning": "Option<Effect> None 니치(casting == -1). attack_effect 없으면 unwrap 패닉(L25·L40, 술어 클로저 L28 도 동일)", "kind": "센티널", "ev": 4}
+  consts 4 {"value": 100, "src_line": 34, "meaning": "Entity::radius(entity.rs:1515) 인라인 — radius*(radius_mult+100)/100. L42 경로에도 동일", "kind": "계수", "ev": 4}
+  consts 5 {"value": 0, "src_line": 34, "meaning": "Entity::radius: radius_mult == 0 이면 곱 생략(radius 그대로)", "kind": "태그", "ev": 4}
+  consts 6 {"value": 1, "src_line": 25, "meaning": "(level - 1) — `add i64 %level, -1` 로 나타남(IR 리터럴 -1)", "kind": "미상", "ev": 4}
+  consts 7 {"value": 1, "src_line": 21, "meaning": "nearest_enemy Option 태그 1 = Some (trunc i64→i1)", "kind": "태그", "ev": 4}
+  knobs 0 {"what": "타워가 다른 대상 조준 중일 때 '내가 대신 맞을' 판정의 내 미니언 수 임계", "where": "tower_discipline.rs:34", "value": 2, "effect": "올리면(예: 3) 미니언 2마리가 있어도 타워를 위험으로 봐서 더 소극적으로, 내리면(1) 미니언 1마리만 있어도 안전으로 봐서 더 공격적으로 타워 사거리에 들어간다", "ev": 4}
+  knobs 1 {"what": "타워 사거리 여유 가산", "where": "effect.rs:26 (인라인, tower_discipline.rs:25/40)", "value": 15000, "effect": "game_core Effect::range 공용 상수 — 이 함수만 바꿀 수 없다(모든 이펙트 사거리에 공통). 여기서 바꾸려면 재현 시 별도 상수로 분리", "ev": 4}
+  knobs 2 {"what": "타워 공격 비활성 tick 게이트", "where": "tower_discipline.rs:10 (GameSetting+0x13f8)", "value": "tick < tower_attack_disable_tick", "effect": "설정값. 이 tick 이후엔 항상 false(타워를 위험으로 안 봄)", "ev": 4}
+  knobs 3 {"what": "사거리 비교에 양쪽 반경 가산", "where": "tower_discipline.rs:34/42", "value": "range + t.radius() + champ.radius()", "effect": "챔피언 반경을 빼면 타워 경계에서 살짝 더 안쪽까지 안전으로 오판", "ev": 4}
+  callee 0 can_tower_focused game_ai::can_tower_focused 4
+  callee 1 is_in_range game_core::Effect::is_in_range 4
+  callee 2 iter_minions game_core::AbstractGameWithCache::<'a, 'b>::iter_minions 3
+  callee 3 radius game_core::Entity::radius 4
+  callee 4 range game_core::Effect::range 4
+  callee 5 tick game_core::CCState::tick 4
+  callee 6 tick game_core::AbstractGame::tick 4
+  callee 7 tick game_core::PlayerAiContext::<'a, 'b, 'r>::tick 4
+  callee 8 towers game_core::AbstractGameWithCache::<'a, 'b>::towers 3
+  params [(0, 'context'), (1, 'cache'), (2, 'player'), (3, 'x'), (4, 'y')]
+  mem [(0, 'GameContext', '0x0', 4), (1, 'GameContext', '0x8', 4), (2, 'GameSetting', '0x13f8', 4), (3, 'AbstractGameWithCache', '0x0', 4), (4, 'AbstractGameWithCache', '0x1e0', 4), (5, 'PlayerState', '0x930', 4), (6, 'PlayerState', '0x9c0', 4), (7, 'bumpalo Vec<&Entity>(t', '0x0', 4), (8, 'bumpalo Vec<&Entity>(t', '0x18', 4), (9, 'Entity(타워)', '0x68', 4), (10, 'Entity(타워)', '0x88', 4), (11, 'Entity(타워)', '0x98', 4), (12, 'Entity(타워)', '0x4c0', 4), (13, 'Entity(타워)', '0x490', 4), (14, 'Entity(타워)', '0x4a0', 4), (15, 'Entity(타워)', '0x4a8', 4), (16, 'Entity(타워)', '0x438', 4), (17, 'Entity(타워)', '0x5c8', 4), (18, 'Entity(타워)', '0x660', 4), (19, 'Entity(타워)', '0x668', 4), (20, 'Entity(타워·챔피언)', '0x470', 4), (21, 'Entity(타워·챔피언)', '0x680', 4), (22, 'Entity(챔피언)', '0x5c0', 4), (23, 'iter_minions 반환 Chain(', '0x0', 4)]
+== 23 buy_item
+  consts 0 {"value": 4, "src_line": 1480, "meaning": "has_low_tier_item = 보유템 중 tier() < 4 가 하나라도 있으면 → 즉시 None(구매 대신 업그레이드 대상이 있다는 뜻)", "kind": "임계", "ev": 4}
+  consts 1 {"value": 2, "src_line": 1496, "meaning": "보유템 수 > 2 이면 모든 아이템 skip(=후보 0 → None). 즉 보유 0~2개일 때만 신규 구매", "kind": "임계", "ev": 4}
+  consts 2 {"value": 0, "src_line": 1508, "meaning": "tier() == 0 인 아이템만 구매 후보(기초 아이템)", "kind": "태그", "ev": 4}
+  consts 3 {"value": 2, "src_line": 1514, "meaning": "ItemCategory 2 = Defense → is_defensive", "kind": "임계", "ev": 4}
+  consts 4 {"value": 3, "src_line": 1514, "meaning": "ItemCategory 3 = MagicResistance → is_defensive", "kind": "태그", "ev": 4}
+  consts 5 {"value": 5, "src_line": 1514, "meaning": "ItemCategory 5 = Hp → is_defensive", "kind": "태그", "ev": 4}
+  consts 6 {"value": 4, "src_line": 1515, "meaning": "ItemCategory 4 = Magic → is_magic", "kind": "임계", "ev": 4}
+  consts 7 {"value": 2, "src_line": 1526, "meaning": "category < 2 ⇔ AD(0) 또는 AttackSpeed(1) = 공격형 아이템. L1539/L1559/L1570 도 같은 비교", "kind": "임계", "ev": 4}
+  consts 8 {"value": 0, "src_line": 1518, "meaning": "ChampionCategory 0 = Melee 분기", "kind": "태그", "ev": 4}
+  consts 9 {"value": 1, "src_line": 1518, "meaning": "ChampionCategory 1 = Range 분기", "kind": "태그", "ev": 4}
+  consts 10 {"value": 2, "src_line": 1518, "meaning": "ChampionCategory 2 = Magician 분기", "kind": "임계", "ev": 4}
+  consts 11 {"value": 3, "src_line": 1518, "meaning": "ChampionCategory 3 = Util 분기", "kind": "태그", "ev": 4}
+  consts 12 {"value": 4, "src_line": 1518, "meaning": "ChampionCategory 4 = Assassin 분기", "kind": "임계", "ev": 4}
+  consts 13 {"value": 1550, "src_line": 1523, "meaning": "Melee: 기본 HP(stat().hp) < 1550 이면 '저HP 근접' 규칙. Util(L1582)도 같은 1550 임계", "kind": "임계", "ev": 4}
+  consts 14 {"value": 1800, "src_line": 1536, "meaning": "Melee: HP ≥1550 이고 < 1800 이면 '중간HP 근접' 규칙, ≥1800 이면 방어템만", "kind": "임계", "ev": 4}
+  consts 15 {"value": 2, "src_line": 1537, "meaning": "Melee 중간HP: 보유템이 정확히 2개면 공격형, 아니면 방어형", "kind": "임계", "ev": 4}
+  consts 16 {"value": 0, "src_line": 1524, "meaning": "보유템 수 match {0 | 2 => 공격형, _ => 방어형} (Melee 저HP L1524, Assassin L1557 동일 패턴)", "kind": "태그", "ev": 4}
+  consts 17 {"value": 0, "src_line": 1600, "meaning": "Option 태그 0 = None", "kind": "태그", "ev": 4}
+  consts 18 {"value": 1, "src_line": 1600, "meaning": "Option 태그 1 = Some", "kind": "태그", "ev": 4}
+  consts 19 {"value": 0, "src_line": 1596, "meaning": "gen_range 하한 0", "kind": "태그", "ev": 4}
+  knobs 0 {"what": "구매 대신 업그레이드로 넘기는 보유템 티어 상한", "where": "lib.rs:1480", "value": 4, "effect": "tier<4 보유템이 하나라도 있으면 신규 구매 안 함. 값을 내리면(예: 3) 3티어 보유 중에도 기초템을 더 산다", "ev": 4}
+  knobs 1 {"what": "신규 구매 허용 보유템 수 상한", "where": "lib.rs:1496", "value": 2, "effect": "보유 3개 이상이면 구매 없음. 슬롯 확장 모드(4칸)와 맞물려 3 으로 올리면 4번째 기초템을 산다", "ev": 4}
+  knobs 2 {"what": "근접 챔피언 저HP/중HP 경계", "where": "lib.rs:1523 / 1536", "value": "1550 / 1800", "effect": "기본 HP 가 낮은 근접은 공격템 우선(0·2개째), 높으면 방어템만. 올리면 더 많은 근접이 공격템을 산다", "ev": 4}
+  knobs 3 {"what": "유틸 챔피언 HP 경계", "where": "lib.rs:1582", "value": 1550, "effect": "HP<1550 유틸은 마법템, 아니면 방어템", "ev": 4}
+  knobs 4 {"what": "'공격형' 카테고리 판정", "where": "lib.rs:1526 등", "value": "category < 2 (AD·AttackSpeed)", "effect": "Support(6)·Magic(4) 은 근접/원거리/암살 후보에 절대 안 들어감", "ev": 4}
+  knobs 5 {"what": "후보 선택", "where": "lib.rs:1596", "value": "균등 무작위", "effect": "가중치 도입 시 rnd 소비 변화로 시드 재현 깨짐", "ev": 4}
+  callee 0 buy_item game_ai::buy_item 4
+  callee 1 buy_item game_ai::AgentVerHamster::buy_item 4
+  callee 2 buy_item <game_ai::AgentVerHamster as game_core::AiAgent>::buy_item 4
+  callee 3 category game_core::News::category 4
+  callee 4 category game_core::ItemInfo::category 4
+  callee 5 category game_core::ChampionInfo::category 4
+  callee 6 is_active game_core::ItemInfo::is_active 4
+  callee 7 is_active <game_core::ModItemEntry as game_core::ItemInfo>::is_active 4
+  callee 8 is_empty game_core::PatchSetting::is_empty 4
+  callee 9 is_empty game_core::ModAiRegistry::is_empty 4
+  callee 10 is_empty game_core::PublicChampionEvidence::is_empty 4
+  callee 11 price game_core::ItemInfo::price 4
+  callee 12 price <game_core::ModItemEntry as game_core::ItemInfo>::price 4
+  callee 13 price <game_core::BaseItemInfo as game_core::ItemInfo>::price 4
+  callee 14 push <game_core::Staff as engine_core::spitz::SpitzDatable>::serialize::pus 4
+  callee 15 push <game_core::Athlete as engine_core::spitz::SpitzDatable>::serialize::p 4
+  callee 16 push <game_core::Contract as engine_core::spitz::SpitzDatable>::serialize:: 4
+  callee 17 stat game_core::ItemInfo::stat 4
+  callee 18 stat game_core::EntityInfo::stat 4
+  callee 19 stat game_core::ChampionInfo::stat 4
+  callee 20 tier game_core::ItemInfo::tier 4
+  callee 21 tier <game_core::ModItemEntry as game_core::ItemInfo>::tier 4
+  callee 22 tier <game_core::BaseItemInfo as game_core::ItemInfo>::tier 4
+  params [(0, 'version'), (1, 'rnd'), (2, 'player'), (3, 'game(data ptr)'), (4, 'game(vtable ptr)'), (5, 'context')]
+  mem [(0, 'PlayerState', '0x4a0', 4), (1, 'PlayerState', '0x4a8', 4), (2, 'PlayerState', '0x510', 4), (3, 'PlayerState', '0x518', 3), (4, 'PlayerState', '0x998', 4), (5, 'GameContext', '0x0', 4), (6, 'GameContext', '0x30', 4), (7, 'Vec<Box<dyn ItemInfo>>', '0x8', 4), (8, 'Vec<Box<dyn ItemInfo>>', '0x10', 4), (9, 'dyn ItemInfo vtable', '0x50', 4), (10, 'dyn ItemInfo vtable', '0x68', 4), (11, 'dyn ItemInfo vtable', '0x70', 4), (12, 'dyn ItemInfo vtable', '0xa0', 4), (13, 'dyn ChampionInfo vtabl', '0x20', 4), (14, 'dyn ChampionInfo vtabl', '0x30', 4), (15, 'EntityStat(stat() 반환)', '0x10', 4), (16, 'bumpalo Vec<usize>(can', '0x10', 4), (17, 'bumpalo Vec<usize>(can', '0x18', 4), (18, 'bumpalo Vec<usize>(can', '0x0', 4), (19, 'bumpalo Vec<usize>(can', '0x0', 4)]
+== 24 v23_healthy_allies_near_point
+  consts 0 {"value": 100, "src_line": 12, "meaning": "v23_healthy(objective_helpers.rs:12) 인라인 — HP 백분율 hp*100/max_hp. 클로저 L27 에서 호출", "kind": "계수", "ev": 4}
+  consts 1 {"value": 2, "src_line": 26, "meaning": "player_champion 1차 배열 길이 2(팀). team>=2 면 panic_bounds_check", "kind": "임계", "ev": 4}
+  consts 2 {"value": 0, "src_line": 28, "meaning": "count 초기값 0 (fold init)", "kind": "태그", "ev": 4}
+  knobs 0 {"what": "HP 하한·반경은 전부 인자(min_hp_ratio, range)", "where": "objective_helpers.rs:25 시그니처", "value": "호출자가 정함", "effect": "이 함수 안에 고정 임계는 없다. 호출자별 값(예: _docs 의 '건강(≥40%)' 언급)은 호출처에서 확인해야 한다", "ev": 4}
+  knobs 1 {"what": "거리 비교 포함/배제", "where": "objective_helpers.rs:27", "value": "dist² <= range² (ule, 경계 포함)", "effect": "< 로 바꾸면 정확히 range 거리인 아군이 빠진다", "ev": 4}
+  callee 0 iter_champions game_core::AbstractGameWithCache::<'a, 'b>::iter_champions 4
+  callee 1 v23_healthy game_ai::plan_legacy::team_plan::objective_helpers::v23_healthy 4
+  callee 2 v23_healthy_allies_near_point game_ai::plan_legacy::team_plan::v23_healthy_allies_near_point 4
+  params [(0, 'player'), (1, 'data'), (2, 'x'), (3, 'y'), (4, 'range'), (5, 'min_hp_ratio')]
+  mem [(0, 'PlayerState', '0x930', 4), (1, 'OperationData', '0x0', 4), (2, 'AbstractGameWithCache', '0x1e0', 4), (3, 'Entity(아군 챔피언)', '0x628', 4), (4, 'Entity(아군 챔피언)', '0x670', 4), (5, 'Entity(아군 챔피언)', '0x660', 4), (6, 'Entity(아군 챔피언)', '0x668', 4)]

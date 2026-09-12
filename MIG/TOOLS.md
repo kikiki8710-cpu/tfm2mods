@@ -6,7 +6,7 @@
 
 **어떤 상황에 무엇을 집는가 = `METHOD_MAP.md` §0**(라우팅표). 이 문서는 *무엇이 있는가* 만 센다.
 
-전체 149개 · 생성 시각 기준 자동 집계 (`_` 로 시작하는 1회용 스크래치는 제외)
+전체 152개 · 생성 시각 기준 자동 집계 (`_` 로 시작하는 1회용 스크래치는 제외)
 
 ## ★사전 — 타입·오프셋을 묻는 곳
 
@@ -257,6 +257,9 @@ IR 의 이름을 exe RVA 에 잇거나, exe 함수에 이름을 붙인다.
 
 | 도구 | 하는 일 |
 |---|---|
+| `fnprobe.py` | fnprobe.py — exe 함수 하나의 프로파일(capstone · Ghidra 대체). (2026-09-13 · ghidra-re 스크래치 승격) |
+| `irprobe.py` | irprobe.py — IR define 하나의 프로파일: 인자·call 집계·DILocation 줄 집합 (2026-09-13 · ghidra-re 스크래치 승격 · fnprobe.py 의 IR 쪽 짝). |
+| `locfind.py` | locfind.py — 패닉 Location(파일:줄[:열]) 상수를 참조하는 IR define 을 역추적한다 (2026-09-13 · ghidra-re 스크래치 승격 · `@anon.<hash>.N` 대응). |
 | `namebycaller.py` | namebycaller.py — 지도 미명명(`?`) exe 함수에 「호출자 차집합」으로 IR 심볼 이름을 붙인다 (2026-09-13) |
 | `namebyline.py` | namebyline.py — 지도 미명명(`?`) exe 함수를 **패닉 Location 줄번호 지문**으로 IR define 에 잇는다 (2026-09-13) |
 | `reach.py` | reach.py — IR 한 함수의 CFG 에서 「알려진 상수 조건」을 접어 사장 블록·사장 호출부를 가른다 (교훈 68 도구화 · 2026-09-13) |

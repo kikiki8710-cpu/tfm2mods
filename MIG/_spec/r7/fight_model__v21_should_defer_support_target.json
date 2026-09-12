@@ -1,0 +1,99 @@
+{
+ "name": "v21_should_defer_support_target",
+ "sym": "_RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old11fight_model31v21_should_defer_support_target",
+ "src": "game-ai\\src\\plan_legacy\\old\\fight_model.rs",
+ "src_line": 1077,
+ "ir_file": "m10.ll",
+ "ir_from": 48962,
+ "ir_to": 49144,
+
+ "one_line": "지원 사거리 밖의 target 을 지금 좇는 대신 보류할지: 사망임박·국지열세·저HP·비가시 적이면 true",
+
+ "signature": {
+  "params": [
+   {"i": 1, "name": "version", "type": "usize", "note": "본문에서 전혀 안 읽힘(분기·전달 모두 없음)"},
+   {"i": 2, "name": "player", "type": "&PlayerState(2528B)", "note": "info.team(+0x930) 만 읽음 — 마지막 단계 blackboard 인덱스·is_recent_visible 인자"},
+   {"i": 3, "name": "data", "type": "&OperationData(24B)", "note": "context(+0x8)→setting→tick_per_second, cache(+0x0)→game(dyn), blackboard(+0x10)"},
+   {"i": 4, "name": "champ", "type": "&Entity(1728B)", "note": "판단 주체 챔피언. team·x/y·hp·stat_cached.hp 를 읽는다"},
+   {"i": 5, "name": "target", "type": "&Entity(1728B)", "note": "지원(support) 대상 엔티티. team·x/y 를 읽고 is_recent_visible 에 넘김"},
+   {"i": 6, "name": "near_ally_count", "type": "usize", "note": "주변 아군 수(호출자 계산). local_outnumbered 와 L1114 비교에만"},
+   {"i": 7, "name": "near_enemy_count", "type": "usize", "note": "주변 적 수"},
+   {"i": 8, "name": "can_near_enemies", "type": "usize", "note": "'접근 가능한 적' 수(호출자 계산). 열세면 !=0, 아니면 >1 로 쓰임"},
+   {"i": 9, "name": "die_tick", "type": "usize", "note": "예상 사망 틱(타워 제외). tps·tps*3·tps*4 와 비교"},
+   {"i": 10, "name": "die_tick_with_tower", "type": "usize", "note": "타워 포함 예상 사망 틱. tps 와만 비교"}
+  ],
+  "returns": "bool — true = 지원 대상 추적을 보류(defer)해야 함. target 이 지원 사거리 안이면 무조건 false"
+ },
+
+ "reads": [
+  {"base": "Entity(target)", "offset": "0x0", "name": "team@tag (TeamType)", "note": "champ.team 과 비교(entity.rs:1127 derived eq 인라인). 0=Player 면 +0x8 도 비교"},
+  {"base": "Entity(target)", "offset": "0x8", "name": "team@Player.0", "note": "usize 팀 번호"},
+  {"base": "Entity(champ)", "offset": "0x0", "name": "team@tag (TeamType)", "note": ""},
+  {"base": "Entity(champ)", "offset": "0x8", "name": "team@Player.0", "note": ""},
+  {"base": "Entity(target)", "offset": "0x660", "name": "x", "note": "distance_sq(target, champ) 의 self 쪽"},
+  {"base": "Entity(target)", "offset": "0x668", "name": "y", "note": ""},
+  {"base": "Entity(champ)", "offset": "0x660", "name": "x", "note": ""},
+  {"base": "Entity(champ)", "offset": "0x668", "name": "y", "note": ""},
+  {"base": "OperationData", "offset": "0x8", "name": "context", "note": "&GameContext"},
+  {"base": "GameContext", "offset": "0x8", "name": "setting", "note": "&GameSetting(5432B)"},
+  {"base": "GameSetting", "offset": "0x12f8", "name": "tick_per_second", "note": "= tps (IR 오프셋 4856). 사망임박 임계의 단위"},
+  {"base": "Entity(champ)", "offset": "0x670", "name": "hp", "note": "usize 현재 HP. hp_ratio 분자(*100)"},
+  {"base": "Entity(champ)", "offset": "0x628", "name": "stat_cached.hp", "note": "usize 최대 HP. max(.,1) 로 0 나눗셈 방지 후 분모"},
+  {"base": "PlayerState", "offset": "0x930", "name": "info.team", "note": "enemy_ix = 1 - team. blackboard 인덱스(>=2 면 panic_bounds_check len=2)"},
+  {"base": "OperationData", "offset": "0x10", "name": "blackboard", "note": "&[Blackboard;2](744B stride). [enemy_ix] 가 is_recent_visible 의 self"},
+  {"base": "OperationData", "offset": "0x0", "name": "cache", "note": "&AbstractGameWithCache"},
+  {"base": "AbstractGameWithCache", "offset": "0x0", "name": "game (dyn AbstractGame data ptr)", "note": "is_recent_visible 인자"},
+  {"base": "AbstractGameWithCache", "offset": "0x8", "name": "game (dyn AbstractGame vtable ptr)", "note": ""}
+ ],
+
+ "writes": [],
+
+ "constants": [
+  {"value": 0, "src_line": 1089, "meaning": "TeamType 메모리태그 0 = Player(tcxdict --enum TeamType). 태그가 둘 다 0 이면 +0x8 팀 번호까지 비교해 '같은 팀' 판정"},
+  {"value": 25000, "src_line": 1092, "meaning": "적(타팀) target 에 대한 지원 사거리 = max_range_cached(data, champ, target) + 25000 (약 0.8칸)"},
+  {"value": 14400000000, "src_line": 1089, "meaning": "120000^2 — 같은 팀(또는 둘 다 Neutral) target 에 대한 지원 사거리 제곱(상수 접힘: 120000 리터럴은 본문에 없음, 3.75칸)"},
+  {"value": 100, "src_line": 1099, "meaning": "hp_ratio = champ.hp*100 / max(stat_cached.hp,1) — 백분율 변환"},
+  {"value": 1, "src_line": 1099, "meaning": "llvm.umax(stat_cached.hp, 1) — 최대HP 0 나눗셈 가드(core::cmp::max 인라인)"},
+  {"value": 3, "src_line": 1106, "meaning": "국지 열세(적>아군)일 때 die_tick <= tps*3 (3초 안 사망) 이면 보류"},
+  {"value": 2, "folded_from": 4, "src_line": 1110, "meaning": "국지 열세 아닐 때 die_tick <= tps*4 — `shl i64 %54, 2` 로 접힘(리터럴 4 없음)"},
+  {"value": 1, "src_line": 1110, "meaning": "국지 열세 아닐 때 can_near_enemies > 1 (접근 가능한 적 2명 이상) 이어야 die_tick 조건과 함께 보류"},
+  {"value": 0, "src_line": 1106, "meaning": "국지 열세일 때 can_near_enemies != 0 (1명이라도) 이면 보류"},
+  {"value": 55, "src_line": 1114, "meaning": "hp_ratio < 55% 이고 near_enemy_count >= near_ally_count 면 보류"},
+  {"value": 1, "src_line": 1119, "meaning": "enemy_ix = 1 - player.info.team"},
+  {"value": 2, "src_line": 1119, "meaning": "panic_bounds_check 배열 길이(blackboard [;2]) — 판정값 아님. (같은 값 2 가 L1110 의 shl 시프트량으로도 쓰이는데 그건 위 folded_from=4 항목)"}
+ ],
+
+ "calls": [
+  "game_ai::plan_legacy::old::battle::max_range_cached",
+  "game_core::simulation::game::blackboard::Blackboard::is_recent_visible",
+  "llvm.umax.i64",
+  "core::panicking::panic_bounds_check"
+ ],
+
+ "logic": "fn v21_should_defer_support_target(version, player, data, champ, target, near_ally_count, near_enemy_count, can_near_enemies, die_tick, die_tick_with_tower) -> bool\n\n[L1089] same_team = (target.team == champ.team)        // TeamType derived eq: 태그 같고, 태그==0(Player) 이면 +0x8 도 같아야\n        support_range_sq = if same_team { 14400000000 /*120000^2*/ }\n[L1092]                    else { let r = battle::max_range_cached(data, champ, target) + 25000; r*r }\n        //  ⚠ IR phi %27: [%18 → (max_range+25000)^2] [%16,%22 → 14400000000]. 인자 순서 (data, champ, target) = champ 가 target 을 때리는 최대 사거리\n[L1094] if Entity::distance_sq(target, champ) <= support_range_sq { return false }   // icmp ugt 의 반대 → 사거리 안이면 보류 안 함\n\n[L1098] tps = data.context(+0x8).setting(+0x8).tick_per_second(+0x12f8)\n[L1099] hp_ratio = champ.hp(+0x670) * 100 / max(champ.stat_cached.hp(+0x628), 1)\n[L1100] local_outnumbered = near_enemy_count > near_ally_count           // (dbg: DIArgList(%6,%5) → i1 %66)\n[L1102] if die_tick_with_tower <= tps || die_tick <= tps { return true }   // 1초 안 사망 임박 (IR 은 L1102 를 L1100 보다 먼저 평가하지만 부작용 없어 동치)\n[L1106] if local_outnumbered {\n            if can_near_enemies != 0 || die_tick <= tps*3 { return true }\n[L1110] } else {\n            if can_near_enemies > 1 && die_tick <= tps*4 /*shl 2*/ { return true }\n        }\n[L1114] if near_enemy_count >= near_ally_count && hp_ratio < 55 { return true }\n[L1118] if target.team != champ.team {                                     // TeamType ne 인라인(cmp.rs:264)\n[L1119]     return !data.blackboard(+0x10)[1 - player.info.team(+0x930)].is_recent_visible(data.cache.game, player, target)\n            //  적 target 이 최근 가시(직접 가시 or 120틱 내 목격)가 아니면 보류\n        }\n[L1120] return false\n\n※ 부작용 없음. version 은 미사용.\n※ 반환 phi(%105): %26→false(사거리 안) / %48,%72,%67,%77→true / %82,%89→false(같은 팀) / %93→!is_recent_visible",
+
+ "knobs": [
+  {"what": "적 target 지원 사거리 여유분", "where": "fight_model.rs:1092 (IR m10.ll `add i64 %19, 25000`)", "value": 25000,
+   "effect": "max_range+25000 안의 적 target 은 무조건 보류하지 않는다. 올리면 더 먼 적도 '지원 가능'으로 보아 보류 판정이 줄고 추적이 늘어난다"},
+  {"what": "아군 target 지원 사거리", "where": "fight_model.rs:1089 (IR `phi … 14400000000`)", "value": 14400000000,
+   "effect": "120000(3.75칸) 안의 아군 target 은 보류 안 함. 소스 리터럴은 접혀 있어 바꾸려면 r^2 로"},
+  {"what": "사망 임박 창(공통)", "where": "fight_model.rs:1102 (IR `icmp ule %9/%8, %54`)", "value": 1,
+   "effect": "die_tick(_with_tower) <= tps*1 이면 보류. 리터럴 1 은 곱셈 없이 tps 그대로 비교라 본문에 숫자 없음"},
+  {"what": "열세 시 사망 창", "where": "fight_model.rs:1106 (IR `mul i64 %54, 3`)", "value": 3,
+   "effect": "적>아군일 때 3초 안 사망이면 보류. 올리면 열세 상황에서 더 보수적"},
+  {"what": "비열세 시 사망 창", "where": "fight_model.rs:1110 (IR `shl i64 %54, 2` = tps*4)", "value": 4,
+   "effect": "적<=아군이어도 접근가능 적 2+ 이고 4초 안 사망이면 보류"},
+  {"what": "저HP 보류 임계", "where": "fight_model.rs:1114 (IR `icmp ult i64 %61, 55`)", "value": 55,
+   "effect": "HP 55% 미만 + 적>=아군이면 보류. 올리면 더 건강해도 지원을 미룬다"},
+  {"what": "최근 가시 시간창 (is_recent_visible 내부, 담당 범위 밖)", "where": "game-core blackboard.rs:350 (_gcbc g07.ll:157005~ `add i64 %24, 120`)", "value": 120,
+   "effect": "적 target 을 120틱(2초) 안에 본 적 없으면 보류. 별도 define 이라 constants 에 없음"}
+ ],
+
+ "unknown": [
+  "near_ally_count / near_enemy_count / can_near_enemies / die_tick / die_tick_with_tower 의 계산 방식은 호출자 소관(이 함수 밖) — 미탐색",
+  "L1089~1092 의 소스 표기: support_range 가 (a) 제곱 전 값으로 있고 L1094 에서 `support_range*support_range` 인지 (b) 처음부터 제곱값인지는 표기 불가. dbg_value 에 `support_range = %20`(제곱 전) 과 `= %27`(제곱 후 phi) 둘 다 있어 (a) 가 유력하나 단정 안 함. 동작(제곱거리 비교)은 확정",
+  "L1100 local_outnumbered 의 dbg 줄이 1100 인데 IR 은 L1102 비교(%62~%64)를 먼저 낸다 — 컴파일러 재배치(부작용 없음)로 판단, 소스 순서는 1100→1102 로 기재",
+  "max_range_cached(data, champ, target) 내부(m10.ll:50689, TLS 캐시)는 안 읽음",
+  "target 이 Neutral(태그 1) 이고 champ 도 Neutral 인 경우 same_team 취급(14400000000) — 실전 champ 는 항상 Player 라 도달 여부 미확인"
+ ]
+}

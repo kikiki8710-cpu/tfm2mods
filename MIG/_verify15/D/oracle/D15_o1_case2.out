@@ -1,0 +1,6 @@
+setting_ok	true	width=960000	height=960000	tps=60	champ_radius=10000	visible=130000
+[tutFirst+epic]	INTEG	towers=0	twin0=0	twin1=0	tick=0	(기대 16/2/2)
+
+thread 'main' (24244) panicked at game-ai\src\plan_legacy\handler.rs:2330:50:
+called `Option::unwrap()` on a `None` value
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace

@@ -1,0 +1,84 @@
+{
+ "name": "resolve_fight_stake",
+ "sym": "_RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old11fight_model19resolve_fight_stake",
+ "src": "game-ai\\src\\plan_legacy\\old\\fight_model.rs",
+ "src_line": 571,
+ "ir_file": "m10.ll",
+ "ir_from": 42357,
+ "ir_to": 42695,
+ "aux": [{"ir_file": "m10.ll", "ir_from": 56168, "ir_to": 56212}],
+
+ "one_line": "교전 저울(resolve_fight_full)을 '묶인 아군을 버린 판' 기준선으로 한 번 더 돌려 차분 판정(FightPrediction)을 낸다",
+
+ "signature": {
+  "params": [
+   {"i": 1, "name": "version", "type": "usize", "note": "AI 버전. <2 이면 차분 저울 없이 resolve_fight_full 단일 호출로 즉시 반환(L574~575). >=2 이면 스택에 저장돼 ally_is_bound 클로저에 &usize 로 캡처된다"},
+   {"i": 2, "name": "rnd", "type": "&mut StdRng(320B, align16)", "note": "본문에서 직접 안 씀. 클로저 캡처(+16)로 ally_is_bound 에만 전달"},
+   {"i": 3, "name": "data", "type": "&OperationData(24B)", "note": "+0x8 context → +0x0 pool(bumpalo) 만 본문에서 직접 읽음(remaining Vec 할당자). resolve_fight_full·ally_is_bound 에 그대로 전달"},
+   {"i": 4, "name": "player", "type": "&PlayerState(2528B)", "note": "본문에서 직접 안 씀. 클로저 캡처(+32)로 ally_is_bound 에만 전달"},
+   {"i": 5, "name": "champ", "type": "&Entity(1728B)", "note": "판단 주체 챔피언. id(+0x5c0)·x/y(+0x660/+0x668) 를 읽는다"},
+   {"i": 6, "name": "near_allies", "type": "&[&Entity] (ptr %6, len %7)", "note": "근처 아군. 필터 원본이자 absolute/diff 저울의 아군 집합"},
+   {"i": 7, "name": "near_enemies", "type": "&[&Entity] (ptr %8, len %9)", "note": "근처 적. 세 저울 모두에 그대로, 클로저(+40/+48)로 ally_is_bound 에도 전달"},
+   {"i": 8, "name": "committed_dir", "type": "i8", "note": "히스테리시스 방향. absolute·diff 에는 그대로, abandon 저울에는 0 고정(L591)"},
+   {"i": 9, "name": "tower", "type": "Option<&Entity>", "note": "세 저울에 그대로 전달. 본문에서 직접 안 읽음"},
+   {"i": 10, "name": "judge_accuracy", "type": "usize", "note": "세 저울에 그대로 전달"},
+   {"i": 11, "name": "debug", "type": "&mut DebugFrameData", "note": "클로저 캡처(+56)로 ally_is_bound 에만 전달"}
+  ],
+  "returns": "game_ai::plan_legacy::old::FightPrediction(64B, sret %0) = { 0x0 focus_target: Option<usize>, 0x10 soaker: Option<usize>, 0x20 rescue_ally: Option<usize>, 0x30 net_value: i64, 0x38 line: FightLine(1B: 0 Commit/1 CommitAfterJoin/2 Disengage/3 Hold), 0x39 line_absolute: FightLine }"
+ },
+
+ "reads": [
+  {"base": "OperationData", "offset": "0x8", "name": "context", "note": "&GameContext. L585"},
+  {"base": "GameContext", "offset": "0x0", "name": "pool", "note": "&bumpalo::Bump — remaining Vec 의 할당자(from_iter_in 3번째 인자). gep 없이 ctx 선두 load 로 접힘"},
+  {"base": "Entity(champ / near_allies 원소)", "offset": "0x5c0", "name": "id", "note": "usize. ①클로저: a.id != champ.id 로 자기 자신 제외(aux m10.ll:56172~56178) ②L597: 최근접 remaining 아군의 id 를 rescue_ally 에 기록"},
+  {"base": "Entity(remaining 원소 / champ)", "offset": "0x660", "name": "x", "note": "u64. L597 min_by_key 키 = distance_sq(a, champ) 의 dx"},
+  {"base": "Entity(remaining 원소 / champ)", "offset": "0x668", "name": "y", "note": "u64. 같은 키의 dy"},
+  {"base": "Vec<&Entity>(bumpalo, 32B) remaining", "offset": "0x0", "name": "ptr", "note": "버퍼 시작(L591 abandon 아군 슬라이스·L597 순회)"},
+  {"base": "Vec<&Entity>(bumpalo, 32B) remaining", "offset": "0x18", "name": "len", "note": "0 이면 absolute 그대로 반환(L587)"},
+  {"base": "FightPrediction(abandon)", "offset": "0x30", "name": "net_value", "note": "i64. diff 저울의 baseline 인자로 넘긴다(L593)"},
+  {"base": "FightPrediction(absolute)", "offset": "0x38", "name": "line", "note": "FightLine 태그. diff.line_absolute 에 복사(L594)되고 diff.line 과 비교(L595)"},
+  {"base": "FightPrediction(diff)", "offset": "0x38", "name": "line", "note": "absolute.line 과 비교 — 다르면 rescue_ally 를 채운다"}
+ ],
+
+ "writes": [
+  {"base": "FightPrediction(diff → 반환값)", "offset": "0x39", "name": "line_absolute", "value": "absolute.line (+0x38)", "note": "L594. 차분 판정이 절대 판정과 어떻게 달랐는지 호출자가 볼 수 있게 보존"},
+  {"base": "FightPrediction(diff → 반환값)", "offset": "0x20", "name": "rescue_ally@tag", "value": "1(Some) / 0(None)", "note": "L597. diff.line != absolute.line 일 때만. remaining 이 비어 있을 리 없지만(L587 게이트) min_by_key 가 None 이면 0"},
+  {"base": "FightPrediction(diff → 반환값)", "offset": "0x28", "name": "rescue_ally@Some.0", "value": "champ 에서 가장 가까운 remaining 아군의 id(+0x5c0)", "note": "L597. 거리는 dx²+dy² (u64 abs_diff 제곱합)"},
+  {"base": "sret %0", "offset": "0x0", "name": "FightPrediction 전체(64B)", "value": "absolute(경로 A·B) 또는 diff(경로 C, memcpy 64B L599)", "note": "반환값"}
+ ],
+
+ "constants": [
+  {"value": 2, "src_line": 574, "meaning": "version < 2 이면 차분 저울 없이 resolve_fight_full 한 번으로 끝(`icmp ult i64 %1, 2`)"},
+  {"value": 0, "src_line": 591, "meaning": "abandon 저울의 committed_dir = 0 (히스테리시스 없음) — 묶인 아군만 남긴 가정 판이라 기존 커밋 방향을 안 준다"},
+  {"value": 0, "src_line": 587, "meaning": "remaining.len == 0 이면 absolute 를 그대로 반환"},
+  {"value": 1, "src_line": 597, "meaning": "rescue_ally Option<usize> 의 Some 태그(phi [1,%108]); None 은 0"}
+ ],
+
+ "calls": [
+  "bumpalo::collections::vec::from_iter_in",
+  "game_ai::plan_legacy::old::fight_model::resolve_fight_full",
+  "core::iter::adapters::map::fold",
+  "drop",
+  "drop_glue",
+  "game_ai::plan_legacy::old::fight_model::ally_is_bound"
+ ],
+
+ "logic": "fn resolve_fight_stake(version, rnd, data, player, champ, near_allies, near_enemies, committed_dir, tower, judge_accuracy, debug) -> FightPrediction\n\n// ── 경로 A: 구버전 ────────────────────────────────────────────\n[L574] if version < 2 {\n[L575]   return resolve_fight_full(version, data, champ, near_allies, near_enemies,\n                                  committed_dir, tower, judge_accuracy, arrivals=&[], baseline=0)\n       }\n\n// ── remaining = '교전에 묶인' 아군(나 제외) ─────────────────────\n[L582~585] remaining: Vec<&Entity, &Bump> = near_allies.iter().copied()\n             .filter(|a| {                      // ★closure#0 = aux m10.ll 56168~56212 (call_mut 심)\n[L584]         a.id(+0x5c0) != champ.id(+0x5c0)  // 자기 자신 제외 (같으면 즉시 false, ally_is_bound 호출 안 함)\n               && fight_model::ally_is_bound(version, rnd, data, player, a, near_enemies, debug)\n             })\n             .collect_in(data.context(+0x8).pool(+0x0))   // bumpalo from_iter_in\n\n// ── 절대 판정 ───────────────────────────────────────────────\n[L586] absolute = resolve_fight_full(version, data, champ, near_allies, near_enemies,\n                                     committed_dir, tower, judge_accuracy, &[], baseline=0)\n\n// ── 경로 B: 묶인 아군이 없으면 절대 판정 그대로 ─────────────────\n[L587] if remaining.len(+0x18) == 0 { drop(remaining); return absolute }\n\n// ── 경로 C: 차분 저울 ─────────────────────────────────────────\n[L591] abandon = resolve_fight_full(version, data, champ,\n                                    allies = remaining(ptr +0x0, len +0x18),   // ★아군을 '묶인 아군'만으로\n                                    near_enemies, committed_dir = 0,           // ★히스테리시스 없음\n                                    tower, judge_accuracy, &[], baseline=0)\n[L592~593] diff = resolve_fight_full(version, data, champ, near_allies, near_enemies,\n                                     committed_dir, tower, judge_accuracy, &[],\n                                     baseline = abandon.net_value(+0x30))   // ★'버린 판'의 순가치를 기준선으로\n[L594] diff.line_absolute(+0x39) = absolute.line(+0x38)\n[L595] if diff.line(+0x38) != absolute.line(+0x38) {\n[L597]   diff.rescue_ally(+0x20/+0x28) = remaining.iter()\n             .min_by_key(|a| (a.x(+0x660).abs_diff(champ.x))^2 + (a.y(+0x668).abs_diff(champ.y))^2)\n             .map(|a| a.id(+0x5c0))              // 나와 가장 가까운 묶인 아군 = 구조 대상\n       }\n       // 같으면 diff.rescue_ally 는 resolve_fight_full 이 준 값 그대로\n[L599] drop(remaining); return diff\n\n※ 세 저울(absolute/abandon/diff)은 모두 arrivals=&[] (합류 없음). 부작용은 rnd/debug 가 ally_is_bound 로 &mut 전달되는 것뿐.\n※ 순서: absolute 는 remaining 수집 뒤에, abandon → diff 순으로 호출된다(IR 블록 24→42→50→54).",
+
+ "knobs": [
+  {"what": "차분 저울 활성 버전 게이트", "where": "fight_model.rs:574 (IR m10.ll:42385 `icmp ult i64 %1, 2`)", "value": 2,
+   "effect": "올리면 더 높은 버전까지 구버전(절대 판정 단일)로 동작. 내리면(0/1) 모든 버전이 차분 저울을 탄다"},
+  {"what": "abandon 저울의 committed_dir 고정값", "where": "fight_model.rs:591 (IR m10.ll:42480 `i8 0`)", "value": 0,
+   "effect": "0 = 묶인 아군만 남긴 가정 판에 히스테리시스를 안 준다. committed_dir 를 그대로 넘기면 기존 커밋 방향이 기준선(baseline)에 스며들어 차분이 작아진다"},
+  {"what": "rescue_ally 선택 기준", "where": "fight_model.rs:597 (IR m10.ll:42640~42660 min_by_key)", "value": "distance_sq 최소",
+   "effect": "가장 가까운 묶인 아군을 구조 대상으로 고른다. 기준을 hp 나 위협도로 바꾸면 구조 대상이 달라진다"}
+ ],
+
+ "unknown": [
+  "ally_is_bound(m10.ll:39193 define) 의 내부 조건은 안 읽었다 — 이 명세 범위 밖(별도 함수). '묶인 아군' 의 정의는 그쪽 명세 참조",
+  "resolve_fight_full(m10.ll:39915) 내부에서 baseline 이 net_value/line 에 어떻게 반영되는지는 안 읽었다 — 여기선 '기준선 인자로 abandon.net_value 를 넘긴다' 는 사실만 확정",
+  "경로 A·B 에서 반환되는 absolute 의 line_absolute(+0x39) 값은 resolve_fight_full 이 정한다(이 함수는 안 건드림) — 값 미확인",
+  "L597 의 `.map(|a| a.id)` 는 closure#2(597:90), 키 closure#1(597:52) 로 tcx 에 있으나 IR 에는 인라인돼 별도 define 이 없다(fnparts: 서브프로그램 73 vs define 5). 극성·순서는 본문 phi(%113/%114)로 확정",
+  "fnparts 가 잡은 m11.ll 33299·m12.ll 25293·m01.ll 44965 조각은 심볼상 maintain_distance_ally_side/from_iter_in 제네릭 공유 인스턴스라 aux 에 넣지 않았다(이 함수 고유 술어는 m10.ll 56168~56212 call_mut 심 하나)"
+ ]
+}

@@ -138,3 +138,10 @@ sylas/.gemini_key
 !/tfm2_judge_verify/*.md
 /MIG/_tcx/
 #   ^ _tcx = rustc tcx 덤프 540MB(tcxbuild.ps1→tcxrun.ps1 재생성) — 2026-09-13 제외 · 드라이버 소스 _tcxdrv/ 는 추적
+
+# reach_tree 캐시(09-13) — irann 주석본·reach 결과는 재생성물(38MB). 판정표(tree_*.json/txt·names_*.json·defidx.json)만 추적
+/MIG/_next/reach/ir_*.ll
+/MIG/_next/reach/rc_*.json
+/MIG/_next/reach/*.reach.json
+/MIG/_next/reach/*.reach.txt
+/MIG/_next/reach/update_e4c5c0.ll

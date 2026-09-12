@@ -1,0 +1,76 @@
+{
+ "name": "v23_objective_setup_pressure_line",
+ "sym": "_RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy9team_plan17objective_helpers33v23_objective_setup_pressure_line",
+ "src": "game-ai\\src\\plan_legacy\\team_plan\\objective_helpers.rs",
+ "src_line": 73,
+ "ir_file": "m15.ll",
+ "ir_from": 55350,
+ "ir_to": 55545,
+
+ "one_line": "후보 라인 중 이미 강하게 밀린 라인을 빼고 (from_mid + lead*10000 + minion_count*1000) 최소 라인을 고른다",
+
+ "signature": {
+  "params": [
+   {"i": 1, "name": "player", "type": "&PlayerState(2528B)", "note": "판단 주체. info.team(+0x930)만 읽는다 — blackboard·line_lead 의 팀 인덱스"},
+   {"i": 2, "name": "data", "type": "&OperationData(24B)", "note": "cache(+0x0)·context(+0x8)·blackboard(+0x10) 셋 다 읽는다"},
+   {"i": 3, "name": "lines", "type": "&[LineType] (ptr %2, len %3)", "note": "후보 라인 슬라이스(원소 1B, LineType 태그 Top0/Mid1/Bottom2). 순서대로 순회"}
+  ],
+  "returns": "Option<LineType> — IR i8 range(-1,3): -1 = None(후보 없음 또는 전부 제외), 0=Top 1=Mid 2=Bottom (tcxdict --enum LineType: idx=discr=태그)"
+ },
+
+ "reads": [
+  {"base": "PlayerState", "offset": "0x930", "name": "info.team", "note": "usize. blackboard[team]·line_lead[team] 인덱스. >=2 이면 첫 존재 라인에서 panic_bounds_check(len=2)"},
+  {"base": "OperationData", "offset": "0x8", "name": "context", "note": "&GameContext → rule_scope::line_exists(context, line) 인자"},
+  {"base": "OperationData", "offset": "0x10", "name": "blackboard", "note": "&[Blackboard;2](744B stride). [team] 의 minion_state 를 읽는다"},
+  {"base": "OperationData", "offset": "0x0", "name": "cache", "note": "&AbstractGameWithCache → line_lead(simulation.rs:1929) 인라인"},
+  {"base": "Blackboard", "offset": "0x0", "name": "top_minion_state", "note": "BrainMinionParameter(40B). line==Top(0) 일 때 (blackboard.rs:379 minion_state 인라인, phi 기본값 %16)"},
+  {"base": "Blackboard", "offset": "0x28", "name": "mid_minion_state", "note": "line==Mid(1) 일 때 (blackboard.rs:381, gep %16,40)"},
+  {"base": "Blackboard", "offset": "0x50", "name": "bottom_minion_state", "note": "line==Bottom(2) 일 때 (blackboard.rs:382, gep %16,80)"},
+  {"base": "BrainMinionParameter", "offset": "0x10", "name": "from_mid", "note": "i64. 제외 판정(>1999)과 score 의 첫 항"},
+  {"base": "BrainMinionParameter", "offset": "0x20", "name": "minion_count", "note": "i32. 제외 판정(>1)과 score 의 *1000 항. (_gcbc g11.ll BrainMinionParameter::update ai_interface.rs:47 = 아군 라인미니언 수 − 적 라인미니언 수)"},
+  {"base": "AbstractGameWithCache", "offset": "0x21c0", "name": "top_lead / mid_lead / bottom_lead ([usize;2] × 3, 16B stride)", "note": "IR: cache + (line<<4) + 8640 + team*8. line_lead(simulation.rs:1929) 인라인 = {top,mid,bottom}_lead[team]"}
+ ],
+
+ "writes": [],
+
+ "constants": [
+  {"value": 2, "src_line": 80, "meaning": "panic_bounds_check 의 배열 길이(blackboard [Blackboard;2]) — team 인덱스 가드. 판정값 아님"},
+  {"value": 0, "src_line": 80, "meaning": "LineType 태그 0 = Top → top_minion_state (switch i8 %27)"},
+  {"value": 1, "src_line": 80, "meaning": "LineType 태그 1 = Mid → mid_minion_state"},
+  {"value": 2, "src_line": 80, "meaning": "LineType 태그 2 = Bottom → bottom_minion_state"},
+  {"value": 2, "src_line": 82, "meaning": "제외 조건 1: lead > 2 (icmp ugt). 라인 진출 단계가 3 이상"},
+  {"value": 1999, "src_line": 82, "meaning": "제외 조건 2: minion_state.from_mid > 1999 (icmp sgt, 즉 >= 2000). 미니언 전선이 중앙에서 충분히 전진"},
+  {"value": 1, "src_line": 82, "meaning": "제외 조건 3: minion_state.minion_count > 1 (i32 sgt). 아군 미니언 수 우위 2 이상"},
+  {"value": 10000, "src_line": 86, "meaning": "score = from_mid + lead*10000 + minion_count*1000 — lead 가중치"},
+  {"value": 1000, "src_line": 86, "meaning": "score 의 minion_count 가중치"},
+  {"value": -1, "src_line": 87, "meaning": "Option<(LineType,i64)> 의 None 니치(LineType 바이트 = 0xFF). best.is_none_or(|b| score < b.1) 의 is_none 판정 및 반환 None"}
+ ],
+
+ "calls": [
+  "game_ai::plan_legacy::rule_scope::line_exists",
+  "core::panicking::panic_bounds_check"
+ ],
+
+ "logic": "fn v23_objective_setup_pressure_line(player, data, lines: &[LineType]) -> Option<LineType>\n\n[L75] best: Option<(LineType, i64)> = None          // IR: i8 -1 / i64 0\n      team = player.info.team(+0x930)\n      for line in lines.iter().copied() {           // 슬라이스 순서대로\n[L76]   if !rule_scope::line_exists(data.context(+0x8), line) { continue }\n        //  line_exists(m13.ll:53138, rule_scope.rs:25) = context.tutorial(+0x38) 태그와 line 조합의 허용표(switch) — 맵/튜토리얼 종류에 따라 없는 라인을 거른다\n[L80]   ms = &data.blackboard(+0x10)[team].{Top:top(+0x0) | Mid:mid(+0x28) | Bottom:bottom(+0x50)}_minion_state   // Blackboard::minion_state 인라인 (blackboard.rs:379~382)\n        //  team >= 2 면 panic_bounds_check(len=2)\n[L81]   lead = data.cache(+0x0).line_lead(line, team)    // = {top|mid|bottom}_lead[team] (+0x21c0 + line*16 + team*8)\n[L82]   if lead > 2 && ms.from_mid(+0x10) > 1999 && ms.minion_count(+0x20) > 1 { continue }\n        //  IR 분기 순서: lead>2 → from_mid>1999 → minion_count>1, 셋 다 참일 때만 skip(블록 %52)\n        //  = '이미 충분히 밀어 놓은 라인'은 압박 후보에서 제외\n[L86]   score = ms.from_mid + lead*10000 + (ms.minion_count as i64)*1000\n[L87]   if best.is_none_or(|(_, s)| score < s) { best = Some((line, score)) }   // ★최솟값 선택(icmp slt), 동점이면 먼저 온 라인 유지\n      }\n[L93] return best.map(|(l, _)| l)                     // IR: best 의 LineType 바이트(-1=None) 그대로 반환\n\n※ 부작용 없음. lines 가 비면 즉시 None.",
+
+ "knobs": [
+  {"what": "제외 조건 — 라인 진출 단계", "where": "objective_helpers.rs:82 (IR m15.ll `icmp ugt i64 %39, 2`)", "value": 2,
+   "effect": "lead 가 이 값을 넘어야(3+) 제외 후보. 내리면 덜 밀린 라인도 '이미 밀렸다'고 보아 제외가 늘고, 올리면 거의 제외되지 않는다"},
+  {"what": "제외 조건 — 미니언 전선 전진 임계", "where": "objective_helpers.rs:82 (IR `icmp sgt i64 %46, 1999`)", "value": 1999,
+   "effect": "from_mid 가 2000 이상이어야 제외. 올리면 더 깊이 밀린 라인만 제외되어 압박 후보가 늘어난다"},
+  {"what": "제외 조건 — 미니언 수 우위 임계", "where": "objective_helpers.rs:82 (IR `icmp sgt i32 %50, 1`)", "value": 1,
+   "effect": "아군−적 미니언 수가 2 이상이어야 제외"},
+  {"what": "score 의 lead 가중치", "where": "objective_helpers.rs:86 (IR `mul i64 %39, 10000`)", "value": 10000,
+   "effect": "lead 1단계 = from_mid 10000 만큼. 올리면 라인 선택이 lead 에 더 지배되고, 내리면 미니언 전선 위치가 더 중요해진다"},
+  {"what": "score 의 minion_count 가중치", "where": "objective_helpers.rs:86 (IR `mul nsw i64 %60, 1000`)", "value": 1000,
+   "effect": "미니언 수 차이 1 = from_mid 1000 만큼. 최솟값 선택이므로 아군 미니언이 적을수록(음수) 그 라인이 선택되기 쉽다"}
+ ],
+
+ "unknown": [
+  "line_lead(simulation.rs:1929) 가 돌려주는 {top,mid,bottom}_lead[team](usize) 의 정확한 의미 — _gcbc g15.ll:103500~ 부근에서 region_point(27개 i32, >2 비교)를 순차 검사해 세는 것까지만 봤고 '라인 진출 단계 수(0~N)'는 추정. _docs 에 lead 주석 없음",
+  "BrainMinionParameter.from_mid 의 정확한 정의 — _gcbc g11.ll:49926 BrainMinionParameter::update(ai_interface.rs:117/133/154/162)에서 (…)/2, (20000−x)/2, (−10000−x)/2, 0 으로 저장되는 것까지만 확인. 부호 방향(양수=적 쪽으로 전진?)은 추정이며 미확인",
+  "반환값이 Option<LineType> 이라는 것은 IR range(i8 -1,3) 과 best 초기값 -1 로 확정. 소스에서 `.map(|b| b.0)` 인지 다른 표기인지는 표기 불가(column 부재)",
+  "L82 조건 셋이 하나의 `&&` 식인지 중첩 if 인지는 표기 불가 — 평가 순서(lead → from_mid → minion_count)와 동작은 확정",
+  "team >= 2 경로(%70~%79): line_exists 가 참인 첫 라인에서 panic. 실전에서 team 은 0/1 이므로 도달 불가"
+ ]
+}

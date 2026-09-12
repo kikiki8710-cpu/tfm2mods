@@ -1,0 +1,72 @@
+{
+ "name": "v22_visible_enemy_is_runaway_threat",
+ "sym": "_RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old11fight_model35v22_visible_enemy_is_runaway_threat",
+ "src": "game-ai\\src\\plan_legacy\\old\\fight_model.rs",
+ "src_line": 1168,
+ "ir_file": "m10.ll",
+ "ir_from": 49402,
+ "ir_to": 49495,
+
+ "one_line": "최근 시야에 잡힌 적 챔프가 (적 사거리+40000, 상한 150000) 안이면 도주 위협으로 판정",
+
+ "signature": {
+  "params": [
+   {"i": 1, "name": "version", "type": "usize", "note": "AI 버전. 본문에서 분기 없음 — is_enemy_well_danger(인라인된 is_ignored_well_enemy 내부)로만 전달"},
+   {"i": 2, "name": "player", "type": "&PlayerState(2528B)", "note": "판단 주체(아군) 플레이어. info.team(+0x930)만 읽는다"},
+   {"i": 3, "name": "data", "type": "&OperationData(24B)", "note": "{0x0 cache: &AbstractGameWithCache, 0x8 context, 0x10 blackboard: &[Blackboard;2]}. cache(+0x0)과 blackboard(+0x10)를 읽는다"},
+   {"i": 4, "name": "champ", "type": "&Entity(1728B)", "note": "아군 챔피언(도주 주체). x/y(+0x660/+0x668)만 읽고 max_range_cached 의 target 으로 넘긴다"},
+   {"i": 5, "name": "enemy", "type": "&Entity(1728B)", "note": "판정 대상 적 챔피언. team(+0x0/+0x8)·x/y 를 읽고 is_recent_visible/max_range_cached 의 인자로 넘긴다"}
+  ],
+  "returns": "bool — true = 이 적이 '도주해야 할 위협'(최근 가시 + 샘 위험구역 아님 + 위협 사거리 안)"
+ },
+
+ "reads": [
+  {"base": "PlayerState", "offset": "0x930", "name": "info.team", "note": "usize. enemy_ix = 1 - team (IR: sub i64 1, %7; 2 이상이면 panic_bounds_check len=2)"},
+  {"base": "OperationData", "offset": "0x10", "name": "blackboard", "note": "&[Blackboard;2](원소 744B). [enemy_ix] 를 골라 is_recent_visible 의 self 로 넘긴다"},
+  {"base": "OperationData", "offset": "0x0", "name": "cache", "note": "&AbstractGameWithCache. cache+0x0/+0x8 = &dyn AbstractGame (data, vtable) 을 is_recent_visible 에 전달"},
+  {"base": "AbstractGameWithCache", "offset": "0x0", "name": "game (dyn AbstractGame data ptr)", "note": "load ptr, ptr %14"},
+  {"base": "AbstractGameWithCache", "offset": "0x8", "name": "game (dyn AbstractGame vtable ptr)", "note": "gep %14, 8"},
+  {"base": "Entity(enemy)", "offset": "0x0", "name": "team@tag (TeamType 판별자)", "note": "0 = Player. is_ignored_well_enemy 인라인(fight_model.rs:755, entity.rs:1127 eq)에서 TeamType::Player(enemy_ix) 와 비교"},
+  {"base": "Entity(enemy)", "offset": "0x8", "name": "team@Player.0", "note": "usize 팀 번호. == enemy_ix (1 - player.team) 인지 비교"},
+  {"base": "Entity(enemy)", "offset": "0x660", "name": "x", "note": "u64. is_enemy_well_danger 인자 및 distance_sq"},
+  {"base": "Entity(enemy)", "offset": "0x668", "name": "y", "note": "u64"},
+  {"base": "Entity(champ)", "offset": "0x660", "name": "x", "note": "u64. distance_sq(enemy, champ) 의 other 쪽"},
+  {"base": "Entity(champ)", "offset": "0x668", "name": "y", "note": "u64"}
+ ],
+
+ "writes": [],
+
+ "constants": [
+  {"value": 1, "src_line": 1169, "meaning": "enemy_ix = 1 - player.info.team — 적팀 인덱스(blackboard 인덱스이자 TeamType::Player(n) 비교값)"},
+  {"value": 2, "src_line": 1169, "meaning": "panic_bounds_check 의 배열 길이(blackboard [Blackboard;2]). 판정값 아님, 인덱스 가드"},
+  {"value": 0, "src_line": 1170, "meaning": "TeamType 메모리태그 0 = Player (tcxdict --enum TeamType: idx0/discr0/tag0). enemy.team 이 Player(enemy_ix) 인지 검사(is_ignored_well_enemy 인라인)"},
+  {"value": 40000, "src_line": 1174, "meaning": "위협 사거리 여유분: threat_range = max_range_cached(enemy→champ) + 40000 (셀 32000 보다 약간 큼 ≈ 1.25칸)"},
+  {"value": 150000, "src_line": 1174, "meaning": "threat_range 상한(core::cmp::min 이 llvm.umin 으로 인라인). 사거리+40000 이 150000 을 넘어도 150000 으로 자른다(≈4.7칸)"}
+ ],
+
+ "calls": [
+  "game_core::simulation::game::blackboard::Blackboard::is_recent_visible",
+  "game_ai::path_finder::is_enemy_well_danger",
+  "game_ai::plan_legacy::old::battle::max_range_cached",
+  "llvm.umin.i64",
+  "core::panicking::panic_bounds_check"
+ ],
+
+ "logic": "fn v22_visible_enemy_is_runaway_threat(version, player, data, champ, enemy) -> bool\n\n[L1169] enemy_ix = 1 - player.info.team(+0x930)            // >=2 면 panic_bounds_check(len=2)\n        bb = &data.blackboard(+0x10)[enemy_ix]               // 744B stride. Blackboard[T] = T 팀 자체 정보(_docs game_core.txt:21)\n        if !bb.is_recent_visible(data.cache.game(&dyn AbstractGame, cache+0x0/+0x8), player, enemy) { return false }\n        //  is_recent_visible(_gcbc g07.ll:157005, blackboard.rs:348~354) =\n        //    game.is_visible(player.team, enemy.id)  ||\n        //    { ep = game.get_player_by_champion_id(enemy.id); ep != null && bb.last_visible[ep.position] + 120 >= game.tick() }\n        //    (120틱 = 2초@60tps 안에 본 적이 있으면 '최근 가시')\n\n[L1170] // is_ignored_well_enemy(version, player, enemy) 가 인라인됨 (fight_model.rs:755~756)\n        ignored = (enemy.team(+0x0) == TeamType::Player /*tag 0*/ && enemy.team.0(+0x8) == enemy_ix)\n                  && path_finder::is_enemy_well_danger(version, player, enemy.x(+0x660), enemy.y(+0x668))\n        if ignored { return false }                          // 적 샘(well) 위험구역에 선 적은 위협으로 안 본다\n        //  ⚠ enemy.team 이 Player(enemy_ix) 가 아니면(중립 등) is_enemy_well_danger 를 호출하지 않고 ignored=false\n\n[L1174] threat_range = min( battle::max_range_cached(data, champ=enemy, target=champ) + 40000, 150000 )\n        //  ⚠인자 순서: max_range_cached(data, champ, target) 에 (enemy, champ) 가 들어간다 = '적이 아군 champ 를 때릴 수 있는 최대 사거리'\n\n[L1175] d2 = Entity::distance_sq(enemy, champ)               // utils.rs:7~9: abs_diff(x)^2 + abs_diff(y)^2 (enemy 좌표 +0x660/+0x668 vs champ 좌표)\n        return d2 <= threat_range * threat_range             // icmp ule (경계 포함)\n\n[L1176] (phi: %10 경로 false / %31 경로 false / %33 경로 = 비교결과)\n\n※ 부작용 없음(writes 없음). version 은 분기에 안 쓰이고 is_enemy_well_danger 로만 전달.",
+
+ "knobs": [
+  {"what": "위협 사거리 여유분", "where": "fight_model.rs:1174 (IR m10.ll `add i64 %34, 40000`)", "value": 40000,
+   "effect": "적 최대사거리에 더하는 여유. 올리면 더 먼 적도 도주 위협으로 보아 도주 판단이 과민해지고, 내리면 사거리 바로 밖의 적은 무시한다"},
+  {"what": "위협 사거리 상한", "where": "fight_model.rs:1174 (IR m10.ll `llvm.umin.i64(%35, 150000)`)", "value": 150000,
+   "effect": "장사거리 적이라도 150000(≈4.7칸)까지만 위협으로 본다. 올리면 장거리 챔프(포킹형)에 대한 도주가 더 멀리서 발동한다"},
+  {"what": "최근 가시 시간창 (is_recent_visible 내부, 담당 범위 밖)", "where": "game-core blackboard.rs:350 (_gcbc g07.ll:157005~157049 `add i64 %24, 120`)", "value": 120,
+   "effect": "마지막 목격 후 120틱(2초@60tps) 안이면 '최근 가시'. 올리면 시야에서 사라진 적을 더 오래 위협으로 유지한다. constants 에 안 넣은 이유 = 담당 함수 본문이 아니라 game_core 의 별도 define"}
+ ],
+
+ "unknown": [
+  "max_range_cached(data, champ, target) 의 내부(m10.ll:50689~, TLS RefCell 캐시)는 안 읽었다 — '적 enemy 가 target=champ 에 대해 갖는 최대 사거리'라는 것은 인자명(data/champ/target, battle.rs:2332 DILocalVariable)으로만 확정",
+  "path_finder::is_enemy_well_danger(version, player, x, y) 내부(m03.ll:144500)는 안 읽었다 — 좌표가 적 샘(well) 위험구역인지 판정한다는 것은 이름·인자에서만 추정",
+  "is_recent_visible 의 vtable 슬롯 +0xf8 = is_visible / +0x150 = get_player_by_champion_id / +0x28 = tick 은 divtable(AbstractGame) 로 확인했으나 ExpectedGame 구현 기준이며 실제 런타임 게임 타입의 슬롯 배치가 같은지는 미확인(정적 vtable 규약상 같아야 함)",
+  "L1169 의 `A && B` 표기(is_recent_visible 를 부정 조건으로 조기 반환하는지, 하나의 && 식인지)는 column 정보 부재로 표기 불가 — 동작(가시 아니면 false)은 확정"
+ ]
+}

@@ -1,0 +1,101 @@
+{
+ "name": "can_tower_focused",
+ "sym": "_RNvNtCshdEBA0ozCnw_7game_ai16tower_discipline17can_tower_focused",
+ "src": "game-ai\\src\\tower_discipline.rs",
+ "src_line": 9,
+ "ir_file": "m07.ll",
+ "ir_from": 48968,
+ "ir_to": 49426,
+ "aux": [
+  {"ir_file": "m06.ll", "ir_from": 7138, "ir_to": 7221},
+  {"ir_file": "m11.ll", "ir_from": 24737, "ir_to": 24829}
+ ],
+
+ "one_line": "(x,y) 에 서면 적 타워 중 하나가 내 챔피언을 조준할 수 있는가 — 이미 나를 조준 중 / 타깃 있어도 사거리 안 내 미니언<2 & 내가 사거리 안 / 타깃 없고 내가 사거리 안",
+
+ "signature": {
+  "params": [
+   {"i": 0, "name": "context", "type": "&GameContext(64B)", "note": "setting(+0x8).tower_attack_disable_tick 와 pool(+0x0, towers Vec 할당자)"},
+   {"i": 1, "name": "cache", "type": "&AbstractGameWithCache", "note": "game(dyn, +0x0/+0x8) · player_champion(+0x1e0) · towers() · iter_minions()"},
+   {"i": 2, "name": "player", "type": "&PlayerState(2528B)", "note": "info.team(+0x930) · info.position(+0x9c0)"},
+   {"i": 3, "name": "x", "type": "u64", "note": "판정 좌표 x (내 챔피언 현 위치가 아니라 인자 좌표)"},
+   {"i": 4, "name": "y", "type": "u64", "note": "판정 좌표 y"}
+  ],
+  "returns": "bool — true = 어떤 적 타워가 (x,y) 의 나를 조준할 수 있음(위험)"
+ },
+
+ "reads": [
+  {"base": "GameContext", "offset": "0x0", "name": "pool", "note": "cache.towers() 의 bumpalo 할당자 인자"},
+  {"base": "GameContext", "offset": "0x8", "name": "setting", "note": "&GameSetting"},
+  {"base": "GameSetting", "offset": "0x13f8", "name": "tower_attack_disable_tick", "note": "usize. game.tick() 이 이 값 이상이면 즉시 false(타워 공격 비활성 구간)"},
+  {"base": "AbstractGameWithCache", "offset": "0x0", "name": "game data ptr", "note": "dyn AbstractGame. vtable(+0x8) 슬롯 +0x28 = tick"},
+  {"base": "AbstractGameWithCache", "offset": "0x1e0", "name": "player_champion[team][position]", "note": "[2][5] Option<&Entity>(니치 null). [team] stride 40, [position] 8. None → false"},
+  {"base": "PlayerState", "offset": "0x930", "name": "info.team", "note": "usize. >=2 면 panic_bounds_check(len 2). 적팀 = 1 - team"},
+  {"base": "PlayerState", "offset": "0x9c0", "name": "info.position (태그 i32)", "note": "player_champion 2차 인덱스"},
+  {"base": "bumpalo Vec<&Entity>(towers, 32B)", "offset": "0x0", "name": "ptr", "note": "cache.towers(enemy_team, pool) 반환"},
+  {"base": "bumpalo Vec<&Entity>(towers)", "offset": "0x18", "name": "len", "note": ""},
+  {"base": "Entity(타워)", "offset": "0x68", "name": "ty 태그", "note": "==2(Tower) 인 원소만 검사, 아니면 skip"},
+  {"base": "Entity(타워)", "offset": "0x88", "name": "ty.Tower.info.nearest_enemy 태그", "note": "Option<(usize,usize)> (Tower+0x18). 0=None/1=Some"},
+  {"base": "Entity(타워)", "offset": "0x98", "name": "ty.Tower.info.nearest_enemy.Some.1", "note": "usize. 내 챔피언 id(+0x5c0) 와 비교 — 사용처로 보아 엔티티 id"},
+  {"base": "Entity(타워)", "offset": "0x4c0", "name": "attack_effect 니치 판별자(casting)", "note": "== -1 이면 None → unwrap_failed 패닉 (타워는 항상 Some 전제)"},
+  {"base": "Entity(타워)", "offset": "0x490", "name": "attack_effect.Some.0 (&Effect)", "note": "술어 클로저에서 Effect::is_in_range 의 self"},
+  {"base": "Entity(타워)", "offset": "0x4a0", "name": "attack_effect.range", "note": "Effect::range 인라인(effect.rs:26)"},
+  {"base": "Entity(타워)", "offset": "0x4a8", "name": "attack_effect.growth_range", "note": "(level-1)*growth_range"},
+  {"base": "Entity(타워)", "offset": "0x438", "name": "stat_buff_cached.range", "note": "Effect::range 에 가산"},
+  {"base": "Entity(타워)", "offset": "0x5c8", "name": "level", "note": "level-1 배수"},
+  {"base": "Entity(타워)", "offset": "0x660", "name": "x", "note": "dist² 계산"},
+  {"base": "Entity(타워)", "offset": "0x668", "name": "y", "note": ""},
+  {"base": "Entity(타워·챔피언)", "offset": "0x470", "name": "stat_buff_cached.radius_mult", "note": "i32. Entity::radius 인라인(entity.rs:1511): 0 이면 radius 그대로, 아니면 radius*(mult+100)/100"},
+  {"base": "Entity(타워·챔피언)", "offset": "0x680", "name": "radius", "note": "usize. 타워 반경 + 내 챔피언 반경이 사거리에 가산"},
+  {"base": "Entity(챔피언)", "offset": "0x5c0", "name": "id", "note": "타워 nearest_enemy.1 과 비교"},
+  {"base": "iter_minions 반환 Chain(56B)", "offset": "0x0", "name": "3단 Chain<Copied<Iter<&Entity>>> 상태", "note": "aux m06/m11: 각 슬라이스 (ptr,end) 쌍 3개 + 술어 캡처(타워 ptr, +0x38)"}
+ ],
+
+ "writes": [],
+
+ "constants": [
+  {"value": 2, "src_line": 20, "meaning": "EntityType 태그 2 = Tower — towers() 결과 중 타워 엔티티만 검사"},
+  {"value": 2, "src_line": 34, "meaning": "타워가 다른 대상을 조준 중일 때: 타워 사거리 안 내 미니언 수 cnt < 2 여야 '나를 조준할 수 있음' 후보"},
+  {"value": 15000, "src_line": 25, "meaning": "Effect::range(effect.rs:26) 인라인 — 사거리 = range + 15000 + stat_buff_cached.range + (level-1)*growth_range. L40 경로에도 동일"},
+  {"value": -1, "src_line": 25, "meaning": "Option<Effect> None 니치(casting == -1). attack_effect 없으면 unwrap 패닉(L25·L40, 술어 클로저 L28 도 동일)"},
+  {"value": 100, "src_line": 34, "meaning": "Entity::radius(entity.rs:1515) 인라인 — radius*(radius_mult+100)/100. L42 경로에도 동일"},
+  {"value": 0, "src_line": 34, "meaning": "Entity::radius: radius_mult == 0 이면 곱 생략(radius 그대로)"},
+  {"value": 1, "src_line": 25, "meaning": "(level - 1) — `add i64 %level, -1` 로 나타남(IR 리터럴 -1)"},
+  {"value": 1, "src_line": 21, "meaning": "nearest_enemy Option 태그 1 = Some (trunc i64→i1)"}
+ ],
+
+ "calls": [
+  "game_core::simulation::AbstractGameWithCache::towers",
+  "game_core::simulation::AbstractGameWithCache::iter_minions",
+  "core::iter::traits::iterator::Iterator::size_hint",
+  "core::iter::traits::iterator::Iterator::fold",
+  "game_core::simulation::effect::Effect::is_in_range",
+  "core::option::unwrap_failed",
+  "core::panicking::panic_bounds_check",
+  "core::ops::drop::Drop::drop",
+  "llvm.memcpy.p0.p0.i64",
+  "llvm.assume"
+ ],
+
+ "logic": "fn can_tower_focused(context, cache, player, x, y) -> bool\n// L10\nif !(game.tick() < context.setting.tower_attack_disable_tick) { return false; }   // vtable+0x28, +0x13f8\n// L14~50 closure$0 (L52 에서 호출) — 캡처: cache, player, context, x, y\n// L15\nlet champ = cache.player_champion[player.info.team][player.info.position]?;   // None → false\n// L17\nlet towers = cache.towers(1 - player.info.team, context.pool);   // 적 타워 목록(bumpalo Vec<&Entity>)\n// L19\nfor t in towers.iter() {\n  // L20\n  if t.ty 태그 != 2 (Tower) { continue; }\n  // L21\n  if let Some((_, id)) = tower.nearest_enemy {            // +0x88 태그 / +0x98 = .1\n    // L22\n    if id == champ.id { return true; }                    // 이미 나를 조준 중\n    // L25\n    let range = t.attack_effect.unwrap().range(t);        // = range + 15000 + stat_buff_cached.range + (level-1)*growth_range\n    // L27~30\n    let cnt = cache.iter_minions(player.info.team).filter(|m| t.attack_effect.unwrap().is_in_range(t, m)).count();   // 타워 사거리 안 내 미니언 수(aux m06/m11)\n    // L33\n    let dist = (x - t.x)² + (y - t.y)²;                   // abs_diff 제곱합\n    // L34\n    if cnt < 2 && dist <= (range + t.radius() + champ.radius())² { return true; }\n  } else {\n    // L39\n    let dist = (x - t.x)² + (y - t.y)²;\n    // L40\n    let range = t.attack_effect.unwrap().range(t);\n    // L42\n    if dist <= (range + t.radius() + champ.radius())² { return true; }\n  }\n}\n// L47~50\nfalse\n// Entity::radius(e) = if e.radius_mult == 0 { e.radius } else { e.radius * (radius_mult + 100) / 100 }   (entity.rs:1511~1515 인라인)",
+
+ "knobs": [
+  {"what": "타워가 다른 대상 조준 중일 때 '내가 대신 맞을' 판정의 내 미니언 수 임계", "where": "tower_discipline.rs:34", "value": 2,
+   "effect": "올리면(예: 3) 미니언 2마리가 있어도 타워를 위험으로 봐서 더 소극적으로, 내리면(1) 미니언 1마리만 있어도 안전으로 봐서 더 공격적으로 타워 사거리에 들어간다"},
+  {"what": "타워 사거리 여유 가산", "where": "effect.rs:26 (인라인, tower_discipline.rs:25/40)", "value": 15000,
+   "effect": "game_core Effect::range 공용 상수 — 이 함수만 바꿀 수 없다(모든 이펙트 사거리에 공통). 여기서 바꾸려면 재현 시 별도 상수로 분리"},
+  {"what": "타워 공격 비활성 tick 게이트", "where": "tower_discipline.rs:10 (GameSetting+0x13f8)", "value": "tick < tower_attack_disable_tick",
+   "effect": "설정값. 이 tick 이후엔 항상 false(타워를 위험으로 안 봄)"},
+  {"what": "사거리 비교에 양쪽 반경 가산", "where": "tower_discipline.rs:34/42", "value": "range + t.radius() + champ.radius()",
+   "effect": "챔피언 반경을 빼면 타워 경계에서 살짝 더 안쪽까지 안전으로 오판"}
+ ],
+
+ "unknown": [
+  "Tower.nearest_enemy: Option<(usize,usize)> 의 .0 이 무엇인지(거리? tick?) — 이 함수는 .1 만 읽고 champ.id 와 비교하므로 .1=엔티티 id 는 사용처로 확정, .0 은 미탐색(game_core tower.rs 세팅 지점 안 읽음)",
+  "closure$0(L14~50) 이 즉시호출 클로저인지 `let f = |..| ..; f(..)` 인지 등 소스 표기는 표기 불가(외연 동일). TLS/메모 호출은 본문에 없음",
+  "AbstractGameWithCache::towers / iter_minions 의 본문(어떤 타워·미니언 집합을 주는지 — 살아있는 것만인지, 가시성 필터가 있는지)은 _gcbc 미탐색. 시그니처상 towers(cache, team, pool) -> bumpalo Vec<&Entity>, iter_minions(cache, team) -> 3단 Chain",
+  "Effect::is_in_range(effect, caster, target) 본문(effect.rs:63) 미탐색 — 반경·사거리 계산이 L34 의 수식과 같은지 확인 안 함",
+  "L34 의 `cnt < 2 && dist <= R²` 에서 소스가 `&&` 두 항의 순서(cnt 먼저)인 것은 IR 분기 순서 기준(column 정보 없음)",
+  "L10 의 tick 비교가 `>=` 조기반환인지 `if tick < X { closure() } else { false }` 인지는 표기 불가(외연 동일)"
+ ]
+}

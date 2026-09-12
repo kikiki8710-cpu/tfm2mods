@@ -1,0 +1,54 @@
+루트 ai::plan_legacy7handlerNtB2_17LegacyPlanHandler6update · 제약 BFS(mode=0 version=2) …
+  제약 도달 975 함수
+  무제약 도달 1024 함수
+
+루트 0xe4c5c0 · 서브트리 162 · 판정: {'NA(사장)': 6, '경로없음(IR 그래프 밖·exe cg 불일치)': 4, '미확인(심볼 미연결)': 38, 'live': 114}
+  NA(사장)                       0xd478c0 decide_deathmatch                          death_battle         16861B 호출자1 거대 [dllmatch1.00] ← 사장 호출부: ai::plan_legacy7handlerNtB2_17LegacyPlan
+  NA(사장)                       0xdcd930 handle_press_epic                          epic                  2288B 호출자1 잎 [dllmatch1.00] ← 사장 호출부: ai::plan_legacy9team_plan18objective_han
+  NA(사장)                       0xebf380 dm_flee_survival                           death_battle          3191B 호출자1 잎 [dllmatch1.00] ← 사장 호출부: 
+  NA(사장)                       0xea96e0 deathmatch_incoming_threat                 death_battle           686B 호출자1 잎 [dllmatch1.00] ← 사장 호출부: 
+  NA(사장)                       0xec7930 deathmatch_incoming_threat                 death_battle           859B 호출자2 중간 [dllmatch1.00] ← 사장 호출부: 
+  NA(사장)                       0xe5c1f0 single_try_engage                          modes                 1791B 호출자1 중간 [spec] ← 사장 호출부: ai::plan_legacy7handlerNtB2_17LegacyPlan
+  경로없음(IR 그래프 밖·exe cg 불일치)    0xd41600 can_recall                                 utils                  881B 호출자2 잎 [dllmatch0.63]
+  경로없음(IR 그래프 밖·exe cg 불일치)    0xe2e560 can_recall                                 utils                 1378B 호출자2 잎 [dllmatch0.68]
+  경로없음(IR 그래프 밖·exe cg 불일치)    0xe705a0 update_on_dead                             handler                242B 호출자1 잎 [name+mod]
+  경로없음(IR 그래프 밖·exe cg 불일치)    0xe2ead0 is_dash_worth                              utils                 1877B 호출자1 중간 [name+mod]
+  미확인(심볼 미연결)                  0xdcee40 fmt                                        team_plan            14041B 호출자1 거대 []
+  미확인(심볼 미연결)                  0x12857f0 estimate_damage_to                         fight_model           1111B 호출자91 잎 []
+  미확인(심볼 미연결)                  0xdb8ba0 target_bush                                ganker                 698B 호출자2 잎 []
+  미확인(심볼 미연결)                  0xd472b0 ?                                          serpen                 139B 호출자1 잎 []
+  미확인(심볼 미연결)                  0xdeb970 ?                                          team_plan              126B 호출자1 잎 []
+  미확인(심볼 미연결)                  0xdeb8f0 ?                                          objective_discipline   126B 호출자1 잎 []
+  미확인(심볼 미연결)                  0xc9bea0 ?                                          goal_data              259B 호출자1 잎 []
+  미확인(심볼 미연결)                  0xc9c160 ?                                          goal_data              259B 호출자1 잎 []
+  미확인(심볼 미연결)                  0xc9c000 ?                                          goal_data              264B 호출자1 잎 []
+  미확인(심볼 미연결)                  0xc9c2c0 ?                                          goal_data              264B 호출자1 잎 []
+  미확인(심볼 미연결)                  0xe3b570 band_pred                                  objective_discipline   273B 호출자1 잎 []
+  미확인(심볼 미연결)                  0xca3530 ?                                          serpen                 295B 호출자1 잎 []
+  미확인(심볼 미연결)                  0xe33890 ?                                          steal                  305B 호출자1 잎 []
+  미확인(심볼 미연결)                  0xdeb9f0 ?                                          team_plan              327B 호출자1 잎 []
+  미확인(심볼 미연결)                  0xe346e0 ?                                          passive_jungle         362B 호출자1 잎 []
+  미확인(심볼 미연결)                  0xca2790 ?                                          handler                378B 호출자1 잎 []
+  미확인(심볼 미연결)                  0xe70330 handle_chat_inner::filter().count() 인스턴스   chat                   379B 호출자1 잎 []
+  미확인(심볼 미연결)                  0xca31c0 ?                                          passive_jungle         420B 호출자1 잎 []
+  미확인(심볼 미연결)                  0xe3b020 ?                                          engage                 449B 호출자1 잎 []
+  미확인(심볼 미연결)                  0xdec010 ?                                          team_plan              473B 호출자1 잎 []
+  미확인(심볼 미연결)                  0xdeb6f0 ?                                          objective_discipline   509B 호출자1 잎 []
+  미확인(심볼 미연결)                  0xc9b990 ?                                          goal_data              548B 호출자1 잎 []
+  미확인(심볼 미연결)                  0xca4a80 Vec<&Entity>::retain 모노모프(single_handle_so modes                  571B 호출자1 잎 []
+  미확인(심볼 미연결)                  0xc9bc10 ?                                          goal_data              574B 호출자1 잎 []
+  미확인(심볼 미연결)                  0xdcc100 enemy_could_arrive                         objective_discipline   631B 호출자1 잎 []
+  미확인(심볼 미연결)                  0xca5310 ?                                          position_eval          716B 호출자1 잎 []
+  미확인(심볼 미연결)                  0xe2fa70 objective_min_by                           objective_discipline   733B 호출자1 잎 []
+  미확인(심볼 미연결)                  0xe32920 base_battle_action                         battle                 825B 호출자1 잎 []
+  미확인(심볼 미연결)                  0xca4cc0 ?                                          engage                 845B 호출자1 잎 []
+  미확인(심볼 미연결)                  0xc9eb60 collect_allies_near                        fight_model            883B 호출자1 잎 []
+  미확인(심볼 미연결)                  0xca85d0 ?                                          goal_data              890B 호출자1 잎 []
+  미확인(심볼 미연결)                  0xca8ae0 ?                                          goal_data             1071B 호출자1 잎 []
+  미확인(심볼 미연결)                  0xc9e660 ?                                          passive_jungle        1193B 호출자1 잎 []
+  미확인(심볼 미연결)                  0xc9b390 ?                                          single_battle         1452B 호출자1 잎 []
+  미확인(심볼 미연결)                  0xdccc60 ?                                          goal_data             2888B 호출자2 중간 []
+  미확인(심볼 미연결)                  0xdeeda0 ?                                          hunt_and_poke          386B 호출자1 중간 []
+  미확인(심볼 미연결)                  0xcaf0d0 ?                                          active_recall          522B 호출자1 중간 []
+  미확인(심볼 미연결)                  0xde1ee0 ?                                          goal_data             4642B 호출자1 중간 []
+-> C:\tfm2mods\MIG\_next\reach\tree_e4c5c0.json

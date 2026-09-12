@@ -1,0 +1,74 @@
+{
+ "name": "nexus_under_direct_attack",
+ "sym": "_RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old13defense_nexus25nexus_under_direct_attack",
+ "src": "game-ai\\src\\plan_legacy\\old\\defense_nexus.rs",
+ "src_line": 121,
+ "ir_file": "m04.ll",
+ "ir_from": 61399,
+ "ir_to": 61658,
+
+ "one_line": "아군 넥서스가 직접 위협받는가: 최근가시 적 챔프가 240000 안 OR 적 미니언이 넥서스를 타겟 중",
+
+ "signature": {
+  "params": [
+   {"i": 1, "name": "player", "type": "&PlayerState(2528B)", "note": "판단 주체. info.team(+0x930) 을 읽고 is_recent_visible 에 그대로 넘긴다"},
+   {"i": 2, "name": "data", "type": "&OperationData(24B)", "note": "cache(+0x0)·context(+0x8, pool 만)·blackboard(+0x10) 전부 읽는다"}
+  ],
+  "returns": "bool — true = 넥서스 직접 공격 상황 (_docs game_ai.txt:292~293 'v39: 넥서스가 실제로 직접 위협받는 상황인지 — 적 챔프가 본진 코앞이거나, 적 미니언이 넥서스를 직접 때리는 중')"
+ },
+
+ "reads": [
+  {"base": "PlayerState", "offset": "0x930", "name": "info.team", "note": "usize. nexus[team] 인덱스, enemy_ix = 1 - team. >=2 면 panic_bounds_check(len=2)"},
+  {"base": "OperationData", "offset": "0x0", "name": "cache", "note": "&AbstractGameWithCache(8840B)"},
+  {"base": "OperationData", "offset": "0x8", "name": "context", "note": "&GameContext → pool(+0x0) 만 읽어 champions/minions 의 할당자로 넘김"},
+  {"base": "OperationData", "offset": "0x10", "name": "blackboard", "note": "&[Blackboard;2]. [enemy_ix](744B stride) 를 is_recent_visible 의 self 로"},
+  {"base": "GameContext", "offset": "0x0", "name": "pool", "note": "&bumpalo::Bump"},
+  {"base": "AbstractGameWithCache", "offset": "0x170", "name": "nexus[team]", "note": "[Option<&Entity>;2] 니치(null=None). IR: gep %9,368 + team*8. None 이면 즉시 false"},
+  {"base": "AbstractGameWithCache", "offset": "0x0", "name": "game (dyn AbstractGame data ptr)", "note": "is_recent_visible 인자"},
+  {"base": "AbstractGameWithCache", "offset": "0x8", "name": "game (dyn AbstractGame vtable ptr)", "note": "is_recent_visible 인자"},
+  {"base": "Entity(nexus)", "offset": "0x660", "name": "x", "note": "u64. distance_sq 의 other 쪽"},
+  {"base": "Entity(nexus)", "offset": "0x668", "name": "y", "note": "u64"},
+  {"base": "Entity(nexus)", "offset": "0x5c0", "name": "id", "note": "usize. 적 미니언의 nearest_enemy 와 비교(IR %78, 루프 밖에서 1회 로드)"},
+  {"base": "Entity(적 챔프, champions 원소)", "offset": "0x660", "name": "x", "note": "distance_sq(e, nexus)"},
+  {"base": "Entity(적 챔프, champions 원소)", "offset": "0x668", "name": "y", "note": ""},
+  {"base": "Entity(적 미니언, minions 원소)", "offset": "0x68", "name": "ty (EntityType 태그)", "note": "i64. == 1 (Minion) 일 때만 아래 두 필드를 읽는다 (tcxdict --enum EntityType 1: idx1/discr1/tag1 = Minion)"},
+  {"base": "Entity(적 미니언)", "offset": "0x88", "name": "ty@Minion.info.nearest_enemy@tag", "note": "Option<usize> 판별자 8B. trunc nuw i64→i1: 1 = Some"},
+  {"base": "Entity(적 미니언)", "offset": "0x90", "name": "ty@Minion.info.nearest_enemy@Some.0", "note": "usize. == nexus.id 면 '넥서스를 직접 노리는 미니언'"},
+  {"base": "bumpalo Vec<&Entity>(32B)", "offset": "0x0", "name": "ptr", "note": "champions/minions 결과 버퍼 시작 (sret alloca %4/%3)"},
+  {"base": "bumpalo Vec<&Entity>(32B)", "offset": "0x18", "name": "len", "note": "0 이면 any() 가 false. 루프 끝 = ptr + len*8"}
+ ],
+
+ "writes": [],
+
+ "constants": [
+  {"value": 2, "src_line": 122, "meaning": "panic_bounds_check 배열 길이(nexus [Option<&Entity>;2]) — team 인덱스 가드"},
+  {"value": 1, "src_line": 126, "meaning": "enemy_ix = 1 - player.info.team (sub nuw nsw). champions/minions/blackboard 의 적팀 인덱스"},
+  {"value": 57600000001, "src_line": 128, "meaning": "240000^2 + 1 — 적 챔프↔넥서스 제곱거리 임계. `icmp ult d2, 240000^2+1` = d2 <= 240000^2 (= 7.5칸, 셀 32000 기준)"},
+  {"value": 1, "src_line": 134, "meaning": "EntityType 메모리태그 1 = Minion. 적 미니언 목록 원소가 Minion variant 인지(다른 EntityType 은 nearest_enemy 오프셋이 달라 건너뜀)"}
+ ],
+
+ "calls": [
+  "game_core::simulation::AbstractGameWithCache::champions",
+  "game_core::simulation::AbstractGameWithCache::minions",
+  "game_core::simulation::game::blackboard::Blackboard::is_recent_visible",
+  "drop",
+  "drop_glue",
+  "core::panicking::panic_bounds_check"
+ ],
+
+ "logic": "fn nexus_under_direct_attack(player, data) -> bool\n\n[L122] team = player.info.team(+0x930)                       // >=2 → panic_bounds_check(len=2)\n       nexus = data.cache(+0x0).nexus(+0x170)[team]           // Option<&Entity>, null → return false\n       if nexus.is_none() { return false }\n\n[L126] enemy_ix = 1 - team\n       enemies: Vec<&Entity,&Bump> = cache.champions(enemy_ix, data.context(+0x8).pool(+0x0))\n       //  (_gcbc g15.ll:109546, simulation.rs:1898~) = player_champion(+0x1e0)[enemy_ix] 의 Some 만 모은 벡터\n\n[L127] hit = enemies.iter().any(|e| {                        // closure$0 (defense_nexus.rs:127~128) 인라인\n           data.blackboard(+0x10)[enemy_ix].is_recent_visible(cache.game(+0x0/+0x8), player, e)\n           //  = game.is_visible(player.team, e.id) || last_visible[e의 position] + 120 >= tick (blackboard.rs:348~350)\n[L128]     && Entity::distance_sq(e, nexus) < 57600000001    // abs_diff(x)^2 + abs_diff(y)^2 <= 240000^2\n       })\n       drop(enemies)\n[L129] if hit { return true }                                 // '적 챔프가 본진 코앞'\n\n[L133] minions: Vec<&Entity,&Bump> = cache.minions(enemy_ix, pool)\n       //  (_gcbc g15.ll:109887) = top_minions(+0x10)/mid_minions(+0x50)/bottom_minions(+0x90)[enemy_ix] 를 이어붙인 벡터\n[L134] hit2 = minions.iter().any(|m| {                       // closure$1 (defense_nexus.rs:134) 인라인\n           m.ty(+0x68) == EntityType::Minion /*tag 1*/\n           && m.ty.Minion.info.nearest_enemy(+0x88 tag ==1 Some, +0x90 값) == Some(nexus.id(+0x5c0))\n           //  Option<usize>::eq 인라인 (option.rs:2439~2440, cmp.rs:1878). None 이면 false\n       })\n       drop(minions)\n[L135] return hit2                                            // '적 미니언이 넥서스를 직접 노리는 중'\n\n※ 부작용 없음. 두 벡터는 bump pool 에 할당됐다가 각 단계 끝에 drop.\n※ 분기 순서: 넥서스 없음 → 챔프 검사(참이면 미니언 검사 생략) → 미니언 검사.",
+
+ "knobs": [
+  {"what": "적 챔프 '본진 코앞' 반경", "where": "defense_nexus.rs:128 (IR m04.ll `icmp ult i64 %58, 57600000001`)", "value": 57600000001,
+   "effect": "240000(7.5칸) 이내의 최근가시 적 챔프가 있으면 넥서스 직접 위협. 올리면 더 먼 적에도 넥서스 방어 모드(전원 방어, _docs:314)가 켜져 과민해지고, 내리면 실제로 넥서스에 붙어야 반응한다. value 는 제곱+1 이므로 반경 r 로 바꾸려면 r^2+1"},
+  {"what": "최근 가시 시간창 (is_recent_visible 내부, 담당 범위 밖)", "where": "game-core blackboard.rs:350 (_gcbc g07.ll:157005~157049 `add i64 %24, 120`)", "value": 120,
+   "effect": "120틱(2초@60tps) 안에 본 적 챔프까지 위협으로 센다. 별도 define 이라 constants 에 없음"}
+ ],
+
+ "unknown": [
+  "champions()/minions() 내부(_gcbc g15.ll:109546/109887)는 읽는 캐시 필드(+0x1e0 / +0x10·+0x50·+0x90)만 확인했고, 죽은 엔티티·Illusion 등을 거르는지(필터 조건)는 미확인",
+  "Minion.info.nearest_enemy 의 갱신 규칙(누가 언제 Some(nexus.id) 로 세팅하는지 — 실제 공격 중인지 단순 최근접인지)은 game_core 쪽이라 안 읽었다. _docs:293 의 '직접 때리는 중' 은 개발자 주석 기준",
+  "L127 의 && 두 항 순서(is_recent_visible 먼저, distance 나중)는 IR 분기 순서로 확정. 소스 표기가 한 줄 && 인지 두 줄인지는 표기 불가",
+  "적 챔프 검사에서 is_ignored_well_enemy 류의 샘 위험구역 제외는 없다(본문에 호출·인라인 흔적 없음) — 즉 적 샘에 서 있어도 240000 안이면 위협으로 센다(넥서스와 적 샘은 멀어 실전 영향은 없을 것으로 추정)"
+ ]
+}

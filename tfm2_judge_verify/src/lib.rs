@@ -67,6 +67,8 @@ mod sweep20;
 mod abiprobe;
 /// `#02` midpin sweep(2026-09-13) — 게이트 mask bit19(0x80000).
 mod pin02;
+/// `#02` midpin 전용 게이트 비트 = 0x4000000000000000 (gensweep20 자동배정 0..~60 밖 · 09-13).
+pub const PIN02_BIT: u32 = 62;
 
 const MOD_ID: &str = "tfm2_judge_verify";
 
@@ -420,9 +422,11 @@ unsafe fn do_install() {
     let (mask, gate) = sweep_mask();
     SWEEP_MASK.store(mask, Ordering::Relaxed);
     let mut slog = String::new();
-    // bit19 = `#02` midpin(pin02.rs) — sweep20 슬롯 비트가 아니라 여기서 떼어 따로 건다.
-    let (sok, sn) = sweep20::install(mask & !(1u64 << 19), &mut slog);
-    if mask & (1u64 << 19) != 0 {
+    // ★bit62 = `#02` midpin(pin02.rs) — sweep20 슬롯 비트가 아니라 여기서 떼어 따로 건다.
+    //   ⚠09-13 정정: 옛 bit19 는 gensweep20 이 발화수 순으로 **재배정**하는 칸이라 r7 편입 후 #24 와 충돌해
+    //   #24 가 「미설치」로 빠졌다(실사고 · 판 08:40). 자동배정 범위 밖 고정 비트로 뺀다.
+    let (sok, sn) = sweep20::install(mask & !(1u64 << PIN02_BIT), &mut slog);
+    if mask & (1u64 << PIN02_BIT) != 0 {
         let _ = pin02::install(&mut slog);
     }
     SWEEP_OK.store(sok, Ordering::Relaxed);
@@ -497,7 +501,7 @@ unsafe fn dump(ctx: &str) {
             SWEEP_LOG.lock().unwrap_or_else(|e| e.into_inner()).as_str()
         );
         let mut rep = sweep20::report(&header, &gate, &inst);
-        if SWEEP_MASK.load(Ordering::Relaxed) & (1u64 << 19) != 0 { rep.push_str(&pin02::report()); }
+        if SWEEP_MASK.load(Ordering::Relaxed) & (1u64 << PIN02_BIT) != 0 { rep.push_str(&pin02::report()); }
         let _ = fs::write(p, rep);
     }
     // ★3단계도 **별도 파일**. 게이트 OFF 여도 한 번은 쓴다(「왜 관측이 0 건인가」를 파일이 말하게).
