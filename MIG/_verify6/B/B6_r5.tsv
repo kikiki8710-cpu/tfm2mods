@@ -1,0 +1,57 @@
+#A	tag	variant	name	end_plan	starts_Recall	note
+A	0	DeathMatchBattle(untagged)	"DeathMatchBattle goal: TryKill(0, 0) sub: Trace { focus: 0 } start_tick: 0"	9	false	
+A	2	ForcePassive	"ForcePasive"	9	false	
+A	3	PassiveLine	"PassiveLine"	1	false	
+A	4	SinglePlanLine	"SinglePlanLine"	9	false	
+A	5	SinglePlanBattle	"SinglePlanBattle goal: TryKill(0, 0) help_called: false start_tick: 0"	9	false	
+A	7	PassiveJungle	"PassiveJungle"	2	false	
+A	8	ActiveRecall	"ActiveRecall"	6	false	
+A	9	Battle	"Battle support: None goal: TryKill(0, 0) help_called: false start_tick: 0"	7	false	
+A	10	LineGanker	"LineGanker"	3	false	
+A	11	LineGankCover	"LineGankCover"	3	false	
+A	12	EpicHuntAndPoke	"EpicHuntAndPoke"	4	false	
+A	13	EpicHuntAndBattle	"EpicHuntAndBattle"	4	false	
+A	14	SerpenHuntAndPoke	"SerpenHuntAndPoke"	5	false	
+A	15	SerpenHuntAndBattle	"SerpenHuntAndBattle"	5	false	
+A	16	AttackNexus	"AttackNexus"	8	false	
+A	17	DefenseNexus	"DefenseNexus"	8	false	
+A_SUMMARY	variants_ok=16/16	any_name_starts_with_Recall=false
+A_NOTE	any_name_starts_with_Recall=false 이면 `starts_with("Recall")->6` 은 죽은 가지
+
+#B1	ax,ay	bx,by	game	theory	verdict
+B1	0,0	3,4	25	25	MATCH
+B1	100,200	100,200	0	0	MATCH
+B1	960000,960000	0,0	1843200000000	1843200000000	MATCH
+B1	500000,100000	200000,400000	180000000000	180000000000	MATCH
+B1	1,2	4,6	25	25	MATCH
+B1b	utils::distance_sq(0,0,3,4)=25	Entity::distance_sq=25
+
+#B2	elapsed	bb_index	game	theory(<=120)	verdict
+B2	0	0	true	true	MATCH
+B2	0	1	true	true	MATCH
+#B2b	elapsed	game	exp(elapsed<=120)	verdict
+B2b	0	true	true	MATCH
+B2b	60	true	true	MATCH
+B2b	119	true	true	MATCH
+B2b	120	true	true	MATCH
+B2b	121	false	false	MATCH
+B2b	200	false	false	MATCH
+B2b	5000	false	false	MATCH
+B2c	only_slot0_stale	false	exp=false	MATCH
+
+#B3	enemy_xy	result	in_enemy_fountain
+B3	892000,0	true	true
+B3	926000,32000	true	true
+B3	960000,64000	true	true
+B3	480000,480000	false	false
+B3	891999,0	true	false
+B3	0,0	false	false
+
+#B4	case	die_tick	note
+B4	towers=0 enemies=0	60	focus_id=18
+B4	towers=0 enemies=1	60	focus_id=19
+B4	towers=1 enemies=0	60	focus_id=20
+B4	towers=1 enemies=1	60	focus_id=21
+B4	towers=2 enemies=1	60	focus_id=22
+
+SUMMARY	mismatch=0

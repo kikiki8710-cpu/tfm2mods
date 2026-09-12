@@ -1,0 +1,77 @@
+
+=== specs[0] ult  (m04.ll 43967~44365) · IR 인자 7개(sret=True) / 명세 7개 · 정렬보정 +0
+  p[0] (sret)             %0   attrs=-         uses=8   callonly=False  (주장 없음)
+        role: 반환값 출력 슬롯. +0x0=태그(-1=None, 5=Input::Ult), +0x8=InputTarget(24B)
+  p[1] version            %1   attrs=-         uses=3   callonly=True   OK-전달만
+        role: AI 버전 게이트. 이 함수 본문에선 분기 없음 — get_input_target / safe_move_avoiding_enemy_well 로 그대로 전달만 한다
+  p[2] rnd                %2   attrs=-         uses=1   callonly=True   OK-전달만
+        role: 본문에서 직접 안 씀. get_input_target 으로 전달만
+  p[3] player             %3   attrs=readonly  uses=5   callonly=False  (주장 없음)
+        role: info.team(0x930) / info.position(0x9c0) 을 읽어 자기 챔피언을 찾는 데 씀
+  p[4] data               %4   attrs=readonly  uses=5   callonly=False  (주장 없음)
+        role: cache(0x0)=AbstractGameWithCache, context(0x8)=GameContext
+  p[5] positioning_score  %5   attrs=readonly  uses=1   callonly=True   OK-전달만
+        role: 본문에서 직접 안 씀. get_input_target 으로 전달만
+  p[6] target             %6   attrs=readonly  uses=17  callonly=False  (주장 없음)
+        role: 궁극기를 쓸 상대(적) 엔티티. 거리·가시성·반경 계산의 기준
+
+=== specs[1] calculate_jungle_action_score  (m05.ll 39984~40103) · IR 인자 7개(sret=False) / 명세 7개 · 정렬보정 +0
+  p[0] _rnd               %0   attrs=readnone  uses=0   callonly=True   OK-미사용
+        role: 본문에서 전혀 안 씀(소스에서도 `_` 접두 = 미사용 확정)
+  p[1] player             %1   attrs=readonly  uses=2   callonly=False  (주장 없음)
+        role: info.team, info.position 두 필드만 읽어 챔피언 엔티티를 찾는 용도
+  p[2] data               %2   attrs=readonly  uses=2   callonly=False  (주장 없음)
+        role: cache(+0x0), context(+0x8) 사용. blackboard(+0x10)는 안 씀
+  p[3] _parameter         %3   attrs=readonly  uses=0   callonly=True   OK-미사용
+        role: 본문에서 전혀 안 씀 — 이 함수의 계수는 전부 하드코딩 리터럴
+  p[4] _action            %4   attrs=readonly  uses=0   callonly=True   OK-미사용
+        role: 본문에서 전혀 안 씀
+  p[5] effect             %5   attrs=readonly  uses=1   callonly=True   (주장 없음)
+        role: expected_damage_target 의 self 로 통째로 전달. 필드 접근 없음
+  p[6] t                  %6   attrs=readonly  uses=5   callonly=False  (주장 없음)
+        role: 평가 대상 엔티티. ty(+0x68) / ty.Jungle.info.camp_type.0(+0x98) / hp(+0x670) 를 읽음
+
+=== specs[2] sub_plan  (m12.ll 34867~34976) · IR 인자 8개(sret=True) / 명세 7개 · 정렬보정 +1
+  ★인자표가 sret 를 세지 않는다 — 명세 i=1 이 IR %1 이다(00 은 i=1 이 IR %0). 규약 불일치.
+  p[0] self               %1   attrs=readonly  uses=1   callonly=False  (주장 없음)
+        role: 필드 team:usize@0x0 · line:LineType@0x8. 본문은 line 만 읽는다(team 은 안 씀 — team 은 player.info.team 에서 가져옴)
+  p[1] version            %2   attrs=-         uses=0   callonly=True   OK-미사용
+        role: AI 버전 게이트. ★이 함수에선 한 번도 참조되지 않음(분기 없음)
+  p[2] rnd                %3   attrs=readnone  uses=0   callonly=True   OK-미사용
+        role: readnone — 난수 미사용
+  p[3] player             %4   attrs=readonly  uses=2   callonly=False  (주장 없음)
+        role: info.team(0x930) · info.position(0x9c0) 만 읽음
+  p[4] data               %5   attrs=readonly  uses=2   callonly=False  ★불일치: 본문 사용 2회
+        role: cache(0x0) · context(0x8) 사용. blackboard(0x10) 미사용
+  p[5] _team_plan         %6   attrs=readnone  uses=0   callonly=True   OK-미사용
+        role: readnone — 미사용(이름의 _ 접두와 일치)
+  p[6] _debug             %7   attrs=readnone  uses=0   callonly=True   OK-미사용
+        role: readnone — 미사용
+
+=== specs[3] defensive_crisis  (m10.ll 33864~34294) · IR 인자 6개(sret=False) / 명세 6개 · 정렬보정 +0
+  p[0] version            %0   attrs=-         uses=1   callonly=False  ★불일치: call 밖 사용
+        role: AI 버전. 이 함수 본문에선 분기에 안 쓰이고 effect_cc_time / check_kill_die_tick / is_ignored_well_enemy 로 그대로 전달만 된다
+  p[1] rnd                %1   attrs=-         uses=1   callonly=True   OK-전달만
+        role: 본문에서 직접 안 씀. check_kill_die_tick 에만 넘김
+  p[2] player             %2   attrs=readonly  uses=2   callonly=False  (주장 없음)
+        role: 판단 주체(아군) 플레이어. info.team 만 읽는다
+  p[3] data               %3   attrs=readonly  uses=4   callonly=False  (주장 없음)
+        role: {0x0 cache: &AbstractGameWithCache(8840B), 0x8 context: &GameContext(64B), 0x10 blackboard: &[Blackboard;2]}
+  p[4] target             %4   attrs=readonly  uses=3   callonly=False  (주장 없음)
+        role: 위기 판정 대상 챔피언(보통 아군 자신). id 와 좌표만 직접 쓰인다
+  p[5] debug              %5   attrs=-         uses=1   callonly=True   OK-전달만
+        role: 본문에서 직접 안 씀. check_kill_die_tick 에만 넘김
+
+=== specs[4] handle_line_defense  (m04.ll 58175~58644) · IR 인자 6개(sret=False) / 명세 6개 · 정렬보정 +0
+  p[0] _version           %0   attrs=-         uses=0   callonly=True   OK-미사용
+        role: 본문에서 전혀 안 쓰임(이름 앞 _). AI 버전 게이트 분기 없음
+  p[1] rnd                %1   attrs=-         uses=1   callonly=True   OK-전달만
+        role: 이 함수가 직접 소비하지 않는다. PlayerState::strategy(575줄)에 그대로 넘김
+  p[2] player             %2   attrs=readonly  uses=5   callonly=False  (주장 없음)
+        role: info.team(+0x930)만 직접 읽고, 나머지는 피호출 함수로 전달
+  p[3] data               %3   attrs=readonly  uses=4   callonly=False  (주장 없음)
+        role: cache(+0x0)/context(+0x8)/blackboard(+0x10) 세 참조의 묶음
+  p[4] line               %4   attrs=-         uses=3   callonly=False  (주장 없음)
+        role: 0=Top 1=Mid 2=Bottom (dienum LineType). alloca %10에 담겨 &line 으로도 전달됨
+  p[5] _debug             %5   attrs=readnone  uses=0   callonly=True   OK-미사용
+        role: readnone — 본문에서 안 씀

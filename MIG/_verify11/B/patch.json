@@ -1,0 +1,200 @@
+{
+ "round": 11,
+ "batch": "B",
+ "errors": [
+  {
+   "path": "/specs[5]/knobs[1]/where",
+   "kind": "실오류",
+   "old": "dive_episode.rs:132~137 중 한 줄(들여쓰기 6 · L134 최유력)",
+   "new": "dive_episode.rs:138 (`let no_contact` 의 **첫 항**)",
+   "evidence": "★판정반전(11차 배치B). 10차의 「132~137 중 한 줄의 독립 중첩 if」는 **L131 을 들여쓰기 4 로 가정**한 데서 나왔다. 실측(`python -X utf8 rmeta_srcmap.py game_ai dive_episode.rs 120 175`, 본문길이=bytes−1): ①L156=54자 = 4 + `if let Some(done) = self.v50_dive_ep_live.take() {`(50) ±0 ⟹ **fn 본문 들여쓰기 4 가 독립 확정**되고 필드명 `v50_dive_ep_live`(16자)가 고정된다. ②그럼 L131=58자는 4+52=56 이 돼 **안 맞는다**(10차가 이 2자 차를 넘겼다). 들여쓰기 **6** 이면 58 ±0 ⟹ L130(=5자)이 들여쓰기 4 의 블록을 열고 있다. ③L138=81자 = 8 + `let no_contact = live.in_range_ticks == 0 && live.team_holder_ticks == 0;`(**73**) ±0. 10차 판(`let no_contact = live.team_holder_ticks == 0;`)은 52자라 **29자가 비고**, 그 줄은 mb=0(한국어 0)이라 주석으로 메울 수도 없다. ④L139=42(8+34) ±0 · L140=88(10+78) ±0 · L141/142/143=9/7/5 = `}` 들여쓰기 8/6/4 ⟹ 열린 블록은 4(L130)·6(L131)·8(L139) 세 개로 전부 설명된다. ⟹ 132~137 은 **코드가 없는 한국어 주석 6줄**이고 `in_range_ticks == 0` 은 L138 `no_contact` 의 첫 항이다. IR 도 모순되지 않는다: m13.ll:28989~28993 `%8 = getelementptr inbounds nuw i8, ptr %0, i64 1432` / `%10 = icmp eq i64 %9, 0`(!dbg 없음 = 투기실행된 bonus inst) / `%11 = select i1 %7, i1 %10, i1 false, !dbg !35976` — 단축평가 AND 가 `if let` 게이트와 합쳐진 모양이고, dive_episode.rs 의 **132~137 에 !dbg 가 달린 명령이 0건**이다.",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[5]/knobs[1]/where",
+   "kind": "실오류",
+   "old": "②L131=59B(58자)는 `if let Some(live) = self.v50_dive_ep_live.as_ref() {`(들여쓰기 4 + 52 = 56자) 하나뿐이고,",
+   "new": "②L131=59B(58자)는 `if let Some(live) = self.v50_dive_ep_live.as_ref() {` 이지만 들여쓰기가 **4 가 아니라 6** 이다(4+52=56 ≠ 58 · 6+52=58 ±0 — L156=54=4+50 ±0 이 fn 본문 들여쓰기 4 를 독립 고정하므로 L131 은 한 단 깊다). 그리고",
+   "evidence": "같은 실측. 10차 서술이 56자를 계산해 놓고 실측값 58 과의 2자 차를 명시하지 않은 것이 판정을 밀어낸 지점이다. `self.v50_dive_ep_live`(21자)·`as_ref()`(9자)·`if let Some(live) = `(20자)·` {`(2자)는 tcx·DWARF(`!35970 as_ref<V50DiveEpLive>` inlinedAt line 131)로 고정돼 있어 표현식 쪽으로는 2자를 만들 수 없다.",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[5]/knobs[1]/where",
+   "kind": "실오류",
+   "old": "⟹ L131(들여쓰기 4)과 L139(8) 사이에 **들여쓰기 6 블록이 하나 더 열린다** = `in_range_ticks == 0` 은 독립 중첩 if 이고 132~137 중 한 줄이다. ④그 줄은 mb>0 이므로 한국어 주석이 뒤따르는 코드줄이고, 필요한 ASCII 39자(6+`if live.in_range_ticks == 0 {`+` // `)를 담을 수 있는 것은 L134(ASCII 43)·차순 L135(38) 뿐이다(L132 33·L133 30·L136 29·L137 28 은 부족). 값 0 과 의미는 그대로",
+   "new": "⟹ 열린 블록 세 개는 L130(4)·L131(6)·L139(8) 로 전부 설명된다 = 132~137 에는 블록을 여는 코드가 없다. ④L138=81자 = 들여쓰기 8 + `let no_contact = live.in_range_ticks == 0 && live.team_holder_ticks == 0;`(73) ±0 ⟹ **`in_range_ticks == 0` 은 `no_contact` 의 첫 항**이다. 값 0 과 의미는 그대로(단축평가 AND 라 재구현 동작 동일)",
+   "evidence": "산술 복기(본문길이=bytes−1): `let no_contact = `17 + `live.in_range_ticks == 0`24 + ` && `4 + `live.team_holder_ticks == 0`27 + `;`1 = 73, +8 = **81** = L138 실측값. 10차가 적은 ASCII 여유(L134 43·L135 38)도 줄 종결자 1B 를 빼면 42·37 로 하나씩 과대계상돼 있었다.",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[5]/logic",
+   "kind": "실오류",
+   "old": "if self.v50_dive_ep_live != None // self+0x570 != -1\n && live.in_range_ticks == 0 { // self+0x598 == 0\n let no_contact = (live.team_holder_ticks == 0); // :138, self+0x5a8\n",
+   "new": "if self.v50_dive_ep_live != None { // self+0x570 != -1 (:131, 들여쓰기 6)\n let no_contact = live.in_range_ticks == 0 // :138 첫항, self+0x598\n && live.team_holder_ticks == 0; // :138 뒷항, self+0x5a8\n",
+   "evidence": "L138 본문 81자 = 들여쓰기 8 + `let no_contact = live.in_range_ticks == 0 && live.team_holder_ticks == 0;`(73) ±0. 두 조건은 중첩 if 둘이 아니라 **한 줄의 && 두 항**이다. IR m13.ll:28992 `%11 = select i1 %7, i1 %10, i1 false, !dbg !35976` 는 그 첫 항이 `if let` 게이트와 접힌 결과다(블록 %19 에서 team_holder 와 end_reason 이 함께 평가되는 것도 이 독해와 정확히 일치한다).",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[5]/logic",
+   "kind": "실오류",
+   "old": "// ★소스 구조(10차 배치B, 줄길이 산술): 위 두 조건은 소스에서 `&&` 하나가 아니라 **중첩 if 둘**이다 —\n//   L131 `if let Some(live) = self.v50_dive_ep_live.as_ref() {`(들여쓰기 4)\n//   → L132~137 중 한 줄 `if live.in_range_ticks == 0 {`(들여쓰기 6, L134 최유력)\n//   → L138 let no_contact(8) → L139 `if no_contact && end_reason != 7 {`(8) → L140 갱신(10)\n//   → 닫는 중괄호 L141/142/143 = 들여쓰기 8/6/4. 단축평가 AND 와 **의미는 동일**하므로 재구현은 이대로 두어도 된다.",
+   "new": "// ★소스 구조(11차 배치B — 10차의 「중첩 if 둘」은 **판정반전**됐다. 본문길이 = bytes−1):\n//   L130 = 5자 `    {` — 들여쓰기 4 에서 블록을 여는 줄(코드 생성 0 — IR 에 126~130 줄의 명령이 없다)\n//   L131 = 58자 = 들여쓰기 **6** + `if let Some(live) = self.v50_dive_ep_live.as_ref() {`(52) ±0\n//   L132~137 = 한국어 주석 6줄(코드 없음 · 132~137 에 !dbg 달린 명령 0건)\n//   L138 = 81자 = 8 + `let no_contact = live.in_range_ticks == 0 && live.team_holder_ticks == 0;`(73) ±0\n//   L139 = 42 = 8 + `if no_contact && end_reason != 7 {`(34) ±0 → L140 = 88 = 10 + 78 ±0\n//   L141/142/143 = 9/7/5자 = `}` 들여쓰기 8/6/4 ⟹ 열린 블록 = L130(4)·L131(6)·L139(8) 셋으로 완전히 설명\n//   L156 = 54 = 4 + `if let Some(done) = self.v50_dive_ep_live.take() {`(50) ±0 ⟹ fn 본문 들여쓰기 4 를 독립 고정\n//   ⟹ `in_range_ticks == 0` 은 독립 중첩 if 가 **아니라** `no_contact` 의 첫 항이고,\n//     단축평가로 그 첫 항이 `if let` 게이트와 합쳐져 m13.ll:28992 `select i1 %7, i1 %10, i1 false` 가 됐다.\n//     의미는 동일하므로 재구현은 이대로 두어도 된다.\n//   ⚠L130 이 맨몸 `{`(스코프 블록)인지 다른 구문의 여는 줄인지는 **미탐색** — 5자로 들여쓰기 4 의 블록을 여는 ASCII 후보는 `    {` 뿐이다.\n//   ⚠rustc 는 변수가 없는 scope 에 DILexicalBlock 을 안 만든다(`!35915`(line 138)의 부모가 `!35913`(line 131)인 것은 양 독해에서 모두 성립) ⟹ DWARF 스코프 사슬은 판별력이 없고, 판정 근거는 줄 길이 산술이다.",
+   "evidence": "실행한 것: `python -X utf8 rmeta_srcmap.py game_ai dive_episode.rs 120 175` / `grep -nE \"^![0-9]+ = !DILocation\\\\(line: 1[0-9][0-9], scope: !(35901|35913|35915|35917|35919|35921)[,)]\" _gaibc/m13.ll`(→ 125·131·138·139·140·145~153·155·156·157·167·170 만 나온다 = 126~130·132~137 에 명령 0건). 새 독해는 L130/131/138/139/140/141/142/143/156 아홉 줄이 전부 ±0 이고, 10차 독해는 L131 에서 −2 · L138 에서 −29 가 남는다.",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[5]/open[0]",
+   "kind": "실오류",
+   "old": "남은 미탐색 = 132~137 중 어느 줄인지(ASCII 여유로 L134 최유력, 차순 L135). ⚠같은 근거로 `knobs[1].where` 의 「확정 — 132~137 은 코드가 없다」를 정정했다",
+   "new": "★★**11차 배치B 판정반전 · 해소** — 10차의 「독립 중첩 if, 132~137 중 한 줄」이 틀렸다. 10차는 L131 을 들여쓰기 4 로 가정했는데 그럼 56자여야 하고 실측은 58자다. 들여쓰기 **6** 이면 ±0 이고, L156=54(=4+`if let Some(done) = self.v50_dive_ep_live.take() {`50) ±0 이 fn 본문 들여쓰기를 4 로 독립 고정하므로 L131 은 한 단 깊다(L130=5자가 들여쓰기 4 의 블록을 열고 있다). 그러면 L138=81자 = 8 + `let no_contact = live.in_range_ticks == 0 && live.team_holder_ticks == 0;`(73) ±0 으로 떨어지고, L141/142/143(9/7/5자 = `}` 들여쓰기 8/6/4)이 L130(4)·L131(6)·L139(8) 으로 전수 설명된다. ⟹ **132~137 은 주석 6줄이고 `in_range_ticks == 0` 은 L138 `no_contact` 의 첫 항**이다(1차가 「132~137 은 주석 6줄」이라 한 관측 자체는 옳았고, 「따라서 조건이 131 에 있다」는 추론이 틀렸던 것이다). 10차 판이 틀린 자리는 두 곳 — L131 에서 2자, L138 에서 29자. 남은 미탐색 = **L130(5자, 들여쓰기 4 의 블록 여는 줄)의 정체**뿐이다(맨몸 `    {` 가 유일한 ASCII 후보 · 그 줄은 IR 에 명령을 하나도 안 남긴다)",
+   "evidence": "`python -X utf8 rmeta_srcmap.py game_ai dive_episode.rs 120 175` 실측(본문길이=bytes−1): L130=5 L131=58 L132~137=69/66/73/67/64/63(mb 37/37/31/30/36/36) L138=81(mb 0) L139=42 L140=88 L141/142/143=9/7/5 L156=54. IR 교차: dive_episode.rs 126~130·132~137 에 !dbg 달린 명령 0건. ⚠rustc 는 변수 없는 scope 에 DILexicalBlock 을 안 만들므로 `!35915`(line 138, 부모 `!35913` line 131) 사슬은 두 독해를 못 가른다 — 판정 근거는 줄 길이다.",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[5]/open[0]",
+   "kind": "보강",
+   "old": "RawVec::grow_one 내부(재할당 정책)는 안 봄",
+   "new": "RawVec::grow_one 내부(재할당 정책) — ★**해소(11차 배치B)**: `define` 이 `_gaibc/m03.ll:142039` 에 있다(`RawVec<V50DiveEpisode>::grow_one`). 본문 = `%3 = load i64, ptr %0`(cap) → `%4 = shl nuw i64 %3, 1` → `%5 = tail call i64 @llvm.umax.i64(i64 %4, i64 4)` → `RawVecInner::finish_grow` ⟹ **cap' = max(2×cap, 4)** (4 = `MIN_NON_ZERO_CAP`, 원소 104B ≤ 1024 이므로). len==cap 일 때만 불리므로 2×cap ≥ cap+1 은 항상 성립하고, 할당 실패는 `raw_vec::handle_error` 로 중단된다. ⟹ 재구현에서 표준 `Vec::push` 를 그대로 써도 동일하다",
+   "evidence": "`grep -rn \"V50DiveEpisodeE8grow_one\" _gaibc/*.ll _gcbc/*.ll` → `_gaibc/m03.ll:142039 define void @_RNvMs3_NtCs9LexZzt9XJB_5alloc7raw_vecINtB5_6RawVec...V50DiveEpisodeE8grow_one`. ★「안 봄」이 재료 부재였던 게 아니다 — METHOD_MAP ① 규칙 1(「`_gaibc` 에 없으면 다른 모듈·크레이트에서 `define` 을 찾아라」)을 적용하지 않은 것뿐이고, 10차가 적발한 `closed[] 썩음` 과 같은 형태다.",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[6]/open[0]",
+   "kind": "보강",
+   "old": "'blackboard[t] = 팀 t 챔피언 5명의 피관측 기록'으로 읽는 게 자연스럽지만, is_recent_visible 본체를 안 봐서 **추정**이다.",
+   "new": "'blackboard[t] = 팀 t 챔피언 5명의 피관측 기록' ★**확정(11차 배치B) — 더 이상 추정이 아니다.** `Blackboard::is_recent_visible` 의 `define` 은 **`_gcbc/g07.ll:157005`** 에 있다. 본문: ①`team = judger.info.team`(PlayerState+0x930) · `id = target.id`(Entity+0x5c0) → vtable **+0xf8** 을 `(game, team, id)` 로 호출해 true 면 즉시 true ②아니면 vtable **+0x150** 을 `(game, id)` 로 호출해 그 엔티티의 PlayerState 를 얻고(null 이면 false) ③`pos = 그 PlayerState.info.position`(+0x9c0) → **`self + 0x1e0 + pos*8`**(i64 배열)을 읽어 `last + 120 >= game.tick()`(vtable +0x28). ⟹ `self`(=`data.blackboard[1-team]`)의 배열을 **대상(적) 챔피언의 포지션**으로 색인하므로 `blackboard[t]` 는 정확히 「팀 t 챔피언 5칸의 피관측 기록」이다. 덤: 시야 기억창 = **120틱**(60tps 기준 2초) — 담당 범위 밖 상수지만 06·08 의 필터를 지배한다.",
+   "evidence": "`grep -hn \"^define.*is_recent_visible\" _gcbc/*.ll _gaibc/*.ll` → `_gcbc/g07.ll:157005`. 본문 인용: `%10 = getelementptr inbounds nuw i8, ptr %2, i64 248` · `%12 = tail call noundef zeroext i1 %11(ptr noundef nonnull %1, i64 noundef %7, i64 noundef %9)` · `%22 = getelementptr inbounds nuw i8, ptr %0, i64 480` · `%23 = getelementptr inbounds nuw i64, ptr %22, i64 %21` · `%25 = add i64 %24, 120` · `%29 = icmp uge i64 %25, %28` · `%31 = phi i1 [ true, %5 ], [ %29, %18 ], [ false, %13 ]`. ★이 항목은 `closed[3]` 이고 닫은 근거가 「본문에 해소 표기가 있다」라는 **공허한 문구**였다 — 실제로는 `_gcbc` 에 define 이 있었는데 아무도 안 봤다(10차 `closed[] 썩음` 22건과 같은 형태).",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "op": "delete",
+   "path": "/specs[7]/writes[0]",
+   "guard": "live_list[0] (힙 원소, usize id)",
+   "kind": "실오류",
+   "old": "(writes[0] 에 앉은 읽기 행 — reads 끝으로 옮긴다)",
+   "new": "(삭제 후 같은 patch 의 insert 가 reads[22] 로 복원)",
+   "evidence": "10차 배치B 가 추가한 `/specs[7]/mem[22]` 가 **읽기인데 `writes` 배열에 꽂혔다.** v3 `mem` = `reads`(22행) + `writes`(7행)이고 `applypatch.resolve` 가 `at=22` 를 `writes[0]` 으로 보낸다(경계값). IR 은 명백한 load 다: `_gaibc/m02.ll` `%51 = load ptr, ptr <gep %44, i64 416>`(MobaMode+0x1a0) → `%52 = load i64, ptr %51` → `get_entity_by_id(%52)`. 그 행의 `note` 자신도 「첫 원소 id 를 **읽어**」라고 적어 자기모순이다. 08 `is_end` 는 writes 0행인 순수 함수인데 07 만 이 오기 때문에 「AI 가 epic live_list 를 덮어쓴다」로 읽힌다 — 재구현자가 없는 부수효과를 넣는다.",
+   "behavior_change": true,
+   "found_by": "new"
+  },
+  {
+   "op": "insert",
+   "path": "/specs[7]/reads",
+   "at": 22,
+   "guard": "jungle_runner.epic.live_list[0] (힙 원소, usize id)",
+   "guard_key": "name",
+   "kind": "실오류",
+   "old": "(writes[0] 에서 이동)",
+   "new": {
+    "base": "usize(live_list 힙 원소)",
+    "offset": "0x0",
+    "name": "jungle_runner.epic.live_list[0] (힙 원소, usize id)",
+    "note": "★10차 배치B 가 신설했으나 **`writes` 배열에 꽂혀 방향이 `w` 로 보였다 — 11차 배치B 가 `reads` 로 옮김**(이 함수는 게임 구조체에 쓰기가 없다). 표가 `.ptr`(mem[8])과 `.len`(mem[9])만 싣고 역참조 자체를 빠뜨리고 있었다는 10차 지적 자체는 옳다. m02.ll:49015 `%52 = load i64, ptr %51`(%51 = MobaMode+0x1a0 에서 읽은 힙 포인터) — len!=0 일 때 첫 원소 id 를 **읽어** vtable+0x1f0 `get_entity_by_id` 인자로 넘긴다(m02.ll:49018). `logic` 은 이미 `live[0]` 으로 서술하고 있었다. D9-OFF 규약대로 힙 Vec 원소는 소유 구조체로부터의 상수 변위가 없어 base 를 원소 타입으로 내렸다(05 writes 의 `V50DiveEpisode(힙 원소)` 와 같은 처리)"
+   },
+   "evidence": "위 delete 항과 같은 근거. `reads` 의 마지막(index 22)에 꽂아 앞 인덱스를 밀지 않는다.",
+   "behavior_change": true,
+   "found_by": "new"
+  },
+  {
+   "op": "insert",
+   "path": "/specs[8]/reads",
+   "at": 21,
+   "guard": "jungle_runner.epic.live_list[0] (힙 원소, usize id)",
+   "guard_key": "name",
+   "kind": "실오류",
+   "old": "(없음 — 행 추가)",
+   "new": {
+    "base": "usize(live_list 힙 원소)",
+    "offset": "0x0",
+    "name": "jungle_runner.epic.live_list[0] (힙 원소, usize id)",
+    "note": "★11차 배치B 신설 — 표가 `.ptr`(mem[16])·`.len`(mem[17])만 싣고 **역참조 자체를 빠뜨리고 있었다**(10차가 같은 결손을 07 에만 넣고 08 은 빠뜨렸다). _gaibc/m10.ll:7843 `%98 = getelementptr inbounds nuw i8, ptr %92, i64 416`(MobaMode+0x1a0) → 7844 `%99 = load ptr, ptr %98` → **7852 `%100 = load i64, ptr %99`** — len!=0 일 때 첫 원소 id 를 읽고, 7855 `%103 = call noundef align 8 ptr %102(ptr noundef nonnull %35, i64 noundef %100)` 로 vtable+0x1f0 `get_entity_by_id` 에 넘긴다. 이 포인터+원소 역참조가 없으면 `logic` 의 `live_list.get(0).and_then(|id| game.get_entity_by_id(*id))` 를 재구현할 수 없다(L193 의 「에픽이 살아 있나」 판정 전체가 이 한 읽기에 달려 있다). D9-OFF 규약대로 힙 Vec 원소는 소유 구조체로부터의 상수 변위가 없어 base 를 원소 타입으로 내렸다(07 reads · 05 writes 와 같은 처리)"
+   },
+   "evidence": "`sed -n '7843p;7844p;7852p;7855p' _gaibc/m10.ll` 원문 위에 인용. reads 21행을 전수 대조한 결과 이 이름이 없다(`0x1a0 .ptr` / `0x1a8 .len` / `0x1b0 next_respawn_tick` 만 있다). ★도시에가 「07·08 의 live_list[0] 역참조 = 행 추가 완료」라고 적었지만 08 은 들어가지 않았다.",
+   "behavior_change": true,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[9]/logic",
+   "kind": "실오류",
+   "old": "// 1316\nif rear_allies > 0 { return true } // 퇴로를 끊은 아군이 하나라도 있으면 유리\n// 1321\nif flank_allies > 1 || (flank_allies > 0 && front_allies > 0) { return true }\n// 1331\nif front_allies > 1 {",
+   "new": "// 1316  ★소스 철자 확정(11차 배치B — 줄길이 4/4 ±0 + DWARF 식별자)\nif rear_allies >= 1 { return true } // 퇴로를 끊은 아군이 하나라도 있으면 유리\n// 1321  ★소스는 `||` 한 줄이 아니라 **독립한 if 둘**이다(순서까지 확정)\nif flank_allies >= 1 && front_allies >= 1 { return true }\n// 1326\nif flank_allies >= 2 { return true }\n// 1331\nif front_allies >= 2 {",
+   "evidence": "`python -X utf8 rmeta_srcmap.py game_ai fight_check.rs 1310 1350`(본문길이=bytes−1): L1316=23 · L1317 한글주석 · L1318=16(`    return true;`) · L1319=3(`  }`) · L1320=0 / L1321=45 · L1322 한글 · L1323=16 · L1324=3 · L1325=0 / **L1326=24 · L1327 한글 · L1328=16 · L1329=3 · L1330=0** / L1331=24. ⟹ 같은 꼴(`if … {` + 주석 + `return true;` + `}`)의 블록이 **넷**이다. 식별자 길이는 DWARF 가 고정한다(m15.ll:109699 `!46157` retainedNodes 의 `!DILocalVariable`): `front_allies`(12, line 1229) · `flank_allies`(12, 1230) · `rear_allies`(11, 1231) — 셋 다 `logic` 의 이름 그대로. 들여쓰기는 2 다(L1347=7자 `  false` · L1348=1자 `}` · L1319=3자 `  }` · L1233=18자 `  for ap in 0..5 {` 전부 ±0). 넣으면 `>=` 판이 **4/4 ±0**: 1316 = 2+3+11+5+2 = 23 ✓ / 1321 = 2+3+12+5+4+12+5+2 = 45 ✓ / 1326 = 2+3+12+5+2 = 24 ✓ / 1331 = 24 ✓. `> 0`/`> 1` 판은 1316(22≠23)·1331(23≠24)에서 기각된다 — 10차가 만난 `2·len(flank)=3` 모순의 정체는 식별자가 아니라 **「1321 이 한 줄」이라는 가정**이었다. IR 정합: m15.ll:35598~35603 `%95 = icmp sgt i32 %84, 0` · `%96 = icmp sgt i32 %85, 0` · `%97 = select i1 %95, i1 %96, i1 false`(셋 다 `!dbg !46393` = line **1321**) · `%98 = icmp sgt i32 %84, 1`(**!dbg 없음** = 다른 블록에서 접혀 위치가 버려진 bonus inst) · `%99 = or i1 %98, %97`; m15.ll:35606 `%101 = icmp sgt i32 %85, 1, !dbg !46394`(line **1331**); m15.ll:35578 `%86 = icmp sgt i32 %83, 0, !dbg !46388`(line **1316**). ⟹ flank≥2 만 !dbg 가 없고 이 함수에 line 1326 을 가리키는 DILocation 이 아예 없다 = 그 가지가 다른 줄에서 접혀 왔다는 뜻이다.",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[9]/logic",
+   "kind": "보강",
+   "old": "return false // 1348",
+   "new": "false // 1347 — `  false` 본문 7자 ±0 (L1348 은 fn 을 닫는 `}` 1자다)",
+   "evidence": "rmeta_srcmap: L1347 bytes=8 ⟹ 본문 7자 = 들여쓰기 2 + `false`(5) ±0, L1348 bytes=2 ⟹ 본문 1자 = `}`. 반환은 `return` 이 아니라 마지막 식이다(동작 동일). 같은 줄번호를 `logic` 의 요약 주석 (e)~(g) 항도 쓰고 있으니 함께 읽을 것.",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[9]/knobs[6]/where",
+   "kind": "실오류",
+   "old": "fight_check.rs:1316,1321,1331",
+   "new": "fight_check.rs:1316,1321,**1326**,1331",
+   "evidence": "대형 성립 게이트는 **네 줄**이다. L1326(본문 24자) = `  if flank_allies >= 2 {` 이고 L1327(한글주석)·L1328(`    return true;` 16자)·L1329(`  }` 3자)로 닫힌다 — 1316·1321 블록과 바이트 단위로 같은 모양이다. 상세 근거 = 같은 patch 의 `/specs[9]/logic` 항.",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[9]/knobs[6]/value",
+   "kind": "실오류",
+   "old": "{fight_check.rs:1316 → 0, 1321 → (flank>1) OR (flank>0 && front>0), 1331 → 1}",
+   "new": "{fight_check.rs:1316 → `rear_allies >= 1`, 1321 → `flank_allies >= 1 && front_allies >= 1`, 1326 → `flank_allies >= 2`, 1331 → `front_allies >= 2`}",
+   "evidence": "소스 철자 4/4 ±0 복원(줄길이 산술 + DWARF 식별자 길이 rear 11 · flank 12 · front 12). 의미는 기존과 동일하지만 「비교상수 0 과 1」이 아니라 **1 과 2**(`>=` 꼴)이고, 게이트가 3줄이 아니라 4줄이다 — 노브를 UI 로 노출할 때 값 범위가 달라진다.",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[9]/knobs[6]/effect",
+   "kind": "실오류",
+   "old": "★비교 상수는 **0 과 1 이 섞여 있다** — `1316 rear>0` / `1321 (flank>1) || (flank>0 && front>0)` / `1331 front>1`. ★안쪽 `&&` 는 `select i1 %95, i1 %96, false` 로 **단축평가가 보존**돼 `flank>0` 이 좌항임이 확정(바깥 `||` 순서만 미확정).",
+   "new": "★소스는 `if <카운터> >= N {` 꼴 **네 줄**이다 — `1316 rear_allies >= 1` / `1321 flank_allies >= 1 && front_allies >= 1` / `1326 flank_allies >= 2` / `1331 front_allies >= 2`(11차 배치B, 줄길이 4/4 ±0 + DWARF 식별자). ★안쪽 `&&` 는 `select i1 %95, i1 %96, false` 로 **단축평가가 보존**돼 `flank_allies >= 1` 이 좌항임이 확정. 바깥 `||` 는 **소스에 존재하지 않는다** — IR `%99 = or i1 %98, %97` 는 두 if 의 `return true` 블록이 SimplifyCFG 로 합쳐진 결과이고, 소스 순서는 1321 → 1326 으로 확정된다.",
+   "evidence": "같은 patch 의 `/specs[9]/logic` 항 근거. 이 정정이 `closed[3]`(「바깥 || 순서 = 재료 부재」)을 **판정반전**시킨다 — 재료(rmeta SourceMap)는 있었고, 닫을 때 적은 범위(「줄 길이 산술은 교환 불변」)가 문제를 잘못 세운 것이었다(교환법칙은 두 항이 한 줄일 때만 적용된다).",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[9]/open[0]",
+   "kind": "실오류",
+   "old": "④남은 미탐색 = L1321 의 실제 철자와 세 카운터의 식별자 길이(rear 12자·front 13자 꼴이 1316/1331 을 만족하지만 1321 과 양립하지 않는다).",
+   "new": "④★★**해소(11차 배치B).** 10차가 만난 모순(`2·len(flank)=3`)의 정체는 식별자 길이가 아니라 **「1321 이 한 줄이다」라는 가정**이었다. 실제로는 같은 꼴의 블록이 **넷**이다 — L1326(본문 24자)·L1327(한글 주석)·L1328(`    return true;` 16자)·L1329(`  }` 3자)가 1316/1321 블록과 바이트 단위로 같은 모양을 갖는다. 식별자는 DWARF 가 고정한다(m15.ll `!DILocalVariable`: `front_allies` 12자 line1229 · `flank_allies` 12자 1230 · `rear_allies` 11자 1231 — 모두 `logic` 의 이름 그대로). 들여쓰기 2 를 넣으면 **`>=` 판이 4/4 ±0**: `  if rear_allies >= 1 {`=23 · `  if flank_allies >= 1 && front_allies >= 1 {`=45 · `  if flank_allies >= 2 {`=24 · `  if front_allies >= 2 {`=24. `> 0`/`> 1` 판은 1316(22≠23)·1331(23≠24)에서 기각된다. ⚠남는 미확정은 **L1316 한 줄에서만** `>= 1` 과 `!= 0`(둘 다 5자)이 길이로 안 갈린다는 것인데, 1326/1331 이 `>= 2` 로 강제되므로 문체 일관성상 `>= 1` 이 유력하다(표기 문제일 뿐 의미 동일). 남은 미탐색 = L1334(본문 99자)·L1335(85자)·L1340(53자)의 정확한 철자(호출 경로명 길이 미정).",
+   "evidence": "실행한 것: `python -X utf8 rmeta_srcmap.py game_ai fight_check.rs 1310 1350` · `... 1229 1250` · `sed -n '109699,109790p' _gaibc/m15.ll | grep -oE '!DILocalVariable\\(name: \"[a-z_0-9]+\"[^)]*line: [0-9]+'`. 들여쓰기 2 의 독립 확인 = L1347=7자 `  false` · L1348=1자 `}` · L1319/1324/1329=3자 `  }` · L1233=18자 `  for ap in 0..5 {`. IR 교차(m15.ll:35578 · 35598~35603 · 35606): 1316·1321·1331 은 !dbg 붙은 icmp 가 각각 있고 flank≥2 의 `%98` 만 !dbg 가 없다(접힌 블록 = 1326).",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[9]/open[0]",
+   "kind": "실오류",
+   "old": "1321행 `flank>1 || (flank>0 && front>0)` 의 **바깥 || 두 항 순서만** 확정 불가(비단축 or 평탄화 = 정보량 0)",
+   "new": "~~1321행 `flank>1 || (flank>0 && front>0)` 의 **바깥 || 두 항 순서만** 확정 불가(비단축 or 평탄화 = 정보량 0)~~ ★**판정반전(11차 배치B) — 소스에 바깥 `||` 가 없다.** 두 항은 **독립한 if 둘**이고(L1321 `flank_allies >= 1 && front_allies >= 1` → L1326 `flank_allies >= 2`) 순서가 소스에 써 있어 줄 길이로 복원된다. IR 의 `%99 = or i1 %98, %97` 는 두 if 의 `return true` 블록을 SimplifyCFG 가 합친 결과다",
+   "evidence": "L1326=본문 24자 · L1327 한글주석 · L1328=16자(`    return true;`) · L1329=3자(`  }`) — 1316/1321 블록과 같은 4줄 모양. DWARF 식별자 길이(rear 11 · flank 12 · front 12)를 넣으면 `>=` 판이 1316/1321/1326/1331 네 줄 전부 ±0. ⚠이 항목은 「재료 부재(①column 0 ②mir=0 ③줄 길이 산술은 교환 불변 ④IR 피연산자 순서 정보량 0)」로 닫혀 있었다 — 재료는 있었고(rmeta SourceMap), ③의 「교환 불변」이 **두 항이 한 줄일 때만 성립하는 전제**였다. 「재료 부재」를 쓸 때 시도 범위를 열거했는데도 **전제 자체가 틀리면 범위 열거가 구제해 주지 않는다**는 사례다.",
+   "behavior_change": false,
+   "found_by": "new"
+  }
+ ],
+ "ev_up": [],
+ "brief_errors": [
+  "★「`07`·`08` 의 `live_list[0]` 역참조 = **행 추가 완료**」는 사실이 아니다. **08 은 들어가지 않았고**(reads 21행에 그 이름이 없다), **07 은 들어갔지만 `writes` 배열에 꽂혀 방향이 `w` 로 보인다**(실제는 읽기). 원인은 `applypatch.resolve` 가 `at=22`(=`len(reads)`)를 `writes[0]` 으로 보내기 때문 — 경계값이 조용히 언더플로우한다. 제안: insert 의 `at` 이 `len(앞 배열)` 과 정확히 같으면 **경고**를 내거나, `new` 행에 방향을 명시하는 키를 요구하라.",
+  "★`closed[].why` 는 **v2 에 없는 파생 필드**다(`_spec/closelist.py` 의 `CLOSE` 목록을 (함수 index, needle) 로 **첫 일치** 매칭한다). 그 탓에 `06 closed[5]`(「L20 과 L26 이 정말 두 개의 별도 클로저인가」)의 근거가 **`min_by_key` 항목의 근거로 바뀌어 있다** — unknown[5] 본문에 `min_by_key` 라는 낱말이 우연히 들어 있고 CLOSE 목록에서 `(6, 'min_by_key', …)` 가 `(6, '두 개의 별도 클로저인지', …)` 보다 앞에 있기 때문이다. G17 이 겪은 「느슨한 앵커가 인접 항목을 집는다」가 `closelist` 에도 있다. `_spec/` 은 배치가 못 고치니 메인이 고쳐라(제안: **모든 일치를 모은 뒤 가장 긴 needle 을 고르고, 2개 이상 일치하면 경고**).",
+  "★`05 closed[0]` 의 닫은 근거가 `_spec/closelist.py` 에 「1차 배치B: L131 확정(132~137 은 한국어 주석 6줄)」로 박혀 있는데, 이번에 **「132~137 이 주석 6줄」은 맞고 「L131 확정」은 틀렸다**는 것이 밝혀졌다(들여쓰기 6 · 조건은 L138). 도시에가 `closed[].why` 를 보여주기 시작하자 **닫은 근거 자체가 반증되는** 첫 사례다 — `closelist.py` 해당 줄을 고쳐라.",
+  "★`05 knobs[1].where` 가 길이 **1,100자의 산문 논증**이다. `where` 는 G13 이 「줄번호 + 인용 명령」으로 검사하는 칸인데 논증이 들어가 있으면 검사가 사실상 무효해진다(이번엔 **그 산문 안의 산술이 틀렸다**). 논증은 `open`/`history` 로 보내고 `where` 는 `파일:줄` 만 남기는 규약이 필요하다.",
+  "★`consts.kind`(G15)에 **값 충돌 귀속** 결함이 있다. `05 consts[14]~[19]`(패턴 바이트 길이 8/4/6/6/6/5)는 `산출값`, 같은 의미의 `consts[11]~[13]`(11/13/12)은 `미상` 으로 분류돼 있다. 원인은 8/4/6/5 가 **end_plan 코드의 phi/select 인입값과 값이 같아** 그 오프코드에 귀속된 것이고, 11/13/12 는 유일값이라 귀속처가 없어 기본값으로 떨어진 것이다. ⟹ 검사기에 **`CALLARG`(호출 인자로만 소비되는 리터럴) 관측자**를 추가하고, 같은 값이 여러 용도로 쓰이면 **귀속하지 말고 보류**하라(「귀속은 구제에만」 원칙의 같은 적용).",
+  "★`06` 은 `open` 이 0건인데 `history[5]` 에 살아 있는 미탐색이 그대로 있다(「그 RunAway 가 06 의 반환인지 가르는 것」). 도시에가 「`open` 이 비었다」고 적고 도구가 `open` 삽입을 막아 두면 이런 항목은 **영원히 열리지 않는다.** `history` 에서 「남은 미탐색」 낱말을 긁어 `open` 후보로 올리는 게이트(G17 의 반대 방향)가 필요하다.",
+  "★도시에 §5 가 「`open`/`notes` 에는 insert/delete 를 **못 쓴다**」고만 적어서, **기존 `open`/`closed` 항목의 문면은 `errors[]` 로 고쳐진다**는 사실이 안 보인다(경로 `/specs[i]/open[0]` 은 인덱스를 무시하고 `old` 문면으로 `unknown`+`still_unknown` 을 뒤진다 — `applypatch.py` L347~356). 이번에 그걸로 `closed` 항목의 질문 문면까지 정정했다. 다음 배치가 「못 고친다」고 포기할 자리이니 명시해 달라.",
+  "★`09 logic` 이 가리키는 `1348`(=`return false`)은 실제로는 **L1347 `  false`** 다(L1348 = fn 을 닫는 `}`). 같은 종류로 `05 consts[10]`(값 9, src_line 153)도 소스는 **L154 `      else { 9 }`**(본문 16자 = 6+10 ±0)이고 IR 이 153 으로 귀속한 것이다(`select i1 %70, i8 8, i8 9, !dbg !35968` = line 153). G12 가 IR 기준이라 고치면 게이트가 반대로 도는 구조라 **이번엔 patch 하지 않았다**(「귀속은 구제에만, 기각에는 쓰지 마라」). `consts[].src_line` 의 정의가 「IR 귀속 줄」인지 「소스 줄」인지 명세해 달라 — 둘이 갈리는 자리가 실제로 있다.",
+  "★도시에 §1 표의 `05 ev≥4(미실행) 13` 같은 수치는 이번 감사에서 쓸모가 없었다. 이번 라운드의 발견 5건 중 4건이 **줄 길이 산술**과 **다른 크레이트의 `define`** 에서 나왔고, 남은 1건은 **배열 소속 오기**였다 — 셋 다 `ev` 와 무관한 축이다. 다음 도시에는 `ev` 대신 **「이 함수에서 아직 한 번도 대조 안 한 재료」**(rmeta SourceMap / `_gcbc` define / DWARF 지역변수명)를 함수별로 체크리스트화하는 게 낫다."
+ ]
+}

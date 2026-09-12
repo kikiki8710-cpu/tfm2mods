@@ -1,0 +1,51 @@
+setting_ok	true
+fountains[0]	(0, 896000, 64000, 960000)
+GoalData_offsets	epic_ally_tick=0x98	epic_ally_killed_tick=0xa0
+
+#G1 귀환 HP% 경계 (hp_ratio < 51)
+G1_hp49	tag=5(Recall)	exp=5(Recall)	in_heal=false	MATCH
+G1_hp50	tag=5(Recall)	exp=5(Recall)	in_heal=false	MATCH
+G1_hp51	tag=11(EpicHunt)	exp=11(EpicHunt)	in_heal=false	MATCH
+G1_hp52	tag=11(EpicHunt)	exp=11(EpicHunt)	in_heal=false	MATCH
+G1b_hp399/1000	tag=5(Recall)	exp=5(Recall)	in_heal=false	MATCH
+G1b_hp400/1000	tag=5(Recall)	exp=5(Recall)	in_heal=false	MATCH
+G1b_hp509/1000	tag=5(Recall)	exp=5(Recall)	in_heal=false	MATCH
+G1b_hp510/1000	tag=11(EpicHunt)	exp=11(EpicHunt)	in_heal=false	MATCH
+
+#G2 에픽 무손상 (epic.hp == epic.stat_cached.hp)
+G2_full	tag=5(Recall)	exp=5(Recall)	in_heal=false	MATCH
+G2_dmg1	tag=11(EpicHunt)	exp=11(EpicHunt)	in_heal=false	MATCH
+G2_nolist	tag=11(EpicHunt)	exp=11(EpicHunt)	in_heal=false	MATCH
+G2_badid	tag=11(EpicHunt)	exp=11(EpicHunt)	in_heal=false	MATCH
+
+#G3 회복지역 사각형 (hp_ratio>=51 이라 1번째 항은 거짓)
+G3_in_LT	tag=5(Recall)	exp=5(Recall)	in_heal=true	MATCH
+G3_in_RB	tag=5(Recall)	exp=5(Recall)	in_heal=true	MATCH
+G3_out_x+1	tag=11(EpicHunt)	exp=11(EpicHunt)	in_heal=false	MATCH
+G3_out_y-1	tag=11(EpicHunt)	exp=11(EpicHunt)	in_heal=false	MATCH
+G3_out_center	tag=11(EpicHunt)	exp=11(EpicHunt)	in_heal=false	MATCH
+G3_fullhp_in	tag=11(EpicHunt)	exp=11(EpicHunt)	in_heal=true	MATCH
+
+#G4 은신 게이트 (tps + ally_tick > killed_tick), bush=Some(7)
+G4_a1000_k1058_tps60	tag=9(Hide)	exp=9(Hide)	in_heal=true	MATCH
+G4_a1000_k1059_tps60	tag=9(Hide)	exp=9(Hide)	in_heal=true	MATCH
+G4_a1000_k1060_tps60	tag=11(EpicHunt)	exp=11(EpicHunt)	in_heal=true	MATCH
+G4_a1000_k1061_tps60	tag=11(EpicHunt)	exp=11(EpicHunt)	in_heal=true	MATCH
+G4_a0_k59_tps60	tag=9(Hide)	exp=9(Hide)	in_heal=true	MATCH
+G4_a0_k60_tps60	tag=11(EpicHunt)	exp=11(EpicHunt)	in_heal=true	MATCH
+G4_a0_k0_tps1	tag=9(Hide)	exp=9(Hide)	in_heal=true	MATCH
+G4_a0_k1_tps1	tag=11(EpicHunt)	exp=11(EpicHunt)	in_heal=true	MATCH
+G4_a0_k29_tps30	tag=9(Hide)	exp=9(Hide)	in_heal=true	MATCH
+G4_a0_k30_tps30	tag=11(EpicHunt)	exp=11(EpicHunt)	in_heal=true	MATCH
+
+#G5 target_bush
+G5_bushNone_gateT	tag=11(EpicHunt)	exp=11(EpicHunt)	in_heal=true	MATCH
+G5_bushSome_gateT	tag=9(Hide)	exp=9(Hide)	in_heal=true	MATCH
+
+#G6 Hide 페이로드
+G6	bush_in=0	tag=9	bush_out=0	out_line=1	check_move=0	enemy_spotted_me=0	MATCH
+G6	bush_in=7	tag=9	bush_out=7	out_line=1	check_move=0	enemy_spotted_me=0	MATCH
+G6	bush_in=26	tag=9	bush_out=26	out_line=1	check_move=0	enemy_spotted_me=0	MATCH
+G6	EpicHunt tag=11	need_recall(+0x8 i8)=0	MATCH
+
+SUMMARY	mismatch=0

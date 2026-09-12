@@ -1,0 +1,5 @@
+OFF	LegacyPlanHandler	0x1610	mf_swap.0 (u8, src 코드)	5648	5648	OK
+OFF	LegacyPlanHandler	0x1618	mf_swap.1 (usize, tick)	5656	5656	OK
+OFF	LegacyPlanHandler	0x517	team_plan.objective(LegacyPlanHandler 기준 절대)	1303	1303	OK
+
+TOTAL_MISMATCH	0

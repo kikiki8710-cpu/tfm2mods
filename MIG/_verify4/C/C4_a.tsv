@@ -1,0 +1,77 @@
+setting_ok	true	width=960000	height=960000	tps=60	champ_radius=10000	visible=130000
+towers	16	twin0=2	twin1=2
+is_top_side_true	8/10
+expect	towers=16 twin=2/2 is_top_side_true=8/10
+VT	0x28	tick	indirect=0	direct=0	match=true
+VT	0x40	get_game_mode	indirect_tag=0	direct_tag=0	match=true
+VT	0x1f0	get_entity_by_id	id=2	indirect_some=true	direct_some=true	same_ptr=true
+VT	0x108	strategy	indirect_objfin=BattlePriority	direct_objfin=BattlePriority	match=true
+NEW	new(Top,111,222)	LineGankerPlan { line: Top, setup_limit: 111, wait_limit: 222, chats: [], phase: WaitResponse }
+NEW_RAW	setup_limit@0x18=111	wait_limit@0x20=222	line@0x28=0	phase@0x29=6
+NEWP	new_with_phase(Mid,333,444,Cancel)	LineGankerPlan { line: Mid, setup_limit: 333, wait_limit: 444, chats: [], phase: Cancel }
+NEWP_RAW	0x18=333	0x20=444	line=1	phase_tag=8
+TICK	0
+HDR	is_end	phase	setup_limit	wait_limit	result
+IS_END	WaitResponse	0	0	true
+IS_END	WaitResponse	0	1	true
+IS_END	WaitResponse	0	-1	true
+IS_END	WaitResponse	1	0	true
+IS_END	WaitResponse	1	1	false
+IS_END	WaitResponse	1	-1	false
+IS_END	WaitResponse	-1	0	true
+IS_END	WaitResponse	-1	1	false
+IS_END	WaitResponse	-1	-1	false
+IS_END	Setup	0	0	true
+IS_END	Setup	0	1	false
+IS_END	Setup	0	-1	false
+IS_END	Setup	1	0	true
+IS_END	Setup	1	1	false
+IS_END	Setup	1	-1	false
+IS_END	Setup	-1	0	true
+IS_END	Setup	-1	1	false
+IS_END	Setup	-1	-1	false
+IS_END	Cancel	0	0	true
+IS_END	Cancel	0	1	true
+IS_END	Cancel	0	-1	true
+IS_END	Cancel	1	0	true
+IS_END	Cancel	1	1	true
+IS_END	Cancel	1	-1	true
+IS_END	Cancel	-1	0	true
+IS_END	Cancel	-1	1	true
+IS_END	Cancel	-1	-1	true
+IS_END	ChangeJungle	0	0	true
+IS_END	ChangeJungle	0	1	false
+IS_END	ChangeJungle	0	-1	false
+IS_END	ChangeJungle	1	0	true
+IS_END	ChangeJungle	1	1	false
+IS_END	ChangeJungle	1	-1	false
+IS_END	ChangeJungle	-1	0	true
+IS_END	ChangeJungle	-1	1	false
+IS_END	ChangeJungle	-1	-1	false
+CHATRAW	Cancel(LowHpSelf)	size=24	11 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+CHATRAW	Cancel(TargetMissing)	size=24	11 02 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+BUSH	zero_cells=829	distinct=24
+BUSHID	1	35200	35200	cells=5
+BUSHID	2	656000	16000	cells=3
+BUSHID	3	272000	144000	cells=3
+BUSHID	4	656000	160000	cells=2
+BUSHID	5	400000	208000	cells=1
+BUSHID	6	144000	272000	cells=3
+BUSHID	7	944000	304000	cells=3
+BUSHID	8	464000	304000	cells=1
+BUSHID	9	848000	416000	cells=4
+BUSHID	10	208000	400000	cells=1
+BUSHID	11	410666	410666	cells=3
+BUSHID	12	304000	464000	cells=1
+BUSHID	13	677333	506666	cells=3
+BUSHID	14	549333	549333	cells=3
+BUSHID	15	816000	656000	cells=5
+BUSHID	16	16000	656000	cells=3
+BUSHID	17	160000	656000	cells=2
+BUSHID	18	506666	677333	cells=3
+BUSHID	19	944000	816000	cells=3
+BUSHID	20	656000	816000	cells=5
+BUSHID	21	416000	848000	cells=4
+BUSHID	22	928000	928000	cells=4
+BUSHID	23	304000	944000	cells=3
+BUSHID	24	816000	944000	cells=3

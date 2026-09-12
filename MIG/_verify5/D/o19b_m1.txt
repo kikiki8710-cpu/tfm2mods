@@ -1,0 +1,39 @@
+setting_ok	true	width=960000	height=960000	tps=60
+rawcamps	m1	n=6
+rawcamps	m1	Rhino	pos=[(496000, 752000), (752000, 496000)]
+rawcamps	m1	Mushroom	pos=[(176000, 592000), (592000, 176000)]
+rawcamps	m1	Stump	pos=[(256000, 448000), (448000, 256000)]
+rawcamps	m1	Bee	pos=[(351000, 800000), (800000, 351000)]
+rawcamps	m1	Morgard	pos=[(288000, 288000), (288000, 288000)]
+rawcamps	m1	Serpen	pos=[(672000, 672000), (672000, 672000)]
+memo1st	m1	Rhino	blue=(496000, 752000)	red=(752000, 496000)
+memo1st	m1	Mushroom	blue=(176000, 592000)	red=(592000, 176000)
+memo1st	m1	Bee	blue=(351000, 800000)	red=(800000, 351000)
+memo1st	m1	Stump	blue=(256000, 448000)	red=(448000, 256000)
+rawcamps	m2	n=6
+rawcamps	m2	Rhino	pos=[(496000, 752000), (752000, 496000)]
+rawcamps	m2	Mushroom	pos=[(176000, 592000), (592000, 176000)]
+rawcamps	m2	Stump	pos=[(256000, 448000), (448000, 256000)]
+rawcamps	m2	Bee	pos=[(351000, 800000), (800000, 351000)]
+rawcamps	m2	Morgard	pos=[(288000, 288000), (288000, 288000)]
+rawcamps	m2	Serpen	pos=[(672000, 672000), (672000, 672000)]
+memo2nd	m2	Rhino	blue=(496000, 752000)	red=(752000, 496000)
+memo2nd	m2	Mushroom	blue=(176000, 592000)	red=(592000, 176000)
+memo2nd	m2	Bee	blue=(351000, 800000)	red=(800000, 351000)
+memo2nd	m2	Stump	blue=(256000, 448000)	red=(448000, 256000)
+cleared	Rhino	false
+cleared	Mushroom	false
+cleared	Bee	false
+cleared	Stump	false
+fallback	cleared=0/4	game=Bee	expect_min_respawn=Mushroom(500)
+fallback_tie	Rhino=500 Mushroom=500 Bee=700 Stump=600	game=Bee	expect_firstwins=Rhino
+fallback_tie2	Rhino=900 Mushroom=900 Bee=300 Stump=300	game=Bee	expect_firstwins=Bee
+ties_found	6
+tie	(0,400000)	tied_idx=[1, 3]	game=Mushroom	expect_firstwins=Mushroom	MATCH
+tie	(9000,405000)	tied_idx=[1, 3]	game=Mushroom	expect_firstwins=Mushroom	MATCH
+tie	(18000,410000)	tied_idx=[1, 3]	game=Mushroom	expect_firstwins=Mushroom	MATCH
+tie	(27000,415000)	tied_idx=[1, 3]	game=Mushroom	expect_firstwins=Mushroom	MATCH
+tie	(36000,420000)	tied_idx=[1, 3]	game=Mushroom	expect_firstwins=Mushroom	MATCH
+tie	(45000,425000)	tied_idx=[1, 3]	game=Mushroom	expect_firstwins=Mushroom	MATCH
+TIE_TOTAL	6/6
+DONE	which=m1

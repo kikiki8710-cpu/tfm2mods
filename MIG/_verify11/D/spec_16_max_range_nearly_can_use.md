@@ -1,0 +1,230 @@
+---
+
+### `16` max_range_nearly_can_use — champ 의 평타/스킬/스킬2/궁 중 tick 틱 내 쓸 수 있는 것들의 실사거리 최댓값
+
+| 항목 | 값 |
+|---|---|
+| id | `old_battle__max_range_nearly_can_use` |
+| 심볼 | `_RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old6battle24max_range_nearly_can_use` |
+| 소스 | `game-ai\src\plan_legacy\old\battle.rs:2397` |
+| IR | `m10.ll` 51913~52374행 |
+| 경로·가시성 | `game_ai::plan_legacy::old::max_range_nearly_can_use` · **pub** |
+| 계층 | 레거시 플랜 |
+| exe | `c809d0` (battle) · 1420바이트 · 187명령 |
+| 라운드 | 기준 `r6` · 통과 6회 |
+
+**시그니처(tcx 정본, ev3)**
+```rust
+fn(&game_core::Entity, &game_core::Entity, usize) -> u64
+```
+
+<details><summary>인자 3개</summary>
+
+| # | i | 이름 | 타입 | 역할 | ev |
+|---|---|---|---|---|---|
+| 0 | 1 | champ | &Entity(1728B) | 시전자. ty·쿨다운·레벨·radius·stat_buff_cached 를 전부 여기서 읽는다 | 4 |
+| 1 | 2 | target | &Entity(1728B) | 대상. CastingTarget::check 의 두번째 인자 + target.radius() 가 사거리에 더해진다 | 4 |
+| 2 | 3 | tick | usize | 쿨다운 허용 여유(틱). 남은 쿨 > tick 이면 그 이펙트는 제외. 호출부는 40/50/60 리터럴을 넘긴다(m02.ll:13159/13199/15125, m14.ll:14280/14359, m15.ll:14745/14785/16295) — '거의(nearly) 쓸 수 있다'의 '거의'가 이 값 | 4 |
+</details>
+
+**의사코드 `logic`**
+> ★재구현용 의사코드다. **오프셋·상수·시그니처의 정본은 `mem`/`consts`/`callees`/`sig.tcx` 이고, 여기와 어긋나면 그쪽이 맞다.** (v2 에서 정정이 표에만 반영되고 이 블록이 옛 값으로 남는 사고가 반복됐다)
+```
+fn max_range_nearly_can_use(champ: &Entity, target: &Entity, tick: usize) -> u64
+
+range = 0 // battle.rs:2398
+
+// ---- 평타 (battle.rs:2399~2403) ----
+let attack_effect = champ.attack_effect().as_ref(); // battle.rs:2399 ★구조는 **메서드 호출 + `.as_ref()` 두 겹**이다. `Entity::attack_effect` 는 `pub fn(&Entity) -> &Option<Effect>`(tcx, entity.rs)
+if let Some(e) = attack_effect { // Entity+0x490, casting(+0x30) != -1 이면 Some
+ if e.target.check(champ, target) { // CastingTarget::check(&e.target, champ, target)
+ // Entity::attack_cooldown() 인라인 (entity.rs:1747) — ty(+0x68) 14-way switch
+ // 0 None / 3 Nexus -> 쿨 게이트 없음(곧장 통과)
+ // 1 Minion -> +0xb8 2 Tower -> +0x110
+ // 4 Jungle -> +0xe8 5 Epic -> +0x1f0
+ // 6 Serpen -> +0x1f0 7 Ghoul -> +0xe8
+ // 8 SmallJiangshi -> +0xb0 9 Bear -> +0xc8
+ // 10 Eagle -> +0xf0 11 Revenant -> +0xd8
+ // 12 Illusion -> +0xd0 13 Champion -> +0xb0
+ let cd = champ.attack_cooldown() // ★`Entity::attack_cooldown(&self)` 가 self.ty 를 match — IR 은 `champ.ty.*` 로 보이지만 MIR 정본은 `Entity::attack_cooldown(&self)`(entity.rs:1747);
+ if cd <= tick { // cd > tick 이면 이 이펙트 폐기
+ range = e.range(champ) // effect.rs:26
+ + e.range_adjust(champ, target) // game_core 호출(본문 없음)
+ + champ.radius() + target.radius(); // entity.rs:1511~1515
+ // e.range(champ) = e.range + e.growth_range*(champ.level-1) + champ.stat_buff_cached.range
+ // Entity::radius() = if radius_mult==0 { radius } else { radius*(radius_mult+100)/100 }
+ }
+ }
+}
+
+// ---- 스킬 (battle.rs:2407~2410) ----
+let skill_effect = champ.skill_effect().as_ref(); // battle.rs:2407 ★구조는 **메서드 호출 + `.as_ref()` 두 겹**이다. `Entity::skill_effect` 는 `pub fn(&Entity) -> &Option<Effect>`(tcx, entity.rs)
+if let Some(e) = skill_effect { // Entity+0x4c8
+ if e.target.check(champ, target) {
+ // Entity::skill_cooldown() 인라인 (entity.rs:1774): ty==Champion 이면 +0xb8, 아니면 0
+ let skip = (champ.ty == Champion) && (champ.skill_cooldown() > tick);
+ if !skip {
+ range = max(range, e.range(champ) + e.range_adjust(champ,target)
+ + champ.radius() + target.radius());
+ }
+ }
+}
+
+// ---- 스킬2 (battle.rs:2414~2417) ----
+// Entity::skill2_effect() (entity.rs:1693): champ.level >= 3 // (MIR 정본 = Ge(level, 3); IR 은 `> 2` 로 접힌다) 이면 &champ.skill2_effect(+0x500),
+// 아니면 정적 None 상수(@anon.ff23c5...40 = casting 자리에 0xFFFFFFFF)를 가리킨다 → 레벨 3 미만은 무조건 폐기
+let skill2_effect = champ.skill2_effect().as_ref(); // ★`.as_ref()` 한 겹이 더 있다 
+if let Some(e) = skill2_effect {
+ if e.target.check(champ, target) {
+ let skip = (champ.ty == Champion) && (champ.skill2_cooldown() /*+0xc0*/ > tick);
+ if !skip {
+ range = max(range, e.range + e.growth_range*(champ.level-1)
+ + champ.stat_buff_cached.range
+ + e.range_adjust(champ,target)
+ + champ.radius() + target.radius());
+ }
+ }
+}
+
+// ---- 궁 (battle.rs:2421~2424) ----
+// Entity::ult_effect() (entity.rs:1701): champ.level >= 5 // (MIR 정본 = Ge(level, 5); IR 은 `> 4` 로 접힌다) 일 때만 &champ.ult_effect(+0x538), 아니면 정적 None
+let ult_effect = champ.ult_effect().as_ref(); // ★`.as_ref()` 한 겹이 더 있다 
+if let Some(e) = ult_effect {
+ if e.target.check(champ, target) {
+ let skip = (champ.ty == Champion) && (champ.ult_cooldown() /*+0xc8*/ > tick);
+ if !skip {
+ range = max(range, ... 동일 계산 ...);
+ }
+ }
+}
+
+return range // battle.rs:2429
+
+주의 1) 평타 결과에는 max 가 없다 — 초기값이 0 이라 컴파일러가 max(x,0)=x 로 접었다. 나머지 셋은 llvm.umax(=core::cmp::Ord::max, cmp.rs:1039).
+주의 2) '쿨다운 게이트'는 4단계 모두 폐기(early-skip)일 뿐, range 를 0 으로 만들지 않는다. 앞 단계가 통과했으면 그 값이 그대로 남는다.
+주의 4) ★**메서드를 필드처럼 적으면 `callees` 자동생성이 오염된다** . `champ.ty.skill2_cooldown` 표기 때문에 `harvest_callees` 가 함수로 못 잡아 `Entity::{attack_effect, skill_effect, skill2_cooldown, ult_cooldown}` **4개가 누락**됐다. ⟹ 「`callees` 는 자동 생성이라 믿을 수 있다」는 전제는 **`logic` 을 입력으로 쓰는 한 `logic` 의 오류를 상속한다**(→ 게이트 G9).
+
+주의 5) ★**측정 함정** — 이 함수 자체는 TLS 메모가 아니지만(범위 51913~52374 안에 threadlocal 접근 0건), **같은 모듈의 `max_range_cached`(m10.ll:51072)가 `MAX_RANGE_CACHE`(thread_local RefCell<MaxRangeCache>, m10.ll:143/144, 1624B)로 이 함수의 결과를 메모한다.** `SinglePlanBattle::update_v32:505` 의 `dist_sq > max_range_cached²` 게이트를 오라클로 재려면 **한 프로세스 = 한 케이스**여야 한다(TEMPLATE.rs 함정 ③). 이 함수를 직접 부르는 오라클은 안전하다.
+주의 3) 함수 전체가 순수 읽기다(두 ptr 파라미터 모두 IR 에서 readonly, 본문에 store 가 하나도 없음) — 그래서 writes 가 비어 있다.
+```
+
+**`mem` 메모리 접근 31건** — ★`ev` 상한은 **3**이다(오프셋 주장의 최강 근거가 tcx 라서).
+| # | 베이스 | 오프셋 | 이름 | 방향 | 근거 | ev | chk |
+|---|---|---|---|---|---|---|---|
+| 0 | Entity | 0x68 | ty (판별자, i64, range[0,14)) | r | EntityType 태그. 평타 분기에서 14-way switch, 스킬/스킬2/궁 분기에서는 ==13(Champion) 비교로만 쓰임 · tcx 정본 대조( 오라클 game==mine 236/236 ⟹ **오프셋은 tcx 가 정본이라 ev3 이 상한**(실행은 교차검증)) · tcx 정본 대조(5차 배치D: 5차 배치D 오라클 game==mine 236/236 ⟹ **오프셋은 tcx 가 정본이라 ev3 이 상한**(실행은 교차검증)) | 3 | OK |
+| 1 | Entity | 0xb0 | ty.Champion.0.attack_cooldown / ty.SmallJiangshi.info.attack_cooldown | r | EntityType+0x48. switch case 13, 8 이 이 오프셋으로 합쳐짐(같은 오프셋이라 LLVM 이 블록 병합) ★표기 정정 : `EntityType::Champion` 은 **튜플 variant** 라 `ty.Champion.0.<필드>` 다. 근거 = `tcxdict --enum EntityType`(필드명 = `0`) + rustc **E0164**(`Tower(i)` 반려 / `Champion(ch)` 통과). ⚠4차 D-E3 가 `Tower` 를 **struct variant**(`{info}`)로 정정했는데 **`Champion` 은 튜플이다 — variant 마다 다르다.** 오프셋은 맞다. · tcx 정본 대조( 오라클 game==mine 236/236 ⟹ **오프셋은 tcx 가 정본이라 ev3 이 상한**(실행은 교차검증)) · tcx 정본 대조(5차 배치D: 5차 배치D 오라클 game==mine 236/236 ⟹ **오프셋은 tcx 가 정본이라 ev3 이 상한**(실행은 교차검증)) | 3 | OK |
+| 2 | Entity | 0xb8 | ty.Champion.0.skill_cooldown / ty.Minion.info.attack_cooldown | r | EntityType+0x50. 평타 분기 case 1(Minion) 과 스킬 분기(Champion) 가 같은 바이트를 서로 다른 의미로 읽는다 ★표기 정정 : `EntityType::Champion` 은 **튜플 variant** 라 `ty.Champion.0.<필드>` 다. 근거 = `tcxdict --enum EntityType`(필드명 = `0`) + rustc **E0164**(`Tower(i)` 반려 / `Champion(ch)` 통과). ⚠4차 D-E3 가 `Tower` 를 **struct variant**(`{info}`)로 정정했는데 **`Champion` 은 튜플이다 — variant 마다 다르다.** 오프셋은 맞다. · tcx 정본 대조( 오라클 game==mine 236/236 ⟹ **오프셋은 tcx 가 정본이라 ev3 이 상한**(실행은 교차검증)) · tcx 정본 대조(5차 배치D: 5차 배치D 오라클 game==mine 236/236 ⟹ **오프셋은 tcx 가 정본이라 ev3 이 상한**(실행은 교차검증)) | 3 | OK |
+| 3 | Entity | 0xc0 | ty.Champion.0.skill2_cooldown | r | EntityType+0x58. 스킬2 분기에서만 ★표기 정정 : `EntityType::Champion` 은 **튜플 variant** 라 `ty.Champion.0.<필드>` 다. 근거 = `tcxdict --enum EntityType`(필드명 = `0`) + rustc **E0164**(`Tower(i)` 반려 / `Champion(ch)` 통과). ⚠4차 D-E3 가 `Tower` 를 **struct variant**(`{info}`)로 정정했는데 **`Champion` 은 튜플이다 — variant 마다 다르다.** 오프셋은 맞다. · tcx 정본 대조( 오라클 game==mine 236/236 ⟹ **오프셋은 tcx 가 정본이라 ev3 이 상한**(실행은 교차검증)) · tcx 정본 대조(5차 배치D: 5차 배치D 오라클 game==mine 236/236 ⟹ **오프셋은 tcx 가 정본이라 ev3 이 상한**(실행은 교차검증)) | 3 | OK |
+| 4 | Entity | 0xc8 | ty.Champion.0.ult_cooldown / ty.Bear.info.attack_cooldown | r | EntityType+0x60 ★표기 정정 : `EntityType::Champion` 은 **튜플 variant** 라 `ty.Champion.0.<필드>` 다. 근거 = `tcxdict --enum EntityType`(필드명 = `0`) + rustc **E0164**(`Tower(i)` 반려 / `Champion(ch)` 통과). ⚠4차 D-E3 가 `Tower` 를 **struct variant**(`{info}`)로 정정했는데 **`Champion` 은 튜플이다 — variant 마다 다르다.** 오프셋은 맞다. · tcx 정본 대조( 오라클 game==mine 236/236 ⟹ **오프셋은 tcx 가 정본이라 ev3 이 상한**(실행은 교차검증)) · tcx 정본 대조(5차 배치D: 5차 배치D 오라클 game==mine 236/236 ⟹ **오프셋은 tcx 가 정본이라 ev3 이 상한**(실행은 교차검증)) | 3 | OK |
+| 5 | Entity | 0xd0 | ty.Illusion.info.attack_cooldown | r | switch case 12 · tcx 정본 대조( tcxdict Entity 0xd0 → ty@Illusion.info.attack_cooldown : usize (단일 해당)) | 3 | OK |
+| 6 | Entity | 0xd8 | ty.Revenant.info.attack_cooldown | r | switch case 11 · tcx 정본 대조( tcxdict Entity 0xd8 → ty@Revenant.info.attack_cooldown : usize) | 3 | OK |
+| 7 | Entity | 0xe8 | ty.Jungle.info.attack_cooldown / ty.Ghoul.info.attack_cooldown | r | switch case 4,7 — 두 info 구조체에서 우연히 같은 오프셋(0x78)이라 병합 · tcx 정본 대조( tcxdict Entity 0xe8 → ty@Jungle.info.attack_cooldown · ty@Ghoul.info.attack_cooldown 둘 다 존재(명세 주장과 동일)) | 3 | OK |
+| 8 | Entity | 0xf0 | ty.Eagle.info.attack_cooldown | r | switch case 10 · tcx 정본 대조( tcxdict Entity 0xf0 → ty@Eagle.info.attack_cooldown) | 3 | OK |
+| 9 | Entity | 0x110 | ty.Tower.info.attack_cooldown | r | switch case 2 · tcx 정본 대조( 오라클 game==mine 236/236 ⟹ **오프셋은 tcx 가 정본이라 ev3 이 상한**(실행은 교차검증)) · tcx 정본 대조(5차 배치D: 5차 배치D 오라클 game==mine 236/236 ⟹ **오프셋은 tcx 가 정본이라 ev3 이 상한**(실행은 교차검증)) | 3 | OK |
+| 10 | Entity | 0x1f0 | ty.Epic.info.attack_cooldown / ty.Serpen.info.attack_cooldown | r | switch case 5,6 (둘 다 info+0x180). Epic/Serpen info 는 472B 라 EntityType 480B 와 맞아떨어진다(크기 교차검증) · tcx 정본 대조( tcxdict Entity 0x1f0 → ty@Epic.info.attack_cooldown · ty@Serpen.info.attack_cooldown **둘뿐** + 크기 교차검증 실측(size_of EntityType=480, Epic=Serpen=472 ⟹ 8+472=480) (o1.txt/o6.txt)) | 3 | OK |
+| 11 | Entity | 0x438 | stat_buff_cached.range | r | BuffState+0xc8. 4개 이펙트 모두의 사거리에 평평하게 더해진다 · tcx 정본 대조( 오라클 game==mine 236/236 ⟹ **오프셋은 tcx 가 정본이라 ev3 이 상한**(실행은 교차검증)) · tcx 정본 대조(5차 배치D: 5차 배치D 오라클 game==mine 236/236 ⟹ **오프셋은 tcx 가 정본이라 ev3 이 상한**(실행은 교차검증)) | 3 | OK |
+| 12 | Entity | 0x470 | stat_buff_cached.radius_mult (i32) | r | BuffState+0x100. champ 와 target 양쪽에서 각각 읽는다 · tcx 정본 대조( 오라클 game==mine 236/236 ⟹ **오프셋은 tcx 가 정본이라 ev3 이 상한**(실행은 교차검증)) · tcx 정본 대조(5차 배치D: 5차 배치D 오라클 game==mine 236/236 ⟹ **오프셋은 tcx 가 정본이라 ev3 이 상한**(실행은 교차검증)) | 3 | OK |
+| 13 | Entity | 0x490 | attack_effect: Option<Effect>(56B) | r | Effect 본체 시작 주소 · tcx 정본 대조( 오라클 game==mine 236/236 ⟹ **오프셋은 tcx 가 정본이라 ev3 이 상한**(실행은 교차검증)) · tcx 정본 대조(5차 배치D: 5차 배치D 오라클 game==mine 236/236 ⟹ **오프셋은 tcx 가 정본이라 ev3 이 상한**(실행은 교차검증)) | 3 | OK |
+| 14 | Entity | 0x4a0 | attack_effect.range | r | Effect+0x10 · tcx 정본 대조( 오라클 game==mine 236/236 ⟹ **오프셋은 tcx 가 정본이라 ev3 이 상한**(실행은 교차검증)) · tcx 정본 대조(5차 배치D: 5차 배치D 오라클 game==mine 236/236 ⟹ **오프셋은 tcx 가 정본이라 ev3 이 상한**(실행은 교차검증)) | 3 | OK |
+| 15 | Entity | 0x4a8 | attack_effect.growth_range | r | Effect+0x18 · tcx 정본 대조( 오라클 game==mine 236/236 ⟹ **오프셋은 tcx 가 정본이라 ev3 이 상한**(실행은 교차검증)) · tcx 정본 대조(5차 배치D: 5차 배치D 오라클 game==mine 236/236 ⟹ **오프셋은 tcx 가 정본이라 ev3 이 상한**(실행은 교차검증)) | 3 | OK |
+| 16 | Entity | 0x4b8 | attack_effect.target: CastingTarget(4B) | r | Effect+0x28. CastingTarget::check 의 &self · tcx 정본 대조( 오라클 game==mine 236/236 ⟹ **오프셋은 tcx 가 정본이라 ev3 이 상한**(실행은 교차검증)) · tcx 정본 대조(5차 배치D: 5차 배치D 오라클 game==mine 236/236 ⟹ **오프셋은 tcx 가 정본이라 ev3 이 상한**(실행은 교차검증)) | 3 | OK |
+| 17 | Entity | 0x4c0 | attack_effect.casting: CastingType(i32, range[-1,4)) | r | Effect+0x30. Option<Effect> 의 니치 판별자를 겸한다 — -1 이면 None · tcx 정본 대조( 오라클 game==mine 236/236 ⟹ **오프셋은 tcx 가 정본이라 ev3 이 상한**(실행은 교차검증)) · tcx 정본 대조(5차 배치D: 5차 배치D 오라클 game==mine 236/236 ⟹ **오프셋은 tcx 가 정본이라 ev3 이 상한**(실행은 교차검증)) | 3 | OK |
+| 18 | Entity | 0x4c8 | skill_effect: Option<Effect> | r | · tcx 정본 대조( 오라클 game==mine 236/236 ⟹ **오프셋은 tcx 가 정본이라 ev3 이 상한**(실행은 교차검증)) · tcx 정본 대조(5차 배치D: 5차 배치D 오라클 game==mine 236/236 ⟹ **오프셋은 tcx 가 정본이라 ev3 이 상한**(실행은 교차검증)) | 3 | OK |
+| 19 | Entity | 0x4d8 | skill_effect.range | r | Effect+0x10 · tcx 정본 대조( 오라클 game==mine 236/236 ⟹ **오프셋은 tcx 가 정본이라 ev3 이 상한**(실행은 교차검증)) · tcx 정본 대조(5차 배치D: 5차 배치D 오라클 game==mine 236/236 ⟹ **오프셋은 tcx 가 정본이라 ev3 이 상한**(실행은 교차검증)) | 3 | OK |
+| 20 | Entity | 0x4e0 | skill_effect.growth_range | r | Effect+0x18 · tcx 정본 대조( 오라클 game==mine 236/236 ⟹ **오프셋은 tcx 가 정본이라 ev3 이 상한**(실행은 교차검증)) · tcx 정본 대조(5차 배치D: 5차 배치D 오라클 game==mine 236/236 ⟹ **오프셋은 tcx 가 정본이라 ev3 이 상한**(실행은 교차검증)) | 3 | OK |
+| 21 | Entity | 0x4f0 | skill_effect.target | r | Effect+0x28 · tcx 정본 대조( 오라클 game==mine 236/236 ⟹ **오프셋은 tcx 가 정본이라 ev3 이 상한**(실행은 교차검증)) · tcx 정본 대조(5차 배치D: 5차 배치D 오라클 game==mine 236/236 ⟹ **오프셋은 tcx 가 정본이라 ev3 이 상한**(실행은 교차검증)) | 3 | OK |
+| 22 | Entity | 0x4f8 | skill_effect.casting (니치) | r | Effect+0x30, -1=None · tcx 정본 대조( 오라클 game==mine 236/236 ⟹ **오프셋은 tcx 가 정본이라 ev3 이 상한**(실행은 교차검증)) · tcx 정본 대조(5차 배치D: 5차 배치D 오라클 game==mine 236/236 ⟹ **오프셋은 tcx 가 정본이라 ev3 이 상한**(실행은 교차검증)) | 3 | OK |
+| 23 | Entity | 0x500 | skill2_effect: Option<Effect> | r | level>2 일 때만 이 포인터를 쓰고, 아니면 정적 None(@anon...40)을 쓴다 · tcx 정본 대조( 오라클 game==mine 236/236 ⟹ **오프셋은 tcx 가 정본이라 ev3 이 상한**(실행은 교차검증)) · tcx 정본 대조(5차 배치D: 5차 배치D 오라클 game==mine 236/236 ⟹ **오프셋은 tcx 가 정본이라 ev3 이 상한**(실행은 교차검증)) | 3 | OK |
+| 24 | Entity | 0x538 | ult_effect: Option<Effect> | r | level>4 일 때만. 아니면 정적 None · tcx 정본 대조( 오라클 game==mine 236/236 ⟹ **오프셋은 tcx 가 정본이라 ev3 이 상한**(실행은 교차검증)) · tcx 정본 대조(5차 배치D: 5차 배치D 오라클 game==mine 236/236 ⟹ **오프셋은 tcx 가 정본이라 ev3 이 상한**(실행은 교차검증)) | 3 | OK |
+| 25 | Entity | 0x5c8 | level | r | (level-1) 이 growth_range 계수, 그리고 level>2 / level>4 스킬2·궁 개방 게이트 · tcx 정본 대조( 오라클 game==mine 236/236 ⟹ **오프셋은 tcx 가 정본이라 ev3 이 상한**(실행은 교차검증)) · tcx 정본 대조(5차 배치D: 5차 배치D 오라클 game==mine 236/236 ⟹ **오프셋은 tcx 가 정본이라 ev3 이 상한**(실행은 교차검증)) | 3 | OK |
+| 26 | Entity | 0x680 | radius | r | champ 와 target 양쪽. radius_mult 로 스케일된 뒤 사거리에 더해진다 · tcx 정본 대조( 오라클 game==mine 236/236 ⟹ **오프셋은 tcx 가 정본이라 ev3 이 상한**(실행은 교차검증)) · tcx 정본 대조(5차 배치D: 5차 배치D 오라클 game==mine 236/236 ⟹ **오프셋은 tcx 가 정본이라 ev3 이 상한**(실행은 교차검증)) | 3 | OK |
+| 27 | Effect | 0x10 | range | r | skill2/ult 경로는 %90/%157 포인터 기준 +16 으로 읽는다(같은 필드) · tcx 정본 대조( 오라클 game==mine 236/236 ⟹ **오프셋은 tcx 가 정본이라 ev3 이 상한**(실행은 교차검증)) · tcx 정본 대조(5차 배치D: 5차 배치D 오라클 game==mine 236/236 ⟹ **오프셋은 tcx 가 정본이라 ev3 이 상한**(실행은 교차검증)) | 3 | OK |
+| 28 | Effect | 0x18 | growth_range | r | skill2/ult 경로 +24 · tcx 정본 대조( 오라클 game==mine 236/236 ⟹ **오프셋은 tcx 가 정본이라 ev3 이 상한**(실행은 교차검증)) · tcx 정본 대조(5차 배치D: 5차 배치D 오라클 game==mine 236/236 ⟹ **오프셋은 tcx 가 정본이라 ev3 이 상한**(실행은 교차검증)) | 3 | OK |
+| 29 | Effect | 0x28 | target: CastingTarget | r | skill2/ult 경로 +40 · tcx 정본 대조( 오라클 game==mine 236/236 ⟹ **오프셋은 tcx 가 정본이라 ev3 이 상한**(실행은 교차검증)) · tcx 정본 대조(5차 배치D: 5차 배치D 오라클 game==mine 236/236 ⟹ **오프셋은 tcx 가 정본이라 ev3 이 상한**(실행은 교차검증)) | 3 | OK |
+| 30 | Effect | 0x30 | casting: CastingType (Option 니치) | r | skill2/ult 경로 +48, -1=None · tcx 정본 대조( 오라클 game==mine 236/236 ⟹ **오프셋은 tcx 가 정본이라 ev3 이 상한**(실행은 교차검증)) · tcx 정본 대조(5차 배치D: 5차 배치D 오라클 game==mine 236/236 ⟹ **오프셋은 tcx 가 정본이라 ev3 이 상한**(실행은 교차검증)) | 3 | OK |
+
+**`consts` 상수 7건** — `src_line` 은 **G12 가 IR 사슬과 대조**한다.
+| # | 값 | src_line | 종류 | 뜻 | ev |
+|---|---|---|---|---|---|
+| 0 | -1 | 2399 | 센티널 | Option<Effect>::None 의 니치 값 — Effect.casting(CastingType,i32,범위 -1..3)이 -1 이면 이펙트 없음. Option::as_ref(core/option.rs:742)가 인라인된 형태. 동시에 (level-1) 계산의 add i64 %level, -1 로도 등장 · 오라클 실행 확증( 오라클 game==mine 236/236) · 오라클 실행 확증(5차 배치D: 5차 배치D 오라클 game==mine 236/236) | 2 |
+| 1 | 13 | 2409 | 태그 | EntityType::Champion 태그. 스킬/스킬2/궁 쿨다운 게이트는 '챔피언일 때만' 걸린다(비챔피언은 스킬 쿨 0 취급) · 오라클 실행 확증( 오라클 game==mine 236/236) · 오라클 실행 확증(5차 배치D: 5차 배치D 오라클 game==mine 236/236) | 2 |
+| 2 | 2 | 2414 | 임계 | 스킬2 개방 레벨 게이트 — Entity::skill2_effect(entity.rs:1693)가 level>2 일 때만 Some 을 준다 · 오라클 실행 확증( 오라클 game==mine 236/236) · 오라클 실행 확증(5차 배치D: 5차 배치D 오라클 game==mine 236/236) | 2 |
+| 3 | 4 | 2421 | 임계 | 궁 개방 레벨 게이트 — Entity::ult_effect(entity.rs:1701)가 level>4 일 때만 Some 을 준다 · 오라클 실행 확증( 오라클 game==mine 236/236) · 오라클 실행 확증(5차 배치D: 5차 배치D 오라클 game==mine 236/236) | 2 |
+| 4 | 100 | 2403 | 계수 | Entity::radius(entity.rs:1515)의 퍼센트 기준 — radius*(radius_mult+100)/100. radius_mult==0 이면 곱셈 자체를 건너뛴다 · 오라클 실행 확증( 오라클 game==mine 236/236) · 오라클 실행 확증(5차 배치D: 5차 배치D 오라클 game==mine 236/236) | 2 |
+| 5 | 0 | 2398 | 태그 | range 누적 초기값(하나도 못 쓰면 그대로 반환) 겸 radius_mult==0 빠른 경로 비교값 ★src_line=2398 을 IR 로 못 박았다(9차 배치A): m10.ll:51931 `#dbg_value(i64 0, !56148, !DIExpression(), !56262)` 의 `!56148` 이 `!DILocalVariable(name: "range", file: !1808, line: 2398)` 이다. 본문에 남은 리터럴 0 (`icmp eq i32 %N, 0` 8개)은 전부 entity.rs:1512 radius_mult 빠른 경로(L2403/2410/2417/2424)다 · 오라클 실행 확증( 오라클 game==mine 236/236) · 오라클 실행 확증(5차 배치D: 5차 배치D 오라클 game==mine 236/236) | 2 |
+| 6 | 3 | 2402 | 태그 | EntityType::Nexus 태그 — 태그 0(None)과 함께 평타 쿨다운 게이트를 건너뛰고 곧장 사거리 계산으로 간다(Entity::attack_cooldown 에 해당 팔이 없음) · 오라클 실행 확증( 오라클 game==mine 236/236) · 오라클 실행 확증(5차 배치D: 5차 배치D 오라클 game==mine 236/236) | 2 |
+
+**`knobs` 조정점 9건** — `where` 는 **G13 이 그 줄(±2)에 인용 명령이 있는지** 본다.
+| # | 무엇 | 어디 | 값 | 효과 | ev | src |
+|---|---|---|---|---|---|---|
+| 0 | '거의 쓸 수 있다' 판정의 쿨다운 여유(tick 인자) ★**단일 값이 아니다** — 호출부 13곳 실측 분포 = **40×5 / 50×2 / 60×5 / `GameSetting.tick_per_second`(계산값) ×1**. `value` 칸의 `40` 은 정수 필드라 대표값 하나만 담긴 것이고, 전량은 `where` 칸과 이 문장에 있다 | 이 함수 밖 — 호출부 리터럴: m02.ll:13159(40) / 13199(60) / 15125(50) / 41529(40) / 41608(60), m14.ll:14280(40) / 14359(60) / 25719(40) / 25790(60), m15.ll:14745(40) / 14785(60) / 16295(50). m14.ll:60624 는 계산된 값(%33)을 넘김 | 40 | 올리면 쿨이 더 많이 남은 스킬까지 '곧 쓸 수 있다'로 쳐서 반환 사거리가 커진다 = AI 가 더 멀리서부터 그 스킬을 전제로 자세를 잡는다. 내리면 거의 쿨이 다 돈 스킬만 반영돼 사거리 추정이 보수적이 된다 · 오라클 실행 확증( 오라클 game==mine 236/236) · 오라클 실행 확증(5차 배치D: 5차 배치D 오라클 game==mine 236/236) | 2 | 기존 |
+| 1 | 스킬2 개방 레벨 게이트 | entity.rs:1693 (Entity::skill2_effect, 이 함수에 인라인 — IR 51913~52374 중 `icmp ugt i64 %87, 2`) | 2 | 내리면 저레벨 챔피언도 스킬2 사거리를 최댓값 후보로 쓴다(더 멀리서 교전 시작). 올리면 그 반대 · 오라클 실행 확증( 오라클 game==mine 236/236) · 오라클 실행 확증(5차 배치D: 5차 배치D 오라클 game==mine 236/236) | 2 | 기존 |
+| 2 | 궁 개방 레벨 게이트 | entity.rs:1701 (Entity::ult_effect, 인라인 — `icmp ugt i64 %87, 4`) | 4 | 내리면 5레벨 미만에도 궁 사거리가 반영돼 AI 가 훨씬 먼 거리에서 '사거리 안'이라 판단한다 · 오라클 실행 확증( 오라클 game==mine 236/236) · 오라클 실행 확증(5차 배치D: 5차 배치D 오라클 game==mine 236/236) | 2 | 기존 |
+| 3 | 스킬 쿨다운 게이트를 챔피언에만 거는 것 | entity.rs:1774/1789/1804 (skill_cooldown/skill2_cooldown/ult_cooldown, 인라인 — `icmp eq i64 %ty, 13` + select) | 13 | 이 비교를 무력화(항상 false)하면 비챔피언 엔티티의 스킬 쿨은 이미 0 취급이라 변화 없고, 반대로 챔피언에서 이 게이트를 없애면 쿨 중인 스킬 사거리까지 항상 반영돼 AI 가 상시 최대 사거리로 행동한다 · 오라클 실행 확증( 오라클 game==mine 236/236) · 오라클 실행 확증(5차 배치D: 5차 배치D 오라클 game==mine 236/236) | 2 | 기존 |
+| 4 | radius_mult 퍼센트 기준값 | entity.rs:1515 (Entity::radius, 인라인 — `add nsw i64 %mult, 100` / `udiv i64 %v, 100`) | 100 | champ·target 양쪽 반경이 사거리에 그대로 더해지므로, 이 식을 키우면 큰 유닛 상대 사거리 판정이 후해진다 · 오라클 실행 확증( 오라클 game==mine 236/236) · 오라클 실행 확증(5차 배치D: 5차 배치D 오라클 game==mine 236/236) | 2 | 기존 |
+| 5 | 최근 피격 시간창 | Entity::damaged _gcbc/g06.ll:82163 (store i64 180) | 180 | EnemyChampionRecentlyAttacked 대상 유지 시간(=3초). 올리면 마무리·추격형 스킬의 타깃 유지가 길어짐 | 4 | 신규 |
+| 6 | HARD_CC 집합 | _gcbc/g06.ll:87035~87042, 87205~87212 (switch case 0,1,2,6,8,9) | {0,1,2,6,8,9} | *InCC 타깃팅이 어떤 CC 를 'CC 상태'로 볼지. HARD_CC = {0 Airborne, 1 Stun, 2 Bind, 6 ForceMove, 8 Fear, 9 Charm}. 제외 = 3 BlockAttack · 4 BlockSkill · 5 BlockMoveSkill · 7 Taunt · 10 Animation (11 variant 중 **5개**) | 4 | 신규 |
+| 7 | 쿨감 기준선 100 | cooldown_reduce _gcbc/g06.ll:66666~66670 | 100 | cooltime*100/(100+mult). 기준선을 바꾸면 쿨감 % 체감 곡선이 바뀜 | 4 | 신규 |
+| 8 | 최소 쿨타임 바닥값 | skill_cooltime = umax(...,3) (g06.ll:79434), 그 외 umax(...,1) | 3(skill_cooltime) / 1(그 외) | 쿨감 상한(하한 틱) | 4 | 신규 |
+
+<details><summary>`callees` 피호출자 16건 (tcx 자동 생성)</summary>
+
+| # | 이름 | 경로 | vis | 시그니처 | 정의처 | mir | xinl | ev |
+|---|---|---|---|---|---|---|---|---|
+| 0 | attack_cooldown | game_core::Entity::attack_cooldown | pub | fn(&game_core::Entity) -> usize | game-core\src\simulation\entity.rs:1747 | True | True | 3 |
+| 1 | attack_effect | game_core::Entity::attack_effect | pub | fn(&game_core::Entity) -> &std::option::Option<game_core::Effect> | game-core\src\simulation\entity.rs:1684 | True | True | 3 |
+| 2 | check | game_core::CastingTarget::check | pub | fn(&game_core::CastingTarget, &game_core::Entity, &game_core::Entity) -> bool | game-core\src\simulation\effect\type.rs:227 | False | False | 3 |
+| 3 | check | game_core::transfer::SellGuard::check | pub | fn(&game_core::Database, usize, game_core::Position) -> game_core::transfer::SellGuardResult | game-core\src\transfer\roster_blueprint.rs:564 | False | False | 3 |
+| 4 | max_range_nearly_can_use | game_ai::plan_legacy::old::max_range_nearly_can_use | pub | fn(&game_core::Entity, &game_core::Entity, usize) -> u64 | game-ai\src\plan_legacy\old\battle.rs:2397 | False | False | 3 |
+| 5 | radius | game_core::Entity::radius | pub | fn(&game_core::Entity) -> usize | game-core\src\simulation\entity.rs:1509 | True | True | 3 |
+| 6 | range | game_core::Effect::range | pub | fn(&game_core::Effect, &game_core::Entity) -> u64 | game-core\src\simulation\effect.rs:25 | True | True | 3 |
+| 7 | range_adjust | <game_core::CombineEffect as game_core::EffectType>::range_adjust | pub | fn(&game_core::CombineEffect, &game_core::Entity, &game_core::Entity) -> u64 | game-core\src\simulation\effect\type\combine.rs:108 | False | False | 3 |
+| 8 | range_adjust | game_core::EffectType::range_adjust | pub | fn(&Self/#0, &game_core::Entity, &game_core::Entity) -> u64 | game-core\src\simulation\effect\type.rs:342 | True | True | 3 |
+| 9 | range_adjust | game_core::Effect::range_adjust | pub | fn(&game_core::Effect, &game_core::Entity, &game_core::Entity) -> u64 | game-core\src\simulation\effect.rs:29 | False | False | 3 |
+| 10 | skill2_cooldown | game_core::Entity::skill2_cooldown | pub | fn(&game_core::Entity) -> usize | game-core\src\simulation\entity.rs:1789 | True | True | 3 |
+| 11 | skill2_effect | game_core::Entity::skill2_effect | pub | fn(&game_core::Entity) -> &std::option::Option<game_core::Effect> | game-core\src\simulation\entity.rs:1692 | True | True | 3 |
+| 12 | skill_cooldown | game_core::Entity::skill_cooldown | pub | fn(&game_core::Entity) -> usize | game-core\src\simulation\entity.rs:1774 | True | True | 3 |
+| 13 | skill_effect | game_core::Entity::skill_effect | pub | fn(&game_core::Entity) -> &std::option::Option<game_core::Effect> | game-core\src\simulation\entity.rs:1688 | True | True | 3 |
+| 14 | ult_cooldown | game_core::Entity::ult_cooldown | pub | fn(&game_core::Entity) -> usize | game-core\src\simulation\entity.rs:1804 | True | True | 3 |
+| 15 | ult_effect | game_core::Entity::ult_effect | pub | fn(&game_core::Entity) -> &std::option::Option<game_core::Effect> | game-core\src\simulation\entity.rs:1700 | True | True | 3 |
+</details>
+
+⚠**미매칭 2개**: `casting`, `llvm.umax.i64`
+> tcx 3크레이트에 같은 leaf 이름의 Fn/AssocFn 이 없는 것들. 대부분 std·클로저·매크로이거나 `logic` 산문에서 긁힌 잡음이다. ⚠단 **여기 이름이 실제 게임 술어인데 이름이 달라서 못 잡힌 경우**가 섞일 수 있으니, 3차에서 판정에 쓰이는 술어가 이 목록에 있으면 손으로 확인할 것.
+
+**호출처 13곳** (m02.ll:13159, m02.ll:13199, m02.ll:15125, m02.ll:41529, m02.ll:41608, m14.ll:14280, m14.ll:14359, m14.ll:25719, m14.ll:25790, m14.ll:60624, m15.ll:14745, m15.ll:14785, m15.ll:16295) · **형제 0개** 
+
+**`open` 0건 — ★이번 라운드에 네가 볼 것은 이것뿐이다.**
+
+(없음 — 이 함수는 `open` 이 비었다. 그래도 **게이트 미해소(§4)와 반증은 유효하다**.)
+
+<details><summary>`closed` 7건 (닫힘 — 근거와 함께 보존. 뒤집으려면 반증 근거를 붙여라)</summary>
+
+| # | 물음 | 닫은 근거 |
+|---|---|---|
+| 0 | ~~Effect::range_adjust 본체 — … 확인 불가.~~ → ★**해소: `history[0]` 참조** — 본체는 `_gcbc/g06.ll:51785~51804` 한 줄이고 `Arc<dyn EffectType>` 의 **vtable +0xe8** 로 위임한다. override 는 3개뿐이고 나머지 약 550개는 디폴트 `ret 0`. 관측 사실: (&Effect, &Entity champ, &Entity target) -> i64 를 받아 최종 합에 그대로 더해진다 | resolved: 분기표 확정. 2차에서 vtable +0xe8 위임까지 확정 |
+| 1 | CastingTarget::check 본체 — 같은 이유로 define 없음. CastingTarget 열거형은 14종(Ally/AllyChampion/AllyChampionInCC/AllyNotSelf/AllyOnlySelf/Enemy/EnemyWithoutTower/EnemyChampion/EnemyChampionInCC/EnemyChampionRecentlyAttacked/Both/BothWithoutTower/BothChampion/None)이라는 것까지만 dienum 으로 확인. ~~어느 값이 어떤 필터인지의 실제 판정식은 미확인~~ → ★**해소: `history[1]` 참조** — 본체 `_gcbc/g06.ll:86744~87269`, 태그 0..13 그대로(니치 밀림 없음). 공통 전제 = `target.can_target(+0x6b9) && target.block_target_tick(+0x6a0) == 0` | resolved: 14종 규칙표 확정 |
+| 2 | champ.ty 의 각 variant 별 attack_cooldown 이 '남은 틱'인지 '준비되는 절대 틱'인지 — 본문만으로는 확정 불가. 호출부가 40/50/60 리터럴을 넘기는 것으로 보아 ~~'남은 틱' … 이는 **추정**이다. 확정하려면 … 봐야 한다~~ → ★**해소: `history[2]` 참조** — **남은 틱 확정**(`_shared.cooldown_확정`) | resolved: 남은 틱 확정 + 2차 attack_cooldown 14-arm MIR 전량 |
+| 3 | 호출부 상수 40/50/60 은 이 함수 본문에 없으므로 constants 에 넣지 않고 knobs 에만 실었다(SPEC_GUIDE §담당 범위 밖 규칙). m14.ll:60624 의 %33 이 무슨 값인지는 담당 범위 밖이라 안 봄 | 1차 배치D: GameSetting.tick_per_second(0x12f8) 확정 |
+| 4 | 평타 switch 에서 태그 0(None)/3(Nexus)이 쿨 게이트를 건너뛰는 것이 ~~'해당 팔이 0 을 반환해 접힌 것'인지 '애초에 게이트 자체가 없는 것'인지는 구분 불가~~ → ★**해소: `history[5]` 참조** — `Entity::attack_cooldown`(entity.rs:1747~1764) 14-arm 전량이 MIR 에 있고 **태그 3(Nexus)은 1761, 태그 0(None)은 1762 에서 `const 0_usize` 를 반환**한다 ⟹ 「그 팔이 0 을 반환해 접힌 것」 — Entity::attack_cooldown 이 인라인돼 반환값 경로가 사라졌다. 결과는 어느 쪽이든 동일(통과) | resolved: 남은 틱 확정 + 2차 attack_cooldown 14-arm MIR 전량 |
+| 5 | ~~battle.rs:2399/2407/2414/2421 의 원본 소스 텍스트는 확인 불가~~ → ★**해소: `history[7]`·`history[8]`·`history[10]` 참조** — 줄 길이 산술(`rmeta_srcmap`)로 `battle.rs:2397~2429` **전 33줄 ±0 복원**(4차 배치D). 소스 트리는 여전히 없다(C:\tfm2mods 및 sdk_058 에 game-ai/src 없음). 줄번호는 DWARF !DILocation 에서만 복원했다 | 3차 배치D: 줄 길이 산술로 4블록 동시 일치 복원(재료 부재 아님) |
+| 6 | ⚠**문서위생(검증배치 D)**: 이 명세의 `unknown[]` 에 **이미 `resolved[]` 가 뒤집은 판정 ~~3건~~ → **5건**이 원문 그대로** 남아 있었다(④"태그 0/3 의 게이트 부재 여부 구분 불가"(→history[5]) ⑤"battle.rs 원본 소스 텍스트 확인 불가"(→history[7]/[10]) 가 이 목록에서 빠져 있었다 — 10차 배치D 가 5건 전부 `~~취소선~~ → history 참조`로 정정) — ①"cooldown 이 남은 틱인지 **추정**" ②"`Effect::range_adjust` 본체 확인 불가" ③"`CastingTarget::check` 본체 미확인". **셋 다 확정된 사실**이다(`_shared.cooldown_확정`·`EffectType_vtable`). `unknown` 만 grep 하는 세션이 확정된 것을 다시 판다 — `~~취소선~~ → resolved 참조`로 정리 필요. | resolved: 남은 틱 확정 + 2차 attack_cooldown 14-arm MIR 전량 |
+</details>
+
+<details><summary>`history` 정정 이력 11건 (참조용 — 본문 아님)</summary>
+
+| # | 옛 값 | 현재 | 표 | 주의 | HARD_CC | recently |
+|---|---|---|---|---|---|---|
+| 0 | Effect::range_adjust 가 이펙트별로 얼마나 보정하는지 | ★분기표 완전 복원. 본체 _gcbc/g06.ll:51785~51804 는 한 줄 — Arc<dyn EffectType> 의 vtable +0xe8 로 위임. override 는 **3개뿐**이고 나머지 약 550개는 전부 디폴트 ret 0. | [{"type": "(디폴트, 그 외 전부)", "ir": "g02.ll:310055 등", "value": "0"}, {"type": "CombineEffect", "ir": "g06.ll:99188~99273", "value": "self.effects.iter().map(\|e\| e.range_adjust(champ,target)).max().unwrap_or(0)"}, {"type": "PoisonDartHunterBaseAttackEffect", "ir": "g06.ll:137161~137227", "value": "if champ.level > 2 && target.casted_effects.any(\|c\| c.casted_type == Poison) { self.poison_range } else { 0 }"}, {"type": "CrossbowmanFireEffect", "ir": "g12.ll:307391~307454", "value": "if self.mark_extends_range && champ.effect_buffs.any(\|b\| b.crossbow_marked_id().is_some()) { 9999999 } else { 0 }"}] | CrossbowmanFireEffect 의 9999999 는 사실상 무제한 사거리다. max_range_nearly_can_use 의 합에 그대로 더해지면 결과가 폭주하는데, 상위 합산부에 클램프가 있는지는 미확인. |  |  |
+| 1 | CastingTarget 14종 각각이 어떤 필터인지 | ★전량 복원. 본체 _gcbc/g06.ll:86744~87269. 태그 = 0..13 그대로(니치 밀림 없음). 공통 전제(하나라도 깨지면 false): target.can_target(+0x6b9) && target.block_target_tick(+0x6a0) == 0. | [{"tag": 0, "name": "Ally", "rule": "same_team"}, {"tag": 1, "name": "AllyChampion", "rule": "same_team && target.ty==Champion"}, {"tag": 2, "name": "AllyChampionInCC", "rule": "same_team && Champion && HARD_CC(target)"}, {"tag": 3, "name": "AllyNotSelf", "rule": "same_team && Champion && champ.id != target.id"}, {"tag": 4, "name": "AllyOnlySelf", "rule": "champ.id == target.id (★팀 검사 없음)"}, {"tag": 5, "name": "Enemy", "rule": "!same_team"}, {"tag": 6, "name": "EnemyWithoutTower", "rule": "!same_team && (target.ty & 14) != 2  — Tower(2)·Nexus(3) 제외"}, {"tag": 7, "name": "EnemyChampion", "rule": "!same_team && Champion"}, {"tag": 8, "name": "EnemyChampionInCC", "rule": "!same_team && Champion && HARD_CC(target)"}, {"tag": 9, "name": "EnemyChampionRecentlyAttacked", "rule": "!same_team && Champion && champ.team is Player(i) && target.recently_attacked_by[i] != 0"}, {"tag": 10, "name": "Both", "rule": "항상 true(전제만 통과하면)"}, {"tag": 11, "name": "BothWithoutTower", "rule": "champ.id != target.id && (target.ty & 14) != 2"}, {"tag": 12, "name": "BothChampion", "rule": "target.ty == Champion"}, {"tag": 13, "name": "None", "rule": "항상 false"}] |  | cc 안에 태그 {0 Airborne, 1 Stun, 2 Bind, 6 ForceMove, 8 Fear, 9 Charm} 중 하나라도 있음 (g06.ll:87035~87042 / 87205~87212). ★Taunt(7)·Animation(10)·Block*(3,4,5)는 제외된다. | ★시간창 = 180틱. Entity::damaged(g06.ll:81901)가 공격자 팀이 Player 일 때 recently_attacked_by[attacker_team] = 180 (g06.ll:82163 store i64 180). Entity::run 이 매 틱 usub.sat(x,1) (g06.ll:76469~76472). |
+| 2 | cooldown 필드가 남은 틱인지 절대 틱인지 | _shared.cooldown_확정 참조 — ★남은 틱 확정. |  |  |  |  |
+| 3 | EffectType vtable +0x28/+0x30/+0x38 의 정확한 이름 — 2회 시도 후 포기(추정) | ★확정 — **추정이 전부 정확했다.** `divtable EffectType` 가 `_gcbc/g02.ll` 의 정적 vtable 전역(`@anon.75300de3978c94cc946f88c448be65c0.1131` DokkaebiUltExplosionEffect / `.1293` CombineEffect, 각 35슬롯·296B·일치율 94%)에서 심볼 이름을 그대로 읽어냈다: **`0x28 expected_damage` / `0x30 expected_damage_structure` / `0x38 expected_target_hp_ratio`**. 전 34슬롯 표는 `_shared.EffectType_vtable` 참조. |  |  |  |  |
+| 4 | '거의 쓸 수 있다' 여유 인자 중 계산값 `%33` 의 정체 | ➕**보강(검증배치 D)**: `m14.ll:60620~60624` = `load[env+24]` → `+4856` → load. **`4856 = 0x12f8` = `GameSetting.tick_per_second`** ⟹ **이 호출부의 여유는 정확히 1초**다. 실전 tps=60 이면 40/50/60 = **0.67 / 0.83 / 1.00초**이고 **이 한 곳만 tps 스케일을 따라간다**. 호출자 = `LineDefenseSubPlan::unsafe_v19_non_champion_walkup` 클로저, 결과에 `+20000` 가산(m14.ll:60625). ✅**호출부 13곳 전수 확인** — 40/50/60 분포(40×5·60×5·50×2) + 계산값 1 이 명세 좌표와 완전 일치, 오류 0. |  |  |  |  |
+| 5 | 14-way switch 에서 태그 3(Nexus)·0(None)에 게이트가 없는 이유 | ★**확정**(2026-09-11 2차배치D). `Entity::attack_cooldown`(entity.rs:1747~1764) 14-arm 전량이 MIR 에 있다 — **태그 3(Nexus)은 1761 에서, 태그 0(None)은 1762 에서 `const 0_usize` 를 반환**한다 ⟹ 「게이트가 없다」가 아니라 **「그 팔이 0 을 반환해 `0 <= tick` 이 항상 참이라 접힌 것」**. 덤으로 `EntityType` 태그 전표가 독립 재확인됐다(0 None·1 Minion·2 Tower·3 Nexus·4 Jungle·5 Epic·6 Serpen·7 Ghoul·8 SmallJiangshi·9 Bear·10 Eagle·11 Revenant·12 Illusion·13 Champion) — 명세의 14-way switch 표와 **완전 일치**. |  |  |  |  |
+| 6 | 이 함수의 사거리식이 엔진의 실제 판정식과 같은가 | ★**다르다**(2026-09-11 2차배치D). 이 함수(m10.ll 블록 %34~%74)는 **`champ.radius()` 를 무조건** 더하는데, 엔진의 실판정 `Effect::is_in_range_ex` 는 **`casting == Targeting` 일 때만** 더한다(g06.ll:51836 `icmp eq i32 .., 0`) ⟹ `Position`/`Direction`/`None` 시전 이펙트에 대해 **AI 의 '거의 닿는다' 추정치가 엔진 판정보다 `champ.radius()` 만큼 후하다(과대추정)**. 적용 범위: IR 대조로 확정. 오라클은 판별력 0(디폴트 데이터의 이펙트가 전부 Targeting 이라 gatediff=0). |  |  |  |  |
+| 7 | 16 `battle.rs:2397~2421` 원문 — 「재료 부재(전 범위)」로 종결했다 | ★★**거짓이었다 — 줄 길이 산술로 뚫렸다**(3차 배치D). ⚠메인 세션 브리핑이 「재료 부재(전 범위), 다시 파지 마라」로 못박은 항목인데 v3 의 실제 `class` 는 `미탐색` 이었고 재료는 존재했다. 복원 결과:   L2397(86자) = `pub fn max_range_nearly_can_use(champ: &Entity, target: &Entity, tick: usize) -> u64 {` — **±0 정확 일치**   **본문 들여쓰기 = 2칸** 확정, L2398(20자) = `  let mut range = 0;`(변수명은 DWARF `!56148` 정본)   네 블록 구조 동일·내용 6줄씩, 슬롯별 모델이 **4블록 동시 일치**: 슬롯1 `27+2n` / 슬롯2 `26+n` / 슬롯3 `72+len(접두)` / 슬롯4 **131(4줄 완전 동일)** / 슬롯5 `    }` / 슬롯6 `  }`   슬롯1 유일 정합 표기 = `  if let Some(<name>) = &champ.<name> {`   DWARF 인라인 접근자 정본 9건(attack_cooldown 1747 · skill_cooldown 1774 · skill2_effect 1692 · skill2_cooldown 1789 · ult_effect 1700 · ult_cooldown 1804 · Effect::range 25 · Entity::radius 1509 · Option::as_ref<Effect> 741) ⚠남은 모순(**미탐색**): 슬롯1 정합은 필드 접근을 가리키는데 IR 은 메서드 인라인을 말한다(1자 차). 다음 수단 = `dloc.py` 로 `inlinedAt` 줄 확정. |  |  |  |  |
+| 8 | 네 이펙트 슬롯이 `if let Some(e) = champ.attack_effect` **한 겹**이다 | ★**두 줄 구조다**(4차 배치D, 근거 4중): ①DWARF `!56150`=`Option<&Effect>`(`!3973`) vs `!56152`=`&Effect`(`!3295`) ②`as_ref@option.rs:742 <- 2399` 인라인 프레임 ③tcx 에 `Entity::{attack,skill,skill2,ult}_effect` 4메서드가 전부 `pub fn(&Entity) -> &Option<Effect>`(entity.rs:1684·1688·1692·1700) ④**줄 길이 4슬롯 ±0**. 네 블록 동형. |  |  |  |  |
+| 9 | `callees` 는 tcx 에서 자동 생성하니 누락이 없다(전제) | ⚠**깨진다**(4차 배치D). `harvest_callees` 는 `logic` 산문을 긁으므로 `logic` 이 메서드를 **필드로** 적으면 그 함수를 못 잡는다 — 실제로 `Entity::{attack_effect, skill_effect, skill2_cooldown, ult_cooldown}` 4개가 빠졌다. `logic` 표기를 메서드로 고쳐 자동수집에 태웠고, 재발은 **G9**(logic 의 `x.y.z` 꼴 중 tcx 에 동명 메서드가 있는 것을 경고)로 막는다. |  |  |  |  |
+| 10 | `battle.rs:2397~2421` 슬롯1 마지막 1자 모순(3차 잔여) | ★**해소 — 전 33줄 ±0 복원**(4차 배치D, `battle.rs:2397~2429`). 부수로 방법론 사실 하나: **DWARF `DILexicalBlock.scope` 중첩은 소스 중첩이 아니다**(rustc source-scope 아티팩트) — 닫는 괄호 길이로 **4블록이 형제**임을 확정했다. |  |  |  |  |
+</details>
+

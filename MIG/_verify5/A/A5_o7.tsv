@@ -1,0 +1,18 @@
+OPT_INPUT	Some(Ult) tag@+0x0=5	(명세 5)
+OPT_INPUT	payload@+0x8 as InputTarget = Pos { x: 1229801703532086340, y: 6148933456521300104 }	(명세: Input::Ult.target 24B @ +0x8)
+OPT_INPUT	None tag@+0x0=-1	(명세 -1)
+INPUT_TAG	Move	0
+INPUT_TAG	Return	1
+INPUT_TAG	Attack	2
+INPUT_TAG	Skill	3
+INPUT_TAG	Skill2	4
+INPUT_TAG	Ult	5
+setting_ok	true	width=960000	height=960000	tps=60	champ_radius=10000	visible=130000
+PS	+0x218=80	(명세 AthleteStat.judgement, mkgame=80)
+PS	+0x450=1000	(명세 judgement_mental_ratio 초기 1000)
+PS	+0x180(=AthleteParameter 시작 추정)	0
+BUMPVEC	len()=2	words(+0x0,+0x8,+0x10,+0x18)=[1c17931e030, bf04ff390, 2, 2]	len 과 일치하는 워드 index=[2, 3]	(명세 len@+0x18 ⟹ index 3)
+BUMPVEC	ptr@+0x0=0x1c17931e030	*(ptr)=0x1c178f86e30	원소0 주소=0x1c178f86e30	verdict=ptr@+0x0 = 버퍼 기점 CONFIRMED
+VT	vtable[0]=drop 0x7ff76f002e50	size=61592	align=8
+VT	+0x40 slot 호출 as_moba()=Some(0xbf04ee938)	trait 호출=Some(0xbf04ee938)	&game.mode=0xbf04ee938	verdict=get_game_mode CONFIRMED
+MOBA	epic_minion_buff_time=[0, 0]	remain_epic_time(0)=0	remain_epic_time(1)=0

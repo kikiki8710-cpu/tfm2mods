@@ -1,0 +1,18 @@
+
+===== specs[15] single_try_engage =====
+  consts[1 ] value=60                     kind=임계   IR용법=STORE                        R3 비교에 안 쓰인다(임계 근거 없음)
+  consts[2 ] value=1                      kind=임계   IR용법=ARITH                        R3 비교에 안 쓰인다(임계 근거 없음)
+
+===== specs[16] max_range_nearly_can_use =====
+  consts[4 ] value=100                    kind=임계   IR용법=ARITH,SELECT                 R3 비교에 안 쓰인다(임계 근거 없음)
+  consts[5 ] value=0                      kind=임계   IR용법=EQ,SWITCH                    R2 판별자를 임계로
+
+===== specs[17] new =====
+  consts[3 ] value=-1                     kind=태그   IR용법=STORE                        R1 센티널을 태그로
+
+===== specs[19] best_jungle_goal =====
+  consts[1 ] value=1                      kind=임계   IR용법=GEP,STORE                    R3 비교에 안 쓰인다(임계 근거 없음)
+  consts[2 ] value=3                      kind=임계   IR용법=GEP,STORE                    R3 비교에 안 쓰인다(임계 근거 없음)
+  consts[4 ] value=-1                     kind=태그   IR용법=EQ                           R1 센티널을 태그로
+
+---- 검사 32건 · R1 2 · R2 1 · R3 5

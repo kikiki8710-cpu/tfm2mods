@@ -1,0 +1,210 @@
+
+====================================================================================================
+## 마이그레이션 감사 결과 — tcx 정본 사전 대조 (게임 0.5.8)
+총 694건  오귀속=0  밀림=0  부분일치=1  확인불가=18  OK=675
+※ ~~취소선~~(이미 정정된 옛 값)이라 스캔에서 제외한 오프셋 주장 4건 — resolved_2026-09-10.json 2, specs20.json 2
+====================================================================================================
+
+### [부분일치] 1건
+
+- specs20.json   base=cache  offset=0x8
+    주장 : (산문) …               // &dyn AbstractGame (data=cache+0x0, vtable=cache+0x8)\n242  let in_tower = game.get_entity_by_id(target…
+    tcx  : game
+    사유 : 그 오프셋에서 시작하는 필드가 없다(패딩/미관통) — 사람 확인 필요
+
+### [확인불가] 18건
+
+- specs20/abstract_input__ult/reads   base=dyn EffectType vtable  offset=0x10
+    주장 : align
+    사유 : vtable 슬롯
+
+- specs20/abstract_input__ult/reads   base=dyn EffectType vtable  offset=0xf8
+    주장 : (이름 미상)
+    사유 : vtable 슬롯
+
+- specs20/abstract_input__ult/reads   base=dyn EffectType vtable  offset=0x118
+    주장 : (이름 미상)
+    사유 : vtable 슬롯
+
+- specs20/defense_nexus__handle_line_defense/reads   base=AbstractGame vtable  offset=0x40
+    주장 : get_game_mode
+    사유 : vtable 슬롯
+
+- specs20/epic_hunt_and_battle__sub_plan/reads   base=dyn AbstractGame vtable  offset=0x40
+    주장 : get_game_mode
+    사유 : vtable 슬롯(구조체 아님) — divtable.py 소관
+
+- specs20/epic_hunt_and_battle__sub_plan/reads   base=dyn AbstractGame vtable  offset=0x1f0
+    주장 : get_entity_by_id
+    사유 : vtable 슬롯(구조체 아님) — divtable.py 소관
+
+- specs20/epic_hunt_and_poke__is_end/reads   base=AbstractGame::vtable  offset=0x28
+    주장 : tick
+    사유 : vtable 슬롯
+
+- specs20/epic_hunt_and_poke__is_end/reads   base=AbstractGame::vtable  offset=0x40
+    주장 : get_game_mode
+    사유 : vtable 슬롯
+
+- specs20/epic_hunt_and_poke__is_end/reads   base=AbstractGame::vtable  offset=0x100
+    주장 : is_visible_cell
+    사유 : vtable 슬롯
+
+- specs20/epic_hunt_and_poke__is_end/reads   base=AbstractGame::vtable  offset=0x1f0
+    주장 : get_entity_by_id
+    사유 : vtable 슬롯
+
+- specs20/fight_model__should_end_object_finish_kill_priority_battle/reads   base=AbstractGame vtable  offset=0x40
+    주장 : get_game_mode
+    사유 : vtable 슬롯
+
+- specs20/fight_model__should_end_object_finish_kill_priority_battle/reads   base=AbstractGame vtable  offset=0x1f0
+    주장 : get_entity_by_id
+    사유 : vtable 슬롯
+
+- specs20/handler__v3_fall_back_to_passive/reads   base=dyn AbstractGame vtable  offset=0x40
+    주장 : get_game_mode
+    사유 : vtable 슬롯(구조체 아님) — divtable.py 소관
+
+- specs20/handler__v3_fall_back_to_passive/reads   base=dyn AbstractGame vtable  offset=0x28
+    주장 : tick
+    사유 : vtable 슬롯(구조체 아님) — divtable.py 소관
+
+- specs20/handler_chat__handle_chat/reads   base=AbstractGame vtable  offset=0x28
+    주장 : tick
+    사유 : vtable 슬롯
+
+- specs20/modes__single_try_engage/reads   base=dyn AbstractGame vtable  offset=0x1f0
+    주장 : get_entity_by_id
+    사유 : vtable 슬롯(구조체 아님) — divtable.py 소관
+
+- specs20/old_death_battle__new/reads   base=AbstractGame vtable  offset=0x28
+    주장 : tick
+    사유 : vtable 슬롯
+
+- specs20/passive_jungle__best_jungle_goal/reads   base=dyn AbstractGame vtable  offset=0x40
+    주장 : get_game_mode
+    사유 : vtable 슬롯(구조체 아님) — divtable.py 소관
+
+### [OK] 675건
+   완전일치                     558건
+   표기차(첨자/튜플인덱스/타입이름 접두)    80건
+   주변 텍스트에 필드명이 없어 이름 대조는 못 함(오프셋만 유효) 35건
+   이름 미기재(오프셋만 검증)          2건
+   · specs20/abstract_input__ult/reads      Effect                         0x8      주장=ty(vtable 포인터)               tcx=ty.ptr.pointer(+8) : pattern_type!(*const alloc::sync::ArcInner<dyn [Binder { value: Trait(game_core::EffectType), bound_vars: [] }] + '{erased}> is !null)
+   · specs20/abstract_input__ult/writes     Option<Input> (sret 반환슬롯)      0x8      주장=Input::Ult.target            tcx=.Some.0.Move.x : u64 | .Some.0.Attack.target.tag : tag:4B | .Some.0.Skill.target.tag : tag:4B
+   · specs20/abstract_input__ult/writes     Option<Input> (sret 반환슬롯)      0x0      주장=전체 32B                       tcx=.tag : tag:8B | .Some.0.tag : tag:8B
+   · specs20/attack_nexus__sub_plan/reads   MapDef.fountains[team]         0x0      주장=lx                           tcx=0 : u64
+   · specs20/attack_nexus__sub_plan/reads   MapDef.fountains[team]         0x8      주장=ly                           tcx=1 : u64
+   · specs20/attack_nexus__sub_plan/reads   MapDef.fountains[team]         0x10     주장=rx                           tcx=2 : u64
+   · specs20/attack_nexus__sub_plan/reads   MapDef.fountains[team]         0x18     주장=ry                           tcx=3 : u64
+   · specs20/attack_nexus__sub_plan/writes  SubPlan(sret) LineDefense 페이로드 0x8      주장=LineDefenseSubPlan.style     tcx=.LineDefense.0.style.tag : tag:1B | .LineSafe.0.line.tag : tag:1B | .LineWait.0.line.tag : tag:1B
+   · specs20/attack_nexus__sub_plan/writes  SubPlan(sret) LineDefense 페이로드 0x9      주장=LineDefenseSubPlan.line      tcx=.LineDefense.0.line.tag : tag:1B
+   · specs20/attack_nexus__sub_plan/writes  SubPlan(sret) LineDefense 페이로드 0xa      주장=LineDefenseSubPlan.minion_action_type tcx=.LineDefense.0.minion_action_type.tag : tag:1B
+   · specs20/buff_value__defensive_crisis/reads Entity(near_enemies 원소)        0xb8     주장=ty.Champion.skill_cooldown   tcx=ty.Minion.info.attack_cooldown : usize | ty.Tower.info.action.ptr.pointer : pattern_type!(*const alloc::sync::ArcInner<dyn [Binder { value: Trait(game_core::EntityAction), bound_vars: [] }] + '{erased}> is !null) | ty.Jungle.info.ally.ptr.pointer : pattern_type!(*const alloc::sync::ArcInner<[usize]> is !null)
+   · specs20/buff_value__defensive_crisis/reads Entity(near_enemies 원소)        0xc0     주장=ty.Champion.skill2_cooldown  tcx=ty.Minion.info.stat.attack : usize | ty.Epic.info.minion_buff.name.xs[12] : std::mem::MaybeUninit<u8> | ty.Serpen.info.permanent_buff.name.xs[12] : std::mem::MaybeUninit<u8>
+   · specs20/buff_value__defensive_crisis/reads Entity(near_enemies 원소)        0xc8     주장=ty.Champion.ult_cooldown     tcx=ty.Minion.info.stat.magic_power : usize | ty.Tower.info.stat.attack : usize | ty.Jungle.info.exp : usize
+   · specs20/buff_value__defensive_crisis/reads Entity(near_enemies 원소)        0x4f8    주장=skill_effect.casting: CastingType(i32) tcx=skill_effect.tag : tag:4B | skill_effect.Some.0.casting.tag : tag:4B
+   · specs20/dive_episode__v50_fold_dive_episode/reads LegacyPlanHandler              0x580    주장=v50_dive_ep_live.start_tick  tcx=v50_dive_ep_live.Some.0.start_tick : usize
+   · specs20/dive_episode__v50_fold_dive_episode/reads LegacyPlanHandler              0x588    주장=v50_dive_ep_live.last_tick   tcx=v50_dive_ep_live.Some.0.last_tick : usize
+   · specs20/dive_episode__v50_fold_dive_episode/reads LegacyPlanHandler              0x590    주장=v50_dive_ep_live.ep_ticks    tcx=v50_dive_ep_live.Some.0.ep_ticks : usize
+   · specs20/dive_episode__v50_fold_dive_episode/reads LegacyPlanHandler              0x598    주장=v50_dive_ep_live.in_range_ticks tcx=v50_dive_ep_live.Some.0.in_range_ticks : usize
+   · specs20/dive_episode__v50_fold_dive_episode/reads LegacyPlanHandler              0x5a0    주장=v50_dive_ep_live.holder_ticks tcx=v50_dive_ep_live.Some.0.holder_ticks : usize
+   · specs20/dive_episode__v50_fold_dive_episode/reads LegacyPlanHandler              0x5a8    주장=v50_dive_ep_live.team_holder_ticks tcx=v50_dive_ep_live.Some.0.team_holder_ticks : usize
+   · specs20/dive_episode__v50_fold_dive_episode/reads LegacyPlanHandler              0x5b0    주장=v50_dive_ep_live.minion_cover_ticks tcx=v50_dive_ep_live.Some.0.minion_cover_ticks : usize
+   · specs20/dive_episode__v50_fold_dive_episode/reads LegacyPlanHandler              0x5b8    주장=v50_dive_ep_live.soaked_hp   tcx=v50_dive_ep_live.Some.0.soaked_hp : usize
+   · specs20/dive_episode__v50_fold_dive_episode/reads LegacyPlanHandler              0x5c8    주장=v50_dive_ep_live.max_catch_break tcx=v50_dive_ep_live.Some.0.max_catch_break : usize
+   · specs20/dive_episode__v50_fold_dive_episode/reads LegacyPlanHandler              0x5d0    주장=v50_dive_ep_live.uncatch_total tcx=v50_dive_ep_live.Some.0.uncatch_total : usize
+   · specs20/dive_episode__v50_fold_dive_episode/reads LegacyPlanHandler              0x5d8    주장=v50_dive_ep_live.target_pos  tcx=v50_dive_ep_live.Some.0.target_pos.tag : tag:4B
+   · specs20/dive_episode__v50_fold_dive_episode/reads LegacyPlanHandler              0x5dc    주장=v50_dive_ep_live.start_race_adv tcx=v50_dive_ep_live.Some.0.start_race_adv : i32
+   · specs20/dive_episode__v50_fold_dive_episode/reads LegacyPlanHandler              0x5e0    주장=v50_dive_ep_live.start_in_range tcx=v50_dive_ep_live.Some.0.start_in_range : bool
+   · specs20/dive_episode__v50_fold_dive_episode/reads LegacyPlanHandler              0x5e1    주장=v50_dive_ep_live.tower       tcx=v50_dive_ep_live.Some.0.tower.tag : tag:1B
+   · specs20/dive_episode__v50_fold_dive_episode/reads LegacyPlanHandler              0x5e2    주장=v50_dive_ep_live.start_model tcx=v50_dive_ep_live.Some.0.start_model : u8
+   · specs20/dive_episode__v50_fold_dive_episode/reads LegacyPlanHandler              0x5e3    주장=v50_dive_ep_live.start_na    tcx=v50_dive_ep_live.Some.0.start_na : u8
+   · specs20/dive_episode__v50_fold_dive_episode/reads LegacyPlanHandler              0x5e4    주장=v50_dive_ep_live.start_ne    tcx=v50_dive_ep_live.Some.0.start_ne : u8
+   · specs20/dive_episode__v50_fold_dive_episode/reads LegacyPlanHandler              0x5e5    주장=v50_dive_ep_live.start_tgt_hp tcx=v50_dive_ep_live.Some.0.start_tgt_hp : u8
+   · specs20/dive_episode__v50_fold_dive_episode/reads LegacyPlanHandler              0x888    주장=v50_dive_episodes.cap (RawVec cap) tcx=v50_dive_episodes.buf.inner.cap.0 : pattern_type!(usize is 0..=9223372036854775807)
+   · specs20/dive_episode__v50_fold_dive_episode/reads LegacyPlanHandler              0x890    주장=v50_dive_episodes.ptr        tcx=v50_dive_episodes.buf.inner.ptr.pointer.pointer : pattern_type!(*const u8 is !null)
+   · specs20/dive_episode__v50_fold_dive_episode/writes LegacyPlanHandler              0x888    주장=v50_dive_episodes.cap / .ptr tcx=v50_dive_episodes.buf.inner.cap.0 : pattern_type!(usize is 0..=9223372036854775807)
+   · specs20/epic_hunt_and_battle__sub_plan/reads MobaMode                       0x1a0    주장=jungle_runner.epic.live_list.ptr tcx=jungle_runner.epic.live_list.buf.inner.ptr : std::ptr::Unique<u8>
+   · specs20/epic_hunt_and_poke__is_end/reads TeamPlan                       0x420    주장=objective.Morgard.phase      tcx=objective.Some.0.Morgard.phase.tag : tag:1B | objective.Some.0.Serpen.phase.tag : tag:1B | objective.Some.0.DefenseLine.0.tag : tag:1B
+   · specs20/epic_hunt_and_poke__is_end/reads AbstractGameWithCache          0x8      주장=game.vtable                  tcx=game(+8) : &'{erased} dyn [Binder { value: Trait(game_core::AbstractGame), bound_vars: [] }] + '{erased}
+   · specs20/epic_hunt_and_poke__is_end/reads MobaMode                       0x1a0    주장=jungle_runner.epic.live_list.ptr tcx=jungle_runner.epic.live_list.buf.inner.ptr : std::ptr::Unique<u8>
+   · specs20/fight_model__should_end_object_finish_kill_priority_battle/reads AbstractGameWithCache          0x8      주장=game.vtable (&dyn AbstractGame 의 vtable) tcx=game(+8) : &'{erased} dyn [Binder { value: Trait(game_core::AbstractGame), bound_vars: [] }] + '{erased}
+   · specs20/fight_model__should_end_object_finish_kill_priority_battle/reads MobaMode                       0x198    주장=jungle_runner.epic.live_list.cap tcx=jungle_runner.epic.live_list.buf.inner.cap : core::num::niche_types::UsizeNoHighBit
+   · specs20/fight_model__should_end_object_finish_kill_priority_battle/reads MobaMode                       0x1a0    주장=jungle_runner.epic.live_list.ptr tcx=jungle_runner.epic.live_list.buf.inner.ptr : std::ptr::Unique<u8>
+   · specs20/fight_model__should_end_object_finish_kill_priority_battle/reads MobaMode                       0x1c8    주장=jungle_runner.serpen.live_list.cap tcx=jungle_runner.serpen.live_list.buf.inner.cap : core::num::niche_types::UsizeNoHighBit
+   · specs20/fight_model__should_end_object_finish_kill_priority_battle/reads MobaMode                       0x1d0    주장=jungle_runner.serpen.live_list.ptr tcx=jungle_runner.serpen.live_list.buf.inner.ptr : std::ptr::Unique<u8>
+   · specs20/handler__v3_fall_back_to_passive/reads AbstractGameWithCache          0x8      주장=game.vtable                  tcx=game(+8) : &'{erased} dyn [Binder { value: Trait(game_core::AbstractGame), bound_vars: [] }] + '{erased}
+   · specs20/handler__v3_fall_back_to_passive/writes BigPlan(지역변수 plan)             0x8      주장=SinglePlanLine.chats         tcx=.PassiveLine.0.v46_flee_entry.tag : tag:8B | .SinglePlanLine.0.chats.buf.inner.cap.0 : pattern_type!(usize is 0..=9223372036854775807) | .SinglePlanBattle.0.support_target.tag : tag:8B
+   · specs20/handler__v3_fall_back_to_passive/writes BigPlan(지역변수 plan)             0x20     주장=SinglePlanLine.in_recall     tcx=.PassiveLine.0.chats.buf.inner.cap.0 : pattern_type!(usize is 0..=9223372036854775807) | .SinglePlanLine.0.in_recall : bool | .SinglePlanBattle.0.region.Some.0.center_x : u64
+   · specs20/handler__v3_fall_back_to_passive/writes BigPlan(지역변수 plan)             0x21     주장=SinglePlanLine.line          tcx=.SinglePlanLine.0.line.tag : tag:1B | .EpicHuntAndPoke.0.vision_only : bool | .SerpenHuntAndPoke.0.vision_only : bool
+   · specs20/handler_chat__handle_chat/reads AbstractGameWithCache          0x8      주장=game(vtable 절반)              tcx=game(+8) : &'{erased} dyn [Binder { value: Trait(game_core::AbstractGame), bound_vars: [] }] + '{erased}
+   · specs20/handler_chat__handle_chat/reads LegacyPlanHandler              0x858    주장=pending_trace_events.cap     tcx=pending_trace_events.buf.inner.cap.0 : pattern_type!(usize is 0..=9223372036854775807)
+   · specs20/handler_chat__handle_chat/reads LegacyPlanHandler              0x860    주장=pending_trace_events.ptr     tcx=pending_trace_events.buf.inner.ptr.pointer.pointer : pattern_type!(*const u8 is !null)
+   · specs20/handler_chat__handle_chat/writes LegacyPlanHandler              0x858    주장=pending_trace_events.cap     tcx=pending_trace_events.buf.inner.cap.0 : pattern_type!(usize is 0..=9223372036854775807)
+   · specs20/handler_chat__handle_chat/writes LegacyPlanHandler              0x860    주장=pending_trace_events.ptr     tcx=pending_trace_events.buf.inner.ptr.pointer.pointer : pattern_type!(*const u8 is !null)
+   · specs20/line_gank_cover__target_bush_v30/reads Entity                         0x128    주장=Tower.ty (TowerType)         tcx=ty.Tower.info.ty.tag : tag:1B | ty.Jungle.info.stat.stack : usize | ty.Epic.info.minion_buff.magic_resistance : i32
+   · specs20/line_gank_ganker__update/reads Entity                         0x128    주장=ty.Tower.ty: TowerType(i8, range 0..8) tcx=ty.Tower.info.ty.tag : tag:1B | ty.Jungle.info.stat.stack : usize | ty.Epic.info.minion_buff.magic_resistance : i32
+   · specs20/modes__single_try_engage/reads AbstractGameWithCache          0x8      주장=game.vtable                  tcx=game(+8) : &'{erased} dyn [Binder { value: Trait(game_core::AbstractGame), bound_vars: [] }] + '{erased}
+   · specs20/modes__single_try_engage/writes 반환 Option<SinglePlanBattle>    0x0      주장=Some(battle)                 tcx=.tag : tag:8B | .Some.0.support_target.tag : tag:8B
+   · specs20/old_battle__max_range_nearly_can_use/reads Entity                         0xb0     주장=ty.Champion.attack_cooldown / ty.SmallJiangshi.info.attack_cooldown tcx=ty.Minion.info.gold : usize | ty.Tower.info.last_hit.Some.0.1.Player.0 : usize | ty.Epic.info.minion_buff.name.len : u32
+   · specs20/old_battle__max_range_nearly_can_use/reads Entity                         0xb8     주장=ty.Champion.skill_cooldown / ty.Minion.info.attack_cooldown tcx=ty.Minion.info.attack_cooldown : usize | ty.Tower.info.action.ptr.pointer : pattern_type!(*const alloc::sync::ArcInner<dyn [Binder { value: Trait(game_core::EntityAction), bound_vars: [] }] + '{erased}> is !null) | ty.Jungle.info.ally.ptr.pointer : pattern_type!(*const alloc::sync::ArcInner<[usize]> is !null)
+   · specs20/old_battle__max_range_nearly_can_use/reads Entity                         0xc0     주장=ty.Champion.skill2_cooldown  tcx=ty.Minion.info.stat.attack : usize | ty.Epic.info.minion_buff.name.xs[12] : std::mem::MaybeUninit<u8> | ty.Serpen.info.permanent_buff.name.xs[12] : std::mem::MaybeUninit<u8>
+   · specs20/old_battle__max_range_nearly_can_use/reads Entity                         0xc8     주장=ty.Champion.ult_cooldown / ty.Bear.info.attack_cooldown tcx=ty.Minion.info.stat.magic_power : usize | ty.Tower.info.stat.attack : usize | ty.Jungle.info.exp : usize
+   · specs20/old_battle__max_range_nearly_can_use/reads Entity                         0x4a0    주장=attack_effect.range          tcx=attack_effect.Some.0.range : u64
+   · specs20/old_battle__max_range_nearly_can_use/reads Entity                         0x4a8    주장=attack_effect.growth_range   tcx=attack_effect.Some.0.growth_range : u64
+   · specs20/old_battle__max_range_nearly_can_use/reads Entity                         0x4b8    주장=attack_effect.target: CastingTarget(4B) tcx=attack_effect.Some.0.target.tag : tag:4B
+   · specs20/old_battle__max_range_nearly_can_use/reads Entity                         0x4c0    주장=attack_effect.casting: CastingType(i32, range[-1,4)) tcx=attack_effect.tag : tag:4B | attack_effect.Some.0.casting.tag : tag:4B
+   · specs20/old_battle__max_range_nearly_can_use/reads Entity                         0x4d8    주장=skill_effect.range           tcx=skill_effect.Some.0.range : u64
+   · specs20/old_battle__max_range_nearly_can_use/reads Entity                         0x4e0    주장=skill_effect.growth_range    tcx=skill_effect.Some.0.growth_range : u64
+   · specs20/old_battle__max_range_nearly_can_use/reads Entity                         0x4f0    주장=skill_effect.target          tcx=skill_effect.Some.0.target.tag : tag:4B
+   · specs20/old_death_battle__new/reads    AbstractGameWithCache          0x8      주장=game.vtable_ptr              tcx=game(+8) : &'{erased} dyn [Binder { value: Trait(game_core::AbstractGame), bound_vars: [] }] + '{erased}
+   · specs20/old_epic__v3_epicops_buff_window/reads AbstractGameWithCache          0x8      주장=game(vtable 포인터)             tcx=game(+8) : &'{erased} dyn [Binder { value: Trait(game_core::AbstractGame), bound_vars: [] }] + '{erased}
+   · specs20/old_epic__v3_epicops_buff_window/reads TeamPlan                       0xc0     주장=chats.cap                    tcx=chats.buf.inner.cap.0 : pattern_type!(usize is 0..=9223372036854775807)
+   · specs20/old_epic__v3_epicops_buff_window/reads TeamPlan                       0xc8     주장=chats.ptr                    tcx=chats.buf.inner.ptr.pointer.pointer : pattern_type!(*const u8 is !null)
+   · specs20/old_epic__v3_epicops_buff_window/writes TeamPlan                       0xc8     주장=chats.ptr(push 대상 버퍼)        tcx=chats.buf.inner.ptr.pointer.pointer : pattern_type!(*const u8 is !null)
+   · specs20/passive_jungle__best_jungle_goal/reads AbstractGameWithCache          0x8      주장=game.vtable                  tcx=game(+8) : &'{erased} dyn [Binder { value: Trait(game_core::AbstractGame), bound_vars: [] }] + '{erased}
+   · specs20/shared/Entity_공통_오프셋           game_core::Entity              0xb0     주장=ty.Champion.attack_cooldown — ★남은 틱(0 = 준비완료) tcx=ty.Minion.info.gold : usize | ty.Tower.info.last_hit.Some.0.1.Player.0 : usize | ty.Epic.info.minion_buff.name.len : u32
+   · specs20/shared/Entity_공통_오프셋           game_core::Entity              0xb8     주장=ty.Champion.skill_cooldown — 남은 틱 tcx=ty.Minion.info.attack_cooldown : usize | ty.Tower.info.action.ptr.pointer : pattern_type!(*const alloc::sync::ArcInner<dyn [Binder { value: Trait(game_core::EntityAction), bound_vars: [] }] + '{erased}> is !null) | ty.Jungle.info.ally.ptr.pointer : pattern_type!(*const alloc::sync::ArcInner<[usize]> is !null)
+   · specs20/shared/Entity_공통_오프셋           game_core::Entity              0xc0     주장=ty.Champion.skill2_cooldown — 남은 틱 tcx=ty.Minion.info.stat.attack : usize | ty.Epic.info.minion_buff.name.xs[12] : std::mem::MaybeUninit<u8> | ty.Serpen.info.permanent_buff.name.xs[12] : std::mem::MaybeUninit<u8>
+   · specs20/shared/Entity_공통_오프셋           game_core::Entity              0xc8     주장=ty.Champion.ult_cooldown — 남은 틱 tcx=ty.Minion.info.stat.magic_power : usize | ty.Tower.info.stat.attack : usize | ty.Jungle.info.exp : usize
+   · resolved/shared/Entity_공통_오프셋          game_core::Entity              0xb0     주장=ty.Champion.attack_cooldown — ★남은 틱(0 = 준비완료) tcx=ty.Minion.info.gold : usize | ty.Tower.info.last_hit.Some.0.1.Player.0 : usize | ty.Epic.info.minion_buff.name.len : u32
+   · resolved/shared/Entity_공통_오프셋          game_core::Entity              0xb8     주장=ty.Champion.skill_cooldown — 남은 틱 tcx=ty.Minion.info.attack_cooldown : usize | ty.Tower.info.action.ptr.pointer : pattern_type!(*const alloc::sync::ArcInner<dyn [Binder { value: Trait(game_core::EntityAction), bound_vars: [] }] + '{erased}> is !null) | ty.Jungle.info.ally.ptr.pointer : pattern_type!(*const alloc::sync::ArcInner<[usize]> is !null)
+   · resolved/shared/Entity_공통_오프셋          game_core::Entity              0xc0     주장=ty.Champion.skill2_cooldown — 남은 틱 tcx=ty.Minion.info.stat.attack : usize | ty.Epic.info.minion_buff.name.xs[12] : std::mem::MaybeUninit<u8> | ty.Serpen.info.permanent_buff.name.xs[12] : std::mem::MaybeUninit<u8>
+   · resolved/shared/Entity_공통_오프셋          game_core::Entity              0xc8     주장=ty.Champion.ult_cooldown — 남은 틱 tcx=ty.Minion.info.stat.magic_power : usize | ty.Tower.info.stat.attack : usize | ty.Jungle.info.exp : usize
+   · specs20.json                           PlayerState                    0x180    주장=(산문)                         tcx=info.parameter.stat.like_champion.buf.inner
+   · specs20.json                           setting                        0x12f8   주장=(산문)                         tcx=tick_per_second
+   · specs20.json                           GameSetting                    0x12f8   주장=(산문)                         tcx=tick_per_second
+   · specs20.json                           BuffState                      0xd0     주장=(산문)                         tcx=base_attack_enemy_max_hp_damage
+   · specs20.json                           effect                         0x30     주장=(산문)                         tcx=casting.tag
+   · specs20.json                           Entity                         0x68     주장=(산문)                         tcx=ty.tag
+   · specs20.json                           MapDef                         0x6d70   주장=(산문)                         tcx=fountains[0].0
+   · specs20.json                           entity                         0x4f8    주장=(산문)                         tcx=skill_effect.tag | skill_effect.Some.0.casting.tag
+   · specs20.json                           entity                         0x660    주장=(산문)                         tcx=x
+   · specs20.json                           Blackboard                     0x0      주장=(산문)                         tcx=top_minion_state.front_minion.tag
+   · specs20.json                           BattlePlan                     0x58     주장=(산문)                         tcx=sub_goal.tag
+   · specs20.json                           GoalData                       0x88     주장=(산문)                         tcx=epic.epic_enemy_tick
+   · specs20.json                           TeamPlan                       0x420    주장=(산문)                         tcx=objective.Some.0.Morgard.phase.tag | objective.Some.0.Serpen.phase.tag | objective.Some.0.DefenseLine.0.tag | objective.Some.0.Nexus.0.tag
+   · specs20.json                           effect                         0x18     주장=(산문)                         tcx=growth_range
+   · specs20.json                           handler                        0x188    주장=(산문)                         tcx=team_plan.objective_misunderstanding.tag | team_plan.objective_misunderstanding.Some.0.opposite_group_start_tick.tag
+   · specs20.json                           handler                        0x148    주장=(산문)                         tcx=team_plan.obj_spawn.epic_giveup_tick.tag
+   · specs20.json                           LegacyPlanHandler              0x15b8   주장=(산문)                         tcx=ff_call_recv
+   · specs20.json                           LineGankCoverPlan              0x20     주장=(산문)                         tcx=line.tag
+   · specs20.json                           SinglePlanBattle               0x8d     주장=(산문)                         tcx=main_objective.tag | main_objective.Some.0.tag
+   · specs20.json                           World                          0xb3b0   주장=(산문)                         tcx=strategy[0].object_buildup.tag | strategy[0].object_buildup.Split.position.tag
+   · resolved_2026-09-10.json               PlayerState                    0x180    주장=(산문)                         tcx=info.parameter.stat.like_champion.buf.inner
+   · resolved_2026-09-10.json               setting                        0x12f8   주장=(산문)                         tcx=tick_per_second
+   · resolved_2026-09-10.json               GameSetting                    0x12f8   주장=(산문)                         tcx=tick_per_second
+   · resolved_2026-09-10.json               BuffState                      0xd0     주장=(산문)                         tcx=base_attack_enemy_max_hp_damage
+   · resolved_2026-09-10.json               BattlePlan                     0x58     주장=(산문)                         tcx=sub_goal.tag
+   · resolved_2026-09-10.json               entity                         0x660    주장=(산문)                         tcx=x
+   · resolved_2026-09-10.json               effect                         0x18     주장=(산문)                         tcx=growth_range
+   · resolved_2026-09-10.json               handler                        0x188    주장=(산문)                         tcx=team_plan.objective_misunderstanding.tag | team_plan.objective_misunderstanding.Some.0.opposite_group_start_tick.tag
+   · resolved_2026-09-10.json               handler                        0x148    주장=(산문)                         tcx=team_plan.obj_spawn.epic_giveup_tick.tag
+   · resolved_2026-09-10.json               World                          0xb3b0   주장=(산문)                         tcx=strategy[0].object_buildup.tag | strategy[0].object_buildup.Split.position.tag
+   · resolved_2026-09-10.json               GoalData                       0x88     주장=(산문)                         tcx=epic.epic_enemy_tick
+   · D5_REPORT.md                           GameContext                    0x20     주장=(산문)                         tcx=map
+   · D5_REPORT.md                           Entity                         0x68     주장=(산문)                         tcx=ty.tag
+   · D5_REPORT.md                           Entity                         0x128    주장=(산문)                         tcx=ty.Tower.info.ty.tag | ty.Jungle.info.stat.stack | ty.Epic.info.minion_buff.magic_resistance | ty.Serpen.info.permanent_buff.magic_resistance
+   · D5_REPORT.md                           LegacyPlanHandler              0xf8     주장=(산문)                         tcx=team_plan.ally_battle_stop_tick[0].tag

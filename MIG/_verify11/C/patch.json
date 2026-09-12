@@ -1,0 +1,142 @@
+{
+ "round": 11,
+ "batch": "C",
+ "errors": [
+  {
+   "path": "/specs[10]/logic",
+   "kind": "보강",
+   "old": " if !bb.is_recent_visible(game.data, game.vtable, player, enemy) { continue } // 1231",
+   "new": " if !bb.is_recent_visible(game.data, game.vtable, player, enemy) { continue } // 1231\n // ★`Blackboard::is_recent_visible` 는 **120틱 기억만 보는 게 아니다** — 앞에 즉시통과 2단이 있다\n //   (`_gcbc/g07.ll:157005~157049` 전문, blackboard.rs:346):\n //   ① if game.is_visible(player.info.team, enemy.champion_id /*Entity+0x5c0*/) { return true }   // vtable+0xf8\n //   ② let p = game.get_player_by_champion_id(enemy.champion_id); if p.is_null() { return false } // vtable+0x150\n //   ③ return self.last_visible[p.info.position /*+0x9c0*/] /*Blackboard+0x1e0*/ + 120 >= game.tick() // vtable+0x28\n //   ⟹ ③만 재구현하면 **지금 눈앞에 보이는 적**을 놓친다(①이 last_visible 갱신과 무관하게 true 를 낸다).",
+   "evidence": "`_gcbc/g07.ll:157017` `%12 = tail call noundef zeroext i1 %11(ptr noundef nonnull %1, i64 noundef %7, i64 noundef %9)` 에서 %11 = `load ptr, ptr (%2+248)` (= AbstractGame vtable+0xf8 = `is_visible`, `divtable.py AbstractGame 0xf8` 확인) / %7 = `load i64, ptr (%3+2352)` (PlayerState+0x930 team) / %9 = `load i64, ptr (%4+1472)` (Entity+0x5c0). 157018 `br i1 %12, label %30, label %13` 이고 157047 `%31 = phi i1 [ true, %5 ], [ %29, %18 ], [ false, %13 ]` ⟹ ①즉시 true ②null이면 false ③`%25 = add i64 %24, 120` / `%29 = icmp uge i64 %25, %28`. 명세는 ③만 적고 있었다",
+   "behavior_change": true,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[10]/knobs[4]/effect",
+   "kind": "보강",
+   "old": "`last_visible[pos] + 120 >= tick` 이면 '최근에 봤다'.",
+   "new": "`last_visible[pos] + 120 >= tick` 이면 '최근에 봤다'. ★단 이 120 항은 **3단 중 마지막**이다 — 앞에 `game.is_visible(player.info.team, enemy.champion_id)`(vtable+0xf8, `_gcbc/g07.ll:157017` `%12 = tail call %11(...)` → 157018 `br i1 %12, label %30`, phi 인입 `true`)가 **현재 가시면 즉시 true** 를 내고, `get_player_by_champion_id`(vtable+0x150, g07.ll:157023)가 null 이면 **즉시 false** 다. 따라서 120 을 0 으로 내려도 '현재 보이는 적'은 계속 통과한다(11차 배치C).",
+   "evidence": "위와 같은 IR(`_gcbc/g07.ll:157017`·`157023`·`157039`·`157043`). knobs[4] 의 `where` 가 가리키는 157005~157050 범위 안에 즉시통과 2단이 실제로 있는데 문면은 120 항만 서술했다",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[11]/logic",
+   "kind": "실오류",
+   "old": "sp = BigPlan::sub_plan(&self.plan, version, rnd, player, data,",
+   "new": "sp = BigPlan::sub_plan(&mut self.plan, version, rnd, player, data,",
+   "evidence": "tcx 정본 `_tcx/game_ai.json` → `game_ai::plan_legacy::types::BigPlan::sub_plan` = `fn(&'_ mut game_ai::plan_legacy::types::BigPlan, usize, &mut StdRng, &PlayerState, &OperationData, &GoalData, &TeamPlan, &PositioningScoreData, &mut DebugFrameData) -> SubPlan` — 수신자가 `&mut` 다. IR `_gaibc/m13.ll:12461` 에서 sret 다음 첫 인자 `ptr noalias noundef nonnull align 8 dereferenceable(384) %81` 에만 `readonly` 가 없다(같은 호출의 %3·%4·%0·%86 에는 전부 `readonly` 가 붙어 있다)",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[11]/logic",
+   "kind": "실오류",
+   "old": "&self.data(0x0,248B), &mut self.team_plan(0xf8),",
+   "new": "&self.data(0x0,248B), &self.team_plan(0xf8),",
+   "evidence": "tcx 정본 `BigPlan::sub_plan` 의 7번째 인자 = `&game_ai::plan_legacy::team_plan::TeamPlan`(불변). 같은 명세의 `mem[10]`(LegacyPlanHandler 0xf8 team_plan)도 `dir=r` 라 `logic` 만 어긋나 있었다 — G5 는 `sig` 만 보고 `logic` 은 안 본다",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[11]/logic",
+   "kind": "실오류",
+   "old": "SubPlan::merge(&mut self.sub_plan(0x768), &sp) // handler.rs:436",
+   "new": "SubPlan::merge(&mut self.sub_plan(0x768), sp) // handler.rs:436 — ★2번째 인자는 `&SubPlan` 이 아니라 **값 전달**이다(tcx: `fn(&mut SubPlan, SubPlan)`). 72B 라 Win64 ABI 가 간접전달해 IR 에 포인터로 보일 뿐이다(m13.ll:12466 `readonly captures(none) dereferenceable(72) %8`). 재구현에서 `&` 로 받으면 소유권 이동이 사라진다",
+   "evidence": "tcx `game_ai::plan_legacy::sub_plan::SubPlan::merge`(game-ai\\src\\plan_legacy\\sub_plan\\mod.rs:186) = `fn(&'_ mut game_ai::plan_legacy::sub_plan::SubPlan, game_ai::plan_legacy::sub_plan::SubPlan)` — 2번째 인자에 `&` 가 없다. 12 명세가 같은 형태의 `Chat` 값전달을 `sig.params[6]` 에 이미 명시해 둔 것과 대비된다",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[11]/history[11]/now",
+   "kind": "실오류",
+   "old": "기록 함수 `mf_note_swap`(handler.rs:409)·`mf_note_obj_clear`(:197)",
+   "new": "기록 함수 `mf_note_swap`(handler.rs:409)·`mf_note_obj_clear`(**team_plan.rs:196**; ~~handler.rs:197~~ 은 오기 — 소유 타입도 `LegacyPlanHandler` 가 아니라 **`TeamPlan`** 이다. 같은 이유로 `mf_obj_clear` 도 `TeamPlan` 필드(team_plan.rs:52)이고 `LegacyPlanHandler` 필드인 것은 `mf_ret25_src`(handler.rs:159, +0x1658)뿐이다 — 11차 배치C)",
+   "evidence": "tcx `_tcx/game_ai.json`: `game_ai::plan_legacy::team_plan::TeamPlan::mf_note_obj_clear` = AssocFn @ `game-ai\\src\\plan_legacy\\team_plan.rs:196` / `TeamPlan::mf_obj_clear` = Field @ team_plan.rs:52 / `LegacyPlanHandler::mf_ret25_src` = Field @ handler.rs:159. `LegacyPlanHandler` 의 AssocFn 전량은 41개(= 이 명세 siblings 41개와 동수)이고 그 안에 `mf_note_obj_clear` 는 **없다**. 오프셋 +0x1658 은 `tcxdict LegacyPlanHandler 0x1658` → `mf_ret25_src[0]: usize` 로 재확인",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[12]/knobs[3]/effect",
+   "kind": "실오류",
+   "old": "2단이 `push_line_code_allowed`(Chat+0x2, knobs[7])",
+   "new": "2단이 `push_line_code_allowed`(Chat+0x2, knobs[8])",
+   "evidence": "현행 v3 `12 knobs[7]` = 「chat_allowed default=true」(rule_scope.rs:129 switch default)이고 `push_line_code_allowed`(rule_scope.rs:113)는 **knobs[8]** 이다. 이 행 자신이 10차에 `new_knobs[0]` 으로 삽입되면서 뒤 인덱스를 한 칸씩 밀었는데, 삽입된 행 본문에 적힌 인덱스 참조는 같이 갱신되지 않았다",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[12]/knobs[3]/effect",
+   "kind": "실오류",
+   "old": "그 표기는 외연만 같다(knobs[7] 참조)",
+   "new": "그 표기는 외연만 같다(knobs[8] 참조)",
+   "evidence": "같은 행의 두 번째 `knobs[7]` 참조. 대상은 `push_line_code_allowed` = 현행 knobs[8]",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "op": "insert",
+   "path": "/specs[13]/mem",
+   "at": 0,
+   "guard": "line: LineType(0=Top,1=Mid,2=Bottom)",
+   "guard_key": "name",
+   "kind": "보강",
+   "new": {
+    "base": "LineGankCoverPlan",
+    "offset": "0x20",
+    "name": "line: LineType(0=Top,1=Mid,2=Bottom)",
+    "dir": "-",
+    "note": "★`match line` 의 switch 키이자 이 함수의 1차 분기축인데 **표에 통째로 빠져 있었다**(11차 배치C). fastcc 인자승격이라 본문(m10.ll 11483~11731)에는 gep 가 없고 `%0:i8` 로 들어온다 — 참조용 행이므로 `dir` 은 `\"-\"` 가 맞다. 로드는 **호출부**에 있다: `_gaibc/m10.ll:11787` `%23 = getelementptr inbounds nuw i8, ptr %1, i64 32` → `11788` `%24 = load i8, ptr %23` → `11791` 에서 그대로 1번 인자로 전달. 32 = 0x20. ★같은 소스의 문자단위 복제본인 `14 LineGankerPlan::update`(그 명세 notes[0])는 같은 필드를 `mem[3] LineGankerPlan 0x28 line` 으로 싣고 있다 — 두 명세가 같은 코드를 다른 규격으로 적고 있었다. 이 명세의 `closed[2]` 는 4차에 「간접증거→직접증거, 호출부 m10.ll:11778~11791 에 gep 그대로」로 닫혔는데 그 결론이 표에 전파되지 않았다(G17 형)"
+   },
+   "evidence": "`_gaibc/m10.ll:11787~11791` 원문. `sig.params[0]` 이 이미 「IR에는 self.line(LineType, 0x20) 만 %0:i8 로 인자승격」이라 적고 `logic` L35 도 `line = self.line // %0:i8` 을 쓰는데 오프셋 정본인 `mem` 에만 없었다",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "op": "insert",
+   "path": "/specs[13]/mem",
+   "at": 1,
+   "guard": "info.team: usize",
+   "guard_key": "name",
+   "kind": "보강",
+   "new": {
+    "base": "PlayerState",
+    "offset": "0x930",
+    "name": "info.team: usize",
+    "dir": "-",
+    "note": "★인자승격(`%1:i64`)이라 본문에 gep 가 없다 — 참조용 행이므로 `dir` 은 `\"-\"`. 로드는 호출부 `_gaibc/m10.ll:11762` `%8 = getelementptr inbounds nuw i8, ptr %4, i64 2352` → `11763` `%9 = load i64, ptr %8` 이고, 같은 자리에서 `11764` `%10 = icmp ult i64 %9, 2` / `11768` `panic_bounds_check(%9, 2)` 로 **경계검사까지 호출부가 한다**(logic L36 의 「team>=2 면 panic_bounds_check」는 이 함수가 아니라 호출부 책임이라는 뜻). 2352 = 0x930. 이 함수 안에서는 `*_tower[team]` · `player_champion[team][pos]` 두 인덱스로 쓰인다. 복제본 명세 `14` 는 같은 필드를 `mem[4]`(dir=r — 그쪽은 본문에 gep 가 있다)로 싣는다"
+   },
+   "evidence": "`_gaibc/m10.ll:11762~11768` 원문 + `sig.params[1]` 의 「%1:i64 = player.info.team(PlayerState+0x930)」 서술",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "op": "insert",
+   "path": "/specs[13]/mem",
+   "at": 2,
+   "guard": "info.position: Position(i32, range 0..5)",
+   "guard_key": "name",
+   "kind": "보강",
+   "new": {
+    "base": "PlayerState",
+    "offset": "0x9c0",
+    "name": "info.position: Position(i32, range 0..5)",
+    "dir": "-",
+    "note": "★인자승격(`%2:i32`)이라 본문에 gep 가 없다 — 참조용 행이므로 `dir` 은 `\"-\"`. 로드는 호출부 `_gaibc/m10.ll:11773` `%13 = getelementptr inbounds nuw i8, ptr %4, i64 2496` → `11774` `%14 = load i32, ptr %13, !range` → `11775` `zext nneg i32 %14 to i64` 후 `player_champion[team][pos]` 의 안쪽 인덱스로 쓰인다(`11779` `%19 = getelementptr inbounds nuw ptr, ptr %18, i64 %15`). 2496 = 0x9c0. `mem[6]`(player_champion)이 이 값을 인덱스로 쓴다고만 적고 출처 오프셋은 표에 없었다. 복제본 명세 `14` 는 `mem[5]` 로 싣는다"
+   },
+   "evidence": "`_gaibc/m10.ll:11773~11780` 원문 + `sig.params[1]` 의 「%2:i32 = player.info.position(PlayerState+0x9c0)」 서술",
+   "behavior_change": false,
+   "found_by": "new"
+  }
+ ],
+ "ev_up": [],
+ "brief_errors": [
+  "★★`callees[]` 가 v2 정본 `calls[]` 의 **완전 경로를 버리고 leaf 이름으로 재검색**한다 — `mkspec3.harvest_callees`(L272~L274)가 `c.split(\"::\")[-1]` 로 깎고, L429 가 `L.fnlookup(n)` 결과를 `rs[:3]` 로 잘라 싣는다. 그래서 `11` 에서 tcx 에 멀쩡히 있는 `BigPlan::goal`(types.rs:132)·`BigPlan::sub_plan`(types.rs:230)·`SubPlan::merge`(sub_plan/mod.rs:186) **세 개가 전부 빠지고** 동명이인(PassiveLinePlan/SinglePlanLine/SinglePlanBattle 의 goal·sub_plan, SmallAction* 의 merge)이 자리를 차지했다. 그 셋은 `11` 의 IR 이 실제로 부르는 함수다(m13.ll:12308·12461·12466). 동명 후보 수 = goal 16·merge 19·sub_plan 16 이라 3개 지정은 사실상 무작위다. 고치는 법 = `c` 에 `::` 가 있으면 **경로로 먼저 조회**하고 실패했을 때만 leaf 폴백.",
+  "★★`closed[].why` 가 **첫 매치 우선**이라 조용히 오귀속된다 — `_spec/closelist.py:closed_reason` 은 `(i, needle, why)` 를 선언 순서대로 훑어 첫 매치를 돌려주는데, `CLOSE` 는 라운드순으로 append 되므로 **항상 가장 이른 라운드(=근거가 가장 약한) 것이 이긴다**. 실측: `(12, \"chat_allowed(GameContext\")` 가 87행(2차 「45칸 전수 일치」)과 290행(3차 「297칸 전수 진리표」)에 중복인데 2차 것이 뜨고, 그 45칸은 `position_exists` 결과라 `chat_allowed` 물음의 답이 아니다. needle 이 짧아 한 항목이 여러 물음을 삼키기도 한다: `(11, \"passive_plan\")` 하나가 `11 closed[4]/[5]/[6]` **세 물음에 같은 why**(「뒤 8B 는 별도 반환값」)를 달았고 [5](rnd/player/debug 사용처)·[6](sub_plan·merge 내부)의 진짜 답은 각각 history[5]·history[4]/[6] 이다. 또 `(14, \"_lead\")` 가 `14 closed[7]`(「_version 미사용 일반화 금지」)을 집어 엉뚱한 why(「*_lead 산출식 확정」)를 달았다. 20함수 전량: closed 151행 중 **26행이 같은 spec 안에서 why 를 공유**하고 중복 `(i,needle)` 쌍이 **6개**다. 고치는 법 = ①중복 키 제거(또는 뒤엣것이 이기게) ②needle 을 길게(또는 `(i,needle)` 을 유일키로 강제) ③복수 매치 시 **가장 긴 needle** 을 고르게.",
+  "★삽입은 **인덱스 경로만이 아니라 「행 본문에 적힐 인덱스 참조」도 깨뜨린다.** 10차가 `12 new_knobs[0]`(play_code_allowed)을 삽입해 뒤를 한 칸씩 밀었는데, 그 삽입된 행 본문이 `push_line_code_allowed` 를 `knobs[7]` 로 두 번 가리키고 있었고 지금 그것은 `knobs[8]` 이다(이번 patch 로 정정). 도시에 §5 의 경고는 `ev_up` 경로만 말한다 — **산문 안의 `knobs[N]`/`mem[N]` 참조도 같이 재계산하라**는 문장을 넣거나, `specgate` 에 「같은 명세 안의 `xxx[N]` 참조가 실제 그 행을 가리키나」 게이트를 붙이는 게 맞다(기계 검사 가능).",
+  "★`op:insert` 의 `at` 은 v3 인덱스지만 `applypatch.resolve` 가 그걸 **v2 두 배열 경계**로 되돌린다. `13` 은 `writes` 가 0행이라 `at=15`(v3 mem 끝)로 쓰면 조용히 `writes[0]` 에 꽂힌다. §5 규칙에 「`at` 이 v2 첫 배열(`reads`/`knobs`/...) 길이 이상이면 두 번째 배열로 간다」를 한 줄 더 적어 달라 — 그래서 이번 삽입 3건을 전부 앞쪽(at=0/1/2)에 넣었다.",
+  "`14 notes[0]` 말미의 「같은 오류 문면이 `MIG\\SPEC_GUIDE.md` §1 fnparts 항목에도 있다」는 **이미 stale** 이다 — 현행 `SPEC_GUIDE.md` L87~L94 에는 반대로 「★★소유 타입이 다르다고 조각을 버리지 마라 — 먼저 복제본인지 확인하라」와 cover↔ganker 53줄 일치 근거가 실려 있다. `notes` 는 patch 로 못 고치니(§5) 메인이 문면을 정정해 달라.",
+  "`14 closed[7]` 말미의 「미탐색 = `target_bush_v41` 의 Mid 분기 IR 재확인 · `*_lead` 를 누가 갱신하는지」도 stale 이다 — 전자는 같은 파일 `knobs[5]` 가 「s=true 가지 해소(84/84)」로, 후자는 `history[5]` 가 「갱신 주체 = `AbstractGameWithCache::new_with_prev_cache`(simulation.rs:1780)」로 이미 닫았다. G7(과열림)은 `open[]` 만 보고 `closed[]` 안에 적힌 잔여 미탐색 목록은 안 본다.",
+  "도시에 §1 이 `10` 의 `vis` 를 `in:game_ai` 로 적고 「오라클 직접 진입이 막힌다」고 경고하는데, 그 함수는 이미 5차부터 `LineGankCoverPlan::sub_plan` · `PlayerState::strategy` 등 pub 래퍼로 전수 진리표가 나와 있다(consts 전행 「오라클 실행 확증」). 경고는 맞지만 **이미 해결된 함수에도 그대로 붙어** 새 배치가 「닫혔 있다」고 오해할 여지가 있다 — `ev≥4` 처럼 **이미 내려간 것은 빼고 표시**하면 좋겠다."
+ ]
+}

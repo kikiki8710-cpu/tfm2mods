@@ -1,0 +1,24 @@
+setting_ok	width=960000	height=960000	tps=60	champ_radius=10000
+A	Option<TowerType>	size=1	bytes=[255]
+A	Option<JungleType>	size=1	bytes=[255]
+A	Option<LineType>	size=1	bytes=[255]
+A	Option<SinglePlanBattle>	size=144	inner=144	head_i64=-1
+A	TowerType[0]	bytes=[0]
+A	TowerType[1]	bytes=[1]
+A	TowerType[2]	bytes=[2]
+A	JungleType Rhino	bytes=[0]
+A	JungleType Mushroom	bytes=[1]
+A	JungleType Bee	bytes=[3]
+A	JungleType Stump	bytes=[2]
+INTEG	towers=16	twin0=2	twin1=2	(기대 16/2/2)
+B	team=0 enemy=1 tower.team=Player(1) head=0
+B	team=0 enemy=1 tower.team=Player(1) head=0
+B	my_team=0	iter_towers_without_nexus(1)	n=8	좌표유일=8	적팀표기일치=8/8
+B	team=1 enemy=0 tower.team=Player(0) head=0
+B	team=1 enemy=0 tower.team=Player(0) head=0
+B	my_team=1	iter_towers_without_nexus(0)	n=8	좌표유일=8	적팀표기일치=8/8
+C	tps=60	camp=Rhino	is_cleared=false	is_side_cleared=false
+C	tps=60	camp=Mushroom	is_cleared=false	is_side_cleared=false
+C	tps=60	camp=Bee	is_cleared=false	is_side_cleared=false
+C	tps=60	camp=Stump	is_cleared=false	is_side_cleared=false
+C	tps=60	best_jungle_goal=Bee

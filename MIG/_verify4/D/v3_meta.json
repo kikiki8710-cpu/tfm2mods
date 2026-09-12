@@ -1,0 +1,40 @@
+{
+ "game": "0.5.8",
+ "date": "2026-09-11",
+ "schema": "v3",
+ "what": "game_ai 판단함수 20개 명세 — 1·2차 반증검증 반영본(v3 재구성).",
+ "precedence": "★정본 우선순위: mem(오프셋) · consts(상수) · callees/sig.tcx(시그니처) > logic(의사코드). 어긋나면 앞의 것이 맞다.",
+ "ev_tiers": {
+  "1": "런타임 실측(game==mine DIFF=0)",
+  "2": "SDK 오라클 실행",
+  "3": "tcx/MIR/DWARF 정본",
+  "4": "LLVM IR 독해",
+  "5": "추론(근거 약함)"
+ },
+ "ev_rule": "ev<=3 이 뒤집히면 사고다. ev>=4 가 뒤집히는 것은 정상 수렴이다.",
+ "autofill": "callees[].sig · callers · siblings 는 tcx/IR 코퍼스에서 자동 생성(spec3lib.py). 사람이 채우지 않는다.",
+ "corrections": [
+  "2026-09-11 tcxdict 감사: ~~PlayerState+0x2496~~ 은 10진 2496 을 16진으로 오기한 것. PlayerState 는 2528B(0x9E0) 라 0x2496 은 범위 밖. 2496(10진) = 0x9c0 = info.position ⟹ \"== 1\" 의 참뜻은 포지션 == 1(정글러). 판정 의미는 불변, 코드 반영 이력 없음(문서만).",
+  "2026-09-11 rust-src 설치: 포맷 템플릿 문법을 역산 → **소스 원문**으로 교체. 우리 역산 표에 오류 2건(비트25 alternate 오기 / 0x80 오분류) + 누락 3건이 있었다. ★교훈: rustc 내부 인코딩은 \"관측 불가\"가 아니라 **소스 컴포넌트를 설치하면 읽을 수 있다**.",
+  "2026-09-11 IR 정밀독해 배치: epic.rs 655~678 의 \"재료 부재로 종결\" 판정을 정정. MIR 경로만 막힌 것이었고 「줄 길이 산술 + tcx + IR 분기 유무」로 5줄 중 4줄이 확정됐다. ★교훈: \"남은 건 exe 디스어셈뿐\" 이라고 쓰기 전에 **가진 재료의 조합**을 다 시도했는지 보라.",
+  "2026-09-11 **정정이 resolved[] 로그에만 있고 본 표는 옛 값이었다**(stalecheck.py 로 10건 적발). §7 정정형 기록은 '옛 줄을 그 자리에서 고치라'는 뜻인데 changelog append 로 끝냈던 것. tcxaudit 은 base+offset 만 보므로 이 오염을 못 잡는다 — apply13.py 로 본 표에 반영 완료.",
+  "2026-09-11 배치C 정정을 본 표에 반영(apply2.py): 13·14 `is_top_side` 극성 반전 — IR 술어 `ry < x` 는 **!is_top_side** 다(오라클 실행 확정). 14 에 `target_bush_v41`(실제 은신 목표)·`*_lead` 3필드 전표 추가 — v30!=v41 구간에서 TargetMissing 취소가 원리적으로 발화하지 않는다.",
+  "2026-09-11 **2차 반증검증** 배치 A·B(00~09) 정정을 본 표에 반영(patch2a.py). 실오류 = 09 version 죽은 인자(1차 결론 반증) / 06 from_iter_in·filter_map(|c| *c) / 07 knobs 4856=오프셋. 신규 확정 = 03 judgement_mental_ratio 갱신주체·공식·래칫(48/48) · 04 has_line_defense_threat 본문+노브2 · 09 오라클 400/400 · 02 3분기 실행확증 · 05 end_reason 카디널리티 독립출처. 1차 지적 되돌림 = 08 iter_champions 1904 가 맞다(선언줄 vs 클로저줄).",
+  "2026-09-11 **2차 반증검증** 배치 C·D(10~19) 정정을 본 표에 반영(patch2b.py). 실오류 = 12 p7 `&Chat` → `Chat`(값 전달, rustc 실컴파일 거부) / 18 5번 인자 bool → WavePriorityObject / 16 level>2·>4 → MIR 정본 >=3·>=5. 신규 확정 = 15 Effect::is_in_range 완전식(900/900)·sub_goal 52사이트+노브4 / 14 has_near_line_enemy(3/3)·*_lead 갱신자·부시 선택기 셋·is_cancel / 12 14,950행 전수+노브2 / 11 오라클 전수(정정 0) / 10 120틱 노브+RNG 무영향 / 16 AI 과대추정. ★1차의 「오라클 구성 불가」가 2세션 연속 거짓이었다.",
+  "2026-09-11 v3 정리 중 자체 감사에서 적발: 04 reads 의 `Blackboard 0x0/0x28/0x50` 한 행 묶음이 tcxaudit 오귀속으로 잡혔다 — **오프셋을 묶어 적으면 기계 검사가 무력화된다**. 라인별 3행으로 분리.",
+  "2026-09-11 v3 정리 중 자체 실측으로 **배치 D 의 「타워 팀당 10개(6+4, twin 2쌍 좌표 중복)」가 오라클 설정 버그(init_tower 재호출) 오염**임을 확인. 진짜 = 팀당 8개(6+2), 좌표 중복 0. 배치 A 가 그 함정을 경고했으나 **경고를 쓴 배치 자신의 템플릿이 그 형태**였다. 오라클 레시피 함정 8개를 `shared.오라클_레시피_함정` 으로 정본화.",
+  "2026-09-11 **3차 반증검증** 4갈래 정정 반영(patch3.py). ★3차의 잔존 오염원은 사실상 하나였다 — **`logic` 산문이 표/history 의 정정을 못 받는다**(배치 D 실오류 5건 중 3건 · A E1/E2 · C E8 · B E2). 재발은 specgate G5/G6 가 막는다. 판정 반전 1건 = 14 의 TargetMissing 은 **발화한다**(자연상태 v30==v41 12/12). ★내 도구 결함 2건 = siblings 망글링 파싱이 20개 전부 실패 + specgate G3 가 plan==null 을 통과. ★내 브리핑 오류 3건 = 05 end_reason 범위 오판 · 07 「두 OR 항」 오기 · 16 「재료 부재」 오판. ★오라클 오염 원인 확정 = GameSetting::default() 의 44개 필드가 0(정본 템플릿 _verify3\\TEMPLATE.rs 신설).",
+  "2026-09-11 3차 후속: 14 writes 의 `0x18/0x20` 묶음 행을 2행으로 분리(dir=\"-\")하고, mem.chk 를 `tcxaudit` 실제 판정으로 교체했다 — 초판은 `TD.norm_base`(실제로는 tcxaudit 소속)를 불러 AttributeError 가 try 에 걸려 **449행 전부 '조회실패'** 였다(값이 무의미했다)."
+ ],
+ "counts": {
+  "functions": 20,
+  "open": 63,
+  "closed": 104,
+  "knobs": 221,
+  "callees": 275,
+  "callees_unresolved": 33,
+  "caller_sites": 56,
+  "mem": 450,
+  "consts": 186
+ }
+}

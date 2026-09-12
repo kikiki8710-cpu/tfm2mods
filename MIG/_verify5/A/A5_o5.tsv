@@ -1,0 +1,32 @@
+setting_ok	true	width=960000	height=960000	tps=60	champ_radius=10000	visible=130000
+SPAWN_EPIC	0:0=true 1:1=false 2:2=false 3:3=false 4:4=false 5:5=false 6:6=false 7:7=true 8:8=true 	(명세: tutorial-1 <u 6 이면 false ⟹ 0/7/8 만 true)
+MORGARD_EXISTS	true	(ctx.tutorial=None)
+FOUNTAIN0	(0, 896000, 64000, 960000)
+CASE	in_heal_low	champ=(1000,897000)	hp=500/999	twin1_len=2
+SUBPLAN	tag=5 b8=76 b9=124 b10=221	Discriminant(3)
+SUBPLAN_DBG	Recall(RecallSubPlan)
+-----
+setting_ok	true	width=960000	height=960000	tps=60	champ_radius=10000	visible=130000
+SPAWN_EPIC	0:0=true 1:1=false 2:2=false 3:3=false 4:4=false 5:5=false 6:6=false 7:7=true 8:8=true 	(명세: tutorial-1 <u 6 이면 false ⟹ 0/7/8 만 true)
+MORGARD_EXISTS	true	(ctx.tutorial=None)
+FOUNTAIN0	(0, 896000, 64000, 960000)
+CASE	in_heal_full	champ=(1000,897000)	hp=999/999	twin1_len=2
+SUBPLAN	tag=2 b8=0 b9=1 b10=2	Discriminant(0)
+SUBPLAN_DBG	LineDefense(LineDefenseSubPlan { line: Mid, minion_action_type: Push, style: Aggressive })
+-----
+setting_ok	true	width=960000	height=960000	tps=60	champ_radius=10000	visible=130000
+SPAWN_EPIC	0:0=true 1:1=false 2:2=false 3:3=false 4:4=false 5:5=false 6:6=false 7:7=true 8:8=true 	(명세: tutorial-1 <u 6 이면 false ⟹ 0/7/8 만 true)
+MORGARD_EXISTS	true	(ctx.tutorial=None)
+FOUNTAIN0	(0, 896000, 64000, 960000)
+CASE	outside	champ=(500000,500000)	hp=500/999	twin1_len=2
+SUBPLAN	tag=2 b8=0 b9=1 b10=2	Discriminant(0)
+SUBPLAN_DBG	LineDefense(LineDefenseSubPlan { line: Mid, minion_action_type: Push, style: Aggressive })
+-----
+setting_ok	true	width=960000	height=960000	tps=60	champ_radius=10000	visible=130000
+SPAWN_EPIC	0:0=true 1:1=false 2:2=false 3:3=false 4:4=false 5:5=false 6:6=false 7:7=true 8:8=true 	(명세: tutorial-1 <u 6 이면 false ⟹ 0/7/8 만 true)
+MORGARD_EXISTS	true	(ctx.tutorial=None)
+FOUNTAIN0	(0, 896000, 64000, 960000)
+CASE	no_twin	champ=(500000,500000)	hp=500/999	twin1_len=0
+SUBPLAN	tag=16 b8=76 b9=124 b10=221	Discriminant(14)
+SUBPLAN_DBG	AttackNexus(AttackNexusSubPlan)
+-----

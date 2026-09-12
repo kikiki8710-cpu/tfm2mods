@@ -1,0 +1,53 @@
+setting_ok	true	width=960000	height=960000	tps=60	champ_radius=10000	visible=130000
+towers	16
+ADJ_LEN	27
+ADJ	0	[5, 9, 19, 24]
+ADJ	1	[4, 5, 13, 19]
+ADJ	2	[6, 8, 14, 15, 16, 23]
+ADJ	3	[6, 7, 10, 11, 12, 15]
+ADJ	4	[1, 6, 7, 13, 14, 19]
+ADJ	5	[0, 1, 13, 22]
+ADJ	6	[2, 3, 4, 7]
+ADJ	7	[3, 4, 6, 10, 13, 17, 18, 22]
+ADJ	8	[2, 9, 14, 16]
+ADJ	9	[0, 8, 24]
+ADJ	10	[3, 7, 11, 18, 20]
+ADJ	11	[3, 10, 12, 20]
+ADJ	12	[3, 11, 21, 26]
+ADJ	13	[1, 4, 5, 7, 22]
+ADJ	14	[2, 4, 8, 24]
+ADJ	15	[2, 3, 21, 23]
+ADJ	16	[2, 8, 23]
+ADJ	17	[7, 18, 22]
+ADJ	18	[7, 10, 17, 20]
+ADJ	19	[0, 1, 4, 24]
+ADJ	20	[10, 11, 18, 26]
+ADJ	21	[12, 15, 25, 26]
+ADJ	22	[5, 7, 13, 17]
+ADJ	23	[2, 15, 16, 25]
+ADJ	24	[0, 9, 14, 19]
+ADJ	25	[21, 23, 26]
+ADJ	26	[12, 20, 21, 25]
+SEQ	team0	Top	[0, 5, 22, 17, 18, 20, 26]
+SEQ	team0	Mid	[0, 19, 4, 6, 3, 12, 26]
+SEQ	team0	Bottom	[0, 9, 8, 16, 23, 25, 26]
+SEQ	team1	Top	[26, 20, 18, 17, 22, 5, 0]
+SEQ	team1	Mid	[26, 12, 3, 6, 4, 19, 0]
+SEQ	team1	Bottom	[26, 25, 23, 16, 8, 9, 0]
+MEAS	[8, 3, 0, -6, 6, 7, 0, 0, 6, 7, -3, -3, -7, 3, 2, -2, 0, 0, -6, 7, -7, -3, 6, -6, 3, -7, -8]
+LEAD	top=[2, 2]	mid=[2, 2]	bottom=[2, 2]
+FIT	blue=(3,3,3)	red=(3,3,3)
+FIT	blue=(3,3,4)	red=(3,3,4)
+FIT	blue=(3,4,3)	red=(3,4,3)
+FIT	blue=(3,4,4)	red=(3,4,4)
+FIT	blue=(4,3,3)	red=(4,3,3)
+FIT	blue=(4,3,4)	red=(4,3,4)
+FIT	blue=(4,4,3)	red=(4,4,3)
+FIT	blue=(4,4,4)	red=(4,4,4)
+FITS	8
+LEADCHK	team0	Top	mine=2	game=2	match=true
+LEADCHK	team0	Mid	mine=2	game=2	match=true
+LEADCHK	team0	Bottom	mine=2	game=2	match=true
+LEADCHK	team1	Top	mine=2	game=2	match=true
+LEADCHK	team1	Mid	mine=2	game=2	match=true
+LEADCHK	team1	Bottom	mine=2	game=2	match=true

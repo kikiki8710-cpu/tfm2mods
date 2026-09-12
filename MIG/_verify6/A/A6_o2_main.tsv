@@ -1,0 +1,97 @@
+### same_pos 5 200000 0 2 0
+CASE	same_pos	level=5	eff_range=200000	casting=Targeting	version=2	radius_mult=0	setting_ok=true
+CHAMP	id=18	lvl=5	x=15000	y=913000	radius=10000	can_ult=true	ult_eff_some=true
+TARGET	id=23	x=15000	y=913000	radius=10000	visible_from_champ=true
+ULT_RESULT	Ult(Target { target_id: 23 })
+EFFECT	range_fn=200000	range_adjust=0	is_in_range=true	check=true	on_caster=false	linear_move_speed=None
+PREDICT	caster_r_ON	margin=149999	total=220000	sz==0 → 예측식 자체가 div-by-zero
+PREDICT	caster_r_ON	margin=150000	total=220000	sz==0 → 예측식 자체가 div-by-zero
+PREDICT	caster_r_ON	margin=150001	total=220000	sz==0 → 예측식 자체가 div-by-zero
+PREDICT	caster_r_OFF	margin=149999	total=210000	sz==0 → 예측식 자체가 div-by-zero
+PREDICT	caster_r_OFF	margin=150000	total=210000	sz==0 → 예측식 자체가 div-by-zero
+PREDICT	caster_r_OFF	margin=150001	total=210000	sz==0 → 예측식 자체가 div-by-zero
+PREDICT_L340	safe_move(target.x,target.y)=Move(15000,913000)	MATCH_ULT=no
+### visible 4 200000 0 2 0
+CASE	visible	level=4	eff_range=200000	casting=Targeting	version=2	radius_mult=0	setting_ok=true
+CHAMP	id=18	lvl=4	x=15000	y=913000	radius=10000	can_ult=false	ult_eff_some=false
+TARGET	id=23	x=913000	y=15000	radius=10000	visible_from_champ=true
+ULT_RESULT	None
+### visible 5 200000 0 2 0
+CASE	visible	level=5	eff_range=200000	casting=Targeting	version=2	radius_mult=0	setting_ok=true
+CHAMP	id=18	lvl=5	x=15000	y=913000	radius=10000	can_ult=true	ult_eff_some=true
+TARGET	id=23	x=913000	y=15000	radius=10000	visible_from_champ=true
+ULT_RESULT	Move(863503,64497)
+EFFECT	range_fn=200000	range_adjust=0	is_in_range=false	check=true	on_caster=false	linear_move_speed=None
+PREDICT	caster_r_ON	margin=149999	total=220000	pos=(863502,64498)	safe_move=Move(863502,64498)	MATCH_ULT=no
+PREDICT	caster_r_ON	margin=150000	total=220000	pos=(863503,64497)	safe_move=Move(863503,64497)	MATCH_ULT=YES
+PREDICT	caster_r_ON	margin=150001	total=220000	pos=(863504,64496)	safe_move=Move(863504,64496)	MATCH_ULT=no
+PREDICT	caster_r_OFF	margin=149999	total=210000	pos=(870573,57427)	safe_move=Move(741225,140490)	MATCH_ULT=no
+PREDICT	caster_r_OFF	margin=150000	total=210000	pos=(870574,57426)	safe_move=Move(741223,140490)	MATCH_ULT=no
+PREDICT	caster_r_OFF	margin=150001	total=210000	pos=(870575,57425)	safe_move=Move(741224,140489)	MATCH_ULT=no
+PREDICT_L340	safe_move(target.x,target.y)=Move(712306,79051)	MATCH_ULT=no
+### visible 5 200000 1 2 0
+CASE	visible	level=5	eff_range=200000	casting=Position	version=2	radius_mult=0	setting_ok=true
+CHAMP	id=18	lvl=5	x=15000	y=913000	radius=10000	can_ult=true	ult_eff_some=true
+TARGET	id=23	x=913000	y=15000	radius=10000	visible_from_champ=true
+ULT_RESULT	Move(741223,140490)
+EFFECT	range_fn=200000	range_adjust=0	is_in_range=false	check=true	on_caster=false	linear_move_speed=None
+PREDICT	caster_r_ON	margin=149999	total=220000	pos=(863502,64498)	safe_move=Move(863502,64498)	MATCH_ULT=no
+PREDICT	caster_r_ON	margin=150000	total=220000	pos=(863503,64497)	safe_move=Move(863503,64497)	MATCH_ULT=no
+PREDICT	caster_r_ON	margin=150001	total=220000	pos=(863504,64496)	safe_move=Move(863504,64496)	MATCH_ULT=no
+PREDICT	caster_r_OFF	margin=149999	total=210000	pos=(870573,57427)	safe_move=Move(741225,140490)	MATCH_ULT=no
+PREDICT	caster_r_OFF	margin=150000	total=210000	pos=(870574,57426)	safe_move=Move(741223,140490)	MATCH_ULT=YES
+PREDICT	caster_r_OFF	margin=150001	total=210000	pos=(870575,57425)	safe_move=Move(741224,140489)	MATCH_ULT=no
+PREDICT_L340	safe_move(target.x,target.y)=Move(712306,79051)	MATCH_ULT=no
+### visible 5 200000 2 2 0
+CASE	visible	level=5	eff_range=200000	casting=Direction	version=2	radius_mult=0	setting_ok=true
+CHAMP	id=18	lvl=5	x=15000	y=913000	radius=10000	can_ult=true	ult_eff_some=true
+TARGET	id=23	x=913000	y=15000	radius=10000	visible_from_champ=true
+ULT_RESULT	Move(741223,140490)
+EFFECT	range_fn=200000	range_adjust=0	is_in_range=false	check=true	on_caster=false	linear_move_speed=None
+PREDICT	caster_r_ON	margin=149999	total=220000	pos=(863502,64498)	safe_move=Move(863502,64498)	MATCH_ULT=no
+PREDICT	caster_r_ON	margin=150000	total=220000	pos=(863503,64497)	safe_move=Move(863503,64497)	MATCH_ULT=no
+PREDICT	caster_r_ON	margin=150001	total=220000	pos=(863504,64496)	safe_move=Move(863504,64496)	MATCH_ULT=no
+PREDICT	caster_r_OFF	margin=149999	total=210000	pos=(870573,57427)	safe_move=Move(741225,140490)	MATCH_ULT=no
+PREDICT	caster_r_OFF	margin=150000	total=210000	pos=(870574,57426)	safe_move=Move(741223,140490)	MATCH_ULT=YES
+PREDICT	caster_r_OFF	margin=150001	total=210000	pos=(870575,57425)	safe_move=Move(741224,140489)	MATCH_ULT=no
+PREDICT_L340	safe_move(target.x,target.y)=Move(712306,79051)	MATCH_ULT=no
+### visible 5 200000 3 2 0
+CASE	visible	level=5	eff_range=200000	casting=None	version=2	radius_mult=0	setting_ok=true
+CHAMP	id=18	lvl=5	x=15000	y=913000	radius=10000	can_ult=true	ult_eff_some=true
+TARGET	id=23	x=913000	y=15000	radius=10000	visible_from_champ=true
+ULT_RESULT	Move(741223,140490)
+EFFECT	range_fn=200000	range_adjust=0	is_in_range=false	check=true	on_caster=false	linear_move_speed=None
+PREDICT	caster_r_ON	margin=149999	total=220000	pos=(863502,64498)	safe_move=Move(863502,64498)	MATCH_ULT=no
+PREDICT	caster_r_ON	margin=150000	total=220000	pos=(863503,64497)	safe_move=Move(863503,64497)	MATCH_ULT=no
+PREDICT	caster_r_ON	margin=150001	total=220000	pos=(863504,64496)	safe_move=Move(863504,64496)	MATCH_ULT=no
+PREDICT	caster_r_OFF	margin=149999	total=210000	pos=(870573,57427)	safe_move=Move(741225,140490)	MATCH_ULT=no
+PREDICT	caster_r_OFF	margin=150000	total=210000	pos=(870574,57426)	safe_move=Move(741223,140490)	MATCH_ULT=YES
+PREDICT	caster_r_OFF	margin=150001	total=210000	pos=(870575,57425)	safe_move=Move(741224,140489)	MATCH_ULT=no
+PREDICT_L340	safe_move(target.x,target.y)=Move(712306,79051)	MATCH_ULT=no
+### invisible 5 200000 0 2 0
+CASE	invisible	level=5	eff_range=200000	casting=Targeting	version=2	radius_mult=0	setting_ok=true
+CHAMP	id=18	lvl=5	x=15000	y=913000	radius=10000	can_ult=true	ult_eff_some=true
+TARGET	id=23	x=913000	y=15000	radius=10000	visible_from_champ=false
+ULT_RESULT	Move(712306,79051)
+EFFECT	range_fn=200000	range_adjust=0	is_in_range=false	check=true	on_caster=false	linear_move_speed=None
+PREDICT	caster_r_ON	margin=149999	total=220000	pos=(863502,64498)	safe_move=Move(863502,64498)	MATCH_ULT=no
+PREDICT	caster_r_ON	margin=150000	total=220000	pos=(863503,64497)	safe_move=Move(863503,64497)	MATCH_ULT=no
+PREDICT	caster_r_ON	margin=150001	total=220000	pos=(863504,64496)	safe_move=Move(863504,64496)	MATCH_ULT=no
+PREDICT	caster_r_OFF	margin=149999	total=210000	pos=(870573,57427)	safe_move=Move(741225,140490)	MATCH_ULT=no
+PREDICT	caster_r_OFF	margin=150000	total=210000	pos=(870574,57426)	safe_move=Move(741223,140490)	MATCH_ULT=no
+PREDICT	caster_r_OFF	margin=150001	total=210000	pos=(870575,57425)	safe_move=Move(741224,140489)	MATCH_ULT=no
+PREDICT_L340	safe_move(target.x,target.y)=Move(712306,79051)	MATCH_ULT=YES
+### invisible 5 200000 0 1 0
+CASE	invisible	level=5	eff_range=200000	casting=Targeting	version=1	radius_mult=0	setting_ok=true
+CHAMP	id=18	lvl=5	x=15000	y=913000	radius=10000	can_ult=true	ult_eff_some=true
+TARGET	id=23	x=913000	y=15000	radius=10000	visible_from_champ=false
+ULT_RESULT	None
+EFFECT	range_fn=200000	range_adjust=0	is_in_range=false	check=true	on_caster=false	linear_move_speed=None
+PREDICT	caster_r_ON	margin=149999	total=220000	pos=(863502,64498)	safe_move=Move(863502,64498)	MATCH_ULT=no
+PREDICT	caster_r_ON	margin=150000	total=220000	pos=(863503,64497)	safe_move=Move(863503,64497)	MATCH_ULT=no
+PREDICT	caster_r_ON	margin=150001	total=220000	pos=(863504,64496)	safe_move=Move(863504,64496)	MATCH_ULT=no
+PREDICT	caster_r_OFF	margin=149999	total=210000	pos=(870573,57427)	safe_move=None	MATCH_ULT=YES
+PREDICT	caster_r_OFF	margin=150000	total=210000	pos=(870574,57426)	safe_move=None	MATCH_ULT=YES
+PREDICT	caster_r_OFF	margin=150001	total=210000	pos=(870575,57425)	safe_move=None	MATCH_ULT=YES
+PREDICT_L340	safe_move(target.x,target.y)=None	MATCH_ULT=YES
+### same_pos-invisible(수동조합 불가: case 하나만) 

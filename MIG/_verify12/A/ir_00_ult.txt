@@ -1,0 +1,411 @@
+  store i64 %298, ptr %314, align 8, !dbg !56305
+  %315 = getelementptr inbounds nuw i8, ptr %0, i64 16, !dbg !56305
+  store i64 %299, ptr %315, align 8, !dbg !56305
+  br label %272, !dbg !56281
+}
+
+; Function Attrs: uwtable
+define void @_RNvNtCshdEBA0ozCnw_7game_ai14abstract_input3ult(ptr dead_on_unwind noalias noundef writable writeonly sret([32 x i8]) align 8 captures(none) dereferenceable(32) %0, i64 noundef %1, ptr noalias noundef align 16 dereferenceable(320) %2, ptr noalias noundef readonly align 8 captures(address, read_provenance) dereferenceable(2528) %3, ptr noalias noundef readonly align 8 captures(address, read_provenance) dereferenceable(24) %4, ptr noalias noundef readonly align 8 captures(address, read_provenance) dereferenceable(2760) %5, ptr noalias noundef readonly align 8 captures(address, read_provenance) dereferenceable(1728) %6) unnamed_addr #1 !dbg !56306 {
+  %8 = alloca [24 x i8], align 8
+    #dbg_value(i64 %1, !56310, !DIExpression(), !56351)
+    #dbg_value(ptr %2, !56311, !DIExpression(), !56351)
+    #dbg_value(ptr %3, !56312, !DIExpression(), !56351)
+    #dbg_value(ptr %4, !56313, !DIExpression(), !56351)
+    #dbg_value(ptr %5, !56314, !DIExpression(), !56351)
+    #dbg_value(ptr %6, !56315, !DIExpression(), !56351)
+    #dbg_value(ptr %6, !56352, !DIExpression(), !56358)
+    #dbg_declare(ptr %8, !56328, !DIExpression(), !56360)
+    #dbg_declare(ptr poison, !56334, !DIExpression(), !56361)
+    #dbg_declare(ptr poison, !56318, !DIExpression(), !56362)
+    #dbg_declare(ptr poison, !56324, !DIExpression(), !56363)
+    #dbg_value(i64 150000, !56364, !DIExpression(), !56368)
+  %9 = getelementptr inbounds nuw i8, ptr %3, i64 2352, !dbg !56370
+  %10 = load i64, ptr %9, align 8, !dbg !56370, !noundef !8
+  %11 = icmp ult i64 %10, 2, !dbg !56370
+  br i1 %11, label %13, label %12, !dbg !56370
+
+12:                                               ; preds = %7
+  tail call void @_RNvNtCsjihNppCmMEE_4core9panicking18panic_bounds_check(i64 noundef %10, i64 noundef 2, ptr noalias noundef readonly align 8 captures(address, read_provenance) dereferenceable(24) @anon.168add0ea037d45d276f5936ae758fe5.183) #30, !dbg !56370
+  unreachable, !dbg !56370
+
+13:                                               ; preds = %7
+    #dbg_value(ptr %3, !56371, !DIExpression(DW_OP_plus_uconst, 2496, DW_OP_stack_value), !56374)
+  %14 = getelementptr inbounds nuw i8, ptr %3, i64 2496, !dbg !56375
+  %15 = load i32, ptr %14, align 8, !dbg !56375, !range !28546, !noundef !8
+  %16 = zext nneg i32 %15 to i64, !dbg !56375
+  %17 = load ptr, ptr %4, align 8, !dbg !56370, !nonnull !8, !align !14311, !noundef !8
+  %18 = getelementptr inbounds nuw i8, ptr %17, i64 480, !dbg !56370
+  %19 = getelementptr inbounds nuw [5 x ptr], ptr %18, i64 %10, !dbg !56370
+  %20 = getelementptr inbounds nuw ptr, ptr %19, i64 %16, !dbg !56370
+  %21 = load ptr, ptr %20, align 8, !dbg !56370, !align !14311, !noundef !8
+    #dbg_value(ptr %21, !56376, !DIExpression(), !56381)
+  %22 = icmp eq ptr %21, null, !dbg !56382
+  br i1 %22, label %25, label %23, !dbg !56382
+
+23:                                               ; preds = %13
+    #dbg_value(ptr %21, !56316, !DIExpression(), !56383)
+    #dbg_value(ptr %21, !56384, !DIExpression(), !56387)
+    #dbg_value(ptr %21, !56355, !DIExpression(), !56358)
+  %24 = tail call noundef zeroext i1 @_RNvMs9_NtNtCs97f5S1uJLkH_9game_core10simulation6entityNtB5_6Entity7can_ult(ptr noalias noundef nonnull readonly align 8 captures(address, read_provenance) dereferenceable(1728) %21), !dbg !56389
+  br i1 %24, label %28, label %27, !dbg !56389
+
+25:                                               ; preds = %13
+  store i64 -1, ptr %0, align 8, !dbg !56390
+  br label %26, !dbg !56394
+
+26:                                               ; preds = %127, %41, %40, %27, %25
+  ret void, !dbg !56396
+
+27:                                               ; preds = %23
+  store i64 -1, ptr %0, align 8, !dbg !56397
+  br label %26, !dbg !56398
+
+28:                                               ; preds = %23
+  %29 = getelementptr inbounds nuw i8, ptr %21, i64 1480, !dbg !56400
+  %30 = load i64, ptr %29, align 8, !dbg !56400, !noundef !8
+  %31 = icmp ugt i64 %30, 4, !dbg !56400
+  %32 = getelementptr inbounds nuw i8, ptr %21, i64 1336, !dbg !56400
+  %33 = select i1 %31, ptr %32, ptr @anon.168add0ea037d45d276f5936ae758fe5.16, !dbg !56400
+    #dbg_value(ptr %33, !56401, !DIExpression(), !56406)
+  %34 = getelementptr inbounds nuw i8, ptr %33, i64 48, !dbg !56407
+  %35 = load i32, ptr %34, align 8, !dbg !56407, !range !14571, !noundef !8
+  %36 = icmp eq i32 %35, -1, !dbg !56407
+  br i1 %36, label %40, label %37, !dbg !56407
+
+37:                                               ; preds = %28
+    #dbg_value(ptr %33, !56322, !DIExpression(), !56408)
+  %38 = getelementptr inbounds nuw i8, ptr %33, i64 40, !dbg !56409
+  %39 = tail call noundef zeroext i1 @_RNvMs_NtNtNtCs97f5S1uJLkH_9game_core10simulation6effect4typeNtB4_13CastingTarget5check(ptr noalias noundef nonnull readonly align 4 captures(address, read_provenance) dereferenceable(4) %38, ptr noalias noundef nonnull readonly align 8 captures(address, read_provenance) dereferenceable(1728) %21, ptr noalias noundef nonnull readonly align 8 captures(address, read_provenance) dereferenceable(1728) %6), !dbg !56409
+  br i1 %39, label %42, label %41, !dbg !56409
+
+40:                                               ; preds = %28
+  store i64 -1, ptr %0, align 8, !dbg !56410
+  br label %26, !dbg !56398
+
+41:                                               ; preds = %37
+  store i64 -1, ptr %0, align 8, !dbg !56413
+  br label %26, !dbg !56414
+
+42:                                               ; preds = %37
+  call void @llvm.lifetime.start.p0(ptr nonnull %8), !dbg !56416
+  %43 = load i32, ptr %34, align 8, !dbg !56416, !range !46419, !noundef !8
+  switch i32 %43, label %95 [
+    i32 1, label %44
+    i32 2, label %57
+  ], !dbg !56416
+
+44:                                               ; preds = %42
+    #dbg_value(ptr %33, !56417, !DIExpression(), !56420)
+    #dbg_value(ptr %33, !56422, !DIExpression(), !56425)
+  %45 = load ptr, ptr %33, align 8, !dbg !56428, !nonnull !8, !noundef !8
+  %46 = getelementptr inbounds nuw i8, ptr %33, i64 8, !dbg !56428
+  %47 = load ptr, ptr %46, align 8, !dbg !56428, !nonnull !8, !align !14311, !noundef !8
+  %48 = getelementptr inbounds nuw i8, ptr %47, i64 16, !dbg !56432
+  %49 = load i64, ptr %48, align 8, !dbg !56432, !range !12998, !invariant.load !8
+  %50 = add nsw i64 %49, -1, !dbg !56432
+  %51 = and i64 %50, -16, !dbg !56432
+  %52 = getelementptr inbounds nuw i8, ptr %45, i64 %51, !dbg !56432
+  %53 = getelementptr inbounds nuw i8, ptr %52, i64 16, !dbg !56432
+  %54 = getelementptr inbounds nuw i8, ptr %47, i64 280, !dbg !56421
+  %55 = load ptr, ptr %54, align 8, !dbg !56421, !invariant.load !8, !nonnull !8
+  %56 = tail call noundef zeroext i1 %55(ptr noundef nonnull %53), !dbg !56421
+  br i1 %56, label %72, label %95, !dbg !56421
+
+57:                                               ; preds = %42
+    #dbg_value(ptr %33, !56417, !DIExpression(), !56433)
+    #dbg_value(ptr %33, !56422, !DIExpression(), !56435)
+  %58 = load ptr, ptr %33, align 8, !dbg !56437, !nonnull !8, !noundef !8
+  %59 = getelementptr inbounds nuw i8, ptr %33, i64 8, !dbg !56437
+  %60 = load ptr, ptr %59, align 8, !dbg !56437, !nonnull !8, !align !14311, !noundef !8
+  %61 = getelementptr inbounds nuw i8, ptr %60, i64 16, !dbg !56436
+  %62 = load i64, ptr %61, align 8, !dbg !56436, !range !12998, !invariant.load !8
+  %63 = add nsw i64 %62, -1, !dbg !56436
+  %64 = and i64 %63, -16, !dbg !56436
+  %65 = getelementptr inbounds nuw i8, ptr %58, i64 %64, !dbg !56436
+  %66 = getelementptr inbounds nuw i8, ptr %65, i64 16, !dbg !56436
+  %67 = getelementptr inbounds nuw i8, ptr %60, i64 248, !dbg !56434
+  %68 = load ptr, ptr %67, align 8, !dbg !56434, !invariant.load !8, !nonnull !8
+  %69 = tail call { i64, i64 } %68(ptr noundef nonnull %66), !dbg !56434
+  %70 = extractvalue { i64, i64 } %69, 0, !dbg !56434
+  %71 = icmp eq i64 %70, 1, !dbg !56434
+  br i1 %71, label %99, label %95, !dbg !56434
+
+72:                                               ; preds = %44
+  %73 = tail call fastcc noundef i64 @_RNvNtCshdEBA0ozCnw_7game_ai14abstract_input29linear_cast_range_with_margin(ptr noalias noundef readonly align 8 captures(address, read_provenance) dereferenceable(56) %33, ptr noalias noundef readonly align 8 captures(address, read_provenance) dereferenceable(1728) %21, ptr noalias noundef readonly align 8 captures(address, read_provenance) dereferenceable(1728) %6), !dbg !56439
+    #dbg_value(i64 %73, !56330, !DIExpression(), !56440)
+  %74 = getelementptr inbounds nuw i8, ptr %21, i64 1632, !dbg !56441
+  %75 = load i64, ptr %74, align 8, !dbg !56441, !noundef !8
+    #dbg_value(i64 %75, !56442, !DIExpression(), !56456)
+    #dbg_value(i64 %75, !56457, !DIExpression(), !56461)
+  %76 = getelementptr inbounds nuw i8, ptr %21, i64 1640, !dbg !56441
+  %77 = load i64, ptr %76, align 8, !dbg !56441, !noundef !8
+    #dbg_value(i64 %77, !56445, !DIExpression(), !56456)
+    #dbg_value(i64 %77, !56457, !DIExpression(), !56463)
+  %78 = getelementptr inbounds nuw i8, ptr %6, i64 1632, !dbg !56441
+  %79 = load i64, ptr %78, align 8, !dbg !56441, !noundef !8
+    #dbg_value(i64 %79, !56446, !DIExpression(), !56456)
+    #dbg_value(i64 %79, !56460, !DIExpression(), !56461)
+  %80 = getelementptr inbounds nuw i8, ptr %6, i64 1640, !dbg !56441
+  %81 = load i64, ptr %80, align 8, !dbg !56441, !noundef !8
+    #dbg_value(i64 %81, !56447, !DIExpression(), !56456)
+    #dbg_value(i64 %81, !56460, !DIExpression(), !56463)
+  %82 = icmp ult i64 %75, %79, !dbg !56465
+  %83 = sub nuw i64 %79, %75, !dbg !56465
+  %84 = sub nuw i64 %75, %79, !dbg !56465
+  %85 = select i1 %82, i64 %83, i64 %84, !dbg !56465
+    #dbg_value(i64 %85, !56448, !DIExpression(), !56466)
+  %86 = icmp ult i64 %77, %81, !dbg !56467
+  %87 = sub nuw i64 %81, %77, !dbg !56467
+  %88 = sub nuw i64 %77, %81, !dbg !56467
+  %89 = select i1 %86, i64 %87, i64 %88, !dbg !56467
+    #dbg_value(i64 %89, !56450, !DIExpression(), !56468)
+  %90 = mul i64 %85, %85, !dbg !56469
+  %91 = mul i64 %89, %89, !dbg !56469
+  %92 = add i64 %91, %90, !dbg !56469
+  %93 = mul i64 %73, %73, !dbg !56441
+  %94 = icmp ugt i64 %92, %93, !dbg !56441
+  br i1 %94, label %122, label %95, !dbg !56441
+
+95:                                               ; preds = %99, %72, %57, %44, %42
+  %96 = tail call noundef i64 @_RNvMs9_NtNtCs97f5S1uJLkH_9game_core10simulation6entityNtB5_6Entity15cooldown_reduce(ptr noalias noundef nonnull readonly align 8 captures(address, read_provenance) dereferenceable(1728) %21, i1 noundef zeroext true), !dbg !56408
+  call fastcc void @_RNvNtCshdEBA0ozCnw_7game_ai14abstract_input16get_input_target(ptr noalias noundef align 8 captures(none) dereferenceable(24) %8, i64 noundef %1, ptr noalias noundef align 16 dereferenceable(320) %2, ptr noalias noundef readonly align 8 captures(address, read_provenance) dereferenceable(2528) %3, ptr noalias noundef readonly align 8 captures(address, read_provenance) dereferenceable(24) %4, ptr noalias noundef readonly align 8 captures(address, read_provenance) dereferenceable(2760) %5, ptr noalias noundef readonly align 8 captures(address, read_provenance) dereferenceable(1728) %6, ptr noalias noundef readonly align 8 captures(address, read_provenance) dereferenceable(56) %33, i64 noundef %96), !dbg !56408
+  %97 = load i32, ptr %8, align 8, !dbg !56361, !range !14571, !noundef !8
+  %98 = icmp eq i32 %97, -1, !dbg !56361
+  br i1 %98, label %122, label %125, !dbg !56361
+
+99:                                               ; preds = %57
+  %100 = tail call fastcc noundef i64 @_RNvNtCshdEBA0ozCnw_7game_ai14abstract_input29linear_cast_range_with_margin(ptr noalias noundef readonly align 8 captures(address, read_provenance) dereferenceable(56) %33, ptr noalias noundef readonly align 8 captures(address, read_provenance) dereferenceable(1728) %21, ptr noalias noundef readonly align 8 captures(address, read_provenance) dereferenceable(1728) %6), !dbg !56470
+    #dbg_value(i64 %100, !56332, !DIExpression(), !56471)
+  %101 = getelementptr inbounds nuw i8, ptr %21, i64 1632, !dbg !56472
+  %102 = load i64, ptr %101, align 8, !dbg !56472, !noundef !8
+    #dbg_value(i64 %102, !56442, !DIExpression(), !56473)
+    #dbg_value(i64 %102, !56457, !DIExpression(), !56474)
+  %103 = getelementptr inbounds nuw i8, ptr %21, i64 1640, !dbg !56472
+  %104 = load i64, ptr %103, align 8, !dbg !56472, !noundef !8
+    #dbg_value(i64 %104, !56445, !DIExpression(), !56473)
+    #dbg_value(i64 %104, !56457, !DIExpression(), !56477)
+  %105 = getelementptr inbounds nuw i8, ptr %6, i64 1632, !dbg !56472
+  %106 = load i64, ptr %105, align 8, !dbg !56472, !noundef !8
+    #dbg_value(i64 %106, !56446, !DIExpression(), !56473)
+    #dbg_value(i64 %106, !56460, !DIExpression(), !56474)
+  %107 = getelementptr inbounds nuw i8, ptr %6, i64 1640, !dbg !56472
+  %108 = load i64, ptr %107, align 8, !dbg !56472, !noundef !8
+    #dbg_value(i64 %108, !56447, !DIExpression(), !56473)
+    #dbg_value(i64 %108, !56460, !DIExpression(), !56477)
+  %109 = icmp ult i64 %102, %106, !dbg !56480
+  %110 = sub nuw i64 %106, %102, !dbg !56480
+  %111 = sub nuw i64 %102, %106, !dbg !56480
+  %112 = select i1 %109, i64 %110, i64 %111, !dbg !56480
+    #dbg_value(i64 %112, !56452, !DIExpression(), !56481)
+  %113 = icmp ult i64 %104, %108, !dbg !56482
+  %114 = sub nuw i64 %108, %104, !dbg !56482
+  %115 = sub nuw i64 %104, %108, !dbg !56482
+  %116 = select i1 %113, i64 %114, i64 %115, !dbg !56482
+    #dbg_value(i64 %116, !56454, !DIExpression(), !56483)
+  %117 = mul i64 %112, %112, !dbg !56484
+  %118 = mul i64 %116, %116, !dbg !56484
+  %119 = add i64 %118, %117, !dbg !56484
+  %120 = mul i64 %100, %100, !dbg !56472
+  %121 = icmp ugt i64 %119, %120, !dbg !56472
+  br i1 %121, label %122, label %95, !dbg !56472
+
+122:                                              ; preds = %99, %95, %72
+    #dbg_value(ptr %21, !56485, !DIExpression(), !56490)
+  %123 = load i64, ptr %21, align 8, !dbg !56492, !range !24370, !noundef !8
+  %124 = trunc nuw i64 %123 to i1, !dbg !56492
+  br i1 %124, label %143, label %128, !dbg !56492
+
+125:                                              ; preds = %95
+  %126 = getelementptr inbounds nuw i8, ptr %0, i64 8, !dbg !56493
+  call void @llvm.memcpy.p0.p0.i64(ptr noundef nonnull align 8 dereferenceable(24) %126, ptr noundef nonnull align 8 dereferenceable(24) %8, i64 24, i1 false), !dbg !56361
+  store i64 5, ptr %0, align 8, !dbg !56493
+  br label %127, !dbg !56494
+
+127:                                              ; preds = %219, %138, %125
+  call void @llvm.lifetime.end.p0(ptr nonnull %8), !dbg !56495
+  br label %26, !dbg !56396
+
+128:                                              ; preds = %122
+  %129 = getelementptr inbounds nuw i8, ptr %21, i64 8, !dbg !56492
+    #dbg_value(ptr %21, !56488, !DIExpression(DW_OP_plus_uconst, 8, DW_OP_stack_value), !56496)
+  %130 = load i64, ptr %129, align 8, !dbg !56496, !noundef !8
+    #dbg_value(i64 %130, !56356, !DIExpression(), !56497)
+  %131 = icmp ult i64 %130, 2, !dbg !56498
+  br i1 %131, label %132, label %137, !dbg !56498
+
+132:                                              ; preds = %128
+    #dbg_value(ptr poison, !56499, !DIExpression(), !56502)
+  %133 = getelementptr inbounds nuw i8, ptr %6, i64 56, !dbg !56503
+  %134 = getelementptr inbounds nuw { i64, [2 x i64] }, ptr %133, i64 %130, !dbg !56503
+  %135 = load i64, ptr %134, align 8, !dbg !56503, !range !29885, !noundef !8
+  %136 = icmp eq i64 %135, 0, !dbg !56503
+  br i1 %136, label %143, label %138, !dbg !56359
+
+137:                                              ; preds = %128
+  tail call void @_RNvNtCsjihNppCmMEE_4core9panicking18panic_bounds_check(i64 noundef %130, i64 noundef 2, ptr noalias noundef readonly align 8 captures(address, read_provenance) dereferenceable(24) @anon.168add0ea037d45d276f5936ae758fe5.39) #30, !dbg !56498
+  unreachable, !dbg !56498
+
+138:                                              ; preds = %132
+  %139 = getelementptr inbounds nuw i8, ptr %6, i64 1632, !dbg !56504
+  %140 = load i64, ptr %139, align 8, !dbg !56504, !noundef !8
+  %141 = getelementptr inbounds nuw i8, ptr %6, i64 1640, !dbg !56504
+  %142 = load i64, ptr %141, align 8, !dbg !56504, !noundef !8
+  tail call void @_RNvNtCshdEBA0ozCnw_7game_ai14abstract_input29safe_move_avoiding_enemy_well(ptr noalias noundef nonnull sret([32 x i8]) align 8 captures(none) dereferenceable(32) %0, i64 noundef %1, ptr noalias noundef nonnull readonly align 8 captures(address, read_provenance) dereferenceable(2528) %3, ptr noalias noundef nonnull readonly align 8 captures(address, read_provenance) dereferenceable(24) %4, ptr noalias noundef nonnull readonly align 8 captures(address, read_provenance) dereferenceable(1728) %21, i64 noundef %140, i64 noundef %142), !dbg !56504
+  br label %127, !dbg !56359
+
+143:                                              ; preds = %132, %122
+  %144 = getelementptr inbounds nuw i8, ptr %21, i64 1632, !dbg !56505
+  %145 = load i64, ptr %144, align 8, !dbg !56505, !noundef !8
+  %146 = getelementptr inbounds nuw i8, ptr %6, i64 1632, !dbg !56505
+  %147 = load i64, ptr %146, align 8, !dbg !56505, !noundef !8
+  %148 = sub i64 %145, %147, !dbg !56505
+    #dbg_value(i64 %148, !56336, !DIExpression(), !56506)
+  %149 = getelementptr inbounds nuw i8, ptr %21, i64 1640, !dbg !56507
+  %150 = load i64, ptr %149, align 8, !dbg !56507, !noundef !8
+  %151 = getelementptr inbounds nuw i8, ptr %6, i64 1640, !dbg !56507
+  %152 = load i64, ptr %151, align 8, !dbg !56507, !noundef !8
+  %153 = sub i64 %150, %152, !dbg !56507
+    #dbg_value(i64 %153, !56338, !DIExpression(), !56508)
+  %154 = mul i64 %148, %148, !dbg !56509
+  %155 = mul i64 %153, %153, !dbg !56509
+  %156 = add i64 %155, %154, !dbg !56509
+  %157 = tail call noundef i64 @_RNvNtCs97f5S1uJLkH_9game_core5utils5isqrt(i64 noundef %156), !dbg !56509
+    #dbg_value(i64 %157, !56340, !DIExpression(), !56510)
+  tail call void @llvm.experimental.noalias.scope.decl(metadata !56511), !dbg !56369
+  tail call void @llvm.experimental.noalias.scope.decl(metadata !56514), !dbg !56369
+  tail call void @llvm.experimental.noalias.scope.decl(metadata !56516), !dbg !56369
+    #dbg_value(ptr %33, !55824, !DIExpression(), !56518)
+    #dbg_value(ptr %33, !55833, !DIExpression(), !56520)
+    #dbg_value(ptr %21, !55827, !DIExpression(), !56518)
+    #dbg_value(ptr %21, !55839, !DIExpression(), !56522)
+    #dbg_value(ptr %21, !55836, !DIExpression(), !56520)
+    #dbg_value(ptr %6, !55828, !DIExpression(), !56518)
+    #dbg_value(ptr %6, !55839, !DIExpression(), !56524)
+    #dbg_value(ptr poison, !55849, !DIExpression(), !56525)
+    #dbg_value(ptr %33, !55855, !DIExpression(DW_OP_plus_uconst, 48, DW_OP_stack_value), !56526)
+  %158 = load i32, ptr %34, align 8, !dbg !56526, !range !46419, !alias.scope !56511, !noalias !56527, !noundef !8
+  %159 = icmp eq i32 %158, 0, !dbg !56528
+  br i1 %159, label %160, label %174, !dbg !56528
+
+160:                                              ; preds = %143
+  %161 = getelementptr inbounds nuw i8, ptr %21, i64 1136, !dbg !56529
+  %162 = load i32, ptr %161, align 8, !dbg !56529, !alias.scope !56514, !noalias !56530, !noundef !8
+    #dbg_value(i32 %162, !55842, !DIExpression(DW_OP_LLVM_convert, 32, DW_ATE_signed, DW_OP_LLVM_convert, 64, DW_ATE_signed, DW_OP_stack_value), !56531)
+  %163 = icmp eq i32 %162, 0, !dbg !56532
+  br i1 %163, label %164, label %167, !dbg !56532
+
+164:                                              ; preds = %160
+  %165 = getelementptr inbounds nuw i8, ptr %21, i64 1664, !dbg !56533
+  %166 = load i64, ptr %165, align 8, !dbg !56533, !alias.scope !56514, !noalias !56530, !noundef !8
+  br label %174, !dbg !56532
+
+167:                                              ; preds = %160
+  %168 = sext i32 %162 to i64, !dbg !56529
+    #dbg_value(i64 %168, !55842, !DIExpression(), !56531)
+  %169 = getelementptr inbounds nuw i8, ptr %21, i64 1664, !dbg !56534
+  %170 = load i64, ptr %169, align 8, !dbg !56534, !alias.scope !56514, !noalias !56530, !noundef !8
+  %171 = add nsw i64 %168, 100, !dbg !56534
+  %172 = mul i64 %170, %171, !dbg !56534
+  %173 = udiv i64 %172, 100, !dbg !56534
+  br label %174, !dbg !56532
+
+174:                                              ; preds = %167, %164, %143
+  %175 = phi i64 [ 0, %143 ], [ %166, %164 ], [ %173, %167 ], !dbg !56528
+    #dbg_value(i64 %175, !55829, !DIExpression(), !56535)
+  %176 = getelementptr inbounds nuw i8, ptr %33, i64 16, !dbg !56536
+  %177 = load i64, ptr %176, align 8, !dbg !56536, !alias.scope !56511, !noalias !56527, !noundef !8
+  %178 = getelementptr inbounds nuw i8, ptr %33, i64 24, !dbg !56536
+  %179 = load i64, ptr %178, align 8, !dbg !56536, !alias.scope !56511, !noalias !56527, !noundef !8
+  %180 = load i64, ptr %29, align 8, !dbg !56536, !alias.scope !56514, !noalias !56530, !noundef !8
+  %181 = getelementptr inbounds nuw i8, ptr %21, i64 1080, !dbg !56536
+  %182 = load i64, ptr %181, align 8, !dbg !56536, !alias.scope !56514, !noalias !56530, !noundef !8
+  %183 = tail call noundef i64 @_RNvMNtNtCs97f5S1uJLkH_9game_core10simulation6effectNtB2_6Effect12range_adjust(ptr noalias noundef nonnull readonly align 8 captures(address, read_provenance) dereferenceable(56) %33, ptr noalias noundef nonnull readonly align 8 captures(address, read_provenance) dereferenceable(1728) %21, ptr noalias noundef nonnull readonly align 8 captures(address, read_provenance) dereferenceable(1728) %6), !dbg !56537
+  %184 = getelementptr inbounds nuw i8, ptr %6, i64 1136, !dbg !56538
+  %185 = load i32, ptr %184, align 8, !dbg !56538, !alias.scope !56516, !noalias !56539, !noundef !8
+    #dbg_value(i32 %185, !55844, !DIExpression(DW_OP_LLVM_convert, 32, DW_ATE_signed, DW_OP_LLVM_convert, 64, DW_ATE_signed, DW_OP_stack_value), !56540)
+  %186 = icmp eq i32 %185, 0, !dbg !56541
+  br i1 %186, label %187, label %190, !dbg !56541
+
+187:                                              ; preds = %174
+  %188 = getelementptr inbounds nuw i8, ptr %6, i64 1664, !dbg !56542
+  %189 = load i64, ptr %188, align 8, !dbg !56542, !alias.scope !56516, !noalias !56539, !noundef !8
+  br label %197, !dbg !56541
+
+190:                                              ; preds = %174
+  %191 = sext i32 %185 to i64, !dbg !56538
+    #dbg_value(i64 %191, !55844, !DIExpression(), !56540)
+  %192 = getelementptr inbounds nuw i8, ptr %6, i64 1664, !dbg !56543
+  %193 = load i64, ptr %192, align 8, !dbg !56543, !alias.scope !56516, !noalias !56539, !noundef !8
+  %194 = add nsw i64 %191, 100, !dbg !56543
+  %195 = mul i64 %193, %194, !dbg !56543
+  %196 = udiv i64 %195, 100, !dbg !56543
+  br label %197, !dbg !56541
+
+197:                                              ; preds = %190, %187
+  %198 = phi i64 [ %189, %187 ], [ %196, %190 ], !dbg !56540
+  %199 = add i64 %180, -1, !dbg !56536
+  %200 = mul i64 %199, %179, !dbg !56536
+  %201 = add i64 %177, %175, !dbg !56536
+  %202 = add i64 %201, %182, !dbg !56536
+  %203 = add i64 %202, %200, !dbg !56537
+  %204 = add i64 %203, %183, !dbg !56537
+  %205 = add i64 %204, %198, !dbg !56537
+    #dbg_value(i64 %205, !56367, !DIExpression(), !56368)
+  %206 = tail call i64 @llvm.usub.sat.i64(i64 %205, i64 150000), !dbg !56544
+    #dbg_value(i64 %206, !56342, !DIExpression(), !56545)
+  %207 = mul i64 %206, %148, !dbg !56546
+  %208 = icmp eq i64 %157, 0, !dbg !56546
+  br i1 %208, label %213, label %209, !dbg !56546
+
+209:                                              ; preds = %197
+  %210 = icmp eq i64 %157, -1, !dbg !56546
+  %211 = icmp eq i64 %207, -9223372036854775808, !dbg !56546
+  %212 = and i1 %210, %211, !dbg !56546
+  br i1 %212, label %218, label %214, !dbg !56546
+
+213:                                              ; preds = %197
+  tail call void @_RNvNtNtCsjihNppCmMEE_4core9panicking11panic_const23panic_const_div_by_zero(ptr noalias noundef readonly align 8 captures(address, read_provenance) dereferenceable(24) @anon.168add0ea037d45d276f5936ae758fe5.184) #30, !dbg !56546
+  unreachable, !dbg !56546
+
+214:                                              ; preds = %209
+    #dbg_value(!DIArgList(i64 %147, i64 %207, i64 %157), !56344, !DIExpression(DW_OP_LLVM_arg, 0, DW_OP_LLVM_arg, 1, DW_OP_LLVM_arg, 2, DW_OP_div, DW_OP_plus, DW_OP_stack_value), !56547)
+  %215 = mul i64 %206, %153, !dbg !56548
+  %216 = icmp eq i64 %215, -9223372036854775808, !dbg !56548
+  %217 = and i1 %210, %216, !dbg !56548
+  br i1 %217, label %233, label %219, !dbg !56548
+
+218:                                              ; preds = %209
+  tail call void @_RNvNtNtCsjihNppCmMEE_4core9panicking11panic_const24panic_const_div_overflow(ptr noalias noundef readonly align 8 captures(address, read_provenance) dereferenceable(24) @anon.168add0ea037d45d276f5936ae758fe5.184) #30, !dbg !56546
+  unreachable, !dbg !56546
+
+219:                                              ; preds = %214
+  %220 = sdiv i64 %207, %157, !dbg !56546
+    #dbg_value(!DIArgList(i64 %147, i64 %220), !56344, !DIExpression(DW_OP_LLVM_arg, 0, DW_OP_LLVM_arg, 1, DW_OP_plus, DW_OP_stack_value), !56547)
+  %221 = add i64 %220, %147, !dbg !56546
+    #dbg_value(i64 %221, !56344, !DIExpression(), !56547)
+  %222 = sdiv i64 %215, %157, !dbg !56548
+  %223 = add i64 %222, %152, !dbg !56548
+    #dbg_value(i64 %223, !56346, !DIExpression(), !56549)
+  %224 = getelementptr inbounds nuw i8, ptr %4, i64 8, !dbg !56550
+  %225 = load ptr, ptr %224, align 8, !dbg !56550, !nonnull !8, !align !14311, !noundef !8
+  %226 = getelementptr inbounds nuw i8, ptr %225, i64 32, !dbg !56550
+  %227 = load ptr, ptr %226, align 8, !dbg !56550, !nonnull !8, !align !14311, !noundef !8
+  %228 = getelementptr inbounds nuw i8, ptr %225, i64 8, !dbg !56550
+  %229 = load ptr, ptr %228, align 8, !dbg !56550, !nonnull !8, !align !14311, !noundef !8
+  %230 = tail call { i64, i64 } @_RNvMs0_NtNtCs97f5S1uJLkH_9game_core10simulation4gameNtB5_4Game15adjust_position(ptr noalias noundef nonnull readonly align 8 captures(address, read_provenance) dereferenceable(28112) %227, ptr noalias noundef nonnull readonly align 8 captures(address, read_provenance) dereferenceable(5432) %229, i64 noundef %221, i64 noundef %223), !dbg !56550
+  %231 = extractvalue { i64, i64 } %230, 0, !dbg !56550
+  %232 = extractvalue { i64, i64 } %230, 1, !dbg !56550
+    #dbg_value(i64 %231, !56348, !DIExpression(), !56551)
+    #dbg_value(i64 %232, !56350, !DIExpression(), !56551)
+  tail call void @_RNvNtCshdEBA0ozCnw_7game_ai14abstract_input29safe_move_avoiding_enemy_well(ptr noalias noundef nonnull sret([32 x i8]) align 8 captures(none) dereferenceable(32) %0, i64 noundef %1, ptr noalias noundef nonnull readonly align 8 captures(address, read_provenance) dereferenceable(2528) %3, ptr noalias noundef nonnull readonly align 8 captures(address, read_provenance) dereferenceable(24) %4, ptr noalias noundef nonnull readonly align 8 captures(address, read_provenance) dereferenceable(1728) %21, i64 noundef %231, i64 noundef %232), !dbg !56552
+  br label %127, !dbg !56359
+
+233:                                              ; preds = %214
+  tail call void @_RNvNtNtCsjihNppCmMEE_4core9panicking11panic_const24panic_const_div_overflow(ptr noalias noundef readonly align 8 captures(address, read_provenance) dereferenceable(24) @anon.168add0ea037d45d276f5936ae758fe5.185) #30, !dbg !56548
+  unreachable, !dbg !56548
+}
+
+; Function Attrs: uwtable
+define void @_RNvNtCshdEBA0ozCnw_7game_ai14abstract_input5skill(ptr dead_on_unwind noalias noundef writable writeonly sret([32 x i8]) align 8 captures(none) dereferenceable(32) %0, i64 noundef %1, ptr noalias noundef align 16 dereferenceable(320) %2, ptr noalias noundef readonly align 8 captures(address, read_provenance) dereferenceable(2528) %3, ptr noalias noundef readonly align 8 captures(address, read_provenance) dereferenceable(24) %4, ptr noalias noundef readonly align 8 captures(address, read_provenance) dereferenceable(2760) %5, ptr noalias noundef readonly align 8 captures(address, read_provenance) dereferenceable(1728) %6) unnamed_addr #1 !dbg !56553 {
+  %8 = alloca [24 x i8], align 8
+    #dbg_value(i64 %1, !56555, !DIExpression(), !56594)

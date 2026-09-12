@@ -1,0 +1,17 @@
+{
+ "round": "12",
+ "batch": "D",
+ "errors_applied": 2,
+ "ev_applied": 10,
+ "failed": 0,
+ "stamps": {
+  "/specs[18]/sig/params[2]/role": "74234e98afe7498f",
+  "/specs[18]/mem[3]/name": "66e9364c888e0003",
+  "/specs[18]/mem[4]/name": "6b2aed9e3a73006a",
+  "/specs[18]/mem[16]/note": "b8b1172e1e8a7588",
+  "/specs[18]/knobs[13]/where": "b94bd5a29a503aa7",
+  "/specs[19]/knobs[6]/where": "97e62e6708b8fde5",
+  "/specs[19]/one_line": "318db89986307f53"
+ },
+ "restamped": true
+}

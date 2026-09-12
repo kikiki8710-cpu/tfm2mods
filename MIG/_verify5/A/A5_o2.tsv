@@ -1,0 +1,37 @@
+== A5-O2 nested/stride/variant offsets ==
+0,1,2,3,4	PlayerState	info.team	claim=0x930	got=0x930	MATCH
+0,1,2	PlayerState	info.position	claim=0x9c0	got=0x9c0	MATCH
+size	GamePlayer	2504
+offset	PlayerState.info	0x0
+stride	player_champion[team]	40	(명세 40)
+stride	player_champion[t][p]	8	(명세 8)
+stride	twin_towers[team]	32	(명세 32)
+stride	visible_state[i]	24	(명세 24)
+stride	fountains[team]	32	(명세 32)
+stride	epic_minion_buff_time	16	(명세 16=2*8)
+size	LineType	1	(명세 1B)
+size	CastingType	4	(명세 4B)
+size	CastingTarget	4	(명세 4B)
+size	Position	4	(명세 4B)
+size	Option<Effect>	56	(명세 56B = 니치)
+size	EntityType	480
+niche	Option<Effect>=None non-zero i32 words: [(0, -928805168), (4, 32758), (8, -929728528), (12, 32758), (16, 1079828184), (20, 7), (24, -928874288), (28, 32758), (32, 1079676888), (36, 7), (40, -928874288), (44, 32758), (48, -1), (52, 7)]	(명세: +0x30 == -1)
+TeamType::Player(1)	tag@+0x0=0	payload@+0x8=1	size=16
+TeamType::Neutral	tag@+0x0=1	(명세 0=Player,1=Neutral)
+VisibleState::Visible	tag=0	(명세 Visible=0)
+VisibleState::Unknown	tag=2	(명세 Visible=0)
+VisibleState::Invisible	tag=1
+CastingType::Targeting	0	(명세 0/1/2/3)
+CastingType::Position	1	(명세 0/1/2/3)
+CastingType::Direction	2	(명세 0/1/2/3)
+CastingType::None	3	(명세 0/1/2/3)
+setting_ok	true	width=960000	height=960000	tps=60	champ_radius=10000	visible=130000
+towers	16	twin0=2	twin1=2
+EntityType tag(i64)@Entity+0x68 = 13	(명세 Champion=13)
+3	Entity	ty.Champion.attack_cooldown	claim=0xb0	got=0xb0	MATCH
+3	Entity	ty.Champion.skill_cooldown	claim=0xb8	got=0xb8	MATCH
+3	Entity	ty.Champion.skill2_cooldown	claim=0xc0	got=0xc0	MATCH
+3	Entity	ty.Champion.ult_cooldown	claim=0xc8	got=0xc8	MATCH
+3	Entity	skill_effect+0x30(casting)	claim=0x4f8	got=0x4f8	MATCH
+tower EntityType tag = 2	(명세 Tower=2)
+nexus EntityType tag = 3	(명세 Nexus=3)

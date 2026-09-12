@@ -1,0 +1,246 @@
+
+===== specs[0] ult  (abstract_input.rs  m04.ll:43967~44365) =====
+  본문이 실제로 참조하는 abstract_input.rs 줄 = [0, 191, 192, 281, 282, 283, 286, 288, 289, 293, 296, 297, 299, 310, 311, 313, 325, 326, 328, 329, 330, 331, 333, 334, 335, 336, 338, 340, 343]
+  consts[0] value=2            claim=L281   실제후보=[0, 281, 328]                OK
+  consts[1] value=4            claim=L286   실제후보=[0, 281, 286, 288, 336, 338, 340] OK
+  consts[2] value=-1           claim=L281   실제후보=[192, 281, 283, 286, 289, 296, 310, 325, 333, 334] OK
+  consts[3] value=1            claim=L293   실제후보=[0, 310, 336, 338, 340]      **불일치**
+  consts[4] value=2            claim=L293   실제후보=[0, 281, 328]                **불일치**
+  consts[5] value=0            claim=L191   실제후보=[191, 192, 281, 283, 286, 289, 310, 326, 328, 333, 334, 336, 338, 340] OK
+  consts[6] value=0            claim=L328   실제후보=[191, 192, 281, 283, 286, 289, 310, 326, 328, 333, 334, 336, 338, 340] OK
+  consts[7] value=100          claim=L333   실제후보=[191, 192, 311, 313, 333]    OK
+  consts[8] value=5            claim=L326   실제후보=[0, 281, 326]                OK
+  consts[9] value=150000       claim=L333   실제후보=[333]                        OK
+
+===== specs[1] calculate_jungle_action_score  (action_score.rs  m05.ll:39984~40103) =====
+  본문이 실제로 참조하는 action_score.rs 줄 = [0, 522, 523, 524, 526, 528, 530, 531, 536, 542, 548, 549]
+  consts[0] value=2            claim=L522   실제후보=[522, 523, 530, 542]         OK
+  consts[1] value=3            claim=L526   실제후보=(리터럴 미검출)                    (판정보류: 리터럴이 접혔거나 범위 밖)
+  consts[2] value=200          claim=L526   실제후보=[0]                          **불일치**
+  consts[3] value=2            claim=L528   실제후보=[522, 523, 530, 542]         **불일치**
+  consts[4] value=80           claim=L528   실제후보=[0]                          **불일치**
+  consts[5] value=4            claim=L530   실제후보=[542]                        **불일치**
+  consts[6] value=20           claim=L531   실제후보=[522, 523, 531]              OK
+  consts[7] value=40           claim=L531   실제후보=[530, 531]                   OK
+  consts[8] value=1            claim=L536   실제후보=[522]                        **불일치**
+  consts[9] value=-10          claim=L536   실제후보=[0]                          **불일치**
+  consts[10] value=0            claim=L536   실제후보=[0, 542, 548]                **불일치**
+  consts[11] value=5            claim=L542   실제후보=[522, 523, 542]              OK
+
+===== specs[2] sub_plan  (attack_nexus.rs  m12.ll:34867~34976) =====
+  본문이 실제로 참조하는 attack_nexus.rs 줄 = [0, 36, 37, 38, 41, 45, 47, 48, 52]
+  consts[0] value=2            claim=L36    실제후보=[36, 48]                     OK
+  consts[1] value=5            claim=L42    실제후보=[36, 37]                     **불일치**
+  consts[2] value=1            claim=L45    실제후보=[45, 48]                     OK
+  consts[3] value=0            claim=L45    실제후보=[0, 45, 48]                  OK
+  consts[4] value=16           claim=L50    실제후보=[36, 37]                     **불일치**
+  consts[5] value=2            claim=L48    실제후보=[36, 48]                     OK
+
+===== specs[3] defensive_crisis  (buff_value.rs  m10.ll:33864~34294) =====
+  본문이 실제로 참조하는 buff_value.rs 줄 = [17, 19, 21, 22, 28, 30, 32, 33, 34, 35, 41, 43, 44, 45, 47, 48, 53]
+  consts[0] value=1            claim=L22    실제후보=[22, 35, 41, 47, 48, 53]     OK
+  consts[1] value=13           claim=L43    실제후보=[19, 28, 41, 43]             OK
+  consts[2] value=2            claim=L44    실제후보=[22, 41, 44]                 OK
+  consts[3] value=4            claim=L45    실제후보=[22, 32, 41, 45]             OK
+  consts[4] value=-1           claim=L48    실제후보=[41, 47, 48]                 OK
+  consts[5] value=1            claim=L35    실제후보=[22, 35, 41, 47, 48, 53]     OK
+  consts[6] value=1            claim=L48    실제후보=[22, 35, 41, 47, 48, 53]     OK
+
+===== specs[4] handle_line_defense  (defense_nexus.rs  m04.ll:58175~58644) =====
+  본문이 실제로 참조하는 defense_nexus.rs 줄 = [0, 543, 544, 549, 553, 554, 555, 556, 557, 559, 565, 567, 571, 572, 573, 575, 576, 578, 585]
+  consts[0] value=-1           claim=L549   실제후보=[549, 578]                   OK
+  consts[1] value=6            claim=L549   실제후보=[0, 549]                     OK
+  consts[2] value=40000000001  claim=L572   실제후보=[572, 573]                   OK
+  consts[3] value=1            claim=L578   실제후보=[549, 555, 556, 567, 573, 575, 578] OK
+  consts[4] value=2            claim=L578   실제후보=[549, 553, 555, 567, 575, 576, 578] OK
+
+===== specs[5] v50_fold_dive_episode  (dive_episode.rs  m13.ll:28946~29380) =====
+  본문이 실제로 참조하는 dive_episode.rs 줄 = [0, 125, 131, 138, 139, 140, 145, 146, 147, 148, 149, 150, 151, 152, 153, 155, 156, 157, 167, 170]
+  consts[0] value=-1           claim=L131   실제후보=[131, 156]                   OK
+  consts[1] value=7            claim=L139   실제후보=[0, 131, 139]                OK
+  consts[2] value=1            claim=L146   실제후보=[0, 156, 157, 167]           **불일치**
+  consts[3] value=2            claim=L147   실제후보=[0, 139, 156, 157]           **불일치**
+  consts[4] value=3            claim=L148   실제후보=[0]                          **불일치**
+  consts[5] value=4            claim=L149   실제후보=[0, 145, 146, 155, 156, 157] **불일치**
+  consts[6] value=5            claim=L150   실제후보=[0, 131, 156]                **불일치**
+  consts[7] value=6            claim=L151   실제후보=[0, 131, 157]                **불일치**
+  consts[8] value=7            claim=L152   실제후보=[0, 131, 139]                **불일치**
+  consts[9] value=8            claim=L153   실제후보=[131, 138, 140, 145, 146, 148, 149, 150, 151, 152, 153, 155, 156, 157] OK
+  consts[10] value=9            claim=L153   실제후보=[153]                        OK
+  consts[11] value=11           claim=L146   실제후보=[131]                        **불일치**
+  consts[12] value=13           claim=L147   실제후보=[145]                        **불일치**
+  consts[13] value=12           claim=L151   실제후보=[131, 139]                   **불일치**
+
+===== specs[6] v2_response_retreat_stance  (engage.rs  m13.ll:45212~45626) =====
+  본문이 실제로 참조하는 engage.rs 줄 = [0, 14, 17, 20, 21, 24, 25, 26, 27, 28, 30, 31, 32, 33, 36, 38]
+  consts[0] value=2            claim=L14    실제후보=[14, 17, 24, 28, 31]         OK
+  consts[1] value=1            claim=L20    실제후보=[20, 24, 31, 38]             OK
+  consts[2] value=3            claim=L36    실제후보=[0, 17, 21, 30, 31]          **불일치**
+  consts[3] value=4            claim=L38    실제후보=[0, 31]                      **불일치**
+
+===== specs[7] sub_plan  (hunt_and_battle.rs  m02.ll:48918~49137) =====
+  본문이 실제로 참조하는 hunt_and_battle.rs 줄 = [0, 29, 31, 32, 33, 34, 35, 36, 41, 42, 43, 47, 48]
+  consts[0] value=100          claim=L31    실제후보=[31, 41]                     OK
+  consts[1] value=51           claim=L36    실제후보=[32, 36]                     OK
+  consts[2] value=5            claim=L36    실제후보=[29, 33]                     **불일치**
+  consts[3] value=9            claim=L43    실제후보=[35]                         **불일치**
+  consts[4] value=11           claim=L47    실제후보=[29, 33]                     **불일치**
+  consts[5] value=1            claim=L43    실제후보=[32, 42, 43]                 OK
+  consts[6] value=0            claim=L32    실제후보=[0, 31, 32, 35, 43, 47]      OK
+
+===== specs[8] is_end  (hunt_and_poke.rs  m10.ll:7655~7899) =====
+  본문이 실제로 참조하는 hunt_and_poke.rs 줄 = [0, 164, 169, 172, 173, 174, 179, 180, 181, 183, 184, 193, 194, 195]
+  consts[0] value=4            claim=L164   실제후보=[169, 174, 179, 180, 193]    **불일치**
+  consts[1] value=0            claim=L164   실제후보=[164, 169, 172, 193, 194]    OK
+  consts[2] value=1            claim=L172   실제후보=[164, 169, 172, 174, 180, 193, 194] OK
+  consts[3] value=32000        claim=L179   실제후보=[179]                        OK
+  consts[4] value=22500000000  claim=L184   실제후보=[184]                        OK
+  consts[5] value=15           claim=L194   실제후보=[169, 194]                   OK
+
+===== specs[9] check_favorable_engage_formation  (fight_check.rs  m15.ll:35410~35850) =====
+  본문이 실제로 참조하는 fight_check.rs 줄 = [0, 1203, 1204, 1208, 1209, 1214, 1215, 1216, 1219, 1220, 1221, 1223, 1233, 1234, 1235, 1240, 1245, 1247, 1252, 1253, 1254, 1256, 1258, 1264, 1267, 1270, 1278, 1279, 1280, 1283, 1286, 1288, 1289, 1290, 1293, 1296, 1298, 1300, 1302, 1304, 1307, 1316, 1321, 1331, 1335, 1340, 1348]
+  consts[0] value=2            claim=L1209  실제후보=[1203, 1208, 1209, 1280]     OK
+  consts[1] value=100000       claim=L1246  실제후보=(리터럴 미검출)                    (판정보류: 리터럴이 접혔거나 범위 밖)
+  consts[2] value=40           claim=L1240  실제후보=[1214, 1240]                 OK
+  consts[3] value=100          claim=L1240  실제후보=[0, 1240, 1283, 1286, 1321]  OK
+  consts[4] value=9            claim=L1283  실제후보=[0, 1203, 1286]              **불일치**
+  consts[5] value=4            claim=L1280  실제후보=[1233]                       **불일치**
+  consts[6] value=5            claim=L1340  실제후보=[1203, 1340]                 OK
+  consts[7] value=6            claim=L1340  실제후보=[1203, 1340]                 OK
+  consts[8] value=1            claim=L1223  실제후보=[1203, 1204, 1209, 1215, 1216, 1223, 1233, 1256, 1258, 1289, 1298, 1300, 1304, 1307, 1331] OK
+
+===== specs[10] should_end_object_finish_kill_priority_battle  (fight_model.rs  m10.ll:49611~50100) =====
+  본문이 실제로 참조하는 fight_model.rs 줄 = [0, 755, 756, 1179, 1180, 1181, 1182, 1183, 1216, 1220, 1224, 1225, 1229, 1230, 1231, 1232, 1233, 1235]
+  consts[0] value=65534        claim=L1216  실제후보=[1216]                       OK
+  consts[1] value=768          claim=L1216  실제후보=[1216]                       OK
+  consts[2] value=0            claim=L1220  실제후보=[0, 755, 756, 1179, 1181, 1183, 1220, 1224, 1230, 1232] OK
+  consts[3] value=1            claim=L1229  실제후보=[1180, 1182, 1220, 1224, 1229] OK
+  consts[4] value=25000        claim=L1233  실제후보=[1230, 1233]                 OK
+  consts[5] value=19600000000  claim=L1188  실제후보=(리터럴 미검출)                    (판정보류: 리터럴이 접혔거나 범위 밖)
+
+===== specs[11] v3_fall_back_to_passive  (handler.rs  m13.ll:12238~12479) =====
+  본문이 실제로 참조하는 handler.rs 줄 = [0, 410, 416, 417, 421, 424, 425, 427, 428, 429, 432, 433, 434, 435, 436, 437]
+  consts[0] value=2            claim=L417   실제후보=[417, 421, 427]              OK
+  consts[1] value=2            claim=L421   실제후보=[417, 421, 427]              OK
+  consts[2] value=1            claim=L424   실제후보=[417, 424, 425, 427, 429, 433] OK
+  consts[3] value=4            claim=L425   실제후보=[421, 425, 427, 429]         OK
+  consts[4] value=1            claim=L425   실제후보=[417, 424, 425, 427, 429, 433] OK
+  consts[5] value=0            claim=L425   실제후보=[410, 421, 424, 425, 427, 432, 433, 434, 435, 436] OK
+  consts[6] value=0            claim=L429   실제후보=[410, 421, 424, 425, 427, 432, 433, 434, 435, 436] **불일치**
+  consts[7] value=1            claim=L429   실제후보=[417, 424, 425, 427, 429, 433] OK
+  consts[8] value=2            claim=L429   실제후보=[417, 421, 427]              **불일치**
+  consts[9] value=3            claim=L429   실제후보=[427]                        **불일치**
+  consts[10] value=4            claim=L429   실제후보=[421, 425, 427, 429]         OK
+  consts[11] value=5            claim=L429   실제후보=[427]                        **불일치**
+  consts[12] value=6            claim=L429   실제후보=(리터럴 미검출)                    (판정보류: 리터럴이 접혔거나 범위 밖)
+  consts[13] value=7            claim=L429   실제후보=[429]                        OK
+  consts[14] value=8            claim=L429   실제후보=[410, 421, 425, 427, 429, 432, 433, 434, 435, 436, 437] OK
+  consts[15] value=-7           claim=L429   실제후보=[429]                        OK
+  consts[16] value=-6           claim=L429   실제후보=[429]                        OK
+  consts[17] value=-8           claim=L429   실제후보=[429]                        OK
+  consts[18] value=29           claim=L432   실제후보=[410, 424, 432]              OK
+
+===== specs[12] handle_chat  (chat.rs  m13.ll:29383~29689) =====
+  본문이 실제로 참조하는 chat.rs 줄 = [0, 8, 9, 12, 18, 19, 22, 23, 24, 25, 26, 27, 28, 29, 31, 33, 34, 35, 36, 38, 39]
+  consts[0] value=0            claim=L12    실제후보=[18, 19, 22, 23, 27]         **불일치**
+  consts[1] value=1            claim=L12    실제후보=[18, 19, 27]                 **불일치**
+  consts[2] value=2            claim=L12    실제후보=[19]                         **불일치**
+  consts[3] value=3            claim=L12    실제후보=[9, 19]                      **불일치**
+  consts[4] value=4            claim=L12    실제후보=[12, 19, 27, 28]             OK
+  consts[5] value=5            claim=L12    실제후보=[9, 19, 27]                  **불일치**
+  consts[6] value=6            claim=L12    실제후보=[12, 19, 31]                 OK
+  consts[7] value=7            claim=L12    실제후보=[19, 29]                     **불일치**
+  consts[8] value=8            claim=L12    실제후보=[9, 12, 18, 19, 22, 23, 26, 27, 28, 29, 31, 33, 34, 35, 36, 39] OK
+  consts[9] value=-8           claim=L12    실제후보=[12]                         OK
+  consts[10] value=-7           claim=L12    실제후보=[12]                         OK
+  consts[11] value=-9223372036854775793 claim=L27    실제후보=[27]                         OK
+
+===== specs[13] target_bush_v30  (cover.rs  m10.ll:11483~11731) =====
+  본문이 실제로 참조하는 cover.rs 줄 = [0, 135, 136, 137, 138, 139, 140, 145, 147, 149, 150, 151, 153, 154, 156, 160, 164, 165, 166, 168, 171, 179, 180, 181, 183, 184, 186, 190, 194]
+  consts[0] value=2            claim=L138   실제후보=[0, 135, 138, 145]           OK
+  consts[1] value=16           claim=L138   실제후보=[135, 138]                   OK
+  consts[2] value=4            claim=L139   실제후보=[139, 150, 164, 165, 171, 180] OK
+  consts[3] value=17           claim=L139   실제후보=[135, 139]                   OK
+  consts[4] value=9            claim=L140   실제후보=[140]                        OK
+  consts[5] value=21           claim=L140   실제후보=[135, 140]                   OK
+  consts[6] value=3            claim=L151   실제후보=[135, 145, 151, 154, 156]    OK
+  consts[7] value=6            claim=L154   실제후보=[151, 154, 156]              OK
+  consts[8] value=13           claim=L168   실제후보=[135, 168]                   OK
+  consts[9] value=18           claim=L168   실제후보=[135, 168]                   OK
+  consts[10] value=8            claim=L166   실제후보=[0, 135, 145, 150, 153, 160, 164, 165, 166, 171, 180, 183, 190] OK
+  consts[11] value=12           claim=L166   실제후보=[135, 166]                   OK
+  consts[12] value=14           claim=L171   실제후보=[135, 171]                   OK
+  consts[13] value=11           claim=L171   실제후보=[171]                        OK
+  consts[14] value=15           claim=L181   실제후보=[135, 181, 184, 186]         OK
+  consts[15] value=20           claim=L184   실제후보=[135, 181, 184, 186]         OK
+
+===== specs[14] update  (ganker.rs  m08.ll:94569~94941) =====
+  본문이 실제로 참조하는 ganker.rs 줄 = [0, 43, 44, 47, 48, 54, 55, 56, 57, 58, 62, 249, 250, 251, 252, 253, 254, 261, 263, 264, 265, 267, 268, 270, 274, 278, 279, 280, 282, 285, 293, 294, 295, 297, 298, 300, 304]
+  consts[0] value=100          claim=L44    실제후보=[44]                         OK
+  consts[1] value=41           claim=L47    실제후보=[0, 47, 54, 249]             OK
+  consts[2] value=2            claim=L261   실제후보=[0, 43, 54, 58, 252]         **불일치**
+  consts[3] value=4            claim=L264   실제후보=[43, 54, 253, 264, 278, 294] OK
+  consts[4] value=0            claim=L252   실제후보=[0, 44, 48, 54, 55, 58, 265, 267, 295, 297] **불일치**
+  consts[5] value=32000        claim=L55    실제후보=[55]                         OK
+  consts[6] value=29           claim=L55    실제후보=[44, 55]                     OK
+  consts[7] value=16           claim=L252   실제후보=[43, 48, 54, 58, 252]        OK
+  consts[8] value=17           claim=L253   실제후보=[43, 48, 54, 58, 249, 253]   OK
+  consts[9] value=9            claim=L254   실제후보=[43, 54, 254]                OK
+  consts[10] value=21           claim=L254   실제후보=[43, 44, 54, 55, 254, 279, 285] OK
+  consts[11] value=3            claim=L265   실제후보=[43, 54, 265, 268, 270]      OK
+  consts[12] value=6            claim=L268   실제후보=[54, 265, 268, 270]          OK
+  consts[13] value=14           claim=L285   실제후보=[43, 54, 285]                OK
+  consts[14] value=11           claim=L285   실제후보=[43, 54, 285]                OK
+  consts[15] value=13           claim=L282   실제후보=[43, 54, 282]                OK
+  consts[16] value=18           claim=L282   실제후보=[43, 54, 282]                OK
+  consts[17] value=8            claim=L280   실제후보=[0, 43, 44, 48, 54, 55, 57, 58, 249, 264, 267, 274, 278, 279, 280, 285, 294, 297, 304] OK
+  consts[18] value=12           claim=L280   실제후보=[43, 54, 280]                OK
+  consts[19] value=15           claim=L295   실제후보=[43, 54, 295, 298, 300]      OK
+  consts[20] value=20           claim=L298   실제후보=[43, 54, 295, 298, 300]      OK
+
+===== specs[15] single_try_engage  (modes.rs  m13.ll:33374~33739) =====
+  본문이 실제로 참조하는 modes.rs 줄 = [0, 242, 243, 244, 245, 248, 249, 250, 251, 252, 253, 255, 256, 257, 258]
+  consts[0] value=0            claim=L253   실제후보=[0, 248, 253, 257]           OK
+  consts[1] value=60           claim=L253   실제후보=[248, 249, 253]              OK
+  consts[2] value=1            claim=L249   실제후보=[245, 249, 255]              OK
+  consts[3] value=2            claim=L250   실제후보=[245, 248, 250, 253]         OK
+  consts[4] value=-1           claim=L250   실제후보=[0, 249, 250, 257]           OK
+  consts[5] value=3            claim=L256   실제후보=[245]                        **불일치**
+  consts[6] value=4            claim=L256   실제후보=[242, 245, 248, 249, 253]    **불일치**
+  consts[7] value=7            claim=L256   실제후보=[245]                        **불일치**
+
+===== specs[16] max_range_nearly_can_use  (battle.rs  m10.ll:51913~52374) =====
+  본문이 실제로 참조하는 battle.rs 줄 = [0, 2399, 2402, 2403, 2407, 2409, 2410, 2414, 2416, 2417, 2421, 2423, 2424, 2429]
+  consts[0] value=-1           claim=L2401  실제후보=[2399, 2403, 2407, 2410, 2414, 2417, 2421, 2424] **불일치**
+  consts[1] value=13           claim=L2409  실제후보=[2407, 2409, 2410, 2416, 2423] OK
+  consts[2] value=2            claim=L2414  실제후보=[2402, 2409, 2414, 2416, 2423] OK
+  consts[3] value=4            claim=L2421  실제후보=[2399, 2402, 2403, 2409, 2416, 2421, 2423] OK
+  consts[4] value=100          claim=L2403  실제후보=[2403, 2409, 2410, 2417, 2424] OK
+  consts[5] value=0            claim=L2398  실제후보=[0, 2399, 2402, 2403, 2407, 2409, 2410, 2414, 2416, 2417, 2421, 2423, 2424] **불일치**
+  consts[6] value=3            claim=L2402  실제후보=[0]                          **불일치**
+
+===== specs[17] new  (death_battle.rs  m05.ll:17695~17825) =====
+  본문이 실제로 참조하는 death_battle.rs 줄 = [746, 747, 749, 750, 753, 754, 755, 784]
+  consts[0] value=0            claim=L749   실제후보=[747, 749, 750, 753]         OK
+  consts[1] value=3            claim=L750   실제후보=[750, 754]                   OK
+  consts[2] value=9223372036854775807 claim=L753   실제후보=[753]                        OK
+  consts[3] value=-1           claim=L753   실제후보=[753]                        OK
+
+===== specs[18] v3_epicops_buff_window  (epic.rs  m09.ll:6879~7264) =====
+  본문이 실제로 참조하는 epic.rs 줄 = [0, 635, 637, 638, 639, 642, 643, 651, 652, 653, 654, 658, 664, 665, 666, 667, 668, 669, 670, 672, 673, 679, 682]
+  consts[0] value=1            claim=L635   실제후보=[0, 637, 638, 642, 652, 653, 654, 658, 667, 669] **불일치**
+  consts[1] value=2            claim=L635   실제후보=[664, 666, 667, 668, 669, 670, 673, 679] **불일치**
+  consts[2] value=7            claim=L637   실제후보=[637, 642]                   OK
+  consts[3] value=23           claim=L638   실제후보=[0, 638, 658]                OK
+  consts[4] value=25           claim=L654   실제후보=[638, 658]                   **불일치**
+  consts[5] value=21           claim=L674   실제후보=[0, 638]                     **불일치**
+  consts[6] value=22           claim=L676   실제후보=[0, 638]                     **불일치**
+  consts[7] value=-1           claim=L665   실제후보=[665, 673]                   OK
+
+===== specs[19] best_jungle_goal  (passive_jungle.rs  m04.ll:62570~62978) =====
+  본문이 실제로 참조하는 passive_jungle.rs 줄 = [0, 806, 807, 814, 815, 817, 818, 819, 821, 823, 824, 825, 829, 833, 834, 835, 836, 838]
+  consts[0] value=0            claim=L807   실제후보=[807, 815, 817, 818, 819, 833, 834] OK
+  consts[1] value=1            claim=L807   실제후보=[807, 815, 818, 819, 829, 833, 834] OK
+  consts[2] value=3            claim=L807   실제후보=[807, 815, 818, 823]         OK
+  consts[3] value=2            claim=L807   실제후보=[807, 815, 818, 819, 823, 833] OK
+  consts[4] value=-1           claim=L825   실제후보=[821, 825, 836]              OK

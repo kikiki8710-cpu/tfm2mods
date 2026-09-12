@@ -1,0 +1,15 @@
+{
+ "round": "11",
+ "batch": "C",
+ "errors_applied": 2,
+ "ev_applied": 0,
+ "failed": 0,
+ "stamps": {
+  "/specs[10]/logic": "b985606bc3815d31",
+  "/specs[10]/knobs[4]/effect": "e951130bd243c84a",
+  "/specs[11]/logic": "7fa894292b6e3087",
+  "/specs[11]/history[11]/now": "b0214398cc51a349",
+  "/specs[12]/knobs[3]/effect": "a010ff5003427f6b"
+ },
+ "restamped": true
+}

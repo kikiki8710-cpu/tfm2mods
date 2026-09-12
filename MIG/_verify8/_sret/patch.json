@@ -1,0 +1,41 @@
+{
+ "round": 8,
+ "batch": "_sret",
+ "note": "8차 배치C 가 확정한 sret 규약(`params[]` 에 싣는다 · `i`=0 · 소스 인자는 1..n)을 규약을 어긴 두 명세에 반영. 배치는 `applypatch` 에 행 추가 연산이 없어 판정 `보류`로 남겼고(내용은 확정), 메인이 `op:insert` 를 구현해 적용한다. 근거·문면은 `_verify8/C/REPORT.md §3` 원문 그대로.",
+ "errors": [
+  {
+   "op": "insert",
+   "path": "/specs[2]/sig/params",
+   "at": 0,
+   "guard": "(sret)",
+   "new": {
+    "i": 0,
+    "name": "(sret)",
+    "type": "&mut SubPlan(72B)",
+    "note": "반환값 out-ptr. m12.ll:34867 ptr dead_on_unwind noalias noundef writable writeonly sret([72 x i8]) align 8 captures(none) dereferenceable(72) %0. 본문이 태그·페이로드를 여기에 store 한다"
+   },
+   "kind": "실오류",
+   "evidence": "8차 배치C: sret 형 5함수(00 02 07 15 17) 중 3함수가 이미 싣는 형식이라 그쪽을 규약으로 확정했다. 안 싣는 쪽은 `params[j]` ↔ IR `%j` 가 한 칸 밀려 추측을 낳고, 그 추측 실패가 이번 오탐 44건 중 7건의 직접 원인이었다. `sig.tcx` 가 소스 시그니처 정본이므로 `(sret)` 행은 중복이 아니라 **반환값 레이아웃**이라는 고유 정보다.",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "op": "insert",
+   "path": "/specs[17]/sig/params",
+   "at": 0,
+   "guard": "(sret)",
+   "new": {
+    "i": 0,
+    "name": "(sret)",
+    "type": "&mut DeathMatchBattle(384B)",
+    "note": "반환값 out-ptr. m05.ll:17695 ptr dead_on_unwind noalias noundef writable writeonly sret([384 x i8]) align 8 captures(none) dereferenceable(384) %0"
+   },
+   "kind": "실오류",
+   "evidence": "위와 같은 규약. 넣은 뒤 기존 `params[].i` 는 손댈 필요가 없다(이미 소스 1..n) — 통합 게이트의 P2 가 자동으로 조용해진다.",
+   "behavior_change": false,
+   "found_by": "new"
+  }
+ ],
+ "ev_up": [],
+ "brief_errors": []
+}

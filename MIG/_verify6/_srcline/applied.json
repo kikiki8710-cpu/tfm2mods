@@ -1,0 +1,14 @@
+{
+ "round": "6",
+ "batch": "_srcline",
+ "errors_applied": 0,
+ "ev_applied": 0,
+ "failed": 4,
+ "stamps": {
+  "/specs[3]/consts[0]/src_line": "785f3ec7eb32f30b",
+  "/specs[3]/consts[1]/src_line": "44cb730c420480a0",
+  "/specs[3]/consts[2]/src_line": "71ee45a3c0db9a98",
+  "/specs[3]/consts[3]/src_line": "811786ad1ae74adf"
+ },
+ "restamped": true
+}

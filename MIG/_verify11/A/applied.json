@@ -1,0 +1,18 @@
+{
+ "round": "11",
+ "batch": "A",
+ "errors_applied": 1,
+ "ev_applied": 1,
+ "failed": 0,
+ "stamps": {
+  "/specs[0]/knobs[4]/where": "11516d1d38cfbdb0",
+  "/specs[0]/knobs[5]/where": "0ad0ab850b8699ea",
+  "/specs[0]/unknown": "cbb9cf73099a49cc",
+  "/specs[0]/mem[11]/note": "4412ec0281b79e86",
+  "/specs[3]/knobs[5]/where": "069c5bd4ccdfc12d",
+  "/specs[3]/knobs[16]/where": "a6d6875a46be589b",
+  "/specs[3]/no_map_reason": "e8437f567b3f3a59",
+  "/specs[4]/unknown": "5f8f40e7adb5be25"
+ },
+ "restamped": true
+}

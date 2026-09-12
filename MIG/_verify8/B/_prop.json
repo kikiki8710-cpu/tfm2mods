@@ -1,0 +1,209 @@
+[
+ {
+  "i": 5,
+  "j": 1,
+  "old": "end_reason 코드 7 = 다이브 포기시각(last_dive_abandon_tick) 집계에서 제외되는 종료사유. 이 값일 땐 no_contact 여도 갱신 안 함",
+  "new": "end_reason 코드(판별자) 7 = 다이브 포기시각(last_dive_abandon_tick) 집계에서 제외되는 종료사유. 이 값일 땐 no_contact 여도 갱신 안 함",
+  "want": "태그",
+  "why": "m13.ll:29017 `icmp eq i8 %2, 7`(end_reason 동등비교) · m13.ll:29154 `%74 = phi i8 [ 1,%33 ],[ 2,%36 ],[ 3,%41 ],[ 4,%46 ],[ 7,%66 ],[ 5,%51 ],[ 6,%61 ],[ 6,%56 ]`(end_plan 코드표). IR 범위 28946~29380 에 이 값들의 순서비교는 **0건** ⟹ 임계일 수 없다",
+  "ekind": "실오류"
+ },
+ {
+  "i": 5,
+  "j": 2,
+  "old": "end_plan 코드 1 = 플랜 이름이 \"PassiveLine\" 으로 시작. (같은 리터럴 1 이 start_in_range 저장 시 `and i8 %103, 1` 불리언 정규화 마스크로도 쓰임) · 오라클 실행 확증( 오라클 실행 확증: end_plan=1 (plan 이름 \"PassiveLine\") #A·#B·#G 26케이스 (B6_o2.tsv — 05 를 상위 pub 래퍼 `LegacyPlanHandler::update` 로 최초 실행))",
+  "new": "end_plan 코드(판별자) 1 = 플랜 이름이 \"PassiveLine\" 으로 시작. (같은 리터럴 1 이 start_in_range 저장 시 `and i8 %103, 1` 불리언 정규화 마스크로도 쓰임) · 오라클 실행 확증( 오라클 실행 확증: end_plan=1 (plan 이름 \"PassiveLine\") #A·#B·#G 26케이스 (B6_o2.tsv — 05 를 상위 pub 래퍼 `LegacyPlanHandler::update` 로 최초 실행))",
+  "want": "태그",
+  "why": "m13.ll:29017 `icmp eq i8 %2, 7`(end_reason 동등비교) · m13.ll:29154 `%74 = phi i8 [ 1,%33 ],[ 2,%36 ],[ 3,%41 ],[ 4,%46 ],[ 7,%66 ],[ 5,%51 ],[ 6,%61 ],[ 6,%56 ]`(end_plan 코드표). IR 범위 28946~29380 에 이 값들의 순서비교는 **0건** ⟹ 임계일 수 없다",
+  "ekind": "실오류"
+ },
+ {
+  "i": 5,
+  "j": 3,
+  "old": "end_plan 코드 2 = 플랜 이름이 \"PassiveJungle\" 로 시작 · 오라클 실행 확증( 오라클 실행 확증: end_plan=2 (\"PassiveJungle\") #G 4케이스 (B6_o2.tsv — 05 를 상위 pub 래퍼 `LegacyPlanHandler::update` 로 최초 실행))",
+  "new": "end_plan 코드(판별자) 2 = 플랜 이름이 \"PassiveJungle\" 로 시작 · 오라클 실행 확증( 오라클 실행 확증: end_plan=2 (\"PassiveJungle\") #G 4케이스 (B6_o2.tsv — 05 를 상위 pub 래퍼 `LegacyPlanHandler::update` 로 최초 실행))",
+  "want": "태그",
+  "why": "m13.ll:29017 `icmp eq i8 %2, 7`(end_reason 동등비교) · m13.ll:29154 `%74 = phi i8 [ 1,%33 ],[ 2,%36 ],[ 3,%41 ],[ 4,%46 ],[ 7,%66 ],[ 5,%51 ],[ 6,%61 ],[ 6,%56 ]`(end_plan 코드표). IR 범위 28946~29380 에 이 값들의 순서비교는 **0건** ⟹ 임계일 수 없다",
+  "ekind": "실오류"
+ },
+ {
+  "i": 5,
+  "j": 4,
+  "old": "end_plan 코드 3 = 플랜 이름이 \"LineGank\" 로 시작",
+  "new": "end_plan 코드(판별자) 3 = 플랜 이름이 \"LineGank\" 로 시작",
+  "want": "태그",
+  "why": "m13.ll:29017 `icmp eq i8 %2, 7`(end_reason 동등비교) · m13.ll:29154 `%74 = phi i8 [ 1,%33 ],[ 2,%36 ],[ 3,%41 ],[ 4,%46 ],[ 7,%66 ],[ 5,%51 ],[ 6,%61 ],[ 6,%56 ]`(end_plan 코드표). IR 범위 28946~29380 에 이 값들의 순서비교는 **0건** ⟹ 임계일 수 없다",
+  "ekind": "실오류"
+ },
+ {
+  "i": 5,
+  "j": 5,
+  "old": "end_plan 코드 4 = 플랜 이름에 \"Epic\" 포함",
+  "new": "end_plan 코드(판별자) 4 = 플랜 이름에 \"Epic\" 포함",
+  "want": "태그",
+  "why": "m13.ll:29017 `icmp eq i8 %2, 7`(end_reason 동등비교) · m13.ll:29154 `%74 = phi i8 [ 1,%33 ],[ 2,%36 ],[ 3,%41 ],[ 4,%46 ],[ 7,%66 ],[ 5,%51 ],[ 6,%61 ],[ 6,%56 ]`(end_plan 코드표). IR 범위 28946~29380 에 이 값들의 순서비교는 **0건** ⟹ 임계일 수 없다",
+  "ekind": "실오류"
+ },
+ {
+  "i": 5,
+  "j": 6,
+  "old": "end_plan 코드 5 = 플랜 이름에 \"Serpen\" 포함",
+  "new": "end_plan 코드(판별자) 5 = 플랜 이름에 \"Serpen\" 포함",
+  "want": "태그",
+  "why": "m13.ll:29017 `icmp eq i8 %2, 7`(end_reason 동등비교) · m13.ll:29154 `%74 = phi i8 [ 1,%33 ],[ 2,%36 ],[ 3,%41 ],[ 4,%46 ],[ 7,%66 ],[ 5,%51 ],[ 6,%61 ],[ 6,%56 ]`(end_plan 코드표). IR 범위 28946~29380 에 이 값들의 순서비교는 **0건** ⟹ 임계일 수 없다",
+  "ekind": "실오류"
+ },
+ {
+  "i": 5,
+  "j": 7,
+  "old": "end_plan 코드 6 = 플랜 이름이 \"ActiveRecall\" 또는 \"Recall\" 로 시작(두 술어가 같은 phi 값으로 합류)",
+  "new": "end_plan 코드(판별자) 6 = 플랜 이름이 \"ActiveRecall\" 또는 \"Recall\" 로 시작(두 술어가 같은 phi 값으로 합류)",
+  "want": "태그",
+  "why": "m13.ll:29017 `icmp eq i8 %2, 7`(end_reason 동등비교) · m13.ll:29154 `%74 = phi i8 [ 1,%33 ],[ 2,%36 ],[ 3,%41 ],[ 4,%46 ],[ 7,%66 ],[ 5,%51 ],[ 6,%61 ],[ 6,%56 ]`(end_plan 코드표). IR 범위 28946~29380 에 이 값들의 순서비교는 **0건** ⟹ 임계일 수 없다",
+  "ekind": "실오류"
+ },
+ {
+  "i": 5,
+  "j": 8,
+  "old": "end_plan 코드 7 = 플랜 이름이 \"Battle\" 로 시작. (end_reason 의 7 과 값만 같고 의미는 무관) · 오라클 실행 확증( 오라클 실행 확증: end_plan=7 (\"Battle …\") #B2 tag9 (B6_o2.tsv — 05 를 상위 pub 래퍼 `LegacyPlanHandler::update` 로 최초 실행))",
+  "new": "end_plan 코드(판별자) 7 = 플랜 이름이 \"Battle\" 로 시작. (end_reason 의 7 과 값만 같고 의미는 무관) · 오라클 실행 확증( 오라클 실행 확증: end_plan=7 (\"Battle …\") #B2 tag9 (B6_o2.tsv — 05 를 상위 pub 래퍼 `LegacyPlanHandler::update` 로 최초 실행))",
+  "want": "태그",
+  "why": "m13.ll:29017 `icmp eq i8 %2, 7`(end_reason 동등비교) · m13.ll:29154 `%74 = phi i8 [ 1,%33 ],[ 2,%36 ],[ 3,%41 ],[ 4,%46 ],[ 7,%66 ],[ 5,%51 ],[ 6,%61 ],[ 6,%56 ]`(end_plan 코드표). IR 범위 28946~29380 에 이 값들의 순서비교는 **0건** ⟹ 임계일 수 없다",
+  "ekind": "실오류"
+ },
+ {
+  "i": 5,
+  "j": 9,
+  "old": "end_plan 코드 8 = 플랜 이름에 \"Nexus\" 포함 · 오라클 실행 확증( 오라클 실행 확증: end_plan=8 (\"AttackNexus\"/\"DefenseNexus\") #B2 tag16·17 (B6_o2.tsv — 05 를 상위 pub 래퍼 `LegacyPlanHandler::update` 로 최초 실행))",
+  "new": "end_plan 코드(판별자) 8 = 플랜 이름에 \"Nexus\" 포함 · 오라클 실행 확증( 오라클 실행 확증: end_plan=8 (\"AttackNexus\"/\"DefenseNexus\") #B2 tag16·17 (B6_o2.tsv — 05 를 상위 pub 래퍼 `LegacyPlanHandler::update` 로 최초 실행))",
+  "want": "태그",
+  "why": "m13.ll:29017 `icmp eq i8 %2, 7`(end_reason 동등비교) · m13.ll:29154 `%74 = phi i8 [ 1,%33 ],[ 2,%36 ],[ 3,%41 ],[ 4,%46 ],[ 7,%66 ],[ 5,%51 ],[ 6,%61 ],[ 6,%56 ]`(end_plan 코드표). IR 범위 28946~29380 에 이 값들의 순서비교는 **0건** ⟹ 임계일 수 없다",
+  "ekind": "실오류"
+ },
+ {
+  "i": 5,
+  "j": 10,
+  "old": "end_plan 코드 9 = 위 어디에도 안 걸림(그 외 전부) · 오라클 실행 확증( 오라클 실행 확증: end_plan=9 (\"DeathMatchBattle …\"/\"SinglePlanBattle …\") #B tag0·5 (B6_o2.tsv — 05 를 상위 pub 래퍼 `LegacyPlanHandler::update` 로 최초 실행))",
+  "new": "end_plan 코드(판별자) 9 = 위 어디에도 안 걸림(그 외 전부) · 오라클 실행 확증( 오라클 실행 확증: end_plan=9 (\"DeathMatchBattle …\"/\"SinglePlanBattle …\") #B tag0·5 (B6_o2.tsv — 05 를 상위 pub 래퍼 `LegacyPlanHandler::update` 로 최초 실행))",
+  "want": "태그",
+  "why": "m13.ll:29017 `icmp eq i8 %2, 7`(end_reason 동등비교) · m13.ll:29154 `%74 = phi i8 [ 1,%33 ],[ 2,%36 ],[ 3,%41 ],[ 4,%46 ],[ 7,%66 ],[ 5,%51 ],[ 6,%61 ],[ 6,%56 ]`(end_plan 코드표). IR 범위 28946~29380 에 이 값들의 순서비교는 **0건** ⟹ 임계일 수 없다",
+  "ekind": "실오류"
+ },
+ {
+  "i": 6,
+  "j": 0,
+  "old": "AI 버전 게이트 — version<2 면 본문 전체를 건너뛰고 RunAway. (같은 리터럴 2 가 team 배열 bounds-check 길이 `icmp ult team, 2` 로도 쓰인다 — **이 행 자체는 version 비교 임계**이지 인덱스가 아니다)",
+  "new": "AI 버전 비교 임계(게이트) — version<2 면 본문 전체를 건너뛰고 RunAway. (같은 리터럴 2 가 team 배열 bounds-check 길이 `icmp ult team, 2` 로도 쓰인다 — **이 행 자체는 version 비교 임계**이지 팀 배열 첨자가 아니다)",
+  "want": "임계",
+  "why": "m13.ll:45232 `%14 = icmp ult i64 %0, 2` — 첫 인자(version)의 **순서비교**다. `meaning` 이 「인덱스가 **아니다**」라고 적었는데 `mkspec3` 의 낱말 매칭은 부정문을 못 봐 그 「인덱스」에 걸려 kind=인덱스가 됐다",
+  "ekind": "실오류"
+ },
+ {
+  "i": 7,
+  "j": 1,
+  "old": "★귀환 HP 임계. hp_ratio < 51 (=HP 50% 이하)이면 귀환 후보. ★**오라클 8/8 **: 경계가 **정확히 50/51** 이다( 재확인 49/50·51/52 24/24). 세 번째 OR 항이 `hp < max && in_heal_area` 인 것도 확증. SubPlan 5=Recall · 11=EpicHunt 로 귀결되는 것을 런타임 확인(**이 행 자체는 HP 임계**이지 태그가 아니다)",
+  "new": "★귀환 HP 임계(순서비교 문턱). hp_ratio < 51 (=HP 50% 이하)이면 귀환 후보. ★**오라클 8/8 **: 경계가 **정확히 50/51** 이다( 재확인 49/50·51/52 24/24). 세 번째 OR 항이 `hp < max && in_heal_area` 인 것도 확증. SubPlan 5=Recall · 11=EpicHunt 로 귀결되는 것을 런타임 확인(**이 행 자체는 HP 임계**이지 코드값이 아니다)",
+  "want": "임계",
+  "why": "m02.ll:49087 `%94 = icmp ult i64 %33, 51` — **순서비교** 문턱이다. `meaning` 이 「태그가 **아니다**」라 적었는데 부정문을 못 봐 kind=태그로 뒤집혔다",
+  "ekind": "실오류"
+ },
+ {
+  "i": 10,
+  "j": 1,
+  "old": "마스크 결과 기대값 0x000300 — byte1(phase)==3(ObjectPhase::Hunt) & byte0(tag)∈{0=Morgard,1=Serpen}. 리터럴 3 은 3<<8 로 접혀 본문에 없다 · 오라클 실행 확증( 오라클 `_verify6/C/o5_mask.out §O6-E` — MainObjective 25 케이스의 3바이트를 날바이트로 읽어 `(v&65534)==768` 을 평가, **통과 집합이 Morgard/Serpen×Hunt×with_battle 4개와 정확히 일치**(오검출 0))",
+  "new": "마스크 결과의 **동등비교 기대 태그값** 0x000300 — byte1(phase)==3(ObjectPhase::Hunt) & byte0(tag)∈{0=Morgard,1=Serpen}. 리터럴 3 은 3<<8 로 접혀 본문에 없다 · 오라클 실행 확증( 오라클 `_verify6/C/o5_mask.out §O6-E` — MainObjective 25 케이스의 3바이트를 날바이트로 읽어 `(v&65534)==768` 을 평가, **통과 집합이 Morgard/Serpen×Hunt×with_battle 4개와 정확히 일치**(오검출 0))",
+  "want": "태그",
+  "why": "m10.ll:49633 `%9 = icmp eq i24 %8, 768` — 동등비교의 기대값이다(순서비교 0건). `mkspec3` 에 이 종류를 가리키는 낱말이 없어 잔여 버킷 `임계` 로 떨어져 있었다",
+  "ekind": "실오류"
+ },
+ {
+  "i": 11,
+  "j": 4,
+  "old": "LineType::Mid — 싱글레인 플랜의 라인 고정값 · 오라클 실행 확증( 오라클 `_verify5/C/o11.out §S11`(게임모드 게이트 — `SingleLaneGame::new`/`DeathMatchGame::new` 로 modetag 0/1/2 실제 생성, 6168B 바이트 diff))",
+  "new": "LineType::Mid 판별자 1 — 싱글레인 플랜의 라인 고정값 · 오라클 실행 확증( 오라클 `_verify5/C/o11.out §S11`(게임모드 게이트 — `SingleLaneGame::new`/`DeathMatchGame::new` 로 modetag 0/1/2 실제 생성, 6168B 바이트 diff))",
+  "want": "태그",
+  "why": "m13.ll:12290 `store i8 1`(SinglePlanLine 의 line 필드) — 열거형 판별자다. m13.ll:12319~12327 `switch i8 %40, label %41 [ i8 0,… i8 6,… ]` · m13.ll:12353~12356 `[ i8 0 · i8 2 · i8 7 · i8 8 ]` — **switch 케이스 라벨**이다. IR 범위 12238~12479 의 순서비교는 `icmp ult i64 %1, 2`(version) · `icmp ult i8 %53, -6` · `icmp ult i8 %66, -7` 셋뿐이고 이 값들과 무관 ⟹ 임계일 수 없다",
+  "ekind": "실오류"
+ },
+ {
+  "i": 11,
+  "j": 6,
+  "old": "TutorialType::None — 모든 허용집합(라인/에픽/세르펜/정글)에 공통 포함 · 오라클 실행 확증( 오라클 `_verify5/C/o11.out §R1` 171/171 (`line_exists`·`morgard_exists`·`serpen_exists`·`position_exists`·`goal_allowed` 19열 × tutorial 9행 전수))",
+  "new": "TutorialType::None 판별자 0 — 모든 허용집합(라인/에픽/세르펜/정글)에 공통 포함 · 오라클 실행 확증( 오라클 `_verify5/C/o11.out §R1` 171/171 (`line_exists`·`morgard_exists`·`serpen_exists`·`position_exists`·`goal_allowed` 19열 × tutorial 9행 전수))",
+  "want": "태그",
+  "why": "m13.ll:12319~12327 `switch i8 %40, label %41 [ i8 0,… i8 6,… ]` · m13.ll:12353~12356 `[ i8 0 · i8 2 · i8 7 · i8 8 ]` — **switch 케이스 라벨**이다. IR 범위 12238~12479 의 순서비교는 `icmp ult i64 %1, 2`(version) · `icmp ult i8 %53, -6` · `icmp ult i8 %66, -7` 셋뿐이고 이 값들과 무관 ⟹ 임계일 수 없다",
+  "ekind": "실오류"
+ },
+ {
+  "i": 11,
+  "j": 7,
+  "old": "TutorialType::First — Bottom 라인 목표 허용집합에만 포함 · 오라클 실행 확증( 오라클 `_verify5/C/o11.out §R1` 171/171 (`line_exists`·`morgard_exists`·`serpen_exists`·`position_exists`·`goal_allowed` 19열 × tutorial 9행 전수))",
+  "new": "TutorialType::First 판별자 1 — Bottom 라인 목표 허용집합에만 포함 · 오라클 실행 확증( 오라클 `_verify5/C/o11.out §R1` 171/171 (`line_exists`·`morgard_exists`·`serpen_exists`·`position_exists`·`goal_allowed` 19열 × tutorial 9행 전수))",
+  "want": "태그",
+  "why": "m13.ll:12319~12327 `switch i8 %40, label %41 [ i8 0,… i8 6,… ]` · m13.ll:12353~12356 `[ i8 0 · i8 2 · i8 7 · i8 8 ]` — **switch 케이스 라벨**이다. IR 범위 12238~12479 의 순서비교는 `icmp ult i64 %1, 2`(version) · `icmp ult i8 %53, -6` · `icmp ult i8 %66, -7` 셋뿐이고 이 값들과 무관 ⟹ 임계일 수 없다",
+  "ekind": "실오류"
+ },
+ {
+  "i": 11,
+  "j": 8,
+  "old": "TutorialType::TopSolo — Top 라인 목표 허용집합 · 오라클 실행 확증( 오라클 `_verify5/C/o11.out §R1` 171/171 (`line_exists`·`morgard_exists`·`serpen_exists`·`position_exists`·`goal_allowed` 19열 × tutorial 9행 전수))",
+  "new": "TutorialType::TopSolo 판별자 2 — Top 라인 목표 허용집합 · 오라클 실행 확증( 오라클 `_verify5/C/o11.out §R1` 171/171 (`line_exists`·`morgard_exists`·`serpen_exists`·`position_exists`·`goal_allowed` 19열 × tutorial 9행 전수))",
+  "want": "태그",
+  "why": "m13.ll:12319~12327 `switch i8 %40, label %41 [ i8 0,… i8 6,… ]` · m13.ll:12353~12356 `[ i8 0 · i8 2 · i8 7 · i8 8 ]` — **switch 케이스 라벨**이다. IR 범위 12238~12479 의 순서비교는 `icmp ult i64 %1, 2`(version) · `icmp ult i8 %53, -6` · `icmp ult i8 %66, -7` 셋뿐이고 이 값들과 무관 ⟹ 임계일 수 없다",
+  "ekind": "보강"
+ },
+ {
+  "i": 11,
+  "j": 9,
+  "old": "TutorialType::Bottom — Bottom 라인 목표 허용집합 · 오라클 실행 확증( 오라클 `_verify5/C/o11.out §R1` 171/171 (`line_exists`·`morgard_exists`·`serpen_exists`·`position_exists`·`goal_allowed` 19열 × tutorial 9행 전수))",
+  "new": "TutorialType::Bottom 판별자 3 — Bottom 라인 목표 허용집합 · 오라클 실행 확증( 오라클 `_verify5/C/o11.out §R1` 171/171 (`line_exists`·`morgard_exists`·`serpen_exists`·`position_exists`·`goal_allowed` 19열 × tutorial 9행 전수))",
+  "want": "태그",
+  "why": "m13.ll:12319~12327 `switch i8 %40, label %41 [ i8 0,… i8 6,… ]` · m13.ll:12353~12356 `[ i8 0 · i8 2 · i8 7 · i8 8 ]` — **switch 케이스 라벨**이다. IR 범위 12238~12479 의 순서비교는 `icmp ult i64 %1, 2`(version) · `icmp ult i8 %53, -6` · `icmp ult i8 %66, -7` 셋뿐이고 이 값들과 무관 ⟹ 임계일 수 없다",
+  "ekind": "실오류"
+ },
+ {
+  "i": 11,
+  "j": 10,
+  "old": "TutorialType::MidSolo — Mid 라인 목표 허용집합 · 오라클 실행 확증( 오라클 `_verify5/C/o11.out §R1` 171/171 (`line_exists`·`morgard_exists`·`serpen_exists`·`position_exists`·`goal_allowed` 19열 × tutorial 9행 전수))",
+  "new": "TutorialType::MidSolo 판별자 4 — Mid 라인 목표 허용집합 · 오라클 실행 확증( 오라클 `_verify5/C/o11.out §R1` 171/171 (`line_exists`·`morgard_exists`·`serpen_exists`·`position_exists`·`goal_allowed` 19열 × tutorial 9행 전수))",
+  "want": "태그",
+  "why": "m13.ll:12319~12327 `switch i8 %40, label %41 [ i8 0,… i8 6,… ]` · m13.ll:12353~12356 `[ i8 0 · i8 2 · i8 7 · i8 8 ]` — **switch 케이스 라벨**이다. IR 범위 12238~12479 의 순서비교는 `icmp ult i64 %1, 2`(version) · `icmp ult i8 %53, -6` · `icmp ult i8 %66, -7` 셋뿐이고 이 값들과 무관 ⟹ 임계일 수 없다",
+  "ekind": "실오류"
+ },
+ {
+  "i": 11,
+  "j": 11,
+  "old": "TutorialType::MidBottom — Mid/Bottom 라인 + Serpen 허용집합 · 오라클 실행 확증( 오라클 `_verify5/C/o11.out §R1` 171/171 (`line_exists`·`morgard_exists`·`serpen_exists`·`position_exists`·`goal_allowed` 19열 × tutorial 9행 전수))",
+  "new": "TutorialType::MidBottom 판별자 5 — Mid/Bottom 라인 + Serpen 허용집합 · 오라클 실행 확증( 오라클 `_verify5/C/o11.out §R1` 171/171 (`line_exists`·`morgard_exists`·`serpen_exists`·`position_exists`·`goal_allowed` 19열 × tutorial 9행 전수))",
+  "want": "태그",
+  "why": "m13.ll:12319~12327 `switch i8 %40, label %41 [ i8 0,… i8 6,… ]` · m13.ll:12353~12356 `[ i8 0 · i8 2 · i8 7 · i8 8 ]` — **switch 케이스 라벨**이다. IR 범위 12238~12479 의 순서비교는 `icmp ult i64 %1, 2`(version) · `icmp ult i8 %53, -6` · `icmp ult i8 %66, -7` 셋뿐이고 이 값들과 무관 ⟹ 임계일 수 없다",
+  "ekind": "실오류"
+ },
+ {
+  "i": 11,
+  "j": 12,
+  "old": "TutorialType::JungleOnly — Jungle 목표를 추가로 허용시키는 별도 항(icmp eq) · 오라클 실행 확증( 오라클 `_verify5/C/o11.out §R1` 171/171 (`line_exists`·`morgard_exists`·`serpen_exists`·`position_exists`·`goal_allowed` 19열 × tutorial 9행 전수))",
+  "new": "TutorialType::JungleOnly 판별자 6 — Jungle 목표를 추가로 허용시키는 별도 항(icmp eq) · 오라클 실행 확증( 오라클 `_verify5/C/o11.out §R1` 171/171 (`line_exists`·`morgard_exists`·`serpen_exists`·`position_exists`·`goal_allowed` 19열 × tutorial 9행 전수))",
+  "want": "태그",
+  "why": "m13.ll:12319~12327 `switch i8 %40, label %41 [ i8 0,… i8 6,… ]` · m13.ll:12353~12356 `[ i8 0 · i8 2 · i8 7 · i8 8 ]` — **switch 케이스 라벨**이다. IR 범위 12238~12479 의 순서비교는 `icmp ult i64 %1, 2`(version) · `icmp ult i8 %53, -6` · `icmp ult i8 %66, -7` 셋뿐이고 이 값들과 무관 ⟹ 임계일 수 없다",
+  "ekind": "실오류"
+ },
+ {
+  "i": 11,
+  "j": 13,
+  "old": "TutorialType::Line — 라인 3종 + Epic + Serpen 허용집합 · 오라클 실행 확증( 오라클 `_verify5/C/o11.out §R1` 171/171 (`line_exists`·`morgard_exists`·`serpen_exists`·`position_exists`·`goal_allowed` 19열 × tutorial 9행 전수))",
+  "new": "TutorialType::Line 판별자 7 — 라인 3종 + Epic + Serpen 허용집합 · 오라클 실행 확증( 오라클 `_verify5/C/o11.out §R1` 171/171 (`line_exists`·`morgard_exists`·`serpen_exists`·`position_exists`·`goal_allowed` 19열 × tutorial 9행 전수))",
+  "want": "태그",
+  "why": "m13.ll:12319~12327 `switch i8 %40, label %41 [ i8 0,… i8 6,… ]` · m13.ll:12353~12356 `[ i8 0 · i8 2 · i8 7 · i8 8 ]` — **switch 케이스 라벨**이다. IR 범위 12238~12479 의 순서비교는 `icmp ult i64 %1, 2`(version) · `icmp ult i8 %53, -6` · `icmp ult i8 %66, -7` 셋뿐이고 이 값들과 무관 ⟹ 임계일 수 없다",
+  "ekind": "실오류"
+ },
+ {
+  "i": 11,
+  "j": 14,
+  "old": "TutorialType::Total — 전 목표 허용집합 · 오라클 실행 확증( 오라클 `_verify5/C/o11.out §R1` 171/171 (`line_exists`·`morgard_exists`·`serpen_exists`·`position_exists`·`goal_allowed` 19열 × tutorial 9행 전수))",
+  "new": "TutorialType::Total 판별자 8 — 전 목표 허용집합 · 오라클 실행 확증( 오라클 `_verify5/C/o11.out §R1` 171/171 (`line_exists`·`morgard_exists`·`serpen_exists`·`position_exists`·`goal_allowed` 19열 × tutorial 9행 전수))",
+  "want": "태그",
+  "why": "m13.ll:12319~12327 `switch i8 %40, label %41 [ i8 0,… i8 6,… ]` · m13.ll:12353~12356 `[ i8 0 · i8 2 · i8 7 · i8 8 ]` — **switch 케이스 라벨**이다. IR 범위 12238~12479 의 순서비교는 `icmp ult i64 %1, 2`(version) · `icmp ult i8 %53, -6` · `icmp ult i8 %66, -7` 셋뿐이고 이 값들과 무관 ⟹ 임계일 수 없다",
+  "ekind": "실오류"
+ }
+]

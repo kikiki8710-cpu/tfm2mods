@@ -1,0 +1,35 @@
+setting_ok	true	width=960000	height=960000	tps=60	champ_radius=10000	visible=130000
+TAG	MorgardDefenseStrategy	Gather=0	Battle=1	(명세 0=Gather 1=Battle)
+TAG	LineType	Top=0	Mid=1	Bottom=2
+TAG	MinionActionType	Pull=0	Normal=1	Push=2
+SPAWN_EPIC	0=true 1=false 2=false 3=false 4=false 5=false 6=false 7=true 8=true 	(명세 consts[0]=-1·consts[1]=6 ⟹ tutorial-1 <u 6 이면 false = 0/7/8 만 true)
+MORGARD_EXISTS	true
+SCORE	Jungle(t0,Rhino)#0	tag=4	camp0=0	hp=1	value=496	coef=40	based=5	game=45	mine=45	MATCH
+SCORE	Jungle(t0,Mushroom)#0	tag=4	camp0=0	hp=1	value=496	coef=40	based=5	game=45	mine=45	MATCH
+SCORE	Jungle(t0,Stump)#0	tag=4	camp0=0	hp=1	value=496	coef=40	based=5	game=45	mine=45	MATCH
+SCORE	Jungle(t0,Bee)#0	tag=4	camp0=0	hp=1	value=496	coef=40	based=5	game=45	mine=45	MATCH
+SCORE	Jungle(t0,Bee)#1	tag=4	camp0=0	hp=1	value=496	coef=40	based=5	game=45	mine=45	MATCH
+SCORE	Jungle(t0,Bee)#2	tag=4	camp0=0	hp=1	value=496	coef=40	based=5	game=45	mine=45	MATCH
+SCORE	Jungle(t1,Rhino)#0	tag=4	camp0=1	hp=1	value=496	coef=40	based=5	game=45	mine=45	MATCH
+SCORE	Jungle(t1,Mushroom)#0	tag=4	camp0=1	hp=1	value=496	coef=40	based=5	game=45	mine=45	MATCH
+SCORE	Jungle(t1,Stump)#0	tag=4	camp0=1	hp=1	value=496	coef=40	based=5	game=45	mine=45	MATCH
+SCORE	Jungle(t1,Bee)#0	tag=4	camp0=1	hp=1	value=496	coef=40	based=5	game=45	mine=45	MATCH
+SCORE	Jungle(t1,Bee)#1	tag=4	camp0=1	hp=1	value=496	coef=40	based=5	game=45	mine=45	MATCH
+SCORE	Jungle(t1,Bee)#2	tag=4	camp0=1	hp=1	value=496	coef=40	based=5	game=45	mine=45	MATCH
+SCORE	Tower#0	tag=2	camp0=140694616527088	hp=1	value=496	coef=80	based=0	game=80	mine=80	MATCH
+SCORE	Tower#1	tag=2	camp0=0	hp=1	value=496	coef=80	based=0	game=80	mine=80	MATCH
+SCORE	Nexus#0	tag=3	camp0=0	hp=1	value=496	coef=200	based=0	game=200	mine=200	MATCH
+SCORE	Nexus#1	tag=3	camp0=0	hp=1	value=496	coef=200	based=0	game=200	mine=200	MATCH
+SCORE	Champion(enemy)	tag=13	camp0=2735025349936	hp=1	value=496	coef=0	based=0	game=0	mine=0	MATCH
+HPSWEEP	hp=1	value=496	coef(le)=40	game=45	mine(hp<=value)=45	alt(hp<value)=45	MATCH
+HPSWEEP	hp=495	value=496	coef(le)=40	game=45	mine(hp<=value)=45	alt(hp<value)=45	MATCH
+HPSWEEP	hp=496	value=496	coef(le)=40	game=45	mine(hp<=value)=45	alt(hp<value)=25	MATCH(판별)
+HPSWEEP	hp=497	value=496	coef(le)=20	game=24	mine(hp<=value)=24	alt(hp<value)=24	MATCH
+HPSWEEP	hp=992	value=496	coef(le)=20	game=15	mine(hp<=value)=15	alt(hp<value)=15	MATCH
+HPSWEEP	hp=993	value=496	coef(le)=20	game=14	mine(hp<=value)=14	alt(hp<value)=14	MATCH
+HPSWEEP	hp=10000	value=496	coef(le)=20	game=5	mine(hp<=value)=5	alt(hp<value)=5	MATCH
+MOBA	epic_minion_buff_time=[600, 600]	remain_epic_time(0)=600	remain_epic_time(1)=600
+HLD_VERSION	line=Top	v0..8=["false", "false", "false", "false", "false", "false", "false", "false", "false"]	all_same=true	debug_bytes_changed=0/9	명세 notes[0] 유지(반증 실패)
+HLD_VERSION	line=Mid	v0..8=["false", "false", "false", "false", "false", "false", "false", "false", "false"]	all_same=true	debug_bytes_changed=0/9	명세 notes[0] 유지(반증 실패)
+HLD_VERSION	line=Bottom	v0..8=["false", "false", "false", "false", "false", "false", "false", "false", "false"]	all_same=true	debug_bytes_changed=0/9	명세 notes[0] 유지(반증 실패)
+HLD_RND	line=Mid	rnd_state_changed=false	(명세 sig.params[2]: strategy 로 전달)

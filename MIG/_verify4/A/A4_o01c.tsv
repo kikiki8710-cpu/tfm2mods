@@ -1,0 +1,34 @@
+setting_ok	true	width=960000	height=960000	tps=60	champ_radius=10000	visible=130000
+towers	16	twin0=2	twin1=2
+is_top_side_true	8/10	(height=0 이면 10/10 로 붕괴한다)
+expect	towers=16 twin=2/2 is_top_side_true=8/10
+
+#o01c  AttackEffect 수동 구성 — 예측식 대조
+o01c	MATCH	dmg=500	ar=0	hr=0	thr=0	catk=0	chp=0	thp=2000	def=0	mr=0	struct=false(false)	pred=501	got=501
+o01c	MATCH	dmg=500	ar=0	hr=0	thr=0	catk=0	chp=0	thp=2000	def=25	mr=0	struct=false(false)	pred=401	got=401
+o01c	MATCH	dmg=500	ar=0	hr=0	thr=0	catk=0	chp=0	thp=2000	def=50	mr=0	struct=false(false)	pred=334	got=334
+o01c	MATCH	dmg=500	ar=0	hr=0	thr=0	catk=0	chp=0	thp=2000	def=100	mr=0	struct=false(false)	pred=251	got=251
+o01c	MATCH	dmg=500	ar=0	hr=0	thr=0	catk=0	chp=0	thp=2000	def=200	mr=0	struct=false(false)	pred=167	got=167
+o01c	MATCH	dmg=500	ar=0	hr=0	thr=0	catk=0	chp=0	thp=2000	def=400	mr=0	struct=false(false)	pred=101	got=101
+o01c	MATCH	dmg=500	ar=0	hr=0	thr=0	catk=0	chp=0	thp=2000	def=900	mr=0	struct=false(false)	pred=51	got=51
+o01c	MATCH	dmg=500	ar=0	hr=0	thr=0	catk=0	chp=0	thp=2000	def=1900	mr=0	struct=false(false)	pred=26	got=26
+o01c	MATCH	dmg=0	ar=100	hr=0	thr=0	catk=300	chp=0	thp=2000	def=0	mr=0	struct=false(false)	pred=301	got=301
+o01c	MATCH	dmg=0	ar=50	hr=0	thr=0	catk=1000	chp=0	thp=2000	def=0	mr=0	struct=false(false)	pred=501	got=501
+o01c	MATCH	dmg=0	ar=200	hr=0	thr=0	catk=777	chp=0	thp=2000	def=0	mr=0	struct=false(false)	pred=1555	got=1555
+o01c	MATCH	dmg=0	ar=0	hr=0	thr=0	catk=1000	chp=0	thp=2000	def=0	mr=0	struct=false(false)	pred=0	got=0
+o01c	MATCH	dmg=0	ar=0	hr=10	thr=0	catk=0	chp=3000	thp=2000	def=0	mr=0	struct=false(false)	pred=301	got=301
+o01c	MATCH	dmg=0	ar=0	hr=3	thr=0	catk=0	chp=1234	thp=2000	def=0	mr=0	struct=false(false)	pred=38	got=38
+o01c	MATCH	dmg=0	ar=0	hr=0	thr=0	catk=0	chp=3000	thp=2000	def=0	mr=0	struct=false(false)	pred=0	got=0
+o01c	MATCH	dmg=100	ar=0	hr=0	thr=10	catk=0	chp=0	thp=2000	def=0	mr=0	struct=false(false)	pred=301	got=301
+o01c	MATCH	dmg=100	ar=0	hr=0	thr=7	catk=0	chp=0	thp=3333	def=0	mr=0	struct=false(false)	pred=334	got=334
+o01c	MATCH	dmg=100	ar=0	hr=0	thr=25	catk=0	chp=0	thp=1000	def=0	mr=0	struct=false(false)	pred=351	got=351
+o01c	MATCH	dmg=100	ar=0	hr=0	thr=0	catk=0	chp=0	thp=2000	def=0	mr=0	struct=false(false)	pred=101	got=101
+o01c	MATCH	dmg=500	ar=0	hr=0	thr=0	catk=0	chp=0	thp=2000	def=0	mr=0	struct=false(false)	pred=501	got=501
+o01c	MATCH	dmg=500	ar=0	hr=0	thr=0	catk=0	chp=0	thp=2000	def=0	mr=100	struct=false(false)	pred=501	got=501
+o01c	MATCH	dmg=500	ar=0	hr=0	thr=0	catk=0	chp=0	thp=2000	def=0	mr=500	struct=false(false)	pred=501	got=501
+o01c	MATCH	dmg=0	ar=0	hr=0	thr=0	catk=1000	chp=3000	thp=2000	def=0	mr=0	struct=false(false)	pred=0	got=0
+o01c	MATCH	dmg=500	ar=0	hr=0	thr=0	catk=0	chp=0	thp=1	def=1	mr=1	struct=true(true)	pred=496	got=496
+o01c	MATCH	dmg=500	ar=0	hr=0	thr=0	catk=0	chp=0	thp=1	def=1	mr=1	struct=true(true)	pred=496	got=496
+o01c	MATCH	dmg=100	ar=0	hr=0	thr=50	catk=0	chp=0	thp=1	def=1	mr=1	struct=true(true)	pred=100	got=100
+
+o01c_summary	total=26	mismatch=0

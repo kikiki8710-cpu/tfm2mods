@@ -1,0 +1,22 @@
+{
+ "round": "6",
+ "batch": "A",
+ "errors_applied": 4,
+ "ev_applied": 158,
+ "failed": 4,
+ "stamps": {
+  "/specs[0]/open[0]": "f572412a03666d23",
+  "/specs[2]/open[1]": "b6463b9f83a1b6ed",
+  "/specs[3]/consts[0]": "9b372441097dce58",
+  "/specs[3]/consts[1]": "e874be814dc9749a",
+  "/specs[3]/consts[2]": "27de6d79a205ab01",
+  "/specs[3]/consts[3]": "7ab19b968ff7b9df",
+  "/specs[3]/knobs[3]": "fc391cc45791aa6b",
+  "/specs[3]/knobs[4]": "205053b1e337e43c",
+  "/specs[3]/logic": "87068c5837f89979",
+  "/specs[3]/open[0]": "b5bc1014259f2951",
+  "/specs[4]/open[0]": "8ede75df5ded8441",
+  "/specs[3]/notes[0]": "b5bc1014259f2951"
+ },
+ "restamped": true
+}

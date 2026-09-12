@@ -1,0 +1,36 @@
+SETUP	slot=ult	level=5	cool=0	tps=60	dist_sq=2000000	max_range=120000	(mr+30000)^2=22500000000	filter_dist_ok=true
+CCTIME	skill=Some(None)	skill2=Some(None)	ult=Some(Some(120))
+RESULT	die_imminent(+0x0)=1	cc_threat(+0x1)=1
+--
+SETUP	slot=ult	level=4	cool=0	tps=60	dist_sq=2000000	max_range=120000	(mr+30000)^2=22500000000	filter_dist_ok=true
+CCTIME	skill=Some(None)	skill2=Some(None)	ult=Some(Some(120))
+RESULT	die_imminent(+0x0)=1	cc_threat(+0x1)=0
+--
+SETUP	slot=ult	level=5	cool=60	tps=60	dist_sq=2000000	max_range=120000	(mr+30000)^2=22500000000	filter_dist_ok=true
+CCTIME	skill=Some(None)	skill2=Some(None)	ult=Some(Some(120))
+RESULT	die_imminent(+0x0)=1	cc_threat(+0x1)=1
+--
+SETUP	slot=ult	level=5	cool=61	tps=60	dist_sq=2000000	max_range=120000	(mr+30000)^2=22500000000	filter_dist_ok=true
+CCTIME	skill=Some(None)	skill2=Some(None)	ult=Some(Some(120))
+RESULT	die_imminent(+0x0)=1	cc_threat(+0x1)=0
+--
+SETUP	slot=skill2	level=3	cool=0	tps=60	dist_sq=2000000	max_range=120000	(mr+30000)^2=22500000000	filter_dist_ok=true
+CCTIME	skill=Some(None)	skill2=Some(Some(120))	ult=Some(None)
+RESULT	die_imminent(+0x0)=1	cc_threat(+0x1)=1
+--
+SETUP	slot=skill2	level=2	cool=0	tps=60	dist_sq=2000000	max_range=120000	(mr+30000)^2=22500000000	filter_dist_ok=true
+CCTIME	skill=Some(None)	skill2=Some(Some(120))	ult=Some(None)
+RESULT	die_imminent(+0x0)=1	cc_threat(+0x1)=0
+--
+SETUP	slot=skill	level=1	cool=0	tps=60	dist_sq=2000000	max_range=120000	(mr+30000)^2=22500000000	filter_dist_ok=true
+CCTIME	skill=Some(Some(120))	skill2=Some(None)	ult=Some(None)
+RESULT	die_imminent(+0x0)=1	cc_threat(+0x1)=1
+--
+SETUP	slot=skill	level=1	cool=60	tps=60	dist_sq=2000000	max_range=120000	(mr+30000)^2=22500000000	filter_dist_ok=true
+CCTIME	skill=Some(Some(120))	skill2=Some(None)	ult=Some(None)
+RESULT	die_imminent(+0x0)=1	cc_threat(+0x1)=1
+--
+SETUP	slot=skill	level=1	cool=61	tps=60	dist_sq=2000000	max_range=120000	(mr+30000)^2=22500000000	filter_dist_ok=true
+CCTIME	skill=Some(Some(120))	skill2=Some(None)	ult=Some(None)
+RESULT	die_imminent(+0x0)=1	cc_threat(+0x1)=0
+--

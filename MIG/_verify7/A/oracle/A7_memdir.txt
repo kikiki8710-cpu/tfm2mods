@@ -1,0 +1,122 @@
+
+=== specs[0] ult  (m04.ll 43967~44365)
+  mem[0 ] PlayerState(=GamePlayer info)      0x930    dir=r   IR=r    OK
+  mem[1 ] PlayerState(=GamePlayer info)      0x9c0    dir=r   IR=r    OK
+  mem[2 ] OperationData                      0x0      dir=r   IR=rw   OK
+  mem[3 ] OperationData                      0x8      dir=r   IR=rw   OK
+  mem[4 ] AbstractGameWithCache              0x1e0    dir=r   IR=r    OK
+  mem[5 ] GameContext                        0x8      dir=r   IR=rw   OK
+  mem[6 ] GameContext                        0x20     dir=r   IR=r    OK
+  mem[7 ] Entity(champ)                      0x0      dir=r   IR=rw   OK
+  mem[8 ] Entity(champ)                      0x8      dir=r   IR=rw   OK
+  mem[9 ] Entity(target)                     0x38     dir=r   IR=-    범위밖/접힘
+  mem[10] Entity(champ)                      0x438    dir=r   IR=r    OK
+  mem[11] Entity(champ/target)               0x470    dir=r   IR=r    OK
+  mem[12] Entity(champ)                      0x538    dir=r   IR=-    범위밖/접힘
+  mem[13] Entity(champ)                      0x5c8    dir=r   IR=r    OK
+  mem[14] Entity(champ/target)               0x660    dir=r   IR=r    OK
+  mem[15] Entity(champ/target)               0x668    dir=r   IR=r    OK
+  mem[16] Entity(champ/target)               0x680    dir=r   IR=r    OK
+  mem[17] Effect                             0x0      dir=r   IR=rw   OK
+  mem[18] Effect                             0x8      dir=r   IR=rw   OK
+  mem[19] Effect                             0x10     dir=r   IR=r    OK
+  mem[20] Effect                             0x18     dir=r   IR=r    OK
+  mem[21] Effect                             0x28     dir=r   IR=-    범위밖/접힘
+  mem[22] Effect                             0x30     dir=r   IR=r    OK
+  mem[23] dyn EffectType vtable              0x10     dir=r   IR=r    OK
+  mem[24] dyn EffectType vtable              0xf8     dir=r   IR=r    OK
+  mem[25] dyn EffectType vtable              0x118    dir=r   IR=r    OK
+  mem[26] Option<Input> (sret 반환슬롯)          0x0      dir=w   IR=rw   OK
+  mem[27] Option<Input> (sret 반환슬롯)          0x8      dir=w   IR=rw   OK
+  mem[28] Option<Input> (sret 반환슬롯)          0x0      dir=w   IR=rw   OK
+  -> OK 26 · 불일치 0 · 범위밖/접힘 3
+
+=== specs[1] calculate_jungle_action_score  (m05.ll 39984~40103)
+  mem[0 ] PlayerState                        0x930    dir=r   IR=r    OK
+  mem[1 ] PlayerState                        0x9c0    dir=r   IR=r    OK
+  mem[2 ] OperationData                      0x0      dir=r   IR=r    OK
+  mem[3 ] OperationData                      0x8      dir=r   IR=r    OK
+  mem[4 ] AbstractGameWithCache              0x1e0    dir=r   IR=r    OK
+  mem[5 ] Entity                             0x68     dir=r   IR=r    OK
+  mem[6 ] Entity                             0x98     dir=r   IR=r    OK
+  mem[7 ] Entity                             0x670    dir=r   IR=r    OK
+  -> OK 8 · 불일치 0 · 범위밖/접힘 0
+
+=== specs[2] sub_plan  (m12.ll 34867~34976)
+  mem[0 ] PlayerState                        0x930    dir=r   IR=r    OK
+  mem[1 ] PlayerState                        0x9c0    dir=r   IR=r    OK
+  mem[2 ] OperationData                      0x0      dir=r   IR=rw   OK
+  mem[3 ] OperationData                      0x8      dir=r   IR=rw   OK
+  mem[4 ] GameContext                        0x20     dir=r   IR=r    OK
+  mem[5 ] AbstractGameWithCache              0x1e0    dir=r   IR=r    OK
+  mem[6 ] AbstractGameWithCache              0x148    dir=r   IR=r    OK
+  mem[7 ] MapDef                             0x6d70   dir=r   IR=-    범위밖/접힘
+  mem[8 ] MapDef.fountains[team]             0x0      dir=r   IR=rw   OK
+  mem[9 ] MapDef.fountains[team]             0x8      dir=r   IR=rw   OK
+  mem[10] MapDef.fountains[team]             0x10     dir=r   IR=r    OK
+  mem[11] MapDef.fountains[team]             0x18     dir=r   IR=r    OK
+  mem[12] Entity                             0x660    dir=r   IR=r    OK
+  mem[13] Entity                             0x668    dir=r   IR=r    OK
+  mem[14] Entity                             0x670    dir=r   IR=r    OK
+  mem[15] Entity                             0x628    dir=r   IR=r    OK
+  mem[16] AttackNexusPlan                    0x8      dir=r   IR=rw   OK
+  mem[17] SubPlan(sret 반환버퍼 %0)              0x0      dir=w   IR=rw   OK
+  mem[18] SubPlan(sret) LineDefense 페이로드     0x8      dir=w   IR=rw   OK
+  mem[19] SubPlan(sret) LineDefense 페이로드     0x9      dir=w   IR=w    OK
+  mem[20] SubPlan(sret) LineDefense 페이로드     0xa      dir=w   IR=w    OK
+  -> OK 20 · 불일치 0 · 범위밖/접힘 1
+
+=== specs[3] defensive_crisis  (m10.ll 33864~34294)
+  mem[0 ] OperationData                      0x0      dir=r   IR=rw   OK
+  mem[1 ] OperationData                      0x8      dir=r   IR=rw   OK
+  mem[2 ] OperationData                      0x10     dir=r   IR=rw   OK
+  mem[3 ] GameContext                        0x0      dir=r   IR=rw   OK
+  mem[4 ] GameContext                        0x8      dir=r   IR=rw   OK
+  mem[5 ] GameSetting                        0x12f8   dir=r   IR=r    OK
+  mem[6 ] PlayerState                        0x930    dir=r   IR=r    OK
+  mem[7 ] AbstractGameWithCache              0x1e0    dir=r   IR=-    범위밖/접힘
+  mem[8 ] AbstractGameWithCache              0x0      dir=r   IR=rw   OK
+  mem[9 ] Entity(target)                     0x5c0    dir=r   IR=r    OK
+  mem[10] Vec<&Entity>(bumpalo, 32B)         0x0      dir=r   IR=rw   OK
+  mem[11] Vec<&Entity>(bumpalo, 32B)         0x18     dir=r   IR=rw   OK
+  mem[12] Entity(near_enemies 원소)            0x68     dir=r   IR=r    OK
+  mem[13] Entity(near_enemies 원소)            0xb8     dir=r   IR=r    OK
+  mem[14] Entity(near_enemies 원소)            0xc0     dir=r   IR=r    OK
+  mem[15] Entity(near_enemies 원소)            0xc8     dir=r   IR=r    OK
+  mem[16] Entity(near_enemies 원소)            0x4c8    dir=r   IR=-    범위밖/접힘
+  mem[17] Entity(near_enemies 원소)            0x4f8    dir=r   IR=r    OK
+  mem[18] Entity(near_enemies 원소)            0x500    dir=r   IR=-    범위밖/접힘
+  mem[19] Entity(near_enemies 원소)            0x538    dir=r   IR=-    범위밖/접힘
+  mem[20] Entity(near_enemies 원소)            0x5c8    dir=r   IR=r    OK
+  mem[21] Effect                             0x30     dir=r   IR=rw   OK
+  -> OK 18 · 불일치 0 · 범위밖/접힘 4
+
+=== specs[4] handle_line_defense  (m04.ll 58175~58644)
+  mem[0 ] OperationData                      0x0      dir=r   IR=rw   OK
+  mem[1 ] OperationData                      0x8      dir=r   IR=rw   OK
+  mem[2 ] OperationData                      0x10     dir=r   IR=rw   OK
+  mem[3 ] GameContext                        0x0      dir=r   IR=rw   OK
+  mem[4 ] GameContext                        0x8      dir=r   IR=rw   OK
+  mem[5 ] GameContext                        0x38     dir=r   IR=r    OK
+  mem[6 ] AbstractGameWithCache              0x0      dir=r   IR=rw   OK
+  mem[7 ] AbstractGame vtable                0x40     dir=r   IR=r    OK
+  mem[8 ] MobaMode                           0x240    dir=r   IR=r    OK
+  mem[9 ] PlayerState                        0x930    dir=r   IR=r    OK
+  mem[10] AbstractGameWithCache              0x130    dir=r   IR=-    범위밖/접힘
+  mem[11] AbstractGameWithCache              0x180    dir=r   IR=-    범위밖/접힘
+  mem[12] AbstractGameWithCache              0x190    dir=r   IR=-    범위밖/접힘
+  mem[13] AbstractGameWithCache              0x1a0    dir=r   IR=-    범위밖/접힘
+  mem[14] AbstractGameWithCache              0x1b0    dir=r   IR=-    범위밖/접힘
+  mem[15] AbstractGameWithCache              0x1c0    dir=r   IR=-    범위밖/접힘
+  mem[16] AbstractGameWithCache              0x1d0    dir=r   IR=-    범위밖/접힘
+  mem[17] bumpalo Vec<&Entity>               0x18     dir=r   IR=rw   OK
+  mem[18] Entity                             0x5c0    dir=r   IR=r    OK
+  mem[19] Entity                             0x660    dir=r   IR=r    OK
+  mem[20] Entity                             0x668    dir=r   IR=r    OK
+  mem[21] Strategy                           0xe      dir=r   IR=r    OK
+  mem[22] Blackboard                         0x0      dir=r   IR=rw   OK
+  mem[23] Blackboard                         0x28     dir=r   IR=-    범위밖/접힘
+  mem[24] Blackboard                         0x50     dir=r   IR=-    범위밖/접힘
+  mem[25] BrainMinionParameter               0x10     dir=r   IR=rw   OK
+  mem[26] BrainMinionParameter               0x20     dir=r   IR=w    ★불일치 (IR=w)
+  -> OK 17 · 불일치 1 · 범위밖/접힘 9

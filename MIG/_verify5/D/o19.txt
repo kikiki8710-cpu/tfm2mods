@@ -1,0 +1,85 @@
+setting_ok	true	width=960000	height=960000	tps=60	champ_radius=10000	visible=130000
+camp_pos	Rhino	blue=(496000, 752000)	red=(752000, 496000)	JungleType::camp_pos(blue)=(496000, 752000)
+camp_pos	Mushroom	blue=(176000, 592000)	red=(592000, 176000)	JungleType::camp_pos(blue)=(176000, 592000)
+camp_pos	Stump	blue=(256000, 448000)	red=(448000, 256000)	JungleType::camp_pos(blue)=(256000, 448000)
+camp_pos	Bee	blue=(351000, 800000)	red=(800000, 351000)	JungleType::camp_pos(blue)=(351000, 800000)
+camp_pos	Morgard	blue=(288000, 288000)	red=(288000, 288000)	JungleType::camp_pos(blue)=(288000, 288000)
+camp_pos	Serpen	blue=(672000, 672000)	red=(672000, 672000)	JungleType::camp_pos(blue)=(672000, 672000)
+campstate	team0	Rhino	next_respawn_tick=0	respawn_count=0	live=0	is_blue_side=true
+campstate	team0	Mushroom	next_respawn_tick=0	respawn_count=0	live=0	is_blue_side=true
+campstate	team0	Bee	next_respawn_tick=0	respawn_count=0	live=0	is_blue_side=true
+campstate	team0	Stump	next_respawn_tick=0	respawn_count=0	live=0	is_blue_side=true
+campstate	team1	Rhino	next_respawn_tick=0	respawn_count=0	live=0	is_blue_side=false
+campstate	team1	Mushroom	next_respawn_tick=0	respawn_count=0	live=0	is_blue_side=false
+campstate	team1	Bee	next_respawn_tick=0	respawn_count=0	live=0	is_blue_side=false
+campstate	team1	Stump	next_respawn_tick=0	respawn_count=0	live=0	is_blue_side=false
+is_cleared	Rhino	false
+is_cleared	Mushroom	false
+is_cleared	Bee	false
+is_cleared	Stump	false
+pos	(15000,913000)	game=Bee	mine=Bee	MATCH	d2[Rhino=257282000000 Mushroom=128962000000 Bee=125665000000 Stump=274306000000]
+pos	(480000,480000)	game=Stump	mine=Stump	MATCH	d2[Rhino=74240000000 Mushroom=104960000000 Bee=119041000000 Stump=51200000000]
+pos	(100000,800000)	game=Mushroom	mine=Mushroom	MATCH	d2[Rhino=159120000000 Mushroom=49040000000 Bee=63001000000 Stump=148240000000]
+pos	(800000,100000)	game=Stump	mine=Stump	MATCH	d2[Rhino=517520000000 Mushroom=631440000000 Bee=691601000000 Stump=417040000000]
+pos	(0,0)	game=Stump	mine=Stump	MATCH	d2[Rhino=811520000000 Mushroom=381440000000 Bee=763201000000 Stump=266240000000]
+pos	(959000,959000)	game=Rhino	mine=Rhino	MATCH	d2[Rhino=257218000000 Mushroom=747778000000 Bee=394945000000 Stump=755330000000]
+pos	(300000,700000)	game=Bee	mine=Bee	MATCH	d2[Rhino=41120000000 Mushroom=27040000000 Bee=12601000000 Stump=65440000000]
+pos	(700000,300000)	game=Stump	mine=Stump	MATCH	d2[Rhino=245920000000 Mushroom=359840000000 Bee=371801000000 Stump=219040000000]
+pos	(200000,200000)	game=Stump	mine=Stump	MATCH	d2[Rhino=392320000000 Mushroom=154240000000 Bee=382801000000 Stump=64640000000]
+pos	(600000,600000)	game=Rhino	mine=Rhino	MATCH	d2[Rhino=33920000000 Mushroom=179840000000 Bee=102001000000 Stump=141440000000]
+pos	(50000,500000)	game=Mushroom	mine=Mushroom	MATCH	d2[Rhino=262420000000 Mushroom=24340000000 Bee=180601000000 Stump=45140000000]
+pos	(500000,50000)	game=Stump	mine=Stump	MATCH	d2[Rhino=492820000000 Mushroom=398740000000 Bee=584701000000 Stump=217940000000]
+tie	mid(Rhino,Mushroom)=(336000,672000)	game=Bee	mine=Bee	MATCH	d2[Rhino=32000000000 Mushroom=32000000000 Bee=16609000000 Stump=56576000000]
+ver	0	game=Stump
+ver	1	game=Stump
+ver	2	game=Stump
+ver	3	game=Stump
+ver	30	game=Stump
+ver	50	game=Stump
+ver	60	game=Stump
+seed	0	game=Stump
+seed	1	game=Stump
+seed	7	game=Stump
+seed	999	game=Stump
+seed	123456789	game=Stump
+nowcamp_champPRESENT	None	game=Stump
+nowcamp_champPRESENT	Some(Rhino)	game=Stump
+nowcamp_champPRESENT	Some(Mushroom)	game=Stump
+nowcamp_champPRESENT	Some(Stump)	game=Stump
+nowcamp_champPRESENT	Some(Bee)	game=Stump
+nowcamp_champPRESENT	Some(Morgard)	game=Stump
+nowcamp_champPRESENT	Some(Serpen)	game=Stump
+champNone_nowcamp	Some(Rhino)	game=Rhino	MATCH(그대로 유지)
+champNone_nowcamp	Some(Mushroom)	game=Mushroom	MATCH(그대로 유지)
+champNone_nowcamp	Some(Stump)	game=Stump	MATCH(그대로 유지)
+champNone_nowcamp	Some(Bee)	game=Bee	MATCH(그대로 유지)
+champNone_nowcamp	Some(Morgard)	game=Morgard	MATCH(그대로 유지)
+champNone_nowcamp	Some(Serpen)	game=Serpen	MATCH(그대로 유지)
+champNone_random	seed=0	game=Stump
+champNone_random	seed=1	game=Stump
+champNone_random	seed=2	game=Rhino
+champNone_random	seed=3	game=Rhino
+champNone_random	seed=7	game=Rhino
+champNone_random	seed=99	game=Stump
+champNone_random	seed=12345	game=Bee
+fallback_reach	cleared_camps=0/4	(4 여야 817줄 폴백에 도달)
+plr	t0	Top	champ=(Some((15000, 913000)))	game=Bee	mine=Bee	MATCH
+plr	t0	Jungle	champ=(Some((480000, 480000)))	game=Stump	mine=Stump	MATCH
+plr	t0	Mid	champ=(Some((49000, 911000)))	game=Bee	mine=Bee	MATCH
+plr	t0	Bottom	champ=(Some((15000, 938000)))	game=Bee	mine=Bee	MATCH
+plr	t0	Support	champ=(Some((49000, 946000)))	game=Bee	mine=Bee	MATCH
+plr	t1	Top	champ=(Some((913000, 15000)))	game=Bee	mine=Bee	MATCH
+plr	t1	Jungle	champ=(Some((928000, 32000)))	game=Bee	mine=Bee	MATCH
+plr	t1	Mid	champ=(Some((911000, 49000)))	game=Bee	mine=Bee	MATCH
+plr	t1	Bottom	champ=(Some((938000, 15000)))	game=Bee	mine=Bee	MATCH
+plr	t1	Support	champ=(Some((946000, 49000)))	game=Bee	mine=Bee	MATCH
+tlsmemo	Rhino	map1_blue=(496000, 752000)	map2_blue=(496000, 752000)	same=true
+tlsmemo	Mushroom	map1_blue=(176000, 592000)	map2_blue=(176000, 592000)	same=true
+tlsmemo	Bee	map1_blue=(351000, 800000)	map2_blue=(351000, 800000)	same=true
+tlsmemo	Stump	map1_blue=(256000, 448000)	map2_blue=(256000, 448000)	same=true
+tlsmemo_rev	Rhino	map2_blue=(496000, 752000)	map1_blue=(496000, 752000)
+tlsmemo_rev	Mushroom	map2_blue=(176000, 592000)	map1_blue=(176000, 592000)
+tlsmemo_rev	Bee	map2_blue=(351000, 800000)	map1_blue=(351000, 800000)
+tlsmemo_rev	Stump	map2_blue=(256000, 448000)	map1_blue=(256000, 448000)
+TOTAL	29/29	MATCH
+DONE	setting_ok=true

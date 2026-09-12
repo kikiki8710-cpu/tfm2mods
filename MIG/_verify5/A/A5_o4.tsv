@@ -1,0 +1,23 @@
+setting_ok	true	width=960000	height=960000	tps=60	champ_radius=10000	visible=130000
+RADIUS	mult=0	radius_field=10000	radius_fn=10000	pred_sext=10000	pred_zext=10000	verdict=sext_ok(비판별)
+WORLD	champion_ids=10	tower_ids=16	nexus_ids=2	jungle_ids=0	minion_ids=0
+MINION_SPAWN	n=0
+SCORE	Jungle(t0,Rhino)#0	tag=4	camp0=0	hp=1	value=496	coef=40	based=5	game=45	mine=45	MATCH
+SCORE	Jungle(t0,Mushroom)#0	tag=4	camp0=0	hp=1	value=496	coef=40	based=5	game=45	mine=45	MATCH
+SCORE	Jungle(t0,Stump)#0	tag=4	camp0=0	hp=1	value=496	coef=40	based=5	game=45	mine=45	MATCH
+SCORE	Jungle(t0,Bee)#0	tag=4	camp0=0	hp=1	value=496	coef=40	based=5	game=45	mine=45	MATCH
+SCORE	Jungle(t0,Bee)#1	tag=4	camp0=0	hp=1	value=496	coef=40	based=5	game=45	mine=45	MATCH
+SCORE	Jungle(t0,Bee)#2	tag=4	camp0=0	hp=1	value=496	coef=40	based=5	game=45	mine=45	MATCH
+SCORE	Jungle(t1,Rhino)#0	tag=4	camp0=1	hp=1	value=496	coef=40	based=5	game=45	mine=45	MATCH
+SCORE	Jungle(t1,Mushroom)#0	tag=4	camp0=1	hp=1	value=496	coef=40	based=5	game=45	mine=45	MATCH
+SCORE	Jungle(t1,Stump)#0	tag=4	camp0=1	hp=1	value=496	coef=40	based=5	game=45	mine=45	MATCH
+SCORE	Jungle(t1,Bee)#0	tag=4	camp0=1	hp=1	value=496	coef=40	based=5	game=45	mine=45	MATCH
+SCORE	Jungle(t1,Bee)#1	tag=4	camp0=1	hp=1	value=496	coef=40	based=5	game=45	mine=45	MATCH
+SCORE	Jungle(t1,Bee)#2	tag=4	camp0=1	hp=1	value=496	coef=40	based=5	game=45	mine=45	MATCH
+SCORE	Jungle(camp0=2 강제)	tag=4	camp0=2	hp=1	value=496	game=0	기대(명세: coef0/based0)=0	MATCH
+SCORE	Jungle(camp0=1 강제)	game=45
+SCORE	Champion(enemy Top)	tag=13	hp=1	value=496	coef=0	based=0	game=0	mine=0	MATCH
+SCORE	Tower#0	tag=2	hp=1	value=496	coef=80	based=0	game=80	mine=80	MATCH
+SCORE	Tower#1	tag=2	hp=1	value=496	coef=80	based=0	game=80	mine=80	MATCH
+SCORE	Nexus#0	tag=3	hp=1	value=496	coef=200	based=0	game=200	mine=200	MATCH
+SCORE	Nexus#1	tag=3	hp=1	value=496	coef=200	based=0	game=200	mine=200	MATCH

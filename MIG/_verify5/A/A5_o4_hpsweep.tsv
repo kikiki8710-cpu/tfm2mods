@@ -1,0 +1,10 @@
+MINION_SPAWN	n=0
+HPSWEEP	hp=1	value=496	coef(le)=40	game=45	mine(hp<=value)=45	alt(hp<value)=45	MATCH
+HPSWEEP	hp=495	value=496	coef(le)=40	game=45	mine(hp<=value)=45	alt(hp<value)=45	MATCH
+HPSWEEP	hp=496	value=496	coef(le)=40	game=45	mine(hp<=value)=45	alt(hp<value)=25	MATCH(판별)
+HPSWEEP	hp=497	value=496	coef(le)=20	game=24	mine(hp<=value)=24	alt(hp<value)=24	MATCH
+HPSWEEP	hp=992	value=496	coef(le)=20	game=15	mine(hp<=value)=15	alt(hp<value)=15	MATCH
+HPSWEEP	hp=993	value=496	coef(le)=20	game=14	mine(hp<=value)=14	alt(hp<value)=14	MATCH
+HPSWEEP	hp=1000	value=496	coef(le)=20	game=14	mine(hp<=value)=14	alt(hp<value)=14	MATCH
+HPSWEEP	hp=10000	value=496	coef(le)=20	game=5	mine(hp<=value)=5	alt(hp<value)=5	MATCH
+HPSWEEP	hp=100000	value=496	coef(le)=20	game=5	mine(hp<=value)=5	alt(hp<value)=5	MATCH

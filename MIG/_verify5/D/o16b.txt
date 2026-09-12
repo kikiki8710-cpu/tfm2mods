@@ -1,0 +1,74 @@
+setting_ok	true	width=960000	height=960000	tps=60	champ_radius=10000	visible=130000
+eoff_attack	range=+0x4a0	growth_range=+0x4a8	target=+0x4b8	casting=+0x4c0	ty=+0x490	start_timing=+0x4b0	attack_type=+0x4bc
+eoff_skill	range=+0x4d8	growth_range=+0x4e0	target=+0x4f0	casting=+0x4f8
+eoff_s2u	s2.range=+0x510	s2.casting=+0x530	ult.range=+0x548	ult.casting=+0x568
+eoff_rel	Effect.range=+0x10	Effect.growth_range=+0x18	Effect.target=+0x28	Effect.casting=+0x30
+cdoff_champion	attack=+0xb0	skill=+0xb8	skill2=+0xc0	ult=+0xc8
+slot0_cd0	tick=40	game=51600	mine=51600	MATCH
+slot0_cd39	tick=40	game=51600	mine=51600	MATCH
+slot0_cd40	tick=40	game=51600	mine=51600	MATCH
+slot0_cd41	tick=40	game=2600	mine=2600	MATCH
+slot0_cd100000	tick=40	game=2600	mine=2600	MATCH
+slot0_cd50_tick40	tick=40	game=2600	mine=2600	MATCH
+slot0_cd50_tick49	tick=49	game=2600	mine=2600	MATCH
+slot0_cd50_tick50	tick=50	game=51600	mine=51600	MATCH
+slot0_cd50_tick51	tick=51	game=51600	mine=51600	MATCH
+slot0_cd50_tick60	tick=60	game=51600	mine=51600	MATCH
+slot0_targetAlly	tick=40	game=2600	mine=2600	MATCH
+slot0_None	tick=40	game=2600	mine=2600	MATCH
+slot1_cd0	tick=40	game=51600	mine=51600	MATCH
+slot1_cd39	tick=40	game=51600	mine=51600	MATCH
+slot1_cd40	tick=40	game=51600	mine=51600	MATCH
+slot1_cd41	tick=40	game=2600	mine=2600	MATCH
+slot1_cd100000	tick=40	game=2600	mine=2600	MATCH
+slot1_cd50_tick40	tick=40	game=2600	mine=2600	MATCH
+slot1_cd50_tick49	tick=49	game=2600	mine=2600	MATCH
+slot1_cd50_tick50	tick=50	game=51600	mine=51600	MATCH
+slot1_cd50_tick51	tick=51	game=51600	mine=51600	MATCH
+slot1_cd50_tick60	tick=60	game=51600	mine=51600	MATCH
+slot1_targetAlly	tick=40	game=2600	mine=2600	MATCH
+slot1_None	tick=40	game=2600	mine=2600	MATCH
+slot2_cd0	tick=40	game=51600	mine=51600	MATCH
+slot2_cd39	tick=40	game=51600	mine=51600	MATCH
+slot2_cd40	tick=40	game=51600	mine=51600	MATCH
+slot2_cd41	tick=40	game=2600	mine=2600	MATCH
+slot2_cd100000	tick=40	game=2600	mine=2600	MATCH
+slot2_cd50_tick40	tick=40	game=2600	mine=2600	MATCH
+slot2_cd50_tick49	tick=49	game=2600	mine=2600	MATCH
+slot2_cd50_tick50	tick=50	game=51600	mine=51600	MATCH
+slot2_cd50_tick51	tick=51	game=51600	mine=51600	MATCH
+slot2_cd50_tick60	tick=60	game=51600	mine=51600	MATCH
+slot2_targetAlly	tick=40	game=2600	mine=2600	MATCH
+slot2_None	tick=40	game=2600	mine=2600	MATCH
+slot3_cd0	tick=40	game=51600	mine=51600	MATCH
+slot3_cd39	tick=40	game=51600	mine=51600	MATCH
+slot3_cd40	tick=40	game=51600	mine=51600	MATCH
+slot3_cd41	tick=40	game=2600	mine=2600	MATCH
+slot3_cd100000	tick=40	game=2600	mine=2600	MATCH
+slot3_cd50_tick40	tick=40	game=2600	mine=2600	MATCH
+slot3_cd50_tick49	tick=49	game=2600	mine=2600	MATCH
+slot3_cd50_tick50	tick=50	game=51600	mine=51600	MATCH
+slot3_cd50_tick51	tick=51	game=51600	mine=51600	MATCH
+slot3_cd50_tick60	tick=60	game=51600	mine=51600	MATCH
+slot3_targetAlly	tick=40	game=2600	mine=2600	MATCH
+slot3_None	tick=40	game=2600	mine=2600	MATCH
+ent	tower	id=2	ty_tag=2	attack_cd_off=+0x110	attack_effect_some=true	radius=10000	level=1
+entcd	tower	cd=0	api_attack_cooldown=0	game=51600	mine=51600	MATCH
+entcd	tower	cd=40	api_attack_cooldown=40	game=51600	mine=51600	MATCH
+entcd	tower	cd=41	api_attack_cooldown=41	game=2600	mine=2600	MATCH
+entcd	tower	cd=100000	api_attack_cooldown=100000	game=2600	mine=2600	MATCH
+ent	nexus	id=0	ty_tag=3	attack_cd_off=n/a	attack_effect_some=false	radius=10000	level=1
+entcd	nexus	cd=0	api_attack_cooldown=0	game=51600	mine=51600	MATCH
+entcd	nexus	cd=40	api_attack_cooldown=0	game=51600	mine=51600	MATCH
+entcd	nexus	cd=41	api_attack_cooldown=0	game=51600	mine=51600	MATCH
+entcd	nexus	cd=100000	api_attack_cooldown=0	game=51600	mine=51600	MATCH
+well	(913000,15000)	is_enemy_well_danger=true
+well	(900000,100000)	is_enemy_well_danger=true
+well	(800000,200000)	is_enemy_well_danger=false
+well	(700000,300000)	is_enemy_well_danger=false
+well	(600000,400000)	is_enemy_well_danger=false
+well	(480000,480000)	is_enemy_well_danger=false
+well	(15000,913000)	is_enemy_well_danger=false
+well	(959000,1000)	is_enemy_well_danger=true
+TOTAL	56/56	MATCH
+DONE	setting_ok=true

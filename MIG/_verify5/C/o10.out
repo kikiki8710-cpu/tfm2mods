@@ -1,0 +1,51 @@
+setting_ok	true	width=960000 height=960000 tps=60 radius=10000
+attack_effect_is_some	true	skill=true	skill2=true	ult=true
+
+### O10-A can_enemy_hit_objective(enemy@(0,0), obj@(d,0), margin)
+margin	boundary_d	(true 인 최대 d)
+0	NONE(d=0 에서도 false)
+1	NONE(d=0 에서도 false)
+25000	NONE(d=0 에서도 false)
+50000	NONE(d=0 에서도 false)
+100000	NONE(d=0 에서도 false)
+200000	NONE(d=0 에서도 false)
+400000	NONE(d=0 에서도 false)
+
+### O10-B objective_entity_id_for_main_objective(tag 0..11)
+tag	name	result
+0	Morgard(Hunt,false)	None
+1	Serpen(Hunt,false)	None
+2	Defense	None
+3	DefenseLine(Top)	None
+4	Nexus(Top)	None
+5	PressEpic(Top)	None
+6	SplitEpic(Top)	None
+7	Repair	None
+8	Gank(Top)	None
+9	Dive(Top)	None
+10	PressTower(Top)	None
+11	ComebackPick(Top,0)	None
+(참고) 게임 시작 직후엔 epic/serpen live_list 가 비어 있을 수 있다
+
+### O10-C Blackboard::is_recent_visible — last_visible[pos] + W >= tick
+tick	last_visible	result	expect(W=120)
+1000	880	true	expect=true	(is_visible=false)
+1000	879	false	expect=false	(is_visible=false)
+1000	881	true	expect=true	(is_visible=false)
+1000	1000	true	expect=true	(is_visible=false)
+5000	4880	true	expect=true	(is_visible=false)
+5000	4879	false	expect=false	(is_visible=false)
+300	179	false	expect=false	(is_visible=false)
+300	180	true	expect=true	(is_visible=false)
+
+### O10-D is_enemy_well_danger(version, player, x, y) — version 0..5 동일한가
+version 0..5 격자 162칸 — 다른 버전 수 = 0
+  team0 player, (0, 800000) -> false
+  team0 player, (0, 799999) -> false
+  team0 player, (64000, 960000) -> false
+  team0 player, (64001, 960000) -> false
+  team0 player, (0, 960000) -> false
+  team0 player, (160000, 896000) -> false
+  team0 player, (160001, 896000) -> false
+
+DONE

@@ -1,0 +1,55 @@
+specs[ 0] ult                                            params 7 · 결함후보 0
+specs[ 1] calculate_jungle_action_score                  params 7 · 결함후보 0
+specs[ 2] sub_plan                                       params 7 · 결함후보 5
+    params i=1 self             「본문은 line 만 읽는다(team 은 안 씀 — team 은 playe」인데 %0 를 베이스로 7회 접근
+        34964: %64 = getelementptr inbounds nuw i8, ptr %0, i64 8, !dbg !62989
+        34965: store i8 0, ptr %64, align 8, !dbg !62989
+        34966: %65 = getelementptr inbounds nuw i8, ptr %0, i64 9, !dbg !62989
+    params i=4 player           인용 오프셋 ['0x930'] 가 %3 사슬에 없다 (실제 ['0x0'])
+    params i=4 player           인용 오프셋 ['0x9c0'] 가 %3 사슬에 없다 (실제 ['0x0'])
+    params i=5 data             인용 오프셋 ['0x8'] 가 %4 사슬에 없다 (실제 ['0x0', '0x930', '0x9c0'])
+    params i=6 _team_plan       「readnone — 미사용(이름의 _ 접두와 일치)」인데 %5 를 베이스로 3회 접근
+        34890: %17 = load ptr, ptr %5, align 8, !dbg !62937, !nonnull !8, !align !8930, !noundef !8
+        34906: %25 = getelementptr inbounds nuw i8, ptr %5, i64 8, !dbg !62946
+        34907: %26 = load ptr, ptr %25, align 8, !dbg !62946, !nonnull !8, !align !8930, !noundef !8
+specs[ 3] defensive_crisis                               params 6 · 결함후보 0
+specs[ 4] handle_line_defense                            params 6 · 결함후보 0
+specs[ 5] v50_fold_dive_episode                          params 5 · 결함후보 0
+specs[ 6] v2_response_retreat_stance                     params 6 · 결함후보 1
+    params i=3 rnd              「이 본문에선 안 씀 — check_kill_die_tick 에 그대로 넘」인데 %2 를 베이스로 4회 접근
+        45236: %16 = getelementptr inbounds nuw i8, ptr %2, i64 2352, !dbg !48766
+        45237: %17 = load i64, ptr %16, align 8, !dbg !48766, !noundef !8
+        45247: %21 = getelementptr inbounds nuw i8, ptr %2, i64 2496, !dbg !48771
+specs[ 7] sub_plan                                       params 8 · 결함후보 1
+    params i=6 goal_data        인용 오프셋 ['0x78'] 가 %6 사슬에 없다 (실제 ['0x0', '0x98', '0xa0'])
+specs[ 8] is_end                                         params 7 · 결함후보 1
+    params i=6 team_plan        「이 함수에서 쓰기는 없다(이름이 take_* 지만 실제 mutate 없음」인데 %5 를 베이스로 5회 접근
+        7677: %10 = getelementptr inbounds nuw i8, ptr %5, i64 1055, !dbg !19220
+        7678: %11 = load i8, ptr %10, align 1, !dbg !19220, !range !19221, !noundef !8
+        7697: %25 = load i8, ptr %10, align 1, !dbg !19223
+specs[ 9] check_favorable_engage_formation               params 5 · 결함후보 0
+specs[10] should_end_object_finish_kill_priority_battle  params 5 · 결함후보 0
+specs[11] v3_fall_back_to_passive                        params 6 · 결함후보 0
+specs[12] handle_chat                                    params 9 · 결함후보 0
+specs[13] target_bush_v30                                params 3 · 결함후보 0
+specs[14] update                                         params 8 · 결함후보 0
+specs[15] single_try_engage                              params 8 · 결함후보 2
+    params i=1 self             「이 계열에 team_plan 부작용은 **없다**(&mut 인 것은 rn」인데 %1 를 베이스로 3회 접근
+        33439: %34 = getelementptr inbounds nuw i8, ptr %1, i64 2448, !dbg !38624
+        33440: %35 = getelementptr inbounds nuw i8, ptr %1, i64 248, !dbg !38624
+        33446: %37 = getelementptr inbounds nuw i8, ptr %1, i64 248, !dbg !38626
+    params i=5 data             인용 오프셋 ['0x8'] 가 %5 사슬에 없다 (실제 ['0x0'])
+specs[16] max_range_nearly_can_use                       params 3 · 결함후보 0
+specs[17] new                                            params 4 · 결함후보 2
+    params i=1 version          「이 함수 본문에서는 분기 없음 — base_sub_goal 로 그대로 전」인데 %0 를 베이스로 54회 접근
+        17766: %33 = getelementptr inbounds nuw i8, ptr %0, i64 248, !dbg !27012
+        17768: %34 = getelementptr inbounds nuw i8, ptr %0, i64 208, !dbg !27012
+        17770: %35 = getelementptr inbounds nuw i8, ptr %0, i64 232, !dbg !27012
+    params i=2 goal             인용 오프셋 ['0x8', '0x10'] 가 %1 사슬에 없다 (실제 ['0x0'])
+specs[18] v3_epicops_buff_window                         params 7 · 결함후보 1
+    params i=5 data             인용 오프셋 ['0x1e0'] 가 %4 사슬에 없다 (실제 ['0x0'])
+specs[19] best_jungle_goal                               params 7 · 결함후보 2
+    params i=5 team_plan        인용 오프셋 ['0x20'] 가 %4 사슬에 없다 (실제 ['0x0'])
+    params i=7 debug            인용 오프셋 ['0x28'] 가 %6 사슬에 없다 (실제 ['0x0'])
+
+합계: params 124행 · 결함후보 15

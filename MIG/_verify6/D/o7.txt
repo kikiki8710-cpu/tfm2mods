@@ -1,0 +1,35 @@
+ERD	target=enemy_champ[0]	ty_tag=13	requires_dive=false
+ERD	target=enemy_champ[1]	ty_tag=13	requires_dive=false
+ERD	target=enemy_champ[2]	ty_tag=13	requires_dive=false
+ERD	target=enemy_champ[3]	ty_tag=13	requires_dive=false
+ERD	target=enemy_champ[4]	ty_tag=13	requires_dive=false
+ERD	target=enemy_top_tower	ty_tag=2	requires_dive=true
+ERD	target=enemy_mid_tower	ty_tag=2	requires_dive=true
+ERD	target=enemy_bottom_tower	ty_tag=2	requires_dive=true
+ERD	target=enemy_nexus	ty_tag=3	requires_dive=false
+ERD	target=ally_champ[0]	ty_tag=13	requires_dive=false
+ERD	target=ally_champ[1]	ty_tag=13	requires_dive=false
+ERD	target=ally_champ[2]	ty_tag=13	requires_dive=false
+ERD	target=ally_champ[3]	ty_tag=13	requires_dive=false
+ERD	target=ally_champ[4]	ty_tag=13	requires_dive=false
+ERD	TOTAL_true=3/14
+STDV	up	target=enemy_champ[0]	v0=0 v1=0 v2=0 v3=0 v30=0 v50=0 v54=0 v58=0 v60=0
+STDV	up	target=enemy_champ[1]	v0=0 v1=0 v2=0 v3=0 v30=0 v50=0 v54=0 v58=0 v60=0
+STDV	up	target=enemy_champ[2]	v0=0 v1=0 v2=0 v3=0 v30=0 v50=0 v54=0 v58=0 v60=0
+STDV	up	target=enemy_champ[3]	v0=0 v1=0 v2=0 v3=0 v30=0 v50=0 v54=0 v58=0 v60=0
+STDV	up	target=enemy_champ[4]	v0=0 v1=0 v2=0 v3=0 v30=0 v50=0 v54=0 v58=0 v60=0
+STDV	up	target=ally_champ[0]	v0=0 v1=0 v2=0 v3=0 v30=0 v50=0 v54=0 v58=0 v60=0
+STDV	up	target=ally_champ[1]	v0=0 v1=0 v2=0 v3=0 v30=0 v50=0 v54=0 v58=0 v60=0
+STDV	up	target=ally_champ[2]	v0=0 v1=0 v2=0 v3=0 v30=0 v50=0 v54=0 v58=0 v60=0
+STDV	up	target=ally_champ[3]	v0=0 v1=0 v2=0 v3=0 v30=0 v50=0 v54=0 v58=0 v60=0
+STDV	up	target=ally_champ[4]	v0=0 v1=0 v2=0 v3=0 v30=0 v50=0 v54=0 v58=0 v60=0
+STDV	dn	target=enemy_champ[0]	v60=0 v58=0 v54=0 v50=0 v30=0 v3=0 v2=0 v1=0 v0=0
+STDV	dn	target=enemy_champ[1]	v60=0 v58=0 v54=0 v50=0 v30=0 v3=0 v2=0 v1=0 v0=0
+STDV	dn	target=enemy_champ[2]	v60=0 v58=0 v54=0 v50=0 v30=0 v3=0 v2=0 v1=0 v0=0
+STDV	dn	target=enemy_champ[3]	v60=0 v58=0 v54=0 v50=0 v30=0 v3=0 v2=0 v1=0 v0=0
+STDV	dn	target=enemy_champ[4]	v60=0 v58=0 v54=0 v50=0 v30=0 v3=0 v2=0 v1=0 v0=0
+STDV	dn	target=ally_champ[0]	v60=0 v58=0 v54=0 v50=0 v30=0 v3=0 v2=0 v1=0 v0=0
+STDV	dn	target=ally_champ[1]	v60=0 v58=0 v54=0 v50=0 v30=0 v3=0 v2=0 v1=0 v0=0
+STDV	dn	target=ally_champ[2]	v60=0 v58=0 v54=0 v50=0 v30=0 v3=0 v2=0 v1=0 v0=0
+STDV	dn	target=ally_champ[3]	v60=0 v58=0 v54=0 v50=0 v30=0 v3=0 v2=0 v1=0 v0=0
+STDV	dn	target=ally_champ[4]	v60=0 v58=0 v54=0 v50=0 v30=0 v3=0 v2=0 v1=0 v0=0

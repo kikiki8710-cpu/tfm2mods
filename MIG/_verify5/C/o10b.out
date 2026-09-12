@@ -1,0 +1,96 @@
+setting_ok	true	height=960000 tps=60 radius=10000
+caster.level=1 radius=10000 eff_range(0x4a0)=Some(0)
+caster.attack_effect.target=Some(Enemy) casting=Some(Targeting)
+
+### O10b-A attack 슬롯만, range 고정 → margin 을 키우면 경계가 1:1 로 따라가는가
+eff_range	margin	boundary_d	delta_vs_prev
+0	0	20000	-
+0	1000	21000	1000
+0	25000	45000	24000
+0	50000	70000	25000
+0	100000	120000	50000
+0	200000	140000	20000
+0	400000	140000	0
+0	1000000	140000	0
+---
+50000	0	70000	-
+50000	1000	71000	1000
+50000	25000	95000	24000
+50000	50000	120000	25000
+50000	100000	140000	20000
+50000	200000	140000	0
+50000	400000	140000	0
+50000	1000000	140000	0
+---
+100000	0	120000	-
+100000	1000	121000	1000
+100000	25000	140000	19000
+100000	50000	140000	0
+100000	100000	140000	0
+100000	200000	140000	0
+100000	400000	140000	0
+100000	1000000	140000	0
+---
+
+### O10b-B 140000² 하드컷 — margin 을 아주 크게 주면 경계가 140000 에 고정되는가
+margin	d	result
+900000	139998	true
+900000	139999	true
+900000	140000	true
+900000	140001	false
+900000	140002	false
+--- 대각선 (dx=dy=k): 제곱합이면 경계 k = floor(140000/sqrt(2)) = 98994
+k=98994	dx2+dy2=19599624072	true
+k=98995	dx2+dy2=19600020050	false
+k=98996	dx2+dy2=19600416032	false
+
+### O10b-C 레벨 게이트 — skill2(level>2) / ult(level>4)
+level	only_skill2	only_ult
+1	false	false
+2	false	false
+3	true	false
+4	true	false
+5	true	true
+6	true	true
+
+### O10b-D is_enemy_well_danger 사각형 — team0 player / team1 player
+player_team	x	y	result
+t0	0	800000	false
+t0	0	799999	false
+t0	64000	960000	false
+t0	64001	960000	false
+t0	63999	959999	false
+t0	0	896000	false
+t0	159999	959999	false
+t0	160000	896000	false
+t0	960000	0	true
+t0	896000	0	true
+t0	896000	159999	true
+t0	960000	160000	true
+t0	960000	160001	false
+t0	895999	0	true
+t1	0	800000	true
+t1	0	799999	false
+t1	64000	960000	true
+t1	64001	960000	true
+t1	63999	959999	true
+t1	0	896000	true
+t1	159999	959999	true
+t1	160000	896000	true
+t1	960000	0	false
+t1	896000	0	false
+t1	896000	159999	false
+t1	960000	160000	false
+t1	960000	160001	false
+t1	895999	0	false
+
+### O10b-E 상수항 20000 의 정체 — 반지름인가 (range=0, margin=0)
+caster.radius	obj.radius	boundary_d
+10000	10000	20000
+0	10000	10000
+10000	0	10000
+0	0	0
+30000	10000	40000
+10000	30000	40000
+
+DONE

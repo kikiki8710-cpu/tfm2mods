@@ -1,0 +1,90 @@
+setting_ok	true	tps=60	width=960000
+camp_idx	Rhino	0
+camp_idx	Mushroom	1
+camp_idx	Stump	3
+camp_idx	Bee	2
+camp_idx	Morgard/Serpen	unreachable!() panic at team_plan.rs:40 (실측: 이 프로브 1차 실행이 거기서 죽었다)
+player	team=0	position=Jungle(1)
+champ_speed_before	stat_cached.move_speed=1
+world	tick=100	tps=60
+isc	respawn=0	offset=0	Rhino	game=false	mine=false	MATCH	eta=272
+isc	respawn=0	offset=0	Mushroom	game=false	mine=false	MATCH	eta=323
+isc	respawn=0	offset=0	Bee	game=false	mine=false	MATCH	eta=345
+isc	respawn=0	offset=0	Stump	game=false	mine=false	MATCH	eta=226
+isc	respawn=0	offset=1	Rhino	game=false	mine=false	MATCH	eta=272
+isc	respawn=0	offset=1	Mushroom	game=false	mine=false	MATCH	eta=323
+isc	respawn=0	offset=1	Bee	game=false	mine=false	MATCH	eta=345
+isc	respawn=0	offset=1	Stump	game=false	mine=false	MATCH	eta=226
+isc	respawn=0	offset=500	Rhino	game=false	mine=false	MATCH	eta=272
+isc	respawn=0	offset=500	Mushroom	game=false	mine=false	MATCH	eta=323
+isc	respawn=0	offset=500	Bee	game=false	mine=false	MATCH	eta=345
+isc	respawn=0	offset=500	Stump	game=false	mine=false	MATCH	eta=226
+isc	respawn=100	offset=0	Rhino	game=false	mine=false	MATCH	eta=272
+isc	respawn=100	offset=0	Mushroom	game=false	mine=false	MATCH	eta=323
+isc	respawn=100	offset=0	Bee	game=false	mine=false	MATCH	eta=345
+isc	respawn=100	offset=0	Stump	game=false	mine=false	MATCH	eta=226
+isc	respawn=100	offset=1	Rhino	game=false	mine=false	MATCH	eta=272
+isc	respawn=100	offset=1	Mushroom	game=false	mine=false	MATCH	eta=323
+isc	respawn=100	offset=1	Bee	game=false	mine=false	MATCH	eta=345
+isc	respawn=100	offset=1	Stump	game=false	mine=false	MATCH	eta=226
+isc	respawn=100	offset=500	Rhino	game=false	mine=false	MATCH	eta=272
+isc	respawn=100	offset=500	Mushroom	game=false	mine=false	MATCH	eta=323
+isc	respawn=100	offset=500	Bee	game=false	mine=false	MATCH	eta=345
+isc	respawn=100	offset=500	Stump	game=false	mine=false	MATCH	eta=226
+isc	respawn=101	offset=0	Rhino	game=false	mine=false	MATCH	eta=272
+isc	respawn=101	offset=0	Mushroom	game=false	mine=false	MATCH	eta=323
+isc	respawn=101	offset=0	Bee	game=false	mine=false	MATCH	eta=345
+isc	respawn=101	offset=0	Stump	game=false	mine=false	MATCH	eta=226
+isc	respawn=101	offset=1	Rhino	game=false	mine=false	MATCH	eta=272
+isc	respawn=101	offset=1	Mushroom	game=false	mine=false	MATCH	eta=323
+isc	respawn=101	offset=1	Bee	game=false	mine=false	MATCH	eta=345
+isc	respawn=101	offset=1	Stump	game=false	mine=false	MATCH	eta=226
+isc	respawn=101	offset=500	Rhino	game=false	mine=false	MATCH	eta=272
+isc	respawn=101	offset=500	Mushroom	game=false	mine=false	MATCH	eta=323
+isc	respawn=101	offset=500	Bee	game=false	mine=false	MATCH	eta=345
+isc	respawn=101	offset=500	Stump	game=false	mine=false	MATCH	eta=226
+isc	respawn=500	offset=0	Rhino	game=true	mine=true	MATCH	eta=272
+isc	respawn=500	offset=0	Mushroom	game=true	mine=true	MATCH	eta=323
+isc	respawn=500	offset=0	Bee	game=false	mine=false	MATCH	eta=345
+isc	respawn=500	offset=0	Stump	game=true	mine=true	MATCH	eta=226
+isc	respawn=500	offset=1	Rhino	game=true	mine=true	MATCH	eta=272
+isc	respawn=500	offset=1	Mushroom	game=true	mine=true	MATCH	eta=323
+isc	respawn=500	offset=1	Bee	game=false	mine=false	MATCH	eta=345
+isc	respawn=500	offset=1	Stump	game=true	mine=true	MATCH	eta=226
+isc	respawn=500	offset=500	Rhino	game=false	mine=false	MATCH	eta=272
+isc	respawn=500	offset=500	Mushroom	game=false	mine=false	MATCH	eta=323
+isc	respawn=500	offset=500	Bee	game=false	mine=false	MATCH	eta=345
+isc	respawn=500	offset=500	Stump	game=false	mine=false	MATCH	eta=226
+isc	respawn=2000	offset=0	Rhino	game=true	mine=true	MATCH	eta=272
+isc	respawn=2000	offset=0	Mushroom	game=true	mine=true	MATCH	eta=323
+isc	respawn=2000	offset=0	Bee	game=true	mine=true	MATCH	eta=345
+isc	respawn=2000	offset=0	Stump	game=true	mine=true	MATCH	eta=226
+isc	respawn=2000	offset=1	Rhino	game=true	mine=true	MATCH	eta=272
+isc	respawn=2000	offset=1	Mushroom	game=true	mine=true	MATCH	eta=323
+isc	respawn=2000	offset=1	Bee	game=true	mine=true	MATCH	eta=345
+isc	respawn=2000	offset=1	Stump	game=true	mine=true	MATCH	eta=226
+isc	respawn=2000	offset=500	Rhino	game=true	mine=true	MATCH	eta=272
+isc	respawn=2000	offset=500	Mushroom	game=true	mine=true	MATCH	eta=323
+isc	respawn=2000	offset=500	Bee	game=true	mine=true	MATCH	eta=345
+isc	respawn=2000	offset=500	Stump	game=true	mine=true	MATCH	eta=226
+isc	respawn=100000	offset=0	Rhino	game=true	mine=true	MATCH	eta=272
+isc	respawn=100000	offset=0	Mushroom	game=true	mine=true	MATCH	eta=323
+isc	respawn=100000	offset=0	Bee	game=true	mine=true	MATCH	eta=345
+isc	respawn=100000	offset=0	Stump	game=true	mine=true	MATCH	eta=226
+isc	respawn=100000	offset=1	Rhino	game=true	mine=true	MATCH	eta=272
+isc	respawn=100000	offset=1	Mushroom	game=true	mine=true	MATCH	eta=323
+isc	respawn=100000	offset=1	Bee	game=true	mine=true	MATCH	eta=345
+isc	respawn=100000	offset=1	Stump	game=true	mine=true	MATCH	eta=226
+isc	respawn=100000	offset=500	Rhino	game=true	mine=true	MATCH	eta=272
+isc	respawn=100000	offset=500	Mushroom	game=true	mine=true	MATCH	eta=323
+isc	respawn=100000	offset=500	Bee	game=true	mine=true	MATCH	eta=345
+isc	respawn=100000	offset=500	Stump	game=true	mine=true	MATCH	eta=226
+FALLBACK	cleared=4/4	game=Mushroom	mine=Mushroom	MATCH	(runner: Rhino900 Mushroom500 Bee700 Stump600)
+fbk	Rhino900 Mushroom500 Bee700 Stump600	seen=[900, 500, 700, 600]	game=Mushroom	mine=Mushroom	MATCH	min=Mushroom
+fbk	Rhino300 Mushroom500 Bee700 Stump600	seen=[300, 500, 700, 600]	game=Rhino	mine=Rhino	MATCH	min=Rhino
+fbk	Rhino900 Mushroom800 Bee400 Stump600	seen=[900, 800, 400, 600]	game=Bee	mine=Bee	MATCH	min=Bee
+fbk	Rhino900 Mushroom800 Bee700 Stump200	seen=[900, 800, 700, 200]	game=Stump	mine=Stump	MATCH	min=Stump
+fbk	Rhino500 Mushroom500 Bee700 Stump600	seen=[500, 500, 700, 600]	game=Rhino	mine=Rhino	MATCH	tie Rhino/Mushroom -> first=Rhino
+fbk	Rhino900 Mushroom900 Bee300 Stump300	seen=[900, 900, 300, 300]	game=Bee	mine=Bee	MATCH	tie Bee/Stump -> first=Bee
+TOTAL	79/79	MATCH
+DONE

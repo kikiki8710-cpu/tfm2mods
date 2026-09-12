@@ -1,0 +1,84 @@
+### ult 5 0 60
+SETUP	slot=ult	level=5	cool=0	tps=60	dist_sq=2000000	max_range=120000	(mr+30000)^2=22500000000	filter_dist_ok=true	setting_ok=true
+CCTIME	skill=Some(None)	skill2=Some(None)	ult=Some(Some(120))
+RESULT	die_imminent(+0x0)=1	cc_threat(+0x1)=1	rnd_changed=false	debug_changed=false
+MEMOWARN	이 아래 check_kill_die_tick 직접호출은 **같은 프로세스 두 번째 측정**이라 TLS 메모 값일 수 있다
+DIETICK	die=0	tps*2=120	die<tps*2=true	(명세 knobs[0])
+### ult 4 0 60
+SETUP	slot=ult	level=4	cool=0	tps=60	dist_sq=2000000	max_range=120000	(mr+30000)^2=22500000000	filter_dist_ok=true	setting_ok=true
+CCTIME	skill=Some(None)	skill2=Some(None)	ult=Some(Some(120))
+RESULT	die_imminent(+0x0)=1	cc_threat(+0x1)=0	rnd_changed=false	debug_changed=false
+MEMOWARN	이 아래 check_kill_die_tick 직접호출은 **같은 프로세스 두 번째 측정**이라 TLS 메모 값일 수 있다
+DIETICK	die=0	tps*2=120	die<tps*2=true	(명세 knobs[0])
+### ult 5 60 60
+SETUP	slot=ult	level=5	cool=60	tps=60	dist_sq=2000000	max_range=120000	(mr+30000)^2=22500000000	filter_dist_ok=true	setting_ok=true
+CCTIME	skill=Some(None)	skill2=Some(None)	ult=Some(Some(120))
+RESULT	die_imminent(+0x0)=1	cc_threat(+0x1)=1	rnd_changed=false	debug_changed=false
+MEMOWARN	이 아래 check_kill_die_tick 직접호출은 **같은 프로세스 두 번째 측정**이라 TLS 메모 값일 수 있다
+DIETICK	die=0	tps*2=120	die<tps*2=true	(명세 knobs[0])
+### ult 5 61 60
+SETUP	slot=ult	level=5	cool=61	tps=60	dist_sq=2000000	max_range=120000	(mr+30000)^2=22500000000	filter_dist_ok=true	setting_ok=true
+CCTIME	skill=Some(None)	skill2=Some(None)	ult=Some(Some(120))
+RESULT	die_imminent(+0x0)=1	cc_threat(+0x1)=0	rnd_changed=false	debug_changed=false
+MEMOWARN	이 아래 check_kill_die_tick 직접호출은 **같은 프로세스 두 번째 측정**이라 TLS 메모 값일 수 있다
+DIETICK	die=0	tps*2=120	die<tps*2=true	(명세 knobs[0])
+### skill2 3 0 60
+SETUP	slot=skill2	level=3	cool=0	tps=60	dist_sq=2000000	max_range=120000	(mr+30000)^2=22500000000	filter_dist_ok=true	setting_ok=true
+CCTIME	skill=Some(None)	skill2=Some(Some(120))	ult=Some(None)
+RESULT	die_imminent(+0x0)=1	cc_threat(+0x1)=1	rnd_changed=false	debug_changed=false
+MEMOWARN	이 아래 check_kill_die_tick 직접호출은 **같은 프로세스 두 번째 측정**이라 TLS 메모 값일 수 있다
+DIETICK	die=0	tps*2=120	die<tps*2=true	(명세 knobs[0])
+### skill2 2 0 60
+SETUP	slot=skill2	level=2	cool=0	tps=60	dist_sq=2000000	max_range=120000	(mr+30000)^2=22500000000	filter_dist_ok=true	setting_ok=true
+CCTIME	skill=Some(None)	skill2=Some(Some(120))	ult=Some(None)
+RESULT	die_imminent(+0x0)=1	cc_threat(+0x1)=0	rnd_changed=false	debug_changed=false
+MEMOWARN	이 아래 check_kill_die_tick 직접호출은 **같은 프로세스 두 번째 측정**이라 TLS 메모 값일 수 있다
+DIETICK	die=0	tps*2=120	die<tps*2=true	(명세 knobs[0])
+### skill 1 0 60
+SETUP	slot=skill	level=1	cool=0	tps=60	dist_sq=2000000	max_range=120000	(mr+30000)^2=22500000000	filter_dist_ok=true	setting_ok=true
+CCTIME	skill=Some(Some(120))	skill2=Some(None)	ult=Some(None)
+RESULT	die_imminent(+0x0)=1	cc_threat(+0x1)=1	rnd_changed=false	debug_changed=false
+MEMOWARN	이 아래 check_kill_die_tick 직접호출은 **같은 프로세스 두 번째 측정**이라 TLS 메모 값일 수 있다
+DIETICK	die=60	tps*2=120	die<tps*2=true	(명세 knobs[0])
+### skill 1 60 60
+SETUP	slot=skill	level=1	cool=60	tps=60	dist_sq=2000000	max_range=120000	(mr+30000)^2=22500000000	filter_dist_ok=true	setting_ok=true
+CCTIME	skill=Some(Some(120))	skill2=Some(None)	ult=Some(None)
+RESULT	die_imminent(+0x0)=1	cc_threat(+0x1)=1	rnd_changed=false	debug_changed=false
+MEMOWARN	이 아래 check_kill_die_tick 직접호출은 **같은 프로세스 두 번째 측정**이라 TLS 메모 값일 수 있다
+DIETICK	die=60	tps*2=120	die<tps*2=true	(명세 knobs[0])
+### skill 1 61 60
+SETUP	slot=skill	level=1	cool=61	tps=60	dist_sq=2000000	max_range=120000	(mr+30000)^2=22500000000	filter_dist_ok=true	setting_ok=true
+CCTIME	skill=Some(Some(120))	skill2=Some(None)	ult=Some(None)
+RESULT	die_imminent(+0x0)=1	cc_threat(+0x1)=0	rnd_changed=false	debug_changed=false
+MEMOWARN	이 아래 check_kill_die_tick 직접호출은 **같은 프로세스 두 번째 측정**이라 TLS 메모 값일 수 있다
+DIETICK	die=60	tps*2=120	die<tps*2=true	(명세 knobs[0])
+### none 5 0 60
+SETUP	slot=none	level=5	cool=0	tps=60	dist_sq=2000000	max_range=120000	(mr+30000)^2=22500000000	filter_dist_ok=true	setting_ok=true
+CCTIME	skill=Some(None)	skill2=Some(None)	ult=Some(None)
+RESULT	die_imminent(+0x0)=1	cc_threat(+0x1)=0	rnd_changed=false	debug_changed=false
+MEMOWARN	이 아래 check_kill_die_tick 직접호출은 **같은 프로세스 두 번째 측정**이라 TLS 메모 값일 수 있다
+DIETICK	die=0	tps*2=120	die<tps*2=true	(명세 knobs[0])
+### ult 5 0 6
+SETUP	slot=ult	level=5	cool=0	tps=6	dist_sq=2000000	max_range=120000	(mr+30000)^2=22500000000	filter_dist_ok=true	setting_ok=true
+CCTIME	skill=Some(None)	skill2=Some(None)	ult=Some(Some(120))
+RESULT	die_imminent(+0x0)=1	cc_threat(+0x1)=1	rnd_changed=false	debug_changed=false
+MEMOWARN	이 아래 check_kill_die_tick 직접호출은 **같은 프로세스 두 번째 측정**이라 TLS 메모 값일 수 있다
+DIETICK	die=0	tps*2=12	die<tps*2=true	(명세 knobs[0])
+### ult 5 0 1
+SETUP	slot=ult	level=5	cool=0	tps=1	dist_sq=2000000	max_range=120000	(mr+30000)^2=22500000000	filter_dist_ok=true	setting_ok=true
+CCTIME	skill=Some(None)	skill2=Some(None)	ult=Some(Some(120))
+RESULT	die_imminent(+0x0)=1	cc_threat(+0x1)=1	rnd_changed=false	debug_changed=false
+MEMOWARN	이 아래 check_kill_die_tick 직접호출은 **같은 프로세스 두 번째 측정**이라 TLS 메모 값일 수 있다
+DIETICK	die=0	tps*2=2	die<tps*2=true	(명세 knobs[0])
+### ult 5 30 30
+SETUP	slot=ult	level=5	cool=30	tps=30	dist_sq=2000000	max_range=120000	(mr+30000)^2=22500000000	filter_dist_ok=true	setting_ok=true
+CCTIME	skill=Some(None)	skill2=Some(None)	ult=Some(Some(120))
+RESULT	die_imminent(+0x0)=1	cc_threat(+0x1)=1	rnd_changed=false	debug_changed=false
+MEMOWARN	이 아래 check_kill_die_tick 직접호출은 **같은 프로세스 두 번째 측정**이라 TLS 메모 값일 수 있다
+DIETICK	die=0	tps*2=60	die<tps*2=true	(명세 knobs[0])
+### ult 5 31 30
+SETUP	slot=ult	level=5	cool=31	tps=30	dist_sq=2000000	max_range=120000	(mr+30000)^2=22500000000	filter_dist_ok=true	setting_ok=true
+CCTIME	skill=Some(None)	skill2=Some(None)	ult=Some(Some(120))
+RESULT	die_imminent(+0x0)=1	cc_threat(+0x1)=0	rnd_changed=false	debug_changed=false
+MEMOWARN	이 아래 check_kill_die_tick 직접호출은 **같은 프로세스 두 번째 측정**이라 TLS 메모 값일 수 있다
+DIETICK	die=0	tps*2=60	die<tps*2=true	(명세 knobs[0])

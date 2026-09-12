@@ -1,0 +1,41 @@
+specs[ 0] ult                                            초판  0건 → 수정판  0건   (오탐으로 사라짐: [] / 남은 실오류: [])
+specs[ 1] calculate_jungle_action_score                  초판  1건 → 수정판  4건   (오탐으로 사라짐: [] / 남은 실오류: [3, 5, 8, 10])
+          consts[3] value=2 claim=L528  실제후보=[522, 526, 530, 542]
+          consts[5] value=4 claim=L530  실제후보=[526, 542]
+          consts[8] value=1 claim=L536  실제후보=[526]
+          consts[10] value=0 claim=L536  실제후보=[542, 548]
+specs[ 2] sub_plan                                       초판  1건 → 수정판  2건   (오탐으로 사라짐: [] / 남은 실오류: [1, 4])
+          consts[1] value=5 claim=L42  실제후보=[36]
+          consts[4] value=16 claim=L50  실제후보=[37]
+specs[ 3] defensive_crisis                               초판  0건 → 수정판  0건   (오탐으로 사라짐: [] / 남은 실오류: [])
+specs[ 4] handle_line_defense                            초판  0건 → 수정판  0건   (오탐으로 사라짐: [] / 남은 실오류: [])
+specs[ 5] v50_fold_dive_episode                          초판  2건 → 수정판  4건   (오탐으로 사라짐: [] / 남은 실오류: [2, 3, 6, 8])
+          consts[2] value=1 claim=L146  실제후보=[156, 157, 167]
+          consts[3] value=2 claim=L147  실제후보=[156, 157]
+          consts[6] value=5 claim=L150  실제후보=[153]
+          consts[8] value=7 claim=L152  실제후보=[139]
+specs[ 6] v2_response_retreat_stance                     초판  0건 → 수정판  0건   (오탐으로 사라짐: [] / 남은 실오류: [])
+specs[ 7] sub_plan                                       초판  0건 → 수정판  1건   (오탐으로 사라짐: [] / 남은 실오류: [2])
+          consts[2] value=5 claim=L36  실제후보=[29]
+specs[ 8] is_end                                         초판  0건 → 수정판  1건   (오탐으로 사라짐: [] / 남은 실오류: [0])
+          consts[0] value=4 claim=L164  실제후보=[169, 174]
+specs[ 9] check_favorable_engage_formation               초판  3건 → 수정판  3건   (오탐으로 사라짐: [] / 남은 실오류: [0, 4, 5])
+          consts[0] value=2 claim=L1209  실제후보=[1203, 1280]
+          consts[4] value=9 claim=L1283  실제후보=[1286]
+          consts[5] value=4 claim=L1280  실제후보=[1233]
+specs[10] should_end_object_finish_kill_priority_battle  초판  0건 → 수정판  0건   (오탐으로 사라짐: [] / 남은 실오류: [])
+specs[11] v3_fall_back_to_passive                        초판  0건 → 수정판  0건   (오탐으로 사라짐: [] / 남은 실오류: [])
+specs[12] handle_chat                                    초판  0건 → 수정판  0건   (오탐으로 사라짐: [] / 남은 실오류: [])
+specs[13] target_bush_v30                                초판  0건 → 수정판  0건   (오탐으로 사라짐: [] / 남은 실오류: [])
+specs[14] update                                         초판  0건 → 수정판  1건   (오탐으로 사라짐: [] / 남은 실오류: [4])
+          consts[4] value=0 claim=L252  실제후보=[44, 48, 54, 55, 251, 261, 265, 267, 295, 297]
+specs[15] single_try_engage                              초판  0건 → 수정판  0건   (오탐으로 사라짐: [] / 남은 실오류: [])
+specs[16] max_range_nearly_can_use                       초판  2건 → 수정판  2건   (오탐으로 사라짐: [] / 남은 실오류: [0, 5])
+          consts[0] value=-1 claim=L2401  실제후보=[2399, 2403, 2407, 2410, 2414, 2417, 2421, 2424]
+          consts[5] value=0 claim=L2398  실제후보=[2402, 2403, 2410, 2417, 2424]
+specs[17] new                                            초판  0건 → 수정판  0건   (오탐으로 사라짐: [] / 남은 실오류: [])
+specs[18] v3_epicops_buff_window                         초판  1건 → 수정판  1건   (오탐으로 사라짐: [] / 남은 실오류: [4])
+          consts[4] value=25 claim=L654  실제후보=[658]
+specs[19] best_jungle_goal                               초판  0건 → 수정판  0건   (오탐으로 사라짐: [] / 남은 실오류: [])
+
+합계: 초판 10건 → 수정판 19건

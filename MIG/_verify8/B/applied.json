@@ -1,0 +1,33 @@
+{
+ "round": "8",
+ "batch": "B",
+ "errors_applied": 0,
+ "ev_applied": 0,
+ "failed": 1,
+ "stamps": {
+  "/specs[5]/consts[1]/meaning": "06dfe7a28cdef21d",
+  "/specs[5]/consts[2]/meaning": "00cebceeca1262f5",
+  "/specs[5]/consts[3]/meaning": "f14ceb1bb23431ec",
+  "/specs[5]/consts[4]/meaning": "24cff5f63cd90874",
+  "/specs[5]/consts[5]/meaning": "89253f642cf76ae9",
+  "/specs[5]/consts[6]/meaning": "b09e8a74330f1043",
+  "/specs[5]/consts[7]/meaning": "4da9c6684caf34c5",
+  "/specs[5]/consts[8]/meaning": "2b27cd25ed7fe344",
+  "/specs[5]/consts[9]/meaning": "b25e81bf1a9d6885",
+  "/specs[5]/consts[10]/meaning": "aebbdc2dc12641d5",
+  "/specs[6]/consts[0]/meaning": "6f2212b9c1117c57",
+  "/specs[7]/consts[1]/meaning": "a4bfa1c14da022de",
+  "/specs[10]/consts[1]/meaning": "413f5c2e9749f985",
+  "/specs[11]/consts[4]/meaning": "e34370b6353aa8c1",
+  "/specs[11]/consts[6]/meaning": "031d988392db8622",
+  "/specs[11]/consts[7]/meaning": "321c5f0c353e6768",
+  "/specs[11]/consts[8]/meaning": "c0151bb55d4d1e03",
+  "/specs[11]/consts[9]/meaning": "fae92fedbe0d4a8b",
+  "/specs[11]/consts[10]/meaning": "ee2b53e54640b69b",
+  "/specs[11]/consts[11]/meaning": "51a74d541209adfa",
+  "/specs[11]/consts[12]/meaning": "41b00c894702b360",
+  "/specs[11]/consts[13]/meaning": "fd19285a165700cc",
+  "/specs[11]/consts[14]/meaning": "14fc5d5b46a71d40"
+ },
+ "restamped": true
+}

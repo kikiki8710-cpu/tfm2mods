@@ -1,0 +1,12 @@
+{
+ "round": "9",
+ "batch": "B",
+ "errors_applied": 0,
+ "ev_applied": 2,
+ "failed": 2,
+ "stamps": {
+  "/specs[2]/sig/params[1]/role": "74234e98afe7498f",
+  "/specs[17]/sig/params[1]/role": "74234e98afe7498f"
+ },
+ "restamped": true
+}

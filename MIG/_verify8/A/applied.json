@@ -1,0 +1,14 @@
+{
+ "round": "8",
+ "batch": "A",
+ "errors_applied": 1,
+ "ev_applied": 1,
+ "failed": 2,
+ "stamps": {
+  "/specs[12]/mem[13]/base": "d6d3e4b21d07bf58",
+  "/specs[12]/mem[13]/offset": "8408c0b17a11ae0a",
+  "/specs[12]/mem[13]/note": "5b54a93de680b4f4",
+  "/specs[5]/mem[29]/name": "50cf12f8d992e73d"
+ },
+ "restamped": true
+}

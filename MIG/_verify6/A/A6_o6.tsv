@@ -1,0 +1,14 @@
+setting_ok	true	width=960000	height=960000	tps=60	champ_radius=10000	visible=130000
+3	Entity	ty.Champion.attack_cooldown	claim=0xb0	got=0xb0	MATCH
+3	Entity	ty.Champion.skill_cooldown	claim=0xb8	got=0xb8	MATCH
+3	Entity	ty.Champion.skill2_cooldown	claim=0xc0	got=0xc0	MATCH
+3	Entity	ty.Champion.ult_cooldown	claim=0xc8	got=0xc8	MATCH
+TAG	EntityType(Champion)@Entity+0x68=13	(명세 13)
+JUNGLE	team=0	tag@+0x68=4	+0x98=0	MATCH(camp_type.__0 = 팀 인덱스)
+JUNGLE	team=1	tag@+0x68=4	+0x98=1	MATCH(camp_type.__0 = 팀 인덱스)
+EFFECT_ARC	word0=0x20c41c77cc0	word1=0x7ff778f79020	dyn_vtable=0x7ff778f79020	MATCH(+0x8 = vtable 포인터)
+OPT_EFFECT	None 의 +0x30 = -1	(명세 -1)	MATCH
+PS	+0x218=80	(mkgame 이 judgement=80 으로 만든다)	MATCH
+PS	+0x450=1000	(명세 judgement_mental_ratio 초기 1000)	MATCH
+
+TOTAL	MATCH=10	MISMATCH=0

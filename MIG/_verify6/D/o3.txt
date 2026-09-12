@@ -1,0 +1,82 @@
+===== case=0 =====
+setting_ok	true	tps=60
+HP	team=0 [0]100% [1]100% [2]100% [3]100% [4]100%
+HP	team=1 [0]100% [1]100% [2]100% [3]100% [4]100%
+DIFF	case0_t0_Top	+0x50..0x51	00 -> 01
+DIFF	case0_t0_Top	+0x58..0x60	97952d48c28fedff -> 0000000000000000
+FLD	case0_t0_Top	objective(+0x41f)=255	v3_press_chat_line(+0x41e)=255	eo_serpen(+0x410)=0	chats(cap/ptr/len)=0/8/0
+DIFF	case0_t0_Jungle	+0x50..0x51	00 -> 01
+DIFF	case0_t0_Jungle	+0x418..0x41c	ff1fffe4 -> 00000000
+FLD	case0_t0_Jungle	objective(+0x41f)=255	v3_press_chat_line(+0x41e)=255	eo_serpen(+0x410)=0	chats(cap/ptr/len)=0/8/0
+DIFF	case0_t0_Mid	+0x50..0x51	00 -> 01
+FLD	case0_t0_Mid	objective(+0x41f)=255	v3_press_chat_line(+0x41e)=255	eo_serpen(+0x410)=0	chats(cap/ptr/len)=0/8/0
+DIFF	case0_t0_Bottom	+0x50..0x51	00 -> 01
+FLD	case0_t0_Bottom	objective(+0x41f)=255	v3_press_chat_line(+0x41e)=255	eo_serpen(+0x410)=0	chats(cap/ptr/len)=0/8/0
+DIFF	case0_t0_Support	+0x50..0x51	00 -> 01
+FLD	case0_t0_Support	objective(+0x41f)=255	v3_press_chat_line(+0x41e)=255	eo_serpen(+0x410)=0	chats(cap/ptr/len)=0/8/0
+DIFF	case0_t1_Top	+0x50..0x51	00 -> 01
+FLD	case0_t1_Top	objective(+0x41f)=255	v3_press_chat_line(+0x41e)=255	eo_serpen(+0x410)=0	chats(cap/ptr/len)=0/8/0
+DIFF	case0_t1_Jungle	+0x50..0x51	00 -> 01
+DIFF	case0_t1_Jungle	+0x418..0x419	ff -> 00
+DIFF	case0_t1_Jungle	+0x41a..0x41b	ff -> 00
+FLD	case0_t1_Jungle	objective(+0x41f)=255	v3_press_chat_line(+0x41e)=255	eo_serpen(+0x410)=0	chats(cap/ptr/len)=0/8/0
+DIFF	case0_t1_Mid	+0x50..0x51	00 -> 01
+FLD	case0_t1_Mid	objective(+0x41f)=255	v3_press_chat_line(+0x41e)=255	eo_serpen(+0x410)=0	chats(cap/ptr/len)=0/8/0
+DIFF	case0_t1_Bottom	+0x50..0x51	00 -> 01
+FLD	case0_t1_Bottom	objective(+0x41f)=255	v3_press_chat_line(+0x41e)=255	eo_serpen(+0x410)=0	chats(cap/ptr/len)=0/8/0
+DIFF	case0_t1_Support	+0x50..0x51	00 -> 01
+FLD	case0_t1_Support	objective(+0x41f)=255	v3_press_chat_line(+0x41e)=255	eo_serpen(+0x410)=0	chats(cap/ptr/len)=0/8/0
+===== case=2 =====
+setting_ok	true	tps=60
+HP	team=0 [0]0% [1]0% [2]100% [3]100% [4]100%
+HP	team=1 [0]100% [1]100% [2]100% [3]100% [4]100%
+DIFF	case2_t0_Top	+0x50..0x51	00 -> 01
+DIFF	case2_t0_Top	+0x58..0x60	77a67b4406b634f9 -> 0000000000000000
+FLD	case2_t0_Top	objective(+0x41f)=255	v3_press_chat_line(+0x41e)=255	eo_serpen(+0x410)=0	chats(cap/ptr/len)=0/8/0
+DIFF	case2_t0_Jungle	+0x50..0x51	00 -> 01
+DIFF	case2_t0_Jungle	+0x418..0x41c	ff1fffe4 -> 00400040
+FLD	case2_t0_Jungle	objective(+0x41f)=255	v3_press_chat_line(+0x41e)=255	eo_serpen(+0x410)=0	chats(cap/ptr/len)=0/8/0
+DIFF	case2_t0_Mid	+0x50..0x51	00 -> 01
+FLD	case2_t0_Mid	objective(+0x41f)=255	v3_press_chat_line(+0x41e)=255	eo_serpen(+0x410)=0	chats(cap/ptr/len)=0/8/0
+DIFF	case2_t0_Bottom	+0x50..0x51	00 -> 01
+FLD	case2_t0_Bottom	objective(+0x41f)=255	v3_press_chat_line(+0x41e)=255	eo_serpen(+0x410)=0	chats(cap/ptr/len)=0/8/0
+DIFF	case2_t0_Support	+0x50..0x51	00 -> 01
+FLD	case2_t0_Support	objective(+0x41f)=255	v3_press_chat_line(+0x41e)=255	eo_serpen(+0x410)=0	chats(cap/ptr/len)=0/8/0
+DIFF	case2_t1_Top	+0x50..0x51	00 -> 01
+FLD	case2_t1_Top	objective(+0x41f)=255	v3_press_chat_line(+0x41e)=255	eo_serpen(+0x410)=0	chats(cap/ptr/len)=0/8/0
+DIFF	case2_t1_Jungle	+0x50..0x51	00 -> 01
+DIFF	case2_t1_Jungle	+0x418..0x41c	ff40ff40 -> 00000000
+FLD	case2_t1_Jungle	objective(+0x41f)=255	v3_press_chat_line(+0x41e)=255	eo_serpen(+0x410)=0	chats(cap/ptr/len)=0/8/0
+DIFF	case2_t1_Mid	+0x50..0x51	00 -> 01
+FLD	case2_t1_Mid	objective(+0x41f)=255	v3_press_chat_line(+0x41e)=255	eo_serpen(+0x410)=0	chats(cap/ptr/len)=0/8/0
+DIFF	case2_t1_Bottom	+0x50..0x51	00 -> 01
+FLD	case2_t1_Bottom	objective(+0x41f)=255	v3_press_chat_line(+0x41e)=255	eo_serpen(+0x410)=0	chats(cap/ptr/len)=0/8/0
+DIFF	case2_t1_Support	+0x50..0x51	00 -> 01
+FLD	case2_t1_Support	objective(+0x41f)=255	v3_press_chat_line(+0x41e)=255	eo_serpen(+0x410)=0	chats(cap/ptr/len)=0/8/0
+===== case=5 =====
+setting_ok	true	tps=60
+HP	team=0 [0]0% [1]0% [2]0% [3]0% [4]0%
+HP	team=1 [0]100% [1]100% [2]100% [3]100% [4]100%
+DIFF	case5_t0_Top	+0x50..0x51	00 -> 01
+DIFF	case5_t0_Top	+0x58..0x60	6271258bbb3660dc -> 0000000000000000
+FLD	case5_t0_Top	objective(+0x41f)=255	v3_press_chat_line(+0x41e)=255	eo_serpen(+0x410)=0	chats(cap/ptr/len)=0/8/0
+DIFF	case5_t0_Jungle	+0x50..0x51	00 -> 01
+DIFF	case5_t0_Jungle	+0x418..0x41c	ff1fffe4 -> 00300030
+FLD	case5_t0_Jungle	objective(+0x41f)=255	v3_press_chat_line(+0x41e)=255	eo_serpen(+0x410)=0	chats(cap/ptr/len)=0/8/0
+DIFF	case5_t0_Mid	+0x50..0x51	00 -> 01
+FLD	case5_t0_Mid	objective(+0x41f)=255	v3_press_chat_line(+0x41e)=255	eo_serpen(+0x410)=0	chats(cap/ptr/len)=0/8/0
+DIFF	case5_t0_Bottom	+0x50..0x51	00 -> 01
+FLD	case5_t0_Bottom	objective(+0x41f)=255	v3_press_chat_line(+0x41e)=255	eo_serpen(+0x410)=0	chats(cap/ptr/len)=0/8/0
+DIFF	case5_t0_Support	+0x50..0x51	00 -> 01
+FLD	case5_t0_Support	objective(+0x41f)=255	v3_press_chat_line(+0x41e)=255	eo_serpen(+0x410)=0	chats(cap/ptr/len)=0/8/0
+DIFF	case5_t1_Top	+0x50..0x51	00 -> 01
+FLD	case5_t1_Top	objective(+0x41f)=255	v3_press_chat_line(+0x41e)=255	eo_serpen(+0x410)=0	chats(cap/ptr/len)=0/8/0
+DIFF	case5_t1_Jungle	+0x50..0x51	00 -> 01
+DIFF	case5_t1_Jungle	+0x418..0x41c	ff30ff30 -> 00000000
+FLD	case5_t1_Jungle	objective(+0x41f)=255	v3_press_chat_line(+0x41e)=255	eo_serpen(+0x410)=0	chats(cap/ptr/len)=0/8/0
+DIFF	case5_t1_Mid	+0x50..0x51	00 -> 01
+FLD	case5_t1_Mid	objective(+0x41f)=255	v3_press_chat_line(+0x41e)=255	eo_serpen(+0x410)=0	chats(cap/ptr/len)=0/8/0
+DIFF	case5_t1_Bottom	+0x50..0x51	00 -> 01
+FLD	case5_t1_Bottom	objective(+0x41f)=255	v3_press_chat_line(+0x41e)=255	eo_serpen(+0x410)=0	chats(cap/ptr/len)=0/8/0
+DIFF	case5_t1_Support	+0x50..0x51	00 -> 01
+FLD	case5_t1_Support	objective(+0x41f)=255	v3_press_chat_line(+0x41e)=255	eo_serpen(+0x410)=0	chats(cap/ptr/len)=0/8/0

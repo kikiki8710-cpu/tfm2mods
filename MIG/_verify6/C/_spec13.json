@@ -1,0 +1,813 @@
+{
+ "i": 13,
+ "id": "line_gank_cover__target_bush_v30",
+ "name": "target_bush_v30",
+ "sym": "_RNvMNtNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old9line_gank5coverNtB2_17LineGankCoverPlan15target_bush_v30",
+ "src": "game-ai\\src\\plan_legacy\\old\\line_gank\\cover.rs",
+ "src_line": 134,
+ "layer": "레거시 플랜",
+ "ir": {
+  "file": "m10.ll",
+  "frm": 11483,
+  "to": 11731
+ },
+ "one_line": "라인갱크 커버 시 숨을 부시 인덱스(2~21)를 라인·팀·타워상태·챔프위치로 고른다",
+ "sig": {
+  "tcx": "fn(&game_ai::plan_legacy::old::LineGankCoverPlan, &game_core::PlayerState, &game_core::OperationData) -> usize",
+  "vis": "in:game_ai::plan_legacy::old::line_gank::cover",
+  "path": "game_ai::plan_legacy::old::LineGankCoverPlan::target_bush_v30",
+  "mir": false,
+  "ev": 3,
+  "params": [
+   {
+    "i": 1,
+    "name": "self",
+    "type": "&LineGankCoverPlan(40B)",
+    "role": "IR에는 self.line(LineType, 0x20) 만 %0:i8 로 인자승격돼 전달. chats/wait_limit 는 이 함수에서 안 씀",
+    "ev": 4
+   },
+   {
+    "i": 2,
+    "name": "player",
+    "type": "&PlayerState(2528B)",
+    "role": "IR에서 %1:i64 = player.info.team(PlayerState+0x930), %2:i32 = player.info.position(PlayerState+0x9c0) 두 스칼라로 승격. team>=2 면 panic_bounds_check(len=2)",
+    "ev": 4
+   },
+   {
+    "i": 3,
+    "name": "data",
+    "type": "&OperationData(24B)",
+    "role": "IR에서 %3:ptr = data.cache(&AbstractGameWithCache, +0x0), %4:ptr = data.context(&GameContext, +0x8) 로 승격. data.blackboard(+0x10)은 안 씀",
+    "ev": 4
+   }
+  ],
+  "ret": "usize — 부시 인덱스. LLVM range(i64 2, 22) = 2..=21. 실제로 나오는 값은 2,3,4,6,8,9,11,12,13,14,15,16,17,18,20,21 (5,7,10,19 는 이 함수에서 안 나옴)"
+ },
+ "logic": "fn target_bush_v30(self:&LineGankCoverPlan, player:&PlayerState, data:&OperationData) -> usize\n\n  line = self.line            // %0:i8  LineType {0=Top,1=Mid,2=Bottom}\n  team = player.info.team     // %1:i64, 0..=1 (>=2 면 panic_bounds_check(len 2))\n  pos  = player.info.position // %2:i32, player_champion 의 5칸 색인\n  game = data.cache           // %3 &AbstractGameWithCache\n  ctx  = data.context         // %4 &GameContext\n\n  // L135 : AbstractGameWithCache::tower(line, team)  (game-core/simulation.rs:1822~1826, 인라인)\n  //         1차타워가 None 이면 2차타워로 폴백 (Option::or)\n  tower = match line {\n     Top    => game.top_tower[team]   .or(game.top_tower2[team]),     // 0x180 / 0x190\n     Mid    => game.mid_tower[team]   .or(game.mid_tower2[team]),     // 0x1a0 / 0x1b0\n     Bottom => game.bottom_tower[team].or(game.bottom_tower2[team]),  // 0x1c0 / 0x1d0\n  };\n\n  // L136~141 : 그 라인 타워가 1·2차 모두 없음(전부 파괴) -> 라인/팀만 보고 즉시 반환\n  if tower.is_none() {\n     return match line {\n        Top    => if team==0 { 2 } else { 16 },   // L138\n        Mid    => if team==0 { 4 } else { 17 },   // L139\n        Bottom => if team==0 { 9 } else { 21 },   // L140\n     };\n  }\n\n  tower = tower.unwrap();                              // L144\n  champ = game.player_champion[team][pos].unwrap();    // L145 (None 이면 패닉)\n\n  match line {                                          // L147\n\n   // ── Top ───────────────────────────────────────── L149~L160\n   Top => {\n      // L149 : match &tower.ty { EntityType::Tower(info) => ... , _ => unreachable!() (L160) }\n      //        (Entity+0x68 판별자 != 2 이면 여기서 패닉. info = Entity+0x70 = &Tower)\n      if tower.ty.is_tower2() {                        // L150 : 판별자==2 && TowerType(0x128) > 4\n          return if team==0 { 3 } else { 6 };           // L151\n      } else if info.nearest_enemy.is_some() {          // L153 : Entity+0x88 태그 != 0\n          return if team==0 { 6 } else { 3 };           // L154  ★좌우 반전\n      } else {\n          return if team==0 { 3 } else { 6 };           // L156  (L151 과 동일 값)\n      }\n   }\n\n   // ── Mid ───────────────────────────────────────── L164~L171 (info 를 안 꺼냄 = unreachable 없음)\n   Mid => {\n      if tower.ty.is_tower2() {                        // L164\n          // L165 : map_regions::is_top_side(ctx, champ.x, champ.y)\n          //        IR 술어 = (ctx.setting.height - champ.y) <u champ.x = **!is_top_side** (~~is_top_side 본문식~~ 정정, 배치C 오라클). 원식 = x + y <= height\n          if (ctx.setting.height - champ.y) < champ.x {\n              return if team==0 { 13 } else { 18 };     // L168\n          } else {\n              return if team==0 {  8 } else { 12 };     // L166\n          }\n      } else {\n          // L171 : 같은 부등식. ★team 을 전혀 보지 않는다\n          return if (ctx.setting.height - champ.y) < champ.x { 14 } else { 11 };\n      }\n   }\n\n   // ── Bottom ────────────────────────────────────── L179~L190 (Top 의 완전 대칭)\n   Bottom => {\n      // L179 : match &tower.ty { EntityType::Tower(info) => ..., _ => unreachable!() (L190) }\n      if tower.ty.is_tower2() {                        // L180\n          return if team==0 { 15 } else { 20 };         // L181\n      } else if info.nearest_enemy.is_some() {          // L183\n          return if team==0 { 20 } else { 15 };         // L184  ★좌우 반전\n      } else {\n          return if team==0 { 15 } else { 20 };         // L186\n      }\n   }\n  }\n  // L194 ret\n\n요약된 판정 구조\n  1) 라인 타워가 남아있는가 -> 없으면 라인×팀 고정표(2/16, 4/17, 9/21)\n  2) 남아있는 타워가 2차타워인가(TowerType>4) -> 방어선이 뒤로 밀렸으므로 다른 부시\n  3) Top/Bottom 은 그 타워가 적을 인지 중인가(nearest_enemy.is_some) -> 부시를 반대쪽으로 스왑\n     (2차타워일 때와 인지 못할 때는 같은 값이라, 실질 분기점은 \"1차타워가 적을 보고 있는가\" 하나뿐)\n  4) Mid 는 팀 대신/추가로 맵 대각선(height-y vs x)으로 챔프가 어느 사이드에 있는지를 본다.\n     1차타워 생존 시(L171)에는 team 을 아예 무시하고 사이드만으로 11/14 를 고른다.\n\n부수효과 없음 — store 명령이 하나도 없는 순수 함수.",
+ "logic_note": "★재구현용 의사코드다. **오프셋·상수·시그니처의 정본은 `mem`/`consts`/`callees`/`sig.tcx` 이고, 여기와 어긋나면 그쪽이 맞다.** (v2 에서 정정이 표에만 반영되고 이 블록이 옛 값으로 남는 사고가 반복됐다)",
+ "mem": [
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x180",
+   "name": "top_tower[team]",
+   "note": "[Option<&Entity>;2] — line=Top 일 때 1순위 타워",
+   "dir": "r",
+   "chk": "OK",
+   "ev": 4
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x190",
+   "name": "top_tower2[team]",
+   "note": "top_tower 가 None 이면 폴백(Option::or, option.rs:1622)",
+   "dir": "r",
+   "chk": "OK",
+   "ev": 4
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x1a0",
+   "name": "mid_tower[team]",
+   "note": "line=Mid 1순위",
+   "dir": "r",
+   "chk": "OK",
+   "ev": 4
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x1b0",
+   "name": "mid_tower2[team]",
+   "note": "line=Mid 폴백",
+   "dir": "r",
+   "chk": "OK",
+   "ev": 4
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x1c0",
+   "name": "bottom_tower[team]",
+   "note": "line=Bottom 1순위",
+   "dir": "r",
+   "chk": "OK",
+   "ev": 4
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x1d0",
+   "name": "bottom_tower2[team]",
+   "note": "line=Bottom 폴백",
+   "dir": "r",
+   "chk": "OK",
+   "ev": 4
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x1e0",
+   "name": "player_champion[team][position]",
+   "note": "[[Option<&Entity>;5];2] 80B. unwrap — None 이면 unwrap_failed 패닉(cover.rs:145:95)",
+   "dir": "r",
+   "chk": "OK",
+   "ev": 4
+  },
+  {
+   "base": "Entity",
+   "offset": "0x68",
+   "name": "ty (EntityType 판별자)",
+   "note": "타워 엔티티. ==2 → EntityType::Tower. is_tower2()의 1단계(entity.rs:1308)",
+   "dir": "r",
+   "chk": "OK",
+   "ev": 4
+  },
+  {
+   "base": "Entity",
+   "offset": "0x70",
+   "name": "ty payload = &Tower (변수명 info)",
+   "note": "EntityType::Tower 페이로드. Top(L149)/Bottom(L179) 분기에서만 꺼냄. 태그!=2 면 unreachable!()(L160/L190)",
+   "dir": "r",
+   "chk": "OK",
+   "ev": 4
+  },
+  {
+   "base": "Entity",
+   "offset": "0x88",
+   "name": "Tower.nearest_enemy 판별자",
+   "note": "Tower+0x18, Option<(usize,usize)> 의 태그. !=0 이면 is_some(option.rs:632)",
+   "dir": "r",
+   "chk": "OK",
+   "ev": 4
+  },
+  {
+   "base": "Entity",
+   "offset": "0x128",
+   "name": "Tower.ty (TowerType)",
+   "note": "Tower+0xb8, i8 range[0,8). >4 → Top2/Mid2/Bottom2 = is_second_tower(tower.rs:99~100)",
+   "dir": "r",
+   "chk": "OK",
+   "ev": 4
+  },
+  {
+   "base": "Entity",
+   "offset": "0x660",
+   "name": "x",
+   "note": "player_champion 으로 얻은 아군 챔피언 좌표 x. Mid 분기에서만 사용",
+   "dir": "r",
+   "chk": "OK",
+   "ev": 4
+  },
+  {
+   "base": "Entity",
+   "offset": "0x668",
+   "name": "y",
+   "note": "같은 챔피언 좌표 y. Mid 분기에서만 사용",
+   "dir": "r",
+   "chk": "OK",
+   "ev": 4
+  },
+  {
+   "base": "GameContext",
+   "offset": "0x8",
+   "name": "setting (&GameSetting)",
+   "note": "is_top_side(map_regions.rs:21)가 받는 context 에서 꺼냄",
+   "dir": "r",
+   "chk": "OK",
+   "ev": 4
+  },
+  {
+   "base": "GameSetting",
+   "offset": "0x12c0",
+   "name": "height",
+   "note": "u64. map_regions.rs:22 의 ry = height - y",
+   "dir": "r",
+   "chk": "OK",
+   "ev": 4
+  }
+ ],
+ "consts": [
+  {
+   "value": 2,
+   "src_line": 138,
+   "meaning": "① team 인덱스 상한(팀 2개, 초과 시 panic_bounds_check) ② EntityType 판별자 2 = Tower ③ Top 라인 타워 전멸 + team0 일 때의 반환 부시 인덱스",
+   "kind": "태그",
+   "ev": 4
+  },
+  {
+   "value": 16,
+   "src_line": 138,
+   "meaning": "Top 라인 타워 전멸 + team1 반환 부시",
+   "kind": "임계",
+   "ev": 4
+  },
+  {
+   "value": 4,
+   "src_line": 139,
+   "meaning": "① TowerType>4 = 2차타워 판정 임계(5,6,7 = Top2/Mid2/Bottom2) ② Mid 라인 타워 전멸 + team0 반환 부시",
+   "kind": "임계",
+   "ev": 4
+  },
+  {
+   "value": 17,
+   "src_line": 139,
+   "meaning": "Mid 라인 타워 전멸 + team1 반환 부시",
+   "kind": "임계",
+   "ev": 4
+  },
+  {
+   "value": 9,
+   "src_line": 140,
+   "meaning": "Bottom 라인 타워 전멸 + team0 반환 부시",
+   "kind": "임계",
+   "ev": 4
+  },
+  {
+   "value": 21,
+   "src_line": 140,
+   "meaning": "Bottom 라인 타워 전멸 + team1 반환 부시",
+   "kind": "임계",
+   "ev": 4
+  },
+  {
+   "value": 3,
+   "src_line": 151,
+   "meaning": "Top: 2차타워가 살아있거나(L151) 타워가 적을 못 보는 상태(L156)일 때 team0 반환 부시 (team1 은 6)",
+   "kind": "임계",
+   "ev": 4
+  },
+  {
+   "value": 6,
+   "src_line": 154,
+   "meaning": "Top: 위와 짝. L154(타워가 적 인지 중)에서는 team0=6/team1=3 으로 좌우가 뒤집힌다",
+   "kind": "임계",
+   "ev": 4
+  },
+  {
+   "value": 13,
+   "src_line": 168,
+   "meaning": "Mid + 2차타워 + (height-champ.y) < champ.x 일 때 team0 반환 부시 [= **!is_top_side**(봇 사이드) 일 때. ~~is_top_side 참~~ 아님 — 2026-09-11 배치C]",
+   "kind": "임계",
+   "ev": 4
+  },
+  {
+   "value": 18,
+   "src_line": 168,
+   "meaning": "같은 조건 team1 반환 부시",
+   "kind": "임계",
+   "ev": 4
+  },
+  {
+   "value": 8,
+   "src_line": 166,
+   "meaning": "Mid + 2차타워 + 위 부등식이 거짓일 때 team0 반환 부시",
+   "kind": "임계",
+   "ev": 4
+  },
+  {
+   "value": 12,
+   "src_line": 166,
+   "meaning": "같은 조건 team1 반환 부시",
+   "kind": "임계",
+   "ev": 4
+  },
+  {
+   "value": 14,
+   "src_line": 171,
+   "meaning": "Mid + 1차타워 생존 + (height-champ.y) < champ.x 일 때 반환 부시. ★team 무관 [= **!is_top_side**(봇 사이드) 일 때. ~~is_top_side 참~~ 아님 — 2026-09-11 배치C]",
+   "kind": "임계",
+   "ev": 4
+  },
+  {
+   "value": 11,
+   "src_line": 171,
+   "meaning": "Mid + 1차타워 생존 + 위 부등식 거짓일 때 반환 부시. ★team 무관",
+   "kind": "임계",
+   "ev": 4
+  },
+  {
+   "value": 15,
+   "src_line": 181,
+   "meaning": "Bottom: 2차타워 생존(L181) 또는 타워가 적 미인지(L186)일 때 team0 반환 부시 (team1 은 20)",
+   "kind": "임계",
+   "ev": 4
+  },
+  {
+   "value": 20,
+   "src_line": 184,
+   "meaning": "Bottom: 위와 짝. L184(타워가 적 인지 중)에서는 team0=20/team1=15 로 뒤집힘",
+   "kind": "임계",
+   "ev": 4
+  }
+ ],
+ "knobs": [
+  {
+   "what": "라인 타워 전멸 시 대피 부시 (라인×팀)",
+   "where": "cover.rs:138-140",
+   "value": "Top 2/16, Mid 4/17, Bottom 9/21",
+   "effect": "타워가 다 밀린 라인에서 커버 챔프가 숨는 자리를 통째로 옮긴다. 값을 서로 바꾸면 아군 진영 쪽/적 진영 쪽 부시로 커버 위치가 바뀐다",
+   "src": "기존",
+   "ev": 4
+  },
+  {
+   "what": "Top 기본 부시 (2차타워 생존 또는 타워가 적 미인지)",
+   "where": "cover.rs:151, 156",
+   "value": "team0=3 / team1=6",
+   "effect": "Top 커버의 상시 대기 부시. 3↔6 을 뒤집으면 두 팀의 대기 위치가 서로 맞바뀐다",
+   "src": "기존",
+   "ev": 4
+  },
+  {
+   "what": "Top 타워가 적을 인지 중일 때의 부시",
+   "where": "cover.rs:154",
+   "value": "team0=6 / team1=3",
+   "effect": "적이 타워 사거리에 들어와 있으면 반대쪽 부시로 옮겨 협공 각을 잡는 동작. 3/6 을 L151·L156 과 같게 만들면 이 반응 자체가 사라진다(항상 같은 부시)",
+   "src": "기존",
+   "ev": 4
+  },
+  {
+   "what": "Mid 2차타워 방어 시 부시 (맵 사이드별)",
+   "where": "cover.rs:166, 168",
+   "value": "부등식 참=13/18, 거짓=8/12",
+   "effect": "미드 2차타워까지 밀린 상황에서 챔프가 서 있는 맵 사이드에 맞춰 부시를 고른다. 두 쌍을 바꾸면 커버가 반대 사이드 부시에서 대기한다",
+   "src": "기존",
+   "ev": 4
+  },
+  {
+   "what": "Mid 1차타워 생존 시 부시 (팀 무관)",
+   "where": "cover.rs:171",
+   "value": "부등식 참=14, 거짓=11",
+   "effect": "미드 정상 상황의 커버 부시. 이 줄만 팀을 안 보므로, 팀별로 다르게 하고 싶으면 여기에 team 분기를 넣어야 한다",
+   "src": "기존",
+   "ev": 4
+  },
+  {
+   "what": "Bottom 기본 부시 / 인지 시 부시",
+   "where": "cover.rs:181, 186 / 184",
+   "value": "기본 team0=15,team1=20 / 인지 시 20,15",
+   "effect": "Top 의 3·6 과 완전 대칭. 15↔20 스왑 여부가 봇 커버의 좌우 대기 위치를 결정한다",
+   "src": "기존",
+   "ev": 4
+  },
+  {
+   "what": "2차타워 판정 임계",
+   "where": "game-core/simulation/entity/tower.rs:100 (인라인, IR 11529·11546·11590 부근의 `ugt i8 %x, 4`)",
+   "value": 4,
+   "effect": "TowerType > 4 (Top2/Mid2/Bottom2)를 '2차타워'로 본다. game_core 쪽 공용 술어라 여기만 바꾸면 다른 판정도 같이 흔들린다",
+   "src": "기존",
+   "ev": 4
+  },
+  {
+   "what": "부시 ID 그리드",
+   "where": "@anon...269 (_gcbc/g07.ll:275)",
+   "effect": "★이 함수(`LineGankCoverPlan::target_bush_v30`)는 2~21 만 낸다. ⚠**「1/22/23/24 영구 제외」는 이 함수 한정**이고 갱커 쪽 형제 `LineGankerPlan::target_bush_v41` 이 **7·23 을 실제로 반환**한다(2026-09-11 2차배치C 실행 확인, `C_o1314_t0.tsv` Bottom lead6). 두 함수를 합친 실제 미사용 = **1, 5, 10, 19, 22, 24** (적용 범위: v30 + v41 기준. 좌표를 돌려주는 `target_bush`(→(u64,u64))·`near_jungle_bush` 는 미탐색). 여기 ID 를 바꾸면 새 은신처가 살아난다",
+   "src": "신규",
+   "ev": 2
+  },
+  {
+   "what": "is_top/bottom_side 대각선",
+   "where": "_gcbc/g15.ll:66114·66116",
+   "value": "x+y ≤ height / ≥ height",
+   "effect": "`height`(GameSetting+0x12c0)를 바꾸면 탑/봇 판정 경계가 대각선째 평행이동한다",
+   "src": "신규",
+   "ev": 4
+  },
+  {
+   "what": "셀 좌표 클램프",
+   "where": "_gaibc/m02.ll:9260·9265",
+   "value": "umin(coord/32000, 29)",
+   "effect": "맵 밖 좌표가 **패닉 대신 가장자리 셀로 접힌다**. 재구현 시 이 클램프를 빼면 동작 불일치",
+   "src": "신규",
+   "ev": 4
+  },
+  {
+   "what": "미니맵 스케일·오프셋",
+   "where": "_gvbc/v10.ll:251049·251158",
+   "value": "1/3 스케일, +20 오프셋",
+   "effect": "월드 960 → 패널 320",
+   "src": "신규",
+   "ev": 4
+  }
+ ],
+ "callees": [
+  {
+   "name": "is_top_side",
+   "path": "game_core::is_top_side",
+   "vis": "pub",
+   "sig": "fn(&game_core::GameContext, u64, u64) -> bool",
+   "at": "game-core\\src\\simulation\\map_regions.rs:21",
+   "mir": true,
+   "xinl": true,
+   "ev": 3
+  },
+  {
+   "name": "is_tower2",
+   "path": "game_core::EntityType::is_tower2",
+   "vis": "pub",
+   "sig": "fn(&game_core::EntityType) -> bool",
+   "at": "game-core\\src\\simulation\\entity.rs:1308",
+   "mir": true,
+   "xinl": true,
+   "ev": 3
+  },
+  {
+   "name": "target_bush_v30",
+   "path": "game_ai::plan_legacy::old::LineGankerPlan::target_bush_v30",
+   "vis": "in:game_ai::plan_legacy::old::line_gank::ganker",
+   "sig": "fn(&game_ai::plan_legacy::old::LineGankerPlan, &game_core::PlayerState, &game_core::OperationData) -> usize",
+   "at": "game-ai\\src\\plan_legacy\\old\\line_gank\\ganker.rs:248",
+   "mir": false,
+   "xinl": false,
+   "ev": 3
+  },
+  {
+   "name": "target_bush_v30",
+   "path": "game_ai::plan_legacy::old::LineGankCoverPlan::target_bush_v30",
+   "vis": "in:game_ai::plan_legacy::old::line_gank::cover",
+   "sig": "fn(&game_ai::plan_legacy::old::LineGankCoverPlan, &game_core::PlayerState, &game_core::OperationData) -> usize",
+   "at": "game-ai\\src\\plan_legacy\\old\\line_gank\\cover.rs:134",
+   "mir": false,
+   "xinl": false,
+   "ev": 3
+  },
+  {
+   "name": "tower",
+   "path": "game_core::AbstractGameWithCache::<'a, 'b>::tower",
+   "vis": "pub",
+   "sig": "fn(&game_core::AbstractGameWithCache<'a/#0, 'b/#1>, game_core::LineType, usize) -> std::option::Option<&game_core::Entity>",
+   "at": "game-core\\src\\simulation.rs:1822",
+   "mir": true,
+   "xinl": true,
+   "ev": 3
+  }
+ ],
+ "callees_unmatched": {
+  "names": [
+   "panic"
+  ],
+  "note": "tcx 3크레이트에 같은 leaf 이름의 Fn/AssocFn 이 없는 것들. 대부분 std·클로저·매크로이거나 `logic` 산문에서 긁힌 잡음이다. ⚠단 **여기 이름이 실제 게임 술어인데 이름이 달라서 못 잡힌 경우**가 섞일 수 있으니, 3차에서 판정에 쓰이는 술어가 이 목록에 있으면 손으로 확인할 것."
+ },
+ "callees_note": "★tcx 에서 **자동 생성**한다(mkspec3.py). 사람이 채우는 필드로 두면 빈다 — 01 의 「정글 캠프 티어 컷」 유령 노브가 `is_jungle(&self, usize)` 시그니처를 안 본 탓에 생겼다. **인자를 받는 술어면 IR 의 임계 상수는 접힘일 수 있다.**",
+ "callers": {
+  "count": 2,
+  "sites": [
+   "m10.ll:11791",
+   "m10.ll:12292"
+  ],
+  "scope": "_gaibc(game_ai) 전량 call/invoke 스캔",
+  "note": "★자동 열거(spec3lib.callsites, 0.7초). 1차가 09 를 「유일 호출처」로 적었다가 실제 8곳이었다 — 세지 않고 쓰는 일을 구조적으로 막는다. exe 쪽 `callers: []` 는 '호출자 없음'이 아니라 **조인 실패**다.",
+  "ev": 4
+ },
+ "siblings": {
+  "plan": "LineGankCoverPlan",
+  "count": 10,
+  "entries": [
+   {
+    "path": "<game_ai::plan_legacy::old::LineGankCoverPlan as std::clone::Clone>::clone",
+    "vis": "pub",
+    "at": "game-ai\\src\\plan_legacy\\old\\line_gank\\cover.rs:9",
+    "mir": true,
+    "sig": "fn(&game_ai::plan_legacy::old::LineGankCoverPlan) -> game_ai::plan_legacy::old::LineGankCoverPlan"
+   },
+   {
+    "path": "<game_ai::plan_legacy::old::LineGankCoverPlan as std::fmt::Debug>::fmt",
+    "vis": "pub",
+    "at": "game-ai\\src\\plan_legacy\\old\\line_gank\\cover.rs:9",
+    "mir": true,
+    "sig": "fn(&game_ai::plan_legacy::old::LineGankCoverPlan, &mut std::fmt::Formatter) -> std::result::Result<(), std::fmt::Error>"
+   },
+   {
+    "path": "game_ai::plan_legacy::old::LineGankCoverPlan::new",
+    "vis": "pub",
+    "at": "game-ai\\src\\plan_legacy\\old\\line_gank\\cover.rs:17",
+    "mir": true,
+    "sig": "fn(game_core::LineType, usize) -> game_ai::plan_legacy::old::LineGankCoverPlan"
+   },
+   {
+    "path": "game_ai::plan_legacy::old::LineGankCoverPlan::goal",
+    "vis": "pub",
+    "at": "game-ai\\src\\plan_legacy\\old\\line_gank\\cover.rs:21",
+    "mir": true,
+    "sig": "fn(&game_ai::plan_legacy::old::LineGankCoverPlan) -> game_core::BigGoal"
+   },
+   {
+    "path": "game_ai::plan_legacy::old::LineGankCoverPlan::update",
+    "vis": "pub",
+    "at": "game-ai\\src\\plan_legacy\\old\\line_gank\\cover.rs:25",
+    "mir": true,
+    "sig": "fn(&mut game_ai::plan_legacy::old::LineGankCoverPlan, usize, &mut rand::rngs::std::StdRng, &game_core::PlayerState, &game_core::OperationData, &game_ai::GoalData, &game_core::PositioningScoreData, &mut game_core::DebugFrameData)"
+   },
+   {
+    "path": "game_ai::plan_legacy::old::LineGankCoverPlan::is_end",
+    "vis": "pub",
+    "at": "game-ai\\src\\plan_legacy\\old\\line_gank\\cover.rs:30",
+    "mir": false,
+    "sig": "fn(&game_ai::plan_legacy::old::LineGankCoverPlan, usize, &mut rand::rngs::std::StdRng, &game_core::PlayerState, &game_core::OperationData, &mut game_core::DebugFrameData) -> bool"
+   },
+   {
+    "path": "game_ai::plan_legacy::old::LineGankCoverPlan::next_plan",
+    "vis": "pub",
+    "at": "game-ai\\src\\plan_legacy\\old\\line_gank\\cover.rs:34",
+    "mir": false,
+    "sig": "fn(&mut game_ai::plan_legacy::old::LineGankCoverPlan, usize, &mut rand::rngs::std::StdRng, &game_core::PlayerState, &game_core::OperationData, &game_core::PositioningScoreData, &game_ai::plan_legacy::team_plan::TeamPlan, &mut game_core::DebugFrameData) -> std::option::Option<game_ai::plan_legacy::types::BigPlan>"
+   },
+   {
+    "path": "game_ai::plan_legacy::old::LineGankCoverPlan::target_bush_v30",
+    "vis": "in:game_ai::plan_legacy::old::line_gank::cover",
+    "at": "game-ai\\src\\plan_legacy\\old\\line_gank\\cover.rs:134",
+    "mir": false,
+    "sig": "fn(&game_ai::plan_legacy::old::LineGankCoverPlan, &game_core::PlayerState, &game_core::OperationData) -> usize"
+   },
+   {
+    "path": "game_ai::plan_legacy::old::LineGankCoverPlan::target_bush",
+    "vis": "in:game_ai::plan_legacy::old::line_gank::cover",
+    "at": "game-ai\\src\\plan_legacy\\old\\line_gank\\cover.rs:196",
+    "mir": false,
+    "sig": "fn(&game_ai::plan_legacy::old::LineGankCoverPlan, &game_core::PlayerState, &game_core::OperationData) -> (u64, u64)"
+   },
+   {
+    "path": "game_ai::plan_legacy::old::LineGankCoverPlan::sub_plan",
+    "vis": "pub",
+    "at": "game-ai\\src\\plan_legacy\\old\\line_gank\\cover.rs:224",
+    "mir": false,
+    "sig": "fn(&game_ai::plan_legacy::old::LineGankCoverPlan, usize, &mut rand::rngs::std::StdRng, &game_core::PlayerState, &game_core::OperationData, &mut game_core::DebugFrameData) -> game_ai::plan_legacy::sub_plan::SubPlan"
+   }
+  ],
+  "note": "★자동 열거. 14 가 `update` 만 보고 `sub_plan`/`next_plan` 이 쓰는 `target_bush_v41`·`target_bush` 를 통째로 놓쳤다 — 형제를 안 보면 '이 플랜의 목표'를 틀리게 재구현한다.",
+  "ev": 3
+ },
+ "open": [
+  {
+   "q": "Top 의 L151(2차타워)과 L156(적 미인지)이 3/6 으로 완전히 같고, Bottom 의 L181/L186 도 15/20 으로 같다. 소스에서 두 분기를 따로 쓴 이유(원래 다른 값이었는지, 향후 분기용인지) 는 IR 만으로는 알 수 없다. ⚠**단 「재료 부재」가 아니라 「미탐색」이다**(5차 배치C): rmeta SourceMap 줄 길이가 **L151(54B) ≠ L156(56B)** · L181(56B) ≠ L186(58B) ⟹ **같은 값을 내는 다른 표기**이지 중복이 아니다. 표기 차이의 내용은 줄 길이 산술로 더 좁힐 수 있다.",
+   "class": "재료 부재",
+   "ev": 3
+  },
+  {
+   "q": "함수 이름의 `v30` 이 무엇의 버전인지 — 본문에 버전 게이트 분기가 없다(AI 버전 파라미터 자체가 없음).",
+   "class": "미탐색",
+   "ev": 4
+  }
+ ],
+ "closed": [
+  {
+   "q": "반환 usize(2~21)가 어느 부시 테이블의 인덱스인지 — 이 함수 본문에는 테이블 참조가 없고, 반환값을 소비하는 호출측을 담당 범위 밖이라 확인하지 않았다. AbstractGameWithCache+0x2218 region_point(108B) 가 후보로 보이지만 근거 없음(추정).",
+   "why": "resolved[0]: MapDef.bushes(+0x1c98) 값으로 확정"
+  },
+  {
+   "q": "~~map_regions::is_top_side 의 극성 — 전 .ll 에 define 이 없어(항상 인라인) `ry < x` 인지 `x <= ry` 인지 확정 못 함~~ -> **확정**(2026-09-11 검증배치 C). `is_top_side` = `champ.x + champ.y <= height` = `!(ry < champ.x)` (ry = height - champ.y). IR 의 `icmp ult ry, champ.x` 는 **그 부정**이다 — 2026-09-11 검증배치 C 가 SDK 오라클 실행으로 확정(표본 9개 전부 일치, 대각선 x+y==height 는 top/bottom 양쪽 true). 범위정정: 이건 「재료 부재」가 아니라 **미탐색**이었다 — `tcxq grep game_core is_top_side` 한 번이면 `vis=pub, mir=1` 이 보이고 오라클·MIR 두 경로가 열려 있었다",
+   "why": "본문에 해소 표기가 있다"
+  },
+  {
+   "q": "%0/%1/%2 의 출처 — 세 포인터 인자가 fastcc 인자승격으로 (i8,i64,i32,ptr,ptr) 이 되어 LineGankCoverPlan+0x20 / PlayerState+0x930 / PlayerState+0x9c0 을 읽는 gep 가 본문에 없다. 매핑 근거는 ①DWARF 파라미터 목록(!23059~!23061) ②인라인된 AbstractGameWithCache::tower 의 dbg_value(line=%0, team=%1) ③entity.rs:580 Position 메서드의 dbg 가 `+2496(=0x9c0)` 를 가리키는 것 — 이 세 가지 간접 증거다. 그래서 reads 에는 넣지 않았다.",
+   "why": "4차 배치C(ev3): 간접증거→직접증거. 호출부 m10.ll:11778~11791 에 gep 그대로"
+  },
+  {
+   "q": "OperationData+0x10(blackboard) 는 이 함수에서 읽지 않는다 — 읽지 않는다는 것만 확실하고, 다른 v* 판본이 쓰는지는 미확인.",
+   "why": "4차 배치C: 선택기 3종 중 target_bush 만 blackboard 를 본다(cover.rs:196 / ganker.rs:351)"
+  }
+ ],
+ "notes": [],
+ "open_note": "★다음 라운드는 **`open[]` 만** 보면 된다. `closed[]` 는 이미 닫힌 것(삭제하지 않고 남긴다), `notes[]` 는 **확정된 사실 서술**이라 물음이 아니다(파지 말고, 틀렸으면 반증할 것). 판정 어휘 = 미탐색 / 재료 부재(범위 열거 필수) / 표기 불가 / 사실 서술. 「불가」를 쓰기 전에 `METHOD_MAP §0` 을 볼 것.",
+ "history": [
+  {
+   "was": "반환 usize(2~21)가 어느 부시 테이블의 인덱스인가",
+   "now": "★확정 — MapDef.bushes(+0x1c98, [30][30] usize) 배열의 '값'이다. 별도 테이블이 아니다. 근거 사슬: 반환값 → SubPlan::Hide{bush} 페이로드(m10.ll:11791~11801, 태그 9) → SmallActionAroundBush::new_with_target(m02.ll:21543) → 그 필터 클로저가 map.bushes[y][x] == bush 로 셀을 고름(m08.ll:113362~113375, +7320=0x1c98).",
+   "인덱싱": "★bushes[y_cell][x_cell] (바깥이 y). 근거 = near_jungle_bush 소비처 m02.ll:48891~48903 에서 pos.1/32000 이 바깥, pos.0/32000 이 안쪽.",
+   "그리드": "원본 = @anon.760a549ece99095c03f6d74498be091c.269 (_gcbc/g07.ll:275), 맵 생성자가 +7320 에 memcpy(g07.ll:152522). 부시 ID 1~24, 0=부시 없음.",
+   "부시_좌표표": [
+    {
+     "id": 1,
+     "cells": "(0,0)(1,0)(2,0)(0,1)(0,2)",
+     "center": [
+      35200,
+      35200
+     ],
+     "note": "★target_bush_v30 이 반환 안 함"
+    },
+    {
+     "id": 2,
+     "cells": "(19,0)(20,0)(21,0)",
+     "center": [
+      656000,
+      16000
+     ]
+    },
+    {
+     "id": 3,
+     "cells": "(7,4)(8,4)(9,4)",
+     "center": [
+      272000,
+      144000
+     ]
+    },
+    {
+     "id": 4,
+     "cells": "(20,4)(20,5)",
+     "center": [
+      656000,
+      160000
+     ]
+    },
+    {
+     "id": 5,
+     "cells": "(12,6)",
+     "center": [
+      400000,
+      208000
+     ]
+    },
+    {
+     "id": 6,
+     "cells": "(4,7)(4,8)(4,9)",
+     "center": [
+      144000,
+      272000
+     ]
+    },
+    {
+     "id": 7,
+     "cells": "(29,8)(29,9)(29,10)",
+     "center": [
+      944000,
+      304000
+     ]
+    },
+    {
+     "id": 8,
+     "cells": "(14,9)",
+     "center": [
+      464000,
+      304000
+     ]
+    },
+    {
+     "id": 9,
+     "cells": "(26,11)~(26,14)",
+     "center": [
+      848000,
+      416000
+     ]
+    },
+    {
+     "id": 10,
+     "cells": "(6,12)",
+     "center": [
+      208000,
+      400000
+     ]
+    },
+    {
+     "id": 11,
+     "cells": "(12,12)(13,12)(12,13)",
+     "center": [
+      410666,
+      410666
+     ]
+    },
+    {
+     "id": 12,
+     "cells": "(9,14)",
+     "center": [
+      304000,
+      464000
+     ]
+    },
+    {
+     "id": 13,
+     "cells": "(20,15)(21,15)(21,16)",
+     "center": [
+      677333,
+      506666
+     ]
+    },
+    {
+     "id": 14,
+     "cells": "(17,16)(16,17)(17,17)",
+     "center": [
+      549333,
+      549333
+     ]
+    },
+    {
+     "id": 15,
+     "cells": "(25,18)~(25,22)",
+     "center": [
+      816000,
+      656000
+     ]
+    },
+    {
+     "id": 16,
+     "cells": "(0,19)(0,20)(0,21)",
+     "center": [
+      16000,
+      656000
+     ]
+    },
+    {
+     "id": 17,
+     "cells": "(4,20)(5,20)",
+     "center": [
+      160000,
+      656000
+     ]
+    },
+    {
+     "id": 18,
+     "cells": "(15,20)(15,21)(16,21)",
+     "center": [
+      506666,
+      677333
+     ]
+    },
+    {
+     "id": 19,
+     "cells": "(29,24)(29,25)(29,26)",
+     "center": [
+      944000,
+      816000
+     ]
+    },
+    {
+     "id": 20,
+     "cells": "(18,25)~(22,25)",
+     "center": [
+      656000,
+      816000
+     ]
+    },
+    {
+     "id": 21,
+     "cells": "(11,26)~(14,26)",
+     "center": [
+      416000,
+      848000
+     ]
+    },
+    {
+     "id": 22,
+     "cells": "(28,28)(29,28)(28,29)(29,29)",
+     "center": [
+      928000,
+      928000
+     ],
+     "note": "★반환 안 함"
+    },
+    {
+     "id": 23,
+     "cells": "(8,29)(9,29)(10,29)",
+     "center": [
+      304000,
+      944000
+     ],
+     "note": "★반환 안 함"
+    },
+    {
+     "id": 24,
+     "cells": "(24,29)(25,29)(26,29)",
+     "center": [
+      816000,
+      944000
+     ],
+     "note": "★반환 안 함"
+    }
+   ]
+  },
+  {
+   "was": "map_regions::is_top_side 의 원식 극성 / 부시 그리드의 y축 방향",
+   "now": "★둘 다 확정 — 전문 = `_shared.맵_좌표계`. **`is_top_side = (x + y ≤ height)`**(인라인 지점의 단락평가 분기 방향으로 확정, _gcbc/g15.ll:66099~66135). 형제 `is_bottom_side = (x + y ≥ height)`, 둘 다 미드 대각선 포함. **y=0 = 게임이 `Top` 이라 부르는 절반**(대칭이 깨지는 데이터 3개가 전부 일치). ⚠단 그 절반이 화면상 위쪽인지는 렌더러 소관이라 이 IR 에 없다."
+  },
+  {
+   "was": "\"Top 절반 = 화면 위쪽\" 의 최종 한 걸음 — 렌더러 소관이라 _gaibc/_gcbc 에 없다",
+   "now": "★**확정 — `_gvbc`(game_view)를 안 봤던 것이다.** 전문 = `_shared.맵_화면방향`. `GameView::render_minimap`(v10.ll:248308)이 월드→화면을 `/3.0` 스케일만 하고 **부호 반전이 없다**. `is_near_top_line`(g09.ll:159311)의 Top ⟺ `x+y < height` 와 합치면 **Top = 작은 x·작은 y = 화면 왼쪽 위**."
+  },
+  {
+   "was": "logic 의 `is_top_side` 본문식 표기 (자기 파일 resolved 와 내부 모순)",
+   "now": "★**정정(2026-09-11 검증배치 C) — 극성 반전 표기 오류**: IR 의 `icmp ult (height − y), x` 를 `is_top_side` **본문식**이라 적었는데, 그건 **그 부정**이다. `height−y < x` ⟺ `x+y > height` ⟺ **`!is_top_side`**. ⟹ 우리가 발표한 **공식 `is_top_side = (x + y ≤ height)` 자체는 맞다**(Top = 작은 x·작은 y). 틀린 것은 **IR 비교식에 붙인 이름표**뿐이고, 동작 서술은 우연히 맞았다. 다만 **뜻이 정확히 뒤집혀 재구현자를 오도**하므로 정정한다.\n★**오라클 실행으로 확정**: `is_top_side` 는 `vis=pub` · `mir=1` 이라 그냥 돌릴 수 있었다 — 표본 9개 전부 `ry_lt_x == !is_top_side`, 대각선(`x+y == height`)은 **top/bottom 양쪽 true**.\n🔁**범위정정**: 「별도 define 이 없어(전량 인라인) 확정 불가」 판정은 **과했다** — `tcxq grep game_core is_top_side` 한 번이면 `pub`·`mir=1` 이 보이고 **오라클·MIR 두 경로가 열려 있었다**. 판정 어휘는 **미탐색**이 맞다."
+  },
+  {
+   "was": "부시 ID 1·22·23·24 는 갱킹 은신 후보에서 **영구 제외**",
+   "now": "🔁**범위정정(2026-09-11 검증배치 C)**: 그 주장은 **`target_bush_v30` 한정**으로만 맞다. 형제 **`target_bush_v41`** 이 부시 **7·23** 을 반환한다. 두 함수를 합친 **실제 미사용 = 1, 5, 10, 19, 22, 24**."
+  },
+  {
+   "was": "명세 13 의 반환표가 IR 추론뿐이었다",
+   "now": "★**실행 확인**(2026-09-11 2차배치C, `C_o1314.rs` — `LineGankCoverPlan::sub_plan` 이 pub 이라 `SubPlan::Hide{bush}` 를 그대로 읽었다). tick 0(타워 전부 생존·1차타워·`nearest_enemy=None`·챔프 `is_top_side=true`): **Top 3/6 · Mid 11(team 무관) · Bottom 15/20** — L156/L171/L186 예측과 일치. ★특히 **Mid=11 은 `is_top_side` 극성 정정이 옳다는 실행 증거**다(정정 전 표대로면 14 가 나왔어야 한다). 나머지 분기(타워 전멸 2/16·4/17·9/21, 2차타워, `nearest_enemy` 스왑, Mid 봇사이드 8/12·13/18·14)는 **미탐색** — 범위: 기본 챔피언으로는 타워를 못 부수고 챔피언 10명이 전부 `is_top_side=true`."
+  },
+  {
+   "was": "13 의 미검증 분기(Mid 봇사이드 등)가 '재료 부재' 인가",
+   "now": "★**재료 부재가 아니라 설정 데이터 누락(미탐색)이었다**(3차 배치C). `GameSetting::default()` 는 `height == 0` 이라 `height − y` 가 u64 **언더플로**해 `is_top_side` 가 상수 true 가 된다 — 2차의 「챔프 10명 전부 탑사이드」가 그 오진이다. 실전 height(960000)를 넣으면 같은 초기 좌표에서 **Support 2명이 false** 로 갈리고 **13/14 의 26칸을 전부 밟았다**. 정본 템플릿 = `MIG\\_verify3\\TEMPLATE.rs`."
+  },
+  {
+   "was": "선택기 3종(`target_bush`/`_v30`/`_v41`) 중 무엇이 `Blackboard` 를 쓰는가",
+   "now": "★**`target_bush` 만 쓴다**(4차 배치C). `LineGankCoverPlan::target_bush`(cover.rs:196)가 `OperationData+0x10` 을 읽고(`m10.ll:12124`, `!dbg` 사슬 cover.rs:210 → next_plan 36, `Blackboard::minion_state` blackboard.rs:379~381 인라인), `LineGankerPlan::target_bush`(ganker.rs:351)도 동일(ganker.rs:365 → next_plan 142). **`_v30`·`_v41` 은 blackboard 를 보지 않는다.**"
+  }
+ ],
+ "history_note": "v2 `resolved[]` 원문 그대로(정정 이력). **본문이 아니라 참조용**이다 — 여기 있는 사실이 `mem`/`consts`/`knobs`/`callees` 에 반영됐는지는 `specgate.py` 가 검사한다.",
+ "exe": null,
+ "calls_raw": [
+  "core::panicking::panic_bounds_check",
+  "core::option::unwrap_failed",
+  "core::panicking::panic"
+ ],
+ "base_round": "r4",
+ "rounds": 4,
+ "v2_extra": {
+  "no_map_reason": "★인라인 확정 — 6차 실측에서 `LineGankerPlan::update` 안에 전량 인라인돼 별도 define 이 없다. 지도의 `cover` 모듈에는 `next_plan` 하나뿐이다."
+ }
+}

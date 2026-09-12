@@ -1,0 +1,15 @@
+{
+ "round": "6",
+ "batch": "B",
+ "errors_applied": 0,
+ "ev_applied": 139,
+ "failed": 2,
+ "stamps": {
+  "/specs[9]/logic": "26f4cf2067b44253",
+  "/specs[8]/logic": "a135e072af44316c",
+  "/specs[6]/history[5]/now": "4d18bb2fa795ddd2",
+  "/specs[9]/open[0]": "7bfbad6e2f354e50",
+  "/specs[5]/logic": "dc3e0ac2048b2f7d"
+ },
+ "restamped": true
+}

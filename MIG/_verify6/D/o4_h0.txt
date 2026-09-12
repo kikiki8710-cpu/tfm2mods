@@ -1,0 +1,49 @@
+HP	team0 [0]100% [1]100% [2]100% [3]100% [4]100%	(hurt_n=0 hurt_pc=10 well_pc=100)
+R	ver=1	obj=None	team=0	pos=Top	pcl=0->0	objective=255	chats_len=0	eo=0	reached=false	diff= +0x50..51 +0x58..60
+R	ver=1	obj=None	team=0	pos=Mid	pcl=0->0	objective=255	chats_len=0	eo=0	reached=false	diff= +0x50..51
+R	ver=1	obj=None	team=1	pos=Top	pcl=0->0	objective=255	chats_len=0	eo=0	reached=false	diff= +0x50..51
+R	ver=1	obj=None	team=1	pos=Mid	pcl=0->0	objective=255	chats_len=0	eo=0	reached=false	diff= +0x50..51
+R	ver=1	obj=Gank(Top)	team=0	pos=Top	pcl=0->0	objective=8	chats_len=0	eo=0	reached=false	diff= +0x50..51
+R	ver=1	obj=Gank(Top)	team=0	pos=Mid	pcl=0->0	objective=8	chats_len=0	eo=0	reached=false	diff= +0x50..51
+R	ver=1	obj=Gank(Top)	team=1	pos=Top	pcl=0->0	objective=8	chats_len=0	eo=0	reached=false	diff= +0x50..51
+R	ver=1	obj=Gank(Top)	team=1	pos=Mid	pcl=0->0	objective=8	chats_len=0	eo=0	reached=false	diff= +0x50..51
+R	ver=1	obj=Repair	team=0	pos=Top	pcl=0->0	objective=255	chats_len=0	eo=0	reached=false	diff= +0x210..211 +0x41f..420
+R	ver=1	obj=Repair	team=0	pos=Mid	pcl=0->0	objective=255	chats_len=0	eo=0	reached=false	diff= +0x210..211 +0x41f..420
+R	ver=1	obj=Repair	team=1	pos=Top	pcl=0->0	objective=255	chats_len=0	eo=0	reached=false	diff= +0x210..211 +0x41f..420
+R	ver=1	obj=Repair	team=1	pos=Mid	pcl=0->0	objective=255	chats_len=0	eo=0	reached=false	diff= +0x210..211 +0x41f..420
+R	ver=1	obj=Defense	team=0	pos=Top	pcl=0->0	objective=255	chats_len=0	eo=0	reached=false	diff= +0x210..211 +0x41f..420
+R	ver=1	obj=Defense	team=0	pos=Mid	pcl=0->0	objective=255	chats_len=0	eo=0	reached=false	diff= +0x210..211 +0x41f..420
+R	ver=1	obj=Defense	team=1	pos=Top	pcl=0->0	objective=255	chats_len=0	eo=0	reached=false	diff= +0x210..211 +0x41f..420
+R	ver=1	obj=Defense	team=1	pos=Mid	pcl=0->0	objective=255	chats_len=0	eo=0	reached=false	diff= +0x210..211 +0x41f..420
+R	ver=2	obj=None	team=0	pos=Top	pcl=0->0	objective=255	chats_len=0	eo=0	reached=false	diff= +0x50..51
+R	ver=2	obj=None	team=0	pos=Mid	pcl=0->0	objective=255	chats_len=0	eo=0	reached=false	diff= +0x50..51
+R	ver=2	obj=None	team=1	pos=Top	pcl=0->0	objective=255	chats_len=0	eo=0	reached=false	diff= +0x50..51
+R	ver=2	obj=None	team=1	pos=Mid	pcl=0->0	objective=255	chats_len=0	eo=0	reached=false	diff= +0x50..51
+R	ver=2	obj=Gank(Top)	team=0	pos=Top	pcl=0->0	objective=8	chats_len=0	eo=0	reached=false	diff= +0x50..51
+R	ver=2	obj=Gank(Top)	team=0	pos=Mid	pcl=0->0	objective=8	chats_len=0	eo=0	reached=false	diff= +0x50..51
+R	ver=2	obj=Gank(Top)	team=1	pos=Top	pcl=0->0	objective=8	chats_len=0	eo=0	reached=false	diff= +0x50..51
+R	ver=2	obj=Gank(Top)	team=1	pos=Mid	pcl=0->0	objective=8	chats_len=0	eo=0	reached=false	diff= +0x50..51
+R	ver=2	obj=Repair	team=0	pos=Top	pcl=0->0	objective=255	chats_len=0	eo=0	reached=false	diff= +0x210..211 +0x41f..420
+R	ver=2	obj=Repair	team=0	pos=Mid	pcl=0->0	objective=255	chats_len=0	eo=0	reached=false	diff= +0x210..211 +0x41f..420
+R	ver=2	obj=Repair	team=1	pos=Top	pcl=0->0	objective=255	chats_len=0	eo=0	reached=false	diff= +0x210..211 +0x41f..420
+R	ver=2	obj=Repair	team=1	pos=Mid	pcl=0->0	objective=255	chats_len=0	eo=0	reached=false	diff= +0x210..211 +0x41f..420
+R	ver=2	obj=Defense	team=0	pos=Top	pcl=0->0	objective=255	chats_len=0	eo=0	reached=false	diff= +0x210..211 +0x41f..420
+R	ver=2	obj=Defense	team=0	pos=Mid	pcl=0->0	objective=255	chats_len=0	eo=0	reached=false	diff= +0x210..211 +0x41f..420
+R	ver=2	obj=Defense	team=1	pos=Top	pcl=0->0	objective=255	chats_len=0	eo=0	reached=false	diff= +0x210..211 +0x41f..420
+R	ver=2	obj=Defense	team=1	pos=Mid	pcl=0->0	objective=255	chats_len=0	eo=0	reached=false	diff= +0x210..211 +0x41f..420
+R	ver=60	obj=None	team=0	pos=Top	pcl=0->0	objective=255	chats_len=0	eo=0	reached=false	diff= +0x50..51
+R	ver=60	obj=None	team=0	pos=Mid	pcl=0->0	objective=255	chats_len=0	eo=0	reached=false	diff= +0x50..51
+R	ver=60	obj=None	team=1	pos=Top	pcl=0->0	objective=255	chats_len=0	eo=0	reached=false	diff= +0x50..51
+R	ver=60	obj=None	team=1	pos=Mid	pcl=0->0	objective=255	chats_len=0	eo=0	reached=false	diff= +0x50..51
+R	ver=60	obj=Gank(Top)	team=0	pos=Top	pcl=0->0	objective=8	chats_len=0	eo=0	reached=false	diff= +0x50..51
+R	ver=60	obj=Gank(Top)	team=0	pos=Mid	pcl=0->0	objective=8	chats_len=0	eo=0	reached=false	diff= +0x50..51
+R	ver=60	obj=Gank(Top)	team=1	pos=Top	pcl=0->0	objective=8	chats_len=0	eo=0	reached=false	diff= +0x50..51
+R	ver=60	obj=Gank(Top)	team=1	pos=Mid	pcl=0->0	objective=8	chats_len=0	eo=0	reached=false	diff= +0x50..51
+R	ver=60	obj=Repair	team=0	pos=Top	pcl=0->0	objective=255	chats_len=0	eo=0	reached=false	diff= +0x210..211 +0x41f..420
+R	ver=60	obj=Repair	team=0	pos=Mid	pcl=0->0	objective=255	chats_len=0	eo=0	reached=false	diff= +0x210..211 +0x41f..420
+R	ver=60	obj=Repair	team=1	pos=Top	pcl=0->0	objective=255	chats_len=0	eo=0	reached=false	diff= +0x210..211 +0x41f..420
+R	ver=60	obj=Repair	team=1	pos=Mid	pcl=0->0	objective=255	chats_len=0	eo=0	reached=false	diff= +0x210..211 +0x41f..420
+R	ver=60	obj=Defense	team=0	pos=Top	pcl=0->0	objective=255	chats_len=0	eo=0	reached=false	diff= +0x210..211 +0x41f..420
+R	ver=60	obj=Defense	team=0	pos=Mid	pcl=0->0	objective=255	chats_len=0	eo=0	reached=false	diff= +0x210..211 +0x41f..420
+R	ver=60	obj=Defense	team=1	pos=Top	pcl=0->0	objective=255	chats_len=0	eo=0	reached=false	diff= +0x210..211 +0x41f..420
+R	ver=60	obj=Defense	team=1	pos=Mid	pcl=0->0	objective=255	chats_len=0	eo=0	reached=false	diff= +0x210..211 +0x41f..420

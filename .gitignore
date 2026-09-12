@@ -126,3 +126,15 @@ sylas/.gemini_key
 /MIG/cg_exe.json
 /MIG/cg_dll.json
 /MIG/_dllmatch_lib.py
+
+# tfm2_judge_verify (2026-09-13 추가) — 20함수 ev1 런타임 검증 모드. 그 전까지 화이트리스트에 없어 **통째로 미추적**이었다.
+#   소스·mod_info 만 (sweep20.rs·probe20_tbl.rs 는 생성물이지만 빌드 재현에 필요해 포함).
+!/tfm2_judge_verify/
+/tfm2_judge_verify/*
+!/tfm2_judge_verify/src/
+/tfm2_judge_verify/src/*
+!/tfm2_judge_verify/src/*.rs
+!/tfm2_judge_verify/mod.mod_info
+!/tfm2_judge_verify/*.md
+/MIG/_tcx/
+#   ^ _tcx = rustc tcx 덤프 540MB(tcxbuild.ps1→tcxrun.ps1 재생성) — 2026-09-13 제외 · 드라이버 소스 _tcxdrv/ 는 추적

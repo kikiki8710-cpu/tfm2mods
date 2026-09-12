@@ -1,0 +1,36 @@
+setting_ok	true	width=960000	height=960000	tps=60	champ_radius=10000	visible=130000
+case	visible	level=1	eff_range=200000	setting_ok=true
+champ	id=18	lvl=1	x=15000	y=913000	radius=10000	can_ult=false	ult_eff_some=false
+target	id=23	x=913000	y=15000	radius=10000	visible_from_champ=true
+ULT_RESULT	None
+-----
+setting_ok	true	width=960000	height=960000	tps=60	champ_radius=10000	visible=130000
+case	visible	level=4	eff_range=200000	setting_ok=true
+champ	id=18	lvl=4	x=15000	y=913000	radius=10000	can_ult=false	ult_eff_some=false
+target	id=23	x=913000	y=15000	radius=10000	visible_from_champ=true
+ULT_RESULT	None
+-----
+setting_ok	true	width=960000	height=960000	tps=60	champ_radius=10000	visible=130000
+case	visible	level=5	eff_range=200000	setting_ok=true
+champ	id=18	lvl=5	x=15000	y=913000	radius=10000	can_ult=true	ult_eff_some=true
+target	id=23	x=913000	y=15000	radius=10000	visible_from_champ=true
+effect	range_fn=200000	range_adjust=0	is_in_range=false	casting=Targeting	check=true
+ULT_RESULT	Move(863503,64497)
+PREDICT	margin=149999	pos=(870573,57427)	safe_move=None	match_ult=no
+PREDICT	margin=150000	pos=(870574,57426)	safe_move=None	match_ult=no
+PREDICT	margin=150001	pos=(870575,57425)	safe_move=None	match_ult=no
+CASTER_RADIUS	Targeting=200000	Position=200000	Direction=200000	None=200000	champ.radius=10000
+RADIUS_MULT	radius_mult=0	radius_field=10000	radius_fn=10000
+-----
+setting_ok	true	width=960000	height=960000	tps=60	champ_radius=10000	visible=130000
+case	visible	level=6	eff_range=200000	setting_ok=true
+champ	id=18	lvl=6	x=15000	y=913000	radius=10000	can_ult=true	ult_eff_some=true
+target	id=23	x=913000	y=15000	radius=10000	visible_from_champ=true
+effect	range_fn=200000	range_adjust=0	is_in_range=false	casting=Targeting	check=true
+ULT_RESULT	Move(863503,64497)
+PREDICT	margin=149999	pos=(870573,57427)	safe_move=None	match_ult=no
+PREDICT	margin=150000	pos=(870574,57426)	safe_move=None	match_ult=no
+PREDICT	margin=150001	pos=(870575,57425)	safe_move=None	match_ult=no
+CASTER_RADIUS	Targeting=200000	Position=200000	Direction=200000	None=200000	champ.radius=10000
+RADIUS_MULT	radius_mult=0	radius_field=10000	radius_fn=10000
+-----

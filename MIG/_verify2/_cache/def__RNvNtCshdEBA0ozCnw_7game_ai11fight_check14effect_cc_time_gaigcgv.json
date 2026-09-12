@@ -1,0 +1,1 @@
+[{"corpus": "gai", "file": "m15.ll", "line": 25822, "text": "define { i64, i64 } @_RNvNtCshdEBA0ozCnw_7game_ai11fight_check14effect_cc_time(i64 noundef %0, ptr noalias noundef readonly align 8 captures(none) dereferenceable(56) %1) unnamed_addr #0 !dbg !20845 {"}]

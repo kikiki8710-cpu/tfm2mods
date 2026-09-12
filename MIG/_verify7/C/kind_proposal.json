@@ -1,0 +1,227 @@
+{
+ "note": "consts[].kind 는 mkspec3.py 유도값이라 patch.json 으로 못 고친다. 도구를 고친 뒤 재생성하면 아래대로 나와야 한다.",
+ "rows": [
+  {
+   "path": "/specs[10]/consts[1]/kind",
+   "now": "임계",
+   "should": "태그",
+   "why": "m10.ll:49625 `icmp eq i32 %and, 768` — 순서비교가 아니라 **동등비교 기대값**이고 내용은 ObjectPhase::Hunt(3) 태그다. `kindchk` 관측문맥 = EQ 뿐(ORD 0건)"
+  },
+  {
+   "path": "/specs[11]/consts[4]/kind",
+   "now": "임계",
+   "should": "태그",
+   "why": "LineType::Mid 의 **열거형 판별자**다(tcx `TutorialType` 태그 0..8 · `LineType` 0..2). IR 에서 `switch i8` 케이스 값 또는 `icmp eq` 로만 쓰인다 — 순서비교 없음. 같은 명세의 consts[1]·[2]·[3] 은 이미 `태그` 라 **한 표 안에서 분류가 갈려 있었다**"
+  },
+  {
+   "path": "/specs[11]/consts[6]/kind",
+   "now": "임계",
+   "should": "태그",
+   "why": "TutorialType::None 의 **열거형 판별자**다(tcx `TutorialType` 태그 0..8 · `LineType` 0..2). IR 에서 `switch i8` 케이스 값 또는 `icmp eq` 로만 쓰인다 — 순서비교 없음. 같은 명세의 consts[1]·[2]·[3] 은 이미 `태그` 라 **한 표 안에서 분류가 갈려 있었다**"
+  },
+  {
+   "path": "/specs[11]/consts[7]/kind",
+   "now": "임계",
+   "should": "태그",
+   "why": "TutorialType::First 의 **열거형 판별자**다(tcx `TutorialType` 태그 0..8 · `LineType` 0..2). IR 에서 `switch i8` 케이스 값 또는 `icmp eq` 로만 쓰인다 — 순서비교 없음. 같은 명세의 consts[1]·[2]·[3] 은 이미 `태그` 라 **한 표 안에서 분류가 갈려 있었다**"
+  },
+  {
+   "path": "/specs[11]/consts[8]/kind",
+   "now": "임계",
+   "should": "태그",
+   "why": "TutorialType::TopSolo 의 **열거형 판별자**다(tcx `TutorialType` 태그 0..8 · `LineType` 0..2). IR 에서 `switch i8` 케이스 값 또는 `icmp eq` 로만 쓰인다 — 순서비교 없음. 같은 명세의 consts[1]·[2]·[3] 은 이미 `태그` 라 **한 표 안에서 분류가 갈려 있었다**"
+  },
+  {
+   "path": "/specs[11]/consts[9]/kind",
+   "now": "임계",
+   "should": "태그",
+   "why": "TutorialType::Bottom 의 **열거형 판별자**다(tcx `TutorialType` 태그 0..8 · `LineType` 0..2). IR 에서 `switch i8` 케이스 값 또는 `icmp eq` 로만 쓰인다 — 순서비교 없음. 같은 명세의 consts[1]·[2]·[3] 은 이미 `태그` 라 **한 표 안에서 분류가 갈려 있었다**"
+  },
+  {
+   "path": "/specs[11]/consts[10]/kind",
+   "now": "임계",
+   "should": "태그",
+   "why": "TutorialType::MidSolo 의 **열거형 판별자**다(tcx `TutorialType` 태그 0..8 · `LineType` 0..2). IR 에서 `switch i8` 케이스 값 또는 `icmp eq` 로만 쓰인다 — 순서비교 없음. 같은 명세의 consts[1]·[2]·[3] 은 이미 `태그` 라 **한 표 안에서 분류가 갈려 있었다**"
+  },
+  {
+   "path": "/specs[11]/consts[11]/kind",
+   "now": "임계",
+   "should": "태그",
+   "why": "TutorialType::MidBottom 의 **열거형 판별자**다(tcx `TutorialType` 태그 0..8 · `LineType` 0..2). IR 에서 `switch i8` 케이스 값 또는 `icmp eq` 로만 쓰인다 — 순서비교 없음. 같은 명세의 consts[1]·[2]·[3] 은 이미 `태그` 라 **한 표 안에서 분류가 갈려 있었다**"
+  },
+  {
+   "path": "/specs[11]/consts[12]/kind",
+   "now": "임계",
+   "should": "태그",
+   "why": "TutorialType::JungleOnly 의 **열거형 판별자**다(tcx `TutorialType` 태그 0..8 · `LineType` 0..2). IR 에서 `switch i8` 케이스 값 또는 `icmp eq` 로만 쓰인다 — 순서비교 없음. 같은 명세의 consts[1]·[2]·[3] 은 이미 `태그` 라 **한 표 안에서 분류가 갈려 있었다**"
+  },
+  {
+   "path": "/specs[11]/consts[13]/kind",
+   "now": "임계",
+   "should": "태그",
+   "why": "TutorialType::Line 의 **열거형 판별자**다(tcx `TutorialType` 태그 0..8 · `LineType` 0..2). IR 에서 `switch i8` 케이스 값 또는 `icmp eq` 로만 쓰인다 — 순서비교 없음. 같은 명세의 consts[1]·[2]·[3] 은 이미 `태그` 라 **한 표 안에서 분류가 갈려 있었다**"
+  },
+  {
+   "path": "/specs[11]/consts[14]/kind",
+   "now": "임계",
+   "should": "태그",
+   "why": "TutorialType::Total 의 **열거형 판별자**다(tcx `TutorialType` 태그 0..8 · `LineType` 0..2). IR 에서 `switch i8` 케이스 값 또는 `icmp eq` 로만 쓰인다 — 순서비교 없음. 같은 명세의 consts[1]·[2]·[3] 은 이미 `태그` 라 **한 표 안에서 분류가 갈려 있었다**"
+  },
+  {
+   "path": "/specs[13]/consts[1]/kind",
+   "now": "임계",
+   "should": "인덱스",
+   "why": "이 값은 임계가 아니라 **반환 부시 인덱스**다 — 이 함수의 `ret` 이 「usize — 부시 인덱스. LLVM range(i64 2, 22)」이고 행의 `meaning` 자체가 「… 반환 부시」라고 적는다. IR 관측문맥도 `select`/`phi` 결과값이지 `icmp` 순서비교가 아니다"
+  },
+  {
+   "path": "/specs[13]/consts[3]/kind",
+   "now": "임계",
+   "should": "인덱스",
+   "why": "이 값은 임계가 아니라 **반환 부시 인덱스**다 — 이 함수의 `ret` 이 「usize — 부시 인덱스. LLVM range(i64 2, 22)」이고 행의 `meaning` 자체가 「… 반환 부시」라고 적는다. IR 관측문맥도 `select`/`phi` 결과값이지 `icmp` 순서비교가 아니다"
+  },
+  {
+   "path": "/specs[13]/consts[4]/kind",
+   "now": "임계",
+   "should": "인덱스",
+   "why": "이 값은 임계가 아니라 **반환 부시 인덱스**다 — 이 함수의 `ret` 이 「usize — 부시 인덱스. LLVM range(i64 2, 22)」이고 행의 `meaning` 자체가 「… 반환 부시」라고 적는다. IR 관측문맥도 `select`/`phi` 결과값이지 `icmp` 순서비교가 아니다"
+  },
+  {
+   "path": "/specs[13]/consts[5]/kind",
+   "now": "임계",
+   "should": "인덱스",
+   "why": "이 값은 임계가 아니라 **반환 부시 인덱스**다 — 이 함수의 `ret` 이 「usize — 부시 인덱스. LLVM range(i64 2, 22)」이고 행의 `meaning` 자체가 「… 반환 부시」라고 적는다. IR 관측문맥도 `select`/`phi` 결과값이지 `icmp` 순서비교가 아니다"
+  },
+  {
+   "path": "/specs[13]/consts[6]/kind",
+   "now": "임계",
+   "should": "인덱스",
+   "why": "이 값은 임계가 아니라 **반환 부시 인덱스**다 — 이 함수의 `ret` 이 「usize — 부시 인덱스. LLVM range(i64 2, 22)」이고 행의 `meaning` 자체가 「… 반환 부시」라고 적는다. IR 관측문맥도 `select`/`phi` 결과값이지 `icmp` 순서비교가 아니다"
+  },
+  {
+   "path": "/specs[13]/consts[7]/kind",
+   "now": "임계",
+   "should": "인덱스",
+   "why": "이 값은 임계가 아니라 **반환 부시 인덱스**다 — 이 함수의 `ret` 이 「usize — 부시 인덱스. LLVM range(i64 2, 22)」이고 행의 `meaning` 자체가 「… 반환 부시」라고 적는다. IR 관측문맥도 `select`/`phi` 결과값이지 `icmp` 순서비교가 아니다"
+  },
+  {
+   "path": "/specs[13]/consts[8]/kind",
+   "now": "임계",
+   "should": "인덱스",
+   "why": "이 값은 임계가 아니라 **반환 부시 인덱스**다 — 이 함수의 `ret` 이 「usize — 부시 인덱스. LLVM range(i64 2, 22)」이고 행의 `meaning` 자체가 「… 반환 부시」라고 적는다. IR 관측문맥도 `select`/`phi` 결과값이지 `icmp` 순서비교가 아니다"
+  },
+  {
+   "path": "/specs[13]/consts[9]/kind",
+   "now": "임계",
+   "should": "인덱스",
+   "why": "이 값은 임계가 아니라 **반환 부시 인덱스**다 — 이 함수의 `ret` 이 「usize — 부시 인덱스. LLVM range(i64 2, 22)」이고 행의 `meaning` 자체가 「… 반환 부시」라고 적는다. IR 관측문맥도 `select`/`phi` 결과값이지 `icmp` 순서비교가 아니다"
+  },
+  {
+   "path": "/specs[13]/consts[10]/kind",
+   "now": "임계",
+   "should": "인덱스",
+   "why": "이 값은 임계가 아니라 **반환 부시 인덱스**다 — 이 함수의 `ret` 이 「usize — 부시 인덱스. LLVM range(i64 2, 22)」이고 행의 `meaning` 자체가 「… 반환 부시」라고 적는다. IR 관측문맥도 `select`/`phi` 결과값이지 `icmp` 순서비교가 아니다"
+  },
+  {
+   "path": "/specs[13]/consts[11]/kind",
+   "now": "임계",
+   "should": "인덱스",
+   "why": "이 값은 임계가 아니라 **반환 부시 인덱스**다 — 이 함수의 `ret` 이 「usize — 부시 인덱스. LLVM range(i64 2, 22)」이고 행의 `meaning` 자체가 「… 반환 부시」라고 적는다. IR 관측문맥도 `select`/`phi` 결과값이지 `icmp` 순서비교가 아니다"
+  },
+  {
+   "path": "/specs[13]/consts[12]/kind",
+   "now": "임계",
+   "should": "인덱스",
+   "why": "이 값은 임계가 아니라 **반환 부시 인덱스**다 — 이 함수의 `ret` 이 「usize — 부시 인덱스. LLVM range(i64 2, 22)」이고 행의 `meaning` 자체가 「… 반환 부시」라고 적는다. IR 관측문맥도 `select`/`phi` 결과값이지 `icmp` 순서비교가 아니다"
+  },
+  {
+   "path": "/specs[13]/consts[13]/kind",
+   "now": "임계",
+   "should": "인덱스",
+   "why": "이 값은 임계가 아니라 **반환 부시 인덱스**다 — 이 함수의 `ret` 이 「usize — 부시 인덱스. LLVM range(i64 2, 22)」이고 행의 `meaning` 자체가 「… 반환 부시」라고 적는다. IR 관측문맥도 `select`/`phi` 결과값이지 `icmp` 순서비교가 아니다"
+  },
+  {
+   "path": "/specs[13]/consts[14]/kind",
+   "now": "임계",
+   "should": "인덱스",
+   "why": "이 값은 임계가 아니라 **반환 부시 인덱스**다 — 이 함수의 `ret` 이 「usize — 부시 인덱스. LLVM range(i64 2, 22)」이고 행의 `meaning` 자체가 「… 반환 부시」라고 적는다. IR 관측문맥도 `select`/`phi` 결과값이지 `icmp` 순서비교가 아니다"
+  },
+  {
+   "path": "/specs[13]/consts[15]/kind",
+   "now": "임계",
+   "should": "인덱스",
+   "why": "이 값은 임계가 아니라 **반환 부시 인덱스**다 — 이 함수의 `ret` 이 「usize — 부시 인덱스. LLVM range(i64 2, 22)」이고 행의 `meaning` 자체가 「… 반환 부시」라고 적는다. IR 관측문맥도 `select`/`phi` 결과값이지 `icmp` 순서비교가 아니다"
+  },
+  {
+   "path": "/specs[14]/consts[7]/kind",
+   "now": "임계",
+   "should": "인덱스",
+   "why": "이 값은 임계가 아니라 **목표 부시 ID(=`map.bushes` 인덱스)** 다 — 행의 `meaning` 이 「목표 부시 ID」라고 적고, IR 에서는 `select i1 %57, i64 A, i64 B` 의 결과값으로만 나온다. 순서비교(`icmp ult/ugt`)가 0건이다"
+  },
+  {
+   "path": "/specs[14]/consts[9]/kind",
+   "now": "임계",
+   "should": "인덱스",
+   "why": "이 값은 임계가 아니라 **목표 부시 ID(=`map.bushes` 인덱스)** 다 — 행의 `meaning` 이 「목표 부시 ID」라고 적고, IR 에서는 `select i1 %57, i64 A, i64 B` 의 결과값으로만 나온다. 순서비교(`icmp ult/ugt`)가 0건이다"
+  },
+  {
+   "path": "/specs[14]/consts[10]/kind",
+   "now": "임계",
+   "should": "인덱스",
+   "why": "이 값은 임계가 아니라 **목표 부시 ID(=`map.bushes` 인덱스)** 다 — 행의 `meaning` 이 「목표 부시 ID」라고 적고, IR 에서는 `select i1 %57, i64 A, i64 B` 의 결과값으로만 나온다. 순서비교(`icmp ult/ugt`)가 0건이다"
+  },
+  {
+   "path": "/specs[14]/consts[11]/kind",
+   "now": "임계",
+   "should": "인덱스",
+   "why": "이 값은 임계가 아니라 **목표 부시 ID(=`map.bushes` 인덱스)** 다 — 행의 `meaning` 이 「목표 부시 ID」라고 적고, IR 에서는 `select i1 %57, i64 A, i64 B` 의 결과값으로만 나온다. 순서비교(`icmp ult/ugt`)가 0건이다"
+  },
+  {
+   "path": "/specs[14]/consts[12]/kind",
+   "now": "임계",
+   "should": "인덱스",
+   "why": "이 값은 임계가 아니라 **목표 부시 ID(=`map.bushes` 인덱스)** 다 — 행의 `meaning` 이 「목표 부시 ID」라고 적고, IR 에서는 `select i1 %57, i64 A, i64 B` 의 결과값으로만 나온다. 순서비교(`icmp ult/ugt`)가 0건이다"
+  },
+  {
+   "path": "/specs[14]/consts[13]/kind",
+   "now": "임계",
+   "should": "인덱스",
+   "why": "이 값은 임계가 아니라 **목표 부시 ID(=`map.bushes` 인덱스)** 다 — 행의 `meaning` 이 「목표 부시 ID」라고 적고, IR 에서는 `select i1 %57, i64 A, i64 B` 의 결과값으로만 나온다. 순서비교(`icmp ult/ugt`)가 0건이다"
+  },
+  {
+   "path": "/specs[14]/consts[14]/kind",
+   "now": "임계",
+   "should": "인덱스",
+   "why": "이 값은 임계가 아니라 **목표 부시 ID(=`map.bushes` 인덱스)** 다 — 행의 `meaning` 이 「목표 부시 ID」라고 적고, IR 에서는 `select i1 %57, i64 A, i64 B` 의 결과값으로만 나온다. 순서비교(`icmp ult/ugt`)가 0건이다"
+  },
+  {
+   "path": "/specs[14]/consts[15]/kind",
+   "now": "임계",
+   "should": "인덱스",
+   "why": "이 값은 임계가 아니라 **목표 부시 ID(=`map.bushes` 인덱스)** 다 — 행의 `meaning` 이 「목표 부시 ID」라고 적고, IR 에서는 `select i1 %57, i64 A, i64 B` 의 결과값으로만 나온다. 순서비교(`icmp ult/ugt`)가 0건이다"
+  },
+  {
+   "path": "/specs[14]/consts[16]/kind",
+   "now": "임계",
+   "should": "인덱스",
+   "why": "이 값은 임계가 아니라 **목표 부시 ID(=`map.bushes` 인덱스)** 다 — 행의 `meaning` 이 「목표 부시 ID」라고 적고, IR 에서는 `select i1 %57, i64 A, i64 B` 의 결과값으로만 나온다. 순서비교(`icmp ult/ugt`)가 0건이다"
+  },
+  {
+   "path": "/specs[14]/consts[18]/kind",
+   "now": "임계",
+   "should": "인덱스",
+   "why": "이 값은 임계가 아니라 **목표 부시 ID(=`map.bushes` 인덱스)** 다 — 행의 `meaning` 이 「목표 부시 ID」라고 적고, IR 에서는 `select i1 %57, i64 A, i64 B` 의 결과값으로만 나온다. 순서비교(`icmp ult/ugt`)가 0건이다"
+  },
+  {
+   "path": "/specs[14]/consts[19]/kind",
+   "now": "임계",
+   "should": "인덱스",
+   "why": "이 값은 임계가 아니라 **목표 부시 ID(=`map.bushes` 인덱스)** 다 — 행의 `meaning` 이 「목표 부시 ID」라고 적고, IR 에서는 `select i1 %57, i64 A, i64 B` 의 결과값으로만 나온다. 순서비교(`icmp ult/ugt`)가 0건이다"
+  },
+  {
+   "path": "/specs[14]/consts[20]/kind",
+   "now": "임계",
+   "should": "인덱스",
+   "why": "이 값은 임계가 아니라 **목표 부시 ID(=`map.bushes` 인덱스)** 다 — 행의 `meaning` 이 「목표 부시 ID」라고 적고, IR 에서는 `select i1 %57, i64 A, i64 B` 의 결과값으로만 나온다. 순서비교(`icmp ult/ugt`)가 0건이다"
+  }
+ ]
+}

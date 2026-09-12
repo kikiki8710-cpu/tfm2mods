@@ -1,0 +1,41 @@
+
+===== specs[15] single_try_engage  (m13.ll:33374~33739) =====
+  p0  (sret re %0   ptr사용=2   오프셋=0x0                                        
+  p1  self     %1   ptr사용=3   오프셋=0x990,0xf8                                 
+  p2  version  %2   ptr사용=0   오프셋=                                           
+  p3  rnd      %3   ptr사용=0   오프셋=                                           
+  p4  player   %4   ptr사용=2   오프셋=0x930                                      
+  p5  data     %5   ptr사용=1   오프셋=0x0                                        **C2 과대** — role 이 적은 ['0x8'] 가 IR 에 없다(실제 ['0x0'])
+  p6  target_i %6   ptr사용=0   오프셋=                                           
+  p7  debug    %7   ptr사용=0   오프셋=                                           
+
+===== specs[16] max_range_nearly_can_use  (m10.ll:51913~52374) =====
+  p0  champ    %0   ptr사용=72  오프셋=0x438,0x470,0x490,0x4a0,0x4a8,0x4b8,0x4c0,+dyn 
+  p1  target   %1   ptr사용=24  오프셋=0x470,0x680                                
+  p2  tick     %2   ptr사용=0   오프셋=                                           
+
+===== specs[17] new  (m05.ll:17695~17825) =====
+  p0  version  %1   ptr사용=0   오프셋=                                           
+  p1  goal     %2   ptr사용=3   오프셋=0x0,0x8                                    **C2 과대** — role 이 적은 ['0x10'] 가 IR 에 없다(실제 ['0x0', '0x8'])
+  p2  data     %3   ptr사용=1   오프셋=0x0                                        
+  p3  player   %4   ptr사용=0   오프셋=                                           
+
+===== specs[18] v3_epicops_buff_window  (m09.ll:6879~7264) =====
+  p0  self     %0   ptr사용=37  오프셋=0x410,0x41e,0x41f,0x420,0x421,0xc0,0xc8,0x 
+  p1  version  %1   ptr사용=0   오프셋=                                           
+  p2  rnd      %2   ptr사용=0   오프셋=                                           
+  p3  player   %3   ptr사용=4   오프셋=0x930,0x9c0                                
+  p4  data     %4   ptr사용=1   오프셋=0x0                                        **C2 과대** — role 이 적은 ['0x1e0'] 가 IR 에 없다(실제 ['0x0'])
+  p5  goal_dat %5   ptr사용=0   오프셋=                                           
+  p6  plan     %6   ptr사용=0   오프셋=                                           
+
+===== specs[19] best_jungle_goal  (m04.ll:62570~62978) =====
+  p0  version  %0   ptr사용=0   오프셋=                                           **C2 과대** — role 이 적은 ['0x8'] 가 IR 에 없다(실제 [])
+  p1  rnd      %1   ptr사용=0   오프셋=                                           
+  p2  player   %2   ptr사용=6   오프셋=0x930,0x9c0                                
+  p3  data     %3   ptr사용=4   오프셋=0x0,0x8                                    
+  p4  team_pla %4   ptr사용=0   오프셋=                                           **C2 과대** — role 이 적은 ['0x20'] 가 IR 에 없다(실제 [])
+  p5  now_camp %5   ptr사용=0   오프셋=                                           
+  p6  debug    %6   ptr사용=0   오프셋=                                           **C2 과대** — role 이 적은 ['0x28'] 가 IR 에 없다(실제 [])
+
+---- 검사 29건 · C1 거짓 0 · C2 과대 6 · 건너뜀 0함수

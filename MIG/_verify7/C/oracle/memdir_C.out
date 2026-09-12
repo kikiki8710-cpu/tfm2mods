@@ -1,0 +1,22 @@
+specs[10] should_end_object_finish_kill_priority_battle  mem  22행 · 결함후보 4
+    mem[ 1] MainObjective(인자 %4, i24)          +0x1        phase (ObjectPhase)                            dir=r 인데 load 없음
+    mem[ 2] MainObjective(인자 %4, i24)          +0x2        with_battle (bool)                             dir=r 인데 load 없음
+    mem[12] MobaMode                           +0x198      jungle_runner.epic.live_list.cap               dir=r 인데 load 없음
+    mem[15] MobaMode                           +0x1c8      jungle_runner.serpen.live_list.cap             dir=r 인데 load 없음
+specs[11] v3_fall_back_to_passive                        mem  23행 · 결함후보 4
+    mem[10] LegacyPlanHandler                  +0xf8       team_plan                                      dir=r 인데 load 없음
+    mem[11] LegacyPlanHandler                  +0x990      positioning_score                              dir=r 인데 load 없음
+    mem[12] LegacyPlanHandler                  +0x5e8      plan                                           dir=r 인데 load 없음
+    mem[22] LegacyPlanHandler                  +0x768      sub_plan                                       dir=w 인데 store 없음
+specs[12] handle_chat                                    mem  25행 · 결함후보 5
+    mem[ 7] LegacyPlanHandler                  +0x5e8      plan                                           dir=r 인데 load 없음
+    mem[ 8] LegacyPlanHandler                  +0x517      team_plan.objective                            dir=r 인데 load 없음
+    mem[13] LegacyPlanHandler                  +0x860[len] pending_trace_events[len]                      dir=w 인데 store 없음
+    mem[23] LegacyPlanHandler                  +0x858      pending_trace_events.cap                       dir=w 인데 store 없음
+    mem[24] LegacyPlanHandler                  +0x860      pending_trace_events.ptr                       dir=w 인데 store 없음
+specs[13] target_bush_v30                                mem  15행 · 결함후보 1
+    mem[ 8] Entity                             +0x70       ty payload = &Tower (변수명 info)                 dir=r 인데 load 없음
+specs[14] update                                         mem  27행 · 결함후보 1
+    mem[15] Entity                             +0x70       ty 페이로드 = Tower(192B) 시작                       dir=r 인데 load 없음
+
+합계: mem 112행 중 결함후보 15

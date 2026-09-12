@@ -1,0 +1,214 @@
+setting_ok	true	width=960000	height=960000	tps=60	champ_radius=10000
+cells	26
+1:(0,0) 2:(19,0) 3:(7,4) 4:(20,4) 5:(12,6) 6:(4,7) 7:(29,8) 8:(14,9) 9:(26,11) 10:(6,12) 11:(12,12) 12:(9,14) 13:(20,15) 14:(17,16) 15:(25,18) 16:(0,19) 17:(4,20) 18:(15,20) 19:(29,24) 20:(18,25) 21:(11,26) 22:(28,28) 23:(8,29) 24:(24,29) 0:(1,1) 22:(28,28) 
+tower_variants	4	(0=t1/ne0 1=t1/ne1 2=t2/ne0 3=t2/ne1)
+
+### S13 target_bush_v30 (LineGankCoverPlan::sub_plan 경유)
+line	team	tower	s	cx	cy	game	mine	match	tag	outline	checkmove	spotted
+0	0	0	false	0	0	2	2	OK	9	1	0	0
+0	0	0	false	19	0	2	2	OK	9	1	0	0
+0	0	1	false	0	0	3	3	OK	9	1	0	0
+0	0	1	false	19	0	3	3	OK	9	1	0	0
+0	0	2	false	0	0	6	6	OK	9	1	0	0
+0	0	2	false	19	0	6	6	OK	9	1	0	0
+0	0	3	false	0	0	3	3	OK	9	1	0	0
+0	0	3	false	19	0	3	3	OK	9	1	0	0
+0	0	4	false	0	0	3	3	OK	9	1	0	0
+0	0	4	false	19	0	3	3	OK	9	1	0	0
+0	1	0	false	0	0	16	16	OK	9	1	0	0
+0	1	0	false	19	0	16	16	OK	9	1	0	0
+0	1	1	false	0	0	6	6	OK	9	1	0	0
+0	1	1	false	19	0	6	6	OK	9	1	0	0
+0	1	2	false	0	0	3	3	OK	9	1	0	0
+0	1	2	false	19	0	3	3	OK	9	1	0	0
+0	1	3	false	0	0	6	6	OK	9	1	0	0
+0	1	3	false	19	0	6	6	OK	9	1	0	0
+0	1	4	false	0	0	6	6	OK	9	1	0	0
+0	1	4	false	19	0	6	6	OK	9	1	0	0
+1	0	0	false	0	0	4	4	OK	9	1	0	0
+1	0	0	false	19	0	4	4	OK	9	1	0	0
+1	0	1	false	0	0	11	11	OK	9	1	0	0
+1	0	1	false	19	0	11	11	OK	9	1	0	0
+1	0	2	false	0	0	11	11	OK	9	1	0	0
+1	0	2	false	19	0	11	11	OK	9	1	0	0
+1	0	3	false	0	0	8	8	OK	9	1	0	0
+1	0	3	false	19	0	8	8	OK	9	1	0	0
+1	0	4	false	0	0	8	8	OK	9	1	0	0
+1	0	4	false	19	0	8	8	OK	9	1	0	0
+1	1	0	false	0	0	17	17	OK	9	1	0	0
+1	1	0	false	19	0	17	17	OK	9	1	0	0
+1	1	1	false	0	0	11	11	OK	9	1	0	0
+1	1	1	false	19	0	11	11	OK	9	1	0	0
+1	1	2	false	0	0	11	11	OK	9	1	0	0
+1	1	2	false	19	0	11	11	OK	9	1	0	0
+1	1	3	false	0	0	12	12	OK	9	1	0	0
+1	1	3	false	19	0	12	12	OK	9	1	0	0
+1	1	4	false	0	0	12	12	OK	9	1	0	0
+1	1	4	false	19	0	12	12	OK	9	1	0	0
+2	0	0	false	0	0	9	9	OK	9	1	0	0
+2	0	0	false	19	0	9	9	OK	9	1	0	0
+2	0	1	false	0	0	15	15	OK	9	1	0	0
+2	0	1	false	19	0	15	15	OK	9	1	0	0
+2	0	2	false	0	0	20	20	OK	9	1	0	0
+2	0	2	false	19	0	20	20	OK	9	1	0	0
+2	0	3	false	0	0	15	15	OK	9	1	0	0
+2	0	3	false	19	0	15	15	OK	9	1	0	0
+2	0	4	false	0	0	15	15	OK	9	1	0	0
+2	0	4	false	19	0	15	15	OK	9	1	0	0
+2	1	0	false	0	0	21	21	OK	9	1	0	0
+2	1	0	false	19	0	21	21	OK	9	1	0	0
+2	1	1	false	0	0	20	20	OK	9	1	0	0
+2	1	1	false	19	0	20	20	OK	9	1	0	0
+2	1	2	false	0	0	15	15	OK	9	1	0	0
+2	1	2	false	19	0	15	15	OK	9	1	0	0
+2	1	3	false	0	0	20	20	OK	9	1	0	0
+2	1	3	false	19	0	20	20	OK	9	1	0	0
+2	1	4	false	0	0	20	20	OK	9	1	0	0
+2	1	4	false	19	0	20	20	OK	9	1	0	0
+S13_MATCH	300/300
+
+### S14 update HP 임계(41) — hp_ratio = hp*100/max_hp
+hp	ratio	phase	chats	expect_cancel
+0	0	Cancel	[Cancel(LowHpSelf)]	true
+1	0	Cancel	[Cancel(LowHpSelf)]	true
+399	39	Cancel	[Cancel(LowHpSelf)]	true
+400	40	Cancel	[Cancel(LowHpSelf)]	true
+405	40	Cancel	[Cancel(LowHpSelf)]	true
+409	40	Cancel	[Cancel(LowHpSelf)]	true
+410	41	WaitResponse	[]	false
+411	41	WaitResponse	[]	false
+500	50	WaitResponse	[]	false
+1000	100	WaitResponse	[]	false
+
+### S14 update 취소사유2 — champ_bush == target_bush_v30(ganker판) && !has_near_line_enemy
+line	team	tower	s	cx	cy	cellbush	mine_v30	pred_cancel	phase	chats	match
+0	0	0	false	19	0	2	2	true	Cancel	[Cancel(TargetMissing)]	OK
+0	0	1	false	7	4	3	3	true	Cancel	[Cancel(TargetMissing)]	OK
+0	0	2	false	4	7	6	6	true	Cancel	[Cancel(TargetMissing)]	OK
+0	0	3	false	7	4	3	3	true	Cancel	[Cancel(TargetMissing)]	OK
+0	0	4	false	7	4	3	3	true	Cancel	[Cancel(TargetMissing)]	OK
+0	1	0	false	0	19	16	16	true	Cancel	[Cancel(TargetMissing)]	OK
+0	1	1	false	4	7	6	6	true	Cancel	[Cancel(TargetMissing)]	OK
+0	1	2	false	7	4	3	3	true	Cancel	[Cancel(TargetMissing)]	OK
+0	1	3	false	4	7	6	6	true	Cancel	[Cancel(TargetMissing)]	OK
+0	1	4	false	4	7	6	6	true	Cancel	[Cancel(TargetMissing)]	OK
+1	0	0	false	20	4	4	4	true	Cancel	[Cancel(TargetMissing)]	OK
+1	0	1	false	12	12	11	11	true	Cancel	[Cancel(TargetMissing)]	OK
+1	0	1	true	17	16	14	14	true	Cancel	[Cancel(TargetMissing)]	OK
+1	0	2	false	12	12	11	11	true	Cancel	[Cancel(TargetMissing)]	OK
+1	0	2	true	17	16	14	14	true	Cancel	[Cancel(TargetMissing)]	OK
+1	0	3	false	14	9	8	8	true	Cancel	[Cancel(TargetMissing)]	OK
+1	0	3	true	20	15	13	13	true	Cancel	[Cancel(TargetMissing)]	OK
+1	0	4	false	14	9	8	8	true	Cancel	[Cancel(TargetMissing)]	OK
+1	0	4	true	20	15	13	13	true	Cancel	[Cancel(TargetMissing)]	OK
+1	1	0	false	4	20	17	17	true	Cancel	[Cancel(TargetMissing)]	OK
+1	1	1	false	12	12	11	11	true	Cancel	[Cancel(TargetMissing)]	OK
+1	1	1	true	17	16	14	14	true	Cancel	[Cancel(TargetMissing)]	OK
+1	1	2	false	12	12	11	11	true	Cancel	[Cancel(TargetMissing)]	OK
+1	1	2	true	17	16	14	14	true	Cancel	[Cancel(TargetMissing)]	OK
+1	1	3	false	9	14	12	12	true	Cancel	[Cancel(TargetMissing)]	OK
+1	1	3	true	15	20	18	18	true	Cancel	[Cancel(TargetMissing)]	OK
+1	1	4	false	9	14	12	12	true	Cancel	[Cancel(TargetMissing)]	OK
+1	1	4	true	15	20	18	18	true	Cancel	[Cancel(TargetMissing)]	OK
+2	0	0	true	26	11	9	9	true	Cancel	[Cancel(TargetMissing)]	OK
+2	0	1	true	25	18	15	15	true	Cancel	[Cancel(TargetMissing)]	OK
+2	0	2	true	18	25	20	20	true	Cancel	[Cancel(TargetMissing)]	OK
+2	0	3	true	25	18	15	15	true	Cancel	[Cancel(TargetMissing)]	OK
+2	0	4	true	25	18	15	15	true	Cancel	[Cancel(TargetMissing)]	OK
+2	1	0	true	11	26	21	21	true	Cancel	[Cancel(TargetMissing)]	OK
+2	1	1	true	18	25	20	20	true	Cancel	[Cancel(TargetMissing)]	OK
+2	1	2	true	25	18	15	15	true	Cancel	[Cancel(TargetMissing)]	OK
+2	1	3	true	18	25	20	20	true	Cancel	[Cancel(TargetMissing)]	OK
+2	1	4	true	18	25	20	20	true	Cancel	[Cancel(TargetMissing)]	OK
+S14_CANCEL2_MATCH	780/780
+
+### S14 target_bush_v41 (LineGankerPlan::sub_plan 경유) — lead 0..6 × s
+line	team	lead	s	game	mine	match
+ci_top=0 ci_bot=6
+0	0	0	false	16	16	OK	tag=9 ol=1 cm=0 sm=0
+0	0	0	true	16	16	OK	tag=9 ol=1 cm=0 sm=0
+0	0	1	false	6	6	OK	tag=9 ol=1 cm=0 sm=0
+0	0	1	true	6	6	OK	tag=9 ol=1 cm=0 sm=0
+0	0	2	false	3	3	OK	tag=9 ol=1 cm=0 sm=0
+0	0	2	true	3	3	OK	tag=9 ol=1 cm=0 sm=0
+0	0	3	false	3	3	OK	tag=9 ol=1 cm=0 sm=0
+0	0	3	true	3	3	OK	tag=9 ol=1 cm=0 sm=0
+0	0	4	false	3	3	OK	tag=9 ol=1 cm=0 sm=0
+0	0	4	true	3	3	OK	tag=9 ol=1 cm=0 sm=0
+0	0	5	false	2	2	OK	tag=9 ol=1 cm=0 sm=0
+0	0	5	true	2	2	OK	tag=9 ol=1 cm=0 sm=0
+0	0	6	false	2	2	OK	tag=9 ol=1 cm=0 sm=0
+0	0	6	true	2	2	OK	tag=9 ol=1 cm=0 sm=0
+0	1	0	false	2	2	OK	tag=9 ol=1 cm=0 sm=0
+0	1	0	true	2	2	OK	tag=9 ol=1 cm=0 sm=0
+0	1	1	false	3	3	OK	tag=9 ol=1 cm=0 sm=0
+0	1	1	true	3	3	OK	tag=9 ol=1 cm=0 sm=0
+0	1	2	false	6	6	OK	tag=9 ol=1 cm=0 sm=0
+0	1	2	true	6	6	OK	tag=9 ol=1 cm=0 sm=0
+0	1	3	false	6	6	OK	tag=9 ol=1 cm=0 sm=0
+0	1	3	true	6	6	OK	tag=9 ol=1 cm=0 sm=0
+0	1	4	false	6	6	OK	tag=9 ol=1 cm=0 sm=0
+0	1	4	true	6	6	OK	tag=9 ol=1 cm=0 sm=0
+0	1	5	false	16	16	OK	tag=9 ol=1 cm=0 sm=0
+0	1	5	true	16	16	OK	tag=9 ol=1 cm=0 sm=0
+0	1	6	false	16	16	OK	tag=9 ol=1 cm=0 sm=0
+0	1	6	true	16	16	OK	tag=9 ol=1 cm=0 sm=0
+1	0	0	false	17	17	OK	tag=9 ol=1 cm=0 sm=0
+1	0	0	true	21	21	OK	tag=9 ol=1 cm=0 sm=0
+1	0	1	false	11	11	OK	tag=9 ol=1 cm=0 sm=0
+1	0	1	true	14	14	OK	tag=9 ol=1 cm=0 sm=0
+1	0	2	false	11	11	OK	tag=9 ol=1 cm=0 sm=0
+1	0	2	true	14	14	OK	tag=9 ol=1 cm=0 sm=0
+1	0	3	false	11	11	OK	tag=9 ol=1 cm=0 sm=0
+1	0	3	true	14	14	OK	tag=9 ol=1 cm=0 sm=0
+1	0	4	false	11	11	OK	tag=9 ol=1 cm=0 sm=0
+1	0	4	true	14	14	OK	tag=9 ol=1 cm=0 sm=0
+1	0	5	false	4	4	OK	tag=9 ol=1 cm=0 sm=0
+1	0	5	true	9	9	OK	tag=9 ol=1 cm=0 sm=0
+1	0	6	false	4	4	OK	tag=9 ol=1 cm=0 sm=0
+1	0	6	true	9	9	OK	tag=9 ol=1 cm=0 sm=0
+1	1	0	false	4	4	OK	tag=9 ol=1 cm=0 sm=0
+1	1	0	true	9	9	OK	tag=9 ol=1 cm=0 sm=0
+1	1	1	false	11	11	OK	tag=9 ol=1 cm=0 sm=0
+1	1	1	true	14	14	OK	tag=9 ol=1 cm=0 sm=0
+1	1	2	false	11	11	OK	tag=9 ol=1 cm=0 sm=0
+1	1	2	true	14	14	OK	tag=9 ol=1 cm=0 sm=0
+1	1	3	false	11	11	OK	tag=9 ol=1 cm=0 sm=0
+1	1	3	true	14	14	OK	tag=9 ol=1 cm=0 sm=0
+1	1	4	false	11	11	OK	tag=9 ol=1 cm=0 sm=0
+1	1	4	true	14	14	OK	tag=9 ol=1 cm=0 sm=0
+1	1	5	false	17	17	OK	tag=9 ol=1 cm=0 sm=0
+1	1	5	true	21	21	OK	tag=9 ol=1 cm=0 sm=0
+1	1	6	false	17	17	OK	tag=9 ol=1 cm=0 sm=0
+1	1	6	true	21	21	OK	tag=9 ol=1 cm=0 sm=0
+2	0	0	false	21	21	OK	tag=9 ol=1 cm=0 sm=0
+2	0	0	true	21	21	OK	tag=9 ol=1 cm=0 sm=0
+2	0	1	false	20	20	OK	tag=9 ol=1 cm=0 sm=0
+2	0	1	true	20	20	OK	tag=9 ol=1 cm=0 sm=0
+2	0	2	false	15	15	OK	tag=9 ol=1 cm=0 sm=0
+2	0	2	true	15	15	OK	tag=9 ol=1 cm=0 sm=0
+2	0	3	false	15	15	OK	tag=9 ol=1 cm=0 sm=0
+2	0	3	true	15	15	OK	tag=9 ol=1 cm=0 sm=0
+2	0	4	false	15	15	OK	tag=9 ol=1 cm=0 sm=0
+2	0	4	true	15	15	OK	tag=9 ol=1 cm=0 sm=0
+2	0	5	false	9	9	OK	tag=9 ol=1 cm=0 sm=0
+2	0	5	true	9	9	OK	tag=9 ol=1 cm=0 sm=0
+2	0	6	false	7	7	OK	tag=9 ol=1 cm=0 sm=0
+2	0	6	true	7	7	OK	tag=9 ol=1 cm=0 sm=0
+2	1	0	false	9	9	OK	tag=9 ol=1 cm=0 sm=0
+2	1	0	true	9	9	OK	tag=9 ol=1 cm=0 sm=0
+2	1	1	false	15	15	OK	tag=9 ol=1 cm=0 sm=0
+2	1	1	true	15	15	OK	tag=9 ol=1 cm=0 sm=0
+2	1	2	false	20	20	OK	tag=9 ol=1 cm=0 sm=0
+2	1	2	true	20	20	OK	tag=9 ol=1 cm=0 sm=0
+2	1	3	false	20	20	OK	tag=9 ol=1 cm=0 sm=0
+2	1	3	true	20	20	OK	tag=9 ol=1 cm=0 sm=0
+2	1	4	false	20	20	OK	tag=9 ol=1 cm=0 sm=0
+2	1	4	true	20	20	OK	tag=9 ol=1 cm=0 sm=0
+2	1	5	false	21	21	OK	tag=9 ol=1 cm=0 sm=0
+2	1	5	true	21	21	OK	tag=9 ol=1 cm=0 sm=0
+2	1	6	false	23	23	OK	tag=9 ol=1 cm=0 sm=0
+2	1	6	true	23	23	OK	tag=9 ol=1 cm=0 sm=0
+S14_V41_MATCH	84/84
+
+DONE setting_ok=true

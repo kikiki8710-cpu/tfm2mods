@@ -1,0 +1,136 @@
+=== [00] ult  IR호출심볼 12개
+    IR: _RNvMNtNtCs97f5S1uJLkH_9game_core10simulation6effectNtB2_6Effect12range_adjust
+    IR: _RNvMs0_NtNtCs97f5S1uJLkH_9game_core10simulation4gameNtB5_4Game15adjust_position
+    IR: _RNvMs9_NtNtCs97f5S1uJLkH_9game_core10simulation6entityNtB5_6Entity15cooldown_reduce
+    IR: _RNvMs9_NtNtCs97f5S1uJLkH_9game_core10simulation6entityNtB5_6Entity7can_ult
+    IR: _RNvMs_NtNtNtCs97f5S1uJLkH_9game_core10simulation6effect4typeNtB4_13CastingTarget5check
+    IR: _RNvNtCs97f5S1uJLkH_9game_core5utils5isqrt
+    IR: _RNvNtCshdEBA0ozCnw_7game_ai14abstract_input16get_input_target
+    IR: _RNvNtCshdEBA0ozCnw_7game_ai14abstract_input29linear_cast_range_with_margin
+    IR: _RNvNtCshdEBA0ozCnw_7game_ai14abstract_input29safe_move_avoiding_enemy_well
+    IR: _RNvNtCsjihNppCmMEE_4core9panicking18panic_bounds_check
+    IR: _RNvNtNtCsjihNppCmMEE_4core9panicking11panic_const23panic_const_div_by_zero
+    IR: _RNvNtNtCsjihNppCmMEE_4core9panicking11panic_const24panic_const_div_overflow
+  OK  callees[0] ev=3 game_core::Game::adjust_position                             loose=1 strict=1 _RNvMs0_NtNtCs97f5S1uJLkH_9game_core10simulation4gameNtB5_4Game15adjust_position
+  OK  callees[1] ev=4 game_core::BigGoal::as_index                                 loose=0 strict=0 
+  OK  callees[2] ev=4 game_core::Position::as_index                                loose=0 strict=0 
+  OK  callees[3] ev=3 game_core::Entity::can_ult                                   loose=1 strict=1 _RNvMs9_NtNtCs97f5S1uJLkH_9game_core10simulation6entityNtB5_6Entity7can_ult
+  OK  callees[4] ev=3 game_core::CastingTarget::check                              loose=1 strict=1 _RNvMs_NtNtNtCs97f5S1uJLkH_9game_core10simulation6effect4typeNtB4_13CastingTarget5check
+  OK  callees[5] ev=3 game_core::Entity::cooldown_reduce                           loose=1 strict=1 _RNvMs9_NtNtCs97f5S1uJLkH_9game_core10simulation6entityNtB5_6Entity15cooldown_reduce
+  OK  callees[6] ev=4 game_core::utils::distance_sq                                loose=0 strict=0 
+  OK  callees[7] ev=4 game_core::Entity::distance_sq                               loose=0 strict=0 
+  OK  callees[8] ev=4 game_ai::abstract_input::effect_range_with_radii             loose=0 strict=0 
+  OK  callees[9] ev=3 game_ai::abstract_input::get_input_target                    loose=1 strict=1 _RNvNtCshdEBA0ozCnw_7game_ai14abstract_input16get_input_target
+  OK  callees[10] ev=4 game_core::World::is_visible                                 loose=0 strict=0 
+  OK  callees[11] ev=4 game_core::VisibleState::is_visible                          loose=0 strict=0 
+  OK  callees[12] ev=4 game_core::AbstractGame::is_visible                          loose=0 strict=0 
+  OK  callees[13] ev=4 game_core::Entity::is_visible_from                           loose=0 strict=0 
+  OK  callees[14] ev=3 game_core::utils::isqrt                                      loose=1 strict=1 _RNvNtCs97f5S1uJLkH_9game_core5utils5isqrt
+  OK  callees[15] ev=4 <game_ai::WindowStatView<'_> as game_core::AbstractEntity>::level loose=0 strict=0 
+  OK  callees[16] ev=4 game_core::AbstractEntity::level                             loose=0 strict=0 
+  OK  callees[17] ev=4 <game_core::Entity as game_core::AbstractEntity>::level      loose=0 strict=0 
+  OK  callees[18] ev=3 game_ai::abstract_input::linear_cast_range_with_margin       loose=1 strict=1 _RNvNtCshdEBA0ozCnw_7game_ai14abstract_input29linear_cast_range_with_margin
+  OK  callees[19] ev=4 game_core::Entity::radius                                    loose=0 strict=0 
+  ★差 callees[20] ev=3 game_core::Effect::range                                     loose=1 strict=0 (loose만:_RNvMNtNtCs97f5S1uJLkH_9game_core10simulation6effectNtB2_6Effect12range_adjust)
+  OK  callees[21] ev=3 game_core::Effect::range_adjust                              loose=1 strict=1 _RNvMNtNtCs97f5S1uJLkH_9game_core10simulation6effectNtB2_6Effect12range_adjust
+  OK  callees[22] ev=3 game_ai::safe_move_avoiding_enemy_well                       loose=1 strict=1 _RNvNtCshdEBA0ozCnw_7game_ai14abstract_input29safe_move_avoiding_enemy_well
+  OK  callees[23] ev=4 game_view::ClientData::team                                  loose=0 strict=0 
+  OK  callees[24] ev=4 game_view::ClientDatabase::team                              loose=0 strict=0 
+  OK  callees[25] ev=4 game_core::PlayerAiContext::<'a, 'b, 'r>::team               loose=0 strict=0 
+  OK  callees[26] ev=4 game_core::Entity::ult_effect                                loose=0 strict=0 
+
+=== [01] calculate_jungle_action_score  IR호출심볼 5개
+    IR: _RNvMNtNtCs97f5S1uJLkH_9game_core10simulation6effectNtB2_6Effect22expected_damage_target
+    IR: _RNvNtCsjihNppCmMEE_4core6option13unwrap_failed
+    IR: _RNvNtCsjihNppCmMEE_4core9panicking18panic_bounds_check
+    IR: _RNvNtNtCsjihNppCmMEE_4core9panicking11panic_const23panic_const_div_by_zero
+    IR: _RNvNtNtCsjihNppCmMEE_4core9panicking11panic_const24panic_const_div_overflow
+  OK  callees[0] ev=4 game_core::BigGoal::as_index                                 loose=0 strict=0 
+  OK  callees[1] ev=4 game_core::Position::as_index                                loose=0 strict=0 
+  OK  callees[2] ev=3 game_core::Effect::expected_damage_target                    loose=1 strict=1 _RNvMNtNtCs97f5S1uJLkH_9game_core10simulation6effectNtB2_6Effect22expected_damage_target
+  OK  callees[3] ev=4 game_core::EntityType::is_any_type_minion                    loose=0 strict=0 
+  OK  callees[4] ev=4 game_core::EntityType::is_jungle                             loose=0 strict=0 
+  OK  callees[5] ev=4 game_core::EntityType::is_nexus                              loose=0 strict=0 
+  OK  callees[6] ev=4 game_core::EntityType::is_tower                              loose=0 strict=0 
+
+=== [02] sub_plan  IR호출심볼 2개
+    IR: _RNvNtCsjihNppCmMEE_4core6option13unwrap_failed
+    IR: _RNvNtCsjihNppCmMEE_4core9panicking18panic_bounds_check
+  OK  callees[0] ev=4 game_core::BigGoal::as_index                                 loose=0 strict=0 
+  OK  callees[1] ev=4 game_core::Position::as_index                                loose=0 strict=0 
+  OK  callees[2] ev=4 <game_ai::GoalData as std::default::Default>::default        loose=0 strict=0 
+  OK  callees[3] ev=4 <game_ai::EpicStance as std::default::Default>::default      loose=0 strict=0 
+  OK  callees[4] ev=4 <game_ai::EpicStanceData as std::default::Default>::default  loose=0 strict=0 
+  OK  callees[5] ev=4 game_core::MapDef::fountain                                  loose=0 strict=0 
+  OK  callees[6] ev=4 game_core::PatchSetting::is_empty                            loose=0 strict=0 
+  OK  callees[7] ev=4 game_core::ModAiRegistry::is_empty                           loose=0 strict=0 
+  OK  callees[8] ev=4 game_core::PublicChampionEvidence::is_empty                  loose=0 strict=0 
+  OK  callees[9] ev=4 game_ai::plan_legacy::types::BigPlan::sub_plan               loose=0 strict=0 
+  OK  callees[10] ev=4 game_ai::plan_legacy::old::BattlePlan::sub_plan              loose=0 strict=0 
+  OK  callees[11] ev=4 game_ai::plan_legacy::old::SinglePlanLine::sub_plan          loose=0 strict=0 
+
+=== [03] defensive_crisis  IR호출심볼 9개
+    IR: _RINvMNtNtCshWfHDMLkPaX_7bumpalo11collections3vecINtB3_3VecRNtNtNtCs97f5S1uJLkH_9game_core10simulation6entity6EntityE12from_iter_inINtNtNtNtCsjihNppCmMEE_4core4iter8adapters6filter6FilterINtNtB29_10filter_map9FilterMapINtNtNtB2d_5slice4iter4IterINtNtB2d_6option6OptionBU_EENCNvMs3_BZ_NtBZ_21AbstractGameWithCache14iter_champions0ENCNvNtCshdEBA0ozCnw_7game_ai10buff_value16defensive_crisis0EEB5n_
+    IR: _RINvNtCsjihNppCmMEE_4core3ptr9drop_glueINtNtNtCshWfHDMLkPaX_7bumpalo11collections3vec3VecRNtNtNtCs97f5S1uJLkH_9game_core10simulation6entity6EntityEECshdEBA0ozCnw_7game_ai
+    IR: _RNvMs3_NtCs97f5S1uJLkH_9game_core10simulationNtB5_21AbstractGameWithCache21player_by_champion_id
+    IR: _RNvNtCshdEBA0ozCnw_7game_ai11fight_check14effect_cc_time
+    IR: _RNvNtCshdEBA0ozCnw_7game_ai11fight_check19check_kill_die_tick
+    IR: _RNvNtCsjihNppCmMEE_4core9panicking18panic_bounds_check
+    IR: _RNvXs4_NtNtCshWfHDMLkPaX_7bumpalo11collections7raw_vecINtB5_6RawVecRNtNtNtCs97f5S1uJLkH_9game_core10simulation6entity6EntityENtNtNtCsjihNppCmMEE_4core3ops4drop4Drop4dropCshdEBA0ozCnw_7game_ai
+    IR: _RNvXs7_NtNtCshWfHDMLkPaX_7bumpalo11collections3vecINtB5_3VecRNtNtNtCs97f5S1uJLkH_9game_core10simulation6entity6EntityENtNtCsjihNppCmMEE_4core5clone5Clone5cloneCshdEBA0ozCnw_7game_ai
+    IR: _RNvXsu_NtNtCshWfHDMLkPaX_7bumpalo11collections3vecINtB5_3VecRNtNtNtCs97f5S1uJLkH_9game_core10simulation6entity6EntityENtNtNtCsjihNppCmMEE_4core3ops4drop4Drop4dropCshdEBA0ozCnw_7game_ai
+  OK  callees[0] ev=3 game_ai::check_kill_die_tick                                 loose=1 strict=1 _RNvNtCshdEBA0ozCnw_7game_ai11fight_check19check_kill_die_tick
+  OK  callees[1] ev=3 game_ai::defensive_crisis                                    loose=1 strict=1 _RINvMNtNtCshWfHDMLkPaX_7bumpalo11collections3vecINtB3_3VecRNtNtNtCs97f5S1uJLkH_9game_core10simulation6entity6EntityE12from_iter_inINtNtNtNtCsjihNppCmMEE_4core4iter8adapters6filter6FilterINtNtB29_10filter_map9FilterMapINtNtNtB2d_5slice4iter4IterINtNtB2d_6option6OptionBU_EENCNvMs3_BZ_NtBZ_21AbstractGameWithCache14iter_champions0ENCNvNtCshdEBA0ozCnw_7game_ai10buff_value16defensive_crisis0EEB5n_
+  OK  callees[2] ev=4 game_core::utils::distance_sq                                loose=0 strict=0 
+  OK  callees[3] ev=4 game_core::Entity::distance_sq                               loose=0 strict=0 
+  OK  callees[4] ev=4 <game_core::prof::ProfTimer as std::ops::Drop>::drop         loose=0 strict=0 
+  OK  callees[5] ev=3 game_ai::effect_cc_time                                      loose=1 strict=1 _RNvNtCshdEBA0ozCnw_7game_ai11fight_check14effect_cc_time
+  OK  callees[6] ev=4 game_ai::is_enemy_well_danger                                loose=0 strict=0 
+  OK  callees[7] ev=4 game_ai::plan_legacy::old::is_ignored_well_enemy             loose=0 strict=0 
+  OK  callees[8] ev=4 game_core::Blackboard::is_recent_visible                     loose=0 strict=0 
+  OK  callees[9] ev=4 game_core::AbstractGameWithCache::<'a, 'b>::iter_champions   loose=0 strict=0 
+  OK  callees[10] ev=4 <game_ai::WindowStatView<'_> as game_core::AbstractEntity>::level loose=0 strict=0 
+  OK  callees[11] ev=4 game_core::AbstractEntity::level                             loose=0 strict=0 
+  OK  callees[12] ev=4 <game_core::Entity as game_core::AbstractEntity>::level      loose=0 strict=0 
+  OK  callees[13] ev=4 game_ai::max_range                                           loose=0 strict=0 
+  OK  callees[14] ev=4 game_core::AbstractGameWithCache::<'a, 'b>::player_by_champion_id loose=0 strict=0 
+  OK  callees[15] ev=4 game_core::Entity::skill2_cooldown                           loose=0 strict=0 
+  OK  callees[16] ev=4 game_core::Entity::skill2_effect                             loose=0 strict=0 
+  OK  callees[17] ev=4 game_core::Entity::skill_cooldown                            loose=0 strict=0 
+  OK  callees[18] ev=4 game_core::Entity::skill_effect                              loose=0 strict=0 
+  OK  callees[19] ev=4 game_view::ClientData::team                                  loose=0 strict=0 
+  OK  callees[20] ev=4 game_view::ClientDatabase::team                              loose=0 strict=0 
+  OK  callees[21] ev=4 game_core::PlayerAiContext::<'a, 'b, 'r>::team               loose=0 strict=0 
+  OK  callees[22] ev=4 game_view::view::effect::nightmare::tick_per_second          loose=0 strict=0 
+  OK  callees[23] ev=4 game_core::Entity::ult_cooldown                              loose=0 strict=0 
+  OK  callees[24] ev=4 game_core::Entity::ult_effect                                loose=0 strict=0 
+
+=== [04] handle_line_defense  IR호출심볼 12개
+    IR: _RINvNtCsjihNppCmMEE_4core3ptr9drop_glueINtNtNtCshWfHDMLkPaX_7bumpalo11collections3vec3VecRNtNtNtCs97f5S1uJLkH_9game_core10simulation6entity6EntityEECshdEBA0ozCnw_7game_ai
+    IR: _RINvXs0_NtNtNtCsjihNppCmMEE_4core4iter8adapters3mapINtB6_3MapINtNtNtBc_5slice4iter4IterRNtNtNtCs97f5S1uJLkH_9game_core10simulation6entity6EntityENCINvNvNtNtNtBa_6traits8iterator8Iterator10min_by_key3keyRB1n_yNCNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old13defense_nexus19handle_line_defense0E0EB2q_4foldTyB3e_ENCINvNvB2q_6min_by4foldB4U_INvB2o_7compareB3e_yEE0EB3u_
+    IR: _RNvMs0_NtNtNtCs97f5S1uJLkH_9game_core10simulation4game10blackboardNtB5_10Blackboard17is_recent_visible
+    IR: _RNvMs3_NtCs97f5S1uJLkH_9game_core10simulationNtB5_21AbstractGameWithCache9champions
+    IR: _RNvMs4_NtNtNtCs97f5S1uJLkH_9game_core10simulation5state6playerNtB5_8LineType18get_start_position
+    IR: _RNvMsb_NtNtNtCs97f5S1uJLkH_9game_core10simulation5state6playerNtB5_11PlayerState8strategy
+    IR: _RNvNtCsjihNppCmMEE_4core6option13unwrap_failed
+    IR: _RNvNtCsjihNppCmMEE_4core9panicking18panic_bounds_check
+    IR: _RNvNtNtCshdEBA0ozCnw_7game_ai11plan_legacy10rule_scope11line_exists
+    IR: _RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old13defense_nexus23has_line_defense_threat
+    IR: _RNvXs4_NtNtCshWfHDMLkPaX_7bumpalo11collections7raw_vecINtB5_6RawVecRNtNtNtCs97f5S1uJLkH_9game_core10simulation6entity6EntityENtNtNtCsjihNppCmMEE_4core3ops4drop4Drop4dropCshdEBA0ozCnw_7game_ai
+    IR: _RNvXsu_NtNtCshWfHDMLkPaX_7bumpalo11collections3vecINtB5_3VecRNtNtNtCs97f5S1uJLkH_9game_core10simulation6entity6EntityENtNtNtCsjihNppCmMEE_4core3ops4drop4Drop4dropCshdEBA0ozCnw_7game_ai
+  OK  callees[0] ev=4 game_core::GameMode::<'a>::as_moba                           loose=0 strict=0 
+  OK  callees[1] ev=4 game_core::AbstractGameWithCache::<'a, 'b>::champions        loose=0 strict=0 
+  OK  callees[2] ev=4 <game_core::prof::ProfTimer as std::ops::Drop>::drop         loose=0 strict=0 
+  OK  callees[3] ev=4 game_core::AbstractGame::get_game_mode                       loose=0 strict=0 
+  OK  callees[4] ev=4 <game_core::Game as game_core::AbstractGame>::get_game_mode  loose=0 strict=0 
+  OK  callees[5] ev=4 <game_core::SingleLaneGame as game_core::AbstractGame>::get_game_mode loose=0 strict=0 
+  OK  callees[6] ev=3 game_core::LineType::get_start_position                      loose=1 strict=1 _RNvMs4_NtNtNtCs97f5S1uJLkH_9game_core10simulation5state6playerNtB5_8LineType18get_start_position
+  OK  callees[7] ev=3 game_ai::plan_legacy::old::handle_line_defense               loose=1 strict=1 _RINvXs0_NtNtNtCsjihNppCmMEE_4core4iter8adapters3mapINtB6_3MapINtNtNtBc_5slice4iter4IterRNtNtNtCs97f5S1uJLkH_9game_core10simulation6entity6EntityENCINvNvNtNtNtBa_6traits8iterator8Iterator10min_by_key3keyRB1n_yNCNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old13defense_nexus19handle_line_defense0E0EB2q_4foldTyB3e_ENCINvNvB2q_6min_by4foldB4U_INvB2o_7compareB3e_yEE0EB3u_
+  OK  callees[8] ev=3 game_ai::plan_legacy::old::has_line_defense_threat           loose=1 strict=1 _RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old13defense_nexus23has_line_defense_threat
+  OK  callees[9] ev=3 game_core::Blackboard::is_recent_visible                     loose=1 strict=1 _RNvMs0_NtNtNtCs97f5S1uJLkH_9game_core10simulation4game10blackboardNtB5_10Blackboard17is_recent_visible
+  OK  callees[10] ev=3 game_ai::plan_legacy::rule_scope::line_exists                loose=1 strict=1 _RNvNtNtCshdEBA0ozCnw_7game_ai11plan_legacy10rule_scope11line_exists
+  OK  callees[11] ev=4 game_ai::plan_legacy::rule_scope::morgard_exists             loose=0 strict=0 
+  OK  callees[12] ev=4 game_core::MobaMode::remain_epic_time                        loose=0 strict=0 
+  OK  callees[13] ev=3 game_core::PlayerState::strategy                             loose=1 strict=1 _RNvMsb_NtNtNtCs97f5S1uJLkH_9game_core10simulation5state6playerNtB5_11PlayerState8strategy
+  OK  callees[14] ev=4 game_core::AbstractGameWithCache::<'a, 'b>::tower            loose=0 strict=0 
+

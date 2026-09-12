@@ -1,0 +1,179 @@
+{
+ "round": 12,
+ "batch": "D",
+ "errors": [
+  {
+   "path": "/specs[18]/sig/params[2]/role",
+   "kind": "오탐",
+   "old": "본체 `_gcbc/g15.ll:130480` 의 `rnd` 인자(%2, StdRng 320B)에 **`readnone`** 이 붙어 있어",
+   "new": "**피호출자 `PlayerState::strategy`(game_core 크레이트, 이 명세의 `m09.ll` 이 아니다)** 본체 `_gcbc/g15.ll:130480` 의 `rnd` 인자(%2, StdRng 320B)에 **`readnone`** 이 붙어 있어",
+   "evidence": "G16(P4) 오탐이다. 18 자신의 define(m09.ll:6879)은 `%2 = ptr noalias noundef nonnull align 16 dereferenceable(320) %2` 로 `readnone` 이 **없는 것이 맞다** — 명세는 그 속성을 18 의 것이라고 주장한 적이 없고 **콜리의 define 을 인용**했다. 인용처 실물 확인: `_gcbc/g15.ll:130480` = `define void @…PlayerState8strategy(… ptr noalias noundef readonly … %1, ptr noalias noundef **readnone** align 16 captures(none) dereferenceable(320) %2, …)`. 그리고 18 범위(6879~7264)에서 `%2` 의 출현은 define 줄·#dbg_value·6964 의 strategy 호출 인자 **3회뿐**이라 사실 주장(RNG 무전진)도 그대로 참이다. ⟹ 고칠 것은 명세가 아니라 게이트다(`paramrole.py` P4 에 **외부 IR 인용 회피** 필요 — 보고서 §3 참조). 이 정정은 값이 아니라 **귀속을 기계가 읽을 수 있게** 만든 것이다",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[18]/mem[3]/name",
+   "kind": "보강",
+   "old": "game(데이터 포인터)",
+   "new": "game.data_ptr",
+   "evidence": "G20 R2 가 `AbstractGameWithCache game` 이 0x0 과 0x8 에 동시에 있다고 적발한 자리. 18 은 괄호로 갈랐지만 `sharedchk.norm_name` 이 `(` 부터 통째로 버려 키가 `game` 하나로 뭉갠다. 같은 사실을 15 `mem[1]`·17 `mem[3]`·19 `mem[4]` 는 **`game.data_ptr`** 로 적는다 — 그 표기로 통일하면 R2 가 닫히고 이름이 정보로 남는다. IR 근거: m09.ll:6959~6962 `%34 = load ptr, ptr %33`(cache+0x0) / `%35 = gep %33, i64 8` → `%36 = load ptr`(vtable)",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[18]/mem[4]/name",
+   "kind": "보강",
+   "old": "game(vtable 포인터)",
+   "new": "game.vtable_ptr",
+   "evidence": "위와 같은 건. 15 `mem[2]`=`game.vtable` · 17 `mem[4]`=`game.vtable_ptr` · 19 `mem[5]`=`game.vtable` 과 같은 사실이다. `dereferenceable(816)` = divtable 이 보고한 AbstractGame vtable 816B 라는 근거는 그대로 둔다",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[18]/mem[16]/note",
+   "kind": "보강",
+   "old": "7016~7017 `%61 = add i64 %52, 1` / `store i64 %61, ptr %51`(SerpenSetup 경로).",
+   "new": "7016~7017 `%61 = add i64 %52, 1` / `store i64 %61, ptr %51`(SerpenSetup 경로) · **7218~7219 `%145 = add i64 %152, 1` / `store i64 %145, ptr %151`(Press/PressChange 경로 — `%151 = getelementptr inbounds nuw i8, ptr %0, i64 208` = TeamPlan+0xd0)**. ★쓰기는 **3경로 3사이트**다(종전 문면은 2개만 열거).",
+   "evidence": "IR 전수: `TeamPlan+0xd0` 쓰기 = m09.ll **6943 · 7017 · 7219** 3건, 읽기 = 6920 · 6994 · 7253 3건(gep `ptr %0, i64 208` 을 받는 레지스터 전수 추적). 종전 note 는 Repair/SerpenSetup 2건만 열거해 압박 채팅 경로의 len 갱신이 열거에서 빠져 있었다. ⚠`behavior_change=false` — note 가 진술하는 **규칙**(「`load(TeamPlan+0xd0)` → `add …, 1` → 같은 자리에 되쓴다」)은 경로와 무관하게 옳고, 틀린 것은 **사이트 열거**뿐이다(같은 표 `mem[15]` 가 Press/PressChange 태그 쓰기를 이미 싣고 있다)",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[18]/knobs[13]/where",
+   "kind": "보강",
+   "old": "m09.ll:64620~64650",
+   "new": "m09.ll:64614~64658 (★키 조립과 비교가 이 구간 전체다 — 종전 `64620~64650` 은 앞뒤를 잘랐다: 키 조립 `%78 = select i1 %76, i16 256, i16 0`(64619) / `%79 = or disjoint i16 %73, %78`(64620), 동점 비교 `%84 = icmp eq i8 %82, %83` / `%85 = icmp ugt i8 %82, %83`(64644~64645), 최종 `%90 = phi i1 [ %88, %86 ], [ %85, %81 ]`(64658))",
+   "evidence": "IR 원문 대조. 종전 구간의 시작 64620 은 `or disjoint` 로 **키를 합치는 줄**이라 키를 만드는 `%76 = icmp eq i64 %23, %74`(64614)·`%77 = zext i1 %75 to i8`(64616)·`%78 = select`(64619)가 밖에 있고, 끝 64650 은 사전식 비교의 꼬리(`%87`/`%88`@64653~64654, `%90 = phi`@64658)를 자른다",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[19]/knobs[6]/where",
+   "kind": "보강",
+   "old": "is_side_cleared 의 tps*5 (m04.ll:62553)",
+   "new": "is_side_cleared 의 tps*5 (m04.ll:62552~62554 — `%22 = getelementptr inbounds nuw i8, ptr %21, i64 4856`(=GameSetting.tick_per_second) → `%23 = load i64, ptr %22` → `%24 = mul i64 %23, 5`. ★곱셈은 **62554** 이고 62553 은 tps 로드다)",
+   "evidence": "IR 원문: m04.ll:62552 `%22 = getelementptr inbounds nuw i8, ptr %21, i64 4856` / 62553 `%23 = load i64, ptr %22, align 8` / **62554 `%24 = mul i64 %23, 5`** / 62555 `%25 = add i64 %24, %7`. 인용 줄에 `mul ..., 5` 가 없다. 같은 표의 `knobs[5]` 는 같은 형태를 `m04.ll:62501~62505` **구간 + 명령 인용**으로 적으므로 한 표 안에서 규약이 갈려 있었다(11차 `16 knobs[3]` 과 같은 형태의 off-by-one)",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[19]/one_line",
+   "kind": "보강",
+   "old": "정글러가 다음에 갈 캠프(JungleType)를 고른다 — 미클리어 캠프 중 내 챔프에서 가장 가까운 것",
+   "new": "정글러가 다음에 갈 캠프(JungleType)를 고른다 — 미클리어 캠프 중 내 챔프에서 가장 가까운 것. ★출구는 셋이다: ①본선 = 미클리어 캠프 중 제곱거리 최소 ②전부 클리어(817) = `next_respawn_tick` 이 가장 빠른 캠프(**이미 잡힌 캠프가 나온다**) ③내 챔프 엔티티가 없음(824) = `now_camp` 를 그대로(**Morgard/Serpen 도 가능**) 또는 4개 중 랜덤 — ②③은 미클리어 필터를 안 탄다",
+   "evidence": "`logic` 817~829 와 `knobs[2]`·`knobs[4]` 에 이미 적혀 있고 `logic` 807 주석이 「반환값을 일반 캠프로 필터링하면 **동작이 달라진다**」고 못 박는데 `one_line` 만 본선 경로를 전부인 양 적는다. `one_line` 은 어떤 게이트도 안 보는 칸이고(도시에 §1), 한 줄만 읽은 사람이 「반환은 항상 미클리어 캠프」로 오해한다",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "op": "insert",
+   "path": "/specs[17]/mem",
+   "at": 23,
+   "guard": "지역 chats.cap (Vec 3워드 중 첫 워드)",
+   "guard_key": "name",
+   "new": {
+    "base": "Vec<Chat>(지역 스택 24B)",
+    "offset": "0x0",
+    "name": "지역 chats.cap (Vec 3워드 중 첫 워드)",
+    "value": "0 (TryKill 경로에서 `RawVec::grow_one` 이 4 로 바꾼다)",
+    "note": "IR 원문 m05.ll:17703 `store i64 0, ptr %6`(`%6 = alloca [24 x i8]` = 지역 `Vec<Chat>`). ★`mem` 에 지역 Vec 의 **ptr(+0x8, mem[5])·len(+0x10)** 은 11차에 들어왔는데 **cap(+0x0)만 빠져 있었다.** 워드 순서(cap@+0x0 / ptr@+0x8 / len@+0x10)는 같은 코퍼스의 `18 mem[7]~[9]`(`TeamPlan.chats` = +0xc0 cap / +0xc8 ptr / +0xd0 len, tcx `offset_of!(TeamPlan, chats)=+0xc0`)와 **같은 `Vec<Chat>` 인스턴스**라 교차확정된다. 이 24B 가 그대로 `DeathMatchBattle+0xf8`(mem[19])로 memcpy 되므로 세 워드 중 하나라도 빠지면 반환 구조체의 바이트상이 달라진다. 12차 배치D 행 추가"
+   },
+   "kind": "실오류",
+   "found_by": "new",
+   "evidence": "m05.ll:17703~17707 = `store i64 0, ptr %6`(+0x0) · `%7 = gep %6, i64 8` → `store ptr inttoptr (i64 8 to ptr), ptr %7`(+0x8) · `%8 = gep %6, i64 16` → `store i64 0, ptr %8`(+0x10). 세 워드 중 **+0x0 만** mem 에 행이 없다(현재 +0x8 = mem[5] r · +0x10 = mem[23] w). 10·11차가 07·08·14·18·17·19 에서 고친 「Vec 의 일부 워드만 싣는다」와 같은 결손의 잔여분이다",
+   "behavior_change": false
+  }
+ ],
+ "ev_up": [
+  {
+   "path": "/specs[17]/mem[20]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조 — `tcxdict --enum Chat`(12차 배치D 실행): `game_core::Chat` = 24B enum, 판별자 enum+0x0(1B, Direct, 태그=variant 인덱스), `Battle` = idx3/태그3 ⟹ `store i8 3, ptr %19`(m05.ll:17745)의 3 과 오프셋 0 이 둘 다 tcx 와 일치",
+   "found_by": "new",
+   "guard": "Chat 태그 (Battle 3)"
+  },
+  {
+   "path": "/specs[17]/mem[21]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조 — `tcxdict --enum Chat`(12차 배치D 실행): `game_core::Chat` = 24B enum, 판별자 enum+0x0(1B, Direct, 태그=variant 인덱스), `페이로드 Battle` = `enum+0x8 \"0\" : usize` ⟹ `__0`(대상 id) 자리가 +0x8 임이 tcx 로 확정",
+   "found_by": "new",
+   "guard": "Chat::Battle.__0 (대상 엔티티 id)"
+  },
+  {
+   "path": "/specs[17]/mem[22]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조 — `tcxdict --enum Chat`(12차 배치D 실행): `game_core::Chat` = 24B enum, 판별자 enum+0x0(1B, Direct, 태그=variant 인덱스), `페이로드 Battle` = `enum+0x10 \"1\" : usize` ⟹ `__1` 자리가 +0x10 임이 tcx 로 확정",
+   "found_by": "new",
+   "guard": "Chat::Battle.__1"
+  },
+  {
+   "path": "/specs[17]/mem[5]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조 — 같은 `Vec<Chat>` 인스턴스의 워드 순서를 `18 mem[7]~[9]` 가 `offset_of!(TeamPlan, chats)=+0xc0` 기준으로 cap@+0 / ptr@+8 / len@+0x10 으로 확정한다. 17 의 지역 24B 도 같은 타입이므로 +0x8=ptr 이 교차확정된다(IR: m05.ll:17705 dangling 초기화 → 17744 재로드)",
+   "found_by": "new",
+   "guard": "지역 chats.ptr (원소 주소의 출처)"
+  },
+  {
+   "path": "/specs[17]/mem[24]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조 — 위와 같은 근거로 지역 `Vec<Chat>`+0x10 = len 이 교차확정된다(IR: m05.ll:17707 `store i64 0` 초기화 → 17750 `store i64 1`)",
+   "found_by": "new",
+   "guard": "지역 chats.len (push 후)"
+  },
+  {
+   "path": "/specs[18]/mem[18]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조 — `tcxdict --enum MainObjective`(12차 배치D 실행): 3B enum, 판별자 enum+0x0(1B, Direct), `페이로드 Serpen` = `enum+0x1 phase : ObjectPhase` ⟹ 태그가 TeamPlan+0x41f 이므로 phase 는 **+0x420** 이다. IR(m09.ll:6978~6979 `%48 = gep %0, i64 1056` → `store i8 1`)과 일치",
+   "found_by": "new",
+   "guard": "objective.Serpen.phase"
+  },
+  {
+   "path": "/specs[18]/mem[19]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조 — 같은 조회: `페이로드 Serpen` = `enum+0x2 with_battle : bool` ⟹ **TeamPlan+0x421**. IR(m09.ll:6980~6981 `%49 = gep %0, i64 1057` → `store i8 1`)과 일치",
+   "found_by": "new",
+   "guard": "objective.Serpen.with_battle"
+  },
+  {
+   "path": "/specs[18]/mem[20]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조 — `tcxdict --enum Chat`(12차 배치D 실행): `game_core::Chat` = 24B enum, 판별자 enum+0x0(1B, Direct, 태그=variant 인덱스), `페이로드 Press`/`PressChange` = `enum+0x1 \"0\" : game_core::LineType`(1B) ⟹ Chat+0x1 확정. IR(m09.ll:7214~7215 `%143 = gep %142, i64 1` → `store i8 %41`)과 일치",
+   "found_by": "new",
+   "guard": "Chat.__0 (Press/PressChange 의 LineType)"
+  },
+  {
+   "path": "/specs[18]/mem[21]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조 — `tcxdict --enum Chat`(12차 배치D 실행): `game_core::Chat` = 24B enum, 판별자 enum+0x0(1B, Direct, 태그=variant 인덱스), `Press`/`PressChange` = `enum+0x8 \"1\" : usize` · `Repair`/`SerpenSetup` = `enum+0x8 \"0\" : usize` ⟹ 이 행이 경고한 「+0x8 의 필드 번호가 variant 마다 다르다」가 tcx 로 확정됐다(Press 기준 `__1`, Repair/SerpenSetup 기준 `__0`)",
+   "found_by": "new",
+   "guard": "Chat.__1 (공통 usize 슬롯)"
+  },
+  {
+   "path": "/specs[19]/mem[15]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조 — `tcxdict --enum JungleType`(12차 배치D 실행): **1B** enum, 판별자 enum+0x0(1B, Direct), variant 6개(Rhino0/Mushroom1/Stump2/Bee3/Morgard4/Serpen5) ⟹ 원소 stride 1B 와 IR `!range !41907 = !{i8 0, i8 6}`(상한 배타)이 tcx 와 정확히 일치. 원소 역참조 오프셋 +0x0 = 판별자 자리",
+   "found_by": "new",
+   "guard": "캠프 태그(i8)"
+  }
+ ],
+ "brief_errors": [
+  "§4 가 낸 G16 1건은 **오탐**이고, 그 오탐 모드(콜리의 define 인용)는 도시에 자신이 예고했다. 예고할 수 있었다면 게이트가 걸러야 한다 — `paramrole.py` P4 에 「절 안에 이 명세의 IR 파일(`sp.ir.file`)이 아닌 `[gm]NN.ll` 인용이 있으면 그 절의 속성 주장은 콜리의 것이므로 건너뛴다」 한 줄이면 닫힌다. 덤으로 `CITE` 정규식이 `m\\d+\\.ll` 만 받아 **`_gcbc`(gNN.ll) 인용은 P6 이 검증조차 못 한다** — `[gm]\\d+\\.ll` 로 넓히고 접두별 디렉터리를 고르면 cross-crate 인용도 기계 검증된다.",
+  "§4-b 표의 「`callees` 262행 중 **56행만 ev3**」는 **수치 자체가 틀렸다.** 길이접두 경계로 다시 판정하면 ①ev3 도장 중 **3건이 거짓 앵커**(`00`/`16` `Effect::range` · `08` `AbstractGame::is_end` — `_rank_callees` 가 `seg in sym` 부분문자열이라 `range` 가 `range_adjust` 안에서 걸린다) ②ev4 중 **9건은 실제로 IR 에 있다**(경로에 `<'a, 'b>`·`<impl …>` 같은 비식별자 성분이 있으면 `all(seg in sym)` 이 통과할 수 없다 — 내 담당 `15 callees[7] iter_towers_without_nexus` 는 m13.ll:33468 에 **실물 call 이 있는데** ⚠미확정이다). 즉 11차 후속이 고치려던 「거짓 확증」이 형태만 바꿔 남았다.",
+  "§4-b 의 「`ev4` = 판정 보류(재료 부재)」도 과소 진술이다. `pick` 문면이 **세 가지 다른 사태를 한 문장으로 뭉친다**: (a) 후보가 여럿이라 못 고름 (b) **후보가 1개**(206행 중 **83행** = 40%. 고를 것이 없으므로 「미확정」이 아니다) (c) 호출은 IR 에 **있는데 간접(vtable)**이라 심볼이 없음(`15 get_entity_by_id`·`17 tick`·`19 get_game_mode`). 그리고 (b) 는 **정답도 아니다** — `drop` 은 후보가 1개(`ProfTimer`)뿐이라 그것이 실려 있지만 실제 콜리는 `<Vec<Chat> as Drop>::drop`(m13.ll:33726)이다. ⟹ 「후보 1개」를 확신의 근거로 읽으면 안 된다고 `pick` 문면이 직접 말해야 한다.",
+  "§5 는 여전히 **`callees` 와 `closed[].why` 를 `patch.json` 으로 주소 지정할 수 없다**는 사실을 안 적었다(11차 §4-1 이 같은 지적). 이번 라운드의 주 표적이 `callees` 인데 `resolve()` 에 매핑이 없어 `errors[]`·`ev_up[]` 둘 다 실패한다 — 내 `callees` 발견 12건은 전부 산문으로만 낼 수 있다. 「기계가 적용할 수 있는 형식으로만 받는다」(§5)와 정면으로 어긋난다.",
+  "§5 의 `errors[].kind` 어휘(`실오류`/`오탐`/`보강`)가 `applypatch.py` docstring(`실오류|판정반전|분류오류|보강`)과 아직도 다르다(11차 §4-4 미반영). §5-b 4 는 「판정 반전도 오류로 센다」는데 그걸 적을 `kind` 값이 §5 어휘에 없다.",
+  "§1 표에 `closed` 개수 열이 아직 없다(11차 §4-3 미반영). 담당 5함수 = 15:7 / 16:7 / 17:8 / 18:10 / 19:7 = **39건**이고 10·11차의 최대 수확처였는데 규모를 모르고 들어간다.",
+  "지시 ⓑ 의 「`15 BattlePlanGoal+0x0` 은 쓰기, `17` 은 읽기 — 이것도 **G20 이 정상으로 판정했다**. 맞는지 봐라」는 **전제가 틀렸다.** G20 은 이 쌍을 **검사하지 않는다** — R3 은 한쪽 `dir` 이 `-`(미기재)일 때만 발화하고 `w` vs `r` 은 애초에 비교 대상이 아니다(`sharedchk.py:check` R3 절). 「게이트가 정상으로 판정」과 「게이트가 안 본다」는 전혀 다른 상태이고, 후자를 전자로 적으면 다음 라운드가 그 축을 닫힌 것으로 오해한다(도시에 §1 이 스스로 경고한 「게이트 0 = 검사한 축이 깨끗하다」의 변형).",
+  "지시문이 읽기 부담을 **파일 크기**로만 경고하는데(「`18`(72KB)은 특히 크다」), 담당 5개 분책의 부피 중 가장 큰 덩어리는 **`siblings` 표**다(15: 41행 · 18: 55행 · 17: 22행 = 118행). 이 표는 어느 게이트도 안 보고 전수 감사에도 쓰이지 않는다. `<details>` 안으로 접거나 개수만 적으면 읽는 비용이 크게 준다 — 7차에 두 배치가 죽은 원인이 크기였다면 줄일 곳은 여기다."
+ ]
+}

@@ -1,0 +1,224 @@
+{
+ "round": 8,
+ "batch": "B",
+ "errors": [
+  {
+   "path": "/specs[5]/consts[1]/meaning",
+   "kind": "실오류",
+   "old": "end_reason 코드 7 = 다이브 포기시각(last_dive_abandon_tick) 집계에서 제외되는 종료사유. 이 값일 땐 no_contact 여도 갱신 안 함",
+   "new": "end_reason 코드(판별자) 7 = 다이브 포기시각(last_dive_abandon_tick) 집계에서 제외되는 종료사유. 이 값일 땐 no_contact 여도 갱신 안 함",
+   "evidence": "m13.ll:29017 `icmp eq i8 %2, 7`(end_reason 동등비교) · m13.ll:29154 `%74 = phi i8 [ 1,%33 ],[ 2,%36 ],[ 3,%41 ],[ 4,%46 ],[ 7,%66 ],[ 5,%51 ],[ 6,%61 ],[ 6,%56 ]`(end_plan 코드표). IR 범위 28946~29380 에 이 값들의 순서비교는 **0건** ⟹ 임계일 수 없다",
+   "behavior_change": true,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[5]/consts[2]/meaning",
+   "kind": "실오류",
+   "old": "end_plan 코드 1 = 플랜 이름이 \"PassiveLine\" 으로 시작. (같은 리터럴 1 이 start_in_range 저장 시 `and i8 %103, 1` 불리언 정규화 마스크로도 쓰임) · 오라클 실행 확증( 오라클 실행 확증: end_plan=1 (plan 이름 \"PassiveLine\") #A·#B·#G 26케이스 (B6_o2.tsv — 05 를 상위 pub 래퍼 `LegacyPlanHandler::update` 로 최초 실행))",
+   "new": "end_plan 코드(판별자) 1 = 플랜 이름이 \"PassiveLine\" 으로 시작. (같은 리터럴 1 이 start_in_range 저장 시 `and i8 %103, 1` 불리언 정규화 마스크로도 쓰임) · 오라클 실행 확증( 오라클 실행 확증: end_plan=1 (plan 이름 \"PassiveLine\") #A·#B·#G 26케이스 (B6_o2.tsv — 05 를 상위 pub 래퍼 `LegacyPlanHandler::update` 로 최초 실행))",
+   "evidence": "m13.ll:29017 `icmp eq i8 %2, 7`(end_reason 동등비교) · m13.ll:29154 `%74 = phi i8 [ 1,%33 ],[ 2,%36 ],[ 3,%41 ],[ 4,%46 ],[ 7,%66 ],[ 5,%51 ],[ 6,%61 ],[ 6,%56 ]`(end_plan 코드표). IR 범위 28946~29380 에 이 값들의 순서비교는 **0건** ⟹ 임계일 수 없다",
+   "behavior_change": true,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[5]/consts[3]/meaning",
+   "kind": "실오류",
+   "old": "end_plan 코드 2 = 플랜 이름이 \"PassiveJungle\" 로 시작 · 오라클 실행 확증( 오라클 실행 확증: end_plan=2 (\"PassiveJungle\") #G 4케이스 (B6_o2.tsv — 05 를 상위 pub 래퍼 `LegacyPlanHandler::update` 로 최초 실행))",
+   "new": "end_plan 코드(판별자) 2 = 플랜 이름이 \"PassiveJungle\" 로 시작 · 오라클 실행 확증( 오라클 실행 확증: end_plan=2 (\"PassiveJungle\") #G 4케이스 (B6_o2.tsv — 05 를 상위 pub 래퍼 `LegacyPlanHandler::update` 로 최초 실행))",
+   "evidence": "m13.ll:29017 `icmp eq i8 %2, 7`(end_reason 동등비교) · m13.ll:29154 `%74 = phi i8 [ 1,%33 ],[ 2,%36 ],[ 3,%41 ],[ 4,%46 ],[ 7,%66 ],[ 5,%51 ],[ 6,%61 ],[ 6,%56 ]`(end_plan 코드표). IR 범위 28946~29380 에 이 값들의 순서비교는 **0건** ⟹ 임계일 수 없다",
+   "behavior_change": true,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[5]/consts[4]/meaning",
+   "kind": "실오류",
+   "old": "end_plan 코드 3 = 플랜 이름이 \"LineGank\" 로 시작",
+   "new": "end_plan 코드(판별자) 3 = 플랜 이름이 \"LineGank\" 로 시작",
+   "evidence": "m13.ll:29017 `icmp eq i8 %2, 7`(end_reason 동등비교) · m13.ll:29154 `%74 = phi i8 [ 1,%33 ],[ 2,%36 ],[ 3,%41 ],[ 4,%46 ],[ 7,%66 ],[ 5,%51 ],[ 6,%61 ],[ 6,%56 ]`(end_plan 코드표). IR 범위 28946~29380 에 이 값들의 순서비교는 **0건** ⟹ 임계일 수 없다",
+   "behavior_change": true,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[5]/consts[5]/meaning",
+   "kind": "실오류",
+   "old": "end_plan 코드 4 = 플랜 이름에 \"Epic\" 포함",
+   "new": "end_plan 코드(판별자) 4 = 플랜 이름에 \"Epic\" 포함",
+   "evidence": "m13.ll:29017 `icmp eq i8 %2, 7`(end_reason 동등비교) · m13.ll:29154 `%74 = phi i8 [ 1,%33 ],[ 2,%36 ],[ 3,%41 ],[ 4,%46 ],[ 7,%66 ],[ 5,%51 ],[ 6,%61 ],[ 6,%56 ]`(end_plan 코드표). IR 범위 28946~29380 에 이 값들의 순서비교는 **0건** ⟹ 임계일 수 없다",
+   "behavior_change": true,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[5]/consts[6]/meaning",
+   "kind": "실오류",
+   "old": "end_plan 코드 5 = 플랜 이름에 \"Serpen\" 포함",
+   "new": "end_plan 코드(판별자) 5 = 플랜 이름에 \"Serpen\" 포함",
+   "evidence": "m13.ll:29017 `icmp eq i8 %2, 7`(end_reason 동등비교) · m13.ll:29154 `%74 = phi i8 [ 1,%33 ],[ 2,%36 ],[ 3,%41 ],[ 4,%46 ],[ 7,%66 ],[ 5,%51 ],[ 6,%61 ],[ 6,%56 ]`(end_plan 코드표). IR 범위 28946~29380 에 이 값들의 순서비교는 **0건** ⟹ 임계일 수 없다",
+   "behavior_change": true,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[5]/consts[7]/meaning",
+   "kind": "실오류",
+   "old": "end_plan 코드 6 = 플랜 이름이 \"ActiveRecall\" 또는 \"Recall\" 로 시작(두 술어가 같은 phi 값으로 합류)",
+   "new": "end_plan 코드(판별자) 6 = 플랜 이름이 \"ActiveRecall\" 또는 \"Recall\" 로 시작(두 술어가 같은 phi 값으로 합류)",
+   "evidence": "m13.ll:29017 `icmp eq i8 %2, 7`(end_reason 동등비교) · m13.ll:29154 `%74 = phi i8 [ 1,%33 ],[ 2,%36 ],[ 3,%41 ],[ 4,%46 ],[ 7,%66 ],[ 5,%51 ],[ 6,%61 ],[ 6,%56 ]`(end_plan 코드표). IR 범위 28946~29380 에 이 값들의 순서비교는 **0건** ⟹ 임계일 수 없다",
+   "behavior_change": true,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[5]/consts[8]/meaning",
+   "kind": "실오류",
+   "old": "end_plan 코드 7 = 플랜 이름이 \"Battle\" 로 시작. (end_reason 의 7 과 값만 같고 의미는 무관) · 오라클 실행 확증( 오라클 실행 확증: end_plan=7 (\"Battle …\") #B2 tag9 (B6_o2.tsv — 05 를 상위 pub 래퍼 `LegacyPlanHandler::update` 로 최초 실행))",
+   "new": "end_plan 코드(판별자) 7 = 플랜 이름이 \"Battle\" 로 시작. (end_reason 의 7 과 값만 같고 의미는 무관) · 오라클 실행 확증( 오라클 실행 확증: end_plan=7 (\"Battle …\") #B2 tag9 (B6_o2.tsv — 05 를 상위 pub 래퍼 `LegacyPlanHandler::update` 로 최초 실행))",
+   "evidence": "m13.ll:29017 `icmp eq i8 %2, 7`(end_reason 동등비교) · m13.ll:29154 `%74 = phi i8 [ 1,%33 ],[ 2,%36 ],[ 3,%41 ],[ 4,%46 ],[ 7,%66 ],[ 5,%51 ],[ 6,%61 ],[ 6,%56 ]`(end_plan 코드표). IR 범위 28946~29380 에 이 값들의 순서비교는 **0건** ⟹ 임계일 수 없다",
+   "behavior_change": true,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[5]/consts[9]/meaning",
+   "kind": "실오류",
+   "old": "end_plan 코드 8 = 플랜 이름에 \"Nexus\" 포함 · 오라클 실행 확증( 오라클 실행 확증: end_plan=8 (\"AttackNexus\"/\"DefenseNexus\") #B2 tag16·17 (B6_o2.tsv — 05 를 상위 pub 래퍼 `LegacyPlanHandler::update` 로 최초 실행))",
+   "new": "end_plan 코드(판별자) 8 = 플랜 이름에 \"Nexus\" 포함 · 오라클 실행 확증( 오라클 실행 확증: end_plan=8 (\"AttackNexus\"/\"DefenseNexus\") #B2 tag16·17 (B6_o2.tsv — 05 를 상위 pub 래퍼 `LegacyPlanHandler::update` 로 최초 실행))",
+   "evidence": "m13.ll:29017 `icmp eq i8 %2, 7`(end_reason 동등비교) · m13.ll:29154 `%74 = phi i8 [ 1,%33 ],[ 2,%36 ],[ 3,%41 ],[ 4,%46 ],[ 7,%66 ],[ 5,%51 ],[ 6,%61 ],[ 6,%56 ]`(end_plan 코드표). IR 범위 28946~29380 에 이 값들의 순서비교는 **0건** ⟹ 임계일 수 없다",
+   "behavior_change": true,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[5]/consts[10]/meaning",
+   "kind": "실오류",
+   "old": "end_plan 코드 9 = 위 어디에도 안 걸림(그 외 전부) · 오라클 실행 확증( 오라클 실행 확증: end_plan=9 (\"DeathMatchBattle …\"/\"SinglePlanBattle …\") #B tag0·5 (B6_o2.tsv — 05 를 상위 pub 래퍼 `LegacyPlanHandler::update` 로 최초 실행))",
+   "new": "end_plan 코드(판별자) 9 = 위 어디에도 안 걸림(그 외 전부) · 오라클 실행 확증( 오라클 실행 확증: end_plan=9 (\"DeathMatchBattle …\"/\"SinglePlanBattle …\") #B tag0·5 (B6_o2.tsv — 05 를 상위 pub 래퍼 `LegacyPlanHandler::update` 로 최초 실행))",
+   "evidence": "m13.ll:29017 `icmp eq i8 %2, 7`(end_reason 동등비교) · m13.ll:29154 `%74 = phi i8 [ 1,%33 ],[ 2,%36 ],[ 3,%41 ],[ 4,%46 ],[ 7,%66 ],[ 5,%51 ],[ 6,%61 ],[ 6,%56 ]`(end_plan 코드표). IR 범위 28946~29380 에 이 값들의 순서비교는 **0건** ⟹ 임계일 수 없다",
+   "behavior_change": true,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[6]/consts[0]/meaning",
+   "kind": "실오류",
+   "old": "AI 버전 게이트 — version<2 면 본문 전체를 건너뛰고 RunAway. (같은 리터럴 2 가 team 배열 bounds-check 길이 `icmp ult team, 2` 로도 쓰인다 — **이 행 자체는 version 비교 임계**이지 인덱스가 아니다)",
+   "new": "AI 버전 비교 임계(게이트) — version<2 면 본문 전체를 건너뛰고 RunAway. (같은 리터럴 2 가 team 배열 bounds-check 길이 `icmp ult team, 2` 로도 쓰인다 — **이 행 자체는 version 비교 임계**이지 팀 배열 첨자가 아니다)",
+   "evidence": "m13.ll:45232 `%14 = icmp ult i64 %0, 2` — 첫 인자(version)의 **순서비교**다. `meaning` 이 「인덱스가 **아니다**」라고 적었는데 `mkspec3` 의 낱말 매칭은 부정문을 못 봐 그 「인덱스」에 걸려 kind=인덱스가 됐다",
+   "behavior_change": true,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[7]/consts[1]/meaning",
+   "kind": "실오류",
+   "old": "★귀환 HP 임계. hp_ratio < 51 (=HP 50% 이하)이면 귀환 후보. ★**오라클 8/8 **: 경계가 **정확히 50/51** 이다( 재확인 49/50·51/52 24/24). 세 번째 OR 항이 `hp < max && in_heal_area` 인 것도 확증. SubPlan 5=Recall · 11=EpicHunt 로 귀결되는 것을 런타임 확인(**이 행 자체는 HP 임계**이지 태그가 아니다)",
+   "new": "★귀환 HP 임계(순서비교 문턱). hp_ratio < 51 (=HP 50% 이하)이면 귀환 후보. ★**오라클 8/8 **: 경계가 **정확히 50/51** 이다( 재확인 49/50·51/52 24/24). 세 번째 OR 항이 `hp < max && in_heal_area` 인 것도 확증. SubPlan 5=Recall · 11=EpicHunt 로 귀결되는 것을 런타임 확인(**이 행 자체는 HP 임계**이지 코드값이 아니다)",
+   "evidence": "m02.ll:49087 `%94 = icmp ult i64 %33, 51` — **순서비교** 문턱이다. `meaning` 이 「태그가 **아니다**」라 적었는데 부정문을 못 봐 kind=태그로 뒤집혔다",
+   "behavior_change": true,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[10]/consts[1]/meaning",
+   "kind": "실오류",
+   "old": "마스크 결과 기대값 0x000300 — byte1(phase)==3(ObjectPhase::Hunt) & byte0(tag)∈{0=Morgard,1=Serpen}. 리터럴 3 은 3<<8 로 접혀 본문에 없다 · 오라클 실행 확증( 오라클 `_verify6/C/o5_mask.out §O6-E` — MainObjective 25 케이스의 3바이트를 날바이트로 읽어 `(v&65534)==768` 을 평가, **통과 집합이 Morgard/Serpen×Hunt×with_battle 4개와 정확히 일치**(오검출 0))",
+   "new": "마스크 결과의 **동등비교 기대 태그값** 0x000300 — byte1(phase)==3(ObjectPhase::Hunt) & byte0(tag)∈{0=Morgard,1=Serpen}. 리터럴 3 은 3<<8 로 접혀 본문에 없다 · 오라클 실행 확증( 오라클 `_verify6/C/o5_mask.out §O6-E` — MainObjective 25 케이스의 3바이트를 날바이트로 읽어 `(v&65534)==768` 을 평가, **통과 집합이 Morgard/Serpen×Hunt×with_battle 4개와 정확히 일치**(오검출 0))",
+   "evidence": "m10.ll:49633 `%9 = icmp eq i24 %8, 768` — 동등비교의 기대값이다(순서비교 0건). `mkspec3` 에 이 종류를 가리키는 낱말이 없어 잔여 버킷 `임계` 로 떨어져 있었다",
+   "behavior_change": true,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[11]/consts[4]/meaning",
+   "kind": "실오류",
+   "old": "LineType::Mid — 싱글레인 플랜의 라인 고정값 · 오라클 실행 확증( 오라클 `_verify5/C/o11.out §S11`(게임모드 게이트 — `SingleLaneGame::new`/`DeathMatchGame::new` 로 modetag 0/1/2 실제 생성, 6168B 바이트 diff))",
+   "new": "LineType::Mid 판별자 1 — 싱글레인 플랜의 라인 고정값 · 오라클 실행 확증( 오라클 `_verify5/C/o11.out §S11`(게임모드 게이트 — `SingleLaneGame::new`/`DeathMatchGame::new` 로 modetag 0/1/2 실제 생성, 6168B 바이트 diff))",
+   "evidence": "m13.ll:12290 `store i8 1`(SinglePlanLine 의 line 필드) — 열거형 판별자다. m13.ll:12319~12327 `switch i8 %40, label %41 [ i8 0,… i8 6,… ]` · m13.ll:12353~12356 `[ i8 0 · i8 2 · i8 7 · i8 8 ]` — **switch 케이스 라벨**이다. IR 범위 12238~12479 의 순서비교는 `icmp ult i64 %1, 2`(version) · `icmp ult i8 %53, -6` · `icmp ult i8 %66, -7` 셋뿐이고 이 값들과 무관 ⟹ 임계일 수 없다",
+   "behavior_change": true,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[11]/consts[6]/meaning",
+   "kind": "실오류",
+   "old": "TutorialType::None — 모든 허용집합(라인/에픽/세르펜/정글)에 공통 포함 · 오라클 실행 확증( 오라클 `_verify5/C/o11.out §R1` 171/171 (`line_exists`·`morgard_exists`·`serpen_exists`·`position_exists`·`goal_allowed` 19열 × tutorial 9행 전수))",
+   "new": "TutorialType::None 판별자 0 — 모든 허용집합(라인/에픽/세르펜/정글)에 공통 포함 · 오라클 실행 확증( 오라클 `_verify5/C/o11.out §R1` 171/171 (`line_exists`·`morgard_exists`·`serpen_exists`·`position_exists`·`goal_allowed` 19열 × tutorial 9행 전수))",
+   "evidence": "m13.ll:12319~12327 `switch i8 %40, label %41 [ i8 0,… i8 6,… ]` · m13.ll:12353~12356 `[ i8 0 · i8 2 · i8 7 · i8 8 ]` — **switch 케이스 라벨**이다. IR 범위 12238~12479 의 순서비교는 `icmp ult i64 %1, 2`(version) · `icmp ult i8 %53, -6` · `icmp ult i8 %66, -7` 셋뿐이고 이 값들과 무관 ⟹ 임계일 수 없다",
+   "behavior_change": true,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[11]/consts[7]/meaning",
+   "kind": "실오류",
+   "old": "TutorialType::First — Bottom 라인 목표 허용집합에만 포함 · 오라클 실행 확증( 오라클 `_verify5/C/o11.out §R1` 171/171 (`line_exists`·`morgard_exists`·`serpen_exists`·`position_exists`·`goal_allowed` 19열 × tutorial 9행 전수))",
+   "new": "TutorialType::First 판별자 1 — Bottom 라인 목표 허용집합에만 포함 · 오라클 실행 확증( 오라클 `_verify5/C/o11.out §R1` 171/171 (`line_exists`·`morgard_exists`·`serpen_exists`·`position_exists`·`goal_allowed` 19열 × tutorial 9행 전수))",
+   "evidence": "m13.ll:12319~12327 `switch i8 %40, label %41 [ i8 0,… i8 6,… ]` · m13.ll:12353~12356 `[ i8 0 · i8 2 · i8 7 · i8 8 ]` — **switch 케이스 라벨**이다. IR 범위 12238~12479 의 순서비교는 `icmp ult i64 %1, 2`(version) · `icmp ult i8 %53, -6` · `icmp ult i8 %66, -7` 셋뿐이고 이 값들과 무관 ⟹ 임계일 수 없다",
+   "behavior_change": true,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[11]/consts[8]/meaning",
+   "kind": "보강",
+   "old": "TutorialType::TopSolo — Top 라인 목표 허용집합 · 오라클 실행 확증( 오라클 `_verify5/C/o11.out §R1` 171/171 (`line_exists`·`morgard_exists`·`serpen_exists`·`position_exists`·`goal_allowed` 19열 × tutorial 9행 전수))",
+   "new": "TutorialType::TopSolo 판별자 2 — Top 라인 목표 허용집합 · 오라클 실행 확증( 오라클 `_verify5/C/o11.out §R1` 171/171 (`line_exists`·`morgard_exists`·`serpen_exists`·`position_exists`·`goal_allowed` 19열 × tutorial 9행 전수))",
+   "evidence": "m13.ll:12319~12327 `switch i8 %40, label %41 [ i8 0,… i8 6,… ]` · m13.ll:12353~12356 `[ i8 0 · i8 2 · i8 7 · i8 8 ]` — **switch 케이스 라벨**이다. IR 범위 12238~12479 의 순서비교는 `icmp ult i64 %1, 2`(version) · `icmp ult i8 %53, -6` · `icmp ult i8 %66, -7` 셋뿐이고 이 값들과 무관 ⟹ 임계일 수 없다",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[11]/consts[9]/meaning",
+   "kind": "실오류",
+   "old": "TutorialType::Bottom — Bottom 라인 목표 허용집합 · 오라클 실행 확증( 오라클 `_verify5/C/o11.out §R1` 171/171 (`line_exists`·`morgard_exists`·`serpen_exists`·`position_exists`·`goal_allowed` 19열 × tutorial 9행 전수))",
+   "new": "TutorialType::Bottom 판별자 3 — Bottom 라인 목표 허용집합 · 오라클 실행 확증( 오라클 `_verify5/C/o11.out §R1` 171/171 (`line_exists`·`morgard_exists`·`serpen_exists`·`position_exists`·`goal_allowed` 19열 × tutorial 9행 전수))",
+   "evidence": "m13.ll:12319~12327 `switch i8 %40, label %41 [ i8 0,… i8 6,… ]` · m13.ll:12353~12356 `[ i8 0 · i8 2 · i8 7 · i8 8 ]` — **switch 케이스 라벨**이다. IR 범위 12238~12479 의 순서비교는 `icmp ult i64 %1, 2`(version) · `icmp ult i8 %53, -6` · `icmp ult i8 %66, -7` 셋뿐이고 이 값들과 무관 ⟹ 임계일 수 없다",
+   "behavior_change": true,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[11]/consts[10]/meaning",
+   "kind": "실오류",
+   "old": "TutorialType::MidSolo — Mid 라인 목표 허용집합 · 오라클 실행 확증( 오라클 `_verify5/C/o11.out §R1` 171/171 (`line_exists`·`morgard_exists`·`serpen_exists`·`position_exists`·`goal_allowed` 19열 × tutorial 9행 전수))",
+   "new": "TutorialType::MidSolo 판별자 4 — Mid 라인 목표 허용집합 · 오라클 실행 확증( 오라클 `_verify5/C/o11.out §R1` 171/171 (`line_exists`·`morgard_exists`·`serpen_exists`·`position_exists`·`goal_allowed` 19열 × tutorial 9행 전수))",
+   "evidence": "m13.ll:12319~12327 `switch i8 %40, label %41 [ i8 0,… i8 6,… ]` · m13.ll:12353~12356 `[ i8 0 · i8 2 · i8 7 · i8 8 ]` — **switch 케이스 라벨**이다. IR 범위 12238~12479 의 순서비교는 `icmp ult i64 %1, 2`(version) · `icmp ult i8 %53, -6` · `icmp ult i8 %66, -7` 셋뿐이고 이 값들과 무관 ⟹ 임계일 수 없다",
+   "behavior_change": true,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[11]/consts[11]/meaning",
+   "kind": "실오류",
+   "old": "TutorialType::MidBottom — Mid/Bottom 라인 + Serpen 허용집합 · 오라클 실행 확증( 오라클 `_verify5/C/o11.out §R1` 171/171 (`line_exists`·`morgard_exists`·`serpen_exists`·`position_exists`·`goal_allowed` 19열 × tutorial 9행 전수))",
+   "new": "TutorialType::MidBottom 판별자 5 — Mid/Bottom 라인 + Serpen 허용집합 · 오라클 실행 확증( 오라클 `_verify5/C/o11.out §R1` 171/171 (`line_exists`·`morgard_exists`·`serpen_exists`·`position_exists`·`goal_allowed` 19열 × tutorial 9행 전수))",
+   "evidence": "m13.ll:12319~12327 `switch i8 %40, label %41 [ i8 0,… i8 6,… ]` · m13.ll:12353~12356 `[ i8 0 · i8 2 · i8 7 · i8 8 ]` — **switch 케이스 라벨**이다. IR 범위 12238~12479 의 순서비교는 `icmp ult i64 %1, 2`(version) · `icmp ult i8 %53, -6` · `icmp ult i8 %66, -7` 셋뿐이고 이 값들과 무관 ⟹ 임계일 수 없다",
+   "behavior_change": true,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[11]/consts[12]/meaning",
+   "kind": "실오류",
+   "old": "TutorialType::JungleOnly — Jungle 목표를 추가로 허용시키는 별도 항(icmp eq) · 오라클 실행 확증( 오라클 `_verify5/C/o11.out §R1` 171/171 (`line_exists`·`morgard_exists`·`serpen_exists`·`position_exists`·`goal_allowed` 19열 × tutorial 9행 전수))",
+   "new": "TutorialType::JungleOnly 판별자 6 — Jungle 목표를 추가로 허용시키는 별도 항(icmp eq) · 오라클 실행 확증( 오라클 `_verify5/C/o11.out §R1` 171/171 (`line_exists`·`morgard_exists`·`serpen_exists`·`position_exists`·`goal_allowed` 19열 × tutorial 9행 전수))",
+   "evidence": "m13.ll:12319~12327 `switch i8 %40, label %41 [ i8 0,… i8 6,… ]` · m13.ll:12353~12356 `[ i8 0 · i8 2 · i8 7 · i8 8 ]` — **switch 케이스 라벨**이다. IR 범위 12238~12479 의 순서비교는 `icmp ult i64 %1, 2`(version) · `icmp ult i8 %53, -6` · `icmp ult i8 %66, -7` 셋뿐이고 이 값들과 무관 ⟹ 임계일 수 없다",
+   "behavior_change": true,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[11]/consts[13]/meaning",
+   "kind": "실오류",
+   "old": "TutorialType::Line — 라인 3종 + Epic + Serpen 허용집합 · 오라클 실행 확증( 오라클 `_verify5/C/o11.out §R1` 171/171 (`line_exists`·`morgard_exists`·`serpen_exists`·`position_exists`·`goal_allowed` 19열 × tutorial 9행 전수))",
+   "new": "TutorialType::Line 판별자 7 — 라인 3종 + Epic + Serpen 허용집합 · 오라클 실행 확증( 오라클 `_verify5/C/o11.out §R1` 171/171 (`line_exists`·`morgard_exists`·`serpen_exists`·`position_exists`·`goal_allowed` 19열 × tutorial 9행 전수))",
+   "evidence": "m13.ll:12319~12327 `switch i8 %40, label %41 [ i8 0,… i8 6,… ]` · m13.ll:12353~12356 `[ i8 0 · i8 2 · i8 7 · i8 8 ]` — **switch 케이스 라벨**이다. IR 범위 12238~12479 의 순서비교는 `icmp ult i64 %1, 2`(version) · `icmp ult i8 %53, -6` · `icmp ult i8 %66, -7` 셋뿐이고 이 값들과 무관 ⟹ 임계일 수 없다",
+   "behavior_change": true,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[11]/consts[14]/meaning",
+   "kind": "실오류",
+   "old": "TutorialType::Total — 전 목표 허용집합 · 오라클 실행 확증( 오라클 `_verify5/C/o11.out §R1` 171/171 (`line_exists`·`morgard_exists`·`serpen_exists`·`position_exists`·`goal_allowed` 19열 × tutorial 9행 전수))",
+   "new": "TutorialType::Total 판별자 8 — 전 목표 허용집합 · 오라클 실행 확증( 오라클 `_verify5/C/o11.out §R1` 171/171 (`line_exists`·`morgard_exists`·`serpen_exists`·`position_exists`·`goal_allowed` 19열 × tutorial 9행 전수))",
+   "evidence": "m13.ll:12319~12327 `switch i8 %40, label %41 [ i8 0,… i8 6,… ]` · m13.ll:12353~12356 `[ i8 0 · i8 2 · i8 7 · i8 8 ]` — **switch 케이스 라벨**이다. IR 범위 12238~12479 의 순서비교는 `icmp ult i64 %1, 2`(version) · `icmp ult i8 %53, -6` · `icmp ult i8 %66, -7` 셋뿐이고 이 값들과 무관 ⟹ 임계일 수 없다",
+   "behavior_change": true,
+   "found_by": "new"
+  }
+ ],
+ "ev_up": [],
+ "brief_errors": [
+  "§1 「임계 111행」이 틀렸다 — 정본 `specs20_v3.json` 실측은 **임계 107 · 태그 64 · 센티널 9 · 인덱스 6 = 186** 이다(`Counter(c['kind'])`). 111 은 어느 판에도 없다.",
+  "지시문의 후보 3벌 실측치 「26/40 · 72/186 · 6건」이 전부 실행값과 다르다 — 내가 그대로 돌린 결과는 **B 102/186 · C 68/186(+판정보류 20) · D 52/186(R1 0·R2 12·R3 40)** 이다. 어느 인자로 돌려도 26·40·72·6 은 안 나온다.",
+  "★지시문의 IR 오프코드 매핑 `phi·select·store`→태그 가 **틀렸다**. `store`/`phi`/`select` 는 「값을 산출한다」만 말할 뿐 **태그와 산출값을 가르지 못한다** — 가르려면 목적지 슬롯이 열거형 판별자인지 알아야 하고 그건 IR 오프코드가 아니라 `tcx`/`dienum` 의 영역이다. 나는 이 매핑을 그대로 쓴 초판에서 `15 c0`·`17 c1`·`18 c2~c6`(전부 STORE 로만 관측되는 정상 태그 행)을 오적발했다.",
+  "★지시문의 `gep`→인덱스 매핑도 **틀렸다**. 불투명 포인터 시대의 LLVM 은 구조체 필드 접근을 전부 `getelementptr i8, ptr %p, i64 <바이트>` 로 정규화하므로 GEP 인덱스는 **배열 첨자가 아니라 바이트 오프셋**이고, 값의 종류를 전혀 말해 주지 않는다. 초판이 이 매핑으로 **7건을 오적발**했다(`02 c4` 태그 16 ↔ `m12.ll:34916` 의 구조체 `+0x10` 등). ⟹ GEP 는 기각 근거에서 빼고 구제에만 써야 한다.",
+  "★§5 표의 `errors[].kind` 어휘 3종(`실오류`/`오탐`/`보강`)으로는 이 축의 주된 판정을 낼 수 없다. 이 축의 결론 중 **53행은 「동작은 확정인데 명세 칸에 담을 형식이 없다」 = `표기 불가`**(§5-b 어휘)다 — `계수`·`산출값`·`길이`·`비트마스크` 넷은 현행 4종 어휘에 칸이 없어 `meaning` 을 어떻게 고쳐도 못 옮긴다. 지시문은 「고칠 자리는 `meaning` 이거나 파생 규칙」이라고만 적고 **`meaning` 으로 고칠 수 있는 범위가 현행 4종 안뿐**이라는 한계를 안 적었다.",
+  "§0 신선도 확인은 `FRESH` 였다(착수 시·제출 직전 2회). 다만 `dossierfresh.py` 는 `_gates\\consts_kind\\` 의 후보 3벌을 스탬프에 안 넣는다 — 이 라운드의 실질 입력인데 신선도 밖이다.",
+  "★★`applypatch.py` 의 `already()` 버그 — `new[:80]` **부분문자열**로 「이미 적용」을 판정하므로, **긴 `meaning` 의 꼬리만 고치는 정정은 조용히 버려진다**. 이 패치 초판의 `06 c0`·`07 c1`(이 라운드에서 가장 확실한 2건 = 부정문 자기모순)이 실제로 그렇게 삼켜졌다(`정정 47/47 … (이미 적용 2)`). 이 도구의 존재 이유가 「조용한 no-op 금지」인데 그걸 이 함수가 뚫고 있다 — `already()` 는 앞 80자가 아니라 **전체 문자열 동일성**을 봐야 한다. 나는 머리쪽 문면도 같이 고쳐 우회했지만 근본 수정이 필요하다.",
+  "★**7차 배치C `C_kind_proposal.json` 37행에 대한 부분 반전(= 오류 1건으로 셀다)** — 그 제안은 `/specs[i]/consts[j]/kind` 경로라 **원천 적용 불가**인 채 남아 있었다(같은 라운드의 배치A 가 「파생 필드는 못 쓴다」를 적발했는데 제안 파일은 안 고쳌다). 내가 전수를 IR 로 다시 본 결과 **11행(10 c1 · 11 c4/c6~c14)은 확인**해 `meaning` 패치로 번역했고, **26행(13·14 부시 ID)의 `인덱스` 라벨은 기각**했다. 근거: 그 26행은 `select` 로 산출될 뿐 이 함수 IR 이 그 값으로 첫자를 때리는 자리가 **0건**(GEP/MINMAX/ARITH 없음)이라 `임계`(지지 0) → `인덱스`(지지 0) 는 진전이 아니라 **라벨 교체**다. 실제로 넣고 시뮬레이션했더니 게이트의 강한 적발이 **16 → 28 로 늘었다** ⇒ 내 패치를 내가 반증하고 물렸다. 그 26행의 참된 소속은 `산출값` 이고 그건 현행 4종에 칸이 없다 ⇒ **표기 불가**"
+ ]
+}

@@ -1,0 +1,95 @@
+#B6_o1 ⓐ offset_of! 일괄 대조 — specs[5..9] mem 전량
+#spec	row	type	field	got	expect	verdict
+OFF	06	mem[0]	OperationData	cache	0x0	0x0	OK
+OFF	06	mem[1]	OperationData	context	0x8	0x8	OK
+OFF	06	mem[2]	OperationData	blackboard	0x10	0x10	OK
+OFF	06	mem[3]	PlayerState	info.team	0x930	0x930	OK
+OFF	06	mem[4]	PlayerState	info.position	0x9c0	0x9c0	OK
+OFF	06	mem[5]	AbstractGameWithCache	game	0x0	0x0	OK
+OFF	06	mem[6]	AbstractGameWithCache	player_champion	0x1e0	0x1e0	OK
+OFF	06	mem[7]	Entity	x	0x660	0x660	OK
+OFF	06	mem[8]	Entity	y	0x668	0x668	OK
+OFF	06	mem[9]	Entity	id	0x5c0	0x5c0	OK
+OFF	06	mem[10]	GameContext	pool	0x0	0x0	OK
+OFF	06	mem[11]	GameContext	setting	0x8	0x8	OK
+OFF	06	mem[12]	GameSetting	tick_per_second	0x12f8	0x12f8	OK
+OFF	07	mem[0]	PlayerState	info.team	0x930	0x930	OK
+OFF	07	mem[1]	PlayerState	info.position	0x9c0	0x9c0	OK
+OFF	07	mem[2]	OperationData	cache	0x0	0x0	OK
+OFF	07	mem[3]	OperationData	context	0x8	0x8	OK
+OFF	07	mem[4]	AbstractGameWithCache	game	0x0	0x0	OK
+OFF	07	mem[5]	AbstractGameWithCache	player_champion	0x1e0	0x1e0	OK
+OFF	07	mem[10]	GameContext	setting	0x8	0x8	OK
+OFF	07	mem[11]	GameContext	map	0x20	0x20	OK
+OFF	07	mem[12]	GameSetting	tick_per_second	0x12f8	0x12f8	OK
+OFF	07	mem[13]	MapDef	fountains	0x6d70	0x6d70	OK
+OFF	07	mem[14]	Entity	hp	0x670	0x670	OK
+OFF	07	mem[15]	Entity	stat_cached.hp	0x628	0x628	OK
+OFF	07	mem[16]	Entity	x	0x660	0x660	OK
+OFF	07	mem[17]	Entity	y	0x668	0x668	OK
+OFF	08	mem[2]	PlayerState	info.team	0x930	0x930	OK
+OFF	08	mem[3]	OperationData	cache	0x0	0x0	OK
+OFF	08	mem[4]	OperationData	context	0x8	0x8	OK
+OFF	08	mem[5]	OperationData	blackboard	0x10	0x10	OK
+OFF	08	mem[6]	GameContext	setting	0x8	0x8	OK
+OFF	08	mem[7]	GameContext	map	0x20	0x20	OK
+OFF	08	mem[8]	GameSetting	tick_per_second	0x12f8	0x12f8	OK
+OFF	08	mem[9]	AbstractGameWithCache	game	0x0	0x0	OK
+OFF	08	mem[11]	AbstractGameWithCache	player_champion	0x1e0	0x1e0	OK
+OFF	08	mem[19]	Entity	x	0x660	0x660	OK
+OFF	08	mem[20]	Entity	y	0x668	0x668	OK
+OFF	09	mem[0]	PlayerState	info.team	0x930	0x930	OK
+OFF	09	mem[1]	PlayerState	info.position	0x9c0	0x9c0	OK
+OFF	09	mem[2]	OperationData	cache	0x0	0x0	OK
+OFF	09	mem[3]	OperationData	context	0x8	0x8	OK
+OFF	09	mem[4]	AbstractGameWithCache	player_champion	0x1e0	0x1e0	OK
+OFF	09	mem[5]	GameContext	setting	0x8	0x8	OK
+OFF	09	mem[6]	GameContext	map	0x20	0x20	OK
+OFF	09	mem[7]	GameSetting	tick_per_second	0x12f8	0x12f8	OK
+OFF	09	mem[8]	MapDef	fountains	0x6d70	0x6d70	OK
+OFF	09	mem[9]	Entity	id	0x5c0	0x5c0	OK
+OFF	09	mem[10]	Entity	stat_cached.hp	0x628	0x628	OK
+OFF	09	mem[11]	Entity	x	0x660	0x660	OK
+OFF	09	mem[12]	Entity	y	0x668	0x668	OK
+OFF	09	mem[13]	Entity	hp	0x670	0x670	OK
+OFF	05	mem[19]	LegacyPlanHandler	plan	0x5e8	0x5e8	OK
+OFF	05	mem[20]	LegacyPlanHandler	last_dive_abandon_tick	0x1480	0x1480	OK
+OFF	05	mem[22]	LegacyPlanHandler	v50_dive_episodes	0x888	0x888	OK
+OFF	07	mem[18]	game_ai::GoalData	epic.epic_ally_tick	0x98	0x98	OK
+OFF	07	mem[19]	game_ai::GoalData	epic.epic_ally_killed_tick	0xa0	0xa0	OK
+OFF	05	rec+0x00	V50DiveEpisode	max_catch_break	0x0	0x0	OK
+OFF	05	rec+0x08	V50DiveEpisode	uncatch_total	0x8	0x8	OK
+OFF	05	rec+0x10	V50DiveEpisode	start_tick	0x10	0x10	OK
+OFF	05	rec+0x18	V50DiveEpisode	end_tick	0x18	0x18	OK
+OFF	05	rec+0x20	V50DiveEpisode	ep_ticks	0x20	0x20	OK
+OFF	05	rec+0x28	V50DiveEpisode	in_range_ticks	0x28	0x28	OK
+OFF	05	rec+0x30	V50DiveEpisode	holder_ticks	0x30	0x30	OK
+OFF	05	rec+0x38	V50DiveEpisode	team_holder_ticks	0x38	0x38	OK
+OFF	05	rec+0x40	V50DiveEpisode	minion_cover_ticks	0x40	0x40	OK
+OFF	05	rec+0x48	V50DiveEpisode	soaked_hp	0x48	0x48	OK
+OFF	05	rec+0x50	V50DiveEpisode	start_race_adv	0x50	0x50	OK
+OFF	05	rec+0x54	V50DiveEpisode	target_pos	0x54	0x54	OK
+OFF	05	rec+0x58	V50DiveEpisode	abort_src	0x58	0x58	OK
+OFF	05	rec+0x59	V50DiveEpisode	start_model	0x59	0x59	OK
+OFF	05	rec+0x5a	V50DiveEpisode	start_na	0x5a	0x5a	OK
+OFF	05	rec+0x5b	V50DiveEpisode	start_ne	0x5b	0x5b	OK
+OFF	05	rec+0x5c	V50DiveEpisode	start_tgt_hp	0x5c	0x5c	OK
+OFF	05	rec+0x5d	V50DiveEpisode	end_reason	0x5d	0x5d	OK
+OFF	05	rec+0x5e	V50DiveEpisode	end_plan	0x5e	0x5e	OK
+OFF	05	rec+0x5f	V50DiveEpisode	tower	0x5f	0x5f	OK
+OFF	05	rec+0x60	V50DiveEpisode	start_in_range	0x60	0x60	OK
+OFF	05	rec+0x61	V50DiveEpisode	aborted	0x61	0x61	OK
+#DBGOFF
+DBG	0x570	raw_i64	-1	exp=-1(None)	OK
+DBG	0x570	debug_says_None	true
+DBG	0x1811	raw_u8	0	debug_says_same	true
+DBG	0x1811	sentinel_171	true
+DBG	0x1811	changed_fields	[1] v50_dive_ep_abort_src: 0 => v50_dive_ep_abort_src: 171
+#SIZE
+SIZE	LegacyPlanHandler	6168	6168	OK
+SIZE	V50DiveEpisode	104	104	OK
+SIZE	OperationData	24	24	OK
+SIZE	GameContext	64	64	OK
+SIZE	PlayerState	2528	2528	OK
+SIZE	Entity	1728	1728	OK
+SIZE	AbstractGameWithCache	8840	8840	OK

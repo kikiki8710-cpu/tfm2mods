@@ -1,0 +1,95 @@
+setting_ok	true	width=960000	height=960000	tps=60	champ_radius=10000	visible=130000
+towers	16	twin0=2	twin1=2
+size	Effect=56	Option<Effect>=56	Entity=1728	EntityType=480	Champion=112
+niche	None_casting_i32=-1	Some(Targeting)_casting_i32=0
+base	c.id=18	c.level=1	c.radius=10000	c.ty_tag=13	t.radius=10000	c.sbc.range=0	c.sbc.radius_mult=0
+base_cd	attack=0	skill=0	skill2=0	ult=0	attack_effect_is_some=true	skill2_getter_is_some=false
+effect_offsets	attack_effect@+0x490	skill_effect@+0x4c8	skill2_effect@+0x500	ult_effect@+0x538	level@+0x5c8	radius@+0x680	sbc.range@+0x438	sbc.radius_mult@+0x470
+range_adjust	attack=0	Effect::range(level1)=1000
+lvlgate	level=1	skill2_getter_some=false	ult_getter_some=false
+L	tick=40	game=3600	mine=3600	MATCH	lvl=1	cd=(0,0,0)	sbcR=0	rmC=0	rmT=0
+lvlgate	level=2	skill2_getter_some=false	ult_getter_some=false
+L	tick=40	game=3620	mine=3620	MATCH	lvl=2	cd=(0,0,0)	sbcR=0	rmC=0	rmT=0
+lvlgate	level=3	skill2_getter_some=true	ult_getter_some=false
+L	tick=40	game=4660	mine=4660	MATCH	lvl=3	cd=(0,0,0)	sbcR=0	rmC=0	rmT=0
+lvlgate	level=4	skill2_getter_some=true	ult_getter_some=false
+L	tick=40	game=4690	mine=4690	MATCH	lvl=4	cd=(0,0,0)	sbcR=0	rmC=0	rmT=0
+lvlgate	level=5	skill2_getter_some=true	ult_getter_some=true
+L	tick=40	game=5760	mine=5760	MATCH	lvl=5	cd=(0,0,0)	sbcR=0	rmC=0	rmT=0
+lvlgate	level=6	skill2_getter_some=true	ult_getter_some=true
+L	tick=40	game=5800	mine=5800	MATCH	lvl=6	cd=(0,0,0)	sbcR=0	rmC=0	rmT=0
+lvlgate	level=7	skill2_getter_some=true	ult_getter_some=true
+L	tick=40	game=5840	mine=5840	MATCH	lvl=7	cd=(0,0,0)	sbcR=0	rmC=0	rmT=0
+lvlgate	level=18	skill2_getter_some=true	ult_getter_some=true
+L	tick=40	game=6280	mine=6280	MATCH	lvl=18	cd=(0,0,0)	sbcR=0	rmC=0	rmT=0
+cdA0	tick=40	game=5840	mine=5840	MATCH	lvl=7	cd=(0,0,0)	sbcR=0	rmC=0	rmT=0
+cdS0	tick=40	game=5840	mine=5840	MATCH	lvl=7	cd=(0,0,0)	sbcR=0	rmC=0	rmT=0
+cdS2_0	tick=40	game=5840	mine=5840	MATCH	lvl=7	cd=(0,0,0)	sbcR=0	rmC=0	rmT=0
+cdU0	tick=40	game=5840	mine=5840	MATCH	lvl=7	cd=(0,0,0)	sbcR=0	rmC=0	rmT=0
+cdA39	tick=40	game=5840	mine=5840	MATCH	lvl=7	cd=(39,0,0)	sbcR=0	rmC=0	rmT=0
+cdS39	tick=40	game=5840	mine=5840	MATCH	lvl=7	cd=(0,39,0)	sbcR=0	rmC=0	rmT=0
+cdS2_39	tick=40	game=5840	mine=5840	MATCH	lvl=7	cd=(0,0,0)	sbcR=0	rmC=0	rmT=0
+cdU39	tick=40	game=5840	mine=5840	MATCH	lvl=7	cd=(0,0,39)	sbcR=0	rmC=0	rmT=0
+cdA40	tick=40	game=5840	mine=5840	MATCH	lvl=7	cd=(40,0,0)	sbcR=0	rmC=0	rmT=0
+cdS40	tick=40	game=5840	mine=5840	MATCH	lvl=7	cd=(0,40,0)	sbcR=0	rmC=0	rmT=0
+cdS2_40	tick=40	game=5840	mine=5840	MATCH	lvl=7	cd=(0,0,0)	sbcR=0	rmC=0	rmT=0
+cdU40	tick=40	game=5840	mine=5840	MATCH	lvl=7	cd=(0,0,40)	sbcR=0	rmC=0	rmT=0
+cdA41	tick=40	game=5840	mine=5840	MATCH	lvl=7	cd=(41,0,0)	sbcR=0	rmC=0	rmT=0
+cdS41	tick=40	game=5840	mine=5840	MATCH	lvl=7	cd=(0,41,0)	sbcR=0	rmC=0	rmT=0
+cdS2_41	tick=40	game=5840	mine=5840	MATCH	lvl=7	cd=(0,0,0)	sbcR=0	rmC=0	rmT=0
+cdU41	tick=40	game=4780	mine=4780	MATCH	lvl=7	cd=(0,0,41)	sbcR=0	rmC=0	rmT=0
+cdA1000	tick=40	game=5840	mine=5840	MATCH	lvl=7	cd=(1000,0,0)	sbcR=0	rmC=0	rmT=0
+cdS1000	tick=40	game=5840	mine=5840	MATCH	lvl=7	cd=(0,1000,0)	sbcR=0	rmC=0	rmT=0
+cdS2_1000	tick=40	game=5840	mine=5840	MATCH	lvl=7	cd=(0,0,0)	sbcR=0	rmC=0	rmT=0
+cdU1000	tick=40	game=4780	mine=4780	MATCH	lvl=7	cd=(0,0,1000)	sbcR=0	rmC=0	rmT=0
+tk0	tick=0	game=5840	mine=5840	MATCH	lvl=7	cd=(45,55,0)	sbcR=0	rmC=0	rmT=0
+tk39	tick=39	game=5840	mine=5840	MATCH	lvl=7	cd=(45,55,0)	sbcR=0	rmC=0	rmT=0
+tk40	tick=40	game=5840	mine=5840	MATCH	lvl=7	cd=(45,55,0)	sbcR=0	rmC=0	rmT=0
+tk44	tick=44	game=5840	mine=5840	MATCH	lvl=7	cd=(45,55,0)	sbcR=0	rmC=0	rmT=0
+tk45	tick=45	game=5840	mine=5840	MATCH	lvl=7	cd=(45,55,0)	sbcR=0	rmC=0	rmT=0
+tk50	tick=50	game=5840	mine=5840	MATCH	lvl=7	cd=(45,55,0)	sbcR=0	rmC=0	rmT=0
+tk54	tick=54	game=5840	mine=5840	MATCH	lvl=7	cd=(45,55,0)	sbcR=0	rmC=0	rmT=0
+tk55	tick=55	game=5840	mine=5840	MATCH	lvl=7	cd=(45,55,0)	sbcR=0	rmC=0	rmT=0
+tk60	tick=60	game=5840	mine=5840	MATCH	lvl=7	cd=(45,55,0)	sbcR=0	rmC=0	rmT=0
+rm0_0	tick=40	game=5840	mine=5840	MATCH	lvl=7	cd=(0,0,0)	sbcR=0	rmC=0	rmT=0
+rm50_0	tick=40	game=6190	mine=6190	MATCH	lvl=7	cd=(0,0,0)	sbcR=0	rmC=50	rmT=0
+rm0_50	tick=40	game=6290	mine=6290	MATCH	lvl=7	cd=(0,0,0)	sbcR=0	rmC=0	rmT=50
+rm100_100	tick=40	game=7440	mine=7440	MATCH	lvl=7	cd=(0,0,0)	sbcR=0	rmC=100	rmT=100
+rm-50_0	tick=40	game=5490	mine=5490	MATCH	lvl=7	cd=(0,0,0)	sbcR=0	rmC=-50	rmT=0
+rm1_0	tick=40	game=5847	mine=5847	MATCH	lvl=7	cd=(0,0,0)	sbcR=0	rmC=1	rmT=0
+sbc0	tick=40	game=5840	mine=5840	MATCH	lvl=7	cd=(0,0,0)	sbcR=0	rmC=0	rmT=0
+sbc1	tick=40	game=5841	mine=5841	MATCH	lvl=7	cd=(0,0,0)	sbcR=1	rmC=0	rmT=0
+sbc777	tick=40	game=6617	mine=6617	MATCH	lvl=7	cd=(0,0,0)	sbcR=777	rmC=0	rmT=0
+sbc100000	tick=40	game=105840	mine=105840	MATCH	lvl=7	cd=(0,0,0)	sbcR=100000	rmC=0	rmT=0
+ctgt	EnemyChampion	check=true
+ctEnemyChampion	tick=40	game=5840	mine=5840	MATCH	lvl=7	cd=(0,0,0)	sbcR=0	rmC=0	rmT=0
+ctgt	Enemy	check=true
+ctEnemy	tick=40	game=5840	mine=5840	MATCH	lvl=7	cd=(0,0,0)	sbcR=0	rmC=0	rmT=0
+ctgt	Ally	check=false
+ctAlly	tick=40	game=5840	mine=5840	MATCH	lvl=7	cd=(0,0,0)	sbcR=0	rmC=0	rmT=0
+ctgt	AllyChampion	check=false
+ctAllyChampion	tick=40	game=5840	mine=5840	MATCH	lvl=7	cd=(0,0,0)	sbcR=0	rmC=0	rmT=0
+ctgt	None	check=false
+ctNone	tick=40	game=5840	mine=5840	MATCH	lvl=7	cd=(0,0,0)	sbcR=0	rmC=0	rmT=0
+ctgt	Both	check=true
+ctBoth	tick=40	game=5840	mine=5840	MATCH	lvl=7	cd=(0,0,0)	sbcR=0	rmC=0	rmT=0
+ctgt	EnemyChampionInCC	check=false
+ctEnemyChampionInCC	tick=40	game=5840	mine=5840	MATCH	lvl=7	cd=(0,0,0)	sbcR=0	rmC=0	rmT=0
+ctgt	EnemyChampionRecentlyAttacked	check=false
+ctEnemyChampionRecentlyAttacked	tick=40	game=5840	mine=5840	MATCH	lvl=7	cd=(0,0,0)	sbcR=0	rmC=0	rmT=0
+noA	tick=40	game=5840	mine=5840	MATCH	lvl=7	cd=(0,0,0)	sbcR=0	rmC=0	rmT=0
+noS	tick=40	game=5840	mine=5840	MATCH	lvl=7	cd=(0,0,0)	sbcR=0	rmC=0	rmT=0
+noS2	tick=40	game=5840	mine=5840	MATCH	lvl=7	cd=(0,0,0)	sbcR=0	rmC=0	rmT=0
+noU	tick=40	game=4780	mine=4780	MATCH	lvl=7	cd=(0,0,0)	sbcR=0	rmC=0	rmT=0
+allNone	tick=40	game=0	mine=0	MATCH	lvl=7	cd=(0,0,0)	sbcR=0	rmC=0	rmT=0
+maxA	tick=40	game=91600	mine=91600	MATCH	lvl=7	cd=(0,0,0)	sbcR=0	rmC=0	rmT=0
+maxA_cdblocked	tick=40	game=5840	mine=5840	MATCH	lvl=7	cd=(1000,0,0)	sbcR=0	rmC=0	rmT=0
+maxA_others_blocked	tick=40	game=91600	mine=91600	MATCH	lvl=7	cd=(0,1000,1000)	sbcR=0	rmC=0	rmT=0
+tyChampion_cd9999	tick=40	game=0	mine=0	MATCH	lvl=7	cd=(9999,9999,9999)	sbcR=0	rmC=0	rmT=0
+tycd	Nexus	attack_cd=0	skill_cd=0	skill2_cd=0	ult_cd=0
+tyNexus	tick=40	game=5840	mine=5840	MATCH	lvl=7	cd=(0,0,0)	sbcR=0	rmC=0	rmT=0
+tycd	None	attack_cd=0	skill_cd=0	skill2_cd=0	ult_cd=0
+tyNone	tick=40	game=5840	mine=5840	MATCH	lvl=7	cd=(0,0,0)	sbcR=0	rmC=0	rmT=0
+reorder	fw=[3600, 3620, 4660, 4690, 5760, 5800, 5840, 5880]	bw=[3600, 3620, 4660, 4690, 5760, 5800, 5840, 5880]	same=true
+TOTAL	66/66	MATCH
+DONE	setting_ok=true

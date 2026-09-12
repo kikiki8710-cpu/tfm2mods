@@ -1,0 +1,57 @@
+setting_ok	true
+#R	ally_x	to_base	e2b	game	theory	verdict
+R	913000	13000	26000	true	true	MATCH
+R	925999	1	26000	true	true	MATCH
+R	926000	0	26000	true	true	MATCH
+R	951999	25999	26000	true	true	MATCH
+R	952000	26000	26000	false	false	MATCH
+R	952001	26001	26000	false	false	MATCH
+R	955000	29000	26000	false	false	MATCH
+R_SUMMARY	mismatch=0
+XCHK	n=3000	mismatch=0	true=789	branch[front=648 rear=784 flank_from_rear=24 flank=453 else1307=0]
+#SENS	knob	value	true_count	delta_vs_base(789)	else1307
+SENS	nfront(1280)	1	804	+15	199
+SENS	nfront(1280)	2	799	+10	0
+SENS	nfront(1280)	3	795	+6	0
+SENS	nfront(1280)	4	789	+0	0
+SENS	nfront(1280)	5	787	-2	0
+SENS	nfront(1280)	8	785	-4	0
+SENS	nfront(1280)	16	783	-6	0
+SENS	nrear(1283)	0	827	+38	0
+SENS	nrear(1283)	1	827	+38	0
+SENS	nrear(1283)	5	805	+16	0
+SENS	nrear(1283)	9	789	+0	0
+SENS	nrear(1283)	25	721	-68	0
+SENS	nrear(1283)	50	661	-128	0
+SENS	nrear(1283)	91	538	-251	0
+SENS	nrear(1283)	100	418	-371	241
+SENS	nflank(1286)	0	789	+0	0
+SENS	nflank(1286)	1	789	+0	0
+SENS	nflank(1286)	5	789	+0	0
+SENS	nflank(1286)	9	789	+0	0
+SENS	nflank(1286)	25	789	+0	0
+SENS	nflank(1286)	50	789	+0	0
+SENS	nflank(1286)	74	789	+0	0
+SENS	nflank(1286)	75	789	+0	0
+SENS	nflank(1286)	80	787	-2	37
+SENS	nflank(1286)	91	784	-5	121
+SENS	nflank(1286)	99	765	-24	363
+SENS	nflank(1286)	100	755	-34	453
+SENS	hp(1240)	0	1148	+359	0
+SENS	hp(1240)	20	993	+204	0
+SENS	hp(1240)	39	800	+11	0
+SENS	hp(1240)	40	789	+0	0
+SENS	hp(1240)	41	778	-11	0
+SENS	hp(1240)	60	545	-244	0
+SENS	hp(1240)	80	273	-516	0
+SENS	hp(1240)	101	0	-789	0
+SENS	slack(1246)	0	471	-318	0
+SENS	slack(1246)	50000	622	-167	0
+SENS	slack(1246)	100000	789	+0	0
+SENS	slack(1246)	200000	1119	+330	0
+SENS	slack(1246)	400000	1468	+679	0
+SENS	ratio_rhs(1340)	1	768	-21	0
+SENS	ratio_rhs(1340)	3	782	-7	0
+SENS	ratio_rhs(1340)	6	789	+0	0
+SENS	ratio_rhs(1340)	12	795	+6	0
+SENS	ratio_rhs(1340)	100	803	+14	0

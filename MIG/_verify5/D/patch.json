@@ -1,0 +1,775 @@
+{
+ "round": 5,
+ "batch": "D",
+ "errors": [],
+ "ev_up": [
+  {
+   "path": "/specs[16]/mem[0]",
+   "from": 4,
+   "to": 2,
+   "evidence": "5차 배치D 오라클 game==mine 236/236"
+  },
+  {
+   "path": "/specs[16]/mem[1]",
+   "from": 4,
+   "to": 2,
+   "evidence": "5차 배치D 오라클 game==mine 236/236"
+  },
+  {
+   "path": "/specs[16]/mem[2]",
+   "from": 4,
+   "to": 2,
+   "evidence": "5차 배치D 오라클 game==mine 236/236"
+  },
+  {
+   "path": "/specs[16]/mem[3]",
+   "from": 4,
+   "to": 2,
+   "evidence": "5차 배치D 오라클 game==mine 236/236"
+  },
+  {
+   "path": "/specs[16]/mem[4]",
+   "from": 4,
+   "to": 2,
+   "evidence": "5차 배치D 오라클 game==mine 236/236"
+  },
+  {
+   "path": "/specs[16]/mem[9]",
+   "from": 4,
+   "to": 2,
+   "evidence": "5차 배치D 오라클 game==mine 236/236"
+  },
+  {
+   "path": "/specs[16]/mem[11]",
+   "from": 4,
+   "to": 2,
+   "evidence": "5차 배치D 오라클 game==mine 236/236"
+  },
+  {
+   "path": "/specs[16]/mem[12]",
+   "from": 4,
+   "to": 2,
+   "evidence": "5차 배치D 오라클 game==mine 236/236"
+  },
+  {
+   "path": "/specs[16]/mem[13]",
+   "from": 4,
+   "to": 2,
+   "evidence": "5차 배치D 오라클 game==mine 236/236"
+  },
+  {
+   "path": "/specs[16]/mem[14]",
+   "from": 4,
+   "to": 2,
+   "evidence": "5차 배치D 오라클 game==mine 236/236"
+  },
+  {
+   "path": "/specs[16]/mem[15]",
+   "from": 4,
+   "to": 2,
+   "evidence": "5차 배치D 오라클 game==mine 236/236"
+  },
+  {
+   "path": "/specs[16]/mem[16]",
+   "from": 4,
+   "to": 2,
+   "evidence": "5차 배치D 오라클 game==mine 236/236"
+  },
+  {
+   "path": "/specs[16]/mem[17]",
+   "from": 4,
+   "to": 2,
+   "evidence": "5차 배치D 오라클 game==mine 236/236"
+  },
+  {
+   "path": "/specs[16]/mem[18]",
+   "from": 4,
+   "to": 2,
+   "evidence": "5차 배치D 오라클 game==mine 236/236"
+  },
+  {
+   "path": "/specs[16]/mem[19]",
+   "from": 4,
+   "to": 2,
+   "evidence": "5차 배치D 오라클 game==mine 236/236"
+  },
+  {
+   "path": "/specs[16]/mem[20]",
+   "from": 4,
+   "to": 2,
+   "evidence": "5차 배치D 오라클 game==mine 236/236"
+  },
+  {
+   "path": "/specs[16]/mem[21]",
+   "from": 4,
+   "to": 2,
+   "evidence": "5차 배치D 오라클 game==mine 236/236"
+  },
+  {
+   "path": "/specs[16]/mem[22]",
+   "from": 4,
+   "to": 2,
+   "evidence": "5차 배치D 오라클 game==mine 236/236"
+  },
+  {
+   "path": "/specs[16]/mem[23]",
+   "from": 4,
+   "to": 2,
+   "evidence": "5차 배치D 오라클 game==mine 236/236"
+  },
+  {
+   "path": "/specs[16]/mem[24]",
+   "from": 4,
+   "to": 2,
+   "evidence": "5차 배치D 오라클 game==mine 236/236"
+  },
+  {
+   "path": "/specs[16]/mem[25]",
+   "from": 4,
+   "to": 2,
+   "evidence": "5차 배치D 오라클 game==mine 236/236"
+  },
+  {
+   "path": "/specs[16]/mem[26]",
+   "from": 4,
+   "to": 2,
+   "evidence": "5차 배치D 오라클 game==mine 236/236"
+  },
+  {
+   "path": "/specs[16]/mem[27]",
+   "from": 4,
+   "to": 2,
+   "evidence": "5차 배치D 오라클 game==mine 236/236"
+  },
+  {
+   "path": "/specs[16]/mem[28]",
+   "from": 4,
+   "to": 2,
+   "evidence": "5차 배치D 오라클 game==mine 236/236"
+  },
+  {
+   "path": "/specs[16]/mem[29]",
+   "from": 4,
+   "to": 2,
+   "evidence": "5차 배치D 오라클 game==mine 236/236"
+  },
+  {
+   "path": "/specs[16]/mem[30]",
+   "from": 4,
+   "to": 2,
+   "evidence": "5차 배치D 오라클 game==mine 236/236"
+  },
+  {
+   "path": "/specs[16]/consts[0]",
+   "from": 4,
+   "to": 2,
+   "evidence": "5차 배치D 오라클 game==mine 236/236"
+  },
+  {
+   "path": "/specs[16]/consts[1]",
+   "from": 4,
+   "to": 2,
+   "evidence": "5차 배치D 오라클 game==mine 236/236"
+  },
+  {
+   "path": "/specs[16]/consts[2]",
+   "from": 4,
+   "to": 2,
+   "evidence": "5차 배치D 오라클 game==mine 236/236"
+  },
+  {
+   "path": "/specs[16]/consts[3]",
+   "from": 4,
+   "to": 2,
+   "evidence": "5차 배치D 오라클 game==mine 236/236"
+  },
+  {
+   "path": "/specs[16]/consts[4]",
+   "from": 4,
+   "to": 2,
+   "evidence": "5차 배치D 오라클 game==mine 236/236"
+  },
+  {
+   "path": "/specs[16]/consts[5]",
+   "from": 4,
+   "to": 2,
+   "evidence": "5차 배치D 오라클 game==mine 236/236"
+  },
+  {
+   "path": "/specs[16]/consts[6]",
+   "from": 4,
+   "to": 2,
+   "evidence": "5차 배치D 오라클 game==mine 236/236"
+  },
+  {
+   "path": "/specs[16]/knobs[0]",
+   "from": 4,
+   "to": 2,
+   "evidence": "5차 배치D 오라클 game==mine 236/236"
+  },
+  {
+   "path": "/specs[16]/knobs[1]",
+   "from": 4,
+   "to": 2,
+   "evidence": "5차 배치D 오라클 game==mine 236/236"
+  },
+  {
+   "path": "/specs[16]/knobs[2]",
+   "from": 4,
+   "to": 2,
+   "evidence": "5차 배치D 오라클 game==mine 236/236"
+  },
+  {
+   "path": "/specs[16]/knobs[3]",
+   "from": 4,
+   "to": 2,
+   "evidence": "5차 배치D 오라클 game==mine 236/236"
+  },
+  {
+   "path": "/specs[16]/knobs[4]",
+   "from": 4,
+   "to": 2,
+   "evidence": "5차 배치D 오라클 game==mine 236/236"
+  },
+  {
+   "path": "/specs[17]/mem[0]",
+   "from": 4,
+   "to": 2,
+   "evidence": "5차 배치D 오라클 game==mine 236/236"
+  },
+  {
+   "path": "/specs[17]/mem[1]",
+   "from": 4,
+   "to": 2,
+   "evidence": "5차 배치D 오라클 game==mine 236/236"
+  },
+  {
+   "path": "/specs[17]/mem[2]",
+   "from": 4,
+   "to": 2,
+   "evidence": "5차 배치D 오라클 game==mine 236/236"
+  },
+  {
+   "path": "/specs[17]/mem[3]",
+   "from": 4,
+   "to": 2,
+   "evidence": "5차 배치D 오라클 game==mine 236/236"
+  },
+  {
+   "path": "/specs[17]/mem[4]",
+   "from": 4,
+   "to": 2,
+   "evidence": "5차 배치D 오라클 game==mine 236/236"
+  },
+  {
+   "path": "/specs[17]/mem[5]",
+   "from": 3,
+   "to": 2,
+   "evidence": "5차 배치D 오라클 game==mine 236/236"
+  },
+  {
+   "path": "/specs[17]/mem[6]",
+   "from": 4,
+   "to": 2,
+   "evidence": "5차 배치D 오라클 game==mine 236/236"
+  },
+  {
+   "path": "/specs[17]/mem[7]",
+   "from": 4,
+   "to": 2,
+   "evidence": "5차 배치D 오라클 game==mine 236/236"
+  },
+  {
+   "path": "/specs[17]/mem[8]",
+   "from": 4,
+   "to": 2,
+   "evidence": "5차 배치D 오라클 game==mine 236/236"
+  },
+  {
+   "path": "/specs[17]/mem[9]",
+   "from": 4,
+   "to": 2,
+   "evidence": "5차 배치D 오라클 game==mine 236/236"
+  },
+  {
+   "path": "/specs[17]/mem[10]",
+   "from": 4,
+   "to": 2,
+   "evidence": "5차 배치D 오라클 game==mine 236/236"
+  },
+  {
+   "path": "/specs[17]/mem[11]",
+   "from": 4,
+   "to": 2,
+   "evidence": "5차 배치D 오라클 game==mine 236/236"
+  },
+  {
+   "path": "/specs[17]/mem[12]",
+   "from": 4,
+   "to": 2,
+   "evidence": "5차 배치D 오라클 game==mine 236/236"
+  },
+  {
+   "path": "/specs[17]/mem[13]",
+   "from": 4,
+   "to": 2,
+   "evidence": "5차 배치D 오라클 game==mine 236/236"
+  },
+  {
+   "path": "/specs[17]/mem[14]",
+   "from": 4,
+   "to": 2,
+   "evidence": "5차 배치D 오라클 game==mine 236/236"
+  },
+  {
+   "path": "/specs[17]/mem[15]",
+   "from": 4,
+   "to": 2,
+   "evidence": "5차 배치D 오라클 game==mine 236/236"
+  },
+  {
+   "path": "/specs[17]/mem[16]",
+   "from": 4,
+   "to": 2,
+   "evidence": "5차 배치D 오라클 game==mine 236/236"
+  },
+  {
+   "path": "/specs[17]/mem[17]",
+   "from": 4,
+   "to": 2,
+   "evidence": "5차 배치D 오라클 game==mine 236/236"
+  },
+  {
+   "path": "/specs[17]/mem[18]",
+   "from": 4,
+   "to": 2,
+   "evidence": "5차 배치D 오라클 game==mine 236/236"
+  },
+  {
+   "path": "/specs[17]/mem[19]",
+   "from": 4,
+   "to": 2,
+   "evidence": "5차 배치D 오라클 game==mine 236/236"
+  },
+  {
+   "path": "/specs[17]/mem[20]",
+   "from": 4,
+   "to": 2,
+   "evidence": "5차 배치D 오라클 game==mine 236/236"
+  },
+  {
+   "path": "/specs[17]/mem[21]",
+   "from": 4,
+   "to": 2,
+   "evidence": "5차 배치D 오라클 game==mine 236/236"
+  },
+  {
+   "path": "/specs[17]/mem[22]",
+   "from": 4,
+   "to": 2,
+   "evidence": "5차 배치D 오라클 game==mine 236/236"
+  },
+  {
+   "path": "/specs[17]/mem[23]",
+   "from": 4,
+   "to": 2,
+   "evidence": "5차 배치D 오라클 game==mine 236/236"
+  },
+  {
+   "path": "/specs[17]/mem[24]",
+   "from": 4,
+   "to": 2,
+   "evidence": "5차 배치D 오라클 game==mine 236/236"
+  },
+  {
+   "path": "/specs[17]/mem[25]",
+   "from": 4,
+   "to": 2,
+   "evidence": "5차 배치D 오라클 game==mine 236/236"
+  },
+  {
+   "path": "/specs[17]/mem[26]",
+   "from": 4,
+   "to": 2,
+   "evidence": "5차 배치D 오라클 game==mine 236/236"
+  },
+  {
+   "path": "/specs[17]/mem[27]",
+   "from": 4,
+   "to": 2,
+   "evidence": "5차 배치D 오라클 game==mine 236/236"
+  },
+  {
+   "path": "/specs[17]/mem[28]",
+   "from": 4,
+   "to": 2,
+   "evidence": "5차 배치D 오라클 game==mine 236/236"
+  },
+  {
+   "path": "/specs[17]/mem[29]",
+   "from": 4,
+   "to": 2,
+   "evidence": "5차 배치D 오라클 game==mine 236/236"
+  },
+  {
+   "path": "/specs[17]/mem[30]",
+   "from": 4,
+   "to": 2,
+   "evidence": "5차 배치D 오라클 game==mine 236/236"
+  },
+  {
+   "path": "/specs[17]/mem[31]",
+   "from": 4,
+   "to": 2,
+   "evidence": "5차 배치D 오라클 game==mine 236/236"
+  },
+  {
+   "path": "/specs[17]/mem[32]",
+   "from": 4,
+   "to": 2,
+   "evidence": "5차 배치D 오라클 game==mine 236/236"
+  },
+  {
+   "path": "/specs[17]/mem[33]",
+   "from": 4,
+   "to": 2,
+   "evidence": "5차 배치D 오라클 game==mine 236/236"
+  },
+  {
+   "path": "/specs[17]/mem[34]",
+   "from": 4,
+   "to": 2,
+   "evidence": "5차 배치D 오라클 game==mine 236/236"
+  },
+  {
+   "path": "/specs[17]/mem[35]",
+   "from": 4,
+   "to": 2,
+   "evidence": "5차 배치D 오라클 game==mine 236/236"
+  },
+  {
+   "path": "/specs[17]/mem[36]",
+   "from": 3,
+   "to": 2,
+   "evidence": "5차 배치D 오라클 game==mine 236/236"
+  },
+  {
+   "path": "/specs[17]/mem[37]",
+   "from": 3,
+   "to": 2,
+   "evidence": "5차 배치D 오라클 game==mine 236/236"
+  },
+  {
+   "path": "/specs[17]/mem[38]",
+   "from": 3,
+   "to": 2,
+   "evidence": "5차 배치D 오라클 game==mine 236/236"
+  },
+  {
+   "path": "/specs[17]/mem[39]",
+   "from": 4,
+   "to": 2,
+   "evidence": "5차 배치D 오라클 game==mine 236/236"
+  },
+  {
+   "path": "/specs[17]/mem[40]",
+   "from": 4,
+   "to": 2,
+   "evidence": "5차 배치D 오라클 game==mine 236/236"
+  },
+  {
+   "path": "/specs[17]/mem[41]",
+   "from": 3,
+   "to": 2,
+   "evidence": "5차 배치D 오라클 game==mine 236/236"
+  },
+  {
+   "path": "/specs[17]/mem[42]",
+   "from": 4,
+   "to": 2,
+   "evidence": "5차 배치D 오라클 game==mine 236/236"
+  },
+  {
+   "path": "/specs[17]/consts[0]",
+   "from": 4,
+   "to": 2,
+   "evidence": "5차 배치D 오라클 game==mine 236/236"
+  },
+  {
+   "path": "/specs[17]/consts[1]",
+   "from": 4,
+   "to": 2,
+   "evidence": "5차 배치D 오라클 game==mine 236/236"
+  },
+  {
+   "path": "/specs[17]/consts[2]",
+   "from": 4,
+   "to": 2,
+   "evidence": "5차 배치D 오라클 game==mine 236/236"
+  },
+  {
+   "path": "/specs[17]/consts[3]",
+   "from": 4,
+   "to": 2,
+   "evidence": "5차 배치D 오라클 game==mine 236/236"
+  },
+  {
+   "path": "/specs[17]/knobs[0]",
+   "from": 4,
+   "to": 2,
+   "evidence": "5차 배치D 오라클 game==mine 236/236"
+  },
+  {
+   "path": "/specs[17]/knobs[1]",
+   "from": 4,
+   "to": 2,
+   "evidence": "5차 배치D 오라클 game==mine 236/236"
+  },
+  {
+   "path": "/specs[17]/knobs[2]",
+   "from": 4,
+   "to": 2,
+   "evidence": "5차 배치D 오라클 game==mine 236/236"
+  },
+  {
+   "path": "/specs[17]/knobs[3]",
+   "from": 4,
+   "to": 2,
+   "evidence": "5차 배치D 오라클 game==mine 236/236"
+  },
+  {
+   "path": "/specs[19]/mem[0]",
+   "from": 4,
+   "to": 2,
+   "evidence": "5차 배치D 오라클 game==mine 236/236"
+  },
+  {
+   "path": "/specs[19]/mem[1]",
+   "from": 4,
+   "to": 2,
+   "evidence": "5차 배치D 오라클 game==mine 236/236"
+  },
+  {
+   "path": "/specs[19]/mem[3]",
+   "from": 4,
+   "to": 2,
+   "evidence": "5차 배치D 오라클 game==mine 236/236"
+  },
+  {
+   "path": "/specs[19]/mem[4]",
+   "from": 4,
+   "to": 2,
+   "evidence": "5차 배치D 오라클 game==mine 236/236"
+  },
+  {
+   "path": "/specs[19]/mem[5]",
+   "from": 4,
+   "to": 2,
+   "evidence": "5차 배치D 오라클 game==mine 236/236"
+  },
+  {
+   "path": "/specs[19]/mem[6]",
+   "from": 3,
+   "to": 2,
+   "evidence": "5차 배치D 오라클 game==mine 236/236"
+  },
+  {
+   "path": "/specs[19]/mem[7]",
+   "from": 3,
+   "to": 2,
+   "evidence": "5차 배치D 오라클 game==mine 236/236"
+  },
+  {
+   "path": "/specs[19]/mem[8]",
+   "from": 4,
+   "to": 2,
+   "evidence": "5차 배치D 오라클 game==mine 236/236"
+  },
+  {
+   "path": "/specs[19]/mem[9]",
+   "from": 4,
+   "to": 2,
+   "evidence": "5차 배치D 오라클 game==mine 236/236"
+  },
+  {
+   "path": "/specs[19]/mem[10]",
+   "from": 4,
+   "to": 2,
+   "evidence": "5차 배치D 오라클 game==mine 236/236"
+  },
+  {
+   "path": "/specs[19]/mem[11]",
+   "from": 4,
+   "to": 2,
+   "evidence": "5차 배치D 오라클 game==mine 236/236"
+  },
+  {
+   "path": "/specs[19]/mem[12]",
+   "from": 4,
+   "to": 2,
+   "evidence": "5차 배치D 오라클 game==mine 236/236"
+  },
+  {
+   "path": "/specs[19]/mem[13]",
+   "from": 4,
+   "to": 2,
+   "evidence": "5차 배치D 오라클 game==mine 236/236"
+  },
+  {
+   "path": "/specs[19]/mem[15]",
+   "from": 4,
+   "to": 2,
+   "evidence": "5차 배치D 오라클 game==mine 236/236"
+  },
+  {
+   "path": "/specs[19]/consts[0]",
+   "from": 3,
+   "to": 2,
+   "evidence": "5차 배치D 오라클 game==mine 236/236"
+  },
+  {
+   "path": "/specs[19]/consts[1]",
+   "from": 4,
+   "to": 2,
+   "evidence": "5차 배치D 오라클 game==mine 236/236"
+  },
+  {
+   "path": "/specs[19]/consts[2]",
+   "from": 4,
+   "to": 2,
+   "evidence": "5차 배치D 오라클 game==mine 236/236"
+  },
+  {
+   "path": "/specs[19]/consts[3]",
+   "from": 4,
+   "to": 2,
+   "evidence": "5차 배치D 오라클 game==mine 236/236"
+  },
+  {
+   "path": "/specs[19]/consts[4]",
+   "from": 4,
+   "to": 2,
+   "evidence": "5차 배치D 오라클 game==mine 236/236"
+  },
+  {
+   "path": "/specs[19]/knobs[0]",
+   "from": 4,
+   "to": 2,
+   "evidence": "5차 배치D 오라클 game==mine 236/236"
+  },
+  {
+   "path": "/specs[19]/knobs[1]",
+   "from": 4,
+   "to": 2,
+   "evidence": "5차 배치D 오라클 game==mine 236/236"
+  },
+  {
+   "path": "/specs[19]/knobs[2]",
+   "from": 4,
+   "to": 2,
+   "evidence": "5차 배치D 오라클 game==mine 236/236"
+  },
+  {
+   "path": "/specs[19]/knobs[3]",
+   "from": 4,
+   "to": 2,
+   "evidence": "5차 배치D 오라클 game==mine 236/236"
+  },
+  {
+   "path": "/specs[19]/knobs[4]",
+   "from": 4,
+   "to": 2,
+   "evidence": "5차 배치D 오라클 game==mine 236/236"
+  },
+  {
+   "path": "/specs[19]/knobs[5]",
+   "from": 4,
+   "to": 2,
+   "evidence": "5차 배치D 오라클 game==mine 236/236"
+  },
+  {
+   "path": "/specs[19]/knobs[7]",
+   "from": 4,
+   "to": 2,
+   "evidence": "5차 배치D 오라클 game==mine 236/236"
+  },
+  {
+   "path": "/specs[15]/mem[4]",
+   "from": 4,
+   "to": 2,
+   "evidence": "5차 배치D 오라클 game==mine 236/236"
+  },
+  {
+   "path": "/specs[15]/mem[5]",
+   "from": 3,
+   "to": 2,
+   "evidence": "5차 배치D 오라클 game==mine 236/236"
+  },
+  {
+   "path": "/specs[15]/mem[6]",
+   "from": 4,
+   "to": 2,
+   "evidence": "5차 배치D 오라클 game==mine 236/236"
+  },
+  {
+   "path": "/specs[15]/mem[7]",
+   "from": 4,
+   "to": 2,
+   "evidence": "5차 배치D 오라클 game==mine 236/236"
+  },
+  {
+   "path": "/specs[15]/mem[8]",
+   "from": 3,
+   "to": 2,
+   "evidence": "5차 배치D 오라클 game==mine 236/236"
+  },
+  {
+   "path": "/specs[15]/mem[11]",
+   "from": 4,
+   "to": 2,
+   "evidence": "5차 배치D 오라클 game==mine 236/236"
+  },
+  {
+   "path": "/specs[15]/mem[12]",
+   "from": 4,
+   "to": 2,
+   "evidence": "5차 배치D 오라클 game==mine 236/236"
+  },
+  {
+   "path": "/specs[15]/mem[13]",
+   "from": 4,
+   "to": 2,
+   "evidence": "5차 배치D 오라클 game==mine 236/236"
+  },
+  {
+   "path": "/specs[15]/mem[14]",
+   "from": 4,
+   "to": 2,
+   "evidence": "5차 배치D 오라클 game==mine 236/236"
+  },
+  {
+   "path": "/specs[15]/mem[15]",
+   "from": 4,
+   "to": 2,
+   "evidence": "5차 배치D 오라클 game==mine 236/236"
+  },
+  {
+   "path": "/specs[15]/consts[0]",
+   "from": 4,
+   "to": 2,
+   "evidence": "5차 배치D 오라클 game==mine 236/236"
+  },
+  {
+   "path": "/specs[15]/consts[1]",
+   "from": 4,
+   "to": 2,
+   "evidence": "5차 배치D 오라클 game==mine 236/236"
+  },
+  {
+   "path": "/specs[15]/consts[3]",
+   "from": 3,
+   "to": 2,
+   "evidence": "5차 배치D 오라클 game==mine 236/236"
+  }
+ ]
+}

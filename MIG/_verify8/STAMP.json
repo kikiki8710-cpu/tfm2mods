@@ -1,0 +1,78 @@
+{
+ "A": {
+  "dossier": "4eb9b489967727e2",
+  "axis": "mem_dir",
+  "specs": [
+   "AXIS_ROWS_00-04.md",
+   "AXIS_ROWS_05-09.md",
+   "AXIS_ROWS_10-14.md",
+   "AXIS_ROWS_15-19.md"
+  ],
+  "spec_hashes": {
+   "AXIS_ROWS_00-04.md": "5523685b6294e533",
+   "AXIS_ROWS_05-09.md": "9d2ae3f00002170d",
+   "AXIS_ROWS_10-14.md": "e1938e5d17fc0c68",
+   "AXIS_ROWS_15-19.md": "75e9ab035463c07a"
+  },
+  "mkdossier": "afa6fb835148b584",
+  "v3": "ac8ad739aedeca8c",
+  "built": "2026-09-11 18:53:04"
+ },
+ "B": {
+  "dossier": "31da3117f14f96a3",
+  "axis": "consts_kind",
+  "specs": [
+   "AXIS_ROWS_00-04.md",
+   "AXIS_ROWS_05-09.md",
+   "AXIS_ROWS_10-14.md",
+   "AXIS_ROWS_15-19.md"
+  ],
+  "spec_hashes": {
+   "AXIS_ROWS_00-04.md": "8afc4f104ab945c4",
+   "AXIS_ROWS_05-09.md": "0245b963da318335",
+   "AXIS_ROWS_10-14.md": "0cad69a503fab935",
+   "AXIS_ROWS_15-19.md": "cb615d641c6d736b"
+  },
+  "mkdossier": "afa6fb835148b584",
+  "v3": "ac8ad739aedeca8c",
+  "built": "2026-09-11 18:53:04"
+ },
+ "C": {
+  "dossier": "805adb3a340a8531",
+  "axis": "params_role",
+  "specs": [
+   "AXIS_ROWS_00-04.md",
+   "AXIS_ROWS_05-09.md",
+   "AXIS_ROWS_10-14.md",
+   "AXIS_ROWS_15-19.md"
+  ],
+  "spec_hashes": {
+   "AXIS_ROWS_00-04.md": "d7bbf44cb6db5f5a",
+   "AXIS_ROWS_05-09.md": "455638b39a78d824",
+   "AXIS_ROWS_10-14.md": "3216a16a7f2e95bd",
+   "AXIS_ROWS_15-19.md": "1b7464f54ccc3d5e"
+  },
+  "mkdossier": "afa6fb835148b584",
+  "v3": "ac8ad739aedeca8c",
+  "built": "2026-09-11 18:53:05"
+ },
+ "D": {
+  "dossier": "5766b375d4c854f2",
+  "axis": "history_prop",
+  "specs": [
+   "AXIS_ROWS_00-04.md",
+   "AXIS_ROWS_05-09.md",
+   "AXIS_ROWS_10-14.md",
+   "AXIS_ROWS_15-19.md"
+  ],
+  "spec_hashes": {
+   "AXIS_ROWS_00-04.md": "8f6de070fb68d112",
+   "AXIS_ROWS_05-09.md": "2de3ec0d27978f6a",
+   "AXIS_ROWS_10-14.md": "03bba702e86bb422",
+   "AXIS_ROWS_15-19.md": "e1c72950707c84fd"
+  },
+  "mkdossier": "afa6fb835148b584",
+  "v3": "ac8ad739aedeca8c",
+  "built": "2026-09-11 18:53:05"
+ }
+}

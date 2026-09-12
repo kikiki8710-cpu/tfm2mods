@@ -1,0 +1,18 @@
+{
+ "round": "7",
+ "batch": "B",
+ "errors_applied": 1,
+ "ev_applied": 6,
+ "failed": 1,
+ "stamps": {
+  "/specs[5]/mem[27]/base": "b9f5c1e017f9e15a",
+  "/specs[5]/mem[27]/offset": "900238c4b7020617",
+  "/specs[5]/mem[27]/note": "2b0fffd3d2a8d676",
+  "/specs[6]/consts[0]/meaning": "6f2212b9c1117c57",
+  "/specs[7]/consts[1]/meaning": "a4bfa1c14da022de",
+  "/specs[7]/consts[5]/meaning": "c9f9e2f929e94c0f",
+  "/specs[8]/consts[0]/meaning": "f6ef54115ee66526",
+  "/specs[8]/consts[3]/meaning": "b50a11167bdd9fe7"
+ },
+ "restamped": true
+}

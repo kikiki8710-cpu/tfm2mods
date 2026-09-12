@@ -1,0 +1,15 @@
+### skill 1 0 tps=60
+RESULT	die_imminent(+0x0)=1	cc_threat(+0x1)=1	rnd_changed=false	debug_changed=false
+DIETICK	die=60	tps*2=120	die<tps*2=true	(명세 knobs[0])
+### skill 1 0 tps=30
+RESULT	die_imminent(+0x0)=0	cc_threat(+0x1)=1	rnd_changed=false	debug_changed=false
+DIETICK	die=60	tps*2=60	die<tps*2=false	(명세 knobs[0])
+### skill 1 0 tps=6
+RESULT	die_imminent(+0x0)=0	cc_threat(+0x1)=1	rnd_changed=false	debug_changed=false
+DIETICK	die=60	tps*2=12	die<tps*2=false	(명세 knobs[0])
+### skill 1 0 tps=1
+RESULT	die_imminent(+0x0)=0	cc_threat(+0x1)=1	rnd_changed=false	debug_changed=false
+DIETICK	die=60	tps*2=2	die<tps*2=false	(명세 knobs[0])
+### skill 1 0 tps=120
+RESULT	die_imminent(+0x0)=1	cc_threat(+0x1)=1	rnd_changed=false	debug_changed=false
+DIETICK	die=60	tps*2=240	die<tps*2=true	(명세 knobs[0])

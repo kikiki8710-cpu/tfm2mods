@@ -1,0 +1,12 @@
+o10_0	stack=false	thp=2000	twr_hp=0	viable=false	kdt_me=120000	kdt_tgt=120000
+o10_1	stack=false	thp=2000	twr_hp=1	viable=false	kdt_me=120000	kdt_tgt=120000
+o10_100	stack=false	thp=2000	twr_hp=100	viable=false	kdt_me=120000	kdt_tgt=120000
+o10_100000	stack=false	thp=2000	twr_hp=100000	viable=false	kdt_me=120000	kdt_tgt=120000
+o11_50	stack=true	thp=50	twr_hp=100	viable=true	kdt_me=120000	kdt_tgt=3000
+o11_2000	stack=true	thp=2000	twr_hp=100	viable=false	kdt_me=120000	kdt_tgt=120000
+o11_20000000	stack=true	thp=20000000	twr_hp=100	viable=false	kdt_me=120000	kdt_tgt=1200000000
+seq1_o11	stack=true	thp=50	twr_hp=100	viable=true	kdt_me=120000	kdt_tgt=3000
+seq2_o10	stack=false	thp=2000	twr_hp=0	viable=true	kdt_me=120000	kdt_tgt=3000
+seq3_o10again	stack=false	thp=2000	twr_hp=0	viable=true	kdt_me=120000	kdt_tgt=3000
+rseq1_o10	stack=false	thp=2000	twr_hp=0	viable=false	kdt_me=120000	kdt_tgt=120000
+rseq2_o11	stack=true	thp=50	twr_hp=100	viable=false	kdt_me=120000	kdt_tgt=120000

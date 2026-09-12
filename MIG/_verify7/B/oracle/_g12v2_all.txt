@@ -1,0 +1,230 @@
+
+===== specs[0] ult =====
+  consts[0 ] value=2          claim=L281    후보=[281, 328]                         OK(lit)
+  consts[1 ] value=4          claim=L286    후보=[286, 288]                         OK(lit)
+  consts[2 ] value=-1         claim=L281    후보=[192, 281, 283, 286, 289, 296, 310, 325, 333, 334] OK(lit)
+  consts[3 ] value=1          claim=L293    후보=[310, 336]                         (판정보류: 그 줄은 있는데 리터럴이 접힘)
+  consts[4 ] value=2          claim=L293    후보=[281, 328]                         (판정보류: 그 줄은 있는데 리터럴이 접힘)
+  consts[5 ] value=0          claim=L191    후보=[191, 192, 310, 328, 329, 330, 331, 333, 334, 336] OK(lit,phi<-143,phi@174)
+  consts[6 ] value=0          claim=L328    후보=[191, 192, 310, 328, 329, 330, 331, 333, 334, 336] OK(lit)
+  consts[7 ] value=100        claim=L333    후보=[191, 192, 333]                    OK(lit)
+  consts[8 ] value=5          claim=L326    후보=[281, 326]                         OK(lit)
+  consts[9 ] value=150000     claim=L333    후보=[333]                              OK(lit)
+
+===== specs[1] calculate_jungle_action_score =====
+  consts[0 ] value=2          claim=L522    후보=[522, 530, 542]                    OK(lit)
+  consts[1 ] value=3          claim=L526    후보=(미검출)                              (판정보류: 리터럴 미검출)
+  consts[2 ] value=200        claim=L526    후보=[523, 524, 526, 542, 548]          OK(phi<-22)
+  consts[3 ] value=2          claim=L528    후보=[522, 530, 542]                    (판정보류: 그 줄은 있는데 리터럴이 접힘)
+  consts[4 ] value=80         claim=L528    후보=[528, 542, 548]                    OK(phi<-37)
+  consts[5 ] value=4          claim=L530    후보=[542]                              (판정보류: 그 줄은 있는데 리터럴이 접힘)
+  consts[6 ] value=20         claim=L531    후보=[531]                              OK(lit)
+  consts[7 ] value=40         claim=L531    후보=[531]                              OK(lit)
+  consts[8 ] value=1          claim=L536    후보=(미검출)                              (판정보류: 리터럴 미검출)
+  consts[9 ] value=-10        claim=L536    후보=[536, 542, 548]                    OK(phi<-46)
+  consts[10] value=0          claim=L536    후보=[536, 542, 548]                    OK(phi<-45)
+  consts[11] value=5          claim=L542    후보=[522, 542]                         OK(lit)
+
+===== specs[2] sub_plan =====
+  consts[0 ] value=2          claim=L36     후보=[36, 47, 48, 52]                   OK(lit)
+  consts[1 ] value=5          claim=L42     후보=[36, 41, 52]                       **불일치**
+  consts[2 ] value=1          claim=L45     후보=[45, 48]                           OK(lit)
+  consts[3 ] value=0          claim=L45     후보=[45, 48]                           OK(lit)
+  consts[4 ] value=16         claim=L50     후보=[37, 45, 47, 52]                   **불일치**
+  consts[5 ] value=2          claim=L48     후보=[36, 47, 48, 52]                   OK(lit,phi<-61)
+
+===== specs[3] defensive_crisis =====
+  consts[0 ] value=1          claim=L22     후보=[22, 35, 41, 47, 48, 53]           OK(lit)
+  consts[1 ] value=13         claim=L43     후보=[41, 43]                           OK(lit)
+  consts[2 ] value=2          claim=L44     후보=[22, 41, 44]                       OK(lit)
+  consts[3 ] value=4          claim=L45     후보=[41, 45]                           OK(lit)
+  consts[4 ] value=-1         claim=L48     후보=[41, 47, 48]                       OK(lit)
+  consts[5 ] value=1          claim=L35     후보=[22, 35, 41, 47, 48, 53]           OK(lit)
+  consts[6 ] value=1          claim=L48     후보=[22, 35, 41, 47, 48, 53]           OK(lit)
+
+===== specs[4] handle_line_defense =====
+  consts[0 ] value=-1         claim=L549    후보=[549, 578]                         OK(lit)
+  consts[1 ] value=6          claim=L549    후보=[549]                              OK(lit)
+  consts[2 ] value=40000000001 claim=L572    후보=[572, 573]                         OK(lit)
+  consts[3 ] value=1          claim=L578    후보=[549, 555, 556, 567, 573, 578]     OK(lit)
+  consts[4 ] value=2          claim=L578    후보=[549, 553, 576, 578]               OK(lit)
+
+===== specs[5] v50_fold_dive_episode =====
+  consts[0 ] value=-1         claim=L131    후보=[131, 156]                         OK(lit)
+  consts[1 ] value=7          claim=L139    후보=[139, 152, 155]                    OK(lit)
+  consts[2 ] value=1          claim=L146    후보=[146, 155, 156, 157, 167]          OK(phi<-33)
+  consts[3 ] value=2          claim=L147    후보=[147, 155, 156, 157]               OK(phi<-36)
+  consts[4 ] value=3          claim=L148    후보=[148, 155]                         OK(phi<-41)
+  consts[5 ] value=4          claim=L149    후보=[149, 155, 156, 157]               OK(lit,phi<-46)
+  consts[6 ] value=5          claim=L150    후보=[150, 153, 155]                    OK(phi<-51)
+  consts[7 ] value=6          claim=L151    후보=[150, 151, 152, 155, 157]          OK(lit,phi<-56,phi<-61)
+  consts[8 ] value=7          claim=L152    후보=[139, 152, 155]                    OK(phi<-66)
+  consts[9 ] value=8          claim=L153    후보=[131, 138, 140, 145, 146, 148, 149, 150, 151, 152, 153, 155, 156, 157] OK(lit)
+  consts[10] value=9          claim=L153    후보=[153]                              OK(lit)
+  consts[11] value=11         claim=L146    후보=[146]                              OK(lit)
+  consts[12] value=13         claim=L147    후보=[147]                              OK(lit)
+  consts[13] value=12         claim=L151    후보=[151]                              OK(lit)
+
+===== specs[6] v2_response_retreat_stance =====
+  consts[0 ] value=2          claim=L14     후보=[14, 17]                           OK(lit)
+  consts[1 ] value=1          claim=L20     후보=[20, 24, 38]                       OK(lit)
+  consts[2 ] value=3          claim=L36     후보=[33, 36, 38]                       OK(phi<-124)
+  consts[3 ] value=4          claim=L38     후보=[17, 24, 25, 26, 27, 28, 30, 31, 32, 33, 38] OK(phi@127,phi@130)
+
+===== specs[7] sub_plan =====
+  consts[0 ] value=100        claim=L31     후보=[31]                               OK(lit)
+  consts[1 ] value=51         claim=L36     후보=[36]                               OK(lit)
+  consts[2 ] value=5          claim=L36     후보=[29, 36, 48]                       OK(phi<-93)
+  consts[3 ] value=9          claim=L43     후보=[42, 43, 48]                       OK(phi<-115)
+  consts[4 ] value=11         claim=L47     후보=[47, 48]                           OK(phi<-113)
+  consts[5 ] value=1          claim=L43     후보=[32, 43]                           OK(lit)
+  consts[6 ] value=0          claim=L32     후보=[31, 32, 35, 43, 47]               OK(lit)
+
+===== specs[8] is_end =====
+  consts[0 ] value=4          claim=L164    후보=[169, 174]                         (판정보류: 그 줄은 있는데 리터럴이 접힘)
+  consts[1 ] value=0          claim=L164    후보=[164, 169, 172, 193, 194]          OK(lit)
+  consts[2 ] value=1          claim=L172    후보=[164, 169, 172, 180, 193, 194]     OK(lit)
+  consts[3 ] value=32000      claim=L179    후보=[179]                              OK(lit)
+  consts[4 ] value=22500000000 claim=L184    후보=[184]                              OK(lit)
+  consts[5 ] value=15         claim=L194    후보=[194]                              OK(lit)
+
+===== specs[9] check_favorable_engage_formation =====
+  consts[0 ] value=2          claim=L1209   후보=[1203, 1280]                       (판정보류: 그 줄은 있는데 리터럴이 접힘)
+  consts[1 ] value=100000     claim=L1246   후보=(미검출)                              (판정보류: 리터럴 미검출)
+  consts[2 ] value=40         claim=L1240   후보=[1240]                             OK(lit)
+  consts[3 ] value=100        claim=L1240   후보=[1240, 1283, 1286]                 OK(lit)
+  consts[4 ] value=9          claim=L1283   후보=[1283, 1286]                       OK(lit/merged)
+  consts[5 ] value=4          claim=L1280   후보=[1233]                             (판정보류: 그 줄은 있는데 리터럴이 접힘)
+  consts[6 ] value=5          claim=L1340   후보=[1203, 1340]                       OK(lit)
+  consts[7 ] value=6          claim=L1340   후보=[1340]                             OK(lit)
+  consts[8 ] value=1          claim=L1223   후보=[1204, 1209, 1215, 1216, 1223, 1233, 1256, 1258, 1289, 1298, 1300, 1304, 1307, 1331] OK(lit)
+
+===== specs[10] should_end_object_finish_kill_priority_battle =====
+  consts[0 ] value=65534      claim=L1216   후보=[1216]                             OK(lit)
+  consts[1 ] value=768        claim=L1216   후보=[1216]                             OK(lit)
+  consts[2 ] value=0          claim=L1220   후보=[755, 1179, 1181, 1183, 1220, 1224, 1230, 1232] OK(lit)
+  consts[3 ] value=1          claim=L1229   후보=[1180, 1182, 1220, 1224, 1229]     OK(lit)
+  consts[4 ] value=25000      claim=L1233   후보=[1230, 1233]                       OK(lit)
+  consts[5 ] value=19600000000 claim=L1188   후보=(미검출)                              (판정보류: 리터럴 미검출)
+
+===== specs[11] v3_fall_back_to_passive =====
+  consts[0 ] value=2          claim=L417    후보=[417, 421]                         OK(lit)
+  consts[1 ] value=2          claim=L421    후보=[417, 421]                         OK(lit)
+  consts[2 ] value=1          claim=L424    후보=[424, 425, 429, 433]               OK(lit)
+  consts[3 ] value=4          claim=L425    후보=[425]                              OK(lit)
+  consts[4 ] value=1          claim=L425    후보=[424, 425, 429, 433]               OK(lit)
+  consts[5 ] value=0          claim=L425    후보=[421, 424, 425]                    OK(lit)
+  consts[6 ] value=0          claim=L429    후보=[421, 424, 425]                    (판정보류: 그 줄은 있는데 리터럴이 접힘)
+  consts[7 ] value=1          claim=L429    후보=[424, 425, 429, 433]               OK(lit)
+  consts[8 ] value=2          claim=L429    후보=[417, 421]                         (판정보류: 그 줄은 있는데 리터럴이 접힘)
+  consts[9 ] value=3          claim=L429    후보=(미검출)                              (판정보류: 리터럴 미검출)
+  consts[10] value=4          claim=L429    후보=[425]                              (판정보류: 그 줄은 있는데 리터럴이 접힘)
+  consts[11] value=5          claim=L429    후보=(미검출)                              (판정보류: 리터럴 미검출)
+  consts[12] value=6          claim=L429    후보=(미검출)                              (판정보류: 리터럴 미검출)
+  consts[13] value=7          claim=L429    후보=(미검출)                              (판정보류: 리터럴 미검출)
+  consts[14] value=8          claim=L429    후보=[410, 421, 425, 427, 429, 432, 433, 434, 435, 437] OK(lit)
+  consts[15] value=-7         claim=L429    후보=[429]                              OK(lit)
+  consts[16] value=-6         claim=L429    후보=[429]                              OK(lit)
+  consts[17] value=-8         claim=L429    후보=[429]                              OK(lit)
+  consts[18] value=29         claim=L432    후보=[410, 432]                         OK(lit)
+
+===== specs[12] handle_chat =====
+  consts[0 ] value=0          claim=L12     후보=[18]                               (판정보류: 그 줄은 있는데 리터럴이 접힘)
+  consts[1 ] value=1          claim=L12     후보=[18, 27]                           (판정보류: 그 줄은 있는데 리터럴이 접힘)
+  consts[2 ] value=2          claim=L12     후보=(미검출)                              (판정보류: 리터럴 미검출)
+  consts[3 ] value=3          claim=L12     후보=(미검출)                              (판정보류: 리터럴 미검출)
+  consts[4 ] value=4          claim=L12     후보=[27]                               (판정보류: 그 줄은 있는데 리터럴이 접힘)
+  consts[5 ] value=5          claim=L12     후보=(미검출)                              (판정보류: 리터럴 미검출)
+  consts[6 ] value=6          claim=L12     후보=(미검출)                              (판정보류: 리터럴 미검출)
+  consts[7 ] value=7          claim=L12     후보=(미검출)                              (판정보류: 리터럴 미검출)
+  consts[8 ] value=8          claim=L12     후보=[9, 12, 19, 22, 23, 24, 25, 26, 27, 28, 29, 31, 33, 34, 35, 36, 39] OK(lit)
+  consts[9 ] value=-8         claim=L12     후보=[12]                               OK(lit)
+  consts[10] value=-7         claim=L12     후보=[12]                               OK(lit)
+  consts[11] value=-9223372036854775793 claim=L27     후보=[27]                               OK(lit)
+
+===== specs[13] target_bush_v30 =====
+  consts[0 ] value=2          claim=L138    후보=[135, 138, 149, 164, 179]          OK(lit)
+  consts[1 ] value=16         claim=L138    후보=[138]                              OK(lit)
+  consts[2 ] value=4          claim=L139    후보=[139, 150, 164, 180]               OK(lit)
+  consts[3 ] value=17         claim=L139    후보=[139]                              OK(lit)
+  consts[4 ] value=9          claim=L140    후보=[140]                              OK(lit)
+  consts[5 ] value=21         claim=L140    후보=[140]                              OK(lit)
+  consts[6 ] value=3          claim=L151    후보=[151, 154, 156]                    OK(lit)
+  consts[7 ] value=6          claim=L154    후보=[151, 154, 156]                    OK(lit)
+  consts[8 ] value=13         claim=L168    후보=[168]                              OK(lit)
+  consts[9 ] value=18         claim=L168    후보=[168]                              OK(lit)
+  consts[10] value=8          claim=L166    후보=[135, 145, 150, 153, 160, 164, 165, 166, 171, 180, 183, 190] OK(lit)
+  consts[11] value=12         claim=L166    후보=[166]                              OK(lit)
+  consts[12] value=14         claim=L171    후보=[171]                              OK(lit)
+  consts[13] value=11         claim=L171    후보=[171]                              OK(lit)
+  consts[14] value=15         claim=L181    후보=[181, 184, 186]                    OK(lit)
+  consts[15] value=20         claim=L184    후보=[181, 184, 186]                    OK(lit)
+
+===== specs[14] update =====
+  consts[0 ] value=100        claim=L44     후보=[44]                               OK(lit)
+  consts[1 ] value=41         claim=L47     후보=[47]                               OK(lit)
+  consts[2 ] value=2          claim=L261    후보=[43, 54, 58, 252]                  (판정보류: 그 줄은 있는데 리터럴이 접힘)
+  consts[3 ] value=4          claim=L264    후보=[54, 253, 264, 278, 294]           OK(lit)
+  consts[4 ] value=0          claim=L252    후보=[44, 48, 54, 55, 265, 267, 295, 297] (판정보류: 그 줄은 있는데 리터럴이 접힘)
+  consts[5 ] value=32000      claim=L55     후보=[55]                               OK(lit)
+  consts[6 ] value=29         claim=L55     후보=[55]                               OK(lit)
+  consts[7 ] value=16         claim=L252    후보=[48, 54, 58, 252]                  OK(lit)
+  consts[8 ] value=17         claim=L253    후보=[48, 54, 58, 253]                  OK(lit)
+  consts[9 ] value=9          claim=L254    후보=[54, 254]                          OK(lit)
+  consts[10] value=21         claim=L254    후보=[54, 254]                          OK(lit)
+  consts[11] value=3          claim=L265    후보=[54, 265, 268, 270]                OK(lit)
+  consts[12] value=6          claim=L268    후보=[54, 265, 268, 270]                OK(lit)
+  consts[13] value=14         claim=L285    후보=[54, 285]                          OK(lit)
+  consts[14] value=11         claim=L285    후보=[54, 285]                          OK(lit)
+  consts[15] value=13         claim=L282    후보=[54, 282]                          OK(lit)
+  consts[16] value=18         claim=L282    후보=[54, 282]                          OK(lit)
+  consts[17] value=8          claim=L280    후보=[43, 44, 48, 54, 55, 57, 58, 249, 264, 267, 274, 278, 279, 280, 285, 294, 297, 304] OK(lit)
+  consts[18] value=12         claim=L280    후보=[54, 280]                          OK(lit)
+  consts[19] value=15         claim=L295    후보=[54, 295, 298, 300]                OK(lit)
+  consts[20] value=20         claim=L298    후보=[54, 295, 298, 300]                OK(lit)
+
+===== specs[15] single_try_engage =====
+  consts[0 ] value=0          claim=L253    후보=[248, 253]                         OK(lit)
+  consts[1 ] value=60         claim=L253    후보=[248, 253]                         OK(lit)
+  consts[2 ] value=1          claim=L249    후보=[249]                              OK(lit)
+  consts[3 ] value=2          claim=L250    후보=[250]                              OK(lit)
+  consts[4 ] value=-1         claim=L250    후보=[243, 249, 250, 251, 252, 257]     OK(lit,phi<-107,phi<-108,phi@118)
+  consts[5 ] value=3          claim=L256    후보=(미검출)                              (판정보류: 리터럴 미검출)
+  consts[6 ] value=4          claim=L256    후보=[249]                              (판정보류: 그 줄은 있는데 리터럴이 접힘)
+  consts[7 ] value=7          claim=L256    후보=(미검출)                              (판정보류: 리터럴 미검출)
+
+===== specs[16] max_range_nearly_can_use =====
+  consts[0 ] value=-1         claim=L2401   후보=[2399, 2403, 2407, 2410, 2414, 2417, 2421, 2424] **불일치**
+  consts[1 ] value=13         claim=L2409   후보=[2409, 2416, 2423]                 OK(lit)
+  consts[2 ] value=2          claim=L2414   후보=[2414]                             OK(lit)
+  consts[3 ] value=4          claim=L2421   후보=[2402, 2409, 2416, 2421, 2423]     OK(lit)
+  consts[4 ] value=100        claim=L2403   후보=[2403, 2410, 2417, 2424]           OK(lit)
+  consts[5 ] value=0          claim=L2398   후보=[2402, 2403, 2407, 2410, 2417, 2424] **불일치**
+  consts[6 ] value=3          claim=L2402   후보=(미검출)                              (판정보류: 리터럴 미검출)
+
+===== specs[17] new =====
+  consts[0 ] value=0          claim=L749    후보=[747, 749, 750, 753]               OK(lit)
+  consts[1 ] value=3          claim=L750    후보=[750]                              OK(lit)
+  consts[2 ] value=9223372036854775807 claim=L753    후보=[753]                              OK(lit)
+  consts[3 ] value=-1         claim=L753    후보=[753]                              OK(lit)
+
+===== specs[18] v3_epicops_buff_window =====
+  consts[0 ] value=1          claim=L635    후보=[637, 638, 642, 653, 654, 658, 667, 669, 670, 672] (판정보류: 그 줄은 있는데 리터럴이 접힘)
+  consts[1 ] value=2          claim=L635    후보=[666, 667, 668, 669, 670, 672, 673, 679] (판정보류: 그 줄은 있는데 리터럴이 접힘)
+  consts[2 ] value=7          claim=L637    후보=[637, 642]                         OK(lit)
+  consts[3 ] value=23         claim=L638    후보=[638, 658]                         OK(lit)
+  consts[4 ] value=25         claim=L654    후보=[658]                              (판정보류: 그 줄은 있는데 리터럴이 접힘)
+  consts[5 ] value=21         claim=L674    후보=(미검출)                              (판정보류: 리터럴 미검출)
+  consts[6 ] value=22         claim=L676    후보=(미검출)                              (판정보류: 리터럴 미검출)
+  consts[7 ] value=-1         claim=L665    후보=[665, 673]                         OK(lit)
+
+===== specs[19] best_jungle_goal =====
+  consts[0 ] value=0          claim=L807    후보=[807, 815, 817, 818, 819, 833, 834] OK(lit)
+  consts[1 ] value=1          claim=L807    후보=[807, 815, 818, 819, 829, 833, 834] OK(lit)
+  consts[2 ] value=3          claim=L807    후보=[807]                              OK(lit)
+  consts[3 ] value=2          claim=L807    후보=[807, 823]                         OK(lit)
+  consts[4 ] value=-1         claim=L825    후보=[821, 825, 836]                    OK(lit)
+
+========================================================================================
+검사 186행 · **불일치 4건** · 접힘 판정보류 19건
+========================================================================================

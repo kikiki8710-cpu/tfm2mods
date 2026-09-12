@@ -1,0 +1,28 @@
+{
+ "round": "9",
+ "batch": "C",
+ "errors_applied": 0,
+ "ev_applied": 0,
+ "failed": 1,
+ "stamps": {
+  "/specs[18]/knobs[6]/where": "10fff096b6defa8a",
+  "/specs[18]/knobs[7]/where": "83e4c059a8499d87",
+  "/specs[18]/knobs[8]/where": "9194eecc2aca2cbf",
+  "/specs[16]/knobs[8]/where": "2575099bd40740c9",
+  "/specs[0]/knobs[6]/value": "8266a6072f5ed434",
+  "/specs[1]/knobs[6]/value": "4ffdd118373713d8",
+  "/specs[5]/knobs[5]/value": "7087ff11f62a908e",
+  "/specs[5]/knobs[6]/value": "a8d474f8f976d95c",
+  "/specs[9]/knobs[7]/value": "a2f8394cc3bb5771",
+  "/specs[9]/knobs[8]/value": "d993c60fe2184552",
+  "/specs[9]/knobs[9]/value": "f7ac8eaeb82f7c3c",
+  "/specs[16]/knobs[6]/value": "213de42aa40d46d9",
+  "/specs[16]/knobs[7]/value": "ad57366865126e55",
+  "/specs[16]/knobs[8]/value": "85065a153a82b378",
+  "/specs[19]/knobs[5]/value": "d4bacd33a3e5636c",
+  "/specs[19]/knobs[6]/value": "2d2c219b427f66eb",
+  "/specs[19]/knobs[7]/value": "5495f55cca258cf8",
+  "/specs[13]/knobs[7]/value": "a4766cc656d6a242"
+ },
+ "restamped": true
+}

@@ -1,0 +1,107 @@
+setting_ok	true	width=960000	tps=60	champ_radius=10000
+
+#A	C블록 레코드 필드 대응 (plan=PassiveLine)
+#A	field	got	expect	verdict
+A_meta	episodes_len	1	exp>=1	OK
+A_meta	live_tag_after	-1	exp=-1(take)	OK
+A	max_catch_break	1010	1010	MATCH
+A	uncatch_total	2020	2020	MATCH
+A	start_tick	1111	1111	MATCH
+A	end_tick	2222	2222	MATCH
+A	ep_ticks	3333	3333	MATCH
+A	in_range_ticks	0	0	MATCH
+A	holder_ticks	5555	5555	MATCH
+A	team_holder_ticks	0	0	MATCH
+A	minion_cover_ticks	7777	7777	MATCH
+A	soaked_hp	8888	8888	MATCH
+A	start_race_adv	-77	-77	MATCH
+A	start_model	31	31	MATCH
+A	start_na	32	32	MATCH
+A	start_ne	33	33	MATCH
+A	start_tgt_hp	34	34	MATCH
+A	start_in_range	1	1	MATCH
+A	target_pos	Bottom	exp_tag=3	
+A	tower	Mid	exp_tag=1	
+A	end_reason	1	(호출부가 정한다)	
+A	end_plan	1	exp=1(PassiveLine)	MATCH
+A	aborted	false	(호출부가 정한다)	
+A	abort_src	0	(aborted?0x5A:0)	
+A_SUMMARY	mismatch=0
+
+#B	tag	injected	name_after_update	end_plan	expect_from_name	verdict
+B	0	DeathMatchBattle(untagged)	"DeathMatchBattle goal: TryKill(0, 0) sub: RunAway start_tick: 0"	9	9	MATCH
+B	2	ForcePassive	"PassiveLine"	1	1	MATCH
+B	3	PassiveLine	"PassiveLine"	1	1	MATCH
+B	4	SinglePlanLine	"PassiveLine"	1	1	MATCH
+B	5	SinglePlanBattle	"SinglePlanBattle goal: TryKill(0, 0) help_called: false start_tick: 0"	9	9	MATCH
+B	7	PassiveJungle	"PassiveLine"	1	1	MATCH
+B	8	ActiveRecall	"PassiveLine"	1	1	MATCH
+B	9	Battle	"Battle support: None goal: TryKill(0, 0) help_called: false start_tick: 0"	7	7	MATCH
+B	10	LineGanker	"PassiveLine"	1	1	MATCH
+B	11	LineGankCover	"PassiveLine"	1	1	MATCH
+B	12	EpicHuntAndPoke	"PassiveLine"	1	1	MATCH
+B	13	EpicHuntAndBattle	"PassiveLine"	1	1	MATCH
+B	14	SerpenHuntAndPoke	"PassiveLine"	1	1	MATCH
+B	15	SerpenHuntAndBattle	"PassiveLine"	1	1	MATCH
+B	16	AttackNexus	"AttackNexus"	8	8	MATCH
+B	17	DefenseNexus	"DefenseNexus"	8	8	MATCH
+B_SUMMARY	cases=16	mismatch=0
+
+#B2	tag	name_before	name_after	end_plan	expect	verdict
+B2	3	"PassiveLine"	"PassiveLine"	1	1	MATCH
+B2	5	"SinglePlanBattle goal: TryKill(0, 0) help_called: false start_tick: 0"	"SinglePlanBattle goal: TryKill(0, 0) help_called: false start_tick: 0"	9	9	MATCH
+B2	9	"Battle support: None goal: TryKill(0, 0) help_called: false start_tick: 0"	"Battle support: None goal: TryKill(0, 0) help_called: false start_tick: 0"	7	7	MATCH
+B2	16	"AttackNexus"	"AttackNexus"	8	8	MATCH
+B2	17	"DefenseNexus"	"DefenseNexus"	8	8	MATCH
+B2_SUMMARY	stable_cases=5	mismatch=0
+
+#C	in_range	team_holder	last_tick	abandon_after	expect	verdict
+C	0	0	4242	4242	4242	MATCH
+C	1	0	4242	0	0	MATCH
+C	0	1	4242	0	0	MATCH
+C	1	1	4242	0	0	MATCH
+C	0	0	4242	4242	4242	MATCH
+
+#D	prev	live.last_tick	after	expect=max	verdict
+D	0	4242	4242	4242	MATCH
+D	9999	4242	9999	9999	MATCH
+D	4242	4242	4242	4242	MATCH
+D	1	4242	4242	4242	MATCH
+
+#E	live	episodes_len	abandon	verdict
+E	None(tag=-1)	0	0	OK(무push)
+
+#F	abort_src_injected	aborted	abort_src_in_record	verdict
+F	0	false	0	OK(지워짐)
+F	90	false	0	OK(지워짐)
+F	255	false	0	OK(지워짐)
+
+#G	team	pos	hp	name_after	end_plan	expect_from_name	verdict
+G	0	Top	100	"PassiveLine"	1	1	MATCH
+G	0	Top	5	"PassiveLine"	1	1	MATCH
+G	0	Jungle	100	"PassiveJungle"	2	2	MATCH
+G	0	Jungle	5	"PassiveJungle"	2	2	MATCH
+G	0	Mid	100	"PassiveLine"	1	1	MATCH
+G	0	Mid	5	"PassiveLine"	1	1	MATCH
+G	0	Bottom	100	"PassiveLine"	1	1	MATCH
+G	0	Bottom	5	"PassiveLine"	1	1	MATCH
+G	0	Support	100	"PassiveLine"	1	1	MATCH
+G	0	Support	5	"PassiveLine"	1	1	MATCH
+G	1	Top	100	"PassiveLine"	1	1	MATCH
+G	1	Top	5	"PassiveLine"	1	1	MATCH
+G	1	Jungle	100	"PassiveJungle"	2	2	MATCH
+G	1	Jungle	5	"PassiveJungle"	2	2	MATCH
+G	1	Mid	100	"PassiveLine"	1	1	MATCH
+G	1	Mid	5	"PassiveLine"	1	1	MATCH
+G	1	Bottom	100	"PassiveLine"	1	1	MATCH
+G	1	Bottom	5	"PassiveLine"	1	1	MATCH
+G	1	Support	100	"PassiveLine"	1	1	MATCH
+G	1	Support	5	"PassiveLine"	1	1	MATCH
+G_SUMMARY	cases=20	mismatch=0
+
+#H	plan	sub_goal_tag	focus	note
+H	Battle	4	0	 after_name="Battle support: None goal: TryKill(0, 0) help_called: false start_tick: 0"
+H	PassiveLine	0	0	 after_name="PassiveLine"
+H_NOTE	3=KitingBack / 4=RunAway (tcxdict --enum BattleSubPlanGoal)
+
+DONE

@@ -1,0 +1,12 @@
+{
+ "round": "13",
+ "batch": "RVA2",
+ "errors_applied": 7,
+ "ev_applied": 0,
+ "failed": 0,
+ "stamps": {
+  "/specs[2]/exe/callers": "4f53cda18c2baa0c",
+  "/specs[2]/exe/callees": "4f53cda18c2baa0c",
+  "/specs[2]/exe/evidence": "5d53eb51ca24e5a1"
+ }
+}

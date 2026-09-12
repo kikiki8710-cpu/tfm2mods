@@ -1,0 +1,39 @@
+size_of::<MainObjective>()	3
+
+### O6-E MainObjective 3바이트 + 마스크 술어
+name	b0(tag)	b1(phase)	b2(with_battle)	v24	(v&65534)	GATE
+Morgard(Setup,false)	0	1	0	256	256	false
+Serpen(Setup,false)	1	1	0	257	256	false
+Morgard(Setup,true)	0	1	1	65792	256	false
+Serpen(Setup,true)	1	1	1	65793	256	false
+Morgard(Assemble,false)	0	2	0	512	512	false
+Serpen(Assemble,false)	1	2	0	513	512	false
+Morgard(Assemble,true)	0	2	1	66048	512	false
+Serpen(Assemble,true)	1	2	1	66049	512	false
+Morgard(Hunt,false)	0	3	0	768	768	true
+Serpen(Hunt,false)	1	3	0	769	768	true
+Morgard(Hunt,true)	0	3	1	66304	768	true
+Serpen(Hunt,true)	1	3	1	66305	768	true
+Defense	2	0	79	5177346	2	false
+DefenseLine(Top)	3	0	14	917507	2	false
+DefenseLine(Mid)	3	1	0	259	258	false
+DefenseLine(Bottom)	3	2	0	515	514	false
+Nexus(Top)	4	0	0	4	4	false
+PressEpic(Top)	5	0	0	5	4	false
+SplitEpic(Top)	6	0	0	6	6	false
+Repair	7	0	0	7	6	false
+Gank(Top)	8	0	0	8	8	false
+Dive(Top)	9	0	0	9	8	false
+PressTower(Top)	10	0	0	10	10	false
+ComebackPick(Top,f)	11	0	0	11	10	false
+ComebackPick(Top,t)	11	0	1	65547	10	false
+
+GATE 통과 집합 (4개): Morgard(Hunt,false), Serpen(Hunt,false), Morgard(Hunt,true), Serpen(Hunt,true)
+기대 = Morgard(Hunt,*) · Serpen(Hunt,*) 4개
+
+### O6-F Strategy 기본값 / object_finish(+0xf)
+raw24	05 00 00 00 05 00 00 00 02 00 00 00 00 00 00 01 00 00 00 00 00 01 00 00
++0xf	1	(0 이면 KillPriority)
+Debug	Strategy { focused: Top, early_jungle: GrowthAndCover, early_serpen: Must, early_serpen_top: Must, object_buildup: Gather, object_battle: Poking, morgard_use: Gather, tower_press: Dive, morgard_defense: Gather, object_finish: BattlePriority, minion_wave: WavePriority, game_finish: Flexible, dm_tactic: Standard }
+
+DONE

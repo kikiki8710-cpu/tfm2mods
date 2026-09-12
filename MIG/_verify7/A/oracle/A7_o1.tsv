@@ -1,0 +1,14 @@
+setting_ok	true	width=960000	height=960000	tps=60	champ_radius=10000	visible=130000
+ZST	RecallSubPlan=0B	AttackNexusSubPlan=0B	SubPlan=72B
+SUBPLAN_SRC	Recall(RecallSubPlan::default())	tag=5	기대=5	MATCH
+SUBPLAN_SRC	AttackNexus(AttackNexusSubPlan::default())	tag=16	기대=16	MATCH
+SUBPLAN_SRC	Recall 바이트[0..16]=[5, 0, 0, 0, 0, 0, 0, 0, 58, 0, 0, 0, 48, 0, 49, 0]
+OPTUSIZE	size=16B	Some(7).discr=1	None.discr=0	기대 Some=1	MATCH
+OPTUSIZE	Some(0).discr=1	(Some(0) 도 is_some ⟹ 위협으로 센다는 history[9] 와 정합)
+MINION	Tower(원본)	tag=0	hp=1	value=496	coef(명세)=0	game=0	mine=0	대립(coef=0)=0	MATCH
+MINION	Minion(판별자 주입)	tag=1	hp=1	value=496	coef(명세)=-10	game=-4960	mine=-4960	대립(coef=0)=0	MATCH(판별)
+MINION	None(0)	tag=0	hp=1	value=496	coef(명세)=0	game=0	mine=0	대립(coef=0)=0	MATCH
+PRED	Tower.ty: is_any_type_minion=false	is_minion(Top)=false	is_minion(Mid)=false	is_minion(Bottom)=false
+PRED	tag1(주입): is_any_type_minion=true	is_minion(Top)=true	is_minion(Mid)=false	is_minion(Bottom)=false	(★is_minion 이 라인별로 갈리면 IR 의 「태그 1 → 곧바로 -10」과 모순 ⟹ is_any_type_minion 이 맞다)
+PRED	원복 tag=0
+DONE	setting_ok=true

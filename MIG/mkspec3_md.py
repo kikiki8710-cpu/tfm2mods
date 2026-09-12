@@ -8,10 +8,16 @@ import io, json, os, sys
 sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 HERE = os.path.dirname(os.path.abspath(__file__))
 SRC = os.path.join(HERE, "_spec", "specs20_v3.json")
-DST = os.path.join(
-    r"C:\Users\jungs\Desktop\claude\tfm2\.claude\worktrees",
-    r"silerus-mode-continue-aed092\mods_report\tfm2_ai_adjust",
-    u"06_판단함수_명세_v3.md")
+# ★★**base 가 정본이다.** (2026-09-11 사고)
+#   초판은 worktree 경로만 박아 놨고, 그래서 이 문서(623KB)가 **base 에서 안 보였다.**
+#   `MEM\` 은 worktree 밖 공유 경로라 그 포인터들이 허공을 가리키고 있었다.
+#   ⟹ **base 를 먼저 쓰고, worktree 사본이 있으면 거기도 같이 쓴다.**
+BASE = r"C:\Users\jungs\Desktop\claude\tfm2\mods_report\tfm2_ai_adjust"
+WT = os.path.join(r"C:\Users\jungs\Desktop\claude\tfm2\.claude\worktrees",
+                  r"silerus-mode-continue-aed092\mods_report\tfm2_ai_adjust")
+NAME = u"06_판단함수_명세_v3.md"
+DSTS = [os.path.join(p, NAME) for p in (BASE, WT) if os.path.isdir(p)]
+DST = DSTS[0] if DSTS else os.path.join(BASE, NAME)
 
 D = json.load(io.open(SRC, encoding="utf-8"))
 M, S = D["meta"], D["specs"]
@@ -221,6 +227,7 @@ for s in S:
     w(u"")
 
 txt = u"\n".join(o)
-with io.open(DST, "w", encoding="utf-8", newline="\r\n") as f:
-    f.write(txt)
-print(u"%s  (%d KB · %d줄)" % (DST, len(txt.encode("utf-8")) / 1024, txt.count("\n") + 1))
+for _d in DSTS or [DST]:
+    with io.open(_d, "w", encoding="utf-8", newline="\r\n") as f:
+        f.write(txt)
+    print(u"%s  (%d KB · %d줄)" % (_d, len(txt.encode("utf-8")) / 1024, txt.count("\n") + 1))

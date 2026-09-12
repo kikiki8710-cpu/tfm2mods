@@ -1,0 +1,1079 @@
+{
+ "round": 6,
+ "batch": "A",
+ "errors": [
+  {
+   "path": "/specs[0]/open[0]",
+   "kind": "판정반전",
+   "old": "isqrt 결과 sz 가 0 일 때(챔프와 타깃 좌표가 완전히 같을 때) 334행에서 div-by-zero 패닉 경로가 실제로 존재한다 — 게임이 이 상황을 상위에서 막는지는 이 범위에서 확인 불가",
+   "new": "★해소(6차 배치A) — **sz==0 으로 334행에 도달하는 것은 이 함수 구조상 불가능하다**(상위가 막는 게 아니라 자기가 막는다). 근거 ①`Effect::is_in_range`(_gcbc/g06.ll:51634~51774) = `dist_sq <= total^2` 이고 total 은 비음수 항의 합뿐 — **하한 사거리가 없다** ⟹ 거리 0 이면 항상 in-range. ②`get_input_target` 의 None 반환은 정확히 3곳(m04.ll 블록43 champ null / 블록45 !is_in_range / 블록70 `!visible && !is_nontarget`)이고, 거리 0 에서는 ①때문에 블록45 가 못 뜨며 블록43 은 `ult` 가 이미 champ 를 얻은 뒤라 못 뜬다. ③남은 블록70 은 `!visible` 을 전제하므로, 그 경우 `ult` 는 L328 에서 `!visible` 로 갈라 **L340 `safe_move_avoiding_enemy_well`** 로 나간다 — L329~L335(isqrt·나눗셈)에 못 온다. ④오라클 실행 확증: champ 와 target 좌표를 완전히 같게 두고 casting 4값 × eff_range {0, 200000} = **8/8 전부 `Ult(..)` 반환, Move 0건**(A6_o2_samepos.tsv). ⟹ IR 의 `panic_const_div_by_zero` 는 LLVM 이 남긴 **죽은 가드**이고, 재현 때 이 패닉을 모사할 필요가 없다. ★범위: `ult` 안에서의 판정이다. `get_input_target` 내부가 다른 경로로 None 을 낼 수 있게 바뀌면 다시 봐야 한다.",
+   "evidence": "A6_o2_samepos.tsv 8/8 · _gcbc/g06.ll:51762~51774(`icmp ule %83, %84`) · _gaibc/m04.ll:33168~33230",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[2]/open[1]",
+   "kind": "분류오류",
+   "old": "둘이 항상 같은지(다를 수 있는지)는 이 함수만으론 확정 불가",
+   "new": "둘이 같은지는 **이 함수만으론** 확정 불가 — ★해소(6차 배치A): 답은 이미 같은 파일 `history[1]` 에 있다. **항상 반대다**(`LegacyPlanHandler::passive_plan` handler.rs:1879 = `sub i64 1, player.info.team`). ⟹ 이 항목은 `open` 이 아니라 닫힌 것이다(5차까지 `open` 에 남아 있어 매 라운드 재조사 후보로 잡혔다)",
+   "evidence": "/specs[2]/history[1] 원문 + A6_o1.tsv ANPLAN(AttackNexusPlan.team@+0x0 실측)",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[3]/consts[0]",
+   "kind": "실오류",
+   "old": "enemy_ix = 1 - player.info.team — 적팀 인덱스",
+   "new": "enemy_ix = 1 - player.info.team — 적팀 인덱스 ★**src_line 정정(6차 배치A): ~~21~~ → 22**(`%21 = sub i64 1, %20` @m10.ll:33897 의 `!dbg !40704` = `buff_value.rs:22`, 인라인 없음. L21 에는 `llvm.lifetime.start` 하나뿐)",
+   "evidence": "_gaibc/m10.ll:33897 !40704 → buff_value.rs:22 (사슬 단일 프레임)",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[3]/consts[1]",
+   "kind": "실오류",
+   "old": "EntityType 태그 13 = Champion. 이 태그일 때만",
+   "new": "EntityType 태그 13 = Champion ★**src_line 정정(6차 배치A): ~~42~~ → 43**(`icmp eq i64 %72, 13` @m10.ll:34074 사슬 = `entity.rs:1775(Entity::skill_cooldown)` ← `buff_value.rs:43` ← `buff_value.rs:41`. L42 는 함수 전체에서 명령이 **0개**다). ⚠이 비교는 소스에 직접 적힌 게 아니라 **각 `*_cooldown()` 접근자 안에 있고** LLVM 이 CSE 해 L43 하나로 접었다. 이 태그일 때만",
+   "evidence": "_gaibc/m10.ll:34074 !40848 사슬 · atline.py 출력",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[3]/consts[2]",
+   "kind": "실오류",
+   "old": "Entity.level > 2 여야 skill2_effect 슬롯이 열린다(entity.rs:1693 접근자 인라인)",
+   "new": "Entity.level > 2 여야 skill2_effect 슬롯이 열린다(entity.rs:1693 접근자 인라인 ★**src_line 정정(6차 배치A): ~~42~~ → 44** — `icmp ugt i64 %76, 2` @m10.ll:34081 사슬 = `entity.rs:1693` ← `buff_value.rs:44` ← `41`)",
+   "evidence": "_gaibc/m10.ll:34081 !40855 사슬",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[3]/consts[3]",
+   "kind": "실오류",
+   "old": "Entity.level > 4 여야 ult_effect 슬롯이 열린다(entity.rs:1701 접근자 인라인)",
+   "new": "Entity.level > 4 여야 ult_effect 슬롯이 열린다(entity.rs:1701 접근자 인라인 ★**src_line 정정(6차 배치A): ~~42~~ → 45** — `icmp ugt i64 %76, 4` @m10.ll:34086 사슬 = `entity.rs:1701` ← `buff_value.rs:45` ← `41`)",
+   "evidence": "_gaibc/m10.ll:34086 !40868 사슬",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[3]/knobs[3]",
+   "kind": "실오류",
+   "old": "buff_value.rs:42 를 통해 인라인된 entity.rs:1693",
+   "new": "buff_value.rs:**44**(~~42~~, 6차 배치A 정정) 를 통해 인라인된 entity.rs:1693",
+   "evidence": "_gaibc/m10.ll:34081 !40855 사슬",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[3]/knobs[4]",
+   "kind": "실오류",
+   "old": "buff_value.rs:42 를 통해 인라인된 entity.rs:1701",
+   "new": "buff_value.rs:**45**(~~42~~, 6차 배치A 정정) 를 통해 인라인된 entity.rs:1701",
+   "evidence": "_gaibc/m10.ll:34086 !40868 사슬",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[3]/logic",
+   "kind": "실오류",
+   "old": "[L21] enemy_ix = 1 - player.info.team(+0x930)",
+   "new": "[L22] enemy_ix = 1 - player.info.team(+0x930)   // ★줄 정정(6차 배치A): ~~L21~~ — L21 은 `let` 슬롯뿐",
+   "evidence": "_gaibc/m10.ll:33891~33897",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[3]/logic",
+   "kind": "실오류",
+   "old": "[L42]   (c1,c2,c3) = if e.ty(+0x68) == 13 /*Champion*/ {",
+   "new": "[L43~45] ★줄 정정(6차 배치A): ~~L42~~ — L42 에는 명령이 0개다. 슬롯 3칸이 **L43(skill) / L44(skill2) / L45(ult)** 에 한 줄씩 있고,\n//        `ty == 13` 비교는 소스에 직접 있는 게 아니라 각 `Entity::*_cooldown()`(entity.rs:1775/1791/1806) 안에 있으며\n//        LLVM 이 CSE 해 **L43 하나로** 접었다.\n[L43]   (c1,c2,c3) = if e.ty(+0x68) == 13 /*Champion*/ {",
+   "evidence": "atline.py m10.ll 34060~34135 buff_value.rs 41~46 출력",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[3]/open[0]",
+   "kind": "분류오류",
+   "old": "다만 rnd(&mut StdRng)·debug(&mut DebugFrameData) 는 check_kill_die_tick 에서 변경될 수 있다",
+   "new": "다만 rnd(&mut StdRng)·debug(&mut DebugFrameData) 는 check_kill_die_tick 에서 변경될 수 있다 → ★해소(6차 배치A): **변하지 않는다**. `defensive_crisis` 호출 전후로 `StdRng` 320B 와 `DebugFrameData` 224B 를 통째로 바이트 diff 한 결과 **14/14 케이스 전부 `rnd_changed=false · debug_changed=false`**(A6_o5.tsv). ★범위: `check_kill_die_tick` 이 실제로 실행된 케이스(die_imminent 계산 진입)만 잰 값이고, `debug`/`rnd` 를 쓰는 다른 입력이 있을 가능성까지 배제하지는 않는다.",
+   "evidence": "A6_o5.tsv 14케이스 RESULT 줄",
+   "behavior_change": false,
+   "found_by": "inherited"
+  },
+  {
+   "path": "/specs[4]/open[0]",
+   "kind": "보강",
+   "old": "다만 `rnd`(&mut StdRng)는 readonly 가 아니라 PlayerState::strategy 안에서 소비될 수 있다(그 함수는 안 봄).",
+   "new": "다만 `rnd`(&mut StdRng)는 readonly 가 아니라 PlayerState::strategy 안에서 소비될 수 있다(그 함수는 안 봄). → 6차 배치A 실측: `player.strategy(&mut rnd, &game)` 을 **직접 호출**해 전후 320B 를 비교했더니 **바뀌지 않았다**(A6_o4.tsv `STRATEGY rnd_state_changed=false`). ★범위: 팀 전략이 확정돼 있는 한 상태 1종에서만 잰 값이라 '난수를 절대 안 쓴다'로 일반화하지 말 것(`TeamColorStrategy_random` 경로가 있다).",
+   "evidence": "A6_o4.tsv STRATEGY 줄 4케이스",
+   "behavior_change": false,
+   "found_by": "inherited"
+  },
+  {
+   "path": "/specs[3]/notes[0]",
+   "kind": "보강",
+   "old": "나머지 20개(iter_champions, distance_sq, abs_diff, is_some, is_some_and, TeamType PartialEq, Entity 접근자들 등)는 전부 인라인이라 개별 조각으로 존재하지 않는다",
+   "new": "나머지 20개(iter_champions, distance_sq, abs_diff, is_some, is_some_and, TeamType PartialEq, Entity 접근자들 등)는 전부 인라인이라 개별 조각으로 존재하지 않는다. ★보강(6차 배치A): 별도 define 3개는 **본체(m10.ll:33864~34294) · call_mut 심(m10.ll:55868~55976) · 이터레이터(m01.ll:37431~37606, 175줄)** 인데 `history[0]` 의 `aux` 에는 **call_mut 심만** 올라가 있다 — m01.ll 쪽 이터레이터 조각은 아직 아무 라운드도 읽지 않았다(미탐색).",
+   "evidence": "fnparts.py defensive_crisis 출력",
+   "behavior_change": false,
+   "found_by": "reused"
+  }
+ ],
+ "ev_up": [
+  {
+   "path": "/specs[0]/mem[0]",
+   "from": 4,
+   "to": 3,
+   "evidence": "A6_o1.tsv(수법 ⓐ offset_of! 일괄, 81/81 MATCH·MISMATCH 0)"
+  },
+  {
+   "path": "/specs[0]/mem[1]",
+   "from": 4,
+   "to": 3,
+   "evidence": "A6_o1.tsv(수법 ⓐ offset_of! 일괄, 81/81 MATCH·MISMATCH 0)"
+  },
+  {
+   "path": "/specs[0]/mem[2]",
+   "from": 4,
+   "to": 3,
+   "evidence": "A6_o1.tsv(수법 ⓐ offset_of! 일괄, 81/81 MATCH·MISMATCH 0)"
+  },
+  {
+   "path": "/specs[0]/mem[3]",
+   "from": 4,
+   "to": 3,
+   "evidence": "A6_o1.tsv(수법 ⓐ offset_of! 일괄, 81/81 MATCH·MISMATCH 0)"
+  },
+  {
+   "path": "/specs[0]/mem[4]",
+   "from": 4,
+   "to": 3,
+   "evidence": "A6_o1.tsv(수법 ⓐ offset_of! 일괄, 81/81 MATCH·MISMATCH 0)"
+  },
+  {
+   "path": "/specs[0]/mem[5]",
+   "from": 4,
+   "to": 3,
+   "evidence": "A6_o1.tsv(수법 ⓐ offset_of! 일괄, 81/81 MATCH·MISMATCH 0)"
+  },
+  {
+   "path": "/specs[0]/mem[6]",
+   "from": 4,
+   "to": 3,
+   "evidence": "A6_o1.tsv(수법 ⓐ offset_of! 일괄, 81/81 MATCH·MISMATCH 0)"
+  },
+  {
+   "path": "/specs[0]/mem[7]",
+   "from": 4,
+   "to": 3,
+   "evidence": "A6_o1.tsv(수법 ⓐ offset_of! 일괄, 81/81 MATCH·MISMATCH 0)"
+  },
+  {
+   "path": "/specs[0]/mem[9]",
+   "from": 4,
+   "to": 3,
+   "evidence": "A6_o1.tsv(수법 ⓐ offset_of! 일괄, 81/81 MATCH·MISMATCH 0)"
+  },
+  {
+   "path": "/specs[0]/mem[10]",
+   "from": 4,
+   "to": 3,
+   "evidence": "A6_o1.tsv(수법 ⓐ offset_of! 일괄, 81/81 MATCH·MISMATCH 0)"
+  },
+  {
+   "path": "/specs[0]/mem[12]",
+   "from": 4,
+   "to": 3,
+   "evidence": "A6_o1.tsv(수법 ⓐ offset_of! 일괄, 81/81 MATCH·MISMATCH 0)"
+  },
+  {
+   "path": "/specs[0]/mem[13]",
+   "from": 4,
+   "to": 3,
+   "evidence": "A6_o1.tsv(수법 ⓐ offset_of! 일괄, 81/81 MATCH·MISMATCH 0)"
+  },
+  {
+   "path": "/specs[0]/mem[14]",
+   "from": 4,
+   "to": 3,
+   "evidence": "A6_o1.tsv(수법 ⓐ offset_of! 일괄, 81/81 MATCH·MISMATCH 0)"
+  },
+  {
+   "path": "/specs[0]/mem[15]",
+   "from": 4,
+   "to": 3,
+   "evidence": "A6_o1.tsv(수법 ⓐ offset_of! 일괄, 81/81 MATCH·MISMATCH 0)"
+  },
+  {
+   "path": "/specs[0]/mem[16]",
+   "from": 4,
+   "to": 3,
+   "evidence": "A6_o1.tsv(수법 ⓐ offset_of! 일괄, 81/81 MATCH·MISMATCH 0)"
+  },
+  {
+   "path": "/specs[0]/mem[17]",
+   "from": 4,
+   "to": 3,
+   "evidence": "A6_o1.tsv(수법 ⓐ offset_of! 일괄, 81/81 MATCH·MISMATCH 0)"
+  },
+  {
+   "path": "/specs[0]/mem[19]",
+   "from": 4,
+   "to": 3,
+   "evidence": "A6_o1.tsv(수법 ⓐ offset_of! 일괄, 81/81 MATCH·MISMATCH 0)"
+  },
+  {
+   "path": "/specs[0]/mem[20]",
+   "from": 4,
+   "to": 3,
+   "evidence": "A6_o1.tsv(수법 ⓐ offset_of! 일괄, 81/81 MATCH·MISMATCH 0)"
+  },
+  {
+   "path": "/specs[0]/mem[21]",
+   "from": 4,
+   "to": 3,
+   "evidence": "A6_o1.tsv(수법 ⓐ offset_of! 일괄, 81/81 MATCH·MISMATCH 0)"
+  },
+  {
+   "path": "/specs[0]/mem[22]",
+   "from": 4,
+   "to": 3,
+   "evidence": "A6_o1.tsv(수법 ⓐ offset_of! 일괄, 81/81 MATCH·MISMATCH 0)"
+  },
+  {
+   "path": "/specs[0]/mem[26]",
+   "from": 4,
+   "to": 3,
+   "evidence": "A6_o1.tsv(수법 ⓐ offset_of! 일괄, 81/81 MATCH·MISMATCH 0)"
+  },
+  {
+   "path": "/specs[0]/mem[28]",
+   "from": 4,
+   "to": 3,
+   "evidence": "A6_o1.tsv(수법 ⓐ offset_of! 일괄, 81/81 MATCH·MISMATCH 0)"
+  },
+  {
+   "path": "/specs[0]/mem[8]",
+   "from": 4,
+   "to": 3,
+   "evidence": "_verify5/A/A5_o2.tsv TeamType::Player payload@+0x8=1 실측 + A6_o1.tsv(수법 ⓐ offset_of! 일괄, 81/81 MATCH·MISMATCH 0)"
+  },
+  {
+   "path": "/specs[0]/mem[18]",
+   "from": 4,
+   "to": 3,
+   "evidence": "A6_o6.tsv(실주소 차 보충, 10/10 MATCH) EFFECT_ARC word1 == dyn 팻포인터 vtable 주소 일치"
+  },
+  {
+   "path": "/specs[0]/consts[1]",
+   "from": 4,
+   "to": 2,
+   "evidence": "A6_o2_main.tsv / A6_o2_radius.tsv / A6_o2_samepos.tsv — level 4 → ult_eff_some=false / level 5 → true (A6_o2 visible 4/5)"
+  },
+  {
+   "path": "/specs[0]/consts[2]",
+   "from": 4,
+   "to": 2,
+   "evidence": "A6_o2_main.tsv / A6_o2_radius.tsv / A6_o2_samepos.tsv — Option<Input>::None tag@+0x0 = -1 실측"
+  },
+  {
+   "path": "/specs[0]/consts[3]",
+   "from": 4,
+   "to": 2,
+   "evidence": "A6_o2_main.tsv / A6_o2_radius.tsv / A6_o2_samepos.tsv — CastingType::Position = 1 실측"
+  },
+  {
+   "path": "/specs[0]/consts[4]",
+   "from": 4,
+   "to": 2,
+   "evidence": "A6_o2_main.tsv / A6_o2_radius.tsv / A6_o2_samepos.tsv — CastingType::Direction = 2 실측"
+  },
+  {
+   "path": "/specs[0]/consts[5]",
+   "from": 4,
+   "to": 2,
+   "evidence": "A6_o2_main.tsv / A6_o2_radius.tsv / A6_o2_samepos.tsv — casting=Targeting 만 caster_r_ON 이 MATCH_ULT=YES, 나머지 3값은 caster_r_OFF 가 YES"
+  },
+  {
+   "path": "/specs[0]/consts[6]",
+   "from": 4,
+   "to": 2,
+   "evidence": "A6_o2_main.tsv / A6_o2_radius.tsv / A6_o2_samepos.tsv — VisibleState::Visible = 0 / Unknown = 2 실측 + invisible 케이스가 L340 경로로 갈림"
+  },
+  {
+   "path": "/specs[0]/consts[7]",
+   "from": 4,
+   "to": 2,
+   "evidence": "A6_o2_main.tsv / A6_o2_radius.tsv / A6_o2_samepos.tsv — radius_mult = 0/50/-50/100/-100/-99 스윕 — radius()=raw*(100+mult)/100 이 6/6 일치, 기준 1000 가설 기각"
+  },
+  {
+   "path": "/specs[0]/consts[8]",
+   "from": 4,
+   "to": 2,
+   "evidence": "A6_o2_main.tsv / A6_o2_radius.tsv / A6_o2_samepos.tsv — Some(Input::Ult) tag@+0x0 = 5 실측"
+  },
+  {
+   "path": "/specs[0]/consts[9]",
+   "from": 4,
+   "to": 2,
+   "evidence": "A6_o2_main.tsv / A6_o2_radius.tsv / A6_o2_samepos.tsv — margin 149999/150000/150001 중 150000 만 MATCH_ULT=YES"
+  },
+  {
+   "path": "/specs[0]/knobs[0]",
+   "from": 4,
+   "to": 2,
+   "evidence": "A6_o2_main.tsv / A6_o2_radius.tsv / A6_o2_samepos.tsv — level 4 → None / 5 → 이동입력 (A6_o2)"
+  },
+  {
+   "path": "/specs[0]/knobs[1]",
+   "from": 4,
+   "to": 2,
+   "evidence": "A6_o2_main.tsv / A6_o2_radius.tsv / A6_o2_samepos.tsv — margin ±1 로 좌표가 1 씩 움직이고 150000 만 일치"
+  },
+  {
+   "path": "/specs[0]/knobs[2]",
+   "from": 4,
+   "to": 2,
+   "evidence": "A6_o2_main.tsv / A6_o2_radius.tsv / A6_o2_samepos.tsv — casting==Targeting 일 때만 champ.radius() 가 총사거리에 더해짐(caster_r_ON/OFF 대조)"
+  },
+  {
+   "path": "/specs[0]/knobs[3]",
+   "from": 4,
+   "to": 2,
+   "evidence": "A6_o2_main.tsv / A6_o2_radius.tsv / A6_o2_samepos.tsv — radius_mult 스윕으로 기준값 100 판별(1000 가설 기각), 음수 mult 에서 sext 확정"
+  },
+  {
+   "path": "/specs[1]/mem[0]",
+   "from": 4,
+   "to": 3,
+   "evidence": "A6_o1.tsv(수법 ⓐ offset_of! 일괄, 81/81 MATCH·MISMATCH 0)"
+  },
+  {
+   "path": "/specs[1]/mem[1]",
+   "from": 4,
+   "to": 3,
+   "evidence": "A6_o1.tsv(수법 ⓐ offset_of! 일괄, 81/81 MATCH·MISMATCH 0)"
+  },
+  {
+   "path": "/specs[1]/mem[2]",
+   "from": 4,
+   "to": 3,
+   "evidence": "A6_o1.tsv(수법 ⓐ offset_of! 일괄, 81/81 MATCH·MISMATCH 0)"
+  },
+  {
+   "path": "/specs[1]/mem[3]",
+   "from": 4,
+   "to": 3,
+   "evidence": "A6_o1.tsv(수법 ⓐ offset_of! 일괄, 81/81 MATCH·MISMATCH 0)"
+  },
+  {
+   "path": "/specs[1]/mem[4]",
+   "from": 4,
+   "to": 3,
+   "evidence": "A6_o1.tsv(수법 ⓐ offset_of! 일괄, 81/81 MATCH·MISMATCH 0)"
+  },
+  {
+   "path": "/specs[1]/mem[5]",
+   "from": 4,
+   "to": 3,
+   "evidence": "A6_o1.tsv(수법 ⓐ offset_of! 일괄, 81/81 MATCH·MISMATCH 0)"
+  },
+  {
+   "path": "/specs[1]/mem[7]",
+   "from": 4,
+   "to": 3,
+   "evidence": "A6_o1.tsv(수법 ⓐ offset_of! 일괄, 81/81 MATCH·MISMATCH 0)"
+  },
+  {
+   "path": "/specs[1]/mem[6]",
+   "from": 4,
+   "to": 3,
+   "evidence": "A6_o6.tsv(실주소 차 보충, 10/10 MATCH) JUNGLE team0→+0x98=0 / team1→+0x98=1 (camp_type.__0 = 팀 인덱스)"
+  },
+  {
+   "path": "/specs[1]/consts[1]",
+   "from": 4,
+   "to": 2,
+   "evidence": "A6_o3.tsv SCORE/HPSWEEP — Nexus tag=3 → coef 200, game==mine MATCH"
+  },
+  {
+   "path": "/specs[1]/consts[2]",
+   "from": 4,
+   "to": 2,
+   "evidence": "A6_o3.tsv SCORE/HPSWEEP — Nexus 2개 전부 game=200 MATCH"
+  },
+  {
+   "path": "/specs[1]/consts[3]",
+   "from": 4,
+   "to": 2,
+   "evidence": "A6_o3.tsv SCORE/HPSWEEP — Tower tag=2 → coef 80 MATCH"
+  },
+  {
+   "path": "/specs[1]/consts[4]",
+   "from": 4,
+   "to": 2,
+   "evidence": "A6_o3.tsv SCORE/HPSWEEP — Tower 2개 전부 game=80 MATCH"
+  },
+  {
+   "path": "/specs[1]/consts[5]",
+   "from": 4,
+   "to": 2,
+   "evidence": "A6_o3.tsv SCORE/HPSWEEP — Jungle tag=4 12개 전부 MATCH"
+  },
+  {
+   "path": "/specs[1]/consts[6]",
+   "from": 4,
+   "to": 2,
+   "evidence": "A6_o3.tsv SCORE/HPSWEEP — HPSWEEP hp=497 이상에서 coef 20 MATCH"
+  },
+  {
+   "path": "/specs[1]/consts[7]",
+   "from": 4,
+   "to": 2,
+   "evidence": "A6_o3.tsv SCORE/HPSWEEP — HPSWEEP hp=496 경계에서 40 채택 — `hp<value` 대립가설 25 를 기각(MATCH 판별)"
+  },
+  {
+   "path": "/specs[1]/consts[10]",
+   "from": 4,
+   "to": 2,
+   "evidence": "A6_o3.tsv SCORE/HPSWEEP — Champion tag=13 → coef 0, game=0 MATCH"
+  },
+  {
+   "path": "/specs[1]/consts[11]",
+   "from": 4,
+   "to": 2,
+   "evidence": "A6_o3.tsv SCORE/HPSWEEP — Jungle 만 based=5 가 붙고 Tower/Nexus/Champion 은 0 — 20행 MATCH"
+  },
+  {
+   "path": "/specs[1]/knobs[0]",
+   "from": 4,
+   "to": 2,
+   "evidence": "A6_o3.tsv SCORE 20행 game==mine — Nexus 200"
+  },
+  {
+   "path": "/specs[1]/knobs[1]",
+   "from": 4,
+   "to": 2,
+   "evidence": "A6_o3.tsv SCORE 20행 game==mine — Tower 80"
+  },
+  {
+   "path": "/specs[1]/knobs[2]",
+   "from": 4,
+   "to": 2,
+   "evidence": "A6_o3.tsv SCORE 20행 game==mine — Jungle 20(처치불가)"
+  },
+  {
+   "path": "/specs[1]/knobs[3]",
+   "from": 4,
+   "to": 2,
+   "evidence": "A6_o3.tsv SCORE 20행 game==mine — Jungle 40(처치가능)"
+  },
+  {
+   "path": "/specs[1]/knobs[5]",
+   "from": 4,
+   "to": 2,
+   "evidence": "A6_o3.tsv SCORE 20행 game==mine — based 5"
+  },
+  {
+   "path": "/specs[1]/knobs[6]",
+   "from": 4,
+   "to": 2,
+   "evidence": "A6_o3.tsv SCORE 20행 game==mine — camp0=0(블루)·camp0=1(레드) 캠프가 **둘 다** based=5 를 받는다 = `is_jungle(0)||is_jungle(1)`"
+  },
+  {
+   "path": "/specs[2]/mem[0]",
+   "from": 4,
+   "to": 3,
+   "evidence": "A6_o1.tsv(수법 ⓐ offset_of! 일괄, 81/81 MATCH·MISMATCH 0)"
+  },
+  {
+   "path": "/specs[2]/mem[1]",
+   "from": 4,
+   "to": 3,
+   "evidence": "A6_o1.tsv(수법 ⓐ offset_of! 일괄, 81/81 MATCH·MISMATCH 0)"
+  },
+  {
+   "path": "/specs[2]/mem[2]",
+   "from": 4,
+   "to": 3,
+   "evidence": "A6_o1.tsv(수법 ⓐ offset_of! 일괄, 81/81 MATCH·MISMATCH 0)"
+  },
+  {
+   "path": "/specs[2]/mem[3]",
+   "from": 4,
+   "to": 3,
+   "evidence": "A6_o1.tsv(수법 ⓐ offset_of! 일괄, 81/81 MATCH·MISMATCH 0)"
+  },
+  {
+   "path": "/specs[2]/mem[4]",
+   "from": 4,
+   "to": 3,
+   "evidence": "A6_o1.tsv(수법 ⓐ offset_of! 일괄, 81/81 MATCH·MISMATCH 0)"
+  },
+  {
+   "path": "/specs[2]/mem[5]",
+   "from": 4,
+   "to": 3,
+   "evidence": "A6_o1.tsv(수법 ⓐ offset_of! 일괄, 81/81 MATCH·MISMATCH 0)"
+  },
+  {
+   "path": "/specs[2]/mem[7]",
+   "from": 4,
+   "to": 3,
+   "evidence": "A6_o1.tsv(수법 ⓐ offset_of! 일괄, 81/81 MATCH·MISMATCH 0)"
+  },
+  {
+   "path": "/specs[2]/mem[12]",
+   "from": 4,
+   "to": 3,
+   "evidence": "A6_o1.tsv(수법 ⓐ offset_of! 일괄, 81/81 MATCH·MISMATCH 0)"
+  },
+  {
+   "path": "/specs[2]/mem[13]",
+   "from": 4,
+   "to": 3,
+   "evidence": "A6_o1.tsv(수법 ⓐ offset_of! 일괄, 81/81 MATCH·MISMATCH 0)"
+  },
+  {
+   "path": "/specs[2]/mem[14]",
+   "from": 4,
+   "to": 3,
+   "evidence": "A6_o1.tsv(수법 ⓐ offset_of! 일괄, 81/81 MATCH·MISMATCH 0)"
+  },
+  {
+   "path": "/specs[2]/mem[15]",
+   "from": 4,
+   "to": 3,
+   "evidence": "A6_o1.tsv(수법 ⓐ offset_of! 일괄, 81/81 MATCH·MISMATCH 0)"
+  },
+  {
+   "path": "/specs[2]/mem[6]",
+   "from": 4,
+   "to": 3,
+   "evidence": "A6_o1.tsv(수법 ⓐ offset_of! 일괄, 81/81 MATCH·MISMATCH 0) ★BUMPVEC cap=8/len=3 로 **len@+0x18 을 처음 판별**(5차는 len==cap==2 라 불가로 남겼다)"
+  },
+  {
+   "path": "/specs[2]/mem[8]",
+   "from": 4,
+   "to": 3,
+   "evidence": "A6_o1.tsv(수법 ⓐ offset_of! 일괄, 81/81 MATCH·MISMATCH 0) MapDef.fountains[team] 튜플 오프셋 0x0/0x8/0x10/0x18 + FOUNTAIN 실값"
+  },
+  {
+   "path": "/specs[2]/mem[9]",
+   "from": 4,
+   "to": 3,
+   "evidence": "A6_o1.tsv(수법 ⓐ offset_of! 일괄, 81/81 MATCH·MISMATCH 0) MapDef.fountains[team] 튜플 오프셋 0x0/0x8/0x10/0x18 + FOUNTAIN 실값"
+  },
+  {
+   "path": "/specs[2]/mem[10]",
+   "from": 4,
+   "to": 3,
+   "evidence": "A6_o1.tsv(수법 ⓐ offset_of! 일괄, 81/81 MATCH·MISMATCH 0) MapDef.fountains[team] 튜플 오프셋 0x0/0x8/0x10/0x18 + FOUNTAIN 실값"
+  },
+  {
+   "path": "/specs[2]/mem[11]",
+   "from": 4,
+   "to": 3,
+   "evidence": "A6_o1.tsv(수법 ⓐ offset_of! 일괄, 81/81 MATCH·MISMATCH 0) MapDef.fountains[team] 튜플 오프셋 0x0/0x8/0x10/0x18 + FOUNTAIN 실값"
+  },
+  {
+   "path": "/specs[2]/mem[16]",
+   "from": 4,
+   "to": 3,
+   "evidence": "A6_o1.tsv(수법 ⓐ offset_of! 일괄, 81/81 MATCH·MISMATCH 0) ★ANPLAN new(1,Mid)/new(0,Bottom) 바이트 = [team@+0x0, line@+0x8] (5차 미실측분)"
+  },
+  {
+   "path": "/specs[2]/mem[17]",
+   "from": 4,
+   "to": 3,
+   "evidence": "A6_o4.tsv SUBPLAN tag/b8/b9/b10 3분기 전수"
+  },
+  {
+   "path": "/specs[2]/mem[18]",
+   "from": 4,
+   "to": 3,
+   "evidence": "A6_o4.tsv SUBPLAN tag/b8/b9/b10 3분기 전수"
+  },
+  {
+   "path": "/specs[2]/mem[19]",
+   "from": 4,
+   "to": 3,
+   "evidence": "A6_o4.tsv SUBPLAN tag/b8/b9/b10 3분기 전수"
+  },
+  {
+   "path": "/specs[2]/mem[20]",
+   "from": 4,
+   "to": 3,
+   "evidence": "A6_o4.tsv SUBPLAN tag/b8/b9/b10 3분기 전수"
+  },
+  {
+   "path": "/specs[2]/consts[1]",
+   "from": 4,
+   "to": 2,
+   "evidence": "A6_o4.tsv — in_heal_low → tag=5 Recall"
+  },
+  {
+   "path": "/specs[2]/consts[2]",
+   "from": 4,
+   "to": 2,
+   "evidence": "A6_o4.tsv — no_twin 케이스에서 적팀(1-team) 트윈타워를 비우자 분기가 갈림"
+  },
+  {
+   "path": "/specs[2]/consts[3]",
+   "from": 4,
+   "to": 2,
+   "evidence": "A6_o4.tsv — twin1_len=0 → AttackNexus / len=2 → LineDefense, b8=0(Aggressive)"
+  },
+  {
+   "path": "/specs[2]/consts[4]",
+   "from": 4,
+   "to": 2,
+   "evidence": "A6_o4.tsv — no_twin → tag=16 AttackNexus"
+  },
+  {
+   "path": "/specs[2]/consts[5]",
+   "from": 4,
+   "to": 2,
+   "evidence": "A6_o4.tsv — LineDefense tag=2 · b10=2(Push) — MinionActionType Pull=0/Normal=1/Push=2 실측(A6_o3)"
+  },
+  {
+   "path": "/specs[2]/knobs[0]",
+   "from": 4,
+   "to": 2,
+   "evidence": "A6_o4.tsv / A6_o1.tsv(수법 ⓐ offset_of! 일괄, 81/81 MATCH·MISMATCH 0) — in_heal_low(hp 500/999) → Recall / in_heal_full(999/999) → LineDefense"
+  },
+  {
+   "path": "/specs[2]/knobs[1]",
+   "from": 4,
+   "to": 2,
+   "evidence": "A6_o4.tsv / A6_o1.tsv(수법 ⓐ offset_of! 일괄, 81/81 MATCH·MISMATCH 0) — twin1_len 2 → LineDefense / 0 → AttackNexus"
+  },
+  {
+   "path": "/specs[2]/knobs[2]",
+   "from": 4,
+   "to": 2,
+   "evidence": "A6_o4.tsv / A6_o1.tsv(수법 ⓐ offset_of! 일괄, 81/81 MATCH·MISMATCH 0) — LineDefense{style=Aggressive, line=Mid(=self.line), minion_action_type=Push} Debug 출력 일치"
+  },
+  {
+   "path": "/specs[2]/knobs[3]",
+   "from": 4,
+   "to": 2,
+   "evidence": "A6_o4.tsv / A6_o1.tsv(수법 ⓐ offset_of! 일괄, 81/81 MATCH·MISMATCH 0) — FOUNTAIN team0=(0,896000,64000,960000) 실측 + 그 안/밖으로 챔프를 옮겨 분기 확인"
+  },
+  {
+   "path": "/specs[3]/mem[0]",
+   "from": 4,
+   "to": 3,
+   "evidence": "A6_o1.tsv(수법 ⓐ offset_of! 일괄, 81/81 MATCH·MISMATCH 0)"
+  },
+  {
+   "path": "/specs[3]/mem[1]",
+   "from": 4,
+   "to": 3,
+   "evidence": "A6_o1.tsv(수법 ⓐ offset_of! 일괄, 81/81 MATCH·MISMATCH 0)"
+  },
+  {
+   "path": "/specs[3]/mem[2]",
+   "from": 4,
+   "to": 3,
+   "evidence": "A6_o1.tsv(수법 ⓐ offset_of! 일괄, 81/81 MATCH·MISMATCH 0)"
+  },
+  {
+   "path": "/specs[3]/mem[3]",
+   "from": 4,
+   "to": 3,
+   "evidence": "A6_o1.tsv(수법 ⓐ offset_of! 일괄, 81/81 MATCH·MISMATCH 0)"
+  },
+  {
+   "path": "/specs[3]/mem[4]",
+   "from": 4,
+   "to": 3,
+   "evidence": "A6_o1.tsv(수법 ⓐ offset_of! 일괄, 81/81 MATCH·MISMATCH 0)"
+  },
+  {
+   "path": "/specs[3]/mem[5]",
+   "from": 4,
+   "to": 3,
+   "evidence": "A6_o1.tsv(수법 ⓐ offset_of! 일괄, 81/81 MATCH·MISMATCH 0)"
+  },
+  {
+   "path": "/specs[3]/mem[6]",
+   "from": 4,
+   "to": 3,
+   "evidence": "A6_o1.tsv(수법 ⓐ offset_of! 일괄, 81/81 MATCH·MISMATCH 0)"
+  },
+  {
+   "path": "/specs[3]/mem[7]",
+   "from": 4,
+   "to": 3,
+   "evidence": "A6_o1.tsv(수법 ⓐ offset_of! 일괄, 81/81 MATCH·MISMATCH 0)"
+  },
+  {
+   "path": "/specs[3]/mem[8]",
+   "from": 4,
+   "to": 3,
+   "evidence": "A6_o1.tsv(수법 ⓐ offset_of! 일괄, 81/81 MATCH·MISMATCH 0)"
+  },
+  {
+   "path": "/specs[3]/mem[9]",
+   "from": 4,
+   "to": 3,
+   "evidence": "A6_o1.tsv(수법 ⓐ offset_of! 일괄, 81/81 MATCH·MISMATCH 0)"
+  },
+  {
+   "path": "/specs[3]/mem[12]",
+   "from": 4,
+   "to": 3,
+   "evidence": "A6_o1.tsv(수법 ⓐ offset_of! 일괄, 81/81 MATCH·MISMATCH 0)"
+  },
+  {
+   "path": "/specs[3]/mem[16]",
+   "from": 4,
+   "to": 3,
+   "evidence": "A6_o1.tsv(수법 ⓐ offset_of! 일괄, 81/81 MATCH·MISMATCH 0)"
+  },
+  {
+   "path": "/specs[3]/mem[17]",
+   "from": 4,
+   "to": 3,
+   "evidence": "A6_o1.tsv(수법 ⓐ offset_of! 일괄, 81/81 MATCH·MISMATCH 0)"
+  },
+  {
+   "path": "/specs[3]/mem[18]",
+   "from": 4,
+   "to": 3,
+   "evidence": "A6_o1.tsv(수법 ⓐ offset_of! 일괄, 81/81 MATCH·MISMATCH 0)"
+  },
+  {
+   "path": "/specs[3]/mem[19]",
+   "from": 4,
+   "to": 3,
+   "evidence": "A6_o1.tsv(수법 ⓐ offset_of! 일괄, 81/81 MATCH·MISMATCH 0)"
+  },
+  {
+   "path": "/specs[3]/mem[20]",
+   "from": 4,
+   "to": 3,
+   "evidence": "A6_o1.tsv(수법 ⓐ offset_of! 일괄, 81/81 MATCH·MISMATCH 0)"
+  },
+  {
+   "path": "/specs[3]/mem[21]",
+   "from": 4,
+   "to": 3,
+   "evidence": "A6_o1.tsv(수법 ⓐ offset_of! 일괄, 81/81 MATCH·MISMATCH 0)"
+  },
+  {
+   "path": "/specs[3]/mem[10]",
+   "from": 4,
+   "to": 3,
+   "evidence": "A6_o1.tsv(수법 ⓐ offset_of! 일괄, 81/81 MATCH·MISMATCH 0) BUMPVEC ptr@+0x0 + _verify5/A/A5_o7.tsv `*(ptr)` == 원소0 주소 CONFIRMED"
+  },
+  {
+   "path": "/specs[3]/mem[11]",
+   "from": 4,
+   "to": 3,
+   "evidence": "A6_o1.tsv(수법 ⓐ offset_of! 일괄, 81/81 MATCH·MISMATCH 0) ★BUMPVEC cap=8/len=3 로 len@+0x18 판별(5차 미판별분)"
+  },
+  {
+   "path": "/specs[3]/mem[13]",
+   "from": 4,
+   "to": 3,
+   "evidence": "A6_o6.tsv(실주소 차 보충, 10/10 MATCH) ty.Champion.skill/skill2/ult_cooldown = +0xb8/+0xc0/+0xc8 실주소 차"
+  },
+  {
+   "path": "/specs[3]/mem[14]",
+   "from": 4,
+   "to": 3,
+   "evidence": "A6_o6.tsv(실주소 차 보충, 10/10 MATCH) ty.Champion.skill/skill2/ult_cooldown = +0xb8/+0xc0/+0xc8 실주소 차"
+  },
+  {
+   "path": "/specs[3]/mem[15]",
+   "from": 4,
+   "to": 3,
+   "evidence": "A6_o6.tsv(실주소 차 보충, 10/10 MATCH) ty.Champion.skill/skill2/ult_cooldown = +0xb8/+0xc0/+0xc8 실주소 차"
+  },
+  {
+   "path": "/specs[3]/consts[2]",
+   "from": 4,
+   "to": 2,
+   "evidence": "A6_o5.tsv / A6_o5_tps.tsv — level 2 → cc_threat=0 / level 3 → 1 (skill2 슬롯) — history[9] 지시 반영"
+  },
+  {
+   "path": "/specs[3]/consts[3]",
+   "from": 4,
+   "to": 2,
+   "evidence": "A6_o5.tsv / A6_o5_tps.tsv — level 4 → cc_threat=0 / level 5 → 1 (ult 슬롯) — history[9] 지시 반영"
+  },
+  {
+   "path": "/specs[3]/consts[4]",
+   "from": 4,
+   "to": 2,
+   "evidence": "A6_o5.tsv / A6_o5_tps.tsv — Option<Effect>::None 의 +0x30 = -1 실측(A6_o6)"
+  },
+  {
+   "path": "/specs[3]/consts[5]",
+   "from": 4,
+   "to": 2,
+   "evidence": "A6_o5.tsv / A6_o5_tps.tsv — tps 1/6/30/60/120 스윕에서 die 는 60 고정, die_imminent 는 `die<tps*2` 로 정확히 갈림 — tps=30(60<60=false) 이 **strict `<`** 를 판별"
+  },
+  {
+   "path": "/specs[3]/knobs[1]",
+   "from": 4,
+   "to": 2,
+   "evidence": "A6_o5.tsv / A6_o5_tps.tsv / A6_o6.tsv(실주소 차 보충, 10/10 MATCH) — cool<=tps 창: tps=60 → 60 통과/61 탈락, **tps=30 → 30 통과/31 탈락** (임계가 tps 를 따라간다) — history[9] 지시 반영"
+  },
+  {
+   "path": "/specs[3]/knobs[3]",
+   "from": 4,
+   "to": 2,
+   "evidence": "A6_o5.tsv / A6_o5_tps.tsv / A6_o6.tsv(실주소 차 보충, 10/10 MATCH) — level 2/3 경계 실측"
+  },
+  {
+   "path": "/specs[3]/knobs[4]",
+   "from": 4,
+   "to": 2,
+   "evidence": "A6_o5.tsv / A6_o5_tps.tsv / A6_o6.tsv(실주소 차 보충, 10/10 MATCH) — level 4/5 경계 실측"
+  },
+  {
+   "path": "/specs[3]/knobs[6]",
+   "from": 4,
+   "to": 2,
+   "evidence": "A6_o5.tsv / A6_o5_tps.tsv / A6_o6.tsv(실주소 차 보충, 10/10 MATCH) — ★tps 를 1/6/30/60/120 으로 바꿔도 die 가 **60 으로 고정** ⟹ 이 60 은 tps 가 아니라 하드코딩 리터럴"
+  },
+  {
+   "path": "/specs[3]/knobs[19]",
+   "from": 4,
+   "to": 2,
+   "evidence": "A6_o5.tsv / A6_o5_tps.tsv / A6_o6.tsv(실주소 차 보충, 10/10 MATCH) — PlayerState+0x218 = 80 (mkgame 이 넣은 AthleteStat.judgement) 실측(A6_o6)"
+  },
+  {
+   "path": "/specs[3]/knobs[20]",
+   "from": 4,
+   "to": 2,
+   "evidence": "A6_o5.tsv / A6_o5_tps.tsv / A6_o6.tsv(실주소 차 보충, 10/10 MATCH) — PlayerState+0x450 = 1000 (judgement_mental_ratio 초기값) 실측(A6_o6)"
+  },
+  {
+   "path": "/specs[4]/mem[0]",
+   "from": 4,
+   "to": 3,
+   "evidence": "A6_o1.tsv(수법 ⓐ offset_of! 일괄, 81/81 MATCH·MISMATCH 0)"
+  },
+  {
+   "path": "/specs[4]/mem[1]",
+   "from": 4,
+   "to": 3,
+   "evidence": "A6_o1.tsv(수법 ⓐ offset_of! 일괄, 81/81 MATCH·MISMATCH 0)"
+  },
+  {
+   "path": "/specs[4]/mem[2]",
+   "from": 4,
+   "to": 3,
+   "evidence": "A6_o1.tsv(수법 ⓐ offset_of! 일괄, 81/81 MATCH·MISMATCH 0)"
+  },
+  {
+   "path": "/specs[4]/mem[3]",
+   "from": 4,
+   "to": 3,
+   "evidence": "A6_o1.tsv(수법 ⓐ offset_of! 일괄, 81/81 MATCH·MISMATCH 0)"
+  },
+  {
+   "path": "/specs[4]/mem[4]",
+   "from": 4,
+   "to": 3,
+   "evidence": "A6_o1.tsv(수법 ⓐ offset_of! 일괄, 81/81 MATCH·MISMATCH 0)"
+  },
+  {
+   "path": "/specs[4]/mem[5]",
+   "from": 4,
+   "to": 3,
+   "evidence": "A6_o1.tsv(수법 ⓐ offset_of! 일괄, 81/81 MATCH·MISMATCH 0)"
+  },
+  {
+   "path": "/specs[4]/mem[6]",
+   "from": 4,
+   "to": 3,
+   "evidence": "A6_o1.tsv(수법 ⓐ offset_of! 일괄, 81/81 MATCH·MISMATCH 0)"
+  },
+  {
+   "path": "/specs[4]/mem[8]",
+   "from": 4,
+   "to": 3,
+   "evidence": "A6_o1.tsv(수법 ⓐ offset_of! 일괄, 81/81 MATCH·MISMATCH 0)"
+  },
+  {
+   "path": "/specs[4]/mem[9]",
+   "from": 4,
+   "to": 3,
+   "evidence": "A6_o1.tsv(수법 ⓐ offset_of! 일괄, 81/81 MATCH·MISMATCH 0)"
+  },
+  {
+   "path": "/specs[4]/mem[10]",
+   "from": 4,
+   "to": 3,
+   "evidence": "A6_o1.tsv(수법 ⓐ offset_of! 일괄, 81/81 MATCH·MISMATCH 0)"
+  },
+  {
+   "path": "/specs[4]/mem[11]",
+   "from": 4,
+   "to": 3,
+   "evidence": "A6_o1.tsv(수법 ⓐ offset_of! 일괄, 81/81 MATCH·MISMATCH 0)"
+  },
+  {
+   "path": "/specs[4]/mem[12]",
+   "from": 4,
+   "to": 3,
+   "evidence": "A6_o1.tsv(수법 ⓐ offset_of! 일괄, 81/81 MATCH·MISMATCH 0)"
+  },
+  {
+   "path": "/specs[4]/mem[13]",
+   "from": 4,
+   "to": 3,
+   "evidence": "A6_o1.tsv(수법 ⓐ offset_of! 일괄, 81/81 MATCH·MISMATCH 0)"
+  },
+  {
+   "path": "/specs[4]/mem[14]",
+   "from": 4,
+   "to": 3,
+   "evidence": "A6_o1.tsv(수법 ⓐ offset_of! 일괄, 81/81 MATCH·MISMATCH 0)"
+  },
+  {
+   "path": "/specs[4]/mem[15]",
+   "from": 4,
+   "to": 3,
+   "evidence": "A6_o1.tsv(수법 ⓐ offset_of! 일괄, 81/81 MATCH·MISMATCH 0)"
+  },
+  {
+   "path": "/specs[4]/mem[16]",
+   "from": 4,
+   "to": 3,
+   "evidence": "A6_o1.tsv(수법 ⓐ offset_of! 일괄, 81/81 MATCH·MISMATCH 0)"
+  },
+  {
+   "path": "/specs[4]/mem[18]",
+   "from": 4,
+   "to": 3,
+   "evidence": "A6_o1.tsv(수법 ⓐ offset_of! 일괄, 81/81 MATCH·MISMATCH 0)"
+  },
+  {
+   "path": "/specs[4]/mem[19]",
+   "from": 4,
+   "to": 3,
+   "evidence": "A6_o1.tsv(수법 ⓐ offset_of! 일괄, 81/81 MATCH·MISMATCH 0)"
+  },
+  {
+   "path": "/specs[4]/mem[20]",
+   "from": 4,
+   "to": 3,
+   "evidence": "A6_o1.tsv(수법 ⓐ offset_of! 일괄, 81/81 MATCH·MISMATCH 0)"
+  },
+  {
+   "path": "/specs[4]/mem[22]",
+   "from": 4,
+   "to": 3,
+   "evidence": "A6_o1.tsv(수법 ⓐ offset_of! 일괄, 81/81 MATCH·MISMATCH 0)"
+  },
+  {
+   "path": "/specs[4]/mem[23]",
+   "from": 4,
+   "to": 3,
+   "evidence": "A6_o1.tsv(수법 ⓐ offset_of! 일괄, 81/81 MATCH·MISMATCH 0)"
+  },
+  {
+   "path": "/specs[4]/mem[24]",
+   "from": 4,
+   "to": 3,
+   "evidence": "A6_o1.tsv(수법 ⓐ offset_of! 일괄, 81/81 MATCH·MISMATCH 0)"
+  },
+  {
+   "path": "/specs[4]/mem[25]",
+   "from": 4,
+   "to": 3,
+   "evidence": "A6_o1.tsv(수법 ⓐ offset_of! 일괄, 81/81 MATCH·MISMATCH 0)"
+  },
+  {
+   "path": "/specs[4]/mem[26]",
+   "from": 4,
+   "to": 3,
+   "evidence": "A6_o1.tsv(수법 ⓐ offset_of! 일괄, 81/81 MATCH·MISMATCH 0)"
+  },
+  {
+   "path": "/specs[4]/mem[17]",
+   "from": 4,
+   "to": 3,
+   "evidence": "A6_o1.tsv(수법 ⓐ offset_of! 일괄, 81/81 MATCH·MISMATCH 0) ★BUMPVEC len@+0x18 판별"
+  },
+  {
+   "path": "/specs[4]/mem[21]",
+   "from": 4,
+   "to": 3,
+   "evidence": "A6_o4.tsv STRATEGY morgard_defense_offset=0xe 실측"
+  },
+  {
+   "path": "/specs[4]/consts[0]",
+   "from": 4,
+   "to": 2,
+   "evidence": "TutorialType 9값 spawn_epic 실행 = 0/7/8 만 true (A6_o3 SPAWN_EPIC)"
+  },
+  {
+   "path": "/specs[4]/consts[1]",
+   "from": 4,
+   "to": 2,
+   "evidence": "같은 실행 — tutorial-1 <u 6 게이트 전수"
+  },
+  {
+   "path": "/specs[4]/consts[2]",
+   "from": 4,
+   "to": 2,
+   "evidence": "3차 배치A 오라클 `_verify3` 반경 경계 d2=40000000000 통과 / 40000400001 탈락 (history[5] 지시 반영)"
+  },
+  {
+   "path": "/specs[4]/consts[3]",
+   "from": 4,
+   "to": 2,
+   "evidence": "3차 배치A 오라클 인원 구간 20/20, Gather `>1` (history[5] 지시 반영)"
+  },
+  {
+   "path": "/specs[4]/consts[4]",
+   "from": 4,
+   "to": 2,
+   "evidence": "3차 배치A 오라클 인원 구간 20/20, Battle `{1,2}` (history[5] 지시 반영)"
+  },
+  {
+   "path": "/specs[4]/knobs[0]",
+   "from": 4,
+   "to": 2,
+   "evidence": "3차 배치A 오라클 반경 경계 실측 (history[5] 지시 반영)"
+  },
+  {
+   "path": "/specs[4]/knobs[1]",
+   "from": 4,
+   "to": 2,
+   "evidence": "3차 배치A 오라클 Battle 구간 20/20 (history[5] 지시 반영)"
+  },
+  {
+   "path": "/specs[4]/knobs[2]",
+   "from": 4,
+   "to": 2,
+   "evidence": "3차 배치A 오라클 Gather 하한 20/20 (history[5] 지시 반영)"
+  },
+  {
+   "path": "/specs[4]/knobs[3]",
+   "from": 4,
+   "to": 2,
+   "evidence": "A6_o3.tsv SPAWN_EPIC 9값 실행 — tutorial 게이트 전수"
+  },
+  {
+   "path": "/specs[4]/knobs[4]",
+   "from": 4,
+   "to": 2,
+   "evidence": "2차 배치A 오라클 실측 6좌표(history[3]⑤) — 팀별 값까지 확정"
+  }
+ ],
+ "brief_errors": [
+  "`BRIEF.md §2` 가 「`ev>=4` 가 아직 **669행**」이라고 적었는데, 같은 라운드의 생성물 `BRIEF_FACTS.md §1` 은 계 858행 · ev≥4 **91.4%** = **784행**이다. 산문 절의 수치가 생성 절과 어긋난다(브리핑 자신이 §0 에서 경계한 바로 그 유형 — 「기억으로 사실을 쓴 것」).",
+  "지시문은 배치 A 에게 「`open` 5건 · `notes` 3건」이라고 했고 이는 맞다. 다만 `BRIEF_FACTS.md §3` 의 제목은 「`open` 11건 · `notes` 8건」(20함수 전체)이라 같은 라운드 안에서 두 분모가 섞여 있다 — §1 처럼 **스코프 한 줄**을 §3 에도 박는 게 좋다.",
+  "★계약 결함: `applypatch.py` 의 `apply_error` 는 **문자열 필드만** 치환한다(`isinstance(cur, str)`). 그래서 이번에 찾은 `consts[].src_line` **오기 4건(정수 필드)** 을 `patch.json` 으로는 못 고친다 — `meaning` 문면에 정정을 실어 두었으니 정수 갱신은 손으로/도구로 별도 반영해야 한다. (`/specs[3]/consts[0].src_line 21→22`, `[1] 42→43`, `[2] 42→44`, `[3] 42→45`)",
+  "★도구 결함(`mkspec3.evtier`): 근거 문면에 「추정」·「보인다」가 들어가면 무조건 `ev5` 로 떨어진다. 그런데 배치 A 의 `ev5` 2건은 둘 다 **오탐**이었다 — `/specs[0]/consts[6]` 은 「태그가 0이면 '**보인다**'」(가시성 서술), `/specs[3]/knobs[19]` 는 「위협 **추정**이 정확해진다」(추정치라는 명사)다. 불확실성 어휘를 **문장 끝 서술어 위치**에서만 잡도록 좁혀야 한다."
+ ]
+}

@@ -1,0 +1,487 @@
+setting_ok	true	height=960000	tps=60
+
+===== Chat tag 47 — 행 b1(=+0x1, 0..15) / 열 b2(=+0x2, 0..7) =====
+-- tutorial 0 None
+   b1= 0  TTTTTTTT
+   b1= 1  TTTTTTTT
+   b1= 2  TTTTTTTT
+   b1= 3  TTTTTTTT
+   b1= 4  TTTTTTTT
+   b1= 5  TTTTTTTT
+   b1= 6  TTTTTTTT
+   b1= 7  TTTTTTTT
+   b1= 8  TTTTTTTT
+   b1= 9  TTTTTTTT
+   b1=10  TTTTTTTT
+   b1=11  TTTTTTTT
+   b1=12  TTTTTTTT
+   b1=13  TTTTTTTT
+   b1=14  TTTTTTTT
+   b1=15  TTTTTTTT
+-- tutorial 1 First
+   b1= 0  ........
+   b1= 1  ........
+   b1= 2  ........
+   b1= 3  ........
+   b1= 4  ..TTTTTT
+   b1= 5  ..TTTTTT
+   b1= 6  ..TTTTTT
+   b1= 7  ..TTTTTT
+   b1= 8  ..TTTTTT
+   b1= 9  ..TTTTTT
+   b1=10  ..TTTTTT
+   b1=11  ..TTTTTT
+   b1=12  ..TTTTTT
+   b1=13  ..TTTTTT
+   b1=14  ..TTTTTT
+   b1=15  ..TTTTTT
+-- tutorial 2 TopSolo
+   b1= 0  ........
+   b1= 1  ........
+   b1= 2  T..TTTTT
+   b1= 3  ........
+   b1= 4  ........
+   b1= 5  T..TTTTT
+   b1= 6  T..TTTTT
+   b1= 7  T..TTTTT
+   b1= 8  T..TTTTT
+   b1= 9  T..TTTTT
+   b1=10  T..TTTTT
+   b1=11  T..TTTTT
+   b1=12  T..TTTTT
+   b1=13  T..TTTTT
+   b1=14  T..TTTTT
+   b1=15  T..TTTTT
+-- tutorial 3 Bottom
+   b1= 0  ........
+   b1= 1  ........
+   b1= 2  ........
+   b1= 3  ........
+   b1= 4  ..TTTTTT
+   b1= 5  ..TTTTTT
+   b1= 6  ..TTTTTT
+   b1= 7  ..TTTTTT
+   b1= 8  ..TTTTTT
+   b1= 9  ..TTTTTT
+   b1=10  ..TTTTTT
+   b1=11  ..TTTTTT
+   b1=12  ..TTTTTT
+   b1=13  ..TTTTTT
+   b1=14  ..TTTTTT
+   b1=15  ..TTTTTT
+-- tutorial 4 MidSolo
+   b1= 0  ........
+   b1= 1  ........
+   b1= 2  ........
+   b1= 3  .T.TTTTT
+   b1= 4  ........
+   b1= 5  .T.TTTTT
+   b1= 6  .T.TTTTT
+   b1= 7  .T.TTTTT
+   b1= 8  .T.TTTTT
+   b1= 9  .T.TTTTT
+   b1=10  .T.TTTTT
+   b1=11  .T.TTTTT
+   b1=12  .T.TTTTT
+   b1=13  .T.TTTTT
+   b1=14  .T.TTTTT
+   b1=15  .T.TTTTT
+-- tutorial 5 MidBottom
+   b1= 0  ........
+   b1= 1  .TTTTTTT
+   b1= 2  ........
+   b1= 3  .TTTTTTT
+   b1= 4  .TTTTTTT
+   b1= 5  .TTTTTTT
+   b1= 6  .TTTTTTT
+   b1= 7  .TTTTTTT
+   b1= 8  .TTTTTTT
+   b1= 9  .TTTTTTT
+   b1=10  .TTTTTTT
+   b1=11  .TTTTTTT
+   b1=12  .TTTTTTT
+   b1=13  .TTTTTTT
+   b1=14  .TTTTTTT
+   b1=15  .TTTTTTT
+-- tutorial 6 JungleOnly
+   b1= 0  ........
+   b1= 1  ........
+   b1= 2  ........
+   b1= 3  ........
+   b1= 4  ........
+   b1= 5  ...TTTTT
+   b1= 6  ...TTTTT
+   b1= 7  ...TTTTT
+   b1= 8  ...TTTTT
+   b1= 9  ...TTTTT
+   b1=10  ...TTTTT
+   b1=11  ...TTTTT
+   b1=12  ...TTTTT
+   b1=13  ...TTTTT
+   b1=14  ...TTTTT
+   b1=15  ...TTTTT
+-- tutorial 7 Line
+   b1= 0  TTTTTTTT
+   b1= 1  TTTTTTTT
+   b1= 2  TTTTTTTT
+   b1= 3  TTTTTTTT
+   b1= 4  TTTTTTTT
+   b1= 5  TTTTTTTT
+   b1= 6  TTTTTTTT
+   b1= 7  TTTTTTTT
+   b1= 8  TTTTTTTT
+   b1= 9  TTTTTTTT
+   b1=10  TTTTTTTT
+   b1=11  TTTTTTTT
+   b1=12  TTTTTTTT
+   b1=13  TTTTTTTT
+   b1=14  TTTTTTTT
+   b1=15  TTTTTTTT
+-- tutorial 8 Total
+   b1= 0  TTTTTTTT
+   b1= 1  TTTTTTTT
+   b1= 2  TTTTTTTT
+   b1= 3  TTTTTTTT
+   b1= 4  TTTTTTTT
+   b1= 5  TTTTTTTT
+   b1= 6  TTTTTTTT
+   b1= 7  TTTTTTTT
+   b1= 8  TTTTTTTT
+   b1= 9  TTTTTTTT
+   b1=10  TTTTTTTT
+   b1=11  TTTTTTTT
+   b1=12  TTTTTTTT
+   b1=13  TTTTTTTT
+   b1=14  TTTTTTTT
+   b1=15  TTTTTTTT
+
+===== Chat tag 48 — 행 b1(=+0x1, 0..15) / 열 b2(=+0x2, 0..7) =====
+-- tutorial 0 None
+   b1= 0  TTTTTTTT
+   b1= 1  TTTTTTTT
+   b1= 2  TTTTTTTT
+   b1= 3  TTTTTTTT
+   b1= 4  TTTTTTTT
+   b1= 5  TTTTTTTT
+   b1= 6  TTTTTTTT
+   b1= 7  TTTTTTTT
+   b1= 8  TTTTTTTT
+   b1= 9  TTTTTTTT
+   b1=10  TTTTTTTT
+   b1=11  TTTTTTTT
+   b1=12  TTTTTTTT
+   b1=13  TTTTTTTT
+   b1=14  TTTTTTTT
+   b1=15  TTTTTTTT
+-- tutorial 1 First
+   b1= 0  ........
+   b1= 1  ........
+   b1= 2  ........
+   b1= 3  ........
+   b1= 4  ..TTTTTT
+   b1= 5  ..TTTTTT
+   b1= 6  ..TTTTTT
+   b1= 7  ..TTTTTT
+   b1= 8  ..TTTTTT
+   b1= 9  ..TTTTTT
+   b1=10  ..TTTTTT
+   b1=11  ..TTTTTT
+   b1=12  ..TTTTTT
+   b1=13  ..TTTTTT
+   b1=14  ..TTTTTT
+   b1=15  ..TTTTTT
+-- tutorial 2 TopSolo
+   b1= 0  ........
+   b1= 1  ........
+   b1= 2  T..TTTTT
+   b1= 3  ........
+   b1= 4  ........
+   b1= 5  T..TTTTT
+   b1= 6  T..TTTTT
+   b1= 7  T..TTTTT
+   b1= 8  T..TTTTT
+   b1= 9  T..TTTTT
+   b1=10  T..TTTTT
+   b1=11  T..TTTTT
+   b1=12  T..TTTTT
+   b1=13  T..TTTTT
+   b1=14  T..TTTTT
+   b1=15  T..TTTTT
+-- tutorial 3 Bottom
+   b1= 0  ........
+   b1= 1  ........
+   b1= 2  ........
+   b1= 3  ........
+   b1= 4  ..TTTTTT
+   b1= 5  ..TTTTTT
+   b1= 6  ..TTTTTT
+   b1= 7  ..TTTTTT
+   b1= 8  ..TTTTTT
+   b1= 9  ..TTTTTT
+   b1=10  ..TTTTTT
+   b1=11  ..TTTTTT
+   b1=12  ..TTTTTT
+   b1=13  ..TTTTTT
+   b1=14  ..TTTTTT
+   b1=15  ..TTTTTT
+-- tutorial 4 MidSolo
+   b1= 0  ........
+   b1= 1  ........
+   b1= 2  ........
+   b1= 3  .T.TTTTT
+   b1= 4  ........
+   b1= 5  .T.TTTTT
+   b1= 6  .T.TTTTT
+   b1= 7  .T.TTTTT
+   b1= 8  .T.TTTTT
+   b1= 9  .T.TTTTT
+   b1=10  .T.TTTTT
+   b1=11  .T.TTTTT
+   b1=12  .T.TTTTT
+   b1=13  .T.TTTTT
+   b1=14  .T.TTTTT
+   b1=15  .T.TTTTT
+-- tutorial 5 MidBottom
+   b1= 0  ........
+   b1= 1  .TTTTTTT
+   b1= 2  ........
+   b1= 3  .TTTTTTT
+   b1= 4  .TTTTTTT
+   b1= 5  .TTTTTTT
+   b1= 6  .TTTTTTT
+   b1= 7  .TTTTTTT
+   b1= 8  .TTTTTTT
+   b1= 9  .TTTTTTT
+   b1=10  .TTTTTTT
+   b1=11  .TTTTTTT
+   b1=12  .TTTTTTT
+   b1=13  .TTTTTTT
+   b1=14  .TTTTTTT
+   b1=15  .TTTTTTT
+-- tutorial 6 JungleOnly
+   b1= 0  ........
+   b1= 1  ........
+   b1= 2  ........
+   b1= 3  ........
+   b1= 4  ........
+   b1= 5  ...TTTTT
+   b1= 6  ...TTTTT
+   b1= 7  ...TTTTT
+   b1= 8  ...TTTTT
+   b1= 9  ...TTTTT
+   b1=10  ...TTTTT
+   b1=11  ...TTTTT
+   b1=12  ...TTTTT
+   b1=13  ...TTTTT
+   b1=14  ...TTTTT
+   b1=15  ...TTTTT
+-- tutorial 7 Line
+   b1= 0  TTTTTTTT
+   b1= 1  TTTTTTTT
+   b1= 2  TTTTTTTT
+   b1= 3  TTTTTTTT
+   b1= 4  TTTTTTTT
+   b1= 5  TTTTTTTT
+   b1= 6  TTTTTTTT
+   b1= 7  TTTTTTTT
+   b1= 8  TTTTTTTT
+   b1= 9  TTTTTTTT
+   b1=10  TTTTTTTT
+   b1=11  TTTTTTTT
+   b1=12  TTTTTTTT
+   b1=13  TTTTTTTT
+   b1=14  TTTTTTTT
+   b1=15  TTTTTTTT
+-- tutorial 8 Total
+   b1= 0  TTTTTTTT
+   b1= 1  TTTTTTTT
+   b1= 2  TTTTTTTT
+   b1= 3  TTTTTTTT
+   b1= 4  TTTTTTTT
+   b1= 5  TTTTTTTT
+   b1= 6  TTTTTTTT
+   b1= 7  TTTTTTTT
+   b1= 8  TTTTTTTT
+   b1= 9  TTTTTTTT
+   b1=10  TTTTTTTT
+   b1=11  TTTTTTTT
+   b1=12  TTTTTTTT
+   b1=13  TTTTTTTT
+   b1=14  TTTTTTTT
+   b1=15  TTTTTTTT
+
+===== Chat tag 49 — 행 b1(=+0x1, 0..15) / 열 b2(=+0x2, 0..7) =====
+-- tutorial 0 None
+   b1= 0  TTTTTTTT
+   b1= 1  TTTTTTTT
+   b1= 2  TTTTTTTT
+   b1= 3  TTTTTTTT
+   b1= 4  TTTTTTTT
+   b1= 5  TTTTTTTT
+   b1= 6  TTTTTTTT
+   b1= 7  TTTTTTTT
+   b1= 8  TTTTTTTT
+   b1= 9  TTTTTTTT
+   b1=10  TTTTTTTT
+   b1=11  TTTTTTTT
+   b1=12  TTTTTTTT
+   b1=13  TTTTTTTT
+   b1=14  TTTTTTTT
+   b1=15  TTTTTTTT
+-- tutorial 1 First
+   b1= 0  ........
+   b1= 1  ........
+   b1= 2  ........
+   b1= 3  ........
+   b1= 4  ..TTTTTT
+   b1= 5  ..TTTTTT
+   b1= 6  ..TTTTTT
+   b1= 7  ..TTTTTT
+   b1= 8  ..TTTTTT
+   b1= 9  ..TTTTTT
+   b1=10  ..TTTTTT
+   b1=11  ..TTTTTT
+   b1=12  ..TTTTTT
+   b1=13  ..TTTTTT
+   b1=14  ..TTTTTT
+   b1=15  ..TTTTTT
+-- tutorial 2 TopSolo
+   b1= 0  ........
+   b1= 1  ........
+   b1= 2  T..TTTTT
+   b1= 3  ........
+   b1= 4  ........
+   b1= 5  T..TTTTT
+   b1= 6  T..TTTTT
+   b1= 7  T..TTTTT
+   b1= 8  T..TTTTT
+   b1= 9  T..TTTTT
+   b1=10  T..TTTTT
+   b1=11  T..TTTTT
+   b1=12  T..TTTTT
+   b1=13  T..TTTTT
+   b1=14  T..TTTTT
+   b1=15  T..TTTTT
+-- tutorial 3 Bottom
+   b1= 0  ........
+   b1= 1  ........
+   b1= 2  ........
+   b1= 3  ........
+   b1= 4  ..TTTTTT
+   b1= 5  ..TTTTTT
+   b1= 6  ..TTTTTT
+   b1= 7  ..TTTTTT
+   b1= 8  ..TTTTTT
+   b1= 9  ..TTTTTT
+   b1=10  ..TTTTTT
+   b1=11  ..TTTTTT
+   b1=12  ..TTTTTT
+   b1=13  ..TTTTTT
+   b1=14  ..TTTTTT
+   b1=15  ..TTTTTT
+-- tutorial 4 MidSolo
+   b1= 0  ........
+   b1= 1  ........
+   b1= 2  ........
+   b1= 3  .T.TTTTT
+   b1= 4  ........
+   b1= 5  .T.TTTTT
+   b1= 6  .T.TTTTT
+   b1= 7  .T.TTTTT
+   b1= 8  .T.TTTTT
+   b1= 9  .T.TTTTT
+   b1=10  .T.TTTTT
+   b1=11  .T.TTTTT
+   b1=12  .T.TTTTT
+   b1=13  .T.TTTTT
+   b1=14  .T.TTTTT
+   b1=15  .T.TTTTT
+-- tutorial 5 MidBottom
+   b1= 0  ........
+   b1= 1  .TTTTTTT
+   b1= 2  ........
+   b1= 3  .TTTTTTT
+   b1= 4  .TTTTTTT
+   b1= 5  .TTTTTTT
+   b1= 6  .TTTTTTT
+   b1= 7  .TTTTTTT
+   b1= 8  .TTTTTTT
+   b1= 9  .TTTTTTT
+   b1=10  .TTTTTTT
+   b1=11  .TTTTTTT
+   b1=12  .TTTTTTT
+   b1=13  .TTTTTTT
+   b1=14  .TTTTTTT
+   b1=15  .TTTTTTT
+-- tutorial 6 JungleOnly
+   b1= 0  ........
+   b1= 1  ........
+   b1= 2  ........
+   b1= 3  ........
+   b1= 4  ........
+   b1= 5  ...TTTTT
+   b1= 6  ...TTTTT
+   b1= 7  ...TTTTT
+   b1= 8  ...TTTTT
+   b1= 9  ...TTTTT
+   b1=10  ...TTTTT
+   b1=11  ...TTTTT
+   b1=12  ...TTTTT
+   b1=13  ...TTTTT
+   b1=14  ...TTTTT
+   b1=15  ...TTTTT
+-- tutorial 7 Line
+   b1= 0  TTTTTTTT
+   b1= 1  TTTTTTTT
+   b1= 2  TTTTTTTT
+   b1= 3  TTTTTTTT
+   b1= 4  TTTTTTTT
+   b1= 5  TTTTTTTT
+   b1= 6  TTTTTTTT
+   b1= 7  TTTTTTTT
+   b1= 8  TTTTTTTT
+   b1= 9  TTTTTTTT
+   b1=10  TTTTTTTT
+   b1=11  TTTTTTTT
+   b1=12  TTTTTTTT
+   b1=13  TTTTTTTT
+   b1=14  TTTTTTTT
+   b1=15  TTTTTTTT
+-- tutorial 8 Total
+   b1= 0  TTTTTTTT
+   b1= 1  TTTTTTTT
+   b1= 2  TTTTTTTT
+   b1= 3  TTTTTTTT
+   b1= 4  TTTTTTTT
+   b1= 5  TTTTTTTT
+   b1= 6  TTTTTTTT
+   b1= 7  TTTTTTTT
+   b1= 8  TTTTTTTT
+   b1= 9  TTTTTTTT
+   b1=10  TTTTTTTT
+   b1=11  TTTTTTTT
+   b1=12  TTTTTTTT
+   b1=13  TTTTTTTT
+   b1=14  TTTTTTTT
+   b1=15  TTTTTTTT
+
+===== 요약: tag47 에서 (b1,b2=0) 이 허용되는 tutorial 집합 =====
+b1= 0	allow_tut=[0, 7, 8]
+b1= 1	allow_tut=[0, 7, 8]
+b1= 2	allow_tut=[0, 2, 7, 8]
+b1= 3	allow_tut=[0, 7, 8]
+b1= 4	allow_tut=[0, 7, 8]
+b1= 5	allow_tut=[0, 2, 7, 8]
+b1= 6	allow_tut=[0, 2, 7, 8]
+b1= 7	allow_tut=[0, 2, 7, 8]
+b1= 8	allow_tut=[0, 2, 7, 8]
+b1= 9	allow_tut=[0, 2, 7, 8]
+b1=10	allow_tut=[0, 2, 7, 8]
+b1=11	allow_tut=[0, 2, 7, 8]
+b1=12	allow_tut=[0, 2, 7, 8]
+b1=13	allow_tut=[0, 2, 7, 8]
+b1=14	allow_tut=[0, 2, 7, 8]
+b1=15	allow_tut=[0, 2, 7, 8]
+
+참고: position_exists 집합 = Top{0,2,7,8} Jungle{0,6,8} Mid{0,4,5,7,8} Bottom/Support{0,1,3,5,7,8}
+DONE

@@ -1,0 +1,45 @@
+================================================================================================
+4차 반영 감사 — 배치 보고서 항목 ↔ specs20_v3.json 기계 대조
+================================================================================================
+  OK    A 01 expected_damage_target ev5→ev2(오라클 26/26)
+  OK    A 01 반환 = HP축 절대 피해량(경감식)
+  OK    A 01 이펙트 종류별 차등의 소재
+  OK    A 04 get_game_mode 구현 4개 · Game 만 Moba
+  OK    A 04 핸들러 정체 = TeamPlan(1064B)
+  OK    A→03 오분류(답이 shared 에 있음) 닫힘
+  OK    B-E1 09 옛 결론(살아있는 버전 게이트) 정정
+  OK    B-E2 09 에픽버프 노브 분기 극성
+  OK    B-E3 09 closed[0].why 근거 오귀속(closelist needle)
+  OK    B-N1 미니언 함수 전문(minion_wave_risk.rs:130~231)
+  OK    B-N2 미니언 생성 우회(팀당 9마리)
+  OK    B-N3 07 Hide 경로 transmute 개방
+  OK    B-N4 09 독립 재구현 1800/1800
+  OK    B-N6 05 오라클 범위 정정(plan_v50_dive_episodes)
+  OK    B-N7 shared 좌우 정정(buff 가 좌항)
+  OK    C 14 region_point 산출식 종결(27칸)
+  OK    C 14 setup_limit/wait_limit 소비처 = is_end
+  OK    C 13 target_bush 만 blackboard
+  OK    C 10 divtable 런타임 대조 4/4
+  OK    C→17 vtable 구현체 우려 해소
+  OK    D-E1 16 이펙트 슬롯 = 메서드+as_ref 두 줄
+  OK    D-E2 16 callees 4개 수복
+  OK    D-E3 15 ty.Tower.info.ty (튜플 오기 정정)
+  OK    D-E4 17 8필드 → 9필드
+  OK    D-E5 18 TeamPlan 0xc8/0xd0 행 분리
+  OK    D-R1 15 TLS 메모 판정반전(대상 hp 는 판별 축)
+  OK    D-R2 17 base_sub_goal 축 = 적 우물 위험
+  OK    D-N1 16 battle.rs 33줄 ±0
+  OK    D-N2 single_tower_dive_is_viable game==mine 12/12
+  OK    ev상향 08 상수 15 오라클 13/13
+  OK    ev상향 07 상수 51 오라클 8/8
+  OK    함정 TLS 메모 = 케이스당 프로세스 1개
+  OK    함정 실전 ChampionInfo 액션 파라미터 0
+  OK    함정 3차 앵커 프로브 세팅 오염
+
+------------------------------------------------------------------------------------------------
+  OK    08 consts 15 → ev2  (ev=[2], 기대 2)
+  OK    07 consts 51 → ev2  (ev=[2], 기대 2)
+
+================================================================================================
+미반영 0 · STALE 0 · ev불일치 0   → 전건 반영됨
+================================================================================================

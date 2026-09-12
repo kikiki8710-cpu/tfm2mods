@@ -1,0 +1,47 @@
+
+=== specs[0] ult consts[3] value=1  주장 src_line=293
+   L44089   %71 = icmp eq i64 %70, 1, !dbg !56434                                                            -> [('abstract_input.rs', 310)]
+   L44130   call fastcc void @_RNvNtCshdEBA0ozCnw_7game_ai14abstract_input16get_input_target(ptr noalias nou -> [('abstract_input.rs', 0)]
+   L44212   tail call void @_RNvNtCshdEBA0ozCnw_7game_ai14abstract_input29safe_move_avoiding_enemy_well(ptr  -> [('abstract_input.rs', 340)]
+   L44356   %232 = extractvalue { i64, i64 } %230, 1, !dbg !56550                                            -> [('abstract_input.rs', 336)]
+   L44359   tail call void @_RNvNtCshdEBA0ozCnw_7game_ai14abstract_input29safe_move_avoiding_enemy_well(ptr  -> [('abstract_input.rs', 338)]
+
+=== specs[0] ult consts[4] value=2  주장 src_line=293
+   L43983   %11 = icmp ult i64 %10, 2, !dbg !56370                                                           -> [('abstract_input.rs', 281)]
+   L43987   tail call void @_RNvNtCsjihNppCmMEE_4core9panicking18panic_bounds_check(i64 noundef %10, i64 nou -> [('abstract_input.rs', 281)]
+   L44130   call fastcc void @_RNvNtCshdEBA0ozCnw_7game_ai14abstract_input16get_input_target(ptr noalias nou -> [('abstract_input.rs', 0)]
+   L44192   %131 = icmp ult i64 %130, 2, !dbg !56498                                                         -> [('abstract_input.rs', 328)]
+   L44198   %134 = getelementptr inbounds nuw { i64, [2 x i64] }, ptr %133, i64 %130, !dbg !56503            -> [('abstract_input.rs', 328)]
+   L44204   tail call void @_RNvNtCsjihNppCmMEE_4core9panicking18panic_bounds_check(i64 noundef %130, i64 no -> [('abstract_input.rs', 328)]
+   ... (이하 생략)
+
+=== specs[1] calculate_jungle_action_score consts[3] value=2  주장 src_line=528
+   L39998   %10 = icmp ult i64 %9, 2, !dbg !44379                                                            -> [('action_score.rs', 522)]
+   L40002   tail call void @_RNvNtCsjihNppCmMEE_4core9panicking18panic_bounds_check(i64 noundef %9, i64 noun -> [('action_score.rs', 522)]
+   L40010   %16 = load ptr, ptr %2, align 8, !dbg !44379, !nonnull !8, !align !8990, !noundef !8             -> [('action_score.rs', 522)]
+   L40021   %23 = getelementptr inbounds nuw i8, ptr %2, i64 8, !dbg !44393                                  -> [('action_score.rs', 523)]
+   L40061   %41 = icmp ult i64 %40, 2, !dbg !44411                                                           -> [('action_score.rs', 530)]
+   L40089   %54 = icmp ult i64 %34, 2, !dbg !44407                                                           -> [('action_score.rs', 542)]
+   ... (이하 생략)
+
+=== specs[1] calculate_jungle_action_score consts[5] value=4  주장 src_line=530
+   L40088   %53 = icmp eq i64 %29, 4, !dbg !44407                                                            -> [('action_score.rs', 542)]
+
+=== specs[1] calculate_jungle_action_score consts[8] value=1  주장 src_line=536
+   L39996   %8 = getelementptr inbounds nuw i8, ptr %1, i64 2352, !dbg !44379                                -> [('action_score.rs', 522)]
+   L40007   %13 = getelementptr inbounds nuw i8, ptr %1, i64 2496, !dbg !44384                               -> [('action_score.rs', 522)]
+
+=== specs[1] calculate_jungle_action_score consts[10] value=0  주장 src_line=536
+   L40043   %32 = phi i64 [ 0, %45 ], [ -10, %46 ], [ 80, %37 ], [ 200, %22 ], [ %44, %42 ], !dbg !44396     -> [('action_score.rs', 0)]
+   L40051   %36 = icmp eq i64 %27, 0, !dbg !44409                                                            -> [('action_score.rs', 548)]
+   L40091   %56 = select i1 %55, i64 5, i64 0, !dbg !44407                                                   -> [('action_score.rs', 542)]
+
+=== specs[2] sub_plan consts[1] value=5  주장 src_line=42
+   L34890   %17 = load ptr, ptr %5, align 8, !dbg !62937, !nonnull !8, !align !8930, !noundef !8             -> [('attack_nexus.rs', 36)]
+   L34892   %19 = getelementptr inbounds nuw [5 x ptr], ptr %18, i64 %10, !dbg !62937                        -> [('attack_nexus.rs', 36)]
+   L34906   %25 = getelementptr inbounds nuw i8, ptr %5, i64 8, !dbg !62946                                  -> [('attack_nexus.rs', 37)]
+
+=== specs[2] sub_plan consts[4] value=16  주장 src_line=50
+   L34889   %16 = zext nneg i32 %15 to i64, !dbg !62954                                                      -> [('attack_nexus.rs', 36)]
+   L34893   %20 = getelementptr inbounds nuw ptr, ptr %19, i64 %16, !dbg !62937                              -> [('attack_nexus.rs', 36)]
+   L34916   %32 = getelementptr inbounds nuw i8, ptr %30, i64 16, !dbg !62965                                -> [('attack_nexus.rs', 37)]

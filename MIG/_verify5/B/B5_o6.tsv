@@ -1,0 +1,9 @@
+size_of::<LegacyPlanHandler>()	6168	exp=6168
+#OFF	offset	name	value
+OFF	0x570	v50_dive_ep_live 판별자	-1	(-1 = None 기대)
+OFF	0x1480	last_dive_abandon_tick	0
+OFF	0x1811	v50_dive_ep_abort_src	0
+OFF	0x888	v50_dive_episodes.cap	0
+OFF	0x898	v50_dive_episodes.len	0
+OFF	0x5e8	plan 태그(BigPlan)	3
+VERDICT	none_sentinel_is_minus1=true

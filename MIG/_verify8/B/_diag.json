@@ -1,0 +1,3253 @@
+[
+ {
+  "i": 0,
+  "j": 0,
+  "name": "ult",
+  "val": 2,
+  "kind": "임계",
+  "B": "OK",
+  "Bobs": {
+   "임계": 2,
+   "인자상수": 2,
+   "인덱스": 1
+  },
+  "C": "OK",
+  "Dusage": [
+   "REL",
+   "SWITCH"
+  ],
+  "D": "OK",
+  "meaning": "player_champion 1차 배열 길이(팀 수 2) — `icmp ult i64 %10, 2`(m04.ll:43983) 의 비교 상한 = 팀 첨자 bounds-check. entity.rs:1483 의 visible_state 첨자에도 같은 len=2 (★7차 배치A: 이 값은 첨자가 아니라 **비교 상한** 이라 kind=임계)"
+ },
+ {
+  "i": 0,
+  "j": 1,
+  "name": "ult",
+  "val": 4,
+  "kind": "임계",
+  "B": "OK",
+  "Bobs": {
+   "임계": 1,
+   "인자상수": 1
+  },
+  "C": "OK",
+  "Dusage": [
+   "REL"
+  ],
+  "D": "OK",
+  "meaning": "★궁극기 해금 레벨 게이트. Entity::ult_effect(entity.rs:1701) 인라인 — champ.level > 4 (즉 레벨 5부터)여야 ult_effect 를 반환, 아니면 정적 None · 오라클 실행 확증( A6_o2_main.tsv / A6_o2_radius.tsv / A6_o2_samepos.tsv — level 4 → ult_eff_some=false / level 5 → true (A6_o2 visible 4/5))"
+ },
+ {
+  "i": 0,
+  "j": 2,
+  "name": "ult",
+  "val": -1,
+  "kind": "센티널",
+  "B": "OK",
+  "Bobs": {
+   "태그": 4,
+   "임계": 3,
+   "오프셋가감": 3
+  },
+  "C": "OK",
+  "Dusage": [
+   "ARITH",
+   "EQ",
+   "STORE"
+  ],
+  "D": "OK",
+  "meaning": "Option 의 None 센티넬(니치값). 반환 Option<Input> 의 None 저장값이자, Option<Effect>(effect+0x30) / Option<InputTarget> 의 니치 None 값 · 오라클 실행 확증( A6_o2_main.tsv / A6_o2_radius.tsv / A6_o2_samepos.tsv — Option<Input>::None tag@+0x0 = -1 실측)"
+ },
+ {
+  "i": 0,
+  "j": 3,
+  "name": "ult",
+  "val": 1,
+  "kind": "태그",
+  "B": "X",
+  "Bobs": {
+   "임계": 1
+  },
+  "C": "OK",
+  "Dusage": [
+   "EQ",
+   "SWITCH"
+  ],
+  "D": "OK",
+  "meaning": "CastingType::Position 태그(switch case). 또한 310행 vtable(+0xf8) 반환 튜플 .0 == 1 비교값 · 오라클 실행 확증( A6_o2_main.tsv / A6_o2_radius.tsv / A6_o2_samepos.tsv — CastingType::Position = 1 실측)"
+ },
+ {
+  "i": 0,
+  "j": 4,
+  "name": "ult",
+  "val": 2,
+  "kind": "태그",
+  "B": "X",
+  "Bobs": {
+   "임계": 2,
+   "인자상수": 2,
+   "인덱스": 1
+  },
+  "C": "OK",
+  "Dusage": [
+   "REL",
+   "SWITCH"
+  ],
+  "D": "OK",
+  "meaning": "CastingType::Direction 태그(switch case) · 오라클 실행 확증( A6_o2_main.tsv / A6_o2_radius.tsv / A6_o2_samepos.tsv — CastingType::Direction = 2 실측)"
+ },
+ {
+  "i": 0,
+  "j": 5,
+  "name": "ult",
+  "val": 0,
+  "kind": "태그",
+  "B": "OK",
+  "Bobs": {
+   "임계": 5,
+   "태그": 1
+  },
+  "C": "OK",
+  "Dusage": [
+   "EQ"
+  ],
+  "D": "OK",
+  "meaning": "CastingType::Targeting 태그. effect_range_with_radii(abstract_input.rs:191)에서 casting==Targeting 일 때만 시전자 반경을 사거리에 더한다 · 오라클 실행 확증( A6_o2_main.tsv / A6_o2_radius.tsv / A6_o2_samepos.tsv — casting=Targeting 만 caster_r_ON 이 MATCH_ULT=YES, 나머지 3값은 caster_r_OFF 가 YES)"
+ },
+ {
+  "i": 0,
+  "j": 6,
+  "name": "ult",
+  "val": 0,
+  "kind": "태그",
+  "B": "OK",
+  "Bobs": {
+   "임계": 5,
+   "태그": 1
+  },
+  "C": "OK",
+  "Dusage": [
+   "EQ"
+  ],
+  "D": "OK",
+  "meaning": "VisibleState::Visible 태그. target.visible_state[champ.team] 태그가 0이면 '보인다' · 오라클 실행 확증( A6_o2_main.tsv / A6_o2_radius.tsv / A6_o2_samepos.tsv — VisibleState::Visible = 0 / Unknown = 2 실측 + invisible 케이스가 L340 경로로 갈림)"
+ },
+ {
+  "i": 0,
+  "j": 7,
+  "name": "ult",
+  "val": 100,
+  "kind": "임계",
+  "B": "X",
+  "Bobs": {
+   "오프셋가감": 2,
+   "계수": 2
+  },
+  "C": "**불일치**",
+  "Dusage": [
+   "ARITH"
+  ],
+  "D": "R3",
+  "meaning": "Entity::radius(entity.rs:1515) 의 퍼센트 기준 — radius*(radius_mult+100)/100. radius_mult=0 이면 원본 radius 그대로 · 오라클 실행 확증( A6_o2_main.tsv / A6_o2_radius.tsv / A6_o2_samepos.tsv — radius_mult = 0/50/-50/100/-100/-99 스윕 — radius()=raw*(100+mult)/100 이 6/6 일치, 기준 1000 가설 기각)"
+ },
+ {
+  "i": 0,
+  "j": 8,
+  "name": "ult",
+  "val": 5,
+  "kind": "태그",
+  "B": "OK",
+  "Bobs": {
+   "인덱스": 1,
+   "태그": 1
+  },
+  "C": "OK",
+  "Dusage": [
+   "STORE"
+  ],
+  "D": "OK",
+  "meaning": "Input::Ult 의 열거형 태그값(dienum Input 5) · 오라클 실행 확증( A6_o2_main.tsv / A6_o2_radius.tsv / A6_o2_samepos.tsv — Some(Input::Ult) tag@+0x0 = 5 실측)"
+ },
+ {
+  "i": 0,
+  "j": 9,
+  "name": "ult",
+  "val": 150000,
+  "kind": "임계",
+  "B": "X",
+  "Bobs": {
+   "인자상수": 1
+  },
+  "C": "판정보류(콜리 인자로만 등장)",
+  "Dusage": [],
+  "D": "OK",
+  "meaning": "★이동 목표 산정 시 총사거리에서 빼는 여유분(saturating_sub). 셀=32000 기준 약 4.7셀. 사거리 끝보다 이만큼 안쪽에 서려고 접근한다 · 오라클 실행 확증( A6_o2_main.tsv / A6_o2_radius.tsv / A6_o2_samepos.tsv — margin 149999/150000/150001 중 150000 만 MATCH_ULT=YES)"
+ },
+ {
+  "i": 1,
+  "j": 0,
+  "name": "calculate_jungle_action_score",
+  "val": 2,
+  "kind": "임계",
+  "B": "OK",
+  "Bobs": {
+   "임계": 3,
+   "인자상수": 1
+  },
+  "C": "OK",
+  "Dusage": [
+   "REL",
+   "SWITCH"
+  ],
+  "D": "OK",
+  "meaning": "player_champion 첫 축 길이 = 2(팀 수). team >= 2 면 panic_bounds_check"
+ },
+ {
+  "i": 1,
+  "j": 1,
+  "name": "calculate_jungle_action_score",
+  "val": 3,
+  "kind": "태그",
+  "B": "X",
+  "Bobs": {},
+  "C": "OK",
+  "Dusage": [
+   "SWITCH"
+  ],
+  "D": "OK",
+  "meaning": "EntityType 판별자 3 = Nexus (is_nexus(), entity.rs:1399-1400 인라인) · 오라클 실행 확증( A6_o3.tsv SCORE/HPSWEEP — Nexus tag=3 → coef 200, game==mine MATCH)"
+ },
+ {
+  "i": 1,
+  "j": 2,
+  "name": "calculate_jungle_action_score",
+  "val": 200,
+  "kind": "임계",
+  "B": "X",
+  "Bobs": {
+   "태그": 1
+  },
+  "C": "판정보류(리터럴 미검출 — 접힘)",
+  "Dusage": [],
+  "D": "OK",
+  "meaning": "대상이 Nexus 일 때의 계수 coef — 이 함수 최대 계수 · 오라클 실행 확증( A6_o3.tsv SCORE/HPSWEEP — Nexus 2개 전부 game=200 MATCH)"
+ },
+ {
+  "i": 1,
+  "j": 3,
+  "name": "calculate_jungle_action_score",
+  "val": 2,
+  "kind": "태그",
+  "B": "X",
+  "Bobs": {
+   "임계": 3,
+   "인자상수": 1
+  },
+  "C": "OK",
+  "Dusage": [
+   "REL",
+   "SWITCH"
+  ],
+  "D": "OK",
+  "meaning": "EntityType 판별자 2 = Tower · 오라클 실행 확증( A6_o3.tsv SCORE/HPSWEEP — Tower tag=2 → coef 80 MATCH)"
+ },
+ {
+  "i": 1,
+  "j": 4,
+  "name": "calculate_jungle_action_score",
+  "val": 80,
+  "kind": "임계",
+  "B": "X",
+  "Bobs": {
+   "태그": 1
+  },
+  "C": "판정보류(리터럴 미검출 — 접힘)",
+  "Dusage": [],
+  "D": "OK",
+  "meaning": "대상이 Tower 일 때의 계수 coef · 오라클 실행 확증( A6_o3.tsv SCORE/HPSWEEP — Tower 2개 전부 game=80 MATCH)"
+ },
+ {
+  "i": 1,
+  "j": 5,
+  "name": "calculate_jungle_action_score",
+  "val": 4,
+  "kind": "태그",
+  "B": "X",
+  "Bobs": {
+   "임계": 1
+  },
+  "C": "OK",
+  "Dusage": [
+   "EQ",
+   "SWITCH"
+  ],
+  "D": "OK",
+  "meaning": "EntityType 판별자 4 = Jungle · 오라클 실행 확증( A6_o3.tsv SCORE/HPSWEEP — Jungle tag=4 12개 전부 MATCH)"
+ },
+ {
+  "i": 1,
+  "j": 6,
+  "name": "calculate_jungle_action_score",
+  "val": 20,
+  "kind": "임계",
+  "B": "X",
+  "Bobs": {
+   "태그": 1
+  },
+  "C": "**불일치**",
+  "Dusage": [
+   "SELECT"
+  ],
+  "D": "R3",
+  "meaning": "Jungle 이면서 hp > value(예상피해)일 때의 계수 = 이번 이펙트로 못 잡는 캠프 ★소스 L531 은 **`if hp <= value { 40 } else { 20 }` 형태**(20 이 else-arm) — rmeta_srcmap L531=20자. 어느 표기인지(`hp <= value` / `value >= hp`, 둘 다 11자)는 **표기 불가**이나 **arm 반전 구조는 확정** · 오라클 실행 확증( A6_o3.tsv SCORE/HPSWEEP — HPSWEEP hp=497 이상에서 coef 20 MATCH)"
+ },
+ {
+  "i": 1,
+  "j": 7,
+  "name": "calculate_jungle_action_score",
+  "val": 40,
+  "kind": "임계",
+  "B": "X",
+  "Bobs": {
+   "태그": 1
+  },
+  "C": "OK",
+  "Dusage": [],
+  "D": "OK",
+  "meaning": "Jungle 이면서 hp <= value 일 때의 계수 = 이번 이펙트로 처치 가능한 캠프(두 배 우대) ★소스 L531 은 **`if hp <= value { 40 } else { 20 }` 형태**(20 이 else-arm) — rmeta_srcmap L531=20자. 어느 표기인지(`hp <= value` / `value >= hp`, 둘 다 11자)는 **표기 불가**이나 **arm 반전 구조는 확정** · 오라클 실행 확증( A6_o3.tsv SCORE/HPSWEEP — HPSWEEP hp=496 경계에서 40 채택 — `hp<value` 대립가설 25 를 기각(MATCH 판별))"
+ },
+ {
+  "i": 1,
+  "j": 8,
+  "name": "calculate_jungle_action_score",
+  "val": 1,
+  "kind": "태그",
+  "B": "X",
+  "Bobs": {},
+  "C": "OK",
+  "Dusage": [
+   "SWITCH"
+  ],
+  "D": "OK",
+  "meaning": "EntityType 판별자 1 = Minion · 오라클 실행 확증(7차 배치A: A7_o1.tsv MINION — 6차까지 미니언 케이스가 오라클에 한 번도 안 들어갔다(A6_o3 은 Nexus/Tower/Jungle/Champion 뿐). 유효 Entity 의 EntityType 판별자를 1 로 주입하니 game=-4960 = min(-10, -10*496/1) 로 MATCH, 대립가설 coef=0 기각)"
+ },
+ {
+  "i": 1,
+  "j": 9,
+  "name": "calculate_jungle_action_score",
+  "val": -10,
+  "kind": "임계",
+  "B": "X",
+  "Bobs": {
+   "태그": 1
+  },
+  "C": "판정보류(리터럴 미검출 — 접힘)",
+  "Dusage": [],
+  "D": "OK",
+  "meaning": "대상이 Minion 일 때의 계수 — 정글러가 미니언을 때리는 것에 대한 감점 · 오라클 실행 확증(7차 배치A: A7_o1.tsv MINION — tag 1 에서 game=-4960, coef=-10 판별(대립가설 coef=0 이면 0 이어야 한다))"
+ },
+ {
+  "i": 1,
+  "j": 10,
+  "name": "calculate_jungle_action_score",
+  "val": 0,
+  "kind": "임계",
+  "B": "OK",
+  "Bobs": {
+   "태그": 2,
+   "임계": 1
+  },
+  "C": "**불일치**",
+  "Dusage": [
+   "EQ"
+  ],
+  "D": "OK",
+  "meaning": "그 외 모든 EntityType(Champion 포함!)의 계수 = 0 → 점수 0 · 오라클 실행 확증( A6_o3.tsv SCORE/HPSWEEP — Champion tag=13 → coef 0, game=0 MATCH)"
+ },
+ {
+  "i": 1,
+  "j": 11,
+  "name": "calculate_jungle_action_score",
+  "val": 5,
+  "kind": "임계",
+  "B": "X",
+  "Bobs": {
+   "인덱스": 1,
+   "태그": 1
+  },
+  "C": "**불일치**",
+  "Dusage": [
+   "SELECT"
+  ],
+  "D": "R3",
+  "meaning": "based 보너스. is_jungle() 이면 최종 점수에 +5 (동점 시 정글 캠프 우선) · 오라클 실행 확증( A6_o3.tsv SCORE/HPSWEEP — Jungle 만 based=5 가 붙고 Tower/Nexus/Champion 은 0 — 20행 MATCH)"
+ },
+ {
+  "i": 2,
+  "j": 0,
+  "name": "sub_plan",
+  "val": 2,
+  "kind": "임계",
+  "B": "OK",
+  "Bobs": {
+   "임계": 1,
+   "인자상수": 1,
+   "태그": 2
+  },
+  "C": "OK",
+  "Dusage": [
+   "REL",
+   "STORE"
+  ],
+  "D": "OK",
+  "meaning": "팀 배열 길이 — player.info.team 이 2 이상이면 panic_bounds_check(len=2). 즉 팀은 0/1 뿐"
+ },
+ {
+  "i": 2,
+  "j": 1,
+  "name": "sub_plan",
+  "val": 5,
+  "kind": "태그",
+  "B": "OK",
+  "Bobs": {
+   "인덱스": 1,
+   "태그": 1
+  },
+  "C": "**불일치**",
+  "Dusage": [],
+  "D": "OK",
+  "meaning": "SubPlan::Recall 태그값 (dienum SubPlan: DISCR 5 = Recall). 샘 안 + HP 미만일 때 반환 ★소스 줄 = **L42** 확정 — rmeta_srcmap L42 = 56자 → 내용 55 = indent 6 + `return SubPlan::Recall(RecallSubPlan::default());`(49자) ±0. `RecallSubPlan` 이 0B ZST 라 IR 에 페이로드 store 가 없다(태그는 34973 phi `[ 5, %49 ]` → 34974 store) · 오라클 실행 확증( A6_o4.tsv — in_heal_low → tag=5 Recall)"
+ },
+ {
+  "i": 2,
+  "j": 2,
+  "name": "sub_plan",
+  "val": 1,
+  "kind": "인덱스",
+  "B": "X",
+  "Bobs": {
+   "오프셋가감": 1,
+   "태그": 1
+  },
+  "C": "OK",
+  "Dusage": [
+   "ARITH"
+  ],
+  "D": "OK",
+  "meaning": "적 팀 인덱스 계산 `1 - team` 의 1 (sub nuw nsw i64 1, %10) · 오라클 실행 확증( A6_o4.tsv — no_twin 케이스에서 적팀(1-team) 트윈타워를 비우자 분기가 갈림)"
+ },
+ {
+  "i": 2,
+  "j": 3,
+  "name": "sub_plan",
+  "val": 0,
+  "kind": "임계",
+  "B": "OK",
+  "Bobs": {
+   "임계": 1,
+   "태그": 1
+  },
+  "C": "**불일치**",
+  "Dusage": [
+   "EQ",
+   "STORE"
+  ],
+  "D": "OK",
+  "meaning": "twin_towers[1-team].len() == 0 비교값 — bumpalo Vec::is_empty 인라인. 동시에 LineStyle::Aggressive(0) 저장값이기도 함 · 오라클 실행 확증( A6_o4.tsv — twin1_len=0 → AttackNexus / len=2 → LineDefense, b8=0(Aggressive))"
+ },
+ {
+  "i": 2,
+  "j": 4,
+  "name": "sub_plan",
+  "val": 16,
+  "kind": "태그",
+  "B": "OK",
+  "Bobs": {
+   "인덱스": 1,
+   "태그": 1
+  },
+  "C": "**불일치**",
+  "Dusage": [
+   "GEP"
+  ],
+  "D": "OK",
+  "meaning": "SubPlan::AttackNexus 태그값 (DISCR 16). 적 쌍둥이탑이 하나도 안 남았을 때 반환 ★소스 줄 = **L50**(L46 은 빈 줄 1자다). L50 = 58자 → 내용 57 = indent 6 + `SubPlan::AttackNexus(AttackNexusSubPlan::default())`(51자) ±0 · 오라클 실행 확증( A6_o4.tsv — no_twin → tag=16 AttackNexus)"
+ },
+ {
+  "i": 2,
+  "j": 5,
+  "name": "sub_plan",
+  "val": 2,
+  "kind": "태그",
+  "B": "OK",
+  "Bobs": {
+   "임계": 1,
+   "인자상수": 1,
+   "태그": 2
+  },
+  "C": "OK",
+  "Dusage": [
+   "REL",
+   "STORE"
+  ],
+  "D": "OK",
+  "meaning": "SubPlan::LineDefense 태그값(DISCR 2) 및 MinionActionType::Push(2) — 같은 리터럴 2가 두 용도로 본문에 존재 · 오라클 실행 확증( A6_o4.tsv — LineDefense tag=2 · b10=2(Push) — MinionActionType Pull=0/Normal=1/Push=2 실측(A6_o3))"
+ },
+ {
+  "i": 3,
+  "j": 0,
+  "name": "defensive_crisis",
+  "val": 1,
+  "kind": "인덱스",
+  "B": "X",
+  "Bobs": {
+   "오프셋가감": 1,
+   "계수": 1,
+   "임계": 3
+  },
+  "C": "OK",
+  "Dusage": [
+   "ARITH",
+   "EQ"
+  ],
+  "D": "OK",
+  "meaning": "enemy_ix = 1 - player.info.team — 적팀 인덱스 ★**src_line 정정 : 22**(`%21 = sub i64 1, %20` @m10.ll:33897 의 `!dbg !40704` = `buff_value.rs:22`, 인라인 없음. L21 에는 `llvm.lifetime.start` 하나뿐)(대상 챔프 배열·블랙보드 둘 다 이 인덱스)"
+ },
+ {
+  "i": 3,
+  "j": 1,
+  "name": "defensive_crisis",
+  "val": 13,
+  "kind": "태그",
+  "B": "X",
+  "Bobs": {
+   "임계": 1
+  },
+  "C": "OK",
+  "Dusage": [
+   "EQ"
+  ],
+  "D": "OK",
+  "meaning": "EntityType 태그 13 = Champion ★**src_line 정정 : 43**(`icmp eq i64 %72, 13` @m10.ll:34074 사슬 = `entity.rs:1775(Entity::skill_cooldown)` ← `buff_value.rs:43` ← `buff_value.rs:41`. L42 는 함수 전체에서 명령이 **0개**다). ⚠이 비교는 소스에 직접 적힌 게 아니라 **각 `*_cooldown()` 접근자 안에 있고** LLVM 이 CSE 해 L43 하나로 접었다. 이 태그일 때만 스킬 쿨다운 3개를 실값으로 읽고, 아니면 (0,0,0)"
+ },
+ {
+  "i": 3,
+  "j": 2,
+  "name": "defensive_crisis",
+  "val": 2,
+  "kind": "임계",
+  "B": "OK",
+  "Bobs": {
+   "임계": 3,
+   "인자상수": 1
+  },
+  "C": "OK",
+  "Dusage": [
+   "REL"
+  ],
+  "D": "OK",
+  "meaning": "Entity.level > 2 여야 skill2_effect 슬롯이 열린다(entity.rs:1693 접근자 인라인 ★**src_line 정정 : 44** — `icmp ugt i64 %76, 2` @m10.ll:34081 사슬 = `entity.rs:1693` ← `buff_value.rs:44` ← `41`). 아니면 정적 None · 오라클 실행 확증( A6_o5.tsv / A6_o5_tps.tsv — level 2 → cc_threat=0 / level 3 → 1 (skill2 슬롯) — history[9] 지시 반영)"
+ },
+ {
+  "i": 3,
+  "j": 3,
+  "name": "defensive_crisis",
+  "val": 4,
+  "kind": "임계",
+  "B": "OK",
+  "Bobs": {
+   "임계": 2
+  },
+  "C": "OK",
+  "Dusage": [
+   "REL"
+  ],
+  "D": "OK",
+  "meaning": "Entity.level > 4 여야 ult_effect 슬롯이 열린다(entity.rs:1701 접근자 인라인 ★**src_line 정정 : 45** — `icmp ugt i64 %76, 4` @m10.ll:34086 사슬 = `entity.rs:1701` ← `buff_value.rs:45` ← `41`). 아니면 정적 None · 오라클 실행 확증( A6_o5.tsv / A6_o5_tps.tsv — level 4 → cc_threat=0 / level 5 → 1 (ult 슬롯) — history[9] 지시 반영)"
+ },
+ {
+  "i": 3,
+  "j": 4,
+  "name": "defensive_crisis",
+  "val": -1,
+  "kind": "센티널",
+  "B": "OK",
+  "Bobs": {
+   "임계": 3
+  },
+  "C": "OK",
+  "Dusage": [
+   "EQ"
+  ],
+  "D": "OK",
+  "meaning": "Option<Effect> 니치 None 표식 — Effect+0x30(casting: CastingType) 이 -1 이면 스킬 이펙트 없음 · 오라클 실행 확증( A6_o5.tsv / A6_o5_tps.tsv — Option<Effect>::None 의 +0x30 = -1 실측(A6_o6))"
+ },
+ {
+  "i": 3,
+  "j": 5,
+  "name": "defensive_crisis",
+  "val": 1,
+  "kind": "임계",
+  "B": "OK",
+  "Bobs": {
+   "오프셋가감": 1,
+   "계수": 1,
+   "임계": 3
+  },
+  "C": "**불일치**",
+  "Dusage": [
+   "ARITH",
+   "EQ"
+  ],
+  "D": "OK",
+  "meaning": "die_imminent 임계 tps*2 가 `shl i64 %tps, 1` 로 접힘 — 리터럴 2 는 본문에 없다. 즉 '2초 안에 죽는가' · 오라클 실행 확증( A6_o5.tsv / A6_o5_tps.tsv — tps 1/6/30/60/120 스윕에서 die 는 60 고정, die_imminent 는 `die<tps*2` 로 정확히 갈림 — tps=30(60<60=false) 이 **strict `<`** 를 판별)"
+ },
+ {
+  "i": 3,
+  "j": 6,
+  "name": "defensive_crisis",
+  "val": 1,
+  "kind": "태그",
+  "B": "X",
+  "Bobs": {
+   "오프셋가감": 1,
+   "계수": 1,
+   "임계": 3
+  },
+  "C": "OK",
+  "Dusage": [
+   "ARITH",
+   "EQ"
+  ],
+  "D": "OK",
+  "meaning": "effect_cc_time 이 돌려준 Option<usize> 의 Some 판별자(=1). is_some() 이 discr==1 비교로 인라인됨 · 오라클 실행 확증(7차 배치A: A7_o1.tsv OPTUSIZE — Option<usize> = 16B, Some(7).discr=1 / None.discr=0 실측. Some(0).discr 도 1 이라 history[9] 의 「Some(0) 도 is_some 이라 위협으로 센다」와 정합)"
+ },
+ {
+  "i": 4,
+  "j": 0,
+  "name": "handle_line_defense",
+  "val": -1,
+  "kind": "임계",
+  "B": "X",
+  "Bobs": {
+   "오프셋가감": 2
+  },
+  "C": "**불일치**",
+  "Dusage": [
+   "ARITH"
+  ],
+  "D": "R3",
+  "meaning": "runner.rs:263 TutorialType::spawn_epic 인라인 — (tutorial as u8).wrapping_sub(1). 578줄의 (near-1) 계산에도 같은 -1 이 쓰임 · 오라클 실행 확증( TutorialType 9값 spawn_epic 실행 = 0/7/8 만 true (A6_o3 SPAWN_EPIC))"
+ },
+ {
+  "i": 4,
+  "j": 1,
+  "name": "handle_line_defense",
+  "val": 6,
+  "kind": "임계",
+  "B": "OK",
+  "Bobs": {
+   "임계": 1
+  },
+  "C": "OK",
+  "Dusage": [
+   "REL"
+  ],
+  "D": "OK",
+  "meaning": "위 결과와의 부호없는 비교 상한: tutorial-1 <u 6 → 즉시 false 반환. 통과 조건은 tutorial ∈ {0=None, 7=Line, 8=Total} · 오라클 실행 확증"
+ },
+ {
+  "i": 4,
+  "j": 2,
+  "name": "handle_line_defense",
+  "val": 40000000001,
+  "kind": "임계",
+  "B": "OK",
+  "Bobs": {
+   "임계": 1
+  },
+  "C": "OK",
+  "Dusage": [
+   "REL"
+  ],
+  "D": "OK",
+  "meaning": "200000^2 + 1 — 타워~적 챔피언 제곱거리 임계(d2 < 이 값 ⟺ 거리 ≤ 200000 = 6.25셀). 셀=32000 · 오라클 실행 확증( 오라클 `_verify3` 반경 경계 d2=40000000000 통과 / 40000400001 탈락 (history[5] 지시 반영))"
+ },
+ {
+  "i": 4,
+  "j": 3,
+  "name": "handle_line_defense",
+  "val": 1,
+  "kind": "임계",
+  "B": "OK",
+  "Bobs": {
+   "태그": 1,
+   "오프셋가감": 2,
+   "인자상수": 1,
+   "인덱스": 1,
+   "임계": 1
+  },
+  "C": "OK",
+  "Dusage": [
+   "ARITH",
+   "REL",
+   "SWITCH"
+  ],
+  "D": "OK",
+  "meaning": "Gather 분기의 하한 비교값: near_enemy_champion >u 1 (= 2명 이상). 같은 리터럴이 549줄의 적팀 첨자 산출 `1 - my_team` 에도 쓰임 (★7차 배치A: `src_line` 578 의 용도는 비교 임계다 — 부수 언급 한 낱말 때문에 분류가 튀어 있었다) · 오라클 실행 확증( 오라클 인원 구간 20/20, Gather `>1` (history[5] 지시 반영))"
+ },
+ {
+  "i": 4,
+  "j": 4,
+  "name": "handle_line_defense",
+  "val": 2,
+  "kind": "임계",
+  "B": "OK",
+  "Bobs": {
+   "임계": 3,
+   "인자상수": 4,
+   "인덱스": 1
+  },
+  "C": "OK",
+  "Dusage": [
+   "REL",
+   "SWITCH"
+  ],
+  "D": "OK",
+  "meaning": "Battle 분기의 구간 폭: (near_enemy_champion - 1) <u 2 (= 1명 또는 2명). 배열 길이 2(팀 수) 경계검사 상수와 리터럴이 겹침 · 오라클 실행 확증( 오라클 인원 구간 20/20, Battle `{1,2}` (history[5] 지시 반영))"
+ },
+ {
+  "i": 5,
+  "j": 0,
+  "name": "v50_fold_dive_episode",
+  "val": -1,
+  "kind": "센티널",
+  "B": "OK",
+  "Bobs": {
+   "임계": 2,
+   "태그": 1
+  },
+  "C": "OK",
+  "Dusage": [
+   "EQ",
+   "STORE"
+  ],
+  "D": "OK",
+  "meaning": "Option<V50DiveEpLive> 의 None 니치값. 진입 게이트(icmp ne -1)와 take 의 store 양쪽에 등장. DISCR_EXACT=-1 이 None, 나머지 전부 Some · 오라클 실행 확증( 오라클 실행 확증: `LegacyPlanHandler+0x570` 초기값 −1 = None, fold 후 −1 로 되돌아감(take 무조건 실행) (B6_o2.tsv — 05 를 상위 pub 래퍼 `LegacyPlanHandler::update` 로 최초 실행))"
+ },
+ {
+  "i": 5,
+  "j": 1,
+  "name": "v50_fold_dive_episode",
+  "val": 7,
+  "kind": "임계",
+  "B": "OK",
+  "Bobs": {
+   "임계": 1,
+   "태그": 1
+  },
+  "C": "**불일치**",
+  "Dusage": [
+   "EQ"
+  ],
+  "D": "OK",
+  "meaning": "end_reason 코드 7 = 다이브 포기시각(last_dive_abandon_tick) 집계에서 제외되는 종료사유. 이 값일 땐 no_contact 여도 갱신 안 함"
+ },
+ {
+  "i": 5,
+  "j": 2,
+  "name": "v50_fold_dive_episode",
+  "val": 1,
+  "kind": "임계",
+  "B": "X",
+  "Bobs": {
+   "태그": 6,
+   "오프셋가감": 1
+  },
+  "C": "**불일치**",
+  "Dusage": [
+   "ARITH"
+  ],
+  "D": "R3",
+  "meaning": "end_plan 코드 1 = 플랜 이름이 \"PassiveLine\" 으로 시작. (같은 리터럴 1 이 start_in_range 저장 시 `and i8 %103, 1` 불리언 정규화 마스크로도 쓰임) · 오라클 실행 확증( 오라클 실행 확증: end_plan=1 (plan 이름 \"PassiveLine\") #A·#B·#G 26케이스 (B6_o2.tsv — 05 를 상위 pub 래퍼 `LegacyPlanHandler::update` 로 최초 실행))"
+ },
+ {
+  "i": 5,
+  "j": 3,
+  "name": "v50_fold_dive_episode",
+  "val": 2,
+  "kind": "임계",
+  "B": "X",
+  "Bobs": {
+   "태그": 3
+  },
+  "C": "**불일치**",
+  "Dusage": [],
+  "D": "OK",
+  "meaning": "end_plan 코드 2 = 플랜 이름이 \"PassiveJungle\" 로 시작 · 오라클 실행 확증( 오라클 실행 확증: end_plan=2 (\"PassiveJungle\") #G 4케이스 (B6_o2.tsv — 05 를 상위 pub 래퍼 `LegacyPlanHandler::update` 로 최초 실행))"
+ },
+ {
+  "i": 5,
+  "j": 4,
+  "name": "v50_fold_dive_episode",
+  "val": 3,
+  "kind": "임계",
+  "B": "X",
+  "Bobs": {
+   "태그": 1
+  },
+  "C": "판정보류(리터럴 미검출 — 접힘)",
+  "Dusage": [],
+  "D": "OK",
+  "meaning": "end_plan 코드 3 = 플랜 이름이 \"LineGank\" 로 시작"
+ },
+ {
+  "i": 5,
+  "j": 5,
+  "name": "v50_fold_dive_episode",
+  "val": 4,
+  "kind": "임계",
+  "B": "X",
+  "Bobs": {
+   "인자상수": 1,
+   "태그": 3
+  },
+  "C": "**불일치**",
+  "Dusage": [],
+  "D": "OK",
+  "meaning": "end_plan 코드 4 = 플랜 이름에 \"Epic\" 포함"
+ },
+ {
+  "i": 5,
+  "j": 6,
+  "name": "v50_fold_dive_episode",
+  "val": 5,
+  "kind": "임계",
+  "B": "X",
+  "Bobs": {
+   "인자상수": 1,
+   "태그": 1
+  },
+  "C": "**불일치**",
+  "Dusage": [],
+  "D": "OK",
+  "meaning": "end_plan 코드 5 = 플랜 이름에 \"Serpen\" 포함"
+ },
+ {
+  "i": 5,
+  "j": 7,
+  "name": "v50_fold_dive_episode",
+  "val": 6,
+  "kind": "임계",
+  "B": "X",
+  "Bobs": {
+   "인자상수": 3,
+   "태그": 1,
+   "인덱스": 1
+  },
+  "C": "**불일치**",
+  "Dusage": [],
+  "D": "OK",
+  "meaning": "end_plan 코드 6 = 플랜 이름이 \"ActiveRecall\" 또는 \"Recall\" 로 시작(두 술어가 같은 phi 값으로 합류)"
+ },
+ {
+  "i": 5,
+  "j": 8,
+  "name": "v50_fold_dive_episode",
+  "val": 7,
+  "kind": "임계",
+  "B": "OK",
+  "Bobs": {
+   "임계": 1,
+   "태그": 1
+  },
+  "C": "**불일치**",
+  "Dusage": [
+   "EQ"
+  ],
+  "D": "OK",
+  "meaning": "end_plan 코드 7 = 플랜 이름이 \"Battle\" 로 시작. (end_reason 의 7 과 값만 같고 의미는 무관) · 오라클 실행 확증( 오라클 실행 확증: end_plan=7 (\"Battle …\") #B2 tag9 (B6_o2.tsv — 05 를 상위 pub 래퍼 `LegacyPlanHandler::update` 로 최초 실행))"
+ },
+ {
+  "i": 5,
+  "j": 9,
+  "name": "v50_fold_dive_episode",
+  "val": 8,
+  "kind": "임계",
+  "B": "X",
+  "Bobs": {
+   "인자상수": 7,
+   "인덱스": 2,
+   "태그": 17
+  },
+  "C": "**불일치**",
+  "Dusage": [
+   "GEP",
+   "SELECT"
+  ],
+  "D": "R3",
+  "meaning": "end_plan 코드 8 = 플랜 이름에 \"Nexus\" 포함 · 오라클 실행 확증( 오라클 실행 확증: end_plan=8 (\"AttackNexus\"/\"DefenseNexus\") #B2 tag16·17 (B6_o2.tsv — 05 를 상위 pub 래퍼 `LegacyPlanHandler::update` 로 최초 실행))"
+ },
+ {
+  "i": 5,
+  "j": 10,
+  "name": "v50_fold_dive_episode",
+  "val": 9,
+  "kind": "임계",
+  "B": "X",
+  "Bobs": {
+   "태그": 1
+  },
+  "C": "**불일치**",
+  "Dusage": [],
+  "D": "OK",
+  "meaning": "end_plan 코드 9 = 위 어디에도 안 걸림(그 외 전부) · 오라클 실행 확증( 오라클 실행 확증: end_plan=9 (\"DeathMatchBattle …\"/\"SinglePlanBattle …\") #B tag0·5 (B6_o2.tsv — 05 를 상위 pub 래퍼 `LegacyPlanHandler::update` 로 최초 실행))"
+ },
+ {
+  "i": 5,
+  "j": 11,
+  "name": "v50_fold_dive_episode",
+  "val": 11,
+  "kind": "임계",
+  "B": "X",
+  "Bobs": {
+   "인자상수": 1
+  },
+  "C": "판정보류(콜리 인자로만 등장)",
+  "Dusage": [],
+  "D": "OK",
+  "meaning": "패턴 \"PassiveLine\" 의 바이트 길이(starts_with 인자) · 오라클 실행 확증( 오라클 실행 확증: \"PassiveLine\"(11자) 접두 일치 경로가 실제로 1 을 낸다 (B6_o2.tsv — 05 를 상위 pub 래퍼 `LegacyPlanHandler::update` 로 최초 실행))"
+ },
+ {
+  "i": 5,
+  "j": 12,
+  "name": "v50_fold_dive_episode",
+  "val": 13,
+  "kind": "임계",
+  "B": "X",
+  "Bobs": {
+   "인자상수": 1
+  },
+  "C": "**불일치**",
+  "Dusage": [],
+  "D": "OK",
+  "meaning": "패턴 \"PassiveJungle\" 의 길이 · 오라클 실행 확증( 오라클 실행 확증: \"PassiveJungle\"(13자) 접두 일치 경로가 실제로 2 를 낸다 #G (B6_o2.tsv — 05 를 상위 pub 래퍼 `LegacyPlanHandler::update` 로 최초 실행))"
+ },
+ {
+  "i": 5,
+  "j": 13,
+  "name": "v50_fold_dive_episode",
+  "val": 12,
+  "kind": "임계",
+  "B": "X",
+  "Bobs": {
+   "인자상수": 1
+  },
+  "C": "판정보류(콜리 인자로만 등장)",
+  "Dusage": [],
+  "D": "OK",
+  "meaning": "패턴 \"ActiveRecall\" 의 길이"
+ },
+ {
+  "i": 6,
+  "j": 0,
+  "name": "v2_response_retreat_stance",
+  "val": 2,
+  "kind": "인덱스",
+  "B": "X",
+  "Bobs": {
+   "임계": 2,
+   "인자상수": 1
+  },
+  "C": "OK",
+  "Dusage": [
+   "REL"
+  ],
+  "D": "OK",
+  "meaning": "AI 버전 게이트 — version<2 면 본문 전체를 건너뛰고 RunAway. (같은 리터럴 2 가 team 배열 bounds-check 길이 `icmp ult team, 2` 로도 쓰인다 — **이 행 자체는 version 비교 임계**이지 인덱스가 아니다)"
+ },
+ {
+  "i": 6,
+  "j": 1,
+  "name": "v2_response_retreat_stance",
+  "val": 1,
+  "kind": "인덱스",
+  "B": "X",
+  "Bobs": {
+   "오프셋가감": 1
+  },
+  "C": "OK",
+  "Dusage": [
+   "ARITH"
+  ],
+  "D": "OK",
+  "meaning": "적 팀 인덱스 = 1 - player.info.team (2팀 고정 전제)"
+ },
+ {
+  "i": 6,
+  "j": 2,
+  "name": "v2_response_retreat_stance",
+  "val": 3,
+  "kind": "태그",
+  "B": "OK",
+  "Bobs": {
+   "태그": 1
+  },
+  "C": "**불일치**",
+  "Dusage": [],
+  "D": "OK",
+  "meaning": "BattleSubPlanGoal::KitingBack 의 태그값(DISCR_EXACT=3, variant 인덱스와 동일) · tcx 정본 대조( tcxdict --enum BattleSubPlanGoal **tcx 정본**: KitingBack 메모리태그 3, 페이로드 focus@+0x8)"
+ },
+ {
+  "i": 6,
+  "j": 3,
+  "name": "v2_response_retreat_stance",
+  "val": 4,
+  "kind": "태그",
+  "B": "OK",
+  "Bobs": {
+   "태그": 2
+  },
+  "C": "판정보류(콜리 인자로만 등장)",
+  "Dusage": [],
+  "D": "OK",
+  "meaning": "BattleSubPlanGoal::RunAway 의 태그값(DISCR_EXACT=4). 모든 조기탈출 경로의 기본 반환 · tcx 정본 대조( tcxdict --enum BattleSubPlanGoal **tcx 정본**: RunAway 메모리태그 4, fieldless)"
+ },
+ {
+  "i": 7,
+  "j": 0,
+  "name": "sub_plan",
+  "val": 100,
+  "kind": "임계",
+  "B": "X",
+  "Bobs": {
+   "계수": 1
+  },
+  "C": "**불일치**",
+  "Dusage": [
+   "ARITH"
+  ],
+  "D": "R3",
+  "meaning": "hp_ratio = hp*100/max_hp — 백분율 변환 계수 · 오라클 실행 확증( 오라클 실행 확증: hp_ratio 정수나눗셈 509/1000 → Recall · 510/1000 → EpicHunt )"
+ },
+ {
+  "i": 7,
+  "j": 1,
+  "name": "sub_plan",
+  "val": 51,
+  "kind": "태그",
+  "B": "X",
+  "Bobs": {
+   "임계": 1
+  },
+  "C": "**불일치**",
+  "Dusage": [
+   "REL"
+  ],
+  "D": "OK",
+  "meaning": "★귀환 HP 임계. hp_ratio < 51 (=HP 50% 이하)이면 귀환 후보. ★**오라클 8/8 **: 경계가 **정확히 50/51** 이다( 재확인 49/50·51/52 24/24). 세 번째 OR 항이 `hp < max && in_heal_area` 인 것도 확증. SubPlan 5=Recall · 11=EpicHunt 로 귀결되는 것을 런타임 확인(**이 행 자체는 HP 임계**이지 태그가 아니다)"
+ },
+ {
+  "i": 7,
+  "j": 2,
+  "name": "sub_plan",
+  "val": 5,
+  "kind": "태그",
+  "B": "OK",
+  "Bobs": {
+   "인덱스": 1,
+   "태그": 1
+  },
+  "C": "**불일치**",
+  "Dusage": [],
+  "D": "OK",
+  "meaning": "SubPlan 태그 5 = Recall (dienum 확인)"
+ },
+ {
+  "i": 7,
+  "j": 3,
+  "name": "sub_plan",
+  "val": 9,
+  "kind": "태그",
+  "B": "OK",
+  "Bobs": {
+   "태그": 1
+  },
+  "C": "판정보류(콜리 인자로만 등장)",
+  "Dusage": [],
+  "D": "OK",
+  "meaning": "SubPlan 태그 9 = Hide (dienum 확인)"
+ },
+ {
+  "i": 7,
+  "j": 4,
+  "name": "sub_plan",
+  "val": 11,
+  "kind": "태그",
+  "B": "OK",
+  "Bobs": {
+   "태그": 1
+  },
+  "C": "**불일치**",
+  "Dusage": [],
+  "D": "OK",
+  "meaning": "SubPlan 태그 11 = EpicHunt (dienum 확인)"
+ },
+ {
+  "i": 7,
+  "j": 5,
+  "name": "sub_plan",
+  "val": 1,
+  "kind": "태그",
+  "B": "OK",
+  "Bobs": {
+   "태그": 2
+  },
+  "C": "OK",
+  "Dusage": [
+   "STORE"
+  ],
+  "D": "OK",
+  "meaning": "AroundBushOutlineType::Outline 의 **태그값 1** — Hide 서브플랜의 부시 접근 방식 · 오라클 실행 확증( 오라클 실행 확증: Hide 페이로드 out_line=1(Outline) bush 0·7·26 전부 )"
+ },
+ {
+  "i": 7,
+  "j": 6,
+  "name": "sub_plan",
+  "val": 0,
+  "kind": "임계",
+  "B": "OK",
+  "Bobs": {
+   "임계": 4,
+   "태그": 3
+  },
+  "C": "**불일치**",
+  "Dusage": [
+   "EQ",
+   "STORE"
+  ],
+  "D": "OK",
+  "meaning": "live_list.get(0) — 살아있는 에픽 목록의 첫 원소만 본다. 동시에 need_recall/check_move/enemy_spotted_me 의 false 값이기도 함 · 오라클 실행 확증( 오라클 실행 확증: check_move=0 · enemy_spotted_me=0 · need_recall=0 · live_list.get(0) )"
+ },
+ {
+  "i": 8,
+  "j": 0,
+  "name": "is_end",
+  "val": 4,
+  "kind": "태그",
+  "B": "X",
+  "Bobs": {
+   "인자상수": 2
+  },
+  "C": "**불일치**",
+  "Dusage": [],
+  "D": "OK",
+  "meaning": "JungleType::Morgard 의 **태그값 4** (dienum JungleType 4). ⚠`src_line=164` 는 맞지만 **IR 에 리터럴이 없다** — L164 `take_active(Morgard)` 와 L172 `take_setup_like(Morgard)` 는 `icmp eq i8 (TeamPlan+0x41f), 0` 하나로 완전히 접혔고, `i8 4` 가 살아남는 곳은 **L169 `camp_pos`(m10.ll:7691) · L174 `v24_…`(m10.ll:7709) 둘뿐**이다. take_active/take_setup_like/camp_pos/v24_..._release_to_passive 4곳 전부에 이 캠프 상수가 박혀 있다 = 이 플랜은 에픽 전용"
+ },
+ {
+  "i": 8,
+  "j": 1,
+  "name": "is_end",
+  "val": 0,
+  "kind": "태그",
+  "B": "X",
+  "Bobs": {
+   "임계": 6
+  },
+  "C": "OK",
+  "Dusage": [
+   "EQ"
+  ],
+  "D": "OK",
+  "meaning": "MainObjective::Morgard 태그값. TeamPlan+0x41f 를 이 값과 비교하는 것이 take_active(Morgard) 의 접힌 실체(MainObjective->Option<JungleType> 매핑은 인라인 소멸). 태그값 0 의 출처는 **dienum MainObjective**(3차 §7 ev 상향 ⑦ — 이 행만 근거 이름이 빠져 ev4 로 앉아 있었다. 같은 사실을 18 writes 는 'dienum MainObjective 7 = Repair' 로 인용하고 있다)"
+ },
+ {
+  "i": 8,
+  "j": 2,
+  "name": "is_end",
+  "val": 1,
+  "kind": "태그",
+  "B": "X",
+  "Bobs": {
+   "임계": 1,
+   "오프셋가감": 1
+  },
+  "C": "OK",
+  "Dusage": [
+   "ARITH",
+   "EQ"
+  ],
+  "D": "OK",
+  "meaning": "ObjectPhase::Setup 태그값(dienum ObjectPhase 1). TeamPlan+0x420 == 1 이 setup_like"
+ },
+ {
+  "i": 8,
+  "j": 3,
+  "name": "is_end",
+  "val": 32000,
+  "kind": "임계",
+  "B": "X",
+  "Bobs": {
+   "계수": 2
+  },
+  "C": "**불일치**",
+  "Dusage": [
+   "ARITH"
+  ],
+  "D": "R3",
+  "meaning": "셀 크기 — 월드좌표를 셀좌표로 나누는 **좌표변환 계수**다(임계가 아니다 — IR 관측도 `udiv` 2회뿐). is_visible_cell 인자용 · 오라클 실행 확증( 오라클 실행 확증: 캠프 288000 → 셀 (9,9), is_visible_cell(0,9,9)=true 로 L179 진입 )"
+ },
+ {
+  "i": 8,
+  "j": 4,
+  "name": "is_end",
+  "val": 22500000000,
+  "kind": "임계",
+  "B": "OK",
+  "Bobs": {
+   "임계": 1
+  },
+  "C": "OK",
+  "Dusage": [
+   "REL"
+  ],
+  "D": "OK",
+  "meaning": "150000^2 — 캠프↔가장가까운 적챔프 거리 제곱 임계. 이보다 멀면 '적이 캠프 근처에 없다'고 보고 종료 · 오라클 실행 확증( 오라클 실행 확증: 캠프 거리 150000 → 폴스루 / 150001 → (d) 종료 )"
+ },
+ {
+  "i": 8,
+  "j": 5,
+  "name": "is_end",
+  "val": 15,
+  "kind": "임계",
+  "B": "X",
+  "Bobs": {
+   "계수": 1
+  },
+  "C": "**불일치**",
+  "Dusage": [
+   "ARITH"
+  ],
+  "D": "R3",
+  "meaning": "tick_per_second 에 곱해지는 초 단위 계수 = 15초. 에픽 리스폰까지 15초 넘게 남았으면 종료. ★**오라클 13/13 **: `15 × tick_per_second` 임계가 **정확히 900** 에서 갈린다(nrt 900 → false, 901 → true). 같은 실행에서 L164 objective 게이트 · L193 에픽 생존 · phase 판정 · version 무영향(9종)까지 동시 확증. ⚠setup 경로는 `v24_…=true` 가 먼저 발화해 (c)(d) 는 오라클 미도달(범위 명시)"
+ },
+ {
+  "i": 9,
+  "j": 0,
+  "name": "check_favorable_engage_formation",
+  "val": 2,
+  "kind": "임계",
+  "B": "OK",
+  "Bobs": {
+   "임계": 1,
+   "인자상수": 1,
+   "계수": 1
+  },
+  "C": "OK",
+  "Dusage": [
+   "ARITH",
+   "REL"
+  ],
+  "D": "OK",
+  "meaning": "tick_per_second × 2 = 2초 구간. IR 에선 shl i64 %30,1 로 접혀 리터럴 2 는 team bounds-check(icmp ult %7,2) 쪽에만 남아 있다 · 오라클 실행 확증(7차 배치B: B7_o3.tsv — 미니언 18마리를 세운 뒤 유리 대형(rear 아군 1명)을 만들어 `tick_per_second` 를 20점 스윕. 09 의 판정 반전점이 **tps 40→41** 이고 `danger` 창 임계가 81 이므로 2×41=82 ⟹ 계수 **K=2 만 20/20 일치, K=1·3·4 는 기각**. `shl i64 %30,1` 로 접혀 리터럴이 없던 값을 실행으로 고정했다)"
+ },
+ {
+  "i": 9,
+  "j": 1,
+  "name": "check_favorable_engage_formation",
+  "val": 100000,
+  "kind": "임계",
+  "B": "X",
+  "Bobs": {
+   "오프셋가감": 1
+  },
+  "C": "**불일치**",
+  "Dusage": [
+   "ARITH"
+  ],
+  "D": "R3",
+  "meaning": "max_engage_dist = engage_range + 100000. 아군이 '교전에 참가할 수 있다'고 볼 여유 거리 · 오라클 실행 확증( 오라클 실행 확증: d = er+100000 → 포함 / +1 → 제외, er 3종(100000·200000·400000) 전부 )"
+ },
+ {
+  "i": 9,
+  "j": 2,
+  "name": "check_favorable_engage_formation",
+  "val": 40,
+  "kind": "임계",
+  "B": "OK",
+  "Bobs": {
+   "임계": 1
+  },
+  "C": "OK",
+  "Dusage": [
+   "REL"
+  ],
+  "D": "OK",
+  "meaning": "HP 비율 임계(%). hp*100/max_hp < 40 인 아군은 대형 계산에서 제외 · 오라클 실행 확증( 오라클 실행 확증: HP% 39 → false / 40 → true )"
+ },
+ {
+  "i": 9,
+  "j": 3,
+  "name": "check_favorable_engage_formation",
+  "val": 100,
+  "kind": "임계",
+  "B": "X",
+  "Bobs": {
+   "계수": 4
+  },
+  "C": "**불일치**",
+  "Dusage": [
+   "ARITH"
+  ],
+  "D": "R3",
+  "meaning": "백분율 스케일. HP% 계산과 cos²/sin² 임계(×100 vs ×9)에 공통으로 쓰임 · 오라클 실행 확증( 오라클 실행 확증: 백분율 스케일 hp*100/max 정수나눗셈 399/1000·400/1000 )"
+ },
+ {
+  "i": 9,
+  "j": 4,
+  "name": "check_favorable_engage_formation",
+  "val": 9,
+  "kind": "임계",
+  "B": "X",
+  "Bobs": {
+   "계수": 2
+  },
+  "C": "**불일치**",
+  "Dusage": [
+   "ARITH"
+  ],
+  "D": "R3",
+  "meaning": "9/100 = 0.09 임계. dot_sq*100 > len_product_sq*9 → cos² > 0.09 → |cosθ| > 0.3 (후퇴축과 ~72.5도 이내). 같은 값이 1286행 cross_sq(=sin²) 판정에도 쓰임 · 오라클 실행 확증( 오라클 실행 확증: dy 158989 → rear / 158990 → flank (= 91dx² > 9dy²) )"
+ },
+ {
+  "i": 9,
+  "j": 5,
+  "name": "check_favorable_engage_formation",
+  "val": 4,
+  "kind": "임계",
+  "B": "OK",
+  "Bobs": {
+   "임계": 2
+  },
+  "C": "OK",
+  "Dusage": [
+   "ARITH"
+  ],
+  "D": "R3",
+  "meaning": "is_front 임계. dot_sq*4 > len_product_sq → cos² > 1/4 → |cosθ| > 0.5 (후퇴축과 60도 이내). IR 에선 shl i128 %176,2 로 접혔고, 리터럴 4 는 아군 루프 상한(icmp ult %89,4)으로만 본문에 남아 있다 · 오라클 실행 확증( 오라클 실행 확증: dy 173205 → front / 173206 → flank (= 3dx² > dy²) )"
+ },
+ {
+  "i": 9,
+  "j": 6,
+  "name": "check_favorable_engage_formation",
+  "val": 5,
+  "kind": "임계",
+  "B": "X",
+  "Bobs": {
+   "인덱스": 1,
+   "계수": 1
+  },
+  "C": "**불일치**",
+  "Dusage": [
+   "ARITH"
+  ],
+  "D": "R3",
+  "meaning": "champ_to_base_sq × 5 (최종 비율식 좌변) · 오라클 실행 확증( 오라클 실행 확증: champ_to_base 547722 → true / 547723 → false )"
+ },
+ {
+  "i": 9,
+  "j": 7,
+  "name": "check_favorable_engage_formation",
+  "val": 6,
+  "kind": "임계",
+  "B": "X",
+  "Bobs": {
+   "계수": 1
+  },
+  "C": "**불일치**",
+  "Dusage": [
+   "ARITH"
+  ],
+  "D": "R3",
+  "meaning": "enemy_to_base_sq × 6 (최종 비율식 우변). 합쳐서 champ_to_base_sq <= 1.2 × enemy_to_base_sq · 오라클 실행 확증( 오라클 실행 확증: 같은 경계(×5 ≤ ×6) )"
+ },
+ {
+  "i": 9,
+  "j": 8,
+  "name": "check_favorable_engage_formation",
+  "val": 1,
+  "kind": "임계",
+  "B": "OK",
+  "Bobs": {
+   "계수": 3,
+   "오프셋가감": 8,
+   "임계": 4
+  },
+  "C": "OK",
+  "Dusage": [
+   "ARITH",
+   "REL"
+  ],
+  "D": "OK",
+  "meaning": "제로벡터 판정 임계. retreat_len_sq < 1 (=0) 이면 즉시 true, ally_len_sq < 1 (1256행) 이면 그 아군을 front 로 계산 · 오라클 실행 확증( 오라클 실행 확증: 적이 분수 중심 위 → 무조건 true / +1 → false · 겹친 아군 = front )"
+ },
+ {
+  "i": 10,
+  "j": 0,
+  "name": "should_end_object_finish_kill_priority_battle",
+  "val": 65534,
+  "kind": "태그",
+  "B": "X",
+  "Bobs": {},
+  "C": "**불일치**",
+  "Dusage": [
+   "ARITH"
+  ],
+  "D": "OK",
+  "meaning": "MainObjective 3바이트 진입 마스크 0x00FFFE — byte0 의 bit0 만 남기고(태그 0/1 허용) byte1(phase) 전체를 보고 byte2(with_battle) 는 통째로 무시한다 · 오라클 실행 확증( 오라클 `_verify6/C/o5_mask.out §O6-E` — MainObjective 25 케이스의 3바이트를 날바이트로 읽어 `(v&65534)==768` 을 평가, **통과 집합이 Morgard/Serpen×Hunt×with_battle 4개와 정확히 일치**(오검출 0))"
+ },
+ {
+  "i": 10,
+  "j": 1,
+  "name": "should_end_object_finish_kill_priority_battle",
+  "val": 768,
+  "kind": "임계",
+  "B": "OK",
+  "Bobs": {
+   "임계": 1
+  },
+  "C": "**불일치**",
+  "Dusage": [
+   "EQ"
+  ],
+  "D": "OK",
+  "meaning": "마스크 결과 기대값 0x000300 — byte1(phase)==3(ObjectPhase::Hunt) & byte0(tag)∈{0=Morgard,1=Serpen}. 리터럴 3 은 3<<8 로 접혀 본문에 없다 · 오라클 실행 확증( 오라클 `_verify6/C/o5_mask.out §O6-E` — MainObjective 25 케이스의 3바이트를 날바이트로 읽어 `(v&65534)==768` 을 평가, **통과 집합이 Morgard/Serpen×Hunt×with_battle 4개와 정확히 일치**(오검출 0))"
+ },
+ {
+  "i": 10,
+  "j": 2,
+  "name": "should_end_object_finish_kill_priority_battle",
+  "val": 0,
+  "kind": "태그",
+  "B": "X",
+  "Bobs": {
+   "임계": 10
+  },
+  "C": "OK",
+  "Dusage": [
+   "EQ"
+  ],
+  "D": "OK",
+  "meaning": "ObjectFinishStrategy::KillPriority 의 태그값. strategy.object_finish(+0xf) 가 이 값이 아니면 즉시 false · 오라클 실행 확증( 오라클 `_verify6/C/o5_mask.out §O6-F` — `Strategy` 24B 날바이트의 `+0xf` = 1 이고 `Debug` 가 `object_finish: BattlePriority` ⟹ KillPriority=0 확정)"
+ },
+ {
+  "i": 10,
+  "j": 3,
+  "name": "should_end_object_finish_kill_priority_battle",
+  "val": 1,
+  "kind": "인덱스",
+  "B": "OK",
+  "Bobs": {
+   "오프셋가감": 1,
+   "인덱스": 1
+  },
+  "C": "OK",
+  "Dusage": [
+   "ARITH"
+  ],
+  "D": "OK",
+  "meaning": "적 팀 인덱스 = 1 - player.info.team (팀 2개 전제). iter_champions 와 blackboard 인덱스 양쪽에 같은 값이 쓰인다 · 오라클 실행 확증( 오라클 `_verify6/C/o4_s10.out §O6-C` — `is_ignored_well_enemy(0, player.team=0, enemy)` 가 **enemy.team==1 & 적 우물 안** 조합에서만 true(6조합 전수) ⟹ 적 팀 = 1−team)"
+ },
+ {
+  "i": 10,
+  "j": 4,
+  "name": "should_end_object_finish_kill_priority_battle",
+  "val": 25000,
+  "kind": "임계",
+  "B": "X",
+  "Bobs": {
+   "인자상수": 5
+  },
+  "C": "판정보류(콜리 인자로만 등장)",
+  "Dusage": [],
+  "D": "OK",
+  "meaning": "can_enemy_hit_objective 의 3번째 인자 — 적이 오브젝트를 '때릴 수 있다'고 볼 여유치. 게임 좌표 단위(셀=32000)로 보면 셀의 약 0.78배. ★**선형 가산으로 분해됐다**: 경계거리 = `20000 + effect.range + margin`, 단 140000 에서 하드컷 · 오라클 실행 확증( 오라클 `_verify5/C/o10b.out §O10b-A` (margin 1:1 가산, 3×8 격자))"
+ },
+ {
+  "i": 10,
+  "j": 5,
+  "name": "should_end_object_finish_kill_priority_battle",
+  "val": 19600000000,
+  "kind": "임계",
+  "B": "X",
+  "Bobs": {},
+  "C": "판정보류(리터럴 미검출 — 접힘)",
+  "Dusage": [],
+  "D": "OK",
+  "meaning": "= 140000² . `can_enemy_hit_objective` 진입 **하드컷** — `dx²+dy² > 19.6e9` 이면 즉시 false. 실측 경계 140000 true / 140001 false . **신규 발굴** · 오라클 실행 확증( 오라클 `_verify5/C/o10b.out §O10b-B` (140000 true / 140001 false, 대각 98994/98995))"
+ },
+ {
+  "i": 11,
+  "j": 0,
+  "name": "v3_fall_back_to_passive",
+  "val": 2,
+  "kind": "임계",
+  "B": "OK",
+  "Bobs": {
+   "임계": 2
+  },
+  "C": "OK",
+  "Dusage": [
+   "EQ",
+   "REL",
+   "SWITCH"
+  ],
+  "D": "OK",
+  "meaning": "AI 버전 하한. version < 2 면 즉시 return — v2 미만에는 이 폴백 자체가 없다 · 오라클 실행 확증( 오라클 `_verify5/C/o11.out §S11`(게임모드 게이트 — `SingleLaneGame::new`/`DeathMatchGame::new` 로 modetag 0/1/2 실제 생성, 6168B 바이트 diff))"
+ },
+ {
+  "i": 11,
+  "j": 1,
+  "name": "v3_fall_back_to_passive",
+  "val": 2,
+  "kind": "태그",
+  "B": "X",
+  "Bobs": {
+   "임계": 2
+  },
+  "C": "OK",
+  "Dusage": [
+   "EQ",
+   "REL",
+   "SWITCH"
+  ],
+  "D": "OK",
+  "meaning": "GameMode::DeathMatch 태그. 데스매치면 즉시 return · 오라클 실행 확증( 오라클 `_verify5/C/o11.out §S11`(게임모드 게이트 — `SingleLaneGame::new`/`DeathMatchGame::new` 로 modetag 0/1/2 실제 생성, 6168B 바이트 diff))"
+ },
+ {
+  "i": 11,
+  "j": 2,
+  "name": "v3_fall_back_to_passive",
+  "val": 1,
+  "kind": "태그",
+  "B": "OK",
+  "Bobs": {
+   "임계": 1,
+   "태그": 1,
+   "인덱스": 1,
+   "오프셋가감": 1
+  },
+  "C": "OK",
+  "Dusage": [
+   "ARITH",
+   "EQ",
+   "GEP",
+   "STORE",
+   "SWITCH"
+  ],
+  "D": "OK",
+  "meaning": "GameMode::SingleLane 태그. 이 모드면 passive_plan 을 부르지 않고 SinglePlanLine 을 직접 만든다 · 오라클 실행 확증( 오라클 `_verify5/C/o11.out §S11`(게임모드 게이트 — `SingleLaneGame::new`/`DeathMatchGame::new` 로 modetag 0/1/2 실제 생성, 6168B 바이트 diff))"
+ },
+ {
+  "i": 11,
+  "j": 3,
+  "name": "v3_fall_back_to_passive",
+  "val": 4,
+  "kind": "태그",
+  "B": "OK",
+  "Bobs": {
+   "태그": 1
+  },
+  "C": "OK",
+  "Dusage": [
+   "STORE",
+   "SWITCH"
+  ],
+  "D": "OK",
+  "meaning": "BigPlan 판별자 4 = SinglePlanLine (DISCR_EXACT, variant2) · 오라클 실행 확증( 오라클 `_verify5/C/o11.out §S11`(게임모드 게이트 — `SingleLaneGame::new`/`DeathMatchGame::new` 로 modetag 0/1/2 실제 생성, 6168B 바이트 diff))"
+ },
+ {
+  "i": 11,
+  "j": 4,
+  "name": "v3_fall_back_to_passive",
+  "val": 1,
+  "kind": "임계",
+  "B": "OK",
+  "Bobs": {
+   "임계": 1,
+   "태그": 1,
+   "인덱스": 1,
+   "오프셋가감": 1
+  },
+  "C": "OK",
+  "Dusage": [
+   "ARITH",
+   "EQ",
+   "GEP",
+   "STORE",
+   "SWITCH"
+  ],
+  "D": "R2",
+  "meaning": "LineType::Mid — 싱글레인 플랜의 라인 고정값 · 오라클 실행 확증( 오라클 `_verify5/C/o11.out §S11`(게임모드 게이트 — `SingleLaneGame::new`/`DeathMatchGame::new` 로 modetag 0/1/2 실제 생성, 6168B 바이트 diff))"
+ },
+ {
+  "i": 11,
+  "j": 5,
+  "name": "v3_fall_back_to_passive",
+  "val": 0,
+  "kind": "임계",
+  "B": "X",
+  "Bobs": {
+   "태그": 3
+  },
+  "C": "**불일치**",
+  "Dusage": [
+   "STORE",
+   "SWITCH"
+  ],
+  "D": "R2",
+  "meaning": "in_recall = false · 오라클 실행 확증( 오라클 `_verify5/C/o11.out §S11`(게임모드 게이트 — `SingleLaneGame::new`/`DeathMatchGame::new` 로 modetag 0/1/2 실제 생성, 6168B 바이트 diff))"
+ },
+ {
+  "i": 11,
+  "j": 6,
+  "name": "v3_fall_back_to_passive",
+  "val": 0,
+  "kind": "임계",
+  "B": "X",
+  "Bobs": {
+   "태그": 3
+  },
+  "C": "**불일치**",
+  "Dusage": [
+   "STORE",
+   "SWITCH"
+  ],
+  "D": "R2",
+  "meaning": "TutorialType::None — 모든 허용집합(라인/에픽/세르펜/정글)에 공통 포함 · 오라클 실행 확증( 오라클 `_verify5/C/o11.out §R1` 171/171 (`line_exists`·`morgard_exists`·`serpen_exists`·`position_exists`·`goal_allowed` 19열 × tutorial 9행 전수))"
+ },
+ {
+  "i": 11,
+  "j": 7,
+  "name": "v3_fall_back_to_passive",
+  "val": 1,
+  "kind": "임계",
+  "B": "OK",
+  "Bobs": {
+   "임계": 1,
+   "태그": 1,
+   "인덱스": 1,
+   "오프셋가감": 1
+  },
+  "C": "OK",
+  "Dusage": [
+   "ARITH",
+   "EQ",
+   "GEP",
+   "STORE",
+   "SWITCH"
+  ],
+  "D": "R2",
+  "meaning": "TutorialType::First — Bottom 라인 목표 허용집합에만 포함 · 오라클 실행 확증( 오라클 `_verify5/C/o11.out §R1` 171/171 (`line_exists`·`morgard_exists`·`serpen_exists`·`position_exists`·`goal_allowed` 19열 × tutorial 9행 전수))"
+ },
+ {
+  "i": 11,
+  "j": 8,
+  "name": "v3_fall_back_to_passive",
+  "val": 2,
+  "kind": "임계",
+  "B": "OK",
+  "Bobs": {
+   "임계": 2
+  },
+  "C": "OK",
+  "Dusage": [
+   "EQ",
+   "REL",
+   "SWITCH"
+  ],
+  "D": "OK",
+  "meaning": "TutorialType::TopSolo — Top 라인 목표 허용집합 · 오라클 실행 확증( 오라클 `_verify5/C/o11.out §R1` 171/171 (`line_exists`·`morgard_exists`·`serpen_exists`·`position_exists`·`goal_allowed` 19열 × tutorial 9행 전수))"
+ },
+ {
+  "i": 11,
+  "j": 9,
+  "name": "v3_fall_back_to_passive",
+  "val": 3,
+  "kind": "임계",
+  "B": "X",
+  "Bobs": {},
+  "C": "**불일치**",
+  "Dusage": [
+   "SWITCH"
+  ],
+  "D": "R2",
+  "meaning": "TutorialType::Bottom — Bottom 라인 목표 허용집합 · 오라클 실행 확증( 오라클 `_verify5/C/o11.out §R1` 171/171 (`line_exists`·`morgard_exists`·`serpen_exists`·`position_exists`·`goal_allowed` 19열 × tutorial 9행 전수))"
+ },
+ {
+  "i": 11,
+  "j": 10,
+  "name": "v3_fall_back_to_passive",
+  "val": 4,
+  "kind": "임계",
+  "B": "X",
+  "Bobs": {
+   "태그": 1
+  },
+  "C": "**불일치**",
+  "Dusage": [
+   "STORE",
+   "SWITCH"
+  ],
+  "D": "R2",
+  "meaning": "TutorialType::MidSolo — Mid 라인 목표 허용집합 · 오라클 실행 확증( 오라클 `_verify5/C/o11.out §R1` 171/171 (`line_exists`·`morgard_exists`·`serpen_exists`·`position_exists`·`goal_allowed` 19열 × tutorial 9행 전수))"
+ },
+ {
+  "i": 11,
+  "j": 11,
+  "name": "v3_fall_back_to_passive",
+  "val": 5,
+  "kind": "임계",
+  "B": "X",
+  "Bobs": {},
+  "C": "**불일치**",
+  "Dusage": [
+   "SWITCH"
+  ],
+  "D": "R2",
+  "meaning": "TutorialType::MidBottom — Mid/Bottom 라인 + Serpen 허용집합 · 오라클 실행 확증( 오라클 `_verify5/C/o11.out §R1` 171/171 (`line_exists`·`morgard_exists`·`serpen_exists`·`position_exists`·`goal_allowed` 19열 × tutorial 9행 전수))"
+ },
+ {
+  "i": 11,
+  "j": 12,
+  "name": "v3_fall_back_to_passive",
+  "val": 6,
+  "kind": "임계",
+  "B": "OK",
+  "Bobs": {
+   "임계": 1
+  },
+  "C": "**불일치**",
+  "Dusage": [
+   "EQ",
+   "SWITCH"
+  ],
+  "D": "R2",
+  "meaning": "TutorialType::JungleOnly — Jungle 목표를 추가로 허용시키는 별도 항(icmp eq) · 오라클 실행 확증( 오라클 `_verify5/C/o11.out §R1` 171/171 (`line_exists`·`morgard_exists`·`serpen_exists`·`position_exists`·`goal_allowed` 19열 × tutorial 9행 전수))"
+ },
+ {
+  "i": 11,
+  "j": 13,
+  "name": "v3_fall_back_to_passive",
+  "val": 7,
+  "kind": "임계",
+  "B": "X",
+  "Bobs": {},
+  "C": "**불일치**",
+  "Dusage": [
+   "SWITCH"
+  ],
+  "D": "R2",
+  "meaning": "TutorialType::Line — 라인 3종 + Epic + Serpen 허용집합 · 오라클 실행 확증( 오라클 `_verify5/C/o11.out §R1` 171/171 (`line_exists`·`morgard_exists`·`serpen_exists`·`position_exists`·`goal_allowed` 19열 × tutorial 9행 전수))"
+ },
+ {
+  "i": 11,
+  "j": 14,
+  "name": "v3_fall_back_to_passive",
+  "val": 8,
+  "kind": "임계",
+  "B": "X",
+  "Bobs": {
+   "인덱스": 3,
+   "태그": 8,
+   "인자상수": 11
+  },
+  "C": "**불일치**",
+  "Dusage": [
+   "GEP",
+   "SWITCH"
+  ],
+  "D": "R2",
+  "meaning": "TutorialType::Total — 전 목표 허용집합 · 오라클 실행 확증( 오라클 `_verify5/C/o11.out §R1` 171/171 (`line_exists`·`morgard_exists`·`serpen_exists`·`position_exists`·`goal_allowed` 19열 × tutorial 9행 전수))"
+ },
+ {
+  "i": 11,
+  "j": 15,
+  "name": "v3_fall_back_to_passive",
+  "val": -7,
+  "kind": "임계",
+  "B": "OK",
+  "Bobs": {
+   "오프셋가감": 1,
+   "임계": 1
+  },
+  "C": "OK",
+  "Dusage": [
+   "ARITH",
+   "REL"
+  ],
+  "D": "OK",
+  "meaning": "Epic 허용 판정 바이어스: (tutorial + (-7)) as u8 < 250 → tutorial ∈ {0,7,8}. Jungle 판정에서는 상한(=u8 249)으로도 쓰임 · 오라클 실행 확증( 오라클 `_verify5/C/o11.out §R1` 171/171 (`line_exists`·`morgard_exists`·`serpen_exists`·`position_exists`·`goal_allowed` 19열 × tutorial 9행 전수) ⟹ **집합은 실행 확정**이다. 단 리터럴 인코딩(`add i8 %t, -7` 류) 자체는 외연이 같은 표기라 실행으로 갈리지 않는다(범위 명시))"
+ },
+ {
+  "i": 11,
+  "j": 16,
+  "name": "v3_fall_back_to_passive",
+  "val": -6,
+  "kind": "임계",
+  "B": "OK",
+  "Bobs": {
+   "임계": 1
+  },
+  "C": "OK",
+  "Dusage": [
+   "REL"
+  ],
+  "D": "OK",
+  "meaning": "Epic 판정의 부호없는 상한(i8 -6 = u8 250) — 범위비교로 접힌 집합검사 · 오라클 실행 확증( 오라클 `_verify5/C/o11.out §R1` 171/171 (`line_exists`·`morgard_exists`·`serpen_exists`·`position_exists`·`goal_allowed` 19열 × tutorial 9행 전수) ⟹ **집합은 실행 확정**이다. 단 리터럴 인코딩(`add i8 %t, -7` 류) 자체는 외연이 같은 표기라 실행으로 갈리지 않는다(범위 명시))"
+ },
+ {
+  "i": 11,
+  "j": 17,
+  "name": "v3_fall_back_to_passive",
+  "val": -8,
+  "kind": "임계",
+  "B": "X",
+  "Bobs": {
+   "오프셋가감": 1
+  },
+  "C": "**불일치**",
+  "Dusage": [
+   "ARITH"
+  ],
+  "D": "R3",
+  "meaning": "Jungle 허용 판정 바이어스: (tutorial + (-8)) as u8 < 249 → tutorial ∈ {0,8} · 오라클 실행 확증( 오라클 `_verify5/C/o11.out §R1` 171/171 (`line_exists`·`morgard_exists`·`serpen_exists`·`position_exists`·`goal_allowed` 19열 × tutorial 9행 전수) ⟹ **집합은 실행 확정**이다. 단 리터럴 인코딩(`add i8 %t, -7` 류) 자체는 외연이 같은 표기라 실행으로 갈리지 않는다(범위 명시))"
+ },
+ {
+  "i": 11,
+  "j": 18,
+  "name": "v3_fall_back_to_passive",
+  "val": 29,
+  "kind": "태그",
+  "B": "OK",
+  "Bobs": {
+   "태그": 1
+  },
+  "C": "OK",
+  "Dusage": [
+   "STORE"
+  ],
+  "D": "OK",
+  "meaning": "mf_note_swap 의 src 코드 — '패시브 폴백으로 플랜 교체' 를 뜻하는 태그 · 오라클 실행 확증( 오라클 `_verify5/C/o11.out §S11`(게임모드 게이트 — `SingleLaneGame::new`/`DeathMatchGame::new` 로 modetag 0/1/2 실제 생성, 6168B 바이트 diff) — `mf_swap.0 == 29` 관측)"
+ },
+ {
+  "i": 12,
+  "j": 0,
+  "name": "handle_chat",
+  "val": 0,
+  "kind": "태그",
+  "B": "X",
+  "Bobs": {
+   "임계": 1
+  },
+  "C": "OK",
+  "Dusage": [
+   "EQ",
+   "SWITCH"
+  ],
+  "D": "OK",
+  "meaning": "TutorialType::None 태그 — 4개 포지션 arm 전부에서 통과값(튜토리얼이 아니면 항상 채팅 수신). 같은 값 0 은 chat.rs:18 의 TraceLevel::Off 비교(icmp eq i8 %42, 0)와 Position::Top 케이스에도 쓰인다 · 오라클 실행 확증( 오라클 `_verify5/C/o11.out §R1`(포지션 5열 × tutorial 9행 45/45) + `o11b.out §S12b` 게이트 실동작 **270/270**)"
+ },
+ {
+  "i": 12,
+  "j": 1,
+  "name": "handle_chat",
+  "val": 1,
+  "kind": "태그",
+  "B": "X",
+  "Bobs": {
+   "오프셋가감": 1
+  },
+  "C": "OK",
+  "Dusage": [
+   "ARITH",
+   "SWITCH"
+  ],
+  "D": "OK",
+  "meaning": "TutorialType::First 태그 — Bottom/Support arm 에서만 통과. (같은 값이 switch 의 Position::Jungle 케이스로도 등장) · 오라클 실행 확증( 오라클 `_verify5/C/o11.out §R1`(포지션 5열 × tutorial 9행 45/45) + `o11b.out §S12b` 게이트 실동작 **270/270**)"
+ },
+ {
+  "i": 12,
+  "j": 2,
+  "name": "handle_chat",
+  "val": 2,
+  "kind": "태그",
+  "B": "X",
+  "Bobs": {},
+  "C": "OK",
+  "Dusage": [
+   "SWITCH"
+  ],
+  "D": "OK",
+  "meaning": "TutorialType::TopSolo 태그 — Top arm 에서만 통과. (Position::Mid 케이스 값이기도 함) · 오라클 실행 확증( 오라클 `_verify5/C/o11.out §R1`(포지션 5열 × tutorial 9행 45/45) + `o11b.out §S12b` 게이트 실동작 **270/270**)"
+ },
+ {
+  "i": 12,
+  "j": 3,
+  "name": "handle_chat",
+  "val": 3,
+  "kind": "태그",
+  "B": "X",
+  "Bobs": {},
+  "C": "OK",
+  "Dusage": [
+   "SWITCH"
+  ],
+  "D": "OK",
+  "meaning": "TutorialType::Bottom 태그 — Bottom/Support arm 통과. (Position::Bottom 케이스 값이기도 함) · 오라클 실행 확증( 오라클 `_verify5/C/o11.out §R1`(포지션 5열 × tutorial 9행 45/45) + `o11b.out §S12b` 게이트 실동작 **270/270**)"
+ },
+ {
+  "i": 12,
+  "j": 4,
+  "name": "handle_chat",
+  "val": 4,
+  "kind": "태그",
+  "B": "OK",
+  "Bobs": {
+   "태그": 1
+  },
+  "C": "OK",
+  "Dusage": [
+   "SWITCH"
+  ],
+  "D": "OK",
+  "meaning": "TutorialType::MidSolo 태그 — Mid arm 통과. (Position::Support 케이스 값이기도 함) · 오라클 실행 확증( 오라클 `_verify5/C/o11.out §R1`(포지션 5열 × tutorial 9행 45/45) + `o11b.out §S12b` 게이트 실동작 **270/270**)"
+ },
+ {
+  "i": 12,
+  "j": 5,
+  "name": "handle_chat",
+  "val": 5,
+  "kind": "태그",
+  "B": "X",
+  "Bobs": {},
+  "C": "OK",
+  "Dusage": [
+   "SWITCH"
+  ],
+  "D": "OK",
+  "meaning": "TutorialType::MidBottom 태그 — Mid arm 과 Bottom/Support arm 둘 다 통과 · 오라클 실행 확증( 오라클 `_verify5/C/o11.out §R1`(포지션 5열 × tutorial 9행 45/45) + `o11b.out §S12b` 게이트 실동작 **270/270**)"
+ },
+ {
+  "i": 12,
+  "j": 6,
+  "name": "handle_chat",
+  "val": 6,
+  "kind": "태그",
+  "B": "X",
+  "Bobs": {
+   "임계": 1
+  },
+  "C": "OK",
+  "Dusage": [
+   "EQ"
+  ],
+  "D": "OK",
+  "meaning": "TutorialType::JungleOnly 태그 — Jungle arm 에서 icmp eq i8 %28, 6 으로 단독 비교 · 오라클 실행 확증( 오라클 `_verify5/C/o11.out §R1`(포지션 5열 × tutorial 9행 45/45) + `o11b.out §S12b` 게이트 실동작 **270/270**)"
+ },
+ {
+  "i": 12,
+  "j": 7,
+  "name": "handle_chat",
+  "val": 7,
+  "kind": "태그",
+  "B": "X",
+  "Bobs": {},
+  "C": "OK",
+  "Dusage": [
+   "SWITCH"
+  ],
+  "D": "OK",
+  "meaning": "TutorialType::Line 태그 — Top/Mid/Bottom·Support arm 통과(정글만 제외) · 오라클 실행 확증( 오라클 `_verify5/C/o11.out §R1`(포지션 5열 × tutorial 9행 45/45) + `o11b.out §S12b` 게이트 실동작 **270/270**)"
+ },
+ {
+  "i": 12,
+  "j": 8,
+  "name": "handle_chat",
+  "val": 8,
+  "kind": "태그",
+  "B": "OK",
+  "Bobs": {
+   "인덱스": 6,
+   "인자상수": 22,
+   "태그": 10
+  },
+  "C": "OK",
+  "Dusage": [
+   "GEP",
+   "SWITCH"
+  ],
+  "D": "OK",
+  "meaning": "TutorialType::Total 태그 — 4개 arm 전부 통과(풀 5:5 튜토리얼) · 오라클 실행 확증( 오라클 `_verify5/C/o11.out §R1`(포지션 5열 × tutorial 9행 45/45) + `o11b.out §S12b` 게이트 실동작 **270/270**)"
+ },
+ {
+  "i": 12,
+  "j": 9,
+  "name": "handle_chat",
+  "val": -8,
+  "kind": "임계",
+  "B": "X",
+  "Bobs": {
+   "오프셋가감": 1
+  },
+  "C": "**불일치**",
+  "Dusage": [
+   "ARITH"
+  ],
+  "D": "R3",
+  "meaning": "Jungle arm 의 접힌 범위검사 add i8 %28, -8 — TutorialType::Total(8) 을 0 으로 옮기는 오프셋 · 오라클 실행 확증( 오라클 `_verify5/C/o11.out §R1`(포지션 5열 × tutorial 9행 45/45) + `o11b.out §S12b` 게이트 실동작 **270/270** ⟹ 집합은 실행 확정(리터럴 인코딩은 외연 동일 표기라 실행으로 안 갈린다 — 범위 명시))"
+ },
+ {
+  "i": 12,
+  "j": 10,
+  "name": "handle_chat",
+  "val": -7,
+  "kind": "임계",
+  "B": "OK",
+  "Bobs": {
+   "임계": 1
+  },
+  "C": "OK",
+  "Dusage": [
+   "REL"
+  ],
+  "D": "OK",
+  "meaning": "같은 검사의 상한 icmp ult i8 %34, -7 (=u8 249). (%28-8) <u 249 ⟺ %28 ∈ {0, 8} = {None, Total}. 여기에 ==6(JungleOnly) 을 or 한 것이 Jungle 통과집합 · 오라클 실행 확증( 오라클 `_verify5/C/o11.out §R1`(포지션 5열 × tutorial 9행 45/45) + `o11b.out §S12b` 게이트 실동작 **270/270** ⟹ 집합은 실행 확정(리터럴 인코딩은 외연 동일 표기라 실행으로 안 갈린다 — 범위 명시))"
+ },
+ {
+  "i": 12,
+  "j": 11,
+  "name": "handle_chat",
+  "val": -9223372036854775793,
+  "kind": "태그",
+  "B": "OK",
+  "Bobs": {
+   "태그": 1
+  },
+  "C": "OK",
+  "Dusage": [
+   "STORE"
+  ],
+  "D": "OK",
+  "meaning": "TraceEventType 판별자 = CallHandled (기준 -9223372036854775808 + 15). 니치 최적화라 variant 인덱스와 다르며 dienum.py DISCR_EXACT 로 확인 · 오라클 실행 확증( 오라클 `_verify5/C/o11b.out §S12d` — `pending_trace_events[0]` 선두 i64 날바이트가 정확히 -9223372036854775793 · 6차 `tcxdict --enum TraceEventType` 로 niche_start(-2^63)+15 재확인)"
+ },
+ {
+  "i": 13,
+  "j": 0,
+  "name": "target_bush_v30",
+  "val": 2,
+  "kind": "태그",
+  "B": "OK",
+  "Bobs": {
+   "임계": 2,
+   "인자상수": 3,
+   "태그": 1
+  },
+  "C": "OK",
+  "Dusage": [
+   "EQ",
+   "REL",
+   "SELECT",
+   "SWITCH"
+  ],
+  "D": "OK",
+  "meaning": "① team 인덱스 상한(팀 2개, 초과 시 panic_bounds_check) ② EntityType 판별자 2 = Tower ③ Top 라인 타워 전멸 + team0 일 때의 반환 부시 인덱스 · 오라클 실행 확증( 오라클 `_verify5/C/o13.out §S13` **300/300** (line 3 × team 2 × 타워상태 5 × 셀; 관측 경로 = `LineGankCoverPlan::sub_plan`(pub) 이 `target_bush_v30` 반환을 `SubPlan::Hide{bush}` 로 그대로 내보내는 얇은 래퍼))"
+ },
+ {
+  "i": 13,
+  "j": 1,
+  "name": "target_bush_v30",
+  "val": 16,
+  "kind": "임계",
+  "B": "X",
+  "Bobs": {
+   "태그": 1
+  },
+  "C": "**불일치**",
+  "Dusage": [],
+  "D": "OK",
+  "meaning": "Top 라인 타워 전멸 + team1 반환 부시 · 오라클 실행 확증( 오라클 `_verify5/C/o13.out §S13` **300/300** (line 3 × team 2 × 타워상태 5 × 셀; 관측 경로 = `LineGankCoverPlan::sub_plan`(pub) 이 `target_bush_v30` 반환을 `SubPlan::Hide{bush}` 로 그대로 내보내는 얇은 래퍼))"
+ },
+ {
+  "i": 13,
+  "j": 2,
+  "name": "target_bush_v30",
+  "val": 4,
+  "kind": "임계",
+  "B": "OK",
+  "Bobs": {
+   "임계": 3,
+   "태그": 1
+  },
+  "C": "OK",
+  "Dusage": [
+   "SELECT"
+  ],
+  "D": "R3",
+  "meaning": "① TowerType>4 = 2차타워 판정 임계(5,6,7 = Top2/Mid2/Bottom2) ② Mid 라인 타워 전멸 + team0 반환 부시 · 오라클 실행 확증( 오라클 `_verify5/C/o13.out §S13` **300/300** (line 3 × team 2 × 타워상태 5 × 셀; 관측 경로 = `LineGankCoverPlan::sub_plan`(pub) 이 `target_bush_v30` 반환을 `SubPlan::Hide{bush}` 로 그대로 내보내는 얇은 래퍼))"
+ },
+ {
+  "i": 13,
+  "j": 3,
+  "name": "target_bush_v30",
+  "val": 17,
+  "kind": "임계",
+  "B": "X",
+  "Bobs": {
+   "태그": 1
+  },
+  "C": "**불일치**",
+  "Dusage": [],
+  "D": "OK",
+  "meaning": "Mid 라인 타워 전멸 + team1 반환 부시 · 오라클 실행 확증( 오라클 `_verify5/C/o13.out §S13` **300/300** (line 3 × team 2 × 타워상태 5 × 셀; 관측 경로 = `LineGankCoverPlan::sub_plan`(pub) 이 `target_bush_v30` 반환을 `SubPlan::Hide{bush}` 로 그대로 내보내는 얇은 래퍼))"
+ },
+ {
+  "i": 13,
+  "j": 4,
+  "name": "target_bush_v30",
+  "val": 9,
+  "kind": "임계",
+  "B": "X",
+  "Bobs": {
+   "태그": 1
+  },
+  "C": "**불일치**",
+  "Dusage": [
+   "SELECT"
+  ],
+  "D": "R3",
+  "meaning": "Bottom 라인 타워 전멸 + team0 반환 부시 · 오라클 실행 확증( 오라클 `_verify5/C/o13.out §S13` **300/300** (line 3 × team 2 × 타워상태 5 × 셀; 관측 경로 = `LineGankCoverPlan::sub_plan`(pub) 이 `target_bush_v30` 반환을 `SubPlan::Hide{bush}` 로 그대로 내보내는 얇은 래퍼))"
+ },
+ {
+  "i": 13,
+  "j": 5,
+  "name": "target_bush_v30",
+  "val": 21,
+  "kind": "임계",
+  "B": "X",
+  "Bobs": {
+   "태그": 1
+  },
+  "C": "**불일치**",
+  "Dusage": [],
+  "D": "OK",
+  "meaning": "Bottom 라인 타워 전멸 + team1 반환 부시 · 오라클 실행 확증( 오라클 `_verify5/C/o13.out §S13` **300/300** (line 3 × team 2 × 타워상태 5 × 셀; 관측 경로 = `LineGankCoverPlan::sub_plan`(pub) 이 `target_bush_v30` 반환을 `SubPlan::Hide{bush}` 로 그대로 내보내는 얇은 래퍼))"
+ },
+ {
+  "i": 13,
+  "j": 6,
+  "name": "target_bush_v30",
+  "val": 3,
+  "kind": "임계",
+  "B": "X",
+  "Bobs": {
+   "태그": 3
+  },
+  "C": "**불일치**",
+  "Dusage": [
+   "SELECT"
+  ],
+  "D": "R3",
+  "meaning": "Top: 2차타워가 살아있거나(L151) 타워가 적을 못 보는 상태(L156)일 때 team0 반환 부시 (team1 은 6) · 오라클 실행 확증( 오라클 `_verify5/C/o13.out §S13` **300/300** (line 3 × team 2 × 타워상태 5 × 셀; 관측 경로 = `LineGankCoverPlan::sub_plan`(pub) 이 `target_bush_v30` 반환을 `SubPlan::Hide{bush}` 로 그대로 내보내는 얇은 래퍼))"
+ },
+ {
+  "i": 13,
+  "j": 7,
+  "name": "target_bush_v30",
+  "val": 6,
+  "kind": "임계",
+  "B": "X",
+  "Bobs": {
+   "태그": 3
+  },
+  "C": "**불일치**",
+  "Dusage": [
+   "SELECT"
+  ],
+  "D": "R3",
+  "meaning": "Top: 위와 짝. L154(타워가 적 인지 중)에서는 team0=6/team1=3 으로 좌우가 뒤집힌다 · 오라클 실행 확증( 오라클 `_verify5/C/o13.out §S13` **300/300** (line 3 × team 2 × 타워상태 5 × 셀; 관측 경로 = `LineGankCoverPlan::sub_plan`(pub) 이 `target_bush_v30` 반환을 `SubPlan::Hide{bush}` 로 그대로 내보내는 얇은 래퍼))"
+ },
+ {
+  "i": 13,
+  "j": 8,
+  "name": "target_bush_v30",
+  "val": 13,
+  "kind": "임계",
+  "B": "X",
+  "Bobs": {
+   "태그": 1
+  },
+  "C": "판정보류(리터럴 미검출 — 접힘)",
+  "Dusage": [
+   "SELECT"
+  ],
+  "D": "R3",
+  "meaning": "Mid + 2차타워 + (height-champ.y) < champ.x 일 때 team0 반환 부시 [= **!is_top_side**(봇 사이드) 구간이다] · 오라클 실행 확증( 오라클 `_verify5/C/o13.out §S13` **300/300** (line 3 × team 2 × 타워상태 5 × 셀; 관측 경로 = `LineGankCoverPlan::sub_plan`(pub) 이 `target_bush_v30` 반환을 `SubPlan::Hide{bush}` 로 그대로 내보내는 얇은 래퍼))"
+ },
+ {
+  "i": 13,
+  "j": 9,
+  "name": "target_bush_v30",
+  "val": 18,
+  "kind": "임계",
+  "B": "X",
+  "Bobs": {
+   "태그": 1
+  },
+  "C": "**불일치**",
+  "Dusage": [],
+  "D": "OK",
+  "meaning": "같은 조건 team1 반환 부시 · 오라클 실행 확증( 오라클 `_verify5/C/o13.out §S13` **300/300** (line 3 × team 2 × 타워상태 5 × 셀; 관측 경로 = `LineGankCoverPlan::sub_plan`(pub) 이 `target_bush_v30` 반환을 `SubPlan::Hide{bush}` 로 그대로 내보내는 얇은 래퍼))"
+ },
+ {
+  "i": 13,
+  "j": 10,
+  "name": "target_bush_v30",
+  "val": 8,
+  "kind": "임계",
+  "B": "X",
+  "Bobs": {
+   "인자상수": 6,
+   "인덱스": 2,
+   "태그": 1
+  },
+  "C": "**불일치**",
+  "Dusage": [
+   "GEP",
+   "SELECT"
+  ],
+  "D": "R3",
+  "meaning": "Mid + 2차타워 + 위 부등식이 거짓일 때 team0 반환 부시 · 오라클 실행 확증( 오라클 `_verify5/C/o13.out §S13` **300/300** (line 3 × team 2 × 타워상태 5 × 셀; 관측 경로 = `LineGankCoverPlan::sub_plan`(pub) 이 `target_bush_v30` 반환을 `SubPlan::Hide{bush}` 로 그대로 내보내는 얇은 래퍼))"
+ },
+ {
+  "i": 13,
+  "j": 11,
+  "name": "target_bush_v30",
+  "val": 12,
+  "kind": "임계",
+  "B": "X",
+  "Bobs": {
+   "태그": 1
+  },
+  "C": "판정보류(리터럴 미검출 — 접힘)",
+  "Dusage": [],
+  "D": "OK",
+  "meaning": "같은 조건 team1 반환 부시 · 오라클 실행 확증( 오라클 `_verify5/C/o13.out §S13` **300/300** (line 3 × team 2 × 타워상태 5 × 셀; 관측 경로 = `LineGankCoverPlan::sub_plan`(pub) 이 `target_bush_v30` 반환을 `SubPlan::Hide{bush}` 로 그대로 내보내는 얇은 래퍼))"
+ },
+ {
+  "i": 13,
+  "j": 12,
+  "name": "target_bush_v30",
+  "val": 14,
+  "kind": "임계",
+  "B": "X",
+  "Bobs": {
+   "태그": 1
+  },
+  "C": "판정보류(리터럴 미검출 — 접힘)",
+  "Dusage": [
+   "SELECT"
+  ],
+  "D": "R3",
+  "meaning": "Mid + 1차타워 생존 + (height-champ.y) < champ.x 일 때 반환 부시. ★team 무관 [= **!is_top_side**(봇 사이드) 인 구간] · 오라클 실행 확증( 오라클 `_verify5/C/o13.out §S13` **300/300** (line 3 × team 2 × 타워상태 5 × 셀; 관측 경로 = `LineGankCoverPlan::sub_plan`(pub) 이 `target_bush_v30` 반환을 `SubPlan::Hide{bush}` 로 그대로 내보내는 얇은 래퍼))"
+ },
+ {
+  "i": 13,
+  "j": 13,
+  "name": "target_bush_v30",
+  "val": 11,
+  "kind": "임계",
+  "B": "X",
+  "Bobs": {
+   "태그": 1
+  },
+  "C": "**불일치**",
+  "Dusage": [],
+  "D": "OK",
+  "meaning": "Mid + 1차타워 생존 + 위 부등식 거짓일 때 반환 부시. ★team 무관 · 오라클 실행 확증( 오라클 `_verify5/C/o13.out §S13` **300/300** (line 3 × team 2 × 타워상태 5 × 셀; 관측 경로 = `LineGankCoverPlan::sub_plan`(pub) 이 `target_bush_v30` 반환을 `SubPlan::Hide{bush}` 로 그대로 내보내는 얇은 래퍼))"
+ },
+ {
+  "i": 13,
+  "j": 14,
+  "name": "target_bush_v30",
+  "val": 15,
+  "kind": "임계",
+  "B": "X",
+  "Bobs": {
+   "태그": 3
+  },
+  "C": "판정보류(리터럴 미검출 — 접힘)",
+  "Dusage": [
+   "SELECT"
+  ],
+  "D": "R3",
+  "meaning": "Bottom: 2차타워 생존(L181) 또는 타워가 적 미인지(L186)일 때 team0 반환 부시 (team1 은 20) · 오라클 실행 확증( 오라클 `_verify5/C/o13.out §S13` **300/300** (line 3 × team 2 × 타워상태 5 × 셀; 관측 경로 = `LineGankCoverPlan::sub_plan`(pub) 이 `target_bush_v30` 반환을 `SubPlan::Hide{bush}` 로 그대로 내보내는 얇은 래퍼))"
+ },
+ {
+  "i": 13,
+  "j": 15,
+  "name": "target_bush_v30",
+  "val": 20,
+  "kind": "임계",
+  "B": "X",
+  "Bobs": {
+   "태그": 3
+  },
+  "C": "**불일치**",
+  "Dusage": [
+   "SELECT"
+  ],
+  "D": "R3",
+  "meaning": "Bottom: 위와 짝. L184(타워가 적 인지 중)에서는 team0=20/team1=15 로 뒤집힘 · 오라클 실행 확증( 오라클 `_verify5/C/o13.out §S13` **300/300** (line 3 × team 2 × 타워상태 5 × 셀; 관측 경로 = `LineGankCoverPlan::sub_plan`(pub) 이 `target_bush_v30` 반환을 `SubPlan::Hide{bush}` 로 그대로 내보내는 얇은 래퍼))"
+ },
+ {
+  "i": 14,
+  "j": 0,
+  "name": "update",
+  "val": 100,
+  "kind": "임계",
+  "B": "X",
+  "Bobs": {
+   "계수": 1
+  },
+  "C": "**불일치**",
+  "Dusage": [
+   "ARITH"
+  ],
+  "D": "R3",
+  "meaning": "hp_ratio = hp * 100 / max_hp — 백분율 환산 · 오라클 실행 확증( 오라클 `_verify5/C/o13.out §S14` **780/780** (부시 도착 ⟺ Cancel 발화 전건 일치) + HP 경계 409/410)"
+ },
+ {
+  "i": 14,
+  "j": 1,
+  "name": "update",
+  "val": 41,
+  "kind": "임계",
+  "B": "OK",
+  "Bobs": {
+   "임계": 1,
+   "인덱스": 1
+  },
+  "C": "OK",
+  "Dusage": [
+   "GEP",
+   "REL"
+  ],
+  "D": "OK",
+  "meaning": "★HP 취소 임계. hp_ratio < 41 이면 갱크 포기(41% 미만) · 오라클 실행 확증( 오라클 `_verify5/C/o13.out §S14` **780/780** (부시 도착 ⟺ Cancel 발화 전건 일치) + HP 경계 409/410)"
+ },
+ {
+  "i": 14,
+  "j": 2,
+  "name": "update",
+  "val": 2,
+  "kind": "태그",
+  "B": "OK",
+  "Bobs": {
+   "임계": 2,
+   "인자상수": 1,
+   "태그": 2
+  },
+  "C": "OK",
+  "Dusage": [
+   "EQ",
+   "REL",
+   "SELECT",
+   "STORE",
+   "SWITCH"
+  ],
+  "D": "OK",
+  "meaning": "EntityType 판별자 2 = Tower (is_tower2 의 앞단 비교). 같은 리터럴 2 는 이 함수에서 역할이 넷이다 — ①EntityType::Tower 판별자(m08.ll:94675 `icmp eq i64 %60, 2`; `!dbg !55641` 이 **line 0** 이라 블록 종결자인 261 switch 로 귀속된다) ②`match line` 의 **LineType::Bottom 케이스 값**(m08.ll:94680 `switch i8 %37`, `!dbg !55643`→261) ③Top 라인·타워 전멸·team==0 의 **반환 부시 ID**(`select i1 %57, i64 2, i64 16`, !55741→252) ④CancelReason::TargetMissing 바이트값(`store i8 2`, !55882→58) · 오라클 실행 확증( 오라클 `_verify5/C/o13.out §S14` **780/780** (부시 도착 ⟺ Cancel 발화 전건 일치) + HP 경계 409/410)"
+ },
+ {
+  "i": 14,
+  "j": 3,
+  "name": "update",
+  "val": 4,
+  "kind": "임계",
+  "B": "OK",
+  "Bobs": {
+   "임계": 3,
+   "태그": 1
+  },
+  "C": "OK",
+  "Dusage": [
+   "SELECT"
+  ],
+  "D": "R3",
+  "meaning": "TowerType::is_second_tower 임계 — tag > 4 (5=Top2 / 6=Mid2 / 7=Bottom2) · 오라클 실행 확증( 오라클 `_verify5/C/o13.out §S14` **780/780** (부시 도착 ⟺ Cancel 발화 전건 일치) + HP 경계 409/410)"
+ },
+ {
+  "i": 14,
+  "j": 4,
+  "name": "update",
+  "val": 0,
+  "kind": "임계",
+  "B": "OK",
+  "Bobs": {
+   "임계": 9,
+   "인자상수": 2,
+   "태그": 1
+  },
+  "C": "**불일치**",
+  "Dusage": [
+   "EQ",
+   "STORE",
+   "SWITCH"
+  ],
+  "D": "R2",
+  "meaning": "team == 0 비교(청팀). 목표 부시를 좌우 대칭으로 뒤집는 키. 또한 CancelReason::LowHpSelf 의 바이트값 0 · 오라클 실행 확증( 오라클 `_verify5/C/o13.out §S14` **780/780** (부시 도착 ⟺ Cancel 발화 전건 일치) + HP 경계 409/410)"
+ },
+ {
+  "i": 14,
+  "j": 5,
+  "name": "update",
+  "val": 32000,
+  "kind": "임계",
+  "B": "X",
+  "Bobs": {
+   "계수": 2
+  },
+  "C": "**불일치**",
+  "Dusage": [
+   "ARITH"
+  ],
+  "D": "R3",
+  "meaning": "셀 크기 — 좌표 → 그리드 셀 변환(임계값 아님) · 오라클 실행 확증( 오라클 `_verify5/C/o13.out §S14` **780/780** (부시 도착 ⟺ Cancel 발화 전건 일치) + HP 경계 409/410)"
+ },
+ {
+  "i": 14,
+  "j": 6,
+  "name": "update",
+  "val": 29,
+  "kind": "인덱스",
+  "B": "X",
+  "Bobs": {
+   "인자상수": 2
+  },
+  "C": "OK",
+  "Dusage": [],
+  "D": "OK",
+  "meaning": "그리드 인덱스 상한. clamp(0,29) 가 umin(x,29) 로 접힘 — bushes 는 30x30 · 오라클 실행 확증( 오라클 `_verify5/C/o13.out §S14` **780/780** (부시 도착 ⟺ Cancel 발화 전건 일치) + HP 경계 409/410)"
+ },
+ {
+  "i": 14,
+  "j": 7,
+  "name": "update",
+  "val": 16,
+  "kind": "임계",
+  "B": "X",
+  "Bobs": {
+   "태그": 1,
+   "인덱스": 2
+  },
+  "C": "**불일치**",
+  "Dusage": [
+   "GEP"
+  ],
+  "D": "R3",
+  "meaning": "목표 부시 ID — Top 라인·타워 없음·team!=0 · 오라클 실행 확증( 오라클 `_verify5/C/o13.out §S14` **780/780** (부시 도착 ⟺ Cancel 발화 전건 일치) + HP 경계 409/410)"
+ },
+ {
+  "i": 14,
+  "j": 8,
+  "name": "update",
+  "val": 17,
+  "kind": "태그",
+  "B": "OK",
+  "Bobs": {
+   "태그": 3
+  },
+  "C": "OK",
+  "Dusage": [
+   "STORE"
+  ],
+  "D": "OK",
+  "meaning": "목표 부시 ID — Mid 라인·타워 없음·team!=0. (동시에 Chat::Cancel 의 태그값 17 도 같은 리터럴) · 오라클 실행 확증( 오라클 `_verify5/C/o13.out §S14` **780/780** (부시 도착 ⟺ Cancel 발화 전건 일치) + HP 경계 409/410)"
+ },
+ {
+  "i": 14,
+  "j": 9,
+  "name": "update",
+  "val": 9,
+  "kind": "임계",
+  "B": "X",
+  "Bobs": {
+   "태그": 1
+  },
+  "C": "**불일치**",
+  "Dusage": [
+   "SELECT"
+  ],
+  "D": "R3",
+  "meaning": "목표 부시 ID — Bottom 라인·타워 없음·team==0 · 오라클 실행 확증( 오라클 `_verify5/C/o13.out §S14` **780/780** (부시 도착 ⟺ Cancel 발화 전건 일치) + HP 경계 409/410)"
+ },
+ {
+  "i": 14,
+  "j": 10,
+  "name": "update",
+  "val": 21,
+  "kind": "임계",
+  "B": "X",
+  "Bobs": {
+   "태그": 1
+  },
+  "C": "**불일치**",
+  "Dusage": [],
+  "D": "OK",
+  "meaning": "목표 부시 ID — Bottom 라인·타워 없음·team!=0 · 오라클 실행 확증( 오라클 `_verify5/C/o13.out §S14` **780/780** (부시 도착 ⟺ Cancel 발화 전건 일치) + HP 경계 409/410)"
+ },
+ {
+  "i": 14,
+  "j": 11,
+  "name": "update",
+  "val": 3,
+  "kind": "임계",
+  "B": "X",
+  "Bobs": {
+   "태그": 3
+  },
+  "C": "**불일치**",
+  "Dusage": [
+   "SELECT"
+  ],
+  "D": "R3",
+  "meaning": "목표 부시 ID — Top 라인 2차타워/적없음·team==0 (반대는 6) · 오라클 실행 확증( 오라클 `_verify5/C/o13.out §S14` **780/780** (부시 도착 ⟺ Cancel 발화 전건 일치) + HP 경계 409/410)"
+ },
+ {
+  "i": 14,
+  "j": 12,
+  "name": "update",
+  "val": 6,
+  "kind": "임계",
+  "B": "X",
+  "Bobs": {
+   "태그": 3
+  },
+  "C": "판정보류(리터럴 미검출 — 접힘)",
+  "Dusage": [
+   "SELECT"
+  ],
+  "D": "R3",
+  "meaning": "목표 부시 ID — Top 라인. nearest_enemy 있으면 team==0 이 6, 없으면 3 (좌우 반전) · 오라클 실행 확증( 오라클 `_verify5/C/o13.out §S14` **780/780** (부시 도착 ⟺ Cancel 발화 전건 일치) + HP 경계 409/410)"
+ },
+ {
+  "i": 14,
+  "j": 13,
+  "name": "update",
+  "val": 14,
+  "kind": "임계",
+  "B": "X",
+  "Bobs": {
+   "태그": 1
+  },
+  "C": "**불일치**",
+  "Dusage": [
+   "SELECT"
+  ],
+  "D": "R3",
+  "meaning": "목표 부시 ID — Mid 라인·비2차타워·**is_top_side 거짓**(= 봇 사이드) (team 무관) [극성 정정 2026-09-11 배치C: IR 술어 `ry < x` 가 **!is_top_side** 였다. 부시 ID 자체는 불변] · 오라클 실행 확증( 오라클 `_verify5/C/o13.out §S14` **780/780** (부시 도착 ⟺ Cancel 발화 전건 일치) + HP 경계 409/410)"
+ },
+ {
+  "i": 14,
+  "j": 14,
+  "name": "update",
+  "val": 11,
+  "kind": "임계",
+  "B": "X",
+  "Bobs": {
+   "태그": 1
+  },
+  "C": "OK",
+  "Dusage": [],
+  "D": "OK",
+  "meaning": "목표 부시 ID — Mid 라인·비2차타워·**is_top_side 참**(= 탑 사이드) (team 무관) [극성 정정 2026-09-11 배치C: IR 술어 `ry < x` 가 **!is_top_side** 였다. 부시 ID 자체는 불변] · 오라클 실행 확증( 오라클 `_verify5/C/o13.out §S14` **780/780** (부시 도착 ⟺ Cancel 발화 전건 일치) + HP 경계 409/410)"
+ },
+ {
+  "i": 14,
+  "j": 15,
+  "name": "update",
+  "val": 13,
+  "kind": "임계",
+  "B": "X",
+  "Bobs": {
+   "태그": 1
+  },
+  "C": "판정보류(리터럴 미검출 — 접힘)",
+  "Dusage": [
+   "SELECT"
+  ],
+  "D": "R3",
+  "meaning": "목표 부시 ID — Mid 라인·2차타워·**is_top_side 거짓**(= 봇 사이드)·team==0 [극성 정정 2026-09-11 배치C: IR 술어 `ry < x` 가 **!is_top_side** 였다. 부시 ID 자체는 불변] · 오라클 실행 확증( 오라클 `_verify5/C/o13.out §S14` **780/780** (부시 도착 ⟺ Cancel 발화 전건 일치) + HP 경계 409/410)"
+ },
+ {
+  "i": 14,
+  "j": 16,
+  "name": "update",
+  "val": 18,
+  "kind": "임계",
+  "B": "X",
+  "Bobs": {
+   "태그": 1
+  },
+  "C": "**불일치**",
+  "Dusage": [],
+  "D": "OK",
+  "meaning": "목표 부시 ID — Mid 라인·2차타워·**is_top_side 거짓**(= 봇 사이드)·team!=0 [극성 정정 2026-09-11 배치C: IR 술어 `ry < x` 가 **!is_top_side** 였다. 부시 ID 자체는 불변] · 오라클 실행 확증( 오라클 `_verify5/C/o13.out §S14` **780/780** (부시 도착 ⟺ Cancel 발화 전건 일치) + HP 경계 409/410)"
+ },
+ {
+  "i": 14,
+  "j": 17,
+  "name": "update",
+  "val": 8,
+  "kind": "태그",
+  "B": "OK",
+  "Bobs": {
+   "인자상수": 8,
+   "인덱스": 5,
+   "태그": 6
+  },
+  "C": "OK",
+  "Dusage": [
+   "GEP",
+   "SELECT",
+   "STORE"
+  ],
+  "D": "OK",
+  "meaning": "목표 부시 ID — Mid 라인·2차타워·**is_top_side 참**(= 탑 사이드)·team==0. (동시에 LineGankerPhase::Cancel 태그값 8 과 같은 리터럴) [극성 정정 2026-09-11 배치C: IR 술어 `ry < x` 가 **!is_top_side** 였다. 부시 ID 자체는 불변] · 오라클 실행 확증( 오라클 `_verify5/C/o13.out §S14` **780/780** (부시 도착 ⟺ Cancel 발화 전건 일치) + HP 경계 409/410)"
+ },
+ {
+  "i": 14,
+  "j": 18,
+  "name": "update",
+  "val": 12,
+  "kind": "임계",
+  "B": "X",
+  "Bobs": {
+   "태그": 1
+  },
+  "C": "판정보류(리터럴 미검출 — 접힘)",
+  "Dusage": [],
+  "D": "OK",
+  "meaning": "목표 부시 ID — Mid 라인·2차타워·**is_top_side 참**(= 탑 사이드)·team!=0 [극성 정정 2026-09-11 배치C: IR 술어 `ry < x` 가 **!is_top_side** 였다. 부시 ID 자체는 불변] · 오라클 실행 확증( 오라클 `_verify5/C/o13.out §S14` **780/780** (부시 도착 ⟺ Cancel 발화 전건 일치) + HP 경계 409/410)"
+ },
+ {
+  "i": 14,
+  "j": 19,
+  "name": "update",
+  "val": 15,
+  "kind": "임계",
+  "B": "X",
+  "Bobs": {
+   "태그": 3
+  },
+  "C": "판정보류(리터럴 미검출 — 접힘)",
+  "Dusage": [
+   "SELECT"
+  ],
+  "D": "R3",
+  "meaning": "목표 부시 ID — Bottom 라인·team==0 (기본형) · 오라클 실행 확증( 오라클 `_verify5/C/o13.out §S14` **780/780** (부시 도착 ⟺ Cancel 발화 전건 일치) + HP 경계 409/410)"
+ },
+ {
+  "i": 14,
+  "j": 20,
+  "name": "update",
+  "val": 20,
+  "kind": "임계",
+  "B": "X",
+  "Bobs": {
+   "태그": 3
+  },
+  "C": "**불일치**",
+  "Dusage": [
+   "SELECT"
+  ],
+  "D": "R3",
+  "meaning": "목표 부시 ID — Bottom 라인·team!=0 (기본형). nearest_enemy 있으면 15/20 이 뒤집힘 · 오라클 실행 확증( 오라클 `_verify5/C/o13.out §S14` **780/780** (부시 도착 ⟺ Cancel 발화 전건 일치) + HP 경계 409/410)"
+ },
+ {
+  "i": 15,
+  "j": 0,
+  "name": "single_try_engage",
+  "val": 0,
+  "kind": "태그",
+  "B": "OK",
+  "Bobs": {
+   "태그": 2
+  },
+  "C": "OK",
+  "Dusage": [
+   "STORE"
+  ],
+  "D": "OK",
+  "meaning": "BattlePlanGoal 판별자 0 = TryKill (DISCR_EXACT=0 확인). 248행 다이브 분기에서도 같은 값 · 오라클 실행 확증( 오라클 game==mine 236/236)"
+ },
+ {
+  "i": 15,
+  "j": 1,
+  "name": "single_try_engage",
+  "val": 60,
+  "kind": "임계",
+  "B": "X",
+  "Bobs": {
+   "태그": 2
+  },
+  "C": "**불일치**",
+  "Dusage": [
+   "STORE"
+  ],
+  "D": "R3",
+  "meaning": "TryKill 의 두 번째 usize. 248행·253행 양쪽 동일. m13.ll 안의 다른 engage 계열 플랜 생성 지점(33846/33893/33985/34347/34396행 등)도 전부 60 — 공통 파라미터 · 오라클 실행 확증( 오라클 game==mine 236/236)"
+ },
+ {
+  "i": 15,
+  "j": 2,
+  "name": "single_try_engage",
+  "val": 1,
+  "kind": "임계",
+  "B": "X",
+  "Bobs": {
+   "오프셋가감": 2,
+   "태그": 2
+  },
+  "C": "**불일치**",
+  "Dusage": [
+   "ARITH"
+  ],
+  "D": "R3",
+  "meaning": "적팀 번호 계산 `1 - player.info.team` 의 1 (팀은 0/1) · 오라클 실행 확증(7차 배치D: 오라클 D7_o1 실행 확증 — `cache.iter_towers_without_nexus(1 - team)` 을 team 0/1 양쪽에서 돌려 **각각 8개, 8/8 전부 적팀(`Entity.team == Player(1-team)`), 좌표 유일 8**. 무결성 지표 towers=16 · twin 2/2 (TEMPLATE ② 오염 없음) — `1 - team` 의 극성이 실행으로 확정)"
+ },
+ {
+  "i": 15,
+  "j": 3,
+  "name": "single_try_engage",
+  "val": 2,
+  "kind": "태그",
+  "B": "X",
+  "Bobs": {
+   "임계": 1
+  },
+  "C": "OK",
+  "Dusage": [
+   "EQ"
+  ],
+  "D": "OK",
+  "meaning": "EntityType 태그 2 = Tower (dienum 확인). 최근접 엔티티가 타워일 때만 dive_tower 를 채운다 · 오라클 실행 확증( 오라클 game==mine 236/236)"
+ },
+ {
+  "i": 15,
+  "j": 4,
+  "name": "single_try_engage",
+  "val": -1,
+  "kind": "센티널",
+  "B": "OK",
+  "Bobs": {
+   "태그": 5,
+   "임계": 1
+  },
+  "C": "OK",
+  "Dusage": [
+   "EQ",
+   "STORE"
+  ],
+  "D": "OK",
+  "meaning": "두 곳에서 쓰이는 None 니치값 — i8 -1(=255) = Option<TowerType>::None(dive_tower), i64 -1 = Option<SinglePlanBattle>::None(반환) · 오라클 실행 확증(7차 배치D: 오라클 D7_o1 실행 확증 — `Option<TowerType>::None` size=1 bytes=[255], `Option<SinglePlanBattle>` size=144 = inner size 144(니치라 오버헤드 0)이고 None 의 +0x0 8바이트를 i64 로 읽으면 **-1**. IR 의 `dereferenceable(144)`/`memcpy .. i64 144`/`store i64 -1, ptr %0` 과 완전 일치)"
+ },
+ {
+  "i": 15,
+  "j": 5,
+  "name": "single_try_engage",
+  "val": 3,
+  "kind": "태그",
+  "B": "X",
+  "Bobs": {},
+  "C": "OK",
+  "Dusage": [
+   "SWITCH"
+  ],
+  "D": "OK",
+  "meaning": "BattleSubPlanGoal 태그 3 = KitingBack → 플랜 미채택(None) · 오라클 실행 확증( BattleSubPlanGoal::KitingBack 실값의 태그워드 직독 = 3 (o1.txt))"
+ },
+ {
+  "i": 15,
+  "j": 6,
+  "name": "single_try_engage",
+  "val": 4,
+  "kind": "태그",
+  "B": "OK",
+  "Bobs": {
+   "태그": 1
+  },
+  "C": "OK",
+  "Dusage": [
+   "SWITCH"
+  ],
+  "D": "OK",
+  "meaning": "BattleSubPlanGoal 태그 4 = RunAway → 플랜 미채택(None) · 오라클 실행 확증( BattleSubPlanGoal::RunAway 태그워드 직독 = 4 (o1.txt) · o6.txt UPD 9행에서 update 후 실제 sub_goal 태그 4 관측)"
+ },
+ {
+  "i": 15,
+  "j": 7,
+  "name": "single_try_engage",
+  "val": 7,
+  "kind": "태그",
+  "B": "X",
+  "Bobs": {},
+  "C": "OK",
+  "Dusage": [
+   "SWITCH"
+  ],
+  "D": "OK",
+  "meaning": "BattleSubPlanGoal 태그 7 = End → 플랜 미채택(None) · 오라클 실행 확증( BattleSubPlanGoal::End 태그워드 직독 = 7 (o1.txt))"
+ },
+ {
+  "i": 16,
+  "j": 0,
+  "name": "max_range_nearly_can_use",
+  "val": -1,
+  "kind": "센티널",
+  "B": "OK",
+  "Bobs": {
+   "임계": 4,
+   "오프셋가감": 4
+  },
+  "C": "OK",
+  "Dusage": [
+   "ARITH",
+   "EQ"
+  ],
+  "D": "OK",
+  "meaning": "Option<Effect>::None 의 니치 값 — Effect.casting(CastingType,i32,범위 -1..3)이 -1 이면 이펙트 없음. Option::as_ref(core/option.rs:742)가 인라인된 형태. 동시에 (level-1) 계산의 add i64 %level, -1 로도 등장 · 오라클 실행 확증( 오라클 game==mine 236/236)"
+ },
+ {
+  "i": 16,
+  "j": 1,
+  "name": "max_range_nearly_can_use",
+  "val": 13,
+  "kind": "태그",
+  "B": "X",
+  "Bobs": {
+   "임계": 3
+  },
+  "C": "OK",
+  "Dusage": [
+   "EQ",
+   "SWITCH"
+  ],
+  "D": "OK",
+  "meaning": "EntityType::Champion 태그. 스킬/스킬2/궁 쿨다운 게이트는 '챔피언일 때만' 걸린다(비챔피언은 스킬 쿨 0 취급) · 오라클 실행 확증( 오라클 game==mine 236/236)"
+ },
+ {
+  "i": 16,
+  "j": 2,
+  "name": "max_range_nearly_can_use",
+  "val": 2,
+  "kind": "임계",
+  "B": "OK",
+  "Bobs": {
+   "임계": 1
+  },
+  "C": "OK",
+  "Dusage": [
+   "REL",
+   "SWITCH"
+  ],
+  "D": "OK",
+  "meaning": "스킬2 개방 레벨 게이트 — Entity::skill2_effect(entity.rs:1693)가 level>2 일 때만 Some 을 준다 · 오라클 실행 확증( 오라클 game==mine 236/236)"
+ },
+ {
+  "i": 16,
+  "j": 3,
+  "name": "max_range_nearly_can_use",
+  "val": 4,
+  "kind": "임계",
+  "B": "OK",
+  "Bobs": {
+   "인자상수": 4,
+   "임계": 1
+  },
+  "C": "OK",
+  "Dusage": [
+   "REL",
+   "SWITCH"
+  ],
+  "D": "OK",
+  "meaning": "궁 개방 레벨 게이트 — Entity::ult_effect(entity.rs:1701)가 level>4 일 때만 Some 을 준다 · 오라클 실행 확증( 오라클 game==mine 236/236)"
+ },
+ {
+  "i": 16,
+  "j": 4,
+  "name": "max_range_nearly_can_use",
+  "val": 100,
+  "kind": "임계",
+  "B": "X",
+  "Bobs": {
+   "오프셋가감": 8,
+   "계수": 8
+  },
+  "C": "OK",
+  "Dusage": [
+   "ARITH",
+   "SELECT"
+  ],
+  "D": "R3",
+  "meaning": "Entity::radius(entity.rs:1515)의 퍼센트 기준 — radius*(radius_mult+100)/100. radius_mult==0 이면 곱셈 자체를 건너뛴다 · 오라클 실행 확증( 오라클 game==mine 236/236)"
+ },
+ {
+  "i": 16,
+  "j": 5,
+  "name": "max_range_nearly_can_use",
+  "val": 0,
+  "kind": "임계",
+  "B": "OK",
+  "Bobs": {
+   "태그": 1,
+   "임계": 8
+  },
+  "C": "**불일치**",
+  "Dusage": [
+   "EQ",
+   "SWITCH"
+  ],
+  "D": "R2",
+  "meaning": "range 누적 초기값(하나도 못 쓰면 그대로 반환) 겸 radius_mult==0 빠른 경로 비교값 · 오라클 실행 확증( 오라클 game==mine 236/236)"
+ },
+ {
+  "i": 16,
+  "j": 6,
+  "name": "max_range_nearly_can_use",
+  "val": 3,
+  "kind": "태그",
+  "B": "X",
+  "Bobs": {},
+  "C": "OK",
+  "Dusage": [
+   "SWITCH"
+  ],
+  "D": "OK",
+  "meaning": "EntityType::Nexus 태그 — 태그 0(None)과 함께 평타 쿨다운 게이트를 건너뛰고 곧장 사거리 계산으로 간다(Entity::attack_cooldown 에 해당 팔이 없음) · 오라클 실행 확증( 오라클 game==mine 236/236)"
+ },
+ {
+  "i": 17,
+  "j": 0,
+  "name": "new",
+  "val": 0,
+  "kind": "태그",
+  "B": "OK",
+  "Bobs": {
+   "태그": 23,
+   "임계": 1,
+   "인자상수": 1
+  },
+  "C": "OK",
+  "Dusage": [
+   "EQ",
+   "STORE"
+  ],
+  "D": "OK",
+  "meaning": "BattlePlanGoal 태그 0 = TryKill — 채팅 방송의 유일한 조건. 동시에 모든 Option 필드의 판별자 0 = None · 오라클 실행 확증( 오라클 game==mine 236/236)"
+ },
+ {
+  "i": 17,
+  "j": 1,
+  "name": "new",
+  "val": 3,
+  "kind": "태그",
+  "B": "OK",
+  "Bobs": {
+   "태그": 1
+  },
+  "C": "OK",
+  "Dusage": [
+   "STORE"
+  ],
+  "D": "OK",
+  "meaning": "Chat 태그 3 = Chat::Battle (DISCR_EXACT=3 확인). 아군에게 '전투 개시' 통보 · 오라클 실행 확증( 오라클 game==mine 236/236)"
+ },
+ {
+  "i": 17,
+  "j": 2,
+  "name": "new",
+  "val": 9223372036854775807,
+  "kind": "센티널",
+  "B": "OK",
+  "Bobs": {
+   "태그": 1
+  },
+  "C": "OK",
+  "Dusage": [
+   "STORE"
+  ],
+  "D": "OK",
+  "meaning": "i64::MAX — flee_die 초기값 센티널(도주사망 미기록) · 오라클 실행 확증( 오라클 game==mine 236/236)"
+ },
+ {
+  "i": 17,
+  "j": 3,
+  "name": "new",
+  "val": -1,
+  "kind": "센티널",
+  "B": "OK",
+  "Bobs": {
+   "태그": 2
+  },
+  "C": "OK",
+  "Dusage": [
+   "STORE"
+  ],
+  "D": "OK",
+  "meaning": "0xff 바이트 — dive_tower / main_objective 의 Option None 니치 센티널 · 오라클 실행 확증( 오라클 game==mine 236/236)"
+ },
+ {
+  "i": 18,
+  "j": 0,
+  "name": "v3_epicops_buff_window",
+  "val": 1,
+  "kind": "태그",
+  "B": "OK",
+  "Bobs": {
+   "태그": 7,
+   "오프셋가감": 4,
+   "인자상수": 1,
+   "인덱스": 1
+  },
+  "C": "OK",
+  "Dusage": [
+   "ARITH",
+   "GEP",
+   "STORE",
+   "SWITCH"
+  ],
+  "D": "OK",
+  "meaning": "v3_epicops_repair_need 반환 태그 1 — '수리 필요 + 채팅까지'. objective=Repair 로 놓고 Chat::Repair 를 발화한다"
+ },
+ {
+  "i": 18,
+  "j": 1,
+  "name": "v3_epicops_buff_window",
+  "val": 2,
+  "kind": "태그",
+  "B": "OK",
+  "Bobs": {
+   "임계": 6,
+   "인자상수": 2,
+   "태그": 2
+  },
+  "C": "OK",
+  "Dusage": [
+   "EQ",
+   "REL",
+   "SWITCH"
+  ],
+  "D": "OK",
+  "meaning": "v3_epicops_repair_need 반환 태그 2 — '수리 필요하지만 채팅은 없음'. objective=Repair 만 놓는다"
+ },
+ {
+  "i": 18,
+  "j": 2,
+  "name": "v3_epicops_buff_window",
+  "val": 7,
+  "kind": "태그",
+  "B": "OK",
+  "Bobs": {
+   "태그": 2
+  },
+  "C": "OK",
+  "Dusage": [
+   "STORE"
+  ],
+  "D": "OK",
+  "meaning": "MainObjective::Repair 의 태그값(dienum: 태그=variant 인덱스, 밀림 없음). 637줄·642줄 두 곳에서 저장"
+ },
+ {
+  "i": 18,
+  "j": 3,
+  "name": "v3_epicops_buff_window",
+  "val": 23,
+  "kind": "태그",
+  "B": "OK",
+  "Bobs": {
+   "인덱스": 3,
+   "태그": 1
+  },
+  "C": "OK",
+  "Dusage": [
+   "STORE"
+  ],
+  "D": "OK",
+  "meaning": "Chat::Repair 의 태그값(24B 열거형판 Chat) · 오라클 실행 확증( Chat::Repair(0) 실값의 태그바이트 직독 = 23 (o1.txt))"
+ },
+ {
+  "i": 18,
+  "j": 4,
+  "name": "v3_epicops_buff_window",
+  "val": 25,
+  "kind": "태그",
+  "B": "OK",
+  "Bobs": {
+   "태그": 1
+  },
+  "C": "OK",
+  "Dusage": [
+   "STORE"
+  ],
+  "D": "OK",
+  "meaning": "Chat::SerpenSetup 의 태그값 · 오라클 실행 확증( Chat::SerpenSetup(0) 태그바이트 직독 = 25 (o1.txt))"
+ },
+ {
+  "i": 18,
+  "j": 5,
+  "name": "v3_epicops_buff_window",
+  "val": 21,
+  "kind": "태그",
+  "B": "OK",
+  "Bobs": {
+   "태그": 1
+  },
+  "C": "OK",
+  "Dusage": [
+   "SELECT"
+  ],
+  "D": "OK",
+  "meaning": "Chat::Press 의 태그값. v3_press_chat_line 이 None 일 때(최초 압박 선언) 선택. 줄번호 = is_none 판정 **epic.rs:673**, Chat 구성 **674/676**. ⚠인라인 체인에 섞여 보이는 682 는 **`core/src/option.rs`** 줄번호이고, epic.rs:682 자체는 함수 꼬리(lifetime.end + 공통 출구)다 · 오라클 실행 확증( Chat::Press(LineType::Top,0) 태그바이트 직독 = 21 (o1.txt))"
+ },
+ {
+  "i": 18,
+  "j": 6,
+  "name": "v3_epicops_buff_window",
+  "val": 22,
+  "kind": "태그",
+  "B": "OK",
+  "Bobs": {
+   "태그": 1
+  },
+  "C": "판정보류(리터럴 미검출 — 접힘)",
+  "Dusage": [],
+  "D": "OK",
+  "meaning": "Chat::PressChange 의 태그값. v3_press_chat_line 이 이미 Some 일 때(압박 라인 변경) 선택. 줄번호는 is_none 판정 **epic.rs:673** 이고 Chat 구성은 **674/676**. ⚠인라인 체인에 보이는 682 는 **`core/src/option.rs`** 줄번호이며, epic.rs:682 자체는 함수 꼬리(lifetime.end + 공통 출구)다 · 오라클 실행 확증( Chat::PressChange(LineType::Top,0) 태그바이트 직독 = 22 (o1.txt))"
+ },
+ {
+  "i": 18,
+  "j": 7,
+  "name": "v3_epicops_buff_window",
+  "val": -1,
+  "kind": "센티널",
+  "B": "OK",
+  "Bobs": {
+   "임계": 2
+  },
+  "C": "OK",
+  "Dusage": [
+   "EQ"
+  ],
+  "D": "OK",
+  "meaning": "Option<LineType> 의 None 니치값(0xFF). ① group_line==-1 이면 즉시 false 반환 ② v3_press_chat_line==-1 이면 Press vs PressChange 를 가른다. v3_epic_group_line 반환의 IR range 는 [-1,3) = {None, Top, Mid, Bottom} · 오라클 실행 확증( Option<LineType>::None 니치바이트 직독 = 0xff (o1.txt) + v3_epic_group_line 이 실제로 None 을 내는 케이스 관측(JungleOnly 전 mu, First/Bottom+Split14) (o2.txt))"
+ },
+ {
+  "i": 19,
+  "j": 0,
+  "name": "best_jungle_goal",
+  "val": 0,
+  "kind": "태그",
+  "B": "OK",
+  "Bobs": {
+   "태그": 2,
+   "임계": 3,
+   "인자상수": 2
+  },
+  "C": "OK",
+  "Dusage": [
+   "EQ",
+   "STORE"
+  ],
+  "D": "OK",
+  "meaning": "jungle_camps[0] = JungleType::Rhino — ★`JungleType` 의 **판별자**다(임계가 아니다). 오라클 D7_o1 실측 태그 = Rhino 0 · Mushroom 1 · Bee 3 · Stump 2 (dienum JungleType 0=Rhino). 같은 값 0 이 ① get_game_mode 반환 tag==0(=Some) 판정 ② player.info.team==0(=블루 진영) 판정에도 쓰인다 · 오라클 실행 확증( 오라클 game==mine 236/236)"
+ },
+ {
+  "i": 19,
+  "j": 1,
+  "name": "best_jungle_goal",
+  "val": 1,
+  "kind": "태그",
+  "B": "OK",
+  "Bobs": {
+   "태그": 5,
+   "인덱스": 2
+  },
+  "C": "OK",
+  "Dusage": [
+   "GEP",
+   "STORE"
+  ],
+  "D": "OK",
+  "meaning": "jungle_camps[1] = JungleType::Mushroom — ★`JungleType` 의 **판별자**다(임계가 아니다). 오라클 D7_o1 실측 태그 = Rhino 0 · Mushroom 1 · Bee 3 · Stump 2 · 오라클 실행 확증( 오라클 game==mine 236/236)"
+ },
+ {
+  "i": 19,
+  "j": 2,
+  "name": "best_jungle_goal",
+  "val": 3,
+  "kind": "태그",
+  "B": "OK",
+  "Bobs": {
+   "태그": 1,
+   "인덱스": 1
+  },
+  "C": "OK",
+  "Dusage": [
+   "GEP",
+   "STORE"
+  ],
+  "D": "OK",
+  "meaning": "jungle_camps[2] = JungleType::Bee — ★`JungleType` 의 **판별자**다(임계가 아니다). 오라클 D7_o1 실측 태그 = Rhino 0 · Mushroom 1 · Bee 3 · Stump 2 ★소스 배열 순서가 Rhino,Mushroom,Bee,Stump 임에 주의(2보다 3이 먼저 저장됨) · 오라클 실행 확증( 오라클 game==mine 236/236) · 오라클 실행 확증(7차 배치D: 오라클 D7_o1 직독 — `Option<JungleType>` Some(Bee) bytes=[3] (Rhino 0 · Mushroom 1 · Stump 2). 기존 근거였던 '236/236' 은 `best_jungle_goal` end-to-end 일치라 태그값 자체의 증거가 아니었다)"
+ },
+ {
+  "i": 19,
+  "j": 3,
+  "name": "best_jungle_goal",
+  "val": 2,
+  "kind": "태그",
+  "B": "OK",
+  "Bobs": {
+   "인덱스": 1,
+   "태그": 1,
+   "임계": 1,
+   "인자상수": 1
+  },
+  "C": "OK",
+  "Dusage": [
+   "GEP",
+   "REL",
+   "STORE"
+  ],
+  "D": "OK",
+  "meaning": "jungle_camps[3] = JungleType::Stump — ★`JungleType` 의 **판별자**다(임계가 아니다). 오라클 D7_o1 실측 태그 = Rhino 0 · Mushroom 1 · Bee 3 · Stump 2 · 오라클 실행 확증( 오라클 game==mine 236/236) · 오라클 실행 확증(7차 배치D: 오라클 D7_o1 직독 — Some(Stump) bytes=[2]. 배열 순서 Rhino,Mushroom,Bee,Stump 가 저장 태그 0,1,3,2 와 일치함을 실행으로 확인)"
+ },
+ {
+  "i": 19,
+  "j": 4,
+  "name": "best_jungle_goal",
+  "val": -1,
+  "kind": "센티널",
+  "B": "OK",
+  "Bobs": {
+   "임계": 3
+  },
+  "C": "OK",
+  "Dusage": [
+   "EQ"
+  ],
+  "D": "OK",
+  "meaning": "Option<JungleType>::None 의 니치 센티널(=255). ① now_camp==None 판정(825줄) ② min_by_key 결과 unwrap 잔여검사 2곳(819/833줄, 시드가 있어 실제로는 발생 불가) · 오라클 실행 확증( 오라클 game==mine 236/236)"
+ }
+]

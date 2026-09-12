@@ -43,10 +43,34 @@ CAT = [
  ('★오라클 — SDK 함수를 진짜 실행',
   '`-C lto=fat` 로 rlib 이 exe 로 링크된다. `pub` 이면 **진리표로 검증**할 수 있다. 전문 = `IR_TOOLKIT §7`.',
   ['spanprobe.ps1', 'rdocprobe.ps1', 'probe.py', 'aiprobe.py']),
- ('명세 파이프라인 — 배치를 굴릴 때',
-  '절차 = `SPEC_RUNBOOK.md`. 규격 = `SPEC_GUIDE.md`.',
-  ['pick20.py', 'qcspec.py', 'speccmp.py', 'mkspec20.py', 'mkspec_md.py', 'mkmap_html.py',
-   'corpus.py', 'corpus2.py']),
+ ('명세 파이프라인 ① 정본 만들기',
+  '`_spec\\specs20.json`(v2, 손이 닿는 정본) → `specs20_v3.json`(생성물). **v3 를 직접 고치지 마라.**',
+  ['mkspec3.py', 'spec3lib.py', 'mkspec3_md.py', 'mkspec20.py', 'mkspec_md.py',
+   'cleanspec.py', 'mkmap_html.py']),
+
+ ('★명세 파이프라인 ② 라운드 4계약 — **경계마다 사람 손을 뺀다**',
+  '절차 = `SPEC_RUNBOOK.md §S5-d`. 6라운드 실측에서 오류의 상당수가 「사람이 손으로 옮겨 적는 경계」에서 났다.\n'
+  '**지시** `mkdossier` → **보고** `patch.json` → **반영** `applypatch` → **검증** `auditrounds`.\n'
+  '★7차부터 지시 = `mkbrief`(요약) 가 아니라 **`mkdossier`(정본 무손실 조립)** 이다 — '
+  '6차까지의 지시 오류가 **전부 「줄여 적은 자리」**에서 났다.',
+  ['mkdossier.py', 'dossierfresh.py', 'mkbrief.py', 'mkpatch.py', 'applypatch.py',
+   'auditrounds.py', 'specgate.py']),
+
+ ('★명세 파이프라인 ③ 게이트 — 완결 조건 검사',
+  '`specgate.py` 가 게이트를 돌리고, 아래 것들이 그 게이트가 부르는 **검사기**다.\n'
+  '**전부 「검사받지 않는 축」에서 나왔다** — 붙일 때마다 그 축에 고여 있던 오류가 드러났다(`SPEC_RUNBOOK §S5-c`).\n'
+  '⚠★**적발 건수는 게이트의 성능이 아니라 가설이다.** 붙이자마자 나온 수를 성과로 믿지 말고 '
+  '**표본을 IR 원문으로 반증**하라 — 7차 `G12` 47건은 검증해 보니 대부분 오탐이었고, '
+  '8차엔 네 축의 후보 총 적발 **100여 건 중 진짜가 26건**이었다.\n'
+  '⚠★**「부재」를 결함으로 세지 마라**(콜리 안 접근·상수 접힘·레지스터 승격). `G14` 후보 하나가 그래서 46건을 냈다.\n'
+  '★**검출력은 「변이 시험」으로 재라** — 명세를 일부러 뒤집어 넣고 몇 %를 잡는지 본다(`memdir.py` 실측 53.1%). '
+  '그래야 **적발 0 이 무능이 아니라 「그 축에 오류가 없다」**임을 말할 수 있다.',
+  ['srclinecheck.py', 'srclinebase.py', 'whereline.py', 'memdir.py', 'kindchk.py',
+   'histprop.py', 'paramrole.py', 'xreflogic.py', 'knobval.py', 'sharedchk.py']),
+
+ ('명세 파이프라인 ④ 품질 대조',
+  '지어낸 내용 거르기 · 독립 재작성 대조.',
+  ['pick20.py', 'qcspec.py', 'speccmp.py', 'corpus.py', 'corpus2.py']),
  ('exe ↔ IR 잇기 — 이름·주소 붙이기',
   'IR 의 이름을 exe RVA 에 잇거나, exe 함수에 이름을 붙인다.',
   ['name2rva.py', 'panicloc.py', 'srcident.py', 'typeid_map.py', 'irskew.py', 'irskew2.py',
@@ -65,7 +89,7 @@ CAT = [
    'agent_digest_cmp.py']),
  ('운영 — 빌드·크래시·로그',
   '',
-  ['mktools.py', 'logsnap.py', 'modbisect.py', 'apgate.py']),
+  ['mktools.py', 'selftest.py', 'logsnap.py', 'modbisect.py', 'apgate.py']),
 ]
 
 # 쓰지 말아야 할 것 (사유를 문서에 박는다)
@@ -75,6 +99,7 @@ DEPRECATED = {
  'irskew.py': '⛔폐기 — exe 는 상수가 접혀 소스 줄로 못 되돌린다. 후속 = `irskew2.py`(필드 오프셋 지문)',
  'distruct.py': '⚠**2차 폴백** — 키가 leaf 이름 1개뿐이라 동명끼리 조용히 덮어쓴다. 1차 = `tcxdict.py`',
  'dienum.py': '⚠**2차 폴백** — tcx 와 모순 0이나 커버리지 39.7% 결손. 1차 = `tcxdict.py --enum`',
+ 'mkbrief.py': '⚠**요약 방식(~6차)** — 브리핑 오류가 전부 「줄여 적은 자리」에서 났다. 7차 정본 = `mkdossier.py`(무손실)',
 }
 
 

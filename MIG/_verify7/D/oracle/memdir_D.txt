@@ -1,0 +1,49 @@
+
+===== specs[15] single_try_engage  (m13.ll:33374~33739) =====
+  IR 오프셋 방향표 12개 · memcpy/memset 대상 4개
+  intr: [(0, 'memcpy')]
+  mem[5 ] LegacyPlanHandler                  +0xf8   dir=r  (오프셋 미검출)
+  mem[6 ] LegacyPlanHandler                  +0x990  dir=r  (오프셋 미검출)
+
+===== specs[16] max_range_nearly_can_use  (m10.ll:51913~52374) =====
+  IR 오프셋 방향표 17개 · memcpy/memset 대상 0개
+  mem[1 ] Entity                             +0xb0   dir=r  (오프셋 미검출)
+  mem[5 ] Entity                             +0xd0   dir=r  (오프셋 미검출)
+  mem[6 ] Entity                             +0xd8   dir=r  (오프셋 미검출)
+  mem[7 ] Entity                             +0xe8   dir=r  (오프셋 미검출)
+  mem[8 ] Entity                             +0xf0   dir=r  (오프셋 미검출)
+  mem[9 ] Entity                             +0x110  dir=r  (오프셋 미검출)
+  mem[10] Entity                             +0x1f0  dir=r  (오프셋 미검출)
+  mem[13] Entity                             +0x490  dir=r  (오프셋 미검출)
+  mem[16] Entity                             +0x4b8  dir=r  (오프셋 미검출)
+  mem[18] Entity                             +0x4c8  dir=r  (오프셋 미검출)
+  mem[21] Entity                             +0x4f0  dir=r  (오프셋 미검출)
+  mem[23] Entity                             +0x500  dir=r  (오프셋 미검출)
+  mem[24] Entity                             +0x538  dir=r  (오프셋 미검출)
+  mem[29] Effect                             +0x28   dir=r  (오프셋 미검출)
+
+===== specs[17] new  (m05.ll:17695~17825) =====
+  IR 오프셋 방향표 28개 · memcpy/memset 대상 3개
+  intr: [(0, 'memcpy'), (0, 'memset')]
+  mem[15] DeathMatchBattle                   +0xd0   dir=w  (오프셋 미검출)
+  mem[18] DeathMatchBattle                   +0xf8   dir=w  (오프셋 미검출)
+  mem[21] DeathMatchBattle                   +0x120  dir=w  (오프셋 미검출)
+  mem[22] DeathMatchBattle                   +0x128  dir=w  (오프셋 미검출)
+  mem[23] DeathMatchBattle                   +0x130  dir=w  (오프셋 미검출)
+  mem[24] DeathMatchBattle                   +0x138  dir=w  (오프셋 미검출)
+  mem[25] DeathMatchBattle                   +0x140  dir=w  (오프셋 미검출)
+  mem[26] DeathMatchBattle                   +0x148  dir=w  (오프셋 미검출)
+  mem[27] DeathMatchBattle                   +0x150  dir=w  (오프셋 미검출)
+  mem[28] DeathMatchBattle                   +0x158  dir=w  (오프셋 미검출)
+  mem[29] DeathMatchBattle                   +0x168  dir=w  (오프셋 미검출)
+
+===== specs[18] v3_epicops_buff_window  (m09.ll:6879~7264) =====
+  IR 오프셋 방향표 14개 · memcpy/memset 대상 0개
+  mem[5 ] AbstractGameWithCache              +0x1e0  dir=r  (오프셋 미검출)
+  mem[15] TeamPlan                           +0xc8   dir=w  **강한 불일치**  IR=r
+
+===== specs[19] best_jungle_goal  (m04.ll:62570~62978) =====
+  IR 오프셋 방향표 16개 · memcpy/memset 대상 0개
+  mem[9 ] AbstractGameWithCache              +0x1e0  dir=r  (오프셋 미검출)
+
+---- 합계: 검사 126 · 강한 불일치 1 · 오프셋 미검출 29

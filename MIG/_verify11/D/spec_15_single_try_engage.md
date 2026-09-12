@@ -1,0 +1,233 @@
+---
+
+### `15` single_try_engage — target_id 를 노리는 1인 교전 플랜(SinglePlanBattle)을 만들어 1틱 돌려보고, 회피/종료로 귀결되면 None 을 돌려주는 시도 함수
+
+| 항목 | 값 |
+|---|---|
+| id | `modes__single_try_engage` |
+| 심볼 | `_RNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy7handler5modesNtB4_17LegacyPlanHandler17single_try_engage` |
+| 소스 | `game-ai\src\plan_legacy\handler\modes.rs:241` |
+| IR | `m13.ll` 33374~33739행 |
+| 경로·가시성 | `game_ai::plan_legacy::handler::modes::<impl game_ai::plan_legacy::handler::LegacyPlanHandler>::single_try_engage` · **in:game_ai** |
+| 계층 | 플랜 핸들러 |
+| exe | `ca4a80` (modes) · 571바이트 · 138명령 |
+| 라운드 | 기준 `r4` · 통과 4회 |
+
+**시그니처(tcx 정본, ev3)**
+```rust
+fn(&game_ai::plan_legacy::handler::LegacyPlanHandler, usize, &mut rand::rngs::std::StdRng, &game_core::PlayerState, &game_core::OperationData, usize, &mut game_core::DebugFrameData) -> std::option::Option<game_ai::plan_legacy::old::SinglePlanBattle>
+```
+
+<details><summary>인자 8개</summary>
+
+| # | i | 이름 | 타입 | 역할 | ev |
+|---|---|---|---|---|---|
+| 0 | 0 | (sret ret) | *mut Option<SinglePlanBattle>(144B) | 반환값 out-param. tag 오프셋 0x0(support_target 의 Option 니치)에 -1 저장 = None | 4 |
+| 1 | 1 | self | &LegacyPlanHandler(6168B) | team_plan(+0xf8)·positioning_score(+0x990) 만 만짐. WARN ~~team_plan 은 &mut 로 하위에 전달~~ 은 **거짓**(2026-09-11 검증배치 D): tcx 정본상 `self` 부터가 **공유 `&LegacyPlanHandler`** 라 `&mut self.team_plan` 이 성립 불가이고, `single_tower_dive_is_viable`·`SinglePlanBattle::update` 둘 다 **`&TeamPlan`(공유)** 를 받는다. 이 계열에 team_plan 부작용은 **없다**(&mut 인 것은 rnd·debug·battle 뿐) | 3 |
+| 2 | 2 | version | usize | AI 버전. 이 함수 본문에는 version 분기가 없고 new/new_dive/update/single_tower_dive_is_viable 로 그대로 전달만 함 | 4 |
+| 3 | 3 | rnd | &mut rand::rngs::std::StdRng(320B) | 본문에서 직접 안 씀. single_tower_dive_is_viable 과 update 로 전달 | 4 |
+| 4 | 4 | player | &PlayerState(2528B) | info.team(+0x930) 만 직접 읽음 | 4 |
+| 5 | 5 | data | &OperationData(24B) | data.cache(+0x0) = &AbstractGameWithCache(8840B). 그 +0x0/+0x8 이 &dyn AbstractGame 팻포인터 | 4 |
+| 6 | 6 | target_id | usize | 노릴 대상 엔티티 핸들. get_entity_by_id 인자이자 TryKill 목표로 그대로 들어감 | 4 |
+| 7 | 7 | debug | &mut DebugFrameData(224B) | 본문에서 직접 안 씀. 하위 두 함수로 전달 | 4 |
+</details>
+
+**의사코드 `logic`**
+> ★재구현용 의사코드다. **오프셋·상수·시그니처의 정본은 `mem`/`consts`/`callees`/`sig.tcx` 이고, 여기와 어긋나면 그쪽이 맞다.** (v2 에서 정정이 표에만 반영되고 이 블록이 옛 값으로 남는 사고가 반복됐다)
+```
+241 fn single_try_engage(&self, version, rnd, player, data, target_id, debug) -> Option<SinglePlanBattle>
+
+242 let game = data.cache.game; // &dyn AbstractGame (data=cache+0x0, vtable=cache+0x8)
+242 let in_tower = game.get_entity_by_id(target_id) // vtable +0x1f0 간접호출
+ .is_some_and(|e| tower_discipline::engage_requires_dive(player, data, e));
+ // 대상 엔티티가 없으면 in_tower = false (블록 %26)
+
+243 let mut battle = if in_tower {
+244 let target = game.get_entity_by_id(target_id); // 같은 슬롯 재호출
+244 if target.is_none() { return None; } // 반환 니치에 -1 저장
+245 if !single_battle::single_tower_dive_is_viable(version, rnd, player, data,
+ &self.team_plan /*+0xf8, `&TeamPlan` 공유 참조*/, target, debug) {
+245 return None;
+245 }
+248 let mut b = SinglePlanBattle::new_dive(version, BattlePlanGoal::TryKill(target_id, 60), data, player) // ★`&` 없음(by-value) — tcx `fn(usize, BattlePlanGoal, &OperationData, &PlayerState)`;
+249 b.dive_tower = data.cache.iter_towers_without_nexus(1 - player.info.team /*+0x930*/)
+249 // 반환 이터레이터 = Chain<Flatten<IntoIter<Option<&Entity>,6>>, Copied<Iter<&Entity>>>
+249 // 앞 6칸 = [top_tower, mid_tower, bottom_tower, top_tower2, mid_tower2, bottom_tower2][team]
+ // (+0x180/0x1a0/0x1c0/0x190/0x1b0/0x1d0, 이 순서 그대로) .flatten()
+ // 뒤 = twin_towers[team](+0x130, bumpalo Vec<&Entity>).iter().copied()
+ // nexus(+0x170)는 별도 필드라 실제 제외. 실측 **팀당 8개**(이름있는 6칸 + twin_towers 2개), **좌표 중복 0** (⚠하네스가 `init_tower` 를 재호출하면 타워가 2배로 늘어 팀당 10개(6+4, twin 2쌍 좌표 중복)로 관측된다) 
+249 .min_by_key(|t| t.distance_sq(target)) // dx=|x1-x2|, dy=|y1-y2|, dx*dx+dy*dy (u64, sqrt 없음)
+250 .and_then(|e| if let EntityType::Tower { info } = &e.ty /*+0x68 == 2*/ { Some(info.ty) /*+0x128*/ } /* ★**struct variant** `{ info: Tower }` 다 — 튜플 variant 가 아니다(rustc 진단). 오프셋 +0x128 경로: Entity+0x68 → 페이로드+0x8 → Tower+0xb8 */ else { None });
+249 // ★첫 원소 peel: 이터레이터가 통째로 비면(배열부 소진 + 슬라이스부 next()==null) dive_tower = None
+251 b
+252 } else {
+253 SinglePlanBattle::new(version, BattlePlanGoal::TryKill(target_id, 60), data, player) // ★`&` 없음(by-value)
+254 };
+
+255 battle.update(version, rnd, player, data,
+255 &self.positioning_score /*+0x990, 2760B*/, &self.team_plan /*+0xf8, `&TeamPlan` 공유 참조*/, debug);
+
+256 let committed = !matches!(battle.sub_goal /*+0x58*/,
+256 BattleSubPlanGoal::KitingBack | RunAway | End); // switch 3,4,7
+257 if committed { Some(battle) } else { drop(battle.chats /*+0x68 Vec<Chat>*/); None }
+258 }
+
+요약: (a) 대상 존재 → (b) 대상이 적 타워 사거리 안이면 '다이브' 전용 경로(성립성 검사 통과 필수)
+(c) 아니면 평범한 교전 플랜 (d) 1틱 update 를 돌려 sub_goal 이 KitingBack/RunAway/End 로
+떨어지면 그 플랜은 버린다. 즉 '만들어 보고 후퇴로 귀결되면 안 한다' 형태의 사전 시뮬레이션 게이트.
+```
+
+**`mem` 메모리 접근 19건** — ★`ev` 상한은 **3**이다(오프셋 주장의 최강 근거가 tcx 라서).
+| # | 베이스 | 오프셋 | 이름 | 방향 | 근거 | ev | chk | value |
+|---|---|---|---|---|---|---|---|---|
+| 0 | OperationData | 0x0 | cache | r | &AbstractGameWithCache. 여기서 게임 핸들을 얻는다 · tcx 정본 대조( offset_of! 일괄 대조 MISMATCH 0 (o1.txt TOTAL OK=107) — OperationData.cache=+0x0) | 3 | OK |  |
+| 1 | AbstractGameWithCache | 0x0 | game.data_ptr | r | &dyn AbstractGame 팻포인터의 데이터 포인터 · tcx 정본 대조( offset_of!(AbstractGameWithCache, game)=+0x0, size_of::<&dyn AbstractGame>()=16 (o1.txt)) | 3 | OK |  |
+| 2 | AbstractGameWithCache | 0x8 | game.vtable | r | &dyn AbstractGame 팻포인터의 vtable 포인터 · tcx 정본 대조( 팻포인터 둘째 워드 — size_of::<&dyn AbstractGame>()=16 실측 + tcx `game(+8)` (o1.txt)) | 3 | OK |  |
+| 3 | AbstractGame::vtable | 0x1f0 | get_entity_by_id | r | divtable.py AbstractGame 0x1f0 → ExpectedGame::AbstractGame::get_entity_by_id 로 확인. 이 함수에서 2번 간접호출(242행·244행) | 3 | 확인불가(vtable 슬롯) |  |
+| 4 | PlayerState | 0x930 | info.team | r | 1 - team 으로 적팀 번호를 만들어 iter_towers_without_nexus 에 넘김 · tcx 정본 대조( 오라클 game==mine 236/236 ⟹ **오프셋은 tcx 가 정본이라 ev3 이 상한**(실행은 교차검증)) · tcx 정본 대조(5차 배치D: 5차 배치D 오라클 game==mine 236/236 ⟹ **오프셋은 tcx 가 정본이라 ev3 이 상한**(실행은 교차검증)) | 3 | OK |  |
+| 5 | LegacyPlanHandler | 0xf8 | team_plan | r | `single_tower_dive_is_viable`(245행)·`SinglePlanBattle::update`(255행)에 **`&TeamPlan`(공유)** 로 전달 (tcx sig) — 피호출자는 이 필드를 변경하지 않는다 · tcx 정본 대조( 오라클 game==mine 236/236 ⟹ **오프셋은 tcx 가 정본이라 ev3 이 상한**(실행은 교차검증)) · tcx 정본 대조(5차 배치D: 5차 배치D 오라클 game==mine 236/236 ⟹ **오프셋은 tcx 가 정본이라 ev3 이 상한**(실행은 교차검증)) | 3 | OK |  |
+| 6 | LegacyPlanHandler | 0x990 | positioning_score | r | PositioningScoreData(2760B). update 에 읽기전용으로 전달 · tcx 정본 대조( 오라클 game==mine 236/236 ⟹ **오프셋은 tcx 가 정본이라 ev3 이 상한**(실행은 교차검증)) · tcx 정본 대조(5차 배치D: 5차 배치D 오라클 game==mine 236/236 ⟹ **오프셋은 tcx 가 정본이라 ev3 이 상한**(실행은 교차검증)) | 3 | OK |  |
+| 7 | Entity | 0x68 | ty | r | EntityType 판별자(range 0..14). ==2(Tower) 인지만 본다 — 250행 · tcx 정본 대조( 오라클 game==mine 236/236 ⟹ **오프셋은 tcx 가 정본이라 ev3 이 상한**(실행은 교차검증)) · tcx 정본 대조(5차 배치D: 5차 배치D 오라클 game==mine 236/236 ⟹ **오프셋은 tcx 가 정본이라 ev3 이 상한**(실행은 교차검증)) | 3 | OK |  |
+| 8 | Entity | 0x128 | ty.Tower.info.ty | r | ty 판별자(+0x68)+0xc0 = Tower variant 페이로드 i8 = TowerType. dive_tower 로 들어감 ★`EntityType::Tower` 는 **struct variant `{ info: Tower }`** 다(`dienum`) — 접근 경로는 `ty.Tower.info`, 오프셋 +0x128. · tcx 정본 대조( 오라클 game==mine 236/236 ⟹ **오프셋은 tcx 가 정본이라 ev3 이 상한**(실행은 교차검증)) · tcx 정본 대조(5차 배치D: 5차 배치D 오라클 game==mine 236/236 ⟹ **오프셋은 tcx 가 정본이라 ev3 이 상한**(실행은 교차검증)) | 3 | OK |  |
+| 9 | Entity | 0x660 | x | r | distance_sq 용 — 후보 타워와 target 양쪽에서 읽음 · tcx 정본 대조( offset_of!(Entity, x)=+0x660 MISMATCH 0 (o1.txt)) | 3 | OK |  |
+| 10 | Entity | 0x668 | y | r | distance_sq 용 · tcx 정본 대조( offset_of!(Entity, y)=+0x668 MISMATCH 0 (o1.txt)) | 3 | OK |  |
+| 11 | SinglePlanBattle | 0x58 | sub_goal | r | update 후 판별자(range 0..8)를 switch — 채택 여부 판정의 유일한 근거 · tcx 정본 대조( 오라클 game==mine 236/236 ⟹ **오프셋은 tcx 가 정본이라 ev3 이 상한**(실행은 교차검증)) · tcx 정본 대조(5차 배치D: 5차 배치D 오라클 game==mine 236/236 ⟹ **오프셋은 tcx 가 정본이라 ev3 이 상한**(실행은 교차검증)) | 3 | OK |  |
+| 12 | SinglePlanBattle | 0x68 | chats (Vec<Chat> 24B) | - | G18(9차 배치D) 적발. logic 257행이 `drop(battle.chats /*+0x68 Vec<Chat>*/)` 로 인용하는데 mem 표에 행이 없었다. IR 원문 m13.ll:33724 `%128 = getelementptr inbounds nuw i8, ptr %15, i64 104` → 33726 `invoke void @…Vec<Chat> as Drop>::drop(ptr … dereferenceable(24) %128)` (언와인드 경로는 33732 `RawVec<Chat>::drop`). 채택 경로에서는 33717 `memcpy(ptr %0, ptr %15, 144)` 로 sret 에 그대로 실려 나간다. ⚠`dir` 은 `-` 로 둔다 — drop 글루는 읽기도 쓰기도 아니라 G14 의 대상이 아니다 | 4 | OK | 미채택 경로에서 **drop 만** 한다 — 값을 읽지 않는다 |
+| 13 | SinglePlanBattle | 0x8c | dive_tower | w | 249~250행. 스택 로컬(%14)에만 쓰고 그 뒤 battle(%15)로 memcpy 되어 반환값에 실림 · tcx 정본 대조( 오라클 game==mine 236/236 ⟹ **오프셋은 tcx 가 정본이라 ev3 이 상한**(실행은 교차검증)) · tcx 정본 대조(5차 배치D: 5차 배치D 오라클 game==mine 236/236 ⟹ **오프셋은 tcx 가 정본이라 ev3 이 상한**(실행은 교차검증)) | 3 | OK | Option<TowerType> — target 에 가장 가까운 적 타워의 TowerType, 없으면 None(0xff) |
+| 14 | BattlePlanGoal(스택 24B 임시) | 0x0 | tag | w | new/new_dive 에 넘길 main_goal 인자를 스택에 조립 · tcx 정본 대조( 오라클 game==mine 236/236 ⟹ **오프셋은 tcx 가 정본이라 ev3 이 상한**(실행은 교차검증)) · tcx 정본 대조(5차 배치D: 5차 배치D 오라클 game==mine 236/236 ⟹ **오프셋은 tcx 가 정본이라 ev3 이 상한**(실행은 교차검증)) | 3 | OK | 0 = TryKill |
+| 15 | BattlePlanGoal(스택 24B 임시) | 0x8 | TryKill.0 | w | · tcx 정본 대조( 오라클 game==mine 236/236 ⟹ **오프셋은 tcx 가 정본이라 ev3 이 상한**(실행은 교차검증)) · tcx 정본 대조(5차 배치D: 5차 배치D 오라클 game==mine 236/236 ⟹ **오프셋은 tcx 가 정본이라 ev3 이 상한**(실행은 교차검증)) | 3 | OK | target_id |
+| 16 | BattlePlanGoal(스택 24B 임시) | 0x10 | TryKill.1 | w | ★**소비처 0건 — 노브가 아니다**(history 참조). 생성 14곳 전부 리터럴 60이고 `main_goal.__1`(goal+0x10) 을 읽는 코드는 `BattlePlanGoal::Debug::fmt` 하나뿐이다 · tcx 정본 대조( 오라클 game==mine 236/236 ⟹ **오프셋은 tcx 가 정본이라 ev3 이 상한**(실행은 교차검증)) · tcx 정본 대조(5차 배치D: 5차 배치D 오라클 game==mine 236/236 ⟹ **오프셋은 tcx 가 정본이라 ev3 이 상한**(실행은 교차검증)) | 3 | OK | 60 |
+| 17 | Option<SinglePlanBattle>(반환) | 0x0 | None 니치 | w | 대상없음(244행)·다이브불가(245행)·미채택(257행) 세 경로 전부 여기로 · tcx 정본 대조(7차 배치D: 오라클 D7_o1 실행 확증 — `Option<TowerType>::None` size=1 bytes=[255], `Option<SinglePlanBattle>` size=144 = inner size 144(니치라 오버헤드 0)이고 None 의 +0x0 8바이트를 i64 로 읽으면 **-1**. IR 의 `dereferenceable(144)`/`memcpy .. i64 144`/`store i64 -1, ptr %0` 과 완전 일치) | 3 | 확인불가(tcx 사전에 타입 없음) | -1 |
+| 18 | Option<SinglePlanBattle>(반환) | 0x0 | Some(battle) | w | 257행 committed==true 경로 · tcx 정본 대조(7차 배치D: 오라클 D7_o1 실행 확증 — `Option<TowerType>::None` size=1 bytes=[255], `Option<SinglePlanBattle>` size=144 = inner size 144(니치라 오버헤드 0)이고 None 의 +0x0 8바이트를 i64 로 읽으면 **-1**. IR 의 `dereferenceable(144)`/`memcpy .. i64 144`/`store i64 -1, ptr %0` 과 완전 일치) | 3 | 확인불가(tcx 사전에 타입 없음) | battle 144바이트 통째 memcpy |
+
+**`consts` 상수 8건** — `src_line` 은 **G12 가 IR 사슬과 대조**한다.
+| # | 값 | src_line | 종류 | 뜻 | ev |
+|---|---|---|---|---|---|
+| 0 | 0 | 253 | 태그 | BattlePlanGoal 판별자 0 = TryKill (DISCR_EXACT=0 확인). 248행 다이브 분기에서도 같은 값 · 오라클 실행 확증( 오라클 game==mine 236/236) · 오라클 실행 확증(5차 배치D: 5차 배치D 오라클 game==mine 236/236) | 2 |
+| 1 | 60 | 253 | 산출값 | TryKill 의 두 번째 usize(`BattlePlanGoal::TryKill.__1`, goal+0x10). 248행·253행 양쪽 동일. m13.ll 안의 다른 engage 계열 플랜 생성 지점(33846/33893/33985/34347/34396행 등)도 전부 60. ★**단 이 60 은 노브가 아니다 — 소비처가 존재하지 않는다**(history[1], 같은 명세 `mem[15]`·`knobs[4]` 와 동일 결론): 생성 14곳 전부 리터럴이고 변수로 채우는 곳 0곳, `main_goal.__1`(goal+0x10)을 읽는 코드는 `BattlePlanGoal::Debug::fmt`(m10.ll:61999) 하나뿐이라 산술·비교에 한 번도 쓰이지 않는다. ~~공통 파라미터~~ 라는 종전 문면은 튜닝 가능한 값처럼 읽혀 오도한다 · 오라클 실행 확증( 오라클 game==mine 236/236) · 오라클 실행 확증(5차 배치D: 5차 배치D 오라클 game==mine 236/236) | 2 |
+| 2 | 1 | 249 | 계수 | 적팀 번호 계산 `1 - player.info.team` 의 1 (팀은 0/1) · 오라클 실행 확증(7차 배치D: 오라클 D7_o1 실행 확증 — `cache.iter_towers_without_nexus(1 - team)` 을 team 0/1 양쪽에서 돌려 **각각 8개, 8/8 전부 적팀(`Entity.team == Player(1-team)`), 좌표 유일 8**. 무결성 지표 towers=16 · twin 2/2 (TEMPLATE ② 오염 없음) — `1 - team` 의 극성이 실행으로 확정) | 2 |
+| 3 | 2 | 250 | 태그 | EntityType 태그 2 = Tower (dienum 확인). 최근접 엔티티가 타워일 때만 dive_tower 를 채운다 · 오라클 실행 확증( 오라클 game==mine 236/236) · 오라클 실행 확증(5차 배치D: 5차 배치D 오라클 game==mine 236/236) | 2 |
+| 4 | -1 | 250 | 센티널 | 두 곳에서 쓰이는 None 니치값 — i8 -1(=255) = Option<TowerType>::None(dive_tower), i64 -1 = Option<SinglePlanBattle>::None(반환) · 오라클 실행 확증(7차 배치D: 오라클 D7_o1 실행 확증 — `Option<TowerType>::None` size=1 bytes=[255], `Option<SinglePlanBattle>` size=144 = inner size 144(니치라 오버헤드 0)이고 None 의 +0x0 8바이트를 i64 로 읽으면 **-1**. IR 의 `dereferenceable(144)`/`memcpy .. i64 144`/`store i64 -1, ptr %0` 과 완전 일치) | 2 |
+| 5 | 3 | 256 | 태그 | BattleSubPlanGoal 태그 3 = KitingBack → 플랜 미채택(None) · 오라클 실행 확증( BattleSubPlanGoal::KitingBack 실값의 태그워드 직독 = 3 (o1.txt)) | 2 |
+| 6 | 4 | 256 | 태그 | BattleSubPlanGoal 태그 4 = RunAway → 플랜 미채택(None) · 오라클 실행 확증( BattleSubPlanGoal::RunAway 태그워드 직독 = 4 (o1.txt) · o6.txt UPD 9행에서 update 후 실제 sub_goal 태그 4 관측) | 2 |
+| 7 | 7 | 256 | 태그 | BattleSubPlanGoal 태그 7 = End → 플랜 미채택(None) · 오라클 실행 확증( BattleSubPlanGoal::End 태그워드 직독 = 7 (o1.txt)) | 2 |
+
+**`knobs` 조정점 9건** — `where` 는 **G13 이 그 줄(±2)에 인용 명령이 있는지** 본다.
+| # | 무엇 | 어디 | 값 | 효과 | ev | src |
+|---|---|---|---|---|---|---|
+| 0 | 미채택 판정에 쓰는 sub_goal 집합 | modes.rs:256 (m13.ll 33708~33713 `switch i64 %125` (33708 = `%124 = gep %15, i64 88` + `load` sub_goal, 33710/33711/33712 = case 3/4/7)) | 3(KitingBack), 4(RunAway), 7(End) | 집합에서 빼면(예: KitingBack 제거) 카이팅으로 귀결되는 교전도 채택돼 AI 가 더 공격적으로 붙는다. 반대로 Kiting(2)/Assassin(5) 등을 추가하면 교전을 훨씬 덜 시작한다 | 4 | 기존 |
+| 1 | 다이브 성립성 게이트 | modes.rs:245 single_tower_dive_is_viable 반환값 | bool | 항상 true 로 만들면 타워 사거리 안 대상도 무조건 다이브 플랜을 만든다(무모한 다이브 급증). 항상 false 면 타워 밑 대상은 절대 안 문다 | 4 | 기존 |
+| 2 | 다이브 판정 자체 | modes.rs:242 tower_discipline::engage_requires_dive 반환값 | bool | false 로 고정하면 타워 밑이라도 일반 교전 플랜(new)로 만들어져 dive_tower/다이브 성립성 검사를 전부 건너뛴다 · 오라클 실행 확증( game_ai::engage_requires_dive(pub) 진리표 14표적 — 적 타워 3/3 true, 적·아군 챔피언 10/10 false, 적 넥서스 false (o7.txt ERD)) | 2 | 기존 |
+| 3 | dive_tower 선택 기준 | modes.rs:249 min_by_key(distance_sq(target)) | 제곱거리 최소 | 기준을 바꾸면 다이브 시 '어느 타워를 경계하는가'가 바뀐다. 현재는 target 에 가장 가까운 적 타워(넥서스 제외) | 4 | 기존 |
+| 4 | TryKill 두 번째 파라미터 | modes.rs:248 / modes.rs:253 (m13.ll 33426·33460) | 60 | ★**산술 소비처 0건이라 사실상 노브가 아니다**(history 참조 — 읽는 코드는 Debug::fmt 뿐). m13.ll 의 engage 계열 플랜 생성 전 지점이 같은 60 을 쓰므로 바꾸면 engage 계열 전체가 함께 움직인다 | 4 | 기존 |
+| 5 | 적 우물 도피 지속 | single_battle.rs:133 (m05.ll:27343 `mul i64 %149, 5`) | tps × 5 = 5초 | 우물 근처에서 강제 후퇴를 유지하는 시간 | 4 | 신규 |
+| 6 | 교전 초반 유예 | single_battle.rs:157 (m05.ll:27390 `icmp ult .., 30`) | 30틱(0.5초) | 붙자마자 후퇴/종료로 빠지는 것을 막는 창 | 4 | 신규 |
+| 7 | 오브젝트 이탈 종료 거리 | rs:222 (m05.ll:29114 `ugt .., 39999999999`) / rs:245 (m05.ll:29219 `ugt .., 89999999999`) | 200000 / 300000 | 사냥 중 이 거리 넘게 벌어지면 종료 | 4 | 신규 |
+| 8 | 교전 최대 지속 | rs:333 (m05.ll:34365/34375 `usub.sat(tick,120)`) | 120틱(2초) | 넘으면 End | 4 | 신규 |
+
+<details><summary>`callees` 피호출자 20건 (tcx 자동 생성)</summary>
+
+| # | 이름 | 경로 | vis | 시그니처 | 정의처 | mir | xinl | ev |
+|---|---|---|---|---|---|---|---|---|
+| 0 | distance_sq | game_core::Entity::distance_sq | pub | fn(&game_core::Entity, &game_core::Entity) -> u64 | game-core\src\simulation\entity.rs:2157 | True | True | 3 |
+| 1 | distance_sq | game_core::utils::distance_sq | pub | fn(u64, u64, u64, u64) -> u64 | game-core\src\utils.rs:6 | True | True | 3 |
+| 2 | drop | <game_core::prof::ProfTimer as std::ops::Drop>::drop | pub | fn(&mut game_core::prof::ProfTimer) | game-core\src\simulation\prof.rs:184 | True | True | 3 |
+| 3 | engage_requires_dive | game_ai::engage_requires_dive | pub | fn(&game_core::PlayerState, &game_core::OperationData, &game_core::Entity) -> bool | game-ai\src\tower_discipline.rs:697 | False | False | 3 |
+| 4 | get_entity_by_id | <game_core::Game as game_core::AbstractGame>::get_entity_by_id | pub | fn(&game_core::Game, usize) -> std::option::Option<&game_core::Entity> | game-core\src\simulation\game.rs:3643 | False | False | 3 |
+| 5 | get_entity_by_id | <game_core::ExpectedGame<'a> as game_core::AbstractGame>::get_entity_by_id | pub | fn(&game_core::ExpectedGame<'a/#0>, usize) -> std::option::Option<&game_core::Entity> | game-core\src\simulation\expected_game.rs:165 | False | False | 3 |
+| 6 | get_entity_by_id | game_core::AbstractGame::get_entity_by_id | pub | fn(&Self/#0, usize) -> std::option::Option<&game_core::Entity> | game-core\src\simulation.rs:178 | False | False | 3 |
+| 7 | iter_towers_without_nexus | game_core::AbstractGameWithCache::<'a, 'b>::iter_towers_without_nexus | pub | fn(&game_core::AbstractGameWithCache<'a/#0, 'b/#1>, usize) -> Alias(AliasTy { args: ['a/#0, 'b/#1, 'a/#0, ], kind: Opaque { def_id: DefId(14:5750 ~ game_core[6a30]::simulation::{impl#5}::iter_towers_without_nexus::{opaque#0}) }, .. }) | game-core\src\simulation.rs:1830 | False | False | 3 |
+| 8 | new_dive | game_ai::plan_legacy::old::SinglePlanBattle::new_dive | pub | fn(usize, game_ai::plan_legacy::old::BattlePlanGoal, &game_core::OperationData, &game_core::PlayerState) -> game_ai::plan_legacy::old::SinglePlanBattle | game-ai\src\plan_legacy\old\single_battle.rs:48 | False | False | 3 |
+| 9 | new_dive | game_ai::plan_legacy::old::DeathMatchBattle::new_dive | pub | fn(usize, game_ai::plan_legacy::old::BattlePlanGoal, &game_core::OperationData, &game_core::PlayerState) -> game_ai::plan_legacy::old::DeathMatchBattle | game-ai\src\plan_legacy\old\death_battle.rs:786 | False | False | 3 |
+| 10 | new_dive | game_ai::plan_legacy::old::BattlePlan::new_dive | pub | fn(usize, game_ai::plan_legacy::old::BattlePlanGoal, &game_core::OperationData, &game_core::PlayerState) -> game_ai::plan_legacy::old::BattlePlan | game-ai\src\plan_legacy\old\battle.rs:246 | False | False | 3 |
+| 11 | next | game_core::ItemBuildOverride::next | pub | fn(&game_core::ItemBuildOverride) -> game_core::ItemBuildOverride | game-core\src\simulation\strategy.rs:1168 | False | False | 3 |
+| 12 | next | <game_core::EntityIter<'a> as std::iter::Iterator>::next | pub | fn(&mut game_core::EntityIter<'a/#0>) -> std::option::Option<Alias(AliasTy { args: [game_core::EntityIter<'a/#0>], kind: Projection { def_id: DefId(2:10094 ~ core[e0bd]::iter::traits::iterator::Iterator::Item) }, .. })> | game-core\src\simulation.rs:1203 | False | False | 3 |
+| 13 | next | <game_core::PlayerIter<'a> as std::iter::Iterator>::next | pub | fn(&mut game_core::PlayerIter<'a/#0>) -> std::option::Option<Alias(AliasTy { args: [game_core::PlayerIter<'a/#0>], kind: Projection { def_id: DefId(2:10094 ~ core[e0bd]::iter::traits::iterator::Iterator::Item) }, .. })> | game-core\src\simulation.rs:1228 | True | True | 3 |
+| 14 | single_tower_dive_is_viable | game_ai::plan_legacy::old::single_tower_dive_is_viable | pub | fn(usize, &mut rand::rngs::std::StdRng, &game_core::PlayerState, &game_core::OperationData, &game_ai::plan_legacy::team_plan::TeamPlan, &game_core::Entity, &mut game_core::DebugFrameData) -> bool | game-ai\src\plan_legacy\old\single_battle.rs:891 | False | False | 3 |
+| 15 | single_tower_dive_is_viable | game_ai::plan_legacy::old::death_battle::single_tower_dive_is_viable | in:game_ai::plan_legacy::old::death_battle | fn(usize, &mut rand::rngs::std::StdRng, &game_core::PlayerState, &game_core::OperationData, &game_ai::plan_legacy::team_plan::TeamPlan, &game_core::Entity, &mut game_core::DebugFrameData) -> bool | game-ai\src\plan_legacy\old\death_battle.rs:1674 | False | False | 3 |
+| 16 | single_try_engage | game_ai::plan_legacy::handler::modes::<impl game_ai::plan_legacy::handler::LegacyPlanHandler>::single_try_engage | in:game_ai | fn(&game_ai::plan_legacy::handler::LegacyPlanHandler, usize, &mut rand::rngs::std::StdRng, &game_core::PlayerState, &game_core::OperationData, usize, &mut game_core::DebugFrameData) -> std::option::Option<game_ai::plan_legacy::old::SinglePlanBattle> | game-ai\src\plan_legacy\handler\modes.rs:241 | False | False | 3 |
+| 17 | update | game_ai::plan_legacy::old::PassiveLinePlan::update | pub | fn(&mut game_ai::plan_legacy::old::PassiveLinePlan, usize, &mut rand::rngs::std::StdRng, &game_core::PlayerState, &game_core::OperationData, &game_ai::plan_legacy::team_plan::TeamPlan, &game_core::PositioningScoreData, &mut game_core::DebugFrameData) | game-ai\src\plan_legacy\old\passive_line.rs:219 | False | False | 3 |
+| 18 | update | game_ai::plan_legacy::old::SinglePlanLine::update | pub | fn(&mut game_ai::plan_legacy::old::SinglePlanLine, usize, &mut rand::rngs::std::StdRng, &game_core::PlayerState, &game_core::OperationData, &game_ai::plan_legacy::team_plan::TeamPlan, &game_core::PositioningScoreData, &mut game_core::DebugFrameData) | game-ai\src\plan_legacy\old\single_line.rs:27 | False | False | 3 |
+| 19 | update | game_ai::plan_legacy::old::SinglePlanBattle::update | pub | fn(&mut game_ai::plan_legacy::old::SinglePlanBattle, usize, &mut rand::rngs::std::StdRng, &game_core::PlayerState, &game_core::OperationData, &game_core::PositioningScoreData, &game_ai::plan_legacy::team_plan::TeamPlan, &mut game_core::DebugFrameData) | game-ai\src\plan_legacy\old\single_battle.rs:121 | False | False | 3 |
+</details>
+
+**호출처 2곳** (m13.ll:17113, m13.ll:18812) · **형제 41개** (LegacyPlanHandler)
+
+| # | 경로 | vis | 정의처 | mir | sig |
+|---|---|---|---|---|---|
+| 0 | <game_ai::plan_legacy::handler::LegacyPlanHandler as std::clone::Clone>::clone | pub | game-ai\src\plan_legacy\handler.rs:13 | True | fn(&game_ai::plan_legacy::handler::LegacyPlanHandler) -> game_ai::plan_legacy::handler::LegacyPlanHandler |
+| 1 | <game_ai::plan_legacy::handler::LegacyPlanHandler as std::fmt::Debug>::fmt | pub | game-ai\src\plan_legacy\handler.rs:13 | True | fn(&game_ai::plan_legacy::handler::LegacyPlanHandler, &mut std::fmt::Formatter) -> std::result::Result<(), std::fmt::Error> |
+| 2 | game_ai::plan_legacy::handler::LegacyPlanHandler::new | pub | game-ai\src\plan_legacy\handler.rs:228 | False | fn(usize, &mut rand::rngs::std::StdRng, usize, game_core::Position) -> game_ai::plan_legacy::handler::LegacyPlanHandler |
+| 3 | game_ai::plan_legacy::handler::LegacyPlanHandler::r2_fight_protected | in:game_ai | game-ai\src\plan_legacy\handler.rs:362 | False | fn(&game_ai::plan_legacy::handler::LegacyPlanHandler, usize, &game_core::PlayerState, &game_core::OperationData) -> bool |
+| 4 | game_ai::plan_legacy::handler::LegacyPlanHandler::ff_note_battle_swap | in:game_ai | game-ai\src\plan_legacy\handler.rs:400 | False | fn(&mut game_ai::plan_legacy::handler::LegacyPlanHandler, u8, usize) |
+| 5 | game_ai::plan_legacy::handler::LegacyPlanHandler::mf_note_swap | in:game_ai | game-ai\src\plan_legacy\handler.rs:409 | False | fn(&mut game_ai::plan_legacy::handler::LegacyPlanHandler, u8, usize) |
+| 6 | game_ai::plan_legacy::handler::LegacyPlanHandler::v3_fall_back_to_passive | pub | game-ai\src\plan_legacy\handler.rs:416 | False | fn(&mut game_ai::plan_legacy::handler::LegacyPlanHandler, usize, &mut rand::rngs::std::StdRng, &game_core::PlayerState, &game_core::OperationData, &mut game_core::DebugFrameData) |
+| 7 | game_ai::plan_legacy::handler::LegacyPlanHandler::eo_cover_picks | pub | game-ai\src\plan_legacy\handler.rs:440 | False | fn(&game_ai::plan_legacy::handler::LegacyPlanHandler) -> usize |
+| 8 | game_ai::plan_legacy::handler::LegacyPlanHandler::eo_serpen_punish_issues | pub | game-ai\src\plan_legacy\handler.rs:445 | True | fn(&game_ai::plan_legacy::handler::LegacyPlanHandler) -> usize |
+| 9 | game_ai::plan_legacy::handler::LegacyPlanHandler::subplan_is_recall | pub | game-ai\src\plan_legacy\handler.rs:450 | True | fn(&game_ai::plan_legacy::handler::LegacyPlanHandler) -> bool |
+| 10 | game_ai::plan_legacy::handler::LegacyPlanHandler::team_objective_code | pub | game-ai\src\plan_legacy\handler.rs:456 | True | fn(&game_ai::plan_legacy::handler::LegacyPlanHandler) -> u8 |
+| 11 | game_ai::plan_legacy::handler::LegacyPlanHandler::update_v2_egowave | in:game_ai::plan_legacy::handler | game-ai\src\plan_legacy\handler.rs:473 | False | fn(&mut game_ai::plan_legacy::handler::LegacyPlanHandler, usize, &mut rand::rngs::std::StdRng, &game_core::PlayerState, &game_core::OperationData) |
+| 12 | game_ai::plan_legacy::handler::LegacyPlanHandler::v2_obj_restore_safe | in:game_ai::plan_legacy::handler | game-ai\src\plan_legacy\handler.rs:501 | False | fn(&game_ai::plan_legacy::handler::LegacyPlanHandler, usize, &mut rand::rngs::std::StdRng, &game_core::PlayerState, &game_core::OperationData, &mut game_core::DebugFrameData) -> bool |
+| 13 | game_ai::plan_legacy::handler::LegacyPlanHandler::v2_apply_assign_commit | in:game_ai::plan_legacy::handler | game-ai\src\plan_legacy\handler.rs:518 | False | fn(&mut game_ai::plan_legacy::handler::LegacyPlanHandler, usize, &mut rand::rngs::std::StdRng, &game_core::PlayerState, &game_core::OperationData, &mut game_ai::plan_legacy::types::BigPlan, &mut u8, &mut game_core::DebugFrameData) |
+| 14 | game_ai::plan_legacy::handler::LegacyPlanHandler::sanitize_rule_scope | in:game_ai::plan_legacy::handler | game-ai\src\plan_legacy\handler.rs:571 | False | fn(&mut game_ai::plan_legacy::handler::LegacyPlanHandler, &game_core::OperationData) |
+| 15 | game_ai::plan_legacy::handler::LegacyPlanHandler::take_misunderstood_received_chat | in:game_ai::plan_legacy::handler | game-ai\src\plan_legacy\handler.rs:588 | False | fn(&mut game_ai::plan_legacy::handler::LegacyPlanHandler, usize, game_core::Position, game_core::Chat) -> bool |
+| 16 | game_ai::plan_legacy::handler::LegacyPlanHandler::enter_line_backfight_support | in:game_ai::plan_legacy::handler | game-ai\src\plan_legacy\handler.rs:598 | False | fn(&mut game_ai::plan_legacy::handler::LegacyPlanHandler, usize, &mut rand::rngs::std::StdRng, &game_core::PlayerState, &game_core::OperationData, &mut game_core::DebugFrameData) -> bool |
+| 17 | game_ai::plan_legacy::handler::LegacyPlanHandler::update_on_dead | pub | game-ai\src\plan_legacy\handler.rs:635 | False | fn(&mut game_ai::plan_legacy::handler::LegacyPlanHandler, usize, &mut rand::rngs::std::StdRng, &game_core::PlayerState, &game_core::OperationData, &mut game_core::DebugFrameData) |
+| 18 | game_ai::plan_legacy::handler::LegacyPlanHandler::update | pub | game-ai\src\plan_legacy\handler.rs:685 | False | fn(&mut game_ai::plan_legacy::handler::LegacyPlanHandler, usize, &mut rand::rngs::std::StdRng, &game_core::PlayerState, &game_core::OperationData, &mut game_core::DebugFrameData, bool) |
+| 19 | game_ai::plan_legacy::handler::LegacyPlanHandler::determine_transition_reason | in:game_ai::plan_legacy::handler | game-ai\src\plan_legacy\handler.rs:1675 | False | fn(&game_ai::plan_legacy::handler::LegacyPlanHandler, &str) -> game_core::PlanTransitionReason |
+| 20 | game_ai::plan_legacy::handler::LegacyPlanHandler::force_plan_update | in:game_ai::plan_legacy::handler | game-ai\src\plan_legacy\handler.rs:1709 | False | fn(&mut game_ai::plan_legacy::handler::LegacyPlanHandler, usize, &mut rand::rngs::std::StdRng, &game_core::PlayerState, &game_core::OperationData, &mut game_core::DebugFrameData, bool) |
+| 21 | game_ai::plan_legacy::handler::LegacyPlanHandler::v3_assign_anchor | in:game_ai::plan_legacy::handler | game-ai\src\plan_legacy\handler.rs:1773 | False | fn(&game_ai::plan_legacy::handler::LegacyPlanHandler, &game_core::PlayerState, &game_core::OperationData) -> std::option::Option<(u64, u64)> |
+| 22 | game_ai::plan_legacy::handler::LegacyPlanHandler::v3_depart_anchor | in:game_ai::plan_legacy::handler | game-ai\src\plan_legacy\handler.rs:1806 | False | fn(&game_ai::plan_legacy::handler::LegacyPlanHandler, &game_core::PlayerState, &game_core::OperationData) -> std::option::Option<(u64, u64)> |
+| 23 | game_ai::plan_legacy::handler::LegacyPlanHandler::v3_plan_dest | in:game_ai::plan_legacy::handler | game-ai\src\plan_legacy\handler.rs:1824 | False | fn(&game_ai::plan_legacy::handler::LegacyPlanHandler, &game_core::PlayerState, &game_core::OperationData, &game_ai::plan_legacy::types::BigPlan) -> std::option::Option<(u64, u64)> |
+| 24 | game_ai::plan_legacy::handler::LegacyPlanHandler::v3_repair_done | in:game_ai | game-ai\src\plan_legacy\handler.rs:1847 | False | fn(&game_ai::plan_legacy::handler::LegacyPlanHandler, usize, &mut rand::rngs::std::StdRng, &game_core::PlayerState, &game_core::OperationData) -> bool |
+| 25 | game_ai::plan_legacy::handler::LegacyPlanHandler::passive_plan | in:game_ai::plan_legacy::handler | game-ai\src\plan_legacy\handler.rs:1855 | False | fn(&game_ai::plan_legacy::handler::LegacyPlanHandler, usize, &mut rand::rngs::std::StdRng, &game_core::PlayerState, &game_core::OperationData, &mut game_core::DebugFrameData) -> (game_ai::plan_legacy::types::BigPlan, u8) |
+| 26 | game_ai::plan_legacy::handler::auction::<impl game_ai::plan_legacy::handler::LegacyPlanHandler>::get_small_action | pub | game-ai\src\plan_legacy\handler\auction.rs:8 | False | fn(&mut game_ai::plan_legacy::handler::LegacyPlanHandler, usize, &mut rand::rngs::std::StdRng, &game_core::PlayerState, &game_core::OperationData, &game_ai::SmallActionPlay, &std::vec::Vec<(usize, game_core::SmallAction), std::alloc::Global>, &mut game_core::DebugFrameData) -> (game_ai::ScoreParameter, i64, game_ai::SmallActionPlay) |
+| 27 | game_ai::plan_legacy::handler::chat::<impl game_ai::plan_legacy::handler::LegacyPlanHandler>::handle_chat | pub | game-ai\src\plan_legacy\handler\chat.rs:8 | False | fn(&mut game_ai::plan_legacy::handler::LegacyPlanHandler, usize, &mut rand::rngs::std::StdRng, &game_core::PlayerState, &game_core::OperationData, game_core::Position, game_core::Chat, bool, &mut game_core::DebugFrameData) |
+| 28 | game_ai::plan_legacy::handler::chat::<impl game_ai::plan_legacy::handler::LegacyPlanHandler>::handle_chat_inner | in:game_ai | game-ai\src\plan_legacy\handler\chat.rs:41 | False | fn(&mut game_ai::plan_legacy::handler::LegacyPlanHandler, usize, &mut rand::rngs::std::StdRng, &game_core::PlayerState, &game_core::OperationData, game_core::Position, game_core::Chat, bool, &mut game_core::DebugFrameData) |
+| 29 | game_ai::plan_legacy::handler::dive_episode::<impl game_ai::plan_legacy::handler::LegacyPlanHandler>::v50_track_dive_episode | in:game_ai | game-ai\src\plan_legacy\handler\dive_episode.rs:35 | False | fn(&mut game_ai::plan_legacy::handler::LegacyPlanHandler, usize, &game_core::PlayerState, &game_core::OperationData) |
+| 30 | game_ai::plan_legacy::handler::dive_episode::<impl game_ai::plan_legacy::handler::LegacyPlanHandler>::v50_fold_dive_episode | in:game_ai | game-ai\src\plan_legacy\handler\dive_episode.rs:125 | False | fn(&mut game_ai::plan_legacy::handler::LegacyPlanHandler, usize, usize, bool, u8) |
+| 31 | game_ai::plan_legacy::handler::engage::<impl game_ai::plan_legacy::handler::LegacyPlanHandler>::v2_response_retreat_stance | in:game_ai | game-ai\src\plan_legacy\handler\engage.rs:13 | False | fn(&game_ai::plan_legacy::handler::LegacyPlanHandler, usize, &mut rand::rngs::std::StdRng, &game_core::PlayerState, &game_core::OperationData, &mut game_core::DebugFrameData) -> game_ai::plan_legacy::old::BattleSubPlanGoal |
+| 32 | game_ai::plan_legacy::handler::engage::<impl game_ai::plan_legacy::handler::LegacyPlanHandler>::try_engage | in:game_ai | game-ai\src\plan_legacy\handler\engage.rs:40 | False | fn(&game_ai::plan_legacy::handler::LegacyPlanHandler, usize, &mut rand::rngs::std::StdRng, &game_core::PlayerState, &game_core::OperationData, usize, &mut game_core::DebugFrameData) -> std::option::Option<game_ai::plan_legacy::old::BattlePlan> |
+| 33 | game_ai::plan_legacy::handler::engage::<impl game_ai::plan_legacy::handler::LegacyPlanHandler>::try_engage_dive | in:game_ai | game-ai\src\plan_legacy\handler\engage.rs:109 | False | fn(&game_ai::plan_legacy::handler::LegacyPlanHandler, usize, &mut rand::rngs::std::StdRng, &game_core::PlayerState, &game_core::OperationData, usize, std::option::Option<game_core::TowerType>, &mut game_core::DebugFrameData) -> std::option::Option<game_ai::plan_legacy::old::BattlePlan> |
+| 34 | game_ai::plan_legacy::handler::engage::<impl game_ai::plan_legacy::handler::LegacyPlanHandler>::handle_solokill | in:game_ai | game-ai\src\plan_legacy\handler\engage.rs:136 | False | fn(&mut game_ai::plan_legacy::handler::LegacyPlanHandler, usize, &mut rand::rngs::std::StdRng, &game_core::PlayerState, &game_core::OperationData, &mut game_core::DebugFrameData) |
+| 35 | game_ai::plan_legacy::handler::engage::<impl game_ai::plan_legacy::handler::LegacyPlanHandler>::handle_interact_battle | in:game_ai | game-ai\src\plan_legacy\handler\engage.rs:233 | False | fn(&mut game_ai::plan_legacy::handler::LegacyPlanHandler, usize, &mut rand::rngs::std::StdRng, &game_core::PlayerState, &game_core::OperationData, &mut game_core::DebugFrameData) |
+| 36 | game_ai::plan_legacy::handler::modes::<impl game_ai::plan_legacy::handler::LegacyPlanHandler>::update_single_lane | in:game_ai | game-ai\src\plan_legacy\handler\modes.rs:13 | False | fn(&mut game_ai::plan_legacy::handler::LegacyPlanHandler, usize, &mut rand::rngs::std::StdRng, &game_core::PlayerState, &game_core::OperationData, &mut game_core::DebugFrameData) |
+| 37 | game_ai::plan_legacy::handler::modes::<impl game_ai::plan_legacy::handler::LegacyPlanHandler>::update_deathmatch | in:game_ai | game-ai\src\plan_legacy\handler\modes.rs:56 | False | fn(&mut game_ai::plan_legacy::handler::LegacyPlanHandler, usize, &mut rand::rngs::std::StdRng, &game_core::PlayerState, &game_core::OperationData, &mut game_core::DebugFrameData) |
+| 38 | game_ai::plan_legacy::handler::modes::<impl game_ai::plan_legacy::handler::LegacyPlanHandler>::single_lane_initiate | in:game_ai | game-ai\src\plan_legacy\handler\modes.rs:196 | False | fn(&mut game_ai::plan_legacy::handler::LegacyPlanHandler, usize, &mut rand::rngs::std::StdRng, &game_core::PlayerState, &game_core::OperationData, &mut game_core::DebugFrameData) |
+| 39 | game_ai::plan_legacy::handler::modes::<impl game_ai::plan_legacy::handler::LegacyPlanHandler>::single_try_engage | in:game_ai | game-ai\src\plan_legacy\handler\modes.rs:241 | False | fn(&game_ai::plan_legacy::handler::LegacyPlanHandler, usize, &mut rand::rngs::std::StdRng, &game_core::PlayerState, &game_core::OperationData, usize, &mut game_core::DebugFrameData) -> std::option::Option<game_ai::plan_legacy::old::SinglePlanBattle> |
+| 40 | game_ai::plan_legacy::handler::modes::<impl game_ai::plan_legacy::handler::LegacyPlanHandler>::single_handle_solokill | in:game_ai | game-ai\src\plan_legacy\handler\modes.rs:261 | False | fn(&mut game_ai::plan_legacy::handler::LegacyPlanHandler, usize, &mut rand::rngs::std::StdRng, &game_core::PlayerState, &game_core::OperationData, &mut game_core::DebugFrameData) |
+
+**`open` 1건 — ★이번 라운드에 네가 볼 것은 이것뿐이다.**
+| # | 분류 | 물음 | ev | 시도 |
+|---|---|---|---|---|
+| 0 | 미탐색 | version(p2) 이 이 함수 안에서 분기를 만드는지 — 본문에는 version 비교가 하나도 없다. 전달만 하므로 하위 함수(new/new_dive/update/single_tower_dive_is_viable) 안에서만 갈린다. ★**범위 축소(6차 배치D)**: `new`/`new_dive`/`new_region` 은 5차에 무영향 확정. 6차에 `SinglePlanBattle::update`(pub) version 9축(0·1·2·3·30·50·54·58·60) 과 `game_ai::plan_legacy::old::single_tower_dive_is_viable`(pub, 7인자) version 9축 × 표적 10 × **호출순서 정·역 2방향 = 180/180 동일**을 실측했다. ⚠**단 두 함수 모두 이 세계에서 산출이 상수**(update → sub_goal=RunAway(4) 고정 / dive_is_viable → 전 케이스 false)라 **「version 무영향」의 증거가 아니라 「입력 판별력 부재」**다(TEMPLATE 함정 ③④). 남은 미탐색 = **판별력 있는 세계**(실전 스탯 챔프 + 타워 사거리 안 대상)에서의 두 함수 version 축. 부수: 타워/넥서스를 표적으로 주면 `single_tower_dive_is_viable` 은 `fight_check.rs:979` 에서 `Option::unwrap` 패닉한다(프로브 함정) | 4 |  |
+
+<details><summary>`closed` 7건 (닫힘 — 근거와 함께 보존. 뒤집으려면 반증 근거를 붙여라)</summary>
+
+| # | 물음 | 닫은 근거 |
+|---|---|---|
+| 0 | BattlePlanGoal::TryKill 의 두 번째 usize(=60)의 의미. DWARF 상 필드명이 __1 뿐이고 이 함수는 값을 만들어 넘기기만 한다. ~~소비처는 … 담당 범위 밖 — 틱 예산/유효기간 '추정'이지만 확인 안 함~~ → ★**해소: `history[1]` 참조** — 소비처가 **존재하지 않는다**(생성 14곳 전부 리터럴 60, `main_goal.__1`(goal+0x10)을 읽는 코드는 `BattlePlanGoal::Debug::fmt`(m10.ll:61999) 뿐). 노브가 아니다 | 3차 배치D: __1 을 0~99999 로 흔들어도 산출 동일(노브 아님) |
+| 1 | rnd(p3)·debug(p7) 는 본문에서 한 번도 역참조되지 않는다. 실제 사용은 전부 하위 함수 안 | 사실 서술(본문 역참조 0) — 미확정 항목이 아니다 |
+| 2 | iter_towers_without_nexus 가 반환하는 6칸 Option 배열이 정확히 어떤 타워 슬롯인지 — ~~… game_core 쪽 본문을 안 봐서 순서·구성 미확정~~ → ★**해소: `history[3]`·`history[6]` 참조** — `_gcbc/g15.ll:108971~109045` 로 `[top_tower, mid_tower, bottom_tower, top_tower2, mid_tower2, bottom_tower2][team]`(+0x180/0x1a0/0x1c0/0x190/0x1b0/0x1d0) `.flatten().chain(twin_towers[team](+0x130).iter().copied())` 확정, 3차에 포인터 동일성(PTR_IDENTICAL)으로 재확인 | 1차 배치D: 6칸 순서 + twin_towers 꼬리 확정. ★3차 배치D 재측정 = **팀당 8개(6칸+twin 2), 좌표중복 0** — ~~2차 오라클 팀당 10개~~ 는 init_tower 재호출 오염값이었다(포인터 동일성으로 확정) |
+| 3 | **`single_tower_dive_is_viable` 은 전량 확정**(2026-09-11 4차 배치D, `_gaibc/m05.ll:44249~44820`). 남은 미탐색은 `engage_requires_dive` **하나뿐**이다(범위 명시). | 3차 배치D: 합성 엔티티 2,073,600쌍 mismatch 0 |
+| 4 | SinglePlanBattle::update 가 sub_goal 을 어떤 조건으로 KitingBack/RunAway/End 로 떨어뜨리는지 — 채택 여부의 실질 판단은 전부 update 안에 있다(이 함수는 결과만 읽는 얇은 게이트) | 4차 배치D: single_tower_dive_is_viable 본체 전량 + 판별식 game==mine 12/12 |
+| 5 | min_by_key 의 fold 본체는 m12.ll 6997~7010(+ m12.ll 39069~39146 call_mut 심, m06.ll 22843~23036 / m11.ll 16660~16806 compare)로 담당 범위 밖. 읽어보니 추가 술어 없이 단순 최소키 접기라 constants 에 넣을 값은 없었다 | 1차: 추가 술어 없이 단순 최소로 확인 |
+| 6 | 블록 %53~%83 의 배열부 상한 6(icmp ult i64 %65, 6 + llvm.assume)은 IntoIter<Option<&Entity>,6> 의 배열 길이라 판정 상수가 아니라고 보고 constants 에서 제외했다(가이드 §3 '배열 인덱스·stride 는 적지 않는다') | 판정 상수 아님으로 결론 = 판정 완료 |
+</details>
+
+<details><summary>`history` 정정 이력 10건 (참조용 — 본문 아님)</summary>
+
+| # | 옛 값 | 현재 | aux | 정정 | 적용_범위 | 함정_방지 |
+|---|---|---|---|---|---|---|
+| 0 | min_by_key 체인에 추가 술어·상수가 있는가 | ★없다. 네 범위 전체 상수 스윕 결과 거리 임계·가시성·팀 검사 전부 없음. 필터 어댑터 자체가 체인에 없다(Map<Chain<Flatten<...>, Copied<...>>> — Filter 부재). 키 = \|c.x-R.x\|² + \|c.y-R.y\|². | [{"ir_file": "m12.ll", "ir_from": 6997, "ir_to": 7010}, {"ir_file": "m06.ll", "ir_from": 22843, "ir_to": 23036}, {"ir_file": "m11.ll", "ir_from": 16660, "ir_to": 16806}, {"ir_file": "m12.ll", "ir_from": 39069, "ir_to": 39146}] | m11.ll:16660~16806(Chain 뒷단 Copied<slice::Iter> fold)이 기존 기록에 빠져 있었다. m12.ll:6997~7010 은 13줄짜리 트램폴린으로 상수·판정 0건. |  |  |
+| 1 | BattlePlanGoal::TryKill 두 번째 usize = 60 이 틱 예산인지 유효기간인지 | ★**소비처가 존재하지 않는다 — 노브가 아니다.** 생성 사이트 14곳 전부 리터럴 60(m04.ll:30013, m10.ll:13227/13279/13559, m13.ll:16235/33426/33460/33846/33893/33985/34347/34396/43169/44982), 변수로 채우는 곳 0곳. 수신자 4종(SinglePlanBattle::new m05.ll:26897, new_dive m05.ll:34390, BattlePlan::new m10.ll:23214, DeathMatchBattle::new m05.ll:17695)은 goal 24B 를 통째 memcpy 해 +0x40 에 넣기만 하고 __0(=goal+8)만 읽는다. base_sub_goal(m10.ll:29294)도 +0(tag)·+8 만. SinglePlanBattle::update(m05.ll:27043~34389) 전체에 +80(=main_goal.__1) 접근 0건. __1 을 읽는 유일한 코드 = BattlePlanGoal::Debug::fmt(m10.ll:61999) — **로그 출력 전용**. |  |  | ★'0.5.8 game_ai IR 범위 안에서는' 산술·비교에 전혀 쓰이지 않으므로 틱 예산인지 유효기간인지 구분할 근거가 없다. BattlePlanGoal 은 game_ai 전용 타입이라 game_core 로 넘어가지도 않는다. 다음 세션에서 Ghidra exe 전역 xref 또는 값 변경 A/B 는 여전히 유효한 접근이다. | 지금 이 60 을 바꿔도 동작이 변하지 않는다. '노브 목록'에 넣으면 안 된다. |
+| 2 | `team_plan` 을 `&mut` 로 하위에 전달 (signature note · logic 245/255 · reads note 3곳) | ★**정정(2026-09-11 검증배치 D) — 거짓**. tcx 정본:   `single_try_engage : fn(&LegacyPlanHandler, usize, &mut StdRng, &PlayerState, &OperationData, usize, &mut DebugFrameData) -> Option<SinglePlanBattle>`   `single_tower_dive_is_viable : fn(…, &TeamPlan, &Entity, &mut DebugFrameData) -> bool`   `SinglePlanBattle::update : fn(&mut SinglePlanBattle, …, &TeamPlan, &mut DebugFrameData)` `self` 부터가 **공유 `&LegacyPlanHandler`** 라 `&mut self.team_plan` 은 성립 불가이고 두 피호출자 모두 **공유 `&TeamPlan`** 을 받는다. ⟹ **이 계열의 `team_plan` 부작용은 존재하지 않는다.** `&mut` 인 것은 `rnd`·`debug`·`battle` 뿐. 부수: `SinglePlanBattle::new/new_dive` 의 goal 은 `&BattlePlanGoal` 이 아니라 **by-value `BattlePlanGoal`**(ABI indirect 라 IR 에선 ptr). |  |  |  |  |
+| 3 | `iter_towers_without_nexus` 구성 미확정 / `engage_requires_dive` 판정식 미확정 | ➕**보강(검증배치 D)** — 본체 `_gcbc/g15.ll:108971~109045`: `[top_tower, mid_tower, bottom_tower, top_tower2, mid_tower2, bottom_tower2][team]`(+0x180/0x1a0/0x1c0/0x190/0x1b0/0x1d0, **이 순서 그대로**) `.into_iter().flatten()` `.chain(twin_towers[team](+0x130, bumpalo Vec<&Entity>).iter().copied())` ★꼬리는 "나머지 타워 슬라이스"가 아니라 정확히 **`twin_towers[team]`**(쌍둥이 타워) — 249행 주석 부정확. `nexus`(+0x170)는 별도 필드라 실제로 제외됨 ✓ `engage_requires_dive(player, data, e)` = `iter_towers_without_nexus(**1 − player.info.team**)``.any(\|t\| t.attack_effect.casting != -1 && Effect::is_in_range(&t.attack_effect, t, e))` = **"대상이 적 타워 아무거나의 평타 사거리 안인가"**. 거리 임계는 이 층에 없고 전부 `Effect::is_in_range` 안(**미탐색**). |  |  |  |  |
+| 4 | `engage_requires_dive` 의 실제 거리식(`Effect::is_in_range` 안) — 미탐색 | ★**확정**(2026-09-11 2차배치D). `_gcbc/g06.ll:51634~51782`(is_in_range) + `51807~51942`(is_in_range_ex) + MIR + DWARF `!63248~!63260`(인자 이름 원문):   // effect.rs:63~65   pub fn is_in_range(&self, caster: &Entity, target: &Entity) -> bool {     self.is_in_range_ex(caster, target, caster.x, caster.y, target.x, target.y, 0)   }   // effect.rs:78~84   pub fn is_in_range_ex(&self, caster, target, cx, cy, tx, ty, offset: u64) -> bool {     let r        = self.range(caster) + offset + self.range_adjust(caster, target);     let caster_r = if self.casting == CastingType::Targeting { caster.radius() } else { 0 };     let total    = r + caster_r + target.radius();     distance_sq(cx, cy, tx, ty) <= total * total   } 구성요소(전부 MIR 정본): `Effect::range(&self,e)` = `range(+0x10) + growth_range(+0x18) * (e.level(+0x5c8) − 1) + e.stat_buff_cached.range(+0x438)`(effect.rs:26) / `Effect::range_adjust` = `Arc<dyn EffectType>` **vtable +0xe8** 위임(effect.rs:30, 반환 u64) / `Entity::radius()` = `if radius_mult(+0x470)==0 { radius(+0x680) } else { radius*(100+radius_mult)/100 }`(entity.rs:1511~1515) / `utils::distance_sq` = `abs_diff²+abs_diff²`(utils.rs:6~10, sqrt 없음) / `CastingType` = 0 Targeting/1 Position/2 Direction/3 None(4B Direct). ⟹ `engage_requires_dive` = '적 타워 중 하나라도 `attack_effect` 가 Some 이고 `dist_sq(tower,e) <= (eff.range(tower) + eff.range_adjust(tower,e) + tower.radius() + e.radius())²`'. ★**오라클 game==mine 900/900 MATCH**(`D2_oracle5.exe`, 챔프10+타워20 전 조합). 진리표 300쌍 중 100쌍 true = 'target 이 적 타워 자신'과 정확히 일치 ⟹ `1 − player.info.team` 극성도 실행 확정. `iter_towers_without_nexus(team)` 는 **팀당 정확히 10개**. 적용 범위 = 0.5.8 SDK. `offset != 0` 로 부르는 호출부는 미탐색(노브 후보).  ⚠★**정정(2026-09-11 v3 정리 중 실측)** — 「팀당 정확히 10개(6+4, twin 2쌍은 좌표 중복)」는 **오라클 설정 버그에 오염된 값**이다. `start_game()` 이 이미 타워를 만드는데 그 뒤 `init_tower()`/`init_nexus()` 를 또 부르면 **전부 2배**가 된다 — 2차 배치 A 가 이 함정을 경고했지만 **배치 A·D 자신의 템플릿이 그 형태였다.** 갈라서 실측(`_verify2	owerchk.rs`):   `start_game` 만        : tower_ids **16** · twin_towers **2/2** · 팀당 **8** · 좌표중복 **0**   `+init_tower/nexus`    : tower_ids  32  · twin_towers  4/4  · 팀당  16  · 좌표중복  8 ⟹ 진짜 값은 **팀당 8개(이름있는 6칸 + twin_towers 2개)**이고 **좌표 중복은 없다**. `iter_towers_without_nexus` 의 구조(6칸 flatten + twin_towers chain)는 그대로 맞다. `engage_requires_dive` 의 결론(적 팀 타워만 훑는다)도 그대로지만 **진리표의 표본 수(300쌍/100쌍)는 2배 세계에서 잰 것**이다. |  |  |  |  |
+| 5 | `SinglePlanBattle::update` 가 `sub_goal` 을 KitingBack/RunAway/End 로 떨구는 조건 | ★**부분 확정 — 52사이트 전량 지도 + 게이트 13개**(2026-09-11 2차배치D). 구조: `update`(single_battle.rs:121~343)는 **얇은 전처리 + 조기탈출 게이트**이고 본 판단은 `SinglePlanBattle::update_v32`(single_battle.rs:345~870, `vis=in:single_battle`)가 rs:342 에서 통째로 인라인된 것(IR `_gaibc/m05.ll:27043~34389`). `sub_goal`(+0x58) 스토어 52사이트 분포 = End(7) 14 · RunAway(4) 10 · Kiting(2) 10 · KitingBack(3) 9 · Trace(0) 5 · 계산값 4. ★**`update` 본체(rs<345)가 내는 값은 RunAway·End 뿐** — `single_try_engage` 의 폐기 결정 절반이 여기서 난다. 주요 게이트: 128→132/133 `is_enemy_well_danger` → RunAway + `well_runaway = tick + tps*5` / 140→141 `well_runaway` 유효 → RunAway / 157 `tick−start_tick < 30 \|\| help_called` / 199 `select(<술어2개>, RunAway, End)`(술어는 미탐색) / 211 `should_end_object_finish_kill_priority_battle`(=명세 #10) → End / 222·234 objective Hunt 분기 + 거리 ≥200000 → End / 245 거리 ≥300000 → End / 282 region 밖 → End / 316→317 sub_goal==RunAway → End 승격 / 333 `tick−120 > start_tick` → End / 484(v32) 스택 로컬 +24==0 → End / 505(v32) `dist_sq > max_range_cached²` → RunAway / 558(v32) `!is_unreasonable_tower_dive_enemy \|\| <플래그>` → End. 전량 좌표 = `_verify2\D\subgoal_map.txt`. 미탐색 = rs:296·301 및 v32 636~861 의 40여 사이트 개별 술어. |  |  |  |  |
+| 6 | 2차의 `Effect::is_in_range` 900/900 · `engage_requires_dive` 300쌍 — 오염 여부 | ★**깨끗한 프로브로 재측정 완료**(3차 배치D). `start_game` 만 부르면 `tower_ids 16 · 팀당 8 · twin 2/2 · 좌표중복 0`.   `Effect::is_in_range` game==mine : 2차 900/900(2배 세계) → **3차 676/676 (mismatch 0)**   `engage_requires_dive` 진리표     : 2차 300쌍/true 100 → **3차 260쌍/true 80**(재현 260/260)   `best_jungle_goal`                : 10/10 유지 ★**검증 강도 대폭 상향**: 실물 26개는 true 26(자기쌍)뿐이라 판별력이 약해서 `Entity` 를 복제해 `casting`(4종)·range·growth_range·level·radius·radius_mult·거리를 변주한 **합성 엔티티 1,440개**로 전수 대조 → **2,073,600쌍 · mismatch 0 · game_true 40%**. `Effect::range`·`Entity::radius` 재현식도 각각 1440/0. ➕`iter_towers_without_nexus` 의 6칸 순서 + `twin_towers` 꼬리가 **포인터 동일성(PTR_IDENTICAL)** 으로 확정 ⟹ 해당 항목 ev 4→2. |  |  |  |  |
+| 7 | `SinglePlanBattle::update` 의 sub_goal 게이트 — 개별 술어 미탐색 | ★**1단위 이분탐색으로 거리·틱 게이트 확정**(3차 배치D, ev2). `new/new_dive/update`·`BattlePlanGoal`·`BattleSubPlanGoal` 이 전부 pub 이라 본문을 그대로 돌렸다:   거리 `<= 100000` → `Kiting{focus}` / `100001~250000` → `Trace{focus}` / `>= 250001` → `RunAway`   `tick <= 120` vs `>= 121` → `RunAway` **축 비의존**(x/y/대각 동일) · **tps 비의존**(30/60/90 모두 120/121) · **version 비의존**(0~100 전부 동일). 디폴트 데이터는 `stat_cached.hp == 1` 이라 판별력 0(전부 RunAway)이고 `stat`/`world.tick`(pub)을 열면 갈린다. `history` 의 200000/300000→End 와는 **다른 게이트**(objective Hunt 분기)라 모순 아님. 부수: `BattleSubPlanGoal` 페이로드는 **struct variant `{ focus }`**. |  |  |  |  |
+| 8 | `single_tower_dive_is_viable` — 담당 범위 밖 | ★**pub 이라 오라클 호출 가능**(3차 배치D). 쌍둥이 `death_battle::` 쪽은 `in:death_battle` 이라 호출 불가이고 15 가 부르는 것은 `single_battle::` 쪽이다. 내부 사슬 = `single_battle.rs:938 → fight_check.rs:960 → 979 → 979:59 Option<&PlayerState>::unwrap()` ⟹ **target 이 챔피언이어야 하고 타워를 주면 패닉**. **RNG 비의존**(40회). true·false 둘 다 재현했고 판별 축은 미탐색이나 9축(RNG·타워hp 1~2M·대상hp·공격력·방어력·사거리·거리·아군수·배치)을 실측 배제했다. 재현 앵커 = `_verify3\D\D3_o11`(true 6/6) ↔ `D3_o10`(false 29/29). |  |  |  |  |
+| 9 | 3차: `single_tower_dive_is_viable` 은 9축(RNG·hp·공격력·방어력·사거리·거리·아군수·배치 등) 전부와 무관하다 — 오라클 이분탐색 결과 | ★★**판정반전 — 그것은 오라클 캐시 아티팩트였다**(4차 배치D). `check_kill_die_tick` 은 **TLS 메모**(`thread_local!(RefCell<DieTickCache>)`)이고 **캐시 키 `DieTickKey` 에 엔티티 id 만 있고 hp·스탯이 없다** ⟹ 한 프로세스에서 세계를 바꿔 반복 측정하면 **첫 값이 재생된다.** **케이스당 프로세스 1개**로 재면 `target hp 1999 → true / 2000 → false`(`kdt_tgt = hp × 60`, 경계 `< 120000`) ⟹ **대상 hp 는 판별 축이다.** ⚠3차의 재현 앵커(`_verify3\D\D3_o10.rs`·`D3_o11.rs`)는 **두 겹으로 오염됐다** — ①순서만 바꾸면 true↔false 가 뒤집힌다(캐시) ②`real_setting()` 이 아니라 `Default::default()`+tps=60 만 세팅한다(width/height/champion_radius=0). **인용 시 두 유보를 함께 적을 것.** ★본체·판별식도 확정됐다: `check_kill_die_tick(target,…) < check_kill_die_tick(champ,…)` (single_battle.rs:944), **game==mine 12/12**. 신규 상수 `15000`(rs:925 사거리 여유) · `max(1)`(rs:930). ★근본원인: **3차는 `_gaibc` 에 `define` 이 있는지 보지 않고 오라클 이분탐색만 했다.** |  |  |  |  |
+</details>
+

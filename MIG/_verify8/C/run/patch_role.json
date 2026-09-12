@@ -1,0 +1,101 @@
+{
+ "round": 8,
+ "batch": "C",
+ "errors": [
+  {
+   "path": "/specs[0]/sig/params[0]/i",
+   "kind": "실오류",
+   "old": 1,
+   "new": 0,
+   "evidence": "8차 확정 sret 규약(= 07·15 가 이미 쓰는 형식) = sret out-ptr 은 params[0]·i=0, 소스 인자는 i=1..n. `sig.tcx` = `fn(usize, &mut StdRng, &PlayerState, &OperationData, &PositioningScoreData, &Entity) -> Option<Input>` 로 **소스 인자 6개**인데 00 은 sret 를 i=1 로 두고 소스 인자를 2..7 로 매겼다. IR m04.ll:43967 `define void @…3ult(ptr dead_on_unwind … sret([32 x i8]) … %0, i64 noundef %1, …)` — sret 가 %0 이고 version 이 %1 이다. 07(m02.ll:48918)·15(m13.ll:33374) 는 둘 다 (sret) i=0 · self i=1 로 적혀 있다",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[0]/sig/params[1]/i",
+   "kind": "실오류",
+   "old": 2,
+   "new": 1,
+   "evidence": "위와 같은 규약. `version` 은 소스 시그니처 1번 인자이고 IR %1 이다 (m04.ll:43967 `i64 noundef %1`)",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[0]/sig/params[2]/i",
+   "kind": "실오류",
+   "old": 3,
+   "new": 2,
+   "evidence": "`rnd` = 소스 2번 인자 / IR %2 (m04.ll:43967 `ptr noalias noundef align 16 dereferenceable(320) %2`)",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[0]/sig/params[3]/i",
+   "kind": "실오류",
+   "old": 4,
+   "new": 3,
+   "evidence": "`player` = 소스 3번 인자 / IR %3 (m04.ll:43967 `… dereferenceable(2528) %3`)",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[0]/sig/params[4]/i",
+   "kind": "실오류",
+   "old": 5,
+   "new": 4,
+   "evidence": "`data` = 소스 4번 인자 / IR %4 (m04.ll:43967 `… dereferenceable(24) %4`)",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[0]/sig/params[5]/i",
+   "kind": "실오류",
+   "old": 6,
+   "new": 5,
+   "evidence": "`positioning_score` = 소스 5번 인자 / IR %5 (m04.ll:43967 `… dereferenceable(2760) %5`)",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[0]/sig/params[6]/i",
+   "kind": "실오류",
+   "old": 7,
+   "new": 6,
+   "evidence": "`target` = 소스 6번 인자 / IR %6 (m04.ll:43967 `… dereferenceable(1728) %6`)",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[3]/sig/params[4]/role",
+   "kind": "실오류",
+   "old": "위기 판정 대상 챔피언(보통 아군 자신). id 와 좌표만 직접 쓰인다",
+   "new": "위기 판정 대상 챔피언(보통 아군 자신). ★이 본문이 %4 에서 **직접 읽는 것은 +0x5c0 한 곳뿐**이다 — m10.ll:33981 `%46 = getelementptr inbounds nuw i8, ptr %4, i64 1472` → m10.ll:33982 `%47 = load i64, ptr %46` → m10.ll:33983 `player_by_champion_id(%18, i64 noundef %47)` ⟹ +0x5c0 = 챔피언 id. ~~좌표~~ 는 거짓: m10.ll:33864~34294 범위에 `ptr %4, i64 1632`(x=0x660)·`i64 1640`(y=0x668) gep 가 **0건**이다. %4 는 m10.ll:33929 `store ptr %4, ptr %33` 으로 클로저 환경에 담겨 넘어가므로 좌표 사용이 있다면 그 클로저 쪽이고 이 본문의 '직접'이 아니다",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[2]/sig/params[0]/role",
+   "kind": "보강",
+   "old": "필드 team:usize@0x0 · line:LineType@0x8. 본문은 line 만 읽는다(team 은 안 씀 — team 은 player.info.team 에서 가져옴)",
+   "new": "★IR %1 (=%0 은 반환 out-ptr). 필드 team:usize@0x0 · line:LineType@0x8. 본문은 line 만 읽는다(team 은 안 씀 — team 은 player.info.team 에서 가져옴). ⚠**이 params 표는 sret out-ptr 을 빠뜨렸다** — m12.ll:34867 `define void @…AttackNexusPlan8sub_plan(ptr dead_on_unwind noalias noundef writable writeonly sret([72 x i8]) align 8 captures(none) dereferenceable(72) %0, ptr … %1, i64 noundef %2, …)` 로 IR 인자가 8개인데 표는 7행뿐이라 **표의 자리 번호가 IR 보다 한 칸 앞선다.** 8차 확정 규약은 07·15 처럼 `(sret)`(i=0) 행을 params[0] 로 싣는 것인데 `applypatch` 에 행 추가가 없어 기계로 못 넣었다(8차 배치C)",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[17]/sig/params[0]/role",
+   "kind": "보강",
+   "old": "AI 버전 게이트. 이 함수 본문에서는 분기 없음 — base_sub_goal 로 그대로 전달만 한다(!dbg 753)",
+   "new": "★IR %1 (=%0 은 반환 out-ptr). AI 버전 게이트. 이 함수 본문에서는 분기 없음 — base_sub_goal 로 그대로 전달만 한다(!dbg 753). ⚠**이 params 표는 sret out-ptr 을 빠뜨렸다** — m05.ll:17695 `define void @…DeathMatchBattle3new(ptr dead_on_unwind noalias noundef writable writeonly sret([384 x i8]) align 8 captures(none) dereferenceable(384) %0, i64 noundef %1, …)` 로 IR 인자가 5개인데 표는 4행뿐이라 **표의 자리 번호가 IR 보다 한 칸 앞선다.** 8차 확정 규약은 07·15 처럼 `(sret)`(i=0) 행을 params[0] 로 싣는 것인데 `applypatch` 에 행 추가가 없어 기계로 못 넣었다(8차 배치C)",
+   "behavior_change": false,
+   "found_by": "new"
+  }
+ ],
+ "ev_up": [],
+ "brief_errors": [
+  "★경로 문법이 틀렸다 — 도시에 §5 는 `/specs[3]/sig/params[1]/role` 을 예시로 싣는데, `applypatch.py` 는 v2(`_spec/specs20.json`)에 적용하고 v2 의 그 키는 **`note`** 다(`mkspec3.py:295` 가 `\"role\": p.get(\"note\")` 로 v3 를 만든다). `role` 로 내면 `row.get(\"role\")` 이 None 이라 `old` 불일치로 **그 항목만 조용히 거부**된다. 실측: `--dry` 에서 role 경로 3건 전부 실패 → note 로 바꿔 3건 전부 성공. §5 경로 문법 예시를 `/specs[i]/sig/params[j]/note` 로 고쳐야 한다(이 축 담당 배치 전원이 밟는 함정이다)",
+  "★임무 3번(「sret 규약을 확정하고 **안 맞는 명세를 errors[] 로 고쳐라**」)은 **현재 도구로 실행 불가능하다.** 어느 쪽으로 통일하든 행 추가(02·17 에 `(sret)` 행) 또는 행 삭제(00·07·15 의 `(sret)` 행)가 필요한데 `applypatch.py` 에는 둘 다 없다(§5 가 스스로 「append 는 구현이 없다」고 적어 놓고 §임무에서 그걸 요구한다). 이번엔 규약을 확정하고 ⓐ기계로 가능한 `i` 재번호(00, 7건)만 patch 로 내고 ⓑ02·17 은 인접 행 `note` 에 사실을 박아 두는 것으로 갈음했다. **행 추가/삭제 연산이 `applypatch` 에 생기기 전까지 이 축은 완전히 닫히지 않는다**",
+  "★지시가 준 「B 가 지목한 5건」 목록이 부정확하다 — `specs[1] 8vs7`·`specs[19] 8vs5` 는 **sret 문제가 아니라 B 의 파서 버그**다. `B_rolecheck.ir_args` 가 `ln[ln.index(\"(\")+1:]` 로 잘라 반환 타입의 `range(i64 -9223372036854775808, 206)`(m05.ll:39984)·`range(i8 0, 6)`(m04.ll:62570)·`range(i64 2, 22)`(m10.ll:11483) 를 인자 괄호로 잡는다. 실제 IR 인자 수는 01=7(=spec 7, 정상) · 19=7(=spec 7, 정상) · 13=5(spec 3, SROA)다. 지시의 「앞 넷은 sret 을 params 에 안 실은 것으로 **보인다**」에서 실제로 sret 인 것은 **02·17 둘뿐**이다",
+  "지시의 「`09 version` 의 role 이 피호출자 poison 을 오독」 교훈은 맞지만 **어휘 매칭으로는 못 막는다** — `19 version`·`19 debug` 의 role 은 「is_cleared 호출 인자 자리에는 poison 이 들어가」·「is_cleared 호출 시 poison」이라 '피호출자'라는 낱말이 없고, B 의 필터를 그대로 쓰면 19 가 소거 2건으로 오판돼 정렬이 깨진다(실측). ⟹ 소거는 **주장이 아니라 잔차**(`IR 인자 수 − params 수`)로 세야 한다. 통합 게이트는 그렇게 고쳤다",
+  "도시에 §4 의 게이트 현황 문자열이 정렬돼 있지 않아(`G1 … G12 … G2 G3 …` 순) `G12 8건 · G9 4건`을 눈으로 찾기 어렵다. 사소하지만 매 라운드 같은 자리다"
+ ]
+}

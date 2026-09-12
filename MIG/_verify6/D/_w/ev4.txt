@@ -1,0 +1,86 @@
+=== 15 single_try_engage ===
+  /specs[15]/mem[0]  ev4  OperationData +0x0 cache dir=r
+  /specs[15]/mem[1]  ev4  AbstractGameWithCache +0x0 game.data_ptr dir=r
+  /specs[15]/mem[2]  ev4  AbstractGameWithCache +0x8 game.vtable dir=r
+  /specs[15]/mem[9]  ev4  Entity +0x660 x dir=r
+  /specs[15]/mem[10]  ev4  Entity +0x668 y dir=r
+  /specs[15]/mem[16]  ev4  반환 Option<SinglePlanBattle> +0x0 None 니치 dir=w
+  /specs[15]/mem[17]  ev4  반환 Option<SinglePlanBattle> +0x0 Some(battle) dir=w
+  /specs[15]/consts[2]  ev4  val=1 line=249 kind=임계 :: 적팀 번호 계산 `1 - player.info.team` 의 1 (팀은 0/1)
+  /specs[15]/consts[4]  ev4  val=-1 line=250 kind=센티널 :: 두 곳에서 쓰이는 None 니치값 — i8 -1(=255) = Option<TowerType>::None(dive_tower), i64 -1 = Option<Si
+  /specs[15]/consts[5]  ev4  val=3 line=256 kind=태그 :: BattleSubPlanGoal 태그 3 = KitingBack → 플랜 미채택(None)
+  /specs[15]/consts[6]  ev4  val=4 line=256 kind=태그 :: BattleSubPlanGoal 태그 4 = RunAway → 플랜 미채택(None)
+  /specs[15]/consts[7]  ev4  val=7 line=256 kind=태그 :: BattleSubPlanGoal 태그 7 = End → 플랜 미채택(None)
+  /specs[15]/knobs[0]  ev4  미채택 판정에 쓰는 sub_goal 집합 | where=modes.rs:256 (m13.ll 33724~33728 switch) | val=3(KitingBack), 4(RunAway), 7(End) | src=기존
+  /specs[15]/knobs[1]  ev4  다이브 성립성 게이트 | where=modes.rs:245 single_tower_dive_is_viable 반환값 | val=bool | src=기존
+  /specs[15]/knobs[2]  ev4  다이브 판정 자체 | where=modes.rs:242 tower_discipline::engage_requires_dive 반환값 | val=bool | src=기존
+  /specs[15]/knobs[3]  ev4  dive_tower 선택 기준 | where=modes.rs:249 min_by_key(distance_sq(target)) | val=제곱거리 최소 | src=기존
+  /specs[15]/knobs[4]  ev4  TryKill 두 번째 파라미터 | where=modes.rs:248 / modes.rs:253 (m13.ll 33426·33460) | val=60 | src=기존
+  /specs[15]/knobs[5]  ev4  적 우물 도피 지속 | where=single_battle.rs:133 (m05.ll:27343 `mul i64 %149, 5`) | val=tps × 5 = 5초 | src=신규
+  /specs[15]/knobs[6]  ev4  교전 초반 유예 | where=single_battle.rs:157 (m05.ll:27390 `icmp ult .., 30`) | val=30틱(0.5초) | src=신규
+  /specs[15]/knobs[7]  ev4  오브젝트 이탈 종료 거리 | where=rs:222 (m05.ll:29114 `ugt .., 39999999999`) / rs:245 (m05.ll:29219 `ugt .., 89999999999`) | val=200000 / 300000 | src=신규
+  /specs[15]/knobs[8]  ev4  교전 최대 지속 | where=rs:333 (m05.ll:34365/34375 `usub.sat(tick,120)`) | val=120틱(2초) | src=신규
+=== 16 max_range_nearly_can_use ===
+  /specs[16]/mem[5]  ev4  Entity +0xd0 ty.Illusion.info.attack_cooldown dir=r
+  /specs[16]/mem[6]  ev4  Entity +0xd8 ty.Revenant.info.attack_cooldown dir=r
+  /specs[16]/mem[7]  ev4  Entity +0xe8 ty.Jungle.info.attack_cooldown / ty.Ghoul.info.attack_cooldown dir=r
+  /specs[16]/mem[8]  ev4  Entity +0xf0 ty.Eagle.info.attack_cooldown dir=r
+  /specs[16]/mem[10]  ev4  Entity +0x1f0 ty.Epic.info.attack_cooldown / ty.Serpen.info.attack_cooldown dir=r
+  /specs[16]/knobs[5]  ev4  최근 피격 시간창 | where=Entity::damaged _gcbc/g06.ll:82163 (store i64 180) | val=180 | src=신규
+  /specs[16]/knobs[6]  ev4  HARD_CC 집합 | where=_gcbc/g06.ll:87035~87042, 87205~87212 (switch case 0,1,2,6,8,9) | val=None | src=신규
+  /specs[16]/knobs[7]  ev4  쿨감 기준선 100 | where=cooldown_reduce _gcbc/g06.ll:66666~66670 | val=None | src=신규
+  /specs[16]/knobs[8]  ev4  최소 쿨타임 바닥값 | where=skill_cooltime = umax(...,3) (g06.ll:79437), 그 외 umax(...,1) | val=None | src=신규
+=== 17 new ===
+  /specs[17]/knobs[4]  ev4  오브젝트 스폰 예고 임계 | where=team_plan.rs:376·388 (m09.ll:38724·39066, mul .., 20) | val=tps*20 (20초) | src=신규
+=== 18 v3_epicops_buff_window ===
+  /specs[18]/mem[0]  ev4  PlayerState +0x930 info.team dir=r
+  /specs[18]/mem[1]  ev4  PlayerState +0x9c0 info.position dir=r
+  /specs[18]/mem[2]  ev4  OperationData +0x0 cache dir=r
+  /specs[18]/mem[3]  ev4  AbstractGameWithCache +0x0 game(데이터 포인터) dir=r
+  /specs[18]/mem[5]  ev4  AbstractGameWithCache +0x1e0 player_champion dir=r
+  /specs[18]/mem[6]  ev4  Strategy(스택 로컬 24B) +0x4 morgard_use dir=r
+  /specs[18]/mem[7]  ev4  TeamPlan +0xc0 chats.cap dir=r
+  /specs[18]/mem[8]  ev4  TeamPlan +0xc8 chats.ptr dir=r
+  /specs[18]/mem[9]  ev4  TeamPlan +0xd0 chats.len dir=r
+  /specs[18]/mem[10]  ev4  TeamPlan +0x410 eo_serpen_punish_issues dir=r
+  /specs[18]/mem[11]  ev4  TeamPlan +0x41e v3_press_chat_line dir=r
+  /specs[18]/mem[14]  ev4  TeamPlan +0x410 eo_serpen_punish_issues dir=w
+  /specs[18]/mem[17]  ev4  TeamPlan +0x41e v3_press_chat_line dir=w
+  /specs[18]/consts[0]  ev4  val=1 line=635 kind=태그 :: v3_epicops_repair_need 반환 태그 1 — '수리 필요 + 채팅까지'. objective=Repair 로 놓고 Chat::Repair 를 발화한다
+  /specs[18]/consts[1]  ev4  val=2 line=635 kind=태그 :: v3_epicops_repair_need 반환 태그 2 — '수리 필요하지만 채팅은 없음'. objective=Repair 만 놓는다
+  /specs[18]/consts[3]  ev4  val=23 line=638 kind=태그 :: Chat::Repair 의 태그값(24B 열거형판 Chat)
+  /specs[18]/consts[4]  ev4  val=25 line=654 kind=태그 :: Chat::SerpenSetup 의 태그값
+  /specs[18]/consts[5]  ev4  val=21 line=674 kind=태그 :: Chat::Press 의 태그값. v3_press_chat_line 이 None 일 때(최초 압박 선언) 선택 WARN 줄번호 정정(2026-09-11 검증배치 
+  /specs[18]/consts[6]  ev4  val=22 line=676 kind=태그 :: Chat::PressChange 의 태그값. v3_press_chat_line 이 이미 Some 일 때(압박 라인 변경) 선택 WARN 줄번호 정정(2026-09
+  /specs[18]/consts[7]  ev4  val=-1 line=665 kind=센티널 :: Option<LineType> 의 None 니치값(0xFF). ① group_line==-1 이면 즉시 false 반환 ② v3_press_chat_line==-
+  /specs[18]/knobs[0]  ev4  수리 선점의 우선순위 | where=epic.rs:635 (v3_epicops_repair_need 반환값 해석) | val=1 / 2 | src=기존
+  /specs[18]/knobs[1]  ev4  세르펜 징벌 진입 조건(2중 AND) | where=epic.rs:651~652 | val=is_object_being_taken_by_enemy(…, true) && v3_serpen_contest_clear_win(version, …) | src=기존
+  /specs[18]/knobs[2]  ev4  세르펜 진입 시의 phase/with_battle | where=epic.rs:654 | val=phase=ObjectPhase::Setup(1), with_battle=true(1) | src=기존
+  /specs[18]/knobs[3]  ev4  발표자 선정 규칙 | where=epic.rs:667~670 | val=슬롯 0..4 중 '챔피언이 존재하고 formation_role 이 Some 이며 is_split=false' 인 최초 인덱스 | src=기존
+  /specs[18]/knobs[4]  ev4  압박 채팅 중복 억제 | where=epic.rs:666 · 679 | val=self.v3_press_chat_line != group_line 일 때만 진입, 진입하면 무조건 group_line 으로 갱신 | src=기존
+  /specs[18]/knobs[5]  ev4  첫 압박 vs 라인 변경 문구 | where=epic.rs:673 (`Option::is_none` 인라인) -> 674/676 에서 Chat 구성. ~~epic.rs:682~~ 는 core/src/option.rs 줄번호 혼입(2026-09-11 검증배치 D) | val=None → Chat::Press(21), Some → Chat::PressChange(22) | src=기존
+  /specs[18]/knobs[6]  ev4  수리 우선순위1 부상 HP% 임계 | where=m09.ll:65212 (icmp ult .., 41) | val=41 | src=신규
+  /specs[18]/knobs[7]  ev4  수리 우선순위1 부상자 수 임계 | where=m09.ll:65301 (ugt .., 1) | val=> 1 (2명 이상) | src=신규
+  /specs[18]/knobs[8]  ev4  수리 우선순위2 '건강' HP% 임계 | where=m09.ll:65273 (ugt .., 29) | val=29 | src=신규
+  /specs[18]/knobs[9]  ev4  우선순위1 봉쇄 게이트 | where=m09.ll:65042 (icmp eq i8 %58, 5) | val=BigGoal::Battle | src=신규
+  /specs[18]/knobs[10]  ev4  세르펜 아군 전력 산입 HP% | where=m05.ll:62483 (ugt .., 39) | val=39 | src=신규
+  /specs[18]/knobs[11]  ev4  오브젝트 피탈 판정 시간창 | where=objective_helpers.rs / m15.ll (mul .., 20) | val=tps*20 | src=신규
+  /specs[18]/knobs[12]  ev4  압박라인 타워 점수표 | where=m09.ll:64526 (ugt i8 .., 4) | val=TowerType>4 → score 1 | src=신규
+  /specs[18]/knobs[13]  ev4  압박라인 정렬 키 | where=m09.ll:64620~64650 | val=(score, L==Mid, L==obj_line) | src=신규
+  /specs[18]/knobs[14]  ev4  오브젝트 쪽 라인 판정식 | where=m09.ll:64451 / 64330 / 64611 | val=epic.next_respawn > serpen.next_respawn | src=신규
+  /specs[18]/knobs[15]  ev4  후보 라인 집합(튜토리얼별) | where=@anon….291/.290/.35/.36/.31 + line_exists(m13.ll:53138) | val=정적표 | src=신규
+  /specs[18]/knobs[16]  ev4  발표자 선정식 | where=m09.ll:7156~7159 | val=announcer == player.info.position | src=신규
+  /specs[18]/knobs[17]  ev4  대표 자격 술어 | where=m09.ll:7080~7083 | val=Some(f) && !f.is_split | src=신규
+  /specs[18]/knobs[18]  ev4  Strategy.morgard_use 직접 강제 | where=World+0xb3b0 의 [Strategy;2], 팀별 24B stride, +0x4 | val=5=Gather / 6=Split14 / 0~4=Split131(값=첫 Position) | src=신규
+  /specs[18]/knobs[19]  ev4  Game::set_strategy(team, &Strategy) | where=_gcbc/g15.ll:176782 | val=24B memcpy | src=신규
+  /specs[18]/knobs[20]  ev4  팀 성향 난수 분포 | where=_gcbc/g15.ll:5094 (gen_range(0,3) / gen_range(0,5)) | val=균등 | src=신규
+  /specs[18]/knobs[21]  ev4  팀 성향을 난수 대신 지정 | where=_gcbc/g01.ll:106699·106716 (TeamSetting::create) | val=— | src=신규
+  /specs[18]/knobs[22]  ev4  세르펜 "도달 가능" 거리 여유 | where=serpen.rs:26 | val=150000 | src=신규
+  /specs[18]/knobs[23]  ev4  적 건강 하한 | where=serpen.rs:30·37 | val=hp*100/max > 49 | src=신규
+  /specs[18]/knobs[24]  ev4  미드라인 근접 밴드 | where=map_regions.rs is_near_mid_line | val=192001 / 192000 / 64000 | src=신규
+  /specs[18]/knobs[25]  ev4  resolve_fight 히스테리시스 | where=fight_model.rs:510 | val=hyst = mean(ally_values) | src=신규
+  /specs[18]/knobs[26]  ev4  팀 색깔전략 활성 개수 | where=team.rs:2450 | val=gen_range(5..=9) | src=신규
+=== 19 best_jungle_goal ===
+  /specs[19]/mem[2]  ev4  GameContext +0x0 pool dir=r
+  /specs[19]/mem[14]  ev4  bumpalo Vec<JungleType> +0x0 ptr dir=r
+  /specs[19]/knobs[6]  ev4  짝캠프 마진 5초 | where=is_side_cleared 의 tps*5 (m04.ll:62553) | val=None | src=신규

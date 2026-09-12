@@ -1,0 +1,202 @@
+{
+  "round": 10,
+  "batch": "B",
+  "errors": [
+    {
+      "path": "/specs[5]/knobs[1]/where",
+      "kind": "판정반전",
+      "old": "dive_episode.rs:131 (확정 — 132~137 은 한국어 주석 6줄이라 코드가 없다)",
+      "new": "dive_episode.rs:132~137 중 한 줄(들여쓰기 6 · L134 최유력) — ★정정(10차 배치B, 판정반전): ~~131 (확정 — 132~137 은 한국어 주석 6줄이라 코드가 없다)~~ 는 반증됐다. ①`rmeta_srcmap game_ai dive_episode.rs`: L125=112B 가 `pub(crate) fn v50_fold_dive_episode(&mut self, _version: usize, _tps: usize, aborted: bool, end_reason: u8) {`(들여쓰기 2 + 109자 = 111자, 종결자 1B 포함 112) 와 ±0 ⟹ 들여쓰기 단위 2 · fn 본문 4 확정. ②L131=59B(58자)는 `if let Some(live) = self.v50_dive_ep_live.as_ref() {`(들여쓰기 4 + 52 = 56자) 하나뿐이고, `&& live.in_range_ticks == 0` 을 붙이면 공백을 다 지워도 67자라 **물리적으로 못 들어간다**(`self.v50_dive_ep_live` 21자·`in_range_ticks` 14자는 tcx 로 고정). ③L139=43B(42자)=들여쓰기 **8** + `if no_contact && end_reason != 7 {`(34자) ±0, L141/142/143=10/8/6B = 닫는 중괄호 3개(들여쓰기 8/6/4) ⟹ L131(들여쓰기 4)과 L139(8) 사이에 **들여쓰기 6 블록이 하나 더 열린다** = `in_range_ticks == 0` 은 독립 중첩 if 이고 132~137 중 한 줄이다. ④그 줄은 mb>0 이므로 한국어 주석이 뒤따르는 코드줄이고, 필요한 ASCII 39자(6+`if live.in_range_ticks == 0 {`+` // `)를 담을 수 있는 것은 L134(ASCII 43)·차순 L135(38) 뿐이다(L132 33·L133 30·L136 29·L137 28 은 부족). 값 0 과 의미는 그대로",
+      "evidence": "rmeta_srcmap.py game_ai dive_episode.rs 125 175 실측 — L125=112B L131=59B L139=43B L141=10B L142=8B L143=6B (mb: L132~137 = 37/37/31/30/36/36). m13.ll:28985~28993 `%7 = icmp ne i64 %6, -1, !dbg !35976` / `%11 = select i1 %7, i1 %10, i1 false, !dbg !35976`(=line131) 이고 in_range 의 `%9 = load` `%10 = icmp eq`(m13.ll:28990~28991)에는 **!dbg 가 없다**(SimplifyCFG 투기로 소실) ⟹ IR 만으로는 줄을 못 정한다는 closed[0] 의 원래 판정이 옳았다",
+      "behavior_change": false,
+      "found_by": "new"
+    },
+    {
+      "path": "/specs[5]/open[0]",
+      "kind": "실오류",
+      "old": "!35976(option.rs:742 is_some, inlinedAt dive_episode.rs:131)",
+      "new": "!35976(option.rs:742 **as_ref**, inlinedAt dive_episode.rs:131 — ~~is_some~~ 는 오기)",
+      "evidence": "python dloc.py _gaibc/m13.ll 35976 → `line 742 in as_ref<game_ai::plan_legacy::handler::dive_episode::V50DiveEpLive> [library\\core\\src\\option.rs]` → `line 131 in v50_fold_dive_episode`",
+      "behavior_change": false,
+      "found_by": "new"
+    },
+    {
+      "path": "/specs[5]/open[0]",
+      "kind": "보강",
+      "old": "확정 못 함(2회 시도 후 중단)",
+      "new": "확정 못 함(2회 시도 후 중단). ★10차 배치B — **131 이 아님이 확정**되고 132~137 로 좁혀졌다(닫히진 않음): 줄길이 산술로 ⓐ들여쓰기 단위 2(L125 사인 ±0) ⓑL131=58자라 두 조건을 같이 담을 수 없음(최소 67자) ⓒL139 의 if 가 들여쓰기 **8**(42자 ±0)이고 L141/142/143 이 닫는 중괄호 3개(8/6/4) ⟹ 131 과 139 사이에 들여쓰기 6 블록이 하나 더 있다 ⟹ **in_range 검사는 독립 중첩 if**. 남은 미탐색 = 132~137 중 어느 줄인지(ASCII 여유로 L134 최유력, 차순 L135). ⚠같은 근거로 `knobs[1].where` 의 「확정 — 132~137 은 코드가 없다」를 정정했다",
+      "evidence": "rmeta_srcmap.py game_ai dive_episode.rs 125 175 — L125=112B(=`pub(crate) fn …` 111자 ±0) L131=59B L139=43B(=들여쓰기8+34자 ±0) L141/142/143=10/8/6B",
+      "behavior_change": false,
+      "found_by": "new"
+    },
+    {
+      "path": "/specs[5]/logic",
+      "kind": "보강",
+      "old": "// ★A 블록은 self 를 소비하지 않는다 — 게이트가 거짓이어도 아래 B/C 는 항상 실행된다.",
+      "new": "// ★A 블록은 self 를 소비하지 않는다 — 게이트가 거짓이어도 아래 B/C 는 항상 실행된다.\n// ★소스 구조(10차 배치B, 줄길이 산술): 위 두 조건은 소스에서 `&&` 하나가 아니라 **중첩 if 둘**이다 —\n//   L131 `if let Some(live) = self.v50_dive_ep_live.as_ref() {`(들여쓰기 4)\n//   → L132~137 중 한 줄 `if live.in_range_ticks == 0 {`(들여쓰기 6, L134 최유력)\n//   → L138 let no_contact(8) → L139 `if no_contact && end_reason != 7 {`(8) → L140 갱신(10)\n//   → 닫는 중괄호 L141/142/143 = 들여쓰기 8/6/4. 단축평가 AND 와 **의미는 동일**하므로 재구현은 이대로 두어도 된다.",
+      "evidence": "rmeta_srcmap.py game_ai dive_episode.rs — L139=43B(들여쓰기8+`if no_contact && end_reason != 7 {` 34자 ±0), L141/142/143=10/8/6B = 3중 닫는 중괄호(8/6/4), L131=59B(두 조건을 담기엔 최소 67자 필요)",
+      "behavior_change": false,
+      "found_by": "new"
+    },
+    {
+      "path": "/specs[7]/knobs[6]/where",
+      "kind": "실오류",
+      "old": "m02.ll:49081 (icmp eq epic.hp, epic.max_hp)",
+      "new": "m02.ll:49083 (`%92 = icmp eq i64 %89, %91` = epic.hp(Entity+0x670) == epic.stat_cached.hp(Entity+0x628)) — ~~49081~~ 은 그 앞의 `gep … i64 1576` 줄이다(10차 배치B 실측)",
+      "evidence": "_gaibc/m02.ll:49079~49083 = `%88 = getelementptr … i64 1648` / `%89 = load` / `%90 = getelementptr … i64 1576` / `%91 = load` / `%92 = icmp eq i64 %89, %91, !dbg !54538`. 인용한 `icmp eq` 는 49083 이고 49081 은 gep 이다(G13 은 ±2 허용이라 통과했지만 문면은 틀렸다)",
+      "behavior_change": false,
+      "found_by": "new"
+    },
+    {
+      "path": "/specs[9]/open[0]",
+      "kind": "보강",
+      "old": "다음 라운드는 식별자 후보를 세워 줄길이 산술로 좁히면 된다.",
+      "new": "★10차 배치B 가 실행했다(좁혀짐 · **미탐색 유지**). ①**이 파일의 들여쓰기 단위 = 2칸**이 확정됐다: L1211/L1319=4B(3자)=`  }` · L1242=6B(5자)=`    }` · L1241=16B(15자)=`      continue;` · L1210=18B(17자)=`    return false;` · L1318=17B(16자)=`    return true;` · L1233=19B(18자)=`  for ap in 0..5 {`(±0) ⟹ 최상위 `if` 는 들여쓰기 2, 그 본문은 4. ②그 결과 조건부 순수 길이 = **L1316 16자 · L1321 38자 · L1331 17자**. ③세 줄이 같은 철자꼴 `if X <비교> {` 를 쓴다고 두면 `len(front)=len(rear)+1` 과 `2·len(flank)+len(front)=(1321길이−고정문자)` 가 동시에 성립해야 하는데 **2·len(flank)=3** 이라는 모순이 나오고, 이 모순은 들여쓰기 값이 소거되므로 들여쓰기 가정과 무관하다 ⟹ **L1321 은 `logic` 이 적은 `flank_allies > 1 || (flank_allies > 0 && front_allies > 0)` 철자 그대로가 아니다**(의미는 4차 배치B 의 독립재구현 1800/1800 으로 이미 확정 — 철자만의 문제다). ④남은 미탐색 = L1321 의 실제 철자와 세 카운터의 식별자 길이(rear 12자·front 13자 꼴이 1316/1331 을 만족하지만 1321 과 양립하지 않는다).",
+      "evidence": "python -X utf8 rmeta_srcmap.py game_ai fight_check.rs 1196 1350 — L1210=18 L1211=4 L1233=19 L1241=16 L1242=6 L1316=24 L1318=17 L1319=4 L1321=46 L1331=25 (bytes 는 종결자 1B 포함, 내용 = bytes−1). IR 대조: m15.ll:35578 `%86 = icmp sgt i32 %83, 0`(1316) · 35598~35602 `select i1 %95, i1 %96, i1 false` + `%98 = icmp sgt i32 %84, 1` + `or`(1321) · 35606 `%101 = icmp sgt i32 %85, 1`(1331)",
+      "behavior_change": false,
+      "found_by": "new"
+    },
+    {
+      "op": "insert",
+      "path": "/specs[7]/mem",
+      "at": 22,
+      "guard": "jungle_runner.epic.live_list[0] (힙 원소, usize id)",
+      "guard_key": "name",
+      "new": {
+        "base": "usize(live_list 힙 원소)",
+        "offset": "0x0",
+        "name": "jungle_runner.epic.live_list[0] (힙 원소, usize id)",
+        "note": "★10차 배치B 신설 — 표가 `.ptr`(mem[8])과 `.len`(mem[9])만 싣고 **역참조 자체를 빠뜨리고 있었다**. m02.ll:49015 `%52 = load i64, ptr %51`(%51 = MobaMode+0x1a0 에서 읽은 힙 포인터) — len!=0 일 때 첫 원소 id 를 읽어 vtable+0x1f0 `get_entity_by_id` 인자로 넘긴다(m02.ll:49018). `logic` 은 이미 `live[0]` 으로 서술하고 있었다. D9-OFF 규약대로 힙 Vec 원소는 소유 구조체로부터의 상수 변위가 없어 base 를 원소 타입으로 내렸다(05 writes 의 `V50DiveEpisode(힙 원소)` 와 같은 처리)"
+      },
+      "kind": "보강",
+      "evidence": "_gaibc/m02.ll:49006~49018 — `%50 = getelementptr … i64 416` / `%51 = load ptr` / `%52 = load i64, ptr %51, !dbg !54508`(= closure$0 hunt_and_battle.rs:32) / `%55 = tail call … %54(ptr %34, i64 %52)`",
+      "behavior_change": false,
+      "found_by": "new"
+    },
+    {
+      "op": "insert",
+      "path": "/specs[8]/mem",
+      "at": 21,
+      "guard": "jungle_runner.epic.live_list[0] (힙 원소, usize id)",
+      "guard_key": "name",
+      "new": {
+        "base": "usize(live_list 힙 원소)",
+        "offset": "0x0",
+        "name": "jungle_runner.epic.live_list[0] (힙 원소, usize id)",
+        "note": "★10차 배치B 신설 — 07 과 **같은 누락**이다. 표가 `.ptr`(mem[16])과 `.len`(mem[17])만 싣고 역참조를 빠뜨렸다. m10.ll:7852 `%100 = load i64, ptr %99`(%99 = MobaMode+0x1a0 에서 읽은 힙 포인터) — `get(0)` 의 실체이고 그 값이 vtable+0x1f0 `get_entity_by_id` 로 간다(m10.ll:7855). D9-OFF 규약대로 base 를 힙 원소로 내렸다",
+        "dir": "r"
+      },
+      "kind": "보강",
+      "evidence": "_gaibc/m10.ll:7843~7855 — `%98 = getelementptr … i64 416` / `%99 = load ptr` / `%100 = load i64, ptr %99, !dbg !19367`(= closure$2 hunt_and_poke.rs:193) / `%103 = call … %102(ptr %35, i64 %100)`",
+      "behavior_change": false,
+      "found_by": "new"
+    },
+    {
+      "op": "insert",
+      "path": "/specs[5]/consts",
+      "at": 14,
+      "guard": "패턴 \"LineGank\" 의 바이트 길이(starts_with 인자). ★10차 배치B 신설 — 표가 11(PassiveLine)·13(PassiveJungle)·12(ActiveRecall) 셋만 싣고 나머지 6개 패턴 길이를 빠뜨리고 있었다",
+      "guard_key": "meaning",
+      "new": {
+        "value": 8,
+        "src_line": 148,
+        "meaning": "패턴 \"LineGank\" 의 바이트 길이(starts_with 인자). ★10차 배치B 신설 — 표가 11(PassiveLine)·13(PassiveJungle)·12(ActiveRecall) 셋만 싣고 나머지 6개 패턴 길이를 빠뜨리고 있었다"
+      },
+      "kind": "보강",
+      "evidence": "m13.ll:29062 `invoke … starts_with(… @anon.…94, i64 noundef 8), to label %41 unwind label %31, !dbg !36030` · `@anon.282069a2ed2ad3a275929b639963fb55.94 = … [8 x i8] c\"LineGank\"`(m13.ll:102) · dloc !36030 = dive_episode.rs:148",
+      "behavior_change": false,
+      "found_by": "new"
+    },
+    {
+      "op": "insert",
+      "path": "/specs[5]/consts",
+      "at": 15,
+      "guard": "패턴 \"Epic\" 의 바이트 길이(str::Pattern::is_contained_in 인자 — starts_with 가 아니라 contains 다)",
+      "guard_key": "meaning",
+      "new": {
+        "value": 4,
+        "src_line": 149,
+        "meaning": "패턴 \"Epic\" 의 바이트 길이(str::Pattern::is_contained_in 인자 — starts_with 가 아니라 contains 다)"
+      },
+      "kind": "보강",
+      "evidence": "m13.ll:29075 `invoke fastcc … Pattern15is_contained_in(ptr … @anon.…51, i64 noundef 4, …), … !dbg !36047` · `@anon.…51 = … [4 x i8] c\"Epic\"`(m13.ll:58) · dloc !36047 = dive_episode.rs:149",
+      "behavior_change": false,
+      "found_by": "new"
+    },
+    {
+      "op": "insert",
+      "path": "/specs[5]/consts",
+      "at": 16,
+      "guard": "패턴 \"Serpen\" 의 바이트 길이(is_contained_in 인자)",
+      "guard_key": "meaning",
+      "new": {
+        "value": 6,
+        "src_line": 150,
+        "meaning": "패턴 \"Serpen\" 의 바이트 길이(is_contained_in 인자)"
+      },
+      "kind": "보강",
+      "evidence": "m13.ll:29088 `… is_contained_in(ptr … @anon.…52, i64 noundef 6, …), … !dbg !36064` · `@anon.…52 = … [6 x i8] c\"Serpen\"`(m13.ll:59) · dloc !36064 = dive_episode.rs:150",
+      "behavior_change": false,
+      "found_by": "new"
+    },
+    {
+      "op": "insert",
+      "path": "/specs[5]/consts",
+      "at": 17,
+      "guard": "패턴 \"Recall\" 의 바이트 길이(starts_with 인자). ActiveRecall(12)과 **별개의 두 번째 술어**이고 같은 phi 값 6 으로 합류한다",
+      "guard_key": "meaning",
+      "new": {
+        "value": 6,
+        "src_line": 151,
+        "meaning": "패턴 \"Recall\" 의 바이트 길이(starts_with 인자). ActiveRecall(12)과 **별개의 두 번째 술어**이고 같은 phi 값 6 으로 합류한다"
+      },
+      "kind": "보강",
+      "evidence": "m13.ll:29118 `invoke … starts_with(… @anon.…89, i64 noundef 6), … !dbg !36097` · `@anon.…89 = … [6 x i8] c\"Recall\"`(m13.ll:97) · dloc !36097 = dive_episode.rs:151 · phi m13.ll:29154 `[ 6, %61 ], [ 6, %56 ]`",
+      "behavior_change": false,
+      "found_by": "new"
+    },
+    {
+      "op": "insert",
+      "path": "/specs[5]/consts",
+      "at": 18,
+      "guard": "패턴 \"Battle\" 의 바이트 길이(starts_with 인자)",
+      "guard_key": "meaning",
+      "new": {
+        "value": 6,
+        "src_line": 152,
+        "meaning": "패턴 \"Battle\" 의 바이트 길이(starts_with 인자)"
+      },
+      "kind": "보강",
+      "evidence": "m13.ll:29133 `invoke … starts_with(… @anon.…48, i64 noundef 6), … !dbg !36114` · `@anon.…48 = … [6 x i8] c\"Battle\"`(m13.ll:55) · dloc !36114 = dive_episode.rs:152",
+      "behavior_change": false,
+      "found_by": "new"
+    },
+    {
+      "op": "insert",
+      "path": "/specs[5]/consts",
+      "at": 19,
+      "guard": "패턴 \"Nexus\" 의 바이트 길이(is_contained_in 인자). 이 술어 결과가 select(8,9) 로 마지막 두 코드를 가른다",
+      "guard_key": "meaning",
+      "new": {
+        "value": 5,
+        "src_line": 153,
+        "meaning": "패턴 \"Nexus\" 의 바이트 길이(is_contained_in 인자). 이 술어 결과가 select(8,9) 로 마지막 두 코드를 가른다"
+      },
+      "kind": "보강",
+      "evidence": "m13.ll:29146 `… is_contained_in(ptr … @anon.…53, i64 noundef 5, …), … !dbg !36131` · `@anon.…53 = … [5 x i8] c\"Nexus\"`(m13.ll:60) · dloc !36131 = dive_episode.rs:153 · m13.ll:29150 `%72 = select i1 %70, i8 8, i8 9`",
+      "behavior_change": false,
+      "found_by": "new"
+    }
+  ],
+  "ev_up": [],
+  "brief_errors": [
+    "★`mkdossier.py` 가 `sig.params` 의 **타입 칸을 통째로 비워서** 낸다 — L225 가 `table(sig[\"params\"], (\"i\",\"name\",\"ty\",\"role\"), …)` 인데 v3 의 키는 `ty` 가 아니라 **`type`** 이다(`applypatch.V2KEY` 는 `ty→type` 을 알고 있는데 렌더러만 모른다). 그 결과 내 담당 5함수의 인자표 31행이 전부 타입 공란으로 왔다. 이번 라운드 임무표는 `sig.params[]` 를 G16 대상으로 지목했는데 **정작 그 칸이 도시에에서 물리적으로 안 보였다**.",
+    "★`mkdossier.py` L266 이 `siblings.entries` 를 `(\"name\",\"sym\",\"note\")` 키로 렌더하는데 실제 키는 `path`/`vis`/`at`/`mir`/`sig` 다 — **형제 표가 전부 빈 행**으로 나온다(05·06 은 41행, 07 8행, 08 6행이 전부 공란). 임무표가 `siblings` 를 「자동 열거에 빠진 게 있나」 확인 대상으로 지목했는데 도시에만 보고는 확인 자체가 불가능했다(나는 `_spec/specs20_v3.json` 을 직접 읽어 대조했고 05~09 전부 누락 0 이었다).",
+    "★도시에 §5 가 「⚠**새 항목 추가(`append`)는 구현이 없다.**」라고 못 박고 있는데 **거짓이다** — `applypatch.py` L239~279 에 `op:insert`/`op:delete` 가 구현돼 있다(8차 배치C 요청으로 신설). 지시문 본문은 `op:insert` 를 쓰라고 하고 도시에 §5 는 없다고 하니 **한 라운드 안에서 두 문서가 반대**다. 도시에 쪽이 낡았다.",
+    "⚠`applypatch.resolve()` 는 `open`/`notes` 에 대해 `(None, None)` 을 돌려주므로 **`op:insert` 를 `open`/`notes` 배열에는 쓸 수 없다**(「배열이 아니다」로 거부). 06 은 `open` 이 0건인데 `history[5]` 에 살아 있는 미탐색(「관측된 RunAway 가 06 의 반환인지 가르기」)이 있어 `open` 에 행을 넣어야 하는데 **도구가 막는다** — 이번엔 산문으로만 보고한다. (`G7` 은 과열림만 보고 **과소열림**은 아무도 안 본다 — 다음 라운드 게이트 후보.)",
+    "⚠지시문이 「네 담당엔 미해결 `open` 이 여럿 남아 있다(… `06` 전 행의 「직접 호출 재료 부재」)」라고 썼는데, 06 의 `open` 은 **0건**이고(도시에 §1 표도 0 이라 적는다) 그 서술은 `closed[]`/`history[]` 의 내용이다. 또 `06` 의 「직접 호출 재료 부재」는 `history[5]` 에서 **이미 판정반전으로 뒤집혔다**(`update` pub 경로로 6차에 실행됨) — 지시문이 뒤집히기 전 판정을 인용하고 있다.",
+    "⚠`consts` 의 「배열 인덱스·stride 는 적지 않는다」(SPEC_GUIDE §constants 경계표) 적용이 담당 5함수 안에서 **갈린다**: `1 - team`(적팀 인덱스)을 06 은 `consts[1]`(kind=인덱스)로 싣고 08(m10.ll:7745 `sub i64 1, %19`)·09(m15.ll:35481 `sub nuw nsw i64 1, %7`)는 안 싣는다. 셋 다 같은 연산이다. 규칙대로면 06 이 빼야 하고, 규칙을 바꾸려면 셋 다 실어야 한다 — 어느 쪽이든 지금은 **양식이 갈려 있다**. 판정 반전 위험이 있어 이번 patch 에는 넣지 않고 보고만 한다.",
+    "⚠`applypatch.py --dry` 의 로그가 **삽입 경고를 「★적용 실패 N건」 블록에 넣는다** — 내 patch 는 요약행이 「정정 14 성공 / 0 실패」인데 그 바로 위에 「★적용 실패 8건」이 찍힌다(8건 전부 `op:insert` 의 restamp 경고이고 실제 실패는 0 이다). 메인 세션이 로그만 보면 **8건이 떨어진 줄 알고 되돌릴 위험**이 있다. 경고는 실패와 별도 블록으로 빼라.",
+    "⚠같은 로그의 「이후 N행 이동」이 **v2 배열 기준이라 과소계상**된다: `/specs[7]/mem at=22` 를 「이후 0행 이동」이라 찍지만, v3 `mem` = `reads`+`writes` 연결이라 실제로는 **07 의 writes 6행(v3 `mem[22]`~`[27]`)이 `[23]`~`[28]` 로 밀린다**. `/specs[5]/consts` 는 v2 `constants` 하나에 대응하니 정말 0 이 맞고, `/specs[8]/mem` 은 writes 가 비어 0 이 맞다. ⟹ 이동량은 **`resolve()` 가 돌려준 배열 길이가 아니라 v3 연결 길이**로 세야 한다."
+  ]
+}

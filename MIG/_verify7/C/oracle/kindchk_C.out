@@ -1,0 +1,49 @@
+specs[10] should_end_object_finish_kill_priority_battle  consts  6행 · 불일치 2 · 판정보류 2
+    consts[ 0] value=65534          kind=태그   관측문맥=['ARI']                      **불일치**
+    consts[ 1] value=768            kind=임계   관측문맥=['EQ']                       **불일치**
+    consts[ 4] value=25000          kind=임계   관측문맥=['ARG']                      판정보류(콜리 인자로만 등장)
+    consts[ 5] value=19600000000    kind=임계   관측문맥=[]                           판정보류(리터럴 미검출 — 접힘)
+specs[11] v3_fall_back_to_passive                        consts 19행 · 불일치 9 · 판정보류 0
+    consts[ 5] value=0              kind=임계   관측문맥=['ARG', 'EQ', 'IDX', 'ST']   **불일치**
+    consts[ 6] value=0              kind=임계   관측문맥=['ARG', 'EQ', 'IDX', 'ST']   **불일치**
+    consts[ 9] value=3              kind=임계   관측문맥=['ARG', 'EQ']                **불일치**
+    consts[10] value=4              kind=임계   관측문맥=['ARG', 'EQ', 'IDX', 'ST']   **불일치**
+    consts[11] value=5              kind=임계   관측문맥=['ARG', 'EQ']                **불일치**
+    consts[12] value=6              kind=임계   관측문맥=['EQ']                       **불일치**
+    consts[13] value=7              kind=임계   관측문맥=['ARG', 'EQ', 'IDX']         **불일치**
+    consts[14] value=8              kind=임계   관측문맥=['ARG', 'EQ', 'IDX', 'ST']   **불일치**
+    consts[17] value=-8             kind=임계   관측문맥=['ARI']                      **불일치**
+specs[12] handle_chat                                    consts 12행 · 불일치 1 · 판정보류 0
+    consts[ 9] value=-8             kind=임계   관측문맥=['ARI']                      **불일치**
+specs[13] target_bush_v30                                consts 16행 · 불일치 10 · 판정보류 4
+    consts[ 1] value=16             kind=임계   관측문맥=['IDX']                      **불일치**
+    consts[ 3] value=17             kind=임계   관측문맥=['IDX']                      **불일치**
+    consts[ 4] value=9              kind=임계   관측문맥=['EQ']                       **불일치**
+    consts[ 5] value=21             kind=임계   관측문맥=['IDX']                      **불일치**
+    consts[ 6] value=3              kind=임계   관측문맥=['EQ', 'IDX']                **불일치**
+    consts[ 7] value=6              kind=임계   관측문맥=['ARG', 'EQ']                **불일치**
+    consts[ 8] value=13             kind=임계   관측문맥=[]                           판정보류(리터럴 미검출 — 접힘)
+    consts[ 9] value=18             kind=임계   관측문맥=['IDX']                      **불일치**
+    consts[10] value=8              kind=임계   관측문맥=['ARG', 'IDX']               **불일치**
+    consts[11] value=12             kind=임계   관측문맥=[]                           판정보류(리터럴 미검출 — 접힘)
+    consts[12] value=14             kind=임계   관측문맥=[]                           판정보류(리터럴 미검출 — 접힘)
+    consts[13] value=11             kind=임계   관측문맥=['EQ']                       **불일치**
+    consts[14] value=15             kind=임계   관측문맥=[]                           판정보류(리터럴 미검출 — 접힘)
+    consts[15] value=20             kind=임계   관측문맥=['EQ']                       **불일치**
+specs[14] update                                         consts 21행 · 불일치 10 · 판정보류 4
+    consts[ 0] value=100            kind=임계   관측문맥=['ARG', 'ARI', 'EQ']         **불일치**
+    consts[ 4] value=0              kind=임계   관측문맥=['ARG', 'ARI', 'EQ', 'IDX', 'ST'] **불일치**
+    consts[ 5] value=32000          kind=임계   관측문맥=['ARI']                      **불일치**
+    consts[ 7] value=16             kind=임계   관측문맥=['IDX']                      **불일치**
+    consts[ 9] value=9              kind=임계   관측문맥=['IDX']                      **불일치**
+    consts[10] value=21             kind=임계   관측문맥=['EQ', 'IDX']                **불일치**
+    consts[11] value=3              kind=임계   관측문맥=['IDX']                      **불일치**
+    consts[12] value=6              kind=임계   관측문맥=[]                           판정보류(리터럴 미검출 — 접힘)
+    consts[13] value=14             kind=임계   관측문맥=['IDX']                      **불일치**
+    consts[15] value=13             kind=임계   관측문맥=[]                           판정보류(리터럴 미검출 — 접힘)
+    consts[16] value=18             kind=임계   관측문맥=['IDX']                      **불일치**
+    consts[18] value=12             kind=임계   관측문맥=[]                           판정보류(리터럴 미검출 — 접힘)
+    consts[19] value=15             kind=임계   관측문맥=[]                           판정보류(리터럴 미검출 — 접힘)
+    consts[20] value=20             kind=임계   관측문맥=['IDX']                      **불일치**
+
+합계: consts 74행 · **불일치 32** · 판정보류 10

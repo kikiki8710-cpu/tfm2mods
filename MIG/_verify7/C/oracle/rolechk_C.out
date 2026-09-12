@@ -1,0 +1,7 @@
+specs[10] should_end_object_finish_kill_priority_battle  params 5 · 결함후보 0
+specs[11] v3_fall_back_to_passive                        params 6 · 결함후보 0
+specs[12] handle_chat                                    params 9 · 결함후보 0
+specs[13] target_bush_v30                                params 3 · 결함후보 0
+specs[14] update                                         params 8 · 결함후보 0
+
+합계: params 31행 · 결함후보 0

@@ -1,0 +1,70 @@
+== load/store (ptr 가 GEP 이면 오프셋 표시) ==
+L28986  r  i64    off=0x570  base=%0   | %6 = load i64, ptr %5, align 8, !dbg !35976, !range !14067, !noundef !8
+L28990  r  i64    off=0x598  base=%0   | %9 = load i64, ptr %8, align 8
+L29002  r  ptr    off=0x8    base=%4   | %15 = load ptr, ptr %14, align 8, !dbg !35988, !nonnull !8, !noundef !8
+L29004  r  i64    off=0x10   base=%4   | %17 = load i64, ptr %16, align 8, !dbg !35996, !noundef !8
+L29014  r  i64    off=0x5a8  base=%0   | %21 = load i64, ptr %20, align 8, !dbg !36000, !noundef !8
+L29023  r  i64    off=0x1480 base=%0   | %27 = load i64, ptr %26, align 8, !dbg !36003, !noundef !8
+L29025  r  i64    off=0x588  base=%0   | %29 = load i64, ptr %28, align 8, !dbg !36003, !noundef !8
+L29029  w  i64    off=0x1480 base=%0   | store i64 %30, ptr %26, align 8, !dbg !36003
+L29056  r  ptr    off=0x8    base=%4   | %38 = load ptr, ptr %14, align 8, !dbg !36018, !nonnull !8, !noundef !8
+L29057  r  i64    off=0x10   base=%4   | %39 = load i64, ptr %16, align 8, !dbg !36029, !noundef !8
+L29071  r  ptr    off=0x8    base=%4   | %43 = load ptr, ptr %14, align 8, !dbg !36035, !nonnull !8, !noundef !8
+L29072  r  i64    off=0x10   base=%4   | %44 = load i64, ptr %16, align 8, !dbg !36046, !noundef !8
+L29084  r  ptr    off=0x8    base=%4   | %48 = load ptr, ptr %14, align 8, !dbg !36052, !nonnull !8, !noundef !8
+L29085  r  i64    off=0x10   base=%4   | %49 = load i64, ptr %16, align 8, !dbg !36063, !noundef !8
+L29097  r  ptr    off=0x8    base=%4   | %53 = load ptr, ptr %14, align 8, !dbg !36069, !nonnull !8, !noundef !8
+L29098  r  i64    off=0x10   base=%4   | %54 = load i64, ptr %16, align 8, !dbg !36080, !noundef !8
+L29112  r  ptr    off=0x8    base=%4   | %58 = load ptr, ptr %14, align 8, !dbg !36085, !nonnull !8, !noundef !8
+L29113  r  i64    off=0x10   base=%4   | %59 = load i64, ptr %16, align 8, !dbg !36096, !noundef !8
+L29127  r  ptr    off=0x8    base=%4   | %63 = load ptr, ptr %14, align 8, !dbg !36102, !nonnull !8, !noundef !8
+L29128  r  i64    off=0x10   base=%4   | %64 = load i64, ptr %16, align 8, !dbg !36113, !noundef !8
+L29142  r  ptr    off=0x8    base=%4   | %68 = load ptr, ptr %14, align 8, !dbg !36119, !nonnull !8, !noundef !8
+L29143  r  i64    off=0x10   base=%4   | %69 = load i64, ptr %16, align 8, !dbg !36130, !noundef !8
+L29173  r  i64    off=0x570  base=%0   | %78 = load i64, ptr %5, align 8, !dbg !36162
+L29175  r  i64    off=0x580  base=%0   | %80 = load i64, ptr %79, align 8, !dbg !36162
+L29177  r  i64    off=0x588  base=%0   | %82 = load i64, ptr %81, align 8, !dbg !36162
+L29179  r  i64    off=0x590  base=%0   | %84 = load i64, ptr %83, align 8, !dbg !36162
+L29180  r  i64    off=0x598  base=%0   | %85 = load i64, ptr %8, align 8, !dbg !36162
+L29182  r  i64    off=0x5a0  base=%0   | %87 = load i64, ptr %86, align 8, !dbg !36162
+L29184  r  i64    off=0x5a8  base=%0   | %89 = load i64, ptr %88, align 8, !dbg !36162
+L29186  r  i64    off=0x5b0  base=%0   | %91 = load i64, ptr %90, align 8, !dbg !36162
+L29188  r  i64    off=0x5b8  base=%0   | %93 = load i64, ptr %92, align 8, !dbg !36162
+L29190  r  i64    off=0x5c8  base=%0   | %95 = load i64, ptr %94, align 8, !dbg !36162
+L29192  r  i64    off=0x5d0  base=%0   | %97 = load i64, ptr %96, align 8, !dbg !36162
+L29194  r  i32    off=0x5d8  base=%0   | %99 = load i32, ptr %98, align 8, !dbg !36162
+L29196  r  i32    off=0x5dc  base=%0   | %101 = load i32, ptr %100, align 4, !dbg !36162
+L29198  r  i8     off=0x5e0  base=%0   | %103 = load i8, ptr %102, align 8, !dbg !36162
+L29200  r  i8     off=0x5e1  base=%0   | %105 = load i8, ptr %104, align 1, !dbg !36162
+L29202  r  i8     off=0x5e2  base=%0   | %107 = load i8, ptr %106, align 2, !dbg !36162
+L29204  r  i8     off=0x5e3  base=%0   | %109 = load i8, ptr %108, align 1, !dbg !36162
+L29206  r  i8     off=0x5e4  base=%0   | %111 = load i8, ptr %110, align 4, !dbg !36162
+L29208  r  i8     off=0x5e5  base=%0   | %113 = load i8, ptr %112, align 1, !dbg !36162
+L29209  w  i64    off=0x570  base=%0   | store i64 -1, ptr %5, align 8, !dbg !36163
+L29238  r  i8     off=0x1811 base=%0   | %118 = load i8, ptr %117, align 1, !dbg !36175
+L29312  r  i64    off=0x898  base=%0   | %123 = load i64, ptr %122, align 8, !dbg !36221, !alias.scope !36222, !noalias !36225, !noundef !8
+L29316  r  i64    off=0x888  base=%0   | %124 = load i64, ptr %116, align 8, !dbg !36236, !range !10217, !alias.scope !36222, !noalias !36225, !noundef !8
+L29326  r  ptr    off=0x890  base=%0   | %129 = load ptr, ptr %128, align 8, !dbg !36239, !alias.scope !36222, !noalias !36225, !nonnull !8, !noundef !8
+L29331  w  i64    off=-      base=%130   | store i64 %95, ptr %130, align 8, !dbg !36262
+L29333  w  i64    off=0x8    base=%130   | store i64 %97, ptr %131, align 8, !dbg !36262
+L29335  w  i64    off=0x10   base=%130   | store i64 %80, ptr %132, align 8, !dbg !36262
+L29337  w  i64    off=0x18   base=%130   | store i64 %82, ptr %133, align 8, !dbg !36262
+L29339  w  i64    off=0x20   base=%130   | store i64 %84, ptr %134, align 8, !dbg !36262
+L29341  w  i64    off=0x28   base=%130   | store i64 %85, ptr %135, align 8, !dbg !36262
+L29343  w  i64    off=0x30   base=%130   | store i64 %87, ptr %136, align 8, !dbg !36262
+L29345  w  i64    off=0x38   base=%130   | store i64 %89, ptr %137, align 8, !dbg !36262
+L29347  w  i64    off=0x40   base=%130   | store i64 %91, ptr %138, align 8, !dbg !36262
+L29349  w  i64    off=0x48   base=%130   | store i64 %93, ptr %139, align 8, !dbg !36262
+L29351  w  i32    off=0x50   base=%130   | store i32 %101, ptr %140, align 8, !dbg !36262
+L29353  w  i32    off=0x54   base=%130   | store i32 %99, ptr %141, align 4, !dbg !36262
+L29355  w  i8     off=0x58   base=%130   | store i8 %119, ptr %142, align 8, !dbg !36262
+L29357  w  i8     off=0x59   base=%130   | store i8 %107, ptr %143, align 1, !dbg !36262
+L29359  w  i8     off=0x5a   base=%130   | store i8 %109, ptr %144, align 2, !dbg !36262
+L29361  w  i8     off=0x5b   base=%130   | store i8 %111, ptr %145, align 1, !dbg !36262
+L29363  w  i8     off=0x5c   base=%130   | store i8 %113, ptr %146, align 4, !dbg !36262
+L29365  w  i8     off=0x5d   base=%130   | store i8 %2, ptr %147, align 1, !dbg !36262
+L29367  w  i8     off=0x5e   base=%130   | store i8 %74, ptr %148, align 2, !dbg !36262
+L29369  w  i8     off=0x5f   base=%130   | store i8 %105, ptr %149, align 1, !dbg !36262
+L29371  w  i8     off=0x60   base=%130   | store i8 %120, ptr %150, align 8, !dbg !36262
+L29373  w  i8     off=0x61   base=%130   | store i8 %121, ptr %151, align 1, !dbg !36262
+L29375  w  i64    off=0x898  base=%0   | store i64 %152, ptr %122, align 8, !dbg !36263, !alias.scope !36222, !noalias !36225

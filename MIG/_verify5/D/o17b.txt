@@ -1,0 +1,35 @@
+setting_ok	true	width=960000	height=960000	tps=60	champ_radius=10000	visible=130000
+vec_empty	w0=0	w1=8	w2=0
+vec_push1	w0=4	w1=1952448747376	w2=1	cap_api=4	len_api=1
+vec_push2	cap_api=4	len_api=2
+tick	world.tick=0	game.tick()=0	start_tick=0x110->0	chats_cap=4	chats_len=1
+tick	world.tick=1	game.tick()=1	start_tick=0x110->1	chats_cap=4	chats_len=1
+tick	world.tick=4321	game.tick()=4321	start_tick=0x110->4321	chats_cap=4	chats_len=1
+tick	world.tick=999999	game.tick()=999999	start_tick=0x110->999999	chats_cap=4	chats_len=1
+champ	team0	Top	id=18	x=15000	y=913000	hp=1
+champ	team0	Jungle	id=19	x=32000	y=928000	hp=1
+champ	team0	Mid	id=20	x=49000	y=911000	hp=1
+champ	team0	Bottom	id=21	x=15000	y=938000	hp=1
+champ	team0	Support	id=22	x=49000	y=946000	hp=1
+champ	team1	Top	id=23	x=913000	y=15000	hp=1
+champ	team1	Jungle	id=24	x=928000	y=32000	hp=1
+champ	team1	Mid	id=25	x=911000	y=49000	hp=1
+champ	team1	Bottom	id=26	x=938000	y=15000	hp=1
+champ	team1	Support	id=27	x=946000	y=49000	hp=1
+bsg	t0p0	id=18	direct=Trace { focus: 18 }	via_new=Trace { focus: 18 }	is_ignored_well_enemy=Some(false)
+bsg	t0p1	id=19	direct=Trace { focus: 19 }	via_new=Trace { focus: 19 }	is_ignored_well_enemy=Some(false)
+bsg	t0p2	id=20	direct=Trace { focus: 20 }	via_new=Trace { focus: 20 }	is_ignored_well_enemy=Some(false)
+bsg	t0p3	id=21	direct=Trace { focus: 21 }	via_new=Trace { focus: 21 }	is_ignored_well_enemy=Some(false)
+bsg	t0p4	id=22	direct=Trace { focus: 22 }	via_new=Trace { focus: 22 }	is_ignored_well_enemy=Some(false)
+bsg	t1p0	id=23	direct=End	via_new=End	is_ignored_well_enemy=Some(true)
+bsg	t1p1	id=24	direct=End	via_new=End	is_ignored_well_enemy=Some(true)
+bsg	t1p2	id=25	direct=End	via_new=End	is_ignored_well_enemy=Some(true)
+bsg	t1p3	id=26	direct=End	via_new=End	is_ignored_well_enemy=Some(true)
+bsg	t1p4	id=27	direct=End	via_new=End	is_ignored_well_enemy=Some(true)
+bsg	nonexistent	id=77	direct=Trace { focus: 77 }	via_new=Trace { focus: 77 }	is_ignored_well_enemy=None
+bsg	tower0	id=2	direct=Trace { focus: 2 }	via_new=Trace { focus: 2 }	is_ignored_well_enemy=Some(false)
+well	t0_spawn	(0,0)	is_enemy_well_danger(team0 Top)=false
+well	center	(480000,480000)	is_enemy_well_danger(team0 Top)=false
+well	t1_spawn	(950000,950000)	is_enemy_well_danger(team0 Top)=false
+well	t1_spawn2	(900000,900000)	is_enemy_well_danger(team0 Top)=false
+DONE	setting_ok=true

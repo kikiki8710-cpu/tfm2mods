@@ -21,7 +21,13 @@ param(
   #   "생각보다 큰 산출물을 모르고 배포하는 것" 방지지 큰 모드 금지가 아니다.
   #   (2026-09-02: 이전엔 수동 rustc + Copy-Item 으로 우회했고, 그 과정에서
   #    stale dll 복사·opt 플래그 누락 같은 사고가 반복됐다 — 같은 경로로 통일.)
-  [int]$MaxSize = 1300000
+  [int]$MaxSize = 1300000,
+  # ★빌드·검증만 하고 **배포는 건너뛴다**(2026-09-12 신설).
+  #   용도 = 배포 전에 유저 확인이 필요한 모드(예: 게임 `.text` 를 패치하는 검증 모드).
+  #   ⚠①rustc exit ②stale ③사이즈가드 ④신원검증은 **그대로 다 돈다** — 건너뛰는 것은 복사뿐이다.
+  #   이 스위치가 없어서 에이전트가 rustc 를 손으로 재현하는 일이 생겼고,
+  #   그게 param 주석이 경고하는 「수동 우회 → stale·플래그 누락」 경로다.
+  [switch]$NoDeploy
 )
 # ★ 정식 SDK 사용. mod_sdk\0.4.14 는 비공식 오빌드 = mod_api 내용이
 # 게임 핫픽스와 다름(save_probe desync와 동일 함정, 메모리 tfm2-native-mod-loader-abi).
@@ -84,13 +90,31 @@ $started = Get-Date
 #   rlib 자체는 정상(ar 구조·심볼테이블 오프셋 전부 파일 내 유효, zip↔추출본 329/329 크기 일치).
 #   미해결 심볼이 생겨 링커가 아카이브를 재스캔할 때만 터진다(심볼 0인 SDK 템플릿은 MSVC 로도 링크 성공).
 #   ⟹ 툴체인 동봉 `rust-lld` 로 전환하면 동일 소스가 그대로 링크된다(0.5.3 전 모드 확인).
-cmd /c "rustup run nightly-2026-05-24 rustc --crate-type cdylib --edition 2021 -C opt-level=1 -C overflow-checks=off -C linker-flavor=lld-link -C linker=rust-lld -L dependency=$DEPS -L native=$NAT --extern mod_api=$MODAPI --extern engine_ui=$EUI --extern engine_core=$ECORE --extern game_core=$GCORE --extern game_view=$GVIEW --extern common=$COMMON --extern game_ai=$GAI $Src -o `"$out`" 2> `"$errf`""
+# ★`rustup` 해석 — PATH 에 없을 수 있다(Claude 세션 셸이 사용자 PATH 를 온전히 안 물려받는다).
+#   PATH 우선, 없으면 `%USERPROFILE%\.cargo\bin\rustup.exe`. 둘 다 없으면 **거기서 멈춘다**
+#   (조용히 실패하면 `rustc exit 1` 만 남아 사유를 못 찾는다 — 실제로 그 일이 있었다).
+$rustup = (Get-Command rustup -ErrorAction SilentlyContinue).Source
+if (-not $rustup) { $rustup = Join-Path $env:USERPROFILE '.cargo\bin\rustup.exe' }
+if (-not (Test-Path $rustup)) {
+  Write-Output "FAIL: rustup 을 못 찾았다 (PATH 에도, $env:USERPROFILE\.cargo\bin 에도 없음)"
+  exit 1
+}
+cmd /c "`"$rustup`" run nightly-2026-05-24 rustc --crate-type cdylib --edition 2021 -C opt-level=1 -C overflow-checks=off -C linker-flavor=lld-link -C linker=rust-lld -L dependency=$DEPS -L native=$NAT --extern mod_api=$MODAPI --extern engine_ui=$EUI --extern engine_core=$ECORE --extern game_core=$GCORE --extern game_view=$GVIEW --extern common=$COMMON --extern game_ai=$GAI $Src -o `"$out`" 2> `"$errf`""
 $rc = $LASTEXITCODE
 
 # ① rustc exit code 우선 (문자열 grep 은 보조)
 if ($rc -ne 0) {
   Write-Output "=== BUILD FAILED (rustc exit $rc) ==="
-  if (Test-Path $errf) { Get-Content $errf | Select-String -Pattern "error\[|^error:" | Select-Object -First 40 | ForEach-Object { Write-Output $_.Line } }
+  $lines = @()
+  if (Test-Path $errf) { $lines = @(Get-Content $errf | Select-String -Pattern "error\[|^error:") }
+  if ($lines.Count -gt 0) { $lines | Select-Object -First 40 | ForEach-Object { Write-Output $_.Line } }
+  else {
+    # ★`error:` 가 없는 실패도 있다(예: rustup 자체가 없어서 cmd 가 낸 메시지).
+    #   그때 아무것도 안 찍으면 **사유 없는 실패**가 되고 우회를 유발한다.
+    Write-Output "      (error: 패턴 없음 — stderr 앞부분 그대로)"
+    if (Test-Path $errf) { Get-Content $errf | Select-Object -First 12 | ForEach-Object { Write-Output ("      " + $_) } }
+    Write-Output "      stderr 전문: $errf"
+  }
   exit 1
 }
 $errs = @()
@@ -124,6 +148,12 @@ if (-not $found) {
   Write-Output "FAIL: 신원 검증 실패 - dll 안에 소스 경로 '$srcFull' 없음 (타 모드/stale dll 의심). 배포 중단."
   Write-Output "      built: $out ($sz bytes)"
   exit 1
+}
+
+if ($NoDeploy) {
+  Write-Output "OK: built (NoDeploy) $ModId.dll = $sz bytes @ $($item.LastWriteTime) -> $out"
+  Write-Output "      배포 안 함. 배포하려면 -NoDeploy 없이 다시 돌려라."
+  exit 0
 }
 
 try {

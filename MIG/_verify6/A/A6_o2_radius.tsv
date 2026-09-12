@@ -1,0 +1,30 @@
+TAG	CastingType	Targeting=0 Position=1 Direction=2 None=3
+TAG	VisibleState	Visible=0	Unknown=2	(명세 consts[6]=0=Visible)
+CASE	visible	level=5	eff_range=200000	casting=Targeting	version=2	radius_mult=0	setting_ok=true
+RADIUS	mult=0	raw=10000	radius()=10000	pred_sext100=10000	pred_zext100=10000	pred_sext1000=10000	MATCH
+--
+TAG	CastingType	Targeting=0 Position=1 Direction=2 None=3
+TAG	VisibleState	Visible=0	Unknown=2	(명세 consts[6]=0=Visible)
+CASE	visible	level=5	eff_range=200000	casting=Targeting	version=2	radius_mult=50	setting_ok=true
+RADIUS	mult=50	raw=10000	radius()=15000	pred_sext100=15000	pred_zext100=15000	pred_sext1000=10500	MATCH(판별)
+--
+TAG	CastingType	Targeting=0 Position=1 Direction=2 None=3
+TAG	VisibleState	Visible=0	Unknown=2	(명세 consts[6]=0=Visible)
+CASE	visible	level=5	eff_range=200000	casting=Targeting	version=2	radius_mult=-50	setting_ok=true
+RADIUS	mult=-50	raw=10000	radius()=5000	pred_sext100=5000	pred_zext100=429496734600	pred_sext1000=9500	MATCH(판별)
+--
+TAG	CastingType	Targeting=0 Position=1 Direction=2 None=3
+TAG	VisibleState	Visible=0	Unknown=2	(명세 consts[6]=0=Visible)
+CASE	visible	level=5	eff_range=200000	casting=Targeting	version=2	radius_mult=100	setting_ok=true
+RADIUS	mult=100	raw=10000	radius()=20000	pred_sext100=20000	pred_zext100=20000	pred_sext1000=11000	MATCH(판별)
+--
+TAG	CastingType	Targeting=0 Position=1 Direction=2 None=3
+TAG	VisibleState	Visible=0	Unknown=2	(명세 consts[6]=0=Visible)
+CASE	visible	level=5	eff_range=200000	casting=Targeting	version=2	radius_mult=-100	setting_ok=true
+RADIUS	mult=-100	raw=10000	radius()=0	pred_sext100=0	pred_zext100=429496729600	pred_sext1000=9000	MATCH(판별)
+--
+TAG	CastingType	Targeting=0 Position=1 Direction=2 None=3
+TAG	VisibleState	Visible=0	Unknown=2	(명세 consts[6]=0=Visible)
+CASE	visible	level=5	eff_range=200000	casting=Targeting	version=2	radius_mult=-99	setting_ok=true
+RADIUS	mult=-99	raw=10000	radius()=100	pred_sext100=100	pred_zext100=429496729700	pred_sext1000=9010	MATCH(판별)
+--

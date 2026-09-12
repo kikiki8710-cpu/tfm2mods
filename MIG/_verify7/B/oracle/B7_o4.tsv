@@ -1,0 +1,35 @@
+setting_ok	tps=60	height=960000	champ_radius=10000
+MINION_TOTAL	18
+FOUNTAINS	[(0, 896000, 64000, 960000), (892000, 0, 960000, 64000)]
+ENEMY	(371200,80000)	ENEMY_BASE	(926000,32000)
+REAR_ALLY	(570455,62760)	dist=200000
+
+#T	tps	r09	g1	g2	g3	g4
+T	1	true	false	false	false	false
+T	2	true	false	false	false	false
+T	5	true	false	false	false	false
+T	10	true	false	false	false	false
+T	15	true	false	false	false	false
+T	20	true	false	false	false	false
+T	25	true	false	false	false	false
+T	27	true	false	false	false	false
+T	30	true	false	false	false	false
+T	40	true	false	false	true	false
+T	41	false	true	false	true	false
+T	45	false	true	false	true	false
+T	50	false	true	false	true	false
+T	60	false	true	false	true	false
+T	79	false	true	false	true	false
+T	80	false	true	false	true	false
+T	81	false	true	false	true	false
+T	82	false	true	false	true	false
+T	100	false	true	false	true	false
+T	150	false	true	false	true	false
+
+#K	K	agree	disagree	verdict
+K	K=1	20	0	가능
+K	K=2	10	10	기각
+K	K=3	19	1	기각
+K	K=4	10	10	기각
+
+#LEGEND	g1=ca:true,pr:false	g2=ca:false,pr:false	g3=ca:true,pr:true	g4=ca:false,pr:true	(window=tps*2 고정. "K=1".."K=4" 라벨은 이 4조합을 가리킨다 — 표 이름만 o3 것을 물려받았다)

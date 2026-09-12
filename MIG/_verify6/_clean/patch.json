@@ -1,0 +1,547 @@
+{
+ "round": 6,
+ "batch": "_clean",
+ "errors": [
+  {
+   "path": "/specs[0]/logic",
+   "kind": "정리",
+   "old": "// ★**caster_r 는 여기 없다** . ~~+ caster_r~~ 는 구조 오류였다",
+   "new": "// ★**caster_r 는 여기 없다** — abstract_input.rs:191 에서 밖에서 더해진다",
+   "evidence": "취소선 제거·근거 보존",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[0]/logic",
+   "kind": "정리",
+   "old": "// ★i32 -> usize 부호확장(sext). ~~m = ...~~ 은 부호확장 누락 표기",
+   "new": "// ★`as usize` = i32 -> usize 부호확장(sext)",
+   "evidence": "취소선 제거·근거 보존",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[1]/logic",
+   "kind": "정리",
+   "old": "(~~< 2 임계~~ 는 LLVM 접힘)",
+   "new": "(IR 의 `ult 2` 는 `x==0||x==1` 로 접힌 것)",
+   "evidence": "취소선 제거·근거 보존",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[1]/logic",
+   "kind": "정리",
+   "old": "// ⚠ tag 4(Jungle)이지만 ~~camp_type.0 >= 2 면 coef 0~~ 은 **거짓** — camp_type.0 은 팀 인덱스라 {0,1} 뿐이고 IR 의 `ult 2` 는 `x==0||x==1` 의 접힘이다",
+   "new": "// ⚠ tag 4(Jungle) 의 camp_type.0 은 팀 인덱스라 {0,1} 뿐이다. 소스는 `is_jungle(0)||is_jungle(1)`(entity.rs:1377 동등 비교)이고 IR 의 `ult 2` 는 그 둘이 접힌 것이다",
+   "evidence": "취소선 제거·근거 보존",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[1]/mem[6]/note",
+   "kind": "정리",
+   "old": "이고 ~~`< 2` 요구~~ 는 LLVM 접힘이다",
+   "new": "이며, IR 의 `ult 2` 는 그 동등 비교 둘이 LLVM 에서 접힌 형태다",
+   "evidence": "취소선 제거·근거 보존",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[1]/knobs[6]/effect",
+   "kind": "정리",
+   "old": "WARN ~~「camp_type.__0 < 2 = 정글 캠프 티어 컷」~~ 은 **거짓**(2026-09-11 검증배치 A) — `EntityType::is_jungle(&self, usize)`(entity.rs:1377)는 **인자와의 동등 비교**이고 상수 2 는 소스에 없다. 「죽은 가드」도 아니다",
+   "new": "`camp_type.__0` 은 팀 인덱스(0/1)이고, `EntityType::is_jungle(&self, usize)`(entity.rs:1377)는 **인자와의 동등 비교**라 상수 2 는 소스에 없다",
+   "evidence": "취소선 제거·근거 보존",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[2]/logic",
+   "kind": "정리",
+   "old": "조건은 부정형이 아니다\n// (~~if !has_enemy_twin_tower { return AttackNexus }~~ 는 구조 오류 \n// 줄길이 ±0 4줄 + IR m12.ll:34955~34971 분기방향. 이 오류가 consts src_line 46 오기를 만들었다)",
+   "new": "조건은 `if has_enemy_twin_tower` **긍정형**이다\n// (근거 = 줄길이 ±0 4줄 + IR m12.ll:34955~34971 분기방향)",
+   "evidence": "취소선 제거·근거 보존",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[2]/consts[4]/meaning",
+   "kind": "정리",
+   "old": "★줄 정정 : ~~46~~ 은 빈 줄(1자)이다. L50 = 58자",
+   "new": "★소스 줄 = **L50**(L46 은 빈 줄 1자다). L50 = 58자",
+   "evidence": "취소선 제거·근거 보존",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[3]/logic",
+   "kind": "정리",
+   "old": "// ★줄 정정 : ~~L21~~ — L21 은 `let` 슬롯뿐",
+   "new": "// ★L21 은 `let` 슬롯뿐이고 이 계산은 **L22** 다",
+   "evidence": "취소선 제거·근거 보존",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[3]/logic",
+   "kind": "정리",
+   "old": "★줄 정정 : ~~L42~~ — L42 에는 명령이 0개다. 슬롯 3칸이",
+   "new": "★L42 에는 명령이 0개다. 슬롯 3칸이",
+   "evidence": "취소선 제거·근거 보존",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[4]/knobs[4]/value",
+   "kind": "정리",
+   "old": "(~~팀 표기 없이 team1 값만 적혀 있었다~~ — 오라클 실측, )",
+   "new": "(양 팀 좌표 모두 오라클 실측)",
+   "evidence": "취소선 제거·근거 보존",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[6]/logic",
+   "kind": "정리",
+   "old": "// ★~~collect_in~~ 이 아니라 **2인자 `from_iter_in`** (심볼 실측 m13.ll:45590 + L26/27/30 줄길이 ±0)",
+   "new": "// ★**2인자 `from_iter_in`** 이다 (심볼 실측 m13.ll:45590 + L26/27/30 줄길이 ±0)",
+   "evidence": "취소선 제거·근거 보존",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[7]/knobs[3]/value",
+   "kind": "정리",
+   "old": "— ★**리터럴이 아니다.** ~~4856~~ 은 10진 **오프셋**(0x12f8)이었다",
+   "new": "— ★**리터럴이 아니라 런타임 값**이다. 10진 4856 = 오프셋 **0x12f8**(GameSetting 내 `tick_per_second` 위치)",
+   "evidence": "취소선 제거·근거 보존",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[8]/mem[17]/note",
+   "kind": "정리",
+   "old": "(~~first()~~ — 2026-09-11 검증배치 B: `first()` 는 `get` 을 부르지 않고 슬라이스 패턴으로 구현돼 있어 인라인 체인에 `fn=first` 프레임이 있어야 하는데 없고, 실제 체인은 `slice/mod.rs:572 get<usize,usize>`)",
+   "new": "(소스는 `get(0)` 이다 — 인라인 체인이 `slice/mod.rs:572 get<usize,usize>` 이고 `fn=first` 프레임은 없다. `first()` 는 `get` 을 부르지 않고 슬라이스 패턴으로 구현돼 있어 체인에 나타나지 않는다)",
+   "evidence": "취소선 제거·근거 보존",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[8]/knobs[0]/note",
+   "kind": "정리",
+   "old": "~~ ~~",
+   "new": "",
+   "evidence": "취소선 제거·근거 보존",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[8]/knobs[7]/effect",
+   "kind": "정리",
+   "old": "★★**정정 — ~~\"최근 가시\" 창 = 40틱~~ 은 오독이었다.** 실제는 **",
+   "new": "★★이 노브는 **",
+   "evidence": "취소선 제거·근거 보존",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[8]/knobs[7]/effect",
+   "kind": "정리",
+   "old": "\n⚠**같은 오독이 `resolved` 에 「★확정」 표시로 한 번 더** 있었다(B-E2). `knobs` 와 `resolved` 가 같은 거짓을 서로 보강하고 있었고, `logic`↔표만 보는 게이트(G5·G6·G8)는 **`knobs` ↔ `resolved` 모순을 못 잡는다**(배치B 지적, 게이트 사각지대).",
+   "new": "",
+   "evidence": "취소선 제거·근거 보존",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[9]/knobs[3]/effect",
+   "kind": "정리",
+   "old": "★**정정 ** — ~~cos²·sin² **공통** 임계~~ 는 절반이 틀렸다. **`1286`",
+   "new": "★**`1286`",
+   "evidence": "취소선 제거·근거 보존",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[9]/knobs[6]/effect",
+   "kind": "정리",
+   "old": "★**정정(2026-09-11)**: ~~단일 스칼라 `1`~~ 로 적으면 \"임계가 전부 1\"로 오독된다. 실제 비교 상수는",
+   "new": "★비교 상수는",
+   "evidence": "취소선 제거·근거 보존",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[9]/knobs[10]/effect",
+   "kind": "정리",
+   "old": "★★**극성 정정 **: ~~강제로 0 을 읽게 하면 항상 완화표 / 강제 ≠0 이면 항상 엄격표~~ 는 **09 에서 성립하지 않는다.** 09 호출부는",
+   "new": "★★**09 경로에서 이 노브는 표 선택에 관여하지 않는다.** 09 호출부는",
+   "evidence": "취소선 제거·근거 보존",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[9]/knobs[10]/effect",
+   "kind": "정리",
+   "old": "\n⚠같은 사실이 `resolved` 에는 이미 옳게 적혀 있었다 = **G6 가 `logic` 만 봐서 `knobs[].effect` 를 못 잡는 사각지대**(이 라운드의 구조적 소득 → 게이트 G8)",
+   "new": "",
+   "evidence": "취소선 제거·근거 보존",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[12]/logic",
+   "kind": "정리",
+   "old": "// ★시그니처 정정 . ~~(from, tutorial)~~ 은 오기 이 통째로 인라인돼",
+   "new": "// ★이 호출이 통째로 인라인돼",
+   "evidence": "취소선 제거·근거 보존",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[13]/logic",
+   "kind": "정리",
+   "old": "(~~is_top_side 본문식~~ 정정, 배치C 오라클). 원식 = x + y <= height",
+   "new": "(오라클 확증). `is_top_side` 원식 = x + y <= height",
+   "evidence": "취소선 제거·근거 보존",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[13]/consts[8]/meaning",
+   "kind": "정리",
+   "old": "[= **!is_top_side**(봇 사이드) 일 때. ~~is_top_side 참~~ 아님 — 2026-09-11 배치C]",
+   "new": "[= **!is_top_side**(봇 사이드) 구간이다]",
+   "evidence": "취소선 제거·근거 보존",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[13]/consts[12]/meaning",
+   "kind": "정리",
+   "old": "[= **!is_top_side**(봇 사이드) 일 때. ~~is_top_side 참~~ 아님 — 2026-09-11 배치C]",
+   "new": "[= **!is_top_side**(봇 사이드) 인 구간]",
+   "evidence": "취소선 제거·근거 보존",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[14]/logic",
+   "kind": "정리",
+   "old": "// (~~결과 = is_top_side~~ 정정, 2026-09-11 배치C 오라클. 원식 = x + y <= height)",
+   "new": "// (오라클 확증 — `is_top_side` 원식 = x + y <= height)",
+   "evidence": "취소선 제거·근거 보존",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[14]/knobs[3]/where",
+   "kind": "정리",
+   "old": ". ~~결과 = ry < champ.x~~ 는 극성 반전(2026-09-11 배치C 오라클 확정)",
+   "new": ". IR 술어 `ry < champ.x` 는 그 **부정**이다(오라클 확정)",
+   "evidence": "취소선 제거·근거 보존",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[14]/knobs[4]/effect",
+   "kind": "정리",
+   "old": "★★**판정 반전 — `TargetMissing` 은 발화한다** . ~~「v30≠v41 이라 도착 판정이 성립할 수 없고 TargetMissing 이 원리적으로 발화하지 않는다」~~ 는 **거짓**이다. 자연상태",
+   "new": "★★**`TargetMissing` 은 실제로 발화한다.** 자연상태",
+   "evidence": "취소선 제거·근거 보존",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[14]/knobs[4]/effect",
+   "kind": "정리",
+   "old": " ⟹ v30/v41 이 호출자별 하드와이어라는 구조는 그대로 맞지만, **결론이 과했다.**",
+   "new": " ⟹ v30/v41 은 호출자별 하드와이어지만, 두 값이 일치하는 구간에서는 도착 판정이 성립한다.",
+   "evidence": "취소선 제거·근거 보존",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[15]/logic",
+   "kind": "정리",
+   "old": "/*+0xf8, 공유 - ~~&mut~~ 정정*/",
+   "new": "/*+0xf8, `&TeamPlan` 공유 참조*/",
+   "evidence": "취소선 제거·근거 보존",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[15]/logic",
+   "kind": "정리",
+   "old": " — ~~나머지 타워 슬라이스~~ 아님",
+   "new": "",
+   "evidence": "취소선 제거·근거 보존",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[15]/logic",
+   "kind": "정리",
+   "old": "(~~팀당 10개(6+4, twin 2쌍 좌표 중복)~~ 은 `init_tower` 재호출로 타워가 2배가 된 오염값이었다",
+   "new": "(⚠하네스가 `init_tower` 를 재호출하면 타워가 2배로 늘어 팀당 10개(6+4, twin 2쌍 좌표 중복)로 관측된다)",
+   "evidence": "취소선 제거·근거 보존",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[15]/logic",
+   "kind": "정리",
+   "old": "★**struct variant** `{ info: Tower }` — ~~Tower(tt)~~ 는 튜플 variant 오기(rustc 진단). 오프셋 +0x128 은 맞다:",
+   "new": "★**struct variant** `{ info: Tower }` 다 — 튜플 variant 가 아니다(rustc 진단). 오프셋 +0x128 경로:",
+   "evidence": "취소선 제거·근거 보존",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[15]/mem[5]/note",
+   "kind": "정리",
+   "old": " — ~~&mut 로 전달 · 피호출자가 변경할 수 있음~~ 은 거짓(2026-09-11 검증배치 D, tcx sig)",
+   "new": " (tcx sig) — 피호출자는 이 필드를 변경하지 않는다",
+   "evidence": "취소선 제거·근거 보존",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[15]/mem[8]/note",
+   "kind": "정리",
+   "old": "★**정정 **: ~~ty.Tower.0~~ 는 튜플 variant 오기였다 — `EntityType::Tower` 는 **struct variant `{ info: Tower }`** 다(`dienum`). 오프셋 +0x128 자체는 맞다.",
+   "new": "★`EntityType::Tower` 는 **struct variant `{ info: Tower }`** 다(`dienum`) — 접근 경로는 `ty.Tower.info`, 오프셋 +0x128.",
+   "evidence": "취소선 제거·근거 보존",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[16]/logic",
+   "kind": "정리",
+   "old": "★**메서드 호출 + `.as_ref()` 두 줄 구조**다 — ~~필드 읽기 한 겹~~ 은 구조 오류 .",
+   "new": "★구조는 **메서드 호출 + `.as_ref()` 두 겹**이다.",
+   "evidence": "취소선 제거·근거 보존",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[16]/logic",
+   "kind": "정리",
+   "old": " — ~~champ.ty.…~~ 는 IR 표기(MIR entity.rs:1747);",
+   "new": " — IR 은 `champ.ty.*` 로 보이지만 MIR 정본은 `Entity::attack_cooldown(&self)`(entity.rs:1747);",
+   "evidence": "취소선 제거·근거 보존",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[16]/logic",
+   "kind": "정리",
+   "old": "// ~~> 2~~ 는 IR 접힘 표기(MIR 정본 = Ge(level, 3))",
+   "new": "// (MIR 정본 = Ge(level, 3); IR 은 `> 2` 로 접힌다)",
+   "evidence": "취소선 제거·근거 보존",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[16]/logic",
+   "kind": "정리",
+   "old": "// ~~> 4~~ 는 IR 접힘 표기(MIR 정본 = Ge(level, 5))",
+   "new": "// (MIR 정본 = Ge(level, 5); IR 은 `> 4` 로 접힌다)",
+   "evidence": "취소선 제거·근거 보존",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[16]/knobs[6]/effect",
+   "kind": "정리",
+   "old": " — ~~2개(Taunt·Animation)만 제외~~ 는 누락이었다",
+   "new": "",
+   "evidence": "취소선 제거·근거 보존",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[17]/logic",
+   "kind": "정리",
+   "old": "// ★정정 : `RawVec::MIN_NON_ZERO_CAP`, `size_of::<Chat>()`=24 ⟹ 첫 push 에서 cap 이 **4**가 된다(실측 `vec_push1 w0=4 cap_api=4`). ~~1~~ 은 오기 (Vec::push 인라인)",
+   "new": "// ★`RawVec::MIN_NON_ZERO_CAP`, `size_of::<Chat>()`=24 ⟹ 첫 push 에서 cap 이 **4**가 된다(실측 `vec_push1 w0=4 cap_api=4`, Vec::push 인라인)",
+   "evidence": "취소선 제거·근거 보존",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[17]/logic",
+   "kind": "정리",
+   "old": "// ★~~8필드~~ 정정 : 8×8B + `idle_prev_pos` **16B** = 80B 로 딱 맞는다",
+   "new": "// ★8×8B + `idle_prev_pos` **16B** = 80B 로 딱 맞는다",
+   "evidence": "취소선 제거·근거 보존",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[17]/mem[20]/note",
+   "kind": "정리",
+   "old": ". ~~usize::MAX~~ 는 오기 — 같은 명세의 logic 블록은 i64::MAX 로 맞게 적혀 두 곳이 모순이었다. 2026-09-11 검증배치 D)",
+   "new": ", 타입은 `i64`)",
+   "evidence": "취소선 제거·근거 보존",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[17]/mem[41]/note",
+   "kind": "정리",
+   "old": " — ~~Option<Option<MainObjective>>~~ 은 **타입 오류**(2026-09-11 검증배치 D, tcx 정본). 이중으로 읽으면 **니치가 한 겹 어긋나 재구현이 실제로 틀린다**.",
+   "new": "(tcx 정본). ⚠**이중 Option 으로 읽으면 니치가 한 겹 어긋나 재구현이 틀린다**.",
+   "evidence": "취소선 제거·근거 보존",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[18]/logic",
+   "kind": "정리",
+   "old": "// i8 반환. ~~(team, data.cache, plan)~~ 은 **ArgumentPromotion 아티팩트**(IR 인자 != 소스 인자). tcx sig =",
+   "new": "// i8 반환. IR 인자 `(team, data.cache, plan)` 은 **ArgumentPromotion 아티팩트**라 소스 인자와 다르다. tcx sig =",
+   "evidence": "취소선 제거·근거 보존",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[18]/logic",
+   "kind": "정리",
+   "old": "/* ★~~/*p5=*/true~~ 는 오독 — i1 은 1B 열거형의 ABI 표현. tcx sig =",
+   "new": "/* ★IR 의 5번째 인자 i1 은 1B 열거형의 ABI 표현이다(불리언 아님). tcx sig =",
+   "evidence": "취소선 제거·근거 보존",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[18]/logic",
+   "kind": "정리",
+   "old": " (~~682~~ 는 core/src/option.rs 줄번호 혼입, 2026-09-11 배치D)",
+   "new": " (IR 에 섞여 보이는 682 는 `core/src/option.rs` 줄번호다)",
+   "evidence": "취소선 제거·근거 보존",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[18]/consts[5]/meaning",
+   "kind": "정리",
+   "old": "선택 WARN 줄번호 정정(2026-09-11 검증배치 D): ~~682~~ 는 **`core/src/option.rs` 줄번호**가 인라인 체인에 섞여 든 것(숫자 우연 일치). 실제 = is_none 판정 **epic.rs:673**, Chat 구성 **674/676**. epic.rs:682 는 실재하지만 함수 꼬리(lifetime.end + 공통 출구)다",
+   "new": "선택. 줄번호 = is_none 판정 **epic.rs:673**, Chat 구성 **674/676**. ⚠인라인 체인에 섞여 보이는 682 는 **`core/src/option.rs`** 줄번호이고, epic.rs:682 자체는 함수 꼬리(lifetime.end + 공통 출구)다",
+   "evidence": "취소선 제거·근거 보존",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[18]/consts[6]/meaning",
+   "kind": "정리",
+   "old": "선택 WARN 줄번호 정정(2026-09-11 검증배치 D): ~~682~~ 는 **`core/src/option.rs` 줄번호**가 인라인 체인에 섞여 든 것(숫자 우연 일치). 실제 = is_none 판정 **epic.rs:673**, Chat 구성 **674/676**. epic.rs:682 는 실재하지만 함수 꼬리(lifetime.end + 공통 출구)다",
+   "new": "선택. 줄번호는 is_none 판정 **epic.rs:673** 이고 Chat 구성은 **674/676**. ⚠인라인 체인에 보이는 682 는 **`core/src/option.rs`** 줄번호이며, epic.rs:682 자체는 함수 꼬리(lifetime.end + 공통 출구)다",
+   "evidence": "취소선 제거·근거 보존",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[18]/knobs[1]/value",
+   "kind": "정리",
+   "old": " ※~~true~~ 는 i1 로 넘어간 1B C-enum 의 오독 . 같은 정정이 logic·closed[1]·history[3] 에만 반영되고 이 행에는 남아 있었다",
+   "new": " ※5번째 인자는 `WavePriorityObject`(1B C-enum, 0=Morgard/1=Serpen)이고 IR 의 i1 은 그 ABI 표현이다",
+   "evidence": "취소선 제거·근거 보존",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[18]/knobs[5]/where",
+   "kind": "정리",
+   "old": ". ~~epic.rs:682~~ 는 core/src/option.rs 줄번호 혼입(2026-09-11 검증배치 D)",
+   "new": ". ⚠인라인 체인에 보이는 682 는 core/src/option.rs 줄번호다",
+   "evidence": "취소선 제거·근거 보존",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[19]/logic",
+   "kind": "정리",
+   "old": "// ~~※ Morgard(4)/Serpen(5)는 후보에 없다 = 이 함수는 '일반 캠프' 전용.~~\n// ★**정정 **: 반환값은 **일반 캠프로 한정되지 않는다.** 824~829 폴백이 `now_camp` 를 **그대로 돌려주므로** Morgard/Serpen 도 나올 수 있다 (실측 `champNone_nowcamp Some(Morgard) game=Morgard`). ⟹ 재구현에서 반환값을 일반 캠프로 필터링하면 **동작이 달라진다**.",
+   "new": "// ※ 후보 배열에는 Morgard(4)/Serpen(5)가 없다. 다만 **반환값이 일반 캠프로 한정되지는 않는다** — 824~829 폴백이 `now_camp` 를 **그대로 돌려주므로** Morgard/Serpen 도 나올 수 있다 (실측 `champNone_nowcamp Some(Morgard) game=Morgard`). ⚠재구현에서 반환값을 일반 캠프로 필터링하면 **동작이 달라진다**.",
+   "evidence": "취소선 제거·근거 보존",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[9]/open[0]",
+   "kind": "정리",
+   "old": "WARN ~~「유일 호출처가 리터럴 0 을 넘기므로 사실상 무의미」~~ 는 **거짓**(2026-09-11 검증배치 B): 호출부 **8곳**이고 **리터럴 0 은 1곳뿐**(m15.ll:33271 should_disengage_object_hunt), 나머지 7곳(plan_legacy::handler)은 **런타임 version SSA 값**을 넘긴다. 단 ~~⟹ 주 경로에서는 살아 있는 버전 게이트다. 재구현 시 0 하드코딩 금지~~ 는 **결론이 틀렸다**(2026-09-11 4차 배치B 재실측: version 12종 diff=0). 관측(호출부 8곳·리터럴 0 은 1곳)은 맞지만 **피호출자 2단이 모두 `i64 poison`** 이라 **이 체인 전체에서 죽은 인자**다 ⟹ 같은 스펙 `signature.params[0].note`(ev2)와 일치한다. ⚠3차 정정이 **항목 이동만 되고 이 문장은 옛 결론 그대로 남아 있었다** — 4차 배치B 적발(정정이 `resolved`/`params` 에만 들어가고 원문에 안 닿는 누출의 재발).",
+   "new": "호출부는 **8곳**이고 **리터럴 0 은 1곳뿐**(m15.ll:33271 should_disengage_object_hunt), 나머지 7곳(plan_legacy::handler)은 **런타임 version SSA 값**을 넘긴다. 그럼에도 **피호출자 2단이 모두 `i64 poison`** 이라 **이 체인 전체에서 죽은 인자**다(오라클 version 12종 diff=0) ⟹ 같은 스펙 `signature.params[0].note`(ev2)와 일치한다.",
+   "evidence": "취소선 제거·근거 보존",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[13]/open[1]",
+   "kind": "정리",
+   "old": "~~map_regions::is_top_side 의 극성 — 전 .ll 에 define 이 없어(항상 인라인) `ry < x` 인지 `x <= ry` 인지 확정 못 함~~ -> **확정**(2026-09-11 검증배치 C). ",
+   "new": "map_regions::is_top_side 의 극성 = **확정**. ",
+   "evidence": "취소선 제거·근거 보존",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[13]/open[1]",
+   "kind": "정리",
+   "old": "범위정정: 이건 「재료 부재」가 아니라 **미탐색**이었다 — `tcxq grep game_core is_top_side` 한 번이면 `vis=pub, mir=1` 이 보이고 오라클·MIR 두 경로가 열려 있었다",
+   "new": "확인 경로 = `tcxq grep game_core is_top_side` → `vis=pub, mir=1` ⟹ 오라클·MIR 둘 다 열려 있다",
+   "evidence": "취소선 제거·근거 보존",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[14]/open[2]",
+   "kind": "정리",
+   "old": "~~ganker.rs:279 소스 조건의 극성 — 별도 define 이 없어(전량 인라인) 확정 불가~~ -> **확정**(2026-09-11 검증배치 C). ",
+   "new": "ganker.rs:279 소스 조건의 극성 = **확정**. ",
+   "evidence": "취소선 제거·근거 보존",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[14]/open[2]",
+   "kind": "정리",
+   "old": " ⚠판정 어휘 범위정정: **「확정 불가」가 아니라 「미탐색(오라클·MIR)」이었다**",
+   "new": " ⚠별도 define 이 없는(전량 인라인) 함수도 오라클·MIR 로 확인할 수 있다",
+   "evidence": "취소선 제거·근거 보존",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[14]/open[4]",
+   "kind": "정리",
+   "old": "동명 함수라 ~~담당 함수와 무관~~ → ★**판정반전(5차 배치C): 문자 단위 동일 복제본**이다.",
+   "new": "동명 함수이고, ★**문자 단위로 동일한 복제본**이다.",
+   "evidence": "취소선 제거·근거 보존",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[15]/open[4]",
+   "kind": "정리",
+   "old": "~~engage_requires_dive / single_tower_dive_is_viable 내부 판정식은 안 봄(담당 범위 밖). 이 함수는 bool 만 소비~~ → ",
+   "new": "",
+   "evidence": "취소선 제거·근거 보존",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[17]/open[4]",
+   "kind": "정리",
+   "old": "~~0x17c/0x17d 의 정체 미확인~~ -> **확정**(2026-09-11 검증배치 D): ",
+   "new": "0x17c/0x17d 의 정체 = **확정**: ",
+   "evidence": "취소선 제거·근거 보존",
+   "behavior_change": false,
+   "found_by": "reused"
+  }
+ ],
+ "ev_up": []
+}

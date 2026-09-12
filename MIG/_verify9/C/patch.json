@@ -1,0 +1,176 @@
+{
+  "round": 9,
+  "batch": "C",
+  "errors": [
+    {
+      "path": "/specs[18]/knobs[6]/where",
+      "kind": "실오류",
+      "old": "m09.ll:65212 (icmp ult .., 41)",
+      "new": "m09.ll:65185 (icmp ult .., 41 — 슬롯 5개 언롤 사본 65185·65219·65254·65289·65324 중 첫 번째)",
+      "evidence": "m09.ll:65212 는 `br i1 %83, label %68, label %84` 다(인용한 명령이 아니다). `icmp ult i64 %x, 41` 의 실제 위치는 65185·65219·65254·65289·65324 — 예: 65219 `  %89 = icmp ult i64 %88, 41, !dbg !54918`. 값 41 자체는 맞다.",
+      "behavior_change": false,
+      "found_by": "new"
+    },
+    {
+      "path": "/specs[18]/knobs[7]/where",
+      "kind": "실오류",
+      "old": "m09.ll:65301 (ugt .., 1)",
+      "new": "m09.ll:65338 (icmp samesign ugt i64 %141, 1)",
+      "evidence": "m09.ll:65301 은 `  %126 = load ptr, ptr %17, align 8, !dbg !54934` 다. 부상자 수 비교는 65338 `  %143 = icmp samesign ugt i64 %141, 1, !dbg !54937` — 65280~65400 구간에 `icmp ugt i64 .., 1` 은 이 한 줄뿐이다. 값 `> 1` 은 맞다.",
+      "behavior_change": false,
+      "found_by": "new"
+    },
+    {
+      "path": "/specs[18]/knobs[8]/where",
+      "kind": "실오류",
+      "old": "m09.ll:65273 (ugt .., 29)",
+      "new": "m09.ll:65390 (ugt .., 29 — 슬롯 5개 언롤 사본 65390·65424·65459·65494·65529 중 첫 번째)",
+      "evidence": "m09.ll:65273 은 `    #dbg_value(ptr %110, !54872, !DIExpression(), !54879)` 다. `icmp ugt i64 %x, 29` 는 65390 `  %157 = icmp ugt i64 %156, 29, !dbg !55098` 부터 5개. 117줄 어긋나 있었다(이 축 게이트의 유일한 V1 적발). 값 29 는 맞다.",
+      "behavior_change": false,
+      "found_by": "new"
+    },
+    {
+      "path": "/specs[16]/knobs[8]/where",
+      "kind": "실오류",
+      "old": "g06.ll:79437",
+      "new": "g06.ll:79434",
+      "evidence": "_gcbc/g06.ll:79437 은 `    #dbg_value(ptr %4093, !76863, ...)` 다. umax 바닥값은 79434 `  %4191 = call noundef range(i64 3, 0) i64 @llvm.umax.i64(i64 %4190, i64 3), !dbg !90102`. 같은 함수의 `umax(..,1)` 는 79356·79386·79472·79489.",
+      "behavior_change": false,
+      "found_by": "new"
+    },
+    {
+      "path": "/specs[0]/knobs[6]/value",
+      "kind": "보강",
+      "old": null,
+      "new": "Position → on_caster()(vt+0x118) · Direction → linear_move_speed().is_some()(vt+0xf8)",
+      "evidence": "`value` 칸이 아예 없었다. m04.ll:44068 `  %54 = getelementptr inbounds nuw i8, ptr %47, i64 280` → 44070 `  %56 = tail call noundef zeroext i1 %55(ptr noundef nonnull %53)`(280=0x118, bool 반환=on_caster) / 44085 `  %67 = getelementptr inbounds nuw i8, ptr %60, i64 248` → 44087 `%69 = tail call { i64, i64 } %68(..)` + 44089 `  %71 = icmp eq i64 %70, 1`(248=0xf8, Option 판별=is_some).",
+      "behavior_change": false,
+      "found_by": "new"
+    },
+    {
+      "path": "/specs[1]/knobs[6]/value",
+      "kind": "보강",
+      "old": null,
+      "new": "camp_type.__0 < 2  (= is_jungle(0) || is_jungle(1))",
+      "evidence": "`value` 칸이 아예 없었다. m05.ll:40061 `  %41 = icmp ult i64 %40, 2, !dbg ..`(직전 40059 `  %39 = getelementptr inbounds nuw i8, ptr %6, i64 152` = camp_type.__0 적재). 이 행 `where` 가 서술로만 갖고 있던 술어를 값 칸에 옮긴 것.",
+      "behavior_change": false,
+      "found_by": "new"
+    },
+    {
+      "path": "/specs[5]/knobs[5]/value",
+      "kind": "보강",
+      "old": null,
+      "new": "end_reason != 7 && live.team_holder_ticks == 0 && live.in_range_ticks == 0  (세 조건 AND 게이트)",
+      "evidence": "`value` 칸이 아예 없었다. m13.ll:29017 `  %23 = icmp eq i8 %2, 7` · 29015 `  %22 = icmp ne i64 %21, 0` · 29018 `  %24 = or i1 %23, %22` → 29019 `  br i1 %24, label %12, label %25`(참이면 집계 건너뜀) = 세 조건의 AND 게이트. 이 행 `where` 의 서술과 일치.",
+      "behavior_change": false,
+      "found_by": "new"
+    },
+    {
+      "path": "/specs[5]/knobs[6]/value",
+      "kind": "보강",
+      "old": null,
+      "new": "BigPlan::get_name() 의 반환 문자열",
+      "evidence": "`value` 칸이 아예 없었다. 이 노브의 조절 대상은 수가 아니라 `BigPlan::get_name`(m02.ll:7050)이 내는 문자열이다 — 그 사실이 `where` 에만 있고 값 칸은 비어 있었다.",
+      "behavior_change": false,
+      "found_by": "new"
+    },
+    {
+      "path": "/specs[9]/knobs[7]/value",
+      "kind": "보강",
+      "old": null,
+      "new": "엄격표(m07.ll:48320~48342): dmg≥hp · dmg%>49 · (hp%<66 & dmg%>29) · (hp%<41 & dmg%>17) · (hp%<26 & dmg%>9) / 완화표(48367~48379): dmg≥hp · (hp%<26 & dmg%>34) · (hp%<16 & dmg%>19)   ※hp%=hp*100/max_hp, dmg%=damage*100/hp",
+      "evidence": "`value` 칸이 아예 없었고 **그 8개 값이 이 명세 어디에도 없다**(`history` 의 확정 항목도 `두 표 중 하나로 판정` 이라고만 적고 수를 안 남겼다). IR: 48321 `  %52 = icmp ugt i64 %50, 49` · 48326/48327 `icmp ult i64 %47, 66` + `icmp samesign ugt i64 %50, 29` · 48332/48333 `.. 41` + `.. 17` · 48338/48339 `.. 26` + `.. 9` · 48371/48372 `.. 26` + `icmp ugt i64 %78, 34` · 48377/48378 `.. 16` + `.. 19`. %47=hp%(48311 `mul i64 %42,100` /48312 `udiv`), %50=dmg%(48317/48318).",
+      "behavior_change": true,
+      "found_by": "new"
+    },
+    {
+      "path": "/specs[9]/knobs[8]/value",
+      "kind": "보강",
+      "old": null,
+      "new": "tps*2 (2초)",
+      "evidence": "`value` 칸이 아예 없었다. m15.ll:35469 `  %29 = getelementptr inbounds nuw i8, ptr %28, i64 4856`(=GameSetting+0x12f8 tick_per_second) → 35470 load → 35471 `  %31 = shl i64 %30, 1`(=×2) → 35472 호출의 `window_tick` 인자.",
+      "behavior_change": false,
+      "found_by": "new"
+    },
+    {
+      "path": "/specs[9]/knobs[9]/value",
+      "kind": "보강",
+      "old": null,
+      "new": "(champion_action=true, predict_retarget=false)",
+      "evidence": "`value` 칸이 아예 없었다. m15.ll:35472 `  %32 = tail call noundef i64 @_RNvNtCshdEBA0ozCnw_7game_ai16minion_wave_risk41enemy_minion_line_action_danger_damage_at(.., i64 noundef %31, i1 noundef zeroext true, i1 noundef zeroext false)` — 두 bool 이 리터럴이다.",
+      "behavior_change": false,
+      "found_by": "new"
+    },
+    {
+      "path": "/specs[16]/knobs[6]/value",
+      "kind": "보강",
+      "old": null,
+      "new": "{0,1,2,6,8,9}",
+      "evidence": "`value` 칸이 아예 없었다. _gcbc/g06.ll:87035~87042 `switch i32 %128, label %123 [ i32 0, label %13 / i32 1 / i32 2 / i32 6 / i32 8 / i32 9 ]` — 6개 case 가 모두 같은 블록(%13)으로 간다.",
+      "behavior_change": false,
+      "found_by": "new"
+    },
+    {
+      "path": "/specs[16]/knobs[7]/value",
+      "kind": "보강",
+      "old": null,
+      "new": 100,
+      "evidence": "`value` 칸이 아예 없었다. _gcbc/g06.ll `Entity::cooldown_reduce` 66668 `  %7 = add i32 %4, 100` · 66669 `  %8 = select i1 %1, i32 %7, i32 100` · 66670 `  %9 = add i32 %8, %6` · 66673 `smax(%9, 1)` — 기준선 리터럴 100.",
+      "behavior_change": false,
+      "found_by": "new"
+    },
+    {
+      "path": "/specs[16]/knobs[8]/value",
+      "kind": "보강",
+      "old": null,
+      "new": "3(skill_cooltime) / 1(그 외)",
+      "evidence": "`value` 칸이 아예 없었다. _gcbc/g06.ll:79434 `  %4191 = call noundef range(i64 3, 0) i64 @llvm.umax.i64(i64 %4190, i64 3)` · 같은 함수의 `umax(..,1)` = 79356·79386·79472·79489.",
+      "behavior_change": false,
+      "found_by": "new"
+    },
+    {
+      "path": "/specs[19]/knobs[5]/value",
+      "kind": "보강",
+      "old": null,
+      "new": "tick_per_second (1초)",
+      "evidence": "`value` 칸이 아예 없었다. m04.ll:62501 `  %66 = getelementptr inbounds nuw i8, ptr %65, i64 4856`(=GameSetting+0x12f8 tick_per_second) → 62502 load → 예산에 가산. 4856 은 계수가 아니라 오프셋이다.",
+      "behavior_change": false,
+      "found_by": "new"
+    },
+    {
+      "path": "/specs[19]/knobs[6]/value",
+      "kind": "보강",
+      "old": null,
+      "new": "tps*5 (5초)",
+      "evidence": "`value` 칸이 아예 없었다. m04.ll:62552 `  %22 = getelementptr inbounds nuw i8, ptr %21, i64 4856` → 62553 load → 62554 `  %24 = mul i64 %23, 5` → 62555 `  %25 = add i64 %24, %7` → 62556 `is_cleared(.., i64 noundef %25, ..)`.",
+      "behavior_change": false,
+      "found_by": "new"
+    },
+    {
+      "path": "/specs[19]/knobs[7]/value",
+      "kind": "보강",
+      "old": null,
+      "new": "(176000,592000) (256000,448000) (351000,800000) (288000,288000) (496000,752000) (672000,672000) — pos[0] 기준, pos[1] 은 미러",
+      "evidence": "`value` 칸이 아예 없었다. _gcbc/g09.ll:59281 `  %28 = phi i64 [ 496000, %21 ], [ 672000, %26 ], [ 288000, %25 ], [ 256000, %23 ], [ 351000, %24 ], [ 176000, %14 ]` / 59282 `  %29 = phi i64 [ 752000, %21 ], [ 672000, %26 ], [ 288000, %25 ], [ 448000, %23 ], [ 800000, %24 ], [ 592000, %14 ]` — 인입 블록으로 짝을 지으면 6쌍. 그중 4쌍이 이 명세 `history` 의 좌표표(Rhino 496000,752000 · Mushroom 176000,592000 · Stump 256000,448000 · Bee 351000,800000)와 **정확히 일치**한다(나머지 2쌍은 이름 미확인).",
+      "behavior_change": false,
+      "found_by": "new"
+    },
+    {
+      "path": "/specs[13]/knobs[7]/value",
+      "kind": "보강",
+      "old": null,
+      "new": "30×30 u64 격자(900칸) — 0=부시 없음(829칸) / 1~24=부시 ID(ID당 1~5칸)",
+      "evidence": "`value` 칸이 아예 없었다. _gcbc/g07.ll:275 `@anon.760a549ece99095c03f6d74498be091c.269 = private unnamed_addr constant [7200 x i8] c\"…\"` 를 디코드: 7200B = u64 900칸 = 30×30, 출현값 0~24, 칸수 = 0:829 · 1:5 · 2:3 · 3:3 · 4:2 · 5:1 · 6:3 · 7:3 · 8:1 · 9:4 · 10:1 · 11:3 · 12:1 · 13:3 · 14:3 · 15:5 · 16:3 · 17:2 · 18:3 · 19:3 · 20:5 · 21:4 · 22:4 · 23:3 · 24:3 (디코더 = _verify9/C/decode_grid.py). ⚠격자에는 1~24 가 전부 있다 — 이 행 effect 의 「2~21 만」은 **이 함수가 내는 값**의 범위이지 격자의 범위가 아니다.",
+      "behavior_change": false,
+      "found_by": "new"
+    }
+  ],
+  "ev_up": [],
+  "brief_errors": [
+    "★도시에 §1 「할 일」 1·2 와 §2 가 「`MIG\\_gates\\knobs_value\\` 에 다른 배치들이 만든 검사기 후보가 모여 있다 → 전부 돌려 보고 통합하라」고 지시하는데 **그 디렉터리가 없다**(`_gates\\` 아래는 `consts_kind`·`mem_dir`·`params_role`·`src_line` 4개뿐). 즉 이 축은 8차에 아무도 후보를 만들지 않은 신설 축이고, 지시의 절반(후보 실행·결과 대조·통합)은 **수행 불가능**했다. 검사기를 처음부터 설계했다.",
+    "★메인 지시의 「`knobs[].value` 221행 전량을 IR 과 대조」는 재료상 성립하지 않는다. 실측 분류: 값 칸 부재 14 · 값이 산문이라 수 주장이 아님 56 · 값에 정수가 없음 30 · `where` 에 IR/소스 앵커가 안 서서 대조 불가 21 — **실제로 IR 과 대조되는 행은 104행(47%)**이다. 「전량」을 목표로 잡으면 나머지 117행에 억지 판정을 내게 된다(8차 `G14` 가 「부재」를 46건 결함으로 센 그 실패).",
+    "★`applypatch.py` 계약에 **「없는 키를 채우는」 연산이 명시돼 있지 않다.** 실측으로 `old: null` 이 동작한다(`apply_error` 의 `conv(old, cur=None)` 경로). 단 **`new` 가 문자열이면 `already()` 가 대상(None)을 못 찾아 `tgt = spec` 으로 폴백해 명세 전체를 훑고, 그 문자열이 다른 칸에 우연히 있으면 「이미 적용」으로 조용히 버린다** — 이 도구의 존재 이유(조용한 no-op 금지)를 뚫는 다섯 번째 구멍이다. 이번 패치는 `new` 를 충분히 긴 고유 문자열/정수로 만들어 회피했다.",
+    "★`ev_up[]` 은 근거 등급을 `EVMARK`(1 런타임 · 2 오라클 · 3 tcx) 문면으로만 옮길 수 있어 **「IR 원문 대조」로 얻은 근거를 담을 칸이 없다.** 이번 라운드의 근거는 전부 `.ll` 원문 인용인데, 그걸 `ev_up` 으로 내면 하지도 않은 「오라클 실행 확증」이 본문에 박힌다 ⟹ 이번엔 `ev_up` 을 비웠다. 계약에 IR 등급 표기가 필요하다.",
+    "★도시에 §4 가 게이트 건수를 본문에 박아 두는데(`G12 src_line 대조=8`), 같은 세션에서 `python -X utf8 specgate.py` 를 돌리면 **G12=0** 이고 목록에 없던 **G16 params.role 대조=0** 이 이미 붙어 있다. `SPEC_RUNBOOK §S5-b` 가 바로 그 아래 줄에서 「★게이트 건수를 이 문서에 적지 마라 — 기준선은 숫자가 아니라 명령이다」라고 못 박는데, 도시에 생성기가 그 규칙을 어기고 있다(8차 배치A 가 적발한 「수치가 셋 다 다름」의 재발)."
+  ]
+}

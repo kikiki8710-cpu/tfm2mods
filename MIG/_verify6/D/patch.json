@@ -1,0 +1,115 @@
+{
+  "round": 6,
+  "batch": "D",
+  "errors": [
+    {
+      "path": "/specs[18]/knobs[1]",
+      "kind": "실오류",
+      "old": "is_object_being_taken_by_enemy(…, true) && v3_serpen_contest_clear_win(version, …)",
+      "new": "is_object_being_taken_by_enemy(…, WavePriorityObject::Serpen /*=1*/) && v3_serpen_contest_clear_win(version, …)  ※~~true~~ 는 i1 로 넘어간 1B C-enum 의 오독(2차 배치D 확정). 같은 정정이 logic·closed[1]·history[3] 에만 반영되고 이 행에는 남아 있었다",
+      "evidence": "tcx sig fn(&PlayerState,&OperationData,&GoalData,&TeamPlan,WavePriorityObject)->bool · 같은 명세의 logic/closed[1]/history[3] 와 자기모순",
+      "behavior_change": false,
+      "found_by": "reused"
+    },
+    {
+      "path": "/specs[16]/knobs[6]",
+      "kind": "보강",
+      "old": "*InCC 타깃팅이 어떤 CC 를 'CC 상태'로 볼지. Taunt(7)·Animation(10)이 빠져 있다",
+      "new": "*InCC 타깃팅이 어떤 CC 를 'CC 상태'로 볼지. HARD_CC = {0 Airborne, 1 Stun, 2 Bind, 6 ForceMove, 8 Fear, 9 Charm}. 제외 = 3 BlockAttack · 4 BlockSkill · 5 BlockMoveSkill · 7 Taunt · 10 Animation (11 variant 중 **5개**) — ~~2개(Taunt·Animation)만 제외~~ 는 누락이었다",
+      "evidence": "tcxdict --enum CCState(40B, 판별자 enum+0x0 4B, variant 11개) ↔ _gcbc/g06.ll:87035~87042·87205~87212 switch{0,1,2,6,8,9} · 5차 배치D 가 산문으로만 제안해 **미반영으로 유실**됐던 항목",
+      "behavior_change": false,
+      "found_by": "reused"
+    },
+    {
+      "path": "/specs[17]/mem[5]",
+      "kind": "보강",
+      "old": "divtable.py AbstractGame 0x28 → ExpectedGame::AbstractGame::tick. 반환 i64 = 현재 틱",
+      "new": "divtable.py AbstractGame 0x28 → ExpectedGame::AbstractGame::tick. 반환 i64 = 현재 틱. ★런타임 확증(5차 배치D `o17b.txt`): world.tick 을 0/1/4321/999999 로 바꾸면 DeathMatchBattle+0x110 start_tick 이 4/4 추종 ⟹ 슬롯 동작 확정. ⚠`chk` 는 tcxaudit 파생값이라 '확인불가(vtable 슬롯)' 로 계속 찍힌다 — **런타임 해소를 `chk` 에 반영할 채널이 파이프라인에 없다**(5차 제안이 2라운드 미반영된 구조적 원인)",
+      "evidence": "5차 배치D o17b.txt · 6차 재확인(경로 실재)",
+      "behavior_change": false,
+      "found_by": "reused"
+    },
+    {
+      "path": "/specs[19]/mem[6]",
+      "kind": "보강",
+      "old": "divtable.py AbstractGame 0x40 으로 확정. 반환 {i64 tag, ptr}, tag==0 이면 Some(&MobaMode) — 아니면 option::unwrap_failed",
+      "new": "divtable.py AbstractGame 0x40 으로 확정. 반환 {i64 tag, ptr}, tag==0 이면 Some(&MobaMode) — 아니면 option::unwrap_failed. ★런타임 확증(6차 배치D `o5.txt`): `game.get_game_mode().as_moba()` 가 Some 이고 그 포인터 +0x240+8*team 을 직접 써서 `MobaMode::remain_epic_time(team)` 반환값이 따라 변함(0 → 100000). ⚠`chk` 는 tcxaudit 파생이라 '확인불가(vtable 슬롯)' 로 유지된다",
+      "evidence": "_verify6/D/o5.txt GUARD/RAW/FORCED 행",
+      "behavior_change": false,
+      "found_by": "reused"
+    },
+    {
+      "path": "/specs[18]/notes[0]",
+      "kind": "보강",
+      "old": "IR range(i64 2,0) 이 '2 이상'을 뜻하는 것 외에 이 함수 안에서의 버전 분기는 없다",
+      "new": "IR range(i64 2,0) 이 '2 이상'을 뜻하는 것 외에 이 함수 안에서의 버전 분기는 없다. ★**반증 시도 2회 모두 실패 = 유지**(6차 배치D): ①본문 IR 전량(m09.ll 6879~7264)에서 인자 `%1` 의 출현은 `define` 줄과 `v3_serpen_contest_clear_win` 호출 **딱 2회**뿐이다. ②`range(i64 2,0)` 의 **출처가 확정**됐다 — 유일 호출부 `objective_handlers.rs:1119`(m09.ll:14815 `icmp ugt i64 %1, 1`)가 **version > 1 일 때만** 이 함수를 부르기 때문이다(version <= 1 이면 같은 자리에서 `handle_press_epic` 이 불린다). 즉 '2 이상'은 이 함수의 가정이 아니라 **호출부 게이트의 그림자**다",
+      "evidence": "_gaibc/m09.ll 6879~7264 인자 %1 전수 grep · m09.ll 14812~14834 호출부 가드 해독",
+      "behavior_change": false,
+      "found_by": "reused"
+    },
+    {
+      "path": "/specs[15]/open[0]",
+      "kind": "보강",
+      "old": "전달만 하므로 하위 함수(new/new_dive/update/single_tower_dive_is_viable) 안에서만 갈린다",
+      "new": "전달만 하므로 하위 함수(new/new_dive/update/single_tower_dive_is_viable) 안에서만 갈린다. ★**범위 축소(6차 배치D)**: `new`/`new_dive`/`new_region` 은 5차에 무영향 확정. 6차에 `SinglePlanBattle::update`(pub) version 9축(0·1·2·3·30·50·54·58·60) 과 `game_ai::plan_legacy::old::single_tower_dive_is_viable`(pub, 7인자) version 9축 × 표적 10 × **호출순서 정·역 2방향 = 180/180 동일**을 실측했다. ⚠**단 두 함수 모두 이 세계에서 산출이 상수**(update → sub_goal=RunAway(4) 고정 / dive_is_viable → 전 케이스 false)라 **「version 무영향」의 증거가 아니라 「입력 판별력 부재」**다(TEMPLATE 함정 ③④). 남은 미탐색 = **판별력 있는 세계**(실전 스탯 챔프 + 타워 사거리 안 대상)에서의 두 함수 version 축. 부수: 타워/넥서스를 표적으로 주면 `single_tower_dive_is_viable` 은 `fight_check.rs:979` 에서 `Option::unwrap` 패닉한다(프로브 함정)",
+      "evidence": "_verify6/D/o6.txt UPD 9행 · o7.txt STDV 20행(up/dn 각 10)",
+      "behavior_change": false,
+      "found_by": "inherited"
+    }
+  ],
+  "ev_up": [
+    { "path": "/specs[15]/mem[0]",  "from": 4, "to": 3, "evidence": "offset_of! 일괄 대조 MISMATCH 0 (o1.txt TOTAL OK=107) — OperationData.cache=+0x0" },
+    { "path": "/specs[15]/mem[1]",  "from": 4, "to": 3, "evidence": "offset_of!(AbstractGameWithCache, game)=+0x0, size_of::<&dyn AbstractGame>()=16 (o1.txt)" },
+    { "path": "/specs[15]/mem[2]",  "from": 4, "to": 3, "evidence": "팻포인터 둘째 워드 — size_of::<&dyn AbstractGame>()=16 실측 + tcx `game(+8)` (o1.txt)" },
+    { "path": "/specs[15]/mem[9]",  "from": 4, "to": 3, "evidence": "offset_of!(Entity, x)=+0x660 MISMATCH 0 (o1.txt)" },
+    { "path": "/specs[15]/mem[10]", "from": 4, "to": 3, "evidence": "offset_of!(Entity, y)=+0x668 MISMATCH 0 (o1.txt)" },
+
+    { "path": "/specs[16]/mem[5]",  "from": 4, "to": 3, "evidence": "tcxdict Entity 0xd0 → ty@Illusion.info.attack_cooldown : usize (단일 해당)" },
+    { "path": "/specs[16]/mem[6]",  "from": 4, "to": 3, "evidence": "tcxdict Entity 0xd8 → ty@Revenant.info.attack_cooldown : usize" },
+    { "path": "/specs[16]/mem[7]",  "from": 4, "to": 3, "evidence": "tcxdict Entity 0xe8 → ty@Jungle.info.attack_cooldown · ty@Ghoul.info.attack_cooldown 둘 다 존재(명세 주장과 동일)" },
+    { "path": "/specs[16]/mem[8]",  "from": 4, "to": 3, "evidence": "tcxdict Entity 0xf0 → ty@Eagle.info.attack_cooldown" },
+    { "path": "/specs[16]/mem[10]", "from": 4, "to": 3, "evidence": "tcxdict Entity 0x1f0 → ty@Epic.info.attack_cooldown · ty@Serpen.info.attack_cooldown **둘뿐** + 크기 교차검증 실측(size_of EntityType=480, Epic=Serpen=472 ⟹ 8+472=480) (o1.txt/o6.txt)" },
+
+    { "path": "/specs[18]/mem[0]",  "from": 4, "to": 3, "evidence": "offset_of!(PlayerState, info.team)=+0x930 MISMATCH 0 (o1.txt)" },
+    { "path": "/specs[18]/mem[1]",  "from": 4, "to": 3, "evidence": "offset_of!(PlayerState, info.position)=+0x9c0 MISMATCH 0 (o1.txt)" },
+    { "path": "/specs[18]/mem[2]",  "from": 4, "to": 3, "evidence": "offset_of!(OperationData, cache)=+0x0 (o1.txt)" },
+    { "path": "/specs[18]/mem[3]",  "from": 4, "to": 3, "evidence": "offset_of!(AbstractGameWithCache, game)=+0x0 (o1.txt)" },
+    { "path": "/specs[18]/mem[5]",  "from": 4, "to": 3, "evidence": "offset_of!(AbstractGameWithCache, player_champion)=+0x1e0 (o1.txt) + 실제 [[Option<&Entity>;5];2] 인덱싱 동작(o3/o4/o5 HP 행)" },
+    { "path": "/specs[18]/mem[6]",  "from": 4, "to": 3, "evidence": "offset_of!(Strategy, morgard_use)=+0x4 (o1.txt) + 태그 직독 MUTAG 5/6/암묵 (o2.txt)" },
+    { "path": "/specs[18]/mem[7]",  "from": 4, "to": 3, "evidence": "offset_of!(TeamPlan, chats)=+0xc0 + Vec 3워드 순서 실측(w0=cap=4, w2=len=1) (o1.txt VEC 행)" },
+    { "path": "/specs[18]/mem[8]",  "from": 4, "to": 3, "evidence": "chats+0x8=ptr — Vec 워드 순서 실측(o1.txt VEC) + tcxaudit chats.buf.inner.ptr" },
+    { "path": "/specs[18]/mem[9]",  "from": 4, "to": 3, "evidence": "chats+0x10=len — Vec 워드 순서 실측(o1.txt VEC, len_api 일치)" },
+    { "path": "/specs[18]/mem[10]", "from": 4, "to": 3, "evidence": "offset_of!(TeamPlan, eo_serpen_punish_issues)=+0x410 (o1.txt)" },
+    { "path": "/specs[18]/mem[11]", "from": 4, "to": 3, "evidence": "tcx adt TeamPlan v3_press_chat_line=+0x41e(Option<LineType>) — private 필드라 offset_of! 불가, 대신 +0x41e 에 raw 기록/판독이 일관(o4/o5) · Option<LineType>::None 니치=0xff 실측(o1.txt)" },
+    { "path": "/specs[18]/mem[14]", "from": 4, "to": 3, "evidence": "offset_of!(TeamPlan, eo_serpen_punish_issues)=+0x410 (쓰기 대상 동일 오프셋, o1.txt)" },
+    { "path": "/specs[18]/mem[17]", "from": 4, "to": 3, "evidence": "tcx adt TeamPlan v3_press_chat_line=+0x41e (쓰기 대상 동일 오프셋)" },
+
+    { "path": "/specs[19]/mem[2]",  "from": 4, "to": 3, "evidence": "offset_of!(GameContext, pool)=+0x0 MISMATCH 0 (o1.txt) — 5차에 '관측 가능한 출력 없음'으로 남긴 행" },
+    { "path": "/specs[19]/mem[14]", "from": 4, "to": 3, "evidence": "bumpalo Vec 레이아웃 {ptr@+0x0, a@+0x8, cap@+0x10, len@+0x18} — tcxaudit 대조 OK(같은 제네릭 인스턴스), mem[15] len=+0x18 과 정합" },
+
+    { "path": "/specs[15]/consts[5]", "from": 4, "to": 2, "evidence": "BattleSubPlanGoal::KitingBack 실값의 태그워드 직독 = 3 (o1.txt)" },
+    { "path": "/specs[15]/consts[6]", "from": 4, "to": 2, "evidence": "BattleSubPlanGoal::RunAway 태그워드 직독 = 4 (o1.txt) · o6.txt UPD 9행에서 update 후 실제 sub_goal 태그 4 관측" },
+    { "path": "/specs[15]/consts[7]", "from": 4, "to": 2, "evidence": "BattleSubPlanGoal::End 태그워드 직독 = 7 (o1.txt)" },
+
+    { "path": "/specs[18]/consts[3]", "from": 4, "to": 2, "evidence": "Chat::Repair(0) 실값의 태그바이트 직독 = 23 (o1.txt)" },
+    { "path": "/specs[18]/consts[4]", "from": 4, "to": 2, "evidence": "Chat::SerpenSetup(0) 태그바이트 직독 = 25 (o1.txt)" },
+    { "path": "/specs[18]/consts[5]", "from": 4, "to": 2, "evidence": "Chat::Press(LineType::Top,0) 태그바이트 직독 = 21 (o1.txt)" },
+    { "path": "/specs[18]/consts[6]", "from": 4, "to": 2, "evidence": "Chat::PressChange(LineType::Top,0) 태그바이트 직독 = 22 (o1.txt)" },
+    { "path": "/specs[18]/consts[7]", "from": 4, "to": 2, "evidence": "Option<LineType>::None 니치바이트 직독 = 0xff (o1.txt) + v3_epic_group_line 이 실제로 None 을 내는 케이스 관측(JungleOnly 전 mu, First/Bottom+Split14) (o2.txt)" },
+
+    { "path": "/specs[15]/knobs[2]", "from": 4, "to": 2, "evidence": "game_ai::engage_requires_dive(pub) 진리표 14표적 — 적 타워 3/3 true, 적·아군 챔피언 10/10 false, 적 넥서스 false (o7.txt ERD)" },
+
+    { "path": "/specs[18]/knobs[3]",  "from": 4, "to": 2, "evidence": "v3_epic_formation_role(pub) 진리표 450칸 + 발표자 산출 90행 — Gather→슬롯0, Split14(Top)/Split131(Top,*)→슬롯1 (o2.txt GL/ANN)" },
+    { "path": "/specs[18]/knobs[15]", "from": 4, "to": 2, "evidence": "v3_epic_group_line(pub) 을 TutorialType 9종 × morgard_use 5종 × 팀2 로 전수 실행 — {None,Line,Total}→Mid / TopSolo→Top / {First,Bottom}→Bottom(Split14 는 None) / MidSolo·MidBottom→Mid / JungleOnly→전부 None (o2.txt GL)" },
+    { "path": "/specs[18]/knobs[17]", "from": 4, "to": 2, "evidence": "role 바이트0 과 `is_some_and(|f| !f.is_split)` 이 450/450 에서 b0==0 ⟺ ok==true 로 일치 (o2.txt GL b0/ok 열)" },
+    { "path": "/specs[18]/knobs[18]", "from": 4, "to": 2, "evidence": "MorgardUseStrategy 5종 실값의 워드 직독 — Gather low32=5 / Split14 low32=6·high32=Position / Split131 low32=position1·high32=position2 (o2.txt MUTAG)" }
+  ],
+  "brief_errors": [
+    "★BRIEF_FACTS.md §1 집계표의 **배치 D 행이 낡았다**. 파일 생성 15:49:57 < `_spec/specs20_v3.json` 재생성 15:53:26(그 사이 15:51:52 에 `specs20.bak.evup.json` = 5차 ev 상향 복원본이 생겼다). 브리핑 = ev2 0 · ev3 22 · ev4 194 · ev≥4 **89.8%** / 같은 스코프 실측 = ev2 **35** · ev3 **100** · ev4 **81** · ev≥4 **37.5%**. 배치 A 행은 정확하고, B(ev2 7→6, ev3 19→20)·C(ev2 5→4, ev3 10→11)는 1행씩 어긋난다. 총계도 브리핑 ev2 15/ev3 59/ev4 782 vs 실측 48/139/669.",
+    "★그 결과 §2 의 **내 대역 표적 수치가 전부 틀렸다**: `17 new` 47행 → 실측 **1행** · `16` 43행 → **9행** · `15` 31행 → **21행** · `19` 26행 → **3행**. 맞은 것은 `18` 47행뿐이다. (재계산 스크립트 = `_verify6/D/count.py`)",
+    "★**생성물끼리 모순한다**: `BRIEF.md §2` 산문은 「ev>=4 가 아직 **669행**」이라 적었고 이것이 현재 JSON 과 일치한다(ev4=669). 반대로 생성물인 `BRIEF_FACTS.md` 가 **782** 로 낡았다. ⟹ 「사실은 생성하고 판단만 손으로 쓴다」 원칙이 **생성 시각 ≠ 정본 갱신 시각**이면 역전된다. 처방 = `mkbrief.py` 가 `specs20_v3.json` 의 mtime/해시를 브리핑에 박고, 배치가 `--check` 로 대조하게 할 것.",
+    "TEMPLATE.rs ⓐ(`offset_of!` 일괄 대조)의 적용 범위가 빠져 있다 — **private 필드에는 쓸 수 없다**(rustc E0616). 실측: `game_ai` 의 `DeathMatchBattle` 36필드 중 **18개**, `TeamPlan::v3_press_chat_line` 이 막힌다. ⓐ 설명이 `game_core` 기준(`Entity` 41필드 전부 pub)이라 game_ai 쪽에 그대로 쓰면 컴파일이 통째로 죽는다. 우회 = ⓑ(`derive(Debug)`) 또는 tcx adt + raw 기록/판독.",
+    "`chk` 는 `tcxaudit` 파생 필드라 **런타임으로 해소한 vtable 슬롯을 표에 반영할 채널이 없다.** 5차 배치D 가 제안한 `chk` 갱신 2건(`/specs[17]/mem[5]` `/specs[19]/mem[6]` = 확인불가→OK)이 그래서 2라운드 연속 미반영이다. `patch.json` 스키마에 `chk_override` 또는 tcxaudit 의 수동 확정 목록이 필요하다.",
+    "5차 배치D 의 **산문 전용 항목 3건이 유실**됐다(patch.json 의 `errors` 가 빈 배열이었다): ①`/specs[16]/knobs[6]` HARD_CC 제외 목록 보강 ②③ 위의 `chk` 갱신 2건. ⟹ 「`ev_up` 만 구조화하면 된다」가 아니라 **보강·chk 도 구조화 대상**이다(이번 patch.json 에 ①을 다시 넣었다)."
+  ]
+}

@@ -1,0 +1,51 @@
+SZ	PlayerState	2528	2528	OK
+SZ	OperationData	24	24	OK
+SZ	AbstractGameWithCache	8840	8840	OK
+SZ	GameContext	64	64	OK
+SZ	Blackboard	744	744	OK
+SZ	Strategy	24	24	OK
+SZ	GameSetting	5432	5432	OK
+SZ	MapDef	28112	28112	OK
+SZ	Tower	192	192	OK
+SZ	MobaMode	640	640	OK
+SZ	BigGoal	24	24	OK
+SZ	DebugFrameData	224	224	OK
+SZ	PositioningScoreData	2760	2760	OK
+OFF	PlayerState	0x930	info.team	2352	2352	OK
+OFF	OperationData	0x0	cache	0	0	OK
+OFF	OperationData	0x10	blackboard	16	16	OK
+OFF	AbstractGameWithCache	0x0	game	0	0	OK
+OFF	AbstractGameWithCache	0x1e0	player_champion	480	480	OK
+OFF	MobaMode	0x198	jungle_runner.epic.live_list(.cap)	408	408	OK
+OFF	MobaMode	0x1c8	jungle_runner.serpen.live_list(.cap)	456	456	OK
+OFF	Entity	0x0	team	0	0	OK
+OFF	Entity	0x660	x	1632	1632	OK
+OFF	Entity	0x668	y	1640	1640	OK
+OFF	Strategy	0xf	object_finish	15	15	OK
+OFF	OperationData	0x8	context	8	8	OK
+OFF	GameContext	0x38	tutorial	56	56	OK
+OFF	GameContext	0x39	trace_level	57	57	OK
+OFF	GameContext	0x8	setting	8	8	OK
+OFF	GameContext	0x20	map	32	32	OK
+OFF	AbstractGameWithCache	0x180	top_tower	384	384	OK
+OFF	AbstractGameWithCache	0x190	top_tower2	400	400	OK
+OFF	AbstractGameWithCache	0x1a0	mid_tower	416	416	OK
+OFF	AbstractGameWithCache	0x1b0	mid_tower2	432	432	OK
+OFF	AbstractGameWithCache	0x1c0	bottom_tower	448	448	OK
+OFF	AbstractGameWithCache	0x1d0	bottom_tower2	464	464	OK
+OFF	AbstractGameWithCache	0x21c0	top_lead	8640	8640	OK
+OFF	AbstractGameWithCache	0x21d0	mid_lead	8656	8656	OK
+OFF	AbstractGameWithCache	0x21e0	bottom_lead	8672	8672	OK
+OFF	PlayerState	0x9c0	info.position	2496	2496	OK
+OFF	Entity	0x68	ty	104	104	OK
+OFF	Entity	0x628	stat_cached.hp	1576	1576	OK
+OFF	Entity	0x670	hp	1648	1648	OK
+OFF	Tower	0x18	nearest_enemy(Tower 기준)	24	24	OK
+OFF	Tower	0xb8	ty(Tower 기준)	184	184	OK
+OFF	GameSetting	0x12c0	height	4800	4800	OK
+OFF	MapDef	0x1c98	bushes	7320	7320	OK
+OFF	Entity	0x70	ty payload(&Tower) = ty+8	112	112	OK
+OFF	Entity	0x88	ty.Tower.nearest_enemy = ty+8+0x18	136	136	OK
+OFF	Entity	0x128	ty.Tower.ty = ty+8+0xb8	296	296	OK
+
+TOTAL_MISMATCH	0

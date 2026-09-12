@@ -1,0 +1,913 @@
+{
+ "round": 6,
+ "batch": "B",
+ "errors": [
+  {
+   "path": "/specs[9]/logic",
+   "kind": "실오류",
+   "old": "  else if is_significant_flank { flank_allies += 1 }                       // 1302/1304\n  else { front_allies += 1 }                                               // 1307",
+   "new": "  else if is_significant_flank { flank_allies += 1 }                       // 1302/1304\n  // ★1302 에 도달하면 is_significant_flank 는 **항상 참**이다 — 5차 배치B 의 라그랑주 항등식 증명을\n  //   6차에 재실행으로 재확인(B6_r1.tsv: 난수 200만 J_sweep · 전수격자 28,561 J_exhaust 둘 다\n  //   lagrange_violations=0, ELSE_1307=0). 구속조건은 dot>0 가지의 75 라서 임계가 75 미만이면 무효다.\n  else { front_allies += 1 }                                               // 1307 — ★죽은 가지(도달 불가)",
+   "evidence": "5차 배치B R3 의 대수증명 + 6차 재실행 B6_r1.tsv(J_sweep front=662185/rear=798590/flank=539225/ELSE_1307=0, J_exhaust ELSE_1307=0). 5차 정정이 history 에만 들어가고 logic 은 옛 서술로 남아 있었다.",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[8]/logic",
+   "kind": "실오류",
+   "old": "            None      => return true,                                      // L183 — 볼 수 있는 적이 아예 없음 → 종료",
+   "new": "            None      => return true,                                      // L183 — ★**구조적 도달 불가(죽은 경로)**. 5차 배치B 판정반전 R2: 여기 오려면 v24==false 여야 하고 그건 `v23 != 0` 가지뿐인데, v23 의 슬롯 술어(is_some ∧ HP%>=40 ∧ 캠프거리<=180000 ∧ is_recent_visible)가 L180 필터(is_some ∧ is_recent_visible)의 **진부분집합**이라 v23!=0 이면 min_by_key 에 원소가 반드시 있다 ⟹ nearest==None 이 성립 불가",
+   "evidence": "5차 배치B R2 증명(v24 exit phi _gaibc/m09.ll:22157) + 실행(B6_r3.tsv #C: 적 전부 None / 전부 저HP / 캠프 셀 시야차단 3종 모두 v24=true 로 (b) 가 먼저 나감). 5차 정정이 history 에만 들어갔다.",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[8]/logic",
+   "kind": "보강",
+   "old": "//   (c) setup + 캠프 셀 시야 O + 보이는 적 챔프 0명               [L183]",
+   "new": "//   (c) setup + 캠프 셀 시야 O + 보이는 적 챔프 0명               [L183] ★도달 불가(5차 배치B R2 · 범위 = objective==Some(Morgard{Setup}) 경로. Serpen 판 serpen/hunt_and_poke.rs:162 는 미확인)",
+   "evidence": "위 항목과 동일한 근거. 요약 목록 쪽에도 같은 오독이 남아 있었다(같은 오류가 한 명세 안 두 군데 — 5차 E1/E2 와 같은 패턴).",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[6]/history[5]/now",
+   "kind": "판정반전",
+   "old": "`LegacyPlanHandler` 자체는 pub 이나 pub 메서드는 `handle_chat`/`get_small_action` 2개뿐이라 이 함수로 가는 pub 경로가 없다. 미탐색 = `AiAgent::update` 로 전체 시뮬을 돌려 간접 관측.",
+   "new": "~~`LegacyPlanHandler` 자체는 pub 이나 pub 메서드는 `handle_chat`/`get_small_action` 2개뿐이라 이 함수로 가는 pub 경로가 없다~~ → ★**거짓이었다(6차 배치B 판정반전)**. ① 같은 JSON 의 `siblings` 자동표가 이미 **pub 메서드 12개**를 싣고 있었다(clone·fmt·new·v3_fall_back_to_passive·eo_cover_picks·eo_serpen_punish_issues·subplan_is_recall·team_objective_code·update_on_dead·**update**·get_small_action·handle_chat). ② IR 호출사슬이 있다: `LegacyPlanHandler::update`(pub, define m13.ll:14467) → `handle_interact_battle`(호출 m13.ll:20242) → `v2_response_retreat_stance`(호출 m13.ll:38079·38761). ③ 6차에 `update` 를 **실제로 실행**했다(B6_o2.tsv — 05 는 이 경로로 전량 실행검증됨). #H 에서 plan=Battle 로 돌리면 BattlePlan+0x58 의 sub_goal = **4(RunAway)** 가 관측된다. ⟹ **남은 미탐색** = 그 RunAway 가 06 의 반환인지 가르는 것(범위 = BattlePlan 상태를 주입해 KitingBack 을 유도한 뒤 경계 대조. 기본 챔피언에선 `die == tick_per_second` 라 `die > tps` 가 항상 거짓이므로 AttackEffect 조립이 선행돼야 한다).",
+   "evidence": "siblings 자동표(vis 열) + spec3lib.callsites + `grep ^define` 로 호출부를 감싼 함수 확인 + B6_o2 실행. 5차는 같은 자료를 갖고도 「차단」으로 닫았다.",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[9]/open[0]",
+   "kind": "분류오류",
+   "old": "⚠단 **「재료 부재」가 아니라 「미탐색」이다**(5차 배치B 정정)",
+   "new": "⚠단 이 항목은 **미탐색**이다(5차 배치B 정정 · 6차 배치B 재확인)",
+   "evidence": "★자기모순: `q` 본문이 「미탐색이다」라고 말하는데 `class` 는 여전히 `재료 부재` 였다. 원인 = `mkspec3.CLASS` 가 **문면의 어휘**로 분류하는데 정정문 자체에 「재료 부재」가 들어 있어 다시 그쪽으로 분류됐다(분류기가 자기 정정문을 먹는다). G1 자기모순·G10 class 오분류 둘 다 못 잡는다.",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[9]/open[0]",
+   "kind": "보강",
+   "old": "현재까지 대조하지 못했다(줄번호만 확정, 실제 표현식 문구는 미확인)",
+   "new": "아직 대조 안 함 — **미탐색**(줄번호만 확정, 실제 표현식 문구는 미확인). 6차에 재료는 확보했다: `python rmeta_srcmap.py game_ai fight_check 1196 1260` 실측을 B6_REPORT.md §3 에 실었다(src_len=57853 lines=1417 파싱 0에러 / L1196=49B·L1202=12B 로 tcx sp 1196:1~1202:10 의 7줄 시그니처와 정합 / L1206·1207·1213·1218·1224 등은 mb>0 = 한국어 주석). 다음 라운드는 식별자 후보를 세워 줄길이 산술로 좁히면 된다.",
+   "evidence": "「대조하지 못했다」도 CLASS 의 재료-부재 키워드다(위 항목과 같은 원인).",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[5]/logic",
+   "kind": "보강",
+   "old": "return;  // :170",
+   "new": "return;  // :170\n\n// ★★호출 맥락 — **B 블록이 읽는 `self.plan` 은 이번 틱에 update 가 재플래닝한 뒤의 plan 이다.**\n//   (6차 배치B 실행 확인) 이 함수는 `LegacyPlanHandler::update`(pub, m13.ll:14467) 안에서\n//   `v50_track_dive_episode`(call 0건 = 전량 인라인)를 통해 불린다(invoke m13.ll:23653·23856).\n//   실측(B6_o2.tsv #B, 16/16): 호출 전에 `plan = ForcePassive` 를 넣어도 update 가 PassiveLine 으로\n//   갈아 끼운 뒤 fold 가 돌아 end_plan 이 **1**(PassiveLine)로 나온다. 주입한 plan 이 아니다.\n//   ⟹ 재구현에서 fold 를 재플래닝 **앞**에 두면 end_plan 분포가 통째로 달라진다.",
+   "evidence": "B6_o2.tsv #B(16 variant 주입 → name_after_update 와 end_plan 이 항상 일치, 16/16) · #G(포지션×HP 20케이스, 20/20) · #B2(update 가 안 바꾼 5케이스에서 주입→분류 인과 확인). 호출사슬은 spec3lib.callsites + `grep ^define`.",
+   "behavior_change": true,
+   "found_by": "new"
+  }
+ ],
+ "ev_up": [
+  {
+   "path": "/specs[5]/mem[0]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcxdict/tcxaudit **tcx 정본** 대조 OK(오귀속 0·밀림 0) — 오프셋·필드명 한정"
+  },
+  {
+   "path": "/specs[5]/mem[1]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcxdict/tcxaudit **tcx 정본** 대조 OK(오귀속 0·밀림 0) — 오프셋·필드명 한정"
+  },
+  {
+   "path": "/specs[5]/mem[2]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcxdict/tcxaudit **tcx 정본** 대조 OK(오귀속 0·밀림 0) — 오프셋·필드명 한정"
+  },
+  {
+   "path": "/specs[5]/mem[3]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcxdict/tcxaudit **tcx 정본** 대조 OK(오귀속 0·밀림 0) — 오프셋·필드명 한정"
+  },
+  {
+   "path": "/specs[5]/mem[4]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcxdict/tcxaudit **tcx 정본** 대조 OK(오귀속 0·밀림 0) — 오프셋·필드명 한정"
+  },
+  {
+   "path": "/specs[5]/mem[5]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcxdict/tcxaudit **tcx 정본** 대조 OK(오귀속 0·밀림 0) — 오프셋·필드명 한정"
+  },
+  {
+   "path": "/specs[5]/mem[6]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcxdict/tcxaudit **tcx 정본** 대조 OK(오귀속 0·밀림 0) — 오프셋·필드명 한정"
+  },
+  {
+   "path": "/specs[5]/mem[7]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcxdict/tcxaudit **tcx 정본** 대조 OK(오귀속 0·밀림 0) — 오프셋·필드명 한정"
+  },
+  {
+   "path": "/specs[5]/mem[8]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcxdict/tcxaudit **tcx 정본** 대조 OK(오귀속 0·밀림 0) — 오프셋·필드명 한정"
+  },
+  {
+   "path": "/specs[5]/mem[9]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcxdict/tcxaudit **tcx 정본** 대조 OK(오귀속 0·밀림 0) — 오프셋·필드명 한정"
+  },
+  {
+   "path": "/specs[5]/mem[10]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcxdict/tcxaudit **tcx 정본** 대조 OK(오귀속 0·밀림 0) — 오프셋·필드명 한정"
+  },
+  {
+   "path": "/specs[5]/mem[11]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcxdict/tcxaudit **tcx 정본** 대조 OK(오귀속 0·밀림 0) — 오프셋·필드명 한정"
+  },
+  {
+   "path": "/specs[5]/mem[12]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcxdict/tcxaudit **tcx 정본** 대조 OK(오귀속 0·밀림 0) — 오프셋·필드명 한정"
+  },
+  {
+   "path": "/specs[5]/mem[13]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcxdict/tcxaudit **tcx 정본** 대조 OK(오귀속 0·밀림 0) — 오프셋·필드명 한정"
+  },
+  {
+   "path": "/specs[5]/mem[14]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcxdict/tcxaudit **tcx 정본** 대조 OK(오귀속 0·밀림 0) — 오프셋·필드명 한정"
+  },
+  {
+   "path": "/specs[5]/mem[15]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcxdict/tcxaudit **tcx 정본** 대조 OK(오귀속 0·밀림 0) — 오프셋·필드명 한정"
+  },
+  {
+   "path": "/specs[5]/mem[16]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcxdict/tcxaudit **tcx 정본** 대조 OK(오귀속 0·밀림 0) — 오프셋·필드명 한정"
+  },
+  {
+   "path": "/specs[5]/mem[17]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcxdict/tcxaudit **tcx 정본** 대조 OK(오귀속 0·밀림 0) — 오프셋·필드명 한정"
+  },
+  {
+   "path": "/specs[5]/mem[18]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcxdict/tcxaudit **tcx 정본** 대조 OK(오귀속 0·밀림 0) — 오프셋·필드명 한정"
+  },
+  {
+   "path": "/specs[5]/mem[19]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcxdict **tcx 정본** 대조 OK + ⓐ `offset_of!` 실행 교차검증 MISMATCH 0 (B6_o1.tsv, 78행+구조체크기 7건) — 오프셋·필드명 한정"
+  },
+  {
+   "path": "/specs[5]/mem[20]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcxdict **tcx 정본** 대조 OK + ⓐ `offset_of!` 실행 교차검증 MISMATCH 0 (B6_o1.tsv, 78행+구조체크기 7건) — 오프셋·필드명 한정"
+  },
+  {
+   "path": "/specs[5]/mem[21]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcxdict/tcxaudit **tcx 정본** 대조 OK(오귀속 0·밀림 0) — 오프셋·필드명 한정"
+  },
+  {
+   "path": "/specs[5]/mem[22]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcxdict **tcx 정본** 대조 OK + ⓐ `offset_of!` 실행 교차검증 MISMATCH 0 (B6_o1.tsv, 78행+구조체크기 7건) — 오프셋·필드명 한정"
+  },
+  {
+   "path": "/specs[5]/mem[23]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcxdict/tcxaudit **tcx 정본** 대조 OK(오귀속 0·밀림 0) — 오프셋·필드명 한정"
+  },
+  {
+   "path": "/specs[5]/mem[24]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcxdict/tcxaudit **tcx 정본** 대조 OK(오귀속 0·밀림 0) — 오프셋·필드명 한정"
+  },
+  {
+   "path": "/specs[5]/mem[25]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcxdict/tcxaudit **tcx 정본** 대조 OK(오귀속 0·밀림 0) — 오프셋·필드명 한정"
+  },
+  {
+   "path": "/specs[5]/mem[26]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcxdict/tcxaudit **tcx 정본** 대조 OK(오귀속 0·밀림 0) — 오프셋·필드명 한정"
+  },
+  {
+   "path": "/specs[5]/mem[27]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcxdict/tcxaudit **tcx 정본** 대조 OK(오귀속 0·밀림 0) — 오프셋·필드명 한정"
+  },
+  {
+   "path": "/specs[5]/mem[28]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcxdict/tcxaudit **tcx 정본** 대조 OK(오귀속 0·밀림 0) — 오프셋·필드명 한정"
+  },
+  {
+   "path": "/specs[5]/mem[29]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcxdict/tcxaudit **tcx 정본** 대조 OK(오귀속 0·밀림 0) — 오프셋·필드명 한정"
+  },
+  {
+   "path": "/specs[6]/mem[0]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcxdict **tcx 정본** 대조 OK + ⓐ `offset_of!` 실행 교차검증 MISMATCH 0 (B6_o1.tsv, 78행+구조체크기 7건) — 오프셋·필드명 한정"
+  },
+  {
+   "path": "/specs[6]/mem[1]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcxdict **tcx 정본** 대조 OK + ⓐ `offset_of!` 실행 교차검증 MISMATCH 0 (B6_o1.tsv, 78행+구조체크기 7건) — 오프셋·필드명 한정"
+  },
+  {
+   "path": "/specs[6]/mem[2]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcxdict **tcx 정본** 대조 OK + ⓐ `offset_of!` 실행 교차검증 MISMATCH 0 (B6_o1.tsv, 78행+구조체크기 7건) — 오프셋·필드명 한정"
+  },
+  {
+   "path": "/specs[6]/mem[3]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcxdict **tcx 정본** 대조 OK + ⓐ `offset_of!` 실행 교차검증 MISMATCH 0 (B6_o1.tsv, 78행+구조체크기 7건) — 오프셋·필드명 한정"
+  },
+  {
+   "path": "/specs[6]/mem[4]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcxdict **tcx 정본** 대조 OK + ⓐ `offset_of!` 실행 교차검증 MISMATCH 0 (B6_o1.tsv, 78행+구조체크기 7건) — 오프셋·필드명 한정"
+  },
+  {
+   "path": "/specs[6]/mem[6]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcxdict **tcx 정본** 대조 OK + ⓐ `offset_of!` 실행 교차검증 MISMATCH 0 (B6_o1.tsv, 78행+구조체크기 7건) — 오프셋·필드명 한정"
+  },
+  {
+   "path": "/specs[6]/mem[7]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcxdict **tcx 정본** 대조 OK + ⓐ `offset_of!` 실행 교차검증 MISMATCH 0 (B6_o1.tsv, 78행+구조체크기 7건) — 오프셋·필드명 한정"
+  },
+  {
+   "path": "/specs[6]/mem[8]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcxdict **tcx 정본** 대조 OK + ⓐ `offset_of!` 실행 교차검증 MISMATCH 0 (B6_o1.tsv, 78행+구조체크기 7건) — 오프셋·필드명 한정"
+  },
+  {
+   "path": "/specs[6]/mem[9]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcxdict **tcx 정본** 대조 OK + ⓐ `offset_of!` 실행 교차검증 MISMATCH 0 (B6_o1.tsv, 78행+구조체크기 7건) — 오프셋·필드명 한정"
+  },
+  {
+   "path": "/specs[6]/mem[10]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcxdict **tcx 정본** 대조 OK + ⓐ `offset_of!` 실행 교차검증 MISMATCH 0 (B6_o1.tsv, 78행+구조체크기 7건) — 오프셋·필드명 한정"
+  },
+  {
+   "path": "/specs[6]/mem[11]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcxdict **tcx 정본** 대조 OK + ⓐ `offset_of!` 실행 교차검증 MISMATCH 0 (B6_o1.tsv, 78행+구조체크기 7건) — 오프셋·필드명 한정"
+  },
+  {
+   "path": "/specs[6]/mem[12]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcxdict **tcx 정본** 대조 OK + ⓐ `offset_of!` 실행 교차검증 MISMATCH 0 (B6_o1.tsv, 78행+구조체크기 7건) — 오프셋·필드명 한정"
+  },
+  {
+   "path": "/specs[7]/mem[0]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcxdict **tcx 정본** 대조 OK + ⓐ `offset_of!` 실행 교차검증 MISMATCH 0 (B6_o1.tsv, 78행+구조체크기 7건) — 오프셋·필드명 한정"
+  },
+  {
+   "path": "/specs[7]/mem[1]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcxdict **tcx 정본** 대조 OK + ⓐ `offset_of!` 실행 교차검증 MISMATCH 0 (B6_o1.tsv, 78행+구조체크기 7건) — 오프셋·필드명 한정"
+  },
+  {
+   "path": "/specs[7]/mem[2]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcxdict **tcx 정본** 대조 OK + ⓐ `offset_of!` 실행 교차검증 MISMATCH 0 (B6_o1.tsv, 78행+구조체크기 7건) — 오프셋·필드명 한정"
+  },
+  {
+   "path": "/specs[7]/mem[3]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcxdict **tcx 정본** 대조 OK + ⓐ `offset_of!` 실행 교차검증 MISMATCH 0 (B6_o1.tsv, 78행+구조체크기 7건) — 오프셋·필드명 한정"
+  },
+  {
+   "path": "/specs[7]/mem[4]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcxdict **tcx 정본** 대조 OK + ⓐ `offset_of!` 실행 교차검증 MISMATCH 0 (B6_o1.tsv, 78행+구조체크기 7건) — 오프셋·필드명 한정"
+  },
+  {
+   "path": "/specs[7]/mem[5]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcxdict **tcx 정본** 대조 OK + ⓐ `offset_of!` 실행 교차검증 MISMATCH 0 (B6_o1.tsv, 78행+구조체크기 7건) — 오프셋·필드명 한정"
+  },
+  {
+   "path": "/specs[7]/mem[8]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcxdict/tcxaudit **tcx 정본** 대조 OK(오귀속 0·밀림 0) — 오프셋·필드명 한정"
+  },
+  {
+   "path": "/specs[7]/mem[9]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcxdict/tcxaudit **tcx 정본** 대조 OK(오귀속 0·밀림 0) — 오프셋·필드명 한정"
+  },
+  {
+   "path": "/specs[7]/mem[10]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcxdict **tcx 정본** 대조 OK + ⓐ `offset_of!` 실행 교차검증 MISMATCH 0 (B6_o1.tsv, 78행+구조체크기 7건) — 오프셋·필드명 한정"
+  },
+  {
+   "path": "/specs[7]/mem[11]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcxdict **tcx 정본** 대조 OK + ⓐ `offset_of!` 실행 교차검증 MISMATCH 0 (B6_o1.tsv, 78행+구조체크기 7건) — 오프셋·필드명 한정"
+  },
+  {
+   "path": "/specs[7]/mem[12]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcxdict **tcx 정본** 대조 OK + ⓐ `offset_of!` 실행 교차검증 MISMATCH 0 (B6_o1.tsv, 78행+구조체크기 7건) — 오프셋·필드명 한정"
+  },
+  {
+   "path": "/specs[7]/mem[14]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcxdict **tcx 정본** 대조 OK + ⓐ `offset_of!` 실행 교차검증 MISMATCH 0 (B6_o1.tsv, 78행+구조체크기 7건) — 오프셋·필드명 한정"
+  },
+  {
+   "path": "/specs[7]/mem[15]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcxdict **tcx 정본** 대조 OK + ⓐ `offset_of!` 실행 교차검증 MISMATCH 0 (B6_o1.tsv, 78행+구조체크기 7건) — 오프셋·필드명 한정"
+  },
+  {
+   "path": "/specs[7]/mem[16]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcxdict **tcx 정본** 대조 OK + ⓐ `offset_of!` 실행 교차검증 MISMATCH 0 (B6_o1.tsv, 78행+구조체크기 7건) — 오프셋·필드명 한정"
+  },
+  {
+   "path": "/specs[7]/mem[17]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcxdict **tcx 정본** 대조 OK + ⓐ `offset_of!` 실행 교차검증 MISMATCH 0 (B6_o1.tsv, 78행+구조체크기 7건) — 오프셋·필드명 한정"
+  },
+  {
+   "path": "/specs[7]/mem[18]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcxdict **tcx 정본** 대조 OK + ⓐ `offset_of!` 실행 교차검증 MISMATCH 0 (B6_o1.tsv, 78행+구조체크기 7건) — 오프셋·필드명 한정"
+  },
+  {
+   "path": "/specs[7]/mem[19]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcxdict **tcx 정본** 대조 OK + ⓐ `offset_of!` 실행 교차검증 MISMATCH 0 (B6_o1.tsv, 78행+구조체크기 7건) — 오프셋·필드명 한정"
+  },
+  {
+   "path": "/specs[7]/mem[20]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcxdict/tcxaudit **tcx 정본** 대조 OK(오귀속 0·밀림 0) — 오프셋·필드명 한정"
+  },
+  {
+   "path": "/specs[7]/mem[21]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcxdict/tcxaudit **tcx 정본** 대조 OK(오귀속 0·밀림 0) — 오프셋·필드명 한정"
+  },
+  {
+   "path": "/specs[7]/mem[22]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcxdict/tcxaudit **tcx 정본** 대조 OK(오귀속 0·밀림 0) — 오프셋·필드명 한정"
+  },
+  {
+   "path": "/specs[7]/mem[23]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcxdict/tcxaudit **tcx 정본** 대조 OK(오귀속 0·밀림 0) — 오프셋·필드명 한정"
+  },
+  {
+   "path": "/specs[7]/mem[24]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcxdict/tcxaudit **tcx 정본** 대조 OK(오귀속 0·밀림 0) — 오프셋·필드명 한정"
+  },
+  {
+   "path": "/specs[7]/mem[25]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcxdict/tcxaudit **tcx 정본** 대조 OK(오귀속 0·밀림 0) — 오프셋·필드명 한정"
+  },
+  {
+   "path": "/specs[7]/mem[26]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcxdict/tcxaudit **tcx 정본** 대조 OK(오귀속 0·밀림 0) — 오프셋·필드명 한정"
+  },
+  {
+   "path": "/specs[7]/mem[27]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcxdict/tcxaudit **tcx 정본** 대조 OK(오귀속 0·밀림 0) — 오프셋·필드명 한정"
+  },
+  {
+   "path": "/specs[8]/mem[0]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcxdict/tcxaudit **tcx 정본** 대조 OK(오귀속 0·밀림 0) — 오프셋·필드명 한정"
+  },
+  {
+   "path": "/specs[8]/mem[2]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcxdict **tcx 정본** 대조 OK + ⓐ `offset_of!` 실행 교차검증 MISMATCH 0 (B6_o1.tsv, 78행+구조체크기 7건) — 오프셋·필드명 한정"
+  },
+  {
+   "path": "/specs[8]/mem[3]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcxdict **tcx 정본** 대조 OK + ⓐ `offset_of!` 실행 교차검증 MISMATCH 0 (B6_o1.tsv, 78행+구조체크기 7건) — 오프셋·필드명 한정"
+  },
+  {
+   "path": "/specs[8]/mem[4]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcxdict **tcx 정본** 대조 OK + ⓐ `offset_of!` 실행 교차검증 MISMATCH 0 (B6_o1.tsv, 78행+구조체크기 7건) — 오프셋·필드명 한정"
+  },
+  {
+   "path": "/specs[8]/mem[5]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcxdict **tcx 정본** 대조 OK + ⓐ `offset_of!` 실행 교차검증 MISMATCH 0 (B6_o1.tsv, 78행+구조체크기 7건) — 오프셋·필드명 한정"
+  },
+  {
+   "path": "/specs[8]/mem[6]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcxdict **tcx 정본** 대조 OK + ⓐ `offset_of!` 실행 교차검증 MISMATCH 0 (B6_o1.tsv, 78행+구조체크기 7건) — 오프셋·필드명 한정"
+  },
+  {
+   "path": "/specs[8]/mem[7]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcxdict **tcx 정본** 대조 OK + ⓐ `offset_of!` 실행 교차검증 MISMATCH 0 (B6_o1.tsv, 78행+구조체크기 7건) — 오프셋·필드명 한정"
+  },
+  {
+   "path": "/specs[8]/mem[8]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcxdict **tcx 정본** 대조 OK + ⓐ `offset_of!` 실행 교차검증 MISMATCH 0 (B6_o1.tsv, 78행+구조체크기 7건) — 오프셋·필드명 한정"
+  },
+  {
+   "path": "/specs[8]/mem[9]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcxdict **tcx 정본** 대조 OK + ⓐ `offset_of!` 실행 교차검증 MISMATCH 0 (B6_o1.tsv, 78행+구조체크기 7건) — 오프셋·필드명 한정"
+  },
+  {
+   "path": "/specs[8]/mem[16]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcxdict/tcxaudit **tcx 정본** 대조 OK(오귀속 0·밀림 0) — 오프셋·필드명 한정"
+  },
+  {
+   "path": "/specs[8]/mem[17]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcxdict/tcxaudit **tcx 정본** 대조 OK(오귀속 0·밀림 0) — 오프셋·필드명 한정"
+  },
+  {
+   "path": "/specs[8]/mem[19]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcxdict **tcx 정본** 대조 OK + ⓐ `offset_of!` 실행 교차검증 MISMATCH 0 (B6_o1.tsv, 78행+구조체크기 7건) — 오프셋·필드명 한정"
+  },
+  {
+   "path": "/specs[8]/mem[20]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcxdict **tcx 정본** 대조 OK + ⓐ `offset_of!` 실행 교차검증 MISMATCH 0 (B6_o1.tsv, 78행+구조체크기 7건) — 오프셋·필드명 한정"
+  },
+  {
+   "path": "/specs[9]/mem[0]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcxdict **tcx 정본** 대조 OK + ⓐ `offset_of!` 실행 교차검증 MISMATCH 0 (B6_o1.tsv, 78행+구조체크기 7건) — 오프셋·필드명 한정"
+  },
+  {
+   "path": "/specs[9]/mem[1]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcxdict **tcx 정본** 대조 OK + ⓐ `offset_of!` 실행 교차검증 MISMATCH 0 (B6_o1.tsv, 78행+구조체크기 7건) — 오프셋·필드명 한정"
+  },
+  {
+   "path": "/specs[9]/mem[2]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcxdict **tcx 정본** 대조 OK + ⓐ `offset_of!` 실행 교차검증 MISMATCH 0 (B6_o1.tsv, 78행+구조체크기 7건) — 오프셋·필드명 한정"
+  },
+  {
+   "path": "/specs[9]/mem[3]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcxdict **tcx 정본** 대조 OK + ⓐ `offset_of!` 실행 교차검증 MISMATCH 0 (B6_o1.tsv, 78행+구조체크기 7건) — 오프셋·필드명 한정"
+  },
+  {
+   "path": "/specs[9]/mem[4]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcxdict **tcx 정본** 대조 OK + ⓐ `offset_of!` 실행 교차검증 MISMATCH 0 (B6_o1.tsv, 78행+구조체크기 7건) — 오프셋·필드명 한정"
+  },
+  {
+   "path": "/specs[9]/mem[5]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcxdict **tcx 정본** 대조 OK + ⓐ `offset_of!` 실행 교차검증 MISMATCH 0 (B6_o1.tsv, 78행+구조체크기 7건) — 오프셋·필드명 한정"
+  },
+  {
+   "path": "/specs[9]/mem[6]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcxdict **tcx 정본** 대조 OK + ⓐ `offset_of!` 실행 교차검증 MISMATCH 0 (B6_o1.tsv, 78행+구조체크기 7건) — 오프셋·필드명 한정"
+  },
+  {
+   "path": "/specs[9]/mem[7]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcxdict **tcx 정본** 대조 OK + ⓐ `offset_of!` 실행 교차검증 MISMATCH 0 (B6_o1.tsv, 78행+구조체크기 7건) — 오프셋·필드명 한정"
+  },
+  {
+   "path": "/specs[9]/mem[8]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcxdict **tcx 정본** 대조 OK + ⓐ `offset_of!` 실행 교차검증 MISMATCH 0 (B6_o1.tsv, 78행+구조체크기 7건) — 오프셋·필드명 한정"
+  },
+  {
+   "path": "/specs[9]/mem[9]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcxdict **tcx 정본** 대조 OK + ⓐ `offset_of!` 실행 교차검증 MISMATCH 0 (B6_o1.tsv, 78행+구조체크기 7건) — 오프셋·필드명 한정"
+  },
+  {
+   "path": "/specs[9]/mem[10]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcxdict **tcx 정본** 대조 OK + ⓐ `offset_of!` 실행 교차검증 MISMATCH 0 (B6_o1.tsv, 78행+구조체크기 7건) — 오프셋·필드명 한정"
+  },
+  {
+   "path": "/specs[9]/mem[11]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcxdict **tcx 정본** 대조 OK + ⓐ `offset_of!` 실행 교차검증 MISMATCH 0 (B6_o1.tsv, 78행+구조체크기 7건) — 오프셋·필드명 한정"
+  },
+  {
+   "path": "/specs[9]/mem[12]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcxdict **tcx 정본** 대조 OK + ⓐ `offset_of!` 실행 교차검증 MISMATCH 0 (B6_o1.tsv, 78행+구조체크기 7건) — 오프셋·필드명 한정"
+  },
+  {
+   "path": "/specs[9]/mem[13]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcxdict **tcx 정본** 대조 OK + ⓐ `offset_of!` 실행 교차검증 MISMATCH 0 (B6_o1.tsv, 78행+구조체크기 7건) — 오프셋·필드명 한정"
+  },
+  {
+   "path": "/specs[5]/consts[0]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증: `LegacyPlanHandler+0x570` 초기값 −1 = None, fold 후 −1 로 되돌아감(take 무조건 실행) (B6_o2.tsv — 05 를 상위 pub 래퍼 `LegacyPlanHandler::update` 로 최초 실행)"
+  },
+  {
+   "path": "/specs[5]/consts[2]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증: end_plan=1 (plan 이름 \"PassiveLine\") #A·#B·#G 26케이스 (B6_o2.tsv — 05 를 상위 pub 래퍼 `LegacyPlanHandler::update` 로 최초 실행)"
+  },
+  {
+   "path": "/specs[5]/consts[3]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증: end_plan=2 (\"PassiveJungle\") #G 4케이스 (B6_o2.tsv — 05 를 상위 pub 래퍼 `LegacyPlanHandler::update` 로 최초 실행)"
+  },
+  {
+   "path": "/specs[5]/consts[8]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증: end_plan=7 (\"Battle …\") #B2 tag9 (B6_o2.tsv — 05 를 상위 pub 래퍼 `LegacyPlanHandler::update` 로 최초 실행)"
+  },
+  {
+   "path": "/specs[5]/consts[9]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증: end_plan=8 (\"AttackNexus\"/\"DefenseNexus\") #B2 tag16·17 (B6_o2.tsv — 05 를 상위 pub 래퍼 `LegacyPlanHandler::update` 로 최초 실행)"
+  },
+  {
+   "path": "/specs[5]/consts[10]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증: end_plan=9 (\"DeathMatchBattle …\"/\"SinglePlanBattle …\") #B tag0·5 (B6_o2.tsv — 05 를 상위 pub 래퍼 `LegacyPlanHandler::update` 로 최초 실행)"
+  },
+  {
+   "path": "/specs[5]/consts[11]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증: \"PassiveLine\"(11자) 접두 일치 경로가 실제로 1 을 낸다 (B6_o2.tsv — 05 를 상위 pub 래퍼 `LegacyPlanHandler::update` 로 최초 실행)"
+  },
+  {
+   "path": "/specs[5]/consts[12]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증: \"PassiveJungle\"(13자) 접두 일치 경로가 실제로 2 를 낸다 #G (B6_o2.tsv — 05 를 상위 pub 래퍼 `LegacyPlanHandler::update` 로 최초 실행)"
+  },
+  {
+   "path": "/specs[5]/knobs[1]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증: #C 경계 — in_range_ticks 0 → last_dive_abandon_tick 갱신 / 1 → 갱신 없음 (B6_o2.tsv — 05 를 상위 pub 래퍼 `LegacyPlanHandler::update` 로 최초 실행)"
+  },
+  {
+   "path": "/specs[5]/knobs[2]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증: #C 경계 — team_holder_ticks 0 → 갱신 / 1 → 갱신 없음 (B6_o2.tsv — 05 를 상위 pub 래퍼 `LegacyPlanHandler::update` 로 최초 실행)"
+  },
+  {
+   "path": "/specs[5]/knobs[3]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증: end_plan 분류 사슬 #B 16/16 + #G 20/20 MATCH(독립 재구현 대조) (B6_o2.tsv — 05 를 상위 pub 래퍼 `LegacyPlanHandler::update` 로 최초 실행)"
+  },
+  {
+   "path": "/specs[5]/knobs[4]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증(범위 = aborted=false 가지만): 주입 abort_src 0/0x5A/0xFF 3종 전부 레코드 abort_src=0 으로 지워짐 #F. aborted=true 가지는 미도달 (B6_o2.tsv — 05 를 상위 pub 래퍼 `LegacyPlanHandler::update` 로 최초 실행)"
+  },
+  {
+   "path": "/specs[5]/knobs[5]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증: #C 4조합 — 두 게이트가 AND 로 걸린다 (B6_o2.tsv — 05 를 상위 pub 래퍼 `LegacyPlanHandler::update` 로 최초 실행)"
+  },
+  {
+   "path": "/specs[5]/knobs[6]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증: `update` 가 plan 을 바꾸자 end_plan 이 **바뀐 이름**을 따라갔다(#B 16/16) ⟹ 분류가 문자열 의존임이 실행으로 확인 (B6_o2.tsv — 05 를 상위 pub 래퍼 `LegacyPlanHandler::update` 로 최초 실행)"
+  },
+  {
+   "path": "/specs[6]/consts[2]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcxdict --enum BattleSubPlanGoal **tcx 정본**: KitingBack 메모리태그 3, 페이로드 focus@+0x8"
+  },
+  {
+   "path": "/specs[6]/consts[3]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcxdict --enum BattleSubPlanGoal **tcx 정본**: RunAway 메모리태그 4, fieldless"
+  },
+  {
+   "path": "/specs[7]/consts[0]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증: hp_ratio 정수나눗셈 509/1000 → Recall · 510/1000 → EpicHunt (B6_r4.tsv — 5차 프로브 재실행, 출력 바이트 동일)"
+  },
+  {
+   "path": "/specs[7]/consts[5]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증: Hide 페이로드 out_line=1(Outline) bush 0·7·26 전부 (B6_r4.tsv — 5차 프로브 재실행, 출력 바이트 동일)"
+  },
+  {
+   "path": "/specs[7]/consts[6]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증: check_move=0 · enemy_spotted_me=0 · need_recall=0 · live_list.get(0) (B6_r4.tsv — 5차 프로브 재실행, 출력 바이트 동일)"
+  },
+  {
+   "path": "/specs[7]/knobs[0]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증: hp 50 → Recall / 51 → EpicHunt (챔프를 분수 밖으로 옮긴 뒤) (B6_r4.tsv — 5차 프로브 재실행, 출력 바이트 동일)"
+  },
+  {
+   "path": "/specs[7]/knobs[1]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증: Hide.out_line=1, bush 0·7·26 전부 (B6_r4.tsv — 5차 프로브 재실행, 출력 바이트 동일)"
+  },
+  {
+   "path": "/specs[7]/knobs[2]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증: EpicHunt 페이로드 need_recall=0 (B6_r4.tsv — 5차 프로브 재실행, 출력 바이트 동일)"
+  },
+  {
+   "path": "/specs[7]/knobs[3]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증: tps60 k=1059→Hide/1060→EpicHunt · tps30 29/30 · tps1 0/1 ⟹ 계수 1 · `>` 엄격 (B6_r4.tsv — 5차 프로브 재실행, 출력 바이트 동일)"
+  },
+  {
+   "path": "/specs[7]/knobs[4]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증: hp 50/51 경계 (B6_r4.tsv — 5차 프로브 재실행, 출력 바이트 동일)"
+  },
+  {
+   "path": "/specs[7]/knobs[5]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증: tps 3종에서 마진 = tick_per_second × 1 (B6_r4.tsv — 5차 프로브 재실행, 출력 바이트 동일)"
+  },
+  {
+   "path": "/specs[7]/knobs[6]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증: 에픽 hp=max → Recall / hp=max−1 → EpicHunt (B6_r4.tsv — 5차 프로브 재실행, 출력 바이트 동일)"
+  },
+  {
+   "path": "/specs[7]/knobs[7]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증: Hide.out_line 이 bush 3종 전부 1 (B6_r4.tsv — 5차 프로브 재실행, 출력 바이트 동일)"
+  },
+  {
+   "path": "/specs[8]/consts[3]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증: 캠프 288000 → 셀 (9,9), is_visible_cell(0,9,9)=true 로 L179 진입 (B6_r3.tsv — 5차 프로브 재실행, 출력 바이트 동일)"
+  },
+  {
+   "path": "/specs[8]/consts[4]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증: 캠프 거리 150000 → 폴스루 / 150001 → (d) 종료 (B6_r3.tsv — 5차 프로브 재실행, 출력 바이트 동일)"
+  },
+  {
+   "path": "/specs[8]/knobs[2]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증: phase None/Assemble/Hunt → v24=false·is_end=false, Setup → true·true (#P 진리표) (B6_r3.tsv — 5차 프로브 재실행, 출력 바이트 동일)"
+  },
+  {
+   "path": "/specs[8]/knobs[6]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증: v23 반경 180000 → v24=false((d)) / 180001 → v24=true((b)) (B6_r3.tsv — 5차 프로브 재실행, 출력 바이트 동일)"
+  },
+  {
+   "path": "/specs[9]/consts[1]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증: d = er+100000 → 포함 / +1 → 제외, er 3종(100000·200000·400000) 전부 (B6_r1.tsv/B6_r2.tsv — 5차 프로브 재실행, 출력 바이트 동일)"
+  },
+  {
+   "path": "/specs[9]/consts[2]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증: HP% 39 → false / 40 → true (B6_r1.tsv/B6_r2.tsv — 5차 프로브 재실행, 출력 바이트 동일)"
+  },
+  {
+   "path": "/specs[9]/consts[3]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증: 백분율 스케일 hp*100/max 정수나눗셈 399/1000·400/1000 (B6_r1.tsv/B6_r2.tsv — 5차 프로브 재실행, 출력 바이트 동일)"
+  },
+  {
+   "path": "/specs[9]/consts[4]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증: dy 158989 → rear / 158990 → flank (= 91dx² > 9dy²) (B6_r1.tsv/B6_r2.tsv — 5차 프로브 재실행, 출력 바이트 동일)"
+  },
+  {
+   "path": "/specs[9]/consts[5]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증: dy 173205 → front / 173206 → flank (= 3dx² > dy²) (B6_r1.tsv/B6_r2.tsv — 5차 프로브 재실행, 출력 바이트 동일)"
+  },
+  {
+   "path": "/specs[9]/consts[6]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증: champ_to_base 547722 → true / 547723 → false (B6_r1.tsv/B6_r2.tsv — 5차 프로브 재실행, 출력 바이트 동일)"
+  },
+  {
+   "path": "/specs[9]/consts[7]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증: 같은 경계(×5 ≤ ×6) (B6_r1.tsv/B6_r2.tsv — 5차 프로브 재실행, 출력 바이트 동일)"
+  },
+  {
+   "path": "/specs[9]/consts[8]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증: 적이 분수 중심 위 → 무조건 true / +1 → false · 겹친 아군 = front (B6_r1.tsv/B6_r2.tsv — 5차 프로브 재실행, 출력 바이트 동일)"
+  },
+  {
+   "path": "/specs[9]/knobs[0]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증: HP% 39/40 경계 + 민감도표 (B6_r1.tsv/B6_r2.tsv — 5차 프로브 재실행, 출력 바이트 동일)"
+  },
+  {
+   "path": "/specs[9]/knobs[1]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증: 여유 100000 경계 3종 (B6_r1.tsv/B6_r2.tsv — 5차 프로브 재실행, 출력 바이트 동일)"
+  },
+  {
+   "path": "/specs[9]/knobs[2]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증: front 각도 임계 4 의 경계 173205/173206 (B6_r1.tsv/B6_r2.tsv — 5차 프로브 재실행, 출력 바이트 동일)"
+  },
+  {
+   "path": "/specs[9]/knobs[3]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증: 1283 경계 158989/158990 + 1286 은 0~74 전 구간 무효(민감도 델타 0) (B6_r1.tsv/B6_r2.tsv — 5차 프로브 재실행, 출력 바이트 동일)"
+  },
+  {
+   "path": "/specs[9]/knobs[4]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증: 최종 비율 게이트 547722/547723 (B6_r1.tsv/B6_r2.tsv — 5차 프로브 재실행, 출력 바이트 동일)"
+  },
+  {
+   "path": "/specs[9]/knobs[6]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확증: rear1→true / front1→false / front2+비율→true / flank1→false / flank2→true / flank1+front1→true 6종 (B6_r1.tsv/B6_r2.tsv — 5차 프로브 재실행, 출력 바이트 동일)"
+  }
+ ],
+ "brief_errors": [
+  "★**`BRIEF_FACTS.md` 가 STALE 이다 — §1 표와 §2 의 배치 D 항목이 정본과 다르다.** 파일 시각: `BRIEF_FACTS.md` 2026-09-11 15:49:57 vs 정본 `_spec/specs20_v3.json` **15:53:26**. `mkbrief.py:28` 이 v3 를 읽으므로, 생성물이 정본보다 **먼저** 만들어졌다. 브리핑 스코프(mem+consts+knobs)로 내가 직접 센 값(`_verify6/B/count.py`): A 0/3/8/183/2 = 196(94.4%) · B 0/**6/20**/166/0 = 192(86.5%) · C 0/4/11/239/0 = 254(94.1%) · D 0/**35/100/81**/0 = 216(**37.5%**) · 계 0/48/139/**669**/2 = 858(**78.2%**). 표가 말한 계 ev4=782·91.4% 는 현행이 아니다. ⚠단 `BRIEF.md §2` 산문의 「669행」은 내 실측과 **일치**하므로 낡은 것은 BRIEF_FACTS 쪽뿐이다. §2 표적 목록도 D 만 틀렸다(17 47행→실측 1 / 16 43→9 / 19 26→3 / 15 31→21 / 18 47→47 일치). 배치 B 는 §2 가 실측과 완전 일치(05 51 · 07 42 · 09 33 · 08 21 · 06 19). ⟹ 교훈: 「사실은 생성한다」는 설계는 옳지만 **생성 순서가 보장되지 않으면 같은 사고가 난다.** mkbrief 가 v3 의 mtime/해시를 찍고 낡으면 거부하게 하라.",
+  "게이트 기준을 `G1~G8·G10·G11 = 0` 으로 제시했는데 6차 착수 시점 실측은 **G11 = 2**(03 defensive_crisis 3행 · 04 handle_line_defense 2행 — 둘 다 배치 A 소관). 배치 B(05~09)의 G11 은 0 이다. 제출 조건이 다른 배치의 미반영에 걸려 있으면 판정이 애매해진다 — 게이트를 배치별로 쪼개거나, 브리핑에 「네 배치 구간만 0 이면 된다」를 명시하라.",
+  "★**5차 배치B 의 `ev` 상향 46행이 정본에 한 행도 반영되지 않았다.** `_spec/patch5.py` 는 실오류·판정반전만 적용했고 ev 상향 표는 통째로 빠졌다(실측: 05 는 51/51 이 ev>=4, 09 는 33/34 가 ev>=4 — 5차가 올렸다고 보고한 행들이 전부 ev4 그대로다). ⟹ 브리핑 §1 의 「5차에 492행 중 317행 유실」은 **배치 B 에 관한 한 46행 중 46행 유실**이다. 더 나쁜 것은 `auditrounds.py` 가 이 상태에서 「유실 0 · STALE 0 · **ev 되돌아감 0**」을 보고한다는 점이다 — 회귀 감사가 **ev_up 을 대조 대상으로 갖고 있지 않다.** 이번 `patch.json` 이 그 46행을 근거와 함께 되살린다.",
+  "게이트 사각지대 ①: **`logic` ↔ `history` 를 대조하는 게이트가 없다.** `G6`(specgate.py:257~273)은 `mem`/`consts`/`knobs` 안의 `~~취소선~~`만 보고 `logic` 을 검사한다. 5차의 판정반전 R2(08 (c) 죽은 경로)·R3(09 1307 죽은 가지)은 `history` 에만 들어가서 `logic` 이 두 곳 모두 옛 서술로 남았다(이번 E1·E2). 3차가 「잔존 오염원은 사실상 하나 — logic 산문이 표의 정정을 못 받는다」라고 진단하고 만든 게이트가, **정정이 history 로 들어오는 경로**를 안 막는다.",
+  "게이트 사각지대 ②: **`open[].class` 는 문면에서 파생되는데, 정정문에 그 분류 어휘가 들어가면 분류기가 자기 정정문을 먹는다.** 09 open[0] 은 본문이 「**「재료 부재」가 아니라 「미탐색」이다**」라고 말하는데 `class` 는 여전히 `재료 부재` 였다(`mkspec3.CLASS` 가 「재료 부재」 부분문자열을 먼저 잡는다 + 뒤쪽 「대조하지 못했다」도 같은 키). `G1 자기모순=0` 과 `G10 class 오분류=0` 이 둘 다 이걸 못 잡는다. ⟹ 분류 키워드 매칭에서 **인용부호/취소선 안의 어휘를 제외**하거나, `q` 가 분류 어휘를 부정하는 형태(`「X」가 아니라 「Y」`)를 별도로 처리해야 한다.",
+  "`applypatch.py` 의 `mem` ev 상한(3) 은 5차 배치B 지적대로 반영돼 있고 동작도 확인했다(`--dry` 로 `to:3` 이 그대로 통과). 다만 **`ev_up` 에는 `found_by` 가 없다** — 그래서 이번 실험의 집계(`by_found`)는 `errors` 만 센다. ev 상향이 「어떤 계측기로 얻었나」도 실험의 핵심 신호인데 구조가 그걸 못 담는다(예: 이번 mem 94행은 ⓐ `offset_of!` = inherited 로 얻었다). 다음 라운드에 `ev_up[].found_by` 를 넣기를 권한다."
+ ]
+}

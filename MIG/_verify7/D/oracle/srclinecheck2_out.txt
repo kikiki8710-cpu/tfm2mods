@@ -1,0 +1,16 @@
+specs[0 ] ult                                            원본 2 → 수정판 0   
+specs[1 ] calculate_jungle_action_score                  원본 4 → 수정판 4   남은 것 = [(3, 528, [522, 526, 530, 542]), (5, 530, [526, 542]), (8, 536, [526]), (10, 536, [542, 548])]
+specs[2 ] sub_plan                                       원본 2 → 수정판 1   남은 것 = [(4, 50, [37])]
+specs[5 ] v50_fold_dive_episode                          원본 9 → 수정판 2   남은 것 = [(2, 146, [157]), (8, 152, [139])]
+specs[6 ] v2_response_retreat_stance                     원본 2 → 수정판 0   
+specs[7 ] sub_plan                                       원본 3 → 수정판 0   
+specs[8 ] is_end                                         원본 1 → 수정판 0   
+specs[9 ] check_favorable_engage_formation               원본 2 → 수정판 3   남은 것 = [(0, 1209, [1203, 1280]), (4, 1283, [1286]), (5, 1280, [1233])]
+specs[11] v3_fall_back_to_passive                        원본 4 → 수정판 0   
+specs[12] handle_chat                                    원본 6 → 수정판 0   
+specs[14] update                                         원본 2 → 수정판 1   남은 것 = [(4, 252, [44, 48, 54, 55])]
+specs[15] single_try_engage                              원본 3 → 수정판 0   
+specs[16] max_range_nearly_can_use                       원본 2 → 수정판 2   남은 것 = [(0, 2401, [2399, 2403, 2407, 2410]), (5, 2398, [2402, 2403, 2410, 2417])]
+specs[18] v3_epicops_buff_window                         원본 5 → 수정판 1   남은 것 = [(4, 654, [658])]
+
+---- G12 총계: 원본 47건 → 수정판 **14건** (오탐 33건 제거)

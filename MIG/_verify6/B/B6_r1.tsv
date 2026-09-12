@@ -1,0 +1,54 @@
+setting_ok	true	width=960000	height=960000	tps=60	champ_radius=10000
+fountains[0]	(0, 896000, 64000, 960000)
+fountains[1]	(892000, 0, 960000, 64000)
+enemy_base(team0 기준)	926000	32000
+entity_offsets	x=0x660	y=0x668	hp=0x670	stat_cached.hp=0x628	id=0x5c0
+player_team	0	pos=Top
+#CASE	name	params	game	theory	verdict
+CASE	A_hp	E=(426000,32000) champ=base+(0,900000) er=200000 allies=[(100000, 0, 38, 100)] ver=3	false	Some(false)	MATCH
+CASE	A_hp	E=(426000,32000) champ=base+(0,900000) er=200000 allies=[(100000, 0, 39, 100)] ver=3	false	Some(false)	MATCH
+CASE	A_hp	E=(426000,32000) champ=base+(0,900000) er=200000 allies=[(100000, 0, 40, 100)] ver=3	true	Some(true)	MATCH
+CASE	A_hp	E=(426000,32000) champ=base+(0,900000) er=200000 allies=[(100000, 0, 41, 100)] ver=3	true	Some(true)	MATCH
+CASE	A2_hpdiv	E=(426000,32000) champ=base+(0,900000) er=200000 allies=[(100000, 0, 399, 1000)] ver=3	false	Some(false)	MATCH
+CASE	A2_hpdiv	E=(426000,32000) champ=base+(0,900000) er=200000 allies=[(100000, 0, 400, 1000)] ver=3	true	Some(true)	MATCH
+CASE	B_slack	E=(426000,32000) champ=base+(0,900000) er=200000 allies=[(299999, 0, 100, 100)] ver=3	true	Some(true)	MATCH
+CASE	B_slack	E=(426000,32000) champ=base+(0,900000) er=200000 allies=[(300000, 0, 100, 100)] ver=3	true	Some(true)	MATCH
+CASE	B_slack	E=(426000,32000) champ=base+(0,900000) er=200000 allies=[(300001, 0, 100, 100)] ver=3	false	Some(false)	MATCH
+CASE	B_slack	E=(426000,32000) champ=base+(0,900000) er=100000 allies=[(199999, 0, 100, 100)] ver=3	true	Some(true)	MATCH
+CASE	B_slack	E=(426000,32000) champ=base+(0,900000) er=100000 allies=[(200000, 0, 100, 100)] ver=3	true	Some(true)	MATCH
+CASE	B_slack	E=(426000,32000) champ=base+(0,900000) er=100000 allies=[(200001, 0, 100, 100)] ver=3	false	Some(false)	MATCH
+CASE	B_slack	E=(426000,32000) champ=base+(0,900000) er=400000 allies=[(500000, 0, 100, 100)] ver=3	true	Some(true)	MATCH
+CASE	B_slack	E=(426000,32000) champ=base+(0,900000) er=400000 allies=[(500001, 0, 100, 100)] ver=3	false	Some(false)	MATCH
+CASE	C_front4	E=(426000,32000) champ=base+(0,900000) er=400000 allies=[(-150000, 0, 100, 100), (-100000, 173203, 100, 100)] ver=3	false	Some(false)	MATCH
+CASE	C_front4	E=(426000,32000) champ=base+(0,900000) er=400000 allies=[(-150000, 0, 100, 100), (-100000, 173204, 100, 100)] ver=3	false	Some(false)	MATCH
+CASE	C_front4	E=(426000,32000) champ=base+(0,900000) er=400000 allies=[(-150000, 0, 100, 100), (-100000, 173205, 100, 100)] ver=3	false	Some(false)	MATCH
+CASE	C_front4	E=(426000,32000) champ=base+(0,900000) er=400000 allies=[(-150000, 0, 100, 100), (-100000, 173206, 100, 100)] ver=3	true	Some(true)	MATCH
+CASE	C_front4	E=(426000,32000) champ=base+(0,900000) er=400000 allies=[(-150000, 0, 100, 100), (-100000, 173207, 100, 100)] ver=3	true	Some(true)	MATCH
+CASE	D_rear9	E=(426000,32000) champ=base+(0,900000) er=200000 allies=[(50000, 158987, 100, 100)] ver=3	true	Some(true)	MATCH
+CASE	D_rear9	E=(426000,32000) champ=base+(0,900000) er=200000 allies=[(50000, 158988, 100, 100)] ver=3	true	Some(true)	MATCH
+CASE	D_rear9	E=(426000,32000) champ=base+(0,900000) er=200000 allies=[(50000, 158989, 100, 100)] ver=3	true	Some(true)	MATCH
+CASE	D_rear9	E=(426000,32000) champ=base+(0,900000) er=200000 allies=[(50000, 158990, 100, 100)] ver=3	false	Some(false)	MATCH
+CASE	D_rear9	E=(426000,32000) champ=base+(0,900000) er=200000 allies=[(50000, 158991, 100, 100)] ver=3	false	Some(false)	MATCH
+CASE	E_ratio56	E=(426000,32000) champ=base+(0,547721) er=400000 allies=[(-150000, 0, 100, 100), (-200000, 0, 100, 100)] ver=3	true	Some(true)	MATCH
+CASE	E_ratio56	E=(426000,32000) champ=base+(0,547722) er=400000 allies=[(-150000, 0, 100, 100), (-200000, 0, 100, 100)] ver=3	true	Some(true)	MATCH
+CASE	E_ratio56	E=(426000,32000) champ=base+(0,547723) er=400000 allies=[(-150000, 0, 100, 100), (-200000, 0, 100, 100)] ver=3	false	Some(false)	MATCH
+CASE	E_ratio56	E=(426000,32000) champ=base+(0,547724) er=400000 allies=[(-150000, 0, 100, 100), (-200000, 0, 100, 100)] ver=3	false	Some(false)	MATCH
+CASE	F_zeroR	E=(926000,32000) champ=base+(0,900000) er=200000 allies=[] ver=3	true	Some(true)	MATCH
+CASE	F_zeroR_off1	E=(926001,32000) champ=base+(0,900000) er=200000 allies=[] ver=3	false	Some(false)	MATCH
+CASE	G_overlap_front	E=(426000,32000) champ=base+(0,900000) er=400000 allies=[(0, 0, 100, 100), (-150000, 0, 100, 100)] ver=3	false	Some(false)	MATCH
+CASE	H_rear1	E=(426000,32000) champ=base+(0,900000) er=200000 allies=[(100000, 0, 100, 100)] ver=3	true	Some(true)	MATCH
+CASE	H_front1	E=(426000,32000) champ=base+(0,900000) er=400000 allies=[(-150000, 0, 100, 100)] ver=3	false	Some(false)	MATCH
+CASE	H_front2	E=(426000,32000) champ=base+(0,100000) er=400000 allies=[(-150000, 0, 100, 100), (-200000, 0, 100, 100)] ver=3	true	Some(true)	MATCH
+CASE	H_flank1	E=(426000,32000) champ=base+(0,900000) er=200000 allies=[(0, 150000, 100, 100)] ver=3	false	Some(false)	MATCH
+CASE	H_flank2	E=(426000,32000) champ=base+(0,900000) er=200000 allies=[(0, 150000, 100, 100), (0, -150000, 100, 100)] ver=3	true	Some(true)	MATCH
+CASE	H_flank1front1	E=(426000,32000) champ=base+(0,900000) er=400000 allies=[(0, 150000, 100, 100), (-150000, 0, 100, 100)] ver=3	true	Some(true)	MATCH
+CASE	I_version	E=(426000,32000) champ=base+(0,900000) er=200000 allies=[(100000, 0, 100, 100)] ver=2	true	Some(true)	MATCH
+CASE	I_version	E=(426000,32000) champ=base+(0,900000) er=200000 allies=[(100000, 0, 100, 100)] ver=3	true	Some(true)	MATCH
+CASE	I_version	E=(426000,32000) champ=base+(0,900000) er=200000 allies=[(100000, 0, 100, 100)] ver=4	true	Some(true)	MATCH
+CASE	I_version	E=(426000,32000) champ=base+(0,900000) er=200000 allies=[(100000, 0, 100, 100)] ver=5	true	Some(true)	MATCH
+CASE	I_version	E=(426000,32000) champ=base+(0,900000) er=200000 allies=[(100000, 0, 100, 100)] ver=6	true	Some(true)	MATCH
+CASE	I_version	E=(426000,32000) champ=base+(0,900000) er=200000 allies=[(100000, 0, 100, 100)] ver=0	true	Some(true)	MATCH
+CASE	I_version	E=(426000,32000) champ=base+(0,900000) er=200000 allies=[(100000, 0, 100, 100)] ver=1	true	Some(true)	MATCH
+SUMMARY	cases=44	mismatch=0
+J_sweep	front=662185	rear=798590	flank=539225	ELSE_1307=0	lagrange_violations=0
+J_exhaust(-6..6)^4	front=9328	rear=11440	flank=7456	ELSE_1307=0	lagrange_violations=0

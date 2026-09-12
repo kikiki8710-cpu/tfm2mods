@@ -1,0 +1,12 @@
+{
+ "round": "8",
+ "batch": "_sret",
+ "errors_applied": 0,
+ "ev_applied": 0,
+ "failed": 0,
+ "stamps": {
+  "/specs[2]/sig/params": "c7ad2f8b1b4f53eb",
+  "/specs[17]/sig/params": "55cd6e2dace489da"
+ },
+ "restamped": true
+}

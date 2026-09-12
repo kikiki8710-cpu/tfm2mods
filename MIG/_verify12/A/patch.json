@@ -1,0 +1,133 @@
+{
+  "round": 12,
+  "batch": "A",
+  "errors": [
+    {
+      "path": "/specs[3]/mem[13]/name",
+      "kind": "실오류",
+      "old": "ty.Champion.skill_cooldown",
+      "new": "ty.Champion.0.skill_cooldown",
+      "evidence": "tcx 정본: `python -X utf8 tcxdict.py --enum EntityType` → `페이로드 Champion — enum+0x8  0  game_core::Champion (112B)`. EntityType 14 variant 중 **Champion 만 튜플 variant** 라 페이로드 필드 이름이 `0` 이고, 나머지 12개(Minion/Tower/Jungle/Epic/Serpen/Ghoul/SmallJiangshi/Bear/Eagle/Revenant/Illusion)는 전부 `info` 다. `tcxdict.py Champion` → `0x48 skill_cooldown`. Entity+0x68=ty ⟹ 페이로드 시작 Entity+0x70, +0x48 = **0xb8** 로 오프셋은 맞다. IR m10.ll:34109 `%84 = getelementptr inbounds nuw i8, ptr %70, i64 184`(=0xb8) · !dbg 사슬 `entity.rs:1775 skill_cooldown ← buff_value.rs:43`. ⟹ 이름만 `.0` 이 빠져 있었다. 같은 자리를 `16` 은 `ty.Champion.0.skill_cooldown` 로 적고 있어 G20 R1 이 갈렸고, **16 쪽이 맞다**",
+      "behavior_change": false,
+      "found_by": "new"
+    },
+    {
+      "path": "/specs[3]/mem[14]/name",
+      "kind": "실오류",
+      "old": "ty.Champion.skill2_cooldown",
+      "new": "ty.Champion.0.skill2_cooldown",
+      "evidence": "같은 근거(tcxdict --enum EntityType: Champion 페이로드 필드명 = `0`). `tcxdict.py Champion` → `0x50 skill2_cooldown` ⟹ Entity+0x70+0x50 = 0xc0. IR m10.ll:34119 `%91 = getelementptr inbounds nuw i8, ptr %70, i64 192`",
+      "behavior_change": false,
+      "found_by": "new"
+    },
+    {
+      "path": "/specs[3]/mem[15]/name",
+      "kind": "실오류",
+      "old": "ty.Champion.ult_cooldown",
+      "new": "ty.Champion.0.ult_cooldown",
+      "evidence": "같은 근거. `tcxdict.py Champion` → `0x58 ult_cooldown` ⟹ Entity+0x70+0x58 = 0xc8. IR m10.ll:34127 `%96 = getelementptr inbounds nuw i8, ptr %70, i64 200`",
+      "behavior_change": false,
+      "found_by": "new"
+    },
+    {
+      "path": "/specs[3]/mem[8]/name",
+      "kind": "실오류",
+      "old": "game (dyn AbstractGame 데이터 포인터)",
+      "new": "game.data_ptr (&dyn AbstractGame 팻포인터 앞 절반)",
+      "evidence": "G20 R2 = `AbstractGameWithCache` 의 같은 이름 `game` 이 0x0 과 0x8 두 곳에 동시에 있다(03·04·06·07·18 이 0x0, 12·18 이 0x8). tcx 정본: `tcxdict.py AbstractGameWithCache` → `0x0 game : &dyn AbstractGame (16B)` — **한 필드가 16B 팻포인터**라 0x0=data / 0x8=vtable 이다. IR 이 두 절반을 따로 읽는 것도 확인: m10.ll:33914 `%27 = load ptr, ptr %18`(=cache+0x0) · 33915 `%28 = getelementptr inbounds nuw i8, ptr %18, i64 8` → 33916 `%29 = load ptr, ptr %28`. 둘 다 클로저 환경 %9+40 / %9+48 에 따로 저장된다(33935 / 33937). ⟹ 이름을 절반별로 갈라야 재구현자가 구별할 수 있다",
+      "behavior_change": false,
+      "found_by": "new"
+    },
+    {
+      "path": "/specs[4]/mem[6]/name",
+      "kind": "실오류",
+      "old": "game",
+      "new": "game.data_ptr (&dyn AbstractGame 팻포인터 앞 절반)",
+      "evidence": "같은 G20 R2. IR m04.ll:58208 `%22 = load ptr, ptr %3`(=data.cache) → 58209 `%23 = load ptr, ptr %22`(cache+0x0 = data) · 58210 `%24 = getelementptr inbounds nuw i8, ptr %22, i64 8` → 58211 `%25 = load ptr, ptr %24`(cache+0x8 = vtable) → 58212 `%26 = getelementptr inbounds nuw i8, ptr %25, i64 64`(vtable+0x40 = get_game_mode). 이 행의 `note` 는 이미 `+0x0=data(%23), +0x8=vtable(%25)` 라고 적고 있는데 **이름 칸만 `game`** 이라 기계 대조에서 12·18 의 0x8 `game` 과 충돌했다",
+      "behavior_change": false,
+      "found_by": "new"
+    },
+    {
+      "path": "/specs[1]/consts[10]/meaning",
+      "kind": "실오류",
+      "old": "리터럴 0 은 m05.ll:40074 `%32 = phi i64 [ 0, %45 ], [ -10, %46 ], [ 80, %37 ], [ 200, %22 ], [ %44, %42 ]` 의 phi 인입이라 그 자리에 `!dbg` 가 없다",
+      "new": "리터럴 0 은 **m05.ll:40043** `%32 = phi i64 [ 0, %45 ], [ -10, %46 ], [ 80, %37 ], [ 200, %22 ], [ %44, %42 ]` 의 phi 인입이고, 그 자리의 `!dbg !44396` 은 `!DILocation(line: 0, scope: !44344)` 이라 줄을 못 준다 (★12차 배치A 정정 — ~~m05.ll:40074~~ 는 phi 가 아니라 `#dbg_value(i64 -10, !44345, …)` 줄이고, 「`!dbg` 가 없다」도 사실이 아니라 **`line: 0`** 이다. 같은 명세의 `knobs[0]`·`knobs[1]`·`knobs[4]` 는 이미 40043 을 인용하고 있어 한 명세 안에서 두 값이 병존하고 있었다)",
+      "behavior_change": false,
+      "found_by": "new"
+    },
+    {
+      "path": "/specs[3]/logic",
+      "kind": "보강",
+      "old": "&& opt.is_some() // 니치: (*opt)+0x30 != -1\n && fight_check::effect_cc_time(version, opt.unwrap()).is_some()",
+      "new": "&& opt.as_ref().is_some_and(|e| fight_check::effect_cc_time(version, e).is_some())\n // 니치: (*opt)+0x30 == -1 이면 None. ★소스 구문 확정(12차 배치A): `is_some() && … unwrap()` 2단이 아니라 **`as_ref().is_some_and(..)` 한 구문**이다. `dloc.py m10.ll 40903 40944` 가 인라인 사슬을 편다 — m10.ll:34172 `%112 = icmp eq i64 %111, 1` 은 `option.rs:742 as_ref ← buff_value.rs:48`, m10.ll:34144 `%98 = icmp ugt i64 %85, %17` 은 `option.rs:430 is_some ← buff_value.rs:48 ← option.rs:661 **is_some_and** ← buff_value.rs:48` 이다. 동작은 동일(단락 평가 순서도 같다)",
+      "behavior_change": false,
+      "found_by": "new"
+    },
+    {
+      "path": "/specs[4]/logic",
+      "kind": "보강",
+      "old": "let mut near_enemy_champion = 0;\nfor e in data.cache.champions(enemy, data.context.pool) { // Vec<&Entity>, 끝나면 Drop 호출",
+      "new": "let near_enemy_champion = data.cache.champions(enemy, data.context.pool).iter().filter(|e| { /* 572줄 closure$2 */ .. }).count(); // ★구문 확정(12차 배치A): 수동 for + `+= 1` 이 아니라 **`.filter(..).count()`** 다 — `dloc.py m04.ll 67475`(m04.ll:58583 `icmp ult i64 %151, 40000000001`)의 인라인 사슬이 `defense_nexus.rs:572 closure$2 ← filter.rs:138 ← map.rs:88 ← … ← filter.rs:142 **count** ← defense_nexus.rs:573` 이다. 아래 의사코드는 같은 동작의 풀어 쓴 형태다\nfor e in data.cache.champions(enemy, data.context.pool) { // Vec<&Entity>, 끝나면 Drop 호출",
+      "behavior_change": false,
+      "found_by": "new"
+    },
+    {
+      "op": "insert",
+      "path": "/specs[3]/mem",
+      "at": 9,
+      "guard": "game.vtable_ptr (&dyn AbstractGame 팻포인터 뒤 절반)",
+      "guard_key": "name",
+      "new": {
+        "base": "AbstractGameWithCache",
+        "offset": "0x8",
+        "name": "game.vtable_ptr (&dyn AbstractGame 팻포인터 뒤 절반)",
+        "note": "★12차 배치A 신규 — IR 이 실제로 로드하는데 표에 행이 없었다(바로 위 `0x0` 행의 `note` 가 '+0x0/+0x8' 이라고 한 줄에 묶어 적어 기계 대조에서 빠졌다). m10.ll:33915 `%28 = getelementptr inbounds nuw i8, ptr %18, i64 8` → 33916 `%29 = load ptr, ptr %28, align 8` → 33937 `store ptr %29, ptr %37`(클로저 환경 %9+48). `Blackboard::is_recent_visible` 의 3번째 인자(`dereferenceable(816)` = AbstractGame vtable)로 쓰인다. tcx 정본 대조: `tcxdict.py AbstractGameWithCache` = `0x0 game : &dyn AbstractGame (16B)` — 한 필드가 16B 팻포인터라 뒤 8B 가 vtable 이다"
+      },
+      "kind": "보강",
+      "evidence": "IR→명세 방향 전수 대조에서 발견. m10.ll:33915~33916 · 33937",
+      "behavior_change": false,
+      "found_by": "new"
+    },
+    {
+      "op": "insert",
+      "path": "/specs[4]/mem",
+      "at": 7,
+      "guard": "game.vtable_ptr (&dyn AbstractGame 팻포인터 뒤 절반)",
+      "guard_key": "name",
+      "new": {
+        "base": "AbstractGameWithCache",
+        "offset": "0x8",
+        "name": "game.vtable_ptr (&dyn AbstractGame 팻포인터 뒤 절반)",
+        "note": "★12차 배치A 신규 — IR m04.ll:58210 `%24 = getelementptr inbounds nuw i8, ptr %22, i64 8` → 58211 `%25 = load ptr, ptr %24, align 8`. 이 값이 바로 다음 행(`AbstractGame::vtable +0x40 get_game_mode`)의 **베이스**이고, 575줄 `PlayerState::strategy` 의 5번째 인자(`dereferenceable(816)`)로도 그대로 넘어간다(m04.ll:58629). tcx 정본 대조: `tcxdict.py AbstractGameWithCache` = `0x0 game : &dyn AbstractGame (16B)`"
+      },
+      "kind": "보강",
+      "evidence": "IR→명세 방향 전수 대조에서 발견. m04.ll:58210~58211 · 58629",
+      "behavior_change": false,
+      "found_by": "new"
+    }
+  ],
+  "ev_up": [
+    {
+      "path": "/specs[2]/consts[0]",
+      "from": 4,
+      "to": 3,
+      "guard": "팀 배열 길이 — player.info.team 이 2 이상이면",
+      "evidence": "`tcxdict.py AbstractGameWithCache` → `0x1e0 player_champion [[std::option::Option<&Entity>; 5_usize]; 2_usize] (80B)` ⟹ 첫 축 길이 = 2(팀 수). IR m12.ll:34878 `%11 = icmp ult i64 %10, 2`(!dbg !62937 = attack_nexus.rs:36)가 그 bounds-check. **같은 사실을 `01 consts[0]` 은 이미 ev3(tcx 정본 대조)로 싣고 있는데 `02`·`03` 만 ev4 로 남아 있었다**",
+      "found_by": "new"
+    },
+    {
+      "path": "/specs[3]/consts[1]",
+      "from": 4,
+      "to": 3,
+      "guard": "팀 배열 길이 — `enemy_ix`(=1-player.info.team)",
+      "evidence": "`tcxdict.py AbstractGameWithCache` → `0x1e0 player_champion [[Option<&Entity>; 5]; 2] (80B)` ⟹ 첫 축 길이 = 2. IR m10.ll:33899 `%22 = icmp ult i64 %21, 2`(!dbg !40699 = simulation.rs:1905 ← !40704 = buff_value.rs:22). `01 consts[0]` 과 동일 사실·동일 근거인데 등급만 달랐다",
+      "found_by": "new"
+    }
+  ],
+  "brief_errors": [
+    "§4 G17 의 상세줄이 **문장 도중에 잘려 있다** — `EntityType 태그 13 = Champion ★**src_line 정정 : 43**(`icmp eq i` 에서 끊긴다. §3 이 「표의 어떤 칸도 `...` 로 줄이지 않았다」고 선언하는데 §4 게이트 상세는 그 보장 밖이다. 잘린 자리가 곧 지시 오류가 난 자리라는 §3 의 경고가 §4 에 그대로 적용된다 — 게이트 상세도 무손실로 실어라(또는 「여기는 잘림」이라고 명시하라).",
+    "§5 표는 `errors[].kind` 어휘를 `실오류 / 오탐(게이트가 틀렸다) / 보강` 3종으로 적는데, 실제 계약 문서인 `applypatch.py` 의 docstring(L21)은 `실오류 | 판정반전 | 분류오류 | 보강` 이고 `오탐` 이 없다(대신 `main()` 의 사용법 출력 L544 는 도시에와 같은 3종을 쓴다). **한 도구 안에서 두 어휘가 병존**한다. `kind` 는 검증되지 않아 어느 쪽을 써도 적용은 되지만, 집계·다음 라운드 통계가 갈린다. `applypatch.py` L21 을 L544 에 맞춰라.",
+    "§5 는 `callees` 를 이번 라운드의 주 표적으로 지목하면서(「네 담당의 `ev4 callees` 중 판정에 실제로 쓰이는 술어가 있으면 IR 에서 확정해 달라」) 정정 통로를 `patch.json` 하나로 못 박는데, **`applypatch.resolve()` 에 `callees` 항목이 없다** — v2 는 `calls`, v3 는 `callees` 이고 매핑이 없어 `/specs[i]/callees[j]` 는 주소지정 자체가 안 된다. 게다가 `callees` 는 매 빌드마다 `mkspec3` 이 tcx+IR 로 **재생성**하므로 정본을 고쳐도 다음 빌드에 날아간다. ⟹ 이 표적은 `patch.json` 이 아니라 **`mkspec3._rank_callees` 수정**으로만 닫힌다. 지시문이 그 사실을 적어 주어야 배치가 헛돌지 않는다(REPORT §4 에 구체 패치안을 적었다).",
+    "§4 의 G11·G17 상세는 `history[9] 가 consts[2]·consts[3] 의 ev 4→2 를 지시했다`고 읽지만, 그 `consts[2]` 는 **11차 시점의 인덱스**다. 11차 배치A 가 `/specs[3]/consts` 에 행 하나를 **삽입**해(`op:insert`) 뒤 인덱스가 전부 1 씩 밀렸고, 지시 대상은 지금의 `consts[3]`·`consts[4]`(둘 다 이미 ev2)다. 도구가 `history` 본문의 **문자열 인덱스 참조를 삽입 시 갱신하지 않는다** — §5 의 「삽입은 뒤 인덱스를 전부 민다」 경고가 `patch.json` 경로에만 걸려 있고 `history`/`notes` 산문에는 안 걸려 있다."
+  ]
+}

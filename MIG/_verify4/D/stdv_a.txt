@@ -1,0 +1,170 @@
+44249: define noundef zeroext i1 @_RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old13single_battle27single_tower_dive_is_viable(i64 noundef %0, ptr noalias noundef align 16 dereferenceable(320) %1,   []
+44250: %8 = alloca [128 x i8], align 8
+44251: %9 = alloca [128 x i8], align 8
+44252: %10 = alloca [32 x i8], align 8
+44253: %11 = alloca [32 x i8], align 8
+44254: %12 = alloca [32 x i8], align 8
+44255: %13 = alloca [32 x i8], align 8
+44256: %14 = alloca [24 x i8], align 8
+44257: %15 = alloca [32 x i8], align 8
+44258: %16 = alloca [120 x i8], align 8
+44259: %17 = alloca [64 x i8], align 8
+44260: %18 = alloca [32 x i8], align 8
+44261: %19 = alloca [48 x i8], align 8
+44262: %20 = alloca [32 x i8], align 8
+44263: %21 = alloca [8 x i8], align 8
+44264: store i64 %0, ptr %21, align 8
+44265:   ; dbg version = ptr %21
+44266:   ; dbg rnd = ptr %1
+44267:   ; dbg player = ptr %2
+44268:   ; dbg data = ptr %3
+44269:   ; dbg team_plan = ptr %4
+44270:   ; dbg target = ptr %5
+44271:   ; dbg debug = ptr %6
+44272:   ; dbg near_enemies = ptr %20
+44273:   ; dbg near_allies = ptr %18
+44274:   ; dbg my_threats = ptr %15
+44275:   ; dbg len = i64 5
+44276:   ; dbg count = i64 5
+44277: %22 = getelementptr inbounds nuw i8, ptr %2, i64 2352, !dbg !48277   [single_tower_dive_is_viable@single_battle.rs:900]
+44278: %23 = load i64, ptr %22, align 8, !dbg !48277, !noundef !8   [single_tower_dive_is_viable@single_battle.rs:900]
+44279: %24 = icmp ult i64 %23, 2, !dbg !48277   [single_tower_dive_is_viable@single_battle.rs:900]
+44280: br i1 %24, label %26, label %25, !dbg !48277   [single_tower_dive_is_viable@single_battle.rs:900]
+44281: 
+44282: 25:                                               ; preds = %7
+44283: tail call void @_RNvNtCsjihNppCmMEE_4core9panicking18panic_bounds_check(i64 noundef %23, i64 noundef 2, ptr noalias noundef readonly align 8 captures(address, read_provenance) dereferenceabl   [single_tower_dive_is_viable@single_battle.rs:900]
+44284: unreachable, !dbg !48277   [single_tower_dive_is_viable@single_battle.rs:900]
+44285: 
+44286: 26:                                               ; preds = %7
+44287:   ; dbg self = ptr %2
+44288: %27 = getelementptr inbounds nuw i8, ptr %2, i64 2496, !dbg !48282   [as_index@entity.rs:581 <- single_tower_dive_is_viable@single_battle.rs:900]
+44289: %28 = load i32, ptr %27, align 8, !dbg !48282, !range !21810, !noundef !8   [as_index@entity.rs:581 <- single_tower_dive_is_viable@single_battle.rs:900]
+44290: %29 = zext nneg i32 %28 to i64, !dbg !48282   [as_index@entity.rs:581 <- single_tower_dive_is_viable@single_battle.rs:900]
+44291: %30 = load ptr, ptr %3, align 8, !dbg !48277, !nonnull !8, !align !8990, !noundef !8   [single_tower_dive_is_viable@single_battle.rs:900]
+44292:   ; dbg self = ptr %30
+44293: %31 = getelementptr inbounds nuw i8, ptr %30, i64 480, !dbg !48277   [single_tower_dive_is_viable@single_battle.rs:900]
+44294: %32 = getelementptr inbounds nuw [5 x ptr], ptr %31, i64 %23, !dbg !48277   [single_tower_dive_is_viable@single_battle.rs:900]
+44295: %33 = getelementptr inbounds nuw ptr, ptr %32, i64 %29, !dbg !48277   [single_tower_dive_is_viable@single_battle.rs:900]
+44296: %34 = load ptr, ptr %33, align 8, !dbg !48277, !align !8990, !noundef !8   [single_tower_dive_is_viable@single_battle.rs:900]
+44297: %35 = icmp eq ptr %34, null, !dbg !48277   [single_tower_dive_is_viable@single_battle.rs:900]
+44298: br i1 %35, label %215, label %36, !dbg !48277   [single_tower_dive_is_viable@single_battle.rs:900]
+44299: 
+44300: 36:                                               ; preds = %26
+44301:   ; dbg champ = ptr %34
+44302: call void @llvm.lifetime.start.p0(ptr nonnull %20), !dbg !48270   [single_tower_dive_is_viable@single_battle.rs:904]
+44303: call void @llvm.lifetime.start.p0(ptr nonnull %19), !dbg !48270   [single_tower_dive_is_viable@single_battle.rs:904]
+44304: %37 = sub nuw nsw i64 1, %23, !dbg !48270   [single_tower_dive_is_viable@single_battle.rs:904]
+44305:   ; dbg team = i64 %37
+44306: %38 = getelementptr inbounds nuw [5 x ptr], ptr %31, i64 %37, !dbg !48265   [iter_champions@simulation.rs:1905 <- single_tower_dive_is_viable@single_battle.rs:904]
+44307:   ; dbg self = ptr %38
+44308:   ; dbg slice = ptr %38
+44309:   ; dbg self = i64 5
+44310:   ; dbg slice = i64 5
+44311:   ; dbg ptr = ptr %38
+44312:   ; dbg self = ptr %38
+44313: %39 = getelementptr inbounds nuw i8, ptr %38, i64 40, !dbg !48288   [add<enum2$<core::option::Option<ref$<game_core::simulation::entity::Entity> > > >@mut_ptr.rs:961 <- new<enum2$<core::option::Option<ref$<game_core::simulation::entity::Entity> > > >@iter.rs:100 <- iter<enum2$<core::option::Option<ref$<game_core::simulation::entity::Entity> > > >@mod.rs:1042 <- iter_champions@simulation.rs:1905 <- single_tower_dive_is_viable@single_battle.rs:904]
+44314:   ; dbg self = ptr %38
+44315:   ; dbg self = ptr %39
+44316:   ; dbg predicate = ptr %21
+44317:   ; dbg predicate = ptr %3
+44318:   ; dbg predicate = ptr %34
+44319:   ; dbg predicate = ptr %2
+44320: store ptr %38, ptr %19, align 8, !dbg !48310   [new<core::iter::adapters::filter_map::FilterMap<core::slice::iter::Iter<enum2$<core::option::Option<ref$<game_core::simulation::entity::Entity> > > >,game_core::simulation::impl$5::iter_champions::closure_env$0>,game_ai::plan_legacy::old::single_battle::single_tower_dive_is_viable::closure_env$0>@filter.rs:28 <- filter<core::iter::adapters::filter_map::FilterMap<core::slice::iter::Iter<enum2$<core::option::Option<ref$<game_core::simulation::entity::Entity> > > >,game_core::simulation::impl$5::iter_champions::closure_env$0>,game_ai::plan_legacy::old::single_battle::single_tower_dive_is_viable::closure_env$0>@iterator.rs:957 <- single_tower_dive_is_viable@single_battle.rs:904]
+44321: %40 = getelementptr inbounds nuw i8, ptr %19, i64 8, !dbg !48310   [new<core::iter::adapters::filter_map::FilterMap<core::slice::iter::Iter<enum2$<core::option::Option<ref$<game_core::simulation::entity::Entity> > > >,game_core::simulation::impl$5::iter_champions::closure_env$0>,game_ai::plan_legacy::old::single_battle::single_tower_dive_is_viable::closure_env$0>@filter.rs:28 <- filter<core::iter::adapters::filter_map::FilterMap<core::slice::iter::Iter<enum2$<core::option::Option<ref$<game_core::simulation::entity::Entity> > > >,game_core::simulation::impl$5::iter_champions::closure_env$0>,game_ai::plan_legacy::old::single_battle::single_tower_dive_is_viable::closure_env$0>@iterator.rs:957 <- single_tower_dive_is_viable@single_battle.rs:904]
+44322: store ptr %39, ptr %40, align 8, !dbg !48310   [new<core::iter::adapters::filter_map::FilterMap<core::slice::iter::Iter<enum2$<core::option::Option<ref$<game_core::simulation::entity::Entity> > > >,game_core::simulation::impl$5::iter_champions::closure_env$0>,game_ai::plan_legacy::old::single_battle::single_tower_dive_is_viable::closure_env$0>@filter.rs:28 <- filter<core::iter::adapters::filter_map::FilterMap<core::slice::iter::Iter<enum2$<core::option::Option<ref$<game_core::simulation::entity::Entity> > > >,game_core::simulation::impl$5::iter_champions::closure_env$0>,game_ai::plan_legacy::old::single_battle::single_tower_dive_is_viable::closure_env$0>@iterator.rs:957 <- single_tower_dive_is_viable@single_battle.rs:904]
+44323: %41 = getelementptr inbounds nuw i8, ptr %19, i64 16, !dbg !48310   [new<core::iter::adapters::filter_map::FilterMap<core::slice::iter::Iter<enum2$<core::option::Option<ref$<game_core::simulation::entity::Entity> > > >,game_core::simulation::impl$5::iter_champions::closure_env$0>,game_ai::plan_legacy::old::single_battle::single_tower_dive_is_viable::closure_env$0>@filter.rs:28 <- filter<core::iter::adapters::filter_map::FilterMap<core::slice::iter::Iter<enum2$<core::option::Option<ref$<game_core::simulation::entity::Entity> > > >,game_core::simulation::impl$5::iter_champions::closure_env$0>,game_ai::plan_legacy::old::single_battle::single_tower_dive_is_viable::closure_env$0>@iterator.rs:957 <- single_tower_dive_is_viable@single_battle.rs:904]
+44324: store ptr %21, ptr %41, align 8, !dbg !48310   [new<core::iter::adapters::filter_map::FilterMap<core::slice::iter::Iter<enum2$<core::option::Option<ref$<game_core::simulation::entity::Entity> > > >,game_core::simulation::impl$5::iter_champions::closure_env$0>,game_ai::plan_legacy::old::single_battle::single_tower_dive_is_viable::closure_env$0>@filter.rs:28 <- filter<core::iter::adapters::filter_map::FilterMap<core::slice::iter::Iter<enum2$<core::option::Option<ref$<game_core::simulation::entity::Entity> > > >,game_core::simulation::impl$5::iter_champions::closure_env$0>,game_ai::plan_legacy::old::single_battle::single_tower_dive_is_viable::closure_env$0>@iterator.rs:957 <- single_tower_dive_is_viable@single_battle.rs:904]
+44325: %42 = getelementptr inbounds nuw i8, ptr %19, i64 24, !dbg !48310   [new<core::iter::adapters::filter_map::FilterMap<core::slice::iter::Iter<enum2$<core::option::Option<ref$<game_core::simulation::entity::Entity> > > >,game_core::simulation::impl$5::iter_champions::closure_env$0>,game_ai::plan_legacy::old::single_battle::single_tower_dive_is_viable::closure_env$0>@filter.rs:28 <- filter<core::iter::adapters::filter_map::FilterMap<core::slice::iter::Iter<enum2$<core::option::Option<ref$<game_core::simulation::entity::Entity> > > >,game_core::simulation::impl$5::iter_champions::closure_env$0>,game_ai::plan_legacy::old::single_battle::single_tower_dive_is_viable::closure_env$0>@iterator.rs:957 <- single_tower_dive_is_viable@single_battle.rs:904]
+44326: store ptr %3, ptr %42, align 8, !dbg !48310   [new<core::iter::adapters::filter_map::FilterMap<core::slice::iter::Iter<enum2$<core::option::Option<ref$<game_core::simulation::entity::Entity> > > >,game_core::simulation::impl$5::iter_champions::closure_env$0>,game_ai::plan_legacy::old::single_battle::single_tower_dive_is_viable::closure_env$0>@filter.rs:28 <- filter<core::iter::adapters::filter_map::FilterMap<core::slice::iter::Iter<enum2$<core::option::Option<ref$<game_core::simulation::entity::Entity> > > >,game_core::simulation::impl$5::iter_champions::closure_env$0>,game_ai::plan_legacy::old::single_battle::single_tower_dive_is_viable::closure_env$0>@iterator.rs:957 <- single_tower_dive_is_viable@single_battle.rs:904]
+44327: %43 = getelementptr inbounds nuw i8, ptr %19, i64 32, !dbg !48310   [new<core::iter::adapters::filter_map::FilterMap<core::slice::iter::Iter<enum2$<core::option::Option<ref$<game_core::simulation::entity::Entity> > > >,game_core::simulation::impl$5::iter_champions::closure_env$0>,game_ai::plan_legacy::old::single_battle::single_tower_dive_is_viable::closure_env$0>@filter.rs:28 <- filter<core::iter::adapters::filter_map::FilterMap<core::slice::iter::Iter<enum2$<core::option::Option<ref$<game_core::simulation::entity::Entity> > > >,game_core::simulation::impl$5::iter_champions::closure_env$0>,game_ai::plan_legacy::old::single_battle::single_tower_dive_is_viable::closure_env$0>@iterator.rs:957 <- single_tower_dive_is_viable@single_battle.rs:904]
+44328: store ptr %34, ptr %43, align 8, !dbg !48310   [new<core::iter::adapters::filter_map::FilterMap<core::slice::iter::Iter<enum2$<core::option::Option<ref$<game_core::simulation::entity::Entity> > > >,game_core::simulation::impl$5::iter_champions::closure_env$0>,game_ai::plan_legacy::old::single_battle::single_tower_dive_is_viable::closure_env$0>@filter.rs:28 <- filter<core::iter::adapters::filter_map::FilterMap<core::slice::iter::Iter<enum2$<core::option::Option<ref$<game_core::simulation::entity::Entity> > > >,game_core::simulation::impl$5::iter_champions::closure_env$0>,game_ai::plan_legacy::old::single_battle::single_tower_dive_is_viable::closure_env$0>@iterator.rs:957 <- single_tower_dive_is_viable@single_battle.rs:904]
+44329: %44 = getelementptr inbounds nuw i8, ptr %19, i64 40, !dbg !48310   [new<core::iter::adapters::filter_map::FilterMap<core::slice::iter::Iter<enum2$<core::option::Option<ref$<game_core::simulation::entity::Entity> > > >,game_core::simulation::impl$5::iter_champions::closure_env$0>,game_ai::plan_legacy::old::single_battle::single_tower_dive_is_viable::closure_env$0>@filter.rs:28 <- filter<core::iter::adapters::filter_map::FilterMap<core::slice::iter::Iter<enum2$<core::option::Option<ref$<game_core::simulation::entity::Entity> > > >,game_core::simulation::impl$5::iter_champions::closure_env$0>,game_ai::plan_legacy::old::single_battle::single_tower_dive_is_viable::closure_env$0>@iterator.rs:957 <- single_tower_dive_is_viable@single_battle.rs:904]
+44330: store ptr %2, ptr %44, align 8, !dbg !48310   [new<core::iter::adapters::filter_map::FilterMap<core::slice::iter::Iter<enum2$<core::option::Option<ref$<game_core::simulation::entity::Entity> > > >,game_core::simulation::impl$5::iter_champions::closure_env$0>,game_ai::plan_legacy::old::single_battle::single_tower_dive_is_viable::closure_env$0>@filter.rs:28 <- filter<core::iter::adapters::filter_map::FilterMap<core::slice::iter::Iter<enum2$<core::option::Option<ref$<game_core::simulation::entity::Entity> > > >,game_core::simulation::impl$5::iter_champions::closure_env$0>,game_ai::plan_legacy::old::single_battle::single_tower_dive_is_viable::closure_env$0>@iterator.rs:957 <- single_tower_dive_is_viable@single_battle.rs:904]
+44331: %45 = getelementptr inbounds nuw i8, ptr %3, i64 8, !dbg !48314   [single_tower_dive_is_viable@single_battle.rs:909]
+44332: %46 = load ptr, ptr %45, align 8, !dbg !48314, !nonnull !8, !align !8990, !noundef !8   [single_tower_dive_is_viable@single_battle.rs:909]
+44333: %47 = load ptr, ptr %46, align 8, !dbg !48314, !nonnull !8, !align !8990, !noundef !8   [single_tower_dive_is_viable@single_battle.rs:909]
+44334:   ; dbg bump = ptr %47
+44335: call void @_RINvMNtNtCshWfHDMLkPaX_7bumpalo11collections3vecINtB3_3VecRNtNtNtCs97f5S1uJLkH_9game_core10simulation6entity6EntityE12from_iter_inINtNtNtNtCsjihNppCmMEE_4core4iter8adapters6filte   [single_tower_dive_is_viable@single_battle.rs:904]
+44336: call void @llvm.lifetime.end.p0(ptr nonnull %19), !dbg !48314   [single_tower_dive_is_viable@single_battle.rs:909]
+44337: call void @llvm.lifetime.start.p0(ptr nonnull %18), !dbg !48320   [single_tower_dive_is_viable@single_battle.rs:912]
+44338: call void @llvm.lifetime.start.p0(ptr nonnull %17), !dbg !48320   [single_tower_dive_is_viable@single_battle.rs:912]
+44339:   ; dbg self = i64 0
+44340:   ; dbg self = i64 5
+44341:   ; dbg self = ptr %4
+44342:   ; dbg self = ptr %30
+44343:   ; dbg self = ptr %2
+44344:   ; dbg self = ptr %34
+44345:   ; dbg f = ptr %30
+44346:   ; dbg f = ptr %2
+44347: store ptr %4, ptr %17, align 8, !dbg !48354   [new<core::iter::adapters::filter::Filter<core::ops::range::Range<usize>,game_ai::plan_legacy::old::single_battle::single_tower_dive_is_viable::closure_env$1>,game_ai::plan_legacy::old::single_battle::single_tower_dive_is_viable::closure_env$2>@filter_map.rs:24 <- filter_map<core::iter::adapters::filter::Filter<core::ops::range::Range<usize>,game_ai::plan_legacy::old::single_battle::single_tower_dive_is_viable::closure_env$1>,ref$<game_core::simulation::entity::Entity>,game_ai::plan_legacy::old::single_battle::single_tower_dive_is_viable::closure_env$2>@iterator.rs:1002 <- single_tower_dive_is_viable@single_battle.rs:915]
+44348: %48 = getelementptr inbounds nuw i8, ptr %17, i64 8, !dbg !48354   [new<core::iter::adapters::filter::Filter<core::ops::range::Range<usize>,game_ai::plan_legacy::old::single_battle::single_tower_dive_is_viable::closure_env$1>,game_ai::plan_legacy::old::single_battle::single_tower_dive_is_viable::closure_env$2>@filter_map.rs:24 <- filter_map<core::iter::adapters::filter::Filter<core::ops::range::Range<usize>,game_ai::plan_legacy::old::single_battle::single_tower_dive_is_viable::closure_env$1>,ref$<game_core::simulation::entity::Entity>,game_ai::plan_legacy::old::single_battle::single_tower_dive_is_viable::closure_env$2>@iterator.rs:1002 <- single_tower_dive_is_viable@single_battle.rs:915]
+44349: store ptr %30, ptr %48, align 8, !dbg !48354   [new<core::iter::adapters::filter::Filter<core::ops::range::Range<usize>,game_ai::plan_legacy::old::single_battle::single_tower_dive_is_viable::closure_env$1>,game_ai::plan_legacy::old::single_battle::single_tower_dive_is_viable::closure_env$2>@filter_map.rs:24 <- filter_map<core::iter::adapters::filter::Filter<core::ops::range::Range<usize>,game_ai::plan_legacy::old::single_battle::single_tower_dive_is_viable::closure_env$1>,ref$<game_core::simulation::entity::Entity>,game_ai::plan_legacy::old::single_battle::single_tower_dive_is_viable::closure_env$2>@iterator.rs:1002 <- single_tower_dive_is_viable@single_battle.rs:915]
+44350: %49 = getelementptr inbounds nuw i8, ptr %17, i64 16, !dbg !48354   [new<core::iter::adapters::filter::Filter<core::ops::range::Range<usize>,game_ai::plan_legacy::old::single_battle::single_tower_dive_is_viable::closure_env$1>,game_ai::plan_legacy::old::single_battle::single_tower_dive_is_viable::closure_env$2>@filter_map.rs:24 <- filter_map<core::iter::adapters::filter::Filter<core::ops::range::Range<usize>,game_ai::plan_legacy::old::single_battle::single_tower_dive_is_viable::closure_env$1>,ref$<game_core::simulation::entity::Entity>,game_ai::plan_legacy::old::single_battle::single_tower_dive_is_viable::closure_env$2>@iterator.rs:1002 <- single_tower_dive_is_viable@single_battle.rs:915]
+44351: store ptr %2, ptr %49, align 8, !dbg !48354   [new<core::iter::adapters::filter::Filter<core::ops::range::Range<usize>,game_ai::plan_legacy::old::single_battle::single_tower_dive_is_viable::closure_env$1>,game_ai::plan_legacy::old::single_battle::single_tower_dive_is_viable::closure_env$2>@filter_map.rs:24 <- filter_map<core::iter::adapters::filter::Filter<core::ops::range::Range<usize>,game_ai::plan_legacy::old::single_battle::single_tower_dive_is_viable::closure_env$1>,ref$<game_core::simulation::entity::Entity>,game_ai::plan_legacy::old::single_battle::single_tower_dive_is_viable::closure_env$2>@iterator.rs:1002 <- single_tower_dive_is_viable@single_battle.rs:915]
+44352: %50 = getelementptr inbounds nuw i8, ptr %17, i64 24, !dbg !48354   [new<core::iter::adapters::filter::Filter<core::ops::range::Range<usize>,game_ai::plan_legacy::old::single_battle::single_tower_dive_is_viable::closure_env$1>,game_ai::plan_legacy::old::single_battle::single_tower_dive_is_viable::closure_env$2>@filter_map.rs:24 <- filter_map<core::iter::adapters::filter::Filter<core::ops::range::Range<usize>,game_ai::plan_legacy::old::single_battle::single_tower_dive_is_viable::closure_env$1>,ref$<game_core::simulation::entity::Entity>,game_ai::plan_legacy::old::single_battle::single_tower_dive_is_viable::closure_env$2>@iterator.rs:1002 <- single_tower_dive_is_viable@single_battle.rs:915]
+44353: store ptr %34, ptr %50, align 8, !dbg !48354   [new<core::iter::adapters::filter::Filter<core::ops::range::Range<usize>,game_ai::plan_legacy::old::single_battle::single_tower_dive_is_viable::closure_env$1>,game_ai::plan_legacy::old::single_battle::single_tower_dive_is_viable::closure_env$2>@filter_map.rs:24 <- filter_map<core::iter::adapters::filter::Filter<core::ops::range::Range<usize>,game_ai::plan_legacy::old::single_battle::single_tower_dive_is_viable::closure_env$1>,ref$<game_core::simulation::entity::Entity>,game_ai::plan_legacy::old::single_battle::single_tower_dive_is_viable::closure_env$2>@iterator.rs:1002 <- single_tower_dive_is_viable@single_battle.rs:915]
+44354: %51 = getelementptr inbounds nuw i8, ptr %17, i64 32, !dbg !48354   [new<core::iter::adapters::filter::Filter<core::ops::range::Range<usize>,game_ai::plan_legacy::old::single_battle::single_tower_dive_is_viable::closure_env$1>,game_ai::plan_legacy::old::single_battle::single_tower_dive_is_viable::closure_env$2>@filter_map.rs:24 <- filter_map<core::iter::adapters::filter::Filter<core::ops::range::Range<usize>,game_ai::plan_legacy::old::single_battle::single_tower_dive_is_viable::closure_env$1>,ref$<game_core::simulation::entity::Entity>,game_ai::plan_legacy::old::single_battle::single_tower_dive_is_viable::closure_env$2>@iterator.rs:1002 <- single_tower_dive_is_viable@single_battle.rs:915]
+44355: store i64 0, ptr %51, align 8, !dbg !48354   [new<core::iter::adapters::filter::Filter<core::ops::range::Range<usize>,game_ai::plan_legacy::old::single_battle::single_tower_dive_is_viable::closure_env$1>,game_ai::plan_legacy::old::single_battle::single_tower_dive_is_viable::closure_env$2>@filter_map.rs:24 <- filter_map<core::iter::adapters::filter::Filter<core::ops::range::Range<usize>,game_ai::plan_legacy::old::single_battle::single_tower_dive_is_viable::closure_env$1>,ref$<game_core::simulation::entity::Entity>,game_ai::plan_legacy::old::single_battle::single_tower_dive_is_viable::closure_env$2>@iterator.rs:1002 <- single_tower_dive_is_viable@single_battle.rs:915]
+44356: %52 = getelementptr inbounds nuw i8, ptr %17, i64 40, !dbg !48354   [new<core::iter::adapters::filter::Filter<core::ops::range::Range<usize>,game_ai::plan_legacy::old::single_battle::single_tower_dive_is_viable::closure_env$1>,game_ai::plan_legacy::old::single_battle::single_tower_dive_is_viable::closure_env$2>@filter_map.rs:24 <- filter_map<core::iter::adapters::filter::Filter<core::ops::range::Range<usize>,game_ai::plan_legacy::old::single_battle::single_tower_dive_is_viable::closure_env$1>,ref$<game_core::simulation::entity::Entity>,game_ai::plan_legacy::old::single_battle::single_tower_dive_is_viable::closure_env$2>@iterator.rs:1002 <- single_tower_dive_is_viable@single_battle.rs:915]
+44357: store i64 5, ptr %52, align 8, !dbg !48354   [new<core::iter::adapters::filter::Filter<core::ops::range::Range<usize>,game_ai::plan_legacy::old::single_battle::single_tower_dive_is_viable::closure_env$1>,game_ai::plan_legacy::old::single_battle::single_tower_dive_is_viable::closure_env$2>@filter_map.rs:24 <- filter_map<core::iter::adapters::filter::Filter<core::ops::range::Range<usize>,game_ai::plan_legacy::old::single_battle::single_tower_dive_is_viable::closure_env$1>,ref$<game_core::simulation::entity::Entity>,game_ai::plan_legacy::old::single_battle::single_tower_dive_is_viable::closure_env$2>@iterator.rs:1002 <- single_tower_dive_is_viable@single_battle.rs:915]
+44358: %53 = getelementptr inbounds nuw i8, ptr %17, i64 48, !dbg !48354   [new<core::iter::adapters::filter::Filter<core::ops::range::Range<usize>,game_ai::plan_legacy::old::single_battle::single_tower_dive_is_viable::closure_env$1>,game_ai::plan_legacy::old::single_battle::single_tower_dive_is_viable::closure_env$2>@filter_map.rs:24 <- filter_map<core::iter::adapters::filter::Filter<core::ops::range::Range<usize>,game_ai::plan_legacy::old::single_battle::single_tower_dive_is_viable::closure_env$1>,ref$<game_core::simulation::entity::Entity>,game_ai::plan_legacy::old::single_battle::single_tower_dive_is_viable::closure_env$2>@iterator.rs:1002 <- single_tower_dive_is_viable@single_battle.rs:915]
+44359: store ptr %30, ptr %53, align 8, !dbg !48354   [new<core::iter::adapters::filter::Filter<core::ops::range::Range<usize>,game_ai::plan_legacy::old::single_battle::single_tower_dive_is_viable::closure_env$1>,game_ai::plan_legacy::old::single_battle::single_tower_dive_is_viable::closure_env$2>@filter_map.rs:24 <- filter_map<core::iter::adapters::filter::Filter<core::ops::range::Range<usize>,game_ai::plan_legacy::old::single_battle::single_tower_dive_is_viable::closure_env$1>,ref$<game_core::simulation::entity::Entity>,game_ai::plan_legacy::old::single_battle::single_tower_dive_is_viable::closure_env$2>@iterator.rs:1002 <- single_tower_dive_is_viable@single_battle.rs:915]
+44360: %54 = getelementptr inbounds nuw i8, ptr %17, i64 56, !dbg !48354   [new<core::iter::adapters::filter::Filter<core::ops::range::Range<usize>,game_ai::plan_legacy::old::single_battle::single_tower_dive_is_viable::closure_env$1>,game_ai::plan_legacy::old::single_battle::single_tower_dive_is_viable::closure_env$2>@filter_map.rs:24 <- filter_map<core::iter::adapters::filter::Filter<core::ops::range::Range<usize>,game_ai::plan_legacy::old::single_battle::single_tower_dive_is_viable::closure_env$1>,ref$<game_core::simulation::entity::Entity>,game_ai::plan_legacy::old::single_battle::single_tower_dive_is_viable::closure_env$2>@iterator.rs:1002 <- single_tower_dive_is_viable@single_battle.rs:915]
+44361: store ptr %2, ptr %54, align 8, !dbg !48354   [new<core::iter::adapters::filter::Filter<core::ops::range::Range<usize>,game_ai::plan_legacy::old::single_battle::single_tower_dive_is_viable::closure_env$1>,game_ai::plan_legacy::old::single_battle::single_tower_dive_is_viable::closure_env$2>@filter_map.rs:24 <- filter_map<core::iter::adapters::filter::Filter<core::ops::range::Range<usize>,game_ai::plan_legacy::old::single_battle::single_tower_dive_is_viable::closure_env$1>,ref$<game_core::simulation::entity::Entity>,game_ai::plan_legacy::old::single_battle::single_tower_dive_is_viable::closure_env$2>@iterator.rs:1002 <- single_tower_dive_is_viable@single_battle.rs:915]
+44362: invoke void @_RINvMNtNtCshWfHDMLkPaX_7bumpalo11collections3vecINtB3_3VecRNtNtNtCs97f5S1uJLkH_9game_core10simulation6entity6EntityE12from_iter_inINtNtNtNtCsjihNppCmMEE_4core4iter8adapters10fi
+44363: to label %57 unwind label %55, !dbg !48320   [single_tower_dive_is_viable@single_battle.rs:912]
+44364: 
+44365: 55:                                               ; preds = %209, %208, %206, %58, %36
+44366: %56 = cleanuppad within none []
+44367: call fastcc void @_RINvNtCsjihNppCmMEE_4core3ptr9drop_glueINtNtNtCshWfHDMLkPaX_7bumpalo11collections3vec3VecRNtNtNtCs97f5S1uJLkH_9game_core10simulation6entity6EntityEECshdEBA0ozCnw_7game_ai(   [single_tower_dive_is_viable@single_battle.rs:945]
+44368: cleanupret from %56 unwind to caller, !dbg !48360   [single_tower_dive_is_viable@single_battle.rs:891]
+44369: 
+44370: 57:                                               ; preds = %36
+44371: call void @llvm.lifetime.end.p0(ptr nonnull %17), !dbg !48353   [single_tower_dive_is_viable@single_battle.rs:915]
+44372: call void @llvm.lifetime.start.p0(ptr nonnull %16), !dbg !48361   [single_tower_dive_is_viable@single_battle.rs:922]
+44373: invoke void @_RNvMs3_NtCs97f5S1uJLkH_9game_core10simulationNtB5_21AbstractGameWithCache25iter_towers_without_nexus(ptr noalias noundef nonnull sret([120 x i8]) align 8 captures(address) dere
+44374: to label %60 unwind label %58, !dbg !48361   [single_tower_dive_is_viable@single_battle.rs:922]
+44375: 
+44376: 58:                                               ; preds = %218, %217, %200, %199, %178, %165, %138, %95, %88, %57
+44377: %59 = cleanuppad within none []
+44378: call fastcc void @_RINvNtCsjihNppCmMEE_4core3ptr9drop_glueINtNtNtCshWfHDMLkPaX_7bumpalo11collections3vec3VecRNtNtNtCs97f5S1uJLkH_9game_core10simulation6entity6EntityEECshdEBA0ozCnw_7game_ai(   [single_tower_dive_is_viable@single_battle.rs:945]
+44379: cleanupret from %59 unwind label %55, !dbg !48362   [single_tower_dive_is_viable@single_battle.rs:945]
+44380: 
+44381: 60:                                               ; preds = %57
+44382:   ; dbg self = ptr %16
+44383:   ; dbg f = ptr %5
+44384:   ; dbg self = ptr %9
+44385:   ; dbg compare = ptr poison
+44386: call void @llvm.lifetime.start.p0(ptr nonnull %9), !dbg !48402, !noalias !48403   [min_by_key<core::iter::adapters::chain::Chain<core::iter::adapters::flatten::Flatten<core::array::iter::IntoIter<enum2$<core::option::Option<ref$<game_core::simulation::entity::Entity> > >,6> >,core::iter::adapters::copied::Copied<core::slice::iter::Iter<ref$<game_core::simulation::entity::Entity> > > >,u64,game_ai::plan_legacy::old::single_battle::single_tower_dive_is_viable::closure_env$3>@iterator.rs:3387]
+44387: call void @llvm.experimental.noalias.scope.decl(metadata !48407), !dbg !48402   [min_by_key<core::iter::adapters::chain::Chain<core::iter::adapters::flatten::Flatten<core::array::iter::IntoIter<enum2$<core::option::Option<ref$<game_core::simulation::entity::Entity> > >,6> >,core::iter::adapters::copied::Copied<core::slice::iter::Iter<ref$<game_core::simulation::entity::Entity> > > >,u64,game_ai::plan_legacy::old::single_battle::single_tower_dive_is_viable::closure_env$3>@iterator.rs:3387]
+44388:   ; dbg self = ptr %16
+44389:   ; dbg f = ptr %5
+44390: call void @llvm.memcpy.p0.p0.i64(ptr noundef nonnull align 8 dereferenceable(128) %9, ptr noundef nonnull readonly align 8 dereferenceable(120) %16, i64 120, i1 false), !dbg !48420, !alias.s   [new<core::iter::adapters::chain::Chain<core::iter::adapters::flatten::Flatten<core::array::iter::IntoIter<enum2$<core::option::Option<ref$<game_core::simulation::entity::Entity> > >,6> >,core::iter::adapters::copied::Copied<core::slice::iter::Iter<ref$<game_core::simulation::entity::Entity> > > >,core::iter::traits::iterator::Iterator::min_by_key::key::closure_env$0<ref$<game_core::simulation::entity::Entity>,u64,game_ai::plan_legacy::old::single_battle::single_tower_dive_is_viable::closure_env$3> >@map.rs:69]
+44391: %61 = getelementptr inbounds nuw i8, ptr %9, i64 120, !dbg !48420   [new<core::iter::adapters::chain::Chain<core::iter::adapters::flatten::Flatten<core::array::iter::IntoIter<enum2$<core::option::Option<ref$<game_core::simulation::entity::Entity> > >,6> >,core::iter::adapters::copied::Copied<core::slice::iter::Iter<ref$<game_core::simulation::entity::Entity> > > >,core::iter::traits::iterator::Iterator::min_by_key::key::closure_env$0<ref$<game_core::simulation::entity::Entity>,u64,game_ai::plan_legacy::old::single_battle::single_tower_dive_is_viable::closure_env$3> >@map.rs:69]
+44392: store ptr %5, ptr %61, align 8, !dbg !48420, !alias.scope !48428, !noalias !48429   [new<core::iter::adapters::chain::Chain<core::iter::adapters::flatten::Flatten<core::array::iter::IntoIter<enum2$<core::option::Option<ref$<game_core::simulation::entity::Entity> > >,6> >,core::iter::adapters::copied::Copied<core::slice::iter::Iter<ref$<game_core::simulation::entity::Entity> > > >,core::iter::traits::iterator::Iterator::min_by_key::key::closure_env$0<ref$<game_core::simulation::entity::Entity>,u64,game_ai::plan_legacy::old::single_battle::single_tower_dive_is_viable::closure_env$3> >@map.rs:69]
+44393: call void @llvm.experimental.noalias.scope.decl(metadata !48430), !dbg !48433   [min_by<core::iter::adapters::map::Map<core::iter::adapters::chain::Chain<core::iter::adapters::flatten::Flatten<core::array::iter::IntoIter<enum2$<core::option::Option<ref$<game_core::simulation::entity::Entity> > >,6> >,core::iter::adapters::copied::Copied<core::slice::iter::Iter<ref$<game_core::simulation::entity::Entity> > > >,core::iter::traits::iterator::Iterator::min_by_key::key::closure_env$0<ref$<game_core::simulation::entity::Entity>,u64,game_ai::plan_legacy::old::single_battle::single_tower_dive_is_viable::closure_env$3> >,core::cmp::Ordering (*)(ref$<tuple$<u64,ref$<game_core::simulation::entity::Entity> > >,ref$<tuple$<u64,ref$<game_core::simulation::entity::Entity> > >)>@iterator.rs:3416]
+44394:   ; dbg self = ptr %9
+44395:   ; dbg f = ptr poison
+44396:   ; dbg self = ptr %9
+44397:   ; dbg self = ptr %9
+44398:   ; dbg opt = ptr %9
+44399:   ; dbg self = ptr %9
+44400:   ; dbg f = ptr poison
+44401: %62 = load i64, ptr %9, align 8, !dbg !48465, !range !30098, !alias.scope !48466, !noalias !48403, !noundef !8   [as_mut<core::iter::adapters::flatten::Flatten<core::array::iter::IntoIter<enum2$<core::option::Option<ref$<game_core::simulation::entity::Entity> > >,6> > >@option.rs:764]
+44402: %63 = icmp eq i64 %62, -1, !dbg !48465   [as_mut<core::iter::adapters::flatten::Flatten<core::array::iter::IntoIter<enum2$<core::option::Option<ref$<game_core::simulation::entity::Entity> > >,6> > >@option.rs:764]
+44403: br i1 %63, label %84, label %64, !dbg !48465   [as_mut<core::iter::adapters::flatten::Flatten<core::array::iter::IntoIter<enum2$<core::option::Option<ref$<game_core::simulation::entity::Entity> > >,6> > >@option.rs:764]
+44404: 
+44405: 64:                                               ; preds = %60
+44408:   ; dbg self = ptr %9
+44409:   ; dbg self = ptr %9
+44410: %65 = getelementptr inbounds nuw i8, ptr %9, i64 8, !dbg !48480   [as_mut<core::array::iter::IntoIter<enum2$<core::option::Option<ref$<game_core::simulation::entity::Entity> > >,6> >@option.rs:765]
+44411: %66 = getelementptr inbounds nuw i8, ptr %9, i64 16, !dbg !48484   [len@index_range.rs:52]
+44412: %67 = trunc nuw i64 %62 to i1
+44413: %68 = load i64, ptr %66, align 8, !alias.scope !48491, !noalias !48403
+44414: %69 = getelementptr inbounds nuw i8, ptr %9, i64 24
+44415: br i1 %67, label %70, label %83, !dbg !48498   [as_mut<core::array::iter::IntoIter<enum2$<core::option::Option<ref$<game_core::simulation::entity::Entity> > >,6> >@option.rs:764]
+44416: 
+44417: 70:                                               ; preds = %64
+44418: %71 = load i64, ptr %65, align 1, !alias.scope !48491, !noalias !48403
+44419:   ; dbg self = ptr %9
+44420:   ; dbg self = ptr %9

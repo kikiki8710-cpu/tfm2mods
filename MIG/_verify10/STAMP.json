@@ -1,0 +1,82 @@
+{
+ "A": {
+  "dossier": "92fc2e0f70a4b59e",
+  "specs": [
+   "spec_00_ult.md",
+   "spec_01_calculate_jungle_action_score.md",
+   "spec_02_sub_plan.md",
+   "spec_03_defensive_crisis.md",
+   "spec_04_handle_line_defense.md"
+  ],
+  "spec_hashes": {
+   "spec_00_ult.md": "136a752b1573cc95",
+   "spec_01_calculate_jungle_action_score.md": "2e9bc5fb45dc7a2d",
+   "spec_02_sub_plan.md": "4a3d12f0fa31b31b",
+   "spec_03_defensive_crisis.md": "bf893158f309ec5b",
+   "spec_04_handle_line_defense.md": "435c4d37c31dae0e"
+  },
+  "mkdossier": "af0a7efd074c9da7",
+  "v3": "9a1edfa8fc364b08",
+  "built": "2026-09-11 21:16:34"
+ },
+ "B": {
+  "dossier": "6ee5b843fb9eaa51",
+  "specs": [
+   "spec_05_v50_fold_dive_episode.md",
+   "spec_06_v2_response_retreat_stance.md",
+   "spec_07_sub_plan.md",
+   "spec_08_is_end.md",
+   "spec_09_check_favorable_engage_formation.md"
+  ],
+  "spec_hashes": {
+   "spec_05_v50_fold_dive_episode.md": "67d2c150b0629699",
+   "spec_06_v2_response_retreat_stance.md": "36360526aa9785cc",
+   "spec_07_sub_plan.md": "1fe6de6b889b4edd",
+   "spec_08_is_end.md": "95e36663d14006a1",
+   "spec_09_check_favorable_engage_formation.md": "948b8d0c3b5be29e"
+  },
+  "mkdossier": "af0a7efd074c9da7",
+  "v3": "9a1edfa8fc364b08",
+  "built": "2026-09-11 21:16:34"
+ },
+ "C": {
+  "dossier": "41964c775b099988",
+  "specs": [
+   "spec_10_should_end_object_finish_kill_priority_battle.md",
+   "spec_11_v3_fall_back_to_passive.md",
+   "spec_12_handle_chat.md",
+   "spec_13_target_bush_v30.md",
+   "spec_14_update.md"
+  ],
+  "spec_hashes": {
+   "spec_10_should_end_object_finish_kill_priority_battle.md": "0450691ed80a2fd4",
+   "spec_11_v3_fall_back_to_passive.md": "122bd849ed37bd98",
+   "spec_12_handle_chat.md": "c22f6600addeda65",
+   "spec_13_target_bush_v30.md": "b37f476421986019",
+   "spec_14_update.md": "5322a0668f483101"
+  },
+  "mkdossier": "af0a7efd074c9da7",
+  "v3": "9a1edfa8fc364b08",
+  "built": "2026-09-11 21:16:34"
+ },
+ "D": {
+  "dossier": "80207bbc5b0dce0e",
+  "specs": [
+   "spec_15_single_try_engage.md",
+   "spec_16_max_range_nearly_can_use.md",
+   "spec_17_new.md",
+   "spec_18_v3_epicops_buff_window.md",
+   "spec_19_best_jungle_goal.md"
+  ],
+  "spec_hashes": {
+   "spec_15_single_try_engage.md": "5e4d1fdc58310f8e",
+   "spec_16_max_range_nearly_can_use.md": "2d897a453e8a7fde",
+   "spec_17_new.md": "5c7e6ed350bcc5c6",
+   "spec_18_v3_epicops_buff_window.md": "99ef7807c9a48518",
+   "spec_19_best_jungle_goal.md": "3c993c7007da3190"
+  },
+  "mkdossier": "af0a7efd074c9da7",
+  "v3": "9a1edfa8fc364b08",
+  "built": "2026-09-11 21:16:34"
+ }
+}

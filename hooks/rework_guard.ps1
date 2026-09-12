@@ -1,13 +1,22 @@
 ﻿# UserPromptSubmit 훅 — RE/구현 "착수성" 프롬프트에만 §7·§9 리마인더 주입 + 프롬프트 내 심볼이 DONE.md에 있으면 콕 집어 경고.
 # 구버전은 키워드(모드/찾아/이미/구조/메모리 등)가 너무 넓어 매 프롬프트 배너화(소음) → 착수성 동사로 축소(2026-07-11).
 $ErrorActionPreference = 'SilentlyContinue'
+# ★경로 해석 — 하드코딩 금지. (2026-09-12 /dream: `C:\Users\dev` 하드코딩으로 이 훅이
+#   오랫동안 **무동작**이었다. 그 사이 메모리 29개가 15KB 상한을 총 250KB 초과했는데
+#   아무 경고도 안 떴다. 계정·머신이 바뀌어도 살아 있도록 실행 시점에 찾는다.)
+$mem = ''
+$projRoot = Join-Path $env:USERPROFILE '.claude\projects'
+$proj = Get-ChildItem $projRoot -Directory -ErrorAction SilentlyContinue |
+        Where-Object { $_.Name -like '*-Desktop-claude-tfm2' } | Select-Object -First 1
+if ($proj) { $mem = Join-Path $proj.FullName 'memory' }
+$anaRoot = Join-Path $env:USERPROFILE 'Desktop\claude\tfm2\팀파매2모드 분석'
 try { [Console]::InputEncoding  = [System.Text.Encoding]::UTF8 } catch {}
 try { [Console]::OutputEncoding = [System.Text.Encoding]::UTF8 } catch {}
 $raw = [Console]::In.ReadToEnd()
 if ([string]::IsNullOrEmpty($raw)) { exit 0 }
 
 # 1) 프롬프트에 등장한 심볼(FUN_xxx / 0x주소)이 DONE.md에 이미 판정돼 있으면 대상 지목 경고 (동적·고신호)
-$doneFile = "C:\Users\dev\.claude\projects\C--Users-dev-Desktop-claude-tfm2\memory\DONE.md"
+$doneFile = (Join-Path $mem 'DONE.md')
 if (Test-Path $doneFile) {
   $syms = [regex]::Matches($raw, 'FUN_[0-9a-fA-F]{6,}|0x[0-9a-fA-F]{5,}') | ForEach-Object { $_.Value } | Select-Object -Unique -First 8
   if ($syms) {

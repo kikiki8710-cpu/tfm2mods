@@ -1,0 +1,32 @@
+setting_ok	true	width=960000	height=960000	tps=60	champ_radius=10000	visible=130000
+towers	16	twin0=2	twin1=2
+is_top_side_true	8/10	(height=0 이면 10/10 로 붕괴한다)
+expect	towers=16 twin=2/2 is_top_side_true=8/10
+
+#o01  Effect::expected_damage_target — 단위 확인
+o01	Swordman.skill	atk=1000	mp=1000	hp=2000	def=0	mr=0	struct=false	ty=false	ret=Ok(0)
+o01	Swordman.skill	atk=1000	mp=1000	hp=2000	def=25	mr=0	struct=false	ty=false	ret=Ok(0)
+o01	Swordman.skill	atk=1000	mp=1000	hp=2000	def=50	mr=0	struct=false	ty=false	ret=Ok(0)
+o01	Swordman.skill	atk=1000	mp=1000	hp=2000	def=100	mr=0	struct=false	ty=false	ret=Ok(0)
+o01	Swordman.skill	atk=1000	mp=1000	hp=2000	def=200	mr=0	struct=false	ty=false	ret=Ok(0)
+o01	Swordman.skill	atk=1000	mp=1000	hp=2000	def=400	mr=0	struct=false	ty=false	ret=Ok(0)
+o01	Swordman.skill	atk=1000	mp=1000	hp=2000	def=900	mr=0	struct=false	ty=false	ret=Ok(0)
+o01	Pyromancer.skill	atk=1000	mp=1000	hp=2000	def=0	mr=0	struct=false	ty=false	ret=Ok(0)
+o01	Pyromancer.skill	atk=1000	mp=1000	hp=2000	def=0	mr=100	struct=false	ty=false	ret=Ok(0)
+o01	Pyromancer.skill	atk=1000	mp=1000	hp=2000	def=0	mr=300	struct=false	ty=false	ret=Ok(0)
+o01	Executioner.skill	atk=1000	mp=1000	hp=1000	def=0	mr=0	struct=false	ty=false	ret=Ok(0)
+o01	Swordman.attack	atk=1000	mp=1000	hp=1000	def=0	mr=0	struct=false	ty=false	ret=Ok(0)
+o01	Executioner.skill	atk=1000	mp=1000	hp=2000	def=0	mr=0	struct=false	ty=false	ret=Ok(0)
+o01	Swordman.attack	atk=1000	mp=1000	hp=2000	def=0	mr=0	struct=false	ty=false	ret=Ok(0)
+o01	Executioner.skill	atk=1000	mp=1000	hp=4000	def=0	mr=0	struct=false	ty=false	ret=Ok(0)
+o01	Swordman.attack	atk=1000	mp=1000	hp=4000	def=0	mr=0	struct=false	ty=false	ret=Ok(0)
+o01	Executioner.skill	atk=1000	mp=1000	hp=8000	def=0	mr=0	struct=false	ty=false	ret=Ok(0)
+o01	Swordman.attack	atk=1000	mp=1000	hp=8000	def=0	mr=0	struct=false	ty=false	ret=Ok(0)
+o01	Swordman.skill/STRUCT	atk=1000	mp=1000	hp=1	def=1	mr=1	struct=true	ty=true	ret=Ok(0)
+o01	Executioner.skill/STRUCT	atk=1000	mp=1000	hp=1	def=1	mr=1	struct=true	ty=true	ret=Ok(0)
+o01	Swordman.skill/STRUCT	atk=1000	mp=1000	hp=1	def=1	mr=1	struct=true	ty=true	ret=Ok(0)
+o01	Executioner.skill/STRUCT	atk=1000	mp=1000	hp=1	def=1	mr=1	struct=true	ty=true	ret=Ok(0)
+o01	Swordman.skill	atk=0	mp=0	hp=2000	def=0	mr=0	struct=false	ty=false	ret=Ok(0)
+o01	Swordman.skill	atk=500	mp=0	hp=2000	def=0	mr=0	struct=false	ty=false	ret=Ok(0)
+o01	Swordman.skill	atk=1000	mp=0	hp=2000	def=0	mr=0	struct=false	ty=false	ret=Ok(0)
+o01	Swordman.skill	atk=2000	mp=0	hp=2000	def=0	mr=0	struct=false	ty=false	ret=Ok(0)

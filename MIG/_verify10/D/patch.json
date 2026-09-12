@@ -1,0 +1,385 @@
+{
+ "round": 10,
+ "batch": "D",
+ "errors": [
+  {
+   "path": "/specs[15]/knobs[0]/where",
+   "kind": "실오류",
+   "old": "m13.ll 33724~33728 switch",
+   "new": "m13.ll 33708~33713 `switch i64 %125` (33708 = `%124 = gep %15, i64 88` + `load` sub_goal, 33710/33711/33712 = case 3/4/7)",
+   "evidence": "m13.ll:33708 `%125 = load i64, ptr %124` · 33709 `switch i64 %125, label %126 [` · 33710~33712 `i64 3/4/7, label %127`. 옛 좌표 33724~33728 은 **미채택 경로의 chats drop** 구간이다 (33724 `%128 = getelementptr inbounds nuw i8, ptr %15, i64 104`, 33726 `invoke … Vec<Chat> … Drop::drop`) — 같은 명세의 mem[12] 가 그 자리를 정확히 그렇게 인용하고 있어 두 칸이 같은 줄을 다른 것이라 부르고 있었다. G13 은 백틱 인용이 없어 줄 존재만 보고 통과시켰다",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[15]/open",
+   "kind": "보강",
+   "old": "소비처는 SinglePlanBattle::new/new_dive/update 안이라 담당 범위 밖 — 틱 예산/유효기간 '추정'이지만 확인 안 함",
+   "new": "~~소비처는 … 담당 범위 밖 — 틱 예산/유효기간 '추정'이지만 확인 안 함~~ → ★**해소: `history[1]` 참조** — 소비처가 **존재하지 않는다**(생성 14곳 전부 리터럴 60, `main_goal.__1`(goal+0x10)을 읽는 코드는 `BattlePlanGoal::Debug::fmt`(m10.ll:61999) 뿐). 노브가 아니다",
+   "evidence": "`resolved[1]`(history[1]) 이 이미 뒤집은 판정인데 `unknown` 원문이 그대로 남아 「확인 안 함」이라 주장하고 있었다. v3 는 이 줄을 `closed[0]` 으로 **답 칸이 빈 채** 보여준다 — `unknown` 만 grep 하는 다음 세션이 확정된 것을 다시 판다(같은 명세 `closed[6]`·16 `still_unknown[0]` 이 이 현상을 경고한다)",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[15]/open",
+   "kind": "보강",
+   "old": "AbstractGameWithCache 의 top_tower/top_tower2/mid_tower/... 필드들로 보이나 game_core 쪽 본문을 안 봐서 순서·구성 미확정",
+   "new": "~~… game_core 쪽 본문을 안 봐서 순서·구성 미확정~~ → ★**해소: `history[3]`·`history[6]` 참조** — `_gcbc/g15.ll:108971~109045` 로 `[top_tower, mid_tower, bottom_tower, top_tower2, mid_tower2, bottom_tower2][team]`(+0x180/0x1a0/0x1c0/0x190/0x1b0/0x1d0) `.flatten().chain(twin_towers[team](+0x130).iter().copied())` 확정, 3차에 포인터 동일성(PTR_IDENTICAL)으로 재확인",
+   "evidence": "`resolved[3]`/`resolved[6]` 이 확정한 사실인데 `unknown` 원문은 여전히 「미확정」이다. 같은 명세의 `logic`(249행 주석)·`mem` 은 이미 확정판을 싣고 있어 한 명세 안에서 두 칸이 어긋나 있었다",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[16]/open",
+   "kind": "보강",
+   "old": "Effect::range_adjust 본체 — game_core 심볼이고 _gaibc 24개 .ll 어디에도 define 이 없다(전부 declare). 이펙트 타입별로 사거리를 얼마나 보정하는지 확인 불가.",
+   "new": "~~Effect::range_adjust 본체 — … 확인 불가.~~ → ★**해소: `history[0]` 참조** — 본체는 `_gcbc/g06.ll:51785~51804` 한 줄이고 `Arc<dyn EffectType>` 의 **vtable +0xe8** 로 위임한다. override 는 3개뿐이고 나머지 약 550개는 디폴트 `ret 0`.",
+   "evidence": "`resolved[0]` 이 이미 분기표를 완전 복원했는데 `unknown[0]` 은 「_gaibc 어디에도 define 이 없다 ⟹ 확인 불가」 원문 그대로다. 이 명세 자신의 `still_unknown[0]`(v3 `closed[6]`)이 검증배치 D 때 이 현상을 지적했으나 **아무도 고치지 않았다**. `METHOD_MAP §1-①`: 「`_gaibc` 에 declare 만 있으면 `_gcbc` 에서 define 을 찾아라」",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[16]/open",
+   "kind": "보강",
+   "old": "어느 값이 어떤 필터인지의 실제 판정식은 미확인",
+   "new": "~~어느 값이 어떤 필터인지의 실제 판정식은 미확인~~ → ★**해소: `history[1]` 참조** — 본체 `_gcbc/g06.ll:86744~87269`, 태그 0..13 그대로(니치 밀림 없음). 공통 전제 = `target.can_target(+0x6b9) && target.block_target_tick(+0x6a0) == 0`",
+   "evidence": "`resolved[1]` 이 14종 전량을 복원했는데 `unknown[1]` 이 「미확인」으로 남아 있다. 같은 명세 `knobs[5]`(최근 피격 180틱)·`knobs[6]`(HARD_CC 집합)은 바로 그 복원 결과를 싣고 있다 — 즉 한 명세 안에서 「모른다」와 「이게 답이다」가 공존한다",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[16]/open",
+   "kind": "보강",
+   "old": "'남은 틱'(즉 tick=허용 여유)으로 읽는 것이 자연스럽다고 판단했으나 이는 **추정**이다. 확정하려면 cooldown 필드에 write 하는 game_core 쪽 코드를 봐야 한다",
+   "new": "~~'남은 틱' … 이는 **추정**이다. 확정하려면 … 봐야 한다~~ → ★**해소: `history[2]` 참조** — **남은 틱 확정**(`_shared.cooldown_확정`)",
+   "evidence": "`resolved[2]` = 「남은 틱 확정」. 그런데 `unknown[2]` 은 아직 「**추정**이다」라고 적혀 있어 `mkspec3.evtier` 의 「추정」 낱말 규칙까지 건드린다(근거 문면에서 ev 가 파생되므로 이 낱말은 값에 영향을 준다)",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[16]/open",
+   "kind": "보강",
+   "old": "'해당 팔이 0 을 반환해 접힌 것'인지 '애초에 게이트 자체가 없는 것'인지는 구분 불가",
+   "new": "~~'해당 팔이 0 을 반환해 접힌 것'인지 '애초에 게이트 자체가 없는 것'인지는 구분 불가~~ → ★**해소: `history[5]` 참조** — `Entity::attack_cooldown`(entity.rs:1747~1764) 14-arm 전량이 MIR 에 있고 **태그 3(Nexus)은 1761, 태그 0(None)은 1762 에서 `const 0_usize` 를 반환**한다 ⟹ 「그 팔이 0 을 반환해 접힌 것」",
+   "evidence": "`resolved[5]` 가 확정한 것인데 `unknown[4]` 은 「구분 불가」로 남아 있다. ★이 건은 **`still_unknown[0]` 의 3건 목록에도 없다** — 즉 그 자기점검 자체가 과소계상(3건이 아니라 5건)이었다",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[16]/open",
+   "kind": "보강",
+   "old": "battle.rs:2399/2407/2414/2421 의 원본 소스 텍스트는 확인 불가 — 이 저장소에 game-ai 소스 트리가 없다",
+   "new": "~~battle.rs:2399/2407/2414/2421 의 원본 소스 텍스트는 확인 불가~~ → ★**해소: `history[7]`·`history[8]`·`history[10]` 참조** — 줄 길이 산술(`rmeta_srcmap`)로 `battle.rs:2397~2429` **전 33줄 ±0 복원**(4차 배치D). 소스 트리는 여전히 없다",
+   "evidence": "`resolved[7]`(3차)·`resolved[10]`(4차)이 「재료 부재(전 범위)」 판정을 뒤집고 전 33줄을 복원했는데 `unknown[5]` 은 「확인 불가」 원문 그대로다. ★이것도 `still_unknown[0]` 의 3건 목록 밖이다 — 「불가」 문면이 살아 있으면 다음 세션이 그 방법을 아예 시도하지 않는다(CLAUDE.md §11 의 실사고 형태)",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[16]/open",
+   "kind": "실오류",
+   "old": "뒤집은 판정 3건이 원문 그대로** 남아 있다",
+   "new": "뒤집은 판정 ~~3건~~ → **5건**이 원문 그대로** 남아 있었다(④\"태그 0/3 의 게이트 부재 여부 구분 불가\"(→history[5]) ⑤\"battle.rs 원본 소스 텍스트 확인 불가\"(→history[7]/[10]) 가 이 목록에서 빠져 있었다 — 10차 배치D 가 5건 전부 `~~취소선~~ → history 참조`로 정정)",
+   "evidence": "자기점검 자체의 과소계상. `unknown` 6행 중 5행이 `resolved` 에 의해 뒤집혔는데 이 줄은 3건만 셌다. 판정 반전 1건으로 셈(도시에 §5-b 4항)",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[16]/knobs[0]/what",
+   "kind": "보강",
+   "old": "'거의 쓸 수 있다' 판정의 쿨다운 여유(tick 인자)",
+   "new": "'거의 쓸 수 있다' 판정의 쿨다운 여유(tick 인자) ★**단일 값이 아니다** — 호출부 13곳 실측 분포 = **40×5 / 50×2 / 60×5 / `GameSetting.tick_per_second`(계산값) ×1**. `value` 칸의 `40` 은 정수 필드라 대표값 하나만 담긴 것이고, 전량은 `where` 칸과 이 문장에 있다",
+   "evidence": "호출부 13곳 전수 실측: `m02.ll:13159 … i64 noundef 40` · `13199 … 60` · `15125 … 50` · `m15.ll:16295 … 50` · `m14.ll:60624 … i64 noundef %33`(=`+0x12f8` tick_per_second, history[4]). `where` 칸은 세 값을 다 열거하는데 `value` 칸만 40 이라 두 칸이 어긋나 있었다",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[17]/knobs[1]/where",
+   "kind": "실오류",
+   "old": "m05.ll 17754, store i64 0, ptr %21",
+   "new": "m05.ll 17749 `store i64 0, ptr %21`",
+   "evidence": "m05.ll:17749 `store i64 0, ptr %21, align 8, !dbg !27042`(= Chat::Battle.__1 @ chat+0x10). 옛 좌표 17754 는 `%23 = load ptr, ptr %3`(= data.cache, !dbg !27045 = death_battle.rs:**754**)로 전혀 다른 명령이다 — 5줄 밀림",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[17]/knobs[2]/where",
+   "kind": "실오류",
+   "old": "m05.ll 17773/17775/17800, store i8 0",
+   "new": "m05.ll 17775/17777/17809 `store i8 0`",
+   "evidence": "실측: stance(+0x176)=`store i8 0, ptr %37` @17775 · tactic(+0x177)=`store i8 0, ptr %38` @17777 · scene(+0x178)=`store i8 0, ptr %54` @17809. 옛 좌표 중 17773 은 `store i64 %31, ptr %36`(sub_goal 상위 8B), 17800 은 `store i8 0, ptr %49`(+0x174 last_stand)라 **3개 중 2개가 다른 필드를 가리키고 있었다**",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[17]/knobs[3]/where",
+   "kind": "실오류",
+   "old": "m05.ll 17784, store i64 9223372036854775807",
+   "new": "m05.ll 17804 `store i64 9223372036854775807, ptr %51`",
+   "evidence": "m05.ll:17804 `store i64 9223372036854775807, ptr %51`(%51 = `gep %0, i64 280` = +0x118 flee_die). 옛 좌표 17784 는 `store i64 %29, ptr %41`(= +0x110 start_tick) — 20줄 밀림",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[17]/knobs[4]/where",
+   "kind": "실오류",
+   "old": "team_plan.rs:376·388 (m09.ll:38724·39066, mul .., 20)",
+   "new": "team_plan.rs:379·388 (m09.ll:38725·38868, `mul i64 %220, 20`)",
+   "evidence": "m09.ll:38725 `%265 = mul i64 %220, 20, !dbg !38896`(→ team_plan.rs:**379**) · 38868 `%326 = mul i64 %220, 20, !dbg !39040`(→ team_plan.rs:388). 옛 좌표 38724 는 `%264 = call i64 @llvm.usub.sat.i64`, **39066 은 빈 줄**이다. team_plan.rs:376 에는 `mul .., 20` 이 없다(m09.ll 의 `mul i64 %N, 20` 13곳 전수 확인: 339·345·379·388 등, 376 없음)",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[18]/knobs[9]/where",
+   "kind": "실오류",
+   "old": "m09.ll:65042 (icmp eq i8 %58, 5)",
+   "new": "m09.ll:65128 (`%59 = icmp eq i8 %58, 5`, epic.rs:837 — `BigPlan::goal()` sret 태그 직독)",
+   "evidence": "m09.ll:65128 `%59 = icmp eq i8 %58, 5, !dbg !54756`(!54756 → epic.rs:837 v3_epicops_repair_need), 직전 65126 이 `call … BigPlan4goal(sret %4 …)` · 65127 이 `%58 = load i8, ptr %4`. 옛 좌표 65042 는 `%17 = getelementptr inbounds nuw i8, ptr %9, i64 32`(iter_champions fold, epic.rs:834) — 86줄 밀림",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[18]/knobs[12]/where",
+   "kind": "실오류",
+   "old": "m09.ll:64526 (ugt i8 .., 4)",
+   "new": "m09.ll:64600 (`%70 = icmp samesign ugt i8 %69, 4` — `Entity+0x128` TowerType, epic.rs:875 `is_tower2`)",
+   "evidence": "m09.ll:64600 `%70 = icmp samesign ugt i8 %69, 4, !dbg !54469`(!54469 → tower.rs:100 `is_second_tower` ← entity.rs:1309 `is_tower2` ← epic.rs:875 `v3_group_press_line`), 다음 줄 64601 이 `%71 = select i1 %70, i16 1, i16 2`(= score 1/2). 옛 좌표 64526 은 `br label %32` 이고, m09.ll 전체에 `icmp ugt i8 %N, 4` 는 **0건**(실제 문면은 `icmp samesign ugt i8`)",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[18]/knobs[14]/where",
+   "kind": "실오류",
+   "old": "m09.ll:64451 / 64330 / 64611",
+   "new": "m09.ll:64391(epic.rs:857 `v3_split14_far_line`) / 64471(epic.rs:867 `v3_group_press_line`) — 둘 다 `icmp ugt i64 <+0x1b0>, <+0x1e0>`",
+   "evidence": "m09.ll:64391 `%33 = icmp ugt i64 %30, %32, !dbg !54233`(!54233 → epic.rs:857) 와 64471 `%22 = icmp ugt i64 %19, %21, !dbg !54392`(→ epic.rs:867). 양쪽 다 피연산자가 `gep %ptr, i64 432` / `gep %ptr, i64 480` 이다. 옛 좌표 셋은 전부 다른 것 — 64451 은 `#dbg_value` 줄, 64330 은 `%12 = load i32`(epic.rs:776 `v3_epic_formation`), 64611 은 `%75 = icmp eq i8 %47, 1` (= LineType==Mid, epic.rs:879 — 이건 **knobs[13] 의 정렬 키** 몫이다)",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[18]/knobs[16]/where",
+   "kind": "실오류",
+   "old": "m09.ll:7156~7159",
+   "new": "m09.ll:7189~7202 (`%133 = phi i64 [0,%76],[1,%88],[2,%100],[3,%112],[4,%124]` @7189 → `%134 = gep %3, i64 2496` @7194 → `%137 = icmp eq i64 %133, %136` @7202)",
+   "evidence": "`announcer == player.info.position` 의 실제 비교는 m09.ll:7202 `%137 = icmp eq i64 %133, %136, !dbg !14942` 이고 그 피연산자는 7189 의 announcer phi 와 7194~7196 의 `PlayerState+0x9c0`(=2496) 로드다. 옛 좌표 7156~7159 는 `%118 = xor i1 %116, %117` / `%119 = freeze` / `br` — **발표자 자격 술어의 슬롯3 사본**이라 바로 옆 `knobs[17]` 의 주제이지 이 노브의 자리가 아니다",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[18]/knobs[17]/where",
+   "kind": "실오류",
+   "old": "m09.ll:7080~7083",
+   "new": "m09.ll:7070~7073 (슬롯0; 언롤 사본 5개 = 7070·7098·7126·7154·7182 의 `icmp ne i8 %role0, 2` → `trunc i8 %role0 to i1` → `xor` → `freeze`)",
+   "evidence": "m09.ll:7070 `%80 = icmp ne i8 %79, 2` · 7071 `%81 = trunc i8 %79 to i1` · 7072 `%82 = xor i1 %80, %81` · 7073 `%83 = freeze i1 %82`. 옛 좌표 7080~7083 은 **네 줄 전부 `#dbg_declare`/`#dbg_value`** 라 명령이 하나도 없다(`%84:` 블록 머리 근처). G13 은 백틱 인용이 없어 통과시켰다",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "op": "insert",
+   "path": "/specs[18]/writes",
+   "at": 6,
+   "guard": "objective.Serpen.phase",
+   "guard_key": "name",
+   "new": {
+    "base": "TeamPlan",
+    "offset": "0x420",
+    "name": "objective.Serpen.phase",
+    "value": "ObjectPhase::Setup = 1",
+    "note": "세르펜 징벌 경로(epic.rs:654)에서 `store i8 1`. `MainObjective`(3B)의 Serpen 페이로드 첫 바이트 — 태그(+0x41f)만 쓰고 여기를 안 쓰면 objective 가 미초기화된다. IR 원문 m09.ll:6978 `%48 = getelementptr inbounds nuw i8, ptr %0, i64 1056` → 6979 `store i8 1, ptr %48`"
+   },
+   "kind": "보강",
+   "evidence": "m09.ll:6978~6979 `%48 = getelementptr inbounds nuw i8, ptr %0, i64 1056` / `store i8 1, ptr %48, align 1, !dbg !14813`. `logic`(654행)과 `mem[13]` 의 **note 안**에만 적혀 있고 표에 행이 없었다 — 같은 명세 `mem[15]`/`mem[16]` 의 「★행 분리: 한 행에 오프셋을 묶으면 `tcxaudit` 기계 검사가 무력화된다」 규약을 스스로 어긴 자리다. G14(mem.dir)는 **있는 행만** 보므로 침묵한다",
+   "behavior_change": true,
+   "found_by": "new"
+  },
+  {
+   "op": "insert",
+   "path": "/specs[18]/writes",
+   "at": 7,
+   "guard": "objective.Serpen.with_battle",
+   "guard_key": "name",
+   "new": {
+    "base": "TeamPlan",
+    "offset": "0x421",
+    "name": "objective.Serpen.with_battle",
+    "value": "true = 1",
+    "note": "세르펜 징벌 경로(epic.rs:654)에서 `store i8 1`. `MainObjective` Serpen 페이로드 둘째 바이트(bool). IR 원문 m09.ll:6980 `%49 = getelementptr inbounds nuw i8, ptr %0, i64 1057` → 6981 `store i8 1, ptr %49`"
+   },
+   "kind": "보강",
+   "evidence": "m09.ll:6980~6981 `%49 = getelementptr inbounds nuw i8, ptr %0, i64 1057` / `store i8 1, ptr %49, align 1, !dbg !14813`. `mem` 표에 행이 없었다(근거는 `mem[13]` note 안에만). `knobs[2]` 가 바로 이 두 바이트를 조정점으로 선언하고 있는데 대응하는 `mem` 행이 없다 = G18 이 잡는 「logic 이 인용한 자리가 표에 없다」와 같은 형태",
+   "behavior_change": true,
+   "found_by": "new"
+  },
+  {
+   "op": "insert",
+   "path": "/specs[18]/writes",
+   "at": 8,
+   "guard": "Chat.__0 (Press/PressChange 의 LineType)",
+   "guard_key": "name",
+   "new": {
+    "base": "Chat(chats 버퍼 원소, 24B)",
+    "offset": "0x1",
+    "name": "Chat.__0 (Press/PressChange 의 LineType)",
+    "value": "group_line (LineType 1B)",
+    "note": "epic.rs:674/676 경로에서만 쓰인다(Repair/SerpenSetup 은 이 바이트를 안 건드린다). IR 원문 m09.ll:7214 `%143 = getelementptr inbounds nuw i8, ptr %142, i64 1` → 7215 `store i8 %41, ptr %143` (%41 = `v3_epic_group_line` 반환값)"
+   },
+   "kind": "보강",
+   "evidence": "m09.ll:7214~7215 `%143 = getelementptr inbounds nuw i8, ptr %142, i64 1` / `store i8 %41, ptr %143, align 1, !dbg !14953`. 이 오프셋은 `mem[15]` 의 note 문장 안에만 있었다 — 그 note 자신이 「★행 분리 : 한 행에 오프셋을 묶으면 `tcxaudit` 기계 검사가 무력화된다. 14 는 3차에 같은 이유로 분리됐는데 **18 만 남아 있었다.**」라고 적어 두고도 분리되지 않았다",
+   "behavior_change": true,
+   "found_by": "new"
+  },
+  {
+   "op": "insert",
+   "path": "/specs[18]/writes",
+   "at": 9,
+   "guard": "Chat.__1 (공통 usize 슬롯)",
+   "guard_key": "name",
+   "new": {
+    "base": "Chat(chats 버퍼 원소, 24B)",
+    "offset": "0x8",
+    "name": "Chat.__1 (공통 usize 슬롯)",
+    "value": "항상 0",
+    "note": "네 경로(Repair 23 / SerpenSetup 25 / Press 21 / PressChange 22) 전부 `store i64 0`. IR 원문 m09.ll:6941 `store i64 0, ptr %27` · 7015 `store i64 0, ptr %60` · 7217 `store i64 0, ptr %144` (각각 chat+0x8)"
+   },
+   "kind": "보강",
+   "evidence": "m09.ll:6941 / 7015 / 7217 에 `store i64 0, ptr <chat+8>` 이 있다(세 push 경로 각각). `mem[15]` note 안에만 적혀 있던 오프셋이라 독립 행이 없었다 — `mem[15]`/`mem[16]` 의 note 가 「행 분리」를 요구하는 바로 그 오프셋이다",
+   "behavior_change": true,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[18]/open",
+   "kind": "보강",
+   "old": "어떤 필드가 판정에 쓰이는지는 이 범위에서 확정 불가",
+   "new": "~~어떤 필드가 판정에 쓰이는지는 이 범위에서 확정 불가~~ → ★**해소: `history[4]` 참조** — `goal_data` 는 `serpen.epic_enemy_tick`(+0xc0) **오직 1개**(m15.ll:53994), `plan` 은 `BigPlan::goal()` 판별자 하나(m09.ll:65128 `icmp eq i8 %58, 5`)뿐이다",
+   "evidence": "`resolved[4]` 가 두 인자가 실제로 쓰는 필드를 각각 1개로 확정했는데 `unknown` 원문은 「확정 불가」다. `closed[]` 는 어느 게이트도 안 보므로 이 모순이 6라운드째 살아 있었다",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[18]/open",
+   "kind": "보강",
+   "old": "5번째 인자 리터럴 true 의 의미(파라미터 이름) — 피호출 함수 밖이라 확정 못 함",
+   "new": "~~5번째 인자 리터럴 true 의 의미 — 피호출 함수 밖이라 확정 못 함~~ → ★**해소: `history[3]` 참조** — bool 이 아니라 **`target: WavePriorityObject`(1B C-enum)의 ABI 표현**이고 `Morgard=0 / Serpen=1` (DWARF `m15.ll !58647`), 즉 리터럴 `true` = **Serpen**",
+   "evidence": "`resolved[3]` 이 확정했고 같은 명세의 `logic`·`knobs[1]` 도 이미 그 확정판을 싣고 있다 — `closed` 칸만 옛 「확정 못 함」으로 남아 한 명세 안에서 세 칸이 어긋나 있었다",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[18]/open",
+   "kind": "보강",
+   "old": "dienum 이 준 이름이 __0/__1 뿐이라 그 0 의 의미(틱? 대상 id?) 확정 불가",
+   "new": "~~dienum 이 준 이름이 __0/__1 뿐이라 그 0 의 의미(틱? 대상 id?) 확정 불가~~ → ★**부분 해소: 명세 `17`(DeathMatchBattle::new)의 `resolved[0]` 참조** — **`Chat` enum+0x8 = 대상 엔티티 id 슬롯(틱 아님)**이 확정됐다(`m05.ll:17745~17749` 에서 `Chat::Battle` 이 그 자리에 `goal.__0`=대상 id 를 넣는다). ⚠적용 범위: 「+0x8 이 무엇인가」는 확정, 「Repair/SerpenSetup/Press 가 거기 0 을 넣는 뜻(=대상 없음)」은 소비측 미탐색",
+   "evidence": "명세 17 `resolved[0]` = 「★전제 정정 + 의미 확정. **enum+0x8 = 대상 엔티티 id 슬롯(틱 아님)**」. 18 의 이 `unknown` 은 같은 물음(`틱? 대상 id?`)을 그대로 열어 두고 있었다 — **명세 사이 전파는 `G17`(history→표)도 안 본다**(같은 명세 안만 본다)",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[18]/open",
+   "kind": "보강",
+   "old": "채팅 push 가 매크로/헬퍼를 거쳐 인라인된 것으로 보이나 원 소스 형태는 미확정",
+   "new": "~~채팅 push 가 매크로/헬퍼를 거쳐 인라인된 것으로 보이나 원 소스 형태는 미확정~~ → ★**해소: `history[6]`·`closed[8]` 참조** — `!dbg` 는 소실되지 않았다(`inlinedAt` 루트까지 타면 나온다). **658 = `self.chats.push(Chat::SerpenSetup(0))`** 로 복원됐고 654~657 도 줄 길이 산술로 확정됐다",
+   "evidence": "`resolved[6]` 이 「'원리적 불가' 판정을 뒤집는다 — `!dbg` 는 소실되지 않았다」로 명시적으로 반박했는데 `unknown` 원문은 「소스 줄이 소실됐다 … 미확정」 그대로다. ★이런 문면이 살아 있으면 다음 세션이 `dloc.py` 를 아예 안 돌린다(METHOD_MAP §1-① 의 「`inlinedAt` 루트까지 타라」가 정확히 이 사고의 처방이다)",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[18]/open",
+   "kind": "보강",
+   "old": "!dbg 가 671~678 을 하나도 안 남겨 복원 불가",
+   "new": "~~!dbg 가 671~678 을 하나도 안 남겨 복원 불가~~ → ★**해소: `history[6]` 참조** — `inlinedAt` 루트를 타면 666·667·668·669~670·673·674/676·679 가 전부 나온다(같은 명세 `logic` 이 이미 그 복원판이다)",
+   "evidence": "`resolved[6]` 의 복원 목록에 667~670·673~679 가 들어 있고 `logic` 블록이 그 줄번호로 쓰여 있는데, `closed[4]` 만 「복원 불가」로 남았다",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[18]/open",
+   "kind": "보강",
+   "old": "player.strategy(...) 는 이 IR 파일에 define 이 없다(다른 크레이트). 내부에서 rnd 를 어떻게 쓰는지 미확인",
+   "new": "~~player.strategy(...) 는 이 IR 파일에 define 이 없다 … rnd 를 어떻게 쓰는지 미확인~~ → ★**해소: `history[5]` 참조** — 본체는 `_gcbc/g15.ll:130480~130505` 에 있고 **`rnd` 인자에 `readnone` 이 붙어 있다** ⟹ **RNG 상태를 전혀 안 건드린다**(받고 버리는 잔재)",
+   "evidence": "`resolved[5]` 가 확정. 「이 IR 파일에 define 이 없다」는 `_gaibc` 만 본 결과이고 `_gcbc` 에 있었다 — METHOD_MAP §1-① 이 「1~6차에서 17건이 이 이유로 포기됐는데 전부 `_gcbc` 에 있었다」고 적은 그 형태다",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[18]/open",
+   "kind": "실오류",
+   "old": "Option<&엔티티류> 인 것은 확실하나 정확한 T 는 미확정",
+   "new": "~~Option<&엔티티류> 인 것은 확실하나 정확한 T 는 미확정~~ → ★**해소(10차 배치D)**: `tcxdict AbstractGameWithCache` = `0x1e0 player_champion : [[std::option::Option<&game_core::Entity>; 5]; 2] (80B)` ⟹ **T = `&game_core::Entity`**. 같은 명세 `mem[5]` 는 이미 그렇게 적고 있었다",
+   "evidence": "`python -X utf8 tcxdict.py AbstractGameWithCache` 실행 결과 원문: `0x1e0     player_champion   [[std::option::Option<&'{erased} game_core::Entity>; 5_usize]; 2_usize] (80B)`. 「distruct 가 array$<?> 로만 알려준다」는 **2차 폴백 사전의 한계**를 문제의 한계로 착각한 것 (METHOD_MAP §0: 오프셋·필드 타입의 1순위는 `tcxdict`, `distruct` 는 2차 폴백)",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[18]/open",
+   "kind": "보강",
+   "old": "v3_epic_group_line / v3_epic_formation_role 내부는 안 봄",
+   "new": "~~v3_epic_group_line / v3_epic_formation_role 내부는 안 봄~~ → ★**해소: `history[0]` 참조(전량 복원)** + 오라클 실행 확증(`knobs[15]`·`knobs[17]` = TutorialType 9 × morgard_use 5 × 팀2 전수, role 진리표 450칸)",
+   "evidence": "`resolved[0]` = 「★전부 확정」. 같은 명세 `knobs[3]`/`[15]`/`[17]` 이 그 결과를 `ev2`(오라클 실행 확증)로 싣고 있는데 `closed[7]` 만 「안 봄」이다",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[17]/open",
+   "kind": "보강",
+   "old": "다른 AbstractGame 구현체가 런타임에 들어오면 같은 슬롯인지는 미검증.",
+   "new": "~~다른 AbstractGame 구현체가 런타임에 들어오면 같은 슬롯인지는 미검증.~~ → ★**해소: `history[4]` 참조** — **슬롯 인덱스는 impl 무관**(4차 배치C 가 명세 `10` 에서 런타임 대조 4/4, `+0x28 tick` 포함).",
+   "evidence": "`resolved[4]` 의 `was` 가 이 문장 그대로이고 `now` 가 「★해소 — 슬롯 인덱스는 impl 무관」이다. `resolved` 에 같은 문면이 `was` 로 올라가 있으면 원본 `unknown` 행은 자동으로 정정돼야 하는데 파이프라인에 그 채널이 없다(G20 제안 근거)",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[19]/open",
+   "kind": "보강",
+   "old": "'클리어됨'의 실제 판정식(리스폰 틱 비교인지 live_list 비어있음인지)은 미확인",
+   "new": "~~'클리어됨'의 실제 판정식(리스폰 틱 비교인지 live_list 비어있음인지)은 미확인~~ → ★**해소: `history[0]` 참조** — 본체 `_gaibc/m04.ll:62404~62525`(passive_jungle.rs:841~859), **리스폰 틱 비교이고 `live_list` 는 쓰지 않는다**",
+   "evidence": "`resolved[0]` 가 본체 좌표까지 달아 확정했는데 `unknown[0]` 은 「미확인」 원문 그대로다. 같은 명세 `knobs[5]`(m04.ll:62501~62505 = 그 본체 안의 tps 여유)가 바로 그 복원 결과를 싣고 있다",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[19]/open",
+   "kind": "보강",
+   "old": "MapDef::camp_pos(map, camp, is_blue) 내부 미확인 — game_core 크레이트라 _gaibc 에 define 이 없고 declare 만 있다",
+   "new": "~~MapDef::camp_pos … 내부 미확인 — _gaibc 에 define 이 없고 declare 만 있다~~ → ★**해소: `history[3]` 참조** — `_gcbc/g07.ll:152570`(thread-local 메모 래퍼) + 본체 클로저 `_gcbc/g02.ll:6914~7180`. `MapDef.camps`(Vec @0x60) 선형탐색 → `CampDef.ty == camp` 인 원소의 `pos[team]`, 없으면 (0,0). 좌표 6쌍은 `knobs[7]`(g09.ll:59281/59282 phi)에 있다",
+   "evidence": "`resolved[3]` = 「★전체 복원」. 「_gaibc 에 declare 만 있다 ⟹ 미확인」은 METHOD_MAP §1-① 이 명시적으로 금지한 추론이다(`_gcbc` 를 보라)",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[19]/open",
+   "kind": "보강",
+   "old": "team 으로 blue/red 블록을 고르고 ty 로 캠프를 고르는 것이 자연스럽지만 IR 로는 확인 못 했다",
+   "new": "~~team 으로 blue/red 블록을 고르고 ty 로 캠프를 고르는 것이 자연스럽지만 IR 로는 확인 못 했다~~ → ★**해소: `history[2]`·`history[7]` 참조** — `_gcbc/g09.ll:137367~137440`, team 이 바깥 switch·ty 가 안쪽 switch. team0 Rhino+0x0 / Mushroom+0x30 / Stump+0x60 / Bee+0x90, team1 은 +0xc0 시작, **Morgard→`epic`(team 무관)**, **Serpen 은 전 team 패닉(`serpen` 필드는 이 접근자로 도달 불가)**, team>=2 패닉",
+   "evidence": "`resolved[2]`(본체 좌표+오프셋표)와 `resolved[7]`(포인터 동일성 전수표 + 특례 2건)이 확정했다. 추정이 맞았고 **특례 2건이 추가**됐으므로 「자연스럽지만 확인 못 했다」를 그대로 두면 그 특례를 놓친다",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[19]/knobs[0]/where",
+   "kind": "실오류",
+   "old": "m04.ll 62596~62602의 store i8 0/1/3/2",
+   "new": "m04.ll 62593/62595/62597/62599 의 `store i8 0` / `1` / `3` / `2`",
+   "evidence": "실측 4줄: 62593 `store i8 0, ptr %12` · 62595 `store i8 1, ptr %14` · 62597 `store i8 3, ptr %15` · 62599 `store i8 2, ptr %16`(전부 !dbg !71565 → passive_jungle.rs:807). 옛 범위 62596~62602 는 앞 두 개(0·1)를 **범위 밖으로 밀어낸다**",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[19]/knobs[5]/where",
+   "kind": "실오류",
+   "old": "m04.ll:62495~62500",
+   "new": "m04.ll:62501~62505 (`%66 = gep %65, i64 4856`(=GameSetting.tick_per_second) → `%67 = load` → `%70 = add i64 %69, %67`)",
+   "evidence": "실측: 62501 `%66 = getelementptr inbounds nuw i8, ptr %65, i64 4856, !dbg !71456` · 62502 `%67 = load i64, ptr %66` · 62505 `%70 = add i64 %69, %67`(!71456 → passive_jungle.rs:855). 옛 범위 62495~62500 은 블록 머리(`61:`)와 `udiv`/`call`/`gep +8` 구간이라 **tps 가산이 통째로 범위 밖**이다",
+   "behavior_change": false,
+   "found_by": "new"
+  }
+ ],
+ "ev_up": [],
+ "brief_errors": [
+  "★DOSSIER_D §5 의 「⚠새 항목 추가(`append`)는 구현이 없다. …메인이 손으로 넣는다」는 **거짓이다**. `applypatch.py:242~277` 에 `op:\"insert\"`/`\"delete\"` 가 구현돼 있고 그 코드 주석이 「9차 실측」을 인용한다(=이미 쓰였다). 유저 지시문 쪽은 insert 문법을 정확히 주는데 도시에 본문만 낡았다 — 도시에만 읽은 배치는 이번 라운드 최대 수확(빠진 mem 행)을 **기계 적용 불가**로 접었을 것이다.",
+  "★★`applypatch.py` 의 **insert 경로 실버그**: `op==\"insert\"` 는 `arr, _ = resolve(cont, field, 0)` 로 배열을 고르는데, `field` 가 `mem`/`knobs` 면 v3→v2 경계 계산이 **인덱스 0** 기준이라 **항상 앞쪽 배열**(`reads`/`knobs`)이 선택된다. 즉 지시문이 준 예시 `{\"op\":\"insert\",\"path\":\"/specs[i]/mem\",\"at\":N}` 는 `at` 이 아무리 커도 **`writes` 가 아니라 `reads` 끝에 꽂힌다**(조용한 오삽입 — 이 도구의 존재 이유인 「조용한 no-op 금지」의 여섯 번째 구멍). 이번엔 `/specs[18]/writes` 로 우회했다. 고침 = insert 일 때 `at` 을 먼저 경계 계산에 태우거나, `mem`/`knobs` insert 를 아예 거부하고 `reads`/`writes`/`new_knobs` 를 요구할 것.",
+  "★`G13`(`whereline.py`)의 구조적 사각지대 3종 — 이번 `knobs[].where` 오류 **11건 중 10건**이 여기로 샜다. ①백틱 인용이 없으면 **줄이 존재하는지만** 본다(그 줄이 무슨 명령인지 안 본다). ②`m09.ll:38724·39066` 처럼 **두 번째 이후 줄번호에 파일 접두가 없으면 아예 후보로 안 잡는다**(39066 은 실제로 **빈 줄**이었다). ③`m13.ll 33724~33728` 같은 **범위 표기의 끝값**을 안 본다. ⟹ 최소 개선 = `where` 에 **명령 토큰이 문장 안에 있으면**(백틱이 없어도) `icmp/store/switch/mul/gep/phi/call` 중 하나를 그 줄(±2)에서 요구하도록 확장. 이번 10건은 전부 그 규칙 하나로 잡힌다.",
+  "★도시에 §4-b 가 무검사 축으로 `mem.dir`·`consts.kind`·`sig.params.role` 셋만 세는데, **이번 라운드 최대 수확은 `closed[]`(=v2 `unknown[]`)의 썩음**이었다(담당 5함수에서 15건). 이 축은 **기계로 셀 수 있다** — `resolved[].was` 문면과 `unknown[]` 문면의 겹침을 보면 된다(16 은 그 자기점검을 `still_unknown[0]` 에 손으로 적어 뒀는데 **3건으로 과소계상**했고 실제는 5건이었다). G20 = 「`resolved[].was` 와 겹치는 `unknown[]` 행에 `~~취소선~~`/`해소`/`확정` 표식이 없으면 적발」 을 제안한다. 전역 적용 대상이다(담당 5개 밖에도 같은 형태가 있을 것).",
+  "지시문 §읽는 순서의 파일 크기가 전부 ~30% 과소다(실측 바이트: spec_15 40,733 / 16 39,389 / 17 34,791 / 18 43,358 / 19 28,487 / DOSSIER_D 13,477). 「60KB 넘는 파일을 한 Read 로 읽지 마라」는 한도를 주면서 한글 3바이트를 문자 수로 센 값을 같이 주면 판단이 어긋난다(`DONE.md` 행 폭 판정에서 이미 같은 바이트↔문자 혼동이 기록돼 있다 — CLAUDE.md §8).",
+  "도시에 §3 이 「`callees` 는 tcx 자동 생성」이라 하고 §4-b 가 「경로·시그니처는 무검사」라 하는데, 실제로 `callees[]` 는 v2 `calls[]`(사람이 쓴 실호출 목록)의 **leaf 이름으로 tcx 를 조회한 후보 목록**이다. ⟹ ①`15` 의 `SinglePlanBattle::new` 는 `calls[]` 에 있는데 `callees[]` 표엔 **없다**(leaf `new` 가 너무 흔해 탈락) ②반대로 `15 callees[2] ProfTimer::drop`·`[11] ItemBuildOverride::next`·`[13] PlayerIter::next` 는 **이 함수가 부르지 않는다**. 「빠진 호출이 있나」를 `callees[]` 로 물으면 구조적으로 오탐이 난다 — 물어야 할 정본은 `calls[]` 다(나는 처음에 이걸 결함으로 셀 뻔했고 `calls[]` 를 읽어 스스로 기각했다).",
+  "★★**긴급 — `applypatch.py` 가 지금 깨져 있다(21:46 수정본).** `op:\"insert\"` 를 만나면 `applypatch.py:280 WARN.append(...)` 에서 **`NameError: name 'WARN' is not defined`** 로 즉사한다 ⟹ **insert 를 담은 patch 는 어느 배치 것이든 0건 적용**된다(21:39 판에서는 37/37 성공했다). MIG 루트 도구 수정 금지라 고치지 않았고, 대신 `_verify10/D/dryrun_shim.py`(모듈 네임스페이스에 `WARN=[]` 만 주입)로 재검증해 **정정 37 성공 / 0 실패 · 동작 변경 4건**을 확인했다. 고침 = `main()` 안에서 `log` 옆에 `WARN = []` 를 만들어 `apply_error` 로 넘길 것. ⚠이 편집은 내가 이번 라운드에 올린 「insert 경고를 실패 머리 아래 찍는다」 지적을 고치려던 것으로 보이는데, **같은 커밋이 도구를 못 돌게 만들었다** — 라운드 중 도구 수정 뒤에는 `--dry` 한 번을 꼭 돌려라."
+ ]
+}

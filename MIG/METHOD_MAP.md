@@ -11,6 +11,9 @@
 | `IR_TOOLKIT.md` | 재료를 꺼내는 사람 | 추출·도구 사용법 (§1~§7) |
 | `SPEC_GUIDE.md` | 명세를 쓰는 에이전트 | JSON 규격, 함정, 자체검사 |
 | `SPEC_RUNBOOK.md` | 배치를 굴리는 메인 세션 | 라운드 수·수렴 판정·병합·저장 |
+| ★`REPORT\tfm2_judge_verify\00_상태원장.md` | **이어받는 세션(맨 먼저)** | 20함수별 **현재 상태**(RVA·bit·ev1·기구·잔여) + 정본 위치 지도 — 2026-09-13 신설 |
+| `REPORT\tfm2_judge_verify\04_분석방법_정리.md` | 파이프라인 전체를 보는 사람 | 이해(명세)·재현(rlib)·검증(ev1) 3축 · 정적 S0~S7 · 런타임 R0~R6 · **ev1 기구 결정트리** |
+| `MIG\whatsdone.py <키워드|#NN>` | 착수 전 누구나 | §7 「전에 했나」 grep 을 기록처 8곳에 한 번에 |
 
 ---
 
@@ -30,6 +33,17 @@
 | **vtable 슬롯** 이름 | `divtable` | `_gcbc` 정적 vtable 전역 ① | 런타임 덤프 ⑧ |
 | **우리 문서가 맞나** | **`tcxaudit`** ⑦ | `speccmp`(명세 2판 대조) | — |
 | **내 재현이 맞나** | **런타임 훅 DIFF=0** ⑧ | 오라클 ⑥ | — |
+| **명세가 완결됐나** | **`specgate`**(G1~G13) | `qcspec`(지어낸 것) | — |
+| **지난 라운드 정정이 살아있나** | **`auditrounds`** | `applypatch <N> --dry` | — |
+| **배치에 뭘 넘기나** | ★**`mkdossier <N>`**(정본 무손실 조립 · `--axis` 축모드 · 7차~) · 신선도 `dossierfresh` · ~~`mkbrief`~~=STALE(요약) | `SPEC_RUNBOOK §S5-d·e` | — |
+| **배치 결과를 어떻게 받나** | **`mkpatch`**(배치가 씀) → **`applypatch`**(내가 붙임) | — | — |
+| **정본이 지저분하다** | **`cleanspec --dry`** | — | — |
+| ★**어떤 축이 아직 검사 안 되나** | **`SPEC_RUNBOOK §S5-c`** 표 | `specgate --gate G12/G13` | — |
+
+★**도구가 115개다. 이름을 외우지 말고 이 표와 `TOOLS.md` 를 봐라.**
+`TOOLS.md` = *무엇이 있는가*(자동 생성, 분류별) / 이 표 = *어떤 상황에 무엇을 집는가*.
+⚠도구를 만들면 **첫 docstring 줄을 쓰고 `python -X utf8 mktools.py`** 를 돌려라 —
+안 하면 다음 세션이 그 도구를 못 찾고 **같은 걸 다시 만든다**(6차에 네 배치가 `mkpatch.py` 를 각자 만들었다).
 
 ---
 
@@ -81,11 +95,15 @@
 **실적**: `rule_scope` pub 13개 진리표 → IR 표 (A)~(E) **틀린 칸 0**. 덤으로 `valid_lines`·`fallback_line`·`steal_*`·`main/sub_objective_allowed` 6개가 **새로 완전 규정**.
 **인자 만들기**: `GameContext`(64B)는 **전 필드 pub** + `MapDef::moba` pub 이라 **정상 생성**된다(UB 0). 제로버퍼 캐스팅은 최후수단이고, 쓰려면 ①그 함수가 그 필드 외엔 안 읽는지 IR 로 확인 ②열거형에 0 이 유효 판별자인지 `tcxdict --enum` 으로 확인.
 **★한계 3가지**
-1. **`pub` 인 것만.** `fight_check`·`position_eval`·`path_finder`·`score_parameter`·`buff_value` 는 `pub(crate)` 라 막힌다.
+1. **`pub` 인 것만.** ⚠**정정(2026-09-11 4차 검증배치 D) — ~~`fight_check`·`path_finder` 는 `pub(crate)` 라 막힌다~~ 는 과잉이었다.** 모듈 가시성(`in:game_ai`)이 곧 차단은 아니다 — **크레이트 루트에서 재수출된 항목은 `pub`** 이고 직접 호출·실행된다. 실증(전부 프로브 실행 성공): `game_ai::check_kill_die_tick`(fight_check.rs:917) · `game_ai::is_enemy_well_danger`(path_finder.rs:1032) · `game_ai::defensive_crisis` · `effect_cc_time` · `check_favorable_engage_formation`.
+   ⚠**정정(2026-09-11 5차 배치D, rustc E0425)**: ~~`game_ai::is_ignored_well_enemy`~~ 는 **그 경로로 존재하지 않는다.** 실제는 **`game_ai::plan_legacy::old::is_ignored_well_enemy`**(fight_model.rs:754) — `v=pub` 이지만 **루트 재수출이 아니다.** 4차 인용은 정확했고 내가 이 표로 승격하면서 모듈 경로를 잘랐다.
+   ⟹ ★**교훈: 「막힌다」를 고칠 때 「전부 루트에 있다」로 넘어가지 마라.** 과소 주장을 정정하면서 과대 주장을 만든 실례다. `pub` 여부와 **루트 재수출 여부는 별개**다.
+   ⟹ **판정 순서: 모듈 경로로 단정하지 말고 `_tcx\game_ai.json` 의 `v`(가시성)와 `p`(전체 경로)를 **둘 다** 조회하라. 호출은 `p` 그대로 쓴다.** 남는 진짜 차단은 `v` 가 실제로 `pub(crate)` 인 것 + private 필드뿐이고, **private 필드도 `transmute` 로 읽힌다**(4차 배치B 가 07 `Hide` 경로를 이렇게 열었다). `position_eval`·`score_parameter`·`buff_value` 는 이번에 확인하지 않았다(범위 명시).
 2. ⚠**정정(2026-09-11 검증배치 D) — 이 한계는 거짓이었다.** ~~"인자에 `&OperationData`·`&PlayerState` 가 들어가면 pub 생성자가 없어 구성 불가"~~ → **정상 생성된다**(컴파일·링크·실행 성공, 크래시·UB 0):
    `Game::new(seed,bool,&GameSetting,&MapSetting,&MapDef)` → `game.add_player(GamePlayer::new(…, Arc::new(SwordmanChampionInfo::default()), …))` → `game.start_game(&mut StdRng,&ctx)` → `AbstractGameWithCache::new(&game as &dyn AbstractGame,&ctx)` → `OperationData::new(&cache,&ctx,&[Blackboard::default();2])` — **전부 pub**. `&PlayerState` = `game.get_player_by_position(team,pos)`(start_game 후 10/10 Some), `&Entity` = `cache.player_champion[t][p]`.
    ⟹ **`pub(crate)` 가 아닌 game_ai 판단함수는 사실상 전부 오라클 대상**이다. 실증: `best_jungle_goal` **10/10 MATCH**.
-   ★남는 진짜 한계는 **인자 구성이 아니라 데이터**다: `GameSetting::default()` 의 **`tick_per_second = 0`**(실전 60) — `udiv by tps` 가 있는 함수는 **손으로 60 을 세팅**해야 한다. `SwordmanChampionInfo::default()` 는 **이펙트가 비어** 있어 `max_range_nearly_can_use` 가 전 구간 0 — 함수가 틀린 게 아니라 **입력에 판별력이 없다**. 실전 챔피언 데이터 로딩은 **미탐색**.
+   ★남는 진짜 한계는 **인자 구성이 아니라 데이터**다: `GameSetting::default()` 의 **`tick_per_second = 0`**(실전 60) — `udiv by tps` 가 있는 함수는 **손으로 60 을 세팅**해야 한다. `SwordmanChampionInfo::default()` 는 **이펙트가 비어** 있어 `max_range_nearly_can_use` 가 전 구간 0 — 함수가 틀린 게 아니라 **입력에 판별력이 없다**. ~~실전 챔피언 데이터 로딩은 미탐색~~ → **해소(2026-09-11 4차 배치A)**: 실전 `ChampionInfo` **61종이 pub** 이고 `Action::effect()` **193개가 pub** 이라 그대로 쓸 수 있다. ⚠단 **실전 것도 액션 파라미터가 0** 이어서 `expected_damage_target` 이 **26/26 전부 0**(조기반환)이었다 ⟹ 판별력을 얻으려면 **`AttackEffect`(72B, 전 필드 pub)를 직접 조립**해야 한다(`Effect` 도 전 필드 pub). 정본 = `_verify3\TEMPLATE.rs` 함정 ④.
+   ★한계 추가 — **TLS 메모 함수는 한 프로세스에서 반복 측정하면 안 된다**(4차 배치D). `check_kill_die_tick` 은 캐시 키에 엔티티 id 만 있어 hp·스탯을 바꿔도 **첫 값이 재생**된다 ⟹ 3차의 「9축 전부 무관」이 그 아티팩트였다. **케이스당 프로세스 1개.** 정본 = `TEMPLATE.rs` 함정 ③.
 3. ★**외연이 같은 두 표현은 실행으로 절대 안 갈린다.** (`spawn_epic` vs `spawn_epic && line_exists`, `==5` vs `>=5`) — **이건 IR 로만.**
 **⚠**: 모드 코드에 이 경로를 넣으면 **§3 완전재구현 원칙 위반**이다. 검증 전용.
 → `IR_TOOLKIT.md §7`
@@ -136,7 +154,8 @@ IR 독해는 지어내기보다 **빠뜨리기**가 훨씬 많은데 검사기(`
 4. **아웃오브라인 본체** — 인라인돼 사라진 줄 알았던 함수의 `define`
 
 **실적**: `unknown` **157 → 8**, 노브 **99 → 208**.
-그리고 **"원리적 불가" 판정이 7건 뒤집혔다** — 원인은 매번 같았다: **가진 재료의 한계를 문제의 한계로 착각.**
+그리고 **"원리적 불가" 판정이 11건 뒤집혔다**(~~7건~~ → 4차 반증검증에서 4건 추가: `fight_check`/`path_finder` 크레이트 루트 재수출 · 07 `Hide` private 필드 `transmute` · 05 `plan_v50_dive_episodes` 경유 · 실전 `ChampionInfo` 61종 pub) — 원인은 매번 같았다: **가진 재료의 한계를 문제의 한계로 착각.**
+★★그리고 4차는 **반대 방향의 사고**를 하나 더 냈다 — 「9축 전부 무관」이라는 **실행 결과가 거짓**이었다(TLS 메모 캐시). ⟹ 오라클은 IR 독해를 검증하지만, **오라클 자신을 검증하는 것은 `define` 의 존재 확인**이다. 재료의 한계를 문제의 한계로 착각하는 것과 **도구의 상태를 세계의 상태로 착각하는 것**이 같은 실패의 양면이다.
 
 ## C. 기계 검증 (S6-b) — 읽은 표를 자동으로 대조
 - 오프셋을 하나라도 적었으면 → **제출 전에 `tcxaudit --prose`**
@@ -150,7 +169,7 @@ IR 독해는 지어내기보다 **빠뜨리기**가 훨씬 많은데 검사기(`
 # 3. ★판정 어휘 — 이게 제일 중요하다
 
 **"X 불가능"이라고 쓰지 마라. "A 방식으로는 X 불가능, 미탐색 = B" 라고 써라.**
-범위를 안 적으면 다음 세션이 **다른 방식조차 시도하지 않는다.** 이번에 7건이 그 함정이었다.
+범위를 안 적으면 다음 세션이 **다른 방식조차 시도하지 않는다.** 지금까지 **11건**이 그 함정이었다.
 
 | 분류 | 뜻 | 예 |
 |---|---|---|

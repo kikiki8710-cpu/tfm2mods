@@ -1,0 +1,89 @@
+
+===== specs[10] should_end_object_finish_kill_priority_battle  (fight_model.rs  m10.ll:49611~50100) =====
+  본문이 참조하는 fight_model.rs 줄 = [755, 756, 1179, 1180, 1181, 1182, 1183, 1216, 1220, 1224, 1225, 1229, 1230, 1231, 1232, 1233, 1235]
+  consts[0] value=65534          claim=L1216   cands=[1216]                         OK
+  consts[1] value=768            claim=L1216   cands=[1216]                         OK
+  consts[2] value=0              claim=L1220   cands=[755, 756, 1179, 1181, 1183, 1220, 1224, 1230, 1232] OK
+  consts[3] value=1              claim=L1229   cands=[1180, 1182, 1220, 1224, 1229] OK
+  consts[4] value=25000          claim=L1233   cands=[1230, 1233]                   OK
+  consts[5] value=19600000000    claim=L1188   cands=(리터럴 미검출)                      (보류)
+
+===== specs[11] v3_fall_back_to_passive  (handler.rs  m13.ll:12238~12479) =====
+  본문이 참조하는 handler.rs 줄 = [410, 416, 417, 421, 424, 425, 427, 428, 429, 432, 433, 434, 435, 436, 437]
+  consts[0] value=2              claim=L417    cands=[417, 421, 427]                OK
+  consts[1] value=2              claim=L421    cands=[417, 421, 427]                OK
+  consts[2] value=1              claim=L424    cands=[417, 424, 425, 427, 429, 433] OK
+  consts[3] value=4              claim=L425    cands=[421, 425, 427, 429]           OK
+  consts[4] value=1              claim=L425    cands=[417, 424, 425, 427, 429, 433] OK
+  consts[5] value=0              claim=L425    cands=[410, 421, 424, 425, 427, 432, 433, 434, 435, 436] OK
+  consts[6] value=0              claim=L429    cands=[410, 421, 424, 425, 427, 432, 433, 434, 435, 436] **불일치**
+  consts[7] value=1              claim=L429    cands=[417, 424, 425, 427, 429, 433] OK
+  consts[8] value=2              claim=L429    cands=[417, 421, 427]                **불일치**
+  consts[9] value=3              claim=L429    cands=[427]                          **불일치**
+  consts[10] value=4              claim=L429    cands=[421, 425, 427, 429]           OK
+  consts[11] value=5              claim=L429    cands=[427]                          **불일치**
+  consts[12] value=6              claim=L429    cands=(리터럴 미검출)                      (보류)
+  consts[13] value=7              claim=L429    cands=[429]                          OK
+  consts[14] value=8              claim=L429    cands=[410, 421, 425, 427, 429, 432, 433, 434, 435, 436, 437] OK
+  consts[15] value=-7             claim=L429    cands=[429]                          OK
+  consts[16] value=-6             claim=L429    cands=[429]                          OK
+  consts[17] value=-8             claim=L429    cands=[429]                          OK
+  consts[18] value=29             claim=L432    cands=[410, 424, 432]                OK
+
+===== specs[12] handle_chat  (chat.rs  m13.ll:29383~29689) =====
+  본문이 참조하는 chat.rs 줄 = [8, 9, 12, 18, 19, 22, 23, 24, 25, 26, 27, 28, 29, 31, 33, 34, 35, 36, 38, 39]
+  consts[0] value=0              claim=L12     cands=[18, 19, 22, 23, 27]           **불일치**
+  consts[1] value=1              claim=L12     cands=[18, 19, 27]                   **불일치**
+  consts[2] value=2              claim=L12     cands=[19]                           **불일치**
+  consts[3] value=3              claim=L12     cands=[9, 19]                        **불일치**
+  consts[4] value=4              claim=L12     cands=[12, 19, 27, 28]               OK
+  consts[5] value=5              claim=L12     cands=[9, 19, 27]                    **불일치**
+  consts[6] value=6              claim=L12     cands=[12, 19, 31]                   OK
+  consts[7] value=7              claim=L12     cands=[19, 29]                       **불일치**
+  consts[8] value=8              claim=L12     cands=[9, 12, 18, 19, 22, 23, 26, 27, 28, 29, 31, 33, 34, 35, 36, 39] OK
+  consts[9] value=-8             claim=L12     cands=[12]                           OK
+  consts[10] value=-7             claim=L12     cands=[12]                           OK
+  consts[11] value=-9223372036854775793 claim=L27     cands=[27]                           OK
+
+===== specs[13] target_bush_v30  (cover.rs  m10.ll:11483~11731) =====
+  본문이 참조하는 cover.rs 줄 = [135, 136, 137, 138, 139, 140, 145, 147, 149, 150, 151, 153, 154, 156, 160, 164, 165, 166, 168, 171, 179, 180, 181, 183, 184, 186, 190, 194]
+  consts[0] value=2              claim=L138    cands=[135, 138, 145]                OK
+  consts[1] value=16             claim=L138    cands=[135, 138]                     OK
+  consts[2] value=4              claim=L139    cands=[139, 150, 164, 165, 171, 180] OK
+  consts[3] value=17             claim=L139    cands=[135, 139]                     OK
+  consts[4] value=9              claim=L140    cands=[140]                          OK
+  consts[5] value=21             claim=L140    cands=[135, 140]                     OK
+  consts[6] value=3              claim=L151    cands=[135, 145, 151, 154, 156]      OK
+  consts[7] value=6              claim=L154    cands=[151, 154, 156]                OK
+  consts[8] value=13             claim=L168    cands=[135, 168]                     OK
+  consts[9] value=18             claim=L168    cands=[135, 168]                     OK
+  consts[10] value=8              claim=L166    cands=[135, 145, 150, 153, 160, 164, 165, 166, 171, 180, 183, 190] OK
+  consts[11] value=12             claim=L166    cands=[135, 166]                     OK
+  consts[12] value=14             claim=L171    cands=[135, 171]                     OK
+  consts[13] value=11             claim=L171    cands=[171]                          OK
+  consts[14] value=15             claim=L181    cands=[135, 181, 184, 186]           OK
+  consts[15] value=20             claim=L184    cands=[135, 181, 184, 186]           OK
+
+===== specs[14] update  (ganker.rs  m08.ll:94569~94941) =====
+  본문이 참조하는 ganker.rs 줄 = [43, 44, 47, 48, 54, 55, 56, 57, 58, 62, 249, 250, 251, 252, 253, 254, 261, 263, 264, 265, 267, 268, 270, 274, 278, 279, 280, 282, 285, 293, 294, 295, 297, 298, 300, 304]
+  consts[0] value=100            claim=L44     cands=[44]                           OK
+  consts[1] value=41             claim=L47     cands=[47, 54, 249]                  OK
+  consts[2] value=2              claim=L261    cands=[43, 54, 58, 252]              **불일치**
+  consts[3] value=4              claim=L264    cands=[43, 54, 253, 264, 278, 294]   OK
+  consts[4] value=0              claim=L252    cands=[44, 48, 54, 55, 58, 265, 267, 295, 297] **불일치**
+  consts[5] value=32000          claim=L55     cands=[55]                           OK
+  consts[6] value=29             claim=L55     cands=[44, 55]                       OK
+  consts[7] value=16             claim=L252    cands=[43, 48, 54, 58, 252]          OK
+  consts[8] value=17             claim=L253    cands=[43, 48, 54, 58, 249, 253]     OK
+  consts[9] value=9              claim=L254    cands=[43, 54, 254]                  OK
+  consts[10] value=21             claim=L254    cands=[43, 44, 54, 55, 254, 279, 285] OK
+  consts[11] value=3              claim=L265    cands=[43, 54, 265, 268, 270]        OK
+  consts[12] value=6              claim=L268    cands=[54, 265, 268, 270]            OK
+  consts[13] value=14             claim=L285    cands=[43, 54, 285]                  OK
+  consts[14] value=11             claim=L285    cands=[43, 54, 285]                  OK
+  consts[15] value=13             claim=L282    cands=[43, 54, 282]                  OK
+  consts[16] value=18             claim=L282    cands=[43, 54, 282]                  OK
+  consts[17] value=8              claim=L280    cands=[43, 44, 48, 54, 55, 57, 58, 249, 264, 267, 274, 278, 279, 280, 285, 294, 297, 304] OK
+  consts[18] value=12             claim=L280    cands=[43, 54, 280]                  OK
+  consts[19] value=15             claim=L295    cands=[43, 54, 295, 298, 300]        OK
+  consts[20] value=20             claim=L298    cands=[43, 54, 295, 298, 300]        OK

@@ -1,0 +1,17 @@
+--- callees (16) ---
+[0] attack_cooldown | game_core::Entity::attack_cooldown | pub | fn(&game_core::Entity) -> usize | game-core\src\simulation\entity.rs:1747 mir=True xinl=True ev=3
+[1] attack_effect | game_core::Entity::attack_effect | pub | fn(&game_core::Entity) -> &std::option::Option<game_core::Effect> | game-core\src\simulation\entity.rs:1684 mir=True xinl=True ev=3
+[2] check | game_core::CastingTarget::check | pub | fn(&game_core::CastingTarget, &game_core::Entity, &game_core::Entity) -> bool | game-core\src\simulation\effect\type.rs:227 mir=False xinl=False ev=3
+[3] check | game_core::transfer::SellGuard::check | pub | fn(&game_core::Database, usize, game_core::Position) -> game_core::transfer::SellGuardResult | game-core\src\transfer\roster_blueprint.rs:564 mir=False xinl=False ev=3
+[4] max_range_nearly_can_use | game_ai::plan_legacy::old::max_range_nearly_can_use | pub | fn(&game_core::Entity, &game_core::Entity, usize) -> u64 | game-ai\src\plan_legacy\old\battle.rs:2397 mir=False xinl=False ev=3
+[5] radius | game_core::Entity::radius | pub | fn(&game_core::Entity) -> usize | game-core\src\simulation\entity.rs:1509 mir=True xinl=True ev=3
+[6] range | game_core::Effect::range | pub | fn(&game_core::Effect, &game_core::Entity) -> u64 | game-core\src\simulation\effect.rs:25 mir=True xinl=True ev=3
+[7] range_adjust | <game_core::CombineEffect as game_core::EffectType>::range_adjust | pub | fn(&game_core::CombineEffect, &game_core::Entity, &game_core::Entity) -> u64 | game-core\src\simulation\effect\type\combine.rs:108 mir=False xinl=False ev=3
+[8] range_adjust | game_core::EffectType::range_adjust | pub | fn(&Self/#0, &game_core::Entity, &game_core::Entity) -> u64 | game-core\src\simulation\effect\type.rs:342 mir=True xinl=True ev=3
+[9] range_adjust | game_core::Effect::range_adjust | pub | fn(&game_core::Effect, &game_core::Entity, &game_core::Entity) -> u64 | game-core\src\simulation\effect.rs:29 mir=False xinl=False ev=3
+[10] skill2_cooldown | game_core::Entity::skill2_cooldown | pub | fn(&game_core::Entity) -> usize | game-core\src\simulation\entity.rs:1789 mir=True xinl=True ev=3
+[11] skill2_effect | game_core::Entity::skill2_effect | pub | fn(&game_core::Entity) -> &std::option::Option<game_core::Effect> | game-core\src\simulation\entity.rs:1692 mir=True xinl=True ev=3
+[12] skill_cooldown | game_core::Entity::skill_cooldown | pub | fn(&game_core::Entity) -> usize | game-core\src\simulation\entity.rs:1774 mir=True xinl=True ev=3
+[13] skill_effect | game_core::Entity::skill_effect | pub | fn(&game_core::Entity) -> &std::option::Option<game_core::Effect> | game-core\src\simulation\entity.rs:1688 mir=True xinl=True ev=3
+[14] ult_cooldown | game_core::Entity::ult_cooldown | pub | fn(&game_core::Entity) -> usize | game-core\src\simulation\entity.rs:1804 mir=True xinl=True ev=3
+[15] ult_effect | game_core::Entity::ult_effect | pub | fn(&game_core::Entity) -> &std::option::Option<game_core::Effect> | game-core\src\simulation\entity.rs:1700 mir=True xinl=True ev=3

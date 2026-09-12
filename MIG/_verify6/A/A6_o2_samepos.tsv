@@ -1,0 +1,88 @@
+CASE	same_pos	level=5	eff_range=0	casting=Targeting	version=2	radius_mult=0	setting_ok=true
+TARGET	id=23	x=15000	y=913000	radius=10000	visible_from_champ=true
+ULT_RESULT	Ult(Target { target_id: 23 })
+EFFECT	range_fn=0	range_adjust=0	is_in_range=true	check=true	on_caster=false	linear_move_speed=None
+PREDICT	caster_r_ON	margin=149999	total=20000	sz==0 → 예측식 자체가 div-by-zero
+PREDICT	caster_r_ON	margin=150000	total=20000	sz==0 → 예측식 자체가 div-by-zero
+PREDICT	caster_r_ON	margin=150001	total=20000	sz==0 → 예측식 자체가 div-by-zero
+PREDICT	caster_r_OFF	margin=149999	total=10000	sz==0 → 예측식 자체가 div-by-zero
+PREDICT	caster_r_OFF	margin=150000	total=10000	sz==0 → 예측식 자체가 div-by-zero
+PREDICT	caster_r_OFF	margin=150001	total=10000	sz==0 → 예측식 자체가 div-by-zero
+--
+CASE	same_pos	level=5	eff_range=200000	casting=Targeting	version=2	radius_mult=0	setting_ok=true
+TARGET	id=23	x=15000	y=913000	radius=10000	visible_from_champ=true
+ULT_RESULT	Ult(Target { target_id: 23 })
+EFFECT	range_fn=200000	range_adjust=0	is_in_range=true	check=true	on_caster=false	linear_move_speed=None
+PREDICT	caster_r_ON	margin=149999	total=220000	sz==0 → 예측식 자체가 div-by-zero
+PREDICT	caster_r_ON	margin=150000	total=220000	sz==0 → 예측식 자체가 div-by-zero
+PREDICT	caster_r_ON	margin=150001	total=220000	sz==0 → 예측식 자체가 div-by-zero
+PREDICT	caster_r_OFF	margin=149999	total=210000	sz==0 → 예측식 자체가 div-by-zero
+PREDICT	caster_r_OFF	margin=150000	total=210000	sz==0 → 예측식 자체가 div-by-zero
+PREDICT	caster_r_OFF	margin=150001	total=210000	sz==0 → 예측식 자체가 div-by-zero
+--
+CASE	same_pos	level=5	eff_range=0	casting=Position	version=2	radius_mult=0	setting_ok=true
+TARGET	id=23	x=15000	y=913000	radius=10000	visible_from_champ=true
+ULT_RESULT	Ult(Pos { x: 15000, y: 913000 })
+EFFECT	range_fn=0	range_adjust=0	is_in_range=true	check=true	on_caster=false	linear_move_speed=None
+PREDICT	caster_r_ON	margin=149999	total=20000	sz==0 → 예측식 자체가 div-by-zero
+PREDICT	caster_r_ON	margin=150000	total=20000	sz==0 → 예측식 자체가 div-by-zero
+PREDICT	caster_r_ON	margin=150001	total=20000	sz==0 → 예측식 자체가 div-by-zero
+PREDICT	caster_r_OFF	margin=149999	total=10000	sz==0 → 예측식 자체가 div-by-zero
+PREDICT	caster_r_OFF	margin=150000	total=10000	sz==0 → 예측식 자체가 div-by-zero
+PREDICT	caster_r_OFF	margin=150001	total=10000	sz==0 → 예측식 자체가 div-by-zero
+--
+CASE	same_pos	level=5	eff_range=200000	casting=Position	version=2	radius_mult=0	setting_ok=true
+TARGET	id=23	x=15000	y=913000	radius=10000	visible_from_champ=true
+ULT_RESULT	Ult(Pos { x: 15000, y: 913000 })
+EFFECT	range_fn=200000	range_adjust=0	is_in_range=true	check=true	on_caster=false	linear_move_speed=None
+PREDICT	caster_r_ON	margin=149999	total=220000	sz==0 → 예측식 자체가 div-by-zero
+PREDICT	caster_r_ON	margin=150000	total=220000	sz==0 → 예측식 자체가 div-by-zero
+PREDICT	caster_r_ON	margin=150001	total=220000	sz==0 → 예측식 자체가 div-by-zero
+PREDICT	caster_r_OFF	margin=149999	total=210000	sz==0 → 예측식 자체가 div-by-zero
+PREDICT	caster_r_OFF	margin=150000	total=210000	sz==0 → 예측식 자체가 div-by-zero
+PREDICT	caster_r_OFF	margin=150001	total=210000	sz==0 → 예측식 자체가 div-by-zero
+--
+CASE	same_pos	level=5	eff_range=0	casting=Direction	version=2	radius_mult=0	setting_ok=true
+TARGET	id=23	x=15000	y=913000	radius=10000	visible_from_champ=true
+ULT_RESULT	Ult(Dir { dir_x: 0, dir_y: 0 })
+EFFECT	range_fn=0	range_adjust=0	is_in_range=true	check=true	on_caster=false	linear_move_speed=None
+PREDICT	caster_r_ON	margin=149999	total=20000	sz==0 → 예측식 자체가 div-by-zero
+PREDICT	caster_r_ON	margin=150000	total=20000	sz==0 → 예측식 자체가 div-by-zero
+PREDICT	caster_r_ON	margin=150001	total=20000	sz==0 → 예측식 자체가 div-by-zero
+PREDICT	caster_r_OFF	margin=149999	total=10000	sz==0 → 예측식 자체가 div-by-zero
+PREDICT	caster_r_OFF	margin=150000	total=10000	sz==0 → 예측식 자체가 div-by-zero
+PREDICT	caster_r_OFF	margin=150001	total=10000	sz==0 → 예측식 자체가 div-by-zero
+--
+CASE	same_pos	level=5	eff_range=200000	casting=Direction	version=2	radius_mult=0	setting_ok=true
+TARGET	id=23	x=15000	y=913000	radius=10000	visible_from_champ=true
+ULT_RESULT	Ult(Dir { dir_x: 0, dir_y: 0 })
+EFFECT	range_fn=200000	range_adjust=0	is_in_range=true	check=true	on_caster=false	linear_move_speed=None
+PREDICT	caster_r_ON	margin=149999	total=220000	sz==0 → 예측식 자체가 div-by-zero
+PREDICT	caster_r_ON	margin=150000	total=220000	sz==0 → 예측식 자체가 div-by-zero
+PREDICT	caster_r_ON	margin=150001	total=220000	sz==0 → 예측식 자체가 div-by-zero
+PREDICT	caster_r_OFF	margin=149999	total=210000	sz==0 → 예측식 자체가 div-by-zero
+PREDICT	caster_r_OFF	margin=150000	total=210000	sz==0 → 예측식 자체가 div-by-zero
+PREDICT	caster_r_OFF	margin=150001	total=210000	sz==0 → 예측식 자체가 div-by-zero
+--
+CASE	same_pos	level=5	eff_range=0	casting=None	version=2	radius_mult=0	setting_ok=true
+TARGET	id=23	x=15000	y=913000	radius=10000	visible_from_champ=true
+ULT_RESULT	Ult(None)
+EFFECT	range_fn=0	range_adjust=0	is_in_range=true	check=true	on_caster=false	linear_move_speed=None
+PREDICT	caster_r_ON	margin=149999	total=20000	sz==0 → 예측식 자체가 div-by-zero
+PREDICT	caster_r_ON	margin=150000	total=20000	sz==0 → 예측식 자체가 div-by-zero
+PREDICT	caster_r_ON	margin=150001	total=20000	sz==0 → 예측식 자체가 div-by-zero
+PREDICT	caster_r_OFF	margin=149999	total=10000	sz==0 → 예측식 자체가 div-by-zero
+PREDICT	caster_r_OFF	margin=150000	total=10000	sz==0 → 예측식 자체가 div-by-zero
+PREDICT	caster_r_OFF	margin=150001	total=10000	sz==0 → 예측식 자체가 div-by-zero
+--
+CASE	same_pos	level=5	eff_range=200000	casting=None	version=2	radius_mult=0	setting_ok=true
+TARGET	id=23	x=15000	y=913000	radius=10000	visible_from_champ=true
+ULT_RESULT	Ult(None)
+EFFECT	range_fn=200000	range_adjust=0	is_in_range=true	check=true	on_caster=false	linear_move_speed=None
+PREDICT	caster_r_ON	margin=149999	total=220000	sz==0 → 예측식 자체가 div-by-zero
+PREDICT	caster_r_ON	margin=150000	total=220000	sz==0 → 예측식 자체가 div-by-zero
+PREDICT	caster_r_ON	margin=150001	total=220000	sz==0 → 예측식 자체가 div-by-zero
+PREDICT	caster_r_OFF	margin=149999	total=210000	sz==0 → 예측식 자체가 div-by-zero
+PREDICT	caster_r_OFF	margin=150000	total=210000	sz==0 → 예측식 자체가 div-by-zero
+PREDICT	caster_r_OFF	margin=150001	total=210000	sz==0 → 예측식 자체가 div-by-zero
+--

@@ -1,0 +1,46 @@
+{
+ "round": 9,
+ "batch": "B",
+ "errors": [
+  {
+   "path": "/specs[2]/sig/params[1]/role",
+   "kind": "실오류",
+   "old": "⚠**이 params 표는 sret out-ptr 을 빠뜨렸다** — m12.ll:34867 `define void @…AttackNexusPlan8sub_plan(ptr dead_on_unwind noalias noundef writable writeonly sret([72 x i8]) align 8 captures(none) dereferenceable(72) %0, ptr … %1, i64 noundef %2, …)` 로 IR 인자가 8개인데 표는 7행뿐이라 **표의 자리 번호가 IR 보다 한 칸 앞선다.** 8차 확정 규약은 07·15 처럼 `(sret)`(i=0) 행을 params[0] 로 싣는 것인데 `applypatch` 에 행 추가가 없어 기계로 못 넣었다(8차 배치C)",
+   "new": "sret out-ptr 은 m12.ll:34867 `define void @…AttackNexusPlan8sub_plan(ptr dead_on_unwind noalias noundef writable writeonly sret([72 x i8]) align 8 captures(none) dereferenceable(72) %0, ptr … %1, i64 noundef %2, …)` 의 `%0` 이다. IR 인자 8개 ↔ params 8행으로 **자리 번호가 1:1 로 일치**한다 — 9차 시점에 `(sret)`(i=0) 행이 params[0] 로 실려 있다(8차 배치C 확정 규약 → 9차 `applypatch op:insert` 로 반영). ~~이 params 표는 sret 을 빠뜨렸다 · 표의 자리 번호가 IR 보다 한 칸 앞선다~~ 는 8차 기준 서술이라 9차에 정정",
+   "evidence": "m12.ll:34867 `define void @…AttackNexusPlan8sub_plan(ptr dead_on_unwind no` — IR 인자 8개. 현 정본 `sig.params` 는 8행이고 params[0].name=`(sret)`·i=0 이라 **빠진 것이 없다**(9차 도시에 §상황: 삽입 후 P2 2건이 예고대로 사라졌다). `sig.tcx` 소스 인자 7개 + sret 1 = 8행 검산도 통과",
+   "behavior_change": true,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[17]/sig/params[1]/role",
+   "kind": "실오류",
+   "old": "⚠**이 params 표는 sret out-ptr 을 빠뜨렸다** — m05.ll:17695 `define void @…DeathMatchBattle3new(ptr dead_on_unwind noalias noundef writable writeonly sret([384 x i8]) align 8 captures(none) dereferenceable(384) %0, i64 noundef %1, …)` 로 IR 인자가 5개인데 표는 4행뿐이라 **표의 자리 번호가 IR 보다 한 칸 앞선다.** 8차 확정 규약은 07·15 처럼 `(sret)`(i=0) 행을 params[0] 로 싣는 것인데 `applypatch` 에 행 추가가 없어 기계로 못 넣었다(8차 배치C)",
+   "new": "sret out-ptr 은 m05.ll:17695 `define void @…DeathMatchBattle3new(ptr dead_on_unwind noalias noundef writable writeonly sret([384 x i8]) align 8 captures(none) dereferenceable(384) %0, i64 noundef %1, …)` 의 `%0` 이다. IR 인자 5개 ↔ params 5행으로 **자리 번호가 1:1 로 일치**한다 — 9차 시점에 `(sret)`(i=0) 행이 params[0] 로 실려 있다(8차 배치C 확정 규약 → 9차 `applypatch op:insert` 로 반영). ~~이 params 표는 sret 을 빠뜨렸다 · 표의 자리 번호가 IR 보다 한 칸 앞선다~~ 는 8차 기준 서술이라 9차에 정정",
+   "evidence": "m05.ll:17695 `define void @…DeathMatchBattle3new(ptr dead_on_unwind noalia` — IR 인자 5개. 현 정본 `sig.params` 는 5행이고 params[0].name=`(sret)`·i=0 이라 **빠진 것이 없다**(9차 도시에 §상황: 삽입 후 P2 2건이 예고대로 사라졌다). `sig.tcx` 소스 인자 4개 + sret 1 = 5행 검산도 통과",
+   "behavior_change": true,
+   "found_by": "new"
+  }
+ ],
+ "ev_up": [
+  {
+   "path": "/specs[2]/sig/params[0]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조: `fn(&AttackNexusPlan, usize, &mut StdRng, &PlayerState, &OperationData, &TeamPlan, &mut DebugFrameData) -> SubPlan` — 소스 인자 7개. m12.ll:34867 `define void @…AttackNexusPlan8sub_plan(ptr dead_on_unwind noalias noundef writable writeonly sret([72 x i8]) align 8 captures(none) dereferenceable(72) %0, …)` — IR 인자 8개 = 7 + sret 1. 반환 SubPlan 이 72B 로 `sret([72 x i8])` 와 일치",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[17]/sig/params[0]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조: `fn(usize, BattlePlanGoal, &OperationData, &PlayerState) -> DeathMatchBattle` — 소스 인자 4개. m05.ll:17695 `define void @…DeathMatchBattle3new(ptr dead_on_unwind noalias noundef writable writeonly sret([384 x i8]) align 8 captures(none) dereferenceable(384) %0, i64 noundef %1, …)` — IR 인자 5개 = 4 + sret 1. 반환 DeathMatchBattle 이 384B",
+   "found_by": "new"
+  }
+ ],
+ "brief_errors": [
+  "§상황이 「P4 6건·P6 14건을 반증하라」고만 적었고 「그 20건이 전부 같은 3행(`02` p[1] · `03` p[4] · `17` p[1])에서 나온다」는 사실은 빠졌다. 126행 중 3행이라 「20건」이라는 수가 겁준 것보다 훨씬 직을 수 있었다.",
+  "도시에 §1 은 「`_gates/params_role/` 의 후보를 전부 돌려 통합하라」고 하는데, 8차 배치C 가 이미 통합해 `MIG\\paramrole.py` 로 냈다. 도시에가 8차용 본문을 그대로 쓰고 있어 9차 지시(부모 메시지)와 §1 이 어깽난다.",
+  "§5 표가 `errors[].kind` 에 `오탐`을 허용하지만 `apply_error` 는 `path`/`old`/`new` 가 있어야 돌아간다. 「게이트가 틀렸다」는 명세에 고칠 문면이 없어 `errors[]` 로 못 낸다 — 이번 오탐 20건은 REPORT §2 와 `brief_errors` 로만 남는다.",
+  "§5 가 `ev_up[].from`을 요구하지만 `apply_evup` 는 `to` 만 읽는다 (`from` 은 검증에도 안 쓰인다) — 오기가 조용히 통과한다."
+ ]
+}

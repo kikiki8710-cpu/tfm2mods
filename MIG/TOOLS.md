@@ -6,7 +6,7 @@
 
 **어떤 상황에 무엇을 집는가 = `METHOD_MAP.md` §0**(라우팅표). 이 문서는 *무엇이 있는가* 만 센다.
 
-전체 104개 · 생성 시각 기준 자동 집계 (`_` 로 시작하는 1회용 스크래치는 제외)
+전체 140개 · 생성 시각 기준 자동 집계 (`_` 로 시작하는 1회용 스크래치는 제외)
 
 ## ★사전 — 타입·오프셋을 묻는 곳
 
@@ -86,18 +86,66 @@ IR·rmeta 를 뽑고 훑는다.
 | `probe.py` | (docstring 없음 — 채워라) |
 | `aiprobe.py` | "이 함수가 실제 경기에서 뜨긴 하는가" 를 재기 위한 **카운트 전용 프로브 표** 생성기. |
 
-## 명세 파이프라인 — 배치를 굴릴 때
+## 명세 파이프라인 ① 정본 만들기
 
-절차 = `SPEC_RUNBOOK.md`. 규격 = `SPEC_GUIDE.md`.
+`_spec\specs20.json`(v2, 손이 닿는 정본) → `specs20_v3.json`(생성물). **v3 를 직접 고치지 마라.**
+
+| 도구 | 하는 일 |
+|---|---|
+| `mkspec3.py` | mkspec3 — `_spec\\specs20.json`(v2) → `_spec\\specs20_v3.json`(v3) 재구성. (2026-09-11) |
+| `spec3lib.py` | spec3lib — 명세 v3 의 **게이트 필드를 코퍼스에서 자동으로 채운다.** (2026-09-11 신설) |
+| `mkspec3_md.py` | mkspec3_md — `specs20_v3.json` → REPORT 용 마크다운. (2026-09-11) |
+| `mkspec20.py` | 20함수 명세를 하나로 합쳐 `specs20.json` 을 만든다. |
+| `mkspec_md.py` | `specs20.json` 을 REPORT 용 마크다운 명세로 편다. |
+| `cleanspec.py` | cleanspec — 정본 본문에서 **고고학 지층을 걷어낸다**. (2026-09-11 신설, 유저 지시) |
+| `mkmap_html.py` | `TFM2 AI 함수 지도` 아티팩트에 **20함수 상세 명세**를 붙인다. |
+
+## ★명세 파이프라인 ② 라운드 4계약 — **경계마다 사람 손을 뺀다**
+
+절차 = `SPEC_RUNBOOK.md §S5-d`. 6라운드 실측에서 오류의 상당수가 「사람이 손으로 옮겨 적는 경계」에서 났다.
+**지시** `mkdossier` → **보고** `patch.json` → **반영** `applypatch` → **검증** `auditrounds`.
+★7차부터 지시 = `mkbrief`(요약) 가 아니라 **`mkdossier`(정본 무손실 조립)** 이다 — 6차까지의 지시 오류가 **전부 「줄여 적은 자리」**에서 났다.
+
+| 도구 | 하는 일 |
+|---|---|
+| `mkdossier.py` | mkdossier — 배치 하나가 받을 **정본 전량**을 한 파일로 조립한다(요약 금지). (2026-09-11 신설) |
+| `dossierfresh.py` | dossierfresh — 배치가 **자기가 읽은 지시문이 최신인지** 스스로 확인한다. (7차 배치C 적발로 신설) |
+| `mkbrief.py` | ⚠**요약 방식(~6차)** — 브리핑 오류가 전부 「줄여 적은 자리」에서 났다. 7차 정본 = `mkdossier.py`(무손실) · mkbrief — 반증검증 라운드 브리핑의 **사실 절을 데이터에서 생성**한다. (2026-09-11 신설) |
+| `mkpatch.py` | mkpatch — 배치가 `patch.json`(정정 계약)을 **안전하게 만드는** 참조 구현. (2026-09-11 신설) |
+| `applypatch.py` | applypatch — 배치가 낸 **기계 판독 정정**(`patch.json`)을 v2 정본에 적용한다. (2026-09-11 신설) |
+| `auditrounds.py` | auditrounds — **지금까지 모든 라운드의 정정이 아직 살아 있는지** 자동 회귀 검사. (2026-09-11 신설) |
+| `specgate.py` | specgate — 명세의 **완결 조건**을 기계로 검사한다. (2026-09-11 신설) |
+
+## ★명세 파이프라인 ③ 게이트 — 완결 조건 검사
+
+`specgate.py` 가 게이트를 돌리고, 아래 것들이 그 게이트가 부르는 **검사기**다.
+**전부 「검사받지 않는 축」에서 나왔다** — 붙일 때마다 그 축에 고여 있던 오류가 드러났다(`SPEC_RUNBOOK §S5-c`).
+⚠★**적발 건수는 게이트의 성능이 아니라 가설이다.** 붙이자마자 나온 수를 성과로 믿지 말고 **표본을 IR 원문으로 반증**하라 — 7차 `G12` 47건은 검증해 보니 대부분 오탐이었고, 8차엔 네 축의 후보 총 적발 **100여 건 중 진짜가 26건**이었다.
+⚠★**「부재」를 결함으로 세지 마라**(콜리 안 접근·상수 접힘·레지스터 승격). `G14` 후보 하나가 그래서 46건을 냈다.
+★**검출력은 「변이 시험」으로 재라** — 명세를 일부러 뒤집어 넣고 몇 %를 잡는지 본다(`memdir.py` 실측 53.1%). 그래야 **적발 0 이 무능이 아니라 「그 축에 오류가 없다」**임을 말할 수 있다.
+
+| 도구 | 하는 일 |
+|---|---|
+| `srclinecheck.py` | G12 `consts[].src_line` 대조 — **9차 배치A 통합판**(`srclinecheck.py` 의 후속). |
+| `srclinebase.py` | `consts[].src_line` 기계 대조 — 그 리터럴이 실제로 어느 소스 줄에서 왔는지 **inlinedAt 사슬 전체**로 본다. |
+| `whereline.py` | whereline — `knobs[].where` 의 **IR 줄번호와 인용 명령**을 실제 `.ll` 과 대조한다. (2026-09-11) |
+| `memdir.py` | **G14 — `mem[].dir`(읽기/쓰기 방향) 기계 대조.** 8차 배치A 통합판. |
+| `kindchk.py` | G15 `consts[].kind` — **상수의 종류** 게이트. 8차 배치B 통합판(후보 B·C·D 흡수). |
+| `histprop.py` | G17 — 축 `history` → 표 **전파** 검사. (8차 배치 D 신설, 2026-09-11) |
+| `paramrole.py` | `sig.params[].role` 기계 대조 — **G16 승격판(9차 배치B)**. |
+| `xreflogic.py` | **G18 — `logic` ↔ `mem`/`consts` 상호참조.** 9차 배치D 신설. |
+| `knobval.py` | knobval — `knobs[].value`(노브의 **값**)를 IR 원문과 대조한다. (9차 배치C · 2026-09-11) |
+| `sharedchk.py` | G20 `shared` — **명세 간 공유 사실 대조** 게이트. |
+
+## 명세 파이프라인 ④ 품질 대조
+
+지어낸 내용 거르기 · 독립 재작성 대조.
 
 | 도구 | 하는 일 |
 |---|---|
 | `pick20.py` | 명세 작성 시범 배치용 **대표 표본**을 뽑는다. |
 | `qcspec.py` | 함수 명세(JSON)를 **IR 본문과 기계적으로 대조**해 지어낸 내용을 거른다. |
 | `speccmp.py` | **같은 함수를 독립적으로 두 번 명세한 결과**를 비교해 신뢰도를 잰다. |
-| `mkspec20.py` | 20함수 명세를 하나로 합쳐 `specs20.json` 을 만든다. |
-| `mkspec_md.py` | `specs20.json` 을 REPORT 용 마크다운 명세로 편다. |
-| `mkmap_html.py` | `TFM2 AI 함수 지도` 아티팩트에 **20함수 상세 명세**를 붙인다. |
 | `corpus.py` | "640개를 다 파악한다"의 **실제 분량**을 잰다. |
 | `corpus2.py` | "파악해야 할 소스 함수"의 진짜 개수. |
 
@@ -167,6 +215,26 @@ IR 의 이름을 exe RVA 에 잇거나, exe 함수에 이름을 붙인다.
 | 도구 | 하는 일 |
 |---|---|
 | `mktools.py` | `MIG\\TOOLS.md`(도구 인벤토리)를 **자동 재생성**한다. |
+| `selftest.py` | selftest — 명세 파이프라인 **도구 자신**의 회귀 시험. (10차 신설, 2026-09-11) |
 | `logsnap.py` | 인게임 검증 전/후 **모드 로그 스냅샷과 diff**. |
 | `modbisect.py` | 크래시 범인 모드 이분탐색 도구. |
 | `apgate.py` | `tfm2_ai_adjust` 의 `apply_*` 바이트패치 체인을 cfg 로 on/off 해서 |
+
+## 미분류 (새로 생긴 도구 — `mktools.py` 의 `CAT` 에 넣어라)
+
+| 도구 | 하는 일 |
+|---|---|
+| `abiagree.py` | abiagree.py — **exe 의 함수가 IR `define` 과 같은 ABI 로 컴파일됐는가.** (2026-09-12 신설) |
+| `addrgate.py` | addrgate.py — **`exe.addr` 을 지문 점수로 게이트한다**(신호 S6). (2026-09-12 신설) |
+| `callerprof.py` | callerprof.py — **「누가 이 주소를 부르는가」로 주소를 검증한다**(신호 S4). (2026-09-12 신설) |
+| `callsites.py` | callsites.py — exe `.text` 를 raw 스캔해 **특정 RVA 를 겨누는 `call`/`jmp rel32` 를 전수** 센다. |
+| `disrva.py` | disrva.py — 현행 exe 의 RVA 구간을 capstone 으로 디스어셈블해 찍는다 (Ghidra 없이 빠르게 · 읽기 전용). |
+| `enumlive.py` | enumlive.py — tcx 열거형 레이아웃에서 **variant 별 살아있는 바이트 범위**(ELEM_LIVE 명세)를 자동 생성한다. |
+| `gensweep20.py` | gensweep20.py — **2단계 sweep 코드 생성기**. 명세 20함수(`MIG\\_spec\\specs20_v3.json`)를 |
+| `heapsurf.py` | heapsurf.py — `&mut self` 함수의 **전이적 힙 쓰기 표면**을 루트 self 기준 절대 오프셋으로 전수한다. |
+| `probe20.py` | probe20.py — **20개 AI 판단함수 전용** 카운트 프로브 표 생성기. (2026-09-12 신설) |
+| `rvaverify.py` | rvaverify.py — **명세 20함수의 `exe.addr` 이 정말 그 함수인가.** (2026-09-12 신설) |
+| `structlive.py` | structlive.py — tcx `--deep` 레이아웃에서 **구조체의 살아있는 바이트 맵**(패딩·Vec 삼중항 제외 · 열거형/Option 은 |
+| `sweep20chk.py` | sweep20chk.py — **2단계(sweep) 대조가 가능한 함수가 몇 개인가**를 먼저 잰다. (2026-09-12) |
+| `whatsdone.py` | whatsdone.py — 「이거 전에 했나?」를 5초로 (CLAUDE.md §7 착수 전 grep 자동화 · 2026-09-13) |
+| `whohooks.py` | whohooks.py — **배포된 모드 dll 중 어느 것이 20함수 RVA 를 들고 있나.** (2026-09-12 신설) |

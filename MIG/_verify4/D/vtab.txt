@@ -1,0 +1,21 @@
+### 14DeathMatchGame  (총 816B / 슬롯 101)
+   +0x28    기대=tick               실제=tick  OK
+   +0x40    기대=get_game_mode      실제=get_game_mode  OK
+   +0xe8    기대=is_solorank        실제=is_solorank  OK
+   +0x108   기대=strategy           실제=strategy  OK
+   +0x180   기대=set_strategy       실제=set_strategy  OK
+   +0x1f0   기대=get_entity_by_id   실제=get_entity_by_id  OK
+### 14SingleLaneGame  (총 816B / 슬롯 101)
+   +0x28    기대=tick               실제=tick  OK
+   +0x40    기대=get_game_mode      실제=get_game_mode  OK
+   +0xe8    기대=is_solorank        실제=is_solorank  OK
+   +0x108   기대=strategy           실제=strategy  OK
+   +0x180   기대=set_strategy       실제=set_strategy  OK
+   +0x1f0   기대=get_entity_by_id   실제=get_entity_by_id  OK
+### NtB5_4Game  (총 816B / 슬롯 101)
+   +0x28    기대=tick               실제=tick  OK
+   +0x40    기대=get_game_mode      실제=get_game_mode  OK
+   +0xe8    기대=is_solorank        실제=is_solorank  OK
+   +0x108   기대=strategy           실제=strategy  OK
+   +0x180   기대=set_strategy       실제=set_strategy  OK
+   +0x1f0   기대=get_entity_by_id   실제=get_entity_by_id  OK

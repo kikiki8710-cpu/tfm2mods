@@ -1,0 +1,262 @@
+# -*- coding: utf-8 -*-
+u"""C6 배치C — `patch.json` 생성기.
+`ev_up` 을 손으로 172줄 적으면 또 샌다(5차 사고의 원인 자체가 손 옮김이었다) ⟹ 규칙으로 만든다.
+`errors` 는 건수가 적으므로 명시 리스트.
+"""
+import io, json, os, sys
+
+sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+HERE = r"C:\tfm2mods\MIG"
+OUT = os.path.join(HERE, "_verify6", "C", "patch.json")
+V3 = json.load(io.open(os.path.join(HERE, "_spec", "specs20_v3.json"), encoding="utf-8"))["specs"]
+
+# ── memchk.tsv (이번 라운드 tcxdict 행별 재조회) ────────────────────────────
+MEM = {}
+for ln in io.open(os.path.join(HERE, "_verify6", "C", "memchk.tsv"), encoding="utf-8"):
+    p = ln.rstrip("\n").split("\t")
+    if len(p) < 7 or p[0] == "i":
+        continue
+    MEM[(int(p[0]), int(p[1]))] = p[6]
+
+# ── offset_of! 로 실제 실행 대조한 (base,offset) 집합 (o1/o2/o3) ─────────────
+OFFRUN = {
+    ("PlayerState", "0x930"), ("PlayerState", "0x9c0"),
+    ("OperationData", "0x0"), ("OperationData", "0x8"), ("OperationData", "0x10"),
+    ("AbstractGameWithCache", "0x0"), ("AbstractGameWithCache", "0x1e0"),
+    ("AbstractGameWithCache", "0x180"), ("AbstractGameWithCache", "0x190"),
+    ("AbstractGameWithCache", "0x1a0"), ("AbstractGameWithCache", "0x1b0"),
+    ("AbstractGameWithCache", "0x1c0"), ("AbstractGameWithCache", "0x1d0"),
+    ("MobaMode", "0x198"), ("MobaMode", "0x1c8"),
+    ("Entity", "0x0"), ("Entity", "0x660"), ("Entity", "0x668"), ("Entity", "0x68"),
+    ("Entity", "0x628"), ("Entity", "0x670"), ("Entity", "0x70"), ("Entity", "0x88"),
+    ("Entity", "0x128"),
+    ("Strategy", "0xf"),
+    ("GameContext", "0x38"), ("GameContext", "0x39"), ("GameContext", "0x8"), ("GameContext", "0x20"),
+    ("GameSetting", "0x12c0"), ("MapDef", "0x1c98"),
+    ("LineGankerPlan", "0x0"), ("LineGankerPlan", "0x28"), ("LineGankerPlan", "0x29"),
+    ("LegacyPlanHandler", "0x0"), ("LegacyPlanHandler", "0xf8"), ("LegacyPlanHandler", "0x5e8"),
+    ("LegacyPlanHandler", "0x768"), ("LegacyPlanHandler", "0x858"), ("LegacyPlanHandler", "0x990"),
+    ("LegacyPlanHandler", "0x1610"), ("LegacyPlanHandler", "0x1618"),
+    ("LegacyPlanHandler", "0x1628"), ("LegacyPlanHandler", "0x517"), ("LegacyPlanHandler", "0x530"),
+}
+
+
+def base_key(b):
+    b = b.split("(")[0].strip()
+    return b
+
+
+# ── ① mem 전량 → ev3 (오프셋 상한) ───────────────────────────────────────────
+ev_up = []
+skipped = []
+for i in range(10, 15):
+    for j, m in enumerate(V3[i].get("mem") or []):
+        if (m.get("ev") or 9) <= 3:
+            skipped.append(("mem", i, j, m.get("ev")))
+            continue
+        bk, off = base_key(m.get("base", "")), m.get("offset", "").split("[")[0]
+        verd = MEM.get((i, j), "?")
+        ev = []
+        if (bk, off) in OFFRUN:
+            ev.append(u"`offset_of!` 실행 대조 MISMATCH 0 (`_verify6/C/o1_off.out`·`o2_off_ai.out`·`o3_off2.out`, 오프셋 51 + 구조체 크기 16 전건 OK)")
+        if verd == "MATCH":
+            ev.append(u"`tcxdict` 행별 재조회 MATCH (`_verify6/C/memchk.tsv` i=%d idx=%d)" % (i, j))
+        elif verd == "NOHIT":
+            ev.append(u"tcx: `AbstractGameWithCache.game` 은 +0x0 의 16B `&dyn` 팻포인터라 **+0x8 = vtable 절반**(Rust 팻포인터 ABI). `tcxdict` 는 팻포인터 뒤 절반을 필드로 세지 않는다(METHOD_MAP ⑦ 한계 명시)")
+        elif verd.startswith("CHECK"):
+            ev.append(u"`tcxdict` 재조회: `game` = +0x0 16B `&dyn AbstractGame` ⟹ 데이터 절반이 +0x0 (`memchk.tsv` i=%d idx=%d)" % (i, j))
+        elif verd.startswith("SKIP"):
+            # 열거형 페이로드 / vtable 슬롯 — 개별 근거를 손으로 붙인다
+            ev.append(ENUM_EV.get((i, j)) if False else None)
+        if not ev or ev[0] is None:
+            skipped.append(("mem-noev", i, j, verd))
+            continue
+        ev_up.append({"path": "/specs[%d]/mem[%d]" % (i, j), "from": m.get("ev"), "to": 3,
+                      "evidence": u" · ".join(x for x in ev if x)})
+
+# ── ②열거형 페이로드 mem 행 — tcxdict --enum 개별 근거 ──────────────────────
+ENUM_EV = {
+    (11, 7): u"`tcxdict --enum game_core::BigGoal`: 판별자 enum+0x0(1B, Direct), 태그 0..6 = Line/Jungle/Epic/Serpen/Nexus/Battle/Recall (6차 배치C 재조회)",
+    (11, 8): u"`tcxdict --enum game_core::BigGoal`: 페이로드 `Line.line: LineType` = **enum+0x1** (6차 배치C 재조회)",
+    (11, 14): u"`tcxdict --enum game_ai::plan_legacy::types::BigPlan`: SinglePlanLine 의 **메모리 태그 = 4**(니치, untagged=DeathMatchBattle, niche_start=2) (6차 배치C 재조회)",
+    (11, 15): u"`tcxdict`: `SinglePlanLine` 은 32B struct(chats@0x0 / in_recall@0x18 / line@0x19)이고 BigPlan 페이로드가 **+0x8** 에서 시작 ⟹ chats = BigPlan+0x8 (6차 배치C 재조회)",
+    (11, 16): u"`tcxdict`: `SinglePlanLine.in_recall@0x18` + 페이로드 시작 +0x8 = **BigPlan+0x20** (6차 배치C 재조회)",
+    (11, 17): u"`tcxdict`: `SinglePlanLine.line@0x19` + 페이로드 시작 +0x8 = **BigPlan+0x21** (6차 배치C 재조회)",
+    (12, 15): u"`tcxdict --enum game_core::TraceEventType`: 페이로드 `CallHandled.chat: String` = **enum+0x8** (6차 배치C 재조회)",
+    (12, 16): u"`tcxdict --enum game_core::TraceEventType`: `CallHandled.plan_before` = **enum+0x20** (6차 배치C 재조회)",
+    (12, 17): u"`tcxdict --enum game_core::TraceEventType`: `CallHandled.plan_after` = **enum+0x38** (6차 배치C 재조회)",
+    (12, 18): u"`tcxdict --enum game_core::TraceEventType`: `CallHandled.objective_before` = **enum+0x50** (6차 배치C 재조회)",
+    (12, 19): u"`tcxdict --enum game_core::TraceEventType`: `CallHandled.objective_after` = **enum+0x68** (6차 배치C 재조회)",
+    (12, 20): u"`tcxdict --enum game_core::TraceEventType`: `CallHandled.from: Position` = **enum+0x80** (6차 배치C 재조회)",
+    (12, 21): u"`tcxdict --enum game_core::TraceEventType`: `CallHandled.misunderstood: bool` = **enum+0x84** (6차 배치C 재조회)",
+    (12, 22): u"`tcxdict game_core::PendingTraceEvent`: 184B = { event: TraceEventType(176B) @0x0, **tick: usize @0xb0** } (6차 배치C 재조회)",
+}
+have = {u["path"] for u in ev_up}
+for (i, j), e in ENUM_EV.items():
+    p = "/specs[%d]/mem[%d]" % (i, j)
+    if p in have:
+        continue
+    cur = V3[i]["mem"][j].get("ev")
+    if (cur or 9) <= 3:
+        continue
+    ev_up.append({"path": p, "from": cur, "to": 3, "evidence": e})
+
+# ── ③ consts / knobs → ev2 (오라클 실행) ────────────────────────────────────
+O5 = u"6차 배치C 오라클 `_verify6/C/o5_mask.out §O6-E` — MainObjective 25 케이스의 3바이트를 날바이트로 읽어 `(v&65534)==768` 을 평가, **통과 집합이 Morgard/Serpen×Hunt×with_battle 4개와 정확히 일치**(오검출 0)"
+O4W = u"6차 배치C 오라클 `_verify6/C/o4_s10.out §O6-A/A2/B` — 32000 격자 900칸에서 true 21칸을 실제로 밟은 상태로 version 0..7 **불일치 0**(5차 §O10-D 는 전칸 false 라 판별력이 없었다)"
+O4D = u"6차 배치C 오라클 `_verify6/C/o4_s10.out §O6-D` — 300틱 구동 후 `epic.live=1 serpen.live=1` 상태에서 tag0→`Some(41)` · tag1→`Some(40)` ⟹ **live_list 첫 원소 경로 최초 실행 확인**(5차엔 12/12 전부 None)"
+O5F = u"6차 배치C 오라클 `_verify6/C/o5_mask.out §O6-F` — `Strategy` 24B 날바이트의 `+0xf` = 1 이고 `Debug` 가 `object_finish: BattlePriority` ⟹ KillPriority=0 확정"
+
+CK = {
+    # specs[10]
+    (10, "consts", 0): O5, (10, "consts", 1): O5,
+    (10, "consts", 2): O5F,
+    (10, "consts", 3): u"6차 배치C 오라클 `_verify6/C/o4_s10.out §O6-C` — `is_ignored_well_enemy(0, player.team=0, enemy)` 가 **enemy.team==1 & 적 우물 안** 조합에서만 true(6조합 전수) ⟹ 적 팀 = 1−team",
+    (10, "consts", 4): u"5차 배치C 오라클 `_verify5/C/o10b.out §O10b-A` (margin 1:1 가산, 3×8 격자)",
+    (10, "consts", 5): u"5차 배치C 오라클 `_verify5/C/o10b.out §O10b-B` (140000 true / 140001 false, 대각 98994/98995)",
+    (10, "knobs", 0): u"5차 배치C 오라클 `_verify5/C/o10b.out §O10b-A`",
+    (10, "knobs", 1): O5, (10, "knobs", 2): O5, (10, "knobs", 3): O5F,
+    (10, "knobs", 4): u"5차 배치C 오라클 `_verify5/C/o10.out §O10-C` 8/8 (tick 1000↔lv 879/880, 5000↔4879/4880, 300↔179/180)",
+    (10, "knobs", 5): u"5차 배치C 오라클 `_verify5/C/o10b.out §O10b-B`",
+    (10, "knobs", 6): O4D,
+}
+S11 = u"5차 배치C 오라클 `_verify5/C/o11.out §S11`(게임모드 게이트 — `SingleLaneGame::new`/`DeathMatchGame::new` 로 modetag 0/1/2 실제 생성, 6168B 바이트 diff)"
+R1 = u"5차 배치C 오라클 `_verify5/C/o11.out §R1` 171/171 (`line_exists`·`morgard_exists`·`serpen_exists`·`position_exists`·`goal_allowed` 19열 × tutorial 9행 전수)"
+for j in range(0, 6):
+    CK[(11, "consts", j)] = S11
+for j in range(6, 15):
+    CK[(11, "consts", j)] = R1
+for j in (15, 16, 17):
+    CK[(11, "consts", j)] = R1 + u" ⟹ **집합은 실행 확정**이다. 단 리터럴 인코딩(`add i8 %t, -7` 류) 자체는 외연이 같은 표기라 실행으로 갈리지 않는다(범위 명시)"
+CK[(11, "consts", 18)] = S11 + u" — `mf_swap.0 == 29` 관측"
+K11 = {0: S11, 1: S11, 2: S11, 3: R1, 4: S11, 5: S11, 6: S11, 7: S11, 8: R1,
+       9: S11, 10: S11}
+for j, e in K11.items():
+    CK[(11, "knobs", j)] = e
+R2 = u"5차 배치C 오라클 `_verify5/C/o11.out §R1`(포지션 5열 × tutorial 9행 45/45) + `o11b.out §S12b` 게이트 실동작 **270/270**"
+for j in range(0, 9):
+    CK[(12, "consts", j)] = R2
+for j in (9, 10):
+    CK[(12, "consts", j)] = R2 + u" ⟹ 집합은 실행 확정(리터럴 인코딩은 외연 동일 표기라 실행으로 안 갈린다 — 범위 명시)"
+CK[(12, "consts", 11)] = u"5차 배치C 오라클 `_verify5/C/o11b.out §S12d` — `pending_trace_events[0]` 선두 i64 날바이트가 정확히 -9223372036854775793 · 6차 `tcxdict --enum TraceEventType` 로 niche_start(-2^63)+15 재확인"
+for j in (0, 1, 2, 3, 4, 6):
+    CK[(12, "knobs", j)] = R2
+S13 = u"5차 배치C 오라클 `_verify5/C/o13.out §S13` **300/300** (line 3 × team 2 × 타워상태 5 × 셀; 관측 경로 = `LineGankCoverPlan::sub_plan`(pub) 이 `target_bush_v30` 반환을 `SubPlan::Hide{bush}` 로 그대로 내보내는 얇은 래퍼)"
+for j in range(0, 16):
+    CK[(13, "consts", j)] = S13
+for j in (0, 1, 2, 3, 4, 5, 6, 8):
+    CK[(13, "knobs", j)] = S13
+S14 = u"5차 배치C 오라클 `_verify5/C/o13.out §S14` **780/780** (부시 도착 ⟺ Cancel 발화 전건 일치) + HP 경계 409/410"
+for j in range(0, 21):
+    CK[(14, "consts", j)] = S14
+for j in (0, 1, 2, 4, 5):
+    CK[(14, "knobs", j)] = S14
+
+for (i, f, j), e in sorted(CK.items()):
+    arr = V3[i].get(f) or []
+    if j >= len(arr):
+        skipped.append((f + "-oob", i, j, None)); continue
+    cur = arr[j].get("ev")
+    if (cur or 9) <= 2:
+        skipped.append((f, i, j, cur)); continue
+    ev_up.append({"path": "/specs[%d]/%s[%d]" % (i, f, j), "from": cur, "to": 2, "evidence": e})
+
+ev_up.sort(key=lambda u: (int(u["path"].split("[")[1].split("]")[0]), u["path"]))
+
+# ── errors ─────────────────────────────────────────────────────────────────
+errors = [
+    {
+        "path": "/specs[11]/knobs[11]",
+        "kind": "실오류",
+        "old": "case {4,7,8,9,11,12,15,16}",
+        "new": "switch 키는 **리맵 인덱스** `(tag>1 ? tag−2 : 6)` 다 — 그 기준 case {4,7,8,9,11,12,15,16} ⟹ **SubPlan 메모리 태그로는 {6 Jungle, 9 Hide, 10 EpicCheck, 11 EpicHunt, 13 SerpenCheck, 14 SerpenHunt, 17 DefenseNexus, 18 Steal}**. ⚠원시 태그로 읽으면 `EpicPoke(12)`·`SerpenPoke(15)` 를 보존 대상으로 착각한다(실제로는 항상 덮어쓰기). 전표 정본 = `shared.SubPlan_merge`",
+        "evidence": "IR `_gaibc/m12.ll:36960~36974`: `%5 = add nsw %3, -2` · `%6 = icmp samesign ugt %3, 1` · `%7 = select %6, %5, 6` · `switch i64 %7 [4,7,8,9,11,12,15,16]` ⟹ switch 피연산자가 원시 태그가 아니다. `shared.SubPlan_merge` 의 보존표(Jungle 6·Hide 9·EpicCheck 10·EpicHunt 11·SerpenCheck 13·SerpenHunt 14·DefenseNexus 17·Steal 18)와 `specs[11]/closed[]` 의 「EpicPoke(12)·SerpenPoke(15) 는 switch 에 없다」가 이 해석에서만 동시에 성립한다",
+        "behavior_change": False,
+        "found_by": "reused"
+    },
+    {
+        "path": "/specs[12]/logic",
+        "kind": "실오류",
+        "old": "rule_scope::chat_allowed(data.context, chat)",
+        "new": "rule_scope::chat_allowed(data.context, &chat)",
+        "evidence": "tcx 시그니처 = `fn(&GameContext, &Chat) -> bool`(`_tcx/game_ai.json`, rule_scope.rs:128). `chat` 은 이 함수의 **값 인자**(`Chat`)라 `&chat` 이어야 컴파일된다. 5차 배치C 가 `knobs[6]` 에 「값/참조가 모호하다」로 적었으나 `logic` 에 반영되지 않았다(5차 C-E2 가 `position_exists` 에 대해 한 정정과 같은 건)",
+        "behavior_change": False,
+        "found_by": "reused"
+    },
+    {
+        "path": "/specs[11]/logic",
+        "kind": "보강",
+        "old": "rule_scope::goal_allowed, rule_scope.rs:90~95",
+        "new": "rule_scope::goal_allowed, rule_scope.rs:90~96 (함수 본문 L90~L98 · arm 줄 = 92 Line / 93 Epic / 94 Serpen / 95 Jungle / **96 Nexus|Battle|Recall**)",
+        "evidence": "tcx def_span `goal_allowed` = rule_scope.rs:90 이고 `tcxq lines game_ai rule_scope.rs 88 100` 이 L90(68B)~L96(78B)~L97(4B)~L98(2B) 를 준다. 같은 명세의 `history[0]` 이 이미 **L96 = `|` 결합 arm** 으로 확정해 뒀는데 `logic` 의 줄범위가 95 에서 끊겨 그 arm 이 범위 밖으로 보인다",
+        "behavior_change": False,
+        "found_by": "reused"
+    },
+    {
+        "path": "/specs[11]/knobs[16]",
+        "kind": "보강",
+        "old": "(500 - roaming_ratio) * ego_ratio / 500",
+        "new": "(500 − roaming_ratio) * ego_ratio / 500. ⚠**선행 컷오프가 있다** — `500 − roaming_ratio < 1` 이면 난수를 뽑기도 전에 분기를 건너뛴다",
+        "evidence": "IR `_gaibc/m13.ll:6892~6903`: `%187 = sub i32 500, %155` → `%188 = icmp slt i32 %187, 1` → `br %188, label %210(skip)` → 통과 시에만 `%190 = mul %187, %157` · `%191 = sdiv %190, 500` · `gen_range(0,1000) < %191`",
+        "behavior_change": False,
+        "found_by": "reused"
+    },
+    {
+        "path": "/specs[13]/open[0]",
+        "kind": "분류오류",
+        "old": "소스에서 두 분기를 따로 쓴 이유(원래 다른 값이었는지, 향후 분기용인지) 는 IR 만으로는 알 수 없다. ⚠**단 「재료 부재」가 아니라 「미탐색」이다**(5차 배치C): rmeta SourceMap 줄 길이가 **L151(54B) ≠ L156(56B)** · L181(56B) ≠ L186(58B) ⟹ **같은 값을 내는 다른 표기**이지 중복이 아니다. 표기 차이의 내용은 줄 길이 산술로 더 좁힐 수 있다.",
+        "new": "두 분기를 따로 쓴 이유는 **중복 서술이 아니라 중첩 구조** 때문이다(6차 배치C, 줄 길이 산술로 확정). cover.rs L150(36B) 와 L153(46B) 의 차이 10 = 술어 문자수 차 8(`tower.ty.is_tower2()` 20자 → `info.nearest_enemy.is_some()` 28자) + 들여쓰기 2, L152(19B)↔L155(21B) +2, L157(14B)↔L158(12B) −2 ⟹ 소스는 `else if` 가 **아니라** `else { if … }` 로 한 단 더 들여쓴다. 그래서 L151 과 L156 은 **같은 반환식이 들여쓰기 2칸만 다른 것**이고(54B vs 56B), Bottom 블록(L181 56B / L184 58B / L186 58B)은 리터럴 자리수(3·6 → 15·20) 때문에 Top 대비 전 줄이 +2 다. 세 줄의 값이 겹치는 것은 이 구조가 강제한 것이고 원래 다른 값이었다는 흔적은 없다.",
+        "evidence": "`tcxq lines game_ai line_gank\\cover.rs 130 200` 실측 — L149 56 / L150 36 / L151 54 / L152 19 / L153 46 / L154 56 / L155 21 / L156 56 / L157 14 / L158 12, Bottom L179 56 / L180 36 / L181 56 / L182 19 / L183 46 / L184 58 / L185 21 / L186 58 / L187 14 / L188 12. 가설 「동일 텍스트 + 들여쓰기 2」 가 10줄 전부를 동시에 설명한다(반례 0). ⚠부수 = `mkspec3.classify()` 가 **문면에 든 「재료 부재」라는 낱말 자체**를 잡아 이 항목을 계속 `재료 부재` 로 앉혔다(그 문장은 「재료 부재가 **아니다**」라고 말하고 있었다) — 새 문면에는 판정 어휘 낱말을 넣지 않았다",
+        "behavior_change": False,
+        "found_by": "reused"
+    },
+    {
+        "path": "/specs[13]/open[1]",
+        "kind": "보강",
+        "old": "함수 이름의 `v30` 이 무엇의 버전인지 — 본문에 버전 게이트 분기가 없다(AI 버전 파라미터 자체가 없음).",
+        "new": "함수 이름의 `v30` 은 **AI 내부 버전 번호 30** 을 가리키는 도입 시점 표식이고, 런타임 버전 분기와는 무관하다. 근거 ①`_tcx/game_ai.json` 의 아이템 중 `vNN_` 접두가 v2·v3·v15~v17·v21~v28·**v30**·v46~v48·v50·v54·v55·v57 에 걸쳐 190개, `_vNN` 접미가 v3·v15·v26·**v30**·v32·v37·**v41**·v46·v54 에 있다 ②개발자 주석(`_docs/game_ai.txt`)이 `v54+`·`v<54`·`v92+` 처럼 **부등호 비교**로 쓴다 ⟹ 단순 라벨이 아니라 버전 임계다 ③`LineGankCoverPlan` 의 `sub_plan`·`next_plan`·`target_bush_v30` 어디에도 `version` 인자 비교가 없고(`_gaibc/m10.ll:11810~12400` 의 `icmp .*%2` 0건) 갱커 쪽도 `update`→v30 / `sub_plan`·`next_plan`→v41 로 **호출부 하드와이어**다 ⟹ 이 플랜에 버전 게이트 분기는 없다.",
+        "evidence": "6차 배치C: `_tcx/game_ai.json` 이름 집계(위 분포는 직접 센 값) + `_docs/game_ai.txt` L149·L152·그 외 `v92+`/`v<54` 용례. 5차 배치C 가 같은 결론(N1)을 냈으나 `patch5.py` 에 안 실려 정본에 반영되지 않았다",
+        "behavior_change": False,
+        "found_by": "reused"
+    },
+    {
+        "path": "/specs[13]/logic",
+        "kind": "보강",
+        "old": "부수효과 없음 — store 명령이 하나도 없는 순수 함수.",
+        "new": "부수효과 없음 — store 명령이 하나도 없는 순수 함수.\n\n⚠**같은 플랜의 `LineGankCoverPlan::update`(cover.rs:25)는 본문이 비어 있다** — MIR 이 `bb0: T return` 한 줄뿐이다(`_tcx/mirdump_game_ai.txt:12997~12999`). 이 플랜을 재구현할 때 `update` 에 로직이 있다고 가정하면 헛수고한다(5차 배치C 발견, 6차 반영).",
+        "evidence": "`_tcx/mirdump_game_ai.txt:12997` `### game_ai::plan_legacy::old::LineGankCoverPlan::update [2495] cover.rs:25:3-27:76` / 12998 `bb0:` / 12999 `T return`",
+        "behavior_change": False,
+        "found_by": "reused"
+    },
+    {
+        "path": "/specs[10]/consts[4]",
+        "kind": "보강",
+        "old": "게임 좌표 단위(셀=32000)로 보면 셀의 약 0.78배",
+        "new": "게임 좌표 단위(셀=32000)로 보면 셀의 약 0.78배. ★**선형 가산으로 분해됐다**: 경계거리 = `20000 + effect.range + margin`, 단 140000 에서 하드컷",
+        "evidence": "5차 배치C 오라클 `_verify5/C/o10b.out §O10b-A` 표(effect.range 0 · margin 0/1000/25000/50000/100000 → 경계 20000/21000/45000/70000/120000, margin 200000 에서 140000 컷). 5차 보고의 N2 인데 `patch5.py` 에 안 실려 정본에 반영되지 않았다",
+        "behavior_change": False,
+        "found_by": "reused"
+    },
+]
+
+brief_errors = [
+    u"★**`_verify6/BRIEF_FACTS.md` §1 표의 `D` 행과 `계` 행이 현행 정본과 다르다(stale).** 파일 mtime 이 `BRIEF_FACTS.md` 15:49 < `_spec/specs20.json` 15:51 < `specs20_v3.json` 15:53 ⟹ **5차 배치D 의 `patch.json` 이 적용되기 전 수치**다. 직접 센 값(§1 의 정의 그대로 mem+consts+knobs): D = ev2 **35** / ev3 **100** / ev4 **81** ⟹ ev≥4 **37.5%** (표는 0/22/194 · 89.8%). 계 = ev2 48 / ev3 139 / ev4 669 / ev5 2 = 858 ⟹ ev≥4 **78.2%** (표는 91.4%). A·B·C 행은 맞다(B 는 ev2 7→6 · ev3 19→20, C 는 ev2 5→4 · ev3 10→11 로 1행씩만 어긋난다). ⚠**「생성된 사실 절이라 믿어도 된다」는 이 파일의 전제를 깨는 종류의 오류**다 — 생성물이라도 **생성 시각이 정본보다 이르면 틀린다**. 조치안 = `mkbrief.py` 가 정본 파일의 mtime/해시를 헤더에 같이 찍고, 배치가 그것과 현재 정본을 대조하게 할 것.",
+    u"`BRIEF.md §2` 의 「`ev>=4` 가 아직 **669행**」과 `BRIEF_FACTS.md §1` 의 계 행(ev4 782 + ev5 2 = 784)이 **서로 다르다.** 669 는 현행 정본의 ev4 단독 수(ev5 2 를 빼면 정확)이고 784 는 stale 값이다. 즉 **두 브리핑 파일이 서로 다른 시점의 정본을 보고 있다.** 또 669 는 `ev4` 인데 라벨은 `ev>=4` 라 2행이 빠진다.",
+    u"★**`MIG\\SPEC_GUIDE.md` §1 `fnparts` 항목의 「≠」가 5차 지적 뒤에도 그대로다.** 현행 문면 = 「(5차 실측: `LineGankCoverPlan::target_bush_v30` ≠ 담당 함수의 `LineGankerPlan::target_bush_v30`)」. 그런데 5차 실측의 결론은 **정반대**이고 정본 JSON `specs[14]/notes[0]` 에 **판정반전**으로 이미 들어가 있다 — 두 함수는 **문자 단위 동일 복제본**이다(6차 재측정: `cover.rs:134~186` ↔ `ganker.rs:248~300` 줄 길이 **53/53 일치**, 다른 것은 `self` 타입과 그에 따른 `line` 오프셋 `+0x20`↔`+0x28` 뿐). 현행 문면은 「소유 타입이 다르면 그 조각을 버려라」로 읽혀 **관측 경로를 스스로 닫는다** — 실제로 그 조각(cover 판 `define` + `LineGankCoverPlan::sub_plan` pub 래퍼)이 5차에 `specs[13]` 39행·`specs[14]` 51행을 실행 검증한 유일한 통로였다. 정정안 = 「소유 타입이 다르면 **오프셋이 다르다**는 뜻이지 본문이 다르다는 뜻이 아니다 — 버리지 말고 오프셋만 환산해서 쓰라.」",
+    u"★**`auditrounds.py` 의 「전 라운드 회귀 — 유실·STALE 0」은 배치 A·B·C 에 대해 공허하다.** 실재하는 `patch.json` 은 `_verify5/D/patch.json` **하나뿐**이고 도구는 patch.json 이 있는 배치만 대조한다(`auditrounds.py:74~76`) ⟹ 출력의 「대조 128건」은 **전부 5차 배치D 몫**이다. 반증(전부 내 5차 결론인데 정본에 없다): `specs[13]/open[1]`(v30 = AI 버전 30) · `specs[13]` 의 `LineGankCoverPlan::update` 빈 본문 · `specs[10]` 25000 선형 분해 · **ev 상향 171행**. 그런데도 도구는 「유실 0 · 전건 유지됨」을 찍는다. `BRIEF §4` 가 이걸 제출 게이트로 지정했으므로 **게이트가 초록인 것이 안전의 증거가 아니다.** 최소 조치 = 헤더에 「대조 대상 = patch.json 이 있는 (라운드,배치) 목록」을 찍을 것.",
+    u"★**`mkspec3.classify()` 가 판정 어휘를 *부정하는* 문장까지 그 어휘로 분류한다.** `specs[13]/open[0]` 은 5차에 문면이 「**「재료 부재」가 아니라** 「미탐색」이다」로 고쳐졌는데, `CLASS` 가 부분문자열 `재료 부재` 를 먼저 잡아(`mkspec3.py:111`, `classify` 는 :161) class 가 계속 `재료 부재` 로 앉아 있었다 — **정정문 자체가 오분류의 원인**이다. 같은 문면에 `알 수 없다`(→재료 부재)도 있어 이중으로 걸린다. `specgate G10`(class 오분류=0)도 못 잡는다. 조치안 = ①`CLASS` 매칭 전에 `「<어휘>」가 아니(라|다)` 부정형을 문면에서 제거하거나 ②class 를 문면 추론이 아니라 **명시 필드**로 받을 것. (이번 정정 문면에는 판정 어휘 낱말을 아예 넣지 않는 방식으로 우회했다.)",
+    u"★**`BRIEF §1`(patch.json 을 써라)과 `BRIEF §4`(제출 게이트 = `auditrounds` 유실·STALE 0)가 서로 배타적이다.** `auditrounds` 는 **모든 라운드의 patch.json** 을 정본과 대조하는데, 방금 쓴 6차 patch.json 은 아직 **적용 전**이라 정의상 전건이 「유실/STALE/ev되돌아감」으로 잡힌다. 실측: patch.json 을 쓰기 **전** = `유실 0 · STALE 0 · ev되돌아감 0`, **쓴 직후** = `유실 8 · STALE 6 · ev되돌아감 213`(= 내 patch 의 내용 그 자체). ⟹ 제출 게이트를 글자대로 지키려면 patch.json 을 비워야 한다 — 계약과 정반대다. 조치안 = `auditrounds` 가 **현재 라운드(=미적용)를 기본 제외**하거나 `--applied-only` 를 두고, `BRIEF §4` 가 「자기 라운드 제외」를 명시할 것.",
+    u"`BRIEF_FACTS.md §3` 표의 인용문이 **문장 중간에서 잘려 판정이 뒤집혀 보인다.** `09` 행은 「⚠단 **「재료 부재」가 아니라」** 에서 끊기고, `13` 행(분류 `재료 부재`)도 「소스에서 두 분기를 따로 쓴 이유(원래 다른 값이었는지」 에서 끊긴다. 절단 지점이 하필 **부정어 직전**이라 원문과 반대로 읽힌다. 값 자체는 생성물이라 맞고, 문제는 절단 길이뿐이다.",
+]
+
+patch = {"round": 6, "batch": "C", "errors": errors, "ev_up": ev_up, "brief_errors": brief_errors}
+io.open(OUT, "w", encoding="utf-8").write(json.dumps(patch, ensure_ascii=False, indent=1))
+print(u"ev_up %d행 · errors %d건 → %s" % (len(ev_up), len(errors), OUT))
+by = {}
+for u in ev_up:
+    f = u["path"].split("/")[-1].split("[")[0]
+    by[f] = by.get(f, 0) + 1
+print(u"  필드별: " + " · ".join("%s=%d" % kv for kv in sorted(by.items())))
+print(u"  건너뜀(이미 목표 이하/근거없음) %d건" % len(skipped))
+for s in skipped:
+    print("    ", s)

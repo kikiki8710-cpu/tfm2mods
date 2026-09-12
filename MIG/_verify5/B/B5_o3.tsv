@@ -1,0 +1,50 @@
+setting_ok	true
+camp	288000	288000	cell=(9,9)	is_visible_cell=true
+
+#D	d	v24	is_end	exp_v24	exp_end	verdict	path
+D	100000	false	false	false	false	MATCH	폴스루 L194=false
+D	149999	false	false	false	false	MATCH	폴스루 L194=false
+D	150000	false	false	false	false	MATCH	폴스루 L194=false
+D	150001	false	true	false	true	MATCH	(d)L184
+D	179999	false	true	false	true	MATCH	(d)L184
+D	180000	false	true	false	true	MATCH	(d)L184
+D	180001	true	true	true	true	MATCH	(b)v24=true
+D	250000	true	true	true	true	MATCH	(b)v24=true
+
+#H	hp%	v24	is_end	exp_v24(=hp%<40)	verdict
+H	1	true	true	true	MATCH
+H	20	true	true	true	MATCH
+H	38	true	true	true	MATCH
+H	39	true	true	true	MATCH
+H	40	false	false	false	MATCH
+H	41	false	false	false	MATCH
+H	60	false	false	false	MATCH
+H	100	false	false	false	MATCH
+#H2	hp/1000	v24	exp_v24
+H2	399	true	true	MATCH
+H2	400	false	false	MATCH
+
+#C	desc	v24	is_end	해석
+C	slots_all_None(v23=0)	true	true	v24=true => (b) 가 먼저 나간다
+C	slots_None+lowHP	true	true	동일
+C	cell_closed,slots_None	true	true	is_visible_cell=false (L179 미진입)
+
+#T	nrt_rem	epic_alive	is_end	exp	verdict
+T	0	true	false	false	MATCH
+T	899	true	false	false	MATCH
+T	900	true	false	false	MATCH
+T	901	true	false	false	MATCH
+T	1000	true	false	false	MATCH
+T	0	false	false	false	MATCH
+T	899	false	false	false	MATCH
+T	900	false	false	false	MATCH
+T	901	false	true	true	MATCH
+T	1000	false	true	true	MATCH
+
+#P	phase	v24	is_end	(d=250000: v23=0)
+P	None	false	false
+P	Setup	true	true
+P	Assemble	false	false
+P	Hunt	false	false
+
+SUMMARY	mismatch=0

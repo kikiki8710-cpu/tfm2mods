@@ -1,0 +1,11 @@
+{
+ "round": "10",
+ "batch": "_fix",
+ "errors_applied": 0,
+ "ev_applied": 0,
+ "failed": 0,
+ "stamps": {
+  "/specs[19]/knobs[5]/where": "0b407bc57a548323"
+ },
+ "restamped": true
+}

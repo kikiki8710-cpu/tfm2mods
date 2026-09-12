@@ -1,0 +1,113 @@
+setting_ok	true	tps=60	width=960000
+A/size_of_LegacyPlanHandler	6168
+A/team_plan	+0xf8	size=1064
+A/positioning_score	+0x990	size=2760
+A/version	+0x1468	plan	+0x5e8	sub_plan	+0x768	chats	+0x7c8
+B/size_of_PlayerState	2528
+B/info.team	+0x930	=0
+B/info.position	+0x9c0	=Top(0)
+C/size_of_SinglePlanBattle	144
+C/main_goal	+0x40	sub_goal	+0x58	chats	+0x68	start_tick	+0x80	with_dive	+0x88	dive_tower	+0x8c	tactic	+0x8b
+C/new_debug	SinglePlanBattle { main_goal: TryKill(77, 60), sub_goal: Trace { focus: 77 }, tactic: Standard, chats: [Battle(77, 0)], support_target: None, with_dive: false, dive_tower: None, start_tick: 0, region: None, help_called: false, well_runaway: None, main_objective: None, dive_abandoned: false }
+C/new_dive_debug	SinglePlanBattle { main_goal: TryKill(77, 60), sub_goal: Trace { focus: 77 }, tactic: Standard, chats: [BattleDive(77, 0)], support_target: None, with_dive: true, dive_tower: None, start_tick: 0, region: None, help_called: false, well_runaway: None, main_objective: None, dive_abandoned: false }
+C/new_region_debug	SinglePlanBattle { main_goal: TryKill(77, 60), sub_goal: Trace { focus: 77 }, tactic: Standard, chats: [], support_target: None, with_dive: false, dive_tower: None, start_tick: 0, region: Some(BattleRegion { center_x: 100, center_y: 200, range: 300 }), help_called: false, well_runaway: None, main_objective: None, dive_abandoned: false }
+C/trykill1	0	SPB=SinglePlanBattle { main_goal: TryKill(77, 0), sub_goal: Trace { focus: 77 }, tactic: Standard, chats: [Battle(77, 0)], support_target: None, with_dive: false, dive_tower: None, start_tick: 0, region: None, help_called: false, well_runaway: None, main_objective: None, dive_abandoned: false }	DMB_sub=Trace { focus: 77 }	DMB_chats=[Battle(77, 0)]
+C/trykill1	1	SPB=SinglePlanBattle { main_goal: TryKill(77, 1), sub_goal: Trace { focus: 77 }, tactic: Standard, chats: [Battle(77, 0)], support_target: None, with_dive: false, dive_tower: None, start_tick: 0, region: None, help_called: false, well_runaway: None, main_objective: None, dive_abandoned: false }	DMB_sub=Trace { focus: 77 }	DMB_chats=[Battle(77, 0)]
+C/trykill1	59	SPB=SinglePlanBattle { main_goal: TryKill(77, 59), sub_goal: Trace { focus: 77 }, tactic: Standard, chats: [Battle(77, 0)], support_target: None, with_dive: false, dive_tower: None, start_tick: 0, region: None, help_called: false, well_runaway: None, main_objective: None, dive_abandoned: false }	DMB_sub=Trace { focus: 77 }	DMB_chats=[Battle(77, 0)]
+C/trykill1	60	SPB=SinglePlanBattle { main_goal: TryKill(77, 60), sub_goal: Trace { focus: 77 }, tactic: Standard, chats: [Battle(77, 0)], support_target: None, with_dive: false, dive_tower: None, start_tick: 0, region: None, help_called: false, well_runaway: None, main_objective: None, dive_abandoned: false }	DMB_sub=Trace { focus: 77 }	DMB_chats=[Battle(77, 0)]
+C/trykill1	61	SPB=SinglePlanBattle { main_goal: TryKill(77, 61), sub_goal: Trace { focus: 77 }, tactic: Standard, chats: [Battle(77, 0)], support_target: None, with_dive: false, dive_tower: None, start_tick: 0, region: None, help_called: false, well_runaway: None, main_objective: None, dive_abandoned: false }	DMB_sub=Trace { focus: 77 }	DMB_chats=[Battle(77, 0)]
+C/trykill1	1000	SPB=SinglePlanBattle { main_goal: TryKill(77, 1000), sub_goal: Trace { focus: 77 }, tactic: Standard, chats: [Battle(77, 0)], support_target: None, with_dive: false, dive_tower: None, start_tick: 0, region: None, help_called: false, well_runaway: None, main_objective: None, dive_abandoned: false }	DMB_sub=Trace { focus: 77 }	DMB_chats=[Battle(77, 0)]
+C/trykill1	999999	SPB=SinglePlanBattle { main_goal: TryKill(77, 999999), sub_goal: Trace { focus: 77 }, tactic: Standard, chats: [Battle(77, 0)], support_target: None, with_dive: false, dive_tower: None, start_tick: 0, region: None, help_called: false, well_runaway: None, main_objective: None, dive_abandoned: false }	DMB_sub=Trace { focus: 77 }	DMB_chats=[Battle(77, 0)]
+C/before_update_sub_goal	Trace { focus: 77 }
+C/after_update_sub_goal	RunAway	is_end=false
+C/real_target_before	End
+C/real_target_after	RunAway	is_end=false	debug=SinglePlanBattle { main_goal: TryKill(23, 60), sub_goal: RunAway, tactic: Standard, chats: [Battle(23, 0)], support_target: None, with_dive: false, dive_tower: None, start_tick: 0, region: None, help_called: false, well_runaway: None, main_objective: None, dive_abandoned: false }
+D/tower0	id=2	ty_tag=2	info.ty@+0x128	=Top
+D/tower1	id=3	ty_tag=2	info.ty@+0x128	=Top
+D/tower2	id=4	ty_tag=2	info.ty@+0x128	=Top2
+D/tower3	id=5	ty_tag=2	info.ty@+0x128	=Top2
+E/size_of_TeamPlan	1064
+E/chats	+0xc0	objective	+0x41f	eo_serpen_punish_issues	+0x410	next_respawn_tick	+0x378
+E/objective_before	None	chats_len=0	punish=0
+E/after_update_objective	None	chats_len=0	punish=0	plan=Discriminant(0)
+E/uo	v1	t0	Top	objective=None	chats=0	punish=0	serpen_contest_clear_win=false
+E/uo	v1	t0	Jungle	objective=None	chats=0	punish=0	serpen_contest_clear_win=false
+E/uo	v1	t0	Mid	objective=None	chats=0	punish=0	serpen_contest_clear_win=false
+E/uo	v1	t0	Bottom	objective=None	chats=0	punish=0	serpen_contest_clear_win=false
+E/uo	v1	t0	Support	objective=None	chats=0	punish=0	serpen_contest_clear_win=false
+E/uo	v1	t1	Top	objective=None	chats=0	punish=0	serpen_contest_clear_win=false
+E/uo	v1	t1	Jungle	objective=None	chats=0	punish=0	serpen_contest_clear_win=false
+E/uo	v1	t1	Mid	objective=None	chats=0	punish=0	serpen_contest_clear_win=false
+E/uo	v1	t1	Bottom	objective=None	chats=0	punish=0	serpen_contest_clear_win=false
+E/uo	v1	t1	Support	objective=None	chats=0	punish=0	serpen_contest_clear_win=false
+E/uo	v2	t0	Top	objective=None	chats=0	punish=0	serpen_contest_clear_win=false
+E/uo	v2	t0	Jungle	objective=None	chats=0	punish=0	serpen_contest_clear_win=false
+E/uo	v2	t0	Mid	objective=None	chats=0	punish=0	serpen_contest_clear_win=false
+E/uo	v2	t0	Bottom	objective=None	chats=0	punish=0	serpen_contest_clear_win=false
+E/uo	v2	t0	Support	objective=None	chats=0	punish=0	serpen_contest_clear_win=false
+E/uo	v2	t1	Top	objective=None	chats=0	punish=0	serpen_contest_clear_win=false
+E/uo	v2	t1	Jungle	objective=None	chats=0	punish=0	serpen_contest_clear_win=false
+E/uo	v2	t1	Mid	objective=None	chats=0	punish=0	serpen_contest_clear_win=false
+E/uo	v2	t1	Bottom	objective=None	chats=0	punish=0	serpen_contest_clear_win=false
+E/uo	v2	t1	Support	objective=None	chats=0	punish=0	serpen_contest_clear_win=false
+E/uo	v3	t0	Top	objective=None	chats=0	punish=0	serpen_contest_clear_win=false
+E/uo	v3	t0	Jungle	objective=None	chats=0	punish=0	serpen_contest_clear_win=false
+E/uo	v3	t0	Mid	objective=None	chats=0	punish=0	serpen_contest_clear_win=false
+E/uo	v3	t0	Bottom	objective=None	chats=0	punish=0	serpen_contest_clear_win=false
+E/uo	v3	t0	Support	objective=None	chats=0	punish=0	serpen_contest_clear_win=false
+E/uo	v3	t1	Top	objective=None	chats=0	punish=0	serpen_contest_clear_win=false
+E/uo	v3	t1	Jungle	objective=None	chats=0	punish=0	serpen_contest_clear_win=false
+E/uo	v3	t1	Mid	objective=None	chats=0	punish=0	serpen_contest_clear_win=false
+E/uo	v3	t1	Bottom	objective=None	chats=0	punish=0	serpen_contest_clear_win=false
+E/uo	v3	t1	Support	objective=None	chats=0	punish=0	serpen_contest_clear_win=false
+E/uo	v30	t0	Top	objective=None	chats=0	punish=0	serpen_contest_clear_win=false
+E/uo	v30	t0	Jungle	objective=None	chats=0	punish=0	serpen_contest_clear_win=false
+E/uo	v30	t0	Mid	objective=None	chats=0	punish=0	serpen_contest_clear_win=false
+E/uo	v30	t0	Bottom	objective=None	chats=0	punish=0	serpen_contest_clear_win=false
+E/uo	v30	t0	Support	objective=None	chats=0	punish=0	serpen_contest_clear_win=false
+E/uo	v30	t1	Top	objective=None	chats=0	punish=0	serpen_contest_clear_win=false
+E/uo	v30	t1	Jungle	objective=None	chats=0	punish=0	serpen_contest_clear_win=false
+E/uo	v30	t1	Mid	objective=None	chats=0	punish=0	serpen_contest_clear_win=false
+E/uo	v30	t1	Bottom	objective=None	chats=0	punish=0	serpen_contest_clear_win=false
+E/uo	v30	t1	Support	objective=None	chats=0	punish=0	serpen_contest_clear_win=false
+E/uo	v50	t0	Top	objective=None	chats=0	punish=0	serpen_contest_clear_win=false
+E/uo	v50	t0	Jungle	objective=None	chats=0	punish=0	serpen_contest_clear_win=false
+E/uo	v50	t0	Mid	objective=None	chats=0	punish=0	serpen_contest_clear_win=false
+E/uo	v50	t0	Bottom	objective=None	chats=0	punish=0	serpen_contest_clear_win=false
+E/uo	v50	t0	Support	objective=None	chats=0	punish=0	serpen_contest_clear_win=false
+E/uo	v50	t1	Top	objective=None	chats=0	punish=0	serpen_contest_clear_win=false
+E/uo	v50	t1	Jungle	objective=None	chats=0	punish=0	serpen_contest_clear_win=false
+E/uo	v50	t1	Mid	objective=None	chats=0	punish=0	serpen_contest_clear_win=false
+E/uo	v50	t1	Bottom	objective=None	chats=0	punish=0	serpen_contest_clear_win=false
+E/uo	v50	t1	Support	objective=None	chats=0	punish=0	serpen_contest_clear_win=false
+E/uo	v54	t0	Top	objective=None	chats=0	punish=0	serpen_contest_clear_win=false
+E/uo	v54	t0	Jungle	objective=None	chats=0	punish=0	serpen_contest_clear_win=false
+E/uo	v54	t0	Mid	objective=None	chats=0	punish=0	serpen_contest_clear_win=false
+E/uo	v54	t0	Bottom	objective=None	chats=0	punish=0	serpen_contest_clear_win=false
+E/uo	v54	t0	Support	objective=None	chats=0	punish=0	serpen_contest_clear_win=false
+E/uo	v54	t1	Top	objective=None	chats=0	punish=0	serpen_contest_clear_win=false
+E/uo	v54	t1	Jungle	objective=None	chats=0	punish=0	serpen_contest_clear_win=false
+E/uo	v54	t1	Mid	objective=None	chats=0	punish=0	serpen_contest_clear_win=false
+E/uo	v54	t1	Bottom	objective=None	chats=0	punish=0	serpen_contest_clear_win=false
+E/uo	v54	t1	Support	objective=None	chats=0	punish=0	serpen_contest_clear_win=false
+E/uo	v58	t0	Top	objective=None	chats=0	punish=0	serpen_contest_clear_win=false
+E/uo	v58	t0	Jungle	objective=None	chats=0	punish=0	serpen_contest_clear_win=false
+E/uo	v58	t0	Mid	objective=None	chats=0	punish=0	serpen_contest_clear_win=false
+E/uo	v58	t0	Bottom	objective=None	chats=0	punish=0	serpen_contest_clear_win=false
+E/uo	v58	t0	Support	objective=None	chats=0	punish=0	serpen_contest_clear_win=false
+E/uo	v58	t1	Top	objective=None	chats=0	punish=0	serpen_contest_clear_win=false
+E/uo	v58	t1	Jungle	objective=None	chats=0	punish=0	serpen_contest_clear_win=false
+E/uo	v58	t1	Mid	objective=None	chats=0	punish=0	serpen_contest_clear_win=false
+E/uo	v58	t1	Bottom	objective=None	chats=0	punish=0	serpen_contest_clear_win=false
+E/uo	v58	t1	Support	objective=None	chats=0	punish=0	serpen_contest_clear_win=false
+E/uo	v60	t0	Top	objective=None	chats=0	punish=0	serpen_contest_clear_win=false
+E/uo	v60	t0	Jungle	objective=None	chats=0	punish=0	serpen_contest_clear_win=false
+E/uo	v60	t0	Mid	objective=None	chats=0	punish=0	serpen_contest_clear_win=false
+E/uo	v60	t0	Bottom	objective=None	chats=0	punish=0	serpen_contest_clear_win=false
+E/uo	v60	t0	Support	objective=None	chats=0	punish=0	serpen_contest_clear_win=false
+E/uo	v60	t1	Top	objective=None	chats=0	punish=0	serpen_contest_clear_win=false
+E/uo	v60	t1	Jungle	objective=None	chats=0	punish=0	serpen_contest_clear_win=false
+E/uo	v60	t1	Mid	objective=None	chats=0	punish=0	serpen_contest_clear_win=false
+E/uo	v60	t1	Bottom	objective=None	chats=0	punish=0	serpen_contest_clear_win=false
+E/uo	v60	t1	Support	objective=None	chats=0	punish=0	serpen_contest_clear_win=false
+DONE

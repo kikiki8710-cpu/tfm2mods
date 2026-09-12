@@ -1,0 +1,21 @@
+setting_ok	true	width=960000	height=960000	tps=60	champ_radius=10000	visible=130000
+TOWREG	team0	Top	tower1	pos=(48000,272000)	cell=(1,8)	region=22	seq_idx=Some(2)
+TOWREG	team0	Top	tower2	pos=(48000,528000)	cell=(1,16)	region=5	seq_idx=Some(1)
+SEQ	team0	Top	[0, 5, 22, 17, 18, 20, 26]
+TOWREG	team0	Mid	tower1	pos=(368000,592000)	cell=(11,18)	region=4	seq_idx=Some(2)
+TOWREG	team0	Mid	tower2	pos=(240000,720000)	cell=(7,22)	region=0	seq_idx=Some(0)
+SEQ	team0	Mid	[0, 19, 4, 6, 3, 12, 26]
+TOWREG	team0	Bottom	tower1	pos=(688000,912000)	cell=(21,28)	region=8	seq_idx=Some(2)
+TOWREG	team0	Bottom	tower2	pos=(432000,912000)	cell=(13,28)	region=9	seq_idx=Some(1)
+SEQ	team0	Bottom	[0, 9, 8, 16, 23, 25, 26]
+TOWREG	team1	Top	tower1	pos=(272000,48000)	cell=(8,1)	region=18	seq_idx=Some(2)
+TOWREG	team1	Top	tower2	pos=(528000,48000)	cell=(16,1)	region=20	seq_idx=Some(1)
+SEQ	team1	Top	[26, 20, 18, 17, 22, 5, 0]
+TOWREG	team1	Mid	tower1	pos=(592000,368000)	cell=(18,11)	region=3	seq_idx=Some(2)
+TOWREG	team1	Mid	tower2	pos=(720000,240000)	cell=(22,7)	region=26	seq_idx=Some(0)
+SEQ	team1	Mid	[26, 12, 3, 6, 4, 19, 0]
+TOWREG	team1	Bottom	tower1	pos=(912000,688000)	cell=(28,21)	region=23	seq_idx=Some(2)
+TOWREG	team1	Bottom	tower2	pos=(912000,432000)	cell=(28,13)	region=25	seq_idx=Some(1)
+SEQ	team1	Bottom	[26, 25, 23, 16, 8, 9, 0]
+NEXUSREG	team0	pos=(96000,864000)	region=0
+NEXUSREG	team1	pos=(864000,96000)	region=26

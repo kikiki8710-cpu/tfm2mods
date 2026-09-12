@@ -1,0 +1,33 @@
+setting_ok	tps=60	height=960000	champ_radius=10000
+MINION_TOTAL	18
+FOUNTAINS	[(0, 896000, 64000, 960000), (892000, 0, 960000, 64000)]
+ENEMY	(371200,80000)	ENEMY_BASE	(926000,32000)
+REAR_ALLY	(570455,62760)	dist=200000
+
+#T	tps	r09	g1	g2	g3	g4
+T	1	true	false	false	false	false
+T	2	true	false	false	false	false
+T	5	true	false	false	false	false
+T	10	true	false	false	false	false
+T	15	true	false	false	false	false
+T	20	true	false	false	false	false
+T	25	true	false	false	false	true
+T	27	true	false	false	true	true
+T	30	true	false	false	true	true
+T	40	true	false	false	true	true
+T	41	false	false	true	true	true
+T	45	false	false	true	true	true
+T	50	false	false	true	true	true
+T	60	false	false	true	true	true
+T	79	false	false	true	true	true
+T	80	false	false	true	true	true
+T	81	false	true	true	true	true
+T	82	false	true	true	true	true
+T	100	false	true	true	true	true
+T	150	false	true	true	true	true
+
+#K	K	agree	disagree	verdict
+K	K=1	14	6	기각
+K	K=2	20	0	가능
+K	K=3	17	3	기각
+K	K=4	16	4	기각

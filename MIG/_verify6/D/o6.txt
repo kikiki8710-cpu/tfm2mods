@@ -1,0 +1,30 @@
+EType	size_of_EntityType=480
+ITER	team=0	n_expect=8	n_got=8
+  IT[0]	expect=top_tower	match=true
+  IT[1]	expect=mid_tower	match=true
+  IT[2]	expect=bottom_tower	match=true
+  IT[3]	expect=top_tower2	match=true
+  IT[4]	expect=mid_tower2	match=true
+  IT[5]	expect=bottom_tower2	match=true
+  IT[6]	expect=twin[0]	match=true
+  IT[7]	expect=twin[1]	match=true
+ITER	team=0	OK=8	NG=0	nexus_in_iter=false
+ITER	team=1	n_expect=8	n_got=8
+  IT[0]	expect=top_tower	match=true
+  IT[1]	expect=mid_tower	match=true
+  IT[2]	expect=bottom_tower	match=true
+  IT[3]	expect=top_tower2	match=true
+  IT[4]	expect=mid_tower2	match=true
+  IT[5]	expect=bottom_tower2	match=true
+  IT[6]	expect=twin[0]	match=true
+  IT[7]	expect=twin[1]	match=true
+ITER	team=1	OK=8	NG=0	nexus_in_iter=false
+UPD	ver=0	sub_goal_tag=4	changed_bytes=58
+UPD	ver=1	sub_goal_tag=4	changed_bytes=58
+UPD	ver=2	sub_goal_tag=4	changed_bytes=58
+UPD	ver=3	sub_goal_tag=4	changed_bytes=58
+UPD	ver=30	sub_goal_tag=4	changed_bytes=58
+UPD	ver=50	sub_goal_tag=4	changed_bytes=58
+UPD	ver=54	sub_goal_tag=4	changed_bytes=58
+UPD	ver=58	sub_goal_tag=4	changed_bytes=58
+UPD	ver=60	sub_goal_tag=4	changed_bytes=58

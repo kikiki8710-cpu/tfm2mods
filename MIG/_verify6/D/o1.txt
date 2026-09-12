@@ -1,0 +1,111 @@
+SIZE	OperationData	24	24	OK
+SIZE	AbstractGameWithCache	8840	8840	OK
+SIZE	GameContext	64	64	OK
+SIZE	PlayerState	2528	2528	OK
+SIZE	Entity	1728	1728	OK
+SIZE	Effect	56	56	OK
+SIZE	TeamPlan	1064	1064	OK
+SIZE	SinglePlanBattle	144	144	OK
+SIZE	DeathMatchBattle	384	384	OK
+SIZE	BattlePlanGoal	24	24	OK
+SIZE	BattleSubPlanGoal	16	16	OK
+SIZE	LegacyPlanHandler	6168	6168	OK
+SIZE	MapDef	28112	28112	OK
+SIZE	DebugFrameData	224	224	OK
+SIZE	StdRng	320	320	OK
+SIZE	MainObjective	3	3	OK
+SIZE	Strategy	24	24	OK
+SIZE	JungleCampState	48	48	OK
+SIZE	Chat	24	24	OK
+SIZE	EntityType	480	480	OK
+OFF	15/mem[0]  OperationData.cache	0x0	0x0	OK
+OFF	15/mem[1]  AGWC.game(data ptr)	0x0	0x0	OK
+SIZE	15/mem[2]  &dyn AbstractGame 팻포인터	16	16	OK
+OFF	15/mem[4]  PlayerState.info.team	0x930	0x930	OK
+OFF	15/mem[5]  LegacyPlanHandler.team_plan	0xf8	0xf8	OK
+OFF	15/mem[6]  LPH.positioning_score	0x990	0x990	OK
+OFF	15/mem[7]  Entity.ty	0x68	0x68	OK
+OFF	15/mem[9]  Entity.x	0x660	0x660	OK
+OFF	15/mem[10] Entity.y	0x668	0x668	OK
+OFF	15/mem[11] SinglePlanBattle.sub_goal	0x58	0x58	OK
+OFF	15/mem[12] SinglePlanBattle.dive_tower	0x8c	0x8c	OK
+OFF	15/logic   SinglePlanBattle.chats	0x68	0x68	OK
+OFF	16/mem[11] Entity.stat_buff_cached.range	0x438	0x438	OK
+OFF	16/mem[12] Entity.sbc.radius_mult	0x470	0x470	OK
+OFF	16/mem[13] Entity.attack_effect	0x490	0x490	OK
+OFF	16/mem[18] Entity.skill_effect	0x4c8	0x4c8	OK
+OFF	16/mem[23] Entity.skill2_effect	0x500	0x500	OK
+OFF	16/mem[24] Entity.ult_effect	0x538	0x538	OK
+OFF	16/mem[25] Entity.level	0x5c8	0x5c8	OK
+OFF	16/mem[26] Entity.radius	0x680	0x680	OK
+OFF	16/mem[27] Effect.range	0x10	0x10	OK
+OFF	16/mem[28] Effect.growth_range	0x18	0x18	OK
+OFF	16/mem[29] Effect.target	0x28	0x28	OK
+OFF	16/mem[30] Effect.casting	0x30	0x30	OK
+OFF	17/mem[6]  DMB.support_target	0x0	0x0	OK
+OFF	17/mem[15] DMB.main_goal	0xd0	0xd0	OK
+OFF	17/mem[16] DMB.sub_goal	0xe8	0xe8	OK
+OFF	17/mem[18] DMB.chats	0xf8	0xf8	OK
+OFF	17/mem[19] DMB.start_tick	0x110	0x110	OK
+OFF	17/mem[21] DMB.trade_lean	0x120	0x120	OK
+OFF	17/mem[24] DMB.last_act_tick	0x138	0x138	OK
+OFF	17/mem[25] DMB.idle_spec_tick	0x140	0x140	OK
+OFF	17/mem[26] DMB.last_swing_tick	0x148	0x148	OK
+OFF	17/mem[30] DMB.with_dive	0x170	0x170	OK
+OFF	17/mem[31] DMB.help_called	0x171	0x171	OK
+OFF	17/mem[32] DMB.dive_abandoned	0x172	0x172	OK
+OFF	17/mem[34] DMB.last_stand	0x174	0x174	OK
+OFF	17/mem[35] DMB.had_ult_ready	0x175	0x175	OK
+OFF	17/mem[36] DMB.stance	0x176	0x176	OK
+OFF	17/mem[37] DMB.tactic	0x177	0x177	OK
+OFF	17/mem[38] DMB.scene	0x178	0x178	OK
+OFF	17/mem[40] DMB.dive_tower	0x17a	0x17a	OK
+OFF	18/mem[0]  PlayerState.info.team	0x930	0x930	OK
+OFF	18/mem[1]  PlayerState.info.position	0x9c0	0x9c0	OK
+OFF	18/mem[2]  OperationData.cache	0x0	0x0	OK
+OFF	18/mem[5]  AGWC.player_champion	0x1e0	0x1e0	OK
+OFF	18/mem[6]  Strategy.morgard_use	0x4	0x4	OK
+OFF	18/mem[7]  TeamPlan.chats(+cap)	0xc0	0xc0	OK
+OFF	18/mem[10] TeamPlan.eo_serpen_punish_issues	0x410	0x410	OK
+OFF	18/mem[12] TeamPlan.objective	0x41f	0x41f	OK
+OFF	18/aux     TeamPlan.next_respawn_tick	0x378	0x378	OK
+OFF	19/mem[0]  OperationData.cache	0x0	0x0	OK
+OFF	19/mem[1]  OperationData.context	0x8	0x8	OK
+OFF	19/mem[2]  GameContext.pool	0x0	0x0	OK
+OFF	19/mem[3]  GameContext.map	0x20	0x20	OK
+OFF	19/mem[9]  AGWC.player_champion	0x1e0	0x1e0	OK
+OFF	19/mem[10] PlayerState.info.team	0x930	0x930	OK
+OFF	19/mem[11] PlayerState.info.position	0x9c0	0x9c0	OK
+OFF	19/mem[12] Entity.x	0x660	0x660	OK
+OFF	19/mem[13] Entity.y	0x668	0x668	OK
+OFF	19/mem[8]  JungleCampState.next_respawn_tick	0x18	0x18	OK
+OFF	15/logic AGWC.top_tower	0x180	0x180	OK
+OFF	15/logic AGWC.mid_tower	0x1a0	0x1a0	OK
+OFF	15/logic AGWC.bottom_tower	0x1c0	0x1c0	OK
+OFF	15/logic AGWC.top_tower2	0x190	0x190	OK
+OFF	15/logic AGWC.mid_tower2	0x1b0	0x1b0	OK
+OFF	15/logic AGWC.bottom_tower2	0x1d0	0x1d0	OK
+OFF	15/logic AGWC.twin_towers	0x130	0x130	OK
+OFF	15/logic AGWC.nexus	0x170	0x170	OK
+VEC	empty	w0=0	w1=8	w2=0
+VEC	push1	w0=4	w1=1980028097952	w2=1	cap_api=4	len_api=1
+OFF	18/mem[7]  Vec<Chat> cap 워드	0x0	0x0	OK
+OFF	18/mem[9]  Vec<Chat> len 워드	0x10	0x10	OK
+OFF	18/consts[3] Chat::Repair=23	0x17	0x17	OK
+OFF	18/consts[4] Chat::SerpenSetup=25	0x19	0x19	OK
+OFF	18/consts[5] Chat::Press=21	0x15	0x15	OK
+OFF	18/consts[6] Chat::PressChange=22	0x16	0x16	OK
+OFF	17/consts[1] Chat::Battle=3	0x3	0x3	OK
+OFF	15/consts[5] BattleSubPlanGoal::KitingBack=3	0x3	0x3	OK
+OFF	15/consts[6] BattleSubPlanGoal::RunAway=4	0x4	0x4	OK
+OFF	15/consts[7] BattleSubPlanGoal::End=7	0x7	0x7	OK
+OFF	15/consts[0] BattlePlanGoal::TryKill=0	0x0	0x0	OK
+OFF	18/consts[2] MainObjective::Repair=7	0x7	0x7	OK
+TAG	MainObjective::Serpen(Setup,true)	b0=1	b1=1	b2=1
+OFF	18/mem[13] Serpen tag	0x1	0x1	OK
+OFF	18/mem[13] phase=Setup	0x1	0x1	OK
+OFF	18/mem[13] with_battle	0x1	0x1	OK
+OFF	18/consts[7] Option<LineType>::None=0xff	0xff	0xff	OK
+OFF	17/consts[3] Option<MainObjective>::None=0xff	0xff	0xff	OK
+SIZE	Option<MainObjective>	3	3	OK
+TOTAL	OK=107	MISMATCH=0

@@ -1,0 +1,29 @@
+{
+ "round": "12",
+ "batch": "C",
+ "errors_applied": 3,
+ "ev_applied": 0,
+ "failed": 1,
+ "stamps": {
+  "/specs[13]/mem[11]/name": "da51f8d57f59e376",
+  "/specs[14]/mem[16]/name": "dc9e90a1b29ed507",
+  "/specs[13]/mem[13]/name": "d19479cd027e57d7",
+  "/specs[14]/mem[18]/name": "8a5e4e56118b3680",
+  "/specs[13]/mem[12]/name": "805a51f2c6920897",
+  "/specs[14]/mem[17]/name": "f57c3b526e8aa1a4",
+  "/specs[11]/mem[22]/value": "37471510604122a9",
+  "/specs[13]/knobs[6]/where": "ba48761817ef1ed7",
+  "/specs[11]/knobs[5]/where": "6aca279172ec41b7",
+  "/specs[11]/knobs[6]/where": "4c9208b8c4787377",
+  "/specs[10]/mem[12]/note": "c3ba11a400b49c06",
+  "/specs[10]/history[0]/now": "6873e2c066cfbb4f",
+  "/specs[13]/knobs[9]/where": "708a8e78473f3963",
+  "/specs[12]/history[4]/now": "410fb9dc4d3f7938",
+  "/specs[10]/logic": "b065babf822f626a",
+  "/specs[12]/mem[14]/name": "2f66b63d401eb79d",
+  "/specs[13]/consts[0]/meaning": "9d167bc23d7a5fb7",
+  "/specs[11]/mem[15]/name": "250cd9dc69d376cb",
+  "/specs[12]/mem[6]/name": "52b2bda29317ad94"
+ },
+ "restamped": true
+}

@@ -1,0 +1,18 @@
+{
+ "round": 10,
+ "batch": "_fix",
+ "note": "10차 적용 후 `G13` 이 1건을 새로 잡았다. 배치D 의 줄번호 정정(62495~62500 → 62501~62505)은 IR 원문으로 **옳고**, 걸린 이유는 **인용이 축약형**(`gep` vs `getelementptr inbounds nuw i8, ptr`)이기 때문이다. 7차에 이미 「인용은 IR 원문 그대로」로 정했으므로(그때 `icmp ugt %76, 2` → `icmp ugt i64 %76, 2` 로 고쳤다) 같은 규칙을 적용한다.",
+ "errors": [
+  {
+   "path": "/specs[19]/knobs[5]/where",
+   "kind": "실오류",
+   "old": "%66 = gep %65, i64 4856",
+   "new": "%66 = getelementptr inbounds nuw i8, ptr %65, i64 4856",
+   "evidence": "m04.ll:62501 원문 = `%66 = getelementptr inbounds nuw i8, ptr %65, i64 4856, !dbg !71456`. 줄번호는 배치D 정정대로 맞고 인용 문면만 축약형이었다. `whereline.norm()` 은 SSA 번호만 지우고 명령 이름·타입은 그대로 대조하므로 축약 인용은 통과하지 못한다 — 7차에 `[03] knobs[1]/[3]/[4]` 를 같은 이유로 고쳤다.",
+   "behavior_change": false,
+   "found_by": "new"
+  }
+ ],
+ "ev_up": [],
+ "brief_errors": []
+}

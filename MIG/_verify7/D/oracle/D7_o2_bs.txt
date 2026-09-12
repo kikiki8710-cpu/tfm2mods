@@ -1,0 +1,45 @@
+setting_ok	tps=30	width=960000	champ_radius=10000
+INTEG	towers=16	twin0=2	twin1=2
+INFO	tick=0	champ=(32000,928000)	move_speed=1
+INFO	camp=Rhino	pos=(496000,752000)	dist=496257
+INFO	camp=Mushroom	pos=(176000,592000)	dist=365557
+INFO	camp=Bee	pos=(351000,800000)	dist=343722
+INFO	camp=Stump	pos=(256000,448000)	dist=529694
+BS	tps=30	camp=Rhino	mode=is_cleared	최소true=496288	(직전false=496287)
+BS	tps=30	camp=Rhino	mode=is_side_cleared	최소true=496288	(직전false=496287)
+BS	tps=30	camp=Mushroom	mode=is_cleared	최소true=365588	(직전false=365587)
+BS	tps=30	camp=Mushroom	mode=is_side_cleared	최소true=529875	(직전false=529874)
+BS	tps=30	camp=Bee	mode=is_cleared	최소true=343753	(직전false=343752)
+BS	tps=30	camp=Bee	mode=is_side_cleared	최소true=496438	(직전false=496437)
+BS	tps=30	camp=Stump	mode=is_cleared	최소true=529725	(직전false=529724)
+BS	tps=30	camp=Stump	mode=is_side_cleared	최소true=529725	(직전false=529724)
+setting_ok	tps=60	width=960000	champ_radius=10000
+INTEG	towers=16	twin0=2	twin1=2
+INFO	tick=0	champ=(32000,928000)	move_speed=1
+INFO	camp=Rhino	pos=(496000,752000)	dist=496257
+INFO	camp=Mushroom	pos=(176000,592000)	dist=365557
+INFO	camp=Bee	pos=(351000,800000)	dist=343722
+INFO	camp=Stump	pos=(256000,448000)	dist=529694
+BS	tps=60	camp=Rhino	mode=is_cleared	최소true=496318	(직전false=496317)
+BS	tps=60	camp=Rhino	mode=is_side_cleared	최소true=496318	(직전false=496317)
+BS	tps=60	camp=Mushroom	mode=is_cleared	최소true=365618	(직전false=365617)
+BS	tps=60	camp=Mushroom	mode=is_side_cleared	최소true=530055	(직전false=530054)
+BS	tps=60	camp=Bee	mode=is_cleared	최소true=343783	(직전false=343782)
+BS	tps=60	camp=Bee	mode=is_side_cleared	최소true=496618	(직전false=496617)
+BS	tps=60	camp=Stump	mode=is_cleared	최소true=529755	(직전false=529754)
+BS	tps=60	camp=Stump	mode=is_side_cleared	최소true=529755	(직전false=529754)
+setting_ok	tps=90	width=960000	champ_radius=10000
+INTEG	towers=16	twin0=2	twin1=2
+INFO	tick=0	champ=(32000,928000)	move_speed=1
+INFO	camp=Rhino	pos=(496000,752000)	dist=496257
+INFO	camp=Mushroom	pos=(176000,592000)	dist=365557
+INFO	camp=Bee	pos=(351000,800000)	dist=343722
+INFO	camp=Stump	pos=(256000,448000)	dist=529694
+BS	tps=90	camp=Rhino	mode=is_cleared	최소true=496348	(직전false=496347)
+BS	tps=90	camp=Rhino	mode=is_side_cleared	최소true=496348	(직전false=496347)
+BS	tps=90	camp=Mushroom	mode=is_cleared	최소true=365648	(직전false=365647)
+BS	tps=90	camp=Mushroom	mode=is_side_cleared	최소true=530235	(직전false=530234)
+BS	tps=90	camp=Bee	mode=is_cleared	최소true=343813	(직전false=343812)
+BS	tps=90	camp=Bee	mode=is_side_cleared	최소true=496798	(직전false=496797)
+BS	tps=90	camp=Stump	mode=is_cleared	최소true=529785	(직전false=529784)
+BS	tps=90	camp=Stump	mode=is_side_cleared	최소true=529785	(직전false=529784)

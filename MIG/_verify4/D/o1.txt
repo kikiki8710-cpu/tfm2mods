@@ -1,0 +1,26 @@
+setting_ok	true	width=960000	height=960000	tps=60	champ_radius=10000	visible=130000
+towers	16	twin0=2	twin1=2
+is_top_side_true	8/10	expect 8/10
+--- A: 3차 앵커 재실행 (real_setting) ---
+A	o11-true	viable=true
+A	o10-false	viable=true
+--- B: target hp 스윕 (o11 세계) ---
+B	thp=1	viable=true
+B	thp=50	viable=true
+B	thp=2000	viable=true
+B	thp=20000	viable=true
+B	thp=200000	viable=true
+B	thp=2000000	viable=true
+B	thp=20000000	viable=true
+--- B2: 내 hp 스윕 (o11 세계, thp=2000) ---
+B2	myhp=1	viable=true
+B2	myhp=100	viable=true
+B2	myhp=2000	viable=true
+B2	myhp=200000	viable=true
+B2	myhp=20000000	viable=true
+--- C: check_kill_die_tick 직접 호출(pub 확인) + B<A 대조 ---
+C	thp=2000	myhp=2000	kdt_me=120000	kdt_tgt=3000	B<A=true	viable=true
+C	thp=20000000	myhp=2000	kdt_me=120000	kdt_tgt=3000	B<A=true	viable=true
+C	thp=2000	myhp=1	kdt_me=120000	kdt_tgt=3000	B<A=true	viable=true
+C	thp=50	myhp=2000	kdt_me=120000	kdt_tgt=3000	B<A=true	viable=true
+done	setting_ok=true

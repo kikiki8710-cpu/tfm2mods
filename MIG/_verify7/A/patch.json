@@ -1,0 +1,284 @@
+{
+  "round": 7,
+  "batch": "A",
+  "errors": [
+    {
+      "path": "/specs[0]/knobs[0]/where",
+      "kind": "실오류",
+      "old": "IR m04.ll 44033행",
+      "new": "IR m04.ll 44025행",
+      "evidence": "m04.ll:44025 `%31 = icmp ugt i64 %30, 4, !dbg !56400` (!56400 = entity.rs:1701 <- abstract_input.rs:286). 44033 은 `%36 = icmp eq i32 %35, -1`(option.rs:742) 자리다 — G13 지적 그대로 실오류",
+      "behavior_change": false,
+      "found_by": "reused"
+    },
+    {
+      "path": "/specs[0]/knobs[1]/where",
+      "kind": "실오류",
+      "old": "IR m04.ll 44283행 `llvm.usub.sat.i64(%205, 150000)`",
+      "new": "IR m04.ll 44313행 `llvm.usub.sat.i64(i64 %205, i64 150000)`",
+      "evidence": "담당범위 43967~44365 전체에서 usub.sat 는 44313 한 곳뿐(`%206 = tail call i64 @llvm.usub.sat.i64(i64 %205, i64 150000), !dbg !56544`). 44283 은 `%185 = load i32, ptr %184`(entity.rs:1511) 자리. ★인용에 타입을 빼면 G13 의 norm 대조가 영원히 실패하므로 `i64` 를 살려 적는다",
+      "behavior_change": false,
+      "found_by": "reused"
+    },
+    {
+      "path": "/specs[0]/knobs[2]/where",
+      "kind": "실오류",
+      "old": "(IR m04.ll 44251~44254행, casting==0)",
+      "new": "(IR m04.ll 44245~44247행 `icmp eq i32 %158, 0` = casting==Targeting · 그 결과가 모이는 caster_r phi 는 44272 `phi i64 [ 0, %143 ], [ %166, %164 ], [ %173, %167 ]`)",
+      "behavior_change": false,
+      "evidence": "44245 `%158 = load i32, ptr %34`(type.rs:138 <- abstract_input.rs:191 <- 333) / 44246 `%159 = icmp eq i32 %158, 0`(abstract_input.rs:191). 옛 인용 44251~44254 는 `entity.rs:1511~1512` 의 **radius_mult==0** 검사 자리라 전혀 다른 조건이다(hist[7] 의 `44245~44255` 도 phi 위치를 44272 대신 잘못 적고 있었다)",
+      "found_by": "new"
+    },
+    {
+      "path": "/specs[0]/knobs[3]/where",
+      "kind": "실오류",
+      "old": "(IR m04.ll 44238·44240행)",
+      "new": "(IR m04.ll 44266·44268행 `add nsw i64 %168, 100` / `udiv i64 %172, 100` — champ 반경. target 반경의 같은 식은 44298·44300)",
+      "evidence": "44238~44240 은 `#dbg_value` 세 줄이라 명령이 없다. entity.rs:1515 로 사슬이 붙는 `100` 은 44266(add)·44268(udiv)과 44298·44300 네 곳뿐. G13 은 백틱 인용이 없어 이 행을 검사하지 못했다(줄 존재만 봄)",
+      "behavior_change": false,
+      "found_by": "new"
+    },
+    {
+      "path": "/specs[0]/mem[24]/name",
+      "kind": "실오류",
+      "old": "(이름 미상)",
+      "new": "linear_move_speed (EffectType vtable +0xf8)",
+      "evidence": "`shared.EffectType_vtable` 이 `0xf8: linear_move_speed` 로 이미 확정돼 있고 같은 파일 history[3]·knobs[6] 도 그 이름을 쓴다. IR m04.ll:44085 `getelementptr .. i64 248`(=0xf8) → 44087 `tail call { i64, i64 } %68` → abstract_input.rs:310. **표만 옛 값으로 남아 있던 G8 계열 누출**",
+      "behavior_change": false,
+      "found_by": "new"
+    },
+    {
+      "path": "/specs[0]/mem[25]/name",
+      "kind": "실오류",
+      "old": "(이름 미상)",
+      "new": "on_caster (EffectType vtable +0x118)",
+      "evidence": "`shared.EffectType_vtable` = `0x118: on_caster`. IR m04.ll:44068 `getelementptr .. i64 280`(=0x118) → 44070 `tail call .. i1 %55` → abstract_input.rs:296. history[3] 가 1~6차의 「Arc<dyn> 이라 원리적으로 불가」를 뒤집어 이미 확정해 둔 값인데 mem 표에 반영되지 않았다",
+      "behavior_change": false,
+      "found_by": "new"
+    },
+    {
+      "path": "/specs[0]/consts[0]/meaning",
+      "kind": "분류오류",
+      "old": "team 인덱스 bounds-check. entity.rs:1483 의 visible_state 인덱스에도 같은 len=2",
+      "new": "`icmp ult i64 %10, 2`(m04.ll:43983) 의 비교 상한 = 팀 첨자 bounds-check. entity.rs:1483 의 visible_state 첨자에도 같은 len=2 (★7차 배치A: 이 값은 첨자가 아니라 **비교 상한** 이라 kind=임계)",
+      "evidence": "§4-b 무검사축 `consts.kind` 표본조사. ★`kind` 는 v2 에 없는 **파생 필드**라(mkspec3.py:329 가 `meaning` 의 낱말로 정한다) 직접 패치가 불가능하다 — 낱말을 고쳐야 명세가 따라온다. 같은 사실을 적은 specs[1]/consts[0]·specs[2]/consts[0] 은 이미 `임계` 라 코퍼스 안에서 표기가 갈려 있었다",
+      "behavior_change": false,
+      "found_by": "new"
+    },
+    {
+      "path": "/specs[0]/consts[2]/meaning",
+      "kind": "분류오류",
+      "old": "Option 의 None 판별자.",
+      "new": "Option 의 None 센티넬(니치값).",
+      "evidence": "§4-b `consts.kind` 표본조사. 「Option 니치의 None 표식 -1」은 코퍼스가 `센티넬` 로 통일돼 있다(specs[3]/consts[4] · specs[5]/consts[0] · specs[15]/consts[4] · specs[16]/consts[0] · specs[18]/consts[7]). 이 행만 `태그` 였고, 원인은 mkspec3.py:329 의 우선순위(판별자 > 니치)에 `판별자` 라는 낱말이 먼저 걸린 것이다",
+      "behavior_change": false,
+      "found_by": "new"
+    },
+    {
+      "path": "/specs[1]/knobs[0]/where",
+      "kind": "실오류",
+      "old": "(m05.ll:40016, phi [200, %22])",
+      "new": "(m05.ll:40043, phi [200, %22])",
+      "evidence": "실제 phi 는 40043 `%32 = phi i64 [ 0, %45 ], [ -10, %46 ], [ 80, %37 ], [ 200, %22 ], [ %44, %42 ], !dbg !44396`. 40016 은 `%21 = icmp eq ptr %20, null`(champ null 검사)이다. G13 은 백틱 IR 인용이 없어 줄 존재만 확인하고 통과시켰다",
+      "behavior_change": false,
+      "found_by": "new"
+    },
+    {
+      "path": "/specs[1]/knobs[1]/where",
+      "kind": "실오류",
+      "old": "(m05.ll:40016, phi [80, %37])",
+      "new": "(m05.ll:40043, phi [80, %37])",
+      "evidence": "위와 같은 phi(40043). 40016 은 champ null 검사",
+      "behavior_change": false,
+      "found_by": "new"
+    },
+    {
+      "path": "/specs[1]/knobs[4]/where",
+      "kind": "실오류",
+      "old": "(m05.ll:40016, phi [-10, %46])",
+      "new": "(m05.ll:40043, phi [-10, %46])",
+      "evidence": "위와 같은 phi(40043). 40016 은 champ null 검사",
+      "behavior_change": false,
+      "found_by": "new"
+    },
+    {
+      "path": "/specs[1]/knobs[2]/where",
+      "kind": "실오류",
+      "old": "(m05.ll:40045, select false-arm)",
+      "new": "(m05.ll:40066 `select i1 %43, i64 20, i64 40` — 20 은 IR **true-arm**(`%43 = icmp sgt i64 %27, %25` = hp > value) = 소스 `if hp <= value { 40 } else { 20 }` 의 **else-arm**)",
+      "evidence": "40045 는 `%33 = getelementptr .. i64 152` 자리이고 select 는 40066 이다. 게다가 arm 방향이 뒤집혀 적혀 있었다 — 같은 파일 consts[6]/consts[7] 이 「then/else 반전형 확정」이라고 적고 있어 **자기모순**이었는데 G1 은 `knobs.where` 를 안 본다",
+      "behavior_change": false,
+      "found_by": "new"
+    },
+    {
+      "path": "/specs[1]/knobs[3]/where",
+      "kind": "실오류",
+      "old": "(m05.ll:40045, select true-arm)",
+      "new": "(m05.ll:40066 `select i1 %43, i64 20, i64 40` — 40 은 IR **false-arm** = 소스 `if hp <= value { 40 }` 의 **then-arm**)",
+      "evidence": "위와 같음(40066, arm 방향 반전)",
+      "behavior_change": false,
+      "found_by": "new"
+    },
+    {
+      "path": "/specs[1]/knobs[5]/where",
+      "kind": "실오류",
+      "old": "(m05.ll:40085, select ? 5 : 0)",
+      "new": "(m05.ll:40091 `select i1 %55, i64 5, i64 0`)",
+      "evidence": "40085 에는 명령이 없다(블록 경계). based 의 select 는 40091, 그 조건 `%55` 는 40090 `select i1 %53, i1 %54, i1 false`(= tag==4 && camp0<2)",
+      "behavior_change": false,
+      "found_by": "new"
+    },
+    {
+      "path": "/specs[1]/open[1]",
+      "kind": "판정반전",
+      "old": "tag 1 → -10 경로의 술어 이름(is_minion 으로 추정)은 미확정",
+      "new": "tag 1 → -10 경로의 술어는 **`is_any_type_minion`(entity.rs:1260) 으로 확정**(7차 배치A, 오라클 A7_o1.tsv PRED) — 판별자 1 을 주입하면 `is_any_type_minion`=true 이나 `is_minion(line)` 은 라인별로 갈린다(Top=true / Mid=false / Bottom=false) ⟹ LineType 로드가 **0개**인 m05.ll:40031 switch 와 양립할 수 없다. history[4] 의 MIR 근거와 실행이 일치",
+      "evidence": "A7_o1.tsv `PRED tag1(주입): is_any_type_minion=true is_minion(Top)=true is_minion(Mid)=false is_minion(Bottom)=false`",
+      "behavior_change": false,
+      "found_by": "new"
+    },
+    {
+      "path": "/specs[2]/logic",
+      "kind": "보강",
+      "old": " return SubPlan::Recall // tag 5",
+      "new": " return SubPlan::Recall(RecallSubPlan::default()) // tag 5, 페이로드 0B ZST 라 store 는 태그뿐",
+      "evidence": "rmeta_srcmap `game-ai\\src\\plan_legacy\\old\\attack_nexus.rs` L42 = 56B/56자 → 내용 55자 = indent 6 + `return SubPlan::Recall(RecallSubPlan::default());`(49자) ±0. tcx: `RecallSubPlan` = **0B**. 오라클 A7_o1.tsv `SUBPLAN_SRC Recall(RecallSubPlan::default()) tag=5 MATCH`",
+      "behavior_change": false,
+      "found_by": "new"
+    },
+    {
+      "path": "/specs[2]/logic",
+      "kind": "보강",
+      "old": " SubPlan::AttackNexus // L50, tag 16",
+      "new": " SubPlan::AttackNexus(AttackNexusSubPlan::default()) // L50, tag 16, 페이로드 0B ZST",
+      "evidence": "consts[4] 가 이미 L50 = indent 6 + `SubPlan::AttackNexus(AttackNexusSubPlan::default())`(51자) ±0 을 적고 있는데 `logic` 만 인자 없는 표기로 남아 있었다(G6 계열). tcx `AttackNexusSubPlan` = 0B. 오라클 A7_o1.tsv `SUBPLAN_SRC AttackNexus(AttackNexusSubPlan::default()) tag=16 MATCH`",
+      "behavior_change": false,
+      "found_by": "new"
+    },
+    {
+      "path": "/specs[2]/consts[1]/meaning",
+      "kind": "보강",
+      "old": "샘 안 + HP 미만일 때 반환",
+      "new": "샘 안 + HP 미만일 때 반환 ★소스 줄 = **L42** 확정 — rmeta_srcmap L42 = 56자 → 내용 55 = indent 6 + `return SubPlan::Recall(RecallSubPlan::default());`(49자) ±0. `RecallSubPlan` 이 0B ZST 라 IR 에 페이로드 store 가 없다(태그는 34973 phi `[ 5, %49 ]` → 34974 store)",
+      "evidence": "rmeta_srcmap(old\\attack_nexus.rs) L41=59 L42=56 L43=6 L47=30 L48=138 L49=13 L50=58 L51=6 L52=4 가 복원 문자열과 전부 ±0. 오라클 A7_o1.tsv SUBPLAN_SRC",
+      "behavior_change": false,
+      "found_by": "new"
+    },
+    {
+      "path": "/specs[3]/knobs[1]/where",
+      "kind": "실오류",
+      "old": "`icmp ugt %85, %17`",
+      "new": "`icmp ugt i64 %85, %17`",
+      "evidence": "m10.ll:34144 = `%98 = icmp ugt i64 %85, %17, !dbg !40892` — **줄번호는 맞고 인용에서 타입이 빠져** G13 대조가 실패했다. 인용을 IR 원문과 일치시킨다",
+      "behavior_change": false,
+      "found_by": "reused"
+    },
+    {
+      "path": "/specs[3]/knobs[3]/where",
+      "kind": "실오류",
+      "old": "(IR m10.ll:34081 `icmp ugt %76, 2`)",
+      "new": "(IR m10.ll:34081 `icmp ugt i64 %76, 2`)",
+      "evidence": "m10.ll:34081 = `%77 = icmp ugt i64 %76, 2, !dbg !40855` — 줄번호는 정확, 인용 타입 누락",
+      "behavior_change": false,
+      "found_by": "reused"
+    },
+    {
+      "path": "/specs[3]/knobs[4]/where",
+      "kind": "실오류",
+      "old": "(IR m10.ll:34086 `icmp ugt %76, 4`)",
+      "new": "(IR m10.ll:34086 `icmp ugt i64 %76, 4`)",
+      "evidence": "m10.ll:34086 = `%80 = icmp ugt i64 %76, 4, !dbg !40868` — 줄번호는 정확, 인용 타입 누락",
+      "behavior_change": false,
+      "found_by": "reused"
+    },
+    {
+      "path": "/specs[3]/sig/params[0]/note",
+      "kind": "보강",
+      "old": "이 함수 본문에선 분기에 안 쓰이고",
+      "new": "이 함수 본문에선 분기에 안 쓰인다 — IR 은 `%0` 을 8B alloca `%11` 에 한 번 spill 하고(m10.ll:33874 `store i64 %0, ptr %11` + `#dbg_declare`) 그 포인터를 클로저 환경·피호출자에 넘길 뿐이다(값 비교 0건). 그대로",
+      "evidence": "§4-b `sig.params.role` 표본조사. `paramuse.py` 가 「call 밖 사용 1회」로 잡은 유일한 행이고, 실체는 by-value 인자의 스택 spill 이었다. 이 문면이 있어야 다음 라운드가 같은 오탐을 다시 판다",
+      "behavior_change": false,
+      "found_by": "new"
+    },
+    {
+      "path": "/specs[4]/knobs[5]/where",
+      "kind": "실오류",
+      "old": "(m04.ll:60446 `icmp slt i64 %22, -3000`)",
+      "new": "(m04.ll:60449 `icmp slt i64 %22, -3000`)",
+      "evidence": "60446 은 `#dbg_value(ptr %20, !69403 ...)` 이라 명령이 아니다. 실제 비교는 60449 `%23 = icmp slt i64 %22, -3000, !dbg !69447`(앞줄 60447 gep +16 / 60448 load). G13 지적 그대로 실오류",
+      "behavior_change": false,
+      "found_by": "reused"
+    },
+    {
+      "path": "/specs[4]/knobs[6]/where",
+      "kind": "실오류",
+      "old": "(m04.ll:60451 `icmp slt i32 %26, -2`)",
+      "new": "(m04.ll:60455 `icmp slt i32 %26, -2`)",
+      "evidence": "60451 은 빈 줄이다. 실제 비교는 60455 `%27 = icmp slt i32 %26, -2, !dbg !69447`(60453 gep +32 / 60454 load i32). G13 지적 그대로 실오류",
+      "behavior_change": false,
+      "found_by": "reused"
+    },
+    {
+      "path": "/specs[4]/consts[3]/meaning",
+      "kind": "분류오류",
+      "old": "같은 리터럴이 549줄의 적팀 인덱스 산출 `1 - my_team` 에도 쓰임",
+      "new": "같은 리터럴이 549줄의 적팀 첨자 산출 `1 - my_team` 에도 쓰임 (★7차 배치A: `src_line` 578 의 용도는 비교 임계다 — 부수 언급 한 낱말 때문에 분류가 튀어 있었다)",
+      "evidence": "§4-b `consts.kind` 표본조사. 이 행의 `src_line` 은 **578**(= `near_enemy_champion >u 1`, m04.ll:58636)이고 그 자리에서 `1` 은 비교 임계다. `인덱스` 는 549줄의 `1 - my_team` 이라는 **다른 줄의 부수 용도**를 언급한 낱말 하나 때문에 mkspec3.py:329 가 붙인 것이다 ⟹ 규칙화: **`kind` 는 `src_line` 이 가리키는 용도를 기술해야 한다**(같은 형태가 specs[6]/consts[0] 에도 있다 — 배치 B 몫)",
+      "behavior_change": false,
+      "found_by": "new"
+    }
+  ],
+  "ev_up": [
+    {
+      "path": "/specs[1]/consts[8]",
+      "from": 4,
+      "to": 2,
+      "evidence": "A7_o1.tsv MINION — 6차까지 미니언 케이스가 오라클에 한 번도 안 들어갔다(A6_o3 은 Nexus/Tower/Jungle/Champion 뿐). 유효 Entity 의 EntityType 판별자를 1 로 주입하니 game=-4960 = min(-10, -10*496/1) 로 MATCH, 대립가설 coef=0 기각",
+      "found_by": "new"
+    },
+    {
+      "path": "/specs[1]/consts[9]",
+      "from": 4,
+      "to": 2,
+      "evidence": "A7_o1.tsv MINION — tag 1 에서 game=-4960, coef=-10 판별(대립가설 coef=0 이면 0 이어야 한다)",
+      "found_by": "new"
+    },
+    {
+      "path": "/specs[1]/knobs[4]",
+      "from": 4,
+      "to": 2,
+      "evidence": "A7_o1.tsv MINION — 미니언 계수 -10 실행 확증(tag 0/1 대조: 0 → game=0, 1 → game=-4960)",
+      "found_by": "new"
+    },
+    {
+      "path": "/specs[3]/consts[6]",
+      "from": 4,
+      "to": 2,
+      "evidence": "A7_o1.tsv OPTUSIZE — Option<usize> = 16B, Some(7).discr=1 / None.discr=0 실측. Some(0).discr 도 1 이라 history[9] 의 「Some(0) 도 is_some 이라 위협으로 센다」와 정합",
+      "found_by": "new"
+    },
+    {
+      "path": "/specs[0]/mem[24]",
+      "from": 4,
+      "to": 3,
+      "evidence": "shared.EffectType_vtable +0xf8 = linear_move_speed · IR m04.ll:44085 gep +248 → 44087 `tail call { i64, i64 }` (abstract_input.rs:310)",
+      "found_by": "inherited"
+    },
+    {
+      "path": "/specs[0]/mem[25]",
+      "from": 4,
+      "to": 3,
+      "evidence": "shared.EffectType_vtable +0x118 = on_caster · IR m04.ll:44068 gep +280 → 44070 `tail call .. i1` (abstract_input.rs:296)",
+      "found_by": "inherited"
+    }
+  ],
+  "brief_errors": [
+    "★★도시에 §5 의 patch.json 예시가 `applypatch.py` 의 실제 계약과 다르다. 예시는 `{\"round\":\"r7\",\"entries\":[{path,old,new,why}]}` 인데 도구는 `{\"round\":7,\"errors\":[{path,kind,old,new,evidence,behavior_change,found_by}],\"ev_up\":[...],\"brief_errors\":[...]}` 만 읽는다(applypatch.py:20~40 의 계약 주석 + main() 의 `pj.get(\"errors\")`/`pj.get(\"ev_up\")`). 예시대로 냈으면 **entries 가 통째로 무시돼 0건 적용**이었다 — 5차 317행 유실과 같은 형태의 사고를 지시가 직접 유발할 뻔했다. 이 patch.json 은 도구 계약으로 냈다.",
+    "★★도시에 §5 가 「`ev` 를 직접 쓰지 마라」고만 적고 **`ev_up` 배열의 존재를 알려주지 않는다**. ev 하향은 `errors` 가 아니라 `ev_up` 으로 내야 근거 문면이 자동으로 붙는다(applypatch.apply_evup).",
+    "★도시에 §4 의 머리 건수가 전역 합계인데 「이 배치 몫만 추렸다」 아래에 있어 오독을 부른다 — 표기는 `[G12 src_line 대조] 47건` / `[G13 knobs.where 대조] 8건` 인데 실제 나열은 배치A 몫 **8건 / 7건**이다(지시 본문의 「15건」이 맞다).",
+    "★★도시에 §4 의 G12 8건은 **전부 오탐이다**(아래 REPORT §2 참조). `srclinecheck.py` 가 「리터럴이 들어 있는 줄에 `!dbg` 가 있어야」 후보로 세는데 ①`switch` 의 case 라벨 줄에는 `!dbg` 가 없고 ②`phi` 의 상수 인입은 사슬이 `line 0` 이라 버려지며 ③리터럴 정규식이 SSA 레지스터(`%2`·`%5`·`%16`)와 타입/오프셋 숫자까지 잡아 **엉뚱한 후보 목록**을 만든다. 도시에는 그 후보를 「실제 후보」라고 부른다 — 그대로 믿고 고쳤으면 8건 전부 **판정 반전 오류**가 됐을 것이다.",
+    "도시에 §1 의 `00 ult`·`03 defensive_crisis` 의 `ev≥4(미실행)` 집계(9·15)에는 담당 함수 밖(다른 파일·다른 함수)의 knobs 가 대부분이라, 「오라클로 내려라」가 실제로 가능한 행은 훨씬 적다. 이번에 내린 것은 배치A 전체에서 6행이다.",
+    "★★도시에 §5 가 「`consts.kind` 축을 검사하라」고 해놓고, 그 축이 **`patch.json` 으로는 쓸 수 없는 파생 필드**라는 사실을 알려주지 않는다. `kind` 는 v2 정본에 없고 `mkspec3.py:329` 가 `meaning` 의 낱말(태그/판별자/variant > 센티넬/니치/0xff/MAX > 인덱스 > 임계)로 정한다. 첫 제출에서 `/specs[i]/consts[j]/kind` 로 내었다가 `applypatch --dry` 가 3건 전부 「현재 None」으로 거부했다 — `meaning` 의 낱말을 고쳐 제출한다.",
+    "★`applypatch.already()` 가 **대상 필드가 아니라 명세 전체**를 뒤져서 오판한다. `/specs[3]/knobs[3]·[4]/where` 의 새 인용 `` `icmp ugt i64 %76, 2` `` 가 **같은 명세의 consts[2].meaning** 에 이미 있다는 이유로 「이미 적용」으로 분류돼 **조용히 버려졌다**(첫 --dry 에서 실측 2건). 이번엔 `new` 에 괄호까지 넣어 피했지만, 도구는 `already()` 를 **그 경로가 가리키는 값**으로 좁혀야 한다."
+  ]
+}

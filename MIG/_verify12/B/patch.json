@@ -1,0 +1,165 @@
+{
+  "round": 12,
+  "batch": "B",
+  "errors": [
+    {
+      "path": "/specs[5]/knobs[1]/where",
+      "kind": "실오류",
+      "old": "★정정(10차 배치B, 판정반전): ~~131",
+      "new": "★정정(**11차** 배치B, 판정반전 — 10차의 「독립 중첩 if · 132~137 중 한 줄」을 다시 뒤집은 판이다. ~~10차 배치B~~ 귀속은 12차 배치B 가 바로잡았다: 아래 ②의 「들여쓰기 4 가 아니라 6」이 곧 10차 판을 무너뜨린 관측이라 10차에 귀속될 수 없다. 같은 명세 `closed[0]` 은 11차로 올바로 적고 있어 한 명세 안에서 두 칸이 어긋나 있었다). 12차 배치B 독립 재측정(`rmeta_srcmap game_ai dive_episode.rs 124 172`) 결과 ±0 재확인: L125=112B(=2+109) · L130=6B(=4+1) · L131=59B(=6+52) · L138=82B(=8+73) · L139=43B(=8+34) · L140=89B(=10+78) · L141/142/143=10/8/6B · L156=55B(=4+50) — 여덟 줄 전부 잔차 0. 내용: ~~131",
+      "evidence": "m13.ll:28986~29017 의 !dbg 사슬이 두 독해를 못 가른다(!36000=DILocation(line:138, scope !35913) · !36002=line 139). 판정은 줄길이 산술이 하고, 그 산술의 핵심 전제인 L131 들여쓰기 6 은 11차가 세운 것이다(10차는 4 로 가정해 틀렸다). 실측 재현: rmeta_srcmap game_ai dive_episode.rs 124 172 → L131 bytes=59, L156 bytes=55(=4+len('if let Some(done) = self.v50_dive_ep_live.take() {')=50) 이 fn 본문 들여쓰기 4 를 독립 고정",
+      "behavior_change": false,
+      "found_by": "new"
+    },
+    {
+      "path": "/specs[9]/logic",
+      "kind": "실오류",
+      "old": "// 1321행의 || 는 IR 에서 비단축 or 로 접혀 두 항의 소스상 순서는 결과에 영향 없음.",
+      "new": "// ★12차 배치B 정정 — ~~「1321행의 || 는 IR 에서 비단축 or 로 접혀 두 항의 소스상 순서는 결과에 영향 없음」~~ 은\n//   11차가 4단으로 고치기 전의 **옛 3단 모델이 남은 것**이다(같은 logic 블록 12줄 위와 정면으로 모순).\n//   1321 안에는 || 가 없다. IR 의 `%99 = or i1 %98, %97`(m15.ll:35602)는\n//     %97 = `select i1 %95, i1 %96, i1 false`(m15.ll:35600) = **1321 의 `flank>=1 && front>=1`** 과\n//     %98 = `icmp sgt i32 %84, 1`(m15.ll:35601) = **1326 의 `flank>=2`** 를 합친 것이다.\n//   %98 은 블록 호이스트로 !dbg 가 지워졌고, 합쳐진 or 는 !46393(=DILocation line 1321)을 물었다.\n//   두 if 는 부수효과가 없어 합쳐도 결과가 같다(=순서 무관은 맞지만 이유가 다르다).\n//   카운터 대응(증가 지점의 !dbg 로 확정): %85=front(1258/1289/1307) · %84=flank(1300/1304) · %83=rear(1298).",
+      "evidence": "m15.ll:35597~35607 원문 — `94: %95 = icmp sgt i32 %84, 0, !dbg !46393 / %96 = icmp sgt i32 %85, 0, !dbg !46393 / %97 = select i1 %95, i1 %96, i1 false / %98 = icmp sgt i32 %84, 1 / %99 = or i1 %98, %97, !dbg !46393 / br i1 %99, label %121, label %100` 이고 `100: %101 = icmp sgt i32 %85, 1, !dbg !46394`. !46388=line 1316 · !46393=line 1321 · !46394=line 1331 · !46402=line 1340 · !46403=line 1348",
+      "behavior_change": false,
+      "found_by": "new"
+    },
+    {
+      "path": "/specs[8]/knobs[4]/value",
+      "kind": "보강",
+      "old": 0,
+      "new": 120,
+      "evidence": "_gcbc/g07.ll:157041 `%25 = add i64 %24, 120` — `Blackboard::is_recent_visible` 의 define(g07.ll:157005, blackboard.rs:346) 안. 마지막 목격 틱 + 120 >= game.tick() 이 「최근 목격」의 실체다(60tps 기준 2초)",
+      "behavior_change": true,
+      "found_by": "new"
+    },
+    {
+      "path": "/specs[8]/knobs[4]/where",
+      "kind": "보강",
+      "old": "★담당 범위 밖 — m10.ll:6130",
+      "new": "★담당 범위 밖 — 술어 본체의 `define` = **_gcbc/g07.ll:157005**(blackboard.rs:346) · 시야 기억창 리터럴 = **g07.ll:157041 `%25 = add i64 %24, 120`** · 08 에서의 호출 지점 = m10.ll:6130",
+      "evidence": "sed -n 157005,157052p _gcbc/g07.ll 원문 · sed -n 6126,6134p _gaibc/m10.ll = `%33 = tail call ... @_RNvMs0_...Blackboard17is_recent_visible(...)`",
+      "behavior_change": false,
+      "found_by": "new"
+    },
+    {
+      "path": "/specs[8]/knobs[4]/effect",
+      "kind": "보강",
+      "old": "value 0 은 자리표시 — 이 항목은 임계값이 아니라 술어 자체다",
+      "new": "★★**값 확정(12차 배치B) = 120틱**(60tps 기준 2초) — ~~value 0 은 자리표시~~ 는 재료 부재가 아니었다. `Blackboard::is_recent_visible` 의 `define` 이 **_gcbc/g07.ll:157005** 에 있고(08 은 _gaibc 만 뒤져서 못 찾고 있었다) 본문은 3단이다: ①`game.is_visible_cell(judger.info.team(PlayerState+0x930), target.id(Entity+0x5c0))` = **vtable +0xf8** 이 true 면 즉시 true ②아니면 **vtable +0x150** 으로 그 id 의 PlayerState 를 얻고 null 이면 false ③`last = self(=blackboard[1-team]) + 0x1e0 + 그 적의 info.position(+0x9c0)*8` 을 읽어 **g07.ll:157041 `%25 = add i64 %24, 120` → `last + 120 >= game.tick()`(vtable +0x28)**. ⟹ 「최근 목격」 = **마지막 목격 이후 120틱 이내**. 올리면 더 오래된 기억도 보인다고 쳐 (c)(d) 종료가 덜 일어나고, 0 이면 '지금 시야에 있는 적'만 남는다. 06 의 두 필터 클로저도 같은 술어를 첫 항으로 쓴다(06 `closed[3]` 이 같은 사실을 이미 기록했는데 08 에는 옮겨지지 않았다)",
+      "evidence": "g07.ll:157005~157047 원문: `%6 = gep %3, 2352`(=0x930 team) · `%8 = gep %4, 1472`(=0x5c0 id) · `%10 = gep %2, 248`(vt+0xf8) · `%14 = gep %2, 336`(vt+0x150) · `%19 = gep %16, 2496`(=0x9c0 position) · `%22 = gep %0, 480`(=0x1e0) · `%25 = add i64 %24, 120` · `%26 = gep %2, 40`(vt+0x28 tick) · `%29 = icmp uge i64 %25, %28`",
+      "behavior_change": true,
+      "found_by": "new"
+    },
+    {
+      "path": "/specs[9]/one_line",
+      "kind": "보강",
+      "old": "아군 5인의 배치를",
+      "new": "적 미니언 웨이브 피해가 예상되면 그 즉시 불리로 잘라내고, 그렇지 않으면 아군 5칸(자기 자신 제외)의 배치를",
+      "evidence": "fight_check.rs:1208~1209 = `if enemy_minion_line_action_danger_damage_at(..) != 0 { return false }` (m15.ll:35470~35478, 호출 심볼 `@_RNvNtCshdEBA0ozCnw_7game_ai39enemy_minion_line_action_danger_damage_at`). 대형 계산 전에 무조건 도는 게이트인데 one_line 이 한 글자도 언급하지 않아, 이 줄만 읽는 사람은 함수가 배치만 본다고 오해한다. 아울러 루프는 `for ap in 0..5` 이되 `ally.id == champ.id` 를 건너뛰므로 실제로 세는 아군은 최대 4명이다(m15.ll:35661 `icmp samesign ult i64 %89, 4`)",
+      "behavior_change": false,
+      "found_by": "new"
+    },
+    {
+      "path": "/specs[5]/consts[13]/meaning",
+      "kind": "보강",
+      "old": "패턴 \"ActiveRecall\" 의 길이",
+      "new": "패턴 \"ActiveRecall\" 의 길이. ★근거(12차 배치B) — DWARF `#dbg_value(i64 12, !35924, DW_OP_LLVM_fragment, 64, 64)` @m13.ll:28971·28973. 9개 패턴 길이는 전부 이 `&str` 조각으로만 남아 있고 본문 명령에는 나타나지 않는다",
+      "evidence": "m13.ll:28954~28983 의 `#dbg_value` 30줄이 9개 패턴의 (ptr,len) 쌍 전량이다: 11@28955/28957 · 13@28959/28961 · 8@28963/28965 · 4@28967 · 6@28969 · 12@28971/28973 · 6@28975/28977 · 6@28979/28981 · 5@28983",
+      "behavior_change": false,
+      "found_by": "new"
+    },
+    {
+      "path": "/specs[5]/consts[14]/meaning",
+      "kind": "보강",
+      "old": "빠뜨리고 있었다",
+      "new": "빠뜨리고 있었다. ★근거(12차 배치B) — DWARF `#dbg_value(i64 8, !35924, DW_OP_LLVM_fragment, 64, 64)` @m13.ll:28963·28965",
+      "evidence": "m13.ll:28962~28965 원문 (anon...94 = \"LineGank\", !35924 = starts_with 패턴 지역변수)",
+      "behavior_change": false,
+      "found_by": "new"
+    },
+    {
+      "path": "/specs[5]/consts[15]/meaning",
+      "kind": "보강",
+      "old": "starts_with 가 아니라 contains 다)",
+      "new": "starts_with 가 아니라 contains 다). ★근거(12차 배치B) — DWARF `#dbg_value(i64 4, !35946, DW_OP_LLVM_fragment, 64, 64)` @m13.ll:28967. `!35946` 은 contains 쪽 패턴 지역변수라 starts_with 쪽(`!35924`/`!35930`)과 구분된다",
+      "evidence": "m13.ll:28966~28967 · 28968~28969 · 28982~28983 이 `!35946`(contains) 계열이고 값은 각각 4(Epic)·6(Serpen)·5(Nexus)다",
+      "behavior_change": false,
+      "found_by": "new"
+    },
+    {
+      "path": "/specs[5]/consts[16]/meaning",
+      "kind": "보강",
+      "old": "패턴 \"Serpen\" 의 바이트 길이(is_contained_in 인자)",
+      "new": "패턴 \"Serpen\" 의 바이트 길이(is_contained_in 인자). ★근거(12차 배치B) — DWARF `#dbg_value(i64 6, !35946, DW_OP_LLVM_fragment, 64, 64)` @m13.ll:28969",
+      "evidence": "m13.ll:28968~28969",
+      "behavior_change": false,
+      "found_by": "new"
+    },
+    {
+      "path": "/specs[5]/consts[17]/meaning",
+      "kind": "보강",
+      "old": "같은 phi 값 6 으로 합류한다",
+      "new": "같은 phi 값 6 으로 합류한다. ★근거(12차 배치B) — DWARF `#dbg_value(i64 6, !35924, DW_OP_LLVM_fragment, 64, 64)` @m13.ll:28975·28977. 6자 패턴은 둘(Recall·Battle)인데 `#dbg_value` 출현 순서(anon...89 → anon...48)가 소스 순서(L151 → L152)와 같아 앞 쌍이 Recall 이다",
+      "evidence": "m13.ll:28974~28981. phi 인입 블록 순서 %51(5,L150) → %56(6) → %61(6) → %66(7,L152) 이 소스 사슬 순서와 일치한다(m13.ll:29154)",
+      "behavior_change": false,
+      "found_by": "new"
+    },
+    {
+      "path": "/specs[5]/consts[18]/meaning",
+      "kind": "보강",
+      "old": "패턴 \"Battle\" 의 바이트 길이(starts_with 인자)",
+      "new": "패턴 \"Battle\" 의 바이트 길이(starts_with 인자). ★근거(12차 배치B) — DWARF `#dbg_value(i64 6, !35924, DW_OP_LLVM_fragment, 64, 64)` @m13.ll:28979·28981",
+      "evidence": "m13.ll:28978~28981",
+      "behavior_change": false,
+      "found_by": "new"
+    },
+    {
+      "path": "/specs[5]/consts[19]/meaning",
+      "kind": "보강",
+      "old": "이 술어 결과가 select(8,9) 로 마지막 두 코드를 가른다",
+      "new": "이 술어 결과가 select(8,9) 로 마지막 두 코드를 가른다. ★근거(12차 배치B) — DWARF `#dbg_value(i64 5, !35946, DW_OP_LLVM_fragment, 64, 64)` @m13.ll:28983",
+      "evidence": "m13.ll:28982~28983 · 소비 지점 m13.ll:29150 `%72 = select i1 %70, i8 8, i8 9`",
+      "behavior_change": false,
+      "found_by": "new"
+    },
+    {
+      "op": "insert",
+      "path": "/specs[6]/knobs",
+      "at": 5,
+      "guard": "시야 기억창(최근 목격으로 인정하는 틱 수)",
+      "guard_key": "what",
+      "kind": "보강",
+      "new": {
+        "what": "시야 기억창(최근 목격으로 인정하는 틱 수)",
+        "where": "★담당 범위 밖 — `game_core::Blackboard::is_recent_visible`(blackboard.rs:346) 의 `define` = **_gcbc/g07.ll:157005**, 리터럴은 **g07.ll:157041 `%25 = add i64 %24, 120`**. 06 에서는 두 필터 클로저(m12.ll:41916~41998 · m12.ll:42001~42083)의 **첫 항**이 이 술어다",
+        "value": 120,
+        "effect": "`last_seen[적 포지션] + 120 >= game.tick()` 이면 '최근 목격'으로 친다(60tps 기준 2초). 이 함수의 두 후보 집합(min_by_key 대상 · near_enemies)이 **둘 다 이 술어로 먼저 걸러지므로**, 거리 임계(40000000001 / 22500000001)보다 이 창이 먼저 지배한다. 올리면 오래 전에 본 적까지 후보로 남아 KitingBack 판정이 늘고, 0 이면 지금 시야에 있는 적만 남아 nearest 가 없어져 RunAway 로 빠지기 쉽다. 06 `closed[3]` 이 같은 사실을 기록했으나 knobs 표에는 행이 없었다"
+      },
+      "evidence": "_gcbc/g07.ll:157005~157047 원문. `%22 = getelementptr inbounds nuw i8, ptr %0, i64 480`(=Blackboard+0x1e0) · `%23 = getelementptr inbounds nuw i64, ptr %22, i64 %21`(%21 = 적 PlayerState.info.position) · `%24 = load i64, ptr %23` · `%25 = add i64 %24, 120` · `%29 = icmp uge i64 %25, %28`(%28 = game.tick(), vtable+0x28)",
+      "behavior_change": true,
+      "found_by": "reused"
+    },
+    {
+      "path": "/specs[8]/open",
+      "kind": "보강",
+      "old": "몇 틱인가) 미독해. game_core 쪽 함수라 이번 범위 밖이며",
+      "new": "몇 틱인가) — ★해소 — **120틱**(12차 배치B). `define` 은 `_gcbc/g07.ll:157005`(blackboard.rs:346)에 있다(08 은 `_gaibc` 만 뒤져서 「범위 밖」으로 닫고 있었는데, `METHOD_MAP §1-①` 의 「`_gaibc` 에 `declare` 만 있으면 `_gcbc`/`_gvbc` 에서 `define` 을 찾아라」가 그대로 적용되는 자리였다). 본문 3단 = ①vtable+0xf8 `is_visible_cell(team, id)` true 면 즉시 true ②아니면 vtable+0x150 으로 그 id 의 PlayerState 를 얻고 null 이면 false ③`Blackboard+0x1e0 + 적.info.position*8` 의 마지막 목격 틱 `last` 에 대해 **`last + 120 >= game.tick()`**(g07.ll:157041 `%25 = add i64 %24, 120`, tick=vtable+0x28). ⚠아울러 이 항목의 「닫은 근거」로 붙어 있던 `3차 배치B: 오라클 13/13, 임계 정확히 900` 은 **L194 의 15초 리스폰 임계(900틱) 이야기라 이 물음과 무관하다** — 근거가 어긋난 채 닫혀 있었다. 원문 보존: ~~game_core 쪽 함수라 이번 범위 밖이며~~",
+      "evidence": "_gcbc/g07.ll:157005~157047 원문. 특히 `%22 = getelementptr inbounds nuw i8, ptr %0, i64 480` · `%23 = getelementptr inbounds nuw i64, ptr %22, i64 %21` · `%24 = load i64, ptr %23, align 8` · `%25 = add i64 %24, 120, !dbg !187710` · `%29 = icmp uge i64 %25, %28`",
+      "behavior_change": true,
+      "found_by": "new"
+    },
+    {
+      "path": "/specs[8]/open",
+      "kind": "보강",
+      "old": "그 배열이 '관측 대상 팀별 지식'인지 '소유 팀별 지식'인지는 Blackboard 정의를 봐야 하는데 이번 범위 밖",
+      "new": "★해소 — **'관측 대상 팀별 지식'이다**(12차 배치B · 06 `closed[3]` 과 같은 근거). `Blackboard::is_recent_visible`(`_gcbc/g07.ll:157005`)는 `self`(=`blackboard[1-team]`)의 `+0x1e0` i64 배열을 **대상(적) 챔피언의 `info.position`(PlayerState+0x9c0)** 으로 색인한다(`%19 = gep %16, 2496` → `%21 = zext` → `%23 = gep i64, %22, %21`). ⟹ `blackboard[t]` = 「팀 t 챔피언 5칸의 **피관측** 기록」이고, 적팀 인덱스로 읽는 것이 맞다",
+      "evidence": "_gcbc/g07.ll:157027~157042 원문 (`%19 = getelementptr inbounds nuw i8, ptr %16, i64 2496` = PlayerState+0x9c0 = info.position, `%22 = getelementptr inbounds nuw i8, ptr %0, i64 480` = Blackboard+0x1e0)",
+      "behavior_change": false,
+      "found_by": "reused"
+    }
+  ],
+  "ev_up": [],
+  "brief_errors": [
+    "§4-b 의 `consts.kind` 확장 어휘 설명이 「`meaning` 쪽 낱말을 고치면 된다」고 하는데, `05 c14~c19` 는 낱말이 이미 `길이` 인데도 `산출값` 이 나온다 — 낱말로는 고칠 수 없는 자리다(`mkspec3._kind` 규칙②가 `strong`(WEAK 제거본)을 보므로 `SUPPORT['길이']` 의 `DBGSTR`/`CALLARG` 는 구조적으로 구제에 쓰일 수 없다). 지시문이 「낱말을 고쳐라」만 제시하면 배치는 못 고칠 것을 붙들게 된다.",
+    "도시에 §5 는 「`old` 는 **현재 값과 정확히 일치**해야 한다」고 적었는데 `applypatch.apply_error` 는 문자열 필드에 대해 `old in cur` → `cur.replace(old,new)` 로 **부분문자열 치환**을 한다(정수·불리언만 정확 일치). 정확 일치로 믿으면 `logic` 같은 긴 필드를 통째로 복사해 내게 되고, 그 사이 다른 배치의 정정이 들어가면 충돌한다.",
+    "도시에가 `05 knobs[1]` 을 「11차에 재료 부재로 구제됐는데 그 판정의 전제(들여쓰기 4)가 실측(6)과 달라 틀렸다」고 적었는데, 실제 정본에는 이미 「4 가 아니라 6」이 실려 있다(그게 11차가 고친 결과다). 남아 있던 오류는 **귀속**(그 문단이 10차 배치B 로 적혀 있음)이었다. 지시문이 상태를 한 단계 옛 판으로 기술했다.",
+    "도시에 §1 표의 `ev≥4(미실행)` 수치가 `05`=13 인데, 실제로 `05` 에서 내릴 수 있는 ev4 행은 `consts` 7행 + `callees` 8행이고 `callees` 는 tcx 자동생성이라 `errors[]`/`ev_up[]` 어느 쪽으로도 손이 닿지 않는다. 「닿는 것부터」라는 단서는 있지만, 닿을 수 없는 배열(`callees`)을 수치에 포함시키면 목표가 부풀려진다."
+  ]
+}

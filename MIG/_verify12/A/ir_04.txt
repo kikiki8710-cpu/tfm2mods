@@ -1,0 +1,470 @@
+define noundef zeroext i1 @_RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old13defense_nexus19handle_line_defense(i64 noundef %0, ptr noalias noundef align 16 dereferenceable(320) %1, ptr noalias noundef readonly align 8 captures(address, read_provenance) dereferenceable(2528) %2, ptr noalias noundef readonly align 8 captures(none) dereferenceable(24) %3, i8 noundef range(i8 0, 3) %4, ptr noalias noundef readnone align 8 captures(none) dereferenceable(224) %5) unnamed_addr #1 personality ptr @__CxxFrameHandler3 !dbg !66939 {
+  %7 = alloca [40 x i8], align 8
+  %8 = alloca [24 x i8], align 4
+  %9 = alloca [32 x i8], align 8
+  %10 = alloca [1 x i8], align 1
+  store i8 %4, ptr %10, align 1
+    #dbg_value(i64 %0, !66943, !DIExpression(), !66959)
+    #dbg_value(ptr %1, !66944, !DIExpression(), !66959)
+    #dbg_value(ptr %2, !66945, !DIExpression(), !66959)
+    #dbg_value(ptr %3, !66946, !DIExpression(), !66959)
+    #dbg_declare(ptr %10, !66947, !DIExpression(), !66960)
+    #dbg_value(ptr %5, !66948, !DIExpression(), !66959)
+    #dbg_declare(ptr %8, !66955, !DIExpression(), !66961)
+    #dbg_declare(ptr poison, !66962, !DIExpression(), !66975)
+  %11 = getelementptr inbounds nuw i8, ptr %3, i64 8, !dbg !66977
+  %12 = load ptr, ptr %11, align 8, !dbg !66977, !nonnull !8, !align !14311, !noundef !8
+    #dbg_value(ptr %12, !66978, !DIExpression(), !66983)
+  %13 = tail call noundef zeroext i1 @_RNvNtNtCshdEBA0ozCnw_7game_ai11plan_legacy10rule_scope11line_exists(ptr noalias noundef nonnull readonly align 8 captures(address, read_provenance) dereferenceable(64) %12, i8 noundef %4), !dbg !66977
+  br i1 %13, label %14, label %19, !dbg !66977
+
+14:                                               ; preds = %6
+    #dbg_value(ptr %12, !66985, !DIExpression(DW_OP_plus_uconst, 56, DW_OP_stack_value), !66988)
+  %15 = getelementptr inbounds nuw i8, ptr %12, i64 56, !dbg !66990
+  %16 = load i8, ptr %15, align 8, !dbg !66990, !range !29047, !noundef !8
+  %17 = add nsw i8 %16, -1, !dbg !66990
+  %18 = icmp ult i8 %17, 6, !dbg !66990
+  br i1 %18, label %19, label %21, !dbg !66990
+
+19:                                               ; preds = %166, %109, %105, %38, %14, %6
+  %20 = phi i1 [ false, %6 ], [ false, %38 ], [ %173, %166 ], [ false, %105 ], [ false, %14 ], [ false, %109 ], !dbg !66959
+  ret i1 %20, !dbg !66991
+
+21:                                               ; preds = %14
+  %22 = load ptr, ptr %3, align 8, !dbg !66984, !nonnull !8, !align !14311, !noundef !8
+  %23 = load ptr, ptr %22, align 8, !dbg !66984, !nonnull !8, !noundef !8
+  %24 = getelementptr inbounds nuw i8, ptr %22, i64 8, !dbg !66984
+  %25 = load ptr, ptr %24, align 8, !dbg !66984, !nonnull !8, !align !14311, !noundef !8
+  %26 = getelementptr inbounds nuw i8, ptr %25, i64 64, !dbg !66984
+  %27 = load ptr, ptr %26, align 8, !dbg !66984, !invariant.load !8, !nonnull !8
+  %28 = tail call { i64, ptr } %27(ptr noundef nonnull %23), !dbg !66984
+  %29 = extractvalue { i64, ptr } %28, 0, !dbg !66984
+  %30 = extractvalue { i64, ptr } %28, 1, !dbg !66984
+    #dbg_value(i64 %29, !66992, !DIExpression(DW_OP_LLVM_fragment, 0, 64), !66997)
+    #dbg_value(ptr %30, !66992, !DIExpression(DW_OP_LLVM_fragment, 64, 64), !66997)
+  %31 = icmp eq i64 %29, 0, !dbg !66998
+  br i1 %31, label %32, label %174, !dbg !66998, !prof !42356
+
+32:                                               ; preds = %21
+  %33 = icmp ne ptr %30, null
+  tail call void @llvm.assume(i1 %33)
+    #dbg_value(ptr %30, !66999, !DIExpression(), !67004)
+    #dbg_value(ptr %30, !67005, !DIExpression(), !67009)
+  %34 = getelementptr inbounds nuw i8, ptr %2, i64 2352, !dbg !66984
+  %35 = load i64, ptr %34, align 8, !dbg !66984, !noundef !8
+  %36 = sub i64 1, %35, !dbg !66984
+    #dbg_value(i64 %36, !67008, !DIExpression(), !67009)
+  %37 = icmp ult i64 %36, 2, !dbg !67010
+  br i1 %37, label %38, label %43, !dbg !67010
+
+38:                                               ; preds = %32
+  %39 = getelementptr inbounds nuw i8, ptr %30, i64 576, !dbg !67010
+  %40 = getelementptr inbounds nuw i64, ptr %39, i64 %36, !dbg !67010
+  %41 = load i64, ptr %40, align 8, !dbg !67010, !noundef !8
+  %42 = icmp eq i64 %41, 0, !dbg !66984
+  br i1 %42, label %19, label %44, !dbg !66984
+
+43:                                               ; preds = %32
+  tail call void @_RNvNtCsjihNppCmMEE_4core9panicking18panic_bounds_check(i64 noundef %36, i64 noundef 2, ptr noalias noundef readonly align 8 captures(address, read_provenance) dereferenceable(24) @anon.168add0ea037d45d276f5936ae758fe5.20) #30, !dbg !67010
+  unreachable, !dbg !67010
+
+44:                                               ; preds = %38
+  tail call void @llvm.experimental.noalias.scope.decl(metadata !67011), !dbg !67014
+    #dbg_value(ptr %22, !23971, !DIExpression(), !67015)
+    #dbg_value(i8 %4, !23978, !DIExpression(), !67015)
+    #dbg_value(i64 %35, !23979, !DIExpression(), !67015)
+  %45 = icmp ult i64 %35, 2, !dbg !67015
+  switch i8 %4, label %46 [
+    i8 0, label %47
+    i8 1, label %48
+    i8 2, label %49
+  ], !dbg !67017
+
+46:                                               ; preds = %44
+  unreachable
+
+47:                                               ; preds = %44
+  br i1 %45, label %53, label %50, !dbg !67018
+
+48:                                               ; preds = %44
+  br i1 %45, label %53, label %51, !dbg !67019
+
+49:                                               ; preds = %44
+  br i1 %45, label %53, label %52, !dbg !67020
+
+50:                                               ; preds = %47
+  tail call void @_RNvNtCsjihNppCmMEE_4core9panicking18panic_bounds_check(i64 noundef %35, i64 noundef 2, ptr noalias noundef readonly align 8 captures(address, read_provenance) dereferenceable(24) @anon.168add0ea037d45d276f5936ae758fe5.130) #30, !dbg !67018, !noalias !67011
+  unreachable, !dbg !67018
+
+51:                                               ; preds = %48
+  tail call void @_RNvNtCsjihNppCmMEE_4core9panicking18panic_bounds_check(i64 noundef %35, i64 noundef 2, ptr noalias noundef readonly align 8 captures(address, read_provenance) dereferenceable(24) @anon.168add0ea037d45d276f5936ae758fe5.131) #30, !dbg !67019, !noalias !67011
+  unreachable, !dbg !67019
+
+52:                                               ; preds = %49
+  tail call void @_RNvNtCsjihNppCmMEE_4core9panicking18panic_bounds_check(i64 noundef %35, i64 noundef 2, ptr noalias noundef readonly align 8 captures(address, read_provenance) dereferenceable(24) @anon.168add0ea037d45d276f5936ae758fe5.132) #30, !dbg !67020, !noalias !67011
+  unreachable, !dbg !67020
+
+53:                                               ; preds = %49, %48, %47
+  %54 = phi i64 [ 416, %48 ], [ 448, %49 ], [ 384, %47 ]
+  %55 = phi i64 [ 432, %48 ], [ 464, %49 ], [ 400, %47 ]
+  %56 = getelementptr inbounds nuw i8, ptr %22, i64 %54, !dbg !67015
+  %57 = getelementptr inbounds nuw ptr, ptr %56, i64 %35, !dbg !67015
+  %58 = load ptr, ptr %57, align 8, !dbg !67015, !alias.scope !67011, !align !14311, !noundef !8
+  %59 = getelementptr inbounds nuw i8, ptr %22, i64 %55, !dbg !67015
+  %60 = getelementptr inbounds nuw ptr, ptr %59, i64 %35, !dbg !67015
+  %61 = load ptr, ptr %60, align 8, !dbg !67015, !alias.scope !67011, !align !14311, !noundef !8
+  %62 = icmp eq ptr %58, null, !dbg !67021
+  %63 = select i1 %62, ptr %61, ptr %58, !dbg !67021
+    #dbg_value(ptr %63, !23994, !DIExpression(), !67023)
+    #dbg_value(ptr %63, !66949, !DIExpression(), !67025)
+    #dbg_value(ptr %63, !67026, !DIExpression(), !67032)
+    #dbg_value(ptr %63, !67034, !DIExpression(), !67039)
+  %64 = getelementptr inbounds nuw i8, ptr %22, i64 304, !dbg !67033
+  %65 = getelementptr inbounds nuw { { ptr, ptr, i64 }, i64 }, ptr %64, i64 %35, !dbg !67033
+    #dbg_value(ptr %65, !67041, !DIExpression(), !67048)
+    #dbg_value(ptr %65, !67049, !DIExpression(), !67052)
+  %66 = load ptr, ptr %65, align 8, !dbg !67054, !nonnull !8, !noundef !8
+    #dbg_value(ptr %66, !67044, !DIExpression(), !67055)
+  %67 = getelementptr inbounds nuw i8, ptr %65, i64 24, !dbg !67056
+  %68 = load i64, ptr %67, align 8, !dbg !67056, !noundef !8
+    #dbg_value(i64 %68, !67057, !DIExpression(), !67072)
+    #dbg_value(i64 %68, !67077, !DIExpression(), !67081)
+    #dbg_value(ptr %66, !67076, !DIExpression(DW_OP_LLVM_fragment, 0, 64), !67083)
+    #dbg_value(ptr %66, !67061, !DIExpression(DW_OP_LLVM_fragment, 0, 64), !67084)
+    #dbg_value(i64 %68, !67076, !DIExpression(DW_OP_LLVM_fragment, 64, 64), !67083)
+    #dbg_value(i64 %68, !67061, !DIExpression(DW_OP_LLVM_fragment, 64, 64), !67084)
+    #dbg_value(ptr %66, !67062, !DIExpression(), !67085)
+    #dbg_value(ptr %66, !67080, !DIExpression(), !67081)
+  %69 = shl nuw nsw i64 %68, 3, !dbg !67086
+  %70 = getelementptr inbounds nuw i8, ptr %66, i64 %69, !dbg !67086
+  %71 = getelementptr inbounds nuw i8, ptr %12, i64 8, !dbg !67087
+  %72 = load ptr, ptr %71, align 8, !dbg !67087, !nonnull !8, !align !14311, !noundef !8
+    #dbg_value(ptr %10, !67088, !DIExpression(DW_OP_LLVM_fragment, 0, 64), !67107)
+    #dbg_value(ptr %10, !67109, !DIExpression(DW_OP_LLVM_fragment, 0, 64), !67125)
+    #dbg_value(ptr %72, !67088, !DIExpression(DW_OP_LLVM_fragment, 64, 64), !67107)
+    #dbg_value(ptr %72, !67109, !DIExpression(DW_OP_LLVM_fragment, 64, 64), !67125)
+    #dbg_value(ptr %2, !67088, !DIExpression(DW_OP_LLVM_fragment, 128, 64), !67107)
+    #dbg_value(ptr %2, !67109, !DIExpression(DW_OP_LLVM_fragment, 128, 64), !67125)
+    #dbg_value(ptr %66, !67098, !DIExpression(DW_OP_LLVM_fragment, 0, 64), !67107)
+    #dbg_value(ptr %70, !67098, !DIExpression(DW_OP_LLVM_fragment, 64, 64), !67107)
+    #dbg_declare(ptr %7, !67127, !DIExpression(), !67135)
+    #dbg_declare(ptr poison, !67132, !DIExpression(), !67135)
+  call void @llvm.lifetime.start.p0(ptr nonnull %7), !dbg !67137, !noalias !67138
+  tail call void @llvm.experimental.noalias.scope.decl(metadata !67141), !dbg !67137
+    #dbg_value(ptr %66, !67123, !DIExpression(DW_OP_LLVM_fragment, 0, 64), !67125)
+    #dbg_value(ptr %70, !67123, !DIExpression(DW_OP_LLVM_fragment, 64, 64), !67125)
+  %73 = getelementptr inbounds nuw i8, ptr %7, i64 8, !dbg !67144
+  store ptr %70, ptr %73, align 8, !dbg !67144, !alias.scope !67148, !noalias !67150
+  %74 = getelementptr inbounds nuw i8, ptr %7, i64 16, !dbg !67144
+  store ptr %10, ptr %74, align 8, !dbg !67144, !alias.scope !67151
+  %75 = getelementptr inbounds nuw i8, ptr %7, i64 24, !dbg !67144
+  store ptr %72, ptr %75, align 8, !dbg !67144, !alias.scope !67151
+  %76 = getelementptr inbounds nuw i8, ptr %7, i64 32, !dbg !67144
+  store ptr %2, ptr %76, align 8, !dbg !67144, !alias.scope !67151
+  call void @llvm.experimental.noalias.scope.decl(metadata !67152), !dbg !67155
+    #dbg_declare(ptr %7, !67156, !DIExpression(), !67169)
+    #dbg_declare(ptr poison, !67161, !DIExpression(), !67169)
+  call void @llvm.experimental.noalias.scope.decl(metadata !67171), !dbg !67174
+    #dbg_value(ptr %7, !67175, !DIExpression(), !67182)
+    #dbg_value(ptr %7, !24193, !DIExpression(), !67184)
+    #dbg_value(i64 1, !24207, !DIExpression(), !67186)
+    #dbg_value(ptr %66, !24199, !DIExpression(), !67188)
+    #dbg_value(ptr %66, !24213, !DIExpression(), !67186)
+    #dbg_value(ptr %70, !24201, !DIExpression(), !67189)
+    #dbg_value(ptr poison, !24218, !DIExpression(), !67190)
+    #dbg_value(ptr poison, !24224, !DIExpression(), !67190)
+  %77 = icmp eq i64 %68, 0, !dbg !67192
+  br i1 %77, label %78, label %79, !dbg !67193
+
+78:                                               ; preds = %53
+  call void @llvm.lifetime.end.p0(ptr nonnull %7), !dbg !67137, !noalias !67138
+    #dbg_value(ptr null, !66972, !DIExpression(), !67194)
+  br label %105, !dbg !67195
+
+79:                                               ; preds = %53
+  %80 = getelementptr inbounds nuw i8, ptr %66, i64 8, !dbg !67196
+  store ptr %80, ptr %7, align 8, !dbg !67197, !alias.scope !67198, !noalias !67138
+    #dbg_value(ptr %66, !67201, !DIExpression(), !67213)
+    #dbg_value(ptr %74, !67210, !DIExpression(), !67213)
+    #dbg_value(ptr %74, !67215, !DIExpression(), !67222)
+    #dbg_value(ptr %66, !67211, !DIExpression(), !67224)
+    #dbg_value(ptr %66, !67220, !DIExpression(), !67222)
+  call void @llvm.experimental.noalias.scope.decl(metadata !67225), !dbg !67228
+    #dbg_value(ptr %66, !67229, !DIExpression(), !67235)
+    #dbg_value(ptr poison, !67232, !DIExpression(DW_OP_deref, DW_OP_LLVM_fragment, 0, 64), !67235)
+    #dbg_value(ptr poison, !67237, !DIExpression(DW_OP_deref), !67249)
+    #dbg_value(ptr poison, !67244, !DIExpression(DW_OP_deref, DW_OP_LLVM_fragment, 0, 64), !67249)
+    #dbg_value(ptr poison, !67245, !DIExpression(DW_OP_deref, DW_OP_LLVM_fragment, 0, 64), !67249)
+    #dbg_value(ptr poison, !67243, !DIExpression(), !67249)
+  %81 = call { i64, i64 } @_RNvMs4_NtNtNtCs97f5S1uJLkH_9game_core10simulation5state6playerNtB5_8LineType18get_start_position(ptr noalias noundef nonnull readonly captures(address, read_provenance) dereferenceable(1) %10, ptr noalias noundef nonnull readonly align 8 captures(address, read_provenance) dereferenceable(5432) %72, i64 noundef %35), !dbg !67251, !noalias !67252
+  %82 = extractvalue { i64, i64 } %81, 0, !dbg !67251
+  %83 = extractvalue { i64, i64 } %81, 1, !dbg !67251
+    #dbg_value(i64 %82, !67246, !DIExpression(), !67256)
+    #dbg_value(i64 %82, !67257, !DIExpression(), !67267)
+    #dbg_value(i64 %82, !67269, !DIExpression(), !67273)
+    #dbg_value(i64 %83, !67248, !DIExpression(), !67256)
+    #dbg_value(i64 %83, !67262, !DIExpression(), !67267)
+    #dbg_value(i64 %83, !67269, !DIExpression(), !67275)
+  %84 = load ptr, ptr %66, align 8, !dbg !67277, !alias.scope !67225, !noalias !67278, !nonnull !8, !align !14311, !noundef !8
+  %85 = getelementptr inbounds nuw i8, ptr %84, i64 1632, !dbg !67277
+  %86 = load i64, ptr %85, align 8, !dbg !67277, !noalias !67252, !noundef !8
+    #dbg_value(i64 %86, !67260, !DIExpression(), !67267)
+    #dbg_value(i64 %86, !67272, !DIExpression(), !67273)
+  %87 = getelementptr inbounds nuw i8, ptr %84, i64 1640, !dbg !67277
+  %88 = load i64, ptr %87, align 8, !dbg !67277, !noalias !67252, !noundef !8
+    #dbg_value(i64 %88, !67261, !DIExpression(), !67267)
+    #dbg_value(i64 %88, !67272, !DIExpression(), !67275)
+  %89 = icmp ult i64 %86, %82, !dbg !67279
+  %90 = sub nuw i64 %82, %86, !dbg !67279
+  %91 = sub nuw i64 %86, %82, !dbg !67279
+  %92 = select i1 %89, i64 %90, i64 %91, !dbg !67279
+    #dbg_value(i64 %92, !67263, !DIExpression(), !67280)
+  %93 = icmp ult i64 %88, %83, !dbg !67281
+  %94 = sub nuw i64 %83, %88, !dbg !67281
+  %95 = sub nuw i64 %88, %83, !dbg !67281
+  %96 = select i1 %93, i64 %94, i64 %95, !dbg !67281
+    #dbg_value(i64 %96, !67265, !DIExpression(), !67282)
+  %97 = mul i64 %92, %92, !dbg !67283
+  %98 = mul i64 %96, %96, !dbg !67283
+  %99 = add i64 %98, %97, !dbg !67283
+    #dbg_value(i64 %99, !67162, !DIExpression(DW_OP_LLVM_fragment, 0, 64), !67284)
+    #dbg_value(ptr %66, !67162, !DIExpression(DW_OP_LLVM_fragment, 64, 64), !67284)
+  %100 = call { i64, ptr } @_RINvXs0_NtNtNtCsjihNppCmMEE_4core4iter8adapters3mapINtB6_3MapINtNtNtBc_5slice4iter4IterRNtNtNtCs97f5S1uJLkH_9game_core10simulation6entity6EntityENCINvNvNtNtNtBa_6traits8iterator8Iterator10min_by_key3keyRB1n_yNCNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old13defense_nexus19handle_line_defense0E0EB2q_4foldTyB3e_ENCINvNvB2q_6min_by4foldB4U_INvB2o_7compareB3e_yEE0EB3u_(ptr noalias noundef nonnull readonly align 8 captures(none) dereferenceable(40) %7, i64 noundef %99, ptr noalias noundef nonnull readonly align 8 captures(address, read_provenance) dereferenceable(8) %66), !dbg !67285, !noalias !67138
+  %101 = extractvalue { i64, ptr } %100, 1, !dbg !67285
+  call void @llvm.lifetime.end.p0(ptr nonnull %7), !dbg !67137, !noalias !67138
+    #dbg_value(ptr %101, !66972, !DIExpression(), !67194)
+  %102 = icmp eq ptr %101, null, !dbg !67195
+  br i1 %102, label %105, label %103, !dbg !67195
+
+103:                                              ; preds = %79
+    #dbg_value(ptr %101, !66973, !DIExpression(), !67286)
+    #dbg_value(ptr %101, !67287, !DIExpression(), !67292)
+    #dbg_value(ptr poison, !67029, !DIExpression(), !67032)
+  %104 = icmp eq ptr %63, null, !dbg !67294
+  br i1 %104, label %107, label %109, !dbg !67294
+
+105:                                              ; preds = %79, %78
+    #dbg_value(ptr null, !67029, !DIExpression(), !67032)
+  %106 = icmp eq ptr %63, null, !dbg !67294
+  br i1 %106, label %19, label %109, !dbg !67294
+
+107:                                              ; preds = %103
+  %108 = load ptr, ptr %101, align 8, !dbg !67295, !nonnull !8, !align !14311, !noundef !8
+    #dbg_value(ptr %108, !67029, !DIExpression(), !67032)
+    #dbg_value(ptr %108, !66949, !DIExpression(), !67025)
+    #dbg_value(ptr %108, !67026, !DIExpression(), !67032)
+    #dbg_value(ptr %108, !67034, !DIExpression(), !67039)
+  br label %109, !dbg !67296
+
+109:                                              ; preds = %107, %105, %103
+  %110 = phi ptr [ %108, %107 ], [ %63, %103 ], [ %63, %105 ], !dbg !66959
+    #dbg_value(ptr %110, !67034, !DIExpression(), !67039)
+    #dbg_value(ptr %110, !67026, !DIExpression(), !67032)
+    #dbg_value(ptr %110, !66949, !DIExpression(), !67025)
+    #dbg_value(ptr %110, !66951, !DIExpression(), !67297)
+  %111 = getelementptr inbounds nuw i8, ptr %110, i64 1472, !dbg !67298
+  %112 = load i64, ptr %111, align 8, !dbg !67298, !noundef !8
+  %113 = load i8, ptr %10, align 1, !dbg !67298, !range !23778, !noundef !8
+  %114 = call noundef zeroext i1 @_RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old13defense_nexus23has_line_defense_threat(ptr noalias noundef nonnull readonly align 8 captures(address, read_provenance) dereferenceable(2528) %2, ptr noalias noundef nonnull readonly align 8 captures(address, read_provenance) dereferenceable(24) %3, i8 noundef %113, i64 noundef %112), !dbg !67298
+  br i1 %114, label %115, label %19, !dbg !67298
+
+115:                                              ; preds = %109
+  call void @llvm.lifetime.start.p0(ptr nonnull %9), !dbg !67299
+  %116 = load ptr, ptr %12, align 8, !dbg !67299, !nonnull !8, !align !14311, !noundef !8
+  call void @_RNvMs3_NtCs97f5S1uJLkH_9game_core10simulationNtB5_21AbstractGameWithCache9champions(ptr noalias noundef nonnull sret([32 x i8]) align 8 captures(address) dereferenceable(32) %9, ptr noalias noundef nonnull readonly align 8 captures(address, read_provenance) dereferenceable(8840) %22, i64 noundef %36, ptr noundef nonnull align 8 %116), !dbg !67299
+    #dbg_value(ptr %9, !67041, !DIExpression(), !67300)
+    #dbg_value(ptr %9, !67049, !DIExpression(), !67301)
+  %117 = load ptr, ptr %9, align 8, !dbg !67304, !nonnull !8, !noundef !8
+    #dbg_value(ptr %117, !67046, !DIExpression(), !67305)
+  %118 = getelementptr inbounds nuw i8, ptr %9, i64 24, !dbg !67306
+  %119 = load i64, ptr %118, align 8, !dbg !67306, !noundef !8
+    #dbg_value(i64 %119, !67077, !DIExpression(), !67307)
+    #dbg_value(ptr %117, !67076, !DIExpression(DW_OP_LLVM_fragment, 0, 64), !67312)
+    #dbg_value(ptr %117, !67061, !DIExpression(DW_OP_LLVM_fragment, 0, 64), !67313)
+    #dbg_value(i64 %119, !67076, !DIExpression(DW_OP_LLVM_fragment, 64, 64), !67312)
+    #dbg_value(i64 %119, !67061, !DIExpression(DW_OP_LLVM_fragment, 64, 64), !67313)
+    #dbg_value(ptr %117, !67080, !DIExpression(), !67307)
+    #dbg_value(ptr %117, !67314, !DIExpression(DW_OP_LLVM_fragment, 0, 64), !67335)
+    #dbg_value(!DIArgList(ptr %117, i64 %119), !67314, !DIExpression(DW_OP_LLVM_arg, 0, DW_OP_LLVM_arg, 1, DW_OP_constu, 8, DW_OP_mul, DW_OP_plus, DW_OP_stack_value, DW_OP_LLVM_fragment, 64, 64), !67335)
+    #dbg_value(ptr %23, !67314, !DIExpression(DW_OP_LLVM_fragment, 128, 64), !67335)
+    #dbg_value(ptr %25, !67314, !DIExpression(DW_OP_LLVM_fragment, 192, 64), !67335)
+    #dbg_value(ptr poison, !67314, !DIExpression(DW_OP_LLVM_fragment, 256, 64), !67335)
+    #dbg_value(ptr %2, !67314, !DIExpression(DW_OP_LLVM_fragment, 320, 64), !67335)
+    #dbg_value(ptr %110, !67314, !DIExpression(DW_OP_LLVM_fragment, 384, 64), !67335)
+    #dbg_value(i64 0, !67337, !DIExpression(), !67356)
+    #dbg_declare(ptr poison, !67353, !DIExpression(), !67372)
+    #dbg_value(i64 %119, !67331, !DIExpression(), !67373)
+    #dbg_value(ptr %117, !67368, !DIExpression(DW_OP_LLVM_fragment, 0, 64), !67374)
+    #dbg_value(ptr %117, !67362, !DIExpression(DW_OP_LLVM_fragment, 0, 64), !67375)
+    #dbg_value(ptr %117, !67352, !DIExpression(DW_OP_LLVM_fragment, 0, 64), !67356)
+    #dbg_value(!DIArgList(ptr %117, i64 %119), !67368, !DIExpression(DW_OP_LLVM_arg, 0, DW_OP_LLVM_arg, 1, DW_OP_constu, 8, DW_OP_mul, DW_OP_plus, DW_OP_stack_value, DW_OP_LLVM_fragment, 64, 64), !67374)
+    #dbg_value(!DIArgList(ptr %117, i64 %119), !67362, !DIExpression(DW_OP_LLVM_arg, 0, DW_OP_LLVM_arg, 1, DW_OP_constu, 8, DW_OP_mul, DW_OP_plus, DW_OP_stack_value, DW_OP_LLVM_fragment, 64, 64), !67375)
+    #dbg_value(!DIArgList(ptr %117, i64 %119), !67352, !DIExpression(DW_OP_LLVM_arg, 0, DW_OP_LLVM_arg, 1, DW_OP_constu, 8, DW_OP_mul, DW_OP_plus, DW_OP_stack_value, DW_OP_LLVM_fragment, 64, 64), !67356)
+    #dbg_value(ptr %23, !67352, !DIExpression(DW_OP_LLVM_fragment, 128, 64), !67356)
+    #dbg_value(ptr %23, !67362, !DIExpression(DW_OP_LLVM_fragment, 128, 64), !67375)
+    #dbg_value(ptr %23, !67368, !DIExpression(DW_OP_LLVM_fragment, 128, 64), !67374)
+    #dbg_value(ptr %25, !67352, !DIExpression(DW_OP_LLVM_fragment, 192, 64), !67356)
+    #dbg_value(ptr %25, !67362, !DIExpression(DW_OP_LLVM_fragment, 192, 64), !67375)
+    #dbg_value(ptr %25, !67368, !DIExpression(DW_OP_LLVM_fragment, 192, 64), !67374)
+    #dbg_value(ptr poison, !67352, !DIExpression(DW_OP_LLVM_fragment, 256, 64), !67356)
+    #dbg_value(ptr poison, !67362, !DIExpression(DW_OP_LLVM_fragment, 256, 64), !67375)
+    #dbg_value(ptr poison, !67368, !DIExpression(DW_OP_LLVM_fragment, 256, 64), !67374)
+    #dbg_value(ptr %2, !67352, !DIExpression(DW_OP_LLVM_fragment, 320, 64), !67356)
+    #dbg_value(ptr %2, !67362, !DIExpression(DW_OP_LLVM_fragment, 320, 64), !67375)
+    #dbg_value(ptr %2, !67368, !DIExpression(DW_OP_LLVM_fragment, 320, 64), !67374)
+    #dbg_value(ptr poison, !67352, !DIExpression(DW_OP_LLVM_fragment, 384, 64), !67356)
+    #dbg_value(ptr poison, !67362, !DIExpression(DW_OP_LLVM_fragment, 384, 64), !67375)
+    #dbg_value(ptr poison, !67368, !DIExpression(DW_OP_LLVM_fragment, 384, 64), !67374)
+    #dbg_value(ptr %23, !67376, !DIExpression(DW_OP_LLVM_fragment, 0, 64), !67403)
+    #dbg_value(ptr %25, !67376, !DIExpression(DW_OP_LLVM_fragment, 64, 64), !67403)
+    #dbg_value(ptr poison, !67376, !DIExpression(DW_OP_LLVM_fragment, 128, 64), !67403)
+    #dbg_value(ptr %2, !67376, !DIExpression(DW_OP_LLVM_fragment, 192, 64), !67403)
+    #dbg_value(ptr poison, !67376, !DIExpression(DW_OP_LLVM_fragment, 256, 64), !67403)
+    #dbg_value(ptr %117, !67385, !DIExpression(DW_OP_LLVM_fragment, 0, 64), !67403)
+    #dbg_value(!DIArgList(ptr %117, i64 %119), !67385, !DIExpression(DW_OP_LLVM_arg, 0, DW_OP_LLVM_arg, 1, DW_OP_constu, 8, DW_OP_mul, DW_OP_plus, DW_OP_stack_value, DW_OP_LLVM_fragment, 64, 64), !67403)
+    #dbg_value(i64 0, !67386, !DIExpression(), !67403)
+    #dbg_value(i64 1, !67405, !DIExpression(), !67409)
+    #dbg_value(!DIArgList(ptr %117, i64 %119), !67389, !DIExpression(DW_OP_LLVM_arg, 0, DW_OP_LLVM_arg, 1, DW_OP_constu, 8, DW_OP_mul, DW_OP_plus, DW_OP_stack_value), !67411)
+    #dbg_value(ptr poison, !67412, !DIExpression(), !67416)
+    #dbg_value(ptr poison, !67415, !DIExpression(), !67416)
+  %120 = icmp eq i64 %119, 0, !dbg !67418
+  br i1 %120, label %161, label %121, !dbg !67419
+
+121:                                              ; preds = %115
+  %122 = getelementptr inbounds nuw i8, ptr %3, i64 16, !dbg !67420
+  %123 = load ptr, ptr %122, align 8, !dbg !67420, !nonnull !8, !align !14311, !noundef !8
+    #dbg_value(ptr %123, !67352, !DIExpression(DW_OP_LLVM_fragment, 256, 64), !67356)
+    #dbg_value(ptr %123, !67362, !DIExpression(DW_OP_LLVM_fragment, 256, 64), !67375)
+    #dbg_value(ptr %123, !67368, !DIExpression(DW_OP_LLVM_fragment, 256, 64), !67374)
+    #dbg_value(ptr %123, !67376, !DIExpression(DW_OP_LLVM_fragment, 128, 64), !67403)
+    #dbg_value(ptr %123, !67314, !DIExpression(DW_OP_LLVM_fragment, 256, 64), !67335)
+    #dbg_value(ptr %110, !67352, !DIExpression(DW_OP_LLVM_fragment, 384, 64), !67356)
+    #dbg_value(ptr %110, !67362, !DIExpression(DW_OP_LLVM_fragment, 384, 64), !67375)
+    #dbg_value(ptr %110, !67368, !DIExpression(DW_OP_LLVM_fragment, 384, 64), !67374)
+    #dbg_value(ptr %110, !67376, !DIExpression(DW_OP_LLVM_fragment, 256, 64), !67403)
+    #dbg_value(i64 0, !67391, !DIExpression(), !67421)
+    #dbg_value(i64 0, !67393, !DIExpression(), !67422)
+    #dbg_value(i64 0, !67408, !DIExpression(), !67409)
+    #dbg_value(i64 %119, !67395, !DIExpression(), !67423)
+  %124 = getelementptr inbounds nuw i8, ptr %110, i64 1632
+  %125 = getelementptr inbounds nuw i8, ptr %110, i64 1640
+  %126 = getelementptr inbounds nuw { { { i64, [1 x i64] }, i64, i64, i32, [1 x i32] }, { { i64, [1 x i64] }, i64, i64, i32, [1 x i32] }, { { i64, [1 x i64] }, i64, i64, i32, [1 x i32] }, [5 x { i64, [2 x i64] }], [5 x { i64, { i8, [23 x i8] } }], [5 x { i8, [7 x i8], i64 }], [5 x i64], [5 x i64], [5 x i64], [5 x { i64, i64 }], i64, i64, i64, i64, i64, [5 x i32], i8, [3 x i8] }, ptr %123, i64 %36
+  br label %127, !dbg !67424
+
+127:                                              ; preds = %154, %121
+  %128 = phi i64 [ 0, %121 ], [ %157, %154 ], !dbg !67421
+  %129 = phi i64 [ 0, %121 ], [ %156, %154 ], !dbg !67403
+    #dbg_value(i64 %129, !67391, !DIExpression(), !67421)
+    #dbg_value(i64 %128, !67408, !DIExpression(), !67409)
+    #dbg_value(i64 %128, !67393, !DIExpression(), !67422)
+    #dbg_value(ptr %117, !67425, !DIExpression(), !67429)
+    #dbg_value(i64 %128, !67428, !DIExpression(), !67429)
+  %130 = getelementptr inbounds nuw ptr, ptr %117, i64 %128, !dbg !67431
+  %131 = load ptr, ptr %130, align 8, !dbg !67432, !noalias !67433, !nonnull !8, !noundef !8
+    #dbg_value(ptr poison, !67438, !DIExpression(DW_OP_deref, DW_OP_LLVM_fragment, 0, 64), !67450)
+    #dbg_value(i64 %129, !67444, !DIExpression(), !67450)
+    #dbg_value(ptr poison, !67445, !DIExpression(), !67450)
+    #dbg_value(ptr poison, !67452, !DIExpression(), !67461)
+    #dbg_value(ptr poison, !67458, !DIExpression(DW_OP_deref, DW_OP_LLVM_fragment, 0, 64), !67461)
+    #dbg_value(ptr poison, !67463, !DIExpression(DW_OP_deref, DW_OP_LLVM_fragment, 0, 64), !67473)
+    #dbg_value(ptr poison, !67471, !DIExpression(DW_OP_deref, DW_OP_LLVM_fragment, 0, 64), !67473)
+    #dbg_value(ptr poison, !67472, !DIExpression(DW_OP_deref, DW_OP_LLVM_fragment, 0, 64), !67473)
+    #dbg_value(ptr poison, !67469, !DIExpression(), !67473)
+  %132 = invoke noundef zeroext i1 @_RNvMs0_NtNtNtCs97f5S1uJLkH_9game_core10simulation4game10blackboardNtB5_10Blackboard17is_recent_visible(ptr noalias noundef nonnull readonly align 8 captures(address, read_provenance) dereferenceable(744) %126, ptr noundef nonnull %23, ptr noalias noundef nonnull readonly align 8 captures(address, read_provenance) dereferenceable(816) %25, ptr noalias noundef nonnull readonly align 8 captures(address, read_provenance) dereferenceable(2528) %2, ptr noalias noundef nonnull readonly align 8 captures(address, read_provenance) dereferenceable(1728) %131)
+          to label %133 unwind label %159, !dbg !67475
+
+133:                                              ; preds = %127
+  br i1 %132, label %134, label %154, !dbg !67475
+
+134:                                              ; preds = %133
+    #dbg_value(ptr %131, !67476, !DIExpression(), !67480)
+    #dbg_value(ptr poison, !67479, !DIExpression(), !67480)
+  %135 = getelementptr inbounds nuw i8, ptr %131, i64 1632, !dbg !67482
+  %136 = load i64, ptr %135, align 8, !dbg !67482, !noalias !67483, !noundef !8
+    #dbg_value(i64 %136, !67491, !DIExpression(), !67501)
+    #dbg_value(i64 %136, !67503, !DIExpression(), !67507)
+  %137 = getelementptr inbounds nuw i8, ptr %131, i64 1640, !dbg !67482
+  %138 = load i64, ptr %137, align 8, !dbg !67482, !noalias !67483, !noundef !8
+    #dbg_value(i64 %138, !67494, !DIExpression(), !67501)
+    #dbg_value(i64 %138, !67503, !DIExpression(), !67509)
+  %139 = load i64, ptr %124, align 8, !dbg !67482, !noalias !67483, !noundef !8
+    #dbg_value(i64 %139, !67495, !DIExpression(), !67501)
+    #dbg_value(i64 %139, !67506, !DIExpression(), !67507)
+  %140 = load i64, ptr %125, align 8, !dbg !67482, !noalias !67483, !noundef !8
+    #dbg_value(i64 %140, !67496, !DIExpression(), !67501)
+    #dbg_value(i64 %140, !67506, !DIExpression(), !67509)
+  %141 = icmp ult i64 %136, %139, !dbg !67511
+  %142 = sub nuw i64 %139, %136, !dbg !67511
+  %143 = sub nuw i64 %136, %139, !dbg !67511
+  %144 = select i1 %141, i64 %142, i64 %143, !dbg !67511
+    #dbg_value(i64 %144, !67497, !DIExpression(), !67512)
+  %145 = icmp ult i64 %138, %140, !dbg !67513
+  %146 = sub nuw i64 %140, %138, !dbg !67513
+  %147 = sub nuw i64 %138, %140, !dbg !67513
+  %148 = select i1 %145, i64 %146, i64 %147, !dbg !67513
+    #dbg_value(i64 %148, !67499, !DIExpression(), !67514)
+  %149 = mul i64 %144, %144, !dbg !67515
+  %150 = mul i64 %148, %148, !dbg !67515
+  %151 = add i64 %150, %149, !dbg !67515
+  %152 = icmp ult i64 %151, 40000000001, !dbg !67475
+  %153 = zext i1 %152 to i64, !dbg !67516
+  br label %154, !dbg !67475
+
+154:                                              ; preds = %134, %133
+  %155 = phi i64 [ %153, %134 ], [ 0, %133 ], !dbg !67475
+    #dbg_value(ptr poison, !67517, !DIExpression(), !67525)
+    #dbg_value(i64 %129, !67523, !DIExpression(), !67525)
+    #dbg_value(i64 %155, !67524, !DIExpression(), !67525)
+  %156 = add i64 %155, %129, !dbg !67527
+    #dbg_value(i64 %156, !67391, !DIExpression(), !67421)
+  %157 = add nuw i64 %128, 1, !dbg !67528
+    #dbg_value(i64 %157, !67393, !DIExpression(), !67422)
+    #dbg_value(i64 %157, !67408, !DIExpression(), !67409)
+  %158 = icmp eq i64 %157, %119, !dbg !67529
+  br i1 %158, label %161, label %127, !dbg !67529
+
+159:                                              ; preds = %127
+  %160 = cleanuppad within none []
+  call fastcc void @_RINvNtCsjihNppCmMEE_4core3ptr9drop_glueINtNtNtCshWfHDMLkPaX_7bumpalo11collections3vec3VecRNtNtNtCs97f5S1uJLkH_9game_core10simulation6entity6EntityEECshdEBA0ozCnw_7game_ai(ptr noalias noundef align 8 dereferenceable(32) %9) #31 [ "funclet"(token %160) ], !dbg !67530
+  cleanupret from %160 unwind to caller, !dbg !66960
+
+161:                                              ; preds = %154, %115
+  %162 = phi i64 [ 0, %115 ], [ %156, %154 ], !dbg !67403
+    #dbg_value(i64 %162, !67333, !DIExpression(), !67531)
+    #dbg_value(i64 %162, !33236, !DIExpression(), !67532)
+    #dbg_value(i64 %119, !33242, !DIExpression(), !67532)
+  %163 = icmp ule i64 %162, %119, !dbg !67534
+    #dbg_value(i1 true, !33246, !DIExpression(DW_OP_LLVM_convert, 1, DW_ATE_unsigned, DW_OP_LLVM_convert, 8, DW_ATE_unsigned, DW_OP_stack_value), !67535)
+  call void @llvm.assume(i1 %163), !dbg !67537
+    #dbg_value(i64 %162, !66953, !DIExpression(), !67538)
+    #dbg_value(ptr %9, !13174, !DIExpression(), !67539)
+  invoke void @_RNvXsu_NtNtCshWfHDMLkPaX_7bumpalo11collections3vecINtB5_3VecRNtNtNtCs97f5S1uJLkH_9game_core10simulation6entity6EntityENtNtNtCsjihNppCmMEE_4core3ops4drop4Drop4dropCshdEBA0ozCnw_7game_ai(ptr noalias noundef nonnull align 8 dereferenceable(32) %9)
+          to label %166 unwind label %164, !dbg !67541
+
+164:                                              ; preds = %161
+  %165 = cleanuppad within none []
+    #dbg_value(ptr %9, !13179, !DIExpression(), !67542)
+  call void @_RNvXs4_NtNtCshWfHDMLkPaX_7bumpalo11collections7raw_vecINtB5_6RawVecRNtNtNtCs97f5S1uJLkH_9game_core10simulation6entity6EntityENtNtNtCsjihNppCmMEE_4core3ops4drop4Drop4dropCshdEBA0ozCnw_7game_ai(ptr noalias noundef nonnull align 8 dereferenceable(32) %9) [ "funclet"(token %165) ], !dbg !67544
+  cleanupret from %165 unwind to caller, !dbg !67541
+
+166:                                              ; preds = %161
+    #dbg_value(ptr %9, !13179, !DIExpression(), !67545)
+  call void @_RNvXs4_NtNtCshWfHDMLkPaX_7bumpalo11collections7raw_vecINtB5_6RawVecRNtNtNtCs97f5S1uJLkH_9game_core10simulation6entity6EntityENtNtNtCsjihNppCmMEE_4core3ops4drop4Drop4dropCshdEBA0ozCnw_7game_ai(ptr noalias noundef nonnull align 8 dereferenceable(32) %9), !dbg !67547
+  call void @llvm.lifetime.end.p0(ptr nonnull %9), !dbg !67530
+  call void @llvm.lifetime.start.p0(ptr nonnull %8), !dbg !67548
+  call void @_RNvMsb_NtNtNtCs97f5S1uJLkH_9game_core10simulation5state6playerNtB5_11PlayerState8strategy(ptr noalias noundef nonnull sret([24 x i8]) align 4 captures(address) dereferenceable(24) %8, ptr noalias noundef nonnull readonly align 8 captures(address, read_provenance) dereferenceable(2528) %2, ptr noalias noundef nonnull align 16 dereferenceable(320) %1, ptr noundef nonnull %23, ptr noalias noundef nonnull readonly align 8 captures(address, read_provenance) dereferenceable(816) %25), !dbg !67548
+  %167 = getelementptr inbounds nuw i8, ptr %8, i64 14, !dbg !67549
+  %168 = load i8, ptr %167, align 2, !dbg !67549, !range !30979, !noundef !8
+  %169 = trunc nuw i8 %168 to i1, !dbg !67549
+    #dbg_value(i1 %169, !66957, !DIExpression(DW_OP_LLVM_convert, 1, DW_ATE_unsigned, DW_OP_LLVM_convert, 8, DW_ATE_unsigned, DW_OP_stack_value), !67550)
+  %170 = add i64 %162, -1, !dbg !67551
+  %171 = icmp ult i64 %170, 2, !dbg !67551
+  %172 = icmp ugt i64 %162, 1, !dbg !67551
+  %173 = select i1 %169, i1 %171, i1 %172, !dbg !67551
+  call void @llvm.lifetime.end.p0(ptr nonnull %8), !dbg !67552
+  br label %19, !dbg !66991
+
+174:                                              ; preds = %21
+  tail call void @_RNvNtCsjihNppCmMEE_4core6option13unwrap_failed(ptr noalias noundef readonly align 8 captures(address, read_provenance) dereferenceable(24) @anon.168add0ea037d45d276f5936ae758fe5.252) #30, !dbg !67553
+  unreachable, !dbg !67553
+}

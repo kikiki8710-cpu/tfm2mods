@@ -1,0 +1,272 @@
+{
+  "round": 12,
+  "batch": "C",
+  "errors": [
+    {
+      "path": "/specs[13]/mem[11]/name",
+      "kind": "실오류",
+      "old": "ty payload = &Tower (변수명 info)",
+      "new": "ty.Tower.info (Tower 192B 인라인 페이로드 시작 · 소스 바인딩 info: &Tower 는 그 인라인 값을 빌린 것)",
+      "evidence": "G20 R1(Entity+0x70) 판정. tcx 정본 = `tcxdict Entity 0x70` → `ty@Tower.info.state@tag`(8B) 이고 `tcxdict --enum EntityType` = 480B enum, 판별자 enum+0x0(8B Direct), **페이로드 `Tower.info` = enum+0x8 에 Tower(192B) 를 인라인**. Entity.ty 는 +0x68 이므로 payload 시작 = 0x68+0x8 = **0x70**. ⟹ +0x70 에 있는 것은 `&Tower`(포인터)가 **아니라 Tower 값 그 자체**다. 같은 자리를 `14 mem[16]` 은 `ty 페이로드 = Tower(192B) 시작`(인라인)이라고 적었다 — **14 쪽이 맞다.** Entity+0x128 = 0x70+0xb8 = `Tower.ty` 로 산술이 닫히는 것이 교차검증(`tcxdict Tower` = 192B, ty@0xb8).",
+      "behavior_change": true,
+      "found_by": "new"
+    },
+    {
+      "path": "/specs[14]/mem[16]/name",
+      "kind": "보강",
+      "old": "ty 페이로드 = Tower(192B) 시작",
+      "new": "ty.Tower.info (Tower 192B 인라인 페이로드 시작 — 포인터 아님)",
+      "evidence": "G20 R1(Entity+0x70) 을 닫기 위해 `13 mem[11]` 과 **같은 이름**으로 맞춘다. 사실 주장은 바뀌지 않는다(이쪽이 원래 옳았다). tcx: `tcxdict --enum EntityType` 페이로드 `Tower.info` = enum+0x8, Entity.ty@0x68 ⟹ Entity+0x70.",
+      "behavior_change": false,
+      "found_by": "new"
+    },
+    {
+      "path": "/specs[13]/mem[13]/name",
+      "kind": "실오류",
+      "old": "Tower.ty (TowerType)",
+      "new": "ty.Tower.info.ty (TowerType)",
+      "evidence": "G20 R1(Entity+0x128) 판정. `tcxdict Entity 0x128` → `★0x128 ty@Tower.info.ty@tag tag:1B`. 세 명세 중 **`15` 의 `ty.Tower.info.ty` 만 tcx 정본과 일치**하고 `13`(`Tower.ty`)·`14`(`ty.Tower.ty`)는 둘 다 `.info.` 단계를 빠뜨렸다. 경로 산술: Entity.ty@0x68 + 페이로드 0x8 + `Tower.ty`@0xb8 = 0x128.",
+      "behavior_change": false,
+      "found_by": "new"
+    },
+    {
+      "path": "/specs[14]/mem[18]/name",
+      "kind": "실오류",
+      "old": "ty.Tower.ty: TowerType(i8, range 0..8)",
+      "new": "ty.Tower.info.ty: TowerType(i8, range 0..8)",
+      "evidence": "G20 R1(Entity+0x128) 판정. `tcxdict Entity 0x128` → `ty@Tower.info.ty@tag`. `15` 명세와 일치시킨다. Entity.ty@0x68 + 0x8 + Tower.ty@0xb8 = 0x128 (`tcxdict Tower` = 192B, `0xb8 ty : game_core::TowerType (1B)`).",
+      "behavior_change": false,
+      "found_by": "new"
+    },
+    {
+      "path": "/specs[13]/mem[12]/name",
+      "kind": "실오류",
+      "old": "Tower.nearest_enemy 판별자",
+      "new": "ty.Tower.info.nearest_enemy 판별자(태그)",
+      "evidence": "★G20 이 **못 잡은** 같은 계열 결함. `tcxdict Entity 0x88` → `ty@Tower.info.nearest_enemy@tag : tag:8B`. `13`=`Tower.nearest_enemy` · `14`=`ty.Tower.nearest_enemy` 둘 다 `.info.` 누락인데, `sharedchk.prefix_of` 가 「접미가 같다」로 **정밀도 차이로 억제**해 R1 이 발화하지 않았다(0x128 은 이름 길이가 2 vs 4 라 억제를 못 해 발화). Entity.ty@0x68 + 0x8 + Tower.nearest_enemy@0x18 = 0x88.",
+      "behavior_change": false,
+      "found_by": "new"
+    },
+    {
+      "path": "/specs[14]/mem[17]/name",
+      "kind": "실오류",
+      "old": "ty.Tower.nearest_enemy 태그(Option<(usize,usize)>, range 0..2)",
+      "new": "ty.Tower.info.nearest_enemy 태그(Option<(usize,usize)>, range 0..2)",
+      "evidence": "위와 같은 근거. `tcxdict Entity 0x88` → `ty@Tower.info.nearest_enemy@tag`. `tcxdict Tower` = `0x18 nearest_enemy : Option<(usize,usize)> (24B)` ⟹ 0x70+0x18 = 0x88.",
+      "behavior_change": false,
+      "found_by": "new"
+    },
+    {
+      "path": "/specs[11]/mem[22]/value",
+      "kind": "실오류",
+      "old": "SubPlan::merge(&mut self.sub_plan, &새 SubPlan)",
+      "new": "SubPlan::merge(&mut self.sub_plan, 새 SubPlan) — ★**값 전달**(tcx: `fn(&mut SubPlan, SubPlan)`). 72B 라 Win64 ABI 가 간접전달해 IR 에 포인터로 보일 뿐이다",
+      "evidence": "★11차 배치C 가 `/specs[11]/logic` 의 같은 문장을 `&sp`→`sp` 로 고쳤는데 **`mem[22]` 의 `value` 칸은 그대로 남았다** — 「정정은 오류를 옮기지, 없애지 않는다」의 실례. 정본 = `callees[6]` 의 tcx 시그니처 `fn(&mut game_ai::plan_legacy::sub_plan::SubPlan, game_ai::plan_legacy::sub_plan::SubPlan)`(sub_plan/mod.rs:186) + IR `m13.ll:12466` `invoke void @…SubPlan5merge(ptr … dereferenceable(72) %88, ptr noalias noundef readonly captures(none) dereferenceable(72) …)`.",
+      "behavior_change": false,
+      "found_by": "reused"
+    },
+    {
+      "path": "/specs[13]/knobs[6]/where",
+      "kind": "실오류",
+      "old": "IR 11529·11546·11590 부근의 `ugt i8 %x, 4`",
+      "new": "IR **11599·11631·11688** 의 `icmp samesign ugt i8 %x, 4`(~~11529·11546·11590~~ 은 오기 — 11529=`gep .. i64 %16`, 11546=`icmp eq i64 %1, 0`, 11590=블록 라벨. 12차 배치C 정정)",
+      "evidence": "IR 원문: `_gaibc/m10.ll:11599` `%48 = icmp samesign ugt i8 %47, 4, !dbg !23180` · `11631` `%65 = icmp samesign ugt i8 %64, 4` · `11688` `%99 = icmp samesign ugt i8 %98, 4`. 담당 범위(11483~11731) 안에 `ugt i8 .., 4` 는 이 셋뿐이다. 옛 인용 3줄의 실제 내용은 `11529: %18 = getelementptr inbounds nuw i8, ptr %3, i64 %16` / `11546: %28 = icmp eq i64 %1, 0` / `11590: 44: ; preds = %36`. `dloc m10.ll 23180` = `line 100 in is_second_tower [tower.rs] → line 1309 in is_tower2 [entity.rs] → line 150 in target_bush_v30 [cover.rs]` ⟹ 소스 귀속(tower.rs:100)은 맞다.",
+      "behavior_change": false,
+      "found_by": "new"
+    },
+    {
+      "path": "/specs[11]/knobs[5]/where",
+      "kind": "실오류",
+      "old": "handler.rs:417 / m13.ll:12246 (icmp ult version, 2)",
+      "new": "handler.rs:417 / m13.ll:12251 (`%12 = icmp ult i64 %1, 2, !dbg !21933`; ~~12246~~ 은 `#dbg_value` 줄이었다 — 12차 배치C 정정)",
+      "evidence": "IR 원문 `_gaibc/m13.ll:12251` `%12 = icmp ult i64 %1, 2, !dbg !21933`. `12246` 의 실제 내용은 `#dbg_value(ptr %2, !21925, !DIExpression(), !21931)`. 담당 범위(12238~12479) 안 `icmp ult i64 %1, 2` 는 12251 하나뿐.",
+      "behavior_change": false,
+      "found_by": "new"
+    },
+    {
+      "path": "/specs[11]/knobs[6]/where",
+      "kind": "실오류",
+      "old": "handler.rs:421 / m13.ll:12257",
+      "new": "handler.rs:421 / m13.ll:12263 (`%22 = icmp eq i64 %21, 2, !dbg !21934`; ~~12257~~ 은 `%16 = getelementptr .. i64 8`(vtable 팻포인터 절반) 줄이었다 — 12차 배치C 정정)",
+      "evidence": "IR 원문 `_gaibc/m13.ll:12263` `%22 = icmp eq i64 %21, 2, !dbg !21934` (= GameMode::DeathMatch 태그 비교). `12257` 의 실제 내용은 `%16 = getelementptr inbounds nuw i8, ptr %14, i64 8, !dbg !21934`.",
+      "behavior_change": false,
+      "found_by": "new"
+    },
+    {
+      "path": "/specs[10]/mem[12]/note",
+      "kind": "실오류",
+      "old": "`ptr(+0x1a0, m10.ll:49708)`",
+      "new": "`ptr(+0x1a0, m10.ll:49706)`",
+      "evidence": "IR 원문 `_gaibc/m10.ll:49706` `%36 = getelementptr inbounds nuw i8, ptr %30, i64 416, !dbg !55398` (416 = 0x1a0). `49708` 의 실제 내용은 `#dbg_value(ptr poison, !55140, …)` 로 gep 가 아니다. 짝인 `len(+0x1a8, m10.ll:49696)` 은 맞다(`%32 = getelementptr .. i64 424`).",
+      "behavior_change": false,
+      "found_by": "new"
+    },
+    {
+      "path": "/specs[10]/history[0]/now",
+      "kind": "실오류",
+      "old": "is_in_range_ex 본문(_gcbc/g06.ll:51807~51890)",
+      "new": "is_in_range_ex 본문(_gcbc/g06.ll:51807~**51942**; ~~51890~~ 은 함수 중간이라 **아래 적은 합산·제곱비교가 그 범위 밖**이었다 — 12차 배치C 정정)",
+      "evidence": "IR 원문: `define … Effect14is_in_range_ex` = `_gcbc/g06.ll:51807`, 종료 `51942 }`. 이 주석이 서술하는 식의 실제 위치는 **51929~51941** 이다: `51928 %73 = add i64 %10, %7`(★`%7` = 8번째 인자 = `range_margin` 25000 이 **여기서 선형 가산**된다) → `51929~51933 %74/%75/%76/%77/%78`(나머지 항 누적) → `51939 %82 = mul i64 %78, %78` → `51940 %83 = icmp ule i64 %81, %82`(dx²+dy² ≤ total²) → `51941 ret i1 %83`. 인용 범위가 51890 에서 끊겨 **주장의 근거가 범위 밖**이었다.",
+      "behavior_change": false,
+      "found_by": "new"
+    },
+    {
+      "path": "/specs[13]/knobs[9]/where",
+      "kind": "실오류",
+      "old": "`_gaibc/m08.ll:94830 udiv 32000`",
+      "new": "`_gaibc/m08.ll:94832 udiv 32000`(~~94830~~ 은 `%141 = getelementptr .. i64 1640`(Entity+0x668 y) 줄 — 12차 배치C 정정)",
+      "evidence": "IR 원문 `_gaibc/m08.ll:94832` `%143 = udiv i64 %142, 32000, !dbg !55745` · `94839` `%147 = udiv i64 %146, 32000` · `94836` `%144 = tail call .. @llvm.umin.i64(.. %143, i64 29)` · `94843` `%148 = .. @llvm.umin.i64(.. %147, i64 29)`. umin 두 줄(94836/94843)은 맞고 udiv 줄만 2줄 어긋나 있었다.",
+      "behavior_change": false,
+      "found_by": "new"
+    },
+    {
+      "path": "/specs[12]/history[4]/now",
+      "kind": "실오류",
+      "old": "딱 한 곳(m13.ll:33329, chat.rs:598)",
+      "new": "딱 한 곳(m13.ll:**33328**, chat.rs:598)",
+      "evidence": "IR 원문 `_gaibc/m13.ll:33328` `br i1 %7, label %1674, label %1672, !dbg !38511` 이고 `dloc m13.ll 38511` = `line 598 in handle_chat_inner [chat.rs]`. `%7` 이 `misunderstood` 인자다. `33329` 는 **빈 줄**이다.",
+      "behavior_change": false,
+      "found_by": "new"
+    },
+    {
+      "path": "/specs[10]/logic",
+      "kind": "보강",
+      "old": "for enemy in data.cache.player_champion[e_team] { // 슬롯 5개, IR 에서 완전 언롤(+0,+8,+16,+24,+32)",
+      "new": "for enemy in data.cache.iter_champions(e_team) { // ★원형은 `data.cache.iter_champions(e_team).any(|enemy| A && B && C)` 이고 `should_end = !any(..)` 다(아래 continue/return false 표기는 그 풀어쓴 판). 근거 = `dloc m10.ll 55515` 의 inlinedAt 사슬 루트가 `any<FilterMap<slice::Iter<Option<&Entity>>, iter_champions::closure_env$0>, …>` → `line 1230 in should_end_object_finish_kill_priority_battle`. `iter_champions`(game_core::AbstractGameWithCache::iter_champions, simulation.rs:1904, pub/mir=1)가 `filter_map` 으로 None 슬롯을 걸러 낸다 — 아래 `enemy.is_none() { continue }` 가 그것이다. 슬롯 5개는 IR 에서 완전 언롤(+0,+8,+16,+24,+32)",
+      "evidence": "`dloc.py m10.ll 55515` 전문 = `line 1233 in closure$1 [fight_model.rs] → 2893 closure$0<…> [iterator.rs] → 50 closure$0<…,iter_champions::closure_env$0, Iterator::any::check::closure_env$0<…>> [filter_map.rs] → 2494 try_fold [iterator.rs] → 138 try_fold [filter_map.rs] → 2897 any<FilterMap<slice::Iter<Option<&Entity>>, iter_champions::closure_env$0>, …> [iterator.rs] → **line 1230 in should_end_object_finish_kill_priority_battle** [fight_model.rs]`. 그리고 `dloc m10.ll 55306`(blackboard gep) = 1230, `!55339`(e_team) = 1229, `!55489`(is_recent_visible 호출) = 1231. ⟹ 1230 한 줄이 `blackboard[e_team]` + `iter_champions(..).any(` 이고 1231~1233 이 클로저 본문이다. 기존 표기는 `player_champion` 배열을 **직접 순회**하는 것처럼 읽혀 ①`iter_champions` 가 `callees` 에서 통째로 빠지고 ②반환이 `!any` 라는 구조가 가려졌다.",
+      "behavior_change": false,
+      "found_by": "new"
+    },
+    {
+      "path": "/specs[10]/logic",
+      "kind": "실오류",
+      "old": "enemy.champion_id /*Entity+0x5c0*/",
+      "new": "enemy.id /*Entity+0x5c0 — 필드명은 `champion_id` 가 아니라 `id` 다(tcx)*/",
+      "evidence": "`tcxdict Entity` = `0x5c0 id : usize (8B)` — `champion_id` 라는 필드는 `Entity` 에 없다. IR `_gcbc/g07.ll:157013` `%8 = getelementptr inbounds nuw i8, ptr %4, i64 1472`(=0x5c0) → `157014` `%9 = load i64, ptr %8` → `157017` `%12 = tail call .. %11(ptr %1, i64 %7, i64 %9)`(vtable+248=0xf8)의 3번째 인자. 「champion_id」는 **받는 쪽 인자 이름**(`AbstractGame::is_visible(&self, team: usize, champion_id: usize)` / `get_player_by_champion_id(id)`)이고 Entity 의 필드명이 아니다. 재구현자가 `Entity.champion_id` 를 찾다 못 찾는다.",
+      "behavior_change": false,
+      "found_by": "new"
+    },
+    {
+      "path": "/specs[12]/mem[14]/name",
+      "kind": "보강",
+      "old": "pending_trace_events[len]",
+      "new": "event (TraceEventType 176B) = pending_trace_events[len] 원소 선두",
+      "evidence": "이 행의 `chk` 가 **`오귀속(사전은 다른 필드를 준다)`** 인 유일한 행이었다. 원인은 이름이 필드명이 아니라 첨자식이었던 것. tcx 정본 `tcxdict PendingTraceEvent 0x0` → `event@tag : tag:8B` (그리고 `tcxdict PendingTraceEvent` = 184B, `0x0 event : TraceEventType(176B)` / `0xb0 tick : usize`). 오프셋·크기 주장은 그대로고 이름만 정본에 맞춘다.",
+      "behavior_change": false,
+      "found_by": "new"
+    },
+    {
+      "path": "/specs[13]/consts[0]/meaning",
+      "kind": "보강",
+      "old": "③ Top 라인 타워 전멸 + team0 일 때의 반환 부시 인덱스",
+      "new": "③ Top 라인 타워 전멸 + team0 일 때의 반환 부시 인덱스 [★`src_line 138` 은 역할 ③ 의 줄이다. **문자단위 복제본인 `14 consts[2]` 는 같은 리터럴을 `ganker.rs:261`(=cover.rs:147, `match line` switch)에 귀속**시켰다 — 역할 ②(EntityType::Tower 판별자)의 `icmp eq i64 %38, 2`(`_gaibc/m10.ll:11569`)가 `!dbg !23139` = **`line 0`(병합 위치)** 이라 어느 역할의 줄을 대표로 삼느냐의 문제이지 둘 중 하나가 틀린 것이 아니다. 역할 ① (team 경계검사 `%7 = icmp ult i64 %1, 2`, m10.ll:11495)의 귀속은 `!23095` → `line 0 in tower [simulation.rs] → line 135 in target_bush_v30` 이라 **cover.rs:135** 다]",
+      "evidence": "IR/dloc 실측: `m10.ll:11495 %7 = icmp ult i64 %1, 2, !dbg !23095` → `dloc` = `line 0 in tower [game-core\\src\\simulation.rs] / line 135 in target_bush_v30 [cover.rs]`. `m10.ll:11569 %39 = icmp eq i64 %38, 2, !dbg !23139` → `dloc` = `line 0 in target_bush_v30`. 두 명세가 같은 코드의 같은 리터럴에 **다른 src_line**(13→138 · 14→261)을 붙이고 있는데 G12 는 두 쪽 다 통과시킨다 — 어떤 게이트도 「복제본끼리의 src_line 일관성」을 보지 않는다(다음 라운드 게이트 후보).",
+      "behavior_change": false,
+      "found_by": "new"
+    },
+    {
+      "path": "/specs[11]/mem[15]/name",
+      "kind": "보강",
+      "old": "SinglePlanLine.chats",
+      "new": "SinglePlanLine.chats.cap",
+      "evidence": "한 행이 Vec 3워드를 통째로 가리키고 있었다. tcx 정본: `tcxdict BigPlan 0x8` → `@SinglePlanLine.0.chats.buf.inner.cap.0 : pattern_type!(usize is 0..=..)` / `0x10` → `…chats.buf.inner.ptr.pointer : NonNull<u8>` / `0x18` → `…chats.len : usize`. IR `_gaibc/m13.ll:12281~12291` 이 그대로 세 워드를 따로 store 한다(`+8=0`, `+16=inttoptr(8)`, `+24=0`). 형제 명세 `12`(pending_trace_events)·`14`(chats)는 이미 cap/ptr/len **세 행**으로 적는다 — 같은 규격으로 맞추고 ptr·len 행을 새로 넣는다(아래 insert 2건).",
+      "behavior_change": false,
+      "found_by": "reused"
+    },
+    {
+      "path": "/specs[12]/mem[6]/name",
+      "kind": "실오류",
+      "old": "game(vtable 절반)",
+      "new": "game.vtable (&dyn AbstractGame 팻포인터 뒤 절반)",
+      "evidence": "★G20 **R2** 미해소분 중 내 담당 몫(도시에 §4 는 이 건을 `[03] defensive_crisis` 머리줄로만 실어 배치C 몫 4건에 안 들어가 있었다 — 기여자는 `03/04/06/07/12/18` 이다). R2 는 「같은 이름이 오프셋 0x0 과 0x8 에 동시에 있다」인데, `12 mem[5]` 가 `game.data_ptr`(0x0) · `12 mem[6]` 이 `game`(0x8) 이라 **`game` 이라는 같은 이름이 0x8 에 있는 유일한 명세 둘 중 하나**였다(다른 하나는 `18`). 형제 명세는 이미 `game.vtable` 로 적는다 — `10 mem[8]` `game.vtable (&dyn AbstractGame 의 vtable)` · `11 mem[3]` `game.vtable`. 사실 주장은 그대로다: tcx `AbstractGameWithCache.game` = +0x0 의 16B `&dyn` 팻포인터 ⟹ 앞 8B=데이터, 뒤 8B=vtable(`tcxdict` 는 팻포인터 뒤 절반을 필드로 세지 않는다). IR 교차검증 `_gaibc/m13.ll:29566` 부근에서 cache+0x0 을 self 로, cache+0x8 의 vtable 슬롯 0x28 을 함수포인터로 쓴다.",
+      "behavior_change": false,
+      "found_by": "new"
+    },
+    {
+      "op": "insert",
+      "path": "/specs[11]/mem",
+      "at": 16,
+      "guard": "SinglePlanLine.chats.ptr",
+      "guard_key": "name",
+      "kind": "보강",
+      "new": {
+        "base": "BigPlan(지역변수 plan)",
+        "offset": "0x10",
+        "name": "SinglePlanLine.chats.ptr",
+        "dir": "w",
+        "value": "inttoptr(8) = dangling(align 8) — 할당 없는 빈 Vec",
+        "note": "★표에 빠져 있던 행(12차 배치C). `_gaibc/m13.ll:12283` `%31 = getelementptr inbounds nuw i8, ptr %11, i64 16` → `12284` `store ptr inttoptr (i64 8 to ptr), ptr %31, align 8`. tcx 정본 `tcxdict BigPlan 0x10` = `@SinglePlanLine.0.chats.buf.inner.ptr.pointer : std::ptr::NonNull<u8>`. 8 은 `Chat`(24B, align 8)의 dangling 값이라 **할당이 0** 이라는 뜻이다 — 재구현에서 널포인터를 쓰면 `Vec` 불변식이 깨진다"
+      },
+      "evidence": "IR 원문 m13.ll:12283~12284 + tcxdict BigPlan 0x10",
+      "behavior_change": false,
+      "found_by": "reused"
+    },
+    {
+      "op": "insert",
+      "path": "/specs[11]/mem",
+      "at": 17,
+      "guard": "SinglePlanLine.chats.len",
+      "guard_key": "name",
+      "kind": "보강",
+      "new": {
+        "base": "BigPlan(지역변수 plan)",
+        "offset": "0x18",
+        "name": "SinglePlanLine.chats.len",
+        "dir": "w",
+        "value": "0",
+        "note": "★표에 빠져 있던 행(12차 배치C). `_gaibc/m13.ll:12285` `%32 = getelementptr inbounds nuw i8, ptr %11, i64 24` → `12286` `store i64 0, ptr %32`. tcx 정본 `tcxdict BigPlan 0x18` = `@SinglePlanLine.0.chats.len : usize`"
+      },
+      "evidence": "IR 원문 m13.ll:12285~12286 + tcxdict BigPlan 0x18",
+      "behavior_change": false,
+      "found_by": "reused"
+    },
+    {
+      "op": "insert",
+      "path": "/specs[14]/mem",
+      "at": 24,
+      "guard": "Chat::Cancel.tag",
+      "guard_key": "name",
+      "kind": "보강",
+      "new": {
+        "base": "Chat(chats 힙 원소, 24B stride)",
+        "offset": "0x0",
+        "name": "Chat::Cancel.tag",
+        "dir": "w",
+        "value": "17 = Chat::Cancel",
+        "note": "★표에 빠져 있던 행(12차 배치C). **쓰기 대상은 `LineGankerPlan+0x0` 이 아니라 거기서 읽은 힙 포인터 + len×24** 다 — `_gaibc/m08.ll:94879` `%163 = getelementptr .. ptr %0, i64 8` → `94880` `%164 = load ptr` → `94882` `%165 = getelementptr inbounds nuw { i8, [23 x i8] }, ptr %164, i64 %158`(원소 stride 24B) → `94885` `store i8 17, ptr %165`. 형제 명세 `12` 는 같은 구조(`PendingTraceEvent(힙 원소)`)를 이미 별도 베이스로 싣고 있다"
+      },
+      "evidence": "IR 원문 m08.ll:94879~94885 (두 번째 취소 경로 = 94921 gep8 / 94922 load / 94924 gep stride / 94927 `store i8 17`)",
+      "behavior_change": false,
+      "found_by": "reused"
+    },
+    {
+      "op": "insert",
+      "path": "/specs[14]/mem",
+      "at": 25,
+      "guard": "Chat::Cancel.0 (CancelReason)",
+      "guard_key": "name",
+      "kind": "보강",
+      "new": {
+        "base": "Chat(chats 힙 원소, 24B stride)",
+        "offset": "0x1",
+        "name": "Chat::Cancel.0 (CancelReason)",
+        "dir": "w",
+        "value": "0 = LowHpSelf (ganker.rs:48) / 2 = TargetMissing (ganker.rs:58)",
+        "note": "★표에 빠져 있던 행(12차 배치C). `_gaibc/m08.ll:94886` `%166 = getelementptr inbounds nuw i8, ptr %165, i64 1` → `94887` `store i8 0, ptr %166` (LowHpSelf 경로) / 두 번째 경로는 `94928` gep+1 → `94929` `store i8 2` (TargetMissing). 나머지 22바이트는 이 variant 의 패딩이라 store 되지 않는다(`closed[5]` 에서 확정)"
+      },
+      "evidence": "IR 원문 m08.ll:94886~94887 · 94928~94929. 이 gep(+0x1)은 12차 배치C 의 IR→명세 역방향 스캔에서 **mem 표에 없는 유일한 gep 오프셋**으로 걸렸다",
+      "behavior_change": false,
+      "found_by": "new"
+    }
+  ],
+  "ev_up": [],
+  "brief_errors": [
+    "★★**G20 R3(`dir` 미기재)은 축 자체가 잘못 놓였다 — 내 지시가 그걸 「기계적으로 확실한 누락」이라고 단정한 것이 오류다.** 도시에 ⓐ 는 `13` 의 `PlayerState+0x930`·`+0x9c0` `dir` 을 「다른 14개/10개 명세가 `r` 이니 채워라」고 지시했는데, `dir` 은 **명세 사이에 공유되는 사실이 아니라 함수마다 다른 사실**이다. `13 target_bush_v30` 은 fastcc 인자승격이라 본문(m10.ll:11483~11731)에 `i64 2352`·`i64 2496` gep 가 **0건**이고(실측: `awk NR>=11483&&NR<=11731 | grep -c` = 0), 로드는 **호출부** `sub_plan` 에 있다(m10.ll:11762 gep 2352 / 11763 load / 11764 `icmp ult %9, 2` / 11768 panic_bounds_check / 11773 gep 2496 / 11774 load / 11787 gep 32 / 11791 호출 — 11차 배치C 가 적은 줄번호가 **8개 전부 정확**했다). 반면 복제본 `14 update` 는 본문에 gep 가 있어 `r` 이 맞다. 두 값이 다른 것은 **모순이 아니라 두 함수가 실제로 다른 것**이다. `dir=\"-\"` 는 이 프로젝트에서 「이 함수 본문은 이 자리를 읽지도 쓰지도 않는다(참조용 행)」를 뜻하고 `10 mem[12]/[15]`·`14 mem[16]/[26]/[27]` 도 같은 용법이며, **G14(mem.dir)는 `dir=-` 를 의도적으로 스킵**한다(`memdir.py` 판정식 표: 「`dir=-` → 스킵」, 「부재는 결함이 아니다」). 지시대로 `r` 을 채웠으면 **IR 에 없는 로드가 있다고 주장**하게 된다. ⟹ **고칠 것은 명세가 아니라 게이트다**: `sharedchk.check` 의 R3 블록(L162~L170)을 **삭제하거나**, 최소한 「`-` 인 쪽의 `note` 에 `참조용`/`인자승격`/`읽지 않는다` 가 있으면 억제」로 바꿔라. R1/R2(이름·오프셋)는 진짜 cross-spec 사실이라 유지가 맞다.",
+    "★**G20 R1 의 억제 규칙 `prefix_of` 가 같은 계열 결함을 절반만 잡는다.** `Entity+0x128` 은 `Tower.ty`(2성분) vs `ty.Tower.info.ty`(4성분)이라 접두·접미 어느 쪽도 안 맞아 발화했는데, **같은 함수의 `Entity+0x88` 은 `Tower.nearest_enemy`(2) vs `ty.Tower.nearest_enemy`(3)** 이라 `pa[-2:] == pb[-2:]` 로 「정밀도 차이」로 억제돼 **조용히 통과**했다. 둘 다 `.info.` 를 빠뜨린 **똑같은 결함**이다(tcx: `ty@Tower.info.nearest_enemy@tag` / `ty@Tower.info.ty@tag`). ⟹ `prefix_of` 를 「한쪽이 다른 쪽의 접두/접미」로 끝내지 말고, **tcx 정본 경로(`tcxdict <base> <offset>`)와 대조해 「어느 쪽도 정본과 일치하지 않으면 둘 다 결함」**으로 판정하라 — R1 은 「둘 중 하나는 틀렸다」까지만 말하는데, 사전이 있으니 **어느 쪽이 틀렸는지까지** 말할 수 있다(이번 4건 전부 그렇게 갈렸다).",
+    "★**`consts.kind` 확장 어휘가 반쪽만 적용됐다 — `11 c15`(-7) 는 `c17`(-8) 과 완전히 같은 역할인데 `임계` 로 남아 있다.** IR 실측: `_gaibc/m13.ll:12382` `%53 = add nsw i8 %52, -7`(Epic 바이어스) → `12383` `%54 = icmp ult i8 %53, -6` / `12415` `%66 = add nsw i8 %65, -8`(Jungle 바이어스) → `12416` `%67 = icmp ult i8 %66, -7` / `12417` `%68 = icmp eq i8 %65, 6`. ⟹ **-7·-8 은 `add` 의 피연산자(=오프셋가감), -6 과 (Jungle 의) -7 은 `icmp` 의 경계(=임계)** 다. `-7` 은 두 역할을 겸한다. `kind` 는 `meaning` 의 낱말에서 파생되는데 `c15` 의 문면이 「바이어스: … 상한으로도 쓰임」이라 `임계` 가 이겼다. 어휘를 넓혔으면 **기존 행의 문면도 같이 훑어야** 한다(지금은 `c17` 만 바뀌어 같은 표 안에서 같은 것이 다르게 분류돼 있다). 값 자체는 정정 불요 — `errors[]` 로 `kind` 를 못 쓰고 `meaning` 을 고치면 `임계` 역할 서술이 죽으므로 **이번엔 손대지 않았다**(판정: `표기 불가` — 한 리터럴이 두 `kind` 를 겸하는데 칸이 하나다).",
+    "★**`callees` 의 `ev4` 는 「후보 중 못 골랐다」가 아니라 「간접호출이라 심볼이 원래 없다」인 경우가 많은데 표기가 그걸 구분 못 한다.** 내 담당에서 도시에가 지목한 `10 is_visible(7)`·`tick(7)`·`get_player_by_champion_id(5)` 와 `11 get_game_mode(5)`·`tick(7)` 은 **전부 `&dyn AbstractGame` vtable 간접호출**이라 IR 에 `@_R…` 심볼이 존재하지 않는다 — `_rank_callees` 의 `_anchor` 가 영원히 false 다. vtable 슬롯으로는 확정된다: `_gcbc/g07.ll:157015` vtable+248(0xf8) → `AbstractGame::is_visible`(호출 157017) · `157021` vtable+336(0x150) → `AbstractGame::get_player_by_champion_id`(호출 157023) · `157040` vtable+40(0x28) → `AbstractGame::tick`(호출 157042) · `_gaibc/m13.ll:12259` vtable+64(0x40) → `AbstractGame::get_game_mode`. ⟹ **정답은 언제나 `game_core::AbstractGame::<method>`(트레이트 메서드)** 이고 `World::is_visible`·`VisibleState::is_visible`·`CCState::tick`·`PlayerAiContext::tick` 은 **후보에 있어서는 안 되는 잡음**이다. 고치는 법 = ①`logic`/`note` 에 `vtable+0xNN` 표기가 있으면 `divtable` 로 슬롯→트레이트 메서드를 풀어 `_anchor` 를 세운다 ②`_anchor` 가 전부 false 일 때 지금은 **경로 길이 순**으로 상위 3개를 싣는데(그래서 `game_core::World::is_visible`(28자)이 `game_core::AbstractGame::is_visible`(33자)을 이긴다) 그건 **임의 선택**이다 — 길이 정렬 대신 **전 후보를 실어 「미확정」임을 보이거나, 트레이트 경로를 우선**하라. `11` 은 이번에 `goal`·`merge`·`sub_plan`·`passive_plan` 이 `ev3` 로 앵커됐다 — 11차 후속 수정이 **직접호출 쪽에서는 실제로 작동**했음을 확인했다.",
+    "★**도시에 §1 표의 `10` 항목 `ev≥4(미실행)=1` 이 `knobs` 만 센다.** 실제로 `10` 에서 `ev4` 인 것은 `knobs[6]` 하나지만 `callees` 16행 중 **12행이 `ev4`** 이고 `sig.params` 4행도 `ev4` 다. 「`ev≥4` 를 오라클로 내려라」는 지시를 이 수치만 보고 읽으면 **12행을 못 본다**. 표에 `callees`·`params` 열을 따로 두거나, 합계임을 명시하라.",
+    "★**IR 줄 인용(`mNN.ll:NNNN`)을 보는 게이트가 없다 — 내 담당 5함수에서 이번에 6건이 틀렸다**(`13 knobs[6]` 3줄 전부 · `13 knobs[9]` · `11 knobs[5]` · `11 knobs[6]` · `10 mem[12]` · `10 history[0]` 범위 끝 · `12 history[4]`). G13 은 `knobs[].where` 의 **소스 줄**만 보고 IR 줄은 안 본다. 검사기는 40줄이면 된다: 명세 전문에서 `([mgv]\\d\\d)\\.ll:(\\d+)` 를 긁고, **같은 문장 안에 백틱으로 인용된 IR 텍스트가 있으면 그 줄과 일치하는지**, 없으면 최소한 **그 줄이 `#dbg_value`/빈 줄/블록 라벨이 아닌지**를 본다. 이번 6건 중 5건이 후자만으로 잡힌다(참조구현 = `_verify12/C/citechk.py`).",
+    "★**`_verify12/C/` 밑에 `spec_*.md` 5개가 이미 놓여 있는데 §6 은 그 디렉터리를 「출력 전용」이라고만 적었다.** 처음에 `ls` 했을 때 산출물 디렉터리에 입력이 섞여 있어 내 `patch.json`/`REPORT.md` 가 그것들을 덮을 위험이 있는지 한 번 확인해야 했다(파일명이 달라 실제 충돌은 없었다). §6 에 「분책 `spec_*.md` 도 같은 폴더에 있다(읽기 전용)」를 한 줄 적어라."
+  ]
+}

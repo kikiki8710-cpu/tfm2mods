@@ -1,0 +1,11 @@
+CASE	same_pos	level=5	eff_range=200000	casting=Targeting	version=2	setting_ok=true
+CHAMP	id=18	lvl=5	x=15000	y=913000	radius=10000	can_ult=true	ult_eff_some=true
+TARGET	id=23	x=15000	y=913000	radius=10000	visible_from_champ=true
+ULT_RESULT	Ult(Target { target_id: 23 })
+EFFECT	range_fn=200000	range_adjust=0	is_in_range=true	check=true	on_caster=false	linear_move_speed=None
+---
+CASE	same_pos	level=5	eff_range=0	casting=Targeting	version=2	setting_ok=true
+CHAMP	id=18	lvl=5	x=15000	y=913000	radius=10000	can_ult=true	ult_eff_some=true
+TARGET	id=23	x=15000	y=913000	radius=10000	visible_from_champ=true
+ULT_RESULT	Ult(Target { target_id: 23 })
+EFFECT	range_fn=0	range_adjust=0	is_in_range=true	check=true	on_caster=false	linear_move_speed=None

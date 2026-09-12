@@ -1,0 +1,152 @@
+상향 대상 128행  (구 ev 분포: {4: 117, 3: 11})
+오프셋만 실측(18) 12행
+경로 검증 OK — 전 행 실재
+D(15~19)  분모=216
+  전: ev3=18  ev4=198
+  후: ev2=128  ev3=7  ev4=81
+  ev>=4 비율: 91.7% → 37.5%
+함수별 상향: specs[15]=13  specs[16]=38  specs[17]=51  specs[19]=26
+
+--- 상향 목록 (JSON 경로 / 구 ev) ---
+/specs[16]/mem[0]  ev4 -> ev2   Entity+0x68
+/specs[16]/mem[1]  ev4 -> ev2   Entity+0xb0
+/specs[16]/mem[2]  ev4 -> ev2   Entity+0xb8
+/specs[16]/mem[3]  ev4 -> ev2   Entity+0xc0
+/specs[16]/mem[4]  ev4 -> ev2   Entity+0xc8
+/specs[16]/mem[9]  ev4 -> ev2   Entity+0x110
+/specs[16]/mem[11]  ev4 -> ev2   Entity+0x438
+/specs[16]/mem[12]  ev4 -> ev2   Entity+0x470
+/specs[16]/mem[13]  ev4 -> ev2   Entity+0x490
+/specs[16]/mem[14]  ev4 -> ev2   Entity+0x4a0
+/specs[16]/mem[15]  ev4 -> ev2   Entity+0x4a8
+/specs[16]/mem[16]  ev4 -> ev2   Entity+0x4b8
+/specs[16]/mem[17]  ev4 -> ev2   Entity+0x4c0
+/specs[16]/mem[18]  ev4 -> ev2   Entity+0x4c8
+/specs[16]/mem[19]  ev4 -> ev2   Entity+0x4d8
+/specs[16]/mem[20]  ev4 -> ev2   Entity+0x4e0
+/specs[16]/mem[21]  ev4 -> ev2   Entity+0x4f0
+/specs[16]/mem[22]  ev4 -> ev2   Entity+0x4f8
+/specs[16]/mem[23]  ev4 -> ev2   Entity+0x500
+/specs[16]/mem[24]  ev4 -> ev2   Entity+0x538
+/specs[16]/mem[25]  ev4 -> ev2   Entity+0x5c8
+/specs[16]/mem[26]  ev4 -> ev2   Entity+0x680
+/specs[16]/mem[27]  ev4 -> ev2   Effect+0x10
+/specs[16]/mem[28]  ev4 -> ev2   Effect+0x18
+/specs[16]/mem[29]  ev4 -> ev2   Effect+0x28
+/specs[16]/mem[30]  ev4 -> ev2   Effect+0x30
+/specs[16]/consts[0]  ev4 -> ev2   -1
+/specs[16]/consts[1]  ev4 -> ev2   13
+/specs[16]/consts[2]  ev4 -> ev2   2
+/specs[16]/consts[3]  ev4 -> ev2   4
+/specs[16]/consts[4]  ev4 -> ev2   100
+/specs[16]/consts[5]  ev4 -> ev2   0
+/specs[16]/consts[6]  ev4 -> ev2   3
+/specs[16]/knobs[0]  ev4 -> ev2   '거의 쓸 수 있다' 판정의 쿨다운 여유(tick 인자)
+/specs[16]/knobs[1]  ev4 -> ev2   스킬2 개방 레벨 게이트
+/specs[16]/knobs[2]  ev4 -> ev2   궁 개방 레벨 게이트
+/specs[16]/knobs[3]  ev4 -> ev2   스킬 쿨다운 게이트를 챔피언에만 거는 것
+/specs[16]/knobs[4]  ev4 -> ev2   radius_mult 퍼센트 기준값
+/specs[17]/mem[0]  ev4 -> ev2   BattlePlanGoal(p2 goal)+0x0
+/specs[17]/mem[1]  ev4 -> ev2   BattlePlanGoal::TryKill(p2 goal)+0x8
+/specs[17]/mem[2]  ev4 -> ev2   OperationData(p3 data)+0x0
+/specs[17]/mem[3]  ev4 -> ev2   AbstractGameWithCache+0x0
+/specs[17]/mem[4]  ev4 -> ev2   AbstractGameWithCache+0x8
+/specs[17]/mem[5]  ev3 -> ev2   AbstractGame vtable+0x28
+/specs[17]/mem[6]  ev4 -> ev2   DeathMatchBattle+0x0
+/specs[17]/mem[7]  ev4 -> ev2   DeathMatchBattle+0x10
+/specs[17]/mem[8]  ev4 -> ev2   DeathMatchBattle+0x30
+/specs[17]/mem[9]  ev4 -> ev2   DeathMatchBattle+0x40
+/specs[17]/mem[10]  ev4 -> ev2   DeathMatchBattle+0x50
+/specs[17]/mem[11]  ev4 -> ev2   DeathMatchBattle+0x70
+/specs[17]/mem[12]  ev4 -> ev2   DeathMatchBattle+0x90
+/specs[17]/mem[13]  ev4 -> ev2   DeathMatchBattle+0xa8
+/specs[17]/mem[14]  ev4 -> ev2   DeathMatchBattle+0xc0
+/specs[17]/mem[15]  ev4 -> ev2   DeathMatchBattle+0xd0
+/specs[17]/mem[16]  ev4 -> ev2   DeathMatchBattle+0xe8
+/specs[17]/mem[17]  ev4 -> ev2   DeathMatchBattle+0xf0
+/specs[17]/mem[18]  ev4 -> ev2   DeathMatchBattle+0xf8
+/specs[17]/mem[19]  ev4 -> ev2   DeathMatchBattle+0x110
+/specs[17]/mem[20]  ev4 -> ev2   DeathMatchBattle+0x118
+/specs[17]/mem[21]  ev4 -> ev2   DeathMatchBattle+0x120
+/specs[17]/mem[22]  ev4 -> ev2   DeathMatchBattle+0x128
+/specs[17]/mem[23]  ev4 -> ev2   DeathMatchBattle+0x130
+/specs[17]/mem[24]  ev4 -> ev2   DeathMatchBattle+0x138
+/specs[17]/mem[25]  ev4 -> ev2   DeathMatchBattle+0x140
+/specs[17]/mem[26]  ev4 -> ev2   DeathMatchBattle+0x148
+/specs[17]/mem[27]  ev4 -> ev2   DeathMatchBattle+0x150
+/specs[17]/mem[28]  ev4 -> ev2   DeathMatchBattle+0x158
+/specs[17]/mem[29]  ev4 -> ev2   DeathMatchBattle+0x168
+/specs[17]/mem[30]  ev4 -> ev2   DeathMatchBattle+0x170
+/specs[17]/mem[31]  ev4 -> ev2   DeathMatchBattle+0x171
+/specs[17]/mem[32]  ev4 -> ev2   DeathMatchBattle+0x172
+/specs[17]/mem[33]  ev4 -> ev2   DeathMatchBattle+0x173
+/specs[17]/mem[34]  ev4 -> ev2   DeathMatchBattle+0x174
+/specs[17]/mem[35]  ev4 -> ev2   DeathMatchBattle+0x175
+/specs[17]/mem[36]  ev3 -> ev2   DeathMatchBattle+0x176
+/specs[17]/mem[37]  ev3 -> ev2   DeathMatchBattle+0x177
+/specs[17]/mem[38]  ev3 -> ev2   DeathMatchBattle+0x178
+/specs[17]/mem[39]  ev4 -> ev2   DeathMatchBattle+0x179
+/specs[17]/mem[40]  ev4 -> ev2   DeathMatchBattle+0x17a
+/specs[17]/mem[41]  ev3 -> ev2   DeathMatchBattle+0x17b
+/specs[17]/mem[42]  ev4 -> ev2   DeathMatchBattle+0x17e
+/specs[17]/consts[0]  ev4 -> ev2   0
+/specs[17]/consts[1]  ev4 -> ev2   3
+/specs[17]/consts[2]  ev4 -> ev2   9223372036854775807
+/specs[17]/consts[3]  ev4 -> ev2   -1
+/specs[17]/knobs[0]  ev4 -> ev2   전투개시 채팅(Chat::Battle) 방송 조건
+/specs[17]/knobs[1]  ev4 -> ev2   채팅 페이로드의 두 번째 값
+/specs[17]/knobs[2]  ev4 -> ev2   초기 전투 태세(stance/tactic/scene)
+/specs[17]/knobs[3]  ev4 -> ev2   flee_die 센티널
+/specs[19]/mem[0]  ev4 -> ev2   OperationData+0x0
+/specs[19]/mem[1]  ev4 -> ev2   OperationData+0x8
+/specs[19]/mem[3]  ev4 -> ev2   GameContext+0x20
+/specs[19]/mem[4]  ev4 -> ev2   AbstractGameWithCache+0x0
+/specs[19]/mem[5]  ev4 -> ev2   AbstractGameWithCache+0x8
+/specs[19]/mem[6]  ev3 -> ev2   dyn AbstractGame vtable+0x40
+/specs[19]/mem[7]  ev3 -> ev2   MobaMode+0x18
+/specs[19]/mem[8]  ev4 -> ev2   JungleCampState+0x18
+/specs[19]/mem[9]  ev4 -> ev2   AbstractGameWithCache+0x1e0
+/specs[19]/mem[10]  ev4 -> ev2   PlayerState+0x930
+/specs[19]/mem[11]  ev4 -> ev2   PlayerState+0x9c0
+/specs[19]/mem[12]  ev4 -> ev2   Entity+0x660
+/specs[19]/mem[13]  ev4 -> ev2   Entity+0x668
+/specs[19]/mem[15]  ev4 -> ev2   bumpalo Vec<JungleType>+0x18
+/specs[19]/consts[0]  ev3 -> ev2   0
+/specs[19]/consts[1]  ev4 -> ev2   1
+/specs[19]/consts[2]  ev4 -> ev2   3
+/specs[19]/consts[3]  ev4 -> ev2   2
+/specs[19]/consts[4]  ev4 -> ev2   -1
+/specs[19]/knobs[0]  ev4 -> ev2   후보 캠프 집합과 그 순서
+/specs[19]/knobs[1]  ev4 -> ev2   본선 정렬 키 = 챔프↔캠프 제곱거리
+/specs[19]/knobs[2]  ev4 -> ev2   폴백 정렬 키 = next_respawn_tick 최소
+/specs[19]/knobs[3]  ev4 -> ev2   필터 = !is_cleared(..., offset=0)
+/specs[19]/knobs[4]  ev4 -> ev2   챔프 엔티티가 없을 때의 폴백
+/specs[19]/knobs[5]  ev4 -> ev2   정글 클리어 판단의 여유 1초
+/specs[19]/knobs[7]  ev4 -> ev2   캠프 좌표 6쌍
+/specs[15]/mem[4]  ev4 -> ev2   PlayerState+0x930
+/specs[15]/mem[5]  ev3 -> ev2   LegacyPlanHandler+0xf8
+/specs[15]/mem[6]  ev4 -> ev2   LegacyPlanHandler+0x990
+/specs[15]/mem[7]  ev4 -> ev2   Entity+0x68
+/specs[15]/mem[8]  ev3 -> ev2   Entity+0x128
+/specs[15]/mem[11]  ev4 -> ev2   SinglePlanBattle+0x58
+/specs[15]/mem[12]  ev4 -> ev2   SinglePlanBattle(로컬 b, 다이브 분기)+0x8c
+/specs[15]/mem[13]  ev4 -> ev2   BattlePlanGoal(스택 24B 임시)+0x0
+/specs[15]/mem[14]  ev4 -> ev2   BattlePlanGoal(스택 24B 임시)+0x8
+/specs[15]/mem[15]  ev4 -> ev2   BattlePlanGoal(스택 24B 임시)+0x10
+/specs[15]/consts[0]  ev4 -> ev2   0
+/specs[15]/consts[1]  ev4 -> ev2   60
+/specs[15]/consts[3]  ev3 -> ev2   2
+
+--- 18 오프셋만 실측 (함수 도달 X) ---
+/specs[18]/mem[0]  ev4   PlayerState+0x930  info.team
+/specs[18]/mem[1]  ev4   PlayerState+0x9c0  info.position
+/specs[18]/mem[7]  ev4   TeamPlan+0xc0  chats.cap
+/specs[18]/mem[8]  ev4   TeamPlan+0xc8  chats.ptr
+/specs[18]/mem[9]  ev4   TeamPlan+0xd0  chats.len
+/specs[18]/mem[10]  ev4   TeamPlan+0x410  eo_serpen_punish_issues
+/specs[18]/mem[12]  ev3   TeamPlan+0x41f  objective
+/specs[18]/mem[13]  ev3   TeamPlan+0x41f  objective
+/specs[18]/mem[14]  ev4   TeamPlan+0x410  eo_serpen_punish_issues
+/specs[18]/mem[15]  ev3   TeamPlan+0xc8  chats.ptr(push 대상 버퍼)
+/specs[18]/mem[16]  ev3   TeamPlan+0xd0  chats.len(push 로 +1)
+/specs[18]/mem[17]  ev4   TeamPlan+0x41e  v3_press_chat_line

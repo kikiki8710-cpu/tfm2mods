@@ -1,0 +1,607 @@
+setting_ok	true	tps=60	height=960000
+MUTAG	Gather	low32=5	high32=464
+MUTAG	Split14(Top)	low32=6	high32=0
+MUTAG	Split14(Bottom)	low32=6	high32=3
+MUTAG	Split131(Top,Bottom)	low32=0	high32=3
+MUTAG	Split131(Mid,Support)	low32=2	high32=4
+world	towers=16	twin0=2	twin1=2
+GL	tut=None	team=0	pos=Top	mu=Gather	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=None	team=0	pos=Top	mu=Split14(Top)	group_line=Mid	role=Some(is_split=true,line=Bottom)	ok=false	b0=1
+GL	tut=None	team=0	pos=Top	mu=Split14(Bottom)	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=None	team=0	pos=Top	mu=Split131(Top,Bottom)	group_line=Mid	role=Some(is_split=true,line=Top)	ok=false	b0=1
+GL	tut=None	team=0	pos=Top	mu=Split131(Mid,Support)	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=None	team=0	pos=Jungle	mu=Gather	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=None	team=0	pos=Jungle	mu=Split14(Top)	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=None	team=0	pos=Jungle	mu=Split14(Bottom)	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=None	team=0	pos=Jungle	mu=Split131(Top,Bottom)	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=None	team=0	pos=Jungle	mu=Split131(Mid,Support)	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=None	team=0	pos=Mid	mu=Gather	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=None	team=0	pos=Mid	mu=Split14(Top)	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=None	team=0	pos=Mid	mu=Split14(Bottom)	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=None	team=0	pos=Mid	mu=Split131(Top,Bottom)	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=None	team=0	pos=Mid	mu=Split131(Mid,Support)	group_line=Mid	role=Some(is_split=true,line=Top)	ok=false	b0=1
+GL	tut=None	team=0	pos=Bottom	mu=Gather	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=None	team=0	pos=Bottom	mu=Split14(Top)	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=None	team=0	pos=Bottom	mu=Split14(Bottom)	group_line=Mid	role=Some(is_split=true,line=Bottom)	ok=false	b0=1
+GL	tut=None	team=0	pos=Bottom	mu=Split131(Top,Bottom)	group_line=Mid	role=Some(is_split=true,line=Bottom)	ok=false	b0=1
+GL	tut=None	team=0	pos=Bottom	mu=Split131(Mid,Support)	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=None	team=0	pos=Support	mu=Gather	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=None	team=0	pos=Support	mu=Split14(Top)	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=None	team=0	pos=Support	mu=Split14(Bottom)	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=None	team=0	pos=Support	mu=Split131(Top,Bottom)	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=None	team=0	pos=Support	mu=Split131(Mid,Support)	group_line=Mid	role=Some(is_split=true,line=Bottom)	ok=false	b0=1
+GL	tut=None	team=1	pos=Top	mu=Gather	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=None	team=1	pos=Top	mu=Split14(Top)	group_line=Mid	role=Some(is_split=true,line=Bottom)	ok=false	b0=1
+GL	tut=None	team=1	pos=Top	mu=Split14(Bottom)	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=None	team=1	pos=Top	mu=Split131(Top,Bottom)	group_line=Mid	role=Some(is_split=true,line=Top)	ok=false	b0=1
+GL	tut=None	team=1	pos=Top	mu=Split131(Mid,Support)	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=None	team=1	pos=Jungle	mu=Gather	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=None	team=1	pos=Jungle	mu=Split14(Top)	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=None	team=1	pos=Jungle	mu=Split14(Bottom)	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=None	team=1	pos=Jungle	mu=Split131(Top,Bottom)	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=None	team=1	pos=Jungle	mu=Split131(Mid,Support)	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=None	team=1	pos=Mid	mu=Gather	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=None	team=1	pos=Mid	mu=Split14(Top)	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=None	team=1	pos=Mid	mu=Split14(Bottom)	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=None	team=1	pos=Mid	mu=Split131(Top,Bottom)	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=None	team=1	pos=Mid	mu=Split131(Mid,Support)	group_line=Mid	role=Some(is_split=true,line=Top)	ok=false	b0=1
+GL	tut=None	team=1	pos=Bottom	mu=Gather	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=None	team=1	pos=Bottom	mu=Split14(Top)	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=None	team=1	pos=Bottom	mu=Split14(Bottom)	group_line=Mid	role=Some(is_split=true,line=Bottom)	ok=false	b0=1
+GL	tut=None	team=1	pos=Bottom	mu=Split131(Top,Bottom)	group_line=Mid	role=Some(is_split=true,line=Bottom)	ok=false	b0=1
+GL	tut=None	team=1	pos=Bottom	mu=Split131(Mid,Support)	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=None	team=1	pos=Support	mu=Gather	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=None	team=1	pos=Support	mu=Split14(Top)	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=None	team=1	pos=Support	mu=Split14(Bottom)	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=None	team=1	pos=Support	mu=Split131(Top,Bottom)	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=None	team=1	pos=Support	mu=Split131(Mid,Support)	group_line=Mid	role=Some(is_split=true,line=Bottom)	ok=false	b0=1
+ANN	tut=None	team=0	mu=Gather	group_line=Mid	announcer=Some(0)
+ANN	tut=None	team=0	mu=Split14(Top)	group_line=Mid	announcer=Some(1)
+ANN	tut=None	team=0	mu=Split14(Bottom)	group_line=Mid	announcer=Some(0)
+ANN	tut=None	team=0	mu=Split131(Top,Bottom)	group_line=Mid	announcer=Some(1)
+ANN	tut=None	team=0	mu=Split131(Mid,Support)	group_line=Mid	announcer=Some(0)
+ANN	tut=None	team=1	mu=Gather	group_line=Mid	announcer=Some(0)
+ANN	tut=None	team=1	mu=Split14(Top)	group_line=Mid	announcer=Some(1)
+ANN	tut=None	team=1	mu=Split14(Bottom)	group_line=Mid	announcer=Some(0)
+ANN	tut=None	team=1	mu=Split131(Top,Bottom)	group_line=Mid	announcer=Some(1)
+ANN	tut=None	team=1	mu=Split131(Mid,Support)	group_line=Mid	announcer=Some(0)
+SCW	ver=2	team=0	pos=Top	clear_win=false
+SCW	ver=30	team=0	pos=Top	clear_win=false
+SCW	ver=50	team=0	pos=Top	clear_win=false
+SCW	ver=54	team=0	pos=Top	clear_win=false
+SCW	ver=58	team=0	pos=Top	clear_win=false
+SCW	ver=60	team=0	pos=Top	clear_win=false
+SCW	ver=2	team=0	pos=Jungle	clear_win=false
+SCW	ver=30	team=0	pos=Jungle	clear_win=false
+SCW	ver=50	team=0	pos=Jungle	clear_win=false
+SCW	ver=54	team=0	pos=Jungle	clear_win=false
+SCW	ver=58	team=0	pos=Jungle	clear_win=false
+SCW	ver=60	team=0	pos=Jungle	clear_win=false
+SCW	ver=2	team=0	pos=Mid	clear_win=false
+SCW	ver=30	team=0	pos=Mid	clear_win=false
+SCW	ver=50	team=0	pos=Mid	clear_win=false
+SCW	ver=54	team=0	pos=Mid	clear_win=false
+SCW	ver=58	team=0	pos=Mid	clear_win=false
+SCW	ver=60	team=0	pos=Mid	clear_win=false
+SCW	ver=2	team=0	pos=Bottom	clear_win=false
+SCW	ver=30	team=0	pos=Bottom	clear_win=false
+SCW	ver=50	team=0	pos=Bottom	clear_win=false
+SCW	ver=54	team=0	pos=Bottom	clear_win=false
+SCW	ver=58	team=0	pos=Bottom	clear_win=false
+SCW	ver=60	team=0	pos=Bottom	clear_win=false
+SCW	ver=2	team=0	pos=Support	clear_win=false
+SCW	ver=30	team=0	pos=Support	clear_win=false
+SCW	ver=50	team=0	pos=Support	clear_win=false
+SCW	ver=54	team=0	pos=Support	clear_win=false
+SCW	ver=58	team=0	pos=Support	clear_win=false
+SCW	ver=60	team=0	pos=Support	clear_win=false
+SCW	ver=2	team=1	pos=Top	clear_win=false
+SCW	ver=30	team=1	pos=Top	clear_win=false
+SCW	ver=50	team=1	pos=Top	clear_win=false
+SCW	ver=54	team=1	pos=Top	clear_win=false
+SCW	ver=58	team=1	pos=Top	clear_win=false
+SCW	ver=60	team=1	pos=Top	clear_win=false
+SCW	ver=2	team=1	pos=Jungle	clear_win=false
+SCW	ver=30	team=1	pos=Jungle	clear_win=false
+SCW	ver=50	team=1	pos=Jungle	clear_win=false
+SCW	ver=54	team=1	pos=Jungle	clear_win=false
+SCW	ver=58	team=1	pos=Jungle	clear_win=false
+SCW	ver=60	team=1	pos=Jungle	clear_win=false
+SCW	ver=2	team=1	pos=Mid	clear_win=false
+SCW	ver=30	team=1	pos=Mid	clear_win=false
+SCW	ver=50	team=1	pos=Mid	clear_win=false
+SCW	ver=54	team=1	pos=Mid	clear_win=false
+SCW	ver=58	team=1	pos=Mid	clear_win=false
+SCW	ver=60	team=1	pos=Mid	clear_win=false
+SCW	ver=2	team=1	pos=Bottom	clear_win=false
+SCW	ver=30	team=1	pos=Bottom	clear_win=false
+SCW	ver=50	team=1	pos=Bottom	clear_win=false
+SCW	ver=54	team=1	pos=Bottom	clear_win=false
+SCW	ver=58	team=1	pos=Bottom	clear_win=false
+SCW	ver=60	team=1	pos=Bottom	clear_win=false
+SCW	ver=2	team=1	pos=Support	clear_win=false
+SCW	ver=30	team=1	pos=Support	clear_win=false
+SCW	ver=50	team=1	pos=Support	clear_win=false
+SCW	ver=54	team=1	pos=Support	clear_win=false
+SCW	ver=58	team=1	pos=Support	clear_win=false
+SCW	ver=60	team=1	pos=Support	clear_win=false
+GL	tut=First	team=0	pos=Top	mu=Gather	group_line=Bottom	role=Some(is_split=false,line=Bottom)	ok=true	b0=0
+GL	tut=First	team=0	pos=Top	mu=Split14(Top)	group_line=None	role=Some(is_split=true,line=Bottom)	ok=false	b0=1
+GL	tut=First	team=0	pos=Top	mu=Split14(Bottom)	group_line=None	role=None	ok=false	b0=2
+GL	tut=First	team=0	pos=Top	mu=Split131(Top,Bottom)	group_line=Bottom	role=Some(is_split=false,line=Bottom)	ok=true	b0=0
+GL	tut=First	team=0	pos=Top	mu=Split131(Mid,Support)	group_line=Bottom	role=Some(is_split=false,line=Bottom)	ok=true	b0=0
+GL	tut=First	team=0	pos=Jungle	mu=Gather	group_line=Bottom	role=Some(is_split=false,line=Bottom)	ok=true	b0=0
+GL	tut=First	team=0	pos=Jungle	mu=Split14(Top)	group_line=None	role=None	ok=false	b0=2
+GL	tut=First	team=0	pos=Jungle	mu=Split14(Bottom)	group_line=None	role=None	ok=false	b0=2
+GL	tut=First	team=0	pos=Jungle	mu=Split131(Top,Bottom)	group_line=Bottom	role=Some(is_split=false,line=Bottom)	ok=true	b0=0
+GL	tut=First	team=0	pos=Jungle	mu=Split131(Mid,Support)	group_line=Bottom	role=Some(is_split=false,line=Bottom)	ok=true	b0=0
+GL	tut=First	team=0	pos=Mid	mu=Gather	group_line=Bottom	role=Some(is_split=false,line=Bottom)	ok=true	b0=0
+GL	tut=First	team=0	pos=Mid	mu=Split14(Top)	group_line=None	role=None	ok=false	b0=2
+GL	tut=First	team=0	pos=Mid	mu=Split14(Bottom)	group_line=None	role=None	ok=false	b0=2
+GL	tut=First	team=0	pos=Mid	mu=Split131(Top,Bottom)	group_line=Bottom	role=Some(is_split=false,line=Bottom)	ok=true	b0=0
+GL	tut=First	team=0	pos=Mid	mu=Split131(Mid,Support)	group_line=Bottom	role=Some(is_split=false,line=Bottom)	ok=true	b0=0
+GL	tut=First	team=0	pos=Bottom	mu=Gather	group_line=Bottom	role=Some(is_split=false,line=Bottom)	ok=true	b0=0
+GL	tut=First	team=0	pos=Bottom	mu=Split14(Top)	group_line=None	role=None	ok=false	b0=2
+GL	tut=First	team=0	pos=Bottom	mu=Split14(Bottom)	group_line=None	role=Some(is_split=true,line=Bottom)	ok=false	b0=1
+GL	tut=First	team=0	pos=Bottom	mu=Split131(Top,Bottom)	group_line=Bottom	role=Some(is_split=true,line=Bottom)	ok=false	b0=1
+GL	tut=First	team=0	pos=Bottom	mu=Split131(Mid,Support)	group_line=Bottom	role=Some(is_split=false,line=Bottom)	ok=true	b0=0
+GL	tut=First	team=0	pos=Support	mu=Gather	group_line=Bottom	role=Some(is_split=false,line=Bottom)	ok=true	b0=0
+GL	tut=First	team=0	pos=Support	mu=Split14(Top)	group_line=None	role=None	ok=false	b0=2
+GL	tut=First	team=0	pos=Support	mu=Split14(Bottom)	group_line=None	role=None	ok=false	b0=2
+GL	tut=First	team=0	pos=Support	mu=Split131(Top,Bottom)	group_line=Bottom	role=Some(is_split=false,line=Bottom)	ok=true	b0=0
+GL	tut=First	team=0	pos=Support	mu=Split131(Mid,Support)	group_line=Bottom	role=Some(is_split=true,line=Bottom)	ok=false	b0=1
+GL	tut=First	team=1	pos=Top	mu=Gather	group_line=Bottom	role=Some(is_split=false,line=Bottom)	ok=true	b0=0
+GL	tut=First	team=1	pos=Top	mu=Split14(Top)	group_line=None	role=Some(is_split=true,line=Bottom)	ok=false	b0=1
+GL	tut=First	team=1	pos=Top	mu=Split14(Bottom)	group_line=None	role=None	ok=false	b0=2
+GL	tut=First	team=1	pos=Top	mu=Split131(Top,Bottom)	group_line=Bottom	role=Some(is_split=false,line=Bottom)	ok=true	b0=0
+GL	tut=First	team=1	pos=Top	mu=Split131(Mid,Support)	group_line=Bottom	role=Some(is_split=false,line=Bottom)	ok=true	b0=0
+GL	tut=First	team=1	pos=Jungle	mu=Gather	group_line=Bottom	role=Some(is_split=false,line=Bottom)	ok=true	b0=0
+GL	tut=First	team=1	pos=Jungle	mu=Split14(Top)	group_line=None	role=None	ok=false	b0=2
+GL	tut=First	team=1	pos=Jungle	mu=Split14(Bottom)	group_line=None	role=None	ok=false	b0=2
+GL	tut=First	team=1	pos=Jungle	mu=Split131(Top,Bottom)	group_line=Bottom	role=Some(is_split=false,line=Bottom)	ok=true	b0=0
+GL	tut=First	team=1	pos=Jungle	mu=Split131(Mid,Support)	group_line=Bottom	role=Some(is_split=false,line=Bottom)	ok=true	b0=0
+GL	tut=First	team=1	pos=Mid	mu=Gather	group_line=Bottom	role=Some(is_split=false,line=Bottom)	ok=true	b0=0
+GL	tut=First	team=1	pos=Mid	mu=Split14(Top)	group_line=None	role=None	ok=false	b0=2
+GL	tut=First	team=1	pos=Mid	mu=Split14(Bottom)	group_line=None	role=None	ok=false	b0=2
+GL	tut=First	team=1	pos=Mid	mu=Split131(Top,Bottom)	group_line=Bottom	role=Some(is_split=false,line=Bottom)	ok=true	b0=0
+GL	tut=First	team=1	pos=Mid	mu=Split131(Mid,Support)	group_line=Bottom	role=Some(is_split=false,line=Bottom)	ok=true	b0=0
+GL	tut=First	team=1	pos=Bottom	mu=Gather	group_line=Bottom	role=Some(is_split=false,line=Bottom)	ok=true	b0=0
+GL	tut=First	team=1	pos=Bottom	mu=Split14(Top)	group_line=None	role=None	ok=false	b0=2
+GL	tut=First	team=1	pos=Bottom	mu=Split14(Bottom)	group_line=None	role=Some(is_split=true,line=Bottom)	ok=false	b0=1
+GL	tut=First	team=1	pos=Bottom	mu=Split131(Top,Bottom)	group_line=Bottom	role=Some(is_split=true,line=Bottom)	ok=false	b0=1
+GL	tut=First	team=1	pos=Bottom	mu=Split131(Mid,Support)	group_line=Bottom	role=Some(is_split=false,line=Bottom)	ok=true	b0=0
+GL	tut=First	team=1	pos=Support	mu=Gather	group_line=Bottom	role=Some(is_split=false,line=Bottom)	ok=true	b0=0
+GL	tut=First	team=1	pos=Support	mu=Split14(Top)	group_line=None	role=None	ok=false	b0=2
+GL	tut=First	team=1	pos=Support	mu=Split14(Bottom)	group_line=None	role=None	ok=false	b0=2
+GL	tut=First	team=1	pos=Support	mu=Split131(Top,Bottom)	group_line=Bottom	role=Some(is_split=false,line=Bottom)	ok=true	b0=0
+GL	tut=First	team=1	pos=Support	mu=Split131(Mid,Support)	group_line=Bottom	role=Some(is_split=true,line=Bottom)	ok=false	b0=1
+ANN	tut=First	team=0	mu=Gather	group_line=Bottom	announcer=Some(0)
+ANN	tut=First	team=0	mu=Split14(Top)	group_line=None	announcer=None
+ANN	tut=First	team=0	mu=Split14(Bottom)	group_line=None	announcer=None
+ANN	tut=First	team=0	mu=Split131(Top,Bottom)	group_line=Bottom	announcer=Some(0)
+ANN	tut=First	team=0	mu=Split131(Mid,Support)	group_line=Bottom	announcer=Some(0)
+ANN	tut=First	team=1	mu=Gather	group_line=Bottom	announcer=Some(0)
+ANN	tut=First	team=1	mu=Split14(Top)	group_line=None	announcer=None
+ANN	tut=First	team=1	mu=Split14(Bottom)	group_line=None	announcer=None
+ANN	tut=First	team=1	mu=Split131(Top,Bottom)	group_line=Bottom	announcer=Some(0)
+ANN	tut=First	team=1	mu=Split131(Mid,Support)	group_line=Bottom	announcer=Some(0)
+GL	tut=TopSolo	team=0	pos=Top	mu=Gather	group_line=Top	role=Some(is_split=false,line=Top)	ok=true	b0=0
+GL	tut=TopSolo	team=0	pos=Top	mu=Split14(Top)	group_line=Top	role=Some(is_split=false,line=Top)	ok=true	b0=0
+GL	tut=TopSolo	team=0	pos=Top	mu=Split14(Bottom)	group_line=Top	role=Some(is_split=false,line=Top)	ok=true	b0=0
+GL	tut=TopSolo	team=0	pos=Top	mu=Split131(Top,Bottom)	group_line=Top	role=Some(is_split=true,line=Top)	ok=false	b0=1
+GL	tut=TopSolo	team=0	pos=Top	mu=Split131(Mid,Support)	group_line=Top	role=Some(is_split=false,line=Top)	ok=true	b0=0
+GL	tut=TopSolo	team=0	pos=Jungle	mu=Gather	group_line=Top	role=Some(is_split=false,line=Top)	ok=true	b0=0
+GL	tut=TopSolo	team=0	pos=Jungle	mu=Split14(Top)	group_line=Top	role=Some(is_split=false,line=Top)	ok=true	b0=0
+GL	tut=TopSolo	team=0	pos=Jungle	mu=Split14(Bottom)	group_line=Top	role=Some(is_split=false,line=Top)	ok=true	b0=0
+GL	tut=TopSolo	team=0	pos=Jungle	mu=Split131(Top,Bottom)	group_line=Top	role=Some(is_split=false,line=Top)	ok=true	b0=0
+GL	tut=TopSolo	team=0	pos=Jungle	mu=Split131(Mid,Support)	group_line=Top	role=Some(is_split=false,line=Top)	ok=true	b0=0
+GL	tut=TopSolo	team=0	pos=Mid	mu=Gather	group_line=Top	role=Some(is_split=false,line=Top)	ok=true	b0=0
+GL	tut=TopSolo	team=0	pos=Mid	mu=Split14(Top)	group_line=Top	role=Some(is_split=false,line=Top)	ok=true	b0=0
+GL	tut=TopSolo	team=0	pos=Mid	mu=Split14(Bottom)	group_line=Top	role=Some(is_split=false,line=Top)	ok=true	b0=0
+GL	tut=TopSolo	team=0	pos=Mid	mu=Split131(Top,Bottom)	group_line=Top	role=Some(is_split=false,line=Top)	ok=true	b0=0
+GL	tut=TopSolo	team=0	pos=Mid	mu=Split131(Mid,Support)	group_line=Top	role=Some(is_split=true,line=Top)	ok=false	b0=1
+GL	tut=TopSolo	team=0	pos=Bottom	mu=Gather	group_line=Top	role=Some(is_split=false,line=Top)	ok=true	b0=0
+GL	tut=TopSolo	team=0	pos=Bottom	mu=Split14(Top)	group_line=Top	role=Some(is_split=false,line=Top)	ok=true	b0=0
+GL	tut=TopSolo	team=0	pos=Bottom	mu=Split14(Bottom)	group_line=Top	role=Some(is_split=false,line=Top)	ok=true	b0=0
+GL	tut=TopSolo	team=0	pos=Bottom	mu=Split131(Top,Bottom)	group_line=Top	role=Some(is_split=false,line=Top)	ok=true	b0=0
+GL	tut=TopSolo	team=0	pos=Bottom	mu=Split131(Mid,Support)	group_line=Top	role=Some(is_split=false,line=Top)	ok=true	b0=0
+GL	tut=TopSolo	team=0	pos=Support	mu=Gather	group_line=Top	role=Some(is_split=false,line=Top)	ok=true	b0=0
+GL	tut=TopSolo	team=0	pos=Support	mu=Split14(Top)	group_line=Top	role=Some(is_split=false,line=Top)	ok=true	b0=0
+GL	tut=TopSolo	team=0	pos=Support	mu=Split14(Bottom)	group_line=Top	role=Some(is_split=false,line=Top)	ok=true	b0=0
+GL	tut=TopSolo	team=0	pos=Support	mu=Split131(Top,Bottom)	group_line=Top	role=Some(is_split=false,line=Top)	ok=true	b0=0
+GL	tut=TopSolo	team=0	pos=Support	mu=Split131(Mid,Support)	group_line=Top	role=Some(is_split=false,line=Top)	ok=true	b0=0
+GL	tut=TopSolo	team=1	pos=Top	mu=Gather	group_line=Top	role=Some(is_split=false,line=Top)	ok=true	b0=0
+GL	tut=TopSolo	team=1	pos=Top	mu=Split14(Top)	group_line=Top	role=Some(is_split=false,line=Top)	ok=true	b0=0
+GL	tut=TopSolo	team=1	pos=Top	mu=Split14(Bottom)	group_line=Top	role=Some(is_split=false,line=Top)	ok=true	b0=0
+GL	tut=TopSolo	team=1	pos=Top	mu=Split131(Top,Bottom)	group_line=Top	role=Some(is_split=true,line=Top)	ok=false	b0=1
+GL	tut=TopSolo	team=1	pos=Top	mu=Split131(Mid,Support)	group_line=Top	role=Some(is_split=false,line=Top)	ok=true	b0=0
+GL	tut=TopSolo	team=1	pos=Jungle	mu=Gather	group_line=Top	role=Some(is_split=false,line=Top)	ok=true	b0=0
+GL	tut=TopSolo	team=1	pos=Jungle	mu=Split14(Top)	group_line=Top	role=Some(is_split=false,line=Top)	ok=true	b0=0
+GL	tut=TopSolo	team=1	pos=Jungle	mu=Split14(Bottom)	group_line=Top	role=Some(is_split=false,line=Top)	ok=true	b0=0
+GL	tut=TopSolo	team=1	pos=Jungle	mu=Split131(Top,Bottom)	group_line=Top	role=Some(is_split=false,line=Top)	ok=true	b0=0
+GL	tut=TopSolo	team=1	pos=Jungle	mu=Split131(Mid,Support)	group_line=Top	role=Some(is_split=false,line=Top)	ok=true	b0=0
+GL	tut=TopSolo	team=1	pos=Mid	mu=Gather	group_line=Top	role=Some(is_split=false,line=Top)	ok=true	b0=0
+GL	tut=TopSolo	team=1	pos=Mid	mu=Split14(Top)	group_line=Top	role=Some(is_split=false,line=Top)	ok=true	b0=0
+GL	tut=TopSolo	team=1	pos=Mid	mu=Split14(Bottom)	group_line=Top	role=Some(is_split=false,line=Top)	ok=true	b0=0
+GL	tut=TopSolo	team=1	pos=Mid	mu=Split131(Top,Bottom)	group_line=Top	role=Some(is_split=false,line=Top)	ok=true	b0=0
+GL	tut=TopSolo	team=1	pos=Mid	mu=Split131(Mid,Support)	group_line=Top	role=Some(is_split=true,line=Top)	ok=false	b0=1
+GL	tut=TopSolo	team=1	pos=Bottom	mu=Gather	group_line=Top	role=Some(is_split=false,line=Top)	ok=true	b0=0
+GL	tut=TopSolo	team=1	pos=Bottom	mu=Split14(Top)	group_line=Top	role=Some(is_split=false,line=Top)	ok=true	b0=0
+GL	tut=TopSolo	team=1	pos=Bottom	mu=Split14(Bottom)	group_line=Top	role=Some(is_split=false,line=Top)	ok=true	b0=0
+GL	tut=TopSolo	team=1	pos=Bottom	mu=Split131(Top,Bottom)	group_line=Top	role=Some(is_split=false,line=Top)	ok=true	b0=0
+GL	tut=TopSolo	team=1	pos=Bottom	mu=Split131(Mid,Support)	group_line=Top	role=Some(is_split=false,line=Top)	ok=true	b0=0
+GL	tut=TopSolo	team=1	pos=Support	mu=Gather	group_line=Top	role=Some(is_split=false,line=Top)	ok=true	b0=0
+GL	tut=TopSolo	team=1	pos=Support	mu=Split14(Top)	group_line=Top	role=Some(is_split=false,line=Top)	ok=true	b0=0
+GL	tut=TopSolo	team=1	pos=Support	mu=Split14(Bottom)	group_line=Top	role=Some(is_split=false,line=Top)	ok=true	b0=0
+GL	tut=TopSolo	team=1	pos=Support	mu=Split131(Top,Bottom)	group_line=Top	role=Some(is_split=false,line=Top)	ok=true	b0=0
+GL	tut=TopSolo	team=1	pos=Support	mu=Split131(Mid,Support)	group_line=Top	role=Some(is_split=false,line=Top)	ok=true	b0=0
+ANN	tut=TopSolo	team=0	mu=Gather	group_line=Top	announcer=Some(0)
+ANN	tut=TopSolo	team=0	mu=Split14(Top)	group_line=Top	announcer=Some(0)
+ANN	tut=TopSolo	team=0	mu=Split14(Bottom)	group_line=Top	announcer=Some(0)
+ANN	tut=TopSolo	team=0	mu=Split131(Top,Bottom)	group_line=Top	announcer=Some(1)
+ANN	tut=TopSolo	team=0	mu=Split131(Mid,Support)	group_line=Top	announcer=Some(0)
+ANN	tut=TopSolo	team=1	mu=Gather	group_line=Top	announcer=Some(0)
+ANN	tut=TopSolo	team=1	mu=Split14(Top)	group_line=Top	announcer=Some(0)
+ANN	tut=TopSolo	team=1	mu=Split14(Bottom)	group_line=Top	announcer=Some(0)
+ANN	tut=TopSolo	team=1	mu=Split131(Top,Bottom)	group_line=Top	announcer=Some(1)
+ANN	tut=TopSolo	team=1	mu=Split131(Mid,Support)	group_line=Top	announcer=Some(0)
+GL	tut=Bottom	team=0	pos=Top	mu=Gather	group_line=Bottom	role=Some(is_split=false,line=Bottom)	ok=true	b0=0
+GL	tut=Bottom	team=0	pos=Top	mu=Split14(Top)	group_line=None	role=Some(is_split=true,line=Bottom)	ok=false	b0=1
+GL	tut=Bottom	team=0	pos=Top	mu=Split14(Bottom)	group_line=None	role=None	ok=false	b0=2
+GL	tut=Bottom	team=0	pos=Top	mu=Split131(Top,Bottom)	group_line=Bottom	role=Some(is_split=false,line=Bottom)	ok=true	b0=0
+GL	tut=Bottom	team=0	pos=Top	mu=Split131(Mid,Support)	group_line=Bottom	role=Some(is_split=false,line=Bottom)	ok=true	b0=0
+GL	tut=Bottom	team=0	pos=Jungle	mu=Gather	group_line=Bottom	role=Some(is_split=false,line=Bottom)	ok=true	b0=0
+GL	tut=Bottom	team=0	pos=Jungle	mu=Split14(Top)	group_line=None	role=None	ok=false	b0=2
+GL	tut=Bottom	team=0	pos=Jungle	mu=Split14(Bottom)	group_line=None	role=None	ok=false	b0=2
+GL	tut=Bottom	team=0	pos=Jungle	mu=Split131(Top,Bottom)	group_line=Bottom	role=Some(is_split=false,line=Bottom)	ok=true	b0=0
+GL	tut=Bottom	team=0	pos=Jungle	mu=Split131(Mid,Support)	group_line=Bottom	role=Some(is_split=false,line=Bottom)	ok=true	b0=0
+GL	tut=Bottom	team=0	pos=Mid	mu=Gather	group_line=Bottom	role=Some(is_split=false,line=Bottom)	ok=true	b0=0
+GL	tut=Bottom	team=0	pos=Mid	mu=Split14(Top)	group_line=None	role=None	ok=false	b0=2
+GL	tut=Bottom	team=0	pos=Mid	mu=Split14(Bottom)	group_line=None	role=None	ok=false	b0=2
+GL	tut=Bottom	team=0	pos=Mid	mu=Split131(Top,Bottom)	group_line=Bottom	role=Some(is_split=false,line=Bottom)	ok=true	b0=0
+GL	tut=Bottom	team=0	pos=Mid	mu=Split131(Mid,Support)	group_line=Bottom	role=Some(is_split=false,line=Bottom)	ok=true	b0=0
+GL	tut=Bottom	team=0	pos=Bottom	mu=Gather	group_line=Bottom	role=Some(is_split=false,line=Bottom)	ok=true	b0=0
+GL	tut=Bottom	team=0	pos=Bottom	mu=Split14(Top)	group_line=None	role=None	ok=false	b0=2
+GL	tut=Bottom	team=0	pos=Bottom	mu=Split14(Bottom)	group_line=None	role=Some(is_split=true,line=Bottom)	ok=false	b0=1
+GL	tut=Bottom	team=0	pos=Bottom	mu=Split131(Top,Bottom)	group_line=Bottom	role=Some(is_split=true,line=Bottom)	ok=false	b0=1
+GL	tut=Bottom	team=0	pos=Bottom	mu=Split131(Mid,Support)	group_line=Bottom	role=Some(is_split=false,line=Bottom)	ok=true	b0=0
+GL	tut=Bottom	team=0	pos=Support	mu=Gather	group_line=Bottom	role=Some(is_split=false,line=Bottom)	ok=true	b0=0
+GL	tut=Bottom	team=0	pos=Support	mu=Split14(Top)	group_line=None	role=None	ok=false	b0=2
+GL	tut=Bottom	team=0	pos=Support	mu=Split14(Bottom)	group_line=None	role=None	ok=false	b0=2
+GL	tut=Bottom	team=0	pos=Support	mu=Split131(Top,Bottom)	group_line=Bottom	role=Some(is_split=false,line=Bottom)	ok=true	b0=0
+GL	tut=Bottom	team=0	pos=Support	mu=Split131(Mid,Support)	group_line=Bottom	role=Some(is_split=true,line=Bottom)	ok=false	b0=1
+GL	tut=Bottom	team=1	pos=Top	mu=Gather	group_line=Bottom	role=Some(is_split=false,line=Bottom)	ok=true	b0=0
+GL	tut=Bottom	team=1	pos=Top	mu=Split14(Top)	group_line=None	role=Some(is_split=true,line=Bottom)	ok=false	b0=1
+GL	tut=Bottom	team=1	pos=Top	mu=Split14(Bottom)	group_line=None	role=None	ok=false	b0=2
+GL	tut=Bottom	team=1	pos=Top	mu=Split131(Top,Bottom)	group_line=Bottom	role=Some(is_split=false,line=Bottom)	ok=true	b0=0
+GL	tut=Bottom	team=1	pos=Top	mu=Split131(Mid,Support)	group_line=Bottom	role=Some(is_split=false,line=Bottom)	ok=true	b0=0
+GL	tut=Bottom	team=1	pos=Jungle	mu=Gather	group_line=Bottom	role=Some(is_split=false,line=Bottom)	ok=true	b0=0
+GL	tut=Bottom	team=1	pos=Jungle	mu=Split14(Top)	group_line=None	role=None	ok=false	b0=2
+GL	tut=Bottom	team=1	pos=Jungle	mu=Split14(Bottom)	group_line=None	role=None	ok=false	b0=2
+GL	tut=Bottom	team=1	pos=Jungle	mu=Split131(Top,Bottom)	group_line=Bottom	role=Some(is_split=false,line=Bottom)	ok=true	b0=0
+GL	tut=Bottom	team=1	pos=Jungle	mu=Split131(Mid,Support)	group_line=Bottom	role=Some(is_split=false,line=Bottom)	ok=true	b0=0
+GL	tut=Bottom	team=1	pos=Mid	mu=Gather	group_line=Bottom	role=Some(is_split=false,line=Bottom)	ok=true	b0=0
+GL	tut=Bottom	team=1	pos=Mid	mu=Split14(Top)	group_line=None	role=None	ok=false	b0=2
+GL	tut=Bottom	team=1	pos=Mid	mu=Split14(Bottom)	group_line=None	role=None	ok=false	b0=2
+GL	tut=Bottom	team=1	pos=Mid	mu=Split131(Top,Bottom)	group_line=Bottom	role=Some(is_split=false,line=Bottom)	ok=true	b0=0
+GL	tut=Bottom	team=1	pos=Mid	mu=Split131(Mid,Support)	group_line=Bottom	role=Some(is_split=false,line=Bottom)	ok=true	b0=0
+GL	tut=Bottom	team=1	pos=Bottom	mu=Gather	group_line=Bottom	role=Some(is_split=false,line=Bottom)	ok=true	b0=0
+GL	tut=Bottom	team=1	pos=Bottom	mu=Split14(Top)	group_line=None	role=None	ok=false	b0=2
+GL	tut=Bottom	team=1	pos=Bottom	mu=Split14(Bottom)	group_line=None	role=Some(is_split=true,line=Bottom)	ok=false	b0=1
+GL	tut=Bottom	team=1	pos=Bottom	mu=Split131(Top,Bottom)	group_line=Bottom	role=Some(is_split=true,line=Bottom)	ok=false	b0=1
+GL	tut=Bottom	team=1	pos=Bottom	mu=Split131(Mid,Support)	group_line=Bottom	role=Some(is_split=false,line=Bottom)	ok=true	b0=0
+GL	tut=Bottom	team=1	pos=Support	mu=Gather	group_line=Bottom	role=Some(is_split=false,line=Bottom)	ok=true	b0=0
+GL	tut=Bottom	team=1	pos=Support	mu=Split14(Top)	group_line=None	role=None	ok=false	b0=2
+GL	tut=Bottom	team=1	pos=Support	mu=Split14(Bottom)	group_line=None	role=None	ok=false	b0=2
+GL	tut=Bottom	team=1	pos=Support	mu=Split131(Top,Bottom)	group_line=Bottom	role=Some(is_split=false,line=Bottom)	ok=true	b0=0
+GL	tut=Bottom	team=1	pos=Support	mu=Split131(Mid,Support)	group_line=Bottom	role=Some(is_split=true,line=Bottom)	ok=false	b0=1
+ANN	tut=Bottom	team=0	mu=Gather	group_line=Bottom	announcer=Some(0)
+ANN	tut=Bottom	team=0	mu=Split14(Top)	group_line=None	announcer=None
+ANN	tut=Bottom	team=0	mu=Split14(Bottom)	group_line=None	announcer=None
+ANN	tut=Bottom	team=0	mu=Split131(Top,Bottom)	group_line=Bottom	announcer=Some(0)
+ANN	tut=Bottom	team=0	mu=Split131(Mid,Support)	group_line=Bottom	announcer=Some(0)
+ANN	tut=Bottom	team=1	mu=Gather	group_line=Bottom	announcer=Some(0)
+ANN	tut=Bottom	team=1	mu=Split14(Top)	group_line=None	announcer=None
+ANN	tut=Bottom	team=1	mu=Split14(Bottom)	group_line=None	announcer=None
+ANN	tut=Bottom	team=1	mu=Split131(Top,Bottom)	group_line=Bottom	announcer=Some(0)
+ANN	tut=Bottom	team=1	mu=Split131(Mid,Support)	group_line=Bottom	announcer=Some(0)
+GL	tut=MidSolo	team=0	pos=Top	mu=Gather	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=MidSolo	team=0	pos=Top	mu=Split14(Top)	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=MidSolo	team=0	pos=Top	mu=Split14(Bottom)	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=MidSolo	team=0	pos=Top	mu=Split131(Top,Bottom)	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=MidSolo	team=0	pos=Top	mu=Split131(Mid,Support)	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=MidSolo	team=0	pos=Jungle	mu=Gather	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=MidSolo	team=0	pos=Jungle	mu=Split14(Top)	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=MidSolo	team=0	pos=Jungle	mu=Split14(Bottom)	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=MidSolo	team=0	pos=Jungle	mu=Split131(Top,Bottom)	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=MidSolo	team=0	pos=Jungle	mu=Split131(Mid,Support)	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=MidSolo	team=0	pos=Mid	mu=Gather	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=MidSolo	team=0	pos=Mid	mu=Split14(Top)	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=MidSolo	team=0	pos=Mid	mu=Split14(Bottom)	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=MidSolo	team=0	pos=Mid	mu=Split131(Top,Bottom)	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=MidSolo	team=0	pos=Mid	mu=Split131(Mid,Support)	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=MidSolo	team=0	pos=Bottom	mu=Gather	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=MidSolo	team=0	pos=Bottom	mu=Split14(Top)	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=MidSolo	team=0	pos=Bottom	mu=Split14(Bottom)	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=MidSolo	team=0	pos=Bottom	mu=Split131(Top,Bottom)	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=MidSolo	team=0	pos=Bottom	mu=Split131(Mid,Support)	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=MidSolo	team=0	pos=Support	mu=Gather	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=MidSolo	team=0	pos=Support	mu=Split14(Top)	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=MidSolo	team=0	pos=Support	mu=Split14(Bottom)	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=MidSolo	team=0	pos=Support	mu=Split131(Top,Bottom)	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=MidSolo	team=0	pos=Support	mu=Split131(Mid,Support)	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=MidSolo	team=1	pos=Top	mu=Gather	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=MidSolo	team=1	pos=Top	mu=Split14(Top)	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=MidSolo	team=1	pos=Top	mu=Split14(Bottom)	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=MidSolo	team=1	pos=Top	mu=Split131(Top,Bottom)	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=MidSolo	team=1	pos=Top	mu=Split131(Mid,Support)	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=MidSolo	team=1	pos=Jungle	mu=Gather	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=MidSolo	team=1	pos=Jungle	mu=Split14(Top)	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=MidSolo	team=1	pos=Jungle	mu=Split14(Bottom)	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=MidSolo	team=1	pos=Jungle	mu=Split131(Top,Bottom)	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=MidSolo	team=1	pos=Jungle	mu=Split131(Mid,Support)	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=MidSolo	team=1	pos=Mid	mu=Gather	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=MidSolo	team=1	pos=Mid	mu=Split14(Top)	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=MidSolo	team=1	pos=Mid	mu=Split14(Bottom)	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=MidSolo	team=1	pos=Mid	mu=Split131(Top,Bottom)	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=MidSolo	team=1	pos=Mid	mu=Split131(Mid,Support)	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=MidSolo	team=1	pos=Bottom	mu=Gather	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=MidSolo	team=1	pos=Bottom	mu=Split14(Top)	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=MidSolo	team=1	pos=Bottom	mu=Split14(Bottom)	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=MidSolo	team=1	pos=Bottom	mu=Split131(Top,Bottom)	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=MidSolo	team=1	pos=Bottom	mu=Split131(Mid,Support)	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=MidSolo	team=1	pos=Support	mu=Gather	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=MidSolo	team=1	pos=Support	mu=Split14(Top)	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=MidSolo	team=1	pos=Support	mu=Split14(Bottom)	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=MidSolo	team=1	pos=Support	mu=Split131(Top,Bottom)	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=MidSolo	team=1	pos=Support	mu=Split131(Mid,Support)	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+ANN	tut=MidSolo	team=0	mu=Gather	group_line=Mid	announcer=Some(0)
+ANN	tut=MidSolo	team=0	mu=Split14(Top)	group_line=Mid	announcer=Some(0)
+ANN	tut=MidSolo	team=0	mu=Split14(Bottom)	group_line=Mid	announcer=Some(0)
+ANN	tut=MidSolo	team=0	mu=Split131(Top,Bottom)	group_line=Mid	announcer=Some(0)
+ANN	tut=MidSolo	team=0	mu=Split131(Mid,Support)	group_line=Mid	announcer=Some(0)
+ANN	tut=MidSolo	team=1	mu=Gather	group_line=Mid	announcer=Some(0)
+ANN	tut=MidSolo	team=1	mu=Split14(Top)	group_line=Mid	announcer=Some(0)
+ANN	tut=MidSolo	team=1	mu=Split14(Bottom)	group_line=Mid	announcer=Some(0)
+ANN	tut=MidSolo	team=1	mu=Split131(Top,Bottom)	group_line=Mid	announcer=Some(0)
+ANN	tut=MidSolo	team=1	mu=Split131(Mid,Support)	group_line=Mid	announcer=Some(0)
+GL	tut=MidBottom	team=0	pos=Top	mu=Gather	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=MidBottom	team=0	pos=Top	mu=Split14(Top)	group_line=Mid	role=Some(is_split=true,line=Bottom)	ok=false	b0=1
+GL	tut=MidBottom	team=0	pos=Top	mu=Split14(Bottom)	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=MidBottom	team=0	pos=Top	mu=Split131(Top,Bottom)	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=MidBottom	team=0	pos=Top	mu=Split131(Mid,Support)	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=MidBottom	team=0	pos=Jungle	mu=Gather	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=MidBottom	team=0	pos=Jungle	mu=Split14(Top)	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=MidBottom	team=0	pos=Jungle	mu=Split14(Bottom)	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=MidBottom	team=0	pos=Jungle	mu=Split131(Top,Bottom)	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=MidBottom	team=0	pos=Jungle	mu=Split131(Mid,Support)	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=MidBottom	team=0	pos=Mid	mu=Gather	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=MidBottom	team=0	pos=Mid	mu=Split14(Top)	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=MidBottom	team=0	pos=Mid	mu=Split14(Bottom)	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=MidBottom	team=0	pos=Mid	mu=Split131(Top,Bottom)	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=MidBottom	team=0	pos=Mid	mu=Split131(Mid,Support)	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=MidBottom	team=0	pos=Bottom	mu=Gather	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=MidBottom	team=0	pos=Bottom	mu=Split14(Top)	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=MidBottom	team=0	pos=Bottom	mu=Split14(Bottom)	group_line=Mid	role=Some(is_split=true,line=Bottom)	ok=false	b0=1
+GL	tut=MidBottom	team=0	pos=Bottom	mu=Split131(Top,Bottom)	group_line=Mid	role=Some(is_split=true,line=Bottom)	ok=false	b0=1
+GL	tut=MidBottom	team=0	pos=Bottom	mu=Split131(Mid,Support)	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=MidBottom	team=0	pos=Support	mu=Gather	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=MidBottom	team=0	pos=Support	mu=Split14(Top)	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=MidBottom	team=0	pos=Support	mu=Split14(Bottom)	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=MidBottom	team=0	pos=Support	mu=Split131(Top,Bottom)	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=MidBottom	team=0	pos=Support	mu=Split131(Mid,Support)	group_line=Mid	role=Some(is_split=true,line=Bottom)	ok=false	b0=1
+GL	tut=MidBottom	team=1	pos=Top	mu=Gather	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=MidBottom	team=1	pos=Top	mu=Split14(Top)	group_line=Mid	role=Some(is_split=true,line=Bottom)	ok=false	b0=1
+GL	tut=MidBottom	team=1	pos=Top	mu=Split14(Bottom)	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=MidBottom	team=1	pos=Top	mu=Split131(Top,Bottom)	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=MidBottom	team=1	pos=Top	mu=Split131(Mid,Support)	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=MidBottom	team=1	pos=Jungle	mu=Gather	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=MidBottom	team=1	pos=Jungle	mu=Split14(Top)	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=MidBottom	team=1	pos=Jungle	mu=Split14(Bottom)	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=MidBottom	team=1	pos=Jungle	mu=Split131(Top,Bottom)	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=MidBottom	team=1	pos=Jungle	mu=Split131(Mid,Support)	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=MidBottom	team=1	pos=Mid	mu=Gather	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=MidBottom	team=1	pos=Mid	mu=Split14(Top)	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=MidBottom	team=1	pos=Mid	mu=Split14(Bottom)	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=MidBottom	team=1	pos=Mid	mu=Split131(Top,Bottom)	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=MidBottom	team=1	pos=Mid	mu=Split131(Mid,Support)	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=MidBottom	team=1	pos=Bottom	mu=Gather	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=MidBottom	team=1	pos=Bottom	mu=Split14(Top)	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=MidBottom	team=1	pos=Bottom	mu=Split14(Bottom)	group_line=Mid	role=Some(is_split=true,line=Bottom)	ok=false	b0=1
+GL	tut=MidBottom	team=1	pos=Bottom	mu=Split131(Top,Bottom)	group_line=Mid	role=Some(is_split=true,line=Bottom)	ok=false	b0=1
+GL	tut=MidBottom	team=1	pos=Bottom	mu=Split131(Mid,Support)	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=MidBottom	team=1	pos=Support	mu=Gather	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=MidBottom	team=1	pos=Support	mu=Split14(Top)	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=MidBottom	team=1	pos=Support	mu=Split14(Bottom)	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=MidBottom	team=1	pos=Support	mu=Split131(Top,Bottom)	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=MidBottom	team=1	pos=Support	mu=Split131(Mid,Support)	group_line=Mid	role=Some(is_split=true,line=Bottom)	ok=false	b0=1
+ANN	tut=MidBottom	team=0	mu=Gather	group_line=Mid	announcer=Some(0)
+ANN	tut=MidBottom	team=0	mu=Split14(Top)	group_line=Mid	announcer=Some(1)
+ANN	tut=MidBottom	team=0	mu=Split14(Bottom)	group_line=Mid	announcer=Some(0)
+ANN	tut=MidBottom	team=0	mu=Split131(Top,Bottom)	group_line=Mid	announcer=Some(0)
+ANN	tut=MidBottom	team=0	mu=Split131(Mid,Support)	group_line=Mid	announcer=Some(0)
+ANN	tut=MidBottom	team=1	mu=Gather	group_line=Mid	announcer=Some(0)
+ANN	tut=MidBottom	team=1	mu=Split14(Top)	group_line=Mid	announcer=Some(1)
+ANN	tut=MidBottom	team=1	mu=Split14(Bottom)	group_line=Mid	announcer=Some(0)
+ANN	tut=MidBottom	team=1	mu=Split131(Top,Bottom)	group_line=Mid	announcer=Some(0)
+ANN	tut=MidBottom	team=1	mu=Split131(Mid,Support)	group_line=Mid	announcer=Some(0)
+GL	tut=JungleOnly	team=0	pos=Top	mu=Gather	group_line=None	role=None	ok=false	b0=2
+GL	tut=JungleOnly	team=0	pos=Top	mu=Split14(Top)	group_line=None	role=None	ok=false	b0=2
+GL	tut=JungleOnly	team=0	pos=Top	mu=Split14(Bottom)	group_line=None	role=None	ok=false	b0=2
+GL	tut=JungleOnly	team=0	pos=Top	mu=Split131(Top,Bottom)	group_line=None	role=None	ok=false	b0=2
+GL	tut=JungleOnly	team=0	pos=Top	mu=Split131(Mid,Support)	group_line=None	role=None	ok=false	b0=2
+GL	tut=JungleOnly	team=0	pos=Jungle	mu=Gather	group_line=None	role=None	ok=false	b0=2
+GL	tut=JungleOnly	team=0	pos=Jungle	mu=Split14(Top)	group_line=None	role=None	ok=false	b0=2
+GL	tut=JungleOnly	team=0	pos=Jungle	mu=Split14(Bottom)	group_line=None	role=None	ok=false	b0=2
+GL	tut=JungleOnly	team=0	pos=Jungle	mu=Split131(Top,Bottom)	group_line=None	role=None	ok=false	b0=2
+GL	tut=JungleOnly	team=0	pos=Jungle	mu=Split131(Mid,Support)	group_line=None	role=None	ok=false	b0=2
+GL	tut=JungleOnly	team=0	pos=Mid	mu=Gather	group_line=None	role=None	ok=false	b0=2
+GL	tut=JungleOnly	team=0	pos=Mid	mu=Split14(Top)	group_line=None	role=None	ok=false	b0=2
+GL	tut=JungleOnly	team=0	pos=Mid	mu=Split14(Bottom)	group_line=None	role=None	ok=false	b0=2
+GL	tut=JungleOnly	team=0	pos=Mid	mu=Split131(Top,Bottom)	group_line=None	role=None	ok=false	b0=2
+GL	tut=JungleOnly	team=0	pos=Mid	mu=Split131(Mid,Support)	group_line=None	role=None	ok=false	b0=2
+GL	tut=JungleOnly	team=0	pos=Bottom	mu=Gather	group_line=None	role=None	ok=false	b0=2
+GL	tut=JungleOnly	team=0	pos=Bottom	mu=Split14(Top)	group_line=None	role=None	ok=false	b0=2
+GL	tut=JungleOnly	team=0	pos=Bottom	mu=Split14(Bottom)	group_line=None	role=None	ok=false	b0=2
+GL	tut=JungleOnly	team=0	pos=Bottom	mu=Split131(Top,Bottom)	group_line=None	role=None	ok=false	b0=2
+GL	tut=JungleOnly	team=0	pos=Bottom	mu=Split131(Mid,Support)	group_line=None	role=None	ok=false	b0=2
+GL	tut=JungleOnly	team=0	pos=Support	mu=Gather	group_line=None	role=None	ok=false	b0=2
+GL	tut=JungleOnly	team=0	pos=Support	mu=Split14(Top)	group_line=None	role=None	ok=false	b0=2
+GL	tut=JungleOnly	team=0	pos=Support	mu=Split14(Bottom)	group_line=None	role=None	ok=false	b0=2
+GL	tut=JungleOnly	team=0	pos=Support	mu=Split131(Top,Bottom)	group_line=None	role=None	ok=false	b0=2
+GL	tut=JungleOnly	team=0	pos=Support	mu=Split131(Mid,Support)	group_line=None	role=None	ok=false	b0=2
+GL	tut=JungleOnly	team=1	pos=Top	mu=Gather	group_line=None	role=None	ok=false	b0=2
+GL	tut=JungleOnly	team=1	pos=Top	mu=Split14(Top)	group_line=None	role=None	ok=false	b0=2
+GL	tut=JungleOnly	team=1	pos=Top	mu=Split14(Bottom)	group_line=None	role=None	ok=false	b0=2
+GL	tut=JungleOnly	team=1	pos=Top	mu=Split131(Top,Bottom)	group_line=None	role=None	ok=false	b0=2
+GL	tut=JungleOnly	team=1	pos=Top	mu=Split131(Mid,Support)	group_line=None	role=None	ok=false	b0=2
+GL	tut=JungleOnly	team=1	pos=Jungle	mu=Gather	group_line=None	role=None	ok=false	b0=2
+GL	tut=JungleOnly	team=1	pos=Jungle	mu=Split14(Top)	group_line=None	role=None	ok=false	b0=2
+GL	tut=JungleOnly	team=1	pos=Jungle	mu=Split14(Bottom)	group_line=None	role=None	ok=false	b0=2
+GL	tut=JungleOnly	team=1	pos=Jungle	mu=Split131(Top,Bottom)	group_line=None	role=None	ok=false	b0=2
+GL	tut=JungleOnly	team=1	pos=Jungle	mu=Split131(Mid,Support)	group_line=None	role=None	ok=false	b0=2
+GL	tut=JungleOnly	team=1	pos=Mid	mu=Gather	group_line=None	role=None	ok=false	b0=2
+GL	tut=JungleOnly	team=1	pos=Mid	mu=Split14(Top)	group_line=None	role=None	ok=false	b0=2
+GL	tut=JungleOnly	team=1	pos=Mid	mu=Split14(Bottom)	group_line=None	role=None	ok=false	b0=2
+GL	tut=JungleOnly	team=1	pos=Mid	mu=Split131(Top,Bottom)	group_line=None	role=None	ok=false	b0=2
+GL	tut=JungleOnly	team=1	pos=Mid	mu=Split131(Mid,Support)	group_line=None	role=None	ok=false	b0=2
+GL	tut=JungleOnly	team=1	pos=Bottom	mu=Gather	group_line=None	role=None	ok=false	b0=2
+GL	tut=JungleOnly	team=1	pos=Bottom	mu=Split14(Top)	group_line=None	role=None	ok=false	b0=2
+GL	tut=JungleOnly	team=1	pos=Bottom	mu=Split14(Bottom)	group_line=None	role=None	ok=false	b0=2
+GL	tut=JungleOnly	team=1	pos=Bottom	mu=Split131(Top,Bottom)	group_line=None	role=None	ok=false	b0=2
+GL	tut=JungleOnly	team=1	pos=Bottom	mu=Split131(Mid,Support)	group_line=None	role=None	ok=false	b0=2
+GL	tut=JungleOnly	team=1	pos=Support	mu=Gather	group_line=None	role=None	ok=false	b0=2
+GL	tut=JungleOnly	team=1	pos=Support	mu=Split14(Top)	group_line=None	role=None	ok=false	b0=2
+GL	tut=JungleOnly	team=1	pos=Support	mu=Split14(Bottom)	group_line=None	role=None	ok=false	b0=2
+GL	tut=JungleOnly	team=1	pos=Support	mu=Split131(Top,Bottom)	group_line=None	role=None	ok=false	b0=2
+GL	tut=JungleOnly	team=1	pos=Support	mu=Split131(Mid,Support)	group_line=None	role=None	ok=false	b0=2
+ANN	tut=JungleOnly	team=0	mu=Gather	group_line=None	announcer=None
+ANN	tut=JungleOnly	team=0	mu=Split14(Top)	group_line=None	announcer=None
+ANN	tut=JungleOnly	team=0	mu=Split14(Bottom)	group_line=None	announcer=None
+ANN	tut=JungleOnly	team=0	mu=Split131(Top,Bottom)	group_line=None	announcer=None
+ANN	tut=JungleOnly	team=0	mu=Split131(Mid,Support)	group_line=None	announcer=None
+ANN	tut=JungleOnly	team=1	mu=Gather	group_line=None	announcer=None
+ANN	tut=JungleOnly	team=1	mu=Split14(Top)	group_line=None	announcer=None
+ANN	tut=JungleOnly	team=1	mu=Split14(Bottom)	group_line=None	announcer=None
+ANN	tut=JungleOnly	team=1	mu=Split131(Top,Bottom)	group_line=None	announcer=None
+ANN	tut=JungleOnly	team=1	mu=Split131(Mid,Support)	group_line=None	announcer=None
+GL	tut=Line	team=0	pos=Top	mu=Gather	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=Line	team=0	pos=Top	mu=Split14(Top)	group_line=Mid	role=Some(is_split=true,line=Bottom)	ok=false	b0=1
+GL	tut=Line	team=0	pos=Top	mu=Split14(Bottom)	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=Line	team=0	pos=Top	mu=Split131(Top,Bottom)	group_line=Mid	role=Some(is_split=true,line=Top)	ok=false	b0=1
+GL	tut=Line	team=0	pos=Top	mu=Split131(Mid,Support)	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=Line	team=0	pos=Jungle	mu=Gather	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=Line	team=0	pos=Jungle	mu=Split14(Top)	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=Line	team=0	pos=Jungle	mu=Split14(Bottom)	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=Line	team=0	pos=Jungle	mu=Split131(Top,Bottom)	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=Line	team=0	pos=Jungle	mu=Split131(Mid,Support)	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=Line	team=0	pos=Mid	mu=Gather	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=Line	team=0	pos=Mid	mu=Split14(Top)	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=Line	team=0	pos=Mid	mu=Split14(Bottom)	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=Line	team=0	pos=Mid	mu=Split131(Top,Bottom)	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=Line	team=0	pos=Mid	mu=Split131(Mid,Support)	group_line=Mid	role=Some(is_split=true,line=Top)	ok=false	b0=1
+GL	tut=Line	team=0	pos=Bottom	mu=Gather	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=Line	team=0	pos=Bottom	mu=Split14(Top)	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=Line	team=0	pos=Bottom	mu=Split14(Bottom)	group_line=Mid	role=Some(is_split=true,line=Bottom)	ok=false	b0=1
+GL	tut=Line	team=0	pos=Bottom	mu=Split131(Top,Bottom)	group_line=Mid	role=Some(is_split=true,line=Bottom)	ok=false	b0=1
+GL	tut=Line	team=0	pos=Bottom	mu=Split131(Mid,Support)	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=Line	team=0	pos=Support	mu=Gather	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=Line	team=0	pos=Support	mu=Split14(Top)	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=Line	team=0	pos=Support	mu=Split14(Bottom)	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=Line	team=0	pos=Support	mu=Split131(Top,Bottom)	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=Line	team=0	pos=Support	mu=Split131(Mid,Support)	group_line=Mid	role=Some(is_split=true,line=Bottom)	ok=false	b0=1
+GL	tut=Line	team=1	pos=Top	mu=Gather	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=Line	team=1	pos=Top	mu=Split14(Top)	group_line=Mid	role=Some(is_split=true,line=Bottom)	ok=false	b0=1
+GL	tut=Line	team=1	pos=Top	mu=Split14(Bottom)	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=Line	team=1	pos=Top	mu=Split131(Top,Bottom)	group_line=Mid	role=Some(is_split=true,line=Top)	ok=false	b0=1
+GL	tut=Line	team=1	pos=Top	mu=Split131(Mid,Support)	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=Line	team=1	pos=Jungle	mu=Gather	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=Line	team=1	pos=Jungle	mu=Split14(Top)	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=Line	team=1	pos=Jungle	mu=Split14(Bottom)	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=Line	team=1	pos=Jungle	mu=Split131(Top,Bottom)	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=Line	team=1	pos=Jungle	mu=Split131(Mid,Support)	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=Line	team=1	pos=Mid	mu=Gather	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=Line	team=1	pos=Mid	mu=Split14(Top)	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=Line	team=1	pos=Mid	mu=Split14(Bottom)	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=Line	team=1	pos=Mid	mu=Split131(Top,Bottom)	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=Line	team=1	pos=Mid	mu=Split131(Mid,Support)	group_line=Mid	role=Some(is_split=true,line=Top)	ok=false	b0=1
+GL	tut=Line	team=1	pos=Bottom	mu=Gather	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=Line	team=1	pos=Bottom	mu=Split14(Top)	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=Line	team=1	pos=Bottom	mu=Split14(Bottom)	group_line=Mid	role=Some(is_split=true,line=Bottom)	ok=false	b0=1
+GL	tut=Line	team=1	pos=Bottom	mu=Split131(Top,Bottom)	group_line=Mid	role=Some(is_split=true,line=Bottom)	ok=false	b0=1
+GL	tut=Line	team=1	pos=Bottom	mu=Split131(Mid,Support)	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=Line	team=1	pos=Support	mu=Gather	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=Line	team=1	pos=Support	mu=Split14(Top)	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=Line	team=1	pos=Support	mu=Split14(Bottom)	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=Line	team=1	pos=Support	mu=Split131(Top,Bottom)	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=Line	team=1	pos=Support	mu=Split131(Mid,Support)	group_line=Mid	role=Some(is_split=true,line=Bottom)	ok=false	b0=1
+ANN	tut=Line	team=0	mu=Gather	group_line=Mid	announcer=Some(0)
+ANN	tut=Line	team=0	mu=Split14(Top)	group_line=Mid	announcer=Some(1)
+ANN	tut=Line	team=0	mu=Split14(Bottom)	group_line=Mid	announcer=Some(0)
+ANN	tut=Line	team=0	mu=Split131(Top,Bottom)	group_line=Mid	announcer=Some(1)
+ANN	tut=Line	team=0	mu=Split131(Mid,Support)	group_line=Mid	announcer=Some(0)
+ANN	tut=Line	team=1	mu=Gather	group_line=Mid	announcer=Some(0)
+ANN	tut=Line	team=1	mu=Split14(Top)	group_line=Mid	announcer=Some(1)
+ANN	tut=Line	team=1	mu=Split14(Bottom)	group_line=Mid	announcer=Some(0)
+ANN	tut=Line	team=1	mu=Split131(Top,Bottom)	group_line=Mid	announcer=Some(1)
+ANN	tut=Line	team=1	mu=Split131(Mid,Support)	group_line=Mid	announcer=Some(0)
+GL	tut=Total	team=0	pos=Top	mu=Gather	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=Total	team=0	pos=Top	mu=Split14(Top)	group_line=Mid	role=Some(is_split=true,line=Bottom)	ok=false	b0=1
+GL	tut=Total	team=0	pos=Top	mu=Split14(Bottom)	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=Total	team=0	pos=Top	mu=Split131(Top,Bottom)	group_line=Mid	role=Some(is_split=true,line=Top)	ok=false	b0=1
+GL	tut=Total	team=0	pos=Top	mu=Split131(Mid,Support)	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=Total	team=0	pos=Jungle	mu=Gather	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=Total	team=0	pos=Jungle	mu=Split14(Top)	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=Total	team=0	pos=Jungle	mu=Split14(Bottom)	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=Total	team=0	pos=Jungle	mu=Split131(Top,Bottom)	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=Total	team=0	pos=Jungle	mu=Split131(Mid,Support)	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=Total	team=0	pos=Mid	mu=Gather	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=Total	team=0	pos=Mid	mu=Split14(Top)	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=Total	team=0	pos=Mid	mu=Split14(Bottom)	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=Total	team=0	pos=Mid	mu=Split131(Top,Bottom)	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=Total	team=0	pos=Mid	mu=Split131(Mid,Support)	group_line=Mid	role=Some(is_split=true,line=Top)	ok=false	b0=1
+GL	tut=Total	team=0	pos=Bottom	mu=Gather	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=Total	team=0	pos=Bottom	mu=Split14(Top)	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=Total	team=0	pos=Bottom	mu=Split14(Bottom)	group_line=Mid	role=Some(is_split=true,line=Bottom)	ok=false	b0=1
+GL	tut=Total	team=0	pos=Bottom	mu=Split131(Top,Bottom)	group_line=Mid	role=Some(is_split=true,line=Bottom)	ok=false	b0=1
+GL	tut=Total	team=0	pos=Bottom	mu=Split131(Mid,Support)	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=Total	team=0	pos=Support	mu=Gather	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=Total	team=0	pos=Support	mu=Split14(Top)	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=Total	team=0	pos=Support	mu=Split14(Bottom)	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=Total	team=0	pos=Support	mu=Split131(Top,Bottom)	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=Total	team=0	pos=Support	mu=Split131(Mid,Support)	group_line=Mid	role=Some(is_split=true,line=Bottom)	ok=false	b0=1
+GL	tut=Total	team=1	pos=Top	mu=Gather	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=Total	team=1	pos=Top	mu=Split14(Top)	group_line=Mid	role=Some(is_split=true,line=Bottom)	ok=false	b0=1
+GL	tut=Total	team=1	pos=Top	mu=Split14(Bottom)	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=Total	team=1	pos=Top	mu=Split131(Top,Bottom)	group_line=Mid	role=Some(is_split=true,line=Top)	ok=false	b0=1
+GL	tut=Total	team=1	pos=Top	mu=Split131(Mid,Support)	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=Total	team=1	pos=Jungle	mu=Gather	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=Total	team=1	pos=Jungle	mu=Split14(Top)	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=Total	team=1	pos=Jungle	mu=Split14(Bottom)	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=Total	team=1	pos=Jungle	mu=Split131(Top,Bottom)	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=Total	team=1	pos=Jungle	mu=Split131(Mid,Support)	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=Total	team=1	pos=Mid	mu=Gather	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=Total	team=1	pos=Mid	mu=Split14(Top)	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=Total	team=1	pos=Mid	mu=Split14(Bottom)	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=Total	team=1	pos=Mid	mu=Split131(Top,Bottom)	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=Total	team=1	pos=Mid	mu=Split131(Mid,Support)	group_line=Mid	role=Some(is_split=true,line=Top)	ok=false	b0=1
+GL	tut=Total	team=1	pos=Bottom	mu=Gather	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=Total	team=1	pos=Bottom	mu=Split14(Top)	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=Total	team=1	pos=Bottom	mu=Split14(Bottom)	group_line=Mid	role=Some(is_split=true,line=Bottom)	ok=false	b0=1
+GL	tut=Total	team=1	pos=Bottom	mu=Split131(Top,Bottom)	group_line=Mid	role=Some(is_split=true,line=Bottom)	ok=false	b0=1
+GL	tut=Total	team=1	pos=Bottom	mu=Split131(Mid,Support)	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=Total	team=1	pos=Support	mu=Gather	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=Total	team=1	pos=Support	mu=Split14(Top)	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=Total	team=1	pos=Support	mu=Split14(Bottom)	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=Total	team=1	pos=Support	mu=Split131(Top,Bottom)	group_line=Mid	role=Some(is_split=false,line=Mid)	ok=true	b0=0
+GL	tut=Total	team=1	pos=Support	mu=Split131(Mid,Support)	group_line=Mid	role=Some(is_split=true,line=Bottom)	ok=false	b0=1
+ANN	tut=Total	team=0	mu=Gather	group_line=Mid	announcer=Some(0)
+ANN	tut=Total	team=0	mu=Split14(Top)	group_line=Mid	announcer=Some(1)
+ANN	tut=Total	team=0	mu=Split14(Bottom)	group_line=Mid	announcer=Some(0)
+ANN	tut=Total	team=0	mu=Split131(Top,Bottom)	group_line=Mid	announcer=Some(1)
+ANN	tut=Total	team=0	mu=Split131(Mid,Support)	group_line=Mid	announcer=Some(0)
+ANN	tut=Total	team=1	mu=Gather	group_line=Mid	announcer=Some(0)
+ANN	tut=Total	team=1	mu=Split14(Top)	group_line=Mid	announcer=Some(1)
+ANN	tut=Total	team=1	mu=Split14(Bottom)	group_line=Mid	announcer=Some(0)
+ANN	tut=Total	team=1	mu=Split131(Top,Bottom)	group_line=Mid	announcer=Some(1)
+ANN	tut=Total	team=1	mu=Split131(Mid,Support)	group_line=Mid	announcer=Some(0)

@@ -1,0 +1,54 @@
+
+===== specs[5] v50_fold_dive_episode =====
+  consts[0 ] value=-1         claim=L131    후보=[131, 156]                         OK(lit)
+  consts[1 ] value=7          claim=L139    후보=[139, 152, 155]                    OK(lit)
+  consts[2 ] value=1          claim=L146    후보=[146, 155, 156, 157, 167]          OK(phi<-33)
+  consts[3 ] value=2          claim=L147    후보=[147, 155, 156, 157]               OK(phi<-36)
+  consts[4 ] value=3          claim=L148    후보=[148, 155]                         OK(phi<-41)
+  consts[5 ] value=4          claim=L149    후보=[149, 155, 156, 157]               OK(lit,phi<-46)
+  consts[6 ] value=5          claim=L150    후보=[150, 153, 155]                    OK(phi<-51)
+  consts[7 ] value=6          claim=L151    후보=[150, 151, 152, 155, 157]          OK(lit,phi<-56,phi<-61)
+  consts[8 ] value=7          claim=L152    후보=[139, 152, 155]                    OK(phi<-66)
+  consts[9 ] value=8          claim=L153    후보=[131, 138, 140, 145, 146, 148, 149, 150, 151, 152, 153, 155, 156, 157] OK(lit)
+  consts[10] value=9          claim=L153    후보=[153]                              OK(lit)
+  consts[11] value=11         claim=L146    후보=[146]                              OK(lit)
+  consts[12] value=13         claim=L147    후보=[147]                              OK(lit)
+  consts[13] value=12         claim=L151    후보=[151]                              OK(lit)
+
+===== specs[6] v2_response_retreat_stance =====
+  consts[0 ] value=2          claim=L14     후보=[14, 17]                           OK(lit)
+  consts[1 ] value=1          claim=L20     후보=[20, 24, 38]                       OK(lit)
+  consts[2 ] value=3          claim=L36     후보=[33, 36, 38]                       OK(phi<-124)
+  consts[3 ] value=4          claim=L38     후보=[17, 24, 25, 26, 27, 28, 30, 31, 32, 33, 38] OK(phi@127,phi@130)
+
+===== specs[7] sub_plan =====
+  consts[0 ] value=100        claim=L31     후보=[31]                               OK(lit)
+  consts[1 ] value=51         claim=L36     후보=[36]                               OK(lit)
+  consts[2 ] value=5          claim=L36     후보=[29, 36, 48]                       OK(phi<-93)
+  consts[3 ] value=9          claim=L43     후보=[42, 43, 48]                       OK(phi<-115)
+  consts[4 ] value=11         claim=L47     후보=[47, 48]                           OK(phi<-113)
+  consts[5 ] value=1          claim=L43     후보=[32, 43]                           OK(lit)
+  consts[6 ] value=0          claim=L32     후보=[31, 32, 35, 43, 47]               OK(lit)
+
+===== specs[8] is_end =====
+  consts[0 ] value=4          claim=L164    후보=[169, 174]                         (판정보류: 그 줄은 있는데 리터럴이 접힘)
+  consts[1 ] value=0          claim=L164    후보=[164, 169, 172, 193, 194]          OK(lit)
+  consts[2 ] value=1          claim=L172    후보=[164, 169, 172, 180, 193, 194]     OK(lit)
+  consts[3 ] value=32000      claim=L179    후보=[179]                              OK(lit)
+  consts[4 ] value=22500000000 claim=L184    후보=[184]                              OK(lit)
+  consts[5 ] value=15         claim=L194    후보=[194]                              OK(lit)
+
+===== specs[9] check_favorable_engage_formation =====
+  consts[0 ] value=2          claim=L1209   후보=[1203, 1280]                       (판정보류: 그 줄은 있는데 리터럴이 접힘)
+  consts[1 ] value=100000     claim=L1246   후보=(미검출)                              (판정보류: 리터럴 미검출)
+  consts[2 ] value=40         claim=L1240   후보=[1240]                             OK(lit)
+  consts[3 ] value=100        claim=L1240   후보=[1240, 1283, 1286]                 OK(lit)
+  consts[4 ] value=9          claim=L1283   후보=[1283, 1286]                       OK(lit/merged)
+  consts[5 ] value=4          claim=L1280   후보=[1233]                             (판정보류: 그 줄은 있는데 리터럴이 접힘)
+  consts[6 ] value=5          claim=L1340   후보=[1203, 1340]                       OK(lit)
+  consts[7 ] value=6          claim=L1340   후보=[1340]                             OK(lit)
+  consts[8 ] value=1          claim=L1223   후보=[1204, 1209, 1215, 1216, 1223, 1233, 1256, 1258, 1289, 1298, 1300, 1304, 1307, 1331] OK(lit)
+
+========================================================================================
+검사 40행 · **불일치 0건** · 접힘 판정보류 3건
+========================================================================================

@@ -1,0 +1,9 @@
+specs[5 ] v50_fold_dive_episode                  IR인자 3  spec 5   OK
+specs[6 ] v2_response_retreat_stance             IR인자 5  spec 6   OK
+specs[7 ] sub_plan                               IR인자 8  spec 8   OK
+specs[8 ] is_end                                 IR인자 7  spec 7   OK
+specs[9 ] check_favorable_engage_formation       IR인자 5  spec 5   OK
+
+============================================================================================
+불일치 0건
+============================================================================================

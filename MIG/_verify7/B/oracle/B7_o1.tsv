@@ -1,0 +1,65 @@
+setting_ok	tps=60	height=960000	champion_radius=10000
+camp	Morgard_blue	(288000, 288000)
+camp	Morgard_red	(288000, 288000)
+camp	Serpen_blue	(672000, 672000)
+
+#M	tag	variant	is_end	expect	verdict
+M	0	Morgard{None,wb=false}	false	false	MATCH
+M	0	Morgard{None,wb=true}	false	false	MATCH
+M	0	Morgard{Setup,wb=false}	true	true	MATCH
+M	0	Morgard{Setup,wb=true}	true	true	MATCH
+M	0	Morgard{Assemble,wb=false}	false	false	MATCH
+M	0	Morgard{Assemble,wb=true}	false	false	MATCH
+M	0	Morgard{Hunt,wb=false}	false	false	MATCH
+M	0	Morgard{Hunt,wb=true}	false	false	MATCH
+M	1	Serpen{None,wb=false}	true	true	MATCH
+M	1	Serpen{None,wb=true}	true	true	MATCH
+M	1	Serpen{Setup,wb=false}	true	true	MATCH
+M	1	Serpen{Setup,wb=true}	true	true	MATCH
+M	1	Serpen{Assemble,wb=false}	true	true	MATCH
+M	1	Serpen{Assemble,wb=true}	true	true	MATCH
+M	1	Serpen{Hunt,wb=false}	true	true	MATCH
+M	1	Serpen{Hunt,wb=true}	true	true	MATCH
+M	2	Defense	true	true	MATCH
+M	3	DefenseLine(Top)	true	true	MATCH
+M	3	DefenseLine(Mid)	true	true	MATCH
+M	3	DefenseLine(Bottom)	true	true	MATCH
+M	4	Nexus(Top)	true	true	MATCH
+M	4	Nexus(Mid)	true	true	MATCH
+M	4	Nexus(Bottom)	true	true	MATCH
+M	5	PressEpic(Top)	true	true	MATCH
+M	5	PressEpic(Mid)	true	true	MATCH
+M	5	PressEpic(Bottom)	true	true	MATCH
+M	6	SplitEpic(Top)	true	true	MATCH
+M	6	SplitEpic(Mid)	true	true	MATCH
+M	6	SplitEpic(Bottom)	true	true	MATCH
+M	7	Repair	true	true	MATCH
+M	8	Gank(Top)	true	true	MATCH
+M	8	Gank(Mid)	true	true	MATCH
+M	8	Gank(Bottom)	true	true	MATCH
+M	9	Dive(Top)	true	true	MATCH
+M	9	Dive(Mid)	true	true	MATCH
+M	9	Dive(Bottom)	true	true	MATCH
+M	10	PressTower(Top)	true	true	MATCH
+M	10	PressTower(Mid)	true	true	MATCH
+M	10	PressTower(Bottom)	true	true	MATCH
+M	11	ComebackPick(Top,ready=false)	true	true	MATCH
+M	11	ComebackPick(Top,ready=true)	true	true	MATCH
+M	11	ComebackPick(Mid,ready=false)	true	true	MATCH
+M	11	ComebackPick(Mid,ready=true)	true	true	MATCH
+M	11	ComebackPick(Bottom,ready=false)	true	true	MATCH
+M	11	ComebackPick(Bottom,ready=true)	true	true	MATCH
+M	-1	None	true	true	MATCH
+M_SUMMARY	cases=46	mismatch=0
+
+#V	version	objective	is_end
+V	0	Morgard{Setup}	true
+V	1	Morgard{Setup}	true
+V	2	Morgard{Setup}	true
+V	3	Morgard{Setup}	true
+V	23	Morgard{Setup}	true
+V	24	Morgard{Setup}	true
+V	30	Morgard{Setup}	true
+V	46	Morgard{Setup}	true
+V	50	Morgard{Setup}	true
+V	60	Morgard{Setup}	true

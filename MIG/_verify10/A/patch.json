@@ -1,0 +1,183 @@
+{
+  "round": 10,
+  "batch": "A",
+  "errors": [
+    {
+      "path": "/specs[3]/knobs[10]/where",
+      "kind": "실오류",
+      "old": "m15.ll:31432·31504·31688·31780 (cd > tps)",
+      "new": "fight_check.rs:1005·1010·1015·1021 = m15.ll:31486·31586·31688·31790 (`icmp ugt i64 %N, %33` — %33 = tps, m15.ll:31242 `%33 = load i64, ptr %32` / %32 = setting+0x12f8)",
+      "evidence": "10차 배치A 전수 대조. 인용된 4줄 중 3줄에 그 비교가 없다: m15.ll:31432 = `    i64 7, label %98`(switch case 라벨) · 31504 = `%117 = load i32, ptr %116`(PlayerState+0x9c0 position 로드) · 31780 = `238:` 블록 라벨. 31688 만 맞다(`%199 = icmp ugt i64 %198, %33`). 실제 `cd > tps` 4곳 = `awk 'NR>=31120&&NR<=33053 && /icmp ugt i64 %[0-9]+, %33,/' _gaibc/m15.ll` → 31486/31586/31688/31790. dloc = fight_check.rs:1005/1010/1015/1021(check_kill_die_tick_uncached). G13 은 백틱 IR 인용이 있는 행만 문면 대조하므로 이 행(인용 없음)은 사실상 무검사였다",
+      "behavior_change": false,
+      "found_by": "new"
+    },
+    {
+      "path": "/specs[4]/knobs[4]/where",
+      "kind": "실오류",
+      "old": "_gcbc/g15.ll:115838~115839",
+      "new": "_gcbc/g15.ll:115823 `define { i64, i64 } @…LineType18get_start_position` — 좌표 3쌍 = 115875 `%9 = phi i64 [ 880000, %7 ], [ 817000, %6 ], [ 820000, %3 ]` / 115876 `%10 = phi i64 [ 144000, %7 ], [ 144000, %6 ], [ 80000, %3 ]`, 팀 스왑 = 115891~115893 `%11 = icmp eq i64 %2, 1` + `%12 = select i1 %11, i64 %10, i64 %9` / `%13 = select i1 %11, i64 %9, i64 %10` → 115908 `ret { i64, i64 }`(%13, %12)",
+      "evidence": "10차 배치A. 인용줄 g15.ll:115838 은 `  unreachable`(switch 의 unreachable default 블록 %5), 115839 는 빈 줄이다 — 좌표가 그 자리에 없다. 좌표 리터럴은 115841 부터 `#dbg_value` 로만 나타나고 실제 값 선택은 115875·115876 의 phi 다",
+      "behavior_change": false,
+      "found_by": "new"
+    },
+    {
+      "path": "/specs[4]/knobs[4]/value",
+      "kind": "보강",
+      "old": "(양 팀 좌표 모두 오라클 실측)",
+      "new": "(양 팀 좌표 모두 오라클 실측). ★구조 정정(10차 배치A) — **독립 좌표는 6개가 아니라 3쌍**이다: IR 은 라인별 3쌍 `(880000,144000)/(817000,144000)/(820000,80000)`(g15.ll:115875~115876 phi) 만 갖고, team 축은 `team==1 ? (x,y) : (y,x)` **x↔y 스왑**으로 만든다(115891~115893 `icmp eq i64 %2, 1` + select 2개). ⟹ team0 값을 team1 과 **독립으로는 못 바꾼다** — 개입점은 3쌍의 리터럴과 스왑 조건 둘뿐이다",
+      "evidence": "_gcbc/g15.ll:115891 `%11 = icmp eq i64 %2, 1` / 115892 `%12 = select i1 %11, i64 %10, i64 %9` / 115893 `%13 = select i1 %11, i64 %9, i64 %10` / 115906~115908 `insertvalue`(%13, %12) → `ret`. team=1 이면 (%9,%10)=(820000,80000)=Top t1, team=0 이면 (%10,%9)=(80000,820000)=Top t0 — 기재된 6값과 전부 일치하되 생성 경로는 3쌍+스왑이다",
+      "behavior_change": false,
+      "found_by": "new"
+    },
+    {
+      "path": "/specs[3]/knobs[13]/where",
+      "kind": "보강",
+      "old": "_gcbc/g15.ll:105194 등 (tps*dmg / me.*_cooltime())",
+      "new": "_gcbc/g15.ll:105197 `%1008 = mul i64 %1007, %1003`(tps × expected_damage_target) · 105198 `%1009 = … Entity15attack_cooltime(%762)` · 105211 `%1015 = udiv i64 %1008, %1009` (dps = tps*dmg / attack_cooltime) — 다른 슬롯도 같은 3연 패턴",
+      "evidence": "10차 배치A. 인용줄 105194 는 `%1006 = getelementptr inbounds nuw i64, ptr %775, i64 %798` 로 산 피해값을 배열에 쓰는 gep 이고 나눗셈이 없다(±2 안에도 없다). 실제 식은 105185 `%1003 = …Effect22expected_damage_target(...)` → 105196 `%1007 = load i64, ptr %1180`(tps) → 105197 `mul` → 105198 `attack_cooltime` → 105211 `udiv`",
+      "behavior_change": false,
+      "found_by": "new"
+    },
+    {
+      "path": "/specs[3]/knobs[5]/where",
+      "kind": "보강",
+      "old": "IR m10.ll:34264~34268, `inttoptr(8)` + memset 0",
+      "new": "IR m10.ll:34265~34269, `inttoptr(8)` + memset 0",
+      "evidence": "10차 배치A. m10.ll:34265 `store ptr inttoptr (i64 8 to ptr), ptr %7` · 34269 `call void @llvm.memset.p0.i64(ptr … %146, i8 0, i64 16, i1 false)`. 34264 는 블록 라벨 `144:` 이고 인용한 memset(34269)은 옛 범위 밖이었다",
+      "behavior_change": false,
+      "found_by": "new"
+    },
+    {
+      "path": "/specs[1]/open",
+      "kind": "보강",
+      "old": "중괄호/공백인지 최적화로 소멸한 코드인지 확인 불가(원본 .rs 없음)",
+      "new": "★해소(10차 배치A) — **전부 if/else arm 본문과 중괄호다. 소멸한 코드는 없다.** `rmeta_srcmap.py game_ai action_score.rs 518 550` 의 줄 길이(내용 = bytes−1)와, 이미 IR 로 확정된 arm 값(200/80/40/20/−10/0)·2칸 들여쓰기(history[3] 이 L530=52·L542=57·L536=39 로 확정)로 16줄이 ±0 정합한다: L527=7 `    200` · L529=6 `    80` · L531=20 `    if hp <= value {` · L532=8 `      40` · L533=12 `    } else {` · L534=8 `      20` · L535=5 `    }` · L537=7 `    -10` · L538=10 `  } else {` · L539=5 `    0` · L540=4 `  };` · L541=0(빈 줄) · L543=5 `    5` · L544=10 `  } else {` · L545=5 `    0` · L546=4 `  };`. ★범위: 줄 **길이** 산술이라 동일 길이 대안 표기는 못 가른다(예: `hp <= value` ↔ `value >= hp`) — 「빈 줄/중괄호인가, 사라진 코드인가」라는 이 물음에 한해 닫힌다",
+      "evidence": "실행: `python -X utf8 rmeta_srcmap.py game_ai action_score.rs 518 550` → L527 bytes=8 / L529=7 / L531=21 / L532=9 / L533=13 / L534=9 / L535=6 / L537=8 / L538=11 / L539=6 / L540=5 / L541=1 / L543=6 / L544=11 / L545=6 / L546=5 (bytes 는 LF 포함). 검산 기준선 = 같은 파일 L530 bytes=53→52자, L542=58→57자, L536=40→39자 로 history[3] 의 복원과 ±0",
+      "behavior_change": false,
+      "found_by": "new"
+    },
+    {
+      "path": "/specs[2]/open",
+      "kind": "보강",
+      "old": "소스에 `if is_in_heal_area && hp<max` 형태였는지 중첩 if 였는지는 IR 로는 구분 불가(결과 동작은 동일)",
+      "new": "소스 형태는 ★해소(10차 배치A) — **중첩 if 가 아니라 `let` 바인딩 + 평평한 `&&`** 다. 같은 파일 `history[4]`(2차 배치A)가 이미 L38 = `    let is_in_heal_area = champ.x >= lx && champ.x <= rx && champ.y >= ly && champ.y <= ry;`(실측 91자 ±0) · L41 = `if is_in_heal_area && champ.hp < champ.stat_cached.hp {`(후보 55 vs 실측 54, 잔차 1자 = `history[5]` 에서 **표기 불가**로 종결)로 확정해 두었는데 이 항목에 전파되지 않았다. ⟹ **지역변수가 소스에 실재**하고 LLVM 이 지운 것은 그 **슬롯**뿐이다",
+      "evidence": "10차 배치A 재검산: `python -X utf8 rmeta_srcmap.py game_ai \"plan_legacy\\old\\attack_nexus.rs\" 31 55` → L38 bytes=92(내용 91) · L41 bytes=59(내용 58 = indent 4 + 54). history[4]/[5] 와 일치. G17(history 전파)은 `unknown` 을 보지 않아 못 잡는 형태다",
+      "behavior_change": false,
+      "found_by": "new"
+    },
+    {
+      "path": "/specs[2]/open",
+      "kind": "보강",
+      "old": "앞 24B(ptr/ptr/cap)의 정확한 필드명은 미확인",
+      "new": "앞 24B 의 필드명도 ★해소(10차 배치A) — `tcxdict`(정본, METHOD_MAP ⑦)가 그대로 돌려준다: `bumpalo::collections::vec::Vec<'_, &Entity>`(32B) = `0x0 buf: RawVec(24B)` + `0x18 len: usize`, 그리고 `RawVec`(24B) = `0x0 buf.ptr.pointer: pattern_type!(*const &Entity is !null)` · `0x8 buf.a: &bumpalo::Bump` · `0x10 buf.cap: usize`. ⟹ 둘째 워드는 `ptr` 이 아니라 **할당자 참조(`&Bump`)** 다. ★`distruct` 가 `?`(64B) 로만 답한 것은 도구의 한계이지 문제의 한계가 아니었다(METHOD_MAP ② 2차 폴백 강등 사유 그대로)",
+      "evidence": "실행: `python -X utf8 tcxdict.py \"bumpalo::collections::vec::Vec<'{erased}, &'{erased} game_core::Entity>\"` 와 `python -X utf8 tcxdict.py \"bumpalo::collections::raw_vec::RawVec<'{erased}, &'{erased} game_core::Entity>\" --deep`. 교차검증 = `python -X utf8 tcxdict.py AbstractGameWithCache 0x130` → `twin_towers[0].buf.ptr.pointer`",
+      "behavior_change": false,
+      "found_by": "new"
+    },
+    {
+      "path": "/specs[2]/open",
+      "kind": "보강",
+      "old": "판별자↔인덱스 매핑에 재배치가 있는지는 as_index 본체(entity.rs:580)를 안 봤으므로 미확정",
+      "new": "판별자↔인덱스 매핑은 ★해소(10차 배치A) — **재배치 없음(항등)**. `tcxdict --enum Position` = 5 variant 전부 `idx == 선언discr == 메모리태그`(0 Top / 1 Jungle / 2 Mid / 3 Bottom / 4 Support, 4B Direct 인코딩)이고, 인라인된 본체가 `%15 = load i32 … !range !62955{0,5}` → `%16 = zext nneg i32 %15 to i64` **맨몸 zext** 하나뿐이다(m12.ll:34888~34889, `!dbg` 루트 = entity.rs:581) ⟹ `as_index()` = 판별자 그대로",
+      "evidence": "실행: `python -X utf8 tcxdict.py --enum Position` → idx/선언discr/메모리태그 3열이 0~4 로 동일. IR: `_gaibc/m12.ll:34888` `%15 = load i32, ptr %14, align 8, !dbg !62954, !range !62955` + `!62955 = !{i32 0, i32 5}`(m12.ll:110840), `dloc m12.ll 62954` = entity.rs:581 as_index ← attack_nexus.rs:36",
+      "behavior_change": false,
+      "found_by": "new"
+    },
+    {
+      "path": "/specs[2]/consts[3]/meaning",
+      "kind": "보강",
+      "old": "동시에 LineStyle::Aggressive(0) 저장값이기도 함",
+      "new": "동시에 LineStyle::Aggressive(0) 저장값이기도 하다 — ★단 그 0 의 소스 줄은 **48** 이다(10차 배치A: `store i8 0, ptr %64` @m12.ll:34965 의 `!dbg !62989` = attack_nexus.rs:**48**). 이 행의 `src_line` 45 는 `%60 = icmp eq i64 %59, 0` @m12.ll:34957 `!dbg !62985`(vec.rs:1636 is_empty ← :45) 쪽 값이므로, 한 행이 **서로 다른 두 줄의 0 두 개**를 담고 있다",
+      "evidence": "`python -X utf8 dloc.py m12.ll 62985 62989` → !62985 = `vec.rs:1636 is_empty ← attack_nexus.rs:45`, !62989 = `attack_nexus.rs:48`. IR: m12.ll:34957 `%60 = icmp eq i64 %59, 0, !dbg !62985` · 34965 `store i8 0, ptr %64, align 8, !dbg !62989`",
+      "behavior_change": false,
+      "found_by": "new"
+    },
+    {
+      "path": "/specs[3]/open",
+      "kind": "보강",
+      "old": "소스가 명시적 is_empty 검사인지 아니면 LLVM 이 `die_imminent` 계산과 빈 이터레이터의 any() 를 둘 다 false 로 접은 결과인지는 구분 못 했다(관측 동작은 동일)",
+      "new": "★해소(10차 배치A) — **소스에 `Vec::is_empty()` 호출이 실재한다.** len 로드 `%41`(m10.ll:33947 `%40 = getelementptr inbounds nuw i8, ptr %10, i64 24, !dbg !40760`)의 `!dbg` 사슬이 `vec.rs:1617 len ← vec.rs:1636 **is_empty** ← buff_value.rs:30` 이다. LLVM 이 빈 이터레이터의 `any()` 를 접은 것이라면 인라인 프레임에 `is_empty` 가 아니라 이터레이터 쪽 프레임이 남는다 ⟹ 두 번째 가설은 기각된다. ★범위: 「L30 에서 `is_empty()` 를 부른다」까지가 확정이고, 그 자리가 조기 `return` 인지 `let` 바인딩인지는 이 근거로는 안 갈린다(rmeta L30 내용 49자)",
+      "evidence": "`python -X utf8 dloc.py m10.ll 40760` → `line 1617 in len ← line 1636 in is_empty ← line 30 in defensive_crisis`. 대조: 같은 블록의 `%42 = icmp eq i64 %41, 0, !dbg !40754` 는 `buff_value.rs:30` 평평한 위치다",
+      "behavior_change": false,
+      "found_by": "new"
+    },
+    {
+      "path": "/specs[4]/open",
+      "kind": "판정반전",
+      "old": "`spawn_epic` 이 tutorial ∈ {0,7,8} 에서 true 라는 해석은 이름+분기 방향에서 온 **추정**이다.",
+      "new": "★이 항목 전체가 무효다(10차 배치A) — 같은 파일 `history[3]`(2026-09-11 검증배치 A)이 세 주장을 모두 뒤집었는데 여기에 전파되지 않았다: ①**「소스 표기 확정 불가」는 과했다** — `defense_nexus.rs` L544=39자·L549=134자 복원 ±0 으로 `if !morgard_exists(data.context) || …` **부정형 확정** ②`morgard_exists` 는 `pub morgard_exists(&GameContext) -> bool`(mir=True)이고 MIR 이 `switchInt(discriminant(ctx.tutorial)) -> [0:true, 7:true, 8:true, otherwise:false]` **한 줄이 전부** — (b)(c)는 `:549` 의 별개 항이다 ③**「{0,7,8} 은 추정」도 과했다** — `TutorialType::spawn_epic()` 전 9값 오라클 실행으로 확정(None0 true / First1~JungleOnly6 false / Line7 true / Total8 true). ⟹ 남는 미확정은 없다.",
+      "evidence": "10차 배치A 는 IR 로 재확인만 했다: `_gaibc/m04.ll:58197` `%15 = getelementptr inbounds nuw i8, ptr %12, i64 56`(GameContext+0x38 tutorial) → 58200 `%18 = icmp ult i8 %17, 6`, `dloc m04.ll 66990` = `runner.rs:263 spawn_epic ← rule_scope.rs(morgard_exists) ← defense_nexus.rs:549`. 판정 근거 본체는 history[3] 이고 이 항목이 그것을 **반대로** 말하고 있었다(판정 반전 1건)",
+      "behavior_change": false,
+      "found_by": "reused"
+    },
+    {
+      "path": "/specs[4]/open",
+      "kind": "보강",
+      "old": "는 전부 `_gaibc` 에 define 이 없는 외부 선언이라 **인자 이름 DWARF 가 없다.** champions 의 2번째 인자를 '팀'으로 읽은 근거는 같은 값(%36)이 remain_epic_time 의 DWARF 인자명 `team` 으로 붙어 있다는 것뿐이다.",
+      "new": "중 **`has_line_defense_threat` 는 define 이 있다** — `_gaibc/m04.ll:60400`(defense_nexus.rs:587~604, pub. 같은 파일 `history[4]` 가 본문을 전부 폈다). 나머지 5개만 `_gaibc` 외부 선언이라 인자 이름 DWARF 가 없다. `champions` 의 2번째 인자 = **팀** 도 ★확정됐다(`history[3]`④: 본체 `_gcbc/g15.ll:109887~109895` 에서 `%8 = cache+480`(player_champion) 을 `[5 x ptr]` 로 잡고 **2번째 인자를 그 첨자**로 쓴다) — 「%36 이 remain_epic_time 의 DWARF 인자명 team 에 붙어 있다」는 정황 근거는 더 이상 유일 근거가 아니다.",
+      "evidence": "10차 배치A 재확인: `grep -n 'define .*has_line_defense_threat' _gaibc/m04.ll` 가 60400 을 낸다(mem[22]~[26]·knobs[5]·knobs[6] 이 이미 그 define 의 오프셋·임계를 싣고 있다 — 같은 명세 안에서 이 `closed` 행만 「define 없음」이라고 말하고 있었다 = 자기모순. G1 은 `unknown` 과 표를 대조하지 않는다)",
+      "behavior_change": false,
+      "found_by": "reused"
+    },
+    {
+      "path": "/specs[4]/open",
+      "kind": "보강",
+      "old": "MobaMode 는 IR 에 `dereferenceable(N)` 이 없어 **크기 교차검증을 못 했다**(576 < 640 로 모순만 없음).",
+      "new": "MobaMode 크기·필드명은 ★해소(10차 배치A) — `tcxdict`(정본)가 `game_core::MobaMode (640B · struct · 필드 9, game.rs:182)` 의 `0x240 epic_minion_buff_time: [usize; 2]`(16B) 를 직접 돌려준다. distruct+DWARF 함수명 조합이 아니라 **컴파일러 정본 대조**로 올라간다(인접: 0x228 serpen_logs · 0x250 epic_count · 0x260 serpen_count · 0x270 missed_cs_line_phase — 전부 `[usize;2]` 라 오프셋 오귀속 시 이웃과 헷갈릴 여지가 있었는데 그것도 닫힌다).",
+      "evidence": "실행: `python -X utf8 tcxdict.py MobaMode` → `=== game_core::MobaMode (640B · struct · 필드 9) === … 0x240  epic_minion_buff_time  [usize; 2_usize] (16B)`",
+      "behavior_change": false,
+      "found_by": "new"
+    },
+    {
+      "path": "/specs[4]/mem[17]/note",
+      "kind": "보강",
+      "old": "twin_towers 벡터(%68)와 champions 결과 벡터(%119) 둘 다 +0x0=ptr, +0x18=len 으로 읽음",
+      "new": "twin_towers 벡터(base %65, len %68 @m04.ll:58303)와 champions 결과 벡터(base %9, len %119 @m04.ll:58454) 둘 다 +0x18 로 읽는다. ⚠%68·%119 는 **벡터가 아니라 len 값**이다. +0x0(ptr) 은 별도 행으로 분리했다(바로 위 행 — 한 행에 오프셋을 묶으면 기계 검사가 안 된다는 이 명세의 mem[22]~[24] 규약과 같은 이유)",
+      "evidence": "m04.ll:58297 `%65 = getelementptr inbounds nuw { { ptr, ptr, i64 }, i64 }, ptr %64, i64 %35` · 58302 `%67 = getelementptr inbounds nuw i8, ptr %65, i64 24` · 58303 `%68 = load i64, ptr %67` / 58453 `%118 = getelementptr inbounds nuw i8, ptr %9, i64 24` · 58454 `%119 = load i64, ptr %118`",
+      "behavior_change": false,
+      "found_by": "new"
+    },
+    {
+      "path": "/specs[4]/mem",
+      "op": "insert",
+      "at": 17,
+      "guard": "ptr",
+      "guard_key": "name",
+      "kind": "보강",
+      "old": null,
+      "new": {
+        "base": "Vec<&Entity>(bumpalo)",
+        "offset": "0x0",
+        "name": "ptr",
+        "note": "버퍼 시작(bumpalo RawVec.buf.ptr.pointer). ★10차 배치A 신규 — IR 이 두 곳에서 실제로 로드하는데 표에 행이 없었다: m04.ll:58300 `%66 = load ptr, ptr %65`(twin_towers[아군팀], 559줄 min_by_key 의 시작 주소) · m04.ll:58451 `%117 = load ptr, ptr %9`(champions 결과, 571줄 루프의 시작 주소). 같은 접근이 `03 defensive_crisis` 에는 mem[10] 으로 실려 있다. 필드명 = tcx 정본 대조(`tcxdict bumpalo::collections::vec::Vec<'{erased}, &'{erased} game_core::Entity>` = 0x0 buf: RawVec / 0x18 len; RawVec = 0x0 ptr.pointer / 0x8 a: &Bump / 0x10 cap)"
+      },
+      "evidence": "m04.ll:58300 `%66 = load ptr, ptr %65, align 8, !dbg !67054, !nonnull !8, !noundef !8` · m04.ll:58451 `%117 = load ptr, ptr %9, align 8, !dbg !67304, !nonnull !8, !noundef !8`. 뒤이어 58449 `%70 = getelementptr inbounds nuw i8, ptr %66, i64 %69`(끝점) · 58535 `%130 = getelementptr inbounds nuw ptr, ptr %117, i64 %128`(원소 첨자)로 둘 다 소비된다",
+      "behavior_change": false,
+      "found_by": "new"
+    }
+  ],
+  "ev_up": [
+    {
+      "path": "/specs[0]/consts[0]",
+      "from": 4,
+      "to": 3,
+      "evidence": "tcxdict AbstractGameWithCache → `0x1e0 player_champion [[std::option::Option<&Entity>; 5_usize]; 2_usize] (80B)` ⟹ 1차 축 길이 = 2(팀 수)가 컴파일러 정본으로 확정된다. IR `icmp ult i64 %10, 2`(m04.ll:43983)는 그 길이의 bounds-check",
+      "found_by": "new"
+    },
+    {
+      "path": "/specs[1]/consts[0]",
+      "from": 4,
+      "to": 3,
+      "evidence": "tcxdict AbstractGameWithCache → `0x1e0 player_champion [[std::option::Option<&Entity>; 5_usize]; 2_usize] (80B)` ⟹ 첫 축 길이 = 2(팀 수). IR `icmp ult i64 %9, 2`(m05.ll:39998)가 그 bounds-check",
+      "found_by": "new"
+    }
+  ],
+  "brief_errors": [
+    "★`mkdossier.py` 가 `siblings` 표를 **빈 칸으로 렌더한다.** `02 sub_plan` 의 도시에는 「형제 9개」 아래에 `# / 이름 / 심볼 / 비고` 9행이 **전부 공란**으로 찍혀 있는데, `_spec/specs20_v3.json` 의 `siblings.entries` 에는 9건이 `path`·`vis`·`at`·`mir`·`sig` 로 멀쩡히 들어 있다. 원인은 `mkdossier.py:266` 의 `table(sib[\"entries\"], (\"name\", \"sym\", \"note\"), …)` — **키 이름이 데이터와 다르다**(`path`/`vis`/`at`/`mir`). 도시에 §3 이 「어떤 칸도 `...` 로 줄이지 않았다」고 약속하는데 이 칸은 통째로 비어 있었다. 이번 배치 5함수 중 `siblings.count>0` 인 것은 02 하나뿐이라 다른 라운드에서는 드러나지 않았을 수 있다. 빠진 정보의 예: `AttackNexusPlan::next_plan`(attack_nexus.rs:55)은 **`mir=True`** 다 — `history[1]` 이 「`next_plan` 은 define 이 없고」라고만 적고 MIR 경로를 안 봤다.",
+    "★도시에 §5 와 지시문 본문이 **`op:insert` 에 대해 서로 반대**로 말한다. §5 규칙란은 「⚠**새 항목 추가(`append`)는 구현이 없다.** 새 사실은 `errors[]` 로 기존 필드의 문면을 고치거나 … 메인이 손으로 넣는다」인데, 지시문 본문은 「⚠행 추가는 `{\"op\":\"insert\", …}`」라고 지시한다. `applypatch.py:239~275` 를 읽어야 **`insert`/`delete` 는 있고 `append` 만 없다**는 것을 알 수 있다. §5 만 읽은 배치는 행 추가를 포기한다(8차 배치C 가 실제로 그래서 막혔다고 같은 파일이 적고 있다).",
+    "★`op:insert` 의 **인덱스 의미가 v3 가 아니라 v2 다.** `applypatch.resolve()` 는 `insert` 때 `resolve(cont, field, 0)` 으로 배열을 잡으므로 `/specs[i]/mem` 은 **항상 `reads`** 를 가리킨다 — `writes` 쪽 행은 이 경로로 넣을 수 없고, `at` 도 v3 통합 인덱스가 아니라 `reads` 기준이다. 도시에 어디에도 이 말이 없어서 `writes` 행을 넣으려는 배치는 조용히 엉뚱한 배열에 꽂는다.",
+    "★도시에 §1 표의 `ev≥4` 수와 실제 무검사량이 어긋나는 방향이 하나 더 있다. `03` 의 `knobs` 21건 중 **9건이 담당 IR 범위(m10.ll:33864~34294) 밖**(m15/g06/g15/m03)을 가리키는데, 이 행들은 `where` 에 백틱 IR 인용이 없어 **G13 이 「줄이 존재하나」만 본다**. 이번에 그중 3건(knobs[10]·[13] 과 04 knobs[4])에서 **인용줄이 `unreachable`·블록 라벨·switch case 라벨**인 것을 찾았다. §4-b 의 「아직 게이트가 없는 축」 표에 **`knobs.where` 중 「IR 인용이 없는 행」**을 별도 축으로 세워야 한다(전체 건수를 세는 검사기 = `where` 가 `<파일>:<줄>` 을 담고 백틱 인용이 없는 행을 센 뒤, 그 줄이 **명령인지**(라벨/빈 줄/case 라벨/`unreachable` 이 아닌지) 만 보는 것으로도 이번 3건은 전부 잡힌다).",
+    "`03 defensive_crisis` 의 헤더 표가 `exe | None (None) · None바이트 · None명령` 으로 렌더된다. 값이 비었다는 사실 자체는 정보지만 `None` 3연발은 도시에를 읽는 쪽이 「도구가 깨졌나」로 오해하기 쉽다 — `—`(미확정)으로 찍고 `exe 미매핑` 이라고 적는 편이 낫다.",
+    "★★**긴급 — `applypatch.py` 가 라운드 중간에 깨졌다(21:46 편집).** `op:insert` 가 들어있는 patch 를 돌리면 `File \"applypatch.py\", line 280 → NameError: name 'WARN' is not defined` 로 **전체 실행이 죽는다**(한 항목 실패가 아니라 프로세스 종료). 280행이 `log.append` → `WARN.append` 로 바뀌었는데 `WARN` 이 **어디에도 정의돼 있지 않다**(`grep -n WARN applypatch.py` → 280행 1건). 주석에 「10차 배치B·C 가 둘 다 지적」이라 있는 걸 보면 경고를 실패통에서 빼려다 생긴 회귀다. ⚠내 배치는 MIG 루트 도구 수정 금지라 고치지 않았고, `WARN = []` 를 주입하는 외부 래퍼(scratchpad)로 검증만 했다 — 그 상태에서 **정정 16/16 · ev상향 2/2 · 동작 변경 0**이다. 메인은 적용 전에 `WARN` 을 정의하고(또는 `log` 로 되돌리고) **다시 돌려야 한다** — 그냥 돌리면 네 배치 patch 가 **한 건도 적용되지 않고** 끝난다."
+  ]
+}

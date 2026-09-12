@@ -1,0 +1,219 @@
+---
+
+### `09` check_favorable_engage_formation — 아군 5인의 배치를 적 후퇴방향 기준 전방/측면/후방으로 분류해 교전이 유리한 대형인지 판정
+
+| 항목 | 값 |
+|---|---|
+| id | `fight_check__check_favorable_engage_formation` |
+| 심볼 | `_RNvNtCshdEBA0ozCnw_7game_ai11fight_check32check_favorable_engage_formation` |
+| 소스 | `game-ai\src\fight_check.rs:1196` |
+| IR | `m15.ll` 35410~35850행 |
+| 경로·가시성 | `game_ai::check_favorable_engage_formation` · **pub** |
+| 계층 | 점수화·술어 |
+| exe | `ebd570` (fight_check) · 3242바이트 · 781명령 |
+| 라운드 | 기준 `r4` · 통과 4회 |
+
+**시그니처(tcx 정본, ev3)**
+```rust
+fn(usize, &game_core::PlayerState, &game_core::OperationData, &game_core::Entity, u64) -> bool
+```
+
+<details><summary>인자 5개</summary>
+
+| # | i | 이름 | 타입 | 역할 | ev |
+|---|---|---|---|---|---|
+| 0 | 1 | version | usize | ★AI 버전 게이트가 **아니다**(이름만 version). 본문 분기 0 + **피호출자 2단이 모두 `i64 poison`** (LLVM 이 미사용을 증명) + 오라클 version 12종 × 400 시나리오 **결과 차이 0건** ⟹ **이 체인 전체에서 죽은 인자다**(2026-09-11 2차배치B). ~~1차의 '주 경로에서는 살아 있는 버전 게이트'~~ 는 관측은 맞고 **결론이 틀렸다**. 재구현 지침: 받아서 흘리기만 하면 되고 0 하드코딩도 결과 불변(단 시그니처 호환을 위해 인자는 유지) | 2 |
+| 1 | 2 | player | &PlayerState(2528B) | info.team(0x930)·info.position(0x9c0) 만 읽는다 | 4 |
+| 2 | 3 | data | &OperationData(24B) | cache(0x0)=&AbstractGameWithCache, context(0x8)=&GameContext. blackboard(0x10)은 안 읽음 | 4 |
+| 3 | 4 | target_enemy | &Entity(1728B) | 교전 대상 적. x(0x660)/y(0x668)만 읽는다 | 4 |
+| 4 | 5 | engage_range | u64 | 교전 사거리. +100000 한 뒤 제곱해 아군 참가 반경으로 씀. **호출부 8곳 전수 200000**(m13.ll:18805 / 35679 / 37141 / 39946 / 40936 / 41820 / 42834 · m15.ll:33271). ~~「유일 호출처 = should_disengage_object_hunt」~~ 는 거짓(2026-09-11 검증배치 B) | 4 |
+</details>
+
+**의사코드 `logic`**
+> ★재구현용 의사코드다. **오프셋·상수·시그니처의 정본은 `mem`/`consts`/`callees`/`sig.tcx` 이고, 여기와 어긋나면 그쪽이 맞다.** (v2 에서 정정이 표에만 반영되고 이 블록이 옛 값으로 남는 사고가 반복됐다)
+```
+fn check_favorable_engage_formation(version, player, data, target_enemy, engage_range) -> bool
+
+// 1203: 자기 챔피언
+team = player.info.team // 0x930, 2 미만 bounds-check
+champ = data.cache.player_champion[team][player.info.position as usize].unwrap() // 0x1e0
+// 1204
+enemy_team = 1 - team
+
+// 1208~1209: 적 미니언 웨이브 위험 게이트
+dmg = enemy_minion_line_action_danger_damage_at(
+ version, data, champ,
+ target_enemy.x, target_enemy.y,
+ data.context.setting.tick_per_second * 2, // 2초
+ true, false)
+if dmg != 0 { return false } // 미니언 라인 피해가 예상되면 무조건 불리
+
+// 1214~1216: 적 진영 분수(fountain) 사각형의 중심 = 적이 후퇴할 지점
+(elx, ely, erx, ery) = data.context.map.fountains[enemy_team] // 0x6d70, map_def.rs:235
+enemy_base_x = (elx + erx) / 2 // lshr 1
+enemy_base_y = (ely + ery) / 2
+
+// 1219~1223: 적의 후퇴 벡터 R (i128 부호연산)
+retreat_dx = enemy_base_x - target_enemy.x
+retreat_dy = enemy_base_y - target_enemy.y
+retreat_len_sq = retreat_dx^2 + retreat_dy^2
+if retreat_len_sq < 1 { return true } // 적이 이미 자기 분수 중심 위 → 무조건 유리
+
+// 1229~1231
+front_allies = 0; flank_allies = 0; rear_allies = 0
+// 1294 상당: 적과 적 분수 사이 거리제곱 (u64 abs_diff 기반, 루프 밖에서 1회 계산)
+enemy_to_base_dist_sq = dist_sq(target_enemy.x, target_enemy.y, enemy_base_x, enemy_base_y)
+max_engage_dist = engage_range + 100000 // 1246
+
+// 1233: 아군 5칸 순회
+for ap in 0..5 {
+ let Some(ally) = data.cache.player_champion[team][ap] else { continue } // 1234
+ if ally.id == champ.id { continue } // 1235 (자기 자신 제외)
+ if ally.hp * 100 / ally.stat_cached.hp < 40 { continue } // 1240 (빈사 아군 제외)
+
+ // 1245~1247
+ ally_to_enemy_dist_sq = dist_sq(ally.x, ally.y, target_enemy.x, target_enemy.y)
+ if ally_to_enemy_dist_sq > max_engage_dist^2 { continue }
+
+ // 1252~1256: 아군→적 벡터 A (i128)
+ ally_dx = target_enemy.x - ally.x
+ ally_dy = target_enemy.y - ally.y
+ ally_len_sq = ally_dx^2 + ally_dy^2
+ if ally_len_sq < 1 { front_allies += 1; continue } // 1258 (겹쳐 있으면 전방 취급)
+
+ // 1264~1279: A 와 R 의 내적/외적 (정규화 없이 제곱 비교)
+ dot = ally_dx*retreat_dx + ally_dy*retreat_dy
+ cross = ally_dx*retreat_dy - ally_dy*retreat_dx
+ len_product_sq = ally_len_sq * retreat_len_sq
+ dot_sq = dot^2
+ cross_sq = cross^2
+
+ // 1280/1283/1286
+ is_front = dot > 0 && dot_sq * 4 > len_product_sq // |cos|>0.5, 적 뒤쪽에서 미는 방향
+ is_rear_direction = dot < 0 && dot_sq * 100 > len_product_sq * 9 // |cos|>0.3, 적의 후퇴로 방향
+ is_significant_flank = cross_sq * 100 > len_product_sq * 9 // |sin|>0.3, 축에서 충분히 벗어남
+
+ // 1288~1307 (분기 순서 고정)
+ if is_front { front_allies += 1 } // 1289
+ else if is_rear_direction { // 1290
+ to_base_dist_sq = dist_sq(ally.x, ally.y, enemy_base_x, enemy_base_y) // 1293
+ if to_base_dist_sq < enemy_to_base_dist_sq { rear_allies += 1 } // 1296/1298 (퇴로 차단 성립)
+ else { flank_allies += 1 } // 1300
+ }
+ else if is_significant_flank { flank_allies += 1 } // 1302/1304
+ // ★1302 에 도달하면 is_significant_flank 는 **항상 참**이다 
+ // 6차에 재실행으로 재확인(B6_r1.tsv: 난수 200만 J_sweep · 전수격자 28,561 J_exhaust 둘 다
+ // lagrange_violations=0, ELSE_1307=0). 구속조건은 dot>0 가지의 75 라서 임계가 75 미만이면 무효다.
+ else { front_allies += 1 } // 1307 — ★죽은 가지(도달 불가)
+}
+
+// 1316
+if rear_allies > 0 { return true } // 퇴로를 끊은 아군이 하나라도 있으면 유리
+// 1321
+if flank_allies > 1 || (flank_allies > 0 && front_allies > 0) { return true }
+// 1331
+if front_allies > 1 {
+ enemy_to_base_sq = enemy_to_base_dist_sq // 1334 (위 값 재사용)
+ champ_to_base_sq = dist_sq(champ.x, champ.y, enemy_base_x, enemy_base_y) // 1335
+ return champ_to_base_sq * 5 <= enemy_to_base_sq * 6 // 1340
+}
+return false // 1348
+
+// 주: dist_sq 는 game-core\src\utils.rs:6~9 (u64 abs_diff 후 제곱합, 인라인됨).
+// 1321행의 || 는 IR 에서 비단축 or 로 접혀 두 항의 소스상 순서는 결과에 영향 없음.
+```
+
+**`mem` 메모리 접근 14건** — ★`ev` 상한은 **3**이다(오프셋 주장의 최강 근거가 tcx 라서).
+| # | 베이스 | 오프셋 | 이름 | 방향 | 근거 | ev | chk |
+|---|---|---|---|---|---|---|---|
+| 0 | PlayerState(GamePlayer) | 0x930 | info.team | r | 0/1. 2 미만 bounds-check 후 player_champion[team] 인덱스로 사용. enemy_team = 1 - team · tcx 정본 대조( tcxdict **tcx 정본** 대조 OK + ⓐ `offset_of!` 실행 교차검증 MISMATCH 0 (B6_o1.tsv, 78행+구조체크기 7건) — 오프셋·필드명 한정) | 3 | OK |
+| 1 | PlayerState(GamePlayer) | 0x9c0 | info.position | r | i32 range[0,5]. Position 열거형(0=Top,1=Jungle,2=Mid,3=Bottom,4=Support). player_champion[team][position] 로 자기 챔피언(champ) 획득 · tcx 정본 대조( tcxdict **tcx 정본** 대조 OK + ⓐ `offset_of!` 실행 교차검증 MISMATCH 0 (B6_o1.tsv, 78행+구조체크기 7건) — 오프셋·필드명 한정) | 3 | OK |
+| 2 | OperationData | 0x0 | cache | r | &AbstractGameWithCache · tcx 정본 대조( tcxdict **tcx 정본** 대조 OK + ⓐ `offset_of!` 실행 교차검증 MISMATCH 0 (B6_o1.tsv, 78행+구조체크기 7건) — 오프셋·필드명 한정) | 3 | OK |
+| 3 | OperationData | 0x8 | context | r | &GameContext · tcx 정본 대조( tcxdict **tcx 정본** 대조 OK + ⓐ `offset_of!` 실행 교차검증 MISMATCH 0 (B6_o1.tsv, 78행+구조체크기 7건) — 오프셋·필드명 한정) | 3 | OK |
+| 4 | AbstractGameWithCache | 0x1e0 | player_champion | r | [[Option<&Entity>;5];2] (80B). champ 획득 + 아군 5칸 순회 양쪽에 씀 · tcx 정본 대조( tcxdict **tcx 정본** 대조 OK + ⓐ `offset_of!` 실행 교차검증 MISMATCH 0 (B6_o1.tsv, 78행+구조체크기 7건) — 오프셋·필드명 한정) | 3 | OK |
+| 5 | GameContext | 0x8 | setting | r | &GameSetting · tcx 정본 대조( tcxdict **tcx 정본** 대조 OK + ⓐ `offset_of!` 실행 교차검증 MISMATCH 0 (B6_o1.tsv, 78행+구조체크기 7건) — 오프셋·필드명 한정) | 3 | OK |
+| 6 | GameContext | 0x20 | map | r | &MapDef · tcx 정본 대조( tcxdict **tcx 정본** 대조 OK + ⓐ `offset_of!` 실행 교차검증 MISMATCH 0 (B6_o1.tsv, 78행+구조체크기 7건) — 오프셋·필드명 한정) | 3 | OK |
+| 7 | GameSetting | 0x12f8 | tick_per_second | r | ×2 해서 미니언 위험 조회 구간(2초)으로 넘김 · tcx 정본 대조( tcxdict **tcx 정본** 대조 OK + ⓐ `offset_of!` 실행 교차검증 MISMATCH 0 (B6_o1.tsv, 78행+구조체크기 7건) — 오프셋·필드명 한정) | 3 | OK |
+| 8 | MapDef | 0x6d70 | fountains | r | [{u64,u64,u64,u64};2] (64B). fountains[enemy_team] = (elx,ely,erx,ery) 사각형. 중심이 enemy_base · tcx 정본 대조( tcxdict **tcx 정본** 대조 OK + ⓐ `offset_of!` 실행 교차검증 MISMATCH 0 (B6_o1.tsv, 78행+구조체크기 7건) — 오프셋·필드명 한정) | 3 | OK |
+| 9 | Entity | 0x5c0 | id | r | champ.id 와 ally.id 를 비교해 자기 자신을 순회에서 제외(1235행) · tcx 정본 대조( tcxdict **tcx 정본** 대조 OK + ⓐ `offset_of!` 실행 교차검증 MISMATCH 0 (B6_o1.tsv, 78행+구조체크기 7건) — 오프셋·필드명 한정) | 3 | OK |
+| 10 | Entity | 0x628 | stat_cached.hp | r | 최대 HP. 0 이면 div-by-zero 패닉 · tcx 정본 대조( tcxdict **tcx 정본** 대조 OK + ⓐ `offset_of!` 실행 교차검증 MISMATCH 0 (B6_o1.tsv, 78행+구조체크기 7건) — 오프셋·필드명 한정) | 3 | OK |
+| 11 | Entity | 0x660 | x | r | champ / ally / target_enemy 모두 이 필드 · tcx 정본 대조( tcxdict **tcx 정본** 대조 OK + ⓐ `offset_of!` 실행 교차검증 MISMATCH 0 (B6_o1.tsv, 78행+구조체크기 7건) — 오프셋·필드명 한정) | 3 | OK |
+| 12 | Entity | 0x668 | y | r | champ / ally / target_enemy 모두 이 필드 · tcx 정본 대조( tcxdict **tcx 정본** 대조 OK + ⓐ `offset_of!` 실행 교차검증 MISMATCH 0 (B6_o1.tsv, 78행+구조체크기 7건) — 오프셋·필드명 한정) | 3 | OK |
+| 13 | Entity | 0x670 | hp | r | 현재 HP. hp*100/stat_cached.hp < 40 인 아군은 카운트에서 제외 · tcx 정본 대조( tcxdict **tcx 정본** 대조 OK + ⓐ `offset_of!` 실행 교차검증 MISMATCH 0 (B6_o1.tsv, 78행+구조체크기 7건) — 오프셋·필드명 한정) | 3 | OK |
+
+**`consts` 상수 9건** — `src_line` 은 **G12 가 IR 사슬과 대조**한다.
+| # | 값 | src_line | 종류 | 뜻 | ev |
+|---|---|---|---|---|---|
+| 0 | 2 | 1209 | 임계 | tick_per_second × 2 = 2초 구간. IR 에선 shl i64 %30,1 로 접혀 리터럴 2 는 team bounds-check(icmp ult %7,2) 쪽에만 남아 있다 — 접힌 그 자리(m15.ll:35471 `%31 = shl i64 %30, 1, !dbg !46299`)의 `!46299` 가 `!DILocation(line: 1209)` 이라 **src_line=1209 는 IR 로도 확정**된다(9차 배치A) · 오라클 실행 확증(7차 배치B: B7_o3.tsv — 미니언 18마리를 세운 뒤 유리 대형(rear 아군 1명)을 만들어 `tick_per_second` 를 20점 스윕. 09 의 판정 반전점이 **tps 40→41** 이고 `danger` 창 임계가 81 이므로 2×41=82 ⟹ 계수 **K=2 만 20/20 일치, K=1·3·4 는 기각**. `shl i64 %30,1` 로 접혀 리터럴이 없던 값을 실행으로 고정했다) | 2 |
+| 1 | 100000 | 1246 | 계수 | max_engage_dist = engage_range + 100000. 아군이 '교전에 참가할 수 있다'고 볼 여유 거리 · 오라클 실행 확증( 오라클 실행 확증: d = er+100000 → 포함 / +1 → 제외, er 3종(100000·200000·400000) 전부 ) | 2 |
+| 2 | 40 | 1240 | 임계 | HP 비율 임계(%). hp*100/max_hp < 40 인 아군은 대형 계산에서 제외 · 오라클 실행 확증( 오라클 실행 확증: HP% 39 → false / 40 → true ) | 2 |
+| 3 | 100 | 1240 | 계수 | 백분율 스케일. HP% 계산과 cos²/sin² 임계(×100 vs ×9)에 공통으로 쓰임 · 오라클 실행 확증( 오라클 실행 확증: 백분율 스케일 hp*100/max 정수나눗셈 399/1000·400/1000 ) | 2 |
+| 4 | 9 | 1283 | 계수 | 9/100 = 0.09 임계. dot_sq*100 > len_product_sq*9 → cos² > 0.09 → \|cosθ\| > 0.3 (후퇴축과 ~72.5도 이내). 같은 값이 1286행 cross_sq(=sin²) 판정에도 쓰임 — 두 곳이 CSE 로 합쳐져 m15.ll:35754 `%184 = mul i128 %175, 9` 하나만 남았고 그 `!dbg !46436` 은 `!DILocation(line: 0)`(병합 위치)다. 소비자 `%189 = icmp sgt i128 %188, %184, !dbg !46437` 이 `line: 1283` 이라 **src_line=1283 확정**(9차 배치A) · 오라클 실행 확증( 오라클 실행 확증: dy 158989 → rear / 158990 → flank (= 91dx² > 9dy²) ) | 2 |
+| 5 | 4 | 1280 | 임계 | is_front 임계. dot_sq*4 > len_product_sq → cos² > 1/4 → \|cosθ\| > 0.5 (후퇴축과 60도 이내). IR 에선 shl i128 %176,2 로 접혔고, 리터럴 4 는 아군 루프 상한(icmp ult %89,4)으로만 본문에 남아 있다 — 접힌 그 자리(m15.ll:35776 `%191 = shl i128 %176, 2, !dbg !46432`)의 `!46432` 가 `!DILocation(line: 1280)` 이라 **src_line=1280 은 IR 로도 확정**된다(9차 배치A) · 오라클 실행 확증( 오라클 실행 확증: dy 173205 → front / 173206 → flank (= 3dx² > dy²) ) | 2 |
+| 6 | 5 | 1340 | 계수 | champ_to_base_sq × 5 (최종 비율식 좌변) · 오라클 실행 확증( 오라클 실행 확증: champ_to_base 547722 → true / 547723 → false ) | 2 |
+| 7 | 6 | 1340 | 계수 | enemy_to_base_sq × 6 (최종 비율식 우변). 합쳐서 champ_to_base_sq <= 1.2 × enemy_to_base_sq · 오라클 실행 확증( 오라클 실행 확증: 같은 경계(×5 ≤ ×6) ) | 2 |
+| 8 | 1 | 1223 | 임계 | 제로벡터 판정 임계. retreat_len_sq < 1 (=0) 이면 즉시 true, ally_len_sq < 1 (1256행) 이면 그 아군을 front 로 계산 · 오라클 실행 확증( 오라클 실행 확증: 적이 분수 중심 위 → 무조건 true / +1 → false · 겹친 아군 = front ) | 2 |
+
+**`knobs` 조정점 11건** — `where` 는 **G13 이 그 줄(±2)에 인용 명령이 있는지** 본다.
+| # | 무엇 | 어디 | 값 | 효과 | ev | src |
+|---|---|---|---|---|---|---|
+| 0 | 빈사 아군 제외 HP 임계 | fight_check.rs:1240 | 40 | 내리면 체력 낮은 아군도 대형 인원으로 세어 교전을 더 자주 '유리'로 판정한다. 올리면 건강한 아군만 세어 교전 개시가 보수적이 된다 · 오라클 실행 확증( 오라클 실행 확증: HP% 39/40 경계 + 민감도표 ) | 2 | 기존 |
+| 1 | 아군 참가 반경 여유 | fight_check.rs:1246 | 100000 | 올리면 더 멀리 있는 아군까지 대형에 포함돼 true 가 잘 나온다(원거리 아군을 믿고 무리한 교전). 내리면 근접한 아군만 세어 판정이 엄격해진다 · 오라클 실행 확증( 오라클 실행 확증: 여유 100000 경계 3종 ) | 2 | 기존 |
+| 2 | 전방(front) 각도 임계 | fight_check.rs:1280 | 4 | dot_sq*N > len_product_sq 의 N. 올리면(예:4→8) cos 임계가 높아져 정면에 아주 가까운 아군만 front 로 세고 나머지는 flank 로 흘러간다 → flank 조건(1321)이 잘 성립해 오히려 true 가 늘 수 있다. 내리면 대부분이 front 로 몰려 1331~1340 의 거리비율 게이트를 타게 된다 · 오라클 실행 확증( 오라클 실행 확증: front 각도 임계 4 의 경계 173205/173206 ) | 2 | 기존 |
+| 3 | 후퇴로/측면 판정 임계(cos² 실효 · **sin² 는 무효**) | fight_check.rs:1283,1286 | 9 | ★**`1286` 의 sin² 항은 그 지점에 도달하면 항상 참**이라 **0~74 구간에서 무효 노브**다. 실효는 **`1283`(cos²) 하나뿐**이다. ×100 대비 9 = 0.09. 내리면 후퇴축에서 조금만 벗어나도 rear/flank 로 인정돼 '포위했다'는 판정이 크게 늘어난다. 올리면 거의 정확히 퇴로 위/옆에 선 아군만 인정된다 ⟹ 재구현·설정 UI 에서 이 노브를 **두 개처럼 노출하면 안 된다.** · 오라클 실행 확증( 오라클 실행 확증: 1283 경계 158989/158990 + 1286 은 0~74 전 구간 무효(민감도 델타 0) ) | 2 | 기존 |
+| 4 | 최종 거리비율 게이트 | fight_check.rs:1340 | 6 | champ_to_base_sq*5 <= enemy_to_base_sq*6 (=1.2배). 우변 계수를 올리면 자기 챔피언이 적 분수에서 더 멀어도 통과 → front 전개만으로도 교전을 허용. 내리면 자신이 적보다 적 진영에 더 깊이 들어가 있어야만 통과한다 · 오라클 실행 확증( 오라클 실행 확증: 최종 비율 게이트 547722/547723 ) | 2 | 기존 |
+| 5 | 미니언 위험 조회 구간 | fight_check.rs:1209 | 2 | tick_per_second × 2 = 앞으로 2초. 올리면 더 먼 미래의 미니언 피해까지 보고 교전을 포기(false)하게 되어 라인 근처 교전이 급감한다. 0 에 가깝게 내리면 미니언 게이트가 사실상 무력화된다 · 오라클 실행 확증(7차 배치B: B7_o3.tsv 같은 실행 — 조회 구간이 `tick_per_second × 2` 임을 반전점 tps 40/41 로 격리) | 2 | 기존 |
+| 6 | 대형 성립 인원 조건 | fight_check.rs:1316,1321,1331 | {fight_check.rs:1316 → 0, 1321 → (flank>1) OR (flank>0 && front>0), 1331 → 1} | ★비교 상수는 **0 과 1 이 섞여 있다** — `1316 rear>0` / `1321 (flank>1) \|\| (flank>0 && front>0)` / `1331 front>1`. ★안쪽 `&&` 는 `select i1 %95, i1 %96, false` 로 **단축평가가 보존**돼 `flank>0` 이 좌항임이 확정(바깥 `\|\|` 순서만 미확정). rear>0 / flank>1 / (flank>0&&front>0) / front>1 의 문턱값들. 전부 0 으로 낮추면 아군 한 명만 조건에 맞아도 항상 유리 판정, 올리면 다수 포위가 갖춰져야만 교전한다 · 오라클 실행 확증( 오라클 실행 확증: rear1→true / front1→false / front2+비율→true / flank1→false / flank2→true / flank1+front1→true 6종 ) | 2 | 기존 |
+| 7 | 미니언 위험 임계표 8개 값 | minion_wave_risk.rs:236 = m07.ll:48291~48375 | 엄격표(m07.ll:48320~48342): dmg≥hp · dmg%>49 · (hp%<66 & dmg%>29) · (hp%<41 & dmg%>17) · (hp%<26 & dmg%>9) / 완화표(48367~48379): dmg≥hp · (hp%<26 & dmg%>34) · (hp%<16 & dmg%>19)   ※hp%=hp*100/max_hp, dmg%=damage*100/hp | 낮출수록 미니언 웨이브를 위험하다고 자주 판정 → 교전 개시 억제 | 4 | 신규 |
+| 8 | 교전 판정 윈도우 tps*2 | m15.ll:35470 (shl i64 %30, 1) | tps*2 (2초) | 늘리면 더 긴 시간의 미니언 누적딜을 보고 교전을 더 자주 포기 · 오라클 실행 확증(7차 배치B: B7_o3.tsv 같은 실행 — `m15.ll:35470 shl i64 %30,1` 의 계수 2 를 실행으로 확정) | 2 | 신규 |
+| 9 | champion_action / predict_retarget 플래그 | m15.ll:35472 인자 (현재 true,false) | (champion_action=true, predict_retarget=false) | predict_retarget=true 로 바꾸면 리타깃 예측 + 거리가중 100 고정 → 교전 개시 더 보수적 · 오라클 실행 확증(7차 배치B: B7_o4.tsv — 창을 tps×2 로 고정하고 `(champion_action, predict_retarget)` 4조합을 09 의 실제 판정과 대조: **(true,false) 만 20/20 일치**, (false,false)·(true,true)·(false,true) 전부 기각) | 2 | 신규 |
+| 10 | 에픽버프 위험표 게이트 | MobaMode+0x240 epic_minion_buff_time[적팀] (m07.ll:48287·48291) | ≠0 이면 엄격표 — **단 09 경로에서는 이 값이 판정을 못 바꾼다**(아래) | ★★**09 경로에서 이 노브는 표 선택에 관여하지 않는다.** 09 호출부는 `champion_action` 에 **리터럴 `true`**(m15.ll:35472)를 넘기고 표 선택이 `or(ca, buff≠0)`(m07.ll:48291 `%36 = or i1 %6, %35`) 이므로 **09 경로는 buff 값과 무관하게 항상 엄격표**다. buff 의 실제 개입 지점은 한 단 아래 `enemy_minion_line_action_damage_at`(minion_wave_risk.rs:132)이 모델을 **`enemy_minion_wave_risk_damage_at` 으로 통째 위임**하는 것이다 — 오라클 `buff=0 → 73` / `buff≠0 → 128`(=wave_risk), `OR` 8/8 MATCH. ⟹ **이 노브를 돌리려면 09 가 아니라 그 아래를 건드려야 한다.** | 2 | 신규 |
+
+<details><summary>`callees` 피호출자 2건 (tcx 자동 생성)</summary>
+
+| # | 이름 | 경로 | vis | 시그니처 | 정의처 | mir | xinl | ev |
+|---|---|---|---|---|---|---|---|---|
+| 0 | check_favorable_engage_formation | game_ai::check_favorable_engage_formation | pub | fn(usize, &game_core::PlayerState, &game_core::OperationData, &game_core::Entity, u64) -> bool | game-ai\src\fight_check.rs:1196 | False | False | 3 |
+| 1 | enemy_minion_line_action_danger_damage_at | game_ai::enemy_minion_line_action_danger_damage_at | pub | fn(usize, &game_core::OperationData, &game_core::Entity, u64, u64, usize, bool, bool) -> usize | game-ai\src\minion_wave_risk.rs:233 | False | False | 3 |
+</details>
+
+⚠**미매칭 1개**: `dist_sq`
+> tcx 3크레이트에 같은 leaf 이름의 Fn/AssocFn 이 없는 것들. 대부분 std·클로저·매크로이거나 `logic` 산문에서 긁힌 잡음이다. ⚠단 **여기 이름이 실제 게임 술어인데 이름이 달라서 못 잡힌 경우**가 섞일 수 있으니, 3차에서 판정에 쓰이는 술어가 이 목록에 있으면 손으로 확인할 것.
+
+**호출처 8곳** (m13.ll:18805, m13.ll:35679, m13.ll:37141, m13.ll:39946, m13.ll:40936, m13.ll:41820, m13.ll:42834, m15.ll:33271) · **형제 0개** 
+
+**`open` 1건 — ★이번 라운드에 네가 볼 것은 이것뿐이다.**
+| # | 분류 | 물음 | ev | 시도 |
+|---|---|---|---|---|
+| 0 | 미탐색 | src_line 은 DWARF !DILocation 에서 복원한 값이고 game-ai\src\fight_check.rs 원본 `.rs` 파일 자체는 이 환경에 없다. ⚠단 이 항목은 **미탐색**이다(5차 배치B 정정 · 6차 배치B 재확인): **rmeta SourceMap 에 `fight_check.rs` 가 있다**(1417줄, 파싱 0에러) ⟹ 줄 길이 산술로 표현식 문구를 좁힐 수 있다(4차 배치D 가 `16` 에서 33줄 ±0 복원한 그 수법). 아직 대조 안 함 — **미탐색**(줄번호만 확정, 실제 표현식 문구는 미확인). 6차에 재료는 확보했다: `python rmeta_srcmap.py game_ai fight_check 1196 1260` 실측을 B6_REPORT.md §3 에 실었다(src_len=57853 lines=1417 파싱 0에러 / L1196=49B·L1202=12B 로 tcx sp 1196:1~1202:10 의 7줄 시그니처와 정합 / L1206·1207·1213·1218·1224 등은 mb>0 = 한국어 주석). ★10차 배치B 가 실행했다(좁혀짐 · **미탐색 유지**). ①**이 파일의 들여쓰기 단위 = 2칸**이 확정됐다: L1211/L1319=4B(3자)=`  }` · L1242=6B(5자)=`    }` · L1241=16B(15자)=`      continue;` · L1210=18B(17자)=`    return false;` · L1318=17B(16자)=`    return true;` · L1233=19B(18자)=`  for ap in 0..5 {`(±0) ⟹ 최상위 `if` 는 들여쓰기 2, 그 본문은 4. ②그 결과 조건부 순수 길이 = **L1316 16자 · L1321 38자 · L1331 17자**. ③세 줄이 같은 철자꼴 `if X <비교> {` 를 쓴다고 두면 `len(front)=len(rear)+1` 과 `2·len(flank)+len(front)=(1321길이−고정문자)` 가 동시에 성립해야 하는데 **2·len(flank)=3** 이라는 모순이 나오고, 이 모순은 들여쓰기 값이 소거되므로 들여쓰기 가정과 무관하다 ⟹ **L1321 은 `logic` 이 적은 `flank_allies > 1 \|\| (flank_allies > 0 && front_allies > 0)` 철자 그대로가 아니다**(의미는 4차 배치B 의 독립재구현 1800/1800 으로 이미 확정 — 철자만의 문제다). ④남은 미탐색 = L1321 의 실제 철자와 세 카운터의 식별자 길이(rear 12자·front 13자 꼴이 1316/1331 을 만족하지만 1321 과 양립하지 않는다). | 3 |  |
+
+**`notes` 1건 — 확정된 사실 서술이다. 파지 말고, 틀렸다고 보면 반증하라.**
+| # | 내용 | ev | class |
+|---|---|---|---|
+| 0 | 1280행 is_front 의 리터럴 4 와 1209행의 ×2 는 각각 shl 로 접혀 그 자리엔 리터럴이 없다. constants 에 적은 4/2 는 본문 다른 위치(루프 상한 4, team bounds-check 2)의 같은 리터럴로 QC 를 통과하는 것이며, 접힘 사실을 meaning 에 명시했다 | 4 | 사실 서술 |
+
+<details><summary>`closed` 4건 (닫힘 — 근거와 함께 보존. 뒤집으려면 반증 근거를 붙여라)</summary>
+
+| # | 물음 | 닫은 근거 |
+|---|---|---|
+| 0 | version(p1) 이 실제로 무엇을 가르는지 — 이 함수 본문엔 분기가 없고 `enemy_minion_line_action_danger_damage_at` 로 그대로 전달만 된다. 호출부는 **8곳**이고 **리터럴 0 은 1곳뿐**(m15.ll:33271 should_disengage_object_hunt), 나머지 7곳(plan_legacy::handler)은 **런타임 version SSA 값**을 넘긴다. 그럼에도 **피호출자 2단이 모두 `i64 poison`** 이라 **이 체인 전체에서 죽은 인자**다(오라클 version 12종 diff=0) ⟹ 같은 스펙 `signature.params[0].note`(ev2)와 일치한다. 미탐색 = 피호출자 내부의 version 분기(범위: `minion_wave_risk.rs` 하위) | 3차 배치B + 4차 배치B 재실측: 피호출자 2단 i64 poison + version 12종 diff=0 = 죽은 인자 |
+| 1 | enemy_minion_line_action_danger_damage_at 의 내부(반환 damage 의 단위·마지막 두 bool 인자 true/false 의 의미)는 담당 범위 밖이라 안 봄. 여기선 '0 이 아니면 즉시 false' 라는 사용법만 확정 | 1차 배치B resolved[0] 전문 확정 + 2차 인자 전건 IR 재확인 |
+| 2 | MapDef.fountains(0x6d70) 원소가 (좌상x, 좌상y, 우하x, 우하y) 사각형이라는 것은 DWARF 지역변수명 elx/ely/erx/ery 와 중심계산 (elx+erx)/2, (ely+ery)/2 로부터의 추정 — MapDef 쪽 필드 타입이 distruct 에 '?' 로만 잡혀 원소 구조체명을 확정하지 못했다 | 2차 배치B: tcx 4-튜플 + 오라클 실측 좌표 + 재현 400/400 |
+| 3 | 1321행 `flank>1 \|\| (flank>0 && front>0)` 의 **바깥 \|\| 두 항 순서만** 확정 불가(비단축 or 평탄화 = 정보량 0). **안쪽 && 는 확정** — `select i1 %95, i1 %96, i1 false` 로 단축평가가 보존돼 `flank>0` 이 좌항(m15.ll:35598~35601). 재료 부재 범위 = ①DILocation.column 전 모듈 0 ②mir=0 ③줄 길이 산술은 교환 불변 ④IR 피연산자 순서 정보량 0. 미탐색 = exe 디스어셈·개발사 소스 (2차배치B) | 3차/4차 배치B: 바깥 \|\| 순서만 재료 부재, 안쪽 && 는 select 로 순서 확정 |
+</details>
+
+<details><summary>`history` 정정 이력 9건 (참조용 — 본문 아님)</summary>
+
+| # | 옛 값 | 현재 | 엄격표 | 완화표 | champion_action | predict_retarget | 호출부_실인자 |
+|---|---|---|---|---|---|---|---|
+| 0 | enemy_minion_line_action_danger_damage_at 의 반환 단위와 두 bool 의 의미 | ★확정. 본체 = _gaibc/m07.ll:48226~48390 (minion_wave_risk.rs:233). 시그니처 = (version, data, target: &Entity, x, y, window_tick: usize, champion_action: bool, predict_retarget: bool) -> usize.   1) damage = enemy_minion_line_action_damage_at(...) — (x,y) 지점에서 window_tick 동안 적 미니언이 target 에게 넣을 기대 HP 데미지 합. 한 미니언 기여 = 거리가중% × 대상가중% × (1회 데미지 + 후속타) / 10000.   2) hp_pct = hp*100/max_hp, dmg_pct = damage*100/hp   3) is_dangerous 를 두 표 중 하나로 판정 (선택 조건 = champion_action \|\| 팀별 플래그≠0, m07.ll:48261)   4) return is_dangerous ? damage : 0  ⟹ ★0 은 '위험하지 않음'이지 '데미지 없음'이 아니다. | ["damage >= hp 또는 dmg_pct > 49", "hp_pct < 66 && dmg_pct > 29", "hp_pct < 41 && dmg_pct > 17", "hp_pct < 26 && dmg_pct > 9"] | ["damage >= hp", "hp_pct < 26 && dmg_pct > 34", "hp_pct < 16 && dmg_pct > 19"] | false 면 '이 미니언이 다른 챔피언을 때리는 중'이라는 사실을 아예 안 본다 = 나를 타깃 중이거나 무타깃인 미니언만 집계 | true 일 때만 '미니언이 타깃을 나에게 갈아탈 것'을 예측하는 경로로 들어가고, 거리가중을 100 으로 고정한다 | target = 내 챔피언, (x,y) = target_enemy 좌표, window_tick = tps*2(2초, m15.ll:35470 shl 1), champion_action=true, predict_retarget=false |
+| 1 | 미니언 위험표 선택 조건의 두 번째 항 — get_game_mode() 반환 구조체 +576+enemy_team*8 이 무엇인지(추정) | ★확정 — `_shared.전투_위협모델.미니언_위험표_게이트` 참조. 실체는 **`enemy_minion_wave_has_epic_buff`** = `MobaMode::remain_epic_time(1 - target팀)` = `epic_minion_buff_time[적팀]`(MobaMode+0x240, 이미 확정된 그 필드). ⟹ **적 미니언 웨이브에 에픽 버프가 켜져 있으면 엄격표를 쓴다.** |  |  |  |  |  |
+| 2 | 유일 호출처 · version 리터럴 0 | ★**정정(2026-09-11 검증배치 B)**: ~~「유일 호출처 = `should_disengage_object_hunt`(m15.ll:33271), version 리터럴 0」~~ 은 **거짓**이다. 전수 실측 결과 **호출부 8곳**이고 그중 **7곳이 런타임 `version` SSA 값**을 넘긴다:   `m13.ll:18805` `LegacyPlanHandler::update`(%1561) · `35679`(%484)·`37141`(%1007)·`39946`(%2204)·`40936`(%2579)·`41820`(%2959)·`42834`(%3337) = `handle_interact_battle`   `m15.ll:33271` `should_disengage_object_hunt` — **여기만** 리터럴 0 `engage_range = 200000` 은 8곳 전부 일치. ★**파급**: 이 함수는 `version` 을 `enemy_minion_line_action_danger_damage_at` 로 그대로 흘린다. 「version 은 늘 0 이라 사실상 무의미」로 읽히던 항목이 **주 경로에서는 살아 있는 버전 게이트**다. **재구현 시 version 을 0 으로 하드코딩하면 안 된다.** 부수: 명세의 `exe.callers: []` 도 실체와 어긋난다 — **exe 조인 실패**라는 사실로 적어야 한다. |  |  |  |  |  |
+| 3 | version(p1) 이 무엇을 가르는가 — 1차는 '살아 있는 버전 게이트'로 결론 | ★★**죽은 인자로 확정**(2026-09-11 2차배치B). ①본문에서 `%0` 의 용도는 피호출자에 넘기는 것뿐(m15.ll:35410~35850, 비교 0건) ②`enemy_minion_line_action_danger_damage_at`(m07.ll:48226) 진입부가 `#dbg_value(i64 poison, !60288)` 이고 다시 `enemy_minion_line_action_damage_at` 에 **`i64 poison` 을 넘긴다**(m07.ll:48235) ③최종 피호출자(m07.ll:47470)도 poison + 미사용 ④오라클 version ∈ {0,1,2,3,10,20,30,40,46,50,54,60} × 400 시나리오 → **diff 0건**. 미탐색 = 개발사 소스의 원래 의도(IR 로는 소거돼 복원 불가). |  |  |  |  |  |
+| 4 | 본문 판정 로직(각도 분류·인원 조건·거리비율)의 실행 검증 없음 | ★★**오라클 400/400 MATCH**(2026-09-11 2차배치B, `_verify2\B\B_o2.rs`). `game_ai::check_favorable_engage_formation` 은 크레이트 루트 재수출 pub 이라 직접 호출된다. `AbstractGameWithCache` 전 필드 pub + `Entity` 전 필드 pub·Clone 으로 아군 5칸·타깃의 좌표/HP/생존을 완전히 통제: engage_range ∈ {50000,100000,200000,400000}, 아군 좌표 ±350000 난수, HP% ∈ {20,39,40,41,80,100}, 슬롯 결손 10% → **400 시나리오 불일치 0**. 분기 커버리지 = rear>0 150 / flank&front 26 / flank>1 10 / front>1 true 6·false 4 / 종료 false 204 ⟹ **모든 종료 경로가 실제로 밟혔다**. 실행 확정 항목: HP 임계 40 · 여유 100000 · `dot>0 && dot²*4>lp` · `dot<0 && dot²*100>lp*9` · `cross²*100>lp*9` · 분기 순서(front→rear→flank→else front) · rear 의 base 거리 타이브레이크 · `rear>0` / `flank>1\|\|(flank>0&&front>0)` / `front>1→5:6` · fountain 중심 공식. |  |  |  |  |  |
+| 5 | 09 미니언 게이트 `enemy_minion_line_action_danger_damage_at` 내부 | ★확정(3차 배치B). `damage` 계산 후 `champion_action \|\| has_epic_buff ? is_dangerous : is_critical` → 참이면 damage, 아니면 0. `is_dangerous`/`is_critical` 임계표 전량(49/29/17/9 · 34/19) + `has_epic_buff` = `MobaMode+0x240 epic_minion_buff_time[1−team] != 0`. ★09 는 `champion_action = true` 라 **항상 is_dangerous 표**를 쓰고 HP 비교 대상은 **자기 챔피언**이다. 남은 미탐색 = `enemy_minion_line_action_damage_at` 본문(pub, 미니언 필요). |  |  |  |  |  |
+| 6 | `enemy_minion_line_action_damage_at` 본문 — 미니언이 필요해 오라클이 막혀 미탐색 | ★**전문 복원 + 미니언 생성 우회 확립**(4차 배치B). minion_wave_risk.rs:130~231, DWARF 지역변수명·줄번호 실측. 반환 상한 = `damage.min(hp.saturating_mul(2).max(1))` **오라클 10/10**, `window_tick` 하한 tps/2, 가중 3단(100/70/55) × 거리가중(100/100/70/50), `range_offset` 상한 24000/16000/+8000. 신규 오프셋: `Entity+0x11a`(Minion.line) · `+0x4c0`(attack_effect 판별자, −1=None) · `+0x88/+0x90`(nearest_enemy) · `+0x640`(move_speed) · `GameSetting+0x1410`. ★**우회 레시피**: `minion_wave_setting` 16필드 + `melee/range_minion` 실전값을 주입하고 `run_tick` 600틱 → **팀당 9마리**. 이 프로젝트에서 `damage_at > 0` 을 처음 얻었다 (정본 = `_shared.오라클_레시피_함정`). |  |  |  |  |  |
+| 7 | `logic` 이 IR 과 일치하는지 — 2차에 오라클 400/400(재현→명세 방향)까지만 확인 | ★**독립 재구현 대조 1800/1800 MATCH**(true 1337 / false 463, 4차 배치B). 2차보다 강한 방향(**명세 → 재구현**)이다. ⚠부수 정정: 3차가 `_shared` 에 적은 `champion_action \|\| has_epic_buff` 는 **IR 과 좌우가 반대**다(간접 vtable 호출 + 패닉 경로가 있어 투기 불가 ⟹ buff 가 좌항). 논리값 동일·재현 무영향. |  |  |  |  |  |
+| 8 | `09` `L1307 else → front` 가지 | ★**판정반전 R3 — 죽은 가지다**(5차 배치B). 라그랑주 항등식 기반 **대수 증명** + 난수 **200만** · 전수 격자에서 **0회** 도달. 재구현에서 생략해도 `game==mine` 이 깨지지 않는다. |  |  |  |  |  |
+</details>
+

@@ -1,0 +1,11 @@
+{
+ "round": "8",
+ "batch": "D",
+ "errors_applied": 0,
+ "ev_applied": 0,
+ "failed": 0,
+ "stamps": {
+  "/specs[15]/consts[1]/meaning": "99bea1931163035a"
+ },
+ "restamped": true
+}

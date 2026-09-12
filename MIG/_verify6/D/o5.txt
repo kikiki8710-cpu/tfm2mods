@@ -1,0 +1,24 @@
+GUARD	tick=0	tps=60	tps10=600
+GUARD	game_mode_is_moba=true
+GUARD	remain_epic_time[0]=0	> tps*10 ? false
+GUARD	remain_epic_time[1]=0	> tps*10 ? false
+RAW	MobaMode+0x240(team0)=0
+RAW	MobaMode+0x248(team1)=0
+FORCED	remain_epic_time[0]=100000	> tps*10 ? true
+FORCED	remain_epic_time[1]=100000	> tps*10 ? true
+GUARD	alive0=5	alive1=5
+R	force=100000	ver=1	team=0	pcl=0->0	objective=255	chats_len=0	eo=0	diff= +0x50..51 +0x58..60
+R	force=100000	ver=1	team=1	pcl=0->0	objective=255	chats_len=0	eo=0	diff= +0x50..51
+R	force=100000	ver=60	team=0	pcl=0->0	objective=255	chats_len=0	eo=0	diff= +0x50..51
+R	force=100000	ver=60	team=1	pcl=0->0	objective=255	chats_len=0	eo=0	diff= +0x50..51
+GUARD	tick=0	tps=60	tps10=600
+GUARD	game_mode_is_moba=true
+GUARD	remain_epic_time[0]=0	> tps*10 ? false
+GUARD	remain_epic_time[1]=0	> tps*10 ? false
+RAW	MobaMode+0x240(team0)=0
+RAW	MobaMode+0x248(team1)=0
+GUARD	alive0=5	alive1=5
+R	force=-1	ver=1	team=0	pcl=0->0	objective=255	chats_len=0	eo=0	diff= +0x50..51 +0x58..60
+R	force=-1	ver=1	team=1	pcl=0->0	objective=255	chats_len=0	eo=0	diff= +0x50..51
+R	force=-1	ver=60	team=0	pcl=0->0	objective=255	chats_len=0	eo=0	diff= +0x50..51
+R	force=-1	ver=60	team=1	pcl=0->0	objective=255	chats_len=0	eo=0	diff= +0x50..51

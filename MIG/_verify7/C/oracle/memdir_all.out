@@ -1,0 +1,70 @@
+specs[ 0] ult                                            mem  29행 · 결함후보 2
+    mem[12] Entity(champ)                      +0x538      ult_effect                                     dir=r 인데 load 없음
+    mem[21] Effect                             +0x28       target                                         dir=r 인데 load 없음
+specs[ 1] calculate_jungle_action_score                  mem   8행 · 결함후보 0
+specs[ 2] sub_plan                                       mem  21행 · 결함후보 2
+    mem[10] MapDef.fountains[team]             +0x10       rx                                             dir=r 인데 load 없음
+    mem[11] MapDef.fountains[team]             +0x18       ry                                             dir=r 인데 load 없음
+specs[ 3] defensive_crisis                               mem  22행 · 결함후보 4
+    mem[ 7] AbstractGameWithCache              +0x1e0      player_champion                                dir=r 인데 load 없음
+    mem[16] Entity(near_enemies 원소)            +0x4c8      skill_effect: Option<Effect>(56B)              dir=r 인데 load 없음
+    mem[18] Entity(near_enemies 원소)            +0x500      skill2_effect: Option<Effect>(56B)             dir=r 인데 load 없음
+    mem[19] Entity(near_enemies 원소)            +0x538      ult_effect: Option<Effect>(56B)                dir=r 인데 load 없음
+specs[ 4] handle_line_defense                            mem  27행 · 결함후보 3
+    mem[23] Blackboard                         +0x28       mid_minion_state                               dir=r 인데 load 없음
+    mem[24] Blackboard                         +0x50       bottom_minion_state                            dir=r 인데 load 없음
+    mem[26] BrainMinionParameter               +0x20       minion_count                                   dir=r 인데 load 없음
+specs[ 5] v50_fold_dive_episode                          mem  30행 · 결함후보 3
+    mem[19] LegacyPlanHandler                  +0x5e8      plan (BigPlan, 384B)                           dir=r 인데 load 없음
+    mem[27] LegacyPlanHandler                  +0x890      v50_dive_episodes[len] (V50DiveEpisode 104B)   dir=w 인데 store 없음
+    mem[29] LegacyPlanHandler                  +0x888      v50_dive_episodes.cap / .ptr                   dir=w 인데 store 없음
+specs[ 6] v2_response_retreat_stance                     mem  13행 · 결함후보 0
+specs[ 7] sub_plan                                       mem  28행 · 결함후보 0
+specs[ 8] is_end                                         mem  21행 · 결함후보 1
+    mem[11] AbstractGameWithCache              +0x1e0      player_champion                                dir=r 인데 load 없음
+specs[ 9] check_favorable_engage_formation               mem  14행 · 결함후보 0
+specs[10] should_end_object_finish_kill_priority_battle  mem  22행 · 결함후보 4
+    mem[ 1] MainObjective(인자 %4, i24)          +0x1        phase (ObjectPhase)                            dir=r 인데 load 없음
+    mem[ 2] MainObjective(인자 %4, i24)          +0x2        with_battle (bool)                             dir=r 인데 load 없음
+    mem[12] MobaMode                           +0x198      jungle_runner.epic.live_list.cap               dir=r 인데 load 없음
+    mem[15] MobaMode                           +0x1c8      jungle_runner.serpen.live_list.cap             dir=r 인데 load 없음
+specs[11] v3_fall_back_to_passive                        mem  23행 · 결함후보 4
+    mem[10] LegacyPlanHandler                  +0xf8       team_plan                                      dir=r 인데 load 없음
+    mem[11] LegacyPlanHandler                  +0x990      positioning_score                              dir=r 인데 load 없음
+    mem[12] LegacyPlanHandler                  +0x5e8      plan                                           dir=r 인데 load 없음
+    mem[22] LegacyPlanHandler                  +0x768      sub_plan                                       dir=w 인데 store 없음
+specs[12] handle_chat                                    mem  25행 · 결함후보 5
+    mem[ 7] LegacyPlanHandler                  +0x5e8      plan                                           dir=r 인데 load 없음
+    mem[ 8] LegacyPlanHandler                  +0x517      team_plan.objective                            dir=r 인데 load 없음
+    mem[13] LegacyPlanHandler                  +0x860[len] pending_trace_events[len]                      dir=w 인데 store 없음
+    mem[23] LegacyPlanHandler                  +0x858      pending_trace_events.cap                       dir=w 인데 store 없음
+    mem[24] LegacyPlanHandler                  +0x860      pending_trace_events.ptr                       dir=w 인데 store 없음
+specs[13] target_bush_v30                                mem  15행 · 결함후보 1
+    mem[ 8] Entity                             +0x70       ty payload = &Tower (변수명 info)                 dir=r 인데 load 없음
+specs[14] update                                         mem  27행 · 결함후보 1
+    mem[15] Entity                             +0x70       ty 페이로드 = Tower(192B) 시작                       dir=r 인데 load 없음
+specs[15] single_try_engage                              mem  18행 · 결함후보 2
+    mem[ 5] LegacyPlanHandler                  +0xf8       team_plan                                      dir=r 인데 load 없음
+    mem[ 6] LegacyPlanHandler                  +0x990      positioning_score                              dir=r 인데 load 없음
+specs[16] max_range_nearly_can_use                       mem  31행 · 결함후보 7
+    mem[13] Entity                             +0x490      attack_effect: Option<Effect>(56B)             dir=r 인데 load 없음
+    mem[16] Entity                             +0x4b8      attack_effect.target: CastingTarget(4B)        dir=r 인데 load 없음
+    mem[18] Entity                             +0x4c8      skill_effect: Option<Effect>                   dir=r 인데 load 없음
+    mem[21] Entity                             +0x4f0      skill_effect.target                            dir=r 인데 load 없음
+    mem[23] Entity                             +0x500      skill2_effect: Option<Effect>                  dir=r 인데 load 없음
+    mem[24] Entity                             +0x538      ult_effect: Option<Effect>                     dir=r 인데 load 없음
+    mem[29] Effect                             +0x28       target: CastingTarget                          dir=r 인데 load 없음
+specs[17] new                                            mem  43행 · 결함후보 8
+    mem[22] DeathMatchBattle                   +0x128      lean_last_tick                                 dir=w 인데 store 없음
+    mem[23] DeathMatchBattle                   +0x130      scene_change_tick                              dir=w 인데 store 없음
+    mem[24] DeathMatchBattle                   +0x138      last_act_tick                                  dir=w 인데 store 없음
+    mem[25] DeathMatchBattle                   +0x140      idle_spec_tick                                 dir=w 인데 store 없음
+    mem[26] DeathMatchBattle                   +0x148      last_swing_tick                                dir=w 인데 store 없음
+    mem[27] DeathMatchBattle                   +0x150      ep_follow_until                                dir=w 인데 store 없음
+    mem[28] DeathMatchBattle                   +0x158      idle_prev_pos                                  dir=w 인데 store 없음
+    mem[29] DeathMatchBattle                   +0x168      last_unseal_tick                               dir=w 인데 store 없음
+specs[18] v3_epicops_buff_window                         mem  18행 · 결함후보 1
+    mem[15] TeamPlan                           +0xc8       chats.ptr(push 대상 버퍼)                          dir=w 인데 store 없음
+specs[19] best_jungle_goal                               mem  16행 · 결함후보 0
+
+합계: mem 451행 중 결함후보 48

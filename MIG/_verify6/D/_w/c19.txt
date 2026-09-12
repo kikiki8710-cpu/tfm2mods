@@ -1,0 +1,10 @@
+--- callees (9) ---
+[0] best_jungle_goal | game_ai::plan_legacy::old::best_jungle_goal | pub | fn(usize, &mut rand::rngs::std::StdRng, &game_core::PlayerState, &game_core::OperationData, &game_ai::plan_legacy::team_plan::TeamPlan, std::option::Option<game_core::JungleType>, &mut game_core::DebugFrameData) -> game_core::JungleType | game-ai\src\plan_legacy\old\passive_jungle.rs:806 mir=False xinl=False ev=3
+[1] camp_pos | game_core::JungleType::camp_pos | pub | fn(&game_core::JungleType, bool) -> (u64, u64) | game-core\src\simulation\entity\jungle.rs:427 mir=True xinl=True ev=3
+[2] camp_pos | game_core::MapDef::camp_pos | pub | fn(&game_core::MapDef, game_core::JungleType, bool) -> (u64, u64) | game-core\src\simulation\map_def.rs:207 mir=False xinl=False ev=3
+[3] drop | <game_core::prof::ProfTimer as std::ops::Drop>::drop | pub | fn(&mut game_core::prof::ProfTimer) | game-core\src\simulation\prof.rs:184 mir=True xinl=True ev=3
+[4] get_camp_state | game_core::JungleRunner::get_camp_state | pub | fn(&game_core::JungleRunner, usize, game_core::JungleType) -> &game_core::JungleCampState | game-core\src\simulation\entity\jungle.rs:702 mir=False xinl=False ev=3
+[5] get_game_mode | <game_core::Game as game_core::AbstractGame>::get_game_mode | pub | fn(&game_core::Game) -> game_core::GameMode | game-core\src\simulation\game.rs:1707 mir=True xinl=True ev=3
+[6] get_game_mode | <game_core::SingleLaneGame as game_core::AbstractGame>::get_game_mode | pub | fn(&game_core::SingleLaneGame) -> game_core::GameMode | game-core\src\simulation\game.rs:4248 mir=True xinl=True ev=3
+[7] get_game_mode | <game_core::DeathMatchGame as game_core::AbstractGame>::get_game_mode | pub | fn(&game_core::DeathMatchGame) -> game_core::GameMode | game-core\src\simulation\game.rs:5052 mir=True xinl=True ev=3
+[8] is_cleared | game_ai::plan_legacy::old::is_cleared | pub | fn(game_core::JungleType, usize, usize, &mut rand::rngs::std::StdRng, &game_core::PlayerState, &game_core::OperationData, &game_ai::plan_legacy::team_plan::TeamPlan, usize, &mut game_core::DebugFrameData) -> bool | game-ai\src\plan_legacy\old\passive_jungle.rs:841 mir=False xinl=False ev=3

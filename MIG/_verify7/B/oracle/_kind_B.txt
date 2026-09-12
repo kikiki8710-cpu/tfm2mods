@@ -1,0 +1,54 @@
+
+===== specs[5] v50_fold_dive_episode =====
+  consts[0 ] value=-1           kind=센티널    관측=임계×2, 태그×1                               OK
+  consts[1 ] value=7            kind=임계     관측=임계×1, 태그×1                               OK
+  consts[2 ] value=1            kind=임계     관측=태그×6, 오프셋가감×1                            **어긋남**
+  consts[3 ] value=2            kind=임계     관측=태그×3                                     **어긋남**
+  consts[4 ] value=3            kind=임계     관측=태그×1                                     **어긋남**
+  consts[5 ] value=4            kind=임계     관측=태그×3, 인자상수×1                             **어긋남**
+  consts[6 ] value=5            kind=임계     관측=인자상수×1, 태그×1                             **어긋남**
+  consts[7 ] value=6            kind=임계     관측=인자상수×3, 태그×1, 인덱스×1                      **어긋남**
+  consts[8 ] value=7            kind=임계     관측=임계×1, 태그×1                               OK
+  consts[9 ] value=8            kind=임계     관측=태그×17, 인자상수×7, 인덱스×2                     **어긋남**
+  consts[10] value=9            kind=임계     관측=태그×1                                     **어긋남**
+  consts[11] value=11           kind=임계     관측=인자상수×1                                   **어긋남**
+  consts[12] value=13           kind=임계     관측=인자상수×1                                   **어긋남**
+  consts[13] value=12           kind=임계     관측=인자상수×1                                   **어긋남**
+
+===== specs[6] v2_response_retreat_stance =====
+  consts[0 ] value=2            kind=인덱스    관측=임계×2, 인자상수×1                             **어긋남**
+  consts[1 ] value=1            kind=인덱스    관측=오프셋가감×1                                  **어긋남**
+  consts[2 ] value=3            kind=태그     관측=태그×1                                     OK
+  consts[3 ] value=4            kind=태그     관측=태그×2                                     OK
+
+===== specs[7] sub_plan =====
+  consts[0 ] value=100          kind=임계     관측=계수×1                                     **어긋남**
+  consts[1 ] value=51           kind=태그     관측=임계×1                                     **어긋남**
+  consts[2 ] value=5            kind=태그     관측=인덱스×1, 태그×1                              OK
+  consts[3 ] value=9            kind=태그     관측=태그×1                                     OK
+  consts[4 ] value=11           kind=태그     관측=태그×1                                     OK
+  consts[5 ] value=1            kind=임계     관측=태그×2                                     **어긋남**
+  consts[6 ] value=0            kind=임계     관측=임계×4, 태그×3                               OK
+
+===== specs[8] is_end =====
+  consts[0 ] value=4            kind=임계     관측=인자상수×2                                   **어긋남**
+  consts[1 ] value=0            kind=태그     관측=임계×6                                     **어긋남**
+  consts[2 ] value=1            kind=태그     관측=임계×1, 오프셋가감×1                            **어긋남**
+  consts[3 ] value=32000        kind=임계     관측=계수×2                                     **어긋남**
+  consts[4 ] value=22500000000  kind=임계     관측=임계×1                                     OK
+  consts[5 ] value=15           kind=임계     관측=계수×1                                     **어긋남**
+
+===== specs[9] check_favorable_engage_formation =====
+  consts[0 ] value=2            kind=임계     관측=임계×1, 인자상수×1, 계수×1                       OK
+  consts[1 ] value=100000       kind=임계     관측=오프셋가감×1                                  **어긋남**
+  consts[2 ] value=40           kind=임계     관측=임계×1                                     OK
+  consts[3 ] value=100          kind=임계     관측=계수×4                                     **어긋남**
+  consts[4 ] value=9            kind=임계     관측=계수×2                                     **어긋남**
+  consts[5 ] value=4            kind=임계     관측=임계×2                                     OK
+  consts[6 ] value=5            kind=임계     관측=인덱스×1, 계수×1                              **어긋남**
+  consts[7 ] value=6            kind=임계     관측=계수×1                                     **어긋남**
+  consts[8 ] value=1            kind=임계     관측=오프셋가감×8, 임계×4, 계수×3                      OK
+
+================================================================================================
+검사 40행 · kind 와 관측이 어긋난 행 26건
+================================================================================================

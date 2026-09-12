@@ -1,0 +1,92 @@
+== A6-O1 mem 오프셋 일괄 대조 (수법 ⓐ) ==
+0,1,2,3,4	OperationData	cache	claim=0x0	got=0x0	MATCH
+0,1,2,3,4	OperationData	context	claim=0x8	got=0x8	MATCH
+3,4	OperationData	blackboard	claim=0x10	got=0x10	MATCH
+3,4	GameContext	pool	claim=0x0	got=0x0	MATCH
+0,3,4	GameContext	setting	claim=0x8	got=0x8	MATCH
+0,2,4	GameContext	map	claim=0x20	got=0x20	MATCH
+4	GameContext	tutorial	claim=0x38	got=0x38	MATCH
+3,4	AbstractGameWithCache	game	claim=0x0	got=0x0	MATCH
+2,4	AbstractGameWithCache	twin_towers	claim=0x130	got=0x130	MATCH
+4	AbstractGameWithCache	top_tower	claim=0x180	got=0x180	MATCH
+4	AbstractGameWithCache	top_tower2	claim=0x190	got=0x190	MATCH
+4	AbstractGameWithCache	mid_tower	claim=0x1a0	got=0x1a0	MATCH
+4	AbstractGameWithCache	mid_tower2	claim=0x1b0	got=0x1b0	MATCH
+4	AbstractGameWithCache	bottom_tower	claim=0x1c0	got=0x1c0	MATCH
+4	AbstractGameWithCache	bottom_tower2	claim=0x1d0	got=0x1d0	MATCH
+0,1,2,3	AbstractGameWithCache	player_champion	claim=0x1e0	got=0x1e0	MATCH
+3	GameSetting	tick_per_second	claim=0x12f8	got=0x12f8	MATCH
+2	MapDef	fountains	claim=0x6d70	got=0x6d70	MATCH
+4	MobaMode	epic_minion_buff_time	claim=0x240	got=0x240	MATCH
+4	Strategy	morgard_defense	claim=0xe	got=0xe	MATCH
+4	Blackboard	top_minion_state	claim=0x0	got=0x0	MATCH
+4	Blackboard	mid_minion_state	claim=0x28	got=0x28	MATCH
+4	Blackboard	bottom_minion_state	claim=0x50	got=0x50	MATCH
+4	BrainMinionParameter	from_mid	claim=0x10	got=0x10	MATCH
+4	BrainMinionParameter	minion_count	claim=0x20	got=0x20	MATCH
+0	Effect	ty	claim=0x0	got=0x0	MATCH
+0	Effect	range	claim=0x10	got=0x10	MATCH
+0	Effect	growth_range	claim=0x18	got=0x18	MATCH
+0	Effect	target	claim=0x28	got=0x28	MATCH
+0,3	Effect	casting	claim=0x30	got=0x30	MATCH
+0	Entity	team	claim=0x0	got=0x0	MATCH
+0	Entity	visible_state	claim=0x38	got=0x38	MATCH
+1,3	Entity	ty	claim=0x68	got=0x68	MATCH
+0	Entity	stat_buff_cached.range	claim=0x438	got=0x438	MATCH
+0	Entity	stat_buff_cached.radius_mult	claim=0x470	got=0x470	MATCH
+3	Entity	skill_effect	claim=0x4c8	got=0x4c8	MATCH
+3	Entity	skill2_effect	claim=0x500	got=0x500	MATCH
+0,3	Entity	ult_effect	claim=0x538	got=0x538	MATCH
+3,4	Entity	id	claim=0x5c0	got=0x5c0	MATCH
+0,3	Entity	level	claim=0x5c8	got=0x5c8	MATCH
+2	Entity	stat_cached.hp	claim=0x628	got=0x628	MATCH
+0,2,4	Entity	x	claim=0x660	got=0x660	MATCH
+0,2,4	Entity	y	claim=0x668	got=0x668	MATCH
+1,2	Entity	hp	claim=0x670	got=0x670	MATCH
+0	Entity	radius	claim=0x680	got=0x680	MATCH
+3	Entity	skill_effect.casting(=+0x4c8+0x30)	claim=0x4f8	got=0x4f8	MATCH
+-	size	Entity	claim=1728	got=1728	MATCH
+-	size	PlayerState	claim=2528	got=2528	MATCH
+-	size	OperationData	claim=24	got=24	MATCH
+-	size	GameContext	claim=64	got=64	MATCH
+-	size	AbstractGameWithCache	claim=8840	got=8840	MATCH
+-	size	GameSetting	claim=5432	got=5432	MATCH
+-	size	MapDef	claim=28112	got=28112	MATCH
+-	size	Effect	claim=56	got=56	MATCH
+-	size	MobaMode	claim=640	got=640	MATCH
+-	size	Strategy	claim=24	got=24	MATCH
+-	size	Blackboard	claim=744	got=744	MATCH
+-	size	BrainMinionParameter	claim=40	got=40	MATCH
+-	size	DefensiveCrisis	claim=2	got=2	MATCH
+-	size	Option<Input>	claim=32	got=32	MATCH
+-	size	InputTarget	claim=24	got=24	MATCH
+-	size	SubPlan	claim=72	got=72	MATCH
+-	size	Option<Effect>	claim=56	got=56	MATCH
+-	size	AttackNexusPlan	claim=16	got=16	MATCH
+-	stride	player_champion[team]	claim=40	got=40	MATCH
+-	stride	twin_towers[team]	claim=32	got=32	MATCH
+-	stride	visible_state[i]	claim=24	got=24	MATCH
+-	stride	fountains[team]	claim=32	got=32	MATCH
+setting_ok	true	width=960000	height=960000	tps=60	champ_radius=10000	visible=130000
+0,1,2,3,4	PlayerState	info.team	claim=0x930	got=0x930	MATCH
+0,1,2	PlayerState	info.position	claim=0x9c0	got=0x9c0	MATCH
+2	MapDef.fountains[team]	lx	claim=0x0	got=0x0	MATCH
+2	MapDef.fountains[team]	ly	claim=0x8	got=0x8	MATCH
+2	MapDef.fountains[team]	rx	claim=0x10	got=0x10	MATCH
+2	MapDef.fountains[team]	ry	claim=0x18	got=0x18	MATCH
+FOUNTAIN	team0=(0, 896000, 64000, 960000)	team1=(892000, 0, 960000, 64000)
+BUMPVEC	len()=3	cap()=8	words(+0x0,+0x8,+0x10,+0x18)=[2343c1ee9d0,9f44eff820,8,3]
+2,3,4	bumpalo Vec	len (★5차 미판별분)	claim=0x18	got=0x18	MATCH
+2	AbstractGameWithCache	twin_towers[0].len(0x130+len_at)	claim=0x148	got=0x148	MATCH
+ANPLAN	new(1,Mid)  words=[1,1]	dbg=AttackNexusPlan { team: 1, line: Mid }
+ANPLAN	new(0,Bottom) words=[0,2]	dbg=AttackNexusPlan { team: 0, line: Bottom }
+2	AttackNexusPlan	team(★5차 미실측)	claim=0x0	got=0x0	MATCH
+2	AttackNexusPlan	line(★5차 미실측)	claim=0x8	got=0x8	MATCH
+LINETYPE	Top=0 Mid=1 Bottom=2
+0	Option<Input>	Some(Input::Ult) tag@+0x0	claim=5	got=5	MATCH
+OPTINPUT	None tag@+0x0=-1	(명세 -1)	MATCH
+OPTINPUT	payload@+0x8=Target { target_id: 7 }	(명세 InputTarget 24B @ +0x8)
+3	DefensiveCrisis	die_imminent	claim=0x0	got=0x0	MATCH
+3	DefensiveCrisis	cc_threat	claim=0x1	got=0x1	MATCH
+
+TOTAL	MATCH=81	MISMATCH=0

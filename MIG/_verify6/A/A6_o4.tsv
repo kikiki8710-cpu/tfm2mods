@@ -1,0 +1,40 @@
+setting_ok	true	width=960000	height=960000	tps=60	champ_radius=10000	visible=130000
+CASE	in_heal_low	champ=(1000,897000)	hp=500/999	twin1_len=2	setting_ok=true
+SUBPLAN	ver=0	tag=5 b8=0 b9=0 b10=0	Discriminant(3)	rnd_changed=false	debug_changed=false
+SUBPLAN_DBG	ver=0	Recall(RecallSubPlan)
+SUBPLAN	ver=8	tag=5 b8=0 b9=0 b10=0	Discriminant(3)	rnd_changed=false	debug_changed=false
+SUBPLAN_DBG	ver=8	Recall(RecallSubPlan)
+SUBPLAN_VERSION	v0..8_all_same=true	명세 sig.params[1](version 분기 없음) 유지
+STRATEGY	rnd_state_changed=false	morgard_defense=Gather	(명세 specs[4] mem[21] Strategy+0xe)
+STRATEGY	morgard_defense_offset=0xe	(명세 0xe)
+--
+setting_ok	true	width=960000	height=960000	tps=60	champ_radius=10000	visible=130000
+CASE	in_heal_full	champ=(1000,897000)	hp=999/999	twin1_len=2	setting_ok=true
+SUBPLAN	ver=0	tag=2 b8=0 b9=1 b10=2	Discriminant(0)	rnd_changed=false	debug_changed=false
+SUBPLAN_DBG	ver=0	LineDefense(LineDefenseSubPlan { line: Mid, minion_action_type: Push, style: Aggressive })
+SUBPLAN	ver=8	tag=2 b8=0 b9=1 b10=2	Discriminant(0)	rnd_changed=false	debug_changed=false
+SUBPLAN_DBG	ver=8	LineDefense(LineDefenseSubPlan { line: Mid, minion_action_type: Push, style: Aggressive })
+SUBPLAN_VERSION	v0..8_all_same=true	명세 sig.params[1](version 분기 없음) 유지
+STRATEGY	rnd_state_changed=false	morgard_defense=Gather	(명세 specs[4] mem[21] Strategy+0xe)
+STRATEGY	morgard_defense_offset=0xe	(명세 0xe)
+--
+setting_ok	true	width=960000	height=960000	tps=60	champ_radius=10000	visible=130000
+CASE	outside	champ=(500000,500000)	hp=500/999	twin1_len=2	setting_ok=true
+SUBPLAN	ver=0	tag=2 b8=0 b9=1 b10=2	Discriminant(0)	rnd_changed=false	debug_changed=false
+SUBPLAN_DBG	ver=0	LineDefense(LineDefenseSubPlan { line: Mid, minion_action_type: Push, style: Aggressive })
+SUBPLAN	ver=8	tag=2 b8=0 b9=1 b10=2	Discriminant(0)	rnd_changed=false	debug_changed=false
+SUBPLAN_DBG	ver=8	LineDefense(LineDefenseSubPlan { line: Mid, minion_action_type: Push, style: Aggressive })
+SUBPLAN_VERSION	v0..8_all_same=true	명세 sig.params[1](version 분기 없음) 유지
+STRATEGY	rnd_state_changed=false	morgard_defense=Gather	(명세 specs[4] mem[21] Strategy+0xe)
+STRATEGY	morgard_defense_offset=0xe	(명세 0xe)
+--
+setting_ok	true	width=960000	height=960000	tps=60	champ_radius=10000	visible=130000
+CASE	no_twin	champ=(500000,500000)	hp=500/999	twin1_len=0	setting_ok=true
+SUBPLAN	ver=0	tag=16 b8=0 b9=0 b10=0	Discriminant(14)	rnd_changed=false	debug_changed=false
+SUBPLAN_DBG	ver=0	AttackNexus(AttackNexusSubPlan)
+SUBPLAN	ver=8	tag=16 b8=0 b9=0 b10=0	Discriminant(14)	rnd_changed=false	debug_changed=false
+SUBPLAN_DBG	ver=8	AttackNexus(AttackNexusSubPlan)
+SUBPLAN_VERSION	v0..8_all_same=true	명세 sig.params[1](version 분기 없음) 유지
+STRATEGY	rnd_state_changed=false	morgard_defense=Gather	(명세 specs[4] mem[21] Strategy+0xe)
+STRATEGY	morgard_defense_offset=0xe	(명세 0xe)
+--

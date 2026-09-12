@@ -1,0 +1,114 @@
+specs[ 0] ult                                            consts 10행 · 불일치 1 · 판정보류 1
+    consts[ 7] value=100            kind=임계   관측문맥=['ARG', 'ARI']               **불일치**
+    consts[ 9] value=150000         kind=임계   관측문맥=['ARG']                      판정보류(콜리 인자로만 등장)
+specs[ 1] calculate_jungle_action_score                  consts 12행 · 불일치 3 · 판정보류 3
+    consts[ 2] value=200            kind=임계   관측문맥=[]                           판정보류(리터럴 미검출 — 접힘)
+    consts[ 4] value=80             kind=임계   관측문맥=[]                           판정보류(리터럴 미검출 — 접힘)
+    consts[ 6] value=20             kind=임계   관측문맥=['ARG', 'EQ']                **불일치**
+    consts[ 9] value=-10            kind=임계   관측문맥=[]                           판정보류(리터럴 미검출 — 접힘)
+    consts[10] value=0              kind=임계   관측문맥=['EQ']                       **불일치**
+    consts[11] value=5              kind=임계   관측문맥=['ARG', 'IDX']               **불일치**
+specs[ 2] sub_plan                                       consts  6행 · 불일치 3 · 판정보류 0
+    consts[ 1] value=5              kind=태그   관측문맥=['IDX']                      **불일치**
+    consts[ 3] value=0              kind=임계   관측문맥=['EQ', 'IDX', 'ST']          **불일치**
+    consts[ 4] value=16             kind=태그   관측문맥=['IDX']                      **불일치**
+specs[ 3] defensive_crisis                               consts  7행 · 불일치 1 · 판정보류 0
+    consts[ 5] value=1              kind=임계   관측문맥=['ARG', 'ARI', 'EQ']         **불일치**
+specs[ 4] handle_line_defense                            consts  5행 · 불일치 1 · 판정보류 0
+    consts[ 0] value=-1             kind=임계   관측문맥=['ARI']                      **불일치**
+specs[ 5] v50_fold_dive_episode                          consts 14행 · 불일치 10 · 판정보류 3
+    consts[ 1] value=7              kind=임계   관측문맥=['EQ']                       **불일치**
+    consts[ 2] value=1              kind=임계   관측문맥=['ARI', 'ST']                **불일치**
+    consts[ 3] value=2              kind=임계   관측문맥=['EQ', 'ST']                 **불일치**
+    consts[ 4] value=3              kind=임계   관측문맥=[]                           판정보류(리터럴 미검출 — 접힘)
+    consts[ 5] value=4              kind=임계   관측문맥=['ARG', 'IDX', 'ST']         **불일치**
+    consts[ 6] value=5              kind=임계   관측문맥=['ARG', 'IDX', 'ST']         **불일치**
+    consts[ 7] value=6              kind=임계   관측문맥=['ARG', 'EQ', 'IDX']         **불일치**
+    consts[ 8] value=7              kind=임계   관측문맥=['EQ']                       **불일치**
+    consts[ 9] value=8              kind=임계   관측문맥=['ARG', 'IDX', 'ST']         **불일치**
+    consts[10] value=9              kind=임계   관측문맥=['EQ']                       **불일치**
+    consts[11] value=11             kind=임계   관측문맥=['ARG']                      판정보류(콜리 인자로만 등장)
+    consts[12] value=13             kind=임계   관측문맥=['ARG', 'IDX']               **불일치**
+    consts[13] value=12             kind=임계   관측문맥=['ARG']                      판정보류(콜리 인자로만 등장)
+specs[ 6] v2_response_retreat_stance                     consts  4행 · 불일치 1 · 판정보류 1
+    consts[ 2] value=3              kind=태그   관측문맥=['ARG', 'IDX']               **불일치**
+    consts[ 3] value=4              kind=태그   관측문맥=['ARG']                      판정보류(콜리 인자로만 등장)
+specs[ 7] sub_plan                                       consts  7행 · 불일치 6 · 판정보류 1
+    consts[ 0] value=100            kind=임계   관측문맥=['ARI', 'IDX']               **불일치**
+    consts[ 1] value=51             kind=태그   관측문맥=['ORD']                      **불일치**
+    consts[ 2] value=5              kind=태그   관측문맥=['IDX']                      **불일치**
+    consts[ 3] value=9              kind=태그   관측문맥=['ARG']                      판정보류(콜리 인자로만 등장)
+    consts[ 4] value=11             kind=태그   관측문맥=['ARG', 'IDX', 'ORD']        **불일치**
+    consts[ 5] value=1              kind=임계   관측문맥=['IDX', 'ST']                **불일치**
+    consts[ 6] value=0              kind=임계   관측문맥=['EQ', 'IDX', 'ST']          **불일치**
+specs[ 8] is_end                                         consts  6행 · 불일치 3 · 판정보류 0
+    consts[ 0] value=4              kind=임계   관측문맥=['ARG', 'IDX']               **불일치**
+    consts[ 3] value=32000          kind=임계   관측문맥=['ARI']                      **불일치**
+    consts[ 5] value=15             kind=임계   관측문맥=['ARI', 'IDX']               **불일치**
+specs[ 9] check_favorable_engage_formation               consts  9행 · 불일치 5 · 판정보류 0
+    consts[ 1] value=100000         kind=임계   관측문맥=['ARI']                      **불일치**
+    consts[ 3] value=100            kind=임계   관측문맥=['ARI']                      **불일치**
+    consts[ 4] value=9              kind=임계   관측문맥=['ARI']                      **불일치**
+    consts[ 6] value=5              kind=임계   관측문맥=['ARI', 'IDX']               **불일치**
+    consts[ 7] value=6              kind=임계   관측문맥=['ARI', 'IDX']               **불일치**
+specs[10] should_end_object_finish_kill_priority_battle  consts  6행 · 불일치 2 · 판정보류 2
+    consts[ 0] value=65534          kind=태그   관측문맥=['ARI']                      **불일치**
+    consts[ 1] value=768            kind=임계   관측문맥=['EQ']                       **불일치**
+    consts[ 4] value=25000          kind=임계   관측문맥=['ARG']                      판정보류(콜리 인자로만 등장)
+    consts[ 5] value=19600000000    kind=임계   관측문맥=[]                           판정보류(리터럴 미검출 — 접힘)
+specs[11] v3_fall_back_to_passive                        consts 19행 · 불일치 9 · 판정보류 0
+    consts[ 5] value=0              kind=임계   관측문맥=['ARG', 'EQ', 'IDX', 'ST']   **불일치**
+    consts[ 6] value=0              kind=임계   관측문맥=['ARG', 'EQ', 'IDX', 'ST']   **불일치**
+    consts[ 9] value=3              kind=임계   관측문맥=['ARG', 'EQ']                **불일치**
+    consts[10] value=4              kind=임계   관측문맥=['ARG', 'EQ', 'IDX', 'ST']   **불일치**
+    consts[11] value=5              kind=임계   관측문맥=['ARG', 'EQ']                **불일치**
+    consts[12] value=6              kind=임계   관측문맥=['EQ']                       **불일치**
+    consts[13] value=7              kind=임계   관측문맥=['ARG', 'EQ', 'IDX']         **불일치**
+    consts[14] value=8              kind=임계   관측문맥=['ARG', 'EQ', 'IDX', 'ST']   **불일치**
+    consts[17] value=-8             kind=임계   관측문맥=['ARI']                      **불일치**
+specs[12] handle_chat                                    consts 12행 · 불일치 1 · 판정보류 0
+    consts[ 9] value=-8             kind=임계   관측문맥=['ARI']                      **불일치**
+specs[13] target_bush_v30                                consts 16행 · 불일치 10 · 판정보류 4
+    consts[ 1] value=16             kind=임계   관측문맥=['IDX']                      **불일치**
+    consts[ 3] value=17             kind=임계   관측문맥=['IDX']                      **불일치**
+    consts[ 4] value=9              kind=임계   관측문맥=['EQ']                       **불일치**
+    consts[ 5] value=21             kind=임계   관측문맥=['IDX']                      **불일치**
+    consts[ 6] value=3              kind=임계   관측문맥=['EQ', 'IDX']                **불일치**
+    consts[ 7] value=6              kind=임계   관측문맥=['ARG', 'EQ']                **불일치**
+    consts[ 8] value=13             kind=임계   관측문맥=[]                           판정보류(리터럴 미검출 — 접힘)
+    consts[ 9] value=18             kind=임계   관측문맥=['IDX']                      **불일치**
+    consts[10] value=8              kind=임계   관측문맥=['ARG', 'IDX']               **불일치**
+    consts[11] value=12             kind=임계   관측문맥=[]                           판정보류(리터럴 미검출 — 접힘)
+    consts[12] value=14             kind=임계   관측문맥=[]                           판정보류(리터럴 미검출 — 접힘)
+    consts[13] value=11             kind=임계   관측문맥=['EQ']                       **불일치**
+    consts[14] value=15             kind=임계   관측문맥=[]                           판정보류(리터럴 미검출 — 접힘)
+    consts[15] value=20             kind=임계   관측문맥=['EQ']                       **불일치**
+specs[14] update                                         consts 21행 · 불일치 10 · 판정보류 4
+    consts[ 0] value=100            kind=임계   관측문맥=['ARG', 'ARI', 'EQ']         **불일치**
+    consts[ 4] value=0              kind=임계   관측문맥=['ARG', 'ARI', 'EQ', 'IDX', 'ST'] **불일치**
+    consts[ 5] value=32000          kind=임계   관측문맥=['ARI']                      **불일치**
+    consts[ 7] value=16             kind=임계   관측문맥=['IDX']                      **불일치**
+    consts[ 9] value=9              kind=임계   관측문맥=['IDX']                      **불일치**
+    consts[10] value=21             kind=임계   관측문맥=['EQ', 'IDX']                **불일치**
+    consts[11] value=3              kind=임계   관측문맥=['IDX']                      **불일치**
+    consts[12] value=6              kind=임계   관측문맥=[]                           판정보류(리터럴 미검출 — 접힘)
+    consts[13] value=14             kind=임계   관측문맥=['IDX']                      **불일치**
+    consts[15] value=13             kind=임계   관측문맥=[]                           판정보류(리터럴 미검출 — 접힘)
+    consts[16] value=18             kind=임계   관측문맥=['IDX']                      **불일치**
+    consts[18] value=12             kind=임계   관측문맥=[]                           판정보류(리터럴 미검출 — 접힘)
+    consts[19] value=15             kind=임계   관측문맥=[]                           판정보류(리터럴 미검출 — 접힘)
+    consts[20] value=20             kind=임계   관측문맥=['IDX']                      **불일치**
+specs[15] single_try_engage                              consts  8행 · 불일치 2 · 판정보류 0
+    consts[ 1] value=60             kind=임계   관측문맥=['EQ', 'ST']                 **불일치**
+    consts[ 2] value=1              kind=임계   관측문맥=['ARI', 'IDX', 'ST']         **불일치**
+specs[16] max_range_nearly_can_use                       consts  7행 · 불일치 1 · 판정보류 0
+    consts[ 5] value=0              kind=임계   관측문맥=['ARG', 'EQ', 'IDX']         **불일치**
+specs[17] new                                            consts  4행 · 불일치 0 · 판정보류 0
+specs[18] v3_epicops_buff_window                         consts  8행 · 불일치 0 · 판정보류 1
+    consts[ 6] value=22             kind=태그   관측문맥=[]                           판정보류(리터럴 미검출 — 접힘)
+specs[19] best_jungle_goal                               consts  5행 · 불일치 3 · 판정보류 0
+    consts[ 0] value=0              kind=임계   관측문맥=['ARG', 'EQ', 'ST']          **불일치**
+    consts[ 1] value=1              kind=임계   관측문맥=['ARG', 'IDX', 'ST']         **불일치**
+    consts[ 2] value=3              kind=임계   관측문맥=['IDX', 'ST']                **불일치**
+
+합계: consts 186행 · **불일치 72** · 판정보류 20

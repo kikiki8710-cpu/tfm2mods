@@ -1,0 +1,493 @@
+
+===== specs[0] ult =====
+  mem[0 ] PlayerState(=GamePlayer in 0x930    dir=r 관측=['load']               OK
+  mem[1 ] PlayerState(=GamePlayer in 0x9c0    dir=r 관측=['load']               OK
+  mem[2 ] OperationData              0x0      dir=r 관측=['load', 'store']      OK
+  mem[3 ] OperationData              0x8      dir=r 관측=['addr', 'load']       OK
+  mem[4 ] AbstractGameWithCache      0x1e0    dir=r 관측=['load']               OK
+  mem[5 ] GameContext                0x8      dir=r 관측=['addr', 'load']       OK
+  mem[6 ] GameContext                0x20     dir=r 관측=['load']               OK
+  mem[7 ] Entity(champ)              0x0      dir=r 관측=['load', 'store']      OK
+  mem[8 ] Entity(champ)              0x8      dir=r 관측=['addr', 'load']       OK
+  mem[9 ] Entity(target)             0x38     dir=r 관측=['load']               OK
+  mem[10] Entity(champ)              0x438    dir=r 관측=['load']               OK
+  mem[11] Entity(champ/target)       0x470    dir=r 관측=['load']               OK
+  mem[12] Entity(champ)              0x538    dir=r 관측=[]                     (판정보류: 그 오프셋 gep 미검출)
+  mem[13] Entity(champ)              0x5c8    dir=r 관측=['load']               OK
+  mem[14] Entity(champ/target)       0x660    dir=r 관측=['load']               OK
+  mem[15] Entity(champ/target)       0x668    dir=r 관측=['load']               OK
+  mem[16] Entity(champ/target)       0x680    dir=r 관측=['load']               OK
+  mem[17] Effect                     0x0      dir=r 관측=['load', 'store']      OK
+  mem[18] Effect                     0x8      dir=r 관측=['addr', 'load']       OK
+  mem[19] Effect                     0x10     dir=r 관측=['addr', 'load']       OK
+  mem[20] Effect                     0x18     dir=r 관측=['load']               OK
+  mem[21] Effect                     0x28     dir=r 관측=['addr']               OK
+  mem[22] Effect                     0x30     dir=r 관측=['load']               OK
+  mem[23] dyn EffectType vtable      0x10     dir=r 관측=['addr', 'load']       OK
+  mem[24] dyn EffectType vtable      0xf8     dir=r 관측=['load']               OK
+  mem[25] dyn EffectType vtable      0x118    dir=r 관측=['load']               OK
+  mem[26] Option<Input> (sret 반환슬롯)  0x0      dir=w 관측=['load', 'store']      OK
+  mem[27] Option<Input> (sret 반환슬롯)  0x8      dir=w 관측=['addr', 'load']       (판정보류: addr 만)
+  mem[28] Option<Input> (sret 반환슬롯)  0x0      dir=w 관측=['load', 'store']      OK
+
+===== specs[1] calculate_jungle_action_score =====
+  mem[0 ] PlayerState                0x930    dir=r 관측=['load']               OK
+  mem[1 ] PlayerState                0x9c0    dir=r 관측=['load']               OK
+  mem[2 ] OperationData              0x0      dir=r 관측=['load']               OK
+  mem[3 ] OperationData              0x8      dir=r 관측=['load']               OK
+  mem[4 ] AbstractGameWithCache      0x1e0    dir=r 관측=['load']               OK
+  mem[5 ] Entity                     0x68     dir=r 관측=['load']               OK
+  mem[6 ] Entity                     0x98     dir=r 관측=['load']               OK
+  mem[7 ] Entity                     0x670    dir=r 관측=['load']               OK
+
+===== specs[2] sub_plan =====
+  mem[0 ] PlayerState                0x930    dir=r 관측=['load']               OK
+  mem[1 ] PlayerState                0x9c0    dir=r 관측=['load']               OK
+  mem[2 ] OperationData              0x0      dir=r 관측=['load', 'store']      OK
+  mem[3 ] OperationData              0x8      dir=r 관측=['load', 'store']      OK
+  mem[4 ] GameContext                0x20     dir=r 관측=['load']               OK
+  mem[5 ] AbstractGameWithCache      0x1e0    dir=r 관측=['load']               OK
+  mem[6 ] AbstractGameWithCache      0x148    dir=r 관측=['load']               OK
+  mem[7 ] MapDef                     0x6d70   dir=r 관측=['load']               OK
+  mem[8 ] MapDef.fountains[team]     0x0      dir=r 관측=['load', 'store']      OK
+  mem[9 ] MapDef.fountains[team]     0x8      dir=r 관측=['load', 'store']      OK
+  mem[10] MapDef.fountains[team]     0x10     dir=r 관측=['load']               OK
+  mem[11] MapDef.fountains[team]     0x18     dir=r 관측=['load']               OK
+  mem[12] Entity                     0x660    dir=r 관측=['load']               OK
+  mem[13] Entity                     0x668    dir=r 관측=['load']               OK
+  mem[14] Entity                     0x670    dir=r 관측=['load']               OK
+  mem[15] Entity                     0x628    dir=r 관측=['load']               OK
+  mem[16] AttackNexusPlan            0x8      dir=r 관측=['load', 'store']      OK
+  mem[17] SubPlan(sret 반환버퍼 %0)      0x0      dir=w 관측=['load', 'store']      OK
+  mem[18] SubPlan(sret) LineDefense  0x8      dir=w 관측=['load', 'store']      OK
+  mem[19] SubPlan(sret) LineDefense  0x9      dir=w 관측=['store']              OK
+  mem[20] SubPlan(sret) LineDefense  0xa      dir=w 관측=['store']              OK
+
+===== specs[3] defensive_crisis =====
+  mem[0 ] OperationData              0x0      dir=r 관측=['load', 'store']      OK
+  mem[1 ] OperationData              0x8      dir=r 관측=['load', 'store']      OK
+  mem[2 ] OperationData              0x10     dir=r 관측=['addr', 'load', 'store'] OK
+  mem[3 ] GameContext                0x0      dir=r 관측=['load', 'store']      OK
+  mem[4 ] GameContext                0x8      dir=r 관측=['load', 'store']      OK
+  mem[5 ] GameSetting                0x12f8   dir=r 관측=['load']               OK
+  mem[6 ] PlayerState                0x930    dir=r 관측=['load']               OK
+  mem[7 ] AbstractGameWithCache      0x1e0    dir=r 관측=[]                     (판정보류: 그 오프셋 gep 미검출)
+  mem[8 ] AbstractGameWithCache      0x0      dir=r 관측=['load', 'store']      OK
+  mem[9 ] Entity(target)             0x5c0    dir=r 관측=['load']               OK
+  mem[10] Vec<&Entity>(bumpalo, 32B) 0x0      dir=r 관측=['load', 'store']      OK
+  mem[11] Vec<&Entity>(bumpalo, 32B) 0x18     dir=r 관측=['load', 'store']      OK
+  mem[12] Entity(near_enemies 원소)    0x68     dir=r 관측=['load']               OK
+  mem[13] Entity(near_enemies 원소)    0xb8     dir=r 관측=['load']               OK
+  mem[14] Entity(near_enemies 원소)    0xc0     dir=r 관측=['load']               OK
+  mem[15] Entity(near_enemies 원소)    0xc8     dir=r 관측=['load']               OK
+  mem[16] Entity(near_enemies 원소)    0x4c8    dir=r 관측=['addr']               OK
+  mem[17] Entity(near_enemies 원소)    0x4f8    dir=r 관측=['load']               OK
+  mem[18] Entity(near_enemies 원소)    0x500    dir=r 관측=[]                     (판정보류: 그 오프셋 gep 미검출)
+  mem[19] Entity(near_enemies 원소)    0x538    dir=r 관측=[]                     (판정보류: 그 오프셋 gep 미검출)
+  mem[20] Entity(near_enemies 원소)    0x5c8    dir=r 관측=['load']               OK
+  mem[21] Effect                     0x30     dir=r 관측=['load', 'store']      OK
+
+===== specs[4] handle_line_defense =====
+  mem[0 ] OperationData              0x0      dir=r 관측=['load', 'store']      OK
+  mem[1 ] OperationData              0x8      dir=r 관측=['load', 'store']      OK
+  mem[2 ] OperationData              0x10     dir=r 관측=['load', 'store']      OK
+  mem[3 ] GameContext                0x0      dir=r 관측=['load', 'store']      OK
+  mem[4 ] GameContext                0x8      dir=r 관측=['load', 'store']      OK
+  mem[5 ] GameContext                0x38     dir=r 관측=['load']               OK
+  mem[6 ] AbstractGameWithCache      0x0      dir=r 관측=['load', 'store']      OK
+  mem[7 ] AbstractGame vtable        0x40     dir=r 관측=['load']               OK
+  mem[8 ] MobaMode                   0x240    dir=r 관측=['load']               OK
+  mem[9 ] PlayerState                0x930    dir=r 관측=['load']               OK
+  mem[10] AbstractGameWithCache      0x130    dir=r 관측=['load']               OK
+  mem[11] AbstractGameWithCache      0x180    dir=r 관측=[]                     (판정보류: 그 오프셋 gep 미검출)
+  mem[12] AbstractGameWithCache      0x190    dir=r 관측=[]                     (판정보류: 그 오프셋 gep 미검출)
+  mem[13] AbstractGameWithCache      0x1a0    dir=r 관측=[]                     (판정보류: 그 오프셋 gep 미검출)
+  mem[14] AbstractGameWithCache      0x1b0    dir=r 관측=[]                     (판정보류: 그 오프셋 gep 미검출)
+  mem[15] AbstractGameWithCache      0x1c0    dir=r 관측=[]                     (판정보류: 그 오프셋 gep 미검출)
+  mem[16] AbstractGameWithCache      0x1d0    dir=r 관측=[]                     (판정보류: 그 오프셋 gep 미검출)
+  mem[17] bumpalo Vec<&Entity>       0x18     dir=r 관측=['load', 'store']      OK
+  mem[18] Entity                     0x5c0    dir=r 관측=['load']               OK
+  mem[19] Entity                     0x660    dir=r 관측=['load']               OK
+  mem[20] Entity                     0x668    dir=r 관측=['load']               OK
+  mem[21] Strategy                   0xe      dir=r 관측=['load']               OK
+  mem[22] Blackboard                 0x0      dir=r 관측=['load', 'store']      OK
+  mem[23] Blackboard                 0x28     dir=r 관측=[]                     (판정보류: 그 오프셋 gep 미검출)
+  mem[24] Blackboard                 0x50     dir=r 관측=[]                     (판정보류: 그 오프셋 gep 미검출)
+  mem[25] BrainMinionParameter       0x10     dir=r 관측=['load', 'store']      OK
+  mem[26] BrainMinionParameter       0x20     dir=r 관측=['store']              **불일치**
+
+===== specs[5] v50_fold_dive_episode =====
+  mem[0 ] LegacyPlanHandler          0x570    dir=r 관측=['load', 'store']      OK
+  mem[1 ] LegacyPlanHandler          0x580    dir=r 관측=['load']               OK
+  mem[2 ] LegacyPlanHandler          0x588    dir=r 관측=['load']               OK
+  mem[3 ] LegacyPlanHandler          0x590    dir=r 관측=['load']               OK
+  mem[4 ] LegacyPlanHandler          0x598    dir=r 관측=['load']               OK
+  mem[5 ] LegacyPlanHandler          0x5a0    dir=r 관측=['load']               OK
+  mem[6 ] LegacyPlanHandler          0x5a8    dir=r 관측=['load']               OK
+  mem[7 ] LegacyPlanHandler          0x5b0    dir=r 관측=['load']               OK
+  mem[8 ] LegacyPlanHandler          0x5b8    dir=r 관측=['load']               OK
+  mem[9 ] LegacyPlanHandler          0x5c8    dir=r 관측=['load']               OK
+  mem[10] LegacyPlanHandler          0x5d0    dir=r 관측=['load']               OK
+  mem[11] LegacyPlanHandler          0x5d8    dir=r 관측=['load']               OK
+  mem[12] LegacyPlanHandler          0x5dc    dir=r 관측=['load']               OK
+  mem[13] LegacyPlanHandler          0x5e0    dir=r 관측=['load']               OK
+  mem[14] LegacyPlanHandler          0x5e1    dir=r 관측=['load']               OK
+  mem[15] LegacyPlanHandler          0x5e2    dir=r 관측=['load']               OK
+  mem[16] LegacyPlanHandler          0x5e3    dir=r 관측=['load']               OK
+  mem[17] LegacyPlanHandler          0x5e4    dir=r 관측=['load']               OK
+  mem[18] LegacyPlanHandler          0x5e5    dir=r 관측=['load']               OK
+  mem[19] LegacyPlanHandler          0x5e8    dir=r 관측=['addr']               OK
+  mem[20] LegacyPlanHandler          0x1480   dir=r 관측=['load', 'store']      OK
+  mem[21] LegacyPlanHandler          0x1811   dir=r 관측=['load']               OK
+  mem[22] LegacyPlanHandler          0x888    dir=r 관측=['addr', 'load']       OK
+  mem[23] LegacyPlanHandler          0x890    dir=r 관측=['load']               OK
+  mem[24] LegacyPlanHandler          0x898    dir=r 관측=['load', 'store']      OK
+  mem[25] LegacyPlanHandler          0x1480   dir=w 관측=['load', 'store']      OK
+  mem[26] LegacyPlanHandler          0x570    dir=w 관측=['load', 'store']      OK
+  mem[27] LegacyPlanHandler          0x890    dir=w 관측=['load']               **불일치**
+  mem[28] LegacyPlanHandler          0x898    dir=w 관측=['load', 'store']      OK
+  mem[29] LegacyPlanHandler          0x888    dir=w 관측=['addr', 'load']       (판정보류: addr 만)
+
+===== specs[6] v2_response_retreat_stance =====
+  mem[0 ] OperationData              0x0      dir=r 관측=['load', 'store']      OK
+  mem[1 ] OperationData              0x8      dir=r 관측=['addr', 'load', 'store'] OK
+  mem[2 ] OperationData              0x10     dir=r 관측=['addr', 'load', 'store'] OK
+  mem[3 ] PlayerState                0x930    dir=r 관측=['load']               OK
+  mem[4 ] PlayerState                0x9c0    dir=r 관측=['load']               OK
+  mem[5 ] AbstractGameWithCache      0x0      dir=r 관측=['load', 'store']      OK
+  mem[6 ] AbstractGameWithCache      0x1e0    dir=r 관측=['load']               OK
+  mem[7 ] Entity                     0x660    dir=r 관측=['load']               OK
+  mem[8 ] Entity                     0x668    dir=r 관측=['load']               OK
+  mem[9 ] Entity                     0x5c0    dir=r 관측=['load']               OK
+  mem[10] GameContext                0x0      dir=r 관측=['load', 'store']      OK
+  mem[11] GameContext                0x8      dir=r 관측=['addr', 'load', 'store'] OK
+  mem[12] GameSetting                0x12f8   dir=r 관측=['load']               OK
+
+===== specs[7] sub_plan =====
+  mem[0 ] PlayerState                0x930    dir=r 관측=['load']               OK
+  mem[1 ] PlayerState                0x9c0    dir=r 관측=['load']               OK
+  mem[2 ] OperationData              0x0      dir=r 관측=['load', 'store']      OK
+  mem[3 ] OperationData              0x8      dir=r 관측=['load', 'store']      OK
+  mem[4 ] AbstractGameWithCache      0x0      dir=r 관측=['load', 'store']      OK
+  mem[5 ] AbstractGameWithCache      0x1e0    dir=r 관측=['load']               OK
+  mem[6 ] dyn AbstractGame vtable    0x40     dir=r 관측=['load']               OK
+  mem[7 ] dyn AbstractGame vtable    0x1f0    dir=r 관측=['load']               OK
+  mem[8 ] MobaMode                   0x1a0    dir=r 관측=['load']               OK
+  mem[9 ] MobaMode                   0x1a8    dir=r 관측=['load']               OK
+  mem[10] GameContext                0x8      dir=r 관측=['load', 'store']      OK
+  mem[11] GameContext                0x20     dir=r 관측=['load']               OK
+  mem[12] GameSetting                0x12f8   dir=r 관측=['load']               OK
+  mem[13] MapDef                     0x6d70   dir=r 관측=['load']               OK
+  mem[14] Entity                     0x670    dir=r 관측=['load']               OK
+  mem[15] Entity                     0x628    dir=r 관측=['load']               OK
+  mem[16] Entity                     0x660    dir=r 관측=['load']               OK
+  mem[17] Entity                     0x668    dir=r 관측=['load']               OK
+  mem[18] GoalData                   0x98     dir=r 관측=['load']               OK
+  mem[19] GoalData                   0xa0     dir=r 관측=['load']               OK
+  mem[20] EpicHuntAndBattlePlan      0x0      dir=r 관측=['load', 'store']      OK
+  mem[21] EpicHuntAndBattlePlan      0x8      dir=r 관측=['load', 'store']      OK
+  mem[22] SubPlan(sret)              0x0      dir=w 관측=['load', 'store']      OK
+  mem[23] SubPlan(sret)              0x8      dir=w 관측=['load', 'store']      OK
+  mem[24] SubPlan(sret)              0x8      dir=w 관측=['load', 'store']      OK
+  mem[25] SubPlan(sret)              0x10     dir=w 관측=['load', 'store']      OK
+  mem[26] SubPlan(sret)              0x11     dir=w 관측=['store']              OK
+  mem[27] SubPlan(sret)              0x12     dir=w 관측=['store']              OK
+
+===== specs[8] is_end =====
+  mem[0 ] TeamPlan                   0x41f    dir=r 관측=['load']               OK
+  mem[1 ] TeamPlan                   0x420    dir=r 관측=['load']               OK
+  mem[2 ] PlayerState                0x930    dir=r 관측=['load']               OK
+  mem[3 ] OperationData              0x0      dir=r 관측=['load', 'store']      OK
+  mem[4 ] OperationData              0x8      dir=r 관측=['addr', 'load', 'store'] OK
+  mem[5 ] OperationData              0x10     dir=r 관측=['load', 'store']      OK
+  mem[6 ] GameContext                0x8      dir=r 관측=['addr', 'load', 'store'] OK
+  mem[7 ] GameContext                0x20     dir=r 관측=['load', 'store']      OK
+  mem[8 ] GameSetting                0x12f8   dir=r 관측=['load']               OK
+  mem[9 ] AbstractGameWithCache      0x0      dir=r 관측=['load', 'store']      OK
+  mem[10] AbstractGameWithCache      0x8      dir=r 관측=['addr', 'load', 'store'] OK
+  mem[11] AbstractGameWithCache      0x1e0    dir=r 관측=[]                     (판정보류: 그 오프셋 gep 미검출)
+  mem[12] AbstractGame::vtable       0x28     dir=r 관측=['load', 'store']      OK
+  mem[13] AbstractGame::vtable       0x40     dir=r 관측=['load']               OK
+  mem[14] AbstractGame::vtable       0x100    dir=r 관측=['load']               OK
+  mem[15] AbstractGame::vtable       0x1f0    dir=r 관측=['load']               OK
+  mem[16] MobaMode                   0x1a0    dir=r 관측=['load']               OK
+  mem[17] MobaMode                   0x1a8    dir=r 관측=['load']               OK
+  mem[18] MobaMode                   0x1b0    dir=r 관측=['load']               OK
+  mem[19] Entity                     0x660    dir=r 관측=['load']               OK
+  mem[20] Entity                     0x668    dir=r 관측=['load']               OK
+
+===== specs[9] check_favorable_engage_formation =====
+  mem[0 ] PlayerState(GamePlayer)    0x930    dir=r 관측=['load']               OK
+  mem[1 ] PlayerState(GamePlayer)    0x9c0    dir=r 관측=['load']               OK
+  mem[2 ] OperationData              0x0      dir=r 관측=['load']               OK
+  mem[3 ] OperationData              0x8      dir=r 관측=['load']               OK
+  mem[4 ] AbstractGameWithCache      0x1e0    dir=r 관측=['load']               OK
+  mem[5 ] GameContext                0x8      dir=r 관측=['load']               OK
+  mem[6 ] GameContext                0x20     dir=r 관측=['load']               OK
+  mem[7 ] GameSetting                0x12f8   dir=r 관측=['load']               OK
+  mem[8 ] MapDef                     0x6d70   dir=r 관측=['load']               OK
+  mem[9 ] Entity                     0x5c0    dir=r 관측=['load']               OK
+  mem[10] Entity                     0x628    dir=r 관측=['load']               OK
+  mem[11] Entity                     0x660    dir=r 관측=['load']               OK
+  mem[12] Entity                     0x668    dir=r 관측=['load']               OK
+  mem[13] Entity                     0x670    dir=r 관측=['load']               OK
+
+===== specs[10] should_end_object_finish_kill_priority_battle =====
+  mem[0 ] MainObjective(인자 %4, i24)  0x0      dir=r 관측=['load']               OK
+  mem[1 ] MainObjective(인자 %4, i24)  0x1      dir=r 관측=[]                     (판정보류: 그 오프셋 gep 미검출)
+  mem[2 ] MainObjective(인자 %4, i24)  0x2      dir=r 관측=[]                     (판정보류: 그 오프셋 gep 미검출)
+  mem[3 ] Strategy(PlayerState::stra 0xf      dir=r 관측=['load']               OK
+  mem[4 ] PlayerState                0x930    dir=r 관측=['load']               OK
+  mem[5 ] OperationData              0x0      dir=r 관측=['load']               OK
+  mem[6 ] OperationData              0x10     dir=r 관측=['load']               OK
+  mem[7 ] AbstractGameWithCache      0x0      dir=r 관측=['load']               OK
+  mem[8 ] AbstractGameWithCache      0x8      dir=r 관측=['load']               OK
+  mem[9 ] AbstractGameWithCache      0x1e0    dir=r 관측=['load']               OK
+  mem[10] AbstractGame vtable        0x40     dir=r 관측=['load']               OK
+  mem[11] AbstractGame vtable        0x1f0    dir=r 관측=['load']               OK
+  mem[12] MobaMode                   0x198    dir=r 관측=[]                     (판정보류: 그 오프셋 gep 미검출)
+  mem[13] MobaMode                   0x1a0    dir=r 관측=[]                     (판정보류: 그 오프셋 gep 미검출)
+  mem[14] MobaMode                   0x1a8    dir=r 관측=['load']               OK
+  mem[15] MobaMode                   0x1c8    dir=r 관측=[]                     (판정보류: 그 오프셋 gep 미검출)
+  mem[16] MobaMode                   0x1d0    dir=r 관측=[]                     (판정보류: 그 오프셋 gep 미검출)
+  mem[17] MobaMode                   0x1d8    dir=r 관측=['load']               OK
+  mem[18] Entity(적 챔피언)              0x0      dir=r 관측=['load']               OK
+  mem[19] Entity(적 챔피언)              0x8      dir=r 관측=['load']               OK
+  mem[20] Entity(적 챔피언)              0x660    dir=r 관측=['load']               OK
+  mem[21] Entity(적 챔피언)              0x668    dir=r 관측=['load']               OK
+
+===== specs[11] v3_fall_back_to_passive =====
+  mem[0 ] OperationData              0x0      dir=r 관측=['load', 'store']      OK
+  mem[1 ] OperationData              0x8      dir=r 관측=['load', 'store']      OK
+  mem[2 ] AbstractGameWithCache      0x0      dir=r 관측=['load', 'store']      OK
+  mem[3 ] AbstractGameWithCache      0x8      dir=r 관측=['load', 'store']      OK
+  mem[4 ] dyn AbstractGame vtable    0x40     dir=r 관측=['load']               OK
+  mem[5 ] dyn AbstractGame vtable    0x28     dir=r 관측=['load']               OK
+  mem[6 ] GameContext                0x38     dir=r 관측=['load']               OK
+  mem[7 ] BigGoal                    0x0      dir=r 관측=['load', 'store']      OK
+  mem[8 ] BigGoal                    0x1      dir=r 관측=['load']               OK
+  mem[9 ] LegacyPlanHandler          0x0      dir=r 관측=['load', 'store']      OK
+  mem[10] LegacyPlanHandler          0xf8     dir=r 관측=['addr']               OK
+  mem[11] LegacyPlanHandler          0x990    dir=r 관측=['addr']               OK
+  mem[12] LegacyPlanHandler          0x5e8    dir=r 관측=['addr']               OK
+  mem[13] LegacyPlanHandler          0x1628   dir=r 관측=['load', 'store']      OK
+  mem[14] BigPlan(지역변수 plan, 384B)   0x0      dir=w 관측=['load', 'store']      OK
+  mem[15] BigPlan(지역변수 plan)         0x8      dir=w 관측=['load', 'store']      OK
+  mem[16] BigPlan(지역변수 plan)         0x20     dir=w 관측=['store']              OK
+  mem[17] BigPlan(지역변수 plan)         0x21     dir=w 관측=['store']              OK
+  mem[18] LegacyPlanHandler          0x1610   dir=w 관측=['store']              OK
+  mem[19] LegacyPlanHandler          0x1618   dir=w 관측=['store']              OK
+  mem[20] LegacyPlanHandler          0x1628   dir=w 관측=['load', 'store']      OK
+  mem[21] LegacyPlanHandler          0x5e8    dir=w 관측=['addr']               (판정보류: addr 만)
+  mem[22] LegacyPlanHandler          0x768    dir=w 관측=['addr']               (판정보류: addr 만)
+
+===== specs[12] handle_chat =====
+  mem[0 ] PlayerState                0x9c0    dir=r 관측=['load']               OK
+  mem[1 ] OperationData              0x0      dir=r 관측=['load', 'store']      OK
+  mem[2 ] OperationData              0x8      dir=r 관측=['addr', 'load', 'store'] OK
+  mem[3 ] GameContext                0x38     dir=r 관측=['addr', 'load']       OK
+  mem[4 ] GameContext                0x39     dir=r 관측=['load']               OK
+  mem[5 ] AbstractGameWithCache      0x8      dir=r 관측=['addr', 'load', 'store'] OK
+  mem[6 ] AbstractGame vtable        0x28     dir=r 관측=['load']               OK
+  mem[7 ] LegacyPlanHandler          0x5e8    dir=r 관측=['addr']               OK
+  mem[8 ] LegacyPlanHandler          0x517    dir=r 관측=[]                     (판정보류: 그 오프셋 gep 미검출)
+  mem[9 ] LegacyPlanHandler          0x858    dir=r 관측=['addr', 'load']       OK
+  mem[10] LegacyPlanHandler          0x860    dir=r 관측=['load']               OK
+  mem[11] LegacyPlanHandler          0x868    dir=r 관측=['load', 'store']      OK
+  mem[12] LegacyPlanHandler          0x868    dir=w 관측=['load', 'store']      OK
+  mem[13] LegacyPlanHandler          0x860[len] dir=w 관측=['load']               **불일치**
+  mem[14] TraceEventType             0x0      dir=w 관측=['load', 'store']      OK
+  mem[15] TraceEventType::CallHandle 0x8      dir=w 관측=['addr', 'load', 'store'] OK
+  mem[16] TraceEventType::CallHandle 0x20     dir=w 관측=['addr']               (판정보류: addr 만)
+  mem[17] TraceEventType::CallHandle 0x38     dir=w 관측=['addr', 'load']       (판정보류: addr 만)
+  mem[18] TraceEventType::CallHandle 0x50     dir=w 관측=['addr']               (판정보류: addr 만)
+  mem[19] TraceEventType::CallHandle 0x68     dir=w 관측=['addr']               (판정보류: addr 만)
+  mem[20] TraceEventType::CallHandle 0x80     dir=w 관측=['store']              OK
+  mem[21] TraceEventType::CallHandle 0x84     dir=w 관측=['store']              OK
+  mem[22] PendingTraceEvent          0xb0     dir=w 관측=['store']              OK
+  mem[23] LegacyPlanHandler          0x858    dir=w 관측=['addr', 'load']       (판정보류: addr 만)
+  mem[24] LegacyPlanHandler          0x860    dir=w 관측=['load']               **불일치**
+
+===== specs[13] target_bush_v30 =====
+  mem[0 ] AbstractGameWithCache      0x180    dir=r 관측=[]                     (판정보류: 그 오프셋 gep 미검출)
+  mem[1 ] AbstractGameWithCache      0x190    dir=r 관측=[]                     (판정보류: 그 오프셋 gep 미검출)
+  mem[2 ] AbstractGameWithCache      0x1a0    dir=r 관측=[]                     (판정보류: 그 오프셋 gep 미검출)
+  mem[3 ] AbstractGameWithCache      0x1b0    dir=r 관측=[]                     (판정보류: 그 오프셋 gep 미검출)
+  mem[4 ] AbstractGameWithCache      0x1c0    dir=r 관측=[]                     (판정보류: 그 오프셋 gep 미검출)
+  mem[5 ] AbstractGameWithCache      0x1d0    dir=r 관측=[]                     (판정보류: 그 오프셋 gep 미검출)
+  mem[6 ] AbstractGameWithCache      0x1e0    dir=r 관측=['load']               OK
+  mem[7 ] Entity                     0x68     dir=r 관측=['load']               OK
+  mem[8 ] Entity                     0x70     dir=r 관측=[]                     (판정보류: 그 오프셋 gep 미검출)
+  mem[9 ] Entity                     0x88     dir=r 관측=['load']               OK
+  mem[10] Entity                     0x128    dir=r 관측=['load']               OK
+  mem[11] Entity                     0x660    dir=r 관측=['load']               OK
+  mem[12] Entity                     0x668    dir=r 관측=['load']               OK
+  mem[13] GameContext                0x8      dir=r 관측=['load']               OK
+  mem[14] GameSetting                0x12c0   dir=r 관측=['load']               OK
+
+===== specs[14] update =====
+  mem[0 ] LineGankerPlan             0x0      dir=r 관측=['load', 'store']      OK
+  mem[1 ] LineGankerPlan             0x10     dir=r 관측=['load', 'store']      OK
+  mem[2 ] LineGankerPlan             0x28     dir=r 관측=['load']               OK
+  mem[3 ] PlayerState                0x930    dir=r 관측=['load']               OK
+  mem[4 ] PlayerState                0x9c0    dir=r 관측=['load']               OK
+  mem[5 ] OperationData              0x0      dir=r 관측=['load', 'store']      OK
+  mem[6 ] OperationData              0x8      dir=r 관측=['load']               OK
+  mem[7 ] AbstractGameWithCache      0x1e0    dir=r 관측=['load']               OK
+  mem[8 ] AbstractGameWithCache      0x180    dir=r 관측=['load']               OK
+  mem[9 ] AbstractGameWithCache      0x190    dir=r 관측=['load']               OK
+  mem[10] Entity                     0x628    dir=r 관측=['load']               OK
+  mem[11] Entity                     0x670    dir=r 관측=['load']               OK
+  mem[12] Entity                     0x660    dir=r 관측=['load']               OK
+  mem[13] Entity                     0x668    dir=r 관측=['load']               OK
+  mem[14] Entity                     0x68     dir=r 관측=['load']               OK
+  mem[15] Entity                     0x70     dir=r 관측=[]                     (판정보류: 그 오프셋 gep 미검출)
+  mem[16] Entity                     0x88     dir=r 관측=['load']               OK
+  mem[17] Entity                     0x128    dir=r 관측=['load']               OK
+  mem[18] GameContext                0x8      dir=r 관측=['load']               OK
+  mem[19] GameContext                0x20     dir=r 관측=['load']               OK
+  mem[20] GameSetting                0x12c0   dir=r 관측=['load']               OK
+  mem[21] MapDef                     0x1c98   dir=r 관측=['load']               OK
+  mem[22] LineGankerPlan             0x0      dir=w 관측=['load', 'store']      OK
+  mem[23] LineGankerPlan             0x10     dir=w 관측=['load', 'store']      OK
+  mem[24] LineGankerPlan             0x29     dir=w 관측=['store']              OK
+
+===== specs[15] single_try_engage =====
+  mem[0 ] OperationData              0x0      dir=r 관측=['load', 'store']      OK
+  mem[1 ] AbstractGameWithCache      0x0      dir=r 관측=['load', 'store']      OK
+  mem[2 ] AbstractGameWithCache      0x8      dir=r 관측=['load', 'store']      OK
+  mem[3 ] dyn AbstractGame vtable    0x1f0    dir=r 관측=['load']               OK
+  mem[4 ] PlayerState                0x930    dir=r 관측=['load']               OK
+  mem[5 ] LegacyPlanHandler          0xf8     dir=r 관측=['addr']               OK
+  mem[6 ] LegacyPlanHandler          0x990    dir=r 관측=['addr']               OK
+  mem[7 ] Entity                     0x68     dir=r 관측=['addr', 'load']       OK
+  mem[8 ] Entity                     0x128    dir=r 관측=['load']               OK
+  mem[9 ] Entity                     0x660    dir=r 관측=['load']               OK
+  mem[10] Entity                     0x668    dir=r 관측=['load']               OK
+  mem[11] SinglePlanBattle           0x58     dir=r 관측=['load']               OK
+  mem[12] SinglePlanBattle(로컬 b, 다이브 0x8c     dir=w 관측=['store']              OK
+  mem[13] BattlePlanGoal(스택 24B 임시)  0x0      dir=w 관측=['load', 'store']      OK
+  mem[14] BattlePlanGoal(스택 24B 임시)  0x8      dir=w 관측=['load', 'store']      OK
+  mem[15] BattlePlanGoal(스택 24B 임시)  0x10     dir=w 관측=['load', 'store']      OK
+  mem[16] 반환 Option<SinglePlanBattle 0x0      dir=w 관측=['load', 'store']      OK
+  mem[17] 반환 Option<SinglePlanBattle 0x0      dir=w 관측=['load', 'store']      OK
+
+===== specs[16] max_range_nearly_can_use =====
+  mem[0 ] Entity                     0x68     dir=r 관측=['load']               OK
+  mem[1 ] Entity                     0xb0     dir=r 관측=[]                     (판정보류: 그 오프셋 gep 미검출)
+  mem[2 ] Entity                     0xb8     dir=r 관측=['load']               OK
+  mem[3 ] Entity                     0xc0     dir=r 관측=['load']               OK
+  mem[4 ] Entity                     0xc8     dir=r 관측=['load']               OK
+  mem[5 ] Entity                     0xd0     dir=r 관측=[]                     (판정보류: 그 오프셋 gep 미검출)
+  mem[6 ] Entity                     0xd8     dir=r 관측=[]                     (판정보류: 그 오프셋 gep 미검출)
+  mem[7 ] Entity                     0xe8     dir=r 관측=[]                     (판정보류: 그 오프셋 gep 미검출)
+  mem[8 ] Entity                     0xf0     dir=r 관측=[]                     (판정보류: 그 오프셋 gep 미검출)
+  mem[9 ] Entity                     0x110    dir=r 관측=[]                     (판정보류: 그 오프셋 gep 미검출)
+  mem[10] Entity                     0x1f0    dir=r 관측=[]                     (판정보류: 그 오프셋 gep 미검출)
+  mem[11] Entity                     0x438    dir=r 관측=['load']               OK
+  mem[12] Entity                     0x470    dir=r 관측=['load']               OK
+  mem[13] Entity                     0x490    dir=r 관측=['addr']               OK
+  mem[14] Entity                     0x4a0    dir=r 관측=['load']               OK
+  mem[15] Entity                     0x4a8    dir=r 관측=['load']               OK
+  mem[16] Entity                     0x4b8    dir=r 관측=['addr']               OK
+  mem[17] Entity                     0x4c0    dir=r 관측=['load']               OK
+  mem[18] Entity                     0x4c8    dir=r 관측=['addr']               OK
+  mem[19] Entity                     0x4d8    dir=r 관측=['load']               OK
+  mem[20] Entity                     0x4e0    dir=r 관측=['load']               OK
+  mem[21] Entity                     0x4f0    dir=r 관측=['addr']               OK
+  mem[22] Entity                     0x4f8    dir=r 관측=['load']               OK
+  mem[23] Entity                     0x500    dir=r 관측=[]                     (판정보류: 그 오프셋 gep 미검출)
+  mem[24] Entity                     0x538    dir=r 관측=[]                     (판정보류: 그 오프셋 gep 미검출)
+  mem[25] Entity                     0x5c8    dir=r 관측=['load']               OK
+  mem[26] Entity                     0x680    dir=r 관측=['load']               OK
+  mem[27] Effect                     0x10     dir=r 관측=['load']               OK
+  mem[28] Effect                     0x18     dir=r 관측=['load']               OK
+  mem[29] Effect                     0x28     dir=r 관측=['addr']               OK
+  mem[30] Effect                     0x30     dir=r 관측=['load']               OK
+
+===== specs[17] new =====
+  mem[0 ] BattlePlanGoal(p2 goal)    0x0      dir=r 관측=['load', 'store']      OK
+  mem[1 ] BattlePlanGoal::TryKill(p2 0x8      dir=r 관측=['load', 'store']      OK
+  mem[2 ] OperationData(p3 data)     0x0      dir=r 관측=['load', 'store']      OK
+  mem[3 ] AbstractGameWithCache      0x0      dir=r 관측=['load', 'store']      OK
+  mem[4 ] AbstractGameWithCache      0x8      dir=r 관측=['load', 'store']      OK
+  mem[5 ] AbstractGame vtable        0x28     dir=r 관측=['load']               OK
+  mem[6 ] DeathMatchBattle           0x0      dir=w 관측=['load', 'store']      OK
+  mem[7 ] DeathMatchBattle           0x10     dir=w 관측=['store']              OK
+  mem[8 ] DeathMatchBattle           0x30     dir=w 관측=['store']              OK
+  mem[9 ] DeathMatchBattle           0x40     dir=w 관측=['store']              OK
+  mem[10] DeathMatchBattle           0x50     dir=w 관측=['store']              OK
+  mem[11] DeathMatchBattle           0x70     dir=w 관측=['store']              OK
+  mem[12] DeathMatchBattle           0x90     dir=w 관측=['store']              OK
+  mem[13] DeathMatchBattle           0xa8     dir=w 관측=['store']              OK
+  mem[14] DeathMatchBattle           0xc0     dir=w 관측=['store']              OK
+  mem[15] DeathMatchBattle           0xd0     dir=w 관측=['addr']               (판정보류: addr 만)
+  mem[16] DeathMatchBattle           0xe8     dir=w 관측=['store']              OK
+  mem[17] DeathMatchBattle           0xf0     dir=w 관측=['store']              OK
+  mem[18] DeathMatchBattle           0xf8     dir=w 관측=['addr']               (판정보류: addr 만)
+  mem[19] DeathMatchBattle           0x110    dir=w 관측=['store']              OK
+  mem[20] DeathMatchBattle           0x118    dir=w 관측=['store']              OK
+  mem[21] DeathMatchBattle           0x120    dir=w 관측=['addr']               (판정보류: addr 만)
+  mem[22] DeathMatchBattle           0x128    dir=w 관측=[]                     (판정보류: 그 오프셋 gep 미검출)
+  mem[23] DeathMatchBattle           0x130    dir=w 관측=[]                     (판정보류: 그 오프셋 gep 미검출)
+  mem[24] DeathMatchBattle           0x138    dir=w 관측=[]                     (판정보류: 그 오프셋 gep 미검출)
+  mem[25] DeathMatchBattle           0x140    dir=w 관측=[]                     (판정보류: 그 오프셋 gep 미검출)
+  mem[26] DeathMatchBattle           0x148    dir=w 관측=[]                     (판정보류: 그 오프셋 gep 미검출)
+  mem[27] DeathMatchBattle           0x150    dir=w 관측=[]                     (판정보류: 그 오프셋 gep 미검출)
+  mem[28] DeathMatchBattle           0x158    dir=w 관측=[]                     (판정보류: 그 오프셋 gep 미검출)
+  mem[29] DeathMatchBattle           0x168    dir=w 관측=[]                     (판정보류: 그 오프셋 gep 미검출)
+  mem[30] DeathMatchBattle           0x170    dir=w 관측=['store']              OK
+  mem[31] DeathMatchBattle           0x171    dir=w 관측=['store']              OK
+  mem[32] DeathMatchBattle           0x172    dir=w 관측=['store']              OK
+  mem[33] DeathMatchBattle           0x173    dir=w 관측=['store']              OK
+  mem[34] DeathMatchBattle           0x174    dir=w 관측=['store']              OK
+  mem[35] DeathMatchBattle           0x175    dir=w 관측=['store']              OK
+  mem[36] DeathMatchBattle           0x176    dir=w 관측=['store']              OK
+  mem[37] DeathMatchBattle           0x177    dir=w 관측=['store']              OK
+  mem[38] DeathMatchBattle           0x178    dir=w 관측=['store']              OK
+  mem[39] DeathMatchBattle           0x179    dir=w 관측=['store']              OK
+  mem[40] DeathMatchBattle           0x17a    dir=w 관측=['store']              OK
+  mem[41] DeathMatchBattle           0x17b    dir=w 관측=['store']              OK
+  mem[42] DeathMatchBattle           0x17e    dir=w 관측=['store']              OK
+
+===== specs[18] v3_epicops_buff_window =====
+  mem[0 ] PlayerState                0x930    dir=r 관측=['load']               OK
+  mem[1 ] PlayerState                0x9c0    dir=r 관측=['load']               OK
+  mem[2 ] OperationData              0x0      dir=r 관측=['load', 'store']      OK
+  mem[3 ] AbstractGameWithCache      0x0      dir=r 관측=['load', 'store']      OK
+  mem[4 ] AbstractGameWithCache      0x8      dir=r 관측=['load', 'store']      OK
+  mem[5 ] AbstractGameWithCache      0x1e0    dir=r 관측=['load']               OK
+  mem[6 ] Strategy(스택 로컬 24B)        0x4      dir=r 관측=['load']               OK
+  mem[7 ] TeamPlan                   0xc0     dir=r 관측=['addr', 'load']       OK
+  mem[8 ] TeamPlan                   0xc8     dir=r 관측=['load']               OK
+  mem[9 ] TeamPlan                   0xd0     dir=r 관측=['load', 'store']      OK
+  mem[10] TeamPlan                   0x410    dir=r 관측=['load', 'store']      OK
+  mem[11] TeamPlan                   0x41e    dir=r 관측=['load', 'store']      OK
+  mem[12] TeamPlan                   0x41f    dir=w 관측=['store']              OK
+  mem[13] TeamPlan                   0x41f    dir=w 관측=['store']              OK
+  mem[14] TeamPlan                   0x410    dir=w 관측=['load', 'store']      OK
+  mem[15] TeamPlan                   0xc8     dir=w 관측=['load']               **불일치**
+  mem[16] TeamPlan                   0xd0     dir=w 관측=['load', 'store']      OK
+  mem[17] TeamPlan                   0x41e    dir=w 관측=['load', 'store']      OK
+
+===== specs[19] best_jungle_goal =====
+  mem[0 ] OperationData              0x0      dir=r 관측=['load', 'store']      OK
+  mem[1 ] OperationData              0x8      dir=r 관측=['load', 'store']      OK
+  mem[2 ] GameContext                0x0      dir=r 관측=['load', 'store']      OK
+  mem[3 ] GameContext                0x20     dir=r 관측=['load', 'store']      OK
+  mem[4 ] AbstractGameWithCache      0x0      dir=r 관측=['load', 'store']      OK
+  mem[5 ] AbstractGameWithCache      0x8      dir=r 관측=['load', 'store']      OK
+  mem[6 ] dyn AbstractGame vtable    0x40     dir=r 관측=['load', 'store']      OK
+  mem[7 ] MobaMode                   0x18     dir=r 관측=['addr', 'load', 'store'] OK
+  mem[8 ] JungleCampState            0x18     dir=r 관측=['addr', 'load', 'store'] OK
+  mem[9 ] AbstractGameWithCache      0x1e0    dir=r 관측=['load']               OK
+  mem[10] PlayerState                0x930    dir=r 관측=['load']               OK
+  mem[11] PlayerState                0x9c0    dir=r 관측=['load']               OK
+  mem[12] Entity                     0x660    dir=r 관측=['load']               OK
+  mem[13] Entity                     0x668    dir=r 관측=['load']               OK
+  mem[14] bumpalo Vec<JungleType>    0x0      dir=r 관측=['load', 'store']      OK
+  mem[15] bumpalo Vec<JungleType>    0x18     dir=r 관측=['addr', 'load', 'store'] OK
+
+============================================================================================
+검사 449행 · **불일치 5건** · 판정보류 57건
+============================================================================================

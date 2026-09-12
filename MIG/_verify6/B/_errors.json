@@ -1,0 +1,65 @@
+[
+ {
+  "path": "/specs[9]/logic",
+  "kind": "실오류",
+  "old": "  else if is_significant_flank { flank_allies += 1 }                       // 1302/1304\n  else { front_allies += 1 }                                               // 1307",
+  "new": "  else if is_significant_flank { flank_allies += 1 }                       // 1302/1304\n  // ★1302 에 도달하면 is_significant_flank 는 **항상 참**이다 — 5차 배치B 의 라그랑주 항등식 증명을\n  //   6차에 재실행으로 재확인(B6_r1.tsv: 난수 200만 J_sweep · 전수격자 28,561 J_exhaust 둘 다\n  //   lagrange_violations=0, ELSE_1307=0). 구속조건은 dot>0 가지의 75 라서 임계가 75 미만이면 무효다.\n  else { front_allies += 1 }                                               // 1307 — ★죽은 가지(도달 불가)",
+  "evidence": "5차 배치B R3 의 대수증명 + 6차 재실행 B6_r1.tsv(J_sweep front=662185/rear=798590/flank=539225/ELSE_1307=0, J_exhaust ELSE_1307=0). 5차 정정이 history 에만 들어가고 logic 은 옛 서술로 남아 있었다.",
+  "behavior_change": false,
+  "found_by": "reused"
+ },
+ {
+  "path": "/specs[8]/logic",
+  "kind": "실오류",
+  "old": "            None      => return true,                                      // L183 — 볼 수 있는 적이 아예 없음 → 종료",
+  "new": "            None      => return true,                                      // L183 — ★**구조적 도달 불가(죽은 경로)**. 5차 배치B 판정반전 R2: 여기 오려면 v24==false 여야 하고 그건 `v23 != 0` 가지뿐인데, v23 의 슬롯 술어(is_some ∧ HP%>=40 ∧ 캠프거리<=180000 ∧ is_recent_visible)가 L180 필터(is_some ∧ is_recent_visible)의 **진부분집합**이라 v23!=0 이면 min_by_key 에 원소가 반드시 있다 ⟹ nearest==None 이 성립 불가",
+  "evidence": "5차 배치B R2 증명(v24 exit phi _gaibc/m09.ll:22157) + 실행(B6_r3.tsv #C: 적 전부 None / 전부 저HP / 캠프 셀 시야차단 3종 모두 v24=true 로 (b) 가 먼저 나감). 5차 정정이 history 에만 들어갔다.",
+  "behavior_change": false,
+  "found_by": "reused"
+ },
+ {
+  "path": "/specs[8]/logic",
+  "kind": "보강",
+  "old": "//   (c) setup + 캠프 셀 시야 O + 보이는 적 챔프 0명               [L183]",
+  "new": "//   (c) setup + 캠프 셀 시야 O + 보이는 적 챔프 0명               [L183] ★도달 불가(5차 배치B R2 · 범위 = objective==Some(Morgard{Setup}) 경로. Serpen 판 serpen/hunt_and_poke.rs:162 는 미확인)",
+  "evidence": "위 항목과 동일한 근거. 요약 목록 쪽에도 같은 오독이 남아 있었다(같은 오류가 한 명세 안 두 군데 — 5차 E1/E2 와 같은 패턴).",
+  "behavior_change": false,
+  "found_by": "reused"
+ },
+ {
+  "path": "/specs[6]/history[5]/now",
+  "kind": "판정반전",
+  "old": "`LegacyPlanHandler` 자체는 pub 이나 pub 메서드는 `handle_chat`/`get_small_action` 2개뿐이라 이 함수로 가는 pub 경로가 없다. 미탐색 = `AiAgent::update` 로 전체 시뮬을 돌려 간접 관측.",
+  "new": "~~`LegacyPlanHandler` 자체는 pub 이나 pub 메서드는 `handle_chat`/`get_small_action` 2개뿐이라 이 함수로 가는 pub 경로가 없다~~ → ★**거짓이었다(6차 배치B 판정반전)**. ① 같은 JSON 의 `siblings` 자동표가 이미 **pub 메서드 12개**를 싣고 있었다(clone·fmt·new·v3_fall_back_to_passive·eo_cover_picks·eo_serpen_punish_issues·subplan_is_recall·team_objective_code·update_on_dead·**update**·get_small_action·handle_chat). ② IR 호출사슬이 있다: `LegacyPlanHandler::update`(pub, define m13.ll:14467) → `handle_interact_battle`(호출 m13.ll:20242) → `v2_response_retreat_stance`(호출 m13.ll:38079·38761). ③ 6차에 `update` 를 **실제로 실행**했다(B6_o2.tsv — 05 는 이 경로로 전량 실행검증됨). #H 에서 plan=Battle 로 돌리면 BattlePlan+0x58 의 sub_goal = **4(RunAway)** 가 관측된다. ⟹ **남은 미탐색** = 그 RunAway 가 06 의 반환인지 가르는 것(범위 = BattlePlan 상태를 주입해 KitingBack 을 유도한 뒤 경계 대조. 기본 챔피언에선 `die == tick_per_second` 라 `die > tps` 가 항상 거짓이므로 AttackEffect 조립이 선행돼야 한다).",
+  "evidence": "siblings 자동표(vis 열) + spec3lib.callsites + `grep ^define` 로 호출부를 감싼 함수 확인 + B6_o2 실행. 5차는 같은 자료를 갖고도 「차단」으로 닫았다.",
+  "behavior_change": false,
+  "found_by": "reused"
+ },
+ {
+  "path": "/specs[9]/open[0]",
+  "kind": "분류오류",
+  "old": "⚠단 **「재료 부재」가 아니라 「미탐색」이다**(5차 배치B 정정)",
+  "new": "⚠단 이 항목은 **미탐색**이다(5차 배치B 정정 · 6차 배치B 재확인)",
+  "evidence": "★자기모순: `q` 본문이 「미탐색이다」라고 말하는데 `class` 는 여전히 `재료 부재` 였다. 원인 = `mkspec3.CLASS` 가 **문면의 어휘**로 분류하는데 정정문 자체에 「재료 부재」가 들어 있어 다시 그쪽으로 분류됐다(분류기가 자기 정정문을 먹는다). G1 자기모순·G10 class 오분류 둘 다 못 잡는다.",
+  "behavior_change": false,
+  "found_by": "reused"
+ },
+ {
+  "path": "/specs[9]/open[0]",
+  "kind": "보강",
+  "old": "현재까지 대조하지 못했다(줄번호만 확정, 실제 표현식 문구는 미확인)",
+  "new": "아직 대조 안 함 — **미탐색**(줄번호만 확정, 실제 표현식 문구는 미확인). 6차에 재료는 확보했다: `python rmeta_srcmap.py game_ai fight_check 1196 1260` 실측을 B6_REPORT.md §3 에 실었다(src_len=57853 lines=1417 파싱 0에러 / L1196=49B·L1202=12B 로 tcx sp 1196:1~1202:10 의 7줄 시그니처와 정합 / L1206·1207·1213·1218·1224 등은 mb>0 = 한국어 주석). 다음 라운드는 식별자 후보를 세워 줄길이 산술로 좁히면 된다.",
+  "evidence": "「대조하지 못했다」도 CLASS 의 재료-부재 키워드다(위 항목과 같은 원인).",
+  "behavior_change": false,
+  "found_by": "reused"
+ },
+ {
+  "path": "/specs[5]/logic",
+  "kind": "보강",
+  "old": "return;  // :170",
+  "new": "return;  // :170\n\n// ★★호출 맥락 — **B 블록이 읽는 `self.plan` 은 이번 틱에 update 가 재플래닝한 뒤의 plan 이다.**\n//   (6차 배치B 실행 확인) 이 함수는 `LegacyPlanHandler::update`(pub, m13.ll:14467) 안에서\n//   `v50_track_dive_episode`(call 0건 = 전량 인라인)를 통해 불린다(invoke m13.ll:23653·23856).\n//   실측(B6_o2.tsv #B, 16/16): 호출 전에 `plan = ForcePassive` 를 넣어도 update 가 PassiveLine 으로\n//   갈아 끼운 뒤 fold 가 돌아 end_plan 이 **1**(PassiveLine)로 나온다. 주입한 plan 이 아니다.\n//   ⟹ 재구현에서 fold 를 재플래닝 **앞**에 두면 end_plan 분포가 통째로 달라진다.",
+  "evidence": "B6_o2.tsv #B(16 variant 주입 → name_after_update 와 end_plan 이 항상 일치, 16/16) · #G(포지션×HP 20케이스, 20/20) · #B2(update 가 안 바꾼 5케이스에서 주입→분류 인과 확인). 호출사슬은 spec3lib.callsites + `grep ^define`.",
+  "behavior_change": true,
+  "found_by": "new"
+ }
+]

@@ -1,0 +1,44 @@
+setting_ok	true	width=960000 height=960000 tps=60 radius=10000
+
+### O6-A is_enemy_well_danger — 32000 격자 30x30, team 별 true 영역 경계상자
+player.team=0	true칸=21/900	bbox=(800000,0)~(928000,160000)
+player.team=1	true칸=21/900	bbox=(0,800000)~(160000,928000)
+
+### O6-A2 주장 사각형 경계 (경계 포함 여부까지)
+team0	(0, 800000)	false
+team0	(0, 799999)	false
+team0	(64000, 960000)	false
+team0	(64001, 960000)	false
+team0	(0, 960000)	false
+team0	(160000, 896000)	false
+team0	(160001, 896000)	false
+team0	(960000, 0)	true
+team0	(896000, 0)	true
+team0	(959999, 63999)	true
+team1	(0, 800000)	true
+team1	(0, 799999)	false
+team1	(64000, 960000)	true
+team1	(64001, 960000)	true
+team1	(0, 960000)	true
+team1	(160000, 896000)	true
+team1	(160001, 896000)	false
+team1	(960000, 0)	false
+team1	(896000, 0)	false
+team1	(959999, 63999)	false
+
+### O6-B version 0..7 불일치 칸 수 (true 칸이 실제로 존재하는 상태에서)
+team0	v0 true칸=21	버전불일치=0	(판별력 있음=true)
+team1	v0 true칸=21	버전불일치=0	(판별력 있음=true)
+
+### O6-C is_ignored_well_enemy(version, player, enemy) — Entity 복제 주입(⑦)
+player.team=0	enemy.team=0	team0 우물 안(적팀0 사각형)	(0, 800000)	=> false
+player.team=0	enemy.team=1	team0 우물 안(적팀0 사각형)	(0, 800000)	=> false
+player.team=0	enemy.team=0	team1 우물 안	(928000, 32000)	=> false
+player.team=0	enemy.team=1	team1 우물 안	(928000, 32000)	=> true
+player.team=0	enemy.team=0	맵 중앙	(480000, 480000)	=> false
+player.team=0	enemy.team=1	맵 중앙	(480000, 480000)	=> false
+
+### O6-D objective_entity_id_for_main_objective — live_list 채우기
+tick=300	epic.live=1	serpen.live=1	tag0=Some(41)	tag1=Some(40)
+
+DONE

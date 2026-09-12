@@ -1,0 +1,56 @@
+{
+  "round": 8,
+  "batch": "A",
+  "errors": [
+    {
+      "path": "/specs[12]/mem[13]/base",
+      "kind": "실오류",
+      "old": "LegacyPlanHandler",
+      "new": "PendingTraceEvent(힙 원소)",
+      "evidence": "쓰기 대상이 `LegacyPlanHandler` 가 아니라 그 Vec 의 **힙 버퍼 원소**다. m13.ll:29646 `%96 = getelementptr inbounds nuw i8, ptr %0, i64 2144`(=+0x860) → 29647 `%97 = load ptr, ptr %96` → 29649 `%98 = getelementptr inbounds nuw { { i64, [21 x i64] }, i64 }, ptr %97, i64 %88`(원소 stride 184B) → 29652 `call void @llvm.memcpy.p0.p0.i64(ptr .. dereferenceable(184) %98, ptr .. dereferenceable(184) %12, i64 184, i1 false)`. 즉 store 는 `%0+0x860` 이 아니라 `load(%0+0x860) + len*184` 에 간다. 명세 자신의 convention 도 이쪽이다 — 같은 상황(Vec push)인 specs[5]/mem[27] 은 base=`V50DiveEpisode(힙 원소)` · offset=`0x0` 로 적고 note 에 「★쓰기 대상은 `LegacyPlanHandler+0x890` **자체가 아니라** 거기서 읽은 힙 포인터 + len×104 다」라고 못 박아 두었다. 두 행이 같은 구조를 서로 다르게 적고 있었다(G1 자기모순 계열).",
+      "behavior_change": true,
+      "found_by": "new"
+    },
+    {
+      "path": "/specs[12]/mem[13]/offset",
+      "kind": "실오류",
+      "old": "0x860[len]",
+      "new": "0x0",
+      "evidence": "위 행과 같은 결함의 둘째 칸. `0x860[len]` 은 구조체 바이트 오프셋이 아니라 「+0x860 이 가리키는 버퍼의 len 번째」라는 **다른 좌표계**를 한 칸에 섞은 표기다. 이 칸을 그대로 읽고 재구현하면 `LegacyPlanHandler+0x860` 에 184B 를 쓰게 되는데, 그 자리는 `pending_trace_events` 의 `ptr`(+0x860)·`len`(+0x868) 이라 **자기 Vec 헤더를 뭉갠다**. 원소 기준 오프셋은 0 이다(m13.ll:29652 memcpy 의 목적지 `%98` 이 원소 시작). specs[5]/mem[27] 과 같은 표기로 맞춘다. ★부수효과: 이 표기 때문에 `mem.dir` 축의 기계 검사기 4벌 중 B·C 가 이 행을 `0x860` 으로 잘못 읽어 **오탐**을 냈다(B 3건 중 1건, C 46건 중 1건).",
+      "behavior_change": true,
+      "found_by": "new"
+    },
+    {
+      "path": "/specs[12]/mem[13]/note",
+      "kind": "보강",
+      "old": "스택에 조립한 184B 를 memcpy. 원소 = { event: TraceEventType(176B), tick: usize(+0xb0) } · tcx 정본 대조( `tcxdict` 행별 재조회 MATCH (`_verify6/C/memchk.tsv` i=12 idx=13))",
+      "new": "★쓰기 대상은 `LegacyPlanHandler+0x860` **자체가 아니라** 거기서 읽은 힙 포인터 + len×184 다 — m13.ll:29646 `%96 = getelementptr .. i64 2144` → 29647 `%97 = load ptr, ptr %96` → 29649 `%98 = getelementptr inbounds nuw { { i64, [21 x i64] }, i64 }, ptr %97, i64 %88` → 29652 `memcpy(%98, %12, 184)`. `+0x858/+0x860` 에 store 가 생기는 경우는 `RawVec::grow_one`(m13.ll:29634, `dereferenceable(24) %64`) 이 도는 때뿐이고 그건 mem[23]/mem[24] 로 따로 실려 있다. 스택에 조립한 184B 를 memcpy. 원소 = { event: TraceEventType(176B), tick: usize(+0xb0) } · tcx 정본 대조( `tcxdict` 행별 재조회 MATCH (`_verify6/C/memchk.tsv` i=12 idx=13))",
+      "behavior_change": false,
+      "found_by": "new"
+    },
+    {
+      "path": "/specs[5]/mem[29]/name",
+      "kind": "보강",
+      "old": "v50_dive_episodes.cap / .ptr",
+      "new": "v50_dive_episodes.cap(+0x888) · .ptr(+0x890)",
+      "evidence": "한 행이 **두 오프셋**을 덮는데 offset 칸엔 0x888 만 있어 기계 검사가 +0x890 을 못 본다(specs[4]/mem[22-24] 의 note 가 「★한 행에 오프셋을 묶으면 기계 검사가 안 되므로 라인별로 쪼갰다」고 같은 문제를 이미 적어 뒀다. append 가 없어 행을 못 늘리므로 이름에 두 자리를 명시한다). IR 근거: m13.ll:29235 `%116 = getelementptr inbounds nuw i8, ptr %0, i64 2184`(=+0x888) → 29321 `call void @_RNvMs3_..RawVec..V50DiveEpisodeE8grow_one..(ptr noalias noundef nonnull align 8 dereferenceable(24) %116)` — `dereferenceable(24)` = cap(+0x888)·ptr(+0x890)·len(+0x898) 세 워드가 콜리의 사정거리이고, len 만 이 함수가 직접 쓴다(mem[28]).",
+      "behavior_change": false,
+      "found_by": "new"
+    }
+  ],
+  "ev_up": [
+    {
+      "path": "/specs[0]/mem[23]",
+      "from": 4,
+      "to": 3,
+      "evidence": "`divtable` 정본 대조 — `python -X utf8 divtable.py EffectType` 가 `EffectType` vtable 전역(`@anon.75300de3978c94cc946f88c448be65c0.1131`, g02.ll · 슬롯 35개 · 296B)을 찾아 `0x0 = drop_glue`, 메서드는 `0x18` 부터임을 실측했고(같은 실행에서 `0xf8 = linear_move_speed`·`0x118 = on_caster` 도 재확인 — mem[24]/mem[25] 와 일치), `divtable.py` 가 문서화한 Rust vtable 레이아웃이 `0x00 drop / 0x08 size / 0x10 align / 0x18~ 메서드` 다. IR 이 그 값을 실제로 **정렬값으로** 쓰는 것도 확인했다: m04.ll:44062 `%48 = getelementptr inbounds nuw i8, ptr %47, i64 16` → 44063 `%49 = load i64, ptr %48, align 8, !range !12998, !invariant.load !8` → 44064 `%50 = add nsw i64 %49, -1` → 44065 `%51 = and i64 %50, -16` → 44066 `%52 = getelementptr inbounds nuw i8, ptr %45, i64 %51`(Arc 페이로드 주소). 곧 `+0x10` 이 align 이라는 주장은 IR 단독(ev4)이 아니라 vtable 전역 덤프로 교차검증된다. ⚠`chk` 칸은 파생이라 여기서 못 고친다 — 현재 `확인불가(vtable 슬롯)` 인데 이는 `tcxaudit` 이 ADT 가 아닌 vtable 을 못 보기 때문이고(METHOD_MAP ⑦ 한계), 근거 부재가 아니다.",
+      "found_by": "new"
+    }
+  ],
+  "brief_errors": [
+    "§1 이 「후보 4벌(A·B·C·D)이 전역에서 각각 **불일치 3 / 46 / 7**」이라고 쓰는데 **4벌에 수치가 3개**다. 실제 실행값은 A=7 · B=3 · C=46 · D=7 로, A 와 D 가 우연히 같은 수를 낼 뿐 **집합이 다르다**(A 는 specs[12] `GameContext+0x38`·specs[11] `plan+0x5e8` 을, D 는 specs[0] `sret+0x8`·specs[12] `CallHandled+0x38` 을 잡는다). 수치를 합치면서 「같은 수 = 같은 결과」로 읽히게 됐다 — 이번 임무가 「왜 갈리는지 규명하라」인데 지시문 자체가 갈림의 한 축(A↔D)을 지워 놓았다.",
+    "§1 은 담당 축을 「451행」이라고 하고 §3 표의 분책 행수 합도 107+106+112+126=451 이지만, **기계 검사 가능한 행은 448 행**이다. `dir` 이 `-` 인 행 2개(specs[14] mem[25]/mem[26])와 offset 이 순수 16진수가 아닌 행 1개(specs[12] mem[13] `0x860[len]`)는 이 축의 판정 대상이 아니다. 「451행을 닫아라」를 그대로 받으면 이 3행을 억지로 판정하게 되고, 실제로 후보 A·D 가 `dir=-` 를 **불일치로 세어** 오탐을 냈다(A 7건 중 1건, D 7건 중 1건).",
+    "§5 는 `errors[].behavior_change` 를 「이 명세대로 재구현하면 틀린 동작이 나오는가」로 정의하는데, 이번에 낸 4건 중 2건은 **한 결함의 두 칸**(base·offset)이라 같은 동작오류를 두 번 센다. 스키마에 「한 결함이 여러 칸에 걸칠 때」의 셈법이 없다 — `behavior_change` 를 결함 단위로 셀지 칸 단위로 셀지 정해 두지 않으면 라운드 간 집계가 어긋난다(나는 칸 단위로 true 를 두 번 냈다).",
+    "§4 「지금 게이트 상태」가 `G12 src_line 대조=8` 로 적혀 있는데, `srclinecheck.py` 의 docstring 은 7차 교정 결과를 **「47 → 10건」**이라 적고 `SPEC_RUNBOOK §S5-b` 는 같은 교정을 **「47 → 13건」**이라 적는다. 세 자리가 셋 다 다르다(8 / 10 / 13). 내 축이 아니라 손대지 않았지만, 다음 라운드가 어느 수를 기준선으로 삼아야 할지 모른다."
+  ]
+}

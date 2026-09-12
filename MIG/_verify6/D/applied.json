@@ -1,0 +1,16 @@
+{
+ "round": "6",
+ "batch": "D",
+ "errors_applied": 4,
+ "ev_applied": 38,
+ "failed": 0,
+ "stamps": {
+  "/specs[18]/knobs[1]": "e9019dccd6162b55",
+  "/specs[16]/knobs[6]": "f7f22f343173303d",
+  "/specs[17]/mem[5]": "5fecfa63b2fb3ee3",
+  "/specs[19]/mem[6]": "ef74040201e20395",
+  "/specs[18]/notes[0]": "6f47b98467c522d5",
+  "/specs[15]/open[0]": "ecb62b901f610dab"
+ },
+ "restamped": true
+}

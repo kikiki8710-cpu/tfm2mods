@@ -1,0 +1,5 @@
+--- callees (4) ---
+[0] base_sub_goal | game_ai::plan_legacy::old::BattlePlanGoal::base_sub_goal | pub | fn(&game_ai::plan_legacy::old::BattlePlanGoal, usize, &game_core::PlayerState, &game_core::OperationData) -> game_ai::plan_legacy::old::BattleSubPlanGoal | game-ai\src\plan_legacy\old\battle.rs:69 mir=False xinl=False ev=3
+[1] tick | <game_core::Game as game_core::AbstractGame>::tick | pub | fn(&game_core::Game) -> usize | game-core\src\simulation\game.rs:1796 mir=True xinl=True ev=3
+[2] tick | game_core::CCState::tick | pub | fn(&game_core::CCState) -> u64 | game-core\src\simulation\entity.rs:545 mir=True xinl=True ev=3
+[3] tick | <game_core::ExpectedGame<'a> as game_core::AbstractGame>::tick | pub | fn(&game_core::ExpectedGame<'a/#0>) -> usize | game-core\src\simulation\expected_game.rs:53 mir=True xinl=True ev=3
