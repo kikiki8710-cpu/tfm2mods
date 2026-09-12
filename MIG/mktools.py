@@ -74,7 +74,7 @@ CAT = [
  ('★명세 파이프라인 ⑤ 함수 추가·투영·착수 grep (2026-09-13)',
   '신규 함수 = `addspec.py`(⛔`mkspec20` 재실행 금지) · 사람용 설명 = `mkfnexplain.py`(`REPORT\\tfm2_judge_verify\\05_*`) · '
   '함수지도 갱신 = `fnmap_update.py` → `mkmap_html.py` · 착수 전 8곳 일괄 grep = `whatsdone.py`.',
-  ['addspec.py', 'mkfnexplain.py', 'fnmap_update.py', 'whatsdone.py']),
+  ['addspec.py', 'mkfnexplain.py', 'fnmap_update.py', 'whatsdone.py', 'subtree_rank.py']),
  ('★런타임 검증(ev1) — 주소 검증 → 1단계 프로브 → 2단계 sweep (2026-09-12~13)',
   '절차 = `REPORT\\tfm2_judge_verify\\04_분석방법_정리.md §3·§4`. 주소는 반증형으로(`rvaverify`·`addrgate`·`callerprof`), '
   '발화는 `probe20`, 대조 래퍼는 `gensweep20`(기구 결정트리 §4), live 맵은 `heapsurf`/`enumlive`/`structlive`.',

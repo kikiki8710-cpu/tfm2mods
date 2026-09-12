@@ -159,6 +159,7 @@ IR·rmeta 를 뽑고 훑는다.
 | `mkfnexplain.py` | 판단함수 「내용 설명」 문서 생성기 (2026-09-13 신설) |
 | `fnmap_update.py` | `AI함수지도` 기반 데이터(fndata 641함수)를 현행 사실로 갱신 + 관계 diff 보고 (2026-09-13) |
 | `whatsdone.py` | 「이거 전에 했나?」를 5초로 (CLAUDE.md §7 착수 전 grep 자동화 · 2026-09-13) |
+| `subtree_rank.py` | 상위 함수의 exe 호출 서브트리를 뽑아 「아래에서 닫는」 작업 순서표를 만든다 (2026-09-13) |
 
 ## ★런타임 검증(ev1) — 주소 검증 → 1단계 프로브 → 2단계 sweep (2026-09-12~13)
 
@@ -250,9 +251,3 @@ IR 의 이름을 exe RVA 에 잇거나, exe 함수에 이름을 붙인다.
 | `logsnap.py` | 인게임 검증 전/후 **모드 로그 스냅샷과 diff**. |
 | `modbisect.py` | 크래시 범인 모드 이분탐색 도구. |
 | `apgate.py` | `tfm2_ai_adjust` 의 `apply_*` 바이트패치 체인을 cfg 로 on/off 해서 |
-
-## 미분류 (새로 생긴 도구 — `mktools.py` 의 `CAT` 에 넣어라)
-
-| 도구 | 하는 일 |
-|---|---|
-| `subtree_rank.py` | subtree_rank.py — 상위 함수의 exe 호출 서브트리를 뽑아 「아래에서 닫는」 작업 순서표를 만든다 (2026-09-13) |
