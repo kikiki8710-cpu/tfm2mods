@@ -199,6 +199,11 @@ JS_HELPERS = r'''
 def main():
     h = io.open(SRC, encoding='utf-8', errors='replace').read()
     doc = json.load(io.open(SPECS, encoding='utf-8'))
+    # 2026-09-13: 명세 밖 4함수(#21~#24) 간이 명세를 지도 패널에만 합친다(정본 specs20.json 은 불변).
+    #   출처 = _spec\extra_specs.json(mkextra_specs.py ← explain_extra.md · IR 1회 독해 · ev4). one_line 에 등급 표기.
+    EXTRA = os.path.join(HERE, '_spec', 'extra_specs.json')
+    if os.path.exists(EXTRA):
+        doc['specs'] += json.load(io.open(EXTRA, encoding='utf-8'))['specs']
 
     # 지도 조인용 이름을 명시적으로 넣어 둔다(JS 에서 s.exe.name0 로 쓴다).
     for s in doc['specs']:

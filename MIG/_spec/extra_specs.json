@@ -1,0 +1,571 @@
+{
+ "meta": {
+  "what": "명세 밖 4함수 간이 명세(IR 1회 독해 · ev4)",
+  "source": "explain_extra.md",
+  "date": "2026-09-13"
+ },
+ "specs": [
+  {
+   "id": "epic__v3_epic_group_line",
+   "name": "v3_epic_group_line",
+   "sym": "_RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old4epic18v3_epic_group_line",
+   "src": "game-ai\\src\\plan_legacy\\old\\epic.rs",
+   "src_line": 814,
+   "layer": "레거시 플랜",
+   "ir": {
+    "file": "m09.ll",
+    "frm": 64337,
+    "to": 64420
+   },
+   "base_round": "ir1",
+   "rounds": 1,
+   "one_line": "⚠간이 명세(2026-09-13 IR 1회 독해 · 반증검증 미경유 · ev4) — 모르가드 운용 전략(Gather/Split14/Split131)에 따라 4~5명 그룹이 압박할 라인을 고른다 — Gather=압박선 점수 최대, Split14=먼 라인 제외, Split131=Mid 고정(없으면 압박선)",
+   "signature": {
+    "tcx": "fn(MorgardUseStrategy, &game_core::PlayerState, &game_core::OperationData) -> Option<LineType>",
+    "vis": "pub",
+    "params": [
+     {
+      "i": 0,
+      "name": "strategy",
+      "type": "MorgardUseStrategy(8B)",
+      "note": "하위 u32 니치 태그: 5=Gather / 6=Split14(상위 u32=position) / 그 외=Split131"
+     },
+     {
+      "i": 1,
+      "name": "player",
+      "type": "&PlayerState",
+      "note": "team 만"
+     },
+     {
+      "i": 2,
+      "name": "op",
+      "type": "&OperationData",
+      "note": "cache·context"
+     }
+    ]
+   },
+   "logic": "tag = strategy.low_u32; k = tag > 4 ? tag-5 : 2        // 815 — 0=Gather 1=Split14 2=Split131\nmatch k {\n  0 /*Gather*/  => return v3_group_press_line(team, cache, ctx, skip=None)          // 816\n  1 /*Split14*/ => far = v3_split14_far_line(op):                                    // 817 (854~857 인라인)\n                     if get_game_mode() != Moba → Top\n                     else if epic.next_respawn_tick > serpen.next_respawn_tick → Top(0) else Bottom(2)\n                   return v3_group_press_line(team, cache, ctx, skip=Some(far))\n  2 /*Split131*/=> if line_exists(ctx, Mid) → return Some(Mid)                        // 819\n                   else return v3_group_press_line(team, cache, ctx, skip=None)     // 822\n}\n반환 i8: -1=None / 0=Top / 1=Mid / 2=Bottom",
+   "reads": [
+    {
+     "base": "PlayerState",
+     "offset": "0x930",
+     "name": "info.team",
+     "note": "압박선 계산의 팀"
+    },
+    {
+     "base": "OperationData",
+     "offset": "0x0",
+     "name": "cache",
+     "note": "&AbstractGameWithCache"
+    },
+    {
+     "base": "OperationData",
+     "offset": "0x8",
+     "name": "context",
+     "note": "&GameContext"
+    },
+    {
+     "base": "MobaMode",
+     "offset": "0x1b0",
+     "name": "jungle_runner.epic.next_respawn_tick",
+     "note": "Split14 far_line: epic>serpen 이면 Top"
+    },
+    {
+     "base": "MobaMode",
+     "offset": "0x1e0",
+     "name": "jungle_runner.serpen.next_respawn_tick",
+     "note": "같은 비교의 반대편"
+    }
+   ],
+   "writes": [],
+   "constants": [
+    {
+     "value": 5,
+     "src_line": 815,
+     "meaning": "니치 태그 경계(tag>4 → tag-5 = 0 Gather / 1 Split14)"
+    },
+    {
+     "value": 1,
+     "src_line": 819,
+     "meaning": "LineType::Mid — Split131 고정 선호"
+    },
+    {
+     "value": 0,
+     "src_line": 855,
+     "meaning": "far_line Top(에픽이 세르펜보다 늦게 리스폰)"
+    },
+    {
+     "value": 2,
+     "src_line": 857,
+     "meaning": "far_line Bottom"
+    }
+   ],
+   "calls": [
+    "game_ai::plan_legacy::old::epic::v3_group_press_line",
+    "game_ai::plan_legacy::old::epic::v3_split14_far_line",
+    "game_ai::rule_scope::line_exists",
+    "AbstractGame::get_game_mode(vtable 0x40)"
+   ],
+   "knobs": [
+    {
+     "what": "Split131 고정 선호 라인",
+     "where": "epic.rs:819",
+     "value": "Mid(1)",
+     "effect": "바꾸면 3분할 전략의 기본 압박선이 바뀐다(추정)"
+    }
+   ],
+   "unknown": [
+    "far_line 「먼」의 지리적 근거(에픽=탑측/세르펜=바텀측)는 맵 데이터 미확인 → 추정",
+    "v3_group_press_line 내부 점수표는 본 범위 밖"
+   ],
+   "resolved": [],
+   "new_knobs": [],
+   "still_unknown": [],
+   "exe": {
+    "addr": "dea4a0",
+    "module": "epic",
+    "bytes": 180,
+    "instrs": null,
+    "evidence": "runtime(ev1 DIFF 0 236,569 · 09-12)",
+    "callers": [
+     "dce220"
+    ],
+    "callees": []
+   },
+   "i": 21
+  },
+  {
+   "id": "epic__v3_epicops_repair_need",
+   "name": "v3_epicops_repair_need",
+   "sym": "_RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old4epic22v3_epicops_repair_need",
+   "src": "game-ai\\src\\plan_legacy\\old\\epic.rs",
+   "src_line": 833,
+   "layer": "레거시 플랜",
+   "ir": {
+    "file": "m09.ll",
+    "frm": 64975,
+    "to": 65551
+   },
+   "base_round": "ir1",
+   "rounds": 1,
+   "one_line": "⚠간이 명세(2026-09-13 IR 1회 독해 · 반증검증 미경유 · ev4) — 아군 생존/체력 분포를 적과 비교해 지금 수리(Repair) 가야 하나를 0/1/2 로 — 1: 비전투·아군≤적·40%이하 2명↑(채팅 동반) / 2: 30%이상 아군이 적 수·아군 수보다 적음 / 0: 아님",
+   "signature": {
+    "tcx": "fn(&game_core::PlayerState, &game_core::OperationData, &BigPlan) -> u8",
+    "vis": "in:game_ai",
+    "params": [
+     {
+      "i": 0,
+      "name": "team",
+      "type": "i64(argpromote)",
+      "note": "player.info.team"
+     },
+     {
+      "i": 1,
+      "name": "cache",
+      "type": "*AbstractGameWithCache",
+      "note": "player_champion"
+     },
+     {
+      "i": 2,
+      "name": "plan",
+      "type": "&BigPlan(384B)",
+      "note": "goal() 태그만"
+     }
+    ]
+   },
+   "logic": "assert team < 2                                              // 834 (bounds panic)\nmine   = player_champion[team]     ; n_mine  = non-null 수     // 834\nenemy  = player_champion[1-team]   ; n_enemy = non-null 수     // 835\nin_battle = (plan.goal() tag == 5 /*BigGoal::Battle*/)        // 837\nif !in_battle {\n  hurt = count(mine, e => e.hp*100 / e.max_hp < 41)          // 838  (max_hp==0 → div-by-zero panic)\n  if n_mine <= n_enemy && hurt > 1 { return 1 }              // 839\n}\nhealthy = count(mine, e => e.hp*100 / e.max_hp > 29)         // 844\nif healthy < n_enemy && healthy < n_mine { return 2 }        // 845\nreturn 0                                                     // 849",
+   "reads": [
+    {
+     "base": "AbstractGameWithCache",
+     "offset": "0x1e0",
+     "name": "player_champion",
+     "note": "[team]·[1-team] 5칸 non-null 수"
+    },
+    {
+     "base": "Entity",
+     "offset": "0x670",
+     "name": "hp",
+     "note": "현재 HP"
+    },
+    {
+     "base": "Entity",
+     "offset": "0x628",
+     "name": "stat_cached.hp",
+     "note": "최대 HP(0 이면 div-by-zero 패닉)"
+    },
+    {
+     "base": "BigPlan",
+     "offset": "goal()",
+     "name": "BigGoal 태그",
+     "note": "5=Battle 이면 1등급 판정 건너뜀"
+    }
+   ],
+   "writes": [],
+   "constants": [
+    {
+     "value": 41,
+     "src_line": 838,
+     "meaning": "hurt 임계 HP<41% (=40% 이하)"
+    },
+    {
+     "value": 1,
+     "src_line": 839,
+     "meaning": "hurt>1 = 2명 이상"
+    },
+    {
+     "value": 29,
+     "src_line": 844,
+     "meaning": "healthy 임계 HP>29% (=30% 이상)"
+    },
+    {
+     "value": 5,
+     "src_line": 837,
+     "meaning": "BigGoal::Battle 태그"
+    }
+   ],
+   "calls": [
+    "game_ai::plan_legacy::types::BigPlan::goal",
+    "AbstractGameWithCache::iter_champions(인라인)"
+   ],
+   "knobs": [
+    {
+     "what": "빈사 아군 임계",
+     "where": "epic.rs:838",
+     "value": 41,
+     "effect": "올리면 수리 1등급이 잦아진다(추정)"
+    },
+    {
+     "what": "건강 아군 임계",
+     "where": "epic.rs:844",
+     "value": 29,
+     "effect": "올리면 healthy 가 줄어 2등급 수리가 잦아진다(추정)"
+    },
+    {
+     "what": "빈사 인원 기준",
+     "where": "epic.rs:839",
+     "value": "hurt>1",
+     "effect": "2명 이상일 때만 1등급"
+    }
+   ],
+   "unknown": [
+    "1(채팅 동반)과 2(objective 만)의 설계 의도 — 소스 주석 부재"
+   ],
+   "resolved": [],
+   "new_knobs": [],
+   "still_unknown": [],
+   "exe": {
+    "addr": "deaa70",
+    "module": "epic",
+    "bytes": 1230,
+    "instrs": null,
+    "evidence": "runtime(ev1 DIFF 0 1,398,759 · 09-12) · internal fastcc → rlib 패치",
+    "callers": [
+     "dce220",
+     "dda220"
+    ],
+    "callees": []
+   },
+   "i": 22
+  },
+  {
+   "id": "objective_helpers__is_object_being_taken_by_enemy",
+   "name": "is_object_being_taken_by_enemy",
+   "sym": "_RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy9team_plan17objective_helpers30is_object_being_taken_by_enemy",
+   "src": "game-ai\\src\\plan_legacy\\team_plan\\objective_helpers.rs",
+   "src_line": 313,
+   "layer": "점수화·술어",
+   "ir": {
+    "file": "m15.ll",
+    "frm": 53833,
+    "to": 54066
+   },
+   "base_round": "ir1",
+   "rounds": 1,
+   "one_line": "⚠간이 명세(2026-09-13 IR 1회 독해 · 반증검증 미경유 · ev4) — 오브젝트(모르가드/세르펜)가 지금 적에게 먹히는 중인지 — 캠프를 최근 1초 내 봤고 ∧ 몹이 피해 입은 채 보이고 ∧ 적 예상 처치시간 ≤20초",
+   "signature": {
+    "tcx": "fn(&PlayerState, &OperationData, &GoalData, &TeamPlan, WavePriorityObject) -> bool",
+    "vis": "in:game_ai",
+    "params": [
+     {
+      "i": 4,
+      "name": "target",
+      "type": "WavePriorityObject(1B)",
+      "note": "0=Morgard / 1=Serpen (i1 전달)"
+     }
+    ]
+   },
+   "logic": "tps = ctx.setting.tick_per_second                                   // 314\nmatch target {\n  Morgard => if (tutorial-1) <u 6 { return false }   // 317 morgard_exists: tutorial ∈ {1..=6} 이면 에픽 미스폰\n             seen  = obj_spawn.epic_camp_last_visible_tick + tps >= game.tick()     // 318\n             kill  = goal.epic.epic_enemy_tick                                       // 319\n             camp  = as_moba().unwrap().jungle_runner.epic                           // 320\n  Serpen  => if tutorial ∉ {0,5,7,8} { return false }        // 326 serpen_exists\n             seen  = obj_spawn.serpen_camp_last_visible_tick + tps >= game.tick()   // 327\n             kill  = goal.serpen.epic_enemy_tick                                     // 328\n             camp  = as_moba().unwrap().jungle_runner.serpen                         // 329\n}\nid  = camp.live_list.get(0)?           else false            // 320/329\ne   = game.get_entity_by_id(*id)?      else false            // 321/330 closure\ndmg = game.is_visible(team, e.id) && e.hp < e.stat_cached.hp  // 322/331 closure (피해 입은 채 보임)\nreturn seen && dmg && kill <= tps*20                          // 323/332",
+   "reads": [
+    {
+     "base": "GameSetting",
+     "offset": "0x12f8",
+     "name": "tick_per_second",
+     "note": "tps"
+    },
+    {
+     "base": "GameContext",
+     "offset": "0x38",
+     "name": "tutorial",
+     "note": "에픽 {0,7,8} / 세르펜 {0,5,7,8} 외면 false"
+    },
+    {
+     "base": "TeamPlan",
+     "offset": "0x80",
+     "name": "obj_spawn.epic_camp_last_visible_tick",
+     "note": "seen = +tps >= tick"
+    },
+    {
+     "base": "TeamPlan",
+     "offset": "0x88",
+     "name": "obj_spawn.serpen_camp_last_visible_tick",
+     "note": "세르펜 판"
+    },
+    {
+     "base": "GoalData",
+     "offset": "0x88",
+     "name": "epic.epic_enemy_tick",
+     "note": "적팀 처치 예상 틱(duration)"
+    },
+    {
+     "base": "GoalData",
+     "offset": "0xc0",
+     "name": "serpen.epic_enemy_tick",
+     "note": "세르펜 판"
+    },
+    {
+     "base": "MobaMode",
+     "offset": "0x1a0",
+     "name": "jungle_runner.epic.live_list",
+     "note": "[0] = 몹 id"
+    },
+    {
+     "base": "MobaMode",
+     "offset": "0x1d0",
+     "name": "jungle_runner.serpen.live_list",
+     "note": "세르펜 판"
+    },
+    {
+     "base": "Entity",
+     "offset": "0x5c0",
+     "name": "id",
+     "note": "is_visible(team, id)"
+    },
+    {
+     "base": "Entity",
+     "offset": "0x670",
+     "name": "hp",
+     "note": "< max 면 피해 입음"
+    },
+    {
+     "base": "Entity",
+     "offset": "0x628",
+     "name": "stat_cached.hp",
+     "note": "최대 HP"
+    },
+    {
+     "base": "PlayerState",
+     "offset": "0x930",
+     "name": "info.team",
+     "note": "시야 판정 팀"
+    }
+   ],
+   "writes": [],
+   "constants": [
+    {
+     "value": 1,
+     "src_line": 318,
+     "meaning": "tps×1 — 캠프를 최근 1초 내 봤어야"
+    },
+    {
+     "value": 20,
+     "src_line": 323,
+     "meaning": "tps×20 — 적 처치 예상 ≤20초"
+    },
+    {
+     "value": 6,
+     "src_line": 317,
+     "meaning": "(tutorial-1)<u 6 = 튜토리얼 1..=6 이면 에픽 미스폰"
+    }
+   ],
+   "calls": [
+    "game_ai::rule_scope::morgard_exists",
+    "game_ai::rule_scope::serpen_exists",
+    "Game::as_moba",
+    "AbstractGame::tick(vtable 0x28)",
+    "AbstractGame::get_game_mode(0x40)",
+    "AbstractGame::get_entity_by_id(0x1f0)",
+    "AbstractGame::is_visible(0xf8)"
+   ],
+   "knobs": [
+    {
+     "what": "캠프 시야 신선도 창",
+     "where": "objective_helpers.rs:318",
+     "value": "tps×1",
+     "effect": "늘리면 오래된 시야로도 「먹히는 중」 판정(추정)"
+    },
+    {
+     "what": "적 처치 예상 창",
+     "where": "objective_helpers.rs:323",
+     "value": "tps×20",
+     "effect": "올리면 더 이르게 빼앗김 경보(추정)"
+    }
+   ],
+   "unknown": [
+    "is_visible 내부 시야 규칙은 game_core 소관(2번째 인자 = entity id 확인)"
+   ],
+   "resolved": [],
+   "new_knobs": [],
+   "still_unknown": [],
+   "exe": {
+    "addr": "ec9bf0",
+    "module": "objective_helpers",
+    "bytes": 364,
+    "instrs": null,
+    "evidence": "runtime(ev1 DIFF 0 5,210,106 · 09-12)",
+    "callers": [
+     "dce220"
+    ],
+    "callees": []
+   },
+   "i": 23
+  },
+  {
+   "id": "serpen__v3_serpen_contest_clear_win",
+   "name": "v3_serpen_contest_clear_win",
+   "sym": "_RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old6serpen27v3_serpen_contest_clear_win",
+   "src": "game-ai\\src\\plan_legacy\\old\\serpen.rs",
+   "src_line": 52,
+   "layer": "레거시 플랜",
+   "ir": {
+    "file": "m05.ll",
+    "frm": 53103,
+    "to": 53408
+   },
+   "base_round": "ir1",
+   "rounds": 1,
+   "one_line": "⚠간이 명세(2026-09-13 IR 1회 독해 · 반증검증 미경유 · ev4) — 세르펜 근처 도달 가능한 적 전원 vs HP>39% 아군으로 resolve_fight 를 돌려 「확실히 이기는 싸움(Commit)」인지 — 적이 없으면 무조건 true",
+   "signature": {
+    "tcx": "fn(usize, &PlayerState, &OperationData, &TeamPlan) -> bool",
+    "vis": "pub",
+    "params": [
+     {
+      "i": 0,
+      "name": "version",
+      "type": "usize",
+      "note": "본문 미사용 · resolve_fight 1번 인자로 통과"
+     },
+     {
+      "i": 3,
+      "name": "team_plan",
+      "type": "&TeamPlan",
+      "note": "serpen_reachable_enemies 에 전달"
+     }
+    ]
+   },
+   "logic": "me = cache.player_champion[team][position.as_index()]?  else return false        // 53\n(vis, hidden) = serpen_reachable_enemies(player, op, team_plan)                 // 54\nenemies = vis; enemies.extend(hidden)                                            // 55\nif enemies.is_empty() { return true }                                            // 57  (적 없음 = 무혈승)\nallies = iter_champions(team).filter(|e| e.hp*100 / e.max_hp > 39).collect_in(pool) // 60~62 (closure#0 m05.ll:62463)\nacc  = player.info.parameter.judge_accuracy()                                    // 63\npred = fight_model::resolve_fight(version, op, me, &allies, &enemies, 0i8, None, acc) // 63\nreturn pred.line /*FightPrediction@0x38*/ == FightLine::Commit(0)               // 64",
+   "reads": [
+    {
+     "base": "PlayerState",
+     "offset": "0x930",
+     "name": "info.team",
+     "note": "bounds<2"
+    },
+    {
+     "base": "PlayerState",
+     "offset": "0x9c0",
+     "name": "info.position",
+     "note": "as_index → 내 챔피언"
+    },
+    {
+     "base": "AbstractGameWithCache",
+     "offset": "0x1e0",
+     "name": "player_champion",
+     "note": "[team][pos]"
+    },
+    {
+     "base": "PlayerState",
+     "offset": "0x180",
+     "name": "info.parameter",
+     "note": "AthleteParameter → judge_accuracy"
+    },
+    {
+     "base": "GameContext",
+     "offset": "0x0",
+     "name": "pool",
+     "note": "bumpalo(allies collect_in)"
+    },
+    {
+     "base": "Entity",
+     "offset": "0x670",
+     "name": "hp",
+     "note": "아군 HP"
+    },
+    {
+     "base": "Entity",
+     "offset": "0x628",
+     "name": "stat_cached.hp",
+     "note": "최대 HP"
+    },
+    {
+     "base": "FightPrediction",
+     "offset": "0x38",
+     "name": "line",
+     "note": "== Commit(0)"
+    }
+   ],
+   "writes": [],
+   "constants": [
+    {
+     "value": 39,
+     "src_line": 60,
+     "meaning": "아군 전력 산입 임계 HP>39% (=40% 이상)"
+    },
+    {
+     "value": 0,
+     "src_line": 64,
+     "meaning": "FightLine::Commit"
+    },
+    {
+     "value": "0i8 / None",
+     "src_line": 63,
+     "meaning": "resolve_fight 6·7번 인자 고정값(의미 미확정)"
+    }
+   ],
+   "calls": [
+    "game_ai::plan_legacy::old::serpen::serpen_reachable_enemies",
+    "game_ai::plan_legacy::old::fight_model::resolve_fight",
+    "AthleteParameter::judge_accuracy",
+    "Position::as_index(인라인)",
+    "AbstractGameWithCache::iter_champions(인라인)"
+   ],
+   "knobs": [
+    {
+     "what": "아군 전력 산입 HP 임계",
+     "where": "serpen.rs:60",
+     "value": 39,
+     "effect": "내리면 저체력 아군도 전력에 넣어 Commit 이 잦아진다(추정)"
+    }
+   ],
+   "unknown": [
+    "resolve_fight 의 i8=0 · Option<&Entity>=None 인자 의미(fight_model.rs:310 소관)",
+    "FightLine 결정 규칙(Commit/CommitAfterJoin/Disengage/Hold 중 0 만 통과)"
+   ],
+   "resolved": [],
+   "new_knobs": [],
+   "still_unknown": [],
+   "exe": {
+    "addr": "d666c0",
+    "module": "serpen",
+    "bytes": 641,
+    "instrs": null,
+    "evidence": "runtime(ev1 DIFF 0 35,419 · 09-12)",
+    "callers": [
+     "dce220",
+     "ecab00"
+    ],
+    "callees": []
+   },
+   "i": 24
+  }
+ ]
+}
