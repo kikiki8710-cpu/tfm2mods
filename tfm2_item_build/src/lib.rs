@@ -379,8 +379,13 @@ const VANILLA_CAT_KEY: [&str; 7] = [
 ///   · `@b:` / `@r:`  = 조합테스트 진영 스코프 (여기선 무시)
 ///   · token = 아이템 key 문자열, 또는 바닐라 카테고리 숫자 0~6
 /// 스코프: 0=plain(리그/관전/배경) · 1=조합테스트 블루(`@b:`) · 2=조합테스트 레드(`@r:`)
-fn load_selections() -> std::collections::HashMap<(u8, String, u8), String> {
-    let mut out = std::collections::HashMap::new();
+/// ★값이 Vec 인 이유(2026-09-13): 같은 (스코프,챔프,슬롯)에 행이 **여러 개** 있을 수 있다 —
+///   legacy 가 해석 못 한 옛 지정(예: 롤아이템모드 OFF 후의 `radiant_*`)을 pending 원문으로 보존한 채
+///   유저의 새 지정을 같은 칸에 또 쓰던 실사고. 구 코드는 HashMap 덮어쓰기라 **뒤 행이 이겨** 유저 지정이
+///   조용히 무시됐다. 이제 후보를 전부 담고, 적용 시 **해석되는 첫 토큰**을 쓴다(파일 순서 유지).
+fn load_selections() -> std::collections::HashMap<(u8, String, u8), Vec<String>> {
+    let mut out: std::collections::HashMap<(u8, String, u8), Vec<String>> =
+        std::collections::HashMap::new();
     let Some(pp) = paths() else { return out };
     let Ok(text) = std::fs::read_to_string(&pp.1) else {
         return out;
@@ -407,7 +412,10 @@ fn load_selections() -> std::collections::HashMap<(u8, String, u8), String> {
         if slot >= 4 || champ.is_empty() {
             continue;
         }
-        out.insert((scope, champ.to_string(), slot), token.to_string());
+        let e = out.entry((scope, champ.to_string(), slot)).or_default();
+        if !e.iter().any(|t| t == token) {
+            e.push(token.to_string());
+        }
     }
     out
 }
@@ -1055,14 +1063,18 @@ fn apply_or_dryrun(base: usize, plen: usize, net: usize, is_unknown: bool, pcap:
             //   조합테스트 전용 지정(@b:/@r:)이 없으면 **legacy 일반 전술화면 지정**을 그대로 쓴다.
             //   riot 이 조합테스트 빌드 편집기를 자기 것으로 갈아치워 legacy 의 @b:/@r: 저장 경로가
             //   죽었기 때문에(03_시행착오 §12·§16), 폴백이 없으면 조합테스트에서 지정이 전부 비어 버린다.
-            let token = sels
+            let tokens: &[String] = sels
                 .get(&(scope, champ.clone(), slot))
-                .or_else(|| if scope != 0 { sels.get(&(0, champ.clone(), slot)) } else { None });
-            if slot == 3 && token.is_some() {
-                slot3_designated = true;
-            }
-            match token.and_then(|t| token_to_key(t)) {
-                Some(key) => match keys.iter().position(|k| k == key) {
+                .or_else(|| if scope != 0 { sels.get(&(0, champ.clone(), slot)) } else { None })
+                .map(|v| v.as_slice())
+                .unwrap_or(&[]);
+            // ★후보 토큰 중 **해석되고 활성인 첫 것**을 쓴다. 전부 해석 불가면 "지정 없음"과 같이 취급
+            //   (엔진 값 유지 · 4번째면 AUTO4 대상) — 죽은 지정이 자동추천까지 막지 않도록.
+            let mut picked: Option<(usize, &str)> = None;
+            let mut rejects: Vec<String> = Vec::new();
+            for t in tokens {
+                let Some(key) = token_to_key(t) else { continue }; // 0=Auto 토큰
+                match keys.iter().position(|k| k == key) {
                     Some(idx) => {
                         // ★활성 검증: score_item 이 후보로 넘긴 적 없는 아이템은 비활성일 수 있다.
                         //   비활성 아이템을 넣으면 그 선수가 아이템을 **하나도 못 산다**(riot OFF 실측).
@@ -1070,26 +1082,29 @@ fn apply_or_dryrun(base: usize, plen: usize, net: usize, is_unknown: bool, pcap:
                         let known = act.is_empty() || act.contains(&idx);
                         drop(act);
                         if known {
-                            plan.push(idx);
-                            notes.push(format!("s{slot}={idx}({key})"));
-                        } else {
-                            notes.push(format!("s{slot}=★비활성스킵({key})"));
-                            if let Some(&v) = cur.get(slot as usize) { plan.push(v); }
+                            picked = Some((idx, key));
+                            break;
                         }
+                        rejects.push(format!("비활성:{key}"));
                     }
-                    None => {
-                        notes.push(format!("s{slot}=★키없음({key})"));
-                        if let Some(&v) = cur.get(slot as usize) {
-                            plan.push(v);
-                        }
+                    None => rejects.push(format!("키없음:{key}")),
+                }
+            }
+            let rj = if rejects.is_empty() { String::new() } else { format!("[스킵 {}]", rejects.join(",")) };
+            match picked {
+                Some((idx, key)) => {
+                    if slot == 3 {
+                        slot3_designated = true;
                     }
-                },
+                    plan.push(idx);
+                    notes.push(format!("s{slot}={idx}({key}){rj}"));
+                }
                 None => {
                     if let Some(&v) = cur.get(slot as usize) {
                         plan.push(v);
-                        notes.push(format!("s{slot}={v}(유지)"));
+                        notes.push(format!("s{slot}={v}(유지){rj}"));
                     } else {
-                        notes.push(format!("s{slot}=없음"));
+                        notes.push(format!("s{slot}=없음{rj}"));
                     }
                 }
             }
@@ -1380,8 +1395,12 @@ fn init(host: &StableHost) -> StableMod {
         if w { "ON" } else { "OFF(드라이런)" },
         sel_path_str()
     ));
-    for ((sc, c, sl), t) in sels.iter().take(6) {
-        logline(&format!("   scope{sc} {c} slot{sl} → {t} (key={:?})", token_to_key(t)));
+    for ((sc, c, sl), ts) in sels.iter().take(6) {
+        logline(&format!("   scope{sc} {c} slot{sl} → {ts:?}"));
+    }
+    let n_dup = sels.values().filter(|v| v.len() > 1).count();
+    if n_dup > 0 {
+        logline(&format!("[SEL] ⚠같은 칸에 후보 토큰 2개 이상 = {n_dup}칸 (해석되는 첫 토큰 사용)"));
     }
 
     host.log(LogLevel::Info, "tfm2_item_build v0.1 (measurement only)");
