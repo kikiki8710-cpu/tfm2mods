@@ -1,0 +1,99 @@
+{
+ "name": "try_engage",
+ "sym": "_RNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy7handler6engageNtB4_17LegacyPlanHandler10try_engage",
+ "src": "game-ai\\src\\plan_legacy\\handler\\engage.rs",
+ "src_line": 40,
+ "ir_file": "m13.ll",
+ "ir_from": 33742,
+ "ir_to": 34295,
+ "exe_rva": "0xe5ca10",
+
+ "one_line": "target_id 상대로 BattlePlan(일반/다이브)을 만들어 첫 update 까지 돌리고, 게이트(패배직후 쿨·다이브 재진입 쿨·추격무망·다이브 불가·즉시 후퇴 서브골)에 걸리면 None 을 돌려준다",
+
+ "signature": {
+   "params": [
+     {"i": 0, "name": "(sret)", "type": "Option<BattlePlan> (280B)", "note": "+0 = support_target@tag 니치: -1 = None. Some 이면 BattlePlan 280B 통째 memcpy"},
+     {"i": 1, "name": "self", "type": "&mut LegacyPlanHandler", "note": "본문에서 self 필드 store 없음(읽기: 0x1480·0x1490·0x1498·0x517~0x519·&0x990·&0xf8). ⚠BattlePlan::update 에 &mut team_plan(0xf8, non-readonly) 을 넘기므로 콜리 내부 write 가능성은 범위 밖"},
+     {"i": 2, "name": "version", "type": "usize", "note": "L43·L63·L81·L96: `version > 1`(v2+) 게이트 4곳. new/new_dive/update/open_chase_race_hopeless/tower_dive_is_viable 에 전달"},
+     {"i": 3, "name": "rnd", "type": "&mut StdRng (320B)", "note": "본문 직접 사용 없음. tower_dive_is_viable·update 에 전달"},
+     {"i": 4, "name": "player", "type": "&PlayerState (2528B)", "note": "+0x930 team, +0x9c0 position (L64·L82 me 조회)"},
+     {"i": 5, "name": "data", "type": "&OperationData (24B)", "note": "+0x0 cache, +0x8 context(+0x8 setting → tick_per_second)"},
+     {"i": 6, "name": "target_id", "type": "usize", "note": "교전 대상 Entity id. get_entity_by_id 조회·BattlePlanGoal::TryKill(target_id, 60) 생성·last_lost_fight.0 과 비교"},
+     {"i": 7, "name": "debug", "type": "&mut DebugFrameData (224B)", "note": "tower_dive_is_viable·update 에 전달만"}
+   ],
+   "returns": "Option<BattlePlan> — None: L45 패배직후 쿨 / L54 대상 소멸 / L57 다이브 재진입 쿨 / L65·L84 추격 무망 / L70 다이브 불가 / L101 update 직후 sub_goal ∈ {KitingBack, RunAway, End}"
+ },
+
+ "reads": [
+  {"base": "LegacyPlanHandler", "offset": "0x1490", "name": "last_lost_fight.0", "note": "L43: v2+ 이고 target_id == 이 값이면 패배직후 쿨 검사"},
+  {"base": "LegacyPlanHandler", "offset": "0x1498", "name": "last_lost_fight.1", "note": "L44: tick <= 이 값 + tps*3 이면 None"},
+  {"base": "LegacyPlanHandler", "offset": "0x1480", "name": "last_dive_abandon_tick", "note": "L57: 다이브 경로에서 tick <= 이 값 + 1 + tps*4(dive_rejoin_cd, engage.rs:973) 이면 None"},
+  {"base": "LegacyPlanHandler", "offset": "0x517", "name": "team_plan.objective (3B: @tag 0x517 · phase/line 0x518 · with_battle/ready 0x519)", "note": "L97 v2+: BattlePlan::set_main_objective(battle.rs:350) 인라인 → battle+0xff 에 3B 복사"},
+  {"base": "LegacyPlanHandler", "offset": "0xf8", "name": "team_plan", "note": "&mut 로 tower_dive_is_viable(L70)·update(L99) 에 전달"},
+  {"base": "LegacyPlanHandler", "offset": "0x990", "name": "positioning_score", "note": "& 로 update(L99) 에 전달(readonly)"},
+  {"base": "OperationData", "offset": "0x0", "name": "cache", "note": ""},
+  {"base": "OperationData", "offset": "0x8", "name": "context", "note": "+0x8 setting"},
+  {"base": "GameContext", "offset": "0x8", "name": "setting", "note": ""},
+  {"base": "GameSetting", "offset": "0x12f8", "name": "tick_per_second", "note": "L44 tps*3 · L57 tps*4(shl 2)"},
+  {"base": "AbstractGameWithCache", "offset": "0x0", "name": "game.data_ptr / game.vtable_ptr", "note": "vtable+0x1f0 get_entity_by_id(target_id) (L52·L54·L83), vtable+0x28 tick() (L44·L57)"},
+  {"base": "AbstractGameWithCache", "offset": "0x1e0", "name": "player_champion[][]", "note": "[team][pos] = me (L64·L82, bounds<2 panic @64/@82)"},
+  {"base": "PlayerState", "offset": "0x930", "name": "info.team", "note": "L64·L75·L82. 1-team = 적 팀(타워 탐색)"},
+  {"base": "PlayerState", "offset": "0x9c0", "name": "info.position@tag", "note": "as_index → me 열"},
+  {"base": "Entity", "offset": "0x68", "name": "ty@tag", "note": "L76 closure$2: 최근접 타워 엔티티가 Tower(2) 일 때만 dive_tower 채움"},
+  {"base": "Entity", "offset": "0x128", "name": "ty@Tower.info.ty@tag", "note": "TowerType(Top0/Mid1/Bottom2/TwinA3/TwinB4/Top2 5..) → battle.dive_tower"},
+  {"base": "Entity", "offset": "0x660", "name": "x", "note": "L75 closure$1 distance_sq(타워, target)"},
+  {"base": "Entity", "offset": "0x668", "name": "y", "note": ""},
+  {"base": "BattlePlan(local)", "offset": "0x58", "name": "sub_goal@tag", "note": "L100: update 후 3 KitingBack / 4 RunAway / 7 End 면 폐기(None)"}
+ ],
+
+ "writes": [
+  {"base": "Option<BattlePlan>(sret)", "offset": "0x0", "name": "support_target@tag(니치)", "value": "-1 = None (L45·L54·L57·L65·L70·L84·L101) / Some = battle 280B memcpy (L102)", "note": ""},
+  {"base": "BattlePlan(local→sret)", "offset": "0x40", "name": "main_goal", "value": "BattlePlanGoal::TryKill(target_id, 60) — {tag 0, +8 target_id, +16 60} 을 new/new_dive 에 전달", "note": "L73·L89. 60 은 TryKill.1(리터럴)"},
+  {"base": "BattlePlan(local→sret)", "offset": "0x107", "name": "entry_src", "value": "2 (다이브, L74) / 1 (일반, L90)", "note": ""},
+  {"base": "BattlePlan(local→sret)", "offset": "0xfe", "name": "dive_tower", "value": "다이브 경로만: 최근접 적 타워의 TowerType, 없거나 Tower 엔티티가 아니면 -1(None) (L75~77)", "note": ""},
+  {"base": "BattlePlan(local→sret)", "offset": "0xff", "name": "main_objective (3B)", "value": "v2+: self.team_plan.objective 3B 복사 (L96~97, set_main_objective battle.rs:350~351)", "note": "v1 은 new 가 준 값 유지"}
+ ],
+
+ "constants": [
+  {"value": 1, "src_line": 43, "meaning": "version > 1 ⇔ v2+ 게이트(L43·63·81·96). L57 의 `+1` 도 같은 리터럴(abandon_tick + 1 + tps*4)"},
+  {"value": 3, "src_line": 44, "meaning": "패배직후 재교전 쿨 = tps*3 (3초). 별도로 L100 의 sub_goal 태그 3 = KitingBack"},
+  {"value": 2, "src_line": 57, "meaning": "folded: dive_rejoin_cd(engage.rs:973) = tps<<2 = tps*4 (4초) — `shl i64 %tps, 2`. 별도로 L74 entry_src=2(다이브), L76 EntityType Tower 태그 2, 팀 bounds 2", "folded_from": 4},
+  {"value": 60, "src_line": 73, "meaning": "BattlePlanGoal::TryKill.1 = 60 (new_dive·new 양쪽 동일 리터럴)"},
+  {"value": 0, "src_line": 73, "meaning": "BattlePlanGoal 태그 0 = TryKill"},
+  {"value": 4, "src_line": 100, "meaning": "BattleSubPlanGoal 태그 4 = RunAway → 폐기"},
+  {"value": 7, "src_line": 100, "meaning": "BattleSubPlanGoal 태그 7 = End → 폐기"},
+  {"value": -1, "src_line": 76, "meaning": "Option 니치 None: dive_tower(u8 -1) · 반환 Option<BattlePlan>(i64 -1) · 타워 iter 상태"},
+  {"value": 6, "src_line": 75, "meaning": "iter_towers_without_nexus 의 배열 IntoIter<Option<&Entity>, 6> 상한(assume) — 타워 슬롯 6개(1차/2차 × 3라인) 순회 후 slice(쌍둥이 타워) chain — 판정 상수 아님"}
+ ],
+
+ "calls": [
+  "game_ai::tower_discipline::engage_requires_dive",
+  "game_ai::plan_legacy::old::battle::BattlePlan::new",
+  "game_ai::plan_legacy::old::battle::BattlePlan::new_dive",
+  "game_ai::plan_legacy::old::battle::BattlePlan::update",
+  "game_ai::plan_legacy::old::fight_model::open_chase_race_hopeless",
+  "game_ai::plan_legacy::old::fight_model::tower_dive_is_viable",
+  "game_core::simulation::AbstractGameWithCache::iter_towers_without_nexus",
+  "core::iter::adapters::copied::Copied::next",
+  "core::panicking::panic_bounds_check",
+  "core::ptr::drop_glue<BattlePlan>"
+ ],
+ "vtable_calls": ["game.vtable_ptr+0x1f0 get_entity_by_id(target_id) — L52·L54·L83", "game.vtable_ptr+0x28 tick() — L44·L57"],
+
+ "logic": "try_engage(&mut self, version, rnd, player, data, target_id, debug) -> Option<BattlePlan>\n  if version > 1 && target_id == self.last_lost_fight.0 {                     // L43\n    if game.tick() <= self.last_lost_fight.1 + tps*3 { return None } }        // L44~45  패배 직후 같은 상대 3초 재교전 금지\n  target = game.get_entity_by_id(target_id)                                  // L52\n  in_tower = target.map_or(false, |t| engage_requires_dive(player, data, t)) // L52 closure$0\n  battle = if in_tower {                                                     // L53\n    t = get_entity_by_id(target_id)?  (None → return None)                   // L54\n    if game.tick() <= self.last_dive_abandon_tick + 1 + tps*4 { return None } // L57 (dive_rejoin_cd)\n    if version > 1 {                                                         // L63\n      if let Some(me) = cache.player_champion[team][pos] {                   // L64\n        if open_chase_race_hopeless(version, data, player, me, t) { return None } } }   // L65\n    if !tower_dive_is_viable(version, rnd, player, data, &mut self.team_plan, t, true, debug) { return None }   // L70\n    bp = BattlePlan::new_dive(version, &TryKill(target_id, 60), data, player) // L73\n    bp.entry_src = 2                                                         // L74\n    tower = iter_towers_without_nexus(cache, 1-team).min_by_key(|tw| dist_sq(tw, t))   // L75 closure$1 (첫 최소)\n    bp.dive_tower = tower.and_then(|tw| if tw.ty==Tower { Some(tw.info.ty) } else { None })   // L76~77 closure$2\n    bp\n  } else {\n    if version > 1 {                                                         // L81\n      if let (Some(me), Some(t)) = (player_champion[team][pos], get_entity_by_id(target_id)) {   // L82~83\n        if open_chase_race_hopeless(version, data, player, me, t) { return None } } }   // L84\n    bp = BattlePlan::new(version, &TryKill(target_id, 60), data, player)      // L89\n    bp.entry_src = 1                                                         // L90\n    bp }\n  if version > 1 { battle.set_main_objective(self.team_plan.objective) }     // L96~97 (+0xff 3B)\n  battle.update(version, rnd, player, data, &self.positioning_score, &mut self.team_plan, debug)   // L99\n  if battle.sub_goal ∈ {KitingBack(3), RunAway(4), End(7)} { drop(battle); return None }   // L100~101\n  return Some(battle)                                                        // L102",
+
+ "knobs": [
+  {"what": "패배 직후 같은 대상 재교전 쿨", "where": "engage.rs:44", "value": "tps*3", "effect": "올리면 진 상대에게 더 오래 안 덤빈다"},
+  {"what": "다이브 포기 후 재진입 쿨", "where": "engage.rs:57 (dive_rejoin_cd engage.rs:973)", "value": "tps*4 (+1)", "effect": "올리면 타워 다이브 재시도 간격이 길어진다"},
+  {"what": "TryKill 목표 시간 상수", "where": "engage.rs:73·89", "value": 60, "effect": "BattlePlanGoal::TryKill.1 — 소비처는 이 함수 밖(§4 함정 7: 산술 소비처 확인 필요)"},
+  {"what": "즉시 폐기 서브골 집합", "where": "engage.rs:100", "value": "{3,4,7}", "effect": "집합을 줄이면 update 가 후퇴로 판정한 플랜도 반환된다(교전 개시 완화)"}
+ ],
+
+ "unknown": [
+  "engage_requires_dive / open_chase_race_hopeless / tower_dive_is_viable / BattlePlan::new·new_dive·update 내부 — 별도 함수(호출만). `in_tower` 의 실제 기준은 engage_requires_dive 에 있다",
+  "tower_dive_is_viable 의 7번째 인자 `true` 의 의미(파라미터 이름) — 콜리 시그니처 미독",
+  "self(%1) 가 &mut 인지 & 인지 — IR 속성에 readonly 가 없고 DI 타입 미확인. 본문 store 는 0건이므로 이 함수 자체의 self write 는 없음(update 콜리의 team_plan 변경 가능성만)",
+  "iter_towers_without_nexus 반환 순서(1차/2차·라인 순) — game_core 본문 미독. min_by_key 는 동률 시 먼저 나온 타워",
+  "Option<BattlePlan> 니치가 support_target@tag(+0) 인지 — `store i64 -1, %0` 관측과 tcxdict support_target@tag 8B 로 추정(tcxdict --enum Option<BattlePlan> 미조회)"
+ ]
+}

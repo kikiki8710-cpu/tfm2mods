@@ -1,0 +1,15 @@
+{
+ "_note": "update(0xe4c5c0) 서브트리 NA(사장) 목록 — RE 2026-09-13_update서브트리_도달가능성NA봉인_미명명28 · 09-13 밤 #62 오편입 후 파일화. 편성(pick) 전에 반드시 대조.",
+ "na": {
+  "d478c0": "decide_deathmatch(데스매치)",
+  "ebf380": "dm_flee_survival(데스매치)",
+  "ea96e0": "deathmatch_incoming_threat(데스매치)",
+  "ec7930": "deathmatch_incoming_threat(데스매치)",
+  "dcd930": "handle_press_epic — 유일 호출부 version<=1 전용(인자 i64 poison) · r9 오편입 → NA 복귀(09-13 밤)",
+  "e5c1f0": "single_try_engage — SingleLane 전용(#15)",
+  "ccc010": "EpicHuntAndBattlePlan::sub_plan — BigPlan 태그 13 생성 코드 전무(사장 variant · #07)",
+  "d51fb0": "SinglePlanBattle::with_runaway — SingleLane 전용(#47)",
+  "d781e0": "SinglePlanLine::sub_plan — SingleLane 전용",
+  "c9d9d0": "SinglePlanBattle::update_v32 collect — SingleLane 전용"
+ }
+}

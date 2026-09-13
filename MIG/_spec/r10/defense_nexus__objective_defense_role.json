@@ -1,0 +1,96 @@
+{
+ "name": "objective_defense_role",
+ "sym": "_RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old13defense_nexus22objective_defense_role",
+ "src": "game-ai\\src\\plan_legacy\\old\\defense_nexus.rs",
+ "src_line": 382,
+ "ir_file": "m04.ll",
+ "ir_from": 59521,
+ "ir_to": 60397,
+ "aux": [{"ir_file": "m12.ll", "ir_from": 3674, "ir_to": 3753}],
+
+ "one_line": "막판 오브젝트(모가드/세르펜) 처치 vs 본진 방어 인원 분배 — 나는 StayFinish/GoDefend/Continue 중 무엇인가",
+
+ "signature": {
+   "params": [
+     {"i": 1, "name": "_version", "type": "usize", "note": "%0. 미사용"},
+     {"i": 2, "name": "player", "type": "&PlayerState(2528B)", "note": "%1"},
+     {"i": 3, "name": "data", "type": "&OperationData(24B)", "note": "%2"},
+     {"i": 4, "name": "jungle_type", "type": "JungleType(i8)", "note": "%3. 4=Morgard / 5=Serpen 만 처리, 그 외는 defend_or_continue(&[])"},
+     {"i": 5, "name": "need_count", "type": "usize", "note": "%4. i_am_chosen_defender 에 그대로 전달"}
+   ],
+   "returns": "DefenseRole(i8) — 0 StayFinish(오브젝트 마무리 잔류) / 1 GoDefend(방어 합류) / 2 Continue(하던 일 계속)"
+ },
+
+ "reads": [
+   {"base": "PlayerState", "offset": "0x930", "name": "info.team", "note": "team (59715); <2 아니면 bounds panic (60000, 60247)"},
+   {"base": "PlayerState", "offset": "0x9c0", "name": "info.position@tag", "note": "as_index → my_champ 인덱스 (60008)"},
+   {"base": "OperationData", "offset": "0x0", "name": "cache", "note": "59585"},
+   {"base": "OperationData", "offset": "0x8", "name": "context", "note": "59698"},
+   {"base": "AbstractGameWithCache", "offset": "0x0", "name": "game.data_ptr", "note": "59586"},
+   {"base": "AbstractGameWithCache", "offset": "0x8", "name": "game.vtable_ptr", "note": "슬롯 0x40=get_game_mode(59590) · 0x1f0=get_entity_by_id(59655)"},
+   {"base": "AbstractGameWithCache", "offset": "0x1e0", "name": "player_champion[team][p]", "note": "[2][5] Option<&Entity> (59719~59720, 60011, 60251)"},
+   {"base": "GameMode", "offset": "0x0", "name": "tag", "note": "get_game_mode 반환 {i64,ptr}: tag 0=Moba 아니면 as_moba().unwrap() 패닉 (59595)"},
+   {"base": "MobaMode", "offset": "0x1a0", "name": "jungle_runner.epic.live_list.buf.inner.ptr", "note": "Morgard 경로 (59631)"},
+   {"base": "MobaMode", "offset": "0x1a8", "name": "jungle_runner.epic.live_list.len", "note": "0 이면 .get(0)=None (59621)"},
+   {"base": "MobaMode", "offset": "0x1d0", "name": "jungle_runner.serpen.live_list.buf.inner.ptr", "note": "Serpen 경로 (59684)"},
+   {"base": "MobaMode", "offset": "0x1d8", "name": "jungle_runner.serpen.live_list.len", "note": "59674"},
+   {"base": "GameContext", "offset": "0x0", "name": "pool", "note": "&Bump — Vec::new_in (59705)"},
+   {"base": "GameContext", "offset": "0x8", "name": "setting", "note": "59700"},
+   {"base": "GameSetting", "offset": "0x12f8", "name": "tick_per_second", "note": "tps (59701)"},
+   {"base": "Entity", "offset": "0x660", "name": "x", "note": "ally.x / obj.x (59721, 60259)"},
+   {"base": "Entity", "offset": "0x668", "name": "y", "note": "59722, 60263"},
+   {"base": "Entity", "offset": "0x4c0", "name": "attack_effect@tag", "note": "i32 -1 = None → 스킵 (60291~60293)"},
+   {"base": "Entity", "offset": "0x490", "name": "attack_effect@Some.0", "note": "&Effect(56B) → expected_damage_target (60297)"},
+   {"base": "Entity", "offset": "0x5c0", "name": "id", "note": "ally.id 를 committed 에 저장(60343) / my_champ.id 를 finishers 에서 검색(60023)"},
+   {"base": "Entity", "offset": "0x670", "name": "hp", "note": "obj.hp (59843)"}
+ ],
+
+ "writes": [
+   {"base": "stack Vec<(i64,usize)> committed", "offset": "0x0 -> committed.ptr[len]+0", "name": "(dps, ally.id)", "value": "push", "note": "60383~60388. bumpalo Vec, 함수 끝에서 drop"},
+   {"base": "stack Vec<usize> finishers", "offset": "0x0 -> finishers.ptr[len]+0", "name": "ally.id", "value": "push", "note": "59988~59991. 마무리조 id 목록"}
+ ],
+
+ "constants": [
+   {"value": 4, "src_line": 393, "meaning": "JungleType 태그 4 = Morgard → epic.live_list[0]"},
+   {"value": 5, "src_line": 393, "meaning": "JungleType 태그 5 = Serpen → serpen.live_list[0]. (같은 5 가 L407 `0..5` 포지션 루프 상한으로도 쓰임)"},
+   {"value": 40000000000, "src_line": 411, "meaning": "200000^2 — ally.distance_sq(obj) > 200000² 이면 '붙은 아군' 아님(스킵). 6.25셀"},
+   {"value": -1, "src_line": 414, "meaning": "attack_effect Option 니치 태그 None(i32 -1) / attack_cooltime()==-1(usize::MAX) 오버플로 가드"},
+   {"value": 0, "src_line": 417, "meaning": "dps > 0 인 아군만 committed 에 등록"},
+   {"value": 6, "src_line": 427, "meaning": "window_secs = 6초. L427 `obj.hp > combined*6` 이면 창 안에 못 잡음 / L433 needed_dps = obj.hp/6 + 1"},
+   {"value": 1, "src_line": 433, "meaning": "needed_dps = hp/6 + 1 (dbg_value DW_OP_plus_uconst 1; IR 은 `acc > hp/6` 로 접힘) · DefenseRole GoDefend=1"},
+   {"value": 2, "src_line": 384, "meaning": "DefenseRole Continue=2 (select 결과 및 my_champ None 폴백). aux m12.ll:3691 의 `shl %9, 2` 는 median3_rec 라이브러리 산술(n/8*4)로 판정과 무관 — shl 접힘 아님"},
+   {"value": 3, "src_line": 382, "meaning": "반환 i8 range(0,3) — DefenseRole 3변형"}
+ ],
+
+ "calls": [
+   "game_ai::plan_legacy::old::defense_nexus::nexus_under_direct_attack",
+   "game_ai::plan_legacy::old::defense_nexus::i_am_chosen_defender",
+   "game_core::simulation::effect::Effect::expected_damage_target",
+   "game_core::simulation::entity::Entity::attack_cooltime",
+   "bumpalo::collections::raw_vec::RawVec::reserve_internal_or_panic",
+   "core::ops::drop::Drop::drop",
+   "core::ptr::drop_glue",
+   "core::option::unwrap_failed",
+   "core::panicking::panic_bounds_check",
+   "core::panicking::panic_const::panic_const_div_overflow",
+   "llvm.umax.i64",
+   "llvm.memset.p0.i64",
+   "llvm.assume"
+ ],
+
+ "logic": "defend_or_continue(exclude: &[usize]) = closure$0(L384): if i_am_chosen_defender(player, data, need_count, exclude) { GoDefend(1) } else { Continue(2) }\n\nL388: if nexus_under_direct_attack(player, data) { return defend_or_continue(&[]) }   // 넥서스 실제 위험 → 분배 없이 방어\nL393: obj_id = match jungle_type {\n        Morgard(4) => data.cache.game.get_game_mode().as_moba().unwrap().jungle_runner.epic.live_list.get(0).copied()   (L394)\n        Serpen(5)  => ...jungle_runner.serpen.live_list.get(0).copied()                                                   (L395)\n        _ => return defend_or_continue(&[]) }\nL398: obj = obj_id.and_then(|id| cache.game.get_entity_by_id(id)); None → L399 return defend_or_continue(&[])\nL402: tps = data.context.setting.tick_per_second\nL406: committed: Vec<(i64,usize)> = new_in(context.pool)\nL407: for p in 0..5 {\n  L408: ally = cache.player_champion[player.info.team][p]  (None → continue)\n  L411: if ally.distance_sq(obj) > 40000000000 { continue }\n  L414: atk = ally.attack_effect.as_ref()  (None → continue)\n  L415: dps = atk.expected_damage_target(context, ally, obj as &dyn(vtable @anon.6)) * tps / max(ally.attack_cooltime(), 1)   (i64 signed 나눗셈, MIN/-1 오버플로 패닉 가드)\n  L417: if dps > 0 { L418: committed.push((dps, ally.id)) } }\nL421: if committed.is_empty() { L422: return defend_or_continue(&[]) }\nL425: combined = Σ committed.dps\nL427: if obj.hp > combined * 6 { L428: return defend_or_continue(&[]) }   // 6초 창 안에 못 잡음 → 분배 없음\nL432: committed.sort_by(closure$4)  — 비교자 is_less(a,b) = b.dps < a.dps (aux m12.ll:3738~3748 median3: x=is_less(a,b)=`slt b.0,a.0`) ⟹ dps 내림차순 (stable)\nL433: needed_dps = obj.hp / 6 + 1\nL435: finishers: Vec<usize> = new_in(pool); acc = 0\nL436: for (dps,id) in committed {  L437: if acc >= needed_dps { break }  (IR: `acc > hp/6`)\n  L440: acc += dps;  L441: finishers.push(id) }\nL444: my_champ = cache.player_champion[team][player.info.position]; None → return Continue(2)\nL447: if finishers.contains(&my_champ.id) { return StayFinish(0) }\nL450: return defend_or_continue(&finishers)   // finisher 제외 풀에서 need_count 명 선발\nL451: drop(finishers), drop(committed)",
+
+ "knobs": [
+   {"what": "처치 창(window_secs)", "where": "defense_nexus.rs:427,433", "value": 6, "effect": "올리면 더 낮은 합산 DPS 로도 '곧 잡는다'고 봐서 finisher 분리(잔류)가 늘고, needed_dps 가 줄어 finisher 인원도 준다"},
+   {"what": "'붙은 아군' 판정 거리", "where": "defense_nexus.rs:411", "value": 40000000000, "effect": "올리면 오브젝트에서 더 먼 아군의 DPS 도 합산돼 combined 가 커지고 finisher 후보가 늘어난다"},
+   {"what": "DPS 하한", "where": "defense_nexus.rs:417", "value": 0, "effect": "dps≤0(평타 없음·데미지 0) 아군은 finisher 후보에서 제외"}
+ ],
+
+ "unknown": [
+   "i_am_chosen_defender(defense_nexus.rs:297) 본문 미독 — 계약: (&PlayerState,&OperationData,need_count:usize,exclude:&[usize])->bool. _docs 에 'v39 적합도 키=(푸셔 못막음?, 웨이브클리어점수 내림차순, 넥서스까지 거리, id) 순 need_count 명' 주석 있음",
+   "expected_damage_target 의 4번째 인자 vtable @anon.6(Entity 1728B 용, 슬롯 9개)의 트레이트 이름 — game_core 쪽 정적 vtable이라 divtable 로 미조회",
+   "L437 의 `acc > obj.hp/6` 가 소스에서 `acc >= needed_dps`(needed_dps=hp/6+1) 인지 `acc > hp/6` 인지 — 외연 동일, 표기 불가",
+   "sort_by 비교자(closure$4)가 `b.0.cmp(&a.0)` 인지 `a.0.cmp(&b.0).reverse()` 인지 — 동작(dps 내림차순)은 aux median3 로 확정, 표기 불가. 동점 시 stable 이라 포지션 순 유지",
+   "L407 루프의 5 와 JungleType 태그 5 가 같은 리터럴이라 C1 상 구분 불가 — meaning 에 병기"
+ ]
+}

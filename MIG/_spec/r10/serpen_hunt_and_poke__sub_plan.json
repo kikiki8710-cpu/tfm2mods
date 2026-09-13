@@ -1,0 +1,131 @@
+{
+ "name": "SerpenHuntAndPokePlan::sub_plan",
+ "sym": "_RNvMNtNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old6serpen13hunt_and_pokeNtB2_21SerpenHuntAndPokePlan8sub_plan",
+ "src": "game-ai\\src\\plan_legacy\\old\\serpen\\hunt_and_poke.rs",
+ "src_line": 30,
+ "ir_file": "m10.ll",
+ "ir_from": 9876,
+ "ir_to": 11480,
+
+ "one_line": "세르펜 사냥/견제 빅플랜의 서브플랜 선택 — Epic 판과 동형(Steal/SerpenCheck/Recall/LineDefense/SerpenHunt/SerpenPoke), 차이 5곳은 unknown/logic 에 명시",
+
+ "signature": {
+  "params": [
+   {"i": 0, "name": "(sret)", "type": "*mut SubPlan(72B)", "note": "%0. 니치 태그(idx+2)"},
+   {"i": 1, "name": "self", "type": "&mut SerpenHuntAndPokePlan(32B)", "note": "%1. v46_flee_threats(+0x0 Vec)·focus_serpen_only(+0x18)·vision_only(+0x19)·v46_flee(+0x1a). v46 필드는 갱신도"},
+   {"i": 2, "name": "version", "type": "usize", "note": "%2. 본문 분기 없음 — upgrade_item·v46_flee_gate_check·v25·v24 에 전달"},
+   {"i": 3, "name": "rnd", "type": "&mut StdRng(320B)", "note": "%3. upgrade_item·PlayerState::strategy 에 전달"},
+   {"i": 4, "name": "player", "type": "&PlayerState(2528B)", "note": "%4. info.team(0x930)·info.position 태그(0x9c0)"},
+   {"i": 5, "name": "data", "type": "&OperationData(24B)", "note": "%5. cache·context·blackboard"},
+   {"i": 6, "name": "goal_data", "type": "&GoalData(248B)", "note": "%6. serpen.epic_enemy_tick(0xc0)·serpen.epic_ally_tick(0xd0) — check_recall 인라인분"},
+   {"i": 7, "name": "team_plan", "type": "&TeamPlan(1064B)", "note": "%7. objective 태그(0x41f)·phase(0x420) + v24 의 self"},
+   {"i": 8, "name": "debug", "type": "&mut DebugFrameData(224B)", "note": "%8. ctx.debug 일 때 v46 도주 로그"}
+  ],
+  "returns": "() — sret SubPlan. 발생 variant: Steal(18)·SerpenCheck(13)·Recall(5)·LineDefense(2)·SerpenHunt(14)·SerpenPoke(15)"
+ },
+
+ "reads": [
+  {"base": "SerpenHuntAndPokePlan", "offset": "0x18", "name": "focus_serpen_only", "note": "Steal commit 플래그(:35, :39)"},
+  {"base": "SerpenHuntAndPokePlan", "offset": "0x19", "name": "vision_only", "note": "Steal Lurk 플래그"},
+  {"base": "SerpenHuntAndPokePlan", "offset": "0x1a", "name": "v46_flee", "note": "check_recall :119"},
+  {"base": "SerpenHuntAndPokePlan", "offset": "0x8", "name": "v46_flee_threats.ptr", "note": ":120 순회"},
+  {"base": "SerpenHuntAndPokePlan", "offset": "0x10", "name": "v46_flee_threats.len", "note": ":120 순회 / :126 clear"},
+  {"base": "PlayerState", "offset": "0x930", "name": "info.team", "note": "t. 적 팀 1-t"},
+  {"base": "PlayerState", "offset": "0x9c0", "name": "info.position@tag", "note": "내 포지션(i32) — player_champion 조회·Split(position) 비교(:66)"},
+  {"base": "OperationData", "offset": "0x0", "name": "cache", "note": ""},
+  {"base": "OperationData", "offset": "0x8", "name": "context", "note": ""},
+  {"base": "OperationData", "offset": "0x10", "name": "blackboard", "note": "[1-t] 적 카운트 · [t] 아군 카운트"},
+  {"base": "AbstractGameWithCache", "offset": "0x0", "name": "game.data_ptr", "note": ""},
+  {"base": "AbstractGameWithCache", "offset": "0x8", "name": "game.vtable_ptr", "note": "슬롯 +0x28 tick · +0x40 get_game_mode · +0xe0 jungle_runner(★Epic 판엔 없음) · +0x1f0 get_entity_by_id"},
+  {"base": "AbstractGameWithCache", "offset": "0x1e0", "name": "player_champion[][]", "note": "[t][pos] 내 챔프 / [1-t][0..5] 적 / [t][0..5] 아군(5회 언롤)"},
+  {"base": "GameContext", "offset": "0x8", "name": "setting", "note": "→ tick_per_second"},
+  {"base": "GameContext", "offset": "0x20", "name": "map", "note": "→ fountains 만(★regions 는 안 읽음 — Epic 판과 차이)"},
+  {"base": "GameContext", "offset": "0x3b", "name": "debug", "note": "v46 로그 게이트"},
+  {"base": "GameSetting", "offset": "0x12f8", "name": "tick_per_second", "note": "check_recall :111 tps*5"},
+  {"base": "MapDef", "offset": "0x6d70", "name": "fountains[t]", "note": "(x0,y0,x1,y1). is_in_heal_area(:55~56)"},
+  {"base": "MobaMode", "offset": "0x1d0", "name": "jungle_runner.serpen.live_list.ptr", "note": ":36/:48 — as_moba 경유(+464)"},
+  {"base": "MobaMode", "offset": "0x1d8", "name": "jungle_runner.serpen.live_list.len", "note": "0 이면 세르펜 없음(+472)"},
+  {"base": "JungleRunner", "offset": "0x1b8", "name": "serpen.live_list.ptr", "note": "check_recall :142~143 — vtable+0xe0 jungle_runner() 경유(+440). MobaMode+0x18 부터가 JungleRunner 라 0x1d0-0x18"},
+  {"base": "JungleRunner", "offset": "0x1c0", "name": "serpen.live_list.len", "note": "(+448)"},
+  {"base": "TeamPlan", "offset": "0x41f", "name": "objective@tag", "note": "1 = Some(Serpen) 만 통과(:63) — Epic 판은 0(Morgard)"},
+  {"base": "TeamPlan", "offset": "0x420", "name": "objective@Some.0@Serpen.phase", "note": "3 = Hunt"},
+  {"base": "GoalData", "offset": "0xc0", "name": "serpen.epic_enemy_tick", "note": "check_recall :111 (필드명은 epic_* 그대로 재사용)"},
+  {"base": "GoalData", "offset": "0xd0", "name": "serpen.epic_ally_tick", "note": ""},
+  {"base": "Entity", "offset": "0x628", "name": "stat_cached.hp", "note": "내/세르펜 max HP (0 → div_by_zero 패닉)"},
+  {"base": "Entity", "offset": "0x660", "name": "x", "note": ""},
+  {"base": "Entity", "offset": "0x668", "name": "y", "note": ""},
+  {"base": "Entity", "offset": "0x670", "name": "hp", "note": ""},
+  {"base": "Strategy", "offset": "0x0", "name": "object_buildup", "note": "Split(position) 니치 — i32 그대로 내 pos 와 비교(:66)"}
+ ],
+
+ "writes": [
+  {"base": "SubPlan", "offset": "0x0", "name": "tag", "value": "18|13|5|2|14|15", "note": "Steal=18 / SerpenCheck=13 / Recall=5 / LineDefense=2 / SerpenHunt=14 / SerpenPoke=15"},
+  {"base": "SubPlan", "offset": "0x8", "name": "Steal.last_vision_tick", "value": "0", "note": ":39"},
+  {"base": "SubPlan", "offset": "0x10", "name": "Steal.target", "value": "Some(Serpen)=1", "note": "StealTarget 태그 1 = Serpen (Epic 판은 0)"},
+  {"base": "SubPlan", "offset": "0x11", "name": "Steal.commit", "value": "self.focus_serpen_only", "note": ""},
+  {"base": "SubPlan", "offset": "0x8", "name": "SerpenCheck.move_check", "value": "false(0)", "note": ":44 :50 :83"},
+  {"base": "SubPlan", "offset": "0x8", "name": "SerpenHunt.need_recall", "value": "false(0)", "note": ":77"},
+  {"base": "SubPlan", "offset": "0x8", "name": "LineDefense.style", "value": "Aggressive(0)", "note": ":73"},
+  {"base": "SubPlan", "offset": "0x9", "name": "LineDefense.line", "value": "fallback_line(ctx, Top=0)", "note": ":70 ★Epic 판은 Bottom(2)"},
+  {"base": "SubPlan", "offset": "0xa", "name": "LineDefense.minion_action_type", "value": "Push(2)", "note": ""},
+  {"base": "SerpenHuntAndPokePlan", "offset": "0x1a", "name": "v46_flee", "value": "true(:131) / false(:126)", "note": ""},
+  {"base": "SerpenHuntAndPokePlan", "offset": "0x0", "name": "v46_flee_threats", "value": "gate.1.to_vec()(:132) / len=0(:126)", "note": ""}
+ ],
+
+ "constants": [
+  {"value": 0, "src_line": 36, "meaning": "get_game_mode 반환 tag 0 = Moba(as_moba). / :70 fallback_line(ctx, LineType 0 = Top) ★Epic 판은 Bottom(2). / :130 v46 gate 코드 0 = 도주 발동"},
+  {"value": 100, "src_line": 47, "meaning": "hp_ratio = hp*100/max_hp"},
+  {"value": 13, "src_line": 50, "meaning": "SubPlan 메모리태그 13 = SerpenCheck"},
+  {"value": 51, "src_line": 58, "meaning": "hp_ratio < 51 → Recall 후보(세르펜 풀피 조건과 결합)"},
+  {"value": 5, "src_line": 59, "meaning": "SubPlan 메모리태그 5 = Recall. / :68·:82 JungleType 5 = Serpen(v25·v24 target). / :111 tps*5 유예"},
+  {"value": 1, "src_line": 63, "meaning": "TeamPlan.objective 태그 1 = Some(Serpen) (MainObjective idx1). 아니면 Recall(:90). / :39 StealTarget 1 = Serpen"},
+  {"value": 3, "src_line": 64, "meaning": "ObjectPhase 3 = Hunt (take_hunt_commit 인라인). ※`shl …, 3` 은 Vec<usize> stride(8B)"},
+  {"value": 2, "src_line": 73, "meaning": "SubPlan 태그 2 = LineDefense · MinionActionType 2 = Push"},
+  {"value": 14, "src_line": 77, "meaning": "SubPlan 메모리태그 14 = SerpenHunt"},
+  {"value": 64000, "src_line": 103, "meaning": "[game_core heal_area 인라인] 팀0: x<=64000 && 896000<=y<=960000 / 팀1: 892000<=x<=960000 && y<=64000"},
+  {"value": 960000, "src_line": 103, "meaning": "heal_area 인라인"},
+  {"value": 891999, "src_line": 103, "meaning": "heal_area 인라인(x > 891999)"},
+  {"value": 896000, "src_line": 103, "meaning": "heal_area 인라인"},
+  {"value": 40000000001, "src_line": 121, "meaning": "200000^2+1 — v46 위협이 이 거리 안이면 도주 유지(Recall)"},
+  {"value": 22500000001, "src_line": 150, "meaning": "150000^2+1 — ★check_recall 카운트 반경: 세르펜에서 150000 이내의 최근가시 적/아군을 센다(Epic 판은 regions==7 셀 기준). Epic 판의 :86 EpicPoke 거리 게이트는 Serpen 판에 없음"},
+  {"value": 21, "src_line": 159, "meaning": "check_recall 최종: hp_ratio < 21 && 아군수 < 적수 → 귀환"},
+  {"value": 15, "src_line": 86, "meaning": "SubPlan 메모리태그 15 = SerpenPoke — v24 가 false 면 거리 무관 무조건 Poke"},
+  {"value": 18, "src_line": 39, "meaning": "SubPlan 메모리태그 18 = Steal"}
+ ],
+
+ "calls": [
+  "game_ai::upgrade_item",
+  "game_ai::plan_legacy::old::passive_line::v46_flee_gate_check",
+  "alloc::vec::spec_from_iter_nested::from_iter",
+  "alloc::fmt::format::format_inner",
+  "game_core::simulation::game::frame::DebugFrameData::add_log",
+  "game_core::simulation::game::blackboard::Blackboard::is_recent_visible",
+  "game_core::simulation::state::player::PlayerState::strategy",
+  "game_ai::plan_legacy::team_plan::objective_helpers::v25_objective_splitter_can_stay",
+  "game_ai::plan_legacy::rule_scope::fallback_line",
+  "game_ai::plan_legacy::team_plan::objective_discipline::TeamPlan::v24_objective_setup_should_check_camp",
+  "core::panicking::panic_bounds_check",
+  "core::option::unwrap_failed",
+  "core::panicking::panic_const::panic_const_div_by_zero"
+ ],
+
+ "logic": "// serpen/hunt_and_poke.rs:30~92 (+ check_recall :99~159 인라인). Epic 판(epic_hunt_and_poke__sub_plan.json)과 같은 골격 — ★표시가 차이.\nt, pos, champ = … (:32)\n// A. 스틸 (:35~44)\nif self.focus_serpen_only || self.vision_only {\n   serpen = as_moba().jungle_runner.serpen.live_list.first().and_then(get_entity_by_id)   // :36~37 (MobaMode+0x1d0/+0x1d8)\n   Some → Steal{ last_vision_tick:0, target:Some(Serpen) ★, commit:focus_serpen_only }   // :39\n   None → SerpenCheck{false}                                                            // :44\n}\n// B. 일반\nhp_ratio = hp*100/max_hp                                                                 // :47\nserpen = live_list.first().and_then(get_entity_by_id); None → SerpenCheck{false}         // :48~50\n(x0,y0,x1,y1) = map.fountains[t]; is_in_heal_area = …                                    // :55~56\ncan_upgrade_item = upgrade_item(version, rnd, player, game, ctx).is_some()               // :57 (★Epic 은 :48 에서 먼저 계산 — 순서만 다르고 값 동일)\nif serpen.hp == serpen.max_hp && (hp_ratio<51 || can_upgrade_item || (is_in_heal_area && hp<max_hp)) → Recall   // :58~59\n// C. 오브젝트 게이트\nif team_plan.objective != Some(Serpen{..}) → Recall                                       // :63 / :90 ★태그 1\nif phase == Hunt {                                                                        // :64\n   strategy = player.strategy(rnd, game)                                                  // :65\n   if object_buildup == Split(pos) && v25_objective_splitter_can_stay(version, player, data, Serpen ★5)   // :66~68\n      → LineDefense{ Aggressive, fallback_line(ctx, Top ★0), Push }                       // :70~73\n   else → SerpenHunt{ need_recall:false }                                                 // :77\n}\n// D. check_recall (:99~159)\n   heal_area(t).contains(champ) && hp<max → true                                          // :103~104\n   hp_ratio = hp*100/max                                                                  // :108\n   min(goal_data.serpen.epic_enemy_tick, epic_ally_tick) <= tps*5 → false                 // :111\n   v46 도주 블록 — Epic 판과 동일(:119~135, 위협 반경 200000, gate 코드 0, 로그)\n   ★serpen = game.jungle_runner()(vtable+0xe0).serpen.live_list.first().and_then(get_entity_by_id)   // :142~143 (JungleRunner+0x1b8/+0x1c0)\n   ★if serpen.is_none() → true(귀환)                                                       // :143 (Epic 판엔 이 조회 없음)\n   ★enemy_cnt = player_champion[1-t] 중 blackboard[1-t].is_recent_visible && dist_sq(e, serpen) < 22500000001 인 수   // :148~151 closure$2\n   ★ally_cnt  = player_champion[t]   중 blackboard[t].is_recent_visible   && dist_sq(a, serpen) < 22500000001 인 수   // :153~156 closure$3  (Epic 은 regions==7 셀)\n   return hp_ratio < 21 && ally_cnt < enemy_cnt                                            // :159\nif check_recall → Recall                                                                  // :79~80\n// E. 꼬리\nif team_plan.v24_objective_setup_should_check_camp(version, player, data, goal_data, Serpen ★5) → SerpenCheck{false}   // :82~83\n★else → SerpenPoke (거리 게이트 없음 — Epic 판은 dist<150000 일 때만 Poke, 아니면 Check)   // :86",
+
+ "knobs": [
+  {"what": "귀환 HP 임계(세르펜 풀피일 때)", "where": "serpen/hunt_and_poke.rs:58", "value": 51, "effect": "Epic 판과 동일"},
+  {"what": "check_recall 저체력 임계", "where": "serpen/hunt_and_poke.rs:159", "value": 21, "effect": "Epic 판과 동일"},
+  {"what": "세르펜 근처 관측 유예", "where": "serpen/hunt_and_poke.rs:111", "value": 5, "effect": "tps*5초. Epic 판과 동일"},
+  {"what": "check_recall 카운트 반경", "where": "serpen/hunt_and_poke.rs:150", "value": 22500000001, "effect": "150000^2+1. 올리면 더 먼 적/아군까지 수적 비교에 들어가 귀환 판단이 바뀐다(Epic 은 리전 셀 기준이라 이 노브가 없음)"},
+  {"what": "v46 도주 위협 유지 반경", "where": "serpen/hunt_and_poke.rs:121", "value": 40000000001, "effect": "Epic 판과 동일"},
+  {"what": "스플리터 잔류 라인", "where": "serpen/hunt_and_poke.rs:70", "value": 0, "effect": "fallback_line(ctx, Top). 세르펜은 탑 쪽, 에픽은 바텀 쪽(2) — 맵 배치에 맞춘 값"}
+ ],
+
+ "unknown": [
+  "★Epic 판과의 차이 정리(IR 확정): ① objective 태그 1(Serpen) vs 0(Morgard) ② JungleType 인자 5 vs 4 ③ fallback_line 라인 Top(0) vs Bottom(2) ④ check_recall 카운트: 세르펜 실체 재조회(vtable+0xe0 jungle_runner, 없으면 귀환 true) + dist<150000 vs Epic 의 regions==7 셀 ⑤ 꼬리: v24 false 면 무조건 SerpenPoke vs Epic 의 dist<150000 게이트. 그 외(스틸·HP·샘·v46·Split 잔류)는 동형",
+  "can_upgrade_item 계산 위치가 :57(fountain 뒤)로 Epic(:48)과 다르지만 IR 에서 두 경로에 중복 호출돼 있을 뿐 조건식은 동일 — 부작용 유무는 upgrade_item 본문 미탐색",
+  ":58 줄 안 결합 순서 — column 없음(표기 불가)",
+  "v46_flee_gate_check 코드 1~5 의미 — passive_line.rs:38 본문 미탐색",
+  "objective_target/take_hunt_commit 헬퍼의 부수효과 여부 — 인라인돼 태그 비교만 남음(fnparts 인라인 87개), 본문 내 team_plan store 없음",
+  "exe 0xdf0e90 대조: 0x6d70·64000·892000·896000·960000·40000000001(+0x519)·22500000001(+0x685) 확인, vtable [+0x40]/[+0xe0]/[+0x1f0] 호출 존재(Epic exe 엔 [+0xe0] 없음 — IR 차이 ④와 일치), regions 0x38b8 부재(차이 ④ 일치). 로직 어긋남 없음"
+ ]
+}

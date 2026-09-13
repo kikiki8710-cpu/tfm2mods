@@ -1,0 +1,268 @@
+{
+ "round": 19,
+ "batch": "B",
+ "errors": [
+  {
+   "path": "/specs[84]/consts[11]/src_line",
+   "kind": "실오류",
+   "old": 448,
+   "new": 449,
+   "evidence": "m15.ll:29195 `%25 = icmp ult i64 %24, 2` 에는 !dbg 가 없고(루프 밖으로 호이스트), 그 검사의 panic 지점 m15.ll:29330 `panic_bounds_check(i64 %24, i64 2, …) !dbg !40925` 의 사슬 루트가 L449 (player_champion[team][ap]). L448 은 `for ap in ally_list` 이터레이터 줄(m15.ll:29166~29236)이라 팀 인덱스 검사가 없다",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[84]/logic",
+   "kind": "보강",
+   "old": "(my_ratio==0 이면 div-by-zero 패닉)",
+   "new": "(udiv 0 검사 m15.ll:30207 `%441 = icmp ugt i64 %422, %423`(=my_ratio==0) 가 남아 있지만 L544 `my<enemy` 거짓·L546 `my==enemy` 거짓을 지나면 my_ratio > enemy_ratio ≥ 0 ⇒ my_ratio ≥ 1 이라 도달 불가)",
+   "evidence": "m15.ll:30192 `%432 = icmp ult i64 %424, %427`(L544) → false 가지, m15.ll:30196 `%434 = icmp eq i64 %424, %427`(L546) → false 가지 뒤에만 m15.ll:30207~30212 (L549) 로 온다. %424=my_ratio 가 0 이면 %427 이 0 이 아닌 한 L544 가 참, 0 이면 L546 이 참이라 L549 의 %424 는 항상 ≥1",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[85]/sig/params[0]/role",
+   "kind": "보강",
+   "old": "미사용(이름부터 _). 본문 분기 없음",
+   "new": "%0. 미사용(이름부터 _). 본문 분기 없음",
+   "evidence": "m15.ll:33056 define `(i64 noundef %0, ptr … dereferenceable(2528) %1, ptr … dereferenceable(24) %2, i64 noundef %3, i64 noundef %4, i64 noundef %5)` — 인자 6개 중 %0 = _version",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[85]/sig/params[1]/role",
+   "kind": "보강",
+   "old": "+0x930 team, +0x9c0 position. check_favorable_engage_formation 에 전달",
+   "new": "%1. +0x930 team, +0x9c0 position. check_favorable_engage_formation 에 전달",
+   "evidence": "m15.ll:33056 define 두 번째 인자 `ptr noalias noundef readonly … dereferenceable(2528) %1` = &PlayerState",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[85]/sig/params[2]/role",
+   "kind": "보강",
+   "old": "+0x0 cache 만 직접 읽음",
+   "new": "%2. +0x0 cache 만 직접 읽음",
+   "evidence": "m15.ll:33056 define 세 번째 인자 `ptr noalias noundef readonly … dereferenceable(24) %2` = &OperationData",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[86]/mem[23]/note",
+   "kind": "보강",
+   "old": "계측 전용(선택 결과엔 영향 없음)",
+   "new": "계측 전용(선택 결과엔 영향 없음). 논리상 발화 불가 — :205 필터(m10.ll:29190)와 :208 재검사(m10.ll:29269)가 같은 blackboard %208·game %353/%354·player %3 으로 같은 틱에 부르고, is_recent_visible(shared 확정: is_visible ‖ last_visible+120>=tick 순수 읽기)은 그 사이 상태 변화가 없어 값이 같다",
+   "evidence": "m10.ll:29190 `%378 = invoke … is_recent_visible(ptr … %208, ptr %353, ptr … %354, ptr … %3, ptr … %360)` / m10.ll:29269 `%407 = invoke … is_recent_visible(ptr … %208, ptr %353, ptr … %354, ptr … %3, ptr … %403)` — %403 은 필터를 통과한 min_by_key 결과. build 는 &TeamPlan 에 atomicrmw 2건 외 store 없음(G14 mem.dir 0건)",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[88]/consts[5]/src_line",
+   "kind": "실오류",
+   "old": 50,
+   "new": 526,
+   "evidence": "m13.ll:11589~11594 `switch i8 %32, label %38 [ i8 0 / i8 5 / i8 7 / i8 8 → label %37 ]` 의 !dbg 사슬 = L526 v2_apply_assign_commit@handler.rs (inl: L267@spawn_serpen < L50@serpen_exists). 50 은 rule_scope.rs 의 줄이라 src(handler.rs) 규약 밖. 게이트가 낸 강한 후보 [554, 2325] 는 `shl nuw nsw i8 %91, 5`(m13.ll:12134, line*32 stride)라 오히려 무관",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[88]/consts[6]/src_line",
+   "kind": "실오류",
+   "old": 46,
+   "new": 526,
+   "evidence": "m13.ll:11599 `%35 = add nsw i8 %32, -7` !dbg 사슬 = L526 (inl: L263@spawn_epic < L46@morgard_exists)",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[88]/consts[7]/src_line",
+   "kind": "실오류",
+   "old": 46,
+   "new": 526,
+   "evidence": "m13.ll:11600 `%36 = icmp ult i8 %35, -6` !dbg 사슬 = L526 (inl: L263@spawn_epic < L46@morgard_exists)",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[88]/consts[16]/src_line",
+   "kind": "실오류",
+   "old": 25,
+   "new": 553,
+   "evidence": "line_exists 는 두 곳에 인라인: m13.ll:11785~11809 (L553, inl: L283/287/291@spawn_*_minion < L27x@spawn_line_minion < L25@line_exists < L2294@mf2_cover_need_excluding_me) 와 m13.ll:12060~12084 (L554, … < L2323@mf2_epic_line_valid). 값 7 은 세 switch 의 case 라벨(`i8 7, label %105`). 첫 출현 L553 으로 둔다",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[88]/consts[16]/meaning",
+   "kind": "보강",
+   "old": "line_exists(rule_scope.rs:25)=spawn_line_minion(runner.rs:275~291)",
+   "new": "line_exists(rule_scope.rs:25, 인라인 지점 L553 mf2_cover_need_excluding_me:2294 · L554 mf2_epic_line_valid:2323)=spawn_line_minion(runner.rs:275~291)",
+   "evidence": "m13.ll:11768 `!dbg` 사슬 L553 (inl: L25@line_exists < L2294@mf2_cover_need_excluding_me) / m13.ll:12046 L554 (inl: L25@line_exists < L2323@mf2_epic_line_valid)",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[88]/mem[23]/note",
+   "kind": "실오류",
+   "old": "L533: +0x8=0, +0x10=8(dangling), +0x18..+0x22 = 0 (빈 Vec + 0 필드 = ~HuntAndPokePlan 기본값). L558: PassiveLinePlan 기본값(+0x8=0 v46_flee_entry None, +0x20/+0x38/+0x50 빈 Vec(cap0,ptr8,len0), +0x68.. 0), +0x11e = cline",
+   "new": "L533: +0x8..0x1f = v46_flee_threats 빈 Vec(cap 0 · ptr 8 dangling · len 0), +0x20 focus_epic_only/focus_serpen_only=false, +0x21 vision_only=false, +0x22 v46_flee=false (Epic/SerpenHuntAndPokePlan 32B 전 필드, tcxdict). L558: PassiveLinePlan 기본값 — +0x8=0 v46_flee_entry None, 빈 Vec 5개(cap 0 · ptr 8 dangling · len 0): +0x20 chats · +0x38 v46_committers · +0x50 v46_flee_threats · +0x68 v46_pending.trigger_ticks · +0x80 v46_pending.flee_episodes, +0x98..+0x11d 전부 0(v46_pending 나머지 usize 14개·v46_flee_hp_*·bool 6개), +0x11e line = cline",
+   "evidence": "L533: m13.ll:11670~11676 `store i64 %58, ptr %5` / `store i64 0, ptr %65(+8)` / `store ptr inttoptr (i64 8 to ptr), ptr %66(+16)` / `memset(%67(+24), 0, 11)`. L558: m13.ll:12161~12187 `store i64 3, ptr %5` · `store i64 0 (+8)` · `store i64 0 (+32)` · `store ptr 8 (+40)` · memset(+48,16) · `store ptr 8 (+64)` · memset(+72,16) · `store ptr 8 (+88)` · memset(+96,16) · `store ptr 8 (+112)` · memset(+120,16) · `store ptr 8 (+136)` · memset(+144,142) · `store i8 %91 (+286)`. tcxdict PassiveLinePlan(280B): chats@0x18 v46_committers@0x30 v46_flee_threats@0x48 v46_pending@0x60(V46LaneRecallPending: trigger_ticks@0x0 flee_episodes@0x18) line@0x116 — enum+0x8 기준으로 +0x20/+0x38/+0x50/+0x68/+0x80/+0x11e. 옛 문면 「+0x68.. 0」 대로 +0x70/+0x88 을 0 으로 쓰면 Vec ptr 이 null 이 돼 drop/iter 에서 UB",
+   "behavior_change": true,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[89]/consts[2]/src_line",
+   "kind": "실오류",
+   "old": 258,
+   "new": 91,
+   "evidence": "m09.ll:19883 `%23 = icmp eq i8 %19, 0` !dbg 사슬 = L91 v24_objective_setup_should_check_camp@objective_discipline.rs (inl: L258@take_setup_like). 258 은 team_plan.rs 줄이라 src 규약 밖 (%19 = self+1055=0x41f objective 태그, m09.ll:19873~19874)",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[89]/consts[3]/src_line",
+   "kind": "실오류",
+   "old": 258,
+   "new": 91,
+   "evidence": "m09.ll:19884 `%24 = icmp eq i8 %21, 1`(phase==Setup) · m09.ll:19889 `%27 = icmp eq i8 %19, 1`(objective==Serpen) !dbg 사슬 = L91 (inl: L258@take_setup_like). %21 = self+1056=0x420",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[90]/consts[1]/src_line",
+   "kind": "실오류",
+   "old": 210,
+   "new": 276,
+   "evidence": "m15.ll:51880 `%22 = icmp ult i64 %18, 2` · m15.ll:51884 `panic_bounds_check(i64 %18, i64 2, …)` !dbg 사슬 = L276 v3_epicops_defer_serpen@objective_helpers.rs (inl: L210@remain_epic_time < L276@closure$0 < L1227@map_or). 210 은 game.rs 줄",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[90]/consts[1]/meaning",
+   "kind": "보강",
+   "old": "epic_minion_buff_time [usize;2] bounds check(game.rs:210) — 배열 길이, 임계 아님",
+   "new": "epic_minion_buff_time [usize;2] bounds check(game.rs:210 remain_epic_time 인라인) — 배열 길이 2 = 인덱스 비교 상한(panic_bounds_check), 판정 아님",
+   "evidence": "G15 NEG 해소: 파이프라인 규약(`kindchk` 「배열 길이 2 = 비교 상한」 행은 `임계` 로 보호)에 맞춰 낱말을 `상한` 으로. IR 관측 m15.ll:51880 `icmp ult i64 %18, 2` = CMP_ORD. #84 consts[10]/[11]·#85 consts[4]·#87 consts[13] 의 bounds 행과 같은 표기",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[90]/logic",
+   "kind": "보강",
+   "old": "[주의: epic_enemy_tick 을 현재 tick 과 빼지 않고 그대로 tps*20 과 비교]",
+   "new": "[epic_enemy_tick 은 절대 틱이 아니라 소요 틱 — SerpenStanceData::update_plan(goal_data.rs:462) 이 check_epic_kill_time_with_hp(…, serpen_hp) = hp*1000 / max(Σ_챔피언 expected_damage*1000/attack_cooltime, 1) 로 계산한 「적 챔피언들이 세르펜을 잡는 데 걸리는 예상 틱」. 그래서 현재 tick 과 빼지 않고 tps*20 과 직접 비교 = 20초 안에 잡을 수 있으면]",
+   "evidence": "m09.ll:22591~22592 `%182 = getelementptr inbounds nuw i8, ptr %0, i64 16` / `store i64 %178, ptr %182` (L462 update_plan@goal_data.rs; SerpenStanceData+0x10 = epic_enemy_tick, tcxdict) · %178 = m09.ll:22582 `invoke fastcc i64 @…check_epic_kill_time_with_hp(…)`. 그 본체 m09.ll:52666~52833: `#dbg_value(i64 0, tick)`·`#dbg_value(i64 0, dpt)`, 챔피언마다 m09.ll:52733~52735 `%27 = mul i64 %22(expected_damage_target), 1000` / `%28 = udiv i64 %27, %23(attack_cooltime)` / `%29 = add i64 %28, %13`(dpt 누적), m09.ll:52826~52832 `%75 = phi i64 [1, %5], [%73(umax(dpt,1)), %72]` / `%76 = mul i64 %4(hp), 1000` / `%77 = udiv i64 %76, %75` / `ret i64 %77`(L559~561). 지역명 tick·dpt = 소요 틱",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[90]/mem[15]/note",
+   "kind": "보강",
+   "old": "+192, 지역명 enemy_kill_tick (m15.ll:51939)",
+   "new": "+192, 지역명 enemy_kill_tick (m15.ll:51939). 값 = 소요 틱(절대 틱 아님): goal_data.rs:462 `self.epic_enemy_tick = check_epic_kill_time_with_hp(…)` = hp*1000/max(Σ dmg*1000/cooltime,1) (m09.ll:22592 store · 52829~52832 ret)",
+   "evidence": "m09.ll:22591~22592 store 지점 + m09.ll:52829~52832 반환식 (위 logic 항목과 같은 근거)",
+   "behavior_change": false,
+   "found_by": "new"
+  }
+ ],
+ "ev_up": [
+  {
+   "path": "/specs[85]/consts[2]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인: _verify19/B/oracle/v19B_o1.tsv 192/192 MATCH (mode0 R=100000 · mode1 R=400000, cx≠cy). 명세 독립 재구현(enemies=가시&캠프안 / cfef 직접 호출 / allies=나 제외·hp%>39 / enemies>=allies)과 실제 반환 비트동일 — hpv=1(hp*100/max==39) 아군은 count 제외, hpv=2(==40) 포함",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[85]/consts[3]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인: _verify19/B/oracle/v19B_o1.tsv 192/192 MATCH (mode0 R=100000 · mode1 R=400000, cx≠cy). 명세 독립 재구현(enemies=가시&캠프안 / cfef 직접 호출 / allies=나 제외·hp%>39 / enemies>=allies)과 실제 반환 비트동일 — 39 는 제외·40 은 포함 (경계 실측)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[85]/knobs[1]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인: _verify19/B/oracle/v19B_o1.tsv 192/192 MATCH (mode0 R=100000 · mode1 R=400000, cx≠cy). 명세 독립 재구현(enemies=가시&캠프안 / cfef 직접 호출 / allies=나 제외·hp%>39 / enemies>=allies)과 실제 반환 비트동일 — hp% 39 경계 실측",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[85]/knobs[2]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인: _verify19/B/oracle/v19B_o1.tsv 192/192 MATCH (mode0 R=100000 · mode1 R=400000, cx≠cy). 명세 독립 재구현(enemies=가시&캠프안 / cfef 직접 호출 / allies=나 제외·hp%>39 / enemies>=allies)과 실제 반환 비트동일 — mode1: enemies=2,allies=2 → true / enemies=1,allies=2 → false / enemies=2,allies=3 → false (동수면 true = `>=`)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[85]/mem[3]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인: _verify19/B/oracle/v19B_o1.tsv 192/192 MATCH (mode0 R=100000 · mode1 R=400000, cx≠cy). 명세 독립 재구현(enemies=가시&캠프안 / cfef 직접 호출 / allies=나 제외·hp%>39 / enemies>=allies)과 실제 반환 비트동일 — cache.player_champion[t][p] 에 사본을 꽂아 적/아군 배치를 바꾸면 반환이 그대로 따라감",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[85]/mem[6]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인: _verify19/B/oracle/v19B_o1.tsv 192/192 MATCH (mode0 R=100000 · mode1 R=400000, cx≠cy). 명세 독립 재구현(enemies=가시&캠프안 / cfef 직접 호출 / allies=나 제외·hp%>39 / enemies>=allies)과 실제 반환 비트동일 — 캠프 안이라도 visible_state[0]=Invisible(1) 인 적(nEI)은 enemies 에 안 들어감(48케이스)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[85]/mem[7]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인: _verify19/B/oracle/v19B_o1.tsv 192/192 MATCH (mode0 R=100000 · mode1 R=400000, cx≠cy). 명세 독립 재구현(enemies=가시&캠프안 / cfef 직접 호출 / allies=나 제외·hp%>39 / enemies>=allies)과 실제 반환 비트동일 — 나(me) 는 캠프 안·만피인데 allies 에 안 세어짐(mode1 enemies=1,nA=1 → true)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[85]/mem[8]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인: _verify19/B/oracle/v19B_o1.tsv 192/192 MATCH (mode0 R=100000 · mode1 R=400000, cx≠cy). 명세 독립 재구현(enemies=가시&캠프안 / cfef 직접 호출 / allies=나 제외·hp%>39 / enemies>=allies)과 실제 반환 비트동일 — stat_cached.hp 로 hp% 를 계산해야 39/40 경계가 맞음",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[85]/mem[9]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인: _verify19/B/oracle/v19B_o1.tsv 192/192 MATCH (mode0 R=100000 · mode1 R=400000, cx≠cy). 명세 독립 재구현(enemies=가시&캠프안 / cfef 직접 호출 / allies=나 제외·hp%>39 / enemies>=allies)과 실제 반환 비트동일 — x 를 바꿔 캠프 안팎을 갈랐다",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[85]/mem[10]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인: _verify19/B/oracle/v19B_o1.tsv 192/192 MATCH (mode0 R=100000 · mode1 R=400000, cx≠cy). 명세 독립 재구현(enemies=가시&캠프안 / cfef 직접 호출 / allies=나 제외·hp%>39 / enemies>=allies)과 실제 반환 비트동일 — y 를 바꿔 캠프 안팎을 갈랐다(cx≠cy 배치)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[85]/mem[11]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인: _verify19/B/oracle/v19B_o1.tsv 192/192 MATCH (mode0 R=100000 · mode1 R=400000, cx≠cy). 명세 독립 재구현(enemies=가시&캠프안 / cfef 직접 호출 / allies=나 제외·hp%>39 / enemies>=allies)과 실제 반환 비트동일 — hp 39%/40%/100% 로 count 가 갈림",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[85]/sig/params[3]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인: _verify19/B/oracle/v19B_o1.tsv 192/192 MATCH (mode0 R=100000 · mode1 R=400000, cx≠cy). 명세 독립 재구현(enemies=가시&캠프안 / cfef 직접 호출 / allies=나 제외·hp%>39 / enemies>=allies)과 실제 반환 비트동일 — camp_pos=(450000,350000) 로 (x,y) 순서 확정: 뒤바뀌면 mode0 nEV=1 케이스가 enemies=0 이 되어 false 여야 하는데 true 로 일치",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[85]/sig/params[4]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인: _verify19/B/oracle/v19B_o1.tsv 192/192 MATCH (mode0 R=100000 · mode1 R=400000, cx≠cy). 명세 독립 재구현(enemies=가시&캠프안 / cfef 직접 호출 / allies=나 제외·hp%>39 / enemies>=allies)과 실제 반환 비트동일 — R=100000/400000 두 값으로 캠프 안팎 판정이 R² 기준으로 갈림",
+   "found_by": "new"
+  }
+ ],
+ "brief_errors": [
+  "§4 G12 [88] consts[5] 「실제 후보 = [554, 2325]」 는 `shl nuw nsw i8 %91, 5`(m13.ll:12134, line*32 tower stride)를 값 5 로 잡은 잡음이다 — 명세 meaning 이 이미 「무관」이라 적어 둔 그 명령. 진짜 자리(switch case 라벨 `i8 5` m13.ll:11591, L526)는 약한 후보라 후보 목록에 안 실렸다. 후보 목록을 근거로 고쳤으면 554 로 오정정했을 것",
+  "§4 는 G12 를 「IR 사슬에 그 줄이 없다」로만 말하는데, 이 배치 8건 전부의 실체는 「src_line 이 인라인된 콜리 파일(rule_scope.rs/runner.rs/team_plan.rs/game.rs)의 줄」이었다. 규약(src_line = 명세 `src` 파일의 루트 줄)을 도시에 §4 머리에 한 줄 적어야 다음 배치가 같은 8건을 다시 판단하지 않는다",
+  "발주 프롬프트의 「G20 R2/R4」 는 배치 B 몫이 아니다 — sharedchk 의 R2(Blackboard big_goal[].1: #54/#66)·R4(version 게이트 #49/#70/#77 · 캠프 근처 반경 #50/#94)는 전부 다른 배치 함수. 도시에 §4 는 G20 0건이 맞다",
+  "§1 「pub 이 아니면 오라클 직접 진입이 막힌다」 옆에 #88(in:game_ai::plan_legacy::handler)·#90(in:game_ai) 의 상위 pub 래퍼 후보를 안 적었다 — #90 은 호출처 m09.ll:9873/14249(v3_epicops_buff_window, in:game_ai) 라 래퍼도 비공개다. 「막힌다」 판정 범위: 직접 호출 방식으로는 불가, 미탐색 = transmute 함수포인터/호출처 pub 경유",
+  "§4-b callees 「ev4 = 판정 보류」 설명이 빠뜨린 도구 결함: mkspec3._ir_callsyms 가 `ir.frm~to` 만 훑고 **`ir.aux` 를 안 본다** — #86 max_range_cached(m10.ll:54413 직접 call)·#87 is_ignored_well_enemy(m13.ll:58764 직접 call)가 그래서 「IR 범위의 직접 호출 심볼과는 안 맞는다」로 거짓 ev4 다"
+ ]
+}

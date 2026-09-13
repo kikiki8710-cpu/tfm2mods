@@ -1,0 +1,92 @@
+{
+ "A": {
+  "dossier": "8215e02c9416d651",
+  "specs": [
+   "spec_77_DefenseNexusPlan__sub_plan.md",
+   "spec_78_objective_defense_role.md",
+   "spec_79_engage__can_battle_triggered_filtered.md",
+   "spec_80_try_engage.md",
+   "spec_81_check_epic_hunt.md",
+   "spec_82_epic_passive_plan.md",
+   "spec_83_EpicHuntAndPokePlan__sub_plan.md"
+  ],
+  "spec_hashes": {
+   "spec_77_DefenseNexusPlan__sub_plan.md": "c047c4bb9367beb6",
+   "spec_78_objective_defense_role.md": "651265f44823f0e3",
+   "spec_79_engage__can_battle_triggered_filtered.md": "e96b42fedde4ab21",
+   "spec_80_try_engage.md": "bc7642161e58be5e",
+   "spec_81_check_epic_hunt.md": "23e05eb32e57db5b",
+   "spec_82_epic_passive_plan.md": "0686114192bc6fa0",
+   "spec_83_EpicHuntAndPokePlan__sub_plan.md": "ea1b1c15d549cda8"
+  },
+  "mkdossier": "81d9294dd98fa641",
+  "v3": "5e5307f8570bd6bd",
+  "built": "2026-09-13 20:36:18"
+ },
+ "B": {
+  "dossier": "7477b1bb9993a211",
+  "specs": [
+   "spec_84_battle_check_with_list.md",
+   "spec_85_should_disengage_object_hunt.md",
+   "spec_86_FightSituation__build.md",
+   "spec_87_check_kill.md",
+   "spec_88_v2_apply_assign_commit.md",
+   "spec_89_TeamPlan__v24_objective_setup_should_check_camp.md",
+   "spec_90_v3_epicops_defer_serpen.md"
+  ],
+  "spec_hashes": {
+   "spec_84_battle_check_with_list.md": "f240e4e660ade2a8",
+   "spec_85_should_disengage_object_hunt.md": "ae630ca60d1442c0",
+   "spec_86_FightSituation__build.md": "55445f9e2c3c4384",
+   "spec_87_check_kill.md": "6f4209abf3406e28",
+   "spec_88_v2_apply_assign_commit.md": "9309056781577a41",
+   "spec_89_TeamPlan__v24_objective_setup_should_check_camp.md": "fc0f1029cb3150aa",
+   "spec_90_v3_epicops_defer_serpen.md": "bf5a0a40f87a9982"
+  },
+  "mkdossier": "81d9294dd98fa641",
+  "v3": "5e5307f8570bd6bd",
+  "built": "2026-09-13 20:36:18"
+ },
+ "C": {
+  "dossier": "c88680de63c9d656",
+  "specs": [
+   "spec_91_PassiveJunglePlan__sub_plan.md",
+   "spec_92_v46_flee_gate_check.md",
+   "spec_93_check_serpen_giveup.md",
+   "spec_94_check_serpen_hunt.md",
+   "spec_95_check_serpen_setup.md",
+   "spec_96_serpen_passive_plan.md",
+   "spec_97_SerpenHuntAndPokePlan__sub_plan.md"
+  ],
+  "spec_hashes": {
+   "spec_91_PassiveJunglePlan__sub_plan.md": "70c2f1fe7ef9ca8f",
+   "spec_92_v46_flee_gate_check.md": "ae3878a6dbe9dd0f",
+   "spec_93_check_serpen_giveup.md": "d8bdd1ed65317d82",
+   "spec_94_check_serpen_hunt.md": "2dccbf5f1f431406",
+   "spec_95_check_serpen_setup.md": "96020340ed467acc",
+   "spec_96_serpen_passive_plan.md": "3f6600eabbbc8b91",
+   "spec_97_SerpenHuntAndPokePlan__sub_plan.md": "5725400ff1867bfc"
+  },
+  "mkdossier": "81d9294dd98fa641",
+  "v3": "5e5307f8570bd6bd",
+  "built": "2026-09-13 20:36:18"
+ },
+ "D": {
+  "dossier": "72aacd78819adad5",
+  "specs": [
+   "spec_98_steal__evaluate_steal_for_target.md",
+   "spec_99_steal__should_steal_now.md",
+   "spec_100_TeamPlan__update_steal.md",
+   "spec_101_line_backfight_support_focus.md"
+  ],
+  "spec_hashes": {
+   "spec_98_steal__evaluate_steal_for_target.md": "4961bceac2c40124",
+   "spec_99_steal__should_steal_now.md": "eff74c6c0f4849d6",
+   "spec_100_TeamPlan__update_steal.md": "852a6f79347f380b",
+   "spec_101_line_backfight_support_focus.md": "ffda0dd143a207fc"
+  },
+  "mkdossier": "81d9294dd98fa641",
+  "v3": "5e5307f8570bd6bd",
+  "built": "2026-09-13 20:36:18"
+ }
+}

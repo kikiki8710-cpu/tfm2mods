@@ -1,0 +1,115 @@
+{
+ "name": "TeamPlan::v24_objective_setup_should_check_camp",
+ "sym": "_RNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy9team_plan20objective_disciplineNtB4_8TeamPlan37v24_objective_setup_should_check_camp",
+ "src": "game-ai\\src\\plan_legacy\\team_plan\\objective_discipline.rs",
+ "src_line": 88,
+ "ir_file": "m09.ll",
+ "ir_from": 19843,
+ "ir_to": 21206,
+ "aux": [
+  {"ir_file": "m09.ll", "ir_from": 2974, "ir_to": 3149, "what": "(0..5).filter_map(closure#5).any(closure#6) try_fold 인스턴스 = exe 0xdcc100 — L160~173 '숨은 건강 적이 캠프에 닿을 수 있나' 술어"},
+  {"ir_file": "m12.ll", "ir_from": 8000, "ir_to": 8326, "what": "L123 min_by_key 의 reduce fold (첫 원소 이후 반복) — 필터 술어 closure#2(L117~120)·키 closure#3(L124~130) 인라인"},
+  {"ir_file": "m12.ll", "ir_from": 42207, "ir_to": 42295, "what": "L117~120 필터 술어 closure#2 의 call_mut 심(본체 %367 등 5회 호출)"}
+ ],
+ "exe": "0xdd5db0 (3467B) + aux 0xdcc100 (631B) — fnprobe 대조: 직접 call 0xeca9a0(pressure_line)·0xffa3e0(is_near_mid_line)·0xe3b570(camp_pos 추정)·0x12a07d0(distance)·0xe2fa70/0xec9bf0(fold·is_object_being_taken_by_enemy 추정)·0xdcc100(aux) · vtable +0x28 tick·+0x100 is_visible_cell · 패닉 Location entity.rs:629:12·objective_discipline.rs:100:9·simulation.rs:1905:5·117:9 · aux 패닉 160:23·162:12·165:12 · 상수 0x1e0·0x249f0(150000)·0x2e8(744) 일치. ⚠exe 상수 0xfa00(64000)·0x2ee01(192001)은 IR 본문에 없음 — game_core `is_near_mid_line`(g09.ll:159265) 내부 상수가 LTO 로 exe 에 인라인된 것(어긋남 아님)",
+
+ "one_line": "[v24] Morgard/Serpen Setup 태세에서 '내가 캠프를 직접 확인하러 가야 하는가' — 라인 압박 완료·건강한 같은-편 아군 충분·내가 checker 로 뽑힘일 때, 적이 치는 중이거나 캠프가 최근에 안 보였거나 숨은 건강 적이 닿을 수 있으면 true",
+
+ "signature": {
+  "params": [
+   {"i": 1, "name": "self", "type": "&TeamPlan(1064B)", "note": "공유 &self. objective 태그/phase·obj_spawn.*_camp_last_visible_tick·vision.last_visible_pos[]·vision.last_checked_ticks[] 읽기. 본문 store 는 전부 alloca(camp_pos·tick·클로저 env) — self 쓰기 0건"},
+   {"i": 2, "name": "_version", "type": "usize", "note": "미사용 (dbg 이름 `_version`, m09.ll:19858)"},
+   {"i": 3, "name": "player", "type": "&PlayerState(2528B)", "note": "info.team(+0x930)·info.position@tag(+0x9c0)"},
+   {"i": 4, "name": "data", "type": "&OperationData(24B)", "note": "cache·context·blackboard"},
+   {"i": 5, "name": "goal_data", "type": "&GoalData(248B)", "note": "본문 직접 읽기 없음 — is_object_being_taken_by_enemy 에 전달만 (m09.ll:21094)"},
+   {"i": 6, "name": "target", "type": "JungleType(i8)", "note": "지역명 camp. 4=Morgard / 5=Serpen 만 의미(그 외 take_setup_like 가 false → 즉시 false). DILocalVariable !25367 type JungleType"}
+  ],
+  "returns": "bool — true = 캠프를 확인하러 가야 한다(should check). false = 안 간다"
+ },
+
+ "reads": [
+  {"base": "TeamPlan", "offset": "0x41f", "name": "objective@tag", "note": "Option<MainObjective> 태그(1B, 니치). 0=Morgard / 1=Serpen 만 통과 (take_setup_like, team_plan.rs:258; m09.ll:19876)"},
+  {"base": "TeamPlan", "offset": "0x420", "name": "objective@Some.0@Morgard.phase", "note": "Morgard/Serpen variant 페이로드 +1 = ObjectPhase. 1=Setup 이어야 통과 (m09.ll:19878). tcxdict 는 SplitEpic.0@tag 로 라벨하지만 태그 0/1 문맥에선 phase"},
+  {"base": "TeamPlan", "offset": "0x80", "name": "obj_spawn.epic_camp_last_visible_tick", "note": "camp==Morgard 일 때 (+128, phi m09.ll:21102)"},
+  {"base": "TeamPlan", "offset": "0x88", "name": "obj_spawn.serpen_camp_last_visible_tick", "note": "camp==Serpen 일 때 (+136)"},
+  {"base": "TeamPlan", "offset": "0x230", "name": "vision.last_visible_pos[]", "note": "aux(m09.ll:3111~3114) [(u64,u64);5][p] — 적 p 의 마지막 관측 위치 (+560, stride 16)"},
+  {"base": "TeamPlan", "offset": "0x2d0", "name": "vision.last_checked_ticks[]", "note": "aux(m09.ll:3129~3130) [usize;5][p] — 적 p 를 마지막으로 확인한 틱 (+720)"},
+  {"base": "PlayerState", "offset": "0x930", "name": "info.team", "note": "team (m09.ll:19903); aux 에서도 1-team 산출"},
+  {"base": "PlayerState", "offset": "0x9c0", "name": "info.position@tag", "note": "i32 Position 태그 = 내 슬롯 인덱스 (+2496, m09.ll:20652). checker 인덱스와 비교"},
+  {"base": "OperationData", "offset": "0x0", "name": "cache", "note": "&AbstractGameWithCache"},
+  {"base": "OperationData", "offset": "0x8", "name": "context", "note": "&GameContext"},
+  {"base": "OperationData", "offset": "0x10", "name": "blackboard", "note": "&[Blackboard;2] — aux 에서 [1-team](stride 744) 을 is_recent_visible 의 self 로 전달 (m09.ll:3101)"},
+  {"base": "AbstractGameWithCache", "offset": "0x0", "name": "game.data_ptr", "note": "vtable +0x28 tick(m09.ll:21110) / +0x100 is_visible_cell(m09.ll:21128)"},
+  {"base": "AbstractGameWithCache", "offset": "0x8", "name": "game.vtable_ptr", "note": ""},
+  {"base": "AbstractGameWithCache", "offset": "0x1e0", "name": "player_champion[]", "note": "iter_champions(team) = [team] 5칸 (simulation.rs:1905, bounds 2); aux 는 [1-team] (+480)"},
+  {"base": "GameContext", "offset": "0x8", "name": "setting", "note": "&GameSetting"},
+  {"base": "GameContext", "offset": "0x20", "name": "map", "note": "&MapDef → camp_pos (m09.ll:20643)"},
+  {"base": "GameContext", "offset": "0x38", "name": "tutorial@tag", "note": "player_count(runner.rs:295~296) switch: 2/4/6(TopSolo/MidSolo/JungleOnly)→1, 그 외→2 (m09.ll:20612~20623)"},
+  {"base": "GameSetting", "offset": "0x12c0", "name": "height", "note": "is_top_side/is_bottom_side: ry = height - y (+4800, map_regions.rs:22)"},
+  {"base": "GameSetting", "offset": "0x12f8", "name": "tick_per_second", "note": "tps*2 (+4856, m09.ll:21118)"},
+  {"base": "Entity", "offset": "0x628", "name": "stat_cached.hp", "note": "hp% 분모 (본문 L100/L117, aux L162)"},
+  {"base": "Entity", "offset": "0x670", "name": "hp", "note": ""},
+  {"base": "Entity", "offset": "0x660", "name": "x", "note": "+1632"},
+  {"base": "Entity", "offset": "0x668", "name": "y", "note": "+1640"},
+  {"base": "Entity", "offset": "0x640", "name": "stat_cached.move_speed", "note": "aux L171 (+1600)"}
+ ],
+
+ "writes": [],
+
+ "constants": [
+  {"value": 4, "src_line": 91, "meaning": "JungleType 태그 4=Morgard (target switch, m09.ll:19876; L137 `camp == Morgard` 도 동일 값)"},
+  {"value": 5, "src_line": 91, "meaning": "JungleType 태그 5=Serpen"},
+  {"value": 0, "src_line": 258, "meaning": "team_plan.rs:258 take_setup_like: MainObjective 태그 0=Morgard (camp Morgard 일 때 요구)"},
+  {"value": 1, "src_line": 258, "meaning": "MainObjective 태그 1=Serpen (camp Serpen 일 때) · 그리고 ObjectPhase 태그 1=Setup (+0x420 == 1, 두 camp 공통). 본문 `shl 1` 은 별개(tps*2 항목)"},
+  {"value": -1, "src_line": 95, "meaning": "v23_objective_setup_pressure_line 반환 Option<LineType> 의 None 니치(range(i8 -1,3)). None 이어야(=압박할 라인 없음) 통과"},
+  {"value": 2, "src_line": 95, "meaning": "v23_objective_setup_pressure_line 의 4번째 인자 리터럴 2 (의미는 그 함수 소유 — 미탐색)"},
+  {"value": 100, "src_line": 100, "meaning": "hp*100/stat_cached.hp 백분율 (L100·L117·aux L162 공통)"},
+  {"value": 39, "src_line": 100, "meaning": "hp% > 39 (≥40%) 인 아군만 (L100 count 술어 · L117 checker 후보 술어). `>=40` 표기 여부는 표기 불가"},
+  {"value": 2, "src_line": 106, "meaning": "healthy_side_allies < N 이면 false. N = tutorial 태그 2/4/6 → 1, 그 외 → 2 (player_count 인라인 phi, runner.rs:295~296). 소스가 `player_count(ctx).min(2)` 류인지는 미탐색"},
+  {"value": 1, "src_line": 106, "meaning": "위 N 의 1인 튜토리얼(TopSolo/MidSolo/JungleOnly) 값. `shl 1`(tps*2) 과 무관"},
+  {"value": 0, "src_line": 125, "meaning": "role_bias: Position 태그 1=Jungle → 0"},
+  {"value": 40000, "src_line": 127, "meaning": "role_bias: Position 태그 2=Mid → 40000 (1.25셀)"},
+  {"value": 20000, "src_line": 126, "meaning": "role_bias: Position 태그 4=Support → 20000"},
+  {"value": 60000, "src_line": 124, "meaning": "role_bias: Position 태그 0=Top / 3=Bottom → 60000 (match 기본 arm, phi 기본값)"},
+  {"value": 1, "src_line": 152, "folded_from": 2, "meaning": "tps*2 (= 2초) — `shl i64 %480, 1` 로 접힘 (m09.ll:21118). camp_last_visible_tick + tps*2 >= tick"},
+  {"value": 32000, "src_line": 153, "meaning": "셀 크기 — camp_pos.x/32000, y/32000 → is_visible_cell(team, cx, cy) 인자 (좌표 변환, 임계 아님)"},
+  {"value": 50, "src_line": 162, "meaning": "aux: 적 hp% < 50 이면 후보 제외 (즉 ≥50% 만) (m09.ll:3089)"},
+  {"value": 150000, "src_line": 170, "meaning": "aux: d = distance(last_pos, camp_pos).saturating_sub(150000) — 캠프 반경 150000(≈4.7셀) 을 '도달' 로 간주 (m09.ll:3122)"},
+  {"value": 5, "src_line": 160, "meaning": "aux: 0..5 슬롯 상한·player_champion bounds (배열 길이)"}
+ ],
+
+ "calls": [
+  "game_ai::plan_legacy::team_plan::objective_helpers::v23_objective_setup_pressure_line",
+  "game_core::simulation::map_regions::is_near_mid_line",
+  "game_core::simulation::map_def::MapDef::camp_pos",
+  "game_core::simulation::entity::Position::from_index",
+  "game_core::utils::distance",
+  "game_ai::plan_legacy::team_plan::objective_helpers::is_object_being_taken_by_enemy",
+  "game_core::simulation::game::blackboard::Blackboard::is_recent_visible",
+  "core::iter::adapters::map::Map::fold",
+  "core::iter::traits::iterator::Iterator::try_fold",
+  "core::panicking::panic_bounds_check",
+  "core::panicking::panic_const::panic_const_div_by_zero"
+ ],
+
+ "logic": "fn v24_objective_setup_should_check_camp(&self, _version, player, data, goal_data, camp: JungleType) -> bool\n  team = player.info.team; enemy = 1 - team; ctx = data.context; cache = data.cache\n  // L91: 태세 게이트 — take_setup_like(camp) (team_plan.rs:258)\n  //   camp==Morgard(4): self.objective 태그==0(Morgard) && phase(+0x420)==1(Setup)\n  //   camp==Serpen(5) : self.objective 태그==1(Serpen)  && phase==1(Setup)\n  //   그 외 camp: false\n  if !take_setup_like { return false }\n  // L95: v24_objective_setup_relevant_lanes_ready(player, data, camp) (인라인)\n  //   lanes = camp==Morgard ? [Top(0),Mid(1)] : [Bottom(2),Mid(1)]   (anon.190 = \\00\\01 / anon.191 = \\02\\01)\n  //   ready = v23_objective_setup_pressure_line(player, data, &lanes, 2).is_none()   (반환 i8 == -1)\n  if !ready { return false }\n  // L99~106: 캠프 쪽 절반에 있는 건강한 아군 수\n  side(c) = camp==Morgard ? is_top_side(ctx,c.x,c.y) [= height - y < x] : is_bottom_side [= height - y > x]   (map_regions.rs:24 / :30)\n  healthy_side(c) = c.hp*100/c.stat_cached.hp > 39 && side(c) && is_near_mid_line(ctx, c.x, c.y)\n  healthy_side_allies = cache.iter_champions(team).filter(healthy_side).count()      // L100~101, [team] 5칸\n  N = player_count(ctx) 인라인 → tutorial TopSolo/MidSolo/JungleOnly: 1, 그 외: 2\n  if healthy_side_allies < N { return false }     // L106 (samesign ult)\n  // L110~111\n  camp_pos = ctx.map.camp_pos(camp, team == 0)\n  my_idx = player.info.position 태그(i32)\n  if cache.player_champion[team][my_idx].is_none() { return false }\n  // L123~132: checker 선정 — 같은 술어를 만족하는 아군 중 (캠프 거리 + 역할 가중) 최소\n  role_bias(i) = match Position::from_index(i) { Jungle=>0, Support=>20000, Mid=>40000, Top|Bottom=>60000 }\n  checker_position = iter_champions(team).enumerate().filter(|(_,c)| healthy_side(c))   // L117~120 closure#2\n                      .min_by_key(|(i,c)| distance(c.x,c.y, camp_pos).saturating_add(role_bias(i)))   // L124~130 closure#3\n                      .map(|(i,_)| i)\n  if checker_position != Some(my_idx) { return false }   // L132 (None 도 false)\n  // L137~142\n  target_object = (camp != Morgard)     // Morgard→false, Serpen→true 로 5번째 인자\n  if is_object_being_taken_by_enemy(player, data, goal_data, self, target_object) { return true }\n  // L146~155\n  tick = game.tick()\n  camp_last_visible_tick = camp==Morgard ? self.obj_spawn.epic_camp_last_visible_tick : self.obj_spawn.serpen_camp_last_visible_tick\n  camp_recently_checked = camp_last_visible_tick + tps*2 >= tick\n  camp_visible = game.is_visible_cell(team, camp_pos.x/32000, camp_pos.y/32000)\n  if !(camp_recently_checked && camp_visible) { return true }\n  // L160~173 (aux m09.ll:2974): 숨은 건강한 적이 마지막 관측 이후 캠프까지 이동할 수 있었나\n  return (0..5).filter_map(|p| cache.player_champion[enemy][p].map(|c| (p,c))).any(|(p,c)| {\n     c.hp*100/c.stat_cached.hp >= 50                                   // L162 (IR: <50 이면 skip)\n     && !data.blackboard[enemy].is_recent_visible(game, player, c)       // L165\n     && { last_pos = self.vision.last_visible_pos[p];                     // L169\n          d = distance(last_pos, camp_pos).saturating_sub(150000);        // L170\n          can_move = tick.saturating_sub(self.vision.last_checked_ticks[p]) * c.stat_cached.move_speed;  // L171~172\n          can_move >= d }                                                 // L173 (IR: can_move < d 이면 skip)\n  })",
+
+ "knobs": [
+  {"what": "건강 아군 hp% 임계(count·checker 후보 공통)", "where": "objective_discipline.rs:100 / :117", "value": 39, "effect": "올리면 healthy_side_allies 가 줄어 L106 에서 false 가 늘고 checker 후보도 줄어든다"},
+  {"what": "같은-편 건강 아군 최소 인원", "where": "objective_discipline.rs:106", "value": 2, "effect": "N(일반 2). 올리면 확인 자체가 드물어진다"},
+  {"what": "checker 역할 가중", "where": "objective_discipline.rs:124~127", "value": "Jungle 0 / Support 20000 / Mid 40000 / Top·Bottom 60000", "effect": "낮은 쪽이 checker 로 뽑힌다. Jungle 가중을 올리면 정글러가 아닌 아군이 확인 담당이 된다"},
+  {"what": "캠프 최근 확인 창", "where": "objective_discipline.rs:152", "value": "tps*2", "effect": "올리면 더 오래된 확인도 '최근'으로 쳐 재확인(true)이 줄어든다"},
+  {"what": "숨은 적 hp% 임계", "where": "objective_discipline.rs:162", "value": 50, "effect": "내리면 저체력 적도 위협으로 세어 true 가 늘어난다"},
+  {"what": "캠프 도달 반경", "where": "objective_discipline.rs:170", "value": 150000, "effect": "올리면 더 먼 적도 '닿을 수 있음' 으로 판정돼 true 가 늘어난다"}
+ ],
+
+ "unknown": [
+  "L106 의 N: IR 은 player_count(ctx) 인라인 결과가 phi {1,2} 뿐이다 — 튜토리얼 None 에서 player_count 가 5 라면 소스는 `.min(2)` 류로 접힌 것. 소스 표현 미탐색(runner.rs:295~296 원문). 동작은 확정: 일반 게임 N=2",
+  "v23_objective_setup_pressure_line(player,data,&lanes,2) 의 4번째 인자 2 의 의미 — 그 함수(m15.ll:55350) 미탐색",
+  "L95 relevant_lanes_ready 의 소스 줄 — !DILocation line 0 (m09.ll:19896) 이라 함수 시작줄 확정 불가",
+  "is_object_being_taken_by_enemy 5번째 bool 인자 이름 — dbg 이름 target_object(i8 0/1). 함수1 명세(defer_serpen)에 인라인된 판과 달리 여기는 아웃오브라인 호출이고 bool 이 추가돼 있어 Morgard/Serpen 분기용으로 추정(내부 미탐색)",
+  "exe 0xe3b570(273B)·0xe2fa70(733B)·0xec9bf0(364B) 의 IR 짝 배정(camp_pos / fold / is_object_being_taken_by_enemy)은 크기·순서 추정 — Ghidra 미사용",
+  "Blackboard::is_recent_visible(&blackboard[1-team], game, player, c) 의 내부(어느 last_visible 배열을 보는지)는 _gcbc g07.ll:157005 미독해 — aux exe 의 vtable +0xf8/+0x150/+0x28 호출은 그 인라인 흔적",
+  "min_by_key 의 비교 클로저(m12.ll 8000 조각이 부르는 call_mut 심)는 표준 Ord::cmp — 별도 aux 로 안 넣음"
+ ]
+}

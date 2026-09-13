@@ -1,0 +1,41 @@
+setting_ok	true	width=960000	height=960000	tps=60	champ_radius=10000	visible=130000
+towers	16	nexus0=(96000,864000)	fountain0=(0,896000)-(64000,960000)	champ_id=18	enemy_id=23	max_hp=1000	enemy0=(913000,15000)
+fount_center=(32000, 928000)	in_f=true	far=(480000, 480000)	in_f=false
+
+under_sweep	dx	under
+under_sweep	0	true
+under_sweep	50000	true
+under_sweep	119999	true
+under_sweep	120000	true
+under_sweep	120001	true
+under_sweep	150000	true
+under_sweep	200000	true
+under_sweep	210000	true
+under_sweep	219999	true
+under_sweep	220000	true
+under_sweep	220001	true
+under_sweep	230000	true
+under_sweep	240000	true
+under_sweep	250000	false
+under_sweep	400000	false
+
+case	ver	tut	hp	in_f	edx	fm	heal	under	pred_path	game	exp(spec)	verdict
+A_base_full_fount	1	None	100(100)	true	None	false	false	false	L95	17(DefenseNexus(DefenseNexusSubPlan { last_gate: 0, focus: None }))	17	MATCH
+B_hp30_fount	1	None	30(30)	true	None	false	false	false	L95	5(Recall(RecallSubPlan))	5	MATCH
+C1_hp30_far	1	None	30(30)	false	None	false	false	false	L95	5(Recall(RecallSubPlan))	5	MATCH
+C2_hp31_far	1	None	31(31)	false	None	false	false	false	L95	17(DefenseNexus(DefenseNexusSubPlan { last_gate: 0, focus: None }))	17	MATCH
+D1_hpmax-1_fount	1	None	-1(99)	true	None	false	false	false	L95	5(Recall(RecallSubPlan))	5	MATCH
+D2_hpmax-1_far	1	None	-1(99)	false	None	false	false	false	L95	17(DefenseNexus(DefenseNexusSubPlan { last_gate: 0, focus: None }))	17	MATCH
+E1_jo_enemy50k_hp25_far	1	JO	25(25)	false	Some(50000)	false	false	true	L92	17(DefenseNexus(DefenseNexusSubPlan { last_gate: 0, focus: None }))	17	MATCH
+E2_jo_enemy50k_hp20_far	1	JO	20(20)	false	Some(50000)	false	false	true	L92	5(Recall(RecallSubPlan))	5	MATCH
+E3_jo_enemy50k_hp21_far	1	JO	21(21)	false	Some(50000)	false	false	true	L92	17(DefenseNexus(DefenseNexusSubPlan { last_gate: 0, focus: None }))	17	MATCH
+E4_jo_enemy50k_hp20_fount	1	JO	20(20)	true	Some(50000)	false	false	true	L92	17(DefenseNexus(DefenseNexusSubPlan { last_gate: 0, focus: None }))	17	MATCH
+E5_jo_enemy120000_hp25	1	JO	25(25)	false	Some(120000)	false	false	true	L92	17(DefenseNexus(DefenseNexusSubPlan { last_gate: 0, focus: None }))	17	MATCH
+E6_jo_enemy120001_hp25	1	JO	25(25)	false	Some(120001)	false	false	true	L92	17(DefenseNexus(DefenseNexusSubPlan { last_gate: 0, focus: None }))	17	MATCH
+E7_jo_enemyfar_hp25	1	JO	25(25)	false	Some(400000)	false	false	false	L95	5(Recall(RecallSubPlan))	5	MATCH
+F1_none_enemy50k_hp25	1	None	25(25)	false	Some(50000)	false	false	true	L92	17(DefenseNexus(DefenseNexusSubPlan { last_gate: 0, focus: None }))	17	MATCH
+F2_none_enemy50k_fm_hp25	1	None	25(25)	false	Some(50000)	true	false	true	L92	17(DefenseNexus(DefenseNexusSubPlan { last_gate: 0, focus: None }))	17	MATCH
+G1_v2_heal_full_fount	2	None	100(100)	true	None	false	true	false	L83heal	5(Recall(RecallSubPlan))	5	MATCH
+G2_v1_heal_full_fount	1	None	100(100)	true	None	false	true	false	L95	17(DefenseNexus(DefenseNexusSubPlan { last_gate: 0, focus: None }))	17	MATCH
+
+TOTAL	17	MISMATCH	0	setting_ok=true

@@ -1,0 +1,74 @@
+=== case 0
+setting_ok	true	width=960000	height=960000	tps=60	champ_radius=10000	visible=130000
+towers	16	twin0=2	twin1=2
+moba	serpen_live_len=0	epic_live_len=0	serpen_next_respawn=0	tick=0
+giveup	t=0	p=0	true
+giveup	t=0	p=1	true
+giveup	t=0	p=2	true
+giveup	t=0	p=3	true
+giveup	t=0	p=4	true
+giveup	t=1	p=0	true
+giveup	t=1	p=1	true
+giveup	t=1	p=2	true
+giveup	t=1	p=3	true
+giveup	t=1	p=4	true
+=== case 1
+setting_ok	true	width=960000	height=960000	tps=60	champ_radius=10000	visible=130000
+towers	16	twin0=2	twin1=2
+moba	serpen_live_len=0	epic_live_len=0	serpen_next_respawn=0	tick=0
+hunt	t=0	p=0	false
+hunt	t=0	p=1	false
+hunt	t=0	p=2	false
+hunt	t=0	p=3	false
+hunt	t=0	p=4	false
+hunt	t=1	p=0	false
+hunt	t=1	p=1	false
+hunt	t=1	p=2	false
+hunt	t=1	p=3	false
+hunt	t=1	p=4	false
+=== case 2
+setting_ok	true	width=960000	height=960000	tps=60	champ_radius=10000	visible=130000
+towers	16	twin0=2	twin1=2
+moba	serpen_live_len=0	epic_live_len=0	serpen_next_respawn=0	tick=0
+setup	t=0	p=1	false
+setup	t=0	p=2	false
+setup	t=0	p=3	false
+setup	t=0	p=4	false
+setup	t=1	p=1	false
+setup	t=1	p=2	false
+setup	t=1	p=3	false
+setup	t=1	p=4	false
+=== case 3
+setting_ok	true	width=960000	height=960000	tps=60	champ_radius=10000	visible=130000
+towers	16	twin0=2	twin1=2
+moba	serpen_live_len=0	epic_live_len=0	serpen_next_respawn=0	tick=0
+passive	phase=0	t=0	p=1	tag=-1	line_at_0x11e=0	is_some=false
+passive	phase=0	t=0	p=2	tag=-1	line_at_0x11e=0	is_some=false
+passive	phase=0	t=1	p=1	tag=-1	line_at_0x11e=0	is_some=false
+passive	phase=0	t=1	p=2	tag=-1	line_at_0x11e=0	is_some=false
+passive	phase=1	t=0	p=1	tag=14	line_at_0x11e=0	is_some=true
+passive	phase=1	t=0	p=2	tag=14	line_at_0x11e=0	is_some=true
+passive	phase=1	t=1	p=1	tag=14	line_at_0x11e=0	is_some=true
+passive	phase=1	t=1	p=2	tag=14	line_at_0x11e=0	is_some=true
+passive	phase=2	t=0	p=1	tag=-1	line_at_0x11e=0	is_some=false
+passive	phase=2	t=0	p=2	tag=-1	line_at_0x11e=0	is_some=false
+passive	phase=2	t=1	p=1	tag=-1	line_at_0x11e=0	is_some=false
+passive	phase=2	t=1	p=2	tag=-1	line_at_0x11e=0	is_some=false
+passive	phase=3	t=0	p=1	tag=14	line_at_0x11e=0	is_some=true
+passive	phase=3	t=0	p=2	tag=14	line_at_0x11e=0	is_some=true
+passive	phase=3	t=1	p=1	tag=14	line_at_0x11e=0	is_some=true
+passive	phase=3	t=1	p=2	tag=14	line_at_0x11e=0	is_some=true
+=== case 4
+setting_ok	true	width=960000	height=960000	tps=60	champ_radius=10000	visible=130000
+towers	16	twin0=2	twin1=2
+moba	serpen_live_len=0	epic_live_len=0	serpen_next_respawn=0	tick=0
+subplan	t=0	p=0	tag=13	SerpenCheck(SerpenCheckSubPlan { move_check: false })
+subplan	t=0	p=1	tag=13	SerpenCheck(SerpenCheckSubPlan { move_check: false })
+subplan	t=0	p=2	tag=13	SerpenCheck(SerpenCheckSubPlan { move_check: false })
+subplan	t=0	p=3	tag=13	SerpenCheck(SerpenCheckSubPlan { move_check: false })
+subplan	t=0	p=4	tag=13	SerpenCheck(SerpenCheckSubPlan { move_check: false })
+subplan	t=1	p=0	tag=13	SerpenCheck(SerpenCheckSubPlan { move_check: false })
+subplan	t=1	p=1	tag=13	SerpenCheck(SerpenCheckSubPlan { move_check: false })
+subplan	t=1	p=2	tag=13	SerpenCheck(SerpenCheckSubPlan { move_check: false })
+subplan	t=1	p=3	tag=13	SerpenCheck(SerpenCheckSubPlan { move_check: false })
+subplan	t=1	p=4	tag=13	SerpenCheck(SerpenCheckSubPlan { move_check: false })

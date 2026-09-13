@@ -1,0 +1,138 @@
+{
+ "name": "steal::evaluate_steal_for_target",
+ "sym": "_RNvNtNtCshdEBA0ozCnw_7game_ai11plan_legacy5steal25evaluate_steal_for_target",
+ "src": "game-ai\\src\\plan_legacy\\steal.rs",
+ "src_line": 392,
+ "ir_file": "m07.ll",
+ "ir_from": 55331,
+ "ir_to": 57634,
+ "exe": "0xd9bce0 (6113B) — fnprobe 대조: 호출자 2곳(0xd9ac10 = should_steal_now, d9bae1/d9bbe2) 일치 · call 0xd9d4d0(1806B, steal_damage_and_range_within 추정 — IR 11회 → exe dedup 1)·distance 0x12a07d0·0xd9aa80(395B, bush_distance_sq 추정)·0x12857f0/0x12a0180(expected_damage_target·range_adjust/CastingTarget::check 추정)·vtable +0x28 tick·+0xe8 · 패닉 Location entity.rs:1483:7(is_visible_from bounds)·steal.rs:267:10(allies 5슬롯 bounds)·476:18(hp_ratio div0)·simulation.rs:1905:5 = IR 의 bounds 4 + div0 1 과 일치 · 상수 0x8fc(2300)·0x3e80(16000)·0x7530(30000)·0x13880(80000)·0x1adaf(109999=<110000)·0x20f58(135000=>134999)·0x2bf20(180000)·0x4d3f6401(1296000001)·0x1e0 전부 IR 과 일치. 어긋남 없음 (10000000001 은 imm64 라 fnprobe 목록엔 안 잡힘)",
+
+ "one_line": "[v4/v28] 한 스틸 대상(에픽/세르펜)에 대해 None/Lurk/Commit 을 판정 — 도착틱·적 처치 잔여틱·내 폭딜+처형컷 vs 대상 hp(실측/추정)·위협 적 수·내 hp%·구조적 생존 가능성(적 사거리·폭딜 vs 내구도)·대기 부시 여부를 조합. 반환 (StealAction, enemy_tick)",
+
+ "signature": {
+  "params": [
+   {"i": 0, "name": "(sret)", "type": "&mut (StealAction, usize)(16B)", "note": "+0 tag(0 None/1 Lurk/2 Commit) +1 target(=인자 target) +8 usize = 조기 None 이면 usize::MAX(-1), 그 외 enemy_tick 그대로 (m07.ll:57628 phi)"},
+   {"i": 1, "name": "_version", "type": "usize", "note": "미사용 — IR 인자에서 제거됨(DILocalVariable 만)"},
+   {"i": 2, "name": "player", "type": "&PlayerState(2528B)", "note": "IR %1. info.team(+0x930)·info.parameter(+0x180) last_hit_execute_hp"},
+   {"i": 3, "name": "data", "type": "&OperationData(24B)", "note": "SROA 승격 — role %2 = data.cache(&AbstractGameWithCache), %3 = data.context(&GameContext)"},
+   {"i": 4, "name": "_team_plan", "type": "&TeamPlan", "note": "미사용 — IR 인자에서 제거됨"},
+   {"i": 5, "name": "my_champ", "type": "&Entity(1728B)", "note": "IR %4"},
+   {"i": 6, "name": "target", "type": "StealTarget(i1)", "note": "IR %5. false=Epic / true=Serpen. 대기 부시 후보 선택·반환 target 바이트"},
+   {"i": 7, "name": "obj_entity", "type": "Option<&Entity>", "note": "IR %6. None 이면 즉시 (None, MAX)"},
+   {"i": 8, "name": "last_hp", "type": "usize", "note": "IR %7. goal_data.*.last_epic_hp — 마지막 관측 hp"},
+   {"i": 9, "name": "enemy_tick", "type": "usize", "note": "IR %8. goal_data.*.epic_enemy_tick — last_seen 시점 '적이 처치까지 걸릴 예상 틱'(0=예측 없음). remaining = enemy_tick - (tick - last_seen)"},
+   {"i": 10, "name": "last_seen", "type": "usize", "note": "IR %9. goal_data.*.last_epic_seen 틱"},
+   {"i": 11, "name": "world_pos", "type": "(usize, usize)", "note": "SROA 승격 — role %10 = x, %11 = y (캠프 존 좌표 288000 또는 672000, range 속성)"},
+   {"i": 12, "name": "in_session", "type": "bool", "note": "IR %12. 이미 이 대상 스틸 세션 중인가"}
+  ],
+  "returns": "(StealAction, usize) sret — usize 는 should_steal_now 의 Lurk 동률 비교 키(작을수록 우선)"
+ },
+
+ "reads": [
+  {"base": "PlayerState", "offset": "0x930", "name": "info.team", "note": "team (L417 아군 슬롯 / L477 적 = 1-team)"},
+  {"base": "PlayerState", "offset": "0x180", "name": "info.parameter", "note": "&AthleteParameter → last_hit_execute_hp() (L228 compute_my_execute_cut 인라인, +384)"},
+  {"base": "GameContext", "offset": "0x8", "name": "setting", "note": ""},
+  {"base": "GameContext", "offset": "0x20", "name": "map", "note": "&MapDef → bushes 그리드·bush_distance_sq (+32, L480)"},
+  {"base": "GameSetting", "offset": "0x12f8", "name": "tick_per_second", "note": "tps (+4856)"},
+  {"base": "GameSetting", "offset": "0x14a8", "name": "jungle_execute_threshold", "note": "jungle_cut (+5288, L227)"},
+  {"base": "AbstractGameWithCache", "offset": "0x0", "name": "game.data_ptr", "note": "vtable +0x28 tick (L448)"},
+  {"base": "AbstractGameWithCache", "offset": "0x8", "name": "game.vtable_ptr", "note": ""},
+  {"base": "AbstractGameWithCache", "offset": "0x1e0", "name": "player_champion[]", "note": "[team] 아군 5칸(L417 캠프 근처 아군 수) · [1-team] 적 5칸(L477 threat_count · L481 구조적 생존)"},
+  {"base": "MapDef", "offset": "0x1c98", "name": "bushes[][]", "note": "[30][30] usize — bushes[cy][cx] == bush 이면 in_wait_bush (+7320, steal.rs:44)"},
+  {"base": "Entity", "offset": "0x0", "name": "team@tag", "note": "TeamType 0=Player/1=Neutral — my_champ.player_team() (entity.rs:1136). Player 면 obj/적 가시성 검사 경로"},
+  {"base": "Entity", "offset": "0x8", "name": "team@Player.0", "note": "my_champ 의 팀 인덱스 (is_visible_from 인덱스, bounds 2)"},
+  {"base": "Entity", "offset": "0x38", "name": "visible_state[]@tag", "note": "[team] VisibleState 태그 0=Visible — obj.is_visible_from(team) (L473) · 적 가시 필터 (L591~)"},
+  {"base": "Entity", "offset": "0x670", "name": "hp", "note": "obj.hp (L410·L469·L473) · my hp (L476·L540)"},
+  {"base": "Entity", "offset": "0x628", "name": "stat_cached.hp", "note": "obj max (L410·L510·L520) · my max (L476·L541)"},
+  {"base": "Entity", "offset": "0x630", "name": "stat_cached.defence", "note": "내구도 = (defence+magic_resistance)*10 + hp (L540~541, +1584)"},
+  {"base": "Entity", "offset": "0x638", "name": "stat_cached.magic_resistance", "note": "(+1592)"},
+  {"base": "Entity", "offset": "0x640", "name": "stat_cached.move_speed", "note": "my max(move_speed,1) (L452) · 적 move_speed*tps (L598)"},
+  {"base": "Entity", "offset": "0x660", "name": "x", "note": "(+1632)"},
+  {"base": "Entity", "offset": "0x668", "name": "y", "note": "(+1640)"},
+  {"base": "Entity", "offset": "0x4c0", "name": "attack_effect@tag", "note": "적 잠재 피해 산정(steal.rs:106~127 steal_potential_damage_and_range): attack(+0x490)/skill(+0x4c8)/skill2/ult 이펙트 존재·CastingTarget::check 후 expected_damage_target 합·effect_total_range 최대"},
+  {"base": "Entity", "offset": "0x4a0", "name": "attack_effect@Some.0.range", "note": "effect_total_range = range + growth_range*(level-1) + stat_buff_cached.range + range_adjust + radius(radius_mult) (effect.rs:26·steal.rs:49·entity.rs:1512~1515)"},
+  {"base": "Entity", "offset": "0x4a8", "name": "attack_effect@Some.0.growth_range", "note": ""},
+  {"base": "Entity", "offset": "0x5c8", "name": "level", "note": "growth_range*(level-1)"},
+  {"base": "Entity", "offset": "0x438", "name": "stat_buff_cached.range", "note": ""},
+  {"base": "Entity", "offset": "0x470", "name": "stat_buff_cached.radius_mult", "note": "radius() = radius*(100+mult)/100 (entity.rs:1515)"},
+  {"base": "Entity", "offset": "0x680", "name": "radius", "note": ""}
+ ],
+
+ "writes": [
+  {"base": "(sret)", "offset": "0x0", "name": "StealAction.tag", "value": "0 None / 1 Lurk / 2 Commit", "note": "None 저장 지점: L406·L411·L415·L419·L460·L498·L502·L511·L522·L526 / Lurk: L513·L529 / Commit: L506·L517"},
+  {"base": "(sret)", "offset": "0x1", "name": "StealAction.target", "value": "target as u8", "note": "Lurk/Commit 일 때만 기록"},
+  {"base": "(sret)", "offset": "0x8", "name": ".1 (usize)", "value": "-1 (usize::MAX) / enemy_tick", "note": "L406·L411·L415·L419 조기 None 은 MAX, 그 외(L460 이후 None 포함) enemy_tick (m07.ll:57628)"}
+ ],
+
+ "constants": [
+  {"value": 30, "src_line": 414, "meaning": "tps*30: 세션 전엔 1 <= enemy_tick <= tps*30 이어야 함 (`enemy_tick-1 < tps*30` unsigned). 0(예측없음)·30초 초과 → None(L415)"},
+  {"value": 20, "src_line": 410, "meaning": "세션 중: obj.hp*20 < obj.stat_cached.hp*19 (hp<95%) 아니면 None(L411)"},
+  {"value": 19, "src_line": 410, "meaning": "95% 를 20:19 로 표현"},
+  {"value": 10000000001, "src_line": 417, "meaning": "100000^2+1: 캠프 존과 거리제곱 < 이면 '캠프에 있는 아군' (steal.rs:267~268 헬퍼 인라인)"},
+  {"value": 1, "src_line": 418, "meaning": "캠프 근처 아군(나 포함) 수 > 1 이면 None(L419) — 우리 팀이 치는 중이면 스틸 아님. (본문 다른 1 = max(move_speed,1)·shl 1 = tps*2·steal_damage*2)"},
+  {"value": 16000, "src_line": 454, "meaning": "entry_range = max(early_range, 16000) (반셀)"},
+  {"value": 1, "src_line": 453, "folded_from": 2, "meaning": "tps*2 — `shl i64 %149, 1`: steal_damage_and_range_within(…, tps*2) 의 early_range · L482/L490/L510/L520 remaining_enemy_tick vs tps*2 · L482 steal_damage*2(`shl %235, 1`)"},
+  {"value": 5, "src_line": 475, "meaning": "vision_fresh = elapsed(tick-last_seen) <= tps*5 · L488 arrival_ticks <= tps*5"},
+  {"value": 100, "src_line": 476, "meaning": "hp_ratio = my hp*100/max (max 0 이면 div0 패닉 476:18) · L565~568 백분율 비교"},
+  {"value": 80000, "src_line": 596, "meaning": "적 위협(threat) 술어: range_to_me = max(range,80000); controls_objective = dist(적,obj) <= range+80000 (2.5셀) · L543 very_short_entry = damage_range < 80000"},
+  {"value": 110000, "src_line": 542, "meaning": "short_entry = 내 damage_range < 110000"},
+  {"value": 2300, "src_line": 565, "meaning": "full_durability < 2300 이면 fragile"},
+  {"value": 70, "src_line": 565, "meaning": "fragile = current_durability*100 < full_durability*70 · L567 burst_entry_bad = top3_entry*100 >= current*70"},
+  {"value": 95, "src_line": 568, "meaning": "burst_total_bad = top3_total*100 >= current_durability*95"},
+  {"value": 134999, "src_line": 551, "meaning": "적 range > 134999 (>=135000) 이면 ranged_enemies++"},
+  {"value": 179999, "src_line": 554, "meaning": "적 range > 179999 (>=180000) 이면 long_range_enemies++"},
+  {"value": 30000, "src_line": 557, "meaning": "적 range + 30000 >= 내 damage_range 이면 entry 피해 top3 후보(진입 시 맞는 적)"},
+  {"value": 2, "src_line": 566, "meaning": "many_ranged = ranged_enemies > 2 || long_range_enemies > 1 · L486 threat_count < 2 · L570 ranged>2"},
+  {"value": 6, "src_line": 482, "meaning": "tps*6: check_window·predicted_final_window 의 arrival_ticks 상한"},
+  {"value": 3, "src_line": 486, "meaning": "threat_count < 3 (L486 safe_enough 두 번째 항·L487 final_entry_safe) · L490 tps*3"},
+  {"value": 69, "src_line": 486, "meaning": "safe_enough = threat<2 || hp_ok_visible || (hp_ratio > 69 && threat<3)"},
+  {"value": 54, "src_line": 487, "meaning": "final_entry_safe = threat<3 || hp_ok_visible || hp_ratio > 54"},
+  {"value": 35, "src_line": 497, "meaning": "hp_ratio < 35 → None(L498) · L510/L520 visible_hp*100 > obj.max*35 (대상 35% 초과 남음)"},
+  {"value": 32000, "src_line": 42, "meaning": "in_steal_wait_bush: cx = (x/32000).clamp(0,29), cy 동일 — 셀 변환"},
+  {"value": 29, "src_line": 42, "meaning": "clamp 상한 29 (30x30 그리드)"},
+  {"value": 1296000001, "src_line": 45, "meaning": "36000^2+1: bush_distance_sq(bush, me) < 이면 대기 부시 안(약 1.1셀)"},
+  {"value": -1, "src_line": 36, "meaning": "bush_distance_sq None → usize::MAX (min_by_key unwrap_or) · sret .1 조기 None 값"},
+  {"value": 10, "src_line": 540, "meaning": "durability = (defence + magic_resistance)*10 + hp"}
+ ],
+
+ "calls": [
+  "game_ai::plan_legacy::steal::steal_damage_and_range_within",
+  "game_ai::plan_legacy::steal::bush_distance_sq",
+  "game_core::simulation::state::player::AthleteParameter::last_hit_execute_hp",
+  "game_core::simulation::effect::Effect::expected_damage_target",
+  "game_core::simulation::effect::Effect::range_adjust",
+  "game_core::simulation::effect::type::CastingTarget::check",
+  "game_core::utils::distance",
+  "core::iter::traits::iterator::Iterator::next",
+  "core::iter::adapters::map::Map::fold",
+  "core::panicking::panic_bounds_check",
+  "core::panicking::panic_const::panic_const_div_by_zero"
+ ],
+
+ "logic": "fn evaluate_steal_for_target(player, data, my_champ, target, obj_entity, last_hp, enemy_tick, last_seen, world_pos, in_session) -> (StealAction, usize)\n  let Some(obj) = obj_entity else { return (None, MAX) }                 // L406\n  if !in_session {\n    if !(1 <= enemy_tick && enemy_tick <= tps*30) { return (None, MAX) }  // L414~415\n    allies_at_camp = cache.player_champion[team].iter().flatten().filter(|c| distance_sq(c, world_pos) < 100000^2+1).count()   // L417 (steal.rs:267~268)\n    if allies_at_camp > 1 { return (None, MAX) }                          // L418~419 (나 외 아군이 캠프에 있으면 팀 오브젝트 — 스틸 아님)\n  } else if !(obj.hp*20 < obj.stat_cached.hp*19) { return (None, MAX) }  // L410~411 (세션 중인데 대상 hp>=95% 면 종료)\n  // ===== L423: evaluate_v28_steal_for_target (steal.rs:447~530, 인라인) — 이후 None 도 .1 = enemy_tick =====\n  tick = game.tick()\n  elapsed = tick.saturating_sub(last_seen)\n  current_hp_est = if enemy_tick==0 { last_hp } else if elapsed < enemy_tick { last_hp*(enemy_tick-elapsed)/enemy_tick } else { 0 }   // L449 estimate_current_hp(234~238): 선형 감소 추정\n  execute_cut = max(player.parameter.last_hit_execute_hp(), setting.jungle_execute_threshold)   // L450 (227~229)\n  move_speed = max(my.stat_cached.move_speed, 1)                                                  // L452\n  early_range = steal_damage_and_range_within(ctx, my_champ, obj, tps*2).1 ; entry_range = max(early_range, 16000)   // L453~454\n  arrival_ticks = distance(me, obj).saturating_sub(entry_range) / move_speed                     // L455~456\n  (my_damage, damage_range) = steal_damage_and_range_within(ctx, my_champ, obj, arrival_ticks + tps)   // L457\n  if my_damage==0 || damage_range==0 { return (None, enemy_tick) }                                // L459~460\n  remaining_enemy_tick = enemy_tick.saturating_sub(elapsed)                                        // L463~464\n  predicted_arrival_hp = if enemy_tick==0 { obj.hp } else if remaining > arrival { current_hp_est*(remaining-arrival)/remaining } else { 0 }   // L465~469\n  obj_visible = obj.is_visible_from(my_team)  [visible_state[team]==Visible]; visible_hp = if obj_visible { obj.hp } else { current_hp_est }   // L472~473\n  steal_damage = my_damage + execute_cut                                                          // L474\n  vision_fresh = elapsed <= tps*5                                                                 // L475\n  hp_ratio = my.hp*100/my.stat_cached.hp                                                          // L476\n  threat_count = (1-team) 적 중 [visible_state[my_team]==Visible 인 것만] filter(|e| { r = max(steal_damage_and_range_within(ctx, e, my_champ, tps).1, 80000);\n                   can_hit_me_soon = dist(e,me) <= r + e.move_speed*tps; controls_objective = dist(e,obj) <= r + 80000; can_hit_me_soon || controls_objective }).count()   // L477 (591~603)\n  hp_ok_visible   = obj_visible && visible_hp <= steal_damage                                     // L478\n  hp_ok_predicted = vision_fresh && predicted_arrival_hp <= steal_damage                          // L479\n  in_wait_bush = { cands = steal_wait_bush(target, team) [Serpen: 1개 / Epic: 2개, 팀별 상수표]; bush = cands.min_by_key(|b| bush_distance_sq(b, me, map).unwrap_or(MAX));\n                   map.bushes[cy][cx] == bush || bush_distance_sq(bush, me).is_some_and(|d| d < 36000^2+1) }   // L480 (28~45)\n  structurally_viable = {                                                                         // L481 (540~583)\n    cur_dur = (def+mr)*10 + my.hp ; full_dur = (def+mr)*10 + my.max_hp ; short_entry = damage_range < 110000 ; very_short = damage_range < 80000\n    for e in 적 5슬롯(가시성 무관): (dmg, range) = steal_potential_damage_and_range(ctx, e, my_champ) [attack/skill/skill2/ult 기대피해 합·최대 사거리]\n        ranged += range>=135000 ; long_range += range>=180000 ; if range+30000 >= damage_range { top3_entry.push(dmg) } ; top3_total.push(dmg)\n    fragile = full_dur < 2300 || cur_dur*100 < full_dur*70 ; many_ranged = ranged>2 || long_range>1\n    burst_entry_bad = sum(top3_entry)*100 >= cur_dur*70 ; burst_total_bad = sum(top3_total)*100 >= cur_dur*95\n    if very_short && fragile && ranged>2 { false }\n    else if short_entry && ((many_ranged && (burst_entry_bad || fragile)) || (burst_total_bad && ranged>1)) { false } else { true } }\n  check_window = arrival <= tps*6 && remaining <= arrival + tps*2 && current_hp_est <= steal_damage*2 && in_wait_bush   // L482\n  safe_enough = threat<2 || hp_ok_visible || (hp_ratio>69 && threat<3)                            // L486\n  final_entry_safe = threat<3 || hp_ok_visible || hp_ratio>54                                     // L487\n  visible_final_window = obj_visible && visible_hp <= steal_damage*2 && arrival <= tps*5          // L488\n  predicted_final_window = vision_fresh && remaining <= arrival + tps*3 && current_hp_est <= steal_damage*2 && arrival <= tps*6   // L489~490\n  final_entry_window = in_session && final_entry_safe && (hp_ok_visible || hp_ok_predicted || visible_final_window)   // L493~495\n  if hp_ratio < 35 { return None }                                                                 // L497~498\n  if final_entry_window { return Commit }                                                          // L506\n  if in_session && final_entry_safe { if !(structurally_viable || predicted_final_window) { return None } ; if predicted_final_window { return Commit } }   // L501~506\n  else if !(hp_ok_visible || structurally_viable) { return None }                                  // L501~502\n  if !(in_wait_bush || hp_ok_visible) {                                                            // L509\n    if in_session && obj_visible { if remaining > tps*2 && visible_hp*100 > obj.max*35 { return Lurk } else { return None } }   // L510~511\n    return Lurk }                                                                                  // L513\n  if safe_enough && (hp_ok_visible || hp_ok_predicted || check_window) { return Commit }           // L516~517\n  finish_window = remaining <= tps*2 || (obj_visible && visible_hp*100 <= obj.max*35)              // L520 (IR 는 분기 접힘)\n  if in_session { if finish_window && obj_visible { return None } else { return Lurk } }           // L521~522 / L529\n  if enemy_tick > elapsed && remaining <= arrival { return None }                                   // L525~526 (도착 전에 적이 끝냄)\n  return Lurk                                                                                        // L529",
+
+ "knobs": [
+  {"what": "적 예상 처치 예측 유효 상한", "where": "steal.rs:414", "value": "tps*30", "effect": "올리면 오래 걸릴 처치도 스틸 후보"},
+  {"what": "캠프 아군 인원 상한", "where": "steal.rs:418", "value": 1, "effect": "올리면 아군이 같이 있어도 스틸 판정 진행"},
+  {"what": "내 hp 하한", "where": "steal.rs:497", "value": 35, "effect": "hp% < 35 무조건 None"},
+  {"what": "안전 판정 hp%", "where": "steal.rs:486 / :487", "value": "69 / 54", "effect": "내리면 위협 적 2명 상황에서도 Commit(safe_enough)·최종 진입(final_entry_safe) 허용"},
+  {"what": "위협 인원", "where": "steal.rs:486 / :487", "value": "2 / 3", "effect": "threat_count 상한. 올리면 더 많은 적 앞에서도 Commit"},
+  {"what": "Commit 창(hp 여유)", "where": "steal.rs:482 / :488 / :490", "value": "steal_damage*2", "effect": "현재/예측 hp 가 내 스틸딜의 2배 이내면 창 열림 — 배수를 키우면 더 이른 Commit"},
+  {"what": "도착 시간 창", "where": "steal.rs:482 / :488 / :490", "value": "tps*6 / tps*5 / tps*3", "effect": "arrival_ticks 상한·remaining 여유. 줄이면 근접해서만 Commit"},
+  {"what": "구조적 생존 임계", "where": "steal.rs:542~568", "value": "110000 / 80000 / 2300 / 70% / 95% / 135000 / 180000", "effect": "짧은 사거리·물몸·원거리 다수·top3 폭딜 대비 내구도 — 완화하면 물몸 정글러도 진입"},
+  {"what": "대기 부시 반경", "where": "steal.rs:45", "value": "36000^2+1", "effect": "부시 근접 판정 — Lurk→Commit 전환(check_window)에 관여"},
+  {"what": "대상 잔여 hp 포기선", "where": "steal.rs:510 / :520", "value": "35%", "effect": "세션 중 대상 hp 가 35% 이하로 떨어졌는데 내가 못 끝내면 None(포기)"}
+ ],
+
+ "unknown": [
+  "steal_damage_and_range_within(ctx, caster, target, within_ticks) 내부 미독해(별도 define, exe 0xd9d4d0 추정) — 이름·_docs('쿨 0인 공격/스킬/스킬2/궁 각각 expected_damage_target 1회씩 합산') 로 '주어진 틱 안에 쓸 수 있는 피해 합과 사거리' 로 읽음",
+  "bush_distance_sq(bush_id, x, y, map) 내부 미독해 — 반환 {i64 is_some, i64 dist_sq}. steal_wait_bush 후보 상수표(anon.184~187)의 실제 부시 id 값 미확인",
+  "steal_potential_damage_and_range(steal.rs:106~127)의 skill2/ult 분기 상세(entity.rs:1693 skill2_effect / 1701 ult_effect 의 slot>2 / slot>4 검사)는 요지만 적음 — 4 이펙트 각각 CastingTarget::check 후 expected_damage_target 합, range 는 max 로 읽었으나 L119/L126 의 합/최대 여부는 phi 만 봤음(미확정: 합산 대상이 damage, range 는 max 인지 sum 인지 — IR %730/%731 phi 로는 둘 다 누적형)",
+  "L520 finish_window 의 소스 표현 — IR 은 세 분기(%945/%946/%952)로 접혀 있어 `remaining<=tps*2 || (visible && hp<=35%)` 로 복원했으나 항 순서·정확한 결합은 표기 불가",
+  "L501/L505 의 소스 형태 — IR 은 final_entry_window 유무에 따라 두 경로(%907 / %915)로 갈라져 있어 `!(hp_ok_visible || structurally_viable || predicted_final_window)` 한 식인지 두 if 인지 표기 불가. 동작은 logic 대로 확정",
+  "threat_count 의 가시 필터: IR 은 my_champ.team 태그가 Player 인 경로(%361~)에서만 visible_state[team]==Visible 검사 — my_champ 는 항상 Player 이므로 실효 술어는 '가시 적만'. Neutral 경로(%259~)는 사장 코드",
+  "구조적 생존 루프의 적 5슬롯은 가시성 필터 없음(Some 이면 전부) — threat_count 와 다름",
+  "exe 0x12857f0(1111B)·0x12a0180(757B)·vtable +0xe8 의 IR 짝(expected_damage_target / range_adjust / CastingTarget::check / last_hit_execute_hp) 배정은 추정"
+ ]
+}

@@ -1,0 +1,137 @@
+{
+ "name": "EpicHuntAndPokePlan::sub_plan",
+ "sym": "_RNvMNtNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old4epic13hunt_and_pokeNtB2_19EpicHuntAndPokePlan8sub_plan",
+ "src": "game-ai\\src\\plan_legacy\\old\\epic\\hunt_and_poke.rs",
+ "src_line": 30,
+ "ir_file": "m10.ll",
+ "ir_from": 7902,
+ "ir_to": 9384,
+
+ "one_line": "에픽(Morgard) 사냥/견제 빅플랜의 서브플랜 선택 — Steal/EpicCheck/Recall/LineDefense/EpicHunt/EpicPoke 중 하나를 sret 로 반환",
+
+ "signature": {
+  "params": [
+   {"i": 0, "name": "(sret)", "type": "*mut SubPlan(72B)", "note": "%0. 태그 = enum+0x0 (니치: tag = idx+2). 반환 variant 는 writes 참조"},
+   {"i": 1, "name": "self", "type": "&mut EpicHuntAndPokePlan(32B)", "note": "%1. v46_flee_threats(Vec, +0x0)·focus_epic_only(+0x18)·vision_only(+0x19)·v46_flee(+0x1a) 읽고 v46 필드는 갱신도 함"},
+   {"i": 2, "name": "version", "type": "usize", "note": "%2. 본문 분기 없음 — upgrade_item·v46_flee_gate_check·v25_objective_splitter_can_stay·v24_objective_setup_should_check_camp 에 전달"},
+   {"i": 3, "name": "rnd", "type": "&mut StdRng(320B)", "note": "%3. upgrade_item·PlayerState::strategy 에 전달"},
+   {"i": 4, "name": "player", "type": "&PlayerState(2528B)", "note": "%4. info.team(0x930)·info.position 태그(0x9c0)"},
+   {"i": 5, "name": "data", "type": "&OperationData(24B)", "note": "%5. cache(+0)·context(+8)·blackboard(+0x10)"},
+   {"i": 6, "name": "goal_data", "type": "&GoalData(248B)", "note": "%6. epic.epic_enemy_tick(0x88)·epic.epic_ally_tick(0x98) — check_recall 인라인분에서만"},
+   {"i": 7, "name": "team_plan", "type": "&TeamPlan(1064B)", "note": "%7. objective(0x41f 태그, 0x420 phase) + v24_objective_setup_should_check_camp 의 self"},
+   {"i": 8, "name": "debug", "type": "&mut DebugFrameData(224B)", "note": "%8. ctx.debug 일 때 v46 도주 로그 add_log 에만"}
+  ],
+  "returns": "() — sret SubPlan. 발생 가능 variant: Steal(18)·EpicCheck(10)·Recall(5)·LineDefense(2)·EpicHunt(11)·EpicPoke(12)"
+ },
+
+ "reads": [
+  {"base": "EpicHuntAndPokePlan", "offset": "0x18", "name": "focus_epic_only", "note": "스틸 Commit 플래그. focus_epic_only||vision_only 면 Steal 경로(:35)"},
+  {"base": "EpicHuntAndPokePlan", "offset": "0x19", "name": "vision_only", "note": "스틸 Lurk 플래그"},
+  {"base": "EpicHuntAndPokePlan", "offset": "0x1a", "name": "v46_flee", "note": "도주 에피소드 진행 중 플래그(check_recall :124)"},
+  {"base": "EpicHuntAndPokePlan", "offset": "0x8", "name": "v46_flee_threats.ptr", "note": "Vec<usize>(위협 엔티티 id) 버퍼 — :125 순회"},
+  {"base": "EpicHuntAndPokePlan", "offset": "0x10", "name": "v46_flee_threats.len", "note": ":125 순회 상한 / :131 clear 로 0 씀"},
+  {"base": "PlayerState", "offset": "0x930", "name": "info.team", "note": "t. 적 팀 = 1-t. 2 이상이면 panic_bounds_check(:32)"},
+  {"base": "PlayerState", "offset": "0x9c0", "name": "info.position@tag", "note": "내 포지션(i32). player_champion[t][pos] 및 Split(position) 비교(:66)"},
+  {"base": "OperationData", "offset": "0x0", "name": "cache", "note": "&AbstractGameWithCache"},
+  {"base": "OperationData", "offset": "0x8", "name": "context", "note": "&GameContext"},
+  {"base": "OperationData", "offset": "0x10", "name": "blackboard", "note": "&[Blackboard;2]. 적 카운트는 [1-t], 아군 카운트는 [t] 로 is_recent_visible"},
+  {"base": "AbstractGameWithCache", "offset": "0x0", "name": "game.data_ptr", "note": "&dyn AbstractGame"},
+  {"base": "AbstractGameWithCache", "offset": "0x8", "name": "game.vtable_ptr", "note": "vtable(816B). 슬롯 +0x28 tick · +0x40 get_game_mode · +0x1f0 get_entity_by_id (divtable AbstractGame)"},
+  {"base": "AbstractGameWithCache", "offset": "0x1e0", "name": "player_champion[][]", "note": "[t][pos]=내 챔프(None→unwrap_failed), [1-t][0..5]=적, [t][0..5]=아군(check_recall 카운트, 5회 언롤)"},
+  {"base": "GameContext", "offset": "0x8", "name": "setting", "note": "&GameSetting → tick_per_second"},
+  {"base": "GameContext", "offset": "0x20", "name": "map", "note": "&MapDef → fountains·regions"},
+  {"base": "GameContext", "offset": "0x3b", "name": "debug", "note": "true 면 v46 도주 진입 시 add_log(:138~139)"},
+  {"base": "GameSetting", "offset": "0x12f8", "name": "tick_per_second", "note": "tps. check_recall :115 임계 tps*5"},
+  {"base": "MapDef", "offset": "0x6d70", "name": "fountains[t]", "note": "[2] x (x0,y0,x1,y1) 32B stride. is_in_heal_area(:56~57): x0<=x<=x1 && y0<=y<=y1"},
+  {"base": "MapDef", "offset": "0x38b8", "name": "regions[y/32000][x/32000]", "note": "[30][30] usize. clamp(…,29). 값 7 인 셀에 있는 챔프만 check_recall 카운트(:148, :154)"},
+  {"base": "MobaMode", "offset": "0x1a0", "name": "jungle_runner.epic.live_list.ptr", "note": "live_list[0] = 살아있는 에픽 id"},
+  {"base": "MobaMode", "offset": "0x1a8", "name": "jungle_runner.epic.live_list.len", "note": "0 이면 에픽 없음 → EpicCheck"},
+  {"base": "TeamPlan", "offset": "0x41f", "name": "objective@tag", "note": "Option<MainObjective> 태그. 0 = Some(Morgard) 만 통과(:63), 아니면 Recall(:94)"},
+  {"base": "TeamPlan", "offset": "0x420", "name": "objective@Some.0@Morgard.phase", "note": "ObjectPhase. 3=Hunt 면 take_hunt_commit 경로(:64~77)"},
+  {"base": "GoalData", "offset": "0x88", "name": "epic.epic_enemy_tick", "note": "check_recall :115 min(enemy_tick, ally_tick)"},
+  {"base": "GoalData", "offset": "0x98", "name": "epic.epic_ally_tick", "note": ""},
+  {"base": "Entity", "offset": "0x628", "name": "stat_cached.hp", "note": "내 max HP(:47 / :112 — 0 이면 panic_const_div_by_zero) · 에픽 max HP(:58)"},
+  {"base": "Entity", "offset": "0x660", "name": "x", "note": "내 x(fountain·heal_area·region·dist), 에픽 x, 위협 x"},
+  {"base": "Entity", "offset": "0x668", "name": "y", "note": ""},
+  {"base": "Entity", "offset": "0x670", "name": "hp", "note": "내 hp · 에픽 hp"},
+  {"base": "Strategy", "offset": "0x0", "name": "object_buildup", "note": "PlayerState::strategy() 결과(24B). 니치 enum: Split(position) 은 태그 없이 Position(i32) 그대로 → 내 pos 와 == 비교(:66)"}
+ ],
+
+ "writes": [
+  {"base": "SubPlan", "offset": "0x0", "name": "tag", "value": "18|10|5|2|11|12", "note": "Steal=18 / EpicCheck=10 / Recall=5 / LineDefense=2 / EpicHunt=11 / EpicPoke=12 (tcxdict --enum SubPlan 메모리태그)"},
+  {"base": "SubPlan", "offset": "0x8", "name": "Steal.last_vision_tick", "value": "0", "note": ":39"},
+  {"base": "SubPlan", "offset": "0x10", "name": "Steal.target", "value": "Some(Epic)=0", "note": "StealTarget 태그 0 = Epic"},
+  {"base": "SubPlan", "offset": "0x11", "name": "Steal.commit", "value": "self.focus_epic_only", "note": "focus_epic_only=true → Commit(공격 포함), vision_only 만 → Lurk"},
+  {"base": "SubPlan", "offset": "0x8", "name": "EpicCheck.move_check", "value": "false(0)", "note": ":44 :51 :83 :87 전부 0"},
+  {"base": "SubPlan", "offset": "0x8", "name": "EpicHunt.need_recall", "value": "false(0)", "note": ":77"},
+  {"base": "SubPlan", "offset": "0x8", "name": "LineDefense.style", "value": "Aggressive(0)", "note": ":73"},
+  {"base": "SubPlan", "offset": "0x9", "name": "LineDefense.line", "value": "fallback_line(ctx, Bottom=2)", "note": ":70"},
+  {"base": "SubPlan", "offset": "0xa", "name": "LineDefense.minion_action_type", "value": "Push(2)", "note": ":73"},
+  {"base": "EpicHuntAndPokePlan", "offset": "0x1a", "name": "v46_flee", "value": "true(:136) / false(:131)", "note": "check_recall 인라인분"},
+  {"base": "EpicHuntAndPokePlan", "offset": "0x0", "name": "v46_flee_threats", "value": "gate.1.to_vec()(:137) / len=0(:131)", "note": "std Vec<usize> 24B 통째 교체(:137, memcpy 24B) 또는 clear"}
+ ],
+
+ "constants": [
+  {"value": 0, "src_line": 36, "meaning": "get_game_mode(vtable+0x40) 반환 {tag,ptr} 의 tag 0 = Moba (as_moba, game.rs:231). 아니면 unwrap_failed"},
+  {"value": 100, "src_line": 47, "meaning": "hp_ratio = hp*100/max_hp (max_hp==0 이면 div_by_zero 패닉 — build 와 달리 max(.,1) 없음)"},
+  {"value": 51, "src_line": 58, "meaning": "hp_ratio < 51 (=HP 50% 이하) 이면 Recall 후보. `<51` vs `<=50` 표기 불가"},
+  {"value": 10, "src_line": 51, "meaning": "SubPlan 메모리태그 10 = EpicCheck (idx 8 + 2)"},
+  {"value": 5, "src_line": 59, "meaning": "SubPlan 메모리태그 5 = Recall (idx 3 + 2)"},
+  {"value": 3, "src_line": 64, "meaning": "ObjectPhase 태그 3 = Hunt (take_hunt_commit, team_plan.rs:249 인라인). ※본문의 `shl i64 %len, 3` 은 Vec<usize> 인덱스 stride(×8B)이지 이 상수가 아님"},
+  {"value": 4, "src_line": 68, "meaning": "JungleType 태그 4 = Morgard — v25_objective_splitter_can_stay / v24_objective_setup_should_check_camp 의 target 인자"},
+  {"value": 2, "src_line": 70, "meaning": "LineType 태그 2 = Bottom — fallback_line(ctx, Bottom) 인자. 같은 값 2 가 :73 LineDefense 태그(2)·MinionActionType Push(2) 로도 쓰임"},
+  {"value": 11, "src_line": 77, "meaning": "SubPlan 메모리태그 11 = EpicHunt"},
+  {"value": 64000, "src_line": 107, "meaning": "[game_core heal_area(game.rs:319) 인라인] 팀0 샘: x<=64000 && 896000<=y<=960000 / 팀1 샘: 892000<=x<=960000 && y<=64000 (2셀 = 64000)"},
+  {"value": 960000, "src_line": 107, "meaning": "heal_area 인라인 — 맵 끝(30셀×32000)"},
+  {"value": 891999, "src_line": 107, "meaning": "heal_area 인라인 — 팀1 x > 891999 (= x>=892000 = 960000-68000). exe 는 0xd9c60(892000) 로 인코딩"},
+  {"value": 896000, "src_line": 107, "meaning": "heal_area 인라인 — 팀0 y >= 896000 (= 960000-64000)"},
+  {"value": 5, "src_line": 115, "meaning": "check_recall: min(epic_enemy_tick, epic_ally_tick) <= tps*5 (5초) 이면 즉시 false(귀환 안 함) — 최근 5초 내 에픽 근처에 적/아군 관측이 있으면 귀환 판단 자체를 건너뜀"},
+  {"value": 40000000001, "src_line": 126, "meaning": "200000^2 + 1 — v46 도주 위협 엔티티가 200000(6.25셀) 이내면 계속 도주(Recall)"},
+  {"value": 0, "src_line": 135, "meaning": "v46_flee_gate_check 반환 (u8, Vec<usize>) 의 .0 == 0 이면 도주 발동. 나머지 코드 1~5 의 의미는 passive_line.rs:38 본문 미탐색"},
+  {"value": 7, "src_line": 148, "meaning": "MapDef.regions 셀 값 7 — 이 리전에 서 있는 최근가시 적/아군만 센다(리전 7 의 의미(에픽 둥지 추정)는 MapDef 데이터 미확인)"},
+  {"value": 29, "src_line": 148, "meaning": "regions 인덱스 clamp 상한(30x30 그리드)"},
+  {"value": 32000, "src_line": 148, "meaning": "셀 크기 — 좌표/32000 = 그리드 인덱스"},
+  {"value": 21, "src_line": 160, "meaning": "check_recall 최종: hp_ratio < 21 (HP 20% 이하) && 리전7 아군수 < 리전7 적수 → 귀환"},
+  {"value": 22500000001, "src_line": 86, "meaning": "150000^2 + 1 — 에픽과의 거리 ≤150000 이면 EpicPoke, 아니면 EpicCheck"},
+  {"value": 12, "src_line": 89, "meaning": "SubPlan 메모리태그 12 = EpicPoke"},
+  {"value": 18, "src_line": 39, "meaning": "SubPlan 메모리태그 18 = Steal"}
+ ],
+
+ "calls": [
+  "game_ai::upgrade_item",
+  "game_ai::plan_legacy::old::passive_line::v46_flee_gate_check",
+  "alloc::vec::spec_from_iter_nested::from_iter",
+  "alloc::fmt::format::format_inner",
+  "game_core::simulation::game::frame::DebugFrameData::add_log",
+  "game_core::simulation::game::blackboard::Blackboard::is_recent_visible",
+  "game_core::simulation::state::player::PlayerState::strategy",
+  "game_ai::plan_legacy::team_plan::objective_helpers::v25_objective_splitter_can_stay",
+  "game_ai::plan_legacy::rule_scope::fallback_line",
+  "game_ai::plan_legacy::team_plan::objective_discipline::TeamPlan::v24_objective_setup_should_check_camp",
+  "core::panicking::panic_bounds_check",
+  "core::option::unwrap_failed",
+  "core::panicking::panic_const::panic_const_div_by_zero"
+ ],
+
+ "logic": "// hunt_and_poke.rs:30~96 (+ check_recall :103~160 인라인). 분기 순서대로.\nt = player.info.team; pos = player.info.position\nchamp = cache.player_champion[t][pos].unwrap()                                   // :32\n\n// ── A. 스틸 모드 (:35~44)\nif self.focus_epic_only || self.vision_only {\n   moba = game.get_game_mode() (vtable+0x40) → tag 0 = Moba 아니면 unwrap 패닉      // :36\n   epic = moba.jungle_runner.epic.live_list.first().and_then(|id| game.get_entity_by_id(id))   // :37 closure$0\n   if epic.is_some() → return Steal{ last_vision_tick:0, target:Some(Epic), commit:self.focus_epic_only }   // :39\n   else → return EpicCheck{ move_check:false }                                        // :44\n}\n\n// ── B. 일반 (:47~)\nhp_ratio = champ.hp*100 / champ.stat_cached.hp                                    // :47 (max_hp 0 → 패닉)\ncan_upgrade_item = upgrade_item(version, rnd, player, game, ctx).is_some()          // :48\nepic = moba.jungle_runner.epic.live_list.first().and_then(get_entity_by_id)         // :49 closure$1\nif epic.is_none() → return EpicCheck{false}                                        // :50~51\n(x0,y0,x1,y1) = map.fountains[t]                                                    // :56\nis_in_heal_area = x0<=champ.x<=x1 && y0<=champ.y<=y1                                // :57\nif epic.hp == epic.stat_cached.hp /*에픽 풀피*/ && (hp_ratio < 51 || can_upgrade_item || (is_in_heal_area && champ.hp < champ.stat_cached.hp))   // :58 (줄 안 순서 표기 불가)\n   → return Recall                                                                   // :59\n\n// ── C. 팀 오브젝트 게이트 (:63~64)\nif team_plan.objective != Some(Morgard{..}) → return Recall                         // :63 objective_target / :94\nif phase == Hunt {                                                                   // :64 take_hunt_commit\n   strategy = player.strategy(rnd, game)                                             // :65\n   if strategy.object_buildup == Split(position) && position == pos                  // :66\n      && v25_objective_splitter_can_stay(version, player, data, Morgard)             // :68\n      → return LineDefense{ style:Aggressive, line:fallback_line(ctx, Bottom), minion_action_type:Push }   // :70~73\n   else → return EpicHunt{ need_recall:false }                                       // :77\n}\n\n// ── D. check_recall(self, version, player, data, goal_data, debug) (:79, 본문 :103~160)\n   champ = player_champion[t][pos].unwrap()                                          // :104\n   if heal_area(t).contains(champ) && champ.hp < champ.max_hp → true                 // :107~108 (game_core heal_area 인라인: 팀0 x<=64000&&y>=896000&&y<=960000 / 팀1 x>=892000&&x<=960000&&y<=64000)\n   hp_ratio = champ.hp*100/champ.max_hp                                              // :112\n   if min(goal_data.epic.epic_enemy_tick, epic_ally_tick) <= tps*5 → false           // :115\n   if self.v46_flee {                                                                // :124\n      if self.v46_flee_threats.iter().any(|id| game.get_entity_by_id(id).is_some_and(|e| dist_sq(e,champ) < 40000000001)) → true   // :125~126\n      self.v46_flee=false; self.v46_flee_threats.clear()                              // :131\n   } else {\n      (code, threats) = v46_flee_gate_check(version, player, data, champ)             // :134\n      if code == 0 { self.v46_flee=true; self.v46_flee_threats = threats.to_vec();    // :136~137\n                     if ctx.debug { debug.add_log(data, player, format!(.. tick, position, .. threats)) }   // :138~139\n                     return true }                                                    // :140\n   }\n   enemy_cnt = player_champion[1-t].iter().flatten().filter(|e| map.regions[e.y/32000][e.x/32000]==7 && blackboard[1-t].is_recent_visible(game, player, e)).count()   // :147~149\n   ally_cnt  = player_champion[t].iter().flatten().filter(|a| regions==7 && blackboard[t].is_recent_visible(game, player, a)).count()                 // :154~155\n   return hp_ratio < 21 && ally_cnt < enemy_cnt                                      // :160\nif check_recall(..) → return Recall                                                  // :79~80\n\n// ── E. 캠프 확인/견제 (:82~89)\nif team_plan.v24_objective_setup_should_check_camp(version, player, data, goal_data, Morgard) → return EpicCheck{false}   // :82~83\nif dist_sq(champ, epic) < 22500000001 → return EpicPoke                             // :86, :89\nelse → return EpicCheck{false}                                                       // :87",
+
+ "knobs": [
+  {"what": "귀환 HP 임계(에픽 풀피일 때)", "where": "hunt_and_poke.rs:58", "value": 51, "effect": "올리면 더 건강한 상태에서도 에픽이 아직 안 맞았으면 귀환. 내리면 저체력으로 버티다 사냥 진입"},
+  {"what": "check_recall 저체력 임계", "where": "hunt_and_poke.rs:160", "value": 21, "effect": "hp<21% 이고 리전7 적이 아군보다 많으면 귀환. 올리면 귀환이 잦아지고(사냥 포기), 내리면 끝까지 버팀"},
+  {"what": "에픽 근처 관측 유예", "where": "hunt_and_poke.rs:115", "value": 5, "effect": "tps*5초. 최근 5초 내 에픽 근처 관측(적/아군)이 있으면 귀환 판단을 건너뜀. 올리면 귀환 판단이 더 오래 봉인됨"},
+  {"what": "v46 도주 위협 유지 반경", "where": "hunt_and_poke.rs:126", "value": 40000000001, "effect": "200000^2+1. 올리면 위협이 더 멀어도 도주(Recall)를 유지, 내리면 도주 에피소드가 빨리 풀림"},
+  {"what": "견제(EpicPoke) 진입 거리", "where": "hunt_and_poke.rs:86", "value": 22500000001, "effect": "150000^2+1. 올리면 더 먼 거리에서도 EpicPoke 로 전환(견제 적극), 내리면 EpicCheck 로 더 오래 머묾"},
+  {"what": "스플리터 잔류 시 라인", "where": "hunt_and_poke.rs:70", "value": 2, "effect": "fallback_line(ctx, Bottom). Top(0)/Mid(1) 로 바꾸면 Hunt 국면에 남는 스플리터가 가는 라인이 달라짐"},
+  {"what": "카운트 대상 리전", "where": "hunt_and_poke.rs:148", "value": 7, "effect": "regions 값 7 셀의 챔프만 세어 수적 열세를 판단. 다른 리전 값으로 바꾸면 판단 위치가 달라짐"}
+ ],
+
+ "unknown": [
+  ":58 의 `hp_ratio<51 || can_upgrade_item || (is_in_heal_area && hp<max)` 와 `epic.hp==epic.max_hp` 의 줄 안 결합 순서 — column 정보 없음(표기 불가, 외연은 확정)",
+  "v46_flee_gate_check(passive_line.rs:38) 반환 코드 0 이 '도주 발동' 인 것은 분기 방향으로 확정. 코드 1~5 의 의미는 그 함수 본문(m04.ll:55362~57000) 미탐색",
+  "MapDef.regions 값 7 이 어느 지역인지 — 맵 데이터(_gcbc MapDef 생성부) 미탐색. 에픽 둥지 리전으로 추정",
+  "TeamPlan.objective_target(team_plan.rs:231)·take_hunt_commit(:249) 은 인라인돼 태그 비교(0x41f==0, 0x420==3)만 남음 — 두 헬퍼가 추가로 무언가를 갱신하는지(take_* 이름) 는 별도 define 없음(fnparts 인라인 86개) 으로 판정 불가. IR 상 sub_plan 본문에서 team_plan 에 store 는 없음",
+  "Steal.last_vision_tick=0 은 Steal 생성 시 초기값. 실제 시야 갱신은 다른 함수(Steal 서브플랜 평가) 소관 — 미탐색",
+  "PlayerState::strategy() 가 rnd 를 받는 이유(랜덤 요소?) — game_core 본문 미탐색",
+  "exe 0xdefcd0 대조: 상수 0x38b8·0x6d70·64000·892000(891999+1)·896000·960000·40000000001(+0x508)·22500000001(+0xbbe) 전부 exe 본문에서 확인. call 은 vtable [+0x40]/[+0x1f0] 및 직접 call 11개로 IR 과 정합. [+0xe8]/[+0x108] 간접호출 2개는 IR 에 없는 것(is_recent_visible 이 exe 에서 인라인된 흔적으로 추정). 로직 어긋남 없음"
+ ]
+}

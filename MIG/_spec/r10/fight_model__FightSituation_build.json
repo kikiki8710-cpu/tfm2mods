@@ -1,0 +1,148 @@
+{
+ "name": "FightSituation::build",
+ "sym": "_RNvMs_NtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old11fight_modelNtB4_14FightSituation5build",
+ "src": "game-ai\\src\\plan_legacy\\old\\fight_model.rs",
+ "src_line": 129,
+ "ir_file": "m10.ll",
+ "ir_from": 28246,
+ "ir_to": 29291,
+ "aux": [
+  {"ir_file": "m10.ll", "ir_from": 54399, "ir_to": 54509, "note": "closure$0 call_mut 심 — endangered_carry 의 적 필터 술어(max_range+30000 · is_ignored_well_enemy · is_recent_visible)"},
+  {"ir_file": "m01.ll", "ir_from": 31194, "ir_to": 31369, "note": "bumpalo Vec<&Entity>::from_iter_in 인스턴스 — 위 술어로 적 Vec 수집(판정 없음, 루프 껍데기)"},
+  {"ir_file": "m12.ll", "ir_from": 15597, "ir_to": 15812, "note": "min_by_key 폴드(exe 0xe32df0) — nearest_enemy_champ: 잔여 적을 is_ignored_well_enemy·is_recent_visible 로 거르고 dist_sq(enemy, ally) 최소 선택"}
+ ],
+
+ "one_line": "교전 상황 요약 구조체(FightSituation 128B) 조립 — 내 HP%/스킬·궁 준비, 전위 아군 유무, 위기 캐리, 아군/적 DPS 합과 우위를 계산",
+
+ "signature": {
+  "params": [
+   {"i": 0, "name": "(sret)", "type": "*mut FightSituation(128B)", "note": "%0. 출력. 필드 배치는 writes 참조"},
+   {"i": 1, "name": "version", "type": "usize", "note": "%1. 본문 분기 없음 — get_battle_role·check_kill_die_tick·is_enemy_well_danger·fight_dps 에 그대로 전달(%29 스택에 저장 후 재로드)"},
+   {"i": 2, "name": "rnd", "type": "&mut StdRng(320B)", "note": "%2. check_kill_die_tick 에만 전달"},
+   {"i": 3, "name": "player", "type": "&PlayerState(2528B)", "note": "%3. info.team(0x930)·info.position 태그(0x9c0) 읽음. is_enemy_well_danger/is_recent_visible/get_battle_role 에 전달"},
+   {"i": 4, "name": "data", "type": "&OperationData(24B)", "note": "%4. cache(+0)·context(+8)·blackboard(+0x10) 사용"},
+   {"i": 5, "name": "team_plan", "type": "&TeamPlan(1064B)", "note": "%5. v54 계측 카운터 2개만 atomic 증가(+0x3f8, +0x400)"},
+   {"i": 6, "name": "debug", "type": "&mut DebugFrameData(224B)", "note": "%6. check_kill_die_tick 에 전달만"},
+   {"i": 7, "name": "near_ally_count", "type": "usize", "note": "%7. 그대로 출력 +0x10"},
+   {"i": 8, "name": "near_enemy_count", "type": "usize", "note": "%8. 그대로 출력 +0x18"},
+   {"i": 9, "name": "can_near_enemies", "type": "usize", "note": "%9. 그대로 출력 +0x20"},
+   {"i": 10, "name": "my_die_tick", "type": "usize", "note": "%10. 그대로 출력 +0x28"},
+   {"i": 11, "name": "my_die_tick_no_tower", "type": "usize", "note": "%11. 그대로 출력 +0x30"},
+   {"i": 12, "name": "focused", "type": "&Entity(1728B)", "note": "%12. x/y(0x660/0x668)·id(0x5c0) 읽음"},
+   {"i": 13, "name": "focused_die_tick", "type": "usize", "note": "%13. 그대로 출력 +0x38"},
+   {"i": 14, "name": "focused_is_in_range", "type": "bool", "note": "%14. 그대로 출력 +0x70"},
+   {"i": 15, "name": "warn_tower", "type": "bool", "note": "%15. 그대로 출력 +0x71"},
+   {"i": 16, "name": "is_in_tower_range", "type": "bool", "note": "%16. 그대로 출력 +0x72"},
+   {"i": 17, "name": "is_in_tower_focused", "type": "bool", "note": "%17. 그대로 출력 +0x73"},
+   {"i": 18, "name": "is_dive_current_tower", "type": "bool", "note": "%18. 그대로 출력 +0x74"},
+   {"i": 19, "name": "focused_is_in_tower", "type": "bool", "note": "%19. 그대로 출력 +0x75"},
+   {"i": 20, "name": "target_hp_ratio", "type": "usize", "note": "%20. 그대로 출력 +0x48"}
+  ],
+  "returns": "() — sret FightSituation 128B 를 채움 (판정 결과 없음, 순수 조립)"
+ },
+
+ "reads": [
+  {"base": "PlayerState", "offset": "0x930", "name": "info.team", "note": "내 팀 t. 적 팀 = 1-t (`sub nuw nsw i64 1, %41`). 2 이상이면 panic_bounds_check"},
+  {"base": "PlayerState", "offset": "0x9c0", "name": "info.position@tag", "note": "내 포지션 인덱스(i32, range 0..5) — player_champion[t][pos] 조회·자기 자신 제외 비교에 사용"},
+  {"base": "OperationData", "offset": "0x0", "name": "cache", "note": "&AbstractGameWithCache(8840B)"},
+  {"base": "OperationData", "offset": "0x8", "name": "context", "note": "&GameContext(64B)"},
+  {"base": "OperationData", "offset": "0x10", "name": "blackboard", "note": "&[Blackboard;2]. 인덱스 1-t(적 팀) 로 is_recent_visible 호출 — _docs game_core.txt:21 「Blackboard[team]은 team 팀 자체 정보 추적, 관측은 1-team」"},
+  {"base": "AbstractGameWithCache", "offset": "0x0", "name": "game.data_ptr", "note": "&dyn AbstractGame 데이터 포인터 — is_recent_visible 인자"},
+  {"base": "AbstractGameWithCache", "offset": "0x8", "name": "game.vtable_ptr", "note": "&dyn AbstractGame vtable(816B) — is_recent_visible 인자"},
+  {"base": "AbstractGameWithCache", "offset": "0x1e0", "name": "player_champion[][]", "note": "[2][5] Option<&Entity>(니치, null=None). [t][pos]=내 챔프(None 이면 unwrap_failed 패닉), [t][p]=아군, [1-t][*]=적 배열(m10:28469 `gep [5 x ptr], %52, %154`)"},
+  {"base": "AbstractGameWithCache", "offset": "0x230", "name": "player_state[][]", "note": "[2][5] Option<&PlayerState>. 아군 p 의 state 를 get_battle_role·check_kill_die_tick(judger) 에 전달"},
+  {"base": "GameContext", "offset": "0x0", "name": "pool", "note": "bumpalo Bump — 빈 towers Vec(32B `{8, pool, 0, 0}`)·적 Vec 할당자"},
+  {"base": "GameContext", "offset": "0x8", "name": "setting", "note": "&GameSetting"},
+  {"base": "GameSetting", "offset": "0x12f8", "name": "tick_per_second", "note": "tps. endangered_carry 임계 tps*2 (shl 1)"},
+  {"base": "Entity", "offset": "0x0", "name": "team@tag", "note": "TeamType 태그(0=Player). is_ignored_well_enemy 인라인분(fight_model.rs:755): tag==0 && team.0==1-t"},
+  {"base": "Entity", "offset": "0x8", "name": "team@Player.0", "note": "팀 번호"},
+  {"base": "Entity", "offset": "0x68", "name": "ty@tag", "note": "EntityType 태그. 13=Champion 일 때만 skill_cooldown/skill2_cooldown 읽음(비챔프면 skill_cooldown()=0 → ready 취급)"},
+  {"base": "Entity", "offset": "0xb8", "name": "ty@Champion.0.skill_cooldown", "note": "my_skills_ready 판정(entity.rs:1775~1776 인라인)"},
+  {"base": "Entity", "offset": "0xc0", "name": "ty@Champion.0.skill2_cooldown", "note": "my_skills_ready 판정(entity.rs:1791 인라인)"},
+  {"base": "Entity", "offset": "0x5c0", "name": "id", "note": "focused_id(출력 +0x40)·endangered_carry 의 값(아군 id)"},
+  {"base": "Entity", "offset": "0x628", "name": "stat_cached.hp", "note": "내 최대 HP. max(.,1) 로 0 나눗셈 방지"},
+  {"base": "Entity", "offset": "0x660", "name": "x", "note": "distance_sq(entity.rs:2158 인라인) — 내/아군/적/focused 전부"},
+  {"base": "Entity", "offset": "0x668", "name": "y", "note": "distance_sq"},
+  {"base": "Entity", "offset": "0x670", "name": "hp", "note": "내 현재 HP → my_hp_ratio = hp*100/max(max_hp,1)"},
+  {"base": "TeamPlan", "offset": "0x3f8", "name": "v54_fs_pairings", "note": "atomicrmw add 1 — ally 마다 nearest_enemy_champ 가 Some 일 때(fight_model.rs:207). 계측 전용"},
+  {"base": "TeamPlan", "offset": "0x400", "name": "v54_fs_unseen_picks", "note": "atomicrmw add 1 — 선택된 nearest 가 !is_recent_visible 일 때(:209). 계측 전용(선택 결과엔 영향 없음)"}
+ ],
+
+ "writes": [
+  {"base": "FightSituation", "offset": "0x0", "name": "endangered_carry@tag", "value": "zext(찾음)", "note": "Option<usize> 태그: 아군 루프가 5 미만에서 끝났으면(=찾음) 1(Some), 소진이면 0(None)"},
+  {"base": "FightSituation", "offset": "0x8", "name": "endangered_carry@Some.0", "value": "ally.id(0x5c0)", "note": "None 이면 undef"},
+  {"base": "FightSituation", "offset": "0x10", "name": "near_ally_count", "value": "arg7", "note": "패스스루"},
+  {"base": "FightSituation", "offset": "0x18", "name": "near_enemy_count", "value": "arg8", "note": "패스스루"},
+  {"base": "FightSituation", "offset": "0x20", "name": "can_near_enemies", "value": "arg9", "note": "패스스루"},
+  {"base": "FightSituation", "offset": "0x28", "name": "my_die_tick", "value": "arg10", "note": "패스스루"},
+  {"base": "FightSituation", "offset": "0x30", "name": "my_die_tick_no_tower", "value": "arg11", "note": "패스스루"},
+  {"base": "FightSituation", "offset": "0x38", "name": "focused_die_tick", "value": "arg13", "note": "패스스루"},
+  {"base": "FightSituation", "offset": "0x40", "name": "focused_id", "value": "focused.id(0x5c0)", "note": ""},
+  {"base": "FightSituation", "offset": "0x48", "name": "target_hp_ratio", "value": "arg20", "note": "패스스루"},
+  {"base": "FightSituation", "offset": "0x50", "name": "my_hp_ratio", "value": "hp*100 / max(stat_cached.hp,1)", "note": "fight_model.rs:144 · udiv"},
+  {"base": "FightSituation", "offset": "0x58", "name": "team_dps_advantage", "value": "ally_dps_sum - enemy_dps_sum", "note": "i64 wrapping sub (:226)"},
+  {"base": "FightSituation", "offset": "0x60", "name": "ally_dps_sum", "value": "Σ fight_dps(version, ctx, ally, nearest_enemy)", "note": ":198~216"},
+  {"base": "FightSituation", "offset": "0x68", "name": "enemy_dps_sum", "value": "Σ fight_dps(version, ctx, enemy, me)", "note": ":218~223"},
+  {"base": "FightSituation", "offset": "0x70", "name": "focused_is_in_range", "value": "arg14", "note": "패스스루"},
+  {"base": "FightSituation", "offset": "0x71", "name": "warn_tower", "value": "arg15", "note": "패스스루"},
+  {"base": "FightSituation", "offset": "0x72", "name": "is_in_tower_range", "value": "arg16", "note": "패스스루"},
+  {"base": "FightSituation", "offset": "0x73", "name": "is_in_tower_focused", "value": "arg17", "note": "패스스루"},
+  {"base": "FightSituation", "offset": "0x74", "name": "is_dive_current_tower", "value": "arg18", "note": "패스스루"},
+  {"base": "FightSituation", "offset": "0x75", "name": "focused_is_in_tower", "value": "arg19", "note": "패스스루"},
+  {"base": "FightSituation", "offset": "0x76", "name": "my_skills_ready", "value": "skill_cd<31 || skill2_cd<31 (비챔프=true)", "note": ":145"},
+  {"base": "FightSituation", "offset": "0x77", "name": "my_ult_ready", "value": "Entity::can_ult(me)", "note": ":146"},
+  {"base": "FightSituation", "offset": "0x78", "name": "has_frontline_ally", "value": "any(아군 role∈{Tanker,Initiator} && dist_sq(ally,focused) < my_dist_to_focused)", "note": ":150~163"},
+  {"base": "FightSituation", "offset": "0x79", "name": "my_battle_role", "value": "get_battle_role(version, ctx, cache, player)", "note": ":143"}
+ ],
+
+ "constants": [
+  {"value": 13, "src_line": 145, "meaning": "EntityType 메모리태그 13 = Champion (tcxdict --enum EntityType). skill_cooldown() 인라인의 match 판별"},
+  {"value": 31, "src_line": 145, "meaning": "스킬/스킬2 쿨다운 임계(틱). `icmp ult cd, 31` — 소스가 `< 31` 인지 `<= 30` 인지는 표기 불가(외연 동일). 60tps 기준 약 0.5초"},
+  {"value": 100, "src_line": 144, "meaning": "my_hp_ratio 백분율 계수(hp*100/max_hp)"},
+  {"value": 2, "src_line": 157, "meaning": "has_frontline_ally: BattleRole 태그 < 2 = Tanker(0)|Initiator(1) (`icmp samesign ult i8 role, 2`)"},
+  {"value": 6, "src_line": 171, "meaning": "endangered_carry 후보 role 마스크: `(role & 6) == 2` ⇔ role ∈ {BaseAttacker(2), SkillCaster(3)} — matches! 가 비트마스크로 접힘"},
+  {"value": 30000, "src_line": 175, "meaning": "[aux m10.ll:54430] 적 필터 여유 거리: dist_sq(enemy, ally) > (max_range_cached(data,enemy,ally)+30000)^2 이면 제외 (30000 ≈ 0.94셀)"},
+  {"value": 1, "folded_from": 2, "src_line": 182, "meaning": "tps*2 (=2초). `shl i64 %tps, 1` 로 접힘. die_tick < tps*2 이면 그 캐리가 endangered_carry"},
+  {"value": 14400000001, "src_line": 200, "meaning": "120000^2 + 1 — 아군 DPS 합산 대상 반경: dist_sq(ally, me) < 이 값 ⇔ 거리 ≤ 120000 (3.75셀). exe 는 `<= 14400000000` 으로 인코딩(동치)"},
+  {"value": 22500000001, "src_line": 219, "meaning": "150000^2 + 1 — 적 DPS 합산 대상 반경: dist_sq(enemy, me) < 이 값 ⇔ 거리 ≤ 150000 (약 4.7셀)"},
+  {"value": 0, "src_line": 220, "meaning": "TeamType 메모리태그 0 = Player (is_ignored_well_enemy 인라인분 :755 `entity.team == TeamType::Player(1-t)`)"}
+ ],
+
+ "calls": [
+  "game_ai::utils::get_battle_role",
+  "game_core::simulation::entity::Entity::can_ult",
+  "bumpalo::collections::vec::from_iter_in",
+  "game_ai::fight_check::check_kill_die_tick",
+  "game_core::simulation::AbstractGameWithCache::iter_champions",
+  "game_ai::path_finder::is_enemy_well_danger",
+  "game_core::simulation::game::blackboard::Blackboard::is_recent_visible",
+  "game_ai::fight_check::fight_dps",
+  "game_ai::plan_legacy::old::battle::max_range_cached",
+  "game_ai::plan_legacy::old::fight_model::is_ignored_well_enemy",
+  "core::iter::traits::iterator::Iterator::min_by_key::compare",
+  "core::panicking::panic_bounds_check",
+  "core::option::unwrap_failed",
+  "std::time::Instant::now",
+  "std::time::Instant::elapsed"
+ ],
+
+ "logic": "// fight_model.rs:129~238. 판정 없이 FightSituation 을 '조립'하는 함수. prof 타이머(phase 49) 는 prof::ENABLED 일 때만.\nt = player.info.team (0x930); pos = player.info.position 태그 (0x9c0)\nchamp = cache.player_champion[t][pos].unwrap()                         // :140 (None → unwrap_failed 패닉)\nmy_battle_role = get_battle_role(version, ctx, cache, player)           // :143\nmy_hp_ratio = champ.hp*100 / max(champ.stat_cached.hp, 1)             // :144\nmy_skills_ready = champ.skill_cooldown() < 31 || champ.skill2_cooldown() < 31   // :145 (비챔프 엔티티면 cooldown()=0 → true)\nmy_ult_ready = champ.can_ult()                                         // :146\nmy_dist_to_focused = dist_sq(champ, focused)                           // :149\n\n// :150~163 has_frontline_ally\nhas_frontline_ally = (0..5).filter(p != pos)\n   .filter_map(p → (player_champion[t][p]?, player_state[t][p]?))\n   .any(|(p, ally)| get_battle_role(version, ctx, cache, ally_state) < 2 /*Tanker|Initiator*/ && dist_sq(ally, focused) < my_dist_to_focused)\n\n// :165~191 endangered_carry — 첫 매치에서 중단(find_map)\nendangered_carry = None\nfor p in 0..5 { if p == pos continue;\n   ally = player_champion[t][p]?; ally_state = player_state[t][p]?;\n   role = get_battle_role(version, ctx, cache, ally_state); if (role & 6) != 2 continue;   // BaseAttacker|SkillCaster 만\n   enemies: bumpalo Vec<&Entity> = player_champion[1-t].iter().flatten().filter(|e|          // closure$0 (aux m10:54399)\n        dist_sq(e, ally) <= (max_range_cached(data, e, ally) + 30000)^2                       // :175\n        && !is_ignored_well_enemy(version, player, e)   /* 인라인: e.team==Player(1-t) && is_enemy_well_danger(version, player, e.x, e.y) */  // :176\n        && blackboard[1-t].is_recent_visible(game, player, e))                                   // :177\n   die_tick = check_kill_die_tick(version, rnd, data, judger=ally_state, focus=ally, enemy=&enemies, towers=&[] /*빈 Vec*/, debug)   // :180\n   if die_tick < tps*2 { endangered_carry = Some(ally.id); break }                              // :182~183\n}\n\n// :194~216 ally_dps_sum — ★자기 자신 제외 없음(p==pos 도 포함, dist 0)\nally_dps_sum = 0\nfor p in 0..5 { ally = player_champion[t][p]?;\n   if dist_sq(ally, champ) >= 14400000001 continue;                    // :200  (≤120000 만)\n   nearest_enemy_champ = player_champion[1-t].iter().flatten()          // :203~206 (첫 후보는 본체 인라인, 나머지는 aux m12:15597 폴드)\n        .filter(|e| !is_ignored_well_enemy(version, player, e) && blackboard[1-t].is_recent_visible(game, player, e))   // closure$5 :204~205\n        .min_by_key(|e| dist_sq(e, ally))                              // closure$6 :206 (동점이면 앞쪽 유지)\n   if let Some(ne) = nearest_enemy_champ {\n      team_plan.v54_fs_pairings += 1 (atomic)                          // :207 계측\n      if !blackboard[1-t].is_recent_visible(game, player, ne) { team_plan.v54_fs_unseen_picks += 1 }   // :209 계측(필터를 통과했으므로 사실상 0)\n      ally_dps_sum += fight_dps(version, ctx, attacker=ally, enemy=ne)   // :211\n   }\n}\n\n// :218~223 enemy_dps_sum\nenemy_dps_sum = 0\nfor enemy in cache.iter_champions(player_champion[1-t]) {\n   if dist_sq(enemy, champ) >= 22500000001 continue;                  // :219 (≤150000 만)\n   if is_ignored_well_enemy(version, player, enemy) continue;          // :220 인라인(TeamType 0 + is_enemy_well_danger)\n   if !blackboard[1-t].is_recent_visible(game, player, enemy) continue; // :221\n   enemy_dps_sum += fight_dps(version, ctx, attacker=enemy, enemy=champ)   // :222\n}\nteam_dps_advantage = ally_dps_sum - enemy_dps_sum                     // :226 (i64)\n\nwrite FightSituation { endangered_carry, 패스스루 인자 11개, focused_id=focused.id, my_hp_ratio, team_dps_advantage, ally_dps_sum, enemy_dps_sum, my_skills_ready, my_ult_ready, has_frontline_ally, my_battle_role }   // :228\n// prof 타이머 drop(:238): PHASE_NANOS[49] += 경과ns, PHASE_CALLS[49] += 1 (ENABLED 일 때만)",
+
+ "knobs": [
+  {"what": "스킬 준비 판정 쿨다운 임계", "where": "fight_model.rs:145", "value": 31, "effect": "올리면 쿨이 더 남아 있어도 my_skills_ready=true 로 봐서 교전 적극성이 오르고, 내리면(1) 사실상 즉시 사용 가능일 때만 true"},
+  {"what": "위기 캐리(endangered_carry) 생존 임계", "where": "fight_model.rs:182", "value": 2, "effect": "tps*2(2초). 올리면 더 여유 있는 캐리도 '위기'로 잡혀 구조/보호 계열 판단이 잦아지고, 내리면 거의 죽기 직전만 잡힌다"},
+  {"what": "위기 캐리 적 필터 여유 거리", "where": "fight_model.rs:175", "value": 30000, "effect": "max_range+30000 안의 적만 die_tick 계산에 들어간다. 올리면 더 먼 적까지 위협으로 계산해 die_tick 이 짧아진다(위기 판정 증가)"},
+  {"what": "아군 DPS 합산 반경", "where": "fight_model.rs:200", "value": 14400000001, "effect": "120000^2+1. 올리면 더 먼 아군의 DPS 까지 우리 편으로 계산해 team_dps_advantage 가 커진다(교전 낙관)"},
+  {"what": "적 DPS 합산 반경", "where": "fight_model.rs:219", "value": 22500000001, "effect": "150000^2+1. 올리면 더 먼 적의 DPS 까지 계산해 team_dps_advantage 가 작아진다(교전 비관). 아군 반경(120000)보다 넓은 비대칭이 기본값"},
+  {"what": "전위 아군 역할 집합", "where": "fight_model.rs:157", "value": 2, "effect": "BattleRole < 2(Tanker|Initiator). 범위를 넓히면 has_frontline_ally 가 쉽게 true"},
+  {"what": "위기 캐리 후보 역할 집합", "where": "fight_model.rs:171", "value": 6, "effect": "(role&6)==2 ⇔ BaseAttacker|SkillCaster. 바꾸면 어떤 역할을 '캐리'로 보호할지 달라진다"}
+ ],
+
+ "unknown": [
+  "fight_model.rs:145 의 31 이 소스에서 `< 31` 인지 `<= 30` 인지 — 외연 동일(표기 불가). tps 연동(tps/2)인지 리터럴인지도 IR 에는 리터럴 31 만 남아 리터럴로 판단(udiv/shl 없음)",
+  "ally_dps_sum 루프(:198)에 p != pos 제외가 없어 자기 자신이 포함되는데 이것이 의도인지(설계) — IR 관측 사실만 기록",
+  ":209 v54_fs_unseen_picks 는 필터(:205)가 이미 is_recent_visible 을 요구하므로 논리상 발화 불가로 보이나, is_recent_visible 이 상태(tick)에 의존하면 두 호출 사이에 값이 바뀔 수 있는지는 _gcbc 본문 미확인(미탐색)",
+  "exe 0xdfe2a0 대조: exe 는 is_enemy_well_danger(상수 160001/64001 관측)·is_recent_visible(vtable 간접호출 8곳) 을 인라인해 call 수가 IR(직접 call 15종)과 다르다. 판정 상수 22500000001(+0xa3b)·14400000000(+0x788, `<=` 인코딩)·tps 오프셋 4856(+0x66d) 은 exe 본문에서 확인. 30000 은 closure 가 별도 함수라 본체엔 없음(정상). 로직 어긋남은 발견 못 함",
+  "prof phase id 49·PHASE_NANOS 배열 상한 132 는 계측 상수라 constants 에서 제외(판정 무관)"
+ ]
+}

@@ -126,6 +126,10 @@ def _word_kind(t):
 
 
 def _kind(sp, x, kmat):
+    # ★19차: v2 행이 `kind` 를 **명시**하면(패치·근거 첨부) 관측 추정보다 우선한다 — 값 0 처럼 IR 어디에나 있는 수는
+    #   관측(phi/select→태그)이 낱말(인덱스)을 이기는데 그게 오분류였다([74] consts[6] · G15 NEG 잔존).
+    if x.get("kind"):
+        return x["kind"]
     word = _word_kind(kmat)
     # ★부정문 가드 — 「…는 **임계가 아니다**」를 임계로 읽던 구멍(8차 배치B 실측 4행).
     #   `_EVTAIL` 은 정형 꼬리만 자르는데 실제 오염은 **본문의 부정문**이었다.
@@ -326,19 +330,22 @@ def _ir_callsyms(sp):
     f, a, b = ir.get("file"), ir.get("frm"), ir.get("to")
     if not f or not a or not b:
         return []
-    key = (f, a, b)
+    # ★19차 B: `ir.aux`(보조 범위 — 클로저·인라인 본체)도 훑는다. 안 훑으면 aux 안의 직접 call 이 「IR 에 없는 콜리」= 거짓 ev4 가 된다
+    #   (#86 max_range_cached m10.ll:54413 · #87 is_ignored_well_enemy m13.ll:58764 실사고).
+    ranges = [(f, a, b)] + [(x.get("file") or f, x.get("frm"), x.get("to")) for x in (ir.get("aux") or []) if x.get("frm") and x.get("to")]
+    key = tuple(ranges)
     if key not in _IRSY:
-        try:
-            src = io.open(os.path.join(IRDIR, f), encoding="utf-8",
-                          errors="replace").read().split("\n")
-        except Exception:
-            _IRSY[key] = []
-            return _IRSY[key]
         out = set()
-        for ln in src[a - 1:b]:
-            if "call" not in ln and "invoke" not in ln:
+        for (rf, ra, rb) in ranges:
+            try:
+                src = io.open(os.path.join(IRDIR, rf), encoding="utf-8",
+                              errors="replace").read().split("\n")
+            except Exception:
                 continue
-            out.update(_CALLSYM.findall(ln))
+            for ln in src[ra - 1:rb]:
+                if "call" not in ln and "invoke" not in ln:
+                    continue
+                out.update(_CALLSYM.findall(ln))
         _IRSY[key] = sorted(out)
     return _IRSY[key]
 
@@ -521,7 +528,12 @@ def conv(i, sp):
     def _symtoks(sym):
         out, i = [], 0
         rx = re.compile(r'(\d+)([A-Za-z_][A-Za-z0-9_]*)')
+        bref = re.compile(r'B[0-9a-zA-Z]*_')   # ★v0 백참조(`NtB2_21SerpenHuntAndPokePlan`) — 19차 C: `2_2`→`_2`·`1S`→`S` 로 오독해 타입 토큰이 사라졌다
         while sym and i < len(sym):
+            if sym[i] == 'B':
+                mb = bref.match(sym, i)
+                if mb:
+                    i = mb.end(); continue
             m = rx.match(sym, i)
             if m:
                 n = int(m.group(1)); ident = sym[m.end(1):m.end(1) + n]

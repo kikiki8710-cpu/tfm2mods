@@ -1,0 +1,435 @@
+{
+ "name": "serpen_passive_plan",
+ "sym": "_RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old6serpen19serpen_passive_plan",
+ "src": "game-ai\\src\\plan_legacy\\old\\serpen.rs",
+ "src_line": 416,
+ "ir_file": "m05.ll",
+ "ir_from": 51795,
+ "ir_to": 52846,
+ "exe_rva": "0xd65620",
+ "one_line": "세르펜 목표(phase)에 맞는 개인 BigPlan 을 고른다 — Hunt→SerpenHuntAndPoke, Setup→전략(object_buildup)·적 압박·라인 상태·이동시간으로 PassiveLine/SerpenHuntAndPoke/None",
+ "signature": {
+  "params": [
+   {
+    "i": 0,
+    "name": "(sret)",
+    "type": "Option<BigPlan>(384B)",
+    "note": "tag -1(0xFFFF..)=None / 14=SerpenHuntAndPoke / 3=PassiveLine(line @+0x11e)"
+   },
+   {
+    "i": 1,
+    "name": "version",
+    "type": "usize",
+    "note": "v25_objective_splitter_should_join_contest 에만 전달"
+   },
+   {
+    "i": 2,
+    "name": "rnd",
+    "type": "&mut StdRng(320B)",
+    "note": "is_skip_serpen·PlayerState::strategy 에 전달"
+   },
+   {
+    "i": 3,
+    "name": "player",
+    "type": "&PlayerState(2528B)",
+    "note": "info.team(+0x930)·info.position(+0x9c0)"
+   },
+   {
+    "i": 4,
+    "name": "data",
+    "type": "&OperationData(24B)",
+    "note": ""
+   },
+   {
+    "i": 5,
+    "name": "team_plan",
+    "type": "&TeamPlan(1064B)",
+    "note": "vision.last_visible_pos[]·last_checked_ticks[] (Flexible 분기)"
+   },
+   {
+    "i": 6,
+    "name": "phase",
+    "type": "ObjectPhase(i8 0..4)",
+    "note": "0 None / 1 Setup / 2 Assemble / 3 Hunt"
+   },
+   {
+    "i": 7,
+    "name": "depart_anchor",
+    "type": "&Option<(u64,u64)>(24B)",
+    "note": "출발 기준점. Some 이면 챔피언 위치 대신 사용(L485)"
+   },
+   {
+    "i": 8,
+    "name": "_debug",
+    "type": "&mut DebugFrameData(224B)",
+    "note": "미사용(readnone)"
+   }
+  ],
+  "returns": "Option<BigPlan> (sret) — None / SerpenHuntAndPoke{빈 Vec, 플래그 전부 false} / PassiveLine{line}"
+ },
+ "reads": [
+  {
+   "base": "OperationData",
+   "offset": "0x8",
+   "name": "context",
+   "note": ""
+  },
+  {
+   "base": "OperationData",
+   "offset": "0x10",
+   "name": "blackboard",
+   "note": "[team] minion_count / [1-team] is_recent_visible"
+  },
+  {
+   "base": "GameContext",
+   "offset": "0x38",
+   "name": "tutorial",
+   "note": "serpen_exists / is_line_phase"
+  },
+  {
+   "base": "GameContext",
+   "offset": "0x8",
+   "name": "setting",
+   "note": ""
+  },
+  {
+   "base": "GameContext",
+   "offset": "0x20",
+   "name": "map",
+   "note": "camp_pos(Serpen, team==0)"
+  },
+  {
+   "base": "GameSetting",
+   "offset": "0x12f8",
+   "name": "tick_per_second",
+   "note": "tps*30(is_line_phase) · tps*2(L489, shl 1)"
+  },
+  {
+   "base": "GameSetting",
+   "offset": "0x8a8",
+   "name": "epic_jungle.first_spawn_tick",
+   "note": "is_line_phase"
+  },
+  {
+   "base": "GameSetting",
+   "offset": "0x12c0",
+   "name": "height",
+   "note": "is_blue_side(map_regions.rs:7~8)"
+  },
+  {
+   "base": "GameSetting",
+   "offset": "0x12b8",
+   "name": "width",
+   "note": "is_blue_side: (x - y + height) > width"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x0",
+   "name": "game(dyn)",
+   "note": "vtable +0x28 tick / +0x40 get_game_mode"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x1e0",
+   "name": "player_champion[team][position] / [1-team][0..5]",
+   "note": "내 챔피언(None 이면 unwrap 패닉) · 적 5명 순회"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x21d0",
+   "name": "mid_lead[team]",
+   "note": "< 3 판정(L469~477)"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x21e0",
+   "name": "bottom_lead[team]",
+   "note": "< 3 판정(L469)"
+  },
+  {
+   "base": "MobaMode",
+   "offset": "0x1e0",
+   "name": "jungle_runner.serpen.next_respawn_tick",
+   "note": "remain_spawn_tick(L482)"
+  },
+  {
+   "base": "TeamPlan",
+   "offset": "0x230",
+   "name": "vision.last_visible_pos[p]",
+   "note": "(u64,u64) 적 p 마지막 목격 위치(L454)"
+  },
+  {
+   "base": "TeamPlan",
+   "offset": "0x2d0",
+   "name": "vision.last_checked_ticks[p]",
+   "note": "can_move = (tick - last_checked)*move_speed(L457)"
+  },
+  {
+   "base": "PlayerState",
+   "offset": "0x930",
+   "name": "info.team",
+   "note": ""
+  },
+  {
+   "base": "PlayerState",
+   "offset": "0x9c0",
+   "name": "info.position@tag",
+   "note": "내 챔피언 슬롯 · Split(position) 비교"
+  },
+  {
+   "base": "Strategy",
+   "offset": "0x0",
+   "name": "object_buildup@tag",
+   "note": "ObjectBuildupStrategy: <5 = Split(position=값) / 5 Gather / 6 Flexible"
+  },
+  {
+   "base": "Blackboard",
+   "offset": "0x48",
+   "name": "mid_minion_state.minion_count",
+   "note": "L467"
+  },
+  {
+   "base": "Blackboard",
+   "offset": "0x70",
+   "name": "bottom_minion_state.minion_count",
+   "note": "L466"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x660",
+   "name": "x",
+   "note": ""
+  },
+  {
+   "base": "Entity",
+   "offset": "0x668",
+   "name": "y",
+   "note": ""
+  },
+  {
+   "base": "Entity",
+   "offset": "0x640",
+   "name": "stat_cached.move_speed",
+   "note": "L456 적 / L487 내 챔피언(0 이면 div_by_zero 패닉)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x628",
+   "name": "stat_cached.hp",
+   "note": "최대 HP"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x670",
+   "name": "hp",
+   "note": ""
+  }
+ ],
+ "writes": [
+  {
+   "base": "Option<BigPlan>(sret)",
+   "offset": "0x0",
+   "name": "@tag",
+   "value": "-1 None / 14 SerpenHuntAndPoke / 3 PassiveLine",
+   "note": "BigPlan 니치 태그(tcxdict: SerpenHuntAndPoke idx12→14, PassiveLine idx1→3)"
+  },
+  {
+   "base": "Option<BigPlan>(sret)",
+   "offset": "0x8",
+   "name": "SerpenHuntAndPokePlan{v46_flee_threats: Vec::new(), focus_serpen_only:false, vision_only:false, v46_flee:false}",
+   "value": "cap 0 / ptr 8(dangling) / len 0 / 3 bool = 0",
+   "note": "L427·L496"
+  },
+  {
+   "base": "Option<BigPlan>(sret)",
+   "offset": "0x11e",
+   "name": "PassiveLinePlan.line",
+   "value": "LineType (0 Top / 1 Mid / 2 Bottom)",
+   "note": "+0x8 부터 PassiveLinePlan 280B 를 0/빈 Vec 으로 초기화 후 line 만 기록(L434·443·471·473·476·478)"
+  }
+ ],
+ "constants": [
+  {
+   "value": 0,
+   "src_line": 417,
+   "meaning": "TutorialType {0,5,7,8}=serpen_exists. 밖이면 None(L418)"
+  },
+  {
+   "value": 30,
+   "src_line": 421,
+   "meaning": "is_line_phase: tick < epic first_spawn_tick.saturating_sub(tps*30). tutorial 가 위 집합 밖이면 is_line_phase=true 로 접힘(%35 phi)"
+  },
+  {
+   "value": 3,
+   "src_line": 426,
+   "meaning": "ObjectPhase::Hunt → SerpenHuntAndPoke"
+  },
+  {
+   "value": 1,
+   "src_line": 426,
+   "meaning": "ObjectPhase::Setup → 이하 분기. 그 외(None/Assemble) → None(L503)"
+  },
+  {
+   "value": 14,
+   "src_line": 427,
+   "meaning": "BigPlan::SerpenHuntAndPoke 메모리 태그"
+  },
+  {
+   "value": 4,
+   "src_line": 431,
+   "meaning": "JungleType::Morgard — v23_enemy_object_pressure 로 '반대 오브젝트(에픽) 압박' 판정"
+  },
+  {
+   "value": 2,
+   "src_line": 433,
+   "meaning": "v23_objective_setup_pressure_line 후보 라인 slice 길이 2 = [Bottom(2), Mid(1)] (@anon.189)"
+  },
+  {
+   "value": 3,
+   "src_line": 434,
+   "meaning": "BigPlan::PassiveLine 메모리 태그"
+  },
+  {
+   "value": 5,
+   "src_line": 439,
+   "meaning": "object_buildup 태그 < 5 = Split(position) (니치: Gather=5, Flexible=6)"
+  },
+  {
+   "value": 5,
+   "src_line": 441,
+   "meaning": "JungleType::Serpen — v25_objective_splitter_should_join_contest 인자"
+  },
+  {
+   "value": 0,
+   "src_line": 443,
+   "meaning": "fallback_line(ctx, LineType::Top) → PassiveLine(line)"
+  },
+  {
+   "value": 6,
+   "src_line": 447,
+   "meaning": "object_buildup == 6 = Flexible → L449~490. 5(Gather) → SerpenHuntAndPoke(L496)"
+  },
+  {
+   "value": 150000,
+   "src_line": 455,
+   "meaning": "d = distance(last_visible_pos, camp).saturating_sub(150000) — 캠프 반경 150000 안이면 0"
+  },
+  {
+   "value": 49,
+   "src_line": 459,
+   "meaning": "적 hp*100/max_hp > 49 && can_move >= d && !is_recent_visible → near_serpen_enemy 로 셈(비가시 도달가능 적)"
+  },
+  {
+   "value": 100,
+   "src_line": 459,
+   "meaning": "HP 백분율"
+  },
+  {
+   "value": 3,
+   "src_line": 463,
+   "meaning": "near_serpen_enemy < 3 이어야 라인 배정 분기"
+  },
+  {
+   "value": 102400000001,
+   "src_line": 463,
+   "meaning": "320000^2 + 1 — 내 챔피언↔세르펜 캠프 제곱거리 < 이 값(= 10셀 이내)"
+  },
+  {
+   "value": 3,
+   "src_line": 469,
+   "meaning": "bottom_lead[team] < 3 / mid_lead[team] < 3"
+  },
+  {
+   "value": 2,
+   "src_line": 471,
+   "meaning": "LineType::Bottom (bottom_count < mid_count 일 때)"
+  },
+  {
+   "value": 1,
+   "src_line": 473,
+   "meaning": "LineType::Mid"
+  },
+  {
+   "value": 2,
+   "src_line": 476,
+   "meaning": "LineType::Bottom (bottom_lead<3 && mid_lead>=3)"
+  },
+  {
+   "value": 1,
+   "src_line": 478,
+   "meaning": "LineType::Mid (bottom_lead>=3 && mid_lead<3)"
+  },
+  {
+   "value": 1,
+   "src_line": 489,
+   "meaning": "shl 1 = tps*2 로 접힘: remain_spawn_tick > move_tick + tps*2 이면 None",
+   "folded_from": 2
+  },
+  {
+   "value": -1,
+   "src_line": 490,
+   "meaning": "Option<BigPlan>::None 태그(0xFFFFFFFFFFFFFFFF)"
+  }
+ ],
+ "calls": [
+  "game_ai::plan_legacy::old::serpen::is_skip_serpen",
+  "game_core::simulation::state::player::PlayerState::strategy",
+  "game_ai::plan_legacy::team_plan::objective_helpers::v23_enemy_object_pressure",
+  "game_ai::plan_legacy::team_plan::objective_helpers::v23_objective_setup_pressure_line",
+  "game_ai::plan_legacy::team_plan::objective_helpers::v25_objective_splitter_should_join_contest",
+  "game_ai::plan_legacy::rule_scope::fallback_line",
+  "game_core::simulation::map_def::MapDef::camp_pos",
+  "game_core::utils::distance",
+  "game_core::simulation::game::blackboard::Blackboard::is_recent_visible",
+  "core::option::unwrap_failed",
+  "core::panicking::panic_bounds_check",
+  "core::panicking::panic_const::panic_const_div_by_zero"
+ ],
+ "logic": "ctx = data.context; team = player.info.team; my_pos = player.info.position\nL417 if !serpen_exists(ctx) → return None (L418)\nL421 is_line_phase = tutorial∈{0,5,7,8} ? tick < epic_jungle.first_spawn_tick.saturating_sub(tps*30) : true\nL422 champ = cache.player_champion[team][my_pos].unwrap()\nL423 skip = is_skip_serpen(version, rnd, player, data);  L425 if skip → return None (L506)\nL426 match phase {\n  Hunt(3)  → L427 return Some(BigPlan::SerpenHuntAndPoke(SerpenHuntAndPokePlan{v46_flee_threats: vec![], focus_serpen_only:false, vision_only:false, v46_flee:false}))\n  Setup(1) → 아래\n  _        → return None (L503)\n}\nL429 strategy = player.strategy(rnd, game)\nL431 opposite_object_pressure = v23_enemy_object_pressure(player, data, JungleType::Morgard)\n     (objective_helpers.rs:181~207 요지: 해당 오브젝트 생존 && 근처(180000, hp40%) 최근가시 적 != 0 && 적 >= 건강 아군)\nL432 if opposite_object_pressure {\nL433     if let Some(line) = v23_objective_setup_pressure_line(player, data, &[Bottom, Mid]) {\nL434         return Some(PassiveLine(PassiveLinePlan{line, ..default}))\n         }\n     }\nL438 object_buildup = strategy.object_buildup\nL439 match object_buildup {\n  Split(position) → L440 if !is_line_phase && position == my_pos {\n                      L441 if !v25_objective_splitter_should_join_contest(version, player, data, JungleType::Serpen) {\n                      L443     return Some(PassiveLine{line: fallback_line(ctx, Top)})\n                      } }\n                    // 그 외 → L496\n  Flexible(6)     → L449 camp = map.camp_pos(Serpen, team==0)\n                    L452 near_serpen_enemy = (0..5).filter_map(|p| player_champion[1-team][p]).filter(|e|\n                    L454     last_pos = team_plan.vision.last_visible_pos[p];\n                    L455     d = distance(last_pos, camp).saturating_sub(150000);\n                    L456     move_speed = e.stat_cached.move_speed;\n                    L457     can_move = (tick.saturating_sub(team_plan.vision.last_checked_ticks[p])) * move_speed;\n                    L459     e.hp*100/e.max_hp > 49 && can_move >= d && !blackboard[1-team].is_recent_visible(game, player, e)\n                         ).count()\n                    L463 if near_serpen_enemy < 3 && dist_sq(champ, camp) <= 320000^2\n                    L464    && is_enemy_side(ctx, team, champ.x, champ.y)   [= (team==0) XOR ((x - y + height) > width)] {\n                    L466     bottom_count = blackboard[team].bottom_minion_state.minion_count; L467 mid_count = ...mid...\n                    L469     if cache.bottom_lead[team] < 3 {\n                                 if cache.mid_lead[team] < 3 { L470 return Some(PassiveLine{line: bottom_count < mid_count ? Bottom(L471) : Mid(L473)}) }\n                    L476         else return Some(PassiveLine{line: Bottom})\n                             }\n                    L477     else if cache.mid_lead[team] < 3 { L478 return Some(PassiveLine{line: Mid}) }\n                         }\n                    L482 remain_spawn_tick = mode.jungle_runner.serpen.next_respawn_tick.saturating_sub(tick)\n                    L483 camp_pos = map.camp_pos(Serpen, team==0)\n                    L485 (dpx,dpy) = depart_anchor.unwrap_or((champ.x, champ.y))\n                    L486 dist_to_camp = distance(dpx,dpy, camp_pos)\n                    L487 move_speed = champ.stat_cached.move_speed;  L488 move_tick = dist_to_camp / move_speed\n                    L489 if remain_spawn_tick > move_tick + tps*2 → L490 return None\n                    // 아니면 L496\n  Gather(5)       → L496\n}\nL496 return Some(BigPlan::SerpenHuntAndPoke(SerpenHuntAndPokePlan{빈 Vec, 플래그 false}))   // camp_pos 호출 결과는 IR 상 미사용",
+ "knobs": [
+  {
+   "what": "비가시 적 캠프 반경",
+   "where": "serpen.rs:455",
+   "value": 150000,
+   "effect": "키우면 목격 위치가 더 멀어도 '캠프 안'으로 봐 도달가능 적이 늘어 라인 배정(PassiveLine) 분기 억제"
+  },
+  {
+   "what": "비가시 도달가능 적 상한",
+   "where": "serpen.rs:463",
+   "value": 3,
+   "effect": "올리면 적이 더 있어도 라인 배정 분기로 진입"
+  },
+  {
+   "what": "캠프 근접 거리",
+   "where": "serpen.rs:463",
+   "value": 102400000001,
+   "effect": "320000^2+1. 키우면 더 먼 챔피언도 라인 배정 분기 대상"
+  },
+  {
+   "what": "라인 리드 상한",
+   "where": "serpen.rs:469/477",
+   "value": 3,
+   "effect": "bottom_lead/mid_lead < 3 일 때만 그 라인 PassiveLine. 올리면 라인 배정 잦아짐"
+  },
+  {
+   "what": "스폰 대기 여유",
+   "where": "serpen.rs:489",
+   "value": 2,
+   "effect": "tps*2. 올리면 스폰이 더 멀어도 None 대신 SerpenHuntAndPoke(미리 이동)"
+  },
+  {
+   "what": "적 건강 기준",
+   "where": "serpen.rs:459",
+   "value": 49,
+   "effect": "올리면 도달가능 적 수 감소"
+  }
+ ],
+ "unknown": [
+  "top_lead/mid_lead/bottom_lead(AbstractGameWithCache+0x21c0~) 의 의미(타워 진행도? 미니언 리드?)는 이 함수 안에서 확정 불가 — '< 3' 비교만 관측",
+  "v23_objective_setup_pressure_line / v25_objective_splitter_should_join_contest / fallback_line 내부는 담당 밖(m15.ll 55350 / 56741, m13.ll 54181)",
+  "L496 에서 camp_pos 를 호출하고 결과를 버림 — 소스가 SerpenHuntAndPokePlan::new(camp) 류인지 표기 불가(IR 상 dead value)",
+  "L463 `< 102400000001` 은 소스가 `<= 320000^2` 인지 `< 320000^2+1` 인지 표기 불가",
+  "L440 `!is_line_phase && position == my_pos` 의 한 줄 내 평가 순서 표기 불가(column 부재)",
+  "vtable 간접호출(tick +0x28 / get_game_mode +0x40)은 C2 대조 불가라 logic 에만 적음"
+ ]
+}

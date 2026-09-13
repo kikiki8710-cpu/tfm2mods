@@ -1,0 +1,127 @@
+{
+ "name": "check_epic_hunt",
+ "sym": "_RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old4epic15check_epic_hunt",
+ "src": "game-ai\\src\\plan_legacy\\old\\epic.rs",
+ "src_line": 168,
+ "ir_file": "m09.ll",
+ "ir_from": 54362,
+ "ir_to": 57079,
+ "exe_rva": "0xde5340",
+
+ "one_line": "에픽(모가드) 사냥을 지금 해도 되는가 — 캠프 주변 아군/적 전력·도달 가능 적을 세어 판정",
+
+ "signature": {
+  "params": [
+   {"i": 0, "name": "version", "type": "usize", "note": "본문 분기 없음. macro_judgement_penalty/bonus(L232-233)에 전달. ⚠v24_objective_setup_lane_pressure_ready(L208)에는 poison 전달"},
+   {"i": 1, "name": "_rnd", "type": "&mut StdRng", "note": "readnone — 미사용"},
+   {"i": 2, "name": "player", "type": "&PlayerState(2528B)", "note": "info.team(+0x930)·info.position(+0x9c0, 디버그만)·info.id(+0x928, 노이즈 시드)·info.parameter(+0x180, judge_accuracy)"},
+   {"i": 3, "name": "data", "type": "&OperationData(24B)", "note": "+0x0 cache / +0x8 context / +0x10 blackboard[2]"},
+   {"i": 4, "name": "goal_data", "type": "&GoalData(248B)", "note": "epic.epic_enemy_tick(+0x88)·epic.epic_ally_tick(+0x98)"},
+   {"i": 5, "name": "_plan", "type": "&BigPlan", "note": "readonly captures(none) — 미사용"},
+   {"i": 6, "name": "team_plan", "type": "&TeamPlan", "note": "obj_spawn.epic_camp_last_visible_tick(+0x80)·vision.last_visible_pos[p](+0x230)·vision.last_checked_ticks[p](+0x2d0)"},
+   {"i": 7, "name": "debug", "type": "&mut DebugFrameData(224B)", "note": "ctx.debug 일 때만 infos(+0xa0) 에 4개 계수 문자열 push"}
+  ],
+  "returns": "bool — true=에픽 사냥 판정 성립(진행), false=불성립. 조기 true 2곳(L177-178 스폰 직후·시야 유지, L186 적 소수+아군 다수), 조기 false(L169 에픽 없음, L202-204 근처 아군 교전중), 조기 true(L208 lane_pressure_ready)"
+ },
+
+ "reads": [
+  {"base": "OperationData", "offset": "0x8", "name": "context", "note": "&GameContext"},
+  {"base": "OperationData", "offset": "0x0", "name": "cache", "note": "&AbstractGameWithCache"},
+  {"base": "OperationData", "offset": "0x10", "name": "blackboard", "note": "&[Blackboard;2] — [team] in_battle(L203), [1-team] is_recent_visible(L196)"},
+  {"base": "GameContext", "offset": "0x38", "name": "tutorial", "note": "spawn_epic(runner.rs:263)→morgard_exists(rule_scope.rs:46) 인라인 — 태그∈{1..6}이면 false"},
+  {"base": "GameContext", "offset": "0x3b", "name": "debug", "note": "bool(+59). true 면 L227-228 디버그 로그"},
+  {"base": "GameContext", "offset": "0x8", "name": "setting", "note": "&GameSetting"},
+  {"base": "GameContext", "offset": "0x20", "name": "map", "note": "&MapDef → camp_pos(Morgard, team==0) (L191)"},
+  {"base": "GameSetting", "offset": "0x12f8", "name": "tick_per_second", "note": "L177/178 tps, L241 tps*2"},
+  {"base": "GameSetting", "offset": "0x12c0", "name": "height", "note": "is_top_side(map_regions.rs:22,24) 인라인: height − y < x"},
+  {"base": "GoalData", "offset": "0x88", "name": "epic.epic_enemy_tick", "note": "L176 enemy_epic_tick"},
+  {"base": "GoalData", "offset": "0x98", "name": "epic.epic_ally_tick", "note": "L212 — 적 can_move 계산에 더해지는 틱(L220)"},
+  {"base": "TeamPlan", "offset": "0x80", "name": "obj_spawn.epic_camp_last_visible_tick", "note": "L178"},
+  {"base": "TeamPlan", "offset": "0x230", "name": "vision.last_visible_pos[p]", "note": "적 p 마지막 관측 좌표 +16p (L217)"},
+  {"base": "TeamPlan", "offset": "0x2d0", "name": "vision.last_checked_ticks[p]", "note": "+8p (L220)"},
+  {"base": "PlayerState", "offset": "0x930", "name": "info.team", "note": ""},
+  {"base": "PlayerState", "offset": "0x9c0", "name": "info.position@tag", "note": "디버그 로그 키(내 챔프 id 조회)만"},
+  {"base": "PlayerState", "offset": "0x928", "name": "info.id", "note": "L242 노이즈 시드 xor"},
+  {"base": "PlayerState", "offset": "0x180", "name": "info.parameter", "note": "&AthleteParameter → judge_accuracy() (L237)"},
+  {"base": "AbstractGameWithCache", "offset": "0x1e0", "name": "player_champion[t][p]", "note": "[2][5] Option<&Entity>"},
+  {"base": "Entity", "offset": "0x660", "name": "x", "note": ""},
+  {"base": "Entity", "offset": "0x668", "name": "y", "note": ""},
+  {"base": "Entity", "offset": "0x628", "name": "stat_cached.hp", "note": "최대 HP(0이면 div_by_zero 패닉)"},
+  {"base": "Entity", "offset": "0x670", "name": "hp", "note": "현재 HP"},
+  {"base": "Entity", "offset": "0x640", "name": "stat_cached.move_speed", "note": "L219"},
+  {"base": "Entity", "offset": "0x5c0", "name": "id", "note": "디버그 로그 키(L228)"},
+  {"base": "Blackboard", "offset": "0xf8", "name": "big_goal[p].1@tag", "note": "in_battle(blackboard.rs:168) 인라인: Some(BigGoal::Battle) = 태그 5, stride 32B"},
+  {"base": "Blackboard", "offset": "0x100", "name": "big_goal[p].1@Battle.focus@tag", "note": "Option<usize> 태그(i64) — L204 trunc→bool: focus.is_some()"},
+  {"base": "DebugFrameData", "offset": "0xa0", "name": "infos", "note": "HashMap<usize,Vec<String>> — 쓰기"},
+  {"base": "AbstractGame(vtable)", "offset": "0x28", "name": "tick", "note": "divtable AbstractGame 0x28"}
+ ],
+
+ "writes": [
+  {"base": "DebugFrameData", "offset": "0xa0", "name": "infos[my_champ.id]", "value": "push format!(\"near_camp_epic_ally: {}, near_camp_epic_enemy: {}, near_epic_ally: {}, near_epic_enemy: {}\")", "note": "ctx.debug(+0x3b) 일 때만 (L225-228). 판정에 영향 없음"}
+ ],
+
+ "constants": [
+  {"value": 6, "src_line": 169, "meaning": "spawn_epic 인라인: (tutorial_tag−1) <u 6 ⇔ 태그∈{1..6} → 에픽 없음 → return false"},
+  {"value": 100, "src_line": 185, "meaning": "hp*100/max_hp — HP 퍼센트 (L185·193·196·199·222 공통)"},
+  {"value": 29, "src_line": 185, "meaning": "live_ally = 아군 중 HP% > 29(=30% 이상) 수"},
+  {"value": 2, "src_line": 186, "meaning": "enemy_count(적 챔프 존재 수) < 2 && live_ally > 2 → return true (압도 상황)"},
+  {"value": 4, "src_line": 191, "meaning": "JungleType::Morgard(4) — camp_pos·v24_objective_setup_lane_pressure_ready(L208) 인자"},
+  {"value": 14400000001, "src_line": 192, "meaning": "120000^2+1 — 캠프 반경 120000 이내 판정(L192 아군·L195 적)"},
+  {"value": 49, "src_line": 193, "meaning": "HP% > 49(=50% 이상) — near_camp_epic_ally(L193)·near_camp_epic_enemy(L196)·near_epic_ally(L199)·near_epic_enemy(L222) 공통"},
+  {"value": 62500000001, "src_line": 203, "meaning": "250000^2+1 — 캠프 250000 이내 아군이 Battle{focus:Some} 이면 return false"},
+  {"value": 5, "src_line": 203, "meaning": "BigGoal::Battle 메모리태그 5 — blackboard[team].in_battle(p) 인라인(blackboard.rs:168)"},
+  {"value": 60000, "src_line": 218, "meaning": "적 도달 판정: d = distance(last_pos, camp).saturating_sub(60000) — 캠프 60000 이내면 이미 도달로 봄"},
+  {"value": 999, "src_line": 238, "meaning": "judge_accuracy > 999 이면 노이즈 없이 원값(L239), 아니면 error_ratio_noise 로 4개 계수 각각 흔듦(L243-245)"},
+  {"value": 1, "folded_from": 2, "src_line": 241, "meaning": "tps*2 — `shl i64 %tps, 1` 로 접힘. 노이즈 시드 = tick / max(tps*2, 1) (2초마다 같은 노이즈)"},
+  {"value": 40, "src_line": 242, "meaning": "시드 = ((tick/(tps*2)) << 40 | 233) ^ player.info.id"},
+  {"value": 233, "src_line": 242, "meaning": "시드 하위 상수(에픽 판정 식별 솔트로 추정)"},
+  {"value": 100, "src_line": 243, "meaning": "noisy = error_ratio_noise(seed, accuracy) * 값 / 100 (sdiv)"},
+  {"value": 2, "src_line": 247, "meaning": "near_camp_epic_ally > 2 || near_epic_enemy == 0 (1차 조건 중 하나)"},
+  {"value": 0, "src_line": 247, "meaning": "near_epic_enemy == 0 — 도달 가능 적 없음"}
+ ],
+
+ "calls": [
+  "game_core::simulation::map_def::MapDef::camp_pos",
+  "game_core::simulation::game::blackboard::Blackboard::is_recent_visible",
+  "game_core::simulation::map_regions::is_near_mid_line",
+  "game_core::utils::distance",
+  "game_ai::plan_legacy::team_plan::objective_discipline::TeamPlan::v24_objective_setup_lane_pressure_ready",
+  "game_ai::plan_legacy::team_plan::objective_helpers::macro_judgement_penalty",
+  "game_ai::plan_legacy::team_plan::objective_helpers::macro_judgement_bonus",
+  "game_core::simulation::state::player::AthleteParameter::judge_accuracy",
+  "game_ai::utils::error_ratio_noise",
+  "alloc::fmt::format::format_inner",
+  "hashbrown::map::HashMap::rustc_entry",
+  "std::collections::hash::map::Entry::or_insert",
+  "alloc::vec::Vec::push_mut",
+  "core::panicking::panic_bounds_check",
+  "core::panicking::panic_const::panic_const_div_by_zero"
+ ],
+
+ "logic": "ctx = data.context; if !spawn_epic(ctx.tutorial) (태그∈1..6) → return false                              [L169]\nenemy_epic_tick = goal_data.epic.epic_enemy_tick                                                     [L176]\nif !(enemy_epic_tick > tps) && !(team_plan.obj_spawn.epic_camp_last_visible_tick + tps < game.tick()) → return true   [L177-178]\n   (= 적 에픽 틱이 tps 이하이고 캠프를 1초 안에 본 상태면 바로 true)\nenemy_count = |{p: player_champion[1-team][p] 존재}|                                                   [L184]\nlive_ally  = |{아군 e: e.hp*100/e.max_hp > 29}|                                                        [L185]\nif enemy_count < 2 && live_ally > 2 → return true                                                     [L186]\ncamp = map.camp_pos(Morgard, team==0)                                                                 [L191]\nnear_camp_epic_ally  = |{아군 e: dist²(e,camp) < 120000² && HP% > 49}|                                [L192-193]\nnear_camp_epic_enemy = |{적 e: dist²(e,camp) < 120000² && HP% > 49 && bb[1-team].is_recent_visible(game,player,e)}|  [L195-196]\nnear_epic_ally = |{아군 e: (!is_top_side(ctx,e.x,e.y) [height−y < x] || is_near_mid_line(ctx,e.x,e.y)) && HP% > 49}|  [L198-199]\nif any 아군 p: dist²(e,camp) < 250000² && bb[team].in_battle(p) == Some(Battle{focus}) && focus.is_some() → return false  [L202-204]\nif team_plan.v24_objective_setup_lane_pressure_ready(player, data, goal_data, Morgard, debug) → return true   [L208]\nally_tick = goal_data.epic.epic_ally_tick                                                             [L212]\nnear_epic_enemy = Σ_{적 p, e 존재} [ last_pos = vision.last_visible_pos[p]; d = distance(last_pos,camp).sat_sub(60000)   [L215-218]\n     can_move = ((tick − vision.last_checked_ticks[p]).sat_sub + ally_tick) * e.move_speed             [L219-220]\n     HP% > 49 && can_move >= d ]   (⚠시야 조건 없음 — passive_plan 쪽과 다름)                            [L222]\nif ctx.debug → debug.infos[my_champ.id].push(\"near_camp_epic_ally: A, near_camp_epic_enemy: B, near_epic_ally: C, near_epic_enemy: D\")   [L225-228]\npenalty = macro_judgement_penalty(version, player); bonus = macro_judgement_bonus(version, player)   [L232-233]\nacc = player.info.parameter.judge_accuracy()                                                          [L237]\nif acc > 999 { (A,B,C,D) 그대로 } else { seed = ((tick / max(tps*2,1)) << 40 | 233) ^ player.id; 각각 X = error_ratio_noise(&seed, acc) * X / 100 }   [L238-245]\nreturn (A > 2 || D == 0) && (penalty + B) < A && (bonus + C) >= (penalty + D)                          [L247-249]\n   (L247 두 조건의 줄 안 순서는 column 부재로 미확정; L249 는 L247 이 참일 때만 평가)",
+
+ "knobs": [
+  {"what": "조기 true: 적 에픽 틱 상한", "where": "epic.rs:177", "value": 1, "effect": "tps*1. enemy_epic_tick ≤ tps 이고 캠프를 1초 내 봤으면 무조건 true — 두 tps 계수(리터럴 없음, tps 그대로)를 키우면 조기 true 가 넓어진다"},
+  {"what": "생존 아군 HP 하한", "where": "epic.rs:185", "value": 29, "effect": "올리면 live_ally 가 줄어 L186 조기 true 가 드물어진다"},
+  {"what": "캠프 근접 반경(아군/적 계수)", "where": "epic.rs:192,195", "value": 14400000001, "effect": "120000². 올리면 A·B 가 함께 커진다(A−B 차이가 판정이라 효과는 배치 의존)"},
+  {"what": "계수 HP 하한", "where": "epic.rs:193,196,199,222", "value": 49, "effect": "내리면 저체력도 세어 A·B·C·D 모두 증가"},
+  {"what": "아군 교전중 회피 반경", "where": "epic.rs:203", "value": 62500000001, "effect": "250000². 올리면 더 먼 아군 교전에도 false 로 접는다"},
+  {"what": "적 도달 여유 반경", "where": "epic.rs:218", "value": 60000, "effect": "올리면 적이 더 쉽게 '도달 가능'으로 계수(D↑) → 판정 어려워짐"},
+  {"what": "노이즈 면제 정확도", "where": "epic.rs:238", "value": 999, "effect": "judge_accuracy > 999 면 노이즈 없음. 내리면 더 많은 선수가 정확 판정"},
+  {"what": "노이즈 시드 갱신 주기", "where": "epic.rs:241", "value": 2, "effect": "tps*2(folded shl 1). 올리면 같은 노이즈가 더 오래 유지"},
+  {"what": "1차 조건 아군 수", "where": "epic.rs:247", "value": 2, "effect": "A > 2. 내리면 아군 2명만 캠프 근처여도 (D==0 없이) 판정 가능"},
+  {"what": "최종 비교 penalty/bonus", "where": "epic.rs:247-249", "value": 0, "effect": "macro_judgement_penalty/bonus(다른 배치)가 B·D 에 penalty, C 에 bonus 로 더해진다 — penalty↑ = 사냥 보수적"}
+ ],
+
+ "unknown": [
+  "L177-178 의 조기 true 의 소스 표현: IR = `enemy_epic_tick > tps` 가 거짓이고 `last_visible+tps < tick` 도 거짓이면 true. 두 비교의 결합이 `if a <= tps && last+tps >= tick { return true }` 인지 `if !(a > tps || ...)` 인지는 외연 동일(표기 불가)",
+  "epic_enemy_tick / epic_ally_tick(GoalData+0x88/+0x98)의 생산 의미(누가 언제 갱신) — _docs 0건, GoalData 갱신처 미탐색. 본 명세는 소비 방식만(L177 비교·L220 가산)",
+  "is_top_side(map_regions.rs:22-24) = `height − y < x` 로 읽힘. 좌표계(y 아래 증가?) 해석은 미확인 — 식은 IR 정본",
+  "near_epic_ally(L198-199) 의 `!is_top_side || is_near_mid_line` 결합: IR 분기 = is_top_side 참일 때만 is_near_mid_line 검사(단락). 소스가 `!(is_top_side && !is_near_mid_line)` 인지는 표기 불가",
+  "error_ratio_noise(m04.ll:49631)·macro_judgement_penalty/bonus(m15.ll:51803/51819)·judge_accuracy 내부는 담당 밖(다른 배치/‘한 번 확정해 재사용’ 대상). 반환 범위 힌트: penalty i32 range(0,12271336), bonus i32 range(-17179869,17179870)",
+  "L242 상수 233·<<40 의 의도(판정 종류별 시드 솔트)는 추정",
+  "is_recent_visible 내부(120틱=2초 유예, _gcbc g07.ll:157005~157049: is_visible(team,id) || last_visible[pos]+120 >= tick) — 범위 밖이라 constants 미등재",
+  "exe 대조: fnprobe 0xde5340 — 패닉 Location epic.rs:185/193/196/199/222·simulation.rs:1905 일치, 상수 0xea60(60000)·0x1e0·0x2e8(Blackboard 744) 일치. ⚠exe consts 에 0x384(900)·-300/-299(0xfffffed4/5)·0x1869f 등이 있으나 IR 본문엔 없음 → 인라인된 콜리(judge_accuracy/error_ratio_noise 추정) 상수로 봄, 미확인. 999(0x3e7) 는 fnprobe 목록에 안 보임 — 비교 형태 변형(cmp 1000; jb) 추정, 미확인",
+  "L204 `trunc nuw i64 → i1` 은 Option<usize>::is_some() 판별(태그 0/1). in_battle 의 반환형이 Option<Option<usize>> 인지 &Option<BigGoal> 매칭인지는 표기 불가"
+ ]
+}

@@ -1,0 +1,505 @@
+{
+ "name": "epic_passive_plan",
+ "sym": "_RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old4epic17epic_passive_plan",
+ "src": "game-ai\\src\\plan_legacy\\old\\epic.rs",
+ "src_line": 317,
+ "ir_file": "m09.ll",
+ "ir_from": 62422,
+ "ir_to": 64312,
+ "aux": [
+  {
+   "ir_file": "m09.ll",
+   "ir_from": 69134,
+   "ir_to": 69253,
+   "what": "closure#0 count — 나 말고 바텀 big_line 에 있는 아군 수 (L363~364)"
+  },
+  {
+   "ir_file": "m12.ll",
+   "ir_from": 16065,
+   "ir_to": 16277,
+   "what": "closure#3/#4 min_by_key fold — 최근 가시 적 챔프 중 에픽 캠프에 가장 가까운 것 (L408~409)"
+  }
+ ],
+ "exe_rva": "0xde92d0",
+ "one_line": "에픽(모가드) 목표의 수동 국면에서 내 BigPlan(PassiveLine 라인 / EpicHuntAndPoke / None)을 고른다",
+ "signature": {
+  "params": [
+   {
+    "i": 0,
+    "name": "(sret)",
+    "type": "Option<BigPlan>(384B)",
+    "role": "sret",
+    "note": "tag +0x0: -1=None / 3=PassiveLine(payload +0x8 PassiveLinePlan 280B, line=+0x11e) / 12=EpicHuntAndPoke(payload +0x8 EpicHuntAndPokePlan 32B)"
+   },
+   {
+    "i": 1,
+    "name": "version",
+    "type": "usize",
+    "note": "본문 분기 없음. v25_objective_splitter_should_join_contest(L340)에만 전달. ⚠can_near_enemies_range(L461)에는 poison 으로 전달(안 씀)"
+   },
+   {
+    "i": 2,
+    "name": "rnd",
+    "type": "&mut StdRng",
+    "note": "PlayerState::strategy(L327)·can_near_enemies_range(L461)에 전달"
+   },
+   {
+    "i": 3,
+    "name": "player",
+    "type": "&PlayerState(2528B)",
+    "note": "info.team(+0x930)·info.position@tag(+0x9c0)"
+   },
+   {
+    "i": 4,
+    "name": "data",
+    "type": "&OperationData(24B)",
+    "note": "+0x0 cache / +0x8 context / +0x10 blackboard[2]"
+   },
+   {
+    "i": 5,
+    "name": "phase",
+    "type": "ObjectPhase(i8)",
+    "note": "L324 switch: 3 Hunt → EpicHuntAndPoke 즉시 / 1 Setup → 본문 / 그 외(0 None·2 Assemble) → None(L497)"
+   },
+   {
+    "i": 6,
+    "name": "team_plan",
+    "type": "&TeamPlan",
+    "note": "vision.last_visible_pos[p](+0x230+16p)·vision.last_checked_ticks[p](+0x2d0+8p)·obj_spawn.epic_camp_last_visible_tick(+0x80)"
+   },
+   {
+    "i": 7,
+    "name": "depart_anchor",
+    "type": "Option<(u64,u64)>(24B, by-ref dead_on_return)",
+    "note": "L399 unwrap_or(내 챔프 좌표) — 캠프까지 이동시간 계산의 출발점"
+   },
+   {
+    "i": 8,
+    "name": "debug",
+    "type": "&mut DebugFrameData",
+    "note": "readnone — 본문에서 읽지도 쓰지도 않음. can_near_enemies_range 에는 poison 전달"
+   }
+  ],
+  "returns": "Option<BigPlan> — None(-1) / PassiveLine{line} / EpicHuntAndPoke(default)"
+ },
+ "reads": [
+  {
+   "base": "OperationData",
+   "offset": "0x8",
+   "name": "context",
+   "note": "&GameContext"
+  },
+  {
+   "base": "OperationData",
+   "offset": "0x0",
+   "name": "cache",
+   "note": "&AbstractGameWithCache (player_champion·top_lead·mid_lead)"
+  },
+  {
+   "base": "OperationData",
+   "offset": "0x10",
+   "name": "blackboard",
+   "note": "&[Blackboard;2] — [team]=아군판(minion_state·in_big_line), [1-team]=적판(is_recent_visible)"
+  },
+  {
+   "base": "GameContext",
+   "offset": "0x38",
+   "name": "tutorial",
+   "note": "TutorialType 태그. spawn_epic(runner.rs:263)→morgard_exists(rule_scope.rs:46) 인라인: 태그∈{1..6}이면 에픽 없음"
+  },
+  {
+   "base": "GameContext",
+   "offset": "0x20",
+   "name": "map",
+   "note": "&MapDef → camp_pos(Morgard, team==0)"
+  },
+  {
+   "base": "GameContext",
+   "offset": "0x8",
+   "name": "setting",
+   "note": "&GameSetting"
+  },
+  {
+   "base": "GameSetting",
+   "offset": "0x12f8",
+   "name": "tick_per_second",
+   "note": "L403 tps*2 / L407 tps*3"
+  },
+  {
+   "base": "GameSetting",
+   "offset": "0x12b8",
+   "name": "width",
+   "note": "is_blue_side(map_regions.rs:7) 인라인"
+  },
+  {
+   "base": "GameSetting",
+   "offset": "0x12c0",
+   "name": "height",
+   "note": "is_blue_side 인라인"
+  },
+  {
+   "base": "PlayerState",
+   "offset": "0x930",
+   "name": "info.team",
+   "note": "0/1. 적팀 = 1-team"
+  },
+  {
+   "base": "PlayerState",
+   "offset": "0x9c0",
+   "name": "info.position@tag",
+   "note": "Position 0 Top/1 Jungle/2 Mid/3 Bottom/4 Support — champ 인덱스·Split 비교·closure#0 자기 제외"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x1e0",
+   "name": "player_champion[team][pos]",
+   "note": "[2][5] Option<&Entity>, stride 40B/team 8B/pos"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x21c0",
+   "name": "top_lead[team]",
+   "note": "L376/412/427/445/470/481 — <3 / >2 임계로 라인 선택·EpicHuntAndPoke 결정"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x21d0",
+   "name": "mid_lead[team]",
+   "note": "위와 짝"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x660",
+   "name": "x",
+   "note": "챔프 좌표"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x668",
+   "name": "y",
+   "note": ""
+  },
+  {
+   "base": "Entity",
+   "offset": "0x640",
+   "name": "stat_cached.move_speed",
+   "note": "L354 적 can_move / L401 내 이동시간"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x628",
+   "name": "stat_cached.hp",
+   "note": "최대 HP (0이면 div_by_zero 패닉)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x670",
+   "name": "hp",
+   "note": "현재 HP — hp*100/max > 49"
+  },
+  {
+   "base": "TeamPlan",
+   "offset": "0x230",
+   "name": "vision.last_visible_pos[p]",
+   "note": "적 p 의 마지막 관측 좌표 (u64,u64), +16p (L352)"
+  },
+  {
+   "base": "TeamPlan",
+   "offset": "0x2d0",
+   "name": "vision.last_checked_ticks[p]",
+   "note": "적 p 마지막 확인 틱, +8p (L355)"
+  },
+  {
+   "base": "TeamPlan",
+   "offset": "0x80",
+   "name": "obj_spawn.epic_camp_last_visible_tick",
+   "note": "L407 캠프 마지막 관측 틱"
+  },
+  {
+   "base": "Blackboard",
+   "offset": "0x20",
+   "name": "top_minion_state.minion_count",
+   "note": "i32, L373/424/442/478 — top<mid 비교로 Top/Mid 선택"
+  },
+  {
+   "base": "Blackboard",
+   "offset": "0x48",
+   "name": "mid_minion_state.minion_count",
+   "note": "i32"
+  },
+  {
+   "base": "Blackboard",
+   "offset": "0x70",
+   "name": "bottom_minion_state.minion_count",
+   "note": "i32, L361 < -3 (바텀 밀림)"
+  },
+  {
+   "base": "Strategy",
+   "offset": "0x0",
+   "name": "object_buildup@tag",
+   "note": "ObjectBuildupStrategy: 태그 5 Gather / 6 Flexible / 그외(=Position 값) Split(position) — L337 switch"
+  },
+  {
+   "base": "MobaMode",
+   "offset": "0x1b0",
+   "name": "jungle_runner.epic.next_respawn_tick",
+   "note": "L397 game.get_game_mode().as_moba().unwrap()"
+  },
+  {
+   "base": "AbstractGame(vtable)",
+   "offset": "0x28",
+   "name": "tick",
+   "note": "divtable AbstractGame 0x28"
+  },
+  {
+   "base": "AbstractGame(vtable)",
+   "offset": "0x40",
+   "name": "get_game_mode",
+   "note": "divtable AbstractGame 0x40 → GameMode{tag 0=Moba, +8 &MobaMode}"
+  }
+ ],
+ "writes": [
+  {
+   "base": "Option<BigPlan>(sret)",
+   "offset": "0x0",
+   "name": "tag",
+   "value": "-1 None / 3 PassiveLine / 12 EpicHuntAndPoke",
+   "note": "L319·L497·L404·L439·L457 None / L325·L413·L422·L463·L471 EpicHuntAndPoke / 그 외 PassiveLine"
+  },
+  {
+   "base": "Option<BigPlan>(sret)",
+   "offset": "0x11e",
+   "name": "line",
+   "value": "0 Top / 1 Mid / 2 Bottom / L332는 setup_pressure_line 반환값",
+   "note": "= payload(+0x8) 내 PassiveLinePlan.line(+0x116). 나머지 필드 = 0/빈 Vec(dangling ptr 8) 초기화(PassiveLinePlan::new 인라인)"
+  },
+  {
+   "base": "EpicHuntAndPokePlan(payload +0x8)",
+   "offset": "0x0",
+   "name": "v46_flee_threats·focus_epic_only·vision_only·v46_flee",
+   "value": "빈 Vec(cap0, ptr 8, len0)·false·false·false",
+   "note": "memset 11B — 전부 기본값"
+  }
+ ],
+ "constants": [
+  {
+   "value": 6,
+   "src_line": 318,
+   "meaning": "spawn_epic 인라인: (tutorial_tag-1) <u 6 ⇔ 태그∈{1 First..6 JungleOnly} → 에픽 없음 → None. 통과 = {0 None,7 Line,8 Total}"
+  },
+  {
+   "value": -1,
+   "src_line": 319,
+   "meaning": "Option<BigPlan>::None 니치 태그(store i64 -1). L331에선 Option<LineType>::None(icmp eq i8 -1)"
+  },
+  {
+   "value": 3,
+   "src_line": 324,
+   "meaning": "ObjectPhase::Hunt(3) — phase switch → EpicHuntAndPoke 즉시 반환(L325)"
+  },
+  {
+   "value": 1,
+   "src_line": 324,
+   "meaning": "ObjectPhase::Setup(1) — 본문 진입. 그 외 phase → None(L497) (shl 시프트량 아님 — 열거형 태그 리터럴)"
+  },
+  {
+   "value": 12,
+   "src_line": 325,
+   "meaning": "BigPlan::EpicHuntAndPoke 메모리태그(idx10, 니치+2)"
+  },
+  {
+   "value": 5,
+   "src_line": 329,
+   "meaning": "JungleType::Serpen(5) — v23_enemy_object_pressure(player,data,Serpen): 반대편 오브젝트(세르펜) 압박 여부 = opposite_object_pressure"
+  },
+  {
+   "value": 2,
+   "src_line": 331,
+   "meaning": "v23_objective_setup_pressure_line 에 넘기는 슬라이스 [Top(0),Mid(1)] 길이 2 (anon.190 = 00 01)"
+  },
+  {
+   "value": 3,
+   "src_line": 332,
+   "meaning": "BigPlan::PassiveLine 메모리태그(idx1, 니치+2)"
+  },
+  {
+   "value": 5,
+   "src_line": 337,
+   "meaning": "ObjectBuildupStrategy 니치 시작: 태그>4 이면 (태그-5) → 0 Gather / 1 Flexible; 아니면 Split(payload=Position)"
+  },
+  {
+   "value": 4,
+   "src_line": 337,
+   "meaning": "위 switch 의 `icmp ugt tag, 4` — Split 페이로드(Position 0..4)와 니치 태그(5,6) 구분"
+  },
+  {
+   "value": 4,
+   "src_line": 340,
+   "meaning": "JungleType::Morgard(4) — v25_objective_splitter_should_join_contest / camp_pos 인자"
+  },
+  {
+   "value": 150000,
+   "src_line": 353,
+   "meaning": "적이 캠프에 '도달'한 것으로 볼 반경. d = distance(last_pos, camp).saturating_sub(150000). L461 can_near_enemies_range 반경도 150000"
+  },
+  {
+   "value": 100,
+   "src_line": 357,
+   "meaning": "hp*100/max_hp — HP 퍼센트"
+  },
+  {
+   "value": 49,
+   "src_line": 357,
+   "meaning": "HP% > 49 ⇔ 50% 이상인 적만 '올 수 있는 적'으로 계수 (L357). check 쪽 동일"
+  },
+  {
+   "value": 2,
+   "src_line": 362,
+   "meaning": "count(can_reach 적) < 2 → 바텀 분기 검사(L361~366, 실패 시 L370 으로) ; L370 `== 2` 와 합쳐 count ≤ 2 이면 캠프 근접 검사 ; > 2 → Gather 로 폴백"
+  },
+  {
+   "value": -3,
+   "src_line": 365,
+   "meaning": "blackboard[team].bottom_minion_state.minion_count < -3 (바텀 웨이브 3+ 밀림) && 바텀 아군 0 → PassiveLine Bottom"
+  },
+  {
+   "value": 2,
+   "src_line": 366,
+   "meaning": "LineType::Bottom(2) — L341(Split 불참)·L366 PassiveLine.line"
+  },
+  {
+   "value": 102400000001,
+   "src_line": 370,
+   "meaning": "320000^2+1 — 내 챔프↔에픽 캠프 거리² <u 이면(=320000 이내) 캠프 근접 분기(L371)"
+  },
+  {
+   "value": 3,
+   "src_line": 376,
+   "meaning": "top_lead[team] < 3 / mid_lead[team] < 3 임계 (L376·L427·L445·L481) — 3 이상이면 그 라인은 '앞서 있음'"
+  },
+  {
+   "value": 1,
+   "src_line": 380,
+   "meaning": "LineType::Mid(1) — PassiveLine.line (L380·385·431·436·449·454·485·490). Top(0)은 memset 으로 0 (shl 시프트량 아님 — 열거형 태그 리터럴)"
+  },
+  {
+   "value": 0,
+   "src_line": 397,
+   "meaning": "GameMode 태그 0 = Moba — as_moba(game.rs:231) 인라인, 아니면 unwrap_failed(L397)"
+  },
+  {
+   "value": 1,
+   "folded_from": 2,
+   "src_line": 403,
+   "meaning": "tps*2 — `shl i64 %tps, 1` 로 접힘. (next_respawn_tick − tick) > tps*2 + dist/move_speed 이면 None(L404): 스폰까지 여유가 이동시간+2초보다 길다"
+  },
+  {
+   "value": 3,
+   "src_line": 407,
+   "meaning": "tps*3 (mul 3) — (tick − epic_camp_last_visible_tick) > 3초면 캠프 시야 상실 분기(L461~) / 아니면 최근가시 적 분기(L408~)"
+  },
+  {
+   "value": 2,
+   "src_line": 412,
+   "meaning": "top_lead > 2 && mid_lead > 2 → EpicHuntAndPoke (L412·L470·L471)"
+  },
+  {
+   "value": 22500000001,
+   "src_line": 421,
+   "meaning": "150000^2+1 — 최근가시 최근접 적↔캠프 거리² <u 이면(150000 이내) EpicHuntAndPoke(L422)"
+  },
+  {
+   "value": 2,
+   "src_line": 462,
+   "meaning": "can_near_enemies_range(캠프,150000).len() > 2 → EpicHuntAndPoke(L463)"
+  },
+  {
+   "value": 2,
+   "src_line": 364,
+   "meaning": "[aux closure#0] LineType::Bottom(2) — blackboard[team].in_big_line(p, Bottom) 로 바텀 아군 계수"
+  }
+ ],
+ "calls": [
+  "game_core::simulation::state::player::PlayerState::strategy",
+  "game_ai::plan_legacy::team_plan::objective_helpers::v23_enemy_object_pressure",
+  "game_ai::plan_legacy::team_plan::objective_helpers::v23_objective_setup_pressure_line",
+  "game_ai::plan_legacy::team_plan::objective_helpers::v25_objective_splitter_should_join_contest",
+  "game_core::simulation::map_def::MapDef::camp_pos",
+  "game_core::utils::distance",
+  "game_core::simulation::game::blackboard::Blackboard::is_recent_visible",
+  "game_core::simulation::game::blackboard::Blackboard::in_big_line",
+  "game_ai::plan_legacy::team_plan::TeamPlan::can_near_enemies_range",
+  "game_ai::plan_legacy::old::epic::epic_passive_plan::{closure#0}::count",
+  "core::iter::adapters::map::Map::fold",
+  "core::option::unwrap_failed",
+  "core::panicking::panic_bounds_check",
+  "core::panicking::panic_const::panic_const_div_by_zero"
+ ],
+ "logic": "ctx = data.context; if !spawn_epic(ctx.tutorial) (태그∈1..6) → return None                                   [L318-319]\nchamp = cache.player_champion[team][position].unwrap()                                                  [L322]\nmatch phase { Hunt(3) → return EpicHuntAndPoke(default) [L325]; Setup(1) → 아래; _ → return None [L497] } [L324]\nstrategy = player.strategy(rnd, game)                                                                     [L327]\nopposite_object_pressure = v23_enemy_object_pressure(player, data, Serpen)                                [L329]\nif opposite_object_pressure { if let Some(line) = v23_objective_setup_pressure_line(player,data,&[Top,Mid]) → return PassiveLine{line} } [L330-332]\nmatch strategy.object_buildup {                                                                            [L337]\n  Split(pos) [L339]: if pos == my position { if !v25_objective_splitter_should_join_contest(version,player,data,Morgard) → return PassiveLine{Bottom} [L340-341] } → Gather 로 진행\n  Flexible [L347]: camp = map.camp_pos(Morgard, team==0)\n    can_reach = Σ_{p∈0..5, 적 챔프 e=player_champion[1-team][p] 존재} [                                    [L350-359]\n        last_pos = team_plan.vision.last_visible_pos[p]; d = distance(last_pos, camp).sat_sub(150000)      [L352-353]\n        can_move = (game.tick() − vision.last_checked_ticks[p]).sat_sub * e.move_speed                    [L354-355]\n        e.hp*100/e.max_hp > 49 && can_move >= d && !blackboard[1-team].is_recent_visible(game, player, e) ] [L357]\n    if can_reach < 2 [L362]: if blackboard[team].bottom_minion_state.minion_count < -3 && count{p≠me && blackboard[team].in_big_line(p,Bottom)}==0 → return PassiveLine{Bottom} [L361-366]\n    if can_reach <= 2 (L362 count<2 에서 바텀 조건 실패한 경우 + L370 count==2) && dist²(champ, camp) < 320000² [L370] && is_enemy_side(ctx, team, champ.x, champ.y) [L371 = is_blue_side(x−y+height > width) XOR team==0]:\n        top=bb[team].top_minion_state.minion_count; mid=bb[team].mid_minion_state.minion_count             [L373-374]\n        if top_lead[team] < 3 { if mid_lead[team] < 3 { return PassiveLine{ if top<mid Top else Mid } [L377-380] } else return PassiveLine{Top} [L383] }\n        else if mid_lead[team] < 3 → return PassiveLine{Mid} [L385]  (그 외 → Gather 로 진행) [L376-386]\n    그 외 → Gather 로 진행\n  Gather (및 위 폴백) [L394]: camp = map.camp_pos(Morgard, team==0)\n    moba = game.get_game_mode().as_moba().unwrap(); remain = moba.jungle_runner.epic.next_respawn_tick.sat_sub(tick) [L397]\n    pos = depart_anchor.unwrap_or((champ.x,champ.y)); travel = distance(pos,camp) / champ.move_speed (0이면 패닉) [L399-402]\n    if remain > tps*2 + travel → return None                                                               [L403-404]\n    if tick − team_plan.obj_spawn.epic_camp_last_visible_tick > tps*3 [L407]:\n        near = team_plan.can_near_enemies_range(rnd, player, data, camp, 150000)                            [L461]\n        if near.len() > 2 → return EpicHuntAndPoke                                                          [L462-463]\n        if top_lead>2 { if mid_lead>2 → EpicHuntAndPoke [L470-471] else → PassiveLine{Mid} [L490] }\n        else if mid_lead<3 → PassiveLine{ if top<mid Top else Mid } [L478-485] else → PassiveLine{Top} [L488]\n    else:\n        nearest = player_champion[1-team].filter(|e| bb[1-team].is_recent_visible(game,player,e)).min_by_key(dist²(e,camp)) [L408-409, aux m12]\n        if top_lead>2 && mid_lead>2 → return EpicHuntAndPoke                                               [L412-413]\n        if let Some(e)=nearest [L420]: if dist²(e,camp) < 150000² → return EpicHuntAndPoke [L421-422]\n            top/mid = bb[team] minion_count [L424-425]; if top_lead<3 { if mid_lead<3 → PassiveLine{top<mid?Top:Mid} [L428-431] else PassiveLine{Top} [L434] } else if mid_lead<3 → PassiveLine{Mid} [L436] else → None [L439]\n        else (적 시야 없음) [L442-457]: 같은 lead/minion 표 → Top/Mid(L447-454) 또는 None [L457]\n}",
+ "knobs": [
+  {
+   "what": "적 '도달' 반경(Flexible can_reach·can_near_enemies_range)",
+   "where": "epic.rs:353 / :461",
+   "value": 150000,
+   "effect": "올리면 더 먼 적도 캠프에 올 수 있는 적으로 세어 라인 배정이 쉽게 막히고(can_reach↑) 시야상실 분기에선 EpicHuntAndPoke 가 잘 나온다"
+  },
+  {
+   "what": "계수 대상 적/최근접 적 HP 하한",
+   "where": "epic.rs:357",
+   "value": 49,
+   "effect": "내리면 저체력 적도 위협으로 계수"
+  },
+  {
+   "what": "바텀 밀림 임계",
+   "where": "epic.rs:365",
+   "value": -3,
+   "effect": "올리면(예 -1) 바텀이 조금만 밀려도 바텀 커버(PassiveLine Bottom)로 빠진다"
+  },
+  {
+   "what": "캠프 근접 판정 반경",
+   "where": "epic.rs:370",
+   "value": 102400000001,
+   "effect": "320000². 올리면 더 멀리서도 '캠프 근처' 라인 배정 분기를 탄다"
+  },
+  {
+   "what": "라인 '앞섬' 임계 top_lead/mid_lead",
+   "where": "epic.rs:376,412,427,445,470,481",
+   "value": 3,
+   "effect": "낮추면 라인 압박이 약해도 EpicHuntAndPoke(둘 다 >2)로 넘어간다"
+  },
+  {
+   "what": "스폰 대기 허용 = tps*2 + 이동시간",
+   "where": "epic.rs:403",
+   "value": 2,
+   "effect": "folded(shl 1). 올리면 스폰 훨씬 전부터 캠프 쪽 계획을 세운다(None 덜 반환)"
+  },
+  {
+   "what": "캠프 시야 상실 판정",
+   "where": "epic.rs:407",
+   "value": 3,
+   "effect": "tps*3. 올리면 시야를 잃어도 '최근가시 적' 분기를 오래 유지"
+  },
+  {
+   "what": "최근접 적 → 즉시 HuntAndPoke 반경",
+   "where": "epic.rs:421",
+   "value": 22500000001,
+   "effect": "150000². 올리면 적이 더 멀어도 에픽 국면으로 전환"
+  },
+  {
+   "what": "시야상실 분기 적 수 임계",
+   "where": "epic.rs:462",
+   "value": 2,
+   "effect": "len>2. 내리면 적 2명만 근처여도 EpicHuntAndPoke"
+  }
+ ],
+ "unknown": [
+  "top_lead/mid_lead(AbstractGameWithCache+0x21c0/+0x21d0)의 정확한 의미(타워 수? 웨이브 리드?) — _docs 주석 0건, _gcbc 갱신처 미탐색. 본 명세는 '3 이상 = 앞섬'으로만 적음(IR 임계 사실만)",
+  "L371 is_enemy_side 극성: IR = (x−y+height > width) XOR (team==0) 가 true 일 때 라인 배정 진행. is_blue_side 의 좌표계(y 축 방향) 해석은 미확인 — 식 자체는 IR 정본",
+  "L337 switch 의 `select 2` 는 Split 페이로드(Position)를 태그 자리에서 읽는 니치 접힘 — Split(pos) 의 pos 가 L339 에서 `%28(내 position) == %50(raw tag)` 로 비교됨. 소스 표현식(`Split(p) if p == my_pos`)은 추정",
+  "can_near_enemies_range 에 version=poison·debug=poison 전달 — 피호출이 그 인자를 안 읽는다는 뜻(정정 아닌 관측). 반환 Vec 32B 의 +24 = len 만 사용 후 drop",
+  "`i8 5`(Serpen) 를 v23_enemy_object_pressure 에 넘기는 이유(반대 오브젝트 압박)는 인자값과 변수명 opposite_object_pressure 로부터의 추론",
+  "is_recent_visible 내부(120틱 = 2초 유예, _gcbc g07.ll:157005)는 담당 범위 밖 — knobs 에 미등재",
+  "exe 대조: fnprobe 0xde92d0 — 패닉 Location epic.rs:322/357/397/402·aux 0xe332e0 호출·상수 0x249f0(150000) 일치. 제곱 임계(102400000001·22500000001)는 fnprobe consts 목록에 안 찍힘(movabs 미수집으로 추정) — 미대조",
+  "L332 PassiveLine.line 값은 v23_objective_setup_pressure_line 반환(Top/Mid 중 하나) — 그 함수 내부는 다른 배치 소관"
+ ]
+}

@@ -1,0 +1,99 @@
+{
+ "name": "line_backfight_support_focus",
+ "sym": "_RNvNtCshdEBA0ozCnw_7game_ai5utils28line_backfight_support_focus",
+ "src": "game-ai\\src\\utils.rs",
+ "src_line": 269,
+ "ir_file": "m04.ll",
+ "ir_from": 53979,
+ "ir_to": 54933,
+ "aux": [
+   {"ir_file": "m04.ll", "ir_from": 63860, "ir_to": 64185},
+   {"ir_file": "m12.ll", "ir_from": 4403, "ir_to": 4883},
+   {"ir_file": "m12.ll", "ir_from": 4886, "ir_to": 5735}
+ ],
+
+ "one_line": "라인 후방 교전 지원 — 내 뒤쪽(넥서스 쪽)에서 적과 얽힌 아군이 있으면 (아군id, 적id) 포커스 쌍을 고른다",
+
+ "signature": {
+   "params": [
+     {"i": 0, "name": "(sret)", "type": "Option<(usize,usize)>(24B)", "note": "%0. +0 tag(0=None/1=Some), +8 ally.id, +16 enemy.id"},
+     {"i": 1, "name": "version", "type": "usize", "note": "%1. 본문·클로저 어디서도 안 읽음(dbg_value 만)"},
+     {"i": 2, "name": "player", "type": "&PlayerState(2528B)", "note": "%2"},
+     {"i": 3, "name": "data", "type": "&OperationData(24B)", "note": "%3"},
+     {"i": 4, "name": "line", "type": "LineType(i8)", "note": "%4. 스택 %23 에 저장해 클로저가 참조. 0 Top/1 Mid/2 Bottom"}
+   ],
+   "returns": "Option<(usize, usize)> — Some((ally.id, enemy.id)) 지원 대상 아군과 그 아군이 얽힌 적"
+ },
+
+ "reads": [
+   {"base": "PlayerState", "offset": "0x930", "name": "info.team", "note": "team (54014); 클로저 안에서도 재로드(64079)"},
+   {"base": "PlayerState", "offset": "0x9c0", "name": "info.position@tag", "note": "as_index (54025)"},
+   {"base": "OperationData", "offset": "0x0", "name": "cache", "note": "54028"},
+   {"base": "OperationData", "offset": "0x8", "name": "context", "note": "54040"},
+   {"base": "OperationData", "offset": "0x10", "name": "blackboard", "note": "&[Blackboard;2] (54074)"},
+   {"base": "AbstractGameWithCache", "offset": "0x1e0", "name": "player_champion[team][pos] / [team][0..5] / [enemy_team][0..5]", "note": "[2][5] Option<&Entity>: 자기(54029~54032), 아군 순회(54161, 54303), 적 순회(54480)"},
+   {"base": "AbstractGameWithCache", "offset": "0x170", "name": "nexus[team]", "note": "None 이면 None 반환 (54060~54068)"},
+   {"base": "AbstractGameWithCache", "offset": "0x0", "name": "game.data_ptr", "note": "54108"},
+   {"base": "AbstractGameWithCache", "offset": "0x8", "name": "game.vtable_ptr", "note": "슬롯 0x1f0=get_entity_by_id (54115); is_recent_visible 에 &dyn AbstractGame 으로 전달(63924)"},
+   {"base": "Blackboard", "offset": "0x0", "name": "top_minion_state.front_minion", "note": "minion_state(line) 인라인: Top→+0 / Mid→+0x28 / Bottom→+0x50 (54077~54096); Option<usize> tag +0 값 +8"},
+   {"base": "Blackboard", "offset": "0xf8", "name": "big_goal[pos].1@tag", "note": "stride 32: 아군(54446~54449 blackboard[team].big_goal[ally_pos]) / 적(64022~64026 blackboard[enemy_team].big_goal[enemy_pos]) 태그 5=Battle"},
+   {"base": "Blackboard", "offset": "0x100", "name": "big_goal[pos].1@Battle.focus@tag", "note": "54458~54459, 64034"},
+   {"base": "Blackboard", "offset": "0x108", "name": "big_goal[pos].1@Battle.focus@Some.0", "note": "54460~54461, 64040"},
+   {"base": "Blackboard", "offset": "0x78", "name": "small_actions[pos]@tag", "note": "stride 24: 적(64050~64052 blackboard[enemy_team].small_actions[enemy_pos]) / 아군(64094~64098 blackboard[team].small_actions[ally_pos]); 태그-6 <4 ⟹ Attack/Skill/Skill2/Ult"},
+   {"base": "Blackboard", "offset": "0x80", "name": "small_actions[pos]@Some.0.target_id", "note": "64061~64062, 64119~64120"},
+   {"base": "Entity", "offset": "0x660", "name": "x", "note": "champ/front/ally/enemy/nexus"},
+   {"base": "Entity", "offset": "0x668", "name": "y", "note": ""},
+   {"base": "Entity", "offset": "0x5c0", "name": "id", "note": "champ.id(54297) ally.id(54336) enemy.id(63988)"},
+   {"base": "Entity", "offset": "0x6b9", "name": "can_target", "note": "bool — 아군(54340~54342) 적(63902~63904)"},
+   {"base": "Entity", "offset": "0x6a0", "name": "block_target_tick", "note": "== 0 이어야 함 (54344~54346, 63905~63907)"},
+   {"base": "Entity", "offset": "0x68", "name": "ty@tag", "note": "is_in_return 인라인: == 13(Champion) (54351~54353)"},
+   {"base": "Entity", "offset": "0x70", "name": "ty@Champion.0.action_state@tag", "note": "== 1(Return) 이면 귀환 중 → 아군 제외 (54354~54357)"}
+ ],
+
+ "writes": [
+   {"base": "Option<(usize,usize)>(sret)", "offset": "0x0", "name": "tag", "value": "0 | 1", "note": "54049/54056/54068/54123/54136(None) · 54927(phi 0/1)"},
+   {"base": "Option<(usize,usize)>(sret)", "offset": "0x8", "name": "Some.0 = ally.id", "value": "min_by_key 결과 .0", "note": "54920"},
+   {"base": "Option<(usize,usize)>(sret)", "offset": "0x10", "name": "Some.1 = enemy.id", "value": "min_by_key 결과 .1", "note": "54922"},
+   {"base": "stack", "offset": "0x0", "name": "front_progress/champ_progress/enemy_team/support_range_sq/ally_pos/ally_focus/ally_in_battle", "value": "클로저 캡처용 지역 alloca", "note": "54159, 54161, 54163, 54154, 54397, 54473~54474 — 외부 관측 불가"}
+ ],
+
+ "constants": [
+   {"value": 115600000000, "src_line": 286, "meaning": "support_range_sq = 340000^2 — 아군↔나 distance_sq 가 이보다 크면 지원 후보 제외 (L300, 54440~54442). 10.6셀"},
+   {"value": 100000, "src_line": 298, "meaning": "front_progress > ally_progress + 100000 — 아군이 전선 미니언보다 100000(3.1셀) 이상 넥서스 쪽(후방)에 있어야 함"},
+   {"value": 70000, "src_line": 299, "meaning": "champ_progress > ally_progress + 70000 — 아군이 나보다 70000(2.2셀) 이상 후방. 같은 값이 L320 에서 front_progress > enemy_progress + 70000(적이 전선보다 70000 이상 안쪽으로 들어옴) 에도 쓰임"},
+   {"value": 22500000001, "src_line": 324, "meaning": "150000^2 + 1 — close_to_ally = ally.distance_sq(enemy) < 이 값 (≤150000, 4.7셀). aux m04.ll:63984"},
+   {"value": 13, "src_line": 291, "meaning": "EntityType 태그 13 = Champion (is_in_return 인라인 entity.rs:1648)"},
+   {"value": 1, "src_line": 291, "meaning": "ChampionActionState 태그 1 = Return (is_in_return) · sret Some 태그"},
+   {"value": 5, "src_line": 304, "meaning": "BigGoal 태그 5 = Battle{focus} (L304 아군, L326 적) · 포지션 배열 길이 5"},
+   {"value": -6, "src_line": 330, "meaning": "SmallAction 태그 t 에 대해 (t-6) <u 4 ⟹ t∈{6 Attack,7 Skill,8 Skill2,9 Ult} — 표적 있는 액션만 (aux 64056~64057, 64102~64103)"},
+   {"value": 4, "src_line": 330, "meaning": "위 태그 범위 폭(6..=9 의 4개)"},
+   {"value": 40, "src_line": 288, "meaning": "아군 순회 종료 오프셋 = 5 슬롯 × 8B (54845, 루프 상한 접힘)"}
+ ],
+
+ "calls": [
+   "game_core::simulation::map_regions::is_near_line",
+   "game_core::utils::distance",
+   "game_core::simulation::game::blackboard::Blackboard::is_recent_visible",
+   "core::panicking::panic_bounds_check",
+   "llvm.memcpy.p0.p0.i64",
+   "core::ops::function::impls::call_once"
+ ],
+
+ "logic": "L271: team = player.info.team; champ = cache.player_champion[team][player.info.position]?   (None → return None)\nL272: if !is_near_line(context, champ.x, champ.y, line) { L273: return None }\nL276: nexus = cache.nexus[team]?\nL277: front_id = data.blackboard[team].minion_state(line).front_minion?   (Top→top/Mid→mid/Bottom→bottom _minion_state)\nL278: front = cache.game.get_entity_by_id(front_id)?\nL279: if !is_near_line(context, front.x, front.y, line) { L280: return None }\nL283: front_progress = distance(nexus.xy, front.xy)\nL284: champ_progress = distance(nexus.xy, champ.xy)\nL285: enemy_team = 1 - team\nL286: support_range_sq = 115600000000\nL288~346: result = cache.player_champion[team].iter().enumerate()\n  .filter_map(|(i,a)| a.map(|a| (i,a)))\n  .filter(closure$2 L291~294: |(_, ally)| ally.id != champ.id && ally.can_target && ally.block_target_tick == 0 && !ally.is_in_return()[ty==Champion && action_state==Return] && is_near_line(ctx, ally.x, ally.y, line))\n  .filter_map(closure$3 L296~346: |(ally_pos, ally)| {\n     L297: ally_progress = distance(nexus.xy, ally.xy)\n     L298: if !(front_progress > ally_progress + 100000) { return None }    // 아군이 전선보다 충분히 후방\n     L299: if !(champ_progress > ally_progress + 70000) { return None }     // 아군이 나보다 충분히 후방\n     L300: if ally.distance_sq(champ) > support_range_sq { return None }    // 340000 이내\n     L304~305: (ally_focus, ally_in_battle) = match blackboard[team].big_goal[ally_pos].1 { Some(Battle{focus}) => (focus, focus.is_some()), _ => (None, false) }   [in_battle 인라인 blackboard.rs:167]\n     L310: enemy_team 인덱스 검사(<2)\n     L312~: cache.player_champion[enemy_team].iter().enumerate().filter_map(|(j,e)| e.map(|e| (j,e)))\n        .filter_map(closure$1 = aux call_mut m04.ll:63860 L314~337: |(enemy_pos, enemy)| {\n           can_target(enemy)[can_target && block_target_tick==0] 아니면 None\n           L314: if !data.blackboard[enemy_team].is_recent_visible(cache.game, player, enemy) { None }\n           L315: if !is_near_line(ctx, enemy.x, enemy.y, line) { None }\n           L319: enemy_progress = distance(nexus.xy, enemy.xy)\n           L320: if !(front_progress > enemy_progress + 70000) { None }    // 적이 전선 미니언보다 70000 이상 우리 넥서스 쪽으로 파고듦\n           L324: close_to_ally = ally.distance_sq(enemy) < 22500000001\n           L325: focused_enemy = ally_focus == Some(enemy.id)\n           L326~328: enemy_focus_ally = matches!(blackboard[enemy_team].big_goal[enemy_pos].1, Some(Battle{focus: Some(f)}) if f == ally.id)\n           L330~331: enemy_targeting_ally = blackboard[enemy_team].small_actions[enemy_pos] ∈ {Attack,Skill,Skill2,Ult}(태그 6..=9) && target_id == ally.id\n           L332: ally_targeting_enemy = blackboard[player.info.team].small_actions[ally_pos] ∈ {6..=9} && target_id == enemy.id\n           L335: if focused_enemy || enemy_focus_ally || enemy_targeting_ally || ally_targeting_enemy   → Some\n           L336: else if close_to_ally && ally_in_battle → Some\n           else None\n           L337: Some((ally.id, enemy.id, ally.distance_sq(champ)))   // ★키 = 아군↔나 거리 (적↔나 아님)\n        })\n        .min_by_key(|t| t.2)   [aux m12.ll:4403 fold — 키가 아군마다 상수라 같은 아군의 적 중 첫 번째(enemy_pos 최소)가 뽑힘]\n  })\n  .min_by_key(|t| t.2)   [aux m12.ll:4886 fold — 나에게 가장 가까운 아군; 동률이면 ally_pos 작은 쪽(min_by 는 Less|Equal 이면 앞 값 유지)]\nL347: result.map(|(a, e, _)| (a, e))\n\n※ 본체는 첫 아군 매치(find_map)로 초기값을 만들고 나머지를 aux fold 에 넘기는 reduce 구조 — 본체 54300~54846 은 첫 아군 탐색, 54857~54923 은 fold 호출·결과 조립.",
+
+ "knobs": [
+   {"what": "지원 반경(아군↔나)", "where": "utils.rs:286", "value": 115600000000, "effect": "올리면 더 먼 후방 아군까지 지원 대상이 돼 라인에서 더 자주 뒤로 빠진다"},
+   {"what": "아군 후방 판정 여유(전선 기준)", "where": "utils.rs:298", "value": 100000, "effect": "내리면 전선 바로 뒤 아군도 '후방'으로 봐서 발동 잦아짐"},
+   {"what": "아군 후방 판정 여유(나 기준) / 적 침투 깊이", "where": "utils.rs:299, 320", "value": 70000, "effect": "내리면 나와 비슷한 위치의 아군도 대상, 전선 살짝 넘은 적도 위협으로 봄 → 발동↑"},
+   {"what": "얽힘 근접 반경(아군↔적)", "where": "utils.rs:324", "value": 22500000001, "effect": "올리면 교전 중 아군 근처 더 먼 적도 포커스 후보 (L336 경로)"}
+ ],
+
+ "unknown": [
+   "L335 의 4항 `||` 결합 순서와 L336 `close_to_ally && ally_in_battle` 의 소스 표기 — IR select 체인(64114~64116, 64130~64132, 64178)으로 동작은 확정, 줄 안 순서는 column 부재로 표기 불가",
+   "L337 키가 ally.distance_sq(champ) 라는 것은 aux 63963~63983(x1,y1=ally, x2,y2=champ) 로 확정. 소스 의도(적 거리를 의도했을 가능성)는 판단 불가 — IR 이 정본",
+   "is_recent_visible(blackboard.rs:346)·is_near_line(map_regions.rs:139)·distance(utils.rs:12) 본문 미독 — 계약만. is_recent_visible 은 blackboard[enemy_team] 을 self 로 호출(63919~63924: env+32 = &enemy_team)",
+   "version 인자는 dbg_value 외 사용처 0 — 미사용 확정(본체·aux 4조각 모두)",
+   "aux 두 fold(m12.ll 4403/4886)는 closure$1~$3 본문을 다시 인라인한 복제본이라 상수(100000/70000/22500000001)가 중복 출현 — 판정은 동일",
+   "constants 의 5(포지션 수)·40(루프 종료 오프셋)은 배열 길이/stride 성격 — 판정 노브 아님"
+ ]
+}

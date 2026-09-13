@@ -1,0 +1,278 @@
+{
+ "name": "battle_check_with_list",
+ "sym": "_RNvNtCshdEBA0ozCnw_7game_ai11fight_check22battle_check_with_list",
+ "src": "game-ai\\src\\fight_check.rs",
+ "src_line": 425,
+ "ir_file": "m15.ll",
+ "ir_from": 29104,
+ "ir_to": 30224,
+ "exe_rva": "0xeb9570",
+ "one_line": "아군/적 포지션 목록으로 양측 dps·체력을 합산해 「누가 먼저 녹는가」를 -100..100 점수로 낸다(양수=아군 유리)",
+ "signature": {
+  "params": [
+   {
+    "i": 1,
+    "name": "_version",
+    "type": "usize",
+    "note": "미사용"
+   },
+   {
+    "i": 2,
+    "name": "_rnd",
+    "type": "&mut StdRng",
+    "note": "readnone — 미사용"
+   },
+   {
+    "i": 3,
+    "name": "data",
+    "type": "&OperationData (24B)",
+    "note": "+0x0 cache, +0x8 context(+0x8 setting → tick_per_second)"
+   },
+   {
+    "i": 4,
+    "name": "player",
+    "type": "&PlayerState (2528B)",
+    "note": "+0x930 team 만 읽음(bounds<2)"
+   },
+   {
+    "i": 5,
+    "name": "ally_list",
+    "type": "&bumpalo Vec<usize> (32B: +0 ptr, +24 len)",
+    "note": "아군 포지션 인덱스 목록(각 <5, panic @449). player_champion[team][ap]"
+   },
+   {
+    "i": 6,
+    "name": "enemy_list",
+    "type": "&bumpalo Vec<usize> (32B)",
+    "note": "적 포지션 인덱스 목록(각 <5, panic @461/@482). player_champion[1-team][ep]"
+   },
+   {
+    "i": 7,
+    "name": "_debug",
+    "type": "&mut DebugFrameData",
+    "note": "readnone — 미사용"
+   }
+  ],
+  "returns": "i32 — 아군 없음: -20*enemy_cnt / 적 없음: +20*my_cnt / 양측 생존비 모두 >100000: 0 / my<enemy: my*100/enemy-100 (−100..0) / 같음: 0 / my>enemy: 100-enemy*100/my (0..100)"
+ },
+ "reads": [
+  {
+   "base": "PlayerState",
+   "offset": "0x930",
+   "name": "info.team",
+   "note": "0..1 (bounds<2). 1-team = 적"
+  },
+  {
+   "base": "OperationData",
+   "offset": "0x0",
+   "name": "cache",
+   "note": ""
+  },
+  {
+   "base": "OperationData",
+   "offset": "0x8",
+   "name": "context",
+   "note": "+0x8 setting · expected_damage_target 의 ctx 인자"
+  },
+  {
+   "base": "GameContext",
+   "offset": "0x8",
+   "name": "setting",
+   "note": ""
+  },
+  {
+   "base": "GameSetting",
+   "offset": "0x12f8",
+   "name": "tick_per_second",
+   "note": "L439 horizon = tps*6 · L442/L503/L522 dps 환산 계수"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0xf0",
+   "name": "others[]",
+   "note": "[1-team] (L493) / [team] (L512): 챔피언 외 엔티티 목록(bumpalo Vec<&Entity>: +0 ptr, +24 len)"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x1e0",
+   "name": "player_champion[][]",
+   "note": "[team][ap] 아군 챔프 / [1-team][ep] 적 챔프 (None 은 건너뜀)"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x280",
+   "name": "player_champion_cache[][]",
+   "note": "[team][pos] ChampionCache. 열 = 상대 포지션"
+  },
+  {
+   "base": "ChampionCache",
+   "offset": "0x78",
+   "name": "ult[]",
+   "note": "L442 ult_burst: tps*ult[상대pos]/horizon (궁 1회 피해를 6초에 펴서 dps 로) (IR 에선 cache 기준 `+760` = 0x280+0x78 로 접혀 있어 C3 경고 — gep 접힘)"
+  },
+  {
+   "base": "ChampionCache",
+   "offset": "0x190",
+   "name": "attack_per_sec[]",
+   "note": "L466/L470"
+  },
+  {
+   "base": "ChampionCache",
+   "offset": "0x1b8",
+   "name": "skill_per_sec[]",
+   "note": "L467/L471"
+  },
+  {
+   "base": "ChampionCache",
+   "offset": "0x1e0",
+   "name": "skill2_per_sec[]",
+   "note": "L468/L472"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x68",
+   "name": "ty@tag",
+   "note": "L441 ult_cooldown(entity.rs:1805) 인라인: Champion(13) 만 궁 쿨 읽음"
+  },
+  {
+   "base": "Entity",
+   "offset": "0xc8",
+   "name": "ty@Champion.0.ult_cooldown",
+   "note": "L441: can_ult() 아니고 Champion 이며 이 값 > horizon 이면 궁 dps 0"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x490",
+   "name": "attack_effect@Some.0",
+   "note": "L498/L517 others 엔티티의 공격 Effect(56B) → expected_damage_target"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x4c0",
+   "name": "attack_effect@tag",
+   "note": "i32 -1 = None → 그 others 엔티티는 dps·hp 모두 미합산"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x660",
+   "name": "x",
+   "note": "L495/L514 near_battle distance_sq"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x668",
+   "name": "y",
+   "note": ""
+  },
+  {
+   "base": "Entity",
+   "offset": "0x670",
+   "name": "hp",
+   "note": "L458 my_tanking / L487 enemy_tanking / L508·L527 others hp"
+  }
+ ],
+ "writes": [],
+ "constants": [
+  {
+   "value": 6,
+   "src_line": 439,
+   "meaning": "horizon = tps*6 (6초 전망 창). max(…,1)"
+  },
+  {
+   "value": 1,
+   "src_line": 439,
+   "meaning": "0 나눗셈 방지 하한(max(x,1)): horizon·cnt·attack_cooltime·tanking·dps"
+  },
+  {
+   "value": 13,
+   "src_line": 441,
+   "meaning": "EntityType::Champion — 궁 쿨다운은 챔피언만(ult_cooldown entity.rs:1805)"
+  },
+  {
+   "value": 22500000001,
+   "src_line": 495,
+   "meaning": "150000²+1 — others 엔티티가 「전장 근처」인지: 어느 아군(L495)/적(L514) 챔프와의 제곱거리 < 이 값"
+  },
+  {
+   "value": -1,
+   "src_line": 498,
+   "meaning": "attack_effect Option 니치(i32) None 검사(L498·L517)"
+  },
+  {
+   "value": -20,
+   "src_line": 532,
+   "meaning": "아군 0명 → -20 × enemy_cnt"
+  },
+  {
+   "value": 20,
+   "src_line": 534,
+   "meaning": "적 0명 → +20 × my_cnt"
+  },
+  {
+   "value": 10000,
+   "src_line": 536,
+   "meaning": "생존비 스케일: my_ratio = my_tanking*10000/enemy_dps, enemy_ratio = enemy_tanking*10000/my_dps"
+  },
+  {
+   "value": 100000,
+   "src_line": 540,
+   "meaning": "양측 생존비 모두 > 100000 (= 10초분 ×10000… dps 가 사실상 0) 이면 0 반환(판정 보류)"
+  },
+  {
+   "value": 100,
+   "src_line": 545,
+   "meaning": "비율 % 환산: my<enemy → my*100/enemy − 100 ; my>enemy → 100 − enemy*100/my"
+  },
+  {
+   "value": 5,
+   "src_line": 449,
+   "meaning": "포지션 bounds(panic_bounds_check) — 판정 아님"
+  },
+  {
+   "value": 2,
+   "src_line": 448,
+   "meaning": "팀 bounds — 판정 아님"
+  }
+ ],
+ "calls": [
+  "game_core::simulation::entity::Entity::can_ult",
+  "game_core::simulation::effect::Effect::expected_damage_target",
+  "game_core::simulation::entity::Entity::attack_cooltime",
+  "core::panicking::panic_bounds_check",
+  "core::panicking::panic_const::panic_const_div_by_zero"
+ ],
+ "logic": "battle_check_with_list(_version, _rnd, data, player, ally_list, enemy_list, _debug) -> i32\n  tps = setting.tick_per_second; horizon = max(tps*6, 1)                                   // L439\n  ult_burst = |e, cc, tgt_pos| if e.can_ult() || !(e.ty==Champion && e.ult_cooldown > horizon)   // L440~441\n                 { tps * cc.ult[tgt_pos] / horizon } else { 0 }                                // L442\n  my_dps = my_tanking = enemy_dps = enemy_tanking = 0; my_cnt = enemy_cnt = 0               // L430~435\n  for ap in ally_list {                                                                     // L448\n    c = player_champion[team][ap] else continue                                             // L449~450\n    my_tanking += c.hp; my_cnt += 1                                                         // L458~459\n    mdps = edps = 0; cnt = 0\n    for ep in enemy_list { e = player_champion[1-team][ep] else continue                     // L460~462\n      mdps += cc[team][ap].{attack,skill,skill2}_per_sec[ep] + ult_burst(c, cc[team][ap], ep)      // L466~469\n      edps += cc[1-team][ep].{attack,skill,skill2}_per_sec[ap] + ult_burst(e, cc[1-team][ep], ap)  // L470~473\n      cnt += 1 }                                                                            // L474\n    my_dps += mdps / max(cnt,1); enemy_dps += edps / max(cnt,1) }                           // L477~478  (적 수 평균)\n  for ep in enemy_list { e = player_champion[1-team][ep] else continue; enemy_tanking += e.hp; enemy_cnt += 1 }   // L481~488\n  for e in cache.others[1-team] {                                                           // L493\n    near = ally_list.any(|ap| player_champion[team][ap] is Some(a) && dist_sq(a, e) <= 150000²)   // L494~495\n    if near { if let Some(atk) = e.attack_effect {                                          // L498\n      total = 0; cnt = 0\n      for ap in ally_list { a = player_champion[team][ap] else continue                     // L501~502\n        total += expected_damage_target(atk, ctx, e, <static>, a) * tps / max(e.attack_cooltime(),1); cnt += 1 }   // L503~504\n      enemy_dps += total / max(cnt,1); enemy_tanking += e.hp } }                            // L507~508\n  }\n  (L512~527: cache.others[team] × enemy_list 로 대칭 — my_dps / my_tanking 에 가산)\n  if my_cnt == 0 { return -20 * enemy_cnt }                                                 // L531~532\n  if enemy_cnt == 0 { return 20 * my_cnt }                                                  // L533~534\n  my_ratio    = my_tanking    * 10000 / max(enemy_dps, 1)                                   // L536  (내가 버티는 시간)\n  enemy_ratio = enemy_tanking * 10000 / max(my_dps, 1)                                      // L537\n  if my_ratio > 100000 && enemy_ratio > 100000 { return 0 }                                 // L540\n  if my_ratio < enemy_ratio { return (my_ratio*100/enemy_ratio) as i32 - 100 }              // L544~545\n  if my_ratio == enemy_ratio { return 0 }                                                   // L546\n  return 100 - (enemy_ratio*100/my_ratio) as i32                                            // L549  (my_ratio==0 이면 div-by-zero 패닉)",
+ "knobs": [
+  {
+   "what": "전망 창(궁 dps 환산 분모·궁 쿨 허용)",
+   "where": "fight_check.rs:439",
+   "value": "tps*6",
+   "effect": "올리면 궁 기여가 작아지고(ult/horizon) 더 긴 쿨의 궁도 포함된다"
+  },
+  {
+   "what": "others 엔티티 전장 반경",
+   "where": "fight_check.rs:495·514",
+   "value": 22500000001,
+   "effect": "올리면 더 먼 타워/소환수 dps·hp 가 합산된다"
+  },
+  {
+   "what": "한쪽 부재 시 점수 단가",
+   "where": "fight_check.rs:532·534",
+   "value": "±20/명",
+   "effect": "올리면 일방 상황 점수의 절대값이 커진다(호출자의 임계와 상대적)"
+  },
+  {
+   "what": "판정 보류 생존비 상한",
+   "where": "fight_check.rs:540",
+   "value": 100000,
+   "effect": "내리면 dps 가 낮은 대치 상황도 0 이 아니라 ± 점수를 낸다"
+  }
+ ],
+ "unknown": [
+  "반환값을 소비하는 호출자(exe 0xdcee40 1곳)의 임계 — 범위 밖",
+  "expected_damage_target 의 4번째 인자 정적 데이터(@anon…)의 내용 — 미독",
+  "cache.others 에 어떤 엔티티(타워/소환수/정글몹 등)가 들어가는지 — game_core 캐시 구성 미독",
+  "L536~537 변수명(my_ratio/enemy_ratio)은 DI 기준. 「ratio」가 실제로는 생존 시간(tanking/dps) 스케일값이라는 해석은 산식에서 도출",
+  "L440 클로저 인자 구성(ult_burst 가 (Entity, cache, pos) 를 받는지) — 인라인돼 형태 표기 불가, 산식은 확정"
+ ]
+}

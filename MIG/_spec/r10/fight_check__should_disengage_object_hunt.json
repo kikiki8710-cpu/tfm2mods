@@ -1,0 +1,74 @@
+{
+ "name": "should_disengage_object_hunt",
+ "sym": "_RNvNtCshdEBA0ozCnw_7game_ai11fight_check28should_disengage_object_hunt",
+ "src": "game-ai\\src\\fight_check.rs",
+ "src_line": 1361,
+ "ir_file": "m15.ll",
+ "ir_from": 33056,
+ "ir_to": 33780,
+ "exe_rva": "0xebbb80",
+ "aux": [
+  {"ir_file": "m15.ll", "ir_from": 58284, "ir_to": 58365, "note": "closure#0 call_mut = 캠프 범위 안 가시 적 필터(L1375~1377)"}
+ ],
+
+ "one_line": "오브젝트 사냥 중 캠프 범위 안의 (보이는) 적이 있고 진형이 불리하며 적 수 ≥ (나 제외·HP 40%↑) 아군 수면 true(Setup 복귀)",
+
+ "signature": {
+   "params": [
+     {"i": 1, "name": "_version", "type": "usize", "note": "미사용(이름부터 _). 본문 분기 없음"},
+     {"i": 2, "name": "player", "type": "&PlayerState (2528B)", "note": "+0x930 team, +0x9c0 position. check_favorable_engage_formation 에 전달"},
+     {"i": 3, "name": "data", "type": "&OperationData (24B)", "note": "+0x0 cache 만 직접 읽음"},
+     {"i": 4, "name": "camp_pos", "type": "(u64, u64)", "note": "SROA 승격: %3 = x, %4 = y (스택 %11 에 저장 후 클로저가 & 로 참조). 오브젝트 캠프 좌표"},
+     {"i": 5, "name": "camp_range", "type": "u64", "note": "%5 (스택 %10). camp_range² 와 제곱거리 비교(L1377 적 · L1402 아군)"}
+   ],
+   "returns": "bool — true = 진형 불리, Setup 으로 돌아가야 함 / false = 유지"
+ },
+
+ "reads": [
+  {"base": "PlayerState", "offset": "0x930", "name": "info.team", "note": "bounds<2 (panic @1368). 1-team = 적 팀"},
+  {"base": "PlayerState", "offset": "0x9c0", "name": "info.position@tag", "note": "as_index → me = player_champion[team][pos]"},
+  {"base": "OperationData", "offset": "0x0", "name": "cache", "note": "&AbstractGameWithCache"},
+  {"base": "AbstractGameWithCache", "offset": "0x1e0", "name": "player_champion[][]", "note": "[team][pos] = me (L1368, None → false). [1-team][0..5] = iter_champions(적) (L1374). [team][0..5] = 아군 5칸 스캔 (L1405)"},
+  {"base": "Entity", "offset": "0x0", "name": "team@tag", "note": "(aux) me.team Neutral(1) 이면 가시성 검사 생략"},
+  {"base": "Entity", "offset": "0x8", "name": "team@Player.0", "note": "(aux) me 팀 인덱스"},
+  {"base": "Entity", "offset": "0x38", "name": "visible_state[]", "note": "(aux) e.visible_state[my_team]@tag == 0 Visible 이어야 적 후보"},
+  {"base": "Entity", "offset": "0x5c0", "name": "id", "note": "L1401: 아군 슬롯 중 me.id 와 같은 것 제외"},
+  {"base": "Entity", "offset": "0x628", "name": "stat_cached.hp", "note": "L1403 아군 최대 HP(0 이면 div-by-zero 패닉 @1403)"},
+  {"base": "Entity", "offset": "0x660", "name": "x", "note": "distance_sq(utils.rs:7~9): 적↔camp_pos(aux L1377) · 적↔me(L1389) · 아군↔camp_pos(L1402)"},
+  {"base": "Entity", "offset": "0x668", "name": "y", "note": ""},
+  {"base": "Entity", "offset": "0x670", "name": "hp", "note": "L1403 아군 hp*100/max_hp > 39"}
+ ],
+
+ "writes": [],
+
+ "constants": [
+  {"value": 0, "src_line": 1394, "meaning": "check_favorable_engage_formation 의 1번째 인자(version) 를 0 으로 고정 호출. L1382 enemies.len()==0 → false 도 리터럴 0"},
+  {"value": 200000, "src_line": 1394, "meaning": "check_favorable_engage_formation 의 마지막 인자(거리 임계, 셀 32000 기준 6.25셀) — 유리 구도면 즉시 false"},
+  {"value": 100, "src_line": 1403, "meaning": "아군 HP% = hp*100/max_hp"},
+  {"value": 39, "src_line": 1403, "meaning": "아군 카운트 조건 HP% > 39 (40% 이상)"},
+  {"value": 2, "src_line": 1368, "meaning": "팀 인덱스 bounds(panic_bounds_check)"},
+  {"value": 1152921504606846976, "src_line": 1382, "meaning": "2^60 — Vec<&Entity>.len 상한 assume(컴파일러 아티팩트, 판정 아님)"}
+ ],
+
+ "calls": [
+  "alloc::vec::spec_from_iter_nested::from_iter",
+  "core::iter::traits::iterator::Iterator::min_by_key",
+  "game_ai::fight_check::check_favorable_engage_formation",
+  "core::panicking::panic_bounds_check",
+  "core::panicking::panic_const::panic_const_div_by_zero"
+ ],
+
+ "logic": "should_disengage_object_hunt(_version, player, data, camp_pos:(x,y), camp_range) -> bool\n  me = cache.player_champion[team][pos]  ; None → return false                       // L1368\n  enemies: Vec<&Entity> = cache.iter_champions(1-team).filter(|e|                   // L1374~1375 (aux closure#0)\n      (me.team==Neutral || e.visible_state[my_team]==Visible)                         // L1376\n      && distance_sq(e, camp_pos) <= camp_range*camp_range ).collect()               // L1377\n  if enemies.is_empty() { return false }                                            // L1382\n  nearest = enemies.iter().min_by_key(|e| distance_sq(e, me))  ; None → return false   // L1387~1391 (closure$1)\n  if check_favorable_engage_formation(0, player, data, nearest, 200000) { return false }   // L1394  유리 구도면 유지\n  allies = cache.player_champion[team][0..5].filter(|a| Some(a)                      // L1401~1405 (closure$2 인라인 ×5)\n      && a.id != me.id                                                                // L1401 ★나 제외\n      && distance_sq(a, camp_pos) <= camp_range²                                      // L1402\n      && a.hp*100/a.max_hp > 39).count()                                              // L1403\n  return enemies.len() >= allies   (IR: len < allies → false, else true)             // L1407~1410",
+
+ "knobs": [
+  {"what": "유리 구도 판정 거리", "where": "fight_check.rs:1394", "value": 200000, "effect": "check_favorable_engage_formation 의 반경. 올리면 더 넓은 진형을 보고 유리 판정(→ 유지) 가능성 변화(콜리 의미에 따름)"},
+  {"what": "아군 카운트 HP% 하한", "where": "fight_check.rs:1403", "value": 39, "effect": "내리면 빈사 아군도 세어 disengage 가 덜 일어난다"},
+  {"what": "수적 비교 극성", "where": "fight_check.rs:1410", "value": "enemies >= allies(나 제외)", "effect": "`>` 로 바꾸면 동수에서 유지, 현재는 동수면 후퇴(나를 안 세므로 실질 아군 = allies+1 대 enemies)"}
+ ],
+
+ "unknown": [
+  "check_favorable_engage_formation 내부·200000 의 정확한 의미(콜리 시그니처의 5번째 인자 이름) — 별도 함수(호출만). 첫 인자 0 이 version 인지도 콜리 미독",
+  "L1410 소스 표기가 `enemies.len() >= allies` 인지 `!(enemies.len() < allies)` 인지 — 표기 불가(외연 동일), 동작은 확정",
+  "camp_pos 튜플이 (x,y) 순서인지 — 클로저 env +8→%11(=%3)·+16→%12(=%4) 가 각각 Entity.x(0x660)·y(0x668) 와 비교되므로 (x,y) 로 확정. 단 소스 인자 이름(camp_pos)은 arg 4 DI 가 누락돼 _docs 주석(`camp_pos`)으로 보완"
+ ]
+}

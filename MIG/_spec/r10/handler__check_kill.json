@@ -1,0 +1,134 @@
+{
+ "name": "check_kill",
+ "sym": "_RNvNtNtCshdEBA0ozCnw_7game_ai11plan_legacy7handler10check_kill",
+ "src": "game-ai\\src\\plan_legacy\\handler.rs",
+ "src_line": 2507,
+ "ir_file": "m13.ll",
+ "ir_from": 54538,
+ "ir_to": 56187,
+ "exe_rva": "0xe6b800",
+ "aux": [
+  {"ir_file": "m13.ll", "ir_from": 58598, "ir_to": 58661, "note": "check_kill_v15::{closure#0} call_mut = 아군 후보 필터(L2377) — exe 0xca2790"},
+  {"ir_file": "m13.ll", "ir_from": 58685, "ir_to": 58771, "note": "check_kill_v15::{closure#1}(s_0) call_mut = 적 후보 필터(L2379)"},
+  {"ir_file": "m13.ll", "ir_from": 58916, "ir_to": 58938, "note": "check_kill_v15::{closure#2}(s0_0) call_mut = 적 타워 필터(L2389): game.tick() <= tower_attack_disable_tick"}
+ ],
+
+ "one_line": "150000 안 적 중 「내가 (아군 화력으로) 먼저 죽이고, 그 적이 타워로 도망치기 전에 잡을 수 있는」 첫 적을 골라 (적 id, 예상 처치 틱)을 돌려준다",
+
+ "signature": {
+   "params": [
+     {"i": 0, "name": "(sret)", "type": "Option<(usize, usize)> (24B)", "note": "+0 태그(0=None/1=Some), +8 = 적 Entity.id, +16 = max(적 사망예상틱, 60) + 현재 tick"},
+     {"i": 1, "name": "version", "type": "usize", "note": "본문 분기 없음. 적 필터 클로저(aux) 의 is_ignored_well_enemy 에 전달"},
+     {"i": 2, "name": "rnd", "type": "&mut StdRng", "note": "readnone — 전혀 안 씀"},
+     {"i": 3, "name": "player", "type": "&PlayerState (2528B)", "note": "+0x930 team, +0x9c0 position, +0x180 parameter(aggressive_ratio). player_awareness_lapse·is_ignored_well_enemy 에 전달"},
+     {"i": 4, "name": "data", "type": "&OperationData (24B)", "note": "+0x0 cache, +0x8 context"},
+     {"i": 5, "name": "_positioning_score", "type": "&PositioningScoreData", "note": "readonly·미사용(이름부터 _)"},
+     {"i": 6, "name": "debug", "type": "&mut DebugFrameData (224B)", "note": "ctx.debug 일 때만 +0xa0 infos[me.id] 에 문자열 push (L2473~2474)"}
+   ],
+   "returns": "Option<(usize, usize)> — Some((적 id, max(적 사망예상 틱수, 60) + tick)) / None = 처치 가능 적 없음 또는 awareness lapse"
+ },
+
+ "reads": [
+  {"base": "PlayerState", "offset": "0x930", "name": "info.team", "note": "0..1. player_champion[team][pos] 인덱스(bounds<2, panic @2374). 1-team = 적 팀"},
+  {"base": "PlayerState", "offset": "0x9c0", "name": "info.position@tag", "note": "i32 Position → as_index = my_pos(캐시 열 인덱스)"},
+  {"base": "PlayerState", "offset": "0x180", "name": "info.parameter", "note": "AthleteParameter(744B) → aggressive_ratio() (L2417)"},
+  {"base": "OperationData", "offset": "0x0", "name": "cache", "note": "&AbstractGameWithCache"},
+  {"base": "OperationData", "offset": "0x8", "name": "context", "note": "&GameContext"},
+  {"base": "GameContext", "offset": "0x8", "name": "setting", "note": "&GameSetting"},
+  {"base": "GameContext", "offset": "0x38", "name": "tutorial@tag", "note": "player_count(runner.rs:295) 인라인: {0,2,4,6,7,8}→5v5 / {1,3}→2v2 / {5}→3v3 설정 선택"},
+  {"base": "GameContext", "offset": "0x3b", "name": "debug", "note": "bool. true 면 L2474 디버그 문자열 기록"},
+  {"base": "GameSetting", "offset": "0x12f8", "name": "tick_per_second", "note": "쿨다운 임계(L2398·2402·2406·2444·2448·2452: cooldown > tps 면 그 공격수단 제외) · 타워 dps 환산(L2463: tps*dmg/attack_cooltime)"},
+  {"base": "GameSetting", "offset": "0x13f8", "name": "tower_attack_disable_tick (5v5) / 0x1400 _2v2 / 0x1408 _3v3", "note": "L2383 player_count 별 선택 → 타워 필터(aux closure#2): game.tick() <= 이 값인 타워만 포함"},
+  {"base": "AbstractGameWithCache", "offset": "0x0", "name": "game.data_ptr / game.vtable_ptr", "note": "vtable+0x28 tick() (L2502·타워 필터)"},
+  {"base": "AbstractGameWithCache", "offset": "0x1e0", "name": "player_champion[][]", "note": "[team][pos] Option<&Entity>. L2374 me = [team][my_pos].unwrap(). L2435 player_by_champion_id 인라인(10칸 id 스캔 → (team,pos))"},
+  {"base": "AbstractGameWithCache", "offset": "0x280", "name": "player_champion_cache[][]", "note": "[team][pos] ChampionCache(800B). 열 인덱스 = 대상 pos"},
+  {"base": "ChampionCache", "offset": "0x0", "name": "attack[]", "note": "[대상pos] 1회 공격 피해. 적→나(L2399), 아군→적(L2445)"},
+  {"base": "ChampionCache", "offset": "0x28", "name": "skill[]", "note": "L2403 / L2449"},
+  {"base": "ChampionCache", "offset": "0x50", "name": "skill2[]", "note": "L2407 / L2453"},
+  {"base": "ChampionCache", "offset": "0x190", "name": "attack_per_sec[]", "note": "L2410 / L2440"},
+  {"base": "ChampionCache", "offset": "0x1b8", "name": "skill_per_sec[]", "note": "L2411 / L2441"},
+  {"base": "ChampionCache", "offset": "0x1e0", "name": "skill2_per_sec[]", "note": "L2412 / L2442"},
+  {"base": "Entity", "offset": "0x0", "name": "team@tag", "note": "(aux 적 필터) me.team: Neutral(1)이면 가시성 검사 생략"},
+  {"base": "Entity", "offset": "0x8", "name": "team@Player.0", "note": "(aux 적 필터) me 팀 인덱스 → e.visible_state[team]"},
+  {"base": "Entity", "offset": "0x38", "name": "visible_state[]", "note": "(aux 적 필터) [my_team]@tag == 0 Visible 이어야 적 후보"},
+  {"base": "Entity", "offset": "0x68", "name": "ty@tag", "note": "EntityType. attack_cooldown(entity.rs:1748~1760) 인라인 매치: 13 Champion→+0xb0, 1 Minion→+0xb8, 2 Tower→+0x110, 4/7→+0xe8, 5/6→+0x1f0, 8→+0xb0, 9→+0xc8, 10→+0xf0, 11→+0xd8, 12→+0xd0, 0/3→쿨다운 없음. skill_cooldown(1775)/skill2_cooldown(1790)은 13 Champion 만"},
+  {"base": "Entity", "offset": "0xb0", "name": "ty@Champion.0.attack_cooldown", "note": "can_attack() false 일 때 > tps 면 공격 피해 제외"},
+  {"base": "Entity", "offset": "0xb8", "name": "ty@Champion.0.skill_cooldown", "note": "can_skill() false && Champion 일 때 > tps 면 skill 제외"},
+  {"base": "Entity", "offset": "0xc0", "name": "ty@Champion.0.skill2_cooldown", "note": "can_skill2() false && Champion 일 때 > tps 면 skill2 제외"},
+  {"base": "Entity", "offset": "0x490", "name": "attack_effect@Some.0", "note": "Effect(56B). 타워: expected_damage_target(L2462) / 나: is_in_range(L2494)"},
+  {"base": "Entity", "offset": "0x4c0", "name": "attack_effect@tag", "note": "i32 니치 -1 = None → unwrap panic(@2462 타워 / @2491 나)"},
+  {"base": "Entity", "offset": "0x5c0", "name": "id", "note": "player_by_champion_id 키 · 반환값.0 · debug 키"},
+  {"base": "Entity", "offset": "0x628", "name": "stat_cached.hp", "note": "(aux 아군 필터) 최대 HP: hp*100/max_hp > 39"},
+  {"base": "Entity", "offset": "0x640", "name": "stat_cached.move_speed", "note": "L2484 e.distance(tower)/e.speed = 타워 도달 틱 · L2489 me.speed > e.speed 분기"},
+  {"base": "Entity", "offset": "0x660", "name": "x", "note": "distance_sq(utils.rs:7~9) 인라인"},
+  {"base": "Entity", "offset": "0x668", "name": "y", "note": ""},
+  {"base": "Entity", "offset": "0x670", "name": "hp", "note": "L2470 적 잔여 HP, L2471 내 잔여 HP, (aux) 아군 필터 hp%"}
+ ],
+
+ "writes": [
+  {"base": "Option<(usize,usize)>(sret)", "offset": "0x0", "name": "tag", "value": "0 (None: L2510 lapse / L2502 후보 없음) · 1 (Some)", "note": ""},
+  {"base": "Option<(usize,usize)>(sret)", "offset": "0x8", "name": "Some.0", "value": "e.id (Entity+0x5c0)", "note": "L2502"},
+  {"base": "Option<(usize,usize)>(sret)", "offset": "0x10", "name": "Some.1", "value": "max(enemy_die_ticks, 60) + game.tick()", "note": "L2502 예상 처치 틱"},
+  {"base": "DebugFrameData(debug)", "offset": "0xa0", "name": "infos", "value": "HashMap<usize, Vec<String>>: entry(me.id).or_default().push(format!(.., enemy_die_ticks, my_die_ticks))", "note": "L2473 ctx.debug 일 때만. 적 후보마다 1줄"}
+ ],
+
+ "constants": [
+  {"value": 22500000001, "src_line": 2461, "meaning": "150000²+1 — 타워↔적 거리(제곱) 임계(L2461) · (aux) 아군↔나(L2377)·적↔나(L2379) 후보 반경 · L2481 최근접 타워 탐색 첫 원소. 셀 32000 기준 ≈4.7셀"},
+  {"value": 100, "src_line": 2377, "meaning": "(aux closure#0) 아군 HP% = hp*100/max_hp"},
+  {"value": 39, "src_line": 2377, "meaning": "(aux closure#0) 아군 후보 = HP% > 39 (즉 40% 이상)"},
+  {"value": 1000, "src_line": 2419, "meaning": "aggressive_ratio(0..1000) 정규화 분모"},
+  {"value": 80, "src_line": 2419, "meaning": "c1 = (1000-ar)*80/1000 + 80 ∈ [80,160] 틱 — 「내가 죽기까지」와 「적이 죽기까지」의 최소 여유(L2477). 공격성 높을수록 여유 요구가 작다"},
+  {"value": 45, "src_line": 2420, "meaning": "c2 = ar*45/1000 + 45 ∈ [45,90] 틱 — 내가 더 느릴 때 적 사망예상틱 상한(L2494)"},
+  {"value": 35, "src_line": 2421, "meaning": "c3 = ar*35/1000 + 15 ∈ [15,50] 틱 — 적의 타워 도달 틱에서 빼는 여유(L2498·L2494)"},
+  {"value": 15, "src_line": 2421, "meaning": "c3 절편"},
+  {"value": 60, "src_line": 2470, "meaning": "잔여HP*60/초당피해 = 틱 환산(tps 60 리터럴 — setting.tick_per_second 가 아닌 하드코딩). L2502 max(적사망틱, 60) 하한도 같은 리터럴"},
+  {"value": 1, "src_line": 2470, "meaning": "max(dps, 1) — 0 나눗셈 방지"},
+  {"value": 99999999, "src_line": 2481, "meaning": "적 타워 없음 → 타워 도달 틱 = 무한대 대용"},
+  {"value": 13, "src_line": 2402, "meaning": "EntityType::Champion 태그 — skill/skill2 쿨다운은 챔피언만 읽음(entity.rs:1775·1790)"},
+  {"value": -1, "src_line": 2462, "meaning": "attack_effect Option 니치(i32) None → unwrap 실패 패닉(타워 L2462 · 나 L2491)"},
+  {"value": 2, "src_line": 2374, "meaning": "팀 인덱스 bounds"}
+ ],
+
+ "calls": [
+  "game_ai::utils::player_awareness_lapse",
+  "bumpalo::collections::vec::from_iter_in",
+  "game_core::simulation::AbstractGameWithCache::iter_towers_without_nexus",
+  "game_core::simulation::AbstractGameWithCache::player_by_champion_id",
+  "game_core::simulation::state::player::AthleteParameter::aggressive_ratio",
+  "game_core::simulation::entity::Entity::can_attack",
+  "game_core::simulation::entity::Entity::can_skill",
+  "game_core::simulation::entity::Entity::can_skill2",
+  "game_core::simulation::effect::Effect::expected_damage_target",
+  "game_core::simulation::entity::Entity::attack_cooltime",
+  "game_core::simulation::entity::Entity::distance",
+  "game_core::simulation::effect::Effect::is_in_range",
+  "game_ai::plan_legacy::old::fight_model::is_ignored_well_enemy",
+  "core::panicking::panic_bounds_check",
+  "core::option::unwrap_failed",
+  "core::panicking::panic_const::panic_const_div_by_zero",
+  "hashbrown::rustc_entry::rustc_entry",
+  "alloc::fmt::format::format_inner"
+ ],
+ "vtable_calls": ["game.vtable_ptr+0x28 tick() — L2502 반환값 합산 · aux closure#2 타워 필터"],
+
+ "logic": "check_kill(version, rnd, player, data, _ps, debug):                 // L2507\n  if player_awareness_lapse(player, data) { return None }            // L2509~2510\n  return check_kill_v15(version, player, data, debug)                // L2512 (2373~2505 전부 인라인)\n\n--- check_kill_v15 ---\nme   = cache.player_champion[team][my_pos].unwrap()                            // L2374\nallies  = iter_champions(team).filter(|a| dist_sq(a,me) <= 150000² && a.hp*100/a.max_hp > 39)   // L2377 (aux#0) ★나 자신 포함\nenemies = iter_champions(1-team).filter(|e| dist_sq(e,me) <= 150000²\n            && (me.team==Neutral || e.visible_state[my_team]==Visible)\n            && !is_ignored_well_enemy(version, player, e))                       // L2379 (aux#1)\ndisable_tick = match player_count(tutorial) { 5v5→setting.tower_attack_disable_tick, 2v2→_2v2, 3v3→_3v3 }   // L2383~2386\ntowers = iter_towers_without_nexus(cache, 1-team).filter(|t| game.tick() <= disable_tick)   // L2389 (aux#2) — 적 타워\n\n// 1) 적 전원이 나에게 주는 화력\nenemy_burst = 0; enemy_dps = 0\nfor e in enemies:                                                              // L2393\n  pe = player_by_champion_id(e.id).unwrap(); cc = champion_cache[pe.team][pe.pos]   // L2395\n  b = 0\n  if e.can_attack() || e.attack_cooldown() is None || cd <= tps { b = cc.attack[my_pos] }         // L2398~2399\n  if e.can_skill()  || e.ty!=Champion || e.skill_cooldown  <= tps { b = max(b, cc.skill[my_pos]) } // L2402~2403\n  if e.can_skill2() || e.ty!=Champion || e.skill2_cooldown <= tps { b = max(b, cc.skill2[my_pos]) }// L2406~2407\n  enemy_dps  += cc.attack_per_sec[my_pos] + cc.skill_per_sec[my_pos] + cc.skill2_per_sec[my_pos]  // L2410~2412\n  enemy_burst += b                                                             // L2413\n\nar = player.parameter.aggressive_ratio()                                       // L2417\nc1 = (1000-ar)*80/1000 + 80 ; c2 = ar*45/1000 + 45 ; c3 = ar*35/1000 + 15     // L2419~2421\n\n// 2) 적 하나씩 — 아군 전원의 화력 vs 그 적\nfor e in enemies:                                                              // L2424\n  pe = player_by_champion_id(e.id).unwrap(); epos = pe.pos                     // L2431~2432\n  ally_burst = 0; ally_dps = 0\n  for a in allies:                                                             // L2434\n    pa = (team,pos) of a via player_champion 10칸 id 스캔 (없으면 unwrap 패닉)   // L2435\n    cc = champion_cache[pa.team][pa.pos]                                       // L2440\n    ally_dps += cc.attack_per_sec[epos] + cc.skill_per_sec[epos] + cc.skill2_per_sec[epos]   // L2440~2442\n    b = 0 ; (공격/스킬/스킬2 가용 판정은 1)과 동일 규칙, 대상 열 = epos)            // L2444~2453\n    ally_burst += b                                                            // L2456~2457\n  my_burst = enemy_burst ; my_dps = enemy_dps\n  for t in towers:                                                             // L2460\n    if dist_sq(t, e) <= 150000² {                                              // L2461\n      d = t.attack_effect.unwrap().expected_damage_target(ctx, t, <static>, me)   // L2462\n      my_dps  += tps * d / t.attack_cooltime()   (0 이면 div-by-zero 패닉)        // L2463\n      my_burst += d }                                                          // L2464\n  enemy_die = sat(e.hp - ally_burst) * 60 / max(ally_dps, 1)                   // L2470\n  my_die    = sat(me.hp - my_burst)  * 60 / max(my_dps, 1)                     // L2471\n  if ctx.debug { debug.infos[me.id].push(format!(enemy_die, my_die)) }         // L2473~2474\n  if enemy_die > sat(my_die - c1) { continue }                                 // L2477  ★내가 c1 틱 이상 먼저 죽이지 못하면 탈락\n  tower_ticks = match towers.min_by_key(|t| dist_sq(t,e)) { Some(t) => e.distance(t) / e.move_speed, None => 99999999 }   // L2481~2484\n  if me.move_speed > e.move_speed {                                            // L2489\n    ok = enemy_die < sat(tower_ticks - c3)                                     // L2498~2499\n  } else {\n    ok = me.attack_effect.unwrap().is_in_range(me, e) && enemy_die < c2 && enemy_die < sat(tower_ticks - c3)   // L2491~2494\n  }\n  if ok { return Some((e.id, max(enemy_die, 60) + game.tick())) }              // L2502\nreturn None                                                                    // L2505",
+
+ "knobs": [
+  {"what": "후보 반경(아군·적·타워)", "where": "handler.rs:2377·2379·2461", "value": 22500000001, "effect": "올리면 더 먼 아군 화력을 합산하고 더 먼 적을 킬 후보로 본다(과대평가 위험). 내리면 근접 교전만"},
+  {"what": "아군 화력 참여 HP% 하한", "where": "handler.rs:2377", "value": 39, "effect": "내리면 빈사 아군도 화력에 포함 → 킬 판정이 후해진다"},
+  {"what": "선제 여유 c1 기본/기울기", "where": "handler.rs:2419", "value": "80+80", "effect": "올리면 「내가 훨씬 먼저 죽인다」가 확실할 때만 킬 시도(보수적). ar 높을수록 자동으로 작아짐"},
+  {"what": "느린 추격자의 적 사망틱 상한 c2", "where": "handler.rs:2420", "value": "45+45", "effect": "올리면 내가 더 느려도 오래 걸리는 킬을 시도"},
+  {"what": "타워 도달 여유 c3", "where": "handler.rs:2421", "value": "15+35", "effect": "올리면 타워 근처 적을 더 일찍 포기"},
+  {"what": "틱 환산 계수", "where": "handler.rs:2470·2471·2502", "value": 60, "effect": "setting.tick_per_second 와 별개 리터럴 — tps 를 바꿔도 여기 안 따라감(불일치 지점)"},
+  {"what": "쿨다운 허용 임계", "where": "handler.rs:2398~2452", "value": "setting.tick_per_second", "effect": "쿨다운이 1초 이내면 그 공격수단을 곧 쓸 수 있는 것으로 셈"}
+ ],
+
+ "unknown": [
+  "타워 필터 `game.tick() <= tower_attack_disable_tick` 의 게임 의미(왜 이 틱 이전에만 타워를 세는지) — 극성만 IR 로 확정(ule → true=포함). 설정 필드 의미는 game-core 미독",
+  "expected_damage_target 의 4번째 인자 @anon...174(88B 정적) 의 내용 — 본문 밖 상수 데이터(미독)",
+  "iter_towers_without_nexus 의 반환 순서·포함 범위(1차/2차 타워·쌍둥이 타워 여부) — game_core 본문 미독. min_by_key 는 첫 최소 원소(closure$3, m12.ll 30393~30533)",
+  "player_awareness_lapse(utils) 내부 조건 — 별도 함수(호출만)",
+  "attack_cooldown 이 None 인 ty(None/Nexus) 경로는 도달 불가로 보이나(iter_champions 만) IR 상 분기는 존재 — 기록만",
+  "L2398 `can_attack || cooldown<=tps` 의 소스 문장 형태(`if !can_attack && cd > tps { 0 } else {..}` 등) — column 부재로 표기 불가, 진리표는 확정"
+ ]
+}

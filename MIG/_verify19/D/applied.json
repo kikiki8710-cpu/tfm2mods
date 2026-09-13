@@ -1,0 +1,31 @@
+{
+ "round": "19",
+ "batch": "D",
+ "errors_applied": 22,
+ "ev_applied": 28,
+ "failed": 0,
+ "stamps": {
+  "/specs[101]/consts[4]/src_line": "7cb676d57114874e",
+  "/specs[101]/consts[5]/src_line": "7cb676d57114874e",
+  "/specs[101]/consts[7]/src_line": "0bba869d7f392cbc",
+  "/specs[101]/consts[8]/src_line": "0bba869d7f392cbc",
+  "/specs[101]/consts[9]/src_line": "6aac0cf87a32e631",
+  "/specs[101]/logic": "8b8fc20d8626ab0e",
+  "/specs[101]/consts[0]/meaning": "f37d4bff718f16d3",
+  "/specs[101]/consts[3]/meaning": "17307c13d3e83c71",
+  "/specs[101]/consts[8]/meaning": "f03763df2caa5a53",
+  "/specs[98]/consts[5]/meaning": "72781ae75529b0c6",
+  "/specs[98]/consts[6]/meaning": "e05698b9f1f7bb5c",
+  "/specs[99]/consts[2]/meaning": "938ee68cc5aff911",
+  "/specs[99]/consts[3]/meaning": "9a82d1b5e9f5f351",
+  "/specs[100]/consts[6]/meaning": "ee5e64fc0c1a6c6b",
+  "/specs[100]/consts[11]/meaning": "2fa8274acdcf980a",
+  "/specs[100]/consts[12]/meaning": "59c54ae0140282f2",
+  "/specs[100]/consts[13]/meaning": "5daf2590c9445bb2",
+  "/specs[100]/consts[18]/meaning": "a1e9ce1d69a437a5",
+  "/specs[100]/consts[19]/meaning": "df16eb4ddcf19194",
+  "/specs[100]/mem[34]/note": "be7089601a50645e",
+  "/specs[100]/mem[36]/note": "9b31c111583eb734",
+  "/specs[100]/mem[38]/name": "31f62c0d8ba0d3c2"
+ }
+}

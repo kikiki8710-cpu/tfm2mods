@@ -1,0 +1,1 @@
+[{"corpus": "gai", "file": "m09.ll", "line": 24533, "text": "%20 = tail call { i8, i8 } @_RNvNtNtCshdEBA0ozCnw_7game_ai11plan_legacy5steal16should_steal_now(i64 noundef %1, ptr noalias noundef nonnull readonly align 8 captures(address, read_provenance) dereferenceable(2528) %2, pt"}]

@@ -1,0 +1,84 @@
+{
+ "name": "engage::can_battle_triggered_filtered",
+ "sym": "_RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy7handler6engage29can_battle_triggered_filtered",
+ "src": "game-ai\\src\\plan_legacy\\handler\\engage.rs",
+ "src_line": 903,
+ "ir_file": "m12.ll",
+ "ir_from": 37713,
+ "ir_to": 38065,
+
+ "one_line": "적 챔프 5명 중 '전투 빅골(Battle)이 판단지연 이상 지속·가시·영역내·무시대상 아님·1초 내 사거리 도달' 인 적이 하나라도 있으면 true",
+
+ "signature": {
+  "params": [
+   {"i": 1, "name": "_version", "type": "usize", "note": "%0. 본문 분기 없음 — is_ignored_battle_enemy 에 전달만"},
+   {"i": 2, "name": "player", "type": "&PlayerState(2528B)", "note": "%1. info.team(0x930)·info.position(0x9c0)·info.parameter(0x180, AthleteParameter 744B)"},
+   {"i": 3, "name": "data", "type": "&OperationData(24B)", "note": "%2. cache·context·blackboard"},
+   {"i": 4, "name": "area_filter", "type": "Option<(u64,u64,u64)>(32B, by-ref dead_on_return)", "note": "%3. +0 태그(i1), +8 ax, +0x10 ay, +0x18 ar_sq(제곱 반경). Some 이면 적이 (ax,ay) 반경 안에 있어야 함"}
+  ],
+  "returns": "bool — true = 조건을 전부 통과한 적 챔프가 존재(첫 발견에서 즉시 반환) / false = 5명 소진"
+ },
+
+ "reads": [
+  {"base": "PlayerState", "offset": "0x930", "name": "info.team", "note": "t. 2 이상이면 panic_bounds_check(:905)"},
+  {"base": "PlayerState", "offset": "0x9c0", "name": "info.position", "note": "내 포지션(i32) — player_champion[t][pos]"},
+  {"base": "PlayerState", "offset": "0x180", "name": "info.parameter", "note": "&AthleteParameter → judge_battle_latency() (:927). 적 p 의 0x930/0x9c0 도 읽음(:916)"},
+  {"base": "OperationData", "offset": "0x0", "name": "cache", "note": ""},
+  {"base": "OperationData", "offset": "0x8", "name": "context", "note": "→ setting.tick_per_second"},
+  {"base": "OperationData", "offset": "0x10", "name": "blackboard", "note": "&[Blackboard;2]. in_battle 은 [p.team], big_goal_tick 은 [1-t] 로 인덱스(같은 팀이지만 표현이 다름)"},
+  {"base": "AbstractGameWithCache", "offset": "0x0", "name": "game.data_ptr", "note": "tick() 호출 대상"},
+  {"base": "AbstractGameWithCache", "offset": "0x8", "name": "game.vtable_ptr", "note": "슬롯 +0x28 = tick (divtable AbstractGame)"},
+  {"base": "AbstractGameWithCache", "offset": "0x1e0", "name": "player_champion[][]", "note": "[t][pos]=내 챔프(None→unwrap_failed) / [1-t][idx]=적 챔프 c"},
+  {"base": "AbstractGameWithCache", "offset": "0x230", "name": "player_state[][]", "note": "[1-t][idx]=적 PlayerState p"},
+  {"base": "GameContext", "offset": "0x8", "name": "setting", "note": ""},
+  {"base": "GameSetting", "offset": "0x12f8", "name": "tick_per_second", "note": "tps. :953 remain_dist > tps*move_speed"},
+  {"base": "Blackboard", "offset": "0xf0", "name": "big_goal[pos].0", "note": "[5] x 32B. .0 = big_goal_tick(:923, blackboard.rs:160)"},
+  {"base": "Blackboard", "offset": "0xf8", "name": "big_goal[pos].1@tag", "note": "Option<BigGoal> 태그. 5 = Battle (in_battle, blackboard.rs:168)"},
+  {"base": "Blackboard", "offset": "0x100", "name": "big_goal[pos].1@Some.0@Battle.focus@tag", "note": "focus Option 태그 != 0 (=Some) 이어야 in_battle"},
+  {"base": "Entity", "offset": "0x0", "name": "team@tag", "note": "내 챔프 team. 1(Neutral) 이면 가시성 검사 생략(player_team()=None, entity.rs:1136~1137)"},
+  {"base": "Entity", "offset": "0x8", "name": "team@Player.0", "note": "내 팀 번호 → 적의 visible_state 인덱스"},
+  {"base": "Entity", "offset": "0x38", "name": "visible_state[t]@tag", "note": "[2] x 24B. 적 c 의 visible_state[내 팀] 태그 0 = Visible 이어야 통과(is_visible_from entity.rs:1483)"},
+  {"base": "Entity", "offset": "0x640", "name": "stat_cached.move_speed", "note": "적 c 의 이동속도(:949) 와 내 챔프 이동속도(:957 비교)"},
+  {"base": "Entity", "offset": "0x660", "name": "x", "note": "적 c — area_filter 거리(:937)"},
+  {"base": "Entity", "offset": "0x668", "name": "y", "note": ""}
+ ],
+
+ "writes": [
+  {"base": "(none)", "offset": "0x0", "name": "-", "value": "-", "note": "게임 상태 변경 없음. prof::PHASE_NANOS[84]/PHASE_CALLS[84] atomic 증가(계측, ENABLED 일 때만)"}
+ ],
+
+ "constants": [
+  {"value": 5, "src_line": 916, "meaning": "BigGoal 메모리태그 5 = Battle (in_battle 인라인). 같은 5 가 :910 루프 상한(포지션 수)이기도 함"},
+  {"value": 0, "src_line": 916, "meaning": "Battle.focus Option 태그 0 = None → focus 없으면 in_battle 아님. / :932 VisibleState 태그 0 = Visible"},
+  {"value": 1, "src_line": 932, "meaning": "TeamType 태그 1 = Neutral — 내 챔프가 Neutral 이면 가시성 검사 생략(`trunc i64 tag to i1`)"},
+  {"value": 10, "src_line": 957, "meaning": "remain_dist > move_speed*10 (적 이동속도 기준 10틱 거리) && 내 move_speed > 적 move_speed 이면 제외"},
+  {"value": 84, "src_line": 904, "meaning": "prof 위상 id 84 (ProfTimer::start). 판정 무관 계측"}
+ ],
+
+ "calls": [
+  "game_core::simulation::state::player::AthleteParameter::judge_battle_latency",
+  "game_ai::plan_legacy::old::fight_model::is_ignored_battle_enemy",
+  "game_ai::plan_legacy::old::battle::max_range_cached",
+  "game_core::simulation::entity::Entity::distance",
+  "core::panicking::panic_bounds_check",
+  "core::option::unwrap_failed",
+  "std::time::Instant::now",
+  "std::time::Instant::elapsed"
+ ],
+
+ "logic": "// engage.rs:903~967\n_t = ProfTimer::start(84) (prof::ENABLED 일 때만)                                          // :904\nt = player.info.team; champ = cache.player_champion[t][pos].unwrap()                        // :905\nenemy_team = 1 - t                                                                          // :909\nfor idx in 0..5 {                                                                           // :910\n   c = player_champion[enemy_team][idx]?  (None → continue)                                 // :911\n   p = player_state[enemy_team][idx]?                                                       // :912\n   // :916 in_battle(blackboard.rs:168): blackboard[p.team].big_goal[p.position]\n   if !(big_goal.1 == Some(BigGoal::Battle{focus: Some(_)})) continue                       // 태그 5 && focus 태그 != 0\n   battle_tick = blackboard[enemy_team].big_goal[p.position].0                              // :923 big_goal_tick\n   after_duration = game.tick().saturating_sub(battle_tick)                                 // :924 (vtable+0x28)\n   judge_latency = player.info.parameter.judge_battle_latency()                             // :927  [_gcbc g15.ll:126049 = (480 - 4*min(judgement*judgement_mental_ratio/1000, 100)) / 10 → 8~48틱]\n   if after_duration < judge_latency continue                                               // :928 — 적이 전투 빅골을 잡은 지 내 판단지연 미만이면 아직 인지 못함\n   if let Some(my_team) = champ.team.player_team() {                                        // :932 (Neutral 이면 검사 생략)\n      if c.visible_state[my_team] != Visible continue }                                     //   is_visible_from → 태그 0\n   if let Some((ax, ay, ar_sq)) = area_filter {                                             // :936\n      if dist_sq(c, (ax,ay)) > ar_sq continue }                                             // :937\n   if is_ignored_battle_enemy(version, player, data, c, with_declared_dive=false) continue   // :943\n   r = max_range_cached(data, c, champ)                                                     // :947 (적 c 기준 사거리)\n   d = c.distance(champ)                                                                    // :948\n   move_speed = c.stat_cached.move_speed                                                    // :949\n   remain_dist = d.saturating_sub(r)                                                        // :950\n   if remain_dist > tps * move_speed continue                                               // :953 — 적이 1초 안에 사거리에 못 들어오면 제외\n   if remain_dist > move_speed*10 && champ.stat_cached.move_speed > move_speed continue     // :957 — 10틱 밖이고 내가 더 빠르면 제외\n   return true                                                                              // :967 (%60 = idx<5)\n}\nreturn false",
+
+ "knobs": [
+  {"what": "판단 지연 게이트", "where": "engage.rs:928 (값은 player.rs:352~355 judge_battle_latency)", "value": 480, "effect": "(480-4*min(judgement*mental/1000,100))/10 틱. 판단력이 높을수록 8틱까지 짧아짐. 선수 스탯 노브이지 코드 상수는 게임코어에 있음 — 이 함수에선 비교만"},
+  {"what": "사거리 도달 허용 시간", "where": "engage.rs:953", "value": 1, "effect": "tps*1 (1초, 리터럴 없음 — tps 그대로 곱함). 적이 1초 이동으로 사거리에 닿아야 트리거. 계수를 올리면 더 먼 적도 트리거로 인정"},
+  {"what": "도주 가능 거리 계수", "where": "engage.rs:957", "value": 10, "effect": "적 이동속도×10 보다 멀고 내가 더 빠르면 무시. 올리면 '도주 가능' 판정이 줄어 트리거가 늘어남"}
+ ],
+
+ "unknown": [
+  ":953 의 `tps * move_speed` 에 계수 리터럴이 없어(`mul %tps, %speed`) '1초' 는 해석. 소스가 `tps*1*speed` 인지 `tps*speed` 인지 표기 불가",
+  "in_battle(:916) 은 blackboard[p.team] 로, big_goal_tick(:923) 은 blackboard[1-t] 로 인덱스 — 값은 같으나 소스 표현이 다른 것으로 보임. blackboard[적팀] 이 '적 팀 자체 정보(우리가 관측)' 라는 해석은 _docs game_core.txt:21 근거",
+  "is_ignored_battle_enemy(m10.ll:47629) 본문·max_range_cached(TLS 캐시, m00.ll:79611) 본문은 담당 밖 — 미탐색",
+  "judge_battle_latency 의 필드 +152(stat.judgement)·+720(judgement_mental_ratio) 는 tcxdict AthleteParameter 0x98/0x2d0 로 확인, 본문은 _gcbc g15.ll:126049 (담당 밖이라 참고만)",
+  "exe 0xe38c90 대조: call 9개(Instant::now·[+0x28] tick·0xe0bf70·0xe0cf10·0x12a07d0·0xe2ca30·Instant::elapsed·panic 2) 로 IR 의 직접 call(judge_battle_latency·is_ignored_battle_enemy·max_range_cached·distance) 4개와 수가 맞음. 상수 0x27101/0xfa01(=160001/64001) 은 exe 가 is_ignored_battle_enemy 내부의 is_enemy_well_danger 를 인라인한 흔적으로 추정(IR 본문엔 없음), 0x199a=6554 는 정체 미확인(IR 본문에 없음 — 인라인된 피호출 함수 상수로 추정). 로직 어긋남은 발견 못 함"
+ ]
+}

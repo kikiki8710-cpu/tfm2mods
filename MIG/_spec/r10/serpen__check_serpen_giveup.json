@@ -1,0 +1,278 @@
+{
+ "name": "check_serpen_giveup",
+ "sym": "_RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old6serpen19check_serpen_giveup",
+ "src": "game-ai\\src\\plan_legacy\\old\\serpen.rs",
+ "src_line": 234,
+ "ir_file": "m05.ll",
+ "ir_from": 49223,
+ "ir_to": 51792,
+ "exe_rva": "0xd639f0",
+ "one_line": "세르펜 목표를 포기할지 판정 — 세르펜 부재/과부하/근처·건강 머릿수 열세(판단 페널티 가산)로 결정",
+ "signature": {
+  "params": [
+   {
+    "i": 0,
+    "name": "version",
+    "type": "usize",
+    "note": "macro_judgement_penalty 에 전달만"
+   },
+   {
+    "i": 1,
+    "name": "_rnd",
+    "type": "&mut StdRng(320B)",
+    "note": "미사용(readnone)"
+   },
+   {
+    "i": 2,
+    "name": "player",
+    "type": "&PlayerState(2528B)",
+    "note": "info.team(+0x930)·is_recent_visible/헬퍼 인자"
+   },
+   {
+    "i": 3,
+    "name": "data",
+    "type": "&OperationData(24B)",
+    "note": "+0x0 cache / +0x8 context / +0x10 blackboard"
+   },
+   {
+    "i": 4,
+    "name": "team_plan",
+    "type": "&TeamPlan(1064B)",
+    "note": "objective(+0x41f) 만 읽음(take_hunt_commit 인라인)"
+   },
+   {
+    "i": 5,
+    "name": "_debug",
+    "type": "&mut DebugFrameData(224B)",
+    "note": "미사용(readnone)"
+   }
+  ],
+  "returns": "bool — true=세르펜 포기(giveup)"
+ },
+ "reads": [
+  {
+   "base": "OperationData",
+   "offset": "0x8",
+   "name": "context",
+   "note": ""
+  },
+  {
+   "base": "OperationData",
+   "offset": "0x10",
+   "name": "blackboard",
+   "note": "[1-team](적팀 블랙보드) 을 is_recent_visible 의 self 로 — 적 p 의 last_visible[pos]"
+  },
+  {
+   "base": "GameContext",
+   "offset": "0x38",
+   "name": "tutorial",
+   "note": "serpen_exists / is_line_phase 의 switch 키"
+  },
+  {
+   "base": "GameContext",
+   "offset": "0x8",
+   "name": "setting",
+   "note": ""
+  },
+  {
+   "base": "GameContext",
+   "offset": "0x20",
+   "name": "map",
+   "note": "&MapDef → camp_pos(Serpen, is_blue_side)"
+  },
+  {
+   "base": "GameSetting",
+   "offset": "0x12f8",
+   "name": "tick_per_second",
+   "note": "is_line_phase tps*30"
+  },
+  {
+   "base": "GameSetting",
+   "offset": "0x8a8",
+   "name": "epic_jungle.first_spawn_tick",
+   "note": "is_line_phase"
+  },
+  {
+   "base": "GameSetting",
+   "offset": "0x12c0",
+   "name": "height",
+   "note": "is_bottom_side ry = height - y"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x0",
+   "name": "game(dyn)",
+   "note": "vtable +0x40 get_game_mode / +0x28 tick / +0x1f0 get_entity_by_id"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x1e0",
+   "name": "player_champion[2][5]",
+   "note": "[team]·[1-team]"
+  },
+  {
+   "base": "MobaMode",
+   "offset": "0x1d8",
+   "name": "jungle_runner.serpen.live_list.len",
+   "note": "0 = 세르펜 미생존 → 즉시 true"
+  },
+  {
+   "base": "MobaMode",
+   "offset": "0x1d0",
+   "name": "jungle_runner.serpen.live_list.ptr",
+   "note": "[0] = 세르펜 엔티티 id"
+  },
+  {
+   "base": "MobaMode",
+   "offset": "0x260",
+   "name": "serpen_count[team] / [1-team]",
+   "note": "팀별 세르펜 처치 수"
+  },
+  {
+   "base": "TeamPlan",
+   "offset": "0x41f",
+   "name": "objective@tag",
+   "note": "Option<MainObjective> 니치. 1 = Some(Serpen)"
+  },
+  {
+   "base": "TeamPlan",
+   "offset": "0x420",
+   "name": "objective@Some.0@Serpen.phase@tag",
+   "note": "3 = ObjectPhase::Hunt"
+  },
+  {
+   "base": "PlayerState",
+   "offset": "0x930",
+   "name": "info.team",
+   "note": "team==0 → is_blue_side"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x628",
+   "name": "stat_cached.hp",
+   "note": "최대 HP(0 이면 div_by_zero 패닉)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x670",
+   "name": "hp",
+   "note": ""
+  },
+  {
+   "base": "Entity",
+   "offset": "0x660",
+   "name": "x",
+   "note": "is_bottom_side"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x668",
+   "name": "y",
+   "note": "is_bottom_side"
+  }
+ ],
+ "writes": [],
+ "constants": [
+  {
+   "value": 0,
+   "src_line": 235,
+   "meaning": "TutorialType {0,5,7,8} = serpen_exists. 밖이면 true(포기)"
+  },
+  {
+   "value": 5,
+   "src_line": 246,
+   "meaning": "JungleType::Serpen 태그(camp 변수 · camp_pos 인자)"
+  },
+  {
+   "value": 1,
+   "src_line": 246,
+   "meaning": "team_plan.objective@tag == 1 = Some(MainObjective::Serpen) (take_hunt_commit 인라인, team_plan.rs:249)"
+  },
+  {
+   "value": 3,
+   "src_line": 246,
+   "meaning": "Serpen.phase == 3 = ObjectPhase::Hunt"
+  },
+  {
+   "value": 100,
+   "src_line": 249,
+   "meaning": "hp_ratio = serpen.hp*100/max_hp"
+  },
+  {
+   "value": 20,
+   "src_line": 250,
+   "meaning": "Hunt 커밋 중 세르펜 hp_ratio <= 20 이면 포기 안 함(false)"
+  },
+  {
+   "value": 49,
+   "src_line": 266,
+   "meaning": "hp*100/max_hp > 49 = HP 50% 이상 (모든 필터 공통: L266·269·275·278·282·283·288·289)"
+  },
+  {
+   "value": 30,
+   "src_line": 281,
+   "meaning": "is_line_phase: tick < epic first_spawn_tick.saturating_sub(tps*30)"
+  },
+  {
+   "value": 1,
+   "src_line": 282,
+   "meaning": "라인전 단계 healthy 셈은 인덱스 (1..5) — 슬롯 0(Top) 제외"
+  },
+  {
+   "value": 1,
+   "src_line": 285,
+   "meaning": "healthy_ally + 1 + penalty < healthy_enemy 이어야 근처 비교로 진행"
+  }
+ ],
+ "calls": [
+  "game_core::simulation::map_def::MapDef::camp_pos",
+  "game_ai::plan_legacy::team_plan::objective_helpers::v23_visible_objective_overload",
+  "game_ai::plan_legacy::team_plan::objective_helpers::macro_judgement_penalty",
+  "game_core::simulation::map_regions::is_near_mid_line",
+  "game_core::simulation::game::blackboard::Blackboard::is_recent_visible",
+  "core::option::unwrap_failed",
+  "core::panicking::panic_bounds_check",
+  "core::panicking::panic_const::panic_const_div_by_zero"
+ ],
+ "logic": "ctx = data.context; team = player.info.team; enemy = 1-team; camp = JungleType::Serpen(5)\nL235 if !serpen_exists(ctx) → return true                       // tutorial ∉ {None,MidBottom,Line,Total}\nL241 mode = game.get_game_mode() (Moba 아니면 unwrap 패닉); if mode.jungle_runner.serpen.live_list.len == 0 → return true   // 세르펜 없음 = 포기\nL246 if team_plan.take_hunt_commit(camp)  [objective == Some(Serpen{phase: Hunt, ..})] {\nL247     if serpen.live_list.len != 0 && let Some(serpen) = game.get_entity_by_id(live_list[0]) {\nL249         hp_ratio = serpen.hp*100 / serpen.stat_cached.hp\nL250         if hp_ratio <= 20 → return false                     // 다 잡은 세르펜은 포기 금지\nL251         if v23_visible_objective_overload(player, data, map.camp_pos(Serpen, team==0)) → return true\n             // (objective_helpers.rs:54~57: 근처(반경 180000·hp40%) 최근가시 적 > 2 && 적 >= 건강 아군 + 2)\n         }\n     }\nL260 my_serpen_count = mode.serpen_count[team]; L261 enemy_serpen_count = mode.serpen_count[enemy]\nL263 if my_serpen_count > enemy_serpen_count {\nL265     near_ally  = player_champion[team].iter_champions().filter(|e| is_bottom_side(ctx,e.x,e.y) && e.hp*100/e.max_hp > 49).count()\nL268     near_enemy = player_champion[enemy].iter_champions().filter(|e| is_bottom_side && hp% > 49 && blackboard[1-team].is_recent_visible(game, player, e)).count()\nL271     penalty = macro_judgement_penalty(version, player)\nL272     return near_ally + penalty < near_enemy\n     }\nL274 near_ally  = (L265 와 동일 필터).count()\nL277 near_enemy = (L268 과 동일 필터).count()\nL281 if is_line_phase(ctx) {\nL282     healthy_ally  = (1..5).filter(|i| player_champion[team][i].map_or(false, |c| c.hp*100/c.max_hp > 49)).count()   // Top(슬롯0) 제외\nL283     healthy_enemy = (1..5).filter(|i| player_champion[enemy][i] … hp% > 49).count()\nL284     penalty = macro_judgement_penalty(version, player)\nL285     if healthy_ally + 1 + penalty < healthy_enemy {\nL286         return near_ally + penalty < near_enemy\n         }\n         return false\n     } else {\nL288     healthy_ally  = player_champion[team].iter_champions().filter(hp% > 49).count()\nL289     healthy_enemy = player_champion[enemy].iter_champions().filter(hp% > 49).count()\nL290     penalty = macro_judgement_penalty(version, player)\nL291     if healthy_ally + 1 + penalty < healthy_enemy {\nL292         return near_ally + penalty < near_enemy\n         }\n         return false\n     }\n(보조: is_bottom_side(map_regions.rs:28~30) = (setting.height - y <= x) || is_near_mid_line(ctx,x,y);\n is_recent_visible(blackboard.rs:348~354) = 현재 가시 || (해당 적의 last_visible[pos] + 120 >= tick);\n macro_judgement_penalty(objective_helpers.rs:16~18) = ceil(max(400 - judge_accuracy,0)/125) ∈ 0..=4)",
+ "knobs": [
+  {
+   "what": "Hunt 중 세르펜 잔여 HP 포기 금지선",
+   "where": "serpen.rs:250",
+   "value": 20,
+   "effect": "올리면 더 높은 HP 에서도 포기 불가 → 끝까지 버팀"
+  },
+  {
+   "what": "건강 기준 HP%",
+   "where": "serpen.rs:266 등",
+   "value": 49,
+   "effect": "올리면 근처/건강 아군·적이 모두 줄어듦(양쪽 대칭이라 효과 상쇄 경향, 단 적은 가시 조건이 더 붙음)"
+  },
+  {
+   "what": "건강 머릿수 열세 마진",
+   "where": "serpen.rs:285/291",
+   "value": 1,
+   "effect": "올리면 더 큰 열세여야 근처 비교로 진입 → 포기 드묾"
+  },
+  {
+   "what": "라인전 healthy 셈 제외 슬롯",
+   "where": "serpen.rs:282~283",
+   "value": 1,
+   "effect": "(1..5) 의 시작. 0 으로 내리면 Top 포함"
+  },
+  {
+   "what": "과부하 판정 반경/최소HP%",
+   "where": "objective_helpers.rs:54~55 (별도 함수)",
+   "value": 180000,
+   "effect": "v23_visible_objective_overload 의 근처 반경. 키우면 더 먼 적까지 세어 포기 잦아짐"
+  }
+ ],
+ "unknown": [
+  "L263 우세 분기(my_serpen_count > enemy)에서 near 셈은 i32, 나머지 분기는 i64 로 나와 소스가 두 벌인지 한 벌 인라인 차이인지 표기 불가(동작 동일)",
+  "L265/L274 근처 아군 필터와 L268/L277 근처 적 필터가 완전 동일해 보이나 소스가 헬퍼 호출인지 인라인 클로저인지 표기 불가(closure$N 번호만 다름)",
+  "`> 49`/`<= 20` 은 소스가 `>= 50`/`< 21` 일 수 있음(외연 동일)",
+  "L282~283 의 (1..5) 범위 상한 5 는 리터럴로 IR 에 안 남음(언롤됨: 슬롯 1~4 로드로 확인) — 상수 목록에 5 미등재",
+  "v23_visible_objective_overload 내부 헬퍼(v23_healthy_allies_near_point / v23_recent_visible_enemies_near_point, m15.ll 53341/55548)의 반경 180000·40 의 정확한 의미(40 = HP% 최소치로 추정)는 담당 밖",
+  "vtable 간접호출(get_game_mode +0x40 / tick +0x28 / get_entity_by_id +0x1f0, divtable 확정)은 C2 대조 불가라 logic 에만 적음"
+ ]
+}

@@ -1,0 +1,113 @@
+{
+ "name": "check_serpen_hunt",
+ "sym": "_RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old6serpen17check_serpen_hunt",
+ "src": "game-ai\\src\\plan_legacy\\old\\serpen.rs",
+ "src_line": 297,
+ "ir_file": "m05.ll",
+ "ir_from": 45035,
+ "ir_to": 47631,
+ "exe_rva": "0xd61330",
+
+ "one_line": "세르펜 사냥(Hunt) 진입 판정 — 압도적 머릿수/라인 압박 준비면 즉시 true, 캠프 근처 아군 교전 중이면 false, 아니면 캠프·바텀 사이드 머릿수를 판단오차 노이즈로 흔든 뒤 페널티/보너스 비교",
+
+ "signature": {
+  "params": [
+   {"i": 0, "name": "version", "type": "usize", "note": "penalty/bonus/v24 헬퍼에 전달만"},
+   {"i": 1, "name": "_rnd", "type": "&mut StdRng(320B)", "note": "미사용(readnone) — 노이즈는 자체 시드 jrng 사용"},
+   {"i": 2, "name": "player", "type": "&PlayerState(2528B)", "note": "info.team(+0x930)·info.id(+0x928)·athlete(+0x180)"},
+   {"i": 3, "name": "data", "type": "&OperationData(24B)", "note": ""},
+   {"i": 4, "name": "goal_data", "type": "&GoalData(248B)", "note": "serpen.epic_ally_tick(+0xd0, 소스명 hunt_tick) 만 읽음"},
+   {"i": 5, "name": "_plan", "type": "&BigPlan(384B)", "note": "미사용(readonly, 본문 접근 없음)"},
+   {"i": 6, "name": "team_plan", "type": "&TeamPlan(1064B)", "note": "vision.last_visible_pos/last_checked_ticks · obj_spawn.epic_giveup_tick"},
+   {"i": 7, "name": "_debug", "type": "&mut DebugFrameData(224B)", "note": "v24_objective_setup_lane_pressure_ready 에 전달만"}
+  ],
+  "returns": "bool — true=세르펜 사냥 시작 가능"
+ },
+
+ "reads": [
+  {"base": "OperationData", "offset": "0x8", "name": "context", "note": ""},
+  {"base": "OperationData", "offset": "0x10", "name": "blackboard", "note": "[1-team] is_recent_visible self / [team] in_battle(big_goal)"},
+  {"base": "GameContext", "offset": "0x38", "name": "tutorial", "note": "serpen_exists"},
+  {"base": "GameContext", "offset": "0x8", "name": "setting", "note": ""},
+  {"base": "GameContext", "offset": "0x20", "name": "map", "note": "camp_pos(Serpen, team==0)"},
+  {"base": "GameSetting", "offset": "0x12f8", "name": "tick_per_second", "note": "bucket = tick / max(tps*2,1) (L355)"},
+  {"base": "GameSetting", "offset": "0x12c0", "name": "height", "note": "is_bottom_side"},
+  {"base": "AbstractGameWithCache", "offset": "0x0", "name": "game(dyn)", "note": "vtable +0x28 tick / +0x40 get_game_mode"},
+  {"base": "AbstractGameWithCache", "offset": "0x1e0", "name": "player_champion[team]/[1-team]", "note": ""},
+  {"base": "MobaMode", "offset": "0x1a8", "name": "jungle_runner.epic.live_list.len", "note": "is_morgard_giveup: epic 생존 여부"},
+  {"base": "TeamPlan", "offset": "0x50", "name": "obj_spawn.epic_giveup_tick@tag", "note": "is_morgard_giveup"},
+  {"base": "TeamPlan", "offset": "0x230", "name": "vision.last_visible_pos[p]", "note": "L339"},
+  {"base": "TeamPlan", "offset": "0x2d0", "name": "vision.last_checked_ticks[p]", "note": "L342"},
+  {"base": "GoalData", "offset": "0xd0", "name": "serpen.epic_ally_tick", "note": "소스 변수 hunt_tick — can_move 에 더해지는 틱(L342)"},
+  {"base": "PlayerState", "offset": "0x930", "name": "info.team", "note": ""},
+  {"base": "PlayerState", "offset": "0x928", "name": "info.id", "note": "노이즈 시드 XOR(L356)"},
+  {"base": "PlayerState", "offset": "0x180", "name": "info.parameter(AthleteParameter)", "note": "judge_accuracy(L351)"},
+  {"base": "Blackboard", "offset": "0xf8", "name": "big_goal[pos].1@tag", "note": "in_battle(blackboard.rs:168): tag 5 = Battle"},
+  {"base": "Blackboard", "offset": "0x100", "name": "big_goal[pos].1@Some.0@Battle.focus@tag", "note": "!= 0 = focus Some"},
+  {"base": "Entity", "offset": "0x660", "name": "x", "note": ""},
+  {"base": "Entity", "offset": "0x668", "name": "y", "note": ""},
+  {"base": "Entity", "offset": "0x628", "name": "stat_cached.hp", "note": "최대 HP(0 이면 div_by_zero 패닉)"},
+  {"base": "Entity", "offset": "0x670", "name": "hp", "note": ""},
+  {"base": "Entity", "offset": "0x640", "name": "stat_cached.move_speed", "note": "L341"}
+ ],
+
+ "writes": [
+  {"base": "(local) jrng", "offset": "0x0", "name": "seed", "value": "(bucket<<40 | 94) ^ player.info.id", "note": "스택 로컬 SplitMix 상태(utils.rs:177). 외부 상태 변경 없음"}
+ ],
+
+ "constants": [
+  {"value": 0, "src_line": 298, "meaning": "TutorialType {0,5,7,8}=serpen_exists. 밖이면 false"},
+  {"value": 29, "src_line": 307, "meaning": "live_ally = hp*100/max_hp > 29 (HP 30% 이상) 아군 수"},
+  {"value": 100, "src_line": 307, "meaning": "HP 백분율"},
+  {"value": 2, "src_line": 308, "meaning": "live_enemy < 2 && live_ally > 2 → 즉시 true"},
+  {"value": 5, "src_line": 313, "meaning": "JungleType::Serpen (camp_pos · v24 헬퍼 인자)"},
+  {"value": 14400000001, "src_line": 314, "meaning": "120000^2 + 1 — 캠프 근처 판정 제곱거리(near_camp_*, L314·L317)"},
+  {"value": 49, "src_line": 315, "meaning": "hp% > 49 = HP 50% 이상 (L315·318·321·344 공통)"},
+  {"value": 62500000001, "src_line": 325, "meaning": "250000^2 + 1 — 캠프 반경 250000 안의 아군이 in_battle 이면 false"},
+  {"value": 5, "src_line": 325, "meaning": "BigGoal::Battle 태그(in_battle 인라인, blackboard.rs:168)"},
+  {"value": 60000, "src_line": 340, "meaning": "d = distance(last_visible_pos, camp).saturating_sub(60000)"},
+  {"value": 999, "src_line": 352, "meaning": "judge_accuracy <= 999 이면 노이즈 적용(1000 이상 = 오차 없음)"},
+  {"value": 1, "src_line": 355, "meaning": "shl 1 = tps*2 (노이즈 버킷 길이 2초) · max(…,1)", "folded_from": 2},
+  {"value": 40, "src_line": 356, "meaning": "seed = (bucket << 40 | 94) ^ player.info.id"},
+  {"value": 94, "src_line": 356, "meaning": "시드 태그 상수(세르펜 hunt 전용 솔트로 추정)"},
+  {"value": 100, "src_line": 357, "meaning": "count = count * error_ratio_noise(rng, judge) / 100 (sdiv)"}
+ ],
+
+ "calls": [
+  "game_core::simulation::map_def::MapDef::camp_pos",
+  "game_core::simulation::game::blackboard::Blackboard::is_recent_visible",
+  "game_core::simulation::map_regions::is_near_mid_line",
+  "game_ai::plan_legacy::team_plan::objective_discipline::TeamPlan::v24_objective_setup_lane_pressure_ready",
+  "game_core::utils::distance",
+  "game_ai::plan_legacy::team_plan::objective_helpers::macro_judgement_penalty",
+  "game_ai::plan_legacy::team_plan::objective_helpers::macro_judgement_bonus",
+  "game_core::simulation::state::player::AthleteParameter::judge_accuracy",
+  "game_ai::utils::error_ratio_noise",
+  "core::option::unwrap_failed",
+  "core::panicking::panic_bounds_check",
+  "core::panicking::panic_const::panic_const_div_by_zero"
+ ],
+
+ "logic": "ctx = data.context; team = player.info.team; enemy = 1-team\nL298 if !serpen_exists(ctx) → return false\nL306 live_enemy = count(player_champion[enemy] Some)\nL307 live_ally  = player_champion[team].iter_champions().filter(|c| c.hp*100/c.max_hp > 29).count()\nL308 if live_enemy < 2 && live_ally > 2 → return true\nL313 (cx,cy) = map.camp_pos(Serpen, team==0)\nL314 near_camp_serpen_ally  = allies.filter(|c| dist_sq(c,camp) <= 120000^2 && hp% > 49).count()\nL317 near_camp_serpen_enemy = enemies.filter(|c| dist_sq(c,camp) <= 120000^2 && hp% > 49 && blackboard[enemy].is_recent_visible(game, player, c)).count()\nL320 near_serpen_ally  = allies.filter(|c| is_bottom_side(ctx,c.x,c.y) && hp% > 49).count()\n     (is_bottom_side, map_regions.rs:28~30: (height - y <= x) || is_near_mid_line(ctx,x,y))\nL324 if (0..5).any(|pos| player_champion[team][pos] 가 Some(c) && dist_sq(c,camp) <= 250000^2 && blackboard[team].in_battle(pos))\n       [in_battle = matches!(big_goal[pos].1, Some(BigGoal::Battle{focus: Some(_)}))]\nL326   → return false                                              // 캠프 근처 아군이 교전 중\nL330 if team_plan.v24_objective_setup_lane_pressure_ready(version, player, data, goal_data, Serpen, debug) → return true\nL334 hunt_tick = goal_data.serpen.epic_ally_tick\nL337 near_serpen_enemy = (0..5).filter_map(|p| player_champion[enemy][p]).filter(|c|\nL339     last_pos = team_plan.vision.last_visible_pos[p];\nL340     d = distance(last_pos, camp).saturating_sub(60000);\nL341     move_speed = c.stat_cached.move_speed;\nL342     can_move = (tick.saturating_sub(team_plan.vision.last_checked_ticks[p]) + hunt_tick) * move_speed;\nL344     hp% > 49 && can_move >= d\n     ).count()\nL347 is_morgard_giveup = team_plan.obj_spawn.epic_giveup_tick.is_some() && mode.jungle_runner.epic.live_list.len != 0\nL348 judgement_penalty = macro_judgement_penalty(version, player)   // ceil(max(400-judge,0)/125)\nL349 judgement_bonus   = macro_judgement_bonus(version, player)     // max(judge-400,0)/175 (objective_helpers.rs:21~23)\nL351 judge = player.info.parameter.judge_accuracy()\nL352 if judge <= 999 {\nL355     bucket = tick / max(tps*2, 1)\nL356     seed = (bucket << 40 | 94) ^ player.info.id;  rng = SplitMix(seed)\nL357     near_camp_serpen_ally  = near_camp_serpen_ally  * error_ratio_noise(rng, judge) / 100\n         near_camp_serpen_enemy = near_camp_serpen_enemy * error_ratio_noise(rng, judge) / 100\nL359     near_serpen_ally       = near_serpen_ally       * error_ratio_noise(rng, judge) / 100\n         near_serpen_enemy      = near_serpen_enemy      * error_ratio_noise(rng, judge) / 100\n         (error_ratio_noise, utils.rs:493~496: span=(1000-judge)/20; 100 + rand[0, 2*span] - span → [100-span, 100+span] %)\n     }\nL361 if near_camp_serpen_ally > near_camp_serpen_enemy + judgement_penalty {\nL362     return is_morgard_giveup || (near_serpen_ally + judgement_bonus >= near_serpen_enemy + judgement_penalty)\n     }\n     return false",
+
+ "knobs": [
+  {"what": "즉시 true 머릿수", "where": "serpen.rs:308", "value": 2, "effect": "live_enemy<2 && live_ally>2. 내리면(적 상한↑) 더 자주 즉시 사냥"},
+  {"what": "live_ally HP 컷", "where": "serpen.rs:307", "value": 29, "effect": "올리면 즉시 true 조건이 엄격"},
+  {"what": "캠프 근처 반경", "where": "serpen.rs:314/317", "value": 14400000001, "effect": "120000^2. 키우면 near_camp 양쪽 증가"},
+  {"what": "교전 중 아군 탐지 반경", "where": "serpen.rs:325", "value": 62500000001, "effect": "250000^2. 키우면 더 먼 교전에도 false"},
+  {"what": "비가시 적 도달 여유", "where": "serpen.rs:340", "value": 60000, "effect": "키우면 적이 도달가능으로 더 잘 잡혀 near_serpen_enemy 증가 → 사냥 보수적"},
+  {"what": "노이즈 버킷", "where": "serpen.rs:355", "value": 2, "effect": "tps*2. 키우면 노이즈 갱신 주기 길어짐(같은 판정 유지)"},
+  {"what": "노이즈 상한 judge", "where": "serpen.rs:352", "value": 999, "effect": "judge_accuracy 1000 이상이면 노이즈 0"},
+  {"what": "판단 보너스 분모", "where": "objective_helpers.rs:22 (별도 함수)", "value": 175, "effect": "judge 400 초과분/175 이 near_serpen_ally 에 가산"}
+ ],
+
+ "unknown": [
+  "GoalData.serpen.epic_ally_tick(+0xd0) 의 의미 — 소스 변수명은 hunt_tick, 필드명은 epic 계열 복제(SerpenStanceData 가 EpicStanceData 와 동일 필드명). '세르펜을 잡는 데 걸리는 예상 틱'으로 추정, 미확정",
+  "L356 시드 솔트 94 의 의미(다른 판정과 시드를 가르기 위한 상수로 추정)",
+  "노이즈 곱은 sdiv(부호 있는 나눗셈) — error_ratio_noise 가 음수를 낼 수 있는지(judge 0 → span 50 → 최소 50%) 확인: 범위 [100-span,100+span] 이라 음수 없음. sdiv 는 타입 추론 결과일 뿐",
+  "v24_objective_setup_lane_pressure_ready 내부(objective_discipline.rs)는 담당 밖",
+  "`> 49`/`> 29`/`<= 999` 는 소스 표기(`>= 50` 등) 표기 불가",
+  "_plan(&BigPlan) 은 readonly 이지만 본문에 접근 없음 — 시그니처 호환용으로 추정",
+  "vtable 간접호출(tick +0x28 / get_game_mode +0x40)은 C2 대조 불가라 logic 에만 적음"
+ ]
+}

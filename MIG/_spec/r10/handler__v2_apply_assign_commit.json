@@ -1,0 +1,371 @@
+{
+ "name": "v2_apply_assign_commit",
+ "sym": "_RNvMNtNtCshdEBA0ozCnw_7game_ai11plan_legacy7handlerNtB2_17LegacyPlanHandler22v2_apply_assign_commit",
+ "src": "game-ai\\src\\plan_legacy\\handler.rs",
+ "src_line": 518,
+ "ir_file": "m13.ll",
+ "ir_from": 11530,
+ "ir_to": 12235,
+ "exe_rva": "0xe4b070",
+ "one_line": "v2 이상: 오브젝트 사냥 플랜 참여 래치(v2_obj_part)와 라인 배정 래치(v2_assign)를 갱신하고, 조건 충족 시 plan/src 를 래치된 값으로 되돌려 커밋을 유지한다",
+ "signature": {
+  "params": [
+   {
+    "i": 1,
+    "name": "self",
+    "type": "&mut LegacyPlanHandler (6168B)",
+    "note": "0x517·0x518(team_plan.objective) 읽기, 0x1800~0x1803(v2_obj_part·v2_assign) 읽기+쓰기. writes 전수 = writes 항목 참조"
+   },
+   {
+    "i": 2,
+    "name": "version",
+    "type": "usize",
+    "note": "L520 `version < 2` 면 즉시 return(전 로직 v2 전용). v2_obj_restore_safe 에 전달"
+   },
+   {
+    "i": 3,
+    "name": "rnd",
+    "type": "&mut StdRng (320B, align16)",
+    "note": "본문 직접 사용 없음. v2_obj_restore_safe 에만 전달"
+   },
+   {
+    "i": 4,
+    "name": "player",
+    "type": "&PlayerState (2528B)",
+    "note": "+0x930 info.team, +0x9c0 info.position 만 직접 읽음(mf2_cover_need_excluding_me 인라인). v2_obj_restore_safe 에 전달"
+   },
+   {
+    "i": 5,
+    "name": "data",
+    "type": "&OperationData (24B)",
+    "note": "+0x0 cache, +0x8 context(+0x38 tutorial), +0x10 blackboard[2]"
+   },
+   {
+    "i": 6,
+    "name": "plan",
+    "type": "&mut BigPlan (384B)",
+    "note": "태그 읽기(L527·L565) + 통째 덮어쓰기(L533·L558, drop_glue 후 재구성)"
+   },
+   {
+    "i": 7,
+    "name": "src",
+    "type": "&mut u8",
+    "note": "플랜 소스 코드. 읽기: 11/12 = 오브젝트 사냥 분기, 17/18/19 = 라인 배정 분기. 쓰기: L559 `*src = csrc`"
+   },
+   {
+    "i": 8,
+    "name": "debug",
+    "type": "&mut DebugFrameData (224B)",
+    "note": "본문 직접 사용 없음. v2_obj_restore_safe 에만 전달"
+   }
+  ],
+  "returns": "() — 부수효과만(self 래치 갱신 · *plan/*src 덮어쓰기)"
+ },
+ "reads": [
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x517",
+   "name": "team_plan.objective@tag",
+   "note": "mf2_obj_key(handler.rs:2314) 인라인. 0=Morgard, 1=Serpen 만 키 생성. 그 외(None 포함) → L525 경로는 return, L545 경로는 v2_obj_part 클리어"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x518",
+   "name": "team_plan.objective@Some.0@Morgard.phase (=Serpen.phase)",
+   "note": "ObjectPhase(0 None/1 Setup/2 Assemble/3 Hunt). key = phase | (Serpen? 0x50 : 0x60)"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x1800",
+   "name": "v2_obj_part@tag",
+   "note": "Option<u8> 태그. 1=Some"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x1801",
+   "name": "v2_obj_part@Some.0",
+   "note": "래치된 key 와 비교(L530·L535·L545)"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x1802",
+   "name": "v2_assign@Some.0.0",
+   "note": "csrc(u8). L552 match: 19 → cover 검사, 17 → epic-line 검사, 그 외 → 클리어"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x1803",
+   "name": "v2_assign@tag (=Some.0.1 cline LineType)",
+   "note": "니치: 0xff(-1)=None, 0/1/2 = Top/Mid/Bottom(=cline)"
+  },
+  {
+   "base": "BigPlan(plan)",
+   "offset": "0x0",
+   "name": "@tag",
+   "note": "L527: (tag & 28)==12 ⇔ tag∈{12,13,14,15} = Epic/SerpenHuntAndPoke/Battle. L565: tag==3 = PassiveLine. tag==6 은 assume(불가)"
+  },
+  {
+   "base": "BigPlan(plan)",
+   "offset": "0x11e",
+   "name": "@PassiveLine.0.line@tag",
+   "note": "L566: v2_assign = Some((*src, plan.line))"
+  },
+  {
+   "base": "OperationData",
+   "offset": "0x0",
+   "name": "cache",
+   "note": "&AbstractGameWithCache"
+  },
+  {
+   "base": "OperationData",
+   "offset": "0x8",
+   "name": "context",
+   "note": "&GameContext"
+  },
+  {
+   "base": "OperationData",
+   "offset": "0x10",
+   "name": "blackboard",
+   "note": "&[Blackboard;2] (744B stride). team 으로 인덱스(bounds<2, panic @handler.rs:2298)"
+  },
+  {
+   "base": "GameContext",
+   "offset": "0x38",
+   "name": "tutorial@tag",
+   "note": "TutorialType. serpen_exists/morgard_exists/line_exists(rule_scope.rs:25·46·50) 가 runner.rs spawn_* 매치로 인라인"
+  },
+  {
+   "base": "PlayerState",
+   "offset": "0x930",
+   "name": "info.team",
+   "note": "usize 0..1"
+  },
+  {
+   "base": "PlayerState",
+   "offset": "0x9c0",
+   "name": "info.position@tag",
+   "note": "i32 Position. as_index(entity.rs:581) → 자기 자신 제외용 me"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x0",
+   "name": "game.data_ptr / game.vtable_ptr",
+   "note": "dyn AbstractGame 팻포인터. vtable+0x40 get_game_mode(as_moba, game.rs:231), vtable+0x1d8 get_player_champion_by_position"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x180",
+   "name": "top_tower[] (line*32 + team*8 → top/mid/bottom_tower)",
+   "note": "mf2_epic_line_valid L2325 `tower(line, 1-team)`: 0x180+line*0x20+(1-team)*8 — 상대팀 1차 타워"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x190",
+   "name": "top_tower2[] (line*32 + team*8 → top/mid/bottom_tower2)",
+   "note": "동 L2325 `.or(tower2)`: 0x190+line*0x20+(1-team)*8 — 상대팀 2차 타워. 둘 중 하나라도 Some 이면 유효"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x21c0",
+   "name": "top_lead[] (Top: 0x21c0, Mid: 0x21d0, Bottom: 0x21e0; +team*8)",
+   "note": "mf2_cover_need_excluding_me L2309: lead[line][team] < 3"
+  },
+  {
+   "base": "MobaMode",
+   "offset": "0x240",
+   "name": "epic_minion_buff_time[]",
+   "note": "remain_epic_time(game.rs:210) 인라인: [team] (bounds<2, panic @game.rs:210) != 0 이어야 유효"
+  }
+ ],
+ "writes": [
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x1800",
+   "name": "v2_obj_part@tag",
+   "value": "1 (L529) / 0 (L538·L546)",
+   "note": "L529: plan 이 Epic/Serpen Hunt 계열이면 Some(key) 로 래치. L538: !alive && 래치==key 면 None. L546: 래치 있는데 현재 objective 키와 다르면(또는 objective 가 Morgard/Serpen 아님) None"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x1801",
+   "name": "v2_obj_part@Some.0",
+   "value": "key = phase | (src==11 ? 0x50 : 0x60)… 정확히는 mf2_obj_key(objective) = phase | (Serpen 0x50 / Morgard 0x60)",
+   "note": "L529 에서만 씀"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x1802",
+   "name": "v2_assign@Some.0.0",
+   "value": "*src (17 또는 19)",
+   "note": "L566: plan 이 PassiveLine 이고 src∈{17,19} 일 때"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x1803",
+   "name": "v2_assign@tag (=cline)",
+   "value": "plan.line (L566) / 0xff=None (L562)",
+   "note": "L562: 래치된 (csrc,cline) 검사 실패(라인 미존재·커버 불필요·에픽 라인 무효·csrc∉{17,19}) 시 None"
+  },
+  {
+   "base": "BigPlan(plan)",
+   "offset": "0x0",
+   "name": "@tag",
+   "value": "14 SerpenHuntAndPoke (src==11) / 12 EpicHuntAndPoke (src==12) — L533 ; 3 PassiveLine — L558",
+   "note": "drop_glue(BigPlan) 후 재구성. L533: +0x8=0, +0x10=8(dangling), +0x18..+0x22 = 0 (빈 Vec + 0 필드 = ~HuntAndPokePlan 기본값). L558: PassiveLinePlan 기본값(+0x8=0 v46_flee_entry None, +0x20/+0x38/+0x50 빈 Vec(cap0,ptr8,len0), +0x68.. 0), +0x11e = cline"
+  },
+  {
+   "base": "BigPlan(plan)",
+   "offset": "0x11e",
+   "name": "@PassiveLine.0.line@tag",
+   "value": "cline (v2_assign 의 라인)",
+   "note": "L558"
+  },
+  {
+   "base": "u8(src)",
+   "offset": "0x0",
+   "name": "*src",
+   "value": "csrc (v2_assign.0 = 17 또는 19)",
+   "note": "L559: 래치 복원 시 소스 코드도 래치값으로 되돌림"
+  }
+ ],
+ "constants": [
+  {
+   "value": 2,
+   "src_line": 520,
+   "meaning": "version < 2 면 아무것도 안 함(v2 게이트)"
+  },
+  {
+   "value": -11,
+   "src_line": 524,
+   "meaning": "(src-11) as u8 < 2 ⇔ src ∈ {11,12} = 오브젝트 사냥 소스(11=Serpen, 12=Morgard/Epic — L526·L533 에서 src==11 ↔ Serpen 으로 확정)"
+  },
+  {
+   "value": 11,
+   "src_line": 526,
+   "meaning": "src==11 → serpen_exists / SerpenHuntAndPoke(14); 아니면 morgard_exists / EpicHuntAndPoke(12)"
+  },
+  {
+   "value": 80,
+   "src_line": 2314,
+   "meaning": "mf2_obj_key: Serpen 이면 key = phase | 0x50"
+  },
+  {
+   "value": 96,
+   "src_line": 2314,
+   "meaning": "mf2_obj_key: Morgard 이면 key = phase | 0x60"
+  },
+  {
+   "value": 5,
+   "src_line": 50,
+   "meaning": "serpen_exists(rule_scope.rs:50)=spawn_serpen(runner.rs:267): tutorial ∈ {0 None,5 MidBottom,7 Line,8 Total} 이면 true (⚠본문의 `shl i8 %line, 5` 는 line*32 = tower 배열 stride 이며 이 상수와 무관)"
+  },
+  {
+   "value": -7,
+   "src_line": 46,
+   "meaning": "morgard_exists(rule_scope.rs:46)=spawn_epic(runner.rs:263): (tutorial-7) as u8 < 250 ⇔ tutorial ∉ {1..6} ⇔ ∈ {0 None,7 Line,8 Total}"
+  },
+  {
+   "value": -6,
+   "src_line": 46,
+   "meaning": "= 250 (u8). 위 morgard_exists 의 비교 상수"
+  },
+  {
+   "value": 28,
+   "src_line": 527,
+   "meaning": "BigPlan 태그 마스크: (tag & 28)==12 ⇔ tag∈{12,13,14,15} = EpicHuntAndPoke/EpicHuntAndBattle/SerpenHuntAndPoke/SerpenHuntAndBattle (매치가 마스크로 접힘)"
+  },
+  {
+   "value": 12,
+   "src_line": 527,
+   "meaning": "위 마스크 비교값 겸 L533 EpicHuntAndPoke 메모리태그"
+  },
+  {
+   "value": 14,
+   "src_line": 533,
+   "meaning": "SerpenHuntAndPoke 메모리태그(src==11 일 때 select)"
+  },
+  {
+   "value": -17,
+   "src_line": 548,
+   "meaning": "(src-17) as u8 < 3 ⇔ src ∈ {17,18,19} = 라인 배정 소스 계열"
+  },
+  {
+   "value": 3,
+   "src_line": 548,
+   "meaning": "위 범위 폭(3개). 별도로 L565 BigPlan 태그 3 = PassiveLine, L2309 lead<3 도 같은 리터럴"
+  },
+  {
+   "value": -1,
+   "src_line": 551,
+   "meaning": "v2_assign 니치 None(0xff). L551 is_some 검사·L562 None 저장"
+  },
+  {
+   "value": 19,
+   "src_line": 552,
+   "meaning": "csrc 19 → mf2_cover_need_excluding_me(L553). L564 도 src 19 허용"
+  },
+  {
+   "value": 17,
+   "src_line": 552,
+   "meaning": "csrc 17 → mf2_epic_line_valid(L554). L564 도 src 17 허용(18 은 래치 갱신 안 함)"
+  },
+  {
+   "value": 7,
+   "src_line": 25,
+   "meaning": "line_exists(rule_scope.rs:25)=spawn_line_minion(runner.rs:275~291): Top⇔tutorial∈{0,2,7,8} · Mid⇔{0,4,5,7,8} · Bottom⇔{0,1,3,5,7,8}"
+  },
+  {
+   "value": 0,
+   "src_line": 2309,
+   "meaning": "커버 필요 조건: 나를 제외한 아군 중 blackboard.in_big_line(pos,line) 인 수 == 0"
+  },
+  {
+   "value": 472,
+   "src_line": 2309,
+   "meaning": "vtable 슬롯 0x1d8 = get_player_champion_by_position(team, pos) — 그 라인 담당 챔프가 None 이어야 커버 필요"
+  },
+  {
+   "value": 6,
+   "src_line": 527,
+   "meaning": "llvm.assume(tag != 6): BigPlan 니치 untagged(DeathMatchBattle) 자리 — 판정 아님"
+  }
+ ],
+ "calls": [
+  "game_ai::plan_legacy::handler::LegacyPlanHandler::v2_obj_restore_safe",
+  "game_core::simulation::game::blackboard::Blackboard::in_big_line",
+  "core::ptr::drop_glue<BigPlan>",
+  "core::panicking::panic_bounds_check"
+ ],
+ "logic": "if version < 2 { return }                                            // L520\ns = *src\nif s ∈ {11, 12} {                                                       // L524 오브젝트 사냥 소스\n  key = mf2_obj_key(self.team_plan.objective)                          // L525 (handler.rs:2314)\n        = match objective { Some(Serpen{phase,..}) => phase|0x50, Some(Morgard{phase,..}) => phase|0x60, _ => return }\n  alive = if s==11 { serpen_exists(ctx) } else { morgard_exists(ctx) } // L526 (tutorial 기반, 위 constants)\n  if plan.tag ∈ {12,13,14,15} (Epic/Serpen HuntAndPoke/Battle) {      // L527\n    self.v2_obj_part = Some(key)                                       // L529\n    return\n  }\n  if self.v2_obj_part == Some(key) && alive {                          // L530\n    if v2_obj_restore_safe(version, rnd, player, data, debug) {        // L531\n      drop(*plan); *plan = if s==11 { SerpenHuntAndPoke(기본) } else { EpicHuntAndPoke(기본) }  // L533\n    }\n    return\n  }\n  if !alive && self.v2_obj_part == Some(key) { self.v2_obj_part = None }  // L535~538\n  return\n}\n// s ∉ {11,12}\nif self.v2_obj_part.is_some() && self.v2_obj_part != mf2_obj_key(objective) {   // L545 (objective 가 Morgard/Serpen 아니면 키 없음 → 다름)\n  self.v2_obj_part = None                                              // L546\n}\nif s ∉ {17,18,19} { return }                                            // L548\nif let Some((csrc, cline)) = self.v2_assign {                          // L551\n  ok = match csrc {                                                    // L552\n    19 => mf2_cover_need_excluding_me(player, data, cline),            // L553 (2294~2309)\n    17 => mf2_epic_line_valid(player, data, cline),                    // L554 (2323~2325)\n    _  => false }\n  if ok {                                                              // L557\n    drop(*plan); *plan = PassiveLine(PassiveLinePlan::기본(line=cline)) // L558\n    *src = csrc                                                        // L559\n    return\n  }\n  self.v2_assign = None                                                // L562\n}\nmatch s { 17 | 19 =>                                                    // L564\n  if let PassiveLine(p) = plan { self.v2_assign = Some((s, p.line)) }  // L565~566\n  _ => {} }\n\n--- mf2_cover_need_excluding_me(player,data,line) [handler.rs:2294~2309] ---\nline_exists(ctx.tutorial, line) 아니면 false                            // L2294\nme = player.info.position as usize                                    // L2297\nn  = (0..5).filter(|p| p != me && blackboard[team].in_big_line(p, line)).count()   // L2298\nreturn n == 0 && cache.<line>_lead[team] < 3 && game.get_player_champion_by_position(team, line→Position{Top0,Mid2,Bottom3}).is_none()   // L2309\n\n--- mf2_epic_line_valid(player,data,line) [handler.rs:2323~2325] ---\nline_exists(ctx.tutorial, line) 아니면 false                            // L2323\nmoba = game.get_game_mode().as_moba()  (tag==0 && ptr!=null 이어야 Some) // L2324\nmoba.remain_epic_time(team) = epic_minion_buff_time[team] != 0 이어야 함\nreturn cache.tower(line, 1-team) (1차 or 2차 타워) .is_some()          // L2325",
+ "knobs": [
+  {
+   "what": "커버 필요 판정의 라인 리드 상한",
+   "where": "handler.rs:2309",
+   "value": 3,
+   "effect": "올리면 리드가 커도(이미 우세한 라인도) 커버 배정(src 19) 래치가 복원된다. 내리면 리드 라인 커버를 빨리 포기"
+  },
+  {
+   "what": "오브젝트 사냥 소스 집합",
+   "where": "handler.rs:524",
+   "value": "11,12",
+   "effect": "이 값 외의 src 에선 v2_obj_part 래치가 세워지지 않는다(복원 불가)"
+  },
+  {
+   "what": "라인 배정 래치 허용 소스",
+   "where": "handler.rs:548·564",
+   "value": "17,19 (18 은 검사만·래치 갱신 없음)",
+   "effect": "18 을 추가하면 src 18 PassiveLine 도 래치·복원 대상이 된다"
+  }
+ ],
+ "unknown": [
+  "src 코드 11/12/17/18/19 의 이름(어느 enum/상수표인지) — 본문엔 리터럴만. 11↔Serpen·12↔Epic(Morgard) 대응은 L526/L533 에서 확정, 17/19 는 mf2_epic_line_valid/mf2_cover_need 로 각각 「에픽 라인」/「라인 커버」 소스로만 추정",
+  "v2_obj_restore_safe(m13.ll:11386) 내부 — 별도 함수(호출만), 이 명세 범위 밖",
+  "L533 이 만드는 Epic/SerpenHuntAndPokePlan 의 필드 의미(+0x8=0,+0x10=dangling 8,+0x18..=0) — 32B 페이로드 중 Vec 1개+나머지 0 으로만 관측. 생성자 이름 미확정(인라인)",
+  "L530 `&& alive` 와 L535 `!alive &&` 의 소스 문장 구조(중첩 if 인지 else-if 인지) — column 부재로 표기 불가. 동작(진리표)은 IR 로 확정",
+  "as_moba 의 {i64,ptr} 반환 중 i64 의 정확한 의미(GameMode 태그로 추정, 0 = Moba) — game.rs:231 본문 미독"
+ ],
+ "vtable_calls": [
+  "game.vtable_ptr+0x40 get_game_mode (as_moba, game.rs:231) — mf2_epic_line_valid L2324",
+  "game.vtable_ptr+0x1d8 get_player_champion_by_position(team, pos:i32) — mf2_cover_need_excluding_me L2309"
+ ]
+}

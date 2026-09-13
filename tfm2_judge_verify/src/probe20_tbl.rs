@@ -77,7 +77,32 @@ pub static PROBES20: &[P20] = &[
     P20 { idx: 74, rva: 0xdccc60, len: 12, prolog: &[0x55, 0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x53], name: "GoalData::update", module: "?", ins: 0 },
     P20 { idx: 75, rva: 0xdd73b0, len: 12, prolog: &[0x55, 0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x53], name: "SerpenStanceData::update_plan", module: "?", ins: 0 },
     P20 { idx: 76, rva: 0xde1ee0, len: 12, prolog: &[0x55, 0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x53], name: "EpicStanceData::update_plan", module: "?", ins: 0 },
-    P20 { idx: 90, rva: 0xcaf9f0, len: 14, prolog: &[0x41, 0x57, 0x41, 0x56, 0x56, 0x57, 0x53, 0x48, 0x83, 0xec, 0x50, 0x48, 0x89, 0xce], name: "BigPlan::sub_plan", module: "plan_legacy/types", ins: 0 },
+    P20 { idx: 77, rva: 0xd2da10, len: 12, prolog: &[0x55, 0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x53], name: "DefenseNexusPlan::sub_plan", module: "?", ins: 0 },
+    P20 { idx: 78, rva: 0xd3dcc0, len: 12, prolog: &[0x55, 0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x53], name: "objective_defense_role", module: "?", ins: 0 },
+    P20 { idx: 79, rva: 0xe38c90, len: 12, prolog: &[0x55, 0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x53], name: "engage::can_battle_triggered_filtered", module: "?", ins: 0 },
+    P20 { idx: 80, rva: 0xe5ca10, len: 12, prolog: &[0x55, 0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x53], name: "try_engage", module: "?", ins: 0 },
+    P20 { idx: 81, rva: 0xde5340, len: 12, prolog: &[0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x55, 0x53], name: "check_epic_hunt", module: "?", ins: 0 },
+    P20 { idx: 82, rva: 0xde92d0, len: 12, prolog: &[0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x55, 0x53], name: "epic_passive_plan", module: "?", ins: 0 },
+    P20 { idx: 83, rva: 0xdefcd0, len: 12, prolog: &[0x55, 0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x53], name: "EpicHuntAndPokePlan::sub_plan", module: "?", ins: 0 },
+    P20 { idx: 84, rva: 0xeb9570, len: 12, prolog: &[0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x55, 0x53], name: "battle_check_with_list", module: "?", ins: 0 },
+    P20 { idx: 85, rva: 0xebbb80, len: 12, prolog: &[0x55, 0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x53], name: "should_disengage_object_hunt", module: "?", ins: 0 },
+    P20 { idx: 86, rva: 0xdfe2a0, len: 12, prolog: &[0x55, 0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x53], name: "FightSituation::build", module: "?", ins: 0 },
+    P20 { idx: 87, rva: 0xe6b800, len: 12, prolog: &[0x55, 0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x53], name: "check_kill", module: "?", ins: 0 },
+    P20 { idx: 88, rva: 0xe4b070, len: 12, prolog: &[0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x55, 0x53], name: "v2_apply_assign_commit", module: "?", ins: 0 },
+    P20 { idx: 89, rva: 0xdd5db0, len: 12, prolog: &[0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x55, 0x53], name: "TeamPlan::v24_objective_setup_should_check_camp", module: "?", ins: 0 },
+    P20 { idx: 90, rva: 0xec8ba0, len: 12, prolog: &[0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x55, 0x53], name: "v3_epicops_defer_serpen", module: "?", ins: 0 },
+    P20 { idx: 91, rva: 0xd2e500, len: 12, prolog: &[0x55, 0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x53], name: "PassiveJunglePlan::sub_plan", module: "?", ins: 0 },
+    P20 { idx: 92, rva: 0xd3b2a0, len: 12, prolog: &[0x55, 0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x53], name: "v46_flee_gate_check", module: "?", ins: 0 },
+    P20 { idx: 93, rva: 0xd639f0, len: 12, prolog: &[0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x55, 0x53], name: "check_serpen_giveup", module: "?", ins: 0 },
+    P20 { idx: 94, rva: 0xd61330, len: 12, prolog: &[0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x55, 0x53], name: "check_serpen_hunt", module: "?", ins: 0 },
+    P20 { idx: 95, rva: 0xd62bb0, len: 12, prolog: &[0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x55, 0x53], name: "check_serpen_setup", module: "?", ins: 0 },
+    P20 { idx: 96, rva: 0xd65620, len: 12, prolog: &[0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x55, 0x53], name: "serpen_passive_plan", module: "?", ins: 0 },
+    P20 { idx: 97, rva: 0xdf0e90, len: 12, prolog: &[0x55, 0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x53], name: "SerpenHuntAndPokePlan::sub_plan", module: "?", ins: 0 },
+    P20 { idx: 98, rva: 0xd9bce0, len: 12, prolog: &[0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x55, 0x53], name: "steal::evaluate_steal_for_target", module: "?", ins: 0 },
+    P20 { idx: 99, rva: 0xd9ac10, len: 12, prolog: &[0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x55, 0x53], name: "steal::should_steal_now", module: "?", ins: 0 },
+    P20 { idx: 100, rva: 0xdd90c0, len: 12, prolog: &[0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x55, 0x53], name: "TeamPlan::update_steal", module: "?", ins: 0 },
+    P20 { idx: 101, rva: 0xd3a3a0, len: 12, prolog: &[0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x55, 0x53], name: "line_backfight_support_focus", module: "?", ins: 0 },
+    P20 { idx: 250, rva: 0xcaf9f0, len: 14, prolog: &[0x41, 0x57, 0x41, 0x56, 0x56, 0x57, 0x53, 0x48, 0x83, 0xec, 0x50, 0x48, 0x89, 0xce], name: "BigPlan::sub_plan", module: "plan_legacy/types", ins: 0 },
 ];
 
 /// ★**호출부 프로브** — 진입부를 못 건드리는 함수용(#13). `call rel32`(5B)의 rel32 만
@@ -90,14 +115,14 @@ pub struct C20 { pub idx: u8, pub target_rva: usize, pub sites: &'static [usize]
                  pub labels: &'static [&'static str], pub name: &'static str,
                  pub module: &'static str, pub ins: u32, pub why: &'static str }
 pub static CALLSITES20: &[C20] = &[
-    C20 { idx: 13, target_rva: 0xdf1c80, sites: &[0x00cafc27, 0x00df230e], labels: &["fn 0xcaf9f0+0x237 (#90 plan_legacy/types/BigPlan::sub_plan)", "fn 0xdf1f50+0x3be"], name: "target_bush_v30", module: "line_gank/cover", ins: 170, why: "진입부 12B 스틸 불가(je@+9 가 잘린다 · 명령 경계 0/4/7/9/15/21 · 21B 안에 분기 둘) — 호출부 리다이렉트로 전환. 호출부 2곳이 전수(간접호출 0곳 검산)" },
+    C20 { idx: 13, target_rva: 0xdf1c80, sites: &[0x00cafc27, 0x00df230e], labels: &["fn 0xcaf9f0+0x237 (#250 plan_legacy/types/BigPlan::sub_plan)", "fn 0xdf1f50+0x3be"], name: "target_bush_v30", module: "line_gank/cover", ins: 170, why: "진입부 12B 스틸 불가(je@+9 가 잘린다 · 명령 경계 0/4/7/9/15/21 · 21B 안에 분기 둘) — 호출부 리다이렉트로 전환. 호출부 2곳이 전수(간접호출 0곳 검산)" },
     C20 { idx: 30, target_rva: 0xec8af0, sites: &[0x00ddbd6d, 0x00dddf0d], labels: &["fn 0xdda220+0x1b4d", "fn 0xdda220+0x3ced"], name: "objective_is_damaged", module: "?", ins: 0, why: "진입부 12B 스틸 불가(je@+9 · cmp dl,5) — 호출부 리다이렉트. 호출부 2곳 전수(간접호출 0곳 검산)" },
     C20 { idx: 40, target_rva: 0xe4a780, sites: &[0x00e4723c, 0x00e474a2, 0x00e493c4], labels: &["fn 0xe46bc0+0x67c", "fn 0xe46bc0+0x8e2", "fn 0xe46bc0+0x2804"], name: "v3_assign_anchor", module: "?", ins: 0, why: "진입부 12B 스틸 불가(jae@+11 · cmp r8,2) — 호출부 리다이렉트. 호출부 3곳 전수(passive_plan 안 · 간접호출 0곳 검산)" },
-    C20 { idx: 58, target_rva: 0xdb8ba0, sites: &[0x00cafd90, 0x00dba7f7], labels: &["fn 0xcaf9f0+0x3a0 (#90 plan_legacy/types/BigPlan::sub_plan)", "fn 0xdb9430+0x13c7"], name: "target_bush_v41", module: "?", ins: 0, why: "진입부 12B 스틸 불가(je@+6 · test cl,cl) — 호출부 리다이렉트. 호출부 2곳 전수(간접호출 0곳 검산)" },
+    C20 { idx: 58, target_rva: 0xdb8ba0, sites: &[0x00cafd90, 0x00dba7f7], labels: &["fn 0xcaf9f0+0x3a0 (#250 plan_legacy/types/BigPlan::sub_plan)", "fn 0xdb9430+0x13c7"], name: "target_bush_v41", module: "?", ins: 0, why: "진입부 12B 스틸 불가(je@+6 · test cl,cl) — 호출부 리다이렉트. 호출부 2곳 전수(간접호출 0곳 검산)" },
 ];
 
 /// ★표에 **없는** 함수와 그 이유. 「빠진 것을 모르는 상태」를 만들지 않는다.
 pub static MISSING20: &[(u8, &str, &str)] = &[
-    (2, "sub_plan", "exe 에 독립 함수가 없다 — `BigPlan::sub_plan`(0xcaf9f0) 안 **점프테이블 idx14 arm**(`0xcafa57` = +0x67)으로 LTO 인라인(확정: attack_nexus.rs 의 panic::Location static 이 이미지 전역에 정확히 2개이고 각 .text 참조가 1개씩, 둘 다 0xcaf9f0 내부 · IR 호출 사이트 1곳 · .pdata 에 0xcafa57 엔트리 없음). 진입부가 없어 카운트 프로브 불가. ★호스트는 `AUX[90]`(~~20~~ · 09-13 명세 i=20 과 충돌해 이동) 으로 따로 계측한다 — ~~「#02 = 2,048만 회」~~ 는 **디스패처 호출수**였다. 개입/실측이 필요하면 = +0x67 에 midpin(첫 명령 7B 라 5B jmp 수용 · rip-상대/분기 없음 · 진입은 점프테이블 유일 · 직후 cmp 가 flags 재설정 ⟹ r11/r10/rdx/rsi/rbx/rax 보존 필요)"),
+    (2, "sub_plan", "exe 에 독립 함수가 없다 — `BigPlan::sub_plan`(0xcaf9f0) 안 **점프테이블 idx14 arm**(`0xcafa57` = +0x67)으로 LTO 인라인(확정: attack_nexus.rs 의 panic::Location static 이 이미지 전역에 정확히 2개이고 각 .text 참조가 1개씩, 둘 다 0xcaf9f0 내부 · IR 호출 사이트 1곳 · .pdata 에 0xcafa57 엔트리 없음). 진입부가 없어 카운트 프로브 불가. ★호스트는 `AUX[250]`(~~20~~→~~90~~ · 명세 i 와 두 번 충돌해 이동) 으로 따로 계측한다 — ~~「#02 = 2,048만 회」~~ 는 **디스패처 호출수**였다. 개입/실측이 필요하면 = +0x67 에 midpin(첫 명령 7B 라 5B jmp 수용 · rip-상대/분기 없음 · 진입은 점프테이블 유일 · 직후 cmp 가 flags 재설정 ⟹ r11/r10/rdx/rsi/rbx/rax 보존 필요)"),
     (17, "new", "exe 에 독립 함수가 없다 — `update`(0xe4c5c0) 안으로 LTO 인라인(A 0xe4d901 · B 0xe4d964 · tail 0xe4da09, CSE 병합). 진입부가 없어 카운트 프로브 불가. ★단 **데스매치 전용**이라 MOBA 모드 검증에는 쓰이지 않는다(유저 확인 2026-09-12) ⟹ 20 중 19 로 측정 성립. 개입이 필요해지면 = update 상위 훅 또는 3구간 mid-function 핀(midpin.py/sitepin.py)"),
 ];

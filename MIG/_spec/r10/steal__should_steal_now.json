@@ -1,0 +1,107 @@
+{
+ "name": "steal::should_steal_now",
+ "sym": "_RNvNtNtCshdEBA0ozCnw_7game_ai11plan_legacy5steal16should_steal_now",
+ "src": "game-ai\\src\\plan_legacy\\steal.rs",
+ "src_line": 279,
+ "ir_file": "m07.ll",
+ "ir_from": 54198,
+ "ir_to": 55131,
+ "exe": "0xd9ac10 (4296B) — fnprobe 대조: evaluate_steal_for_target(0xd9bce0) 2회 호출(d9bae1·d9bbe2) 일치 · vtable +0x28 tick/+0x40 get_game_mode/+0x1f0 get_entity_by_id/+0xf8 is_visible · distance 0x12a07d0 · 패닉 Location steal.rs:315:95·316:96·323:69·352:71 (IR unwrap 6곳 중 4곳 — 337/366 은 exe 에서 병합 추정). enemy_could_be_at_camp(IR 10회 fastcc call)는 exe 에 직접 call 이 없음 = 인라인(그 안의 +0xf8 is_visible·distance 호출이 본체에 보임). 어긋남 없음",
+
+ "one_line": "[v4] 정글러 스틸 액션 결정 — 에픽/세르펜 각각 '적 3명+ 캠프 접근 가능·우리 팀이 안 치는 중·대상 hp<95%·최근 포기 아님' 후보를 걸러 evaluate_steal_for_target 로 평가하고 Commit > Commit > Lurk(둘 다면 적 예상 처치 잔여틱 짧은 쪽) > Lurk > None 으로 합친다",
+
+ "signature": {
+  "params": [
+   {"i": 1, "name": "version", "type": "usize", "note": "본문 분기 없음 (dbg 만)"},
+   {"i": 2, "name": "player", "type": "&PlayerState(2528B)", "note": "info.position@tag·info.team"},
+   {"i": 3, "name": "goal_data", "type": "&GoalData(248B)", "note": "epic/serpen 스탠스(last_epic_seen·last_epic_hp·epic_enemy_tick) → evaluate 인자"},
+   {"i": 4, "name": "team_plan", "type": "&TeamPlan(1064B)", "note": "current_steal_session·last_battle_tick·objective·obj_spawn.*_giveup_tick 읽기 + enemy_could_be_at_camp 에 전달. store 0건"},
+   {"i": 5, "name": "data", "type": "&OperationData(24B)", "note": "cache(+0)·context(+8)"}
+  ],
+  "returns": "StealAction (2B: {i8 tag 0=None/1=Lurk/2=Commit, i8 target 0=Epic/1=Serpen}) — None 이면 target 은 undef"
+ },
+
+ "reads": [
+  {"base": "PlayerState", "offset": "0x9c0", "name": "info.position@tag", "note": "1=Jungle 아니면 None (L286, m07.ll:54236)"},
+  {"base": "PlayerState", "offset": "0x930", "name": "info.team", "note": "team (L287)"},
+  {"base": "OperationData", "offset": "0x0", "name": "cache", "note": ""},
+  {"base": "OperationData", "offset": "0x8", "name": "context", "note": ""},
+  {"base": "AbstractGameWithCache", "offset": "0x1e0", "name": "player_champion[]", "note": "[team][position] = my_champ (L287)"},
+  {"base": "AbstractGameWithCache", "offset": "0x0", "name": "game.data_ptr", "note": "vtable +0x28 tick / +0x40 get_game_mode / +0x1f0 get_entity_by_id"},
+  {"base": "AbstractGameWithCache", "offset": "0x8", "name": "game.vtable_ptr", "note": ""},
+  {"base": "GameContext", "offset": "0x8", "name": "setting", "note": "tps"},
+  {"base": "GameContext", "offset": "0x38", "name": "tutorial@tag", "note": "epic_exists(rule_scope.rs:46→runner.rs:263: 태그 1..6 이면 false) · serpen_exists(rule_scope.rs:50→runner.rs:267: {0,5,7,8})"},
+  {"base": "GameSetting", "offset": "0x12f8", "name": "tick_per_second", "note": "tps (L292)"},
+  {"base": "Entity", "offset": "0x670", "name": "hp", "note": "my_champ.hp*2 < stat_cached.hp → None (L294) · 오브젝트 hp*100 < max*95 (L325/L354)"},
+  {"base": "Entity", "offset": "0x628", "name": "stat_cached.hp", "note": ""},
+  {"base": "TeamPlan", "offset": "0x1ba", "name": "current_steal_session@tag", "note": "2=None → in_session_target=None (L291, +442)"},
+  {"base": "TeamPlan", "offset": "0x1b9", "name": "current_steal_session@Some.0.target@tag", "note": "in_session_target (0 Epic/1 Serpen, +441)"},
+  {"base": "TeamPlan", "offset": "0x220", "name": "last_battle_tick", "note": "세션 없을 때 tick - last_battle_tick < tps*5 → None (L299, +544)"},
+  {"base": "TeamPlan", "offset": "0x41f", "name": "objective@tag", "note": "0=Morgard 이면 에픽 후보 제외 / 1=Serpen 이면 세르펜 후보 제외 (team_plan.rs:244→231 인라인, +1055)"},
+  {"base": "TeamPlan", "offset": "0x50", "name": "obj_spawn.epic_giveup_tick@tag", "note": "Option<usize> 태그(8B, 1=Some) (+80, L328)"},
+  {"base": "TeamPlan", "offset": "0x58", "name": "obj_spawn.epic_giveup_tick@Some.0", "note": "t + tps*5 >= tick 이면 에픽 후보 제외 (+88)"},
+  {"base": "TeamPlan", "offset": "0x60", "name": "obj_spawn.serpen_giveup_tick@tag", "note": "(+96, L357)"},
+  {"base": "TeamPlan", "offset": "0x68", "name": "obj_spawn.serpen_giveup_tick@Some.0", "note": "(+104)"},
+  {"base": "MobaMode", "offset": "0x1a0", "name": "jungle_runner.epic.live_list.buf.inner.ptr", "note": "epic 엔티티 id (+416)"},
+  {"base": "MobaMode", "offset": "0x1a8", "name": "jungle_runner.epic.live_list.len", "note": "epic_alive (+424, L315)"},
+  {"base": "MobaMode", "offset": "0x1d0", "name": "jungle_runner.serpen.live_list.buf.inner.ptr", "note": "(+464)"},
+  {"base": "MobaMode", "offset": "0x1d8", "name": "jungle_runner.serpen.live_list.len", "note": "serpen_alive (+472, L316)"},
+  {"base": "GoalData", "offset": "0x78", "name": "epic.last_epic_seen", "note": "(+120, L341) → evaluate last_seen"},
+  {"base": "GoalData", "offset": "0x80", "name": "epic.last_epic_hp", "note": "(+128, L339) → last_hp"},
+  {"base": "GoalData", "offset": "0x88", "name": "epic.epic_enemy_tick", "note": "(+136, L340) → enemy_tick (last_seen 시점 예상 적 처치 소요 틱 — evaluate 명세 참조)"},
+  {"base": "GoalData", "offset": "0xb0", "name": "serpen.last_epic_seen", "note": "(+176, L370)"},
+  {"base": "GoalData", "offset": "0xb8", "name": "serpen.last_epic_hp", "note": "(+184, L368)"},
+  {"base": "GoalData", "offset": "0xc0", "name": "serpen.epic_enemy_tick", "note": "(+192, L369)"}
+ ],
+
+ "writes": [],
+
+ "constants": [
+  {"value": 1, "src_line": 286, "meaning": "Position 태그 1=Jungle — 정글러만 (본문 `shl 1` 은 L294 hp*2 항목)"},
+  {"value": 2, "src_line": 291, "meaning": "Option<StealSession> None 니치 = 2 (+0x1ba) → in_session_target None. 본문 다른 2 = player_champion bounds·StealAction Commit 태그"},
+  {"value": 1, "src_line": 294, "folded_from": 2, "meaning": "my_champ.hp*2 < stat_cached.hp (=hp<50%) 이면 None — `shl i64 %29, 1` 로 접힘"},
+  {"value": 5, "src_line": 299, "meaning": "tps*5: 세션 중이 아닐 때 마지막 교전(last_battle_tick) 후 5초 이내면 None. L328/L357 giveup_tick + tps*5 >= tick(최근 5초 내 포기) 에도 같은 5"},
+  {"value": 6, "src_line": 304, "meaning": "epic_exists: (tutorial 태그-1) < 6 → 태그 1..6 이면 에픽 없음 (runner.rs:263)"},
+  {"value": 288000, "src_line": 305, "meaning": "에픽 캠프 존 좌표 (x=y=288000 = 9셀) — enemy_could_be_at_camp(team, cache, team_plan, p, 288000, 288000) 5슬롯"},
+  {"value": 672000, "src_line": 310, "meaning": "세르펜 캠프 존 좌표 (x=y=672000 = 21셀)"},
+  {"value": 3, "src_line": 329, "meaning": "epic_enemies_at_zone < 3 이면 에픽 후보 제외 (즉 적 3명 이상이 캠프에 있을 수 있어야 스틸 대상). L358 세르펜도 3"},
+  {"value": 0, "src_line": 309, "meaning": "TutorialType 태그 0=None: serpen_exists 집합 {0,5,7,8}"},
+  {"value": 5, "src_line": 309, "meaning": "TutorialType 5=MidBottom"},
+  {"value": 7, "src_line": 309, "meaning": "TutorialType 7=Line"},
+  {"value": 8, "src_line": 309, "meaning": "TutorialType 8=Total"},
+  {"value": 100, "src_line": 325, "meaning": "obj.hp*100 < obj.stat_cached.hp*95 — 대상 hp 95% 미만이어야 eligible (세션 중이 아닐 때만 검사)"},
+  {"value": 95, "src_line": 325, "meaning": "95% 임계 (L354 세르펜 동일)"},
+  {"value": 0, "src_line": 327, "meaning": "MainObjective 태그 0=Morgard: 우리 팀 objective 가 Morgard 면 에픽 스틸 후보 제외 (우리가 치는 중) — 세션 중(L321)에도 적용"},
+  {"value": 1, "src_line": 356, "meaning": "MainObjective 태그 1=Serpen: objective 가 Serpen 이면 세르펜 후보 제외 (L350 세션 중에도). `shl 1` 과 무관"},
+  {"value": -1, "src_line": 345, "meaning": "epic_action 미평가 시 (None, usize::MAX) — 비교 키(잔여틱) 최대값"},
+  {"value": 2, "src_line": 376, "meaning": "StealAction 태그 2=Commit — 에픽 Commit 우선, 다음 세르펜 Commit"},
+  {"value": 1, "src_line": 376, "meaning": "StealAction 태그 1=Lurk. `shl 1` 과 무관"},
+  {"value": 0, "src_line": 390, "meaning": "StealAction 태그 0=None (조기 반환 전부)"}
+ ],
+
+ "calls": [
+  "game_ai::plan_legacy::steal::enemy_could_be_at_camp",
+  "game_ai::plan_legacy::steal::evaluate_steal_for_target",
+  "core::option::unwrap_failed",
+  "core::panicking::panic_bounds_check"
+ ],
+
+ "logic": "fn should_steal_now(version, player, goal_data, team_plan, data) -> StealAction\n  // L286~287\n  if player.info.position != Jungle { return None }\n  let Some(my_champ) = cache.player_champion[team][position] else { return None }\n  // L291~299\n  in_session_target = team_plan.current_steal_session.map(|s| s.target)     // None=2 / Epic=0 / Serpen=1\n  if my_champ.hp*2 < my_champ.stat_cached.hp { return None }                // L294 hp<50%\n  if in_session_target.is_none() && game.tick().saturating_sub(team_plan.last_battle_tick) < tps*5 { return None }   // L299\n  // L304~310: 캠프 존에 있을 수 있는 적 수 (5슬롯 count)\n  epic_zone_short  = !epic_exists(ctx)   || (0..5).filter(|p| enemy_could_be_at_camp(team, cache, team_plan, p, 288000, 288000)).count() < 3   // L329 조건으로 소비\n  serpen_zone_short= !serpen_exists(ctx) || (0..5).filter(|p| enemy_could_be_at_camp(team, cache, team_plan, p, 672000, 672000)).count() < 3   // L358\n  // L315~316\n  epic_alive   = epic_exists && mob.epic.live_list.len != 0\n  serpen_alive = serpen_exists && mob.serpen.live_list.len != 0\n  // L319~345: 에픽 후보\n  epic_action: (StealAction, usize) =\n    if in_session_target == Some(Epic) {                                         // L320~321\n      if epic_alive && objective != Morgard { evaluate(Epic, in_session=true) } else { (None, MAX) }\n    } else {\n      epic_eligible = mob.epic.live_list.get(0) → get_entity_by_id → is_some_and(|e| e.hp*100 < e.stat_cached.hp*95)   // L323~325\n      if epic_alive && objective != Morgard(0)                                     // L326~327\n         && !obj_spawn.epic_giveup_tick.is_some_and(|t| t + tps*5 >= tick) && !epic_zone_short   // L328~329\n         && epic_eligible                                                          // L333\n      { evaluate(Epic, in_session = (in_session_target==Some(Epic)) → 여기선 false) } else { (None, MAX) }   // L334~345\n    }\n    where evaluate(Epic, s) = evaluate_steal_for_target(player, cache, ctx, my_champ, target=false, epic_entity, goal_data.epic.last_epic_hp, goal_data.epic.epic_enemy_tick, goal_data.epic.last_epic_seen, (288000,288000), s)\n  // L348~370: 세르펜 후보 (대칭)\n  serpen_action =\n    if in_session_target == Some(Serpen) { if serpen_alive && objective != Serpen(1) { evaluate(Serpen, true) } else { skip } }   // L350\n    else if serpen_alive && objective != Serpen && !serpen_giveup_tick.is_some_and(|t| t+tps*5 >= tick) && !serpen_zone_short && serpen_eligible(hp<95%) { evaluate(Serpen, false) } else { skip }   // L352~362\n    where evaluate(Serpen, s) = evaluate_steal_for_target(..., target=true, serpen_entity, goal_data.serpen.last_epic_hp, .epic_enemy_tick, .last_epic_seen, (672000,672000), s)\n  // L376~390: 합성\n  if epic_action.0 == Commit { return epic_action.0 }                     // 에픽 Commit 최우선\n  if serpen skipped { return if epic.0==Lurk { Lurk(Epic) } else { None } }\n  if serpen_action.0 == Commit { return Commit(Serpen) }\n  match (epic.0, serpen.0) {\n    (Lurk, Lurk) => if in_session_target.is_none() { Lurk(if epic.1 > serpen.1 { Serpen } else { Epic }) }   // L383: 적 예상 처치 잔여틱(enemy_tick) 작은 쪽\n                    else { Lurk(in_session_target) }                                                          // L380\n    (_, Lurk) => Lurk(Serpen),  (Lurk, _) => Lurk(Epic),  _ => None }",
+
+ "knobs": [
+  {"what": "내 hp 최소", "where": "steal.rs:294", "value": "50% (hp*2 < max)", "effect": "내리면 저체력에도 스틸 시도"},
+  {"what": "교전 직후 스틸 금지 창", "where": "steal.rs:299", "value": "tps*5", "effect": "줄이면 교전 끝나자마자 스틸 판단 재개"},
+  {"what": "캠프 존 적 최소 인원", "where": "steal.rs:329 / :358", "value": 3, "effect": "내리면(2) 적 2명만 캠프 근처여도 스틸 후보로 본다 — 오판(적이 안 치는데 스틸 시도) 증가"},
+  {"what": "대상 손상 임계", "where": "steal.rs:325 / :354", "value": "95%", "effect": "올리면(예: 100) 풀피 오브젝트도 후보 — 사실상 '적이 치기 시작했나' 게이트"},
+  {"what": "포기 후 재진입 금지 창", "where": "steal.rs:328 / :357", "value": "tps*5", "effect": "giveup_tick 후 5초. 줄이면 포기 직후 재시도"},
+  {"what": "에픽/세르펜 존 좌표", "where": "steal.rs:305 / :310", "value": "(288000,288000) / (672000,672000)", "effect": "맵 캠프 위치 하드코딩 — 맵 모드에서 캠프를 옮기면 어긋난다"}
+ ],
+
+ "unknown": [
+  "enemy_could_be_at_camp(team, cache, team_plan, slot, x, y) 내부 미독해 — 이름·인자로 '적 슬롯 p 가 (x,y) 캠프에 있을 수 있는가(시야/마지막 관측 기반)' 로 읽힘. 별도 define(fastcc) 이나 이 배치 범위 밖",
+  "team_plan.rs:244→231 인라인 헬퍼 이름 — objective 태그==0/1 비교만 남음. _docs '`matches!(objective, Morgard{..}/Serpen{..})` 치환 — Take 운영이 그 캠프에 활성인가' 와 부합 (is_take_active 류)",
+  "L334 evaluate 의 in_session 인자: 비세션 경로 phi %151 은 in_session_target==Some(Epic) 일 때만 1 — 그 경로는 L320 분기로 이미 갈라져 있어 실제론 항상 false. 세션 경로(%223)는 true",
+  "L383 비교 키 = evaluate_steal_for_target 반환 (StealAction, usize) 의 usize = enemy_tick(적 예상 처치 소요틱) — 작은 쪽 우선. 미평가 시 usize::MAX(-1)",
+  "exe 패닉 Location 4개 vs IR unwrap 6곳 — 337·366 짝이 exe 에서 안 보임(동일 Location 공유/병합 추정, Ghidra 미확인)"
+ ]
+}

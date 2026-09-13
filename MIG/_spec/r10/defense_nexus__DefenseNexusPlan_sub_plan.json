@@ -1,0 +1,96 @@
+{
+ "name": "DefenseNexusPlan::sub_plan",
+ "sym": "_RNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old13defense_nexusNtB2_16DefenseNexusPlan8sub_plan",
+ "src": "game-ai\\src\\plan_legacy\\old\\defense_nexus.rs",
+ "src_line": 32,
+ "ir_file": "m04.ll",
+ "ir_from": 27345,
+ "ir_to": 28107,
+ "aux": [],
+
+ "one_line": "넥서스 방어 플랜의 서브플랜 결정 — DefenseNexus(계속 방어) vs Recall(귀환) 을 넥서스 위기·본진 위험·자기 HP·분수 여부로 판정",
+
+ "signature": {
+   "params": [
+     {"i": 0, "name": "(sret)", "type": "SubPlan(72B)", "note": "%0. 태그만 쓴다: 17=DefenseNexus(payload focus=None,last_gate=0) / 5=Recall"},
+     {"i": 1, "name": "self", "type": "&DefenseNexusPlan(8B)", "note": "%1. 본문에서 읽지 않음(team 필드 미사용 — player.info.team 을 대신 씀)"},
+     {"i": 2, "name": "version", "type": "usize", "note": "%2. `version > 1` 분기 (m04.ll:27981)"},
+     {"i": 3, "name": "_rnd", "type": "&mut StdRng(320B)", "note": "%3. readnone — 미사용"},
+     {"i": 4, "name": "player", "type": "&PlayerState(2528B)", "note": "%4"},
+     {"i": 5, "name": "data", "type": "&OperationData(24B)", "note": "%5. cache/context/blackboard"},
+     {"i": 6, "name": "goal_data", "type": "&GoalData(248B)", "note": "%6. heal_commit 만 읽음"},
+     {"i": 7, "name": "_debug", "type": "&mut DebugFrameData(224B)", "note": "%7. readnone — 미사용"}
+   ],
+   "returns": "SubPlan(sret) — 태그 17 DefenseNexus{focus:None,last_gate:0} 또는 태그 5 Recall"
+ },
+
+ "reads": [
+   {"base": "PlayerState", "offset": "0x930", "name": "info.team", "note": "team (m04.ll:27373). <2 아니면 bounds panic"},
+   {"base": "PlayerState", "offset": "0x9c0", "name": "info.position@tag", "note": "as_index → player_champion 인덱스 (27385)"},
+   {"base": "OperationData", "offset": "0x0", "name": "cache", "note": "&AbstractGameWithCache (27388)"},
+   {"base": "OperationData", "offset": "0x8", "name": "context", "note": "&GameContext (27414)"},
+   {"base": "OperationData", "offset": "0x10", "name": "blackboard", "note": "&[Blackboard;2] (27483)"},
+   {"base": "AbstractGameWithCache", "offset": "0x1e0", "name": "player_champion[team][pos]", "note": "Option<&Entity> — None 이면 unwrap panic (27389~27394). stride [5 x ptr]"},
+   {"base": "AbstractGameWithCache", "offset": "0x170", "name": "nexus[team]", "note": "Option<&Entity> unwrap (27458~27462); 같은 슬롯을 nexus_is_critical 인라인이 재로드(27987, 28033)"},
+   {"base": "AbstractGameWithCache", "offset": "0x0", "name": "game.data_ptr", "note": "dyn AbstractGame 데이터 포인터 (27489)"},
+   {"base": "AbstractGameWithCache", "offset": "0x8", "name": "game.vtable_ptr", "note": "vtable (27491); 슬롯 0x1f0=get_entity_by_id(27517 등 6회), 0x20=seed, 0x28=tick (28066, 28071 — last_stand_flags 인라인)"},
+   {"base": "Entity", "offset": "0x670", "name": "hp", "note": "champ.hp (27399) / nexus.hp (27993, 28039)"},
+   {"base": "Entity", "offset": "0x628", "name": "stat_cached.hp", "note": "최대 HP. champ 는 0 이면 div_by_zero panic(27403) / nexus 는 max(.,1) (27999)"},
+   {"base": "Entity", "offset": "0x660", "name": "x", "note": "champ.x(27430) / 미니언·넥서스·적 챔프 distance_sq"},
+   {"base": "Entity", "offset": "0x668", "name": "y", "note": "champ.y(27448) / distance_sq"},
+   {"base": "GameContext", "offset": "0x0", "name": "pool", "note": "&Bump — champions() 인자 (27890)"},
+   {"base": "GameContext", "offset": "0x20", "name": "map", "note": "&MapDef (27418)"},
+   {"base": "GameContext", "offset": "0x38", "name": "tutorial", "note": "TutorialType 1B — valid_lines 인라인 switch (27762)"},
+   {"base": "MapDef", "offset": "0x6d70", "name": "fountains[team]", "note": "(lx,ly,rx,ry) 4×u64 stride 32B: +0 lx, +8 ly, +16 rx, +24 ry (27421~27446)"},
+   {"base": "Blackboard", "offset": "0x0", "name": "top_minion_state.front_minion", "note": "Option<usize> (tag +0, 값 +8). blackboard[1-team] 과 blackboard[team] 둘 다 읽음 (27485, 27570)"},
+   {"base": "Blackboard", "offset": "0x28", "name": "mid_minion_state.front_minion", "note": "Option<usize> (+40/+48)"},
+   {"base": "Blackboard", "offset": "0x50", "name": "bottom_minion_state.front_minion", "note": "Option<usize> (+80/+88)"},
+   {"base": "GoalData", "offset": "0xf0", "name": "heal_commit", "note": "bool — version>1 에서만 (28011)"}
+ ],
+
+ "writes": [
+   {"base": "SubPlan(sret)", "offset": "0x0", "name": "tag", "value": "17(DefenseNexus) | 5(Recall)", "note": "28105. phi: %293 경로→17, 나머지(%325/%284/%330)→5"},
+   {"base": "SubPlan(sret)", "offset": "0x8", "name": "DefenseNexus.focus@tag", "value": "0 (None)", "note": "28025. 태그 17 경로에서만"},
+   {"base": "SubPlan(sret)", "offset": "0x18", "name": "DefenseNexus.last_gate", "value": "0", "note": "28027. u8"}
+ ],
+
+ "constants": [
+   {"value": 100, "src_line": 40, "meaning": "hp_ratio = hp*100 / stat_cached.hp (백분율)"},
+   {"value": 14400000001, "src_line": 51, "meaning": "120000^2 + 1 — `distance_sq < 14400000001` = 거리 ≤ 120000(3.75셀). 적 전선 미니언↔넥서스(L51~53) 및 적 챔피언↔넥서스(L60) 근접 판정 공용"},
+   {"value": 1, "src_line": 82, "meaning": "`version > 1` 게이트 — v2+ 에서만 heal_commit 조기 Recall 과 nexus_final_stand 검사"},
+   {"value": 51, "src_line": 86, "meaning": "nexus_is_critical 인라인: 넥서스 hp_ratio < 51 (=≤50%)"},
+   {"value": 256, "src_line": 86, "meaning": "last_stand_flags i24 의 bit8 = 튜플 .1 = nexus_final_stand 결과 (nexus_final_stand 본체 m04.ll:57082 와 동일 패턴)"},
+   {"value": 20, "src_line": 92, "meaning": "위험 상황: hp_ratio > 20 이면 계속 방어"},
+   {"value": 31, "src_line": 95, "meaning": "비위험 상황: hp_ratio < 31 이면 귀환"}
+ ],
+
+ "calls": [
+   "game_core::simulation::AbstractGameWithCache::champions",
+   "game_ai::plan_legacy::old::defense_nexus::nexus_under_direct_attack",
+   "std::thread::local::LocalKey::with",
+   "core::ops::drop::Drop::drop",
+   "core::panicking::panic_bounds_check",
+   "core::option::unwrap_failed",
+   "core::panicking::panic_const::panic_const_div_by_zero",
+   "llvm.umax.i64"
+ ],
+
+ "logic": "L38: team = player.info.team (<2 아니면 bounds panic); champ = data.cache.player_champion[team][player.info.position].unwrap()\nL40: hp_ratio = champ.hp*100 / champ.stat_cached.hp  (max=0 이면 div_by_zero panic — max(.,1) 없음)\nL41: (lx,ly,rx,ry) = data.context.map.fountains[team]\nL42: in_fountain = lx<=champ.x<=rx && ly<=champ.y<=ry   (x 먼저, 실패 시 y 는 안 봄 — 단락)\nL44: nexus = data.cache.nexus[team].unwrap()\nL45~47: enemy_bb = data.blackboard[1-team]; top/mid/bottom_front_minion = enemy_bb.{top,mid,bottom}_minion_state.front_minion.and_then(|id| cache.game.get_entity_by_id(id))   [vtable 0x1f0]\nL48~50: ally_top/mid/bottom_front_minion = data.blackboard[team].* 동일 방식 — ★결과가 이후 어디에도 안 쓰임(호출만 남음, 관측 무영향)\nL51~53: top_near = top_front_minion.is_some_and(|m| m.distance_sq(nexus) < 14400000001); mid_near, bottom_near 동일\nL54: existing_lines_weak = valid_lines(context.tutorial).iter().all(|line| match line { Top=>top_near, Mid=>mid_near, Bottom=>bottom_near })\n     valid_lines 인라인 표(27764~27816): None/Line/Total→[Top,Mid,Bottom] · First/Bottom→[Bottom] · TopSolo→[Top] · MidSolo→[Mid] · MidBottom→[Mid,Bottom] · JungleOnly→[] (빈 슬라이스면 all()=true)\nL59: enemies = data.cache.champions(1-team, context.pool)   (bumpalo Vec<&Entity>, L60 뒤 drop)\nL60: nexus_near_enemy_champion = enemies.iter().any(|e| e.distance_sq(nexus) < 14400000001)\n     real_danger = nexus_near_enemy_champion  (dbg_value 가 같은 %245 의 not — 추가 조건 없음)\nL82: if version > 1 {\n       if goal_data.heal_commit { return Recall }            // 28011~28014 → phi 5\n       if nexus_is_critical(player,data)[인라인: nexus 존재 && nexus.hp*100/max(nexus.max_hp,1) < 51 && nexus_under_direct_attack(player,data)] { return DefenseNexus }\n       if nexus_final_stand(player,data)[인라인: last_stand_flags(player,data) 를 LAST_STAND_MEMO(키 seed,tick) 경유 → .1 (bit 256)] { return DefenseNexus }\n     } else {\n       if nexus_is_critical(player,data)[동일 인라인] { return DefenseNexus }\n     }\nL87: danger = (existing_lines_weak && real_danger) || nexus_under_direct_attack(player,data)\n     (IR: %292 = (!existing_lines_weak || !real_danger) && !under; 참이면 L95, 거짓이면 L92)\nL92: if danger { if hp_ratio > 20 || in_fountain { DefenseNexus } else { Recall } }\nL95: else     { if hp_ratio < 31 || (champ.hp < champ.stat_cached.hp && in_fountain) { Recall } else { DefenseNexus } }\nL102: DefenseNexus 반환 시 payload: focus=None(+8 tag 0), last_gate=0(+0x18)",
+
+ "knobs": [
+   {"what": "넥서스 근접 반경(적 전선 미니언·적 챔피언)", "where": "defense_nexus.rs:51~53,60", "value": 14400000001, "effect": "올리면 더 먼 미니언/챔피언도 '넥서스 위협'으로 봐서 existing_lines_weak·real_danger 가 쉽게 참 → danger 분기(L92, 낮은 HP 에도 방어 유지) 진입 증가"},
+   {"what": "넥서스 위기 HP%", "where": "defense_nexus.rs:86 (nexus_is_critical 인라인)", "value": 51, "effect": "올리면 넥서스가 덜 깎여도 '위기'로 판정 → 직접 피격 시 무조건 DefenseNexus"},
+   {"what": "위험 시 귀환 HP% 하한", "where": "defense_nexus.rs:92", "value": 20, "effect": "올리면 위험 상황에서 더 높은 HP 에서도 귀환(단 분수 안이면 계속 방어)"},
+   {"what": "비위험 시 귀환 HP%", "where": "defense_nexus.rs:95", "value": 31, "effect": "올리면 한가할 때 더 일찍 귀환해 회복"},
+   {"what": "version 게이트", "where": "defense_nexus.rs:82", "value": 1, "effect": "version≤1 이면 heal_commit 조기 귀환·nexus_final_stand 검사가 없다"}
+ ],
+
+ "unknown": [
+   "L87 한 줄 안의 `(existing_lines_weak && real_danger) || under_direct_attack` 결합 순서/괄호는 IR 극성으로 재구성한 것 — column 정보 부재로 소스 표기(예: `!(a&&b) && !c` 형태일 가능성)는 표기 불가(동작은 확정)",
+   "L48~50 ally_*_front_minion 3개는 get_entity_by_id 호출만 남고 결과 미사용 — 소스에서 미사용 변수(let _ 또는 데드코드)인지, 아니면 debug 출력용이었는지 IR 로는 알 수 없음(행동 무영향은 확정)",
+   "real_danger 가 nexus_near_enemy_champion 과 같은 %245 를 가리키는데 L61~81 사이(소스 20줄)에 IR 명령이 전혀 없음 — 주석/제거된 코드로 추정, rmeta_srcmap 미조회",
+   "nexus_under_direct_attack(m04.ll:61399) 본문 미독 — 계약만: (&PlayerState,&OperationData)->bool",
+   "last_stand_flags 의 .0/.2 (nexus_last_stand, 세 번째 bool) 의미는 이 함수 범위 밖 — 여기서는 .1 만 소비",
+   "calls 의 `LocalKey::with` 는 망글 `_RINvMs2_...LocalKey...4with<last_stand_flags::{closure#0}>` 의 짧은 이름 — 실제 내용은 last_stand_flags 메모(nexus_final_stand 인라인)"
+ ]
+}

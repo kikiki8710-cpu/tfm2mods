@@ -88,7 +88,11 @@ FIRED = {4: 54660390, 16: 6940762, 19: 2806126, 12: 1808301, 18: 1672540,
          # ★r9(i=57~76) · 2026-09-13 18:2x 판 1(설치 76/76 · Gen.G vs 디플러스 SET1 · 370.9s · 원문 <게임>\mods	fm2_judge_verify\_r9_probe1\probe20_r9_run1.txt).
          #   미발화 1 = i57 handle_press_epic(PressEpic 계열 · 이 판 0 — #52 와 동류).
          65: 55212426, 74: 40076571, 75: 40076571, 76: 40076571, 59: 19113742, 71: 13977899, 60: 8830995, 67: 3128910,
-         62: 892358, 63: 646797, 72: 598494, 68: 410073, 73: 397726, 58: 253841, 70: 157658, 61: 34401, 64: 33957, 66: 8970, 69: 460}
+         62: 892358, 63: 646797, 72: 598494, 68: 410073, 73: 397726, 58: 253841, 70: 157658, 61: 34401, 64: 33957, 66: 8970, 69: 460,
+         # ★r10(i=77~101 · 중간 25) · 2026-09-13 20:4x 판 1(설치 101/101 · 25/25 발화 · 392s · 원문 <게임>\mods	fm2_judge_verify\_r10_probe1\probe20_r10_run1.txt).
+         100: 22446517, 79: 21281385, 87: 16403353, 95: 13563739, 101: 10278728, 99: 4467412, 92: 4362491, 86: 3887965, 88: 3688702,
+         81: 2204031, 91: 2049868, 93: 1545233, 83: 1478961, 77: 1085206, 89: 978193, 97: 949945, 82: 882437, 94: 814713, 96: 421923,
+         85: 353082, 90: 318313, 78: 106981, 80: 103599, 84: 97615, 98: 37200}
 #   `#02` 는 MISSING20(인라인)이라 여기 없다. 그 호스트 `BigPlan::sub_plan`(AUX[90] @0xcaf9f0 · ~~AUX[20]~~ 09-13 이동)의
 #   재측정치 = **27,416,789**(probe20.txt 참조) — 명세 함수가 아니므로 이 표에 넣지 않는다.
 # ★★**이 함수들의 1단계 발화수는 무효다** — 그때 잰 주소가 **다른 함수**였다(2026-09-12 ghidra 확정).
@@ -99,7 +103,7 @@ FIRED = {4: 54660390, 16: 6940762, 19: 2806126, 12: 1808301, 18: 1672540,
 #   ★재측정(2026-09-12)으로 **6건 전부 해소**됐다 — 이제 무효 표식이 필요한 명세 함수는 없다.
 #   ⚠`#02` 만 남는데, 그건 「틀린 주소」가 아니라 **호스트(디스패처)를 가리켰던 것**이고
 #     지금은 `MISSING20`(인라인)이라 애초에 이 표를 타지 않는다. 2,048만/2,741만은
-#     `AUX[90] BigPlan::sub_plan` 의 값으로 프로브 표에 보존돼 있다.
+#     `AUX[250] BigPlan::sub_plan`(~~90~~ 09-13 밤) 의 값으로 프로브 표에 보존돼 있다.
 #   ★표식을 지울 때의 규칙: **재측정이 끝난 것만 지운다.** 「고쳤으니 괜찮겠지」로 지우면
 #     무효 수치가 조용히 되살아난다(이 표가 존재하는 이유).
 INVALID_FIRE = {}
@@ -575,16 +579,28 @@ ENUM_LIVE = {
 #   값 = {spec idx: {"ptr": off, "len": off, "esz": 원소 크기, "elem_live": [(off, len, [tags])]}}
 SRET_VEC = {
     41: {"ptr": 0x0, "len": 0x18, "esz": 24, "elem_live": [(0, 8, []), (8, 8, []), (16, 1, [])]},
+    # r10 #97(i92) v46_flee_gate_check → (u8, Vec<usize, &Bump>) 40B: u8 태그@0(IR m04.ll `store i8 0..5, ptr %0`) · Vec 32B@8(memcpy 32B from %19).
+    #   "extra" = Vec 밖 live 바이트(먼저 비교). 원소 usize 8B.
+    92: {"ptr": 0x8, "len": 0x20, "esz": 8, "elem_live": [(0, 8, [])], "extra": [(0x0, 1)]},
 }
 # ★★sret 버퍼가 **구조체(Option<구조체> 포함)** 인 함수(09-13 밤 · r9 #74 i69 `try_engage_dive` → `Option<BattlePlan>` 280B).
 #   structlive 잎(패딩·Vec 삼중항 제외 · 열거형 필드는 variant 조건부 · notin/hib 지원 = enumlive 와 같은 `_cond_rs`)으로 비교하고,
 #   외곽 Option 은 `none` = (오프셋, 길이, 값) — 그 자리가 그 값이면 None(양쪽 None 이면 같음 · 한쪽만이면 갈림 · 둘 다 Some 이면 잎 비교).
 #   값 = {spec idx: {"type": 구조체 전체이름, "none": (off, len, value) | None}}
 SRET_STRUCT = {
-    69: {"type": "game_ai::plan_legacy::old::battle::BattlePlan", "none": (0x0, 8, -1)},   # support_target Option<usize> 태그 자리의 -1 = 외곽 None(IR m13.ll `store i64 -1, ptr %0` ×3)
+    80: {"type": "game_ai::plan_legacy::old::battle::BattlePlan", "none": (0x0, 8, -1)},   # r10 #85(i80) try_engage → Option<BattlePlan>(try_engage_dive 와 동일)
+    69: {"type": "game_ai::plan_legacy::old::battle::BattlePlan", "none": (0x0, 8, -1)},
+    86: {"type": "game_ai::plan_legacy::old::FightSituation", "none": None},   # r10 #91(i86) FightSituation::build → 128B 직접 반환(09-13)   # support_target Option<usize> 태그 자리의 -1 = 외곽 None(IR m13.ll `store i64 -1, ptr %0` ×3)
 }
 SRET_ENUM = {
     56: "game_ai::plan_legacy::sub_plan::SubPlan",
+    # r10(09-13 밤): BigPlan::sub_plan 4종 → SubPlan 72B(니치 태그@0 · untagged DeathBattle)
+    77: "game_ai::plan_legacy::sub_plan::SubPlan", 83: "game_ai::plan_legacy::sub_plan::SubPlan",
+    91: "game_ai::plan_legacy::sub_plan::SubPlan", 97: "game_ai::plan_legacy::sub_plan::SubPlan",
+    # r10: epic/serpen_passive_plan → Option<BigPlan> 384B. 외곽 None = 태그@0(8B) == -1(IR m09.ll/m05.ll `store i64 -1, ptr %0`) ·
+    #   Some 은 BigPlan 니치 태그(2..17 · 밖 = DeathMatchBattle untagged)로 enumlive 비교. ⚠BigPlan 정본명 = plan_legacy::types::BigPlan(tcxdict).
+    82: {"type": "game_ai::plan_legacy::types::BigPlan", "none": (0x0, 8, -1)},
+    96: {"type": "game_ai::plan_legacy::types::BigPlan", "none": (0x0, 8, -1)},
 }
 PIN_ENUM_LIVE = {
     2: [(0x0, "game_ai::plan_legacy::sub_plan::SubPlan")],   # `#02` 인라인 arm 의 sret(SubPlan 72B) — pin02.rs
@@ -618,6 +634,18 @@ SPEC_RVA_OVERRIDE = {
     7: 0xccc010,
 }
 
+# ★★exe 인자 배치가 IR 과 **복원 불가능하게** 다른 슬롯(09-13 밤 r10 판 2 실사고 · AV 0xd9c012).
+#   internal 함수는 LTO **ArgumentPromotion** 을 받는다 — 포인터 인자가 「그 안의 필드 값」으로 대체되고(2528B 플랜상태 → i64 1개 ·
+#   ptr → 팀idx/ctx/world 3개) 널검사 전용 ptr 이 bool 로 바뀐다(ghidra-re 09-13: exe = sret+13 인자, IR = sret+11).
+#   ⟹ exe 인자에서 IR 인자(원 포인터)를 **복원할 수 없다** = EXE_ABI 재배열로도 불가.
+#   ⚠적용 범위 = 「진입부 detour 재호출 방식」 한정. 호출자(pub) 의 출력 대조로 **간접** 검증한다(#104 should_steal_now 가 #103 을 부른다).
+#   ⚠교훈: internal 함수는 `try_engage_dive`(#74)·`try_engage`(#85)·`v3_assign_anchor`(#45) 처럼 승격이 없을 때만 sweep 이 성립 —
+#      1단계 발화 카운트는 인자를 안 보므로 이를 잡지 못한다. 편입 전에 **ghidra 로 exe 스택 인자 개수 = IR 인자 개수** 를 확인할 것.
+EXE_ABI_UNRECOVERABLE = {
+    98: u"exe 0xd9bce0 = sret+13 인자(IR sret+11) — LTO ArgumentPromotion(%1 2528B→i64 · %3→팀idx/ctx/world · %2 널검사→bool) 로 원 포인터 복원 불가. "
+        u"진입부 detour 재호출 방식 한정 불가 · 호출자 #104 should_steal_now(pub) 대조로 간접 검증(09-13 판 2 AV 0xd9c012 · ghidra-re 대응표)",
+}
+
 # ★★주소가 **존재하지 않는다고 확정**된 슬롯 — 인라인돼 독립 진입부가 없다.
 #   ⚠**적용 범위를 함께 적는다**(CLAUDE.md §11): 「진입부 detour / 호출부 리다이렉트 방식으로는」 불가다.
 #   다른 접근(인라인된 호출자 전체를 대조하는 등)까지 닫는 판정이 아니다.
@@ -639,9 +667,17 @@ def self_restore_of(i, nm):
 
 RET_LIVE = {
     6: [0, 1, 2, 3, 5, 6],
+    # r10 #104(i99) should_steal_now → StealAction 2B(P8: a=태그 0 None/1 Lurk/2 Commit · b=페이로드 StealTarget 1B).
+    #   None 의 b 는 IR undef(m07.ll:55118 `phi i8 [ undef, …]`) — 판 3 실측 60% 갈림 전부 `g={0,0} m={0,255}`. Lurk/Commit 만 b 비교.
+    99: [1, 2],
 }
 
 SRET_LIVE = {
+    # r10(09-13 밤): #92(i87) check_kill · #106(i101) line_backfight_support_focus → Option<(usize, usize)> 24B(#26 과 동일 레이아웃).
+    87: [(0x00, 8, []), (0x08, 16, [(0x00, 8, [1])])],
+    101: [(0x00, 8, []), (0x08, 16, [(0x00, 8, [1])])],
+    # #103(i98) evaluate_steal_for_target(internal · SRET_FORCE 16) → (StealAction u8@0 · IR `store i8 N, ptr %0`, usize@8).
+    98: [(0x00, 1, []), (0x08, 8, [])],
     # ★r7 잎(09-13): #25(i20) Option<ObjectiveDisciplineState> 32B — 니치 판별자 = kind@0x19(1B): 2=None · 0/1=Some.
     #   Some 이면 +0x00..0x19(wait_pos 16 · until_tick 8 · target 1) 살아있음 · 0x1a~ 패딩(memcpy 잔재)은 제외. 근거 = tcxdict + r7 명세 writes[].
     20: [
@@ -763,10 +799,15 @@ SRET_LIVE = {
 MUT_OK_ARG = {35: {13: "DebugFrameData"}, 49: {8: "DebugFrameData"}, 56: {7: "DebugFrameData"}, 41: {11: "DebugFrameData"},
               # r9(09-13 저녁) · IR 마지막 인자 dereferenceable(224) = &mut DebugFrameData
               67: {6: "DebugFrameData"}, 74: {5: "DebugFrameData"}, 75: {6: "DebugFrameData"}, 69: {8: "DebugFrameData", 1: "LegacyPlanHandler"},
-              u"resolve_fight_uncached": {3: "GameContext", 12: "DebugFrameData"}}   # #49 a8 = &mut DebugFrameData(224B · IR %8 dereferenceable(224))
+              u"resolve_fight_uncached": {3: "GameContext", 12: "DebugFrameData"},
+              # r10(09-13 밤) · IR 마지막 인자 dereferenceable(224) = &mut DebugFrameData
+              77: {7: "DebugFrameData"}, 83: {8: "DebugFrameData"}, 97: {8: "DebugFrameData"}, 91: {6: "DebugFrameData"},
+              82: {8: "DebugFrameData"}, 96: {8: "DebugFrameData"}, 86: {6: "DebugFrameData"}, 87: {6: "DebugFrameData"},
+              81: {7: "DebugFrameData"}, 94: {7: "DebugFrameData"}, 95: {5: "DebugFrameData"}, 80: {7: "DebugFrameData", 1: "LegacyPlanHandler"}}   # #49 a8 = &mut DebugFrameData(224B · IR %8 dereferenceable(224))
 # ★internal 함수는 define 에 `sret([N x i8])` 속성이 없다(LLVM 이 내부 호출규약에서 생략) — 파서가 「반환 void + 가변 a0」로 읽는다.
 #   `resolve_fight_uncached`(a0 = dereferenceable(64) 출력 버퍼) 실사고(09-13). 여기 적은 idx 는 a0 을 sret N 바이트로 강제한다.
-SRET_FORCE = {u"resolve_fight_uncached": 64, u"resolve_fight_full": 64, 40: 24, 69: 280}   # #45(i40) v3_assign_anchor: internal 이라 sret 속성이 빠져 「void」로 읽힘 · 실제 = Option<(u64,u64)> 24B   # {spec idx: {IR 인자 idx: tcx 타입명}} — 위 MUT_OK_TCX 판정을 인덱스로 적용
+SRET_FORCE = {u"resolve_fight_uncached": 64, u"resolve_fight_full": 64, 40: 24, 69: 280,
+              80: 280, 98: 16}   # r10: #85(i80) try_engage internal → Option<BattlePlan> 280B · #103(i98) evaluate_steal_for_target internal → 16B   # #45(i40) v3_assign_anchor: internal 이라 sret 속성이 빠져 「void」로 읽힘 · 실제 = Option<(u64,u64)> 24B   # {spec idx: {IR 인자 idx: tcx 타입명}} — 위 MUT_OK_TCX 판정을 인덱스로 적용
 MUT_OK_TCX = {
     "LegacyPlanHandler": u"#74 try_engage_dive 의 self(%1 · readonly 속성 없음) — IR 실측 store 0(last_dive_abandon_tick 읽기 · positioning_score/team_plan 참조 전달만)",
     "DebugFrameData": u"디버그 싱크 — IR 실측상 본문이 역참조하지 않고 넘기기만 한다"
@@ -970,6 +1011,9 @@ def main():
         def drop(reason):
             excl.append((didx, nm, cnt_s, reason))
 
+        if i in EXE_ABI_UNRECOVERABLE:
+            drop(u"**exe 인자 배치 복원 불가**(LTO ArgumentPromotion): %s" % EXE_ABI_UNRECOVERABLE[i])
+            continue
         if i in DEAD:
             # ★사유를 여기 박아 두면 DEAD 표를 고쳐도 문면이 안 따라온다(11차 교훈:
             #   「규칙을 적는 것과 기계가 강제하는 것은 다르다」) ⟹ DEAD 값을 그대로 쓴다.
@@ -1030,7 +1074,9 @@ def main():
         #     — `tcxdict` 레이아웃에서 뽑아 `SRET_LIVE[idx] = [(off,len),…]` 로 주면 이 게이트가 열린다.
         #   ⚠**그때까지는 제외한다.** 「DIFF 2만건」을 재현 실패로 기록하면 그게 더 비싼 오류다.
         live = _byname(SRET_LIVE, i, sp) if g["sret"] else None
-        sret_enum = _byname(SRET_ENUM, i, sp) if g["sret"] else None
+        _se = _byname(SRET_ENUM, i, sp) if g["sret"] else None
+        sret_enum = _se["type"] if isinstance(_se, dict) else _se
+        sret_enum_none = _se.get("none") if isinstance(_se, dict) else None   # 외곽 Option None 판별(09-13 r10)
         sret_vec = _byname(SRET_VEC, i, sp) if g["sret"] else None
         sret_struct = _byname(SRET_STRUCT, i, sp) if g["sret"] else None
         if g["sret"] and live is None and sret_enum is None and sret_vec is None and sret_struct is None:
@@ -1042,6 +1088,7 @@ def main():
         #   `tcxdict` 상 `game_ai::DefensiveCrisis` = **2B struct**(`die_imminent: bool`·`cc_threat: bool`).
         #   `extern "Rust"` 로 선언하므로 **Rust 레이아웃 2필드 구조체**를 쓰면 rlib·게임 양쪽과 맞는다.
         rty = ("i64" if re.fullmatch(r"i64", g["ret"]) else
+               "i32" if re.fullmatch(r"i32", g["ret"]) else   # r10 #89(i84) battle_check_with_list → i32(09-13)
                "bool" if re.fullmatch(r"i1", g["ret"]) else
                "u8" if re.fullmatch(r"i8", g["ret"]) else
                # ★i24 반환(09-13): eax 하위 24비트만 비교(`U24` = Rust u32 · 상위 8비트 미정의).
@@ -1067,8 +1114,9 @@ def main():
             why.append(u"인자 %s 미지원" % u"/".join(bad))
         # ★상한 9→16(09-13): 래퍼는 `unsafe fn(a0..aN)` Rust ABI 라 인자 수에 원리적 제한이 없다(#12 가 9). 9 는 「본 적 있는 최대」였을 뿐.
         #   #33(i28) 10인자 · #40(i35) 14인자(슬라이스 2 = ptr+len ×2 · Option<&Entity> = ptr) 편입.
-        if len(g["args"]) > 16:
-            why.append(u"인자 %d개(상한 16)" % len(g["args"]))
+        #   ★16→24(09-13 밤): #91(i86) FightSituation::build 21인자. Win64 스택 인자는 개수 제한이 없고 래퍼는 exe 순서 그대로 받는다.
+        if len(g["args"]) > 24:
+            why.append(u"인자 %d개(상한 24)" % len(g["args"]))
         # ★가변 포인터 인자 — 예외 ㉠StdRng(320B) 떠서 되돌림 ㉡tcx 가 공유참조(`&mut` 아님)
         params = (sp.get("sig") or {}).get("params") or []
         caveat = []
@@ -1138,7 +1186,7 @@ def main():
         _abi = EXE_ABI.get(i)
         if _abi:
             rngs = [_abi[j] for j in rngs if isinstance(_abi[j], int)]
-        rows.append(dict(sret_n=sret_n, live=live, sret_enum=sret_enum, sret_vec=sret_vec, sret_struct=sret_struct, sites=sites,
+        rows.append(dict(sret_n=sret_n, live=live, sret_enum=sret_enum, sret_enum_none=sret_enum_none, sret_vec=sret_vec, sret_struct=sret_struct, sites=sites,
                          extra=(i >= len(D) - len(EXTRA_SWEEP)),
                          selfr=(None if SELF_RESTORE_OFF else self_restore_of(i, nm)),
                          idx=didx, name=nm, sym=sym, rva=rva, args=g["args"], rty=rty,
@@ -1873,7 +1921,10 @@ def main():
             w(u"        Ok(_) => { let (gl, ml) = (gb[%d] as usize, mb[%d] as usize); let (gp, mp) = (gb[%d] as usize, mb[%d] as usize);"
               % (sv["len"] // 8, sv["len"] // 8, sv["ptr"] // 8, sv["ptr"] // 8))
             w(u"            const EL: &[(usize, usize, &[u8])] = &[%s];" % el)
-            w(u"            let d: Option<String> = if gl != ml { Some(format!(\"len g={} m={}\", gl, ml)) }")
+            ex = sv.get("extra") or []
+            # ⚠gb/mb 는 `[u64; N]` — 인덱스는 워드다. extra 는 **바이트** 단위이므로 포인터로 읽는다(판 3 실사고: `gb[0..1]` = 첫 워드 8B 비교 → 패딩 잔재 ff 가 갈림으로 찍힘).
+            exc = u" ".join(u"else if (0..%d).any(|j| *((gb.as_ptr() as usize + %#x + j) as *const u8) != *((mb.as_ptr() as usize + %#x + j) as *const u8)) { Some(format!(\"extra+%#x g={:02x?} m={:02x?}\", core::slice::from_raw_parts((gb.as_ptr() as usize + %#x) as *const u8, %d), core::slice::from_raw_parts((mb.as_ptr() as usize + %#x) as *const u8, %d))) }" % (l, o, o, o, o, l, o, l) for (o, l) in ex)
+            w(u"            let d: Option<String> = if false { None } %s else if gl != ml { Some(format!(\"len g={} m={}\", gl, ml)) }" % exc)
             w(u"                else if gl > 0 && gl < 4096 && gp > 0x1000 && mp > 0x1000 { (|| { for e in 0..gl { let (eb, fb) = (gp + e * %d, mp + e * %d); let tag = *(eb as *const u8);"
               % (sv["esz"], sv["esz"]))
             w(u"                    for &(o, l, tg) in EL { if !tg.is_empty() && !tg.contains(&tag) { continue; } for j in o..o + l { let (gv, mv) = (*((eb + j) as *const u8), *((fb + j) as *const u8)); if gv != mv { return Some(format!(\"vec[{}]+{}: g={:02x} m={:02x}\", e, j, gv, mv)); } } } } None })() } else { None };")
@@ -1892,8 +1943,16 @@ def main():
         elif sn and r.get("sret_enum"):
             # ★sret 열거형 — 태그(8B@0) 가 다르면 갈림, 같으면 variant 조건부 페이로드(enumlive · structlive 자동 생성)만 비교.
             w(u"        Ok(_) => { let (gt, mt) = (gb[0], mb[0]);")
-            w(u"            let d = if gt != mt { Some(format!(\"tag g={} m={}\", gt, mt)) } else { enumlive_cmp_%d_0(gt, gb.as_ptr() as usize, mb.as_ptr() as usize).map(|x| format!(\"(tag {}){}\", gt, x)) };"
-              % r["idx"])
+            nn = r.get("sret_enum_none")
+            if nn:
+                # ★외곽 Option<열거형>(09-13 r10 #82/#96 Option<BigPlan>): none 자리 값이면 None — 양쪽 None = 같음 · 한쪽만 = 갈림 · 둘 다 Some = 태그/페이로드 비교.
+                no, nl, nv = nn
+                w(u"            let (gn, mn) = (rd_le(gb.as_ptr() as usize + %#x, %d) as i64 == %d, rd_le(mb.as_ptr() as usize + %#x, %d) as i64 == %d);" % (no, nl, nv, no, nl, nv))
+                w(u"            let d = if gn != mn { Some(format!(\"outer g={} m={}\", if gn { \"None\" } else { \"Some\" }, if mn { \"None\" } else { \"Some\" })) } else if gn { None } else if gt != mt { Some(format!(\"tag g={} m={}\", gt, mt)) } else { enumlive_cmp_%d_0(gt, gb.as_ptr() as usize, mb.as_ptr() as usize).map(|x| format!(\"(tag {}){}\", gt, x)) };"
+                  % r["idx"])
+            else:
+                w(u"            let d = if gt != mt { Some(format!(\"tag g={} m={}\", gt, mt)) } else { enumlive_cmp_%d_0(gt, gb.as_ptr() as usize, mb.as_ptr() as usize).map(|x| format!(\"(tag {}){}\", gt, x)) };"
+                  % r["idx"])
             w(u"            if let Some(d) = d { note(%d, format!(\"#%02d %s 대조#{} 갈림(sret 열거형 %dB): {} | g={:02x?} m={:02x?} | %s\", n, d, &gb[..%d], &mb[..%d], %s)); } }"
               % (k, r["idx"], r["name"], sn, " ".join(fmt[1:]), (sn + 7) // 8, (sn + 7) // 8, ", ".join(vals[1:])))
         elif sn:

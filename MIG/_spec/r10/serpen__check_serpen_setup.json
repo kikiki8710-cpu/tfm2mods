@@ -1,0 +1,414 @@
+{
+ "name": "check_serpen_setup",
+ "sym": "_RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old6serpen18check_serpen_setup",
+ "src": "game-ai\\src\\plan_legacy\\old\\serpen.rs",
+ "src_line": 68,
+ "ir_file": "m05.ll",
+ "ir_from": 47634,
+ "ir_to": 49220,
+ "aux": [
+  {
+   "ir_file": "m05.ll",
+   "ir_from": 9908,
+   "ir_to": 10013,
+   "note": "closure$0 = has_big_wave 술어(valid_lines.any). try_fold 인스턴스 = exe 0xd472b0"
+  }
+ ],
+ "exe_rva": "0xd62bb0",
+ "one_line": "세르펜 셋업(라인 정리·시야 확보 태세)에 들어갈지 판정 — 스폰 임박·에픽 상태·머릿수·라인 상태·판단 페널티·early_serpen 전략으로 결정",
+ "signature": {
+  "params": [
+   {
+    "i": 0,
+    "name": "version",
+    "type": "usize",
+    "note": "macro_judgement_penalty 에 그대로 전달만. 본문 분기 없음"
+   },
+   {
+    "i": 1,
+    "name": "rnd",
+    "type": "&mut StdRng(320B)",
+    "note": "PlayerState::strategy 호출에만 전달(L175)"
+   },
+   {
+    "i": 2,
+    "name": "player",
+    "type": "&PlayerState(2528B)",
+    "note": "info.team(+0x930)·info.position(+0x9c0)·athlete(+0x180 via penalty)"
+   },
+   {
+    "i": 3,
+    "name": "data",
+    "type": "&OperationData(24B)",
+    "note": "+0x0 cache / +0x8 context / +0x10 blackboard[2]"
+   },
+   {
+    "i": 4,
+    "name": "team_plan",
+    "type": "&TeamPlan(1064B)",
+    "note": "obj_spawn.epic_giveup_tick(+0x50)·serpen_giveup_tick(+0x60) 만 읽음"
+   },
+   {
+    "i": 5,
+    "name": "debug",
+    "type": "&mut DebugFrameData(224B)",
+    "note": "ctx.debug 일 때만 +0xa0 infos(HashMap<usize,Vec<String>>) 에 로그 push"
+   }
+  ],
+  "returns": "bool — true=세르펜 셋업 판정 성립(judgement_ready)"
+ },
+ "reads": [
+  {
+   "base": "OperationData",
+   "offset": "0x8",
+   "name": "context",
+   "note": "&GameContext"
+  },
+  {
+   "base": "OperationData",
+   "offset": "0x10",
+   "name": "blackboard",
+   "note": "&[Blackboard;2], [team] 인덱스"
+  },
+  {
+   "base": "GameContext",
+   "offset": "0x38",
+   "name": "tutorial",
+   "note": "TutorialType 태그. serpen_exists/is_line_phase/valid_lines 인라인 switch 의 키"
+  },
+  {
+   "base": "GameContext",
+   "offset": "0x8",
+   "name": "setting",
+   "note": "&GameSetting"
+  },
+  {
+   "base": "GameContext",
+   "offset": "0x3b",
+   "name": "debug",
+   "note": "bool. true 면 디버그 문자열 push(판정엔 무영향)"
+  },
+  {
+   "base": "GameSetting",
+   "offset": "0x12f8",
+   "name": "tick_per_second",
+   "note": "tps*15(L81), tps*30(is_line_phase)"
+  },
+  {
+   "base": "GameSetting",
+   "offset": "0x8a8",
+   "name": "epic_jungle.first_spawn_tick",
+   "note": "is_line_phase(setting.rs:703) 의 기준"
+  },
+  {
+   "base": "GameSetting",
+   "offset": "0x12c0",
+   "name": "height",
+   "note": "is_bottom_side(map_regions.rs:28): ry = height - y"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x0",
+   "name": "game(dyn AbstractGame)",
+   "note": "vtable +0x40 get_game_mode / +0x28 tick"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x1e0",
+   "name": "player_champion[team][5]",
+   "note": "Option<&Entity> 5칸 — 생존 수·근처 아군 필터"
+  },
+  {
+   "base": "GameMode",
+   "offset": "0x0",
+   "name": "@tag",
+   "note": "0=Moba 만 허용, 아니면 unwrap_failed 패닉(L1013)"
+  },
+  {
+   "base": "MobaMode",
+   "offset": "0x1d8",
+   "name": "jungle_runner.serpen.live_list.len",
+   "note": "0 = 세르펜 미생존"
+  },
+  {
+   "base": "MobaMode",
+   "offset": "0x1e0",
+   "name": "jungle_runner.serpen.next_respawn_tick",
+   "note": "remain_spawn_tick = saturating_sub(tick)"
+  },
+  {
+   "base": "MobaMode",
+   "offset": "0x1a8",
+   "name": "jungle_runner.epic.live_list.len",
+   "note": "0 = 에픽 미생존"
+  },
+  {
+   "base": "MobaMode",
+   "offset": "0x240",
+   "name": "epic_minion_buff_time[1-team]",
+   "note": "적팀 에픽 버프 잔여 (≠0 = 적이 에픽 버프 보유)"
+  },
+  {
+   "base": "TeamPlan",
+   "offset": "0x50",
+   "name": "obj_spawn.epic_giveup_tick@tag",
+   "note": "Option<usize> 태그 0=None"
+  },
+  {
+   "base": "TeamPlan",
+   "offset": "0x60",
+   "name": "obj_spawn.serpen_giveup_tick@tag",
+   "note": "Option<usize> 태그 0=None"
+  },
+  {
+   "base": "PlayerState",
+   "offset": "0x930",
+   "name": "info.team",
+   "note": "team / 1-team"
+  },
+  {
+   "base": "PlayerState",
+   "offset": "0x9c0",
+   "name": "info.position@tag",
+   "note": "디버그 로그에서 내 챔피언 인덱스로만 사용"
+  },
+  {
+   "base": "Blackboard",
+   "offset": "0x20",
+   "name": "top_minion_state.minion_count",
+   "note": "i32. Top 라인 (closure$0·L163 에서 line 별 선택)"
+  },
+  {
+   "base": "Blackboard",
+   "offset": "0x48",
+   "name": "mid_minion_state.minion_count",
+   "note": "i32. mid_count(L150)"
+  },
+  {
+   "base": "Blackboard",
+   "offset": "0x70",
+   "name": "bottom_minion_state.minion_count",
+   "note": "i32. bottom_count(L151)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x660",
+   "name": "x",
+   "note": "is_bottom_side"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x668",
+   "name": "y",
+   "note": "is_bottom_side"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x628",
+   "name": "stat_cached.hp",
+   "note": "최대 HP (0 이면 div_by_zero 패닉)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x670",
+   "name": "hp",
+   "note": "hp*100/max_hp > 49"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x5c0",
+   "name": "id",
+   "note": "디버그 HashMap 키만"
+  },
+  {
+   "base": "Strategy",
+   "offset": "0x13",
+   "name": "early_serpen@tag",
+   "note": "EarlySerpenStrategy 0=Must 1=Flexible 2=Giveup"
+  },
+  {
+   "base": "DebugFrameData",
+   "offset": "0xa0",
+   "name": "infos",
+   "note": "HashMap<usize,Vec<String>> — 디버그 전용 쓰기"
+  }
+ ],
+ "writes": [
+  {
+   "base": "DebugFrameData",
+   "offset": "0xa0",
+   "name": "infos[champ.id]",
+   "value": "format 문자열 push",
+   "note": "ctx.debug==true 일 때만. 판정에 영향 없음"
+  }
+ ],
+ "constants": [
+  {
+   "value": 0,
+   "src_line": 69,
+   "meaning": "TutorialType 태그 집합 {0 None,5 MidBottom,7 Line,8 Total} = spawn_serpen(runner.rs:267) → serpen_exists(rule_scope.rs:50). 밖이면 즉시 false"
+  },
+  {
+   "value": 15,
+   "src_line": 81,
+   "meaning": "tps*15 — 세르펜 미생존 시 리스폰까지 남은 틱이 15초 이상이면 false"
+  },
+  {
+   "value": 2,
+   "src_line": 99,
+   "meaning": "적이 에픽 버프 보유 시 live_ally+2 < live_enemy(3명 이상 열세)면 false"
+  },
+  {
+   "value": 2,
+   "src_line": 108,
+   "meaning": "에픽 생존+포기 상태에서 live_ally > 2 이면 has_big_wave 만으로 판정"
+  },
+  {
+   "value": -2,
+   "src_line": 112,
+   "meaning": "has_big_wave: 유효 라인 중 blackboard[team].<line>_minion_state.minion_count < -2 인 라인이 하나라도 있으면 true (closure$0, aux)"
+  },
+  {
+   "value": 49,
+   "src_line": 136,
+   "meaning": "hp*100/max_hp > 49 = HP 50% 이상 아군만 near_serpen_ally 로 셈"
+  },
+  {
+   "value": 100,
+   "src_line": 136,
+   "meaning": "HP 백분율 산출"
+  },
+  {
+   "value": 30,
+   "src_line": 153,
+   "meaning": "is_line_phase(setting.rs:704): tick < epic first_spawn_tick.saturating_sub(tps*30)"
+  },
+  {
+   "value": 1,
+   "src_line": 154,
+   "meaning": "LineType::Mid 태그(line_exists 인자)"
+  },
+  {
+   "value": 2,
+   "src_line": 154,
+   "meaning": "mid_count < 2 / bottom_count < 2 / valid_lines any(minion_count < 2) → line_clear=false"
+  },
+  {
+   "value": 2,
+   "src_line": 156,
+   "meaning": "LineType::Bottom 태그(line_exists 인자)"
+  },
+  {
+   "value": 1,
+   "src_line": 169,
+   "meaning": "shl 1 = (near_serpen_ally - near_serpen_enemy)*2 로 접힘",
+   "folded_from": 2
+  },
+  {
+   "value": 2,
+   "src_line": 171,
+   "meaning": "line_clear 이면 점수 +2"
+  },
+  {
+   "value": 0,
+   "src_line": 172,
+   "meaning": "judgement_penalty == 0 이면 무조건 judgement_ready"
+  },
+  {
+   "value": 1,
+   "src_line": 187,
+   "meaning": "Giveup 전략: near_ally > near_enemy+1 && live_ally > live_enemy+1 필요"
+  },
+  {
+   "value": 2,
+   "src_line": 208,
+   "meaning": "근처 적이 더 많을 때: 비가시 도달가능 적(out_vision) > 2"
+  },
+  {
+   "value": 2,
+   "src_line": 210,
+   "meaning": "…이고 live_ally_count > 2 이면 true"
+  }
+ ],
+ "calls": [
+  "game_ai::plan_legacy::old::serpen::is_skip_serpen",
+  "game_ai::plan_legacy::old::serpen::serpen_reachable_enemy_count",
+  "game_ai::plan_legacy::rule_scope::line_exists",
+  "game_ai::plan_legacy::team_plan::objective_helpers::macro_judgement_penalty",
+  "game_core::simulation::state::player::PlayerState::strategy",
+  "game_core::simulation::map_regions::is_near_mid_line",
+  "hashbrown::map::HashMap::rustc_entry",
+  "std::collections::hash::map::Entry::or_insert",
+  "alloc::fmt::format::format_inner",
+  "alloc::vec::Vec::push_mut",
+  "core::option::unwrap_failed",
+  "core::panicking::panic_bounds_check",
+  "core::panicking::panic_const::panic_const_div_by_zero"
+ ],
+ "logic": "ctx = data.context; team = player.info.team; enemy = 1-team\nL69  if !serpen_exists(ctx)  [ctx.tutorial ∉ {None,MidBottom,Line,Total}]  → return false\nL73  if is_skip_serpen(version, rnd, player, data) → return false\n     (is_skip_serpen 요지, serpen.rs:366~414: !serpen_exists→true / position==Top && is_line_phase && line_exists(Top) 일 때 strategy.early_serpen_top: Must→false, Giveup→true, Flexible→적 탑타워·top_lead[team]>2·top minion_count>1 로 결정 / 그 외 false)\nL77  mode = game.get_game_mode(); Moba 가 아니면 unwrap 패닉\n     if mode.jungle_runner.serpen.live_list.len == 0 {          // 세르펜 미생존\nL78      remain_spawn_tick = serpen.next_respawn_tick.saturating_sub(game.tick())\nL81      if remain_spawn_tick >= tps*15 → return false             // 15초 이내 스폰만 통과\n     }\nL87  if epic.live_list.len != 0 && team_plan.obj_spawn.epic_giveup_tick.is_none() → return false   // 에픽 살아있고 포기 안 함\nL91  if team_plan.obj_spawn.serpen_giveup_tick.is_some() → return false\nL95  if mode.epic_minion_buff_time[enemy] != 0 {               // 적이 에픽 버프\nL97      live_ally = count(player_champion[team] Some); live_enemy = count(player_champion[enemy] Some)\nL99      if live_ally + 2 < live_enemy → return false\n     }\nL105 if epic.live_list.len != 0 && epic_giveup_tick.is_some() {   // (L87 통과했으므로 생존이면 반드시 포기 상태)\nL107     live_ally = count(...)\nL108     if live_ally > 2 {\nL111         has_big_wave = valid_lines(ctx.tutorial).iter().any(|line| blackboard[team].line_state(line).minion_count < -2)   // closure$0(aux)\nL115         if ctx.debug { debug.infos[my_champ.id].push(format!(.. has_big_wave, top/mid/bottom minion_count ..)) }\nL125         return !has_big_wave\n         }\n     }\nL135 near_serpen_ally = player_champion[team].iter_champions().filter(|e| is_bottom_side(ctx,e.x,e.y) && e.hp*100/e.stat_cached.hp > 49).count()\n     (is_bottom_side, map_regions.rs:28~30: ry = setting.height - y; (ry <= x) || is_near_mid_line(ctx,x,y))\nL138 (in_vision, out_vision) = serpen_reachable_enemy_count(player, data, team_plan)\nL140 near_serpen_enemy = in_vision + out_vision\nL142 if ctx.debug { debug.infos[my_champ.id].push(format!(near_serpen_ally, near_serpen_enemy)) }\nL150 mid_count = blackboard[team].mid_minion_state.minion_count; L151 bottom_count = ...bottom_minion_state.minion_count\nL153 if is_line_phase(ctx) {   // tutorial∈{0,5,7,8} && tick < epic_jungle.first_spawn_tick.saturating_sub(tps*30)\nL154     if line_exists(ctx, Mid) && mid_count < 2 → line_clear = false\nL156     else line_clear = !(line_exists(ctx, Bottom) && bottom_count < 2)\n     } else {\nL162     line_clear = !valid_lines(ctx.tutorial).iter().any(|line| blackboard[team].line_state(line).minion_count < 2)\n     }\nL166 live_ally = count(player_champion[team]); L167 live_enemy = count(player_champion[enemy])\nL168 judgement_penalty = macro_judgement_penalty(version, player)   // = ceil(max(400 - judge_accuracy, 0)/125) ∈ 0..=4 (objective_helpers.rs:16~18)\nL169 score = (near_serpen_ally - near_serpen_enemy)*2 + (live_ally - live_enemy) + (line_clear ? 2 : 0)   (i32)\nL172 judgement_ready = judgement_penalty == 0 || score >= judgement_penalty\nL174 if is_line_phase(ctx) {\nL175     strategy = player.strategy(rnd, game)\nL178     match strategy.early_serpen {\n           Must(0)     → return true\n           Flexible(1) → (아래 L193 으로 계속)\n           Giveup(2)   → L187 return line_clear && near_serpen_ally > near_serpen_enemy+1 && live_ally > live_enemy+1 && judgement_ready\n         }\n     }\nL193 if !judgement_ready → return false\nL197 if near_serpen_ally >= near_serpen_enemy {\nL199     return line_clear || near_serpen_ally > near_serpen_enemy\n     } else {\nL208     return out_vision > 2 && live_ally > 2      // L208~210\n     }",
+ "knobs": [
+  {
+   "what": "스폰 임박 창",
+   "where": "serpen.rs:81",
+   "value": 15,
+   "effect": "올리면 세르펜 리스폰 더 이르게(더 오래 전부터) 셋업 시작. 내리면 스폰 직전에만"
+  },
+  {
+   "what": "적 에픽버프 시 허용 열세",
+   "where": "serpen.rs:99",
+   "value": 2,
+   "effect": "올리면 더 큰 열세에서도 셋업 진입"
+  },
+  {
+   "what": "big wave 임계",
+   "where": "serpen.rs:112 (closure$0)",
+   "value": -2,
+   "effect": "더 음수로 내리면 큰 적 웨이브를 덜 인정 → 에픽포기 상황에서 셋업 진입 잦아짐"
+  },
+  {
+   "what": "근처 아군 HP 컷",
+   "where": "serpen.rs:136",
+   "value": 49,
+   "effect": "올리면 더 건강한 아군만 세어 near_serpen_ally 감소 → 셋업 보수적"
+  },
+  {
+   "what": "라인 정리 기준 minion_count",
+   "where": "serpen.rs:154/156/163",
+   "value": 2,
+   "effect": "올리면 line_clear 조건 엄격 → 점수 +2 와 L199 통과가 어려워짐"
+  },
+  {
+   "what": "line_clear 가산점",
+   "where": "serpen.rs:171",
+   "value": 2,
+   "effect": "올리면 라인 정리만으로 판단 페널티 상쇄 쉬움"
+  },
+  {
+   "what": "Giveup 전략 우위 마진",
+   "where": "serpen.rs:187",
+   "value": 1,
+   "effect": "올리면 Giveup 전략에서 셋업이 더 어려움"
+  },
+  {
+   "what": "비가시 적 허용 수",
+   "where": "serpen.rs:208",
+   "value": 2,
+   "effect": "내리면 근처 적 우세여도 비가시 다수 상황에서 진입 쉬워짐"
+  },
+  {
+   "what": "판단 페널티 분모/기준",
+   "where": "objective_helpers.rs:17 (별도 함수)",
+   "value": 125,
+   "effect": "judge_accuracy 400 미만이면 페널티 1~4. 분모를 키우면 페널티 감소"
+  }
+ ],
+ "unknown": [
+  "minion_count(i32) 의 부호 의미(아군 우세 +/적 우세 −)는 IR 에서 확정 불가 — has_big_wave 가 < -2 이고 line_clear 가 >= 2 라 '양수=아군 웨이브 우세'로 추정(game_core BrainMinionParameter 주석 미확인)",
+  "L136 `> 49` 는 소스가 `>= 50` 일 수도 있음(외연 동일, 표기 불가)",
+  "L154/L156 `line_exists && count<2` 의 한 줄 내 평가 순서(A&&B)는 column 부재로 표기 불가 — IR 은 line_exists 호출을 먼저 수행",
+  "serpen_reachable_enemy_count 내부(serpen_reachable_enemies 의 가시/비가시 집합 정의)는 담당 밖 — (visible.len, invisible.len) 반환만 확인(m05.ll 53411~53476)",
+  "is_skip_serpen 의 Flexible 분기(적 탑타워 엔티티 상태 +0x68/+0x88 등)는 요지만 적음 — 별도 함수(m05.ll 44823~45032)",
+  "L95 조건의 소스 표기가 `epic_minion_buff_time[enemy] > 0` 인지 `!= 0` 인지 표기 불가(usize 라 외연 동일)",
+  "calls 에 vtable 간접호출(AbstractGame::get_game_mode +0x40 / tick +0x28, divtable 확정)은 C2 대조 불가라 logic 에만 적음"
+ ]
+}

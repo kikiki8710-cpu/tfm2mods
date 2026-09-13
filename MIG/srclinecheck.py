@@ -135,6 +135,16 @@ def collect(sp):
                         if li:
                             weak.add(li)
 
+            # ── ⑤-b ★19차 A: `#dbg_value(%x, !VAR, !DIExpression(DW_OP_plus_uconst N …))` — 리터럴 N 이 표현식 안에만 남는 경우
+            #    ([78] consts[6] `needed_dps … +1` m04.ll:59889). N == 값이면 VAR 선언줄을 약한 후보로.
+            if "#dbg_" in ln and "DIExpression(" in ln:
+                me = re.search(r"#dbg_value\([^,]*,\s*!(\d+)\s*,\s*!DIExpression\(([^)]*)\)", ln)
+                if me and re.search(r"DW_OP_(?:plus_uconst|constu|minus)\s*,\s*%s(?![\w])" % re.escape(str(val)), me.group(2)):
+                    vm = VARLINE.search(meta.get(me.group(1), ""))
+                    if vm:
+                        fn = FILEOF.search(meta.get(vm.group(1), ""))
+                        if fn and fn.group(1).split("\\")[-1] == own:
+                            weak.add(int(vm.group(2)))
             # ── ⑤ `#dbg_value` 상수 기록 = 변수 선언줄 구제(약) ────────────────
             if "#dbg_" in ln:
                 for (v, vid) in DBGVAL.findall(ln):

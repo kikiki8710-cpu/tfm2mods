@@ -60,6 +60,7 @@ IROP = re.compile(r"^(icmp|fcmp|call|invoke|getelementptr|load|store|add|sub|mul
 #   ⟹ SSA(`%30`)·메타(`!56400`)·전역(`@foo`)·속성(`#0`)·타입어(`i64`/`ptr`/`label`)·
 #      `align N`·`0x…` 를 **먼저 지우고**, 남은 정수를 리터럴로 본다.
 _DROP = [
+    (re.compile(r"^\s*\d+:\s*(?:;.*)?$"), u""),        # ★블록 라벨 `266:` — 19차 C: [91] knobs[0]=21 의 「관측 266」이 라벨이었다(리터럴 아님)
     (re.compile(r",\s*!dbg\b.*$"), u""),               # 디버그 꼬리
     (re.compile(r"!\w+\s*!?\{?[^,\)]*"), u" "),        # 메타데이터
     (re.compile(r"%[-\w.$]+"), u" "),                  # SSA·블록
@@ -272,6 +273,7 @@ def numeric_claim(v):
 # ─────────────────────────────────────────────────────────────────────────────
 # 구제 규칙 — ★**구제에만 쓴다. 기각에는 절대 안 쓴다**(7차 G12 교훈)
 RUNTIME = re.compile(u"tick_per_second|tps|런타임 값|런타임값|자리표시|리터럴이 아니라")
+CALLEE_OWNED = re.compile(u"\(값은 [A-Za-z_]+\.rs|콜리 안|콜리에|게임코어에|game_core 에|코드 상수는 게임코어")
 NOTLITERAL = re.compile(u"오프셋|offset|0x[0-9A-Fa-f]+")
 
 
@@ -315,11 +317,37 @@ def rescues(k, vl, anch, wide_ok=True, rad=None):
             for cand in (d * d, d * d - 1, d * d + 1):
                 if cand in wide:
                     return u"제곱거리로 관측(%d² = %d)" % (d, cand)
+    # ⑤ ★19차 A: 값이 **비인라인 콜리** 안에 있다고 본문이 자인 — `where` 가 담당 밖 `.rs` 를 괄호로 병기(`(값은 player.rs:352~355 …)`)
+    #    하거나 effect 가 「콜리/게임코어/game_core」 를 말하면 이 함수 창엔 리터럴이 없는 게 정상(판정 유보 · [79] 480 = judge_battle_latency g15.ll:126049).
+    if CALLEE_OWNED.search(w):
+        return u"값이 콜리/게임코어에 있다고 본문이 자인(이 함수는 비교만)"
     # ③ 런타임 값·자리표시 자인
     if RUNTIME.search(w):
         return u"런타임 값/자리표시임을 본문이 자인"
     if NOTLITERAL.search(w):
         return u"오프셋·16진 표기"
+    return None
+
+
+def nodbg_rescue(sp, vl):
+    u"""⑥ ★19차 C([91] knobs[0]=21): 점프스레딩/호이스트된 비교는 **`!dbg` 없는 명령**으로 본문 어딘가에 놓인다
+    (m04.ll:29351 `icmp ult i64 %265, 21` — `br i1 %205 … !dbg L206` 의 타깃 블록). 앵커 창엔 없지만 이 함수 본문(aux 포함)의
+    dbg 없는 명령에 리터럴이 있으면 판정 유보. ⚠dbg 있는 줄은 세지 않는다(그건 창·앵커의 몫 · USE_BODY 오탐 재발 방지)."""
+    ir = sp.get("ir") or {}
+    segs = [(ir.get("file"), ir.get("frm"), ir.get("to"))] + [(x.get("file") or ir.get("file"), x.get("frm"), x.get("to")) for x in (ir.get("aux") or [])]
+    for (f, a, b) in segs:
+        if not f or not a or not b:
+            continue
+        f = f[:-3] if f.endswith(".ll") else f
+        src = irsrc(f)
+        if not src:
+            continue
+        for x in range(int(a), min(len(src), int(b)) + 1):
+            ln = src[x - 1]
+            if "!dbg" in ln or "#dbg" in ln or not re.match(r"\s+%\d+ = (?:icmp|select|add|sub|mul|and|or|xor|lshr|shl)\b", ln):
+                continue
+            if vl & lits_of_line(ln):
+                return u"dbg 없는 명령(점프스레딩/호이스트)에서 관측 %s:%d" % (f, x)
     return None
 
 
@@ -373,6 +401,8 @@ def check_spec(sp, want=("V1", "V3", "V4"), detail=None):
                 ok, src = bool(vl & wl), u"창"
             if not ok:
                 r = rescues(k, vl, anch, wide_ok=(not qlits), rad=rad)
+                if not r and not qlits:
+                    r = nodbg_rescue(sp, vl)
                 if not r:
                     out.append((j, u"주장한 값을 IR 관측에서 못 찾는다",
                                 u"value=%s · 관측(%s)=%s%s" % (

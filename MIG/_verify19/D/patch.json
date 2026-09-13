@@ -1,0 +1,408 @@
+{
+ "round": 19,
+ "batch": "D",
+ "errors": [
+  {
+   "path": "/specs[101]/consts[4]/src_line",
+   "kind": "실오류",
+   "old": 291,
+   "new": 293,
+   "evidence": "m04.ll:54353 `%154 = icmp eq i64 %153, 13, !dbg !63575` · dloc !63575 = entity.rs:1648 is_in_return < inlinedAt **utils.rs:293** closure$2 < … < 346. 291 은 같은 클로저의 첫 줄(`%142 icmp ne` id 비교, !63563)이고 is_in_return 호출은 293 이다. G12 강후보 [293,346] 과 일치",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[101]/consts[5]/src_line",
+   "kind": "실오류",
+   "old": 291,
+   "new": 293,
+   "evidence": "m04.ll:54357 `%157 = icmp eq i64 %156, 1`(자체 !dbg 없음) → 54358 `%158 = select i1 %154, i1 %157, i1 false, !dbg !63575` = utils.rs:293(is_in_return 인라인, ChampionActionState Return 태그). 293 은 G12 약후보(귀속)이고 강후보 285/342/346 은 다른 리터럴 1(enemy_team=1-team 등)이다",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[101]/consts[7]/src_line",
+   "kind": "실오류",
+   "old": 330,
+   "new": 331,
+   "evidence": "aux m04.ll:64056 `%114 = add i64 %113, -6, !dbg !73342` · dloc !73342 = option.rs:1542 and_then < **utils.rs:331** closure$1 (적 small_actions 의 매치 클로저). 330 은 그 앞 load(`%113`, !73340) 줄이다. 아군 쪽 복제 64102 는 !73353 = 333",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[101]/consts[8]/src_line",
+   "kind": "실오류",
+   "old": 330,
+   "new": 331,
+   "evidence": "aux m04.ll:64057 `%115 = icmp ult i64 %114, 4, !dbg !73342` → utils.rs:331 (위와 같은 사슬). 아군 쪽 64103 `%138 = icmp ult i64 %137, 4, !dbg !73353` = 333",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[101]/consts[9]/src_line",
+   "kind": "실오류",
+   "old": 288,
+   "new": 346,
+   "evidence": "m04.ll:54845 `%270 = icmp eq i64 %135, 40, !dbg !64079` · dloc !64079 루트 = utils.rs:346 line_backfight_support_focus(min_by_key 호출줄, 이터레이터 종료 판정). 288 은 체인 시작줄이라 IR 사슬에 없다. G12 강후보 [346]",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[101]/logic",
+   "kind": "보강",
+   "old": "L332: ally_targeting_enemy = blackboard[player.info.team].small_actions[ally_pos]",
+   "new": "L332~333: ally_targeting_enemy = blackboard[player.info.team].small_actions[ally_pos]",
+   "evidence": "aux m04.ll:64094~64098 load(!73351 = utils.rs:332) → 64102~64103 `add -6`/`icmp ult 4`(!73353 = utils.rs:333). 적 쪽과 같은 2줄 구조(330 load / 331 매치)",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[101]/consts[0]/meaning",
+   "kind": "보강",
+   "old": "support_range_sq = 340000^2 — 아군↔나 distance_sq 가 이보다 크면 지원 후보 제외",
+   "new": "support_range_sq = 340000^2 — 지원 반경 임계: 아군↔나 distance_sq 가 이보다 크면 지원 후보 제외",
+   "evidence": "m04.ll:54440~54442 `icmp ugt i64 %x, 115600000000`(L300 비교 상한) — 소비 오프코드가 CMP_ORD 인데 `산출값`(STORE 관측 = 클로저 캡처용 스택 저장)으로 파생돼 있었다. 낱말 `임계` 추가 → G15 SUPPORT[임계]=CMP_ORD 로 구제",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[101]/consts[3]/meaning",
+   "kind": "보강",
+   "old": "150000^2 + 1 — close_to_ally = ally.distance_sq(enemy) < 이 값",
+   "new": "150000^2 + 1 — 근접 임계: close_to_ally = ally.distance_sq(enemy) < 이 값",
+   "evidence": "aux m04.ll:63984 `icmp ult i64 %x, 22500000001` (CMP_ORD). 본문 범위 밖(aux)이라 관측 0 → `미상`. 낱말 `임계` 로 확정",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[101]/consts[8]/meaning",
+   "kind": "보강",
+   "old": "위 태그 범위 폭(6..=9 의 4개)",
+   "new": "범위 폭 4 = (t-6) <u 4 의 상한 (Attack/Skill/Skill2/Ult 4개)",
+   "evidence": "aux m04.ll:64057 `%115 = icmp ult i64 %114, 4` — 비교 상한(CMP_ORD)이지 태그값이 아니다. 낱말 `태그` 가 체인 앞에서 잡혀 `태그` 로 파생돼 있었다",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[98]/consts[5]/meaning",
+   "kind": "보강",
+   "old": "entry_range = max(early_range, 16000) (반셀)",
+   "new": "entry_range = max(early_range, 16000) — 진입 사거리 하한(반셀)",
+   "evidence": "m07.ll:55836 `%180 = tail call … @llvm.umax.i64(i64 %179, i64 16000)` 클램프 하한 — 15차 배치B #26 consts[8] 와 동형(MINMAX 가 낱말 없이 `인덱스` 로 파생). 낱말 `하한` → 임계(SUPPORT MINMAX)",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[98]/consts[6]/meaning",
+   "kind": "보강",
+   "old": "tps*2 — `shl i64 %149, 1`:",
+   "new": "tps*2 (계수 2, shl 로 접힘) — `shl i64 %149, 1`:",
+   "evidence": "m07.ll:55830 `%177 = shl i64 %149, 1` = tps×2 배율(ARITH). 리터럴 1 의 본문 CMP 관측이 많아 `임계` 로 파생돼 있었다 — 접힌 곱셈은 계수",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[99]/consts[2]/meaning",
+   "kind": "보강",
+   "old": "my_champ.hp*2 < stat_cached.hp (=hp<50%) 이면 None — `shl i64 %29, 1` 로 접힘",
+   "new": "my_champ.hp*2 < stat_cached.hp (=hp<50%) 이면 None — 계수 2 가 `shl i64 %29, 1` 로 접힘",
+   "evidence": "m07.ll:54284 `%30 = shl i64 %29, 1`(ARITH) — 배율이지 태그가 아닌데 리터럴 1 의 CMP_EQ 관측(Position Jungle=1 등)으로 `태그` 파생",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[99]/consts[3]/meaning",
+   "kind": "보강",
+   "old": "tps*5: 세션 중이 아닐 때",
+   "new": "tps*5 (계수 5): 세션 중이 아닐 때",
+   "evidence": "m07.ll:54329 `%52 = mul i64 %42, 5` · 54757 · 54967 (ARITH) — 배율. 리터럴 5 가 TutorialType 태그 5 와 겹쳐 `태그` 로 파생돼 있었다",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[100]/consts[6]/meaning",
+   "kind": "보강",
+   "old": "BigPlan 메모리태그 9 = Battle (tcxdict --enum BigPlan, 니치 idx7+2).",
+   "new": "BigPlan 메모리태그 9 = Battle (tcxdict --enum BigPlan: 논리 idx 7, niche_start 2 → 9).",
+   "evidence": "m09.ll:24559 `%34 = icmp eq i64 %32, 9`(CMP_EQ) — variant 태그. 낱말 `니치` 가 `_SENT` 에 걸려 `센티널` 로 파생돼 있었다(태그가 맞다). 같은 정보를 라틴 표기로",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[100]/consts[11]/meaning",
+   "kind": "보강",
+   "old": "StealOutcome 3=EligibilityLost",
+   "new": "StealOutcome 태그 3=EligibilityLost",
+   "evidence": "m09.ll:25202 `store i8 3, ptr %0+0x1b8`(초기 outcome) · 24937 `%207 = phi i8 [ %196 … ]` select(len==0,1,3) — variant 태그(PRODUCE)인데 `assume <3` 류 CMP_ORD 관측으로 `임계` 파생. 오라클 실행 확인(19차 배치D v19D_o1.rs, 케이스당 프로세스 1개, setting_ok=true, 로그 _verify19/D/oracle/v19D_o1_case{N}.log): case5(에픽 스폰 live_list=[41]) 세션 종료 dbg_outcome=EligibilityLost",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[100]/consts[12]/meaning",
+   "kind": "보강",
+   "old": "StealOutcome 2=SelfDied",
+   "new": "StealOutcome 태그 2=SelfDied",
+   "evidence": "variant 태그. 리터럴 2 의 다른 CMP_ORD 관측(Option 니치 2 등)으로 `임계` 파생",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[100]/consts[13]/meaning",
+   "kind": "보강",
+   "old": "StealOutcome 0=Success",
+   "new": "StealOutcome 태그 0=Success",
+   "evidence": "variant 태그. 오라클 실행 확인(19차 배치D v19D_o1.rs, 케이스당 프로세스 1개, setting_ok=true, 로그 _verify19/D/oracle/v19D_o1_case{N}.log): case4(snapshot Some((Epic,0)) + epic_minion_buff_time[0]=100) 세션 종료 dbg_outcome=Success · 0x3c0 0→1",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[100]/consts[18]/meaning",
+   "kind": "보강",
+   "old": "StealSession 크기(Vec push elem_size) — stride, 임계 아님",
+   "new": "StealSession 크기 112B — Vec push 원소 길이(stride), 판정값 아님",
+   "evidence": "m09.ll:24974~24986 completed_steal_sessions push: 원소 = +0 start_tick(%146=load 0x150) +8 end_tick(%155=tick()) +0x10 memcpy 88B(0x160~0x1b7) +0x68 outcome(%207) +0x69 target(%147) +0x6a enemy_jungler_alive(%148) +0x6b memcpy 5B. 낱말 `임계 아님` 이 부정문 가드로 지워져 `미상` 이었다 → `길이`",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[100]/consts[19]/meaning",
+   "kind": "보강",
+   "old": "Chat 크기(Vec push elem_size) — stride",
+   "new": "Chat 크기 24B — Vec push 원소 길이(stride), 판정값 아님",
+   "evidence": "m09.ll:25033 `store i8 %347`(+0 태그 32/41) · 25035 `store i8 %342`(+1 is_commit) · 25037 len. `미상` → `길이`",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[100]/mem[34]/note",
+   "kind": "보강",
+   "old": "L903 (m09.ll:25300)",
+   "new": "L903 (m09.ll:25300). ⚠new_action.tag==0(None) 이면 이 바이트는 IR undef — should_steal_now 반환 m07.ll:55118 `%373 = phi i8 [ undef, %5 ], …` / L741 무효화 m09.ll:24560 `%35 = select i1 %34, i8 undef, i8 %24`. self-diff sweep 은 tag==0 일 때 0x419 를 마스크할 것",
+   "evidence": "오라클 실행 확인(19차 배치D v19D_o1.rs, 케이스당 프로세스 1개, setting_ok=true, 로그 _verify19/D/oracle/v19D_o1_case{N}.log): case2·case6 `+419:1→255` — Some(None) 의 payload 가 255 로 관측됐고 그 값은 codegen 산물(IR undef)이다",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[100]/mem[36]/note",
+   "kind": "보강",
+   "old": "L904",
+   "new": "L904 (m09.ll:25304). None(tag 0) 이면 payload 는 IR undef(mem[34] 참조) — sweep 마스크",
+   "evidence": "오라클 실행 확인(19차 배치D v19D_o1.rs, 케이스당 프로세스 1개, setting_ok=true, 로그 _verify19/D/oracle/v19D_o1_case{N}.log): case2 `+41b:1→255`",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[100]/mem[38]/name",
+   "kind": "오탐",
+   "old": "current_steal_session@Some.0.enemy_jungler_alive_at_start",
+   "new": "current_steal_session@Some.0.enemy_jungler_alive_at_start",
+   "evidence": "G20 R1 오탐. `tcxdict TeamPlan 0x1ba` 가 **두 행을 모두** 돌려준다: `current_steal_session@Some.0.enemy_jungler_alive_at_start bool` + `current_steal_session@tag (Niche)` — 니치 태그가 페이로드 bool 자리를 그대로 쓰므로 두 이름은 같은 바이트의 양립 표기다(DWARF m09.ll:75569 !4971 Option<StealSession> Variant0 DISCR_EXACT=2 · tag offset 848bit=0x6a → 0x150+0x6a=0x1ba). 게이트가 못 본 이유 = `sharedchk.variant_split` 이 `.` 로만 쪼개 `@` 뒤 variant 성분(`Some`)을 못 본다. 수정안: `re.split(u\"[.@]\", …)` — 스크래치 검증에서 이 건과 [16] `attack_effect.range`/`attack_effect@Some.0.range`, [41] `big_goal[].1@Battle…`/`…@Some.0@Battle…` 3건이 양립으로 바뀐다",
+   "behavior_change": false,
+   "found_by": "new"
+  }
+ ],
+ "ev_up": [
+  {
+   "path": "/specs[100]/mem[33]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(19차 배치D v19D_o1.rs, 케이스당 프로세스 1개, setting_ok=true, 로그 _verify19/D/oracle/v19D_o1_case{N}.log): case2 `+418:1→0`(Some(None) 태그 0 — None 255 가 아님)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[100]/mem[34]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(19차 배치D v19D_o1.rs, 케이스당 프로세스 1개, setting_ok=true, 로그 _verify19/D/oracle/v19D_o1_case{N}.log): case2 `+419:1→255`(undef)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[100]/mem[35]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(19차 배치D v19D_o1.rs, 케이스당 프로세스 1개, setting_ok=true, 로그 _verify19/D/oracle/v19D_o1_case{N}.log): case2 `+41a:2→0`",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[100]/mem[36]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(19차 배치D v19D_o1.rs, 케이스당 프로세스 1개, setting_ok=true, 로그 _verify19/D/oracle/v19D_o1_case{N}.log): case2 `+41b:1→255`(undef)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[100]/mem[37]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(19차 배치D v19D_o1.rs, 케이스당 프로세스 1개, setting_ok=true, 로그 _verify19/D/oracle/v19D_o1_case{N}.log): case3 `+1ba:1→2`(take → None 니치 2)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[100]/mem[54]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(19차 배치D v19D_o1.rs, 케이스당 프로세스 1개, setting_ok=true, 로그 _verify19/D/oracle/v19D_o1_case{N}.log): case4 `+120:0→2`(snapshot Some→None)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[100]/mem[55]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(19차 배치D v19D_o1.rs, 케이스당 프로세스 1개, setting_ok=true, 로그 _verify19/D/oracle/v19D_o1_case{N}.log): case3 `+128:77→0`",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[100]/mem[58]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(19차 배치D v19D_o1.rs, 케이스당 프로세스 1개, setting_ok=true, 로그 _verify19/D/oracle/v19D_o1_case{N}.log): case4 `+3c0:0→1`(epic_steal_success_count)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[100]/mem[60]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(19차 배치D v19D_o1.rs, 케이스당 프로세스 1개, setting_ok=true, 로그 _verify19/D/oracle/v19D_o1_case{N}.log): case3 `+3e0:0→232 +3e1:0→3`(=1000=game.tick(), [target=Epic])",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[100]/mem[62]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(19차 배치D v19D_o1.rs, 케이스당 프로세스 1개, setting_ok=true, 로그 _verify19/D/oracle/v19D_o1_case{N}.log): case3 `+f0:0→4 +f8:ptr` Vec grow + Debug completed_steal_sessions=[StealSession{target:Epic,start_tick:500,end_tick:1000,…outcome:EnemyKilled}]",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[100]/mem[63]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(19차 배치D v19D_o1.rs, 케이스당 프로세스 1개, setting_ok=true, 로그 _verify19/D/oracle/v19D_o1_case{N}.log): case3 `+100:0→1`(len)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[100]/mem[30]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(19차 배치D v19D_o1.rs, 케이스당 프로세스 1개, setting_ok=true, 로그 _verify19/D/oracle/v19D_o1_case{N}.log): case3 cap 0→4 — grow_one 경로(cap==len) 실측",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[100]/mem[52]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(19차 배치D v19D_o1.rs, 케이스당 프로세스 1개, setting_ok=true, 로그 _verify19/D/oracle/v19D_o1_case{N}.log): case3 종료 후 0x1b8 preset 3 그대로 — outcome 은 push 원소(+0x68)에만 기록, self 필드 미기록 확인",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[100]/mem[32]",
+   "from": 3,
+   "to": 3,
+   "evidence": "오라클 실행 확인(19차 배치D v19D_o1.rs, 케이스당 프로세스 1개, setting_ok=true, 로그 _verify19/D/oracle/v19D_o1_case{N}.log): case1(Top) diff 1바이트 `+418:1→255`, prev 0x41a=2 불변",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[100]/mem[23]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcxdict TeamPlan 0x1ba = current_steal_session@tag (Niche) · DWARF m09.ll:75569 !4971 DISCR_EXACT=2 · 오라클 실행 확인(19차 배치D v19D_o1.rs, 케이스당 프로세스 1개, setting_ok=true, 로그 _verify19/D/oracle/v19D_o1_case{N}.log): case3 `+1ba:1→2`",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[100]/mem[38]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcxdict TeamPlan 0x1ba 두 행(bool 필드 + Niche 태그) 동시 반환 · DWARF !4971 None=2",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[99]/mem[12]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcxdict TeamPlan 0x1ba = current_steal_session@tag (Niche) · DWARF m09.ll:75569 !4971 Option<StealSession> Variant0(None) DISCR_EXACT=2",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[99]/consts[1]",
+   "from": 4,
+   "to": 3,
+   "evidence": "DWARF m09.ll:75569 `!4971 = DISCR_EXACT … extraData: i64 2`(Option<StealSession> None) · tcxdict TeamPlan 0x1ba Niche",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[100]/consts[8]",
+   "from": 4,
+   "to": 3,
+   "evidence": "DWARF m09.ll:75569 !4971 DISCR_EXACT=2 (Option<StealSession>) · tcxdict 0x120/0x1ba 둘 다 Niche",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[100]/consts[21]",
+   "from": 4,
+   "to": 3,
+   "evidence": "DWARF m09.ll:75493 `!4895 = DISCR_EXACT … extraData: i64 255`(!4846 Option<StealAction> Variant0) · 오라클 실행 확인(19차 배치D v19D_o1.rs, 케이스당 프로세스 1개, setting_ok=true, 로그 _verify19/D/oracle/v19D_o1_case{N}.log): case1 `+418:1→255`",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[100]/consts[0]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(19차 배치D v19D_o1.rs, 케이스당 프로세스 1개, setting_ok=true, 로그 _verify19/D/oracle/v19D_o1_case{N}.log): case1(Top) 0x418←255 만 쓰고 return / case2(Jungle) 본문 진행 — Position 태그 1 게이트",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[100]/consts[7]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(19차 배치D v19D_o1.rs, 케이스당 프로세스 1개, setting_ok=true, 로그 _verify19/D/oracle/v19D_o1_case{N}.log): case2 `+418:1→0` = StealAction::None 태그 0 저장",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[100]/consts[9]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(19차 배치D v19D_o1.rs, 케이스당 프로세스 1개, setting_ok=true, 로그 _verify19/D/oracle/v19D_o1_case{N}.log): case3 `+1ba:1→2` take()",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[100]/consts[10]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(19차 배치D v19D_o1.rs, 케이스당 프로세스 1개, setting_ok=true, 로그 _verify19/D/oracle/v19D_o1_case{N}.log): case3(에픽 미스폰, live_list.len=0) dbg_outcome=EnemyKilled",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[100]/consts[11]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(19차 배치D v19D_o1.rs, 케이스당 프로세스 1개, setting_ok=true, 로그 _verify19/D/oracle/v19D_o1_case{N}.log): case5(에픽 스폰) dbg_outcome=EligibilityLost",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[100]/consts[13]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(19차 배치D v19D_o1.rs, 케이스당 프로세스 1개, setting_ok=true, 로그 _verify19/D/oracle/v19D_o1_case{N}.log): case4 dbg_outcome=Success · 0x3c0 +1",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[100]/knobs[3]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(19차 배치D v19D_o1.rs, 케이스당 프로세스 1개, setting_ok=true, 로그 _verify19/D/oracle/v19D_o1_case{N}.log): case1 Top → steal_action=None(255) 즉시 return",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[100]/knobs[2]",
+   "from": 4,
+   "to": 4,
+   "evidence": "m09.ll:24556~24561 `assume(%32 != 6)` · `%34 = icmp eq i64 %32, 9` · `%36 = select i1 %34, i8 0, i8 %25` — prev.tag 가 signed `sgt 0`(24548) 이 아닐 때만 진입. 오라클은 Battle 페이로드(BattlePlan) 구성 불가로 미실행",
+   "found_by": "reused"
+  }
+ ],
+ "brief_errors": [
+  "§4 「이 배치 몫 = 1건」이 틀렸다 — `specgate.py`(전량·--only 101 둘 다) 는 #101 에 G12 5건(consts[4]/[5]/[7]/[8]/[9])·G7 1건(open[2] is_recent_visible)을 추가로 낸다. mkdossier 가 G20 만 추린 것으로 보인다(다른 게이트 필터 누락)",
+  "지시문 초점의 「G7 shared 제거」가 도시에 §4 본문에 없다 — 실제 대상은 #101 open[2](`is_recent_visible … 본문 미독`)이고 shared 로 확정된 사실(_gcbc g07.ll:157005)이라 open 에서 내려야 한다(산문 보고로 처리)",
+  "§1 표 #100 `ev≥4(미실행)=91` 에 `mem` 66행이 들어 있는데 mem 은 상한 3 이라 「오라클로 내려라」가 닿지 않는 행이다(ev3 까지만). 실행 대상 수로 읽히지 않게 mem 을 따로 세는 게 맞다",
+  "TEMPLATE.rs 의 함정 ⑦ 3줄이 `#![allow]` 보다 위(파일 1~3행)에 있어 `//!` 내부 문서에서 빠져 있다 — 사소하나 「먼저 읽어라」는 문단이 헤더 밖에 있다"
+ ]
+}

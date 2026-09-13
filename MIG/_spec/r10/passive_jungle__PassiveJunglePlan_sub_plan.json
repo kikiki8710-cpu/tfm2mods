@@ -1,0 +1,115 @@
+{
+ "name": "PassiveJunglePlan::sub_plan",
+ "sym": "_RNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old14passive_jungleNtB2_17PassiveJunglePlan8sub_plan",
+ "src": "game-ai\\src\\plan_legacy\\old\\passive_jungle.rs",
+ "src_line": 134,
+ "ir_file": "m04.ll",
+ "ir_from": 28488,
+ "ir_to": 29367,
+ "aux": [],
+
+ "one_line": "패시브 정글 플랜의 서브플랜 — check_recall(인라인)이 참이면 Recall, 아니면 Jungle{team,camp,check_move:false}",
+
+ "signature": {
+   "params": [
+     {"i": 0, "name": "(sret)", "type": "SubPlan(72B)", "note": "%0. 태그 5=Recall / 6=Jungle(payload +8 team, +0x10 camp, +0x11 check_move)"},
+     {"i": 1, "name": "self", "type": "&PassiveJunglePlan(104B)", "note": "%1. team(+0x48)·jungle(+0x60) 만 읽음"},
+     {"i": 2, "name": "version", "type": "usize", "note": "%2. effect_buff_target 에 그대로 전달만 — 본문 분기 없음"},
+     {"i": 3, "name": "rnd", "type": "&mut StdRng(320B)", "note": "%3. readnone — 미사용"},
+     {"i": 4, "name": "player", "type": "&PlayerState(2528B)", "note": "%4"},
+     {"i": 5, "name": "data", "type": "&OperationData(24B)", "note": "%5"},
+     {"i": 6, "name": "debug", "type": "&mut DebugFrameData(224B)", "note": "%6. readnone — 미사용"}
+   ],
+   "returns": "SubPlan(sret) — 태그 5 Recall(귀환) 또는 태그 6 Jungle{team:self.team, camp:self.jungle, check_move:false}"
+ },
+
+ "reads": [
+   {"base": "PassiveJunglePlan", "offset": "0x48", "name": "team", "note": "28503. `team==0` 이 get_jungle_live_list/camp_pos 의 bool 인자(28624) · Jungle payload team 에 복사"},
+   {"base": "PassiveJunglePlan", "offset": "0x60", "name": "jungle", "note": "JungleType i8 (28505) — 캠프 종류"},
+   {"base": "PlayerState", "offset": "0x930", "name": "info.team", "note": "28506. <2 아니면 bounds panic — ★self.team 이 아니라 player.info.team 으로 champ 를 찾음"},
+   {"base": "PlayerState", "offset": "0x9c0", "name": "info.position@tag", "note": "as_index (28535)"},
+   {"base": "OperationData", "offset": "0x0", "name": "cache", "note": "28508"},
+   {"base": "OperationData", "offset": "0x8", "name": "context", "note": "28510"},
+   {"base": "AbstractGameWithCache", "offset": "0x1e0", "name": "player_champion[team][pos]", "note": "unwrap (28541~28546)"},
+   {"base": "AbstractGameWithCache", "offset": "0x0", "name": "game.data_ptr", "note": "28596"},
+   {"base": "AbstractGameWithCache", "offset": "0x8", "name": "game.vtable_ptr", "note": "슬롯 0x40=get_game_mode(28599; 3회 호출) · 0x1f0=get_entity_by_id(28755, 29025, 29211)"},
+   {"base": "GameMode", "offset": "0x0", "name": "tag", "note": "{i64,ptr} tag 0=Moba 아니면 as_moba().unwrap() 패닉 (28605)"},
+   {"base": "MobaMode", "offset": "0x18", "name": "jungle_runner", "note": "JungleRunner(480B) — get_jungle_live_list 의 &self (28623)"},
+   {"base": "GameContext", "offset": "0x20", "name": "map", "note": "28554"},
+   {"base": "GameContext", "offset": "0x8", "name": "setting", "note": "28867, 29331"},
+   {"base": "GameSetting", "offset": "0x12f8", "name": "tick_per_second", "note": "tps — die_tick 비교 기준 (28869, 29333)"},
+   {"base": "MapDef", "offset": "0x6d70", "name": "fountains[team]", "note": "(lx,ly,rx,ry) stride 32B: +0 lx(28559) +8 ly(28583) +16 rx(28562) +24 ry(28580)"},
+   {"base": "Entity", "offset": "0x660", "name": "x", "note": "champ.x (28566)"},
+   {"base": "Entity", "offset": "0x668", "name": "y", "note": "champ.y (28586, 28669)"},
+   {"base": "Entity", "offset": "0x670", "name": "hp", "note": "champ.hp (28609, 28857, 29125, 29324)"},
+   {"base": "Entity", "offset": "0x628", "name": "stat_cached.hp", "note": "최대 HP (28611, 29110) — 0 이면 div_by_zero panic(29133)"},
+   {"base": "Entity", "offset": "0x3f0", "name": "stat_buff_cached.vamp", "note": "i32 > 0 이면 can_heal (28654~28656)"},
+   {"base": "Entity", "offset": "0x4f8", "name": "skill_effect@tag", "note": "i32 -1 = None (28893~28895)"},
+   {"base": "Entity", "offset": "0x4c8", "name": "skill_effect@Some.0", "note": "&Effect(56B) → expected_heal_target / effect_buff_target (28899)"},
+   {"base": "Entity", "offset": "0x5c8", "name": "level", "note": "skill2_effect() 인라인: level > 2 이면 &skill2_effect 아니면 정적 None(@anon.16) (28931~28935)"},
+   {"base": "Entity", "offset": "0x500", "name": "skill2_effect@Some.0", "note": "&Option<Effect> (+48 = 0x530 tag) (28934, 28937)"},
+   {"base": "Entity", "offset": "0x4c0", "name": "attack_effect@tag", "note": "정글 몹의 평타 이펙트 Option 니치 -1 (28791, 29246)"},
+   {"base": "Entity", "offset": "0x490", "name": "attack_effect@Some.0", "note": "정글 몹 &Effect → expected_damage_target(…, champ) (28797, 29252)"},
+   {"base": "Entity", "offset": "0x68", "name": "ty@tag", "note": "정글 몹 EntityType 태그 == 4(Jungle) (29051~29053)"},
+   {"base": "Entity", "offset": "0x88", "name": "ty@Jungle.info.focused@tag", "note": "Entity+0x70 payload + Jungle.focused(0x18): Option<usize> tag (29060~29062)"},
+   {"base": "Entity", "offset": "0x90", "name": "ty@Jungle.info.focused@Some.0", "note": "정글 몹이 노리는 엔티티 id == champ.id 면 is_in_fight (29066, 29072~29073)"},
+   {"base": "Entity", "offset": "0x5c0", "name": "id", "note": "champ.id (29027, 29067)"},
+   {"base": "BuffState", "offset": "0x48", "name": "duration@tag", "note": "Option<BuffState> None 니치(-1) 판정 = is_some (28921~28922, 28964~28965)"},
+   {"base": "BuffState", "offset": "0x80", "name": "vamp", "note": "i32 > 0 → 흡혈 버프 스킬 (28924~28925, 28967~28968)"}
+ ],
+
+ "writes": [
+   {"base": "SubPlan(sret)", "offset": "0x0", "name": "tag", "value": "5(Recall) | 6(Jungle)", "note": "29365. phi 29364: %335 경로만 6"},
+   {"base": "SubPlan(sret)", "offset": "0x8", "name": "Jungle.team", "value": "self.team", "note": "29356 (태그 6 경로만)"},
+   {"base": "SubPlan(sret)", "offset": "0x10", "name": "Jungle.camp", "value": "self.jungle", "note": "29358"},
+   {"base": "SubPlan(sret)", "offset": "0x11", "name": "Jungle.check_move", "value": "false(0)", "note": "29360"}
+ ],
+
+ "constants": [
+   {"value": 14400000001, "src_line": 157, "meaning": "120000^2 + 1 — champ↔캠프 좌표 distance_sq < 14400000001 = 거리 ≤ 120000(3.75셀) 이면 '캠프에 붙어 있음'"},
+   {"value": 1000, "src_line": 162, "meaning": "틱당 기대피해 = expected_damage*1000 / attack_cooltime (×1000 스케일). die_tick = hp*1000 / 합산 (L164, L197)"},
+   {"value": 0, "src_line": 164, "meaning": "합산 피해 0 이면 die_tick = usize::MAX(-1) (L164) / vamp > 0, heal > 0 판정 (L172, L174, L177)"},
+   {"value": -1, "src_line": 164, "meaning": "usize::MAX (die_tick 무한) · Option 니치 None 태그(skill_effect/attack_effect/BuffState.duration)"},
+   {"value": 2, "src_line": 176, "meaning": "skill2_effect() 인라인(entity.rs:1693): level > 2 일 때만 스킬2 존재"},
+   {"value": 4, "src_line": 182, "meaning": "EntityType 태그 4 = Jungle — 정글 몹만 focused 검사"},
+   {"value": 1, "src_line": 194, "meaning": "is_in_fight 경로 합산 피해 max(sum,1) — 0 나눗셈 방지 (llvm.umax)"},
+   {"value": 100, "src_line": 205, "meaning": "hp_ratio = hp*100 / stat_cached.hp"},
+   {"value": 21, "src_line": 206, "meaning": "can_heal(흡혈/힐 보유) 시 귀환 HP%: hp_ratio < 21"},
+   {"value": 41, "src_line": 206, "meaning": "can_heal 아님 시 귀환 HP%: hp_ratio < 41"}
+ ],
+
+ "calls": [
+   "game_core::simulation::entity::jungle::JungleRunner::get_jungle_live_list",
+   "game_core::simulation::map_def::MapDef::camp_pos",
+   "game_core::simulation::effect::Effect::expected_damage_target",
+   "game_core::simulation::effect::Effect::expected_heal_target",
+   "game_core::simulation::entity::Entity::attack_cooltime",
+   "game_ai::fight_check::effect_buff_target",
+   "core::ops::drop::Drop::drop",
+   "core::ptr::drop_glue",
+   "core::panicking::panic_bounds_check",
+   "core::option::unwrap_failed",
+   "core::panicking::panic_const::panic_const_div_by_zero",
+   "llvm.umax.i64",
+   "llvm.assume"
+ ],
+
+ "logic": "sub_plan(L135~140) = if self.check_recall(version,rnd,player,data,debug) { Recall } else { Jungle{team:self.team, camp:self.jungle, check_move:false} }\ncheck_recall 전체가 인라인(passive_jungle.rs:143~206):\nL143: team = player.info.team; champ = cache.player_champion[team][player.info.position].unwrap()\nL145: (lx,ly,rx,ry) = context.map.fountains[team]\nL146: is_in_heal_area = lx<=champ.x<=rx && ly<=champ.y<=ry\nL147: if is_in_heal_area && champ.hp < champ.stat_cached.hp { return true(Recall) }   // 분수 안에서 회복 중이면 계속 귀환\nL154: moba = cache.game.get_game_mode().as_moba().unwrap(); camp_live = moba.jungle_runner.get_jungle_live_list(self.jungle, self.team == 0)\nL155: if !camp_live.is_empty() {\n  L156: camp_pos = map.camp_pos(self.jungle, self.team == 0)\n  L157: if champ.distance_sq(camp_pos) < 14400000001 {\n    L159~162: edpt = camp_live.iter().filter_map(|id| get_entity_by_id(id)).map(|e| e.attack_effect.as_ref().map(|ae| ae.expected_damage_target(ctx, e, champ) * 1000 / e.attack_cooltime()).unwrap_or(0)).sum()   (cooltime 0 → div_by_zero panic)\n    L164: die_tick = if edpt == 0 { usize::MAX } else { champ.hp * 1000 / edpt }\n    L165: if die_tick > tps { return false(Jungle) }   // 캠프 옆에서 1초 안에 안 죽으면 계속 정글\n  } }\nL172: can_heal = champ.stat_buff_cached.vamp > 0\n  L173~175: || champ.skill_effect.as_ref().map(|e| e.expected_heal_target(ctx, champ, champ) > 0 || effect_buff_target(version, e, ctx, champ, champ).map(|b| b.vamp > 0).unwrap_or(false)).unwrap_or(false)\n  L176~178: || champ.skill2_effect()[level>2 게이트].as_ref().map(같은 식).unwrap_or(false)\n  (IR 순서: vamp → skill1 heal → skill1 buff → skill2 heal → skill2 buff, 단락 평가)\nL180: is_in_fight = get_jungle_live_list(self.jungle, self.team==0).iter().any(|id| L181 get_entity_by_id(id).is_some_and(|e| L182 e.ty == Jungle && L184 e.ty.info.focused == Some(champ.id)))\nL191: if is_in_fight {\n  L192: camp_live = get_jungle_live_list(…)  (3번째 호출)\n  L193~195: edpt = max(camp_live.iter().filter_map(get_entity_by_id).map(|e| e.attack_effect.as_ref().unwrap().expected_damage_target(ctx,e,champ)*1000 / e.attack_cooltime()).sum(), 1)   (★attack_effect None 이면 unwrap 패닉 — L162 와 달리 unwrap_or 없음)\n  L197: die_tick = champ.hp * 1000 / edpt\n  L199: return die_tick <= tps   // 1초 안에 죽으면 Recall, 아니면 Jungle\n} else {\n  L205: hp_ratio = champ.hp * 100 / champ.stat_cached.hp   (max 0 → div_by_zero panic)\n  L206: return if can_heal { hp_ratio < 21 } else { hp_ratio < 41 }\n}",
+
+ "knobs": [
+   {"what": "귀환 HP% (흡혈/힐 보유)", "where": "passive_jungle.rs:206", "value": 21, "effect": "올리면 흡혈·힐 챔프도 더 높은 HP 에서 귀환"},
+   {"what": "귀환 HP% (일반)", "where": "passive_jungle.rs:206", "value": 41, "effect": "올리면 정글러가 더 일찍 귀환(정글 시간 손실↑), 내리면 저체력 정글 지속"},
+   {"what": "캠프 근접 반경", "where": "passive_jungle.rs:157", "value": 14400000001, "effect": "올리면 더 먼 곳에서도 '캠프 옆 die_tick 판정'을 타서 HP% 귀환 판정을 건너뛴다(die_tick>tps 면 Jungle 유지)"},
+   {"what": "die_tick 지평", "where": "passive_jungle.rs:165,199 (tps 그대로)", "value": 1000, "effect": "die_tick 은 ×1000 스케일이라 tps(=1초)와 비교. 계수를 바꾸면 '몇 초 안에 죽는가' 지평이 바뀐다 — 1000 을 2000 으로 하면 2초 지평"},
+   {"what": "스킬2 해금 레벨", "where": "entity.rs:1693 (인라인)", "value": 2, "effect": "level>2 에서만 스킬2 힐/흡혈이 can_heal 에 기여 (game_core 쪽 규칙, AI 노브 아님)"}
+ ],
+
+ "unknown": [
+   "L164 die_tick 이 usize::MAX 인 경우(캠프 몹 피해 0)와 L165 `> tps` 비교가 소스에서 `unwrap_or(usize::MAX)` 인지 `if edpt==0 {MAX}` 인지 — 외연 동일, 표기 불가",
+   "L173~178 의 `||` 결합에서 skill1 vs skill2 순서는 IR 블록 순서(28654→28893→28931)로 복원 — 같은 줄 안 순서는 column 부재로 표기 불가",
+   "effect_buff_target(fight_check.rs:390) 반환 Option<BuffState> 의 None 니치가 duration@tag == -1 로 표현된다는 것은 IR 검사식(28921)에서 역산 — BuffType 태그 값 표는 미조회",
+   "get_jungle_live_list(jungle.rs:743)·camp_pos(map_def.rs:207)·expected_heal_target·effect_buff_target 본문 미독 — 계약만 기재",
+   "L192 에서 get_jungle_live_list 를 3번째로 다시 호출하는 이유(L154 결과 재사용 안 함) — 소스 구조 추정 불가, 동작상 동일 목록",
+   "rnd/debug 인자는 readnone 이라 미사용 확정, version 은 effect_buff_target 인자로만 전달"
+ ]
+}

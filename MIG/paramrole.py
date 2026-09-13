@@ -52,6 +52,25 @@ OTHER_BASE = re.compile(
     u"그 \\+0x|내부|안의|하위|필드 1개|필드 2개|정본|tcx|오라클|호출부|근거")
 DROPPED = re.compile(u"poison|인자로 안 넘어옴|인자에서 제거|인자 없음")
 ATTRS = ("readnone", "readonly", "writeonly", "captures(none)", "sret", "noalias", "nonnull")
+
+
+def NEGATED(clause, at):
+    u"""속성어가 부정 서술(`readonly 없음` · `noalias·readonly 없음` · `readonly 가 없다`) 안에만 나오나.
+    ★19차 A([80] p[1] `&self`): 속성어 여러 개를 `·`/`,` 로 묶어 「… 없음」 이라 쓴 절도 부정으로 본다."""
+    import re as _re
+    attrw = u"(?:readnone|readonly|writeonly|noalias|nonnull|captures\\(none\\)|dereferenceable(?:\\(\\d+\\))?)"
+    sep = u"[^\\uac00-\\ud7a3A-Za-z]{0,8}"
+    pat = _re.compile(u"(?:" + sep + attrw + u")*" + sep + u"(없음|없다|없고|없어|빠짐|빠져|제외|부재|미부착|전부 없)")
+    # 비교 대상(다른 함수)의 속성을 말하는 자리 — `update_on_dead(&mut self) 는 noalias dereferenceable(6168)` — 도 이 인자의 주장이 아니다.
+    cmp = _re.compile(u"\\((?:&mut self|&self|&mut [A-Za-z_]+|&[A-Za-z_]+)\\)\\s*(?:는|은|=|:)\\s*$")
+    for m in _re.finditer(_re.escape(at), clause):
+        if cmp.search(clause[max(0, m.start() - 40):m.start()]):
+            continue
+        if not pat.match(clause[m.end():m.end() + 80]):
+            return False
+    return True
+
+
 OFFPAT = re.compile(r"\+?0x([0-9a-fA-F]{1,5})\b")
 CLAUSE = re.compile(u"[.。]\\s+|(?<=[다움씀함김])\\s*,\\s*|\\s—\\s|\\s\\u2014\\s")
 
@@ -488,6 +507,10 @@ def check_spec(sp, weak=False):
             #   `readnone` 이 붙어 있어」이고 `_gcbc` = **game_core 크레이트**다. 18 자신의
             #   `define`(m09.ll:6879)에 `readnone` 이 없는 것이 **맞다**.
             if cls and all(FOREIGN(c, myfile) for c in cls):
+                continue
+            # ★F9(19차 A · [80] p[1]): 「noalias·readonly **없음**」 처럼 **부재를 서술**한 절은 속성 주장이 아니라 그 반대다.
+            #   절 안에서 속성어 뒤에 「없음/없다/없고/빠짐/제외」가 따르면 부정 서술로 보고 건너뛴다.
+            if cls and all(NEGATED(c, at) for c in cls):
                 continue
             txt = u" ".join(args[int(r[1:])] for r in rl) if rl else u""
             if rl and at not in txt:
