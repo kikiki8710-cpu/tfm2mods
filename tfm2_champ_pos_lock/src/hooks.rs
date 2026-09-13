@@ -1156,6 +1156,48 @@ pub static MY_PICK_TURN: std::sync::atomic::AtomicBool =
     std::sync::atomic::AtomicBool::new(false);
 pub static CNT_FZ_FILT: AtomicUsize = AtomicUsize::new(0);
 pub static CNT_FZ_PASS: AtomicUsize = AtomicUsize::new(0);
+/// ★[2026-09-13] finalize 가 대체 픽을 **게임 점수순**으로 고른 횟수 / 점수 캐시가 비어 order 첫 후보로 떨어진 횟수.
+pub static CNT_FZ_SCORED: AtomicUsize = AtomicUsize::new(0);
+pub static CNT_FZ_NOSCORE: AtomicUsize = AtomicUsize::new(0);
+
+// ── ★[2026-09-13] recommend 점수 캡처(스레드로컬) ───────────────────────────
+//   `0x201da90`(finalize) 은 같은 함수 프레임에서 recommend(0x1b59b00) **직후·같은 스레드**에서 호출된다
+//   (RE 09-04 `0x1feba96 → 0x1febc21`). recommend 는 후보마다 SDK `score_pick(ctx, cand, base_score)`
+//   를 부르므로, 그 `base_score`(게임 원점수·모드 개입 전)를 스레드로컬 링에 남기면 finalize 시점에
+//   "이번 recommend 가 매긴 점수표"가 그대로 손에 있다(최신 항목이 이번 호출분·후보당 최신값 채택).
+//   용도 = 추천 픽이 버려질 때(밴/픽됨·order 밖·BLOCKLIST) 대체를 **점수 최대**로 고르기 —
+//   ~~구: `allowed[0]` = 후보 배열 0번(표시명 정렬 → 항상 격투가)~~ · 게임 자체 폴백(order[0]/선형스캔)도 동일.
+//   ⚠index 공간 = NAMES(db.available_champions) 인덱스(score_pick `candidate` 와 동일 전제·01_구조 §2).
+thread_local! {
+    static TL_SCORES: std::cell::RefCell<Vec<(u32, f32)>> = const { std::cell::RefCell::new(Vec::new()) };
+}
+const TL_SCORES_CAP: usize = 1024;
+/// score_pick 마다 호출(값싼 push). 링 상한 초과 시 앞 절반 폐기.
+pub fn note_score(cand: usize, base_score: f32) {
+    if cand > u32::MAX as usize {
+        return;
+    }
+    let _ = TL_SCORES.try_with(|t| {
+        if let Ok(mut v) = t.try_borrow_mut() {
+            if v.len() >= TL_SCORES_CAP {
+                v.drain(..TL_SCORES_CAP / 2);
+            }
+            v.push((cand as u32, base_score));
+        }
+    });
+}
+/// 최근 점수표(후보 NAMES idx → 최신 base_score). 최신 `TL_SCORES_CAP` 항목만 본다.
+fn recent_scores() -> std::collections::HashMap<usize, f32> {
+    let mut m = std::collections::HashMap::new();
+    let _ = TL_SCORES.try_with(|t| {
+        if let Ok(v) = t.try_borrow() {
+            for &(c, sc) in v.iter().rev() {
+                m.entry(c as usize).or_insert(sc); // 뒤에서부터 = 최신값 우선
+            }
+        }
+    });
+    m
+}
 
 /// ★★[2026-09-04] **코치/AI 픽의 진짜 개입점.**
 ///   이 함수가 `recommend()` 가 낸 *인덱스*를 실제 챔프 **이름 String** 으로 확정하고,
@@ -1198,16 +1240,18 @@ unsafe extern "C" fn finalize_hook(
         if !cfg.enabled || !cfg.ai_pick_gate || !config::any_restricted() {
             return None;
         }
-        // ★내 팀 픽 차례라고 **확신**할 때만 개입한다(위 MY_PICK_TURN 주석 참조).
-        if !MY_PICK_TURN.load(Ordering::Relaxed) {
-            return None;
-        }
-        let block = {
+        // ★★[2026-09-13] 개입 조건을 두 갈래로 나눈다.
+        //   ①**내 팀 픽 차례라고 확신**(MY_PICK_TURN) → BLOCKLIST 로 order 를 좁힌다(종전 동작).
+        //   ②그 외(상대 AI·백그라운드) → BLOCKLIST 는 쓰지 않는다(09-04 "상대 굶김" 사고). 단
+        //     **추천 픽(pref_idx)이 어차피 버려지는 경우**(밴/픽됨·order 밖)에만 게임의 폴백
+        //     (order[0]/선형스캔 첫 가용 = 표시명 정렬 첫 챔프 = 격투가)을 **점수 최대 후보**로 바꾼다.
+        //     정상 추천은 손대지 않으므로 상대 AI 의 원래 판단은 그대로다.
+        let my_turn = MY_PICK_TURN.load(Ordering::Relaxed);
+        let block: std::collections::HashSet<String> = if my_turn {
             let g = BLOCKLIST.lock().unwrap_or_else(|e| e.into_inner());
-            match g.as_ref() {
-                Some(set) if !set.is_empty() => set.clone(),
-                _ => return None,
-            }
+            g.as_ref().cloned().unwrap_or_default()
+        } else {
+            std::collections::HashSet::new()
         };
         if cand_len == 0 || cand_len > 512 || !ptr_ok(cand_ptr) {
             return None;
@@ -1228,13 +1272,39 @@ unsafe extern "C" fn finalize_hook(
             read_str_vec_into(la_p, la_l, &mut taken);
         }
 
+        // ★[2026-09-13] 게임이 준 `order`(후보 인덱스 목록·recommend 이전에 생성 = 점수 아님)를
+        //   **멤버십·순서 그대로** 거른다. ~~구: 후보 배열 0..cand_len 전체 순회~~ (order 밖 후보까지
+        //   허용에 넣었고, 순서도 버렸다). order 를 못 읽으면 종전대로 후보 순회.
+        let src: Vec<usize> = if order_len > 0 && order_len <= 512 && ptr_ok(order_ptr) {
+            let mut v = Vec::with_capacity(order_len);
+            for k in 0..order_len {
+                let idx = safe_rd_u64(order_ptr + k * 8).unwrap_or(u64::MAX) as usize;
+                if idx < cand_len {
+                    v.push(idx);
+                }
+            }
+            if v.is_empty() {
+                (0..cand_len).collect()
+            } else {
+                v
+            }
+        } else {
+            (0..cand_len).collect()
+        };
         let mut allowed: Vec<usize> = Vec::with_capacity(64);
-        for i in 0..cand_len {
+        let mut allowed_names: Vec<String> = Vec::with_capacity(64);
+        let mut cut_block = 0usize;
+        for &i in &src {
             let Some(n) = read_str_elem(cand_ptr + i * 0x18) else { continue };
-            if taken.contains(&n) || block.contains(&n) {
+            if taken.contains(&n) {
+                continue;
+            }
+            if block.contains(&n) {
+                cut_block += 1;
                 continue;
             }
             allowed.push(i);
+            allowed_names.push(n);
             if allowed.len() >= 256 {
                 break;
             }
@@ -1242,8 +1312,47 @@ unsafe extern "C" fn finalize_hook(
         if allowed.is_empty() {
             return None; // fail-open — 좁히면 오히려 선형스캔 폴백으로 제한이 풀린다
         }
-        let pref = if allowed.contains(&pref_idx) { pref_idx } else { allowed[0] };
-        Some((allowed, pref, block.len()))
+        let pref_ok = allowed.contains(&pref_idx);
+        if pref_ok && cut_block == 0 {
+            return None; // 추천 픽이 그대로 유효하고 차단도 없음 → 원본 인자 통과(상대 AI 정상 경로)
+        }
+        // ★대체 픽 = 허용 후보 중 **이번 recommend 의 base_score 최대**. 점수표가 없으면(랜덤픽 플래그
+        //   경로 등 recommend 가 안 돈 경우) 종전대로 order 첫 허용 후보.
+        let pref = if pref_ok {
+            pref_idx
+        } else {
+            let scores = recent_scores();
+            let name_idx: std::collections::HashMap<String, usize> = crate::names()
+                .map(|v| {
+                    v.iter()
+                        .enumerate()
+                        .map(|(k, n)| (n.to_ascii_lowercase(), k))
+                        .collect()
+                })
+                .unwrap_or_default();
+            let mut best: Option<(usize, f32)> = None;
+            for (k, i) in allowed.iter().enumerate() {
+                let Some(&ni) = name_idx.get(&allowed_names[k].to_ascii_lowercase()) else { continue };
+                let Some(&sc) = scores.get(&ni) else { continue };
+                if !sc.is_finite() {
+                    continue;
+                }
+                if best.map_or(true, |(_, b)| sc > b) {
+                    best = Some((*i, sc));
+                }
+            }
+            match best {
+                Some((i, _)) => {
+                    CNT_FZ_SCORED.fetch_add(1, Ordering::Relaxed);
+                    i
+                }
+                None => {
+                    CNT_FZ_NOSCORE.fetch_add(1, Ordering::Relaxed);
+                    allowed[0]
+                }
+            }
+        };
+        Some((allowed, pref, cut_block))
     }))
     .ok()
     .flatten();
@@ -1259,7 +1368,10 @@ unsafe extern "C" fn finalize_hook(
             if n < 40 {
                 let nm = read_str_elem(cand_ptr + pref * 0x18).unwrap_or_default();
                 config::dlog(&format!(
-                    "fzfilt#{n}: cand={cand_len} order={order_len}→{nbuf} pref={pref_idx}→{pref}({nm}) bl={bl_n}"
+                    "fzfilt#{n}: cand={cand_len} order={order_len}→{nbuf} pref={pref_idx}→{pref}({nm}) bl={bl_n} my_turn={} scored={} noscore={}",
+                    MY_PICK_TURN.load(Ordering::Relaxed),
+                    CNT_FZ_SCORED.load(Ordering::Relaxed),
+                    CNT_FZ_NOSCORE.load(Ordering::Relaxed)
                 ));
             }
         }

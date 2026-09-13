@@ -1142,8 +1142,11 @@ impl ModDraftScoreHook for PosLockDraftAi {
         &self,
         ctx: &DraftScoreContext,
         candidate: usize,
-        _base_score: f32,
+        base_score: f32,
     ) -> DraftScoreDecision {
+        // ★[2026-09-13] 게임 원점수를 스레드로컬에 남긴다 — finalize(0x201da90)가 추천 픽이 버려질 때
+        //   대체를 점수순으로 고르는 재료(hooks::note_score 주석). 개입 여부와 무관하게 항상.
+        hooks::note_score(candidate, base_score);
         // ★[2026-09-03 진단] 여기서의 `&self` 는 **게임이 registry 에서 꺼낸 진짜 훅 인스턴스**다.
         //   5차(자체 Arc 시드)가 크래시한 원인이 vtable 불일치인지 ptr 규약 차이인지 가르기 위해
         //   실제 (data, vtable) 을 1회만 찍는다. 5차 자체생성값 = ptr 0x2bca43d1c30 / vt 0x7ff8d050a678.
@@ -3112,7 +3115,7 @@ impl ModExtension for PosLockExt {
                         .collect();
                     let names_len = names().map(|n| n.len()).unwrap_or(0);
                     config::dlog(&format!(
-                        "counters: GY(cell={} paint={}) CK={} CB(seen={} cut={}) DQ(fix={}) CP(seen={} swap={}) | am_hist={:?} am_pen={} seen={} veto={} failopen={} st(e/f/b/c/cover)={}/{}/{}/{}/{} mask_fire={} mask_call={} mask_adj={} A={} C={} D={} E={} CM={} RC={} rc_seen={} rw_seen={} rw_live={} dp_seen={} dp_live={} rc_filt={} rc_inj={} ag0={} agp={} min_stk={} cm_seen={} cm_rej={} cm_redir={} ui_q={} ui_block={} rdx={:?} model_cnt={} max_rdx={} names={}",
+                        "counters: GY(cell={} paint={}) CK={} CB(seen={} cut={}) DQ(fix={}) CP(seen={} swap={}) | am_hist={:?} am_pen={} seen={} veto={} failopen={} fz(seen/filt/pass/scored/noscore)={}/{}/{}/{}/{} st(e/f/b/c/cover)={}/{}/{}/{}/{} mask_fire={} mask_call={} mask_adj={} A={} C={} D={} E={} CM={} RC={} rc_seen={} rw_seen={} rw_live={} dp_seen={} dp_live={} rc_filt={} rc_inj={} ag0={} agp={} min_stk={} cm_seen={} cm_rej={} cm_redir={} ui_q={} ui_block={} rdx={:?} model_cnt={} max_rdx={} names={}",
                         hooks::CNT_GY_CELL.load(Ordering::Relaxed),
                         hooks::CNT_GY_PAINT.load(Ordering::Relaxed),
                         hooks::CNT_CK_BLOCK.load(Ordering::Relaxed),
@@ -3129,6 +3132,11 @@ impl ModExtension for PosLockExt {
                         CNT_SEEN.load(Ordering::Relaxed),
                         CNT_VETO.load(Ordering::Relaxed),
                         CNT_FAILOPEN.load(Ordering::Relaxed),
+                        hooks::CNT_FZ_SEEN.load(Ordering::Relaxed),
+                        hooks::CNT_FZ_FILT.load(Ordering::Relaxed),
+                        hooks::CNT_FZ_PASS.load(Ordering::Relaxed),
+                        hooks::CNT_FZ_SCORED.load(Ordering::Relaxed),
+                        hooks::CNT_FZ_NOSCORE.load(Ordering::Relaxed),
                         ST_EMPTY.load(Ordering::Relaxed),
                         ST_FEAS.load(Ordering::Relaxed),
                         ST_BROKEN.load(Ordering::Relaxed),
