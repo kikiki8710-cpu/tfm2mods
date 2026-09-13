@@ -78,5 +78,29 @@
   "line": 0,
   "from": "invoke fastcc void @_RNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy7handler12dive_episodeNtB4_17LegacyPlanHandler21v50_fold_dive_episode(",
   "to": "invoke void @_RNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy7handler12dive_episodeNtB4_17LegacyPlanHandler21v50_fold_dive_episode("
+ },
+ {
+  "raw": true,
+  "note": "#38(i=33) v2_obj_restore_safe 노출 (2026-09-13 · r7 잎). internal fastcc → external ccc — #05/#06/#18 과 같은 이유. exe 도 self 가 제거된 5인자(rvaverify IR인자 5·스택 1)라 규약 일치.",
+  "file": "plan_legacy/handler.rs",
+  "line": 0,
+  "from": "define internal fastcc noundef zeroext i1 @_RNvMNtNtCshdEBA0ozCnw_7game_ai11plan_legacy7handlerNtB2_17LegacyPlanHandler19v2_obj_restore_safe(",
+  "to": "define noundef zeroext i1 @_RNvMNtNtCshdEBA0ozCnw_7game_ai11plan_legacy7handlerNtB2_17LegacyPlanHandler19v2_obj_restore_safe("
+ },
+ {
+  "raw": true,
+  "note": "위 define 의 invoke 사이트 2곳(m13.ll).",
+  "file": "plan_legacy/handler.rs",
+  "line": 0,
+  "from": "invoke fastcc noundef zeroext i1 @_RNvMNtNtCshdEBA0ozCnw_7game_ai11plan_legacy7handlerNtB2_17LegacyPlanHandler19v2_obj_restore_safe(",
+  "to": "invoke noundef zeroext i1 @_RNvMNtNtCshdEBA0ozCnw_7game_ai11plan_legacy7handlerNtB2_17LegacyPlanHandler19v2_obj_restore_safe("
+ },
+ {
+  "raw": true,
+  "note": "위 define 의 call/tail call 사이트 3곳(m13.ll) — 부분문자열이 tail call 도 포함.",
+  "file": "plan_legacy/handler.rs",
+  "line": 0,
+  "from": "call fastcc noundef zeroext i1 @_RNvMNtNtCshdEBA0ozCnw_7game_ai11plan_legacy7handlerNtB2_17LegacyPlanHandler19v2_obj_restore_safe(",
+  "to": "call noundef zeroext i1 @_RNvMNtNtCshdEBA0ozCnw_7game_ai11plan_legacy7handlerNtB2_17LegacyPlanHandler19v2_obj_restore_safe("
  }
 ]

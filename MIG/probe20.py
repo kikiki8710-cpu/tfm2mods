@@ -70,8 +70,11 @@ EXTRA = {
 #   **판당 2,048만 회 도는 플랜 디스패처**로 모든 플랜 선택이 여기를 지난다 ⟹ 계속 재야 한다.
 #   ★단 **옛 이름으로 재면 안 된다.** 「#02 attack_nexus/sub_plan 2,048만 회」라는 표기가
 #   이 사고의 본체였다 — 같은 숫자를 **진짜 이름으로** 재는 것이 정정이다.
+# ★AUX 키는 **명세 idx 와 절대 겹치면 안 된다** — 09-13 r7 편입으로 명세 i=20 이 생기자 AUX[20]=0xcaf9f0 이
+#   gensweep20 의 P_RVA[20] 을 덮어 `#20 v27_active_objective_discipline` 의 주소가 BigPlan::sub_plan 으로 찍혔다(생성 단계 적발).
+#   ⟹ 명세 밖 보조 항목은 idx 90~ 를 쓴다(명세는 40개 · 서브트리 107 이 다 들어와도 <90).
 AUX = {
-    20: ("caf9f0", u"BigPlan::sub_plan", u"plan_legacy/types",
+    90: ("caf9f0", u"BigPlan::sub_plan", u"plan_legacy/types",
          u"★#02 의 호스트. ghidra 확정(점프테이블 16엔트리 ↔ IR switch 16 case · 니치 디코드 일치 · "
          u"16 arm 전수 대응). 1단계 발화 20,484,329 는 **이 함수**의 호출수(= BigPlan 16 variant 합계)이고 "
          u"attack_nexus arm 의 실행수가 아니다. attack_nexus arm = 점프테이블 idx14 = +0x67(midpin 대상)"),
@@ -82,7 +85,7 @@ NO_ENTRY = {
        u"(`0xcafa57` = +0x67)으로 LTO 인라인(확정: attack_nexus.rs 의 panic::Location static 이 "
        u"이미지 전역에 정확히 2개이고 각 .text 참조가 1개씩, 둘 다 0xcaf9f0 내부 · IR 호출 사이트 1곳 · "
        u".pdata 에 0xcafa57 엔트리 없음). 진입부가 없어 카운트 프로브 불가. "
-       u"★호스트는 `AUX[20]` 으로 따로 계측한다 — ~~「#02 = 2,048만 회」~~ 는 **디스패처 호출수**였다. "
+       u"★호스트는 `AUX[90]`(~~20~~ · 09-13 명세 i=20 과 충돌해 이동) 으로 따로 계측한다 — ~~「#02 = 2,048만 회」~~ 는 **디스패처 호출수**였다. "
        u"개입/실측이 필요하면 = +0x67 에 midpin(첫 명령 7B 라 5B jmp 수용 · rip-상대/분기 없음 · "
        u"진입은 점프테이블 유일 · 직후 cmp 가 flags 재설정 ⟹ r11/r10/rdx/rsi/rbx/rax 보존 필요)",
     17: u"exe 에 독립 함수가 없다 — `update`(0xe4c5c0) 안으로 LTO 인라인(A 0xe4d901 · B 0xe4d964 · "

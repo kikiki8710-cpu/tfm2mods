@@ -81,7 +81,7 @@ FIRED = {4: 54660390, 16: 6940762, 19: 2806126, 12: 1808301, 18: 1672540,
          22: 173781504, 39: 33717543, 38: 18769014, 21: 11686232, 23: 10295069, 25: 5660210,
          20: 3158080, 31: 3144357, 29: 3055211, 34: 2818679, 24: 1370692, 26: 1149517, 27: 1081789,
          28: 866135, 35: 656947, 36: 560347, 37: 556740, 33: 506982, 32: 2110, 30: 2}
-#   `#02` 는 MISSING20(인라인)이라 여기 없다. 그 호스트 `BigPlan::sub_plan`(AUX[20] @0xcaf9f0)의
+#   `#02` 는 MISSING20(인라인)이라 여기 없다. 그 호스트 `BigPlan::sub_plan`(AUX[90] @0xcaf9f0 · ~~AUX[20]~~ 09-13 이동)의
 #   재측정치 = **27,416,789**(probe20.txt 참조) — 명세 함수가 아니므로 이 표에 넣지 않는다.
 # ★★**이 함수들의 1단계 발화수는 무효다** — 그때 잰 주소가 **다른 함수**였다(2026-09-12 ghidra 확정).
 #   ⛔무효 수치를 숫자로 남겨두면 다음 세션이 그대로 인용한다. 그래서 **숫자 자리에 사유를 찍는다.**
@@ -91,7 +91,7 @@ FIRED = {4: 54660390, 16: 6940762, 19: 2806126, 12: 1808301, 18: 1672540,
 #   ★재측정(2026-09-12)으로 **6건 전부 해소**됐다 — 이제 무효 표식이 필요한 명세 함수는 없다.
 #   ⚠`#02` 만 남는데, 그건 「틀린 주소」가 아니라 **호스트(디스패처)를 가리켰던 것**이고
 #     지금은 `MISSING20`(인라인)이라 애초에 이 표를 타지 않는다. 2,048만/2,741만은
-#     `AUX[20] BigPlan::sub_plan` 의 값으로 프로브 표에 보존돼 있다.
+#     `AUX[90] BigPlan::sub_plan` 의 값으로 프로브 표에 보존돼 있다.
 #   ★표식을 지울 때의 규칙: **재측정이 끝난 것만 지운다.** 「고쳤으니 괜찮겠지」로 지우면
 #     무효 수치가 조용히 되살아난다(이 표가 존재하는 이유).
 INVALID_FIRE = {}
@@ -549,6 +549,25 @@ RET_LIVE = {
 }
 
 SRET_LIVE = {
+    # ★r7 잎(09-13): #25(i20) Option<ObjectiveDisciplineState> 32B — 니치 판별자 = kind@0x19(1B): 2=None · 0/1=Some.
+    #   Some 이면 +0x00..0x19(wait_pos 16 · until_tick 8 · target 1) 살아있음 · 0x1a~ 패딩(memcpy 잔재)은 제외. 근거 = tcxdict + r7 명세 writes[].
+    20: [
+        (0x19, 1, []),
+        (0x00, 0x19, [(0x19, 1, [0, 1])]),
+    ],
+    # #26(i21) upgrade_item → Option<(usize, usize)> 24B: tag@0(8B · 0=None 1=Some) · payload +8/+16 (ai_adjust 「sret 3워드(tag,own_idx,db_idx)」).
+    21: [
+        (0x00, 8, []),
+        (0x08, 16, [(0x00, 8, [1])]),
+    ],
+    # #40(i35) resolve_fight_stake → FightPrediction 64B(tcxdict): focus_target Option<usize> tag@0 payload@8 · soaker tag@0x10 payload@0x18 ·
+    #   rescue_ally tag@0x20 payload@0x28 · net_value@0x30 · line@0x38(1B) · line_absolute@0x39(1B) · 0x3a~ 패딩 제외. Option 태그 = 8B Direct(0/1).
+    35: [
+        (0x00, 8, []), (0x08, 8, [(0x00, 8, [1])]),
+        (0x10, 8, []), (0x18, 8, [(0x10, 8, [1])]),
+        (0x20, 8, []), (0x28, 8, [(0x20, 8, [1])]),
+        (0x30, 8, []), (0x38, 1, []), (0x39, 1, []),
+    ],
     0: [
         (0x00, 8, []),                                          # Input 판별자
         (0x08, 8, [(0x00, 8, [0])]),                            # Move.x
@@ -559,6 +578,7 @@ SRET_LIVE = {
     ],
 }
 
+MUT_OK_ARG = {35: {13: "DebugFrameData"}}   # {spec idx: {IR 인자 idx: tcx 타입명}} — 위 MUT_OK_TCX 판정을 인덱스로 적용
 MUT_OK_TCX = {
     "DebugFrameData": u"디버그 싱크 — IR 실측상 본문이 역참조하지 않고 넘기기만 한다"
                                  u"(클로저 내부 쓰기는 미확인 ⟹ 중복 기록 가능 · 반환 대조엔 무관)",
@@ -838,8 +858,10 @@ def main():
         bad = sorted({a[0] for a in g["args"] if a[0] not in OK_ARG})
         if bad:
             why.append(u"인자 %s 미지원" % u"/".join(bad))
-        if len(g["args"]) > 9:
-            why.append(u"인자 %d개(상한 9)" % len(g["args"]))
+        # ★상한 9→16(09-13): 래퍼는 `unsafe fn(a0..aN)` Rust ABI 라 인자 수에 원리적 제한이 없다(#12 가 9). 9 는 「본 적 있는 최대」였을 뿐.
+        #   #33(i28) 10인자 · #40(i35) 14인자(슬라이스 2 = ptr+len ×2 · Option<&Entity> = ptr) 편입.
+        if len(g["args"]) > 16:
+            why.append(u"인자 %d개(상한 16)" % len(g["args"]))
         # ★가변 포인터 인자 — 예외 ㉠StdRng(320B) 떠서 되돌림 ㉡tcx 가 공유참조(`&mut` 아님)
         params = (sp.get("sig") or {}).get("params") or []
         caveat = []
@@ -863,6 +885,10 @@ def main():
                     pt = (p.get("type") or "").strip()
                     break
             ok = next((v for t2, v in MUT_OK_TCX.items() if pt and t2 in pt), None)
+            # ★인자 인덱스 직접 허용(09-13): tcx 파라미터 수(11)와 IR 인자 수(14)가 다르면(슬라이스 분할) params 매칭이 안 되므로
+            #   IR 인덱스로 직접 지정한다. #40(i35) a13 = &mut DebugFrameData(224B) = MUT_OK_TCX 와 같은 「디버그 싱크」 판정.
+            if pt is None and k in MUT_OK_ARG.get(i, {}):
+                pt = MUT_OK_ARG[i][k]; ok = MUT_OK_TCX.get(pt.split()[0]) or u"디버그 싱크(인덱스 직접 허용)"
             if pt is None:
                 mut.append((k, a[1], u"tcx 파라미터 확인 불가"))
             elif ok:

@@ -1,0 +1,82 @@
+[
+ {
+  "raw": true,
+  "note": "#06 v2_response_retreat_stance 를 sweep 대조 가능하게 노출한다 (2026-09-12). 근거 = 이 함수는 rlib 에서 internal('t') 이라 #[link_name] 으로 링크할 수 없다(llvm-nm 실측). internal 을 벗기면 심볼이 나오고, fastcc 를 벗겨야 Rust extern 선언(ccc)과 규약이 맞는다. ⚠fastcc->ccc 로 16B 집합체 반환이 sret 로 바뀔까 걱정했으나, 같은 rlib 안에 external+ccc 로 { i64, i64 } 를 직접 반환하는 선례가 실재한다(gc::setting4item17item_index_by_key) = rax:rdx 로 나간다.",
+  "file": "plan_legacy/handler/engage.rs",
+  "line": 0,
+  "from": "define internal fastcc { i64, i64 } @_RNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy7handler6engageNtB4_17LegacyPlanHandler26v2_response_retreat_stance(",
+  "to": "define { i64, i64 } @_RNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy7handler6engageNtB4_17LegacyPlanHandler26v2_response_retreat_stance("
+ },
+ {
+  "raw": true,
+  "note": "위 define 의 호출 사이트 2곳. LLVM 검증기가 호출규약 일치를 요구하므로 define 만 바꾸면 모듈이 깨진다. 이 rlib 의 호출은 call 이 아니라 invoke(EH 문맥)다.",
+  "file": "plan_legacy/handler/engage.rs",
+  "line": 0,
+  "from": "invoke fastcc { i64, i64 } @_RNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy7handler6engageNtB4_17LegacyPlanHandler26v2_response_retreat_stance(",
+  "to": "invoke { i64, i64 } @_RNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy7handler6engageNtB4_17LegacyPlanHandler26v2_response_retreat_stance("
+ },
+ {
+  "raw": true,
+  "note": "#13 target_bush_v30 노출 (2026-09-12). #06 과 같은 이유(internal('t') = 링크 불가 · fastcc = Rust extern(ccc)와 규약 불일치). 이 함수는 진입부 12B 스틸이 불가해서 sweep 설치를 **호출부 리다이렉트**로 한다 — 1단계 호출부 프로브와 같은 기구(호출부 2곳 전수·간접호출 0곳 검산됨).",
+  "file": "plan_legacy/old/line_gank/cover.rs",
+  "line": 0,
+  "from": "define internal fastcc noundef range(i64 2, 22) i64 @_RNvMNtNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old9line_gank5coverNtB2_17LineGankCoverPlan15target_bush_v30(",
+  "to": "define noundef range(i64 2, 22) i64 @_RNvMNtNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old9line_gank5coverNtB2_17LineGankCoverPlan15target_bush_v30("
+ },
+ {
+  "raw": true,
+  "note": "위 define 의 호출 사이트 2곳. ★`tail call fastcc …` 은 `call fastcc …` 를 부분문자열로 포함하므로 이 패치 하나가 둘 다 잡는다(적용 2곳이 나와야 정상).",
+  "file": "plan_legacy/old/line_gank/cover.rs",
+  "line": 0,
+  "from": "call fastcc noundef i64 @_RNvMNtNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old9line_gank5coverNtB2_17LineGankCoverPlan15target_bush_v30(",
+  "to": "call noundef i64 @_RNvMNtNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old9line_gank5coverNtB2_17LineGankCoverPlan15target_bush_v30("
+ },
+ {
+  "raw": true,
+  "note": "#18 v3_epicops_buff_window 노출 (2026-09-12). 같은 이유(internal + fastcc). 이 함수는 a0 = &mut TeamPlan(1064B) 이라 SELF_RESTORE 전략으로 대조한다 — 게임 호출 전 상태로 되돌려 내 사본을 부르고, chats Vec 은 빈 것으로 바꿔 게임 버퍼를 건드리지 않는다.",
+  "file": "plan_legacy/old/epic/team_plan.rs",
+  "line": 0,
+  "from": "define internal fastcc noundef zeroext i1 @_RNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old4epicNtNtB6_9team_plan8TeamPlan22v3_epicops_buff_window(",
+  "to": "define noundef zeroext i1 @_RNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old4epicNtNtB6_9team_plan8TeamPlan22v3_epicops_buff_window("
+ },
+ {
+  "raw": true,
+  "note": "위 define 의 호출 사이트. tail call 변형도 이 부분문자열에 포함된다.",
+  "file": "plan_legacy/old/epic/team_plan.rs",
+  "line": 0,
+  "from": "call fastcc noundef zeroext i1 @_RNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old4epicNtNtB6_9team_plan8TeamPlan22v3_epicops_buff_window(",
+  "to": "call noundef zeroext i1 @_RNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old4epicNtNtB6_9team_plan8TeamPlan22v3_epicops_buff_window("
+ },
+ {
+  "raw": true,
+  "note": "#18 의 2차 이분 대상 `v3_epicops_repair_need` 노출 (2026-09-12). 근거 = `#18` CFG 실측(_gaibc/m09.ll:6879~7264)상 `switch i8 %12` 의 입력이 이 함수이고, **%35 이후 전 갈래가 false** 이므로 게임 true(88%)를 만드는 두 경로 중 하나가 바로 이 switch 다(1 또는 2). #06·#13 과 같은 이유로 `internal`(링크 불가) + `fastcc`(Rust extern=ccc 와 규약 불일치)를 벗긴다. 반환은 `range(i8 0,3) i8` = 레지스터 1개라 규약 변경으로 sret 이 되지 않는다. 인자 3개 전부 readonly 이므로 sweep 에 부작용이 없다.",
+  "file": "plan_legacy/old/epic/ops.rs",
+  "line": 0,
+  "from": "define internal fastcc noundef range(i8 0, 3) i8 @_RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old4epic22v3_epicops_repair_need(",
+  "to": "define noundef range(i8 0, 3) i8 @_RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old4epic22v3_epicops_repair_need("
+ },
+ {
+  "raw": true,
+  "note": "위 define 의 호출 사이트 2곳(전수 = `_gaibc/m09.ll` 에만 2건, 다른 모듈 0건). ★`tail call fastcc …` 이 `call fastcc …` 를 부분문자열로 포함하므로 이 패치 하나가 둘 다 잡는다(적용 2곳이 나와야 정상).",
+  "file": "plan_legacy/old/epic/ops.rs",
+  "line": 0,
+  "from": "call fastcc noundef i8 @_RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old4epic22v3_epicops_repair_need(",
+  "to": "call noundef i8 @_RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old4epic22v3_epicops_repair_need("
+ },
+ {
+  "raw": true,
+  "note": "#05 v50_fold_dive_episode 노출 (2026-09-12). #06·#13·#18·#22 와 같은 이유(`internal` = 링크 불가 · `fastcc` = Rust extern(ccc) 와 규약 불일치). 반환은 void 이고 인자는 `(&mut LegacyPlanHandler, i1, i8)` 3개뿐이다. 판정은 `SELF_DIFF`(self 부작용)로 한다 — IR 실측상 self 쓰기는 `v50_dive_episodes` Vec push(0x888/0x890/0x898)와 `v50_dive_ep_live`(0x570) 뿐이고, **self 의 어떤 필드도 drop 하지 않는다**(유일한 `drop_glue<String>` 은 지역 alloca 대상이고 예외 정리 funclet 안이다) ⟹ 바이트 스냅샷·되돌리기가 성립한다.",
+  "file": "plan_legacy/handler/dive_episode.rs",
+  "line": 0,
+  "from": "define internal fastcc void @_RNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy7handler12dive_episodeNtB4_17LegacyPlanHandler21v50_fold_dive_episode(",
+  "to": "define void @_RNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy7handler12dive_episodeNtB4_17LegacyPlanHandler21v50_fold_dive_episode("
+ },
+ {
+  "raw": true,
+  "note": "위 define 의 호출 사이트 2곳(전수 = `_gaibc/m13.ll` 에만 2건). 이 rlib 의 호출은 `call` 이 아니라 `invoke`(EH 문맥)다 — #06 과 같다.",
+  "file": "plan_legacy/handler/dive_episode.rs",
+  "line": 0,
+  "from": "invoke fastcc void @_RNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy7handler12dive_episodeNtB4_17LegacyPlanHandler21v50_fold_dive_episode(",
+  "to": "invoke void @_RNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy7handler12dive_episodeNtB4_17LegacyPlanHandler21v50_fold_dive_episode("
+ }
+]
