@@ -704,14 +704,63 @@ fn net_sig_at(a: usize) -> bool {
     w >= 0x10000 && readable(w, 16384 * 4)
 }
 
-/// 프로세스 힙을 훑어 net 을 찾는다(1회, 캐시). db 포인터가 필요 없다.
+/// ★2026-09-13: 스캔을 **경기 시작 경로에서 뺀다**. 실측 3.9GB/5.8초(성공 시)·실패 시 최대 20초×6회가
+///   `on_match_start` 에서 동기로 돌아 "경기 시작 누르면 한참 뒤에 시작"(유저 제보)의 원인이었다.
+///   이제 스캔은 백그라운드 스레드가 하고(세이브 로드 후 메뉴에서 미리, post_update 가 띄움),
+///   결과 후보(NET_HITS)만 저장한다. 경기 시작 시엔 후보에서 heap_hint 로 고르기만 한다(µs).
+static NET_HITS: Mutex<Vec<usize>> = Mutex::new(Vec::new());
+static NET_SCAN_BUSY: AtomicBool = AtomicBool::new(false);
+static NET_SCAN_LAST_MS: AtomicUsize = AtomicUsize::new(0);
+/// 백그라운드 재시도 간격(세이브 로드 전엔 net 이 없어 헛스캔이므로 띄엄띄엄).
+const NET_SCAN_COOLDOWN_MS: usize = 20_000;
+
+/// 백그라운드 스캔 1회 기동(이미 찾았거나·돌고 있거나·시도 상한이면 무동작).
+fn spawn_net_scan(reason: &str) {
+    if ITEMNET.load(Ordering::Relaxed) != 0 { return; }
+    if NET_SCAN_TRIES.load(Ordering::Relaxed) >= NET_SCAN_MAX_TRIES { return; }
+    if NET_SCAN_BUSY.swap(true, Ordering::AcqRel) { return; }
+    NET_SCAN_TRIES.fetch_add(1, Ordering::Relaxed);
+    NET_SCAN_LAST_MS.store(ms() as usize, Ordering::Relaxed);
+    let why = reason.to_string();
+    let _ = std::thread::Builder::new()
+        .name("tfm2_item_build_netscan".into())
+        .spawn(move || {
+            let _ = catch_unwind(AssertUnwindSafe(|| {
+                let hits = scan_heap_for_hits(&why);
+                if !hits.is_empty() {
+                    *NET_HITS.lock().unwrap_or_else(|e| e.into_inner()) = hits;
+                }
+            }));
+            NET_SCAN_BUSY.store(false, Ordering::Release);
+        });
+}
+
+/// 저장된 후보 중에서 고른다(경기 시작 경로 — 스캔 안 함). 없으면 백그라운드 스캔을 띄우고 None.
 fn scan_for_net(heap_hint: usize) -> Option<usize> {
     let cur = ITEMNET.load(Ordering::Relaxed);
     if cur != 0 { return Some(cur); }
-    if NET_SCAN_TRIES.fetch_add(1, Ordering::Relaxed) >= NET_SCAN_MAX_TRIES {
-        return None;
+    let hits: Vec<usize> = NET_HITS.lock().unwrap_or_else(|e| e.into_inner()).clone();
+    // ★후보 고르기: 스택에도 우연히 시그니처가 맞는 곳이 생긴다(실측 6/7 이 스택 대역).
+    //   게임 힙 객체는 players 배열과 같은 대역에 있으므로, heap_hint 와 상위 24비트가
+    //   같은 후보를 우선한다. 없으면 heap_hint 와 가장 가까운 후보. 고르기 전에 시그니처 재검증(스택 사본은 사라진다).
+    let live: Vec<usize> = hits.iter().copied().filter(|&a| net_sig_at(a)).collect();
+    let found = live
+        .iter()
+        .copied()
+        .find(|a| a >> 40 == heap_hint >> 40)
+        .or_else(|| live.iter().copied().min_by_key(|a| a.abs_diff(heap_hint)));
+    logline(&format!(
+        "  [NET] 후보 {}개(생존 {}개) heap_hint=0x{heap_hint:x} → 선택 {:x?} (상위24비트 일치 우선)",
+        hits.len(), live.len(), found
+    ));
+    match found {
+        Some(a) => { ITEMNET.store(a, Ordering::Relaxed); Some(a) }
+        None => { spawn_net_scan("match_start(후보 없음)"); None }
     }
+}
 
+/// 프로세스 힙을 훑어 시그니처 후보를 모은다. ★백그라운드 스레드 전용(수 초 소요).
+fn scan_heap_for_hits(reason: &str) -> Vec<usize> {
     let t0 = std::time::Instant::now();
     let mut addr: usize = 0x10000;
     let mut scanned_regions = 0usize;
@@ -751,26 +800,11 @@ fn scan_for_net(heap_hint: usize) -> Option<usize> {
         if t0.elapsed().as_secs() >= 20 { break; }
     }
     logline(&format!(
-        "  [NET] 힙 스캔: 리전 {} / {:.1}MB / {}ms → 후보 {}개 {:x?}",
+        "  [NET] 힙 스캔(백그라운드, {reason}): 리전 {} / {:.1}MB / {}ms → 후보 {}개 {:x?}",
         scanned_regions, scanned_bytes as f64 / 1048576.0,
         t0.elapsed().as_millis(), hits.len(), hits
     ));
-    // ★후보 고르기: 스택에도 우연히 시그니처가 맞는 곳이 생긴다(실측 6/7 이 스택 대역).
-    //   게임 힙 객체는 players 배열과 같은 대역에 있으므로, heap_hint 와 상위 24비트가
-    //   같은 후보를 우선한다. 없으면 heap_hint 와 가장 가까운 후보.
-    let found = hits
-        .iter()
-        .copied()
-        .find(|a| a >> 40 == heap_hint >> 40)
-        .or_else(|| {
-            hits.iter().copied().min_by_key(|a| a.abs_diff(heap_hint))
-        });
-    logline(&format!(
-        "  [NET] heap_hint=0x{heap_hint:x} → 선택 {:x?} (상위24비트 일치 우선)",
-        found
-    ));
-    if let Some(a) = found { ITEMNET.store(a, Ordering::Relaxed); }
-    found
+    hits
 }
 
 // ---------------------------------------------------------------------------
@@ -1278,6 +1312,21 @@ impl StableExtension for Ext {
             //   구 코드는 (pid, scene) 키가 바뀔 때만 돌아 **세션당 2회**만 시도했고,
             //   그 2회가 실패하면 MY_ATHLETES 가 영영 비어 팀 게이트가 죽었다(실측 476/476 중단).
             let n = CALLS.fetch_add(1, Ordering::Relaxed);
+            // ★신경망 힙 스캔을 메뉴에서 미리(백그라운드, 2026-09-13). 세이브 로드 전엔 net 이 없으므로
+            //   팀이 확보된 뒤에만, 20초 간격으로 재시도한다(상한 NET_SCAN_MAX_TRIES). 매 프레임 검사는
+            //   원자 로드 + 빈 Vec 락뿐이고, team_name FFI 는 쿨다운이 지났을 때만 부른다.
+            if n % 60 == 0
+                && ITEMNET.load(Ordering::Relaxed) == 0
+                && NET_SCAN_TRIES.load(Ordering::Relaxed) < NET_SCAN_MAX_TRIES
+                && NET_HITS.lock().unwrap_or_else(|e| e.into_inner()).is_empty()
+            {
+                let now = ms() as usize;
+                let due = NET_SCAN_TRIES.load(Ordering::Relaxed) == 0
+                    || now.saturating_sub(NET_SCAN_LAST_MS.load(Ordering::Relaxed)) >= NET_SCAN_COOLDOWN_MS;
+                if due && pid.and_then(|t| ctx.team_name(t)).is_some() {
+                    spawn_net_scan("post_update(메뉴 선행)");
+                }
+            }
             let need_roster = MY_ATHLETES.lock().unwrap_or_else(|e| e.into_inner()).is_empty();
             if !changed && !(need_roster && n % 60 == 0) {
                 return;
