@@ -1,0 +1,9 @@
+{
+ "round": 16, "batch": "H2",
+ "errors": [
+  {"path": "/specs[37]/consts[10]/src_line", "kind": "실오류", "old": 347, "new": 333,
+   "evidence": "m04.ll:137060 `!67588 = !DILocalVariable(name: \"pusher_dist\", …, line: 333)` — `let mut pusher_dist = u64::MAX` 선언줄 = 333(H 배치의 347 은 G12 강후보 중 최초일 뿐 선언 위치가 아님 · 332 는 한 줄 오기)",
+   "behavior_change": false, "found_by": "new"}
+ ],
+ "ev_up": [], "brief_errors": []
+}

@@ -51,9 +51,17 @@ def irline(f, n):
     return src[n - 1]
 
 
+_TYTOK = re.compile(r"\b(?:i1|i8|i16|i32|i64|i128|ptr|float|double|void|noundef|nonnull|nsw|nuw|samesign|"
+                    r"noalias|readonly|readnone|zeroext|signext|dereferenceable\(\d+\)|align\s*\d+|tail|call|invoke|fastcc)\b")
+
+
 def norm(s):
-    u"""SSA 번호·공백을 지운 비교용 형태. `%30` 같은 번호는 재생성 때 바뀐다."""
-    return re.sub(r"\s+", u"", SSA.sub(u"%", s))
+    u"""SSA 번호·공백을 지운 비교용 형태. `%30` 같은 번호는 재생성 때 바뀐다.
+    ★09-13: **타입·속성 토큰도 지운다** — 배치들이 `irann.py` 주석본(`icmp ult %40, %42` · `llvm.umax.i64(%99, 1)`)에서
+      인용하므로 원문(`icmp ult i64 %40, %42` · `call noundef i64 @llvm.umax.i64(i64 %99, i64 1)`)과 문면이 다르다.
+      15차 r7 G13 4건이 전부 이 오탐(줄은 정확)이었다. `@` 도 지운다(`@llvm.umax` vs `llvm.umax`)."""
+    t = _TYTOK.sub(u"", SSA.sub(u"%", s)).replace(u"@", u"")
+    return re.sub(r"\s+", u"", t)
 
 
 def check_spec(sp):

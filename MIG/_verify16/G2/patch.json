@@ -1,0 +1,386 @@
+{
+ "round": 16,
+ "batch": "G2",
+ "errors": [
+  {
+   "path": "/specs[3]/mem[8]/name",
+   "kind": "보강",
+   "old": "game.data_ptr (&dyn AbstractGame 팻포인터 앞 절반)",
+   "new": "game.data_ptr",
+   "evidence": "G20 잔여 정리(16차 배치G-2): 이름 꼬리(타입·크기 주석)가 정규화를 깨뜨림 → 머리만 남김(설명은 note 에 이미 있음)",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[3]/mem[9]/name",
+   "kind": "보강",
+   "old": "game.vtable_ptr (&dyn AbstractGame 팻포인터 뒤 절반)",
+   "new": "game.vtable_ptr",
+   "evidence": "G20 잔여 정리(16차 배치G-2): 이름 꼬리(타입·크기 주석)가 정규화를 깨뜨림 → 머리만 남김(설명은 note 에 이미 있음)",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[4]/mem[6]/name",
+   "kind": "보강",
+   "old": "game.data_ptr (&dyn AbstractGame 팻포인터 앞 절반)",
+   "new": "game.data_ptr",
+   "evidence": "G20 잔여 정리(16차 배치G-2): 이름 꼬리(타입·크기 주석)가 정규화를 깨뜨림 → 머리만 남김(설명은 note 에 이미 있음)",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[4]/mem[7]/name",
+   "kind": "보강",
+   "old": "game.vtable_ptr (&dyn AbstractGame 팻포인터 뒤 절반)",
+   "new": "game.vtable_ptr",
+   "evidence": "G20 잔여 정리(16차 배치G-2): 이름 꼬리(타입·크기 주석)가 정규화를 깨뜨림 → 머리만 남김(설명은 note 에 이미 있음)",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[10]/mem[7]/name",
+   "kind": "보강",
+   "old": "game.data_ptr (&dyn AbstractGame 의 데이터 포인터)",
+   "new": "game.data_ptr",
+   "evidence": "G20 잔여 정리(16차 배치G-2): 이름 꼬리(타입·크기 주석)가 정규화를 깨뜨림 → 머리만 남김(설명은 note 에 이미 있음)",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[10]/mem[8]/name",
+   "kind": "보강",
+   "old": "game.vtable_ptr (&dyn AbstractGame 의 vtable)",
+   "new": "game.vtable_ptr",
+   "evidence": "G20 잔여 정리(16차 배치G-2): 이름 꼬리(타입·크기 주석)가 정규화를 깨뜨림 → 머리만 남김(설명은 note 에 이미 있음)",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[10]/mem[9]/name",
+   "kind": "보강",
+   "old": "player_champion ([[Option<&Entity>;5];2], 80B)",
+   "new": "player_champion",
+   "evidence": "G20 잔여 정리(16차 배치G-2): 이름 꼬리(타입·크기 주석)가 정규화를 깨뜨림 → 머리만 남김(설명은 note 에 이미 있음)",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[12]/mem[5]/name",
+   "kind": "보강",
+   "old": "game.data_ptr(&dyn AbstractGame 데이터 절반)",
+   "new": "game.data_ptr",
+   "evidence": "G20 잔여 정리(16차 배치G-2): 이름 꼬리(타입·크기 주석)가 정규화를 깨뜨림 → 머리만 남김(설명은 note 에 이미 있음)",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[12]/mem[6]/name",
+   "kind": "보강",
+   "old": "game.vtable_ptr (&dyn AbstractGame 팻포인터 뒤 절반)",
+   "new": "game.vtable_ptr",
+   "evidence": "G20 잔여 정리(16차 배치G-2): 이름 꼬리(타입·크기 주석)가 정규화를 깨뜨림 → 머리만 남김(설명은 note 에 이미 있음)",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[13]/mem[12]/name",
+   "kind": "보강",
+   "old": "ty.Tower.info.nearest_enemy 판별자(태그)",
+   "new": "ty@Tower.info.nearest_enemy@tag",
+   "evidence": "G20 잔여 정리(16차 배치G-2): 이름 꼬리(타입·크기 주석)가 정규화를 깨뜨림 → 머리만 남김(설명은 note 에 이미 있음)",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[14]/mem[8]/name",
+   "kind": "보강",
+   "old": "player_champion: Option<&Entity>",
+   "new": "player_champion",
+   "evidence": "G20 잔여 정리(16차 배치G-2): 이름 꼬리(타입·크기 주석)가 정규화를 깨뜨림 → 머리만 남김(설명은 note 에 이미 있음)",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[14]/mem[17]/name",
+   "kind": "보강",
+   "old": "ty.Tower.info.nearest_enemy 태그(Option<(usize,usize)>, range 0..2)",
+   "new": "ty@Tower.info.nearest_enemy@tag",
+   "evidence": "G20 잔여 정리(16차 배치G-2): 이름 꼬리(타입·크기 주석)가 정규화를 깨뜨림 → 머리만 남김(설명은 note 에 이미 있음)",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[20]/mem[6]/name",
+   "kind": "보강",
+   "old": "game.data_ptr (dyn AbstractGame data ptr)",
+   "new": "game.data_ptr",
+   "evidence": "G20 잔여 정리(16차 배치G-2): 이름 꼬리(타입·크기 주석)가 정규화를 깨뜨림 → 머리만 남김(설명은 note 에 이미 있음)",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[20]/mem[7]/name",
+   "kind": "보강",
+   "old": "game.vtable_ptr vtable",
+   "new": "game.vtable_ptr",
+   "evidence": "G20 잔여 정리(16차 배치G-2): 이름 꼬리(타입·크기 주석)가 정규화를 깨뜨림 → 머리만 남김(설명은 note 에 이미 있음)",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[22]/mem[3]/name",
+   "kind": "보강",
+   "old": "game.data_ptr data ptr",
+   "new": "game.data_ptr",
+   "evidence": "G20 잔여 정리(16차 배치G-2): 이름 꼬리(타입·크기 주석)가 정규화를 깨뜨림 → 머리만 남김(설명은 note 에 이미 있음)",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[22]/mem[10]/name",
+   "kind": "보강",
+   "old": "ty.Tower.info.nearest_enemy 태그",
+   "new": "ty@Tower.info.nearest_enemy@tag",
+   "evidence": "G20 잔여 정리(16차 배치G-2): 이름 꼬리(타입·크기 주석)가 정규화를 깨뜨림 → 머리만 남김(설명은 note 에 이미 있음)",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[25]/mem[3]/name",
+   "kind": "보강",
+   "old": "game.data_ptr (dyn AbstractGame data ptr)",
+   "new": "game.data_ptr",
+   "evidence": "G20 잔여 정리(16차 배치G-2): 이름 꼬리(타입·크기 주석)가 정규화를 깨뜨림 → 머리만 남김(설명은 note 에 이미 있음)",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[25]/mem[4]/name",
+   "kind": "보강",
+   "old": "game.vtable_ptr (dyn AbstractGame vtable ptr)",
+   "new": "game.vtable_ptr",
+   "evidence": "G20 잔여 정리(16차 배치G-2): 이름 꼬리(타입·크기 주석)가 정규화를 깨뜨림 → 머리만 남김(설명은 note 에 이미 있음)",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[26]/mem[9]/name",
+   "kind": "보강",
+   "old": "top_lead[team] [line][team]",
+   "new": "top_lead[team]",
+   "evidence": "G20 잔여 정리(16차 배치G-2): 이름 꼬리(타입·크기 주석)가 정규화를 깨뜨림 → 머리만 남김(설명은 note 에 이미 있음)",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[27]/mem[6]/name",
+   "kind": "보강",
+   "old": "game.data_ptr (dyn AbstractGame data ptr)",
+   "new": "game.data_ptr",
+   "evidence": "G20 잔여 정리(16차 배치G-2): 이름 꼬리(타입·크기 주석)가 정규화를 깨뜨림 → 머리만 남김(설명은 note 에 이미 있음)",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[27]/mem[7]/name",
+   "kind": "보강",
+   "old": "game.vtable_ptr (dyn AbstractGame vtable ptr)",
+   "new": "game.vtable_ptr",
+   "evidence": "G20 잔여 정리(16차 배치G-2): 이름 꼬리(타입·크기 주석)가 정규화를 깨뜨림 → 머리만 남김(설명은 note 에 이미 있음)",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[28]/mem[16]/name",
+   "kind": "보강",
+   "old": "game.data_ptr (dyn AbstractGame data ptr)",
+   "new": "game.data_ptr",
+   "evidence": "G20 잔여 정리(16차 배치G-2): 이름 꼬리(타입·크기 주석)가 정규화를 깨뜨림 → 머리만 남김(설명은 note 에 이미 있음)",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[28]/mem[17]/name",
+   "kind": "보강",
+   "old": "game.vtable_ptr (dyn AbstractGame vtable ptr)",
+   "new": "game.vtable_ptr",
+   "evidence": "G20 잔여 정리(16차 배치G-2): 이름 꼬리(타입·크기 주석)가 정규화를 깨뜨림 → 머리만 남김(설명은 note 에 이미 있음)",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[29]/mem[4]/name",
+   "kind": "보강",
+   "old": "game.data_ptr (dyn AbstractGame data ptr)",
+   "new": "game.data_ptr",
+   "evidence": "G20 잔여 정리(16차 배치G-2): 이름 꼬리(타입·크기 주석)가 정규화를 깨뜨림 → 머리만 남김(설명은 note 에 이미 있음)",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[29]/mem[5]/name",
+   "kind": "보강",
+   "old": "game.vtable_ptr (dyn AbstractGame vtable ptr)",
+   "new": "game.vtable_ptr",
+   "evidence": "G20 잔여 정리(16차 배치G-2): 이름 꼬리(타입·크기 주석)가 정규화를 깨뜨림 → 머리만 남김(설명은 note 에 이미 있음)",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[30]/mem[1]/name",
+   "kind": "보강",
+   "old": "game.data_ptr (dyn AbstractGame data ptr)",
+   "new": "game.data_ptr",
+   "evidence": "G20 잔여 정리(16차 배치G-2): 이름 꼬리(타입·크기 주석)가 정규화를 깨뜨림 → 머리만 남김(설명은 note 에 이미 있음)",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[30]/mem[2]/name",
+   "kind": "보강",
+   "old": "game.vtable_ptr (dyn AbstractGame vtable ptr)",
+   "new": "game.vtable_ptr",
+   "evidence": "G20 잔여 정리(16차 배치G-2): 이름 꼬리(타입·크기 주석)가 정규화를 깨뜨림 → 머리만 남김(설명은 note 에 이미 있음)",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[31]/mem[3]/name",
+   "kind": "보강",
+   "old": "game.data_ptr (dyn AbstractGame data ptr)",
+   "new": "game.data_ptr",
+   "evidence": "G20 잔여 정리(16차 배치G-2): 이름 꼬리(타입·크기 주석)가 정규화를 깨뜨림 → 머리만 남김(설명은 note 에 이미 있음)",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[31]/mem[4]/name",
+   "kind": "보강",
+   "old": "game.vtable_ptr (dyn AbstractGame vtable ptr)",
+   "new": "game.vtable_ptr",
+   "evidence": "G20 잔여 정리(16차 배치G-2): 이름 꼬리(타입·크기 주석)가 정규화를 깨뜨림 → 머리만 남김(설명은 note 에 이미 있음)",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[31]/mem[8]/name",
+   "kind": "보강",
+   "old": "player_champion [[Option<&Entity>;5];2]",
+   "new": "player_champion",
+   "evidence": "G20 잔여 정리(16차 배치G-2): 이름 꼬리(타입·크기 주석)가 정규화를 깨뜨림 → 머리만 남김(설명은 note 에 이미 있음)",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[32]/mem[3]/name",
+   "kind": "보강",
+   "old": "game.data_ptr (dyn AbstractGame data ptr)",
+   "new": "game.data_ptr",
+   "evidence": "G20 잔여 정리(16차 배치G-2): 이름 꼬리(타입·크기 주석)가 정규화를 깨뜨림 → 머리만 남김(설명은 note 에 이미 있음)",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[32]/mem[4]/name",
+   "kind": "보강",
+   "old": "game.vtable_ptr (dyn AbstractGame vtable ptr)",
+   "new": "game.vtable_ptr",
+   "evidence": "G20 잔여 정리(16차 배치G-2): 이름 꼬리(타입·크기 주석)가 정규화를 깨뜨림 → 머리만 남김(설명은 note 에 이미 있음)",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[33]/mem[5]/name",
+   "kind": "보강",
+   "old": "player_champion [[Option<&Entity>;5];2]",
+   "new": "player_champion",
+   "evidence": "G20 잔여 정리(16차 배치G-2): 이름 꼬리(타입·크기 주석)가 정규화를 깨뜨림 → 머리만 남김(설명은 note 에 이미 있음)",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[33]/mem[6]/name",
+   "kind": "보강",
+   "old": "game.data_ptr (dyn AbstractGame data ptr)",
+   "new": "game.data_ptr",
+   "evidence": "G20 잔여 정리(16차 배치G-2): 이름 꼬리(타입·크기 주석)가 정규화를 깨뜨림 → 머리만 남김(설명은 note 에 이미 있음)",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[33]/mem[7]/name",
+   "kind": "보강",
+   "old": "game.vtable_ptr (dyn AbstractGame vtable ptr)",
+   "new": "game.vtable_ptr",
+   "evidence": "G20 잔여 정리(16차 배치G-2): 이름 꼬리(타입·크기 주석)가 정규화를 깨뜨림 → 머리만 남김(설명은 note 에 이미 있음)",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[34]/mem[15]/name",
+   "kind": "보강",
+   "old": "ty.Minion.info.nearest_enemy (Option<usize> 태그)",
+   "new": "ty@Minion.info.nearest_enemy@tag",
+   "evidence": "G20 잔여 정리(16차 배치G-2): 이름 꼬리(타입·크기 주석)가 정규화를 깨뜨림 → 머리만 남김(설명은 note 에 이미 있음)",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[36]/mem[5]/name",
+   "kind": "보강",
+   "old": "game.data_ptr (&dyn AbstractGame data)",
+   "new": "game.data_ptr",
+   "evidence": "G20 잔여 정리(16차 배치G-2): 이름 꼬리(타입·크기 주석)가 정규화를 깨뜨림 → 머리만 남김(설명은 note 에 이미 있음)",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[36]/mem[6]/name",
+   "kind": "보강",
+   "old": "game.vtable_ptr vtable",
+   "new": "game.vtable_ptr",
+   "evidence": "G20 잔여 정리(16차 배치G-2): 이름 꼬리(타입·크기 주석)가 정규화를 깨뜨림 → 머리만 남김(설명은 note 에 이미 있음)",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[37]/mem[5]/name",
+   "kind": "보강",
+   "old": "game.data_ptr (&dyn AbstractGame data)",
+   "new": "game.data_ptr",
+   "evidence": "G20 잔여 정리(16차 배치G-2): 이름 꼬리(타입·크기 주석)가 정규화를 깨뜨림 → 머리만 남김(설명은 note 에 이미 있음)",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[37]/mem[6]/name",
+   "kind": "보강",
+   "old": "game.vtable_ptr vtable",
+   "new": "game.vtable_ptr",
+   "evidence": "G20 잔여 정리(16차 배치G-2): 이름 꼬리(타입·크기 주석)가 정규화를 깨뜨림 → 머리만 남김(설명은 note 에 이미 있음)",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[38]/mem[0]/name",
+   "kind": "보강",
+   "old": "game.data_ptr (&dyn AbstractGame data)",
+   "new": "game.data_ptr",
+   "evidence": "G20 잔여 정리(16차 배치G-2): 이름 꼬리(타입·크기 주석)가 정규화를 깨뜨림 → 머리만 남김(설명은 note 에 이미 있음)",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[38]/mem[1]/name",
+   "kind": "보강",
+   "old": "game.vtable_ptr vtable",
+   "new": "game.vtable_ptr",
+   "evidence": "G20 잔여 정리(16차 배치G-2): 이름 꼬리(타입·크기 주석)가 정규화를 깨뜨림 → 머리만 남김(설명은 note 에 이미 있음)",
+   "behavior_change": false,
+   "found_by": "reused"
+  }
+ ],
+ "ev_up": [],
+ "brief_errors": []
+}

@@ -1,0 +1,12 @@
+{
+ "round": "16",
+ "batch": "H",
+ "errors_applied": 0,
+ "ev_applied": 0,
+ "failed": 2,
+ "stamps": {
+  "/specs[26]/sig/params[2]/role": "74234e98afe7498f",
+  "/specs[37]/consts[10]/src_line": "556d7dc3a1153563"
+ },
+ "restamped": true
+}

@@ -981,7 +981,7 @@
     {
      "base": "PlayerState(=GamePlayer info)",
      "offset": "0x9c0",
-     "name": "info.position",
+     "name": "info.position@tag",
      "note": "Position(4B, range 0..4). Position::as_index() 로 2차 인덱스(0..4) · tcx 정본 대조( A6_o1.tsv(수법 ⓐ offset_of! 일괄, 81/81 MATCH·MISMATCH 0))"
     },
     {
@@ -1017,13 +1017,13 @@
     {
      "base": "Entity(champ)",
      "offset": "0x0",
-     "name": "team(태그)",
+     "name": "team@tag(태그)",
      "note": "TeamType 판별자(i64, range 0..1). 0=Player, 1=Neutral. TeamType::player_team() 인라인 · tcx 정본 대조( A6_o1.tsv(수법 ⓐ offset_of! 일괄, 81/81 MATCH·MISMATCH 0))"
     },
     {
      "base": "Entity(champ)",
      "offset": "0x8",
-     "name": "team(페이로드)",
+     "name": "team@Player.0(페이로드)",
      "note": "Player 일 때의 팀 인덱스 usize. visible_state 인덱스로 씀(bounds-check len=2) · tcx 정본 대조( _verify5/A/A5_o2.tsv TeamType::Player payload@+0x8=1 실측 + A6_o1.tsv(수법 ⓐ offset_of! 일괄, 81/81 MATCH·MISMATCH 0))"
     },
     {
@@ -1107,7 +1107,7 @@
     {
      "base": "Effect",
      "offset": "0x30",
-     "name": "casting",
+     "name": "casting@tag",
      "note": "CastingType(i32). ★Option<Effect> 의 니치도 같은 자리 — range -1..3 로 읽으면 -1=None, range 0..3 로 읽으면 0=Targeting/1=Position/2=Direction/3=None · tcx 정본 대조( A6_o1.tsv(수법 ⓐ offset_of! 일괄, 81/81 MATCH·MISMATCH 0))"
     },
     {
@@ -1415,7 +1415,7 @@
     {
      "base": "PlayerState",
      "offset": "0x9c0",
-     "name": "info.position",
+     "name": "info.position@tag",
      "note": "Position(i32, range 0..5). Position::as_index()(entity.rs:580-581)로 0..=4 인덱스화 — player_champion 둘째 인덱스 · tcx 정본 대조( A6_o1.tsv(수법 ⓐ offset_of! 일괄, 81/81 MATCH·MISMATCH 0))"
     },
     {
@@ -1439,7 +1439,7 @@
     {
      "base": "Entity",
      "offset": "0x68",
-     "name": "ty (EntityType 판별자)",
+     "name": "ty@tag (EntityType 판별자)",
      "note": "i64, range 0..14. switch 로 1=Minion / 2=Tower / 3=Nexus / 4=Jungle 분기. 나머지(0 None, 5 Epic, 6 Serpen, 7 Ghoul, 8 SmallJiangshi, 9 Bear, 10 Eagle, 11 Revenant, 12 Illusion, 13 Champion)는 default · tcx 정본 대조( A6_o1.tsv(수법 ⓐ offset_of! 일괄, 81/81 MATCH·MISMATCH 0))"
     },
     {
@@ -1700,7 +1700,7 @@
     {
      "base": "PlayerState",
      "offset": "0x9c0",
-     "name": "info.position",
+     "name": "info.position@tag",
      "note": "Position(4B enum, !range [0,5) = Top/Jungle/Mid/Bottom/Support). Position::as_index(entity.rs:580) 가 인라인돼 판별자를 그대로 usize 로 zext · tcx 정본 대조( A6_o1.tsv(수법 ⓐ offset_of! 일괄, 81/81 MATCH·MISMATCH 0))"
     },
     {
@@ -2051,13 +2051,13 @@
     {
      "base": "AbstractGameWithCache",
      "offset": "0x0",
-     "name": "game.data_ptr (&dyn AbstractGame 팻포인터 앞 절반)",
+     "name": "game.data_ptr",
      "note": "cache+0x0/+0x8 = &dyn AbstractGame 의 (data, vtable). 클로저 캡처용으로만 로드 · tcx 정본 대조( A6_o1.tsv(수법 ⓐ offset_of! 일괄, 81/81 MATCH·MISMATCH 0))"
     },
     {
      "base": "AbstractGameWithCache",
      "offset": "0x8",
-     "name": "game.vtable_ptr (&dyn AbstractGame 팻포인터 뒤 절반)",
+     "name": "game.vtable_ptr",
      "note": "★12차 배치A 신규 — IR 이 실제로 로드하는데 표에 행이 없었다(바로 위 `0x0` 행의 `note` 가 '+0x0/+0x8' 이라고 한 줄에 묶어 적어 기계 대조에서 빠졌다). m10.ll:33915 `%28 = getelementptr inbounds nuw i8, ptr %18, i64 8` → 33916 `%29 = load ptr, ptr %28, align 8` → 33937 `store ptr %29, ptr %37`(클로저 환경 %9+48). `Blackboard::is_recent_visible` 의 3번째 인자(`dereferenceable(816)` = AbstractGame vtable)로 쓰인다. tcx 정본 대조: `tcxdict.py AbstractGameWithCache` = `0x0 game : &dyn AbstractGame (16B)` — 한 필드가 16B 팻포인터라 뒤 8B 가 vtable 이다"
     },
     {
@@ -2081,7 +2081,7 @@
     {
      "base": "Entity(near_enemies 원소)",
      "offset": "0x68",
-     "name": "ty (EntityType 태그)",
+     "name": "ty@tag (EntityType 태그)",
      "note": "i64, range [0,14). ==13 → Champion 이라야 쿨다운 3개를 읽는다 · tcx 정본 대조( A6_o1.tsv(수법 ⓐ offset_of! 일괄, 81/81 MATCH·MISMATCH 0))"
     },
     {
@@ -2111,7 +2111,7 @@
     {
      "base": "Entity(near_enemies 원소)",
      "offset": "0x4f8",
-     "name": "skill_effect.casting: CastingType(i32)",
+     "name": "skill_effect@tag: CastingType(i32)",
      "note": "⚠Option<Effect> 의 니치 판별자. == -1 이면 None (Effect 시작 +0x30) · tcx 정본 대조( A6_o1.tsv(수법 ⓐ offset_of! 일괄, 81/81 MATCH·MISMATCH 0))"
     },
     {
@@ -2135,7 +2135,7 @@
     {
      "base": "Effect",
      "offset": "0x30",
-     "name": "casting: CastingType(i32)",
+     "name": "casting@tag: CastingType(i32)",
      "note": "슬롯2·3 의 Option 니치 판별자를 %ptr+48 로 읽는다(슬롯1 은 entity+0x4f8 로 접힘) · tcx 정본 대조( A6_o1.tsv(수법 ⓐ offset_of! 일괄, 81/81 MATCH·MISMATCH 0))"
     }
    ],
@@ -2510,13 +2510,13 @@
     {
      "base": "AbstractGameWithCache",
      "offset": "0x0",
-     "name": "game.data_ptr (&dyn AbstractGame 팻포인터 앞 절반)",
+     "name": "game.data_ptr",
      "note": "&dyn AbstractGame 팻포인터. +0x0=data(%23), +0x8=vtable(%25, dereferenceable(816)) · tcx 정본 대조( A6_o1.tsv(수법 ⓐ offset_of! 일괄, 81/81 MATCH·MISMATCH 0))"
     },
     {
      "base": "AbstractGameWithCache",
      "offset": "0x8",
-     "name": "game.vtable_ptr (&dyn AbstractGame 팻포인터 뒤 절반)",
+     "name": "game.vtable_ptr",
      "note": "★12차 배치A 신규 — IR m04.ll:58210 `%24 = getelementptr inbounds nuw i8, ptr %22, i64 8` → 58211 `%25 = load ptr, ptr %24, align 8`. 이 값이 바로 다음 행(`AbstractGame::vtable +0x40 get_game_mode`)의 **베이스**이고, 575줄 `PlayerState::strategy` 의 5번째 인자(`dereferenceable(816)`)로도 그대로 넘어간다(m04.ll:58629). tcx 정본 대조: `tcxdict.py AbstractGameWithCache` = `0x0 game : &dyn AbstractGame (16B)`"
     },
     {
@@ -3484,13 +3484,13 @@
     {
      "base": "PlayerState",
      "offset": "0x9c0",
-     "name": "info.position",
+     "name": "info.position@tag",
      "note": "Position(u32, !range [0,5)) → Position::as_index() (entity.rs:580) 인라인. player_champion[team] 안의 슬롯 인덱스 · tcx 정본 대조( tcxdict **tcx 정본** 대조 OK + ⓐ `offset_of!` 실행 교차검증 MISMATCH 0 (B6_o1.tsv, 78행+구조체크기 7건) — 오프셋·필드명 한정)"
     },
     {
      "base": "AbstractGameWithCache",
      "offset": "0x0",
-     "name": "game",
+     "name": "game.data_ptr",
      "note": "&dyn AbstractGame 팻포인터 16B — +0x0 데이터ptr, +0x8 vtable(816B=슬롯100+size/align, divtable 로 확인). 둘 다 클로저가 Blackboard::is_recent_visible 로 그대로 전달"
     },
     {
@@ -3756,7 +3756,7 @@
     {
      "base": "PlayerState",
      "offset": "0x9c0",
-     "name": "info.position",
+     "name": "info.position@tag",
      "note": "Position(i32, range 0..=4). as_index() 인라인 — 그대로 0~4 인덱스로 씀 · tcx 정본 대조( tcxdict **tcx 정본** 대조 OK + ⓐ `offset_of!` 실행 교차검증 MISMATCH 0 (B6_o1.tsv, 78행+구조체크기 7건) — 오프셋·필드명 한정)"
     },
     {
@@ -3774,7 +3774,7 @@
     {
      "base": "AbstractGameWithCache",
      "offset": "0x0",
-     "name": "game",
+     "name": "game.data_ptr",
      "note": "&dyn AbstractGame 팻포인터 — 데이터ptr @+0x0, vtable @+0x8 · tcx 정본 대조( tcxdict **tcx 정본** 대조 OK + ⓐ `offset_of!` 실행 교차검증 MISMATCH 0 (B6_o1.tsv, 78행+구조체크기 7건) — 오프셋·필드명 한정)"
     },
     {
@@ -4271,7 +4271,7 @@
     {
      "base": "AbstractGameWithCache",
      "offset": "0x8",
-     "name": "game.vtable",
+     "name": "game.vtable_ptr",
      "note": "&dyn AbstractGame 팻포인터의 vtable 절반(816B — divtable 이 보고한 vtable 총 크기와 일치)"
     },
     {
@@ -4588,7 +4588,7 @@
     {
      "base": "PlayerState(GamePlayer)",
      "offset": "0x9c0",
-     "name": "info.position",
+     "name": "info.position@tag",
      "note": "i32 range[0,5]. Position 열거형(0=Top,1=Jungle,2=Mid,3=Bottom,4=Support). player_champion[team][position] 로 자기 챔피언(champ) 획득 · tcx 정본 대조( tcxdict **tcx 정본** 대조 OK + ⓐ `offset_of!` 실행 교차검증 MISMATCH 0 (B6_o1.tsv, 78행+구조체크기 7건) — 오프셋·필드명 한정)"
     },
     {
@@ -4961,19 +4961,19 @@
     {
      "base": "AbstractGameWithCache",
      "offset": "0x0",
-     "name": "game.data (&dyn AbstractGame 의 데이터 포인터)",
+     "name": "game.data_ptr",
      "note": "game 필드는 16B 팻포인터 · tcx 정본 대조( `offset_of!` 실행 대조 MISMATCH 0 (`_verify6/C/o1_off.out`·`o2_off_ai.out`·`o3_off2.out`, 오프셋 51 + 구조체 크기 16 전건 OK) · `tcxdict` 재조회: `game` = +0x0 16B `&dyn AbstractGame` ⟹ 데이터 절반이 +0x0 (`memchk.tsv` i=10 idx=7))"
     },
     {
      "base": "AbstractGameWithCache",
      "offset": "0x8",
-     "name": "game.vtable (&dyn AbstractGame 의 vtable)",
+     "name": "game.vtable_ptr",
      "note": "dereferenceable(816) = AbstractGame vtable 크기와 일치 · tcx 정본 대조( tcx: `AbstractGameWithCache.game` 은 +0x0 의 16B `&dyn` 팻포인터라 **+0x8 = vtable 절반**(Rust 팻포인터 ABI). `tcxdict` 는 팻포인터 뒤 절반을 필드로 세지 않는다(METHOD_MAP ⑦ 한계 명시))"
     },
     {
      "base": "AbstractGameWithCache",
      "offset": "0x1e0",
-     "name": "player_champion ([[Option<&Entity>;5];2], 80B)",
+     "name": "player_champion",
      "note": "gep +480, 팀당 stride 40B. iter_champions(적팀) 이 여기를 5칸 순회(IR 에선 완전 언롤) · tcx 정본 대조( `offset_of!` 실행 대조 MISMATCH 0 (`_verify6/C/o1_off.out`·`o2_off_ai.out`·`o3_off2.out`, 오프셋 51 + 구조체 크기 16 전건 OK) · `tcxdict` 행별 재조회 MATCH (`_verify6/C/memchk.tsv` i=10 idx=9))"
     },
     {
@@ -5029,13 +5029,13 @@
     {
      "base": "Entity(적 챔피언)",
      "offset": "0x0",
-     "name": "team.tag (TeamType 판별자)",
+     "name": "team@tag (TeamType 판별자)",
      "note": "== 0(Player) 인지 본다 (TeamType 16B) · tcx 정본 대조( `offset_of!` 실행 대조 MISMATCH 0 (`_verify6/C/o1_off.out`·`o2_off_ai.out`·`o3_off2.out`, 오프셋 51 + 구조체 크기 16 전건 OK) · `tcxdict` 행별 재조회 MATCH (`_verify6/C/memchk.tsv` i=10 idx=18))"
     },
     {
      "base": "Entity(적 챔피언)",
      "offset": "0x8",
-     "name": "team.Player.0 (팀 인덱스 usize)",
+     "name": "team@Player.0 (팀 인덱스 usize)",
      "note": "gep +8. 1-player.team 과 비교 · tcx 정본 대조( `tcxdict` 행별 재조회 MATCH (`_verify6/C/memchk.tsv` i=10 idx=19))"
     },
     {
@@ -5282,7 +5282,7 @@
     {
      "base": "AbstractGameWithCache",
      "offset": "0x8",
-     "name": "game.vtable",
+     "name": "game.vtable_ptr",
      "note": "dyn AbstractGame 팻포인터의 vtable 포인터 · tcx 정본 대조( tcx: `AbstractGameWithCache.game` 은 +0x0 의 16B `&dyn` 팻포인터라 **+0x8 = vtable 절반**(Rust 팻포인터 ABI). `tcxdict` 는 팻포인터 뒤 절반을 필드로 세지 않는다(METHOD_MAP ⑦ 한계 명시))"
     },
     {
@@ -5827,7 +5827,7 @@
     {
      "base": "PlayerState",
      "offset": "0x9c0",
-     "name": "info.position",
+     "name": "info.position@tag",
      "note": "수신자 자신의 포지션(Position i32). from 과 같으면 즉시 반환 = 자기 발화 무시 (chat.rs:9, PartialEq 인라인) · tcx 정본 대조( `offset_of!` 실행 대조 MISMATCH 0 (`_verify6/C/o1_off.out`·`o2_off_ai.out`·`o3_off2.out`, 오프셋 51 + 구조체 크기 16 전건 OK) · `tcxdict` 행별 재조회 MATCH (`_verify6/C/memchk.tsv` i=12 idx=0))"
     },
     {
@@ -5857,13 +5857,13 @@
     {
      "base": "AbstractGameWithCache",
      "offset": "0x0",
-     "name": "game.data_ptr(&dyn AbstractGame 데이터 절반)",
+     "name": "game.data_ptr",
      "note": "`_gaibc/m13.ll:29570` `%66 = load ptr, ptr %65`(= cache+0x0)이고 그 값이 vtable+0x28 tick 의 **self 인자**로 들어간다(m13.ll:29575 `%71 = invoke noundef i64 %70(ptr noundef nonnull %66)`). 10·11 명세는 같은 팻포인터를 +0x0/+0x8 **두 행**으로 적었는데 12 만 +0x8 한 행뿐이라 기계 대조(tcxaudit·G18) 대상에서 빠져 있었다 · tcx 정본 대조( `tcxdict`: `AbstractGameWithCache.game` = +0x0 의 16B `&dyn AbstractGame` 팻포인터 ⟹ 데이터 절반이 +0x0 )"
     },
     {
      "base": "AbstractGameWithCache",
      "offset": "0x8",
-     "name": "game.vtable (&dyn AbstractGame 팻포인터 뒤 절반)",
+     "name": "game.vtable_ptr",
      "note": "cache.game 은 &dyn AbstractGame 팻포인터 — +0x0=데이터, +0x8=vtable · tcx 정본 대조( tcx: `AbstractGameWithCache.game` 은 +0x0 의 16B `&dyn` 팻포인터라 **+0x8 = vtable 절반**(Rust 팻포인터 ABI). `tcxdict` 는 팻포인터 뒤 절반을 필드로 세지 않는다(METHOD_MAP ⑦ 한계 명시))"
     },
     {
@@ -6572,7 +6572,7 @@
     {
      "base": "PlayerState",
      "offset": "0x9c0",
-     "name": "info.position: Position(i32, range 0..5)",
+     "name": "info.position@tag: Position(i32, range 0..5)",
      "dir": "-",
      "note": "★인자승격(`%2:i32`)이라 본문에 gep 가 없다 — 참조용 행이므로 `dir` 은 `\"-\"`. 로드는 호출부 `_gaibc/m10.ll:11773` `%13 = getelementptr inbounds nuw i8, ptr %4, i64 2496` → `11774` `%14 = load i32, ptr %13, !range` → `11775` `zext nneg i32 %14 to i64` 후 `player_champion[team][pos]` 의 안쪽 인덱스로 쓰인다(`11779` `%19 = getelementptr inbounds nuw ptr, ptr %18, i64 %15`). 2496 = 0x9c0. `mem[6]`(player_champion)이 이 값을 인덱스로 쓴다고만 적고 출처 오프셋은 표에 없었다. 복제본 명세 `14` 는 `mem[5]` 로 싣는다"
     },
@@ -6615,13 +6615,13 @@
     {
      "base": "AbstractGameWithCache",
      "offset": "0x1e0",
-     "name": "player_champion[team][position]",
+     "name": "player_champion",
      "note": "[[Option<&Entity>;5];2] 80B. unwrap — None 이면 unwrap_failed 패닉(cover.rs:145:95) · tcx 정본 대조( `offset_of!` 실행 대조 MISMATCH 0 (`_verify6/C/o1_off.out`·`o2_off_ai.out`·`o3_off2.out`, 오프셋 51 + 구조체 크기 16 전건 OK) · `tcxdict` 행별 재조회 MATCH (`_verify6/C/memchk.tsv` i=13 idx=6))"
     },
     {
      "base": "Entity",
      "offset": "0x68",
-     "name": "ty (EntityType 판별자)",
+     "name": "ty@tag (EntityType 판별자)",
      "note": "타워 엔티티. ==2 → EntityType::Tower. is_tower2()의 1단계(entity.rs:1308) · tcx 정본 대조( `offset_of!` 실행 대조 MISMATCH 0 (`_verify6/C/o1_off.out`·`o2_off_ai.out`·`o3_off2.out`, 오프셋 51 + 구조체 크기 16 전건 OK) · `tcxdict` 행별 재조회 MATCH (`_verify6/C/memchk.tsv` i=13 idx=7))"
     },
     {
@@ -6634,13 +6634,13 @@
     {
      "base": "Entity",
      "offset": "0x88",
-     "name": "ty.Tower.info.nearest_enemy 판별자(태그)",
+     "name": "ty@Tower.info.nearest_enemy@tag",
      "note": "Tower+0x18, Option<(usize,usize)> 의 태그. !=0 이면 is_some(option.rs:632) · tcx 정본 대조( `offset_of!` 실행 대조 MISMATCH 0 (`_verify6/C/o1_off.out`·`o2_off_ai.out`·`o3_off2.out`, 오프셋 51 + 구조체 크기 16 전건 OK) · `tcxdict` 행별 재조회 MATCH (`_verify6/C/memchk.tsv` i=13 idx=9))"
     },
     {
      "base": "Entity",
      "offset": "0x128",
-     "name": "ty.Tower.info.ty (TowerType)",
+     "name": "ty@Tower.info.ty (TowerType)",
      "note": "Tower+0xb8, i8 range[0,8). >4 → Top2/Mid2/Bottom2 = is_second_tower(tower.rs:99~100) · tcx 정본 대조( `offset_of!` 실행 대조 MISMATCH 0 (`_verify6/C/o1_off.out`·`o2_off_ai.out`·`o3_off2.out`, 오프셋 51 + 구조체 크기 16 전건 OK) · `tcxdict` 행별 재조회 MATCH (`_verify6/C/memchk.tsv` i=13 idx=10))"
     },
     {
@@ -7186,7 +7186,7 @@
     {
      "base": "PlayerState",
      "offset": "0x9c0",
-     "name": "info.position: Position(i32, range 0..5)",
+     "name": "info.position@tag: Position(i32, range 0..5)",
      "note": "Position::as_index(entity.rs:580) 인라인 → player_champion[team][pos] 인덱스 · tcx 정본 대조( `offset_of!` 실행 대조 MISMATCH 0 (`_verify6/C/o1_off.out`·`o2_off_ai.out`·`o3_off2.out`, 오프셋 51 + 구조체 크기 16 전건 OK) · `tcxdict` 행별 재조회 MATCH (`_verify6/C/memchk.tsv` i=14 idx=4))"
     },
     {
@@ -7204,7 +7204,7 @@
     {
      "base": "AbstractGameWithCache",
      "offset": "0x1e0",
-     "name": "player_champion[2][5]: Option<&Entity>",
+     "name": "player_champion",
      "note": "IR 리터럴 480. +team*40 +pos*8. unwrap 실패 시 panic(ganker.rs:43) · tcx 정본 대조( `offset_of!` 실행 대조 MISMATCH 0 (`_verify6/C/o1_off.out`·`o2_off_ai.out`·`o3_off2.out`, 오프셋 51 + 구조체 크기 16 전건 OK) · `tcxdict` 행별 재조회 MATCH (`_verify6/C/memchk.tsv` i=14 idx=7))"
     },
     {
@@ -7246,7 +7246,7 @@
     {
      "base": "Entity",
      "offset": "0x68",
-     "name": "ty: EntityType 판별자(i64, range 0..14)",
+     "name": "ty@tag: EntityType 판별자(i64, range 0..14)",
      "note": "tower 쪽 Entity. ==2 → EntityType::Tower. EntityType::is_tower2(entity.rs:1308) 의 앞단 · tcx 정본 대조( `offset_of!` 실행 대조 MISMATCH 0 (`_verify6/C/o1_off.out`·`o2_off_ai.out`·`o3_off2.out`, 오프셋 51 + 구조체 크기 16 전건 OK) · `tcxdict` 행별 재조회 MATCH (`_verify6/C/memchk.tsv` i=14 idx=14))"
     },
     {
@@ -7259,13 +7259,13 @@
     {
      "base": "Entity",
      "offset": "0x88",
-     "name": "ty.Tower.info.nearest_enemy 태그(Option<(usize,usize)>, range 0..2)",
+     "name": "ty@Tower.info.nearest_enemy@tag",
      "note": "Tower+0x18. 0=None. Top/Bottom 라인에서만 검사 · tcx 정본 대조( `offset_of!` 실행 대조 MISMATCH 0 (`_verify6/C/o1_off.out`·`o2_off_ai.out`·`o3_off2.out`, 오프셋 51 + 구조체 크기 16 전건 OK) · `tcxdict` 행별 재조회 MATCH (`_verify6/C/memchk.tsv` i=14 idx=16))"
     },
     {
      "base": "Entity",
      "offset": "0x128",
-     "name": "ty.Tower.info.ty: TowerType(i8, range 0..8)",
+     "name": "ty@Tower.info.ty: TowerType(i8, range 0..8)",
      "note": "Tower+0xb8. TowerType::is_second_tower(tower.rs:99) = tag>4 (5=Top2,6=Mid2,7=Bottom2) · tcx 정본 대조( `offset_of!` 실행 대조 MISMATCH 0 (`_verify6/C/o1_off.out`·`o2_off_ai.out`·`o3_off2.out`, 오프셋 51 + 구조체 크기 16 전건 OK) · `tcxdict` 행별 재조회 MATCH (`_verify6/C/memchk.tsv` i=14 idx=17))"
     },
     {
@@ -7666,7 +7666,7 @@
     {
      "base": "AbstractGameWithCache",
      "offset": "0x8",
-     "name": "game.vtable",
+     "name": "game.vtable_ptr",
      "note": "&dyn AbstractGame 팻포인터의 vtable 포인터 · tcx 정본 대조( 팻포인터 둘째 워드 — size_of::<&dyn AbstractGame>()=16 실측 + tcx `game(+8)` (o1.txt))"
     },
     {
@@ -7696,13 +7696,13 @@
     {
      "base": "Entity",
      "offset": "0x68",
-     "name": "ty",
+     "name": "ty@tag",
      "note": "EntityType 판별자(range 0..14). ==2(Tower) 인지만 본다 — 250행 · tcx 정본 대조( 오라클 game==mine 236/236 ⟹ **오프셋은 tcx 가 정본이라 ev3 이 상한**(실행은 교차검증)) · tcx 정본 대조(5차 배치D: 5차 배치D 오라클 game==mine 236/236 ⟹ **오프셋은 tcx 가 정본이라 ev3 이 상한**(실행은 교차검증))"
     },
     {
      "base": "Entity",
      "offset": "0x128",
-     "name": "ty.Tower.info.ty",
+     "name": "ty@Tower.info.ty",
      "note": "ty 판별자(+0x68)+0xc0 = Tower variant 페이로드 i8 = TowerType. dive_tower 로 들어감 ★`EntityType::Tower` 는 **struct variant `{ info: Tower }`** 다(`dienum`) — 접근 경로는 `ty.Tower.info`, 오프셋 +0x128. · tcx 정본 대조( 오라클 game==mine 236/236 ⟹ **오프셋은 tcx 가 정본이라 ev3 이 상한**(실행은 교차검증)) · tcx 정본 대조(5차 배치D: 5차 배치D 오라클 game==mine 236/236 ⟹ **오프셋은 tcx 가 정본이라 ev3 이 상한**(실행은 교차검증))"
     },
     {
@@ -8029,7 +8029,7 @@
     {
      "base": "Entity",
      "offset": "0x68",
-     "name": "ty (판별자, i64, range[0,14))",
+     "name": "ty@tag (판별자, i64, range[0,14))",
      "note": "EntityType 태그. 평타 분기에서 14-way switch, 스킬/스킬2/궁 분기에서는 ==13(Champion) 비교로만 쓰임 · tcx 정본 대조( 오라클 game==mine 236/236 ⟹ **오프셋은 tcx 가 정본이라 ev3 이 상한**(실행은 교차검증)) · tcx 정본 대조(5차 배치D: 5차 배치D 오라클 game==mine 236/236 ⟹ **오프셋은 tcx 가 정본이라 ev3 이 상한**(실행은 교차검증))"
     },
     {
@@ -8107,7 +8107,7 @@
     {
      "base": "Entity",
      "offset": "0x490",
-     "name": "attack_effect: Option<Effect>(56B)",
+     "name": "attack_effect@Some.0: Option<Effect>(56B)",
      "note": "Effect 본체 시작 주소 · tcx 정본 대조( 오라클 game==mine 236/236 ⟹ **오프셋은 tcx 가 정본이라 ev3 이 상한**(실행은 교차검증)) · tcx 정본 대조(5차 배치D: 5차 배치D 오라클 game==mine 236/236 ⟹ **오프셋은 tcx 가 정본이라 ev3 이 상한**(실행은 교차검증))"
     },
     {
@@ -8131,7 +8131,7 @@
     {
      "base": "Entity",
      "offset": "0x4c0",
-     "name": "attack_effect.casting: CastingType(i32, range[-1,4))",
+     "name": "attack_effect@tag: CastingType(i32, range[-1,4))",
      "note": "Effect+0x30. Option<Effect> 의 니치 판별자를 겸한다 — -1 이면 None · tcx 정본 대조( 오라클 game==mine 236/236 ⟹ **오프셋은 tcx 가 정본이라 ev3 이 상한**(실행은 교차검증)) · tcx 정본 대조(5차 배치D: 5차 배치D 오라클 game==mine 236/236 ⟹ **오프셋은 tcx 가 정본이라 ev3 이 상한**(실행은 교차검증))"
     },
     {
@@ -8161,7 +8161,7 @@
     {
      "base": "Entity",
      "offset": "0x4f8",
-     "name": "skill_effect.casting (니치)",
+     "name": "skill_effect@tag (니치)",
      "note": "Effect+0x30, -1=None · tcx 정본 대조( 오라클 game==mine 236/236 ⟹ **오프셋은 tcx 가 정본이라 ev3 이 상한**(실행은 교차검증)) · tcx 정본 대조(5차 배치D: 5차 배치D 오라클 game==mine 236/236 ⟹ **오프셋은 tcx 가 정본이라 ev3 이 상한**(실행은 교차검증))"
     },
     {
@@ -8209,7 +8209,7 @@
     {
      "base": "Effect",
      "offset": "0x30",
-     "name": "casting: CastingType (Option 니치)",
+     "name": "casting@tag: CastingType (Option 니치)",
      "note": "skill2/ult 경로 +48, -1=None · tcx 정본 대조( 오라클 game==mine 236/236 ⟹ **오프셋은 tcx 가 정본이라 ev3 이 상한**(실행은 교차검증)) · tcx 정본 대조(5차 배치D: 5차 배치D 오라클 game==mine 236/236 ⟹ **오프셋은 tcx 가 정본이라 ev3 이 상한**(실행은 교차검증))"
     }
    ],
@@ -9048,7 +9048,7 @@
     {
      "base": "PlayerState",
      "offset": "0x9c0",
-     "name": "info.position",
+     "name": "info.position@tag",
      "note": "Position(i32, range 0..5). Position::as_index() 로 usize 화해서 announcer 와 비교 — '내가 발표자인가' 판정 · tcx 정본 대조( offset_of!(PlayerState, info.position)=+0x9c0 MISMATCH 0 (o1.txt))"
     },
     {
@@ -9606,7 +9606,7 @@
     {
      "base": "AbstractGameWithCache",
      "offset": "0x8",
-     "name": "game.vtable",
+     "name": "game.vtable_ptr",
      "note": "ref$<dyn AbstractGame> 의 vtable 포인터 · tcx 정본 대조( 오라클 game==mine 236/236 ⟹ **오프셋은 tcx 가 정본이라 ev3 이 상한**(실행은 교차검증)) · tcx 정본 대조(5차 배치D: 5차 배치D 오라클 game==mine 236/236 ⟹ **오프셋은 tcx 가 정본이라 ev3 이 상한**(실행은 교차검증))"
     },
     {
@@ -9642,7 +9642,7 @@
     {
      "base": "PlayerState",
      "offset": "0x9c0",
-     "name": "info.position",
+     "name": "info.position@tag",
      "note": "Position(i32, range 0..5). player_champion 2차 인덱스 · tcx 정본 대조( 오라클 game==mine 236/236 ⟹ **오프셋은 tcx 가 정본이라 ev3 이 상한**(실행은 교차검증)) · tcx 정본 대조(5차 배치D: 5차 배치D 오라클 game==mine 236/236 ⟹ **오프셋은 tcx 가 정본이라 ev3 이 상한**(실행은 교차검증))"
     },
     {
@@ -10019,13 +10019,13 @@
     {
      "base": "AbstractGameWithCache",
      "offset": "0x0",
-     "name": "game (dyn AbstractGame data ptr)",
+     "name": "game.data_ptr",
      "note": "cache+0x0 = data, cache+0x8 = vtable · tcx 정본 대조(15차 배치A: tcxdict 대조: TeamPlan 0x130 objective_discipline@Some.0.wait_pos.0 / 0x149 objective_discipline@tag(Niche)=kind@tag · ObjectiveDisciplineState 32B {wait_pos.0 0x0, wait_pos.1 0x8, until_tick 0x10, target@tag 0x18, kind@tag 0x19} · MobaMode 0x1a0 epic.live_list.buf.ptr / 0x1d8 serpen.live_list.len · Entity 0x628 stat_cached.hp / 0x670 hp · GameMode 16B tag@0 Moba=0 payload@0x8 · 오라클 o1.tsv(_verify15/A/oracle, 시드 game 1234·rnd 7) V27 16/16 MATCH)"
     },
     {
      "base": "AbstractGameWithCache",
      "offset": "0x8",
-     "name": "game vtable",
+     "name": "game.vtable_ptr",
      "note": "슬롯 +0x28 tick / +0x40 get_game_mode / +0x1f0 get_entity_by_id (divtable AbstractGame)"
     },
     {
@@ -10043,7 +10043,7 @@
     {
      "base": "MobaMode",
      "offset": "0x1a0",
-     "name": "jungle_runner.epic.live_list.buf.ptr",
+     "name": "jungle_runner.epic.live_list.ptr",
      "note": "target==Morgard(4) 일 때. first() = ptr[0] 의 usize 엔티티 id · tcx 정본 대조(15차 배치A: tcxdict 대조: TeamPlan 0x130 objective_discipline@Some.0.wait_pos.0 / 0x149 objective_discipline@tag(Niche)=kind@tag · ObjectiveDisciplineState 32B {wait_pos.0 0x0, wait_pos.1 0x8, until_tick 0x10, target@tag 0x18, kind@tag 0x19} · MobaMode 0x1a0 epic.live_list.buf.ptr / 0x1d8 serpen.live_list.len · Entity 0x628 stat_cached.hp / 0x670 hp · GameMode 16B tag@0 Moba=0 payload@0x8 · 오라클 o1.tsv(_verify15/A/oracle, 시드 game 1234·rnd 7) V27 16/16 MATCH)"
     },
     {
@@ -10055,7 +10055,7 @@
     {
      "base": "MobaMode",
      "offset": "0x1d0",
-     "name": "jungle_runner.serpen.live_list.buf.ptr",
+     "name": "jungle_runner.serpen.live_list.ptr",
      "note": "target==Serpen(5) 일 때 · tcx 정본 대조(15차 배치A: tcxdict 대조: TeamPlan 0x130 objective_discipline@Some.0.wait_pos.0 / 0x149 objective_discipline@tag(Niche)=kind@tag · ObjectiveDisciplineState 32B {wait_pos.0 0x0, wait_pos.1 0x8, until_tick 0x10, target@tag 0x18, kind@tag 0x19} · MobaMode 0x1a0 epic.live_list.buf.ptr / 0x1d8 serpen.live_list.len · Entity 0x628 stat_cached.hp / 0x670 hp · GameMode 16B tag@0 Moba=0 payload@0x8 · 오라클 o1.tsv(_verify15/A/oracle, 시드 game 1234·rnd 7) V27 16/16 MATCH)"
     },
     {
@@ -10531,13 +10531,13 @@
     {
      "base": "AbstractGameWithCache",
      "offset": "0x0",
-     "name": "game data ptr",
+     "name": "game.data_ptr",
      "note": "dyn AbstractGame. vtable(+0x8) 슬롯 +0x28 = tick · tcx 정본 대조(15차 배치A: tcxdict: GameContext 0x0/0x8 · GameSetting 0x13f8 tower_attack_disable_tick · AbstractGameWithCache 0x0 game / 0x1e0 player_champion · PlayerState 0x930 info.team / 0x9c0 info.position@tag · Entity 0x68 ty@tag / 0x88 ty@Tower.info.nearest_enemy@tag / 0x98 nearest_enemy@Some.0.1 / 0x438 stat_buff_cached.range / 0x470 radius_mult(i32) / 0x490 attack_effect@Some.0 / 0x4a0 range / 0x4a8 growth_range / 0x4c0 attack_effect@tag(Niche)=casting@tag / 0x5c0 id / 0x5c8 level / 0x660 x / 0x668 y / 0x680 radius · 오라클 o1.tsv(_verify15/A/oracle, 시드 game 1234·rnd 7) CTF 72행+CTF2 24행+CTF_NE 6행 MATCH)"
     },
     {
      "base": "AbstractGameWithCache",
      "offset": "0x1e0",
-     "name": "player_champion[team][position]",
+     "name": "player_champion",
      "note": "[2][5] Option<&Entity>(니치 null). [team] stride 40, [position] 8. None → false · tcx 정본 대조(15차 배치A: tcxdict: GameContext 0x0/0x8 · GameSetting 0x13f8 tower_attack_disable_tick · AbstractGameWithCache 0x0 game / 0x1e0 player_champion · PlayerState 0x930 info.team / 0x9c0 info.position@tag · Entity 0x68 ty@tag / 0x88 ty@Tower.info.nearest_enemy@tag / 0x98 nearest_enemy@Some.0.1 / 0x438 stat_buff_cached.range / 0x470 radius_mult(i32) / 0x490 attack_effect@Some.0 / 0x4a0 range / 0x4a8 growth_range / 0x4c0 attack_effect@tag(Niche)=casting@tag / 0x5c0 id / 0x5c8 level / 0x660 x / 0x668 y / 0x680 radius · 오라클 o1.tsv(_verify15/A/oracle, 시드 game 1234·rnd 7) CTF 72행+CTF2 24행+CTF_NE 6행 MATCH)"
     },
     {
@@ -10549,7 +10549,7 @@
     {
      "base": "PlayerState",
      "offset": "0x9c0",
-     "name": "info.position (태그 i32)",
+     "name": "info.position@tag (태그 i32)",
      "note": "player_champion 2차 인덱스 · tcx 정본 대조(15차 배치A: tcxdict: GameContext 0x0/0x8 · GameSetting 0x13f8 tower_attack_disable_tick · AbstractGameWithCache 0x0 game / 0x1e0 player_champion · PlayerState 0x930 info.team / 0x9c0 info.position@tag · Entity 0x68 ty@tag / 0x88 ty@Tower.info.nearest_enemy@tag / 0x98 nearest_enemy@Some.0.1 / 0x438 stat_buff_cached.range / 0x470 radius_mult(i32) / 0x490 attack_effect@Some.0 / 0x4a0 range / 0x4a8 growth_range / 0x4c0 attack_effect@tag(Niche)=casting@tag / 0x5c0 id / 0x5c8 level / 0x660 x / 0x668 y / 0x680 radius · 오라클 o1.tsv(_verify15/A/oracle, 시드 game 1234·rnd 7) CTF 72행+CTF2 24행+CTF_NE 6행 MATCH)"
     },
     {
@@ -10567,13 +10567,13 @@
     {
      "base": "Entity(타워)",
      "offset": "0x68",
-     "name": "ty 태그",
+     "name": "ty@tag 태그",
      "note": "==2(Tower) 인 원소만 검사, 아니면 skip · tcx 정본 대조(15차 배치A: tcxdict: GameContext 0x0/0x8 · GameSetting 0x13f8 tower_attack_disable_tick · AbstractGameWithCache 0x0 game / 0x1e0 player_champion · PlayerState 0x930 info.team / 0x9c0 info.position@tag · Entity 0x68 ty@tag / 0x88 ty@Tower.info.nearest_enemy@tag / 0x98 nearest_enemy@Some.0.1 / 0x438 stat_buff_cached.range / 0x470 radius_mult(i32) / 0x490 attack_effect@Some.0 / 0x4a0 range / 0x4a8 growth_range / 0x4c0 attack_effect@tag(Niche)=casting@tag / 0x5c0 id / 0x5c8 level / 0x660 x / 0x668 y / 0x680 radius · 오라클 o1.tsv(_verify15/A/oracle, 시드 game 1234·rnd 7) CTF 72행+CTF2 24행+CTF_NE 6행 MATCH)"
     },
     {
      "base": "Entity(타워)",
      "offset": "0x88",
-     "name": "ty.Tower.info.nearest_enemy 태그",
+     "name": "ty@Tower.info.nearest_enemy@tag",
      "note": "Option<(usize,usize)> (Tower+0x18). 0=None/1=Some · tcx 정본 대조(15차 배치A: tcxdict: GameContext 0x0/0x8 · GameSetting 0x13f8 tower_attack_disable_tick · AbstractGameWithCache 0x0 game / 0x1e0 player_champion · PlayerState 0x930 info.team / 0x9c0 info.position@tag · Entity 0x68 ty@tag / 0x88 ty@Tower.info.nearest_enemy@tag / 0x98 nearest_enemy@Some.0.1 / 0x438 stat_buff_cached.range / 0x470 radius_mult(i32) / 0x490 attack_effect@Some.0 / 0x4a0 range / 0x4a8 growth_range / 0x4c0 attack_effect@tag(Niche)=casting@tag / 0x5c0 id / 0x5c8 level / 0x660 x / 0x668 y / 0x680 radius · 오라클 o1.tsv(_verify15/A/oracle, 시드 game 1234·rnd 7) CTF 72행+CTF2 24행+CTF_NE 6행 MATCH)"
     },
     {
@@ -10585,13 +10585,13 @@
     {
      "base": "Entity(타워)",
      "offset": "0x4c0",
-     "name": "attack_effect 니치 판별자(casting)",
+     "name": "attack_effect@tag 니치 판별자(casting)",
      "note": "== -1 이면 None → unwrap_failed 패닉 (타워는 항상 Some 전제) · tcx 정본 대조(15차 배치A: tcxdict: GameContext 0x0/0x8 · GameSetting 0x13f8 tower_attack_disable_tick · AbstractGameWithCache 0x0 game / 0x1e0 player_champion · PlayerState 0x930 info.team / 0x9c0 info.position@tag · Entity 0x68 ty@tag / 0x88 ty@Tower.info.nearest_enemy@tag / 0x98 nearest_enemy@Some.0.1 / 0x438 stat_buff_cached.range / 0x470 radius_mult(i32) / 0x490 attack_effect@Some.0 / 0x4a0 range / 0x4a8 growth_range / 0x4c0 attack_effect@tag(Niche)=casting@tag / 0x5c0 id / 0x5c8 level / 0x660 x / 0x668 y / 0x680 radius · 오라클 o1.tsv(_verify15/A/oracle, 시드 game 1234·rnd 7) CTF 72행+CTF2 24행+CTF_NE 6행 MATCH)"
     },
     {
      "base": "Entity(타워)",
      "offset": "0x490",
-     "name": "attack_effect.Some.0 (&Effect)",
+     "name": "attack_effect@Some.0 (&Effect)",
      "note": "술어 클로저에서 Effect::is_in_range 의 self · tcx 정본 대조(15차 배치A: tcxdict: GameContext 0x0/0x8 · GameSetting 0x13f8 tower_attack_disable_tick · AbstractGameWithCache 0x0 game / 0x1e0 player_champion · PlayerState 0x930 info.team / 0x9c0 info.position@tag · Entity 0x68 ty@tag / 0x88 ty@Tower.info.nearest_enemy@tag / 0x98 nearest_enemy@Some.0.1 / 0x438 stat_buff_cached.range / 0x470 radius_mult(i32) / 0x490 attack_effect@Some.0 / 0x4a0 range / 0x4a8 growth_range / 0x4c0 attack_effect@tag(Niche)=casting@tag / 0x5c0 id / 0x5c8 level / 0x660 x / 0x668 y / 0x680 radius · 오라클 o1.tsv(_verify15/A/oracle, 시드 game 1234·rnd 7) CTF 72행+CTF2 24행+CTF_NE 6행 MATCH)"
     },
     {
@@ -11178,7 +11178,7 @@
     {
      "base": "AbstractGameWithCache",
      "offset": "0x1e0",
-     "name": "player_champion[team][0..5]",
+     "name": "player_champion",
      "note": "[2][5] Option<&Entity>(null 니치). iter_champions(team) 인라인 — 5슬롯 완전 언롤, null 은 skip · tcx 정본 대조(15차 배치A: tcxdict: PlayerState 0x930 info.team · AbstractGameWithCache 0x1e0 player_champion[2][5] · Entity 0x628 stat_cached.hp / 0x670 hp / 0x660 x / 0x668 y · 오라클 o1.tsv(_verify15/A/oracle, 시드 game 1234·rnd 7) V23 150/150 + V23HP 6/6 MATCH)"
     },
     {
@@ -11335,13 +11335,13 @@
     {
      "base": "AbstractGameWithCache",
      "offset": "0x0",
-     "name": "game (dyn AbstractGame data ptr)",
+     "name": "game.data_ptr",
      "note": "load ptr, ptr %14 · tcx 정본 대조(15차 배치B: tcx 정본 대조(tcxdict): PlayerState 0x930 info.team · OperationData 0x0 cache/0x8 context/0x10 blackboard · AbstractGameWithCache 0x0 game(&dyn 16B: data,vtable) · Entity 0x0 team@tag(TeamType Direct, Player=0)/0x8 team@Player.0/0x660 x/0x668 y; offset_of!(Entity,x/y/team) 0x660/0x668/0x0 (v15B_o1.out))"
     },
     {
      "base": "AbstractGameWithCache",
      "offset": "0x8",
-     "name": "game (dyn AbstractGame vtable ptr)",
+     "name": "game.vtable_ptr",
      "note": "gep %14, 8 · tcx 정본 대조(15차 배치B: tcx 정본 대조(tcxdict): PlayerState 0x930 info.team · OperationData 0x0 cache/0x8 context/0x10 blackboard · AbstractGameWithCache 0x0 game(&dyn 16B: data,vtable) · Entity 0x0 team@tag(TeamType Direct, Player=0)/0x8 team@Player.0/0x660 x/0x668 y; offset_of!(Entity,x/y/team) 0x660/0x668/0x0 (v15B_o1.out))"
     },
     {
@@ -11437,10 +11437,10 @@
     }
    ],
    "unknown": [
-    "max_range_cached(data, champ, target) 의 내부(m10.ll:50689~, TLS RefCell 캐시)는 안 읽었다 — '적 enemy 가 target=champ 에 대해 갖는 최대 사거리'라는 것은 인자명(data/champ/target, battle.rs:2332 DILocalVariable)으로만 확정",
+    "★해소 — 15차 배치B(09-13): `max_range_cached(data, champ, target)` = `battle::max_range` 의 TLS RefCell 메모 래퍼(m10.ll:50689~) · 반환 = 적 enemy 가 target=champ 에 대해 갖는 최대 사거리(인자명 data/champ/target, battle.rs:2332 DILocalVariable). 내부 계산식은 별도 함수 범위.",
     "path_finder::is_enemy_well_danger(version, player, x, y) 내부(m03.ll:144500)는 안 읽었다 — 좌표가 적 샘(well) 위험구역인지 판정한다는 것은 이름·인자에서만 추정",
-    "is_recent_visible 의 vtable 슬롯 +0xf8 = is_visible / +0x150 = get_player_by_champion_id / +0x28 = tick 은 divtable(AbstractGame) 로 확인했으나 ExpectedGame 구현 기준이며 실제 런타임 게임 타입의 슬롯 배치가 같은지는 미확인(정적 vtable 규약상 같아야 함)",
-    "L1169 의 `A && B` 표기(is_recent_visible 를 부정 조건으로 조기 반환하는지, 하나의 && 식인지)는 column 정보 부재로 표기 불가 — 동작(가시 아니면 false)은 확정"
+    "★해소 — 15차 배치B(09-13): `is_recent_visible` 의 vtable 슬롯 +0xf8 = is_visible / +0x150 = get_player_by_champion_id / +0x28 = tick — divtable(AbstractGame) 의 ExpectedGame 기준과 **Game 구현 vtable 도 슬롯 동일**(shared 확정 사실).",
+    "★해소 — 15차 배치B(09-13) 줄 길이 산술(rmeta_srcmap · ±0): L1169~1170 은 **하나의 `||` 식**(is_recent_visible 부정 조기반환이 아님). 동작(가시 아니면 false)은 오라클과 일치."
    ],
    "exe": {
     "addr": "e0c310",
@@ -11489,7 +11489,7 @@
       "i": 3,
       "name": "lines",
       "type": "&[LineType] (ptr %2, len %3)",
-      "note": "후보 라인 슬라이스(원소 1B, LineType 태그 Top0/Mid1/Bottom2). 순서대로 순회. &[LineType] 팻포인터가 SROA 로 두 레지스터로 승격: IR %2 = ptr, IR %3 = len (m15.ll:55352 `%5 = gep %2, %3` 끝포인터, `icmp eq i64 %3, 0` 빈 슬라이스)"
+      "note": "후보 라인 슬라이스(원소 1B, LineType 태그 Top0/Mid1/Bottom2). 순서대로 순회. &[LineType] 팻포인터가 SROA 로 두 레지스터로 승격: IR %2 = ptr, IR %3 = len (m15.ll:55369 `%5 = getelementptr inbounds nuw i8, ptr %2, i64 %3` 끝포인터, m15.ll:55380 `%6 = icmp samesign eq i64 %3, 0` 빈 슬라이스)"
      }
     ],
     "returns": "Option<LineType> — IR i8 range(-1,3): -1 = None(후보 없음 또는 전부 제외), 0=Top 1=Mid 2=Bottom (tcxdict --enum LineType: idx=discr=태그)"
@@ -11553,7 +11553,7 @@
     {
      "base": "AbstractGameWithCache",
      "offset": "0x21c0",
-     "name": "top_lead/mid_lead/bottom_lead [line][team]",
+     "name": "top_lead[team]",
      "note": "IR: cache + (line<<4) + 8640 + team*8. line_lead(simulation.rs:1929) 인라인 = {top,mid,bottom}_lead[team] · tcx 정본 대조(15차 배치B: tcx 정본 대조(tcxdict) + offset_of!(v15B_o1.out): PlayerState.info 0x0(+team 0x930 tcx) · OperationData 0x0/0x8/0x10 · Blackboard top/mid/bottom_minion_state 0x0/0x28/0x50 · BrainMinionParameter from_mid 0x10/minion_count 0x20 · AbstractGameWithCache top_lead 0x21c0/mid 0x21d0/bottom 0x21e0)"
     }
    ],
@@ -11740,13 +11740,13 @@
     {
      "base": "AbstractGameWithCache",
      "offset": "0x0",
-     "name": "game (dyn AbstractGame data ptr)",
+     "name": "game.data_ptr",
      "note": "is_recent_visible 인자 · tcx 정본 대조(15차 배치B: tcx 정본 대조(tcxdict) + offset_of!(v15B_o1.out: nexus 0x170, player_champion 0x1e0, top/mid/bottom_minions 0x10/0x50/0x90, Entity ty 0x68·id 0x5c0·x/y) · 0x68/0x88/0x90 은 오라클에서 그 오프셋을 써서 결과가 뒤집힘(런타임 확인))"
     },
     {
      "base": "AbstractGameWithCache",
      "offset": "0x8",
-     "name": "game (dyn AbstractGame vtable ptr)",
+     "name": "game.vtable_ptr",
      "note": "is_recent_visible 인자 · tcx 정본 대조(15차 배치B: tcx 정본 대조(tcxdict) + offset_of!(v15B_o1.out: nexus 0x170, player_champion 0x1e0, top/mid/bottom_minions 0x10/0x50/0x90, Entity ty 0x68·id 0x5c0·x/y) · 0x68/0x88/0x90 은 오라클에서 그 오프셋을 써서 결과가 뒤집힘(런타임 확인))"
     },
     {
@@ -11782,7 +11782,7 @@
     {
      "base": "Entity(적 미니언, minions 원소)",
      "offset": "0x68",
-     "name": "ty (EntityType 태그)",
+     "name": "ty@tag (EntityType 태그)",
      "note": "i64. == 1 (Minion) 일 때만 아래 두 필드를 읽는다 (tcxdict --enum EntityType 1: idx1/discr1/tag1 = Minion) · tcx 정본 대조(15차 배치B: tcx 정본 대조(tcxdict) + offset_of!(v15B_o1.out: nexus 0x170, player_champion 0x1e0, top/mid/bottom_minions 0x10/0x50/0x90, Entity ty 0x68·id 0x5c0·x/y) · 0x68/0x88/0x90 은 오라클에서 그 오프셋을 써서 결과가 뒤집힘(런타임 확인))"
     },
     {
@@ -12056,13 +12056,13 @@
     {
      "base": "AbstractGameWithCache",
      "offset": "0x0",
-     "name": "game (dyn AbstractGame data ptr)",
+     "name": "game.data_ptr",
      "note": "is_recent_visible 인자 · tcx 정본 대조(15차 배치B: tcx 정본 대조(tcxdict): Entity 0x0 team@tag/0x8 team@Player.0/0x660 x/0x668 y/0x670 hp/0x628 stat_cached.hp · OperationData 0x0/0x8/0x10 · GameContext 0x8 setting · GameSetting 0x12f8 tick_per_second · PlayerState 0x930 info.team · AbstractGameWithCache 0x0 game(&dyn 16B); offset_of!(GameSetting,tick_per_second)=0x12f8·(Entity,hp)=0x670 (v15B_o1.out))"
     },
     {
      "base": "AbstractGameWithCache",
      "offset": "0x8",
-     "name": "game (dyn AbstractGame vtable ptr)",
+     "name": "game.vtable_ptr",
      "note": " · tcx 정본 대조(15차 배치B: tcx 정본 대조(tcxdict): Entity 0x0 team@tag/0x8 team@Player.0/0x660 x/0x668 y/0x670 hp/0x628 stat_cached.hp · OperationData 0x0/0x8/0x10 · GameContext 0x8 setting · GameSetting 0x12f8 tick_per_second · PlayerState 0x930 info.team · AbstractGameWithCache 0x0 game(&dyn 16B); offset_of!(GameSetting,tick_per_second)=0x12f8·(Entity,hp)=0x670 (v15B_o1.out))"
     }
    ],
@@ -12280,19 +12280,19 @@
     {
      "base": "AbstractGameWithCache",
      "offset": "0x1e0",
-     "name": "player_champion[enemy_ix]",
+     "name": "player_champion",
      "note": "[[Option<&Entity>;5];2] (IR gep %12,480 → [5 x ptr] × enemy_ix). null = None 은 건너뜀. 5칸이 완전히 언롤됨 · tcx 정본 대조(15차 배치B: tcx 정본 대조(tcxdict) + offset_of!(v15B_o1.out player_champion 0x1e0, Entity x/y/hp/stat_cached) · 0x660/0x668/0x670/0x628 은 오라클에서 그 오프셋에 써서 결과가 바뀜(런타임 확인))"
     },
     {
      "base": "AbstractGameWithCache",
      "offset": "0x0",
-     "name": "game (dyn AbstractGame data ptr)",
+     "name": "game.data_ptr",
      "note": "is_recent_visible 인자(루프 밖 1회 로드) · tcx 정본 대조(15차 배치B: tcx 정본 대조(tcxdict) + offset_of!(v15B_o1.out player_champion 0x1e0, Entity x/y/hp/stat_cached) · 0x660/0x668/0x670/0x628 은 오라클에서 그 오프셋에 써서 결과가 바뀜(런타임 확인))"
     },
     {
      "base": "AbstractGameWithCache",
      "offset": "0x8",
-     "name": "game (dyn AbstractGame vtable ptr)",
+     "name": "game.vtable_ptr",
      "note": " · tcx 정본 대조(15차 배치B: tcx 정본 대조(tcxdict) + offset_of!(v15B_o1.out player_champion 0x1e0, Entity x/y/hp/stat_cached) · 0x660/0x668/0x670/0x628 은 오라클에서 그 오프셋에 써서 결과가 바뀜(런타임 확인))"
     },
     {
@@ -12426,13 +12426,13 @@
     {
      "base": "AbstractGameWithCache",
      "offset": "0x0",
-     "name": "game (dyn AbstractGame data ptr)",
+     "name": "game.data_ptr",
      "note": "vtable 호출의 self 인자 (m15.ll:51682) · tcx 정본 대조(15차 배치C: tcx 정본 대조: tcxdict AbstractGameWithCache 0x0 = game &dyn AbstractGame(16B, data ptr))"
     },
     {
      "base": "AbstractGameWithCache",
      "offset": "0x8",
-     "name": "game (dyn AbstractGame vtable ptr)",
+     "name": "game.vtable_ptr",
      "note": "vtable+0x40 = get_game_mode, vtable+0x1f0 = get_entity_by_id (divtable AbstractGame)"
     },
     {
@@ -12450,7 +12450,7 @@
     {
      "base": "MobaMode",
      "offset": "0x1a0",
-     "name": "jungle_runner.epic.live_list.buf.inner.ptr",
+     "name": "jungle_runner.epic.live_list.ptr",
      "note": "Vec<usize> 버퍼 시작. [0] 을 엔티티 id 로 읽는다 (target==Morgard 경로, m15.ll:51727) · tcx 정본 대조(15차 배치C: tcx 정본 대조: tcxdict MobaMode 0x1a0 = jungle_runner.epic.live_list.buf.inner.ptr)"
     },
     {
@@ -12462,7 +12462,7 @@
     {
      "base": "MobaMode",
      "offset": "0x1d0",
-     "name": "jungle_runner.serpen.live_list.buf.inner.ptr",
+     "name": "jungle_runner.serpen.live_list.ptr",
      "note": "target==Serpen 경로 (m15.ll:51780) · tcx 정본 대조(15차 배치C: tcx 정본 대조: tcxdict MobaMode 0x1d0 = jungle_runner.serpen.live_list.buf.inner.ptr)"
     },
     {
@@ -12599,13 +12599,13 @@
     {
      "base": "AbstractGameWithCache",
      "offset": "0x0",
-     "name": "game (dyn AbstractGame data ptr)",
+     "name": "game.data_ptr",
      "note": "Split14 경로 far_line 계산 시 get_game_mode 의 self (m09.ll:64817) · tcx 정본 대조(15차 배치C: tcx 정본 대조: tcxdict AbstractGameWithCache 0x0 = game(dyn data ptr))"
     },
     {
      "base": "AbstractGameWithCache",
      "offset": "0x8",
-     "name": "game (dyn AbstractGame vtable ptr)",
+     "name": "game.vtable_ptr",
      "note": "vtable+0x40 = get_game_mode (divtable AbstractGame 0x40)"
     },
     {
@@ -12629,7 +12629,7 @@
     {
      "base": "AbstractGameWithCache",
      "offset": "0x1e0",
-     "name": "player_champion [[Option<&Entity>;5];2]",
+     "name": "player_champion",
      "note": "gep 480 → [team][position1] / [team][position2] 가 null(None) 인지 = position1_absent / position2_absent (Split131 경로, m09.ll:64899~64921) · tcx 정본 대조(15차 배치C: tcx 정본 대조: tcxdict AbstractGameWithCache 0x1e0 = player_champion[0][0]@tag (Niche, null=None))"
     }
    ],
@@ -12776,13 +12776,13 @@
     {
      "base": "AbstractGameWithCache",
      "offset": "0x0",
-     "name": "game (dyn AbstractGame data ptr)",
+     "name": "game.data_ptr",
      "note": "get_game_mode 의 self · tcx 정본 대조(15차 배치C: tcx 정본 대조: tcxdict AbstractGameWithCache 0x0 = game(dyn data ptr))"
     },
     {
      "base": "AbstractGameWithCache",
      "offset": "0x8",
-     "name": "game (dyn AbstractGame vtable ptr)",
+     "name": "game.vtable_ptr",
      "note": "vtable+0x40 = get_game_mode (divtable AbstractGame). 이 함수는 get_game_mode 를 3번 호출한다(L222·L225·L226 각각 as_moba().unwrap())"
     },
     {
@@ -12958,7 +12958,7 @@
     {
      "base": "PlayerState",
      "offset": "0x9c0",
-     "name": "info.position (Position i32 태그)",
+     "name": "info.position@tag (Position i32 태그)",
      "note": "gep 2496, as_index(entity.rs:581) → player_champion[team][position] · tcx 정본 대조(15차 배치C: tcx 정본 대조: tcxdict PlayerState 0x9c0 = info.position@tag (Direct 4B))"
     },
     {
@@ -12982,19 +12982,19 @@
     {
      "base": "AbstractGameWithCache",
      "offset": "0x1e0",
-     "name": "player_champion [[Option<&Entity>;5];2]",
+     "name": "player_champion",
      "note": "gep 480. [team][position] = champ (null → return true). [1-team] 5칸 = iter_champions 의 슬라이스 (m13.ll:11418~11423) · tcx 정본 대조(15차 배치C: tcx 정본 대조: tcxdict AbstractGameWithCache 0x1e0 = player_champion[0][0]@tag)"
     },
     {
      "base": "AbstractGameWithCache",
      "offset": "0x0",
-     "name": "game (dyn AbstractGame data ptr)",
+     "name": "game.data_ptr",
      "note": "클로저 캡처 → is_recent_visible 인자 · tcx 정본 대조(15차 배치C: tcx 정본 대조: tcxdict AbstractGameWithCache 0x0 = game(dyn data ptr))"
     },
     {
      "base": "AbstractGameWithCache",
      "offset": "0x8",
-     "name": "game (dyn AbstractGame vtable ptr)",
+     "name": "game.vtable_ptr",
      "note": "클로저 캡처 · tcx 정본 대조(15차 배치C: tcx 정본 대조: tcxdict AbstractGameWithCache 0x0 game 16B 팻포인터 후반 8B = vtable)"
     },
     {
@@ -13081,9 +13081,9 @@
     }
    ],
    "unknown": [
-    "self(&LegacyPlanHandler) 는 DISubprogram 상 arg1 로 존재하나 본문이 안 읽어 fastcc 에서 제거됨 — 핸들러 상태에 의존하지 않는 판정임은 확정",
+    "「사실 서술」이다: self(&LegacyPlanHandler) 는 DISubprogram 상 arg1 로 존재하나 본문이 안 읽어 fastcc 에서 제거됨 — 핸들러 상태에 의존하지 않는 판정임은 확정(exe 도 5인자 · rvaverify 09-13).",
     "check_kill_die_tick(m?.ll) 내부(사망 틱 예측 방식)는 담당 범위 밖 — TLS 메모 캐시가 있다는 METHOD_MAP 주의사항만 인지",
-    "is_recent_visible / is_ignored_well_enemy 의 내부 조건은 안 읽음(각각 _gcbc / fight_model 소속)",
+    "「미탐색」이다: `is_ignored_well_enemy` 의 내부 조건(fight_model 소속)은 안 읽음. (가시성 술어 쪽은 shared 확정 사실이라 여기서 제외 — 15차 배치C 정정 09-13)",
     "Blackboard 구조체 크기(stride) 는 aux 의 gep 구조체 리터럴로만 관측, tcxdict 로 별도 확인 안 함",
     "towers=Vec::new_in 의 dangling ptr 리터럴 8 (`inttoptr (i64 8 to ptr)`) 은 판정 상수가 아니라 정렬값이라 constants 에서 제외"
    ],
@@ -13234,19 +13234,19 @@
     {
      "base": "Entity",
      "offset": "0x68",
-     "name": "ty (EntityType 태그)",
+     "name": "ty@tag (EntityType 태그)",
      "note": "gep 104. ==1 → Minion 이어야 다음 검사 (tcxdict --enum EntityType)"
     },
     {
      "base": "Entity",
      "offset": "0x88",
-     "name": "ty.Minion.info.nearest_enemy (Option<usize> 태그)",
+     "name": "ty@Minion.info.nearest_enemy@tag",
      "note": "gep 136 = enum+0x8 + Minion+0x18. trunc to i1 → Some 여부 · tcx 정본 대조(15차 배치C: tcx 정본 대조: tcxdict Entity 0x88 = ty@Minion.info.nearest_enemy@tag (Direct 8B))"
     },
     {
      "base": "Entity",
      "offset": "0x90",
-     "name": "ty.Minion.info.nearest_enemy.Some.0",
+     "name": "ty@Minion.info.nearest_enemy@Some.0",
      "note": "gep 144. == tower_id 비교 (m04.ll:60533~60539) · tcx 정본 대조(15차 배치C: tcx 정본 대조: tcxdict Entity 0x90 = ty@Minion.info.nearest_enemy@Some.0 usize)"
     }
    ],
@@ -13683,13 +13683,13 @@
     {
      "base": "AbstractGameWithCache",
      "offset": "0x0",
-     "name": "game (&dyn AbstractGame data)",
+     "name": "game.data_ptr",
      "note": "vtable 호출: +0x40 get_game_mode / +0xf8 is_visible / +0x1f0 get_entity_by_id(클로저 내) · tcx 정본 대조(15차 배치D: tcx 정본 대조: tcxdict AbstractGameWithCache 0x0 → game(dyn))"
     },
     {
      "base": "AbstractGameWithCache",
      "offset": "0x8",
-     "name": "game vtable",
+     "name": "game.vtable_ptr",
      "note": ""
     },
     {
@@ -13987,13 +13987,13 @@
     {
      "base": "AbstractGameWithCache",
      "offset": "0x0",
-     "name": "game (&dyn AbstractGame data)",
+     "name": "game.data_ptr",
      "note": "is_recent_visible 인자 + vtable+0x1f0 get_entity_by_id(L317) · tcx 정본 대조(15차 배치D: tcx 정본 대조: tcxdict AbstractGameWithCache 0x0 → game)"
     },
     {
      "base": "AbstractGameWithCache",
      "offset": "0x8",
-     "name": "game vtable",
+     "name": "game.vtable_ptr",
      "note": ""
     },
     {
@@ -14005,7 +14005,7 @@
     {
      "base": "AbstractGameWithCache",
      "offset": "0x1e0",
-     "name": "player_champion[team][pos]",
+     "name": "player_champion",
      "note": "[[Option<&Entity>;5];2] stride 40/8. 내 챔프 None → false. [1-team] 은 iter_champions(적 챔프) 원본, [team][0..5] 는 아군 순위 루프 · tcx 정본 대조(15차 배치D: tcx 정본 대조: tcxdict AbstractGameWithCache 0x1e0 → player_champion[0][0]@Some.0)"
     },
     {
@@ -14071,7 +14071,7 @@
     {
      "base": "Entity(aux)",
      "offset": "0x490",
-     "name": "attack_effect (Effect 56B)",
+     "name": "attack_effect@Some.0 (Effect 56B)",
      "note": "expected_damage_target 의 &Effect · tcx 정본 대조(15차 배치D: tcx 정본 대조: tcxdict Entity 0x490 → attack_effect@Some.0 (Effect 56B 선두))"
     },
     {
@@ -14165,7 +14165,7 @@
     },
     {
      "value": -1,
-     "src_line": 332,
+     "src_line": 333,
      "meaning": "pusher_dist 초기값 u64::MAX (Option<usize> 대신 센티넬)"
     },
     {
@@ -14333,13 +14333,13 @@
     {
      "base": "AbstractGameWithCache",
      "offset": "0x0",
-     "name": "game (&dyn AbstractGame data)",
+     "name": "game.data_ptr",
      "note": "vtable+0x28 tick() 호출 · tcx 정본 대조(15차 배치D: tcx 정본 대조: tcxdict AbstractGameWithCache 0x0 → game)"
     },
     {
      "base": "AbstractGameWithCache",
      "offset": "0x8",
-     "name": "game vtable",
+     "name": "game.vtable_ptr",
      "note": ""
     },
     {
@@ -14375,7 +14375,7 @@
     {
      "base": "AbstractGameWithCache",
      "offset": "0x1e0",
-     "name": "player_champion[team][pos]",
+     "name": "player_champion",
      "note": "[[Option<&Entity>;5];2]. None → false · tcx 정본 대조(15차 배치D: tcx 정본 대조: tcxdict AbstractGameWithCache 0x1e0 → player_champion[0][0]@Some.0)"
     },
     {

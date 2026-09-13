@@ -1,0 +1,11 @@
+{
+ "round": "16",
+ "batch": "H2",
+ "errors_applied": 0,
+ "ev_applied": 0,
+ "failed": 1,
+ "stamps": {
+  "/specs[37]/consts[10]/src_line": "556d7dc3a1153563"
+ },
+ "restamped": true
+}

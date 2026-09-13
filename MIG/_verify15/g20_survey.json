@@ -1,0 +1,820 @@
+{
+ "AbstractGameWithCache@1e0": {
+  "rows": [
+   [
+    0,
+    4,
+    "player_champion"
+   ],
+   [
+    1,
+    4,
+    "player_champion"
+   ],
+   [
+    2,
+    5,
+    "player_champion"
+   ],
+   [
+    3,
+    7,
+    "player_champion"
+   ],
+   [
+    6,
+    6,
+    "player_champion"
+   ],
+   [
+    7,
+    5,
+    "player_champion"
+   ],
+   [
+    8,
+    11,
+    "player_champion"
+   ],
+   [
+    9,
+    4,
+    "player_champion"
+   ],
+   [
+    10,
+    9,
+    "player_champion ([[Option<&Entity>;5];2], 80B)"
+   ],
+   [
+    13,
+    9,
+    "player_champion[team][position]"
+   ],
+   [
+    14,
+    8,
+    "player_champion[2][5]: Option<&Entity>"
+   ],
+   [
+    18,
+    5,
+    "player_champion"
+   ],
+   [
+    19,
+    9,
+    "player_champion"
+   ],
+   [
+    22,
+    4,
+    "player_champion[team][position]"
+   ],
+   [
+    24,
+    2,
+    "player_champion[team][0..5]"
+   ],
+   [
+    29,
+    3,
+    "player_champion[enemy_ix]"
+   ],
+   [
+    31,
+    8,
+    "player_champion [[Option<&Entity>;5];2]"
+   ],
+   [
+    33,
+    5,
+    "player_champion [[Option<&Entity>;5];2]"
+   ],
+   [
+    37,
+    8,
+    "player_champion[team][pos]"
+   ],
+   [
+    38,
+    7,
+    "player_champion[team][pos]"
+   ]
+  ],
+  "tcx": [
+   "  ★0x1e0     player_champion[0][0]@Some.0                         &'{erased} game_core::Entity                   (8B) → game_core::Entity"
+  ]
+ },
+ "Effect@30": {
+  "rows": [
+   [
+    0,
+    22,
+    "casting"
+   ],
+   [
+    3,
+    22,
+    "casting: CastingType(i32)"
+   ],
+   [
+    16,
+    30,
+    "casting: CastingType (Option 니치)"
+   ],
+   [
+    37,
+    25,
+    "casting@tag (Option<Effect> 니치)"
+   ]
+  ],
+  "tcx": []
+ },
+ "Entity@0": {
+  "rows": [
+   [
+    0,
+    7,
+    "team(태그)"
+   ],
+   [
+    10,
+    18,
+    "team.tag (TeamType 판별자)"
+   ],
+   [
+    25,
+    5,
+    "team@tag (TeamType 판별자)"
+   ],
+   [
+    28,
+    0,
+    "team@tag (TeamType)"
+   ],
+   [
+    28,
+    2,
+    "team@tag (TeamType)"
+   ],
+   [
+    37,
+    9,
+    "team@tag (TeamType)"
+   ]
+  ],
+  "tcx": []
+ },
+ "Entity@8": {
+  "rows": [
+   [
+    0,
+    8,
+    "team(페이로드)"
+   ],
+   [
+    10,
+    19,
+    "team.Player.0 (팀 인덱스 usize)"
+   ],
+   [
+    25,
+    6,
+    "team@Player.0"
+   ],
+   [
+    28,
+    1,
+    "team@Player.0"
+   ],
+   [
+    28,
+    3,
+    "team@Player.0"
+   ],
+   [
+    37,
+    10,
+    "team@Player.0"
+   ]
+  ],
+  "tcx": []
+ },
+ "PlayerState@9c0": {
+  "rows": [
+   [
+    0,
+    1,
+    "info.position"
+   ],
+   [
+    1,
+    1,
+    "info.position"
+   ],
+   [
+    2,
+    1,
+    "info.position"
+   ],
+   [
+    6,
+    4,
+    "info.position"
+   ],
+   [
+    7,
+    1,
+    "info.position"
+   ],
+   [
+    9,
+    1,
+    "info.position"
+   ],
+   [
+    12,
+    0,
+    "info.position"
+   ],
+   [
+    13,
+    2,
+    "info.position: Position(i32, range 0..5)"
+   ],
+   [
+    14,
+    5,
+    "info.position: Position(i32, range 0..5)"
+   ],
+   [
+    18,
+    1,
+    "info.position"
+   ],
+   [
+    19,
+    11,
+    "info.position"
+   ],
+   [
+    22,
+    6,
+    "info.position (태그 i32)"
+   ],
+   [
+    33,
+    1,
+    "info.position (Position i32 태그)"
+   ],
+   [
+    37,
+    1,
+    "info.position@tag"
+   ],
+   [
+    38,
+    6,
+    "info.position@tag"
+   ]
+  ],
+  "tcx": []
+ },
+ "Entity@68": {
+  "rows": [
+   [
+    1,
+    5,
+    "ty (EntityType 판별자)"
+   ],
+   [
+    3,
+    13,
+    "ty (EntityType 태그)"
+   ],
+   [
+    13,
+    10,
+    "ty (EntityType 판별자)"
+   ],
+   [
+    14,
+    15,
+    "ty: EntityType 판별자(i64, range 0..14)"
+   ],
+   [
+    15,
+    7,
+    "ty"
+   ],
+   [
+    16,
+    0,
+    "ty (판별자, i64, range[0,14))"
+   ],
+   [
+    22,
+    9,
+    "ty 태그"
+   ],
+   [
+    27,
+    13,
+    "ty (EntityType 태그)"
+   ],
+   [
+    34,
+    14,
+    "ty (EntityType 태그)"
+   ],
+   [
+    36,
+    13,
+    "ty@tag"
+   ],
+   [
+    37,
+    11,
+    "ty@tag (EntityType)"
+   ]
+  ],
+  "tcx": []
+ },
+ "AbstractGameWithCache@0": {
+  "rows": [
+   [
+    3,
+    8,
+    "game.data_ptr (&dyn AbstractGame 팻포인터 앞 절반)"
+   ],
+   [
+    4,
+    6,
+    "game.data_ptr (&dyn AbstractGame 팻포인터 앞 절반)"
+   ],
+   [
+    6,
+    5,
+    "game"
+   ],
+   [
+    7,
+    4,
+    "game"
+   ],
+   [
+    8,
+    9,
+    "game.data_ptr"
+   ],
+   [
+    10,
+    7,
+    "game.data (&dyn AbstractGame 의 데이터 포인터)"
+   ],
+   [
+    11,
+    2,
+    "game.data_ptr"
+   ],
+   [
+    12,
+    5,
+    "game.data_ptr(&dyn AbstractGame 데이터 절반)"
+   ],
+   [
+    15,
+    1,
+    "game.data_ptr"
+   ],
+   [
+    17,
+    3,
+    "game.data_ptr"
+   ],
+   [
+    18,
+    3,
+    "game.data_ptr"
+   ],
+   [
+    19,
+    4,
+    "game.data_ptr"
+   ],
+   [
+    20,
+    6,
+    "game (dyn AbstractGame data ptr)"
+   ],
+   [
+    22,
+    3,
+    "game data ptr"
+   ],
+   [
+    25,
+    3,
+    "game (dyn AbstractGame data ptr)"
+   ],
+   [
+    27,
+    6,
+    "game (dyn AbstractGame data ptr)"
+   ],
+   [
+    28,
+    16,
+    "game (dyn AbstractGame data ptr)"
+   ],
+   [
+    29,
+    4,
+    "game (dyn AbstractGame data ptr)"
+   ],
+   [
+    30,
+    1,
+    "game (dyn AbstractGame data ptr)"
+   ],
+   [
+    31,
+    3,
+    "game (dyn AbstractGame data ptr)"
+   ],
+   [
+    32,
+    3,
+    "game (dyn AbstractGame data ptr)"
+   ],
+   [
+    33,
+    6,
+    "game (dyn AbstractGame data ptr)"
+   ],
+   [
+    36,
+    5,
+    "game (&dyn AbstractGame data)"
+   ],
+   [
+    37,
+    5,
+    "game (&dyn AbstractGame data)"
+   ],
+   [
+    38,
+    0,
+    "game (&dyn AbstractGame data)"
+   ]
+  ],
+  "tcx": [
+   "  ★0x0       game                                                 &'{erased} dyn [Binder { value: Trait(game_core::AbstractGame), bound_vars: [] }] + '{erased} (16B) → dyn [Binder { value: Trait(game_core::AbstractGame), bound_vars: [] }] + '{erased}"
+  ]
+ },
+ "AbstractGameWithCache@8": {
+  "rows": [
+   [
+    3,
+    9,
+    "game.vtable_ptr (&dyn AbstractGame 팻포인터 뒤 절반)"
+   ],
+   [
+    4,
+    7,
+    "game.vtable_ptr (&dyn AbstractGame 팻포인터 뒤 절반)"
+   ],
+   [
+    8,
+    10,
+    "game.vtable"
+   ],
+   [
+    10,
+    8,
+    "game.vtable (&dyn AbstractGame 의 vtable)"
+   ],
+   [
+    11,
+    3,
+    "game.vtable"
+   ],
+   [
+    12,
+    6,
+    "game.vtable (&dyn AbstractGame 팻포인터 뒤 절반)"
+   ],
+   [
+    15,
+    2,
+    "game.vtable"
+   ],
+   [
+    17,
+    4,
+    "game.vtable_ptr"
+   ],
+   [
+    18,
+    4,
+    "game.vtable_ptr"
+   ],
+   [
+    19,
+    5,
+    "game.vtable"
+   ],
+   [
+    20,
+    7,
+    "game vtable"
+   ],
+   [
+    25,
+    4,
+    "game (dyn AbstractGame vtable ptr)"
+   ],
+   [
+    27,
+    7,
+    "game (dyn AbstractGame vtable ptr)"
+   ],
+   [
+    28,
+    17,
+    "game (dyn AbstractGame vtable ptr)"
+   ],
+   [
+    29,
+    5,
+    "game (dyn AbstractGame vtable ptr)"
+   ],
+   [
+    30,
+    2,
+    "game (dyn AbstractGame vtable ptr)"
+   ],
+   [
+    31,
+    4,
+    "game (dyn AbstractGame vtable ptr)"
+   ],
+   [
+    32,
+    4,
+    "game (dyn AbstractGame vtable ptr)"
+   ],
+   [
+    33,
+    7,
+    "game (dyn AbstractGame vtable ptr)"
+   ],
+   [
+    36,
+    6,
+    "game vtable"
+   ],
+   [
+    37,
+    6,
+    "game vtable"
+   ],
+   [
+    38,
+    1,
+    "game vtable"
+   ]
+  ],
+  "tcx": [
+   "    0x0       game                                                 &'{erased} dyn [Binder { value: Trait(game_core::AbstractGame), bound_vars: [] }] + '{erased} (16B) → dyn [Binder { value: Trait(game_core::AbstractGame), bound_vars: [] }] + '{erased}"
+  ]
+ },
+ "Entity@4f8": {
+  "rows": [
+   [
+    3,
+    18,
+    "skill_effect.casting: CastingType(i32)"
+   ],
+   [
+    16,
+    22,
+    "skill_effect.casting (니치)"
+   ],
+   [
+    37,
+    20,
+    "skill_effect@tag"
+   ]
+  ],
+  "tcx": []
+ },
+ "MobaMode@1a0": {
+  "rows": [
+   [
+    7,
+    8,
+    "jungle_runner.epic.live_list.ptr"
+   ],
+   [
+    8,
+    16,
+    "jungle_runner.epic.live_list.ptr"
+   ],
+   [
+    10,
+    13,
+    "jungle_runner.epic.live_list.ptr"
+   ],
+   [
+    20,
+    10,
+    "jungle_runner.epic.live_list.buf.ptr"
+   ],
+   [
+    30,
+    5,
+    "jungle_runner.epic.live_list.buf.inner.ptr"
+   ]
+  ],
+  "tcx": []
+ },
+ "MobaMode@1d0": {
+  "rows": [
+   [
+    10,
+    16,
+    "jungle_runner.serpen.live_list.ptr"
+   ],
+   [
+    20,
+    12,
+    "jungle_runner.serpen.live_list.buf.ptr"
+   ],
+   [
+    30,
+    7,
+    "jungle_runner.serpen.live_list.buf.inner.ptr"
+   ]
+  ],
+  "tcx": []
+ },
+ "Entity@128": {
+  "rows": [
+   [
+    13,
+    13,
+    "ty.Tower.info.ty (TowerType)"
+   ],
+   [
+    14,
+    18,
+    "ty.Tower.info.ty: TowerType(i8, range 0..8)"
+   ],
+   [
+    15,
+    8,
+    "ty.Tower.info.ty"
+   ],
+   [
+    36,
+    16,
+    "ty@Tower.info.ty (TowerType)"
+   ],
+   [
+    37,
+    14,
+    "ty@Tower.info.ty (TowerType)"
+   ]
+  ],
+  "tcx": []
+ },
+ "Entity@88": {
+  "rows": [
+   [
+    13,
+    12,
+    "ty.Tower.info.nearest_enemy 판별자(태그)"
+   ],
+   [
+    14,
+    17,
+    "ty.Tower.info.nearest_enemy 태그(Option<(usize,usize)>, range 0..2)"
+   ],
+   [
+    22,
+    10,
+    "ty.Tower.info.nearest_enemy 태그"
+   ],
+   [
+    27,
+    14,
+    "ty@Minion.info.nearest_enemy@tag"
+   ],
+   [
+    34,
+    15,
+    "ty.Minion.info.nearest_enemy (Option<usize> 태그)"
+   ],
+   [
+    36,
+    14,
+    "ty@Minion.info.nearest_enemy@tag"
+   ],
+   [
+    37,
+    12,
+    "ty@Minion.info.nearest_enemy@tag"
+   ]
+  ],
+  "tcx": []
+ },
+ "Entity@4c0": {
+  "rows": [
+   [
+    16,
+    17,
+    "attack_effect.casting: CastingType(i32, range[-1,4))"
+   ],
+   [
+    22,
+    12,
+    "attack_effect 니치 판별자(casting)"
+   ],
+   [
+    37,
+    18,
+    "attack_effect@tag"
+   ],
+   [
+    38,
+    10,
+    "attack_effect@tag"
+   ]
+  ],
+  "tcx": []
+ },
+ "Entity@490": {
+  "rows": [
+   [
+    16,
+    13,
+    "attack_effect: Option<Effect>(56B)"
+   ],
+   [
+    22,
+    13,
+    "attack_effect.Some.0 (&Effect)"
+   ],
+   [
+    37,
+    19,
+    "attack_effect (Effect 56B)"
+   ]
+  ],
+  "tcx": []
+ },
+ "AbstractGameWithCache@21c0": {
+  "rows": [
+   [
+    26,
+    9,
+    "top_lead/mid_lead/bottom_lead [line][team]"
+   ],
+   [
+    36,
+    8,
+    "top_lead[team]"
+   ]
+  ],
+  "tcx": []
+ },
+ "Entity@90": {
+  "rows": [
+   [
+    27,
+    15,
+    "ty@Minion.info.nearest_enemy@Some.0"
+   ],
+   [
+    34,
+    16,
+    "ty.Minion.info.nearest_enemy.Some.0"
+   ],
+   [
+    36,
+    15,
+    "ty@Minion.info.nearest_enemy@Some.0"
+   ],
+   [
+    37,
+    13,
+    "ty@Minion.info.nearest_enemy@Some.0"
+   ]
+  ],
+  "tcx": [
+   "    0x88      ty@SmallJiangshi.info.action.ptr.pointer             pattern_type!(*const alloc::sync::ArcInner<dyn [Binder { value: Trait(game_core::EntityAction), bound_vars: [] }] + '{erased}> is !null) (16B) "
+  ]
+ }
+}
