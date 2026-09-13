@@ -298,6 +298,8 @@ BISECT_NO_STRFREE = 0   # ★임시 이분 스위치(2026-09-13) — 0 으로 �
 BISECT_SKIP_MY = 0      # 이분 스위치(2026-09-13 원인 규명 완료 — 중첩 Vec 누락) — 0 유지
 
 SELF_RESTORE = {
+    88: (0, 6168, [], 8),    # #93 v2_apply_assign_commit — self 쓰기 = 0x1800~0x1803 래치뿐(힙 없음) · plan 은 a5 별도
+    100: (0, 1064, [], 8),   # #105 update_steal — TeamPlan(chats·completed_steal_sessions 는 HEAP_SUBST)
     # ★r11 거대 9(09-14): 전부 힙 치환은 HEAP_SUBST(static VB 금지 — Vec drop/교체 함수들).
     102: (0, 280, [], 8),    # BattlePlan::update — chats@0x68 · v54_reentry_ticks@0x80 (HEAP_SUBST)
     109: (0, 280, [], 8),    # BattlePlan::update_v32 — 동일 self
@@ -412,6 +414,10 @@ SELF_DIFF = {
     # ★V54Counter(TeamPlan 0x3f8/0x400/0x408 · atomicrmw 전용 계측 카운터 · `load atomic` 0건 = 논리 미사용)는 비교 제외 —
     #   판 2 실측: 안쪽 sweep(#102 BattlePlan::update 등)이 게임+내 사본 두 번 돌며 카운터를 두 번 올려 바깥 self diff(0x4f0 g=7f m=7b)가 갈렸다.
     102: {"skip": []}, 109: {"skip": []}, 107: {"skip": [(0x3f8, 24)]}, 108: {"skip": [(0x3f8, 24)]},
+    # #93: self.plan(0x5e8..)은 이 함수가 안 건드리지만 안쪽 sweep 이 바꿀 수 있어 ENUM_LIVE 로 · V54Counter skip
+    88: {"skip": [(0x5e8 + 0x8, 384 - 8), (0xf8 + 0x3f8, 24)]},
+    # #105: steal_action/prev None 의 페이로드(0x419/0x41b)는 IR undef(19차 D) · V54Counter skip
+    100: {"skip": [(0x3f8, 24), (0x419, 1), (0x41b, 1)]},
     104: {"skip": [(0x5e8 + 0x8, 384 - 8), (0xf8 + 0x3f8, 24)]}, 110: {"skip": [(0x5e8 + 0x8, 384 - 8), (0xf8 + 0x3f8, 24)]},
     # ★#88(i83): self 32B 에서 Vec 삼중항(+0..24) 제외 → focus/vision/v46_flee(+24..27) 비교 · 원소 usize 8B 전 바이트. 반환(sret SubPlan)도 함께 판정(LIVE_RET).
     83: {"skip": []},   # Vec 삼중항은 HEAP_SUBST 동적 skip · len/내용은 ②′(raw 8B)
@@ -482,6 +488,8 @@ SELF_DIFF = {
 #        **다른 입력**을 받는다 ⟹ 거짓 DIFF. (`StdRng` 을 되돌리는 것과 **정확히 같은 이유**다.)
 #   값 = {slot: [(인자idx, 바이트수), …]}
 ARG_SNAP = {
+    88: [(5, 384), (6, 1)],   # #93: a5 &mut BigPlan(drop 후 재구성) · a6 &mut u8 src
+    100: [],
     104: [(6, 24)],     # r11 handle_chat_inner a6 = 값전달 Chat 24B(dead_on_return)
     107: [(6, 384)],    # r11 a6 &mut BigPlan — 게임 전 상태 복원 + 게임 후 스냅샷(s6) = ③′ 비교 재료
     108: [(6, 384)],
@@ -507,6 +515,9 @@ ARG_SNAP = {
 ELEM_LIVE = {
     # `(i32, u8)` 8B 튜플(TeamPlan.comeback_pick_outcomes) — i32@0 · u8@4 · +5..7 패딩(09-14 r11 판 2).
     "i32u8": {"live": [(0x0, 4, []), (0x4, 1, [])], "str": []},
+    # `game_core::StealSession` 112B(TeamPlan.completed_steal_sessions · 19차 D): start_tick@0 · end_tick@8 · 88B memcpy(TeamPlan 0x160~0x1b7)@0x10 ·
+    #   outcome@0x68 · target@0x69 · enemy_jungler_alive@0x6a · +0x6b..0x6f 패딩.
+    "steal": {"live": [(0x0, 8, []), (0x8, 8, []), (0x10, 88, []), (0x68, 3, [])], "str": []},
     # ★`game_core::Chat` — **tcx 자동 생성**(`MIG\enumlive.py game_core::Chat`). 손 맵은 `+8..15` 를 항상 live 로 둬
     #   tag 7(BattleStop, +8 은 1B)에서 거짓 DIFF 가 났다(2026-09-13). 57 variant 의 페이로드 위치가 전부 다르다.
     "chat": {"live": [
@@ -557,6 +568,9 @@ _BIGPLAN_SPEC = {"off": 0x5e8, "tags": (2, 17), "vecs": _BIGPLAN_VECS}
 #   전제(IR 실측으로 확인) = ①그 경로에서 self 소유 힙을 건드리는 곳이 **여기 적은 필드뿐** ②요소가 힙을 안 갖거나(평면)
 #        가지면 `ELEM_LIVE.str` 로 다룬다. ③착수 전 검사 = `heapsurf.py`(grow_one/drop 대상을 %0 오프셋으로 역추적).
 HEAP_SUBST = {
+    # 후순위 2(09-14): #93 a5 스택 BigPlan(arg=5) · #105 TeamPlan chats@0xc0 + completed_steal_sessions@0xf0(StealSession 112B · ELEM_LIVE "steal")
+    88: [{"off": 0, "tags": (2, 17), "vecs": _BIGPLAN_VECS, "arg": 5}],
+    100: [{"off": 0, "tags": None, "vecs": [(0xc0, 24, "chat"), (0xf0, 112, "steal")]}],
     # r11 거대(09-14 · 명세 writes/HEAP 재료 · tcxdict 오프셋)
     102: [{"off": 0, "tags": None, "vecs": [(0x68, 24, "chat"), (0x80, 8)]}],
     109: [{"off": 0, "tags": None, "vecs": [(0x68, 24, "chat"), (0x80, 8)]}],
@@ -604,13 +618,20 @@ LIVE_IDS = {nm: n + 1 for n, nm in enumerate(sorted(ELEM_LIVE))}   # 0 = raw byt
 #        정밀 비교하면 제외가 사라진다. Vec 의 len·내용은 HEAP_SUBST(②′)가 따로 비교한다.
 #   값 = {slot: [(열거형 필드의 self 내 off, 열거형 타입 전체이름), …]}  (태그 8B 는 본체 루프가 비교)
 #   ⚠SELF_DIFF[slot]["skip"] 에 그 페이로드 구간을 **그대로 둔다**(본체 루프에서 빼고 여기서 정밀 비교).
+# ★평면 &mut 인자 비교(09-14 · #93 a6 `&mut u8` src 코드): {idx: [(argk, nb)]} — ARG_SNAP 의 게임 후 스냅샷 s{k} vs 내 사본 후 a{k}. ARG_SNAP 에 같은 (k, nb) 필수.
+ARG_DIFF = {
+    88: [(6, 1)],
+}
+
 # ★arg 열거형 live 맵(09-14 r11): {idx: [(argk, eoff, 타입)]} — HEAP_SUBST "arg" 명세와 짝. 방출명 enumlive_cmp_{idx}_{50+ei}.
 ARG_ENUM_LIVE = {
+    88: [(5, 0x0, "game_ai::plan_legacy::types::BigPlan")],    # #93 a5 = 스택 BigPlan(호출부 m13.ll:14661 alloca · self.plan 과 별개 = 힙 치환 이중 없음)
     107: [(6, 0x0, "game_ai::plan_legacy::types::BigPlan")],
     108: [(6, 0x0, "game_ai::plan_legacy::types::BigPlan")],
 }
 
 ENUM_LIVE = {
+    88: [(0x5e8, "game_ai::plan_legacy::types::BigPlan")],    # #93 self.plan(안쪽 sweep 영향 대비)
     104: [(0x5e8, "game_ai::plan_legacy::types::BigPlan")],   # r11 handle_chat_inner(#12 와 동일)
     110: [(0x5e8, "game_ai::plan_legacy::types::BigPlan")],   # r11 handle_interact_battle
     11: [(0x5e8, "game_ai::plan_legacy::types::BigPlan"), (0x768, "game_ai::plan_legacy::sub_plan::SubPlan")],
@@ -858,7 +879,7 @@ MUT_OK_ARG = {35: {13: "DebugFrameData"}, 49: {8: "DebugFrameData"}, 56: {7: "De
               82: {8: "DebugFrameData"}, 96: {8: "DebugFrameData"}, 86: {6: "DebugFrameData"}, 87: {6: "DebugFrameData"},
               81: {7: "DebugFrameData"}, 94: {7: "DebugFrameData"}, 95: {5: "DebugFrameData"}, 80: {7: "DebugFrameData", 1: "LegacyPlanHandler"},
               # r11(09-14): 마지막 인자 &224 DebugFrameData · passive_plan self = &self(유일 쓰기 atomicrmw eo_cover_picks 카운터 · 19차/r11 B) · update_v32 %5 team_plan = &(store 0)
-              102: {7: "DebugFrameData"}, 104: {8: "DebugFrameData"}, 105: {1: "LegacyPlanHandler", 6: "DebugFrameData"},
+              88: {7: "DebugFrameData"}, 102: {7: "DebugFrameData"}, 104: {8: "DebugFrameData"}, 105: {1: "LegacyPlanHandler", 6: "DebugFrameData"},
               107: {7: "DebugFrameData"}, 108: {7: "DebugFrameData"}, 109: {5: "LegacyPlanHandler", 6: "DebugFrameData"}, 110: {5: "DebugFrameData"}}   # #49 a8 = &mut DebugFrameData(224B · IR %8 dereferenceable(224))
 # ★internal 함수는 define 에 `sret([N x i8])` 속성이 없다(LLVM 이 내부 호출규약에서 생략) — 파서가 「반환 void + 가변 a0」로 읽는다.
 #   `resolve_fight_uncached`(a0 = dereferenceable(64) 출력 버퍼) 실사고(09-13). 여기 적은 idx 는 a0 을 sret N 바이트로 강제한다.
@@ -1192,6 +1213,9 @@ def main():
             if not a[2] or a[1] == 320:
                 continue
             # ★09-14(r11 #107/#108 a6 &mut BigPlan): ARG_SNAP(바이트 복원) + HEAP_SUBST "arg"(소유 Vec 힙 치환) 로 **처리 방법이 있는 가변**.
+            if any(j == k for (j, _) in ARG_SNAP.get(i, [])) and any(j == k for (j, _) in ARG_DIFF.get(i, [])):
+                caveat.append(u"a%d: &mut 평면 인자(%dB) — ARG_SNAP 복원 + ARG_DIFF 바이트 비교(게임 후 s%d vs 내 사본 후)" % (k, a[1], k))
+                continue
             if any(j == k for (j, _) in ARG_SNAP.get(i, [])) and any(h[3] == k for h in heap_specs(i)):
                 caveat.append(u"a%d: &mut 게임 상태(%dB) — ARG_SNAP 복원 + HEAP_SUBST arg 힙 치환 · ③′ 비교(게임 후 s%d vs 내 사본 후)" % (k, a[1], k))
                 continue
@@ -1941,6 +1965,10 @@ def main():
                 w(u"        }")
             w(u"        None")
             w(u"    }) });")
+            for (ak2, nb2) in ARG_DIFF.get(r["idx"], []):
+                assert any(j == ak2 and n2 == nb2 for (j, n2) in ARG_SNAP.get(r["idx"], [])), u"ARG_DIFF[%d] (%d,%d) 는 ARG_SNAP 에 같은 항목이 있어야 한다" % (r["idx"], ak2, nb2)
+                w(u"    // ★ARG_DIFF a%d(%dB): 게임 후 스냅샷 s%d vs 내 사본 후 a%d(복원 전)" % (ak2, nb2, ak2, ak2))
+                w(u"    let sd: Option<String> = sd.or_else(|| { for j in 0..%dusize { let (gv, mv) = (s%d[j], *((a%d as usize + j) as *const u8)); if gv != mv { return Some(format!(\"a%d+{:#x}: g={:02x} m={:02x}\", j, gv, mv)); } } None });" % (nb2, ak2, ak2, ak2))
             if es:
                 w(u"    // ★내 사본이 **새로 push 한** 요소의 `String` 을 해제한다(내 DLL 의 할당이다).")
                 w(u"    //   ⚠`pre` 미만 요소는 **게임 버퍼의 바이트 복사본**이라 그 ptr 은 **게임 소유**다 — 절대 해제 금지.")
