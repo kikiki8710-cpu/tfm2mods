@@ -1,0 +1,332 @@
+{
+ "round": 18,
+ "batch": "G",
+ "errors": [
+  {
+   "path": "/specs[57]/mem[6]/name",
+   "kind": "보강",
+   "old": "game",
+   "new": "game.data_ptr",
+   "evidence": "G20 R1 명명 통일(18차 배치G · r9 신규): (AbstractGameWithCache 0x0) 의 정본 이름 = `game.data_ptr`(검증된 구 명세 관습 · tcxdict `@` 표기). 값·오프셋 불변, 설명은 note 에",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[57]/mem[16]/name",
+   "kind": "보강",
+   "old": "morgard_use@tag / Split131.position1",
+   "new": "morgard_use / Split131.position1",
+   "evidence": "G20 R1 명명 통일(18차 배치G · r9 신규): (Strategy 0x4) 의 정본 이름 = `morgard_use`(검증된 구 명세 관습 · tcxdict `@` 표기). 값·오프셋 불변, 설명은 note 에",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[57]/mem[21]/name",
+   "kind": "보강",
+   "old": "ty@Tower.info.ty@tag",
+   "new": "ty@Tower.info.ty",
+   "evidence": "G20 R1 명명 통일(18차 배치G · r9 신규): (Entity 0x128) 의 정본 이름 = `ty@Tower.info.ty`(검증된 구 명세 관습 · tcxdict `@` 표기). 값·오프셋 불변, 설명은 note 에",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[57]/mem[33]/name",
+   "kind": "보강",
+   "old": "objective@tag",
+   "new": "objective",
+   "evidence": "G20 R1 명명 통일(18차 배치G · r9 신규): (TeamPlan 0x41f) 의 정본 이름 = `objective`(검증된 구 명세 관습 · tcxdict `@` 표기). 값·오프셋 불변, 설명은 note 에",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[59]/mem[13]/name",
+   "kind": "보강",
+   "old": "game",
+   "new": "game.data_ptr",
+   "evidence": "G20 R1 명명 통일(18차 배치G · r9 신규): (AbstractGameWithCache 0x0) 의 정본 이름 = `game.data_ptr`(검증된 구 명세 관습 · tcxdict `@` 표기). 값·오프셋 불변, 설명은 note 에",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[60]/mem[0]/name",
+   "kind": "보강",
+   "old": "game.data",
+   "new": "game.data_ptr",
+   "evidence": "G20 R1 명명 통일(18차 배치G · r9 신규): (AbstractGameWithCache 0x0) 의 정본 이름 = `game.data_ptr`(검증된 구 명세 관습 · tcxdict `@` 표기). 값·오프셋 불변, 설명은 note 에",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[60]/mem[1]/name",
+   "kind": "보강",
+   "old": "game.vtable",
+   "new": "game.vtable_ptr",
+   "evidence": "G20 R1 명명 통일(18차 배치G · r9 신규): (AbstractGameWithCache 0x8) 의 정본 이름 = `game.vtable_ptr`(검증된 구 명세 관습 · tcxdict `@` 표기). 값·오프셋 불변, 설명은 note 에",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[62]/mem[5]/name",
+   "kind": "보강",
+   "old": "jungle_runner.epic.live_list.buf.inner.ptr",
+   "new": "jungle_runner.epic.live_list.ptr",
+   "evidence": "G20 R1 명명 통일(18차 배치G · r9 신규): (MobaMode 0x1a0) 의 정본 이름 = `jungle_runner.epic.live_list.ptr`(검증된 구 명세 관습 · tcxdict `@` 표기). 값·오프셋 불변, 설명은 note 에",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[62]/mem[7]/name",
+   "kind": "보강",
+   "old": "jungle_runner.serpen.live_list.buf.inner.ptr",
+   "new": "jungle_runner.serpen.live_list.ptr",
+   "evidence": "G20 R1 명명 통일(18차 배치G · r9 신규): (MobaMode 0x1d0) 의 정본 이름 = `jungle_runner.serpen.live_list.ptr`(검증된 구 명세 관습 · tcxdict `@` 표기). 값·오프셋 불변, 설명은 note 에",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[65]/mem[3]/name",
+   "kind": "보강",
+   "old": "skill_effect@Some.0",
+   "new": "skill_effect",
+   "evidence": "G20 R1 명명 통일(18차 배치G · r9 신규): (Entity 0x4c8) 의 정본 이름 = `skill_effect`(검증된 구 명세 관습 · tcxdict `@` 표기). 값·오프셋 불변, 설명은 note 에",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[65]/mem[4]/name",
+   "kind": "보강",
+   "old": "skill_effect@Some.0.target",
+   "new": "skill_effect.target",
+   "evidence": "G20 R1 명명 통일(18차 배치G · r9 신규): (Entity 0x4f0) 의 정본 이름 = `skill_effect.target`(검증된 구 명세 관습 · tcxdict `@` 표기). 값·오프셋 불변, 설명은 note 에",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[65]/mem[6]/name",
+   "kind": "보강",
+   "old": "skill2_effect@Some.0",
+   "new": "skill2_effect",
+   "evidence": "G20 R1 명명 통일(18차 배치G · r9 신규): (Entity 0x500) 의 정본 이름 = `skill2_effect`(검증된 구 명세 관습 · tcxdict `@` 표기). 값·오프셋 불변, 설명은 note 에",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[66]/mem[6]/name",
+   "kind": "보강",
+   "old": "game(&dyn AbstractGame data+vtable)",
+   "new": "game.data_ptr(&dyn AbstractGame data+vtable)",
+   "evidence": "G20 R1 명명 통일(18차 배치G · r9 신규): (AbstractGameWithCache 0x0) 의 정본 이름 = `game.data_ptr`(검증된 구 명세 관습 · tcxdict `@` 표기). 값·오프셋 불변, 설명은 note 에",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[67]/mem[0]/name",
+   "kind": "보강",
+   "old": "objective@Some.0@tag (MainObjective: 0=Morgard 1=Serpen)",
+   "new": "objective (MainObjective: 0=Morgard 1=Serpen)",
+   "evidence": "G20 R1 명명 통일(18차 배치G · r9 신규): (TeamPlan 0x41f) 의 정본 이름 = `objective`(검증된 구 명세 관습 · tcxdict `@` 표기). 값·오프셋 불변, 설명은 note 에",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[67]/mem[11]/name",
+   "kind": "보강",
+   "old": "game data/vtable",
+   "new": "game.data_ptr data/vtable",
+   "evidence": "G20 R1 명명 통일(18차 배치G · r9 신규): (AbstractGameWithCache 0x0) 의 정본 이름 = `game.data_ptr`(검증된 구 명세 관습 · tcxdict `@` 표기). 값·오프셋 불변, 설명은 note 에",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[68]/mem[0]/name",
+   "kind": "보강",
+   "old": "@tag",
+   "new": "tag",
+   "evidence": "G20 R1 명명 통일(18차 배치G · r9 신규): (BattlePlanGoal 0x0) 의 정본 이름 = `tag`(검증된 구 명세 관습 · tcxdict `@` 표기). 값·오프셋 불변, 설명은 note 에",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[68]/mem[6]/name",
+   "kind": "보강",
+   "old": "game data/vtable",
+   "new": "game.data_ptr data/vtable",
+   "evidence": "G20 R1 명명 통일(18차 배치G · r9 신규): (AbstractGameWithCache 0x0) 의 정본 이름 = `game.data_ptr`(검증된 구 명세 관습 · tcxdict `@` 표기). 값·오프셋 불변, 설명은 note 에",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[69]/mem[7]/name",
+   "kind": "보강",
+   "old": "game data/vtable",
+   "new": "game.data_ptr data/vtable",
+   "evidence": "G20 R1 명명 통일(18차 배치G · r9 신규): (AbstractGameWithCache 0x0) 의 정본 이름 = `game.data_ptr`(검증된 구 명세 관습 · tcxdict `@` 표기). 값·오프셋 불변, 설명은 note 에",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[69]/mem[12]/name",
+   "kind": "보강",
+   "old": "@tag = 0 (TryKill)",
+   "new": "tag = 0 (TryKill)",
+   "evidence": "G20 R1 명명 통일(18차 배치G · r9 신규): (BattlePlanGoal 0x0) 의 정본 이름 = `tag`(검증된 구 명세 관습 · tcxdict `@` 표기). 값·오프셋 불변, 설명은 note 에",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[69]/mem[17]/name",
+   "kind": "보강",
+   "old": "main_objective (3B)",
+   "new": "main_objective@tag (3B)",
+   "evidence": "G20 R1 명명 통일(18차 배치G · r9 신규): (BattlePlan 0xff) 의 정본 이름 = `main_objective@tag`(검증된 구 명세 관습 · tcxdict `@` 표기). 값·오프셋 불변, 설명은 note 에",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[70]/mem[6]/name",
+   "kind": "보강",
+   "old": "game (dyn AbstractGame data ptr)",
+   "new": "game.data_ptr (dyn AbstractGame data ptr)",
+   "evidence": "G20 R1 명명 통일(18차 배치G · r9 신규): (AbstractGameWithCache 0x0) 의 정본 이름 = `game.data_ptr`(검증된 구 명세 관습 · tcxdict `@` 표기). 값·오프셋 불변, 설명은 note 에",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[70]/mem[7]/name",
+   "kind": "보강",
+   "old": "game vtable",
+   "new": "game.vtable_ptr vtable",
+   "evidence": "G20 R1 명명 통일(18차 배치G · r9 신규): (AbstractGameWithCache 0x8) 의 정본 이름 = `game.vtable_ptr`(검증된 구 명세 관습 · tcxdict `@` 표기). 값·오프셋 불변, 설명은 note 에",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[70]/mem[11]/name",
+   "kind": "보강",
+   "old": "ally_battle_stop_tick[pos]@tag",
+   "new": "ally_battle_stop_tick[]",
+   "evidence": "G20 R1 명명 통일(18차 배치G · r9 신규): (TeamPlan 0x0) 의 정본 이름 = `ally_battle_stop_tick[]`(검증된 구 명세 관습 · tcxdict `@` 표기). 값·오프셋 불변, 설명은 note 에",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[70]/mem[27]/name",
+   "kind": "보강",
+   "old": "line@tag (FightLine)",
+   "new": "line (FightLine)",
+   "evidence": "G20 R1 명명 통일(18차 배치G · r9 신규): (FightPrediction 0x38) 의 정본 이름 = `line`(검증된 구 명세 관습 · tcxdict `@` 표기). 값·오프셋 불변, 설명은 note 에",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[70]/mem[28]/name",
+   "kind": "보강",
+   "old": "line_absolute@tag (FightLine)",
+   "new": "line_absolute (FightLine)",
+   "evidence": "G20 R1 명명 통일(18차 배치G · r9 신규): (FightPrediction 0x39) 의 정본 이름 = `line_absolute`(검증된 구 명세 관습 · tcxdict `@` 표기). 값·오프셋 불변, 설명은 note 에",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[71]/mem[2]/name",
+   "kind": "보강",
+   "old": "game (dyn data ptr)",
+   "new": "game.data_ptr (dyn data ptr)",
+   "evidence": "G20 R1 명명 통일(18차 배치G · r9 신규): (AbstractGameWithCache 0x0) 의 정본 이름 = `game.data_ptr`(검증된 구 명세 관습 · tcxdict `@` 표기). 값·오프셋 불변, 설명은 note 에",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[71]/mem[3]/name",
+   "kind": "보강",
+   "old": "game vtable",
+   "new": "game.vtable_ptr vtable",
+   "evidence": "G20 R1 명명 통일(18차 배치G · r9 신규): (AbstractGameWithCache 0x8) 의 정본 이름 = `game.vtable_ptr`(검증된 구 명세 관습 · tcxdict `@` 표기). 값·오프셋 불변, 설명은 note 에",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[71]/mem[17]/name",
+   "kind": "보강",
+   "old": "info.items.ptr",
+   "new": "info.items.buf.ptr",
+   "evidence": "G20 R1 명명 통일(18차 배치G · r9 신규): (PlayerState 0x4a0) 의 정본 이름 = `info.items.buf.ptr`(검증된 구 명세 관습 · tcxdict `@` 표기). 값·오프셋 불변, 설명은 note 에",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[72]/mem[0]/name",
+   "kind": "보강",
+   "old": "objective@Some.0@tag (MainObjective)",
+   "new": "objective (MainObjective)",
+   "evidence": "G20 R1 명명 통일(18차 배치G · r9 신규): (TeamPlan 0x41f) 의 정본 이름 = `objective`(검증된 구 명세 관습 · tcxdict `@` 표기). 값·오프셋 불변, 설명은 note 에",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[72]/mem[9]/name",
+   "kind": "보강",
+   "old": "game (dyn data ptr)",
+   "new": "game.data_ptr (dyn data ptr)",
+   "evidence": "G20 R1 명명 통일(18차 배치G · r9 신규): (AbstractGameWithCache 0x0) 의 정본 이름 = `game.data_ptr`(검증된 구 명세 관습 · tcxdict `@` 표기). 값·오프셋 불변, 설명은 note 에",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[72]/mem[10]/name",
+   "kind": "보강",
+   "old": "game vtable",
+   "new": "game.vtable_ptr vtable",
+   "evidence": "G20 R1 명명 통일(18차 배치G · r9 신규): (AbstractGameWithCache 0x8) 의 정본 이름 = `game.vtable_ptr`(검증된 구 명세 관습 · tcxdict `@` 표기). 값·오프셋 불변, 설명은 note 에",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[74]/mem[5]/name",
+   "kind": "보강",
+   "old": "game(&dyn AbstractGame: data,vtable)",
+   "new": "game.data_ptr(&dyn AbstractGame: data,vtable)",
+   "evidence": "G20 R1 명명 통일(18차 배치G · r9 신규): (AbstractGameWithCache 0x0) 의 정본 이름 = `game.data_ptr`(검증된 구 명세 관습 · tcxdict `@` 표기). 값·오프셋 불변, 설명은 note 에",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[74]/mem[20]/name",
+   "kind": "보강",
+   "old": "epic.{epic_enemy_tick,epic_enemy_killed_tick,epic_ally_tick,epic_ally_killed_tick}@0x88..0xa0 · epic.stance@0xa8 · serpen.stance@0xe0",
+   "new": "epic.epic_enemy_tick · epic.stance@0xa8 · serpen.stance@0xe0",
+   "evidence": "G20 R1 명명 통일(18차 배치G · r9 신규): (GoalData 0x88) 의 정본 이름 = `epic.epic_enemy_tick`(검증된 구 명세 관습 · tcxdict `@` 표기). 값·오프셋 불변, 설명은 note 에",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[75]/mem[3]/name",
+   "kind": "보강",
+   "old": "game(&dyn AbstractGame)",
+   "new": "game.data_ptr(&dyn AbstractGame)",
+   "evidence": "G20 R1 명명 통일(18차 배치G · r9 신규): (AbstractGameWithCache 0x0) 의 정본 이름 = `game.data_ptr`(검증된 구 명세 관습 · tcxdict `@` 표기). 값·오프셋 불변, 설명은 note 에",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[75]/mem[21]/name",
+   "kind": "보강",
+   "old": "tutorial@tag(TutorialType)",
+   "new": "tutorial(TutorialType)",
+   "evidence": "G20 R1 명명 통일(18차 배치G · r9 신규): (GameContext 0x38) 의 정본 이름 = `tutorial`(검증된 구 명세 관습 · tcxdict `@` 표기). 값·오프셋 불변, 설명은 note 에",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[76]/mem[2]/name",
+   "kind": "보강",
+   "old": "game(&dyn AbstractGame)",
+   "new": "game.data_ptr(&dyn AbstractGame)",
+   "evidence": "G20 R1 명명 통일(18차 배치G · r9 신규): (AbstractGameWithCache 0x0) 의 정본 이름 = `game.data_ptr`(검증된 구 명세 관습 · tcxdict `@` 표기). 값·오프셋 불변, 설명은 note 에",
+   "behavior_change": false,
+   "found_by": "reused"
+  }
+ ],
+ "ev_up": [],
+ "brief_errors": []
+}

@@ -174,5 +174,53 @@
   "line": 0,
   "from": "call fastcc noundef zeroext i1 @_RNvMNtNtCshdEBA0ozCnw_7game_ai11plan_legacy7handlerNtB2_17LegacyPlanHandler32take_misunderstood_received_chat(",
   "to": "call noundef zeroext i1 @_RNvMNtNtCshdEBA0ozCnw_7game_ai11plan_legacy7handlerNtB2_17LegacyPlanHandler32take_misunderstood_received_chat("
+ },
+ {
+  "raw": true,
+  "note": "r9 #target_bush_v41 노출(2026-09-13 저녁): internal fastcc → external ccc(순수 함수 · sweep 편입).",
+  "file": "r9",
+  "line": 0,
+  "from": "define internal fastcc noundef i64 @_RNvMNtNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old9line_gank6gankerNtB2_14LineGankerPlan15target_bush_v41(",
+  "to": "define noundef i64 @_RNvMNtNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old9line_gank6gankerNtB2_14LineGankerPlan15target_bush_v41("
+ },
+ {
+  "raw": true,
+  "note": "위 define 의 call 사이트(부분문자열이 tail call 포함).",
+  "file": "r9",
+  "line": 0,
+  "from": "call fastcc noundef i64 @_RNvMNtNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old9line_gank6gankerNtB2_14LineGankerPlan15target_bush_v41(",
+  "to": "call noundef i64 @_RNvMNtNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old9line_gank6gankerNtB2_14LineGankerPlan15target_bush_v41("
+ },
+ {
+  "raw": true,
+  "note": "r9 #should_keep 노출(2026-09-13 저녁): internal fastcc → external ccc(순수 함수 · sweep 편입).",
+  "file": "r9",
+  "line": 0,
+  "from": "define internal fastcc noundef zeroext i1 @_RNvMs1_NtNtCshdEBA0ozCnw_7game_ai11plan_legacy9team_planNtB5_8TeamPlan46should_keep_object_for_contested_wave_priority(",
+  "to": "define noundef zeroext i1 @_RNvMs1_NtNtCshdEBA0ozCnw_7game_ai11plan_legacy9team_planNtB5_8TeamPlan46should_keep_object_for_contested_wave_priority("
+ },
+ {
+  "raw": true,
+  "note": "위 define 의 call 사이트(부분문자열이 tail call 포함).",
+  "file": "r9",
+  "line": 0,
+  "from": "call fastcc noundef zeroext i1 @_RNvMs1_NtNtCshdEBA0ozCnw_7game_ai11plan_legacy9team_planNtB5_8TeamPlan46should_keep_object_for_contested_wave_priority(",
+  "to": "call noundef zeroext i1 @_RNvMs1_NtNtCshdEBA0ozCnw_7game_ai11plan_legacy9team_planNtB5_8TeamPlan46should_keep_object_for_contested_wave_priority("
+ },
+ {
+  "raw": true,
+  "note": "r9 #check_epic_kill_time_with_hp 노출(2026-09-13 저녁): internal fastcc → external ccc(순수 함수 · sweep 편입).",
+  "file": "r9",
+  "line": 0,
+  "from": "define internal fastcc noundef i64 @_RNvNtCshdEBA0ozCnw_7game_ai9goal_data28check_epic_kill_time_with_hp(",
+  "to": "define noundef i64 @_RNvNtCshdEBA0ozCnw_7game_ai9goal_data28check_epic_kill_time_with_hp("
+ },
+ {
+  "raw": true,
+  "note": "위 define 의 invoke 사이트(부분문자열이 tail call 포함).",
+  "file": "r9",
+  "line": 0,
+  "from": "invoke fastcc noundef i64 @_RNvNtCshdEBA0ozCnw_7game_ai9goal_data28check_epic_kill_time_with_hp(",
+  "to": "invoke noundef i64 @_RNvNtCshdEBA0ozCnw_7game_ai9goal_data28check_epic_kill_time_with_hp("
  }
 ]

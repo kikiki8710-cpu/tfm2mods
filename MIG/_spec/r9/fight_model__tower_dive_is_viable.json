@@ -1,0 +1,128 @@
+{
+ "name": "tower_dive_is_viable",
+ "sym": "_RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old11fight_model20tower_dive_is_viable",
+ "src": "game-ai\\src\\plan_legacy\\old\\fight_model.rs",
+ "src_line": 935,
+ "ir_file": "m10.ll",
+ "ir_from": 42838,
+ "ir_to": 43820,
+ "aux": [
+  {"ir_file": "m10.ll", "ir_from": 56215, "ir_to": 56372, "note": "closure#0 call_mut 심 — near_enemies 필터(L952~955)"},
+  {"ir_file": "m10.ll", "ir_from": 56375, "ir_to": 56410, "note": "closure s0_0 call_mut 심 — near_allies filter_map(L962)"},
+  {"ir_file": "m10.ll", "ir_from": 56413, "ir_to": 56454, "note": "closure s6_0 call_mut 심 — dive_allies 필터(L1018)"},
+  {"ir_file": "m10.ll", "ir_from": 56457, "ir_to": 56537, "note": "closure s7_0 call_mut 심 — dive_enemies 필터(L1021~1022)"},
+  {"ir_file": "m01.ll", "ir_from": 25361, "ir_to": 25613, "note": "from_iter_in<FilterMap<Filter<Range,s_0>,s0_0>> 인스턴스 — closure s_0(L960~961) 인라인 본문"},
+  {"ir_file": "m01.ll", "ir_from": 30978, "ir_to": 31191, "note": "from_iter_in<Filter<FilterMap<Range,s5_0>,s6_0>> 인스턴스 — closure s5_0(L1017) 인라인 본문"}
+ ],
+
+ "one_line": "타워 다이브 실행 가능 판정 — 타워 포함 내 사망틱 vs 대상 사망틱(+탈출여유) 개인 레이스, 실패 시 팀모델(resolve_fight_stake) 로 재판정",
+
+ "signature": {
+  "params": [
+   {"i": 1, "name": "version", "type": "usize", "note": "AI 버전. `>1` 이면 우물 ETA 게이트·exit_margin 계산(L989). check_kill_die_tick·resolve_fight_stake·closure#0 에도 전달"},
+   {"i": 2, "name": "rnd", "type": "&mut StdRng", "note": "check_kill_die_tick·resolve_fight_stake 로 전달만"},
+   {"i": 3, "name": "player", "type": "&PlayerState(2528B)", "note": "info.team(+0x930)·info.position(+0x9c0)·info.parameter(+0x180)"},
+   {"i": 4, "name": "data", "type": "&OperationData(24B)", "note": "+0x0 cache(&AbstractGameWithCache) / +0x8 context / +0x10 blackboard[2]"},
+   {"i": 5, "name": "team_plan", "type": "&TeamPlan(1064B)", "note": "ally_battle_stop_tick[5]: Option<usize> (+0x0, stride 16B) 만 읽음 — closure s_0(L960)"},
+   {"i": 6, "name": "target", "type": "&Entity(1728B)", "note": "다이브 대상 적 챔피언"},
+   {"i": 7, "name": "team_model", "type": "bool", "note": "false 면 개인 레이스 결과만 반환. true 면 개인 레이스 실패 시 팀모델(resolve_fight_stake) 로 재판정(L1015)"},
+   {"i": 8, "name": "debug", "type": "&mut DebugFrameData", "note": "check_kill_die_tick·resolve_fight_stake 로 전달만"}
+  ],
+  "returns": "bool — true=다이브 감행 가능(viable)"
+ },
+
+ "reads": [
+  {"base": "PlayerState", "offset": "0x930", "name": "info.team", "note": "L945 · 배열 인덱스(<2 bounds check) · enemy_team = 1 - team (L951)"},
+  {"base": "PlayerState", "offset": "0x9c0", "name": "info.position@tag", "note": "L945 · i32 → player_champion[team][position]"},
+  {"base": "PlayerState", "offset": "0x180", "name": "info.parameter", "note": "L1025 · AthleteParameter::judge_accuracy(&player.info.parameter) 인자"},
+  {"base": "OperationData", "offset": "0x0", "name": "cache", "note": "&AbstractGameWithCache"},
+  {"base": "OperationData", "offset": "0x8", "name": "context", "note": "L948 · context.setting.tick_per_second"},
+  {"base": "OperationData", "offset": "0x10", "name": "blackboard", "note": "closure#0/s7_0 · blackboard[1 - player.team] 로 is_recent_visible 호출"},
+  {"base": "AbstractGameWithCache", "offset": "0x0", "name": "game (dyn AbstractGame data ptr)", "note": "L1030 · get_entity_by_id 호출 self / s7_0 is_recent_visible 인자"},
+  {"base": "AbstractGameWithCache", "offset": "0x8", "name": "game vtable", "note": "L1030 · vtable+0x1f0 = get_entity_by_id (divtable 확인)"},
+  {"base": "AbstractGameWithCache", "offset": "0x1e0", "name": "player_champion[2][5]: Option<&Entity>", "note": "L945 champ=[team][pos] · L951/1019 iter_champions(enemy_team) 슬라이스 · s0_0/s_0/s5_0 [my_team][pos]"},
+  {"base": "GameContext", "offset": "0x8", "name": "setting", "note": "L948"},
+  {"base": "GameSetting", "offset": "0x12f8", "name": "tick_per_second", "note": "L948 tps · L1008 tps/2 여유"},
+  {"base": "TeamPlan", "offset": "0x0", "name": "ally_battle_stop_tick[pos]@tag", "note": "closure s_0 L960 · is_none() (tag==0) 인 포지션만 near_allies 후보"},
+  {"base": "Entity", "offset": "0x0", "name": "team@tag", "note": "closure#0 (is_ignored_well_enemy 인라인 L755) · tag 0 = Team::Player"},
+  {"base": "Entity", "offset": "0x8", "name": "team@Player.0", "note": "closure#0 · == enemy_team(1-player.team) 확인"},
+  {"base": "Entity", "offset": "0x660", "name": "x", "note": "거리 제곱 계산 전반(L953/961/969/1018/1021/1032/992)"},
+  {"base": "Entity", "offset": "0x668", "name": "y", "note": "동상"},
+  {"base": "Entity", "offset": "0x5c0", "name": "id", "note": "closure s7_0 L1021 · e.id == target.id 면 무조건 포함"},
+  {"base": "Entity", "offset": "0x640", "name": "stat_cached.move_speed", "note": "L991 target 속도(well_eta) · L1003 champ 속도(exit_margin) · max(·,1)"},
+  {"base": "Entity", "offset": "0x4c0", "name": "attack_effect@tag(Niche)", "note": "L971/L1001 인라인 Effect::range · -1 이면 None → unwrap 패닉(L1013)"},
+  {"base": "Entity", "offset": "0x4a0", "name": "attack_effect.range", "note": "L971/L1001 타워 사거리 기본값 (effect.rs:26 인라인)"},
+  {"base": "Entity", "offset": "0x4a8", "name": "attack_effect.growth_range", "note": "× (level-1)"},
+  {"base": "Entity", "offset": "0x5c8", "name": "level", "note": "(level-1)*growth_range"},
+  {"base": "Entity", "offset": "0x438", "name": "stat_buff_cached.range", "note": "사거리 가산"},
+  {"base": "Entity", "offset": "0x470", "name": "stat_buff_cached.radius_mult", "note": "Entity::radius() 인라인(entity.rs:1511~1515) · 0 이면 radius 그대로, 아니면 radius*(100+mult)/100"},
+  {"base": "Entity", "offset": "0x680", "name": "radius", "note": "Effect::range 에 caster.radius()+target.radius() 가산"},
+  {"base": "FightPrediction", "offset": "0x20", "name": "rescue_ally@tag", "note": "L1029 · Some 이면 구조 아군 실재/거리 검사"},
+  {"base": "FightPrediction", "offset": "0x28", "name": "rescue_ally@Some.0 (aid)", "note": "L1029~1030 · get_entity_by_id(aid)"},
+  {"base": "FightPrediction", "offset": "0x38", "name": "line@tag (FightLine)", "note": "L1028 · 기본 판정선"},
+  {"base": "FightPrediction", "offset": "0x39", "name": "line_absolute@tag (FightLine)", "note": "L1035 · 구조 아군이 없거나 멀면 이 값으로 대체"}
+ ],
+
+ "writes": [],
+
+ "constants": [
+  {"value": 2, "src_line": 945, "meaning": "team 인덱스 bounds(팀 2개) — 판정 아님. 또한 L1041 FightLine::Disengage 메모리태그 2 (tcxdict --enum FightLine)"},
+  {"value": 5, "src_line": 959, "meaning": "포지션 수(0..5 range 상한 / player_champion 슬라이스 len) — 판정 아님"},
+  {"value": 1, "src_line": 951, "meaning": "enemy_team = 1 - team (L951) · version > 1 게이트(L989) · max(speed,1) 0나눗셈 방지(L991/1003) · level-1(L971) · tps>>1"},
+  {"value": 1, "folded_from": 2, "src_line": 1008, "meaning": "tps/2 (=0.5초 여유). `lshr i64 %tps, 1` 로 접힘 — individual_race 우변 가산"},
+  {"value": 160000, "src_line": 992, "meaning": "우물 도달 판정 여유 거리(5셀). well_eta = (dist(target, 적우물) -sat 160000) / max(target.speed,1)"},
+  {"value": 960000, "src_line": 990, "meaning": "적 우물 좌표(30셀): my_team==1 이면 (0,960000), my_team==0 이면 (960000,0) — 팀별 우물 위치 헬퍼 인라인(L1016 of 다른 파일)"},
+  {"value": 15000, "src_line": 971, "meaning": "Effect::range 인라인(effect.rs:26) 고정 가산 — 타워 사거리 = range + 15000 + stat_buff.range + (level-1)*growth_range + target.radius() + caster.radius()"},
+  {"value": 100, "src_line": 971, "meaning": "Entity::radius() 인라인(entity.rs:1515) radius*(100+radius_mult)/100"},
+  {"value": -1, "src_line": 971, "meaning": "attack_effect Option 니치 None 태그(i32) — None 이면 unwrap 패닉(L1013)"},
+  {"value": 30000, "src_line": 1032, "meaning": "페어링 반경 여유(≈0.94셀): dist_sq(target, rescue_ally) > (max_range+30000)^2 이면 구조 아군 '멀다'. closure#0 L953 에서도 같은 값으로 near_enemies 반경"},
+  {"value": 22500000001, "src_line": 1021, "meaning": "150000^2+1 — closure s7_0: target 반경 150000(4.69셀) 이내 적 = dive_enemies (aux m10:56457~)"},
+  {"value": 40000000001, "src_line": 1018, "meaning": "200000^2+1 — closure s6_0: target 반경 200000(6.25셀) 이내 아군 = dive_allies (aux m10:56413~)"},
+  {"value": 14400000001, "src_line": 961, "meaning": "120000^2+1 — closure s_0: champ(나) 반경 120000(3.75셀) 이내 & ally_battle_stop_tick 없는 아군 = near_allies (aux m01:25361~)"},
+  {"value": 6, "src_line": 969, "meaning": "iter_towers_without_nexus 결과 배열 [Option<&Entity>;6] 원소 수 — 판정 아님"}
+ ],
+
+ "calls": [
+  "bumpalo::collections::vec::from_iter_in",
+  "game_core::simulation::AbstractGameWithCache::iter_towers_without_nexus",
+  "core::iter::traits::iterator::Iterator::next",
+  "core::iter::adapters::map::fold",
+  "core::option::unwrap_failed",
+  "game_core::simulation::entity::Entity::distance",
+  "core::clone::Clone::clone",
+  "game_ai::fight_check::check_kill_die_tick",
+  "game_core::utils::distance",
+  "game_core::simulation::state::player::AthleteParameter::judge_accuracy",
+  "game_ai::plan_legacy::old::fight_model::resolve_fight_stake",
+  "game_ai::plan_legacy::old::battle::max_range_cached",
+  "core::ops::drop::Drop::drop",
+  "core::ptr::drop_glue",
+  "core::panicking::panic_bounds_check",
+  "game_core::simulation::game::blackboard::Blackboard::is_recent_visible",
+  "game_ai::path_finder::is_enemy_well_danger",
+  "game_ai::plan_legacy::old::fight_model::is_unreasonable_tower_dive_enemy"
+ ],
+
+ "logic": "fn tower_dive_is_viable(version, rnd, player, data, team_plan, target, team_model, debug) -> bool\n// L945\nlet champ = cache.player_champion[player.team][player.position] else { return false };\nlet tps = data.context.setting.tick_per_second;          // L948\nlet enemy_team = 1 - player.team;                          // L951\n\n// L951~957 near_enemies (closure#0, aux m10:56215~): 적 챔피언 e 중\n//   r = max(max_range_cached(data,champ,e), max_range_cached(data,e,champ));\n//   dist_sq(e,champ) <= (r+30000)^2                                  (L953, ugt 면 탈락)\n//   && blackboard[1-player.team].is_recent_visible(game, ctx, player, e)   (L954)\n//   && !is_ignored_well_enemy(version, player, data, e, with_declared_dive=true)  (L955, 인라인 899~903)\n//        v>=2: ignored = (e.team==Team::Player(enemy_team)) && is_enemy_well_danger(version, player, e.x, e.y)\n//        v<=1: ignored = ((e.team==Player(enemy_team)) && is_enemy_well_danger(..)) || is_unreasonable_tower_dive_enemy(_, player, data, e, true)\n// L959~962 near_allies (s_0/s0_0, aux m01:25361~): pos in 0..5 중\n//   team_plan.ally_battle_stop_tick[pos].is_none() && player_champion[my][pos]=Some(c) && dist_sq(c,champ) < 120000^2+1  → c  (champ 자신 포함 가능)\n// L969~972 nearest_enemy_tower =\n//   cache.iter_towers_without_nexus(enemy_team).min_by_key(|t| dist_sq(t,target))   // s1_0 인라인\n//     .filter(|t| t.distance(target) <= Effect::range(t.attack_effect.unwrap(), caster=t, target))   // L970~972 · ugt 면 None\n//   where range = ae.range + 15000 + t.stat_buff.range + (t.level-1)*ae.growth_range + target.radius() + t.radius()\n\n// L976~979\nlet die_tick_with_tower = check_kill_die_tick(version, rnd, data, player, champ, near_enemies.clone(), nearest_enemy_tower.into_iter().collect(), debug);\nlet target_die_tick     = check_kill_die_tick(version, rnd, data, player, target, near_allies.clone(), vec![], debug);\n\n// L989~1003\nlet exit_margin = if version > 1 {\n    let well = if player.team==1 {(0,960000)} else {(960000,0)};        // 적 우물 (L990)\n    let ts = max(target.move_speed, 1);                                // L991\n    let well_eta = distance(target.x,target.y, well).saturating_sub(160000) / ts;   // L992\n    if target_die_tick > well_eta { return false; }                    // L993 대상이 죽기 전에 우물 도착\n    match nearest_enemy_tower {                                        // L1000~1003\n      Some(t) => { let reach = Effect::range(t.attack_effect.unwrap(), t, champ);   // L1001 (같은 공식, target→champ)\n                   let exit_dist = reach.saturating_sub(t.distance(target));       // L1002\n                   exit_dist / max(champ.move_speed, 1) }                          // L1003\n      None => 0 }\n} else { 0 };\n\n// L1008\nlet individual_race = target_die_tick.saturating_add(exit_margin + tps/2) < die_tick_with_tower;\n// L1015\nif !team_model || individual_race { return individual_race; }\n\n// 팀모델 (team_model && !individual_race)\n// L1016~1018 dive_allies (s5_0/s6_0): pos in 0..5 → player_champion[my][pos] 중 dist_sq(a,target) < 200000^2+1\n// L1019~1022 dive_enemies (s7_0, aux m10:56457~): 적 챔피언 e 중 e.id==target.id || (dist_sq(e,target) < 150000^2+1 && blackboard[1-my].is_recent_visible(game,ctx,player,e))\n// L1024~1025\nlet pred: FightPrediction = resolve_fight_stake(version, rnd, data, player, champ, &dive_allies, &dive_enemies, 0u8, nearest_enemy_tower, judge_accuracy(&player.info.parameter), debug);\nlet mut line = pred.line;                                              // L1028 (+0x38)\nif let Some(aid) = pred.rescue_ally {                                  // L1029 (+0x20/+0x28)\n    let far = match game.get_entity_by_id(aid) {                       // L1030 vtable+0x1f0\n        None => true,\n        Some(a) => { let r = max(max_range_cached(data,target,a), max_range_cached(data,a,target));   // L1031\n                     dist_sq(target,a) > (r+30000)^2 }                                              // L1032 (dbg 이름 'helping' 이 이 값에 붙어 있음)\n    };\n    if far { line = pred.line_absolute; }                              // L1035 (+0x39)\n}\nreturn line != FightLine::Disengage;                                   // L1041 (tag 2)",
+
+ "knobs": [
+  {"what": "개인 레이스 시간 여유", "where": "fight_model.rs:1008 (tps>>1)", "value": 1, "effect": "shift 1 = tps/2. 줄이면(0=tps 그대로) 다이브 판정이 더 관대해짐(대상 사망틱에 더 큰 여유를 더하지 않음) — 실제로는 `tps/2` 의 2 를 바꾸는 것"},
+  {"what": "우물 도달 여유 거리", "where": "fight_model.rs:992", "value": 160000, "effect": "올리면 well_eta 가 작아져 '대상이 먼저 우물 도착' 으로 false 반환이 늘어남(다이브 덜 함)"},
+  {"what": "near_enemies 페어링 반경 여유", "where": "fight_model.rs:953 (aux)", "value": 30000, "effect": "올리면 더 먼 적까지 내 사망틱 계산에 포함 → die_tick_with_tower 감소 → 다이브 덜 함"},
+  {"what": "rescue_ally 실효 거리 여유", "where": "fight_model.rs:1032", "value": 30000, "effect": "올리면 더 먼 구조 아군도 '돕는 중' 으로 인정 → line(구조 포함) 유지 → 팀모델 다이브 승인 늘어남"},
+  {"what": "near_allies 반경(제곱)", "where": "fight_model.rs:961 (aux m01)", "value": 14400000001, "effect": "올리면 더 먼 아군이 target 사망틱 계산에 합류 → target_die_tick 감소 → 다이브 승인 늘어남"},
+  {"what": "dive_allies 반경(제곱)", "where": "fight_model.rs:1018 (aux)", "value": 40000000001, "effect": "올리면 팀모델 아군 수 증가 → resolve_fight_stake 유리"},
+  {"what": "dive_enemies 반경(제곱)", "where": "fight_model.rs:1021 (aux)", "value": 22500000001, "effect": "올리면 팀모델 적 수 증가 → resolve_fight_stake 불리"},
+  {"what": "version 게이트", "where": "fight_model.rs:989", "value": 1, "effect": "version<=1 이면 우물 ETA 게이트·exit_margin 이 전부 생략(exit_margin=0)"}
+ ],
+
+ "unknown": [
+  "L990 적 우물 좌표 헬퍼의 원 함수명 — 다른 파일 L1016 인라인(`;L1016<990`)으로 (0,960000)/(960000,0) 선택만 남음. 소스 파일 미확인",
+  "check_kill_die_tick 내부(m?)·resolve_fight_stake 내부·max_range_cached·is_recent_visible·is_enemy_well_danger·is_unreasonable_tower_dive_enemy 본문은 안 봄(범위 밖)",
+  "L1032 dbg 이름 'helping' 이 `dist_sq > (r+30000)^2`(=멀다) 값에 붙어 있어 소스 변수명 극성은 확정 불가 — 명세는 분기 방향(멀면 line_absolute) 기준",
+  "closure#0 의 blackboard 인덱스가 `1 - player.team`(적 팀 보드)인 이유 — IR 그대로 기록. Blackboard 의미는 미조사",
+  "is_unreasonable_tower_dive_enemy 의 version 인자가 `poison` 으로 넘어감 — 그 함수가 version 을 안 읽는다는 뜻으로 보이나 본문 미확인",
+  "resolve_fight_stake 의 9번째 인자 i8 0 의 의미(열거형/플래그) 미확인",
+  "동명 복제본 `death_battle::single_tower_dive_is_viable`(m05:44249?) / `single_battle::single_tower_dive_is_viable`(m05:44249) 은 담당 밖 — 본 명세는 fight_model 판만"
+ ]
+}

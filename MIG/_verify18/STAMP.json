@@ -1,0 +1,82 @@
+{
+ "A": {
+  "dossier": "85a98335f2932e89",
+  "specs": [
+   "spec_57_handle_press_epic.md",
+   "spec_58_target_bush_v41.md",
+   "spec_59_is_unreasonable_tower_dive_enemy.md",
+   "spec_60_can_trace_without_tower.md",
+   "spec_61_bush_distance_sq.md"
+  ],
+  "spec_hashes": {
+   "spec_57_handle_press_epic.md": "414b5be340b13787",
+   "spec_58_target_bush_v41.md": "140f9c5863664ac0",
+   "spec_59_is_unreasonable_tower_dive_enemy.md": "22cac1689a511ae5",
+   "spec_60_can_trace_without_tower.md": "f08395a8a49490e0",
+   "spec_61_bush_distance_sq.md": "31d8fde702a286ba"
+  },
+  "mkdossier": "81d9294dd98fa641",
+  "v3": "ececdafa0a5606fe",
+  "built": "2026-09-13 18:15:37"
+ },
+ "B": {
+  "dossier": "a8f7939901a6189f",
+  "specs": [
+   "spec_62_v23_enemy_object_pressure.md",
+   "spec_63_should_keep_object_for_contested_wave_priority.md",
+   "spec_64_v25_objective_splitter_can_stay.md",
+   "spec_65_check_epic_kill_time_with_hp.md",
+   "spec_66_evaluate_gank_opportunity_with_score.md"
+  ],
+  "spec_hashes": {
+   "spec_62_v23_enemy_object_pressure.md": "171942305c49958b",
+   "spec_63_should_keep_object_for_contested_wave_priority.md": "1f6355986f0a3a7d",
+   "spec_64_v25_objective_splitter_can_stay.md": "dd32b58c387c340b",
+   "spec_65_check_epic_kill_time_with_hp.md": "56cb6c57774c34f1",
+   "spec_66_evaluate_gank_opportunity_with_score.md": "dc686350e19a153a"
+  },
+  "mkdossier": "81d9294dd98fa641",
+  "v3": "ececdafa0a5606fe",
+  "built": "2026-09-13 18:15:37"
+ },
+ "C": {
+  "dossier": "2203e532c7e216e8",
+  "specs": [
+   "spec_67_v24_objective_setup_lane_pressure_ready.md",
+   "spec_68_base_sub_goal.md",
+   "spec_69_try_engage_dive.md",
+   "spec_70_tower_dive_is_viable.md",
+   "spec_71_should_recall_to_shop.md"
+  ],
+  "spec_hashes": {
+   "spec_67_v24_objective_setup_lane_pressure_ready.md": "d6a0caae4803429b",
+   "spec_68_base_sub_goal.md": "6676076d1da2fbaa",
+   "spec_69_try_engage_dive.md": "6b54dccfc7b5d397",
+   "spec_70_tower_dive_is_viable.md": "f3900f6aecbbbd31",
+   "spec_71_should_recall_to_shop.md": "92443711feb6d88f"
+  },
+  "mkdossier": "81d9294dd98fa641",
+  "v3": "ececdafa0a5606fe",
+  "built": "2026-09-13 18:15:37"
+ },
+ "D": {
+  "dossier": "92b81c1967fdf157",
+  "specs": [
+   "spec_72_SerpenHuntAndPokePlan__is_end.md",
+   "spec_73_wave_priority_clearer_position.md",
+   "spec_74_GoalData__update.md",
+   "spec_75_SerpenStanceData__update_plan.md",
+   "spec_76_EpicStanceData__update_plan.md"
+  ],
+  "spec_hashes": {
+   "spec_72_SerpenHuntAndPokePlan__is_end.md": "56cf3d20db85e87f",
+   "spec_73_wave_priority_clearer_position.md": "84fb851f768a14b7",
+   "spec_74_GoalData__update.md": "246b955b0acdc2ab",
+   "spec_75_SerpenStanceData__update_plan.md": "42f26346ad855f42",
+   "spec_76_EpicStanceData__update_plan.md": "c9f593efed058418"
+  },
+  "mkdossier": "81d9294dd98fa641",
+  "v3": "ececdafa0a5606fe",
+  "built": "2026-09-13 18:15:37"
+ }
+}

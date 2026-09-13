@@ -1,0 +1,85 @@
+{
+ "name": "SerpenHuntAndPokePlan::is_end",
+ "sym": "_RNvMNtNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old6serpen13hunt_and_pokeNtB2_21SerpenHuntAndPokePlan6is_end",
+ "src": "game-ai\\src\\plan_legacy\\old\\serpen\\hunt_and_poke.rs",
+ "src_line": 162,
+ "ir_file": "m10.ll",
+ "ir_from": 9387,
+ "ir_to": 9873,
+ "aux": [
+  {"ir_file": "m12.ll", "ir_from": 14062, "ir_to": 14274, "note": "min_by_key 폴드 인스턴스 — closure#0(is_recent_visible 필터)·s_0(camp 거리 키) 나머지 원소 처리. 첫 원소 탐색(5칸 언롤)은 본체에 인라인"}
+ ],
+
+ "one_line": "세르펜 헌트/포크 플랜 종료 판정 — 목표가 Serpen 이 아니거나, Setup 국면에서 해제/적 부재/적 원거리, 또는 세르펜이 죽고 리스폰이 15초 넘게 남으면 종료",
+
+ "signature": {
+  "params": [
+   {"i": 1, "name": "self", "type": "&SerpenHuntAndPokePlan", "note": "본문에서 안 읽음"},
+   {"i": 2, "name": "version", "type": "usize", "note": "v24_objective_setup_should_release_to_passive 로 전달만. 본문 분기 없음"},
+   {"i": 3, "name": "_rnd", "type": "&mut StdRng", "note": "readnone — 미사용"},
+   {"i": 4, "name": "player", "type": "&PlayerState(2528B)", "note": "info.team(+0x930)"},
+   {"i": 5, "name": "data", "type": "&OperationData(24B)", "note": "cache/context/blackboard"},
+   {"i": 6, "name": "team_plan", "type": "&TeamPlan(1064B)", "note": "objective(+0x41f 태그, +0x420 phase)"},
+   {"i": 7, "name": "_debug", "type": "&mut DebugFrameData", "note": "readnone — 미사용"}
+  ],
+  "returns": "bool — true=플랜 종료"
+ },
+
+ "reads": [
+  {"base": "TeamPlan", "offset": "0x41f", "name": "objective@Some.0@tag (MainObjective)", "note": "L163 take_active(Serpen) 인라인(team_plan.rs:244/231) · ==1(Serpen) 아니면 return true · L169 재확인"},
+  {"base": "TeamPlan", "offset": "0x420", "name": "objective@Serpen.phase (ObjectPhase)", "note": "L169 take_setup_like 인라인(team_plan.rs:258) · ==1(Setup) 일 때만 Setup 블록"},
+  {"base": "PlayerState", "offset": "0x930", "name": "info.team", "note": "L168 camp_pos(is_blue = team==0) · L174 is_visible_cell(team) · L175 enemy = 1-team"},
+  {"base": "OperationData", "offset": "0x0", "name": "cache", "note": "L174/L189"},
+  {"base": "OperationData", "offset": "0x8", "name": "context", "note": "L168 map / L191 setting"},
+  {"base": "OperationData", "offset": "0x10", "name": "blackboard[2]", "note": "L175 blackboard[1-team].is_recent_visible"},
+  {"base": "GameContext", "offset": "0x20", "name": "map (&MapDef)", "note": "L168 MapDef::camp_pos(map, JungleType::Serpen, team==0)"},
+  {"base": "GameContext", "offset": "0x8", "name": "setting", "note": "L191"},
+  {"base": "GameSetting", "offset": "0x12f8", "name": "tick_per_second", "note": "L191 tps*15"},
+  {"base": "AbstractGameWithCache", "offset": "0x0", "name": "game (dyn data ptr)", "note": "L174/189/190/191 vtable 호출 self"},
+  {"base": "AbstractGameWithCache", "offset": "0x8", "name": "game vtable", "note": "+0x100 is_visible_cell(L174) · +0x40 get_game_mode(L189/191) · +0x1f0 get_entity_by_id(L190) · +0x28 tick(L191) (divtable 확인)"},
+  {"base": "AbstractGameWithCache", "offset": "0x1e0", "name": "player_champion[2][5]", "note": "L175 iter_champions(1-team) 슬라이스"},
+  {"base": "Entity", "offset": "0x660", "name": "x", "note": "L176/179 camp 거리"},
+  {"base": "Entity", "offset": "0x668", "name": "y", "note": "동상"},
+  {"base": "GameMode", "offset": "0x0", "name": "tag", "note": "L189/191 · 0=Moba 아니면 unwrap 패닉(L1013)"},
+  {"base": "GameMode", "offset": "0x8", "name": "Moba.0 (&MobaMode)", "note": ""},
+  {"base": "MobaMode", "offset": "0x1d0", "name": "jungle_runner.serpen.live_list.ptr", "note": "L189 live_list.first() → id"},
+  {"base": "MobaMode", "offset": "0x1d8", "name": "jungle_runner.serpen.live_list.len", "note": "L189 ==0 이면 serpen None"},
+  {"base": "MobaMode", "offset": "0x1e0", "name": "jungle_runner.serpen.next_respawn_tick", "note": "L191 (next_respawn_tick -sat tick) > tps*15"}
+ ],
+
+ "writes": [],
+
+ "constants": [
+  {"value": 1, "src_line": 163, "meaning": "MainObjective 메모리태그 1 = Serpen (tcxdict --enum MainObjective) · L169 ObjectPhase 태그 1 = Setup · L175 enemy = 1 - team"},
+  {"value": 5, "src_line": 168, "meaning": "JungleType 태그 5 = Serpen (tcxdict --enum JungleType) — camp_pos·take_active·should_release_to_passive 인자"},
+  {"value": 32000, "src_line": 174, "meaning": "셀 크기 — camp 좌표 → 셀 좌표 변환(is_visible_cell 인자). 임계 아님"},
+  {"value": 22500000000, "src_line": 179, "meaning": "150000^2 — 캠프에서 가장 가까운 가시 적 챔피언이 150000(4.69셀) 초과 거리면 종료(ugt)"},
+  {"value": 15, "src_line": 191, "meaning": "tps*15 = 15초. 세르펜 부재 시 (next_respawn_tick - tick) 가 15초 초과면 종료"},
+  {"value": 0, "src_line": 168, "meaning": "team==0 → is_blue_side(camp_pos bool 인자) · L189/191 GameMode 태그 0=Moba · L189 live_list.len==0"},
+  {"value": 2, "src_line": 175, "meaning": "팀 인덱스 bounds(1-team < 2) — 판정 아님"}
+ ],
+
+ "calls": [
+  "game_core::simulation::map_def::MapDef::camp_pos",
+  "game_ai::plan_legacy::team_plan::objective_discipline::TeamPlan::v24_objective_setup_should_release_to_passive",
+  "game_core::simulation::game::blackboard::Blackboard::is_recent_visible",
+  "core::iter::adapters::map::fold",
+  "core::panicking::panic_bounds_check",
+  "core::option::unwrap_failed"
+ ],
+
+ "logic": "fn is_end(&self, version, _rnd, player, data, team_plan, _debug) -> bool\n// L163  take_active(JungleType::Serpen) 인라인(team_plan.rs:244→231 objective_target)\nif team_plan.objective.tag != MainObjective::Serpen(1) { return true; }\n// L168\nlet camp_pos = ctx.map.camp_pos(JungleType::Serpen, is_blue = player.team == 0);\n// L169  take_setup_like 인라인(team_plan.rs:258): objective == Serpen && phase == ObjectPhase::Setup(1)\nif team_plan.objective.tag == 1 && team_plan.objective.phase(+0x420) == 1 {\n    // L170\n    if team_plan.v24_objective_setup_should_release_to_passive(version, player, data, JungleType::Serpen) { return true; }\n    // L174  vtable+0x100\n    if game.is_visible_cell(player.team, camp_pos.x / 32000, camp_pos.y / 32000) {\n        // L175~176  enemy_team = 1 - player.team\n        let nearest_to_camp_enemy = cache.iter_champions(enemy_team)\n            .filter(|e| blackboard[enemy_team].is_recent_visible(game, ctx, player, e))   // closure#0\n            .min_by_key(|e| dist_sq(e, camp_pos));                                          // closure s_0 (aux m12)\n        // L178\n        let Some(e) = nearest_to_camp_enemy else { return true; };\n        // L179\n        if dist_sq(e, camp_pos) > 22500000000 { return true; }\n    }\n}\n// L189  vtable+0x40 get_game_mode → Moba 아니면 unwrap 패닉\nlet m = game.get_game_mode().as_moba().unwrap();\nlet serpen = m.jungle_runner.serpen.live_list.first().and_then(|id| game.get_entity_by_id(*id));   // vtable+0x1f0\n// L190\nif serpen.is_some() { return false; }\n// L191\nlet m = game.get_game_mode().as_moba().unwrap();\nreturn m.jungle_runner.serpen.next_respawn_tick.saturating_sub(game.tick()) > tps * 15;   // vtable+0x28 tick",
+
+ "knobs": [
+  {"what": "Setup 국면 적 원거리 종료 임계(제곱)", "where": "hunt_and_poke.rs:179", "value": 22500000000, "effect": "올리면(150000→더 큼) 적이 캠프에서 더 멀어야 종료 → 플랜이 더 오래 유지됨. 내리면 적이 조금만 떨어져도 종료"},
+  {"what": "세르펜 부재 시 종료 리스폰 여유(초)", "where": "hunt_and_poke.rs:191", "value": 15, "effect": "올리면 리스폰이 더 임박해야 플랜 유지(=종료 잦아짐). 내리면 리스폰 대기 중 플랜을 더 오래 유지"}
+ ],
+
+ "unknown": [
+  "v24_objective_setup_should_release_to_passive(objective_discipline) 본문 미독해(범위 밖)",
+  "take_active(team_plan.rs:244)/objective_target(231)/take_setup_like(258) 헬퍼는 인라인 잔여로 판정(태그 비교)만 확인 — 원 시그니처 미확인",
+  "closure#0(is_recent_visible 필터)의 blackboard 인덱스 = 1-team(적 팀 보드) — IR 그대로",
+  "self·_rnd·_debug 는 본문에서 읽지 않음(readnone) · version 은 전달만",
+  "L189 live_list.first() 해석: len==0 → None, 아니면 ptr[0] 만 읽음 — `.first()` 또는 `[0]` 표기 불가(외연 동일)"
+ ]
+}

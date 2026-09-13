@@ -1,0 +1,79 @@
+{
+ "name": "v25_objective_splitter_can_stay",
+ "sym": "_RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy9team_plan17objective_helpers31v25_objective_splitter_can_stay",
+ "src": "game-ai\\src\\plan_legacy\\team_plan\\objective_helpers.rs",
+ "src_line": 143,
+ "ir_file": "m15.ll",
+ "ir_from": 54635,
+ "ir_to": 54772,
+ "exe_rva": "0xeca200",
+
+ "one_line": "에픽 오브젝트 타임에 스플리터(반대편 라인 담당)가 그 라인에 남아도 되는가 — 먼 라인 근처·오브젝트와 ≥250000·적 압박 없음·아군 인원 충족",
+
+ "signature": {
+   "params": [
+     {"i": 1, "name": "version", "type": "usize", "note": "본문에서 읽지 않음(분기 없음)"},
+     {"i": 2, "name": "player", "type": "&PlayerState(2528B)", "note": "info.team(+0x930)·info.position(+0x9c0) 읽음"},
+     {"i": 3, "name": "data", "type": "&OperationData(24B)", "note": "+0 cache(player_champion) / +8 context(map·tutorial)"},
+     {"i": 4, "name": "target", "type": "JungleType(i8, range 0..6)", "note": "4=Morgard→Bottom 라인, 5=Serpen→Top 라인, 그 외 즉시 false"}
+   ],
+   "returns": "bool — true=스플리터가 라인에 남아도 됨(오브젝트로 합류 불필요)"
+ },
+
+ "reads": [
+   {"base": "OperationData", "offset": "0x8", "name": "context", "note": "&GameContext"},
+   {"base": "OperationData", "offset": "0x0", "name": "cache", "note": "&AbstractGameWithCache"},
+   {"base": "GameContext", "offset": "0x20", "name": "map", "note": "&MapDef → camp_pos"},
+   {"base": "GameContext", "offset": "0x38", "name": "tutorial", "note": "TutorialType(i8) — player_count(runner.rs:295) 인라인 switch 의 입력"},
+   {"base": "PlayerState", "offset": "0x930", "name": "info.team", "note": "<2 bounds check; ==0 → camp_pos is_blue_side"},
+   {"base": "PlayerState", "offset": "0x9c0", "name": "info.position@tag", "note": "i32 태그 → as_index(entity.rs:581) zext → player_champion[team][pos]"},
+   {"base": "AbstractGameWithCache", "offset": "0x1e0", "name": "player_champion[0][0]", "note": "[[Option<&Entity>;5];2]; [team][pos] = 내 챔피언. None(null) → false"},
+   {"base": "Entity", "offset": "0x660", "name": "x", "note": "내 챔피언 위치 x"},
+   {"base": "Entity", "offset": "0x668", "name": "y", "note": "내 챔피언 위치 y"}
+ ],
+
+ "writes": [],
+
+ "constants": [
+   {"value": 4, "src_line": 145, "meaning": "JungleType::Morgard 태그(4) → far_line = Some(Bottom); 또한 `target <u 4` → 에픽 아님 → false. (또한 player_count 결과 4: tutorial None0/Line7/Total8)"},
+   {"value": 5, "src_line": 145, "meaning": "JungleType::Serpen 태그(5) → far_line = Some(Top). (또한 TutorialType::MidBottom 태그 5 → player_count 3)"},
+   {"value": 2, "src_line": 96, "meaning": "LineType::Bottom 메모리태그(tcxdict --enum LineType: Top0/Mid1/Bottom2, Direct). v25_objective_far_line(objective_helpers.rs:95~96) 인라인: Morgard→Bottom. (또한 team bounds check 상한 2·player_count 2)"},
+   {"value": 62500000000, "src_line": 153, "meaning": "250000² — 내 위치와 오브젝트(camp_pos) 의 제곱거리 하한. 이보다 가까우면(<) false = 오브젝트에 이미 가까우면 남을 이유 없음"},
+   {"value": 180000, "src_line": 158, "meaning": "오브젝트 주변 인원 셈 반경(range). 158·159 동일"},
+   {"value": 40, "src_line": 158, "meaning": "min_hp_ratio 인자(HP% 하한). 158·159 동일"},
+   {"value": 3, "src_line": 160, "meaning": "player_count 인라인 결과: tutorial MidBottom(5) → 3"},
+   {"value": 1, "src_line": 160, "meaning": "player_count 인라인 결과: tutorial TopSolo2/MidSolo4/JungleOnly6 → 1. (First1/Bottom3 → 2)"},
+   {"value": 0, "src_line": 162, "meaning": "enemies == 0 비교값 (또한 LineType::Top 태그 0 = Serpen 의 far_line, TutorialType::None 0)"}
+ ],
+
+ "calls": [
+   "game_ai::plan_legacy::rule_scope::line_exists",
+   "core::panicking::panic_bounds_check",
+   "game_core::simulation::map_def::MapDef::camp_pos",
+   "game_core::simulation::map_regions::is_near_line",
+   "game_ai::plan_legacy::team_plan::objective_helpers::v25_objective_far_split_pressure",
+   "game_ai::plan_legacy::team_plan::objective_helpers::v23_healthy_allies_near_point",
+   "game_ai::plan_legacy::team_plan::objective_helpers::v23_recent_visible_enemies_near_point"
+ ],
+
+ "logic": "fn v25_objective_splitter_can_stay(version, player, data, target: JungleType) -> bool {\n  let ctx = data.context;\n  // 145: 오브젝트 반대편 '먼 라인' + 그 라인이 이 판에 존재하는가\n  let far = v25_objective_far_line(target);        // 95~96 인라인 (m15.ll:54637~54640): Morgard(4)→Some(Bottom=2), Serpen(5)→Some(Top=0), 그 외→None(-1 니치)\n  let Some(line) = far.filter(|&l| rule_scope::line_exists(ctx, l)) else { return false };   // 145 closure$0 = line_exists 호출(m15.ll:54646~54647). target<4 → None → false(m15.ll:54643~54644)\n  // 148: 내 챔피언 엔티티\n  let team = player.info.team;                                                       // <2 아니면 panic_bounds_check\n  let Some(me) = data.cache.player_champion[team][player.info.position.as_index()] else { return false };   // 148 (m15.ll:54662~54670)\n  // 151: 오브젝트 위치\n  let (ox, oy) = ctx.map.camp_pos(target, team == 0);                                // 151\n  // 152: 내가 그 먼 라인 근처인가\n  if !map_regions::is_near_line(ctx, me.x, me.y, line) { return false }             // 152 (m15.ll:54677~54678)\n  // 153: 오브젝트에서 충분히 먼가\n  if distance_sq(me.x, me.y, ox, oy) < 62500000000 { return false }                 // 153 — utils.rs:7~9 인라인, 250000² (m15.ll:54680~54693)\n  // 154: 먼 스플릿에 대한 압박 조건(별도 함수)\n  if !v25_objective_far_split_pressure(player, data, target) { return false }        // 154 (m15.ll:54696~54697)\n  // 158~162: 오브젝트 주변 인원\n  let allies  = v23_healthy_allies_near_point(player, data, ox, oy, 180000, 40);         // 158\n  let enemies = v23_recent_visible_enemies_near_point(player, data, ox, oy, 180000, 40); // 159\n  let need = /* player_count 인라인(보정 접힘 추정) */ match ctx.tutorial {   // 160 — runner.rs:295~301 인라인 switch (m15.ll:54741~54762)\n    None(0) | Line(7) | Total(8) => 4,  First(1) | Bottom(3) => 2,  TopSolo(2) | MidSolo(4) | JungleOnly(6) => 1,  MidBottom(5) => 3 };\n  enemies == 0 && allies >= need                                                     // 162 (m15.ll:54763~54765: `%57 uge %66` and `%58 eq 0`)\n}\n\n극성 근거: 각 조건은 실패 시 %70 로 가는 phi 가 전부 false 이고, 유일한 비상수 진입 = %65 의 %69(m15.ll:54768).",
+
+ "knobs": [
+   {"what": "오브젝트와의 최소 제곱거리", "where": "objective_helpers.rs:153", "value": 62500000000,
+    "effect": "내리면(예 200000²) 오브젝트에 더 가까운 스플리터도 라인에 남게 판정, 올리면 더 멀리 있어야 남음"},
+   {"what": "인원 셈 반경", "where": "objective_helpers.rs:158~159", "value": 180000,
+    "effect": "올리면 오브젝트에서 더 먼 아군·적까지 셈에 포함 — 적 셈이 늘면 enemies==0 을 만족하기 어려워져 남기 판정이 줄어듦"},
+   {"what": "건강 판정 HP% 하한", "where": "objective_helpers.rs:158~159", "value": 40,
+    "effect": "올리면 저체력 아군이 셈에서 빠져 allies>=need 를 만족하기 어려워짐"},
+   {"what": "필요 아군 수(튜토리얼별 상수표)", "where": "objective_helpers.rs:160 (runner.rs:295~301 player_count 인라인)", "value": 4,
+    "effect": "일반 경기(None) 는 4 — 오브젝트 주변에 건강한 아군 4명(=스플리터 제외 전원 추정)이 있어야 남을 수 있다. 내리면 더 적은 인원으로도 남음"}
+ ],
+
+ "unknown": [
+   "160 의 소스가 `player_count()` 그대로인지 `player_count() - 1` 이 접힌 것인지 — 상수접힘으로 표기 불가. 관측: IR phi = None→4·First→2·TopSolo→1·Bottom→2·MidSolo→1·MidBottom→3·JungleOnly→1·Line→4·Total→4. rmeta 주석 `player_count: 팀 선수 수`(game_core.txt:462) 와 일반경기 5명을 맞추면 `-1`(자기 자신 제외) 접힘이 유력(추정). m09.ll:10566 다른 사이트는 {0,7,8}→3 이라 사이트마다 보정치가 다름",
+   "162 의 `enemies == 0 && allies >= need` 두 항의 소스 순서 — 같은 줄·둘 다 순수식이라 표기 불가",
+   "153 의 비교 표기(`< 62500000000` 인지 `<= 62499999999`·`< 250000*250000` 인지) — 외연 동일",
+   "line_exists(m13.ll:53138)·is_near_line(_gcbc g09.ll)·v25_objective_far_split_pressure·v23_*_near_point 내부 — 담당 범위 밖, 미독해",
+   "version(p1) 의 용도 — 본문에서 안 읽음"
+ ]
+}

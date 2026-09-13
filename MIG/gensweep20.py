@@ -84,7 +84,11 @@ FIRED = {4: 54660390, 16: 6940762, 19: 2806126, 12: 1808301, 18: 1672540,
          # ★r8 잎 17(i=40~56) · 2026-09-13 13:0x 판 1(설치 56/56 · Gen.G vs 디플러스 SET1 · 221.9s 스냅샷 · 원문 =
          #   <게임>\mods	fm2_judge_verify\_r8_probe1\probe20_r8_run1.txt). 미발화 2 = #42(i42 SingleLane 전용=NA) · #47(i47 이 판 0).
          54: 25238388, 55: 18749665, 46: 10990018, 53: 8012325, 45: 7564211, 51: 6807462, 56: 6570780,
-         48: 2777647, 52: 2105201, 41: 1785206, 50: 1223027, 44: 966291, 43: 709478, 40: 248491, 49: 68945}
+         48: 2777647, 52: 2105201, 41: 1785206, 50: 1223027, 44: 966291, 43: 709478, 40: 248491, 49: 68945,
+         # ★r9(i=57~76) · 2026-09-13 18:2x 판 1(설치 76/76 · Gen.G vs 디플러스 SET1 · 370.9s · 원문 <게임>\mods	fm2_judge_verify\_r9_probe1\probe20_r9_run1.txt).
+         #   미발화 1 = i57 handle_press_epic(PressEpic 계열 · 이 판 0 — #52 와 동류).
+         65: 55212426, 74: 40076571, 75: 40076571, 76: 40076571, 59: 19113742, 71: 13977899, 60: 8830995, 67: 3128910,
+         62: 892358, 63: 646797, 72: 598494, 68: 410073, 73: 397726, 58: 253841, 70: 157658, 61: 34401, 64: 33957, 66: 8970, 69: 460}
 #   `#02` 는 MISSING20(인라인)이라 여기 없다. 그 호스트 `BigPlan::sub_plan`(AUX[90] @0xcaf9f0 · ~~AUX[20]~~ 09-13 이동)의
 #   재측정치 = **27,416,789**(probe20.txt 참조) — 명세 함수가 아니므로 이 표에 넣지 않는다.
 # ★★**이 함수들의 1단계 발화수는 무효다** — 그때 잰 주소가 **다른 함수**였다(2026-09-12 ghidra 확정).
@@ -100,6 +104,7 @@ FIRED = {4: 54660390, 16: 6940762, 19: 2806126, 12: 1808301, 18: 1672540,
 #     무효 수치가 조용히 되살아난다(이 표가 존재하는 이유).
 INVALID_FIRE = {}
 DEAD = {7: u"미발화(재측정 확정치 0회)",
+        57: u"미발화(handle_press_epic · 09-13 r9 판1 0회 — PressEpic 계열 · 이 리플레이 한정)",
         42: u"미발화(SinglePlanBattle = SingleLane 전용 · MOBA NA · 09-13 r8 판1 0회)", 47: u"미발화(handle_epic_line_change · 09-13 r8 판1 0회 — 이 리플레이 한정)",
         # ★재측정 전에는 `#10`·`#15` 의 0 을 믿을 수 없었다(틀린 주소에서 잰 0 이었다).
         #   지금은 **정정된 주소에서 잰 0** 이라 「이 판에서 죽은 코드」가 **유효한 판정**이다.
@@ -293,6 +298,11 @@ SELF_RESTORE = {
     #   (cap@0x7b0 · ptr@0x7b8 · len@0x7c0 · 원소 40B (tick, Position, Chat)) 의 swap_remove 뿐(IR m13.ll:12482~ · 힙 재할당 없음).
     #   내 사본은 게임 호출 전 내용을 복제한 내 버퍼에서 같은 swap_remove → len·원소 전 바이트 비교(원소는 memcpy 이동이라 패딩도 동일).
     44: (0, 6168, [(0x7b0, 0x7b8, 0x7c0)], 40),
+    # ★r9(09-13 저녁): goal_data 3 — self 가 **평면 구조체**(힙 없음 · tcxdict GoalData 248B = enemy_region[5] 120 + epic 56 + serpen 56 + tick 8 + bool 1 ·
+    #   StanceData 56B) → Vec 치환 없이 스냅샷·복원. rnd 는 IR 에서 readnone(미사용).
+    74: (0, 248, [], 8),
+    75: (0, 56, [], 8),
+    76: (0, 56, [], 8),
     # ★#14 `LineGankerPlan::update` — a0 = &mut LineGankerPlan(**48B**).
     #   tcx 실측: `chats: Vec<Chat>` @0x0(24B) · `setup_limit`@0x18 · `wait_limit`@0x20 ·
     #            `line`@0x28 · `phase`@0x29 ⟹ **힙 소유 필드는 `chats` 하나뿐**이라
@@ -378,6 +388,10 @@ SELF_DIFF = {
     #     ⟹ `elem_live` 는 **슬롯별**이어야 한다(이 표가 이름/idx 키인 이유).
     # ★#49(i44) take_misunderstood_received_chat — self 6168B 에서 Vec 삼중항만 빼고 비교 · 원소 40B 전 바이트(elem_live 없음).
     44: {"skip": [(0x7b0, 24)]},
+    # ★r9 goal_data 3(09-13 저녁) — 평면 self 전 바이트 비교(패딩은 양쪽이 같은 스냅샷에서 출발하므로 동일).
+    74: {"skip": []},
+    75: {"skip": []},
+    76: {"skip": []},
     # ★#59(i54) `TeamPlan::update`(09-13 r8) — 반환 void · a0 = &mut TeamPlan(1064B · #18 과 같은 구조체 · chats Vec @0xc0).
     #   IR 실측(m09.ll:38805/38913/39266): push 3곳 = MorgardPrepare(33)·SerpenPrepare(24) = `+0 tag`·`+8 i64`·`+16 i64 0` /
     #   Mia(1) = `+0 tag`·`+4 i32 position`·`+8 i64 0`. exe ABI = 6인자 전부 유지(r9=player · [rsp+0x200]=data · fnprobe 09-13).
@@ -606,7 +620,7 @@ INLINED_NO_ENTRY = {
     #          디스패처의 분기 대상 어디에도 attack_nexus 모듈 함수가 없고, exe 전역에 그 모듈의
     #          독립 함수는 `0xe81680`·`0xe83080`(둘 다 `plan_legacy/sub_plan/attack_nexus` = 다른 모듈)뿐이다.
     #   ★2026-09-13: 그래서 행(rows)에서는 빼되 **`pin02.rs` midpin(A 0xcafa57 + B 0xcafdaa · 게이트 bit19)** 으로 대조한다 — 397,835 DIFF 0.
-    2: u"`BigPlan::sub_plan`(0xcaf9f0)에 인라인 — 독립 진입부가 없다 ⟹ pin02.rs midpin(**bit62** = 0x4000000000000000 · 09-13 bit19→62 이동)으로 대조(2026-09-13 DIFF 0)",
+    2: u"`BigPlan::sub_plan`(0xcaf9f0)에 인라인 — 독립 진입부가 없다 ⟹ pin02.rs midpin(**bit127** = 1<<127 · 09-13 bit19→62→127 이동 · 마스크 u128)으로 대조(2026-09-13 DIFF 0)",
 }
 
 
@@ -714,6 +728,8 @@ SRET_LIVE = {
         (0x08, 8, [(0x00, 8, [1])]),
         (0x10, 8, [(0x00, 8, [1])]),
     ],
+    # #66(i66) evaluate_gank_opportunity_with_score → (bool, i32, i32) sret 12B: tcx 레이아웃 .1 i32@0 evaluated · .0 bool@4 · .2 i32@8 actual(배치 C · tg_game_ai.jsonl).
+    66: [(0x0, 4, []), (0x4, 1, []), (0x8, 4, [])],
     # TLS 미러 슬롯 resolve_fight_full → FightPrediction 64B (동일 레이아웃 · 이름 키)
     u"resolve_fight_full": [
         (0x00, 8, []), (0x08, 8, [(0x00, 8, [1])]),
@@ -737,7 +753,10 @@ SRET_LIVE = {
     ],
 }
 
-MUT_OK_ARG = {35: {13: "DebugFrameData"}, 49: {8: "DebugFrameData"}, 56: {7: "DebugFrameData"}, 41: {11: "DebugFrameData"}, u"resolve_fight_uncached": {3: "GameContext", 12: "DebugFrameData"}}   # #49 a8 = &mut DebugFrameData(224B · IR %8 dereferenceable(224))
+MUT_OK_ARG = {35: {13: "DebugFrameData"}, 49: {8: "DebugFrameData"}, 56: {7: "DebugFrameData"}, 41: {11: "DebugFrameData"},
+              # r9(09-13 저녁) · IR 마지막 인자 dereferenceable(224) = &mut DebugFrameData
+              67: {6: "DebugFrameData"}, 74: {5: "DebugFrameData"}, 75: {6: "DebugFrameData"},
+              u"resolve_fight_uncached": {3: "GameContext", 12: "DebugFrameData"}}   # #49 a8 = &mut DebugFrameData(224B · IR %8 dereferenceable(224))
 # ★internal 함수는 define 에 `sret([N x i8])` 속성이 없다(LLVM 이 내부 호출규약에서 생략) — 파서가 「반환 void + 가변 a0」로 읽는다.
 #   `resolve_fight_uncached`(a0 = dereferenceable(64) 출력 버퍼) 실사고(09-13). 여기 적은 idx 는 a0 을 sret N 바이트로 강제한다.
 SRET_FORCE = {u"resolve_fight_uncached": 64, u"resolve_fight_full": 64, 40: 24}   # #45(i40) v3_assign_anchor: internal 이라 sret 속성이 빠져 「void」로 읽힘 · 실제 = Option<(u64,u64)> 24B   # {spec idx: {IR 인자 idx: tcx 타입명}} — 위 MUT_OK_TCX 판정을 인덱스로 적용
@@ -1876,12 +1895,12 @@ def main():
     w(u"/// sweep 설치. `mask` 비트 k = `S[k]`. 반환 = (성공, 시도).")
     w(u"/// ⚠`orig` 는 **진입부 패치 전에** 저장된다(`hookw` 가 그 순서를 보장) — 패치 직후 다른 스레드가")
     w(u"///   들어와 `orig==0` 을 transmute 하면 널 호출이다(배경 sim 워커가 있으니 실재하는 경합).")
-    w(u"pub unsafe fn install(mask: u64, log: &mut String) -> (usize, usize) {")
+    w(u"pub unsafe fn install(mask: u128, log: &mut String) -> (usize, usize) {")
     w(u"    if mask == 0 {")
     w(u"        log.push_str(\"[sweep] 게이트 OFF (sweep20_on.txt 없음/0) — 한 곳도 안 걸었다\\n\");")
     w(u"        return (0, 0);")
     w(u"    }")
-    w(u"    let unknown = mask & !((1u64 << S.len()) - 1);")
+    w(u"    let unknown = mask & !((1u128 << S.len()) - 1);")
     w(u"    if unknown != 0 {")
     w(u"        // 「빠진 것을 모르는 상태」를 만들지 않는다 — 슬롯이 없는 비트를 켜면 조용히 무시되는 게 아니라 말한다.")
     w(u"        log.push_str(&format!(\"[sweep] ⚠mask 의 미지 비트 {:#x} 는 슬롯이 없어 무시했다(슬롯 {}개)\\n\", unknown, S.len()));")
@@ -1889,7 +1908,7 @@ def main():
     w(u"    let w: [usize; %d] = [%s];" % (N, ", ".join("w_%d as usize" % r["idx"] for r in rows)))
     w(u"    let (mut ok, mut tried) = (0usize, 0usize);")
     w(u"    for i in 0..S.len() {")
-    w(u"        if mask & (1u64 << i) == 0 { continue; }")
+    w(u"        if mask & (1u128 << i) == 0 { continue; }")
     w(u"        tried += 1;")
     # ★사이트가 있으면 **호출부 리다이렉트**로 건다(진입부 12B 를 못 빼는 함수). 원 함수 명령은 무손상.
     w(u"        let r = if S[i].sites.is_empty() {")

@@ -1,0 +1,1 @@
+[{"corpus": "gai", "file": "m09.ll", "line": 30614, "text": "%1843 = call noundef zeroext i1 @_RNvCshdEBA0ozCnw_7game_ai21should_recall_to_shop(i64 noundef %1, ptr noalias noundef nonnull align 16 dereferenceable(320) %2, ptr noalias noundef nonnull readonly align 8 captures(addre"}]

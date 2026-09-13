@@ -1,0 +1,140 @@
+{
+ "name": "EpicStanceData::update_plan",
+ "sym": "_RNvMs_NtCshdEBA0ozCnw_7game_ai9goal_dataNtB4_14EpicStanceData11update_plan",
+ "src": "game-ai\\src\\goal_data.rs",
+ "src_line": 266,
+ "ir_file": "m09.ll",
+ "ir_from": 41134,
+ "ir_to": 42817,
+ "exe": "0xde1ee0 (메인 제공 · 4642B)",
+ "aux": [
+   {"ir_file": "m09.ll", "ir_from": 66158, "ir_to": 66244, "note": "closure#2(DWARF closure$2) ally_in_epic 술어 :289~299 (region_dist(region,7)==0)"},
+   {"ir_file": "m09.ll", "ir_from": 66247, "ir_to": 66283, "note": "closure#3 as_entity(아군) :301~302"},
+   {"ir_file": "m09.ll", "ir_from": 66286, "ir_to": 66426, "note": "closure#4(+내부 closure$0) enemy_in_epic 술어 :308~324"},
+   {"ir_file": "m09.ll", "ir_from": 66429, "ir_to": 66466, "note": "closure#5 as_entity(적) :326~327"}
+ ],
+
+ "one_line": "에픽 태세(None/Check/CheckTry) 결정: 에픽 존재·시야로 hp 갱신 → 아군/적 처치시간 산출 → 준비되면 CheckTry, 적이 먹을 낌새면 인원차 확인 후 Check",
+
+ "signature": {
+   "params": [
+     {"i": 0, "name": "self", "type": "&mut EpicStanceData(56B) = GoalData+0x78", "note": "last_epic_seen@0 last_epic_hp@8 epic_enemy_tick@0x10 epic_enemy_killed_tick@0x18 epic_ally_tick@0x20 epic_ally_killed_tick@0x28 stance@0x30(EpicStance 1B)"},
+     {"i": 1, "name": "(version)", "type": "usize", "note": "호출자가 poison — 미사용"},
+     {"i": 2, "name": "(rnd)", "type": "ptr", "note": "readnone — 미사용"},
+     {"i": 3, "name": "player", "type": "&PlayerState(2528B)", "note": "team@0x930 만 사용"},
+     {"i": 4, "name": "data", "type": "&OperationData(24B)", "note": "cache@0 context@8 (blackboard 미사용 — 세르펜판과 차이)"},
+     {"i": 5, "name": "enemy_region", "type": "&[Option<EnemyRegionInfo>;5] (= &GoalData 오프셋 0)", "note": "closure#4 에서만 읽음"},
+     {"i": 6, "name": "(debug)", "type": "ptr", "note": "readnone — 에픽판은 디버그 출력 없음(GoalData::update 도 poison 으로 넘김)"}
+   ],
+   "returns": "() — self 7필드 갱신"
+ },
+
+ "reads": [
+   {"base": "OperationData", "offset": "0x0", "name": "cache", "note": ""},
+   {"base": "OperationData", "offset": "0x8", "name": "context", "note": ""},
+   {"base": "AbstractGameWithCache", "offset": "0x0", "name": "game(&dyn AbstractGame)", "note": "vtable +0x28 tick · +0x40 get_game_mode · +0xf8 is_visible · +0x1f0 get_entity_by_id"},
+   {"base": "AbstractGameWithCache", "offset": "0x1e0", "name": "player_champion[team][pos]", "note": "iter_champions(team)(:340,:346) · champions(team)(:334~335, g15.ll:109887 = Some 슬롯 전부 수집, 생사 필터 없음) · 클로저"},
+   {"base": "MobaMode", "offset": "0x198", "name": "jungle_runner.epic (epic_state)", "note": "GameMode::Moba 페이로드가 &MobaMode. live_list.ptr@0x1a0 len@0x1a8"},
+   {"base": "MobaMode", "offset": "0x1a0", "name": "jungle_runner.epic.live_list.ptr", "note": ":272 live_list.get(0)"},
+   {"base": "MobaMode", "offset": "0x1a8", "name": "jungle_runner.epic.live_list.len", "note": "0 → epic None"},
+   {"base": "MobaMode", "offset": "0x1b0", "name": "jungle_runner.epic.next_respawn_tick", "note": ":280"},
+   {"base": "PlayerState", "offset": "0x930", "name": "info.team", "note": ""},
+   {"base": "Entity", "offset": "0x5c0", "name": "id", "note": "epic.id → is_visible"},
+   {"base": "Entity", "offset": "0x628", "name": "stat_cached.hp", "note": "epic 최대 HP(:281) · 챔프 최대 HP(closure#6 :343)"},
+   {"base": "Entity", "offset": "0x670", "name": "hp", "note": "epic 현재 HP(:286) · champ.hp(check_epic_killed_time :571 · closure#6)"},
+   {"base": "Entity", "offset": "0x660", "name": "x", "note": "셀 변환"},
+   {"base": "Entity", "offset": "0x668", "name": "y", "note": ""},
+   {"base": "Entity", "offset": "0x640", "name": "stat_cached.move_speed", "note": "closure#4 내부 :316"},
+   {"base": "Entity", "offset": "0x490", "name": "attack_effect@Some.0", "note": "check_epic_killed_time :568"},
+   {"base": "Entity", "offset": "0x4c0", "name": "attack_effect@tag(-1=None)", "note": "None → unwrap 패닉"},
+   {"base": "GameContext", "offset": "0x0", "name": "pool(&Bump)", "note": ":334~335 champions() 의 할당자"},
+   {"base": "GameContext", "offset": "0x8", "name": "setting", "note": ""},
+   {"base": "GameContext", "offset": "0x20", "name": "map", "note": ""},
+   {"base": "GameSetting", "offset": "0x12f8", "name": "tick_per_second", "note": "tps"},
+   {"base": "MapDef", "offset": "0x38b8", "name": "regions[cy][cx]", "note": "closure#2 :297 · closure#6 :341 · closure#7 :347"},
+   {"base": "MapDef", "offset": "0x5510", "name": "region_dist[a][7] (=region_dist@0x54d8 + 7*8)", "note": "gep +21776(0x5510) 후 a*27*8. closure#2 :298 ==0 · closure#4 :320 ==0 · closure#6/#7 :342,:348 <4. 리전 7 = 에픽 리전(추정)"},
+   {"base": "MapDef", "offset": "0x6ba0", "name": "region_centers[e.region] / region_centers[7]", "note": "closure#4 내부 :312,:314 (+27552 base, +27664/+27672 = region_centers[7].x/.y)"},
+   {"base": "EpicStanceData", "offset": "0x0", "name": "last_epic_seen", "note": ":280,:351"},
+   {"base": "EpicStanceData", "offset": "0x8", "name": "last_epic_hp", "note": ":305 로드 → 3회 check_epic_kill_time_with_hp 의 hp 인자"},
+   {"base": "EnemyRegionInfo(enemy_region[p])", "offset": "0x0", "name": "@tag", "note": "closure#4 :309 is_none_or"},
+   {"base": "EnemyRegionInfo(enemy_region[p])", "offset": "0x8", "name": "region", "note": ":312,:320"},
+   {"base": "EnemyRegionInfo(enemy_region[p])", "offset": "0x10", "name": "last_known", "note": ":319"}
+ ],
+
+ "writes": [
+   {"base": "EpicStanceData", "offset": "0x30", "name": "stance", "value": "0 None / 1 Check / 2 CheckTry", "note": "★출력. :269(non-Moba→0) :274(epic 없음→0) :369(2) :371(0) :375(0) :377(1) :380(0)"},
+   {"base": "EpicStanceData", "offset": "0x0", "name": "last_epic_seen", "value": "tick()", "note": ":282 리스폰 감지 / :285 가시"},
+   {"base": "EpicStanceData", "offset": "0x8", "name": "last_epic_hp", "value": "epic.stat_cached.hp(:281) / epic.hp(:286)", "note": ""},
+   {"base": "EpicStanceData", "offset": "0x20", "name": "epic_ally_tick", "value": "check_epic_kill_time_with_hp(ctx, ally_in_epic 엔티티, epic, last_epic_hp)", "note": ":305"},
+   {"base": "EpicStanceData", "offset": "0x28", "name": "epic_ally_killed_tick", "value": "check_epic_killed_time(epic, ally_in_epic)", "note": ":306"},
+   {"base": "EpicStanceData", "offset": "0x10", "name": "epic_enemy_tick", "value": "check_epic_kill_time_with_hp(ctx, enemy_in_epic 엔티티, epic, last_epic_hp)", "note": ":330"},
+   {"base": "EpicStanceData", "offset": "0x18", "name": "epic_enemy_killed_tick", "value": "check_epic_killed_time(epic, enemy_in_epic)", "note": ":332"}
+ ],
+
+ "constants": [
+   {"value": 0, "src_line": 268, "meaning": "GameMode 태그 0=Moba (as_moba) · region_dist(region,7)==0 (closure#2 :298 / closure#4 :320 = '에픽 리전 안')"},
+   {"value": 7, "src_line": 298, "meaning": "리전 id 7 = 에픽 리전(추정) — region_dist(·,7)·region_center(7) 의 b 인자 (aux + 본문 closure#6/#7)"},
+   {"value": 27, "src_line": 298, "meaning": "리전 개수 bounds"},
+   {"value": 4, "src_line": 342, "meaning": "region_dist[region][7] < 4 → '에픽 근처'(closure#6 아군 · closure#7 적)"},
+   {"value": 49, "src_line": 343, "meaning": "근처 아군 hp% > 49 (closure#6만)"},
+   {"value": 100, "src_line": 343, "meaning": "hp 백분율 계수"},
+   {"value": 1000, "src_line": 568, "meaning": "check_epic_killed_time 정밀도(dpt=dmg*1000/cooltime, ticks=hp*1000/max(dpt,1))"},
+   {"value": 5, "src_line": 356, "meaning": "tps*5 — epic_ally_tick <= 5초 조건 · Range 0..5 (:289)"},
+   {"value": 3, "src_line": 356, "meaning": "tps*3 (`mul %tps, 3`) — :356/:357 epic_ally_tick+3s <= epic_ally_killed_tick · :363 unseen>=3s · :370 epic_enemy_tick−3s. (`shl nuw nsw %len, 3` 은 &Entity 배열 stride 로 별개)"},
+   {"value": 1, "folded_from": 2, "src_line": 353, "meaning": "tps*2 — `shl i64 %tps, 1` 로 접힘. live_ally_tick + tps*2 <= live_ally_killed_tick"},
+   {"value": 20, "src_line": 362, "meaning": "tps*20 — (epic_enemy_tick − unseen) < 20초"},
+   {"value": 10, "src_line": 364, "meaning": "tps*10 — (epic_enemy_tick − unseen) < 10초"},
+   {"value": 2, "src_line": 374, "meaning": "live_enemy.len < live_ally.len + 2 (적 ≤ 아군+1) 이어야 Check — 세르펜판엔 없고 에픽판에만 있는 최종 인원 게이트"},
+   {"value": 32000, "src_line": 297, "meaning": "셀 크기"},
+   {"value": 29, "src_line": 297, "meaning": "셀 clamp 상한"}
+ ],
+
+ "calls": [
+   "game_ai::goal_data::check_epic_kill_time_with_hp",
+   "game_core::simulation::AbstractGameWithCache::champions",
+   "game_core::simulation::effect::Effect::expected_damage_target",
+   "game_core::simulation::entity::Entity::attack_cooltime",
+   "game_core::utils::distance",
+   "bumpalo::collections::vec::Vec::from_iter_in",
+   "core::option::unwrap_failed",
+   "core::panicking::panic_const_div_by_zero",
+   "core::panicking::panic_bounds_check"
+ ],
+
+ "vtable_calls": [
+   {"slot": "0x40", "name": "AbstractGame::get_game_mode()", "src_line": 268},
+   {"slot": "0x1f0", "name": "AbstractGame::get_entity_by_id(id)", "src_line": 272},
+   {"slot": "0x28", "name": "AbstractGame::tick()", "src_line": "282,285,319(aux),351"},
+   {"slot": "0xf8", "name": "AbstractGame::is_visible(player.team, epic.id)", "src_line": 284}
+ ],
+
+ "callee_contract": {
+   "check_epic_kill_time_with_hp": "m09.ll:52666 `fastcc i64 f(ctx:&GameContext, champions.ptr:*const &Entity, champions.len, epic:&Entity(1728B), hp:usize) -> ticks` (dbg 인자명 data/champions/epic/hp). 본문은 다른 배치(exe 0xde3d90) — 여기선 계약만",
+   "check_epic_killed_time(인라인 goal_data.rs:565~573)": "Σ_champ champ.hp*1000 / max(expected_damage_target(epic.attack_effect.unwrap(), ctx, epic, &CONST_anon138, champ)*1000/epic.attack_cooltime(), 1) — 에픽이 명단 전원을 잡는 데 드는 틱",
+   "AbstractGameWithCache::champions(team, pool)": "g15.ll:109887 — player_champion[team] 의 Some 슬롯을 bumpalo Vec<&Entity> 로 수집(생사 필터 없음)"
+ },
+
+ "logic": "fn update_plan(&mut self, _v, _rnd, player, data, enemy_region, _debug):\n  moba = get_game_mode(); if tag!=0 { self.stance=None; return }                     // :268~270\n  epic_state = &moba.jungle_runner.epic (+0x198)                                       // :271\n  epic = epic_state.live_list.get(0).and_then(get_entity_by_id); if None { self.stance=None; return }   // :272~274\n  if self.last_epic_seen < epic_state.next_respawn_tick { self.last_epic_hp = epic.stat_cached.hp; self.last_epic_seen = tick() }   // :280~282\n  if is_visible(player.team, epic.id) { self.last_epic_seen = tick(); self.last_epic_hp = epic.hp }   // :284~286\n  ally_in_epic = (0..5).filter(|p| player_champion[team][p].is_some_and(|c| map.region_dist(map.regions[c.cell], 7) == 0))   // :289~299 closure#2 — 세르펜판(150k 거리)과 달리 '에픽 리전 안' 판정\n  as_entity = ally_in_epic.filter_map(|p| player_champion[team][p])                     // :301 closure#3\n  self.epic_ally_tick        = check_epic_kill_time_with_hp(ctx, as_entity, epic, self.last_epic_hp)   // :305\n  self.epic_ally_killed_tick = check_epic_killed_time(epic, as_entity)                 // :306\n  enemy_in_epic = (0..5).filter(|p| enemy_region[p].is_none_or(|e| {                    // :308~324 closure#4\n        echamp = player_champion[1-team][p]? (None→false)                                // :310~311\n        dist = distance(region_center(e.region), region_center(7))                        // :312~315\n        move_tick = dist / echamp.stat_cached.move_speed (0 → div0 패닉)                  // :316~317\n        if e.last_known + move_tick <= tick() { true } else { region_dist(e.region, 7) == 0 } }))   // :319~320\n  as_entity = enemy_in_epic.filter_map(|p| player_champion[1-team][p])                  // :326 closure#5\n  self.epic_enemy_tick        = check_epic_kill_time_with_hp(ctx, as_entity, epic, last_epic_hp)   // :330\n  self.epic_enemy_killed_tick = check_epic_killed_time(epic, as_entity)                 // :332\n  live_ally  = cache.champions(team)      // :334 (세르펜판의 라인페이즈 targets 필터 없음)\n  live_enemy = cache.champions(1-team)    // :335\n  live_ally_tick        = check_epic_kill_time_with_hp(ctx, live_ally, epic, last_epic_hp)   // :337\n  live_ally_killed_tick = check_epic_killed_time(epic, live_ally)                       // :338\n  ally_near  = iter_champions(team).filter(|c| region_dist(regions[c.cell],7) < 4 && c.hp*100/c.max_hp > 49).count()   // :340~343 closure#6\n  enemy_near = iter_champions(1-team).filter(|c| region_dist(regions[c.cell],7) < 4).count()                            // :346~348 closure#7\n  unseen = tick().saturating_sub(self.last_epic_seen)                                    // :351\n  ready = (ally_near >= enemy_near && live_ally_tick + tps*2 <= live_ally_killed_tick)   // :352~353\n       || (self.epic_ally_tick <= tps*5 && self.epic_ally_tick + tps*3 <= self.epic_ally_killed_tick)   // :356~357 (IR: ally_near<enemy_near 면 :356 만, 아니면 :353||:356)\n  remain = self.epic_enemy_tick.saturating_sub(unseen)                                   // :362\n  a = remain < tps*20 ; b = unseen >= tps*3 ; c = remain < tps*10                          // :362~364\n  if ready { self.stance = CheckTry(2) }                                                 // :368~369\n  else if self.epic_enemy_killed_tick < self.epic_enemy_tick.saturating_sub(tps*3) { self.stance = None(0) }   // :370~371 적이 에픽에게 먼저 죽음 → 위협 아님\n  else if !((a && b) || c) { self.stance = None(0) }                                     // :372,:380 아직 임박 아님\n  else if live_enemy.len >= live_ally.len + 2 { self.stance = None(0) }                  // :374~375 인원 2+ 열세면 견제 포기\n  else { self.stance = Check(1) }                                                        // :377\n  // :382 return",
+
+ "knobs": [
+   {"what": "근처 판정 리전 거리", "where": "goal_data.rs:342,348", "value": 4, "effect": "올리면 ally_near/enemy_near 가 넓게 잡힘 → 인원 우세 조건이 쉬워져 CheckTry 증가"},
+   {"what": "근처 아군 HP 하한(%)", "where": "goal_data.rs:343", "value": 49, "effect": "내리면 저체력도 인원으로 셈"},
+   {"what": "아군 선처치 여유(초)", "where": "goal_data.rs:353", "value": 2, "effect": "올리면 전원(live_ally) 기준 처치가 훨씬 빨라야 ready"},
+   {"what": "in_epic 아군 처치시간 상한(초)", "where": "goal_data.rs:356", "value": 5, "effect": "올리면 리전 안 아군만으로 느리게 잡아도 ready"},
+   {"what": "in_epic 생존 여유(초)", "where": "goal_data.rs:356~357", "value": 3, "effect": "올리면 더 큰 여유 필요"},
+   {"what": "적 처치 임박 창(초)", "where": "goal_data.rs:362,364", "value": "20 / 10", "effect": "올리면 더 이른 시점부터 Check(견제)"},
+   {"what": "미관측 최소(초)", "where": "goal_data.rs:363", "value": 3, "effect": "내리면 잠깐 안 보여도 Check 쪽으로"},
+   {"what": "적 처치 성립 여유(초)", "where": "goal_data.rs:370", "value": 3, "effect": "올리면 적이 에픽에게 죽기 전 더 넉넉히 잡아야 위협으로 인정"},
+   {"what": "Check 인원 열세 한계", "where": "goal_data.rs:374", "value": 2, "effect": "올리면 인원 열세여도 Check(견제) 유지; 1로 내리면 동수 이상일 때만"}
+ ],
+
+ "unknown": [
+   "리전 id 7 = 에픽 리전이라는 것은 region_center(7)/region_dist(·,7) 문맥 추정 — MapDef 값표 미확인(미탐색)",
+   "closure 번호: 메인 exe aux 는 {closure#0/#1/#3} 3개인데 IR 별도 define 은 4개(s0_0~s3_0 = closure#2~#5, DWARF closure$2~$5). 메인 주소↔IR 스텁 대응 재확인 필요(closure#3(as_entity 아군)·#5(적)는 본문이 거의 같아 exe 에서 병합됐을 가능성)",
+   "is_visible(team,id) team 인덱스 의미 — SerpenStance 명세 unknown 과 동일",
+   "check_epic_kill_time_with_hp 본문(0xde3d90) 은 다른 배치 — 계약만. 4번째 인자 @anon...138 미해독",
+   "ready 의 소스 표기: IR 은 ally_near<enemy_near 분기(%581)에서 :353 항을 평가하지 않는다. `(A && B) || (C && D)` 로 재구성했으며 외연 동일(표기 불가 아님, 분기 순서만 컴파일러 재배치)",
+   "m01.ll 54172~54315·54318~54461 (bumpalo from_iter_in 인스턴스) 는 glue 라 aux 제외",
+   "fnparts 가 보인 `EpicStanceData::<6자 메서드>`(m09.ll 42820~44624, 클로저 66469~66790) = `EpicStanceData::update`(m09.ll:42820 define 확인) 별개 함수 — 이 배치 범위 밖, 미탐색(호출자·update_plan 과의 관계 불명)"
+ ]
+}

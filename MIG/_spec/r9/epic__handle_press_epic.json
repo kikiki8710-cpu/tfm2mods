@@ -1,0 +1,104 @@
+{
+ "name": "handle_press_epic",
+ "sym": "_RNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old4epicNtNtB6_9team_plan8TeamPlan17handle_press_epic",
+ "src": "game-ai\\src\\plan_legacy\\old\\epic.rs",
+ "src_line": 502,
+ "ir_file": "m09.ll",
+ "ir_from": 5284,
+ "ir_to": 6876,
+ "aux": [],
+
+ "one_line": "에픽 압박(PressEpic/SplitEpic) 팀 목표 발령 — 21% 확률로, 모르가드 운영 전략(Gather/Split14/Split131)과 챔프 위치·적 타워 잔존·미니언 수로 압박 라인을 고르고 Chat + objective 를 쓴다",
+
+ "signature": {
+  "params": [
+   {"i": 0, "name": "self", "type": "&mut TeamPlan(1064B)", "note": "chats(+0xc0 Vec<Chat>) push · objective(+0x41f Option<MainObjective>) 쓰기"},
+   {"i": 1, "name": "_version", "type": "i64", "note": "미사용 (DILocalVariable `_version`, m09.ll:83677)"},
+   {"i": 2, "name": "rnd", "type": "&mut StdRng", "note": "gen_range(0..100) 1회 (L507) + PlayerState::strategy 에 전달 (L510)"},
+   {"i": 3, "name": "player", "type": "&PlayerState(2528B)", "note": "info.team(+0x930)·info.position(+0x9c0)"},
+   {"i": 4, "name": "data", "type": "&OperationData(24B)", "note": "cache·context·blackboard 전부 사용"},
+   {"i": 5, "name": "_debug", "type": "&mut DebugFrameData", "note": "readnone — 미사용"}
+  ],
+  "returns": "void — 부수효과: self.chats.push(Chat::Press(line,0) 또는 Chat::Split(line,0)) 와 self.objective = Some(PressEpic(line) | SplitEpic(line)). 조기 반환(튜토리얼·확률 탈락·비 Moba 는 패닉) 시 아무것도 안 씀"
+ },
+
+ "reads": [
+  {"base": "GameContext", "offset": "0x38", "name": "tutorial", "note": "인라인 morgard_exists→spawn_epic(runner.rs:263): `(tutorial-1) <u 6` 즉 First(1)..JungleOnly(6) 면 에픽 없음→즉시 return (m09.ll:5347~5351)"},
+  {"base": "GameContext", "offset": "0x8", "name": "setting", "note": "&GameSetting → height (m09.ll:5440~5446, 6080~6086)"},
+  {"base": "GameSetting", "offset": "0x12c0", "name": "height", "note": "인라인 map_regions::is_top_side(x,y): IR 식 `(height - y) <u x` (m09.ll:5442~5448)"},
+  {"base": "OperationData", "offset": "0x0", "name": "cache", "note": "&AbstractGameWithCache (m09.ll:5361)"},
+  {"base": "OperationData", "offset": "0x8", "name": "context", "note": "&GameContext (m09.ll:5341~5342)"},
+  {"base": "OperationData", "offset": "0x10", "name": "blackboard", "note": "&[Blackboard;2] → `[team]` (내 팀) 인덱스, 744B stride (m09.ll:5598~5600·5837~5841)"},
+  {"base": "AbstractGameWithCache", "offset": "0x0", "name": "game", "note": "&dyn AbstractGame (data +0x0 / vtable +0x8). vtable+0x40 = get_game_mode (divtable) (m09.ll:5361~5364, 5391~5393)"},
+  {"base": "AbstractGameWithCache", "offset": "0x1e0", "name": "player_champion[team][pos]", "note": "내 챔프(Gather L515 / Split14 L565: None→unwrap 패닉) · Split131 L615 에선 `[team][position1].is_none()` 검사"},
+  {"base": "AbstractGameWithCache", "offset": "0x180", "name": "top_tower[1-team]", "note": "인라인 `cache.tower(enemy, Top)` = top_tower.or(top_tower2) (option.rs:1622 `or`, simulation.rs `tower`) (m09.ll:5475~5482, or 폴백 select 5482)"},
+  {"base": "AbstractGameWithCache", "offset": "0x190", "name": "top_tower2[1-team]", "note": "동상(폴백)"},
+  {"base": "AbstractGameWithCache", "offset": "0x1a0", "name": "mid_tower[1-team]", "note": "`cache.tower(enemy, Mid)` (m09.ll:5503~5510)"},
+  {"base": "AbstractGameWithCache", "offset": "0x1b0", "name": "mid_tower2[1-team]", "note": "동상(폴백)"},
+  {"base": "AbstractGameWithCache", "offset": "0x1c0", "name": "bottom_tower[1-team]", "note": "`cache.tower(enemy, Bottom)` (m09.ll:5458~5465)"},
+  {"base": "AbstractGameWithCache", "offset": "0x1d0", "name": "bottom_tower2[1-team]", "note": "동상(폴백)"},
+  {"base": "PlayerState", "offset": "0x930", "name": "info.team", "note": "team(<2 아니면 bounds 패닉)·enemy=1-team (m09.ll:5381~5384·5447)"},
+  {"base": "PlayerState", "offset": "0x9c0", "name": "info.position@tag", "note": "Position 태그. 챔프 조회 인덱스 및 Split 전략의 position 과 비교 (m09.ll:5407~5408·5421~5422·6000~6005)"},
+  {"base": "Strategy", "offset": "0x4", "name": "morgard_use@tag / Split131.position1", "note": "PlayerState::strategy() 반환(24B 스택). 니치 인코딩: 5=Gather·6=Split14·그 외(0..4)=Split131 이며 그 값이 곧 position1 (tcxdict --enum MorgardUseStrategy, m09.ll:5366~5370)"},
+  {"base": "Strategy", "offset": "0x8", "name": "morgard_use@Split14.position / Split131.position2", "note": "m09.ll:5387~5388(Split14), 5402~5403(Split131)"},
+  {"base": "Entity", "offset": "0x660", "name": "x", "note": "내 챔프 좌표 → is_top_side (m09.ll:5434~5437)"},
+  {"base": "Entity", "offset": "0x668", "name": "y", "note": "동상"},
+  {"base": "Entity", "offset": "0x68", "name": "ty@tag", "note": "인라인 Entity::is_tower2(entity.rs:1309): ty 태그==2(Tower) 여야 진행 (m09.ll:5492~5495)"},
+  {"base": "Entity", "offset": "0x128", "name": "ty@Tower.info.ty@tag", "note": "TowerType 태그. 인라인 Tower::is_second_tower(tower.rs:100): `>4`(Top2/Mid2/Bottom2=5..7) = 2차 타워, `<5` = 1차(Top/Mid/Bottom/TwinA/TwinB) (m09.ll:5518~5520)"},
+  {"base": "Blackboard", "offset": "0x20", "name": "top_minion_state.minion_count", "note": "i32(부호). top_state (m09.ll:5837~5838)"},
+  {"base": "Blackboard", "offset": "0x48", "name": "mid_minion_state.minion_count", "note": "mid_state (m09.ll:5840~5841)"},
+  {"base": "Blackboard", "offset": "0x70", "name": "bottom_minion_state.minion_count", "note": "bottom_state (m09.ll:5601~5602)"},
+  {"base": "GameMode", "offset": "0x0", "name": "tag", "note": "get_game_mode() 반환 {i64 tag, ptr}. 인라인 as_moba(game.rs:231): 0=Moba 아니면 unwrap 패닉 (m09.ll:5393~5398)"},
+  {"base": "MobaMode", "offset": "0x1b0", "name": "jungle_runner.epic.next_respawn_tick", "note": "epic_tick (L553, m09.ll:5976~5977)"},
+  {"base": "MobaMode", "offset": "0x1e0", "name": "jungle_runner.serpen.next_respawn_tick", "note": "serpen_tick (L554, m09.ll:5992~5993)"},
+  {"base": "TeamPlan", "offset": "0xc0", "name": "chats.cap", "note": "Vec::push 인라인 — len==cap 이면 RawVec::grow_one (m09.ll:5637·5656~5661)"},
+  {"base": "TeamPlan", "offset": "0xc8", "name": "chats.ptr", "note": "push 대상 버퍼 (m09.ll:5666~5668)"},
+  {"base": "TeamPlan", "offset": "0xd0", "name": "chats.len", "note": "push 후 +1 (m09.ll:5651~5652·5676~5677)"}
+ ],
+
+ "writes": [
+  {"base": "TeamPlan", "offset": "0xc8", "name": "chats[len]", "value": "Chat::Press(line, 0) (태그 21) 또는 Chat::Split(line, 0) (태그 20)", "note": "24B Chat 원소에 byte0=태그·byte1=LineType·+0x8=usize 0 을 씀. 14개 분기 각각 1회 push (m09.ll:5671~5680 등)"},
+  {"base": "TeamPlan", "offset": "0xd0", "name": "chats.len", "value": "len+1", "note": "push"},
+  {"base": "TeamPlan", "offset": "0x41f", "name": "objective@tag", "value": "5=PressEpic 또는 6=SplitEpic", "note": "Some(MainObjective) — Option 니치(None=255) 라 태그 자체가 Some 표시. 14분기 phi 로 접혀 line 0 에 sunk (m09.ll:5961·5963~5964)"},
+  {"base": "TeamPlan", "offset": "0x420", "name": "objective@Some.0.line", "value": "LineType 0=Top/1=Mid/2=Bottom (분기별)", "note": "chat 에 넣은 line 과 동일 (m09.ll:5962·5965~5966)"}
+ ],
+
+ "constants": [
+  {"value": 6, "src_line": 503, "meaning": "① 인라인 spawn_epic: `(tutorial-1) <u 6` → TutorialType 1..6(First·TopSolo·Bottom·MidSolo·MidBottom·JungleOnly) 면 에픽 미스폰→return (m09.ll:5350). ② MainObjective::SplitEpic 메모리태그 6 (phi m09.ll:5961)"},
+  {"value": 100, "src_line": 507, "meaning": "rnd.gen_range(0..100) 상한 (m09.ll:5354)"},
+  {"value": 21, "src_line": 507, "meaning": "① `on = gen_range(0..100) < 21` — 호출당 21% 확률로만 발령 (m09.ll:5355). ② Chat::Press 메모리태그 21 (store i8 21, m09.ll:5671 등)"},
+  {"value": 5, "src_line": 512, "meaning": "① MorgardUseStrategy 니치 시작: 태그 5=Gather·6=Split14·<5=Split131(암묵, 그 값=position1) — `tag>4 ? tag-5 : 2` switch (m09.ll:5368~5370). ② TowerType `<5` = 1차 타워 판정 (m09.ll:5520 등). ③ MainObjective::PressEpic 태그 5 (phi 5961). ④ Split131 position1 <5 bounds (m09.ll:6758)"},
+  {"value": 4, "src_line": 520, "meaning": "TowerType `>4` = 2차 타워(Top2=5/Mid2=6/Bottom2=7) — 인라인 is_second_tower (m09.ll:5574 등)"},
+  {"value": 2, "src_line": 518, "meaning": "① EntityType::Tower 메모리태그 2 (is_tower2 인라인, m09.ll:5494 등). ② LineType::Bottom=2 (chat/objective line, m09.ll:5717·5996 select). ③ team<2 bounds (m09.ll:5384·5416)"},
+  {"value": 20, "src_line": 562, "meaning": "Chat::Split 메모리태그 20 — Split14/Split131 의 분할 담당자에게 (m09.ll:6049·6747·6823)"},
+  {"value": 0, "src_line": 527, "meaning": "LineType::Top=0 (chat line·objective line) 및 Chat 페이로드 .1 = 0 (m09.ll:5675 등, Top 저장 예 5717 아님 — Bottom=2; Top 예는 L527 분기)"},
+  {"value": 1, "src_line": 530, "meaning": "LineType::Mid=1 (m09.ll:5673 등). enemy = 1 - team (m09.ll:5447)"}
+ ],
+
+ "calls": [
+  "rand::Rng::gen_range",
+  "game_core::simulation::state::player::PlayerState::strategy",
+  "alloc::raw_vec::RawVec::grow_one",
+  "core::option::unwrap_failed",
+  "core::panicking::panic_bounds_check"
+ ],
+
+ "logic": "fn handle_press_epic(&mut self, _version, rnd, player, data, _debug)\n  if !morgard_exists(ctx)  // = spawn_epic: tutorial ∈ {1..6} 이면 false           L503\n    return\n  on = rnd.gen_range(0..100) < 21                                                   L507\n  if !on: return                                                                     L509\n  strategy = player.strategy(rnd, game)                                              L510\n  team = player.info.team; enemy = 1 - team\n\n  // 공용 서브루틴 (인라인, 소스 L518~547 / L568~606 에 두 벌 복제)\n  //   tower(line) = cache.<line>_tower[enemy].or(<line>_tower2[enemy])\n  //   has_<line>_first_tower  = tower(line).is_some_and(|t| !t.is_tower2())    // 적 1차 타워 생존\n  //   has_<line>_second_tower = tower(line).is_some_and(|t|  t.is_tower2())    // 1차 죽고 2차만 생존\n  //   <line>_state = data.blackboard[team].<line>_minion_state.minion_count  (i32)\n  //   pick(X vs Mid) = if (has_X_first, has_X_second, X_state) > (has_mid_first, has_mid_second, mid_state)  // 튜플 사전식 >\n  //                    { X } else { Mid }\n  //   emit(kind, line) = self.chats.push(Chat::kind(line, 0)); self.objective = Some(MainObjective::{PressEpic|SplitEpic}(line))\n  //   side(champ) = IR 식 `(height - champ.y) <u champ.x`  → true 면 '아래쪽(Bottom 라인) 진영', false 면 '위쪽(Top 라인) 진영'  (인라인 is_top_side; 이름 극성은 unknown 참조)\n\n  match strategy.morgard_use {                                                       L512\n    Gather =>                                                                        L515\n      champ = cache.player_champion[team][player.position].unwrap()\n      if side(champ)==위쪽:  emit(Press, pick(Top vs Mid))      // L518~530: Top→Press(Top) / else Press(Mid)\n      else:                  emit(Press, pick(Bottom vs Mid))   // L535~547: Bottom→Press(Bottom) / else Press(Mid)\n      objective = PressEpic(line)\n\n    Split14{position} =>                                                             L552\n      epic_tick   = game.get_game_mode().as_moba().unwrap().jungle_runner.epic.next_respawn_tick     L553 (비 Moba → 패닉)\n      serpen_tick = ....serpen.next_respawn_tick                                                     L554\n      object_far_line = if epic_tick > serpen_tick { Top } else { Bottom }   // 다음에 뜨는 오브젝트에서 먼 라인   L555\n      if player.position == position:                                            L561\n        emit(Split, object_far_line); objective = SplitEpic(object_far_line)     L562  // 분할 담당자는 먼 라인으로\n      else:                                                                      L565\n        champ = cache.player_champion[team][player.position].unwrap()\n        if side(champ)==위쪽:                                                    L566~584\n          if object_far_line == Top: emit(Press, Mid)              L576~577  // Top 이 먼 라인이면 Mid\n          else:                      emit(Press, pick(Top vs Mid)) L580~584\n        else:                                                                    L590~606\n          if object_far_line == Top: emit(Press, pick(Bottom vs Mid))  L598~606\n          else:                      emit(Press, Mid)                  L599\n        objective = PressEpic(line)\n\n    Split131{position1, position2} =>                                                L613\n      if player.position == position1                                                L614\n         || (player.position == position2 && cache.player_champion[team][position1].is_none()):   L615\n        emit(Split, Top); objective = SplitEpic(Top)                                 L616\n      else if player.position == position2:                                          L618\n        emit(Split, Bottom); objective = SplitEpic(Bottom)                           L620\n      else:\n        emit(Press, Mid); objective = PressEpic(Mid)                                 L623\n  }                                                                                  L629 ret\n\n  튜플 비교 의미: 1순위 '적 1차 타워가 아직 서 있는 라인'(true>false) → 2순위 '2차 타워만 남은 라인' → 3순위 내 팀 minion_count 큰 쪽(부호 있는 i32). 즉 덜 밀린(타워가 남은) 사이드 라인을 Mid 보다 우선 압박하고, 동률이면 Mid.",
+
+ "knobs": [
+  {"what": "발령 확률", "where": "epic.rs:507", "value": 21, "effect": "gen_range(0..100) < 21. 올리면 handle_press_epic 이 호출될 때 더 자주 PressEpic/SplitEpic 목표를 세움(호출 빈도는 호출자 소관)"},
+  {"what": "먼 라인 판정", "where": "epic.rs:555", "value": "epic_tick > serpen_tick → Top", "effect": "부등호를 바꾸면 Split14 분할 담당자가 가는 라인과 나머지의 Mid 강제 조건이 반전됨"},
+  {"what": "라인 선택 우선순위", "where": "epic.rs:526·543·580·602", "value": "(1차타워, 2차타워, minion_count) 사전식", "effect": "튜플 원소 순서를 바꾸면(예: minion_count 우선) 압박 라인 선택 기준이 바뀜. 값 노브가 아니라 구조 노브"}
+ ],
+
+ "unknown": [
+  "`is_top_side` 의 이름 극성: game_core 에 define 없이 인라인만(grep ^define 0건). IR 식은 `(height-y) <u x` 이고 그 true 쪽이 Bottom 라인 타워 검사(L535/L590)·false 쪽이 Top 라인 검사(L518/L568)로 간다. 소스 순서(if 본문=L518 top / else=L535 bottom)로 보면 `is_top_side == !((h-y)<x) == (x+y <= height)` 로 읽히나(컴파일러의 비교 반전+라벨 교환) 이는 추정 — 확정은 오라클(is_top_side 가 pub 이면) 필요. 동작(어느 좌표가 어느 분기)은 확정",
+  "`Blackboard.<line>_minion_state.minion_count`(i32) 의 정확한 의미(내 팀 라인 미니언 수인지 차이값인지) — _docs 에 없음, BrainMinionParameter(ai_interface.rs:18) 채우는 쪽 미탐색. 여기선 '클수록 그 라인 우선' 까지만 확정",
+  "PlayerState::strategy(rnd, game) 내부(어떤 확률로 Gather/Split14/Split131 을 고르는지) — 담당 밖. Strategy+0x4 morgard_use 만 소비",
+  "`cache.tower(team, line)` (simulation.rs, 인라인 line 0) 이 `.or()` 이외의 필터(생존 여부 등)를 갖는지 — IR 에는 or 만 남음. `*_tower[]` 캐시가 파괴된 타워를 None 으로 두는지는 new_with_prev_cache 소관(미탐색) — 튜플 의미 해석은 그 가정에 의존",
+  "Chat::Press/Split 의 두 번째 페이로드(usize, 항상 0)의 의미 — 소비처 미탐색",
+  "objective 저장이 각 분기 안에 있는지 match 뒤 한 번인지 — phi 로 접혀(line 0) 표기 불가, 동작 동일",
+  "L614~615 의 소스 표기(`||` 결합 순서) — column 부재로 표기 불가. 외연 확정",
+  "호출자(누가 언제 handle_press_epic 을 부르는지 · 21% 가 틱당인지 이벤트당인지) — 미탐색 = `grep handle_press_epic` 호출 사이트"
+ ]
+}

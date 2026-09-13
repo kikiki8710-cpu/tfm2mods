@@ -1,0 +1,15 @@
+setting_ok	true	width=960000	height=960000	tps=60	champ_radius=10000	visible=130000
+towers	16	tick=1000	enemy_mid_tower=(592000,368000)	center=(480000,480000)
+tower0	attack_effect.tag=0	range=0	growth_range=0
+towers_widened	8
+scan	approach=45000	cells=289	tower_focused_when_battle=true:289	can_trace=true:0	needs_true_first=Some((512000, 288000))
+dbg_write	target.x=512000	rd(0x660)=512000	volatile=512000	champ.hp=34	rd(0x670)=34
+cases	4032	mism	0	true(무리)	3392	false	640	needs_false	0
+coverage	A_true=864	B_true=576	C_true=80	in_range_true=2688	ally_adv_true(allies2,enemies0/1)=896	enemies3_seen=2688
+rep	mr=100	tr=100	wdd=false	actual=true	pred=true	approach=45000 my_r=100 t_r=100 in_range=true allies=1 enemies=0 A=false B=false C=false
+rep	mr=100	tr=25	wdd=false	actual=false	pred=false	approach=45000 my_r=100 t_r=25 in_range=true allies=1 enemies=0 A=false B=true C=false
+rep	mr=34	tr=25	wdd=false	actual=true	pred=true	approach=45000 my_r=34 t_r=25 in_range=true allies=1 enemies=0 A=false B=false C=false
+rep	mr=35	tr=25	wdd=false	actual=false	pred=false	approach=45000 my_r=35 t_r=25 in_range=true allies=1 enemies=0 A=false B=true C=false
+rep	mr=100	tr=26	wdd=false	actual=true	pred=true	approach=45000 my_r=100 t_r=26 in_range=true allies=1 enemies=0 A=false B=false C=false
+rep	mr=45	tr=50	wdd=true	actual=true	pred=true	approach=45000 my_r=45 t_r=50 in_range=true allies=1 enemies=0 A=false B=false C=false
+rep	mr=45	tr=50	wdd=false	actual=true	pred=true	approach=45000 my_r=45 t_r=50 in_range=true allies=1 enemies=0 A=false B=false C=false

@@ -1,0 +1,201 @@
+{
+ "name": "target_bush_v41",
+ "sym": "_RNvMNtNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old9line_gank6gankerNtB2_14LineGankerPlan15target_bush_v41",
+ "src": "game-ai\\src\\plan_legacy\\old\\line_gank\\ganker.rs",
+ "src_line": 310,
+ "ir_file": "m08.ll",
+ "ir_from": 94136,
+ "ir_to": 94351,
+ "aux": [],
+ "one_line": "갱커가 숨을 부시 id 를 (라인, 팀, 라인 리드 단계 0..6, 미드는 챔프 위치의 상/하 변) 로 룩업표에서 고른다",
+ "signature": {
+  "params": [
+   {
+    "i": 0,
+    "name": "self.line",
+    "type": "i8 = LineType 태그(0=Top·1=Mid·2=Bottom, tcxdict --enum: Direct 인코딩)",
+    "note": "소스 시그니처는 `fn target_bush_v41(&self, player:&PlayerState, data:&OperationData)->usize` (DISubprogram m08.ll:170575·170582~170584). 컴파일러가 인자를 스칼라로 쪼갬(SROA): 호출자 sub_plan(m08.ll:94953~94960) 이 `LineGankerPlan+0x28 line`·`PlayerState+0x930 info.team`·`PlayerState+0x9c0 info.position@tag`·`OperationData+0x0 cache`·`+0x8 context` 를 읽어 넘김"
+   },
+   {
+    "i": 1,
+    "name": "team",
+    "type": "i64 (usize)",
+    "note": "player.info.team. 0 또는 1 — 2 이상이면 `lead[team]` 인덱싱에서 bounds 패닉(m08.ll:94212·94230·94339)"
+   },
+   {
+    "i": 2,
+    "name": "position",
+    "type": "i32 (Position 태그)",
+    "note": "player.info.position. Mid 분기에서만 `cache.player_champion[team][position]` 인덱스로 사용(zext, m08.ll:94235~94241)"
+   },
+   {
+    "i": 3,
+    "name": "cache",
+    "type": "&AbstractGameWithCache(8840B)",
+    "note": "data.cache"
+   },
+   {
+    "i": 4,
+    "name": "context",
+    "type": "&GameContext(64B)",
+    "note": "data.context. Mid 분기에서 setting.height 만 읽음"
+   }
+  ],
+  "returns": "i64(usize) — 부시 id (맵 부시 인덱스). Top: {2,3,6,16} · Mid: {4,9,11,14,17,21} · Bottom: {7,9,15,20,21,23} 중 하나"
+ },
+ "reads": [
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x21c0",
+   "name": "top_lead[team]",
+   "note": "Top 분기. usize 0..6 (7 미만 아니면 bounds 패닉 m08.ll:94222). 값은 `AbstractGameWithCache::new_with_prev_cache`(_gcbc/g15.ll:102716, phi g15.ll:103619 값 0~6)가 계산 — 의미 미독해"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x21d0",
+   "name": "mid_lead[team]",
+   "note": "Mid 분기 (m08.ll:94288~94291)"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x21e0",
+   "name": "bottom_lead[team]",
+   "note": "Bottom 분기 (m08.ll:94332~94335)"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x1e0",
+   "name": "player_champion[team][position]",
+   "note": "Mid 분기. Option<&Entity>, None 이면 unwrap 패닉(m08.ll:94295, Location ganker.rs:322). 배열 stride: 팀 40B·포지션 8B (m08.ll:94238~94241)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x660",
+   "name": "x",
+   "note": "Mid 분기. 미드 챔프 좌표 (m08.ll:94254~94255)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x668",
+   "name": "y",
+   "note": "Mid 분기 (m08.ll:94256~94257)"
+  },
+  {
+   "base": "GameContext",
+   "offset": "0x8",
+   "name": "setting",
+   "note": "&GameSetting (m08.ll:94258~94259)"
+  },
+  {
+   "base": "GameSetting",
+   "offset": "0x12c0",
+   "name": "height",
+   "note": "맵 높이. 인라인된 `map_regions::is_top_side(x,y)` = `(height - y) < x` (unsigned, dloc !55280/!55281 = map_regions.rs:22·24, m08.ll:94264~94267)"
+  }
+ ],
+ "writes": [],
+ "constants": [
+  {
+   "value": 16,
+   "src_line": 314,
+   "meaning": "Top·팀0 표 `[16,6,3,3,3,2,2]` 의 lead=0 부시 / Top·팀1 표 `[2,3,6,6,6,16,16]` 의 lead=5,6 부시 (m08.ll:94182·94197~94198)"
+  },
+  {
+   "value": 6,
+   "src_line": 314,
+   "meaning": "Top 표 부시 id (팀0 lead=1 / 팀1 lead=2,3,4)"
+  },
+  {
+   "value": 3,
+   "src_line": 314,
+   "meaning": "Top 표 부시 id (팀0 lead=2,3,4 / 팀1 lead=1)"
+  },
+  {
+   "value": 2,
+   "src_line": 314,
+   "meaning": "Top 표 부시 id (팀0 lead=5,6 / 팀1 lead=0). ⚠같은 값 2 가 `lead[team]` bounds 상한(팀 수 2, m08.ll:94212) 으로도 등장 — 그건 배열 길이라 상수 아님"
+  },
+  {
+   "value": 21,
+   "src_line": 323,
+   "meaning": "Mid 표: IR 식 (h-y)<x 이면 21 아니면 17 — 팀0 lead=0 / 팀1 lead=5,6 슬롯 (select m08.ll:94275·94278). Bottom 표에서도 21(팀0 lead=0 / 팀1 lead=5, m08.ll:94309·94324)"
+  },
+  {
+   "value": 17,
+   "src_line": 323,
+   "meaning": "Mid 표: (h-y)<x 거짓일 때의 21 짝 (select m08.ll:94275·94278)"
+  },
+  {
+   "value": 14,
+   "src_line": 323,
+   "meaning": "Mid 표 lead=1..4 슬롯: IR 식 (h-y)<x 이면 14 아니면 11 (select m08.ll:94274, 팀 무관)"
+  },
+  {
+   "value": 11,
+   "src_line": 323,
+   "meaning": "Mid 표 lead=1..4 슬롯의 (h-y)<x 거짓 값"
+  },
+  {
+   "value": 9,
+   "src_line": 323,
+   "meaning": "Mid 표: IR 식 (h-y)<x 이면 9 아니면 4 — 팀0 lead=5,6 / 팀1 lead=0 슬롯 (select m08.ll:94276~94277). Bottom 표에서도 9(팀0 lead=5 / 팀1 lead=0, m08.ll:94314·94319)"
+  },
+  {
+   "value": 4,
+   "src_line": 323,
+   "meaning": "Mid 표: 9 의 (h-y)<x 거짓 짝"
+  },
+  {
+   "value": 20,
+   "src_line": 341,
+   "meaning": "Bottom 표 `팀0 [21,20,15,15,15,9,7]` lead=1 / `팀1 [9,15,20,20,20,21,23]` lead=2,3,4 (m08.ll:94310·94321~94323)"
+  },
+  {
+   "value": 15,
+   "src_line": 341,
+   "meaning": "Bottom 표 부시 id (팀0 lead=2,3,4 / 팀1 lead=1)"
+  },
+  {
+   "value": 7,
+   "src_line": 341,
+   "meaning": "Bottom 표 팀0 lead=6 부시 (m08.ll:94315). ⚠값 7 은 `lead<7` bounds 상한(m08.ll:94208·94291·94335)으로도 등장 — 그쪽은 표 길이"
+  },
+  {
+   "value": 23,
+   "src_line": 343,
+   "meaning": "Bottom 표 팀1 lead=6 부시 (m08.ll:94325)"
+  }
+ ],
+ "calls": [
+  "core::panicking::panic_bounds_check",
+  "core::option::unwrap_failed"
+ ],
+ "logic": "fn target_bush_v41(line, team, position, cache, context) -> bush_id\n  match line {                                                       // L311 switch(LineType 태그)\n    Top(0) => {                                                       // L313\n      bush_by_lead = if team==0 { [16,6,3,3,3,2,2] }                  // L314\n                     else       { [2,3,6,6,6,16,16] }                 // L316\n      lead = cache.top_lead[team]        // +0x21c0, team<2 아니면 패닉   L319\n      return bush_by_lead[lead]          // lead<7 아니면 패닉             L319~320\n    }\n    Mid(1) => {                                                       // L322\n      champ = cache.player_champion[team][position].unwrap()          // +0x1e0, L322 (None→패닉)\n      low = (setting.height - champ.y) <u champ.x   // 인라인 is_top_side 의 IR 식. ★true = 대각선 아래쪽(x+y>height) — 이름과 반대 극성으로 추정(unknown 참조)  L323\n      bush_by_lead = if team==0 { [low?21:17, low?14:11 ×4, low?9:4 ×2] }      // L323~ (select)\n                     else       { [low?9:4,   low?14:11 ×4, low?21:17 ×2] }\n      lead = cache.mid_lead[team]        // +0x21d0                        L337\n      return bush_by_lead[lead]                                       // L337~338\n    }\n    Bottom(2) => {                                                    // L340\n      bush_by_lead = if team==0 { [21,20,15,15,15,9,7] }              // L341\n                     else       { [9,15,20,20,20,21,23] }              // L343\n      lead = cache.bottom_lead[team]     // +0x21e0                     L346\n      return bush_by_lead[lead]                                       // L346~347\n    }\n  }                                                                   // L349 ret\n\n  표 구조: 인덱스 = 그 라인의 '리드 단계'(0..6). 팀0 표는 lead 가 커질수록 상대 진영 쪽(→ 표가 서로 거울: 팀1 표 = 팀0 표를 뒤집은 순서에 가깝다) 부시로 옮겨감. Mid 는 리드 단계 외에 미드 챔프가 대각선 어느 쪽(x+y>height 이면 21/14/9 계열, 아니면 17/11/4 계열)에 있는지로 상/하 부시 쌍을 고른다.",
+ "knobs": [
+  {
+   "what": "Top 부시 룩업표(팀0/팀1, lead 0..6)",
+   "where": "ganker.rs:314·316",
+   "value": "[16,6,3,3,3,2,2] / [2,3,6,6,6,16,16]",
+   "effect": "값을 바꾸면 그 리드 단계에서 갱커가 대기하는 부시가 바뀜(맵 부시 id 로 직접 지정). 유효 부시 id 범위 밖 값은 호출자 쪽 좌표 변환에서 문제 가능 — 미확인"
+  },
+  {
+   "what": "Mid 부시 룩업표(상/하 쌍)",
+   "where": "ganker.rs:323",
+   "value": "(h-y)<x ? [21,14,14,14,14,9,9] : [17,11,11,11,11,4,4] (팀0) · 팀1 은 첫/끝 슬롯 교환",
+   "effect": "대각선 판정은 `is_top_side` 고정. 표 값 변경 = 미드 갱 대기 부시 변경"
+  },
+  {
+   "what": "Bottom 부시 룩업표",
+   "where": "ganker.rs:341·343",
+   "value": "[21,20,15,15,15,9,7] / [9,15,20,20,20,21,23]",
+   "effect": "동상"
+  }
+ ],
+ "unknown": [
+  "`*_lead[team]`(0..6) 의 정확한 의미 — `AbstractGameWithCache::new_with_prev_cache`(_gcbc/g15.ll:102716~, 27칸 라인 셀 점수 배열에서 phi 로 0~6 산출, g15.ll:103619·simulation.rs:1749) 를 훑었으나 본문 미독해. 이 명세는 '7단계 인덱스'까지만 확정. 미탐색 = g15.ll:103579~103619 손 독해",
+  "부시 id → 맵 좌표 매핑(어느 id 가 어느 자리인지)은 MapDef 부시 목록 소관으로 이 함수 밖 — 미탐색",
+  "`is_top_side` 는 game_core 에 define 없이 인라인만 존재(grep ^define 0건). 확정된 것은 IR 식 `(height-y) <u x` 가 true 일 때 14/21/9 계열이라는 합성 사실뿐. 이름 극성은 handle_press_epic(m09.ll:5446~5448) 에서 같은 식의 true 쪽이 Bottom 라인 검사(소스 else 절 L535)로 가는 구조로 볼 때 `is_top_side == !((h-y)<x)` (컴파일러가 비교 반전+라벨 교환) 로 추정 — 즉 위 표의 `low`(=!is_top_side) 가 true 면 21/14/9. 확정하려면 오라클(is_top_side 가 pub 이면) 필요",
+  "Mid 표의 `team==0` 조건과 `is_top_side` 조건이 소스에서 어떤 중첩 순서(`if team==0 { if top {..} }` 인지 `[if top {21} else {17}, ...]` 인지)로 쓰였는지 — column 부재 + select 로 접혀 표기 불가(동작은 확정)",
+  "리턴 타입이 소스에서 usize 인지 i64 인지 — IR 은 i64 이고 DISubroutineType 반환 !10 미해독(동작 무관)"
+ ]
+}

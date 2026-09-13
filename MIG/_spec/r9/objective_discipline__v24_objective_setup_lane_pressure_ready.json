@@ -1,0 +1,115 @@
+{
+ "name": "v24_objective_setup_lane_pressure_ready",
+ "sym": "_RNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy9team_plan20objective_disciplineNtB4_8TeamPlan39v24_objective_setup_lane_pressure_ready",
+ "src": "game-ai\\src\\plan_legacy\\team_plan\\objective_discipline.rs",
+ "src_line": 7,
+ "ir_file": "m09.ll",
+ "ir_from": 21244,
+ "ir_to": 22101,
+ "exe_rva": "0xdd6b40",
+ "aux": [
+  {"ir_file": "m09.ll", "ir_from": 67686, "ir_to": 67783, "what": "closure s_0 count (L44): 아군 챔피언 중 hp%>49 인 수(거리 무관)"},
+  {"ir_file": "m09.ll", "ir_from": 67410, "ir_to": 67683, "what": "closure s0_0(closure$2) count (L63~66): hp%>49 이고 (Morgard: is_top_side||is_near_mid_line / Serpen: is_bottom_side||is_near_mid_line) 인 아군 수"}
+ ],
+
+ "one_line": "오브젝트(Morgard/Serpen) Setup 단계에서 '라인 정리가 끝나 캠프로 모여도 되는가'를 아군 집결·건강·압박 라인 잔여로 판정",
+
+ "signature": {
+  "params": [
+   {"i": 0, "name": "self", "type": "&TeamPlan(1064B)", "note": "objective(0x41f tag / 0x420 phase) 만 읽음 — take_setup_like 인라인"},
+   {"i": 1, "name": "version", "type": "usize", "note": "본문에서 미사용(분기 없음)"},
+   {"i": 2, "name": "player", "type": "&PlayerState(2528B)", "note": "info.team(0x930)·info.position@tag(0x9c0, 디버그 로그용)"},
+   {"i": 3, "name": "data", "type": "&OperationData(24B)", "note": "cache(+0)·context(+8) 사용, blackboard 미사용"},
+   {"i": 4, "name": "goal_data", "type": "&GoalData(248B)", "note": "is_object_being_taken_by_enemy 에 그대로 전달만"},
+   {"i": 5, "name": "camp", "type": "JungleType(u8: 4=Morgard 5=Serpen)", "note": "dbg 이름 target/camp. 4·5 외는 즉시 false"},
+   {"i": 6, "name": "debug", "type": "&mut DebugFrameData", "note": "context.debug(0x3b) 일 때만 +0xa0 HashMap<usize,Vec<String>> 에 로그 push"}
+  ],
+  "returns": "bool — true = 라인 압박 준비 완료(오브젝트로 모여도 됨). 조기 false 12곳, true 5곳(전부 L55~57 또는 L75~86 경유)"
+ },
+
+ "reads": [
+  {"base": "TeamPlan", "offset": "0x41f", "name": "objective@Some.0@tag (MainObjective: 0=Morgard 1=Serpen)", "note": "gep +1055 (m09.ll:21281). take_setup_like(team_plan.rs:258) 인라인"},
+  {"base": "TeamPlan", "offset": "0x420", "name": "objective@Some.0@{Morgard,Serpen}.phase (ObjectPhase: 1=Setup)", "note": "gep +1056 (m09.ll:21283)"},
+  {"base": "PlayerState", "offset": "0x930", "name": "info.team", "note": "L27 camp_pos 의 is_blue(team==0)·L28 is_visible_cell·player_champion[team]"},
+  {"base": "PlayerState", "offset": "0x9c0", "name": "info.position@tag", "note": "L56/L80 디버그 로그 키(자기 챔피언 id) 조회에만"},
+  {"base": "OperationData", "offset": "0x0", "name": "cache", "note": "game(+0 data/+8 vtable)·player_champion"},
+  {"base": "OperationData", "offset": "0x8", "name": "context(&GameContext)", "note": "map(0x20)·setting(0x8, 클로저)·tutorial(0x38)·debug(0x3b)"},
+  {"base": "GameContext", "offset": "0x20", "name": "map(&MapDef)", "note": "L27 camp_pos(camp, team==0)"},
+  {"base": "GameContext", "offset": "0x38", "name": "tutorial(TutorialType)", "note": "gep +56 (m09.ll:21762). TutorialType::player_count()(runner.rs:295~301) 인라인 → 인원 임계 min() 에 사용"},
+  {"base": "GameContext", "offset": "0x3b", "name": "debug(bool)", "note": "gep +59 (m09.ll:21911/21951). 로그 분기만, 반환값 무영향"},
+  {"base": "GameContext", "offset": "0x8", "name": "setting(&GameSetting)", "note": "aux s0_0: setting.height(0x12c0) 로 is_top_side/is_bottom_side 계산"},
+  {"base": "GameSetting", "offset": "0x12c0", "name": "height", "note": "aux s0_0 gep +4800 (m09.ll:67433). is_top_side = x <= height-y / is_bottom_side = x >= height-y (map_regions.rs:22~30 인라인)"},
+  {"base": "AbstractGameWithCache", "offset": "0x0", "name": "game data/vtable", "note": "vtable+0x100 = is_visible_cell(team, x/32000, y/32000) (L28, m09.ll:21335)"},
+  {"base": "AbstractGameWithCache", "offset": "0x1e0", "name": "player_champion[team][0..5]", "note": "gep +480 (m09.ll:21345). L36~40 언롤 5회 / 클로저 2개 / 디버그 로그"},
+  {"base": "Entity", "offset": "0x628", "name": "stat_cached.hp(최대)", "note": "hp% 분모 (0 → div_by_zero 패닉)"},
+  {"base": "Entity", "offset": "0x670", "name": "hp", "note": "hp% 분자"},
+  {"base": "Entity", "offset": "0x660", "name": "x", "note": "camp_pos 거리²·is_top/bottom_side·is_near_mid_line"},
+  {"base": "Entity", "offset": "0x668", "name": "y", "note": "동상"},
+  {"base": "Entity", "offset": "0x5c0", "name": "id", "note": "디버그 로그 HashMap 키 (m09.ll:21968/22052)"}
+ ],
+
+ "writes": [
+  {"base": "DebugFrameData", "offset": "0xa0", "name": "infos(HashMap<usize, Vec<String>>)[champ.id].push(String)", "value": "\"v24 objective setup gathered ready: {camp:?}\" (L57) / \"v24 objective setup lane pressure ready: {camp:?}\" (L81)", "note": "context.debug 일 때만. 판정에 무영향 (gep +160, m09.ll:21969/22053)"}
+ ],
+
+ "constants": [
+  {"value": 4, "src_line": 13, "meaning": "JungleType::Morgard 태그(switch case, m09.ll:21287). L49 `camp == Morgard` 도 동일. L51 Morgard 집결 요구 인원 4"},
+  {"value": 5, "src_line": 13, "meaning": "JungleType::Serpen 태그(switch case). (아군 슬롯 수 5 는 슬라이스 길이·판정 아님)"},
+  {"value": 0, "src_line": 13, "meaning": "MainObjective::Morgard 메모리태그 0 (0x41f) — camp==Morgard 일 때 objective 가 Morgard 여야 함"},
+  {"value": 1, "src_line": 13, "meaning": "ObjectPhase::Setup 메모리태그 1 (0x420) — 두 case 공통. camp==Serpen 은 objective 태그 1(Serpen) 도 요구"},
+  {"value": 32000, "src_line": 28, "meaning": "셀 크기 — camp_pos 를 셀 좌표로 변환해 is_visible_cell 에 넘김 (좌표 변환, 임계 아님)"},
+  {"value": 180000, "src_line": 32, "meaning": "v23_recent_visible_enemies_near_point 반경(u64) — 캠프 180k 안 적 수가 0 이어야 함"},
+  {"value": 50, "src_line": 32, "meaning": "v23_recent_visible_enemies_near_point 마지막 인자(usize) — 시그니처상 usize, 의미(최근 틱 창 추정)는 그 함수 본문 미탐색"},
+  {"value": 100, "src_line": 37, "meaning": "hp% 환산 hp*100/max_hp (L37·L44·L64)"},
+  {"value": 49, "src_line": 37, "meaning": "hp% > 49 (=50% 이상) 만 '건강한 아군' — L37 근접 집결 수·L44 건강 수·L64 라인 배치 수 3곳 공통"},
+  {"value": 48400000001, "src_line": 38, "meaning": "220000² + 1 — 아군↔camp_pos 거리²(|dx|²+|dy|²) < 이 값 = 220k 이내 집결로 셈"},
+  {"value": 2, "src_line": 40, "meaning": "L40: gathered(220k·hp50%) < min(2, player_count) → false. player_count(tutorial): TopSolo/MidSolo/JungleOnly=1, First/Bottom=2, MidBottom=3, None/Line/Total>=4"},
+  {"value": 3, "src_line": 45, "meaning": "L45: healthy(hp>49, 거리무관) < min(3, player_count) → false. L50: 비-Morgard 집결 요구 3. L70: 배치 인원 < min(3, pc) → false"},
+  {"value": -1, "src_line": 75, "meaning": "Option<LineType>::None 니치(255). v23_objective_setup_pressure_line 이 None(=압박할 라인 없음)일 때만 true 로 진행"}
+ ],
+
+ "calls": [
+  "game_ai::plan_legacy::team_plan::objective_helpers::is_object_being_taken_by_enemy",
+  "game_core::simulation::map_def::MapDef::camp_pos",
+  "game_ai::plan_legacy::team_plan::objective_helpers::v23_recent_visible_enemies_near_point",
+  "game_ai::plan_legacy::team_plan::objective_helpers::v23_objective_setup_pressure_line",
+  "core::iter::traits::iterator::Iterator::count",
+  "core::panicking::panic_bounds_check",
+  "core::panicking::panic_const::panic_const_div_by_zero",
+  "hashbrown::map::HashMap::rustc_entry",
+  "std::collections::hash::map::Entry::or_insert",
+  "alloc::fmt::format::format_inner",
+  "alloc::vec::Vec::push_mut",
+  "game_core::simulation::map_regions::is_near_mid_line"
+ ],
+ "calls_note": {
+  "vtable AbstractGame+0x100": "is_visible_cell(team, cx, cy) 간접호출 (m09.ll:21335) — divtable 확인",
+  "Iterator::count": "2회 — L44 s_0(m09.ll:21798) / L69 s0_0(m09.ll:21919). 둘 다 aux 로 본문 포함",
+  "is_near_mid_line": "aux s0_0 안 (m09.ll:67539/67616)",
+  "HashMap::rustc_entry / or_insert / format_inner / push_mut": "디버그 로그 전용(L57·L81)"
+ },
+
+ "logic": "fn v24_objective_setup_lane_pressure_ready(self, version, player, data, goal_data, camp, debug) -> bool\n  // L13 take_setup_like(camp) 인라인 (team_plan.rs:258)\n  match camp { Morgard(4) => self.objective == Some(Morgard{phase: Setup,..})   // 0x41f==0 && 0x420==1\n               Serpen(5)  => self.objective == Some(Serpen{phase: Setup,..})    // 0x41f==1 && 0x420==1\n               _ => return false }  else return false\n  obj = if camp==Serpen { WavePriorityObject::Serpen(1) } else { Morgard(0) }\n  if is_object_being_taken_by_enemy(player, data, goal_data, self, obj) → return false     // L23\n  team = player.info.team\n  camp_pos = data.context.map.camp_pos(camp, team == 0)                                    // L27\n  if !game.is_visible_cell(team, camp_pos.x/32000, camp_pos.y/32000) → return false       // L28 (vtable+0x100)\n  if v23_recent_visible_enemies_near_point(player, data, camp_pos.x, camp_pos.y, 180000, 50) != 0 → return false   // L32\n  allies = cache.player_champion[team]   (bounds team<2)\n  pc = context.tutorial.player_count()   // runner.rs:295~301 인라인: TopSolo/MidSolo/JungleOnly→1, First/Bottom→2, MidBottom→3, None/Line/Total→>=4\n  gathered = allies.flatten().filter(|c| c.hp*100/c.max_hp > 49 && dist²(c, camp_pos) < 220000²+1).count()   // L36~39 (5회 언롤)\n  if gathered < min(2, pc) → return false                                                  // L40\n  healthy = allies.flatten().filter(|c| c.hp*100/c.max_hp > 49).count()                    // L44 (aux s_0)\n  if healthy < min(3, pc) → return false                                                   // L45\n  need = if camp == Morgard { 4 } else { 3 }                                               // L49~52\n  if gathered >= min(need, pc) {                                                           // L54 (반대 분기)\n     if context.debug { debug.infos[my_champ.id].push(\"v24 objective setup gathered ready: {camp:?}\") }   // L55~58\n     return true }\n  // L63~70 라인 배치 인원 (aux s0_0)\n  placed = allies.flatten().filter(|c| c.hp*100/c.max_hp > 49 &&\n              match camp { Morgard => is_top_side(c) || is_near_mid_line(ctx, c.x, c.y),      // L65: x <= height - y\n                           Serpen  => is_bottom_side(c) || is_near_mid_line(ctx, c.x, c.y),   // L66: x >= height - y\n                           _ => false }).count()\n  if placed < min(3, pc) → return false                                                     // L70\n  // L74 v24_objective_setup_relevant_lanes_ready 인라인(objective_discipline.rs:199~202)\n  lanes: [LineType;2] = match camp { Morgard => [Top, Mid], Serpen => [Bottom, Mid], _ => return false }\n  if v23_objective_setup_pressure_line(player, data, &lanes).is_some() → return false        // L75 (아직 밀어야 할 라인이 남음)\n  if context.debug { debug.infos[my_champ.id].push(\"v24 objective setup lane pressure ready: {camp:?}\") }   // L79~82\n  return true                                                                                // L86",
+
+ "knobs": [
+  {"what": "건강 임계 hp%", "where": "objective_discipline.rs:37/44/64", "value": 49, "effect": "낮추면 저체력 아군도 집결/배치 인원으로 셈 → 더 빨리 ready"},
+  {"what": "캠프 집결 반경", "where": "objective_discipline.rs:38", "value": "48400000001 (=220000²+1)", "effect": "키우면 멀리 있는 아군도 gathered 로 셈"},
+  {"what": "캠프 주변 적 감시 반경 / 창", "where": "objective_discipline.rs:32", "value": "180000 / 50", "effect": "반경을 줄이면 적이 근처에 있어도 ready 판정 가능(위험)"},
+  {"what": "최소 집결 인원", "where": "objective_discipline.rs:40", "value": "min(2, player_count)", "effect": ""},
+  {"what": "최소 건강 인원", "where": "objective_discipline.rs:45", "value": "min(3, player_count)", "effect": ""},
+  {"what": "완전 집결 인원(라인 검사 생략 조건)", "where": "objective_discipline.rs:49~54", "value": "Morgard 4 / Serpen 3", "effect": "낮추면 라인 압박 검사 없이 바로 true"},
+  {"what": "라인 배치 최소 인원", "where": "objective_discipline.rs:70", "value": "min(3, player_count)", "effect": ""},
+  {"what": "검사 대상 라인", "where": "objective_discipline.rs:200~202 (인라인, anon.190/.191)", "value": "Morgard [Top,Mid] / Serpen [Bottom,Mid]", "effect": "v23_objective_setup_pressure_line 에 넘기는 후보"}
+ ],
+
+ "unknown": [
+  "v23_recent_visible_enemies_near_point 의 6번째 인자 50(usize)의 의미 — 그 함수 본문(m15.ll:55548) 미탐색. '최근 N틱' 으로 추정",
+  "v23_objective_setup_pressure_line 내부(m15.ll:55350, 어떤 라인을 '압박 필요'로 보는지) 미탐색 — 이 함수는 Some/None 만 봄",
+  "is_object_being_taken_by_enemy 내부(m15.ll:53833) 미탐색",
+  "TutorialType::player_count 의 None/Line/Total 반환값은 본문에서 4 이상임만 확정(min(4,pc)=4). 정확한 값(5?)은 runner.rs:295~301 본체 미탐색",
+  "is_top_side/is_bottom_side 의 소스 표기(`x <= h-y` vs `x+y <= h`)는 표기 불가(외연 동일) — IR 은 `(h - y) < x` 의 부정 / `(h - y) > x` 의 부정",
+  "L54 이후 L55~57 은 gathered >= min(need,pc) 일 때 true 를 반환하는 분기 — 소스가 `if gathered >= need {return true}` 인지 `if gathered < need {…} else {return true}` 인지 표기 불가",
+  "camp_pos 의 3번째 인자 `team == 0` 의 의미(is_blue 추정)는 MapDef::camp_pos(_gcbc) 미탐색",
+  "goal_data·version 은 이 본문에서 판정에 직접 쓰이지 않음(goal_data 는 헬퍼에 전달만, version 은 미사용)"
+ ]
+}

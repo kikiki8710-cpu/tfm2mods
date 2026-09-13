@@ -1,0 +1,55 @@
+{
+ "name": "bush_distance_sq",
+ "sym": "_RNvNtNtCshdEBA0ozCnw_7game_ai11plan_legacy5steal16bush_distance_sq",
+ "src": "game-ai\\src\\plan_legacy\\steal.rs",
+ "src_line": 20,
+ "ir_file": "m07.ll",
+ "ir_from": 54011,
+ "ir_to": 54195,
+ "aux": [{"ir_file": "m12.ll", "ir_from": 18209, "ir_to": 18437}],
+ "exe_rva": "0xd9aa80",
+
+ "one_line": "부시 id 가 일치하는 후보 셀(정적 71쌍) 중 (x,y) 에서 가장 가까운 셀 중심까지의 제곱거리 최솟값(Option)",
+
+ "signature": {
+   "params": [
+     {"i": 1, "name": "bush", "type": "usize", "note": "찾을 부시 id. map.bushes[by][bx] 와 == 비교(m07.ll:54127~54130)"},
+     {"i": 2, "name": "x", "type": "u64", "note": "기준 x 좌표(월드 단위, 셀=32000)"},
+     {"i": 3, "name": "y", "type": "u64", "note": "기준 y 좌표"},
+     {"i": 4, "name": "map", "type": "&MapDef(28112B)", "note": "bushes 격자만 읽음(+0x1c98)"}
+   ],
+   "returns": "Option<u64> — {i64 tag, i64 val}: tag 1=Some(최소 제곱거리), tag 0=None(일치 셀 없음). m07.ll:54188~54191"
+ },
+
+ "reads": [
+   {"base": "MapDef", "offset": "0x1c98", "name": "bushes[0][0]", "note": "[[usize;30];30] 격자. bushes[by][bx] 로 접근(행=by, 열=bx — %31=gep [30 x i64] by, %32=gep i64 bx, m07.ll:54127~54128). bounds check by→bx 순서(30)"}
+ ],
+
+ "writes": [],
+
+ "constants": [
+   {"value": 71, "src_line": 23, "meaning": "정적 후보 셀 배열 길이(@anon.…188 = [(usize,usize);71], 1136B). 아래 logic 에 전 71쌍 전개"},
+   {"value": 30, "src_line": 22, "meaning": "격자 한 변(30x30) — bx/by 의 bounds check 상한(panic_bounds_check), 판정 임계 아님"},
+   {"value": 32000, "src_line": 23, "meaning": "셀 → 월드 좌표 변환(셀 크기). 임계 아님"},
+   {"value": 16000, "src_line": 23, "meaning": "셀 중심 오프셋(32000/2). 임계 아님"}
+ ],
+
+ "calls": [
+   "core::iter::traits::iterator::Iterator::fold",
+   "core::panicking::panic_bounds_check",
+   "core::ops::function::impls::call_once"
+ ],
+
+ "logic": "static CANDIDATES: [(bx,by); 71] = [(0,0),(1,0),(2,0),(19,0),(20,0),(21,0),(0,1),(0,2),(7,4),(8,4),(9,4),(20,4),(20,5),(12,6),(4,7),(4,8),(29,8),(4,9),(14,9),(29,9),(29,10),(26,11),(6,12),(12,12),(13,12),(26,12),(12,13),(26,13),(9,14),(26,14),(20,15),(21,15),(17,16),(21,16),(16,17),(17,17),(25,18),(0,19),(25,19),(0,20),(4,20),(5,20),(15,20),(25,20),(0,21),(15,21),(16,21),(25,21),(25,22),(29,24),(18,25),(19,25),(20,25),(21,25),(22,25),(29,25),(11,26),(12,26),(13,26),(14,26),(29,26),(28,28),(29,28),(8,29),(9,29),(10,29),(24,29),(25,29),(26,29),(28,29),(29,29)]  // @anon.81aa2713ddfa9e15f7e3c0757f8f3b51.188 (m07.ll:210) 디코드\n\nfn bush_distance_sq(bush, x, y, map) -> Option<u64> {\n  CANDIDATES.into_iter()\n    .filter(|(bx,by)| map.bushes[by][bx] == bush)        // steal.rs:22 — 인덱스 순서 [by][bx] (m07.ll:54127~54130). by,bx 각각 <30 bounds check(둘 다 정적 테이블 값이라 실제 패닉 불가)\n    .map(|(bx,by)| distance_sq(x, y, bx*32000+16000, by*32000+16000))  // steal.rs:23 — utils.rs:6~9 distance_sq 인라인: abs_diff(x,cx)^2 + abs_diff(y,cy)^2 (u64, wrapping 없음: mul 은 nuw 표기 없음)\n    .min()                                                 // steal.rs:24 — Ord::cmp 기반 min_by: 동률이면 먼저 나온 값 유지(aux m12.ll:18392~18395 `cmp(acc,new) < Greater ? acc : new`)\n}\n\nIR 구조: 본체(m07.ll)는 first-match 탐색(find)을 인라인해 첫 일치 셀의 거리 %50 을 초기값으로 만들고, 나머지(인덱스 %20 부터 71 까지)는 aux 의 fold 함수로 넘겨 같은 filter/map 을 반복하며 min 을 누적한다. 일치 셀이 하나도 없으면 tag 0(None).\n\n주의: 후보 테이블 71쌍은 소스에 박힌 상수 배열이고 map.bushes 의 실제 부시 셀 전수가 아니다 — 이 목록 밖의 부시 셀은 map.bushes 값이 일치해도 절대 후보가 되지 않는다.",
+
+ "knobs": [
+   {"what": "후보 셀 테이블 71쌍", "where": "steal.rs:23 (정적 배열, IR @anon.…188 m07.ll:210)", "value": 71,
+    "effect": "쌍을 추가/제거하면 그 부시로 가는 거리 계산에 포함/제외된다. 현행은 테이블 밖 부시 셀을 못 본다"}
+ ],
+
+ "unknown": [
+   "정적 테이블 71쌍이 소스에서 어떤 이름의 const 인지(파일 스코프 const 인지 함수 내 리터럴인지) — IR 에는 익명 상수 @anon.…188 로만 남고 이름 심볼 없음. 동작엔 영향 없음",
+   "closure$0 의 튜플 패턴이 `(bx, by)` 인지 `&(bx, by)` 인지 등 소스 표기 — 동작(bushes[by][bx]) 은 확정",
+   "distance_sq 내부의 abs_diff 는 IR 이 `icmp ult + select` 로 접혀 있고 실제 소스가 abs_diff 인지 max-min 인지는 표기 불가(외연 동일). dloc 체인은 uint_macros.rs:3147 abs_diff 를 가리켜 abs_diff 가 유력"
+ ]
+}

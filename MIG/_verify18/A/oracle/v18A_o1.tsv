@@ -1,0 +1,28 @@
+setting_ok	true	width=960000	height=960000	tps=60	champ_radius=10000	visible=130000
+case	0	counts=[5, 2, -3]	towers=16	tick=1000	epic_tick=0	serpen_tick=0	far_line=Bottom
+calls	6000	fired	1298	(21.63%)	gate_mism	0	pred_mism	0
+kinds Press/Split	[1298, 0]	lines Top/Mid/Bottom	[1043, 255, 0]	strat Gather/Split14/Split131	[1298, 0, 0]	top_side false/true(호출수)	[1200, 4800]
+setting_ok	true	width=960000	height=960000	tps=60	champ_radius=10000	visible=130000
+case	1	counts=[-1, 0, 9]	towers=16	tick=1000	epic_tick=0	serpen_tick=0	far_line=Bottom
+calls	6000	fired	1298	(21.63%)	gate_mism	0	pred_mism	0
+kinds Press/Split	[1298, 0]	lines Top/Mid/Bottom	[0, 1043, 255]	strat Gather/Split14/Split131	[1298, 0, 0]	top_side false/true(호출수)	[1200, 4800]
+setting_ok	true	width=960000	height=960000	tps=60	champ_radius=10000	visible=130000
+case	2	counts=[0, 0, 0]	towers=16	tick=1000	epic_tick=0	serpen_tick=0	far_line=Bottom
+calls	6000	fired	1298	(21.63%)	gate_mism	0	pred_mism	0
+kinds Press/Split	[1298, 0]	lines Top/Mid/Bottom	[0, 1298, 0]	strat Gather/Split14/Split131	[1298, 0, 0]	top_side false/true(호출수)	[1200, 4800]
+setting_ok	true	width=960000	height=960000	tps=60	champ_radius=10000	visible=130000
+case	3	counts=[5, 2, -3]	towers=16	tick=1000	epic_tick=5000	serpen_tick=100	far_line=Top
+calls	6000	fired	1298	(21.63%)	gate_mism	0	pred_mism	0
+kinds Press/Split	[1052, 246]	lines Top/Mid/Bottom	[246, 1052, 0]	strat Gather/Split14/Split131	[0, 1298, 0]	top_side false/true(호출수)	[1200, 4800]
+setting_ok	true	width=960000	height=960000	tps=60	champ_radius=10000	visible=130000
+case	4	counts=[-1, 0, 9]	towers=16	tick=1000	epic_tick=100	serpen_tick=5000	far_line=Bottom
+calls	6000	fired	1298	(21.63%)	gate_mism	0	pred_mism	0
+kinds Press/Split	[1060, 238]	lines Top/Mid/Bottom	[0, 1060, 238]	strat Gather/Split14/Split131	[0, 1298, 0]	top_side false/true(호출수)	[1200, 4800]
+setting_ok	true	width=960000	height=960000	tps=60	champ_radius=10000	visible=130000
+case	5	counts=[5, 2, -3]	towers=16	tick=1000	epic_tick=0	serpen_tick=0	far_line=Bottom
+calls	6000	fired	1298	(21.63%)	gate_mism	0	pred_mism	0
+kinds Press/Split	[779, 519]	lines Top/Mid/Bottom	[264, 779, 255]	strat Gather/Split14/Split131	[0, 0, 1298]	top_side false/true(호출수)	[1200, 4800]
+setting_ok	true	width=960000	height=960000	tps=60	champ_radius=10000	visible=130000
+case	6	counts=[5, 2, -3]	towers=16	tick=1000	epic_tick=0	serpen_tick=0	far_line=Bottom
+calls	6000	fired	1298	(21.63%)	gate_mism	0	pred_mism	0
+kinds Press/Split	[779, 519]	lines Top/Mid/Bottom	[519, 779, 0]	strat Gather/Split14/Split131	[0, 0, 1298]	top_side false/true(호출수)	[1200, 4800]

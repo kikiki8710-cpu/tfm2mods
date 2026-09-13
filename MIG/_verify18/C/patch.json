@@ -1,0 +1,310 @@
+{
+ "round": 18,
+ "batch": "C",
+ "errors": [
+  {
+   "path": "/specs[67]/sig/params[0]/i",
+   "kind": "실오류",
+   "old": 0,
+   "new": 1,
+   "evidence": "m09.ll:21244 define 인자 7개 `(ptr %0, i64 %1, ptr deref(2528) %2, ptr deref(24) %3, ptr deref(248) %4, i8 range(0,6) %5, ptr deref(224) %6)` · 반환 `i1` 직접(sret 없음) ⟹ 규약(07·15) = 소스 위치 1..n",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[67]/sig/params[1]/i",
+   "kind": "실오류",
+   "old": 1,
+   "new": 2,
+   "evidence": "m09.ll:21244 define 인자 7개 `(ptr %0, i64 %1, ptr deref(2528) %2, ptr deref(24) %3, ptr deref(248) %4, i8 range(0,6) %5, ptr deref(224) %6)` · 반환 `i1` 직접(sret 없음) ⟹ 규약(07·15) = 소스 위치 1..n",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[67]/sig/params[2]/i",
+   "kind": "실오류",
+   "old": 2,
+   "new": 3,
+   "evidence": "m09.ll:21244 define 인자 7개 `(ptr %0, i64 %1, ptr deref(2528) %2, ptr deref(24) %3, ptr deref(248) %4, i8 range(0,6) %5, ptr deref(224) %6)` · 반환 `i1` 직접(sret 없음) ⟹ 규약(07·15) = 소스 위치 1..n",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[67]/sig/params[3]/i",
+   "kind": "실오류",
+   "old": 3,
+   "new": 4,
+   "evidence": "m09.ll:21244 define 인자 7개 `(ptr %0, i64 %1, ptr deref(2528) %2, ptr deref(24) %3, ptr deref(248) %4, i8 range(0,6) %5, ptr deref(224) %6)` · 반환 `i1` 직접(sret 없음) ⟹ 규약(07·15) = 소스 위치 1..n",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[67]/sig/params[4]/i",
+   "kind": "실오류",
+   "old": 4,
+   "new": 5,
+   "evidence": "m09.ll:21244 define 인자 7개 `(ptr %0, i64 %1, ptr deref(2528) %2, ptr deref(24) %3, ptr deref(248) %4, i8 range(0,6) %5, ptr deref(224) %6)` · 반환 `i1` 직접(sret 없음) ⟹ 규약(07·15) = 소스 위치 1..n",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[67]/sig/params[5]/i",
+   "kind": "실오류",
+   "old": 5,
+   "new": 6,
+   "evidence": "m09.ll:21244 define 인자 7개 `(ptr %0, i64 %1, ptr deref(2528) %2, ptr deref(24) %3, ptr deref(248) %4, i8 range(0,6) %5, ptr deref(224) %6)` · 반환 `i1` 직접(sret 없음) ⟹ 규약(07·15) = 소스 위치 1..n",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[67]/sig/params[6]/i",
+   "kind": "실오류",
+   "old": 6,
+   "new": 7,
+   "evidence": "m09.ll:21244 define 인자 7개 `(ptr %0, i64 %1, ptr deref(2528) %2, ptr deref(24) %3, ptr deref(248) %4, i8 range(0,6) %5, ptr deref(224) %6)` · 반환 `i1` 직접(sret 없음) ⟹ 규약(07·15) = 소스 위치 1..n",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[68]/sig/params[0]/i",
+   "kind": "실오류",
+   "old": 0,
+   "new": 1,
+   "evidence": "m10.ll:29294 `define { i64, i64 } @…base_sub_goal(ptr deref(24) %0, i64 %1, ptr deref(2528) %2, ptr deref(24) %3)` — 반환값이 레지스터 쌍이라 sret 없음 ⟹ 소스 1..4",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[68]/sig/params[1]/i",
+   "kind": "실오류",
+   "old": 1,
+   "new": 2,
+   "evidence": "m10.ll:29294 `define { i64, i64 } @…base_sub_goal(ptr deref(24) %0, i64 %1, ptr deref(2528) %2, ptr deref(24) %3)` — 반환값이 레지스터 쌍이라 sret 없음 ⟹ 소스 1..4",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[68]/sig/params[2]/i",
+   "kind": "실오류",
+   "old": 2,
+   "new": 3,
+   "evidence": "m10.ll:29294 `define { i64, i64 } @…base_sub_goal(ptr deref(24) %0, i64 %1, ptr deref(2528) %2, ptr deref(24) %3)` — 반환값이 레지스터 쌍이라 sret 없음 ⟹ 소스 1..4",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[68]/sig/params[3]/i",
+   "kind": "실오류",
+   "old": 3,
+   "new": 4,
+   "evidence": "m10.ll:29294 `define { i64, i64 } @…base_sub_goal(ptr deref(24) %0, i64 %1, ptr deref(2528) %2, ptr deref(24) %3)` — 반환값이 레지스터 쌍이라 sret 없음 ⟹ 소스 1..4",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[69]/sig/params[0]/name",
+   "kind": "실오류",
+   "old": "sret",
+   "new": "(sret)",
+   "evidence": "m13.ll:34298 `define internal fastcc void @…try_engage_dive(ptr dead_on_unwind noalias noundef nonnull writable writeonly align 8 captures(none) dereferenceable(280) %0, ptr %1, i64 %2, …, i8 range(-1,8) %7, ptr deref(224) %8)` — %0 가 Option<BattlePlan>(280B) 반환 out-ptr. 규약(07·15) = name `(sret)`·i=0 이면 P3 의 행 수 검산도 [0]+1..8 = 9행으로 맞는다",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[67]/consts[12]/src_line",
+   "kind": "실오류",
+   "old": 75,
+   "new": 74,
+   "evidence": "m09.ll:21946 `%288 = icmp eq i8 %287, -1, !dbg !26828` · !26828 사슬 = option.rs:633 is_some ← option.rs:682 is_none ← objective_discipline.rs:0 v24_objective_setup_relevant_lanes_ready ← **line 74** v24_objective_setup_lane_pressure_ready. 75 는 그 결과를 쓰는 `br i1 %288 … !dbg !26832`(line 75)뿐. DILocalVariable !26400 `line_ready` line 74",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[67]/consts[12]/meaning",
+   "kind": "보강",
+   "old": "Option<LineType>::None 니치(255). v23_objective_setup_pressure_line 이 None(=압박할 라인 없음)일 때만 true 로 진행",
+   "new": "Option<LineType>::None 니치(255). L74 `line_ready = self.v24_objective_setup_relevant_lanes_ready(player, data, camp)` 인라인(objective_discipline.rs:199~202) 안의 L202 `v23_objective_setup_pressure_line(player, data, &lanes).is_none()` 비교(m09.ll:21946, !dbg !26828 → is_none:682 → relevant_lanes_ready → 74) — None(=압박할 라인 없음)일 때만 L75 에서 true 로 진행",
+   "evidence": "위 consts[12]/src_line 과 동일(m09.ll:21945~21948 · dloc !26828/!26832)",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[67]/logic",
+   "kind": "보강",
+   "old": "  // L74 v24_objective_setup_relevant_lanes_ready 인라인(objective_discipline.rs:199~202)\n  lanes: [LineType;2] = match camp { Morgard => [Top, Mid], Serpen => [Bottom, Mid], _ => return false }\n  if v23_objective_setup_pressure_line(player, data, &lanes).is_some() → return false        // L75 (아직 밀어야 할 라인이 남음)\n",
+   "new": "  // L74 line_ready = self.v24_objective_setup_relevant_lanes_ready(player, data, camp)   — 인라인(objective_discipline.rs:199~202):\n  //   L200 lanes: [LineType;2] = match camp { Morgard(4) => [Top, Mid], Serpen(5) => [Bottom, Mid], _ => return false }   (anon.190/.191)\n  //   L202 return v23_objective_setup_pressure_line(player, data, &lanes).is_none()      (m09.ll:21945~21946, -1 = None 니치)\n  if !line_ready → return false                                                              // L75 (아직 밀어야 할 라인이 남음)\n",
+   "evidence": "m09.ll:21931 `switch i8 %283 … i8 4 → %285, i8 5 → %284` !dbg !26821(line 200 ← 74) · 21945 call pressure_line !dbg !26819(line 0 ← 74) · 21946 icmp -1 !dbg !26828(is_none:682 ← relevant_lanes_ready ← 74) · 21948 `br i1 %288` !dbg !26832(line 75) · DILocalVariable !26400 name \"line_ready\" line 74. 외연은 동일(is_some→false ≡ !is_none→false)",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[67]/consts[6]/meaning",
+   "kind": "실오류",
+   "old": "v23_recent_visible_enemies_near_point 마지막 인자(usize) — 시그니처상 usize, 의미(최근 틱 창 추정)는 그 함수 본문 미탐색",
+   "new": "v23_recent_visible_enemies_near_point 6번째 인자 min_hp_ratio(usize) — 그 함수의 클로저(objective_helpers.rs:34)에서 v23_healthy(e, min_hp_ratio)(objective_helpers.rs:11~12) 로 소비: `e.hp(0x670)*100 / e.stat_cached.hp(0x628) < min_hp_ratio` 면 제외 ⟹ hp% ≥ 50 인 적만 셈(m15.ll:55705 `icmp ult i64 %32, %5`). 시간 창이 아니다",
+   "evidence": "m15.ll:55548 define v23_recent_visible_enemies_near_point · 55697~55705 `%31 = mul i64 %30, 100` `%32 = udiv i64 %31, %26` `%33 = icmp ult i64 %32, %5` !dbg !61853(objective_helpers.rs:12 v23_healthy ← 34 closure$0) · !61850 DILocalVariable name \"min_hp_ratio\" arg 2 line 11 · %26 = gep +1576(0x628 stat_cached.hp), %30 = gep +1648(0x670 hp)",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[67]/knobs[2]/what",
+   "kind": "실오류",
+   "old": "캠프 주변 적 감시 반경 / 창",
+   "new": "캠프 주변 적 감시 반경 / 적 최소 hp%",
+   "evidence": "위 consts[6] 와 동일(m15.ll:55705, v23_healthy min_hp_ratio)",
+   "behavior_change": true,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[67]/knobs[2]/effect",
+   "kind": "보강",
+   "old": "반경을 줄이면 적이 근처에 있어도 ready 판정 가능(위험)",
+   "new": "반경을 줄이면 적이 근처에 있어도 ready 판정 가능(위험). 50 을 올리면 저체력 적이 셈에서 빠져 ready 가 쉬워지고, 내리면(0) 체력 무관하게 모든 가시 적을 셈",
+   "evidence": "m15.ll:55705 `icmp ult i64 %32(hp*100/max), %5(min_hp_ratio)` → 미만이면 후보 제외",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[69]/consts[0]/meaning",
+   "kind": "보강",
+   "old": "`shl i64 %tps, 2` = tps*4 (dive_rejoin_cd, engage.rs:973). 소스 수준 값은 folded_from 참조",
+   "new": "`shl i64 %tps, 2` = tps×4 계수(시프트량 2) — dive_rejoin_cd(engage.rs:973) 인라인 → 호출 줄 engage.rs:112 (m13.ll:34327 !dbg !39431 = 973 inlinedAt 112). 같은 값 2 는 팀 bounds check(m13.ll:34360 `icmp ult i64 %41, 2`)에도. 소스 수준 값은 folded_from 참조",
+   "evidence": "m13.ll:34327 `%27 = shl i64 %26, 2, !dbg !39431` · dloc !39431 = line 973 dive_rejoin_cd ← line 112 try_engage_dive(같은 engage.rs) ⟹ G1 의 「같은 파일 다른 줄」은 인라인 콜리라 모순이 아니다(오탐). 아울러 shl 은 ARITH 이므로 kind 는 계수",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[69]/mem[2]/name",
+   "kind": "실오류",
+   "old": "positioning_score (&PositioningScoreData)",
+   "new": "positioning_score (PositioningScoreData 인라인 — &self.positioning_score 를 update 6번째 인자로)",
+   "evidence": "tcxdict LegacyPlanHandler 0x990 = positioning_score.value[0][0].risk i64(인라인 첫 필드) · m13.ll:34364 `%44 = getelementptr inbounds nuw i8, ptr %1, i64 2448` 뒤 load 없이 34366 update 인자로 직접 전달",
+   "behavior_change": true,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[69]/mem[3]/name",
+   "kind": "실오류",
+   "old": "team_plan (&TeamPlan)",
+   "new": "team_plan (TeamPlan 1064B 인라인 — &self.team_plan 을 update 7번째 인자로; 0x517 = team_plan.objective 가 이 안)",
+   "evidence": "tcxdict LegacyPlanHandler 0xf8 = team_plan.ally_battle_stop_tick[0]@tag(인라인 첫 필드) · 0x517 = team_plan.objective@tag(0xf8+0x41f) · m13.ll:34365 `%45 = getelementptr inbounds nuw i8, ptr %1, i64 248` 뒤 load 없이 34366 update 인자로 직접 전달",
+   "behavior_change": true,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[70]/consts[1]/src_line",
+   "kind": "실오류",
+   "old": 959,
+   "new": 962,
+   "evidence": "m10.ll:42964 `store i64 5, ptr %60, align 8, !dbg !48789`(line 962) · 43540 `store i64 5, ptr %294 … !dbg !49357`(line 1018) — 본문에 `!dbg` 붙은 리터럴 5 는 이 둘뿐(42871~42947·43530 의 5 는 #dbg_value 만 = iter_champions 슬라이스 len). 959 는 어느 사슬에도 없다",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[70]/consts[1]/meaning",
+   "kind": "보강",
+   "old": "포지션 수(0..5 range 상한 / player_champion 슬라이스 len) — 판정 아님",
+   "new": "포지션 수 — L962 near_allies · L1018 dive_allies 의 `(0..5)` Range end(store i64 5, m10.ll:42964/43540) 및 player_champion 슬라이스 len(#dbg_value 만) — 판정 아님",
+   "evidence": "위 consts[1]/src_line 과 동일",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[70]/knobs[5]/where",
+   "kind": "오탐",
+   "old": "fight_model.rs:1018 (aux)",
+   "new": "fight_model.rs:1018 (aux s6_0 m10.ll:56452 `icmp ult i64 %24, 40000000001`)",
+   "evidence": "m10.ll:56413 define …tower_dive_is_viables6_0…call_mut · 56452 `%25 = icmp ult i64 %24, 40000000001, !dbg !59269` · dloc !59269 = closure$8 line 1018. G19 의 관측창이 본문(42838~43820)뿐이라 aux 상수를 못 본 것",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[70]/knobs[6]/where",
+   "kind": "오탐",
+   "old": "fight_model.rs:1021 (aux)",
+   "new": "fight_model.rs:1021 (aux s7_0 m10.ll:56511 `icmp ult i64 %34, 22500000001`)",
+   "evidence": "m10.ll:56457 define …tower_dive_is_viables7_0…call_mut · 56511 `%35 = icmp ult i64 %34, 22500000001, !dbg !59297` · dloc !59297 = closure$9 line 1021. 동상",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[70]/knobs[7]/effect",
+   "kind": "오탐",
+   "old": "version<=1 이면 우물 ETA 게이트·exit_margin 이 전부 생략(exit_margin=0)",
+   "new": "version<=1 이면 우물 ETA 게이트·exit_margin 이 전부 생략(exit_margin=0). IR 은 `icmp ugt i64 %version, 1`(m10.ll:43345, L989) — #49 resolve_join_stake 의 `icmp ult i64 %1, 2`(m10.ll:41048, L682)와 같은 v≥2 술어를 소스 리터럴만 달리 쓴 것",
+   "evidence": "m10.ll:43344~43346 `%203 = load i64, ptr %25`(%25 = alloca ← store %0 version, 42857) `%204 = icmp ugt i64 %203, 1, !dbg !49191`(line 989) · m10.ll:41048 `%23 = icmp ult i64 %1, 2, !dbg !46594`. 외연 동일(v∈{0,1} 차단) — G20 R4 가 리터럴 값을 비교해 생긴 오탐",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[70]/consts[5]/meaning",
+   "kind": "보강",
+   "old": "적 우물 좌표(30셀): my_team==1 이면 (0,960000), my_team==0 이면 (960000,0) — 팀별 우물 위치 헬퍼 인라인(L1016 of 다른 파일)",
+   "new": "적 우물 좌표(30셀): my_team==1 이면 (wx,wy)=(0,960000), my_team==0 이면 (960000,0) — game_ai::well_damage_anchor(team)->(u64,u64)(path_finder.rs:1015~1016, pub·xinl, define 없이 인라인) 를 적 팀(1-team)으로 호출한 것. 팀0 우물=(0,960000)·팀1 우물=(960000,0)",
+   "evidence": "m10.ll:43363~43365 `%214 = icmp eq i64 %27(player.team), 1` `%215 = select %214, 960000, 0`(wy !48615) `%216 = select %214, 0, 960000`(wx !48613) !dbg !49201 · dloc !49201 = path_finder.rs:1016 well_damage_anchor ← 990 · 43379 `distance(target.x, target.y, %216, %215)` · tcx game_ai::well_damage_anchor fn(usize)->(u64,u64) pub xinl · 교차: is_enemy_well_danger(m03.ll:144505~144534) 는 team==0 이면 x∈[800000,960000]·y≤64000(=(960000,0) 근방)을 적 우물 피해구역으로 봄",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[71]/logic",
+   "kind": "보강",
+   "old": "let item_list = &ctx.item_list;                                                            // L1664\n",
+   "new": "// L1664 return item_v26_affordable(player, &ctx.item_list, rnd)   ← 별도 함수 game_ai::item_v26_affordable(lib.rs:1670~1696, in:game_ai,\n//        fn(&PlayerState, &[Box<dyn ItemInfo>], &mut StdRng)->bool) 이 통째로 인라인(define 없음). 아래 L1671~1695 는 그 함수의 줄이다\nlet item_list = &ctx.item_list;                                                            // L1664 (GameContext+0x30)\n",
+   "evidence": "m14.ll 7070~7700 의 !dbg 사슬 105개 중 line 1671/1672/1673/1674/1680/1681/1682/1687/1692/1695/1696 은 전부 scope=DISubprogram item_v26_affordable, inlinedAt line 1664 of should_recall_to_shop (예: !22151 = 1692 item_v26_affordable ← 1664 should_recall_to_shop · !22356 = 1695 ← 1664). should_recall_to_shop 자신의 루트 줄 = {1642,1647,1648,1649,1650,1651,1656,1660,1661,1662,1664,1666}. tcx game_ai::item_v26_affordable sp lib.rs:1670:1 v=in:game_ai · `grep ^define.*item_v26_affordable _gaibc/*.ll` = 0건",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[71]/one_line",
+   "kind": "보강",
+   "old": "상점 귀환 판정 — 에픽/세르펜 임박·can_recall 게이트 후, 다음 살 아이템(v26 슬롯 빌드경로) 가격을 골드가 넘는지",
+   "new": "상점 귀환 판정 — 에픽/세르펜 임박·can_recall 게이트 후, 다음 살 아이템(v26 슬롯 빌드경로) 가격을 골드가 넘는지(빌드 있으면 item_v26_affordable 인라인 판정)",
+   "evidence": "위 logic 과 동일",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[71]/knobs[1]/what",
+   "kind": "보강",
+   "old": "활성 아이템 보유 상한",
+   "new": "활성 아이템 보유 상한 (item_v26_affordable 인라인 L1692)",
+   "evidence": "m14.ll:7507~7534 !dbg 사슬 line 1692 scope item_v26_affordable ← 1664",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[71]/mem[11]/note",
+   "kind": "오탐",
+   "old": "L1650",
+   "new": "L1650 · tcxdict GoalData 0x88 = epic.epic_enemy_tick(usize) 정확 일치 — G20 R1 상대편 #74 mem[20] 이 0x88/0xa8/0xe0 세 필드를 한 행 이름에 합쳐 적은 것이 불일치의 원인",
+   "evidence": "tcxdict GoalData 0x88 → `epic.epic_enemy_tick usize (8B)` · 0xa8 → epic.stance@tag · 0xe0 → serpen.stance@tag. #71 의 행은 D9-OFF 규약대로 1행 1오프셋",
+   "behavior_change": false,
+   "found_by": "new"
+  }
+ ],
+ "ev_up": [
+  {
+   "path": "/specs[71]/sig/params[0]",
+   "from": 5,
+   "to": 4,
+   "evidence": "IR 독해 확인: m14.ll 7070~7700 본문에 %0 사용 0건(define 줄 제외) · 7197 `buy_item(i64 poison, …)` · 7690 `upgrade_item(sret, i64 poison, …)` — 컴파일러가 미사용을 증명해 poison 으로 넘긴다",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[67]/consts[6]",
+   "from": 5,
+   "to": 4,
+   "evidence": "IR 독해 확인: m15.ll:55705 v23_healthy(objective_helpers.rs:12) `icmp ult i64 %32(hp*100/max_hp), %5(min_hp_ratio=50)`",
+   "found_by": "new"
+  }
+ ],
+ "brief_errors": [
+  "§4 G16 [69] 항목이 잘린 채 실렸다 — 「규약 = name 을 `(sre」 에서 끊겨 규약 본문(`(sret)`·i=0)을 dossier 만으로는 알 수 없고 paramrole.py 를 열어야 했다. mkdossier 의 det 컬럼 절삭 폭을 늘리거나 ‘…’ 표시를 붙여라.",
+  "§4 G16 [69] 는 P2·P3 두 건으로 실렸지만 원인은 하나(name 에 `(sret` 표식 부재)다 — P2 를 고치면 P3 의 행 수 검산(want=[0]+1..8=9행)도 같이 맞는다. 건수 12 는 실제 결함 수보다 부풀어 있다.",
+  "§4 G19 [70] knobs[5]/[6] 의 「관측(창)」 이 본문 범위만 본다 — `where` 에 `(aux)` 라고 적힌 노브는 명세 `ir.aux` 범위(또는 fnparts 클로저)도 관측창에 넣어야 한다. G13 은 aux 를 보는데 G19 는 안 본다.",
+  "§4 G20 R4 [70]↔[49] 는 `v>1` 과 `v<2` 를 값 1·2 로 비교해 낸 오탐 — R4 는 리터럴이 아니라 술어의 외연(허용 버전 집합)으로 비교해야 한다.",
+  "§4 G20 R1 [71] 은 담당 명세가 아니라 상대편 #74 mem[20] 의 결함(3필드 1행)인데 [71] 몫으로 배정됐다 — 게이트가 「가장 낮은 참여 index」에 한 번 세는 규칙(11차 후속)이 결함 위치가 아니라 index 순서를 따르기 때문. 배정은 D9-OFF 규약 위반 쪽(이름에 `·` 로 여러 오프셋이 든 행)으로 가야 한다.",
+  "§1 초점의 「#71 rvaverify S1 이 lib.rs:1692/1695 를 본문 범위 밖으로 봐 의심」 — 그 줄들은 should_recall_to_shop 이 아니라 lib.rs:1670 의 별도 함수 item_v26_affordable 것이고 1664 에 인라인됐다. rvaverify 가 「함수의 소스 줄범위」를 tcx sp(l..) 로만 잡으면 같은 파일 인라인 콜리의 줄이 전부 ‘범위 밖’으로 보인다 — inlinedAt 루트로 판정해야 한다.",
+  "G1 [69] consts[0] 은 같은 engage.rs 의 인라인 콜리(dive_rejoin_cd:973 → 112)라 모순이 아니다 — G1 의 「같은 파일 다른 줄」 규칙은 meaning 의 줄이 이 함수의 DISubprogram 밖(다른 scope)이면 면제해야 한다."
+ ]
+}

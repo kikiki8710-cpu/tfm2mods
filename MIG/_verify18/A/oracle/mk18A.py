@@ -1,0 +1,210 @@
+# -*- coding: utf-8 -*-
+import sys; sys.path.insert(0, r"C:\tfm2mods\MIG")
+import mkpatch
+
+p = mkpatch.Patch(round=18, batch="A")
+O1 = u"오라클 실행 확인(18차 배치A v18A_o1.tsv: 7케이스×6000호출=42,000회, 시드별 독립 gen_range 재계산 gate_mism 0 · 명세 독립 재구현 pred_mism 0)"
+O2 = u"오라클 실행 확인(18차 배치A v18A_o2.tsv: 156중심×7반경×2팀=2,184케이스 명세 독립 재구현 mism 0 · true 2094/false 90)"
+O3 = u"오라클 실행 확인(18차 배치A v18A_o3.tsv: 4,032케이스 명세 독립 재구현 mism 0 · 무리 3392/합리 640 · 경계 24|25·25|26·34|35·44|45·50|51 전부 명세대로)"
+
+# ═════════ #57 handle_press_epic ═════════
+# G16 P3 — i 번호 규약(sret 없음 → 소스 인자 1..6). define m09.ll:5284 = `define void @…handle_press_epic(ptr %0, i64 %1, ptr %2, ptr %3, ptr %4, ptr %5)` 인자 6·sret 없음
+for k in range(6):
+    p.fix(u"/specs[57]/sig/params[%d]/i" % k, old=k, new=k + 1,
+          evidence=u"G16 P3 규약(정본 07·15: sret=0, 소스 인자 1..n). m09.ll:5284 define 은 `void` 반환·sret 없음·인자 6개(%%0 self … %%5 _debug) → i=%d" % (k + 1),
+          behavior_change=False, found_by="reused")
+
+# G12 consts[3] src_line=512 — 오탐(부호 있는 즉치)
+p.fix(u"/specs[57]/consts[3]/src_line", old=512, new=512, kind=u"오탐",
+      evidence=u"명세가 옳다. m09.ll:5368 `%24 = add nsw i32 %23, -5, !dbg !13453` · 5369 `%25 = icmp samesign ugt i32 %23, 4` · 5370 `select i1 %25, i32 %24, i32 2` (MorgardUseStrategy 니치: tag-5). dloc !13453 = epic.rs:512 in handle_press_epic(inlinedAt 없음). 게이트가 못 본 이유 = `srclinecheck.litpat(5)` 가 `, 5` 만 찾고 `, -5` 의 `-` 가 경계를 깬다 — 17차 배치D(#55 consts[2] `, -1`)와 같은 구멍. 게이트 후보 [518..591,615] 는 역할 ②④(TowerType `ult 5`·position1 bounds)의 줄이라 역할 ①의 512 를 기각할 근거가 아니다",
+      behavior_change=False, found_by="reused")
+
+# minion_count 의 실제 의미 — BrainMinionParameter::update(_gcbc/g11.ll:49926~50977, ai_interface.rs:47)
+MC_EV = (u"_gcbc/g11.ll:50024~50027 `%46 = load i64 (cache+{16|80|144}+team*32+24)` → `%47 = trunc` / `%49 = load i64 (…+(1-team)*32+24)` → `%50 = trunc` / "
+         u"`%51 = gep %0, 32` / `%52 = sub i32 %47, %50` / `store i32 %52, ptr %51` (!91843 = ai_interface.rs:47 in BrainMinionParameter::update). "
+         u"tcxdict AbstractGameWithCache: 0x10 top_minions / 0x50 mid_minions / 0x90 bottom_minions = [bumpalo Vec<&Entity>;2](32B/팀, +0x18=len). "
+         u"즉 minion_count = <line>_minions[team].len − <line>_minions[1−team].len (i32 차이값). 단 nexus[team]·nexus[1-team](+0x170) 둘 중 하나라도 None 이면 update 가 store 없이 반환(g11.ll:50007~50009 → %454)")
+p.fix(u"/specs[57]/logic",
+      old=u"<line>_state = data.blackboard[team].<line>_minion_state.minion_count  (i32)",
+      new=u"<line>_state = data.blackboard[team].<line>_minion_state.minion_count  (i32 = 그 라인의 내 팀 미니언 수 − 적 미니언 수, BrainMinionParameter::update ai_interface.rs:47 이 씀)",
+      evidence=MC_EV, behavior_change=False, found_by="new", kind=u"보강")
+p.fix(u"/specs[57]/logic",
+      old=u"3순위 내 팀 minion_count 큰 쪽(부호 있는 i32)",
+      new=u"3순위 minion_count(= 그 라인 내 팀 미니언 수 − 적 미니언 수, 부호 있는 i32 차이값) 큰 쪽 — 오라클 v18A_o1 케이스 0/1(top=5·mid=2·bottom=-3 / -1·0·9)로 부호 비교 확인",
+      evidence=MC_EV + u" · " + O1, behavior_change=False, found_by="new", kind=u"보강")
+p.fix(u"/specs[57]/mem[22]/note", old=u"i32(부호). top_state (m09.ll:5837~5838)",
+      new=u"i32(부호) = top_minions[team].len − top_minions[1−team].len (BrainMinionParameter::update, _gcbc/g11.ll:50024~50027 · ai_interface.rs:47). top_state (m09.ll:5837~5838)",
+      evidence=MC_EV, behavior_change=False, found_by="new", kind=u"보강")
+p.fix(u"/specs[57]/mem[23]/note", old=u"mid_state (m09.ll:5840~5841)",
+      new=u"mid_state = mid_minions[team].len − mid_minions[1−team].len (i32 차이값, 위 top 과 동형) (m09.ll:5840~5841)",
+      evidence=MC_EV, behavior_change=False, found_by="new", kind=u"보강")
+p.fix(u"/specs[57]/mem[24]/note", old=u"bottom_state (m09.ll:5601~5602)",
+      new=u"bottom_state = bottom_minions[team].len − bottom_minions[1−team].len (i32 차이값, 위 top 과 동형) (m09.ll:5601~5602)",
+      evidence=MC_EV, behavior_change=False, found_by="new", kind=u"보강")
+
+# is_top_side 극성 확정 (17차 배치C 오라클 + 이번 오라클)
+TS_EV = (u"is_top_side(ctx,x,y) = `x <= height − y`(17차 배치C v17C_o1.tsv 9/9 · _gcbc/g09.ll:158986 `icmp uge`). "
+         u"m09.ll:5446 `%66 = sub i64 %65(height), %61(y)` · 5447 `%67 = icmp ult i64 %66, %59(x)` · 5449 `br i1 %67, label %70(+0x1c0 bottom_tower 검사=L535), label %80(top=L518)` → 이 식 true = !is_top_side. " + O1)
+p.fix(u"/specs[57]/logic",
+      old=u"(인라인 is_top_side; 이름 극성은 unknown 참조)",
+      new=u"(인라인 is_top_side = `x <= height−y` 이고 이 IR 식 true = !is_top_side — 17차 배치C 오라클 9/9 + 18차 배치A 오라클 v18A_o1 42,000회 예측 일치로 확정)",
+      evidence=TS_EV, behavior_change=False, found_by="reused", kind=u"보강")
+p.fix(u"/specs[57]/notes",
+      old=u"로 읽히나(컴파일러의 비교 반전+라벨 교환) 이는 추정 — 확정은 오라클(is_top_side 가 pub 이면) 필요. 동작(어느 좌표가 어느 분기)은 확정",
+      new=u"로 읽히며 이것이 **확정**이다: game_core::is_top_side 는 pub(map_regions.rs:21)이고 17차 배치C 오라클 v17C_o1.tsv 9/9 가 `x <= height − y`(등호 포함)를 실행으로 확인했다. 18차 배치A 오라클 v18A_o1(42,000회)에서 이 극성으로 세운 예측이 handle_press_epic 실제 출력과 전건 일치",
+      evidence=TS_EV, behavior_change=False, found_by="reused", kind=u"보강", force=True)  # mkpatch 의 notes 로케이터가 v3 dict 목록을 못 읽음 — applypatch 는 v2 unknown 문면으로 찾는다
+
+# ev 상향 (#57)
+for path, ev in [
+    (u"/specs[57]/consts[1]", O1 + u" — gen_range(0..100) 상한 100"),
+    (u"/specs[57]/consts[2]", O1 + u" — `< 21`: 시드별 독립 계산 v<21 ↔ 실제 발령 1:1 일치(발령률 21.63%)"),
+    (u"/specs[57]/consts[5]", O1 + u" — Chat 페이로드 byte1=2 → Bottom 예측 일치(케이스 1·4·5)"),
+    (u"/specs[57]/consts[6]", O1 + u" — Split 분기 chats byte0=20 관측(케이스 3~6, Split 519+246+238건)"),
+    (u"/specs[57]/consts[7]", O1 + u" — byte1=0 → Top 예측 일치(케이스 0·3·5·6)"),
+    (u"/specs[57]/consts[8]", O1 + u" — byte1=1 → Mid 예측 일치(전 케이스)"),
+    (u"/specs[57]/knobs[0]", O1 + u" — 21% 게이트 정확히 `gen_range(0..100) < 21`"),
+    (u"/specs[57]/knobs[1]", O1 + u" — 케이스 3(epic 5000>serpen 100 → far=Top: Split(Top)·top-side 는 Mid 강제) / 케이스 4(epic 100<serpen 5000 → far=Bottom) 예측 일치"),
+    (u"/specs[57]/knobs[2]", O1 + u" — 케이스 0/1/2 로 튜플 3순위(minion_count 부호 비교, 동률→Mid) 확인. 1·2순위(타워 생존)는 전 타워 생존 상태만 재어 미검증(범위)"),
+]:
+    p.ev(path, ev, to=2, frm=4, found_by="new")
+for path, ev in [
+    (u"/specs[57]/mem[2]", O1 + u" — height 960000 실전값으로 is_top_side 분기 예측 일치"),
+    (u"/specs[57]/mem[7]", O1 + u" — 케이스 6: player_champion[t][Top]=None 으로 Split131 position2 → Split(Top) 경로 확인"),
+    (u"/specs[57]/mem[16]", O1 + u" — world.strategy[t].morgard_use 를 Gather/Split14/Split131 로 세팅한 3 arm 전부 예측 일치"),
+    (u"/specs[57]/mem[17]", O1 + u" — Split14{position}·Split131{position1,position2} 값이 분기를 좌우함 확인"),
+    (u"/specs[57]/mem[18]", O1 + u" — 챔프 x 로 is_top_side 분기"),
+    (u"/specs[57]/mem[19]", O1 + u" — 챔프 y 로 is_top_side 분기"),
+    (u"/specs[57]/mem[22]", O1 + u" — blackboard[team]+0x20 에 쓴 값이 Top-vs-Mid 선택을 좌우"),
+    (u"/specs[57]/mem[23]", O1 + u" — blackboard[team]+0x48 에 쓴 값이 Mid 비교 기준"),
+    (u"/specs[57]/mem[24]", O1 + u" — blackboard[team]+0x70 에 쓴 값이 Bottom-vs-Mid 선택을 좌우"),
+    (u"/specs[57]/mem[26]", O1 + u" — game.mode.jungle_runner.epic.next_respawn_tick(pub) 을 5000/100 으로 바꾸자 far 라인이 반전"),
+    (u"/specs[57]/mem[27]", O1 + u" — serpen.next_respawn_tick 동상"),
+    (u"/specs[57]/mem[31]", O1 + u" — chats[0] 24B: byte0 태그 20/21·byte1 line·+0x8 usize 0 을 9,086건 전부 읽어 예측 일치"),
+    (u"/specs[57]/mem[32]", O1 + u" — 발령 시 chats.len==1, 미발령 시 0"),
+    (u"/specs[57]/mem[33]", O1 + u" — +0x41f 태그 5(Press)/6(Split) 9,086건 예측 일치"),
+    (u"/specs[57]/mem[34]", O1 + u" — +0x420 line 이 chat line 과 동일 9,086건"),
+]:
+    p.ev(path, ev, to=3, frm=(3 if path.endswith("mem[16]") else 4), found_by="new")
+
+# ═════════ #58 target_bush_v41 ═════════
+# G5/G16 — params 를 tcx 소스 인자 3행으로(IR 은 internal fastcc 인자 승격 5스칼라)
+SROA_EV = (u"m08.ll:94136 `define internal fastcc noundef i64 @…target_bush_v41(i8 %0, i64 %1, i32 %2, ptr readonly captures(address_is_null) %3, ptr … %4)` — 호출자 sub_plan m08.ll:94953~94960: "
+           u"`%8 = gep %1, 40`→`%9 = load i8`(self.line +0x28) · `%10 = gep %4, 2352`→`%11 = load i64`(player.info.team +0x930) · `%12 = gep %4, 2496`→`%13 = load i32`(player.info.position@tag +0x9c0) · "
+           u"`%14 = load ptr, ptr %5`(data.cache +0x0) · `%15 = gep %5, 8`→`%16 = load ptr`(data.context +0x8) → `tail call fastcc … target_bush_v41(i8 %9, i64 %11, i32 %13, ptr %14, ptr %16)`. "
+           u"sig.tcx 소스 인자 3개(&self, &PlayerState, &OperationData) — G16 P3 규약(07·15)대로 행 = 소스 인자, i = 1..3, IR 승격은 role 에 적는다")
+p.fix(u"/specs[58]/sig/params[0]/i", old=0, new=1, evidence=SROA_EV, behavior_change=False, found_by="reused")
+p.fix(u"/specs[58]/sig/params[0]/name", old=u"self.line", new=u"self", evidence=SROA_EV, behavior_change=False, found_by="reused")
+p.fix(u"/specs[58]/sig/params[0]/type", old=u"i8 = LineType 태그(0=Top·1=Mid·2=Bottom, tcxdict --enum: Direct 인코딩)", new=u"&LineGankerPlan(48B)", evidence=SROA_EV, behavior_change=False, found_by="reused")
+p.fix(u"/specs[58]/sig/params[0]/role",
+      old=u"소스 시그니처는 `fn target_bush_v41(&self, player:&PlayerState, data:&OperationData)->usize` (DISubprogram m08.ll:170575·170582~170584). 컴파일러가 인자를 스칼라로 쪼갬(SROA): 호출자 sub_plan(m08.ll:94953~94960) 이 `LineGankerPlan+0x28 line`·`PlayerState+0x930 info.team`·`PlayerState+0x9c0 info.position@tag`·`OperationData+0x0 cache`·`+0x8 context` 를 읽어 넘김",
+      new=u"line(+0x28, LineType 태그 0=Top·1=Mid·2=Bottom, tcxdict --enum: Direct)만 읽어 match 의 switch 키로 씀. IR 은 internal fastcc 인자 승격(SROA)이라 define(m08.ll:94136)은 `i8 %0` = self.line 하나만 받는다 — 호출자 sub_plan(m08.ll:94953~94954 `gep %1, 40`→`load i8`)이 읽어 넘김. 소스 시그니처 `fn target_bush_v41(&self, player:&PlayerState, data:&OperationData)->usize`(DISubprogram m08.ll:170575·170582~170584)",
+      evidence=SROA_EV, behavior_change=False, found_by="reused")
+p.fix(u"/specs[58]/sig/params[1]/i", old=1, new=2, evidence=SROA_EV, behavior_change=False, found_by="reused")
+p.fix(u"/specs[58]/sig/params[1]/name", old=u"team", new=u"player", evidence=SROA_EV, behavior_change=False, found_by="reused")
+p.fix(u"/specs[58]/sig/params[1]/type", old=u"i64 (usize)", new=u"&PlayerState(2528B)", evidence=SROA_EV, behavior_change=False, found_by="reused")
+p.fix(u"/specs[58]/sig/params[1]/role",
+      old=u"player.info.team. 0 또는 1 — 2 이상이면 `lead[team]` 인덱싱에서 bounds 패닉(m08.ll:94212·94230·94339)",
+      new=u"info.team(+0x930)·info.position@tag(+0x9c0) 두 스칼라로 승격돼 define 의 `i64 %1`(team)·`i32 %2`(position)가 된다(호출자 m08.ll:94955~94958). team 은 0/1 — 2 이상이면 `*_lead[team]` 인덱싱에서 bounds 패닉(m08.ll:94212·94230·94339); position 은 Mid 분기에서만 `cache.player_champion[team][position]` 인덱스(zext, m08.ll:94235~94241)",
+      evidence=SROA_EV, behavior_change=False, found_by="reused")
+p.fix(u"/specs[58]/sig/params[2]/i", old=2, new=3, evidence=SROA_EV, behavior_change=False, found_by="reused")
+p.fix(u"/specs[58]/sig/params[2]/name", old=u"position", new=u"data", evidence=SROA_EV, behavior_change=False, found_by="reused")
+p.fix(u"/specs[58]/sig/params[2]/type", old=u"i32 (Position 태그)", new=u"&OperationData(24B)", evidence=SROA_EV, behavior_change=False, found_by="reused")
+p.fix(u"/specs[58]/sig/params[2]/role",
+      old=u"player.info.position. Mid 분기에서만 `cache.player_champion[team][position]` 인덱스로 사용(zext, m08.ll:94235~94241)",
+      new=u"cache(+0x0)·context(+0x8) 두 포인터로 승격돼 define 의 `ptr %3`(cache=&AbstractGameWithCache 8840B)·`ptr %4`(context=&GameContext 64B)가 된다(호출자 m08.ll:94959~94961). cache 는 *_lead[team](+0x21c0/+0x21d0/+0x21e0)·player_champion(+0x1e0), context 는 Mid 분기에서 setting.height(+0x8→+0x12c0)만",
+      evidence=SROA_EV, behavior_change=False, found_by="reused")
+# 승격 스칼라 행 2개 삭제(뒤부터)
+p.errors.append({"op": "delete", "path": u"/specs[58]/sig/params[4]", "guard": u"context", "kind": u"실오류",
+                 "old": None, "new": None,
+                 "evidence": SROA_EV + u" — IR 승격 스칼라(context) 행은 소스 인자가 아니라 params[2](data) role 로 흡수", "behavior_change": False, "found_by": "reused"})
+p.errors.append({"op": "delete", "path": u"/specs[58]/sig/params[3]", "guard": u"cache", "kind": u"실오류",
+                 "old": None, "new": None,
+                 "evidence": SROA_EV + u" — IR 승격 스칼라(cache) 행은 params[2](data) role 로 흡수", "behavior_change": False, "found_by": "reused"})
+# logic 극성 확정
+p.fix(u"/specs[58]/logic",
+      old=u"★true = 대각선 아래쪽(x+y>height) — 이름과 반대 극성으로 추정(unknown 참조)",
+      new=u"★true = !is_top_side(x,y) = 대각선 아래쪽(x + y > height) — is_top_side = `x <= height − y` 확정(17차 배치C 오라클 v17C_o1.tsv 9/9 · 18차 배치A v18A_o1 42,000회). m08.ll:94264 `%64 = sub i64 %63(height), %59(y)` · 94265 `%65 = icmp ult i64 %64, %57(x)` · 94274~94278 `select i1 %65, i64 14, i64 11` 등",
+      evidence=u"m08.ll:94264~94278 원문 + is_top_side 극성 정본(17차 배치C 오라클, _gcbc/g09.ll:158986 `icmp uge`). %54 = `icmp eq i64 %1, 0`(team==0, m08.ll:94249) 로 slot0/slot5·6 교환도 원문 확인",
+      behavior_change=False, found_by="reused", kind=u"보강")
+
+# ═════════ #59 is_unreasonable_tower_dive_enemy ═════════
+for k in range(5):
+    p.fix(u"/specs[59]/sig/params[%d]/i" % k, old=k, new=k + 1,
+          evidence=u"G16 P3 규약. m10.ll:49147 define `zeroext i1 @…is_unreasonable_tower_dive_enemy(i64 %%0, ptr %%1, ptr %%2, ptr %%3, i1 zeroext %%4)` 인자 5·sret 없음 → i=%d" % (k + 1),
+          behavior_change=False, found_by="reused")
+p.fix(u"/specs[59]/consts[10]/meaning",
+      old=u"배열 길이지 판정 임계 아님(기록용)",
+      new=u"배열 길이 2(인덱스 가드, `icmp ult %team, 2`→panic_bounds_check) — 게임 판정값 아님(기록용)",
+      evidence=u"G15 NEG: `meaning` 에 「임계 아님」 부정문이 있는데 kind 는 IR 소비 오프코드(CMP_ORD, m10.ll:49213 `icmp ult i64 …, 2`)로 `임계` 가 정해진다 — 낱말과 관측이 충돌하는 자리. 코퍼스 관례(00·01·24~29 `panic_bounds_check 배열 길이 … 판정값 아님`)대로 「판정값 아님」으로 고쳐 부정문 게이트를 벗어난다. 구조적으로 CMP_ORD 관측이 있는 한 `길이` 로는 못 내려간다(kindchk `길이` 지지 관측 전부 WEAK)",
+      behavior_change=False, found_by="reused", kind=u"보강")
+p.fix(u"/specs[59]/knobs[6]/where",
+      old=u"fight_model.rs:822·825",
+      new=u"fight_model.rs:822·825 (aux m10.ll:56719 `icmp ult i64 %37, 19600000001` · m10.ll:56891 `icmp ult i64 %47, 19600000001`)",
+      evidence=u"G19 오탐 — 리터럴은 본체(49147~49399)가 아니라 aux 클로저 안에 있다: m10.ll:56719 `%38 = icmp ult i64 %37, 19600000001, !dbg !59663`(아군 count 술어) · 56891 `%48 = icmp ult i64 %47, 19600000001, !dbg !59922`(적 count 술어). `knobval.src_anchors` 가 `ir{file,frm,to}` 본체만 훑고 `ir.aux[]` 를 안 본다(srclinecheck 는 15차에 aux 를 넣었는데 knobval 은 안 넣음). IR 줄을 where 에 직접 적어 앵커를 준다",
+      behavior_change=False, found_by="reused", kind=u"보강")
+for path, ev in [
+    (u"/specs[59]/consts[1]", O3 + u" — approach = max_range_cached(pub 직접 호출)+25000 으로 needs_tower_entry·in_range 예측 일치(approach 45000)"),
+    (u"/specs[59]/consts[2]", O3 + u" — hp*100/max(max_hp,1) 로 max_hp=100 고정 시 hp 가 곧 ratio"),
+    (u"/specs[59]/consts[3]", O3 + u" — allies 1(나만) vs 2 로 ally_adv 반전 확인(`> 1`)"),
+    (u"/specs[59]/consts[4]", O3 + u" — A: target.hp=0 · my_r 24→무리 / 25→합리"),
+    (u"/specs[59]/consts[5]", O3 + u" — B: t_r 25→합리 / 26→무리 (my_r 100, in_range)"),
+    (u"/specs[59]/consts[6]", O3 + u" — B: my_r 34→무리 / 35→합리 (t_r 25, in_range)"),
+    (u"/specs[59]/consts[7]", O3 + u" — C: wdd=true·ally_adv·t_r 50: my_r 44→무리 / 45→합리"),
+    (u"/specs[59]/consts[8]", O3 + u" — C: wdd=true·ally_adv·my_r 45: t_r 50→합리 / 51→무리"),
+    (u"/specs[59]/consts[9]", O3 + u" — 근접(≤30000)/원거리(≥300000) 두 구간만 재어 count 가 예측과 일치. ⚠경계 140000 자체는 미검증(범위)"),
+    (u"/specs[59]/knobs[0]", O3 + u" — approach 25000 여유(max_range 20000+25000=45000)로 in_range·needs 일치"),
+    (u"/specs[59]/knobs[1]", O3 + u" — 24|25 경계"),
+    (u"/specs[59]/knobs[2]", O3 + u" — 25|26 경계"),
+    (u"/specs[59]/knobs[3]", O3 + u" — 34|35 경계"),
+    (u"/specs[59]/knobs[4]", O3 + u" — 44|45 경계(wdd=true 에서만)"),
+    (u"/specs[59]/knobs[5]", O3 + u" — 50|51 경계(wdd=true 에서만)"),
+    (u"/specs[59]/knobs[6]", O3 + u" — 안/밖 두 구간만(경계 미검증)"),
+    (u"/specs[59]/knobs[7]", O3 + u" — allies 1 vs 2"),
+    (u"/specs[59]/sig/params[3]", O3 + u" — target 을 적 미드 챔프로 주고 hp/좌표를 바꿔 A/B/C 전부 발화"),
+    (u"/specs[59]/sig/params[4]", O3 + u" — with_declared_dive false 면 C 가 절대 안 열림(80건 C_true 전부 wdd=true)"),
+]:
+    p.ev(path, ev, to=2, frm=4, found_by="new")
+for path, ev in [
+    (u"/specs[59]/mem[6]", O3 + u" — Entity+0x660 에 쓴 x 로 in_range·count 예측 일치"),
+    (u"/specs[59]/mem[7]", O3 + u" — Entity+0x668 y 동상"),
+    (u"/specs[59]/mem[8]", O3 + u" — Entity+0x670 hp 를 바꾸자 ratio 경계가 그대로 따라옴"),
+    (u"/specs[59]/mem[9]", O3 + u" — Entity+0x628 stat_cached.hp=100 고정"),
+    (u"/specs[59]/mem[12]", O3 + u" — blackboard[1-team](enemy).last_visible[pos]=950 만 쓰고 bb[team] 은 0 — 함수가 bb[enemy] 를 쓰지 않았다면 enemies 가 0 으로 남아 예측과 어긋났을 것"),
+    (u"/specs[59]/mem[16]", O3 + u" — tower_attack_disable_tick 9999999(실전값) > tick 1000 으로 통과"),
+]:
+    p.ev(path, ev, to=3, frm=4, found_by="new")
+
+# ═════════ #60 can_trace_without_tower ═════════
+for k in range(6):
+    p.fix(u"/specs[60]/sig/params[%d]/i" % k, old=k, new=k + 1,
+          evidence=u"G16 P3 규약. m07.ll:50443 define `zeroext i1 @…can_trace_without_tower(ptr %%0, ptr %%1, i64 %%2, i64 %%3, i64 %%4, i64 %%5)` 인자 6·sret 없음 → i=%d" % (k + 1),
+          behavior_change=False, found_by="reused")
+for path, ev in [
+    (u"/specs[60]/consts[0]", O2 + u" — 재구현이 `(dx*range)/1000`(sdiv 내림) 표를 독립 사용"),
+    (u"/specs[60]/consts[1]", O2 + u" — 원주표 866 성분 독립 사용"),
+    (u"/specs[60]/consts[2]", O2 + u" — 원주표 500 성분 독립 사용"),
+    (u"/specs[60]/consts[3]", O2 + u" — 12점 순회·하나라도 false 면 true(any) 의미론 일치; 적 미드타워 중심 range 0 → false, 400000 → true"),
+    (u"/specs[60]/knobs[0]", O2 + u" — 12점 표를 그대로 쓴 재구현 일치(개수 변경 효과 자체는 미측정)"),
+    (u"/specs[60]/knobs[1]", O2 + u" — 분모 1000 재구현 일치(range 999 vs 1000 에서 결과 동일 = 내림 산술 확인)"),
+]:
+    p.ev(path, ev, to=2, frm=4, found_by="new")
+
+# ═════════ #61 bush_distance_sq ═════════
+p.fix(u"/specs[61]/consts[1]/meaning",
+      old=u"판정 임계 아님",
+      new=u"판정값 아님(인덱스 가드 — bx/by 가 정적 테이블 값(최대 29)이라 실제 패닉 불가)",
+      evidence=u"G15 NEG: 부정문 「임계 아님」과 CMP_ORD 관측(m07.ll bounds `icmp ult …, 30`)이 충돌. #59 consts[10] 과 같은 처리 — 코퍼스 관례 「판정값 아님」으로 낱말 정정. 71쌍 최대 bx=29·by=29 는 logic 의 전개표에서 확인",
+      behavior_change=False, found_by="reused", kind=u"보강")
+p.fix(u"/specs[61]/knobs[0]/where",
+      old=u"steal.rs:23 (정적 배열, IR @anon.…188 m07.ll:210)",
+      new=u"steal.rs:23 — 길이 71 = m07.ll:54039 `store i64 71, ptr %11`(IntoIter end) · 54079 `icmp eq i64 %20, 71`(순회 상한) · 정적 배열 @anon.…188 정의 = m07.ll:210 (1136B = 71×16)",
+      evidence=u"G19 오탐 — 71 은 본체에 리터럴로 있다: m07.ll:54039 `store i64 71, ptr %11, align 8, !dbg !66383` · 54079 `%17 = icmp eq i64 %20, 71, !dbg !66554` · aux m12.ll:18259 `store i64 71, ptr %16`. 옛 where 의 앵커(m07.ll:210)는 `@anon…188 = private unnamed_addr constant [1136 x i8] c\"…\"` 전역 정의 줄이라 ±4 창에 정수 리터럴이 바이트 덤프뿐이었다. 앵커를 본체 줄로 옮긴다",
+      behavior_change=False, found_by="reused", kind=u"보강")
+
+# ═════════ brief_errors ═════════
+p.brief_error(u"§4 G12 [57] consts[3] 의 「실제 후보」가 [518,519,535,536,568,569,590,591] 로 실려 있는데 현재 `srclinecheck.py --only 57` 은 615 를 더 낸다([…,591,615]) — 도시에 생성 시점과 게이트 판이 어긋난다(mkdossier 가 게이트를 다시 돌리지 않고 캐시된 출력을 붙이는 듯). 판정엔 영향 없었지만 「지적된 줄을 직접 열어라」의 목록이 낡았다")
+p.brief_error(u"§2 `_verify3\\TEMPLATE.rs` 함정 ①~⑧·수법 ⓐ~ⓕ 에 이번에 밟은 함정이 없다: `fn set_pos(e: &Entity, ..)` 처럼 **`&Entity` 인자를 받는 헬퍼 안에서 raw store** 하면 인자가 `readonly noalias` 라 LLVM 이 store 를 UB 로 지운다(volatile 로 읽어도 옛 값·4,032케이스가 전부 「무리」로 나옴). `*const Entity` 로 받으면 정상. 수법 ⑦(ptr::write 로 조립)의 각주로 넣어야 다음 배치가 같은 데서 안 죽는다")
+p.brief_error(u"§4 G19 두 건(#59 knobs[6]·#61 knobs[0])은 둘 다 게이트 쪽 구멍이다 — `knobval.src_anchors` 가 `ir.aux[]` 를 안 훑고(srclinecheck 는 15차에 넣었다), `where` 의 첫 IR 줄이 전역 상수 정의 줄이면 창에 리터럴이 없다. 「주장한 값을 IR 관측에서 못 찾는다」는 문구가 배치를 값 재검증으로 보내는데 실제 필요한 일은 앵커 보강이었다")
+p.brief_error(u"§1 표의 `ev≥4(미실행)` 수(#57 45·#59 34·#60 9)는 오라클로 내릴 수 있는 행이 실제로 얼마인지와 무관하다 — #57 은 `handle_press_epic` 이 pub 이고 TeamPlan/DebugFrameData Default·world.strategy·mode.jungle_runner 가 전부 pub 이라 3 arm 전부 오라클 진입이 됐다. 도시에가 「pub 이면 오라클」만 말하고 「인자·전략·블랙보드를 어떻게 세팅하나」를 안 주니 배치마다 같은 조사를 반복한다(이번 세팅 경로를 TEMPLATE 수법으로 승격 제안)")
+
+p.save()

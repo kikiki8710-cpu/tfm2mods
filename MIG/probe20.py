@@ -115,6 +115,10 @@ CALLSITE = {
     #   호출부 = fnprobe .text 전수 E8 스캔 3곳(0xe4723c·0xe474a2·0xe493c4 · 전부 passive_plan 0xe46bc0 안).
     40: ("e4a780", [0xe4723c, 0xe474a2, 0xe493c4],
          u"진입부 12B 스틸 불가(jae@+11 · cmp r8,2) — 호출부 리다이렉트. 호출부 3곳 전수(passive_plan 안 · 간접호출 0곳 검산)"),
+    # r9(09-13 저녁): #58 target_bush_v41(698B) — 진입부 +6 `je rel32`(test cl,cl) 가 12B 스틸을 막는다.
+    #   호출부 = fnprobe .text 전수 E8 스캔 2곳(0xcafd90 BigPlan::sub_plan 디스패처 · 0xdba7f7 LineGankerPlan::sub_plan 0xdb9430).
+    58: ("db8ba0", [0xcafd90, 0xdba7f7],
+         u"진입부 12B 스틸 불가(je@+6 · test cl,cl) — 호출부 리다이렉트. 호출부 2곳 전수(간접호출 0곳 검산)"),
 }
 
 

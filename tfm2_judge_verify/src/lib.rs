@@ -68,7 +68,7 @@ mod abiprobe;
 /// `#02` midpin sweep(2026-09-13) — 게이트 mask bit19(0x80000).
 mod pin02;
 /// `#02` midpin 전용 게이트 비트 = 0x4000000000000000 (gensweep20 자동배정 0..~60 밖 · 09-13).
-pub const PIN02_BIT: u32 = 62;
+pub const PIN02_BIT: u32 = 127;   // ★09-13 저녁: 마스크 u64→u128(sweep 슬롯 73개 > 64) · pin02 는 최상위 비트로
 
 const MOD_ID: &str = "tfm2_judge_verify";
 
@@ -101,7 +101,10 @@ static MATCH_SEQ: AtomicUsize = AtomicUsize::new(0); // 관측한 「판 종료�
 static INSTALL_OK: AtomicUsize = AtomicUsize::new(0);
 static INSTALL_N: AtomicUsize = AtomicUsize::new(0);
 // ── 2단계 sweep 게이트·설치 결과(리포트 헤더에 그대로 실린다) ──
-static SWEEP_MASK: AtomicU64 = AtomicU64::new(0);
+// ★09-13 저녁: sweep 슬롯이 64 를 넘어 마스크가 u128 — std 에 AtomicU128 이 없어 하위/상위 두 칸에 나눠 둔다.
+static SWEEP_MASK_LO: AtomicU64 = AtomicU64::new(0);
+static SWEEP_MASK_HI: AtomicU64 = AtomicU64::new(0);
+fn sweep_mask_load() -> u128 { ((SWEEP_MASK_HI.load(Ordering::Relaxed) as u128) << 64) | SWEEP_MASK_LO.load(Ordering::Relaxed) as u128 }
 static SWEEP_OK: AtomicUsize = AtomicUsize::new(0);
 static SWEEP_N: AtomicUsize = AtomicUsize::new(0);
 static SWEEP_GATE: std::sync::Mutex<String> = std::sync::Mutex::new(String::new());
@@ -312,7 +315,7 @@ fn probe_disabled() -> bool {
 ///   실행**하고 ABI 가 틀리면 즉사한다(선례: ai_adjust `fn_bisect` 비트2 = 게임 즉사).
 ///   ⟹ **명시적으로 적어야만 켠다.** 파싱 실패도 0 으로 떨어진다(fail-safe).
 /// 형식 = 한 줄에 `0x3` 또는 `3`. `#` 로 시작하는 줄과 빈 줄은 무시.
-fn sweep_mask() -> (u64, String) {
+fn sweep_mask() -> (u128, String) {
     let p = match pth("sweep20_on.txt") {
         Some(p) => p,
         None => return (0, "경로 도출 실패 → OFF".into()),
@@ -331,7 +334,7 @@ fn sweep_mask() -> (u64, String) {
         } else {
             (t, 10)
         };
-        return match u64::from_str_radix(body, radix) {
+        return match u128::from_str_radix(body, radix) {
             Ok(v) => (v, format!("sweep20_on.txt = \"{}\" → mask {:#x}", t, v)),
             Err(_) => (0, format!("sweep20_on.txt 파싱 실패(\"{}\") → **OFF**", t)),
         };
@@ -420,13 +423,13 @@ unsafe fn do_install() {
     //   프로브 쪽이 `sweep20::is_installed_spec()` 를 보고 자기를 건너뛴다(반대 순서면 프로브가
     //   먼저 12B 를 덮어 sweep 이 「이미 훅됨」으로 전부 미설치된다).
     let (mask, gate) = sweep_mask();
-    SWEEP_MASK.store(mask, Ordering::Relaxed);
+    SWEEP_MASK_LO.store(mask as u64, Ordering::Relaxed); SWEEP_MASK_HI.store((mask >> 64) as u64, Ordering::Relaxed);
     let mut slog = String::new();
     // ★bit62 = `#02` midpin(pin02.rs) — sweep20 슬롯 비트가 아니라 여기서 떼어 따로 건다.
     //   ⚠09-13 정정: 옛 bit19 는 gensweep20 이 발화수 순으로 **재배정**하는 칸이라 r7 편입 후 #24 와 충돌해
     //   #24 가 「미설치」로 빠졌다(실사고 · 판 08:40). 자동배정 범위 밖 고정 비트로 뺀다.
-    let (sok, sn) = sweep20::install(mask & !(1u64 << PIN02_BIT), &mut slog);
-    if mask & (1u64 << PIN02_BIT) != 0 {
+    let (sok, sn) = sweep20::install(mask & !(1u128 << PIN02_BIT), &mut slog);
+    if mask & (1u128 << PIN02_BIT) != 0 {
         let _ = pin02::install(&mut slog);
     }
     SWEEP_OK.store(sok, Ordering::Relaxed);
@@ -477,7 +480,7 @@ unsafe fn dump(ctx: &str) {
         INSTALL_N.load(Ordering::Relaxed),
         SWEEP_OK.load(Ordering::Relaxed),
         SWEEP_N.load(Ordering::Relaxed),
-        SWEEP_MASK.load(Ordering::Relaxed),
+        sweep_mask_load(),
         ABI_OK.load(Ordering::Relaxed),
         ABI_N.load(Ordering::Relaxed),
         ABI_MASK.load(Ordering::Relaxed),
@@ -497,11 +500,11 @@ unsafe fn dump(ctx: &str) {
             "성공 {}/{} (mask {:#x})\n{}",
             SWEEP_OK.load(Ordering::Relaxed),
             SWEEP_N.load(Ordering::Relaxed),
-            SWEEP_MASK.load(Ordering::Relaxed),
+            sweep_mask_load(),
             SWEEP_LOG.lock().unwrap_or_else(|e| e.into_inner()).as_str()
         );
         let mut rep = sweep20::report(&header, &gate, &inst);
-        if SWEEP_MASK.load(Ordering::Relaxed) & (1u64 << PIN02_BIT) != 0 { rep.push_str(&pin02::report()); }
+        if sweep_mask_load() & (1u128 << PIN02_BIT) != 0 { rep.push_str(&pin02::report()); }
         let _ = fs::write(p, rep);
     }
     // ★3단계도 **별도 파일**. 게이트 OFF 여도 한 번은 쓴다(「왜 관측이 0 건인가」를 파일이 말하게).

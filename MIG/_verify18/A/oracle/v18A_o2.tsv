@@ -1,0 +1,11 @@
+setting_ok	true	width=960000	height=960000	tps=60	champ_radius=10000	visible=130000
+towers	16	tick=1000
+cases	2184	mism	0	true	2094	false	90
+range	0	cases=312	true=286
+range	999	cases=312	true=286
+range	1000	cases=312	true=286
+range	25000	cases=312	true=300
+range	60000	cases=312	true=312
+range	130000	cases=312	true=312
+range	400000	cases=312	true=312
+anchor	enemy mid_tower (592000,368000) range=0 → false	range=400000 → true

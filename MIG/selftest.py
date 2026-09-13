@@ -241,7 +241,7 @@ def t_misc():
     out, _ = run(["mktools.py", "--check"])
     ok(u"미분류 도구 0", u"미분류 0" in out, out.strip().split(u"\n")[0] if out else u"")
     out2, _ = run(["mkspec3.py"])
-    ok(u"mkspec3 재생성", (u"functions 20" in out2) or (u"functions 4" in out2) or (u"functions 5" in out2), out2[:160])   # 09-13 r7 편입으로 40 · r8 로 57
+    ok(u"mkspec3 재생성", bool(__import__("re").search(u"functions \d+", out2)), out2[:160])   # 09-13: 함수 수는 라운드마다 는다(20→40→57→77) — 재생성 성공 여부만 본다
 
 
 def t_callee_anchor():

@@ -1,0 +1,84 @@
+{
+ "name": "base_sub_goal",
+ "sym": "_RNvMs_NtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old6battleNtB4_14BattlePlanGoal13base_sub_goal",
+ "src": "game-ai\\src\\plan_legacy\\old\\battle.rs",
+ "src_line": 69,
+ "ir_file": "m10.ll",
+ "ir_from": 29294,
+ "ir_to": 29997,
+ "exe_rva": "0xdff080",
+ "aux": [
+  {"ir_file": "m12.ll", "ir_from": 15815, "ir_to": 16062, "what": "Map<Filter<FilterMap<Iter<Option<&Entity>>, iter_champions::closure0>, s_0>, min_by_key::key(s0_0)>::fold — L85 min_by_key 의 2번째 이후 원소 처리. 본문에 인라인된 것과 같은 술어(is_recent_visible · dist²<200000²+1 · is_ignored_well_enemy 아웃오브라인 호출 m12.ll:15981)"}
+ ],
+
+ "one_line": "BattlePlanGoal(TryKill/Support/Response/Avoid) → 기본 BattleSubPlanGoal 결정: 대상 추적(Trace) / 우물 위험이면 End / 가까운 적 있으면 KitingBack 없으면 RunAway",
+
+ "signature": {
+  "params": [
+   {"i": 0, "name": "self", "type": "&BattlePlanGoal(24B: tag i64@0, payload@8)", "note": "tag 0=TryKill(2필드) 1=Support(1필드) 2=Response 3=Avoid. payload+8 = 대상 엔티티 id(TryKill.0 / Support.0)"},
+   {"i": 1, "name": "version", "type": "usize", "note": "is_enemy_well_danger 에 전달만. 이 본문에 버전 분기 없음"},
+   {"i": 2, "name": "player", "type": "&PlayerState(2528B)", "note": "info.team(0x930)·info.position@tag(0x9c0)"},
+   {"i": 3, "name": "data", "type": "&OperationData(24B)", "note": "cache(+0)·blackboard(+0x10). context 미사용"}
+  ],
+  "returns": "BattleSubPlanGoal(16B) = {i64 tag @0, i64 focus @8} — 0 Trace{focus} / 3 KitingBack{focus} / 4 RunAway / 7 End. 반환 레지스터 {i64,i64} (m10.ll:29370~29372)"
+ },
+
+ "reads": [
+  {"base": "BattlePlanGoal", "offset": "0x0", "name": "@tag", "note": "L70 `tag < 2` (samesign ult, m10.ll:29307) → TryKill/Support 경로, 아니면 Response/Avoid 경로"},
+  {"base": "BattlePlanGoal", "offset": "0x8", "name": "TryKill.0 / Support.0 (대상 엔티티 id)", "note": "gep +8 (m10.ll:29313). get_entity_by_id 인자이자 Trace{focus}"},
+  {"base": "PlayerState", "offset": "0x930", "name": "info.team", "note": "enemy_team = 1 - team (L73 인라인 fight_model.rs:755 / L81)"},
+  {"base": "PlayerState", "offset": "0x9c0", "name": "info.position@tag", "note": "L80 my_champ = player_champion[team][position].unwrap()"},
+  {"base": "OperationData", "offset": "0x0", "name": "cache", "note": "game(+0/+8)·player_champion"},
+  {"base": "OperationData", "offset": "0x10", "name": "blackboard(&[Blackboard;2])", "note": "L82: blackboard[1 - team] (적 팀 판) 을 is_recent_visible 의 self 로 (m10.ll:29466~29467)"},
+  {"base": "AbstractGameWithCache", "offset": "0x0", "name": "game data/vtable", "note": "L72 vtable+0x1f0 = get_entity_by_id(focus) (m10.ll:29324, divtable 확인)"},
+  {"base": "AbstractGameWithCache", "offset": "0x1e0", "name": "player_champion[2][5]", "note": "gep +480 (m10.ll:29394). [team][position]=나, [1-team][0..5]=적 후보"},
+  {"base": "Entity", "offset": "0x0", "name": "team@tag (TeamType: 0=Player 1=Neutral)", "note": "is_ignored_well_enemy 인라인(fight_model.rs:755): tag==0"},
+  {"base": "Entity", "offset": "0x8", "name": "team@Player.0 (팀 번호)", "note": "== 1 - player.team 일 때만 우물 위험 검사"},
+  {"base": "Entity", "offset": "0x660", "name": "x", "note": "is_enemy_well_danger(version, player, x, y)·거리²"},
+  {"base": "Entity", "offset": "0x668", "name": "y", "note": "동상"},
+  {"base": "Entity", "offset": "0x5c0", "name": "id", "note": "L87 KitingBack{focus: nearest.id} (m10.ll:29994)"}
+ ],
+
+ "writes": [],
+
+ "constants": [
+  {"value": 2, "src_line": 70, "meaning": "self.tag < 2 ⇔ TryKill(0)|Support(1). (팀 bounds check 의 2 도 동일 리터럴)"},
+  {"value": 0, "src_line": 73, "meaning": "Entity.team@tag == 0 (TeamType::Player) — is_ignored_well_enemy 인라인 조건. 반환 tag 0 = Trace"},
+  {"value": 1, "src_line": 73, "meaning": "enemy_team = 1 - player.team (L73·L81)"},
+  {"value": 7, "src_line": 73, "meaning": "BattleSubPlanGoal::End 메모리태그 — 대상이 우물 위험 안의 적 챔피언이면"},
+  {"value": 40000000001, "src_line": 83, "meaning": "200000² + 1 — 적↔나 거리²(|dx|²+|dy|²) < 이 값 (200k 이내) 인 적만 후보"},
+  {"value": 3, "src_line": 87, "meaning": "BattleSubPlanGoal::KitingBack 메모리태그 — 200k 내 가시 적 중 최근접 대상"},
+  {"value": 4, "src_line": 86, "meaning": "BattleSubPlanGoal::RunAway 메모리태그 — 후보 적 없음"}
+ ],
+
+ "calls": [
+  "game_ai::path_finder::is_enemy_well_danger",
+  "game_core::simulation::game::blackboard::Blackboard::is_recent_visible",
+  "core::iter::adapters::map::Map::fold",
+  "core::panicking::panic_bounds_check",
+  "core::option::unwrap_failed",
+  "game_ai::plan_legacy::old::fight_model::is_ignored_well_enemy"
+ ],
+ "calls_note": {
+  "vtable AbstractGame+0x1f0": "get_entity_by_id(focus) 간접호출 (m10.ll:29326)",
+  "is_enemy_well_danger": "본문 6회(L73 1회 + L84 언롤 5회, m10.ll:29361/29555/…) — is_ignored_well_enemy(fight_model.rs:754~756) 가 인라인된 결과",
+  "is_ignored_well_enemy": "aux m12.ll:15981 에서만 아웃오브라인 호출(본문에선 인라인)",
+  "Map::fold": "L85 min_by_key 나머지 원소 (m10.ll:29984)",
+  "unwrap_failed": "L80 player_champion[team][position] 이 None 이면 패닉(내 챔피언 부재 = 호출 전제 위반)"
+ },
+
+ "logic": "fn base_sub_goal(&self, version, player, data) -> BattleSubPlanGoal\n  team = player.info.team; enemy_team = 1 - team\n  if self.tag < 2 {                                   // L70: TryKill{0: focus, ..} | Support{0: focus}\n    focus = self.payload+8                            // L71\n    target = game.get_entity_by_id(focus)             // L72 (vtable+0x1f0)\n    // L73: if let Some(t) = target { if is_ignored_well_enemy(version, player, t) { return End } }   (fight_model.rs:754~756 인라인)\n    //   is_ignored_well_enemy(t) = t.team == TeamType::Player(enemy_team) && is_enemy_well_danger(version, player, t.x, t.y)\n    if target.is_some() && target.team@tag == 0 && target.team.0 == enemy_team\n       && is_enemy_well_danger(version, player, target.x, target.y) → return End(7)\n    return Trace{focus}(0)                            // L72 (target None 이거나 우물 위험 아님)\n  }\n  // Response | Avoid\n  me = cache.player_champion[team][player.info.position].unwrap()     // L80 (None → unwrap_failed 패닉)\n  nearest = cache.iter_champions(enemy_team)                            // L81 player_champion[1-team] 의 Some\n      .filter(|e| data.blackboard[enemy_team].is_recent_visible(game, player, e)     // L82 (⚠ 적 팀 판 blackboard)\n               && dist²(e, me) < 200000² + 1                                        // L83\n               && !is_ignored_well_enemy(version, player, e))                       // L84 (= 적 챔피언이 우물 위험 안이면 제외)\n      .min_by_key(|e| dist²(e, me))                                                  // L85 (첫 원소 인라인 + Map::fold)\n  match nearest { Some(e) => KitingBack{focus: e.id}(3),   // L87\n                  None    => RunAway(4) }                   // L86",
+
+ "knobs": [
+  {"what": "KitingBack 대상 탐색 반경", "where": "battle.rs:83", "value": "40000000001 (=200000²+1)", "effect": "키우면 더 먼 적을 KitingBack 대상으로 잡아 RunAway 대신 거리조절 이탈이 늘어남"},
+  {"what": "TryKill/Support 의 End 전환 조건", "where": "battle.rs:73 (is_ignored_well_enemy)", "value": "대상이 적 우물 위험 지역", "effect": "is_enemy_well_danger 를 완화하면 우물 근처 적도 계속 Trace"}
+ ],
+
+ "unknown": [
+  "is_enemy_well_danger(path_finder.rs:1032) 내부 미탐색 — '우물 위험' 의 구체 반경/조건은 이 명세 범위 밖",
+  "blackboard 인덱스가 1-team(적 팀 판)인 이유 — evaluate_gank_opportunity_with_score 에서도 같은 패턴. Blackboard 갱신 코드 미탐색이라 의미(적 팀 판에 '적이 우리에게 보였던 시각' 이 기록되는지) 미확정",
+  "Support 경로에서 payload.0 이 아군 id 라면 is_ignored_well_enemy 는 team 불일치로 항상 false → Trace{ally}. Support.0 이 아군인지 적인지는 생성 지점 미탐색",
+  "L86/L87 의 소스 형태(match vs map_or)는 표기 불가(외연 동일)",
+  "get_entity_by_id 가 vtable+0x1f0 임은 divtable 로 확인(정적 vtable 전역 기준). 런타임 Arc<dyn> 이면 다를 수 있음 — 이 함수는 cache.game(&dyn AbstractGame) 정적 참조라 해당 없음으로 봄"
+ ]
+}

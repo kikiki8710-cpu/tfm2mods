@@ -1,0 +1,93 @@
+{
+ "name": "is_unreasonable_tower_dive_enemy",
+ "sym": "_RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old11fight_model32is_unreasonable_tower_dive_enemy",
+ "src": "game-ai\\src\\plan_legacy\\old\\fight_model.rs",
+ "src_line": 792,
+ "ir_file": "m10.ll",
+ "ir_from": 49147,
+ "ir_to": 49399,
+ "aux": [
+  {"ir_file": "m10.ll", "ir_from": 56615, "ir_to": 56739},
+  {"ir_file": "m10.ll", "ir_from": 56742, "ir_to": 56930}
+ ],
+
+ "one_line": "타워 안의 적 챔프에게 다이브(타워 진입 필요)하는 게 무리한지 — HP%·킬각·근처 머릿수 3조건 중 하나도 못 채우면 true",
+
+ "signature": {
+  "params": [
+   {"i": 0, "name": "_version", "type": "i64(usize)", "note": "본문에서 미사용 (DILocalVariable `_version`, m10.ll:118677)"},
+   {"i": 1, "name": "player", "type": "&PlayerState(2528B)", "note": "판정 주체. info.team(+0x930)·info.position(+0x9c0)·info.id(+0x928) 읽음"},
+   {"i": 2, "name": "data", "type": "&OperationData(24B)", "note": "+0x0 cache · +0x8 context · +0x10 blackboard 전부 사용"},
+   {"i": 3, "name": "target", "type": "&Entity(1728B)", "note": "다이브 대상 후보. 적 팀 챔피언이 아니면 즉시 false"},
+   {"i": 4, "name": "with_declared_dive", "type": "bool", "note": "다이브 콜이 선언된 상태인지. true 면 조건 C(HP 44%/51% + 머릿수 우위)가 추가로 '합리적' 판정을 열어줌"}
+  ],
+  "returns": "bool — true = 무리한 다이브(들어가지 말 것). false = 대상이 적 챔프가 아니거나·타워가 꺼진 시간이거나·타워 진입 없이 닿을 수 있거나·A/B/C 중 하나가 성립(합리적)"
+ },
+
+ "reads": [
+  {"base": "PlayerState", "offset": "0x930", "name": "info.team", "note": "team, enemy_team = 1 - team (m10.ll:49166~49169). 본체·aux2(56882) 양쪽"},
+  {"base": "PlayerState", "offset": "0x9c0", "name": "info.position@tag", "note": "Position 태그(0..4) → player_champion[team][position] 인덱스 (m10.ll:49221~49223)"},
+  {"base": "PlayerState", "offset": "0x928", "name": "info.id", "note": "can_trace_without_tower 의 id 인자 (m10.ll:49248~49249)"},
+  {"base": "Entity", "offset": "0x0", "name": "team@tag", "note": "target.team 판별자: 0=Player 여야 함 (TeamType Direct, m10.ll:49170~49172)"},
+  {"base": "Entity", "offset": "0x8", "name": "team@Player.0", "note": "target 의 팀 번호 == enemy_team 비교 (m10.ll:49183~49184)"},
+  {"base": "Entity", "offset": "0x68", "name": "ty@tag", "note": "EntityType 태그 == 13(Champion) (m10.ll:49185~49187)"},
+  {"base": "Entity", "offset": "0x660", "name": "x", "note": "target·champ·아군/적 챔프 좌표 (본체 49236·49269, aux1 56671·56690, aux2 56845·56855)"},
+  {"base": "Entity", "offset": "0x668", "name": "y", "note": "동상"},
+  {"base": "Entity", "offset": "0x670", "name": "hp", "note": "champ.hp(49261)·target.hp(49265) — 현재 HP"},
+  {"base": "Entity", "offset": "0x628", "name": "stat_cached.hp", "note": "최대 HP (49263·49267). `max(.,1)` 로 0 나눗셈 방지 (cmp.rs max 인라인, m10.ll:49331·49335)"},
+  {"base": "OperationData", "offset": "0x0", "name": "cache", "note": "&AbstractGameWithCache (m10.ll:49189)"},
+  {"base": "OperationData", "offset": "0x8", "name": "context", "note": "&GameContext (m10.ll:49197~49198)"},
+  {"base": "OperationData", "offset": "0x10", "name": "blackboard", "note": "&[Blackboard;2] → aux2 에서 `[1-team]` 인덱스(744B stride, m10.ll:56898~56900). 클로저 캡처 +0x28 (m10.ll:49362)"},
+  {"base": "AbstractGameWithCache", "offset": "0x0", "name": "game", "note": "&dyn AbstractGame (data ptr +0x0 / vtable +0x8). vtable+0x28 = tick (divtable) (m10.ll:49190~49200)"},
+  {"base": "AbstractGameWithCache", "offset": "0x1e0", "name": "player_champion[team][pos]", "note": "[[Option<&Entity>;5];2]. 본체 = 내 챔프(49224~49227), aux1 = 아군 5칸 순회, aux2 = 적 5칸 순회(49341)"},
+  {"base": "GameContext", "offset": "0x8", "name": "setting", "note": "&GameSetting (m10.ll:49202~49203)"},
+  {"base": "GameSetting", "offset": "0x13f8", "name": "tower_attack_disable_tick", "note": "`game.tick() < 이 값` 이어야 진행 — 타워가 공격을 멈추는(꺼지는) 틱 이후엔 다이브 개념 자체가 없어 false (m10.ll:49205~49207)"}
+ ],
+
+ "writes": [],
+
+ "constants": [
+  {"value": 13, "src_line": 799, "meaning": "EntityType::Champion 메모리태그(tcxdict --enum: idx13=discr13=tag13, Direct). target.ty 가 챔피언인지 (m10.ll:49187)"},
+  {"value": 25000, "src_line": 809, "meaning": "approach_range = max_range_cached(champ→target) + 25000 (사거리 + 여유 25k, 셀 0.78개) — 타워권 판정·in_range 판정 반경 (m10.ll:49234)"},
+  {"value": 100, "src_line": 817, "meaning": "HP 백분율 환산: hp*100 / max(max_hp,1) (m10.ll:49330·49334)"},
+  {"value": 1, "src_line": 817, "meaning": "`max(max_hp, 1)` 0 나눗셈 가드 (llvm.umax, m10.ll:49331·49335). ⚠ `allies_near_target > 1`(L828, m10.ll:49371)의 1 = '나 혼자가 아니어야' 하한도 같은 값"},
+  {"value": 24, "src_line": 830, "meaning": "조건 A: my_hp_ratio > 24 (= 내 HP 25% 이상) && ready_damage >= target.hp (지금 킬각) (m10.ll:49375~49376)"},
+  {"value": 26, "src_line": 831, "meaning": "조건 B: target_hp_ratio < 26 (적 HP 25% 이하) (m10.ll:49379)"},
+  {"value": 34, "src_line": 831, "meaning": "조건 B: my_hp_ratio > 34 (내 HP 35% 이상) — B 는 추가로 (in_range || 아군 머릿수 우위) 필요 (m10.ll:49380)"},
+  {"value": 44, "src_line": 832, "meaning": "조건 C(with_declared_dive 전용): my_hp_ratio > 44 (내 HP 45% 이상) (m10.ll:49385)"},
+  {"value": 51, "src_line": 832, "meaning": "조건 C: target_hp_ratio < 51 (적 HP 50% 이하) && 아군 머릿수 우위 (m10.ll:49387)"},
+  {"value": 19600000001, "src_line": 822, "meaning": "140000² + 1 — '대상 근처' 반경(거리 ≤ 140000 = 4.375셀). aux1(아군, m10.ll:56719)·aux2(적, 56891) 공통 `dist² < 이 값`"},
+  {"value": 2, "src_line": 805, "meaning": "team/enemy_team 이 2 미만이어야 하는 bounds 상한(팀 수). 본체 49213·49306, aux2 56897 — 배열 길이지 판정 임계 아님(기록용)"}
+ ],
+
+ "calls": [
+  "game_ai::plan_legacy::old::battle::max_range_cached",
+  "game_ai::tower_discipline::can_tower_focused_when_battle",
+  "game_ai::tower_discipline::can_trace_without_tower",
+  "game_ai::plan_legacy::old::fight_model::ready_damage_to_target",
+  "game_core::simulation::game::blackboard::Blackboard::is_recent_visible",
+  "core::panicking::panic_bounds_check"
+ ],
+
+ "logic": "fn is_unreasonable_tower_dive_enemy(_version, player, data, target, with_declared_dive) -> bool\n  team = player.info.team; enemy = 1 - team                                   // L799\n  if !(target.team == TeamType::Player(enemy) && target.ty is Champion(13)) → return false   // L799 (TeamType::ne 인라인, entity.rs:1127)\n  game = data.cache.game\n  if !(game.tick() < setting.tower_attack_disable_tick) → return false        // L801 (타워 꺼진 뒤엔 다이브 아님)\n  champ = data.cache.player_champion[team][player.info.position]; None → return false   // L805 (team>=2 패닉)\n  approach_range = max_range_cached(data, champ, target) + 25000              // L809\n  (x2,y2) = (target.x, target.y)                                              // L811\n  needs_tower_entry = can_tower_focused_when_battle(ctx, cache, player, x2, y2, approach_range)   // L811 — 대상 주변이 타워권\n                      && !can_trace_without_tower(ctx, cache, player.info.id, x2, y2, approach_range)   // L812 — 타워 밖 자리가 없음 (dbg: DW_OP xor -1, 분기 방향 일치)\n  if !needs_tower_entry → return false                                        // L813 (타워 진입 없이 닿으면 '무리' 아님)\n  my_hp_ratio     = champ.hp*100 / max(champ.stat_cached.hp,1)               // L817\n  target_hp_ratio = target.hp*100 / max(target.stat_cached.hp,1)             // L818\n  ready_damage    = ready_damage_to_target(ctx, champ, target)               // L819\n  in_range        = dist²(champ, target) <= approach_range²                  // L820 (|dx|²+|dy|² ule range²)\n  allies_near_target  = cache.player_champion[team].iter().flatten()          // L821~823 (aux1) — ★자기 자신 포함\n                          .filter(|a| dist²(a,target) < 140000²+1).count()\n  enemies_near_target = cache.player_champion[enemy].iter().flatten()        // L824~827 (aux2)\n                          .filter(|e| dist²(e,target) < 140000²+1\n                                   && data.blackboard[enemy].is_recent_visible(game, player, e)).count()   // L826 — 최근 시야에 잡힌 적만 셈\n  ally_adv = allies_near_target > 1 && allies_near_target > enemies_near_target   // L828\n  A = ready_damage >= target.hp && my_hp_ratio > 24                           // L830  즉시 킬각 + 내 HP 25%+\n  B = target_hp_ratio < 26 && my_hp_ratio > 34 && (in_range || ally_adv)      // L831  적 빈사 + 내 HP 35%+ + (사거리 안 or 머릿수 우위)\n  C = with_declared_dive && my_hp_ratio > 44 && target_hp_ratio < 51 && ally_adv   // L832  콜 선언 시: 내 45%+ · 적 50%- · 머릿수 우위\n  return !(A || B || C)                                                       // L834~835\n\n  주석 근거(_docs/game_ai.txt:279~284): 이 함수는 'HP 임계값 기반' 실제 교전 판단축이고, 콜 축(check_favorable_engage_formation)과 기준이 달라 propose/cancel 반복이 생겨 v33 에서 단일 viability 함수가 따로 도입됐다 — 즉 이 함수는 legacy(old) 경로.",
+
+ "knobs": [
+  {"what": "접근 사거리 여유", "where": "fight_model.rs:809", "value": 25000, "effect": "올리면 approach_range↑ → 타워권 판정 지점이 넓어져 needs_tower_entry 가 더 자주 참(=무리 판정 진입↑)이면서 in_range 도 쉬워짐(B 완화). 양방향 효과라 단독 조정 주의"},
+  {"what": "조건 A 내 HP 하한", "where": "fight_model.rs:830", "value": 24, "effect": "올리면 킬각이어도 더 건강해야 다이브 허용(보수적)"},
+  {"what": "조건 B 적 HP 상한", "where": "fight_model.rs:831", "value": 26, "effect": "올리면 더 건강한 적에게도 다이브 허용(공격적)"},
+  {"what": "조건 B 내 HP 하한", "where": "fight_model.rs:831", "value": 34, "effect": "올리면 보수적"},
+  {"what": "조건 C 내 HP 하한", "where": "fight_model.rs:832", "value": 44, "effect": "with_declared_dive 상태에서만. 올리면 보수적"},
+  {"what": "조건 C 적 HP 상한", "where": "fight_model.rs:832", "value": 51, "effect": "with_declared_dive 상태에서만. 올리면 공격적"},
+  {"what": "근처 머릿수 반경", "where": "fight_model.rs:822·825", "value": 19600000001, "effect": "140000². 올리면 아군·적 모두 더 넓게 세어 ally_adv 판정이 바뀜(방향은 상황 의존). 두 줄 동시에 바꿔야 대칭 유지"},
+  {"what": "머릿수 우위 최소 아군 수", "where": "fight_model.rs:828", "value": 1, "effect": "`> 1` — 자기 자신 포함 2명 이상. 올리면 3인 이상 모여야 우위로 침"}
+ ],
+
+ "unknown": [
+  "max_range_cached(data, champ, target)·ready_damage_to_target(ctx, champ, target)·can_tower_focused_when_battle(...) 내부는 담당 범위 밖 — 미독해(각각 battle.rs / fight_model.rs / tower_discipline.rs 에 define 있음, fnparts 로 위치 확인 가능)",
+  "Blackboard::is_recent_visible(_gcbc/g07.ll:157005) 내부: `game.is_visible?(team, id) || last_seen_tick+120 >= tick` 형태로 보이나(157017·157039~157043) 본문 미독해. blackboard[1-team] 인덱스 의미는 _docs/game_core.txt:21('Blackboard[team]=team 팀 정보, 관측은 1-team') 에 따라 '내 팀이 관측한 적 팀 정보'로 읽었음 — 추정",
+  "L799 의 소스 표기(`target.team != Player(enemy) || !matches!(ty, Champion)` vs `!(a && b)`) — column 부재로 표기 불가(동작 확정: 둘 다 만족해야 진행)",
+  "L813 소스가 `if !needs_tower_entry { return false }` 인지 `needs_tower_entry` 를 뒤에서 && 로 합친 것인지 — 분기 구조상 전자와 동치(동작 확정)",
+  "L830~834 의 A/B/C 결합 순서·괄호 표기 — select/and/or 로 접혀 표기 불가(외연 확정: A||B||C)",
+  "`_version` 이 미사용인 이유(호환용 시그니처로 추정) — 미탐색 = 호출자 12곳"
+ ]
+}

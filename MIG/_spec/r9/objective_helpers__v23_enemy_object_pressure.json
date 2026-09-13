@@ -1,0 +1,75 @@
+{
+ "name": "v23_enemy_object_pressure",
+ "sym": "_RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy9team_plan17objective_helpers25v23_enemy_object_pressure",
+ "src": "game-ai\\src\\plan_legacy\\team_plan\\objective_helpers.rs",
+ "src_line": 178,
+ "ir_file": "m15.ll",
+ "ir_from": 52547,
+ "ir_to": 52848,
+ "exe_rva": "0xec9190",
+
+ "one_line": "에픽(Morgard/Serpen)이 살아있고 보이고 피가 깎였으며, 반경 180000 내 적(가시) 수가 건강한 아군 수 이상이면 '적이 오브젝트 압박 중'",
+
+ "signature": {
+   "params": [
+     {"i": 1, "name": "player", "type": "&PlayerState(2528B)", "note": "info.team(+0x930) 만 읽음"},
+     {"i": 2, "name": "data", "type": "&OperationData(24B)", "note": "+0 cache(&AbstractGameWithCache → +0 &dyn AbstractGame) · +8 context(&GameContext → +0x20 map, +0x38 tutorial)"},
+     {"i": 3, "name": "target", "type": "JungleType(i8, range 0..6)", "note": "switch: 4=Morgard / 5=Serpen 만 처리, 그 외(Rhino0·Mushroom1·Stump2·Bee3) 즉시 false (m15.ll:52549~52552)"}
+   ],
+   "returns": "bool — true=적이 해당 에픽을 압박(처치 시도) 중이라고 판단"
+ },
+
+ "reads": [
+   {"base": "OperationData", "offset": "0x0", "name": "cache", "note": "&AbstractGameWithCache; 그 +0 = &dyn AbstractGame(fat ptr: data, vtable+8)"},
+   {"base": "OperationData", "offset": "0x8", "name": "context", "note": "&GameContext"},
+   {"base": "GameContext", "offset": "0x20", "name": "map", "note": "&MapDef → camp_pos 인자"},
+   {"base": "GameContext", "offset": "0x38", "name": "tutorial", "note": "TutorialType(i8). morgard_exists/serpen_exists(rule_scope.rs:46/50 → runner.rs spawn_epic:263 / spawn_serpen:267) 인라인 판정에 사용"},
+   {"base": "PlayerState", "offset": "0x930", "name": "info.team", "note": "==0 → camp_pos 의 is_blue_side; is_visible 의 team 인자"},
+   {"base": "MobaMode", "offset": "0x1a0", "name": "jungle_runner.epic.live_list.buf.inner.ptr", "note": "Morgard 경로: 살아있는 에픽 엔티티 id 목록의 [0]"},
+   {"base": "MobaMode", "offset": "0x1a8", "name": "jungle_runner.epic.live_list.len", "note": "0 이면 false"},
+   {"base": "MobaMode", "offset": "0x1d0", "name": "jungle_runner.serpen.live_list.buf.inner.ptr", "note": "Serpen 경로: [0]"},
+   {"base": "MobaMode", "offset": "0x1d8", "name": "jungle_runner.serpen.live_list.len", "note": "0 이면 false"},
+   {"base": "Entity", "offset": "0x5c0", "name": "id", "note": "에픽 엔티티 id → is_visible(team, id)"},
+   {"base": "Entity", "offset": "0x670", "name": "hp", "note": "현재 HP"},
+   {"base": "Entity", "offset": "0x628", "name": "stat_cached.hp", "note": "최대 HP(스탯). hp < stat_cached.hp 여야 통과(=피가 깎였는가)"}
+ ],
+
+ "writes": [],
+
+ "constants": [
+   {"value": 4, "src_line": 179, "meaning": "JungleType::Morgard 메모리태그(tcxdict --enum JungleType: idx4=discr4=tag4, Direct). switch case 및 camp_pos 인자"},
+   {"value": 5, "src_line": 179, "meaning": "JungleType::Serpen 태그 5. switch case 및 camp_pos 인자"},
+   {"value": 6, "src_line": 181, "meaning": "morgard_exists 인라인: `(tutorial-1) <u 6` 즉 tutorial ∈ {First1,TopSolo2,Bottom3,MidSolo4,MidBottom5,JungleOnly6} 이면 에픽 미스폰 → false. None0·Line7·Total8 만 통과 (spawn_epic runner.rs:263)"},
+   {"value": 0, "src_line": 188, "meaning": "serpen_exists 인라인 switch case: tutorial ∈ {None0, MidBottom5, Line7, Total8} 이면 스폰(spawn_serpen runner.rs:267). 그 외 false. (0 은 또한 live_list.len==0 / enemies!=0 비교값)"},
+   {"value": 7, "src_line": 188, "meaning": "TutorialType::Line 태그 — serpen 스폰 허용 case"},
+   {"value": 8, "src_line": 188, "meaning": "TutorialType::Total 태그 — serpen 스폰 허용 case"},
+   {"value": 180000, "src_line": 204, "meaning": "근접 반경(range 인자, 월드 단위 = 5.625셀). 아군·적 셈 둘 다 같은 값"},
+   {"value": 40, "src_line": 204, "meaning": "min_hp_ratio 인자(HP% 하한 40) — 아군·적 셈 둘 다 같은 값. 실제 비교식은 피호출 함수 내부(미독해)"}
+ ],
+
+ "calls": [
+   "game_core::simulation::map_def::MapDef::camp_pos",
+   "game_ai::plan_legacy::team_plan::objective_helpers::v23_healthy_allies_near_point",
+   "game_ai::plan_legacy::team_plan::objective_helpers::v23_recent_visible_enemies_near_point",
+   "core::option::unwrap_failed"
+ ],
+
+ "logic": "fn v23_enemy_object_pressure(player, data, target) -> bool {\n  let ctx = data.context; let game = data.cache.game;\n  // 179~192: 대상별 (에픽 id, 위치)\n  let (id_opt, pos) = match target {\n    Morgard(4) => {                                                    // 181\n      if !morgard_exists(ctx)  { return false }   // 인라인: ctx.tutorial ∈ 1..=6 → false  (m15.ll:52560~52562, 극성: (t-1)<u6 → %106 false)\n      let moba = game.get_game_mode()[vtable+0x40].as_moba().unwrap(); // 184 — game.rs:231 as_moba; 태그≠0 이면 unwrap_failed(패닉)\n      let first = moba.jungle_runner.epic.live_list.first();           // 184 — len(+0x1a8)==0 → None\n      (first, ctx.map.camp_pos(Morgard, player.info.team == 0))         // 185 — camp_pos 는 first 가 None 이어도 호출됨(m15.ll:52766~52772 %92)\n    }\n    Serpen(5) => {                                                     // 188\n      if !serpen_exists(ctx)   { return false }   // 인라인: ctx.tutorial ∉ {0,5,7,8} → false (m15.ll:52571~52576 switch default → %106)\n      let moba = … as_moba().unwrap();                                  // 191\n      let first = moba.jungle_runner.serpen.live_list.first();          // 191 — len(+0x1d8)==0 → None\n      (first, ctx.map.camp_pos(Serpen, player.info.team == 0))          // 192\n    }\n    _ => return false                                                  // 179 switch default\n  };\n  // 197: id → 엔티티\n  let Some(ent) = id_opt.and_then(|&id| game.get_entity_by_id(id)[vtable+0x1f0]) else { return false };  // 197 closure$0 = get_entity_by_id 호출부; None(null) → false\n  // 200: 보이고 + 피 깎임\n  if !game.is_visible(player.info.team, ent.id)[vtable+0xf8] { return false }   // 200 — 먼저 평가(m15.ll:52716~52720)\n  if !(ent.hp < ent.stat_cached.hp)               { return false }   // 200 — hp(+0x670) <u stat_cached.hp(+0x628); 풀피면 false (m15.ll:52723~52728)\n  // 204~206: 인원 비교\n  let allies  = v23_healthy_allies_near_point(player, data, pos.x, pos.y, 180000, 40);        // 204\n  let enemies = v23_recent_visible_enemies_near_point(player, data, pos.x, pos.y, 180000, 40); // 205\n  enemies != 0 && enemies >= allies                                    // 206 (m15.ll:52741~52743: `%88 ne 0` && `%88 uge %87`)\n}\n\n주: camp_pos 반환 {i64,i64} 중 extractvalue 0 → x(%66) 가 3번째 인자, extractvalue 1 → y(%65) 가 4번째 인자로 전달됨(m15.ll:52694~52695, 52736). 둘 다 반환값 range(i64 0,6) 인 i64 카운트.",
+
+ "knobs": [
+   {"what": "인원 셈 반경", "where": "objective_helpers.rs:204~205", "value": 180000,
+    "effect": "올리면 더 먼 아군·적까지 세어 판정이 둔해지고(양쪽 다 늘어남), 내리면 오브젝트 바로 옆 인원만 본다"},
+   {"what": "건강 판정 HP% 하한(min_hp_ratio)", "where": "objective_helpers.rs:204~205", "value": 40,
+    "effect": "올리면 저체력 인원이 셈에서 빠져(아군·적 둘 다) 결과가 바뀐다 — 정확한 비교 방향은 피호출 함수 명세 참조"},
+   {"what": "적≥아군 비교(동수 포함)", "where": "objective_helpers.rs:206", "value": ">=",
+    "effect": "`>` 로 바꾸면 동수일 때 압박으로 안 본다"}
+ ],
+
+ "unknown": [
+   "line 184/191 의 `live_list.first()` 표기 — IR 은 len==0 검사 후 buf[0] 로드(line 0 = 컴파일러 생성)라 `.first()`/`.get(0)`/`[0]` 어느 표기인지는 표기 불가(외연 동일: 비어있으면 false·아니면 [0])",
+   "line 197 closure$0 의 정확한 콤비네이터(`and_then`/`map`+`?`) — 동작(None→false) 은 확정",
+   "get_game_mode 반환 {i64,ptr} 의 첫 필드가 as_moba 에서 0 이어야 Some 인 이유(GameMode 열거형 태그 0=Moba 추정) — tcxdict 로 미확인, 이 함수에선 태그≠0 이면 unwrap 패닉이라 동작엔 영향 없음",
+   "v23_healthy_allies_near_point / v23_recent_visible_enemies_near_point 내부(min_hp_ratio 40 의 실제 비교식·가시성 정의) — 담당 범위 밖(m15.ll:53341 / 55548 에 define 있음, 미독해)",
+   "camp_pos(Morgard, is_blue_side) 가 돌려주는 좌표가 진영별로 다른지(is_blue_side 의 의미) — _gcbc g07.ll 본문 미독해"
+ ]
+}

@@ -1,0 +1,97 @@
+{
+ "name": "try_engage_dive",
+ "sym": "_RNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy7handler6engageNtB4_17LegacyPlanHandler15try_engage_dive",
+ "src": "game-ai\\src\\plan_legacy\\handler\\engage.rs",
+ "src_line": 109,
+ "ir_file": "m13.ll",
+ "ir_from": 34298,
+ "ir_to": 34493,
+ "exe_rva": "0xe5d300",
+
+ "one_line": "다이브 재합류 쿨다운·(v2+) 추격 레이스 가망 검사 후 TryKill 다이브 BattlePlan 을 생성·1틱 update 해 이탈 태세면 폐기, 아니면 반환",
+
+ "signature": {
+  "params": [
+   {"i": 0, "name": "sret", "type": "*mut Option<BattlePlan>(280B)", "note": "None = 첫 8B 에 -1 (니치, m13.ll:34338/34419/34446). Some = BattlePlan 280B memcpy"},
+   {"i": 1, "name": "self", "type": "&LegacyPlanHandler", "note": "last_dive_abandon_tick(0x1480)·team_plan(0xf8)·team_plan.objective(0x517)·positioning_score(0x990)"},
+   {"i": 2, "name": "version", "type": "usize", "note": "L116 `version > 1` 분기(v2+ 에서만 추격 가망 검사·main_objective 복사)"},
+   {"i": 3, "name": "rnd", "type": "&mut StdRng", "note": "BattlePlan::update 에 전달만"},
+   {"i": 4, "name": "player", "type": "&PlayerState(2528B)", "note": "info.team(0x930)·info.position@tag(0x9c0) — v2+ 경로에서만"},
+   {"i": 5, "name": "data", "type": "&OperationData(24B)", "note": "cache.game(tick·get_entity_by_id)·context.setting.tick_per_second"},
+   {"i": 6, "name": "target_id", "type": "usize", "note": "다이브 대상 엔티티 id → TryKill.0 · get_entity_by_id"},
+   {"i": 7, "name": "dive_tower", "type": "Option<TowerType>(i8)", "note": "BattlePlan.dive_tower(0xfe) 에 그대로 저장"},
+   {"i": 8, "name": "debug", "type": "&mut DebugFrameData", "note": "BattlePlan::update 에 전달만"}
+  ],
+  "returns": "Option<BattlePlan> — None: 쿨다운 중 / (v2+) 추격 가망 없음 / update 후 sub_goal 이 KitingBack·RunAway·End. Some: update 를 거친 다이브 BattlePlan"
+ },
+
+ "reads": [
+  {"base": "LegacyPlanHandler", "offset": "0x1480", "name": "last_dive_abandon_tick", "note": "gep +5248 (m13.ll:34317). dive_rejoin_cd(engage.rs:973) = 이 값 + 1 + tps*4"},
+  {"base": "LegacyPlanHandler", "offset": "0x517", "name": "team_plan.objective (Option<MainObjective>, 3B i24)", "note": "gep +1303 (m13.ll:34404). v2+ 에서 BattlePlan.main_objective(0xff) 로 복사 (set_main_objective, battle.rs:350 인라인)"},
+  {"base": "LegacyPlanHandler", "offset": "0x990", "name": "positioning_score (&PositioningScoreData)", "note": "gep +2448 (m13.ll:34364). BattlePlan::update 6번째 인자"},
+  {"base": "LegacyPlanHandler", "offset": "0xf8", "name": "team_plan (&TeamPlan)", "note": "gep +248 (m13.ll:34365). BattlePlan::update 7번째 인자"},
+  {"base": "OperationData", "offset": "0x0", "name": "cache", "note": "game(+0/+8 vtable)·player_champion(0x1e0)"},
+  {"base": "OperationData", "offset": "0x8", "name": "context", "note": "setting(+8) → tick_per_second"},
+  {"base": "GameSetting", "offset": "0x12f8", "name": "tick_per_second", "note": "gep +4856 (m13.ll:34323). 쿨다운 4초 환산"},
+  {"base": "AbstractGameWithCache", "offset": "0x0", "name": "game data/vtable", "note": "vtable+0x28 = tick() (m13.ll:34314) / vtable+0x1f0 = get_entity_by_id(target_id) (m13.ll:34386, v2+)"},
+  {"base": "AbstractGameWithCache", "offset": "0x1e0", "name": "player_champion[team][position]", "note": "gep +480 (m13.ll:34382). v2+ 에서 내 챔피언"},
+  {"base": "PlayerState", "offset": "0x930", "name": "info.team", "note": "v2+ (L117)"},
+  {"base": "PlayerState", "offset": "0x9c0", "name": "info.position@tag", "note": "v2+ (L117)"},
+  {"base": "BattlePlan", "offset": "0x58", "name": "sub_goal@tag (BattleSubPlanGoal)", "note": "L132 update 후 판독 (gep +88, m13.ll:34431): 3 KitingBack / 4 RunAway / 7 End 면 폐기"}
+ ],
+
+ "writes": [
+  {"base": "BattlePlanGoal(스택 24B)", "offset": "0x0", "name": "@tag = 0 (TryKill)", "value": "0", "note": "m13.ll:34348 — new_dive 의 goal 인자"},
+  {"base": "BattlePlanGoal(스택 24B)", "offset": "0x8", "name": "TryKill.0", "value": "target_id", "note": "m13.ll:34345"},
+  {"base": "BattlePlanGoal(스택 24B)", "offset": "0x10", "name": "TryKill.1", "value": "60", "note": "m13.ll:34347. 리터럴 60 (BattlePlanGoal.__1 — 소비처는 이 본문에 없음)"},
+  {"base": "BattlePlan(스택 280B)", "offset": "0x107", "name": "entry_src", "value": "2", "note": "L125 (m13.ll:34352/34401) — 진입귀속 코드 2 = 다이브 경유"},
+  {"base": "BattlePlan(스택 280B)", "offset": "0xfe", "name": "dive_tower", "value": "인자 dive_tower 그대로", "note": "L126 (m13.ll:34353/34402)"},
+  {"base": "BattlePlan(스택 280B)", "offset": "0xff", "name": "main_objective (3B)", "value": "self.team_plan.objective (0x517) 복사", "note": "L128, v2+ 경로만 (m13.ll:34408). v1 경로는 new_dive 초기값 유지"},
+  {"base": "sret Option<BattlePlan>", "offset": "0x0", "name": "None 니치 / Some(BattlePlan 280B)", "value": "-1 또는 memcpy 280", "note": "m13.ll:34338·34419·34446 / 34441"}
+ ],
+
+ "constants": [
+  {"value": 2, "src_line": 112, "meaning": "`shl i64 %tps, 2` = tps*4 (dive_rejoin_cd, engage.rs:973). 소스 수준 값은 folded_from 참조", "folded_from": 4},
+  {"value": 1, "src_line": 112, "meaning": "dive_rejoin_cd = last_dive_abandon_tick + 1 + tps*4 — 재합류 허용 조건 tick > cd (즉 어보트 후 4초+1틱 경과). L116 의 `version > 1` 리터럴도 1"},
+  {"value": 60, "src_line": 124, "meaning": "BattlePlanGoal::TryKill.1 에 넣는 리터럴 60 (의미는 이 본문에서 소비 안 됨 — new_dive/BattlePlan 내부 미탐색)"},
+  {"value": 0, "src_line": 124, "meaning": "BattlePlanGoal::TryKill 메모리태그 0"},
+  {"value": 3, "src_line": 132, "meaning": "BattleSubPlanGoal::KitingBack 태그 — update 후 이 태세면 dive 미커밋 → None"},
+  {"value": 4, "src_line": 132, "meaning": "BattleSubPlanGoal::RunAway 태그 — 동상"},
+  {"value": 7, "src_line": 132, "meaning": "BattleSubPlanGoal::End 태그 — 동상"},
+  {"value": -1, "src_line": 113, "meaning": "Option<BattlePlan>::None 니치 값(첫 8B)"}
+ ],
+
+ "calls": [
+  "game_ai::plan_legacy::old::battle::BattlePlan::new_dive",
+  "game_ai::plan_legacy::old::battle::BattlePlan::update",
+  "game_ai::plan_legacy::old::fight_model::open_chase_race_hopeless",
+  "core::panicking::panic_bounds_check",
+  "core::ptr::drop_glue",
+  "core::ops::drop::Drop::drop"
+ ],
+ "calls_note": {
+  "vtable AbstractGame+0x28": "tick() (m13.ll:34314)",
+  "vtable AbstractGame+0x1f0": "get_entity_by_id(target_id) (m13.ll:34386, v2+ 만)",
+  "new_dive": "2회 콜사이트(v1 경로 m13.ll:34349 / v2+ 경로 34398) — 같은 인자 (version, &goal, data, player)",
+  "open_chase_race_hopeless": "(version, data, player, champ, target) → true 면 None (m13.ll:34415)",
+  "drop_glue / Drop::drop": "폐기 경로의 BattlePlan(chats Vec<Chat> 0x68 · v54_reentry_ticks Vec<usize> 0x80) 해제"
+ },
+
+ "logic": "fn try_engage_dive(&self, version, rnd, player, data, target_id, dive_tower, debug) -> Option<BattlePlan>\n  tick = game.tick()                                                                  // L112 (vtable+0x28)\n  tps  = context.setting.tick_per_second\n  // dive_rejoin_cd(self) 인라인 (engage.rs:973) = self.last_dive_abandon_tick + 1 + tps*4\n  if !(tick > self.last_dive_abandon_tick + 1 + tps*4) → return None                 // L112~113 (어보트 후 4초 쿨다운)\n  if version > 1 {                                                                    // L116\n    champ  = cache.player_champion[player.team][player.position]                     // L117\n    target = game.get_entity_by_id(target_id)                                          // L118 (vtable+0x1f0)\n    if let (Some(champ), Some(target)) = (champ, target) {\n      if open_chase_race_hopeless(version, data, player, champ, target) → return None   // L119~120\n    }\n  }\n  goal = BattlePlanGoal::TryKill(target_id, 60)                                       // L124\n  plan = BattlePlan::new_dive(version, &goal, data, player)\n  plan.entry_src = 2                                                                   // L125\n  plan.dive_tower = dive_tower                                                         // L126\n  if version > 1 { plan.set_main_objective(self.team_plan.objective) }                // L128 (battle.rs:350 인라인, 0x517 → 0xff 3B)\n  plan.update(version, rnd, player, data, &self.positioning_score, &self.team_plan, debug)   // L130\n  dive_committed = !matches!(plan.sub_goal, KitingBack|RunAway|End)                   // L132 (tag 3/4/7)\n  if dive_committed { Some(plan) } else { None }                                       // L133",
+
+ "knobs": [
+  {"what": "다이브 재합류 쿨다운", "where": "engage.rs:973 (dive_rejoin_cd, 인라인)", "value": "tps*4 + 1 틱 (= 4초)", "effect": "shl 2 를 바꾸면 어보트 후 재다이브까지 대기 시간 변경. 줄이면 propose/abort 반복 증가 가능"},
+  {"what": "v2+ 추격 가망 게이트", "where": "engage.rs:116~120", "value": "version > 1 && open_chase_race_hopeless", "effect": "게이트 제거 시 가망 없는 추격 다이브도 플랜 생성"},
+  {"what": "dive 미커밋 판정 태세 집합", "where": "engage.rs:132", "value": "{KitingBack(3), RunAway(4), End(7)}", "effect": "집합을 줄이면(예: KitingBack 허용) 이탈 태세로 시작하는 다이브도 반환됨"},
+  {"what": "TryKill.1 리터럴", "where": "engage.rs:124", "value": 60, "effect": "이 본문엔 소비처 없음 — 효과 미확정"}
+ ],
+
+ "unknown": [
+  "BattlePlanGoal::TryKill.1 = 60 의 의미 — new_dive/BattlePlan 내부(m10.ll:27462) 미탐색. 이름으로 성격 단정 금지 원칙에 따라 '리터럴 60' 으로만 기록",
+  "open_chase_race_hopeless(fight_model.rs, m10.ll:47705) 의 판정 내용 미탐색",
+  "BattlePlan::new_dive / update 내부 미탐색 — update 가 sub_goal 을 어떻게 정하는지(base_sub_goal 경유 여부 포함)는 별도 명세",
+  "entry_src=2 의 코드표(진입귀속) 전체는 _docs 708행 '진입귀속 코드표' 로만 확인, 2 의 의미('다이브 경유')는 이 함수가 유일한 store 인지 미확인 — 추정",
+  "L112 비교가 `tick > cd` 인지 `tick >= cd+1` 인지 표기 불가(외연 동일: `+1` 이 cd 계산에 접혀 있음)",
+  "v1 경로(version<=1)에서 main_objective 를 복사하지 않는 것이 의도인지(소스가 if version>1 블록 안에 set_main_objective 를 둔 것)는 IR 구조상 확정 — 단 v1 이 실전에서 쓰이는지는 미탐색"
+ ]
+}

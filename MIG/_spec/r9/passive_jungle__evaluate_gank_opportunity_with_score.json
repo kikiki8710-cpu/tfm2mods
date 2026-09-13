@@ -1,0 +1,435 @@
+{
+ "name": "evaluate_gank_opportunity_with_score",
+ "sym": "_RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old14passive_jungle36evaluate_gank_opportunity_with_score",
+ "src": "game-ai\\src\\plan_legacy\\old\\passive_jungle.rs",
+ "src_line": 693,
+ "ir_file": "m04.ll",
+ "ir_from": 62981,
+ "ir_to": 63740,
+ "exe_rva": "0xd40f10",
+ "aux": [
+  {
+   "ir_file": "m04.ll",
+   "ir_from": 66344,
+   "ir_to": 66393,
+   "what": "closure#0 call_mut 심 — line_enemies 필터 술어(L703~704: is_near_line && is_recent_visible)"
+  },
+  {
+   "ir_file": "m04.ll",
+   "ir_from": 66396,
+   "ir_to": 66418,
+   "what": "closure s1_0 call_mut 심 — line_allies 마지막 필터(L716: hp*100/max_hp > 40)"
+  },
+  {
+   "ir_file": "m01.ll",
+   "ir_from": 40283,
+   "ir_to": 40458,
+   "what": "line_enemies from_iter_in(Filter<FilterMap<Iter<Option<&Entity>>, iter_champions::closure0>, closure#0>) — 루프 골격, 술어는 call_mut 심 호출"
+  },
+  {
+   "ir_file": "m01.ll",
+   "ir_from": 30712,
+   "ir_to": 30975,
+   "what": "line_allies from_iter_in(Filter<FilterMap<Range<usize>, s_0>, s0_0, s1_0>) — L714 in_big_line 필터 · L715 player_champion[team][pos] filter_map 이 인라인, L716 은 call_mut 심"
+  }
+ ],
+ "one_line": "정글러 관점 특정 라인의 갱 성공 가능성을 점수화하고 판단력 노이즈를 곱해 required_score 와 비교",
+ "signature": {
+  "params": [
+   {
+    "i": 1,
+    "name": "rnd",
+    "type": "&mut StdRng",
+    "note": "error_ratio 의 gen_range 에만 사용 (L800)"
+   },
+   {
+    "i": 2,
+    "name": "player",
+    "type": "&PlayerState(2528B)",
+    "note": "info.team(0x930)·info.position@tag(0x9c0)·stat.judgement(0x218) 사용"
+   },
+   {
+    "i": 3,
+    "name": "data",
+    "type": "&OperationData(24B)",
+    "note": "cache(+0)·context(+8)·blackboard(+0x10) 전부 사용"
+   },
+   {
+    "i": 4,
+    "name": "line",
+    "type": "LineType(u8: 0=Top 1=Mid 2=Bottom)",
+    "note": "갱 대상 라인. 타워 선택(0x180+line*0x20)·is_near_line·in_big_line 에 사용"
+   },
+   {
+    "i": 5,
+    "name": "required_score",
+    "type": "i32",
+    "note": "evaluated_score >= required_score 가 반환 bool (L803)"
+   }
+  ],
+  "returns": "(bool, i32, i32) 12B — tcx 레이아웃: .0 bool@+4 = evaluated_score >= required_score / .1 i32@+0 = evaluated_score(노이즈 적용 후) / .2 i32@+8 = actual_score(노이즈 전). 조기 반환 6곳은 전부 (false, 0, 0)"
+ },
+ "reads": [
+  {
+   "base": "PlayerState",
+   "offset": "0x930",
+   "name": "info.team",
+   "note": "enemy_team = 1 - team (L702, m04.ll:63006). 자기 팀 인덱스는 L715/L728 에서"
+  },
+  {
+   "base": "PlayerState",
+   "offset": "0x9c0",
+   "name": "info.position@tag",
+   "note": "jungler_champ = cache.player_champion[team][position] (L728, m04.ll:63174)"
+  },
+  {
+   "base": "PlayerState",
+   "offset": "0x218",
+   "name": "info.parameter.stat.judgement",
+   "note": "error_ratio 입력 (L799, m04.ll:63575)"
+  },
+  {
+   "base": "OperationData",
+   "offset": "0x0",
+   "name": "cache(&AbstractGameWithCache)",
+   "note": "self 로 쓰임"
+  },
+  {
+   "base": "OperationData",
+   "offset": "0x8",
+   "name": "context(&GameContext)",
+   "note": "closure#0 에서 is_near_line 의 첫 인자"
+  },
+  {
+   "base": "OperationData",
+   "offset": "0x10",
+   "name": "blackboard(&[Blackboard;2])",
+   "note": "closure#0: blackboard[enemy_team].is_recent_visible / s_0: blackboard[team].in_big_line"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x0",
+   "name": "game(&dyn AbstractGame data+vtable)",
+   "note": "closure#0 이 is_recent_visible 에 넘김 (L703)"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x1e0",
+   "name": "player_champion[2][5]",
+   "note": "gep +480 (m04.ll:63012). iter_champions(enemy_team) 원천 및 jungler_champ·line_allies 조회"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x180",
+   "name": "top_tower[2] (line*0x20 스트라이드로 mid_tower 0x1a0 / bottom_tower 0x1c0)",
+   "note": "gep +384 + line<<5 (m04.ll:63448~63453). enemy_tower 1순위 [enemy_team]"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x190",
+   "name": "top_tower2[2] (line*0x20 → mid_tower2 0x1b0 / bottom_tower2 0x1d0)",
+   "note": "gep +400 (m04.ll:63457). tower 가 None 일 때 폴백 (L759 `.or()`)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x628",
+   "name": "stat_cached.hp (최대 HP)",
+   "note": "target_enemy(L747)·nearest_ally(L776)·s1_0 필터(L716) HP% 분모. 0 이면 div_by_zero 패닉"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x670",
+   "name": "hp",
+   "note": "HP% 분자"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x660",
+   "name": "x",
+   "note": "min_by_key 거리²·distance()·is_near_line"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x668",
+   "name": "y",
+   "note": "동상"
+  },
+  {
+   "base": "Blackboard",
+   "offset": "(참고, 본문 밖) 0xf8",
+   "name": "big_goal[pos].1 (@tag 0xf8 / line 0xf9)",
+   "note": "in_big_line(pos,line) 내부(_gcbc g07.ll:156563) — 참고용. 본문엔 없음"
+  },
+  {
+   "base": "Blackboard",
+   "offset": "(참고, 본문 밖) 0x1e0",
+   "name": "last_visible[position]",
+   "note": "is_recent_visible 내부(_gcbc g07.ll:157005): last_visible+120 >= tick — 참고용. 본문엔 없음"
+  }
+ ],
+ "writes": [
+  {
+   "base": "sret (bool,i32,i32)",
+   "offset": "0x0",
+   "name": ".1 evaluated_score",
+   "value": "actual_score * error_ratio / 100 (sdiv) 또는 0",
+   "note": "m04.ll:63698"
+  },
+  {
+   "base": "sret (bool,i32,i32)",
+   "offset": "0x4",
+   "name": ".0 ok",
+   "value": "evaluated_score >= required_score (sge) 또는 false",
+   "note": "m04.ll:63695~63697"
+  },
+  {
+   "base": "sret (bool,i32,i32)",
+   "offset": "0x8",
+   "name": ".2 actual_score",
+   "value": "노이즈 전 점수 또는 0",
+   "note": "m04.ll:63700"
+  }
+ ],
+ "constants": [
+  {
+   "value": 2,
+   "src_line": 702,
+   "meaning": "팀 인덱스 bounds check (enemy_team < 2). 판정 아님"
+  },
+  {
+   "value": 5,
+   "src_line": 713,
+   "meaning": "포지션 수 — line_allies 후보 Range 0..5 (m04.ll:63102 store i64 5). 판정 아님 (본문의 `shl i8 %line, 5` 는 line*0x20 타워 배열 스트라이드 — 이 5 와 무관)"
+  },
+  {
+   "value": 1,
+   "src_line": 724,
+   "meaning": "L724: enemies.len() > allies.len()+1 이면 포기 — '정글러 합류 +1' 을 감안한 수적 열세 게이트. L792 에서도 allies.len()+1 > enemies.len() 이면 +20 (본문의 `shl`·`lshr 1` 피연산자 1 은 별개: lshr 1 = (80-hp%)/2 접힘, shl 1 = gen_range 내부 2*error)"
+  },
+  {
+   "value": 100,
+   "src_line": 747,
+   "meaning": "HP% 환산(hp*100/max_hp) — L747 적, L776 아군, L716 아군 필터, L801 최종 sdiv 100"
+  },
+  {
+   "value": 79,
+   "src_line": 748,
+   "meaning": "적 HP% > 79 (=80% 이상) → score = -40"
+  },
+  {
+   "value": -40,
+   "src_line": 748,
+   "meaning": "적이 거의 풀피면 기본 점수 -40 (phi m04.ll:63442)"
+  },
+  {
+   "value": 59,
+   "src_line": 750,
+   "meaning": "적 HP% > 59 (60~79%) → score = (80 - hp%) >> 1 (= /2, 1..10)"
+  },
+  {
+   "value": 80,
+   "src_line": 751,
+   "meaning": "80 - hp% : 60~79% 대는 절반(1..10), 40~59% 대는 그대로(21..40)"
+  },
+  {
+   "value": 39,
+   "src_line": 752,
+   "meaning": "적 HP% > 39 (40~59%) → score = 80 - hp%"
+  },
+  {
+   "value": 90,
+   "src_line": 755,
+   "meaning": "적 HP% <= 39 → score = 90 - hp% (51..90)"
+  },
+  {
+   "value": 35,
+   "src_line": 772,
+   "meaning": "그 라인에 적 타워(tower·tower2 모두)가 없으면 +35"
+  },
+  {
+   "value": 130000,
+   "src_line": 762,
+   "meaning": "적↔적타워 distance < 130000 → -60 (타워 품에 있음)"
+  },
+  {
+   "value": 160000,
+   "src_line": 764,
+   "meaning": "130000 <= dist < 160000 → 가감 없음(빈 분기)"
+  },
+  {
+   "value": -60,
+   "src_line": 763,
+   "meaning": "타워 130k 이내 페널티"
+  },
+  {
+   "value": 200000,
+   "src_line": 766,
+   "meaning": "160000 <= dist < 200000 → +20 / >= 200000 → +40"
+  },
+  {
+   "value": 20,
+   "src_line": 767,
+   "meaning": "타워 160k~200k 보너스 +20. L792 수적우위 보너스도 +20"
+  },
+  {
+   "value": 40,
+   "src_line": 769,
+   "meaning": "타워 200k 이상 보너스 +40. (s1_0 의 hp%>40 필터 임계도 40 — m04.ll:66416)"
+  },
+  {
+   "value": 50,
+   "src_line": 777,
+   "meaning": "가장 가까운 아군 HP% < 50 → -30"
+  },
+  {
+   "value": -30,
+   "src_line": 777,
+   "meaning": "아군 저체력 페널티"
+  },
+  {
+   "value": 69,
+   "src_line": 777,
+   "meaning": "아군 HP% > 69 (70% 이상) → +10"
+  },
+  {
+   "value": 10,
+   "src_line": 777,
+   "meaning": "아군 고체력 보너스"
+  },
+  {
+   "value": 120000,
+   "src_line": 785,
+   "meaning": "아군↔대상 적 distance > 120000 → -25"
+  },
+  {
+   "value": -25,
+   "src_line": 785,
+   "meaning": "아군이 멀리 있음 페널티"
+  },
+  {
+   "value": 80000,
+   "src_line": 785,
+   "meaning": "아군↔대상 적 distance < 80000 → +15"
+  },
+  {
+   "value": 15,
+   "src_line": 785,
+   "meaning": "아군이 붙어 있음 보너스"
+  },
+  {
+   "value": 1000,
+   "src_line": 800,
+   "meaning": "error_ratio(utils.rs:484): error = (1000 - judgement) / 20 (인라인)"
+  },
+  {
+   "value": 429496729600,
+   "src_line": 800,
+   "meaning": "= 100 << 32. utils.rs:486 `100 + r` 가 gen_range 의 widening-multiply 상위워드 산술에 접힘: pct = 100 + (r_sample - error), r_sample ∈ [0, 2*error]"
+  },
+  {
+   "value": 63,
+   "src_line": 800,
+   "meaning": "rand_chacha 버퍼 인덱스 > 63 이면 refill_wide (라이브러리 내부, 판정 아님)"
+  },
+  {
+   "value": 6,
+   "src_line": 800,
+   "meaning": "ChaCha 라운드 인자 drounds=6 (ChaCha12, 라이브러리 내부)"
+  }
+ ],
+ "calls": [
+  "bumpalo::collections::vec::from_iter_in",
+  "core::iter::adapters::map::Map::fold",
+  "game_core::utils::distance",
+  "core::panicking::panic_bounds_check",
+  "core::panicking::panic_const::panic_const_div_by_zero",
+  "core::panicking::panic",
+  "rand_chacha::guts::refill_wide",
+  "core::ops::drop::Drop::drop",
+  "core::ptr::drop_glue",
+  "game_core::simulation::map_regions::is_near_line",
+  "game_core::simulation::game::blackboard::Blackboard::is_recent_visible",
+  "game_core::simulation::game::blackboard::Blackboard::in_big_line",
+  "bumpalo::collections::vec::Vec::reserve_internal_or_panic"
+ ],
+ "logic": "fn evaluate_gank_opportunity_with_score(rnd, player, data, line, required_score) -> (ok, evaluated, actual)\n  self = data.cache; team = player.info.team; enemy_team = 1 - team  (L702, bounds<2)\n  // L701~705 적 라이너 수집\n  line_enemies = self.iter_champions(enemy_team)            // player_champion[enemy_team][0..5] 의 Some 만\n      .filter(|e| is_near_line(data.context, e.x, e.y, line)          // L703 (aux m04.ll:66359)\n               && data.blackboard[enemy_team].is_recent_visible(game, player, e))  // L704 (aux 66376) — 인덱스가 1-team 임에 주의\n      .collect()\n  if line_enemies.is_empty() → return (false, 0, 0)          // L708~709\n  // L713~716 아군 라이너 수집\n  line_allies = (0..5)\n      .filter(|pos| data.blackboard[team].in_big_line(pos, line))   // L714: big_goal[pos] == Line{line}\n      .filter_map(|pos| self.player_champion[team][pos])           // L715\n      .filter(|a| a.hp*100 / a.stat_cached.hp > 40)                // L716 (aux m04.ll:66416)  ※ 자기 자신 제외 없음\n      .collect()\n  if line_allies.is_empty() → return (false, 0, 0)           // L720\n  if line_enemies.len() > line_allies.len() + 1 → return (false, 0, 0)   // L724 (정글러 합류 감안)\n  jungler_champ = self.player_champion[team][player.info.position] else return (false,0,0)  // L728\n  target_enemy = line_enemies.iter().min_by_key(|e| (|e.x-j.x|)² + (|e.y-j.y|)²)  else return  // L733 (정글러에게 가장 가까운 적)\n  nearest_ally = line_allies.iter().min_by_key(|a| dist²(a, target_enemy)) else return           // L738\n  // L747~755 적 체력\n  ehp = (target_enemy.hp*100 / target_enemy.stat_cached.hp) as i32\n  score = if ehp > 79 { -40 } else if ehp > 59 { (80-ehp) >> 1 } else if ehp > 39 { 80-ehp } else { 90-ehp }\n  // L759~772 적 타워 거리\n  enemy_tower = tower(line)[enemy_team].or(tower2(line)[enemy_team])   // 0x180+line*0x20 / 0x190+line*0x20\n  match enemy_tower {\n    Some(t) => { d = distance(target_enemy.xy, t.xy);\n                 if d < 130000 { score -= 60 } else if d < 160000 { /* 변화 없음 */ } else if d < 200000 { score += 20 } else { score += 40 } }\n    None    => score += 35 }\n  // L776~777 아군 체력\n  ahp = (nearest_ally.hp*100 / nearest_ally.stat_cached.hp) as i32\n  if ahp < 50 { score -= 30 } else if ahp > 69 { score += 10 }\n  // L784~785 아군↔대상 거리\n  ad = distance(nearest_ally.xy, target_enemy.xy)\n  if ad > 120000 { score -= 25 } else if ad < 80000 { score += 15 }\n  // L792 수적 우위\n  if line_allies.len() + 1 > line_enemies.len() { score += 20 }\n  actual_score = score\n  // L799~801 판단력 노이즈 (utils.rs:480 error_ratio 인라인)\n  error = (1000 - player.stat.judgement) / 20            // judgement 1000 → 0, 0 → 50\n  pct = 100 + rnd.gen_range(-error ..= error)             // (assert low<=high, 위반 시 panic)\n  evaluated_score = actual_score * pct / 100               // i32 sdiv (0 방향 절사)\n  return (evaluated_score >= required_score, evaluated_score, actual_score)   // L803",
+ "knobs": [
+  {
+   "what": "적 HP 구간 임계 3단",
+   "where": "passive_jungle.rs:748/750/752",
+   "value": "79/59/39",
+   "effect": "낮추면 더 높은 체력의 적도 갱 대상 점수가 양수가 됨(공격적). 80% 이상은 무조건 -40 시작"
+  },
+  {
+   "what": "적 HP 점수식 기저",
+   "where": "passive_jungle.rs:751/753/755",
+   "value": "80 / 80 / 90",
+   "effect": "올리면 같은 체력에서 점수 상승"
+  },
+  {
+   "what": "적↔타워 거리 3단",
+   "where": "passive_jungle.rs:762/764/766",
+   "value": "130000/160000/200000",
+   "effect": "올리면 타워 근처 적을 더 넓게 '타워 품'으로 봐 갱 억제"
+  },
+  {
+   "what": "타워 가감",
+   "where": "passive_jungle.rs:763/767/769/772",
+   "value": "-60/+20/+40/+35(타워 없음)",
+   "effect": "-60 을 줄이면 타워 다이브 갱 증가"
+  },
+  {
+   "what": "아군 HP 임계/가감",
+   "where": "passive_jungle.rs:777",
+   "value": "<50 → -30, >69 → +10",
+   "effect": ""
+  },
+  {
+   "what": "아군↔적 거리 임계/가감",
+   "where": "passive_jungle.rs:785",
+   "value": ">120000 → -25, <80000 → +15",
+   "effect": "아군이 적에게 붙어 있을수록 갱 선호"
+  },
+  {
+   "what": "수적 우위 보너스",
+   "where": "passive_jungle.rs:792",
+   "value": 20,
+   "effect": "allies+1 > enemies 일 때 가산"
+  },
+  {
+   "what": "수적 열세 컷",
+   "where": "passive_jungle.rs:724",
+   "value": "enemies > allies+1",
+   "effect": "완화하면 열세 갱도 평가 진행"
+  },
+  {
+   "what": "아군 라이너 최소 HP% 필터",
+   "where": "passive_jungle.rs:716",
+   "value": 40,
+   "effect": "올리면 저체력 아군이 있는 라인은 allies 가 비어 갱 자체 불가"
+  },
+  {
+   "what": "판단력 노이즈 폭",
+   "where": "utils.rs:484",
+   "value": "(1000-judgement)/20",
+   "effect": "judgement 낮을수록 ±% 폭 커짐(0 이면 ±50%). 상수 20 을 키우면 노이즈 감소"
+  }
+ ],
+ "unknown": [
+  "blackboard 인덱스 비대칭: closure#0 의 is_recent_visible 은 blackboard[1-team](적 팀 판) (m04.ll:66367~66370), line_allies 의 in_big_line 은 blackboard[team](자기 팀 판) (m01.ll:30760). 적팀 판 last_visible 을 자기 시점 가시성으로 쓰는 것이 의도인지는 Blackboard 갱신 코드(미탐색)로만 확정 가능 — IR 로는 인덱스 사실만 확정",
+  "min_by_key 의 첫 원소 키(dx²+dy²)는 본문에 인라인, 나머지 원소는 `Map::fold`(m12.ll 30690/30833) 호출로 처리 — 본문 인라인분과 동일 식임을 m12 define 이름(s2_0/s3_0)으로 추정, m12 본문은 안 읽음(range 밖·aux 미선언)",
+  "L764 분기(130k<=d<160k)는 본문 phi 에서 score 그대로(%181→%212) — 소스가 빈 블록인지 `score += 0` 인지는 표기 불가(외연 동일)",
+  "L750 `(80-ehp)>>1` 은 lshr(부호 없는 시프트) — 소스가 `/2` 인지 `>>1` 인지 표기 불가(60~79 구간에서 피연산자 양수라 외연 동일)",
+  "튜플 .1/.2 의 이름(evaluated_score/actual_score)은 dbg_value 이름 + 스토어 순서로 확정, 소스 변수명은 dbg 이름 그대로",
+  "iter_champions::closure0 본문(FilterMap of Option<&Entity>)은 m01.ll 40283 범위에 인라인된 `icmp eq ptr null` 로만 관측 — Some 필터 이외 조건 없음으로 읽음",
+  "gen_range 의 assert(low<=high, panic m04.ll:63677)은 error>=0 이라 항상 통과 — judgement > 1000 이면 usize 언더플로로 error 가 거대해져 i32 trunc 후 음수 가능성 있으나 judgement 값 범위는 미탐색"
+ ],
+ "calls_note": {
+  "from_iter_in": "2회 — line_enemies(Filter<FilterMap<Iter<Option<&Entity>>, iter_champions::closure0>, closure#0>, m04.ll:63071) / line_allies(Filter<FilterMap<Range<usize>, s_0>, s0_0, s1_0>, m04.ll:63105)",
+  "Map::fold": "min_by_key 의 나머지 원소 처리(L733 키 s2_0 / L738 키 s3_0 = dx²+dy²). 첫 원소 키는 본문 인라인(m04.ll:63263~63278)",
+  "Drop::drop / drop_glue": "bumpalo Vec<&Entity> 해제(line_enemies·line_allies)",
+  "is_near_line / is_recent_visible": "aux closure#0 call_mut 심(m04.ll:66359 / 66376)",
+  "in_big_line": "aux m01.ll:30772 (line_allies L714 필터)",
+  "reserve_internal_or_panic": "aux from_iter_in 내부 Vec 성장"
+ }
+}

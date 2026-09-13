@@ -1,0 +1,107 @@
+{
+ "name": "GoalData::update",
+ "sym": "_RNvMNtCshdEBA0ozCnw_7game_ai9goal_dataNtB2_8GoalData6update",
+ "src": "game-ai\\src\\goal_data.rs",
+ "src_line": 82,
+ "ir_file": "m09.ll",
+ "ir_from": 4395,
+ "ir_to": 5225,
+ "exe": "0xdccc60 (메인 제공 · 2888B · LegacyPlanHandler::update 0xe4c5c0 의 직접 콜리)",
+
+ "one_line": "매 평가마다 GoalData 상태 갱신: 힐 커밋(v2+) · 본진수비 틱 · 적 5명 리전 추적(5초 만료) · 에픽/세르펜 태세 갱신",
+
+ "signature": {
+   "params": [
+     {"i": 0, "name": "self", "type": "&mut GoalData(248B)", "note": "goal_data.rs:11 · enemy_region[5]@0x0(stride 24) · epic@0x78 · serpen@0xb0 · last_base_defense_tick@0xe8 · heal_commit@0xf0"},
+     {"i": 1, "name": "version", "type": "usize", "note": "AI 버전. update_heal_commit 인라인부(goal_data.rs:28)에서만 `version < 2 → 힐커밋 스킵`. 그 외 분기 없음"},
+     {"i": 2, "name": "rnd", "type": "&mut StdRng(320B)", "note": "readnone — 본문에서 안 읽음. 콜리 update_plan 에도 poison 으로 넘김"},
+     {"i": 3, "name": "player", "type": "&PlayerState(2528B)", "note": "info.team@0x930 · info.position@0x9c0 사용"},
+     {"i": 4, "name": "data", "type": "&OperationData(24B)", "note": "cache@0x0 · context@0x8"},
+     {"i": 5, "name": "debug", "type": "&mut DebugFrameData(224B)", "note": "ctx.debug 일 때만 add_log / +0xa0 HashMap<usize,Vec<String>> 에 문자열 push"}
+   ],
+   "returns": "() — 부수효과만(self 필드 갱신)"
+ },
+
+ "reads": [
+   {"base": "PlayerState", "offset": "0x930", "name": "info.team", "note": "player 및 iter_player 의 각 p (goal_data.rs:31,88,118)"},
+   {"base": "PlayerState", "offset": "0x9c0", "name": "info.position@tag(i32)", "note": "Position::as_index (entity.rs:581) → 0 Top/1 Jungle/2 Mid/3 Bottom/4 Support"},
+   {"base": "PlayerState", "offset": "0x9c8", "name": "play_state@tag", "note": "PlayerState::is_dead (player.rs:1660) = tag==0(Die). goal_data.rs:93"},
+   {"base": "OperationData", "offset": "0x0", "name": "cache", "note": "&AbstractGameWithCache"},
+   {"base": "OperationData", "offset": "0x8", "name": "context", "note": "&GameContext"},
+   {"base": "AbstractGameWithCache", "offset": "0x0", "name": "game(&dyn AbstractGame: data,vtable)", "note": "vtable+0x28 tick · +0xf8 is_visible · +0x208 iter_player (divtable 실측)"},
+   {"base": "AbstractGameWithCache", "offset": "0x1e0", "name": "player_champion[team][pos]", "note": "[[Option<&Entity>;5];2] — null=None. goal_data.rs:31,98,118"},
+   {"base": "GameContext", "offset": "0x8", "name": "setting", "note": "&GameSetting"},
+   {"base": "GameContext", "offset": "0x20", "name": "map", "note": "&MapDef"},
+   {"base": "GameContext", "offset": "0x3b", "name": "debug(bool)", "note": "goal_data.rs:51,117 — 디버그 로그 게이트"},
+   {"base": "GameSetting", "offset": "0x12f8", "name": "tick_per_second", "note": "goal_data.rs:108 (tps*5 만료)"},
+   {"base": "MapDef", "offset": "0x6d70", "name": "fountains[team] (lx,ly,rx,ry)", "note": "map_def.rs:235 fountain(team) — stride 32B, .0@+0 lx / .1@+8 ly / .2@+16 rx / .3@+24 ry. goal_data.rs:44"},
+   {"base": "MapDef", "offset": "0x38b8", "name": "regions[cy][cx]", "note": "[[usize;30];30] — regions[clamp(y/32000,0,29)][clamp(x/32000,0,29)]. goal_data.rs:101"},
+   {"base": "Entity", "offset": "0x5c0", "name": "id", "note": "적 챔피언 id → is_visible 인자 / 디버그 HashMap 키"},
+   {"base": "Entity", "offset": "0x660", "name": "x", "note": ""},
+   {"base": "Entity", "offset": "0x668", "name": "y", "note": ""},
+   {"base": "Entity", "offset": "0x670", "name": "hp", "note": "현재 HP"},
+   {"base": "Entity", "offset": "0x628", "name": "stat_cached.hp", "note": "최대 HP (hp_ratio 분모, max(.,1))"},
+   {"base": "GoalData", "offset": "0xf0", "name": "heal_commit(before)", "note": "goal_data.rs:35"},
+   {"base": "GoalData", "offset": "0x0", "name": "enemy_region[pos]@tag / +0x10 last_known", "note": "goal_data.rs:107 만료 검사 (stride 24)"},
+   {"base": "GoalData", "offset": "0x88", "name": "epic.{epic_enemy_tick,epic_enemy_killed_tick,epic_ally_tick,epic_ally_killed_tick}@0x88..0xa0 · epic.stance@0xa8 · serpen.stance@0xe0", "note": "디버그 출력 전용(goal_data.rs:121~126) — 판정에 안 쓰임"}
+ ],
+
+ "writes": [
+   {"base": "GoalData", "offset": "0xf0", "name": "heal_commit", "value": "0 / 1", "note": "★인라인 update_heal_commit(goal_data.rs:27~57). 0: champ None(:32) · nexus_final_stand(:36) · nexus_is_critical(:37) · before&&hp>=max_hp(:40) / 1: !before && in_heal_area && hp_ratio<36 && base_defense_focus(:47). 그 외 경로(before&&hp<max · !before 조건미충족)는 store 없음=값 유지"},
+   {"base": "GoalData", "offset": "0xe8", "name": "last_base_defense_tick", "value": "cache.game.tick()", "note": "goal_data.rs:84~85 — base_defense_focus(player,data)==true 일 때만"},
+   {"base": "GoalData", "offset": "0x0 + pos*24", "name": "enemy_region[pos]@tag", "value": "1(Some) 또는 0(None)", "note": "goal_data.rs:103~105 Some 기록(적 사망 or 가시) / :109 None(last_known+tps*5 < tick)"},
+   {"base": "GoalData", "offset": "0x8 + pos*24", "name": "enemy_region[pos].region", "value": "사망: team==0→0, else 26 / 생존·가시: map.regions[cy][cx]", "note": "goal_data.rs:95,101"},
+   {"base": "GoalData", "offset": "0x10 + pos*24", "name": "enemy_region[pos].last_known", "value": "cache.game.tick()", "note": "goal_data.rs:104"},
+   {"base": "GoalData", "offset": "0x78", "name": "epic(EpicStanceData 56B)", "value": "EpicStanceData::update_plan 콜리가 갱신", "note": "goal_data.rs:114 — self+0x78 을 self 로, GoalData 전체(self)를 enemy_region 인자로 넘김"},
+   {"base": "GoalData", "offset": "0xb0", "name": "serpen(SerpenStanceData 56B)", "value": "SerpenStanceData::update_plan 콜리가 갱신", "note": "goal_data.rs:115"},
+   {"base": "DebugFrameData", "offset": "0xa0", "name": "HashMap<usize(champ.id), Vec<String>>", "value": "epic_stance/serpen_stance/epic_*_tick 6줄", "note": "goal_data.rs:117~126 — ctx.debug && 내 champ Some 일 때만"}
+ ],
+
+ "constants": [
+   {"value": 2, "src_line": 28, "meaning": "version 게이트: version < 2 이면 update_heal_commit 전체 스킵(힐 커밋 없음)"},
+   {"value": 36, "src_line": 47, "meaning": "hp_ratio(%) < 36 이어야 힐 커밋 시작 (hp*100/max(max_hp,1))"},
+   {"value": 100, "src_line": 46, "meaning": "hp 백분율 계수 (hp*100/max_hp) — :46,:55 두 곳"},
+   {"value": 5, "src_line": 108, "meaning": "enemy_region 만료 = tps*5 (5초) — `mul i64 %tps, 5`; last_known + tps*5 < tick 이면 None"},
+   {"value": 32000, "src_line": 101, "meaning": "셀 크기(좌표→셀 변환) — 임계 아님"},
+   {"value": 29, "src_line": 101, "meaning": "셀 인덱스 clamp 상한 (30x30 격자)"},
+   {"value": 0, "src_line": 95, "meaning": "사망 적(team 0)의 리전 코드 = 0 (본진 리전 추정: 확정 근거 없음 — unknown 참조)"},
+   {"value": 26, "src_line": 95, "meaning": "사망 적(team 1)의 리전 코드 = 26 (본진 리전 추정: 확정 근거 없음)"}
+ ],
+
+ "calls": [
+   "game_ai::plan_legacy::old::defense_nexus::nexus_final_stand",
+   "game_ai::plan_legacy::old::defense_nexus::nexus_is_critical",
+   "game_ai::plan_legacy::old::defense_nexus::base_defense_focus",
+   "game_ai::goal_data::EpicStanceData::update_plan",
+   "game_ai::goal_data::SerpenStanceData::update_plan",
+   "game_core::simulation::game::frame::DebugFrameData::add_log",
+   "alloc::fmt::format_inner",
+   "hashbrown::map::HashMap::rustc_entry",
+   "hashbrown::raw::RawTable::insert_no_grow",
+   "alloc::raw_vec::RawVec::grow_one",
+   "core::panicking::panic_bounds_check"
+ ],
+
+ "vtable_calls": [
+   {"slot": "0x28", "name": "AbstractGame::tick", "src_line": "85,104,~108"},
+   {"slot": "0xf8", "name": "AbstractGame::is_visible(team, id)", "src_line": 99, "note": "인자 = (p.team=적 팀, echamp.id). World::is_visible(g07.ll:171554) = entity[id].visible_state[team]==Visible(0)"},
+   {"slot": "0x208", "name": "AbstractGame::iter_player() -> &[PlayerState]", "src_line": 87}
+ ],
+
+ "logic": "fn update(&mut self, version, _rnd, player, data, debug):\n  // ---- (A) update_heal_commit (goal_data.rs:27~57, 인라인) ----\n  if version >= 2 {                                   // :28  version<2 → 이 블록 전체 스킵\n    champ = cache.player_champion[player.team][player.pos]   // :31 (team>=2 → bounds panic)\n    if champ == None { self.heal_commit = false; }   // :32~33\n    else {\n      before = self.heal_commit                       // :35\n      if nexus_final_stand(player,data)      { new = false }   // :36\n      else if nexus_is_critical(player,data) { new = false }   // :37\n      else if before {                                          // :39\n        if champ.hp < champ.stat_cached.hp { (store 없음 = true 유지) } else { new = false }   // :40 풀피 도달 → 해제\n      } else {                                                  // :44\n        (lx,ly,rx,ry) = map.fountains[player.team]\n        in_heal_area = lx<=champ.x<=rx && ly<=champ.y<=ry      // :45\n        hp_ratio = champ.hp*100 / max(champ.stat_cached.hp,1)  // :46\n        if in_heal_area && hp_ratio < 36 && base_defense_focus(player,data) { new = true }   // :47 (&& 단락: base_defense_focus 는 앞 둘 통과 시만 호출)\n        else (store 없음 = false 유지)\n      }\n      if store 됐고 before != new && ctx.debug { debug.add_log(format!(\"HEALCOMMIT T{team} {pos:?} {start|end} hp={hp*100/max_hp}%\")) }  // :51~55\n    }\n  }\n  // ---- (B) 본진수비 틱 ----\n  if base_defense_focus(player,data) { self.last_base_defense_tick = tick() }   // :84~85\n  // ---- (C) 적 리전 추적 ----\n  for p in cache.game.iter_player() {                 // :87\n    if p.team == player.team { continue }            // :88 아군 스킵\n    pos = p.position.as_index()                       // :91\n    if p.is_dead() {                                  // :93 (play_state tag==0)\n      region = if p.team==0 {0} else {26}             // :95\n    } else {                                          // :98\n      echamp = cache.player_champion[p.team][pos]; if None → goto 만료검사\n      if !is_visible(p.team, echamp.id) → goto 만료검사      // :99\n      region = map.regions[min(echamp.y/32000,29)][min(echamp.x/32000,29)]   // :101\n    }\n    self.enemy_region[pos] = Some{region, last_known: tick()}   // :103~105\n    만료검사: if let Some(r)=self.enemy_region[pos] { if r.last_known + tps*5 < tick() { self.enemy_region[pos]=None } }   // :107~109\n  }\n  // ---- (D) 오브젝트 태세 ----\n  self.epic.update_plan(player, data, /*enemy_region=*/self, _)       // :114\n  self.serpen.update_plan(player, data, /*enemy_region=*/self, debug) // :115\n  // ---- (E) 디버그 ----\n  if ctx.debug { champ = player_champion[player.team][pos]; if Some → debug.map[champ.id].push(\"epic_stance: {}\",\"serpen_stance: {}\",\"epic_enemy_tick: {}\",\"epic_enemy_killed_tick: {}\",\"epic_ally_tick: {}\",\"epic_ally_killed_tick: {}\") }   // :117~126 (epic 쪽 4틱만 출력, serpen 틱은 미출력)",
+
+ "knobs": [
+   {"what": "힐 커밋 시작 HP%", "where": "goal_data.rs:47", "value": 36, "effect": "올리면 더 높은 HP 에서도 우물 힐 커밋을 걸어 풀피까지 우물에 머문다(본진수비 문맥+우물 안에서만). 내리면 커밋이 드물어진다"},
+   {"what": "적 위치 기억 만료(초)", "where": "goal_data.rs:108", "value": 5, "effect": "올리면 안 보인 적을 더 오래 '그 리전에 있다'고 가정 → EpicStance/SerpenStance 의 enemy_in_epic 판정(is_none_or)에서 None 취급이 늦어진다. 내리면 빨리 None(=적이 어디든 있을 수 있음)으로 돌아간다"},
+   {"what": "힐 커밋 버전 게이트", "where": "goal_data.rs:28", "value": 2, "effect": "v1 은 힐 커밋 자체가 없다"}
+ ],
+
+ "unknown": [
+   "사망 적 리전 코드 0/26 의 의미 — 팀별 본진 리전으로 추정되나 MapDef.regions 값표를 안 읽어 미확정(미탐색: MapDef 데이터 덤프 / region_centers[0],[26] 좌표 대조)",
+   "is_visible(team,id) 의 team 인덱스 의미 — World::is_visible(g07.ll:171567~171640)은 entity[id].visible_state[team]==Visible 인데, 이 함수는 (적 팀, 적 챔프 id) 로 부른다. visible_state[t] 가 '팀 t 소속 엔티티를 상대팀이 보는가'인지 '팀 t 가 보는가'인지는 game_core 시야 갱신 코드(미탐색) 확인 필요. SerpenStance/EpicStance 는 반대로 (내 팀, 오브젝트 id)로 부른다",
+   "goal_data.rs:107 의 만료 검사가 Some 기록 직후에도 실행되는 순서(IR 기준 :103~105 store 후 :107 load) — 소스가 별도 if 인지 같은 블록인지는 column 부재로 표기 불가(동작은 확정)",
+   "update_heal_commit 의 소스 표기(별도 fn 인지 메서드인지) — DISubprogram 이름만 확인(inlinedAt 루트 :83). 동작은 확정",
+   "constants 의 3/5 (\"end\"/\"start\" 문자열 길이 select i64 5, i64 3 · goal_data.rs:54) 는 판정 상수가 아니라 제외",
+   "debug HashMap 키가 Entity.id(+0x5c0)인 것은 rustc_entry 인자에서 확인, 값 Vec<String> 의 소비처는 미탐색"
+ ]
+}

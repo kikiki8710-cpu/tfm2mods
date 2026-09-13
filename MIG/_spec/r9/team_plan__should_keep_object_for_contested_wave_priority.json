@@ -1,0 +1,69 @@
+{
+ "name": "should_keep_object_for_contested_wave_priority",
+ "sym": "_RNvMs1_NtNtCshdEBA0ozCnw_7game_ai11plan_legacy9team_planNtB5_8TeamPlan46should_keep_object_for_contested_wave_priority",
+ "src": "game-ai\\src\\plan_legacy\\team_plan.rs",
+ "src_line": 586,
+ "ir_file": "m09.ll",
+ "ir_from": 37700,
+ "ir_to": 38191,
+ "exe_rva": "0xde03d0",
+
+ "one_line": "적이 에픽을 치는 중일 때, 건강(HP≥40%)한 아군+1 ≥ 건강한 적이면 웨이브 우선순위보다 오브젝트를 유지",
+
+ "signature": {
+   "params": [
+     {"i": 1, "name": "self", "type": "&TeamPlan", "note": "본문에서 직접 읽지 않음. is_object_being_taken_by_enemy 의 4번째(team_plan) 인자로 그대로 전달"},
+     {"i": 2, "name": "player", "type": "&PlayerState(2528B)", "note": "info.team(+0x930) 만 읽음"},
+     {"i": 3, "name": "data", "type": "&OperationData(24B)", "note": "+0 cache → player_champion(+0x1e0) / +8 context → tutorial(+0x38)"},
+     {"i": 4, "name": "goal_data", "type": "&GoalData(248B)", "note": "본문에서 읽지 않음. is_object_being_taken_by_enemy 에 전달만"},
+     {"i": 5, "name": "target", "type": "WavePriorityObject(i1)", "note": "0=Morgard / 1=Serpen (tcxdict --enum: Direct, idx=tag). true(Serpen)→serpen_exists, false(Morgard)→morgard_exists"}
+   ],
+   "returns": "bool — true=오브젝트 유지(웨이브 우선순위에 양보하지 않음)"
+ },
+
+ "reads": [
+   {"base": "OperationData", "offset": "0x8", "name": "context", "note": "&GameContext"},
+   {"base": "GameContext", "offset": "0x38", "name": "tutorial", "note": "TutorialType(i8) — 에픽/세르펜 스폰 여부 인라인 판정"},
+   {"base": "OperationData", "offset": "0x0", "name": "cache", "note": "&AbstractGameWithCache"},
+   {"base": "AbstractGameWithCache", "offset": "0x1e0", "name": "player_champion[0][0]", "note": "[[Option<&Entity>;5];2] (niche: null=None). [team] 5칸 = 아군, [1-team] 5칸 = 적. iter_champions(simulation.rs:1905) 인라인·언롤"},
+   {"base": "PlayerState", "offset": "0x930", "name": "info.team", "note": "<2 bounds check(panic_bounds_check 2). 적팀 = 1 - team"},
+   {"base": "Entity", "offset": "0x628", "name": "stat_cached.hp", "note": "최대 HP — 나눗수(0 이면 panic_const_div_by_zero)"},
+   {"base": "Entity", "offset": "0x670", "name": "hp", "note": "현재 HP"}
+ ],
+
+ "writes": [],
+
+ "constants": [
+   {"value": 6, "src_line": 588, "meaning": "morgard_exists 인라인(rule_scope.rs:46 → runner.rs:263 spawn_epic): `(tutorial-1) <u 6` → tutorial ∈ 1..=6 이면 에픽 없음 → false. target=Morgard 일 때만"},
+   {"value": 0, "src_line": 589, "meaning": "serpen_exists 인라인(rule_scope.rs:50 → runner.rs:267 spawn_serpen) switch case: tutorial ∈ {None0, MidBottom5, Line7, Total8} 이면 스폰. target=Serpen 일 때만. (0 은 또한 카운트 초기값·div0 검사값)"},
+   {"value": 5, "src_line": 589, "meaning": "TutorialType::MidBottom 태그 — serpen 스폰 허용 case (5 는 또한 player_champion 행 길이 [5 x ptr])"},
+   {"value": 7, "src_line": 589, "meaning": "TutorialType::Line 태그 — serpen 스폰 허용 case"},
+   {"value": 8, "src_line": 589, "meaning": "TutorialType::Total 태그 — serpen 스폰 허용 case"},
+   {"value": 2, "src_line": 597, "meaning": "팀 수 — player.info.team 의 bounds check 상한(임계 아님)"},
+   {"value": 100, "src_line": 597, "meaning": "HP 비율 백분율 계수: hp*100/stat_cached.hp"},
+   {"value": 39, "src_line": 597, "meaning": "건강 판정: hp*100/max_hp >u 39 (= HP 비율 ≥40%). 598 의 적 셈도 동일 값"},
+   {"value": 1, "src_line": 600, "meaning": "아군 보정: healthy_allies + 1 >= healthy_enemies (또한 적팀 인덱스 1-team 의 1)"}
+ ],
+
+ "calls": [
+   "game_ai::plan_legacy::team_plan::objective_helpers::is_object_being_taken_by_enemy",
+   "core::panicking::panic_const::panic_const_div_by_zero",
+   "core::panicking::panic_bounds_check"
+ ],
+
+ "logic": "fn should_keep_object_for_contested_wave_priority(&self, player, data, goal_data, target: WavePriorityObject) -> bool {\n  let ctx = data.context;\n  // 587~589: 대상 오브젝트가 이 판(튜토리얼 종류)에 존재하는가\n  let exists = match target {                                  // 587 (i1 %4 분기 m09.ll:37704)\n    Morgard(0) => morgard_exists(ctx),   // 588 — 인라인: !(ctx.tutorial ∈ 1..=6)      (m09.ll:37715~37717)\n    Serpen(1)  => serpen_exists(ctx),    // 589 — 인라인: ctx.tutorial ∈ {0,5,7,8}      (m09.ll:37707~37712)\n  };\n  if !exists { return false }\n  // 593: 적이 실제로 치는 중인가\n  if !is_object_being_taken_by_enemy(player, data, goal_data, self, target) { return false }   // m09.ll:37720~37721\n  // 597~598: 양 팀 건강 인원 셈 (iter_champions = cache.player_champion[team] 5칸 중 Some 만)\n  let team = player.info.team;                                  // <2 아니면 panic_bounds_check (m09.ll:37730~37731, 38188)\n  let healthy_allies  = iter_champions(team).filter(|e| e.hp*100 / e.stat_cached.hp > 39).count();    // 597 closure$0 — 5칸 언롤(m09.ll:37733~37828); max_hp==0 → div0 패닉\n  let healthy_enemies = iter_champions(1-team).filter(|e| e.hp*100 / e.stat_cached.hp > 39).count();  // 598 closure$1 — 5칸 언롤(m09.ll:37829~38180)\n  // 600: 판정\n  healthy_allies + 1 >= healthy_enemies                          // 600 (m09.ll:38183~38184 `%109+1 uge %195`)\n}\n\n극성 근거: %4(target) true → %10 블록의 serpen switch(tutorial 0/5/7/8 → 계속, default → false). false → %11 `(t-1)<u6` 참이면 %16(false). is_object_being_taken_by_enemy false → %16(false).",
+
+ "knobs": [
+   {"what": "건강 판정 HP% 하한", "where": "team_plan.rs:597~598", "value": 39,
+    "effect": "올리면(예 49) 저체력 인원이 양쪽 셈에서 빠짐. 아군·적 두 클로저에 각각 박혀 있어 둘 다 바꿔야 대칭 유지"},
+   {"what": "아군 보정 +1", "where": "team_plan.rs:600", "value": 1,
+    "effect": "0 으로 내리면 동수 이상일 때만 유지(적이 하나 더 많으면 양보), 올리면 열세에서도 유지"}
+ ],
+
+ "unknown": [
+   "597/598 의 비교식 소스 표기(`> 39` 인지 `>= 40` 인지) — 외연 동일, 표기 불가",
+   "597/598 이 iter_champions 인라인인지 player_champion 직접 순회인지 — dloc 루트가 simulation.rs:1905 iter_champions 를 가리켜 iter_champions(team) 가 유력. 두 클로저(closure$0/1)가 같은 식인지는 IR 동일(hp*100/max>39)로만 확인",
+   "is_object_being_taken_by_enemy 내부 — 담당 범위 밖(m15.ll:53833 define, 미독해). goal_data·self 는 그쪽에서만 소비됨",
+   "587 의 분기 표기(`match target` 인지 `if target == Serpen` 인지) — 표기 불가"
+ ]
+}

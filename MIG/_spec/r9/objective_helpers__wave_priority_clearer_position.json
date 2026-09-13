@@ -1,0 +1,73 @@
+{
+ "name": "wave_priority_clearer_position",
+ "sym": "_RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy9team_plan17objective_helpers30wave_priority_clearer_position",
+ "src": "game-ai\\src\\plan_legacy\\team_plan\\objective_helpers.rs",
+ "src_line": 245,
+ "ir_file": "m15.ll",
+ "ir_from": 54086,
+ "ir_to": 54632,
+ "aux": [
+  {"ir_file": "m12.ll", "ir_from": 5767, "ir_to": 5978, "note": "min_by_key 폴드 인스턴스 — closure#0(hp%>29 filter_map · (pos, dist_sq) 생성)·s_0(키=(dist,pos)) 잔여 원소 처리. 첫 원소 탐색은 본체에 5칸 언롤 인라인"}
+ ],
+
+ "one_line": "웨이브 우선 정리 담당 포지션 선정 — 적 미니언 중 우리 넥서스 최근접(없으면 라인 1차 타워 위치)에 가장 가까운 HP 30%+ 아군 포지션",
+
+ "signature": {
+  "params": [
+   {"i": 1, "name": "player", "type": "&PlayerState(2528B)", "note": "info.team(+0x930) 만 읽음"},
+   {"i": 2, "name": "data", "type": "&OperationData(24B)", "note": "cache(+0x0) 만 읽음"},
+   {"i": 3, "name": "line", "type": "LineType(i8)", "note": "0=Top 1=Mid 2=Bottom · line_minions 인덱스 및 폴백 타워 위치 선택. 3 이상이면 unreachable(L238 switch default)"}
+  ],
+  "returns": "Option<usize> ({tag, pos}) — Some(포지션 0..5) = 정리 담당 아군 / None = HP 30%+ 아군 챔피언 없음"
+ },
+
+ "reads": [
+  {"base": "PlayerState", "offset": "0x930", "name": "info.team", "note": "L246/258 · nexus[team] · enemy = 1-team · 폴백 타워 위치 팀 선택 · player_champion[team]"},
+  {"base": "OperationData", "offset": "0x0", "name": "cache", "note": ""},
+  {"base": "AbstractGameWithCache", "offset": "0x170", "name": "nexus[2]: Option<&Entity>", "note": "L258 (wave_priority_clear_target 인라인) · nexus[team] None 이면 폴백 위치"},
+  {"base": "AbstractGameWithCache", "offset": "0x10", "name": "top_minions[2] (bumpalo Vec<&Entity>: ptr+0x0 / len+0x18)", "note": "L259 line_minions(simulation.rs:1807) 인라인 — 오프셋 = 0x10 + line*0x40 + team*0x20 (line<<6|16 로 접힘) · [enemy_team]"},
+  {"base": "AbstractGameWithCache", "offset": "0x50", "name": "mid_minions[2]", "note": "line=1"},
+  {"base": "AbstractGameWithCache", "offset": "0x90", "name": "bottom_minions[2]", "note": "line=2 (tcxdict 로 0x10/0x50 확인, 0x90 은 stride 산술)"},
+  {"base": "AbstractGameWithCache", "offset": "0x1e0", "name": "player_champion[2][5]: Option<&Entity>", "note": "L249 [team][0..5]"},
+  {"base": "Entity", "offset": "0x660", "name": "x", "note": "L260 미니언↔넥서스 거리 · L261 target 좌표 · L251 아군↔target 거리"},
+  {"base": "Entity", "offset": "0x668", "name": "y", "note": "동상"},
+  {"base": "Entity", "offset": "0x628", "name": "stat_cached.hp (최대 HP)", "note": "L250 hp*100/stat_cached.hp · 0 이면 div_by_zero 패닉"},
+  {"base": "Entity", "offset": "0x670", "name": "hp (현재)", "note": "L250"}
+ ],
+
+ "writes": [],
+
+ "constants": [
+  {"value": 29, "src_line": 250, "meaning": "HP% 임계 — hp*100/max_hp > 29 (즉 30% 이상)인 아군 챔피언만 후보"},
+  {"value": 100, "src_line": 250, "meaning": "HP 백분율 계산 계수"},
+  {"value": 5, "src_line": 249, "meaning": "포지션 수 0..5 — 판정 아님"},
+  {"value": 2, "src_line": 258, "meaning": "팀 인덱스 bounds — 판정 아님. L238 switch 의 LineType 태그 2=Bottom. (QC C1 shl 경고는 `shl i8 %2, 6` 의 레지스터 %2 오매칭 — 시프트량 6 = line*0x40 stride 접힘, 판정 아님)"},
+  {"value": 1, "src_line": 259, "meaning": "enemy_team = 1 - team · L238 switch LineType 1=Mid · 반환 Some 태그 1"},
+  {"value": 0, "src_line": 265, "meaning": "team==0 (블루) 폴백 좌표 선택 · L238 switch LineType 0=Top · 반환 None 태그 0"},
+  {"value": 48000, "src_line": 239, "meaning": "폴백 Top 1차 타워 위치(first_tower_position→tower.rs:105 get_position 인라인): team0 (x=48000,y=272000) / team1 (x=272000,y=48000) — 1.5셀/8.5셀"},
+  {"value": 272000, "src_line": 239, "meaning": "동상(8.5셀)"},
+  {"value": 368000, "src_line": 240, "meaning": "폴백 Mid 1차 타워(tower.rs:110): team0 (368000,592000) / team1 (592000,368000) — 11.5셀/18.5셀"},
+  {"value": 592000, "src_line": 240, "meaning": "동상"},
+  {"value": 688000, "src_line": 241, "meaning": "폴백 Bottom 1차 타워(tower.rs:115): team0 (688000,912000) / team1 (912000,688000) — 21.5셀/28.5셀"},
+  {"value": 912000, "src_line": 241, "meaning": "동상"}
+ ],
+
+ "calls": [
+  "core::iter::adapters::map::fold",
+  "core::panicking::panic_bounds_check",
+  "core::panicking::panic_const::panic_const_div_by_zero"
+ ],
+
+ "logic": "fn wave_priority_clearer_position(player, data, line) -> Option<usize>\nlet team = player.info.team;\n// L246  target = wave_priority_clear_target(player, data, line)  — objective_helpers.rs:258~266 전부 인라인\n//   L258  let nexus = cache.nexus[team]                         // +0x170 · None → 폴백\n//   L259  let minions = cache.line_minions(line)[1 - team]      // simulation.rs:1807 · 0x10 + line*0x40 + enemy*0x20 (bumpalo Vec<&Entity>)\n//   L260  minions.iter().min_by_key(|m| dist_sq(m, nexus))      // closure wave_priority_clear_target0 (인라인) · 빈 목록 → None\n//   L261  Some(m) → target = (m.x, m.y)\n//   L265  None(넥서스 없음 | 적 미니언 없음) → target = first_tower_position(team, line):\n//         Top: team0 (48000,272000) / team1 (272000,48000)   Mid: team0 (368000,592000)/team1 (592000,368000)   Bottom: team0 (688000,912000)/team1 (912000,688000)\n// L249~253\n(0..5).filter_map(|pos| {\n    let c = cache.player_champion[team][pos]?;                 // L249\n    if !(c.hp * 100 / c.stat_cached.hp > 29) { return None; }  // L250 · max_hp==0 이면 div_by_zero 패닉\n    Some((pos, dist_sq(c, target)))                            // L251\n})\n.min_by_key(|&(pos, d)| (d, pos))                              // L253 · 키 = (거리², 포지션) — 동거리면 낮은 포지션\n.map(|(pos, _)| pos)                                           // L254~255",
+
+ "knobs": [
+  {"what": "정리 담당 후보 HP% 하한", "where": "objective_helpers.rs:250", "value": 29, "effect": "올리면 더 건강한 아군만 웨이브 정리에 배정(후보 줄어 None 잦아짐). 내리면 저체력 아군도 배정"}
+ ],
+
+ "unknown": [
+  "line_minions(simulation.rs:1807)·first_tower_position(objective_helpers.rs:238~241)·tower.rs get_position(105/110/115) 은 인라인 잔여로만 확인 — 원 본문 미독해",
+  "bottom_minions 오프셋 0x90 은 stride 산술(0x10+2*0x40) — tcxdict 로는 top(0x10)/mid(0x50) 만 직접 확인",
+  "L253 min_by_key 키가 (dist, pos) 튜플인 것은 망글 심볼 `keyTjyETyjE` + 폴드 초기상태 [dist,pos,pos,dist] 배치로 판정 — 동거리 타이브레이크가 pos 오름차순인 것은 튜플 비교 규칙 추론",
+  "line 인자 3 이상은 switch default → unreachable(UB) — LineType 이 3 variant 라 실제 도달 없음"
+ ]
+}

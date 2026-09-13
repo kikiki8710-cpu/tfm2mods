@@ -1,0 +1,89 @@
+{
+ "name": "should_recall_to_shop",
+ "sym": "_RNvCshdEBA0ozCnw_7game_ai21should_recall_to_shop",
+ "src": "game-ai\\src\\lib.rs",
+ "src_line": 1642,
+ "ir_file": "m14.ll",
+ "ir_from": 7070,
+ "ir_to": 7700,
+
+ "one_line": "상점 귀환 판정 — 에픽/세르펜 임박·can_recall 게이트 후, 다음 살 아이템(v26 슬롯 빌드경로) 가격을 골드가 넘는지",
+
+ "signature": {
+  "params": [
+   {"i": 1, "name": "version", "type": "usize", "note": "본문에서 안 읽음. buy_item/upgrade_item 에는 `poison` 으로 전달(그쪽도 version 미사용 추정)"},
+   {"i": 2, "name": "rnd", "type": "&mut StdRng", "note": "can_recall·buy_item·upgrade_item·random_item_* 로 전달"},
+   {"i": 3, "name": "player", "type": "&PlayerState(2528B)", "note": "info.items/item_builds/gold"},
+   {"i": 4, "name": "data", "type": "&OperationData(24B)", "note": "cache.game(get_game_mode) · context(setting.tps, item_list)"},
+   {"i": 5, "name": "goal_data", "type": "&GoalData", "note": "epic/serpen 의 epic_enemy_tick·epic_ally_tick 만 읽음"}
+  ],
+  "returns": "bool — true=지금 귀환해서 상점 가야 함"
+ },
+
+ "reads": [
+  {"base": "OperationData", "offset": "0x0", "name": "cache", "note": "L1648"},
+  {"base": "OperationData", "offset": "0x8", "name": "context", "note": "L1647/1664"},
+  {"base": "AbstractGameWithCache", "offset": "0x0", "name": "game (dyn data ptr)", "note": "L1648~1649 get_game_mode self"},
+  {"base": "AbstractGameWithCache", "offset": "0x8", "name": "game vtable", "note": "vtable+0x40 = get_game_mode (divtable AbstractGame 0x40) · 2회 호출"},
+  {"base": "GameContext", "offset": "0x8", "name": "setting", "note": "L1647"},
+  {"base": "GameContext", "offset": "0x30", "name": "item_list (&Vec<Box<dyn ItemInfo>>)", "note": "L1664 · +0x8 ptr / +0x10 len"},
+  {"base": "GameSetting", "offset": "0x12f8", "name": "tick_per_second", "note": "L1647 tps · tps*20 = 20초"},
+  {"base": "GameMode", "offset": "0x0", "name": "tag (0=Moba)", "note": "L1648~1649 · 0 이 아니면 None 취급(as_moba)"},
+  {"base": "GameMode", "offset": "0x8", "name": "Moba.0 (&MobaMode)", "note": "null 이면 None"},
+  {"base": "MobaMode", "offset": "0x1a8", "name": "jungle_runner.epic.live_list.len", "note": "L1648 epic_alive = len != 0"},
+  {"base": "MobaMode", "offset": "0x1d8", "name": "jungle_runner.serpen.live_list.len", "note": "L1649 serpen_alive = len != 0"},
+  {"base": "GoalData", "offset": "0x88", "name": "epic.epic_enemy_tick", "note": "L1650"},
+  {"base": "GoalData", "offset": "0x98", "name": "epic.epic_ally_tick", "note": "L1650 · min(둘) <= tps*20 이면 귀환 금지"},
+  {"base": "GoalData", "offset": "0xc0", "name": "serpen.epic_enemy_tick", "note": "L1651"},
+  {"base": "GoalData", "offset": "0xd0", "name": "serpen.epic_ally_tick", "note": "L1651"},
+  {"base": "PlayerState", "offset": "0x4e8", "name": "info.item_builds.ptr", "note": "L1674 · 빌드 아이템 인덱스 목록(usize)"},
+  {"base": "PlayerState", "offset": "0x4f0", "name": "info.item_builds.len", "note": "L1660 · 0 이면 buy_item/upgrade_item 경로"},
+  {"base": "PlayerState", "offset": "0x4a0", "name": "info.items.ptr", "note": "L1681/1692 · 인벤토리(원소 16B: Box<dyn ItemInfo> fat ptr)"},
+  {"base": "PlayerState", "offset": "0x4a8", "name": "info.items.len", "note": "L1681 inventory_index 범위 검사(get) / L1692"},
+  {"base": "PlayerState", "offset": "0x998", "name": "info.gold", "note": "L1695 gold >= price"},
+  {"base": "ItemInfo(vtable)", "offset": "0x50", "name": "is_active()", "note": "L1674 item_builds 필터 (divtable ItemInfo 0x50, 일치율 81%)"},
+  {"base": "ItemInfo(vtable)", "offset": "0x58", "name": "key() -> &String", "note": "L1682 random_item_next_toward_target 인자(ptr +8/len +16)"},
+  {"base": "ItemInfo(vtable)", "offset": "0x68", "name": "price() -> usize", "note": "L1695"},
+  {"base": "ItemInfo(vtable)", "offset": "0x70", "name": "tier() -> usize", "note": "L1692 · 활성템 3개 이상일 때 tier()==0 이면 false"}
+ ],
+
+ "writes": [],
+
+ "constants": [
+  {"value": 20, "src_line": 1650, "meaning": "tps*20 = 20초. 에픽/세르펜 생존 중이고 아군·적군 처치 예상틱 min 이 20초 이내면 귀환 안 함(L1650/1651)"},
+  {"value": 0, "src_line": 1648, "meaning": "GameMode 태그 0 = Moba (tcxdict --enum GameMode). L1660 item_builds.len==0 분기. L1692 tier()==0"},
+  {"value": 1, "src_line": 1661, "meaning": "buy_item 반환 Option<usize> Some 태그(=1) → true. L1680 inventory_index Some 태그"},
+  {"value": -1, "src_line": 1671, "meaning": "item_v26_slot 반환 Option<(usize,Option<usize>)> 외곽 None 니치 태그(+0x8 == -1) → false"},
+  {"value": 2, "src_line": 1692, "meaning": "active_inventory_item_indices(...).len() > 2 (활성 아이템 3개 이상) 이면 next_item.tier()==0 검사"},
+  {"value": 1152921504606846976, "src_line": 1692, "meaning": "2^60 — Vec len 상한 llvm.assume(컴파일러 아티팩트, 판정 아님)"}
+ ],
+
+ "calls": [
+  "game_ai::utils::can_recall",
+  "game_ai::buy_item",
+  "game_ai::upgrade_item",
+  "game_ai::AgentVerHamster::item_v26_slot",
+  "game_core::setting::item::random_item_build_path",
+  "game_core::setting::item::random_item_next_toward_target",
+  "core::iter::traits::collect::FromIterator::from_iter",
+  "core::ops::drop::Drop::drop",
+  "core::panicking::panic_bounds_check"
+ ],
+
+ "logic": "fn should_recall_to_shop(version, rnd, player, data, goal_data) -> bool\nlet tps = ctx.setting.tick_per_second;                                                  // L1647\nlet epic_alive   = game.get_game_mode().as_moba().map_or(false, |m| m.jungle_runner.epic.live_list.len()   != 0);   // L1648 (vtable+0x40, MobaMode+0x1a8)\nlet serpen_alive = game.get_game_mode().as_moba().map_or(false, |m| m.jungle_runner.serpen.live_list.len() != 0);   // L1649 (MobaMode+0x1d8)\nif epic_alive   && min(goal_data.epic.epic_ally_tick,   goal_data.epic.epic_enemy_tick)   <= tps*20 { return false; }   // L1650 (ugt 면 통과)\nif serpen_alive && min(goal_data.serpen.epic_ally_tick, goal_data.serpen.epic_enemy_tick) <= tps*20 { return false; }   // L1651\nif !utils::can_recall(rnd, player, data) { return false; }                                 // L1656\n\nif player.info.item_builds.len() == 0 {                                                   // L1660\n    if buy_item(_, rnd, player, _, _, ctx).is_some() { return true; }                       // L1661\n    return upgrade_item(_, rnd, player, _, _, ctx).is_some();                               // L1662/1666\n}\nlet item_list = &ctx.item_list;                                                            // L1664\nlet (build_slot, inventory_index) = item_v26_slot(player, item_list) else { return false };   // L1671~1672\n// L1674\nlet target = player.info.item_builds.iter().copied()\n    .filter(|&i| item_list.get(i).map_or(false, |it| it.is_active()))\n    .nth(build_slot) else { return false };\n// L1680~1687\nlet next_item = if let Some(inv_idx) = inventory_index {\n    let inv_item = player.info.items.get(inv_idx) else { return false };                     // L1681\n    random_item_next_toward_target(item_list, inv_item.key(), item_list[target].key(), rnd) else { return false }   // L1682\n} else {\n    let path = random_item_build_path(item_list, target, rnd) else { return false };         // L1687\n    if path.is_empty() { return false; }\n    path[0]\n};\n// L1692\nlet active: Vec<usize> = active_inventory_item_indices(player.info.items, item_list);   // from_iter 인라인\nif active.len() > 2 && item_list[next_item].tier() == 0 { return false; }              // [next_item] bounds 패닉 가능\n// L1695\nreturn player.info.gold >= item_list[next_item].price();",
+
+ "knobs": [
+  {"what": "오브젝트 임박 귀환 금지 창(초)", "where": "lib.rs:1650, 1651", "value": 20, "effect": "올리면 에픽/세르펜 처치 예상이 더 멀어도 귀환을 막음(귀환 빈도 감소). 0 이면 게이트 무력화"},
+  {"what": "활성 아이템 보유 상한", "where": "lib.rs:1692", "value": 2, "effect": "`> 2` 비교값. 올리면 활성템을 더 많이 들고도 tier0 아이템 사러 귀환 허용"}
+ ],
+
+ "unknown": [
+  "utils::can_recall(utils.rs:350) 본문은 범위 밖(별도 define 0xd36480) — 미독해",
+  "item_v26_slot(lib.rs:1125)·buy_item(1477)·upgrade_item(1603)·random_item_build_path·random_item_next_toward_target 내부 미독해",
+  "L1671 외곽 None 니치가 -1 로 보이는 이유(보통 2) — tcxdict --enum 으로 tuple Option 레이아웃 미확인. 로직엔 영향 없음(None→false)",
+  "L1692 `tier()==0` 의 게임적 의미(tier 0 = 기본 컴포넌트?) 미확인 — ItemInfo::tier 는 item.rs:437 `-> usize` 만 확인",
+  "ItemInfo vtable 슬롯 이름은 divtable 일치율 81% 기준 — is_active(0x50)/key(0x58)/price(0x68)/tier(0x70). key 는 active_inventory_item_indices 클로저(m14:58085)에서 문자열 비교에 쓰여 &String 반환 확인, price 는 gold 비교로 정합",
+  "L1674 필터가 is_active() 인 것이 소스 의도인지(빌드 목록 중 활성템만 셈) — IR 상 vtable+0x50 호출 사실만 기록",
+  "version(p1) 은 본문에서 읽지 않음 — 하위 호출에도 poison 전달"
+ ]
+}

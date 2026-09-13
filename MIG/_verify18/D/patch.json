@@ -1,0 +1,645 @@
+{
+ "round": 18,
+ "batch": "D",
+ "errors": [
+  {
+   "path": "/specs[74]/sig/params[0]/i",
+   "kind": "실오류",
+   "old": 0,
+   "new": 1,
+   "evidence": "규약 정본 07·15 = i 는 소스 시그니처 위치(1-based), sret 만 0. 이 함수는 `define void`(sret 없음): m09.ll:4395 `define void @…GoalData6update(… %0 … %5)` — #72·#73 은 이미 1..n 이고 #74~#76 만 0-기반이었다",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[74]/sig/params[1]/i",
+   "kind": "실오류",
+   "old": 1,
+   "new": 2,
+   "evidence": "규약 정본 07·15 = i 는 소스 시그니처 위치(1-based), sret 만 0. 이 함수는 `define void`(sret 없음): m09.ll:4395 `define void @…GoalData6update(… %0 … %5)` — #72·#73 은 이미 1..n 이고 #74~#76 만 0-기반이었다",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[74]/sig/params[2]/i",
+   "kind": "실오류",
+   "old": 2,
+   "new": 3,
+   "evidence": "규약 정본 07·15 = i 는 소스 시그니처 위치(1-based), sret 만 0. 이 함수는 `define void`(sret 없음): m09.ll:4395 `define void @…GoalData6update(… %0 … %5)` — #72·#73 은 이미 1..n 이고 #74~#76 만 0-기반이었다",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[74]/sig/params[3]/i",
+   "kind": "실오류",
+   "old": 3,
+   "new": 4,
+   "evidence": "규약 정본 07·15 = i 는 소스 시그니처 위치(1-based), sret 만 0. 이 함수는 `define void`(sret 없음): m09.ll:4395 `define void @…GoalData6update(… %0 … %5)` — #72·#73 은 이미 1..n 이고 #74~#76 만 0-기반이었다",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[74]/sig/params[4]/i",
+   "kind": "실오류",
+   "old": 4,
+   "new": 5,
+   "evidence": "규약 정본 07·15 = i 는 소스 시그니처 위치(1-based), sret 만 0. 이 함수는 `define void`(sret 없음): m09.ll:4395 `define void @…GoalData6update(… %0 … %5)` — #72·#73 은 이미 1..n 이고 #74~#76 만 0-기반이었다",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[74]/sig/params[5]/i",
+   "kind": "실오류",
+   "old": 5,
+   "new": 6,
+   "evidence": "규약 정본 07·15 = i 는 소스 시그니처 위치(1-based), sret 만 0. 이 함수는 `define void`(sret 없음): m09.ll:4395 `define void @…GoalData6update(… %0 … %5)` — #72·#73 은 이미 1..n 이고 #74~#76 만 0-기반이었다",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[75]/sig/params[0]/i",
+   "kind": "실오류",
+   "old": 0,
+   "new": 1,
+   "evidence": "규약 정본 07·15 = i 는 소스 시그니처 위치(1-based), sret 만 0. 이 함수는 `define void`(sret 없음): m09.ll:22178 `define void @…SerpenStanceData11update_plan(… %0 … %6)` — #72·#73 은 이미 1..n 이고 #74~#76 만 0-기반이었다",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[75]/sig/params[1]/i",
+   "kind": "실오류",
+   "old": 1,
+   "new": 2,
+   "evidence": "규약 정본 07·15 = i 는 소스 시그니처 위치(1-based), sret 만 0. 이 함수는 `define void`(sret 없음): m09.ll:22178 `define void @…SerpenStanceData11update_plan(… %0 … %6)` — #72·#73 은 이미 1..n 이고 #74~#76 만 0-기반이었다",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[75]/sig/params[2]/i",
+   "kind": "실오류",
+   "old": 2,
+   "new": 3,
+   "evidence": "규약 정본 07·15 = i 는 소스 시그니처 위치(1-based), sret 만 0. 이 함수는 `define void`(sret 없음): m09.ll:22178 `define void @…SerpenStanceData11update_plan(… %0 … %6)` — #72·#73 은 이미 1..n 이고 #74~#76 만 0-기반이었다",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[75]/sig/params[3]/i",
+   "kind": "실오류",
+   "old": 3,
+   "new": 4,
+   "evidence": "규약 정본 07·15 = i 는 소스 시그니처 위치(1-based), sret 만 0. 이 함수는 `define void`(sret 없음): m09.ll:22178 `define void @…SerpenStanceData11update_plan(… %0 … %6)` — #72·#73 은 이미 1..n 이고 #74~#76 만 0-기반이었다",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[75]/sig/params[4]/i",
+   "kind": "실오류",
+   "old": 4,
+   "new": 5,
+   "evidence": "규약 정본 07·15 = i 는 소스 시그니처 위치(1-based), sret 만 0. 이 함수는 `define void`(sret 없음): m09.ll:22178 `define void @…SerpenStanceData11update_plan(… %0 … %6)` — #72·#73 은 이미 1..n 이고 #74~#76 만 0-기반이었다",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[75]/sig/params[5]/i",
+   "kind": "실오류",
+   "old": 5,
+   "new": 6,
+   "evidence": "규약 정본 07·15 = i 는 소스 시그니처 위치(1-based), sret 만 0. 이 함수는 `define void`(sret 없음): m09.ll:22178 `define void @…SerpenStanceData11update_plan(… %0 … %6)` — #72·#73 은 이미 1..n 이고 #74~#76 만 0-기반이었다",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[75]/sig/params[6]/i",
+   "kind": "실오류",
+   "old": 6,
+   "new": 7,
+   "evidence": "규약 정본 07·15 = i 는 소스 시그니처 위치(1-based), sret 만 0. 이 함수는 `define void`(sret 없음): m09.ll:22178 `define void @…SerpenStanceData11update_plan(… %0 … %6)` — #72·#73 은 이미 1..n 이고 #74~#76 만 0-기반이었다",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[76]/sig/params[0]/i",
+   "kind": "실오류",
+   "old": 0,
+   "new": 1,
+   "evidence": "규약 정본 07·15 = i 는 소스 시그니처 위치(1-based), sret 만 0. 이 함수는 `define void`(sret 없음): m09.ll:41134 `define void @…EpicStanceData11update_plan(… %0 … %6)` — #72·#73 은 이미 1..n 이고 #74~#76 만 0-기반이었다",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[76]/sig/params[1]/i",
+   "kind": "실오류",
+   "old": 1,
+   "new": 2,
+   "evidence": "규약 정본 07·15 = i 는 소스 시그니처 위치(1-based), sret 만 0. 이 함수는 `define void`(sret 없음): m09.ll:41134 `define void @…EpicStanceData11update_plan(… %0 … %6)` — #72·#73 은 이미 1..n 이고 #74~#76 만 0-기반이었다",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[76]/sig/params[2]/i",
+   "kind": "실오류",
+   "old": 2,
+   "new": 3,
+   "evidence": "규약 정본 07·15 = i 는 소스 시그니처 위치(1-based), sret 만 0. 이 함수는 `define void`(sret 없음): m09.ll:41134 `define void @…EpicStanceData11update_plan(… %0 … %6)` — #72·#73 은 이미 1..n 이고 #74~#76 만 0-기반이었다",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[76]/sig/params[3]/i",
+   "kind": "실오류",
+   "old": 3,
+   "new": 4,
+   "evidence": "규약 정본 07·15 = i 는 소스 시그니처 위치(1-based), sret 만 0. 이 함수는 `define void`(sret 없음): m09.ll:41134 `define void @…EpicStanceData11update_plan(… %0 … %6)` — #72·#73 은 이미 1..n 이고 #74~#76 만 0-기반이었다",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[76]/sig/params[4]/i",
+   "kind": "실오류",
+   "old": 4,
+   "new": 5,
+   "evidence": "규약 정본 07·15 = i 는 소스 시그니처 위치(1-based), sret 만 0. 이 함수는 `define void`(sret 없음): m09.ll:41134 `define void @…EpicStanceData11update_plan(… %0 … %6)` — #72·#73 은 이미 1..n 이고 #74~#76 만 0-기반이었다",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[76]/sig/params[5]/i",
+   "kind": "실오류",
+   "old": 5,
+   "new": 6,
+   "evidence": "규약 정본 07·15 = i 는 소스 시그니처 위치(1-based), sret 만 0. 이 함수는 `define void`(sret 없음): m09.ll:41134 `define void @…EpicStanceData11update_plan(… %0 … %6)` — #72·#73 은 이미 1..n 이고 #74~#76 만 0-기반이었다",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[76]/sig/params[6]/i",
+   "kind": "실오류",
+   "old": 6,
+   "new": 7,
+   "evidence": "규약 정본 07·15 = i 는 소스 시그니처 위치(1-based), sret 만 0. 이 함수는 `define void`(sret 없음): m09.ll:41134 `define void @…EpicStanceData11update_plan(… %0 … %6)` — #72·#73 은 이미 1..n 이고 #74~#76 만 0-기반이었다",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[75]/sig/params[2]/type",
+   "kind": "실오류",
+   "old": "ptr",
+   "new": "&mut StdRng(320B)",
+   "evidence": "tcx sig `&mut rand::rngs::std::StdRng` · m09.ll:22178 `%2 = ptr noalias readnone align 16 captures(none)`(readnone 이라 dereferenceable(320) 표식이 빠졌을 뿐 타입은 &mut StdRng)",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[76]/sig/params[2]/type",
+   "kind": "실오류",
+   "old": "ptr",
+   "new": "&mut StdRng(320B)",
+   "evidence": "tcx sig `&mut rand::rngs::std::StdRng` · m09.ll:41134 `%2 = ptr noalias readnone align 16 captures(none)`",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[76]/sig/params[6]/type",
+   "kind": "실오류",
+   "old": "ptr",
+   "new": "&mut DebugFrameData(224B)",
+   "evidence": "tcx sig `&mut game_core::DebugFrameData` · m09.ll:41134 `%6 = ptr noalias readnone align 8 captures(none)` (호출자 m09.ll:4711 이 `ptr noalias nonnull align 8 poison` 으로 넘김 — 미사용이지만 타입은 &mut DebugFrameData)",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[75]/mem[26]/name",
+   "kind": "보강",
+   "old": "region_dist[a][2] (=region_dist@0x54d8 + 2*8)",
+   "new": "region_dist[a][2] col2 (=region_dist@0x54d8 + 2*8)",
+   "evidence": "tcxdict MapDef 0x54e8 = `region_dist[0][2]` · 0x5510 = `region_dist[0][7]` (region_dist@0x54d8 [[usize;27];27]) — 두 값 모두 옳고 같은 배열의 다른 열이다. sharedchk.norm_name 이 첨자 값을 `[]` 로 지워 `region_dist[][]` 로 같아지므로 첨자 밖에 `col2`/`col7` 를 붙여 판별력을 준다",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[76]/mem[22]/name",
+   "kind": "보강",
+   "old": "region_dist[a][7] (=region_dist@0x54d8 + 7*8)",
+   "new": "region_dist[a][7] col7 (=region_dist@0x54d8 + 7*8)",
+   "evidence": "tcxdict MapDef 0x54e8 = `region_dist[0][2]` · 0x5510 = `region_dist[0][7]` (region_dist@0x54d8 [[usize;27];27]) — 두 값 모두 옳고 같은 배열의 다른 열이다. sharedchk.norm_name 이 첨자 값을 `[]` 로 지워 `region_dist[][]` 로 같아지므로 첨자 밖에 `col2`/`col7` 를 붙여 판별력을 준다",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[75]/mem[26]/note",
+   "kind": "보강",
+   "old": "리전 2 = 세르펜 리전(추정)",
+   "new": "리전 2 = Serpen 리전 — 확정(tcxdict MapDef 0x54e8=region_dist[0][2] · shared.맵_좌표계 regions[21][21]=2 · region_centers[2]=(688941,688941) · _gcbc/g07.ll:276~278 정적 전역 재계산)",
+   "evidence": "정적 전역 재계산(_gcbc/g07.ll:276 regions `.270` · :277 region_dist `.271` · :278 region_centers `.272`, scratch v18D/mapglob.py): regions[21][21]=2 · region_centers[2]=(688941,688941)=셀(21,21) 중심 / regions[9][9]=7 · region_centers[7]=(294683,297518) / regions[27][3]=0(블루 넥서스 셀) · regions[3][27]=26(레드 넥서스 셀). v2 shared.맵_좌표계 와 일치",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[76]/mem[22]/note",
+   "kind": "보강",
+   "old": "리전 7 = 에픽 리전(추정)",
+   "new": "리전 7 = Morgard(에픽) 리전 — 확정(tcxdict MapDef 0x5510=region_dist[0][7] · shared.맵_좌표계 regions[9][9]=7 · region_centers[7]=(294683,297518) · _gcbc/g07.ll:276~278 정적 전역 재계산)",
+   "evidence": "정적 전역 재계산(_gcbc/g07.ll:276 regions `.270` · :277 region_dist `.271` · :278 region_centers `.272`, scratch v18D/mapglob.py): regions[21][21]=2 · region_centers[2]=(688941,688941)=셀(21,21) 중심 / regions[9][9]=7 · region_centers[7]=(294683,297518) / regions[27][3]=0(블루 넥서스 셀) · regions[3][27]=26(레드 넥서스 셀). v2 shared.맵_좌표계 와 일치",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[75]/consts[3]/meaning",
+   "kind": "보강",
+   "old": "리전 id 2 = 세르펜 리전(추정) — region_center(2)(closure#4 :446) / region_dist(·,2)(closure#8/#9 :494,:500)",
+   "new": "리전 인덱스 2 = Serpen 리전 — 확정(shared.맵_좌표계: 정적 전역 _gcbc/g07.ll:276 regions[21][21]=2 · :278 region_centers[2]=(688941,688941)). region_center(2)(closure#4 :446, gep +27584/+27592 로 접힘) / region_dist(·,2)(closure#8/#9 :494,:500, gep +21736)",
+   "evidence": "정적 전역 재계산(_gcbc/g07.ll:276 regions `.270` · :277 region_dist `.271` · :278 region_centers `.272`, scratch v18D/mapglob.py): regions[21][21]=2 · region_centers[2]=(688941,688941)=셀(21,21) 중심 / regions[9][9]=7 · region_centers[7]=(294683,297518) / regions[27][3]=0(블루 넥서스 셀) · regions[3][27]=26(레드 넥서스 셀). v2 shared.맵_좌표계 와 일치",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[76]/consts[1]/meaning",
+   "kind": "보강",
+   "old": "리전 id 7 = 에픽 리전(추정) — region_dist(·,7)·region_center(7) 의 b 인자 (aux + 본문 closure#6/#7)",
+   "new": "리전 인덱스 7 = Morgard(에픽) 리전 — 확정(shared.맵_좌표계: 정적 전역 _gcbc/g07.ll:276 regions[9][9]=7 · :278 region_centers[7]=(294683,297518)). region_dist(·,7)·region_center(7) 의 b 인자 (aux closure#2 m09.ll:66232 gep +21776 · 본문 closure#6/#7)",
+   "evidence": "정적 전역 재계산(_gcbc/g07.ll:276 regions `.270` · :277 region_dist `.271` · :278 region_centers `.272`, scratch v18D/mapglob.py): regions[21][21]=2 · region_centers[2]=(688941,688941)=셀(21,21) 중심 / regions[9][9]=7 · region_centers[7]=(294683,297518) / regions[27][3]=0(블루 넥서스 셀) · regions[3][27]=26(레드 넥서스 셀). v2 shared.맵_좌표계 와 일치",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[74]/consts[6]/meaning",
+   "kind": "보강",
+   "old": "사망 적(team 0)의 리전 코드 = 0 (본진 리전 추정: 확정 근거 없음 — unknown 참조)",
+   "new": "사망 적(team 0)의 리전 코드 = 0 = 블루(team0) 본진 리전 — 확정(정적 전역 _gcbc/g07.ll:276 regions[27][3]=0 = 블루 넥서스 셀 · 스타트 위치 셀 regions[25][2]=0 · region_centers[0]=(128000,832000)). 태그 아님 — 리전 인덱스값",
+   "evidence": "정적 전역 재계산(_gcbc/g07.ll:276 regions `.270` · :277 region_dist `.271` · :278 region_centers `.272`, scratch v18D/mapglob.py): regions[21][21]=2 · region_centers[2]=(688941,688941)=셀(21,21) 중심 / regions[9][9]=7 · region_centers[7]=(294683,297518) / regions[27][3]=0(블루 넥서스 셀) · regions[3][27]=26(레드 넥서스 셀). v2 shared.맵_좌표계 와 일치",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[74]/consts[7]/meaning",
+   "kind": "보강",
+   "old": "사망 적(team 1)의 리전 코드 = 26 (본진 리전 추정: 확정 근거 없음)",
+   "new": "사망 적(team 1)의 리전 코드 = 26 = 레드(team1) 본진 리전 — 확정(정적 전역 _gcbc/g07.ll:276 regions[3][27]=26 = 레드 넥서스 셀 · region_centers[26]=(832000,128000)). 리전 인덱스값(사망 적은 본진에 있다고 가정)",
+   "evidence": "정적 전역 재계산(_gcbc/g07.ll:276 regions `.270` · :277 region_dist `.271` · :278 region_centers `.272`, scratch v18D/mapglob.py): regions[21][21]=2 · region_centers[2]=(688941,688941)=셀(21,21) 중심 / regions[9][9]=7 · region_centers[7]=(294683,297518) / regions[27][3]=0(블루 넥서스 셀) · regions[3][27]=26(레드 넥서스 셀). v2 shared.맵_좌표계 와 일치",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[75]/logic",
+   "kind": "실오류",
+   "old": "distance_sq(serpen) < 150000²",
+   "new": "distance_sq(serpen) <= 150000²",
+   "evidence": "m09.ll:65731 `%43 = icmp ult i64 %42, 22500000001` (closure#2, !55272=goal_data.rs:430) · m09.ll:65946 `%84 = icmp ult i64 %83, 22500000001` (closure#4, !55465=:452) — dist_sq < 150000²+1 ⟺ dist_sq ≤ 150000². 명세 logic 의 `< 150000²` 는 경계값(정확히 150000)에서 어긋난다",
+   "behavior_change": true,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[75]/consts[1]/meaning",
+   "kind": "보강",
+   "old": "150000² + 1 — 아군(closure#2 :430)·적(closure#4 내부 :452) 이 세르펜 150k(≈4.7셀) 안이면 in_epic (aux)",
+   "new": "임계 150000²+1 — `icmp ult %42, 22500000001`(m09.ll:65731 closure#2 :430) · `icmp ult %83, 22500000001`(m09.ll:65946 closure#4 :452) = dist_sq ≤ 150000²: 아군·적이 세르펜 150k(≈4.7셀) 이내(경계 포함)면 in_epic (aux)",
+   "evidence": "m09.ll:65731 `%43 = icmp ult i64 %42, 22500000001` (closure#2, !55272=goal_data.rs:430) · m09.ll:65946 `%84 = icmp ult i64 %83, 22500000001` (closure#4, !55465=:452) — dist_sq < 150000²+1 ⟺ dist_sq ≤ 150000². 명세 logic 의 `< 150000²` 는 경계값(정확히 150000)에서 어긋난다",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[74]/logic",
+   "kind": "실오류",
+   "old": "if in_heal_area && hp_ratio < 36 && base_defense_focus(player,data) { new = true }   // :47 (&& 단락: base_defense_focus 는 앞 둘 통과 시만 호출)",
+   "new": "if !in_heal_area && hp_ratio < 36 && base_defense_focus(player,data) { new = true }   // :47 ★우물 밖에서만(IR %80/%89 분기) (&& 단락: base_defense_focus 는 앞 둘 통과 시만 호출)",
+   "evidence": "m09.ll:4518~4519 `%73 = and i1 %71,%72`(lx≤x≤rx) `br i1 %73, %74, %80` · :4527~4528 `%79 = icmp ult y, ly` `br %79, %80, %89` · 블록 %80 = 사각형 밖: :4531 `#dbg_value(i8 0, !12362)`(!12362 = DILocalVariable name \"in_heal_area\" line 45) 인데 :4542~4543 `%88 = icmp ult i64 %87, 36` `br i1 %88, label %100, label %158` 로 hp_ratio<36 이면 그대로 %100 으로 간다 · 블록 %89: :4555 `%96 = icmp ugt i64 %78, %68`(y>ry = 밖) · :4556 `#dbg_value(i1 %96, !12362, DW_OP_not)`(in_heal_area = !%96) · :4560~4561 `%99 = and i1 %96, %98` `br i1 %99, label %100, label %158` — 즉 **in_heal_area 가 거짓일 때만** %100 · :4564~4565 %100 = base_defense_focus → %102 · :4568 `%103 = phi i8 [0,%43],[1,%100],[0,%47],[0,%51]` :4569 `store i8 %103, ptr %41`(%41 = self+240 = heal_commit@0xf0). ⟹ 힐 커밋 시작 조건은 `!in_heal_area && hp_ratio<36 && base_defense_focus`(우물 **밖**에서 저체력 → 우물 복귀 커밋). 오라클은 base_defense_focus 가 TLS 메모 HashMap(비트 0|16) 경유라 세계 조립이 필요해 미실행(2회 규칙)",
+   "behavior_change": true,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[74]/mem[21]/note",
+   "kind": "실오류",
+   "old": "1: !before && in_heal_area && hp_ratio<36 && base_defense_focus(:47)",
+   "new": "1: !before && !in_heal_area && hp_ratio<36 && base_defense_focus(:47) — m09.ll:4568~4569 phi [1,%100] · %100 은 in_heal_area 거짓 분기(%80·%89)에서만 도달",
+   "evidence": "m09.ll:4518~4519 `%73 = and i1 %71,%72`(lx≤x≤rx) `br i1 %73, %74, %80` · :4527~4528 `%79 = icmp ult y, ly` `br %79, %80, %89` · 블록 %80 = 사각형 밖: :4531 `#dbg_value(i8 0, !12362)`(!12362 = DILocalVariable name \"in_heal_area\" line 45) 인데 :4542~4543 `%88 = icmp ult i64 %87, 36` `br i1 %88, label %100, label %158` 로 hp_ratio<36 이면 그대로 %100 으로 간다 · 블록 %89: :4555 `%96 = icmp ugt i64 %78, %68`(y>ry = 밖) · :4556 `#dbg_value(i1 %96, !12362, DW_OP_not)`(in_heal_area = !%96) · :4560~4561 `%99 = and i1 %96, %98` `br i1 %99, label %100, label %158` — 즉 **in_heal_area 가 거짓일 때만** %100 · :4564~4565 %100 = base_defense_focus → %102 · :4568 `%103 = phi i8 [0,%43],[1,%100],[0,%47],[0,%51]` :4569 `store i8 %103, ptr %41`(%41 = self+240 = heal_commit@0xf0). ⟹ 힐 커밋 시작 조건은 `!in_heal_area && hp_ratio<36 && base_defense_focus`(우물 **밖**에서 저체력 → 우물 복귀 커밋). 오라클은 base_defense_focus 가 TLS 메모 HashMap(비트 0|16) 경유라 세계 조립이 필요해 미실행(2회 규칙)",
+   "behavior_change": true,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[74]/knobs[0]/effect",
+   "kind": "실오류",
+   "old": "올리면 더 높은 HP 에서도 우물 힐 커밋을 걸어 풀피까지 우물에 머문다(본진수비 문맥+우물 안에서만). 내리면 커밋이 드물어진다",
+   "new": "올리면 더 높은 HP 에서도 힐 커밋(우물 복귀 후 풀피까지 대기)이 걸린다 — 조건은 본진수비 문맥(base_defense_focus)+**우물 밖**에 있을 때(우물 안이면 커밋을 새로 걸지 않는다). 내리면 커밋이 드물어진다",
+   "evidence": "m09.ll:4518~4519 `%73 = and i1 %71,%72`(lx≤x≤rx) `br i1 %73, %74, %80` · :4527~4528 `%79 = icmp ult y, ly` `br %79, %80, %89` · 블록 %80 = 사각형 밖: :4531 `#dbg_value(i8 0, !12362)`(!12362 = DILocalVariable name \"in_heal_area\" line 45) 인데 :4542~4543 `%88 = icmp ult i64 %87, 36` `br i1 %88, label %100, label %158` 로 hp_ratio<36 이면 그대로 %100 으로 간다 · 블록 %89: :4555 `%96 = icmp ugt i64 %78, %68`(y>ry = 밖) · :4556 `#dbg_value(i1 %96, !12362, DW_OP_not)`(in_heal_area = !%96) · :4560~4561 `%99 = and i1 %96, %98` `br i1 %99, label %100, label %158` — 즉 **in_heal_area 가 거짓일 때만** %100 · :4564~4565 %100 = base_defense_focus → %102 · :4568 `%103 = phi i8 [0,%43],[1,%100],[0,%47],[0,%51]` :4569 `store i8 %103, ptr %41`(%41 = self+240 = heal_commit@0xf0). ⟹ 힐 커밋 시작 조건은 `!in_heal_area && hp_ratio<36 && base_defense_focus`(우물 **밖**에서 저체력 → 우물 복귀 커밋). 오라클은 base_defense_focus 가 TLS 메모 HashMap(비트 0|16) 경유라 세계 조립이 필요해 미실행(2회 규칙)",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[75]/mem[37]/base",
+   "kind": "보강",
+   "old": "EnemyRegionInfo(enemy_region[p])",
+   "new": "GoalData.enemy_region[p]",
+   "evidence": "tcxdict GoalData --deep: 0x0 enemy_region[0]@tag(8B) · 0x8 enemy_region[0]@Some.0.region · 0x10 enemy_region[0]@Some.0.last_known (stride 24). base `EnemyRegionInfo`(16B: region@0, last_known@8)는 Option 밖 구조체라 tcxaudit 이 오귀속을 냈다 — D9-OFF 규칙 2(컨테이너 원소 → `GoalData.enemy_region[p]`)로 내리면 tcxaudit OK(3/3 실측)",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[75]/mem[38]/base",
+   "kind": "보강",
+   "old": "EnemyRegionInfo(enemy_region[p])",
+   "new": "GoalData.enemy_region[p]",
+   "evidence": "tcxdict GoalData --deep: 0x0 enemy_region[0]@tag(8B) · 0x8 enemy_region[0]@Some.0.region · 0x10 enemy_region[0]@Some.0.last_known (stride 24). base `EnemyRegionInfo`(16B: region@0, last_known@8)는 Option 밖 구조체라 tcxaudit 이 오귀속을 냈다 — D9-OFF 규칙 2(컨테이너 원소 → `GoalData.enemy_region[p]`)로 내리면 tcxaudit OK(3/3 실측)",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[75]/mem[39]/base",
+   "kind": "보강",
+   "old": "EnemyRegionInfo(enemy_region[p])",
+   "new": "GoalData.enemy_region[p]",
+   "evidence": "tcxdict GoalData --deep: 0x0 enemy_region[0]@tag(8B) · 0x8 enemy_region[0]@Some.0.region · 0x10 enemy_region[0]@Some.0.last_known (stride 24). base `EnemyRegionInfo`(16B: region@0, last_known@8)는 Option 밖 구조체라 tcxaudit 이 오귀속을 냈다 — D9-OFF 규칙 2(컨테이너 원소 → `GoalData.enemy_region[p]`)로 내리면 tcxaudit OK(3/3 실측)",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[76]/mem[26]/base",
+   "kind": "보강",
+   "old": "EnemyRegionInfo(enemy_region[p])",
+   "new": "GoalData.enemy_region[p]",
+   "evidence": "tcxdict GoalData --deep: 0x0 enemy_region[0]@tag(8B) · 0x8 enemy_region[0]@Some.0.region · 0x10 enemy_region[0]@Some.0.last_known (stride 24). base `EnemyRegionInfo`(16B: region@0, last_known@8)는 Option 밖 구조체라 tcxaudit 이 오귀속을 냈다 — D9-OFF 규칙 2(컨테이너 원소 → `GoalData.enemy_region[p]`)로 내리면 tcxaudit OK(3/3 실측)",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[76]/mem[27]/base",
+   "kind": "보강",
+   "old": "EnemyRegionInfo(enemy_region[p])",
+   "new": "GoalData.enemy_region[p]",
+   "evidence": "tcxdict GoalData --deep: 0x0 enemy_region[0]@tag(8B) · 0x8 enemy_region[0]@Some.0.region · 0x10 enemy_region[0]@Some.0.last_known (stride 24). base `EnemyRegionInfo`(16B: region@0, last_known@8)는 Option 밖 구조체라 tcxaudit 이 오귀속을 냈다 — D9-OFF 규칙 2(컨테이너 원소 → `GoalData.enemy_region[p]`)로 내리면 tcxaudit OK(3/3 실측)",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[76]/mem[28]/base",
+   "kind": "보강",
+   "old": "EnemyRegionInfo(enemy_region[p])",
+   "new": "GoalData.enemy_region[p]",
+   "evidence": "tcxdict GoalData --deep: 0x0 enemy_region[0]@tag(8B) · 0x8 enemy_region[0]@Some.0.region · 0x10 enemy_region[0]@Some.0.last_known (stride 24). base `EnemyRegionInfo`(16B: region@0, last_known@8)는 Option 밖 구조체라 tcxaudit 이 오귀속을 냈다 — D9-OFF 규칙 2(컨테이너 원소 → `GoalData.enemy_region[p]`)로 내리면 tcxaudit OK(3/3 실측)",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[74]/mem[23]/base",
+   "kind": "보강",
+   "old": "GoalData",
+   "new": "GoalData.enemy_region[p]",
+   "evidence": "tcxdict GoalData --deep: 0x0 enemy_region[0]@tag(8B) · 0x8 enemy_region[0]@Some.0.region · 0x10 enemy_region[0]@Some.0.last_known (stride 24). base `EnemyRegionInfo`(16B: region@0, last_known@8)는 Option 밖 구조체라 tcxaudit 이 오귀속을 냈다 — D9-OFF 규칙 2(컨테이너 원소 → `GoalData.enemy_region[p]`)로 내리면 tcxaudit OK(3/3 실측) · m09.ll:4786~4790 `%222 = gep { i64, [2 x i64] }, ptr %0, i64 %184` store 1 / +8 %219(region) / +16 %221(tick) · :4828 `store i64 0, ptr %226`(None)",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[74]/mem[23]/offset",
+   "kind": "보강",
+   "old": "0x0 + pos*24",
+   "new": "0x0",
+   "evidence": "tcxdict GoalData --deep: 0x0 enemy_region[0]@tag(8B) · 0x8 enemy_region[0]@Some.0.region · 0x10 enemy_region[0]@Some.0.last_known (stride 24). base `EnemyRegionInfo`(16B: region@0, last_known@8)는 Option 밖 구조체라 tcxaudit 이 오귀속을 냈다 — D9-OFF 규칙 2(컨테이너 원소 → `GoalData.enemy_region[p]`)로 내리면 tcxaudit OK(3/3 실측)",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[74]/mem[23]/name",
+   "kind": "보강",
+   "old": "enemy_region[pos]@tag",
+   "new": "@tag",
+   "evidence": "#75/#76 의 같은 자리 행과 이름을 맞춘다(G20 R1: 같은 (base,offset) 은 같은 이름) · p = Position::as_index (0..5)",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[74]/mem[24]/base",
+   "kind": "보강",
+   "old": "GoalData",
+   "new": "GoalData.enemy_region[p]",
+   "evidence": "tcxdict GoalData --deep: 0x0 enemy_region[0]@tag(8B) · 0x8 enemy_region[0]@Some.0.region · 0x10 enemy_region[0]@Some.0.last_known (stride 24). base `EnemyRegionInfo`(16B: region@0, last_known@8)는 Option 밖 구조체라 tcxaudit 이 오귀속을 냈다 — D9-OFF 규칙 2(컨테이너 원소 → `GoalData.enemy_region[p]`)로 내리면 tcxaudit OK(3/3 실측) · m09.ll:4786~4790 `%222 = gep { i64, [2 x i64] }, ptr %0, i64 %184` store 1 / +8 %219(region) / +16 %221(tick) · :4828 `store i64 0, ptr %226`(None)",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[74]/mem[24]/offset",
+   "kind": "보강",
+   "old": "0x8 + pos*24",
+   "new": "0x8",
+   "evidence": "tcxdict GoalData --deep: 0x0 enemy_region[0]@tag(8B) · 0x8 enemy_region[0]@Some.0.region · 0x10 enemy_region[0]@Some.0.last_known (stride 24). base `EnemyRegionInfo`(16B: region@0, last_known@8)는 Option 밖 구조체라 tcxaudit 이 오귀속을 냈다 — D9-OFF 규칙 2(컨테이너 원소 → `GoalData.enemy_region[p]`)로 내리면 tcxaudit OK(3/3 실측)",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[74]/mem[24]/name",
+   "kind": "보강",
+   "old": "enemy_region[pos].region",
+   "new": "region",
+   "evidence": "#75/#76 의 같은 자리 행과 이름을 맞춘다(G20 R1: 같은 (base,offset) 은 같은 이름) · p = Position::as_index (0..5)",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[74]/mem[25]/base",
+   "kind": "보강",
+   "old": "GoalData",
+   "new": "GoalData.enemy_region[p]",
+   "evidence": "tcxdict GoalData --deep: 0x0 enemy_region[0]@tag(8B) · 0x8 enemy_region[0]@Some.0.region · 0x10 enemy_region[0]@Some.0.last_known (stride 24). base `EnemyRegionInfo`(16B: region@0, last_known@8)는 Option 밖 구조체라 tcxaudit 이 오귀속을 냈다 — D9-OFF 규칙 2(컨테이너 원소 → `GoalData.enemy_region[p]`)로 내리면 tcxaudit OK(3/3 실측) · m09.ll:4786~4790 `%222 = gep { i64, [2 x i64] }, ptr %0, i64 %184` store 1 / +8 %219(region) / +16 %221(tick) · :4828 `store i64 0, ptr %226`(None)",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[74]/mem[25]/offset",
+   "kind": "보강",
+   "old": "0x10 + pos*24",
+   "new": "0x10",
+   "evidence": "tcxdict GoalData --deep: 0x0 enemy_region[0]@tag(8B) · 0x8 enemy_region[0]@Some.0.region · 0x10 enemy_region[0]@Some.0.last_known (stride 24). base `EnemyRegionInfo`(16B: region@0, last_known@8)는 Option 밖 구조체라 tcxaudit 이 오귀속을 냈다 — D9-OFF 규칙 2(컨테이너 원소 → `GoalData.enemy_region[p]`)로 내리면 tcxaudit OK(3/3 실측)",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[74]/mem[25]/name",
+   "kind": "보강",
+   "old": "enemy_region[pos].last_known",
+   "new": "last_known",
+   "evidence": "#75/#76 의 같은 자리 행과 이름을 맞춘다(G20 R1: 같은 (base,offset) 은 같은 이름) · p = Position::as_index (0..5)",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[75]/knobs[1]/effect",
+   "kind": "보강",
+   "old": "올리면 ally_near/enemy_near 가 넓게 잡혀 인원 비교(ally_ok) 성립이 쉬워진다",
+   "new": "올리면 ally_near/enemy_near 가 넓게 잡혀 인원 비교(ally_ok) 성립이 쉬워진다. ★실측: 기본값 4 에서 이미 27리전 중 25개가 통과(제외 = 5·20, Top 라인 원단)라 사실상 거의 전원을 센다 — 좁히려면 3 이하로",
+   "evidence": "정적 전역 region_dist(_gcbc/g07.ll:277) 재계산: 대칭 홉거리 행렬 max 6 · region_dist[a][2]<4 인 a = 27개 중 25개(제외 5·20 = Top 라인 원단) · region_dist[a][7]<4 인 a = 25개(제외 9·25 = Bottom 라인 원단)",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[76]/knobs[0]/effect",
+   "kind": "보강",
+   "old": "올리면 ally_near/enemy_near 가 넓게 잡힘 → 인원 우세 조건이 쉬워져 CheckTry 증가",
+   "new": "올리면 ally_near/enemy_near 가 넓게 잡힘 → 인원 우세 조건이 쉬워져 CheckTry 증가. ★실측: 기본값 4 에서 이미 27리전 중 25개가 통과(제외 = 9·25, Bottom 라인 원단)라 사실상 거의 전원을 센다 — 좁히려면 3 이하로",
+   "evidence": "정적 전역 region_dist(_gcbc/g07.ll:277) 재계산: 대칭 홉거리 행렬 max 6 · region_dist[a][2]<4 인 a = 27개 중 25개(제외 5·20 = Top 라인 원단) · region_dist[a][7]<4 인 a = 25개(제외 9·25 = Bottom 라인 원단)",
+   "behavior_change": false,
+   "found_by": "new"
+  }
+ ],
+ "ev_up": [
+  {
+   "path": "/specs[74]/mem[18]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcxdict GoalData --deep: 0x0/0x8/0x10 enemy_region[0] tag/region/last_known(stride 24) · 0x78 epic(0x88 epic_enemy_tick · 0xa8 stance) · 0xb0 serpen(0xe0 stance) · 0xe8 last_base_defense_tick · 0xf0 heal_commit — 전행 일치. IR store 전수 확인(m09.ll:4477/4569 heal_commit · :4695 last_base_defense_tick · :4786~4790/:4828 enemy_region · :4711/:4713 update_plan 콜리)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[74]/mem[19]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcxdict GoalData --deep: 0x0/0x8/0x10 enemy_region[0] tag/region/last_known(stride 24) · 0x78 epic(0x88 epic_enemy_tick · 0xa8 stance) · 0xb0 serpen(0xe0 stance) · 0xe8 last_base_defense_tick · 0xf0 heal_commit — 전행 일치. IR store 전수 확인(m09.ll:4477/4569 heal_commit · :4695 last_base_defense_tick · :4786~4790/:4828 enemy_region · :4711/:4713 update_plan 콜리)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[74]/mem[20]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcxdict GoalData --deep: 0x0/0x8/0x10 enemy_region[0] tag/region/last_known(stride 24) · 0x78 epic(0x88 epic_enemy_tick · 0xa8 stance) · 0xb0 serpen(0xe0 stance) · 0xe8 last_base_defense_tick · 0xf0 heal_commit — 전행 일치. IR store 전수 확인(m09.ll:4477/4569 heal_commit · :4695 last_base_defense_tick · :4786~4790/:4828 enemy_region · :4711/:4713 update_plan 콜리)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[74]/mem[21]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcxdict GoalData --deep: 0x0/0x8/0x10 enemy_region[0] tag/region/last_known(stride 24) · 0x78 epic(0x88 epic_enemy_tick · 0xa8 stance) · 0xb0 serpen(0xe0 stance) · 0xe8 last_base_defense_tick · 0xf0 heal_commit — 전행 일치. IR store 전수 확인(m09.ll:4477/4569 heal_commit · :4695 last_base_defense_tick · :4786~4790/:4828 enemy_region · :4711/:4713 update_plan 콜리)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[74]/mem[22]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcxdict GoalData --deep: 0x0/0x8/0x10 enemy_region[0] tag/region/last_known(stride 24) · 0x78 epic(0x88 epic_enemy_tick · 0xa8 stance) · 0xb0 serpen(0xe0 stance) · 0xe8 last_base_defense_tick · 0xf0 heal_commit — 전행 일치. IR store 전수 확인(m09.ll:4477/4569 heal_commit · :4695 last_base_defense_tick · :4786~4790/:4828 enemy_region · :4711/:4713 update_plan 콜리)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[74]/mem[23]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcxdict GoalData --deep: 0x0/0x8/0x10 enemy_region[0] tag/region/last_known(stride 24) · 0x78 epic(0x88 epic_enemy_tick · 0xa8 stance) · 0xb0 serpen(0xe0 stance) · 0xe8 last_base_defense_tick · 0xf0 heal_commit — 전행 일치. IR store 전수 확인(m09.ll:4477/4569 heal_commit · :4695 last_base_defense_tick · :4786~4790/:4828 enemy_region · :4711/:4713 update_plan 콜리)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[74]/mem[24]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcxdict GoalData --deep: 0x0/0x8/0x10 enemy_region[0] tag/region/last_known(stride 24) · 0x78 epic(0x88 epic_enemy_tick · 0xa8 stance) · 0xb0 serpen(0xe0 stance) · 0xe8 last_base_defense_tick · 0xf0 heal_commit — 전행 일치. IR store 전수 확인(m09.ll:4477/4569 heal_commit · :4695 last_base_defense_tick · :4786~4790/:4828 enemy_region · :4711/:4713 update_plan 콜리)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[74]/mem[25]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcxdict GoalData --deep: 0x0/0x8/0x10 enemy_region[0] tag/region/last_known(stride 24) · 0x78 epic(0x88 epic_enemy_tick · 0xa8 stance) · 0xb0 serpen(0xe0 stance) · 0xe8 last_base_defense_tick · 0xf0 heal_commit — 전행 일치. IR store 전수 확인(m09.ll:4477/4569 heal_commit · :4695 last_base_defense_tick · :4786~4790/:4828 enemy_region · :4711/:4713 update_plan 콜리)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[74]/mem[26]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcxdict GoalData --deep: 0x0/0x8/0x10 enemy_region[0] tag/region/last_known(stride 24) · 0x78 epic(0x88 epic_enemy_tick · 0xa8 stance) · 0xb0 serpen(0xe0 stance) · 0xe8 last_base_defense_tick · 0xf0 heal_commit — 전행 일치. IR store 전수 확인(m09.ll:4477/4569 heal_commit · :4695 last_base_defense_tick · :4786~4790/:4828 enemy_region · :4711/:4713 update_plan 콜리)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[74]/mem[27]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcxdict GoalData --deep: 0x0/0x8/0x10 enemy_region[0] tag/region/last_known(stride 24) · 0x78 epic(0x88 epic_enemy_tick · 0xa8 stance) · 0xb0 serpen(0xe0 stance) · 0xe8 last_base_defense_tick · 0xf0 heal_commit — 전행 일치. IR store 전수 확인(m09.ll:4477/4569 heal_commit · :4695 last_base_defense_tick · :4786~4790/:4828 enemy_region · :4711/:4713 update_plan 콜리)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[75]/mem[26]",
+   "from": 5,
+   "to": 3,
+   "evidence": "tcxdict MapDef 0x54e8 = region_dist[0][2]",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[76]/mem[22]",
+   "from": 5,
+   "to": 3,
+   "evidence": "tcxdict MapDef 0x5510 = region_dist[0][7]",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[75]/mem[37]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcxdict GoalData --deep enemy_region[0]@tag 0x0 / region 0x8 / last_known 0x10 (base 를 GoalData.enemy_region[p] 로 내려 tcxaudit OK)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[75]/mem[38]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcxdict GoalData --deep enemy_region[0]@tag 0x0 / region 0x8 / last_known 0x10 (base 를 GoalData.enemy_region[p] 로 내려 tcxaudit OK)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[75]/mem[39]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcxdict GoalData --deep enemy_region[0]@tag 0x0 / region 0x8 / last_known 0x10 (base 를 GoalData.enemy_region[p] 로 내려 tcxaudit OK)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[76]/mem[26]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcxdict GoalData --deep enemy_region[0]@tag 0x0 / region 0x8 / last_known 0x10 (base 를 GoalData.enemy_region[p] 로 내려 tcxaudit OK)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[76]/mem[27]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcxdict GoalData --deep enemy_region[0]@tag 0x0 / region 0x8 / last_known 0x10 (base 를 GoalData.enemy_region[p] 로 내려 tcxaudit OK)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[76]/mem[28]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcxdict GoalData --deep enemy_region[0]@tag 0x0 / region 0x8 / last_known 0x10 (base 를 GoalData.enemy_region[p] 로 내려 tcxaudit OK)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[75]/consts[3]",
+   "from": 5,
+   "to": 4,
+   "evidence": "IR 정적 전역 _gcbc/g07.ll:276~278 재계산 regions[21][21]=2 · region_centers[2]=(688941,688941)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[76]/consts[1]",
+   "from": 5,
+   "to": 4,
+   "evidence": "IR 정적 전역 _gcbc/g07.ll:276~278 재계산 regions[9][9]=7 · region_centers[7]=(294683,297518)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[74]/consts[6]",
+   "from": 5,
+   "to": 4,
+   "evidence": "IR 정적 전역 _gcbc/g07.ll:276 regions[27][3]=0(블루 넥서스 셀)",
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[74]/consts[7]",
+   "from": 5,
+   "to": 4,
+   "evidence": "IR 정적 전역 _gcbc/g07.ll:276 regions[3][27]=26(레드 넥서스 셀)",
+   "found_by": "reused"
+  }
+ ],
+ "brief_errors": [
+  "§4 G20 R2 지시 「같은 배열의 다른 인덱스면 이름에 인덱스를 붙여 R2 해소」 — 두 행은 이미 `[a][2]`/`[a][7]` 로 인덱스가 붙어 있었다. sharedchk.norm_name 이 첨자 값을 `[]` 로 지우므로 첨자 안 인덱스는 판별자가 못 된다(첨자 밖 접미 `col2`/`col7` 로 우회). 근본 해결은 norm_name 이 **숫자 리터럴 첨자는 보존**하도록 고치는 것(`[a]`→`[]`, `[2]`→`[2]`)",
+  "초점 「#75 클로저 IR 별도 define 6(#2~#7)·exe 주소 5개」 — 메인이 준 5개는 closure#2/#3/#5/#6/#7 이고 **closure#4(s2_0, m09.ll:65779~65952)의 exe 본체 0xdeaf70 이 목록에 없었다**(from_iter_in 인스턴스 0xca89a0 안에서만 호출돼 본체 콜리 스캔에 안 보임). Epic 도 같은 형태로 closure#4 = 0xdeb110(← 0xca8f60). unknown 을 닫으려면 콜리를 2단까지 훑어야 한다",
+  "§1 표 「#74 GoalData::update ev≥4 39행」·「G10/G12/G15/G19 잔여 중 담당 몫」 — specgate --only 72~76 실측 G10/G12/G15/G19 = 전부 0 이라 담당 몫이 없다(초점 문장이 빈 집합을 가리킴)",
+  "§4-b 「mem.dir ✅G14」로 닫혀 있지만 #74 mem[21](heal_commit w) 의 **근거 문면 극성**(in_heal_area && …)은 어떤 게이트도 안 봤다 — dir 은 맞고 조건이 뒤집힌 형태. mem.note 안의 조건식은 무검사 축"
+ ]
+}
