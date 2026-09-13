@@ -39,7 +39,7 @@
 //!     bit6 = 0x40  objective_is_damaged             (1단계 발화 2회)
 //!               ⚠caveat: 호출부 리다이렉트로 설치한다(진입부 12B 불가) — 사이트 2곳은 1단계가 exe 로 검산한 것(전수·간접호출 0). 한 사이트라도 빠지면 표본은 **하한선**이다
 //!     bit7 = 0x80  try_engage_dive                  (1단계 발화 460회)
-//!               ⚠caveat: a1: IR readonly 표기 없음 · tcx `usize` = 공유참조(쓰기 관측 0) 근거로 편입 / a8: 가변이지만 편입 — tcx `DebugFrameData` = 디버그 싱크 — IR 실측상 본문이 역참조하지 않고 넘기기만 한다(클로저 내부 쓰기는 미확인 ⟹ 중복 기록 가능 · 반환 대조엔 무관)
+//!               ⚠caveat: a1: 가변이지만 편입 — tcx `&LegacyPlanHandler` = #74 try_engage_dive 의 self(%1 · readonly 속성 없음) — IR 실측 store 0(last_dive_abandon_tick 읽기 · positioning_score/team_plan 참조 전달만) / a8: 가변이지만 편입 — tcx `&mut DebugFrameData` = 디버그 싱크 — IR 실측상 본문이 역참조하지 않고 넘기기만 한다(클로저 내부 쓰기는 미확인 ⟹ 중복 기록 가능 · 반환 대조엔 무관)
 //!     bit8 = 0x100  serpen_giveup_chat_reason        (1단계 발화 2,110회)
 //!     bit9 = 0x200  v50_fold_dive_episode            (1단계 발화 3,403회)
 //!               ⚠caveat: a0: &mut 게임 상태(6168B) — 게임 호출 전 상태로 되돌려 내 사본을 부르고 게임 상태로 복구한다. Vec 은 빈 것으로 바꿔 **게임 버퍼를 건드리지 않는다**
@@ -51,11 +51,11 @@
 //!     bit13 = 0x2000  v25_objective_splitter_can_stay  (1단계 발화 33,957회)
 //!     bit14 = 0x4000  bush_distance_sq                 (1단계 발화 34,401회)
 //!     bit15 = 0x8000  resolve_join_stake               (1단계 발화 68,945회)
-//!               ⚠caveat: a8: 가변이지만 편입 — tcx `DebugFrameData` = 디버그 싱크 — IR 실측상 본문이 역참조하지 않고 넘기기만 한다(클로저 내부 쓰기는 미확인 ⟹ 중복 기록 가능 · 반환 대조엔 무관)
+//!               ⚠caveat: a8: 가변이지만 편입 — tcx `&mut DebugFrameData(224B)` = 디버그 싱크 — IR 실측상 본문이 역참조하지 않고 넘기기만 한다(클로저 내부 쓰기는 미확인 ⟹ 중복 기록 가능 · 반환 대조엔 무관)
 //!     bit16 = 0x10000  battle_check_with_list           (1단계 발화 97,615회)
 //!     bit17 = 0x20000  ult                              (1단계 발화 101,915회)
 //!     bit18 = 0x40000  try_engage                       (1단계 발화 103,599회)
-//!               ⚠caveat: a1: IR readonly 표기 없음 · tcx `usize` = 공유참조(쓰기 관측 0) 근거로 편입 / a7: 가변이지만 편입 — tcx `DebugFrameData` = 디버그 싱크 — IR 실측상 본문이 역참조하지 않고 넘기기만 한다(클로저 내부 쓰기는 미확인 ⟹ 중복 기록 가능 · 반환 대조엔 무관)
+//!               ⚠caveat: a1: 가변이지만 편입 — tcx `&LegacyPlanHandler` = #74 try_engage_dive 의 self(%1 · readonly 속성 없음) — IR 실측 store 0(last_dive_abandon_tick 읽기 · positioning_score/team_plan 참조 전달만) / a7: 가변이지만 편입 — tcx `&mut DebugFrameData (224B)` = 디버그 싱크 — IR 실측상 본문이 역참조하지 않고 넘기기만 한다(클로저 내부 쓰기는 미확인 ⟹ 중복 기록 가능 · 반환 대조엔 무관)
 //!     bit19 = 0x80000  objective_defense_role           (1단계 발화 106,981회)
 //!     bit20 = 0x100000  v2_response_retreat_stance       (1단계 발화 107,627회)
 //!               ⚠caveat: a4: IR readonly 표기 없음 · tcx `&OperationData(24B)` = 공유참조(쓰기 관측 0) 근거로 편입
@@ -92,10 +92,10 @@
 //!               ⚠caveat: a6: IR readonly 표기 없음 · tcx `&TeamPlan(1064B)` = 공유참조(쓰기 관측 0) 근거로 편입 / a7: 가변이지만 편입 — tcx `&mut DebugFrameData(224B)` = 디버그 싱크 — IR 실측상 본문이 역참조하지 않고 넘기기만 한다(클로저 내부 쓰기는 미확인 ⟹ 중복 기록 가능 · 반환 대조엔 무관)
 //!     bit41 = 0x20000000000  v21_should_defer_support_target  (1단계 발화 866,135회)
 //!     bit42 = 0x40000000000  epic_passive_plan                (1단계 발화 882,437회)
-//!               ⚠caveat: a6: IR readonly 표기 없음 · tcx `Option<(u64,u64)>(24B, by-ref dead_on_re` = 공유참조(쓰기 관측 0) 근거로 편입
+//!               ⚠caveat: a6: IR readonly 표기 없음 · tcx `&TeamPlan` = 공유참조(쓰기 관측 0) 근거로 편입
 //!     bit43 = 0x80000000000  v23_enemy_object_pressure        (1단계 발화 892,358회)
 //!     bit44 = 0x100000000000  SerpenHuntAndPokePlan::sub_plan  (1단계 발화 949,945회)
-//!               ⚠caveat: a1: IR readonly 표기 없음 · tcx `usize` = 공유참조(쓰기 관측 0) 근거로 편입 / a7: 가변이지만 편입 — tcx `&mut DebugFrameData(224B)` = 디버그 싱크 — IR 실측상 본문이 역참조하지 않고 넘기기만 한다(클로저 내부 쓰기는 미확인 ⟹ 중복 기록 가능 · 반환 대조엔 무관) / a8: 가변이지만 편입 — tcx `DebugFrameData` = 디버그 싱크 — IR 실측상 본문이 역참조하지 않고 넘기기만 한다(클로저 내부 쓰기는 미확인 ⟹ 중복 기록 가능 · 반환 대조엔 무관)
+//!               ⚠caveat: a1: &mut 게임 상태(32B) — 게임 호출 전 상태로 되돌려 내 사본을 부르고 게임 상태로 복구한다. Vec 은 빈 것으로 바꿔 **게임 버퍼를 건드리지 않는다** / a7: IR readonly 표기 없음 · tcx `&TeamPlan(1064B)` = 공유참조(쓰기 관측 0) 근거로 편입 / a8: 가변이지만 편입 — tcx `&mut DebugFrameData(224B)` = 디버그 싱크 — IR 실측상 본문이 역참조하지 않고 넘기기만 한다(클로저 내부 쓰기는 미확인 ⟹ 중복 기록 가능 · 반환 대조엔 무관)
 //!     bit45 = 0x200000000000  LegacyPlanHandler::take_misunder (1단계 발화 966,291회)
 //!               ⚠caveat: a0: &mut 게임 상태(6168B) — 게임 호출 전 상태로 되돌려 내 사본을 부르고 게임 상태로 복구한다. Vec 은 빈 것으로 바꿔 **게임 버퍼를 건드리지 않는다**
 //!     bit46 = 0x400000000000  TeamPlan::v24_objective_setup_sh (1단계 발화 978,193회)
@@ -106,7 +106,7 @@
 //!     bit50 = 0x4000000000000  check_epic_giveup                (1단계 발화 1,223,027회)
 //!     bit51 = 0x8000000000000  v23_healthy_allies_near_point    (1단계 발화 1,370,692회)
 //!     bit52 = 0x10000000000000  EpicHuntAndPokePlan::sub_plan    (1단계 발화 1,478,961회)
-//!               ⚠caveat: a1: IR readonly 표기 없음 · tcx `usize` = 공유참조(쓰기 관측 0) 근거로 편입 / a7: 가변이지만 편입 — tcx `&mut DebugFrameData(224B)` = 디버그 싱크 — IR 실측상 본문이 역참조하지 않고 넘기기만 한다(클로저 내부 쓰기는 미확인 ⟹ 중복 기록 가능 · 반환 대조엔 무관) / a8: 가변이지만 편입 — tcx `DebugFrameData` = 디버그 싱크 — IR 실측상 본문이 역참조하지 않고 넘기기만 한다(클로저 내부 쓰기는 미확인 ⟹ 중복 기록 가능 · 반환 대조엔 무관)
+//!               ⚠caveat: a1: &mut 게임 상태(32B) — 게임 호출 전 상태로 되돌려 내 사본을 부르고 게임 상태로 복구한다. Vec 은 빈 것으로 바꿔 **게임 버퍼를 건드리지 않는다** / a7: IR readonly 표기 없음 · tcx `&TeamPlan(1064B)` = 공유참조(쓰기 관측 0) 근거로 편입 / a8: 가변이지만 편입 — tcx `&mut DebugFrameData(224B)` = 디버그 싱크 — IR 실측상 본문이 역참조하지 않고 넘기기만 한다(클로저 내부 쓰기는 미확인 ⟹ 중복 기록 가능 · 반환 대조엔 무관)
 //!     bit53 = 0x20000000000000  check_serpen_giveup              (1단계 발화 1,545,233회)
 //!     bit54 = 0x40000000000000  is_end                           (1단계 발화 1,554,463회)
 //!               ⚠caveat: a5: IR readonly 표기 없음 · tcx `&TeamPlan(1064B)` = 공유참조(쓰기 관측 0) 근거로 편입
@@ -130,12 +130,12 @@
 //!     bit66 = 0x40000000000000000  v3_epic_formation_role           (1단계 발화 3,144,357회)
 //!     bit67 = 0x80000000000000000  v27_active_objective_discipline  (1단계 발화 3,158,080회)
 //!     bit68 = 0x100000000000000000  FightSituation::build            (1단계 발화 3,887,965회)
-//!               ⚠caveat: a5: 가변이지만 편입 — tcx `&mut DebugFrameData(224B)` = 디버그 싱크 — IR 실측상 본문이 역참조하지 않고 넘기기만 한다(클로저 내부 쓰기는 미확인 ⟹ 중복 기록 가능 · 반환 대조엔 무관) / a6: IR readonly 표기 없음 · tcx `usize` = 공유참조(쓰기 관측 0) 근거로 편입
+//!               ⚠caveat: a5: IR readonly 표기 없음 · tcx `&TeamPlan(1064B)` = 공유참조(쓰기 관측 0) 근거로 편입 / a6: 가변이지만 편입 — tcx `&mut DebugFrameData(224B)` = 디버그 싱크 — IR 실측상 본문이 역참조하지 않고 넘기기만 한다(클로저 내부 쓰기는 미확인 ⟹ 중복 기록 가능 · 반환 대조엔 무관)
 //!     bit69 = 0x200000000000000000  v46_flee_gate_check              (1단계 발화 4,362,491회)
 //!     bit70 = 0x400000000000000000  steal::should_steal_now          (1단계 발화 4,467,412회)
 //!     bit71 = 0x800000000000000000  v22_visible_enemy_is_runaway_thr (1단계 발화 5,660,210회)
 //!     bit72 = 0x1000000000000000000  PassiveLinePlan::sub_plan        (1단계 발화 6,570,780회)
-//!               ⚠caveat: a6: 가변이지만 편입 — tcx `&mut DebugFrameData(224B)` = 디버그 싱크 — IR 실측상 본문이 역참조하지 않고 넘기기만 한다(클로저 내부 쓰기는 미확인 ⟹ 중복 기록 가능 · 반환 대조엔 무관) / a7: 가변이지만 편입 — tcx `DebugFrameData` = 디버그 싱크 — IR 실측상 본문이 역참조하지 않고 넘기기만 한다(클로저 내부 쓰기는 미확인 ⟹ 중복 기록 가능 · 반환 대조엔 무관)
+//!               ⚠caveat: a6: IR readonly 표기 없음 · tcx `&TeamPlan(1064B)` = 공유참조(쓰기 관측 0) 근거로 편입 / a7: 가변이지만 편입 — tcx `&mut DebugFrameData(224B)` = 디버그 싱크 — IR 실측상 본문이 역참조하지 않고 넘기기만 한다(클로저 내부 쓰기는 미확인 ⟹ 중복 기록 가능 · 반환 대조엔 무관)
 //!     bit73 = 0x2000000000000000000  check_press_tower_opportunity    (1단계 발화 6,807,462회)
 //!     bit74 = 0x4000000000000000000  max_range_nearly_can_use         (1단계 발화 6,940,762회)
 //!     bit75 = 0x8000000000000000000  can_recall                       (1단계 발화 7,564,211회)
@@ -156,7 +156,7 @@
 //!     bit83 = 0x800000000000000000000  should_recall_to_shop            (1단계 발화 13,977,899회)
 //!               ⚠호출수 13,977,899 = 대조가 그 함수의 실행을 **2배**로 만든다 → 프레임 지연 각오.
 //!     bit84 = 0x1000000000000000000000  check_kill                       (1단계 발화 16,403,353회)
-//!               ⚠caveat: a6: 가변이지만 편입 — tcx `DebugFrameData` = 디버그 싱크 — IR 실측상 본문이 역참조하지 않고 넘기기만 한다(클로저 내부 쓰기는 미확인 ⟹ 중복 기록 가능 · 반환 대조엔 무관)
+//!               ⚠caveat: a6: 가변이지만 편입 — tcx `&mut DebugFrameData (224B)` = 디버그 싱크 — IR 실측상 본문이 역참조하지 않고 넘기기만 한다(클로저 내부 쓰기는 미확인 ⟹ 중복 기록 가능 · 반환 대조엔 무관)
 //!               ⚠호출수 16,403,353 = 대조가 그 함수의 실행을 **2배**로 만든다 → 프레임 지연 각오.
 //!     bit85 = 0x2000000000000000000000  EntityPositioningCache::new      (1단계 발화 18,749,665회)
 //!               ⚠호출수 18,749,665 = 대조가 그 함수의 실행을 **2배**로 만든다 → 프레임 지연 각오.
@@ -525,7 +525,7 @@ pub static S: [Slot; 97] = [
     sl!(4, 107, "resolve_fight_uncached", "game-ai\\src\\plan_legacy\\old\\fight_model.rs", 0xe083c0, &[0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x55, 0x53], u64::MAX, &[], "a3: 가변이지만 편입 — tcx `GameContext` = 디버그 싱크(인덱스 직접 허용)", &[]),
     sl!(5, 108, "resolve_fight_full", "game-ai\\src\\plan_legacy\\old\\fight_model.rs", 0xe05450, &[0x55, 0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x53], u64::MAX, &[], "", &[]),
     sl!(6, 30, "objective_is_damaged", "game-ai\\src\\plan_legacy\\team_plan\\objective_helpers.rs", 0xec8af0, &[], 2, &[], "호출부 리다이렉트로 설치한다(진입부 12B 불가) — 사이트 2곳은 1단계가 exe 로 검산한 것(전수·간접호출 0). 한 사이트라도 빠지면 표본은 **하한선**이다", &[0xddbd6d, 0xdddf0d]),
-    sl!(7, 69, "try_engage_dive", "game-ai\\src\\plan_legacy\\handler\\engage.rs", 0xe5d300, &[0x55, 0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x53], 460, &[3], "a1: IR readonly 표기 없음 · tcx `usize` = 공유참조(쓰기 관측 0) 근거로 편입 / a8: 가변이지만 편입 — tcx `DebugFrameData` = 디버그 싱크 — IR 실측상 본문이 역참조하지 않고 넘기기만 한다(클로저 내부 쓰기는 미확인 ⟹ 중복 기록 가능 · 반환 대조엔 무관)", &[]),
+    sl!(7, 69, "try_engage_dive", "game-ai\\src\\plan_legacy\\handler\\engage.rs", 0xe5d300, &[0x55, 0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x53], 460, &[3], "a1: 가변이지만 편입 — tcx `&LegacyPlanHandler` = #74 try_engage_dive 의 self(%1 · readonly 속성 없음) — IR 실측 store 0(last_dive_abandon_tick 읽기 · positioning_score/team_plan 참조 전달만) / a8: 가변이지만 편입 — tcx `&mut DebugFrameData` = 디버그 싱크 — IR 실측상 본문이 역참조하지 않고 넘기기만 한다(클로저 내부 쓰기는 미확인 ⟹ 중복 기록 가능 · 반환 대조엔 무관)", &[]),
     sl!(8, 32, "serpen_giveup_chat_reason", "game-ai\\src\\plan_legacy\\old\\serpen.rs", 0xd665e0, &[0x41, 0x56, 0x56, 0x57, 0x53, 0x48, 0x83, 0xec, 0x28, 0x48, 0x8b, 0x42, 0x08], 2110, &[], "", &[]),
     sl!(9, 5, "v50_fold_dive_episode", "game-ai\\src\\plan_legacy\\handler\\dive_episode.rs", 0xe59190, &[0x55, 0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x53], 3403, &[], "a0: &mut 게임 상태(6168B) — 게임 호출 전 상태로 되돌려 내 사본을 부르고 게임 상태로 복구한다. Vec 은 빈 것으로 바꿔 **게임 버퍼를 건드리지 않는다**", &[]),
     sl!(10, 66, "evaluate_gank_opportunity_with_score", "game-ai\\src\\plan_legacy\\old\\passive_jungle.rs", 0xd40f10, &[0x55, 0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x53], 8970, &[1], "", &[]),
@@ -533,10 +533,10 @@ pub static S: [Slot; 97] = [
     sl!(12, 3, "defensive_crisis", "game-ai\\src\\buff_value.rs", 0xe01c40, &[0x55, 0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x53], 29128, &[1], "a5: 가변이지만 편입 — tcx `&mut DebugFrameData(224B)` = 디버그 싱크 — IR 실측상 본문이 역참조하지 않고 넘기기만 한다(클로저 내부 쓰기는 미확인 ⟹ 중복 기록 가능 · 반환 대조엔 무관)", &[]),
     sl!(13, 64, "v25_objective_splitter_can_stay", "game-ai\\src\\plan_legacy\\team_plan\\objective_helpers.rs", 0xeca200, &[0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x55, 0x53], 33957, &[], "", &[]),
     sl!(14, 61, "bush_distance_sq", "game-ai\\src\\plan_legacy\\steal.rs", 0xd9aa80, &[0x41, 0x56, 0x56, 0x57, 0x53, 0x48, 0x81, 0xec, 0xd8, 0x04, 0x00, 0x00], 34401, &[], "", &[]),
-    sl!(15, 49, "resolve_join_stake", "game-ai\\src\\plan_legacy\\old\\fight_model.rs", 0xe05e70, &[0x55, 0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x53], 68945, &[2], "a8: 가변이지만 편입 — tcx `DebugFrameData` = 디버그 싱크 — IR 실측상 본문이 역참조하지 않고 넘기기만 한다(클로저 내부 쓰기는 미확인 ⟹ 중복 기록 가능 · 반환 대조엔 무관)", &[]),
+    sl!(15, 49, "resolve_join_stake", "game-ai\\src\\plan_legacy\\old\\fight_model.rs", 0xe05e70, &[0x55, 0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x53], 68945, &[2], "a8: 가변이지만 편입 — tcx `&mut DebugFrameData(224B)` = 디버그 싱크 — IR 실측상 본문이 역참조하지 않고 넘기기만 한다(클로저 내부 쓰기는 미확인 ⟹ 중복 기록 가능 · 반환 대조엔 무관)", &[]),
     sl!(16, 84, "battle_check_with_list", "game-ai\\src\\fight_check.rs", 0xeb9570, &[0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x55, 0x53], 97615, &[], "", &[]),
     sl!(17, 0, "ult", "game-ai\\src\\abstract_input.rs", 0xd354c0, &[0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x55, 0x53], 101915, &[2], "", &[]),
-    sl!(18, 80, "try_engage", "game-ai\\src\\plan_legacy\\handler\\engage.rs", 0xe5ca10, &[0x55, 0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x53], 103599, &[3], "a1: IR readonly 표기 없음 · tcx `usize` = 공유참조(쓰기 관측 0) 근거로 편입 / a7: 가변이지만 편입 — tcx `DebugFrameData` = 디버그 싱크 — IR 실측상 본문이 역참조하지 않고 넘기기만 한다(클로저 내부 쓰기는 미확인 ⟹ 중복 기록 가능 · 반환 대조엔 무관)", &[]),
+    sl!(18, 80, "try_engage", "game-ai\\src\\plan_legacy\\handler\\engage.rs", 0xe5ca10, &[0x55, 0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x53], 103599, &[3], "a1: 가변이지만 편입 — tcx `&LegacyPlanHandler` = #74 try_engage_dive 의 self(%1 · readonly 속성 없음) — IR 실측 store 0(last_dive_abandon_tick 읽기 · positioning_score/team_plan 참조 전달만) / a7: 가변이지만 편입 — tcx `&mut DebugFrameData (224B)` = 디버그 싱크 — IR 실측상 본문이 역참조하지 않고 넘기기만 한다(클로저 내부 쓰기는 미확인 ⟹ 중복 기록 가능 · 반환 대조엔 무관)", &[]),
     sl!(19, 78, "objective_defense_role", "game-ai\\src\\plan_legacy\\old\\defense_nexus.rs", 0xd3dcc0, &[0x55, 0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x53], 106981, &[], "", &[]),
     sl!(20, 6, "v2_response_retreat_stance", "game-ai\\src\\plan_legacy\\handler\\engage.rs", 0xe657a0, &[0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x55, 0x53], 107627, &[1], "a4: IR readonly 표기 없음 · tcx `&OperationData(24B)` = 공유참조(쓰기 관측 0) 근거로 편입", &[]),
     sl!(21, 13, "target_bush_v30", "game-ai\\src\\plan_legacy\\old\\line_gank\\cover.rs", 0xdf1c80, &[], 132642, &[], "호출부 리다이렉트로 설치한다(진입부 12B 불가) — 사이트 2곳은 1단계가 exe 로 검산한 것(전수·간접호출 0). 한 사이트라도 빠지면 표본은 **하한선**이다", &[0xcafc27, 0xdf230e]),
@@ -560,9 +560,9 @@ pub static S: [Slot; 97] = [
     sl!(39, 43, "BattlePlan::with_runaway", "game-ai\\src\\plan_legacy\\old\\battle.rs", 0xdfb220, &[0x56, 0x57, 0x48, 0x83, 0xec, 0x28, 0x48, 0x89, 0xce, 0x48, 0x83, 0x79, 0x40, 0x00], 709478, &[], "", &[]),
     sl!(40, 94, "check_serpen_hunt", "game-ai\\src\\plan_legacy\\old\\serpen.rs", 0xd61330, &[0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x55, 0x53], 814713, &[1], "a6: IR readonly 표기 없음 · tcx `&TeamPlan(1064B)` = 공유참조(쓰기 관측 0) 근거로 편입 / a7: 가변이지만 편입 — tcx `&mut DebugFrameData(224B)` = 디버그 싱크 — IR 실측상 본문이 역참조하지 않고 넘기기만 한다(클로저 내부 쓰기는 미확인 ⟹ 중복 기록 가능 · 반환 대조엔 무관)", &[]),
     sl!(41, 28, "v21_should_defer_support_target", "game-ai\\src\\plan_legacy\\old\\fight_model.rs", 0xe0bd60, &[0x41, 0x57, 0x41, 0x56, 0x41, 0x54, 0x56, 0x57, 0x53, 0x48, 0x83, 0xec, 0x28], 866135, &[], "", &[]),
-    sl!(42, 82, "epic_passive_plan", "game-ai\\src\\plan_legacy\\old\\epic.rs", 0xde92d0, &[0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x55, 0x53], 882437, &[2], "a6: IR readonly 표기 없음 · tcx `Option<(u64,u64)>(24B, by-ref dead_on_re` = 공유참조(쓰기 관측 0) 근거로 편입", &[]),
+    sl!(42, 82, "epic_passive_plan", "game-ai\\src\\plan_legacy\\old\\epic.rs", 0xde92d0, &[0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x55, 0x53], 882437, &[2], "a6: IR readonly 표기 없음 · tcx `&TeamPlan` = 공유참조(쓰기 관측 0) 근거로 편입", &[]),
     sl!(43, 62, "v23_enemy_object_pressure", "game-ai\\src\\plan_legacy\\team_plan\\objective_helpers.rs", 0xec9190, &[0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x55, 0x53], 892358, &[], "", &[]),
-    sl!(44, 97, "SerpenHuntAndPokePlan::sub_plan", "game-ai\\src\\plan_legacy\\old\\serpen\\hunt_and_poke.rs", 0xdf0e90, &[0x55, 0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x53], 949945, &[3], "a1: IR readonly 표기 없음 · tcx `usize` = 공유참조(쓰기 관측 0) 근거로 편입 / a7: 가변이지만 편입 — tcx `&mut DebugFrameData(224B)` = 디버그 싱크 — IR 실측상 본문이 역참조하지 않고 넘기기만 한다(클로저 내부 쓰기는 미확인 ⟹ 중복 기록 가능 · 반환 대조엔 무관) / a8: 가변이지만 편입 — tcx `DebugFrameData` = 디버그 싱크 — IR 실측상 본문이 역참조하지 않고 넘기기만 한다(클로저 내부 쓰기는 미확인 ⟹ 중복 기록 가능 · 반환 대조엔 무관)", &[]),
+    sl!(44, 97, "SerpenHuntAndPokePlan::sub_plan", "game-ai\\src\\plan_legacy\\old\\serpen\\hunt_and_poke.rs", 0xdf0e90, &[0x55, 0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x53], 949945, &[3], "a1: &mut 게임 상태(32B) — 게임 호출 전 상태로 되돌려 내 사본을 부르고 게임 상태로 복구한다. Vec 은 빈 것으로 바꿔 **게임 버퍼를 건드리지 않는다** / a7: IR readonly 표기 없음 · tcx `&TeamPlan(1064B)` = 공유참조(쓰기 관측 0) 근거로 편입 / a8: 가변이지만 편입 — tcx `&mut DebugFrameData(224B)` = 디버그 싱크 — IR 실측상 본문이 역참조하지 않고 넘기기만 한다(클로저 내부 쓰기는 미확인 ⟹ 중복 기록 가능 · 반환 대조엔 무관)", &[]),
     sl!(45, 44, "LegacyPlanHandler::take_misunderstood_received_chat", "game-ai\\src\\plan_legacy\\handler.rs", 0xe4b8c0, &[0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x55, 0x53], 966291, &[], "a0: &mut 게임 상태(6168B) — 게임 호출 전 상태로 되돌려 내 사본을 부르고 게임 상태로 복구한다. Vec 은 빈 것으로 바꿔 **게임 버퍼를 건드리지 않는다**", &[]),
     sl!(46, 89, "TeamPlan::v24_objective_setup_should_check_camp", "game-ai\\src\\plan_legacy\\team_plan\\objective_discipline.rs", 0xdd5db0, &[0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x55, 0x53], 978193, &[], "a0: IR readonly 표기 없음 · tcx `&TeamPlan(1064B)` = 공유참조(쓰기 관측 0) 근거로 편입", &[]),
     sl!(47, 27, "nexus_under_direct_attack", "game-ai\\src\\plan_legacy\\old\\defense_nexus.rs", 0xd3fa80, &[0x55, 0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x53], 1081789, &[], "", &[]),
@@ -570,7 +570,7 @@ pub static S: [Slot; 97] = [
     sl!(49, 26, "v23_objective_setup_pressure_line", "game-ai\\src\\plan_legacy\\team_plan\\objective_helpers.rs", 0xeca9a0, &[0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x55, 0x53], 1149517, &[], "", &[]),
     sl!(50, 50, "check_epic_giveup", "game-ai\\src\\plan_legacy\\old\\epic.rs", 0xde81b0, &[0x55, 0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x53], 1223027, &[], "", &[]),
     sl!(51, 24, "v23_healthy_allies_near_point", "game-ai\\src\\plan_legacy\\team_plan\\objective_helpers.rs", 0xec9840, &[0x56, 0x57, 0x53, 0x48, 0x83, 0xec, 0x20, 0x48, 0x8b, 0x89, 0x30, 0x09, 0x00, 0x00], 1370692, &[], "", &[]),
-    sl!(52, 83, "EpicHuntAndPokePlan::sub_plan", "game-ai\\src\\plan_legacy\\old\\epic\\hunt_and_poke.rs", 0xdefcd0, &[0x55, 0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x53], 1478961, &[3], "a1: IR readonly 표기 없음 · tcx `usize` = 공유참조(쓰기 관측 0) 근거로 편입 / a7: 가변이지만 편입 — tcx `&mut DebugFrameData(224B)` = 디버그 싱크 — IR 실측상 본문이 역참조하지 않고 넘기기만 한다(클로저 내부 쓰기는 미확인 ⟹ 중복 기록 가능 · 반환 대조엔 무관) / a8: 가변이지만 편입 — tcx `DebugFrameData` = 디버그 싱크 — IR 실측상 본문이 역참조하지 않고 넘기기만 한다(클로저 내부 쓰기는 미확인 ⟹ 중복 기록 가능 · 반환 대조엔 무관)", &[]),
+    sl!(52, 83, "EpicHuntAndPokePlan::sub_plan", "game-ai\\src\\plan_legacy\\old\\epic\\hunt_and_poke.rs", 0xdefcd0, &[0x55, 0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x53], 1478961, &[3], "a1: &mut 게임 상태(32B) — 게임 호출 전 상태로 되돌려 내 사본을 부르고 게임 상태로 복구한다. Vec 은 빈 것으로 바꿔 **게임 버퍼를 건드리지 않는다** / a7: IR readonly 표기 없음 · tcx `&TeamPlan(1064B)` = 공유참조(쓰기 관측 0) 근거로 편입 / a8: 가변이지만 편입 — tcx `&mut DebugFrameData(224B)` = 디버그 싱크 — IR 실측상 본문이 역참조하지 않고 넘기기만 한다(클로저 내부 쓰기는 미확인 ⟹ 중복 기록 가능 · 반환 대조엔 무관)", &[]),
     sl!(53, 93, "check_serpen_giveup", "game-ai\\src\\plan_legacy\\old\\serpen.rs", 0xd639f0, &[0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x55, 0x53], 1545233, &[1], "", &[]),
     sl!(54, 8, "is_end", "game-ai\\src\\plan_legacy\\old\\epic\\hunt_and_poke.rs", 0xdefa20, &[0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x55, 0x53], 1554463, &[2], "a5: IR readonly 표기 없음 · tcx `&TeamPlan(1064B)` = 공유참조(쓰기 관측 0) 근거로 편입", &[]),
     sl!(55, 18, "v3_epicops_buff_window", "game-ai\\src\\plan_legacy\\old\\epic.rs", 0xdce220, &[0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x55, 0x53], 1672540, &[], "a0: &mut 게임 상태(1064B) — 게임 호출 전 상태로 되돌려 내 사본을 부르고 게임 상태로 복구한다. Vec 은 빈 것으로 바꿔 **게임 버퍼를 건드리지 않는다**", &[]),
@@ -586,11 +586,11 @@ pub static S: [Slot; 97] = [
     sl!(65, 67, "v24_objective_setup_lane_pressure_ready", "game-ai\\src\\plan_legacy\\team_plan\\objective_discipline.rs", 0xdd6b40, &[0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x55, 0x53], 3128910, &[], "a0: IR readonly 표기 없음 · tcx `&TeamPlan(1064B)` = 공유참조(쓰기 관측 0) 근거로 편입 / a6: 가변이지만 편입 — tcx `&mut DebugFrameData` = 디버그 싱크 — IR 실측상 본문이 역참조하지 않고 넘기기만 한다(클로저 내부 쓰기는 미확인 ⟹ 중복 기록 가능 · 반환 대조엔 무관)", &[]),
     sl!(66, 31, "v3_epic_formation_role", "game-ai\\src\\plan_legacy\\old\\epic.rs", 0xdea800, &[0x41, 0x56, 0x56, 0x57, 0x55, 0x53, 0x48, 0x83, 0xec, 0x20, 0x4c, 0x89, 0xcb], 3144357, &[], "", &[]),
     sl!(67, 20, "v27_active_objective_discipline", "game-ai\\src\\plan_legacy\\team_plan\\objective_discipline.rs", 0xdd50e0, &[0x41, 0x57, 0x41, 0x56, 0x56, 0x57, 0x55, 0x53, 0x48, 0x83, 0xec, 0x48], 3158080, &[], "", &[]),
-    sl!(68, 86, "FightSituation::build", "game-ai\\src\\plan_legacy\\old\\fight_model.rs", 0xdfe2a0, &[0x55, 0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x53], 3887965, &[2], "a5: 가변이지만 편입 — tcx `&mut DebugFrameData(224B)` = 디버그 싱크 — IR 실측상 본문이 역참조하지 않고 넘기기만 한다(클로저 내부 쓰기는 미확인 ⟹ 중복 기록 가능 · 반환 대조엔 무관) / a6: IR readonly 표기 없음 · tcx `usize` = 공유참조(쓰기 관측 0) 근거로 편입", &[]),
+    sl!(68, 86, "FightSituation::build", "game-ai\\src\\plan_legacy\\old\\fight_model.rs", 0xdfe2a0, &[0x55, 0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x53], 3887965, &[2], "a5: IR readonly 표기 없음 · tcx `&TeamPlan(1064B)` = 공유참조(쓰기 관측 0) 근거로 편입 / a6: 가변이지만 편입 — tcx `&mut DebugFrameData(224B)` = 디버그 싱크 — IR 실측상 본문이 역참조하지 않고 넘기기만 한다(클로저 내부 쓰기는 미확인 ⟹ 중복 기록 가능 · 반환 대조엔 무관)", &[]),
     sl!(69, 92, "v46_flee_gate_check", "game-ai\\src\\plan_legacy\\old\\passive_line.rs", 0xd3b2a0, &[0x55, 0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x53], 4362491, &[], "", &[]),
     sl!(70, 99, "steal::should_steal_now", "game-ai\\src\\plan_legacy\\steal.rs", 0xd9ac10, &[0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x55, 0x53], 4467412, &[], "", &[]),
     sl!(71, 25, "v22_visible_enemy_is_runaway_threat", "game-ai\\src\\plan_legacy\\old\\fight_model.rs", 0xe0c310, &[0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x55, 0x53], 5660210, &[], "", &[]),
-    sl!(72, 56, "PassiveLinePlan::sub_plan", "game-ai\\src\\plan_legacy\\old\\passive_line.rs", 0xd2c5d0, &[0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x55, 0x53], 6570780, &[3], "a6: 가변이지만 편입 — tcx `&mut DebugFrameData(224B)` = 디버그 싱크 — IR 실측상 본문이 역참조하지 않고 넘기기만 한다(클로저 내부 쓰기는 미확인 ⟹ 중복 기록 가능 · 반환 대조엔 무관) / a7: 가변이지만 편입 — tcx `DebugFrameData` = 디버그 싱크 — IR 실측상 본문이 역참조하지 않고 넘기기만 한다(클로저 내부 쓰기는 미확인 ⟹ 중복 기록 가능 · 반환 대조엔 무관)", &[]),
+    sl!(72, 56, "PassiveLinePlan::sub_plan", "game-ai\\src\\plan_legacy\\old\\passive_line.rs", 0xd2c5d0, &[0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x55, 0x53], 6570780, &[3], "a6: IR readonly 표기 없음 · tcx `&TeamPlan(1064B)` = 공유참조(쓰기 관측 0) 근거로 편입 / a7: 가변이지만 편입 — tcx `&mut DebugFrameData(224B)` = 디버그 싱크 — IR 실측상 본문이 역참조하지 않고 넘기기만 한다(클로저 내부 쓰기는 미확인 ⟹ 중복 기록 가능 · 반환 대조엔 무관)", &[]),
     sl!(73, 51, "check_press_tower_opportunity", "game-ai\\src\\plan_legacy\\team_plan.rs", 0xde40c0, &[0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x55, 0x53], 6807462, &[], "", &[]),
     sl!(74, 16, "max_range_nearly_can_use", "game-ai\\src\\plan_legacy\\old\\battle.rs", 0xe0daa0, &[0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x55, 0x53], 6940762, &[], "", &[]),
     sl!(75, 45, "can_recall", "game-ai\\src\\utils.rs", 0xd36480, &[0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x55, 0x53], 7564211, &[0], "", &[]),
@@ -602,7 +602,7 @@ pub static S: [Slot; 97] = [
     sl!(81, 21, "upgrade_item", "game-ai\\src\\lib.rs", 0xe7a8c0, &[0x55, 0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x53], 11686232, &[2], "", &[]),
     sl!(82, 95, "check_serpen_setup", "game-ai\\src\\plan_legacy\\old\\serpen.rs", 0xd62bb0, &[0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x55, 0x53], 13563739, &[1], "a4: IR readonly 표기 없음 · tcx `&TeamPlan(1064B)` = 공유참조(쓰기 관측 0) 근거로 편입 / a5: 가변이지만 편입 — tcx `&mut DebugFrameData(224B)` = 디버그 싱크 — IR 실측상 본문이 역참조하지 않고 넘기기만 한다(클로저 내부 쓰기는 미확인 ⟹ 중복 기록 가능 · 반환 대조엔 무관)", &[]),
     sl!(83, 71, "should_recall_to_shop", "game-ai\\src\\lib.rs", 0xe7acd0, &[0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x55, 0x53], 13977899, &[1], "", &[]),
-    sl!(84, 87, "check_kill", "game-ai\\src\\plan_legacy\\handler.rs", 0xe6b800, &[0x55, 0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x53], 16403353, &[], "a6: 가변이지만 편입 — tcx `DebugFrameData` = 디버그 싱크 — IR 실측상 본문이 역참조하지 않고 넘기기만 한다(클로저 내부 쓰기는 미확인 ⟹ 중복 기록 가능 · 반환 대조엔 무관)", &[]),
+    sl!(84, 87, "check_kill", "game-ai\\src\\plan_legacy\\handler.rs", 0xe6b800, &[0x55, 0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x53], 16403353, &[], "a6: 가변이지만 편입 — tcx `&mut DebugFrameData (224B)` = 디버그 싱크 — IR 실측상 본문이 역참조하지 않고 넘기기만 한다(클로저 내부 쓰기는 미확인 ⟹ 중복 기록 가능 · 반환 대조엔 무관)", &[]),
     sl!(85, 55, "EntityPositioningCache::new", "game-ai\\src\\score_parameter.rs", 0xd815e0, &[0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x55, 0x53], 18749665, &[], "", &[]),
     sl!(86, 38, "can_tower_focused_when_battle", "game-ai\\src\\tower_discipline.rs", 0xd988d0, &[0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x55, 0x53], 18769014, &[], "", &[]),
     sl!(87, 59, "is_unreasonable_tower_dive_enemy", "game-ai\\src\\plan_legacy\\old\\fight_model.rs", 0xe0bf70, &[0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x55, 0x53], 19113742, &[], "", &[]),
@@ -880,6 +880,20 @@ thread_local! {
     static VB22: core::cell::UnsafeCell<([u8; 12288], usize, bool)> = core::cell::UnsafeCell::new(([0u8; 12288], 0, false));
 }
 thread_local! {
+    /// `#97` 의 **게임 호출 전** self 스냅샷(32B). 스레드당 1개 — 재진입은 `top()` 이 막는다.
+    static SV44: core::cell::UnsafeCell<[u8; 32]> = core::cell::UnsafeCell::new([0u8; 32]);
+    /// `#97` 의 **게임 호출 후** self 스냅샷(32B).
+    static SP44: core::cell::UnsafeCell<[u8; 32]> = core::cell::UnsafeCell::new([0u8; 32]);
+    /// `#97` 의 **내 사본 호출 후** self 스냅샷(32B) — 반환값이 죽은 슬롯의 판정 재료.
+    static SQ44: core::cell::UnsafeCell<[u8; 32]> = core::cell::UnsafeCell::new([0u8; 32]);
+    /// `#97` 명세 0 소유 Vec 의 **게임 호출 전** 내용(32KB) + (cap,len,esz)×4 + 개수 + 수용 여부.
+    ///   ⚠게임 호출이 그 버퍼를 **해제/재할당**했을 수 있어 호출 뒤에 읽으면 freelist 잔재다.
+    static PV44_0: core::cell::UnsafeCell<([u8; 32768], [(usize, usize, usize); 8], usize, bool)> = core::cell::UnsafeCell::new(([0u8; 32768], [(0, 0, 0); 8], 0, false));
+    /// `#97` 의 `Vec` 사본 버퍼(용량 1536개) + 게임과 같은 len.
+    /// `.2` = 이번 호출이 내 버퍼에 **들어갔나**. 안 들어갔으면 비교를 건너뛴다(거짓 DIFF 방지).
+    static VB44: core::cell::UnsafeCell<([u8; 12288], usize, bool)> = core::cell::UnsafeCell::new(([0u8; 12288], 0, false));
+}
+thread_local! {
     /// `#44` 의 **게임 호출 전** self 스냅샷(6168B). 스레드당 1개 — 재진입은 `top()` 이 막는다.
     static SV45: core::cell::UnsafeCell<[u8; 6168]> = core::cell::UnsafeCell::new([0u8; 6168]);
     /// `#44` 의 **게임 호출 후** self 스냅샷(6168B).
@@ -889,6 +903,20 @@ thread_local! {
     /// `#44` 의 `Vec` 사본 버퍼(용량 307개) + 게임과 같은 len.
     /// `.2` = 이번 호출이 내 버퍼에 **들어갔나**. 안 들어갔으면 비교를 건너뛴다(거짓 DIFF 방지).
     static VB45: core::cell::UnsafeCell<([u8; 12280], usize, bool)> = core::cell::UnsafeCell::new(([0u8; 12280], 0, false));
+}
+thread_local! {
+    /// `#83` 의 **게임 호출 전** self 스냅샷(32B). 스레드당 1개 — 재진입은 `top()` 이 막는다.
+    static SV52: core::cell::UnsafeCell<[u8; 32]> = core::cell::UnsafeCell::new([0u8; 32]);
+    /// `#83` 의 **게임 호출 후** self 스냅샷(32B).
+    static SP52: core::cell::UnsafeCell<[u8; 32]> = core::cell::UnsafeCell::new([0u8; 32]);
+    /// `#83` 의 **내 사본 호출 후** self 스냅샷(32B) — 반환값이 죽은 슬롯의 판정 재료.
+    static SQ52: core::cell::UnsafeCell<[u8; 32]> = core::cell::UnsafeCell::new([0u8; 32]);
+    /// `#83` 명세 0 소유 Vec 의 **게임 호출 전** 내용(32KB) + (cap,len,esz)×4 + 개수 + 수용 여부.
+    ///   ⚠게임 호출이 그 버퍼를 **해제/재할당**했을 수 있어 호출 뒤에 읽으면 freelist 잔재다.
+    static PV52_0: core::cell::UnsafeCell<([u8; 32768], [(usize, usize, usize); 8], usize, bool)> = core::cell::UnsafeCell::new(([0u8; 32768], [(0, 0, 0); 8], 0, false));
+    /// `#83` 의 `Vec` 사본 버퍼(용량 1536개) + 게임과 같은 len.
+    /// `.2` = 이번 호출이 내 버퍼에 **들어갔나**. 안 들어갔으면 비교를 건너뛴다(거짓 DIFF 방지).
+    static VB52: core::cell::UnsafeCell<([u8; 12288], usize, bool)> = core::cell::UnsafeCell::new(([0u8; 12288], 0, false));
 }
 thread_local! {
     /// `#18` — exe 가 **버린** `&mut StdRng` 자리에 넘길 더미(320B).
@@ -1085,6 +1113,18 @@ fn hs_vecs_11_0(tag: u64) -> &'static [(usize, usize, u8)] {
         14 => &[(0x8, 8, 0)],
         t if !(2..=17).contains(&t) => &[(0xf8, 24, 1)],
         _ => &[],   // 단위 variant 등 소유 없음
+    }
+}
+/// `#97` 명세 0 — self+0x0 의 평면 필드(태그 무관) → 소유 Vec 목록(off, 요소 크기, live id).
+fn hs_vecs_97_0(tag: u64) -> &'static [(usize, usize, u8)] {
+    match tag {
+        _ => &[(0x0, 8, 0)],
+    }
+}
+/// `#83` 명세 0 — self+0x0 의 평면 필드(태그 무관) → 소유 Vec 목록(off, 요소 크기, live id).
+fn hs_vecs_83_0(tag: u64) -> &'static [(usize, usize, u8)] {
+    match tag {
+        _ => &[(0x0, 8, 0)],
     }
 }
 /// `#12` 명세 0 — self+0x5e8 의 메모리태그 → 소유 Vec 목록(off, 요소 크기, live id).
@@ -4371,21 +4411,140 @@ unsafe fn w_97(a0: *const u8, a1: *const u8, a2: i64, a3: *const u8, a4: *const 
     S[44].calls.fetch_add(1, Ordering::Relaxed);
     let f: unsafe fn(*const u8, *const u8, i64, *const u8, *const u8, *const u8, *const u8, *const u8, *const u8) = core::mem::transmute(S[44].orig.load(Ordering::Relaxed));
     let t = top(44);
+    // ★★&mut 게임 상태(32B) — **게임 호출 전** 상태를 떠 두지 않으면 내 사본은
+    //   게임이 바꿔놓은 입력을 보게 돼 **거짓 DIFF** 가 난다(이 함수는 self 를 읽고도 쓴다).
+    // ★★**스택이 아니라 thread_local 힙**에 둔다 — 32B × 2 를 스택에 잡으면
+    //   rayon 워커의 **소스택 + 게임 sim 재귀**에서 STATUS_STACK_OVERFLOW 로 죽는다
+    //   (2026-09-12 실사고: 스택 배열로 두던 판이 배경 sim 시작 직후 패닉로그 없이 즉사).
+    SV44.with(|c| { let sv = &mut *c.get();
+        if t { core::ptr::copy_nonoverlapping(a1, sv.as_mut_ptr(), 32); } });
+    VB44.with(|c| { (&mut *c.get()).2 = true; });   // 치환할 Vec 이 없다 = 항상 표본
+    // ★명세 0: self+0x0 의 소유 Vec **내용을 게임 호출 전에** 떠 둔다 — 게임이 해제/재할당할 수 있다.
+    PV44_0.with(|c| { let pv = &mut *c.get(); pv.2 = 0; pv.3 = true; if t {
+        let tg = 0u64;
+        let mut used = 0usize;
+        for (i, &(off, esz, _)) in hs_vecs_97_0(tg).iter().enumerate() {
+            if i >= 8 { pv.3 = false; break; }
+            let b = a1 as usize + 0x0 + off;
+            let (cap, ptr, len) = (core::ptr::read_unaligned(b as *const usize),
+                                   core::ptr::read_unaligned((b + 8) as *const usize),
+                                   core::ptr::read_unaligned((b + 16) as *const usize));
+            pv.2 = i + 1;
+            if ptr > 0x1000 && len <= cap && cap < (1 << 20) {
+                if used + len * esz > 32768 { pv.3 = false; break; }
+                if len > 0 { core::ptr::copy_nonoverlapping(ptr as *const u8, pv.0.as_mut_ptr().add(used), len * esz); }
+                pv.1[i] = (cap, len, esz); used += len * esz;
+            } else { pv.1[i] = (0, 0, esz); }   // 비정상 삼중항 = 치환 안 함
+        }
+    } });
     // ★StdRng(320B) — 게임 호출이 난수열을 소비하므로 **먼저 떠 둔다**(안 그러면 거짓 DIFF).
     let mut r3 = [0u8; 320]; if t { core::ptr::copy_nonoverlapping(a3, r3.as_mut_ptr(), 320); }
     let g = f(a0, a1, a2, a3, a4, a5, a6, a7, a8);
     if !t { pop(44); return g; }
+    // ★내 Vec 사본 버퍼에 안 들어간 호출은 **표본에서 뺀다** — 예전엔 `len=0` 으로
+    //   떨어뜨려 **입력이 어긋난 채 비교**했고 그게 거짓 DIFF 였다(2026-09-12 차단).
+    if !VB44.with(|c| (&*c.get()).2) { S[44].skip.fetch_add(1, Ordering::Relaxed); pop(44); return g; }
     let n = S[44].cmp.fetch_add(1, Ordering::Relaxed) + 1;
     let mut p3 = [0u8; 320]; core::ptr::copy_nonoverlapping(a3, p3.as_mut_ptr(), 320); // 게임 호출 후 상태
     core::ptr::copy_nonoverlapping(r3.as_ptr(), a3 as *mut u8, 320);                    // 내 사본 호출 전 = 호출 전 상태로
+    SP44.with(|c| { let sp = &mut *c.get();
+        core::ptr::copy_nonoverlapping(a1, sp.as_mut_ptr(), 32); });   // 게임 호출 후 상태
+    SV44.with(|c| { let sv = &*c.get();
+        core::ptr::copy_nonoverlapping(sv.as_ptr(), a1 as *mut u8, 32); }); // 내 사본 호출 전 = 호출 전 상태로
+    // ★★★힙 인식 스냅샷 — self 소유 Vec 들을 **내 힙 할당**으로 바꿔치기(내 사본의 drop/realloc 이 내 것에만 닿게).
+    let ptag_0: u64 = 0;
+    if !PV44_0.with(|c| (&*c.get()).3) {   // 스크래치에 안 들어갔다 = 표본 제외
+        S[44].skip.fetch_add(1, Ordering::Relaxed);
+        SP44.with(|c| { let sp = &*c.get(); core::ptr::copy_nonoverlapping(sp.as_ptr(), a1 as *mut u8, 32); });
+        core::ptr::copy_nonoverlapping(p3.as_ptr(), a3 as *mut u8, 320);   // RNG = 게임 호출 후
+        pop(44); return g;
+    }
+    PV44_0.with(|c| { let pv = &*c.get(); let mut used = 0usize;
+        for (i, &(off, esz, _)) in hs_vecs_97_0(ptag_0).iter().enumerate() {
+            if i >= pv.2 { break; }
+            let (cap, len, _) = pv.1[i];
+            let b = a1 as usize + 0x0 + off;
+            if cap > 0 && len <= cap {
+                // 여유를 둔다 — 내 사본이 push 해도 realloc 없이 들어가게(realloc 도 합법이지만 덜 흔들리게)
+                let ncap = cap.max(len + 64);
+                if let Ok(l) = std::alloc::Layout::from_size_align(ncap * esz, 8) {
+                    let blk = std::alloc::alloc(l);
+                    if !blk.is_null() {
+                        if len > 0 { core::ptr::copy_nonoverlapping(pv.0.as_ptr().add(used), blk, len * esz); }   // ★게임 호출 전 내용
+                        core::ptr::write_unaligned(b as *mut usize, ncap);
+                        core::ptr::write_unaligned((b + 8) as *mut usize, blk as usize);
+                        core::ptr::write_unaligned((b + 16) as *mut usize, len);
+                    }
+                }
+                used += len * esz;
+            } else if cap == 0 {
+                // 빈 Vec(cap 0) — 게임 것도 댕글링이라 그대로 둬도 free 는 안 나지만, push 가 alloc 을 부르면
+                // 그 결과는 내 것이다(아래 해제가 처리). 그대로 둔다.
+            }
+        }
+    });
     let mut gb = [0u64; 9]; core::ptr::copy_nonoverlapping(a0, gb.as_mut_ptr() as *mut u8, 72); // 게임 출력 사본
     let mut mb = [0u64; 9];                                                   // 내 사본 전용 출력 버퍼
     let m = catch_unwind(AssertUnwindSafe(|| my_97(mb.as_mut_ptr() as *const u8, a1, a2, a3, a4, a5, a6, a7, a8)));
+    // ★★★상태 diff — 이 함수는 **반환이 void** 다. ABI 상 반환이 없는 것이지
+    //   **출력이 없는 게 아니다** — 출력은 `&mut self` 에 있다 ⟹ 그걸 비교한다.
+    //   ⚠되돌리기·해제 **전에** 떠서 비교한다 — 내 사본이 재할당했으면 해제 후엔 못 읽는다.
+    SQ44.with(|c| { let sq = &mut *c.get();
+        core::ptr::copy_nonoverlapping(a1, sq.as_mut_ptr(), 32); });
+    let sd: Option<String> = SP44.with(|c| { let sp = &*c.get(); SQ44.with(|c2| { let sq = &*c2.get();
+        // ① 본체 바이트(설계상 다른 구간은 제외)
+        // ★소유 Vec 삼중항(cap/ptr/len 24B)은 **동적 skip**(게임 것 vs 내 할당) — len·내용은 ②′에서 비교
+        let gtag_0: u64 = 0;
+        let dyn_0: &[(usize, usize, u8)] = hs_vecs_97_0(gtag_0);
+        for off in 0..32usize {
+            if dyn_0.iter().any(|&(o, _, _)| off >= 0x0 + o && off < 0x0 + o + 24) { continue; }
+            if sp[off] != sq[off] {
+                return Some(format!("self+{:#x}: g={:02x} m={:02x}", off, sp[off], sq[off]));
+            }
+        }
+        // ②′ 명세 0 소유 Vec 의 len·내용 — 요소는 ELEM_LIVE(live id)로 살아있는 바이트만
+        for &(o, esz, lid) in dyn_0 {
+            let (gb, mb) = (sp.as_ptr().add(0x0 + o), sq.as_ptr().add(0x0 + o));
+            // ★`Option<Vec>` 은 cap 을 니치로 쓴다(상위비트 = None). 그 경우 len/ptr 은 미초기화 — 읽지 않는다.
+            let (gc, mc) = (core::ptr::read_unaligned(gb as *const usize), core::ptr::read_unaligned(mb as *const usize));
+            let (gn, mn) = (gc >> 63 != 0, mc >> 63 != 0);
+            if gn != mn { return Some(format!("self+{:#x}.opt: g={} m={}", 0x0 + o, if gn { "None" } else { "Some" }, if mn { "None" } else { "Some" })); }
+            if gn { continue; }
+            let (gp, gl) = (core::ptr::read_unaligned(gb.add(8) as *const usize), core::ptr::read_unaligned(gb.add(16) as *const usize));
+            let (mp, ml) = (core::ptr::read_unaligned(mb.add(8) as *const usize), core::ptr::read_unaligned(mb.add(16) as *const usize));
+            if gl != ml { return Some(format!("self+{:#x}.len: g={} m={}", 0x0 + o, gl, ml)); }
+            if gl > 0 && gl < 4096 && gp > 0x1000 && mp > 0x1000 && gp != mp {
+                for e in 0..gl {
+                    if let Some(d) = elem_cmp(lid, esz, gp + e * esz, mp + e * esz) {
+                        return Some(format!("self+{:#x}[{}]{}", 0x0 + o, e, d));
+                    }
+                }
+            }
+        }
+        None
+    }) });
+    // ★내 사본이 남긴 소유 Vec 을 해제한다 — 이 시점에 그 포인터는 **전부 내 것**이다
+    //   (게임 것은 위에서 내 할당으로 바꿔치기됐고, 새로 만든 것은 내 사본이 할당했다).
+    //   ⚠먼저 **내 사본이 새로 push 한 요소**의 String(ELEM_LIVE.str)을 해제한다 — pre-call len 미만은 게임 버퍼의 복사본.
+    { let t2: u64 = 0;
+      PV44_0.with(|c| { let pv = &*c.get();
+      for (i, &(off, esz, lid)) in hs_vecs_97_0(t2).iter().enumerate() {
+          let b = a1 as usize + 0x0 + off;
+          let (cap, ptr, len) = (core::ptr::read_unaligned(b as *const usize), core::ptr::read_unaligned((b + 8) as *const usize),
+                                 core::ptr::read_unaligned((b + 16) as *const usize));
+          if cap > 0 && cap < (1 << 20) && ptr > 0x1000 {
+              let pre = if i < pv.2 { pv.1[i].1 } else { 0 };
+              if BISECT_NO_STRFREE == 0 && lid != 0 && len > pre && len < 4096 { for e in pre..len { elem_free_str(lid, ptr + e * esz); } }
+              if let Ok(l) = std::alloc::Layout::from_size_align(cap * esz, 8) { std::alloc::dealloc(ptr as *mut u8, l); }
+          }
+      } }); }
+    SP44.with(|c| { let sp = &*c.get();
+        core::ptr::copy_nonoverlapping(sp.as_ptr(), a1 as *mut u8, 32); }); // 게임 호출 후 상태로 복구
     core::ptr::copy_nonoverlapping(p3.as_ptr(), a3 as *mut u8, 320);                    // 게임 호출 후 상태로 복구(게임 진행은 게임 값으로)
     match m {
         Ok(_) => { let (gt, mt) = (gb[0], mb[0]);
-            let d = if gt != mt { Some(format!("tag g={} m={}", gt, mt)) } else { enumlive_cmp_97_0(gt, gb.as_ptr() as usize, mb.as_ptr() as usize).map(|x| format!("(tag {}){}", gt, x)) };
-            if let Some(d) = d { note(44, format!("#97 SerpenHuntAndPokePlan::sub_plan 대조#{} 갈림(sret 열거형 72B): {} | g={:02x?} m={:02x?} | a1={:#x} a2={} a3={:#x} a4={:#x} a5={:#x} a6={:#x} a7={:#x} a8={:#x}", n, d, &gb[..9], &mb[..9], a1 as usize, a2, a3 as usize, a4 as usize, a5 as usize, a6 as usize, a7 as usize, a8 as usize)); } }
+            let rd = if gt != mt { Some(format!("tag g={} m={}", gt, mt)) } else { enumlive_cmp_97_0(gt, gb.as_ptr() as usize, mb.as_ptr() as usize).map(|x| format!("(tag {}){}", gt, x)) };
+            if sd.is_some() || rd.is_some() { note(44, format!("#97 SerpenHuntAndPokePlan::sub_plan 대조#{} **갈림**: 상태={:?} 반환={:?} | g={:02x?} m={:02x?} | a1={:#x} a2={} a3={:#x} a4={:#x} a5={:#x} a6={:#x} a7={:#x} a8={:#x}", n, sd, rd, &gb[..9], &mb[..9], a1 as usize, a2, a3 as usize, a4 as usize, a5 as usize, a6 as usize, a7 as usize, a8 as usize)); } }
         Err(_) => { S[44].pan.fetch_add(1, Ordering::Relaxed); }
     }
     pop(44);
@@ -4583,21 +4742,140 @@ unsafe fn w_83(a0: *const u8, a1: *const u8, a2: i64, a3: *const u8, a4: *const 
     S[52].calls.fetch_add(1, Ordering::Relaxed);
     let f: unsafe fn(*const u8, *const u8, i64, *const u8, *const u8, *const u8, *const u8, *const u8, *const u8) = core::mem::transmute(S[52].orig.load(Ordering::Relaxed));
     let t = top(52);
+    // ★★&mut 게임 상태(32B) — **게임 호출 전** 상태를 떠 두지 않으면 내 사본은
+    //   게임이 바꿔놓은 입력을 보게 돼 **거짓 DIFF** 가 난다(이 함수는 self 를 읽고도 쓴다).
+    // ★★**스택이 아니라 thread_local 힙**에 둔다 — 32B × 2 를 스택에 잡으면
+    //   rayon 워커의 **소스택 + 게임 sim 재귀**에서 STATUS_STACK_OVERFLOW 로 죽는다
+    //   (2026-09-12 실사고: 스택 배열로 두던 판이 배경 sim 시작 직후 패닉로그 없이 즉사).
+    SV52.with(|c| { let sv = &mut *c.get();
+        if t { core::ptr::copy_nonoverlapping(a1, sv.as_mut_ptr(), 32); } });
+    VB52.with(|c| { (&mut *c.get()).2 = true; });   // 치환할 Vec 이 없다 = 항상 표본
+    // ★명세 0: self+0x0 의 소유 Vec **내용을 게임 호출 전에** 떠 둔다 — 게임이 해제/재할당할 수 있다.
+    PV52_0.with(|c| { let pv = &mut *c.get(); pv.2 = 0; pv.3 = true; if t {
+        let tg = 0u64;
+        let mut used = 0usize;
+        for (i, &(off, esz, _)) in hs_vecs_83_0(tg).iter().enumerate() {
+            if i >= 8 { pv.3 = false; break; }
+            let b = a1 as usize + 0x0 + off;
+            let (cap, ptr, len) = (core::ptr::read_unaligned(b as *const usize),
+                                   core::ptr::read_unaligned((b + 8) as *const usize),
+                                   core::ptr::read_unaligned((b + 16) as *const usize));
+            pv.2 = i + 1;
+            if ptr > 0x1000 && len <= cap && cap < (1 << 20) {
+                if used + len * esz > 32768 { pv.3 = false; break; }
+                if len > 0 { core::ptr::copy_nonoverlapping(ptr as *const u8, pv.0.as_mut_ptr().add(used), len * esz); }
+                pv.1[i] = (cap, len, esz); used += len * esz;
+            } else { pv.1[i] = (0, 0, esz); }   // 비정상 삼중항 = 치환 안 함
+        }
+    } });
     // ★StdRng(320B) — 게임 호출이 난수열을 소비하므로 **먼저 떠 둔다**(안 그러면 거짓 DIFF).
     let mut r3 = [0u8; 320]; if t { core::ptr::copy_nonoverlapping(a3, r3.as_mut_ptr(), 320); }
     let g = f(a0, a1, a2, a3, a4, a5, a6, a7, a8);
     if !t { pop(52); return g; }
+    // ★내 Vec 사본 버퍼에 안 들어간 호출은 **표본에서 뺀다** — 예전엔 `len=0` 으로
+    //   떨어뜨려 **입력이 어긋난 채 비교**했고 그게 거짓 DIFF 였다(2026-09-12 차단).
+    if !VB52.with(|c| (&*c.get()).2) { S[52].skip.fetch_add(1, Ordering::Relaxed); pop(52); return g; }
     let n = S[52].cmp.fetch_add(1, Ordering::Relaxed) + 1;
     let mut p3 = [0u8; 320]; core::ptr::copy_nonoverlapping(a3, p3.as_mut_ptr(), 320); // 게임 호출 후 상태
     core::ptr::copy_nonoverlapping(r3.as_ptr(), a3 as *mut u8, 320);                    // 내 사본 호출 전 = 호출 전 상태로
+    SP52.with(|c| { let sp = &mut *c.get();
+        core::ptr::copy_nonoverlapping(a1, sp.as_mut_ptr(), 32); });   // 게임 호출 후 상태
+    SV52.with(|c| { let sv = &*c.get();
+        core::ptr::copy_nonoverlapping(sv.as_ptr(), a1 as *mut u8, 32); }); // 내 사본 호출 전 = 호출 전 상태로
+    // ★★★힙 인식 스냅샷 — self 소유 Vec 들을 **내 힙 할당**으로 바꿔치기(내 사본의 drop/realloc 이 내 것에만 닿게).
+    let ptag_0: u64 = 0;
+    if !PV52_0.with(|c| (&*c.get()).3) {   // 스크래치에 안 들어갔다 = 표본 제외
+        S[52].skip.fetch_add(1, Ordering::Relaxed);
+        SP52.with(|c| { let sp = &*c.get(); core::ptr::copy_nonoverlapping(sp.as_ptr(), a1 as *mut u8, 32); });
+        core::ptr::copy_nonoverlapping(p3.as_ptr(), a3 as *mut u8, 320);   // RNG = 게임 호출 후
+        pop(52); return g;
+    }
+    PV52_0.with(|c| { let pv = &*c.get(); let mut used = 0usize;
+        for (i, &(off, esz, _)) in hs_vecs_83_0(ptag_0).iter().enumerate() {
+            if i >= pv.2 { break; }
+            let (cap, len, _) = pv.1[i];
+            let b = a1 as usize + 0x0 + off;
+            if cap > 0 && len <= cap {
+                // 여유를 둔다 — 내 사본이 push 해도 realloc 없이 들어가게(realloc 도 합법이지만 덜 흔들리게)
+                let ncap = cap.max(len + 64);
+                if let Ok(l) = std::alloc::Layout::from_size_align(ncap * esz, 8) {
+                    let blk = std::alloc::alloc(l);
+                    if !blk.is_null() {
+                        if len > 0 { core::ptr::copy_nonoverlapping(pv.0.as_ptr().add(used), blk, len * esz); }   // ★게임 호출 전 내용
+                        core::ptr::write_unaligned(b as *mut usize, ncap);
+                        core::ptr::write_unaligned((b + 8) as *mut usize, blk as usize);
+                        core::ptr::write_unaligned((b + 16) as *mut usize, len);
+                    }
+                }
+                used += len * esz;
+            } else if cap == 0 {
+                // 빈 Vec(cap 0) — 게임 것도 댕글링이라 그대로 둬도 free 는 안 나지만, push 가 alloc 을 부르면
+                // 그 결과는 내 것이다(아래 해제가 처리). 그대로 둔다.
+            }
+        }
+    });
     let mut gb = [0u64; 9]; core::ptr::copy_nonoverlapping(a0, gb.as_mut_ptr() as *mut u8, 72); // 게임 출력 사본
     let mut mb = [0u64; 9];                                                   // 내 사본 전용 출력 버퍼
     let m = catch_unwind(AssertUnwindSafe(|| my_83(mb.as_mut_ptr() as *const u8, a1, a2, a3, a4, a5, a6, a7, a8)));
+    // ★★★상태 diff — 이 함수는 **반환이 void** 다. ABI 상 반환이 없는 것이지
+    //   **출력이 없는 게 아니다** — 출력은 `&mut self` 에 있다 ⟹ 그걸 비교한다.
+    //   ⚠되돌리기·해제 **전에** 떠서 비교한다 — 내 사본이 재할당했으면 해제 후엔 못 읽는다.
+    SQ52.with(|c| { let sq = &mut *c.get();
+        core::ptr::copy_nonoverlapping(a1, sq.as_mut_ptr(), 32); });
+    let sd: Option<String> = SP52.with(|c| { let sp = &*c.get(); SQ52.with(|c2| { let sq = &*c2.get();
+        // ① 본체 바이트(설계상 다른 구간은 제외)
+        // ★소유 Vec 삼중항(cap/ptr/len 24B)은 **동적 skip**(게임 것 vs 내 할당) — len·내용은 ②′에서 비교
+        let gtag_0: u64 = 0;
+        let dyn_0: &[(usize, usize, u8)] = hs_vecs_83_0(gtag_0);
+        for off in 0..32usize {
+            if dyn_0.iter().any(|&(o, _, _)| off >= 0x0 + o && off < 0x0 + o + 24) { continue; }
+            if sp[off] != sq[off] {
+                return Some(format!("self+{:#x}: g={:02x} m={:02x}", off, sp[off], sq[off]));
+            }
+        }
+        // ②′ 명세 0 소유 Vec 의 len·내용 — 요소는 ELEM_LIVE(live id)로 살아있는 바이트만
+        for &(o, esz, lid) in dyn_0 {
+            let (gb, mb) = (sp.as_ptr().add(0x0 + o), sq.as_ptr().add(0x0 + o));
+            // ★`Option<Vec>` 은 cap 을 니치로 쓴다(상위비트 = None). 그 경우 len/ptr 은 미초기화 — 읽지 않는다.
+            let (gc, mc) = (core::ptr::read_unaligned(gb as *const usize), core::ptr::read_unaligned(mb as *const usize));
+            let (gn, mn) = (gc >> 63 != 0, mc >> 63 != 0);
+            if gn != mn { return Some(format!("self+{:#x}.opt: g={} m={}", 0x0 + o, if gn { "None" } else { "Some" }, if mn { "None" } else { "Some" })); }
+            if gn { continue; }
+            let (gp, gl) = (core::ptr::read_unaligned(gb.add(8) as *const usize), core::ptr::read_unaligned(gb.add(16) as *const usize));
+            let (mp, ml) = (core::ptr::read_unaligned(mb.add(8) as *const usize), core::ptr::read_unaligned(mb.add(16) as *const usize));
+            if gl != ml { return Some(format!("self+{:#x}.len: g={} m={}", 0x0 + o, gl, ml)); }
+            if gl > 0 && gl < 4096 && gp > 0x1000 && mp > 0x1000 && gp != mp {
+                for e in 0..gl {
+                    if let Some(d) = elem_cmp(lid, esz, gp + e * esz, mp + e * esz) {
+                        return Some(format!("self+{:#x}[{}]{}", 0x0 + o, e, d));
+                    }
+                }
+            }
+        }
+        None
+    }) });
+    // ★내 사본이 남긴 소유 Vec 을 해제한다 — 이 시점에 그 포인터는 **전부 내 것**이다
+    //   (게임 것은 위에서 내 할당으로 바꿔치기됐고, 새로 만든 것은 내 사본이 할당했다).
+    //   ⚠먼저 **내 사본이 새로 push 한 요소**의 String(ELEM_LIVE.str)을 해제한다 — pre-call len 미만은 게임 버퍼의 복사본.
+    { let t2: u64 = 0;
+      PV52_0.with(|c| { let pv = &*c.get();
+      for (i, &(off, esz, lid)) in hs_vecs_83_0(t2).iter().enumerate() {
+          let b = a1 as usize + 0x0 + off;
+          let (cap, ptr, len) = (core::ptr::read_unaligned(b as *const usize), core::ptr::read_unaligned((b + 8) as *const usize),
+                                 core::ptr::read_unaligned((b + 16) as *const usize));
+          if cap > 0 && cap < (1 << 20) && ptr > 0x1000 {
+              let pre = if i < pv.2 { pv.1[i].1 } else { 0 };
+              if BISECT_NO_STRFREE == 0 && lid != 0 && len > pre && len < 4096 { for e in pre..len { elem_free_str(lid, ptr + e * esz); } }
+              if let Ok(l) = std::alloc::Layout::from_size_align(cap * esz, 8) { std::alloc::dealloc(ptr as *mut u8, l); }
+          }
+      } }); }
+    SP52.with(|c| { let sp = &*c.get();
+        core::ptr::copy_nonoverlapping(sp.as_ptr(), a1 as *mut u8, 32); }); // 게임 호출 후 상태로 복구
     core::ptr::copy_nonoverlapping(p3.as_ptr(), a3 as *mut u8, 320);                    // 게임 호출 후 상태로 복구(게임 진행은 게임 값으로)
     match m {
         Ok(_) => { let (gt, mt) = (gb[0], mb[0]);
-            let d = if gt != mt { Some(format!("tag g={} m={}", gt, mt)) } else { enumlive_cmp_83_0(gt, gb.as_ptr() as usize, mb.as_ptr() as usize).map(|x| format!("(tag {}){}", gt, x)) };
-            if let Some(d) = d { note(52, format!("#83 EpicHuntAndPokePlan::sub_plan 대조#{} 갈림(sret 열거형 72B): {} | g={:02x?} m={:02x?} | a1={:#x} a2={} a3={:#x} a4={:#x} a5={:#x} a6={:#x} a7={:#x} a8={:#x}", n, d, &gb[..9], &mb[..9], a1 as usize, a2, a3 as usize, a4 as usize, a5 as usize, a6 as usize, a7 as usize, a8 as usize)); } }
+            let rd = if gt != mt { Some(format!("tag g={} m={}", gt, mt)) } else { enumlive_cmp_83_0(gt, gb.as_ptr() as usize, mb.as_ptr() as usize).map(|x| format!("(tag {}){}", gt, x)) };
+            if sd.is_some() || rd.is_some() { note(52, format!("#83 EpicHuntAndPokePlan::sub_plan 대조#{} **갈림**: 상태={:?} 반환={:?} | g={:02x?} m={:02x?} | a1={:#x} a2={} a3={:#x} a4={:#x} a5={:#x} a6={:#x} a7={:#x} a8={:#x}", n, sd, rd, &gb[..9], &mb[..9], a1 as usize, a2, a3 as usize, a4 as usize, a5 as usize, a6 as usize, a7 as usize, a8 as usize)); } }
         Err(_) => { S[52].pan.fetch_add(1, Ordering::Relaxed); }
     }
     pop(52);

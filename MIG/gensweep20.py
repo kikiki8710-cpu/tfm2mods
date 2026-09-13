@@ -296,6 +296,13 @@ BISECT_NO_STRFREE = 0   # ★임시 이분 스위치(2026-09-13) — 0 으로 �
 BISECT_SKIP_MY = 0      # 이분 스위치(2026-09-13 원인 규명 완료 — 중첩 Vec 누락) — 0 유지
 
 SELF_RESTORE = {
+    # ★#88(i83) EpicHuntAndPokePlan::sub_plan(09-14) — a1 = &mut EpicHuntAndPokePlan(32B): v46_flee_threats Vec<usize>(cap@0 ptr@8 len@0x10 · IR m10.ll:8273~8275 load)
+    #   · focus_epic_only@24 · vision_only@25 · v46_flee@26(store 1 @8372 · store 0 @9204 · len=0 @9208). 게임 호출이 v46_flee 를 뒤집으면 내 사본의
+    #   check_recall 이 다른 가지를 탄다(판 3·4 DIFF 2 = 전환 틱). 원소 8B(usize · 태그 없음).
+    #   ⚠static VB 치환은 불가 — 이 함수는 `self.v46_flee_threats = threats.to_vec()` 로 **옛 Vec 을 drop** 한다(판 5 즉사 0xc0000374 힙 손상 · 09-13 22:49).
+    #     ⟹ Vec 삼중항은 비워 두고 HEAP_SUBST(내 힙 할당 치환)로 다룬다(#11/#12 방식).
+    83: (1, 32, [], 8),
+    97: (1, 32, [], 8),   # #102(i97) SerpenHuntAndPokePlan::sub_plan — 같은 레이아웃(tcxdict · Vec@0 · flags@24..26)
     18: (0, 1064, [(0xc0, 0xc8, 0xd0)], 24),   # a0 = &mut TeamPlan(1064B) · chats: Vec<Chat>(24B)
     54: (0, 1064, [(0xc0, 0xc8, 0xd0)], 24),   # #59 TeamPlan::update — 같은 self(09-13 r8)
     # ★#49(i44) take_misunderstood_received_chat — a0 = &mut LegacyPlanHandler(6168B). 쓰는 곳 = misunderstood_received_chats Vec
@@ -362,7 +369,7 @@ SELF_RESTORE = {
 #   값 = {"skip": [(오프셋, 길이), …]}  — 비교에서 뺄 구간(= 설계상 당연히 다른 곳).
 # ★self-diff 슬롯 중 **반환값이 살아있는** 것(09-13): #18 은 반환이 exe 에 미실재라 self 만 봤지만, #44 take_misunderstood 의 bool 은 실재
 #   (호출자가 분기) ⟹ 상태 + 반환을 둘 다 판정한다.
-LIVE_RET = {44}
+LIVE_RET = {44, 83, 97}   # 83 = sret 열거형(SubPlan) 과 self 부작용을 둘 다 판정(09-14)
 SELF_DIFF = {
     "v3_epicops_buff_window": {
         # `chats` 의 cap@0xc0 · ptr@0xc8 · len@0xd0 세 칸(24B). 버퍼가 서로 다르니 cap/ptr 은
@@ -392,6 +399,9 @@ SELF_DIFF = {
     #     ⟹ `elem_live` 는 **슬롯별**이어야 한다(이 표가 이름/idx 키인 이유).
     # ★#49(i44) take_misunderstood_received_chat — self 6168B 에서 Vec 삼중항만 빼고 비교 · 원소 40B 전 바이트(elem_live 없음).
     44: {"skip": [(0x7b0, 24)]},
+    # ★#88(i83): self 32B 에서 Vec 삼중항(+0..24) 제외 → focus/vision/v46_flee(+24..27) 비교 · 원소 usize 8B 전 바이트. 반환(sret SubPlan)도 함께 판정(LIVE_RET).
+    83: {"skip": []},   # Vec 삼중항은 HEAP_SUBST 동적 skip · len/내용은 ②′(raw 8B)
+    97: {"skip": []},
     # ★r9 goal_data 3(09-13 저녁) — 평면 self 전 바이트 비교(패딩은 양쪽이 같은 스냅샷에서 출발하므로 동일).
     74: {"skip": []},
     75: {"skip": []},
@@ -528,6 +538,9 @@ _BIGPLAN_SPEC = {"off": 0x5e8, "tags": (2, 17), "vecs": _BIGPLAN_VECS}
 #   전제(IR 실측으로 확인) = ①그 경로에서 self 소유 힙을 건드리는 곳이 **여기 적은 필드뿐** ②요소가 힙을 안 갖거나(평면)
 #        가지면 `ELEM_LIVE.str` 로 다룬다. ③착수 전 검사 = `heapsurf.py`(grow_one/drop 대상을 %0 오프셋으로 역추적).
 HEAP_SUBST = {
+    # #88(i83)/#102(i97) HuntAndPokePlan::sub_plan — self+0 `v46_flee_threats: Vec<usize>`(drop 후 교체 · clear). 요소 8B raw.
+    83: [{"off": 0, "tags": None, "vecs": [(0x0, 8)]}],
+    97: [{"off": 0, "tags": None, "vecs": [(0x0, 8)]}],
     # `#11` — `self.plan` 하나(drop 후 교체). 2026-09-13 실측 6,364 DIFF 0(범위한정).
     11: [_BIGPLAN_SPEC],
     # `#12 handle_chat` — heapsurf 실측(2026-09-13): `handle_chat_inner` 의 self 힙 표면 = `drop_glue(self+0x5e8)`×16
@@ -1135,8 +1148,12 @@ def main():
             if not a[2] or a[1] == 320:
                 continue
             pt = None
-            for p in params:                      # params 의 "i" 는 1-based 이고 IR 인자 순서와 같다
-                if p.get("i") == k + 1:
+            # ★★params `i` 규약(G16 P3) = **sret 행이 i=0, 소스 인자 1..n**. sret 함수는 IR %k ↔ i==k 이고, sret 없는 함수만 IR %k ↔ i==k+1 이다.
+            #   09-14 실사고: 옛 코드는 무조건 k+1 이라 sret 함수의 a1(&mut self)이 i=2(usize)로 읽혀 **가변 self 가 공유참조로 편입**됐다
+            #   → #88(i83) EpicHuntAndPokePlan::sub_plan DIFF 2(게임 호출이 self.v46_flee 를 뒤집고 내 사본이 그걸 본다).
+            want_i = k if g["sret"] else k + 1
+            for p in params:
+                if p.get("i") == want_i:
                     pt = (p.get("type") or "").strip()
                     break
             ok = next((v for t2, v in MUT_OK_TCX.items() if pt and t2 in pt), None)
@@ -1900,7 +1917,14 @@ def main():
         for (j, nb) in ARG_SNAP.get(r["idx"], []):
             w(u"    core::ptr::copy_nonoverlapping(s%d.as_ptr(), a%d as *mut u8, %d);                    // 게임 호출 후 상태로 복구" % (j, j, nb))
         w(u"    match m {")
-        if self_diff_of(r["idx"], r["name"]) and r.get("selfr") and r["idx"] in LIVE_RET and r["rty"] != "()":
+        if self_diff_of(r["idx"], r["name"]) and r.get("selfr") and r["idx"] in LIVE_RET and sn and r.get("sret_enum"):
+            # ★09-14(#83): self 부작용 **과** sret 열거형 반환을 둘 다 판정한다.
+            w(u"        Ok(_) => { let (gt, mt) = (gb[0], mb[0]);")
+            w(u"            let rd = if gt != mt { Some(format!(\"tag g={} m={}\", gt, mt)) } else { enumlive_cmp_%d_0(gt, gb.as_ptr() as usize, mb.as_ptr() as usize).map(|x| format!(\"(tag {}){}\", gt, x)) };"
+              % r["idx"])
+            w(u"            if sd.is_some() || rd.is_some() { note(%d, format!(\"#%02d %s 대조#{} **갈림**: 상태={:?} 반환={:?} | g={:02x?} m={:02x?} | %s\", n, sd, rd, &gb[..%d], &mb[..%d], %s)); } }"
+              % (k, r["idx"], r["name"], " ".join(fmt[1:]), (sn + 7) // 8, (sn + 7) // 8, ", ".join(vals[1:])))
+        elif self_diff_of(r["idx"], r["name"]) and r.get("selfr") and r["idx"] in LIVE_RET and r["rty"] != "()":
             # ★09-13(#44): self 부작용 **과** 살아있는 반환값을 둘 다 판정한다(#18 의 「반환 미실재」는 그 슬롯만의 사실).
             w(u"        Ok(m) => { let rd = if m != g { Some(format!(\"반환 g={:?} m={:?}\", g, m)) } else { None };")
             w(u"            if sd.is_some() || rd.is_some() { note(%d, format!(\"#%02d %s 대조#{} **갈림**: 상태={:?} 반환={:?} | %s\", n, sd, rd, %s)); } }"
