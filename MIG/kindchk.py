@@ -92,7 +92,9 @@ WEAK = ("CALLARG", "DBGSTR", "GEP")                  # ★구제에만 쓴다(�
 
 # kind → 그 주장을 **지지**하는 관측 클래스
 SUPPORT = {
-    u"임계":   ("CMP_ORD",),
+    # ★09-13(15차 배치B 적발): `llvm.umin/umax` 클램프의 상한·하한도 임계다 — 낱말이 `상한` 인데 `MINMAX` 가
+    #   지지 목록에 없어 규칙③(KIND_PRI) 로 `인덱스` 가 됐다(#26 consts[8]). MINMAX 를 구제 관측에 넣는다.
+    u"임계":   ("CMP_ORD", "MINMAX"),
     u"태그":   COMPARE_EQ + PRODUCE,
     u"센티널": COMPARE_EQ + PRODUCE,
     u"인덱스": ("GEP", "MINMAX", "ARITH"),

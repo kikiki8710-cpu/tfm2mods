@@ -9937,8 +9937,7 @@
    "ir": {
     "file": "m09.ll",
     "frm": 19008,
-    "to": 19228,
-    "aux": []
+    "to": 19228
    },
    "base_round": "r7",
    "rounds": 1,
@@ -10175,8 +10174,7 @@
    "ir": {
     "file": "m14.ll",
     "frm": 6620,
-    "to": 7067,
-    "aux": []
+    "to": 7067
    },
    "base_round": "r7",
    "rounds": 1,
@@ -10209,12 +10207,18 @@
      },
      {
       "i": 4,
-      "name": "game",
-      "type": "&dyn AbstractGame — 팻포인터 = IR 2슬롯(%4 data ptr · %5 vtable ptr) · 둘 다 readnone(본문에서 전혀 안 씀)",
+      "name": "game(data ptr)",
+      "type": "&dyn AbstractGame (data 절반)",
       "note": "readnone — 본문에서 전혀 안 씀. `&dyn AbstractGame` 팻포인터가 ABI 에서 (data, vtable) 2행으로 갈라진 것 — tcx 소스 인자 5 ↔ define 7행(sret+dyn 분할)이 정상이다. pub 래퍼 AgentVerHamster::upgrade_item(lib.rs:1193, m14.ll:35109)은 이 자리에 `ptr nonnull poison`, version 에 `i64 poison` 을 넘긴다(컴파일러가 미사용을 증명)"
      },
      {
       "i": 5,
+      "name": "game(vtable ptr)",
+      "type": "&dyn AbstractGame (vtable 절반)",
+      "note": "본문에서 안 씀"
+     },
+     {
+      "i": 6,
       "name": "context",
       "type": "&GameContext(64B)",
       "note": "pool(+0x0, 후보 Vec 할당자) 와 item_list(+0x30)"
@@ -10456,19 +10460,7 @@
    "ir": {
     "file": "m07.ll",
     "frm": 48968,
-    "to": 49426,
-    "aux": [
-     {
-      "file": "m06.ll",
-      "frm": 7138,
-      "to": 7221
-     },
-     {
-      "file": "m11.ll",
-      "frm": 24737,
-      "to": 24829
-     }
-    ]
+    "to": 49426
    },
    "base_round": "r7",
    "rounds": 1,
@@ -10767,8 +10759,7 @@
    "ir": {
     "file": "m14.ll",
     "frm": 8267,
-    "to": 8721,
-    "aux": []
+    "to": 8721
    },
    "base_round": "r7",
    "rounds": 1,
@@ -10776,28 +10767,34 @@
    "signature": {
     "params": [
      {
-      "i": 1,
+      "i": 0,
       "name": "version",
       "type": "usize",
       "note": "본문에서 안 쓰임(dbg_value 없음, 분기 없음)"
      },
      {
-      "i": 2,
+      "i": 1,
       "name": "rnd",
       "type": "&mut StdRng",
       "note": "gen_range(0..candidate.len()) 로 최종 1개 선택"
      },
      {
-      "i": 3,
+      "i": 2,
       "name": "player",
       "type": "&PlayerState(2528B)",
       "note": "info.items(+0x4a0/+0x4a8) · info.champion(+0x510 Arc<dyn ChampionInfo>) · info.gold(+0x998)"
      },
      {
-      "i": 4,
-      "name": "game",
-      "type": "&dyn AbstractGame — 팻포인터 = IR 2슬롯(%3 data ptr · %4 vtable ptr) · 둘 다 안 씀",
+      "i": 3,
+      "name": "game(data ptr)",
+      "type": "&dyn AbstractGame data 절반",
       "note": "readnone — 안 씀. `&dyn AbstractGame` 팻포인터가 ABI 에서 (data, vtable) 2행으로 갈라진 것 — tcx 소스 인자 5 ↔ define 6행(반환은 {i64,i64} 레지스터라 sret 없음)이 정상. pub 래퍼 AgentVerHamster::buy_item(lib.rs:1173, m14.ll:38174)은 `player.info.item_builds.len()==0`(PlayerState+0x4f0)일 때만 이 레거시 함수를 부르고(아니면 item_v26 경로) 이 자리에 `ptr nonnull poison`, version 에 `i64 poison` 을 넘긴다"
+     },
+     {
+      "i": 4,
+      "name": "game(vtable ptr)",
+      "type": "&dyn AbstractGame vtable 절반",
+      "note": "안 씀"
      },
      {
       "i": 5,
@@ -11114,8 +11111,7 @@
    "ir": {
     "file": "m15.ll",
     "frm": 53341,
-    "to": 53830,
-    "aux": []
+    "to": 53830
    },
    "base_round": "r7",
    "rounds": 1,
@@ -11271,8 +11267,7 @@
    "ir": {
     "file": "m10.ll",
     "frm": 49402,
-    "to": 49495,
-    "aux": []
+    "to": 49495
    },
    "base_round": "r7",
    "rounds": 1,
@@ -11465,8 +11460,7 @@
    "ir": {
     "file": "m15.ll",
     "frm": 55350,
-    "to": 55545,
-    "aux": []
+    "to": 55545
    },
    "base_round": "r7",
    "rounds": 1,
@@ -11676,8 +11670,7 @@
    "ir": {
     "file": "m04.ll",
     "frm": 61399,
-    "to": 61658,
-    "aux": []
+    "to": 61658
    },
    "base_round": "r7",
    "rounds": 1,
@@ -11884,8 +11877,7 @@
    "ir": {
     "file": "m10.ll",
     "frm": 48962,
-    "to": 49144,
-    "aux": []
+    "to": 49144
    },
    "base_round": "r7",
    "rounds": 1,
@@ -12210,8 +12202,7 @@
    "ir": {
     "file": "m15.ll",
     "frm": 55548,
-    "to": 56099,
-    "aux": []
+    "to": 56099
    },
    "base_round": "r7",
    "rounds": 1,
@@ -12392,8 +12383,7 @@
    "ir": {
     "file": "m15.ll",
     "frm": 51666,
-    "to": 51800,
-    "aux": []
+    "to": 51800
    },
    "base_round": "r7",
    "rounds": 1,
@@ -12541,8 +12531,7 @@
    "ir": {
     "file": "m09.ll",
     "frm": 64777,
-    "to": 64972,
-    "aux": []
+    "to": 64972
    },
    "base_round": "r7",
    "rounds": 1,
@@ -12730,8 +12719,7 @@
    "ir": {
     "file": "m05.ll",
     "frm": 52986,
-    "to": 53100,
-    "aux": []
+    "to": 53100
    },
    "base_round": "r7",
    "rounds": 1,
@@ -12894,14 +12882,7 @@
    "ir": {
     "file": "m13.ll",
     "frm": 11386,
-    "to": 11527,
-    "aux": [
-     {
-      "file": "m13.ll",
-      "frm": 58204,
-      "to": 58285
-     }
-    ]
+    "to": 11527
    },
    "base_round": "r7",
    "rounds": 1,
@@ -13110,8 +13091,7 @@
    "ir": {
     "file": "m04.ll",
     "frm": 60400,
-    "to": 60577,
-    "aux": []
+    "to": 60577
    },
    "base_round": "r7",
    "rounds": 1,
@@ -13329,14 +13309,7 @@
    "ir": {
     "file": "m10.ll",
     "frm": 42357,
-    "to": 42695,
-    "aux": [
-     {
-      "file": "m10.ll",
-      "frm": 56168,
-      "to": 56212
-     }
-    ]
+    "to": 42695
    },
    "base_round": "r7",
    "rounds": 1,
@@ -13601,14 +13574,7 @@
    "ir": {
     "file": "m13.ll",
     "frm": 56190,
-    "to": 56961,
-    "aux": [
-     {
-      "file": "m12.ll",
-      "frm": 42894,
-      "to": 42979
-     }
-    ]
+    "to": 56961
    },
    "base_round": "r7",
    "rounds": 1,
@@ -13911,14 +13877,7 @@
    "ir": {
     "file": "m04.ll",
     "frm": 58647,
-    "to": 59462,
-    "aux": [
-     {
-      "file": "m04.ll",
-      "frm": 15665,
-      "to": 15883
-     }
-    ]
+    "to": 59462
    },
    "base_round": "r7",
    "rounds": 1,
@@ -14281,8 +14240,7 @@
    "ir": {
     "file": "m07.ll",
     "frm": 51100,
-    "to": 51309,
-    "aux": []
+    "to": 51309
    },
    "base_round": "r7",
    "rounds": 1,
@@ -14538,8 +14496,7 @@
    "ir": {
     "file": "m15.ll",
     "frm": 52851,
-    "to": 53084,
-    "aux": []
+    "to": 53084
    },
    "base_round": "r7",
    "rounds": 1,

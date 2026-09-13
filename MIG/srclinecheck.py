@@ -102,17 +102,37 @@ def collect(sp):
     f, a, b = ir.get("file"), ir.get("frm"), ir.get("to")
     own = str(sp.get("src") or "").split("\\")[-1]
     src, meta = load(f)
+    # ★09-13(15차 배치D 적발 8/8 오탐): 리터럴이 **aux 클로저/이터레이터 인스턴스**(`ir.aux[]` · 다른 define, 때로 다른 파일)
+    #   안에 있으면 본체 범위만 훑는 옛 코드가 「사슬에 없다」로 오탐했다. 본체 + aux 범위를 **같은 후보 집합**으로 훑는다.
+    segs = [(src, meta, a, b)]
+    for ax in (sp.get("ir") or {}).get("aux") or []:
+        try:
+            if ax.get("file") == f:
+                segs.append((src, meta, int(ax["frm"]), int(ax["to"])))
+            else:
+                s2, m2 = load(ax["file"]); segs.append((s2, m2, int(ax["frm"]), int(ax["to"])))
+        except Exception:
+            pass
     res = {}
     for j, c in enumerate(sp.get("consts") or []):
         val, claim = c.get("value"), c.get("src_line")
         pat = litpat(val)
         k_shl = _shl_k(val)
+        # ★09-13: bool 상수(0/1)는 `trunc i8 %x to i1` 로 접혀 리터럴이 안 남는다 → 그 줄을 약한 후보로
+        truncpat = re.compile(r"\btrunc\b.*\bto i1\b") if str(val) in ("0", "1", "true", "false") else None
         shlpat = re.compile(r"\bshl\b.*,\s*%d(?![\w.])" % k_shl) if k_shl is not None else None
         strong, weak, nmatch = {}, set(), 0
 
-        for k in range(a - 1, min(b, len(src))):
+        for (src, meta, a, b) in segs:
+          for k in range(a - 1, min(b, len(src))):
             ln = src[k]
             s = ln.strip()
+            if truncpat is not None and truncpat.search(ln):
+                d0 = DBG.search(ln)
+                if d0:
+                    for li in _ownlines(meta, d0.group(1), own):
+                        if li:
+                            weak.add(li)
 
             # ── ⑤ `#dbg_value` 상수 기록 = 변수 선언줄 구제(약) ────────────────
             if "#dbg_" in ln:

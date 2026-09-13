@@ -30,7 +30,8 @@ u"""`sig.params[].role` 기계 대조 — **G16 승격판(9차 배치B)**.
 진입점: `check_spec(sp) -> [(params 인덱스, 사유, 상세)]`  (`specgate.py` G13 과 같은 계약)
 용법:  python -X utf8 gate.py [specidx ...] [--weak] [--verbose]
 """
-import io, json, os, re, sys
+import io
+import re, json, os, re, sys
 
 MIG = r"C:\tfm2mods\MIG"
 IRDIR = r"C:\tfm2mods\_gaibc"
@@ -167,15 +168,37 @@ def tcx_arity(sp):
     inner = t[start:j]
     if not inner.strip():
         return 0
-    d, n = 0, 1
+    # ★P3 규약 = i 는 **소스 시그니처 위치**(팻포인터도 1행). IR 슬롯 수가 필요하면 ir_slots() 를 따로 쓴다(09-13).
+    return len(split_top(inner))
+
+
+def split_top(inner):
+    u"""괄호 깊이 0 의 쉼표로 인자 문자열을 나눈다."""
+    out, d, cur = [], 0, []
     for ch in inner:
-        if ch in "(<[":
+        if ch in "(<[{":      # ★`{}` 도 깊이에 넣는다 — `&dyn [Binder { value: …, bound_vars: [] }]` 안의 쉼표(09-13)
             d += 1
-        elif ch in ")>]":
+        elif ch in ")>]}":
             d -= 1
-        elif ch == "," and d == 0:
-            n += 1
-    return n
+        if ch == "," and d == 0:
+            out.append("".join(cur).strip()); cur = []
+        else:
+            cur.append(ch)
+    if "".join(cur).strip():
+        out.append("".join(cur).strip())
+    return out
+
+
+def ir_slots(arg):
+    u"""tcx 파라미터 1개 → IR 인자 슬롯 수. ★09-13(15차 배치A 적발): `&dyn Trait`·`&[T]`·`&str`·`Box<dyn>` 는
+    **팻포인터 = (ptr, vtable|len) 2슬롯**이라 IR/명세 params 가 tcx 보다 한 행 많은 것이 정상이다(#21/#23 오탐의 근원)."""
+    a = (arg or u"").strip()
+    core = re.sub(r"^&(?:'\w+\s+)?(?:mut\s+)?", "", a)
+    if core.startswith("dyn ") or core.startswith("[") or core == "str" or core.startswith("Box<dyn") or core.startswith("[Binder"):
+        return 2
+    if a.startswith("&") and ("dyn " in core[:6] or core.startswith("[")):
+        return 2
+    return 1
 
 
 # ── F3. 백틱 짝짓기 — 길이 무관하게 짝을 짓고, 길이 필터는 **뒤에** ────
@@ -357,6 +380,15 @@ def align(sp):
 
     if need == len(ps):
         return {j: [regs[j + shift]] for j in range(len(ps))}, args, fin
+
+    # ★09-13: 팻포인터(`&dyn`/`&[T]`/`&str`) 는 소스 1행 = IR 2슬롯 — 행의 type 으로 슬롯 수를 세어
+    #   합이 IR 인자 수와 같으면 (data, vtable|len) 두 레지스터를 그 행에 매핑한다(#21/#23 · 15차 배치A 「오탐」 판정의 실체).
+    widths = [ir_slots(p.get("type") or u"") for p in ps]
+    if sum(widths) == need:
+        m, pos = {}, shift
+        for j, w in enumerate(widths):
+            m[j] = regs[pos:pos + w]; pos += w
+        return m, args, fin
 
     if need < len(ps):
         want = len(ps) - need

@@ -51,7 +51,9 @@ def main():
     rec = dict(
         id=sid, name=j["name"], sym=j.get("sym"), src=j.get("src"), src_line=j.get("src_line"),
         layer=layer_of(j.get("src")),
-        ir=dict(file=j.get("ir_file"), frm=j.get("ir_from"), to=j.get("ir_to")),
+        # ★aux(클로저·이터레이터 인스턴스 IR 범위 · qcspec 이 이미 쓰는 키)를 정본에도 싣는다(09-13 · G12 가 aux 범위를 못 봐 오탐 8건).
+        ir=dict(file=j.get("ir_file"), frm=j.get("ir_from"), to=j.get("ir_to"),
+                aux=[dict(file=x.get("ir_file"), frm=x.get("ir_from"), to=x.get("ir_to")) for x in (j.get("aux") or [])]),
         base_round=os.path.basename(os.path.dirname(os.path.abspath(src))) or "r?", rounds=1,
         one_line=j.get("one_line"), signature=j.get("signature"), logic=j.get("logic"),
         **{k: (j.get(k) or []) for k in LISTS})

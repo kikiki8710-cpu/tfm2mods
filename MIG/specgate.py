@@ -265,9 +265,22 @@ def gate5(i, sp):
     if not args or not params:
         return
     if len(args) != len(params):
-        flag("G5", i, u"sig.tcx 인자 %d개 vs params %d개 — 개수가 다르다" % (len(args), len(params)),
-             u" | ".join(a[:34] for a in args))
-        return
+        # ★09-13: 팻포인터(&dyn/&[T]/&str) 는 IR 2슬롯 — 명세 params 가 IR 순서를 따르면 tcx 보다 많은 게 정상.
+        #   확장 슬롯 수가 맞으면 (data, vtable|len) 로 인자를 복제해 정렬한다(15차 배치A 「G5/G16 오탐」).
+        try:
+            import paramrole as PR
+            exp = []
+            for a in args:
+                k = PR.ir_slots(a)
+                exp.extend([a] if k == 1 else [a, a + u" /*fat ptr 2슬롯*/"])
+        except Exception:
+            exp = args
+        if len(exp) == len(params):
+            args = exp
+        else:
+            flag("G5", i, u"sig.tcx 인자 %d개(팻포인터 확장 %d) vs params %d개 — 개수가 다르다" % (len(args), len(exp), len(params)),
+                 u" | ".join(a[:34] for a in args))
+            return
     for p, a in zip(params, args):
         t = STRIKE.sub(u" ", str(p.get("type") or u""))
         has_mut = "&mut" in t.replace(" ", "")

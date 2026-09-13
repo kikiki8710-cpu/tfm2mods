@@ -1,0 +1,13 @@
+{
+ "round": 15, "batch": "N2",
+ "errors": [
+  {"op": "delete", "path": "/specs[21]/sig/params[5]", "guard": "vtable 절반",
+   "evidence": "팻포인터 vtable 절반 행을 data 행(params[4] `game`)에 병합 — P3 규약(i=소스 위치)", "behavior_change": false, "found_by": "new"},
+  {"path": "/specs[21]/sig/params[5]/i", "kind": "실오류", "old": 6, "new": 5,
+   "evidence": "병합 후 소스 위치 재번호(context = 5)", "behavior_change": false, "found_by": "new"},
+  {"op": "delete", "path": "/specs[23]/sig/params[4]", "guard": "vtable 절반",
+   "evidence": "팻포인터 vtable 절반 행 병합(params[3] `game`)", "behavior_change": false, "found_by": "new"}
+ ],
+ "ev_up": [],
+ "brief_errors": ["applypatch delete 는 `idx` 키가 아니라 **경로의 [n]** 을 쓴다 — N 배치가 `/specs[i]/sig/params` + idx 로 내 3건 실패(메인 09-13)."]
+}

@@ -25,6 +25,9 @@ DST = os.path.join(HERE, 'TOOLS.md')
 
 # 분류 = (제목, 한 줄 설명, [파일명...])  — 순서가 곧 문서 순서
 CAT = [
+ ('★exe 함수 정체 판정 — Ghidra 없이 (2026-09-13 신설)',
+  '「이 RVA 가 어느 IR 함수인가」. capstone 프로파일 ↔ IR define 프로파일 ↔ 패닉 Location 지문. 인라인 여부만은 xref(§22-85).',
+  ['fnprobe.py', 'irprobe.py', 'locfind.py', 'namebyline.py', 'namebycaller.py']),
  ('★사전 — 타입·오프셋을 묻는 곳',
   '**여기부터 친다.** DWARF 를 손으로 타지 마라.',
   ['tcxdict.py', 'tcxaudit.py', 'tcxverify.py', 'tcxcross.py', 'tcxfield.py', 'tcxq.py',
@@ -38,6 +41,7 @@ CAT = [
   ['fnparts.py', 'dloc.py', 'dbgchain.py', 'llann.py', 'srcmap.py', 'irann.py',
    'ann.py', 'ann2.py', 'ann3.py', 'irfn.py', 'irctx.py', 'dl.py',
    'guard.py', 'inlsites.py', 'vbr.py',
+   'reach.py', 'reach_tree.py',                       # 09-13 도달 가능성(교훈 68 도구화)
    'fieldall2.py', 'fieldall.py', 'fieldcodes.py', 'knobscan.py',
    'cachedfns.py', 'cachekeys.py', 'memofns.py', 'tlsscan.py', 'coreglobals.py']),
  ('★오라클 — SDK 함수를 진짜 실행',

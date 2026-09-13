@@ -130,12 +130,15 @@ class Patch(object):
 
     # ── ev 상향 ───────────────────────────────────────────────────────
     def ev(self, path, evidence, to=2, frm=4, found_by="reused"):
-        m = PATH.match(path)
-        if not m or m.group(3) is None:
+        # ★2026-09-13 정정(15차 4배치 전부 적발): 옛 코드는 `m.group(3) is None` 을 「배열 원소가 아니다」로 읽었는데
+        #   PATH 의 group(3) 은 **바깥 세그먼트(outer)** 이고 인덱스는 group(4) 다 ⟹ `/specs[i]/mem[j]` 같은 2단 경로가
+        #   전부 거부됐다(배치들이 dict 직접 삽입으로 우회). parse_path 로 (i, outer, field, idx, key) 를 받아 idx 로 판정한다.
+        pp = parse_path(path)
+        if not pp or pp[3] is None:
             raise ValueError(u"ev 상향은 배열 원소만: %s" % path)
         if locate(path) is None:
             raise AssertionError(u"그 행이 없다 — %s" % path)
-        if m.group(2) == "mem" and int(to) < 3:
+        if pp[2] == "mem" and int(to) < 3:
             to = 3                        # 오프셋의 정본은 tcx — ev3 이 상한
         self.ev_up.append({"path": path, "from": int(frm), "to": int(to),
                            "evidence": evidence, "found_by": found_by})

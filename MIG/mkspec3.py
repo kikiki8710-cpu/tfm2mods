@@ -513,7 +513,35 @@ def conv(i, sp):
     cands = L.fnlookup(leaf)
     mine = [c for c in cands if c.get("file") and
             os.path.basename(str(sp.get("src") or "")).lower() in str(c["file"]).lower()]
-    tcxfn = (mine or cands or [None])[0]
+    # ★2026-09-13 정정(15차 배치A 적발): 같은 파일에 동명 함수가 여럿이면(lib.rs 의 `upgrade_item` = 트레이트 impl 메서드
+    #   `<AgentVerHamster as AiAgent>::upgrade_item`(pub) / 고유 메서드 / 자유함수 `game_ai::upgrade_item`(in:game_ai)) 첫 후보를
+    #   집어 sig.tcx·vis·path 가 **전부 다른 함수**로 오염됐다(#21/#23 · G5/G16 오탐의 근원). ⟹ **망글 심볼의 경로 토큰**
+    #   (`_RNvCs…7game_ai12upgrade_item` → [game_ai, upgrade_item]) 과 후보 `path` 의 세그먼트 일치 수로 고르고,
+    #   동점이면 명세 `src_line` 에 가까운 것. 심볼이 없을 때만 옛 규칙(파일 일치 → 첫 후보).
+    def _symtoks(sym):
+        out, i = [], 0
+        rx = re.compile(r'(\d+)([A-Za-z_][A-Za-z0-9_]*)')
+        while sym and i < len(sym):
+            m = rx.match(sym, i)
+            if m:
+                n = int(m.group(1)); ident = sym[m.end(1):m.end(1) + n]
+                if len(ident) == n and re.match(r'^[A-Za-z_][A-Za-z0-9_]*$', ident):
+                    out.append(ident); i = m.end(1) + n; continue
+            i += 1
+        return out
+    stoks = [t for t in _symtoks(sp.get("sym") or "") if t not in ("game_ai", "game_core")]
+    pool = mine or cands
+    if stoks and pool:
+        def _score(c):
+            segs = re.split(r"::|[<> ]", c.get("path") or "")
+            hit = sum(1 for t in stoks if t in segs)
+            # 자유함수 심볼(impl 토큰 없음)인데 후보 path 에 `<… as …>`/타입 세그먼트가 있으면 감점
+            extra = len([s for s in segs if s and s not in stoks and s not in ("game_ai", "game_core")])
+            dist = abs(int(c.get("line") or 0) - int(sp.get("src_line") or 0))
+            return (-hit, extra, dist)
+        tcxfn = sorted(pool, key=_score)[0]
+    else:
+        tcxfn = (pool or [None])[0]
     o["sig"] = {
         "tcx": (tcxfn or {}).get("sig"),
         "vis": (tcxfn or {}).get("vis"),

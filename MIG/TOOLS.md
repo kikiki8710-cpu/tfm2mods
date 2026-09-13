@@ -8,6 +8,18 @@
 
 전체 152개 · 생성 시각 기준 자동 집계 (`_` 로 시작하는 1회용 스크래치는 제외)
 
+## ★exe 함수 정체 판정 — Ghidra 없이 (2026-09-13 신설)
+
+「이 RVA 가 어느 IR 함수인가」. capstone 프로파일 ↔ IR define 프로파일 ↔ 패닉 Location 지문. 인라인 여부만은 xref(§22-85).
+
+| 도구 | 하는 일 |
+|---|---|
+| `fnprobe.py` | exe 함수 하나의 프로파일(capstone · Ghidra 대체). (2026-09-13 · ghidra-re 스크래치 승격) |
+| `irprobe.py` | IR define 하나의 프로파일: 인자·call 집계·DILocation 줄 집합 (2026-09-13 · ghidra-re 스크래치 승격 · fnprobe.py 의 IR 쪽 짝). |
+| `locfind.py` | 패닉 Location(파일:줄[:열]) 상수를 참조하는 IR define 을 역추적한다 (2026-09-13 · ghidra-re 스크래치 승격 · `@anon.<hash>.N` 대응). |
+| `namebyline.py` | 지도 미명명(`?`) exe 함수를 **패닉 Location 줄번호 지문**으로 IR define 에 잇는다 (2026-09-13) |
+| `namebycaller.py` | 지도 미명명(`?`) exe 함수에 「호출자 차집합」으로 IR 심볼 이름을 붙인다 (2026-09-13) |
+
 ## ★사전 — 타입·오프셋을 묻는 곳
 
 **여기부터 친다.** DWARF 를 손으로 타지 마라.
@@ -65,6 +77,8 @@ IR·rmeta 를 뽑고 훑는다.
 | `guard.py` | 어떤 store 지점이 **어떤 조건 아래** 실행되는지 역추적한다. |
 | `inlsites.py` | 인라인된 헬퍼의 **호출 사이트**를 전부 찾는다. |
 | `vbr.py` | 함수 본문에서 특정 SSA 인자(기본 %1 = version)에 대한 비교를 전부 뽑고 |
+| `reach.py` | IR 한 함수의 CFG 에서 「알려진 상수 조건」을 접어 사장 블록·사장 호출부를 가른다 (교훈 68 도구화 · 2026-09-13) |
+| `reach_tree.py` | 루트 함수에서 IR 호출 그래프를 따라가며 「도달 가능성」을 봉인한다 (교훈 68 · 2026-09-13) |
 | `fieldall2.py` | 함수 스코프를 지켜서 gep 오프셋 → store 를 잡는다. |
 | `fieldall.py` | 오프셋에 store 하는 i8 **전부**(상수 + 레지스터). fieldcodes.py 확장. |
 | `fieldcodes.py` | ⛔**오염** — gep 결과 레지스터를 **파일 전역**으로 매칭해 다른 함수의 동명 `%N` 을 잡는다. 후속 정본 = `fieldall2.py` · `<구조체>+<오프셋>` 에 **저장되는 u8 코드값**을 전수로 뽑고 소스 줄을 붙인다. |
@@ -252,15 +266,3 @@ IR 의 이름을 exe RVA 에 잇거나, exe 함수에 이름을 붙인다.
 | `logsnap.py` | 인게임 검증 전/후 **모드 로그 스냅샷과 diff**. |
 | `modbisect.py` | 크래시 범인 모드 이분탐색 도구. |
 | `apgate.py` | `tfm2_ai_adjust` 의 `apply_*` 바이트패치 체인을 cfg 로 on/off 해서 |
-
-## 미분류 (새로 생긴 도구 — `mktools.py` 의 `CAT` 에 넣어라)
-
-| 도구 | 하는 일 |
-|---|---|
-| `fnprobe.py` | fnprobe.py — exe 함수 하나의 프로파일(capstone · Ghidra 대체). (2026-09-13 · ghidra-re 스크래치 승격) |
-| `irprobe.py` | irprobe.py — IR define 하나의 프로파일: 인자·call 집계·DILocation 줄 집합 (2026-09-13 · ghidra-re 스크래치 승격 · fnprobe.py 의 IR 쪽 짝). |
-| `locfind.py` | locfind.py — 패닉 Location(파일:줄[:열]) 상수를 참조하는 IR define 을 역추적한다 (2026-09-13 · ghidra-re 스크래치 승격 · `@anon.<hash>.N` 대응). |
-| `namebycaller.py` | namebycaller.py — 지도 미명명(`?`) exe 함수에 「호출자 차집합」으로 IR 심볼 이름을 붙인다 (2026-09-13) |
-| `namebyline.py` | namebyline.py — 지도 미명명(`?`) exe 함수를 **패닉 Location 줄번호 지문**으로 IR define 에 잇는다 (2026-09-13) |
-| `reach.py` | reach.py — IR 한 함수의 CFG 에서 「알려진 상수 조건」을 접어 사장 블록·사장 호출부를 가른다 (교훈 68 도구화 · 2026-09-13) |
-| `reach_tree.py` | reach_tree.py — 루트 함수에서 IR 호출 그래프를 따라가며 「도달 가능성」을 봉인한다 (교훈 68 · 2026-09-13) |

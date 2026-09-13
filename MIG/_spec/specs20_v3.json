@@ -18576,7 +18576,8 @@
    "ir": {
     "file": "m09.ll",
     "frm": 19008,
-    "to": 19228
+    "to": 19228,
+    "aux": []
    },
    "one_line": "TeamPlan 에 저장된 오브젝트 규율(ObjectiveDisciplineState)이 이 target 에 대해 아직 유효한지 판정해 돌려준다 — 대상 불일치·만료·오브젝트 HP<36% 면 None",
    "sig": {
@@ -19465,13 +19466,14 @@
    "ir": {
     "file": "m14.ll",
     "frm": 6620,
-    "to": 7067
+    "to": 7067,
+    "aux": []
    },
    "one_line": "보유 아이템의 next_tier 후보 중 (활성 · 내 최대티어(4미만 기준)보다 높은 티어 · 가격≤골드) 인 것을 모아 무작위 1개를 (내 슬롯 i, item_list 인덱스) 로 돌려준다",
    "sig": {
-    "tcx": "fn(&mut game_ai::AgentVerHamster, &mut rand::rngs::std::StdRng, &game_core::PlayerState, &dyn [Binder { value: Trait(game_core::AbstractGame), bound_vars: [] }] + , &game_core::GameContext) -> std::option::Option<(usize, usize)>",
-    "vis": "pub",
-    "path": "<game_ai::AgentVerHamster as game_core::AiAgent>::upgrade_item",
+    "tcx": "fn(usize, &mut rand::rngs::std::StdRng, &game_core::PlayerState, &dyn [Binder { value: Trait(game_core::AbstractGame), bound_vars: [] }] + , &game_core::GameContext) -> std::option::Option<(usize, usize)>",
+    "vis": "in:game_ai",
+    "path": "game_ai::upgrade_item",
     "mir": false,
     "ev": 3,
     "params": [
@@ -19505,20 +19507,13 @@
      },
      {
       "i": 4,
-      "name": "game(data ptr)",
-      "type": "&dyn AbstractGame (data 절반)",
+      "name": "game",
+      "type": "&dyn AbstractGame — 팻포인터 = IR 2슬롯(%4 data ptr · %5 vtable ptr) · 둘 다 readnone(본문에서 전혀 안 씀)",
       "role": "readnone — 본문에서 전혀 안 씀. `&dyn AbstractGame` 팻포인터가 ABI 에서 (data, vtable) 2행으로 갈라진 것 — tcx 소스 인자 5 ↔ define 7행(sret+dyn 분할)이 정상이다. pub 래퍼 AgentVerHamster::upgrade_item(lib.rs:1193, m14.ll:35109)은 이 자리에 `ptr nonnull poison`, version 에 `i64 poison` 을 넘긴다(컴파일러가 미사용을 증명)",
       "ev": 3
      },
      {
       "i": 5,
-      "name": "game(vtable ptr)",
-      "type": "&dyn AbstractGame (vtable 절반)",
-      "role": "본문에서 안 씀",
-      "ev": 4
-     },
-     {
-      "i": 6,
       "name": "context",
       "type": "&GameContext(64B)",
       "role": "pool(+0x0, 후보 Vec 할당자) 와 item_list(+0x30)",
@@ -20118,7 +20113,19 @@
    "ir": {
     "file": "m07.ll",
     "frm": 48968,
-    "to": 49426
+    "to": 49426,
+    "aux": [
+     {
+      "file": "m06.ll",
+      "frm": 7138,
+      "to": 7221
+     },
+     {
+      "file": "m11.ll",
+      "frm": 24737,
+      "to": 24829
+     }
+    ]
    },
    "one_line": "(x,y) 에 서면 적 타워 중 하나가 내 챔피언을 조준할 수 있는가 — 이미 나를 조준 중 / 타깃 있어도 사거리 안 내 미니언<2 & 내가 사거리 안 / 타깃 없고 내가 사거리 안",
    "sig": {
@@ -20716,50 +20723,44 @@
    "ir": {
     "file": "m14.ll",
     "frm": 8267,
-    "to": 8721
+    "to": 8721,
+    "aux": []
    },
    "one_line": "저티어(<4) 보유템이 없고 보유 ≤2개일 때, 활성·구매가능·tier0 아이템 중 챔피언 카테고리(근접/원거리/마법/유틸/암살)와 기본 HP 에 따라 허용 카테고리를 골라 후보를 만들고 무작위 1개 item_list 인덱스를 돌려준다",
    "sig": {
-    "tcx": "fn(&mut game_ai::AgentVerHamster, &mut rand::rngs::std::StdRng, &game_core::PlayerState, &dyn [Binder { value: Trait(game_core::AbstractGame), bound_vars: [] }] + , &game_core::GameContext) -> std::option::Option<usize>",
-    "vis": "pub",
-    "path": "<game_ai::AgentVerHamster as game_core::AiAgent>::buy_item",
+    "tcx": "fn(usize, &mut rand::rngs::std::StdRng, &game_core::PlayerState, &dyn [Binder { value: Trait(game_core::AbstractGame), bound_vars: [] }] + , &game_core::GameContext) -> std::option::Option<usize>",
+    "vis": "in:game_ai",
+    "path": "game_ai::buy_item",
     "mir": false,
     "ev": 3,
     "params": [
      {
-      "i": 0,
+      "i": 1,
       "name": "version",
       "type": "usize",
       "role": "본문에서 안 쓰임(dbg_value 없음, 분기 없음)",
       "ev": 4
      },
      {
-      "i": 1,
+      "i": 2,
       "name": "rnd",
       "type": "&mut StdRng",
       "role": "gen_range(0..candidate.len()) 로 최종 1개 선택",
       "ev": 4
      },
      {
-      "i": 2,
+      "i": 3,
       "name": "player",
       "type": "&PlayerState(2528B)",
       "role": "info.items(+0x4a0/+0x4a8) · info.champion(+0x510 Arc<dyn ChampionInfo>) · info.gold(+0x998)",
       "ev": 4
      },
      {
-      "i": 3,
-      "name": "game(data ptr)",
-      "type": "&dyn AbstractGame data 절반",
+      "i": 4,
+      "name": "game",
+      "type": "&dyn AbstractGame — 팻포인터 = IR 2슬롯(%3 data ptr · %4 vtable ptr) · 둘 다 안 씀",
       "role": "readnone — 안 씀. `&dyn AbstractGame` 팻포인터가 ABI 에서 (data, vtable) 2행으로 갈라진 것 — tcx 소스 인자 5 ↔ define 6행(반환은 {i64,i64} 레지스터라 sret 없음)이 정상. pub 래퍼 AgentVerHamster::buy_item(lib.rs:1173, m14.ll:38174)은 `player.info.item_builds.len()==0`(PlayerState+0x4f0)일 때만 이 레거시 함수를 부르고(아니면 item_v26 경로) 이 자리에 `ptr nonnull poison`, version 에 `i64 poison` 을 넘긴다",
       "ev": 3
-     },
-     {
-      "i": 4,
-      "name": "game(vtable ptr)",
-      "type": "&dyn AbstractGame vtable 절반",
-      "role": "안 씀",
-      "ev": 4
      },
      {
       "i": 5,
@@ -21517,7 +21518,8 @@
    "ir": {
     "file": "m15.ll",
     "frm": 53341,
-    "to": 53830
+    "to": 53830,
+    "aux": []
    },
    "one_line": "내 팀 챔피언(최대 5) 중 HP% ≥ min_hp_ratio 이고 (x,y) 로부터 range 이내인 인원 수를 센다",
    "sig": {
@@ -21799,7 +21801,8 @@
    "ir": {
     "file": "m10.ll",
     "frm": 49402,
-    "to": 49495
+    "to": 49495,
+    "aux": []
    },
    "one_line": "최근 시야에 잡힌 적 챔프(적 샘 위험구역에 선 적 제외)가 (적 사거리+40000, 상한 150000) 안이면 도주 위협으로 판정",
    "sig": {
@@ -21983,7 +21986,7 @@
      "value": 150000,
      "src_line": 1174,
      "meaning": "threat_range 상한(core::cmp::min 이 llvm.umin 으로 인라인). 사거리+40000 이 150000 을 넘어도 150000 으로 자른다(≈4.7칸)",
-     "kind": "인덱스",
+     "kind": "임계",
      "ev": 4
     }
    ],
@@ -22387,7 +22390,8 @@
    "ir": {
     "file": "m15.ll",
     "frm": 55350,
-    "to": 55545
+    "to": 55545,
+    "aux": []
    },
    "one_line": "후보 라인 중 이미 강하게 밀린 라인을 빼고 (from_mid + lead*10000 + minion_count*1000) 최소 라인을 고른다",
    "sig": {
@@ -22809,7 +22813,8 @@
    "ir": {
     "file": "m04.ll",
     "frm": 61399,
-    "to": 61658
+    "to": 61658,
+    "aux": []
    },
    "one_line": "아군 넥서스가 직접 위협받는가: 최근가시 적 챔프가 240000 안 OR 적 미니언이 넥서스를 타겟 중",
    "sig": {
@@ -23318,7 +23323,8 @@
    "ir": {
     "file": "m10.ll",
     "frm": 48962,
-    "to": 49144
+    "to": 49144,
+    "aux": []
    },
    "one_line": "지원 사거리 밖의 target 을 지금 좇는 대신 보류할지: 사망임박·국지열세·저HP·비가시 적이면 true",
    "sig": {
@@ -23899,7 +23905,8 @@
    "ir": {
     "file": "m15.ll",
     "frm": 55548,
-    "to": 56099
+    "to": 56099,
+    "aux": []
    },
    "one_line": "점 (x,y) 반경 range 안의 적 챔프 중 HP비율>=min 이고 최근 가시인 수를 센다",
    "sig": {
@@ -24349,7 +24356,8 @@
    "ir": {
     "file": "m15.ll",
     "frm": 51666,
-    "to": 51800
+    "to": 51800,
+    "aux": []
    },
    "one_line": "에픽(Morgard)/서펜 오브젝트가 살아 있고 현재 hp 가 최대치보다 낮은지(=이미 맞았는지) 판정",
    "sig": {
@@ -24673,7 +24681,8 @@
    "ir": {
     "file": "m09.ll",
     "frm": 64777,
-    "to": 64972
+    "to": 64972,
+    "aux": []
    },
    "one_line": "모르가드(에픽) 운용 전략(Gather/Split14/Split131)과 내 포지션으로 '분할 담당 라인'인지 '본대 압박 라인'인지 배정",
    "sig": {
@@ -25079,7 +25088,8 @@
    "ir": {
     "file": "m05.ll",
     "frm": 52986,
-    "to": 53100
+    "to": 53100,
+    "aux": []
    },
    "one_line": "서펜 포기 채팅 사유: 서펜이 살아 있으면 아군/적 서펜 스택 수를 비교해 StackAhead/Outnumbered 를 고른다",
    "sig": {
@@ -25499,7 +25509,14 @@
    "ir": {
     "file": "m13.ll",
     "frm": 11386,
-    "to": 11527
+    "to": 11527,
+    "aux": [
+     {
+      "file": "m13.ll",
+      "frm": 58204,
+      "to": 58285
+     }
+    ]
    },
    "one_line": "오브젝트 후 회복(restore)이 안전한지: 150000 안 '최근 가시' 적 챔프가 없거나, 있어도 2초 안에 안 죽으면 true",
    "sig": {
@@ -26291,7 +26308,8 @@
    "ir": {
     "file": "m04.ll",
     "frm": 60400,
-    "to": 60577
+    "to": 60577,
+    "aux": []
    },
    "one_line": "해당 라인의 미니언 웨이브가 우리 쪽으로 밀렸고(from_mid<-3000 또는 count<-2), 라인 근처 적 미니언 중 tower_id 를 노리는 놈이 있으면 true",
    "sig": {
@@ -26721,7 +26739,14 @@
    "ir": {
     "file": "m10.ll",
     "frm": 42357,
-    "to": 42695
+    "to": 42695,
+    "aux": [
+     {
+      "file": "m10.ll",
+      "frm": 56168,
+      "to": 56212
+     }
+    ]
    },
    "one_line": "교전 저울(resolve_fight_full)을 '묶인 아군을 버린 판' 기준선으로 한 번 더 돌려 차분 판정(FightPrediction)을 낸다",
    "sig": {
@@ -27171,7 +27196,14 @@
    "ir": {
     "file": "m13.ll",
     "frm": 56190,
-    "to": 56961
+    "to": 56961,
+    "aux": [
+     {
+      "file": "m12.ll",
+      "frm": 42894,
+      "to": 42979
+     }
+    ]
    },
    "one_line": "넥서스 근처 적 챔프 수 + 라인 열세/에픽 가산 vs 구조물을 치는 적 미니언 수 바닥값 중 큰 쪽 = 넥서스 수비 필요 인원",
    "sig": {
@@ -27912,7 +27944,14 @@
    "ir": {
     "file": "m04.ll",
     "frm": 58647,
-    "to": 59462
+    "to": 59462,
+    "aux": [
+     {
+      "file": "m04.ll",
+      "frm": 15665,
+      "to": 15883
+     }
+    ]
    },
    "one_line": "아군 5명을 (푸셔 감당 가능, 웨이브 클리어 점수, 넥서스 거리, id) 키로 줄 세워 내가 상위 need_count 안에 드는지",
    "sig": {
@@ -28814,7 +28853,8 @@
    "ir": {
     "file": "m07.ll",
     "frm": 51100,
-    "to": 51309
+    "to": 51309,
+    "aux": []
    },
    "one_line": "(x,y)+여유 d 가 어느 적 타워의 (사거리+양쪽 반지름+15000) 안에 들어 타워에 맞을 수 있는 위치인가",
    "sig": {
@@ -29370,7 +29410,8 @@
    "ir": {
     "file": "m15.ll",
     "frm": 52851,
-    "to": 53084
+    "to": 53084,
+    "aux": []
    },
    "one_line": "그 라인에 적 미니언이 9+ 이고 그중 하나라도 우리 1차 타워(또는 그 기본 위치)보다 넥서스에 가까운가",
    "sig": {

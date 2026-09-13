@@ -1,0 +1,13 @@
+{
+ "round": "15",
+ "batch": "N2",
+ "errors_applied": 0,
+ "ev_applied": 0,
+ "failed": 3,
+ "stamps": {
+  "/specs[21]/sig/params[5]": "670e997b62008284",
+  "/specs[21]/sig/params[5]/i": "ef2d127de37b942b",
+  "/specs[23]/sig/params[4]": "9c87e395284c007b"
+ },
+ "restamped": true
+}
