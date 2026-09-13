@@ -104,6 +104,20 @@ pub fn masks() -> Option<&'static Vec<u8>> {
         Some(unsafe { &*p })
     }
 }
+
+/// ★[2026-09-13] 비활성 챔프 집합(소문자 id) — 마스크가 MASK_NONE 인 로스터 챔프.
+///   (어느 포지션에도 미지정 + 5포지션 전부 제한 중일 때만 비어 있지 않다.)
+pub(crate) fn disabled_set() -> std::collections::HashSet<String> {
+    let mut out = std::collections::HashSet::new();
+    if let (Some(names), Some(masks)) = (names(), masks()) {
+        for (i, n) in names.iter().enumerate() {
+            if masks.get(i).copied().unwrap_or(MASK_ALL) == config::MASK_NONE {
+                out.insert(n.to_ascii_lowercase());
+            }
+        }
+    }
+    out
+}
 fn publish_masks(v: Vec<u8>) {
     let p = Box::into_raw(Box::new(v));
     IDX_MASK.store(p, Ordering::Release);
@@ -364,6 +378,8 @@ pub fn sorted_champs() -> Option<Vec<String>> {
 static CNT_VETO: AtomicU64 = AtomicU64::new(0);
 static CNT_SEEN: AtomicU64 = AtomicU64::new(0);
 static CNT_FAILOPEN: AtomicU64 = AtomicU64::new(0);
+/// ★[2026-09-13] 비활성(MASK_NONE) 후보 veto 횟수(score_pick).
+static CNT_DISABLED_VETO: AtomicU64 = AtomicU64::new(0);
 static FLUSH_TICK: AtomicU64 = AtomicU64::new(0);
 /// score_pick raw-ctx 오프셋 진단 throttle(총 라인 상한).
 static DBG_CTXN: AtomicU64 = AtomicU64::new(0);
@@ -407,29 +423,39 @@ fn dump_vec_names(base: usize, off: usize) -> String {
     }
 }
 
+/// ctx 의 available 후보 인덱스 목록(raw ctx+0x00/+0x08 = begin/count).
+/// ★SDK `ctx.available_champions` 는 필드 오매핑 위험이 확인된 소스라 사용 금지
+///   (ally_pick 이 이미 그렇게 틀렸다, ctxdump 2026-08-21). 못 읽으면 `None`.
+fn read_avail_idx(ctx: &DraftScoreContext) -> Option<Vec<usize>> {
+    unsafe {
+        let base = ctx as *const DraftScoreContext as usize;
+        if !(0x10000..1usize << 48).contains(&base) {
+            return None;
+        }
+        let ptr = core::ptr::read(base as *const usize);
+        let len = core::ptr::read((base + 8) as *const usize);
+        if len == 0 || len > 4096 || !(0x10000..1usize << 48).contains(&ptr) {
+            return None;
+        }
+        Some(
+            (0..len)
+                .map(|k| core::ptr::read((ptr + k * 8) as *const u64) as usize)
+                .collect(),
+        )
+    }
+}
+
 /// 남은 available 중 아군에 feasible 하게 추가되는 챔프가 하나라도 있나(=fail-open 판정).
-/// ★raw ctx+0x00/+0x08 = available begin/count (SDK ctx.available_champions 는 필드 오매핑
-///   위험이 확인된 소스라 사용 금지 — ally_pick 이 이미 그렇게 틀렸다, ctxdump 2026-08-21).
 ///   available 가 안 읽히면 **보수적으로 true**(=게이트 유지·veto 살림). 무제한 챔프 있으면 true.
+///   ★비활성(MASK_NONE) 챔프는 라인을 못 채우므로 feasible 후보가 아니다(2026-09-13).
 fn pool_has_feasible_idx(
     ctx: &DraftScoreContext,
     ally_idx: &[usize],
     masks: &[u8],
     pinned: &[u8],
 ) -> bool {
-    let avail: Vec<usize> = unsafe {
-        let base = ctx as *const DraftScoreContext as usize;
-        if !(0x10000..1usize << 48).contains(&base) {
-            return true;
-        }
-        let ptr = core::ptr::read(base as *const usize);
-        let len = core::ptr::read((base + 8) as *const usize);
-        if len == 0 || len > 4096 || !(0x10000..1usize << 48).contains(&ptr) {
-            return true; // 보수적: 못 읽으면 게이트 유지
-        }
-        (0..len)
-            .map(|k| core::ptr::read((ptr + k * 8) as *const u64) as usize)
-            .collect()
+    let Some(avail) = read_avail_idx(ctx) else {
+        return true; // 보수적: 못 읽으면 게이트 유지
     };
     let mut v: Vec<u8> = Vec::with_capacity(pinned.len() + 1);
     for &c in &avail {
@@ -440,6 +466,9 @@ fn pool_has_feasible_idx(
         if m == MASK_ALL {
             return true;
         }
+        if m == config::MASK_NONE {
+            continue;
+        }
         v.clear();
         v.extend_from_slice(pinned);
         v.push(m);
@@ -448,6 +477,19 @@ fn pool_has_feasible_idx(
         }
     }
     false
+}
+
+/// ★[2026-09-13] 남은 available 에 **활성**(마스크 ≠ MASK_NONE) 챔프가 하나라도 있나.
+///   비활성 챔프 veto 의 총고갈 안전망 — 활성 챔프가 하나도 안 남았을 때만 비활성을 허용한다.
+///   못 읽으면 **true**(=비활성 veto 유지 — 활성 챔프가 남아 있는 것이 보통이고, 전부 -1e9 가
+///   되더라도 게임은 그중 하나를 고르므로 정지 위험은 없다).
+fn pool_has_enabled_idx(ctx: &DraftScoreContext, ally_idx: &[usize], masks: &[u8]) -> bool {
+    let Some(avail) = read_avail_idx(ctx) else {
+        return true;
+    };
+    avail.iter().any(|&c| {
+        !ally_idx.contains(&c) && masks.get(c).copied().unwrap_or(MASK_ALL) != config::MASK_NONE
+    })
 }
 
 // UI: '포지션 제한' 버튼 클릭 라우팅 + 팝업 열림 상태.
@@ -1219,6 +1261,24 @@ impl ModDraftScoreHook for PosLockDraftAi {
             // ★진단(2026-08-22): mod_api DraftScoreContext 는 Rust struct(slice 필드)라 raw offset
             //   무의미. 필드 직접 접근. available 이 차있으면 ctx 정상 = ally_pick 만 빈 것 확정.
             let ally_idx: Vec<usize> = ctx.ally_pick.iter().copied().collect();
+            // ★★[2026-09-13] 비활성 챔프(어느 포지션에도 미지정·5포지션 전부 제한) = **항상 veto**.
+            //   ~~구: 규칙 ③이 MASK_ALL 로 정규화해 위 분기에서 무조건 통과~~ → 어느 포지션 풀이
+            //   마르면 지정 챔프가 전부 "라인 중복" veto 되고 **살아남는 후보가 비활성 챔프뿐**이라
+            //   AI 가 격투가/기사/궁수(ㄱㄴㄷ순)를 집었다(유저 보고). 총고갈(활성 챔프 0)일 때만 통과.
+            if cand == config::MASK_NONE {
+                if !pool_has_enabled_idx(ctx, &ally_idx, masks) {
+                    CNT_FAILOPEN.fetch_add(1, Ordering::Relaxed);
+                    return None;
+                }
+                CNT_DISABLED_VETO.fetch_add(1, Ordering::Relaxed);
+                if cfg.debug {
+                    let n = DBG_VETON.fetch_add(1, Ordering::Relaxed);
+                    if n < 200 {
+                        config::dlog(&format!("disabled_veto: cand={}", nm(candidate)));
+                    }
+                }
+                return Some(());
+            }
             if cfg.debug {
                 let n = DBG_CTXN.fetch_add(1, Ordering::Relaxed);
                 if n < 40 {
@@ -1261,7 +1321,7 @@ impl ModDraftScoreHook for PosLockDraftAi {
             let pinned: Vec<u8> = ally_idx
                 .iter()
                 .map(|&i| masks.get(i).copied().unwrap_or(MASK_ALL))
-                .filter(|&m| m != MASK_ALL)
+                .filter(|&m| config::is_pinned(m)) // 무제한·비활성 픽은 라인을 제약하지 않는다
                 .collect();
             // ★진단: @30 이 2개 이상 누적되는지(누적 안 되면 "아군 픽 리스트" 가설 기각).
             if cfg.debug && ally_idx.len() >= 2 {
@@ -1375,10 +1435,14 @@ static LAST_SCENE_STAMP: AtomicU64 = AtomicU64::new(u64::MAX);
 ///   (호버 판정·표시·배치는 게임이 담당 — RE 2026-08-22).
 pub(crate) fn block_msg(name: &str) -> String {
     match hooks::block_reason(name) {
-        Some(p) if !p.is_empty() => format!("해당 포지션은 더이상 선택할 수 없습니다: {p}"),
-        _ => "해당 포지션은 더이상 선택할 수 없습니다".to_string(),
+        // ★[2026-09-13] 비활성 챔프(어느 포지션에도 미지정) — 사유가 "포지션이 찼다"가 아니다.
+        Some(p) if p == BLOCK_REASON_DISABLED => i18n::tr("block_disabled"),
+        Some(p) if !p.is_empty() => i18n::trf("block_msg", &[("pos", &p)]),
+        _ => i18n::tr("block_msg_plain"),
     }
 }
+/// BLOCK_REASON 값 마커 — 비활성 챔프(포지션 라벨이 아님).
+pub(crate) const BLOCK_REASON_DISABLED: &str = "\u{1}disabled";
 
 /// 유저 픽 차단 목록 계산 → hooks::BLOCKLIST 게시. 밴픽 활성 프레임에만 갱신.
 /// 유저 현재 픽(씬 O_PICK1)의 제한 마스크를 pin → 각 후보를 pin+후보로 feasible 체크,
@@ -1762,6 +1826,11 @@ fn recompute_blocklist(root: &Node) {
         *hooks::BLOCK_REASON.lock().unwrap_or_else(|e| e.into_inner()) = None;
         hooks::MY_PICK_TURN.store(false, Ordering::Relaxed);
     };
+    // 목록만 비우고 MY_PICK_TURN 은 건드리지 않는 변형(내 차례 판정이 끝난 뒤 쓰는 갈래용).
+    let clear_lists = || {
+        *hooks::BLOCKLIST.lock().unwrap_or_else(|e| e.into_inner()) = None;
+        *hooks::BLOCK_REASON.lock().unwrap_or_else(|e| e.into_inner()) = None;
+    };
     // ★AI 필터는 **매 프레임 새로 확신을 얻어야** 켜진다(기본 꺼짐). UI 회색화는 종전대로
     //   fail-open 을 유지하되, 그 관대함이 AI 필터로 새지 않게 여기서 끊는다.
     hooks::MY_PICK_TURN.store(false, Ordering::Relaxed);
@@ -2026,10 +2095,46 @@ fn recompute_blocklist(root: &Node) {
     let mut pinned: Vec<u8> = Vec::with_capacity(5);
     for p in &my_picks {
         let m = config::mask_of(p);
-        if m != MASK_ALL {
+        if config::is_pinned(m) {
             pinned.push(m);
         }
     }
+    // ★★[2026-09-13] 비활성 챔프(MASK_NONE) = **자유 슬롯이 남아 있어도 상시 회색**.
+    //   활성 챔프가 하나라도 아직 안 쓰였을 때만(총고갈 안전망). 아래 두 갈래(자유 슬롯 / 정상
+    //   판정)가 이 목록을 공통으로 깔고 간다 — 코치 위임 finalize 필터도 BLOCKLIST 를 읽으므로
+    //   여기서 빠지면 "회색인데 코치는 고른다"가 된다.
+    let (disabled, any_enabled_left): (std::collections::HashSet<String>, bool) = {
+        let mut d = std::collections::HashSet::new();
+        let mut en = false;
+        for (i, n) in names.iter().enumerate() {
+            let lower = n.to_ascii_lowercase();
+            if taken.contains(lower.as_str()) {
+                continue;
+            }
+            if masks.get(i).copied().unwrap_or(MASK_ALL) == config::MASK_NONE {
+                d.insert(lower);
+            } else {
+                en = true;
+            }
+        }
+        (d, en)
+    };
+    let disabled_reason = |set: &std::collections::HashSet<String>| {
+        set.iter()
+            .map(|n| (n.clone(), BLOCK_REASON_DISABLED.to_string()))
+            .collect::<std::collections::HashMap<String, String>>()
+    };
+    // 비활성만 게시(자유 슬롯·fail-open 갈래 공용). 활성 챔프가 하나도 안 남았으면 전부 해제.
+    let publish_disabled_only = || {
+        if any_enabled_left && !disabled.is_empty() {
+            *hooks::BLOCK_REASON.lock().unwrap_or_else(|e| e.into_inner()) =
+                Some(disabled_reason(&disabled));
+            *hooks::BLOCKLIST.lock().unwrap_or_else(|e| e.into_inner()) =
+                Some(disabled.clone());
+        } else {
+            clear_lists();
+        }
+    };
     // ★자유 슬롯 예산(2026-08-23 유저 지적): 포지션 풀이 말라 정배치가 불가능해진 자리는
     //   아무나 앉혀도 되고, **그 자리를 몇 번째 픽으로 채울지는 순서와 무관**하다.
     //   구 동작은 `helps()` 만 봐서 자유 픽을 마지막 픽에서만 허용했다 → 예산이 남아 있으면 전면 허용.
@@ -2044,8 +2149,8 @@ fn recompute_blocklist(root: &Node) {
             .collect();
         let free = free_left(&pinned_all, &pool, picks_n / 2);
         if free > 0 {
-            gate_note(my_picks.len(), free, 0, true);
-            clear();
+            gate_note(my_picks.len(), free, disabled.len(), true);
+            publish_disabled_only(); // ★비활성은 자유 슬롯에도 못 앉는다(2026-09-13)
             return;
         }
     }
@@ -2064,6 +2169,12 @@ fn recompute_blocklist(root: &Node) {
             any_feasible = true; // 무제한 챔프는 언제나 픽 가능
             continue;
         }
+        if m == config::MASK_NONE {
+            // 비활성 — 사유는 포지션이 아니라 "미지정". any_feasible 에 기여하지 않는다.
+            reason.insert(lower.clone(), BLOCK_REASON_DISABLED.to_string());
+            block.insert(lower);
+            continue;
+        }
         if helps(&pinned, m) {
             any_feasible = true;
         } else {
@@ -2079,8 +2190,11 @@ fn recompute_blocklist(root: &Node) {
     }
     let published = if any_feasible {
         block
+    } else if any_enabled_left {
+        // fail-open(활성 챔프 중 라인을 채울 게 없음) — 단 비활성은 계속 회색(2026-09-13).
+        disabled.clone()
     } else {
-        std::collections::HashSet::new() // fail-open
+        std::collections::HashSet::new() // 총고갈 fail-open
     };
     gate_note(my_picks.len(), 0, published.len(), any_feasible);
     // 씬이 바뀐 프레임에만 로그(스팸 방지) — 실제 픽/밴을 이름으로 찍어 검증(T1=내팀 확인용).
@@ -3112,7 +3226,7 @@ impl ModExtension for PosLockExt {
                         .collect();
                     let names_len = names().map(|n| n.len()).unwrap_or(0);
                     config::dlog(&format!(
-                        "counters: GY(cell={} paint={}) CK={} CB(seen={} cut={}) DQ(fix={}) CP(seen={} swap={}) | am_hist={:?} am_pen={} seen={} veto={} failopen={} st(e/f/b/c/cover)={}/{}/{}/{}/{} mask_fire={} mask_call={} mask_adj={} A={} C={} D={} E={} CM={} RC={} rc_seen={} rw_seen={} rw_live={} dp_seen={} dp_live={} rc_filt={} rc_inj={} ag0={} agp={} min_stk={} cm_seen={} cm_rej={} cm_redir={} ui_q={} ui_block={} rdx={:?} model_cnt={} max_rdx={} names={}",
+                        "counters: GY(cell={} paint={}) CK={} CB(seen={} cut={}) DQ(fix={}) CP(seen={} swap={}) | am_hist={:?} am_pen={} seen={} veto={} failopen={} dis_veto={} st(e/f/b/c/cover)={}/{}/{}/{}/{} mask_fire={} mask_call={} mask_adj={} A={} C={} D={} E={} CM={} RC={} rc_seen={} rw_seen={} rw_live={} dp_seen={} dp_live={} rc_filt={} rc_inj={} ag0={} agp={} min_stk={} cm_seen={} cm_rej={} cm_redir={} ui_q={} ui_block={} rdx={:?} model_cnt={} max_rdx={} names={}",
                         hooks::CNT_GY_CELL.load(Ordering::Relaxed),
                         hooks::CNT_GY_PAINT.load(Ordering::Relaxed),
                         hooks::CNT_CK_BLOCK.load(Ordering::Relaxed),
@@ -3129,6 +3243,7 @@ impl ModExtension for PosLockExt {
                         CNT_SEEN.load(Ordering::Relaxed),
                         CNT_VETO.load(Ordering::Relaxed),
                         CNT_FAILOPEN.load(Ordering::Relaxed),
+                        CNT_DISABLED_VETO.load(Ordering::Relaxed),
                         ST_EMPTY.load(Ordering::Relaxed),
                         ST_FEAS.load(Ordering::Relaxed),
                         ST_BROKEN.load(Ordering::Relaxed),

@@ -1198,17 +1198,23 @@ unsafe extern "C" fn finalize_hook(
         if !cfg.enabled || !cfg.ai_pick_gate || !config::any_restricted() {
             return None;
         }
-        // ★내 팀 픽 차례라고 **확신**할 때만 개입한다(위 MY_PICK_TURN 주석 참조).
-        if !MY_PICK_TURN.load(Ordering::Relaxed) {
+        // ★★[2026-09-13] 두 층으로 나눈다.
+        //   ①**비활성 챔프**(MASK_NONE = 어느 포지션에도 미지정·5포지션 전부 제한) — 팀·차례와
+        //     무관한 전역 사실이라 **상대 AI 턴·백그라운드에서도** 거른다. 09-04 의 "상대 굶김"
+        //     사고는 내 픽 기준 BLOCKLIST 를 상대에게 적용한 것이지, 전역 집합은 해당 없다.
+        //   ②BLOCKLIST(내 픽 기준 라인 충돌) — 종전대로 **내 팀 픽 차례라고 확신할 때만**.
+        //   증거: 구 코드는 pref 가 막히면 `allowed[0]`(= 후보 0번 = 격투가)를 골랐고, 비활성이
+        //   BLOCKLIST 에 없어 그대로 확정됐다(`fzfilt#0 … pref=73→0(fighter)`).
+        let disabled: std::collections::HashSet<String> = crate::disabled_set();
+        let block: std::collections::HashSet<String> = if MY_PICK_TURN.load(Ordering::Relaxed) {
+            let g = BLOCKLIST.lock().unwrap_or_else(|e| e.into_inner());
+            g.as_ref().cloned().unwrap_or_default()
+        } else {
+            std::collections::HashSet::new()
+        };
+        if block.is_empty() && disabled.is_empty() {
             return None;
         }
-        let block = {
-            let g = BLOCKLIST.lock().unwrap_or_else(|e| e.into_inner());
-            match g.as_ref() {
-                Some(set) if !set.is_empty() => set.clone(),
-                _ => return None,
-            }
-        };
         if cand_len == 0 || cand_len > 512 || !ptr_ok(cand_ptr) {
             return None;
         }
@@ -1228,10 +1234,37 @@ unsafe extern "C" fn finalize_hook(
             read_str_vec_into(la_p, la_l, &mut taken);
         }
 
+        // ★[2026-09-13] 게임이 준 `order`(후보 인덱스 목록)를 **그 순서대로** 거른다 — 구 코드는
+        //   후보 배열 0..cand_len 을 통째로 순회해 order 의 멤버십·순서를 버렸다(pref 가 막히면
+        //   `allowed[0]` = 후보 0번 = ㄱㄴㄷ 첫 챔프). order 를 못 읽으면 종전대로 후보 순회.
+        let src: Vec<usize> = if order_len > 0 && order_len <= 512 && ptr_ok(order_ptr) {
+            let mut v = Vec::with_capacity(order_len);
+            for k in 0..order_len {
+                let idx = safe_rd_u64(order_ptr + k * 8).unwrap_or(u64::MAX) as usize;
+                if idx < cand_len {
+                    v.push(idx);
+                }
+            }
+            if v.is_empty() {
+                (0..cand_len).collect()
+            } else {
+                v
+            }
+        } else {
+            (0..cand_len).collect()
+        };
         let mut allowed: Vec<usize> = Vec::with_capacity(64);
-        for i in 0..cand_len {
+        let mut cut_dis = 0usize;
+        for &i in &src {
             let Some(n) = read_str_elem(cand_ptr + i * 0x18) else { continue };
-            if taken.contains(&n) || block.contains(&n) {
+            if taken.contains(&n) {
+                continue;
+            }
+            if disabled.contains(&n.to_ascii_lowercase()) {
+                cut_dis += 1;
+                continue;
+            }
+            if block.contains(&n) {
                 continue;
             }
             allowed.push(i);
@@ -1240,10 +1273,13 @@ unsafe extern "C" fn finalize_hook(
             }
         }
         if allowed.is_empty() {
-            return None; // fail-open — 좁히면 오히려 선형스캔 폴백으로 제한이 풀린다
+            return None; // fail-open — 좁히면 오히려 선형스캔 폴백으로 제한이 풀린다(총고갈 포함)
+        }
+        if cut_dis == 0 && allowed.len() == src.len() {
+            return None; // 변화 없음(비활성·차단 후보가 order 에 없었다) → 원본 인자 그대로
         }
         let pref = if allowed.contains(&pref_idx) { pref_idx } else { allowed[0] };
-        Some((allowed, pref, block.len()))
+        Some((allowed, pref, block.len() + cut_dis))
     }))
     .ok()
     .flatten();
@@ -1628,7 +1664,7 @@ unsafe fn recommend_filter(available: usize, ally: usize) -> Option<(FilteredAva
     let pinned: Vec<u8> = ally_idx
         .iter()
         .map(|&i| mask_of(i))
-        .filter(|&m| m != config::MASK_ALL)
+        .filter(|&m| config::is_pinned(m))
         .collect();
     if pinned.is_empty() {
         return None;
@@ -1638,6 +1674,8 @@ unsafe fn recommend_filter(available: usize, ally: usize) -> Option<(FilteredAva
         let m = mask_of(c);
         let ok = if m == config::MASK_ALL {
             true
+        } else if m == config::MASK_NONE {
+            false // 비활성(2026-09-13)
         } else {
             let mut v = pinned.clone();
             v.push(m);
@@ -2419,7 +2457,7 @@ fn commit_decide(rmi: usize, acting_team: usize, champ: usize) -> CommitAction {
         let cur_masks: Vec<u8> = picks
             .iter()
             .map(|s| config::mask_of(s))
-            .filter(|&m| m != config::MASK_ALL)
+            .filter(|&m| config::is_pinned(m))
             .collect();
         let cur_ok = crate::feasible(&mut cur_masks.clone());
         let mut with = cur_masks.clone();
@@ -2543,7 +2581,7 @@ unsafe fn observe_final_lineup(rmi: usize) {
         let masks: Vec<u8> = picks
             .iter()
             .map(|n| config::mask_of(n))
-            .filter(|&m| m != config::MASK_ALL)
+            .filter(|&m| m != config::MASK_ALL) // 진단: 비활성 픽은 라인을 못 채우므로 DUP 로 표시
             .collect();
         let dup = !crate::feasible(&mut masks.clone());
         let mut h: u64 = 0xcbf29ce484222325;
@@ -3260,7 +3298,7 @@ unsafe fn pred_extra(
     let pinned: Vec<u8> = v0
         .iter()
         .map(|nm| name_to_mask(nm))
-        .filter(|&m| m != config::MASK_ALL)
+        .filter(|&m| config::is_pinned(m))
         .collect();
     TL_PINNED.with(|t| *t.borrow_mut() = pinned.clone());
     if cfg.debug && !pinned.is_empty() {
@@ -3616,7 +3654,7 @@ unsafe fn f848_penalty(champ_ptr: usize, count: usize) -> bool {
             None => return false,
         };
         let m = masks.get(cid).copied().unwrap_or(config::MASK_ALL);
-        if m != config::MASK_ALL {
+        if config::is_pinned(m) {
             pins.push(m);
         }
     }
@@ -4143,12 +4181,14 @@ unsafe fn cprod_swap(ctx: usize, rec: usize) {
     let pinned: Vec<u8> = my_picks
         .iter()
         .map(|n| name_to_mask(n))
-        .filter(|&m| m != config::MASK_ALL)
+        .filter(|&m| config::is_pinned(m))
         .collect();
     let cur_mask = name_to_mask(&cur);
     if cur_mask == config::MASK_ALL {
         return; // 무제한 챔프 = 충돌 불가
     }
+    // ★[2026-09-13] 비활성 픽(MASK_NONE)은 자유 슬롯이 남았어도 **반드시** 활성 챔프로 바꾼다.
+    let cur_disabled = cur_mask == config::MASK_NONE;
     // ★진단: rmi 성공 후 판정 재료(내 픽·pinned·현재 마스크).
     if cfg.debug {
         let n = DBG_CPS.fetch_add(1, Ordering::Relaxed);
@@ -4182,7 +4222,7 @@ unsafe fn cprod_swap(ctx: usize, rec: usize) {
             })
             .map(|(i, _)| masks.get(i).copied().unwrap_or(config::MASK_ALL))
             .collect();
-        if crate::free_left(&pinned_all, &pool, PICKS_PER_TEAM) > 0 {
+        if !cur_disabled && crate::free_left(&pinned_all, &pool, PICKS_PER_TEAM) > 0 {
             return;
         }
     }
@@ -4200,6 +4240,9 @@ unsafe fn cprod_swap(ctx: usize, rec: usize) {
             .position(|n| n.eq_ignore_ascii_case(cand))
             .and_then(|i| masks.get(i).copied())
             .unwrap_or(config::MASK_ALL);
+        if m == config::MASK_NONE {
+            continue; // 비활성은 대체 후보가 아니다(2026-09-13)
+        }
         if crate::helps(&pinned, m) {
             ru_pick = Some(cand.clone());
             break;
@@ -4218,13 +4261,38 @@ unsafe fn cprod_swap(ctx: usize, rec: usize) {
         if m == config::MASK_ALL {
             continue; // 무제한은 라인 판정 불가 → 보수적으로 스킵
         }
+        if m == config::MASK_NONE {
+            continue; // 비활성은 대체 후보가 아니다(2026-09-13)
+        }
         if crate::helps(&pinned, m) {
             chosen = Some(nm.as_str());
             break;
         }
     }
+    // ★[2026-09-13] 비활성 픽인데 "새 라인을 채우는" 대체가 없으면(자유 슬롯 상황) 아무 활성
+    //   챔프라도 넣는다 — 차순위(게임 점수순) 우선, 없으면 NAMES 순.
+    let mut any_enabled: Option<String> = None;
+    if cur_disabled && ru_pick.is_none() && chosen.is_none() {
+        let enabled_ok = |nm: &str| -> bool {
+            let low = nm.to_ascii_lowercase();
+            if used_low.iter().any(|u| *u == low) {
+                return false;
+            }
+            names
+                .iter()
+                .position(|n| n.eq_ignore_ascii_case(nm))
+                .and_then(|i| masks.get(i).copied())
+                .unwrap_or(config::MASK_ALL)
+                != config::MASK_NONE
+        };
+        any_enabled = ru
+            .iter()
+            .find(|c| enabled_ok(c))
+            .cloned()
+            .or_else(|| names.iter().find(|n| enabled_ok(n)).cloned());
+    }
     let ru_used = ru_pick.is_some();
-    let newname: &str = match ru_pick.as_deref().or(chosen) {
+    let newname: &str = match ru_pick.as_deref().or(chosen).or(any_enabled.as_deref()) {
         Some(v) => v,
         None => return, // 합법 대체 없음 → fail-open(원본 유지)
     };
@@ -4830,11 +4898,13 @@ unsafe fn disp_fix(sret: usize, ctx: usize, match_id: u64, team_id: u64) {
     if cm == config::MASK_ALL {
         return;
     }
+    // ★[2026-09-13] 1순위가 비활성(MASK_NONE)이면 자유 슬롯과 무관하게 활성 차순위로 민다.
+    let cur_disabled = cm == config::MASK_NONE;
     if crate::helps(&pinned, cm) {
         return; // 이미 합법(새 라인을 채움)
     }
-    // ★자유 슬롯이 남아 있으면 교체하지 않는다(위 CP 훅과 같은 규칙).
-    {
+    // ★자유 슬롯이 남아 있으면 교체하지 않는다(위 CP 훅과 같은 규칙). 단 비활성 1순위는 예외.
+    let free_now = {
         let pinned_all: Vec<u8> = pinned.clone();
         let pool: Vec<u8> = names
             .iter()
@@ -4842,9 +4912,10 @@ unsafe fn disp_fix(sret: usize, ctx: usize, match_id: u64, team_id: u64) {
             .filter(|(_, n)| !used.iter().any(|u| u.eq_ignore_ascii_case(n)))
             .map(|(i, _)| masks.get(i).copied().unwrap_or(config::MASK_ALL))
             .collect();
-        if crate::free_left(&pinned_all, &pool, PICKS_PER_TEAM) > 0 {
-            return;
-        }
+        crate::free_left(&pinned_all, &pool, PICKS_PER_TEAM) > 0
+    };
+    if free_now && !cur_disabled {
+        return;
     }
     // 차순위에서 첫 합법(그 매치의 밴/픽에도 없어야 커밋 통과) 탐색.
     //   ★무제한(MASK_ALL) 챔프는 어느 포지션에나 가므로 **스킵하지 않는다**(항상 안전).
@@ -4857,7 +4928,12 @@ unsafe fn disp_fix(sret: usize, ctx: usize, match_id: u64, team_id: u64) {
             continue;
         }
         let m = m_of(&cand);
-        if !crate::helps(&pinned, m) {
+        if m == config::MASK_NONE {
+            skipped.push(format!("{i}:{cand}=비활성"));
+            continue;
+        }
+        // 자유 슬롯 상황에서 비활성 1순위를 미는 중이면 활성이기만 하면 된다.
+        if !(free_now && cur_disabled) && !crate::helps(&pinned, m) {
             skipped.push(format!("{i}:{cand}=포지션충돌"));
             continue;
         }
@@ -4929,7 +5005,7 @@ unsafe fn team_state(
                 .and_then(|i| masks.get(i).copied())
                 .unwrap_or(config::MASK_ALL)
         })
-        .filter(|&m| m != config::MASK_ALL)
+        .filter(|&m| config::is_pinned(m))
         .collect();
     Some((pinned, used, is_ban))
 }
@@ -5159,7 +5235,7 @@ unsafe fn cand_filter(sret: usize, argpack: usize) {
                 .and_then(|i| masks.get(i).copied())
                 .unwrap_or(config::MASK_ALL)
         })
-        .filter(|&m| m != config::MASK_ALL)
+        .filter(|&m| config::is_pinned(m))
         .collect();
     if pinned.is_empty() {
         return;
@@ -5175,16 +5251,15 @@ unsafe fn cand_filter(sret: usize, argpack: usize) {
     }
     // ★자유 슬롯이 남아 있으면 후보를 하나도 자르지 않는다(위 CP/DQ 훅과 같은 규칙).
     //   여기선 후보 리스트 자체가 곧 남은 풀이다.
-    {
+    //   ★[2026-09-13] 단 **비활성(MASK_NONE) 후보는 자유 슬롯이어도 자른다**(활성이 하나라도 남을 때).
+    let free_now = {
         let mut pool: Vec<u8> = Vec::with_capacity(len);
         for i in 0..len {
             let Some(v) = safe_rd_u64(ptr + i * 8) else { return };
             pool.push(masks.get(v as usize).copied().unwrap_or(config::MASK_ALL));
         }
-        if crate::free_left(&pinned, &pool, 2 + fmt) > 0 {
-            return;
-        }
-    }
+        crate::free_left(&pinned, &pool, 2 + fmt) > 0
+    };
     let mut keep: Vec<u64> = Vec::with_capacity(len);
     for i in 0..len {
         let v = match safe_rd_u64(ptr + i * 8) {
@@ -5192,7 +5267,10 @@ unsafe fn cand_filter(sret: usize, argpack: usize) {
             None => return, // 읽기 실패 시 전체 포기(부분 수정 금지)
         };
         let m = masks.get(v as usize).copied().unwrap_or(config::MASK_ALL);
-        if crate::helps(&pinned, m) {
+        if m == config::MASK_NONE {
+            continue;
+        }
+        if free_now || crate::helps(&pinned, m) {
             keep.push(v);
         }
     }
