@@ -364,6 +364,8 @@ pub fn sorted_champs() -> Option<Vec<String>> {
 static CNT_VETO: AtomicU64 = AtomicU64::new(0);
 static CNT_SEEN: AtomicU64 = AtomicU64::new(0);
 static CNT_FAILOPEN: AtomicU64 = AtomicU64::new(0);
+/// ★[2026-09-13] BLOCKLIST 에 걸렸지만 내 픽 차례가 아니라 veto 를 **건너뛴** 수(상대 AI 누수 차단 증거).
+static ST_COVER_SKIP: AtomicU64 = AtomicU64::new(0);
 static FLUSH_TICK: AtomicU64 = AtomicU64::new(0);
 /// score_pick raw-ctx 오프셋 진단 throttle(총 라인 상한).
 static DBG_CTXN: AtomicU64 = AtomicU64::new(0);
@@ -1250,7 +1252,16 @@ impl ModDraftScoreHook for PosLockDraftAi {
                     let g = hooks::BLOCKLIST.lock().unwrap_or_else(|e| e.into_inner());
                     g.as_ref().map_or(false, |set| set.contains(&lname))
                 };
-                if blocked {
+                // ★★[2026-09-13 유저 추측 적중] BLOCKLIST 는 **내 팀 픽 기준** 목록이고, 내 픽 직후의
+                //   연출·전환 프레임에는 씬을 못 읽어 **일부러 직전 목록을 유지**한다(아래 exit_note(1)).
+                //   그 프레임에 상대 AI 의 recommend 가 워커에서 돌면 여기서 상대 후보를 내 목록으로
+                //   veto 했다 → 상대가 고르려던 챔프가 "방금 내 쪽에서 잠긴 챔프"면 추천이 깨져
+                //   finalize 폴백(전체 선형스캔 첫 가용 = 가나다 첫 디폴트 챔프)으로 떨어졌다.
+                //   09-04 의 같은 사고("상대 굶김")는 finalize 에만 MY_PICK_TURN 게이트를 달았고
+                //   이 자리는 빠져 있었다. ⟹ 코치 필터와 같은 조건: **내 픽 차례라고 확신할 때만**.
+                if blocked && !hooks::MY_PICK_TURN.load(Ordering::Relaxed) {
+                    ST_COVER_SKIP.fetch_add(1, Ordering::Relaxed);
+                } else if blocked {
                     ST_COVER.fetch_add(1, Ordering::Relaxed);
                     if cfg.debug {
                         let n = DBG_VETON.fetch_add(1, Ordering::Relaxed);
@@ -3115,7 +3126,7 @@ impl ModExtension for PosLockExt {
                         .collect();
                     let names_len = names().map(|n| n.len()).unwrap_or(0);
                     config::dlog(&format!(
-                        "counters: GY(cell={} paint={}) CK={} CB(seen={} cut={}) DQ(fix={}) CP(seen={} swap={}) | am_hist={:?} am_pen={} seen={} veto={} failopen={} fz(seen/filt/pass/scored/noscore)={}/{}/{}/{}/{} st(e/f/b/c/cover)={}/{}/{}/{}/{} mask_fire={} mask_call={} mask_adj={} A={} C={} D={} E={} CM={} RC={} rc_seen={} rw_seen={} rw_live={} dp_seen={} dp_live={} rc_filt={} rc_inj={} ag0={} agp={} min_stk={} cm_seen={} cm_rej={} cm_redir={} ui_q={} ui_block={} rdx={:?} model_cnt={} max_rdx={} names={}",
+                        "counters: GY(cell={} paint={}) CK={} CB(seen={} cut={}) DQ(fix={}) CP(seen={} swap={}) | am_hist={:?} am_pen={} seen={} veto={} failopen={} fz(seen/filt/pass/scored/noscore)={}/{}/{}/{}/{} st(e/f/b/c/cover/cover_skip)={}/{}/{}/{}/{}/{} mask_fire={} mask_call={} mask_adj={} A={} C={} D={} E={} CM={} RC={} rc_seen={} rw_seen={} rw_live={} dp_seen={} dp_live={} rc_filt={} rc_inj={} ag0={} agp={} min_stk={} cm_seen={} cm_rej={} cm_redir={} ui_q={} ui_block={} rdx={:?} model_cnt={} max_rdx={} names={}",
                         hooks::CNT_GY_CELL.load(Ordering::Relaxed),
                         hooks::CNT_GY_PAINT.load(Ordering::Relaxed),
                         hooks::CNT_CK_BLOCK.load(Ordering::Relaxed),
@@ -3142,6 +3153,7 @@ impl ModExtension for PosLockExt {
                         ST_BROKEN.load(Ordering::Relaxed),
                         ST_CONF.load(Ordering::Relaxed),
                         ST_COVER.load(Ordering::Relaxed),
+                        ST_COVER_SKIP.load(Ordering::Relaxed),
                         hooks::CNT_MASK_FIRE.load(Ordering::Relaxed),
                         hooks::CNT_MASK_CALL.load(Ordering::Relaxed),
                         hooks::CNT_MASK_ADJ.load(Ordering::Relaxed),
