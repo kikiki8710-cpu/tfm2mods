@@ -1,0 +1,121 @@
+{
+ "name": "check_press_tower_opportunity",
+ "sym": "_RNvNtNtCshdEBA0ozCnw_7game_ai11plan_legacy9team_plan29check_press_tower_opportunity",
+ "src": "game-ai\\src\\plan_legacy\\team_plan.rs",
+ "src_line": 1130,
+ "ir_file": "m09.ll",
+ "ir_from": 52836,
+ "ir_to": 54331,
+ "aux": [],
+
+ "one_line": "라인전 이후 머릿수 우위일 때 세 라인 중 '적 타워를 압박할' 라인을 점수로 골라 Option<LineType> 을 낸다",
+
+ "signature": {
+  "params": [
+   {"i": 1, "name": "version", "type": "usize", "note": "본문 분기 없음. macro_judgement_penalty/bonus 에만 전달(54290·54293)"},
+   {"i": 2, "name": "_rnd", "type": "&mut StdRng", "note": "readnone — 미사용"},
+   {"i": 3, "name": "player", "type": "&PlayerState(2528B)", "note": "info.team(+0x930) 읽기 + is_recent_visible·penalty/bonus 인자"},
+   {"i": 4, "name": "data", "type": "&OperationData(24B)", "note": "+0 cache / +8 context / +0x10 blackboard"},
+   {"i": 5, "name": "_team_plan", "type": "&TeamPlan", "note": "readnone — 미사용"},
+   {"i": 6, "name": "preferred_line", "type": "Option<LineType>(i8, None=255)", "note": "== 후보 라인이면 점수 +20(54240)"},
+   {"i": 7, "name": "_debug", "type": "&mut DebugFrameData", "note": "readnone — 미사용"}
+  ],
+  "returns": "Option<LineType>(i8) — Some(0 Top/1 Mid/2 Bottom) = 압박할 라인, None(=255, DWARF Variant0 DISCR_EXACT 255 → IR 의 i8 -1) = 기회 없음"
+ },
+
+ "reads": [
+  {"base": "OperationData", "offset": "0x0", "name": "cache", "note": "&AbstractGameWithCache"},
+  {"base": "OperationData", "offset": "0x8", "name": "context", "note": "&GameContext — tutorial·setting·is_near_line 인자"},
+  {"base": "OperationData", "offset": "0x10", "name": "blackboard", "note": "&[Blackboard;2]. [team] 은 라인 미니언 상태, [1-team] 은 is_recent_visible"},
+  {"base": "GameContext", "offset": "0x38", "name": "tutorial@tag", "note": "TutorialType i8. 4곳의 switch(52886·53133·53233·53990) 의 키 — is_line_phase / player_count / valid_lines 인라인"},
+  {"base": "GameContext", "offset": "0x8", "name": "setting", "note": "&GameSetting"},
+  {"base": "GameSetting", "offset": "0x8a8", "name": "epic_jungle.first_spawn_tick", "note": "IR 2216. is_line_phase: tick < sat_sub(first_spawn_tick, tps*30) 면 라인전 중 → None"},
+  {"base": "GameSetting", "offset": "0x12f8", "name": "tick_per_second", "note": "IR 4856"},
+  {"base": "GameSetting", "offset": "0x12c0", "name": "height", "note": "IR 4800. map_regions is_top_side/is_bottom_side: (height - y) >= x / <= x"},
+  {"base": "AbstractGameWithCache", "offset": "0x0", "name": "game (&dyn AbstractGame)", "note": "vtable+0x28 tick() 호출(52880) + is_recent_visible 인자"},
+  {"base": "AbstractGameWithCache", "offset": "0x1e0", "name": "player_champion", "note": "[[Option<&Entity>;5];2]. [team] 아군 3종 카운트, [1-team] 적 생존·라인 카운트(전부 5슬롯 언롤)"},
+  {"base": "AbstractGameWithCache", "offset": "0x180", "name": "top_tower/mid_tower/bottom_tower[1-team]", "note": "cache + 0x180 + 32*line + 8*enemy_team (53406~53411·54246~54251). 1차 타워"},
+  {"base": "AbstractGameWithCache", "offset": "0x190", "name": "top_tower2/mid_tower2/bottom_tower2[1-team]", "note": "+0x10. 둘 다 None 이면 그 라인 skip"},
+  {"base": "PlayerState", "offset": "0x930", "name": "info.team", "note": "usize. enemy = 1 - team"},
+  {"base": "Blackboard", "offset": "0x0", "name": "top_minion_state / +0x28 mid / +0x50 bottom (BrainMinionParameter 40B)", "note": "line 태그 0/1/2 → +0/+40/+80 (53270~53273)"},
+  {"base": "BrainMinionParameter", "offset": "0x10", "name": "from_mid", "note": "i64. 사전 게이트(< -1999 && (< -4999 || count < -2) → None), 라인 게이트(< 2000 skip), 점수(min(from_mid/500, 60))"},
+  {"base": "BrainMinionParameter", "offset": "0x20", "name": "minion_count", "note": "i32. 사전 게이트(< -2) / 라인 게이트(< 1 skip)"},
+  {"base": "Entity", "offset": "0x670", "name": "hp", "note": "usize. hp*100/max_hp > 49"},
+  {"base": "Entity", "offset": "0x628", "name": "stat_cached.hp", "note": "max_hp. 0 → div_by_zero 패닉"},
+  {"base": "Entity", "offset": "0x660", "name": "x", "note": "u64"},
+  {"base": "Entity", "offset": "0x668", "name": "y", "note": "u64"},
+  {"base": "Entity", "offset": "0x68", "name": "ty@tag", "note": "EntityType i64. ==2 Tower 일 때만 아래 TowerType 검사(Entity::is_tower2 인라인 54258~54266)"},
+  {"base": "Entity", "offset": "0x128", "name": "ty@Tower.info.ty@tag", "note": "TowerType i8. >4 (Top2/Mid2/Bottom2) = 2차 타워 → +30 보너스 없음"}
+ ],
+
+ "writes": [],
+
+ "constants": [
+  {"value": 30, "src_line": 1136, "meaning": "GameSetting::is_line_phase(setting.rs:704) 인라인: tick < first_spawn_tick - tps*30 (첫 에픽 스폰 30초 전까지) 면 라인전 → None. tutorial 이 {0 None,5 MidBottom,7 Line,8 Total} 이 아니면 tick 무관 None(runner.rs:399 → spawn_epic 263)"},
+  {"value": 49, "src_line": 1141, "meaning": "아군 hp% > 49 만 '건강한 아군'(healthy). L1190 라인 위 아군 카운트도 같은 조건"},
+  {"value": 100, "src_line": 1141, "meaning": "hp*100/max_hp 백분율"},
+  {"value": 4, "src_line": 1142, "meaning": "GameContext::player_count(runner.rs:295) 인라인의 tutorial 별 값: None/Line/Total→4, MidBottom(5)→3, First(1)/Bottom(3)→2, TopSolo(2)/MidSolo(4)/JungleOnly(6)→1. healthy < 이 값 → None"},
+  {"value": 1, "src_line": 1148, "meaning": "enemy_team = 1 - team ; 적 생존수 = player_champion[enemy] 의 Some 개수"},
+  {"value": -1999, "src_line": 1158, "meaning": "사전 게이트: 어느 유효 라인이든 from_mid < -1999 이고 (from_mid < -4999 또는 minion_count < -2) 면 None — 우리 쪽으로 깊게 밀린 라인이 있으면 압박 금지"},
+  {"value": -4999, "src_line": 1158, "meaning": "위 게이트의 깊은 밀림 임계"},
+  {"value": -2, "src_line": 1158, "meaning": "위 게이트의 minion_count 임계(음수 = 적 미니언 우세로 추정)"},
+  {"value": 2000, "src_line": 1179, "meaning": "후보 라인 조건: from_mid >= 2000 (적 쪽으로 밀린 웨이브)"},
+  {"value": 1, "src_line": 1184, "meaning": "후보 라인 조건: minion_count >= 1"},
+  {"value": 3, "src_line": 1198, "meaning": "player_count 를 3 으로 캡한 값(None/Line/Total/MidBottom→3, First/Bottom→2, Solo류→1). 라인 위 건강한 아군 < 이 값 → skip"},
+  {"value": 1, "src_line": 1210, "meaning": "라인 위 시야 적 > 1 (2명 이상) 이면 skip"},
+  {"value": 500, "src_line": 1217, "meaning": "push = min(from_mid / 500, 60) — 밀림 정도 점수(i32 sdiv)"},
+  {"value": 60, "src_line": 1217, "meaning": "push 점수 상한"},
+  {"value": 140, "src_line": 1220, "meaning": "라인 위 적 0명이면 기본점 140"},
+  {"value": 100, "src_line": 1220, "meaning": "라인 위 적 1명이면 기본점 100"},
+  {"value": 10, "src_line": 1225, "meaning": "라인 위 건강한 아군 1명당 +10"},
+  {"value": 20, "src_line": 1228, "meaning": "line == preferred_line 이면 +20"},
+  {"value": 2, "src_line": 1233, "meaning": "EntityType 태그 2 = Tower (is_tower2 인라인)"},
+  {"value": 4, "src_line": 1233, "meaning": "TowerType 태그 > 4 (Top2/Mid2/Bottom2) = 2차 타워. 남은 적 타워(1차 우선, 없으면 2차)가 2차 타워가 아니면(=1차) +30"},
+  {"value": 30, "src_line": 1235, "meaning": "1차 타워 보너스 +30"},
+  {"value": 20, "src_line": 1244, "meaning": "threshold = macro_judgement_penalty*20 + 130 - macro_judgement_bonus*5"},
+  {"value": 130, "src_line": 1244, "meaning": "threshold 기본값"},
+  {"value": -5, "src_line": 1245, "meaning": "bonus 1당 threshold -5"},
+  {"value": -1, "src_line": 1246, "meaning": "Option<LineType>::None 표식(i8 -1 = 255). best_score < threshold 면 None"}
+ ],
+
+ "calls": [
+  "game_core::simulation::map_regions::is_near_line",
+  "game_core::simulation::map_regions::is_near_mid_line",
+  "game_core::simulation::game::blackboard::Blackboard::is_recent_visible",
+  "game_ai::plan_legacy::team_plan::objective_helpers::macro_judgement_penalty",
+  "game_ai::plan_legacy::team_plan::objective_helpers::macro_judgement_bonus",
+  "core::panicking::panic_const::panic_const_div_by_zero",
+  "core::panicking::panic_bounds_check"
+ ],
+
+ "logic": "fn check_press_tower_opportunity(version, _rnd, player, data, _team_plan, preferred_line, _debug) -> Option<LineType>\n\n[L1136] tick = cache.game.tick()/*vtable+0x28*/\n        if context.is_line_phase(tick) { return None }\n          // 인라인: tutorial ∉ {None,MidBottom,Line,Total} → 라인전 취급(None) ; 아니면 tick < sat_sub(setting.first_spawn_tick(+0x8a8), tps*30) → None\n[L1141] team = player.info.team ; healthy = player_champion[team].iter_champions().filter(|a| a.hp*100/a.max_hp > 49).count()   // ★count 클로저 #1\n[L1142] need = context.player_count()   // tutorial 별 4/3/2/1 (constants 참조)\n[L1143] if healthy < need { return None }\n[L1148] enemy_alive = player_champion[1-team] 의 Some 개수\n[L1149] if !(healthy > enemy_alive) { return None }          // 건강한 아군이 생존 적보다 많아야\n[L1155] lines = rule_scope::valid_lines(tutorial)   // None/Line/Total [Top,Mid,Bottom] · MidBottom [Mid,Bottom] · MidSolo [Mid] · First/Bottom [Bottom] · TopSolo [Top] · JungleOnly []\n[L1156~1158] for line in lines {                          // 사전 게이트\n           ms = blackboard[team].{top,mid,bottom}_minion_state[line]\n           if ms.from_mid < -1999 && (ms.from_mid < -4999 || ms.minion_count < -2) { return None }\n        }\n        best_score = 0 ; best_line = None\n[L1167] for line in lines {\n[L1173]   if cache.tower[1-team][line].is_none() && cache.tower2[1-team][line].is_none() { continue }   // 적 타워 다 깨진 라인\n[L1178]   ms = blackboard[team].minion_state[line]\n[L1179]   if ms.from_mid < 2000 { continue }\n[L1184]   if ms.minion_count < 1 { continue }\n[L1190]   ally_on = player_champion[team].iter_champions().filter(|a| a.hp*100/a.max_hp > 49 && on_line(a)).count()   // ★count 클로저 #2\n            // on_line: Top → is_top_side = (setting.height - a.y) >= a.x ; Bottom → is_bottom_side = (height - y) <= x ;\n            //          Mid → is_near_mid_line(context,x,y) || is_near_line(context,x,y,Mid)\n[L1198]   if ally_on < min(player_count, 3) { continue }\n[L1206]   enemy_on = player_champion[1-team].iter_champions().filter(|e| blackboard[1-team].is_recent_visible(game, player, e) && is_near_line(context, e.x, e.y, line)).count()   // ★count 클로저 #3\n[L1210]   if enemy_on > 1 { continue }\n[L1217]   push = min((ms.from_mid as i32) / 500, 60)\n[L1220]   score = (enemy_on == 0 ? 140 : 100) + ally_on*10 + push\n[L1228]   if Some(line) == preferred_line { score += 20 }\n[L1233]   t = cache.tower[1-team][line].or(cache.tower2[1-team][line])\n          if t.is_some_and(|t| !t.is_tower2())   // is_tower2 = ty==Tower(2) && TowerType > 4\n[L1235]      { score += 30 }\n[L1238]   if score > best_score { best_score = score ; best_line = Some(line) }\n        }\n[L1244] threshold = macro_judgement_penalty(version, player)*20 + 130 - macro_judgement_bonus(version, player)*5\n[L1246] if best_score < threshold { return None }\n[L1251] return best_line\n\n※ 부작용 없음(readnone 인자 3개, 게임 구조체 쓰기 없음). 세 카운트는 IR 에서 5슬롯 언롤.",
+
+ "knobs": [
+  {"what": "라인전 종료 시점", "where": "team_plan.rs:1136 ← setting.rs:704 (IR m09.ll:52899 `mul i64 %25, 30`)", "value": 30,
+   "effect": "첫 에픽 스폰 30초 전부터 압박 판정 시작. 올리면 더 이른 시점부터 타워 압박을 시도"},
+  {"what": "후보 라인의 웨이브 밀림 하한", "where": "team_plan.rs:1179 (IR 53455 `icmp slt i64 %242, 2000`)", "value": 2000,
+   "effect": "from_mid ≥ 2000 인 라인만 후보. 내리면 덜 밀린 라인도 후보가 되어 압박이 잦아진다"},
+  {"what": "라인 위 적 허용 수", "where": "team_plan.rs:1210 (IR 54193 `icmp samesign ugt i64 %516, 1`)", "value": 1,
+   "effect": "시야에 잡힌 적이 라인에 2명 이상이면 그 라인 포기. 올리면 다수 적 앞에서도 압박"},
+  {"what": "라인 위 아군 최소", "where": "team_plan.rs:1198~1199 (IR 54026 `icmp samesign ult i64 %433, %437`, 일반 게임 3)", "value": 3,
+   "effect": "건강한 아군 3명이 라인에 있어야 후보. 튜토리얼은 player_count 로 자동 축소"},
+  {"what": "채택 임계(threshold)", "where": "team_plan.rs:1244~1246 (IR 54291~54297)", "value": 130,
+   "effect": "best_score ≥ penalty*20 + 130 - bonus*5 여야 Some. 130 을 내리면 압박이 잦아지고, penalty(판단력 낮음) 가 크면 더 어려워진다"},
+  {"what": "점수 구성", "where": "team_plan.rs:1217~1235", "value": "140/100 + 10*ally + min(from_mid/500,60) + 20(preferred) + 30(1차 타워)",
+   "effect": "적 0명 기본 140 은 그 자체로 threshold 130 을 넘어 아군 3명·밀림 0 이어도 채택. 적 1명(100)이면 아군 3명(+30)+push 로 넘겨야 한다"},
+  {"what": "사전 게이트(우리 라인이 밀렸을 때 압박 금지)", "where": "team_plan.rs:1158 (IR 53364~53371)", "value": -1999,
+   "effect": "어떤 라인이든 from_mid < -1999 이고 (< -4999 또는 minion_count < -2) 면 전체 None. 값을 더 음수로 내리면 우리 라인이 꽤 밀려도 압박한다"}
+ ],
+
+ "unknown": [
+  "지시의 exe 별도 인스턴스 3개(0xdeb970/0xdeb9f0/0xdec010 = Iterator::count 클로저)는 IR 에서는 전부 본체에 인라인(fnparts: define 1개, 5슬롯 언롤)이라 aux 로 줄 범위를 선언할 수 없다. 세 클로저의 술어는 logic 의 ★#1(L1141 healthy)·#2(L1190 ally_on_line)·#3(L1206 enemy_on_line) 에 그대로 적었다 — exe 함수 3개 ↔ 이 세 술어 대응은 순서 추정(미검증)",
+  "GameContext::player_count(runner.rs:295) 의 실제 반환값은 인라인·상수접힘 후 비교식만 남았다. 관측값(일반 4 / MidBottom 3 / First·Bottom 2 / Solo류 1)이 'player_count()-1' 인지 'player_count()' 자체인지 IR 로 구분 불가(표기 불가, 동작은 확정). L1198 은 같은 값을 3 으로 캡(일반 3)",
+  "GameContext::is_line_phase(runner.rs:399) 의 tutorial 분기: {0,5,7,8} 만 tick 검사로 가고 나머지는 None — 소스가 `!spawn_epic → true` 인지 다른 술어인지는 인라인이라 확정 못 함. check_epic_giveup 의 morgard_exists(1..=6 false) 와 5(MidBottom) 취급이 다른 것은 관측 사실",
+  "BrainMinionParameter.from_mid 의 단위·부호 의미(양수 = 적 쪽으로 밀림)는 게이트 방향(≥2000 이 후보, ≤-2000 이 위험)에서 추정. minion_count 가 음수가 되는 의미(적 미니언 우세?)도 추정",
+  "map_regions::is_near_line(context, x, y, LineType) / is_near_mid_line 내부(반경)는 game_core 미열람",
+  "macro_judgement_penalty / macro_judgement_bonus 내부·범위 미열람(i32)",
+  "L1233 의 `t = tower.or(tower2)` 는 `select null? tower2 : tower` 로 읽음(54252). Option::or 인지 다른 표현인지는 표기 불가",
+  "Option<LineType> None 이 255 인 것은 DWARF Variant0.DISCR_EXACT=255 로 확정. tcxdict 가 TeamPlan.wave_priority_clear_line 을 '니치 1B' 로만 표시해 값은 안 주므로 DWARF 를 근거로 삼았다",
+  "constants 의 100·20·1·4 는 서로 다른 의미로 여러 줄에 겹친다 — 각각 별도 항목으로 적었다"
+ ]
+}

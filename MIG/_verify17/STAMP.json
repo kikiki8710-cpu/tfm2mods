@@ -1,0 +1,76 @@
+{
+ "A": {
+  "dossier": "1c6fe654a8407503",
+  "specs": [
+   "spec_40_v3_assign_anchor.md",
+   "spec_41_fight_participants.md",
+   "spec_42_SinglePlanBattle__with_runaway.md",
+   "spec_43_BattlePlan__with_runaway.md",
+   "spec_44_LegacyPlanHandler__take_misunderstood_received_chat.md"
+  ],
+  "spec_hashes": {
+   "spec_40_v3_assign_anchor.md": "9e9908b26591fecd",
+   "spec_41_fight_participants.md": "30a50e17620d1c16",
+   "spec_42_SinglePlanBattle__with_runaway.md": "7cb4f3158bae065a",
+   "spec_43_BattlePlan__with_runaway.md": "0858c7ceb5f5fb92",
+   "spec_44_LegacyPlanHandler__take_misunderstood_received_chat.md": "2a43d40e1019da7c"
+  },
+  "mkdossier": "81d9294dd98fa641",
+  "v3": "68b8f9e4edee76d2",
+  "built": "2026-09-13 12:50:06"
+ },
+ "B": {
+  "dossier": "2c0a58fba901f30c",
+  "specs": [
+   "spec_45_can_recall.md",
+   "spec_46_need_defense_nexus.md",
+   "spec_47_TeamPlan__handle_epic_line_change.md",
+   "spec_48_v25_scoped_battle_objective.md",
+   "spec_49_resolve_join_stake.md"
+  ],
+  "spec_hashes": {
+   "spec_45_can_recall.md": "9e0d5d2e43842aa0",
+   "spec_46_need_defense_nexus.md": "e10f71483c89e52e",
+   "spec_47_TeamPlan__handle_epic_line_change.md": "7591f2609f726673",
+   "spec_48_v25_scoped_battle_objective.md": "6e0ab5050b579f97",
+   "spec_49_resolve_join_stake.md": "de2a4d2110fa54c9"
+  },
+  "mkdossier": "81d9294dd98fa641",
+  "v3": "68b8f9e4edee76d2",
+  "built": "2026-09-13 12:50:06"
+ },
+ "C": {
+  "dossier": "45076e7b1d18939d",
+  "specs": [
+   "spec_50_check_epic_giveup.md",
+   "spec_51_check_press_tower_opportunity.md",
+   "spec_52_v25_objective_far_split_pressure.md",
+   "spec_53_check_epic_setup.md",
+   "spec_54_TeamPlan__update.md"
+  ],
+  "spec_hashes": {
+   "spec_50_check_epic_giveup.md": "2f5a51b78bf01c16",
+   "spec_51_check_press_tower_opportunity.md": "d6e4d632c0c5ae5a",
+   "spec_52_v25_objective_far_split_pressure.md": "9061c649693de098",
+   "spec_53_check_epic_setup.md": "05e54b31444e6182",
+   "spec_54_TeamPlan__update.md": "c56d75cee3d13fd4"
+  },
+  "mkdossier": "81d9294dd98fa641",
+  "v3": "68b8f9e4edee76d2",
+  "built": "2026-09-13 12:50:06"
+ },
+ "D": {
+  "dossier": "353cbf8ac7a7ba6b",
+  "specs": [
+   "spec_55_EntityPositioningCache__new.md",
+   "spec_56_PassiveLinePlan__sub_plan.md"
+  ],
+  "spec_hashes": {
+   "spec_55_EntityPositioningCache__new.md": "dc1bb0b9cd7c3031",
+   "spec_56_PassiveLinePlan__sub_plan.md": "e48f79d6544080b9"
+  },
+  "mkdossier": "81d9294dd98fa641",
+  "v3": "68b8f9e4edee76d2",
+  "built": "2026-09-13 12:50:06"
+ }
+}

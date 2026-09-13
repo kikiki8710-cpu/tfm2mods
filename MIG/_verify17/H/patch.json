@@ -1,0 +1,98 @@
+{
+ "round": 17,
+ "batch": "H",
+ "errors": [
+  {
+   "path": "/specs[45]/knobs[4]/where",
+   "kind": "실오류",
+   "old": "utils.rs:392 (m04.ll:46858 `icmp ult i64 %80, %100`) — GameSetting.return_tick(+0x1368)",
+   "new": "utils.rs:392 (m04.ll:46875 `icmp ult i64 %80, %100`) — GameSetting.return_tick(+0x1368)",
+   "evidence": "G13(17차 배치H): 인용 명령 `icmp ult i64 %80, %100` 의 원문 줄 = m04.ll:46875 (옛 46858 는 irann 주석본 줄 — #dbg 줄이 지워져 어긋남 · 16차 함정 15 재발). 값 불변",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[46]/knobs[2]/where",
+   "kind": "실오류",
+   "old": "defense_nexus.rs:487·526 (m04.ll:57377 `and i1 %64, %65`)",
+   "new": "defense_nexus.rs:487·526 (m04.ll:57361 `and i1 %64, %65`)",
+   "evidence": "G13(17차 배치H): 인용 명령 `and i1 %64, %65` 의 원문 줄 = m04.ll:57361 (옛 57377 는 irann 주석본 줄 — #dbg 줄이 지워져 어긋남 · 16차 함정 15 재발). 값 불변",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[48]/knobs[1]/where",
+   "kind": "실오류",
+   "old": "fight_model.rs:1145 (m10.ll:48420·48426 `add i8 %10,-1; icmp ult i8 %11, 2`)",
+   "new": "fight_model.rs:1145 (m10.ll:48423·48429 `add i8 %10,-1; icmp ult i8 %11, 2`)",
+   "evidence": "G13(17차 배치H): 인용 명령 `add i8 %10,-1` 의 원문 줄 = m10.ll:48423 (옛 48420 는 irann 주석본 줄 — #dbg 줄이 지워져 어긋남 · 16차 함정 15 재발). 값 불변",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[49]/knobs[0]/where",
+   "kind": "실오류",
+   "old": "fight_model.rs:685 (IR m10.ll:41072 `mul i64 %30, 6`)",
+   "new": "fight_model.rs:685 (IR m10.ll:41058 `mul i64 %30, 6`)",
+   "evidence": "G13(17차 배치H): 인용 명령 `mul i64 %30, 6` 의 원문 줄 = m10.ll:41058 (옛 41072 는 irann 주석본 줄 — #dbg 줄이 지워져 어긋남 · 16차 함정 15 재발). 값 불변",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[49]/knobs[3]/where",
+   "kind": "실오류",
+   "old": "fight_model.rs:729 (IR m10.ll:41569 `add i64 %207, 15000`)",
+   "new": "fight_model.rs:729 (IR m10.ll:41645 `add i64 %207, 15000`)",
+   "evidence": "G13(17차 배치H): 인용 명령 `add i64 %207, 15000` 의 원문 줄 = m10.ll:41645 (옛 41569 는 irann 주석본 줄 — #dbg 줄이 지워져 어긋남 · 16차 함정 15 재발). 값 불변",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[50]/knobs[0]/where",
+   "kind": "실오류",
+   "old": "epic.rs:126 (IR m09.ll:59166 `icmp ugt i64 %68, 20`)",
+   "new": "epic.rs:126 (IR m09.ll:59161 `icmp ugt i64 %68, 20`)",
+   "evidence": "G13(17차 배치H): 인용 명령 `icmp ugt i64 %68, 20` 의 원문 줄 = m09.ll:59161 (옛 59166 는 irann 주석본 줄 — #dbg 줄이 지워져 어긋남 · 16차 함정 15 재발). 값 불변",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[51]/knobs[0]/where",
+   "kind": "실오류",
+   "old": "team_plan.rs:1136 ← setting.rs:704 (IR m09.ll:52899 `mul i64 %25, 30`)",
+   "new": "team_plan.rs:1136 ← setting.rs:704 (IR m09.ll:52902 `mul i64 %25, 30`)",
+   "evidence": "G13(17차 배치H): 인용 명령 `mul i64 %25, 30` 의 원문 줄 = m09.ll:52902 (옛 52899 는 irann 주석본 줄 — #dbg 줄이 지워져 어긋남 · 16차 함정 15 재발). 값 불변",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[52]/knobs[0]/where",
+   "kind": "실오류",
+   "old": "objective_helpers.rs:111 ← :12 v23_healthy (IR m15.ll:54823 `icmp ugt i64 %37, 39`)",
+   "new": "objective_helpers.rs:111 ← :12 v23_healthy (IR m15.ll:54910 `icmp ugt i64 %37, 39`)",
+   "evidence": "G13(17차 배치H): 인용 명령 `icmp ugt i64 %37, 39` 의 원문 줄 = m15.ll:54910 (옛 54823 는 irann 주석본 줄 — #dbg 줄이 지워져 어긋남 · 16차 함정 15 재발). 값 불변",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[54]/mem[25]/name",
+   "kind": "보강",
+   "old": "nexus[] Option<&Entity>",
+   "new": "nexus[]",
+   "evidence": "G20 잔여 정리(17차 배치H): 이름 꼬리(타입·레이아웃 주석)가 정규화를 깨뜨림 → 머리만 남김(설명은 note 에)",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[54]/mem[51]/name",
+   "kind": "보강",
+   "old": "chats.cap Vec<Chat> (cap +0xc0, ptr +0xc8, len +0xd0)",
+   "new": "chats.cap",
+   "evidence": "G20 잔여 정리(17차 배치H): 이름 꼬리(타입·레이아웃 주석)가 정규화를 깨뜨림 → 머리만 남김(설명은 note 에)",
+   "behavior_change": false,
+   "found_by": "reused"
+  }
+ ],
+ "ev_up": [],
+ "brief_errors": []
+}

@@ -80,7 +80,11 @@ FIRED = {4: 54660390, 16: 6940762, 19: 2806126, 12: 1808301, 18: 1672540,
          #   <게임>\mods	fm2_judge_verify\_r7_probe1\probe20_run3_all38.txt). #30 objective_is_damaged 는 2회 = 표본 극소.
          22: 173781504, 39: 33717543, 38: 18769014, 21: 11686232, 23: 10295069, 25: 5660210,
          20: 3158080, 31: 3144357, 29: 3055211, 34: 2818679, 24: 1370692, 26: 1149517, 27: 1081789,
-         28: 866135, 35: 656947, 36: 560347, 37: 556740, 33: 506982, 32: 2110, 30: 2}
+         28: 866135, 35: 656947, 36: 560347, 37: 556740, 33: 506982, 32: 2110, 30: 2,
+         # ★r8 잎 17(i=40~56) · 2026-09-13 13:0x 판 1(설치 56/56 · Gen.G vs 디플러스 SET1 · 221.9s 스냅샷 · 원문 =
+         #   <게임>\mods	fm2_judge_verify\_r8_probe1\probe20_r8_run1.txt). 미발화 2 = #42(i42 SingleLane 전용=NA) · #47(i47 이 판 0).
+         54: 25238388, 55: 18749665, 46: 10990018, 53: 8012325, 45: 7564211, 51: 6807462, 56: 6570780,
+         48: 2777647, 52: 2105201, 41: 1785206, 50: 1223027, 44: 966291, 43: 709478, 40: 248491, 49: 68945}
 #   `#02` 는 MISSING20(인라인)이라 여기 없다. 그 호스트 `BigPlan::sub_plan`(AUX[90] @0xcaf9f0 · ~~AUX[20]~~ 09-13 이동)의
 #   재측정치 = **27,416,789**(probe20.txt 참조) — 명세 함수가 아니므로 이 표에 넣지 않는다.
 # ★★**이 함수들의 1단계 발화수는 무효다** — 그때 잰 주소가 **다른 함수**였다(2026-09-12 ghidra 확정).
@@ -96,6 +100,7 @@ FIRED = {4: 54660390, 16: 6940762, 19: 2806126, 12: 1808301, 18: 1672540,
 #     무효 수치가 조용히 되살아난다(이 표가 존재하는 이유).
 INVALID_FIRE = {}
 DEAD = {7: u"미발화(재측정 확정치 0회)",
+        42: u"미발화(SinglePlanBattle = SingleLane 전용 · MOBA NA · 09-13 r8 판1 0회)", 47: u"미발화(handle_epic_line_change · 09-13 r8 판1 0회 — 이 리플레이 한정)",
         # ★재측정 전에는 `#10`·`#15` 의 0 을 믿을 수 없었다(틀린 주소에서 잰 0 이었다).
         #   지금은 **정정된 주소에서 잰 0** 이라 「이 판에서 죽은 코드」가 **유효한 판정**이다.
         10: u"미발화(재측정 확정치 0회 — 정정된 주소 0xe0c560 에서)",
@@ -581,8 +586,73 @@ SRET_LIVE = {
         (0x20, 8, []), (0x28, 8, [(0x20, 8, [1])]),
         (0x30, 8, []), (0x38, 1, []), (0x39, 1, []),
     ],
-    # 명세 밖 이분 #45(i=44) resolve_fight_uncached → FightPrediction 64B (i35 와 동일 레이아웃)
-    44: [
+    # ★r8 잎(09-13): #49(i49) resolve_join_stake → FightPrediction 64B (i35 와 동일 레이아웃 · structlive 교차확인 일치).
+    49: [
+        (0x00, 8, []), (0x08, 8, [(0x00, 8, [1])]),
+        (0x10, 8, []), (0x18, 8, [(0x10, 8, [1])]),
+        (0x20, 8, []), (0x28, 8, [(0x20, 8, [1])]),
+        (0x30, 8, []), (0x38, 1, []), (0x39, 1, []),
+    ],
+    # #55(i55) EntityPositioningCache::new → EntityPositioningCache 424B · 43필드 55잎 전부 무조건 live(패딩만 제외) — `structlive.py` 자동 생성 09-13.
+    55: [
+    (0x0, 8, []),
+    (0x8, 8, []),
+    (0x10, 8, []),
+    (0x18, 8, []),
+    (0x20, 8, []),
+    (0x28, 8, []),
+    (0x30, 8, []),
+    (0x38, 8, []),
+    (0x40, 8, []),
+    (0x48, 8, []),
+    (0x50, 8, []),
+    (0x58, 8, []),
+    (0x60, 8, []),
+    (0x68, 8, []),
+    (0x70, 8, []),
+    (0x78, 8, []),
+    (0x80, 8, []),
+    (0x88, 8, []),
+    (0x90, 8, []),
+    (0x98, 8, []),
+    (0xa0, 8, []),
+    (0xa8, 8, []),
+    (0xb0, 8, []),
+    (0xb8, 8, []),
+    (0xc0, 8, []),
+    (0xc8, 8, []),
+    (0xd0, 8, []),
+    (0xd8, 8, []),
+    (0xe0, 8, []),
+    (0xe8, 8, []),
+    (0xf0, 8, []),
+    (0xf8, 8, []),
+    (0x100, 8, []),
+    (0x108, 8, []),
+    (0x110, 8, []),
+    (0x118, 8, []),
+    (0x120, 8, []),
+    (0x128, 8, []),
+    (0x130, 8, []),
+    (0x138, 8, []),
+    (0x140, 8, []),
+    (0x148, 8, []),
+    (0x150, 8, []),
+    (0x158, 8, []),
+    (0x160, 8, []),
+    (0x168, 8, []),
+    (0x170, 8, []),
+    (0x178, 8, []),
+    (0x180, 8, []),
+    (0x188, 8, []),
+    (0x190, 8, []),
+    (0x198, 8, []),
+    (0x1a0, 1, []),
+    (0x1a1, 1, []),
+    (0x1a2, 1, []),
+    ],
+    # 명세 밖 이분 resolve_fight_uncached → FightPrediction 64B (i35 와 동일 레이아웃) · ★이름 키(idx 는 명세가 늘면 밀린다)
+    u"resolve_fight_uncached": [
         (0x00, 8, []), (0x08, 8, [(0x00, 8, [1])]),
         (0x10, 8, []), (0x18, 8, [(0x10, 8, [1])]),
         (0x20, 8, []), (0x28, 8, [(0x20, 8, [1])]),
@@ -598,14 +668,23 @@ SRET_LIVE = {
     ],
 }
 
-MUT_OK_ARG = {35: {13: "DebugFrameData"}, 44: {3: "GameContext", 12: "DebugFrameData"}}
+MUT_OK_ARG = {35: {13: "DebugFrameData"}, 49: {8: "DebugFrameData"}, u"resolve_fight_uncached": {3: "GameContext", 12: "DebugFrameData"}}   # #49 a8 = &mut DebugFrameData(224B · IR %8 dereferenceable(224))
 # ★internal 함수는 define 에 `sret([N x i8])` 속성이 없다(LLVM 이 내부 호출규약에서 생략) — 파서가 「반환 void + 가변 a0」로 읽는다.
 #   `resolve_fight_uncached`(a0 = dereferenceable(64) 출력 버퍼) 실사고(09-13). 여기 적은 idx 는 a0 을 sret N 바이트로 강제한다.
-SRET_FORCE = {44: 64}   # {spec idx: {IR 인자 idx: tcx 타입명}} — 위 MUT_OK_TCX 판정을 인덱스로 적용
+SRET_FORCE = {u"resolve_fight_uncached": 64}   # {spec idx: {IR 인자 idx: tcx 타입명}} — 위 MUT_OK_TCX 판정을 인덱스로 적용
 MUT_OK_TCX = {
     "DebugFrameData": u"디버그 싱크 — IR 실측상 본문이 역참조하지 않고 넘기기만 한다"
                                  u"(클로저 내부 쓰기는 미확인 ⟹ 중복 기록 가능 · 반환 대조엔 무관)",
 }
+def _byname(d, i, sp):
+    u"""★명세 밖 EXTRA_SWEEP 항목은 **이름 키**로 찾는다(09-13 실사고: r8 17건 편입으로 EXTRA idx 44→62 가 밀려
+    `SRET_LIVE/SRET_FORCE/MUT_OK_ARG[44]` 가 #44 take_misunderstood 에 붙었다 — SELF_RESTORE 의 이름 키 관습과 동일)."""
+    nm = sp.get("name") or u""
+    if nm in d:
+        return d[nm]
+    return d.get(i)
+
+
 OK_ARG = tuple(RMAP.keys())
 ARGSPLIT = re.compile(r",(?![^(]*\))")
 
@@ -837,9 +916,10 @@ def main():
         #   값은 a0 가 가리키는 N 바이트에 있다 ⟹ **그 버퍼를 비교하면 된다.**
         #   래퍼 = 게임은 **호출자 버퍼**에 쓰게 두고(게임 진행은 게임 값으로),
         #        내 사본은 **스크래치 버퍼**에 쓰게 한 뒤 N 바이트를 대조한다.
-        if i in SRET_FORCE and not g["sret"]:
+        _sf = _byname(SRET_FORCE, i, sp)
+        if _sf and not g["sret"]:
             g["sret"] = True
-            g["args"][0] = ("ptr", SRET_FORCE[i], True)
+            g["args"][0] = ("ptr", _sf, True)
         sret_n = g["args"][0][1] if g["sret"] else 0
         if g["sret"] and sret_n <= 0:
             why.append(u"sret 인데 출력 크기(dereferenceable)를 못 읽었다 — 비교 범위 미상")
@@ -853,7 +933,7 @@ def main():
         #   ★올바르게 하려면 **그 타입의 「살아 있는 바이트 범위」**가 필요하다(variant 별로 다르다)
         #     — `tcxdict` 레이아웃에서 뽑아 `SRET_LIVE[idx] = [(off,len),…]` 로 주면 이 게이트가 열린다.
         #   ⚠**그때까지는 제외한다.** 「DIFF 2만건」을 재현 실패로 기록하면 그게 더 비싼 오류다.
-        live = SRET_LIVE.get(i) if g["sret"] else None
+        live = _byname(SRET_LIVE, i, sp) if g["sret"] else None
         if g["sret"] and live is None:
             why.append(u"sret 반환 = **버퍼 전체 바이트 비교가 부당**(LTO 가 죽인 dead store 자리가 갈린다 — "
                        u"`#00` 실측 DIFF 20,406/20,415, 의미 워드는 전부 일치). "
@@ -913,8 +993,8 @@ def main():
             ok = next((v for t2, v in MUT_OK_TCX.items() if pt and t2 in pt), None)
             # ★인자 인덱스 직접 허용(09-13): tcx 파라미터 수(11)와 IR 인자 수(14)가 다르면(슬라이스 분할) params 매칭이 안 되므로
             #   IR 인덱스로 직접 지정한다. #40(i35) a13 = &mut DebugFrameData(224B) = MUT_OK_TCX 와 같은 「디버그 싱크」 판정.
-            if pt is None and k in MUT_OK_ARG.get(i, {}):
-                pt = MUT_OK_ARG[i][k]; ok = MUT_OK_TCX.get(pt.split()[0]) or u"디버그 싱크(인덱스 직접 허용)"
+            if pt is None and k in (_byname(MUT_OK_ARG, i, sp) or {}):
+                pt = _byname(MUT_OK_ARG, i, sp)[k]; ok = MUT_OK_TCX.get(pt.split()[0]) or u"디버그 싱크(인덱스 직접 허용)"
             if pt is None:
                 mut.append((k, a[1], u"tcx 파라미터 확인 불가"))
             elif ok:

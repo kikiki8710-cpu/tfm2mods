@@ -1,0 +1,17 @@
+{
+ "round": 17,
+ "batch": "G3",
+ "errors": [
+  {
+   "path": "/specs[53]/mem[17]/name",
+   "kind": "보강",
+   "old": "player_champion [[Option<&Entity>;5];2]",
+   "new": "player_champion",
+   "evidence": "G20 잔여 정리(17차): 이름 꼬리(타입 주석)가 정규화를 깨뜨림 → 머리만(타입은 note 에)",
+   "behavior_change": false,
+   "found_by": "reused"
+  }
+ ],
+ "ev_up": [],
+ "brief_errors": []
+}

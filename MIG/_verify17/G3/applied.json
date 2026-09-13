@@ -1,0 +1,10 @@
+{
+ "round": "17",
+ "batch": "G3",
+ "errors_applied": 1,
+ "ev_applied": 0,
+ "failed": 0,
+ "stamps": {
+  "/specs[53]/mem[17]/name": "22da5902e5efc831"
+ }
+}

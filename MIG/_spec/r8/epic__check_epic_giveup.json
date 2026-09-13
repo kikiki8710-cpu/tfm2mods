@@ -1,0 +1,105 @@
+{
+ "name": "check_epic_giveup",
+ "sym": "_RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old4epic17check_epic_giveup",
+ "src": "game-ai\\src\\plan_legacy\\old\\epic.rs",
+ "src_line": 109,
+ "ir_file": "m09.ll",
+ "ir_from": 59019,
+ "ir_to": 60555,
+
+ "one_line": "Morgard(에픽) 목표를 포기할지 — 생존 머릿수·캠프 근처 머릿수(+미시야 도달가능 적)로 열세면 true",
+
+ "signature": {
+  "params": [
+   {"i": 1, "name": "version", "type": "usize", "note": "본문 분기 없음. macro_judgement_penalty 에만 전달(60538)"},
+   {"i": 2, "name": "_rnd", "type": "&mut StdRng", "note": "readnone — 미사용"},
+   {"i": 3, "name": "player", "type": "&PlayerState(2528B)", "note": "info.team(+0x930) 읽기 + v23_visible_objective_overload·is_recent_visible·macro_judgement_penalty 인자"},
+   {"i": 4, "name": "data", "type": "&OperationData(24B)", "note": "+0 cache / +8 context / +0x10 blackboard"},
+   {"i": 5, "name": "team_plan", "type": "&TeamPlan(1064B)", "note": "objective(+0x41f)·vision.last_visible_pos(+0x230)·vision.last_checked_ticks(+0x2d0) 읽기"},
+   {"i": 6, "name": "_debug", "type": "&mut DebugFrameData", "note": "readnone — 미사용"}
+  ],
+  "returns": "bool — true = 에픽(Morgard) 포기. false = 유지"
+ },
+
+ "reads": [
+  {"base": "OperationData", "offset": "0x0", "name": "cache", "note": "&AbstractGameWithCache — game(dyn)·player_champion·champions"},
+  {"base": "OperationData", "offset": "0x8", "name": "context", "note": "&GameContext"},
+  {"base": "OperationData", "offset": "0x10", "name": "blackboard", "note": "&[Blackboard;2] — [enemy_team] 을 is_recent_visible 에 넘김(59613)"},
+  {"base": "GameContext", "offset": "0x38", "name": "tutorial@tag", "note": "TutorialType i8. (tag-1) <u 6 즉 1 First~6 JungleOnly 면 morgard_exists=false → 즉시 true (rule_scope.rs:46 ← runner.rs:263 spawn_epic 인라인)"},
+  {"base": "GameContext", "offset": "0x0", "name": "pool", "note": "&Bump — champions() Vec 할당자(59403)"},
+  {"base": "GameContext", "offset": "0x20", "name": "map", "note": "&MapDef — camp_pos 인자"},
+  {"base": "AbstractGameWithCache", "offset": "0x0", "name": "game (&dyn AbstractGame data+vtable)", "note": "vtable+0x40 get_game_mode / +0x1f0 get_entity_by_id / +0x28 tick"},
+  {"base": "AbstractGameWithCache", "offset": "0x1e0", "name": "player_champion", "note": "[[Option<&Entity>;5];2]. [team] 은 L144 아군 근접 카운트, [1-team] 은 L147·L158 적 카운트(5회 언롤)"},
+  {"base": "GameMode", "offset": "0x0", "name": "tag", "note": "get_game_mode 반환 {i64,ptr}. 0=Moba 여야 하고 아니면 unwrap_failed(60553)"},
+  {"base": "MobaMode", "offset": "0x1a8", "name": "jungle_runner.epic.live_list.len", "note": "0 이면 살아있는 에픽 없음 → true(59072~59078)"},
+  {"base": "MobaMode", "offset": "0x1a0", "name": "jungle_runner.epic.live_list.ptr", "note": "[0] 을 에픽 entity id 로 읽어 get_entity_by_id(59144~59148)"},
+  {"base": "PlayerState", "offset": "0x930", "name": "info.team", "note": "usize. camp_pos 의 side 인자(team==0)·champions 인자·player_champion 인덱스"},
+  {"base": "TeamPlan", "offset": "0x41f", "name": "objective@tag", "note": "Option<MainObjective> 니치 1B. ==0 → Some(Morgard)"},
+  {"base": "TeamPlan", "offset": "0x420", "name": "objective@Morgard.phase", "note": "ObjectPhase 1B. ==3 → Hunt. Morgard·Hunt 일 때만 L123~127 에픽 HP/과밀 검사"},
+  {"base": "TeamPlan", "offset": "0x230", "name": "vision.last_visible_pos[i]", "note": "(u64,u64) stride 16. 적 i 의 마지막 관측 좌표 → camp 까지 utils::distance"},
+  {"base": "TeamPlan", "offset": "0x2d0", "name": "vision.last_checked_ticks[i]", "note": "usize stride 8. tick - 이 값 = 미관측 경과 틱"},
+  {"base": "Entity", "offset": "0x670", "name": "hp", "note": "usize. hp_ratio = hp*100/stat_cached.hp"},
+  {"base": "Entity", "offset": "0x628", "name": "stat_cached.hp", "note": "usize 최대체력. 0 이면 panic_const_div_by_zero"},
+  {"base": "Entity", "offset": "0x660", "name": "x", "note": "u64 — camp 와의 distance_sq"},
+  {"base": "Entity", "offset": "0x668", "name": "y", "note": "u64"},
+  {"base": "Entity", "offset": "0x640", "name": "stat_cached.move_speed", "note": "usize. 미관측 적의 도달가능 거리 = 경과틱 * move_speed"},
+  {"base": "Vec<&Entity>(bumpalo,32B)", "offset": "0x18", "name": "len", "note": "champions(team).len() = live_ally_count / champions(1-team).len() = live_enemy_count"}
+ ],
+
+ "writes": [],
+
+ "constants": [
+  {"value": -1, "src_line": 110, "meaning": "tutorial 태그 -1 후 <u 6 비교: TutorialType 1(First)~6(JungleOnly) 범위 검사(morgard_exists 인라인). 그 범위면 Morgard 가 안 나오는 모드 → 즉시 true"},
+  {"value": 6, "src_line": 110, "meaning": "위 범위 폭(1..=6). None(0)/Line(7)/Total(8) 만 Morgard 존재"},
+  {"value": 0, "src_line": 116, "meaning": "GameMode 태그 0 = Moba 강제(아니면 unwrap 패닉) / live_list.len == 0 → true"},
+  {"value": 0, "src_line": 122, "meaning": "Option<MainObjective> 니치 태그 0 = Some(Morgard)"},
+  {"value": 3, "src_line": 122, "meaning": "ObjectPhase 태그 3 = Hunt. Morgard+Hunt 일 때만 에픽 HP·과밀 검사"},
+  {"value": 100, "src_line": 125, "meaning": "hp_ratio = hp*100/max_hp (백분율). L154·L159 의 적 HP 비율도 같은 식"},
+  {"value": 20, "src_line": 126, "meaning": "에픽 HP% > 20 이 아니면(≤20) 포기 안 함(false) — 거의 잡은 에픽은 놓지 않는다"},
+  {"value": 4, "src_line": 127, "meaning": "JungleType 태그 4 = Morgard. MapDef::camp_pos(map, Morgard, team==0) 의 camp 인자(L143 도 동일)"},
+  {"value": 1, "src_line": 140, "meaning": "enemy_team = 1 - team"},
+  {"value": 22500000001, "src_line": 144, "meaning": "150000²+1 — camp 로부터 dist² < 이 값(≤150000, ≈4.7칸) 이면 '캠프 근처'. L158 적 근접 카운트도 동일"},
+  {"value": 150000, "src_line": 150, "meaning": "미관측 적: sat_sub(distance(last_visible_pos, camp), 150000) — 캠프 근처 반경만큼 빼서 '근처까지 오는 데 필요한 거리'"},
+  {"value": 49, "src_line": 154, "meaning": "적 HP% > 49 (즉 ≥50%) 여야 위협 머릿수로 센다(L154 미관측·L159 근접 둘 다)"},
+  {"value": 1, "src_line": 164, "meaning": "아군 쪽에 +1 여유: (penalty+1+live_ally < live_enemy) && (near_ally+1+penalty < near_enemy+possible_enemy)"}
+ ],
+
+ "calls": [
+  "game_core::simulation::AbstractGameWithCache::champions",
+  "game_core::simulation::map_def::MapDef::camp_pos",
+  "game_core::utils::distance",
+  "game_core::simulation::game::blackboard::Blackboard::is_recent_visible",
+  "game_ai::plan_legacy::team_plan::objective_helpers::v23_visible_objective_overload",
+  "game_ai::plan_legacy::team_plan::objective_helpers::macro_judgement_penalty",
+  "drop",
+  "core::panicking::panic_bounds_check",
+  "core::panicking::panic_const::panic_const_div_by_zero",
+  "core::option::unwrap_failed"
+ ],
+
+ "logic": "fn check_epic_giveup(version, _rnd, player, data, team_plan, _debug) -> bool\n\n[L110] if !rule_scope::morgard_exists(data.context) { return true }\n         // 인라인 = runner.rs:263 spawn_epic: context.tutorial(+0x38) 태그가 1..=6 (First~JungleOnly) 이면 Morgard 없음\n[L116] moba = data.cache.game.get_game_mode()/*vtable+0x40*/ .as_moba().unwrap()   // 태그≠0 → unwrap_failed\n       if moba.jungle_runner.epic.live_list.len(+0x1a8) == 0 { return true }         // 살아있는 에픽 없음\n\n[L122] if team_plan.objective(+0x41f) == Some(Morgard{phase: Hunt(3), ..}) {\n[L123]   epic_id = moba.live_list[0]   // len==0 이면 이 블록 통째로 skip → L138\n         epic = game.get_entity_by_id(epic_id)/*vtable+0x1f0*/ ; None 이면 skip → L138\n[L125]   hp_ratio = epic.hp(+0x670) * 100 / epic.stat_cached.hp(+0x628)   // max_hp 0 → div_by_zero 패닉\n[L126]   if hp_ratio <= 20 { return false }                                 // 거의 잡았으면 포기 안 함\n[L127]   if v23_visible_objective_overload(player, data, MapDef::camp_pos(map, Morgard(4), team==0)) { return true }\n       }\n\n[L138] team = player.info.team ; live_ally_count  = cache.champions(team, pool).len()\n[L140] live_enemy_count = cache.champions(1-team, pool).len()\n[L143] camp = MapDef::camp_pos(map, Morgard(4), team==0)\n[L144~146] ally_near = player_champion[team].iter_champions().filter(|e| distance_sq(e, camp) < 22500000001).count()\n[L147~154] enemy_possible = player_champion[1-team].iter_champions().filter(|(i,e)| {\n             need   = sat_sub(utils::distance(team_plan.vision.last_visible_pos[i], camp), 150000)\n             reach  = sat_sub(game.tick(), team_plan.vision.last_checked_ticks[i]) * e.move_speed(+0x640)\n             e.hp*100/e.max_hp > 49  &&  reach >= need  &&  !blackboard[1-team].is_recent_visible(game, player, e)\n           }).count()                       // '안 보이는데 이미 캠프 근처까지 왔을 수 있는' 건강한 적\n[L158~159] enemy_near = player_champion[1-team].iter_champions().filter(|e|\n             distance_sq(e, camp) < 22500000001 && e.hp*100/e.max_hp > 49 && blackboard[1-team].is_recent_visible(game, player, e)\n           ).count()\n[L163] penalty = macro_judgement_penalty(version, player)   // i32\n[L164] return (penalty + 1 + live_ally_count) < live_enemy_count            // signed i32 비교\n           && (ally_near + 1 + penalty) < (enemy_near + enemy_possible)\n\n※ 두 카운트 루프는 IR 에서 5슬롯 언롤(59240~60530). 부작용 없음(champions Vec 두 개는 즉시 drop)",
+
+ "knobs": [
+  {"what": "에픽 HP 하한(포기 금지)", "where": "epic.rs:126 (IR m09.ll:59166 `icmp ugt i64 %68, 20`)", "value": 20,
+   "effect": "Morgard·Hunt 중 에픽 HP% ≤ 20 이면 무조건 유지. 올리면 더 일찍부터 '끝까지 간다'가 되고, 0 이면 이 보호가 사라져 머릿수 판정만 남는다"},
+  {"what": "적 위협 HP 하한", "where": "epic.rs:154·159 (IR 59314 `icmp ugt i64 %257, 49` 등 10곳)", "value": 49,
+   "effect": "HP% ≥50 인 적만 근접/도달가능 머릿수로 센다. 내리면 빈사 적도 위협으로 세어 포기가 잦아진다"},
+  {"what": "캠프 근처 반경", "where": "epic.rs:144·158 (IR 59259 `icmp ult i64 %124, 22500000001` 등 10곳) + epic.rs:150 (`usub.sat 150000`)", "value": 150000,
+   "effect": "≈4.7칸. 올리면 아군/적 모두 더 넓게 '근처'로 세어지며, 미관측 적의 필요 이동거리도 그만큼 줄어 possible 카운트가 늘어난다"},
+  {"what": "아군 여유 머릿수", "where": "epic.rs:164 (IR 60540 `add i32 %604, 1` / 60545 `add nuw nsw i32 %224, 1`)", "value": 1,
+   "effect": "두 비교식 모두 아군 쪽에 +1. 즉 적이 아군보다 2명 이상 많아야(penalty 0 기준) 포기. 0 으로 내리면 1명 열세에도 포기, 올리면 잘 포기 안 함"},
+  {"what": "판단 페널티", "where": "epic.rs:163 macro_judgement_penalty(version, player) — 내부는 범위 밖", "value": "함수값",
+   "effect": "아군 쪽 가산항. 값이 크면(판단력 낮음) 더 쉽게 열세로 보아 포기. 음수면 반대"}
+ ],
+
+ "unknown": [
+  "v23_visible_objective_overload(player, data, x, y) 내부는 안 봄 — 이름상 '목표 지점 시야 과밀'이고 true 면 포기. 인자 (x,y)=camp_pos 만 확정",
+  "macro_judgement_penalty(version, player) -> i32 내부는 안 봄. 부호·범위 미확정(i32 signed 비교이므로 음수 가능성 열림)",
+  "AbstractGameWithCache::champions(cache, team, pool) 가 '살아있는' 챔피언만 돌려주는지는 game_core 미열람 — dbg 변수명 live_ally_count/live_enemy_count 로 추정",
+  "Blackboard::is_recent_visible 의 정확한 의미(최근 N틱 관측)는 game_core 미열람. 인덱스가 적팀 판(1-team)인 것만 확정",
+  "MapDef::camp_pos(map, JungleType, bool) 의 bool 이 team==0 인 것은 확정, 그 뜻(아군 진영 기준 좌우 반전)은 추정",
+  "L123 의 live_list[0] 이 '지금 살아있는 Morgard' 라는 것은 live_list 원소가 entity id(i64) 이고 get_entity_by_id 로 넘기는 것으로 읽음. 에픽이 2종(Morgard/Serpen) 이상 동시에 살아 있을 때 [0] 이 Morgard 라는 보장은 본문에 없음",
+  "L164 두 비교는 signed(icmp slt) 인데 카운트는 usize→i32 trunc — 5 이하라 실질 무해",
+  "constants 의 `0`(L116/L122) 은 태그값이자 len 비교값으로 여러 자리 겹침 — 대표 줄만 기재"
+ ]
+}

@@ -1,0 +1,7 @@
+setting_ok	true	width=960000	height=960000	tps=60	champ_radius=10000	visible=130000
+towers	16	twin0=2	twin1=2
+sizeof	PassiveLinePlan=280	TeamPlan=1064	Blackboard=744	SubPlan=72
+champ	id=21	x=15000	y=938000	jungler	id=19	x=32000	y=928000	dist2=389000000
+self.line@0x116	2	in_recall@0x110	0
+tp.objective@0x41f	255	line@0x420	0	bb.bottom.from_mid@0x60	0	front_minion@0x50	0/1955393932256
+RESULT	case=4	tag=2	+8=0	+9=2	+10=2	LineDefense(LineDefenseSubPlan { line: Bottom, minion_action_type: Push, style: Aggressive })

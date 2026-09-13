@@ -111,6 +111,10 @@ CALLSITE = {
     #   호출부 = .text 전수 E8 스캔 2곳(0xddbd6d·0xdddf0d · 같은 호출자 함수 안 2회) · 절대주소 8B 리터럴 0곳(disrva/스캔 09-13 실측).
     30: ("ec8af0", [0xddbd6d, 0xdddf0d],
          u"진입부 12B 스틸 불가(je@+9 · cmp dl,5) — 호출부 리다이렉트. 호출부 2곳 전수(간접호출 0곳 검산)"),
+    # r8 잎(09-13): #40 v3_assign_anchor(583B) — 진입부 +11 `jae rel32`(cmp r8,2 / jae) 가 12B 스틸을 막는다(#13·#30 과 동형).
+    #   호출부 = fnprobe .text 전수 E8 스캔 3곳(0xe4723c·0xe474a2·0xe493c4 · 전부 passive_plan 0xe46bc0 안).
+    40: ("e4a780", [0xe4723c, 0xe474a2, 0xe493c4],
+         u"진입부 12B 스틸 불가(jae@+11 · cmp r8,2) — 호출부 리다이렉트. 호출부 3곳 전수(passive_plan 안 · 간접호출 0곳 검산)"),
 }
 
 

@@ -1,0 +1,137 @@
+{
+ "name": "check_epic_setup",
+ "sym": "_RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old4epic16check_epic_setup",
+ "src": "game-ai\\src\\plan_legacy\\old\\epic.rs",
+ "src_line": 16,
+ "ir_file": "m09.ll",
+ "ir_from": 57082,
+ "ir_to": 59016,
+
+ "one_line": "에픽(모르가드) 셋업 가능 판정 — 생존/근접 아군·적 수·라인 밀림·판단 페널티로 bool 을 낸다",
+
+ "signature": {
+  "params": [
+   {"i": 1, "name": "version", "type": "usize", "note": "본문 분기 없음. macro_judgement_penalty(version, player) 에만 전달"},
+   {"i": 2, "name": "_rnd", "type": "&mut StdRng(320B, align16)", "note": "이름이 _rnd — 본문에서 전혀 안 씀(readnone)"},
+   {"i": 3, "name": "player", "type": "&PlayerState(2528B)", "note": "info.team(+0x930), info.position 태그(+0x9c0, 디버그 로그 전용), is_recent_visible 인자"},
+   {"i": 4, "name": "data", "type": "&OperationData(24B)", "note": "{0x0 cache, 0x8 context, 0x10 blackboard:&[Blackboard;2]}"},
+   {"i": 5, "name": "team_plan", "type": "&TeamPlan(1064B)", "note": "readonly. obj_spawn.epic_giveup_tick 태그 · vision.last_visible_pos[p] · vision.last_checked_ticks[p] 만 읽음"},
+   {"i": 6, "name": "debug", "type": "&mut DebugFrameData(224B)", "note": "context.debug 일 때만 +0xa0 infos 맵에 문자열 push"}
+  ],
+  "returns": "bool — true = 에픽 셋업(진입) 조건 충족"
+ },
+
+ "reads": [
+  {"base": "OperationData", "offset": "0x8", "name": "context", "note": "&GameContext"},
+  {"base": "OperationData", "offset": "0x0", "name": "cache", "note": "&AbstractGameWithCache — cache+0x0/+0x8 = &dyn AbstractGame (data, vtable)"},
+  {"base": "OperationData", "offset": "0x10", "name": "blackboard", "note": "&[Blackboard;2](744B 각). [1-team] 을 is_recent_visible 의 self 로, [team] 을 라인 밀림 판정에 씀"},
+  {"base": "GameContext", "offset": "0x38", "name": "tutorial (TutorialType 태그, i8)", "note": "L17: (tag-1) < 6 즉 태그 1..=6(First~JungleOnly) 이면 즉시 false. L72: 라인 목록 선택 switch 에도 재사용"},
+  {"base": "GameContext", "offset": "0x3b", "name": "debug (bool)", "note": "L66: true 면 디버그 로그 push"},
+  {"base": "GameContext", "offset": "0x8", "name": "setting", "note": "&GameSetting"},
+  {"base": "GameContext", "offset": "0x20", "name": "map", "note": "&MapDef — camp_pos 의 self"},
+  {"base": "GameSetting", "offset": "0x12f8", "name": "tick_per_second", "note": "IR 4856. tps*15 스폰 대기 임계의 단위"},
+  {"base": "GameSetting", "offset": "0x12c0", "name": "height (u64)", "note": "IR 4800. 인라인된 map_regions::is_top_side 가 ry = height - y 로 씀"},
+  {"base": "dyn AbstractGame vtable", "offset": "0x40", "name": "get_game_mode", "note": "divtable: 슬롯 0x40 = get_game_mode → GameMode(16B enum: 0x0 태그 8B, 0x8 &MobaMode)"},
+  {"base": "dyn AbstractGame vtable", "offset": "0x28", "name": "tick", "note": "divtable: 슬롯 0x28 = tick. L22 remain_spawn_tick 과 L54 can_move 계산에 호출"},
+  {"base": "GameMode", "offset": "0x0", "name": "tag", "note": "0 = Moba 라야 함. 아니면 unwrap_failed 패닉(L21)"},
+  {"base": "MobaMode", "offset": "0x1a8", "name": "jungle_runner.epic.live_list.len", "note": "IR 424. 0 이면 에픽 미생존 → 스폰 대기 검사로"},
+  {"base": "MobaMode", "offset": "0x1b0", "name": "jungle_runner.epic.next_respawn_tick", "note": "IR 432. remain_spawn_tick = next_respawn_tick.saturating_sub(tick)"},
+  {"base": "TeamPlan", "offset": "0x50", "name": "obj_spawn.epic_giveup_tick@tag", "note": "IR 80. Option<usize> 태그 != 0(Some) 이면 false 반환(L31)"},
+  {"base": "PlayerState", "offset": "0x930", "name": "info.team", "note": "IR 2352. usize, >=2 면 panic_bounds_check(len 2)"},
+  {"base": "PlayerState", "offset": "0x9c0", "name": "info.position@tag (i32)", "note": "IR 2496. 디버그 로그에서 자기 챔프(player_champion[team][position]) 를 찾는 인덱스"},
+  {"base": "AbstractGameWithCache", "offset": "0x1e0", "name": "player_champion [[Option<&Entity>;5];2]", "note": "IR 480. [team]·[1-team] 을 stride 40 으로. non-null 개수 = live 카운트"},
+  {"base": "Entity", "offset": "0x660", "name": "x", "note": "IR 1632"},
+  {"base": "Entity", "offset": "0x668", "name": "y", "note": "IR 1640"},
+  {"base": "Entity", "offset": "0x628", "name": "stat_cached.hp (최대 HP)", "note": "IR 1576. 0 이면 div_by_zero 패닉. hp*100/이 값 > 49 = 'HP 절반 이상'"},
+  {"base": "Entity", "offset": "0x670", "name": "hp", "note": "IR 1648"},
+  {"base": "Entity", "offset": "0x640", "name": "stat_cached.move_speed", "note": "IR 1600. can_move = (tick - last_checked_ticks[p]) * move_speed"},
+  {"base": "Entity", "offset": "0x5c0", "name": "id", "note": "IR 1472. 디버그 로그 맵의 키"},
+  {"base": "TeamPlan", "offset": "0x230", "name": "vision.last_visible_pos[p] (u64,u64)", "note": "IR 560+16p (560..632). 적 p 의 마지막 관측 좌표 — camp 까지 거리의 출발점"},
+  {"base": "TeamPlan", "offset": "0x2d0", "name": "vision.last_checked_ticks[p]", "note": "IR 720+8p (720..752). 적 p 를 마지막으로 확인한 틱"},
+  {"base": "Blackboard", "offset": "0x0", "name": "top_minion_state (BrainMinionParameter 40B)", "note": "LineType Top(0) → +0x0, Mid(1) → +0x28, Bottom(2) → +0x50"},
+  {"base": "Blackboard", "offset": "0x20", "name": "top_minion_state.minion_count (i32)", "note": "IR 각 라인 구조체 +32. < -3 이면 그 라인 '밀림' (Mid=+0x48, Bottom=+0x70)"},
+  {"base": "DebugFrameData", "offset": "0xa0", "name": "infos (HashMap<usize, Vec<String>>)", "note": "IR 160. context.debug 일 때 entry(champ.id).or_default().push(format!(..))"}
+ ],
+
+ "writes": [
+  {"base": "DebugFrameData", "offset": "0xa0", "name": "infos[champ.id]", "value": "format!(<anon.307>, near_epic_ally, near_epic_enemy) 문자열 push", "note": "context.debug(+0x3b) 가 true 일 때만. 게임 상태(TeamPlan·PlayerState 등)에는 쓰지 않는다 — team_plan 은 readonly 포인터"}
+ ],
+
+ "constants": [
+  {"value": 6, "src_line": 17, "meaning": "TutorialType 태그 t 에 대해 (t-1) <u 6 ⟺ t ∈ {1..6} = First/TopSolo/Bottom/MidSolo/MidBottom/JungleOnly → 즉시 false. None(0)/Line(7)/Total(8) 만 통과"},
+  {"value": -1, "src_line": 17, "meaning": "위 범위검사의 `add nsw i8 %17, -1` — 1..=6 를 0..6 으로 접은 것"},
+  {"value": 0, "src_line": 21, "meaning": "GameMode 태그 0 = Moba. 아니면 unwrap_failed 패닉(MobaMode 전제)"},
+  {"value": 15, "src_line": 25, "meaning": "에픽 미생존 시 remain_spawn_tick >= tps*15 (15초 이상 남음) 이면 false"},
+  {"value": 3, "src_line": 36, "meaning": "live_ally_count < 3 이면 false (아군 생존 3명 미만)"},
+  {"value": 1, "src_line": 40, "meaning": "enemy_ix = 1 - team"},
+  {"value": 100, "src_line": 45, "meaning": "hp 백분율: hp*100 / stat_cached.hp (L45·L56·L62 세 필터에서 동일)"},
+  {"value": 49, "src_line": 45, "meaning": "hp% > 49 = HP 절반 이상인 챔프만 근접 카운트 대상(L45 아군·L56 비시야 적·L62 시야 적)"},
+  {"value": 4, "src_line": 47, "meaning": "JungleType 태그 4 = Morgard(에픽). camp_pos(map, Morgard, team==0)"},
+  {"value": 150000, "src_line": 52, "meaning": "적 p 의 마지막 관측 좌표→에픽 캠프 거리에서 150000 을 saturating_sub — 캠프 반경 150000 안이면 d=0"},
+  {"value": 22500000001, "src_line": 61, "meaning": "150000^2 + 1 — 적 현재좌표↔캠프 제곱거리 < 이 값 (= 150000 이내) 이면 in_vision 후보"},
+  {"value": -3, "src_line": 73, "meaning": "blackboard[team].<line>_minion_state.minion_count < -3 이면 그 라인이 '밀림'(line_pushed)"},
+  {"value": 2, "src_line": 75, "meaning": "라인 미밀림 보너스: 어느 라인도 minion_count < -3 이 아니면 setup_score 에 +2, 아니면 +0"},
+  {"value": 1, "folded_from": 2, "src_line": 76, "meaning": "(near_epic_ally - near_epic_enemy) * 2 가 `shl i32 %728, 1` 로 접힘"},
+  {"value": 0, "src_line": 79, "meaning": "judgement_penalty != 0 && setup_score < judgement_penalty 이면 false"},
+  {"value": 2, "src_line": 100, "meaning": "near_epic_ally < near_epic_enemy 일 때: out_vision(비시야 도달가능 적) > 2 여야 다음 검사"},
+  {"value": 2, "src_line": 102, "meaning": "…그리고 live_ally_count(재계산) > 2 여야 true"},
+  {"value": 1, "src_line": 86, "meaning": "live_ally_count + 1 < live_enemy_count (아군이 2명 이상 적음) 이면 false"},
+  {"value": 1, "src_line": 94, "meaning": "near_epic_ally > near_epic_enemy + 1 (근접 아군이 2명 이상 많음) 이면 true"}
+ ],
+
+ "calls": [
+  "game_core::simulation::map_regions::is_near_mid_line",
+  "game_core::simulation::map_def::MapDef::camp_pos",
+  "game_core::utils::distance",
+  "game_core::simulation::game::blackboard::Blackboard::is_recent_visible",
+  "game_ai::plan_legacy::team_plan::objective_helpers::macro_judgement_penalty",
+  "hashbrown::rustc_entry::HashMap::rustc_entry",
+  "hashbrown::raw::RawTable::insert_no_grow",
+  "alloc::fmt::format::format_inner",
+  "alloc::raw_vec::RawVec::grow_one",
+  "core::ops::drop::Drop::drop",
+  "core::ptr::drop_glue",
+  "core::option::unwrap_failed",
+  "core::panicking::panic_bounds_check",
+  "core::panicking::panic_const::panic_const_div_by_zero"
+ ],
+
+ "logic": "fn check_epic_setup(version, _rnd, player, data, team_plan, debug) -> bool\n\n[L17] context = data.context(+0x8)\n      if context.tutorial(+0x38) ∈ {1..=6} (First/TopSolo/Bottom/MidSolo/MidBottom/JungleOnly) { return false }\n      // 튜토리얼 None(0)/Line(7)/Total(8) 만 통과\n\n[L21] mode = cache.game.get_game_mode()  (vtable+0x40)   // GameMode 16B\n      moba = mode.Moba 페이로드(+0x8) — 태그(+0x0) != 0 이면 unwrap_failed 패닉\n      if moba.jungle_runner.epic.live_list.len(+0x1a8) == 0 {      // 에픽이 살아있지 않으면\n[L22]   remain_spawn_tick = moba.jungle_runner.epic.next_respawn_tick(+0x1b0).saturating_sub(game.tick())\n[L25]   if remain_spawn_tick >= tps(+0x12f8) * 15 { return false }  // 15초 이상 남았으면 아직\n      }\n\n[L31] if team_plan.obj_spawn.epic_giveup_tick(+0x50 태그).is_some() { return false }\n\n[L35] team = player.info.team(+0x930)            // >=2 면 panic_bounds_check\n      live_ally_count  = cache.player_champion(+0x1e0)[team].iter().filter(Some).count()\n[L36] if live_ally_count < 3 { return false }\n[L40] live_enemy_count = cache.player_champion[1-team] 의 Some 개수\n\n// ── 근접 아군 (L42~45) ───────────────────────────────\n[L44] near_epic_ally = allies.filter(|c| {\n        (x,y) = (c.x(+0x660), c.y(+0x668))\n        // 인라인된 map_regions::is_top_side(context,x,y) (map_regions.rs:22~24): ry = setting.height(+0x12c0) - y; top = (x > ry)\n        // 분기: top 이면 is_near_mid_line(context,x,y) 가 true 여야 통과, top 이 아니면 그냥 통과\n        (!is_top_side(x,y) || is_near_mid_line(context,x,y))\n[L45]   && c.hp(+0x670)*100 / c.stat_cached.hp(+0x628) > 49        // stat_cached.hp==0 이면 div_by_zero 패닉\n      }).count()\n\n[L47] camp = MapDef::camp_pos(context.map(+0x20), JungleType::Morgard(4), team == 0)   // (x,y)\n\n// ── 비시야인데 도달 가능한 적 (L48~56) ───────────────\n[L48] out_vision = enemies.enumerate().filter(|(p, c)| {\n[L51]   last_pos  = team_plan.vision.last_visible_pos[p] (+0x230+16p)\n[L52]   d         = utils::distance(last_pos, camp).saturating_sub(150000)\n[L53]   move_speed= c.stat_cached.move_speed(+0x640)\n[L54]   can_move  = game.tick().saturating_sub(team_plan.vision.last_checked_ticks[p] (+0x2d0+8p)) * move_speed\n[L56]   c.hp*100/c.stat_cached.hp > 49\n          && can_move >= d                                       // 마지막 확인 이후 캠프까지 올 수 있었던 시간\n          && !blackboard[1-team].is_recent_visible(game, player, c)\n      }).count()\n\n// ── 시야에 잡힌 캠프 근처 적 (L60~62) ────────────────\n[L61] in_vision = enemies.filter(|c| {\n        distance_sq(c.xy, camp) < 22500000001   // 150000 이내 (utils.rs:6~9 인라인, abs_diff^2 합)\n[L62]   && c.hp*100/c.stat_cached.hp > 49\n        && blackboard[1-team].is_recent_visible(game, player, c)\n      }).count()\n[L64] near_epic_enemy = in_vision + out_vision\n\n[L66] if context.debug(+0x3b) {\n[L67]   champ = cache.player_champion[team][player.info.position(+0x9c0)].unwrap()\n[L68]   debug.infos(+0xa0).entry(champ.id(+0x5c0)).or_default().push(format!(<anon.307>, near_epic_ally, near_epic_enemy))\n      }\n\n// ── 라인 밀림 (L72~74) ───────────────────────────────\n[L72] lines: &[LineType] = match context.tutorial {\n        None(0) | Line(7) | Total(8) => [Top, Mid, Bottom]   (anon.291 = 00 01 02)\n        First(1) | Bottom(3)         => [Bottom]              (anon.35  = 02)\n        TopSolo(2)                   => [Top]                 (anon.36  = 00)\n        MidSolo(4)                   => [Mid]                 (anon.31  = 01)\n        MidBottom(5)                 => [Mid, Bottom]         (anon.290 = 01 02)\n        JungleOnly(6)                => []                    (도달 불가 — L17 에서 이미 false)\n      }\n[L73] // 이터레이션: blackboard[team] + {Top:+0x0, Mid:+0x28, Bottom:+0x50}.minion_count(+0x20, i32) < -3 인 라인을 찾으면 중단\n      no_line_pushed(%710) = lines.iter().all(|l| bb[team].<l>_minion_state.minion_count >= -3)\n      // dbg 는 line_pushed = !%710 (DW_OP_not 1회) — 즉 line_pushed = '어느 라인이든 minion_count < -3'. 판정은 분기 방향으로 읽음\n\n[L75] judgement_penalty = macro_judgement_penalty(version, player)   // i32\n[L76] setup_score = (near_epic_ally - near_epic_enemy) * 2            // shl 1\n                  + (live_ally_count - live_enemy_count)\n                  + (no_line_pushed ? 2 : 0)\n[L79] if judgement_penalty != 0 && setup_score < judgement_penalty { return false }   // dbg: judgement_ready = !(score < penalty)\n\n[L84] if near_epic_ally < near_epic_enemy {\n[L100]  if out_vision > 2 {\n[L101]    live_ally_count = 재계산(같은 식)\n[L102]    return live_ally_count > 2\n        }\n        return false\n      }\n[L86] if live_ally_count + 1 < live_enemy_count { return false }\n      if no_line_pushed { return true }                       // %710 → 곧바로 true (L86 위치)\n[L90] if near_epic_ally > near_epic_enemy {\n[L91]   if live_ally_count < live_enemy_count {\n[L94]     return near_epic_ally > near_epic_enemy + 1\n        }\n        return true\n      }\n[L97] return live_ally_count > live_enemy_count               // near_epic_ally == near_epic_enemy\n\n※ 반환 phi(%62): [false %721][false %740][%767 %763][true %772][%776 %774][%771 %770][%762 %742]",
+
+ "knobs": [
+  {"what": "에픽 스폰 대기 허용 시간", "where": "epic.rs:25 (m09.ll:57198 `mul i64 %54, 15`)", "value": 15,
+   "effect": "에픽이 죽어 있을 때 남은 스폰 시간이 tps*15(15초) 이상이면 셋업 안 함. 올리면 더 일찍부터 에픽 셋업을 고려하고, 내리면 스폰 직전에만 고려"},
+  {"what": "아군 최소 생존 수", "where": "epic.rs:36 (m09.ll:57292 `icmp samesign ult i64 %95, 3`)", "value": 3,
+   "effect": "생존 아군 3명 미만이면 무조건 false. 내리면 소수 인원으로도 에픽 시도"},
+  {"what": "근접 카운트 HP 하한(%)", "where": "epic.rs:45·56·62 (m09.ll:57440 `icmp ugt i64 %146, 49` 외 동형 14곳)", "value": 49,
+   "effect": "HP 49% 초과 챔프만 근접 아군/적으로 센다. 올리면 만신창이 챔프를 무시해 셋업 판단이 보수적/공격적으로 바뀜(아군·적 양쪽에 동시 적용)"},
+  {"what": "에픽 캠프 반경(비시야 적 도달 거리·시야 적 근접 거리)", "where": "epic.rs:52 (m09.ll:57836 `usub.sat(…,150000)`) · epic.rs:61 (m09.ll:58278 `22500000001`)", "value": 150000,
+   "effect": "약 4.7셀(셀=32000). 올리면 더 먼 적까지 '캠프 근처'로 잡혀 near_epic_enemy 가 커져 셋업이 어려워짐"},
+  {"what": "라인 밀림 임계(minion_count)", "where": "epic.rs:73 (m09.ll:58906 `icmp slt i32 %719, -3`)", "value": -3,
+   "effect": "어느 라인이든 blackboard[team] minion_count < -3 이면 '밀림' → +2 보너스 상실 + L86 조기 true 상실. 더 음수로 내리면 라인 압박을 덜 민감하게 봄"},
+  {"what": "라인 미밀림 보너스", "where": "epic.rs:75 (m09.ll `%722 = phi i32 [2, %708], [0, %716]`)", "value": 2,
+   "effect": "setup_score 가산치. 올리면 라인 상태가 좋을 때 페널티 문턱을 넘기 쉬움"},
+  {"what": "근접 차이 가중치", "where": "epic.rs:76 (m09.ll:58919 `shl i32 %728, 1`)", "value": 2,
+   "effect": "(near_epic_ally - near_epic_enemy)*2. 생존 차이(×1)보다 근접 차이를 2배로 본다"},
+  {"what": "아군 열세 허용폭", "where": "epic.rs:86 (m09.ll:58991 `%764 = %95+1; ult %764, %123`)", "value": 1,
+   "effect": "live_ally+1 < live_enemy 면 false. 즉 1명 열세까지만 허용. 올리면 더 큰 열세에서도 시도"},
+  {"what": "비시야 도달가능 적 상한(열세 시)", "where": "epic.rs:100 (m09.ll:58938 `icmp ugt i64 %459, 2`)", "value": 2,
+   "effect": "근접 아군<적일 때 out_vision > 2 && live_ally > 2 여야 true. 내리면 열세여도 true 가 잘 나옴"},
+  {"what": "근접 우위 요구폭(생존 열세 시)", "where": "epic.rs:94 (m09.ll:59010 `%775 = %726+1; ugt %724, %775`)", "value": 1,
+   "effect": "생존 수가 밀릴 때 near_epic_ally 가 near_epic_enemy+1 보다 커야(2명 이상 우위) true"}
+ ],
+
+ "unknown": [
+  "map_regions::is_top_side(context,x,y) 는 인라인돼 define 이 없다(map_regions.rs:22~24). 본문 관측: ry = setting.height - y; top = (ry < x). '어느 쪽이 top 인가'는 좌표계 해석이라 확정 안 함 — 판정에는 분기 방향(top 이면 is_near_mid_line 필요)만 썼다",
+  "is_near_mid_line 내부(_gcbc g09.ll:159265~159308)는 확인: max(ry,x) < 192001 → true / min(ry,x) < width(+0x12b8)-192000 → |x-ry| < 64000 / 그 외 true. 이 함수 명세에는 calls 로만 실었다",
+  "line_pushed 의 소스 극성: dbg 는 DW_OP_not 1회로 line_pushed = !(전 라인 통과). 분기 의미(minion_count < -3 인 라인이 하나라도 있으면 +2 상실·L86 조기 true 상실)는 확정, 변수명이 any 인지 !all 인지는 표기 불가(외연 동일)",
+  "judgement_ready 도 DW_OP_not 1회(= !(setup_score < penalty)). 분기: penalty != 0 && score < penalty → false 로 확정",
+  "L86 의 두 조건(live_ally+1 < live_enemy → false / no_line_pushed → true)이 소스에서 한 줄인지 두 줄인지 — 둘 다 !dbg L86 이라 구분 불가. 순서는 IR 로 확정(열세 검사가 먼저: 둘 다 참이면 false)",
+  "macro_judgement_penalty 내부는 안 봄(m15.ll:51819~, i32 반환 range(-17179869,17179870)). 0 이면 페널티 검사 자체가 꺼진다는 것만 확인",
+  "Blackboard::is_recent_visible 내부는 안 봄. 인자 = (&blackboard[1-team], game data ptr, game vtable, player, entity). self 가 적팀 판이라는 것은 인덱스(1-team)로만 확정",
+  "MapDef::camp_pos(map, JungleType(i8), bool) 의 bool 인자에 team==0 을 넘긴다 — bool 의 의미(진영 미러링 여부로 추정)는 _gcbc g07.ll:152570 을 안 읽어 미확인",
+  "디버그 문자열 포맷(anon.307)의 내용은 안 읽음. 인자 두 개가 near_epic_ally(%13)·near_epic_enemy(%12) 의 usize Display 인 것만 확인",
+  "tutorial JungleOnly(6) 의 빈 라인 목록 분기(%700)는 L17 이 태그 1..6 을 먼저 거르므로 사장(NA) 코드 — IR 에는 남아 있다",
+  "version(p1) 은 이 함수에서 분기를 만들지 않는다 — macro_judgement_penalty 로 전달만"
+ ]
+}

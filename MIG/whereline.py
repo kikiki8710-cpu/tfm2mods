@@ -87,13 +87,18 @@ def check_spec(sp):
         #   **오탐을 내는 게이트는 무시당한다**(SPEC_RUNBOOK 의 자기 규칙).
         if not IROP.match(frag.strip()):
             continue
-        if ".." in frag or "::" in frag:   # 자리표시자·Rust 경로는 축약 인용이다
+        if ".." in frag or "::" in frag or u"…" in frag:   # 자리표시자·Rust 경로·생략부호는 축약 인용이다(09-13: `lshr i64 …, 1`)
             continue
-        want = norm(frag)
-        if len(want) < 6:
-            continue
+        # ★09-13(17차): `;` 로 여러 명령을 한 백틱에 인용하거나(`add i8 %10,-1; icmp ult i8 %11, 2`)
+        #   `%764 = %95+1` 같은 산술 축약을 쓰는 배치가 있다 → 조각별로 대조하고 **한 조각이라도 맞으면 통과**
+        #   (축약 조각은 원문에 없으므로 전부 요구하면 정답이 걸린다). 줄번호 자체가 틀린 것(irann 주석본 줄)만 잡는 게 목적.
         near = u"".join(norm(irline(f, x) or u"") for x in range(n - 2, n + 3))
-        if want not in near:
+        frags = [t.strip() for t in frag.split(u";") if t.strip()] or [frag]
+        wants = [norm(t) for t in frags]
+        wants = [w for w in wants if len(w) >= 6]
+        if not wants:
+            continue
+        if not any(w in near for w in wants):
             out.append((j, u"인용한 명령이 그 줄(±2)에 없다",
                         u"%s:%d  인용=%s" % (f, n, q.group(1)[:60])))
     return out

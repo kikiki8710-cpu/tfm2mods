@@ -1,0 +1,19 @@
+{
+ "round": "17",
+ "batch": "H",
+ "errors_applied": 10,
+ "ev_applied": 0,
+ "failed": 0,
+ "stamps": {
+  "/specs[45]/knobs[4]/where": "859088ceec834857",
+  "/specs[46]/knobs[2]/where": "732bf3fc8710fd6e",
+  "/specs[48]/knobs[1]/where": "f6f1e98d598b106f",
+  "/specs[49]/knobs[0]/where": "3b1458d4882200a0",
+  "/specs[49]/knobs[3]/where": "06989bf04fb1f6fc",
+  "/specs[50]/knobs[0]/where": "1d8a904149d3982a",
+  "/specs[51]/knobs[0]/where": "721d947b948ab556",
+  "/specs[52]/knobs[0]/where": "e4295675ec42a60a",
+  "/specs[54]/mem[25]/name": "2e670a7047ef150f",
+  "/specs[54]/mem[51]/name": "891e8256744735bc"
+ }
+}

@@ -1,0 +1,135 @@
+{
+ "name": "resolve_join_stake",
+ "sym": "_RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old11fight_model18resolve_join_stake",
+ "src": "game-ai\\src\\plan_legacy\\old\\fight_model.rs",
+ "src_line": 680,
+ "ir_file": "m10.ll",
+ "ir_from": 41001,
+ "ir_to": 42354,
+ "aux": [
+  {"ir_file": "m10.ll", "ir_from": 56030, "ir_to": 56141},
+  {"ir_file": "m10.ll", "ir_from": 56144, "ir_to": 56165}
+ ],
+
+ "one_line": "anchor(적) 주변 교전에 내가 6초 내 합류할 때의 '저울' — 아군만/아군+나 두 판을 resolve_fight_full 로 돌려 차분 FightPrediction 을 낸다",
+
+ "signature": {
+  "params": [
+   {"i": 0, "name": "(sret)", "type": "&mut Option<FightPrediction>(64B)", "note": "반환 슬롯. None = +0x0(focus_target 니치) 에 i64 -1 저장(41074·41118·41163)"},
+   {"i": 1, "name": "version", "type": "usize", "note": "AI 버전. <2 면 즉시 None(41062~41063, L682). 이후 resolve_fight_full·ally_is_bound·is_enemy_well_danger(클로저) 에 전달"},
+   {"i": 2, "name": "rnd", "type": "&mut StdRng(320B, align16)", "note": "본문에서 직접 안 씀. ally_is_bound 에만 전달(42085)"},
+   {"i": 3, "name": "data", "type": "&OperationData(24B)", "note": "+0 cache(&AbstractGameWithCache) / +8 context(&GameContext) / +0x10 blackboard(&[Blackboard;2])"},
+   {"i": 4, "name": "player", "type": "&PlayerState(2528B)", "note": "판단 주체. info.team(+0x930)·info.position 태그(+0x9c0)·info.parameter(+0x180, judge_accuracy) 를 읽는다"},
+   {"i": 5, "name": "champ", "type": "&Entity(1728B)", "note": "판단 주체의 챔피언(나). dbg 이름 champ/caster"},
+   {"i": 6, "name": "anchor", "type": "&Entity(1728B)", "note": "합류 기준점이 되는 적 엔티티. 거리·사거리·near 판정의 중심"},
+   {"i": 7, "name": "team_plan", "type": "&TeamPlan(1064B)", "note": "ally_battle_stop_tick[i](+0x0, Option<usize> stride16) 만 읽는다"},
+   {"i": 8, "name": "debug", "type": "&mut DebugFrameData(224B)", "note": "본문에서 직접 안 씀. ally_is_bound 에만 전달"}
+  ],
+  "returns": "Option<FightPrediction>(64B) — Some(diff): diff = resolve_fight_full(아군+나, baseline=without.net_value) 에 line_absolute(+0x39)=absolute.line(+0x38), rescue_ally(+0x20..)=nearest_bound.id 를 덧씌운 값. None = version<2 / 근처 적 없음 / 합류할 아군 없음 / 내 도착시간 > horizon"
+ },
+
+ "reads": [
+  {"base": "OperationData", "offset": "0x0", "name": "cache", "note": "&AbstractGameWithCache — iter_champions·player_champion·iter_towers_without_nexus 출처(41064·41083~41085)"},
+  {"base": "OperationData", "offset": "0x8", "name": "context", "note": "&GameContext — setting·pool"},
+  {"base": "OperationData", "offset": "0x10", "name": "blackboard", "note": "&[Blackboard;2]. 클로저 캡처(적팀 판) + 본문 big_goal(아군팀 판) 인덱싱(41157)"},
+  {"base": "GameContext", "offset": "0x0", "name": "pool", "note": "&bumpalo::Bump — enemies/allies/arrivals 세 Vec 의 할당자(41100)"},
+  {"base": "GameContext", "offset": "0x8", "name": "setting", "note": "&GameSetting"},
+  {"base": "GameSetting", "offset": "0x12f8", "name": "tick_per_second", "note": "IR 4856. horizon = tps*6"},
+  {"base": "PlayerState", "offset": "0x930", "name": "info.team", "note": "usize. enemy_team = 1 - team (범위밖이면 panic_bounds_check len=2). 클로저0 에서도 같은 필드로 적팀 블랙보드·TeamType 을 만든다"},
+  {"base": "PlayerState", "offset": "0x9c0", "name": "info.position@tag", "note": "i32 태그(Position: 0 Top/1 Jungle/2 Mid/3 Bottom/4 Support). 루프 i == 이 값이면 '나 자신' 슬롯이라 건너뛴다(41149·42010)"},
+  {"base": "PlayerState", "offset": "0x180", "name": "info.parameter", "note": "&AthleteParameter(744B) 를 AthleteParameter::judge_accuracy 에 넘긴다(41636)"},
+  {"base": "AbstractGameWithCache", "offset": "0x0", "name": "game (&dyn AbstractGame data+vtable)", "note": "클로저0 캡처용(41089~41091) — is_recent_visible 인자"},
+  {"base": "AbstractGameWithCache", "offset": "0x1e0", "name": "player_champion", "note": "[[Option<&Entity>;5];2]. [enemy_team] 은 iter_champions(적 후보), [my_team][i] 는 아군 a(41154·42033)"},
+  {"base": "TeamPlan", "offset": "0x0", "name": "ally_battle_stop_tick[i]@tag", "note": "stride 16, i64 태그 0=None/1=Some. Some 이면 그 아군은 후보에서 제외(42020~42022)"},
+  {"base": "Blackboard", "offset": "0xf0", "name": "big_goal[i]", "note": "[(usize, Option<BigGoal>);5] stride 32. 본문은 원소 i 의 +0x8(=Blackboard+0xf8+32i) 태그 i8, +0x10 focus 태그, +0x18 focus 값을 읽는다(42046~42058)"},
+  {"base": "Blackboard", "offset": "0xf8", "name": "big_goal[i].1@tag", "note": "BigGoal 태그 1B. ==5 → Battle"},
+  {"base": "Blackboard", "offset": "0x100", "name": "big_goal[i].1@Battle.focus@tag", "note": "Option<usize> 태그(i64 trunc→i1). Some 일 때만 아래 focus 값을 enemies 와 대조"},
+  {"base": "Blackboard", "offset": "0x108", "name": "big_goal[i].1@Battle.focus@Some.0", "note": "usize entity id. enemies.iter().any(|e| e.id == 이 값)"},
+  {"base": "Entity", "offset": "0x5c0", "name": "id", "note": "usize. 적 id 대조(42080)·nearest_bound 동률 타이브레이크(42140~42144)·rescue_ally 출력(41929). 클로저0 에서는 e.id==anchor.id 단락"},
+  {"base": "Entity", "offset": "0x640", "name": "stat_cached.move_speed", "note": "usize. max(_,1) 로 0 나눗셈 방지 후 도착시간 분모(41228·42148)"},
+  {"base": "Entity", "offset": "0x4c0", "name": "attack_effect@tag (casting 니치 i32)", "note": "== -1 이면 attack_effect None → reach 0 (41232~41234·42152·41508). 타워 경로에선 None 이면 unwrap_failed 패닉(41525)"},
+  {"base": "Entity", "offset": "0x4a0", "name": "attack_effect.range", "note": "u64. reach/사거리 식의 기본항"},
+  {"base": "Entity", "offset": "0x4a8", "name": "attack_effect.growth_range", "note": "u64. (level-1)*growth_range"},
+  {"base": "Entity", "offset": "0x5c8", "name": "level", "note": "usize. (level-1)*growth_range — level 0 이면 -1 곱(랩어라운드, 가드 없음)"},
+  {"base": "Entity", "offset": "0x438", "name": "stat_buff_cached.range", "note": "usize. reach 가산항"},
+  {"base": "Entity", "offset": "0x660", "name": "x", "note": "u64. distance_sq(인라인 abs_diff²합)·Entity::distance 의 재료"},
+  {"base": "Entity", "offset": "0x668", "name": "y", "note": "u64"},
+  {"base": "Entity", "offset": "0x470", "name": "stat_buff_cached.radius_mult", "note": "i32. 0 이면 radius 그대로, 아니면 radius*(100+mult)/100 (entity.rs Entity::radius 인라인, 41532~41556)"},
+  {"base": "Entity", "offset": "0x680", "name": "radius", "note": "usize. 타워 사거리 판정에 anchor.radius()+tower.radius() 가산"},
+  {"base": "Entity", "offset": "0x6b9", "name": "can_target", "note": "bool. 타워 후보 필터 1(41290~41293, 클로저 s2_0 56149)"},
+  {"base": "Entity", "offset": "0x6a0", "name": "block_target_tick", "note": "usize. ==0 이어야 타워 후보(41294~41297)"},
+  {"base": "Vec<&Entity>(bumpalo,32B)", "offset": "0x0", "name": "ptr", "note": "enemies/allies 버퍼"},
+  {"base": "Vec<&Entity>(bumpalo,32B)", "offset": "0x10", "name": "cap", "note": "push 시 len==cap 이면 reserve_internal_or_panic"},
+  {"base": "Vec<&Entity>(bumpalo,32B)", "offset": "0x18", "name": "len", "note": "enemies.len()==0 → None(41111~41114), allies.len()==0 → None(41197~41199)"},
+  {"base": "FightPrediction(without)", "offset": "0x30", "name": "net_value", "note": "i64. 세 번째 resolve_fight_full 의 baseline 인자(41904~41905)"},
+  {"base": "FightPrediction(absolute)", "offset": "0x38", "name": "line", "note": "FightLine 1B(0 Commit/1 CommitAfterJoin/2 Disengage/3 Hold). diff.line_absolute 로 복사"}
+ ],
+
+ "writes": [
+  {"base": "Option<FightPrediction>(sret)", "offset": "0x0", "name": "focus_target@tag", "value": "-1 (None)", "note": "4개 None 반환 지점(version<2 / enemies 비었음 / allies 비었음 / my_arrival>horizon)"},
+  {"base": "FightPrediction(diff→sret)", "offset": "0x39", "name": "line_absolute", "value": "absolute.line", "note": "L740 (41911~41914)"},
+  {"base": "FightPrediction(diff→sret)", "offset": "0x20", "name": "rescue_ally@tag", "value": "1 if nearest_bound.is_some() else 0", "note": "L741 (41925~41928)"},
+  {"base": "FightPrediction(diff→sret)", "offset": "0x28", "name": "rescue_ally@Some.0", "value": "nearest_bound.id(+0x5c0)", "note": "None 이면 undef 채움"},
+  {"base": "Option<FightPrediction>(sret)", "offset": "0x0", "name": "(전체 64B)", "value": "memcpy diff", "note": "L742 (41930). ⚠게임 구조체(Entity/PlayerState/TeamPlan/Blackboard) 에 쓰는 곳은 없다 — 스택·bump Vec 뿐"}
+ ],
+
+ "constants": [
+  {"value": 2, "src_line": 682, "meaning": "version < 2 면 None. v2 이상 전용 판정"},
+  {"value": 6, "src_line": 685, "meaning": "horizon = tick_per_second * 6 = 6초. 아군 도착시간 상한(umin)·내 도착시간 컷"},
+  {"value": 1, "src_line": 688, "meaning": "enemy_team = 1 - player.info.team (아군팀 인덱스는 info.team 그대로)"},
+  {"value": 5, "src_line": 703, "meaning": "BigGoal 메모리태그 5 = Battle. 아군 i 의 big_goal 이 Battle 이고 focus 가 Some 일 때만 '같은 적을 보고 있나' 대조"},
+  {"value": 1, "src_line": 710, "meaning": "sp = max(move_speed, 1) — 0 나눗셈 방지(llvm.umax). L719 의 my_sp 도 동일"},
+  {"value": -1, "src_line": 711, "meaning": "(a) attack_effect 니치 None 표식(Entity+0x4c0 == -1 → reach 0) (b) (level-1) 의 -1 (c) 반환 None 의 focus_target 니치 -1"},
+  {"value": 15000, "src_line": 729, "meaning": "타워 사거리 판정 여유분: distance(tower, anchor) <= tower.attack_effect.range + 15000 + stat_buff.range + (level-1)*growth + anchor.radius() + tower.radius(). 셀(32000)의 절반 ≈ 0.47칸. ⚠IR !dbg 는 effect.rs:26(Effect::range) 을 가리키나 챔피언 reach(L711/720) 경로엔 이 항이 없다 — 귀속 줄은 unknown 참조"},
+  {"value": 100, "src_line": 729, "meaning": "Entity::radius 인라인(entity.rs:1511~1515): radius_mult != 0 이면 radius*(100+mult)/100. anchor 와 tower 양쪽에 적용"},
+  {"value": 0, "src_line": 733, "meaning": "resolve_fight_full 의 committed_dir(i8)=0 (세 호출 모두) 과 baseline=0 (without·absolute 두 호출). diff 호출만 baseline=without.net_value"},
+  {"value": 1, "src_line": 741, "meaning": "rescue_ally Option<usize> Some 태그(=1). nearest_bound 가 있으면 1, 없으면 0"},
+  {"value": 22500000001, "src_line": 689, "meaning": "★aux(클로저0, m10.ll 56086): 150000² + 1 — 적 e 가 anchor 로부터 dist² < 이 값(즉 ≤150000, 약 4.7칸) 이어야 enemies 후보. e.id==anchor.id 면 거리 무관 포함"}
+ ],
+
+ "calls": [
+  "bumpalo::collections::vec::Vec::from_iter_in",
+  "game_core::simulation::AbstractGameWithCache::iter_towers_without_nexus",
+  "game_core::simulation::entity::Entity::distance",
+  "game_core::simulation::state::player::AthleteParameter::judge_accuracy",
+  "game_ai::plan_legacy::old::fight_model::ally_is_bound",
+  "game_ai::plan_legacy::old::fight_model::resolve_fight_full",
+  "core::iter::adapters::copied::Copied::try_fold",
+  "core::iter::adapters::map::Map::fold",
+  "bumpalo::collections::raw_vec::RawVec::reserve_internal_or_panic",
+  "clone",
+  "drop",
+  "drop_glue",
+  "core::panicking::panic_bounds_check",
+  "core::option::unwrap_failed",
+  "game_core::simulation::game::blackboard::Blackboard::is_recent_visible",
+  "game_ai::path_finder::is_enemy_well_danger"
+ ],
+
+ "logic": "fn resolve_join_stake(version, rnd, data, player, champ, anchor, team_plan, debug) -> Option<FightPrediction>\n\n[L682] if version < 2 { return None }                      // 41062\n[L685] horizon = data.context.setting.tick_per_second * 6    // 6초\n[L688] cache = data.cache ; my_team = player.info.team(+0x930) ; enemy_team = 1 - my_team (≥2 면 panic_bounds_check)\n[L687~691] enemies: Vec<&Entity,&Bump> = cache.player_champion[enemy_team] (iter_champions, Some 만)\n      .filter(|e| {                                   // ★클로저0 = aux m10.ll 56030~56141 (Entity::call_mut 심)\n         [L689] e.id == anchor.id                      // anchor 자신은 무조건 포함\n              || ( distance_sq(e, anchor) < 22500000001   // ≤150000\n         [L690]   && data.blackboard[enemy_team].is_recent_visible(cache.game, player, e)\n         [L691]   && !is_ignored_well_enemy(version, player, e) )\n                  //  is_ignored_well_enemy 인라인 = (e.team(+0x0) == TeamType::Player(enemy_team)) && path_finder::is_enemy_well_danger(version, player, e.x, e.y)\n      }).collect_in(pool)\n[L692~693] if enemies.is_empty() { return None }\n\n[L696] allies: Vec<&Entity> = new_in(pool) ; [L697] arrivals: Vec<usize> = new_in(pool)\n      nearest_bound: Option<&Entity> = None\n      my_pos = player.info.position 태그(+0x9c0)\n[L699] for i in 0..5 {\n[L700]   if i == my_pos { continue }                          // 나 자신 슬롯 제외\n[L701]   if team_plan.ally_battle_stop_tick[i].is_some() { continue }   // 태그(+0x0+16i) != 0\n[L702]   a = cache.player_champion[my_team][i] ; if a.is_none() { continue }   // my_team≥2 면 panic\n[L703]   bg = data.blackboard[my_team].big_goal[i].1\n         focus_match = (bg 태그 == 5 /*Battle*/) && bg.focus.is_some()\n[L704]                 && enemies.iter().any(|e| e.id == bg.focus.unwrap())\n[L705]   bound = ally_is_bound(version, rnd, data, player, a, &enemies, debug)\n[L706]   if !focus_match && !bound { continue }               // 둘 다 아니면 후보 아님\n[L707]   if bound {                                           // (focus_match 만 참이면 nearest 갱신 없이 통과)\n            nearest_bound = min_by_key((distance_sq(a,anchor), a.id)) — 기존 nb 와 비교:\n              dist 같으면 a.id < nb.id, 아니면 dist_a < dist_nb 일 때 a 로 교체 (None 이면 a)\n         }\n[L710]   sp = max(a.move_speed(+0x640), 1)\n[L711]   reach = a.attack_effect.map(|ef| ef.range(a)).unwrap_or(0)\n              // Effect::range 인라인 = stat_buff_cached.range(+0x438) + range(+0x4a0) + (level(+0x5c8)-1)*growth_range(+0x4a8)\n[L712]   allies.push(a)\n[L713]   arrivals.push( min(horizon, sat_sub(Entity::distance(a, anchor), reach) / sp) )\n      }\n[L715] if allies.is_empty() { return None }\n\n[L719] my_sp = max(champ.move_speed, 1)\n[L720] my_reach = champ.attack_effect.map(|ef| ef.range(champ)).unwrap_or(0)   // 같은 식\n[L721] my_arrival = sat_sub(Entity::distance(champ, anchor), my_reach) / my_sp\n[L722] if my_arrival > horizon { return None }                 // ⚠아군은 umin 으로 잘리지만 나는 컷\n\n[L726] tower = cache.iter_towers_without_nexus(enemy_team)      // Chain<Flatten<[Option<&Entity>;6]>, Copied<slice>> 120B\n         .filter(|t| t.can_target(+0x6b9) && t.block_target_tick(+0x6a0) == 0)   // 클로저 s2_0 = aux 56144~56165 (배열부는 본문 인라인 41272~41330, 슬라이스부는 try_fold 심)\n[L727]   .min_by_key(|t| distance_sq(t, anchor))               // 첫 원소 키는 본문 인라인(41341~41360), 나머지는 Map::fold 심(m06.ll 30568~30820)\n[L728]   .filter(|t| {\n[L729]      r = t.attack_effect.unwrap()/*None 이면 unwrap_failed*/ .range(t) + 15000 + anchor.radius() + t.radius()\n                // Entity::radius = radius_mult(+0x470)==0 ? radius(+0x680) : radius*(100+mult)/100\n[L730]      Entity::distance(t, anchor) <= r\n         })                                                    // 아니면 tower = None\n[L732] judge = AthleteParameter::judge_accuracy(&player.info.parameter(+0x180))\n\n[L733] without  = resolve_fight_full(version, data, champ, &allies, &enemies, committed_dir=0, tower, judge, &arrivals, baseline=0)\n[L734] with_me  = allies.clone() ; [L735] with_arr = arrivals.clone()\n[L736] with_me.push(champ) ; [L737] with_arr.push(my_arrival)\n[L738] absolute = resolve_fight_full(version, data, champ, &with_me, &enemies, 0, tower, judge, &with_arr, baseline=0)\n[L739] diff     = resolve_fight_full(version, data, champ, &with_me, &enemies, 0, tower, judge, &with_arr, baseline=without.net_value(+0x30))\n[L740] diff.line_absolute(+0x39) = absolute.line(+0x38)\n[L741] diff.rescue_ally(+0x20) = nearest_bound.map(|a| a.id)\n[L742] return Some(diff)\n\n※ 부작용: 게임 구조체 쓰기 없음. rnd/debug 는 ally_is_bound 로 &mut 전달. resolve_fight_full 은 TLS ResolveFightCache 메모 래퍼(범위 밖)라 캐시 상태가 바뀔 수 있다.",
+
+ "knobs": [
+  {"what": "합류 시간 지평(horizon)", "where": "fight_model.rs:685 (IR m10.ll:41072 `mul i64 %30, 6`)", "value": 6,
+   "effect": "tps*6 = 6초. 올리면 더 먼 아군도 도착 목록에 들고 나도 더 멀리서 합류 판정을 받는다(아군 arrival 은 이 값으로 umin 캡). 내리면 먼 아군/먼 나는 None 으로 잘려 '저울' 자체가 안 선다"},
+  {"what": "version 게이트", "where": "fight_model.rs:682 (IR 41062 `icmp ult i64 %1, 2`)", "value": 2,
+   "effect": "v<2 는 항상 None. 이 함수를 v1 에서도 켜려면 여기를 내린다"},
+  {"what": "적 후보 반경", "where": "fight_model.rs:689 — aux 클로저0 (IR m10.ll:56086 `icmp ult i64 %35, 22500000001`)", "value": 22500000001,
+   "effect": "anchor 반경 150000(≈4.7칸) 안의 '최근 시야에 잡힌' 적만 enemies. 올리면 더 넓은 범위의 적이 저울에 들어 교전이 더 불리하게(또는 유리하게) 계산된다"},
+  {"what": "타워 사거리 여유분", "where": "fight_model.rs:729 (IR m10.ll:41569 `add i64 %207, 15000`)", "value": 15000,
+   "effect": "anchor 가 가장 가까운 적 타워 사거리+15000+반지름 합 안이면 그 타워가 교전 cascade 행위자로 resolve_fight_full 에 들어간다. 올리면 타워를 더 자주 계산에 넣어 합류 판정이 보수적으로, 0 이면 실제 사거리 경계에서만"},
+  {"what": "아군 후보 조건(교전 중 판정)", "where": "fight_model.rs:703~706 (IR 42050 `icmp eq i8 %381, 5`)", "value": 5,
+   "effect": "big_goal 이 Battle(태그5)이고 focus 가 enemies 안에 있거나, ally_is_bound 가 참인 아군만 allies 에 든다. Battle 조건을 지우면 '묶인' 아군만 남아 with_me 판이 작아진다"}
+ ],
+
+ "unknown": [
+  "15000 의 귀속 소스 줄: IR !dbg 는 effect.rs:26(Effect::range, inlinedAt fight_model.rs:729) 을 가리키지만, 같은 Effect::range 가 인라인된 L711/L720(챔피언 reach) 경로엔 +15000 항이 없다. LLVM 재결합(reassociation)으로 L729 의 리터럴이 L26 위치를 물려받았을 가능성이 크나 IR 만으로는 'Effect::range 내부의 조건항'인지 'L729 의 명시 가산'인지 확정 못 함(Effect::range 는 _gaibc/_gcbc 어디에도 define 없음 — 전부 인라인). 동작(타워 경로에만 +15000)은 확정",
+  "resolve_fight_full 내부(m10.ll 39915~, TLS ResolveFightCache 메모 래퍼)는 범위 밖 — 인자 계약만: (sret 64B, version, data, champ, near_allies ptr/len, near_enemies ptr/len, committed_dir i8, tower Option<&Entity>, judge_accuracy usize, arrivals ptr/len, baseline i64). arg 4·5·9 의 DWARF 이름은 DISubprogram 에 없고 호출측 dbg_value(near_allies/near_enemies/arrivals) 로 잡음",
+  "ally_is_bound(version, rnd, data, player, a, enemies slice, debug) 내부는 안 봄. 반환 bool 이 '아군 a 가 교전에 묶여 있다'는 뜻이라는 것은 변수명(bound/nearest_bound/rescue_ally) 기반 추정",
+  "Blackboard::is_recent_visible(&Blackboard[enemy_team], game data, game vtable, player, e) 의 의미('적팀 판'이 무엇을 기록하는지)는 game_core 본문 미열람. 인덱스가 적팀(1-team) 인 것만 확정",
+  "min_by_key 의 나머지 원소 처리(Map::fold 심, m06.ll 30568~30820)는 본체가 아니라 aux 로 넣지 않았다. 안을 훑어 x/y(1632/1640)·can_target·block_target_tick 만 읽는 것은 확인(키 = distance_sq to anchor, 동률이면 min_by 규칙상 앞 원소 유지)",
+  "iter_towers_without_nexus 의 반환 120B 이터레이터 내부 레이아웃(+0 배열 IntoIter 상태 i64 -1 = 배열부 소진, +8/+16 alive 범위, +24 [Option<&Entity>;6], +104 슬라이스 ptr) 은 본문 사용 패턴으로 읽은 것 — 타워 6개 배열 + 추가 슬라이스라는 구조 자체는 IR 타입(`IntoIter<Option<&Entity>,6>` + `Copied<slice::Iter>`) 으로 확정",
+  "Position 태그(+0x9c0) 를 슬롯 인덱스 i 와 직접 비교하는 것은 'player_champion[team][i] 의 i = Position 순서(Top0 Jungle1 Mid2 Bottom3 Support4)' 라는 게임 관례에 의존 — 본문에서 i 가 그 순서라는 별도 근거는 없음(구조 관례 추정)",
+  "level==0 인 엔티티의 (level-1)*growth_range 는 랩어라운드(u64) — 게임에서 level 이 0 이 되는지는 미확인",
+  "constants 의 `1`(L688/L710/L741) 과 `0`(L733) 은 여러 자리에서 겹치는 값이라 대표 줄만 적었다. 배열 상한 5·타워 6·stride 16/32/40 은 규칙대로 제외"
+ ]
+}

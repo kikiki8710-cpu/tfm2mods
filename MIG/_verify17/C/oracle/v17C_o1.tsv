@@ -1,0 +1,338 @@
+setting_ok	true	width=960000	height=960000	tps=60	champ_radius=10000	visible=130000
+towers	16	tick=1000
+is_top_side	x=100000	y=100000	x+y=200000	height=960000	=> true	(spec: x<=height-y => true)
+is_top_side	x=800000	y=800000	x+y=1600000	height=960000	=> false	(spec: x<=height-y => false)
+is_top_side	x=100000	y=800000	x+y=900000	height=960000	=> true	(spec: x<=height-y => true)
+is_top_side	x=800000	y=100000	x+y=900000	height=960000	=> true	(spec: x<=height-y => true)
+is_top_side	x=480000	y=480000	x+y=960000	height=960000	=> true	(spec: x<=height-y => true)
+is_top_side	x=480000	y=479999	x+y=959999	height=960000	=> true	(spec: x<=height-y => true)
+is_top_side	x=479999	y=480000	x+y=959999	height=960000	=> true	(spec: x<=height-y => true)
+is_top_side	x=0	y=960000	x+y=960000	height=960000	=> true	(spec: x<=height-y => true)
+is_top_side	x=960000	y=0	x+y=960000	height=960000	=> true	(spec: x<=height-y => true)
+camp_pos	Morgard side0=(288000, 288000)	side1=(288000, 288000)	top0=true	top1=true
+camp_pos	Serpen side0=(672000, 672000)	top=false
+player	judgement@0x218=80	ratio@0x450=1000	team@0x930=0
+judge	j=0	ratio=0	penalty=3	bonus=0	spec=3/0	OK
+judge	j=0	ratio=500	penalty=3	bonus=0	spec=3/0	OK
+judge	j=0	ratio=1000	penalty=3	bonus=0	spec=3/0	OK
+judge	j=0	ratio=1500	penalty=3	bonus=0	spec=3/0	OK
+judge	j=10	ratio=0	penalty=3	bonus=0	spec=3/0	OK
+judge	j=10	ratio=500	penalty=3	bonus=0	spec=3/0	OK
+judge	j=10	ratio=1000	penalty=2	bonus=0	spec=2/0	OK
+judge	j=10	ratio=1500	penalty=2	bonus=0	spec=2/0	OK
+judge	j=20	ratio=0	penalty=3	bonus=0	spec=3/0	OK
+judge	j=20	ratio=500	penalty=2	bonus=0	spec=2/0	OK
+judge	j=20	ratio=1000	penalty=1	bonus=0	spec=1/0	OK
+judge	j=20	ratio=1500	penalty=1	bonus=0	spec=1/0	OK
+judge	j=33	ratio=0	penalty=3	bonus=0	spec=3/0	OK
+judge	j=33	ratio=500	penalty=2	bonus=0	spec=2/0	OK
+judge	j=33	ratio=1000	penalty=1	bonus=0	spec=1/0	OK
+judge	j=33	ratio=1500	penalty=0	bonus=0	spec=0/0	OK
+judge	j=34	ratio=0	penalty=3	bonus=0	spec=3/0	OK
+judge	j=34	ratio=500	penalty=2	bonus=0	spec=2/0	OK
+judge	j=34	ratio=1000	penalty=0	bonus=0	spec=0/0	OK
+judge	j=34	ratio=1500	penalty=0	bonus=0	spec=0/0	OK
+judge	j=40	ratio=0	penalty=3	bonus=0	spec=3/0	OK
+judge	j=40	ratio=500	penalty=1	bonus=0	spec=1/0	OK
+judge	j=40	ratio=1000	penalty=0	bonus=0	spec=0/0	OK
+judge	j=40	ratio=1500	penalty=0	bonus=1	spec=0/1	OK
+judge	j=50	ratio=0	penalty=3	bonus=0	spec=3/0	OK
+judge	j=50	ratio=500	penalty=1	bonus=0	spec=1/0	OK
+judge	j=50	ratio=1000	penalty=0	bonus=0	spec=0/0	OK
+judge	j=50	ratio=1500	penalty=0	bonus=2	spec=0/2	OK
+judge	j=60	ratio=0	penalty=3	bonus=0	spec=3/0	OK
+judge	j=60	ratio=500	penalty=1	bonus=0	spec=1/0	OK
+judge	j=60	ratio=1000	penalty=0	bonus=1	spec=0/1	OK
+judge	j=60	ratio=1500	penalty=0	bonus=2	spec=0/2	OK
+judge	j=80	ratio=0	penalty=3	bonus=0	spec=3/0	OK
+judge	j=80	ratio=500	penalty=0	bonus=0	spec=0/0	OK
+judge	j=80	ratio=1000	penalty=0	bonus=2	spec=0/2	OK
+judge	j=80	ratio=1500	penalty=0	bonus=3	spec=0/3	OK
+judge	j=100	ratio=0	penalty=3	bonus=0	spec=3/0	OK
+judge	j=100	ratio=500	penalty=0	bonus=0	spec=0/0	OK
+judge	j=100	ratio=1000	penalty=0	bonus=3	spec=0/3	OK
+judge	j=100	ratio=1500	penalty=0	bonus=3	spec=0/3	OK
+judge	j=120	ratio=0	penalty=3	bonus=0	spec=3/0	OK
+judge	j=120	ratio=500	penalty=0	bonus=1	spec=0/1	OK
+judge	j=120	ratio=1000	penalty=0	bonus=3	spec=0/3	OK
+judge	j=120	ratio=1500	penalty=0	bonus=3	spec=0/3	OK
+judge	j=200	ratio=0	penalty=3	bonus=0	spec=3/0	OK
+judge	j=200	ratio=500	penalty=0	bonus=3	spec=0/3	OK
+judge	j=200	ratio=1000	penalty=0	bonus=3	spec=0/3	OK
+judge	j=200	ratio=1500	penalty=0	bonus=3	spec=0/3	OK
+judge_summary	MISMATCH=0
+ent	t=0	p=0	x=15000	y=913000	hp=1	max=1	ms=1
+ent	t=0	p=1	x=32000	y=928000	hp=1	max=1	ms=1
+ent	t=0	p=2	x=49000	y=911000	hp=1	max=1	ms=1
+ent	t=0	p=3	x=15000	y=938000	hp=1	max=1	ms=1
+ent	t=0	p=4	x=49000	y=946000	hp=1	max=1	ms=1
+ent	t=1	p=0	x=913000	y=15000	hp=1	max=1	ms=1
+ent	t=1	p=1	x=928000	y=32000	hp=1	max=1	ms=1
+ent	t=1	p=2	x=911000	y=49000	hp=1	max=1	ms=1
+ent	t=1	p=3	x=938000	y=15000	hp=1	max=1	ms=1
+ent	t=1	p=4	x=946000	y=49000	hp=1	max=1	ms=1
+overload	a=0	e=0	=> false	spec=false	OK
+overload	a=0	e=1	=> false	spec=false	OK
+overload	a=0	e=2	=> false	spec=false	OK
+overload	a=0	e=3	=> true	spec=true	OK
+overload	a=0	e=4	=> true	spec=true	OK
+overload	a=0	e=5	=> true	spec=true	OK
+overload	a=1	e=0	=> false	spec=false	OK
+overload	a=1	e=1	=> false	spec=false	OK
+overload	a=1	e=2	=> false	spec=false	OK
+overload	a=1	e=3	=> true	spec=true	OK
+overload	a=1	e=4	=> true	spec=true	OK
+overload	a=1	e=5	=> true	spec=true	OK
+overload	a=2	e=0	=> false	spec=false	OK
+overload	a=2	e=1	=> false	spec=false	OK
+overload	a=2	e=2	=> false	spec=false	OK
+overload	a=2	e=3	=> false	spec=false	OK
+overload	a=2	e=4	=> true	spec=true	OK
+overload	a=2	e=5	=> true	spec=true	OK
+overload	a=3	e=0	=> false	spec=false	OK
+overload	a=3	e=1	=> false	spec=false	OK
+overload	a=3	e=2	=> false	spec=false	OK
+overload	a=3	e=3	=> false	spec=false	OK
+overload	a=3	e=4	=> false	spec=false	OK
+overload	a=3	e=5	=> true	spec=true	OK
+overload	a=4	e=0	=> false	spec=false	OK
+overload	a=4	e=1	=> false	spec=false	OK
+overload	a=4	e=2	=> false	spec=false	OK
+overload	a=4	e=3	=> false	spec=false	OK
+overload	a=4	e=4	=> false	spec=false	OK
+overload	a=4	e=5	=> false	spec=false	OK
+overload_novis	e=4(last_visible=0)	=> false	(spec false)
+overload_lowhp	e=4(hp39%)	=> false	(spec false)
+overload_hp40	e=4(hp40%)	=> true	(spec true)
+overload_summary	MISMATCH=0
+far_spot	(784000, 16000)	dist_sq_to_camp0=320000000000
+farsplit	far=0	lead=0	from_mid=0	count=0	=> false	spec=false	OK
+farsplit	far=0	lead=0	from_mid=0	count=1	=> false	spec=false	OK
+farsplit	far=0	lead=0	from_mid=0	count=2	=> false	spec=false	OK
+farsplit	far=0	lead=0	from_mid=0	count=3	=> false	spec=false	OK
+farsplit	far=0	lead=0	from_mid=0	count=4	=> false	spec=false	OK
+farsplit	far=0	lead=0	from_mid=999	count=0	=> false	spec=false	OK
+farsplit	far=0	lead=0	from_mid=999	count=1	=> false	spec=false	OK
+farsplit	far=0	lead=0	from_mid=999	count=2	=> false	spec=false	OK
+farsplit	far=0	lead=0	from_mid=999	count=3	=> false	spec=false	OK
+farsplit	far=0	lead=0	from_mid=999	count=4	=> false	spec=false	OK
+farsplit	far=0	lead=0	from_mid=1000	count=0	=> false	spec=false	OK
+farsplit	far=0	lead=0	from_mid=1000	count=1	=> false	spec=false	OK
+farsplit	far=0	lead=0	from_mid=1000	count=2	=> false	spec=false	OK
+farsplit	far=0	lead=0	from_mid=1000	count=3	=> false	spec=false	OK
+farsplit	far=0	lead=0	from_mid=1000	count=4	=> false	spec=false	OK
+farsplit	far=0	lead=0	from_mid=2999	count=0	=> false	spec=false	OK
+farsplit	far=0	lead=0	from_mid=2999	count=1	=> false	spec=false	OK
+farsplit	far=0	lead=0	from_mid=2999	count=2	=> false	spec=false	OK
+farsplit	far=0	lead=0	from_mid=2999	count=3	=> false	spec=false	OK
+farsplit	far=0	lead=0	from_mid=2999	count=4	=> false	spec=false	OK
+farsplit	far=0	lead=0	from_mid=3000	count=0	=> false	spec=false	OK
+farsplit	far=0	lead=0	from_mid=3000	count=1	=> false	spec=false	OK
+farsplit	far=0	lead=0	from_mid=3000	count=2	=> false	spec=false	OK
+farsplit	far=0	lead=0	from_mid=3000	count=3	=> false	spec=false	OK
+farsplit	far=0	lead=0	from_mid=3000	count=4	=> false	spec=false	OK
+farsplit	far=0	lead=1	from_mid=0	count=0	=> false	spec=false	OK
+farsplit	far=0	lead=1	from_mid=0	count=1	=> false	spec=false	OK
+farsplit	far=0	lead=1	from_mid=0	count=2	=> false	spec=false	OK
+farsplit	far=0	lead=1	from_mid=0	count=3	=> false	spec=false	OK
+farsplit	far=0	lead=1	from_mid=0	count=4	=> false	spec=false	OK
+farsplit	far=0	lead=1	from_mid=999	count=0	=> false	spec=false	OK
+farsplit	far=0	lead=1	from_mid=999	count=1	=> false	spec=false	OK
+farsplit	far=0	lead=1	from_mid=999	count=2	=> false	spec=false	OK
+farsplit	far=0	lead=1	from_mid=999	count=3	=> false	spec=false	OK
+farsplit	far=0	lead=1	from_mid=999	count=4	=> false	spec=false	OK
+farsplit	far=0	lead=1	from_mid=1000	count=0	=> false	spec=false	OK
+farsplit	far=0	lead=1	from_mid=1000	count=1	=> false	spec=false	OK
+farsplit	far=0	lead=1	from_mid=1000	count=2	=> false	spec=false	OK
+farsplit	far=0	lead=1	from_mid=1000	count=3	=> false	spec=false	OK
+farsplit	far=0	lead=1	from_mid=1000	count=4	=> false	spec=false	OK
+farsplit	far=0	lead=1	from_mid=2999	count=0	=> false	spec=false	OK
+farsplit	far=0	lead=1	from_mid=2999	count=1	=> false	spec=false	OK
+farsplit	far=0	lead=1	from_mid=2999	count=2	=> false	spec=false	OK
+farsplit	far=0	lead=1	from_mid=2999	count=3	=> false	spec=false	OK
+farsplit	far=0	lead=1	from_mid=2999	count=4	=> false	spec=false	OK
+farsplit	far=0	lead=1	from_mid=3000	count=0	=> false	spec=false	OK
+farsplit	far=0	lead=1	from_mid=3000	count=1	=> false	spec=false	OK
+farsplit	far=0	lead=1	from_mid=3000	count=2	=> false	spec=false	OK
+farsplit	far=0	lead=1	from_mid=3000	count=3	=> false	spec=false	OK
+farsplit	far=0	lead=1	from_mid=3000	count=4	=> false	spec=false	OK
+farsplit	far=0	lead=2	from_mid=0	count=0	=> false	spec=false	OK
+farsplit	far=0	lead=2	from_mid=0	count=1	=> false	spec=false	OK
+farsplit	far=0	lead=2	from_mid=0	count=2	=> false	spec=false	OK
+farsplit	far=0	lead=2	from_mid=0	count=3	=> false	spec=false	OK
+farsplit	far=0	lead=2	from_mid=0	count=4	=> false	spec=false	OK
+farsplit	far=0	lead=2	from_mid=999	count=0	=> false	spec=false	OK
+farsplit	far=0	lead=2	from_mid=999	count=1	=> false	spec=false	OK
+farsplit	far=0	lead=2	from_mid=999	count=2	=> false	spec=false	OK
+farsplit	far=0	lead=2	from_mid=999	count=3	=> false	spec=false	OK
+farsplit	far=0	lead=2	from_mid=999	count=4	=> false	spec=false	OK
+farsplit	far=0	lead=2	from_mid=1000	count=0	=> false	spec=false	OK
+farsplit	far=0	lead=2	from_mid=1000	count=1	=> false	spec=false	OK
+farsplit	far=0	lead=2	from_mid=1000	count=2	=> false	spec=false	OK
+farsplit	far=0	lead=2	from_mid=1000	count=3	=> false	spec=false	OK
+farsplit	far=0	lead=2	from_mid=1000	count=4	=> false	spec=false	OK
+farsplit	far=0	lead=2	from_mid=2999	count=0	=> false	spec=false	OK
+farsplit	far=0	lead=2	from_mid=2999	count=1	=> false	spec=false	OK
+farsplit	far=0	lead=2	from_mid=2999	count=2	=> false	spec=false	OK
+farsplit	far=0	lead=2	from_mid=2999	count=3	=> false	spec=false	OK
+farsplit	far=0	lead=2	from_mid=2999	count=4	=> false	spec=false	OK
+farsplit	far=0	lead=2	from_mid=3000	count=0	=> false	spec=false	OK
+farsplit	far=0	lead=2	from_mid=3000	count=1	=> false	spec=false	OK
+farsplit	far=0	lead=2	from_mid=3000	count=2	=> false	spec=false	OK
+farsplit	far=0	lead=2	from_mid=3000	count=3	=> false	spec=false	OK
+farsplit	far=0	lead=2	from_mid=3000	count=4	=> false	spec=false	OK
+farsplit	far=1	lead=0	from_mid=0	count=0	=> false	spec=false	OK
+farsplit	far=1	lead=0	from_mid=0	count=1	=> false	spec=false	OK
+farsplit	far=1	lead=0	from_mid=0	count=2	=> false	spec=false	OK
+farsplit	far=1	lead=0	from_mid=0	count=3	=> false	spec=false	OK
+farsplit	far=1	lead=0	from_mid=0	count=4	=> true	spec=true	OK
+farsplit	far=1	lead=0	from_mid=999	count=0	=> false	spec=false	OK
+farsplit	far=1	lead=0	from_mid=999	count=1	=> false	spec=false	OK
+farsplit	far=1	lead=0	from_mid=999	count=2	=> false	spec=false	OK
+farsplit	far=1	lead=0	from_mid=999	count=3	=> false	spec=false	OK
+farsplit	far=1	lead=0	from_mid=999	count=4	=> true	spec=true	OK
+farsplit	far=1	lead=0	from_mid=1000	count=0	=> false	spec=false	OK
+farsplit	far=1	lead=0	from_mid=1000	count=1	=> false	spec=false	OK
+farsplit	far=1	lead=0	from_mid=1000	count=2	=> true	spec=true	OK
+farsplit	far=1	lead=0	from_mid=1000	count=3	=> true	spec=true	OK
+farsplit	far=1	lead=0	from_mid=1000	count=4	=> true	spec=true	OK
+farsplit	far=1	lead=0	from_mid=2999	count=0	=> false	spec=false	OK
+farsplit	far=1	lead=0	from_mid=2999	count=1	=> false	spec=false	OK
+farsplit	far=1	lead=0	from_mid=2999	count=2	=> true	spec=true	OK
+farsplit	far=1	lead=0	from_mid=2999	count=3	=> true	spec=true	OK
+farsplit	far=1	lead=0	from_mid=2999	count=4	=> true	spec=true	OK
+farsplit	far=1	lead=0	from_mid=3000	count=0	=> true	spec=true	OK
+farsplit	far=1	lead=0	from_mid=3000	count=1	=> true	spec=true	OK
+farsplit	far=1	lead=0	from_mid=3000	count=2	=> true	spec=true	OK
+farsplit	far=1	lead=0	from_mid=3000	count=3	=> true	spec=true	OK
+farsplit	far=1	lead=0	from_mid=3000	count=4	=> true	spec=true	OK
+farsplit	far=1	lead=1	from_mid=0	count=0	=> false	spec=false	OK
+farsplit	far=1	lead=1	from_mid=0	count=1	=> false	spec=false	OK
+farsplit	far=1	lead=1	from_mid=0	count=2	=> false	spec=false	OK
+farsplit	far=1	lead=1	from_mid=0	count=3	=> false	spec=false	OK
+farsplit	far=1	lead=1	from_mid=0	count=4	=> true	spec=true	OK
+farsplit	far=1	lead=1	from_mid=999	count=0	=> false	spec=false	OK
+farsplit	far=1	lead=1	from_mid=999	count=1	=> false	spec=false	OK
+farsplit	far=1	lead=1	from_mid=999	count=2	=> false	spec=false	OK
+farsplit	far=1	lead=1	from_mid=999	count=3	=> false	spec=false	OK
+farsplit	far=1	lead=1	from_mid=999	count=4	=> true	spec=true	OK
+farsplit	far=1	lead=1	from_mid=1000	count=0	=> false	spec=false	OK
+farsplit	far=1	lead=1	from_mid=1000	count=1	=> false	spec=false	OK
+farsplit	far=1	lead=1	from_mid=1000	count=2	=> true	spec=true	OK
+farsplit	far=1	lead=1	from_mid=1000	count=3	=> true	spec=true	OK
+farsplit	far=1	lead=1	from_mid=1000	count=4	=> true	spec=true	OK
+farsplit	far=1	lead=1	from_mid=2999	count=0	=> false	spec=false	OK
+farsplit	far=1	lead=1	from_mid=2999	count=1	=> false	spec=false	OK
+farsplit	far=1	lead=1	from_mid=2999	count=2	=> true	spec=true	OK
+farsplit	far=1	lead=1	from_mid=2999	count=3	=> true	spec=true	OK
+farsplit	far=1	lead=1	from_mid=2999	count=4	=> true	spec=true	OK
+farsplit	far=1	lead=1	from_mid=3000	count=0	=> true	spec=true	OK
+farsplit	far=1	lead=1	from_mid=3000	count=1	=> true	spec=true	OK
+farsplit	far=1	lead=1	from_mid=3000	count=2	=> true	spec=true	OK
+farsplit	far=1	lead=1	from_mid=3000	count=3	=> true	spec=true	OK
+farsplit	far=1	lead=1	from_mid=3000	count=4	=> true	spec=true	OK
+farsplit	far=1	lead=2	from_mid=0	count=0	=> true	spec=true	OK
+farsplit	far=1	lead=2	from_mid=0	count=1	=> true	spec=true	OK
+farsplit	far=1	lead=2	from_mid=0	count=2	=> true	spec=true	OK
+farsplit	far=1	lead=2	from_mid=0	count=3	=> true	spec=true	OK
+farsplit	far=1	lead=2	from_mid=0	count=4	=> true	spec=true	OK
+farsplit	far=1	lead=2	from_mid=999	count=0	=> true	spec=true	OK
+farsplit	far=1	lead=2	from_mid=999	count=1	=> true	spec=true	OK
+farsplit	far=1	lead=2	from_mid=999	count=2	=> true	spec=true	OK
+farsplit	far=1	lead=2	from_mid=999	count=3	=> true	spec=true	OK
+farsplit	far=1	lead=2	from_mid=999	count=4	=> true	spec=true	OK
+farsplit	far=1	lead=2	from_mid=1000	count=0	=> true	spec=true	OK
+farsplit	far=1	lead=2	from_mid=1000	count=1	=> true	spec=true	OK
+farsplit	far=1	lead=2	from_mid=1000	count=2	=> true	spec=true	OK
+farsplit	far=1	lead=2	from_mid=1000	count=3	=> true	spec=true	OK
+farsplit	far=1	lead=2	from_mid=1000	count=4	=> true	spec=true	OK
+farsplit	far=1	lead=2	from_mid=2999	count=0	=> true	spec=true	OK
+farsplit	far=1	lead=2	from_mid=2999	count=1	=> true	spec=true	OK
+farsplit	far=1	lead=2	from_mid=2999	count=2	=> true	spec=true	OK
+farsplit	far=1	lead=2	from_mid=2999	count=3	=> true	spec=true	OK
+farsplit	far=1	lead=2	from_mid=2999	count=4	=> true	spec=true	OK
+farsplit	far=1	lead=2	from_mid=3000	count=0	=> true	spec=true	OK
+farsplit	far=1	lead=2	from_mid=3000	count=1	=> true	spec=true	OK
+farsplit	far=1	lead=2	from_mid=3000	count=2	=> true	spec=true	OK
+farsplit	far=1	lead=2	from_mid=3000	count=3	=> true	spec=true	OK
+farsplit	far=1	lead=2	from_mid=3000	count=4	=> true	spec=true	OK
+farsplit	far=2	lead=0	from_mid=0	count=0	=> false	spec=false	OK
+farsplit	far=2	lead=0	from_mid=0	count=1	=> false	spec=false	OK
+farsplit	far=2	lead=0	from_mid=0	count=2	=> false	spec=false	OK
+farsplit	far=2	lead=0	from_mid=0	count=3	=> false	spec=false	OK
+farsplit	far=2	lead=0	from_mid=0	count=4	=> true	spec=true	OK
+farsplit	far=2	lead=0	from_mid=999	count=0	=> false	spec=false	OK
+farsplit	far=2	lead=0	from_mid=999	count=1	=> false	spec=false	OK
+farsplit	far=2	lead=0	from_mid=999	count=2	=> false	spec=false	OK
+farsplit	far=2	lead=0	from_mid=999	count=3	=> false	spec=false	OK
+farsplit	far=2	lead=0	from_mid=999	count=4	=> true	spec=true	OK
+farsplit	far=2	lead=0	from_mid=1000	count=0	=> false	spec=false	OK
+farsplit	far=2	lead=0	from_mid=1000	count=1	=> false	spec=false	OK
+farsplit	far=2	lead=0	from_mid=1000	count=2	=> true	spec=true	OK
+farsplit	far=2	lead=0	from_mid=1000	count=3	=> true	spec=true	OK
+farsplit	far=2	lead=0	from_mid=1000	count=4	=> true	spec=true	OK
+farsplit	far=2	lead=0	from_mid=2999	count=0	=> false	spec=false	OK
+farsplit	far=2	lead=0	from_mid=2999	count=1	=> false	spec=false	OK
+farsplit	far=2	lead=0	from_mid=2999	count=2	=> true	spec=true	OK
+farsplit	far=2	lead=0	from_mid=2999	count=3	=> true	spec=true	OK
+farsplit	far=2	lead=0	from_mid=2999	count=4	=> true	spec=true	OK
+farsplit	far=2	lead=0	from_mid=3000	count=0	=> true	spec=true	OK
+farsplit	far=2	lead=0	from_mid=3000	count=1	=> true	spec=true	OK
+farsplit	far=2	lead=0	from_mid=3000	count=2	=> true	spec=true	OK
+farsplit	far=2	lead=0	from_mid=3000	count=3	=> true	spec=true	OK
+farsplit	far=2	lead=0	from_mid=3000	count=4	=> true	spec=true	OK
+farsplit	far=2	lead=1	from_mid=0	count=0	=> false	spec=false	OK
+farsplit	far=2	lead=1	from_mid=0	count=1	=> false	spec=false	OK
+farsplit	far=2	lead=1	from_mid=0	count=2	=> false	spec=false	OK
+farsplit	far=2	lead=1	from_mid=0	count=3	=> false	spec=false	OK
+farsplit	far=2	lead=1	from_mid=0	count=4	=> true	spec=true	OK
+farsplit	far=2	lead=1	from_mid=999	count=0	=> false	spec=false	OK
+farsplit	far=2	lead=1	from_mid=999	count=1	=> false	spec=false	OK
+farsplit	far=2	lead=1	from_mid=999	count=2	=> false	spec=false	OK
+farsplit	far=2	lead=1	from_mid=999	count=3	=> false	spec=false	OK
+farsplit	far=2	lead=1	from_mid=999	count=4	=> true	spec=true	OK
+farsplit	far=2	lead=1	from_mid=1000	count=0	=> false	spec=false	OK
+farsplit	far=2	lead=1	from_mid=1000	count=1	=> false	spec=false	OK
+farsplit	far=2	lead=1	from_mid=1000	count=2	=> true	spec=true	OK
+farsplit	far=2	lead=1	from_mid=1000	count=3	=> true	spec=true	OK
+farsplit	far=2	lead=1	from_mid=1000	count=4	=> true	spec=true	OK
+farsplit	far=2	lead=1	from_mid=2999	count=0	=> false	spec=false	OK
+farsplit	far=2	lead=1	from_mid=2999	count=1	=> false	spec=false	OK
+farsplit	far=2	lead=1	from_mid=2999	count=2	=> true	spec=true	OK
+farsplit	far=2	lead=1	from_mid=2999	count=3	=> true	spec=true	OK
+farsplit	far=2	lead=1	from_mid=2999	count=4	=> true	spec=true	OK
+farsplit	far=2	lead=1	from_mid=3000	count=0	=> true	spec=true	OK
+farsplit	far=2	lead=1	from_mid=3000	count=1	=> true	spec=true	OK
+farsplit	far=2	lead=1	from_mid=3000	count=2	=> true	spec=true	OK
+farsplit	far=2	lead=1	from_mid=3000	count=3	=> true	spec=true	OK
+farsplit	far=2	lead=1	from_mid=3000	count=4	=> true	spec=true	OK
+farsplit	far=2	lead=2	from_mid=0	count=0	=> true	spec=true	OK
+farsplit	far=2	lead=2	from_mid=0	count=1	=> true	spec=true	OK
+farsplit	far=2	lead=2	from_mid=0	count=2	=> true	spec=true	OK
+farsplit	far=2	lead=2	from_mid=0	count=3	=> true	spec=true	OK
+farsplit	far=2	lead=2	from_mid=0	count=4	=> true	spec=true	OK
+farsplit	far=2	lead=2	from_mid=999	count=0	=> true	spec=true	OK
+farsplit	far=2	lead=2	from_mid=999	count=1	=> true	spec=true	OK
+farsplit	far=2	lead=2	from_mid=999	count=2	=> true	spec=true	OK
+farsplit	far=2	lead=2	from_mid=999	count=3	=> true	spec=true	OK
+farsplit	far=2	lead=2	from_mid=999	count=4	=> true	spec=true	OK
+farsplit	far=2	lead=2	from_mid=1000	count=0	=> true	spec=true	OK
+farsplit	far=2	lead=2	from_mid=1000	count=1	=> true	spec=true	OK
+farsplit	far=2	lead=2	from_mid=1000	count=2	=> true	spec=true	OK
+farsplit	far=2	lead=2	from_mid=1000	count=3	=> true	spec=true	OK
+farsplit	far=2	lead=2	from_mid=1000	count=4	=> true	spec=true	OK
+farsplit	far=2	lead=2	from_mid=2999	count=0	=> true	spec=true	OK
+farsplit	far=2	lead=2	from_mid=2999	count=1	=> true	spec=true	OK
+farsplit	far=2	lead=2	from_mid=2999	count=2	=> true	spec=true	OK
+farsplit	far=2	lead=2	from_mid=2999	count=3	=> true	spec=true	OK
+farsplit	far=2	lead=2	from_mid=2999	count=4	=> true	spec=true	OK
+farsplit	far=2	lead=2	from_mid=3000	count=0	=> true	spec=true	OK
+farsplit	far=2	lead=2	from_mid=3000	count=1	=> true	spec=true	OK
+farsplit	far=2	lead=2	from_mid=3000	count=2	=> true	spec=true	OK
+farsplit	far=2	lead=2	from_mid=3000	count=3	=> true	spec=true	OK
+farsplit	far=2	lead=2	from_mid=3000	count=4	=> true	spec=true	OK
+farsplit_toplead5	=> false	(spec false: Morgard 는 bottom_lead 만 본다)
+farsplit_lowhp	lead=2 hp39%	=> false	(spec false)
+farsplit_hp40	lead=2 hp40%	=> true	(spec true)
+farsplit_rhino	=> false	(spec false)
+farsplit_summary	MISMATCH=0

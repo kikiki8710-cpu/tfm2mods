@@ -1,0 +1,71 @@
+{
+ "name": "v25_scoped_battle_objective",
+ "sym": "_RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old11fight_model27v25_scoped_battle_objective",
+ "src": "game-ai\\src\\plan_legacy\\old\\fight_model.rs",
+ "src_line": 1138,
+ "ir_file": "m10.ll",
+ "ir_from": 48404,
+ "ir_to": 48630,
+ "aux": [],
+
+ "one_line": "Morgard/Serpen 목표(Setup·Assemble 단계)가 focus 엔티티 근처(240000)의 국지전이 아니면 목표를 None 으로 지운다",
+
+ "signature": {
+  "params": [
+   {"i": 1, "name": "_version", "type": "usize", "note": "미사용(이름부터 _version). 본문 분기 없음"},
+   {"i": 2, "name": "main_objective", "type": "Option<MainObjective>(3B, IR i24)", "note": "byte0 = 태그(255=None, 0..11=Some variant), byte1 = phase(ObjectPhase), byte2 = with_battle/ready"},
+   {"i": 3, "name": "player", "type": "&PlayerState(2528B)", "note": "info.team(+0x930) 만 읽는다 (camp_pos 의 bool 인자 = team==0)"},
+   {"i": 4, "name": "data", "type": "&OperationData(24B)", "note": "+0x0 cache(&dyn AbstractGame 16B 선두), +0x8 context(→ +0x20 map)"},
+   {"i": 5, "name": "focus", "type": "Option<usize>(16B = tag i64, id i64)", "note": "전투 초점 엔티티 id. IR 에선 %4(tag)·%5(id) 두 레지스터로 풀림. None 이면 목표 지움"}
+  ],
+  "returns": "Option<MainObjective>(i24) — 입력의 byte1·byte2 는 그대로 두고 byte0(태그)만 바꾼다. 255 = None"
+ },
+
+ "reads": [
+  {"base": "PlayerState", "offset": "0x930", "name": "info.team", "note": "==0 을 bool 로 MapDef::camp_pos 세 번째 인자에 넘긴다(팀별 캠프 좌표 대칭 선택으로 추정)"},
+  {"base": "OperationData", "offset": "0x0", "name": "cache", "note": "&AbstractGameWithCache — 선두 16B 가 &dyn AbstractGame (data, vtable)"},
+  {"base": "OperationData", "offset": "0x8", "name": "context", "note": "&GameContext"},
+  {"base": "GameContext", "offset": "0x20", "name": "map", "note": "&MapDef → camp_pos"},
+  {"base": "AbstractGameWithCache", "offset": "0x0", "name": "game.data", "note": "dyn AbstractGame 데이터 포인터"},
+  {"base": "AbstractGameWithCache", "offset": "0x8", "name": "game.vtable", "note": "슬롯 0x1f0 = get_entity_by_id (divtable 98%)"},
+  {"base": "Entity(focus)", "offset": "0x660", "name": "x", "note": "camp 까지 거리제곱 계산"},
+  {"base": "Entity(focus)", "offset": "0x668", "name": "y", "note": ""}
+ ],
+
+ "writes": [],
+
+ "constants": [
+  {"value": -1, "src_line": 1145, "meaning": "Option<MainObjective> 의 None 니치 = 태그 255(i8 -1). DWARF DISCR_EXACT=255 로 확인. 입력이 None 이면 그대로 None 반환, 국지전 아니면 None 으로 지운다"},
+  {"value": 0, "src_line": 1145, "meaning": "MainObjective 메모리태그 0 = Morgard{phase, with_battle}"},
+  {"value": 1, "src_line": 1145, "meaning": "MainObjective 메모리태그 1 = Serpen{phase, with_battle}"},
+  {"value": 2, "src_line": 1145, "meaning": "phase 게이트: (phase-1) <u 2 ⟺ phase ∈ {1=Setup, 2=Assemble}. None(0)·Hunt(3) 단계는 손대지 않는다"},
+  {"value": 4, "src_line": 1147, "meaning": "JungleType 메모리태그 4 = Morgard — camp_pos 의 캠프 종류 인자(dbg `target = i8 4`)"},
+  {"value": 5, "src_line": 1150, "meaning": "JungleType 메모리태그 5 = Serpen — camp_pos 인자"},
+  {"value": 240000, "src_line": 1163, "meaning": "focus_local_range(dbg_value 로만 존재, 7.5셀). 비교식은 제곱으로 접혀 57600000000 이 된다"},
+  {"value": 57600000000, "folded_from": 240000, "src_line": 1165, "meaning": "240000² — Morgard 경로: dist_sq(focus, camp) > 240000² 이면 None. `icmp ugt`"},
+  {"value": 57600000001, "folded_from": 240000, "src_line": 1165, "meaning": "240000²+1 — Serpen 경로: dist_sq < 240000²+1 (즉 <= 240000²) 이면 유지. 두 경로 외연 동일(<=)"},
+  {"value": -256, "src_line": 1154, "meaning": "i24 마스크 0xFFFF00 — 입력의 byte1(phase)·byte2(with_battle) 보존, byte0 만 교체 (exe 0xe0b730 의 0xffffff00 과 대응)"}
+ ],
+
+ "calls": [
+  "game_core::simulation::map_def::MapDef::camp_pos"
+ ],
+
+ "logic": "fn v25_scoped_battle_objective(_version, main_objective: Option<MainObjective>, player, data, focus: Option<usize>) -> Option<MainObjective>\n\n[L1145] match main_objective.tag(byte0) {\n  255 (None)            → return main_objective (None)\n  0  (Morgard{phase,..}) if phase ∈ {Setup(1), Assemble(2)}:\n[L1146~1147]  return if v25_is_objective_local_battle(JungleType::Morgard(4), player, data, focus) { main_objective } else { None }\n  1  (Serpen{phase,..})  if phase ∈ {Setup(1), Assemble(2)}:\n[L1149~1150]  return if v25_is_objective_local_battle(JungleType::Serpen(5),  player, data, focus) { main_objective } else { None }\n  _  (Morgard/Serpen 의 다른 phase, 그 외 태그 2..11)\n[L1154]       → return main_objective 그대로\n}\n\n// ── 인라인된 헬퍼 v25_is_objective_local_battle (fight_model.rs:1158~1166 추정, dloc 로 이름 확정) ──\n[L1162] camp = data.context(+0x8).map(+0x20).camp_pos(jungle_type, player.info.team(+0x930) == 0)   // (x,y)\n[L1163] focus_local_range = 240000\n[L1164] e = focus.and_then(|id| game.get_entity_by_id(id))          // vtable+0x1f0 · null → false\n[L1165] return e.is_some_and(|e| {\n          dx = abs_diff(e.x(+0x660), camp.x); dy = abs_diff(e.y(+0x668), camp.y)\n          dx*dx + dy*dy <= 240000²                                    // Morgard: !(> 57600000000) / Serpen: < 57600000001\n        })\n\n// 반환 조립 [L1154]: (main_objective & 0xFFFF00) | new_tag  — phase·with_battle 바이트는 항상 입력값 유지\n// 분기 우선순위 근거: switch(i8 byte0) 한 번 → phase 범위검사 → focus.tag(i1) → get_entity null → 거리. phi %60 의 10개 유입이 전부 태그값.",
+
+ "knobs": [
+  {"what": "국지전 판정 반경 (focus ↔ 에픽 캠프)", "where": "fight_model.rs:1163 (m10.ll:48478 dbg `focus_local_range = i64 240000`; 비교 m10.ll:48521 `icmp ugt i64 %55, 57600000000` · 48620 `icmp ult i64 %102, 57600000001`)", "value": 240000,
+   "effect": "focus 엔티티가 캠프에서 이 거리(7.5셀) 안이어야 Morgard/Serpen 목표를 유지. 올리면 먼 곳의 싸움 중에도 에픽 목표가 살아남고, 내리면 캠프 바로 옆 싸움만 에픽 목표로 본다. 두 경로(Morgard/Serpen) 상수를 같이 고쳐야 한다"},
+  {"what": "적용 phase 집합", "where": "fight_model.rs:1145 (m10.ll:48420·48426 `add i8 %10,-1; icmp ult i8 %11, 2`)", "value": "{Setup, Assemble}",
+   "effect": "Hunt(3) 단계는 이 함수가 건드리지 않는다. 범위를 3으로 넓히면 사냥 중에도 초점이 멀어지면 목표가 끊긴다"}
+ ],
+
+ "unknown": [
+  "MapDef::camp_pos(map, JungleType, bool) 의 bool 인자 의미 — team==0 을 넘기는 것만 확인. 본체(_gcbc) 안 봄. '팀 기준 대칭 캠프 좌표 선택'은 추정",
+  "Morgard 경로는 `> 240000²`(부정)·Serpen 경로는 `< 240000²+1`(긍정) 으로 컴파일됐다 — 소스 표기(<= vs !(>)) 는 외연이 같아 표기 불가. 동작은 둘 다 dist_sq <= 240000² 이면 유지",
+  "인라인 헬퍼 v25_is_objective_local_battle 의 정확한 시작 줄(1158~1161 사이) — dloc 로 이름과 본문 줄(1162~1165)만 확정. 별도 define 없음(fnparts 조각 1개)",
+  "★exe 짝: 지시의 0xc9a790 은 fnprobe 상 패닉 Location 이 fight_model.rs:960:17·961:7·962:21 이고 240000² 상수가 없어 이 함수가 아니다(지문 0.70 기각). .text 전수 스캔에서 57600000000 이 두 번 들어간 유일 함수 = 0xe0b730(560B, 인자 rdx/r8/r9+스택 2개, vtable+0x1f0 호출, 상수 0xffffff00 = i24 마스크, 호출자 3곳 0xd4be20/0xd52030/0xdfb840) — 이 함수의 진짜 짝으로 **추정**(Ghidra 미사용, 검증 = Ghidra 진입부 대조 또는 namebycaller)",
+  "_version(p1) 은 IR 에서 한 번도 안 읽힌다 — 확인된 사실",
+  "writes 빈 배열 = 확인된 사실(본문 store 0건, 순수 함수)"
+ ]
+}

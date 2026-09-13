@@ -1,0 +1,138 @@
+{
+ "name": "SinglePlanBattle::with_runaway",
+ "sym": "_RNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old13single_battleNtB2_16SinglePlanBattle12with_runaway",
+ "src": "game-ai\\src\\plan_legacy\\old\\single_battle.rs",
+ "src_line": 103,
+ "ir_file": "m05.ll",
+ "ir_from": 26839,
+ "ir_to": 26894,
+ "one_line": "이 전투 플랜에서 완전 도주(RunAway)를 허용하나 — TryKill 개전 1초 이내·오브젝트 전투면 불허",
+ "signature": {
+  "params": [
+   {
+    "i": 1,
+    "name": "self",
+    "type": "&SinglePlanBattle(144B)",
+    "note": "main_goal(+0x40)·start_tick(+0x80)·main_objective(+0x8d)·with_dive(+0x88) 를 읽는다"
+   },
+   {
+    "i": 2,
+    "name": "_version",
+    "type": "usize",
+    "note": "이름부터 언더스코어 — 본문에서 완전히 안 쓰임(dbg_value poison)"
+   },
+   {
+    "i": 3,
+    "name": "data",
+    "type": "&OperationData(24B)",
+    "note": "cache.game(dyn).tick() 과 context.setting.tick_per_second 만"
+   }
+  ],
+  "returns": "bool — true = RunAway 허용 / false = 도주 금지(교전 유지)"
+ },
+ "reads": [
+  {
+   "base": "SinglePlanBattle",
+   "offset": "0x40",
+   "name": "main_goal@tag (BattlePlanGoal i64 0..4)",
+   "note": "== 0 TryKill 일 때만 경과시간 검사"
+  },
+  {
+   "base": "SinglePlanBattle",
+   "offset": "0x80",
+   "name": "start_tick",
+   "note": "플랜 시작 틱"
+  },
+  {
+   "base": "SinglePlanBattle",
+   "offset": "0x8d",
+   "name": "main_objective@tag (Option<MainObjective> 니치 i8, -1=None)",
+   "note": "5 PressEpic / 0 Morgard / 1 Serpen / 2 Defense / 4 Nexus 만 특별 취급"
+  },
+  {
+   "base": "SinglePlanBattle",
+   "offset": "0x88",
+   "name": "with_dive",
+   "note": "bool. PressEpic 일 때 반환 = !with_dive"
+  },
+  {
+   "base": "OperationData",
+   "offset": "0x0",
+   "name": "cache",
+   "note": "cache+0x0/+0x8 = &dyn AbstractGame (data, vtable). vtable+0x28 = tick (divtable)"
+  },
+  {
+   "base": "OperationData",
+   "offset": "0x8",
+   "name": "context",
+   "note": "context+0x8 = &GameSetting"
+  },
+  {
+   "base": "GameSetting",
+   "offset": "0x12f8",
+   "name": "tick_per_second",
+   "note": "경과 임계 = 1초"
+  }
+ ],
+ "writes": [],
+ "constants": [
+  {
+   "value": 0,
+   "src_line": 104,
+   "meaning": "BattlePlanGoal 태그 0 = TryKill — 이 목표일 때만 '개전 직후 도주 금지' 규칙 적용"
+  },
+  {
+   "value": 5,
+   "src_line": 110,
+   "meaning": "MainObjective 태그 5 = PressEpic → 반환 !with_dive"
+  },
+  {
+   "value": 0,
+   "src_line": 110,
+   "meaning": "MainObjective 태그 0 = Morgard → false"
+  },
+  {
+   "value": 1,
+   "src_line": 110,
+   "meaning": "MainObjective 태그 1 = Serpen → false"
+  },
+  {
+   "value": 2,
+   "src_line": 110,
+   "meaning": "MainObjective 태그 2 = Defense → false"
+  },
+  {
+   "value": 4,
+   "src_line": 110,
+   "meaning": "MainObjective 태그 4 = Nexus → false"
+  }
+ ],
+ "calls": [],
+ "logic": "fn with_runaway(&self, _version, data) -> bool   // single_battle.rs:103~119\n[L104] if self.main_goal(+0x40) == TryKill(0) {\n[L105]   elapsed = game.tick()(vtable+0x28).saturating_sub(self.start_tick(+0x80))\n         if elapsed <= tps(+0x12f8) { return false }      // 개전 후 1초 이내엔 도주 금지 (IR: elapsed > tps 여야 아래로)\n       }\n[L110] match self.main_objective(+0x8d) {\n[L116]   Some(PressEpic(5))                                   => return !self.with_dive(+0x88),\n         Some(Morgard 0 | Serpen 1 | Defense 2 | Nexus 4)     => return false,\n         None | Some(DefenseLine 3 | SplitEpic 6 | Repair 7 | Gank 8 | Dive 9 | PressTower 10 | ComebackPick 11) => return true }\n[L119]\n※ 부작용 없음. _version 미사용. BattlePlan::with_runaway(battle.rs:367) 와 오프셋만 다른 문자 단위 복제본(m10.ll 22813~22868).",
+ "knobs": [
+  {
+   "what": "TryKill 개전 직후 도주 금지 시간",
+   "where": "single_battle.rs:105 (IR m05.ll:26867 `icmp ugt i64 %17, %23` — 임계 = tps 그대로, 배수 리터럴 없음)",
+   "value": 1,
+   "effect": "tps×1 = 1초. 배수를 올리면 킬 시도 후 더 오래 도주가 막혀 끈질기게 붙고, 0 으로 만들면 개전 즉시도 도주 가능(콜 개전 즉이탈 증가)"
+  },
+  {
+   "what": "오브젝트 전투 중 도주 금지 집합",
+   "where": "single_battle.rs:110 (IR m05.ll:26873~26878 switch)",
+   "value": 0,
+   "effect": "Morgard/Serpen/Defense/Nexus 일 때 false. 여기서 태그를 빼면 그 오브젝트 전투 중에도 완전 도주가 가능해진다"
+  },
+  {
+   "what": "PressEpic 은 다이브가 아닐 때만 도주 허용",
+   "where": "single_battle.rs:116 (IR m05.ll:26892 `xor i1 %34, true`)",
+   "value": 1,
+   "effect": "with_dive 면 도주 금지. 반전하면 다이브 중 도주가 열려 타워 다이브가 쉽게 중단된다"
+  }
+ ],
+ "unknown": [
+  "main_objective 의 나머지 태그(None·3·6·7·8·9·10·11)가 default 로 true 인 것은 IR 로 확정. 소스가 `_ => true` 인지 열거인지는 표기 불가",
+  "TryKill 가지에서 elapsed <= tps 의 등호 방향: IR 은 `elapsed > tps → 계속` 이므로 정확히 `elapsed <= tps → false`. 소스가 `< tps+1` 류인지는 표기 불가(외연 동일)",
+  "game.tick() 은 vtable+0x28 (divtable 정적 vtable 기준). 런타임 구현체는 미확정",
+  "PressEpic 가지의 `xor i1 %34, true`(= !with_dive, src 116) 는 bool 리터럴이라 constants 에 못 싣는다(qcspec C1 이 True 를 상수로 안 잡음). logic/knobs 에만 실었다"
+ ]
+}

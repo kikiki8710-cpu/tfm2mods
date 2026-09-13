@@ -149,7 +149,7 @@ def gate2(i, sp):
 SIB = ("sub_plan", "next_plan", "is_end", "update", "on_enter", "on_exit")
 
 
-FREE_FN = {0, 1, 3, 4, 9, 10, 16, 19} | set(range(21, 33)) | set(range(34, 40))   # 실측으로 자유 함수(impl 타입 없음)인 것만 · 21~32·34~39 = r7 잎(심볼 _RNvNt/_RNvC · 09-13)
+FREE_FN = {0, 1, 3, 4, 9, 10, 16, 19} | set(range(21, 33)) | set(range(34, 40)) | {41, 45, 46, 48, 49, 50, 51, 52, 53}   # 실측으로 자유 함수(impl 타입 없음)인 것만 · 21~32·34~39 = r7 잎 · 41·45·46·48~53 = r8 잎(심볼 _RNvNt · 09-13)
 
 
 def gate3(i, sp):
@@ -189,12 +189,49 @@ PRED = re.compile(r"\b(is_[a-z0-9_]{2,30}|can_[a-z0-9_]{2,30}|has_[a-z0-9_]{2,30
 SIGD = re.compile(u"(fn\\s*\\(|시그니처|sig\\s*=|tcx sig)")
 
 
+_IRTXT = {}
+
+
+def _really_called(sp, names):
+    u"""★17차(09-13): 배치 A·B 가 G4 「callees_unmatched ≥8」 6건을 전수 확인했더니 **전부 필드 load**(cache·focused·fountains·
+    minion_count…)였다 — `logic` 이 `name(+0x..)` 꼴로 적은 필드를 harvest 가 호출로 긁은 것. 담당 IR 범위(본체+aux)의
+    `call`/`invoke` 줄에 그 이름 토큰(v0 망글 `<len><name>`)이 없으면 호출이 아니므로 접는다(범위 = 이 함수 IR 안 · 인라인된 콜리는 못 본다)."""
+    ir = sp.get("ir") or {}
+    f = ir.get("file")
+    if not f:
+        return names
+    rngs = [(ir.get("frm"), ir.get("to"))] + [(a.get("frm"), a.get("to")) for a in (ir.get("aux") or [])]
+    key = (f, tuple(rngs))
+    if key not in _IRTXT:
+        path = os.path.join(r"C:\tfm2mods\_gaibc", f)
+        try:
+            src = io.open(path, encoding="utf-8", errors="replace").read().split("\n")
+        except Exception:
+            return names
+        calls = []
+        for a0, b0 in rngs:
+            if not (isinstance(a0, int) and isinstance(b0, int)):
+                continue
+            for ln in src[a0 - 1:b0]:
+                if ("call " in ln or "invoke " in ln) and "#dbg" not in ln and "llvm." not in ln:
+                    calls.append(ln)
+        _IRTXT[key] = "\n".join(calls)
+    txt = _IRTXT[key]
+    keep = []
+    for nm in names:
+        base = re.split(r"[\s(⟵]", nm.strip())[0]
+        if base and re.search(r"\b%d%s\b" % (len(base), re.escape(base)), txt):
+            keep.append(nm)
+    return keep
+
+
 def gate4(i, sp):
     if IS_V3:
         nosig = [c.get("name") for c in (sp.get("callees") or []) if not c.get("sig")]
         if nosig:
             flag("G4", i, u"callees 중 sig 가 비어 있는 항목 %d개" % len(nosig), ", ".join(nosig[:8]))
         um = (sp.get("callees_unmatched") or {}).get("names") or []
+        um = _really_called(sp, um)
         if len(um) >= 8:
             flag("G4", i, u"callees_unmatched %d개 — 판정에 쓰이는 술어가 섞였는지 손으로 확인" % len(um),
                  ", ".join(um[:10]))
@@ -532,8 +569,9 @@ def gate9(i, sp):
 
 
 # ── G10. open 항목의 class 오분류 — 사실 서술을 미탐색으로 뒀는가 ────────
-FACT_TAIL = re.compile(u"(확정(했다|된다|이다|\\.)?|아니다|없다|존재하지 않는다|"
-                       u"확인된 사실|사실이다|무관하다|맞다)\\s*[.。]?\\s*$")
+# ★09-13 17차: 배치 A·C 가 「specgate 와 mkspec3 의 FACT_TAIL 이 달라 같은 문장이 한쪽은 사실·한쪽은 미탐색」을 지적 →
+#   정규식을 mkspec3 에서 import 한다(단일 출처). 그러면 G10 은 「어미는 사실인데 QUESTION_HEAD(물음 머리) 때문에 미탐색으로 남은 것」만 잡는다.
+from mkspec3 import FACT_TAIL  # noqa: E402
 
 
 def gate10(i, sp):

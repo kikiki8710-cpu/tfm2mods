@@ -1,0 +1,24 @@
+{
+ "round": "17",
+ "batch": "D",
+ "errors_applied": 17,
+ "ev_applied": 139,
+ "failed": 0,
+ "stamps": {
+  "/specs[55]/consts[2]/src_line": "d4ee9f58e5860574",
+  "/specs[55]/consts[2]/value": "1bad6b8cf97131fc",
+  "/specs[55]/consts[2]/meaning": "4c938bba34178a98",
+  "/specs[55]/logic": "ef9edd510d010811",
+  "/specs[55]/open[5]/q": "13c0b7a7d67de7ec",
+  "/specs[55]/consts[7]/meaning": "d503a3f492b7d60d",
+  "/specs[56]/consts[28]/src_line": "dff17949eb4f9ecd",
+  "/specs[56]/consts[28]/meaning": "afcaf91a4f7a452c",
+  "/specs[56]/logic": "4eaefcd3538a40cc",
+  "/specs[56]/knobs[0]/where": "219d9de83380ce9e",
+  "/specs[56]/consts[7]/meaning": "426519993653731e",
+  "/specs[56]/mem[10]/note": "5808f9f95e9c80e1",
+  "/specs[56]/open[6]/q": "8605ca9623381055",
+  "/specs[56]/open[8]/q": "8605ca9623381055",
+  "/specs[56]/consts[23]/meaning": "e30a4c325c30696b"
+ }
+}

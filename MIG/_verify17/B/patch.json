@@ -1,0 +1,276 @@
+{
+ "round": 17,
+ "batch": "B",
+ "errors": [
+  {
+   "path": "/specs[45]/mem[0]/note",
+   "kind": "오탐",
+   "old": "&AbstractGameWithCache. 그 선두 16B 가 &dyn AbstractGame (data ptr, vtable ptr)",
+   "new": "&AbstractGameWithCache. 그 선두 16B 가 &dyn AbstractGame (data ptr, vtable ptr)",
+   "evidence": "G4 callees_unmatched 8개(cache·focused·fountains·invisible_tick·move_speed·pool·return_tick·setting)는 전부 필드 load 이고 호출이 아니다. m04.ll:46702 `%7 = load ptr, ptr %2`(cache=OperationData+0) · 46721 `%18 = gep %2, 8`→46722 `%19`(context) · 46723 `%20 = load ptr, ptr %19`(pool=GameContext+0) · 46871 `%97 = gep %19, 8`(setting) · 46873 `%99 = gep %98, 4968`(return_tick=+0x1368) · 46843 `%79 = gep %15, 1688`(invisible_tick) · 46797 `%59 = gep %15, 1600`(move_speed) · 46782 `%49 = gep %48, 28016`(fountains) · closure#0 m04.ll:15558 `%30 = gep %1, 136`/15568 `%36 = gep %1, 144`(focused). 본문 46695~46881 의 call 은 %14/%30/%30/distance/battle_recency/%74/panic 뿐 — 판정 술어가 섞이지 않았다",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[45]/open[0]",
+   "kind": "보강",
+   "old": "closure#0(L354~362) 에서 정글이 아닌 엔티티에 대해 L355 와 L360 이 같은 심볼 OperationData::can_target 을 두 번 호출한다 — 소스에서 다른 함수(예: 가시성 판정)가 can_target 으로 인라인/별칭된 것인지, 진짜 중복 호출인지 IR 만으로 구분 못 함. 동작상 결과는 같다(순수 함수 가정)",
+   "new": "closure#0(L354~362) 의 두 OperationData::can_target 호출은 소스에 그대로 두 번 적힌 것이다 — m04.ll:15533 `%20 = tail call … can_target(%16, %17, %18, %19, %1), !dbg !28023`(=utils.rs:355, scope 클로저 자체·inlinedAt 없음) 과 15564 `%34 = tail call … can_target(%16, %17, %18, %19, %1), !dbg !28071`(=utils.rs:360, 역시 inlinedAt 없음). 다른 함수가 인라인/별칭된 것이라면 두 번째 호출의 !dbg 에 inlinedAt 이 남아야 하는데 없다 ⟹ 진짜 중복 호출(인자 5개 동일). 정글이 아닌 적은 can_target 을 두 번 통과해야 하며 외연은 한 번과 같다 — 「사실 서술」이다.",
+   "evidence": "m04.ll:15533·15564 원문 + !28023=`!DILocation(line: 355, scope: !27997)` · !28071=`!DILocation(line: 360, scope: !27997)`(m04.ll:97495·97543, inlinedAt 없음)",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[46]/open[1]",
+   "kind": "보강",
+   "old": "Blackboard::is_recent_visible(self=blackboard[1-team], game, vtable, player, e) 내부(_gcbc) 안 봄 — '적팀 판'을 self 로 넘기는 것만 확인",
+   "new": "Blackboard::is_recent_visible(self=blackboard[1-team], game, vtable, player, e) 는 shared.is_recent_visible 로 확정된 함수다(_gcbc/g07.ll:157005~157050, blackboard.rs:346): (A) vt+0xf8 is_visible(game, player.info.team, e.id) 면 true, 아니면 (B) owner=get_player_by_champion_id(e.id) 의 position 으로 blackboard[1-team].last_visible[pos]+120 >= tick. Blackboard[T].last_visible[pos] = '팀 1−T 가 팀 T 의 pos 챔피언을 마지막으로 본 틱' 이므로 self=blackboard[1-team] 에 적 챔프 e 를 넘기면 '우리 팀이 그 적 챔프를 최근 2초(120틱) 안에 봤는가'가 된다 — 「사실 서술」이다.",
+   "evidence": "specs20_v3 shared.is_recent_visible(★확정: blackboard_인덱스_의미 · 판정식) + m04.ll:57179~58172 의 호출이 self=blackboard(+0x10)[1-team] 인 것은 기존 확인",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[46]/open[5]",
+   "kind": "보강",
+   "old": "twin_towers[team][0] 만 쓰고 [1] 은 안 본다(첫 원소 = first/twin dbg). 두 쌍둥이 중 어느 쪽이 [0]인지 미확정",
+   "new": "twin_towers[team][0] 만 쓴다(m04.ll:57680 `%178 = load ptr, ptr %173`(Vec.ptr → 첫 원소) 뒤 [1] 접근 없음). [0] = TowerType 태그 3 = TwinA 다: AbstractGameWithCache::new_with_prev_cache(_gcbc/g15.ll:102716~108634, simulation.rs:1506~1515)가 EntityIter 순서로 돌며 Entity+0x128(ty@Tower.info.ty) 이 3(TwinA)·4(TwinB) 인 포탑을 twin_towers[team].push 하고(g15.ll:108095 `%1866 = gep … ptr %26, i64 %1863` / switch g15.ll:107508 `i8 3, label %1860 / i8 4, label %1860`), Game::init_twin_tower(_gcbc/g15.ll:72800~74641, game.rs:686~746)가 팀마다 TwinA(`store i8 3` g15.ll:72933·73817)를 World::add_entity(g15.ll:73638) 로 먼저 넣고 TwinB(`store i8 4` g15.ll:73651·74039)를 다음에 넣는다(g15.ll:73799). MapDef::moba 기준 좌표(team0) TwinA=(111000,784000)·TwinB=(176000,848000)·넥서스=(96000,864000) ⟹ twin_dist_sq = TwinA 기준 6.625e9 (TwinB 면 6.656e9) — g09.ll:59116~59117 phi. ⚠World::remove_entity 는 swap_remove(swap<Entity>+pop<Entity> 인라인, g07.ll:172100) 라 TwinB 가 live Vec 의 마지막 원소일 때 앞 원소가 제거되면 순서가 바뀔 수 있다(초기 상태 이후 재배열 여부는 미검증 — 적용 범위: 초기 엔티티 순서 기준). — 「사실 서술」이다.",
+   "evidence": "g15.ll:107508 switch(i8 %1653: 3,4→%1860) · g15.ll:108095 push · g15.ll:72933/73651 `store i8 3/4` + add_entity 73638/73799 · g09.ll:59116 `%30 = phi i64 [ … 176000, %25 ], [ 111000, %24 ] …` · tcxdict --enum TowerType(3 TwinA/4 TwinB)",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[46]/open[2]",
+   "kind": "보강",
+   "old": "(A) 의 tower_pos 6개 좌표가 실제 맵의 안쪽(1차) 포탑 좌표와 일치하는지 — MapDef 와 대조 안 함. 이름 tower_pos 와 값의 대칭성(team0↔team1 x/y 교환)만 근거",
+   "new": "(A) 의 tower_pos 6개 좌표는 MapDef::moba(_gcbc/g07.ll:152308)가 만드는 TowerDef 표의 Top2(태그5)=(48000,528000)·Mid2(6)=(240000,720000)·Bottom2(7)=(432000,912000) 과 정확히 같다(g09.ll:59116~59117 `%30/%31 = phi` 의 %26/%27/%28 유입, team1 은 (y,x) 교환). 즉 '안쪽 포탑' = 2차 포탑(Top2/Mid2/Bottom2) 자리이고, 1차(Top/Mid/Bottom)는 (48000,272000)/(368000,592000)/(688000,912000) 으로 넥서스(96000,864000)에서 더 멀다. 좌표는 MapDef 를 읽지 않고 함수 안에 상수로 박혀 있다 — 「사실 서술」이다.",
+   "evidence": "g09.ll:59116 `%30 = phi i64 [ 432000, %28 ], [ 240000, %27 ], [ 48000, %26 ], …` · 59117 `%31 = phi i64 [ 912000, %28 ], [ 720000, %27 ], [ 528000, %26 ], …` (switch i8 5→%26, 6→%27, 7→%28 · g09.ll:59066~59074) · nexus_pos g07.ll:152539~152545(`store i64 96000, ptr %76` / `store i64 864000, ptr %77`)",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[46]/open[3]",
+   "kind": "보강",
+   "old": "(A) 루프는 valid_lines(tutorial) 로 라인을 고르고 (C) 루프는 line_exists(context, line) 로 고른다 — 두 필터의 관계(같은 집합인지) 는 rule_scope 본체를 안 봐서 미확정. line_exists 는 별도 define(3회 호출)",
+   "new": "(A) 의 valid_lines(tutorial) 와 (C) 의 line_exists(context, line) 는 TutorialType 0~8 전부에서 같은 집합을 낸다: valid_lines 인라인 switch(m04.ll:57229~57239) = 0/7/8→[Top,Mid,Bottom](@anon….97) · 1/3→[Bottom](.69) · 2→[Top](.79) · 4→[Mid](.23) · 5→[Mid,Bottom](.96) · 6→[] 이고, shared.rule_scope_게이트 의 line_exists 화이트리스트(Top 0,2,7,8 / Mid 0,4,5,7,8 / Bottom 0,1,3,5,7,8)를 라인별로 모으면 정확히 같은 표가 된다. 두 루프의 라인 필터는 동치다 — 「사실 서술」이다.",
+   "evidence": "m04.ll:57229 `switch i8 %22 … i8 0→%30, 1→%25, 2→%26, 3→%25, 4→%27, 5→%28, 6→%29, 7→%30, 8→%30` + 57250~57270 dbg_value(@anon.…69/.79/.23/.96) · m04.ll:29/75/85/102/103 상수 정의 · shared.rule_scope_게이트 표",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[47]/mem[0]/note",
+   "kind": "오탐",
+   "old": "enemy = 1 - team (포탑 슬롯 인덱스, >=2 면 panic_bounds_check) / 우리 team 은 blackboard 인덱스",
+   "new": "enemy = 1 - team (포탑 슬롯 인덱스, >=2 면 panic_bounds_check) / 우리 team 은 blackboard 인덱스",
+   "evidence": "m09.ll:7267~8155 의 call 은 PlayerState::strategy(7292) · RawVec<Chat>::grow_one ×7(7487·7812·7867·7982·8037·8111·8137) · vtable %210 get_game_mode ×2(7713·7739) · panic ×3 뿐. grow_one 은 alloc::raw_vec 의 push 확장이고, bottom_wave/next_respawn_tick/minion_count/morgard_use/tower2 는 필드·dbg 지역변수, outer/first/second/change 는 인라인 헬퍼(별도 define·call 없음) — 판정 술어 호출이 아니다",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[47]/consts[10]/src_line",
+   "kind": "실오류",
+   "old": 719,
+   "new": 730,
+   "evidence": "IR 에 719 줄 명령이 없다. object_far_line 은 `#dbg_value(i8 0, !15042, …, !15641)`(m09.ll:7768) 뿐이고 !15641=`!DILocation(line: 0, scope: !15043)`(m09.ll:86239). 리터럴 0(Top) 이 실제로 쓰이는 명령은 m09.ll:7824 `store i8 0, ptr %250, align 1, !dbg !15685`(!15685→!15661→!15659→!15656 line 730) · 7994(749) · 8149(742) 의 PressChange.0 store 와 phi %117(7507). Split14 경로의 첫 소비 지점 730 으로 옮긴다",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[47]/consts[10]/meaning",
+   "kind": "보강",
+   "old": "LineType Top = 0 (object_far_line / PressChange 라인값)",
+   "new": "LineType 메모리태그 0 = Top — PressChange.0 / objective PressEpic.0 에 저장되는 라인값(`store i8 0` m09.ll:7824@730·7994@749·8149@742). object_far_line(L719) 은 dbg_value(line 0) 뿐이라 IR 명령이 없다",
+   "evidence": "m09.ll:7824·7994·8149 `store i8 0, ptr %N, align 1` (inlinedAt 루트 730/749/742) · 7768 dbg_value line 0",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[47]/consts[11]/src_line",
+   "kind": "실오류",
+   "old": 721,
+   "new": 725,
+   "evidence": "IR 에 721 줄 명령이 없다(object_far_line=Bottom 은 m09.ll:7759 `#dbg_value(i8 2, !15042, …, !15641)` line 0 뿐). 리터럴 2(Bottom) 의 실제 소비 = m09.ll:7879 `store i8 2, ptr %269, align 1, !dbg !15718`(!15718→!15694→!15692→!15689 line 725) · 8049(752) · 8123(745). Split14 경로의 첫 소비 지점 725 로 옮긴다",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[47]/consts[11]/meaning",
+   "kind": "보강",
+   "old": "LineType Bottom = 2",
+   "new": "LineType 메모리태그 2 = Bottom — PressChange.0 / objective PressEpic.0 에 저장되는 라인값(`store i8 2` m09.ll:7879@725·8049@752·8123@745). 임계가 아니라 태그다",
+   "evidence": "m09.ll:7879·8049·8123 `store i8 2, ptr %N, align 1` (inlinedAt 루트 725/752/745). 비교 명령에 2 가 쓰이지 않는다(icmp 목록 m09.ll:7293~8066 에 `i8 …, 2` 없음)",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[47]/consts[12]/src_line",
+   "kind": "오탐",
+   "old": 697,
+   "new": 697,
+   "evidence": "`store i8 5, ptr %118`(m09.ll:7509) 는 7개 change() 지점이 합류하는 공통 블록 %116 에 있고 !dbg !15438=`!DILocation(line: 0, scope: !15017)`(m09.ll:86036) 이라 G12 가 줄을 못 잡는다. phi %117(7507) 의 유입 7개 = 697(%109)·725(%265)·730(%246)·742(%355)·745(%346)·749(%303)·752(%322) 이므로 697 은 첫 발화 줄로 옳다. 게이트가 line-0 종결 블록을 선행 블록의 줄로 귀속해야 한다",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[47]/consts[12]/meaning",
+   "kind": "보강",
+   "old": "objective 태그 5 = MainObjective::PressEpic (store i8 5, ptr self+0x41f)",
+   "new": "objective 태그 5 = MainObjective::PressEpic (store i8 5, ptr self+0x41f — m09.ll:7509, 7개 change() 지점이 합류한 공통 블록 %116 이라 !dbg line 0; 발화 줄 = 697·725·730·742·745·749·752)",
+   "evidence": "m09.ll:7507 `%117 = phi i8 [ 0, %355 ], [ 2, %346 ], [ 2, %322 ], [ 0, %303 ], [ 2, %265 ], [ 0, %246 ], [ 1, %109 ]` · 7509 `store i8 5, ptr %118, align 1, !dbg !15438`",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[47]/consts[3]/meaning",
+   "kind": "오탐",
+   "old": "TowerType < 5 = 1차 포탑(Top/Mid/Bottom/TwinA/TwinB) ⟺ !is_second_tower (tower.rs:100 인라인) ⚠`shl … , 5` 는 포탑 배열 stride(line*32) 접힘이지 이 임계가 아님",
+   "new": "TowerType < 5 = 1차 포탑(Top/Mid/Bottom/TwinA/TwinB) ⟺ !is_second_tower (tower.rs:100 인라인, `icmp samesign ult i8 %58, 5` m09.ll:7370). ⚠본문의 `shl … , 5` 는 포탑 배열 stride(line*32) 접힘 — 별개 상수",
+   "evidence": "m09.ll:7370 `%59 = icmp samesign ult i8 %58, 5, !dbg !15278`(순서비교 → 임계 지지) · 7424/7450/7581/7609/7693/7707 같은 형태. NEG 는 「…접힘이지 이 임계가 아님」의 '임계가 아님' 을 kind 부정으로 오독한 것",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[47]/open[1]",
+   "kind": "보강",
+   "old": "Blackboard.top_minion_state.minion_count 가 '우리 미니언 수'인지 '적 미니언 수'인지 — 이름만 근거. blackboard[team](우리 팀 판) 인 것은 IR 확정",
+   "new": "Blackboard.top_minion_state.minion_count = (우리 팀 그 라인 미니언 수 − 적 팀 그 라인 미니언 수) 의 부호 있는 차(i32) 다. BrainMinionParameter::update(_gcbc/g11.ll:49926~50977, ai_interface.rs:27~47)가 self+0x20 에 `%52 = sub i32 %47, %50` 를 저장하는데 %47 = cache.<line>_minions[team].len(+0x18, g11.ll:50017~50019) · %50 = cache.<line>_minions[1−team].len(g11.ll:50021~50023) 이고, Blackboard::update(_gcbc/g07.ll:157595)가 (team=%5, line=0/1/2) 로 top/mid/bottom 세 번 부른다(g07.ll:157635~157639). blackboard[team] 은 우리 팀 판이므로 top_wave/bottom_wave 는 '아군−적 미니언 우세'다 — 「사실 서술」이다.",
+   "evidence": "g11.ll:50024 `%51 = gep %0, i64 32` · 50025 `%52 = sub i32 %47, %50` · 50026 `store i32 %52, ptr %51`(!91843 = ai_interface.rs:47) · g07.ll:157635 `… %3, i64 noundef %5, i8 noundef 0)` / 157637 `i8 noundef 1` / 157639 `i8 noundef 2` · tcxdict BrainMinionParameter(0x20 minion_count i32)",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[47]/mem[15]/note",
+   "kind": "보강",
+   "old": "i32, dbg top_wave",
+   "new": "i32, dbg top_wave = 우리 탑 미니언 수 − 적 탑 미니언 수(부호 있음). BrainMinionParameter::update g11.ll:50025 `sub i32 %47, %50`(ai_interface.rs:47). tcxdict Blackboard 0x20 = top_minion_state.minion_count",
+   "evidence": "g11.ll:50017~50026 · tcxdict Blackboard 0x20",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[47]/mem[16]/note",
+   "kind": "보강",
+   "old": "i32, dbg bottom_wave",
+   "new": "i32, dbg bottom_wave = 우리 바텀 미니언 수 − 적 바텀 미니언 수(부호 있음). 같은 update 의 line=2 호출(g07.ll:157639). tcxdict Blackboard 0x70 = bottom_minion_state.minion_count",
+   "evidence": "g07.ll:157639 `i8 noundef 2` · tcxdict Blackboard 0x70",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[47]/knobs[3]/effect",
+   "kind": "보강",
+   "old": "아군 블랙보드 미니언 수가 큰 라인을 고른다. 같으면 Bottom",
+   "new": "아군 블랙보드의 (아군−적) 미니언 수 차가 큰 라인을 고른다(BrainMinionParameter::update g11.ll:50025 `sub i32` — 절대 수가 아니라 우세). 같으면 Bottom",
+   "evidence": "g11.ll:50017~50026",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[48]/sig/params[0]/role",
+   "kind": "보강",
+   "old": "미사용(이름부터 _version). 본문 분기 없음",
+   "new": "IR %0(i64). 미사용(이름부터 _version). 본문 분기 없음",
+   "evidence": "m10.ll:48404 `define hidden i24 @…v25_scoped_battle_objective(i64 %0, i24 %1, ptr … dereferenceable(2528) %2, ptr … dereferenceable(24) %3, i64 noundef range(i64 0, 2) %4, i64 %5)` — 본문 48405~48630 에 %0 사용 0건",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[48]/sig/params[1]/role",
+   "kind": "보강",
+   "old": "byte0 = 태그(255=None, 0..11=Some variant), byte1 = phase(ObjectPhase), byte2 = with_battle/ready",
+   "new": "IR %1(i24 = Option<MainObjective> 3B 값 전달). byte0 = 태그(255=None, 0..11=Some variant), byte1 = phase(ObjectPhase), byte2 = with_battle/ready",
+   "evidence": "m10.ll:48405 `%7 = trunc i24 %1 to i8` · 48407 `%8 = lshr i24 %1, 8` · 48533 `%61 = and i24 %1, -256`",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[48]/sig/params[2]/role",
+   "kind": "보강",
+   "old": "info.team(+0x930) 만 읽는다 (camp_pos 의 bool 인자 = team==0)",
+   "new": "IR %2. info.team(+0x930) 만 읽는다 (camp_pos 의 bool 인자 = team==0)",
+   "evidence": "m10.ll:48440 `%18 = getelementptr inbounds nuw i8, ptr %2, i64 2352` · 48545 `%65 = … ptr %2, i64 2352`",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[48]/sig/params[3]/role",
+   "kind": "보강",
+   "old": "+0x0 cache(&dyn AbstractGame 16B 선두), +0x8 context(→ +0x20 map)",
+   "new": "IR %3. +0x0 cache(&dyn AbstractGame 16B 선두), +0x8 context(→ +0x20 map)",
+   "evidence": "m10.ll:48442 `%20 = load ptr, ptr %3` · 48443 `%21 = getelementptr inbounds nuw i8, ptr %3, i64 8`",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[48]/sig/params[4]/role",
+   "kind": "보강",
+   "old": "전투 초점 엔티티 id. IR 에선 %4(tag)·%5(id) 두 레지스터로 풀림. None 이면 목표 지움",
+   "new": "전투 초점 엔티티 id. SROA 로 IR %4(tag i64 range(0,2))·%5(id i64) 두 레지스터로 풀림(m10.ll:48466 `%29 = trunc nuw i64 %4 to i1` · 48481 `call … %36(ptr %34, i64 noundef %5)`). None 이면 목표 지움",
+   "evidence": "m10.ll:48404 define 인자 `i64 noundef range(i64 0, 2) %4, i64 %5` · 48466 · 48481 · 48571 · 48586",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[48]/open[0]",
+   "kind": "보강",
+   "old": "MapDef::camp_pos(map, JungleType, bool) 의 bool 인자 의미 — team==0 을 넘기는 것만 확인. 본체(_gcbc) 안 봄. '팀 기준 대칭 캠프 좌표 선택'은 추정",
+   "new": "MapDef::camp_pos(map, ty, flag)(_gcbc/g07.ll:152570~152601 → TLS 메모 CAMP_POS_MEMO: [[Option<(u64,u64)>;2];8], 본체 g02.ll:6914~7161) 는 map.camps 에서 ty 가 같은 첫 CampDef 를 찾아 pos[idx] 를 돌려준다. idx = zext(!flag)(g07.ll:152585 `%9 = xor i1 %2, true`) 이므로 flag=true(team==0) → pos[0], false → pos[1]; 못 찾으면 (0,0). MapDef::moba 의 CampDef 는 pos[1]=(y,x) 대칭이고 Morgard(태그4)=(288000,288000)·Serpen(5)=(672000,672000) 은 x==y 라 두 슬롯이 같다 ⟹ 이 함수에서 team 은 결과에 영향이 없다 — 「사실 서술」이다.",
+   "evidence": "g07.ll:152585 `%9 = xor i1 %2, true` · 152586 `%10 = zext i1 %9 to i64` · g02.ll:7109 `%77 = icmp eq i8 %76, %69`(ty 비교) · 7133 `%84 = getelementptr inbounds nuw { i64, i64 }, ptr %71, i64 %42`(pos[idx]) · g09.ll:59281~59282 `%28/%29 = phi i64 [ … 288000, %25 ], [ 672000, %26 ] …` · tcxdict CampDef(pos [(u64,u64);2] · ty JungleType)",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[48]/mem[0]/note",
+   "kind": "보강",
+   "old": "==0 을 bool 로 MapDef::camp_pos 세 번째 인자에 넘긴다(팀별 캠프 좌표 대칭 선택으로 추정)",
+   "new": "==0 을 bool 로 MapDef::camp_pos 세 번째 인자에 넘긴다 → CampDef.pos[team==0 ? 0 : 1] (g07.ll:152585 `xor i1 %2, true` 로 인덱스 반전). Morgard/Serpen 캠프는 x==y 라 team 에 무관. tcxdict PlayerState 0x930 = info.team",
+   "evidence": "g07.ll:152585~152586 · g02.ll:7133 · tcxdict PlayerState 0x930",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[48]/open[3]",
+   "kind": "보강",
+   "old": "★exe 짝: 지시의 0xc9a790 은 fnprobe 상 패닉 Location 이 fight_model.rs:960:17·961:7·962:21 이고 240000² 상수가 없어 이 함수가 아니다(지문 0.70 기각). .text 전수 스캔에서 57600000000 이 두 번 들어간 유일 함수 = 0xe0b730(560B, 인자 rdx/r8/r9+스택 2개, vtable+0x1f0 호출, 상수 0xffffff00 = i24 마스크, 호출자 3곳 0xd4be20/0xd52030/0xdfb840) — 이 함수의 진짜 짝으로 **추정**(Ghidra 미사용, 검증 = Ghidra 진입부 대조 또는 namebycaller)",
+   "new": "exe 짝 = 0xe0b730 확정(메인 2026-09-13 지시: movabs 0xd693a4000=240000² · i24 반환 · 0xc9a790 은 기각). fnprobe 근거: 560B, 인자 rdx/r8/r9+스택 2개, vtable+0x1f0 호출, 상수 0xffffff00 = i24 마스크, 57600000000 이 두 번 들어간 .text 유일 함수, 호출자 3곳 0xd4be20/0xd52030/0xdfb840 — 「사실 서술」이다.",
+   "evidence": "17차 지시문(메인 확정 09-13) + 명세 exe 칸 e0b730 + m10.ll:48521 `icmp ugt i64 %55, 57600000000` / 48620 `icmp ult i64 %102, 57600000001` / 48533 `and i24 %1, -256`",
+   "behavior_change": false,
+   "found_by": "reused"
+  }
+ ],
+ "ev_up": [
+  {
+   "path": "/specs[46]/mem[10]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcxdict AbstractGameWithCache 0x130 = twin_towers[0].buf.ptr.pointer · [0]=TwinA 확정(g15.ll:107508 switch 3/4 → push, init_twin_tower add_entity 순서 TwinA→TwinB)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[47]/mem[15]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcxdict Blackboard 0x20 = top_minion_state.minion_count(i32) — chk '확인불가' 는 사전 조회 누락이었다",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[47]/mem[16]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcxdict Blackboard 0x70 = bottom_minion_state.minion_count(i32)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[48]/mem[0]",
+   "from": 5,
+   "to": 3,
+   "evidence": "tcxdict PlayerState 0x930 = info.team · camp_pos 본체(g02.ll:6914~7161) 로 bool 의 의미(pos 인덱스 반전) 확인 — '추정' 해소",
+   "found_by": "new"
+  }
+ ],
+ "brief_errors": [
+  "DOSSIER_B §1·§3 은 담당을 45~49(5개)로 적었는데 배치 호출 메시지는 specs[45]~[48] 이다 — #49 resolve_join_stake 는 이 배치가 손대지 않았다(어느 쪽이 정본인지 지시문에 명시 필요).",
+  "§4 G12 [47] consts[11](값 2) 의 '실제 후보' [691,693,694,706,707,708,709,711] 에 진짜 소비 지점 725/745/752(`store i8 2`)가 빠져 있다 — srclinecheck 가 값 2 의 store 를 후보로 안 센다(후보 8개 절단 또는 store 미관측). 게이트 후보를 믿지 말라는 §4 경고 그대로였다.",
+  "§4 G15 [47] consts[3] 은 `meaning` 의 「shl … 은 …접힘이지 이 임계가 아님」 을 kind 부정으로 읽은 kindchk._NEG 오탐이다 — IR 은 `icmp samesign ult i8 %58, 5` 로 임계를 지지한다. NEG 규칙은 부정의 주어가 그 상수 자신인지(다른 명령 `shl` 인지) 가려야 한다.",
+  "§4 G12 [47] consts[12](5@697) 는 7개 분기가 합류한 꼬리 병합 블록(`!dbg line 0`)의 store 라 게이트가 원리적으로 못 잡는다 — line-0 종결 블록은 phi 선행 블록의 줄로 귀속하는 규칙이 srclinecheck 에 필요하다(G12 교정 ①②의 세 번째 형태)."
+ ]
+}

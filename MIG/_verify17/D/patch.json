@@ -1,0 +1,1287 @@
+{
+ "round": 17,
+ "batch": "D",
+ "errors": [
+  {
+   "path": "/specs[55]/consts[2]/src_line",
+   "kind": "오탐",
+   "old": 142,
+   "new": 142,
+   "evidence": "m07.ll:5327 `%39 = add i64 %38, -1, !dbg !20585` (!20585 = effect.rs:26 `Effect::range` < inlinedAt score_parameter.rs:142). 142 가 맞다. 게이트가 못 본 이유: 소스 `level - 1` 이 IR 에선 `add …, -1` 로 접혀 리터럴이 -1 인데 `srclinecheck.litpat(1)` 은 `, 1` 만 찾는다(`, -1` 의 `-` 가 경계를 깬다). 동형 14곳(5558·5865·5910·5955·6288·6367·6445·6528·6607·6685·6838·6876·6914) 전부 `-1`",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[55]/consts[2]/value",
+   "kind": "보강",
+   "old": 1,
+   "new": -1,
+   "evidence": "m07.ll:5327 `add i64 %38, -1` — 본문에 실제로 있는 숫자는 -1 (SPEC_GUIDE §3 「value 는 본문 숫자 그대로」). 소스값 1 은 folded_from",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[55]/consts[2]/meaning",
+   "kind": "보강",
+   "old": "growth_range * (level - 1) — Effect::max_range(caster) 인라인(effect.rs:26)",
+   "new": "level - 1 — growth_range 에 곱할 레벨 가감분(소스 리터럴 1 → IR `add i64 %38, -1` 로 접힘, folded_from 1). game_core::Effect::range(&self, caster) 인라인(effect.rs:25~26, mir=1 xinl=1)",
+   "evidence": "m07.ll:5327 !dbg !20585 사슬: `range`[game-core\\src\\simulation\\effect.rs:26] < `new`[score_parameter.rs:142]. tcx: AssocFn pub game_core::Effect::range effect.rs:25 mir=True xinl=True. `Effect::max_range` 라는 항목은 tcx 에 없다",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[55]/logic",
+   "kind": "실오류",
+   "old": "//  max_range(eff, caster)  = eff.range(+0x10) + eff.growth_range(+0x18)*(caster.level-1) + caster.stat_buff_cached.range(+0x438)   [effect.rs:26]",
+   "new": "//  eff_range(eff, caster)  = game_core::Effect::range(&eff, caster) 인라인 = eff.range(+0x10) + eff.growth_range(+0x18)*(caster.level-1) + caster.stat_buff_cached.range(+0x438)   [effect.rs:25~26 · tcx pub mir=1 xinl=1]",
+   "evidence": "위와 동일(m07.ll:5327·5386~5390 !dbg !20585 = effect.rs:26 scope `range`)",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[55]/logic",
+   "kind": "실오류",
+   "old": "max_range(",
+   "new": "eff_range(",
+   "evidence": "a55 전 범위 인라인 출처 집계: effect.rs:26 130회·battle.rs 0회. !20585/!20705/!20716/!20727 의 scope 이름 = `range`(effect.rs) ⟹ 헬퍼 = game_core::Effect::range(&self, caster). `game_ai::max_range`(fn(&Entity,&Entity)->u64, battle.rs:2234) 는 이 함수와 무관 — callees[3] 후보는 산문 이름에서 긁힌 오염(G9 역방향)",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[55]/open[5]/q",
+   "kind": "실오류",
+   "old": "attack_range_ext_sq 의 50000 은 18000+32000 접힘으로 읽었다(IR 이 %73(+18000 전 값)에 50000 을 더함). 소스가 (attack_range+32000) 인지 (base+50000) 인지는 표기 불가(외연 동일)",
+   "new": "attack_range_ext_sq 의 50000 은 L183 `compute_range_sq(attack_range)` 인라인 안의 `range + 32000`(score_parameter.rs:130)에 18000 이 LLVM 재결합으로 접힌 값이다 — m07.ll:5744 `%301 = add i64 %73, 50000, !dbg !20782` 의 scope 가 `compute_range_sq`[score_parameter.rs:130] < `new`[183] 이고 5741 `%300 = mul i64 %74, %74`(!20779 = :129 < 183). 소스 표기 = (attack_range+32000)^2 로 확정했다. L183 에는 :131(half, `lshr 1`) 명령이 없어 반환 튜플의 세 번째 성분이 버려진 것(struct 에 attack_range_half_sq 없음)으로 추정한다",
+   "evidence": "m07.ll:5741 `%300 = mul i64 %74, %74, !dbg !20779`(:129<183) · 5744 `%301 = add i64 %73, 50000, !dbg !20782`(:130<183) · dbgchain !20782 → compute_range_sq line130 → new line183. 「표기 불가」 판정은 !dbg 의 scope 함수명을 안 본 것 — 판정 반전(표기 불가 → 확정)",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[55]/consts[7]/meaning",
+   "kind": "보강",
+   "old": "attack_range_ext_sq = (attack_range - 18000 + 50000)^2 = (attack_range + 32000)^2 — 18000+32000 이 접힌 값",
+   "new": "attack_range_ext_sq = (attack_range + 32000)^2 — L183 compute_range_sq(score_parameter.rs:130 `r+32000`) 인라인에 +18000(L142) 이 LLVM 재결합으로 접혀 `add i64 %73, 50000` 이 된 계수(folded 18000+32000)",
+   "evidence": "m07.ll:5744 !dbg !20782 = compute_range_sq:130 < new:183",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[56]/consts[28]/src_line",
+   "kind": "실오류",
+   "old": 969,
+   "new": 982,
+   "evidence": "visible_state==Visible 비교 = m04.ll:27304~27308 `%970 = gep %935, 56` · `%971 = gep {i64,[2 x i64]} %970, %936`(stride 24 · team) · `%972 = load` · `%973 = icmp eq i64 %972, 0` — 전부 `!dbg !40323 = !DILocation(line: 0, scope: sub_plan)`(LLVM 이 두 인라인 사이트의 공통식을 블록 %969 로 sink). is_visible_from(entity.rs:1481) 인라인 사이트 = 27198 !40499(entity.rs:1136<1482<**982**) 와 27281 !40561(…<**985**) 이고 %936 = phi[%931(982 경로), %962(985 경로)]. 969 는 27058 `%871 = icmp eq i8 %233, 2, !dbg !40322`(player.rs:988<969 = `line == Bottom`) 이라 값 0 이 없다. 첫 사이트 982 로 정정(985 는 meaning 에)",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[56]/consts[28]/meaning",
+   "kind": "보강",
+   "old": "오브젝트 visible_state[champ.team].tag == 0(Visible) = giveup_object(오브젝트가 보이면 포기)",
+   "new": "오브젝트 visible_state[champ.team].tag == 0(Visible) = giveup_object(오브젝트가 보이면 포기). Entity::is_visible_from(entity.rs:1481) 인라인 — 사이트 L982(Top·serpen)/L985(Bottom·morgard). ⚠비교 명령 자체(m04.ll:27308 `icmp eq i64 %972, 0`)는 `!DILocation(line: 0)` 이라 G12 가 어느 줄에도 못 붙인다(두 사이트 공통식이 블록 %969 로 sink 됨)",
+   "evidence": "m04.ll:27304~27308 !dbg !40323 = line 0 · 27198/27281 인라인 사이트",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "op": "insert",
+   "path": "/specs[56]/mem",
+   "at": 37,
+   "guard": "bottom_minion_state.from_mid",
+   "guard_key": "name",
+   "new": {
+    "base": "Blackboard",
+    "offset": "0x60",
+    "name": "bottom_minion_state.from_mid",
+    "note": "IR 96 (m04.ll:25537 `gep <Blackboard> %bb, team` → 25538 `gep i8 …, 96` → 25539 load i64 → 25540 `icmp slt i64 %226, 1000`). L1039 wave_pushed — bottom(+0x50) 의 from_mid(+0x10). tcx 정본 대조: tcxdict Blackboard 0x50 = bottom_minion_state, BrainMinionParameter 0x10 = from_mid",
+    "dir": "r"
+   },
+   "kind": "보강",
+   "evidence": "G18: logic L1039 가 `from_mid(+0x60)` 을 인용하는데 표에 없었다. m04.ll:25537~25540 + tcxdict Blackboard/BrainMinionParameter",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[56]/logic",
+   "kind": "실오류",
+   "old": "[L1020] tick = game.tick(); if tutorial ∈{0,5,7,8} && !(tick < setting.epic_jungle.first_spawn_tick(+0x8a8).saturating_sub(tps*30)) → None   // 초반에만",
+   "new": "[L1020] tick = game.tick()/*vtable+0x28*/; if !context.is_line_phase(tick) → None   // 초반(첫 에픽 스폰 30초 전)에만\n       //   ★인라인 GameContext::is_line_phase(&self, tick)[runner.rs:397~399, pub] = !self.tutorial(+0x38).spawn_epic() || self.setting(+0x8).is_line_phase(tick)\n       //     TutorialType::spawn_epic()[runner.rs:262~263] 자리의 switch = 태그 ∈{0 None,5 MidBottom,7 Line,8 Total} → 시간 게이트, 그 외(1,2,3,4,6) → 게이트 없이 통과\n       //     GameSetting::is_line_phase(&self, tick)[setting.rs:702~704, pub] = tick < epic_jungle.first_spawn_tick(+0x8a8).saturating_sub(tick_per_second(+0x12f8)*30)",
+   "evidence": "m04.ll:25099 `%59 = tail call i64 %58(ptr %54)`(vtable+40 tick) · 25105~25110 `switch i8 %61 [0,7,8,5 → %62] default %72` !dbg !39007 = spawn_epic[runner.rs:263] < is_line_phase[runner.rs:399] < check_bot_lane_2v1[passive_line.rs:1020] · 25116 `gep %64, 2216` !39009 = is_line_phase[setting.rs:703] · 25121 `mul i64 %68, 30` !39016 = [setting.rs:704] · 25123 usub.sat · 25124 `icmp ult i64 %59, %70` → br %72/%232. tcx: GameContext::is_line_phase runner.rs:397 pub mir=1 xinl=1 · GameSetting::is_line_phase setting.rs:702 pub mir=1 xinl=1 · TutorialType::spawn_epic runner.rs:262 pub mir=1 xinl=1 (셋 다 define 없음=항상 인라인)",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[56]/knobs[0]/where",
+   "kind": "보강",
+   "old": "passive_line.rs:1020 (m04.ll:25121 `mul i64 %68, 30`)",
+   "new": "passive_line.rs:1020 → 인라인 GameSetting::is_line_phase setting.rs:704 (m04.ll:25121 `mul i64 %68, 30`) — ★game_core 공용 헬퍼라 여기만이 아니라 is_line_phase 의 모든 호출처(#51 check_press_tower_opportunity 등)가 같이 바뀐다",
+   "evidence": "m04.ll:25121 !dbg !39016 사슬 = is_line_phase[setting.rs:704] < is_line_phase[runner.rs:399] < 1020",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[56]/consts[7]/meaning",
+   "kind": "보강",
+   "old": "tick < first_spawn_tick.saturating_sub(tps*30) 일 때만 2v1 검사 (첫 에픽 스폰 30초 전까지)",
+   "new": "tick < first_spawn_tick.saturating_sub(tps*30) 일 때만 2v1 검사 (첫 에픽 스폰 30초 전까지) — GameSetting::is_line_phase(setting.rs:702~704) 인라인 계수, 이 함수 고유 상수가 아니다",
+   "evidence": "m04.ll:25121 !dbg !39016 = setting.rs:704",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[56]/mem[10]/note",
+   "kind": "보강",
+   "old": "IR 56. check_bot_lane_2v1 시간 게이트: ∈{0,5,7,8} 일 때만 first_spawn 기준 적용",
+   "new": "IR 56. check_bot_lane_2v1 시간 게이트: ∈{0,5,7,8} 일 때만 first_spawn 기준 적용 — GameContext::is_line_phase(runner.rs:397) 안의 TutorialType::spawn_epic(runner.rs:263) 인라인 switch(m04.ll:25105)",
+   "evidence": "m04.ll:25105 switch !dbg !39007 사슬",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[56]/open[6]/q",
+   "kind": "실오류",
+   "old": "L1003 nearest_tower 가 Tower 가 아닐 때(nexus 로 대체된 경우 ty==3 Nexus): Recall 검사 없이 LineDefense — IR 확정",
+   "new": "L1003 nearest_tower 가 Tower 가 아닐 때(nexus 로 대체된 경우 ty==3 Nexus): Recall 검사 없이 LineDefense 로 간다 — m04.ll:27298~27301 `%966 = gep %811, 104`(+0x68 ty@tag) · `%968 = icmp eq i64 %967, 2` · `br %968, %980(Tower→+0x88 nearest_enemy 검사), %519(LineDefense)`. tcxdict EntityType: 2=Tower, 3=Nexus. 「사실 서술」이다",
+   "evidence": "m04.ll:27298~27301 + 27325~27328(`gep %811, 136` · `icmp eq i64 %982, 0` → %519 LineDefense / %984 tag 5 Recall) + tcxdict --enum EntityType(2 Tower · 3 Nexus)",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[56]/open[8]/q",
+   "kind": "실오류",
+   "old": "L1020 tutorial 게이트: 태그 1,2,3,4,6(First/TopSolo/Bottom/MidSolo/JungleOnly)은 시간 게이트 없이 2v1 검사로 진입 — switch default 경로로 확정",
+   "new": "L1020 tutorial 게이트: 태그 1,2,3,4,6(First/TopSolo/Bottom/MidSolo/JungleOnly)은 시간 게이트 없이 2v1 검사로 진입한다 — m04.ll:25105~25110 `switch i8 %61, label %72 [0,7,8,5 → %62]` 의 default %72 가 L1021 블록(!dbg !39007 = TutorialType::spawn_epic[runner.rs:263] < GameContext::is_line_phase[runner.rs:399] < 1020). ⚠집합 {0,5,7,8} 은 is_line_phase 인라인 3사이트(m04.ll:25105 · m13.ll:7888 handler.rs:2113 · #51)에서 일치하지만, 순수 spawn_epic 은 morgard_exists 인라인(m13.ll:53429 `add i8 %40, -7; icmp ult i8 %46, -6`)에서 {0,7,8} 이다 — is_line_phase 안에서 5(MidBottom)를 더하는 항(spawn_serpen() 합집합인지 ==MidBottom 인지)은 표기 불가이나 동작(집합)은 확정했다",
+   "evidence": "m04.ll:25105~25110 + m13.ll:7888~7893(같은 switch, !19179 = spawn_epic:263 < is_line_phase:399 < handler.rs:2113) + m13.ll:53429~53431(morgard_exists 사이트 {0,7,8}) + m13.ll:53372(spawn_serpen:267 = {0,5,7,8})",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[56]/consts[23]/meaning",
+   "kind": "보강",
+   "old": "can_near_enemies_range(.., front_minion.x, front_minion.y, 150000, ..) — 전방 미니언 150000 안에 올 수 있는 적 목록",
+   "new": "can_near_enemies_range(.., front_minion.x, front_minion.y, 150000, ..) — 전방 미니언 150000(≈4.7셀) 안에 올 수 있는 적 목록. 콜리에 넘기는 반경 임계(m04.ll:26253 호출 인자, 본문 비교 없음)",
+   "evidence": "m04.ll:26253 `can_near_enemies_range(…, i64 noundef 150000, …)` — 이 함수 안에는 150000 비교가 없어 G15 관측이 CALLARG 뿐(미상). 의미는 반경 임계",
+   "behavior_change": false,
+   "found_by": "reused"
+  }
+ ],
+ "ev_up": [
+  {
+   "path": "/specs[55]/mem[0]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(17차 D · tcxdict PlayerState 0x9c0): 0x9c0     info.position@tag                                    tag:4B                                        ",
+   "found_by": "reused",
+   "guard": "info.position@tag (i32)"
+  },
+  {
+   "path": "/specs[55]/mem[1]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(17차 D · tcxdict PlayerState 0x180): 0x180     info.parameter.stat.like_champion.buf.inner          alloc::raw_vec::RawVecInner<std::alloc::Global",
+   "found_by": "reused",
+   "guard": "info.parameter (AthleteParameter 744B)"
+  },
+  {
+   "path": "/specs[55]/mem[2]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(17차 D · tcxdict Entity 0x0): 0x0       team@tag                                             tag:8B                                        ",
+   "found_by": "reused",
+   "guard": "team@tag (TeamType)"
+  },
+  {
+   "path": "/specs[55]/mem[3]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(17차 D · tcxdict Entity 0x8): 0x8       team@Player.0                                        usize                                         ",
+   "found_by": "reused",
+   "guard": "team@Player.0"
+  },
+  {
+   "path": "/specs[55]/mem[4]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(17차 D · tcxdict Entity 0x4c0): 0x4c0     attack_effect@Some.0.casting@tag                     tag:4B                                        ",
+   "found_by": "reused",
+   "guard": "attack_effect@tag (CastingType 니치, -1=No"
+  },
+  {
+   "path": "/specs[55]/mem[5]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(17차 D · tcxdict Entity 0x490): 0x490     attack_effect@Some.0.ty.ptr.pointer                  pattern_type!(*const alloc::sync::ArcInner<dyn",
+   "found_by": "reused",
+   "guard": "attack_effect@Some.0 (Effect 56B)"
+  },
+  {
+   "path": "/specs[55]/mem[6]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(17차 D · tcxdict Entity 0x4a0): 0x4a0     attack_effect@Some.0.range                           u64                                           ",
+   "found_by": "reused",
+   "guard": "attack_effect.range"
+  },
+  {
+   "path": "/specs[55]/mem[7]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(17차 D · tcxdict Entity 0x4a8): 0x4a8     attack_effect@Some.0.growth_range                    u64                                           ",
+   "found_by": "reused",
+   "guard": "attack_effect.growth_range"
+  },
+  {
+   "path": "/specs[55]/mem[8]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(17차 D · tcxdict Entity 0x4f8): 0x4f8     skill_effect@Some.0.casting@tag                      tag:4B                                        ",
+   "found_by": "reused",
+   "guard": "skill_effect@tag"
+  },
+  {
+   "path": "/specs[55]/mem[9]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(17차 D · tcxdict Entity 0x4c8): 0x4c8     skill_effect@Some.0.ty.ptr.pointer                   pattern_type!(*const alloc::sync::ArcInner<dyn",
+   "found_by": "reused",
+   "guard": "skill_effect (Effect)"
+  },
+  {
+   "path": "/specs[55]/mem[10]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(17차 D · tcxdict Entity 0x500): 0x500     skill2_effect@Some.0.ty.ptr.pointer                  pattern_type!(*const alloc::sync::ArcInner<dyn",
+   "found_by": "reused",
+   "guard": "skill2_effect (Effect)"
+  },
+  {
+   "path": "/specs[55]/mem[11]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(17차 D · tcxdict Entity 0x538): 0x538     ult_effect@Some.0.ty.ptr.pointer                     pattern_type!(*const alloc::sync::ArcInner<dyn",
+   "found_by": "reused",
+   "guard": "ult_effect (Effect)"
+  },
+  {
+   "path": "/specs[55]/mem[12]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(17차 D · tcxdict Entity 0x5c8): 0x5c8     level                                                usize                                         ",
+   "found_by": "reused",
+   "guard": "level"
+  },
+  {
+   "path": "/specs[55]/mem[13]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(17차 D · tcxdict Entity 0x438): 0x438     stat_buff_cached.range                               usize                                         ",
+   "found_by": "reused",
+   "guard": "stat_buff_cached.range"
+  },
+  {
+   "path": "/specs[55]/mem[14]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(17차 D · tcxdict Entity 0x470): 0x470     stat_buff_cached.radius_mult                         i32                                           ",
+   "found_by": "reused",
+   "guard": "stat_buff_cached.radius_mult (i32)"
+  },
+  {
+   "path": "/specs[55]/mem[15]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(17차 D · tcxdict Entity 0x680): 0x680     radius                                               usize                                         ",
+   "found_by": "reused",
+   "guard": "radius"
+  },
+  {
+   "path": "/specs[55]/mem[16]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(17차 D · tcxdict Entity 0x670): 0x670     hp                                                   usize                                         ",
+   "found_by": "reused",
+   "guard": "hp"
+  },
+  {
+   "path": "/specs[55]/mem[19]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(17차 D · tcxdict ChampionCache 0x0): 0x0       attack[0]                                            usize                                         ",
+   "found_by": "reused",
+   "guard": "attack[pos]"
+  },
+  {
+   "path": "/specs[55]/mem[20]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(17차 D · tcxdict ChampionCache 0x190): 0x190     attack_per_sec[0]                                    usize                                         ",
+   "found_by": "reused",
+   "guard": "attack_per_sec[pos]"
+  },
+  {
+   "path": "/specs[55]/mem[21]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(17차 D · tcxdict ChampionCache 0x28): 0x28      skill[0]                                             usize                                         ",
+   "found_by": "reused",
+   "guard": "skill[pos]"
+  },
+  {
+   "path": "/specs[55]/mem[22]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(17차 D · tcxdict ChampionCache 0x1b8): 0x1b8     skill_per_sec[0]                                     usize                                         ",
+   "found_by": "reused",
+   "guard": "skill_per_sec[pos]"
+  },
+  {
+   "path": "/specs[55]/mem[23]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(17차 D · tcxdict ChampionCache 0x50): 0x50      skill2[0]                                            usize                                         ",
+   "found_by": "reused",
+   "guard": "skill2[pos]"
+  },
+  {
+   "path": "/specs[55]/mem[24]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(17차 D · tcxdict ChampionCache 0x1e0): 0x1e0     skill2_per_sec[0]                                    usize                                         ",
+   "found_by": "reused",
+   "guard": "skill2_per_sec[pos]"
+  },
+  {
+   "path": "/specs[55]/mem[25]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(17차 D · tcxdict ChampionCache 0x78): 0x78      ult[0]                                               usize                                         ",
+   "found_by": "reused",
+   "guard": "ult[pos]"
+  },
+  {
+   "path": "/specs[55]/mem[26]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(17차 D · tcxdict ChampionCache 0x208): 0x208     ult_per_sec[0]                                       usize                                         ",
+   "found_by": "reused",
+   "guard": "ult_per_sec[pos]"
+  },
+  {
+   "path": "/specs[55]/mem[27]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(17차 D · tcxdict ChampionCache 0xa0): 0xa0      skill_heal[0]                                        usize                                         ",
+   "found_by": "reused",
+   "guard": "skill_heal[pos]"
+  },
+  {
+   "path": "/specs[55]/mem[28]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(17차 D · tcxdict ChampionCache 0x230): 0x230     skill_heal_sec[0]                                    usize                                         ",
+   "found_by": "reused",
+   "guard": "skill_heal_sec[pos]"
+  },
+  {
+   "path": "/specs[55]/mem[29]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(17차 D · tcxdict ChampionCache 0x118): 0x118     skill_shield[0]                                      usize                                         ",
+   "found_by": "reused",
+   "guard": "skill_shield[pos]"
+  },
+  {
+   "path": "/specs[55]/mem[30]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(17차 D · tcxdict ChampionCache 0x280): 0x280     skill_shield_sec[0]                                  usize                                         ",
+   "found_by": "reused",
+   "guard": "skill_shield_sec[pos]"
+  },
+  {
+   "path": "/specs[55]/mem[31]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(17차 D · tcxdict ChampionCache 0xc8): 0xc8      skill2_heal[0]                                       usize                                         ",
+   "found_by": "reused",
+   "guard": "skill2_heal[pos]"
+  },
+  {
+   "path": "/specs[55]/mem[32]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(17차 D · tcxdict ChampionCache 0x258): 0x258     skill2_heal_sec[0]                                   usize                                         ",
+   "found_by": "reused",
+   "guard": "skill2_heal_sec[pos]"
+  },
+  {
+   "path": "/specs[55]/mem[33]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(17차 D · tcxdict ChampionCache 0x140): 0x140     skill2_shield[0]                                     usize                                         ",
+   "found_by": "reused",
+   "guard": "skill2_shield[pos]"
+  },
+  {
+   "path": "/specs[55]/mem[34]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(17차 D · tcxdict ChampionCache 0x2a8): 0x2a8     skill2_shield_sec[0]                                 usize                                         ",
+   "found_by": "reused",
+   "guard": "skill2_shield_sec[pos]"
+  },
+  {
+   "path": "/specs[55]/mem[35]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(17차 D · tcxdict ChampionCache 0xf0): 0xf0      ult_heal[0]                                          usize                                         ",
+   "found_by": "reused",
+   "guard": "ult_heal[pos]"
+  },
+  {
+   "path": "/specs[55]/mem[36]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(17차 D · tcxdict ChampionCache 0x2d0): 0x2d0     ult_heal_sec[0]                                      usize                                         ",
+   "found_by": "reused",
+   "guard": "ult_heal_sec[pos]"
+  },
+  {
+   "path": "/specs[55]/mem[37]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(17차 D · tcxdict ChampionCache 0x168): 0x168     ult_shield[0]                                        usize                                         ",
+   "found_by": "reused",
+   "guard": "ult_shield[pos]"
+  },
+  {
+   "path": "/specs[55]/mem[38]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(17차 D · tcxdict ChampionCache 0x2f8): 0x2f8     ult_shield_sec[0]                                    usize                                         ",
+   "found_by": "reused",
+   "guard": "ult_shield_sec[pos]"
+  },
+  {
+   "path": "/specs[55]/mem[39]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(17차 D · tcxdict AthleteStat 0x70): 0x70      skill_hit                                            usize                                         ",
+   "found_by": "reused",
+   "guard": "skill_hit"
+  },
+  {
+   "path": "/specs[55]/mem[40]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(17차 D · tcxdict EntityPositioningCache 0x0): 0x0       attack_ratio                                         i64                                           ",
+   "found_by": "reused",
+   "guard": "attack_ratio"
+  },
+  {
+   "path": "/specs[55]/mem[41]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(17차 D · tcxdict EntityPositioningCache 0x8): 0x8       skill_ratio                                          i64                                           ",
+   "found_by": "reused",
+   "guard": "skill_ratio"
+  },
+  {
+   "path": "/specs[55]/mem[42]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(17차 D · tcxdict EntityPositioningCache 0x10): 0x10      skill2_ratio                                         i64                                           ",
+   "found_by": "reused",
+   "guard": "skill2_ratio"
+  },
+  {
+   "path": "/specs[55]/mem[43]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(17차 D · tcxdict EntityPositioningCache 0x18): 0x18      ult_ratio                                            i64                                           ",
+   "found_by": "reused",
+   "guard": "ult_ratio"
+  },
+  {
+   "path": "/specs[55]/mem[44]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(17차 D · tcxdict EntityPositioningCache 0x20): 0x20      attacked_ratio                                       i64                                           ",
+   "found_by": "reused",
+   "guard": "attacked_ratio"
+  },
+  {
+   "path": "/specs[55]/mem[45]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(17차 D · tcxdict EntityPositioningCache 0x28): 0x28      skilled_ratio                                        i64                                           ",
+   "found_by": "reused",
+   "guard": "skilled_ratio"
+  },
+  {
+   "path": "/specs[55]/mem[46]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(17차 D · tcxdict EntityPositioningCache 0x30): 0x30      skilled2_ratio                                       i64                                           ",
+   "found_by": "reused",
+   "guard": "skilled2_ratio"
+  },
+  {
+   "path": "/specs[55]/mem[47]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(17차 D · tcxdict EntityPositioningCache 0x38): 0x38      ulted_ratio                                          i64                                           ",
+   "found_by": "reused",
+   "guard": "ulted_ratio"
+  },
+  {
+   "path": "/specs[55]/mem[48]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(17차 D · tcxdict EntityPositioningCache 0x40): 0x40      skill_range                                          u64                                           ",
+   "found_by": "reused",
+   "guard": "skill_range"
+  },
+  {
+   "path": "/specs[55]/mem[49]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(17차 D · tcxdict EntityPositioningCache 0x48): 0x48      skill2_range                                         u64                                           ",
+   "found_by": "reused",
+   "guard": "skill2_range"
+  },
+  {
+   "path": "/specs[55]/mem[50]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(17차 D · tcxdict EntityPositioningCache 0x50): 0x50      ult_range                                            u64                                           ",
+   "found_by": "reused",
+   "guard": "ult_range"
+  },
+  {
+   "path": "/specs[55]/mem[51]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(17차 D · tcxdict EntityPositioningCache 0x58): 0x58      skilled_range                                        u64                                           ",
+   "found_by": "reused",
+   "guard": "skilled_range"
+  },
+  {
+   "path": "/specs[55]/mem[52]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(17차 D · tcxdict EntityPositioningCache 0x60): 0x60      skilled2_range                                       u64                                           ",
+   "found_by": "reused",
+   "guard": "skilled2_range"
+  },
+  {
+   "path": "/specs[55]/mem[53]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(17차 D · tcxdict EntityPositioningCache 0x68): 0x68      ulted_range                                          u64                                           ",
+   "found_by": "reused",
+   "guard": "ulted_range"
+  },
+  {
+   "path": "/specs[55]/mem[54]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(17차 D · tcxdict EntityPositioningCache 0x70): 0x70      attack_range_sq                                      u64                                           ",
+   "found_by": "reused",
+   "guard": "attack_range_sq"
+  },
+  {
+   "path": "/specs[55]/mem[55]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(17차 D · tcxdict EntityPositioningCache 0x78): 0x78      attack_range_ext_sq                                  u64                                           ",
+   "found_by": "reused",
+   "guard": "attack_range_ext_sq"
+  },
+  {
+   "path": "/specs[55]/mem[56]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(17차 D · tcxdict EntityPositioningCache 0x80): 0x80      skill_range_sq                                       u64                                           ",
+   "found_by": "reused",
+   "guard": "skill_range_sq / 0x88 ext_sq / 0x90 half"
+  },
+  {
+   "path": "/specs[55]/mem[57]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(17차 D · tcxdict EntityPositioningCache 0x98): 0x98      skill2_range_sq                                      u64                                           ",
+   "found_by": "reused",
+   "guard": "skill2_range_sq / 0xa0 / 0xa8"
+  },
+  {
+   "path": "/specs[55]/mem[58]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(17차 D · tcxdict EntityPositioningCache 0xb0): 0xb0      ult_range_sq                                         u64                                           ",
+   "found_by": "reused",
+   "guard": "ult_range_sq / 0xb8 / 0xc0"
+  },
+  {
+   "path": "/specs[55]/mem[59]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(17차 D · tcxdict EntityPositioningCache 0xc8): 0xc8      attacked_range_sq                                    u64                                           ",
+   "found_by": "reused",
+   "guard": "attacked_range_sq / 0xd0 attacked_range_"
+  },
+  {
+   "path": "/specs[55]/mem[60]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(17차 D · tcxdict EntityPositioningCache 0xd8): 0xd8      skilled_range_sq                                     u64                                           ",
+   "found_by": "reused",
+   "guard": "skilled_range_sq / 0xe0 / 0xe8"
+  },
+  {
+   "path": "/specs[55]/mem[61]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(17차 D · tcxdict EntityPositioningCache 0xf0): 0xf0      skilled2_range_sq                                    u64                                           ",
+   "found_by": "reused",
+   "guard": "skilled2_range_sq / 0xf8 / 0x100"
+  },
+  {
+   "path": "/specs[55]/mem[62]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(17차 D · tcxdict EntityPositioningCache 0x108): 0x108     ulted_range_sq                                       u64                                           ",
+   "found_by": "reused",
+   "guard": "ulted_range_sq / 0x110 / 0x118"
+  },
+  {
+   "path": "/specs[55]/mem[63]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(17차 D · tcxdict EntityPositioningCache 0x120): 0x120     hit_delay_min                                        usize                                         ",
+   "found_by": "reused",
+   "guard": "hit_delay_min"
+  },
+  {
+   "path": "/specs[55]/mem[64]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(17차 D · tcxdict EntityPositioningCache 0x128): 0x128     hit_delay_max                                        usize                                         ",
+   "found_by": "reused",
+   "guard": "hit_delay_max"
+  },
+  {
+   "path": "/specs[55]/mem[65]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(17차 D · tcxdict EntityPositioningCache 0x130): 0x130     dx2[0]                                               u64                                           ",
+   "found_by": "reused",
+   "guard": "dx2[7]"
+  },
+  {
+   "path": "/specs[55]/mem[66]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(17차 D · tcxdict EntityPositioningCache 0x168): 0x168     dy2[0]                                               u64                                           ",
+   "found_by": "reused",
+   "guard": "dy2[7]"
+  },
+  {
+   "path": "/specs[55]/mem[67]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(17차 D · tcxdict EntityPositioningCache 0x1a0): 0x1a0     is_skill_linear_move                                 bool                                          ",
+   "found_by": "reused",
+   "guard": "is_skill_linear_move"
+  },
+  {
+   "path": "/specs[55]/mem[68]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(17차 D · tcxdict EntityPositioningCache 0x1a1): 0x1a1     is_skill2_linear_move                                bool                                          ",
+   "found_by": "reused",
+   "guard": "is_skill2_linear_move"
+  },
+  {
+   "path": "/specs[55]/mem[69]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(17차 D · tcxdict EntityPositioningCache 0x1a2): 0x1a2     is_ult_linear_move                                   bool                                          ",
+   "found_by": "reused",
+   "guard": "is_ult_linear_move"
+  },
+  {
+   "path": "/specs[56]/mem[0]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(17차 D · tcxdict PassiveLinePlan 0x110): 0x110     in_recall                                            bool                                          ",
+   "found_by": "reused",
+   "guard": "in_recall"
+  },
+  {
+   "path": "/specs[56]/mem[1]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(17차 D · tcxdict PassiveLinePlan 0x112): 0x112     v46_flee                                             bool                                          ",
+   "found_by": "reused",
+   "guard": "v46_flee"
+  },
+  {
+   "path": "/specs[56]/mem[2]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(17차 D · tcxdict PassiveLinePlan 0x115): 0x115     v46_flee_cover                                       bool                                          ",
+   "found_by": "reused",
+   "guard": "v46_flee_cover"
+  },
+  {
+   "path": "/specs[56]/mem[3]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(17차 D · tcxdict PassiveLinePlan 0x113): 0x113     v46_flee_acute                                       bool                                          ",
+   "found_by": "reused",
+   "guard": "v46_flee_acute"
+  },
+  {
+   "path": "/specs[56]/mem[4]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(17차 D · tcxdict PassiveLinePlan 0x116): 0x116     line@tag                                             tag:1B                                        ",
+   "found_by": "reused",
+   "guard": "line (LineType)"
+  },
+  {
+   "path": "/specs[56]/mem[5]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(17차 D · tcxdict TeamPlan 0x41f): 0x41f     objective@Some.0@tag                                 tag:1B                                        ",
+   "found_by": "reused",
+   "guard": "objective (Option<MainObjective>)"
+  },
+  {
+   "path": "/specs[56]/mem[6]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(17차 D · tcxdict TeamPlan 0x420): 0x420     objective@Some.0@ComebackPick.line@tag               tag:1B                                        ",
+   "found_by": "reused",
+   "guard": "objective.Gank.line / Dive.line"
+  },
+  {
+   "path": "/specs[56]/mem[7]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(17차 D · tcxdict OperationData 0x0): 0x0       cache                                                &'{erased} game_core::AbstractGameWithCache<'{",
+   "found_by": "reused",
+   "guard": "cache"
+  },
+  {
+   "path": "/specs[56]/mem[8]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(17차 D · tcxdict OperationData 0x8): 0x8       context                                              &'{erased} game_core::GameContext<'{erased}, '",
+   "found_by": "reused",
+   "guard": "context"
+  },
+  {
+   "path": "/specs[56]/mem[9]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(17차 D · tcxdict OperationData 0x10): 0x10      blackboard                                           &'{erased} [game_core::Blackboard; 2_usize]   ",
+   "found_by": "reused",
+   "guard": "blackboard"
+  },
+  {
+   "path": "/specs[56]/mem[10]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(17차 D · tcxdict GameContext 0x38): 0x38      tutorial@tag                                         tag:1B                                        ",
+   "found_by": "reused",
+   "guard": "tutorial"
+  },
+  {
+   "path": "/specs[56]/mem[11]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(17차 D · tcxdict GameContext 0x8): 0x8       setting                                              &'{erased} game_core::GameSetting             ",
+   "found_by": "reused",
+   "guard": "setting"
+  },
+  {
+   "path": "/specs[56]/mem[12]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(17차 D · tcxdict GameContext 0x20): 0x20      map                                                  &'{erased} game_core::MapDef                  ",
+   "found_by": "reused",
+   "guard": "map"
+  },
+  {
+   "path": "/specs[56]/mem[13]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(17차 D · tcxdict GameSetting 0x8a8): 0x8a8     epic_jungle.first_spawn_tick                         usize                                         ",
+   "found_by": "reused",
+   "guard": "epic_jungle.first_spawn_tick"
+  },
+  {
+   "path": "/specs[56]/mem[14]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(17차 D · tcxdict GameSetting 0x12f8): 0x12f8    tick_per_second                                      usize                                         ",
+   "found_by": "reused",
+   "guard": "tick_per_second"
+  },
+  {
+   "path": "/specs[56]/mem[15]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(17차 D · tcxdict MapDef 0x6d70): 0x6d70    fountains[0].0                                       u64                                           ",
+   "found_by": "reused",
+   "guard": "fountains[team] (lx,ly,rx,ry)"
+  },
+  {
+   "path": "/specs[56]/mem[16]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(17차 D · tcxdict MapDef 0x1c98): 0x1c98    bushes[0][0]                                         usize                                         ",
+   "found_by": "reused",
+   "guard": "bushes[yi][xi] ([30][30] usize)"
+  },
+  {
+   "path": "/specs[56]/mem[21]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(17차 D · tcxdict MobaMode 0x1a8): 0x1a8     jungle_runner.epic.live_list.len                     usize                                         ",
+   "found_by": "reused",
+   "guard": "jungle_runner.epic.live_list.len"
+  },
+  {
+   "path": "/specs[56]/mem[22]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(17차 D · tcxdict MobaMode 0x1a0): 0x1a0     jungle_runner.epic.live_list.buf.inner.ptr           std::ptr::Unique<u8>                          ",
+   "found_by": "reused",
+   "guard": "jungle_runner.epic.live_list.ptr"
+  },
+  {
+   "path": "/specs[56]/mem[23]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(17차 D · tcxdict MobaMode 0x1d8): 0x1d8     jungle_runner.serpen.live_list.len                   usize                                         ",
+   "found_by": "reused",
+   "guard": "jungle_runner.serpen.live_list.len"
+  },
+  {
+   "path": "/specs[56]/mem[24]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(17차 D · tcxdict MobaMode 0x1d0): 0x1d0     jungle_runner.serpen.live_list.buf.inner.ptr         std::ptr::Unique<u8>                          ",
+   "found_by": "reused",
+   "guard": "jungle_runner.serpen.live_list.ptr"
+  },
+  {
+   "path": "/specs[56]/mem[25]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(17차 D · tcxdict PlayerState 0x930): 0x930     info.team                                            usize                                         ",
+   "found_by": "reused",
+   "guard": "info.team"
+  },
+  {
+   "path": "/specs[56]/mem[26]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(17차 D · tcxdict PlayerState 0x9c0): 0x9c0     info.position@tag                                    tag:4B                                        ",
+   "found_by": "reused",
+   "guard": "info.position@tag (i32)"
+  },
+  {
+   "path": "/specs[56]/mem[27]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(17차 D · tcxdict AbstractGameWithCache 0x1e0): 0x1e0     player_champion[0][0]@Some.0                         &'{erased} game_core::Entity                  ",
+   "found_by": "reused",
+   "guard": "player_champion"
+  },
+  {
+   "path": "/specs[56]/mem[28]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(17차 D · tcxdict AbstractGameWithCache 0x180): 0x180     top_tower[0]@Some.0                                  &'{erased} game_core::Entity                  ",
+   "found_by": "reused",
+   "guard": "top_tower[]"
+  },
+  {
+   "path": "/specs[56]/mem[29]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(17차 D · tcxdict AbstractGameWithCache 0x190): 0x190     top_tower2[0]@Some.0                                 &'{erased} game_core::Entity                  ",
+   "found_by": "reused",
+   "guard": "top_tower2[]"
+  },
+  {
+   "path": "/specs[56]/mem[30]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(17차 D · tcxdict AbstractGameWithCache 0x130): 0x130     twin_towers[0].buf.ptr.pointer                       pattern_type!(*const &'{erased} game_core::Ent",
+   "found_by": "reused",
+   "guard": "twin_towers[team] (bumpalo Vec: ptr +0, "
+  },
+  {
+   "path": "/specs[56]/mem[31]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(17차 D · tcxdict AbstractGameWithCache 0x170): 0x170     nexus[0]@Some.0                                      &'{erased} game_core::Entity                  ",
+   "found_by": "reused",
+   "guard": "nexus[]"
+  },
+  {
+   "path": "/specs[56]/mem[32]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(17차 D · tcxdict Blackboard 0x0): 0x0       top_minion_state.front_minion@tag                    tag:8B                                        ",
+   "found_by": "reused",
+   "guard": "top_minion_state (BrainMinionParameter 4"
+  },
+  {
+   "path": "/specs[56]/mem[33]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(17차 D · tcxdict BrainMinionParameter 0x0): 0x0       front_minion@tag                                     tag:8B                                        ",
+   "found_by": "reused",
+   "guard": "front_minion (Option<usize>: tag +0, id "
+  },
+  {
+   "path": "/specs[56]/mem[34]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(17차 D · tcxdict BrainMinionParameter 0x10): 0x10      from_mid                                             i64                                           ",
+   "found_by": "reused",
+   "guard": "from_mid (i64)"
+  },
+  {
+   "path": "/specs[56]/mem[35]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(17차 D · tcxdict BrainMinionParameter 0x18): 0x18      minion_power                                         i64                                           ",
+   "found_by": "reused",
+   "guard": "minion_power (i64)"
+  },
+  {
+   "path": "/specs[56]/mem[36]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(17차 D · tcxdict BrainMinionParameter 0x20): 0x20      minion_count                                         i32                                           ",
+   "found_by": "reused",
+   "guard": "minion_count (i32)"
+  },
+  {
+   "path": "/specs[56]/mem[38]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(17차 D · tcxdict Entity 0x660): 0x660     x                                                    u64                                           ",
+   "found_by": "reused",
+   "guard": "x"
+  },
+  {
+   "path": "/specs[56]/mem[39]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(17차 D · tcxdict Entity 0x668): 0x668     y                                                    u64                                           ",
+   "found_by": "reused",
+   "guard": "y"
+  },
+  {
+   "path": "/specs[56]/mem[40]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(17차 D · tcxdict Entity 0x5c0): 0x5c0     id                                                   usize                                         ",
+   "found_by": "reused",
+   "guard": "id"
+  },
+  {
+   "path": "/specs[56]/mem[41]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(17차 D · tcxdict Entity 0x68): 0x68      ty@tag                                               tag:8B                                        ",
+   "found_by": "reused",
+   "guard": "ty@tag (EntityType)"
+  },
+  {
+   "path": "/specs[56]/mem[42]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(17차 D · tcxdict Entity 0x70): 0x70      ty@Bear.info.state@tag                               tag:8B                                        ",
+   "found_by": "reused",
+   "guard": "ty.Champion.action_state@tag"
+  },
+  {
+   "path": "/specs[56]/mem[43]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(17차 D · tcxdict Entity 0x88): 0x88      ty@Bear.info.nearest_enemy@tag                       tag:8B                                        ",
+   "found_by": "reused",
+   "guard": "ty.Tower.info.nearest_enemy@tag"
+  },
+  {
+   "path": "/specs[56]/mem[44]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(17차 D · tcxdict Entity 0x0): 0x0       team@tag                                             tag:8B                                        ",
+   "found_by": "reused",
+   "guard": "team@tag"
+  },
+  {
+   "path": "/specs[56]/mem[45]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(17차 D · tcxdict Entity 0x8): 0x8       team@Player.0                                        usize                                         ",
+   "found_by": "reused",
+   "guard": "team@Player.0"
+  },
+  {
+   "path": "/specs[56]/mem[46]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(17차 D · tcxdict Entity 0x38): 0x38      visible_state[0]@tag                                 tag:8B                                        ",
+   "found_by": "reused",
+   "guard": "visible_state"
+  },
+  {
+   "path": "/specs[56]/mem[47]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(17차 D · tcxdict Entity 0x628): 0x628     stat_cached.hp                                       usize                                         ",
+   "found_by": "reused",
+   "guard": "stat_cached.hp"
+  },
+  {
+   "path": "/specs[56]/mem[48]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(17차 D · tcxdict Entity 0x670): 0x670     hp                                                   usize                                         ",
+   "found_by": "reused",
+   "guard": "hp"
+  },
+  {
+   "path": "/specs[56]/consts[0]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(_verify17/D/oracle/D17_o1.rs · 케이스당 프로세스 1개 · D17_o1_case{0..10}.out · setting_ok=true · 11/11 예측 일치): C0 in_recall(+0x110)=1 → tag 5 Recall(RecallSubPlan)",
+   "found_by": "new",
+   "guard": "Recall"
+  },
+  {
+   "path": "/specs[56]/consts[1]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(_verify17/D/oracle/D17_o1.rs · 케이스당 프로세스 1개 · D17_o1_case{0..10}.out · setting_ok=true · 11/11 예측 일치): C2 v46_flee=1·cover=0·acute=0 → tag 3 LineSafe{line: Bottom}(+8=2)",
+   "found_by": "new",
+   "guard": "LineSafe"
+  },
+  {
+   "path": "/specs[56]/consts[2]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(_verify17/D/oracle/D17_o1.rs · 케이스당 프로세스 1개 · D17_o1_case{0..10}.out · setting_ok=true · 11/11 예측 일치): C1 v46_flee=1·cover=0·acute=1 → tag 4 LineWait{line: Bottom}(+8=2)",
+   "found_by": "new",
+   "guard": "LineWait"
+  },
+  {
+   "path": "/specs[56]/consts[3]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(_verify17/D/oracle/D17_o1.rs · 케이스당 프로세스 1개 · D17_o1_case{0..10}.out · setting_ok=true · 11/11 예측 일치): C3·C4·C7·C8·C9·C10 → tag 2 LineDefense{style,line,minion_action_type} (+8/+9/+10 = 0/2/2)",
+   "found_by": "new",
+   "guard": "LineDefense"
+  },
+  {
+   "path": "/specs[56]/consts[5]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(_verify17/D/oracle/D17_o1.rs · 케이스당 프로세스 1개 · D17_o1_case{0..10}.out · setting_ok=true · 11/11 예측 일치): C5 objective(+0x41f)=8 Gank·line(+0x420)=2 → Normal(1) 갱크 경로 / C8 태그 9 Dive·같은 라인 → Push(2) 비갱크 경로 — L884 는 정확히 8 만",
+   "found_by": "new",
+   "guard": "Gank"
+  },
+  {
+   "path": "/specs[56]/consts[19]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(_verify17/D/oracle/D17_o1.rs · 케이스당 프로세스 1개 · D17_o1_case{0..10}.out · setting_ok=true · 11/11 예측 일치): C10 position=Jungle 플레이어로 호출 → style=Defensive(+8=1) / C4 Bottom → Aggressive(0)",
+   "found_by": "new",
+   "guard": "line_style"
+  },
+  {
+   "path": "/specs[56]/consts[20]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(_verify17/D/oracle/D17_o1.rs · 케이스당 프로세스 1개 · D17_o1_case{0..10}.out · setting_ok=true · 11/11 예측 일치): C5 bottom.from_mid(+0x60)=2000 → Normal(1) / C6 2001 → Pull(0) — 경계 `< 2001` 확정",
+   "found_by": "new",
+   "guard": "2001"
+  },
+  {
+   "path": "/specs[56]/consts[22]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(_verify17/D/oracle/D17_o1.rs · 케이스당 프로세스 1개 · D17_o1_case{0..10}.out · setting_ok=true · 11/11 예측 일치): C4·C7·C8(근접 적 없음: 시작 위치, 적은 분수) → Push(2) — 「적 없으면 Push(2)」 가지 확인(minion_power<0 가지는 미실행)",
+   "found_by": "new",
+   "guard": "Push(2)"
+  },
+  {
+   "path": "/specs[56]/knobs[5]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(_verify17/D/oracle/D17_o1.rs · 케이스당 프로세스 1개 · D17_o1_case{0..10}.out · setting_ok=true · 11/11 예측 일치): C5 from_mid=2000 → Normal / C6 2001 → Pull",
+   "found_by": "new",
+   "guard": "2001"
+  },
+  {
+   "path": "/specs[56]/knobs[11]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(_verify17/D/oracle/D17_o1.rs · 케이스당 프로세스 1개 · D17_o1_case{0..10}.out · setting_ok=true · 11/11 예측 일치): C4·C7·C8 근접 적 없음 → Push(2) 가지만 확인(부호 가지 미실행)",
+   "found_by": "new",
+   "guard": "minion_power"
+  },
+  {
+   "path": "/specs[56]/sig/params[0]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(_verify17/D/oracle/D17_o1.rs · 케이스당 프로세스 1개 · D17_o1_case{0..10}.out · setting_ok=true · 11/11 예측 일치): 반환 SubPlan(72B) 태그 +0x0 = 5/3/4/2, LineDefense 페이로드 +0x8 style·+0x9 line·+0xa minion_action_type (`{:?}` 로 필드명까지 확인)",
+   "found_by": "new",
+   "guard": "sret"
+  },
+  {
+   "path": "/specs[56]/sig/params[1]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(_verify17/D/oracle/D17_o1.rs · 케이스당 프로세스 1개 · D17_o1_case{0..10}.out · setting_ok=true · 11/11 예측 일치): +0x110/+0x112/+0x113/+0x115 raw write 에 분기가 그대로 반응(C0~C3) · size_of::<PassiveLinePlan>()=280",
+   "found_by": "new",
+   "guard": "self"
+  },
+  {
+   "path": "/specs[56]/sig/params[6]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인(_verify17/D/oracle/D17_o1.rs · 케이스당 프로세스 1개 · D17_o1_case{0..10}.out · setting_ok=true · 11/11 예측 일치): +0x41f/+0x420 raw write 에 갱크 분기가 반응(C5~C8) · size_of::<TeamPlan>()=1064",
+   "found_by": "new",
+   "guard": "team_plan"
+  },
+  {
+   "path": "/specs[56]/mem[0]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(_verify17/D/oracle/D17_o1.rs · 케이스당 프로세스 1개 · D17_o1_case{0..10}.out · setting_ok=true · 11/11 예측 일치): C0",
+   "found_by": "new",
+   "guard": "in_recall"
+  },
+  {
+   "path": "/specs[56]/mem[1]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(_verify17/D/oracle/D17_o1.rs · 케이스당 프로세스 1개 · D17_o1_case{0..10}.out · setting_ok=true · 11/11 예측 일치): C1~C3",
+   "found_by": "new",
+   "guard": "v46_flee"
+  },
+  {
+   "path": "/specs[56]/mem[2]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(_verify17/D/oracle/D17_o1.rs · 케이스당 프로세스 1개 · D17_o1_case{0..10}.out · setting_ok=true · 11/11 예측 일치): C3 cover=1 → 게이트 불통과",
+   "found_by": "new",
+   "guard": "v46_flee_cover"
+  },
+  {
+   "path": "/specs[56]/mem[3]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(_verify17/D/oracle/D17_o1.rs · 케이스당 프로세스 1개 · D17_o1_case{0..10}.out · setting_ok=true · 11/11 예측 일치): C1 acute=1 → LineWait / C2 0 → LineSafe",
+   "found_by": "new",
+   "guard": "v46_flee_acute"
+  },
+  {
+   "path": "/specs[56]/mem[4]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(_verify17/D/oracle/D17_o1.rs · 케이스당 프로세스 1개 · D17_o1_case{0..10}.out · setting_ok=true · 11/11 예측 일치): +8/+9 에 2(Bottom) 가 나옴",
+   "found_by": "new",
+   "guard": "line"
+  },
+  {
+   "path": "/specs[56]/mem[5]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(_verify17/D/oracle/D17_o1.rs · 케이스당 프로세스 1개 · D17_o1_case{0..10}.out · setting_ok=true · 11/11 예측 일치): C5~C8",
+   "found_by": "new",
+   "guard": "objective"
+  },
+  {
+   "path": "/specs[56]/mem[6]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(_verify17/D/oracle/D17_o1.rs · 케이스당 프로세스 1개 · D17_o1_case{0..10}.out · setting_ok=true · 11/11 예측 일치): C7 line=0(Top)≠self.line → 비갱크",
+   "found_by": "new",
+   "guard": "objective.Gank.line"
+  },
+  {
+   "path": "/specs[56]/mem[26]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(_verify17/D/oracle/D17_o1.rs · 케이스당 프로세스 1개 · D17_o1_case{0..10}.out · setting_ok=true · 11/11 예측 일치): C10 Jungle → Defensive",
+   "found_by": "new",
+   "guard": "info.position"
+  },
+  {
+   "path": "/specs[56]/mem[33]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(_verify17/D/oracle/D17_o1.rs · 케이스당 프로세스 1개 · D17_o1_case{0..10}.out · setting_ok=true · 11/11 예측 일치): C9 +0x50=1·+0x58=champ_id → front_minion 경로 진입(LineDefense)",
+   "found_by": "new",
+   "guard": "front_minion"
+  },
+  {
+   "path": "/specs[56]/mem[37]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(_verify17/D/oracle/D17_o1.rs · 케이스당 프로세스 1개 · D17_o1_case{0..10}.out · setting_ok=true · 11/11 예측 일치): C5/C6 +0x60 = 2000/2001 이 Normal/Pull 을 가른다(G18 삽입행의 실행 확증)",
+   "found_by": "new",
+   "guard": "bottom_minion_state.from_mid"
+  },
+  {
+   "path": "/specs[56]/mem[49]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(_verify17/D/oracle/D17_o1.rs · 케이스당 프로세스 1개 · D17_o1_case{0..10}.out · setting_ok=true · 11/11 예측 일치): tag 5/3/4/2",
+   "found_by": "new",
+   "guard": "tag"
+  },
+  {
+   "path": "/specs[56]/mem[50]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(_verify17/D/oracle/D17_o1.rs · 케이스당 프로세스 1개 · D17_o1_case{0..10}.out · setting_ok=true · 11/11 예측 일치): +8 = 2(Bottom) / style 0·1",
+   "found_by": "new",
+   "guard": "LineSafe.line"
+  },
+  {
+   "path": "/specs[56]/mem[51]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(_verify17/D/oracle/D17_o1.rs · 케이스당 프로세스 1개 · D17_o1_case{0..10}.out · setting_ok=true · 11/11 예측 일치): +9 = 2",
+   "found_by": "new",
+   "guard": "LineDefense.line"
+  },
+  {
+   "path": "/specs[56]/mem[52]",
+   "from": 4,
+   "to": 3,
+   "evidence": "오라클 실행 확인(_verify17/D/oracle/D17_o1.rs · 케이스당 프로세스 1개 · D17_o1_case{0..10}.out · setting_ok=true · 11/11 예측 일치): +10 = 2/1/0",
+   "found_by": "new",
+   "guard": "LineDefense.minion_action_type"
+  }
+ ],
+ "brief_errors": [
+  "호출 메시지는 배치 D 담당을 specs[53]~[56] 이라 했지만 DOSSIER_D.md §1·§3 은 `55`~`56` 이고 #53·#54 의 spec_*.md 는 _verify17/C/ 에 있다(배치 C 담당). 지시문을 따랐고 #53(G7 is_recent_visible)·#54 는 손대지 않았다 — 메시지의 G4 「#53·#54·#56」·G7 「#53」 언급은 배치 C 몫이다.",
+  "§4 G4 의 「실제 후보」 줄이 `bushes, drop  ⟵ IR 에 이 leaf 호출이 있으나 … 싣지 않는다, first_spawn_tick, from_mid, front_minion, map_` 로 잘려 있다 — 12개 중 5개만 보이고 `drop` 의 설명문이 목록 원소처럼 끼어 있다(mkdossier 가 callees_unmatched.names 에 설명 문자열을 섞어 자른다). 전체 12개는 spec_56 ⚠미매칭 줄에서 읽었다.",
+  "§1 표의 `ev≥4(미실행) 89` 가 두 함수 모두 89 로 같다 — #55 mem 70+consts 14+knobs 6 = 90, #56 mem 52+consts 29+knobs 12 = 93 이라 어느 분모에서 나온 수인지 알 수 없다(집계 스코프 미기재 — 5차 지시 오류와 같은 형태)."
+ ]
+}

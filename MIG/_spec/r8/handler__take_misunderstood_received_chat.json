@@ -1,0 +1,160 @@
+{
+ "name": "LegacyPlanHandler::take_misunderstood_received_chat",
+ "sym": "_RNvMNtNtCshdEBA0ozCnw_7game_ai11plan_legacy7handlerNtB2_17LegacyPlanHandler32take_misunderstood_received_chat",
+ "src": "game-ai\\src\\plan_legacy\\handler.rs",
+ "src_line": 588,
+ "ir_file": "m13.ll",
+ "ir_from": 12482,
+ "ir_to": 13876,
+ "aux": [],
+ "one_line": "'오해한 수신 챗' 목록에서 (tick, from, chat) 가 완전히 같은 항목을 찾아 swap_remove 하고 있었는지(bool) 돌려준다 — 판정 없음, 순수 목록 조작",
+ "signature": {
+  "params": [
+   {
+    "i": 1,
+    "name": "self",
+    "type": "&mut LegacyPlanHandler(6168B)",
+    "note": "misunderstood_received_chats(+0x7b0 Vec<(usize, Position, Chat)>) 만 읽고 쓴다"
+   },
+   {
+    "i": 2,
+    "name": "tick",
+    "type": "usize",
+    "note": "항목 .0 과 == 비교"
+   },
+   {
+    "i": 3,
+    "name": "from",
+    "type": "game_core::Position(i32, range 0..5)",
+    "note": "항목 .1 과 == 비교 (Top0 Jungle1 Mid2 Bottom3 Support4)"
+   },
+   {
+    "i": 4,
+    "name": "chat",
+    "type": "&Chat(24B)",
+    "note": "항목 .2 와 derive(PartialEq) 구조 비교 — 태그(+0x0) 가 같고 그 variant 의 페이로드 필드가 전부 같아야"
+   }
+  ],
+  "returns": "bool — true = 일치 항목이 있어 제거했다 / false = 없음(빈 목록 포함)"
+ },
+ "reads": [
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x7b8",
+   "name": "misunderstood_received_chats.buf.ptr",
+   "note": "원소 40B = { +0x0 tick usize, +0x8 from Position i32, +0x10 chat Chat 24B }"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x7c0",
+   "name": "misunderstood_received_chats.len",
+   "note": "0 이면 즉시 false"
+  },
+  {
+   "base": "원소(tick, from, chat)",
+   "offset": "0x0",
+   "name": "tick",
+   "note": "== 인자 tick"
+  },
+  {
+   "base": "원소(tick, from, chat)",
+   "offset": "0x8",
+   "name": "from (Position i32)",
+   "note": "== 인자 from (entity.rs:563 derived PartialEq 인라인)"
+  },
+  {
+   "base": "원소(tick, from, chat)",
+   "offset": "0x10",
+   "name": "chat@tag (i8)",
+   "note": "== chat.tag. 태그 0..56 switch(57 variant), 그 밖은 unreachable"
+  },
+  {
+   "base": "원소(tick, from, chat)",
+   "offset": "0x11",
+   "name": "chat 페이로드 +0x1 (LineType/u8 류)",
+   "note": "variant 별 비교. 인자 chat+0x1 과"
+  },
+  {
+   "base": "원소(tick, from, chat)",
+   "offset": "0x12",
+   "name": "chat 페이로드 +0x2",
+   "note": "variant 별 비교. 인자 chat+0x2"
+  },
+  {
+   "base": "원소(tick, from, chat)",
+   "offset": "0x13",
+   "name": "chat 페이로드 +0x3",
+   "note": "variant 별 비교. 인자 chat+0x3"
+  },
+  {
+   "base": "원소(tick, from, chat)",
+   "offset": "0x14",
+   "name": "chat 페이로드 +0x4 (i32)",
+   "note": "variant 별 비교. 인자 chat+0x4"
+  },
+  {
+   "base": "원소(tick, from, chat)",
+   "offset": "0x18",
+   "name": "chat 페이로드 +0x8 (usize)",
+   "note": "variant 별 비교. 인자 chat+0x8"
+  },
+  {
+   "base": "원소(tick, from, chat)",
+   "offset": "0x20",
+   "name": "chat 페이로드 +0x10 (usize)",
+   "note": "variant 별 비교. 인자 chat+0x10"
+  }
+ ],
+ "writes": [
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x7c0",
+   "name": "misunderstood_received_chats.len",
+   "value": "len - 1",
+   "note": "일치 항목이 있을 때만. Vec::swap_remove(index): 마지막 원소 40B 를 index 자리로 memmove 후 len-1 (vec.rs:2258~2269 인라인) — ★순서가 보존되지 않는다"
+  },
+  {
+   "base": "misunderstood_received_chats 버퍼",
+   "offset": "0x0",
+   "name": "[index] (40B)",
+   "value": "[len-1] 원소 복사",
+   "note": "llvm.memmove 40B"
+  }
+ ],
+ "constants": [
+  {
+   "value": 0,
+   "src_line": 590,
+   "meaning": "len == 0 이면 position() 이 None → false"
+  },
+  {
+   "value": 1,
+   "src_line": 590,
+   "meaning": "position 인덱스 i += 1"
+  },
+  {
+   "value": -1,
+   "src_line": 591,
+   "meaning": "new_len = len - 1 (swap_remove)"
+  },
+  {
+   "value": 40,
+   "src_line": 591,
+   "meaning": "swap_remove 의 memmove 크기 = 원소 (usize, Position, Chat) 40B (stride 로도 쓰임)"
+  },
+  {
+   "value": 230584300921369396,
+   "src_line": 591,
+   "meaning": "isize::MAX / 40 — Vec 길이 상한 assume(swap_remove 인라인 잔재). 판정 아님"
+  }
+ ],
+ "calls": [],
+ "logic": "fn take_misunderstood_received_chat(&mut self, tick, from, chat) -> bool\n\n[L589] v = &mut self.misunderstood_received_chats(+0x7b0)      // Vec<(usize, Position, Chat)>, 원소 40B\n[L590] index = v.iter().position(|(t, f, c)| *t == tick && *f == from && c == chat)\n       //  IR: 인자 chat 의 바이트를 미리 로드(+0,+1,+2,+3,+4,+8,+16) 하고 원소마다\n       //      ①tick(+0x0)==tick → ②from(+0x8, i32)==from → ③chat 태그(+0x10)==chat.tag\n       //      → ④switch(태그 0..56) 로 그 variant 의 페이로드 필드만 비교(derive(PartialEq) 인라인, player.rs:737~779)\n       //        예) 태그 0: +0x18==chat+8 / 태그 1: +0x14==chat+4 && +0x18==chat+8 / 태그 3·4: +0x18 && +0x20 / 태그 40: 페이로드 없음(즉시 일치)\n       //      어느 단계든 불일치면 다음 원소(%422). 전부 일치하면 %425\n[L591] if let Some(index) = index {\n         v.swap_remove(index)      // memmove(v[index] ← v[len-1], 40B); len -= 1  (⚠순서 미보존)\n         return true\n       }\n[L596] return false\n\n※ 부작용: 일치 시 len(+0x7c0) 감소 + 버퍼 1원소 덮어쓰기. 그 외 상태 변경 없음. 호출 없음(전부 인라인).\n※ 이 함수엔 AI 판정 상수가 없다 — '오해한 챗' 을 어떤 조건으로 넣는지는 push 하는 쪽(별도 함수) 소관.",
+ "knobs": [],
+ "unknown": [
+  "★exe 0xe70c70 은 fnprobe 상 인자 레지스터 rcx 1개만 읽고 패닉 Location 이 handler.rs:1366:15 뿐이라 이 함수(4인자, handler.rs:588~596, 40B memmove 루프)가 아닐 가능성이 크다. 이 함수는 `internal fastcc` 라 유일 호출자에 인라인됐을 수 있다 — 미탐색 = 호출자 정체·exe 내 40B stride 루프 탐색(namebycaller)",
+  "Chat 57 variant 각각의 페이로드 비교 필드는 derive(PartialEq) 의 기계적 전개라 전부 옮겨 적지 않았다(태그별 어느 오프셋을 비교하는지는 m13.ll 12570~13860 switch 케이스에 그대로 있음). 의미상 '구조적 동일' 로 요약",
+  "misunderstood_received_chats 에 항목을 push 하는 쪽과 그 의미(어떤 챗을 '오해'로 기록하나) — 이 함수 밖. _docs game_ai 에 'misunderstood' 주석 0건",
+  "knobs 빈 배열 = 확인된 사실(임계·계수 없음)"
+ ]
+}

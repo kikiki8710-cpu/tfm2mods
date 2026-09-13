@@ -1,0 +1,361 @@
+{
+ "round": 17,
+ "batch": "C",
+ "errors": [
+  {
+   "path": "/specs[50]/open[0]",
+   "kind": "보강",
+   "old": "v23_visible_objective_overload(player, data, x, y) 내부는 안 봄 — 이름상 '목표 지점 시야 과밀'이고 true 면 포기. 인자 (x,y)=camp_pos 만 확정",
+   "new": "v23_visible_objective_overload(player, data, x, y)(objective_helpers.rs:53, define m15.ll:54069~54083) = enemies > 2 && enemies >= allies + 2 (54078 `icmp samesign ugt i64 %6, 2` · 54079 `add nuw nsw i64 %5, 2` · 54080 `icmp samesign uge i64 %6, %8`). allies = v23_healthy_allies_near_point(player,data,x,y,180000,40)(m15.ll:53341) = player_champion[team] 중 hp*100/max_hp >= 40 && dist²((x,y)) <= 180000² 인 수, enemies = v23_recent_visible_enemies_near_point(player,data,x,y,180000,40)(m15.ll:55548) = player_champion[1-team] 중 hp% >= 40 && dist² <= 180000² && blackboard[1-team].is_recent_visible(game, player, e) 인 수(55666 gep blackboard[%9=1-team]). 인자 (x,y)=camp_pos(Morgard). 오라클 실행 확인: 아군 a 0..4 × 시야 적 e 0..5 진리표 30/30 + 비시야·hp39%·hp40% 경계 3/3 일치(오라클 v17C_o1.tsv) — 「사실 서술」이다.",
+   "evidence": "m15.ll:54074 call v23_healthy_allies_near_point(%0,%1,%2,%3,180000,40) · 54076 call v23_recent_visible_enemies_near_point(…,180000,40) · 54078~54081 `icmp samesign ugt i64 %6, 2` / `add nuw nsw i64 %5, 2` / `icmp samesign uge i64 %6, %8` / `select i1 %7, i1 %9, i1 false` · 53464 `icmp ult i64 %25, %5`→skip · 53497 `icmp ule i64 %43, %14`(%14=180000²) · 55738 `icmp ugt i64 %50, %20`→skip · 55742 call Blackboard::is_recent_visible(%21=bb[1-team]) · 오라클 v17C_o1.tsv overload 30/30 MISMATCH=0",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[50]/open[1]",
+   "kind": "보강",
+   "old": "AbstractGameWithCache::champions(cache, team, pool) 가 '살아있는' 챔피언만 돌려주는지는 game_core 미열람 — dbg 변수명 live_ally_count/live_enemy_count 로 추정",
+   "new": "AbstractGameWithCache::champions(cache, team, pool)(_gcbc/g15.ll:109887~110011, simulation.rs:1896) 자체에는 생존·HP 필터가 없다 — player_champion[team] 5슬롯(stride 8, 109942 `icmp eq i64 %17, 40` 종료) 중 non-null(109953 `icmp eq ptr %22, null` 이면 skip)만 bumpalo Vec 으로 모은다. 따라서 live_ally_count = player_champion[team] 의 Some 개수(check_epic_setup L35 와 같은 정의). 'Some = 살아있음'은 player_champion 을 채우는 new_with_prev_cache(simulation.rs:1527, g15.ll:108238)가 game.iter_entities()(vtable+0x200) 의 Champion 엔티티만 넣기 때문이며, 사망 챔프가 iter_entities 에서 빠지는지는 Game 의 사망 처리(game.rs) 를 안 읽어 「미탐색」이다",
+   "evidence": "_gcbc/g15.ll:109942 `%18 = icmp eq i64 %17, 40` · 109953 `%23 = icmp eq ptr %22, null` · 109954 `br i1 %23, label %16, label %24`(null→skip) · hp 오프셋 로드 없음(본문 109887~110011 에 +1648/+1576 gep 0건) · 108238 `store ptr %255, ptr %1842`(L1527 Champion case)",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[50]/open[2]",
+   "kind": "보강",
+   "old": "Blackboard::is_recent_visible 의 정확한 의미(최근 N틱 관측)는 game_core 미열람. 인덱스가 적팀 판(1-team)인 것만 확정",
+   "new": "Blackboard::is_recent_visible = shared.is_recent_visible 확정 사실(_gcbc/g07.ll:157005~157050, blackboard.rs:346): (A) vt+0xf8 is_visible(game, player.info.team, e.id) 면 true, (B) 아니면 owner=get_player_by_champion_id(e.id) 의 position 으로 self.last_visible[pos] + 120 >= tick. self=blackboard[1-team] 이므로 last_visible[pos] = '내 팀이 적 pos 챔프를 마지막으로 본 틱' ⟹ 이 함수의 !is_recent_visible = '내 팀 시야에 최근 120틱(=2초, tps 스케일 없음) 안 잡힌 적' — 「사실 서술」이다.",
+   "evidence": "shared.is_recent_visible(★확정, g07.ll:157005~157050) + shared.is_recent_visible.blackboard_인덱스_의미 · m09.ll:59613 call 인자 blackboard[1-team]",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[50]/open[3]",
+   "kind": "보강",
+   "old": "MapDef::camp_pos(map, JungleType, bool) 의 bool 이 team==0 인 것은 확정, 그 뜻(아군 진영 기준 좌우 반전)은 추정",
+   "new": "MapDef::camp_pos(map, JungleType, bool) 의 bool = (team==0): true 면 원좌표 (x,y), false 면 대각 반전 (y,x) 이다 — 오라클 실행 확인(v17C_o2.tsv): Rhino (496000,752000)↔(752000,496000) · Mushroom (176000,592000)↔(592000,176000) · Stump (256000,448000)↔(448000,256000) · Bee (351000,800000)↔(800000,351000). Morgard (288000,288000) · Serpen (672000,672000) 은 대각선 위라 bool 무관(양쪽 동일) ⟹ 이 함수의 camp 는 team 과 무관하게 (288000,288000) — 「사실 서술」이다.",
+   "evidence": "오라클 v17C_o2.tsv 6종 camp_pos(true/false) 실측: 일반 캠프 4종 전부 (x,y)↔(y,x), Morgard/Serpen same=true",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[50]/open[4]",
+   "kind": "보강",
+   "old": "L123 의 live_list[0] 이 '지금 살아있는 Morgard' 라는 것은 live_list 원소가 entity id(i64) 이고 get_entity_by_id 로 넘기는 것으로 읽음. 에픽이 2종(Morgard/Serpen) 이상 동시에 살아 있을 때 [0] 이 Morgard 라는 보장은 본문에 없음",
+   "new": "L123 의 live_list 는 MobaMode.jungle_runner.epic(JungleRunner+0x180, JungleCampState 48B) 의 것이고 Serpen 은 별도 필드 jungle_runner.serpen(+0x1b0, live_list.len = MobaMode+0x1d8) 이라 이 리스트에는 Morgard 만 들어간다 — Serpen 동시 생존은 [0] 에 영향이 없다(tcxdict JungleRunner: epic 0x180 / serpen 0x1b0 · MobaMode 0x1a8=jungle_runner.epic.live_list.len) — 「사실 서술」이다.",
+   "evidence": "tcxdict JungleRunner(480B): +0x180 epic JungleCampState / +0x1b0 serpen JungleCampState · tcxdict MobaMode 0x1a8 = jungle_runner.epic.live_list.len, 0x1d8 = jungle_runner.serpen.live_list.len",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[50]/knobs[4]/effect",
+   "kind": "보강",
+   "old": "아군 쪽 가산항. 값이 크면(판단력 낮음) 더 쉽게 열세로 보아 포기. 음수면 반대",
+   "new": "아군 쪽 가산항. 값이 크면(판단력 낮음) 더 쉽게 열세로 보아 포기. 값 범위는 0..=3 이고 음수는 나올 수 없다 — macro_judgement_penalty = ceil(max(400 − judge_accuracy, 0) / 125), judge_accuracy = 100 + 9·min(stat.judgement·judgement_mental_ratio/1000, 100) ∈ [100,1000] (m15.ll:51819~51833 · _gcbc/g15.ll:125794~125811). 오라클 실행 확인 48/48(v17C_o1.tsv judge)",
+   "evidence": "m15.ll:51826 `%6 = sub i32 400, %5` · 51829 `llvm.smax.i32(i32 %6, i32 0)` · 51830 `add nuw i32 %7, 124` · 51831 `sdiv i32 %8, 125` · g15.ll:125794 define range(i64 100, 1001) judge_accuracy · 125806 `llvm.umin.i64(%7, 100)` · 125808~125809 `mul 9`/`add 100` · 오라클 v17C_o1.tsv judge_summary MISMATCH=0",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[50]/notes[0]",
+   "kind": "보강",
+   "old": "macro_judgement_penalty(version, player) -> i32 내부는 안 봄. 부호·범위 미확정(i32 signed 비교이므로 음수 가능성 열림)",
+   "new": "macro_judgement_penalty(version, player) -> i32 = ceil(max(400 − judge_accuracy(&player.info.parameter), 0) / 125) ∈ {0,1,2,3}, judge_accuracy(_gcbc/g15.ll:125794, player.rs:337) = 100 + 9·min(stat.judgement(+0x98)·judgement_mental_ratio(+0x2d0)/1000, 100) ∈ [100,1000]. version 은 미사용. 음수는 나올 수 없다(오라클 48/48, v17C_o1.tsv) — 「사실 서술」이다.",
+   "evidence": "m15.ll:51822~51832 (sub 400 / smax 0 / add 124 / sdiv 125) · g15.ll:125796~125810 · 오라클 v17C_o1.tsv judge_summary MISMATCH=0",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[51]/open[5]",
+   "kind": "보강",
+   "old": "macro_judgement_penalty / macro_judgement_bonus 내부·범위 미열람(i32)",
+   "new": "macro_judgement_penalty(version, player) = ceil(max(400 − acc, 0)/125) ∈ {0..3} · macro_judgement_bonus(version, player) = floor(max(acc − 400, 0)/175) ∈ {0..3}, acc = AthleteParameter::judge_accuracy(&player.info.parameter(+0x180)) = 100 + 9·min(stat.judgement·judgement_mental_ratio/1000, 100) ∈ [100,1000] (m15.ll:51803~51816 bonus · 51819~51833 penalty · _gcbc/g15.ll:125794~125811). ⟹ threshold = penalty*20 + 130 − bonus*5 ∈ [115, 190]. 오라클 실행 확인 48/48(v17C_o1.tsv judge) — 「사실 서술」이다.",
+   "evidence": "m15.ll:51810 `add i32 %5, -400` · 51813 smax 0 · 51814 `udiv i32 %7, 175` · 51826 `sub i32 400, %5` · 51830~51831 `add 124`/`sdiv 125` · 오라클 v17C_o1.tsv judge_summary MISMATCH=0",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[52]/open[3]",
+   "kind": "보강",
+   "old": "top_lead/bottom_lead 의 정의(파괴한 타워 수 차이?)는 game_core 미열람 — '> 1' 이 리드 2 이상이라는 것만 확정",
+   "new": "top_lead/bottom_lead[team](AbstractGameWithCache +0x21c0/+0x21e0, [usize;2]) 는 타워 수 차이가 아니라 **라인 지역열 장악 깊이 인덱스**다 — AbstractGameWithCache::new_with_prev_cache(_gcbc/g15.ll:102716~108634, simulation.rs:1697~1772): region_point[r](27개, L1719~1729) = (blue_regions[r]?+5:0) + blue_dist_one_count[r] − (red_regions[r]?+5:0) − red_dist_one_count[r] (blue/red_regions[r] = 그 region 에 해당 팀 Minion/Tower/Nexus(EntityType 1/2/3) 가 있음(L1468~1489), dist_one_count[r] = r 에 인접한 그 팀 점유 region 수(L1701~1712)); top_lead[0] = seq_top0(7-region 열, 블루 쪽부터) 을 순서대로 보며 region_point > 2 인 동안 그 인덱스를 기록(L1733: 첫 실패 인덱스−1, 0..6), top_lead[1] 은 seq_top1 에서 region_point < −2 (L1765). ⟹ '> 1' = 그 팀이 자기 쪽에서 3번째 region 까지 3점 이상 우세 = 라인이 2단계 이상 밀려 있음. 오라클(v17C_o1.tsv farsplit 225/225)은 lead 를 직접 주입해 비교식만 확인 — 「사실 서술」이다.",
+   "evidence": "_gcbc/g15.ll:103593 `%333 = add i32 %332, 5` + 103594 `select i1 %330`(blue_regions) · 103599 `add i32 %334, %337`(blue_dist_one) · 103603 `add i32 %339, -5` + 103604 select(red_regions) · 103608 `sub i32 %344, %347`(red_dist_one) · 103637 `icmp sgt i32 %356, 2`(L1733) … 103619 `%351 = phi i64 [0,%354],[4,%391],[0,%363],[%402,%398],[1,%370],[3,%384],[2,%377]` · 103763 `select i1 %401, i64 6, i64 5` · 104294 `icmp slt i32 %591, -2`(L1765) · 103369~103386 switch EntityType {1,2,3}→마킹 · DILocalVariable top_lead line 1697 / blue_dist_one_count 1695 / region_point 1693 / seq_top0 1398 / blue_regions 1394",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[52]/open[0]",
+   "kind": "보강",
+   "old": "rule_scope::line_exists(context, LineType) 내부 미열람 — 튜토리얼 모드에서 라인이 있는지 검사로 추정",
+   "new": "rule_scope::line_exists(context, LineType) = shared.rule_scope_게이트 표의 Line 행(tutorial 화이트리스트 — Top: {0 None,2 TopSolo,7 Line,8 Total} / Bottom: {0,1 First,3 Bottom,5 MidBottom,7,8}, spawn_top/bottom_minion 경유 runner.rs:283/291). 이 함수에선 far_line 이 Top(Serpen) 또는 Bottom(Morgard) 이므로 그 두 행만 닿는다 — 「사실 서술」이다.",
+   "evidence": "shared.rule_scope_게이트.표 (m13.ll:53988 / 54005 · 인라인 12352 / 12369)",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[52]/open[4]",
+   "kind": "보강",
+   "old": "v23_healthy(objective_helpers.rs:12) 는 인라인이라 별도 define 없음 — 본문의 `hp*100/max_hp > 39` 가 그 전부라고 읽음",
+   "new": "v23_healthy(objective_helpers.rs:12) 는 인라인이라 별도 define 없음 — 본문의 `hp*100/max_hp > 39` 가 그 전부다. 오라클 실행 확인: 먼 라인 아군 hp 39% → false, 40% → true(v17C_o1.tsv farsplit_lowhp/farsplit_hp40) — 「사실 서술」이다.",
+   "evidence": "m15.ll:54910 `icmp ugt i64 %37, 39` · 오라클 v17C_o1.tsv farsplit_lowhp=false / farsplit_hp40=true",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[53]/logic",
+   "kind": "실오류",
+   "old": "top = (x > ry)\n        // 분기: top 이면 is_near_mid_line(context,x,y) 가 true 여야 통과, top 이 아니면 그냥 통과\n        (!is_top_side(x,y) || is_near_mid_line(context,x,y))",
+   "new": "is_top_side = (x <= ry) 즉 x + y <= height (탑 절반 = 미니맵 왼쪽 위, Morgard 캠프 (288000,288000) 쪽)\n        // 분기: IR 57422 `icmp ult i64 %134(ry), %130(x)` = !is_top_side 가 true 면 is_near_mid_line(context,x,y) 가 true 여야 통과, is_top_side 면 그냥 통과\n        (is_top_side(x,y) || is_near_mid_line(context,x,y))",
+   "evidence": "m09.ll:57419~57423 `%134 = sub i64 %133(height), %132(y)` / `%135 = icmp ult i64 %134, %130(x)` / `br i1 %135, label %136(is_near_mid_line 호출), label %138(통과)` · is_top_side 극성 = _gcbc/g09.ll:158986 `%38 = icmp uge i64 %24(ry), %1(x)`(is_in_top_jungle 안 인라인, and 로 결과에 기여) · 오라클 v17C_o1.tsv is_top_side: (100000,100000)=true, (800000,800000)=false, x+y==height 9점 전부 true(등호 포함) · shared.맵_화면방향 'Top ⟺ x + y < height'",
+   "behavior_change": true,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[53]/open[0]",
+   "kind": "실오류",
+   "old": "map_regions::is_top_side(context,x,y) 는 인라인돼 define 이 없다(map_regions.rs:22~24). 본문 관측: ry = setting.height - y; top = (ry < x). '어느 쪽이 top 인가'는 좌표계 해석이라 확정 안 함 — 판정에는 분기 방향(top 이면 is_near_mid_line 필요)만 썼다",
+   "new": "map_regions::is_top_side(context,x,y)(map_regions.rs:21~25, 인라인) = (x <= height − y), 즉 x + y <= height 이면 true(등호 포함) — 오라클 실행 확인 9/9(v17C_o1.tsv is_top_side) + _gcbc/g09.ll:158986 `icmp uge i64 %24(ry), %1(x)`. 이 함수 L44 의 분기는 `!is_top_side → is_near_mid_line 필요 / is_top_side → 통과`(m09.ll:57422~57427) 이므로 카운트 조건 = `is_top_side(x,y) || is_near_mid_line(context,x,y)`. 이전 판의 'top = (ry < x)' 는 극성이 뒤집힌 오독이었다 — 「사실 서술」이다.",
+   "evidence": "m09.ll:57422 `%135 = icmp ult i64 %134, %130` · 57423 `br i1 %135, label %136, label %138` · 57426 %136 에서 is_near_mid_line 호출 · g09.ll:158986 · 오라클 v17C_o1.tsv is_top_side 9/9",
+   "behavior_change": true,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[53]/open[3]",
+   "kind": "보강",
+   "old": "judgement_ready 도 DW_OP_not 1회(= !(setup_score < penalty)). 분기: penalty != 0 && score < penalty → false 로 확정",
+   "new": "judgement_ready 도 DW_OP_not 1회(= !(setup_score < penalty)). 분기는 IR 로 확정: m09.ll:58924 `%733 = icmp ne i32 %723(penalty), 0` · 58928 `%736 = icmp slt i32 %735(score), %723` · 58930 `and i1 %733, %736` · 58931 `br i1 %737, label %61(반환 phi false 인입), label %738` ⟹ penalty != 0 && score < penalty → false — 「사실 서술」이다.",
+   "evidence": "m09.ll:58924~58931 + 57210 `%62 = phi i1 [ false, %721 ], …`(%721 블록 = 58931 의 분기 원점)",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[53]/open[4]",
+   "kind": "보강",
+   "old": "macro_judgement_penalty 내부는 안 봄(m15.ll:51819~, i32 반환 range(-17179869,17179870)). 0 이면 페널티 검사 자체가 꺼진다는 것만 확인",
+   "new": "macro_judgement_penalty(m15.ll:51819~51833) = ceil(max(400 − judge_accuracy, 0)/125) ∈ {0,1,2,3}; judge_accuracy(_gcbc/g15.ll:125794) = 100 + 9·min(stat.judgement·judgement_mental_ratio/1000, 100) ∈ [100,1000] 이라 LLVM range 표기와 달리 실제 값은 0..=3 이다(오라클 48/48, v17C_o1.tsv judge). judge_accuracy >= 400(min 항 >= 34) 이면 0 → 페널티 검사가 꺼지고, 100(judgement 또는 ratio 가 0) 이면 3 → setup_score < 3 이면 false — 「사실 서술」이다.",
+   "evidence": "m15.ll:51826 `sub i32 400, %5` · 51829 smax · 51830 `add nuw i32 %7, 124` · 51831 `sdiv i32 %8, 125` · g15.ll:125794 `define … range(i64 100, 1001)` · 오라클 v17C_o1.tsv judge_summary MISMATCH=0",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[53]/open[5]",
+   "kind": "보강",
+   "old": "Blackboard::is_recent_visible 내부는 안 봄. 인자 = (&blackboard[1-team], game data ptr, game vtable, player, entity). self 가 적팀 판이라는 것은 인덱스(1-team)로만 확정",
+   "new": "Blackboard::is_recent_visible = shared.is_recent_visible 확정 사실(_gcbc/g07.ll:157005~157050): 지금 보이면(vt+0xf8 is_visible(game, player.info.team, e.id)) true, 아니면 self.last_visible[owner.position] + 120 >= tick. self = blackboard[1-team] 이고 그 last_visible[pos] = '내 팀이 적 pos 챔프를 마지막으로 본 틱' ⟹ L56 의 !is_recent_visible = 내 팀 시야에 최근 120틱(=2초 고정) 안 잡힌 적, L62 의 is_recent_visible = 잡힌 적 — 「사실 서술」이다.",
+   "evidence": "shared.is_recent_visible(★확정) · shared.is_recent_visible.blackboard_인덱스_의미(Blackboard::update g15.ll:249663 교차검증) · m09.ll 본문 call 인자 blackboard[1-team]",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[53]/open[6]",
+   "kind": "보강",
+   "old": "MapDef::camp_pos(map, JungleType(i8), bool) 의 bool 인자에 team==0 을 넘긴다 — bool 의 의미(진영 미러링 여부로 추정)는 _gcbc g07.ll:152570 을 안 읽어 미확인",
+   "new": "MapDef::camp_pos(map, JungleType(i8), bool) 의 bool = (team==0): true 면 원좌표, false 면 대각 반전 (y,x) — 오라클 실행 확인(v17C_o2.tsv: Rhino (496000,752000)↔(752000,496000) 등 일반 캠프 4종). Morgard 는 (288000,288000) 으로 대각선 위라 bool 무관(양쪽 동일) ⟹ 이 함수의 camp 는 팀과 무관 — 「사실 서술」이다.",
+   "evidence": "오라클 v17C_o2.tsv camp_pos 6종 실측(Morgard same=true, Serpen same=true, 나머지 (x,y)↔(y,x))",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[54]/mem[17]/name",
+   "kind": "보강",
+   "old": "(init) +24 필드",
+   "new": "next_respawn_tick",
+   "evidence": "tcxdict JungleCampState 0x18 → next_respawn_tick usize(8B) (jungle.rs:385, 48B 구조체)",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[54]/mem[17]/note",
+   "kind": "보강",
+   "old": "IR +24. init(L288~289) 이 next_respawn_tick[team][idx] 초기값으로 복사 — tcxdict JungleCampState 48B 의 +0x18 이름은 조회 안 함(unknown)",
+   "new": "IR +24. init(L288~289) 이 캠프의 next_respawn_tick 을 self.next_respawn_tick[team][idx] 초기값으로 복사 — tcxdict JungleCampState(48B) 0x18 = next_respawn_tick usize",
+   "evidence": "tcxdict JungleCampState 0x18 → next_respawn_tick",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[54]/open[1]",
+   "kind": "보강",
+   "old": "JungleCampState +0x18 (init 이 next_respawn_tick 초기값으로 복사하는 필드) 의 이름은 tcxdict 로 조회 안 함. IR 은 get_camp_state 반환 ptr+24 의 i64 로드",
+   "new": "JungleCampState +0x18 = next_respawn_tick(usize) — tcxdict 확정(jungle.rs:385, 48B: +0x10 live_list.len / +0x18 next_respawn_tick). init 은 캠프 상태의 next_respawn_tick 을 그대로 복사한다 — 「사실 서술」이다.",
+   "evidence": "tcxdict JungleCampState 0x18 → next_respawn_tick",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[54]/open[2]",
+   "kind": "보강",
+   "old": "JungleType::get_info 반환 272B 구조체의 이름을 'JungleInfo' 로 적었으나 tcxdict 조회는 +0x100=respawn_tick 만 확인 — 구조체 이름은 추정",
+   "new": "JungleType::get_info(&self, &GameSetting) -> game_core::JungleInfo 로 tcx 시그니처 확정(jungle.rs:405). JungleInfo = 272B struct(setting\\entity\\jungle.rs:13, 필드 9) 이고 +0x100 = respawn_tick usize — 「사실 서술」이다.",
+   "evidence": "_tcx/game_core.json game_core::JungleType::get_info sig '… -> game_core::JungleInfo' · tcxdict JungleInfo(272B) 0x100 → respawn_tick",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[54]/open[3]",
+   "kind": "보강",
+   "old": "is_visible_cell 의 vtable 로드(%682)가 L311 블록에 있어 L359·L368 에서 재사용된다 — L305 루프가 항상 먼저 실행되므로 정의는 도달 보장. 시그니처 (game, team, xi, yi) → bool 은 호출 형태로만 확정",
+   "new": "is_visible_cell 의 vtable 로드 %682(m09.ll:39557 `load ptr, ptr %88`, %88 = vtable+256=0x100) 가 L311 블록에 있고 L359(38581)·L368(38612) 의 호출이 같은 %682 를 쓴다 — SSA 지배 관계상 L311 블록이 그 둘을 지배하므로 도달이 보장된다. 시그니처는 tcx 로 확정: game_core::AbstractGame::is_visible_cell(&self, usize, usize, usize) -> bool (simulation.rs:126; divtable 0x100 = is_visible_cell). 인자 = (team=player.info.team, xi, yi) — 「사실 서술」이다.",
+   "evidence": "m09.ll:38375 `%88 = getelementptr inbounds nuw i8, ptr %74, i64 256` · 39557 `%682 = load ptr, ptr %88` · 38581/38612/39558/39644/39724/39804 `call … %682(ptr %72, i64 %87, i64 …, i64 …)` · divtable AbstractGame 0x100 → is_visible_cell · _tcx/game_core.json AbstractGame::is_visible_cell sig fn(&Self, usize, usize, usize) -> bool",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[54]/open[6]",
+   "kind": "보강",
+   "old": "camp_pos 의 bool 인자 = (team==0). L305 루프에서는 순회 중인 team(0→true, 1→false), L356/365 에서는 내 team. 의미는 미확인",
+   "new": "camp_pos 의 bool 인자 = (team==0). L305 루프에서는 순회 중인 team(0→true, 1→false), L356/365 에서는 내 team. 의미는 오라클로 확정(v17C_o2.tsv): true = 원좌표 (x,y), false = 대각 반전 (y,x) — 일반 캠프 4종(Rhino/Mushroom/Stump/Bee) 은 팀별로 다른 좌표, Morgard (288000,288000)·Serpen (672000,672000) 은 대각선 위라 bool 무관 — 「사실 서술」이다.",
+   "evidence": "오라클 v17C_o2.tsv camp_pos 6종 실측",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[49]/open[0]",
+   "kind": "보강",
+   "old": "15000 의 귀속 소스 줄: IR !dbg 는 effect.rs:26(Effect::range, inlinedAt fight_model.rs:729) 을 가리키지만, 같은 Effect::range 가 인라인된 L711/L720(챔피언 reach) 경로엔 +15000 항이 없다. LLVM 재결합(reassociation)으로 L729 의 리터럴이 L26 위치를 물려받았을 가능성이 크나 IR 만으로는 'Effect::range 내부의 조건항'인지 'L729 의 명시 가산'인지 확정 못 함(Effect::range 는 _gaibc/_gcbc 어디에도 define 없음 — 전부 인라인). 동작(타워 경로에만 +15000)은 확정",
+   "new": "15000 의 귀속 = fight_model.rs:729 의 호출부 가산(`… .range(t) + 15000 …`)이지 Effect::range 내부가 아니다. 근거 ①dloc: m10.ll:41645 `%248 = add i64 %207, 15000, !dbg !47397` 의 !47397 체인 = effect.rs:26(range) ← inlinedAt fight_model.rs:729(closure$6) ← option.rs:1581 ← fight_model.rs:728 — inlinedAt 루트가 L729 다. ②m10.ll 전역에서 Effect::range(effect.rs:26) 인라인 사이트의 `add` 122건 중 15000 을 더하는 것은 4건뿐(41645 루트 728 · 803 루트 1581 · 14691 루트 849 · 43277 루트 970)이고 118건에는 없다 — range 본문에 있었다면 전 사이트에 나타나야 한다. ③rmeta SourceMap: effect.rs:25(48자)~27(4자) 로 range 본문은 26 한 줄(98자)뿐이라 조건항이 들어갈 자리가 없다. LLVM 이 상수 가산을 range 의 add 체인에 접으면서 그 위치(L26)를 물려준 것 — 「사실 서술」이다.",
+   "evidence": "dloc m10.ll 47397: line 26 in range ← line 729 in closure$6 ← option.rs:1581 filter ← line 728 in resolve_join_stake · m10.ll Effect::range leaf 통계 add(15000 무)=118 / add(15000)=4(803·14691·41645·43277) · rmeta_srcmap game_core effect.rs L25=48 L26=98 L27=4",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[49]/consts[6]/meaning",
+   "kind": "보강",
+   "old": "⚠IR !dbg 는 effect.rs:26(Effect::range) 을 가리키나 챔피언 reach(L711/720) 경로엔 이 항이 없다 — 귀속 줄은 unknown 참조",
+   "new": "IR !dbg 의 leaf 는 effect.rs:26(Effect::range) 이지만 inlinedAt 루트는 fight_model.rs:729 이고, m10.ll 의 Effect::range 인라인 122곳 중 118곳에 15000 이 없으므로 L729 호출부의 가산이다(src_line 729 가 맞다)",
+   "evidence": "dloc m10.ll 47397 루트 = fight_model.rs:729 · Effect::range 인라인 사이트 통계 118/4",
+   "behavior_change": false,
+   "found_by": "new"
+  }
+ ],
+ "ev_up": [
+  {
+   "path": "/specs[52]/mem[6]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcxdict AbstractGameWithCache 0x21c0 → top_lead[0] / 0x21e0 → bottom_lead[0] ([usize;2] 각 16B) · 오라클 v17C_o1.tsv 가 +0x21e0 에 lead 를 주입해 225/225 일치",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[54]/mem[17]",
+   "from": 3,
+   "to": 3,
+   "evidence": "tcxdict JungleCampState 0x18 → next_respawn_tick",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[54]/mem[16]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcxdict JungleCampState 0x10 → live_list.len",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[54]/mem[18]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcxdict JungleInfo(272B) 0x100 → respawn_tick · tcx get_info -> game_core::JungleInfo",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[52]/consts[3]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인: 먼 라인 아군 hp 39%→false / 40%→true (v17C_o1.tsv farsplit_lowhp·farsplit_hp40)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[52]/consts[7]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인: bottom_lead[0]=1→웨이브 조건으로, 2→즉시 true (v17C_o1.tsv farsplit lead 축 225/225)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[52]/consts[8]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인: from_mid 2999→count 조건, 3000→즉시 true (v17C_o1.tsv farsplit)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[52]/consts[9]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인: from_mid 999→count>3 경로, 1000→count>1 경로 (v17C_o1.tsv farsplit)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[52]/consts[10]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인: from_mid 0·999 에서 count 3→false, 4→true (v17C_o1.tsv farsplit)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[52]/consts[6]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인: far_count 0 이면 lead·from_mid·count 무관 전부 false 75/75 (v17C_o1.tsv farsplit far=0)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[52]/knobs[2]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인: lead 0/1/2 축 225/225 (v17C_o1.tsv)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[52]/knobs[3]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인: from_mid {0,999,1000,2999,3000} × count {0..4} 경계 전부 일치 (v17C_o1.tsv)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[52]/knobs[0]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인: hp 39%→false / 40%→true (v17C_o1.tsv farsplit_lowhp·hp40)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[52]/sig/params[2]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인: Rhino→즉시 false, Morgard→Bottom 라인 판정 (v17C_o1.tsv farsplit_rhino)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[50]/knobs[4]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인: macro_judgement_penalty 48/48 (judgement×ratio 12×4), 값 0..=3 (v17C_o1.tsv judge)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[51]/consts[21]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인: macro_judgement_penalty 값 0..=3 → penalty*20 항 0..60 (v17C_o1.tsv judge 48/48)",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[51]/consts[23]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인: macro_judgement_bonus 값 0..=3 → bonus*5 항 0..15 (v17C_o1.tsv judge 48/48)",
+   "found_by": "new"
+  }
+ ],
+ "brief_errors": [
+  "착수 메시지는 배치 C 담당을 `specs[49]~[52]`(#49 resolve_join_stake 포함) 로 적었는데 도시에 §1 은 `50`~`54`(#53 check_epic_setup·#54 TeamPlan::update 포함) 이고 #49 는 배치 B 도시에(45~49) 소관이다 — 두 지시가 어긋난다. 도시에를 따르되 착수 메시지가 명시한 #49 의 15000 귀속만 추가로 판정했다(B 와 patch 경로가 겹칠 수 있음: /specs[49]/open[0]·consts[6]).",
+  "착수 메시지의 G7 항목을 `#49` 로 적었으나 실제 G7 과열림은 `[53] check_epic_setup` open(is_recent_visible) 이다(specgate --only 53). #49 에는 G7 이 없다.",
+  "착수 메시지는 G12(consts.src_line) 를 이번 초점으로 들었으나 담당 50~54 에는 G12 적발이 0건이다(specgate --only 50..54 전부 G12=0) — 초점 목록이 20함수 전역 요약을 그대로 옮긴 것으로 보인다.",
+  "도시에 §4 G10 표적 [50] 'visible_objective_overload(player, data, x, y)' 문면은 정본의 `v23_visible_objective_overload` 를 앞에서 잘라 인용했다(게이트 출력의 last[-110:] 절단) — 검색 키워드로 쓰면 못 찾는다.",
+  "G10 의 사실 판정 정규식이 도구마다 다르다: specgate.FACT_TAIL 은 `확정` 단독 어미를 잡지만 mkspec3.FACT_TAIL 은 `확정했다|확정된다` 만 잡아 같은 문장이 한쪽에선 사실 서술, 한쪽에선 미탐색이 된다(#53 open[3]·#50 open[0] 이 그 형태) — 두 정규식을 한 곳에서 import 하도록 통일해야 G10 이 자기 자신을 반복 적발하지 않는다.",
+  "applypatch.already() 의 cleanspec 폴백이 여전히 `new[:80]` 접두 부분문자열로 「이미 적용」을 판정한다 — #53 logic 정정처럼 old/new 가 앞 80자를 공유하면(뒤쪽만 고치는 정정) dry-run 이 `(이미 적용 1)` 로 조용히 버린다(8차 배치B 가 없앤 결함이 폴백 경로에 그대로 남아 있음). 이번엔 old/new 를 차이 나는 구간부터 잘라 우회했다.",
+  "G4(callees_unmatched ≥8) 는 v3 에서 손확인만 요구하고 닫을 길이 없다 — #53/#54 의 미매칭 이름은 전부 mem[].name 의 필드(epic_giveup_tick·minion_count·is_init·until_tick 등)·std(drop·entry·or_default·map_or·grow_one·format_inner·rustc_entry·insert_no_grow·enumerate)·지역변수(no_line_pushed) 였다. 검사기 개선안: harvest 단계에서 (a) 이름이 그 명세 mem[].name 의 마지막 성분과 같으면 필드로 간주해 제외, (b) std/alloc/core 화이트리스트 제외, (c) `name(+0x..)` 형(괄호 안이 오프셋)은 필드 접근 표기이므로 제외 — 이 세 규칙으로 #53 16→0, #54 19→0 이 된다."
+ ]
+}

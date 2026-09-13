@@ -1,0 +1,78 @@
+{
+ "name": "v3_assign_anchor",
+ "sym": "_RNvMNtNtCshdEBA0ozCnw_7game_ai11plan_legacy7handlerNtB2_17LegacyPlanHandler16v3_assign_anchor",
+ "src": "game-ai\\src\\plan_legacy\\handler.rs",
+ "src_line": 1773,
+ "ir_file": "m13.ll",
+ "ir_from": 10721,
+ "ir_to": 10921,
+
+ "one_line": "v3_armed 이면 현 BigPlan 의 목적지(라인 1차타워 중점/정글캠프)를, 2칸 안이면 현 위치를 앵커로 낸다",
+
+ "signature": {
+  "params": [
+   {"i": 0, "name": "(sret)", "type": "Option<(u64,u64)>(24B) — +0x0 tag(0 None/1 Some), +0x8 x, +0x10 y", "note": "IR %0. 챔프 부재일 때만 None"},
+   {"i": 1, "name": "self", "type": "&LegacyPlanHandler", "note": "IR %1. v3_armed(+0x1808)·plan 태그(+0x5e8)·plan 페이로드(+0x5f0~) 를 읽는다"},
+   {"i": 2, "name": "player", "type": "&PlayerState(2528B)", "note": "인자 승격: IR %2 = player.info.team(i64, <2 아니면 panic_bounds_check), IR %3 = player.info.position(i32, Position::as_index 인라인 entity.rs:581)"},
+   {"i": 3, "name": "data", "type": "&OperationData(24B)", "note": "인자 승격: IR %4 = data.cache(+0x0), IR %5 = data.context(+0x8). blackboard 는 안 읽음"}
+  ],
+  "returns": "Option<(u64,u64)> — Some(앵커 좌표). None = cache.player_champion[team][position] 이 없음(챔프 없음)"
+ },
+
+ "reads": [
+  {"base": "AbstractGameWithCache", "offset": "0x1e0", "name": "player_champion[team][position]", "note": "[[Option<&Entity>;5];2] stride 40. null → return None (handler.rs:1774 let-else)"},
+  {"base": "Entity(내 챔프)", "offset": "0x660", "name": "x", "note": "here.0"},
+  {"base": "Entity(내 챔프)", "offset": "0x668", "name": "y", "note": "here.1"},
+  {"base": "LegacyPlanHandler", "offset": "0x1808", "name": "v3_armed", "note": "bool(i8 range 0..2). false → 즉시 Some(here). true 여야 plan 목적지를 본다 (handler.rs:1776)"},
+  {"base": "LegacyPlanHandler", "offset": "0x5e8", "name": "plan@tag (BigPlan 니치 태그)", "note": "i64 range[0,18), 6 은 아님(assume). 태그 ≥2 → 논리idx = 태그-2, 태그 0/1 → idx 4(DeathMatchBattle)"},
+  {"base": "LegacyPlanHandler", "offset": "0x706", "name": "plan@PassiveLine.0.line (LineType i8 0..3)", "note": "idx1 PassiveLine 가지 (handler.rs:1785)"},
+  {"base": "LegacyPlanHandler", "offset": "0x618", "name": "plan@LineGanker.0.line (LineType i8 0..3)", "note": "idx8 LineGanker 가지 (handler.rs:1786)"},
+  {"base": "LegacyPlanHandler", "offset": "0x650", "name": "plan@PassiveJungle.0.jungle (JungleType i8 0..6)", "note": "idx5 PassiveJungle 가지 — camp_pos 의 캠프 인자 (handler.rs:1787)"},
+  {"base": "LegacyPlanHandler", "offset": "0x638", "name": "plan@PassiveJungle.0.team (usize)", "note": "== 0 이 camp_pos 의 세 번째 인자(bool). ⚠player 팀이 아니라 플랜 페이로드의 team"},
+  {"base": "GameContext", "offset": "0x20", "name": "map: &MapDef(28112B)", "note": "camp_pos 의 self"}
+ ],
+
+ "writes": [],
+
+ "constants": [
+  {"value": 2, "src_line": 1774, "meaning": "team 인덱스 상한 (player_champion 의 바깥 배열 길이 2, panic_bounds_check)"},
+  {"value": 6, "src_line": 1784, "meaning": "BigPlan 태그 6 은 존재하지 않음(llvm.assume ne 6) — 니치 구멍"},
+  {"value": -2, "src_line": 1784, "meaning": "BigPlan 태그 → 논리 인덱스 (niche_start=2). 1 PassiveLine / 5 PassiveJungle / 8 LineGanker / 10·11 EpicHuntAndPoke·EpicHuntAndBattle / 12·13 SerpenHuntAndPoke·SerpenHuntAndBattle"},
+  {"value": 4, "src_line": 1784, "meaning": "태그 0/1(DeathMatchBattle 니치)의 논리 인덱스 4 — switch 에 없으므로 default(=Some(here))"},
+  {"value": 1, "src_line": 1781, "meaning": "theirs = first_tower_position(line, 1 - team) — 상대 팀 인덱스"},
+  {"value": 1, "src_line": 1782, "meaning": "(mine + theirs) >> 1 — 두 1차 타워의 중점(x,y 각각). 나눗셈 2 가 lshr 1 로 접힘"},
+  {"value": 4, "src_line": 1789, "meaning": "JungleType 태그 4 = Morgard — Epic 플랜 두 종의 목적지 캠프"},
+  {"value": 5, "src_line": 1791, "meaning": "JungleType 태그 5 = Serpen — Serpen 플랜 두 종의 목적지 캠프"},
+  {"value": 0, "src_line": 1789, "meaning": "camp_pos(…, team == 0) — Epic/Serpen 가지의 bool 인자 = 내 팀이 0번 팀인가(캠프 좌표 대칭 선택으로 추정)"},
+  {"value": 4096000000, "src_line": 1796, "meaning": "64000² = (2셀)² — here↔dest 제곱거리가 이보다 크면 dest 를, 아니면 here 를 앵커로"}
+ ],
+
+ "calls": [
+  "game_ai::plan_legacy::team_plan::objective_helpers::first_tower_position",
+  "game_core::simulation::map_def::MapDef::camp_pos",
+  "core::panicking::panic_bounds_check"
+ ],
+
+ "logic": "fn v3_assign_anchor(&self, player, data) -> Option<(u64,u64)>   // handler.rs:1773~1799\n[L1774] team = player.info.team (<2)   pos = player.info.position.as_index()\n        champ = data.cache.player_champion(+0x1e0)[team][pos] else { return None }\n[L1775] here = (champ.x(+0x660), champ.y(+0x668))\n[L1776] if !self.v3_armed(+0x1808) { return Some(here) }\n[L1779] line_anchor = |line: LineType| {\n[L1780]   mine   = first_tower_position(line, team)        // m15.ll:51623 — 상수표: Top (272000,48000)/(48000,272000), Mid (592000,368000)/(368000,592000), Bottom (912000,688000)/(688000,912000); team==0 이면 앞쪽\n[L1781]   theirs = first_tower_position(line, 1 - team)\n[L1782]   ((mine.x + theirs.x) >> 1, (mine.y + theirs.y) >> 1) }   // 양 팀 1차 타워의 중점 = 라인 중앙\n[L1784] dest = match self.plan(+0x5e8 태그) {\n[L1785]   PassiveLine(p)                          => line_anchor(p.line(+0x706)),\n[L1786]   LineGanker(p)                           => line_anchor(p.line(+0x618)),\n[L1787]   PassiveJungle(p)                        => data.context.map(+0x20).camp_pos(p.jungle(+0x650), p.team(+0x638) == 0),\n[L1789]   EpicHuntAndPoke | EpicHuntAndBattle     => map.camp_pos(JungleType::Morgard(4), team == 0),\n[L1791]   SerpenHuntAndPoke | SerpenHuntAndBattle => map.camp_pos(JungleType::Serpen(5), team == 0),\n          _ /*ForcePassive·SinglePlanLine·SinglePlanBattle·DeathMatchBattle·ActiveRecall·Battle·LineGankCover·AttackNexus·DefenseNexus*/ => return Some(here) }\n[L1796] d2 = abs_diff(here.x, dest.x)² + abs_diff(here.y, dest.y)²\n        return Some( if d2 > 4096000000 /*64000²=2셀*/ { dest } else { here } )\n\n※ 부작용 없음(sret 외 store 0). rnd 없음. 이 함수는 v33+ ActionContext 의 anchor(\"어디 근처에 있어야 하는가\") 공급원으로 보이나 호출측(m13.ll 7002/7166/8193)은 안 봤다.",
+
+ "knobs": [
+  {"what": "앵커 스냅 반경 (플랜 목적지 vs 현 위치)", "where": "handler.rs:1796 (IR m13.ll:10917 `icmp ugt i64 %108, 4096000000`)", "value": 4096000000,
+   "effect": "64000²(2셀). 목적지에서 이보다 멀면 앵커=목적지(그쪽으로 끌림), 가까우면 앵커=현 위치(자유 배회). 올리면 목적지 근처에서 더 넓게 배회하고, 내리면 목적지에 더 바짝 붙는다"},
+  {"what": "v3_armed 게이트", "where": "handler.rs:1776 (IR m13.ll:10762 load self+6152)", "value": 1,
+   "effect": "false 면 플랜과 무관하게 앵커=현 위치. 강제로 true 면 모든 플랜에서 목적지 앵커가 켜진다"},
+  {"what": "Epic 플랜 목적지 캠프", "where": "handler.rs:1789 (IR m13.ll:10873 `i8 noundef 4`)", "value": 4,
+   "effect": "JungleType 4=Morgard. 바꾸면 에픽 사냥 플랜 중 앵커가 다른 캠프로 간다"},
+  {"what": "Serpen 플랜 목적지 캠프", "where": "handler.rs:1791 (IR m13.ll:10887 `i8 noundef 5`)", "value": 5,
+   "effect": "JungleType 5=Serpen"},
+  {"what": "라인 앵커 = 양 팀 1차 타워 중점", "where": "handler.rs:1782 (IR m13.ll:10815/10817 `lshr i64 …, 1`)", "value": 1,
+   "effect": "lshr 1 = /2 (중점). 가중치를 바꾸면(예: 3:1) 아군 타워 쪽으로 앵커가 당겨진다 — first_tower_position 상수표(m15.ll:51643~51654)도 함께 보라"}
+ ],
+
+ "unknown": [
+  "MapDef::camp_pos(&MapDef, JungleType, bool) 의 bool 인자 의미 — 호출측은 `team == 0`(Epic/Serpen 가지) 또는 `p.team == 0`(PassiveJungle 가지)을 넘긴다. '0번 팀 기준 좌표 대칭' 으로 추정. 본문은 _gcbc/g07.ll:152570 에 있으나 안 읽음(미탐색)",
+  "default 가지(9개 variant)에서 dest 가 '없음'인지 'here' 인지는 소스 표기 구분 불가 — IR 상 phi 로 곧장 Some(here) 에 합류하므로 관측 동작은 동일(표기 불가)",
+  "PassiveJungle 가지가 플레이어 팀이 아니라 플랜 페이로드의 `p.team`(+0x638) == 0 을 쓰는 이유 — PassiveJunglePlan 에 team(+0x48)/player_team(+0x50) 두 필드가 있고 여기선 +0x48(team) 을 읽는다. 둘의 의미 차이는 미탐색",
+  "호출자 3곳(m13.ll:7002 / 7166 / 8193)이 어느 함수인지·반환 앵커가 어떤 채점에 쓰이는지는 안 봤다(범위 밖)",
+  "v3_armed 가 언제 true 로 세팅되는지(쓰기 지점)는 이 함수 밖 — 미탐색"
+ ]
+}

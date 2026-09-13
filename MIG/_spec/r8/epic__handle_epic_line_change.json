@@ -1,0 +1,318 @@
+{
+ "name": "TeamPlan::handle_epic_line_change",
+ "sym": "_RNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old4epicNtNtB6_9team_plan8TeamPlan23handle_epic_line_change",
+ "src": "game-ai\\src\\plan_legacy\\old\\epic.rs",
+ "src_line": 684,
+ "ir_file": "m09.ll",
+ "ir_from": 7267,
+ "ir_to": 8155,
+ "aux": [],
+ "one_line": "에픽(모르가드) 버프 압박 라인을 적 포탑 잔존 상태로 재선택 — 더 멀쩡한 라인이 있으면 PressChange 챗 + objective=PressEpic(그 라인)",
+ "signature": {
+  "params": [
+   {
+    "i": 1,
+    "name": "self",
+    "type": "&mut TeamPlan(1064B)",
+    "note": "chats(+0xc0 Vec<Chat>) 에 push, objective(+0x41f Option<MainObjective>) 에 store"
+   },
+   {
+    "i": 2,
+    "name": "_version",
+    "type": "usize",
+    "note": "미사용"
+   },
+   {
+    "i": 3,
+    "name": "rnd",
+    "type": "&mut StdRng(320B)",
+    "note": "PlayerState::strategy 에만 전달"
+   },
+   {
+    "i": 4,
+    "name": "player",
+    "type": "&PlayerState(2528B)",
+    "note": "strategy 호출 self + info.team(+0x930)"
+   },
+   {
+    "i": 5,
+    "name": "data",
+    "type": "&OperationData(24B)",
+    "note": "+0x0 cache(포탑 슬롯·dyn game), +0x10 blackboard(&[Blackboard;2])"
+   },
+   {
+    "i": 6,
+    "name": "_debug",
+    "type": "&mut DebugFrameData",
+    "note": "미사용(readnone)"
+   },
+   {
+    "i": 7,
+    "name": "line",
+    "type": "LineType(i8, 0=Top 1=Mid 2=Bottom)",
+    "note": "현재 압박 중인 라인. range(0,3)"
+   }
+  ],
+  "returns": "() — 부작용만: self.chats push, self.objective store"
+ },
+ "reads": [
+  {
+   "base": "PlayerState",
+   "offset": "0x930",
+   "name": "info.team",
+   "note": "enemy = 1 - team (포탑 슬롯 인덱스, >=2 면 panic_bounds_check) / 우리 team 은 blackboard 인덱스"
+  },
+  {
+   "base": "OperationData",
+   "offset": "0x0",
+   "name": "cache",
+   "note": "&AbstractGameWithCache — 선두 16B = &dyn AbstractGame(strategy·get_game_mode 인자)"
+  },
+  {
+   "base": "OperationData",
+   "offset": "0x10",
+   "name": "blackboard",
+   "note": "&[Blackboard;2]. [team] 의 미니언 수 비교(Gather 경로)"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x180",
+   "name": "top_tower[enemy]",
+   "note": "라인별 1차 포탑 = cache + 0x180 + line*32 + team*8 (Top 0x180 / Mid 0x1a0 / Bottom 0x1c0). Option<&Entity> 니치"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x190",
+   "name": "top_tower2[enemy]",
+   "note": "라인별 2차 포탑 = cache + 0x190 + line*32 + team*8 (0x190/0x1b0/0x1d0). `tower.or(tower2)` = 바깥쪽 생존 포탑"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x1a0",
+   "name": "mid_tower[enemy]",
+   "note": "직접 상수 오프셋 416 으로도 읽는다(line 인자와 무관한 Mid 고정 조회)"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x1b0",
+   "name": "mid_tower2[enemy]",
+   "note": "432"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x1c0",
+   "name": "bottom_tower[enemy]",
+   "note": "448 (Mid 분기에서 Bottom 고정 조회)"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x1d0",
+   "name": "bottom_tower2[enemy]",
+   "note": "464"
+  },
+  {
+   "base": "Entity(포탑)",
+   "offset": "0x68",
+   "name": "ty@tag",
+   "note": "==2 → EntityType::Tower 일 때만 is_tower2 를 본다(아니면 is_tower2=false)"
+  },
+  {
+   "base": "Entity(포탑)",
+   "offset": "0x128",
+   "name": "ty@Tower.info.ty (TowerType)",
+   "note": "Tower::is_second_tower = 태그 >= 5 (Top2/Mid2/Bottom2). entity.rs:1309 Entity::is_tower2 인라인"
+  },
+  {
+   "base": "Strategy(스택 24B, PlayerState::strategy 반환)",
+   "offset": "0x4",
+   "name": "morgard_use (MorgardUseStrategy, i32 니치)",
+   "note": "<5 = Split131(암묵) → 즉시 return / 5 = Gather / 6 = Split14"
+  },
+  {
+   "base": "GameMode(get_game_mode 반환 {i64,ptr})",
+   "offset": "0x0",
+   "name": "tag",
+   "note": "0 = Moba(&MobaMode). 아니면 unwrap_failed(epic.rs:715/716)"
+  },
+  {
+   "base": "MobaMode",
+   "offset": "0x1b0",
+   "name": "jungle_runner.epic.next_respawn_tick",
+   "note": "dbg epic_tick"
+  },
+  {
+   "base": "MobaMode",
+   "offset": "0x1e0",
+   "name": "jungle_runner.serpen.next_respawn_tick",
+   "note": "dbg serpen_tick"
+  },
+  {
+   "base": "Blackboard[team]",
+   "offset": "0x20",
+   "name": "top_minion_state.minion_count",
+   "note": "i32, dbg top_wave"
+  },
+  {
+   "base": "Blackboard[team]",
+   "offset": "0x70",
+   "name": "bottom_minion_state.minion_count",
+   "note": "i32, dbg bottom_wave"
+  },
+  {
+   "base": "TeamPlan",
+   "offset": "0xc0",
+   "name": "chats.cap",
+   "note": "Vec<Chat> push 인라인: len==cap 이면 grow_one"
+  },
+  {
+   "base": "TeamPlan",
+   "offset": "0xc8",
+   "name": "chats.ptr",
+   "note": "elem 24B"
+  },
+  {
+   "base": "TeamPlan",
+   "offset": "0xd0",
+   "name": "chats.len",
+   "note": ""
+  }
+ ],
+ "writes": [
+  {
+   "base": "TeamPlan",
+   "offset": "0xc0",
+   "name": "chats",
+   "value": "push(Chat::PressChange(new_line, 0)) — 태그 22, +0x1 LineType, +0x8 usize 0",
+   "note": "len(+0xd0) += 1. 라인을 바꿀 때만"
+  },
+  {
+   "base": "TeamPlan",
+   "offset": "0x41f",
+   "name": "objective@tag",
+   "value": "5 = MainObjective::PressEpic",
+   "note": "라인을 바꿀 때만"
+  },
+  {
+   "base": "TeamPlan",
+   "offset": "0x420",
+   "name": "objective@PressEpic.0 (LineType)",
+   "value": "new_line (0 Top / 1 Mid / 2 Bottom)",
+   "note": ""
+  }
+ ],
+ "constants": [
+  {
+   "value": 1,
+   "src_line": 689,
+   "meaning": "line == Mid(1) 로 두 분기(현재 Mid 압박 / 사이드 압박) 갈림"
+  },
+  {
+   "value": 1,
+   "src_line": 691,
+   "meaning": "enemy = 1 - team"
+  },
+  {
+   "value": 2,
+   "src_line": 691,
+   "meaning": "포탑 슬롯 배열 길이 2 (enemy>=2 면 panic_bounds_check) · EntityType 태그 2 = Tower"
+  },
+  {
+   "value": 5,
+   "src_line": 691,
+   "meaning": "TowerType < 5 = 1차 포탑(Top/Mid/Bottom/TwinA/TwinB) ⟺ !is_second_tower (tower.rs:100 인라인) ⚠`shl … , 5` 는 포탑 배열 stride(line*32) 접힘이지 이 임계가 아님"
+  },
+  {
+   "value": 4,
+   "src_line": 692,
+   "meaning": "TowerType > 4 = 2차 포탑(Top2/Mid2/Bottom2) ⟺ is_second_tower"
+  },
+  {
+   "value": 22,
+   "src_line": 697,
+   "meaning": "Chat 메모리태그 22 = PressChange(LineType, usize)"
+  },
+  {
+   "value": 0,
+   "src_line": 697,
+   "meaning": "PressChange.1 (usize) 은 항상 0"
+  },
+  {
+   "value": 5,
+   "src_line": 702,
+   "meaning": "MorgardUseStrategy 니치: 태그 < 5 = Split131(암묵 variant) → 아무것도 안 하고 return. (5=Gather 6=Split14, tcxdict --enum)"
+  },
+  {
+   "value": 6,
+   "src_line": 714,
+   "meaning": "MorgardUseStrategy 메모리태그 6 = Split14 → 에픽/서펜 리스폰 시각으로 후보 라인 결정. 아니면(5 Gather) 양 사이드 다 비교 ⚠본문의 `shl i8 %6, 5` 는 line 레지스터(%6)*32 stride 접힘 — 이 상수와 무관"
+  },
+  {
+   "value": 0,
+   "src_line": 715,
+   "meaning": "GameMode 태그 0 = Moba — 아니면 unwrap_failed"
+  },
+  {
+   "value": 0,
+   "src_line": 719,
+   "meaning": "LineType Top = 0 (object_far_line / PressChange 라인값)"
+  },
+  {
+   "value": 2,
+   "src_line": 721,
+   "meaning": "LineType Bottom = 2"
+  },
+  {
+   "value": 5,
+   "src_line": 697,
+   "meaning": "objective 태그 5 = MainObjective::PressEpic (store i8 5, ptr self+0x41f)"
+  }
+ ],
+ "calls": [
+  "game_core::simulation::state::player::PlayerState::strategy",
+  "grow_one",
+  "core::option::unwrap_failed",
+  "core::panicking::panic_bounds_check"
+ ],
+ "logic": "fn handle_epic_line_change(&mut self, _version, rnd, player, data, _debug, line)\n\n[L688] strategy = player.strategy(rnd, game)             // Strategy 24B (스택)\n       enemy = 1 - player.info.team(+0x930)\n// 헬퍼(전부 인라인): outer(l) = cache.tower(l,enemy).or(cache.tower2(l,enemy))   // 바깥쪽 생존 포탑\n//   first(l)  = outer(l).is_some_and(|t| !t.is_tower2())   // 1차 포탑 생존\n//   second(l) = outer(l).is_some_and(|t|  t.is_tower2())   // 1차 파괴·2차 생존\n//   score(l)  = (first(l), second(l))                        // bool 튜플, 사전식 비교(tuple.rs:195 gt 인라인)\n//   change(l) = { self.chats.push(Chat::PressChange(l, 0)); self.objective = Some(PressEpic(l)) }\n\n[L689] if line != Mid {\n[L691~694]   // 현재 사이드 라인 vs Mid\n[L696]   if score(Mid) > score(line) {           // = (mid_first && !line_first) || (mid_first==line_first && mid_second && !line_second)\n[L697]     change(Mid) }\n         return\n       }\n\n// ── line == Mid ──\n[L702] if strategy.morgard_use(+0x4) 태그 < 5 /*Split131*/ { return }\n[L706~712] top_first=first(Top) bottom_first=first(Bottom) top_second=second(Top) bottom_second=second(Bottom) mid_first=first(Mid) mid_second=second(Mid)\n[L714] if strategy.morgard_use == 6 /*Split14*/ {\n[L715]   epic_tick   = game.get_game_mode().moba().unwrap().jungle_runner.epic.next_respawn_tick(+0x1b0)\n[L716]   serpen_tick = …serpen.next_respawn_tick(+0x1e0)\n[L717]   if epic_tick > serpen_tick {           // 서펜이 먼저 뜬다\n[L719]     object_far_line = Top\n[L724]     if score(Bottom) > score(Mid) { change(Bottom) [L725] }\n         } else {                                // 에픽이 먼저(또는 동시)\n[L721]     object_far_line = Bottom\n[L729]     if score(Top) > score(Mid) { change(Top) [L730] }\n         }\n         return\n       }\n// morgard_use == Gather(5)\n[L735~736] if score(Top) > score(Mid) && score(Bottom) > score(Mid) {\n[L738]   top_wave    = data.blackboard(+0x10)[team].top_minion_state.minion_count(+0x20)\n[L739]   bottom_wave = …bottom_minion_state.minion_count(+0x70)\n[L741]   if top_wave > bottom_wave (signed) { change(Top) [L742] } else { change(Bottom) [L745] }\n[L748] } else if score(Top) > score(Mid) { change(Top) [L749] }\n[L751] else if score(Bottom) > score(Mid) { change(Bottom) [L752] }\n[L757] return\n\n※ change() 의 objective store 는 공통 블록 %116 (phi 로 라인값 0/1/2) — 챗 push 뒤에 항상 같이 실행된다.\n※ object_far_line 은 dbg_value 로만 남고 분기에 직접 쓰이지 않는다(후보 라인 선택으로 접힘).",
+ "knobs": [
+  {
+   "what": "라인 교체 판정식 = 포탑 잔존 점수 사전식 비교 (1차 생존, 2차만 생존)",
+   "where": "epic.rs:696·724·729·735·748·751 (m09.ll:7443 `xor i1 %39, %66` 등 tuple gt 인라인)",
+   "value": "(first, second) 튜플 >",
+   "effect": "후보 라인이 현재/Mid 보다 포탑이 더 남아 있어야 바꾼다. 동점이면 안 바꾼다. 비교 방향을 뒤집으면 더 뚫린 라인으로 간다"
+  },
+  {
+   "what": "Split131 전략이면 Mid 재선택 자체를 안 함",
+   "where": "epic.rs:702 (m09.ll:7328 `icmp samesign ult i32 %32, 5`)",
+   "value": 5,
+   "effect": "morgard_use 태그 <5 (Split131) 에서 즉시 return. 이 게이트를 없애면 131 분할 전략에서도 Mid→사이드 전환이 생긴다"
+  },
+  {
+   "what": "Split14 에서 후보 라인 = 먼저 뜨는 오브젝트 반대편",
+   "where": "epic.rs:717 (m09.ll:7755 `icmp ugt i64 %220, %228`)",
+   "value": "epic_tick > serpen_tick",
+   "effect": "서펜이 먼저면 Bottom 후보, 에픽이 먼저(동시 포함)면 Top 후보. 부등호를 >= 로 바꾸면 동시 리스폰 때 Bottom 을 고른다"
+  },
+  {
+   "what": "Gather 에서 양 사이드 동률 시 웨이브 큰 쪽",
+   "where": "epic.rs:741 (m09.ll:8066 `icmp sgt i32 %334, %336`)",
+   "value": "top_wave > bottom_wave",
+   "effect": "아군 블랙보드 미니언 수가 큰 라인을 고른다. 같으면 Bottom"
+  },
+  {
+   "what": "PressChange 챗 두 번째 값",
+   "where": "epic.rs:697 등 7곳 (`store i64 0, ptr %114`)",
+   "value": 0,
+   "effect": "항상 0 으로 push. 소비처는 이 함수 밖(미탐색)"
+  }
+ ],
+ "unknown": [
+  "Chat::PressChange 의 두 번째 usize(항상 0) 의 의미와 소비처 — 이 함수 밖. 미탐색",
+  "Blackboard.top_minion_state.minion_count 가 '우리 미니언 수'인지 '적 미니언 수'인지 — 이름만 근거. blackboard[team](우리 팀 판) 인 것은 IR 확정",
+  "object_far_line(Top/Bottom) 이 dbg 로만 남아 원래 소스에서 어떤 식으로 후보 라인을 골랐는지(예: opposite(object_far_line)) 는 표기 불가. 동작(Top 후보/Bottom 후보)은 확정",
+  "score 튜플의 두 번째 성분이 (second(l), second(Mid)) 인지 (second(l) && !second(Mid), false) 인지 — 외연 동일(둘 다 second(l) && !second(Mid))이라 표기 불가",
+  "Gather 경로에서 L748 `else if score(Top) > score(Mid)` 는 L735 가 참이고 L736 이 거짓일 때만 도달하므로 항상 참 — IR 이 %215 를 재사용하는 것으로 확인. 소스 구조(if a&&b / else if a / else if b) 는 추정",
+  "PlayerState::strategy 내부(_gcbc) 안 봄 — rnd 를 받으므로 확률적일 수 있음",
+  "exe 0xdce520 은 이번에 대조하지 않음(지시에 확정으로 적혀 있어 재검증 생략)"
+ ]
+}

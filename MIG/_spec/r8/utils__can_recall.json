@@ -1,0 +1,104 @@
+{
+ "name": "can_recall",
+ "sym": "_RNvNtCshdEBA0ozCnw_7game_ai5utils10can_recall",
+ "src": "game-ai\\src\\utils.rs",
+ "src_line": 350,
+ "ir_file": "m04.ll",
+ "ir_from": 46695,
+ "ir_to": 46881,
+ "aux": [
+  {"ir_file": "m04.ll", "ir_from": 15501, "ir_to": 15582, "note": "closure#0 (utils.rs:354~362) — 200000 반경 '보이는 적' 술어 본체 can_recall0"},
+  {"ir_file": "m04.ll", "ir_from": 15585, "ir_to": 15662, "note": "closure#1 (utils.rs:365~373) — 20000 반경 '어떤 적이든' 술어 본체 can_recalls_0"}
+ ],
+
+ "one_line": "지금 귀환(recall)해도 안전한가 — 최근 피격·주변 적·은신·샘까지 거리로 판정, 아니면 샘 안인가",
+
+ "signature": {
+  "params": [
+   {"i": 1, "name": "rnd", "type": "&mut StdRng(320B, align16)", "note": "본문에서 직접 안 씀. find_nearest_entity 두 번 호출에 그대로 전달"},
+   {"i": 2, "name": "player", "type": "&PlayerState(2528B)", "note": "info.id(+0x928)·info.team(+0x930) 만 읽는다"},
+   {"i": 3, "name": "data", "type": "&OperationData(24B)", "note": "{+0x0 cache:&AbstractGameWithCache, +0x8 context:&GameContext}. cache+0x0/+0x8 = &dyn AbstractGame (data, vtable)"}
+  ],
+  "returns": "bool — true = 귀환해도 안전(또는 이미 샘 사각형 안)"
+ },
+
+ "reads": [
+  {"base": "OperationData", "offset": "0x0", "name": "cache", "note": "&AbstractGameWithCache. 그 선두 16B 가 &dyn AbstractGame (data ptr, vtable ptr)"},
+  {"base": "OperationData", "offset": "0x8", "name": "context", "note": "&GameContext"},
+  {"base": "AbstractGameWithCache", "offset": "0x0", "name": "game.data", "note": "dyn AbstractGame 데이터 포인터"},
+  {"base": "AbstractGameWithCache", "offset": "0x8", "name": "game.vtable", "note": "dyn AbstractGame vtable(816B). 슬롯 0x1c8=get_player_champion, 0x110=find_nearest_entity, 0x28=tick (divtable 일치율 98%)"},
+  {"base": "GameContext", "offset": "0x0", "name": "pool", "note": "&bumpalo::Bump — find_nearest_entity 3번째 인자"},
+  {"base": "GameContext", "offset": "0x8", "name": "setting", "note": "&GameSetting"},
+  {"base": "GameContext", "offset": "0x20", "name": "map", "note": "&MapDef — fountains 사각형 출처"},
+  {"base": "GameSetting", "offset": "0x1368", "name": "return_tick", "note": "귀환 채널 틱 수. invisible_tick 과 비교"},
+  {"base": "MapDef", "offset": "0x6d70", "name": "fountains[team]", "note": "[(lx,ly,rx,ry);2] u64 4개 = 32B stride. gepS 인덱스 = player.info.team (>=2 면 panic_bounds_check, map_def.rs:235 인라인)"},
+  {"base": "PlayerState", "offset": "0x928", "name": "info.id", "note": "get_player_champion(id) 인자"},
+  {"base": "PlayerState", "offset": "0x930", "name": "info.team", "note": "0 이면 샘 좌표 (32000,928000), 아니면 (928000,32000). fountains 인덱스"},
+  {"base": "Entity(champ)", "offset": "0x640", "name": "stat_cached.move_speed", "note": "0 이면 panic_const_div_by_zero (utils.rs:385). time = dist / move_speed"},
+  {"base": "Entity(champ)", "offset": "0x660", "name": "x", "note": "find_nearest_entity 중심·distance·샘 사각형 판정"},
+  {"base": "Entity(champ)", "offset": "0x668", "name": "y", "note": ""},
+  {"base": "Entity(champ)", "offset": "0x698", "name": "invisible_tick", "note": "!=0 && < return_tick 이면 '안전' 경로를 건너뛰고 샘 사각형 판정만 한다"},
+  {"base": "Entity(champ)", "offset": "0x5c0", "name": "id", "note": "aux 클로저에서 (other+1472) 정글 focused 와 비교"},
+  {"base": "Entity(e, 클로저 인자)", "offset": "0x0", "name": "team@tag", "note": "aux: TeamType 16B enum {tag +0x0, Player 페이로드 +0x8}. e.team != champ.team 판정(PartialEq 인라인)"},
+  {"base": "Entity(e, 클로저 인자)", "offset": "0x8", "name": "team@Player.0", "note": "aux: 둘 다 Player 이면 팀 번호 비교"},
+  {"base": "Entity(e, 클로저 인자)", "offset": "0x68", "name": "ty@tag", "note": "aux: ==4 → EntityType::Jungle"},
+  {"base": "Entity(e, 클로저 인자)", "offset": "0x88", "name": "ty@Jungle.info.focused@tag", "note": "aux: Option<usize> 태그(1=Some)"},
+  {"base": "Entity(e, 클로저 인자)", "offset": "0x90", "name": "ty@Jungle.info.focused@Some.0", "note": "aux: 정글몹이 노리는 엔티티 id. champ.id 와 같아야 '적'으로 센다"},
+  {"base": "battle_recency 반환(32B, 스택)", "offset": "0x10", "name": ".1 tag (Option<usize>, 피격 최신틱)", "note": "_docs: '(관여 최신틱, 피격 최신틱). 기록 없으면 None'. +0x10 태그, +0x18 값"},
+  {"base": "battle_recency 반환(32B, 스택)", "offset": "0x18", "name": ".1 value (last_attacked_tick)", "note": ""}
+ ],
+
+ "writes": [],
+
+ "constants": [
+  {"value": 200000, "src_line": 354, "meaning": "find_nearest_entity 반경(제곱 아님, 좌표단위 ≈6.25셀) — '보이는/노리는 적' 탐색 반경 (nearest_visible_enemy)"},
+  {"value": 20000, "src_line": 365, "meaning": "find_nearest_entity 반경(≈0.6셀) — 정글몹 포함 '어떤 적이든' 근접 탐색 반경 (nearest_enemy)"},
+  {"value": 928000, "src_line": 375, "meaning": "샘(heal area) 좌표 성분. team0 → (x=32000,y=928000), 그 외 → (x=928000,y=32000). 29셀 = 맵 반대편 구석"},
+  {"value": 32000, "src_line": 375, "meaning": "샘 좌표 성분(=1셀). 위와 짝"},
+  {"value": 2, "src_line": 381, "meaning": "MapDef.fountains 배열 길이 2 — team>=2 면 panic_bounds_check(map_def.rs:235)"},
+  {"value": 0, "src_line": 375, "meaning": "team == 0 판정(select) 으로 샘 좌표 고른다"},
+  {"value": 60, "src_line": 389, "meaning": "recent_attacked = last_attacked_tick + 60 >= now_tick — 최근 60틱(1초@60tps, 리터럴이라 tps 무관) 안에 맞았는가"},
+  {"value": 0, "src_line": 392, "meaning": "invisible_tick == 0 이면 은신 게이트 통과"},
+  {"value": 1, "src_line": 393, "meaning": "Option<..> Some 태그 — nearest_visible_enemy / nearest_enemy 의 is_none() 을 tag != 1 로 판정"},
+  {"value": 210, "src_line": 393, "meaning": "샘까지 걸어가는 데 걸리는 틱(dist/move_speed) > 210(3.5초@60tps) 이어야 귀환이 이득 → true. 이하면 걸어가라(샘 안 여부만 반환)"},
+  {"value": 4, "src_line": 356, "meaning": "aux closure: EntityType 메모리태그 4 = Jungle. 정글몹은 focused==champ.id 일 때만 적으로 센다"},
+  {"value": 0, "src_line": 355, "meaning": "aux closure: TeamType 태그 0 = Player(usize) — 둘 다 Player 면 페이로드(팀번호) 비교"}
+ ],
+
+ "calls": [
+  "game_core::simulation::battle_recency",
+  "game_core::utils::distance",
+  "core::option::unwrap_failed",
+  "core::panicking::panic_bounds_check",
+  "core::panicking::panic_const::panic_const_div_by_zero",
+  "game_core::simulation::state::player::OperationData::can_target"
+ ],
+
+ "logic": "fn can_recall(rnd, player, data) -> bool\n\n[L351] game = data.cache(+0x0) 의 &dyn AbstractGame (data ptr = cache+0x0, vtable = cache+0x8)\n[L352] champ = game.get_player_champion(player.info.id(+0x928))   // vtable+0x1c8, Option<&Entity>; None → unwrap_failed(utils.rs:352 패닉)\n[L354] nearest_visible_enemy = game.find_nearest_entity(rnd, data.context.pool(+0x0), champ.x(+0x660), champ.y(+0x668), 200000,\n         |e| e.team(+0x0) != champ.team && data.can_target(game, player, e)\n             && (if e.ty(+0x68)==4 /*Jungle*/ { e.ty.Jungle.info.focused(+0x88 tag ==1 && +0x90) == Some(champ.id(+0x5c0)) }\n                 else { data.can_target(game, player, e) /* L360: 같은 심볼을 한 번 더 호출 */ }))\n       // {i64,i64} 반환, tag(+0)==1 이면 Some\n[L365] nearest_enemy = game.find_nearest_entity(rnd, pool, champ.x, champ.y, 20000,\n         |e| e.team != champ.team && data.can_target(game, player, e)\n             && (if e.ty==4 /*Jungle*/ { focused == Some(champ.id) } else { true }))\n[L375] team = player.info.team(+0x930)\n       healp = if team == 0 { (32000, 928000) } else { (928000, 32000) }     // (x, y)\n[L381] (lx, ly, rx, ry) = data.context.map(+0x20).fountains(+0x6d70)[team]   // team>=2 → panic_bounds_check\n[L383] dist_to_heal_area = game_core::utils::distance(champ.x, champ.y, healp.x, healp.y)\n[L385] time = dist_to_heal_area / champ.stat_cached.move_speed(+0x640)     // speed 0 → div_by_zero 패닉\n[L388] rec = game_core::simulation::battle_recency(game, vtable, player.info.id)   // 32B = (Option<usize>, Option<usize>)\n[L389] recent_attacked = rec.1(+0x10 tag).is_some_and(|t| t + 60 >= game.tick() /*vtable+0x28*/)   // closure#2\n       //  IR: %76 = (t+60 < tick) ; br %76 → 계속, 아니면 → [L394]. None 이면 무조건 계속(=안 맞음)\n[L391] if !recent_attacked {\n[L392]   if champ.invisible_tick(+0x698) == 0 || champ.invisible_tick >= data.context.setting(+0x8).return_tick(+0x1368) {\n[L393]     if nearest_visible_enemy.is_none() && nearest_enemy.is_none() && time > 210 { return true }\n         }\n       }\n[L394] return lx <= champ.x && champ.x <= rx && ly <= champ.y && champ.y <= ry     // 샘 사각형 안이면 true\n\n※ 분기 순서 근거: %69/%77 → %78(invisible) → %90(적·time) → 실패 시 전부 %82(사각형). !dbg 줄 389→392→393→394.\n※ 부작용 없음(게임 구조체 store 0). rnd 는 find_nearest_entity 에 &mut 로 넘어간다.",
+
+ "knobs": [
+  {"what": "'보이는 적' 탐색 반경", "where": "utils.rs:354 (m04.ll:46736 `i64 200000`)", "value": 200000,
+   "effect": "올리면 더 먼 적이 있어도 귀환을 안 한다(보수적). 내리면 가까운 적만 위협으로 본다"},
+  {"what": "'어떤 적이든' 근접 탐색 반경", "where": "utils.rs:365 (m04.ll:46752 `i64 20000`)", "value": 20000,
+   "effect": "정글몹 포함 근접 적 체크 반경. 올리면 더 넓게 훑어 귀환을 더 자주 막는다"},
+  {"what": "최근 피격 창", "where": "utils.rs:389 (m04.ll:46828 `add i64 %71, 60`)", "value": 60,
+   "effect": "피격 후 이 틱 안이면 귀환 불가. 올리면 맞은 뒤 더 오래 귀환을 참는다. tps 와 무관한 리터럴"},
+  {"what": "귀환 이득 거리 임계(틱)", "where": "utils.rs:393 (m04.ll:46865 `icmp ugt i64 %64, 210`)", "value": 210,
+   "effect": "샘까지 걸어가는 시간이 이보다 길어야 귀환 true. 내리면 샘 근처에서도 귀환한다. 올리면 웬만하면 걸어간다"},
+  {"what": "은신 게이트 기준", "where": "utils.rs:392 (m04.ll:46858 `icmp ult i64 %80, %100`) — GameSetting.return_tick(+0x1368)", "value": "return_tick",
+   "effect": "invisible_tick 이 0 이 아니면서 return_tick 미만이면 안전 경로 차단. return_tick 을 내리면 이 차단이 빨리 풀린다"},
+  {"what": "샘 좌표 하드코딩", "where": "utils.rs:375 (m04.ll:46760~46762 select 928000/32000)", "value": "(32000,928000)|(928000,32000)",
+   "effect": "MapDef.fountains 와 별개로 거리 계산은 이 고정 좌표를 쓴다. 맵을 바꾸면 여기가 어긋난다"}
+ ],
+
+ "unknown": [
+  "closure#0(L354~362) 에서 정글이 아닌 엔티티에 대해 L355 와 L360 이 같은 심볼 OperationData::can_target 을 두 번 호출한다 — 소스에서 다른 함수(예: 가시성 판정)가 can_target 으로 인라인/별칭된 것인지, 진짜 중복 호출인지 IR 만으로 구분 못 함. 동작상 결과는 같다(순수 함수 가정)",
+  "invisible_tick(+0x698) 의 의미(은신 시작 틱인지 은신 지속 틱인지) — game_ai IR·_docs 에 없음. 관측 사실: `!=0 && < return_tick` 이면 안전 경로 차단. 미탐색 = _gcbc 의 store 지점",
+  "battle_recency 반환 32B 의 필드 이름 — tcx 에 타입 없음(튜플). _docs game_core 292행 '(관여 최신틱, 피격 최신틱) 없으면 None' 을 근거로 .1(+0x10/+0x18) = 피격 최신틱으로 읽음. 본문(_gcbc/g15.ll:131139) 은 안 봄",
+  "find_nearest_entity 의 반환 {i64,i64} 가 Option<usize>(id) 인지 Option<&Entity> 팻 튜플인지 — tag(+0)==1 을 Some 으로 쓰는 것만 확인. 본체(_gcbc/g15.ll:180061) 안 봄",
+  "OperationData::can_target 내부(_gcbc/g15.ll:66255) 안 봄 — 시야/타겟가능 판정으로 추정",
+  "★exe 3개 주소 대응(fnprobe 기준, Ghidra 미사용): 0xd36480 = can_recall 본체 확정(패닉 Location utils.rs:352:56·385:14, 상수 0x30d40=200000·0x4e20=20000·0xe2900=928000·0x7d00=32000, vtable+0x1c8 호출). 0xd41600·0xe2e560 은 Location 이 utils.rs:314/327/332 ⟹ tcx 상 game_ai::line_backfight_support_focus::{closure#3}(utils.rs:311~342) 의 두 복제본이지 can_recall 이 아니다(오라벨 추정). can_recall0/can_recalls_0 의 exe 짝은 미확정 — fnprobe 는 lea 로 넘기는 fn 포인터를 안 찍으므로 미탐색 = 0xd36480 안의 lea 대상 2개",
+  "can_recall 은 tcx 상 p=game_ai::can_recall v=pub(루트 재수출) — 오라클 실행 가능. 이번엔 안 돌림",
+  "closure#0/#1 의 call_mut 심(m04.ll 15886~15975 / 15978~16063) 은 클로저 본체의 복제라 aux 에서 뺐다"
+ ]
+}

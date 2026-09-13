@@ -1,0 +1,1 @@
+[{"corpus": "gai", "file": "m14.ll", "line": 7171, "text": "%60 = tail call noundef zeroext i1 @_RNvNtCshdEBA0ozCnw_7game_ai5utils10can_recall(ptr noalias noundef nonnull align 16 dereferenceable(320) %1, ptr noalias noundef nonnull readonly align 8 captures(address, read_provena"}]

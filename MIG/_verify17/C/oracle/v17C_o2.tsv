@@ -1,0 +1,7 @@
+setting_ok	true	width=960000	height=960000	tps=60	champ_radius=10000	visible=130000
+camp_pos	Rhino	side_true(team0)=(496000, 752000)	side_false(team1)=(752000, 496000)	mirror(w-x,h-y)=(464000, 208000)	same=false
+camp_pos	Mushroom	side_true(team0)=(176000, 592000)	side_false(team1)=(592000, 176000)	mirror(w-x,h-y)=(784000, 368000)	same=false
+camp_pos	Stump	side_true(team0)=(256000, 448000)	side_false(team1)=(448000, 256000)	mirror(w-x,h-y)=(704000, 512000)	same=false
+camp_pos	Bee	side_true(team0)=(351000, 800000)	side_false(team1)=(800000, 351000)	mirror(w-x,h-y)=(609000, 160000)	same=false
+camp_pos	Morgard	side_true(team0)=(288000, 288000)	side_false(team1)=(288000, 288000)	mirror(w-x,h-y)=(672000, 672000)	same=true
+camp_pos	Serpen	side_true(team0)=(672000, 672000)	side_false(team1)=(672000, 672000)	mirror(w-x,h-y)=(288000, 288000)	same=true

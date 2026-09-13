@@ -1,0 +1,96 @@
+{
+ "name": "fight_participants",
+ "sym": "_RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old11fight_model18fight_participants",
+ "src": "game-ai\\src\\plan_legacy\\old\\fight_model.rs",
+ "src_line": 610,
+ "ir_file": "m10.ll",
+ "ir_from": 39411,
+ "ir_to": 39912,
+
+ "one_line": "교전 참여 아군 목록: 근처 아군 전원 + (전투 선언·묶임·6초내 도착) 원거리 아군을 (엔티티, 도착틱, 묶임) 로 모은다",
+
+ "signature": {
+  "params": [
+   {"i": 0, "name": "(sret)", "type": "bumpalo Vec<(&Entity, i64, bool)>(32B: +0x0 ptr, +0x8 bump, +0x10 cap, +0x18 len; 원소 24B stride)", "note": "IR %0"},
+   {"i": 1, "name": "version", "type": "usize", "note": "IR %1. 본문 분기 없음 — ally_is_bound 로 전달만"},
+   {"i": 2, "name": "rnd", "type": "&mut StdRng(320B)", "note": "IR %2. ally_is_bound 로 전달만"},
+   {"i": 3, "name": "data", "type": "&OperationData(24B)", "note": "IR %3. cache(+0x0)·context(+0x8)·blackboard(+0x10) 전부 읽음"},
+   {"i": 4, "name": "player", "type": "&PlayerState(2528B)", "note": "IR %4. info.team(+0x930) 만 직접 읽음"},
+   {"i": 5, "name": "champ", "type": "&Entity(1728B)", "note": "IR %5. id(+0x5c0) 만 — 자기 자신 제외용"},
+   {"i": 6, "name": "near_allies", "type": "&[&Entity] (팻포인터, IR %6 ptr / %7 len)", "note": "전원 무조건 out 에 들어간다"},
+   {"i": 7, "name": "fight_enemies", "type": "&[&Entity] (팻포인터, IR %8 ptr / %9 len)", "note": "ally_is_bound 인자 · focus 대조 · 최소거리 계산 대상"},
+   {"i": 8, "name": "team_plan", "type": "&TeamPlan(1064B)", "note": "IR %10. ally_battle_stop_tick[5](+0x0) 만 읽음"},
+   {"i": 9, "name": "debug", "type": "&mut DebugFrameData(224B)", "note": "IR %11. ally_is_bound 로 전달만"}
+  ],
+  "returns": "Vec<(&Entity, i64, bool), &Bump> — (아군, 도착 예상 틱(근처·묶임이면 0), bound=묶여 있음). 자기 자신(champ) 은 절대 안 들어감"
+ },
+
+ "reads": [
+  {"base": "OperationData", "offset": "0x0", "name": "cache", "note": "&AbstractGameWithCache"},
+  {"base": "OperationData", "offset": "0x8", "name": "context", "note": "&GameContext. +0x0 pool(bump 할당자), +0x8 setting"},
+  {"base": "OperationData", "offset": "0x10", "name": "blackboard", "note": "&[Blackboard;2]. [player.info.team] (744B stride, ≥2 면 panic_bounds_check)"},
+  {"base": "GameContext", "offset": "0x0", "name": "pool: &Bump", "note": "out Vec 의 할당자"},
+  {"base": "GameContext", "offset": "0x8", "name": "setting: &GameSetting", "note": ""},
+  {"base": "GameSetting", "offset": "0x12f8", "name": "tick_per_second", "note": "horizon = tps*6"},
+  {"base": "PlayerState", "offset": "0x930", "name": "info.team", "note": "player_champion / blackboard 인덱스"},
+  {"base": "AbstractGameWithCache", "offset": "0x1e0", "name": "player_champion[team][i]", "note": "[[Option<&Entity>;5];2] stride 40. null → skip"},
+  {"base": "TeamPlan", "offset": "0x0", "name": "ally_battle_stop_tick[i]: Option<usize>(16B, +0x0 tag)", "note": "tag != 0(Some) 이면 그 아군은 원거리 후보에서 제외 (fight_model.rs:620)"},
+  {"base": "Blackboard", "offset": "0xf8", "name": "big_goal[i].1@tag (Option<BigGoal>, stride 32)", "note": "== 5 (Battle) 여야 함. IR gep 248+32*i"},
+  {"base": "Blackboard", "offset": "0x100", "name": "big_goal[i].1@Battle.focus@tag", "note": "Option<usize> Some=1. IR 256+32*i"},
+  {"base": "Blackboard", "offset": "0x108", "name": "big_goal[i].1@Battle.focus@Some.0", "note": "focus 엔티티 id. fight_enemies 에 같은 id 가 있어야 declared. IR 264+32*i"},
+  {"base": "Entity", "offset": "0x5c0", "name": "id", "note": "champ·아군·적 전부 id 비교"},
+  {"base": "Entity(아군)", "offset": "0x640", "name": "stat_cached.move_speed", "note": "sp = max(1, ·)"},
+  {"base": "Entity(아군)", "offset": "0x4c0", "name": "attack_effect@tag (Option<Effect> 니치 i32)", "note": "== -1 None → reach 0"},
+  {"base": "Entity(아군)", "offset": "0x4a0", "name": "attack_effect.range", "note": "Effect::range 인라인 (effect.rs:26)"},
+  {"base": "Entity(아군)", "offset": "0x4a8", "name": "attack_effect.growth_range", "note": "× (level-1)"},
+  {"base": "Entity(아군)", "offset": "0x5c8", "name": "level", "note": ""},
+  {"base": "Entity(아군)", "offset": "0x438", "name": "stat_buff_cached.range", "note": "reach 에 가산"}
+ ],
+
+ "writes": [],
+
+ "constants": [
+  {"value": 6, "src_line": 613, "meaning": "horizon = tick_per_second * 6 — 원거리 아군이 교전에 합류하는 데 허용하는 최대 시간 = 6초"},
+  {"value": 0, "src_line": 617, "meaning": "near_allies 원소의 도착틱 = 0 (이미 근처)"},
+  {"value": 2, "src_line": 621, "meaning": "player_champion / blackboard 의 팀 인덱스 상한(panic_bounds_check len=2)"},
+  {"value": 5, "src_line": 619, "meaning": "포지션 루프 0..5"},
+  {"value": 0, "src_line": 620, "meaning": "team_plan.ally_battle_stop_tick[i] 의 None 태그 — None 일 때만 후보"},
+  {"value": 5, "src_line": 627, "meaning": "BigGoal 태그 5 = Battle — 블랙보드에서 그 아군이 '전투'를 선언했어야 함"},
+  {"value": 1, "src_line": 630, "meaning": "sp = max(move_speed, 1) — 0 나눗셈 방지"},
+  {"value": -1, "src_line": 631, "meaning": "attack_effect Option 니치 None(-1). None 이면 reach=0"},
+  {"value": -1, "src_line": 26, "meaning": "Effect::range 인라인: growth_range * (level - 1)"},
+  {"value": 0, "src_line": 631, "meaning": "reach 의 unwrap_or(0)"},
+  {"value": 1, "src_line": 623, "meaning": "bound=true 로 push 되는 원거리 아군의 tuple.2 (도착틱 0)"}
+ ],
+
+ "calls": [
+  "game_ai::plan_legacy::old::fight_model::ally_is_bound",
+  "bumpalo::collections::raw_vec::RawVec::reserve_internal_or_panic",
+  "game_core::simulation::entity::Entity::distance",
+  "core::iter::traits::iterator::Iterator::fold",
+  "core::ptr::drop_glue",
+  "core::panicking::panic_bounds_check"
+ ],
+
+ "logic": "fn fight_participants(version, rnd, data, player, champ, near_allies, fight_enemies, team_plan, debug) -> Vec<(&Entity, i64, bool), &Bump>   // fight_model.rs:610~640\n[L613] horizon = data.context.setting.tick_per_second(+0x12f8) * 6\n[L614] out = Vec::new_in(data.context.pool)\n\n// ── 1) 근처 아군은 전원 포함 ──\n[L615] for a in near_allies {\n[L616]   bound = if a.id == champ.id { false } else { ally_is_bound(version, rnd, data, player, a, fight_enemies, debug) }\n[L617]   out.push((a, 0, bound)) }        // ⚠자기 자신이 near_allies 에 있어도 push 된다(bound=false)… 아래 unknown 참조\n\n// ── 2) 원거리 아군(팀 챔프 5명 순회) ──\n[L619] for i in 0..5 {\n[L620]   if team_plan.ally_battle_stop_tick[i](+0x0, stride16).is_some() { continue }\n[L621]   team = player.info.team(+0x930) (<2)   Some(a) = cache.player_champion(+0x1e0)[team][i] else continue\n[L622]   if a.id == champ.id { continue }   if out.iter().any(|o| o.0.id == a.id) { continue }   // 이미 near 에 있음\n[L623]   if ally_is_bound(version, rnd, data, player, a, fight_enemies, debug) { out.push((a, 0, true)); continue }\n[L627]   declared = matches!(data.blackboard[team].big_goal[i].1, Some(BigGoal::Battle{focus: Some(f)}))   // +0xf8==5 && +0x100==1\n                    && fight_enemies.iter().any(|e| e.id == f /*+0x108*/)\n         if !declared { continue }\n[L630]   sp = max(a.stat_cached.move_speed(+0x640), 1)\n[L631]   reach = a.attack_effect(+0x4c0 != -1).map(|e| e.range() /*= a.stat_buff_cached.range(+0x438) + e.range(+0x4a0) + e.growth_range(+0x4a8)*(a.level(+0x5c8)-1)*/).unwrap_or(0)\n[L632]   gap = fight_enemies.iter().map(|e| a.distance(e)).min()   // declared 로 비어있지 않음이 보장돼 첫 원소 무검사 로드\n               .saturating_sub(reach)\n[L633]   t = gap / sp\n[L634]   if t > horizon { continue }\n         out.push((a, t, false)) }\n[L639] return out\n\n※ 부작용: 게임 구조체 store 0. out 은 bump pool 할당. rnd/debug 는 ally_is_bound 에서 변할 수 있음.",
+
+ "knobs": [
+  {"what": "원거리 아군 합류 허용 시간 (horizon)", "where": "fight_model.rs:613 (IR m10.ll:39461 `mul i64 %20, 6`)", "value": 6,
+   "effect": "tps*6 = 6초. 올리면 더 멀리 있는(전투 선언한) 아군도 참여자로 세어 교전 판단이 낙관적이 되고, 내리면 근처·묶인 아군만 센다"},
+  {"what": "원거리 아군 인정 조건 = 블랙보드 Battle 선언 + focus 가 fight_enemies 안", "where": "fight_model.rs:627 (IR m10.ll:39732 `icmp eq i8 %123, 5`)", "value": 5,
+   "effect": "BigGoal::Battle(5) 외 태그를 허용하면 라인/정글 중인 아군까지 도착시간만으로 참여자가 된다"},
+  {"what": "도착 시간 계산의 사거리 공제", "where": "fight_model.rs:631~633 (IR m10.ll:39855 usub.sat, 39857 udiv)", "value": 0,
+   "effect": "t = (최소 적거리 − 아군 사거리) / 이속. 사거리 공제를 없애면 원거리 딜러의 도착이 늦게 계산돼 참여자에서 더 자주 빠진다"},
+  {"what": "묶인(bound) 아군은 거리 무관 참여", "where": "fight_model.rs:623 (IR m10.ll:39690 ally_is_bound → push (a,0,true))", "value": 1,
+   "effect": "ally_is_bound 가 true 면 도착시간 검사 없이 참여자로 넣는다. 이 분기를 빼면 묶인 아군도 6초 규칙을 받는다"}
+ ],
+
+ "unknown": [
+  "ally_is_bound(m10.ll 별도 define, 여기선 안 읽음) 의 판정 내용 — '아군이 적에게 묶여 있다' 정도만 이름·호출 위치로 추정. 안에서 version 분기가 있을 수 있다",
+  "Entity::distance 는 _gcbc 에 본문(안 읽음). 제곱거리인지 실거리인지 미확인 — reach(사거리 단위)와 뺄셈하므로 실거리로 추정",
+  "line 616: near_allies 안에 champ 자신이 있으면 bound=false 로 push 된다(제외되지 않는다). 호출측이 near_allies 에서 자신을 이미 뺐는지는 안 봤다(범위 밖). 반면 원거리 루프(L622)는 명시적으로 제외",
+  "Effect::range(effect.rs:25~26) 의 인라인 결과가 엔티티 필드(level·stat_buff_cached.range)까지 읽는다 — 시그니처가 range(&self, &Entity) 인지 클로저가 더 더하는지는 dbg 로 구분 못 함. 합계식만 확정",
+  "fight_enemies 첫 원소 무검사 로드(m10.ll:39838) — declared 조건(any 가 true)이 비어있지 않음을 함의하므로 안전. 소스가 min().unwrap() 인지 unwrap_or 인지는 표기 불가(unwrap_or<u64> DISubprogram 이 보이나 값이 접힘)",
+  "min 의 fold 는 별도 define(`…fight_participants…s0_0…min_by…fold`, calls 에 fold 로 등록)에 있고 본체는 안 읽음 — 이름으로 min_by(Ord::cmp) 임만 확정"
+ ]
+}

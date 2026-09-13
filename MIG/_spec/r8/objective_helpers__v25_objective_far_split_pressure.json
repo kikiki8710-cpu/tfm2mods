@@ -1,0 +1,84 @@
+{
+ "name": "v25_objective_far_split_pressure",
+ "sym": "_RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy9team_plan17objective_helpers32v25_objective_far_split_pressure",
+ "src": "game-ai\\src\\plan_legacy\\team_plan\\objective_helpers.rs",
+ "src_line": 103,
+ "ir_file": "m15.ll",
+ "ir_from": 54775,
+ "ir_to": 55347,
+ "aux": [],
+
+ "one_line": "에픽 목표(Morgard/Serpen)의 반대편 '먼 라인'에 아군 스플릿이 있고 그 라인이 밀리고 있으면 true(스플릿 압박 중)",
+
+ "signature": {
+  "params": [
+   {"i": 1, "name": "player", "type": "&PlayerState(2528B)", "note": "info.team(+0x930) 만 읽는다"},
+   {"i": 2, "name": "data", "type": "&OperationData(24B)", "note": "+0 cache / +8 context / +0x10 blackboard"},
+   {"i": 3, "name": "target", "type": "JungleType(i8)", "note": "목표 캠프. 4 Morgard → 먼 라인 Bottom(2), 5 Serpen → Top(0), 그 외(<4) → 즉시 false (v25_objective_far_line 인라인, objective_helpers.rs:96)"}
+  ],
+  "returns": "bool — true = 먼 라인에서 스플릿 압박이 성립(리드 ≥2 / 웨이브 깊게 밀림 / 밀림+미니언 우세)"
+ },
+
+ "reads": [
+  {"base": "OperationData", "offset": "0x0", "name": "cache", "note": "&AbstractGameWithCache — player_champion·top/bottom_lead"},
+  {"base": "OperationData", "offset": "0x8", "name": "context", "note": "&GameContext — line_exists·is_near_line 인자, map"},
+  {"base": "OperationData", "offset": "0x10", "name": "blackboard", "note": "&[Blackboard;2]. [team].minion_state(far_line)"},
+  {"base": "GameContext", "offset": "0x20", "name": "map", "note": "&MapDef — camp_pos(map, target, team==0)"},
+  {"base": "PlayerState", "offset": "0x930", "name": "info.team", "note": "usize. camp_pos side·player_champion/blackboard/lead 인덱스(≥2 면 panic_bounds_check)"},
+  {"base": "AbstractGameWithCache", "offset": "0x1e0", "name": "player_champion[team]", "note": "[Option<&Entity>;5] — 5슬롯 언롤 카운트"},
+  {"base": "AbstractGameWithCache", "offset": "0x21c0", "name": "top_lead[team] / bottom_lead[team]", "note": "cache + 0x21c0 + 16*far_line + 8*team (55311~55316). usize > 1 → true"},
+  {"base": "Blackboard", "offset": "0x0", "name": "top_minion_state (far_line Top) / +0x50 bottom_minion_state (far_line Bottom)", "note": "Blackboard::minion_state 인라인(blackboard.rs:379) — far_line==0 ? +0 : +80"},
+  {"base": "BrainMinionParameter", "offset": "0x10", "name": "from_mid", "note": "i64. > 2999 → true / > 999 → count>1 / 그 외 → count>3"},
+  {"base": "BrainMinionParameter", "offset": "0x20", "name": "minion_count", "note": "i32"},
+  {"base": "Entity", "offset": "0x670", "name": "hp", "note": "v23_healthy(objective_helpers.rs:12): hp*100/max_hp > 39"},
+  {"base": "Entity", "offset": "0x628", "name": "stat_cached.hp", "note": "max_hp. 0 → div_by_zero 패닉"},
+  {"base": "Entity", "offset": "0x660", "name": "x", "note": "u64 — is_near_line 인자·camp 거리"},
+  {"base": "Entity", "offset": "0x668", "name": "y", "note": "u64"}
+ ],
+
+ "writes": [],
+
+ "constants": [
+  {"value": 5, "src_line": 104, "meaning": "v25_objective_far_line 인라인: target == 5(Serpen) → far_line = Top(0)"},
+  {"value": 4, "src_line": 104, "meaning": "target == 4(Morgard) → far_line = Bottom(2). target < 4 (일반 정글캠프) → far_line None → 즉시 false. (본문의 `shl i8 %7, 4` 는 lead 배열 stride 16 의 접힘이지 이 상수와 무관 — 규칙대로 stride 는 미등록)"},
+  {"value": 2, "src_line": 104, "meaning": "LineType 태그 2 = Bottom (Morgard 의 먼 라인)"},
+  {"value": 39, "src_line": 111, "meaning": "v23_healthy: 아군 hp% > 39 (≥40%) 여야 스플릿 인원으로 센다"},
+  {"value": 100, "src_line": 111, "meaning": "hp*100/max_hp 백분율"},
+  {"value": 62499999999, "src_line": 113, "meaning": "250000² - 1 — 아군이 목표 캠프에서 dist² > 이 값(즉 ≥250000, ≈7.8칸) 만큼 떨어져 있어야 '먼 라인 스플릿'"},
+  {"value": 0, "src_line": 116, "meaning": "far_count == 0 → false (먼 라인에 건강한 아군 없음)"},
+  {"value": 1, "src_line": 121, "meaning": "lead[team][far_line] > 1 (타워 리드 2 이상) → true"},
+  {"value": 2999, "src_line": 122, "meaning": "from_mid > 2999 → true (웨이브가 적 쪽으로 깊게 밀림)"},
+  {"value": 999, "src_line": 123, "meaning": "from_mid > 999 이면 minion_count > 1 로 판정, 아니면 (L124) minion_count > 3"},
+  {"value": 3, "src_line": 124, "meaning": "웨이브가 안 밀렸을 때(from_mid ≤ 999) 필요한 미니언 우세 minion_count > 3"}
+ ],
+
+ "calls": [
+  "game_ai::plan_legacy::rule_scope::line_exists",
+  "game_core::simulation::map_def::MapDef::camp_pos",
+  "game_core::simulation::map_regions::is_near_line",
+  "core::panicking::panic_bounds_check",
+  "core::panicking::panic_const::panic_const_div_by_zero"
+ ],
+
+ "logic": "fn v25_objective_far_split_pressure(player, data, target: JungleType) -> bool\n\n[L104] far_line = v25_objective_far_line(target)          // 인라인(objective_helpers.rs:96): Serpen(5)→Top(0), Morgard(4)→Bottom(2), else None\n       far_line = far_line.filter(|l| rule_scope::line_exists(data.context, *l))\n       if far_line.is_none() { return false }              // target<4 → 54784 즉시 false ; line_exists false → false\n[L108] team = player.info.team ; camp = MapDef::camp_pos(map, target, team==0)\n[L109~115] far_count = cache.player_champion[team].iter_champions().filter(|a|\n[L111]        v23_healthy(a)                                  // a.hp*100/a.max_hp > 39\n[L112]     && map_regions::is_near_line(context, a.x, a.y, far_line)\n[L113]     && distance_sq(a, camp) > 62499999999             // 캠프에서 250000 이상 떨어짐\n           ).count()\n[L116] if far_count == 0 { return false }\n[L120] ms = data.blackboard[team].minion_state(far_line)      // Top→+0x0, Bottom→+0x50 (Mid 는 올 수 없음)\n[L121] if cache.{top,bottom}_lead[team](+0x21c0 + 16*far_line + 8*team) > 1 { return true }\n[L122] if ms.from_mid > 2999 { return true }\n[L123] if ms.from_mid > 999 { return ms.minion_count > 1 }\n[L124] return ms.minion_count > 3\n\n※ 부작용 없음. far_count 의 실제 값은 0 여부만 쓰인다(1명이어도 통과).",
+
+ "knobs": [
+  {"what": "스플릿 인원 HP 하한", "where": "objective_helpers.rs:111 ← :12 v23_healthy (IR m15.ll:54823 `icmp ugt i64 %37, 39`)", "value": 39,
+   "effect": "HP ≥40% 아군만 스플릿으로 인정. 내리면 빈사 아군의 스플릿도 압박으로 친다"},
+  {"what": "캠프-스플릿 최소 거리", "where": "objective_helpers.rs:113 (IR 54843 `icmp ugt i64 %57, 62499999999`)", "value": 62499999999,
+   "effect": "250000(≈7.8칸) 이상 떨어져야 '먼 라인'. 내리면 캠프 근처에 있는 아군도 스플릿으로 오인"},
+  {"what": "타워 리드 임계", "where": "objective_helpers.rs:121 (IR 55318 `icmp ugt i64 %230, 1`)", "value": 1,
+   "effect": "그 라인 lead ≥2 면 웨이브 상태와 무관하게 true. 올리면 리드만으로는 압박 인정이 어려워진다"},
+  {"what": "웨이브 밀림 임계 2단", "where": "objective_helpers.rs:122~124 (IR 55323 `> 2999`, 55327 `> 999`, 55334 `> 3`, 55337 `> 1`)", "value": "2999 / 999",
+   "effect": "from_mid > 2999 무조건 true ; 999 < from_mid ≤ 2999 는 minion_count > 1 ; from_mid ≤ 999 는 minion_count > 3. 값을 내리면 덜 밀린 라인도 압박으로 인정"}
+ ],
+
+ "unknown": [
+  "rule_scope::line_exists(context, LineType) 내부 미열람 — 튜토리얼 모드에서 라인이 있는지 검사로 추정",
+  "map_regions::is_near_line(context, x, y, LineType) 의 반경 미열람(game_core)",
+  "BrainMinionParameter.from_mid 의 부호·단위(양수 = 적 쪽으로 밀림)는 게이트 방향에서 추정. minion_count 의 의미(아군-적 미니언 수 차?)도 추정",
+  "top_lead/bottom_lead 의 정의(파괴한 타워 수 차이?)는 game_core 미열람 — '> 1' 이 리드 2 이상이라는 것만 확정",
+  "v23_healthy(objective_helpers.rs:12) 는 인라인이라 별도 define 없음 — 본문의 `hp*100/max_hp > 39` 가 그 전부라고 읽음",
+  "far_line 이 Mid(1) 가 되는 경로는 없다(Serpen→Top, Morgard→Bottom, 그 외 None). 따라서 L120 의 minion_state 선택이 Top/Bottom 2분기(select 0/80) 로 접힌 것"
+ ]
+}

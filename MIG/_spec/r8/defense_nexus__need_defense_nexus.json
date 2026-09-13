@@ -1,0 +1,103 @@
+{
+ "name": "need_defense_nexus",
+ "sym": "_RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old13defense_nexus18need_defense_nexus",
+ "src": "game-ai\\src\\plan_legacy\\old\\defense_nexus.rs",
+ "src_line": 481,
+ "ir_file": "m04.ll",
+ "ir_from": 57179,
+ "ir_to": 58172,
+ "aux": [],
+
+ "one_line": "우리 넥서스 방어가 필요한가 — (A)포탑 다 깨진 라인으로 적 챔프가 안쪽 포탑 자리보다 넥서스에 가까이 왔거나 (B)적 미니언이 넥서스를 노리거나 (C)포탑 다 깨진 라인의 적 미니언 6마리 이상이 쌍둥이보다 넥서스에 가까우면 true",
+
+ "signature": {
+  "params": [
+   {"i": 1, "name": "_version", "type": "usize", "note": "미사용(dbg 이름 _version). 본문 분기 없음"},
+   {"i": 2, "name": "_rnd", "type": "&mut StdRng(320B)", "note": "미사용(readnone 속성)"},
+   {"i": 3, "name": "player", "type": "&PlayerState(2528B)", "note": "info.team(+0x930) 만 읽는다. is_recent_visible 에 그대로 전달"},
+   {"i": 4, "name": "data", "type": "&OperationData(24B)", "note": "+0x0 cache, +0x8 context, +0x10 blackboard(&[Blackboard;2])"},
+   {"i": 5, "name": "_debug", "type": "&mut DebugFrameData(224B)", "note": "미사용(readnone)"}
+  ],
+  "returns": "bool — true = 넥서스 방어 필요"
+ },
+
+ "reads": [
+  {"base": "PlayerState", "offset": "0x930", "name": "info.team", "note": "team. >=2 면 panic_bounds_check(len 2). enemy = 1 - team"},
+  {"base": "OperationData", "offset": "0x0", "name": "cache", "note": "&AbstractGameWithCache(8840B)"},
+  {"base": "OperationData", "offset": "0x8", "name": "context", "note": "&GameContext — tutorial·pool·line_exists 인자"},
+  {"base": "OperationData", "offset": "0x10", "name": "blackboard", "note": "&[Blackboard;2]. [1-team](적팀 판) 의 is_recent_visible 로 적 챔프 최근 가시성 판정"},
+  {"base": "GameContext", "offset": "0x0", "name": "pool", "note": "&Bump — champions()/minions() 결과 Vec 할당자"},
+  {"base": "GameContext", "offset": "0x38", "name": "tutorial", "note": "TutorialType(i8). rule_scope::valid_lines 인라인: 0/7/8→[Top,Mid,Bottom], 1/3→[Bottom], 2→[Top], 4→[Mid], 5→[Mid,Bottom], 6→[] (자체 상수 @anon.97/.69/.79/.23/.96)"},
+  {"base": "AbstractGameWithCache", "offset": "0x0", "name": "game.data / game.vtable(+0x8)", "note": "&dyn AbstractGame — is_recent_visible 인자"},
+  {"base": "AbstractGameWithCache", "offset": "0x170", "name": "nexus[team]", "note": "Option<&Entity>(니치). None → unwrap_failed(defense_nexus.rs:484)"},
+  {"base": "AbstractGameWithCache", "offset": "0x180", "name": "top_tower[team]", "note": "라인 line 의 1차 포탑 = cache + 0x180 + line*32 + team*8 (0x180 top / 0x1a0 mid / 0x1c0 bottom). null 이면 파괴"},
+  {"base": "AbstractGameWithCache", "offset": "0x190", "name": "top_tower2[team]", "note": "라인 line 의 2차 포탑 = cache + 0x190 + line*32 + team*8 (0x190/0x1b0/0x1d0). 둘 다 null 이어야 그 라인을 '뚫린 라인'으로 본다"},
+  {"base": "AbstractGameWithCache", "offset": "0x130", "name": "twin_towers[team]", "note": "bumpalo Vec<&Entity>(32B stride) — +0x18 len. len==0 이면 (C) 단계 없이 false. [0] 만 사용"},
+  {"base": "AbstractGameWithCache", "offset": "0x10", "name": "top_minions[1-team]", "note": "bumpalo Vec<&Entity>(32B stride): +0x0 ptr, +0x18 len — 적 탑 미니언"},
+  {"base": "AbstractGameWithCache", "offset": "0x50", "name": "mid_minions[1-team]", "note": "적 미드 미니언"},
+  {"base": "AbstractGameWithCache", "offset": "0x90", "name": "bottom_minions[1-team]", "note": "적 바텀 미니언"},
+  {"base": "Entity(nexus)", "offset": "0x660", "name": "x", "note": "모든 거리제곱의 기준점"},
+  {"base": "Entity(nexus)", "offset": "0x668", "name": "y", "note": ""},
+  {"base": "Entity(nexus)", "offset": "0x6b9", "name": "can_target", "note": "false 면 (B) 미니언 표적 검사 자체를 건너뛴다"},
+  {"base": "Entity(nexus)", "offset": "0x5c0", "name": "id", "note": "(B) 미니언 nearest_enemy 와 비교"},
+  {"base": "Entity(적 챔프/미니언/쌍둥이)", "offset": "0x660", "name": "x", "note": "dist_sq 계산(abs_diff² 합)"},
+  {"base": "Entity(적 챔프/미니언/쌍둥이)", "offset": "0x668", "name": "y", "note": ""},
+  {"base": "Entity(적 미니언)", "offset": "0x68", "name": "ty@tag", "note": "==1 → EntityType::Minion 일 때만 nearest_enemy 를 본다"},
+  {"base": "Entity(적 미니언)", "offset": "0x88", "name": "ty@Minion.info.nearest_enemy@tag", "note": "Option<usize> 태그(Minion 페이로드 +0x8 → Minion.nearest_enemy +0x18)"},
+  {"base": "Entity(적 미니언)", "offset": "0x90", "name": "ty@Minion.info.nearest_enemy@Some.0", "note": "== nexus.id 면 '넥서스를 노리는 미니언'"}
+ ],
+
+ "writes": [],
+
+ "constants": [
+  {"value": 2, "src_line": 484, "meaning": "nexus[team] 배열 길이 2 — team>=2 면 panic_bounds_check"},
+  {"value": 1, "src_line": 498, "meaning": "enemy_team = 1 - team (champions/minions/blackboard/미니언 Vec 인덱스)"},
+  {"value": 48000, "src_line": 492, "meaning": "Top 라인 안쪽 포탑 자리 x(team0) / y(team1) = 1.5셀. 하드코딩 좌표(실제 포탑 엔티티가 아니라 상수)"},
+  {"value": 528000, "src_line": 492, "meaning": "Top 라인 안쪽 포탑 자리 y(team0) / x(team1) = 16.5셀"},
+  {"value": 240000, "src_line": 494, "meaning": "Mid 라인 안쪽 포탑 자리 x(team0) / y(team1) = 7.5셀"},
+  {"value": 720000, "src_line": 494, "meaning": "Mid 라인 안쪽 포탑 자리 y(team0) / x(team1) = 22.5셀"},
+  {"value": 432000, "src_line": 495, "meaning": "Bottom 라인 안쪽 포탑 자리 x(team0) / y(team1) = 13.5셀"},
+  {"value": 912000, "src_line": 495, "meaning": "Bottom 라인 안쪽 포탑 자리 y(team0) / x(team1) = 28.5셀"},
+  {"value": 0, "src_line": 492, "meaning": "team==0 판정(select) 으로 위 좌표를 (x,y)↔(y,x) 대칭 선택"},
+  {"value": 1, "src_line": 510, "meaning": "EntityType 메모리태그 1 = Minion"},
+  {"value": 5, "src_line": 532, "meaning": "near_twin_count > 5 (즉 6마리 이상) 이면 방어 필요 (`icmp ugt i64 %249, 5`). ⚠본문의 `shl i8 %53, 5` 는 별개 — line*32 포탑 배열 stride 접힘이라 상수 목록 대상 아님"},
+  {"value": 0, "src_line": 516, "meaning": "twin_towers[team].len == 0 이면 (C) 건너뛰고 false"},
+  {"value": 0, "src_line": 523, "meaning": "LineType 태그 0 = Top (line_exists 인자·enemy_minions 짝)"},
+  {"value": 1, "src_line": 523, "meaning": "LineType 태그 1 = Mid"},
+  {"value": 2, "src_line": 523, "meaning": "LineType 태그 2 = Bottom"}
+ ],
+
+ "calls": [
+  "game_core::simulation::AbstractGameWithCache::champions",
+  "game_core::simulation::AbstractGameWithCache::minions",
+  "game_core::simulation::game::blackboard::Blackboard::is_recent_visible",
+  "game_ai::plan_legacy::rule_scope::line_exists",
+  "core::option::unwrap_failed",
+  "core::panicking::panic_bounds_check",
+  "drop"
+ ],
+
+ "logic": "fn need_defense_nexus(_version, _rnd, player, data, _debug) -> bool\n\n[L484] team = player.info.team(+0x930)            // >=2 → panic_bounds_check\n       nexus = data.cache.nexus(+0x170)[team].unwrap()   // None → unwrap_failed\n[L485] lines = rule_scope::valid_lines(context.tutorial(+0x38))   // 인라인. 6(JungleOnly) 이면 빈 슬라이스\n\n// ── (A) 뚫린 라인으로 적 챔프가 넥서스 코앞 ──\n[L485] for line in lines {\n[L487]   if cache.tower(line,team)(+0x180+line*32+team*8) != None || cache.tower2(line,team)(+0x190+…) != None { continue }   // 둘 다 파괴돼야\n[L492]   tower_pos = match line { Top    => team0 ? (48000,528000)  : (528000,48000),\n[L494]                            Mid    => team0 ? (240000,720000) : (720000,240000),\n[L495]                            Bottom => team0 ? (432000,912000) : (912000,432000) }   // 안쪽 포탑 자리 하드코딩\n[L498]   enemies = cache.champions(1-team, context.pool)          // bumpalo Vec<&Entity>\n[L499]   has_near_enemy_champion = enemies.iter().any(|e|\n[L499]       data.blackboard(+0x10)[1-team].is_recent_visible(game, player, e)\n[L500]       && dist_sq(e, nexus) <= dist_sq(tower_pos, nexus))      // IR: `ugt` 면 continue\n         drop(enemies)\n[L502]   if has_near_enemy_champion { return true }\n       }\n\n// ── (B) 적 미니언이 넥서스를 직접 노림 ──\n[L509] if nexus.can_target(+0x6b9) {\n         minions = cache.minions(1-team, pool)\n[L510]   if minions.iter().any(|m| m.ty(+0x68)==1 /*Minion*/ && m.ty.Minion.info.nearest_enemy(+0x88 tag==1, +0x90) == Some(nexus.id(+0x5c0))) { return true }\n       }\n\n// ── (C) 뚫린 라인의 적 미니언 떼가 쌍둥이 포탑보다 안쪽 ──\n[L516] twins = cache.twin_towers(+0x130)[team]; if twins.len(+0x18) == 0 { return false }\n[L517] twin_dist_sq = dist_sq(twins[0], nexus)\n[L519~521] per_line = [(Top, top_minions(+0x10)[1-team]), (Mid, mid_minions(+0x50)[1-team]), (Bottom, bottom_minions(+0x90)[1-team])]\n[L523] for (line, enemy_minions) in per_line {            // ⚠여기는 valid_lines 가 아니라 line_exists 로 거른다\n[L523]   if !rule_scope::line_exists(context, line) { continue }\n[L526]   if tower(line,team) != None || tower2(line,team) != None { continue }\n[L529~531] near_twin_count = enemy_minions.iter().filter(|m| dist_sq(m, nexus) <= twin_dist_sq).count()\n[L532]   if near_twin_count > 5 { return true }\n       }\n[L541] return false\n\n※ dist_sq = abs_diff(x)² + abs_diff(y)² (Entity 좌표 +0x660/+0x668, entity.rs:2158 인라인)\n※ 순서 근거: !dbg 줄 485→502 → 509 → 516~532 → 541. ret phi %133 유입 8개 중 true 3개 = (A)%131 (B)%170 (C)%349",
+
+ "knobs": [
+  {"what": "(C) 넥서스 근접 적 미니언 수 임계", "where": "defense_nexus.rs:532 (m04.ll:57881 `icmp ugt i64 %249, 5` · Mid/Bottom 복제 57979·58135)", "value": 5,
+   "effect": "> 5 (6마리 이상) 이면 방어. 내리면 소수 미니언 푸시에도 방어 플랜이 뜨고, 올리면 큰 웨이브만 반응. 라인별로 3곳 복제돼 있어 전부 고쳐야 한다"},
+  {"what": "(A) 적 챔프 '코앞' 기준 = 안쪽 포탑 자리 좌표 6종", "where": "defense_nexus.rs:492~495 (m04.ll:57321~57326 select 상수)", "value": "48000/528000, 240000/720000, 432000/912000",
+   "effect": "적 챔프가 이 자리보다 넥서스에 가까워야 (A) 발동. 좌표를 넥서스 쪽으로 당기면 더 늦게, 바깥으로 밀면 더 일찍 방어를 부른다. 실제 포탑 엔티티 좌표가 아니라 상수라 맵이 바뀌면 어긋난다"},
+  {"what": "(A)/(C) '뚫린 라인' 조건 = 1·2차 포탑 둘 다 파괴", "where": "defense_nexus.rs:487·526 (m04.ll:57377 `and i1 %64, %65`)", "value": "tower==None && tower2==None",
+   "effect": "포탑 하나라도 남은 라인은 검사 대상에서 빠진다. `||` 로 바꾸면 1차 포탑만 깨져도 넥서스 방어를 검토한다"},
+  {"what": "(B) 게이트 nexus.can_target", "where": "defense_nexus.rs:509 (m04.ll:57378 `gep …, i64 1721`)", "value": "bool",
+   "effect": "넥서스가 표적 가능 상태(쌍둥이 생존 중엔 보통 false 로 추정)여야 미니언 표적 검사를 한다"}
+ ],
+
+ "unknown": [
+  "Entity.can_target(+0x6b9) 이 넥서스에 대해 언제 true 가 되는지(쌍둥이 전멸 후로 추정) — game_ai IR 밖. _gcbc 의 store 지점 미탐색",
+  "Blackboard::is_recent_visible(self=blackboard[1-team], game, vtable, player, e) 내부(_gcbc) 안 봄 — '적팀 판'을 self 로 넘기는 것만 확인",
+  "(A) 의 tower_pos 6개 좌표가 실제 맵의 안쪽(1차) 포탑 좌표와 일치하는지 — MapDef 와 대조 안 함. 이름 tower_pos 와 값의 대칭성(team0↔team1 x/y 교환)만 근거",
+  "(A) 루프는 valid_lines(tutorial) 로 라인을 고르고 (C) 루프는 line_exists(context, line) 로 고른다 — 두 필터의 관계(같은 집합인지) 는 rule_scope 본체를 안 봐서 미확정. line_exists 는 별도 define(3회 호출)",
+  "AbstractGameWithCache::champions / minions (team, pool) 의 반환이 '살아있는 챔프/미니언 전부'인지 필터가 있는지 — _gcbc 본체 안 봄",
+  "twin_towers[team][0] 만 쓰고 [1] 은 안 본다(첫 원소 = first/twin dbg). 두 쌍둥이 중 어느 쪽이 [0]인지 미확정",
+  "writes 빈 배열 = 확인된 사실(본문 store 는 bumpalo Vec 결과 스택 %6/%7 뿐)",
+  "_version/_rnd/_debug 세 인자는 IR 에서 한 번도 안 읽힌다 — 확인된 사실(readnone 속성)"
+ ]
+}

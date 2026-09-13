@@ -11,7 +11,8 @@ fsub, line = sys.argv[1], int(sys.argv[2]); col = int(sys.argv[3]) if len(sys.ar
 def unesc(s):
     out = bytearray(); i = 0
     while i < len(s):
-        if s[i] == '\\': out += bytes([int(s[i+1:i+3],16)]); i += 3
+        if s[i] == '\\' and s[i+1:i+2] == '\\': out += b'\\'; i += 2  # LLVM `\\` = 백슬래시 1개(경로 구분자) — 09-13 ghidra-re 보고 결함 정정
+        elif s[i] == '\\': out += bytes([int(s[i+1:i+3],16)]); i += 3
         else: out += s[i].encode(); i += 1
     return bytes(out)
 for path in sorted(glob.glob(os.path.join(IR, 'm*.ll'))):

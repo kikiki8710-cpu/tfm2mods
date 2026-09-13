@@ -574,7 +574,7 @@ def build(rnd, tag, lo, hi, gate_txt, split=True):
         a(u"| # | 이름 | 파일 |")
         a(u"|---|---|---|")
         for i in range(lo, hi + 1):
-            fn = u"spec_%02d_%s.md" % (i, S[i]["name"])
+            fn = u"spec_%02d_%s.md" % (i, S[i]["name"].replace(u"::", u"__"))   # 09-13: `TeamPlan::update` 류 이름의 `::` 는 Windows 파일명 불가(OSError 22)
             a(u"| `%02d` | %s | `MIG\\_verify%s\\%s\\%s` |" % (i, S[i]["name"], rnd, tag, fn))
             side.append((fn, u"\n".join(render_fn(S[i])) + u"\n"))
         a(u"")
