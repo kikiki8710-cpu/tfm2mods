@@ -103,6 +103,9 @@ def main():
     depth = int(next((sys.argv[i + 1] for i, a in enumerate(sys.argv) if a == "--depth"), 6))
     find_define("")  # 인덱스 빌드
     syms = [s for s in _defidx if frag in s]
+    # ★09-14: 조각이 여러 심볼에 걸리면 **끝이 일치하는 것(본체)** 을 우선 — `17LegacyPlanHandler6update` 가 클로저 인스턴스(…update…call_mut)에 먼저 걸렸다.
+    exact = [s for s in syms if s.endswith(frag) or s.endswith(frag + "(")]
+    if exact: syms = exact
     if not syms:
         print("define 없음:", frag); return
     for sym in syms[:1]:

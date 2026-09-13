@@ -27,7 +27,7 @@ DST = os.path.join(HERE, 'TOOLS.md')
 CAT = [
  ('★exe 함수 정체 판정 — Ghidra 없이 (2026-09-13 신설)',
   '「이 RVA 가 어느 IR 함수인가」. capstone 프로파일 ↔ IR define 프로파일 ↔ 패닉 Location 지문. 인라인 여부만은 xref(§22-85).',
-  ['fnprobe.py', 'irprobe.py', 'locfind.py', 'namebyline.py', 'namebycaller.py', 'r8addr.py', 'offscan.py', 'rvaname.py', 'argscan.py']),   # argscan = exe 스택 인자 슬롯 전수(internal ArgumentPromotion 검출 · 09-14)   # rvaname = RVA 목록 실명 일괄(fnprobe+locfind · game-ai Location 만 · 09-13 저녁)   # 09-13 r8: aimap S1 탐색형 · 변위 지문 스캔
+  ['fnprobe.py', 'irprobe.py', 'locfind.py', 'namebyline.py', 'namebycaller.py', 'r8addr.py', 'offscan.py', 'rvaname.py', 'argscan.py', 'mergespec.py']),   # mergespec = 분책 명세 조각 합치기(r12 update · 09-14)   # argscan = exe 스택 인자 슬롯 전수(internal ArgumentPromotion 검출 · 09-14)   # rvaname = RVA 목록 실명 일괄(fnprobe+locfind · game-ai Location 만 · 09-13 저녁)   # 09-13 r8: aimap S1 탐색형 · 변위 지문 스캔
  ('★사전 — 타입·오프셋을 묻는 곳',
   '**여기부터 친다.** DWARF 를 손으로 타지 마라.',
   ['tcxdict.py', 'tcxaudit.py', 'tcxverify.py', 'tcxcross.py', 'tcxfield.py', 'tcxq.py',
