@@ -262,6 +262,20 @@ EXTRA_SWEEP = [
      "ir_file": "m10.ll", "ir_frm": 43974,
      "tcx": "fn(usize, &AbstractGameWithCache, &GameContext, &Entity, *const &Entity, usize, *const &Entity, usize, i8, Option<&Entity>, usize, &mut DebugFrameData, usize, usize) -> FightPrediction /*sret 64B*/",
      "evidence": "#40 DIFF 3 규명(09-13) · fnprobe 0xe05450 콜리 = 0xe083c0 유일 · rlib internal fastcc → patches.json 노출"},
+
+    # ★★TLS 미러(2026-09-13 저녁) — #40 resolve_fight_stake / #54 resolve_join_stake 의 DIFF 는 재현 실패가 아니라 **캐시 이력**이었다:
+    #   둘 다 `resolve_fight_full`(TLS `RefCell<ResolveFightCache>` 메모 래퍼)을 부르는데, 게임 캐시는 13 호출부가 채우고 내 사본의
+    #   캐시는 sweep 이 부를 때만 채워져 이력이 갈린다. ⟹ `resolve_fight_full` **자체를 sweep 슬롯**으로 걸면 게임이 부를 때마다 내 사본도
+    #   같은 인자로 불려 **내 TLS 캐시 = 게임 캐시의 삽입 이력**(같은 스레드 · 같은 순서)이 된다. 이 슬롯이 켜진 판에서 #40/#54 를 같이 켜면
+    #   둘의 캐시 히트값이 같아져 DIFF 0 이 되어야 한다(이 슬롯 자신도 DIFF 0 이어야 미러가 성립한 것). 전제 = 캐시 키·퇴출이 결정적.
+    #   IR 14인자(sret 64 + 13 · &mut 없음 · %9 = Option<&Entity>) · exe 0xe05450(2450B · 호출부 13). internal fastcc → patches.json.
+    {"name": "resolve_fight_full",
+     "sym": "_RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old11fight_model18resolve_fight_full",
+     "addr": "e05450", "bytes": 2450, "module": "fight_model",
+     "src": "game-ai\\src\\plan_legacy\\old\\fight_model.rs",
+     "ir_file": "m10.ll", "ir_frm": 39915,
+     "tcx": "fn(usize, &OperationData, &Entity, *const &Entity, usize, *const &Entity, usize, i8, Option<&Entity>, usize, *const u8, usize, usize) -> FightPrediction /*sret 64B · TLS 캐시 래퍼*/",
+     "evidence": "#40/#54 캐시 이력 해소(09-13) · fnprobe 0xe05450 = uncached 0xe083c0 의 유일 호출자 · 호출부 13 · rlib internal fastcc → patches.json 노출"},
 ]
 
 EXE_ABI = {
@@ -275,6 +289,10 @@ BISECT_SKIP_MY = 0      # 이분 스위치(2026-09-13 원인 규명 완료 — �
 SELF_RESTORE = {
     18: (0, 1064, [(0xc0, 0xc8, 0xd0)], 24),   # a0 = &mut TeamPlan(1064B) · chats: Vec<Chat>(24B)
     54: (0, 1064, [(0xc0, 0xc8, 0xd0)], 24),   # #59 TeamPlan::update — 같은 self(09-13 r8)
+    # ★#49(i44) take_misunderstood_received_chat — a0 = &mut LegacyPlanHandler(6168B). 쓰는 곳 = misunderstood_received_chats Vec
+    #   (cap@0x7b0 · ptr@0x7b8 · len@0x7c0 · 원소 40B (tick, Position, Chat)) 의 swap_remove 뿐(IR m13.ll:12482~ · 힙 재할당 없음).
+    #   내 사본은 게임 호출 전 내용을 복제한 내 버퍼에서 같은 swap_remove → len·원소 전 바이트 비교(원소는 memcpy 이동이라 패딩도 동일).
+    44: (0, 6168, [(0x7b0, 0x7b8, 0x7c0)], 40),
     # ★#14 `LineGankerPlan::update` — a0 = &mut LineGankerPlan(**48B**).
     #   tcx 실측: `chats: Vec<Chat>` @0x0(24B) · `setup_limit`@0x18 · `wait_limit`@0x20 ·
     #            `line`@0x28 · `phase`@0x29 ⟹ **힙 소유 필드는 `chats` 하나뿐**이라
@@ -328,6 +346,9 @@ SELF_RESTORE = {
 #   ⚠검사법(각 5초): ⓐexe 에서 `CALL` 다음 명령이 결과를 만지는가(`TEST`/`CMP`/`MOV`)
 #                    ⓑIR 에서 호출 결과 `%NN` 의 사용처를 grep. 둘 다 없으면 여기에 등록하라.
 #   값 = {"skip": [(오프셋, 길이), …]}  — 비교에서 뺄 구간(= 설계상 당연히 다른 곳).
+# ★self-diff 슬롯 중 **반환값이 살아있는** 것(09-13): #18 은 반환이 exe 에 미실재라 self 만 봤지만, #44 take_misunderstood 의 bool 은 실재
+#   (호출자가 분기) ⟹ 상태 + 반환을 둘 다 판정한다.
+LIVE_RET = {44}
 SELF_DIFF = {
     "v3_epicops_buff_window": {
         # `chats` 의 cap@0xc0 · ptr@0xc8 · len@0xd0 세 칸(24B). 버퍼가 서로 다르니 cap/ptr 은
@@ -355,6 +376,8 @@ SELF_DIFF = {
     #     · `phase` — `store i8 8, self+41`
     #   ⚠`#18` 은 같은 `Chat` 인데 `+0`/`+8` 을 썼다 — **variant 마다 페이로드 위치가 다르다**
     #     ⟹ `elem_live` 는 **슬롯별**이어야 한다(이 표가 이름/idx 키인 이유).
+    # ★#49(i44) take_misunderstood_received_chat — self 6168B 에서 Vec 삼중항만 빼고 비교 · 원소 40B 전 바이트(elem_live 없음).
+    44: {"skip": [(0x7b0, 24)]},
     # ★#59(i54) `TeamPlan::update`(09-13 r8) — 반환 void · a0 = &mut TeamPlan(1064B · #18 과 같은 구조체 · chats Vec @0xc0).
     #   IR 실측(m09.ll:38805/38913/39266): push 3곳 = MorgardPrepare(33)·SerpenPrepare(24) = `+0 tag`·`+8 i64`·`+16 i64 0` /
     #   Mia(1) = `+0 tag`·`+4 i32 position`·`+8 i64 0`. exe ABI = 6인자 전부 유지(r9=player · [rsp+0x200]=data · fnprobe 09-13).
@@ -617,12 +640,14 @@ SRET_LIVE = {
         (0x20, 8, []), (0x28, 8, [(0x20, 8, [1])]),
         (0x30, 8, []), (0x38, 1, []), (0x39, 1, []),
     ],
-    # ★r8 잎(09-13): #49(i49) resolve_join_stake → FightPrediction 64B (i35 와 동일 레이아웃 · structlive 교차확인 일치).
+    # ★r8 잎(09-13): #49(i49) resolve_join_stake → **Option<FightPrediction>** 64B — 외부 Option 은 focus_target 태그(8B@0)의 니치 -1 = None
+    #   (IR m10.ll:41072/41130/41216 `store i64 -1, ptr %0`). None 이면 나머지 56B 는 안 쓰는 칸(게임 버퍼 잔재) ⟹ word0 ∈ {0,1}(Some) 일 때만 페이로드 비교.
+    #   판 09-13 16:58 DIFF 7,542/26,805(28%) 가 전부 None 케이스였다(g=[-1, 잔재…] m=[-1, 0…]).
     49: [
         (0x00, 8, []), (0x08, 8, [(0x00, 8, [1])]),
-        (0x10, 8, []), (0x18, 8, [(0x10, 8, [1])]),
-        (0x20, 8, []), (0x28, 8, [(0x20, 8, [1])]),
-        (0x30, 8, []), (0x38, 1, []), (0x39, 1, []),
+        (0x10, 8, [(0x00, 8, [0, 1])]), (0x18, 8, [(0x00, 8, [0, 1]), (0x10, 8, [1])]),
+        (0x20, 8, [(0x00, 8, [0, 1])]), (0x28, 8, [(0x00, 8, [0, 1]), (0x20, 8, [1])]),
+        (0x30, 8, [(0x00, 8, [0, 1])]), (0x38, 1, [(0x00, 8, [0, 1])]), (0x39, 1, [(0x00, 8, [0, 1])]),
     ],
     # #55(i55) EntityPositioningCache::new → EntityPositioningCache 424B · 43필드 55잎 전부 무조건 live(패딩만 제외) — `structlive.py` 자동 생성 09-13.
     55: [
@@ -683,6 +708,19 @@ SRET_LIVE = {
     (0x1a2, 1, []),
     ],
     # 명세 밖 이분 resolve_fight_uncached → FightPrediction 64B (i35 와 동일 레이아웃) · ★이름 키(idx 는 명세가 늘면 밀린다)
+    # #45(i40) v3_assign_anchor → Option<(u64,u64)> 24B: tag@0(8B · 0 None / 1 Some · IR m13.ll `store i64 %31(0|1), ptr %0`) · x@8 · y@16 (Some 일 때만).
+    40: [
+        (0x00, 8, []),
+        (0x08, 8, [(0x00, 8, [1])]),
+        (0x10, 8, [(0x00, 8, [1])]),
+    ],
+    # TLS 미러 슬롯 resolve_fight_full → FightPrediction 64B (동일 레이아웃 · 이름 키)
+    u"resolve_fight_full": [
+        (0x00, 8, []), (0x08, 8, [(0x00, 8, [1])]),
+        (0x10, 8, []), (0x18, 8, [(0x10, 8, [1])]),
+        (0x20, 8, []), (0x28, 8, [(0x20, 8, [1])]),
+        (0x30, 8, []), (0x38, 1, []), (0x39, 1, []),
+    ],
     u"resolve_fight_uncached": [
         (0x00, 8, []), (0x08, 8, [(0x00, 8, [1])]),
         (0x10, 8, []), (0x18, 8, [(0x10, 8, [1])]),
@@ -702,7 +740,7 @@ SRET_LIVE = {
 MUT_OK_ARG = {35: {13: "DebugFrameData"}, 49: {8: "DebugFrameData"}, 56: {7: "DebugFrameData"}, 41: {11: "DebugFrameData"}, u"resolve_fight_uncached": {3: "GameContext", 12: "DebugFrameData"}}   # #49 a8 = &mut DebugFrameData(224B · IR %8 dereferenceable(224))
 # ★internal 함수는 define 에 `sret([N x i8])` 속성이 없다(LLVM 이 내부 호출규약에서 생략) — 파서가 「반환 void + 가변 a0」로 읽는다.
 #   `resolve_fight_uncached`(a0 = dereferenceable(64) 출력 버퍼) 실사고(09-13). 여기 적은 idx 는 a0 을 sret N 바이트로 강제한다.
-SRET_FORCE = {u"resolve_fight_uncached": 64}   # {spec idx: {IR 인자 idx: tcx 타입명}} — 위 MUT_OK_TCX 판정을 인덱스로 적용
+SRET_FORCE = {u"resolve_fight_uncached": 64, u"resolve_fight_full": 64, 40: 24}   # #45(i40) v3_assign_anchor: internal 이라 sret 속성이 빠져 「void」로 읽힘 · 실제 = Option<(u64,u64)> 24B   # {spec idx: {IR 인자 idx: tcx 타입명}} — 위 MUT_OK_TCX 판정을 인덱스로 적용
 MUT_OK_TCX = {
     "DebugFrameData": u"디버그 싱크 — IR 실측상 본문이 역참조하지 않고 넘기기만 한다"
                                  u"(클로저 내부 쓰기는 미확인 ⟹ 중복 기록 가능 · 반환 대조엔 무관)",
@@ -1769,7 +1807,12 @@ def main():
         for (j, nb) in ARG_SNAP.get(r["idx"], []):
             w(u"    core::ptr::copy_nonoverlapping(s%d.as_ptr(), a%d as *mut u8, %d);                    // 게임 호출 후 상태로 복구" % (j, j, nb))
         w(u"    match m {")
-        if self_diff_of(r["idx"], r["name"]) and r.get("selfr"):
+        if self_diff_of(r["idx"], r["name"]) and r.get("selfr") and r["idx"] in LIVE_RET and r["rty"] != "()":
+            # ★09-13(#44): self 부작용 **과** 살아있는 반환값을 둘 다 판정한다(#18 의 「반환 미실재」는 그 슬롯만의 사실).
+            w(u"        Ok(m) => { let rd = if m != g { Some(format!(\"반환 g={:?} m={:?}\", g, m)) } else { None };")
+            w(u"            if sd.is_some() || rd.is_some() { note(%d, format!(\"#%02d %s 대조#{} **갈림**: 상태={:?} 반환={:?} | %s\", n, sd, rd, %s)); } }"
+              % (k, r["idx"], r["name"], " ".join(fmt), ", ".join(vals)))
+        elif self_diff_of(r["idx"], r["name"]) and r.get("selfr"):
             # ★반환은 쓰레기라 **판정에 쓰지 않는다**. 다만 참고용으로 덤프에 남긴다.
             w(u"        Ok(_) => { if let Some(d) = sd {")
             _why = u"반환 void — 출력은 &mut self 다" if r["rty"] == "()" else u"반환은 exe 에 미실재 — 참고 g={:?}"

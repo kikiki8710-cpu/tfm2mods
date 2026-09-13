@@ -118,5 +118,61 @@
   "line": 0,
   "from": "invoke fastcc void @_RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old11fight_model22resolve_fight_uncached(",
   "to": "invoke void @_RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old11fight_model22resolve_fight_uncached("
+ },
+ {
+  "raw": true,
+  "note": "#40/#54 캐시 이력 해소(2026-09-13 저녁): `resolve_fight_full`(TLS ResolveFightCache 래퍼 · exe 0xe05450 2450B) 자체를 sweep 슬롯으로 걸어 게임이 부를 때마다 내 사본도 같은 인자로 불리게 한다 = 내 TLS 캐시가 게임 캐시와 같은 삽입 이력을 갖는다(TLS 미러). 그 위에서 #40/#54 가 같은 히트값을 본다. internal fastcc 제거.",
+  "file": "plan_legacy/old/fight_model.rs",
+  "line": 0,
+  "from": "define internal fastcc void @_RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old11fight_model18resolve_fight_full(",
+  "to": "define void @_RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old11fight_model18resolve_fight_full("
+ },
+ {
+  "raw": true,
+  "note": "위 define 의 invoke 사이트 9곳(m10.ll).",
+  "file": "plan_legacy/old/fight_model.rs",
+  "line": 0,
+  "from": "invoke fastcc void @_RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old11fight_model18resolve_fight_full(",
+  "to": "invoke void @_RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old11fight_model18resolve_fight_full("
+ },
+ {
+  "raw": true,
+  "note": "위 define 의 (tail) call 사이트 3곳(m10.ll) — 부분문자열이 tail call 도 포함.",
+  "file": "plan_legacy/old/fight_model.rs",
+  "line": 0,
+  "from": "call fastcc void @_RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old11fight_model18resolve_fight_full(",
+  "to": "call void @_RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old11fight_model18resolve_fight_full("
+ },
+ {
+  "raw": true,
+  "note": "#45(i40) v3_assign_anchor 노출(2026-09-13 저녁 · r8 잎): internal fastcc → external ccc. 순수 sret 24B(Option<(u64,u64)>) · self readonly · &mut 없음. exe 0xe4a780 은 프롤로그 jae@+11 이라 호출부 3곳 리다이렉트(probe20 CALLSITE[40]).",
+  "file": "plan_legacy/handler.rs",
+  "line": 0,
+  "from": "define internal fastcc void @_RNvMNtNtCshdEBA0ozCnw_7game_ai11plan_legacy7handlerNtB2_17LegacyPlanHandler16v3_assign_anchor(",
+  "to": "define void @_RNvMNtNtCshdEBA0ozCnw_7game_ai11plan_legacy7handlerNtB2_17LegacyPlanHandler16v3_assign_anchor("
+ },
+ {
+  "raw": true,
+  "note": "위 define 의 call 사이트 3곳(m13.ll · passive_plan 안).",
+  "file": "plan_legacy/handler.rs",
+  "line": 0,
+  "from": "call fastcc void @_RNvMNtNtCshdEBA0ozCnw_7game_ai11plan_legacy7handlerNtB2_17LegacyPlanHandler16v3_assign_anchor(",
+  "to": "call void @_RNvMNtNtCshdEBA0ozCnw_7game_ai11plan_legacy7handlerNtB2_17LegacyPlanHandler16v3_assign_anchor("
+ },
+ {
+  "raw": true,
+  "note": "#49(i44) take_misunderstood_received_chat 노출(2026-09-13 저녁 · r8 잎): internal fastcc → external ccc. &mut self(6168B) 의 misunderstood_received_chats Vec(cap@0x7b0·ptr@0x7b8·len@0x7c0 · 원소 40B) 를 swap_remove 하고 bool 반환 — SELF_RESTORE 로 내 사본은 내 버퍼 사본에서 같은 연산. exe 0xe4b8c0 4인자(rcx/rdx/r8/r9) 일치.",
+  "file": "plan_legacy/handler.rs",
+  "line": 0,
+  "from": "define internal fastcc noundef zeroext i1 @_RNvMNtNtCshdEBA0ozCnw_7game_ai11plan_legacy7handlerNtB2_17LegacyPlanHandler32take_misunderstood_received_chat(",
+  "to": "define noundef zeroext i1 @_RNvMNtNtCshdEBA0ozCnw_7game_ai11plan_legacy7handlerNtB2_17LegacyPlanHandler32take_misunderstood_received_chat("
+ },
+ {
+  "raw": true,
+  "note": "위 define 의 call 사이트 2곳(m13.ll).",
+  "file": "plan_legacy/handler.rs",
+  "line": 0,
+  "from": "call fastcc noundef zeroext i1 @_RNvMNtNtCshdEBA0ozCnw_7game_ai11plan_legacy7handlerNtB2_17LegacyPlanHandler32take_misunderstood_received_chat(",
+  "to": "call noundef zeroext i1 @_RNvMNtNtCshdEBA0ozCnw_7game_ai11plan_legacy7handlerNtB2_17LegacyPlanHandler32take_misunderstood_received_chat("
  }
 ]
