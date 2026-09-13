@@ -5281,9 +5281,9 @@ unsafe fn patch_owned_cap() -> String {
 unsafe fn patch_gate3() -> String {
     let base = exe_base_addr();
     // 0.5.0: jbe @ 0x1e4bd36(구 0x2052e76). sig 시작 = jbe-9. 76→EB(JMP)로 owned>2 게이트 무력화.
-    let sig = base + 0xe8ffe8;          // 0.5.6(구0.5.5=0xeb2fa8). 컨테이너델타(resolver 0xeb2d30→0xebcb10·BYTE=SAME·off 0x278)·orig 48837c24600276 실측 일치(spill rsp+0x60 불변). // 0.5.5(구0.5.4=0xe76b1e). 신 resolver 0xeb2d30(buy 0xeb2c40이 호출) 내부 유일 gate, 함수내 off 0x24e→0x278, spill 슬롯 rsp+0x40→rsp+0x60. // 0.5.3(구0.5.2=0x211e428): resolver 컨테이너 0x211e150→**0xd0c770**(buy 0xd0c680이 직접 호출). 스필 슬롯이 rsp+0x78→**rsp+0x40**으로 이동했고 `cmp qword[rsp+0x40],2;jbe` 형태는 신 exe 전체 **유일 1건**(바이트스캔 실측). ↓0.5.2 이력: (구0.5.1=0x1f01448): resolver 컨테이너 0x1f01170→0x211e150(스켈레톤 UNIQUE, +0x21cfe0) 동일 오프셋 +0x2d8, 7B 시그 바이트동일(BYTE-OK). ↓0.5.1 이력: (구0.5.0_3=0x1fb8cdd, ghidra-re HIGH 재-ID). resolver 후계 FUN_141f01170 내부. owned_count가 [rsp+0x78]로 spill돼 시퀀스가 'cmp qword[rsp+0x78],2;jbe'로 재작성됨(구 'mov rsi,[rsp+0x40];jbe').
-    let jbe = base + 0xe8ffee; // 0.5.6(구0.5.5=0xeb2fae, =sig+6). resolver 0xebcb10 내. // 0.5.5(구0.5.4=0xe76b24, =sig+6). resolver 0xeb2d30 내 +0x27e. // 0.5.4(구0.5.3=0xd0c9c4). resolver 0xe768d0 내 +0x24e = 구 exe와 동일 함수내 오프셋, 10B 바이트 완전동일, exe 전체 유일.          // 0.5.3 jbe 의 opcode 바이트 (=sig+6, 구0.5.2=0x211e42e). owned≤2→점프, >2 fall-through(has_recipe 추가검사).
-    let expect = [0x48u8, 0x83, 0x7c, 0x24, 0x60, 0x02, 0x76]; // 0.5.5: cmp qword[rsp+0x60],2 ; jbe (spill rsp+0x40->rsp+0x60). ~~0.5.4: rsp+0x40~~
+    let sig = base + 0xe8ffbe;          // ★0.5.8(구0.5.6=0xe8ffe8 — 2026-09-13 재핀. 0.5.8 에서 구 주소 바이트=39f6.. 불일치로 미적용 상태였음, 롤아이템모드 자체 4템 지원에 가려짐). resolver 0xe8fd70(buy 0xe8fc80 +0x81 call) 내 +0x24e, spill rsp+0x60→**rsp+0x40** 회귀. `cmp qword[rsp+0x40],2;jbe` 는 .text 에서 0x121407e(무관 함수)와 2건 → RE 로 확정(REPORT\RE6-09-13_gate3_0.5.8_재핀.md). // 0.5.6(구0.5.5=0xeb2fa8). 컨테이너델타(resolver 0xeb2d30→0xebcb10·BYTE=SAME·off 0x278)·orig 48837c24600276 실측 일치(spill rsp+0x60 불변). // 0.5.5(구0.5.4=0xe76b1e). 신 resolver 0xeb2d30(buy 0xeb2c40이 호출) 내부 유일 gate, 함수내 off 0x24e→0x278, spill 슬롯 rsp+0x40→rsp+0x60. // 0.5.3(구0.5.2=0x211e428): resolver 컨테이너 0x211e150→**0xd0c770**(buy 0xd0c680이 직접 호출). 스필 슬롯이 rsp+0x78→**rsp+0x40**으로 이동했고 `cmp qword[rsp+0x40],2;jbe` 형태는 신 exe 전체 **유일 1건**(바이트스캔 실측). ↓0.5.2 이력: (구0.5.1=0x1f01448): resolver 컨테이너 0x1f01170→0x211e150(스켈레톤 UNIQUE, +0x21cfe0) 동일 오프셋 +0x2d8, 7B 시그 바이트동일(BYTE-OK). ↓0.5.1 이력: (구0.5.0_3=0x1fb8cdd, ghidra-re HIGH 재-ID). resolver 후계 FUN_141f01170 내부. owned_count가 [rsp+0x78]로 spill돼 시퀀스가 'cmp qword[rsp+0x78],2;jbe'로 재작성됨(구 'mov rsi,[rsp+0x40];jbe').
+    let jbe = base + 0xe8ffc4; // ★0.5.8(=sig+6, 바이트 `76 68`→`EB 68`). // 0.5.6(구0.5.5=0xeb2fae, =sig+6). resolver 0xebcb10 내. // 0.5.5(구0.5.4=0xe76b24, =sig+6). resolver 0xeb2d30 내 +0x27e. // 0.5.4(구0.5.3=0xd0c9c4). resolver 0xe768d0 내 +0x24e = 구 exe와 동일 함수내 오프셋, 10B 바이트 완전동일, exe 전체 유일.          // 0.5.3 jbe 의 opcode 바이트 (=sig+6, 구0.5.2=0x211e42e). owned≤2→점프, >2 fall-through(has_recipe 추가검사).
+    let expect = [0x48u8, 0x83, 0x7c, 0x24, 0x40, 0x02, 0x76]; // ★0.5.8: cmp qword[rsp+0x40],2 ; jbe (spill rsp+0x60→rsp+0x40 회귀). ~~0.5.5: rsp+0x60~~ ~~0.5.4: rsp+0x40~~
     if !readable(sig, 7) { return "gate3: unreadable".into(); }
     for i in 0..7 { if *((sig + i) as *const u8) != expect[i] {
         return format!("gate3: sig mismatch @+{} = {:#04x}", i, *((sig + i) as *const u8));
@@ -5400,6 +5400,19 @@ fn init(_ctx: &GameCtx) -> ModRegistration {
         append_log("4items.txt", &format!("[{}ms] {}", now_ms(), r));
         let rg = unsafe { patch_gate3() }; // ★슬롯4 자연구매 게이트 무력화
         append_log("4items.txt", &format!("[{}ms] {}", now_ms(), rg));
+        // ★패치 결과는 LOG_ENABLED 와 무관하게 항상 남긴다(2026-09-13). 0.5.8 에서 gate3 시그 불일치가
+        //   프로덕션(LOG OFF)에서 조용히 묻혀 "4번째 아이템 안 삼"이 롤아이템모드(자체 4템 지원)에 가려졌던 사고.
+        //   `4items_mode.txt` 는 mode 판정용으로 항상 쓰이는 파일이라 여기에 덧붙인다.
+        if let Some(d) = mod_dir() {
+            let p = d.join("4items_mode.txt");
+            let mut t = fs::read_to_string(&p).unwrap_or_default();
+            t.push_str(&format!("
+[바이트패치] {}
+[바이트패치] {}
+(둘 다 'patched' 여야 4번째 아이템이 구매된다 — 'sig mismatch' 면 게임 버전 재핀 필요)
+", r, rg));
+            let _ = fs::write(p, t);
+        }
     }
     append_log("4items.txt", &format!("[{}ms] init tfm2_4items (통합: item_tactics 엔진 + 4번째, mode={}칸)", now_ms(), mode));
     // uinj(item3/slot3 UI 주입) 로그 경로 설정. (MODE4/IN_MATCH_UI 는 load_mode 및 기본값.)
