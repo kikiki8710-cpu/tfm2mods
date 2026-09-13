@@ -1,0 +1,76 @@
+# specs[102] BattlePlan::update  self=%0
+0x0      call-arg       _RNvMs0_NtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old6battleNtB5_10Bat m10.ll:26665  battle.rs:745
+0x30     store          i64 1                                                                  m10.ll:24337  battle.rs:482
+0x30     store          i64 0                                                                  m10.ll:24368  battle.rs:488
+0x38     store          i64 %375                                                               m10.ll:24339  battle.rs:482
+0x58     store          i64 7                                                                  m10.ll:24006  battle.rs:442
+0x58     store          i64 4                                                                  m10.ll:24321  battle.rs:481
+0x58     store          i64 4                                                                  m10.ll:24364  battle.rs:491
+0x58     store          i64 %1127                                                              m10.ll:26277  battle.rs:579
+0x58     store          i64 7                                                                  m10.ll:26349  battle.rs:594
+0x58     store          i64 7                                                                  m10.ll:26429  battle.rs:610
+0x58     store          i64 7                                                                  m10.ll:26488  battle.rs:626
+0x58     store          i64 7                                                                  m10.ll:26542  battle.rs:643
+0x58     store          i64 7                                                                  m10.ll:26598  battle.rs:680
+0x58     store          i64 7                                                                  m10.ll:26642  battle.rs:695
+0x58     store          i64 7                                                                  m10.ll:26660  battle.rs:701
+0x58     store          i64 7                                                                  m10.ll:27382  battle.rs:720
+0x58     store          i64 7                                                                  m10.ll:27454  battle.rs:737
+0x68     call-arg       _RNvMs3_NtCs9LexZzt9XJB_5alloc7raw_vecINtB5_6RawVecNtNtNtNtCs97f5S1uJL m10.ll:25424  -
+0x78     store          i64 %799                                                               m10.ll:25440  battle.rs:538
+0x80     call-arg       _RNvMs3_NtCs9LexZzt9XJB_5alloc7raw_vecINtB5_6RawVecjE8grow_oneCs1IAiQl m10.ll:24287  battle.rs:466
+0x90     store          i64 %350                                                               m10.ll:24300  battle.rs:466
+0xd0     store          i64 %85                                                                m10.ll:23985  battle.rs:440
+0xd8     store          i64 %89                                                                m10.ll:23986  battle.rs:440
+0xe0     store          i64 %91                                                                m10.ll:23987  battle.rs:440
+0xf4     store          i8 %315                                                                m10.ll:24249  battle.rs:469
+0xf5     store          i8 %314                                                                m10.ll:24250  battle.rs:469
+0xf6     store          i8 0                                                                   m10.ll:24312  battle.rs:475
+0xf6     store          i8 0                                                                   m10.ll:24433  battle.rs:503
+0xf6     store          i8 0                                                                   m10.ll:26501  battle.rs:636
+0xf9     store          i8 1                                                                   m10.ll:25398  battle.rs:537
+0xfa     store          i8 1                                                                   m10.ll:24316  battle.rs:478
+0xfa     store          i8 1                                                                   m10.ll:24435  battle.rs:504
+0xfa     store          i8 1                                                                   m10.ll:26503  battle.rs:637
+0xfe     store          i8 -1                                                                  m10.ll:24314  battle.rs:476
+0xff     store          i24 %69                                                                m10.ll:23608  battle.rs:431
+0x103    store          i8 3                                                                   m10.ll:24318  battle.rs:479
+0x103    store          i8 4                                                                   m10.ll:24437  battle.rs:505
+0x103    store          i8 5                                                                   m10.ll:26505  battle.rs:638
+0x108    store          i8 2                                                                   m10.ll:24005  battle.rs:441
+0x108    store          i8 6                                                                   m10.ll:24320  battle.rs:480
+0x108    store          i8 6                                                                   m10.ll:24363  battle.rs:490
+0x108    store          i8 4                                                                   m10.ll:26267  battle.rs:577
+0x108    store          i8 4                                                                   m10.ll:26346  battle.rs:592
+0x108    store          i8 4                                                                   m10.ll:26426  battle.rs:608
+0x108    store          i8 4                                                                   m10.ll:26485  battle.rs:624
+0x108    store          i8 4                                                                   m10.ll:26539  battle.rs:641
+0x108    store          i8 5                                                                   m10.ll:26597  battle.rs:679
+0x108    store          i8 3                                                                   m10.ll:26641  battle.rs:694
+0x108    store          i8 3                                                                   m10.ll:26659  battle.rs:700
+0x111    store          i8 1                                                                   m10.ll:26269  battle.rs:578
+0x111    store          i8 2                                                                   m10.ll:26348  battle.rs:593
+0x111    store          i8 3                                                                   m10.ll:26428  battle.rs:609
+0x111    store          i8 4                                                                   m10.ll:26487  battle.rs:625
+0x111    store          i8 5                                                                   m10.ll:26541  battle.rs:642
+
+# spec mem w rows:
+  [46] BattlePlan 0xff main_objective@tag  <- L431 — 무조건(champ unwrap 직후). 이 함수의 첫 부작용
+  [47] BattlePlan 0xd0 idle_since  <- L419(watchdog, version>1 && sub_goal!=End) — enemy_near||moved||idle_since==0 이거
+  [48] BattlePlan 0xd8 idle_anchor.0  <- L420 동상
+  [49] BattlePlan 0xe0 idle_anchor.1  <- L420 동상
+  [50] BattlePlan 0x108 exit_src  <- 2=L441 watchdog 정지 / 6=L480·490 적 우물 / 4=L577·592·608·624·641 오브젝트 규율·종료 / 5=L67
+  [51] BattlePlan 0x58 sub_goal@tag  <- End: L442·579(조건부)·594·610·626·643·680·695·701·720·737 / RunAway: L481·491·579(조
+  [52] BattlePlan 0xf4 v54_prev_eval.0 (oor)  <- L469 — 매판(watchdog 조기 return 제외) Some 으로 덮어씀
+  [53] BattlePlan 0xf5 v54_prev_eval.1 (dir)  <- L469
+  [54] BattlePlan 0x90 v54_reentry_ticks.len (+push)  <- L466 — prev==(true,-1) && 지금 Trace 일 때. ★힙: RawVec<usize>::grow_one 재할당 가능(cap==
+  [55] BattlePlan 0xf6 with_dive  <- L475(적 우물) · L503(다이브 통과 abort) · L636(Defense)
+  [56] BattlePlan 0xfe dive_tower  <- L476
+  [57] BattlePlan 0xfa dive_abandoned  <- L478 · L504 · L637
+  [58] BattlePlan 0x103 dive_abort_src  <- 3=L479 적 우물 / 4=L505 타워 통과 / 5=L638 Defense 오브젝트
+  [59] BattlePlan 0x30 well_runaway@tag  <- 
+  [60] BattlePlan 0x38 well_runaway@Some.0  <- L482 — 5초 우물 도주
+  [61] BattlePlan 0xf9 help_called  <- L537 — near_wide_allies>0 && me_die_tick<=tps && !help_called && sub_goal!=RunAw
+  [62] BattlePlan 0x78 chats.len (+push)  <- L538 ★힙: RawVec<Chat>::grow_one 재할당 가능
+  [63] BattlePlan 0x111 exit_sub  <- exit_src=4 일 때만: 1=L578 규율 / 2=L593 finish_kill_priority / 3=L609 Morgard / 4=L6
+  [64] DebugFrameData 0xa0 infos[champ.id].push(String)  <- L527 ctx.debug 일 때만 — 힙 String/Vec

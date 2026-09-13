@@ -1,0 +1,24 @@
+
+====================================================================================================
+## 명세 완결 조건 검사 (게임 0.5.8)
+   ⚠**부분 실행** — 함수 **102 만**
+   G1 자기모순=0  G10 class 오분류=0  G11 ev 지시 미반영=0  G12 src_line 대조=0  G13 knobs.where 대조=0  G14 mem.dir 방향=0  G15 consts.kind 관측=0  G16 params.role 대조=2  G17 history 전파=0  G18 logic↔표 상호참조=0  G19 knobs.value 값=2  G2 호출부 전수=0  G20 명세간 공유사실=1  G3 형제 함수=0  G4 술어 시그니처=0  G5 sig 정본 대조=0  G6 logic 미반영=0  G7 과열림=0  G8 표에 옛 값=0  G9 callees 오염=0
+====================================================================================================
+
+### [G16 params.role 대조] 2건
+  [102] BattlePlan::update                              sig.params[0] P4 role 이 주장한 IR 속성이 `define` 에 없다
+        p[0] self `readonly` — IR %0 = ptr noalias noundef align 8 dereferenceable(280) %0
+  [102] BattlePlan::update                              sig.params[2] P4 role 이 주장한 IR 속성이 `define` 에 없다
+        p[2] rnd `readonly` — IR %2 = ptr noalias noundef align 16 dereferenceable(320) %2
+
+### [G19 knobs.value 값] 2건
+  [102] BattlePlan::update                              knobs[5] 주장한 값을 IR 관측에서 못 찾는다
+        value=120000 · 관측(창)=[1, 120, 368]
+  [102] BattlePlan::update                              knobs[6] 주장한 값을 IR 관측에서 못 찾는다
+        value=60000 · 관측(창)=[0, 1, 4, 8, 16, 64, 250, 259]
+
+### [G20 명세간 공유사실] 1건
+  [102] BattlePlan::update                              [R1] BattlePlan 0x0 — 같은 (base,offset) 을 2가지 이름으로 부른다: support_target / support_target@tag
+        [102]`support_target` · [109]`support_target` · [109]`support_target@tag` · [110]`support_target`
+
+총 5건

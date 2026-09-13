@@ -1,0 +1,27 @@
+as_index                                      entity.rs              chat.rs:0 chat.rs:113 chat.rs:149 chat.rs:191 chat.rs:273 chat.rs:298 chat.rs:326 chat.rs:338 chat.rs:341 chat.rs:359 chat.rs:398 chat.rs:423 chat.rs:500 chat.r
+clear_objective_misunderstanding              team_plan.rs           chat.rs:603
+closure$0                                     chat.rs                iterator.rs:3379
+closure$1                                     chat.rs                option.rs:1543
+closure$2                                     chat.rs                option.rs:661
+closure$3                                     chat.rs                option.rs:661
+closure$5                                     chat.rs                option.rs:1543
+closure$6                                     chat.rs                filter.rs:138
+distance_sq                                   entity.rs              chat.rs:152 chat.rs:180 chat.rs:259
+distance_sq                                   utils.rs               entity.rs:2158
+dive_rejoin_cd                                engage.rs              chat.rs:174 chat.rs:226
+eq                                            entity.rs              chat.rs:115 chat.rs:266 chat.rs:567 cmp.rs:264
+eq                                            fight_model.rs         chat.rs:215 chat.rs:216
+eq                                            player.rs              chat.rs:124 option.rs:2440
+ff_note_battle_swap                           handler.rs             chat.rs:437 chat.rs:552
+is_adj_line                                   player.rs              chat.rs:76
+is_counter_jungle                             passive_jungle.rs      types.rs:257
+is_passive                                    types.rs               chat.rs:246
+iter_champions                                simulation.rs          chat.rs:257
+mark_objective_misunderstanding               team_plan.rs           chat.rs:600
+mf_note_obj_clear                             team_plan.rs           chat.rs:135 chat.rs:414 chat.rs:475
+mf_note_swap                                  handler.rs             chat.rs:332 chat.rs:354 chat.rs:375 chat.rs:393 chat.rs:419 chat.rs:439 chat.rs:457 chat.rs:480 chat.rs:497 chat.rs:515 chat.rs:532 chat.rs:553 chat.rs:570 chat
+objective_chat_target                         chat.rs                chat.rs:43
+objective_target                              team_plan.rs           chat.rs:42 chat.rs:596
+r2_fight_protected                            handler.rs             chat.rs:330 chat.rs:351 chat.rs:372 chat.rs:390 chat.rs:436 chat.rs:454 chat.rs:495 chat.rs:513 chat.rs:530 chat.rs:551 chat.rs:568 chat.rs:583
+range                                         effect.rs              chat.rs:251
+ult_effect                                    entity.rs              chat.rs:250

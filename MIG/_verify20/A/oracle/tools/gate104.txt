@@ -1,0 +1,34 @@
+
+====================================================================================================
+## 명세 완결 조건 검사 (게임 0.5.8)
+   ⚠**부분 실행** — 함수 **104 만**
+   G1 자기모순=0  G10 class 오분류=0  G11 ev 지시 미반영=0  G12 src_line 대조=1  G13 knobs.where 대조=0  G14 mem.dir 방향=0  G15 consts.kind 관측=0  G16 params.role 대조=0  G17 history 전파=0  G18 logic↔표 상호참조=2  G19 knobs.value 값=0  G2 호출부 전수=0  G20 명세간 공유사실=5  G3 형제 함수=0  G4 술어 시그니처=0  G5 sig 정본 대조=0  G6 logic 미반영=0  G7 과열림=1  G8 표에 옛 값=0  G9 callees 오염=0
+====================================================================================================
+
+### [G12 src_line 대조] 1건
+  [104] handle_chat_inner                               consts[23] src_line=332 인데 IR 사슬에 그 줄이 없다
+        실제 후보 = [354, 375, 393, 419, 439, 457, 480, 497]
+
+### [G18 logic↔표 상호참조] 2건
+  [104] handle_chat_inner                               logic/P2 logic 이 필드 `b.ff_stake_join` 를 읽는데 mem 표에 그 필드 행이 없다
+        잎 `ff_stake_join` 는 distruct 의 실재 필드명
+  [104] handle_chat_inner                               logic/P2 logic 이 필드 `self.positioning_score` 를 읽는데 mem 표에 그 필드 행이 없다
+        잎 `positioning_score` 는 distruct 의 실재 필드명
+
+### [G20 명세간 공유사실] 5건
+  [104] handle_chat_inner                               [R1] LegacyPlanHandler 0x148 — 같은 (base,offset) 을 2가지 이름으로 부른다: team_plan.obj_spawn.epic_giveup_tick / team_plan.obj_spawn.epic_giveup_tick@tag
+        [104]`team_plan.obj_spawn.epic_giveup_tick` · [105]`team_plan.obj_spawn.epic_giveup_tick@tag`
+  [104] handle_chat_inner                               [R1] LegacyPlanHandler 0x519 — 같은 (base,offset) 을 4가지 이름으로 부른다: ComebackPick.ready) / ready) / team_plan.objective +2 / team_plan.objective@Some.0
+        [104]`team_plan.objective@Some.0/ComebackPick.ready)` · [110]`team_plan.objective +2/ready)`
+  [104] handle_chat_inner                               [R1] LegacyPlanHandler 0x5f0 — 같은 (base,offset) 을 4가지 이름으로 부른다: plan@Battle.0 / plan@Battle.0.support_target@tag / plan@LineGanker.0.chats / plan@PassiveJungle.0
+        [104]`plan@Battle.0` · [104]`plan@Battle.0.support_target@tag` · [104]`plan@LineGanker.0.chats` · [105]`plan@PassiveJungle.0` · [110]`plan@Battle.0`
+  [104] handle_chat_inner                               [R1] LegacyPlanHandler 0x7d0 — 같은 (base,offset) 을 2가지 이름으로 부른다: chats.buf.ptr / chats.ptr[]
+        [104]`chats.buf.ptr` · [110]`chats.ptr[]`
+  [104] handle_chat_inner                               [R2] LegacyPlanHandler team_plan.objective@some.0 — 같은 이름이 오프셋 0x518 / 0x519 에 동시에 있다 — **값이 틀렸거나, 이름이 두 자리를 구별하지 못한다**(후자면 이름을 갈라라)
+        [104]`0x518` · [104]`0x519` · [105]`0x518`
+
+### [G7 과열림] 1건
+  [104] handle_chat_inner                               ★open 이 `shared.is_recent_visible` 를 부르는데 그 항목은 **확정**이다 — 과열림
+        closure#4 에서 blackboard 인덱스가 `1 - my_team` 인 이유(적 팀 블랙보드로 is_recent_visible 판정) — 의미는 game_core 소관, 미확인
+
+총 9건

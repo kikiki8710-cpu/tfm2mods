@@ -1,0 +1,97 @@
+=== case 0
+setting_ok	true	width=960000	height=960000	tps=60	champ_radius=10000	visible=130000
+me	id=18	x=15000	y=913000	hp=1	maxhp=1	ms=1
+enemy	k=0	id=23	x=913000	y=15000	hp=1
+enemy	k=1	id=24	x=928000	y=32000	hp=1
+enemy	k=2	id=25	x=911000	y=49000	hp=1
+enemy	k=3	id=26	x=938000	y=15000	hp=1
+enemy	k=4	id=27	x=946000	y=49000	hp=1
+before	sub_goal_tag=0	focus=0	start_tick=0	tick=0	main_goal_tag=0	mo_tag=-1	with_dive=0	tactic=0	exit_src=0	ff_exit1_cls=255
+DIFF	0x58:0->4 0xa8:255->120 0xa9:255->0 0xaa:255->0 0xab:255->0 0xac:255->0 0xad:255->0 0xae:255->0 0xaf:255->0 0xd8:0->152 0xd9:0->58 0xe0:0->104 0xe1:0->238 0xe2:0->13 0xf4:2->0 0xf5:0->1 0x102:0->1 0x108:0->1 0x110:255->0
+after	sub_goal_tag=4	focus=0	prev_die_eval=120	die_fall_evals=1	exit_src=1	exit_sub=0	ff_exit1_cls=0	tactic=0	support_tag=0	chats_len=1
+SUMMARY	case=0	setting_ok=true	tps=60
+exit=0
+=== case 1
+setting_ok	true	width=960000	height=960000	tps=60	champ_radius=10000	visible=130000
+me	id=18	x=15000	y=913000	hp=1	maxhp=1	ms=1
+enemy	k=0	id=23	x=35000	y=913000	hp=1
+enemy	k=1	id=24	x=928000	y=32000	hp=1
+enemy	k=2	id=25	x=911000	y=49000	hp=1
+enemy	k=3	id=26	x=938000	y=15000	hp=1
+enemy	k=4	id=27	x=946000	y=49000	hp=1
+before	sub_goal_tag=0	focus=0	start_tick=0	tick=0	main_goal_tag=0	mo_tag=-1	with_dive=0	tactic=0	exit_src=0	ff_exit1_cls=255
+DIFF	0x60:0->23 0xa8:255->120 0xa9:255->0 0xaa:255->0 0xab:255->0 0xac:255->0 0xad:255->0 0xae:255->0 0xaf:255->0 0xd8:0->152 0xd9:0->58 0xe0:0->104 0xe1:0->238 0xe2:0->13 0xf4:2->0 0xf5:0->1 0x102:0->1 0x109:255->1 0x10a:255->100 0x10b:255->0 0x10e:255->0
+after	sub_goal_tag=0	focus=23	prev_die_eval=120	die_fall_evals=1	exit_src=0	exit_sub=0	ff_exit1_cls=255	tactic=0	support_tag=0	chats_len=1
+SUMMARY	case=1	setting_ok=true	tps=60
+exit=0
+=== case 2
+setting_ok	true	width=960000	height=960000	tps=60	champ_radius=10000	visible=130000
+me	id=18	x=15000	y=913000	hp=1	maxhp=1	ms=1
+enemy	k=0	id=23	x=35000	y=913000	hp=1
+enemy	k=1	id=24	x=928000	y=32000	hp=1
+enemy	k=2	id=25	x=911000	y=49000	hp=1
+enemy	k=3	id=26	x=938000	y=15000	hp=1
+enemy	k=4	id=27	x=946000	y=49000	hp=1
+before	sub_goal_tag=0	focus=0	start_tick=1000	tick=1000	main_goal_tag=0	mo_tag=-1	with_dive=0	tactic=0	exit_src=0	ff_exit1_cls=255
+DIFF	0x58:0->4 0xa8:255->120 0xa9:255->0 0xaa:255->0 0xab:255->0 0xac:255->0 0xad:255->0 0xae:255->0 0xaf:255->0 0xd0:0->232 0xd1:0->3 0xd8:0->152 0xd9:0->58 0xe0:0->104 0xe1:0->238 0xe2:0->13 0xf4:2->0 0xf5:0->1 0x102:0->1 0x108:0->1 0x110:255->1
+after	sub_goal_tag=4	focus=0	prev_die_eval=120	die_fall_evals=1	exit_src=1	exit_sub=0	ff_exit1_cls=1	tactic=0	support_tag=0	chats_len=1
+SUMMARY	case=2	setting_ok=true	tps=60
+exit=0
+=== case 3
+setting_ok	true	width=960000	height=960000	tps=60	champ_radius=10000	visible=130000
+me	id=18	x=15000	y=913000	hp=1	maxhp=1	ms=1
+enemy	k=0	id=23	x=35000	y=913000	hp=1
+enemy	k=1	id=24	x=55000	y=913000	hp=1
+enemy	k=2	id=25	x=75000	y=913000	hp=1
+enemy	k=3	id=26	x=95000	y=913000	hp=1
+enemy	k=4	id=27	x=115000	y=913000	hp=1
+before	sub_goal_tag=0	focus=0	start_tick=0	tick=0	main_goal_tag=0	mo_tag=-1	with_dive=0	tactic=0	exit_src=0	ff_exit1_cls=255
+DIFF	0x60:0->23 0xa8:255->120 0xa9:255->0 0xaa:255->0 0xab:255->0 0xac:255->0 0xad:255->0 0xae:255->0 0xaf:255->0 0xd8:0->152 0xd9:0->58 0xe0:0->104 0xe1:0->238 0xe2:0->13 0xf4:2->0 0xf5:0->1 0xfd:0->2 0x102:0->1 0x109:255->1 0x10a:255->100 0x10b:255->0 0x10e:255->0
+after	sub_goal_tag=0	focus=23	prev_die_eval=120	die_fall_evals=1	exit_src=0	exit_sub=0	ff_exit1_cls=255	tactic=2	support_tag=0	chats_len=1
+SUMMARY	case=3	setting_ok=true	tps=60
+exit=0
+=== case 4
+before	sub_goal_tag=0	focus=0	start_tick=0	tick=0	main_goal_tag=0	mo_tag=4	with_dive=0	tactic=0	exit_src=0	ff_exit1_cls=255
+DIFF	0x58:0->4 0xa8:255->120 0xa9:255->0 0xaa:255->0 0xab:255->0 0xac:255->0 0xad:255->0 0xae:255->0 0xaf:255->0 0xd8:0->152 0xd9:0->58 0xe0:0->104 0xe1:0->238 0xe2:0->13 0xf4:2->0 0xf5:0->1 0xff:4->255 0x102:0->1 0x108:0->1 0x110:255->0
+after	sub_goal_tag=4	focus=0	prev_die_eval=120	die_fall_evals=1	exit_src=1	exit_sub=0	ff_exit1_cls=0	tactic=0	support_tag=0	chats_len=1
+SUMMARY	case=4	setting_ok=true	tps=60
+=== case 5
+before	sub_goal_tag=4	focus=0	start_tick=0	tick=0	main_goal_tag=0	mo_tag=-1	with_dive=0	tactic=0	exit_src=0	ff_exit1_cls=255
+DIFF	0x58:4->7 0xd8:0->152 0xd9:0->58 0xe0:0->104 0xe1:0->238 0xe2:0->13 0xf4:2->1 0xf5:0->255
+after	sub_goal_tag=7	focus=0	prev_die_eval=18446744073709551615	die_fall_evals=0	exit_src=0	exit_sub=0	ff_exit1_cls=255	tactic=0	support_tag=0	chats_len=1
+SUMMARY	case=5	setting_ok=true	tps=60
+=== case 6
+before	sub_goal_tag=3	focus=0	start_tick=0	tick=0	main_goal_tag=0	mo_tag=-1	with_dive=0	tactic=0	exit_src=0	ff_exit1_cls=255
+DIFF	0x58:3->4 0xa8:255->0 0xa9:255->0 0xaa:255->0 0xab:255->0 0xac:255->0 0xad:255->0 0xae:255->0 0xaf:255->0 0xd8:0->152 0xd9:0->58 0xe0:0->104 0xe1:0->238 0xe2:0->13 0xf4:2->1 0xf5:0->255 0x102:0->1 0x108:0->1 0x110:255->0
+after	sub_goal_tag=4	focus=0	prev_die_eval=0	die_fall_evals=1	exit_src=1	exit_sub=0	ff_exit1_cls=0	tactic=0	support_tag=0	chats_len=1
+SUMMARY	case=6	setting_ok=true	tps=60
+=== case 7
+before	sub_goal_tag=1	focus=0	start_tick=0	tick=0	main_goal_tag=0	mo_tag=-1	with_dive=0	tactic=0	exit_src=0	ff_exit1_cls=255
+DIFF	0x58:1->4 0xa8:255->60 0xa9:255->0 0xaa:255->0 0xab:255->0 0xac:255->0 0xad:255->0 0xae:255->0 0xaf:255->0 0xd8:0->152 0xd9:0->58 0xe0:0->104 0xe1:0->238 0xe2:0->13 0xf4:2->0 0x102:0->1 0x108:0->1 0x110:255->0
+after	sub_goal_tag=4	focus=0	prev_die_eval=60	die_fall_evals=1	exit_src=1	exit_sub=0	ff_exit1_cls=0	tactic=0	support_tag=0	chats_len=1
+SUMMARY	case=7	setting_ok=true	tps=60
+=== case 8
+before	sub_goal_tag=7	focus=0	start_tick=0	tick=0	main_goal_tag=0	mo_tag=-1	with_dive=0	tactic=0	exit_src=0	ff_exit1_cls=255
+DIFF	0x58:7->4 0xa8:255->60 0xa9:255->0 0xaa:255->0 0xab:255->0 0xac:255->0 0xad:255->0 0xae:255->0 0xaf:255->0 0xf4:2->0 0x102:0->1 0x108:0->1 0x110:255->0
+after	sub_goal_tag=4	focus=0	prev_die_eval=60	die_fall_evals=1	exit_src=1	exit_sub=0	ff_exit1_cls=0	tactic=0	support_tag=0	chats_len=1
+SUMMARY	case=8	setting_ok=true	tps=60
+=== case 9
+before	sub_goal_tag=0	focus=0	start_tick=0	tick=0	main_goal_tag=0	mo_tag=-1	with_dive=0	tactic=0	exit_src=0	ff_exit1_cls=255
+DIFF	0x58:0->7 0xa8:255->120 0xa9:255->0 0xaa:255->0 0xab:255->0 0xac:255->0 0xad:255->0 0xae:255->0 0xaf:255->0 0xd8:0->152 0xd9:0->58 0xe0:0->104 0xe1:0->238 0xe2:0->13 0xf4:2->0 0xf5:0->1 0xff:255->4 0x102:0->1 0x108:0->1 0x110:255->0
+after	sub_goal_tag=7	focus=0	prev_die_eval=120	die_fall_evals=1	exit_src=1	exit_sub=0	ff_exit1_cls=0	tactic=0	support_tag=0	chats_len=1
+SUMMARY	case=9	setting_ok=true	tps=60
+=== case 10
+before	sub_goal_tag=5	focus=0	start_tick=0	tick=0	main_goal_tag=0	mo_tag=-1	with_dive=0	tactic=0	exit_src=0	ff_exit1_cls=255
+DIFF	0x58:5->4 0xa8:255->120 0xa9:255->0 0xaa:255->0 0xab:255->0 0xac:255->0 0xad:255->0 0xae:255->0 0xaf:255->0 0xd8:0->152 0xd9:0->58 0xe0:0->104 0xe1:0->238 0xe2:0->13 0xf4:2->0 0x102:0->1 0x108:0->1 0x110:255->0
+after	sub_goal_tag=4	focus=0	prev_die_eval=120	die_fall_evals=1	exit_src=1	exit_sub=0	ff_exit1_cls=0	tactic=0	support_tag=0	chats_len=1
+SUMMARY	case=10	setting_ok=true	tps=60
+=== case 11
+before	sub_goal_tag=6	focus=0	start_tick=0	tick=0	main_goal_tag=0	mo_tag=-1	with_dive=0	tactic=0	exit_src=0	ff_exit1_cls=255
+DIFF	0x58:6->4 0xa8:255->120 0xa9:255->0 0xaa:255->0 0xab:255->0 0xac:255->0 0xad:255->0 0xae:255->0 0xaf:255->0 0xd8:0->152 0xd9:0->58 0xe0:0->104 0xe1:0->238 0xe2:0->13 0xf4:2->0 0x102:0->1 0x108:0->1 0x110:255->0
+after	sub_goal_tag=4	focus=0	prev_die_eval=120	die_fall_evals=1	exit_src=1	exit_sub=0	ff_exit1_cls=0	tactic=0	support_tag=0	chats_len=1
+SUMMARY	case=11	setting_ok=true	tps=60
+=== case 12
+before	sub_goal_tag=2	focus=0	start_tick=0	tick=0	main_goal_tag=0	mo_tag=-1	with_dive=0	tactic=0	exit_src=0	ff_exit1_cls=255
+DIFF	0x58:2->4 0xa8:255->120 0xa9:255->0 0xaa:255->0 0xab:255->0 0xac:255->0 0xad:255->0 0xae:255->0 0xaf:255->0 0xd8:0->152 0xd9:0->58 0xe0:0->104 0xe1:0->238 0xe2:0->13 0xf4:2->0 0x102:0->1 0x108:0->1 0x110:255->0
+after	sub_goal_tag=4	focus=0	prev_die_eval=120	die_fall_evals=1	exit_src=1	exit_sub=0	ff_exit1_cls=0	tactic=0	support_tag=0	chats_len=1
+SUMMARY	case=12	setting_ok=true	tps=60

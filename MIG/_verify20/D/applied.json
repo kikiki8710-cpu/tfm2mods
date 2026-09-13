@@ -1,0 +1,11 @@
+{
+ "round": "20",
+ "batch": "D",
+ "errors_applied": 2,
+ "ev_applied": 19,
+ "failed": 0,
+ "stamps": {
+  "/specs[109]/sig/params[6]/role": "74234e98afe7498f",
+  "/specs[109]/logic": "29cb6fc26de31428"
+ }
+}

@@ -1,0 +1,169 @@
+DEFINE: define internal fastcc void @_RNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy9team_plan18objective_handlersNtB4_8TeamPlan29handle_none_or_gank_objective(ptr noalias noundef nonnull align 8 dereferenceable(1064) %0, i64 noundef %1, ptr noalias noundef nonnull align 16 dereferenceable(320) %2, ptr noalias noundef nonnull readonly align 8 captures(address, read_provenance) dereferenceable(2528) %3, ptr noalias noundef nonnull readonly align 8 captures(address, read_provenance) dereferenceable(24) %4, ptr noalias noundef nonnull readonly align 8 captures(address, read_provenance) dereferenceable(248
+  9122 store     root=%0       gep[i64 1055]                                                          val=i8 4                                                         src=832:17776
+  9124 store     root=%0       gep[i64 1056]                                                          val=i8 %29                                                       src=832:17776
+  9159 store     root=%43                                                                             val=i8 42                                                        src=1933:17810
+  9161 store     root=%43      gep[i64 1]                                                             val=i8 %29                                                       src=1933:17810
+  9163 store     root=%43      gep[i64 8]                                                             val=i64 0                                                        src=1933:17810
+  9165 store     root=%0       gep[i64 208]                                                           val=i64 %46                                                      src=1046:17811
+  9197 store     root=%0       gep[i64 1055]                                                          val=i8 2                                                         src=838:17829
+  9211 store     root=%0       gep[i64 1055]                                                          val=i8 3                                                         src=844:17832
+  9213 store     root=%0       gep[i64 1056]                                                          val=i8 1                                                         src=844:17832
+  9248 store     root=%76                                                                             val=i8 14                                                        src=1933:17862
+  9250 store     root=%76      gep[i64 1]                                                             val=i8 1                                                         src=1933:17862
+  9252 store     root=%76      gep[i64 8]                                                             val=i64 0                                                        src=1933:17862
+  9254 store     root=%0       gep[i64 208]                                                           val=i64 %79                                                      src=1046:17863
+  9260 store     root=%6                                                                              val=i64 2                                                        src=846:17864
+  9264 store     root=%6                                                                              val=i64 2                                                        src=846:17864
+  9277 store     root=%0       gep[i64 1055]                                                          val=i8 3                                                         src=850:17866
+  9279 store     root=%0       gep[i64 1056]                                                          val=i8 2                                                         src=850:17866
+  9314 store     root=%99                                                                             val=i8 14                                                        src=1933:17896
+  9316 store     root=%99      gep[i64 1]                                                             val=i8 2                                                         src=1933:17896
+  9318 store     root=%99      gep[i64 8]                                                             val=i64 0                                                        src=1933:17896
+  9320 store     root=%0       gep[i64 208]                                                           val=i64 %102                                                     src=1046:17897
+  9358 store     root=%0       gep[i64 1055]                                                          val=i8 3                                                         src=857:17919
+  9360 store     root=%0       gep[i64 1056]                                                          val=i8 0                                                         src=857:17919
+  9395 store     root=%137                                                                            val=i8 14                                                        src=1933:17949
+  9397 store     root=%137     gep[i64 1]                                                             val=i8 0                                                         src=1933:17949
+  9399 store     root=%137     gep[i64 8]                                                             val=i64 0                                                        src=1933:17949
+  9401 store     root=%0       gep[i64 208]                                                           val=i64 %140                                                     src=1046:17950
+  9407 store     root=%6                                                                              val=i64 2                                                        src=859:17951
+  9411 store     root=%6                                                                              val=i64 2                                                        src=859:17951
+  9819 store     root=%0       gep[i64 1055]                                                          val=i8 0                                                         src=879:18356
+  9821 store     root=%0       gep[i64 1056]                                                          val=i8 3                                                         src=879:18356
+  9823 store     root=%0       gep[i64 1057]                                                          val=i8 1                                                         src=879:18356
+  9855 store     root=%329                                                                            val=i8 38                                                        src=1933:18386
+  9857 store     root=%329     gep[i64 8]                                                             val=i64 0                                                        src=1933:18386
+  9859 store     root=%0       gep[i64 208]                                                           val=i64 %331                                                     src=1046:18387
+  9879 store     root=%0       gep[i64 1055]                                                          val=i8 1                                                         src=889:18390
+  9881 store     root=%0       gep[i64 1056]                                                          val=i8 3                                                         src=889:18390
+  9883 store     root=%0       gep[i64 1057]                                                          val=i8 1                                                         src=889:18390
+  9915 store     root=%351                                                                            val=i8 29                                                        src=1933:18420
+  9917 store     root=%351     gep[i64 8]                                                             val=i64 0                                                        src=1933:18420
+  9919 store     root=%0       gep[i64 208]                                                           val=i64 %353                                                     src=1046:18421
+  9930 store     root=%0       gep[i64 1055]                                                          val=i8 10                                                        src=900:18425
+  9932 store     root=%0       gep[i64 1056]                                                          val=i8 %333                                                      src=900:18425
+  9935 store     root=%0       gep[i64 856]                                                           val=i64 %358                                                     src=901:18426
+  9970 store     root=%369                                                                            val=i8 45                                                        src=1933:18456
+  9972 store     root=%369     gep[i64 1]                                                             val=i8 %333                                                      src=1933:18456
+  9974 store     root=%369     gep[i64 8]                                                             val=i64 0                                                        src=1933:18456
+  9976 store     root=%0       gep[i64 208]                                                           val=i64 %372                                                     src=1046:18457
+  9982 store     root=%6                                                                              val=i64 2                                                        src=903:18458
+  9986 store     root=%6                                                                              val=i64 2                                                        src=903:18458
+ 10162 store     root=%15      alloca                                                                 val=i8 %422                                                      src=-
+ 10578 store     root=%14      gep[i64 32] <- alloca                                                  val=i64 0                                                        src=28:19203
+ 10580 store     root=%14      gep[i64 40] <- alloca                                                  val=i64 5                                                        src=28:19203
+ 10581 store     root=%14      alloca                                                                 val=ptr %112                                                     src=28:19203
+ 10583 store     root=%14      gep[i64 8] <- alloca                                                   val=ptr %56                                                      src=28:19203
+ 10585 store     root=%14      gep[i64 16] <- alloca                                                  val=ptr %3                                                       src=28:19203
+ 10587 store     root=%14      gep[i64 24] <- alloca                                                  val=ptr %15                                                      src=28:19203
+ 10614 store     root=%13      alloca                                                                 val=ptr %616                                                     src=28:19240
+ 10616 store     root=%13      gep[i64 8] <- alloca                                                   val=ptr %617                                                     src=28:19240
+ 10618 store     root=%13      gep[i64 16] <- alloca                                                  val=ptr %618                                                     src=28:19240
+ 10620 store     root=%13      gep[i64 24] <- alloca                                                  val=ptr %619                                                     src=28:19240
+ 10622 store     root=%13      gep[i64 32] <- alloca                                                  val=ptr %56                                                      src=28:19240
+ 10624 store     root=%13      gep[i64 40] <- alloca                                                  val=ptr %572                                                     src=28:19240
+ 10626 store     root=%13      gep[i64 48] <- alloca                                                  val=ptr %3                                                       src=28:19240
+ 10628 store     root=%13      gep[i64 56] <- alloca                                                  val=ptr %15                                                      src=28:19240
+ 10765 store     root=%0       gep[i64 1055]                                                          val=i8 10                                                        src=913:19318
+ 10767 store     root=%0       gep[i64 1056]                                                          val=i8 %422                                                      src=913:19318
+ 10770 store     root=%0       gep[i64 856]                                                           val=i64 %664                                                     src=914:19319
+ 10805 store     root=%675                                                                            val=i8 45                                                        src=1933:19349
+ 10807 store     root=%675     gep[i64 1]                                                             val=i8 %422                                                      src=1933:19349
+ 10809 store     root=%675     gep[i64 8]                                                             val=i64 0                                                        src=1933:19349
+ 10811 store     root=%0       gep[i64 208]                                                           val=i64 %678                                                     src=1046:19350
+ 11020 store     root=%0       gep[i64 1055]                                                          val=i8 10                                                        src=932:19598
+ 11022 store     root=%0       gep[i64 1056]                                                          val=i8 %422                                                      src=932:19598
+ 11025 store     root=%0       gep[i64 856]                                                           val=i64 %740                                                     src=933:19599
+ 11060 store     root=%751                                                                            val=i8 45                                                        src=1933:19629
+ 11062 store     root=%751     gep[i64 1]                                                             val=i8 %422                                                      src=1933:19629
+ 11064 store     root=%751     gep[i64 8]                                                             val=i64 0                                                        src=1933:19629
+ 11066 store     root=%0       gep[i64 208]                                                           val=i64 %754                                                     src=1046:19630
+ 11072 store     root=%6                                                                              val=i64 2                                                        src=935:19631
+ 11076 store     root=%6                                                                              val=i64 2                                                        src=0:18822
+ 11081 store     root=%6                                                                              val=i64 2                                                        src=916:19351
+ 11905 store     root=%12      alloca                                                                 val=i8 %1038                                                     src=1402:20540
+ 12004 store     root=%11      alloca                                                                 val=ptr inttoptr (i64 8 to ptr)                                  src=547:20622
+ 12005 store     root=%11      gep[i64 8] <- alloca                                                   val=ptr %1076                                                    src=547:20622
+ 12008 mem       root=?                                                                               val=@llvm.memset.p0.i64(ptr noundef nonnull align 8 dereferenceable(16) %1018, i8 0, i64 16, i src=547:20622
+ 12296 store     root=%10      alloca                                                                 val=ptr inttoptr (i64 8 to ptr)                                  src=547:20954
+ 12297 store     root=%10      gep[i64 8] <- alloca                                                   val=ptr %1076                                                    src=547:20954
+ 12311 mem       root=?                                                                               val=@llvm.memset.p0.i64(ptr noundef nonnull align 8 dereferenceable(16) %1022, i8 0, i64 16, i src=547:20954
+ 12330 store     root=%10      gep[i64 %1184] <- load <- alloca                                       val=i64 %1055                                                    src=1933:21035
+ 12333 store     root=%10      gep[i64 24] <- alloca                                                  val=i64 %1188                                                    src=1434:21036
+ 12921 store     root=%11      gep[i64 %1383] <- load <- alloca                                       val=i64 %1118                                                    src=1933:21508
+ 12924 store     root=%11      gep[i64 24] <- alloca                                                  val=i64 %1387                                                    src=1434:21509
+ 13720 store     root=%0       gep[i64 1055]                                                          val=i8 11                                                        src=960:21748
+ 13722 store     root=%0       gep[i64 1056]                                                          val=i8 %1032                                                     src=960:21748
+ 13724 store     root=%0       gep[i64 1057]                                                          val=i8 %1641                                                     src=960:21748
+ 13726 store     root=%0       gep[i64 864]                                                           val=i64 %1645                                                    src=961:21749
+ 13730 store     root=%0       gep[i64 872]                                                           val=i64 %1648                                                    src=962:21750
+ 13762 store     root=%1658                                                                           val=i32 %1529                                                    src=1933:21844
+ 13764 store     root=%1658    gep[i64 4]                                                             val=i8 0                                                         src=1933:21844
+ 13766 store     root=%0       gep[i64 232]                                                           val=i64 %1660                                                    src=1046:21845
+ 13801 store     root=%1670                                                                           val=i8 46                                                        src=1933:21875
+ 13803 store     root=%1670    gep[i64 1]                                                             val=i8 %1032                                                     src=1933:21875
+ 13805 store     root=%1670    gep[i64 8]                                                             val=i64 0                                                        src=1933:21875
+ 13807 store     root=%0       gep[i64 208]                                                           val=i64 %1673                                                    src=1046:21876
+ 13813 store     root=%6                                                                              val=i64 2                                                        src=965:21877
+ 13817 store     root=%6                                                                              val=i64 2                                                        src=965:21877
+ 14258 store     root=%0       gep[i64 1055]                                                          val=i8 1                                                         src=1065:22038
+ 14260 store     root=%0       gep[i64 1056]                                                          val=i8 1                                                         src=1065:22038
+ 14262 store     root=%0       gep[i64 1057]                                                          val=i8 1                                                         src=1065:22038
+ 14273 store     root=%0       gep[i64 96]                                                            val=i64 1                                                        src=1058:22040
+ 14275 store     root=%0       gep[i64 104]                                                           val=i64 %1897                                                    src=1058:22040
+ 14322 store     root=%1916                                                                           val=i8 25                                                        src=1933:22072
+ 14324 store     root=%1916    gep[i64 8]                                                             val=i64 0                                                        src=1933:22072
+ 14326 store     root=%0       gep[i64 208]                                                           val=i64 %1918                                                    src=1046:22073
+ 14394 store     root=%17      alloca                                                                 val=i64 %1953                                                    src=1074:22089
+ 14396 store     root=%17      gep[i64 8] <- alloca                                                   val=i64 %1954                                                    src=1074:22089
+ 14416 store     root=%16      alloca                                                                 val=ptr %17                                                      src=1075:17571
+ 14418 store     root=%16      gep[i64 8] <- alloca                                                   val=ptr %1955                                                    src=1075:17571
+ 14420 store     root=%16      gep[i64 16] <- alloca                                                  val=ptr %18                                                      src=1075:17571
+ 14422 store     root=%16      gep[i64 24] <- alloca                                                  val=ptr %113                                                     src=1075:17571
+ 14424 store     root=%16      gep[i64 32] <- alloca                                                  val=ptr %115                                                     src=1075:17571
+ 14461 store     root=%6                                                                              val=i64 2                                                        src=1089:22101
+ 14465 store     root=%6                                                                              val=i64 2                                                        src=1089:22101
+ 14474 store     root=%6                                                                              val=i64 2                                                        src=1060:22103
+ 14478 store     root=%6                                                                              val=i64 2                                                        src=1060:22103
+ 14602 store     root=%0       gep[i64 1055]                                                          val=i8 10                                                        src=1105:22161
+ 14604 store     root=%0       gep[i64 1056]                                                          val=i8 %2040                                                     src=1105:22161
+ 14607 store     root=%0       gep[i64 856]                                                           val=i64 %2045                                                    src=1106:22162
+ 14642 store     root=%2056                                                                           val=i8 45                                                        src=1933:22192
+ 14644 store     root=%2056    gep[i64 1]                                                             val=i8 %2040                                                     src=1933:22192
+ 14646 store     root=%2056    gep[i64 8]                                                             val=i64 0                                                        src=1933:22192
+ 14648 store     root=%0       gep[i64 208]                                                           val=i64 %2059                                                    src=1046:22193
+ 14654 store     root=%6                                                                              val=i64 2                                                        src=1108:22194
+ 14658 store     root=%6                                                                              val=i64 2                                                        src=1108:22194
+ 14820 store     root=%0       gep[i64 1054]                                                          val=i8 -1                                                        src=1128:22237
+ 14849 store     root=%0       gep[i64 1055]                                                          val=i8 0                                                         src=1018:22244
+ 14851 store     root=%0       gep[i64 1056]                                                          val=i8 1                                                         src=1018:22244
+ 14853 store     root=%0       gep[i64 1057]                                                          val=i8 1                                                         src=1018:22244
+ 14864 store     root=%0       gep[i64 80]                                                            val=i64 1                                                        src=1011:22246
+ 14866 store     root=%0       gep[i64 88]                                                            val=i64 %2148                                                    src=1011:22246
+ 14913 store     root=%2167                                                                           val=i8 34                                                        src=1933:22278
+ 14915 store     root=%2167    gep[i64 8]                                                             val=i64 0                                                        src=1933:22278
+ 14917 store     root=%0       gep[i64 208]                                                           val=i64 %2169                                                    src=1046:22279
+ 14985 store     root=%22      alloca                                                                 val=i64 %2204                                                    src=1027:22295
+ 14987 store     root=%22      gep[i64 8] <- alloca                                                   val=i64 %2205                                                    src=1027:22295
+ 15004 store     root=%21      alloca                                                                 val=ptr %22                                                      src=1028:17556
+ 15006 store     root=%21      gep[i64 8] <- alloca                                                   val=ptr %2206                                                    src=1028:17556
+ 15008 store     root=%21      gep[i64 16] <- alloca                                                  val=ptr %23                                                      src=1028:17556
+ 15010 store     root=%21      gep[i64 24] <- alloca                                                  val=ptr %113                                                     src=1028:17556
+ 15012 store     root=%21      gep[i64 32] <- alloca                                                  val=ptr %115                                                     src=1028:17556
+ 15049 store     root=%6                                                                              val=i64 2                                                        src=1042:22307
+ 15053 store     root=%6                                                                              val=i64 2                                                        src=1042:22307
+ 15062 store     root=%6                                                                              val=i64 2                                                        src=1013:22309
+ 15066 store     root=%6                                                                              val=i64 2                                                        src=1013:22309
+ 15071 store     root=%6                                                                              val=i64 8                                                        src=1000:22024
+ 15075 store     root=%6                                                                              val=i64 8                                                        src=1000:22024
+ 15088 store     root=%6                                                                              val=i64 2                                                        src=894:18422
+ 15092 store     root=%6                                                                              val=i64 2                                                        src=894:18422
+ 15097 store     root=%6                                                                              val=i64 2                                                        src=884:18388
+ 15101 store     root=%6                                                                              val=i64 2                                                        src=884:18388
+ 15114 store     root=%6                                                                              val=i64 2                                                        src=852:17898
+ 15118 store     root=%6                                                                              val=i64 2                                                        src=852:17898
+ 15123 store     root=%6                                                                              val=i64 2                                                        src=839:17830
+ 15127 store     root=%6                                                                              val=i64 2                                                        src=839:17830
+ 15159 store     root=%2265                                                                           val=i8 43                                                        src=1933:22343
+ 15161 store     root=%2265    gep[i64 8]                                                             val=i64 0                                                        src=1933:22343
+ 15163 store     root=%0       gep[i64 208]                                                           val=i64 %2267                                                    src=1046:22344

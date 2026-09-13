@@ -92,7 +92,9 @@ FIRED = {4: 54660390, 16: 6940762, 19: 2806126, 12: 1808301, 18: 1672540,
          # ★r10(i=77~101 · 중간 25) · 2026-09-13 20:4x 판 1(설치 101/101 · 25/25 발화 · 392s · 원문 <게임>\mods	fm2_judge_verify\_r10_probe1\probe20_r10_run1.txt).
          100: 22446517, 79: 21281385, 87: 16403353, 95: 13563739, 101: 10278728, 99: 4467412, 92: 4362491, 86: 3887965, 88: 3688702,
          81: 2204031, 91: 2049868, 93: 1545233, 83: 1478961, 77: 1085206, 89: 978193, 97: 949945, 82: 882437, 94: 814713, 96: 421923,
-         85: 353082, 90: 318313, 78: 106981, 80: 103599, 84: 97615, 98: 37200}
+         85: 353082, 90: 318313, 78: 106981, 80: 103599, 84: 97615, 98: 37200,
+         # ★r11(i=102~110 · 거대 9) · 2026-09-14 02:0x 판 1(설치 110/110 · 9/9 발화 · 리플레이 + 배경 일정 sim 누적 1863s 스냅샷 · 원문 _r11_probe1\probe20_r11_run1.txt).
+         108: 20422392, 110: 19901309, 105: 16643998, 107: 14407556, 106: 4256793, 102: 4252554, 109: 4056185, 103: 1360977, 104: 1210647}
 #   `#02` 는 MISSING20(인라인)이라 여기 없다. 그 호스트 `BigPlan::sub_plan`(AUX[90] @0xcaf9f0 · ~~AUX[20]~~ 09-13 이동)의
 #   재측정치 = **27,416,789**(probe20.txt 참조) — 명세 함수가 아니므로 이 표에 넣지 않는다.
 # ★★**이 함수들의 1단계 발화수는 무효다** — 그때 잰 주소가 **다른 함수**였다(2026-09-12 ghidra 확정).
@@ -296,6 +298,13 @@ BISECT_NO_STRFREE = 0   # ★임시 이분 스위치(2026-09-13) — 0 으로 �
 BISECT_SKIP_MY = 0      # 이분 스위치(2026-09-13 원인 규명 완료 — 중첩 Vec 누락) — 0 유지
 
 SELF_RESTORE = {
+    # ★r11 거대 9(09-14): 전부 힙 치환은 HEAP_SUBST(static VB 금지 — Vec drop/교체 함수들).
+    102: (0, 280, [], 8),    # BattlePlan::update — chats@0x68 · v54_reentry_ticks@0x80 (HEAP_SUBST)
+    109: (0, 280, [], 8),    # BattlePlan::update_v32 — 동일 self
+    104: (0, 6168, [], 8),   # handle_chat_inner — plan@0x5e8 drop/교체 16 · chats@0x7c8 push 19 (#12 handle_chat 과 같은 표면)
+    110: (0, 6168, [], 8),   # handle_interact_battle — plan 교체 13 · chats push 2
+    107: (0, 1064, [], 8),   # handle_none_or_gank_objective — TeamPlan chats@0xc0 · comeback_pick_outcomes@0xd8 · a6 &mut BigPlan(HEAP_SUBST arg=6)
+    108: (0, 1064, [], 8),   # update_objective_after_steal — 동일 + a6
     # ★#88(i83) EpicHuntAndPokePlan::sub_plan(09-14) — a1 = &mut EpicHuntAndPokePlan(32B): v46_flee_threats Vec<usize>(cap@0 ptr@8 len@0x10 · IR m10.ll:8273~8275 load)
     #   · focus_epic_only@24 · vision_only@25 · v46_flee@26(store 1 @8372 · store 0 @9204 · len=0 @9208). 게임 호출이 v46_flee 를 뒤집으면 내 사본의
     #   check_recall 이 다른 가지를 탄다(판 3·4 DIFF 2 = 전환 틱). 원소 8B(usize · 태그 없음).
@@ -399,6 +408,11 @@ SELF_DIFF = {
     #     ⟹ `elem_live` 는 **슬롯별**이어야 한다(이 표가 이름/idx 키인 이유).
     # ★#49(i44) take_misunderstood_received_chat — self 6168B 에서 Vec 삼중항만 빼고 비교 · 원소 40B 전 바이트(elem_live 없음).
     44: {"skip": [(0x7b0, 24)]},
+    # r11(09-14): Vec 삼중항은 HEAP_SUBST 동적 skip. LegacyPlanHandler 는 plan 페이로드(+0x5f0..) 를 ENUM_LIVE 로.
+    # ★V54Counter(TeamPlan 0x3f8/0x400/0x408 · atomicrmw 전용 계측 카운터 · `load atomic` 0건 = 논리 미사용)는 비교 제외 —
+    #   판 2 실측: 안쪽 sweep(#102 BattlePlan::update 등)이 게임+내 사본 두 번 돌며 카운터를 두 번 올려 바깥 self diff(0x4f0 g=7f m=7b)가 갈렸다.
+    102: {"skip": []}, 109: {"skip": []}, 107: {"skip": [(0x3f8, 24)]}, 108: {"skip": [(0x3f8, 24)]},
+    104: {"skip": [(0x5e8 + 0x8, 384 - 8), (0xf8 + 0x3f8, 24)]}, 110: {"skip": [(0x5e8 + 0x8, 384 - 8), (0xf8 + 0x3f8, 24)]},
     # ★#88(i83): self 32B 에서 Vec 삼중항(+0..24) 제외 → focus/vision/v46_flee(+24..27) 비교 · 원소 usize 8B 전 바이트. 반환(sret SubPlan)도 함께 판정(LIVE_RET).
     83: {"skip": []},   # Vec 삼중항은 HEAP_SUBST 동적 skip · len/내용은 ②′(raw 8B)
     97: {"skip": []},
@@ -468,6 +482,9 @@ SELF_DIFF = {
 #        **다른 입력**을 받는다 ⟹ 거짓 DIFF. (`StdRng` 을 되돌리는 것과 **정확히 같은 이유**다.)
 #   값 = {slot: [(인자idx, 바이트수), …]}
 ARG_SNAP = {
+    104: [(6, 24)],     # r11 handle_chat_inner a6 = 값전달 Chat 24B(dead_on_return)
+    107: [(6, 384)],    # r11 a6 &mut BigPlan — 게임 전 상태 복원 + 게임 후 스냅샷(s6) = ③′ 비교 재료
+    108: [(6, 384)],
     # `#12 handle_chat` 의 `a6` = `ptr dead_on_return noalias readonly dereferenceable(24)`
     #   = 값으로 넘긴 `Chat`(24B)을 간접 전달한 것. 지금은 `readonly` 라 훼손하지 않지만
     #   **계약상 허용**돼 있으므로 되돌린다(rlib 이 바뀌면 곧바로 거짓 DIFF 가 된다).
@@ -488,6 +505,8 @@ ARG_SNAP = {
 # ★★요소 live 명세 — Vec 내용 비교 때 「그 타입이 실제로 쓰는 바이트」만 본다(이름으로 참조).
 #   live = [(off, len, [tag…])] (tag 비면 항상) · str = [(String 시작 off, [tag…])] (len+내용 비교 · 내 사본 할당분 해제)
 ELEM_LIVE = {
+    # `(i32, u8)` 8B 튜플(TeamPlan.comeback_pick_outcomes) — i32@0 · u8@4 · +5..7 패딩(09-14 r11 판 2).
+    "i32u8": {"live": [(0x0, 4, []), (0x4, 1, [])], "str": []},
     # ★`game_core::Chat` — **tcx 자동 생성**(`MIG\enumlive.py game_core::Chat`). 손 맵은 `+8..15` 를 항상 live 로 둬
     #   tag 7(BattleStop, +8 은 1B)에서 거짓 DIFF 가 났다(2026-09-13). 57 variant 의 페이로드 위치가 전부 다르다.
     "chat": {"live": [
@@ -538,6 +557,15 @@ _BIGPLAN_SPEC = {"off": 0x5e8, "tags": (2, 17), "vecs": _BIGPLAN_VECS}
 #   전제(IR 실측으로 확인) = ①그 경로에서 self 소유 힙을 건드리는 곳이 **여기 적은 필드뿐** ②요소가 힙을 안 갖거나(평면)
 #        가지면 `ELEM_LIVE.str` 로 다룬다. ③착수 전 검사 = `heapsurf.py`(grow_one/drop 대상을 %0 오프셋으로 역추적).
 HEAP_SUBST = {
+    # r11 거대(09-14 · 명세 writes/HEAP 재료 · tcxdict 오프셋)
+    102: [{"off": 0, "tags": None, "vecs": [(0x68, 24, "chat"), (0x80, 8)]}],
+    109: [{"off": 0, "tags": None, "vecs": [(0x68, 24, "chat"), (0x80, 8)]}],
+    104: [_BIGPLAN_SPEC, {"off": 0, "tags": None, "vecs": [(0x7c8, 24, "chat")]}],
+    110: [_BIGPLAN_SPEC, {"off": 0, "tags": None, "vecs": [(0x7c8, 24, "chat")]}],
+    # TeamPlan self + a6 `&mut BigPlan`(별도 인자 · drop 후 ForcePassive/ActiveRecall 교체) — "arg": 6 명세(기구 ② 09-14)
+    # comeback_pick_outcomes 원소 = (i32, u8) 8B — +5..7 은 패딩(판 2 실측 `+0xd8[0]+5: g=02 m=00`) ⟹ ELEM_LIVE "i32u8".
+    107: [{"off": 0, "tags": None, "vecs": [(0xc0, 24, "chat"), (0xd8, 8, "i32u8")]}, {"off": 0, "tags": (2, 17), "vecs": _BIGPLAN_VECS, "arg": 6}],
+    108: [{"off": 0, "tags": None, "vecs": [(0xc0, 24, "chat"), (0xd8, 8, "i32u8")]}, {"off": 0, "tags": (2, 17), "vecs": _BIGPLAN_VECS, "arg": 6}],
     # #88(i83)/#102(i97) HuntAndPokePlan::sub_plan — self+0 `v46_flee_threats: Vec<usize>`(drop 후 교체 · clear). 요소 8B raw.
     83: [{"off": 0, "tags": None, "vecs": [(0x0, 8)]}],
     97: [{"off": 0, "tags": None, "vecs": [(0x0, 8)]}],
@@ -562,7 +590,7 @@ def heap_specs(i):
             norm = {tg: [(v[0], v[1], (v[2] if len(v) > 2 else None)) for v in lst] for tg, lst in vecs.items()}
         else:
             norm = {None: [(v[0], v[1], (v[2] if len(v) > 2 else None)) for v in vecs]}
-        out.append((sp["off"], sp.get("tags"), norm))
+        out.append((sp["off"], sp.get("tags"), norm, sp.get("arg")))   # arg = None → self(selfr 인자) · k → a{k}(09-14 r11)
     return out
 
 
@@ -576,7 +604,15 @@ LIVE_IDS = {nm: n + 1 for n, nm in enumerate(sorted(ELEM_LIVE))}   # 0 = raw byt
 #        정밀 비교하면 제외가 사라진다. Vec 의 len·내용은 HEAP_SUBST(②′)가 따로 비교한다.
 #   값 = {slot: [(열거형 필드의 self 내 off, 열거형 타입 전체이름), …]}  (태그 8B 는 본체 루프가 비교)
 #   ⚠SELF_DIFF[slot]["skip"] 에 그 페이로드 구간을 **그대로 둔다**(본체 루프에서 빼고 여기서 정밀 비교).
+# ★arg 열거형 live 맵(09-14 r11): {idx: [(argk, eoff, 타입)]} — HEAP_SUBST "arg" 명세와 짝. 방출명 enumlive_cmp_{idx}_{50+ei}.
+ARG_ENUM_LIVE = {
+    107: [(6, 0x0, "game_ai::plan_legacy::types::BigPlan")],
+    108: [(6, 0x0, "game_ai::plan_legacy::types::BigPlan")],
+}
+
 ENUM_LIVE = {
+    104: [(0x5e8, "game_ai::plan_legacy::types::BigPlan")],   # r11 handle_chat_inner(#12 와 동일)
+    110: [(0x5e8, "game_ai::plan_legacy::types::BigPlan")],   # r11 handle_interact_battle
     11: [(0x5e8, "game_ai::plan_legacy::types::BigPlan"), (0x768, "game_ai::plan_legacy::sub_plan::SubPlan")],
     12: [(0x5e8, "game_ai::plan_legacy::types::BigPlan")],
 }
@@ -601,11 +637,15 @@ SRET_VEC = {
 #   외곽 Option 은 `none` = (오프셋, 길이, 값) — 그 자리가 그 값이면 None(양쪽 None 이면 같음 · 한쪽만이면 갈림 · 둘 다 Some 이면 잎 비교).
 #   값 = {spec idx: {"type": 구조체 전체이름, "none": (off, len, value) | None}}
 SRET_STRUCT = {
+    # 판 2(09-14 02:3x): DIFF 17% 전부 `+0x30 g=xx m=00` — None 경로는 `store i64 -1, ptr %0` 하나뿐(m09.ll 15209/15273/17999 · 나머지 필드 dead) ⟹ 외곽 None = word0 == -1(Option<ObjectivePosture> 니치).
+    106: {"type": "game_ai::plan_legacy::team_plan::ObjectivePosture", "none": (0x0, 8, -1)},   # r11 v25_objective_posture sret 88B(kind@0x50 · target@0x51)
     80: {"type": "game_ai::plan_legacy::old::battle::BattlePlan", "none": (0x0, 8, -1)},   # r10 #85(i80) try_engage → Option<BattlePlan>(try_engage_dive 와 동일)
     69: {"type": "game_ai::plan_legacy::old::battle::BattlePlan", "none": (0x0, 8, -1)},
     86: {"type": "game_ai::plan_legacy::old::FightSituation", "none": None},   # r10 #91(i86) FightSituation::build → 128B 직접 반환(09-13)   # support_target Option<usize> 태그 자리의 -1 = 외곽 None(IR m13.ll `store i64 -1, ptr %0` ×3)
 }
 SRET_ENUM = {
+    # r11 #105 passive_plan(internal · SRET_FORCE 392): sret = (BigPlan 384, u8 발원코드@384)
+    105: {"type": "game_ai::plan_legacy::types::BigPlan", "none": None, "extra": [(384, 1)]},
     56: "game_ai::plan_legacy::sub_plan::SubPlan",
     # r10(09-13 밤): BigPlan::sub_plan 4종 → SubPlan 72B(니치 태그@0 · untagged DeathBattle)
     77: "game_ai::plan_legacy::sub_plan::SubPlan", 83: "game_ai::plan_legacy::sub_plan::SubPlan",
@@ -816,10 +856,13 @@ MUT_OK_ARG = {35: {13: "DebugFrameData"}, 49: {8: "DebugFrameData"}, 56: {7: "De
               # r10(09-13 밤) · IR 마지막 인자 dereferenceable(224) = &mut DebugFrameData
               77: {7: "DebugFrameData"}, 83: {8: "DebugFrameData"}, 97: {8: "DebugFrameData"}, 91: {6: "DebugFrameData"},
               82: {8: "DebugFrameData"}, 96: {8: "DebugFrameData"}, 86: {6: "DebugFrameData"}, 87: {6: "DebugFrameData"},
-              81: {7: "DebugFrameData"}, 94: {7: "DebugFrameData"}, 95: {5: "DebugFrameData"}, 80: {7: "DebugFrameData", 1: "LegacyPlanHandler"}}   # #49 a8 = &mut DebugFrameData(224B · IR %8 dereferenceable(224))
+              81: {7: "DebugFrameData"}, 94: {7: "DebugFrameData"}, 95: {5: "DebugFrameData"}, 80: {7: "DebugFrameData", 1: "LegacyPlanHandler"},
+              # r11(09-14): 마지막 인자 &224 DebugFrameData · passive_plan self = &self(유일 쓰기 atomicrmw eo_cover_picks 카운터 · 19차/r11 B) · update_v32 %5 team_plan = &(store 0)
+              102: {7: "DebugFrameData"}, 104: {8: "DebugFrameData"}, 105: {1: "LegacyPlanHandler", 6: "DebugFrameData"},
+              107: {7: "DebugFrameData"}, 108: {7: "DebugFrameData"}, 109: {5: "LegacyPlanHandler", 6: "DebugFrameData"}, 110: {5: "DebugFrameData"}}   # #49 a8 = &mut DebugFrameData(224B · IR %8 dereferenceable(224))
 # ★internal 함수는 define 에 `sret([N x i8])` 속성이 없다(LLVM 이 내부 호출규약에서 생략) — 파서가 「반환 void + 가변 a0」로 읽는다.
 #   `resolve_fight_uncached`(a0 = dereferenceable(64) 출력 버퍼) 실사고(09-13). 여기 적은 idx 는 a0 을 sret N 바이트로 강제한다.
-SRET_FORCE = {u"resolve_fight_uncached": 64, u"resolve_fight_full": 64, 40: 24, 69: 280,
+SRET_FORCE = {u"resolve_fight_uncached": 64, u"resolve_fight_full": 64, 40: 24, 69: 280, 105: 392,
               80: 280, 98: 16}   # r10: #85(i80) try_engage internal → Option<BattlePlan> 280B · #103(i98) evaluate_steal_for_target internal → 16B   # #45(i40) v3_assign_anchor: internal 이라 sret 속성이 빠져 「void」로 읽힘 · 실제 = Option<(u64,u64)> 24B   # {spec idx: {IR 인자 idx: tcx 타입명}} — 위 MUT_OK_TCX 판정을 인덱스로 적용
 MUT_OK_TCX = {
     "LegacyPlanHandler": u"#74 try_engage_dive 의 self(%1 · readonly 속성 없음) — IR 실측 store 0(last_dive_abandon_tick 읽기 · positioning_score/team_plan 참조 전달만)",
@@ -1090,6 +1133,7 @@ def main():
         _se = _byname(SRET_ENUM, i, sp) if g["sret"] else None
         sret_enum = _se["type"] if isinstance(_se, dict) else _se
         sret_enum_none = _se.get("none") if isinstance(_se, dict) else None   # 외곽 Option None 판별(09-13 r10)
+        sret_enum_extra = (_se.get("extra") or []) if isinstance(_se, dict) else []   # 열거형 뒤 살아있는 바이트 [(off,len)](09-14 r11 #105 (BigPlan,u8))
         sret_vec = _byname(SRET_VEC, i, sp) if g["sret"] else None
         sret_struct = _byname(SRET_STRUCT, i, sp) if g["sret"] else None
         if g["sret"] and live is None and sret_enum is None and sret_vec is None and sret_struct is None:
@@ -1147,6 +1191,10 @@ def main():
                 continue
             if not a[2] or a[1] == 320:
                 continue
+            # ★09-14(r11 #107/#108 a6 &mut BigPlan): ARG_SNAP(바이트 복원) + HEAP_SUBST "arg"(소유 Vec 힙 치환) 로 **처리 방법이 있는 가변**.
+            if any(j == k for (j, _) in ARG_SNAP.get(i, [])) and any(h[3] == k for h in heap_specs(i)):
+                caveat.append(u"a%d: &mut 게임 상태(%dB) — ARG_SNAP 복원 + HEAP_SUBST arg 힙 치환 · ③′ 비교(게임 후 s%d vs 내 사본 후)" % (k, a[1], k))
+                continue
             pt = None
             # ★★params `i` 규약(G16 P3) = **sret 행이 i=0, 소스 인자 1..n**. sret 함수는 IR %k ↔ i==k 이고, sret 없는 함수만 IR %k ↔ i==k+1 이다.
             #   09-14 실사고: 옛 코드는 무조건 k+1 이라 sret 함수의 a1(&mut self)이 i=2(usize)로 읽혀 **가변 self 가 공유참조로 편입**됐다
@@ -1203,7 +1251,7 @@ def main():
         _abi = EXE_ABI.get(i)
         if _abi:
             rngs = [_abi[j] for j in rngs if isinstance(_abi[j], int)]
-        rows.append(dict(sret_n=sret_n, live=live, sret_enum=sret_enum, sret_enum_none=sret_enum_none, sret_vec=sret_vec, sret_struct=sret_struct, sites=sites,
+        rows.append(dict(sret_n=sret_n, live=live, sret_enum=sret_enum, sret_enum_none=sret_enum_none, sret_enum_extra=sret_enum_extra, sret_vec=sret_vec, sret_struct=sret_struct, sites=sites,
                          extra=(i >= len(D) - len(EXTRA_SWEEP)),
                          selfr=(None if SELF_RESTORE_OFF else self_restore_of(i, nm)),
                          idx=didx, name=nm, sym=sym, rva=rva, args=g["args"], rty=rty,
@@ -1472,7 +1520,7 @@ def main():
     w(u"}")
     for k, r in enumerate(rows):
         hs = heap_specs(r["idx"]) if r.get("selfr") else []
-        for si, (boff, tags, vecs) in enumerate(hs):
+        for si, (boff, tags, vecs, harg) in enumerate(hs):
             w(u"/// `#%02d` 명세 %d — self+%#x 의 %s → 소유 Vec 목록(off, 요소 크기, live id)." %
               (r["idx"], si, boff, u"메모리태그" if tags else u"평면 필드(태그 무관)"))
             w(u"fn hs_vecs_%d_%d(tag: u64) -> &'static [(usize, usize, u8)] {" % (r["idx"], si))
@@ -1502,6 +1550,7 @@ def main():
     _el_items = [(r["idx"], ei, eoff, ety) for r in rows if r.get("selfr") for ei, (eoff, ety) in enumerate(ENUM_LIVE.get(r["idx"], []))]
     _el_items += [(slot, ei, eoff, ety) for slot, lst in sorted(PIN_ENUM_LIVE.items()) for ei, (eoff, ety) in enumerate(lst)]
     _el_items += [(r["idx"], 0, 0, r["sret_enum"]) for r in rows if r.get("sret_enum")]   # sret 열거형(09-13)
+    _el_items += [(r["idx"], 50 + ei, eoff, ety) for r in rows if r.get("selfr") for ei, (eak, eoff, ety) in enumerate(ARG_ENUM_LIVE.get(r["idx"], []))]   # arg 열거형(09-14)
     for (_idx, ei, eoff, ety) in _el_items:
         r = {"idx": _idx}
         if True:
@@ -1617,9 +1666,9 @@ def main():
                 w(u"            core::ptr::copy_nonoverlapping(pz as *const u8, vb.0.as_mut_ptr(), ln * %d);" % _e0)
                 w(u"        } else { vb.1 = ln; vb.2 = ln + 2 <= %d; }" % (12288 // max(_e0, 1)))
                 w(u"    } });")
-        for si, (boff, tags, vecs) in enumerate(heap_specs(r["idx"]) if r.get("selfr") else []):
-            ak0 = r["selfr"][0]
-            w(u"    // ★명세 %d: self+%#x 의 소유 Vec **내용을 게임 호출 전에** 떠 둔다 — 게임이 해제/재할당할 수 있다." % (si, boff))
+        for si, (boff, tags, vecs, harg) in enumerate(heap_specs(r["idx"]) if r.get("selfr") else []):
+            ak0 = harg if harg is not None else r["selfr"][0]   # ★"arg" 명세는 그 인자를 base 로(09-14)
+            w(u"    // ★명세 %d: a%d+%#x 의 소유 Vec **내용을 게임 호출 전에** 떠 둔다 — 게임이 해제/재할당할 수 있다." % (si, ak0, boff))
             w(u"    PV%d_%d.with(|c| { let pv = &mut *c.get(); pv.2 = 0; pv.3 = true; if t {" % (k, si))
             w(u"        let tg = %s;" % (u"core::ptr::read_unaligned((a%d as usize + %#x) as *const u64)" % (ak0, boff) if tags else u"0u64"))
             w(u"        let mut used = 0usize;")
@@ -1685,8 +1734,9 @@ def main():
                     w(u"        core::ptr::copy_nonoverlapping(s%d.as_ptr(), a%d as *mut u8, %d);" % (j, j, nb))
                 w(u"        pop(%d); return g;" % k)
             w(u"    // ★★★힙 인식 스냅샷 — self 소유 Vec 들을 **내 힙 할당**으로 바꿔치기(내 사본의 drop/realloc 이 내 것에만 닿게).")
-        for si, (boff, tags, vecs) in enumerate(hs):
-            w(u"    let ptag_%d: u64 = %s;" % (si, (u"core::ptr::read_unaligned((a%d as usize + %#x) as *const u64)" % (ak, boff)) if tags else u"0"))
+        for si, (boff, tags, vecs, harg) in enumerate(hs):
+            akb = harg if harg is not None else ak
+            w(u"    let ptag_%d: u64 = %s;" % (si, (u"core::ptr::read_unaligned((a%d as usize + %#x) as *const u64)" % (akb, boff)) if tags else u"0"))
             if tags and None not in vecs:
                 w(u"    if !(%d..=%d).contains(&ptag_%d) {   // untagged variant — 소유 필드를 모른다 ⟹ 표본 제외" % (tags[0], tags[1], si))
                 _early_return()
@@ -1698,7 +1748,7 @@ def main():
             w(u"        for (i, &(off, esz, _)) in hs_vecs_%d_%d(ptag_%d).iter().enumerate() {" % (r["idx"], si, si))
             w(u"            if i >= pv.2 { break; }")
             w(u"            let (cap, len, _) = pv.1[i];")
-            w(u"            let b = a%d as usize + %#x + off;" % (ak, boff))
+            w(u"            let b = a%d as usize + %#x + off;" % (akb, boff))
             w(u"            if cap > 0 && len <= cap {")
             w(u"                // 여유를 둔다 — 내 사본이 push 해도 realloc 없이 들어가게(realloc 도 합법이지만 덜 흔들리게)")
             w(u"                let ncap = cap.max(len + 64);")
@@ -1756,13 +1806,17 @@ def main():
             w(u"        // ① 본체 바이트(설계상 다른 구간은 제외)")
             if hs:
                 w(u"        // ★소유 Vec 삼중항(cap/ptr/len 24B)은 **동적 skip**(게임 것 vs 내 할당) — len·내용은 ②′에서 비교")
-                for si, (boff, tags, vecs) in enumerate(hs):
+                for si, (boff, tags, vecs, harg) in enumerate(hs):
+                    if harg is not None:
+                        continue
                     w(u"        let gtag_%d: u64 = %s;" % (si, (u"core::ptr::read_unaligned(sp.as_ptr().add(%#x) as *const u64)" % boff) if tags else u"0"))
                     w(u"        let dyn_%d: &[(usize, usize, u8)] = hs_vecs_%d_%d(gtag_%d);" % (si, r["idx"], si, si))
             w(u"        for off in 0..%dusize {" % sz)
             for (so, sl) in skips:
                 w(u"            if off >= %#x && off < %#x { continue; }" % (so, so + sl))
-            for si, (boff, tags, vecs) in enumerate(hs):
+            for si, (boff, tags, vecs, harg) in enumerate(hs):
+                if harg is not None:
+                    continue
                 w(u"            if dyn_%d.iter().any(|&(o, _, _)| off >= %#x + o && off < %#x + o + 24) { continue; }" % (si, boff, boff))
             w(u"            if sp[off] != sq[off] {")
             w(u"                return Some(format!(\"self+{:#x}: g={:02x} m={:02x}\", off, sp[off], sq[off]));")
@@ -1773,7 +1827,9 @@ def main():
                 w(u"        { let t = core::ptr::read_unaligned(sp.as_ptr().add(%#x) as *const u64);" % eoff)
                 w(u"          if let Some(d) = enumlive_cmp_%d_%d(t, sp.as_ptr() as usize + %#x, sq.as_ptr() as usize + %#x) {" % (r["idx"], ei, eoff, eoff))
                 w(u"              return Some(format!(\"self+{:#x}(tag {}){}\", %#x, t, d)); } }" % eoff)
-            for si, (boff, tags, vecs) in enumerate(hs):
+            for si, (boff, tags, vecs, harg) in enumerate(hs):
+                if harg is not None:
+                    continue
                 w(u"        // ②′ 명세 %d 소유 Vec 의 len·내용 — 요소는 ELEM_LIVE(live id)로 살아있는 바이트만" % si)
                 w(u"        for &(o, esz, lid) in dyn_%d {" % si)
                 w(u"            let (gb, mb) = (sp.as_ptr().add(%#x + o), sq.as_ptr().add(%#x + o));" % (boff, boff))
@@ -1793,6 +1849,33 @@ def main():
                 w(u"                }")
                 w(u"            }")
                 w(u"        }")
+            for si, (boff, tags, vecs, harg) in enumerate(hs):
+                if harg is None:
+                    continue
+                # ★③′ arg 명세(09-14 r11 #107/#108 a6 &mut BigPlan): 게임 후 상태 = ARG_SNAP 스냅샷 s{k} · 내 사본 후 = a{k}(해제 전).
+                assert any(j == harg for (j, _) in ARG_SNAP.get(r["idx"], [])), u"HEAP_SUBST arg=%d 는 ARG_SNAP[%d] 에 (%d, nB) 가 있어야 한다(게임 후 스냅샷 s%d)" % (harg, r["idx"], harg, harg)
+                w(u"        { let (gbp, mbp) = (s%d.as_ptr() as usize, a%d as usize);" % (harg, harg))
+                w(u"          let gtag_a%d: u64 = %s;" % (si, (u"core::ptr::read_unaligned((gbp + %#x) as *const u64)" % boff) if tags else u"0"))
+                w(u"          let mtag_a%d: u64 = %s;" % (si, (u"core::ptr::read_unaligned((mbp + %#x) as *const u64)" % boff) if tags else u"0"))
+                w(u"          if gtag_a%d != mtag_a%d { return Some(format!(\"a%d+{:#x}.tag: g={} m={}\", %#x, gtag_a%d, mtag_a%d)); }" % (si, si, harg, boff, si, si))
+                for ei, (eak, eoff, ety) in enumerate(ARG_ENUM_LIVE.get(r["idx"], [])):
+                    if eak != harg:
+                        continue
+                    w(u"          if let Some(d) = enumlive_cmp_%d_%d(gtag_a%d, gbp + %#x, mbp + %#x) { return Some(format!(\"a%d+{:#x}(tag {}){}\", %#x, gtag_a%d, d)); }" % (r["idx"], 50 + ei, si, eoff, eoff, harg, eoff, si))
+                w(u"          for &(o, esz, lid) in hs_vecs_%d_%d(gtag_a%d) {" % (r["idx"], si, si))
+                w(u"            let (gb, mb) = (gbp + %#x + o, mbp + %#x + o);" % (boff, boff))
+                w(u"            let (gc, mc) = (core::ptr::read_unaligned(gb as *const usize), core::ptr::read_unaligned(mb as *const usize));")
+                w(u"            let (gn, mn) = (gc >> 63 != 0, mc >> 63 != 0);")
+                w(u"            if gn != mn { return Some(format!(\"a%d+{:#x}.opt: g={} m={}\", %#x + o, gn, mn)); }" % (harg, boff))
+                w(u"            if gn { continue; }")
+                w(u"            let (gp, gl) = (core::ptr::read_unaligned((gb + 8) as *const usize), core::ptr::read_unaligned((gb + 16) as *const usize));")
+                w(u"            let (mp, ml) = (core::ptr::read_unaligned((mb + 8) as *const usize), core::ptr::read_unaligned((mb + 16) as *const usize));")
+                w(u"            if gl != ml { return Some(format!(\"a%d+{:#x}.len: g={} m={}\", %#x + o, gl, ml)); }" % (harg, boff))
+                w(u"            if gl > 0 && gl < 4096 && gp > 0x1000 && mp > 0x1000 && gp != mp {")
+                w(u"                for e in 0..gl { if let Some(d) = elem_cmp(lid, esz, gp + e * esz, mp + e * esz) { return Some(format!(\"a%d+{:#x}[{}]{}\", %#x + o, e, d)); } }" % (harg, boff))
+                w(u"            }")
+                w(u"          } }")
+            es = None   # 09-14: Vec 삼중항 없는 selfr(HEAP_SUBST 전용)에서 `es` 미정의 → 아래 `if es:` 가 죽었다
             if has_vec:
                 w(u"        // ② Vec 의 len (cap/ptr 은 버퍼가 달라 비교 대상이 아니다)")
                 w(u"        let g_ptr = core::ptr::read_unaligned(sp.as_ptr().add(%#x) as *const usize);" % po)
@@ -1886,11 +1969,12 @@ def main():
             w(u"    // ★내 사본이 남긴 소유 Vec 을 해제한다 — 이 시점에 그 포인터는 **전부 내 것**이다")
             w(u"    //   (게임 것은 위에서 내 할당으로 바꿔치기됐고, 새로 만든 것은 내 사본이 할당했다).")
             w(u"    //   ⚠먼저 **내 사본이 새로 push 한 요소**의 String(ELEM_LIVE.str)을 해제한다 — pre-call len 미만은 게임 버퍼의 복사본.")
-        for si, (boff, tags, vecs) in enumerate(hs):
-            w(u"    { let t2: u64 = %s;" % ((u"core::ptr::read_unaligned((a%d as usize + %#x) as *const u64)" % (ak, boff)) if tags else u"0"))
+        for si, (boff, tags, vecs, harg) in enumerate(hs):
+            akf = harg if harg is not None else ak
+            w(u"    { let t2: u64 = %s;" % ((u"core::ptr::read_unaligned((a%d as usize + %#x) as *const u64)" % (akf, boff)) if tags else u"0"))
             w(u"      PV%d_%d.with(|c| { let pv = &*c.get();" % (k, si))
             w(u"      for (i, &(off, esz, lid)) in hs_vecs_%d_%d(t2).iter().enumerate() {" % (r["idx"], si))
-            w(u"          let b = a%d as usize + %#x + off;" % (ak, boff))
+            w(u"          let b = a%d as usize + %#x + off;" % (akf, boff))
             w(u"          let (cap, ptr, len) = (core::ptr::read_unaligned(b as *const usize), core::ptr::read_unaligned((b + 8) as *const usize),")
             w(u"                                 core::ptr::read_unaligned((b + 16) as *const usize));")
             w(u"          if cap > 0 && cap < (1 << 20) && ptr > 0x1000 {")
@@ -1977,6 +2061,10 @@ def main():
             else:
                 w(u"            let d = if gt != mt { Some(format!(\"tag g={} m={}\", gt, mt)) } else { enumlive_cmp_%d_0(gt, gb.as_ptr() as usize, mb.as_ptr() as usize).map(|x| format!(\"(tag {}){}\", gt, x)) };"
                   % r["idx"])
+            for (eo, el) in (r.get("sret_enum_extra") or []):
+                # ★열거형 뒤 바이트(튜플 (Enum, u8) 등) — 바이트 포인터 비교(gb 는 [u64;N]).
+                w(u"            let d = d.or_else(|| (0..%d).find(|&j| *((gb.as_ptr() as usize + %#x + j) as *const u8) != *((mb.as_ptr() as usize + %#x + j) as *const u8)).map(|j| format!(\"extra+{:#x}: g={:02x} m={:02x}\", %#x + j, *((gb.as_ptr() as usize + %#x + j) as *const u8), *((mb.as_ptr() as usize + %#x + j) as *const u8))));"
+                  % (el, eo, eo, eo, eo, eo))
             w(u"            if let Some(d) = d { note(%d, format!(\"#%02d %s 대조#{} 갈림(sret 열거형 %dB): {} | g={:02x?} m={:02x?} | %s\", n, d, &gb[..%d], &mb[..%d], %s)); } }"
               % (k, r["idx"], r["name"], sn, " ".join(fmt[1:]), (sn + 7) // 8, (sn + 7) // 8, ", ".join(vals[1:])))
         elif sn:

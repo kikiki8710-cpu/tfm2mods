@@ -1,0 +1,22 @@
+{
+ "round": "20",
+ "batch": "A",
+ "errors_applied": 23,
+ "ev_applied": 10,
+ "failed": 0,
+ "stamps": {
+  "/specs[102]/sig/params[0]/role": "74234e98afe7498f",
+  "/specs[102]/sig/params[2]/role": "74234e98afe7498f",
+  "/specs[102]/knobs[5]/where": "942bdba95296373b",
+  "/specs[102]/knobs[6]/where": "7b5046920efdbac6",
+  "/specs[102]/mem[19]/name": "f6377a0bc032bf10",
+  "/specs[103]/one_line": "bd91cbff79490082",
+  "/specs[103]/logic": "f5da50378c5d05fb",
+  "/specs[103]/mem[77]/name": "873bb2355f22e4d0",
+  "/specs[104]/consts[23]/src_line": "09a1b036b82baba3",
+  "/specs[104]/mem[71]/name": "81a665a4131c96e1",
+  "/specs[104]/mem[72]/name": "cbf83e027cfd409f",
+  "/specs[104]/knobs[3]/value": "ddd69b8bbf30b3ad",
+  "/specs[104]/mem[4]/note": "1f9fa8027461aa65"
+ }
+}

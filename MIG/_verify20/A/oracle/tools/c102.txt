@@ -1,0 +1,84 @@
+# specs[102] BattlePlan::update src=game-ai\src\plan_legacy\old\battle.rs
+consts[0] value=2 claimed=430 OK own-root-lines=[430, 431, 440, 441, 464, 550, 570, 572, 573, 593, 690, 705]
+consts[1] value=7 claimed=439 OK own-root-lines=[439, 442, 579, 594, 610, 626, 643, 680, 695, 701, 720, 737]
+consts[2] value=4 claimed=452 **MISS** own-root-lines=[0, 481, 491, 505, 577, 579, 592, 603, 608, 624, 625, 641, 716]
+     m10.ll:24321 root=battle.rs:481  store i64 4, ptr %46, align 8, !dbg !34551
+     m10.ll:24364 root=battle.rs:491  store i64 4, ptr %46, align 8, !dbg !34559
+     m10.ll:24437 root=battle.rs:505  store i8 4, ptr %424, align 1, !dbg !34598
+     m10.ll:25612 root=battle.rs:0  %854 = phi i8 [ 5, %852 ], [ 4, %818 ], !dbg !35264
+     m10.ll:26267 root=battle.rs:577  store i8 4, ptr %1123, align 8, !dbg !35542
+     m10.ll:26276 root=battle.rs:579  %1127 = select i1 %1126, i64 4, i64 7, !dbg !35561
+     m10.ll:26346 root=battle.rs:592  store i8 4, ptr %1158, align 8, !dbg !35570
+     m10.ll:26382 root=battle.rs:603  %1171 = call { i64, i64 } @_RNvMNtNtCs97f5S1uJLkH_9game_core10simulation7map_defNtB2_6MapDef8camp_po
+     m10.ll:26426 root=battle.rs:608  store i8 4, ptr %1200, align 8, !dbg !35616
+     m10.ll:26485 root=battle.rs:624  store i8 4, ptr %1237, align 8, !dbg !35633
+     m10.ll:26487 root=battle.rs:625  store i8 4, ptr %1238, align 1, !dbg !35634
+     m10.ll:26539 root=battle.rs:641  store i8 4, ptr %1267, align 8, !dbg !35651
+consts[3] value=3 claimed=452 **MISS** own-root-lines=[479, 602, 609, 618, 694, 700, 707]
+     m10.ll:24318 root=battle.rs:479  store i8 3, ptr %360, align 1, !dbg !34549
+     m10.ll:26361 root=battle.rs:602  %1162 = icmp eq i8 %1141, 3, !dbg !35594
+     m10.ll:26370 root=battle.rs:618  %1164 = icmp eq i8 %1141, 3, !dbg !35601
+     m10.ll:26428 root=battle.rs:609  store i8 3, ptr %1201, align 1, !dbg !35617
+     m10.ll:26641 root=battle.rs:694  store i8 3, ptr %1323, align 8, !dbg !35674
+     m10.ll:26659 root=battle.rs:700  store i8 3, ptr %1330, align 8, !dbg !35679
+     m10.ll:26670 root=battle.rs:707  %1335 = call noundef zeroext i1 @_RNvNtCshdEBA0ozCnw_7game_ai13position_eval27position_risk_all_zero
+consts[4] value=62500000001 claimed=409 **MISS** own-root-lines=[440]
+     m10.ll:23724 root=battle.rs:440  %110 = icmp ult i64 %109, 62500000001, !dbg !34230
+     m10.ll:23778 root=battle.rs:440  %131 = icmp ult i64 %130, 62500000001, !dbg !34230
+     m10.ll:23832 root=battle.rs:440  %152 = icmp ult i64 %151, 62500000001, !dbg !34230
+     m10.ll:23886 root=battle.rs:440  %173 = icmp ult i64 %172, 62500000001, !dbg !34230
+     m10.ll:23940 root=battle.rs:440  %194 = icmp ult i64 %193, 62500000001, !dbg !34230
+consts[5] value=8000 claimed=410 **MISS** own-root-lines=[440]
+     m10.ll:23959 root=battle.rs:440  %203 = icmp ugt i64 %202, 8000, !dbg !34234
+consts[6] value=13 claimed=413 **MISS** own-root-lines=[440]
+     m10.ll:23963 root=battle.rs:440  %206 = icmp eq i64 %205, 13, !dbg !34237
+consts[7] value=100 claimed=423 **MISS** own-root-lines=[440]
+     m10.ll:23995 root=battle.rs:440  %222 = udiv i64 %221, 100, !dbg !34245
+consts[8] value=1 claimed=423 **MISS** own-root-lines=[439, 440, 453, 466, 478, 482, 497, 504, 511, 527, 537, 538, 573, 578, 603, 619, 637, 708]
+     m10.ll:23609 root=battle.rs:439  %71 = icmp ugt i64 %1, 1, !dbg !33747
+     m10.ll:23659 root=battle.rs:440  %86 = sub nuw nsw i64 1, %30, !dbg !34139
+     m10.ll:23996 root=battle.rs:440  %223 = shl nuw nsw i64 %222, 1, !dbg !34245
+     m10.ll:24012 root=battle.rs:453  %229 = sub nuw nsw i64 1, %30, !dbg !33704
+     m10.ll:24229 root=battle.rs:453  %315 = phi i8 [ 0, %76 ], [ 0, %73 ], [ 0, %75 ], [ 0, %288 ], [ 1, %310 ], !dbg !33704
+     m10.ll:24299 root=battle.rs:466  %350 = add i64 %342, 1, !dbg !34544
+     m10.ll:24316 root=battle.rs:478  store i8 1, ptr %359, align 2, !dbg !34548
+     m10.ll:24337 root=battle.rs:482  store i64 1, ptr %376, align 8, !dbg !34552
+     m10.ll:24393 root=battle.rs:497  %411 = sub nuw nsw i64 1, %30, !dbg !33719
+     m10.ll:24435 root=battle.rs:504  store i8 1, ptr %423, align 2, !dbg !34597
+     m10.ll:24451 root=battle.rs:511  %428 = sub nuw nsw i64 1, %30, !dbg !33849
+     m10.ll:25336 root=battle.rs:527  %760 = add i64 %749, 1, !dbg !35175
+consts[9] value=30000 claimed=462 **MISS** own-root-lines=[453]
+     m10.ll:24210 root=battle.rs:453  %307 = add i64 %289, 30000, !dbg !34425
+     m10.ll:55844 root=function.rs:298  %64 = add i64 %44, 30000, !dbg !58784
+consts[10] value=-1 claimed=465 OK own-root-lines=[465, 476, 589]
+consts[11] value=5 claimed=482 OK own-root-lines=[0, 482, 619, 638, 642, 679]
+consts[12] value=6 claimed=480 OK own-root-lines=[480, 490, 538]
+consts[13] value=30 claimed=509 OK own-root-lines=[509]
+consts[14] value=14400000001 claimed=497 **MISS** own-root-lines=[526]
+     m10.ll:24949 root=battle.rs:526  %619 = icmp ult i64 %618, 14400000001, !dbg !35074
+     m10.ll:25003 root=battle.rs:526  %641 = icmp ult i64 %640, 14400000001, !dbg !35074
+     m10.ll:25058 root=battle.rs:526  %664 = icmp ult i64 %663, 14400000001, !dbg !35074
+     m10.ll:25113 root=battle.rs:526  %687 = icmp ult i64 %686, 14400000001, !dbg !35074
+     m10.ll:25168 root=battle.rs:526  %710 = icmp ult i64 %709, 14400000001, !dbg !35074
+     m06.ll:33893 root=chain.rs:106  %50 = icmp ult i64 %49, 14400000001, !dbg !49060
+     m11.ll:29779 root=copied.rs:74  %39 = icmp ult i64 %38, 14400000001, !dbg !46416
+consts[15] value=60000 claimed=502 **MISS** own-root-lines=[]
+     m06.ll:33906 root=chain.rs:106  %54 = add i64 %53, 60000, !dbg !49084
+     m11.ll:29792 root=copied.rs:74  %43 = add i64 %42, 60000, !dbg !46440
+consts[16] value=108100000001 claimed=521 **MISS** own-root-lines=[522]
+     m10.ll:24574 root=battle.rs:522  %466 = icmp ult i64 %465, 108100000001, !dbg !34816
+     m10.ll:24635 root=battle.rs:522  %494 = icmp ult i64 %493, 108100000001, !dbg !34816
+     m10.ll:24704 root=battle.rs:522  %525 = icmp ult i64 %524, 108100000001, !dbg !34816
+     m10.ll:24773 root=battle.rs:522  %556 = icmp ult i64 %555, 108100000001, !dbg !34816
+     m10.ll:24842 root=battle.rs:522  %587 = icmp ult i64 %586, 108100000001, !dbg !34816
+consts[17] value=0 claimed=534 OK own-root-lines=[0, 440, 453, 475, 488, 503, 522, 526, 527, 532, 534, 538, 573, 579, 603, 619, 636, 708, 726]
+consts[18] value=25600000001 claimed=576 **MISS** own-root-lines=[573]
+     m10.ll:25786 root=battle.rs:573  %919 = icmp ult i64 %918, 25600000001, !dbg !35497
+     m10.ll:25902 root=battle.rs:573  %969 = icmp ult i64 %968, 25600000001, !dbg !35497
+     m10.ll:26018 root=battle.rs:573  %1019 = icmp ult i64 %1018, 25600000001, !dbg !35497
+     m10.ll:26134 root=battle.rs:573  %1069 = icmp ult i64 %1068, 25600000001, !dbg !35497
+     m10.ll:26250 root=battle.rs:573  %1119 = icmp ult i64 %1118, 25600000001, !dbg !35497
+consts[19] value=200000 claimed=606 OK own-root-lines=[606, 622]
+consts[20] value=300000 claimed=639 OK own-root-lines=[639]
+consts[21] value=120 claimed=692 OK own-root-lines=[497, 692, 698, 736]
+consts[22] value=22500000001 claimed=708 OK own-root-lines=[708]

@@ -1,0 +1,1142 @@
+{
+ "name": "handle_chat_inner",
+ "sym": "_RNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy7handler4chatNtB4_17LegacyPlanHandler17handle_chat_inner",
+ "src": "game-ai\\src\\plan_legacy\\handler\\chat.rs",
+ "src_line": 41,
+ "ir_file": "m13.ll",
+ "ir_from": 29692,
+ "ir_to": 33371,
+ "aux": [
+  {
+   "ir_file": "m13.ll",
+   "ir_from": 59130,
+   "ir_to": 59318,
+   "note": "closure#4 = :258 적 챔피언 카운트 필터(Filter<FilterMap<..iter_champions..>, closure>::count) — 150000^2 임계가 여기 있다"
+  },
+  {
+   "ir_file": "m13.ll",
+   "ir_from": 4534,
+   "ir_to": 4725,
+   "note": "closure#0 = :180/:230 적 타워 min_by_key(target 과의 distance_sq) 인스턴스(Chain<Flatten<..>,Copied<..>>::min_by_key)"
+  }
+ ],
+ "exe": {
+  "rva": "0xe59b20",
+  "size": 9416,
+  "cc": "internal fastcc",
+  "note": "메인이 rvaname 실명 확정. 이 배치는 IR 만 읽었고 exe 디스어셈 대조는 하지 않음(미검증)."
+ },
+ "one_line": "받은 팀 채팅(Chat 57종)을 종류별로 처리해 team_plan.objective/plan/chats 를 갱신하고 오브젝트 오해 상태를 마킹",
+ "signature": {
+  "params": [
+   {
+    "i": 1,
+    "name": "self",
+    "type": "&mut LegacyPlanHandler(6168B)",
+    "role": "%0 (noalias, readonly 없음 → &mut)",
+    "note": "plan/team_plan/chats/계측 카운터를 쓴다"
+   },
+   {
+    "i": 2,
+    "name": "version",
+    "type": "usize",
+    "role": "%1",
+    "note": "AI 버전. `>1` 게이트 3종: resolve_join_stake 호출(:212), r2_fight_protected(:330/:351/:372/:390/:436/:454/:495/:513/:530/:551/:568/:583), 그 외 분기 없음"
+   },
+   {
+    "i": 3,
+    "name": "rnd",
+    "type": "&mut StdRng(320B)",
+    "role": "%2 (noalias, readonly 없음)",
+    "note": ":83 gen_range(0..1000) 1회 직접 사용 + 하위 호출에 전달"
+   },
+   {
+    "i": 4,
+    "name": "player",
+    "type": "&PlayerState(2528B)",
+    "role": "%3 (readonly)",
+    "note": ""
+   },
+   {
+    "i": 5,
+    "name": "data",
+    "type": "&OperationData(24B)",
+    "role": "%4 (readonly)",
+    "note": "cache(+0)/context(+8)/blackboard(+0x10)"
+   },
+   {
+    "i": 6,
+    "name": "from",
+    "type": "Position(i32 0..5)",
+    "role": "%5",
+    "note": "보낸 선수 포지션"
+   },
+   {
+    "i": 7,
+    "name": "chat",
+    "type": "Chat(24B, 값전달 dead_on_return)",
+    "role": "%6 (readonly)",
+    "note": "+0 태그, +1 LineType/StopReason 등, +4 Position, +8/+0x10 usize 페이로드"
+   },
+   {
+    "i": 8,
+    "name": "misunderstood",
+    "type": "bool",
+    "role": "%7",
+    "note": ":598 에서만 분기(오브젝트 오해 마킹 vs 해제)"
+   },
+   {
+    "i": 9,
+    "name": "debug",
+    "type": "&mut DebugFrameData(224B)",
+    "role": "%8 (noalias, readonly 없음)",
+    "note": "본문에서 직접 읽기/쓰기 0건 — 하위 호출(passive_plan·BattlePlan::update·has_lead·resolve_join_stake·tower_dive_is_viable·handle_line_defense)에 전달만"
+   }
+  ],
+  "returns": "() — 효과는 전부 &mut self 부작용"
+ },
+ "reads": [
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x517",
+   "name": "team_plan.objective@tag",
+   "note": "MainObjective 태그(-1=None). 함수 전체의 1차 분기 키"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x518",
+   "name": "team_plan.objective@Some.0.line/phase",
+   "note": "이 함수는 쓰기 위주. 읽기는 MainObjective::eq(:291,:324) 인자로 3B 통째 전달 + 인라인 ff_note_battle_swap 은 안 읽음"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x5e8",
+   "name": "plan@tag",
+   "note": "BigPlan 메모리태그(니치, 2..17). 9=Battle, 10=LineGanker, 3=PassiveLine 판별에 사용"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x5f0",
+   "name": "plan@Battle.0.support_target@tag",
+   "note": ":152 is_none 판정"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x638",
+   "name": "plan@PassiveJungle.0.team",
+   "note": "is_passive 인라인(:246)"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x640",
+   "name": "plan@PassiveJungle.0.player_team",
+   "note": "is_passive 인라인(:246) — team==player_team 일 때만 passive"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x618",
+   "name": "plan@LineGanker.0.line",
+   "note": ":124 Cancel 처리"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x6e6",
+   "name": "plan@Battle.0.with_dive",
+   "note": ":177/:183"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x6e8",
+   "name": "plan@Battle.0.dive_quiet",
+   "note": ":166"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x6ea",
+   "name": "plan@Battle.0.dive_abandoned",
+   "note": ":166"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x706",
+   "name": "plan@PassiveLine.0.line",
+   "note": ":76 is_adj_line(내 라인, 채팅 라인)"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x6f3",
+   "name": "plan@Battle.0.dive_abort_src",
+   "note": "ff_note_battle_swap 인라인(:437,:552) 읽기 → ff_battle_exit_latch[7]"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x6f7",
+   "name": "plan@Battle.0.entry_src",
+   "note": "ff_note_battle_swap 인라인 → ff_battle_exit.1"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x6f9",
+   "name": "plan@Battle.0.ff_wave_obs_open",
+   "note": "ff_note_battle_swap 인라인 → ff_battle_exit.4"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x6fa",
+   "name": "plan@Battle.0.ff_wave_open_hp",
+   "note": "→ ff_battle_exit_latch[1]"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x6fb",
+   "name": "plan@Battle.0.ff_wave_open_pct",
+   "note": "→ latch[2]"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x6fc",
+   "name": "plan@Battle.0.ff_wave_fire_hp",
+   "note": "→ latch[3]"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x6fd",
+   "name": "plan@Battle.0.ff_wave_fire_pct",
+   "note": "→ latch[4]"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x6fe",
+   "name": "plan@Battle.0.ff_wave_open_danger",
+   "note": "→ latch[5]"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x6ff",
+   "name": "plan@Battle.0.ff_wave_fire_danger",
+   "note": "→ latch[6]"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x700",
+   "name": "plan@Battle.0.ff_exit1_cls",
+   "note": "→ latch[0]"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x701",
+   "name": "plan@Battle.0.exit_sub",
+   "note": "→ ff_battle_exit.3"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x530",
+   "name": "pending_global_ult_target@tag",
+   "note": ":248 is_none"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x1480",
+   "name": "last_dive_abandon_tick",
+   "note": ":174/:226 dive_rejoin_cd 비교"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x180a",
+   "name": "v3_epicops_armed",
+   "note": ":290 Press/PressChange 무시 게이트"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x1d8",
+   "name": "team_plan.comeback_pick_outcomes.buf.ptr",
+   "note": ":132 last_mut"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x1e0",
+   "name": "team_plan.comeback_pick_outcomes.len",
+   "note": ":132"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x7c8",
+   "name": "chats.buf.cap",
+   "note": "push 인라인(19곳)"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x7d0",
+   "name": "chats.buf.ptr",
+   "note": "push 인라인"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x7d8",
+   "name": "chats.len",
+   "note": "push 인라인"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x15b8",
+   "name": "ff_call_recv",
+   "note": "+=1 (읽고 씀)"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x15c0",
+   "name": "ff_call_ignored",
+   "note": "+=1"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x15c8",
+   "name": "ff_call_in_battle",
+   "note": "+=1"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x15d0",
+   "name": "ff_call_no_help",
+   "note": "+=1 (phi 5584/5592/5600 로 접혀 gep 는 `%0 + phi`)"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x15d8",
+   "name": "ff_call_too_far",
+   "note": "+=1 (phi)"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x15e0",
+   "name": "ff_call_low_hp",
+   "note": "+=1 (phi)"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x15e8",
+   "name": "ff_call_bail",
+   "note": "+=1"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x15f0",
+   "name": "ff_call_join",
+   "note": "+=1"
+  },
+  {
+   "base": "PlayerState",
+   "offset": "0x930",
+   "name": "info.team",
+   "note": "player_champion 인덱스(bounds<2 패닉가드)"
+  },
+  {
+   "base": "PlayerState",
+   "offset": "0x9c0",
+   "name": "info.position@tag",
+   "note": "Position(i32) — as_index / 라인 환산"
+  },
+  {
+   "base": "PlayerState",
+   "offset": "0x180",
+   "name": "info.parameter",
+   "note": "&AthleteParameter(744B) → aggressive_ratio/roaming_ratio/ego_ratio 호출 인자"
+  },
+  {
+   "base": "OperationData",
+   "offset": "0x0",
+   "name": "cache",
+   "note": "&AbstractGameWithCache"
+  },
+  {
+   "base": "OperationData",
+   "offset": "0x8",
+   "name": "context",
+   "note": "&GameContext"
+  },
+  {
+   "base": "OperationData",
+   "offset": "0x10",
+   "name": "blackboard",
+   "note": "&[Blackboard;2] — closure#4 캡처"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x0",
+   "name": "game.data_ptr",
+   "note": "dyn AbstractGame 팻포인터 데이터"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x8",
+   "name": "game.vtable_ptr",
+   "note": "vtable+0x28=tick, +0x1f0=get_entity_by_id"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x1e0",
+   "name": "player_champion[team][pos]",
+   "note": "+0x1e0 + team*40 + pos*8 (Option<&Entity>, null=None)"
+  },
+  {
+   "base": "GameContext",
+   "offset": "0x8",
+   "name": "setting",
+   "note": "&GameSetting"
+  },
+  {
+   "base": "GameSetting",
+   "offset": "0x12f8",
+   "name": "tick_per_second",
+   "note": "tps — 모든 초 단위 임계의 배수"
+  },
+  {
+   "base": "Chat",
+   "offset": "0x0",
+   "name": "tag",
+   "note": "57 variant 스위치"
+  },
+  {
+   "base": "Chat",
+   "offset": "0x1",
+   "name": "line/reason(1B 페이로드)",
+   "note": "HideLine·DefenseLine·Press·GankDive·PressTower·ComebackPick·AttackNexus 의 LineType"
+  },
+  {
+   "base": "Chat",
+   "offset": "0x4",
+   "name": "Mia.0 Position",
+   "note": ":340"
+  },
+  {
+   "base": "Chat",
+   "offset": "0x8",
+   "name": "Battle*.0 target id",
+   "note": ":139 get_entity_by_id 인자. Battle.1(+0x10)은 안 읽음"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x5c0",
+   "name": "id",
+   "note": "support_target / pending_global_ult_target 값"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x5c8",
+   "name": "level",
+   "note": "ult_effect 인라인: level>4 면 자기 ult_effect, 아니면 정적 NONE(casting=-1)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x538",
+   "name": "ult_effect",
+   "note": "Option<Effect>(56B). +0x10 range, +0x18 growth_range, +0x28 target(CastingTarget), +0x30 casting(CastingType, -1=None)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x438",
+   "name": "stat_buff_cached.range",
+   "note": ":251 궁 사거리 가산"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x628",
+   "name": "stat_cached.hp",
+   "note": "HP% 분모(max(.,1) 또는 div0 패닉가드)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x640",
+   "name": "stat_cached.move_speed",
+   "note": "dist/spd 분모"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x660",
+   "name": "x",
+   "note": "distance_sq 인라인(:152, closure#4)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x668",
+   "name": "y",
+   "note": ""
+  },
+  {
+   "base": "Entity",
+   "offset": "0x670",
+   "name": "hp",
+   "note": "HP%"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x0",
+   "name": "team@tag",
+   "note": ":266 target.team == Player(team) (tag 0)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x8",
+   "name": "team@Player.0",
+   "note": ":266"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x68",
+   "name": "ty@tag",
+   "note": "타워 and_then: ==2(Tower) 일 때만"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x128",
+   "name": "ty@Tower.info.ty",
+   "note": "TowerType → plan.dive_tower"
+  },
+  {
+   "base": "FightPrediction",
+   "offset": "0x38",
+   "name": "line",
+   "note": "resolve_join_stake 결과(Option, tag -1=None at +0). 0=Commit, 2=Disengage"
+  },
+  {
+   "base": "Strategy",
+   "offset": "0x4",
+   "name": "morgard_use@tag",
+   "note": "5=Gather, 6=Split14, 그 외=Split131(position1 이 +4 에 겹침)"
+  },
+  {
+   "base": "Strategy",
+   "offset": "0x8",
+   "name": "morgard_use@Split14.position / @Split131.position2",
+   "note": ""
+  },
+  {
+   "base": "BattlePlan(local b)",
+   "offset": "0x58",
+   "name": "sub_goal",
+   "note": ":235 != RunAway(4) 판정"
+  }
+ ],
+ "writes": [
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x517",
+   "name": "team_plan.objective@tag",
+   "value": "8 Gank(:107) / -1 None(:136,:415,:476) / 5 PressEpic(:297,:306,:314) / 7 Repair(:325) / 1 Serpen(:345,:366,:385) / 0 Morgard(:430,:449) / 4 Nexus(:494) / 2 Defense(:512) / 3 DefenseLine(:529) / 9 Dive(:542) / 10 PressTower(:549) / 11 ComebackPick(:563)",
+   "note": "★핵심 부작용"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x518",
+   "name": "team_plan.objective@Some.0 페이로드1(line 또는 phase)",
+   "value": "chat.line 또는 phase(Setup=1/Assemble=2/Hunt=3)",
+   "note": ""
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x519",
+   "name": "team_plan.objective@Some.0 페이로드2(with_battle / ComebackPick.ready)",
+   "value": "0(:345,:366,:385,:430,:449,:563) / 1(:406 SerpenBattle, :467 MorgardBattle)",
+   "note": ""
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x5e8",
+   "name": "plan@tag",
+   "value": "9 Battle(:237) / 8 ActiveRecall(:333) / 2 ForcePassive(:498,:516,:533,:554,:586) / 10 LineGanker(:90,:571) / passive_plan 결과 384B memcpy(:355,:376,:394,:420,:440,:458,:481)",
+   "note": "★교체 전 항상 drop_glue<BigPlan>(&self.plan) — Vec/Box 드롭 지점(HEAP_SUBST)"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x5f0",
+   "name": "plan@Battle.0 (280B memcpy)",
+   "value": "BattlePlan b",
+   "note": ":237 store tag 9 + memcpy 280"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x5f0",
+   "name": "plan@Battle.0.support_target@tag",
+   "value": "1(Some)",
+   "note": ":153"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x5f8",
+   "name": "plan@Battle.0.support_target@Some.0",
+   "value": "target.id",
+   "note": ":153"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x5f0",
+   "name": "plan@LineGanker.0.chats (cap=0, ptr=8, len=0)",
+   "value": "빈 Vec",
+   "note": ":90/:571 — 0x5f0 cap, 0x5f8 ptr(dangling 8), 0x600 len(memset)"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x608",
+   "name": "plan@LineGanker.0.setup_limit",
+   "value": "0",
+   "note": ":90/:571 memset 16B(0x600..0x60f)"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x610",
+   "name": "plan@LineGanker.0.wait_limit",
+   "value": "tick + tps*10(:90) / tick + tps*15(:571)",
+   "note": ""
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x618",
+   "name": "plan@LineGanker.0.line",
+   "value": "chat.line",
+   "note": ":90/:571"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x619",
+   "name": "plan@LineGanker.0.phase",
+   "value": "7 Setup(:90,:571) / 8 Cancel(:125)",
+   "note": "LineGankerPhase 니치 태그(WaitResponse=6,Setup=7,Cancel=8)"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x648",
+   "name": "plan@Battle.0.sub_goal@tag",
+   "value": "0 Trace",
+   "note": ":184"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x650",
+   "name": "plan@Battle.0.sub_goal@Trace.focus",
+   "value": "target.id",
+   "note": ":184"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x6a8",
+   "name": "plan@Battle.0.dive_join_tick",
+   "value": "tick",
+   "note": ":178"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x6e6",
+   "name": "plan@Battle.0.with_dive",
+   "value": "with_dive | tower_dive_is_viable(..)",
+   "note": ":177"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x6ee",
+   "name": "plan@Battle.0.dive_tower",
+   "value": "Option<TowerType>(-1=None)",
+   "note": ":180"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x378",
+   "name": "team_plan.vision.mia_call_ticks[pos]",
+   "value": "tick",
+   "note": ":341 Mia — 0x378 + pos*8"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0xf8",
+   "name": "team_plan.ally_battle_stop_tick[from]",
+   "value": "Some(tick) (tag 1 @0xf8+from*16, tick @0x100+from*16)",
+   "note": ":338 BattleStop"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x2b8",
+   "name": "team_plan.allies[from]",
+   "value": "Some{last_tick: tick @0x2b8+from*16, region @0x2c0+from*16 = Top0/Mid2/Bottom4}(:47 HideLine) / None(-1 @0x2c0+from*16, :113 Cancel)",
+   "note": ""
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x170",
+   "name": "team_plan.obj_spawn.serpen_spawn_call_tick",
+   "value": "tick",
+   "note": ":487 SerpenPrepare"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x168",
+   "name": "team_plan.obj_spawn.epic_spawn_call_tick",
+   "value": "tick",
+   "note": ":490 MorgardPrepare"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x148",
+   "name": "team_plan.obj_spawn.epic_giveup_tick",
+   "value": "Some(tick) (tag 1 @0x148, tick @0x150)",
+   "note": ":474 MorgardGiveUp"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x158",
+   "name": "team_plan.obj_spawn.serpen_giveup_tick",
+   "value": "Some(tick) (tag 1 @0x158, tick @0x160)",
+   "note": ":413 SerpenGiveUp"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x188",
+   "name": "team_plan.objective_misunderstanding",
+   "value": "Some{opposite_group_start_tick: None(0 @0x188), solo_hunt_start_tick: None(0 @0x198), accepted_tick: tick @0x1a8, target: JungleType @0x1b0}(:600 mark) / None(-1 @0x188, :603 clear)",
+   "note": "mark 는 target∈{Morgard4,Serpen5} 일 때만((t&6)==4)"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x308",
+   "name": "team_plan.mf_obj_clear.0",
+   "value": "43(:135 Cancel) / 44(:414 SerpenGiveUp) / 45(:475 MorgardGiveUp)",
+   "note": "mf_note_obj_clear 인라인"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x310",
+   "name": "team_plan.mf_obj_clear.1",
+   "value": "tick",
+   "note": ""
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x448",
+   "name": "team_plan.gank_start_tick",
+   "value": "tick",
+   "note": ":108"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x450",
+   "name": "team_plan.press_tower_start_tick",
+   "value": "tick",
+   "note": ":550"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x458",
+   "name": "team_plan.comeback_pick_start_tick",
+   "value": "tick",
+   "note": ":564"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x1d8",
+   "name": "team_plan.comeback_pick_outcomes[last].1 (힙 버퍼 경유)",
+   "value": "6 (기존값 0 일 때만)",
+   "note": ":132 — Vec 버퍼 요소 (i32,u8) 의 u8(+4). self 오프셋이 아니라 ptr 경유 쓰기"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x530",
+   "name": "pending_global_ult_target",
+   "value": "Some((ally.id @0x538, tick + tps*3 @0x540)) (tag 1 @0x530)",
+   "note": ":278"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x7d8",
+   "name": "chats.len (+ 버퍼에 Chat 24B 기록)",
+   "value": "push(Chat::Ok(0)) 18곳 / push(Chat::HideLineToo{line,0}) 1곳(:88)",
+   "note": "cap==len 이면 RawVec<Chat>::grow_one 호출 = 힙 재할당 지점(HEAP_SUBST)"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x1470",
+   "name": "gank_cancel_tick",
+   "value": "tick",
+   "note": ":126"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x15b8",
+   "name": "ff_call_recv",
+   "value": "+1",
+   "note": ":141"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x15c0",
+   "name": "ff_call_ignored",
+   "value": "+1",
+   "note": ":144"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x15c8",
+   "name": "ff_call_in_battle",
+   "value": "+1",
+   "note": ":151"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x15d0",
+   "name": "ff_call_no_help",
+   "value": "+1",
+   "note": ":204 (phi 5584)"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x15d8",
+   "name": "ff_call_too_far",
+   "value": "+1",
+   "note": ":205 (phi 5592)"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x15e0",
+   "name": "ff_call_low_hp",
+   "value": "+1",
+   "note": ":206 (phi 5600)"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x15e8",
+   "name": "ff_call_bail",
+   "value": "+1",
+   "note": ":239"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x15f0",
+   "name": "ff_call_join",
+   "value": "+1",
+   "note": ":236"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x15f8",
+   "name": "ff_battle_exit.2 (usize tick)",
+   "value": "tick",
+   "note": "ff_note_battle_swap 인라인 본문(:437 src=18, :552 src=19) — plan 이 Battle(9) 일 때만"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x1600",
+   "name": "ff_battle_exit.0 (src)",
+   "value": "18(:437) / 19(:552)",
+   "note": ""
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x1601",
+   "name": "ff_battle_exit.1",
+   "value": "plan.Battle.entry_src",
+   "note": ""
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x1602",
+   "name": "ff_battle_exit.3",
+   "value": "plan.Battle.exit_sub",
+   "note": ""
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x1603",
+   "name": "ff_battle_exit.4",
+   "value": "plan.Battle.ff_wave_obs_open",
+   "note": ""
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x1608",
+   "name": "ff_battle_exit_latch[0..8]",
+   "value": "[ff_exit1_cls, ff_wave_open_hp, ff_wave_open_pct, ff_wave_fire_hp, ff_wave_fire_pct, ff_wave_open_danger, ff_wave_fire_danger, dive_abort_src] (0x1608..0x160f)",
+   "note": "ff_note_battle_swap 인라인"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x1610",
+   "name": "mf_swap.0",
+   "value": "21(:89 HideLine, :570 ComebackPick 정글) / 22(:332 Repair) / 23(그 외 12곳)",
+   "note": "mf_note_swap 인라인(항상 인라인, 15곳)"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x1618",
+   "name": "mf_swap.1",
+   "value": "tick",
+   "note": ""
+  }
+ ],
+ "heap_subst": [
+  "drop_glue<BigPlan>(&self.plan @0x5e8): :90 :237 :333 :355 :376 :394 :420 :440 :458 :481 :498 :516 :533 :554 :571 :586 (16곳, 교체 직전) + 실패 언와인딩 시 passive_plan 임시본 drop 6곳",
+  "drop_glue<BattlePlan>(local b %37): :241 (bail 시) + 언와인딩 정리",
+  "RawVec<Chat>::grow_one(&self.chats @0x7c8): push 19곳(:88,:219,:299,:308,:316,:327,:360,:380,:399,:407,:424,:444,:461,:468,:483,:501,:519,:544,:557)",
+  "새 Vec 생성(할당 없음, dangling ptr 8): LineGanker.chats(:90,:571)",
+  "BattlePlan::new(:220) sret 280B 로컬 — 내부 Vec 2개(chats·v54_reentry_ticks)는 callee 가 만든다",
+  "passive_plan sret 392B 로컬 → memcpy 384 로 self.plan 에 이동(u8 은 버림) 7곳",
+  "iter_towers_without_nexus sret 120B 로컬(:180,:230) — bumpalo 이터레이터, 힙 할당 없음",
+  "resolve_join_stake sret 64B 로컬(:213), PlayerState::strategy sret 24B(:292), evaluate_gank_opportunity_with_score sret 12B(:78) — 스택"
+ ],
+ "constants": [
+  {
+   "value": 22500000001,
+   "src_line": 152,
+   "meaning": "150000^2 + 1 — distance_sq(target, me) < 이 값 ⟺ 거리 ≤150000 이면 support_target 채택. aux closure#4(:258) 에서도 같은 값으로 '내 근처 150000 안 적 챔피언' 카운트"
+  },
+  {
+   "value": 199999,
+   "src_line": 252,
+   "meaning": "궁 사거리(ult.range + growth*(level-1) + stat_buff_cached.range) > 199999 ⟺ ≥200000 이면 글로벌 궁으로 간주"
+  },
+  {
+   "value": 60,
+   "src_line": 163,
+   "meaning": "hp_th = 60 - aggressive_ratio*20/1000 : 합류 HP% 하한(공격성이 높을수록 낮아짐). :199 에도 동일"
+  },
+  {
+   "value": 20,
+   "src_line": 163,
+   "meaning": "aggressive_ratio 계수(×20/1000). :75 에도 roaming_ratio*20/1000 으로 사용"
+  },
+  {
+   "value": 1000,
+   "src_line": 163,
+   "meaning": "ratio 분모(ratio 는 0..1000 스케일). :83 gen_range 상한·ego*700/1000 에도"
+  },
+  {
+   "value": 4,
+   "src_line": 165,
+   "meaning": "far_sec = 4 + roaming_ratio*2/1000 : 합류 허용 이동시간(초). :202 도 동일"
+  },
+  {
+   "value": 1,
+   "folded_from": 2,
+   "src_line": 165,
+   "meaning": "roaming_ratio*2 가 `shl i64 %x, 1` 로 접힘(:165, :202)"
+  },
+  {
+   "value": 2,
+   "folded_from": 4,
+   "src_line": 174,
+   "meaning": "dive_rejoin_cd = tps*4 + 1 — `shl i64 %tps, 2 | 1` 로 접힘(:174, :226). tick > last_dive_abandon_tick + cd 일 때만 다이브 재합류 판정"
+  },
+  {
+   "value": 6,
+   "src_line": 245,
+   "meaning": "dist/spd > tps*6 (6초 이상 걸리는 먼 아군) 일 때만 글로벌 궁 지원 경로(:246~:278) 진입"
+  },
+  {
+   "value": 3,
+   "src_line": 278,
+   "meaning": "pending_global_ult_target 유효기한 = tick + tps*3"
+  },
+  {
+   "value": 70,
+   "src_line": 75,
+   "meaning": "HideLine 응답 HP% 하한 = 70 - roaming_ratio*20/1000 (sdiv -1000 형태)"
+  },
+  {
+   "value": 700,
+   "src_line": 83,
+   "meaning": "갱크 점수<0 일 때 그래도 참가할 확률 = ego_ratio*700/1000 (‰) vs gen_range(0..1000)"
+  },
+  {
+   "value": 10,
+   "src_line": 91,
+   "meaning": "HideLine 응답으로 만든 LineGanker.wait_limit = tick + tps*10"
+  },
+  {
+   "value": 15,
+   "src_line": 572,
+   "meaning": "ComebackPick 정글러 LineGanker.wait_limit = tick + tps*15 (Chat::Ok 태그 15 와 동일 값이 본문에 다수 있음)"
+  },
+  {
+   "value": 100,
+   "src_line": 161,
+   "meaning": "HP% = hp*100/max_hp"
+  },
+  {
+   "value": 5,
+   "src_line": 297,
+   "meaning": "MainObjective::PressEpic 태그(store i8 5) 및 morgard_use Gather 니치 태그(5). :291 Some(PressEpic(line)) 비교용 3B 임시도 5"
+  },
+  {
+   "value": 9,
+   "src_line": 237,
+   "meaning": "BigPlan::Battle 메모리태그(idx7+2) — self.plan 교체"
+  },
+  {
+   "value": 8,
+   "src_line": 333,
+   "meaning": "BigPlan::ActiveRecall 태그(:333) / MainObjective::Gank 태그(:107,:134,:562) / LineGankerPhase::Cancel 태그(:125)"
+  },
+  {
+   "value": 12,
+   "src_line": 88,
+   "meaning": "Chat::HideLineToo 태그 — chats.push"
+  },
+  {
+   "value": 43,
+   "src_line": 135,
+   "meaning": "mf_obj_clear 코드(Cancel 로 objective 해제)"
+  },
+  {
+   "value": 44,
+   "src_line": 414,
+   "meaning": "mf_obj_clear 코드(SerpenGiveUp)"
+  },
+  {
+   "value": 45,
+   "src_line": 475,
+   "meaning": "mf_obj_clear 코드(MorgardGiveUp)"
+  },
+  {
+   "value": 17,
+   "src_line": 331,
+   "meaning": "ff_note_battle_swap src 코드(Repair→ActiveRecall). 18=오브젝트 채팅→passive_plan(:352,:373,:391,:437,:455), 19=AttackNexus/PressTower→ForcePassive(:496,:552), 20=DefenseLine/DefenseNexus(:514,:531), 21=ComebackPick(:569,:584)"
+  },
+  {
+   "value": 23,
+   "src_line": 332,
+   "meaning": "mf_note_swap 코드 — 이 함수의 플랜 교체 대부분(23). HideLine·ComebackPick 정글 은 21(:89,:570), Repair 는 22(:332)"
+  }
+ ],
+ "calls": [
+  "game_ai::plan_legacy::old::fight_model::is_ignored_battle_enemy",
+  "game_core::simulation::entity::Entity::distance",
+  "game_core::simulation::state::player::AthleteParameter::aggressive_ratio",
+  "game_core::simulation::state::player::AthleteParameter::roaming_ratio",
+  "game_core::simulation::state::player::AthleteParameter::ego_ratio",
+  "game_ai::plan_legacy::old::fight_model::tower_dive_is_viable",
+  "game_core::simulation::AbstractGameWithCache::iter_towers_without_nexus",
+  "game_ai::plan_legacy::types::BigPlan::can_help",
+  "game_ai::plan_legacy::old::fight_model::resolve_join_stake",
+  "game_ai::plan_legacy::old::battle::BattlePlan::new",
+  "game_ai::plan_legacy::old::battle::BattlePlan::update",
+  "game_ai::plan_legacy::old::battle::BattleSubPlanGoal::eq",
+  "game_core::simulation::entity::Entity::can_ult",
+  "game_ai::plan_legacy::old::passive_line::PassiveLinePlan::has_lead",
+  "game_ai::plan_legacy::old::passive_jungle::evaluate_gank_opportunity_with_score",
+  "rand::rngs::std::StdRng::gen_range",
+  "game_ai::plan_legacy::team_plan::MainObjective::eq",
+  "game_core::simulation::state::player::PlayerState::strategy",
+  "game_ai::plan_legacy::handler::LegacyPlanHandler::ff_note_battle_swap",
+  "game_ai::plan_legacy::handler::LegacyPlanHandler::passive_plan",
+  "game_ai::plan_legacy::types::BigPlan::goal",
+  "game_ai::plan_legacy::old::defense_nexus::handle_line_defense",
+  "game_ai::plan_legacy::handler::calculate_nexus_defense_count",
+  "game_ai::plan_legacy::old::defense_nexus::i_am_chosen_defender",
+  "alloc::raw_vec::RawVec::grow_one",
+  "core::ptr::drop_glue",
+  "core::iter::traits::iterator::Iterator::count",
+  "core::iter::traits::iterator::Iterator::min_by_key",
+  "core::panicking::panic_bounds_check",
+  "core::panicking::panic_const::panic_const_div_by_zero",
+  "game_core::simulation::game::blackboard::Blackboard::is_recent_visible"
+ ],
+ "calls_contract": {
+  "vtable AbstractGame+0x28 tick(&game)->usize": "간접호출 30여곳(매 분기에서 tick 을 새로 읽음)",
+  "vtable AbstractGame+0x1f0 get_entity_by_id(&game, id)->Option<&Entity>": ":140",
+  "is_ignored_battle_enemy(version, &player, &data, &target, is_dive:bool)->bool": ":143 (out-of-line, m10.ll:47629)",
+  "tower_dive_is_viable(version, &mut rnd, &player, &data, &self.team_plan, &target, bool, &mut debug)->bool": ":175/:227 — 7번째 bool 은 리터럴 true 두 곳 모두",
+  "resolve_join_stake(sret 64B Option<FightPrediction>, version, &mut rnd, &data, &player, &me, &target, &self.team_plan, &mut debug)": ":213 (version>1 만)",
+  "BattlePlan::new(sret 280B, version, BattlePlanGoal{Support(target.id)} 24B by-ref, &data, &player)": ":220 — goal 임시(%36)는 tag 1(Support), +8 target.id",
+  "BattlePlan::update(&mut b, version, &mut rnd, &player, &data, &self.positioning_score(0x990, readonly), &self.team_plan(0xf8), &mut debug)": ":234",
+  "BigPlan::can_help(&self.plan, &player, &data)->bool": ":204/:218/:246",
+  "passive_plan(sret 392B=(BigPlan,u8), &self, version, &mut rnd, &player, &data, &mut debug)": ":353/:374/:392/:418/:438/:456/:479 — u8 은 버리고 384B 만 self.plan 으로 memcpy",
+  "ff_note_battle_swap(&mut self, src:u8, tick)": "out-of-line 호출 10곳(m13.ll:11095) + 인라인 2곳(:437,:552)",
+  "handle_line_defense(version, &mut rnd, &player, &data, line, &mut debug)->bool": ":526",
+  "calculate_nexus_defense_count(version=poison, rnd=poison, &player, &data, debug=poison)->usize": ":507 — 미사용 인자는 poison 으로 전달(callee 가 안 읽는다는 뜻)",
+  "i_am_chosen_defender(&player, &data, count, &[] (ptr 8,len 0))->bool": ":509",
+  "PlayerState::strategy(sret 24B Strategy, &player, &game, vtable)": ":292",
+  "evaluate_gank_opportunity_with_score(sret 12B (bool,i32,i32), &mut rnd, &player, &data, line, 0)": ":78 — .2(+8) 만 사용",
+  "has_lead(&plan.PassiveLine, version, &mut rnd, &player, &data, &mut debug)->bool": ":76",
+  "iter_towers_without_nexus(sret 120B, &cache, team=1-my_team) → Chain<..>::min_by_key(closure: distance_sq to target)": ":180/:230 → .and_then(|t| t.ty==Tower ? Some(t.ty.Tower.info.ty) : None)",
+  "Filter<..iter_champions(cache, 1-team)..>::count(closure#4 {slice, game, vtable, blackboard, player, me})": ":260 — aux 참조"
+ },
+ "logic": "// chat.rs:41~43 진입\nobjective_target_before = self.team_plan.objective_target()   // objective 태그 0(Morgard)→Some(JungleType::Morgard=4), 1(Serpen)→Some(Serpen=5), 그 외→None\nchat_target = objective_chat_target(&chat)   // chat 태그 25,27,28,29(SerpenSetup/EnemyHunt/Assemble/Hunt)→Serpen(5) · 34,36,37,38(Morgard 동일4종)→Morgard(4) · 그 외 None\n\n// chat.rs:45 match chat  (처리 후 대부분 %54 = 공통 꼬리(:595) 로 합류. Battle 채팅 처리와 DefenseLine 의 handle_line_defense==false 만 %700(즉시 return))\n\n// ---- Battle(3)/BattleDive(4)/BattleHelp(6) {target_id, _} : chat.rs:139~284 ----\ntarget = game.get_entity_by_id(chat+8); None → 꼬리\nself.ff_call_recv += 1;  is_dive = (chat==BattleDive)\nif is_ignored_battle_enemy(version, player, data, target, is_dive) { self.ff_call_ignored += 1; return }   // :143~144\nif self.plan is Battle {                                                            // :148 tag 9\n  me = cache.player_champion[team][position]; None → (아래 else 블록 :191 로 진입: %180 null → %299)\n  self.ff_call_in_battle += 1                                                       // :151\n  if plan.support_target.is_none() && distance_sq(target, me) < 22500000001 { plan.support_target = Some(target.id) }   // :152~153\n  if is_dive {                                                                      // :158\n    dist = target.distance(me); spd = max(me.move_speed,1); hp% = me.hp*100/max(me.max_hp,1)\n    hp_th = 60 - aggressive_ratio*20/1000 ; far = 4 + roaming_ratio*2/1000\n    if !(dist/spd > far*tps || hp% < hp_th || plan.dive_abandoned || plan.dive_quiet) {       // :166\n      if tick > self.last_dive_abandon_tick + (tps*4+1) {                                     // :174 dive_rejoin_cd\n        viable = tower_dive_is_viable(version, rnd, player, data, &team_plan, target, ?, debug)\n        plan.with_dive |= viable                                                              // :177\n        if viable { plan.dive_join_tick = tick; plan.dive_tower = 적 타워(iter_towers_without_nexus(1-team)) 중 target 과 최단거리 .and_then(Tower→info.ty) }   // :178~180\n      }\n    }\n  }\n  if plan.with_dive { plan.sub_goal = Trace{focus: target.id} }                     // :183~184\n  return\n} else {                                                                            // :191\n  me = player_champion[team][position]; None → 꼬리\n  dist = target.distance(me); spd = me.move_speed (0이면 div0 패닉); hp% = me.hp*100/me.max_hp (0이면 패닉)   // :193~196\n  hp_th = 60 - agg*20/1000 ; far = 4 + roam*2/1000                                  // :198~202\n  can_help = self.plan.can_help(player, data)\n  // 계측(배타적, 첫 사유만): :204 !can_help→ff_call_no_help+1 / :205 dist/spd > far*tps→ff_call_too_far+1 / :206 hp%<hp_th→ff_call_low_hp+1\n  stake = if version>1 { resolve_join_stake(...) } else { None }                     // :212~213\n  stake_commit = stake.is_some_and(|s| s.line==Commit(0)) ; stake_ok = stake.map_or(true, |s| s.line!=Disengage(2))   // :215~216\n  too_far = dist/spd > far*tps ; low_hp = hp% < hp_th                                // :217\n  join = can_help && ( (too_far || low_hp) ? stake_commit : stake_ok )              // :218  (게이트 기각을 stake Commit 이 뒤집는 구조)\n  if join {\n    self.chats.push(Chat::Ok(0))                                                     // :219\n    b = BattlePlan::new(version, Support(target.id), data, player); b.entry_src = 4; b.ff_stake_join = (too_far||low_hp) && stake_commit ? 1 : 0 ; b.support_target = Some(target.id)   // :220~223\n    if is_dive { if tick > last_dive_abandon_tick + tps*4+1 { b.with_dive = tower_dive_is_viable(..); if b.with_dive { b.dive_join_tick = tick; b.dive_tower = (위와 동일 타워 탐색) } } else { b.with_dive = false } }   // :225~231\n    b.update(version, rnd, player, data, &self.positioning_score, &self.team_plan, debug)   // :234\n    if b.sub_goal != RunAway(4) { self.ff_call_join += 1; self.plan = BigPlan::Battle(b) }   // :235~237 (구 plan drop)\n    else { self.ff_call_bail += 1; drop(b) }                                          // :239~241\n  } else if dist/spd > tps*6 {                                                       // :245 6초 이상 먼 아군에게만 글로벌 궁 지원 검토\n    if can_help || self.plan.is_passive() /* PassiveLine|SinglePlanLine|PassiveJungle(team==player_team) */ {   // :246\n      if me.can_ult() && self.pending_global_ult_target.is_none() {                  // :247~248\n        ult = me.ult_effect(level)  /* level>4 면 me.ult_effect 아니면 NONE(casting=-1) */ ; None → skip   // :250\n        range = ult.range + ult.growth_range*(level-1) + me.stat_buff_cached.range   // :251\n        if range > 199999 && ult.target ∈ {Ally0, AllyChampion1, AllyNotSelf3} && ult.casting == Targeting(0) {   // :252~254\n          enemies_near_me = count(적 챔피언 e: blackboard[1-team].is_recent_visible(game, player, e) && distance_sq(e, me) < 22500000001)   // :257~260 closure#4\n          if enemies_near_me == 0 {                                                  // :262\n            ally = if chat==BattleHelp(6) { target.team == Player(my team) ? target : skip } else { player_champion[team][from] ?: skip }   // :264~274\n            self.pending_global_ult_target = Some((ally.id, tick + tps*3))            // :278\n          }\n        }\n      }\n    }\n  }\n  → 꼬리\n}\n\n// ---- HideLine(11)/HideLineToo(12) {line, _} : chat.rs:46~108 ----\nself.team_plan.allies[from] = Some(AllyRegionInfo{last_tick: tick, region: Top0/Mid2/Bottom4 ← line})   // :47~68\nif self.plan is PassiveLine(p) {                                                     // :70 tag 3\n  me = player_champion[team][position]; None → :98\n  hp_th = 70 - roaming_ratio*20/1000                                                 // :74~75\n  if line.is_adj_line(p.line) /* Top↔Mid, Mid↔(Top|Bottom), Bottom↔Mid */ && p.has_lead(version, rnd, player, data, debug) && me.hp*100/me.max_hp >= hp_th {   // :76\n    (_,_,score) = evaluate_gank_opportunity_with_score(rnd, player, data, line, 0)   // :78\n    go = score >= 0 || rnd.gen_range(0..1000) >= ego_ratio*700/1000   // :80~83 (점수 음수면 ego 비례 확률로만)\n    if go { self.chats.push(HideLineToo{line,0}); mf_note_swap(21,tick); self.plan = LineGanker{chats:[], setup_limit:0, wait_limit: tick+tps*10, line, phase: Setup} }   // :88~91\n  }\n}\nif self.team_plan.objective.is_none() {                                              // :98\n  my_line = position Top→Top, Mid→Mid, Bottom→Bottom, else skip                     // :99~102\n  if my_line == line { objective = Some(Gank(line)); team_plan.gank_start_tick = tick }   // :106~108\n}\n\n// ---- Cancel(17) : chat.rs:113~136 ----\nself.team_plan.allies[from] = None\nif position==Jungle && self.plan is LineGanker && (from 의 라인 == plan.line) { plan.phase = Cancel; self.gank_cancel_tick = tick }   // :115~126\nif objective == ComebackPick { comeback_pick_outcomes.last_mut() 의 .1 이 0 이면 6 }   // :131~132\nif objective ∈ {ComebackPick11, Gank8, Dive9} { mf_note_obj_clear(43,tick); objective = None }   // :134~136\n\n// ---- Press(21)/PressChange(22) {line,_} : chat.rs:287~321 ----\nif self.v3_epicops_armed → 무시                                                       // :290\nif objective == Some(PressEpic(line)) → 무시                                          // :291\nstrategy = player.strategy(game); match strategy.morgard_use {                        // :292~295\n  Gather: objective = PressEpic(line); if 내 챔피언 살아있음 { chats.push(Ok(0)) }     // :297~299\n  Split14{position}: if position != my position { objective = PressEpic(line); if 살아있음 push(Ok) }   // :305~308\n  Split131{p1,p2}: if my position ∉ {p1,p2} { objective = PressEpic(line); if 살아있음 push(Ok) }   // :313~316\n}\n\n// ---- Repair(23) : chat.rs:324~333 ----\nif objective != Some(Repair) { objective = Some(Repair); if 살아있음 push(Ok); if !(version>1 && plan is Battle) { ff_note_battle_swap(17,tick); mf_note_swap(22,tick); self.plan = ActiveRecall } }\n\n// ---- Mia(1){pos,_} :340 team_plan.vision.mia_call_ticks[pos] = tick\n// ---- BattleStop(7) :338 team_plan.ally_battle_stop_tick[from] = Some(tick)\n// ---- SerpenPrepare(24) :487 obj_spawn.serpen_spawn_call_tick = tick ; MorgardPrepare(33) :490 epic_spawn_call_tick = tick\n\n// ---- Serpen 계열(objective 가 Serpen 이 아닐 때만 처리; 이미 Serpen 이면 무시) ----\nSerpenSetup(25) :345 objective = Serpen{Setup,false}; :350 if plan.goal() != BigGoal::Serpen(3) && !(version>1 && plan is Battle) { ff_note_battle_swap(18); (p,_) = self.passive_plan(..); mf_note_swap(23); self.plan = p }; :359 if 살아있음 push(Ok)\nSerpenEnemyHunt(27)/SerpenAssemble(28) :366 objective = Serpen{Assemble(2),false}; :371~376 동일 교체; :380 push(Ok) (생존 체크 없음)\nSerpenHunt(29) :385 objective = Serpen{Hunt(3),false}; :389~394 동일 교체; :398 if 살아있음 push(Ok)\nSerpenBattle(30) (objective 가 Serpen 일 때만) :406 objective.with_battle = true; :407 push(Ok)\nSerpenGiveUp(31) (objective 가 Serpen 일 때만) :413 obj_spawn.serpen_giveup_tick = Some(tick); :414 mf_note_obj_clear(44); :415 objective = None; :417 if plan.goal()==Serpen { (p,_) = passive_plan(); mf_note_swap(23); plan = p } (r2 보호 없음); :423 if 살아있음 push(Ok)\n// ---- Morgard 계열(objective 가 Morgard 가 아닐 때만) ----\nMorgardSetup(34)/EnemyHunt(36)/Assemble(37) :430 objective = Morgard{Setup(1),false} (3종 모두 Setup); :435 if plan.goal()!=Epic(2) && !(v>1&&Battle) { ff_note_battle_swap(18)[인라인]; passive_plan; mf_note_swap(23); plan=p }; :444 push(Ok) (생존 체크 없음)\nMorgardHunt(38) :449 objective = Morgard{Hunt(3),false}; :453~458 동일 교체; :461 push(Ok)\nMorgardBattle(39) (Morgard 일 때만) :467 with_battle = true; :468 push(Ok)\nMorgardGiveUp(40) (Morgard 일 때만) :474 epic_giveup_tick = Some(tick); :475 mf_note_obj_clear(45); :476 objective=None; :478 if goal()==Epic { passive_plan; mf_note_swap(23); plan=p }; :483 push(Ok)\n\n// ---- AttackNexus(42){line,_} (objective != Nexus 일 때) :494 objective = Nexus(line); :495 if !(v>1&&Battle) { ff_note_battle_swap(19); mf_note_swap(23); plan = ForcePassive }; :500 if 살아있음 push(Ok)\n// ---- DefenseNexus(43) (objective != Defense 일 때) :507 n = calculate_nexus_defense_count(player,data); :509 if i_am_chosen_defender(player,data,n,&[]) { :512 objective=Defense; :513 if !(v>1&&Battle){ ff_note_battle_swap(20); mf_note_swap(23); plan=ForcePassive }; :518 if 살아있음 push(Ok) }\n// ---- DefenseLine(14){line,_} :525 if objective ∈ {Defense2, DefenseLine3} → 무시; else :526 if handle_line_defense(version,rnd,player,data,line,debug) { :529 objective = DefenseLine(line); :530 if !(v>1&&Battle){ ff_note_battle_swap(20); mf_note_swap(23); plan=ForcePassive } } else { return (꼬리 생략) }\n// ---- GankDive(44){line,_} :542 objective = Dive(line); :543 if 살아있음 push(Ok)\n// ---- PressTower(45){line,_} :549 objective = PressTower(line); :550 team_plan.press_tower_start_tick = tick; :551 if !(v>1&&Battle){ ff_note_battle_swap(19)[인라인]; mf_note_swap(23); plan=ForcePassive }; :556 if 살아있음 push(Ok)\n// ---- ComebackPick(46){line,_} :562 if objective ∈ {None, Gank8} { :563 objective = ComebackPick{line, ready:false}; :564 comeback_pick_start_tick = tick }\n//   :567 match position { Jungle: :568 if !(v>1&&Battle){ ff_note_battle_swap(21); mf_note_swap(21); plan = LineGanker{chats:[],setup_limit:0, wait_limit: tick+tps*15, line, phase:Setup} }\n//                         Top: line∈{Top,Mid} 이면 계속 / Mid: 항상 / Bottom(3)·Support(4): line!=Top 이면 계속 → :583 if !(v>1&&Battle){ ff_note_battle_swap(21); mf_note_swap(23); plan=ForcePassive } }\n\n// ---- 공통 꼬리 chat.rs:595~607 (%54 경유 분기만) ----\nif let Some(t) = chat_target {                                                       // :595\n  after = self.team_plan.objective_target()                                          // :596\n  if after == Some(t) {                                                              // :597 (objective 태그<2 && 4/5 일치)\n    if misunderstood { if objective_target_before != Some(t) { team_plan.mark_objective_misunderstanding(t, tick) /* t∈{4,5} 면 objective_misunderstanding = Some{None,None,accepted_tick:tick,target:t} */ } }   // :598~600\n    else { team_plan.clear_objective_misunderstanding() /* = None */ }              // :603\n  }\n}\nreturn",
+ "knobs": [
+  {
+   "what": "합류 거리 임계(초)",
+   "where": "chat.rs:165 / :202",
+   "value": "4 + roaming_ratio*2/1000",
+   "effect": "올리면 더 먼 아군 전투 호출에도 합류(BattlePlan 생성)"
+  },
+  {
+   "what": "합류 HP% 하한",
+   "where": "chat.rs:163 / :199",
+   "value": "60 - aggressive_ratio*20/1000",
+   "effect": "내리면 저체력에서도 합류. 단 stake Commit 이면 게이트 무시"
+  },
+  {
+   "what": "support_target 채택 거리",
+   "where": "chat.rs:152",
+   "value": "150000^2+1 (22500000001)",
+   "effect": "올리면 더 먼 호출 대상도 지원 표적으로 잡음"
+  },
+  {
+   "what": "다이브 재합류 쿨다운",
+   "where": "chat.rs:174 / :226",
+   "value": "tps*4+1",
+   "effect": "올리면 다이브 포기 후 재다이브가 늦어짐"
+  },
+  {
+   "what": "글로벌 궁 지원 최소 거리(초)",
+   "where": "chat.rs:245",
+   "value": "tps*6",
+   "effect": "내리면 더 가까운 아군에게도 글로벌 궁 예약"
+  },
+  {
+   "what": "글로벌 궁 사거리 기준",
+   "where": "chat.rs:252",
+   "value": ">199999",
+   "effect": "내리면 사거리가 짧은 궁도 글로벌 궁으로 예약"
+  },
+  {
+   "what": "글로벌 궁 예약 유효기간",
+   "where": "chat.rs:278",
+   "value": "tps*3",
+   "effect": "올리면 pending_global_ult_target 이 오래 유지"
+  },
+  {
+   "what": "HideLine 응답 HP% 하한",
+   "where": "chat.rs:75",
+   "value": "70 - roaming_ratio*20/1000",
+   "effect": "내리면 저체력 라이너도 갱크 협조"
+  },
+  {
+   "what": "갱크 점수 음수시 참가 확률",
+   "where": "chat.rs:83",
+   "value": "ego_ratio*700/1000 ‰",
+   "effect": "올리면 불리한 갱크에도 더 자주 협조"
+  },
+  {
+   "what": "HideLine→LineGanker 대기 한도",
+   "where": "chat.rs:91",
+   "value": "tps*10",
+   "effect": "올리면 갱크 대기 시간 증가"
+  },
+  {
+   "what": "ComebackPick 정글 대기 한도",
+   "where": "chat.rs:572",
+   "value": "tps*15",
+   "effect": "동상"
+  },
+  {
+   "what": "r2_fight_protected 게이트",
+   "where": "chat.rs:330 등 12곳",
+   "value": "version>1 && plan is Battle",
+   "effect": "끄면 전투 중에도 오브젝트/넥서스 채팅이 플랜을 즉시 교체"
+  }
+ ],
+ "unknown": [
+  "BattlePlan::new 에 넘기는 BattlePlanGoal 이 Support(target.id)(tag 1) 인 것은 확인. TryKill 이 아닌 이유는 소스 부재",
+  "Entity::ult_effect 의 'level>4' 판정과 정적 NONE(casting=-1) — Option<Effect> 의 니치가 casting(i32) 에 있는지 tcx 로 미확인(IR 관측만)",
+  "closure#4 에서 blackboard 인덱스가 `1 - my_team` 인 이유(적 팀 블랙보드로 is_recent_visible 판정) — 의미는 game_core 소관, 미확인",
+  ":2113 등 passive_plan 반환 u8(mf 소스 코드)을 이 함수는 버린다 — 의도(소스 코드 23 고정) 는 추정",
+  "exe 0xe59b20 과의 대조는 하지 않았다(Ghidra 미사용). IR 3,679줄 ↔ 9,416B 는 크기상 모순 없음 정도만",
+  "C3 경고 0x608(setup_limit)은 memset(0x600,16B) 로 접혀 gep 가 없다 — 관측 사실"
+ ]
+}

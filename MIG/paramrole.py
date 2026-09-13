@@ -60,7 +60,8 @@ def NEGATED(clause, at):
     import re as _re
     attrw = u"(?:readnone|readonly|writeonly|noalias|nonnull|captures\\(none\\)|dereferenceable(?:\\(\\d+\\))?)"
     sep = u"[^\\uac00-\\ud7a3A-Za-z]{0,8}"
-    pat = _re.compile(u"(?:" + sep + attrw + u")*" + sep + u"(없음|없다|없고|없어|빠짐|빠져|제외|부재|미부착|전부 없)")
+    # 20차 A/D: `readonly 아님` · `3속성 전부 없음` — 부정 어휘 확장 + 수량어(`3속성`·`세 속성`) 통과
+    pat = _re.compile(u"(?:" + sep + attrw + u")*" + sep + u"(?:\\d+속성|세 속성|셋 다|전부|모두)?\\s*(없음|없다|없고|없어|빠짐|빠져|제외|부재|미부착|전부 없|아님|아니다|아니고|아니라)")
     # 비교 대상(다른 함수)의 속성을 말하는 자리 — `update_on_dead(&mut self) 는 noalias dereferenceable(6168)` — 도 이 인자의 주장이 아니다.
     cmp = _re.compile(u"\\((?:&mut self|&self|&mut [A-Za-z_]+|&[A-Za-z_]+)\\)\\s*(?:는|은|=|:)\\s*$")
     for m in _re.finditer(_re.escape(at), clause):

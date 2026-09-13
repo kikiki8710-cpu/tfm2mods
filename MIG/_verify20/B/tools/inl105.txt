@@ -1,0 +1,95 @@
+    7 closure$0                                                              handler.rs:1968  _RNCNvMNtNtCshdEBA0ozCnw_7game_ai11plan_legacy7handlerNtB4_17LegacyPlanHandler12passive_pl
+    5 closure$0                                                              handler.rs:1988  _RNCNCNvMNtNtCshdEBA0ozCnw_7game_ai11plan_legacy7handlerNtB6_17LegacyPlanHandler12passive_
+    3 closure$1                                                              handler.rs:1983  _RNCNvMNtNtCshdEBA0ozCnw_7game_ai11plan_legacy7handlerNtB4_17LegacyPlanHandler12passive_pl
+    8 closure$2                                                              handler.rs:1987  _RNCNvMNtNtCshdEBA0ozCnw_7game_ai11plan_legacy7handlerNtB4_17LegacyPlanHandler12passive_pl
+    8 closure$3                                                              handler.rs:2041  _RNCNvMNtNtCshdEBA0ozCnw_7game_ai11plan_legacy7handlerNtB4_17LegacyPlanHandler12passive_pl
+    9 closure$4                                                              handler.rs:2043  _RNCNvMNtNtCshdEBA0ozCnw_7game_ai11plan_legacy7handlerNtB4_17LegacyPlanHandler12passive_pl
+    7 closure$5                                                              handler.rs:2049  _RNCNvMNtNtCshdEBA0ozCnw_7game_ai11plan_legacy7handlerNtB4_17LegacyPlanHandler12passive_pl
+    7 closure$7                                                              handler.rs:2128  _RNCNvMNtNtCshdEBA0ozCnw_7game_ai11plan_legacy7handlerNtB4_17LegacyPlanHandler12passive_pl
+  160 new                                                                    passive_line.rs:197  _RNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old12passive_lineNtB2_15PassiveLinePlan3new
+    7 fallback_line                                                          rule_scope.rs:28  _RNvNtNtCshdEBA0ozCnw_7game_ai11plan_legacy10rule_scope13fallback_line
+    9 line_exists                                                            rule_scope.rs:24  _RNvNtNtCshdEBA0ozCnw_7game_ai11plan_legacy10rule_scope11line_exists
+    6 morgard_exists                                                         rule_scope.rs:45  _RNvNtNtCshdEBA0ozCnw_7game_ai11plan_legacy10rule_scope14morgard_exists
+    3 serpen_exists                                                          rule_scope.rs:49  _RNvNtNtCshdEBA0ozCnw_7game_ai11plan_legacy10rule_scope13serpen_exists
+    7 valid_lines                                                            rule_scope.rs:13  _RNvNtNtCshdEBA0ozCnw_7game_ai11plan_legacy10rule_scope11valid_lines
+    1 add                                                                    team_plan.rs:119  _RNvMNtNtCshdEBA0ozCnw_7game_ai11plan_legacy9team_planNtB2_10V54Counter3add
+    7 is_line_phase                                                          setting.rs:702  _RNvMs2_NtCs97f5S1uJLkH_9game_core7settingNtB5_11GameSetting13is_line_phase
+   21 tower                                                                  simulation.rs:1822  _RNvMs3_NtCs97f5S1uJLkH_9game_core10simulationNtB5_21AbstractGameWithCache5tower
+    4 eq                                                                     entity.rs:563  _RNvXsn_NtNtCs97f5S1uJLkH_9game_core10simulation6entityNtB5_8PositionNtNtCsjihNppCmMEE_4co
+    6 as_moba                                                                game.rs:230  _RNvMs_NtNtCs97f5S1uJLkH_9game_core10simulation4gameNtB4_8GameMode7as_moba
+    1 jungle_runner                                                          game.rs:213  _RNvMNtNtCs97f5S1uJLkH_9game_core10simulation4gameNtB2_8MobaMode13jungle_runner
+   28 remain_epic_time                                                       game.rs:210  _RNvMNtNtCs97f5S1uJLkH_9game_core10simulation4gameNtB2_8MobaMode16remain_epic_time
+   14 minion_state                                                           blackboard.rs:378  _RNvMs0_NtNtNtCs97f5S1uJLkH_9game_core10simulation4game10blackboardNtB5_10Blackboard12mini
+   12 is_line_phase                                                          runner.rs:397  _RNvMs_NtNtNtCs97f5S1uJLkH_9game_core10simulation4game6runnerNtB4_11GameContext13is_line_p
+    2 spawn_bottom_minion                                                    runner.rs:290  _RNvMNtNtNtCs97f5S1uJLkH_9game_core10simulation4game6runnerNtB2_12TutorialType19spawn_bott
+    9 spawn_epic                                                             runner.rs:262  _RNvMNtNtNtCs97f5S1uJLkH_9game_core10simulation4game6runnerNtB2_12TutorialType10spawn_epic
+    7 spawn_line_minion                                                      runner.rs:274  _RNvMNtNtNtCs97f5S1uJLkH_9game_core10simulation4game6runnerNtB2_12TutorialType17spawn_line
+    3 spawn_mid_minion                                                       runner.rs:286  _RNvMNtNtNtCs97f5S1uJLkH_9game_core10simulation4game6runnerNtB2_12TutorialType16spawn_mid_
+    3 spawn_serpen                                                           runner.rs:266  _RNvMNtNtNtCs97f5S1uJLkH_9game_core10simulation4game6runnerNtB2_12TutorialType12spawn_serp
+    2 spawn_top_minion                                                       runner.rs:282  _RNvMNtNtNtCs97f5S1uJLkH_9game_core10simulation4game6runnerNtB2_12TutorialType16spawn_top_
+   15 is_bottom_side                                                         map_regions.rs:27  _RNvNtNtCs97f5S1uJLkH_9game_core10simulation11map_regions14is_bottom_side
+   15 is_top_side                                                            map_regions.rs:21  _RNvNtNtCs97f5S1uJLkH_9game_core10simulation11map_regions11is_top_side
+   11 distance_sq                                                            utils.rs:6  _RNvNtCs97f5S1uJLkH_9game_core5utils11distance_sq
+    2 non_null<alloc::alloc::Global,usize>                                   mod.rs:613  _RINvMs2_NtCs9LexZzt9XJB_5alloc7raw_vecNtB6_11RawVecInner8non_nulljECshdEBA0ozCnw_7game_ai
+    2 ptr<alloc::alloc::Global,usize>                                        mod.rs:608  _RINvMs2_NtCs9LexZzt9XJB_5alloc7raw_vecNtB6_11RawVecInner3ptrjECshdEBA0ozCnw_7game_ai
+    2 ptr<usize,alloc::alloc::Global>                                        mod.rs:295  _RNvMs0_NtCs9LexZzt9XJB_5alloc7raw_vecINtB5_6RawVecjE3ptrCshdEBA0ozCnw_7game_ai
+    2 as_ptr<usize,alloc::alloc::Global>                                     mod.rs:1965  _RNvMs_NtCs9LexZzt9XJB_5alloc3vecINtB4_3VecjE6as_ptrCshdEBA0ozCnw_7game_ai
+    3 as_slice<usize,alloc::alloc::Global>                                   mod.rs:1847  _RNvMs_NtCs9LexZzt9XJB_5alloc3vecINtB4_3VecjE8as_sliceCshdEBA0ozCnw_7game_ai
+    4 default<usize>                                                         mod.rs:4297  _RNvXsp_NtCs9LexZzt9XJB_5alloc3vecINtB5_3VecjENtNtCsjihNppCmMEE_4core7default7Default7defa
+    3 deref<usize,alloc::alloc::Global>                                      mod.rs:3786  _RNvXs7_NtCs9LexZzt9XJB_5alloc3vecINtB5_3VecjENtNtNtCsjihNppCmMEE_4core3ops5deref5Deref5de
+    4 is_empty<usize,alloc::alloc::Global>                                   mod.rs:3078  _RNvMs_NtCs9LexZzt9XJB_5alloc3vecINtB4_3VecjE8is_emptyCshdEBA0ozCnw_7game_ai
+    4 len<usize,alloc::alloc::Global>                                        mod.rs:3053  _RNvMs_NtCs9LexZzt9XJB_5alloc3vecINtB4_3VecjE3lenCshdEBA0ozCnw_7game_ai
+    4 new<usize>                                                             mod.rs:463  _RNvMNtCs9LexZzt9XJB_5alloc3vecINtB2_3VecjE3newCshdEBA0ozCnw_7game_ai
+    4 eq                                                                     cmp.rs:1878  _RNvXsk_NtNtCsjihNppCmMEE_4core3cmp5implshNtB7_9PartialEq2eq
+    1 ne<game_core::simulation::entity::Position,game_core::simulation::enti cmp.rs:263  _RNvYNtNtNtCs97f5S1uJLkH_9game_core10simulation6entity8PositionNtNtCsjihNppCmMEE_4core3cmp
+   14 next<core::slice::iter::Iter<game_core::simulation::state::player::Lin copied.rs:51  _RNvXs_NtNtNtCsjihNppCmMEE_4core4iter8adapters6copiedINtB4_6CopiedINtNtNtBa_5slice4iter4It
+    7 new<core::ops::range::Range<usize>,game_ai::plan_legacy::handler::impl filter.rs:27  _RNvMNtNtNtCsjihNppCmMEE_4core4iter8adapters6filterINtB2_6FilterINtNtNtB8_3ops5range5Range
+    7 new<core::ops::range::Range<usize>,game_ai::plan_legacy::handler::impl filter.rs:27  _RNvMNtNtNtCsjihNppCmMEE_4core4iter8adapters6filterINtB2_6FilterINtNtNtB8_3ops5range5Range
+   12 new<core::ops::range::Range<usize>,game_ai::plan_legacy::handler::impl filter.rs:27  _RNvMNtNtNtCsjihNppCmMEE_4core4iter8adapters6filterINtB2_6FilterINtNtNtB8_3ops5range5Range
+    7 new<core::ops::range::Range<usize>,game_ai::plan_legacy::handler::impl filter.rs:27  _RNvMNtNtNtCsjihNppCmMEE_4core4iter8adapters6filterINtB2_6FilterINtNtNtB8_3ops5range5Range
+    9 new<core::slice::iter::Iter<game_core::simulation::entity::jungle::Jun filter.rs:27  _RNvMNtNtNtCsjihNppCmMEE_4core4iter8adapters6filterINtB2_6FilterINtNtNtB8_5slice4iter4Iter
+    7 filter<core::ops::range::Range<usize>,game_ai::plan_legacy::handler::i iterator.rs:952  _RINvYINtNtNtCsjihNppCmMEE_4core3ops5range5RangejENtNtNtNtBa_4iter6traits8iterator8Iterato
+    7 filter<core::ops::range::Range<usize>,game_ai::plan_legacy::handler::i iterator.rs:952  _RINvYINtNtNtCsjihNppCmMEE_4core3ops5range5RangejENtNtNtNtBa_4iter6traits8iterator8Iterato
+   12 filter<core::ops::range::Range<usize>,game_ai::plan_legacy::handler::i iterator.rs:952  _RINvYINtNtNtCsjihNppCmMEE_4core3ops5range5RangejENtNtNtNtBa_4iter6traits8iterator8Iterato
+    7 filter<core::ops::range::Range<usize>,game_ai::plan_legacy::handler::i iterator.rs:952  _RINvYINtNtNtCsjihNppCmMEE_4core3ops5range5RangejENtNtNtNtBa_4iter6traits8iterator8Iterato
+    9 filter<core::slice::iter::Iter<game_core::simulation::entity::jungle:: iterator.rs:952  _RINvYINtNtNtCsjihNppCmMEE_4core5slice4iter4IterNtNtNtNtCs97f5S1uJLkH_9game_core10simulati
+    8 abs_diff                                                               uint_macros.rs:3141  _RNvMs7_NtCsjihNppCmMEE_4core3numy8abs_diff
+    3 saturating_sub                                                         uint_macros.rs:2471  _RNvMs9_NtCsjihNppCmMEE_4core3numj14saturating_sub
+    3 copied<game_core::simulation::state::player::LineType>                 option.rs:2131  _RNvMs1_NtCsjihNppCmMEE_4core6optionINtB5_6OptionRNtNtNtNtCs97f5S1uJLkH_9game_core10simula
+   14 eq<u8>                                                                 option.rs:2436  _RNvXsf_NtCsjihNppCmMEE_4core6optionINtB5_6OptionhENtNtB7_3cmp9PartialEq2eqCshdEBA0ozCnw_7
+    2 is_none<enum2$<game_ai::plan_legacy::team_plan::MainObjective> >       option.rs:681  _RNvMNtCsjihNppCmMEE_4core6optionINtB2_6OptionNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy9te
+   18 is_none<ref$<game_core::simulation::entity::Entity> >                  option.rs:681  _RNvMNtCsjihNppCmMEE_4core6optionINtB2_6OptionRNtNtNtCs97f5S1uJLkH_9game_core10simulation6
+    2 is_some<enum2$<game_ai::plan_legacy::team_plan::MainObjective> >       option.rs:632  _RNvMNtCsjihNppCmMEE_4core6optionINtB2_6OptionNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy9te
+   26 is_some<ref$<game_core::simulation::entity::Entity> >                  option.rs:632  _RNvMNtCsjihNppCmMEE_4core6optionINtB2_6OptionRNtNtNtCs97f5S1uJLkH_9game_core10simulation6
+    7 is_some_and<ref$<game_core::simulation::entity::Entity>,game_ai::plan_ option.rs:658  _RINvMNtCsjihNppCmMEE_4core6optionINtB3_6OptionRNtNtNtCs97f5S1uJLkH_9game_core10simulation
+   13 is_some_and<usize,game_ai::plan_legacy::handler::impl$0::passive_plan: option.rs:658  _RINvMNtCsjihNppCmMEE_4core6optionINtB3_6OptionjE11is_some_andNCNvMNtNtCshdEBA0ozCnw_7game
+   12 map<ref$<game_core::simulation::game::MobaMode>,alloc::vec::Vec<usize, option.rs:1157  _RINvMNtCsjihNppCmMEE_4core6optionINtB3_6OptionRNtNtNtCs97f5S1uJLkH_9game_core10simulation
+   11 map_or<ref$<game_core::simulation::game::MobaMode>,usize,game_ai::plan option.rs:1221  _RINvMNtCsjihNppCmMEE_4core6optionINtB3_6OptionRNtNtNtCs97f5S1uJLkH_9game_core10simulation
+   14 map_or<ref$<game_core::simulation::game::MobaMode>,usize,game_ai::plan option.rs:1221  _RINvMNtCsjihNppCmMEE_4core6optionINtB3_6OptionRNtNtNtCs97f5S1uJLkH_9game_core10simulation
+   13 map_or<ref$<game_core::simulation::game::MobaMode>,usize,game_ai::plan option.rs:1221  _RINvMNtCsjihNppCmMEE_4core6optionINtB3_6OptionRNtNtNtCs97f5S1uJLkH_9game_core10simulation
+   11 map_or<ref$<game_core::simulation::game::MobaMode>,usize,game_ai::plan option.rs:1221  _RINvMNtCsjihNppCmMEE_4core6optionINtB3_6OptionRNtNtNtCs97f5S1uJLkH_9game_core10simulation
+    3 or<ref$<game_core::simulation::entity::Entity> >                       option.rs:1618  _RNvMNtCsjihNppCmMEE_4core6optionINtB2_6OptionRNtNtNtCs97f5S1uJLkH_9game_core10simulation6
+    3 unwrap<ref$<game_core::simulation::state::player::LineType> >          option.rs:1010  _RNvMNtCsjihNppCmMEE_4core6optionINtB2_6OptionRNtNtNtNtCs97f5S1uJLkH_9game_core10simulatio
+    1 unwrap_or<game_core::simulation::state::player::LineType>              option.rs:1035  _RNvMNtCsjihNppCmMEE_4core6optionINtB2_6OptionNtNtNtNtCs97f5S1uJLkH_9game_core10simulation
+    6 unwrap_or<tuple$<u64,u64> >                                            option.rs:1035  _RNvMNtCsjihNppCmMEE_4core6optionINtB2_6OptionTyyEE9unwrap_orCshdEBA0ozCnw_7game_ai
+    7 unwrap_or_default<alloc::vec::Vec<usize,alloc::alloc::Global> >        option.rs:1090  _RNvMNtCsjihNppCmMEE_4core6optionINtB2_6OptionINtNtCs9LexZzt9XJB_5alloc3vec3VecjEE17unwrap
+    2 add<game_core::simulation::state::player::LineType>                    mut_ptr.rs:927  _RNvMNtNtCsjihNppCmMEE_4core3ptr7mut_ptrONtNtNtNtCs97f5S1uJLkH_9game_core10simulation5stat
+    2 add<usize>                                                             mut_ptr.rs:927  _RNvMNtNtCsjihNppCmMEE_4core3ptr7mut_ptrOj3addCshdEBA0ozCnw_7game_ai
+    2 add<game_core::simulation::state::player::LineType>                    non_null.rs:648  _RNvMs1_NtNtCsjihNppCmMEE_4core3ptr8non_nullINtB5_7NonNullNtNtNtNtCs97f5S1uJLkH_9game_core
+    1 add<usize>                                                             non_null.rs:648  _RNvMs1_NtNtCsjihNppCmMEE_4core3ptr8non_nullINtB5_7NonNulljE3addCshdEBA0ozCnw_7game_ai
+    4 eq<game_core::simulation::state::player::LineType>                     non_null.rs:1713  _RNvXsd_NtNtCsjihNppCmMEE_4core3ptr8non_nullINtB5_7NonNullNtNtNtNtCs97f5S1uJLkH_9game_core
+    2 eq<usize>                                                              non_null.rs:1713  _RNvXsd_NtNtCsjihNppCmMEE_4core3ptr8non_nullINtB5_7NonNulljENtNtB9_3cmp9PartialEq2eqCshdEB
+    2 new<game_core::simulation::state::player::LineType>                    iter.rs:94  _RNvMs4_NtNtCsjihNppCmMEE_4core5slice4iterINtB5_4IterNtNtNtNtCs97f5S1uJLkH_9game_core10sim
+    2 new<usize>                                                             iter.rs:94  _RNvMs4_NtNtCsjihNppCmMEE_4core5slice4iterINtB5_4IterjE3newCshdEBA0ozCnw_7game_ai
+   16 any<usize,game_ai::plan_legacy::handler::impl$0::passive_plan::closure macros.rs:326  _RINvXs2J_NtNtCsjihNppCmMEE_4core5slice4iterINtB7_4IterjENtNtNtNtBb_4iter6traits8iterator8
+   12 next<game_core::simulation::state::player::LineType>                   macros.rs:157  _RNvXs2J_NtNtCsjihNppCmMEE_4core5slice4iterINtB6_4IterNtNtNtNtCs97f5S1uJLkH_9game_core10si
+    6 next<usize>                                                            macros.rs:157  _RNvXs2J_NtNtCsjihNppCmMEE_4core5slice4iterINtB6_4IterjENtNtNtNtBa_4iter6traits8iterator8I
+    2 iter<game_core::simulation::state::player::LineType>                   mod.rs:1041  _RNvMNtCsjihNppCmMEE_4core5sliceSNtNtNtNtCs97f5S1uJLkH_9game_core10simulation5state6player
+    2 iter<usize>                                                            mod.rs:1041  _RNvMNtCsjihNppCmMEE_4core5sliceSj4iterCshdEBA0ozCnw_7game_ai
+    1 atomic_add<usize,usize>                                                atomic.rs:3933  _RINvNtNtCsjihNppCmMEE_4core4sync6atomic10atomic_addjjECshdEBA0ozCnw_7game_ai
+    1 fetch_add                                                              atomic.rs:3160  _RNvMs1u_NtNtCsjihNppCmMEE_4core4sync6atomicINtB6_6AtomicjE9fetch_add
+    1 ptr<game_core::simulation::state::player::LineType>                    raw_vec.rs:137  _RNvMs0_NtNtCshWfHDMLkPaX_7bumpalo11collections7raw_vecINtB5_6RawVecNtNtNtNtCs97f5S1uJLkH_
+    1 deref<game_core::simulation::state::player::LineType>                  vec.rs:2071  _RNvXsb_NtNtCshWfHDMLkPaX_7bumpalo11collections3vecINtB5_3VecNtNtNtNtCs97f5S1uJLkH_9game_c
+    1 is_empty<game_core::simulation::state::player::LineType>               vec.rs:1635  _RNvMNtNtCshWfHDMLkPaX_7bumpalo11collections3vecINtB2_3VecNtNtNtNtCs97f5S1uJLkH_9game_core
+    1 len<game_core::simulation::state::player::LineType>                    vec.rs:1616  _RNvMNtNtCshWfHDMLkPaX_7bumpalo11collections3vecINtB2_3VecNtNtNtNtCs97f5S1uJLkH_9game_core
+    6 new_in<game_core::simulation::state::player::LineType>                 vec.rs:546  _RNvMNtNtCshWfHDMLkPaX_7bumpalo11collections3vecINtB2_3VecNtNtNtNtCs97f5S1uJLkH_9game_core

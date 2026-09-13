@@ -1,0 +1,692 @@
+{
+ "name": "passive_plan",
+ "sym": "_RNvMNtNtCshdEBA0ozCnw_7game_ai11plan_legacy7handlerNtB2_17LegacyPlanHandler12passive_plan",
+ "src": "game-ai\\src\\plan_legacy\\handler.rs",
+ "src_line": 1855,
+ "ir_file": "m13.ll",
+ "ir_from": 6495,
+ "ir_to": 9987,
+ "aux": [
+  {
+   "ir_file": "m13.ll",
+   "ir_from": 59492,
+   "ir_to": 59658,
+   "note": "closure#4 (:2065) — (0..5).filter(|i| i!=my pos && player_champion[team][i] 살아있고 is_near_line(ctx, e.pos, line)).count()  = 그 라인에 이미 가 있는 아군 수"
+  },
+  {
+   "ir_file": "m13.ll",
+   "ir_from": 59661,
+   "ir_to": 59760,
+   "note": "closure#7 (:2192) — (0..5).filter(|i| blackboard[team].in_big_line(i, Top)).count()"
+  },
+  {
+   "ir_file": "m13.ll",
+   "ir_from": 59763,
+   "ir_to": 59862,
+   "note": "closure#8 (:2193) — 동일, Mid"
+  },
+  {
+   "ir_file": "m13.ll",
+   "ir_from": 59865,
+   "ir_to": 59964,
+   "note": "closure#9 (:2194) — 동일, Bottom"
+  },
+  {
+   "ir_file": "m13.ll",
+   "ir_from": 61062,
+   "ir_to": 61225,
+   "note": "closure (:2213) — [Rhino,Mushroom,Bee,Stump].iter().filter(|jt| game.as_moba().map_or(false, |m| !m.jungle_runner.get_jungle_live_list(jt, team==0).is_empty())).count() = 살아있는 아군 정글 캠프 수"
+  },
+  {
+   "ir_file": "m13.ll",
+   "ir_from": 4050,
+   "ir_to": 4207,
+   "note": "min_by_key closure (:2175) — key(line) = distance_sq(me.pos, map.region_pos[map.line_region(line, team, {top,mid,bottom}_lead[team])]) (MapDef+0x6ba0 배열, 27 region)"
+  }
+ ],
+ "exe": {
+  "rva": "0xe46bc0",
+  "size": 11615,
+  "cc": "internal fastcc",
+  "note": "메인이 rvaname 실명 확정. 이 배치는 IR 만 읽었고 exe 대조는 하지 않음(미검증)."
+ },
+ "one_line": "판단 없이도 하는 기본 행동 플랜(패시브) 선택 — 스틸/오브젝트/에고웨이브/버프창/라인 리드 순으로 BigPlan 과 발원코드(u8) 반환",
+ "signature": {
+  "params": [
+   {
+    "i": 0,
+    "name": "(sret)",
+    "type": "&mut (BigPlan, u8) 392B",
+    "role": "%0 (noalias writeonly, dereferenceable 392)",
+    "note": "+0 BigPlan 384B, +384 u8 = mf 발원 코드(호출자 handle_chat_inner 는 이 u8 을 버린다)"
+   },
+   {
+    "i": 1,
+    "name": "self",
+    "type": "&LegacyPlanHandler(6168B)",
+    "role": "%1 (속성 없음: noalias/readonly 둘 다 없음)",
+    "note": "★가변성 판정 = `&self`. 근거 ①tcx sig `fn(&LegacyPlanHandler, ..)` ②본문 내 %1 파생 포인터 store 0건, 유일한 쓰기가 `atomicrmw add` @0x500(team_plan.eo_cover_picks, V54Counter=AtomicUsize) ③readonly 가 빠진 이유가 바로 그 원자 쓰기(내부 가변성) — _docs 「passive_plan이 &self라 내부 가변 카운터(V54Counter 패턴)」와 일치"
+   },
+   {
+    "i": 2,
+    "name": "version",
+    "type": "usize",
+    "role": "%2",
+    "note": "이 함수 본문에선 분기 없음 — serpen/epic_passive_plan·with_best·v2_obj_restore_safe·v3_repair_done 에 전달만"
+   },
+   {
+    "i": 3,
+    "name": "rnd",
+    "type": "&mut StdRng(320B)",
+    "role": "%3 (noalias, readonly 없음)",
+    "note": ":1919 gen_range(0..1000) 1회 직접 사용"
+   },
+   {
+    "i": 4,
+    "name": "player",
+    "type": "&PlayerState(2528B)",
+    "role": "%4 (readonly)",
+    "note": ""
+   },
+   {
+    "i": 5,
+    "name": "data",
+    "type": "&OperationData(24B)",
+    "role": "%5 (readonly)",
+    "note": ""
+   },
+   {
+    "i": 6,
+    "name": "debug",
+    "type": "&mut DebugFrameData(224B)",
+    "role": "%6 (noalias, readonly 없음)",
+    "note": "본문 직접 접근 0건 — 하위 호출 전달만"
+   }
+  ],
+  "returns": "(BigPlan, u8) — u8 = 발원 코드 1~19,27 (표는 logic 끝 참조)"
+ },
+ "reads": [
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x510",
+   "name": "team_plan.steal_action@tag",
+   "note": ":1861 None(-1)/None(0)/Lurk(1)/Commit(2)"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x511",
+   "name": "team_plan.steal_action@Some.0@Lurk/Commit.0 (StealTarget)",
+   "note": "0=Epic,1=Serpen"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x517",
+   "name": "team_plan.objective@tag",
+   "note": "MainObjective 태그: 0 Morgard,1 Serpen,2 Defense,3 DefenseLine,4 Nexus,5 PressEpic,6 SplitEpic,7 Repair,8 Gank,9 Dive,10 PressTower,11 ComebackPick,-1 None"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x518",
+   "name": "team_plan.objective@Some.0 페이로드1(line/phase)",
+   "note": ""
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x5e8",
+   "name": "plan@tag",
+   "note": ":1981 PassiveJungle(7) 판정"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x5f0",
+   "name": "plan@PassiveJungle.0 (104B)",
+   "note": ":1991 PassiveJunglePlan::clone 원본"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x638",
+   "name": "plan@PassiveJungle.0.team",
+   "note": ":1983 team==0 → get_jungle_live_list bool 인자"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x650",
+   "name": "plan@PassiveJungle.0.jungle",
+   "note": ":1983/:1985 JungleType"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x148",
+   "name": "team_plan.obj_spawn.epic_giveup_tick@tag",
+   "note": ":2042"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x150",
+   "name": "team_plan.obj_spawn.epic_giveup_tick@Some.0",
+   "note": ":2043 tick.saturating_sub(t) <= tps*10"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x500",
+   "name": "team_plan.eo_cover_picks (AtomicUsize)",
+   "note": ":2105 atomicrmw add 1 monotonic — 읽고 쓰는 유일한 self 필드"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x14b8",
+   "name": "last_jungle_lead_action_tick",
+   "note": ":2123/:2233 → PassiveJunglePlan.last_lead_action_tick"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x1800",
+   "name": "v2_obj_part@tag",
+   "note": ":2014/:2031 Option<u8> is_some"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x1801",
+   "name": "v2_obj_part@Some.0",
+   "note": "== (0x50|phase) Serpen / (0x60|phase) Morgard 비교"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x1807",
+   "name": "v2_armed",
+   "note": ":2007/:2014/:2024/:2031"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x1808",
+   "name": "v3_armed",
+   "note": ":2002/:2022 v3_depart_anchor 인자(i8)"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x180a",
+   "name": "v3_epicops_armed",
+   "note": ":2048/:2132"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x180c",
+   "name": "v2_egowave_line",
+   "note": ":1903"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x1815",
+   "name": "v2_egowave",
+   "note": ":1897 0/2/기타 3분기"
+  },
+  {
+   "base": "PlayerState",
+   "offset": "0x9c0",
+   "name": "info.position@tag",
+   "note": "Top0 Jungle1 Mid2 Bottom3 Support4"
+  },
+  {
+   "base": "PlayerState",
+   "offset": "0x930",
+   "name": "info.team",
+   "note": ""
+  },
+  {
+   "base": "PlayerState",
+   "offset": "0x180",
+   "name": "info.parameter",
+   "note": "&AthleteParameter → roaming_ratio/ego_ratio"
+  },
+  {
+   "base": "OperationData",
+   "offset": "0x0",
+   "name": "cache",
+   "note": ""
+  },
+  {
+   "base": "OperationData",
+   "offset": "0x8",
+   "name": "context",
+   "note": ""
+  },
+  {
+   "base": "OperationData",
+   "offset": "0x10",
+   "name": "blackboard",
+   "note": "&[Blackboard;2]"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x0",
+   "name": "game.data_ptr",
+   "note": ""
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x8",
+   "name": "game.vtable_ptr",
+   "note": "+0x28 tick, +0x40 get_game_mode(as_moba), +0x1f0 get_entity_by_id"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x1e0",
+   "name": "player_champion[team][pos]",
+   "note": "생존 판정 다수. +0x1e0+team*40+pos*8"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x180",
+   "name": "top_tower[enemy]/top_tower2[enemy] (0x180/0x190)",
+   "note": ":2154 line_exists&&tower 있음"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x1a0",
+   "name": "mid_tower/mid_tower2 (0x1a0/0x1b0)",
+   "note": ":2155"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x1c0",
+   "name": "bottom_tower/bottom_tower2 (0x1c0/0x1d0)",
+   "note": ":2156"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x21c0",
+   "name": "top_lead[team]",
+   "note": ":2189 (aux min_by_key 에서도 line_region 인자)"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x21d0",
+   "name": "mid_lead[team]",
+   "note": ":2190"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x21e0",
+   "name": "bottom_lead[team]",
+   "note": ":2191"
+  },
+  {
+   "base": "GameContext",
+   "offset": "0x0",
+   "name": "pool",
+   "note": ":2159 bumpalo Vec<LineType>::new_in"
+  },
+  {
+   "base": "GameContext",
+   "offset": "0x8",
+   "name": "setting",
+   "note": ""
+  },
+  {
+   "base": "GameContext",
+   "offset": "0x20",
+   "name": "map",
+   "note": ":1985 camp_pos / aux line_region"
+  },
+  {
+   "base": "GameContext",
+   "offset": "0x38",
+   "name": "tutorial",
+   "note": "rule_scope 인라인(morgard_exists/serpen_exists/valid_lines/line_exists/fallback_line/is_line_phase)"
+  },
+  {
+   "base": "GameSetting",
+   "offset": "0x12f8",
+   "name": "tick_per_second",
+   "note": ""
+  },
+  {
+   "base": "GameSetting",
+   "offset": "0x12c0",
+   "name": "height",
+   "note": "is_top_side: height - y >= x / is_bottom_side: height - y <= x"
+  },
+  {
+   "base": "GameSetting",
+   "offset": "0x8a8",
+   "name": "epic_jungle.first_spawn_tick",
+   "note": ":2113 is_line_phase: tick < first_spawn_tick - tps*30"
+  },
+  {
+   "base": "MobaMode",
+   "offset": "0x18",
+   "name": "jungle_runner",
+   "note": ":1983 get_jungle_live_list(&self+0x18, ..)"
+  },
+  {
+   "base": "MobaMode",
+   "offset": "0x240",
+   "name": "epic_minion_buff_time[team] (0x240/0x248)",
+   "note": "!=0 이면 그 팀 에픽 버프 창"
+  },
+  {
+   "base": "Blackboard",
+   "offset": "0x0",
+   "name": "top/mid/bottom_minion_state (0x0/0x28/0x50)",
+   "note": "minion_state(line) 인라인"
+  },
+  {
+   "base": "Blackboard",
+   "offset": "0x10",
+   "name": "*_minion_state.from_mid",
+   "note": "< -2000 (:1915) / <= -3001 (:2060) 밀린 웨이브"
+  },
+  {
+   "base": "Blackboard",
+   "offset": "0x20",
+   "name": "*_minion_state.minion_count",
+   "note": "< -2 (:1915) / <= -4 (:2060)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x660",
+   "name": "x",
+   "note": ""
+  },
+  {
+   "base": "Entity",
+   "offset": "0x668",
+   "name": "y",
+   "note": ""
+  },
+  {
+   "base": "Entity",
+   "offset": "0x670",
+   "name": "hp",
+   "note": ":1987 캠프 몬스터 hp < max"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x628",
+   "name": "stat_cached.hp",
+   "note": ""
+  },
+  {
+   "base": "MapDef",
+   "offset": "0x6ba0",
+   "name": "region_pos[27] (x,y)",
+   "note": "aux min_by_key"
+  }
+ ],
+ "writes": [
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x500",
+   "name": "team_plan.eo_cover_picks",
+   "value": "atomicrmw add 1 (monotonic)",
+   "note": ":2105 — 우리 버프 창 커버 픽(밀린웨이브 정리 배정) 채택 계측. ★self 에 대한 유일한 쓰기(내부 가변성)"
+  },
+  {
+   "base": "(sret)",
+   "offset": "0x0",
+   "name": "ret.0 BigPlan@tag",
+   "value": "12 EpicHuntAndPoke / 14 SerpenHuntAndPoke / 16 AttackNexus / 17 DefenseNexus / 3 PassiveLine / 10 LineGanker / 7 PassiveJungle / 8 ActiveRecall / serpen·epic_passive_plan 결과 memcpy 384",
+   "note": ""
+  },
+  {
+   "base": "(sret)",
+   "offset": "0x8",
+   "name": "ret.0 페이로드",
+   "value": "PassiveLinePlan::new(line) 인라인(:1887 등 20곳): v46_flee_entry None(0 @+8), chats/v46_committers/v46_flee_threats 빈 Vec(cap0 ptr8 len0 @+0x20/+0x38/+0x50), v46_pending 0(136B @+0x68), bool 6개 0(@+0x118..), line @+0x11e ; LineGankerPlan(:1949): chats 빈, setup_limit 0, wait_limit tick+tps*15 @+0x28, line @+0x30, phase Setup(7) @+0x31 ; *HuntAndPoke(:1863/1866/1869/1872/2017/2034): v46_flee_threats 빈 Vec @+8, +0x20 focus_only, +0x21 vision_only, +0x22 v46_flee ; AttackNexus(:1879): team=1-my @+8, line @+0x10 ; DefenseNexus(:1883): team=my @+8 ; PassiveJungle: 104B memcpy @+8",
+   "note": ""
+  },
+  {
+   "base": "(sret)",
+   "offset": "0x180",
+   "name": "ret.1 발원 코드 u8",
+   "value": "1(:1863,:1866,:1869,:1872) 2(:1879) 3(:1883) 4(:1887) 5(:1892) 6(:1903,:1920) 7(:1939) 8(:1949,:1960) 9(:1970) 10(:1991) 11(:2012,:2017) 12(:2029,:2034) 13(:2107) 14(:2117~2119,:2126) 15(:2134,:2139) 16(:2150) 17(:2183) 18(:2203,:2209,:2239,:2245,:2250,:2256,:2260) 19(:2205,:2207,:2223,:2225,:2227,:2229,:2241,:2243,:2252,:2254) 27(:2124,:2234)",
+   "note": "_docs 「코드는 simulator MF_SRC_NAMES와 1:1」"
+  }
+ ],
+ "heap_subst": [
+  "camp_live: Vec<usize> = JungleRunner::get_jungle_live_list(sret 24B) 힙 Vec(:1983) → drop_glue<Vec<usize>>(:1995) 3곳(빈 경로·거리 밖·정상)",
+  "PassiveJunglePlan::clone(:1991) — 내부 Vec<Chat> chats 복제(힙 할당) → sret 로 memcpy 104",
+  "serpen_passive_plan / epic_passive_plan 반환 Option<BigPlan>(384B 스택) → 채택 시 memcpy, 기각 시 drop_glue<BigPlan>(:2014/:2031 언와인딩 포함)",
+  "candidates: bumpalo Vec<LineType>::new_in(ctx.pool)(:2159) + push 3회 + drop_glue(:2186) — 아레나(힙 아님)",
+  "PassiveJunglePlan::with_best(sret 104B)(:2121/:2232) — callee 가 Vec 생성 → memcpy 로 이동",
+  "새 Vec 생성(할당 없음, dangling 8): PassiveLinePlan::new 3개×20곳, LineGanker.chats, *HuntAndPoke.v46_flee_threats"
+ ],
+ "constants": [
+  {
+   "value": -2000,
+   "src_line": 1915,
+   "meaning": "에고웨이브 라인 조건: minion_state(fallback_line).from_mid < -2000 (우리 웨이브가 밀림)"
+  },
+  {
+   "value": -2,
+   "src_line": 1915,
+   "meaning": "&& minion_count < -2"
+  },
+  {
+   "value": 500,
+   "src_line": 1916,
+   "meaning": "base = 500 - roaming_ratio ; p = base*ego_ratio/500 (‰). base<1 이면 불참"
+  },
+  {
+   "value": 1000,
+   "src_line": 1919,
+   "meaning": "gen_range(0..1000) < p 이면 PassiveLine(fallback_line) 채택(발원 6). :2096 점수 = -minion_count*1000 - from_mid 에도 사용"
+  },
+  {
+   "value": 399,
+   "src_line": 1937,
+   "meaning": "PressTower 목표 라인: anchor 가 라인 근처가 아니어도 roaming_ratio > 399 && 라인 쪽(side) 이면 PassiveLine(line)"
+  },
+  {
+   "value": 15,
+   "src_line": 1950,
+   "meaning": "ComebackPick 정글러 LineGanker.wait_limit = tick + tps*15"
+  },
+  {
+   "value": 14400000001,
+   "src_line": 1986,
+   "meaning": "120000^2 + 1 — 내 위치와 캠프 좌표 distance_sq < 이 값(≤120000) 이면 손상된 캠프 계속(PassiveJungle 유지, 발원 10)"
+  },
+  {
+   "value": 10,
+   "src_line": 2043,
+   "meaning": "epic_giveup_tick 이 tps*10 이내면 '최근 포기' (에픽옵스 커버 라인 진입 조건)"
+  },
+  {
+   "value": -3001,
+   "src_line": 2060,
+   "meaning": "커버 후보 라인: from_mid > -3001 이면 제외(즉 ≤ -3001 필요)"
+  },
+  {
+   "value": -4,
+   "src_line": 2060,
+   "meaning": "&& minion_count ≤ -4 (> -4 면 제외)"
+  },
+  {
+   "value": 30,
+   "src_line": 2113,
+   "meaning": "is_line_phase: tick < epic first_spawn_tick - tps*30 (또는 tutorial∉{None,MidBottom,Line,Total}) 이면 초반 라인 페이즈 기본 플랜(발원 14/27)"
+  },
+  {
+   "value": 3,
+   "src_line": 2195,
+   "meaning": "top/mid/bottom_lead[team] < 3 이면 그 라인 '리드 부족' → 라인 배정 후보. ObjectPhase::Hunt(3)·MainObjective::DefenseLine(3)·Position::Bottom(3) 도 3 (본문의 `shl nuw nsw i64 %len, 3` 은 Vec<usize> 바이트 stride(×8)이지 상수 3 이 아님 — QC 경고 사유)"
+  },
+  {
+   "value": 80,
+   "src_line": 2014,
+   "meaning": "v2_obj_part == Some(0x50 | phase) — Serpen 복원 코드(0x50 + ObjectPhase). `or disjoint i8 %phase, 80`"
+  },
+  {
+   "value": 96,
+   "src_line": 2031,
+   "meaning": "v2_obj_part == Some(0x60 | phase) — Morgard 복원 코드"
+  },
+  {
+   "value": 12,
+   "src_line": 1863,
+   "meaning": "BigPlan::EpicHuntAndPoke 메모리태그(idx10+2). :2025 `(tag&30)==12` = EpicHuntAndPoke|EpicHuntAndBattle 판정"
+  },
+  {
+   "value": 14,
+   "src_line": 1869,
+   "meaning": "BigPlan::SerpenHuntAndPoke 태그. :2008 `(tag&30)==14` = SerpenHuntAndPoke|SerpenHuntAndBattle. 발원코드 14(:2117) 와 값 동일"
+  },
+  {
+   "value": 16,
+   "src_line": 1879,
+   "meaning": "BigPlan::AttackNexus 태그"
+  },
+  {
+   "value": 17,
+   "src_line": 1883,
+   "meaning": "BigPlan::DefenseNexus 태그"
+  },
+  {
+   "value": 7,
+   "src_line": 1981,
+   "meaning": "BigPlan::PassiveJungle 태그(:1981,:1991,:2124,:2234) / LineGankerPhase::Setup 니치태그(:1949) / MainObjective::Repair(:2132,:2142)"
+  },
+  {
+   "value": 8,
+   "src_line": 2150,
+   "meaning": "BigPlan::ActiveRecall 태그 — Repair 미완이면 귀환"
+  },
+  {
+   "value": 5,
+   "src_line": 2137,
+   "meaning": "objective 태그-5 <u 2 ⟺ PressEpic(5)|SplitEpic(6) → 그 라인 PassiveLine(발원 15). JungleType::Serpen(5)·TutorialType::MidBottom(5) 도 5"
+  },
+  {
+   "value": 27,
+   "src_line": 2124,
+   "meaning": "발원 코드 27 = PassiveJungle::with_best (aux line_region 의 27 region 상한과 값 동일)"
+  }
+ ],
+ "calls": [
+  "game_core::simulation::state::player::AthleteParameter::roaming_ratio",
+  "game_core::simulation::state::player::AthleteParameter::ego_ratio",
+  "game_ai::plan_legacy::rule_scope::fallback_line",
+  "rand::rngs::std::StdRng::gen_range",
+  "game_ai::plan_legacy::handler::LegacyPlanHandler::v3_assign_anchor",
+  "game_core::simulation::map_regions::is_near_line",
+  "game_core::simulation::map_regions::is_near_mid_line",
+  "game_ai::plan_legacy::team_plan::TeamPlan::should_delay_object_setup_for_wave_priority",
+  "game_ai::plan_legacy::team_plan::TeamPlan::should_player_clear_wave_priority_line",
+  "game_core::simulation::entity::jungle::JungleRunner::get_jungle_live_list",
+  "game_core::simulation::map_def::MapDef::camp_pos",
+  "game_ai::plan_legacy::old::passive_jungle::PassiveJunglePlan::clone",
+  "core::ptr::drop_glue",
+  "game_ai::plan_legacy::handler::LegacyPlanHandler::v3_depart_anchor",
+  "game_ai::plan_legacy::old::serpen::serpen_passive_plan",
+  "game_ai::plan_legacy::handler::LegacyPlanHandler::v2_obj_restore_safe",
+  "game_ai::plan_legacy::old::epic::epic_passive_plan",
+  "game_ai::plan_legacy::old::epic::v3_epic_formation",
+  "game_ai::plan_legacy::handler::LegacyPlanHandler::v3_repair_done",
+  "bumpalo::collections::vec::Vec::push",
+  "core::iter::traits::iterator::Iterator::min_by_key",
+  "core::iter::traits::iterator::Iterator::count",
+  "game_ai::plan_legacy::old::passive_jungle::PassiveJunglePlan::with_best",
+  "core::option::unwrap_failed",
+  "core::panicking::panic_bounds_check",
+  "game_core::simulation::game::blackboard::Blackboard::in_big_line",
+  "game_core::simulation::map_def::MapDef::line_region"
+ ],
+ "calls_contract": {
+  "vtable AbstractGame+0x28 tick(&game)->usize": ":1950,:2043,:2113",
+  "vtable AbstractGame+0x40 get_game_mode(&game)->{i64 tag, ptr}": "as_moba 인라인: tag==0 && ptr!=null 이면 Some(&MobaMode) (:1968,:1983,:2041,:2049,:2128, aux)",
+  "vtable AbstractGame+0x1f0 get_entity_by_id(&game,id)->Option<&Entity>": ":1987 camp_live 순회",
+  "fallback_line(&ctx, LineType)->LineType": ":1913 out-of-line / :2260 인라인(tutorial {0,4,5,7,8}→Mid, {1,3}→Bottom, 2→Top, 6→Bottom)",
+  "v3_assign_anchor(sret 24B Option<(u64,u64)>, &self, team, position, game, ctx)": ":1929,:1953,:2087 (SROA 로 player/data 가 필드값으로 분해되어 전달)",
+  "v3_depart_anchor(sret 24B, v3_armed:i8, team, position, ctx)": ":2002,:2022 (self 는 v3_armed 1바이트로 SROA)",
+  "serpen_passive_plan(sret 384B Option<BigPlan>, version, &mut rnd, &player, &data, &self.team_plan(0xf8), phase:u8, &anchor 24B, &mut debug)": ":2002 — None ⟺ 반환 +0 == -1",
+  "epic_passive_plan(sret 384B, version, &mut rnd, &player, &data, phase, &self.team_plan, &anchor, &mut debug)": ":2022 — IR 원문 7769 로 (phase, &team_plan) 순 확인. None ⟺ +0 == -1",
+  "v2_obj_restore_safe(version, &mut rnd, &player, &data, &mut debug)->bool": ":2009,:2015,:2026,:2032 — tcx 는 &self 메서드지만 self 인자가 제거됨(안 읽음)",
+  "v3_epic_formation(&mut rnd, &player, &data)->Option<V3EpicFormation{is_split,line}> as {i8,i8}": ":2133 — .0==2 이면 None(니치); .1 = line",
+  "v3_repair_done(version, team, position, &cache)->bool": ":2149 (self 제거·SROA)",
+  "should_delay_object_setup_for_wave_priority(&team_plan, &player, &data)->bool": ":1967",
+  "should_player_clear_wave_priority_line(&team_plan, &player, &data)->Option<LineType>(-1=None)": ":1969 2곳",
+  "get_jungle_live_list(sret 24B Vec<usize>, &jungle_runner(MobaMode+0x18), jungle:u8, team==0:bool)": ":1983 + aux 정글 카운트 closure",
+  "MapDef::camp_pos(&map, jungle:u8, team==0:bool)->(u64,u64)": ":1985",
+  "PassiveJunglePlan::with_best(sret 104B, version, &mut rnd, &player, &data, &team_plan, &mut debug)": ":2121,:2232 — 반환 후 .last_lead_action_tick(+0x58) = self.last_jungle_lead_action_tick 덮어씀",
+  "is_near_line(&ctx, x, y, line:u8)->bool / is_near_mid_line(&ctx, x, y)->bool": ":1931,:1954,:2088(+aux closure#4) / :1935,:1957,:2091",
+  "is_top_side/is_bottom_side (인라인)": "height(GameSetting+0x12c0) - y >= x / <= x"
+ },
+ "logic": "// handler.rs:1858~1872 ① 정글러 스틸\nis_jungle = (position == Jungle)\nif is_jungle {\n  match self.team_plan.steal_action {                                                   // :1861 (0x510/0x511)\n    Some(Lurk(target)):  Serpen && serpen_exists(tutorial∈{None0,MidBottom5,Line7,Total8}) → return (SerpenHuntAndPoke{focus:false, vision_only:true, flee:false}, 1)   // :1871~1872\n                         Epic && morgard_exists(tutorial==0 || tutorial>=7)             → return (EpicHuntAndPoke{focus:false, vision_only:true, flee:false}, 1)     // :1865~1866\n    Some(Commit(target)): Serpen && serpen_exists → return (SerpenHuntAndPoke{focus_serpen_only:true, vision_only:false}, 1)   // :1868~1869\n                          Epic && morgard_exists  → return (EpicHuntAndPoke{focus_epic_only:true, vision_only:false}, 1)      // :1862~1863\n    _ (None / None(0) / exists 실패) → 계속\n  }\n}\n// :1878~1892 ② 팀 목표 직결 플랜\nmatch self.team_plan.objective {\n  Nexus(line)      → return (AttackNexus{team: 1-my_team, line}, 2)           // :1879\n  Defense          → return (DefenseNexus{team: my_team}, 3)                  // :1883\n  DefenseLine(line)→ return (PassiveLine::new(line), 4)                       // :1886~1887\n  Dive(line)       → return (PassiveLine::new(line), 5)                       // :1891~1892\n  _ → 계속\n}\n// :1897~1920 ③ 에고웨이브(v2)\nmatch self.v2_egowave {                                                                  // 0x1815\n  2 → return (PassiveLine::new(self.v2_egowave_line), 6)                               // :1903\n  0 → if !is_jungle {                                                                    // :1905\n        roam = roaming_ratio; ego = ego_ratio; my_line = Top→Top, Mid→Mid, else Bottom  // :1906~1908\n        line = fallback_line(ctx, my_line)                                             // :1913\n        ms = blackboard[team].minion_state(line)                                       // :1914\n        if ms.from_mid < -2000 && ms.minion_count < -2 {                               // :1915 (우리 웨이브가 크게 밀림)\n          base = 500 - roam; if base >= 1 { p = base*ego/500; if rnd.gen_range(0..1000) < p { return (PassiveLine::new(line), 6) } }   // :1916~1920\n        }\n      }\n  _ → 계속\n}\n// :1928~1939 ④ PressTower 목표\nif objective == PressTower(line) {\n  if let Some((x,y)) = self.v3_assign_anchor(player, data) {                              // :1929\n    if is_near_line(ctx,x,y,line) || (roaming_ratio > 399 && side(line,x,y) /* Top: height-y>=x · Mid: is_near_mid_line · Bottom: height-y<=x */) { return (PassiveLine::new(line), 7) }   // :1931~:1939\n  }\n}\n// :1946~1960 ⑤ ComebackPick 목표\nif objective == ComebackPick(line) {\n  if is_jungle { return (LineGanker{chats:[], setup_limit:0, wait_limit: tick+tps*15, line, phase:Setup}, 8) }   // :1948~1950\n  if let Some((x,y)) = v3_assign_anchor(..) { if is_near_line(..) || side(line,x,y) { return (PassiveLine::new(line), 8) } }   // :1953~1960 (roam 조건 없음)\n}\n// :1967~1970 ⑥ 웨이브 우선 정리\nif team_plan.should_delay_object_setup_for_wave_priority(player,data) {\n  if let Some(l) = team_plan.should_player_clear_wave_priority_line(player,data) { return (PassiveLine::new(l), 9) } else → ⑨(:2040) 로 점프(⑦⑧ 건너뜀)   // :1969\n} else if game.as_moba().map_or(false,|m| m.epic_minion_buff_time[team]!=0) {            // :1968 우리 에픽 버프 창\n  if let Some(l) = should_player_clear_wave_priority_line(..) { return (PassiveLine::new(l), 9) }\n}\n// :1974~1995 ⑦ 정글러: 오브젝트 셋업 중 손상된 캠프 마무리\nif is_jungle && objective ∈ {Morgard,Serpen} && objective.phase == Setup(1) && self.plan is PassiveJungle(pj) {   // :1974~1981\n  me = player_champion[team][Jungle]; if None → ⑧\n  camp_live = as_moba().map(|m| m.jungle_runner.get_jungle_live_list(pj.jungle, pj.team==0)).unwrap_or_default()   // :1983\n  if !camp_live.is_empty() {                                                            // :1984\n    (cx,cy) = map.camp_pos(pj.jungle, pj.team==0)                                       // :1985\n    if distance_sq(me,(cx,cy)) < 14400000001 && camp_live.iter().any(|id| get_entity_by_id(id).map_or(false,|e| e.hp < e.stat_cached.hp)) { return (PassiveJungle(pj.clone()), 10) }   // :1986~1991\n  }\n}\n// :2000~2034 ⑧ 오브젝트 전용 패시브(serpen/epic)\nif player_champion[team][position].is_some() {                                           // :2000\n  if objective is Serpen{phase} {                                                       // :2001\n    anchor = v3_depart_anchor(v3_armed, team, position, ctx)                            // :2002\n    match serpen_passive_plan(version,rnd,player,data,&team_plan,phase,anchor,debug) {\n      Some(p) → if v2_armed && (p.tag&30)==14 /*SerpenHuntAndPoke|Battle*/ && !v2_obj_restore_safe(..) { drop(p) → ⑨ } else { return (p, 11) }   // :2007~2012\n      None → if v2_armed && v2_obj_part == Some(0x50|phase) && serpen_exists && v2_obj_restore_safe(..) { return (SerpenHuntAndPoke{false,false,false}, 11) }   // :2014~2017\n    }\n  }\n  if objective is Morgard{phase} {                                                      // :2021\n    anchor = v3_depart_anchor(..); match epic_passive_plan(..) {                          // :2022\n      Some(p) → if v2_armed && (p.tag&30)==12 /*EpicHuntAndPoke|Battle*/ && !v2_obj_restore_safe(..) { drop → ⑨ } else { return (p, 12) }   // :2024~2029\n      None → if v2_armed && v2_obj_part == Some(0x60|phase) && morgard_exists && v2_obj_restore_safe(..) { return (EpicHuntAndPoke{false,false,false}, 12) }   // :2031~2034\n    }\n  }\n}\n// :2040~2107 ⑨ 에픽옵스 커버 라인 (objective None 일 때만)\nif objective.is_none() {\n  enemy_buff = as_moba().map_or(false,|m| m.epic_minion_buff_time[1-team]!=0)          // :2041\n  recent_giveup = epic_giveup_tick.is_some_and(|t| tick.saturating_sub(t) <= tps*10)    // :2042~2043\n  our_buff = v3_epicops_armed && as_moba().map_or(false,|m| m.epic_minion_buff_time[team]!=0)   // :2048~2049\n  if (enemy_buff || recent_giveup || our_buff) && player_champion[team][position].is_some() {   // :2051~2052\n    best=None; best_score=0\n    for line in valid_lines(tutorial) /* {0,7,8}:[T,M,B] 5:[M,B] 4:[M] 2:[T] {1,3}:[B] 6:[] */ {   // :2057\n      ms = blackboard[team].minion_state(line); if ms.from_mid > -3001 || ms.minion_count > -4 → continue   // :2058~2060\n      if count(아군 i≠me: player_champion[team][i] 살아있고 is_near_line(ctx, e.pos, line)) != 0 → continue   // :2065~2071 (closure#4)\n      if enemy_buff || recent_giveup || !our_buff {                                      // (루프 언스위치) 일반 모드\n        (ax,ay) = v3_assign_anchor(..).unwrap_or(me.pos)                                // :2087\n        ok = is_near_line(ctx,ax,ay,line) || side(line,ax,ay)                            // :2088~2093\n      } else {                                                                            // our_buff 전용 모드\n        ok = (line 의 포지션 == my position)                                             // :2077~2082\n      }\n      if ok { score = -ms.minion_count*1000 - ms.from_mid; if score > best_score { best_score=score; best=line } }   // :2096~2097\n    }\n    if let Some(l) = best {                                                              // :2103\n      if !(enemy_buff || recent_giveup || !our_buff) { team_plan.eo_cover_picks.fetch_add(1) }   // :2104~2105 (우리 버프 창 커버 픽 계측)\n      return (PassiveLine::new(l), 13)                                                   // :2107\n    }\n  }\n}\n// :2113~2126 ⑩ 초반 라인 페이즈 기본\nif is_line_phase(ctx,tick) /* tutorial∉{0,5,7,8} || tick < epic.first_spawn_tick - tps*30 */ {   // :2113\n  match position { Top→(PassiveLine(Top),14) · Mid→(PassiveLine(Mid),14) · Bottom→(PassiveLine(Bottom),14) · Support→(PassiveLine(Bottom),14)   // :2116~2119,:2126\n                   Jungle→ pj = PassiveJunglePlan::with_best(..); pj.last_lead_action_tick = self.last_jungle_lead_action_tick; return (PassiveJungle(pj), 27) }   // :2121~2124\n}\n// :2128~2186 ⑪ 우리 에픽 버프 창(중반 이후)\nif let Some(m) = as_moba() {\n  if m.epic_minion_buff_time[team] != 0 {                                                // :2128\n    if v3_epicops_armed {                                                                // :2132\n      if objective != Repair { if let Some(f) = v3_epic_formation(rnd,player,data) { return (PassiveLine::new(f.line), 15) } }   // :2133~2134\n    }\n    if objective ∈ {PressEpic(l), SplitEpic(l)} { return (PassiveLine::new(l), 15) }     // :2137~2139\n    if objective == Repair && !v3_repair_done(version,team,position,cache) { return (ActiveRecall, 16) }   // :2142~2150\n    cand = [Top if line_exists(Top)/*tutorial∈{0,2,7,8}*/ && enemy(1-team) top_tower|top_tower2 살아있음, Mid if line_exists(Mid)/*{0,4,5,7,8}*/ && mid_tower*, Bottom if line_exists(Bottom)/*{0,1,3,5,7,8}*/ && bottom_tower*]   // :2154~2170\n    if !cand.is_empty() && player_champion[team][position].is_some() {                   // :2173~2174\n      l = cand.iter().min_by_key(|line| distance_sq(me.pos, map.region_pos[map.line_region(line, team, lead[team])])).unwrap()   // :2175~2181\n      return (PassiveLine::new(l), 17)                                                   // :2183\n    }\n  }\n}\n// :2189~2260 ⑫ 라인 리드 기반 최종 폴백\ntop_lead/mid_lead/bottom_lead = cache.*_lead[team]                                       // :2189~2191\ntop_cnt/mid_cnt/bottom_cnt = count(i in 0..5: blackboard[team].in_big_line(i, Top/Mid/Bottom))   // :2192~2194\nA_x = x_lead < 3 ; B_x = line_exists(x) && x_lead < 3 && x_cnt == 0 && player_champion[team][x 포지션].is_none()   // :2195~2197 (x∈{Top,Mid,Bottom}; 포지션 Top=0,Mid=2,Bottom=3)\nmatch position {                                                                        // :2199\n  Top:    A_top → (Line Top,18) ; else B_mid → (Mid,19) ; else B_bottom && champion[Mid] 없음 → (Bottom,19) ; else (Top,18)   // :2202~2209\n  Jungle: if champion[Top] 없음 && champion[Mid] 없음 && (살아있는 아군 캠프 수 < 3 /*aux 정글 closure*/) && champion[Bottom] 없음 {   // :2217~2221\n            B_mid → (Mid,19) ; else B_top → (Top,19) ; else B_bottom → (Bottom,19) ; else (Mid,19)    // :2222~2229\n          } else { pj = with_best(..); pj.last_lead_action_tick = self.last_jungle_lead_action_tick; (PassiveJungle(pj), 27) }   // :2232~2234\n  Mid:    A_mid → (Mid,18) ; else B_top → (Top,19) ; else B_bottom → (Bottom,19) ; else (Mid,18)   // :2238~2245\n  Bottom: A_bottom → (Bottom,18) ; else B_top && champion[Mid] 없음 → (Top,19) ; else B_mid && champion[Top] 없음 → (Mid,19) ; else (Bottom,18)   // :2249~2256\n  Support: (PassiveLine(fallback_line(tutorial, Mid)), 18)                             // :2260 (tutorial {0,4,5,7,8}→Mid, {1,3}→Bottom, 2→Top, 6→Bottom)\n}\n\n// 발원 코드 표(ret.1): 1 스틸 포크 · 2 AttackNexus · 3 DefenseNexus · 4 DefenseLine · 5 Dive 라인 · 6 에고웨이브 · 7 PressTower 앵커 · 8 ComebackPick · 9 웨이브우선 라인 · 10 손상캠프 유지 · 11 serpen 패시브 · 12 epic 패시브 · 13 에픽옵스 커버 · 14 초반 기본 라인 · 15 버프창 라인 · 16 Repair 귀환 · 17 버프창 최근접 라인 · 18 리드 폴백(자기/기본 라인) · 19 리드 폴백(다른 라인) · 27 with_best 정글",
+ "knobs": [
+  {
+   "what": "에고웨이브 발동 웨이브 임계",
+   "where": "handler.rs:1915",
+   "value": "from_mid < -2000 && minion_count < -2",
+   "effect": "완화하면 라이너가 덜 밀린 웨이브에도 fallback 라인으로 감"
+  },
+  {
+   "what": "에고웨이브 참가 확률",
+   "where": "handler.rs:1916~1919",
+   "value": "(500-roam)*ego/500 ‰",
+   "effect": "500 을 올리면 로밍 성향이 높아도 참가"
+  },
+  {
+   "what": "PressTower 라인 측면 허용 로밍",
+   "where": "handler.rs:1937",
+   "value": "roaming_ratio > 399",
+   "effect": "내리면 로밍 낮은 선수도 앵커가 라인 쪽이면 PressTower 라인 배정"
+  },
+  {
+   "what": "ComebackPick 정글 대기",
+   "where": "handler.rs:1950",
+   "value": "tps*15",
+   "effect": "올리면 LineGanker 대기 연장"
+  },
+  {
+   "what": "손상 캠프 마무리 거리",
+   "where": "handler.rs:1986",
+   "value": "120000^2+1",
+   "effect": "올리면 더 먼 캠프도 마무리하러 감(오브젝트 셋업 지연)"
+  },
+  {
+   "what": "최근 에픽 포기 창",
+   "where": "handler.rs:2043",
+   "value": "tps*10",
+   "effect": "올리면 포기 후 더 오래 커버 라인 모드"
+  },
+  {
+   "what": "커버 후보 라인 웨이브 임계",
+   "where": "handler.rs:2060",
+   "value": "from_mid ≤ -3001 && minion_count ≤ -4",
+   "effect": "완화하면 더 많은 라인이 커버 후보"
+  },
+  {
+   "what": "커버 라인 점수",
+   "where": "handler.rs:2096",
+   "value": "-minion_count*1000 - from_mid",
+   "effect": "가중 1000 을 바꾸면 미니언 수 vs 밀림 거리 우선순위 변화"
+  },
+  {
+   "what": "초반 라인 페이즈 종료",
+   "where": "handler.rs:2113",
+   "value": "tick < first_spawn_tick - tps*30",
+   "effect": "30 을 올리면 더 일찍 중반 로직(버프창/리드 폴백)으로"
+  },
+  {
+   "what": "라인 리드 부족 기준",
+   "where": "handler.rs:2195~2197",
+   "value": "lead < 3",
+   "effect": "올리면 자기 라인을 더 쉽게 유지(18), 내리면 다른 라인 이동(19) 증가"
+  },
+  {
+   "what": "정글러 라인 전환 캠프 수",
+   "where": "handler.rs:2221",
+   "value": "살아있는 캠프 < 3",
+   "effect": "올리면 정글러가 캠프가 남아도 라인으로 감"
+  }
+ ],
+ "unknown": [
+  ":1969 should_player_clear_wave_priority_line 이 None 일 때 should_delay 경로(%393)는 ⑨(:2040) 로, our_buff 경로(%396)는 ⑦(:1974) 로 간다 — 소스의 if/else 구조는 추정(IR 분기 목표만 확정)",
+  "Option<BigPlan> 의 None 이 태그 -1 로 표현되는 근거(tcx 니치 값)는 미확인 — IR `icmp eq i64 %tag, -1` 관측만",
+  "get_jungle_live_list 의 bool 인자 = (PassiveJungle.team == 0) — 의미(블루사이드 여부)는 추정",
+  "closure#4 의 blackboard 인덱스는 handle_chat_inner 와 달리 [team] — 확인됨. 본문 :1914 도 [team]",
+  "exe 0xe46bc0(11,615B) 와의 디스어셈 대조는 하지 않았다(Ghidra 미사용)",
+  "C3 경고가 뜨는 오프셋이 있으면 memset/phi 접힘(예: PassiveLinePlan 필드 0x20~0x118 은 memset 16/136B 로 접힘)"
+ ]
+}

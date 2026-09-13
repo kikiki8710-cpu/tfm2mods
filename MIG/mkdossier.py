@@ -29,7 +29,7 @@ u"""mkdossier — 배치 하나가 받을 **정본 전량**을 한 파일로 조
   python -X utf8 mkdossier.py 7 --batch C   → C 만
   python -X utf8 mkdossier.py 7 --check     → 생성 없이 검증만
 """
-import hashlib
+import re, hashlib
 import io
 import json
 import os
@@ -51,6 +51,14 @@ if "--idx" in sys.argv:
     _lo, _hi = [int(x) for x in sys.argv[sys.argv.index("--idx") + 1].split("-")]
     _n = _hi - _lo + 1; _q = (_n + 3) // 4
     BATCH = tuple((t, _lo + k * _q, min(_hi, _lo + (k + 1) * _q - 1)) for k, t in enumerate("ABCD") if _lo + k * _q <= _hi)
+# ★`--batches A:102-104,B:105-107,C:108,D:109,E:110`(09-14 · r11 거대 9): 함수 크기가 3~11k줄로 들쭉날쭉해 등분이 무의미 → 손 배정.
+if "--batches" in sys.argv:
+    _b = []
+    for tok in sys.argv[sys.argv.index("--batches") + 1].split(","):
+        t, rg = tok.split(":")
+        lo, hi = (rg.split("-") + [None])[:2]
+        _b.append((t, int(lo), int(hi if hi else lo)))
+    BATCH = tuple(_b)
 
 # ★게이트 수를 **손으로 적지 마라.** 7차에 `G12` 수치가 세 곳에 다르게 적혀 있었다.
 try:
@@ -180,8 +188,10 @@ def gate_split(txt, lo, hi):
             cur, keep = l, False
             continue
         s = l.strip()
-        if s.startswith(u"[") and len(s) > 4 and s[1:3].isdigit():
-            idx = int(s[1:3])
+        # ★09-14(20차 C 적발): `[108]` 처럼 세 자리 idx 를 두 자리로 읽어 담당 밖으로 버렸다 — `]` 까지 읽는다.
+        m_idx = re.match(r"\[(\d+)\] ", s)
+        if m_idx:
+            idx = int(m_idx.group(1))
             keep = (lo <= idx <= hi)
             if keep:
                 if cur:
@@ -598,7 +608,7 @@ def build(rnd, tag, lo, hi, gate_txt, split=True):
         #   `  [03]`…`` 형태라 **배치A 6건이 10건으로** 찍혔다.
         #   ⟹ 적발 줄만이 `]` 뒤에 **공백 + 함수 이름**을 갖는다. 그걸로 가른다.
         n = sum(1 for x in gs
-                if x.startswith(u"  [") and x[3:5].isdigit() and x[5:7] == u"] ")
+                if re.match(r"  \[\d+\] ", x))   # 09-14: 세 자리 idx
         a(u"**이 배치 몫 = %d건** (게이트 머리줄의 건수는 **20함수 전역 합계**다 — 혼동 말 것)"
           % n)
         a(u"")

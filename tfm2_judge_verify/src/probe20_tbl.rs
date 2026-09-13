@@ -102,6 +102,15 @@ pub static PROBES20: &[P20] = &[
     P20 { idx: 99, rva: 0xd9ac10, len: 12, prolog: &[0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x55, 0x53], name: "steal::should_steal_now", module: "?", ins: 0 },
     P20 { idx: 100, rva: 0xdd90c0, len: 12, prolog: &[0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x55, 0x53], name: "TeamPlan::update_steal", module: "?", ins: 0 },
     P20 { idx: 101, rva: 0xd3a3a0, len: 12, prolog: &[0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x55, 0x53], name: "line_backfight_support_focus", module: "?", ins: 0 },
+    P20 { idx: 102, rva: 0xdfb840, len: 12, prolog: &[0x55, 0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x53], name: "BattlePlan::update", module: "?", ins: 0 },
+    P20 { idx: 103, rva: 0xd8ca70, len: 12, prolog: &[0x55, 0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x53], name: "position_risk_all_zero_near", module: "?", ins: 0 },
+    P20 { idx: 104, rva: 0xe59b20, len: 12, prolog: &[0x55, 0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x53], name: "handle_chat_inner", module: "?", ins: 0 },
+    P20 { idx: 105, rva: 0xe46bc0, len: 12, prolog: &[0x55, 0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x53], name: "passive_plan", module: "?", ins: 0 },
+    P20 { idx: 106, rva: 0xdd26e0, len: 12, prolog: &[0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x55, 0x53], name: "TeamPlan::v25_objective_posture", module: "?", ins: 0 },
+    P20 { idx: 107, rva: 0xdcee40, len: 12, prolog: &[0x55, 0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x53], name: "TeamPlan::handle_none_or_gank_objective", module: "?", ins: 0 },
+    P20 { idx: 108, rva: 0xdda220, len: 12, prolog: &[0x55, 0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x53], name: "TeamPlan::update_objective_after_steal", module: "?", ins: 0 },
+    P20 { idx: 109, rva: 0xdf36e0, len: 12, prolog: &[0x55, 0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x53], name: "BattlePlan::update_v32", module: "?", ins: 0 },
+    P20 { idx: 110, rva: 0xe5d5d0, len: 12, prolog: &[0x55, 0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x53], name: "LegacyPlanHandler::handle_interact_battle", module: "?", ins: 0 },
     P20 { idx: 250, rva: 0xcaf9f0, len: 14, prolog: &[0x41, 0x57, 0x41, 0x56, 0x56, 0x57, 0x53, 0x48, 0x83, 0xec, 0x50, 0x48, 0x89, 0xce], name: "BigPlan::sub_plan", module: "plan_legacy/types", ins: 0 },
 ];
 
@@ -116,8 +125,8 @@ pub struct C20 { pub idx: u8, pub target_rva: usize, pub sites: &'static [usize]
                  pub module: &'static str, pub ins: u32, pub why: &'static str }
 pub static CALLSITES20: &[C20] = &[
     C20 { idx: 13, target_rva: 0xdf1c80, sites: &[0x00cafc27, 0x00df230e], labels: &["fn 0xcaf9f0+0x237 (#250 plan_legacy/types/BigPlan::sub_plan)", "fn 0xdf1f50+0x3be"], name: "target_bush_v30", module: "line_gank/cover", ins: 170, why: "진입부 12B 스틸 불가(je@+9 가 잘린다 · 명령 경계 0/4/7/9/15/21 · 21B 안에 분기 둘) — 호출부 리다이렉트로 전환. 호출부 2곳이 전수(간접호출 0곳 검산)" },
-    C20 { idx: 30, target_rva: 0xec8af0, sites: &[0x00ddbd6d, 0x00dddf0d], labels: &["fn 0xdda220+0x1b4d", "fn 0xdda220+0x3ced"], name: "objective_is_damaged", module: "?", ins: 0, why: "진입부 12B 스틸 불가(je@+9 · cmp dl,5) — 호출부 리다이렉트. 호출부 2곳 전수(간접호출 0곳 검산)" },
-    C20 { idx: 40, target_rva: 0xe4a780, sites: &[0x00e4723c, 0x00e474a2, 0x00e493c4], labels: &["fn 0xe46bc0+0x67c", "fn 0xe46bc0+0x8e2", "fn 0xe46bc0+0x2804"], name: "v3_assign_anchor", module: "?", ins: 0, why: "진입부 12B 스틸 불가(jae@+11 · cmp r8,2) — 호출부 리다이렉트. 호출부 3곳 전수(passive_plan 안 · 간접호출 0곳 검산)" },
+    C20 { idx: 30, target_rva: 0xec8af0, sites: &[0x00ddbd6d, 0x00dddf0d], labels: &["fn 0xdda220+0x1b4d (#108 ?/TeamPlan::update_objective_after_steal)", "fn 0xdda220+0x3ced (#108 ?/TeamPlan::update_objective_after_steal)"], name: "objective_is_damaged", module: "?", ins: 0, why: "진입부 12B 스틸 불가(je@+9 · cmp dl,5) — 호출부 리다이렉트. 호출부 2곳 전수(간접호출 0곳 검산)" },
+    C20 { idx: 40, target_rva: 0xe4a780, sites: &[0x00e4723c, 0x00e474a2, 0x00e493c4], labels: &["fn 0xe46bc0+0x67c (#105 ?/passive_plan)", "fn 0xe46bc0+0x8e2 (#105 ?/passive_plan)", "fn 0xe46bc0+0x2804 (#105 ?/passive_plan)"], name: "v3_assign_anchor", module: "?", ins: 0, why: "진입부 12B 스틸 불가(jae@+11 · cmp r8,2) — 호출부 리다이렉트. 호출부 3곳 전수(passive_plan 안 · 간접호출 0곳 검산)" },
     C20 { idx: 58, target_rva: 0xdb8ba0, sites: &[0x00cafd90, 0x00dba7f7], labels: &["fn 0xcaf9f0+0x3a0 (#250 plan_legacy/types/BigPlan::sub_plan)", "fn 0xdb9430+0x13c7"], name: "target_bush_v41", module: "?", ins: 0, why: "진입부 12B 스틸 불가(je@+6 · test cl,cl) — 호출부 리다이렉트. 호출부 2곳 전수(간접호출 0곳 검산)" },
 ];
 

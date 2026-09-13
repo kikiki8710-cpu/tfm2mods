@@ -1,0 +1,37 @@
+# specs[104] handle_chat_inner src=game-ai\src\plan_legacy\handler\chat.rs
+consts[0] value=22500000001 claimed=152 OK own-root-lines=[152]
+consts[1] value=199999 claimed=252 OK own-root-lines=[252]
+consts[2] value=60 claimed=163 OK own-root-lines=[163, 199]
+consts[3] value=20 claimed=163 OK own-root-lines=[75, 163, 199, 514, 531]
+consts[4] value=1000 claimed=163 OK own-root-lines=[83, 163, 165, 199, 202]
+consts[5] value=4 claimed=165 OK own-root-lines=[42, 43, 142, 165, 202, 221, 235, 246, 250, 295, 493, 494, 596, 600]
+consts[6] value=1 claimed=165 OK own-root-lines=[0, 42, 76, 88, 115, 141, 144, 151, 153, 160, 161, 165, 174, 180, 202, 212, 217, 219, 220, 223, 226, 230, 236, 239, 246, 257, 278, 299, 308, 316, 327, 330, 338, 345, 351, 360, 366, 372, 380, 385]
+consts[7] value=2 claimed=174 OK own-root-lines=[0, 71, 149, 174, 181, 191, 216, 226, 231, 295, 298, 307, 315, 326, 359, 366, 398, 423, 435, 453, 478, 498, 500, 506, 512, 516, 518, 525, 533, 543, 554, 556, 582, 586, 597]
+consts[8] value=6 claimed=245 OK own-root-lines=[70, 116, 132, 148, 245, 246, 264, 330, 351, 372, 390, 436, 437, 454, 495, 513, 530, 551, 552, 568, 583, 600]
+consts[9] value=3 claimed=278 OK own-root-lines=[70, 278, 350, 371, 385, 389, 417, 449, 529]
+consts[10] value=70 claimed=75 OK own-root-lines=[75]
+consts[11] value=700 claimed=83 OK own-root-lines=[83]
+consts[12] value=10 claimed=91 OK own-root-lines=[90, 91, 116, 549, 571]
+consts[13] value=15 claimed=572 OK own-root-lines=[219, 299, 308, 316, 327, 360, 380, 399, 407, 424, 444, 461, 468, 483, 501, 519, 544, 557, 572]
+consts[14] value=100 claimed=161 OK own-root-lines=[76, 161, 196]
+consts[15] value=5 claimed=297 OK own-root-lines=[42, 43, 291, 297, 306, 314, 596]
+consts[16] value=9 claimed=237 OK own-root-lines=[148, 237, 330, 351, 372, 390, 436, 437, 454, 495, 513, 530, 542, 551, 552, 568, 583]
+consts[17] value=8 claimed=333 OK own-root-lines=[0, 89, 90, 107, 108, 125, 126, 135, 140, 174, 226, 278, 331, 333, 338, 341, 352, 373, 391, 413, 437, 455, 474, 487, 490, 496, 509, 514, 531, 550, 564, 569, 571, 584, 600]
+consts[18] value=12 claimed=88 OK own-root-lines=[88]
+consts[19] value=43 claimed=135 OK own-root-lines=[135]
+consts[20] value=44 claimed=414 OK own-root-lines=[414]
+consts[21] value=45 claimed=475 OK own-root-lines=[475]
+consts[22] value=17 claimed=331 OK own-root-lines=[331]
+consts[23] value=23 claimed=332 **MISS** own-root-lines=[354, 375, 393, 419, 439, 457, 480, 497, 515, 532, 553, 585]
+     m13.ll:31113 root=chat.rs:532  store i8 23, ptr %710, align 8, !dbg !37547, !alias.scope !37548
+     m13.ll:31723 root=chat.rs:354  store i8 23, ptr %976, align 8, !dbg !37847, !alias.scope !37848
+     m13.ll:31899 root=chat.rs:375  store i8 23, ptr %1045, align 8, !dbg !37931, !alias.scope !37932
+     m13.ll:31985 root=chat.rs:393  store i8 23, ptr %1081, align 8, !dbg !37950, !alias.scope !37951
+     m13.ll:32156 root=chat.rs:419  store i8 23, ptr %1148, align 8, !dbg !38039, !alias.scope !38040
+     m13.ll:32398 root=chat.rs:439  store i8 23, ptr %1260, align 8, !dbg !38134, !alias.scope !38135
+     m13.ll:32517 root=chat.rs:457  store i8 23, ptr %1305, align 8, !dbg !38183, !alias.scope !38184
+     m13.ll:32631 root=chat.rs:480  store i8 23, ptr %1348, align 8, !dbg !38237, !alias.scope !38238
+     m13.ll:32717 root=chat.rs:497  store i8 23, ptr %1382, align 8, !dbg !38280, !alias.scope !38281
+     m13.ll:32834 root=chat.rs:515  store i8 23, ptr %1435, align 8, !dbg !38335, !alias.scope !38336
+     m13.ll:33052 root=chat.rs:553  store i8 23, ptr %1542, align 8, !dbg !38428, !alias.scope !38429
+     m13.ll:33283 root=chat.rs:585  store i8 23, ptr %1651, align 8, !dbg !38496, !alias.scope !38497

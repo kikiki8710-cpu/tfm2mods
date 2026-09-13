@@ -119,6 +119,24 @@ def anchors(where):
     return out
 
 
+def aux_anchors(sp):
+    u"""★20차 A([102] knobs[5]/[6] 120000/60000 오탐): 리터럴이 본체가 아니라 `ir.aux`(클로저·이터레이터 인스턴스 · 다른 파일)에만 있을 때.
+    aux 범위 중앙을 앵커로 주고 반경은 그 범위 절반 — 구제 전용(rescues 광역 창에서 쓴다)."""
+    out = []
+    for ax in (sp.get("ir") or {}).get("aux") or []:
+        f = ax.get("file") or (sp.get("ir") or {}).get("file")
+        try:
+            a, b = int(ax["frm"]), int(ax["to"])
+        except Exception:
+            continue
+        if not f:
+            continue
+        f = f[:-3] if f.endswith(".ll") else f
+        if irsrc(f):
+            out.append((f, (a + b) // 2, (b - a) // 2 + 1))
+    return out
+
+
 def body_anchors(sp, where=u""):
     u"""명세의 `ir{file,frm,to}` = 그 함수의 IR 본문. 폴백 관측원(창 반경은 `body_rad`).
 
@@ -403,6 +421,11 @@ def check_spec(sp, want=("V1", "V3", "V4"), detail=None):
                 r = rescues(k, vl, anch, wide_ok=(not qlits), rad=rad)
                 if not r and not qlits:
                     r = nodbg_rescue(sp, vl)
+                if not r and not qlits:
+                    for (af, an, arad) in aux_anchors(sp):
+                        wl_aux, _n = window_lits([(af, an)], arad)
+                        if vl & wl_aux:
+                            r = u"aux 범위(%s:%d±%d)에서 관측" % (af, an, arad); break
                 if not r:
                     out.append((j, u"주장한 값을 IR 관측에서 못 찾는다",
                                 u"value=%s · 관측(%s)=%s%s" % (

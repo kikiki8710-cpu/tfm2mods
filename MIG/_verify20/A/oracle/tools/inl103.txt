@@ -1,0 +1,38 @@
+as_index                                      entity.rs              position_eval.rs:1271 position_eval.rs:1300
+cap                                           raw_vec.rs             vec.rs:1428
+cell_center_coord                             score_parameter.rs     position_eval.rs:1279 position_eval.rs:1280 position_eval.rs:1281 position_eval.rs:1282
+cell_region_intersects_well                   position_eval.rs       position_eval.rs:1284
+circle_intersects_cell_region                 position_eval.rs       position_eval.rs:1262 position_eval.rs:1308 position_eval.rs:1317 position_eval.rs:1326 position_eval.rs:1335 position_eval.rs:1367 position_eval.rs:1376 positi
+closure$0                                     position_eval.rs       map.rs:95 option.rs:661
+closure$1                                     position_eval.rs       function.rs:298
+closure$2                                     position_eval.rs       function.rs:310
+closure$3                                     position_eval.rs       macros.rs:332
+closure$4                                     position_eval.rs       macros.rs:332
+closure$5                                     position_eval.rs       filter.rs:138
+closure$6                                     position_eval.rs       option.rs:661
+deref                                         vec.rs                 position_eval.rs:1297 position_eval.rs:1358 position_eval.rs:1394 position_eval.rs:1406 position_eval.rs:1422
+distance_sq                                   entity.rs              position_eval.rs:1293 position_eval.rs:1359 position_eval.rs:1393 position_eval.rs:1394 position_eval.rs:1415 position_eval.rs:1423
+distance_sq                                   utils.rs               entity.rs:2158 position_eval.rs:1438
+eq                                            entity.rs              position_eval.rs:1436
+eq                                            type.rs                position_eval.rs:1399
+extend                                        vec.rs                 vec.rs:607
+infallible_reserve_internal                   raw_vec.rs             raw_vec.rs:430
+is_empty                                      vec.rs                 position_eval.rs:1301
+is_targeting                                  projectile.rs          position_eval.rs:1436
+len                                           vec.rs                 vec.rs:1636
+new_in                                        vec.rs                 vec.rs:606
+player_count                                  runner.rs              position_eval.rs:1386
+point_cell_region_distance_sq                 position_eval.rs       position_eval.rs:1219
+projectile_intersects_cell_region             position_eval.rs       position_eval.rs:1446
+ptr                                           raw_vec.rs             vec.rs:1432 vec.rs:2073
+push                                          vec.rs                 vec.rs:2156
+radius                                        entity.rs              position_eval.rs:1307 position_eval.rs:1314 position_eval.rs:1323 position_eval.rs:1332 position_eval.rs:1348 position_eval.rs:1366 position_eval.rs:1375 positi
+range                                         effect.rs              position_eval.rs:1306 position_eval.rs:1313 position_eval.rs:1322 position_eval.rs:1331 position_eval.rs:1366 position_eval.rs:1375 position_eval.rs:1398 positi
+rects_intersect                               position_eval.rs       position_eval.rs:1229 position_eval.rs:1230 position_eval.rs:1232 position_eval.rs:1233 position_eval.rs:1242 position_eval.rs:1248 position_eval.rs:1253 positi
+reserve                                       raw_vec.rs             vec.rs:738
+reserve                                       vec.rs                 vec.rs:1429
+skill2_cooldown                               entity.rs              position_eval.rs:1325
+skill2_effect                                 entity.rs              position_eval.rs:1321
+skill_cooldown                                entity.rs              position_eval.rs:1316
+ult_cooldown                                  entity.rs              position_eval.rs:1334
+ult_effect                                    entity.rs              position_eval.rs:1330

@@ -1,0 +1,760 @@
+{
+ "name": "BattlePlan::update",
+ "sym": "_RNvMs0_NtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old6battleNtB5_10BattlePlan6update",
+ "src": "game-ai\\src\\plan_legacy\\old\\battle.rs",
+ "src_line": 427,
+ "ir_file": "m10.ll",
+ "ir_from": 23429,
+ "ir_to": 27459,
+ "aux": [
+  {
+   "ir_file": "m10.ll",
+   "ir_from": 55740,
+   "ir_to": 55852,
+   "what": "L511~518 near_enemies 필터 closure$3 call_mut 심(is_recent_visible · !is_ignored_well_enemy · dist≤(max_range_cached+30000)²)"
+  },
+  {
+   "ir_file": "m01.ll",
+   "ir_from": 37075,
+   "ir_to": 37250,
+   "what": "L519 bumpalo Vec<&Entity>::from_iter_in(near_enemies collect) — 위 심 호출 + push"
+  },
+  {
+   "ir_file": "m06.ll",
+   "ir_from": 33743,
+   "ir_to": 33932,
+   "what": "L497/502 Chain<Flatten<[Option<&Entity>;6]>,Copied<Iter>>::try_fold — near_towers 필터 closure$1(dist≤120000²) + any closure$2(t.distance(nexus) > champ.distance(nexus)+60000)"
+  },
+  {
+   "ir_file": "m11.ll",
+   "ir_from": 29692,
+   "ir_to": 29810,
+   "what": "L497/502 Chain 뒷부분(Copied<slice::Iter<&Entity>>) 동일 클로저"
+  },
+  {
+   "ir_file": "m10.ll",
+   "ir_from": 5330,
+   "ir_to": 5482,
+   "what": "L726~730 safe 판정: enumerate.any(closure$10: v22_visible_enemy_is_runaway_threat && blackboard[enemy_team].in_battle(p))"
+  }
+ ],
+ "one_line": "Battle 플랜의 매판 갱신 — 교전 종료(sub_goal=End)/도주(RunAway) 전환 조건 사슬을 순서대로 검사하고 통과하면 update_v32 로 위임",
+ "signature": {
+  "params": [
+   {
+    "i": 1,
+    "name": "self",
+    "type": "&mut BattlePlan(280B)",
+    "note": "noalias, readonly 아님 — writes 참조. 반환 없음(void)"
+   },
+   {
+    "i": 2,
+    "name": "version",
+    "type": "usize",
+    "note": "alloca %28 에 저장 후 재로드. 분기: `>1`(v2 경로: watchdog·fight_kit_range·anchor·L549) · `<2`(v1: v27 discipline·L591). 여러 callee 에 `i64 poison` 으로 전달(v25_scoped_battle_objective·is_unreasonable_tower_dive_enemy) = 그 callee 는 version 을 안 읽음"
+   },
+   {
+    "i": 3,
+    "name": "rnd",
+    "type": "&mut StdRng(320B)",
+    "note": "noalias·align16·readonly 아님. 직접 소비 0 — check_kill_die_tick·should_end_object_finish_kill_priority_battle·update_v32 에 전달만"
+   },
+   {
+    "i": 4,
+    "name": "player",
+    "type": "&PlayerState(2528B)",
+    "note": "readonly. team(+0x930)·position(+0x9c0)·info.id(+0x928)·parameter(+0x180)"
+   },
+   {
+    "i": 5,
+    "name": "data",
+    "type": "&OperationData(24B)",
+    "note": "readonly. cache/context/blackboard"
+   },
+   {
+    "i": 6,
+    "name": "positioning_score",
+    "type": "&PositioningScoreData(2760B)",
+    "note": "readonly. 본문 직접 읽기 0 — L707 position_risk_all_zero_near 에 전달만"
+   },
+   {
+    "i": 7,
+    "name": "team_plan",
+    "type": "&TeamPlan",
+    "note": "`ptr nonnull align 8`(dereferenceable 없음=크기 미표기). objective(+0x41f i24) 읽기 · v27_active_objective_discipline·update_v32 전달"
+   },
+   {
+    "i": 8,
+    "name": "debug",
+    "type": "&mut DebugFrameData(224B)",
+    "note": "noalias. L527(ctx.debug 일 때만) infos(+0xa0 HashMap) entry push · check_kill_die_tick·update_v32 전달"
+   }
+  ],
+  "returns": "void — 효과는 self 필드 쓰기(sub_goal/exit_src/exit_sub/dive_* 등)와 update_v32 위임"
+ },
+ "reads": [
+  {
+   "base": "PlayerState",
+   "offset": "0x930",
+   "name": "team",
+   "note": "L430 (bounds<2) · enemy_team=1-team 전역"
+  },
+  {
+   "base": "PlayerState",
+   "offset": "0x9c0",
+   "name": "position",
+   "note": "L430 as_index"
+  },
+  {
+   "base": "PlayerState",
+   "offset": "0x928",
+   "name": "info.id",
+   "note": "L686 battle_recency(game, player.id)"
+  },
+  {
+   "base": "PlayerState",
+   "offset": "0x180",
+   "name": "info.parameter",
+   "note": "L423(watchdog) AthleteParameter::input_delay_max(&parameter)"
+  },
+  {
+   "base": "OperationData",
+   "offset": "0x0",
+   "name": "cache",
+   "note": "&AbstractGameWithCache"
+  },
+  {
+   "base": "OperationData",
+   "offset": "0x8",
+   "name": "context",
+   "note": "&GameContext — setting·map·debug·pool"
+  },
+  {
+   "base": "OperationData",
+   "offset": "0x10",
+   "name": "blackboard",
+   "note": "&[Blackboard;2] — 전부 [enemy_team] 인덱스(L453/513/573/708/729)"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x0",
+   "name": "game.data_ptr",
+   "note": ""
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x8",
+   "name": "game.vtable_ptr",
+   "note": "+0x28 tick(L440/466/482/487/509/552/692/698/736) · +0x1f0 get_entity_by_id(L550)"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x1e0",
+   "name": "player_champion[team][pos] / [enemy_team][0..5]",
+   "note": "L430 champ unwrap · iter_champions(enemy_team) 5칸 언롤(L440/453/511/573/708/712/726) · iter_champions(team)(L521/526)"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x170",
+   "name": "nexus[enemy_team] / nexus[team]",
+   "note": "L499 적 넥서스 unwrap(gep 368+team*8) · L632 내 넥서스 unwrap"
+  },
+  {
+   "base": "GameContext",
+   "offset": "0x0",
+   "name": "pool",
+   "note": "L519/531/532 bumpalo Vec 할당 bump"
+  },
+  {
+   "base": "GameContext",
+   "offset": "0x8",
+   "name": "setting",
+   "note": "&GameSetting"
+  },
+  {
+   "base": "GameContext",
+   "offset": "0x20",
+   "name": "map",
+   "note": "&MapDef(28112B) — L603/619 camp_pos"
+  },
+  {
+   "base": "GameContext",
+   "offset": "0x3b",
+   "name": "debug",
+   "note": "L524 true 이면 near_allies 계수 + debug.infos 문자열 push (행동 무영향)"
+  },
+  {
+   "base": "GameSetting",
+   "offset": "0x12f8",
+   "name": "tick_per_second",
+   "note": "gep 4856 — L482 tps*5 · L535 me_die_tick > tps · L553 anchor_margin = move_speed*tps"
+  },
+  {
+   "base": "GameSetting",
+   "offset": "0x12c0",
+   "name": "height",
+   "note": "gep 4800 — is_blue_side 인라인(map_region.rs:7~8): x - y + height > width"
+  },
+  {
+   "base": "GameSetting",
+   "offset": "0x12b8",
+   "name": "width",
+   "note": "gep 4792"
+  },
+  {
+   "base": "TeamPlan",
+   "offset": "0x41f",
+   "name": "objective",
+   "note": "i24(Option<MainObjective> 3B, gep 1055) — L431 v25_scoped_battle_objective 인자"
+  },
+  {
+   "base": "BattlePlan",
+   "offset": "0x0",
+   "name": "support_target",
+   "note": "current_focus() 인라인(battle.rs:359~361): sub_goal.focus().or(support_target).or(main_goal.focus())"
+  },
+  {
+   "base": "BattlePlan",
+   "offset": "0x10",
+   "name": "region@tag",
+   "note": "L675 Option<BattleRegion> (center_x +0x18, center_y +0x20, range +0x28)"
+  },
+  {
+   "base": "BattlePlan",
+   "offset": "0x30",
+   "name": "well_runaway@tag",
+   "note": "L486 Option<usize> (값 +0x38)"
+  },
+  {
+   "base": "BattlePlan",
+   "offset": "0x40",
+   "name": "main_goal@tag",
+   "note": "current_focus: TryKill(0)/Support(1) 이면 +0x48 focus"
+  },
+  {
+   "base": "BattlePlan",
+   "offset": "0x58",
+   "name": "sub_goal@tag",
+   "note": "매 분기 게이트: 0 Trace/1 Protect/2 Kiting/3 KitingBack/4 RunAway/5 Assassin/6 AssassinReady/7 End (focus 페이로드 +0x60)"
+  },
+  {
+   "base": "BattlePlan",
+   "offset": "0x68",
+   "name": "chats (cap/ptr +0x70/len +0x78)",
+   "note": "L538 push"
+  },
+  {
+   "base": "BattlePlan",
+   "offset": "0x80",
+   "name": "v54_reentry_ticks (cap/ptr +0x88/len +0x90)",
+   "note": "L466 push"
+  },
+  {
+   "base": "BattlePlan",
+   "offset": "0xc0",
+   "name": "start_tick",
+   "note": "L509 tick-start<30 · L552 tick==start · L692/698/736 start >= tick-120"
+  },
+  {
+   "base": "BattlePlan",
+   "offset": "0xd0",
+   "name": "idle_since",
+   "note": "watchdog L418/423"
+  },
+  {
+   "base": "BattlePlan",
+   "offset": "0xd8",
+   "name": "idle_anchor",
+   "note": "watchdog L410 distance(champ, anchor) > 8000"
+  },
+  {
+   "base": "BattlePlan",
+   "offset": "0xf4",
+   "name": "v54_prev_eval",
+   "note": "L464 Option<(bool oor, i8 dir)>: byte0 2=None"
+  },
+  {
+   "base": "BattlePlan",
+   "offset": "0xf6",
+   "name": "with_dive",
+   "note": "L453 closure(with_declared_dive) · L496 게이트"
+  },
+  {
+   "base": "BattlePlan",
+   "offset": "0xf9",
+   "name": "help_called",
+   "note": "L509/535"
+  },
+  {
+   "base": "BattlePlan",
+   "offset": "0xff",
+   "name": "main_objective",
+   "note": "L431 에서 갱신된 값을 L562/589/598 에서 다시 읽음(3B: +0xff tag, +0x100 phase, +0x101)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x0",
+   "name": "team@tag",
+   "note": "is_ignored_well_enemy 인라인(fight_model.rs:755): c.team == Player(enemy_team)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x8",
+   "name": "team@Player.0",
+   "note": ""
+  },
+  {
+   "base": "Entity",
+   "offset": "0x38",
+   "name": "visible_state[team]@tag",
+   "note": "L573 closure$7 is_visible_from(champ)(entity.rs:1482~1483): champ.team Player(t) 이면 enemy.visible_state[t]==Visible(0), Neutral 이면 true"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x68",
+   "name": "ty@tag",
+   "note": "watchdog L413: 13=Champion 일 때만 action_state 검사"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x70",
+   "name": "ty@Champion.0.action_state@tag",
+   "note": "watchdog L414: Idle(0)/Move(2) 만 '정지 후보', 그 외는 anchor 리셋"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x5c0",
+   "name": "id",
+   "note": "L521 c.id != champ.id · L538 Chat 페이로드"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x640",
+   "name": "stat_cached.move_speed",
+   "note": "L553 anchor_margin = t.move_speed * tps (tick==start_tick 일 때)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x660",
+   "name": "x",
+   "note": "champ·적·앵커 좌표"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x668",
+   "name": "y",
+   "note": ""
+  },
+  {
+   "base": "Blackboard",
+   "offset": "0xf8",
+   "name": "big_goal[p].1@tag",
+   "note": "aux 5330: in_battle(p)(blackboard.rs:168) = big_goal[p].1 == Some(Battle(5)) && focus.is_some(+0x100)"
+  },
+  {
+   "base": "Blackboard",
+   "offset": "0x100",
+   "name": "big_goal[p].1@Some.0@Battle.focus@tag",
+   "note": ""
+  },
+  {
+   "base": "DebugFrameData",
+   "offset": "0xa0",
+   "name": "infos",
+   "note": "L527 HashMap<usize, Vec<String>> entry(champ.id) push(format!) — ctx.debug 일 때만"
+  },
+  {
+   "base": "ObjectiveDisciplineState",
+   "offset": "0x19",
+   "name": "kind",
+   "note": "L572 sret+25: 2=None 니치 / 0 SafeWait / 1 HardDisengage (L579)"
+  }
+ ],
+ "writes": [
+  {
+   "base": "BattlePlan",
+   "offset": "0xff",
+   "name": "main_objective",
+   "value": "v25_scoped_battle_objective(...) (i24)",
+   "note": "L431 — 무조건(champ unwrap 직후). 이 함수의 첫 부작용"
+  },
+  {
+   "base": "BattlePlan",
+   "offset": "0xd0",
+   "name": "idle_since",
+   "value": "game.tick()",
+   "note": "L419(watchdog, version>1 && sub_goal!=End) — enemy_near||moved||idle_since==0 이거나 챔프 action_state∉{Idle,Move} 일 때 리셋"
+  },
+  {
+   "base": "BattlePlan",
+   "offset": "0xd8",
+   "name": "idle_anchor.0",
+   "value": "champ.x",
+   "note": "L420 동상"
+  },
+  {
+   "base": "BattlePlan",
+   "offset": "0xe0",
+   "name": "idle_anchor.1",
+   "value": "champ.y",
+   "note": "L420 동상"
+  },
+  {
+   "base": "BattlePlan",
+   "offset": "0x108",
+   "name": "exit_src",
+   "value": "2 | 6 | 4 | 5 | 3",
+   "note": "2=L441 watchdog 정지 / 6=L480·490 적 우물 / 4=L577·592·608·624·641 오브젝트 규율·종료 / 5=L679 region 이탈 / 3=L694·700 battle_recency 만료"
+  },
+  {
+   "base": "BattlePlan",
+   "offset": "0x58",
+   "name": "sub_goal@tag",
+   "value": "7(End) | 4(RunAway)",
+   "note": "End: L442·579(조건부)·594·610·626·643·680·695·701·720·737 / RunAway: L481·491·579(조건부). 페이로드는 안 씀"
+  },
+  {
+   "base": "BattlePlan",
+   "offset": "0xf4",
+   "name": "v54_prev_eval.0 (oor)",
+   "value": "1 iff KitingBack/RunAway 이고 사거리 내 적 0 else 0",
+   "note": "L469 — 매판(watchdog 조기 return 제외) Some 으로 덮어씀"
+  },
+  {
+   "base": "BattlePlan",
+   "offset": "0xf5",
+   "name": "v54_prev_eval.1 (dir)",
+   "value": "1(Trace) | -1(KitingBack/RunAway) | 0",
+   "note": "L469"
+  },
+  {
+   "base": "BattlePlan",
+   "offset": "0x90",
+   "name": "v54_reentry_ticks.len (+push)",
+   "value": "len+1, buf[len]=game.tick()",
+   "note": "L466 — prev==(true,-1) && 지금 Trace 일 때. ★힙: RawVec<usize>::grow_one 재할당 가능(cap==len)"
+  },
+  {
+   "base": "BattlePlan",
+   "offset": "0xf6",
+   "name": "with_dive",
+   "value": "0",
+   "note": "L475(적 우물) · L503(다이브 통과 abort) · L636(Defense)"
+  },
+  {
+   "base": "BattlePlan",
+   "offset": "0xfe",
+   "name": "dive_tower",
+   "value": "-1(None)",
+   "note": "L476"
+  },
+  {
+   "base": "BattlePlan",
+   "offset": "0xfa",
+   "name": "dive_abandoned",
+   "value": "1",
+   "note": "L478 · L504 · L637"
+  },
+  {
+   "base": "BattlePlan",
+   "offset": "0x103",
+   "name": "dive_abort_src",
+   "value": "3 | 4 | 5",
+   "note": "3=L479 적 우물 / 4=L505 타워 통과 / 5=L638 Defense 오브젝트"
+  },
+  {
+   "base": "BattlePlan",
+   "offset": "0x30",
+   "name": "well_runaway@tag",
+   "value": "1(Some) L482 | 0(None) L488",
+   "note": ""
+  },
+  {
+   "base": "BattlePlan",
+   "offset": "0x38",
+   "name": "well_runaway@Some.0",
+   "value": "game.tick() + tps*5",
+   "note": "L482 — 5초 우물 도주"
+  },
+  {
+   "base": "BattlePlan",
+   "offset": "0xf9",
+   "name": "help_called",
+   "value": "1",
+   "note": "L537 — near_wide_allies>0 && me_die_tick<=tps && !help_called && sub_goal!=RunAway"
+  },
+  {
+   "base": "BattlePlan",
+   "offset": "0x78",
+   "name": "chats.len (+push)",
+   "value": "len+1, buf[len]=Chat::BattleHelp(tag 6){champ.id, 0}",
+   "note": "L538 ★힙: RawVec<Chat>::grow_one 재할당 가능"
+  },
+  {
+   "base": "BattlePlan",
+   "offset": "0x111",
+   "name": "exit_sub",
+   "value": "1|2|3|4|5",
+   "note": "exit_src=4 일 때만: 1=L578 규율 / 2=L593 finish_kill_priority / 3=L609 Morgard / 4=L625 Serpen / 5=L642 Defense"
+  },
+  {
+   "base": "DebugFrameData",
+   "offset": "0xa0",
+   "name": "infos[champ.id].push(String)",
+   "value": "format!(near_enemies.len, near_wide_allies, near_allies)",
+   "note": "L527 ctx.debug 일 때만 — 힙 String/Vec"
+  }
+ ],
+ "constants": [
+  {
+   "value": 2,
+   "src_line": 430,
+   "meaning": "team bounds · L439/549 `version>1`(ugt 1) · L570 `version<2` · watchdog L423 max(.,2) · L441 exit_src=2 · MainObjective 2=Defense · action_state 2=Move · Option None 니치(v54_prev_eval byte0=2·discipline kind=2)"
+  },
+  {
+   "value": 7,
+   "src_line": 439,
+   "meaning": "BattleSubPlanGoal End 태그 — L439 게이트(sub_goal!=End) 및 모든 종료 store"
+  },
+  {
+   "value": 4,
+   "src_line": 452,
+   "meaning": "sub_goal RunAway 태그 · exit_src/exit_sub 4 · dive_abort_src 4 · JungleType Morgard=4 · TowerType/그 외"
+  },
+  {
+   "value": 3,
+   "src_line": 452,
+   "meaning": "sub_goal KitingBack 태그(3..4 = `tag-3 <2` 접힘) · exit_sub 3 · dive_abort_src 3 · exit_src 3 · MainObjective phase==3 · purpose RunAway 니치 3"
+  },
+  {
+   "value": 62500000001,
+   "src_line": 409,
+   "meaning": "250000²+1 — watchdog enemy_near: 적 챔프 dist_sq ≤ 250000²"
+  },
+  {
+   "value": 8000,
+   "src_line": 410,
+   "meaning": "watchdog moved: distance(champ, idle_anchor) > 8000"
+  },
+  {
+   "value": 13,
+   "src_line": 413,
+   "meaning": "EntityType Champion 태그"
+  },
+  {
+   "value": 100,
+   "src_line": 423,
+   "meaning": "watchdog 정지 창 = max(input_delay_max/100 * 2, 2) 틱 (`shl 1` = ×2)"
+  },
+  {
+   "value": 1,
+   "src_line": 423,
+   "folded_from": 2,
+   "meaning": "`shl nuw nsw i64 %222, 1` — input_delay_max/100 의 ×2(입력지연 2회분) 접힘 · 또한 enemy_team=1-team · Some 태그 1 · dir=+1"
+  },
+  {
+   "value": 30000,
+   "src_line": 462,
+   "meaning": "교전 페어 사거리 여유: dist_sq(c,champ) ≤ (engage_pair_range+30000)² (L462) · near_enemies 필터 (max_range_cached+30000)² (aux 55844, L518)"
+  },
+  {
+   "value": -1,
+   "src_line": 465,
+   "meaning": "dir=-1(KitingBack/RunAway) · v54_prev_eval.1==-1 비교 · dive_tower None 니치 · main_objective None 태그(i8 -1) · Chain 종료 마커"
+  },
+  {
+   "value": 5,
+   "src_line": 482,
+   "meaning": "well_runaway = tick + tps*5 (5초) · MainObjective Serpen→JungleType 5 · BigGoal Battle 5 · player_champion 5칸 · dive_abort_src/exit_sub 5"
+  },
+  {
+   "value": 6,
+   "src_line": 480,
+   "meaning": "exit_src 6(적 우물 도주) · Chat::BattleHelp 태그 6"
+  },
+  {
+   "value": 30,
+   "src_line": 509,
+   "meaning": "플랜 나이 30틱(0.5초) 미만이거나 help_called 이면 L511~540(도움 콜 판정) 생략"
+  },
+  {
+   "value": 14400000001,
+   "src_line": 497,
+   "meaning": "120000²+1 — near_towers(적 타워 dist≤120000², aux m06/m11) · L526 near_allies(디버그 계수)"
+  },
+  {
+   "value": 60000,
+   "src_line": 502,
+   "meaning": "aux: 어떤 near_tower 가 t.distance(enemy_nexus) > champ.distance(enemy_nexus)+60000 이면(타워보다 60k 더 깊이 들어감) 다이브 abort(src 4)"
+  },
+  {
+   "value": 108100000001,
+   "src_line": 521,
+   "meaning": "near_wide_allies: 아군(id≠champ) dist_sq ≤ 108100000000 (=1.081e11, 정수 제곱 아님 — 유래 unknown)"
+  },
+  {
+   "value": 0,
+   "src_line": 534,
+   "meaning": "near_wide_allies==0 이면 도움 콜 생략 · idle_since==0 · anchor_margin 0"
+  },
+  {
+   "value": 25600000001,
+   "src_line": 576,
+   "meaning": "160000²+1 — 오브젝트 규율 has_near_threat: 가시·최근가시·비우물 적 챔프 dist_sq ≤ 160000²"
+  },
+  {
+   "value": 200000,
+   "src_line": 606,
+   "meaning": "Morgard/Serpen phase3: eff = 200000.saturating_sub(anchor_margin); dist_sq(anchor, camp) ≥ eff² 이면 종료 후보"
+  },
+  {
+   "value": 300000,
+   "src_line": 639,
+   "meaning": "Defense: eff = 300000.saturating_sub(anchor_margin); dist_sq(anchor, my_nexus) ≥ eff² 이면 End(exit_sub 5)"
+  },
+  {
+   "value": 120,
+   "src_line": 692,
+   "meaning": "2초(60tps): battle_recency tick < now-120 · start_tick ≥ now-120 (플랜 시작 2초 이내 면제) · L736"
+  },
+  {
+   "value": 22500000001,
+   "src_line": 708,
+   "meaning": "150000²+1 — has_near_visible_enemies: dist_sq ≤ 150000²"
+  }
+ ],
+ "calls": [
+  "game_ai::plan_legacy::old::fight_model::v25_scoped_battle_objective",
+  "game_core::utils::distance",
+  "game_core::simulation::state::player::AthleteParameter::input_delay_max",
+  "game_core::simulation::game::blackboard::Blackboard::is_recent_visible",
+  "game_ai::path_finder::is_enemy_well_danger",
+  "game_ai::plan_legacy::old::fight_model::is_unreasonable_tower_dive_enemy",
+  "game_ai::plan_legacy::old::battle::max_range_cached",
+  "game_ai::plan_legacy::old::battle::fight_kit_range_cached",
+  "alloc::raw_vec::RawVec::grow_one",
+  "game_core::simulation::AbstractGameWithCache::iter_towers_without_nexus",
+  "core::iter::adapters::chain::Chain::try_fold",
+  "bumpalo::collections::vec::from_iter_in",
+  "hashbrown::map::HashMap::rustc_entry",
+  "hashbrown::raw::RawTable::insert_no_grow",
+  "alloc::fmt::format::format_inner",
+  "game_core::simulation::entity::Entity::clone",
+  "game_ai::fight_check::check_kill_die_tick",
+  "game_ai::plan_legacy::team_plan::objective_discipline::TeamPlan::v27_active_objective_discipline",
+  "game_ai::plan_legacy::old::fight_model::should_end_object_finish_kill_priority_battle",
+  "game_core::simulation::map_def::MapDef::camp_pos",
+  "game_core::simulation::battle_recency",
+  "game_ai::position_eval::position_risk_all_zero_near",
+  "game_ai::plan_legacy::old::fight_model::v22_visible_enemy_is_runaway_threat",
+  "core::slice::iter::Iter::try_fold",
+  "game_ai::plan_legacy::old::battle::BattlePlan::update_v32",
+  "game_core::simulation::entity::Entity::distance",
+  "core::option::unwrap_failed",
+  "core::panicking::panic_bounds_check"
+ ],
+ "logic": "// battle.rs:430~431 — 준비 + main_objective 갱신 (무조건)\nchamp = cache.player_champion[player.team][player.position].unwrap();\nself.main_objective = fight_model::v25_scoped_battle_objective(<version 미사용>, team_plan.objective(i24), player, data, self.current_focus());   // 431 ★write 0xff\n//   current_focus() = sub_goal.focus()[Trace/Protect/Kiting/KitingBack/Assassin/AssassinReady→Some(+0x60); RunAway/End→None] .or(support_target) .or(main_goal TryKill/Support 의 +0x48)\n\n// 439~442 — v2 교전 정지 워치독 (no_enemy_idle_watchdog battle.rs:406~425 인라인)\nif version > 1 && self.sub_goal != End {\n  tick = game.tick();\n  enemy_near = iter_champions(enemy_team).any(|e| dist_sq(e, champ) <= 250000²);\n  moved = utils::distance(champ.pos, self.idle_anchor) > 8000;\n  active = matches!(champ.ty, Champion(ci)) && !matches!(ci.action_state, Idle|Move);   // 413~414\n  if active || enemy_near || moved || self.idle_since == 0 { self.idle_since = tick; self.idle_anchor = champ.pos; }   // 418~420 ★write\n  else if tick.saturating_sub(self.idle_since) >= max(input_delay_max(player.parameter)/100*2, 2) {\n    self.exit_src = 2; self.sub_goal = End; return;   // 441~442\n  }\n}\n\n// 452~469 — v54 재진입 계측 (prev_eval)\n(any_in_range, dir_now, oor) = match self.sub_goal.engage_dir()[battle.rs:49~50] {\n  Trace(0) => (true, +1, 0),\n  KitingBack(3)|RunAway(4) => {   // 453~462\n    found = iter_champions(enemy_team).any(|c| blackboard[enemy_team].is_recent_visible(game, player, c)\n        && !is_ignored_battle_enemy(c)[= is_ignored_well_enemy(c.team==Player(enemy_team) && is_enemy_well_danger(version, player, c.pos)) || (!(version>1 && self.with_dive) && is_unreasonable_tower_dive_enemy(player, data, c, self.with_dive))]\n        && { r = if version>1 { max(fight_kit_range_cached(data,champ,c), fight_kit_range_cached(data,c,champ)) } else { max(max_range_cached(data,champ,c), max_range_cached(data,c,champ)) }; dist_sq(c, champ) <= (r+30000)² });\n    (false, -1, if found {0} else {1})\n  },\n  _ => (false, 0, 0)\n};\nif let Some((prev_oor, prev_dir)) = self.v54_prev_eval { if prev_dir == -1 && prev_oor && any_in_range(=Trace) { self.v54_reentry_ticks.push(game.tick()); } }   // 464~466 ★write(힙 grow_one)\nself.v54_prev_eval = Some((oor!=0, dir_now));   // 469 ★write\n\n// 473~491 — 적 우물\nif is_enemy_well_danger(version, player, champ.x, champ.y) {   // 473~474\n  self.with_dive=false; self.dive_tower=None; self.dive_abandoned=true; self.dive_abort_src=3; self.exit_src=6; self.sub_goal=RunAway;\n  self.well_runaway = Some(game.tick() + tps*5); return;   // 475~482\n}\nif let Some(wr) = self.well_runaway { if game.tick() < wr { self.exit_src=6; self.sub_goal=RunAway; return; } else { self.well_runaway = None; } }   // 486~491\n\n// 496~505 — 다이브 통과 abort\nif self.with_dive {\n  near_towers = cache.iter_towers_without_nexus(enemy_team).filter(|t| dist_sq(t, champ) <= 120000²);   // 497 (aux m06/m11)\n  nexus = cache.nexus[enemy_team].unwrap();   // 499\n  if near_towers.any(|t| t.distance(nexus) > champ.distance(nexus) + 60000) { self.with_dive=false; self.dive_abandoned=true; self.dive_abort_src=4; }   // 502~505\n}\n\n// 509~540 — 도움 콜 (플랜 나이 ≥30틱 && !help_called)\nif !(game.tick().saturating_sub(self.start_tick) < 30 || self.help_called) {\n  near_enemies: bumpalo Vec<&Entity> = iter_champions(enemy_team).filter(|c| blackboard[enemy_team].is_recent_visible(game,player,c) && !is_ignored_well_enemy(version,player,c) && dist_sq(c,champ) <= (max_range_cached(data,c,champ)+30000)²).collect_in(ctx.pool);   // 511~519 (aux 55740/37075)\n  near_wide_allies = iter_champions(team).filter(|c| c.id != champ.id && dist_sq(c,champ) <= 108100000000).count();   // 521~522\n  if ctx.debug { near_allies = iter_champions(team).filter(dist_sq <= 120000²).count(); debug.infos.entry(champ.id).or_insert(vec![]).push(format!(..near_enemies.len, near_wide_allies, near_allies..)); }   // 524~528 (행동 무영향)\n  me_die_tick = fight_check::check_kill_die_tick(version, rnd, data, player, champ, &near_enemies.clone(), &Vec::new_in(pool), debug);   // 531~532\n  if near_wide_allies != 0 && !(me_die_tick > tps || self.help_called || self.sub_goal == RunAway) {   // 534~536\n    self.help_called = true; self.chats.push(Chat::BattleHelp(champ.id, 0));   // 537~538 ★write(힙 grow_one)\n  }\n  drop(near_enemies);   // 540\n}\n\n// 549~556 — 앵커 (v2: focus 대상 위치)\n(anchor_x, anchor_y, anchor_margin) = (champ.x, champ.y, 0);\nif version > 1 { if let Some(t) = self.current_focus().and_then(|id| game.get_entity_by_id(id)) { anchor_margin = if game.tick() == self.start_tick { t.move_speed * tps } else { 0 }; anchor = t.pos; } }   // 550~556\n\n// 562~579 — v1 오브젝트 규율 (version < 2 에서만 v27 호출)\ntarget = match self.main_objective { Some(Morgard)=>Some(JungleType::Morgard(4)), Some(Serpen)=>Some(Serpen(5)), _=>None };   // 562\nif version < 2 && target.is_some() {\n  if let Some(state) = team_plan.v27_active_objective_discipline(version, data, target) {   // 571~572 (sret+25 == 2 → None)\n    has_near_threat = iter_champions(enemy_team).any(|e| e.is_visible_from(champ) && !is_ignored_well_enemy(version,player,e) && blackboard[enemy_team].is_recent_visible(game,player,e) && dist_sq(e,champ) <= 160000²);   // 573~576\n    self.exit_src=4; self.exit_sub=1; self.sub_goal = if state.kind != SafeWait || has_near_threat { RunAway } else { End }; return;   // 577~579\n  }\n}\n\n// 589~643 — main_objective 별 종료\nif let Some(mo) = self.main_objective {\n  if version < 2 && fight_model::should_end_object_finish_kill_priority_battle(version, rnd, data?, ..., mo) { self.exit_src=4; self.exit_sub=2; self.sub_goal=End; return; }   // 591~594 (★version≥2 는 이 검사 없이 598 로)\n  match mo {   // 598\n    Morgard{phase,..} if phase == 3 => { camp = ctx.map.camp_pos(Morgard(4), team==0); eff = 200000.sat_sub(anchor_margin);   // 602~606\n        if dist_sq(anchor, camp) >= eff² && !map_region::is_enemy_side(ctx, anchor, team==0)[is_blue_side: anchor_x - anchor_y + height > width, xor team==0] { self.exit_src=4; self.exit_sub=3; self.sub_goal=End; return; } }   // 607~610\n    Serpen{phase,..} if phase == 3 => { 동일(camp Serpen(5), eff 200000) → exit_sub=4 }   // 618~626\n    Defense => { nexus = cache.nexus[team].unwrap(); self.with_dive=false; self.dive_abandoned=true; self.dive_abort_src=5;   // 632~638 ★write(무조건)\n        eff = 300000.sat_sub(anchor_margin); if dist_sq(anchor, nexus) >= eff² { self.exit_src=4; self.exit_sub=5; self.sub_goal=End; return; } }   // 639~643\n    _ => {}\n  }\n}\n\n// 675~680 — region 이탈\nif let Some(region) = self.region { if dist_sq(champ.pos, region.center) >= region.range² { self.exit_src=5; self.sub_goal=End; return; } }\n\n// 686~701 — battle_recency\n(in_battle, bt) = game_core::simulation::battle_recency(game, player.id);   // 686\nkiting_like = matches!(self.sub_goal, KitingBack|RunAway);   // 690\nrecent_start = self.start_tick >= game.tick().saturating_sub(120);\nif in_battle { if bt < game.tick().sat_sub(120) && !recent_start && !kiting_like && !matches!(self.sub_goal, Kiting|Trace) { self.exit_src=3; self.sub_goal=End; return; } }   // 691~695\nelse if !recent_start && !kiting_like && !matches!(self.sub_goal, Kiting|Trace) { self.exit_src=3; self.sub_goal=End; return; }   // 698~701\n\n// 705~737 — KitingBack/RunAway 종료 판정\nif kiting_like {\n  risk_all_zero = position_risk_all_zero_near(version, player, data, positioning_score, PositionEvalPurpose::RunAway);   // 707\n  has_near_visible_enemies = iter_champions(enemy_team).any(|c| dist_sq(c,champ) <= 150000² && !is_ignored_well_enemy(version,player,c) && blackboard[enemy_team].is_recent_visible(game,player,c));   // 708~709\n  has_runaway_threat = iter_champions(enemy_team).any(|c| fight_model::v22_visible_enemy_is_runaway_threat(version, player, data, champ, c));   // 712\n  if self.sub_goal == RunAway {   // 716\n    if !has_runaway_threat { self.sub_goal = End; return; }   // 720\n    safe = iter_champions(enemy_team).enumerate().any(|(p,c)| c.is_some_and(|c| v22_visible_enemy_is_runaway_threat(version,player,data,champ,c) && blackboard[enemy_team].in_battle(p)[big_goal[p].1 == Some(Battle{focus: Some})]));   // 725~730 (aux 5330)\n  } else {   // KitingBack\n    safe = if risk_all_zero { <End 조건이 !recent_start 만으로 결정> } else { has_near_visible_enemies };   // 733 (IR: %1567/%1572 분기)\n  }\n  if !safe && !recent_start { self.sub_goal = End; return; }   // 736~737  (risk_all_zero 경로: !recent_start 이면 End)\n}\nself.update_v32(version, rnd, player, data, team_plan, debug);   // 745 (위 어느 return 에도 안 걸린 경우)\n",
+ "knobs": [
+  {
+   "what": "워치독 적 탐지 거리",
+   "where": "battle.rs:409 (62500000001)",
+   "value": 250000,
+   "effect": "내리면 더 가까운 적이 있어야 '교전 중'으로 봐서 정지 판정(exit_src 2)이 잦아진다"
+  },
+  {
+   "what": "워치독 이동 판정 거리",
+   "where": "battle.rs:410",
+   "value": 8000,
+   "effect": "올리면 잔이동을 정지로 봐서 End 가 잦아진다"
+  },
+  {
+   "what": "워치독 정지 창 배수/하한",
+   "where": "battle.rs:423",
+   "value": 2,
+   "effect": "input_delay_max/100*2 틱(하한 2). 올리면 정지를 더 오래 허용"
+  },
+  {
+   "what": "교전 페어 사거리 여유",
+   "where": "battle.rs:462·518",
+   "value": 30000,
+   "effect": "올리면 더 먼 적도 '사거리 내'로 봐서 oor=0·near_enemies 증가"
+  },
+  {
+   "what": "우물 도주 지속",
+   "where": "battle.rs:482",
+   "value": 5,
+   "effect": "tps*5 = 5초. 올리면 적 우물 탈출 후 RunAway 유지 시간 증가"
+  },
+  {
+   "what": "다이브 타워 탐색 거리",
+   "where": "battle.rs:497",
+   "value": 120000,
+   "effect": "올리면 더 먼 타워까지 통과 판정 대상"
+  },
+  {
+   "what": "다이브 통과 깊이",
+   "where": "battle.rs:502",
+   "value": 60000,
+   "effect": "타워보다 이만큼 넥서스 쪽으로 더 들어가면 다이브 abort(src 4). 올리면 abort 가 늦어진다"
+  },
+  {
+   "what": "도움 콜 유예(플랜 나이)",
+   "where": "battle.rs:509",
+   "value": 30,
+   "effect": "틱. 올리면 교전 시작 후 도움 콜이 늦어진다"
+  },
+  {
+   "what": "도움 콜 아군 탐색 거리²",
+   "where": "battle.rs:521",
+   "value": 108100000001,
+   "effect": "올리면 더 먼 아군도 near_wide_allies 로 세어 콜 발화 조건 충족이 쉬워진다"
+  },
+  {
+   "what": "도움 콜 사망 예측 상한",
+   "where": "battle.rs:535 (tps)",
+   "value": 1,
+   "effect": "me_die_tick > tps(1초) 이면 콜 안 함. tps 배수를 올리면 더 여유 있어도 콜"
+  },
+  {
+   "what": "오브젝트 규율 위협 거리",
+   "where": "battle.rs:576",
+   "value": 160000,
+   "effect": "올리면 규율 종료 시 RunAway 가 늘고 End 가 준다"
+  },
+  {
+   "what": "Morgard/Serpen 캠프 유지 반경",
+   "where": "battle.rs:606·622",
+   "value": 200000,
+   "effect": "내리면 캠프에서 조금만 멀어져도(적 진영 아닐 때) 교전 End(exit_sub 3/4)"
+  },
+  {
+   "what": "Defense 넥서스 유지 반경",
+   "where": "battle.rs:639",
+   "value": 300000,
+   "effect": "내리면 넥서스에서 조금만 멀어져도 End(exit_sub 5)"
+  },
+  {
+   "what": "교전 최근성/시작 유예",
+   "where": "battle.rs:692·698·736",
+   "value": 120,
+   "effect": "2초. 올리면 교전 없는 상태를 더 오래 유지(End 지연)"
+  },
+  {
+   "what": "KitingBack 근접 가시 적 거리",
+   "where": "battle.rs:708",
+   "value": 150000,
+   "effect": "올리면 KitingBack 유지가 쉬워진다(End 감소)"
+  }
+ ],
+ "unknown": [
+  "108100000001 (L521 near_wide_allies 거리²) 의 유래 — 정수 제곱이 아니어서 r² 접힘으로 설명 안 됨(1.081e11). 소스 표기 표기 불가",
+  "L733 `safe` 변수의 소스 형태 — IR 은 risk_all_zero 참일 때 `safe = i8 1` dbg 를 달면서도 종료 조건이 `!recent_start` 만으로 결정되고(%1567), 거짓일 때는 safe=has_near_visible_enemies(%1572). 종료 조건은 IR 대로 확정(logic 참조), 소스 표현은 unknown",
+  "L591 should_end_object_finish_kill_priority_battle 이 version≥2 에서 건너뛰어지는 것이 의도인지 — CFG(%849/%853 의 version<2 분기)로 확정, 설계 의도 미확인",
+  "v25_scoped_battle_objective·is_unreasonable_tower_dive_enemy 에 version 이 poison 으로 전달됨 — 두 callee 가 version 을 안 읽는다는 LLVM 판정. callee 본문 미독",
+  "Entity+0x38 visible_state[t] 인덱스 stride — IR gep 가 24B 구조로 인덱싱(VisibleState 24B) 확인, `is_visible@data:122` 가 `== Visible(0)` 인 것 확정",
+  "L466 v54_reentry_ticks 와 L538 chats 의 push 가 힙 재할당(grow_one)을 일으킬 수 있음 — HEAP_SUBST 재료. 그 외 힙: near_enemies(bumpalo pool, L540 drop) · near_enemies.clone(L531) · Vec::new_in(L532) · debug String/Vec(L527, ctx.debug 만)",
+  "watchdog 의 champ.ty 가 Champion 이 아닌 경우(action_state 검사 생략) 가 실제로 있는지 — player_champion 은 챔프 엔티티라 사실상 항상 13",
+  "engage_dir(battle.rs:49~50) 의 Protect/Kiting/Assassin 류 반환값 — IR 에서 dir=0·oor=0 으로 접혀 있어 정확한 enum 표기 unknown",
+  "L1580 종료 전 update_v32 내부 — 별도 define(fastcc), 이번 범위 밖"
+ ]
+}

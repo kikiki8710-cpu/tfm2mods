@@ -1,0 +1,70 @@
+{
+ "A": {
+  "dossier": "7cc542dbb1605ad2",
+  "specs": [
+   "spec_102_BattlePlan__update.md",
+   "spec_103_position_risk_all_zero_near.md",
+   "spec_104_handle_chat_inner.md"
+  ],
+  "spec_hashes": {
+   "spec_102_BattlePlan__update.md": "cc087e82a6a03baf",
+   "spec_103_position_risk_all_zero_near.md": "ff074c9c6c8a1d66",
+   "spec_104_handle_chat_inner.md": "cf0479f0abe38414"
+  },
+  "mkdossier": "802add3b146ab88e",
+  "v3": "ad27d4693fa8f302",
+  "built": "2026-09-14 02:22:01"
+ },
+ "B": {
+  "dossier": "c91ff41f30e75ff9",
+  "specs": [
+   "spec_105_passive_plan.md",
+   "spec_106_TeamPlan__v25_objective_posture.md",
+   "spec_107_TeamPlan__handle_none_or_gank_objective.md"
+  ],
+  "spec_hashes": {
+   "spec_105_passive_plan.md": "d206e97063fa4870",
+   "spec_106_TeamPlan__v25_objective_posture.md": "60b654d07e875118",
+   "spec_107_TeamPlan__handle_none_or_gank_objective.md": "ddc5e8fadfd60f53"
+  },
+  "mkdossier": "802add3b146ab88e",
+  "v3": "ad27d4693fa8f302",
+  "built": "2026-09-14 02:22:01"
+ },
+ "C": {
+  "dossier": "f3c1940ace372a18",
+  "specs": [
+   "spec_108_TeamPlan__update_objective_after_steal.md"
+  ],
+  "spec_hashes": {
+   "spec_108_TeamPlan__update_objective_after_steal.md": "3440f70ef6c63396"
+  },
+  "mkdossier": "802add3b146ab88e",
+  "v3": "ad27d4693fa8f302",
+  "built": "2026-09-14 02:22:01"
+ },
+ "D": {
+  "dossier": "1c43a04189e94aff",
+  "specs": [
+   "spec_109_BattlePlan__update_v32.md"
+  ],
+  "spec_hashes": {
+   "spec_109_BattlePlan__update_v32.md": "becef0e9fd615590"
+  },
+  "mkdossier": "802add3b146ab88e",
+  "v3": "ad27d4693fa8f302",
+  "built": "2026-09-14 02:22:01"
+ },
+ "E": {
+  "dossier": "3d43c1183c3eaadf",
+  "specs": [
+   "spec_110_LegacyPlanHandler__handle_interact_battle.md"
+  ],
+  "spec_hashes": {
+   "spec_110_LegacyPlanHandler__handle_interact_battle.md": "56ecb00e41de75f3"
+  },
+  "mkdossier": "802add3b146ab88e",
+  "v3": "ad27d4693fa8f302",
+  "built": "2026-09-14 02:22:01"
+ }
+}

@@ -1,0 +1,392 @@
+{
+ "round": 20,
+ "batch": "A",
+ "errors": [
+  {
+   "path": "/specs[102]/sig/params[0]/role",
+   "kind": "오탐",
+   "old": "noalias, readonly 아님 — writes 참조. 반환 없음(void)",
+   "new": "noalias, readonly 없음(쓰기 가능) — writes 참조. 반환 없음(void)",
+   "evidence": "m10.ll:23429 define `ptr noalias noundef align 8 dereferenceable(280) %0` — readonly 속성이 실제로 없다. G16 P4 가 「readonly 아님」의 부정어 `아님` 을 부정 어휘(paramrole.NEGATED: 없음|없다|없고|없어|빠짐|빠져|제외|부재|미부착)에 안 넣어 긍정 주장으로 읽은 오탐. 문면을 `없음` 으로 맞춰 닫는다",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[102]/sig/params[2]/role",
+   "kind": "오탐",
+   "old": "noalias·align16·readonly 아님. 직접 소비 0",
+   "new": "noalias·align16·readonly 없음(쓰기 가능). 직접 소비 0",
+   "evidence": "m10.ll:23429 define `ptr noalias noundef align 16 dereferenceable(320) %2` — readonly 없음. G16 부정어 `아님` 미인식 오탐(위와 동일)",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[102]/knobs[5]/where",
+   "kind": "오탐",
+   "old": "battle.rs:497",
+   "new": "battle.rs:497 (14400000001 = 120000²+1 · aux m06.ll:33893 / m11.ll:29779 `icmp ult i64 %49, 14400000001`)",
+   "evidence": "리터럴은 본체(m10.ll)가 아니라 aux 조각에 있다: m06.ll:33893 `%50 = icmp ult i64 %49, 14400000001, !dbg !49060`(사슬 battle.rs:497 closure$1 ← … chain.rs:106) · m11.ll:29779 `%39 = icmp ult i64 %38, 14400000001, !dbg !46416`(battle.rs:497 ← copied.rs:74). G19 는 본체 창만 봐 못 찾았다(관측=[1,120,368]). where 에 aux 사이트를 병기하면 G13·G19 통과(knobval.check_spec/whereline.check_spec 로 사전 확인)",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[102]/knobs[6]/where",
+   "kind": "오탐",
+   "old": "battle.rs:502",
+   "new": "battle.rs:502 (aux m06.ll:33906 / m11.ll:29792 `add i64 %53, 60000`)",
+   "evidence": "m06.ll:33906 `%54 = add i64 %53, 60000, !dbg !49084`(사슬 battle.rs:502 closure$2 ← iterator.rs:2893 any ← … chain.rs:106) · m11.ll:29792 `%43 = add i64 %42, 60000, !dbg !46440`(battle.rs:502 ← copied.rs:74). 본체 m10.ll 에는 60000 리터럴 0건 — G19 창 밖(aux) 관측",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[102]/mem[19]/name",
+   "kind": "보강",
+   "old": "support_target",
+   "new": "support_target@tag",
+   "evidence": "tcxdict BattlePlan 0x0 = support_target@tag(Option<usize> 태그 8B, 값은 +0x8). IR m10.ll:23576 `%53 = load i64, ptr %0`(태그) · 23577 `%54 = getelementptr inbounds nuw i8, ptr %0, i64 8` · 23583 `%56 = load i64, ptr %54`(값) · 23596 `%63 = select i1 %55, i64 %56, i64 %62`. G20 R1 (BattlePlan,0x0) 이 [109]`support_target@tag` 와 갈렸던 것을 tcx 이름으로 통일",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "op": "insert",
+   "path": "/specs[102]/mem",
+   "at": 20,
+   "guard": "support_target@Some.0",
+   "guard_key": "name",
+   "new": {
+    "base": "BattlePlan",
+    "offset": "0x8",
+    "name": "support_target@Some.0",
+    "dir": "r",
+    "note": "current_focus() 인라인(battle.rs:360~361): sub_goal.focus() 가 None(RunAway/End) 일 때 support_target 태그(+0x0)==1 이면 이 값이 focus. L431·L550 두 사이트",
+    "ev": 4
+   },
+   "kind": "보강",
+   "evidence": "m10.ll:23576 `%53 = load i64, ptr %0` → 23577 `%54 = getelementptr inbounds nuw i8, ptr %0, i64 8` → 23583 `%56 = load i64, ptr %54` → 23596 `select i1 %55, i64 %56, i64 %62`(!dbg battle.rs:360<431; L550 사이트 동형). tcxdict BattlePlan 0x8 = support_target@Some.0 (usize)",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[103]/one_line",
+   "kind": "보강",
+   "old": "정글/에픽·타워·미니언·중립몹·투사체·적 우물",
+   "new": "정글/에픽·타워·미니언·적 팀 기타 엔티티(others)·투사체·적 우물",
+   "evidence": "L1422 루프는 `cache.others[enemy_team]`(mem[13] AbstractGameWithCache+0xf0, 적 팀 소속) 이지 중립 엔티티가 아니다. 중립몹(정글/에픽)은 L1358 루프가 따로 돈다 — one_line 의 8항목 ↔ 본문 8구간이 1:1 이 되게 이름을 맞춤",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[103]/logic",
+   "kind": "보강",
+   "old": "if cell_region_in(player.team, lx,rx,ly,ry) { return false }   // 1284: 적 우물 피해 rect 2개(팀별) 와 rects_intersect → false",
+   "new": "if cell_region_intersects_well(player.team, lx,rx,ly,ry) { return false }   // 1284: 인라인 헬퍼 position_eval.rs:1227 cell_region_intersects_well — 적 우물 피해 rect 2개(팀별) 와 rects_intersect → false",
+   "evidence": "m07.ll !DISubprogram(name: \"cell_region_intersects_well\", linkageName: \"_RNvNtCshdEBA0ozCnw_7game_ai13position_eval27cell_region_intersects_well\", line: 1227) 이 본문 L1284 사슬의 인라인 프레임(scratch inlined.py: `cell_region_intersects_well position_eval.rs position_eval.rs:1284`). 이름 `cell_region_in` 은 명세가 지어낸 임시명이었다 — open[2]「소스 이름 미확인」의 답",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[103]/logic",
+   "kind": "보강",
+   "old": "// 헬퍼(인라인) point_cell_region_dist_sq(1212~1214)",
+   "new": "// 헬퍼(인라인) point_cell_region_distance_sq(position_eval.rs:1211~)",
+   "evidence": "m07.ll !DISubprogram(name: \"point_cell_region_distance_sq\", linkageName: \"…13position_eval29point_cell_region_distance_sq\", line: 1211) — L1417 사슬 `;L1219<1417` 의 프레임. 실제 함수명·정의 줄로 교정",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[103]/mem[77]/name",
+   "kind": "보강",
+   "old": "ty(Arc<dyn EffectType>).ptr / vtable",
+   "new": "ty.ptr (Arc<dyn EffectType> 데이터 포인터 · vtable 은 +0x8)",
+   "evidence": "G20 R2 (Effect, ty): [0] 이 0x0/0x8 을 둘 다 `ty` 로 부르고 이 행이 `/ vtable` 로 두 자리를 한 이름에 묶어 판별력을 잃었다. 0x0 = Arc 데이터 포인터, 0x8 = vtable 포인터(L1342 `vtable+0x28` 슬롯 호출)로 갈라 적음. sharedchk.check 사전 실행에서 이 행의 R2 참여가 사라짐",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[104]/consts[23]/src_line",
+   "kind": "실오류",
+   "old": 332,
+   "new": 354,
+   "evidence": "m13.ll 에서 리터럴 23 의 store 12곳 = 31723(!dbg !37847=chat.rs:354) · 31899(375) · 31985(393) · 32156(419) · 32398(439) · 32517(457) · 32631(480) · 32717(497) · 32834(515) · 31113(532) · 33052(553) · 33283(585) — 전부 `store i8 23, ptr %N`. chat.rs:332 의 store 는 `store i8 22`(m13.ll:31632 `store i8 22, ptr %936`, Repair). 332 는 값 22 의 줄이지 23 의 줄이 아니다. 첫 사이트 354 로 교정(나머지 11곳은 meaning 에 이미 열거)",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[104]/mem[71]/name",
+   "kind": "보강",
+   "old": "team_plan.objective@Some.0 페이로드1(line 또는 phase)",
+   "new": "team_plan.objective@Some.0@Gank.line / team_plan.objective@Some.0@Morgard.phase",
+   "evidence": "G20 R2: 0x518 과 0x519 가 정규화 후 같은 이름 `team_plan.objective@some.0` 이 됐다(괄호·한글 절삭). tcxdict LegacyPlanHandler 0x518 = objective@Some.0@{Gank,Dive,PressTower,ComebackPick}.line / @{Morgard,Serpen}.phase / @{DefenseLine,Nexus,PressEpic}.0 — variant 표기로 갈라 적음",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[104]/mem[72]/name",
+   "kind": "보강",
+   "old": "team_plan.objective@Some.0 페이로드2(with_battle / ComebackPick.ready)",
+   "new": "team_plan.objective@Some.0@Morgard.with_battle / team_plan.objective@Some.0@ComebackPick.ready",
+   "evidence": "tcxdict LegacyPlanHandler 0x519 = objective@Some.0@Morgard.with_battle / @Serpen.with_battle / @ComebackPick.ready (bool). 위 행과 짝으로 R2 해소(sharedchk.check 사전 실행: R2 team_plan.objective@some.0 소멸)",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[104]/knobs[3]/value",
+   "kind": "보강",
+   "old": "tps*4+1",
+   "new": "tps*4 + 1 틱 (= 4초)",
+   "evidence": "G20 R4 「다이브 재합류 쿨다운」: [69] 이 `tps*4 + 1 틱 (= 4초)`, 이 명세가 `tps*4+1` 로 같은 값을 다른 문면으로 적었다. IR m13.ll `shl i64 %tps, 2 | 1`(chat.rs:174/:226, dive_rejoin_cd engage.rs 인라인) 로 값은 동일 — [69] 문면으로 통일",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[104]/mem[4]/note",
+   "kind": "보강",
+   "old": "is_passive 인라인(:246)",
+   "new": "is_passive 인라인(:246, types.rs:254~257) → PassiveJungle 팔은 PassiveJunglePlan::is_counter_jungle(passive_jungle.rs:103) 인라인: team==player_team 이어야 passive",
+   "evidence": "m13.ll 사슬 `;L104<257<246`: %413 = gep %0, 1592(0x638 team) · %415 = gep %0, 1600(0x640 player_team) · %417 = icmp eq → br %418(passive 계속) / %489(스킵). DISubprogram is_counter_jungle line 103 · is_passive line 253",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "op": "insert",
+   "path": "/specs[104]/mem",
+   "at": 120,
+   "guard": "entry_src",
+   "guard_key": "name",
+   "new": {
+    "base": "BattlePlan(local b)",
+    "offset": "0x107",
+    "name": "entry_src",
+    "dir": "w",
+    "value": "4",
+    "note": ":221 — BattlePlan::new 직후. 이 b 가 :237 memcpy(280B) 로 self.plan@Battle.0 에 들어간다",
+    "ev": 4
+   },
+   "kind": "보강",
+   "evidence": "m13.ll:30466 `%400 = getelementptr inbounds nuw i8, ptr %37, i64 263` · 30467 `store i8 4, ptr %400` (!dbg chat.rs:221). tcxdict BattlePlan 0x107 = entry_src u8",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "op": "insert",
+   "path": "/specs[104]/mem",
+   "at": 121,
+   "guard": "ff_stake_join",
+   "guard_key": "name",
+   "new": {
+    "base": "BattlePlan(local b)",
+    "offset": "0xfc",
+    "name": "ff_stake_join",
+    "dir": "w",
+    "value": "(too_far||low_hp) && stake_commit ? 1 : 0",
+    "note": ":222 — `select i1 %362(stake_commit), i8 %384(게이트 기각 여부), i8 0`",
+    "ev": 4
+   },
+   "kind": "보강",
+   "evidence": "m13.ll:30468 `%401 = select i1 %362, i8 %384, i8 0` · 30469 `%402 = getelementptr inbounds nuw i8, ptr %37, i64 252` · 30470 `store i8 %401, ptr %402` (chat.rs:222). %362 = stake.line==Commit(0) (30362 `%359 = icmp eq i8 %358, 0` 의 phi), %384 = phi i8 [ 0, %382 ],[ 1, %376 ],[ 1, %373 ](30419: stake_ok 경로 0 / low_hp·too_far 경로 1). tcxdict BattlePlan 0xfc = ff_stake_join bool",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "op": "insert",
+   "path": "/specs[104]/mem",
+   "at": 122,
+   "guard": "support_target@tag",
+   "guard_key": "name",
+   "new": {
+    "base": "BattlePlan(local b)",
+    "offset": "0x0",
+    "name": "support_target@tag",
+    "dir": "w",
+    "value": "1(Some)",
+    "note": ":223 b.support_target = Some(target.id) — 값은 +0x8",
+    "ev": 4
+   },
+   "kind": "보강",
+   "evidence": "m13.ll:30471 `store i64 1, ptr %37` · 30472 `%403 = getelementptr inbounds nuw i8, ptr %37, i64 8` · 30473 `store i64 %398, ptr %403` (chat.rs:223; %398 = 30460 target.id(Entity+0x5c0) load)",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "op": "insert",
+   "path": "/specs[104]/mem",
+   "at": 123,
+   "guard": "support_target@Some.0",
+   "guard_key": "name",
+   "new": {
+    "base": "BattlePlan(local b)",
+    "offset": "0x8",
+    "name": "support_target@Some.0",
+    "dir": "w",
+    "value": "target.id",
+    "note": ":223",
+    "ev": 4
+   },
+   "kind": "보강",
+   "evidence": "m13.ll:30473 `store i64 %398, ptr %403`(%403 = b+8). tcxdict BattlePlan 0x8 = support_target@Some.0",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "op": "insert",
+   "path": "/specs[104]/mem",
+   "at": 124,
+   "guard": "with_dive",
+   "guard_key": "name",
+   "new": {
+    "base": "BattlePlan(local b)",
+    "offset": "0xf6",
+    "name": "with_dive",
+    "dir": "w",
+    "value": "is_dive && tick > last_dive_abandon_tick+(tps*4+1) ? tower_dive_is_viable(..) : 0",
+    "note": ":225~231 — is_dive 가 아니면 쓰지 않음(BattlePlan::new 값 유지)",
+    "ev": 4
+   },
+   "kind": "보강",
+   "evidence": "m13.ll:30680 `%507 = getelementptr inbounds nuw i8, ptr %37, i64 246` · 30681 `%508 = zext i1 %505 to i8` · 30682 `store i8 %508, ptr %507` (chat.rs:225; %505 = tower_dive_is_viable 반환) · 쿨다운 미경과/비viable 팔은 30686~30689 `%510 = phi i64 [254..],[246,%497],[246,%391]` · `%511 = phi i8 [-1..],[%530..],[0,%497],[0,%391]` · `store i8 %511, ptr (gep %37, %510)` = with_dive 0. tcxdict BattlePlan 0xf6 = with_dive",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "op": "insert",
+   "path": "/specs[104]/mem",
+   "at": 125,
+   "guard": "dive_join_tick",
+   "guard_key": "name",
+   "new": {
+    "base": "BattlePlan(local b)",
+    "offset": "0xb8",
+    "name": "dive_join_tick",
+    "dir": "w",
+    "value": "game.tick()",
+    "note": ":229 — b.with_dive 가 참일 때만",
+    "ev": 4
+   },
+   "kind": "보강",
+   "evidence": "m13.ll:30702 `%518 = getelementptr inbounds nuw i8, ptr %37, i64 184` · 30703 `store i64 %516, ptr %518` (chat.rs:229; %516 = vtable+0x28 tick). tcxdict BattlePlan 0xb8 = dive_join_tick",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "op": "insert",
+   "path": "/specs[104]/mem",
+   "at": 126,
+   "guard": "dive_tower",
+   "guard_key": "name",
+   "new": {
+    "base": "BattlePlan(local b)",
+    "offset": "0xfe",
+    "name": "dive_tower",
+    "dir": "w",
+    "value": "Option<TowerType>(-1=None) — 적 타워 중 target 최근접의 ty.Tower.info.ty",
+    "note": ":230 — self.plan@Battle.0.dive_tower(mem[86]) 와 같은 탐색(iter_towers_without_nexus(1-team) 최소 distance)",
+    "ev": 4
+   },
+   "kind": "보강",
+   "evidence": "m13.ll:30705 (chat.rs:230) `%519 = sub nuw nsw i64 1, %163`(enemy_team) → iter_towers_without_nexus → 최소거리 → Entity+0x68==2(Tower) 이면 +0x128 로드(%530) → 30686~30689 `%510 = phi i64 [ 254, %522 ], [ 254, %524 ], …` · `%511 = phi i8 [ -1, %522 ], [ %530, %524 ], …` · `%512 = getelementptr inbounds nuw i8, ptr %37, i64 %510` · `store i8 %511, ptr %512`(with_dive 0 쓰기와 gep 오프셋 phi 로 병합). tcxdict BattlePlan 0xfe = dive_tower@tag(니치)",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "op": "insert",
+   "path": "/specs[104]/mem",
+   "at": 69,
+   "guard": "positioning_score",
+   "guard_key": "name",
+   "new": {
+    "base": "LegacyPlanHandler",
+    "offset": "0x990",
+    "name": "positioning_score",
+    "dir": "r",
+    "note": ":234 `&self.positioning_score`(PositioningScoreData 2760B) 주소를 b.update(BattlePlan::update) 6번째 인자로 전달 — 이 함수 본문은 내용을 읽지 않는다(주소만)",
+    "ev": 4
+   },
+   "kind": "보강",
+   "evidence": "m13.ll:30693 `%514 = getelementptr inbounds nuw i8, ptr %0, i64 2448`(0x990) → 30694 invoke BattlePlan::update(ptr %37, i64 %1, ptr %2, ptr %3, ptr %4, ptr %514, ptr %41(team_plan=%0+0xf8), ptr %8) (chat.rs:234). tcxdict LegacyPlanHandler 0x990 = positioning_score PositioningScoreData(2760B). G18 「self.positioning_score 행 없음」 해소",
+   "behavior_change": false,
+   "found_by": "new"
+  }
+ ],
+ "ev_up": [
+  {
+   "path": "/specs[103]/consts[1]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인: _verify20/A/oracle/v20A_o1.rs (TEMPLATE mkgame · tick 0 · 적 챔프/타워/미니언/투사체 전부 사거리 밖) — team{0,1}×pos{Top,Support}×cx0..29×cy0..29 = 3600 케이스 game==독립 재구현 MATCH 3600/3600(불일치 0 · false 220). false 영역 = team0 챔프(15000,913000) 기준 cx≥22∧cy≤4 ∪ cx≥25∧cy≤7(= 적 진영 (913000,15000) 우물 rect) — 이 상수·클램프·좌표변환·팀 극성이 실행으로 확정됐다",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[103]/consts[2]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인: _verify20/A/oracle/v20A_o1.rs (TEMPLATE mkgame · tick 0 · 적 챔프/타워/미니언/투사체 전부 사거리 밖) — team{0,1}×pos{Top,Support}×cx0..29×cy0..29 = 3600 케이스 game==독립 재구현 MATCH 3600/3600(불일치 0 · false 220). false 영역 = team0 챔프(15000,913000) 기준 cx≥22∧cy≤4 ∪ cx≥25∧cy≤7(= 적 진영 (913000,15000) 우물 rect) — 이 상수·클램프·좌표변환·팀 극성이 실행으로 확정됐다",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[103]/consts[3]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인: _verify20/A/oracle/v20A_o1.rs (TEMPLATE mkgame · tick 0 · 적 챔프/타워/미니언/투사체 전부 사거리 밖) — team{0,1}×pos{Top,Support}×cx0..29×cy0..29 = 3600 케이스 game==독립 재구현 MATCH 3600/3600(불일치 0 · false 220). false 영역 = team0 챔프(15000,913000) 기준 cx≥22∧cy≤4 ∪ cx≥25∧cy≤7(= 적 진영 (913000,15000) 우물 rect) — 이 상수·클램프·좌표변환·팀 극성이 실행으로 확정됐다",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[103]/consts[4]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인: _verify20/A/oracle/v20A_o1.rs (TEMPLATE mkgame · tick 0 · 적 챔프/타워/미니언/투사체 전부 사거리 밖) — team{0,1}×pos{Top,Support}×cx0..29×cy0..29 = 3600 케이스 game==독립 재구현 MATCH 3600/3600(불일치 0 · false 220). false 영역 = team0 챔프(15000,913000) 기준 cx≥22∧cy≤4 ∪ cx≥25∧cy≤7(= 적 진영 (913000,15000) 우물 rect) — 이 상수·클램프·좌표변환·팀 극성이 실행으로 확정됐다",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[103]/consts[5]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인: _verify20/A/oracle/v20A_o1.rs (TEMPLATE mkgame · tick 0 · 적 챔프/타워/미니언/투사체 전부 사거리 밖) — team{0,1}×pos{Top,Support}×cx0..29×cy0..29 = 3600 케이스 game==독립 재구현 MATCH 3600/3600(불일치 0 · false 220). false 영역 = team0 챔프(15000,913000) 기준 cx≥22∧cy≤4 ∪ cx≥25∧cy≤7(= 적 진영 (913000,15000) 우물 rect) — 이 상수·클램프·좌표변환·팀 극성이 실행으로 확정됐다",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[103]/consts[6]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인: _verify20/A/oracle/v20A_o1.rs (TEMPLATE mkgame · tick 0 · 적 챔프/타워/미니언/투사체 전부 사거리 밖) — team{0,1}×pos{Top,Support}×cx0..29×cy0..29 = 3600 케이스 game==독립 재구현 MATCH 3600/3600(불일치 0 · false 220). false 영역 = team0 챔프(15000,913000) 기준 cx≥22∧cy≤4 ∪ cx≥25∧cy≤7(= 적 진영 (913000,15000) 우물 rect) — 이 상수·클램프·좌표변환·팀 극성이 실행으로 확정됐다",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[103]/consts[7]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인: _verify20/A/oracle/v20A_o1.rs (TEMPLATE mkgame · tick 0 · 적 챔프/타워/미니언/투사체 전부 사거리 밖) — team{0,1}×pos{Top,Support}×cx0..29×cy0..29 = 3600 케이스 game==독립 재구현 MATCH 3600/3600(불일치 0 · false 220). false 영역 = team0 챔프(15000,913000) 기준 cx≥22∧cy≤4 ∪ cx≥25∧cy≤7(= 적 진영 (913000,15000) 우물 rect) — 이 상수·클램프·좌표변환·팀 극성이 실행으로 확정됐다",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[103]/consts[8]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인: _verify20/A/oracle/v20A_o1.rs (TEMPLATE mkgame · tick 0 · 적 챔프/타워/미니언/투사체 전부 사거리 밖) — team{0,1}×pos{Top,Support}×cx0..29×cy0..29 = 3600 케이스 game==독립 재구현 MATCH 3600/3600(불일치 0 · false 220). false 영역 = team0 챔프(15000,913000) 기준 cx≥22∧cy≤4 ∪ cx≥25∧cy≤7(= 적 진영 (913000,15000) 우물 rect) — 이 상수·클램프·좌표변환·팀 극성이 실행으로 확정됐다",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[103]/consts[9]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인: _verify20/A/oracle/v20A_o1.rs (TEMPLATE mkgame · tick 0 · 적 챔프/타워/미니언/투사체 전부 사거리 밖) — team{0,1}×pos{Top,Support}×cx0..29×cy0..29 = 3600 케이스 game==독립 재구현 MATCH 3600/3600(불일치 0 · false 220). false 영역 = team0 챔프(15000,913000) 기준 cx≥22∧cy≤4 ∪ cx≥25∧cy≤7(= 적 진영 (913000,15000) 우물 rect) — 이 상수·클램프·좌표변환·팀 극성이 실행으로 확정됐다",
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[103]/knobs[0]",
+   "from": 4,
+   "to": 2,
+   "evidence": "오라클 실행 확인: _verify20/A/oracle/v20A_o1.rs (TEMPLATE mkgame · tick 0 · 적 챔프/타워/미니언/투사체 전부 사거리 밖) — team{0,1}×pos{Top,Support}×cx0..29×cy0..29 = 3600 케이스 game==독립 재구현 MATCH 3600/3600(불일치 0 · false 220). false 영역 = team0 챔프(15000,913000) 기준 cx≥22∧cy≤4 ∪ cx≥25∧cy≤7(= 적 진영 (913000,15000) 우물 rect) — 이 상수·클램프·좌표변환·팀 극성이 실행으로 확정됐다",
+   "found_by": "new"
+  }
+ ],
+ "brief_errors": [
+  "mkdossier.gate_split 이 `[NNN]` 3자리 함수 인덱스를 `s[1:3]` 로 2자리만 파싱한다(`int('10')`) — 20차 전 배치(102~110)가 §4 「미해소 0건」으로 나갔지만 실제 specgate 는 배치A 몫만 G12 1·G16 2·G18 2·G19 2·G20 R2 1/R4 1·G3 1·G7 3 이다(`specgate.py --only 102/103/104` 실측). 수정 = `re.match(r'\\[(\\d+)\\]', s)`.",
+  "§5 도시에의 G12 규약 문구 「명세 src 파일의 루트 줄」이 실제 게이트(srclinebase.check_spec `fn == own` = 사슬의 **자기 파일 프레임 아무거나**)·전 라운드 판정(12A `572 closure$2←…←573` 일치, 12C `1233(루트 1230)` 일치, 17A 「규약은 자기 파일 줄」, 19C #97 `heal_area←102←79` → 102)과 다르다. 102 의 consts[4~8](409·410·413·423 = 같은 파일 인라인 콜리 no_enemy_idle_watchdog 의 줄, 루트는 440)·[9](462, 루트 453)·[16](521, 루트 522)·[18](576, 루트 573)이 「루트」규약이면 전부 실오류이고 「자기 파일 프레임」규약이면 전부 정답이다. 게이트가 둘 다 통과시키므로 문구를 「자기 파일 안의 프레임(리터럴이 놓인 줄 우선)」으로 고치거나 게이트를 루트 전용으로 좁혀라 — 이번엔 게이트·전례를 따라 정정하지 않았다.",
+  "§1/지시문의 「pub 함수(position_risk_all_zero_near·v25_objective_posture·BattlePlan::update)」 — v25_objective_posture 는 specs[106](배치 B) 이다. 배치A 의 pub 은 102·103 둘뿐.",
+  "G16 paramrole.NEGATED 부정 어휘에 `아님|아니다` 가 없다 — 102 params[0]/[2] 「readonly 아님」 2건이 오탐. 도구에 어휘 2개를 추가하면 문면 수정 없이 닫힌다(이번 patch 는 문면 쪽을 `없음` 으로 맞춰 양쪽 다 통과시켰다).",
+  "G3 FREE_FN 화이트리스트(specgate.py:160)에 103 이 없다 — position_risk_all_zero_near 는 `_RNvNt…13position_eval27…` 자유 함수(impl 없음)라 siblings.plan==null 이 정상. 103 을 FREE_FN 에 추가하라(오탐).",
+  "G19 knobval 이 aux 조각(`ir.aux`)을 관측 창에 넣지 않는다 — 102 knobs[5]/[6] 의 리터럴은 m06.ll/m11.ll 의 aux 에만 있어 「미관측」 오탐. 관측 창을 `ir.aux` 까지 넓히면 이 계열이 사라진다(이번엔 where 에 aux 사이트를 병기해 통과).",
+  "callees[] 의 `pick` 문구 「⚠간접호출(vtable) — 망글링 심볼이 원래 없다」가 **인라인된 함수**에도 그대로 붙는다(102 current_focus/engage_dir/focus/in_battle/is_enemy_side/is_visible_from/iter_champions/is_ignored_*_enemy · 103 circle_intersects_cell_region/rects_intersect/projectile_intersects_cell_region/radius/range/skill*_cooldown/ult_effect · 104 is_passive/is_adj_line/mf_note_*/objective_target/objective_chat_target/mark_/clear_objective_misunderstanding). 이들은 vtable 이 아니라 `!dbg` inlinedAt 프레임(DISubprogram)으로 확정된다 — scratch `inlined.py` 출력(REPORT §4)이 그 근거. mkspec3 가 「IR 심볼 부재」를 「vtable 간접호출」과 「인라인」으로 갈라 적어야 한다(DISubprogram 이름 일치 = 인라인).",
+  "callees[] 후보 `push` 3행(Staff/Athlete/Contract serialize::push)은 세 명세 모두 `Vec::push`(alloc) 의 오매칭 잡음이다 — leaf 이름만으로 tcx 를 뒤진 결과. std 잎(push/len/is_empty/drop)은 후보 생성에서 제외하는 것이 맞다."
+ ]
+}

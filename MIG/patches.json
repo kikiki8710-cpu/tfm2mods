@@ -270,5 +270,117 @@
   "line": 0,
   "from": "call fastcc void @_RNvNtNtCshdEBA0ozCnw_7game_ai11plan_legacy5steal25evaluate_steal_for_target(",
   "to": "call void @_RNvNtNtCshdEBA0ozCnw_7game_ai11plan_legacy5steal25evaluate_steal_for_target("
+ },
+ {
+  "raw": true,
+  "note": "r11 LegacyPlanHandler::handle_chat_inner 0xe59b20 노출(2026-09-14): internal fastcc → external ccc. exe 인자 배치 = IR 일치(argscan · RE 09-14). void · &mut self → SELF_RESTORE+HEAP_SUBST.",
+  "file": "plan_legacy/handler/chat.rs",
+  "line": 0,
+  "from": "define internal fastcc void @_RNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy7handler4chatNtB4_17LegacyPlanHandler17handle_chat_inner(",
+  "to": "define void @_RNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy7handler4chatNtB4_17LegacyPlanHandler17handle_chat_inner("
+ },
+ {
+  "raw": true,
+  "note": "위 define 의 invoke 사이트(부분문자열이 tail call 포함).",
+  "file": "plan_legacy/handler/chat.rs",
+  "line": 0,
+  "from": "invoke fastcc void @_RNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy7handler4chatNtB4_17LegacyPlanHandler17handle_chat_inner(",
+  "to": "invoke void @_RNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy7handler4chatNtB4_17LegacyPlanHandler17handle_chat_inner("
+ },
+ {
+  "raw": true,
+  "note": "위 define 의 call 사이트(부분문자열이 tail call 포함).",
+  "file": "plan_legacy/handler/chat.rs",
+  "line": 0,
+  "from": "call fastcc void @_RNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy7handler4chatNtB4_17LegacyPlanHandler17handle_chat_inner(",
+  "to": "call void @_RNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy7handler4chatNtB4_17LegacyPlanHandler17handle_chat_inner("
+ },
+ {
+  "raw": true,
+  "note": "r11 LegacyPlanHandler::passive_plan 0xe46bc0 노출(2026-09-14): internal fastcc → external ccc. exe 인자 배치 = IR 일치(argscan · RE 09-14). void · &mut self → SELF_RESTORE+HEAP_SUBST.",
+  "file": "plan_legacy/handler.rs",
+  "line": 0,
+  "from": "define internal fastcc void @_RNvMNtNtCshdEBA0ozCnw_7game_ai11plan_legacy7handlerNtB2_17LegacyPlanHandler12passive_plan(",
+  "to": "define void @_RNvMNtNtCshdEBA0ozCnw_7game_ai11plan_legacy7handlerNtB2_17LegacyPlanHandler12passive_plan("
+ },
+ {
+  "raw": true,
+  "note": "위 define 의 call 사이트(부분문자열이 tail call 포함).",
+  "file": "plan_legacy/handler.rs",
+  "line": 0,
+  "from": "call fastcc void @_RNvMNtNtCshdEBA0ozCnw_7game_ai11plan_legacy7handlerNtB2_17LegacyPlanHandler12passive_plan(",
+  "to": "call void @_RNvMNtNtCshdEBA0ozCnw_7game_ai11plan_legacy7handlerNtB2_17LegacyPlanHandler12passive_plan("
+ },
+ {
+  "raw": true,
+  "note": "위 define 의 invoke 사이트(부분문자열이 tail call 포함).",
+  "file": "plan_legacy/handler.rs",
+  "line": 0,
+  "from": "invoke fastcc void @_RNvMNtNtCshdEBA0ozCnw_7game_ai11plan_legacy7handlerNtB2_17LegacyPlanHandler12passive_plan(",
+  "to": "invoke void @_RNvMNtNtCshdEBA0ozCnw_7game_ai11plan_legacy7handlerNtB2_17LegacyPlanHandler12passive_plan("
+ },
+ {
+  "raw": true,
+  "note": "r11 TeamPlan::handle_none_or_gank_objective 0xdcee40 노출(2026-09-14): internal fastcc → external ccc. exe 인자 배치 = IR 일치(argscan · RE 09-14). void · &mut self → SELF_RESTORE+HEAP_SUBST.",
+  "file": "plan_legacy/team_plan/objective_handlers.rs",
+  "line": 0,
+  "from": "define internal fastcc void @_RNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy9team_plan18objective_handlersNtB4_8TeamPlan29handle_none_or_gank_objective(",
+  "to": "define void @_RNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy9team_plan18objective_handlersNtB4_8TeamPlan29handle_none_or_gank_objective("
+ },
+ {
+  "raw": true,
+  "note": "위 define 의 call 사이트(부분문자열이 tail call 포함).",
+  "file": "plan_legacy/team_plan/objective_handlers.rs",
+  "line": 0,
+  "from": "call fastcc void @_RNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy9team_plan18objective_handlersNtB4_8TeamPlan29handle_none_or_gank_objective(",
+  "to": "call void @_RNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy9team_plan18objective_handlersNtB4_8TeamPlan29handle_none_or_gank_objective("
+ },
+ {
+  "raw": true,
+  "note": "r11 TeamPlan::update_objective_after_steal 0xdda220 노출(2026-09-14): internal fastcc → external ccc. exe 인자 배치 = IR 일치(argscan · RE 09-14). void · &mut self → SELF_RESTORE+HEAP_SUBST.",
+  "file": "plan_legacy/team_plan.rs",
+  "line": 0,
+  "from": "define internal fastcc void @_RNvMs1_NtNtCshdEBA0ozCnw_7game_ai11plan_legacy9team_planNtB5_8TeamPlan28update_objective_after_steal(",
+  "to": "define void @_RNvMs1_NtNtCshdEBA0ozCnw_7game_ai11plan_legacy9team_planNtB5_8TeamPlan28update_objective_after_steal("
+ },
+ {
+  "raw": true,
+  "note": "위 define 의 call 사이트(부분문자열이 tail call 포함).",
+  "file": "plan_legacy/team_plan.rs",
+  "line": 0,
+  "from": "call fastcc void @_RNvMs1_NtNtCshdEBA0ozCnw_7game_ai11plan_legacy9team_planNtB5_8TeamPlan28update_objective_after_steal(",
+  "to": "call void @_RNvMs1_NtNtCshdEBA0ozCnw_7game_ai11plan_legacy9team_planNtB5_8TeamPlan28update_objective_after_steal("
+ },
+ {
+  "raw": true,
+  "note": "r11 BattlePlan::update_v32 0xdf36e0 노출(2026-09-14): internal fastcc → external ccc. exe 인자 배치 = IR 일치(argscan · RE 09-14). void · &mut self → SELF_RESTORE+HEAP_SUBST.",
+  "file": "plan_legacy/old/battle.rs",
+  "line": 0,
+  "from": "define internal fastcc void @_RNvMs0_NtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old6battleNtB5_10BattlePlan10update_v32(",
+  "to": "define void @_RNvMs0_NtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old6battleNtB5_10BattlePlan10update_v32("
+ },
+ {
+  "raw": true,
+  "note": "위 define 의 call 사이트(부분문자열이 tail call 포함).",
+  "file": "plan_legacy/old/battle.rs",
+  "line": 0,
+  "from": "call fastcc void @_RNvMs0_NtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old6battleNtB5_10BattlePlan10update_v32(",
+  "to": "call void @_RNvMs0_NtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old6battleNtB5_10BattlePlan10update_v32("
+ },
+ {
+  "raw": true,
+  "note": "r11 LegacyPlanHandler::handle_interact_battle 0xe5d5d0 노출(2026-09-14): internal fastcc → external ccc. exe 인자 배치 = IR 일치(argscan · RE 09-14). void · &mut self → SELF_RESTORE+HEAP_SUBST.",
+  "file": "plan_legacy/handler/engage.rs",
+  "line": 0,
+  "from": "define internal fastcc void @_RNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy7handler6engageNtB4_17LegacyPlanHandler22handle_interact_battle(",
+  "to": "define void @_RNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy7handler6engageNtB4_17LegacyPlanHandler22handle_interact_battle("
+ },
+ {
+  "raw": true,
+  "note": "위 define 의 invoke 사이트(부분문자열이 tail call 포함).",
+  "file": "plan_legacy/handler/engage.rs",
+  "line": 0,
+  "from": "invoke fastcc void @_RNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy7handler6engageNtB4_17LegacyPlanHandler22handle_interact_battle(",
+  "to": "invoke void @_RNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy7handler6engageNtB4_17LegacyPlanHandler22handle_interact_battle("
  }
 ]

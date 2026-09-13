@@ -1,0 +1,827 @@
+{
+ "round": 20,
+ "batch": "G",
+ "errors": [
+  {
+   "path": "/specs[107]/consts[29]/src_line",
+   "kind": "정정",
+   "old": 912,
+   "new": 944,
+   "evidence": "G12(20차 G 기계): src_line 규약 = 명세 src 파일의 **루트 줄**(인라인 콜리 파일 줄 912 가 아님) · IR 사슬 관측 루트 후보가 944 하나뿐",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[107]/consts[29]/meaning",
+   "kind": "보강",
+   "old": "HP% > 49 (=50% 이상) 건강 아군 (1305·1314·1394·1461·1471)",
+   "new": "HP% > 49 (=50% 이상) 건강 아군 (1305·1314·1394·1461·1471) [인라인 콜리 줄 912 → 루트 944 · 20차 G]",
+   "evidence": "G12 루트 줄 정정의 원 줄 보존",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[108]/consts[0]/src_line",
+   "kind": "정정",
+   "old": 383,
+   "new": 911,
+   "evidence": "G12(20차 G 기계): src_line 규약 = 명세 src 파일의 **루트 줄**(인라인 콜리 파일 줄 383 가 아님) · IR 사슬 관측 루트 후보가 911 하나뿐",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[108]/consts[0]/meaning",
+   "kind": "보강",
+   "old": "140000²+1 — near_ally_count: 내 챔프 기준 아군 반경(제곱비교 ult) [objective_discipline.rs]",
+   "new": "140000²+1 — near_ally_count: 내 챔프 기준 아군 반경(제곱비교 ult) [objective_discipline.rs] [인라인 콜리 줄 383 → 루트 911 · 20차 G]",
+   "evidence": "G12 루트 줄 정정의 원 줄 보존",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[108]/consts[1]/src_line",
+   "kind": "정정",
+   "old": 387,
+   "new": 911,
+   "evidence": "G12(20차 G 기계): src_line 규약 = 명세 src 파일의 **루트 줄**(인라인 콜리 파일 줄 387 가 아님) · IR 사슬 관측 루트 후보가 911 하나뿐",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[108]/consts[1]/meaning",
+   "kind": "보강",
+   "old": "170000²+1 — near_enemy_count 반경",
+   "new": "170000²+1 — near_enemy_count 반경 [인라인 콜리 줄 387 → 루트 911 · 20차 G]",
+   "evidence": "G12 루트 줄 정정의 원 줄 보존",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[108]/consts[2]/src_line",
+   "kind": "정정",
+   "old": 389,
+   "new": 911,
+   "evidence": "G12(20차 G 기계): src_line 규약 = 명세 src 파일의 **루트 줄**(인라인 콜리 파일 줄 389 가 아님) · IR 사슬 관측 루트 후보가 911 하나뿐",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[108]/consts[2]/meaning",
+   "kind": "보강",
+   "old": "180000²+1 — camp_ally_count: 캠프 기준 아군 반경",
+   "new": "180000²+1 — camp_ally_count: 캠프 기준 아군 반경 [인라인 콜리 줄 389 → 루트 911 · 20차 G]",
+   "evidence": "G12 루트 줄 정정의 원 줄 보존",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[108]/consts[8]/src_line",
+   "kind": "정정",
+   "old": 397,
+   "new": 911,
+   "evidence": "G12(20차 G 기계): src_line 규약 = 명세 src 파일의 **루트 줄**(인라인 콜리 파일 줄 397 가 아님) · IR 사슬 관측 루트 후보가 911 하나뿐",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[108]/consts[8]/meaning",
+   "kind": "보강",
+   "old": "D397 안 보이는 적 후보 hp% < 50 제외",
+   "new": "D397 안 보이는 적 후보 hp% < 50 제외 [인라인 콜리 줄 397 → 루트 911 · 20차 G]",
+   "evidence": "G12 루트 줄 정정의 원 줄 보존",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[108]/consts[12]/src_line",
+   "kind": "정정",
+   "old": 426,
+   "new": 911,
+   "evidence": "G12(20차 G 기계): src_line 규약 = 명세 src 파일의 **루트 줄**(인라인 콜리 파일 줄 426 가 아님) · IR 사슬 관측 루트 후보가 911 하나뿐",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[108]/consts[12]/meaning",
+   "kind": "보강",
+   "old": "objective_hp_ratio > 54 (SafeWait 조건 D426·D428)",
+   "new": "objective_hp_ratio > 54 (SafeWait 조건 D426·D428) [인라인 콜리 줄 426 → 루트 911 · 20차 G]",
+   "evidence": "G12 루트 줄 정정의 원 줄 보존",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[108]/consts[13]/src_line",
+   "kind": "정정",
+   "old": 427,
+   "new": 911,
+   "evidence": "G12(20차 G 기계): src_line 규약 = 명세 src 파일의 **루트 줄**(인라인 콜리 파일 줄 427 가 아님) · IR 사슬 관측 루트 후보가 911 하나뿐",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[108]/consts[13]/meaning",
+   "kind": "보강",
+   "old": "objective_hp_ratio > 49 (SafeWait 조건 D427)",
+   "new": "objective_hp_ratio > 49 (SafeWait 조건 D427) [인라인 콜리 줄 427 → 루트 911 · 20차 G]",
+   "evidence": "G12 루트 줄 정정의 원 줄 보존",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[108]/consts[25]/src_line",
+   "kind": "정정",
+   "old": 281,
+   "new": 998,
+   "evidence": "G12(20차 G 기계): src_line 규약 = 명세 src 파일의 **루트 줄**(인라인 콜리 파일 줄 281 가 아님) · IR 사슬 관측 루트 후보가 998 하나뿐",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[108]/consts[25]/meaning",
+   "kind": "보강",
+   "old": "PE281 low_hp_allies: hp% < 41",
+   "new": "PE281 low_hp_allies: hp% < 41 [인라인 콜리 줄 281 → 루트 998 · 20차 G]",
+   "evidence": "G12 루트 줄 정정의 원 줄 보존",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[108]/consts[28]/src_line",
+   "kind": "정정",
+   "old": 71,
+   "new": 1010,
+   "evidence": "G12(20차 G 기계): src_line 규약 = 명세 src 파일의 **루트 줄**(인라인 콜리 파일 줄 71 가 아님) · IR 사슬 관측 루트 후보가 1010 하나뿐",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[108]/consts[28]/meaning",
+   "kind": "보강",
+   "old": "300000²+1 — DL71 타워 근처 적 챔프 · aux PT184 engaged_at_tower 아군 챔프",
+   "new": "300000²+1 — DL71 타워 근처 적 챔프 · aux PT184 engaged_at_tower 아군 챔프 [인라인 콜리 줄 71 → 루트 1010 · 20차 G]",
+   "evidence": "G12 루트 줄 정정의 원 줄 보존",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[108]/consts[30]/src_line",
+   "kind": "정정",
+   "old": 176,
+   "new": 1016,
+   "evidence": "G12(20차 G 기계): src_line 규약 = 명세 src 파일의 **루트 줄**(인라인 콜리 파일 줄 176 가 아님) · IR 사슬 관측 루트 후보가 1016 하나뿐",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[108]/consts[30]/meaning",
+   "kind": "보강",
+   "old": "PT176 minion_state.from_mid < -1000 (해당 라인 미니언 열세) → engaged 아니면 해제",
+   "new": "PT176 minion_state.from_mid < -1000 (해당 라인 미니언 열세) → engaged 아니면 해제 [인라인 콜리 줄 176 → 루트 1016 · 20차 G]",
+   "evidence": "G12 루트 줄 정정의 원 줄 보존",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[108]/consts[31]/src_line",
+   "kind": "정정",
+   "old": 200,
+   "new": 1016,
+   "evidence": "G12(20차 G 기계): src_line 규약 = 명세 src 파일의 **루트 줄**(인라인 콜리 파일 줄 200 가 아님) · IR 사슬 관측 루트 후보가 1016 하나뿐",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[108]/consts[31]/meaning",
+   "kind": "보강",
+   "old": "PT200 다른 라인 from_mid < -2999 && minion_count < -2 → 해제(15)",
+   "new": "PT200 다른 라인 from_mid < -2999 && minion_count < -2 → 해제(15) [인라인 콜리 줄 200 → 루트 1016 · 20차 G]",
+   "evidence": "G12 루트 줄 정정의 원 줄 보존",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[108]/consts[42]/src_line",
+   "kind": "정정",
+   "old": 1220,
+   "new": 946,
+   "evidence": "G12(20차 G 기계): src_line 규약 = 명세 src 파일의 **루트 줄**(인라인 콜리 파일 줄 1220 가 아님) · IR 사슬 관측 루트 후보가 946 하나뿐",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[108]/consts[42]/meaning",
+   "kind": "보강",
+   "old": "Chat 44 GankDive{line} (G1220)",
+   "new": "Chat 44 GankDive{line} (G1220) [인라인 콜리 줄 1220 → 루트 946 · 20차 G]",
+   "evidence": "G12 루트 줄 정정의 원 줄 보존",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[109]/consts[14]/src_line",
+   "kind": "정정",
+   "old": 1073,
+   "new": 1375,
+   "evidence": "G12(20차 G 기계): src_line 규약 = 명세 src 파일의 **루트 줄**(인라인 콜리 파일 줄 1073 가 아님) · IR 사슬 관측 루트 후보가 1375 하나뿐",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[109]/consts[14]/meaning",
+   "kind": "보강",
+   "old": "200000^2 + 1 — dive_entry_soaker(fight_model.rs:1073) 아군 후보 반경",
+   "new": "200000^2 + 1 — dive_entry_soaker(fight_model.rs:1073) 아군 후보 반경 [인라인 콜리 줄 1073 → 루트 1375 · 20차 G]",
+   "evidence": "G12 루트 줄 정정의 원 줄 보존",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[110]/consts[12]/src_line",
+   "kind": "정정",
+   "old": 391,
+   "new": 672,
+   "evidence": "G12(20차 G 기계): src_line 규약 = 명세 src 파일의 **루트 줄**(인라인 콜리 파일 줄 391 가 아님) · IR 사슬 관측 루트 후보가 672 하나뿐",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[110]/consts[12]/meaning",
+   "kind": "보강",
+   "old": "Option<MainObjective> None 태그(objective.is_none → 392~455 블록 스킵)",
+   "new": "Option<MainObjective> None 태그(objective.is_none → 392~455 블록 스킵) [인라인 콜리 줄 391 → 루트 672 · 20차 G]",
+   "evidence": "G12 루트 줄 정정의 원 줄 보존",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[110]/consts[61]/src_line",
+   "kind": "정정",
+   "old": 858,
+   "new": 196,
+   "evidence": "G12(20차 G 기계): src_line 규약 = 명세 src 파일의 **루트 줄**(인라인 콜리 파일 줄 858 가 아님) · IR 사슬 관측 루트 후보가 196 하나뿐",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[110]/consts[61]/meaning",
+   "kind": "보강",
+   "old": "solokill L196 near_enemies retain: dist <= (max_range_cached+30000)² (aux m01.ll 45456~)",
+   "new": "solokill L196 near_enemies retain: dist <= (max_range_cached+30000)² (aux m01.ll 45456~) [인라인 콜리 줄 858 → 루트 196 · 20차 G]",
+   "evidence": "G12 루트 줄 정정의 원 줄 보존",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[110]/consts[62]/src_line",
+   "kind": "정정",
+   "old": 305,
+   "new": 307,
+   "evidence": "G12(20차 G 기계): src_line 규약 = 명세 src 파일의 **루트 줄**(인라인 콜리 파일 줄 305 가 아님) · IR 사슬 관측 루트 후보가 307 하나뿐",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[110]/consts[62]/meaning",
+   "kind": "보강",
+   "old": "closure#8 L307: 아군 dist(nearest_enemy) <= (max_range_cached(data, ally, nearest_enemy)+40000)² (aux)",
+   "new": "closure#8 L307: 아군 dist(nearest_enemy) <= (max_range_cached(data, ally, nearest_enemy)+40000)² (aux) [인라인 콜리 줄 305 → 루트 307 · 20차 G]",
+   "evidence": "G12 루트 줄 정정의 원 줄 보존",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[108]/mem[27]/name",
+   "kind": "보강",
+   "old": "info.position",
+   "new": "info.position@tag",
+   "evidence": "G20 R1 명명 통일(20차 배치G · r11 신규): (PlayerState 0x9c0) 정본 = `info.position@tag`(검증된 구 명세 다수결 · 접두/접미 변형만 통일). 값·오프셋 불변",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[102]/mem[9]/name",
+   "kind": "보강",
+   "old": "player_champion[team][pos] / [enemy_team][0..5]",
+   "new": "player_champion / [enemy_team][0..5]",
+   "evidence": "G20 R1 명명 통일(20차 배치G · r11 신규): (AbstractGameWithCache 0x1e0) 정본 = `player_champion`(검증된 구 명세 다수결 · 접두/접미 변형만 통일). 값·오프셋 불변",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[103]/mem[9]/name",
+   "kind": "보강",
+   "old": "player_champion[team][pos]",
+   "new": "player_champion",
+   "evidence": "G20 R1 명명 통일(20차 배치G · r11 신규): (AbstractGameWithCache 0x1e0) 정본 = `player_champion`(검증된 구 명세 다수결 · 접두/접미 변형만 통일). 값·오프셋 불변",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[104]/mem[46]/name",
+   "kind": "보강",
+   "old": "player_champion[team][pos]",
+   "new": "player_champion",
+   "evidence": "G20 R1 명명 통일(20차 배치G · r11 신규): (AbstractGameWithCache 0x1e0) 정본 = `player_champion`(검증된 구 명세 다수결 · 접두/접미 변형만 통일). 값·오프셋 불변",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[105]/mem[27]/name",
+   "kind": "보강",
+   "old": "player_champion[team][pos]",
+   "new": "player_champion",
+   "evidence": "G20 R1 명명 통일(20차 배치G · r11 신규): (AbstractGameWithCache 0x1e0) 정본 = `player_champion`(검증된 구 명세 다수결 · 접두/접미 변형만 통일). 값·오프셋 불변",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[106]/mem[11]/name",
+   "kind": "보강",
+   "old": "player_champion[team][pos]",
+   "new": "player_champion",
+   "evidence": "G20 R1 명명 통일(20차 배치G · r11 신규): (AbstractGameWithCache 0x1e0) 정본 = `player_champion`(검증된 구 명세 다수결 · 접두/접미 변형만 통일). 값·오프셋 불변",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[107]/mem[29]/name",
+   "kind": "보강",
+   "old": "player_champion[][]",
+   "new": "player_champion",
+   "evidence": "G20 R1 명명 통일(20차 배치G · r11 신규): (AbstractGameWithCache 0x1e0) 정본 = `player_champion`(검증된 구 명세 다수결 · 접두/접미 변형만 통일). 값·오프셋 불변",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[108]/mem[41]/name",
+   "kind": "보강",
+   "old": "player_champion[team][pos]",
+   "new": "player_champion",
+   "evidence": "G20 R1 명명 통일(20차 배치G · r11 신규): (AbstractGameWithCache 0x1e0) 정본 = `player_champion`(검증된 구 명세 다수결 · 접두/접미 변형만 통일). 값·오프셋 불변",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[109]/mem[33]/name",
+   "kind": "보강",
+   "old": "player_champion[2][5]",
+   "new": "player_champion",
+   "evidence": "G20 R1 명명 통일(20차 배치G · r11 신규): (AbstractGameWithCache 0x1e0) 정본 = `player_champion`(검증된 구 명세 다수결 · 접두/접미 변형만 통일). 값·오프셋 불변",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[102]/mem[35]/name",
+   "kind": "보강",
+   "old": "visible_state[team]@tag",
+   "new": "visible_state",
+   "evidence": "G20 R1 명명 통일(20차 배치G · r11 신규): (Entity 0x38) 정본 = `visible_state`(검증된 구 명세 다수결 · 접두/접미 변형만 통일). 값·오프셋 불변",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[106]/mem[21]/name",
+   "kind": "보강",
+   "old": "visible_state[t]@tag",
+   "new": "visible_state",
+   "evidence": "G20 R1 명명 통일(20차 배치G · r11 신규): (Entity 0x38) 정본 = `visible_state`(검증된 구 명세 다수결 · 접두/접미 변형만 통일). 값·오프셋 불변",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[108]/mem[65]/name",
+   "kind": "보강",
+   "old": "visible_state[t]@tag",
+   "new": "visible_state",
+   "evidence": "G20 R1 명명 통일(20차 배치G · r11 신규): (Entity 0x38) 정본 = `visible_state`(검증된 구 명세 다수결 · 접두/접미 변형만 통일). 값·오프셋 불변",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[110]/mem[20]/name",
+   "kind": "보강",
+   "old": "visible_state[i]@tag (24B stride)",
+   "new": "visible_state (24B stride)",
+   "evidence": "G20 R1 명명 통일(20차 배치G · r11 신규): (Entity 0x38) 정본 = `visible_state`(검증된 구 명세 다수결 · 접두/접미 변형만 통일). 값·오프셋 불변",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[107]/mem[44]/name",
+   "kind": "보강",
+   "old": "epic_minion_buff_time[]",
+   "new": "epic_minion_buff_time[team]",
+   "evidence": "G20 R1 명명 통일(20차 배치G · r11 신규): (MobaMode 0x240) 정본 = `epic_minion_buff_time[team]`(검증된 구 명세 다수결 · 접두/접미 변형만 통일). 값·오프셋 불변",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[110]/mem[50]/name",
+   "kind": "보강",
+   "old": "twin_towers[2] (bumpalo Vec 32B, +0x18 len)",
+   "new": "twin_towers[team] (bumpalo Vec 32B, +0x18 len)",
+   "evidence": "G20 R1 명명 통일(20차 배치G · r11 신규): (AbstractGameWithCache 0x130) 정본 = `twin_towers[team]`(검증된 구 명세 다수결 · 접두/접미 변형만 통일). 값·오프셋 불변",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[110]/mem[52]/name",
+   "kind": "보강",
+   "old": "top_tower / +0x1a0 mid_tower / +0x1c0 bottom_tower (line*32)",
+   "new": "top_tower[] / +0x1a0 mid_tower / +0x1c0 bottom_tower (line*32)",
+   "evidence": "G20 R1 명명 통일(20차 배치G · r11 신규): (AbstractGameWithCache 0x180) 정본 = `top_tower[]`(검증된 구 명세 다수결 · 접두/접미 변형만 통일). 값·오프셋 불변",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[107]/mem[25]/name",
+   "kind": "보강",
+   "old": "mid_tower[]",
+   "new": "mid_tower[아군팀]",
+   "evidence": "G20 R1 명명 통일(20차 배치G · r11 신규): (AbstractGameWithCache 0x1a0) 정본 = `mid_tower[아군팀]`(검증된 구 명세 다수결 · 접두/접미 변형만 통일). 값·오프셋 불변",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[107]/mem[26]/name",
+   "kind": "보강",
+   "old": "mid_tower2[]",
+   "new": "mid_tower2[아군팀]",
+   "evidence": "G20 R1 명명 통일(20차 배치G · r11 신규): (AbstractGameWithCache 0x1b0) 정본 = `mid_tower2[아군팀]`(검증된 구 명세 다수결 · 접두/접미 변형만 통일). 값·오프셋 불변",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[107]/mem[27]/name",
+   "kind": "보강",
+   "old": "bottom_tower[]",
+   "new": "bottom_tower[아군팀]",
+   "evidence": "G20 R1 명명 통일(20차 배치G · r11 신규): (AbstractGameWithCache 0x1c0) 정본 = `bottom_tower[아군팀]`(검증된 구 명세 다수결 · 접두/접미 변형만 통일). 값·오프셋 불변",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[107]/mem[28]/name",
+   "kind": "보강",
+   "old": "bottom_tower2[]",
+   "new": "bottom_tower2[아군팀]",
+   "evidence": "G20 R1 명명 통일(20차 배치G · r11 신규): (AbstractGameWithCache 0x1d0) 정본 = `bottom_tower2[아군팀]`(검증된 구 명세 다수결 · 접두/접미 변형만 통일). 값·오프셋 불변",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[110]/mem[65]/name",
+   "kind": "보강",
+   "old": "morgard_defense@tag",
+   "new": "morgard_defense",
+   "evidence": "G20 R1 명명 통일(20차 배치G · r11 신규): (Strategy 0xe) 정본 = `morgard_defense`(검증된 구 명세 다수결 · 접두/접미 변형만 통일). 값·오프셋 불변",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[104]/mem[2]/name",
+   "kind": "보강",
+   "old": "plan@tag",
+   "new": "plan",
+   "evidence": "G20 R1 명명 통일(20차 배치G · r11 신규): (LegacyPlanHandler 0x5e8) 정본 = `plan`(검증된 구 명세 다수결 · 접두/접미 변형만 통일). 값·오프셋 불변",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[104]/mem[73]/name",
+   "kind": "보강",
+   "old": "plan@tag",
+   "new": "plan",
+   "evidence": "G20 R1 명명 통일(20차 배치G · r11 신규): (LegacyPlanHandler 0x5e8) 정본 = `plan`(검증된 구 명세 다수결 · 접두/접미 변형만 통일). 값·오프셋 불변",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[105]/mem[4]/name",
+   "kind": "보강",
+   "old": "plan@tag",
+   "new": "plan",
+   "evidence": "G20 R1 명명 통일(20차 배치G · r11 신규): (LegacyPlanHandler 0x5e8) 정본 = `plan`(검증된 구 명세 다수결 · 접두/접미 변형만 통일). 값·오프셋 불변",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[110]/mem[32]/name",
+   "kind": "보강",
+   "old": "plan@tag",
+   "new": "plan",
+   "evidence": "G20 R1 명명 통일(20차 배치G · r11 신규): (LegacyPlanHandler 0x5e8) 정본 = `plan`(검증된 구 명세 다수결 · 접두/접미 변형만 통일). 값·오프셋 불변",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[110]/mem[72]/name",
+   "kind": "보강",
+   "old": "plan@tag",
+   "new": "plan",
+   "evidence": "G20 R1 명명 통일(20차 배치G · r11 신규): (LegacyPlanHandler 0x5e8) 정본 = `plan`(검증된 구 명세 다수결 · 접두/접미 변형만 통일). 값·오프셋 불변",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[106]/mem[0]/name",
+   "kind": "보강",
+   "old": "objective@tag",
+   "new": "objective",
+   "evidence": "G20 R1 명명 통일(20차 배치G · r11 신규): (TeamPlan 0x41f) 정본 = `objective`(검증된 구 명세 다수결 · 접두/접미 변형만 통일). 값·오프셋 불변",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[107]/mem[57]/name",
+   "kind": "보강",
+   "old": "objective@tag",
+   "new": "objective",
+   "evidence": "G20 R1 명명 통일(20차 배치G · r11 신규): (TeamPlan 0x41f) 정본 = `objective`(검증된 구 명세 다수결 · 접두/접미 변형만 통일). 값·오프셋 불변",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[108]/mem[0]/name",
+   "kind": "보강",
+   "old": "objective@tag",
+   "new": "objective",
+   "evidence": "G20 R1 명명 통일(20차 배치G · r11 신규): (TeamPlan 0x41f) 정본 = `objective`(검증된 구 명세 다수결 · 접두/접미 변형만 통일). 값·오프셋 불변",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[108]/mem[77]/name",
+   "kind": "보강",
+   "old": "objective@tag",
+   "new": "objective",
+   "evidence": "G20 R1 명명 통일(20차 배치G · r11 신규): (TeamPlan 0x41f) 정본 = `objective`(검증된 구 명세 다수결 · 접두/접미 변형만 통일). 값·오프셋 불변",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[110]/mem[43]/name",
+   "kind": "보강",
+   "old": "object_finish@tag",
+   "new": "object_finish",
+   "evidence": "G20 R1 명명 통일(20차 배치G · r11 신규): (Strategy 0xf) 정본 = `object_finish`(검증된 구 명세 다수결 · 접두/접미 변형만 통일). 값·오프셋 불변",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[104]/mem[0]/name",
+   "kind": "보강",
+   "old": "team_plan.objective@tag",
+   "new": "team_plan.objective",
+   "evidence": "G20 R1 명명 통일(20차 배치G · r11 신규): (LegacyPlanHandler 0x517) 정본 = `team_plan.objective`(검증된 구 명세 다수결 · 접두/접미 변형만 통일). 값·오프셋 불변",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[104]/mem[70]/name",
+   "kind": "보강",
+   "old": "team_plan.objective@tag",
+   "new": "team_plan.objective",
+   "evidence": "G20 R1 명명 통일(20차 배치G · r11 신규): (LegacyPlanHandler 0x517) 정본 = `team_plan.objective`(검증된 구 명세 다수결 · 접두/접미 변형만 통일). 값·오프셋 불변",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[105]/mem[2]/name",
+   "kind": "보강",
+   "old": "team_plan.objective@tag",
+   "new": "team_plan.objective",
+   "evidence": "G20 R1 명명 통일(20차 배치G · r11 신규): (LegacyPlanHandler 0x517) 정본 = `team_plan.objective`(검증된 구 명세 다수결 · 접두/접미 변형만 통일). 값·오프셋 불변",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[110]/mem[29]/name",
+   "kind": "보강",
+   "old": "team_plan.objective@tag",
+   "new": "team_plan.objective",
+   "evidence": "G20 R1 명명 통일(20차 배치G · r11 신규): (LegacyPlanHandler 0x517) 정본 = `team_plan.objective`(검증된 구 명세 다수결 · 접두/접미 변형만 통일). 값·오프셋 불변",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[110]/mem[59]/name",
+   "kind": "보강",
+   "old": "ty@Tower.info.ty@tag (TowerType 1B)",
+   "new": "ty@Tower.info.ty (TowerType 1B)",
+   "evidence": "G20 R1 명명 통일(20차 배치G · r11 신규): (Entity 0x128) 정본 = `ty@Tower.info.ty`(검증된 구 명세 다수결 · 접두/접미 변형만 통일). 값·오프셋 불변",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[110]/mem[57]/name",
+   "kind": "보강",
+   "old": "bushes[30][30] (usize)",
+   "new": "bushes (usize)",
+   "evidence": "G20 R1 명명 통일(20차 배치G · r11 신규): (MapDef 0x1c98) 정본 = `bushes`(검증된 구 명세 다수결 · 접두/접미 변형만 통일). 값·오프셋 불변",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[104]/mem[67]/name",
+   "kind": "보강",
+   "old": "morgard_use@tag",
+   "new": "morgard_use",
+   "evidence": "G20 R1 명명 통일(20차 배치G · r11 신규): (Strategy 0x4) 정본 = `morgard_use`(검증된 구 명세 다수결 · 접두/접미 변형만 통일). 값·오프셋 불변",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[108]/mem[4]/name",
+   "kind": "보강",
+   "old": "objective_discipline@tag",
+   "new": "objective_discipline.kind",
+   "evidence": "G20 R1 명명 통일(20차 배치G · r11 신규): (TeamPlan 0x149) 정본 = `objective_discipline.kind`(검증된 구 명세 다수결 · 접두/접미 변형만 통일). 값·오프셋 불변",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[108]/mem[86]/name",
+   "kind": "보강",
+   "old": "objective_discipline@tag(kind)",
+   "new": "objective_discipline.kind(kind)",
+   "evidence": "G20 R1 명명 통일(20차 배치G · r11 신규): (TeamPlan 0x149) 정본 = `objective_discipline.kind`(검증된 구 명세 다수결 · 접두/접미 변형만 통일). 값·오프셋 불변",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[102]/mem[10]/name",
+   "kind": "보강",
+   "old": "nexus[enemy_team] / nexus[team]",
+   "new": "nexus[team] / nexus[team]",
+   "evidence": "G20 R1 명명 통일(20차 배치G · r11 신규): (AbstractGameWithCache 0x170) 정본 = `nexus[team]`(검증된 구 명세 다수결 · 접두/접미 변형만 통일). 값·오프셋 불변",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[107]/mem[22]/name",
+   "kind": "보강",
+   "old": "nexus[]",
+   "new": "nexus[team]",
+   "evidence": "G20 R1 명명 통일(20차 배치G · r11 신규): (AbstractGameWithCache 0x170) 정본 = `nexus[team]`(검증된 구 명세 다수결 · 접두/접미 변형만 통일). 값·오프셋 불변",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[110]/mem[51]/name",
+   "kind": "보강",
+   "old": "nexus[2]",
+   "new": "nexus[team]",
+   "evidence": "G20 R1 명명 통일(20차 배치G · r11 신규): (AbstractGameWithCache 0x170) 정본 = `nexus[team]`(검증된 구 명세 다수결 · 접두/접미 변형만 통일). 값·오프셋 불변",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[109]/mem[67]/name",
+   "kind": "보강",
+   "old": "rescue_ally",
+   "new": "rescue_ally@tag",
+   "evidence": "G20 R1 명명 통일(20차 배치G · r11 신규): (FightPrediction 0x20) 정본 = `rescue_ally@tag`(검증된 구 명세 다수결 · 접두/접미 변형만 통일). 값·오프셋 불변",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[109]/mem[38]/name",
+   "kind": "보강",
+   "old": "ally_battle_stop_tick[5]",
+   "new": "ally_battle_stop_tick[]",
+   "evidence": "G20 R1 명명 통일(20차 배치G · r11 신규): (TeamPlan 0x0) 정본 = `ally_battle_stop_tick[]`(검증된 구 명세 다수결 · 접두/접미 변형만 통일). 값·오프셋 불변",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[102]/mem[32]/name",
+   "kind": "보강",
+   "old": "main_objective",
+   "new": "main_objective@tag",
+   "evidence": "G20 R1 명명 통일(20차 배치G · r11 신규): (BattlePlan 0xff) 정본 = `main_objective@tag`(검증된 구 명세 다수결 · 접두/접미 변형만 통일). 값·오프셋 불변",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[102]/mem[46]/name",
+   "kind": "보강",
+   "old": "main_objective",
+   "new": "main_objective@tag",
+   "evidence": "G20 R1 명명 통일(20차 배치G · r11 신규): (BattlePlan 0xff) 정본 = `main_objective@tag`(검증된 구 명세 다수결 · 접두/접미 변형만 통일). 값·오프셋 불변",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[110]/mem[63]/name",
+   "kind": "보강",
+   "old": "main_objective (Option<MainObjective> 3B)",
+   "new": "main_objective@tag (Option<MainObjective> 3B)",
+   "evidence": "G20 R1 명명 통일(20차 배치G · r11 신규): (BattlePlan 0xff) 정본 = `main_objective@tag`(검증된 구 명세 다수결 · 접두/접미 변형만 통일). 값·오프셋 불변",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[109]/mem[64]/name",
+   "kind": "보강",
+   "old": "big_goal[5] (stride 32: +0xf8 tag, +0x100 focus tag, +0x108 focus id)",
+   "new": "big_goal[i] (stride 32: +0xf8 tag, +0x100 focus tag, +0x108 focus id)",
+   "evidence": "G20 R1 명명 통일(20차 배치G · r11 신규): (Blackboard 0xf0) 정본 = `big_goal[i]`(검증된 구 명세 다수결 · 접두/접미 변형만 통일). 값·오프셋 불변",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[108]/mem[20]/name",
+   "kind": "보강",
+   "old": "vision.last_visible_pos[p]",
+   "new": "vision.last_visible_pos[i]",
+   "evidence": "G20 R1 명명 통일(20차 배치G · r11 신규): (TeamPlan 0x230) 정본 = `vision.last_visible_pos[i]`(검증된 구 명세 다수결 · 접두/접미 변형만 통일). 값·오프셋 불변",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[106]/mem[3]/name",
+   "kind": "보강",
+   "old": "vision.last_checked_ticks[p]",
+   "new": "vision.last_checked_ticks[i]",
+   "evidence": "G20 R1 명명 통일(20차 배치G · r11 신규): (TeamPlan 0x2d0) 정본 = `vision.last_checked_ticks[i]`(검증된 구 명세 다수결 · 접두/접미 변형만 통일). 값·오프셋 불변",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[108]/mem[21]/name",
+   "kind": "보강",
+   "old": "vision.last_checked_ticks[p]",
+   "new": "vision.last_checked_ticks[i]",
+   "evidence": "G20 R1 명명 통일(20차 배치G · r11 신규): (TeamPlan 0x2d0) 정본 = `vision.last_checked_ticks[i]`(검증된 구 명세 다수결 · 접두/접미 변형만 통일). 값·오프셋 불변",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[107]/mem[64]/name",
+   "kind": "보강",
+   "old": "obj_spawn.epic_giveup_tick",
+   "new": "obj_spawn.epic_giveup_tick@tag",
+   "evidence": "G20 R1 명명 통일(20차 배치G · r11 신규): (TeamPlan 0x50) 정본 = `obj_spawn.epic_giveup_tick@tag`(검증된 구 명세 다수결 · 접두/접미 변형만 통일). 값·오프셋 불변",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[108]/mem[89]/name",
+   "kind": "보강",
+   "old": "obj_spawn.epic_giveup_tick",
+   "new": "obj_spawn.epic_giveup_tick@tag",
+   "evidence": "G20 R1 명명 통일(20차 배치G · r11 신규): (TeamPlan 0x50) 정본 = `obj_spawn.epic_giveup_tick@tag`(검증된 구 명세 다수결 · 접두/접미 변형만 통일). 값·오프셋 불변",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[107]/mem[2]/name",
+   "kind": "보강",
+   "old": "obj_spawn.serpen_giveup_tick@tag",
+   "new": "obj_spawn.serpen_giveup_tick",
+   "evidence": "G20 R1 명명 통일(20차 배치G · r11 신규): (TeamPlan 0x60) 정본 = `obj_spawn.serpen_giveup_tick`(검증된 구 명세 다수결 · 접두/접미 변형만 통일). 값·오프셋 불변",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[108]/mem[14]/name",
+   "kind": "보강",
+   "old": "obj_spawn.serpen_giveup_tick@tag",
+   "new": "obj_spawn.serpen_giveup_tick",
+   "evidence": "G20 R1 명명 통일(20차 배치G · r11 신규): (TeamPlan 0x60) 정본 = `obj_spawn.serpen_giveup_tick`(검증된 구 명세 다수결 · 접두/접미 변형만 통일). 값·오프셋 불변",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[104]/mem[69]/name",
+   "kind": "보강",
+   "old": "sub_goal",
+   "new": "sub_goal@tag",
+   "evidence": "G20 R1 명명 통일(20차 배치G · r11 신규): (BattlePlan 0x58) 정본 = `sub_goal@tag`(검증된 구 명세 다수결 · 접두/접미 변형만 통일). 값·오프셋 불변",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[103]/mem[10]/name",
+   "kind": "보강",
+   "old": "player_champion_cache[team][pos]",
+   "new": "player_champion_cache[][]",
+   "evidence": "G20 R1 명명 통일(20차 배치G · r11 신규): (AbstractGameWithCache 0x280) 정본 = `player_champion_cache[][]`(검증된 구 명세 다수결 · 접두/접미 변형만 통일). 값·오프셋 불변",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[103]/mem[76]/name",
+   "kind": "보강",
+   "old": "small_actions[idx]",
+   "new": "small_actions[pos]@tag",
+   "evidence": "G20 R1 명명 통일(20차 배치G · r11 신규): (Blackboard 0x78) 정본 = `small_actions[pos]@tag`(검증된 구 명세 다수결 · 접두/접미 변형만 통일). 값·오프셋 불변",
+   "behavior_change": false,
+   "found_by": "reused"
+  }
+ ],
+ "ev_up": [],
+ "brief_errors": []
+}

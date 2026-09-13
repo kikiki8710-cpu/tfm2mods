@@ -1,0 +1,42 @@
+# specs[103] position_risk_all_zero_near src=game-ai\src\position_eval.rs
+consts[0] value=2 claimed=1271 OK own-root-lines=[1271, 1300, 1321, 1407]
+consts[1] value=3 claimed=1275 **MISS** own-root-lines=[1276, 1278, 1315, 1324, 1333]
+     m07.ll:34366 root=position_eval.rs:1276  %37 = add i64 %34, 3, !dbg !47980
+     m07.ll:34380 root=position_eval.rs:1278  %43 = add i64 %40, 3, !dbg !47994
+     m07.ll:34951 root=position_eval.rs:1315  %285 = sdiv i64 %284, 3, !dbg !48449
+     m07.ll:35115 root=position_eval.rs:1324  %369 = sdiv i64 %368, 3, !dbg !48509
+     m07.ll:35280 root=position_eval.rs:1333  %452 = sdiv i64 %451, 3, !dbg !48568
+consts[2] value=29 claimed=1276 OK own-root-lines=[1276, 1278]
+consts[3] value=32000 claimed=1279 OK own-root-lines=[1279, 1280, 1281, 1282, 1366, 1427]
+consts[4] value=16000 claimed=1279 OK own-root-lines=[1279, 1280, 1281, 1282]
+consts[5] value=64001 claimed=1284 OK own-root-lines=[1284]
+consts[6] value=960001 claimed=1284 OK own-root-lines=[1284]
+consts[7] value=799999 claimed=1284 OK own-root-lines=[1284]
+consts[8] value=160001 claimed=1284 OK own-root-lines=[1284]
+consts[9] value=895999 claimed=1284 OK own-root-lines=[1284]
+consts[10] value=40000000001 claimed=1293 **MISS** own-root-lines=[]
+     m07.ll:61316 root=function.rs:298  %50 = icmp ult i64 %49, 40000000001, !dbg !72568
+consts[11] value=-1 claimed=1302 OK own-root-lines=[1302, 1305, 1306, 1308, 1312, 1317, 1321, 1326, 1330, 1335, 1342, 1364, 1366, 1367, 1373, 1375, 1376, 1392, 1397, 1398, 1401, 1416, 1417, 1426, 1427, 1429, 1446]
+consts[12] value=100000 claimed=1302 OK own-root-lines=[1302]
+consts[13] value=50000 claimed=1306 OK own-root-lines=[1306, 1313, 1322, 1331]
+consts[14] value=100 claimed=1307 OK own-root-lines=[1307, 1314, 1323, 1332, 1348, 1366, 1375, 1399, 1400, 1405, 1427, 1446]
+consts[15] value=181 claimed=1316 OK own-root-lines=[1316, 1325, 1334]
+consts[16] value=13 claimed=1316 OK own-root-lines=[1316, 1325, 1334]
+consts[17] value=4 claimed=1330 OK own-root-lines=[1330, 1341]
+consts[18] value=5 claimed=1362 **MISS** own-root-lines=[]
+     m12.ll:21672 root=map.rs:121  %30 = icmp ult i64 %22, 5, !dbg !41694
+     m12.ll:21680 root=map.rs:121  call void @_RNvNtCsjihNppCmMEE_4core9panicking18panic_bounds_check(i64 noundef %22, i64 noundef 5, p
+consts[19] value=-9223372036854775808 claimed=1341 OK own-root-lines=[1341]
+consts[20] value=20000 claimed=1348 OK own-root-lines=[1348]
+consts[21] value=22499999999 claimed=1359 OK own-root-lines=[1359, 1393]
+consts[22] value=22500000000 claimed=1415 OK own-root-lines=[1415, 1423]
+consts[23] value=4900000000 claimed=1394 OK own-root-lines=[1394]
+consts[24] value=18000 claimed=1398 OK own-root-lines=[1398]
+consts[25] value=14400000001 claimed=1417 OK own-root-lines=[1417]
+consts[26] value=62499999999 claimed=1438 OK own-root-lines=[1438]
+consts[27] value=10 claimed=1439 OK own-root-lines=[1439]
+consts[28] value=9 claimed=1436 OK own-root-lines=[1436, 1446]
+consts[29] value=7 claimed=1436 OK own-root-lines=[1436, 1446]
+consts[30] value=33000 claimed=1446 OK own-root-lines=[1446]
+consts[31] value=1 claimed=1405 OK own-root-lines=[1274, 1284, 1308, 1317, 1326, 1335, 1342, 1367, 1376, 1392, 1401, 1405, 1406, 1417, 1429, 1436, 1446]
+consts[32] value=0 claimed=1308 OK own-root-lines=[1275, 1277, 1294, 1301, 1307, 1308, 1316, 1317, 1325, 1326, 1334, 1335, 1341, 1342, 1365, 1366, 1367, 1372, 1374, 1375, 1376, 1399, 1400, 1401, 1405, 1406, 1414, 1416, 1417, 1427, 1428, 1429, 1436, 1439, 1445, 1446]

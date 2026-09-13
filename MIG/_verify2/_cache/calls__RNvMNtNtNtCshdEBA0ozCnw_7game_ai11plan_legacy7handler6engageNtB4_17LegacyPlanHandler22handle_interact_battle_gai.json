@@ -1,0 +1,1 @@
+[{"corpus": "gai", "file": "m13.ll", "line": 20242, "text": "invoke fastcc void @_RNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy7handler6engageNtB4_17LegacyPlanHandler22handle_interact_battle(ptr noalias noundef nonnull align 8 dereferenceable(6168) %0, i64 noundef %2078, ptr noali"}]

@@ -1,0 +1,958 @@
+{
+ "name": "TeamPlan::handle_none_or_gank_objective",
+ "sym": "_RNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy9team_plan18objective_handlersNtB4_8TeamPlan29handle_none_or_gank_objective",
+ "src": "game-ai\\src\\plan_legacy\\team_plan\\objective_handlers.rs",
+ "src_line": 830,
+ "ir_file": "m09.ll",
+ "ir_from": 9043,
+ "ir_to": 15165,
+ "aux": [
+  {
+   "ir_file": "m09.ll",
+   "ir_from": 3343,
+   "ir_to": 3457,
+   "note": "closure s5_0 = L1028~1033 skip_force 술어(에픽 셋업 시 정글 캠프 근처·캠프 몹 피해 여부). env 40B {&camp_pos.x,&camp_pos.y,&camp_live,game.data_ptr,game.vtable_ptr}, (x,y)"
+  },
+  {
+   "ir_file": "m09.ll",
+   "ir_from": 3460,
+   "ir_to": 3574,
+   "note": "closure s6_0 = L1075~1080 skip_force 술어(세르펜 셋업). s5_0 과 심볼명만 다른 바이트 동일 복제(ann 주석본 diff 4줄=define 줄뿐)"
+  }
+ ],
+ "one_line": "팀 목표가 None/Gank 일 때 다음 팀 목표(넥서스공격/넥서스수비/라인수비/에픽·세르펜 헌트/타워압박/컴백픽/귀환/에픽·세르펜 셋업/에픽버프 압박)를 우선순위 사슬로 하나 골라 self.objective·plan·chats 에 쓴다",
+ "signature": {
+  "params": [
+   {
+    "i": 1,
+    "name": "self",
+    "type": "&mut TeamPlan(1064B)",
+    "note": "%0. noalias·align8·dereferenceable(1064), readonly 없음 → &mut. objective/chats/obj_spawn/press_tower_start_tick/comeback_* 등 쓰기"
+   },
+   {
+    "i": 2,
+    "name": "version",
+    "type": "usize",
+    "note": "%1. AI 버전 게이트. 본문 분기 4곳: L876·L923·L1052·L1119/1126 전부 `version > 1`(=v2+) 판정. 그 외는 콜리에 그대로 전달"
+   },
+   {
+    "i": 3,
+    "name": "rnd",
+    "type": "&mut StdRng(320B)",
+    "note": "%2. align16·readonly 없음 → &mut. 본문 직접 사용 0, 콜리 전달만"
+   },
+   {
+    "i": 4,
+    "name": "player",
+    "type": "&PlayerState(2528B)",
+    "note": "%3. readonly. info.team(0x930)·info.position(0x9c0) 읽음"
+   },
+   {
+    "i": 5,
+    "name": "data",
+    "type": "&OperationData(24B)",
+    "note": "%4. readonly. cache(+0)/context(+8)/blackboard(+0x10)"
+   },
+   {
+    "i": 6,
+    "name": "goal_data",
+    "type": "&GoalData(248B)",
+    "note": "%5. readonly. last_base_defense_tick(0xe8) 읽음 + 콜리 전달"
+   },
+   {
+    "i": 7,
+    "name": "plan",
+    "type": "&mut BigPlan(384B)",
+    "note": "%6. readonly 없음 → &mut. 본문에서 drop_glue 후 태그 store(ForcePassive=2 / ActiveRecall=8) 로 통째 교체"
+   },
+   {
+    "i": 8,
+    "name": "debug",
+    "type": "&mut DebugFrameData(224B)",
+    "note": "%7. readonly 없음 → &mut. 본문 직접 사용 0, 콜리 전달만"
+   }
+  ],
+  "returns": "() — ret void (L1131). %53 phi i1 은 죽은 값(사용처 없음). 결과는 전부 self/plan 부작용"
+ },
+ "reads": [
+  {
+   "base": "TeamPlan",
+   "offset": "0x220",
+   "name": "last_battle_tick",
+   "note": "L862 최근 교전 판정"
+  },
+  {
+   "base": "TeamPlan",
+   "offset": "0x50",
+   "name": "obj_spawn.epic_giveup_tick@tag",
+   "note": "L870·L1098 is_none 판정(i64 load→trunc i1)"
+  },
+  {
+   "base": "TeamPlan",
+   "offset": "0x60",
+   "name": "obj_spawn.serpen_giveup_tick@tag",
+   "note": "L874·L1100 is_none 판정(==0)"
+  },
+  {
+   "base": "TeamPlan",
+   "offset": "0x360",
+   "name": "comeback_pick_start_tick",
+   "note": "L941~942 쿨다운"
+  },
+  {
+   "base": "TeamPlan",
+   "offset": "0x368",
+   "name": "comeback_pick_attempt_count",
+   "note": "L962 +1 (read-modify-write)"
+  },
+  {
+   "base": "TeamPlan",
+   "offset": "0xc0",
+   "name": "chats.buf.cap",
+   "note": "push 인라인(용량 비교)"
+  },
+  {
+   "base": "TeamPlan",
+   "offset": "0xc8",
+   "name": "chats.buf.ptr",
+   "note": "push 인라인"
+  },
+  {
+   "base": "TeamPlan",
+   "offset": "0xd0",
+   "name": "chats.len",
+   "note": "push 인라인"
+  },
+  {
+   "base": "TeamPlan",
+   "offset": "0xd8",
+   "name": "comeback_pick_outcomes.buf.cap",
+   "note": "L963 push"
+  },
+  {
+   "base": "TeamPlan",
+   "offset": "0xe0",
+   "name": "comeback_pick_outcomes.buf.ptr",
+   "note": "L963 push"
+  },
+  {
+   "base": "TeamPlan",
+   "offset": "0xe8",
+   "name": "comeback_pick_outcomes.len",
+   "note": "L963 push"
+  },
+  {
+   "base": "OperationData",
+   "offset": "0x0",
+   "name": "cache",
+   "note": "&AbstractGameWithCache"
+  },
+  {
+   "base": "OperationData",
+   "offset": "0x8",
+   "name": "context",
+   "note": "&GameContext(64B)"
+  },
+  {
+   "base": "OperationData",
+   "offset": "0x10",
+   "name": "blackboard",
+   "note": "&[Blackboard;2]"
+  },
+  {
+   "base": "GameContext",
+   "offset": "0x8",
+   "name": "setting",
+   "note": "&GameSetting"
+  },
+  {
+   "base": "GameContext",
+   "offset": "0x20",
+   "name": "map",
+   "note": "&MapDef(28112B) — camp_pos 인자"
+  },
+  {
+   "base": "GameContext",
+   "offset": "0x38",
+   "name": "tutorial",
+   "note": "TutorialType. morgard_exists/serpen_exists/is_line_phase/valid_lines/player_count 전부 이 값의 switch"
+  },
+  {
+   "base": "GameSetting",
+   "offset": "0x12f8",
+   "name": "tick_per_second",
+   "note": "tps"
+  },
+  {
+   "base": "GameSetting",
+   "offset": "0x8a8",
+   "name": "epic_jungle.first_spawn_tick",
+   "note": "L910/L943 is_line_phase"
+  },
+  {
+   "base": "GameSetting",
+   "offset": "0x12c0",
+   "name": "height",
+   "note": "is_top_side/is_bottom_side (height - y) vs x"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x0",
+   "name": "game.data_ptr",
+   "note": "&dyn AbstractGame 데이터"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x8",
+   "name": "game.vtable_ptr",
+   "note": "슬롯 0x28 tick / 0x40 get_game_mode / 0x130 kill_logs / 0x1f0 get_entity_by_id / 0x208 iter_player (divtable AbstractGame)"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x170",
+   "name": "nexus[]",
+   "note": "L1450 nexus[enemy]"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x180",
+   "name": "top_tower[]",
+   "note": "tower(line,team) 인라인(L1290·L1448·L1531)"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x190",
+   "name": "top_tower2[]",
+   "note": ""
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x1a0",
+   "name": "mid_tower[]",
+   "note": ""
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x1b0",
+   "name": "mid_tower2[]",
+   "note": ""
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x1c0",
+   "name": "bottom_tower[]",
+   "note": ""
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x1d0",
+   "name": "bottom_tower2[]",
+   "note": ""
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x1e0",
+   "name": "player_champion[][]",
+   "note": "iter_champions(team) = +0x1e0 + team*40, 5칸 ptr; [team][1]=정글 포지션 챔프(0x1e8)"
+  },
+  {
+   "base": "PlayerState",
+   "offset": "0x930",
+   "name": "info.team",
+   "note": ""
+  },
+  {
+   "base": "PlayerState",
+   "offset": "0x9c0",
+   "name": "info.position@tag",
+   "note": "i32 Position(1=Jungle). L981 as_index / L985·L1023·L1070 ==Jungle"
+  },
+  {
+   "base": "PlayerState",
+   "offset": "0x5e8",
+   "name": "info.statistics.gold",
+   "note": "is_team_behind·comeback·L947/950 골드 합"
+  },
+  {
+   "base": "PlayerState",
+   "offset": "0x9c8",
+   "name": "play_state@tag",
+   "note": "0=Die. L928 dead(team) 카운트"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x5c0",
+   "name": "id",
+   "note": "고립 적 id (get_entity_by_id 인자)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x628",
+   "name": "stat_cached.hp",
+   "note": "최대 HP (hp*100/이 값 = HP%). 0 이면 div_by_zero 패닉"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x660",
+   "name": "x",
+   "note": ""
+  },
+  {
+   "base": "Entity",
+   "offset": "0x668",
+   "name": "y",
+   "note": ""
+  },
+  {
+   "base": "Entity",
+   "offset": "0x670",
+   "name": "hp",
+   "note": "현재 HP"
+  },
+  {
+   "base": "MobaMode",
+   "offset": "0x18",
+   "name": "jungle_runner",
+   "note": "get_jungle_live_list 인자(480B)"
+  },
+  {
+   "base": "MobaMode",
+   "offset": "0x1a8",
+   "name": "jungle_runner.epic.live_list.len",
+   "note": "에픽 생존 여부"
+  },
+  {
+   "base": "MobaMode",
+   "offset": "0x1b0",
+   "name": "jungle_runner.epic.next_respawn_tick",
+   "note": ""
+  },
+  {
+   "base": "MobaMode",
+   "offset": "0x1d8",
+   "name": "jungle_runner.serpen.live_list.len",
+   "note": ""
+  },
+  {
+   "base": "MobaMode",
+   "offset": "0x1e0",
+   "name": "jungle_runner.serpen.next_respawn_tick",
+   "note": ""
+  },
+  {
+   "base": "MobaMode",
+   "offset": "0x240",
+   "name": "epic_minion_buff_time[]",
+   "note": "remain_epic_time(team) 인라인 = [team]"
+  },
+  {
+   "base": "KillLog",
+   "offset": "0x18",
+   "name": "tick",
+   "note": "check_recent_kill_lane 인라인. 원소 48B stride, rfind(뒤에서부터)"
+  },
+  {
+   "base": "KillLog",
+   "offset": "0x20",
+   "name": "killer_team",
+   "note": ""
+  },
+  {
+   "base": "KillLog",
+   "offset": "0x2c",
+   "name": "killed_position",
+   "note": "i32 Position → LineType 매핑 — 본문에는 원소 끝 포인터 기준 `gep %402, -4`(=원소+0x2c) 로만 나타남(C3 경고 사유)"
+  },
+  {
+   "base": "Blackboard",
+   "offset": "0x0",
+   "name": "top_minion_state",
+   "note": "minion_state(line) 인라인: Top +0 / Mid +0x28 / Bottom +0x50 (BrainMinionParameter 40B)"
+  },
+  {
+   "base": "Blackboard",
+   "offset": "0x28",
+   "name": "mid_minion_state",
+   "note": ""
+  },
+  {
+   "base": "Blackboard",
+   "offset": "0x50",
+   "name": "bottom_minion_state",
+   "note": ""
+  },
+  {
+   "base": "BrainMinionParameter",
+   "offset": "0x10",
+   "name": "from_mid",
+   "note": "i64"
+  },
+  {
+   "base": "BrainMinionParameter",
+   "offset": "0x20",
+   "name": "minion_count",
+   "note": "i32"
+  },
+  {
+   "base": "GoalData",
+   "offset": "0xe8",
+   "name": "last_base_defense_tick",
+   "note": "L924"
+  },
+  {
+   "base": "BigPlan",
+   "offset": "0x0",
+   "name": "@tag",
+   "note": "L986·L1024·L1071 ==7(PassiveJungle) 판정"
+  },
+  {
+   "base": "BigPlan",
+   "offset": "0x50",
+   "name": "@PassiveJungle.0.team",
+   "note": "==0 → camp_pos/get_jungle_live_list 의 bool 인자"
+  },
+  {
+   "base": "BigPlan",
+   "offset": "0x68",
+   "name": "@PassiveJungle.0.jungle@tag",
+   "note": "JungleType i8"
+  }
+ ],
+ "writes": [
+  {
+   "base": "TeamPlan",
+   "offset": "0x41f",
+   "name": "objective@tag",
+   "value": "4 Nexus(L832) / 2 Defense(L838) / 3 DefenseLine(L844·850·857) / 0 Morgard(L879·L1018) / 1 Serpen(L889·L1065) / 10 PressTower(L900·913·932·1105) / 11 ComebackPick(L960)",
+   "note": "Option<MainObjective> 3B. 태그 = tcxdict --enum MainObjective 메모리태그(Direct)"
+  },
+  {
+   "base": "TeamPlan",
+   "offset": "0x420",
+   "name": "objective.payload+1",
+   "value": "LineType(Nexus/DefenseLine/PressTower/ComebackPick.line) 또는 ObjectPhase(Morgard/Serpen.phase: 3=Hunt(L879·889) / 1=Setup(L1018·1065))",
+   "note": ""
+  },
+  {
+   "base": "TeamPlan",
+   "offset": "0x421",
+   "name": "objective.payload+2",
+   "value": "Morgard/Serpen.with_battle=1(true) / ComebackPick.ready = (already_on_line > 1)",
+   "note": ""
+  },
+  {
+   "base": "TeamPlan",
+   "offset": "0x41e",
+   "name": "v3_press_chat_line",
+   "value": "-1 (None)",
+   "note": "L1128, version>1 && 에픽버프 잔여 <= 10s 일 때만"
+  },
+  {
+   "base": "TeamPlan",
+   "offset": "0x358",
+   "name": "press_tower_start_tick",
+   "value": "tick",
+   "note": "L901·L914·L933·L1106 (PressTower 채택 시)"
+  },
+  {
+   "base": "TeamPlan",
+   "offset": "0x360",
+   "name": "comeback_pick_start_tick",
+   "value": "tick",
+   "note": "L961"
+  },
+  {
+   "base": "TeamPlan",
+   "offset": "0x368",
+   "name": "comeback_pick_attempt_count",
+   "value": "+1",
+   "note": "L962"
+  },
+  {
+   "base": "TeamPlan",
+   "offset": "0x50",
+   "name": "obj_spawn.epic_giveup_tick",
+   "value": "Some(tick) (tag=1 @0x50, 값 @0x58)",
+   "note": "L1011 check_epic_giveup 참일 때"
+  },
+  {
+   "base": "TeamPlan",
+   "offset": "0x60",
+   "name": "obj_spawn.serpen_giveup_tick",
+   "value": "Some(tick) (tag=1 @0x60, 값 @0x68)",
+   "note": "L1058 check_serpen_giveup 참일 때"
+  },
+  {
+   "base": "TeamPlan",
+   "offset": "0xc0 -> chats.ptr[len]",
+   "name": "chats.push(Chat)",
+   "value": "AttackNexus{line,0}=42(L833) / DefenseNexus(0)=43(L840) / DefenseLine{line,0}=14(L845·851·858) / MorgardHunt(0)=38(L883) / SerpenHunt(0)=29(L893) / PressTower{line,0}=45(L902·915·934·1107) / ComebackPick{line,0}=46(L964) / MorgardSetup(0)=34(L1045) / SerpenSetup(0)=25(L1093)",
+   "note": "Vec<Chat>(24B 원소) push 인라인 — len==cap 이면 RawVec::grow_one 호출(힙 재할당 지점), len+1 store @0xd0"
+  },
+  {
+   "base": "TeamPlan",
+   "offset": "0xd8 -> comeback_pick_outcomes.ptr[len]",
+   "name": "comeback_pick_outcomes.push((gold_diff:i32, 0u8))",
+   "value": "(my_gold - enemy_gold, 0)",
+   "note": "L963. len==cap 이면 grow_one(힙). 원소 8B(i32@+0,u8@+4)"
+  },
+  {
+   "base": "BigPlan",
+   "offset": "0x0",
+   "name": "*plan = ForcePassive",
+   "value": "drop_glue(plan) 후 store i64 2",
+   "note": "L839·846·852·859·884·894·903·916·935·965·1013·1042·1060·1089·1108 — 15개 사이트 전부 태그 2. 옛 plan 의 힙(Vec 등)은 drop_glue 가 해제"
+  },
+  {
+   "base": "BigPlan",
+   "offset": "0x0",
+   "name": "*plan = ActiveRecall",
+   "value": "drop_glue(plan) 후 store i64 8",
+   "note": "L1000. ActiveRecallPlan 은 0B 페이로드라 태그만 store"
+  }
+ ],
+ "constants": [
+  {
+   "value": 1,
+   "src_line": 843,
+   "meaning": "LineType::Mid 태그(line_exists/handle_line_defense 인자). 라인 순회 순서 Mid(1)→Bottom(2)→Top(0)"
+  },
+  {
+   "value": 2,
+   "src_line": 849,
+   "meaning": "LineType::Bottom 태그. 또 BigPlan::ForcePassive 메모리태그(store i64 2, 니치 niche_start=2) · MainObjective::Defense 태그(L838) · ObjectPhase 아님"
+  },
+  {
+   "value": 0,
+   "src_line": 856,
+   "meaning": "LineType::Top 태그 / MainObjective::Morgard 태그(L879) / Chat 페이로드 usize 0"
+  },
+  {
+   "value": 3,
+   "src_line": 862,
+   "folded_from": 8,
+   "meaning": "tps*8 이 `shl i64 %tps, 3` 로 접힘 — 최근교전 창(8초). L911 check_recent_kill_lane 의 tps*8 도 같은 shl 3. 또 ObjectPhase::Hunt=3(L879·889)·MainObjective::DefenseLine=3·BigGoal::Serpen=3(L1059·1069)"
+  },
+  {
+   "value": 100,
+   "src_line": 866,
+   "meaning": "HP% 산출 hp*100/max_hp (전 필터 공통). 컴백 점수 near_allies*100(L1539)"
+  },
+  {
+   "value": 39,
+   "src_line": 866,
+   "meaning": "HP% > 39 (=40% 이상) 을 생존 아군으로 셈(live_ally). L955 already_on_line 도 동일"
+  },
+  {
+   "value": 4,
+   "src_line": 832,
+   "meaning": "MainObjective::Nexus 태그. 또 L1391 gold_behind>5999 일 때 required_healthy=4 · L1434 target_position<4(=Support 제외) · L1549 total_visible>=4"
+  },
+  {
+   "value": 42,
+   "src_line": 833,
+   "meaning": "Chat::AttackNexus 태그"
+  },
+  {
+   "value": 14,
+   "src_line": 845,
+   "meaning": "Chat::DefenseLine 태그"
+  },
+  {
+   "value": 43,
+   "src_line": 840,
+   "meaning": "Chat::DefenseNexus 태그"
+  },
+  {
+   "value": 38,
+   "src_line": 883,
+   "meaning": "Chat::MorgardHunt 태그"
+  },
+  {
+   "value": 29,
+   "src_line": 893,
+   "meaning": "Chat::SerpenHunt 태그"
+  },
+  {
+   "value": 45,
+   "src_line": 902,
+   "meaning": "Chat::PressTower 태그"
+  },
+  {
+   "value": 46,
+   "src_line": 964,
+   "meaning": "Chat::ComebackPick 태그"
+  },
+  {
+   "value": 34,
+   "src_line": 1045,
+   "meaning": "Chat::MorgardSetup 태그"
+  },
+  {
+   "value": 25,
+   "src_line": 1093,
+   "meaning": "Chat::SerpenSetup 태그"
+  },
+  {
+   "value": 10,
+   "src_line": 900,
+   "meaning": "MainObjective::PressTower 태그. 또 L1116 tps*10 (에픽버프 잔여 10초 임계, `mul %tps, 10`)"
+  },
+  {
+   "value": 11,
+   "src_line": 960,
+   "meaning": "MainObjective::ComebackPick 태그"
+  },
+  {
+   "value": 8,
+   "src_line": 1000,
+   "meaning": "BigPlan::ActiveRecall 메모리태그(idx6 → 니치 +2)"
+  },
+  {
+   "value": 7,
+   "src_line": 986,
+   "meaning": "BigPlan::PassiveJungle 메모리태그(idx5 → +2). 또 morgard_exists 의 `add i8 t,-7` 오프셋 · L974/978 ed_time=7 (tps*7 스폰 근접 하한)"
+  },
+  {
+   "value": -6,
+   "src_line": 870,
+   "meaning": "morgard_exists=spawn_epic 접힘: (tutorial-7) as u8 < 250(-6) ⟺ tutorial ∈ {None0, Line7, Total8}. L912 안에서는 `add -1; ult 6` 형태(tutorial ∈ 1..=6 이면 false)"
+  },
+  {
+   "value": 5,
+   "src_line": 874,
+   "meaning": "serpen_exists=spawn_serpen: tutorial switch {0,5,7,8} (MidBottom=5 포함). 또 BigGoal::Battle=5(L999) · 5칸 포지션 루프 상한. ⚠`shl i8 %line, 5`(L1448 tower 인라인의 line*32 stride)도 있으나 그건 판정값 아님(stride)"
+  },
+  {
+   "value": 12,
+   "src_line": 970,
+   "meaning": "st_time=12: 스폰 근접 상한 tps*12 (L973·977 `mul %tps, 12`)"
+  },
+  {
+   "value": 30,
+   "src_line": 910,
+   "meaning": "is_line_phase(setting.rs:703~704): tick < first_spawn_tick.saturating_sub(tps*30). 또 L1556 target_position==Top 가산 +30"
+  },
+  {
+   "value": 48,
+   "src_line": 911,
+   "meaning": "KillLog stride 48B (rfind 포인터 -48)"
+  },
+  {
+   "value": 20,
+   "src_line": 912,
+   "meaning": "check_opportunistic_tower_push 1279/1281: 오브젝트 리스폰까지 <= tps*20 이면 epic_near/serpen_near. 또 L942 컴백픽 쿨다운 tps*20"
+  },
+  {
+   "value": 1000,
+   "src_line": 912,
+   "meaning": "1300: ms.from_mid < judgement_penalty*1000 이면 None"
+  },
+  {
+   "value": -2999,
+   "src_line": 912,
+   "meaning": "1340: 다른 라인 from_mid < -2999 이면서"
+  },
+  {
+   "value": -3,
+   "src_line": 912,
+   "meaning": "1340: 다른 라인 minion_count < -3 이면 None (다른 라인 붕괴 중)"
+  },
+  {
+   "value": 49,
+   "src_line": 912,
+   "meaning": "HP% > 49 (=50% 이상) 건강 아군 (1305·1314·1394·1461·1471)"
+  },
+  {
+   "value": 180,
+   "src_line": 943,
+   "meaning": "is_team_behind 1354: 경과 초 < 180 이면 false"
+  },
+  {
+   "value": 360,
+   "src_line": 943,
+   "meaning": "1365: 경과 초 <360 → threshold 2000"
+  },
+  {
+   "value": 540,
+   "src_line": 943,
+   "meaning": "1365: 경과 초 <540 → 2500, 이상 → 3000"
+  },
+  {
+   "value": 2000,
+   "src_line": 943,
+   "meaning": "gold_behind 임계(<6분)"
+  },
+  {
+   "value": 2500,
+   "src_line": 943,
+   "meaning": "gold_behind 임계(6~9분)"
+  },
+  {
+   "value": 3000,
+   "src_line": 943,
+   "meaning": "gold_behind 임계(9분+)"
+  },
+  {
+   "value": 5999,
+   "src_line": 944,
+   "meaning": "1391: gold_behind > 5999 → required_healthy 4 (else 3), required_near 3 (else 2)"
+  },
+  {
+   "value": -1000,
+   "src_line": 944,
+   "meaning": "1405: ms.from_mid < -1000 &&"
+  },
+  {
+   "value": -1,
+   "src_line": 944,
+   "meaning": "1405: ms.minion_count < -1 이면 그 라인 continue. 또 Option<LineType>::None 표현(-1)"
+  },
+  {
+   "value": 300000,
+   "src_line": 944,
+   "meaning": "1505: can_near_enemies_range(line_center, range=300000) — MIA 적 탐색 반경"
+  },
+  {
+   "value": -20,
+   "src_line": 944,
+   "meaning": "1498: battle_check_with_list 점수 < -20 이면 continue"
+  },
+  {
+   "value": 250001,
+   "src_line": 944,
+   "meaning": "1516: distance(적, 고립적) < 250001 (=<=250000) 인 비라인 가시 적이 1명이라도 있으면 continue"
+  },
+  {
+   "value": 14400000001,
+   "src_line": 944,
+   "meaning": "120000^2+1 — 제곱거리 < 이 값 = 거리 <= 120000. 1533 고립적↔적타워 / L990·L1029·L1076 챔프↔정글캠프"
+  },
+  {
+   "value": 80,
+   "src_line": 944,
+   "meaning": "1542: allies_on_line==1 → +80 (else +200)"
+  },
+  {
+   "value": 200,
+   "src_line": 944,
+   "meaning": "1542: allies_on_line>=2 → +200"
+  },
+  {
+   "value": 150,
+   "src_line": 944,
+   "meaning": "1549: total_visible_enemies>=4 → +150 / 1556: target Mid·Bottom → +150"
+  },
+  {
+   "value": 50,
+   "src_line": 944,
+   "meaning": "1549: total_visible==3 → +50 / 1570: enemy_hp 61..80% → +50"
+  },
+  {
+   "value": 10000,
+   "src_line": 944,
+   "meaning": "1566: score += enemy_dist_from_base / 10000"
+  },
+  {
+   "value": 61,
+   "src_line": 944,
+   "meaning": "1570: enemy_hp% < 61 → +120. L999 자기 HP% < 61 이면 귀환"
+  },
+  {
+   "value": 81,
+   "src_line": 944,
+   "meaning": "1570: enemy_hp% < 81 → +50"
+  },
+  {
+   "value": 120,
+   "src_line": 944,
+   "meaning": "1570: enemy_hp% < 61 → +120"
+  },
+  {
+   "value": 6,
+   "src_line": 958,
+   "meaning": "count < 6 assume(5칸 상한 힌트, 판정 아님). BigGoal 아님"
+  },
+  {
+   "value": 1152921504606846976,
+   "src_line": 870,
+   "meaning": "2^60 Vec len 상한 assume(판정 아님)"
+  }
+ ],
+ "calls": [
+  "game_ai::plan_legacy::team_plan::objective_handlers::TeamPlan::handle_nexus_attack",
+  "game_ai::plan_legacy::old::defense_nexus::need_defense_nexus",
+  "game_ai::plan_legacy::handler::calculate_nexus_defense_count",
+  "game_ai::plan_legacy::old::defense_nexus::i_am_chosen_defender",
+  "game_ai::plan_legacy::rule_scope::line_exists",
+  "game_ai::plan_legacy::old::defense_nexus::handle_line_defense",
+  "game_ai::plan_legacy::team_plan::check_press_tower_opportunity",
+  "game_ai::plan_legacy::team_plan::objective_helpers::v3_epicops_defer_serpen",
+  "game_ai::plan_legacy::team_plan::objective_helpers::macro_judgement_penalty",
+  "game_core::simulation::AbstractGameWithCache::tower",
+  "game_core::simulation::map_regions::is_near_line",
+  "game_core::simulation::map_regions::is_near_mid_line",
+  "game_ai::fight_check::battle_check_with_list",
+  "game_core::simulation::state::player::LineType::get_start_position",
+  "game_ai::plan_legacy::team_plan::TeamPlan::can_near_enemies_range",
+  "game_core::simulation::game::blackboard::Blackboard::is_recent_visible",
+  "game_core::utils::distance",
+  "game_ai::buy_item",
+  "game_ai::upgrade_item",
+  "game_core::simulation::entity::jungle::JungleRunner::get_jungle_live_list",
+  "game_core::simulation::map_def::MapDef::camp_pos",
+  "game_ai::plan_legacy::types::BigPlan::goal",
+  "game_ai::plan_legacy::old::epic::check_epic_setup",
+  "game_ai::plan_legacy::team_plan::TeamPlan::should_delay_morgard_for_wave_priority",
+  "game_ai::plan_legacy::old::epic::check_epic_giveup",
+  "game_ai::plan_legacy::old::serpen::check_serpen_setup",
+  "game_ai::plan_legacy::team_plan::TeamPlan::should_delay_serpen_for_wave_priority",
+  "game_ai::plan_legacy::old::serpen::check_serpen_giveup",
+  "game_ai::plan_legacy::old::epic::TeamPlan::v3_epicops_buff_window",
+  "game_ai::plan_legacy::old::epic::TeamPlan::handle_press_epic",
+  "alloc::raw_vec::RawVec::grow_one",
+  "bumpalo::collections::raw_vec::RawVec::reserve_internal_or_panic",
+  "core::ptr::drop_glue",
+  "core::iter::traits::iterator::Iterator::count",
+  "core::option::unwrap_failed",
+  "core::panicking::panic_bounds_check",
+  "core::panicking::panic_const::panic_const_div_by_zero"
+ ],
+ "logic": "// 공통 준비: ctx=data.context(+8), setting=ctx.setting(+8), tps=setting.tick_per_second(0x12f8), game=data.cache.game(vtable 0x28=tick), tutorial=ctx.tutorial(+0x38), team=player.info.team(0x930), enemy=1-team.\n// 인라인 술어(전부 tutorial switch): morgard_exists(ctx)=spawn_epic ⟺ tutorial∈{None0,Line7,Total8} / serpen_exists=spawn_serpen ⟺ tutorial∈{0,MidBottom5,7,8} / as_moba()=get_game_mode(vtable 0x40) 결과 태그0 이어야 하고 아니면 unwrap_failed 패닉.\n// HP%(e) = e.hp(0x670)*100 / e.stat_cached.hp(0x628)  (max_hp==0 이면 div_by_zero 패닉).\n\n// objective_handlers.rs:831~834  ① 넥서스 공격\nif let Some(line) = handle_nexus_attack(version, rnd, player, data, debug) {        // i8, -1=None. self 인자는 poison(콜리가 self 미사용)\n  self.objective = Some(Nexus(line));  self.chats.push(AttackNexus(line, 0));  return;\n}\n// :837~841  ② 넥서스 수비 (handle_nexus_defense 인라인 = objective_handlers.rs:1228~1234)\nif need_defense_nexus(version, rnd, player, data, debug) {\n  let need_count = calculate_nexus_defense_count(version, rnd, player, data, debug);\n  if i_am_chosen_defender(player, data, need_count, &[] /*빈 슬라이스 ptr=8,len=0*/) {\n    self.objective = Some(Defense);  *plan = ForcePassive;  self.chats.push(DefenseNexus(0));  return;\n  }\n}\n// :843~859  ③ 라인 수비 — Mid→Bottom→Top 순으로 **세 if 가 연속**(return 없음, 뒤 라인이 앞 결과를 덮어씀)\nfor line in [Mid(1), Bottom(2), Top(0)] {   // 언롤 형태\n  if line_exists(ctx, line) && handle_line_defense(version, rnd, player, data, line, debug) {\n    self.objective = Some(DefenseLine(line));  self.chats.push(DefenseLine(line, 0));  *plan = ForcePassive;   // 계속 진행\n  }\n}\n// :862  최근 교전 게이트\nrecent_battle := self.last_battle_tick(0x220) != 0 && game.tick() <= last_battle_tick + tps*8   // IR: (lbt+tps<<3 < tick || lbt==0) 이면 :910 으로 건너뜀\nif recent_battle {\n  // :866~869\n  live_ally  = iter_champions(team).filter(|e| HP%(e) > 39).count();\n  live_enemy = iter_champions(enemy).count();          // 필터 없음(존재하는 챔프 수)\n  if live_ally > 2 && live_ally >= live_enemy + 2 {\n    // :870  epic_available = morgard_exists(ctx) && moba.jungle_runner.epic.live_list.len(0x1a8) != 0 && self.obj_spawn.epic_giveup_tick.is_none()\n    // :874~876  serpen_available = serpen_exists(ctx) && serpen.live_list.len(0x1d8) != 0 && serpen_giveup_tick.is_none() && (version <= 1 || !v3_epicops_defer_serpen(version, player, data, goal_data, self))\n    //          ⚠극성은 분기 방향: defer_serpen()==true 이면 세르펜을 건너뛰고 :899 로 간다(dbg 이름 serpen_available=%337 은 아티팩트).\n    // :878~884\n    if epic_available { self.objective = Some(Morgard{phase:Hunt(3), with_battle:true}); chats.push(MorgardHunt(0)); *plan = ForcePassive; return; }\n    // :888~894\n    else if serpen_available { self.objective = Some(Serpen{phase:Hunt(3), with_battle:true}); chats.push(SerpenHunt(0)); *plan = ForcePassive; return; }\n    // :899~903\n    else if let Some(press_line) = check_press_tower_opportunity(version, poison, player, data, poison, None(-1), poison) {\n      self.objective = Some(PressTower(press_line)); self.press_tower_start_tick = tick; chats.push(PressTower(press_line,0)); *plan = ForcePassive; return;\n    }\n  }\n}\n// :910  라인전 종료 게이트 (GameContext::is_line_phase(tick) 인라인 = runner.rs:399 + setting.rs:703~704)\n//   통과 조건(IR 관측): tutorial ∈ {0,5,7,8} && tick >= setting.epic_jungle.first_spawn_tick(0x8a8).saturating_sub(tps*30)\n//   (추정 소스: `if !ctx.is_line_phase(tick)` — 이름/부호는 인라인돼 표기불가, 조건 자체는 확정)\nif <위 조건> {\n  // :911  check_recent_kill_lane 인라인(team_plan.rs:1255~1266)\n  kill_line = game.kill_logs()(vtable 0x130).iter().rev().find(|log| log.killer_team(0x20)==team && tick.saturating_sub(log.tick(0x18)) <= tps*8)\n              .and_then(|log| match log.killed_position(0x2c) { Top→Some(Top0), Mid→Some(Mid1), Bottom|Support→Some(Bottom2), Jungle→None })\n              .filter(|l| line_exists(ctx, l));\n  if let Some(kill_line) = kill_line {\n    // :912  check_opportunistic_tower_push(version, player, data, &kill_line) 인라인(team_plan.rs:1273~1345) → Option<LineType>\n    //   1273 if !line_exists(ctx,line) → None\n    //   1278 epic_near   = morgard_exists && epic.live_list.len==0 && (epic.next_respawn_tick(0x1b0) - tick).sat <= tps*20\n    //   1280 serpen_near = serpen_exists && serpen.live_list.len==0 && (serpen.next_respawn_tick(0x1e0) - tick).sat <= tps*20\n    //   1283 epic_alive = morgard_exists && epic.live_list.len!=0 ; 1284 serpen_alive = serpen_exists && serpen.live_list.len!=0\n    //   1285 if epic_near||serpen_near||epic_alive||serpen_alive → None\n    //   1290 (t1,t2)=cache.tower(line, enemy) (top/mid/bottom_tower[enemy], _tower2[enemy]); if t1.is_none() && t2.is_none() → None\n    //   1295 ms = data.blackboard[team].minion_state(line); 1296 if ms.from_mid(0x10) < 0 || ms.minion_count(0x20) < 1 → None\n    //   1300 jp = macro_judgement_penalty(version, player); if ms.from_mid < jp*1000 || ms.minion_count <= jp → None\n    //   1305 healthy_allies = iter_champions(team).filter(HP%>49).count()   [Iterator::count 별도 define m09.ll:67786]\n    //   1307 required_healthy = min(player_count(ctx),3) → tutorial {0,5,7,8}→3 / {First1,Bottom3}→2 / {TopSolo2,MidSolo4,JungleOnly6}→1 ; if healthy_allies < required_healthy → None\n    //   1312~1321 same_side_allies = (0..5).filter(|p| champ[team][p].is_some_and(|c| HP%>49 && match line {Top→(setting.height(0x12c0)-c.y) >= c.x, Mid→is_near_mid_line(ctx,c.x,c.y), Bottom→(height-c.y) <= c.x})).count()  [m09.ll:68915]; if < 2 → None\n    //   1327~1332 near_enemies = iter_champions(enemy).filter(|c| blackboard[team].is_recent_visible(game,player,c) && is_near_line(ctx,c.x,c.y,line)).count() [m09.ll:67886]; if > 1 → None\n    //   1337~1340 for check_line in valid_lines(ctx) { if check_line==line continue; cms=blackboard[team].minion_state(check_line); if cms.from_mid < -2999 && cms.minion_count < -3 → None }\n    //       valid_lines: tutorial {0,7,8}→[Top,Mid,Bottom] / {1,3}→[Bottom] / 2→[Top] / 4→[Mid] / 5→[Mid,Bottom] / 6→[]\n    //   else → Some(line)\n    if let Some(line) = check_opportunistic_tower_push(..) {\n      // :913~916\n      self.objective = Some(PressTower(line)); self.press_tower_start_tick = tick; chats.push(PressTower(line,0)); *plan = ForcePassive; return;\n    }\n    // :923~935  (v2+ 전용) 기지 수비 직후 반격 압박\n    else if version > 1 {\n      if tick.saturating_sub(goal_data.last_base_defense_tick(0xe8)) <= tps*8 {          // :924 (초과면 건너뜀)\n        dead(t) := game.iter_player()(vtable 0x208).filter(|p| p.info.team==t && p.play_state@tag(0x9c8)==Die(0)).count();   // :927~928 closure$1\n        if dead(enemy) >= dead(team) + 2 {                                                   // :929  (미만이면 건너뜀)\n          if cache.tower(kill_line, enemy).is_some() {                                       // :931  ★여기만 아웃오브라인 AbstractGameWithCache::tower 호출\n            // :932~935\n            self.objective = Some(PressTower(kill_line)); self.press_tower_start_tick = tick; chats.push(PressTower(kill_line,0)); *plan = ForcePassive; return;\n          }\n        }\n      }\n    }\n  }\n}\n// :941~943  컴백 픽 게이트\npick_cooldown_ok = self.comeback_pick_start_tick(0x360)==0 || tick.saturating_sub(comeback_pick_start_tick) > tps*20;\n// is_team_behind(version,player,data) 인라인(team_plan.rs:1350~1373):\n//   1350 tutorial∈{0,5,7,8} && tick >= first_spawn_tick.sat_sub(tps*30) 아니면 false(:910 과 같은 is_line_phase 구조)\n//   1353 elapsed_sec = tick / max(tps,1); 1354 if elapsed_sec < 180 → false\n//   1356~1361 my_gold = Σ iter_player().filter(team==mine).gold(0x5e8) ; enemy_gold = Σ (team!=mine).gold ; 1363 gold_behind = (enemy_gold - my_gold) as i32\n//   1365 threshold = elapsed<360 ? 2000 : elapsed<540 ? 2500 : 3000 ; 1373 return gold_behind >= threshold\nif pick_cooldown_ok && is_team_behind(..) {\n  // :944  check_comeback_pick_opportunity(version, rnd, player, data, self, debug) 인라인(team_plan.rs:1382~1580) → Option<LineType>\n  //   1382~1388 my_gold/enemy_gold(i32 절단 합)/gold_behind = enemy - my\n  //   1391 required_healthy = min(player_count(ctx), gold_behind>5999 ? 4 : 3)  → {0,7,8}: 4|3 / 5: 3 / {1,3}: 2 / {2,4,6}: 1\n  //   1394 healthy_allies = iter_champions(team).filter(HP%>49).count(); 1395 if < required_healthy → None\n  //   best_line=None, best_score=0 ; required_near = gold_behind>5999 ? 3 : 2\n  //   1402 for line in valid_lines(ctx) {\n  //     1405 ms=blackboard[team].minion_state(line); if ms.from_mid < -1000 && ms.minion_count < -1 → continue\n  //     1415~1427 visible_count=0; for pos in 0..5 { c=champ[enemy][pos]; if c.some && blackboard[team].is_recent_visible(game,player,c) && is_near_line(ctx,c.x,c.y,line) { visible_count+=1; if visible_count==1 { isolated_id=c.id(0x5c0); isolated_pos=pos } } } ; if visible_count != 1 → continue\n  //     1431 isolated = game.get_entity_by_id(isolated_id).unwrap() (vtable 0x1f0) ; 1434 if isolated_pos >= 4 (Support) → continue\n  //     1448~1452 tower = tower(line,enemy).0.or(.1); if let Some(t)=tower { nexus=cache.nexus[enemy](0x170).unwrap(); if dist_sq(isolated,nexus) < dist_sq(t,nexus) → continue }\n  //     1458~1466 allies_on_line_list: bumpalo Vec<usize>(ctx.pool) = (0..5).filter(|p| champ[team][p].is_some_and(|c| HP%>49 && is_near_line(ctx,c.x,c.y,line))) ; allies_on_line=len\n  //     1470~1479 near_allies = iter_champions(team).filter(|c| HP%>49 && (is_near_line(ctx,c.x,c.y,line) || match line {Top→(height-y)>=x, Mid→is_near_mid_line, Bottom→(height-y)<=x})).count()\n  //     1482 if allies_on_line==0 || near_allies < required_near → continue\n  //     1494~1498 enemy_list=vec![isolated_pos]; battle_score = battle_check_with_list(version,rnd,data,player,&allies_on_line_list,&enemy_list,debug); if battle_score < -20 → continue\n  //     1504~1506 line_center = line.get_start_position(setting, team); mia = self.can_near_enemies_range(poison,rnd,player,data,line_center.x,line_center.y,300000,poison) (sret 32B bumpalo Vec<&Entity>); if mia.len(+0x18) != 0 → continue\n  //     1512~1519 nearby_visible = (0..5).filter(|i| i!=isolated_pos && champ[enemy][i].is_some_and(|c| is_recent_visible(..c) && !is_near_line(ctx,c.x,c.y,line) && distance(c,isolated) < 250001)).count(); if != 0 → continue\n  //     1525~1528 total_visible = (0..5).filter(|i| champ[enemy][i].is_some_and(is_recent_visible)).count()\n  //     1531~1533 if let Some(t)=tower(line,enemy).0.or(.1) { if dist_sq(isolated,t) < 14400000001 → continue }\n  //     1539 score = near_allies*100 ; 1542 += allies_on_line==1 ? 80 : 200 ; 1549 += total_visible>=4 ? 150 : total_visible==3 ? 50 : 0\n  //     1556 += match isolated_pos { Top→30, Jungle→100, Mid|Bottom→150 }\n  //     1564~1566 enemy_base = line.get_start_position(setting, enemy); score += distance(isolated, enemy_base)/10000\n  //     1569~1570 r = HP%(isolated); score += r<61 ? 120 : r<81 ? 50 : 0\n  //     1576 if score > best_score { best_line=line; best_score=score } ; 1580 drop(allies_on_line_list)\n  //   }\n  //   return best_line\n  if let Some(pick_line) = check_comeback_pick_opportunity(..) {\n    // :945~951 my_gold/enemy_gold (iter_player 합, i32) ; gold_diff = my_gold - enemy_gold\n    // :954~958 already_on_line = iter_champions(team).filter(|c| HP%>39 && is_near_line(ctx,c.x,c.y,pick_line)).count()\n    // :959 start_ready = already_on_line > 1\n    // :960~965\n    self.objective = Some(ComebackPick{line:pick_line, ready:start_ready}); self.comeback_pick_start_tick = tick; self.comeback_pick_attempt_count += 1;\n    self.comeback_pick_outcomes.push((gold_diff, 0u8)); chats.push(ComebackPick(pick_line,0)); *plan = ForcePassive; return;\n  }\n}\n// :970~980  스폰 준비 귀환   (st_time=12, ed_time=7)\nnear_serpen_spawn = serpen_exists && serpen.live_list.len==0 && { d=(serpen.next_respawn_tick - tick).sat ; d <= tps*12 && d >= tps*7 }   // :972~974\nnear_epic_spawn   = morgard_exists && epic.live_list.len==0   && { d=(epic.next_respawn_tick - tick).sat   ; d <= tps*12 && d >= tps*7 }   // :976~978\nif near_serpen_spawn || near_epic_spawn {                                                                                                   // :980\n  champ = cache.player_champion[team][player.info.position.as_index()].unwrap();   // :981 (None 이면 unwrap_failed)\n  hp = HP%(champ);                                                                    // :982\n  can_buy_or_upgrade = buy_item(version,rnd,player,game,data?,ctx).is_some() || upgrade_item(version,rnd,player,game,..,ctx).0 as bool;  // :983 (buy_item 결과 태그==1 이면 upgrade_item 미호출)\n  skip_for_camp = false;\n  if player.info.position == Jungle(1) {                                              // :985\n    if let BigPlan::PassiveJungle(jungle) = plan (tag 7) {                            // :986\n      camp_live = moba.jungle_runner(+0x18).get_jungle_live_list(jungle.jungle(plan+0x68), jungle.team(plan+0x50)==0);   // :987 Vec<usize> 힙\n      if !camp_live.is_empty() {                                                       // :988\n        camp_pos = ctx.map.camp_pos(jungle.jungle, jungle.team==0);                    // :989\n        skip_for_camp = dist_sq(champ, camp_pos) < 14400000001;                        // :990 (캠프 120000 이내)\n      }\n      drop(camp_live);                                                                  // :994\n    }\n  }\n  if !skip_for_camp {                                                                  // :999\n    goal = plan.goal();\n    if (goal is Battle(5) && can_buy_or_upgrade) || (goal !is Battle && (hp < 61 || can_buy_or_upgrade)) {\n      *plan = ActiveRecall;  return;                                                    // :1000 (drop_glue 후 store 8)\n    }\n  }\n}\n// :1005~1046  에픽 셋업\nif morgard_exists(ctx) && check_epic_setup(version, poison, player, data, self, debug) {\n  if self.should_delay_morgard_for_wave_priority(player, data, goal_data) { return; }                       // :1006\n  if check_epic_giveup(version, poison, player, data, self, poison) {                                          // :1010\n    self.obj_spawn.epic_giveup_tick = Some(tick);                                                              // :1011\n    if plan.goal() is Epic(2) { *plan = ForcePassive; }  return;                                               // :1012~1013\n  }\n  self.objective = Some(Morgard{phase:Setup(1), with_battle:true});                                            // :1018\n  if plan.goal() is not Epic(2) {                                                                              // :1022\n    skip_force = false;\n    if player.info.position == Jungle && plan is PassiveJungle(jungle) {                                        // :1023~1024\n      camp_live = get_jungle_live_list(jungle.jungle, jungle.team==0);                                          // :1025\n      if !camp_live.is_empty() {                                                                                 // :1026\n        camp_pos = map.camp_pos(jungle.jungle, jungle.team==0);                                                  // :1027\n        skip_force = cache.player_champion[team][1 /*Jungle*/].is_some_and(|c| closure s5_0(c.x, c.y));          // :1028~1033 = dist_sq(c,camp_pos) < 14400000001 && camp_live.iter().any(|&id| game.get_entity_by_id(id).is_some_and(|e| e.hp < e.stat_cached.hp))\n      }\n      drop(camp_live);                                                                                            // :1037\n    }\n    if !skip_force { *plan = ForcePassive; }                                                                     // :1041~1042\n  }\n  self.chats.push(MorgardSetup(0));  return;                                                                     // :1045~1046\n}\n// :1049~1094  세르펜 셋업 (에픽과 동형)\nif serpen_exists(ctx) && check_serpen_setup(version, rnd, player, data, self, debug) {\n  if version > 1 && v3_epicops_defer_serpen(version, player, data, goal_data, self) { goto L1097; }            // :1052\n  if self.should_delay_serpen_for_wave_priority(player, data, goal_data) { return; }                           // :1053\n  if check_serpen_giveup(version, rnd, player, data, self, debug) {                                             // :1057\n    self.obj_spawn.serpen_giveup_tick = Some(tick);  if plan.goal() is Serpen(3) { *plan = ForcePassive; }  return;   // :1058~1060\n  }\n  self.objective = Some(Serpen{phase:Setup(1), with_battle:true});                                              // :1065\n  if plan.goal() is not Serpen(3) {                                                                             // :1069\n    skip_force = (position==Jungle && plan is PassiveJungle && !camp_live.is_empty() && champ[team][1].is_some_and(closure s6_0));   // :1070~1080 (s5_0 과 동일 본문)\n    if !skip_force { *plan = ForcePassive; }                                                                     // :1088~1089\n  }\n  self.chats.push(SerpenSetup(0));  return;                                                                      // :1093~1094\n}\n// :1097~1108  에픽 버프 없을 때 타워 압박\nif moba.epic_minion_buff_time[team](0x240+team*8) == 0 {                                                        // :1097 remain_epic_time 인라인\n  epic_available   = morgard_exists && epic.live_list.len!=0   && epic_giveup_tick.is_none();                   // :1098\n  serpen_available = serpen_exists  && serpen.live_list.len!=0 && serpen_giveup_tick.is_none();                 // :1100\n  if !(epic_available || serpen_available) {                                                                    // :1103\n    if let Some(press_line) = check_press_tower_opportunity(version, poison, player, data, poison, None, poison) {   // :1104\n      self.objective = Some(PressTower(press_line)); self.press_tower_start_tick = tick; chats.push(PressTower(press_line,0)); *plan = ForcePassive; return;   // :1105~1108\n    }\n  }\n}\n// :1114~1128  에픽 버프 창\nlive_ally_count = iter_champions(team).count(); live_enemy_count = iter_champions(enemy).count();               // :1114~1115\nif moba.epic_minion_buff_time[team] > tps*10 {                                                                   // :1116\n  if version > 1 { self.v3_epicops_buff_window(version, rnd, player, data, goal_data, plan); /*bool 무시*/ }     // :1119~1120\n  else if live_ally_count >= live_enemy_count { self.handle_press_epic(poison, rnd, player, data, poison); }     // :1123~1124\n} else if version > 1 {\n  self.v3_press_chat_line = None(-1);                                                                            // :1126~1128\n}\nreturn;   // :1131",
+ "knobs": [
+  {
+   "what": "라인수비 후보 순서 및 덮어쓰기",
+   "where": "objective_handlers.rs:843~859",
+   "value": "Mid→Bottom→Top",
+   "effect": "return 없이 세 if 가 연속이라 여러 라인이 동시에 참이면 **마지막(Top)** 이 최종 objective 가 되고 chats 는 라인마다 push 된다. 순서를 바꾸면 우선 라인이 바뀐다"
+  },
+  {
+   "what": "최근 교전 창",
+   "where": "objective_handlers.rs:862",
+   "value": "tps*8",
+   "effect": "올리면 교전 후 더 오래 '전과 확대(에픽/세르펜 헌트/타워압박)' 분기를 시도한다"
+  },
+  {
+   "what": "전과 확대 인원 조건",
+   "where": "objective_handlers.rs:866~869",
+   "value": "live_ally(HP%>39) > 2 && live_ally >= live_enemy+2",
+   "effect": "HP 임계 39 를 올리면 저체력 아군을 인원에서 빼서 확대가 줄고, +2 를 낮추면 더 자주 확대"
+  },
+  {
+   "what": "스폰 준비 귀환 창",
+   "where": "objective_handlers.rs:970~978",
+   "value": "st_time=12, ed_time=7 (초)",
+   "effect": "오브젝트 리스폰 7~12초 전에만 귀환 시도. 창을 넓히면 귀환이 잦아진다"
+  },
+  {
+   "what": "귀환 HP 임계",
+   "where": "objective_handlers.rs:999",
+   "value": "61 (%)",
+   "effect": "goal 이 Battle 이 아닐 때 HP%<61 이면 귀환. 올리면 더 자주 귀환"
+  },
+  {
+   "what": "정글 캠프 근접 시 귀환/강제패시브 생략 반경",
+   "where": "objective_handlers.rs:990 · 1029 · 1076",
+   "value": "120000 (제곱 14400000001)",
+   "effect": "정글러가 캠프 120000 이내(+캠프 몹 피해 중)면 플랜을 안 바꾼다. 줄이면 더 자주 끊고 목표로 이동"
+  },
+  {
+   "what": "is_line_phase 종료 여유",
+   "where": "setting.rs:703~704 (인라인 @ :910 · :943 · team_plan.rs:1350)",
+   "value": "first_spawn_tick - tps*30",
+   "effect": "첫 에픽 스폰 30초 전부터 타워압박/컴백픽 판정이 열린다. 30 을 키우면 더 일찍 열림"
+  },
+  {
+   "what": "최근 킬 창(check_recent_kill_lane)",
+   "where": "team_plan.rs:1258",
+   "value": "tps*8",
+   "effect": "8초 이내 아군 킬이 있어야 그 라인으로 타워압박 검토"
+  },
+  {
+   "what": "타워압박 오브젝트 리스폰 회피",
+   "where": "team_plan.rs:1279·1281",
+   "value": "tps*20",
+   "effect": "에픽/세르펜 리스폰 20초 이내면 타워압박 안 함"
+  },
+  {
+   "what": "타워압박 미니언 조건",
+   "where": "team_plan.rs:1296·1300",
+   "value": "from_mid>=0, minion_count>=1, from_mid >= penalty*1000, minion_count > penalty",
+   "effect": "macro_judgement_penalty 가 클수록(판단 페널티) 더 유리한 웨이브에서만 압박"
+  },
+  {
+   "what": "타워압박 인원",
+   "where": "team_plan.rs:1307·1321·1332",
+   "value": "healthy(HP%>49) >= min(player_count,3), same_side >= 2, near_enemies <= 1",
+   "effect": "숫자를 낮추면 더 공격적으로 압박"
+  },
+  {
+   "what": "다른 라인 붕괴 차단",
+   "where": "team_plan.rs:1340",
+   "value": "from_mid < -2999 && minion_count < -3",
+   "effect": "다른 라인이 이 정도로 밀리면 압박 포기"
+  },
+  {
+   "what": "반격 압박 조건(v2+)",
+   "where": "objective_handlers.rs:924~931",
+   "value": "기지수비 후 tps*8 이내, dead(enemy) >= dead(mine)+2, 적 타워 존재",
+   "effect": "+2 를 낮추면 수비 직후 반격이 잦아진다"
+  },
+  {
+   "what": "컴백픽 쿨다운",
+   "where": "objective_handlers.rs:942",
+   "value": "tps*20",
+   "effect": "직전 컴백픽 후 20초 재시도 금지"
+  },
+  {
+   "what": "is_team_behind 임계",
+   "where": "team_plan.rs:1354·1365",
+   "value": "180초 이후, gold_behind >= 2000(<6분)/2500(<9분)/3000",
+   "effect": "낮추면 덜 뒤져도 컴백픽 시도"
+  },
+  {
+   "what": "컴백픽 인원",
+   "where": "team_plan.rs:1391·1395·1482",
+   "value": "required_healthy=min(pc, gold_behind>5999?4:3), required_near=gold_behind>5999?3:2, allies_on_line>=1",
+   "effect": "많이 뒤질수록 더 많은 인원을 요구"
+  },
+  {
+   "what": "컴백픽 안전 조건",
+   "where": "team_plan.rs:1498·1506·1519·1533",
+   "value": "battle_score >= -20, MIA(300000 반경) 0, 고립적 250000 이내 비라인 가시적 0, 고립적↔적타워 > 120000",
+   "effect": "완화하면 위험한 픽도 시도"
+  },
+  {
+   "what": "컴백픽 점수표",
+   "where": "team_plan.rs:1539~1570",
+   "value": "near_allies*100 + (on_line==1?80:200) + (visible>=4?150: ==3?50:0) + pos(Top30/Jg100/Mid,Bot150) + dist_from_enemy_base/10000 + (hp<61?120: hp<81?50:0)",
+   "effect": "가중치 조정으로 어느 라인의 고립적을 고를지 바뀜"
+  },
+  {
+   "what": "ComebackPick.ready",
+   "where": "objective_handlers.rs:955~959",
+   "value": "already_on_line(HP%>39 && is_near_line) > 1",
+   "effect": "2명 이상 이미 라인에 있으면 즉시 시작"
+  },
+  {
+   "what": "에픽 버프 창",
+   "where": "objective_handlers.rs:1116",
+   "value": "epic_minion_buff_time[team] > tps*10",
+   "effect": "버프 잔여 10초 초과일 때만 버프 창 압박(v2+: v3_epicops_buff_window / v1: 인원 우세 시 handle_press_epic)"
+  }
+ ],
+ "unknown": [
+  "L910·L943·team_plan.rs:1350 의 is_line_phase 는 완전 인라인이라 소스 표기(`if !ctx.is_line_phase(tick)` 인지, is_line_phase 내부가 `(spawn_epic||spawn_serpen) && setting.is_line_phase` 인지)는 표기 불가. 통과 조건 자체(tutorial∈{0,5,7,8} && tick >= first_spawn_tick.sat_sub(tps*30))는 IR 로 확정. `_gcbc`/`_gaibc` 에 define 없음(grep 0건)",
+  "player_count(ctx)(runner.rs:294~301) 는 인라인돼 원 반환값 표기 불가 — 관측은 min() 접힘 후 값뿐(우리 사이트 3/2/1, check_press_tower_opportunity 1142 사이트 4/2/1, 1198 사이트 3/2/1). 추정: player_count = {0,7,8}→5 / 5→3 / {1,3}→2 / {2,4,6}→1 이고 소비처가 .min(3)/.min(4)/.min(4|3) — 세 사이트와 모순 없음. 확정하려면 runner.rs:295~301 MIR 또는 오라클(GameContext 는 pub) 필요(미탐색)",
+  "L862 의 소스 변수명 recent_battle 의 정확한 식 — dbg 는 `recent_battle = (lbt==0)` 조각만 남김. 분기 방향으로 '866~903 블록은 lbt!=0 && tick <= lbt+tps*8 일 때 실행' 은 확정",
+  "L876 v3_epicops_defer_serpen 의 부호: dbg 이름은 serpen_available=%337 이지만 분기는 %337==true → 세르펜 건너뜀. IR 분기 방향을 정본으로 기록(소스가 `!defer` 인지 `serpen_available = !defer` 인지는 표기 불가)",
+  "check_press_tower_opportunity(version, poison, player, data, poison, i8 -1, poison) — poison 3개(2번째=rnd?, 5번째=goal_data?, 7번째=debug?)는 콜리가 그 인자를 안 읽는다는 뜻. 실제 파라미터 이름은 콜리 define(m09.ll 53000대) 미열람",
+  "handle_nexus_attack 의 self 인자가 poison — self 미사용. 반환 i8 = Option<LineType>(-1=None) 은 icmp -1 과 +0x420 store 로 확정, 콜리 본문 미열람",
+  "buy_item 반환 {i64,i64} 의 태그 1 = Some 으로 읽음(Option<...> 관례). upgrade_item 은 sret 24B 첫 8B 를 trunc i1 → bool 로 읽음(반환 타입 미확인). 둘 다 콜리 미열람",
+  "AbstractGame vtable 0x40(get_game_mode) 반환 {i64,ptr} 태그 0 이 Moba 인지는 unwrap_failed 로의 분기(비0→패닉)로 추정. as_moba 이름은 dbg scope 에서",
+  "check_opportunistic_tower_push 의 세 Iterator::count 조각(m09.ll 67786·67886·68915)은 그 함수 소유라 aux 에 넣지 않고 logic 에 술어만 옮겨 적음(각 상수 49·is_near_line 등은 본문 사이트에도 있어 C1 통과)",
+  "KillLog.assist(Vec<Position>) 등 kill_logs 의 나머지 필드·rfind 가 잘못된 정렬을 가정하는지 여부 미확인(뒤에서 첫 매치 = 가장 최근 로그라는 전제)",
+  "L1119 v3_epicops_buff_window 의 bool 반환은 버려진다(%53 phi 죽음). 왜 bool 인지·호출자가 쓰는지 미확인",
+  "battle_check_with_list 의 인자 순서 (version, rnd, data, player, &allies(Vec<usize>), &enemies(Vec<usize>), debug) — 4·5번째가 (data, player) 순인 것은 dereferenceable(24)/(2528) 로 확정, 슬라이스 의미(포지션 인덱스)는 push 값(pos idx)으로 추정"
+ ]
+}

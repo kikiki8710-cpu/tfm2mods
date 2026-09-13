@@ -1,0 +1,327 @@
+# specs[104] handle_chat_inner  self=%0
+0x0      call-arg       _RNvMNtNtCshdEBA0ozCnw_7game_ai11plan_legacy7handlerNtB2_17LegacyPlanH m13.ll:31107  chat.rs:531
+0x0      call-arg       _RNvMNtNtCshdEBA0ozCnw_7game_ai11plan_legacy7handlerNtB2_17LegacyPlanH m13.ll:31626  chat.rs:331
+0x0      call-arg       _RNvMNtNtCshdEBA0ozCnw_7game_ai11plan_legacy7handlerNtB2_17LegacyPlanH m13.ll:31692  chat.rs:352
+0x0      call-arg       _RNvMNtNtCshdEBA0ozCnw_7game_ai11plan_legacy7handlerNtB2_17LegacyPlanH m13.ll:31694  chat.rs:353
+0x0      call-arg       _RNvMNtNtCshdEBA0ozCnw_7game_ai11plan_legacy7handlerNtB2_17LegacyPlanH m13.ll:31868  chat.rs:373
+0x0      call-arg       _RNvMNtNtCshdEBA0ozCnw_7game_ai11plan_legacy7handlerNtB2_17LegacyPlanH m13.ll:31870  chat.rs:374
+0x0      call-arg       _RNvMNtNtCshdEBA0ozCnw_7game_ai11plan_legacy7handlerNtB2_17LegacyPlanH m13.ll:31954  chat.rs:391
+0x0      call-arg       _RNvMNtNtCshdEBA0ozCnw_7game_ai11plan_legacy7handlerNtB2_17LegacyPlanH m13.ll:31956  chat.rs:392
+0x0      call-arg       _RNvMNtNtCshdEBA0ozCnw_7game_ai11plan_legacy7handlerNtB2_17LegacyPlanH m13.ll:32138  chat.rs:418
+0x0      call-arg       _RNvMNtNtCshdEBA0ozCnw_7game_ai11plan_legacy7handlerNtB2_17LegacyPlanH m13.ll:32369  chat.rs:438
+0x0      call-arg       _RNvMNtNtCshdEBA0ozCnw_7game_ai11plan_legacy7handlerNtB2_17LegacyPlanH m13.ll:32486  chat.rs:455
+0x0      call-arg       _RNvMNtNtCshdEBA0ozCnw_7game_ai11plan_legacy7handlerNtB2_17LegacyPlanH m13.ll:32488  chat.rs:456
+0x0      call-arg       _RNvMNtNtCshdEBA0ozCnw_7game_ai11plan_legacy7handlerNtB2_17LegacyPlanH m13.ll:32613  chat.rs:479
+0x0      call-arg       _RNvMNtNtCshdEBA0ozCnw_7game_ai11plan_legacy7handlerNtB2_17LegacyPlanH m13.ll:32711  chat.rs:496
+0x0      call-arg       _RNvMNtNtCshdEBA0ozCnw_7game_ai11plan_legacy7handlerNtB2_17LegacyPlanH m13.ll:32828  chat.rs:514
+0x0      call-arg       _RNvMNtNtCshdEBA0ozCnw_7game_ai11plan_legacy7handlerNtB2_17LegacyPlanH m13.ll:33182  chat.rs:569
+0x0      call-arg       _RNvMNtNtCshdEBA0ozCnw_7game_ai11plan_legacy7handlerNtB2_17LegacyPlanH m13.ll:33277  chat.rs:584
+0xf8     call-arg       _RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old11fight_model20tower_ m13.ll:30126  chat.rs:175
+0xf8     call-arg       _RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old11fight_model18resolv m13.ll:30345  chat.rs:213
+0xf8     call-arg       _RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old11fight_model20tower_ m13.ll:30676  -
+0xf8     call-arg       _RNvMs0_NtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old6battleNtB5_10Bat m13.ll:30694  -
+0x148    store          i64 1                                                                  m13.ll:32591  chat.rs:474
+0x150    store          i64 %1333                                                              m13.ll:32593  chat.rs:474
+0x158    store          i64 1                                                                  m13.ll:32116  chat.rs:413
+0x160    store          i64 %1133                                                              m13.ll:32118  chat.rs:413
+0x168    store          i64 %107                                                               m13.ll:29925  chat.rs:490
+0x170    store          i64 %93                                                                m13.ll:29898  chat.rs:487
+0x188    store          i64 -1                                                                 m13.ll:33333  chat.rs:603
+0x188    store          i64 0                                                                  m13.ll:33363  chat.rs:600
+0x198    store          i64 0                                                                  m13.ll:33365  chat.rs:600
+0x1a8    store          i64 %1685                                                              m13.ll:33367  chat.rs:600
+0x1b0    store          i8 %53                                                                 m13.ll:33369  chat.rs:600
+0x308    store          i8 43                                                                  m13.ll:31258  chat.rs:135
+0x308    store          i8 44                                                                  m13.ll:32124  chat.rs:414
+0x308    store          i8 45                                                                  m13.ll:32599  chat.rs:475
+0x310    store          i64 %778                                                               m13.ll:31260  chat.rs:135
+0x310    store          i64 %1136                                                              m13.ll:32126  chat.rs:414
+0x310    store          i64 %1336                                                              m13.ll:32601  chat.rs:475
+0x448    store          i64 %693                                                               m13.ll:31082  chat.rs:108
+0x450    store          i64 %134                                                               m13.ll:29976  chat.rs:550
+0x458    store          i64 %1588                                                              m13.ll:33155  chat.rs:564
+0x517    store          i8 9                                                                   m13.ll:29953  chat.rs:542
+0x517    store          i8 10                                                                  m13.ll:29965  chat.rs:549
+0x517    store          i8 8                                                                   m13.ll:31072  chat.rs:107
+0x517    store          i8 3                                                                   m13.ll:31090  chat.rs:529
+0x517    store          i8 -1                                                                  m13.ll:31261  chat.rs:136
+0x517    store          i8 5                                                                   m13.ll:31319  chat.rs:297
+0x517    store          i8 5                                                                   m13.ll:31422  chat.rs:306
+0x517    store          i8 5                                                                   m13.ll:31484  chat.rs:314
+0x517    store          i8 7                                                                   m13.ll:31552  chat.rs:325
+0x517    store          i8 1                                                                   m13.ll:31661  chat.rs:345
+0x517    store          i8 1                                                                   m13.ll:31804  chat.rs:366
+0x517    store          i8 1                                                                   m13.ll:31923  chat.rs:385
+0x517    store          i8 -1                                                                  m13.ll:32127  chat.rs:415
+0x517    store          i8 0                                                                   m13.ll:32242  chat.rs:430
+0x517    store          i8 0                                                                   m13.ll:32422  chat.rs:449
+0x517    store          i8 -1                                                                  m13.ll:32602  chat.rs:476
+0x517    store          i8 4                                                                   m13.ll:32697  chat.rs:494
+0x517    store          i8 2                                                                   m13.ll:32816  chat.rs:512
+0x517    store          i8 11                                                                  m13.ll:33142  chat.rs:563
+0x518    store          i8 %119                                                                m13.ll:29955  chat.rs:542
+0x518    store          i8 %126                                                                m13.ll:29967  chat.rs:549
+0x518    store          i8 %555                                                                m13.ll:31074  chat.rs:107
+0x518    store          i8 %81                                                                 m13.ll:31092  chat.rs:529
+0x518    store          i8 %783                                                                m13.ll:31321  chat.rs:297
+0x518    store          i8 %783                                                                m13.ll:31424  chat.rs:306
+0x518    store          i8 %783                                                                m13.ll:31486  chat.rs:314
+0x518    store          i8 1                                                                   m13.ll:31663  chat.rs:345
+0x518    store          i8 2                                                                   m13.ll:31806  chat.rs:366
+0x518    store          i8 3                                                                   m13.ll:31925  chat.rs:385
+0x518    store          i8 1                                                                   m13.ll:32244  chat.rs:430
+0x518    store          i8 3                                                                   m13.ll:32424  chat.rs:449
+0x518    store          i8 %1370                                                               m13.ll:32699  chat.rs:494
+0x518    store          i8 %139                                                                m13.ll:33144  chat.rs:563
+0x519    store          i8 0                                                                   m13.ll:31665  chat.rs:345
+0x519    store          i8 0                                                                   m13.ll:31808  chat.rs:366
+0x519    store          i8 0                                                                   m13.ll:31927  chat.rs:385
+0x519    store          i8 1                                                                   m13.ll:32068  chat.rs:406
+0x519    store          i8 0                                                                   m13.ll:32246  chat.rs:430
+0x519    store          i8 0                                                                   m13.ll:32426  chat.rs:449
+0x519    store          i8 1                                                                   m13.ll:32543  chat.rs:467
+0x519    store          i8 0                                                                   m13.ll:33146  chat.rs:563
+0x530    store          i64 1                                                                  m13.ll:30633  chat.rs:278
+0x538    store          i64 %476                                                               m13.ll:30635  chat.rs:278
+0x540    store          i64 %481                                                               m13.ll:30637  chat.rs:278
+0x5e8    call-arg       _RINvNtCsjihNppCmMEE_4core3ptr9drop_glueNtNtNtCshdEBA0ozCnw_7game_ai11 m13.ll:30755  -
+0x5e8    store          i64 9                                                                  m13.ll:30764  chat.rs:237
+0x5e8    store          i64 9                                                                  m13.ll:30770  chat.rs:237
+0x5e8    call-arg       _RINvNtCsjihNppCmMEE_4core3ptr9drop_glueNtNtNtCshdEBA0ozCnw_7game_ai11 m13.ll:30996  -
+0x5e8    store          i64 10                                                                 m13.ll:31011  chat.rs:90
+0x5e8    store          i64 10                                                                 m13.ll:31026  chat.rs:90
+0x5e8    call-arg       _RINvNtCsjihNppCmMEE_4core3ptr9drop_glueNtNtNtCshdEBA0ozCnw_7game_ai11 m13.ll:31117  -
+0x5e8    store          i64 2                                                                  m13.ll:31134  chat.rs:533
+0x5e8    store          i64 2                                                                  m13.ll:31138  chat.rs:533
+0x5e8    call-arg       _RINvNtCsjihNppCmMEE_4core3ptr9drop_glueNtNtNtCshdEBA0ozCnw_7game_ai11 m13.ll:31636  -
+0x5e8    store          i64 8                                                                  m13.ll:31653  chat.rs:333
+0x5e8    store          i64 8                                                                  m13.ll:31657  chat.rs:333
+0x5e8    call-arg       _RINvNtCsjihNppCmMEE_4core3ptr9drop_glueNtNtNtCshdEBA0ozCnw_7game_ai11 m13.ll:31726  -
+0x5e8    call-arg       llvm.memcpy.p0.p0.i64                                                  m13.ll:31731  chat.rs:355
+0x5e8    call-arg       llvm.memcpy.p0.p0.i64                                                  m13.ll:31735  chat.rs:355
+0x5e8    call-arg       _RINvNtCsjihNppCmMEE_4core3ptr9drop_glueNtNtNtCshdEBA0ozCnw_7game_ai11 m13.ll:31902  -
+0x5e8    call-arg       llvm.memcpy.p0.p0.i64                                                  m13.ll:31907  chat.rs:376
+0x5e8    call-arg       llvm.memcpy.p0.p0.i64                                                  m13.ll:31911  chat.rs:376
+0x5e8    call-arg       _RINvNtCsjihNppCmMEE_4core3ptr9drop_glueNtNtNtCshdEBA0ozCnw_7game_ai11 m13.ll:31988  -
+0x5e8    call-arg       llvm.memcpy.p0.p0.i64                                                  m13.ll:31993  chat.rs:394
+0x5e8    call-arg       llvm.memcpy.p0.p0.i64                                                  m13.ll:31997  chat.rs:394
+0x5e8    call-arg       _RINvNtCsjihNppCmMEE_4core3ptr9drop_glueNtNtNtCshdEBA0ozCnw_7game_ai11 m13.ll:32159  -
+0x5e8    call-arg       llvm.memcpy.p0.p0.i64                                                  m13.ll:32164  chat.rs:420
+0x5e8    call-arg       llvm.memcpy.p0.p0.i64                                                  m13.ll:32168  chat.rs:420
+0x5e8    call-arg       _RINvNtCsjihNppCmMEE_4core3ptr9drop_glueNtNtNtCshdEBA0ozCnw_7game_ai11 m13.ll:32401  -
+0x5e8    call-arg       llvm.memcpy.p0.p0.i64                                                  m13.ll:32406  chat.rs:440
+0x5e8    call-arg       llvm.memcpy.p0.p0.i64                                                  m13.ll:32410  chat.rs:440
+0x5e8    call-arg       _RINvNtCsjihNppCmMEE_4core3ptr9drop_glueNtNtNtCshdEBA0ozCnw_7game_ai11 m13.ll:32520  -
+0x5e8    call-arg       llvm.memcpy.p0.p0.i64                                                  m13.ll:32525  chat.rs:458
+0x5e8    call-arg       llvm.memcpy.p0.p0.i64                                                  m13.ll:32529  chat.rs:458
+0x5e8    call-arg       _RINvNtCsjihNppCmMEE_4core3ptr9drop_glueNtNtNtCshdEBA0ozCnw_7game_ai11 m13.ll:32634  -
+0x5e8    call-arg       llvm.memcpy.p0.p0.i64                                                  m13.ll:32639  chat.rs:481
+0x5e8    call-arg       llvm.memcpy.p0.p0.i64                                                  m13.ll:32643  chat.rs:481
+0x5e8    call-arg       _RINvNtCsjihNppCmMEE_4core3ptr9drop_glueNtNtNtCshdEBA0ozCnw_7game_ai11 m13.ll:32721  -
+0x5e8    store          i64 2                                                                  m13.ll:32738  chat.rs:498
+0x5e8    store          i64 2                                                                  m13.ll:32742  chat.rs:498
+0x5e8    call-arg       _RINvNtCsjihNppCmMEE_4core3ptr9drop_glueNtNtNtCshdEBA0ozCnw_7game_ai11 m13.ll:32838  -
+0x5e8    store          i64 2                                                                  m13.ll:32855  chat.rs:516
+0x5e8    store          i64 2                                                                  m13.ll:32859  chat.rs:516
+0x5e8    call-arg       _RINvNtCsjihNppCmMEE_4core3ptr9drop_glueNtNtNtCshdEBA0ozCnw_7game_ai11 m13.ll:33055  -
+0x5e8    store          i64 2                                                                  m13.ll:33072  chat.rs:554
+0x5e8    store          i64 2                                                                  m13.ll:33076  chat.rs:554
+0x5e8    call-arg       _RINvNtCsjihNppCmMEE_4core3ptr9drop_glueNtNtNtCshdEBA0ozCnw_7game_ai11 m13.ll:33201  -
+0x5e8    store          i64 10                                                                 m13.ll:33218  chat.rs:571
+0x5e8    store          i64 10                                                                 m13.ll:33234  chat.rs:571
+0x5e8    call-arg       _RINvNtCsjihNppCmMEE_4core3ptr9drop_glueNtNtNtCshdEBA0ozCnw_7game_ai11 m13.ll:33287  -
+0x5e8    store          i64 2                                                                  m13.ll:33304  chat.rs:586
+0x5e8    store          i64 2                                                                  m13.ll:33308  chat.rs:586
+0x5f0    store          i64 1                                                                  m13.ll:30116  chat.rs:153
+0x5f0    call-arg       llvm.memcpy.p0.p0.i64                                                  m13.ll:30766  chat.rs:237
+0x5f0    call-arg       llvm.memcpy.p0.p0.i64                                                  m13.ll:30772  chat.rs:237
+0x5f0    store          i64 0                                                                  m13.ll:31012  chat.rs:90
+0x5f0    store          i64 0                                                                  m13.ll:31027  chat.rs:90
+0x5f0    store          i64 0                                                                  m13.ll:33220  chat.rs:571
+0x5f0    store          i64 0                                                                  m13.ll:33236  chat.rs:571
+0x5f8    store          i64 %213                                                               m13.ll:30117  chat.rs:153
+0x5f8    store          ptr inttoptr (i64 8 to ptr)                                            m13.ll:31014  chat.rs:90
+0x5f8    store          ptr inttoptr (i64 8 to ptr)                                            m13.ll:31029  chat.rs:90
+0x5f8    store          ptr inttoptr (i64 8 to ptr)                                            m13.ll:33222  chat.rs:571
+0x5f8    store          ptr inttoptr (i64 8 to ptr)                                            m13.ll:33238  chat.rs:571
+0x600    call-arg       llvm.memset.p0.i64                                                     m13.ll:31017  chat.rs:90
+0x600    call-arg       llvm.memset.p0.i64                                                     m13.ll:31032  chat.rs:90
+0x600    call-arg       llvm.memset.p0.i64                                                     m13.ll:33225  chat.rs:571
+0x600    call-arg       llvm.memset.p0.i64                                                     m13.ll:33241  chat.rs:571
+0x610    store          i64 %657                                                               m13.ll:31018  chat.rs:90
+0x610    store          i64 %657                                                               m13.ll:31033  chat.rs:90
+0x610    store          i64 %1614                                                              m13.ll:33226  chat.rs:571
+0x610    store          i64 %1614                                                              m13.ll:33242  chat.rs:571
+0x618    store          i8 %555                                                                m13.ll:31020  chat.rs:90
+0x618    store          i8 %555                                                                m13.ll:31035  chat.rs:90
+0x618    store          i8 %139                                                                m13.ll:33228  chat.rs:571
+0x618    store          i8 %139                                                                m13.ll:33244  chat.rs:571
+0x619    store          i8 7                                                                   m13.ll:31022  chat.rs:90
+0x619    store          i8 7                                                                   m13.ll:31037  chat.rs:90
+0x619    store          i8 8                                                                   m13.ll:31197  chat.rs:125
+0x619    store          i8 7                                                                   m13.ll:33230  chat.rs:571
+0x619    store          i8 7                                                                   m13.ll:33246  chat.rs:571
+0x648    store          i64 0                                                                  m13.ll:30245  chat.rs:184
+0x650    store          i64 %295                                                               m13.ll:30247  chat.rs:184
+0x6a8    store          i64 %274                                                               m13.ll:30207  chat.rs:178
+0x6e6    store          i8 %222                                                                m13.ll:30133  chat.rs:177
+0x6ee    store          i8 %291                                                                m13.ll:30238  chat.rs:180
+0x7c8    call-arg       _RNvMs3_NtCs9LexZzt9XJB_5alloc7raw_vecINtB5_6RawVecNtNtNtNtCs97f5S1uJL m13.ll:30442  chat.rs:219
+0x7c8    call-arg       _RNvMs3_NtCs9LexZzt9XJB_5alloc7raw_vecINtB5_6RawVecNtNtNtNtCs97f5S1uJL m13.ll:30957  chat.rs:88
+0x7c8    call-arg       _RNvMs3_NtCs9LexZzt9XJB_5alloc7raw_vecINtB5_6RawVecNtNtNtNtCs97f5S1uJL m13.ll:31400  chat.rs:299
+0x7c8    call-arg       _RNvMs3_NtCs9LexZzt9XJB_5alloc7raw_vecINtB5_6RawVecNtNtNtNtCs97f5S1uJL m13.ll:31466  chat.rs:308
+0x7c8    call-arg       _RNvMs3_NtCs9LexZzt9XJB_5alloc7raw_vecINtB5_6RawVecNtNtNtNtCs97f5S1uJL m13.ll:31528  chat.rs:316
+0x7c8    call-arg       _RNvMs3_NtCs9LexZzt9XJB_5alloc7raw_vecINtB5_6RawVecNtNtNtNtCs97f5S1uJL m13.ll:31598  chat.rs:327
+0x7c8    call-arg       _RNvMs3_NtCs9LexZzt9XJB_5alloc7raw_vecINtB5_6RawVecNtNtNtNtCs97f5S1uJL m13.ll:31786  chat.rs:360
+0x7c8    call-arg       _RNvMs3_NtCs9LexZzt9XJB_5alloc7raw_vecINtB5_6RawVecNtNtNtNtCs97f5S1uJL m13.ll:31843  chat.rs:380
+0x7c8    call-arg       _RNvMs3_NtCs9LexZzt9XJB_5alloc7raw_vecINtB5_6RawVecNtNtNtNtCs97f5S1uJL m13.ll:32048  chat.rs:399
+0x7c8    call-arg       _RNvMs3_NtCs9LexZzt9XJB_5alloc7raw_vecINtB5_6RawVecNtNtNtNtCs97f5S1uJL m13.ll:32090  chat.rs:407
+0x7c8    call-arg       _RNvMs3_NtCs9LexZzt9XJB_5alloc7raw_vecINtB5_6RawVecNtNtNtNtCs97f5S1uJL m13.ll:32224  chat.rs:424
+0x7c8    call-arg       _RNvMs3_NtCs9LexZzt9XJB_5alloc7raw_vecINtB5_6RawVecNtNtNtNtCs97f5S1uJL m13.ll:32281  chat.rs:444
+0x7c8    call-arg       _RNvMs3_NtCs9LexZzt9XJB_5alloc7raw_vecINtB5_6RawVecNtNtNtNtCs97f5S1uJL m13.ll:32461  chat.rs:461
+0x7c8    call-arg       _RNvMs3_NtCs9LexZzt9XJB_5alloc7raw_vecINtB5_6RawVecNtNtNtNtCs97f5S1uJL m13.ll:32565  chat.rs:468
+0x7c8    call-arg       _RNvMs3_NtCs9LexZzt9XJB_5alloc7raw_vecINtB5_6RawVecNtNtNtNtCs97f5S1uJL m13.ll:32669  chat.rs:483
+0x7c8    call-arg       _RNvMs3_NtCs9LexZzt9XJB_5alloc7raw_vecINtB5_6RawVecNtNtNtNtCs97f5S1uJL m13.ll:32791  chat.rs:501
+0x7c8    call-arg       _RNvMs3_NtCs9LexZzt9XJB_5alloc7raw_vecINtB5_6RawVecNtNtNtNtCs97f5S1uJL m13.ll:32908  chat.rs:519
+0x7c8    call-arg       _RNvMs3_NtCs9LexZzt9XJB_5alloc7raw_vecINtB5_6RawVecNtNtNtNtCs97f5S1uJL m13.ll:32965  chat.rs:544
+0x7c8    call-arg       _RNvMs3_NtCs9LexZzt9XJB_5alloc7raw_vecINtB5_6RawVecNtNtNtNtCs97f5S1uJL m13.ll:33124  chat.rs:557
+0x7d8    store          i64 %396                                                               m13.ll:30456  chat.rs:219
+0x7d8    store          i64 %640                                                               m13.ll:30973  chat.rs:88
+0x7d8    store          i64 %844                                                               m13.ll:31414  chat.rs:299
+0x7d8    store          i64 %870                                                               m13.ll:31480  chat.rs:308
+0x7d8    store          i64 %895                                                               m13.ll:31542  chat.rs:316
+0x7d8    store          i64 %925                                                               m13.ll:31612  chat.rs:327
+0x7d8    store          i64 %1006                                                              m13.ll:31800  chat.rs:360
+0x7d8    store          i64 %1027                                                              m13.ll:31857  chat.rs:380
+0x7d8    store          i64 %1111                                                              m13.ll:32062  chat.rs:399
+0x7d8    store          i64 %1125                                                              m13.ll:32104  chat.rs:407
+0x7d8    store          i64 %1181                                                              m13.ll:32238  chat.rs:424
+0x7d8    store          i64 %1202                                                              m13.ll:32295  chat.rs:444
+0x7d8    store          i64 %1287                                                              m13.ll:32475  chat.rs:461
+0x7d8    store          i64 %1325                                                              m13.ll:32579  chat.rs:468
+0x7d8    store          i64 %1365                                                              m13.ll:32683  chat.rs:483
+0x7d8    store          i64 %1420                                                              m13.ll:32805  chat.rs:501
+0x7d8    store          i64 %1473                                                              m13.ll:32922  chat.rs:519
+0x7d8    store          i64 %1497                                                              m13.ll:32979  chat.rs:544
+0x7d8    store          i64 %1578                                                              m13.ll:33138  chat.rs:557
+0x1470   store          i64 %753                                                               m13.ll:31206  chat.rs:126
+0x15b8   store          i64 %154                                                               m13.ll:30013  chat.rs:141
+0x15c0   store          i64 %168                                                               m13.ll:30034  chat.rs:144
+0x15c8   store          i64 %184                                                               m13.ll:30067  chat.rs:151
+0x15e8   store          i64 %540                                                               m13.ll:30744  chat.rs:239
+0x15f0   store          i64 %544                                                               m13.ll:30752  chat.rs:236
+0x15f8   store          i64 %1210                                                              m13.ll:32328  chat.rs:437
+0x15f8   store          i64 %1499                                                              m13.ll:33007  chat.rs:552
+0x1600   store          i8 18                                                                  m13.ll:32325  chat.rs:437
+0x1600   store          i8 19                                                                  m13.ll:33004  chat.rs:552
+0x1601   store          i8 %1216                                                               m13.ll:32327  chat.rs:437
+0x1601   store          i8 %1506                                                               m13.ll:33006  chat.rs:552
+0x1602   store          i8 %1218                                                               m13.ll:32330  chat.rs:437
+0x1602   store          i8 %1508                                                               m13.ll:33009  chat.rs:552
+0x1603   store          i8 %1220                                                               m13.ll:32332  chat.rs:437
+0x1603   store          i8 %1510                                                               m13.ll:33011  chat.rs:552
+0x1608   store          i8 %1227                                                               m13.ll:32350  chat.rs:437
+0x1608   store          i8 %1517                                                               m13.ll:33029  chat.rs:552
+0x1609   store          i8 %1229                                                               m13.ll:32352  chat.rs:437
+0x1609   store          i8 %1519                                                               m13.ll:33031  chat.rs:552
+0x160a   store          i8 %1231                                                               m13.ll:32354  chat.rs:437
+0x160a   store          i8 %1521                                                               m13.ll:33033  chat.rs:552
+0x160b   store          i8 %1233                                                               m13.ll:32356  chat.rs:437
+0x160b   store          i8 %1523                                                               m13.ll:33035  chat.rs:552
+0x160c   store          i8 %1235                                                               m13.ll:32358  chat.rs:437
+0x160c   store          i8 %1525                                                               m13.ll:33037  chat.rs:552
+0x160d   store          i8 %1237                                                               m13.ll:32360  chat.rs:437
+0x160d   store          i8 %1527                                                               m13.ll:33039  chat.rs:552
+0x160e   store          i8 %1239                                                               m13.ll:32362  chat.rs:437
+0x160e   store          i8 %1529                                                               m13.ll:33041  chat.rs:552
+0x160f   store          i8 %1241                                                               m13.ll:32364  chat.rs:437
+0x160f   store          i8 %1531                                                               m13.ll:33043  chat.rs:552
+0x1610   store          i8 21                                                                  m13.ll:30984  chat.rs:89
+0x1610   store          i8 23                                                                  m13.ll:31113  chat.rs:532
+0x1610   store          i8 22                                                                  m13.ll:31632  chat.rs:332
+0x1610   store          i8 23                                                                  m13.ll:31723  chat.rs:354
+0x1610   store          i8 23                                                                  m13.ll:31899  chat.rs:375
+0x1610   store          i8 23                                                                  m13.ll:31985  chat.rs:393
+0x1610   store          i8 23                                                                  m13.ll:32156  chat.rs:419
+0x1610   store          i8 23                                                                  m13.ll:32398  chat.rs:439
+0x1610   store          i8 23                                                                  m13.ll:32517  chat.rs:457
+0x1610   store          i8 23                                                                  m13.ll:32631  chat.rs:480
+0x1610   store          i8 23                                                                  m13.ll:32717  chat.rs:497
+0x1610   store          i8 23                                                                  m13.ll:32834  chat.rs:515
+0x1610   store          i8 23                                                                  m13.ll:33052  chat.rs:553
+0x1610   store          i8 21                                                                  m13.ll:33188  chat.rs:570
+0x1610   store          i8 23                                                                  m13.ll:33283  chat.rs:585
+0x1618   store          i64 %646                                                               m13.ll:30986  chat.rs:89
+0x1618   store          i64 %709                                                               m13.ll:31115  chat.rs:532
+0x1618   store          i64 %935                                                               m13.ll:31634  chat.rs:332
+0x1618   store          i64 %967                                                               m13.ll:31725  chat.rs:354
+0x1618   store          i64 %1036                                                              m13.ll:31901  chat.rs:375
+0x1618   store          i64 %1072                                                              m13.ll:31987  chat.rs:393
+0x1618   store          i64 %1143                                                              m13.ll:32158  chat.rs:419
+0x1618   store          i64 %1251                                                              m13.ll:32400  chat.rs:439
+0x1618   store          i64 %1296                                                              m13.ll:32519  chat.rs:457
+0x1618   store          i64 %1343                                                              m13.ll:32633  chat.rs:480
+0x1618   store          i64 %1381                                                              m13.ll:32719  chat.rs:497
+0x1618   store          i64 %1434                                                              m13.ll:32836  chat.rs:515
+0x1618   store          i64 %1541                                                              m13.ll:33054  chat.rs:553
+0x1618   store          i64 %1603                                                              m13.ll:33190  chat.rs:570
+0x1618   store          i64 %1650                                                              m13.ll:33285  chat.rs:585
+?var     store          i64 %64                                                                m13.ll:29854  chat.rs:341
+?var     store          i64 1                                                                  m13.ll:29868  chat.rs:338
+?var     store          i64 %75                                                                m13.ll:29870  chat.rs:338
+?var     store          i64 %348                                                               m13.ll:30332  chat.rs:0
+?var     store          i64 %563                                                               m13.ll:30801  chat.rs:0
+?var     store          i8 %573                                                                m13.ll:30823  chat.rs:0
+?var     store          i8 -1                                                                  m13.ll:31146  chat.rs:113
+
+# spec mem w rows:
+  [70] LegacyPlanHandler 0x517 team_plan.objective  <- ★핵심 부작용
+  [71] LegacyPlanHandler 0x518 team_plan.objective@Some.0 페이로드1(line 또는 phase)  <- 
+  [72] LegacyPlanHandler 0x519 team_plan.objective@Some.0 페이로드2(with_battle / ComebackPick.ready)  <- 
+  [73] LegacyPlanHandler 0x5e8 plan  <- ★교체 전 항상 drop_glue<BigPlan>(&self.plan) — Vec/Box 드롭 지점(HEAP_SUBST)
+  [74] LegacyPlanHandler 0x5f0 plan@Battle.0 (280B memcpy)  <- :237 store tag 9 + memcpy 280
+  [75] LegacyPlanHandler 0x5f0 plan@Battle.0.support_target@tag  <- :153
+  [76] LegacyPlanHandler 0x5f8 plan@Battle.0.support_target@Some.0  <- :153
+  [77] LegacyPlanHandler 0x5f0 plan@LineGanker.0.chats (cap=0, ptr=8, len=0)  <- :90/:571 — 0x5f0 cap, 0x5f8 ptr(dangling 8), 0x600 len(memset)
+  [78] LegacyPlanHandler 0x608 plan@LineGanker.0.setup_limit  <- :90/:571 memset 16B(0x600..0x60f)
+  [79] LegacyPlanHandler 0x610 plan@LineGanker.0.wait_limit  <- 
+  [80] LegacyPlanHandler 0x618 plan@LineGanker.0.line  <- :90/:571
+  [81] LegacyPlanHandler 0x619 plan@LineGanker.0.phase  <- LineGankerPhase 니치 태그(WaitResponse=6,Setup=7,Cancel=8)
+  [82] LegacyPlanHandler 0x648 plan@Battle.0.sub_goal@tag  <- :184
+  [83] LegacyPlanHandler 0x650 plan@Battle.0.sub_goal@Trace.focus  <- :184
+  [84] LegacyPlanHandler 0x6a8 plan@Battle.0.dive_join_tick  <- :178
+  [85] LegacyPlanHandler 0x6e6 plan@Battle.0.with_dive  <- :177
+  [86] LegacyPlanHandler 0x6ee plan@Battle.0.dive_tower  <- :180
+  [87] LegacyPlanHandler 0x378 team_plan.vision.mia_call_ticks[pos]  <- :341 Mia — 0x378 + pos*8
+  [88] LegacyPlanHandler 0xf8 team_plan.ally_battle_stop_tick[from]  <- :338 BattleStop
+  [89] LegacyPlanHandler 0x2b8 team_plan.allies[from]  <- 
+  [90] LegacyPlanHandler 0x170 team_plan.obj_spawn.serpen_spawn_call_tick  <- :487 SerpenPrepare
+  [91] LegacyPlanHandler 0x168 team_plan.obj_spawn.epic_spawn_call_tick  <- :490 MorgardPrepare
+  [92] LegacyPlanHandler 0x148 team_plan.obj_spawn.epic_giveup_tick  <- :474 MorgardGiveUp
+  [93] LegacyPlanHandler 0x158 team_plan.obj_spawn.serpen_giveup_tick  <- :413 SerpenGiveUp
+  [94] LegacyPlanHandler 0x188 team_plan.objective_misunderstanding  <- mark 는 target∈{Morgard4,Serpen5} 일 때만((t&6)==4)
+  [95] LegacyPlanHandler 0x308 team_plan.mf_obj_clear.0  <- mf_note_obj_clear 인라인
+  [96] LegacyPlanHandler 0x310 team_plan.mf_obj_clear.1  <- 
+  [97] LegacyPlanHandler 0x448 team_plan.gank_start_tick  <- :108
+  [98] LegacyPlanHandler 0x450 team_plan.press_tower_start_tick  <- :550
+  [99] LegacyPlanHandler 0x458 team_plan.comeback_pick_start_tick  <- :564
+  [100] LegacyPlanHandler 0x1d8 team_plan.comeback_pick_outcomes[last].1 (힙 버퍼 경유)  <- :132 — Vec 버퍼 요소 (i32,u8) 의 u8(+4). self 오프셋이 아니라 ptr 경유 쓰기
+  [101] LegacyPlanHandler 0x530 pending_global_ult_target  <- :278
+  [102] LegacyPlanHandler 0x7d8 chats.len (+ 버퍼에 Chat 24B 기록)  <- cap==len 이면 RawVec<Chat>::grow_one 호출 = 힙 재할당 지점(HEAP_SUBST)
+  [103] LegacyPlanHandler 0x1470 gank_cancel_tick  <- :126
+  [104] LegacyPlanHandler 0x15b8 ff_call_recv  <- :141
+  [105] LegacyPlanHandler 0x15c0 ff_call_ignored  <- :144
+  [106] LegacyPlanHandler 0x15c8 ff_call_in_battle  <- :151
+  [107] LegacyPlanHandler 0x15d0 ff_call_no_help  <- :204 (phi 5584)
+  [108] LegacyPlanHandler 0x15d8 ff_call_too_far  <- :205 (phi 5592)
+  [109] LegacyPlanHandler 0x15e0 ff_call_low_hp  <- :206 (phi 5600)
+  [110] LegacyPlanHandler 0x15e8 ff_call_bail  <- :239
+  [111] LegacyPlanHandler 0x15f0 ff_call_join  <- :236
+  [112] LegacyPlanHandler 0x15f8 ff_battle_exit.2 (usize tick)  <- ff_note_battle_swap 인라인 본문(:437 src=18, :552 src=19) — plan 이 Battle(9) 일 때만
+  [113] LegacyPlanHandler 0x1600 ff_battle_exit.0 (src)  <- 
+  [114] LegacyPlanHandler 0x1601 ff_battle_exit.1  <- 
+  [115] LegacyPlanHandler 0x1602 ff_battle_exit.3  <- 
+  [116] LegacyPlanHandler 0x1603 ff_battle_exit.4  <- 
+  [117] LegacyPlanHandler 0x1608 ff_battle_exit_latch[0..8]  <- ff_note_battle_swap 인라인
+  [118] LegacyPlanHandler 0x1610 mf_swap.0  <- mf_note_swap 인라인(항상 인라인, 15곳)
+  [119] LegacyPlanHandler 0x1618 mf_swap.1  <- 

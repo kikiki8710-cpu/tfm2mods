@@ -1,0 +1,1607 @@
+{
+ "round": 20,
+ "batch": "C",
+ "errors": [
+  {
+   "path": "/specs[108]/consts[3]/src_line",
+   "kind": "실오류",
+   "old": 393,
+   "new": 911,
+   "evidence": "m09.ll:28058 `%810 = icmp ult i64 %809, 36100000001, !dbg !31838` → dloc !31838: objective_discipline.rs:393(closure#3) > :393 update_v27_objective_discipline > team_plan.rs:911 (5칸 언롤 28058·28154·28258·28362·28466 동일). R667 동일값 사이트(29802 !32563 → team_plan.rs:667 > 949)는 부차",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[108]/consts[3]/meaning",
+   "kind": "보강",
+   "old": "190000²+1 — camp_visible_enemy_count 반경 · R667 my_near_target 반경(같은 값)",
+   "new": "190000²+1 — camp_visible_enemy_count 반경 · R667 my_near_target 반경(같은 값) [인라인 콜리 줄 393 → 루트 911 · 20차 C]",
+   "evidence": "src_line 정정과 짝 — 콜리 줄을 meaning 에 보존(20차 G 판과 같은 형식)",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[108]/consts[4]/src_line",
+   "kind": "실오류",
+   "old": 402,
+   "new": 911,
+   "evidence": "m09.ll:28633 `%1028 = tail call i64 @llvm.usub.sat.i64(i64 %1027, i64 180000), !dbg !32026` → uint_macros.rs:2472 > objective_discipline.rs:402 > … > :406 > team_plan.rs:911 (5칸 언롤 동일). R651 인자 사이트(29701 !32528 → team_plan.rs:651 > 949)는 부차",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[108]/consts[4]/meaning",
+   "kind": "보강",
+   "old": "D402 d=distance(last_pos,camp).saturating_sub(180000) 접근 여유 · R651 v23_healthy_allies_near_point(target_camp) 반경",
+   "new": "D402 d=distance(last_pos,camp).saturating_sub(180000) 접근 여유 · R651 v23_healthy_allies_near_point(target_camp) 반경 [인라인 콜리 줄 402 → 루트 911 · 20차 C]",
+   "evidence": "src_line 정정과 짝 — 콜리 줄을 meaning 에 보존(20차 G 판과 같은 형식)",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[108]/consts[5]/src_line",
+   "kind": "보강",
+   "old": 652,
+   "new": 949,
+   "evidence": "m09.ll:29703 `%1501 = call … v23_healthy_allies_near_point(…, i64 200000, …), !dbg !32530` → dloc: team_plan.rs:652 in repair_misunderstood_objective > team_plan.rs:949 in update_objective_after_steal. 652 는 같은 파일이지만 인라인 콜리(603~720) 내부 줄이고 루트는 호출줄 949",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[108]/consts[5]/meaning",
+   "kind": "보강",
+   "old": "R652 v23_healthy_allies_near_point(opposite_camp) 반경 [team_plan.rs]",
+   "new": "R652 v23_healthy_allies_near_point(opposite_camp) 반경 [team_plan.rs] [같은 파일 인라인 콜리 줄 652 → 루트 949 · 20차 C]",
+   "evidence": "src_line 정정과 짝 — 콜리 줄을 meaning 에 보존(20차 G 판과 같은 형식)",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[108]/consts[6]/src_line",
+   "kind": "보강",
+   "old": 651,
+   "new": 949,
+   "evidence": "m09.ll:29701 `%1500 = call … v23_healthy_allies_near_point(…, i64 40, …), !dbg !32528` → team_plan.rs:651 in repair_misunderstood_objective > team_plan.rs:949. D434 `icmp ult i64 %170, 40`(29094 !32101 → objective_discipline.rs:434 > 911)는 부차 사이트",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[108]/consts[6]/meaning",
+   "kind": "보강",
+   "old": "v23_healthy_allies_near_point 의 hp% 하한 인자(651·652) · D434 hp_ratio < 40 이면 release 불가",
+   "new": "v23_healthy_allies_near_point 의 hp% 하한 인자(651·652) · D434 hp_ratio < 40 이면 release 불가 [같은 파일 인라인 콜리 줄 651 → 루트 949 · 20차 C]",
+   "evidence": "src_line 정정과 짝 — 콜리 줄을 meaning 에 보존(20차 G 판과 같은 형식)",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[108]/consts[7]/src_line",
+   "kind": "실오류",
+   "old": 382,
+   "new": 911,
+   "evidence": "m09.ll:26608 `%208 = icmp ugt i64 %207, 34, !dbg !31298` → objective_discipline.rs:382 > … > :383 > team_plan.rs:911 (규율 4 클로저 15 사이트 전부 루트 911). mf 코드 34 store(31214→995 · 32150→992)는 다른 사이트",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[108]/consts[7]/meaning",
+   "kind": "보강",
+   "old": "hp*100/max_hp > 34 — 규율 카운트 4종의 '건강' 기준",
+   "new": "hp*100/max_hp > 34 — 규율 카운트 4종의 '건강' 기준 [인라인 콜리 줄 382 → 루트 911 · 20차 C]",
+   "evidence": "src_line 정정과 짝 — 콜리 줄을 meaning 에 보존(20차 G 판과 같은 형식)",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[108]/consts[9]/src_line",
+   "kind": "실오류",
+   "old": 374,
+   "new": 911,
+   "evidence": "m09.ll:26522 `%180 = icmp ult i64 %179, 36, !dbg !31102` → objective_discipline.rs:374 > team_plan.rs:911. mf 코드 36 store(29446→936 · 30877/31280→995)는 다른 사이트",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[108]/consts[9]/meaning",
+   "kind": "보강",
+   "old": "objective_hp_ratio < 36 = execute_window(막타 창) → 규율 해제",
+   "new": "objective_hp_ratio < 36 = execute_window(막타 창) → 규율 해제 [인라인 콜리 줄 374 → 루트 911 · 20차 C]",
+   "evidence": "src_line 정정과 짝 — 콜리 줄을 meaning 에 보존(20차 G 판과 같은 형식)",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[108]/consts[10]/src_line",
+   "kind": "실오류",
+   "old": 419,
+   "new": 911,
+   "evidence": "m09.ll:29036 `%1199 = icmp ult i64 %170, 35, !dbg !32086` → objective_discipline.rs:419 > team_plan.rs:911",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[108]/consts[10]/meaning",
+   "kind": "보강",
+   "old": "hp_ratio < 35 위험 분기 진입",
+   "new": "hp_ratio < 35 위험 분기 진입 [인라인 콜리 줄 419 → 루트 911 · 20차 C]",
+   "evidence": "src_line 정정과 짝 — 콜리 줄을 meaning 에 보존(20차 G 판과 같은 형식)",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[108]/consts[11]/src_line",
+   "kind": "실오류",
+   "old": 420,
+   "new": 911,
+   "evidence": "m09.ll:29048 `%1203 = icmp samesign ult i64 %170, 25, !dbg !32093` → objective_discipline.rs:420 > team_plan.rs:911. G1160 사이트(30225 !32855 → objective_handlers.rs:1160 > 946)는 부차",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[108]/consts[11]/meaning",
+   "kind": "보강",
+   "old": "hp_ratio < 25 최위험 · G1160 갱 대상 라이너 hp% < 25 취소",
+   "new": "hp_ratio < 25 최위험 · G1160 갱 대상 라이너 hp% < 25 취소 [인라인 콜리 줄 420 → 루트 911 · 20차 C]",
+   "evidence": "src_line 정정과 짝 — 콜리 줄을 meaning 에 보존(20차 G 판과 같은 형식)",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[108]/consts[14]/src_line",
+   "kind": "실오류",
+   "old": 413,
+   "new": 911,
+   "evidence": "m09.ll:29008 `%1178 = shl i64 %160, 2, !dbg !32073` → objective_discipline.rs:413 > team_plan.rs:911. R678 사이트(29840 !32589 → team_plan.rs:678 > 949)는 부차",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[108]/consts[14]/meaning",
+   "kind": "보강",
+   "old": "D413 `shl %tps, 2` = tps*4: ally_finish_tick ∈ [1, 4초] · R678 opposite_group 4초 · (2 자체로도 등장: near_ally<2·camp_ally+2 등)",
+   "new": "D413 `shl %tps, 2` = tps*4: ally_finish_tick ∈ [1, 4초] · R678 opposite_group 4초 · (2 자체로도 등장: near_ally<2·camp_ally+2 등) [인라인 콜리 줄 413 → 루트 911 · 20차 C]",
+   "evidence": "src_line 정정과 짝 — 콜리 줄을 meaning 에 보존(20차 G 판과 같은 형식)",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[108]/consts[15]/src_line",
+   "kind": "실오류",
+   "old": 741,
+   "new": 995,
+   "evidence": "m09.ll:31128 `%2062 = shl i64 %2061, 1, !dbg !33474` → objective_handlers.rs:741 in handle_morgard_objective > team_plan.rs:995. S607(32041 !33943 → :607 > 992) · D447(29193/29194 !32130 → objective_discipline.rs:447 > 911)는 부차",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[108]/consts[15]/meaning",
+   "kind": "보강",
+   "old": "`shl %tps, 1` = tps*2: M741/S607 킬 틱 min > 2초 · D447 HardDisengage 연장 2초 · `lshr %tps,1` = tps/2 SafeWait 연장",
+   "new": "`shl %tps, 1` = tps*2: M741/S607 킬 틱 min > 2초 · D447 HardDisengage 연장 2초 · `lshr %tps,1` = tps/2 SafeWait 연장 [인라인 콜리 줄 741 → 루트 995 · 20차 C]",
+   "evidence": "src_line 정정과 짝 — 콜리 줄을 meaning 에 보존(20차 G 판과 같은 형식)",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[108]/consts[16]/src_line",
+   "kind": "실오류",
+   "old": 419,
+   "new": 1019,
+   "evidence": "m09.ll:36506 `%4044 = shl i64 %4043, 3, !dbg !37174` → objective_handlers.rs:419(closure#0) > :416 handle_comeback_pick_objective > team_plan.rs:1019 (CB431 은 36653 !37293 → :430 > :427 > 1019). D454 `mul i64 %160, 3`(29224 !32138 → :454 > 911)는 부차",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[108]/consts[16]/meaning",
+   "kind": "보강",
+   "old": "CB419/431 `shl %tps, 3` = tps*8: 킬 로그 8초 창 · (3 자체: until=tick+tps*3 HardDisengage 신규(D454 `mul 3`), Hunt 태그, near_allies<3)",
+   "new": "CB419/431 `shl %tps, 3` = tps*8: 킬 로그 8초 창 · (3 자체: until=tick+tps*3 HardDisengage 신규(D454 `mul 3`), Hunt 태그, near_allies<3) [인라인 콜리 줄 419 → 루트 1019 · 20차 C]",
+   "evidence": "src_line 정정과 짝 — 콜리 줄을 meaning 에 보존(20차 G 판과 같은 형식)",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[108]/consts[18]/src_line",
+   "kind": "실오류",
+   "old": 1143,
+   "new": 946,
+   "evidence": "m09.ll:30146 `%1667 = mul i64 %1666, 20, !dbg !32839` → objective_handlers.rs:1143 in handle_gank_preprocess > team_plan.rs:946. DV129(35308 → :129 > 1013) · CB479(36714 `select i1 %3954, i64 20, i64 15` → :479 > 1019)는 부차",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[108]/consts[18]/meaning",
+   "kind": "보강",
+   "old": "tps*20: 갱 목표 20초 초과 해제(G1143) · DV129 다이브→갱 복귀 20초 · CB479 ready=true 타임아웃 20초",
+   "new": "tps*20: 갱 목표 20초 초과 해제(G1143) · DV129 다이브→갱 복귀 20초 · CB479 ready=true 타임아웃 20초 [인라인 콜리 줄 1143 → 루트 946 · 20차 C]",
+   "evidence": "src_line 정정과 짝 — 콜리 줄을 meaning 에 보존(20차 G 판과 같은 형식)",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[108]/consts[19]/src_line",
+   "kind": "실오류",
+   "old": 108,
+   "new": 1013,
+   "evidence": "m09.ll:34641 `%3413 = mul i64 %3412, 30, !dbg !36051` → objective_handlers.rs:108 in handle_dive_objective > team_plan.rs:1013. PT168(35601 !36525 → :168 > 1016)는 부차",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[108]/consts[19]/meaning",
+   "kind": "보강",
+   "old": "tps*30: 다이브(DV108)·타워 압박(PT168) 30초 초과 해제",
+   "new": "tps*30: 다이브(DV108)·타워 압박(PT168) 30초 초과 해제 [인라인 콜리 줄 108 → 루트 1013 · 20차 C]",
+   "evidence": "src_line 정정과 짝 — 콜리 줄을 meaning 에 보존(20차 G 판과 같은 형식)",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[108]/consts[20]/src_line",
+   "kind": "실오류",
+   "old": 489,
+   "new": 1019,
+   "evidence": "m09.ll:36751 `%4126 = mul i64 %4112, 5, !dbg !37342` → objective_handlers.rs:489 in handle_comeback_pick_objective > team_plan.rs:1019",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[108]/consts[20]/meaning",
+   "kind": "보강",
+   "old": "tps*5: CB489 grace_period(픽 시작 5초 이내) `mul %tps, 5` — shl 피연산자 아님(range 상한 5 = 플레이어 5칸)",
+   "new": "tps*5: CB489 grace_period(픽 시작 5초 이내) `mul %tps, 5` — shl 피연산자 아님(range 상한 5 = 플레이어 5칸) [인라인 콜리 줄 489 → 루트 1019 · 20차 C]",
+   "evidence": "src_line 정정과 짝 — 콜리 줄을 meaning 에 보존(20차 G 판과 같은 형식)",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[108]/consts[21]/src_line",
+   "kind": "보강",
+   "old": 680,
+   "new": 949,
+   "evidence": "m09.ll:29869 `%1571 = mul i64 %1485, 6, !dbg !32599` → team_plan.rs:680 > option.rs:661 > team_plan.rs:680 in repair_misunderstood_objective > team_plan.rs:949 (같은 파일 인라인 콜리 줄, 루트 949)",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[108]/consts[21]/meaning",
+   "kind": "보강",
+   "old": "tps*6: R680 solo_hunt 6초 경과 · outcome 코드 6(넥서스 선점)",
+   "new": "tps*6: R680 solo_hunt 6초 경과 · outcome 코드 6(넥서스 선점) [같은 파일 인라인 콜리 줄 680 → 루트 949 · 20차 C]",
+   "evidence": "src_line 정정과 짝 — 콜리 줄을 meaning 에 보존(20차 G 판과 같은 형식)",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[108]/consts[22]/src_line",
+   "kind": "실오류",
+   "old": 372,
+   "new": 911,
+   "evidence": "m09.ll:26503 `%169 = mul i64 %168, 100, !dbg !31098` → objective_discipline.rs:372 > team_plan.rs:911 (hp% 환산 42 사이트 중 규율 22 사이트 루트 911 · 946/998/1013 은 핸들러 사이트)",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[108]/consts[22]/meaning",
+   "kind": "보강",
+   "old": "hp 백분율 환산 계수",
+   "new": "hp 백분율 환산 계수 [인라인 콜리 줄 372 → 루트 911 · 20차 C]",
+   "evidence": "src_line 정정과 짝 — 콜리 줄을 meaning 에 보존(20차 G 판과 같은 형식)",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[108]/consts[24]/src_line",
+   "kind": "실오류",
+   "old": 745,
+   "new": 995,
+   "evidence": "m09.ll:31154 `%2075 = call … should_disengage_object_hunt(…, i64 150000), !dbg !33489` → objective_handlers.rs:745 in handle_morgard_objective > team_plan.rs:995. S611(32067 → :611 > 992)는 부차",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[108]/consts[24]/meaning",
+   "kind": "보강",
+   "old": "should_disengage_object_hunt 반경 인자(M745·S611) [objective_handlers.rs]",
+   "new": "should_disengage_object_hunt 반경 인자(M745·S611) [objective_handlers.rs] [인라인 콜리 줄 745 → 루트 995 · 20차 C]",
+   "evidence": "src_line 정정과 짝 — 콜리 줄을 meaning 에 보존(20차 G 판과 같은 형식)",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[108]/consts[26]/src_line",
+   "kind": "실오류",
+   "old": 321,
+   "new": 998,
+   "evidence": "m09.ll:33732 `%3055 = icmp ugt i64 %3054, 29, !dbg !35377` → objective_handlers.rs:321(closure#1) > … > :321 handle_press_epic_objective > team_plan.rs:998 (5칸 언롤 동일)",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[108]/consts[26]/meaning",
+   "kind": "보강",
+   "old": "PE321 live_ally_count: hp% > 29 · Chat 29 SerpenHunt",
+   "new": "PE321 live_ally_count: hp% > 29 · Chat 29 SerpenHunt [인라인 콜리 줄 321 → 루트 998 · 20차 C]",
+   "evidence": "src_line 정정과 짝 — 콜리 줄을 meaning 에 보존(20차 G 판과 같은 형식)",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[108]/consts[27]/src_line",
+   "kind": "실오류",
+   "old": 118,
+   "new": 1013,
+   "evidence": "m09.ll:34745 `%3441 = icmp ugt i64 %3440, 39, !dbg !36106` → objective_handlers.rs:118 > option.rs:661 > :116 > … > :120 handle_dive_objective > team_plan.rs:1013 (5칸 언롤 동일). aux 조각 4종(67217·68475·68649·68867)은 아웃오브라인 함수라 team_plan.rs 루트 없음",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[108]/consts[27]/meaning",
+   "kind": "보강",
+   "old": "hp% > 39 — DV118·aux count 술어 5종(gank near_allies·press_tower healthy_allies·comeback near_allies/allies_on_line)",
+   "new": "hp% > 39 — DV118·aux count 술어 5종(gank near_allies·press_tower healthy_allies·comeback near_allies/allies_on_line) [인라인 콜리 줄 118 → 루트 1013 · 20차 C]",
+   "evidence": "src_line 정정과 짝 — 콜리 줄을 meaning 에 보존(20차 G 판과 같은 형식)",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[108]/consts[32]/src_line",
+   "kind": "실오류",
+   "old": 200,
+   "new": 1016,
+   "evidence": "m09.ll:35848 `%3820 = icmp slt i32 %3819, -2, !dbg !36658` → objective_handlers.rs:200 in handle_press_tower_objective > team_plan.rs:1016",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[108]/consts[32]/meaning",
+   "kind": "보강",
+   "old": "PT200 minion_count < -2",
+   "new": "PT200 minion_count < -2 [인라인 콜리 줄 200 → 루트 1016 · 20차 C]",
+   "evidence": "src_line 정정과 짝 — 콜리 줄을 meaning 에 보존(20차 G 판과 같은 형식)",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[108]/consts[35]/src_line",
+   "kind": "보강",
+   "old": 691,
+   "new": 949,
+   "evidence": "m09.ll:29883 `%1579 = select i1 %1578, i16 259, i16 257, !dbg !32602`(team_plan.rs:686) · 29886 `store i16 %1579, ptr %1456, align 1, !dbg !32604` → dloc !32604: team_plan.rs:691 in repair_misunderstood_objective > team_plan.rs:949",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[108]/consts[35]/meaning",
+   "kind": "보강",
+   "old": "R691 i16 store 0x0103 = phase Hunt(3)+with_battle(1)",
+   "new": "R691 i16 store 0x0103 = phase Hunt(3)+with_battle(1) [같은 파일 인라인 콜리 줄 691 → 루트 949 · 20차 C]",
+   "evidence": "src_line 정정과 짝 — 콜리 줄을 meaning 에 보존(20차 G 판과 같은 형식)",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[108]/consts[36]/src_line",
+   "kind": "보강",
+   "old": 691,
+   "new": 949,
+   "evidence": "m09.ll:29883 `select i1 %1578, i16 259, i16 257, !dbg !32602` · 29886 `store i16 %1579, … !dbg !32604` → team_plan.rs:691 in repair_misunderstood_objective > team_plan.rs:949",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[108]/consts[36]/meaning",
+   "kind": "보강",
+   "old": "R691 i16 store 0x0101 = phase Setup(1)+with_battle(1)",
+   "new": "R691 i16 store 0x0101 = phase Setup(1)+with_battle(1) [같은 파일 인라인 콜리 줄 691 → 루트 949 · 20차 C]",
+   "evidence": "src_line 정정과 짝 — 콜리 줄을 meaning 에 보존(20차 G 판과 같은 형식)",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[108]/consts[37]/src_line",
+   "kind": "실오류",
+   "old": 778,
+   "new": 995,
+   "evidence": "m09.ll:31467 `store i64 4, ptr %2195, align 8, !dbg !33622` → objective_handlers.rs:778 in handle_morgard_objective > team_plan.rs:995. S637(32301 → :637 > 992)는 부차",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[108]/consts[37]/meaning",
+   "kind": "보강",
+   "old": "M778/S637 plan.battle.sub_goal = BattleSubPlanGoal::RunAway(4) · MainObjective 4 Nexus · JungleType 4 Morgard · outcome 4",
+   "new": "M778/S637 plan.battle.sub_goal = BattleSubPlanGoal::RunAway(4) · MainObjective 4 Nexus · JungleType 4 Morgard · outcome 4 [인라인 콜리 줄 778 → 루트 995 · 20차 C]",
+   "evidence": "src_line 정정과 짝 — 콜리 줄을 meaning 에 보존(20차 G 판과 같은 형식)",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[108]/consts[38]/src_line",
+   "kind": "실오류",
+   "old": 776,
+   "new": 995,
+   "evidence": "m09.ll:31343 `%2152 = icmp eq i64 %2150, 9, !dbg !33571` → objective_handlers.rs:776 in handle_morgard_objective > team_plan.rs:995",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[108]/consts[38]/meaning",
+   "kind": "보강",
+   "old": "BigPlan 태그 9 Battle(M776·S635·CB490·D17) · MainObjective 9 Dive(G1219)",
+   "new": "BigPlan 태그 9 Battle(M776·S635·CB490·D17) · MainObjective 9 Dive(G1219) [인라인 콜리 줄 776 → 루트 995 · 20차 C]",
+   "evidence": "src_line 정정과 짝 — 콜리 줄을 meaning 에 보존(20차 G 판과 같은 형식)",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[108]/consts[39]/src_line",
+   "kind": "실오류",
+   "old": 1137,
+   "new": 946,
+   "evidence": "m09.ll:30132 `%1658 = icmp eq i64 %1656, 10, !dbg !32830` → objective_handlers.rs:1137 in handle_gank_preprocess > team_plan.rs:946",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[108]/consts[39]/meaning",
+   "kind": "보강",
+   "old": "BigPlan 태그 10 LineGanker(G1137 → ForcePassive) · MainObjective 10 PressTower",
+   "new": "BigPlan 태그 10 LineGanker(G1137 → ForcePassive) · MainObjective 10 PressTower [인라인 콜리 줄 1137 → 루트 946 · 20차 C]",
+   "evidence": "src_line 정정과 짝 — 콜리 줄을 meaning 에 보존(20차 G 판과 같은 형식)",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[108]/consts[41]/src_line",
+   "kind": "실오류",
+   "old": 552,
+   "new": 1019,
+   "evidence": "m09.ll:37033 `store i8 11, ptr %75, align 1, !dbg !37522` → objective_handlers.rs:552 in handle_comeback_pick_objective > team_plan.rs:1019",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[108]/consts[41]/meaning",
+   "kind": "보강",
+   "old": "MainObjective 11 ComebackPick(CB552)",
+   "new": "MainObjective 11 ComebackPick(CB552) [인라인 콜리 줄 552 → 루트 1019 · 20차 C]",
+   "evidence": "src_line 정정과 짝 — 콜리 줄을 meaning 에 보존(20차 G 판과 같은 형식)",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[108]/consts[43]/src_line",
+   "kind": "실오류",
+   "old": 1168,
+   "new": 946,
+   "evidence": "m09.ll:30516 `store i8 17, ptr %1812, align 8, !dbg !33152` → mod.rs:1933 > :1045 > :1004(Vec::push) > objective_handlers.rs:1168 in handle_gank_preprocess > team_plan.rs:946",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[108]/consts[43]/meaning",
+   "kind": "보강",
+   "old": "Chat 17 Cancel{reason 1=라이너 저hp/2=라이너 없음} (G1168)",
+   "new": "Chat 17 Cancel{reason 1=라이너 저hp/2=라이너 없음} (G1168) [인라인 콜리 줄 1168 → 루트 946 · 20차 C]",
+   "evidence": "src_line 정정과 짝 — 콜리 줄을 meaning 에 보존(20차 G 판과 같은 형식)",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[108]/consts[44]/src_line",
+   "kind": "실오류",
+   "old": 712,
+   "new": 995,
+   "evidence": "m09.ll:30939 `store i8 42, ptr %1995, align 8, !dbg !33376` → Vec::push 프레임 > objective_handlers.rs:712 in handle_morgard_objective > team_plan.rs:995 (나머지 6 사이트 루트 992/998/1001/1013/1016/1019)",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[108]/consts[44]/meaning",
+   "kind": "보강",
+   "old": "Chat 42 AttackNexus{line} (nexus_attack 성공 6곳)",
+   "new": "Chat 42 AttackNexus{line} (nexus_attack 성공 6곳) [인라인 콜리 줄 712 → 루트 995 · 20차 C]",
+   "evidence": "src_line 정정과 짝 — 콜리 줄을 meaning 에 보존(20차 G 판과 같은 형식)",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[108]/consts[45]/src_line",
+   "kind": "실오류",
+   "old": 723,
+   "new": 995,
+   "evidence": "m09.ll:31010 `store i8 43, ptr %2020, align 8, !dbg !33429` → Vec::push 프레임 > objective_handlers.rs:723 in handle_morgard_objective > team_plan.rs:995 (나머지 7 사이트 루트 992/998/1001/1010/1013/1016/1019)",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[108]/consts[45]/meaning",
+   "kind": "보강",
+   "old": "Chat 43 DefenseNexus (defense role/chosen 8곳)",
+   "new": "Chat 43 DefenseNexus (defense role/chosen 8곳) [인라인 콜리 줄 723 → 루트 995 · 20차 C]",
+   "evidence": "src_line 정정과 짝 — 콜리 줄을 meaning 에 보존(20차 G 판과 같은 형식)",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[108]/consts[46]/src_line",
+   "kind": "실오류",
+   "old": 796,
+   "new": 995,
+   "evidence": "m09.ll:31625 `store i8 45, ptr %2255, align 8, !dbg !33720` → Vec::push 프레임 > objective_handlers.rs:796 in handle_morgard_objective > team_plan.rs:995 (S651→992 · CB474→1019)",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[108]/consts[46]/meaning",
+   "kind": "보강",
+   "old": "Chat 45 PressTower{line} (M796·S651·CB474)",
+   "new": "Chat 45 PressTower{line} (M796·S651·CB474) [인라인 콜리 줄 796 → 루트 995 · 20차 C]",
+   "evidence": "src_line 정정과 짝 — 콜리 줄을 meaning 에 보존(20차 G 판과 같은 형식)",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[108]/consts[47]/src_line",
+   "kind": "실오류",
+   "old": 822,
+   "new": 995,
+   "evidence": "m09.ll:31435 `store i8 38, ptr %2182, align 8, !dbg !33616` → Vec::push 프레임 > objective_handlers.rs:822 in handle_morgard_objective > team_plan.rs:995 (CB464→1019)",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[108]/consts[47]/meaning",
+   "kind": "보강",
+   "old": "Chat 38 MorgardHunt (M822·CB464) · mf 코드 38",
+   "new": "Chat 38 MorgardHunt (M822·CB464) · mf 코드 38 [인라인 콜리 줄 822 → 루트 995 · 20차 C]",
+   "evidence": "src_line 정정과 짝 — 콜리 줄을 meaning 에 보존(20차 G 판과 같은 형식)",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[108]/consts[48]/src_line",
+   "kind": "실오류",
+   "old": 287,
+   "new": 998,
+   "evidence": "m09.ll:33610 `store i8 23, ptr %3005, align 8, !dbg !35174` → Vec::push 프레임 > objective_handlers.rs:287 in handle_press_epic_objective > team_plan.rs:998",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[108]/consts[48]/meaning",
+   "kind": "보강",
+   "old": "Chat 23 Repair (PE287) · mf 코드 23",
+   "new": "Chat 23 Repair (PE287) · mf 코드 23 [인라인 콜리 줄 287 → 루트 998 · 20차 C]",
+   "evidence": "src_line 정정과 짝 — 콜리 줄을 meaning 에 보존(20차 G 판과 같은 형식)",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[108]/consts[49]/src_line",
+   "kind": "실오류",
+   "old": 641,
+   "new": 992,
+   "evidence": "m09.ll:32337 `store i8 31, ptr %2518, align 8, !dbg !34083` → dloc !34083: Vec::push 프레임 > objective_handlers.rs:642 in handle_serpen_objective > team_plan.rs:992 (S641 은 reason 계산줄, push 는 642). mf 코드 31 store(36957 → :537 > 1019)는 다른 사이트",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[108]/consts[49]/meaning",
+   "kind": "보강",
+   "old": "Chat 31 SerpenGiveUp{reason} (S641) · mf 코드 31",
+   "new": "Chat 31 SerpenGiveUp{reason} (S641) · mf 코드 31 [인라인 콜리 줄 642 → 루트 992 · 20차 C]",
+   "evidence": "src_line 정정과 짝 — 콜리 줄을 meaning 에 보존(20차 G 판과 같은 형식)",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[108]/consts[51]/src_line",
+   "kind": "실오류",
+   "old": 162,
+   "new": 1016,
+   "evidence": "m09.ll:35610 `store i8 12, ptr %3743, align 8, !dbg !36529` → team_plan.rs:197 mf_note_obj_clear > objective_handlers.rs:162 in handle_press_tower_objective > team_plan.rs:1016",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[108]/consts[51]/meaning",
+   "kind": "보강",
+   "old": "mf 코드 12 (PT162 적 타워 없음) — ⚠Option None 값이 아님",
+   "new": "mf 코드 12 (PT162 적 타워 없음) — ⚠Option None 값이 아님 [인라인 콜리 줄 162 → 루트 1016 · 20차 C]",
+   "evidence": "src_line 정정과 짝 — 콜리 줄을 meaning 에 보존(20차 G 판과 같은 형식)",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[108]/consts[29]/src_line",
+   "kind": "보강",
+   "old": 186,
+   "new": 1016,
+   "evidence": "m09.ll:3318 `%74 = icmp ult i64 %73, 40000000001, !dbg !10890` → dloc !10890: objective_handlers.rs:186 closure$1 > :186 closure$0 — 아웃오브라인 조각(m09 3152~3340)이라 사슬에 team_plan.rs 줄이 없다. 이 조각의 호출 사이트 = m09.ll:35757 `%3785 = call fastcc … champions(…)` !dbg → objective_handlers.rs:182 > team_plan.rs:1016 (PT181 engaged_at_tower). 루트 규약상 1016",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[108]/consts[29]/meaning",
+   "kind": "보강",
+   "old": "200000²+1 — aux PT186 engaged_at_tower 아군 미니언 반경",
+   "new": "200000²+1 — aux PT186 engaged_at_tower 아군 미니언 반경 [아웃오브라인 closure#0 objective_handlers.rs:186 · 호출 루트 1016 · 20차 C]",
+   "evidence": "src_line 정정과 짝",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[108]/consts[20]/meaning",
+   "kind": "보강",
+   "old": "tps*5: CB489 grace_period",
+   "new": "tps*5 계수: CB489 grace_period",
+   "evidence": "m09.ll:36751 `%4126 = mul i64 %4112, 5` — 소비 오프코드 mul(곱셈 계수). 현재 kind=태그 는 오분류(같은 값의 range 상한 5 는 부차)",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[108]/consts[44]/meaning",
+   "kind": "실오류",
+   "old": "(nexus_attack 성공 6곳)",
+   "new": "(AttackNexus 발행 7곳: M712·S566·PE261·SE342·DV96·PT149·CB401 — PE/SE 는 end_check 경유)",
+   "evidence": "storesweep: chats 원소 태그 `store i8 42` 7 사이트, g12trace 루트 집합 {995,992,998,1001,1013,1016,1019} = 7개 (m09.ll:30939 !33376 → :712 > 995 등)",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[108]/mem[86]/note",
+   "kind": "실오류",
+   "old": "None 저장 9 지점(D337·351·357·362·366·376·439) + Some 2 지점",
+   "new": "None 저장 7 지점(D337·351·357·362·366·376·439) + Some 2 지점(D451 갱신·D458 신규) = store 9",
+   "evidence": "storesweep self+0x149: `store i8 2` 7건 = m09.ll:26303(!31003 D337)·26323(D351)·26348(D357)·26471(D362)·26497(D366)·29041(D376)·29146(D439) + `store i8 %1275`(29210 !32134 D451) · `store i8 %1296`(29238 !32140 D458) = 총 9",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[108]/mem[42]/name",
+   "kind": "실오류",
+   "old": "top_tower[]/top_tower2[]/mid_tower[]/mid_tower2[]/bottom_tower[]/bottom_tower2[]",
+   "new": "top_tower[]",
+   "evidence": "tcxdict AbstractGameWithCache: 0x180 top_tower [Option<&Entity>;2] · 0x190 top_tower2 · 0x1a0 mid_tower · 0x1b0 mid_tower2 · 0x1c0 bottom_tower · 0x1d0 bottom_tower2 (각 16B). D9-OFF 규약 1(오프셋 하나=필드 하나) — 6 필드를 한 행에 넣어 tcxaudit 오귀속·G18(+0x190 표에 없음)이 났다. IR: m09.ll:30244 `gep i64 %1709 ; gep i64 384 ; gep i64 %1707`(=0x180+0x20*line+8*(1-team)) · 30247 `gep i64 400`(=0x190 tower2)",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[108]/mem[42]/note",
+   "kind": "보강",
+   "old": "0x180+0x20*line(+0x10 for tower2)+8*team",
+   "new": "1차 포탑. line 가변 조회 = 0x180+0x20*line+8*team (G1175 enemy_tower · DL61 tower · PT161 is_none) — mid/bottom 및 tower2 는 각각 별도 행(0x190~0x1d0) · tcx 정본 대조(tcxdict 2026-09-14)",
+   "evidence": "위와 동일 · tcxdict 출력",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[108]/logic",
+   "kind": "실오류",
+   "old": "valid_lines(ctx.tutorial)(인라인: {0,7,8}→3라인 · 5→2라인 · {1,3}/{2}/{4}/{6}→1라인 정적 배열)",
+   "new": "valid_lines(ctx.tutorial)(인라인 switch m09.ll:35678~35733: {0 None,7 Line,8 Total}→@anon.291=[Top,Mid,Bottom] · 5 MidBottom→@anon.290=[Mid,Bottom] · {1 First,3 Bottom}→@anon.35=[Bottom] · 2 TopSolo→@anon.36=[Top] · 4 MidSolo→@anon.31=[Mid] · 6 JungleOnly→%3773 = 배열 없음(for 루프 통째 생략, PT208 로 직행) · ≥9 unreachable)",
+   "evidence": "m09.ll:35678 `switch i8 %3768, label %1419 [ i8 0→%3778, 1→%3769, 2→%3770, 3→%3769, 4→%3771, 5→%3772, 6→%3773, 7→%3778, 8→%3778 ]` · 35732 `%3779 = phi i64 [3,%3766]x3,[2,%3772],[1,%3771],[1,%3769],[1,%3770]` · 35733 `%3780 = phi ptr [@anon.291,%3766]x3,[@anon.290,%3772],[@anon.31,%3771],[@anon.35,%3769],[@anon.36,%3770]` · 전역 m09.ll:321 `@anon.291 = [3 x i8] c\"\\00\\01\\02\"` · 320 `@anon.290 = [2 x i8] c\"\\01\\02\"` · 37 `@anon.31 = [1 x i8] c\"\\01\"` · 41 `@anon.35 = c\"\\02\"` · 42 `@anon.36 = zeroinitializer` · %3773(35699~35703)은 phi 로 안 가고 count 호출(%3777) 후 %3835 로 br = 루프 없음. 변이름 = tcxdict --enum TutorialType(0 None·1 First·2 TopSolo·3 Bottom·4 MidSolo·5 MidBottom·6 JungleOnly·7 Line·8 Total)",
+   "behavior_change": true,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[108]/logic",
+   "kind": "보강",
+   "old": "Effect::expected_damage_target(tower_attack, ctx, enemy_tower, ?, minion)[호출]",
+   "new": "Effect::expected_damage_target(tower_attack, ctx, enemy_tower as &dyn AbstractEntity(데이터 ptr + vtable @anon.138 = <Entity as AbstractEntity>), minion)[호출]",
+   "evidence": "m09.ll:30309 `%1755 = call noundef i64 @…Effect22expected_damage_target(ptr %1751, ptr %1644, ptr noundef nonnull %1718, ptr … dereferenceable(88) @anon.17beaf855860b1a5c4c224343f517d87.138, ptr … dereferenceable(1728) %1733)` · m09.ll:144 `@anon.…138 = private constant <{ptr,[16 x i8],ptr x8}> <{ ptr @drop_glue<Entity>, [16 x i8] c\"\\C0\\06…\\08…\"(size 0x6c0 align 8), ptr @<Entity as AbstractEntity>::x, ::y, ::hp, ::get_stat, ::stat_ref, ::buff_state, ::level, ::get_buff_by_name }>` = Entity 의 AbstractEntity vtable. callees[expected_damage_target].sig(tcx) = fn(&Effect, &GameContext, &dyn AbstractEntity, &Entity) 와 일치",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "op": "insert",
+   "path": "/specs[108]/mem",
+   "at": 98,
+   "guard": "obj_spawn.epic_giveup_tick.0 (tick)",
+   "guard_key": "name",
+   "new": {
+    "base": "TeamPlan",
+    "offset": "0x58",
+    "name": "obj_spawn.epic_giveup_tick.0 (tick)",
+    "value": "tick",
+    "note": "0x50 태그와 쌍 — M774 `store i64 %2147`(m09.ll:31339 !33570 → objective_handlers.rs:774 > 995) · tcx 정본 대조(tcxdict TeamPlan)"
+   },
+   "kind": "보강",
+   "evidence": "storesweep(self 상대 store 전수): 0x58/0x68/0x98/0xa8 에 i64 store 가 있으나 mem 에 행이 없었다(값 칸에 괄호로만 언급). 런타임 sweep 이 self 쓰기를 비교하므로 행으로 분리",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "op": "insert",
+   "path": "/specs[108]/mem",
+   "at": 99,
+   "guard": "obj_spawn.serpen_giveup_tick.0 (tick)",
+   "guard_key": "name",
+   "new": {
+    "base": "TeamPlan",
+    "offset": "0x68",
+    "name": "obj_spawn.serpen_giveup_tick.0 (tick)",
+    "value": "tick",
+    "note": "0x60 태그와 쌍 — S629(32159)·PE298(34035)·SE367(34406) `store i64 %tick` · tcx 정본 대조(tcxdict TeamPlan)"
+   },
+   "kind": "보강",
+   "evidence": "storesweep(self 상대 store 전수): 0x58/0x68/0x98/0xa8 에 i64 store 가 있으나 mem 에 행이 없었다(값 칸에 괄호로만 언급). 런타임 sweep 이 self 쓰기를 비교하므로 행으로 분리",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "op": "insert",
+   "path": "/specs[108]/mem",
+   "at": 100,
+   "guard": "objective_misunderstanding.opposite_group_start_tick.0",
+   "guard_key": "name",
+   "new": {
+    "base": "TeamPlan",
+    "offset": "0x98",
+    "name": "objective_misunderstanding.opposite_group_start_tick.0",
+    "value": "기존 Some 이면 유지, 아니면 tick",
+    "note": "R682 갱신 store(m09.ll:29894 `store i64 %1518, ptr %1402` !32608 → team_plan.rs:682 > 949) — 0x90 태그와 쌍 · tcx 정본 대조(tcxdict TeamPlan)"
+   },
+   "kind": "보강",
+   "evidence": "storesweep(self 상대 store 전수): 0x58/0x68/0x98/0xa8 에 i64 store 가 있으나 mem 에 행이 없었다(값 칸에 괄호로만 언급). 런타임 sweep 이 self 쓰기를 비교하므로 행으로 분리",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "op": "insert",
+   "path": "/specs[108]/mem",
+   "at": 101,
+   "guard": "objective_misunderstanding.solo_hunt_start_tick.0",
+   "guard_key": "name",
+   "new": {
+    "base": "TeamPlan",
+    "offset": "0xa8",
+    "name": "objective_misunderstanding.solo_hunt_start_tick.0",
+    "value": "기존 Some 이면 유지, 아니면 tick",
+    "note": "R682 갱신 store(m09.ll:29896 `store i64 %1558, ptr %1406` !32608) — 0xa0 태그와 쌍 · tcx 정본 대조(tcxdict TeamPlan)"
+   },
+   "kind": "보강",
+   "evidence": "storesweep(self 상대 store 전수): 0x58/0x68/0x98/0xa8 에 i64 store 가 있으나 mem 에 행이 없었다(값 칸에 괄호로만 언급). 런타임 sweep 이 self 쓰기를 비교하므로 행으로 분리",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "op": "insert",
+   "path": "/specs[108]/mem",
+   "at": 43,
+   "guard": "top_tower2[]",
+   "guard_key": "name",
+   "new": {
+    "base": "AbstractGameWithCache",
+    "offset": "0x190",
+    "name": "top_tower2[]",
+    "note": "2차 포탑. 0x190+0x20*line+8*team — `tower.or(tower2)` 폴백(G1175 m09.ll:30247 `gep i64 400` · DL61 · PT161) · tcx 정본 대조(tcxdict AbstractGameWithCache 2026-09-14)"
+   },
+   "kind": "보강",
+   "evidence": "tcxdict AbstractGameWithCache: 0x180 top_tower·0x190 top_tower2·0x1a0 mid_tower·0x1b0 mid_tower2·0x1c0 bottom_tower·0x1d0 bottom_tower2 (각 [Option<&Entity>;2] 16B). G18 적발(+0x190 표에 없음)·D9-OFF 규약 1 해소",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "op": "insert",
+   "path": "/specs[108]/mem",
+   "at": 44,
+   "guard": "mid_tower[]",
+   "guard_key": "name",
+   "new": {
+    "base": "AbstractGameWithCache",
+    "offset": "0x1a0",
+    "name": "mid_tower[]",
+    "note": "line=Mid 일 때 0x180+0x20*1 (G1175·DL61·PT161 line 가변 조회) · tcx 정본 대조(tcxdict AbstractGameWithCache 2026-09-14)"
+   },
+   "kind": "보강",
+   "evidence": "tcxdict AbstractGameWithCache: 0x180 top_tower·0x190 top_tower2·0x1a0 mid_tower·0x1b0 mid_tower2·0x1c0 bottom_tower·0x1d0 bottom_tower2 (각 [Option<&Entity>;2] 16B). G18 적발(+0x190 표에 없음)·D9-OFF 규약 1 해소",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "op": "insert",
+   "path": "/specs[108]/mem",
+   "at": 45,
+   "guard": "mid_tower2[]",
+   "guard_key": "name",
+   "new": {
+    "base": "AbstractGameWithCache",
+    "offset": "0x1b0",
+    "name": "mid_tower2[]",
+    "note": "line=Mid 폴백 (0x190+0x20*1) · tcx 정본 대조(tcxdict AbstractGameWithCache 2026-09-14)"
+   },
+   "kind": "보강",
+   "evidence": "tcxdict AbstractGameWithCache: 0x180 top_tower·0x190 top_tower2·0x1a0 mid_tower·0x1b0 mid_tower2·0x1c0 bottom_tower·0x1d0 bottom_tower2 (각 [Option<&Entity>;2] 16B). G18 적발(+0x190 표에 없음)·D9-OFF 규약 1 해소",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "op": "insert",
+   "path": "/specs[108]/mem",
+   "at": 46,
+   "guard": "bottom_tower[]",
+   "guard_key": "name",
+   "new": {
+    "base": "AbstractGameWithCache",
+    "offset": "0x1c0",
+    "name": "bottom_tower[]",
+    "note": "line=Bottom (0x180+0x20*2) · tcx 정본 대조(tcxdict AbstractGameWithCache 2026-09-14)"
+   },
+   "kind": "보강",
+   "evidence": "tcxdict AbstractGameWithCache: 0x180 top_tower·0x190 top_tower2·0x1a0 mid_tower·0x1b0 mid_tower2·0x1c0 bottom_tower·0x1d0 bottom_tower2 (각 [Option<&Entity>;2] 16B). G18 적발(+0x190 표에 없음)·D9-OFF 규약 1 해소",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "op": "insert",
+   "path": "/specs[108]/mem",
+   "at": 47,
+   "guard": "bottom_tower2[]",
+   "guard_key": "name",
+   "new": {
+    "base": "AbstractGameWithCache",
+    "offset": "0x1d0",
+    "name": "bottom_tower2[]",
+    "note": "line=Bottom 폴백 (0x190+0x20*2) · tcx 정본 대조(tcxdict AbstractGameWithCache 2026-09-14)"
+   },
+   "kind": "보강",
+   "evidence": "tcxdict AbstractGameWithCache: 0x180 top_tower·0x190 top_tower2·0x1a0 mid_tower·0x1b0 mid_tower2·0x1c0 bottom_tower·0x1d0 bottom_tower2 (각 [Option<&Entity>;2] 16B). G18 적발(+0x190 표에 없음)·D9-OFF 규약 1 해소",
+   "behavior_change": false,
+   "found_by": "reused"
+  }
+ ],
+ "ev_up": [
+  {
+   "path": "/specs[108]/mem[1]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(`tcxaudit.py` 2026-09-14 전량 실행: 이 함수 108 행 중 오귀속 1(0x180, 위에서 정정)·부분일치 2(0xe0 힙원소·DebugFrameData 0xa0)만 비OK, 나머지는 완전일치/표기차 OK)",
+   "found_by": "reused",
+   "guard": "\"offset\": \"0x420\", \"name\": \"objective.phase / .line\""
+  },
+  {
+   "path": "/specs[108]/mem[2]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(`tcxaudit.py` 2026-09-14 전량 실행: 이 함수 108 행 중 오귀속 1(0x180, 위에서 정정)·부분일치 2(0xe0 힙원소·DebugFrameData 0xa0)만 비OK, 나머지는 완전일치/표기차 OK)",
+   "found_by": "reused",
+   "guard": "\"offset\": \"0x421\", \"name\": \"objective.with_battle / ComebackPick.ready\""
+  },
+  {
+   "path": "/specs[108]/mem[3]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(`tcxaudit.py` 2026-09-14 전량 실행: 이 함수 108 행 중 오귀속 1(0x180, 위에서 정정)·부분일치 2(0xe0 힙원소·DebugFrameData 0xa0)만 비OK, 나머지는 완전일치/표기차 OK)",
+   "found_by": "reused",
+   "guard": "\"offset\": \"0x418\", \"name\": \"steal_action@tag\""
+  },
+  {
+   "path": "/specs[108]/mem[4]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(`tcxaudit.py` 2026-09-14 전량 실행: 이 함수 108 행 중 오귀속 1(0x180, 위에서 정정)·부분일치 2(0xe0 힙원소·DebugFrameData 0xa0)만 비OK, 나머지는 완전일치/표기차 OK)",
+   "found_by": "reused",
+   "guard": "\"offset\": \"0x149\", \"name\": \"objective_discipline.kind\""
+  },
+  {
+   "path": "/specs[108]/mem[5]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(`tcxaudit.py` 2026-09-14 전량 실행: 이 함수 108 행 중 오귀속 1(0x180, 위에서 정정)·부분일치 2(0xe0 힙원소·DebugFrameData 0xa0)만 비OK, 나머지는 완전일치/표기차 OK)",
+   "found_by": "reused",
+   "guard": "\"offset\": \"0x140\", \"name\": \"objective_discipline.until_tick\""
+  },
+  {
+   "path": "/specs[108]/mem[6]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(`tcxaudit.py` 2026-09-14 전량 실행: 이 함수 108 행 중 오귀속 1(0x180, 위에서 정정)·부분일치 2(0xe0 힙원소·DebugFrameData 0xa0)만 비OK, 나머지는 완전일치/표기차 OK)",
+   "found_by": "reused",
+   "guard": "\"offset\": \"0x148\", \"name\": \"objective_discipline.target\""
+  },
+  {
+   "path": "/specs[108]/mem[7]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(`tcxaudit.py` 2026-09-14 전량 실행: 이 함수 108 행 중 오귀속 1(0x180, 위에서 정정)·부분일치 2(0xe0 힙원소·DebugFrameData 0xa0)만 비OK, 나머지는 완전일치/표기차 OK)",
+   "found_by": "reused",
+   "guard": "\"offset\": \"0x90\", \"name\": \"objective_misunderstanding@tag / .opposite_group_start_tick@tag\""
+  },
+  {
+   "path": "/specs[108]/mem[8]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(`tcxaudit.py` 2026-09-14 전량 실행: 이 함수 108 행 중 오귀속 1(0x180, 위에서 정정)·부분일치 2(0xe0 힙원소·DebugFrameData 0xa0)만 비OK, 나머지는 완전일치/표기차 OK)",
+   "found_by": "reused",
+   "guard": "\"offset\": \"0x98\", \"name\": \"objective_misunderstanding.opposite_group_start_tick.0\""
+  },
+  {
+   "path": "/specs[108]/mem[9]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(`tcxaudit.py` 2026-09-14 전량 실행: 이 함수 108 행 중 오귀속 1(0x180, 위에서 정정)·부분일치 2(0xe0 힙원소·DebugFrameData 0xa0)만 비OK, 나머지는 완전일치/표기차 OK)",
+   "found_by": "reused",
+   "guard": "\"offset\": \"0xa0\", \"name\": \"objective_misunderstanding.solo_hunt_start_tick@tag\""
+  },
+  {
+   "path": "/specs[108]/mem[10]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(`tcxaudit.py` 2026-09-14 전량 실행: 이 함수 108 행 중 오귀속 1(0x180, 위에서 정정)·부분일치 2(0xe0 힙원소·DebugFrameData 0xa0)만 비OK, 나머지는 완전일치/표기차 OK)",
+   "found_by": "reused",
+   "guard": "\"offset\": \"0xa8\", \"name\": \"objective_misunderstanding.solo_hunt_start_tick.0\""
+  },
+  {
+   "path": "/specs[108]/mem[11]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(`tcxaudit.py` 2026-09-14 전량 실행: 이 함수 108 행 중 오귀속 1(0x180, 위에서 정정)·부분일치 2(0xe0 힙원소·DebugFrameData 0xa0)만 비OK, 나머지는 완전일치/표기차 OK)",
+   "found_by": "reused",
+   "guard": "\"offset\": \"0xb0\", \"name\": \"objective_misunderstanding.accepted_tick\""
+  },
+  {
+   "path": "/specs[108]/mem[12]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(`tcxaudit.py` 2026-09-14 전량 실행: 이 함수 108 행 중 오귀속 1(0x180, 위에서 정정)·부분일치 2(0xe0 힙원소·DebugFrameData 0xa0)만 비OK, 나머지는 완전일치/표기차 OK)",
+   "found_by": "reused",
+   "guard": "\"offset\": \"0xb8\", \"name\": \"objective_misunderstanding.target\""
+  },
+  {
+   "path": "/specs[108]/mem[13]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(`tcxaudit.py` 2026-09-14 전량 실행: 이 함수 108 행 중 오귀속 1(0x180, 위에서 정정)·부분일치 2(0xe0 힙원소·DebugFrameData 0xa0)만 비OK, 나머지는 완전일치/표기차 OK)",
+   "found_by": "reused",
+   "guard": "\"offset\": \"0x50\", \"name\": \"obj_spawn.epic_giveup_tick@tag\""
+  },
+  {
+   "path": "/specs[108]/mem[14]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(`tcxaudit.py` 2026-09-14 전량 실행: 이 함수 108 행 중 오귀속 1(0x180, 위에서 정정)·부분일치 2(0xe0 힙원소·DebugFrameData 0xa0)만 비OK, 나머지는 완전일치/표기차 OK)",
+   "found_by": "reused",
+   "guard": "\"offset\": \"0x60\", \"name\": \"obj_spawn.serpen_giveup_tick\""
+  },
+  {
+   "path": "/specs[108]/mem[15]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(`tcxaudit.py` 2026-09-14 전량 실행: 이 함수 108 행 중 오귀속 1(0x180, 위에서 정정)·부분일치 2(0xe0 힙원소·DebugFrameData 0xa0)만 비OK, 나머지는 완전일치/표기차 OK)",
+   "found_by": "reused",
+   "guard": "\"offset\": \"0xc0\", \"name\": \"chats.cap\""
+  },
+  {
+   "path": "/specs[108]/mem[16]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(`tcxaudit.py` 2026-09-14 전량 실행: 이 함수 108 행 중 오귀속 1(0x180, 위에서 정정)·부분일치 2(0xe0 힙원소·DebugFrameData 0xa0)만 비OK, 나머지는 완전일치/표기차 OK)",
+   "found_by": "reused",
+   "guard": "\"offset\": \"0xc8\", \"name\": \"chats.ptr\""
+  },
+  {
+   "path": "/specs[108]/mem[17]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(`tcxaudit.py` 2026-09-14 전량 실행: 이 함수 108 행 중 오귀속 1(0x180, 위에서 정정)·부분일치 2(0xe0 힙원소·DebugFrameData 0xa0)만 비OK, 나머지는 완전일치/표기차 OK)",
+   "found_by": "reused",
+   "guard": "\"offset\": \"0xd0\", \"name\": \"chats.len\""
+  },
+  {
+   "path": "/specs[108]/mem[18]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(`tcxaudit.py` 2026-09-14 전량 실행: 이 함수 108 행 중 오귀속 1(0x180, 위에서 정정)·부분일치 2(0xe0 힙원소·DebugFrameData 0xa0)만 비OK, 나머지는 완전일치/표기차 OK)",
+   "found_by": "reused",
+   "guard": "\"offset\": \"0xe0\", \"name\": \"comeback_pick_outcomes.ptr\""
+  },
+  {
+   "path": "/specs[108]/mem[19]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(`tcxaudit.py` 2026-09-14 전량 실행: 이 함수 108 행 중 오귀속 1(0x180, 위에서 정정)·부분일치 2(0xe0 힙원소·DebugFrameData 0xa0)만 비OK, 나머지는 완전일치/표기차 OK)",
+   "found_by": "reused",
+   "guard": "\"offset\": \"0xe8\", \"name\": \"comeback_pick_outcomes.len\""
+  },
+  {
+   "path": "/specs[108]/mem[20]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(`tcxaudit.py` 2026-09-14 전량 실행: 이 함수 108 행 중 오귀속 1(0x180, 위에서 정정)·부분일치 2(0xe0 힙원소·DebugFrameData 0xa0)만 비OK, 나머지는 완전일치/표기차 OK)",
+   "found_by": "reused",
+   "guard": "\"offset\": \"0x230\", \"name\": \"vision.last_visible_pos[i]\""
+  },
+  {
+   "path": "/specs[108]/mem[21]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(`tcxaudit.py` 2026-09-14 전량 실행: 이 함수 108 행 중 오귀속 1(0x180, 위에서 정정)·부분일치 2(0xe0 힙원소·DebugFrameData 0xa0)만 비OK, 나머지는 완전일치/표기차 OK)",
+   "found_by": "reused",
+   "guard": "\"offset\": \"0x2d0\", \"name\": \"vision.last_checked_ticks[i]\""
+  },
+  {
+   "path": "/specs[108]/mem[22]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(`tcxaudit.py` 2026-09-14 전량 실행: 이 함수 108 행 중 오귀속 1(0x180, 위에서 정정)·부분일치 2(0xe0 힙원소·DebugFrameData 0xa0)만 비OK, 나머지는 완전일치/표기차 OK)",
+   "found_by": "reused",
+   "guard": "\"offset\": \"0x350\", \"name\": \"gank_start_tick\""
+  },
+  {
+   "path": "/specs[108]/mem[23]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(`tcxaudit.py` 2026-09-14 전량 실행: 이 함수 108 행 중 오귀속 1(0x180, 위에서 정정)·부분일치 2(0xe0 힙원소·DebugFrameData 0xa0)만 비OK, 나머지는 완전일치/표기차 OK)",
+   "found_by": "reused",
+   "guard": "\"offset\": \"0x358\", \"name\": \"press_tower_start_tick\""
+  },
+  {
+   "path": "/specs[108]/mem[24]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(`tcxaudit.py` 2026-09-14 전량 실행: 이 함수 108 행 중 오귀속 1(0x180, 위에서 정정)·부분일치 2(0xe0 힙원소·DebugFrameData 0xa0)만 비OK, 나머지는 완전일치/표기차 OK)",
+   "found_by": "reused",
+   "guard": "\"offset\": \"0x360\", \"name\": \"comeback_pick_start_tick\""
+  },
+  {
+   "path": "/specs[108]/mem[25]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(`tcxaudit.py` 2026-09-14 전량 실행: 이 함수 108 행 중 오귀속 1(0x180, 위에서 정정)·부분일치 2(0xe0 힙원소·DebugFrameData 0xa0)만 비OK, 나머지는 완전일치/표기차 OK)",
+   "found_by": "reused",
+   "guard": "\"offset\": \"0x370\", \"name\": \"comeback_pick_success_count\""
+  },
+  {
+   "path": "/specs[108]/mem[26]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(`tcxaudit.py` 2026-09-14 전량 실행: 이 함수 108 행 중 오귀속 1(0x180, 위에서 정정)·부분일치 2(0xe0 힙원소·DebugFrameData 0xa0)만 비OK, 나머지는 완전일치/표기차 OK)",
+   "found_by": "reused",
+   "guard": "\"offset\": \"0x930\", \"name\": \"info.team\""
+  },
+  {
+   "path": "/specs[108]/mem[27]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(`tcxaudit.py` 2026-09-14 전량 실행: 이 함수 108 행 중 오귀속 1(0x180, 위에서 정정)·부분일치 2(0xe0 힙원소·DebugFrameData 0xa0)만 비OK, 나머지는 완전일치/표기차 OK)",
+   "found_by": "reused",
+   "guard": "\"offset\": \"0x9c0\", \"name\": \"info.position@tag\""
+  },
+  {
+   "path": "/specs[108]/mem[28]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(`tcxaudit.py` 2026-09-14 전량 실행: 이 함수 108 행 중 오귀속 1(0x180, 위에서 정정)·부분일치 2(0xe0 힙원소·DebugFrameData 0xa0)만 비OK, 나머지는 완전일치/표기차 OK)",
+   "found_by": "reused",
+   "guard": "\"offset\": \"0x0\", \"name\": \"cache\""
+  },
+  {
+   "path": "/specs[108]/mem[29]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(`tcxaudit.py` 2026-09-14 전량 실행: 이 함수 108 행 중 오귀속 1(0x180, 위에서 정정)·부분일치 2(0xe0 힙원소·DebugFrameData 0xa0)만 비OK, 나머지는 완전일치/표기차 OK)",
+   "found_by": "reused",
+   "guard": "\"offset\": \"0x8\", \"name\": \"context\""
+  },
+  {
+   "path": "/specs[108]/mem[30]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(`tcxaudit.py` 2026-09-14 전량 실행: 이 함수 108 행 중 오귀속 1(0x180, 위에서 정정)·부분일치 2(0xe0 힙원소·DebugFrameData 0xa0)만 비OK, 나머지는 완전일치/표기차 OK)",
+   "found_by": "reused",
+   "guard": "\"offset\": \"0x10\", \"name\": \"blackboard\""
+  },
+  {
+   "path": "/specs[108]/mem[31]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(`tcxaudit.py` 2026-09-14 전량 실행: 이 함수 108 행 중 오귀속 1(0x180, 위에서 정정)·부분일치 2(0xe0 힙원소·DebugFrameData 0xa0)만 비OK, 나머지는 완전일치/표기차 OK)",
+   "found_by": "reused",
+   "guard": "\"offset\": \"0x98\", \"name\": \"epic.epic_ally_tick\""
+  },
+  {
+   "path": "/specs[108]/mem[32]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(`tcxaudit.py` 2026-09-14 전량 실행: 이 함수 108 행 중 오귀속 1(0x180, 위에서 정정)·부분일치 2(0xe0 힙원소·DebugFrameData 0xa0)만 비OK, 나머지는 완전일치/표기차 OK)",
+   "found_by": "reused",
+   "guard": "\"offset\": \"0xd0\", \"name\": \"serpen.epic_ally_tick\""
+  },
+  {
+   "path": "/specs[108]/mem[33]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(`tcxaudit.py` 2026-09-14 전량 실행: 이 함수 108 행 중 오귀속 1(0x180, 위에서 정정)·부분일치 2(0xe0 힙원소·DebugFrameData 0xa0)만 비OK, 나머지는 완전일치/표기차 OK)",
+   "found_by": "reused",
+   "guard": "\"offset\": \"0x90\", \"name\": \"epic.epic_enemy_killed_tick\""
+  },
+  {
+   "path": "/specs[108]/mem[34]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(`tcxaudit.py` 2026-09-14 전량 실행: 이 함수 108 행 중 오귀속 1(0x180, 위에서 정정)·부분일치 2(0xe0 힙원소·DebugFrameData 0xa0)만 비OK, 나머지는 완전일치/표기차 OK)",
+   "found_by": "reused",
+   "guard": "\"offset\": \"0xa0\", \"name\": \"epic.epic_ally_killed_tick\""
+  },
+  {
+   "path": "/specs[108]/mem[35]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(`tcxaudit.py` 2026-09-14 전량 실행: 이 함수 108 행 중 오귀속 1(0x180, 위에서 정정)·부분일치 2(0xe0 힙원소·DebugFrameData 0xa0)만 비OK, 나머지는 완전일치/표기차 OK)",
+   "found_by": "reused",
+   "guard": "\"offset\": \"0xc8\", \"name\": \"serpen.epic_enemy_killed_tick\""
+  },
+  {
+   "path": "/specs[108]/mem[36]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(`tcxaudit.py` 2026-09-14 전량 실행: 이 함수 108 행 중 오귀속 1(0x180, 위에서 정정)·부분일치 2(0xe0 힙원소·DebugFrameData 0xa0)만 비OK, 나머지는 완전일치/표기차 OK)",
+   "found_by": "reused",
+   "guard": "\"offset\": \"0xd8\", \"name\": \"serpen.epic_ally_killed_tick\""
+  },
+  {
+   "path": "/specs[108]/mem[37]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(`tcxaudit.py` 2026-09-14 전량 실행: 이 함수 108 행 중 오귀속 1(0x180, 위에서 정정)·부분일치 2(0xe0 힙원소·DebugFrameData 0xa0)만 비OK, 나머지는 완전일치/표기차 OK)",
+   "found_by": "reused",
+   "guard": "\"offset\": \"0x0\", \"name\": \"plan@tag(니치 i64)\""
+  },
+  {
+   "path": "/specs[108]/mem[38]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(`tcxaudit.py` 2026-09-14 전량 실행: 이 함수 108 행 중 오귀속 1(0x180, 위에서 정정)·부분일치 2(0xe0 힙원소·DebugFrameData 0xa0)만 비OK, 나머지는 완전일치/표기차 OK)",
+   "found_by": "reused",
+   "guard": "\"offset\": \"0x50\", \"name\": \"PassiveJungle.0.team\""
+  },
+  {
+   "path": "/specs[108]/mem[39]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(`tcxaudit.py` 2026-09-14 전량 실행: 이 함수 108 행 중 오귀속 1(0x180, 위에서 정정)·부분일치 2(0xe0 힙원소·DebugFrameData 0xa0)만 비OK, 나머지는 완전일치/표기차 OK)",
+   "found_by": "reused",
+   "guard": "\"offset\": \"0x68\", \"name\": \"PassiveJungle.0.jungle\""
+  },
+  {
+   "path": "/specs[108]/mem[40]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(`tcxaudit.py` 2026-09-14 전량 실행: 이 함수 108 행 중 오귀속 1(0x180, 위에서 정정)·부분일치 2(0xe0 힙원소·DebugFrameData 0xa0)만 비OK, 나머지는 완전일치/표기차 OK)",
+   "found_by": "reused",
+   "guard": "\"offset\": \"0x0\", \"name\": \"game.data_ptr / game.vtable_ptr\""
+  },
+  {
+   "path": "/specs[108]/mem[41]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(`tcxaudit.py` 2026-09-14 전량 실행: 이 함수 108 행 중 오귀속 1(0x180, 위에서 정정)·부분일치 2(0xe0 힙원소·DebugFrameData 0xa0)만 비OK, 나머지는 완전일치/표기차 OK)",
+   "found_by": "reused",
+   "guard": "\"offset\": \"0x1e0\", \"name\": \"player_champion\""
+  },
+  {
+   "path": "/specs[108]/mem[48]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(`tcxaudit.py` 2026-09-14 전량 실행: 이 함수 108 행 중 오귀속 1(0x180, 위에서 정정)·부분일치 2(0xe0 힙원소·DebugFrameData 0xa0)만 비OK, 나머지는 완전일치/표기차 OK)",
+   "found_by": "reused",
+   "guard": "\"offset\": \"0x130\", \"name\": \"twin_towers[team]\""
+  },
+  {
+   "path": "/specs[108]/mem[49]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(`tcxaudit.py` 2026-09-14 전량 실행: 이 함수 108 행 중 오귀속 1(0x180, 위에서 정정)·부분일치 2(0xe0 힙원소·DebugFrameData 0xa0)만 비OK, 나머지는 완전일치/표기차 OK)",
+   "found_by": "reused",
+   "guard": "\"offset\": \"0x8\", \"name\": \"setting\""
+  },
+  {
+   "path": "/specs[108]/mem[50]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(`tcxaudit.py` 2026-09-14 전량 실행: 이 함수 108 행 중 오귀속 1(0x180, 위에서 정정)·부분일치 2(0xe0 힙원소·DebugFrameData 0xa0)만 비OK, 나머지는 완전일치/표기차 OK)",
+   "found_by": "reused",
+   "guard": "\"offset\": \"0x20\", \"name\": \"map\""
+  },
+  {
+   "path": "/specs[108]/mem[51]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(`tcxaudit.py` 2026-09-14 전량 실행: 이 함수 108 행 중 오귀속 1(0x180, 위에서 정정)·부분일치 2(0xe0 힙원소·DebugFrameData 0xa0)만 비OK, 나머지는 완전일치/표기차 OK)",
+   "found_by": "reused",
+   "guard": "\"offset\": \"0x38\", \"name\": \"tutorial\""
+  },
+  {
+   "path": "/specs[108]/mem[52]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(`tcxaudit.py` 2026-09-14 전량 실행: 이 함수 108 행 중 오귀속 1(0x180, 위에서 정정)·부분일치 2(0xe0 힙원소·DebugFrameData 0xa0)만 비OK, 나머지는 완전일치/표기차 OK)",
+   "found_by": "reused",
+   "guard": "\"offset\": \"0x3b\", \"name\": \"debug\""
+  },
+  {
+   "path": "/specs[108]/mem[53]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(`tcxaudit.py` 2026-09-14 전량 실행: 이 함수 108 행 중 오귀속 1(0x180, 위에서 정정)·부분일치 2(0xe0 힙원소·DebugFrameData 0xa0)만 비OK, 나머지는 완전일치/표기차 OK)",
+   "found_by": "reused",
+   "guard": "\"offset\": \"0x0\", \"name\": \"pool\""
+  },
+  {
+   "path": "/specs[108]/mem[54]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(`tcxaudit.py` 2026-09-14 전량 실행: 이 함수 108 행 중 오귀속 1(0x180, 위에서 정정)·부분일치 2(0xe0 힙원소·DebugFrameData 0xa0)만 비OK, 나머지는 완전일치/표기차 OK)",
+   "found_by": "reused",
+   "guard": "\"offset\": \"0x1a0\", \"name\": \"jungle_runner.epic.live_list.ptr\""
+  },
+  {
+   "path": "/specs[108]/mem[55]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(`tcxaudit.py` 2026-09-14 전량 실행: 이 함수 108 행 중 오귀속 1(0x180, 위에서 정정)·부분일치 2(0xe0 힙원소·DebugFrameData 0xa0)만 비OK, 나머지는 완전일치/표기차 OK)",
+   "found_by": "reused",
+   "guard": "\"offset\": \"0x1a8\", \"name\": \"jungle_runner.epic.live_list.len\""
+  },
+  {
+   "path": "/specs[108]/mem[56]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(`tcxaudit.py` 2026-09-14 전량 실행: 이 함수 108 행 중 오귀속 1(0x180, 위에서 정정)·부분일치 2(0xe0 힙원소·DebugFrameData 0xa0)만 비OK, 나머지는 완전일치/표기차 OK)",
+   "found_by": "reused",
+   "guard": "\"offset\": \"0x1b0\", \"name\": \"jungle_runner.epic.next_respawn_tick\""
+  },
+  {
+   "path": "/specs[108]/mem[57]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(`tcxaudit.py` 2026-09-14 전량 실행: 이 함수 108 행 중 오귀속 1(0x180, 위에서 정정)·부분일치 2(0xe0 힙원소·DebugFrameData 0xa0)만 비OK, 나머지는 완전일치/표기차 OK)",
+   "found_by": "reused",
+   "guard": "\"offset\": \"0x1d0\", \"name\": \"jungle_runner.serpen.live_list.ptr\""
+  },
+  {
+   "path": "/specs[108]/mem[58]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(`tcxaudit.py` 2026-09-14 전량 실행: 이 함수 108 행 중 오귀속 1(0x180, 위에서 정정)·부분일치 2(0xe0 힙원소·DebugFrameData 0xa0)만 비OK, 나머지는 완전일치/표기차 OK)",
+   "found_by": "reused",
+   "guard": "\"offset\": \"0x1d8\", \"name\": \"jungle_runner.serpen.live_list.len\""
+  },
+  {
+   "path": "/specs[108]/mem[59]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(`tcxaudit.py` 2026-09-14 전량 실행: 이 함수 108 행 중 오귀속 1(0x180, 위에서 정정)·부분일치 2(0xe0 힙원소·DebugFrameData 0xa0)만 비OK, 나머지는 완전일치/표기차 OK)",
+   "found_by": "reused",
+   "guard": "\"offset\": \"0x1e0\", \"name\": \"jungle_runner.serpen.next_respawn_tick\""
+  },
+  {
+   "path": "/specs[108]/mem[60]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(`tcxaudit.py` 2026-09-14 전량 실행: 이 함수 108 행 중 오귀속 1(0x180, 위에서 정정)·부분일치 2(0xe0 힙원소·DebugFrameData 0xa0)만 비OK, 나머지는 완전일치/표기차 OK)",
+   "found_by": "reused",
+   "guard": "\"offset\": \"0x240\", \"name\": \"epic_minion_buff_time[team]\""
+  },
+  {
+   "path": "/specs[108]/mem[61]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(`tcxaudit.py` 2026-09-14 전량 실행: 이 함수 108 행 중 오귀속 1(0x180, 위에서 정정)·부분일치 2(0xe0 힙원소·DebugFrameData 0xa0)만 비OK, 나머지는 완전일치/표기차 OK)",
+   "found_by": "reused",
+   "guard": "\"offset\": \"0x18\", \"name\": \"jungle_runner\""
+  },
+  {
+   "path": "/specs[108]/mem[62]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(`tcxaudit.py` 2026-09-14 전량 실행: 이 함수 108 행 중 오귀속 1(0x180, 위에서 정정)·부분일치 2(0xe0 힙원소·DebugFrameData 0xa0)만 비OK, 나머지는 완전일치/표기차 OK)",
+   "found_by": "reused",
+   "guard": "\"offset\": \"0x670\", \"name\": \"hp\""
+  },
+  {
+   "path": "/specs[108]/mem[63]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(`tcxaudit.py` 2026-09-14 전량 실행: 이 함수 108 행 중 오귀속 1(0x180, 위에서 정정)·부분일치 2(0xe0 힙원소·DebugFrameData 0xa0)만 비OK, 나머지는 완전일치/표기차 OK)",
+   "found_by": "reused",
+   "guard": "\"offset\": \"0x628\", \"name\": \"stat_cached.hp (max_hp)\""
+  },
+  {
+   "path": "/specs[108]/mem[64]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(`tcxaudit.py` 2026-09-14 전량 실행: 이 함수 108 행 중 오귀속 1(0x180, 위에서 정정)·부분일치 2(0xe0 힙원소·DebugFrameData 0xa0)만 비OK, 나머지는 완전일치/표기차 OK)",
+   "found_by": "reused",
+   "guard": "\"offset\": \"0x660\", \"name\": \"x\""
+  },
+  {
+   "path": "/specs[108]/mem[65]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(`tcxaudit.py` 2026-09-14 전량 실행: 이 함수 108 행 중 오귀속 1(0x180, 위에서 정정)·부분일치 2(0xe0 힙원소·DebugFrameData 0xa0)만 비OK, 나머지는 완전일치/표기차 OK)",
+   "found_by": "reused",
+   "guard": "\"offset\": \"0x668\", \"name\": \"y\""
+  },
+  {
+   "path": "/specs[108]/mem[66]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(`tcxaudit.py` 2026-09-14 전량 실행: 이 함수 108 행 중 오귀속 1(0x180, 위에서 정정)·부분일치 2(0xe0 힙원소·DebugFrameData 0xa0)만 비OK, 나머지는 완전일치/표기차 OK)",
+   "found_by": "reused",
+   "guard": "\"offset\": \"0x640\", \"name\": \"stat_cached.move_speed\""
+  },
+  {
+   "path": "/specs[108]/mem[67]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(`tcxaudit.py` 2026-09-14 전량 실행: 이 함수 108 행 중 오귀속 1(0x180, 위에서 정정)·부분일치 2(0xe0 힙원소·DebugFrameData 0xa0)만 비OK, 나머지는 완전일치/표기차 OK)",
+   "found_by": "reused",
+   "guard": "\"offset\": \"0x5c0\", \"name\": \"id\""
+  },
+  {
+   "path": "/specs[108]/mem[68]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(`tcxaudit.py` 2026-09-14 전량 실행: 이 함수 108 행 중 오귀속 1(0x180, 위에서 정정)·부분일치 2(0xe0 힙원소·DebugFrameData 0xa0)만 비OK, 나머지는 완전일치/표기차 OK)",
+   "found_by": "reused",
+   "guard": "\"offset\": \"0x0\", \"name\": \"team@tag (0 Player/1 Neutral)\""
+  },
+  {
+   "path": "/specs[108]/mem[69]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(`tcxaudit.py` 2026-09-14 전량 실행: 이 함수 108 행 중 오귀속 1(0x180, 위에서 정정)·부분일치 2(0xe0 힙원소·DebugFrameData 0xa0)만 비OK, 나머지는 완전일치/표기차 OK)",
+   "found_by": "reused",
+   "guard": "\"offset\": \"0x8\", \"name\": \"team@Player.0\""
+  },
+  {
+   "path": "/specs[108]/mem[70]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(`tcxaudit.py` 2026-09-14 전량 실행: 이 함수 108 행 중 오귀속 1(0x180, 위에서 정정)·부분일치 2(0xe0 힙원소·DebugFrameData 0xa0)만 비OK, 나머지는 완전일치/표기차 OK)",
+   "found_by": "reused",
+   "guard": "\"offset\": \"0x38\", \"name\": \"visible_state\""
+  },
+  {
+   "path": "/specs[108]/mem[71]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(`tcxaudit.py` 2026-09-14 전량 실행: 이 함수 108 행 중 오귀속 1(0x180, 위에서 정정)·부분일치 2(0xe0 힙원소·DebugFrameData 0xa0)만 비OK, 나머지는 완전일치/표기차 OK)",
+   "found_by": "reused",
+   "guard": "\"offset\": \"0x68\", \"name\": \"ty@tag\""
+  },
+  {
+   "path": "/specs[108]/mem[72]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(`tcxaudit.py` 2026-09-14 전량 실행: 이 함수 108 행 중 오귀속 1(0x180, 위에서 정정)·부분일치 2(0xe0 힙원소·DebugFrameData 0xa0)만 비OK, 나머지는 완전일치/표기차 OK)",
+   "found_by": "reused",
+   "guard": "\"offset\": \"0x88\", \"name\": \"ty@Tower.info.nearest_enemy@tag\""
+  },
+  {
+   "path": "/specs[108]/mem[73]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(`tcxaudit.py` 2026-09-14 전량 실행: 이 함수 108 행 중 오귀속 1(0x180, 위에서 정정)·부분일치 2(0xe0 힙원소·DebugFrameData 0xa0)만 비OK, 나머지는 완전일치/표기차 OK)",
+   "found_by": "reused",
+   "guard": "\"offset\": \"0x98\", \"name\": \"ty@Tower.info.nearest_enemy.1 (id)\""
+  },
+  {
+   "path": "/specs[108]/mem[74]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(`tcxaudit.py` 2026-09-14 전량 실행: 이 함수 108 행 중 오귀속 1(0x180, 위에서 정정)·부분일치 2(0xe0 힙원소·DebugFrameData 0xa0)만 비OK, 나머지는 완전일치/표기차 OK)",
+   "found_by": "reused",
+   "guard": "\"offset\": \"0x490\", \"name\": \"attack_effect (Some 페이로드)\""
+  },
+  {
+   "path": "/specs[108]/mem[75]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(`tcxaudit.py` 2026-09-14 전량 실행: 이 함수 108 행 중 오귀속 1(0x180, 위에서 정정)·부분일치 2(0xe0 힙원소·DebugFrameData 0xa0)만 비OK, 나머지는 완전일치/표기차 OK)",
+   "found_by": "reused",
+   "guard": "\"offset\": \"0x4c0\", \"name\": \"attack_effect@tag\""
+  },
+  {
+   "path": "/specs[108]/mem[76]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(`tcxaudit.py` 2026-09-14 전량 실행: 이 함수 108 행 중 오귀속 1(0x180, 위에서 정정)·부분일치 2(0xe0 힙원소·DebugFrameData 0xa0)만 비OK, 나머지는 완전일치/표기차 OK)",
+   "found_by": "reused",
+   "guard": "\"offset\": \"0x0\", \"name\": \"top_minion_state / mid(@0x28) / bottom(@0x50)\""
+  },
+  {
+   "path": "/specs[108]/mem[77]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(`tcxaudit.py` 2026-09-14 전량 실행: 이 함수 108 행 중 오귀속 1(0x180, 위에서 정정)·부분일치 2(0xe0 힙원소·DebugFrameData 0xa0)만 비OK, 나머지는 완전일치/표기차 OK)",
+   "found_by": "reused",
+   "guard": "\"offset\": \"0x18\", \"name\": \"tick\""
+  },
+  {
+   "path": "/specs[108]/mem[78]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(`tcxaudit.py` 2026-09-14 전량 실행: 이 함수 108 행 중 오귀속 1(0x180, 위에서 정정)·부분일치 2(0xe0 힙원소·DebugFrameData 0xa0)만 비OK, 나머지는 완전일치/표기차 OK)",
+   "found_by": "reused",
+   "guard": "\"offset\": \"0x20\", \"name\": \"killer_team\""
+  },
+  {
+   "path": "/specs[108]/mem[79]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(`tcxaudit.py` 2026-09-14 전량 실행: 이 함수 108 행 중 오귀속 1(0x180, 위에서 정정)·부분일치 2(0xe0 힙원소·DebugFrameData 0xa0)만 비OK, 나머지는 완전일치/표기차 OK)",
+   "found_by": "reused",
+   "guard": "\"offset\": \"0x2c\", \"name\": \"killed_position\""
+  },
+  {
+   "path": "/specs[108]/mem[80]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(`tcxaudit.py` 2026-09-14 전량 실행: 이 함수 108 행 중 오귀속 1(0x180, 위에서 정정)·부분일치 2(0xe0 힙원소·DebugFrameData 0xa0)만 비OK, 나머지는 완전일치/표기차 OK)",
+   "found_by": "reused",
+   "guard": "\"offset\": \"0x12f8\", \"name\": \"tick_per_second\""
+  },
+  {
+   "path": "/specs[108]/mem[81]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(`tcxaudit.py` 2026-09-14 전량 실행: 이 함수 108 행 중 오귀속 1(0x180, 위에서 정정)·부분일치 2(0xe0 힙원소·DebugFrameData 0xa0)만 비OK, 나머지는 완전일치/표기차 OK)",
+   "found_by": "reused",
+   "guard": "\"offset\": \"0xa0\", \"name\": \"infos\""
+  },
+  {
+   "path": "/specs[108]/mem[82]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(`tcxaudit.py` 2026-09-14 전량 실행: 이 함수 108 행 중 오귀속 1(0x180, 위에서 정정)·부분일치 2(0xe0 힙원소·DebugFrameData 0xa0)만 비OK, 나머지는 완전일치/표기차 OK)",
+   "found_by": "reused",
+   "guard": "\"offset\": \"0x41f\", \"name\": \"objective\""
+  },
+  {
+   "path": "/specs[108]/mem[83]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(`tcxaudit.py` 2026-09-14 전량 실행: 이 함수 108 행 중 오귀속 1(0x180, 위에서 정정)·부분일치 2(0xe0 힙원소·DebugFrameData 0xa0)만 비OK, 나머지는 완전일치/표기차 OK)",
+   "found_by": "reused",
+   "guard": "\"offset\": \"0x420\", \"name\": \"objective.phase / .line\""
+  },
+  {
+   "path": "/specs[108]/mem[84]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(`tcxaudit.py` 2026-09-14 전량 실행: 이 함수 108 행 중 오귀속 1(0x180, 위에서 정정)·부분일치 2(0xe0 힙원소·DebugFrameData 0xa0)만 비OK, 나머지는 완전일치/표기차 OK)",
+   "found_by": "reused",
+   "guard": "\"offset\": \"0x421\", \"name\": \"objective.with_battle / ComebackPick.ready\""
+  },
+  {
+   "path": "/specs[108]/mem[85]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(`tcxaudit.py` 2026-09-14 전량 실행: 이 함수 108 행 중 오귀속 1(0x180, 위에서 정정)·부분일치 2(0xe0 힙원소·DebugFrameData 0xa0)만 비OK, 나머지는 완전일치/표기차 OK)",
+   "found_by": "reused",
+   "guard": "\"offset\": \"0x210\", \"name\": \"mf_obj_clear.0 (사이트 코드)\""
+  },
+  {
+   "path": "/specs[108]/mem[86]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(`tcxaudit.py` 2026-09-14 전량 실행: 이 함수 108 행 중 오귀속 1(0x180, 위에서 정정)·부분일치 2(0xe0 힙원소·DebugFrameData 0xa0)만 비OK, 나머지는 완전일치/표기차 OK)",
+   "found_by": "reused",
+   "guard": "\"offset\": \"0x218\", \"name\": \"mf_obj_clear.1 (tick)\""
+  },
+  {
+   "path": "/specs[108]/mem[87]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(`tcxaudit.py` 2026-09-14 전량 실행: 이 함수 108 행 중 오귀속 1(0x180, 위에서 정정)·부분일치 2(0xe0 힙원소·DebugFrameData 0xa0)만 비OK, 나머지는 완전일치/표기차 OK)",
+   "found_by": "reused",
+   "guard": "\"offset\": \"0x130\", \"name\": \"objective_discipline.wait_pos.0\""
+  },
+  {
+   "path": "/specs[108]/mem[88]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(`tcxaudit.py` 2026-09-14 전량 실행: 이 함수 108 행 중 오귀속 1(0x180, 위에서 정정)·부분일치 2(0xe0 힙원소·DebugFrameData 0xa0)만 비OK, 나머지는 완전일치/표기차 OK)",
+   "found_by": "reused",
+   "guard": "\"offset\": \"0x138\", \"name\": \"objective_discipline.wait_pos.1\""
+  },
+  {
+   "path": "/specs[108]/mem[89]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(`tcxaudit.py` 2026-09-14 전량 실행: 이 함수 108 행 중 오귀속 1(0x180, 위에서 정정)·부분일치 2(0xe0 힙원소·DebugFrameData 0xa0)만 비OK, 나머지는 완전일치/표기차 OK)",
+   "found_by": "reused",
+   "guard": "\"offset\": \"0x140\", \"name\": \"objective_discipline.until_tick\""
+  },
+  {
+   "path": "/specs[108]/mem[90]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(`tcxaudit.py` 2026-09-14 전량 실행: 이 함수 108 행 중 오귀속 1(0x180, 위에서 정정)·부분일치 2(0xe0 힙원소·DebugFrameData 0xa0)만 비OK, 나머지는 완전일치/표기차 OK)",
+   "found_by": "reused",
+   "guard": "\"offset\": \"0x148\", \"name\": \"objective_discipline.target\""
+  },
+  {
+   "path": "/specs[108]/mem[91]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(`tcxaudit.py` 2026-09-14 전량 실행: 이 함수 108 행 중 오귀속 1(0x180, 위에서 정정)·부분일치 2(0xe0 힙원소·DebugFrameData 0xa0)만 비OK, 나머지는 완전일치/표기차 OK)",
+   "found_by": "reused",
+   "guard": "\"offset\": \"0x149\", \"name\": \"objective_discipline.kind(kind)\""
+  },
+  {
+   "path": "/specs[108]/mem[92]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(`tcxaudit.py` 2026-09-14 전량 실행: 이 함수 108 행 중 오귀속 1(0x180, 위에서 정정)·부분일치 2(0xe0 힙원소·DebugFrameData 0xa0)만 비OK, 나머지는 완전일치/표기차 OK)",
+   "found_by": "reused",
+   "guard": "\"offset\": \"0x90\", \"name\": \"objective_misunderstanding@tag / .opposite_group_start_tick\""
+  },
+  {
+   "path": "/specs[108]/mem[93]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(`tcxaudit.py` 2026-09-14 전량 실행: 이 함수 108 행 중 오귀속 1(0x180, 위에서 정정)·부분일치 2(0xe0 힙원소·DebugFrameData 0xa0)만 비OK, 나머지는 완전일치/표기차 OK)",
+   "found_by": "reused",
+   "guard": "\"offset\": \"0xa0\", \"name\": \"objective_misunderstanding.solo_hunt_start_tick\""
+  },
+  {
+   "path": "/specs[108]/mem[94]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(`tcxaudit.py` 2026-09-14 전량 실행: 이 함수 108 행 중 오귀속 1(0x180, 위에서 정정)·부분일치 2(0xe0 힙원소·DebugFrameData 0xa0)만 비OK, 나머지는 완전일치/표기차 OK)",
+   "found_by": "reused",
+   "guard": "\"offset\": \"0x50\", \"name\": \"obj_spawn.epic_giveup_tick@tag\""
+  },
+  {
+   "path": "/specs[108]/mem[95]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(`tcxaudit.py` 2026-09-14 전량 실행: 이 함수 108 행 중 오귀속 1(0x180, 위에서 정정)·부분일치 2(0xe0 힙원소·DebugFrameData 0xa0)만 비OK, 나머지는 완전일치/표기차 OK)",
+   "found_by": "reused",
+   "guard": "\"offset\": \"0x60\", \"name\": \"obj_spawn.serpen_giveup_tick\""
+  },
+  {
+   "path": "/specs[108]/mem[96]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(`tcxaudit.py` 2026-09-14 전량 실행: 이 함수 108 행 중 오귀속 1(0x180, 위에서 정정)·부분일치 2(0xe0 힙원소·DebugFrameData 0xa0)만 비OK, 나머지는 완전일치/표기차 OK)",
+   "found_by": "reused",
+   "guard": "\"offset\": \"0xd0\", \"name\": \"chats.len (+ chats.ptr[len] 원소 24B: 태그 @+0, 라인/사유 @+1, +8=0)\""
+  },
+  {
+   "path": "/specs[108]/mem[97]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(`tcxaudit.py` 2026-09-14 전량 실행: 이 함수 108 행 중 오귀속 1(0x180, 위에서 정정)·부분일치 2(0xe0 힙원소·DebugFrameData 0xa0)만 비OK, 나머지는 완전일치/표기차 OK)",
+   "found_by": "reused",
+   "guard": "\"offset\": \"0x358\", \"name\": \"press_tower_start_tick\""
+  },
+  {
+   "path": "/specs[108]/mem[98]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(`tcxaudit.py` 2026-09-14 전량 실행: 이 함수 108 행 중 오귀속 1(0x180, 위에서 정정)·부분일치 2(0xe0 힙원소·DebugFrameData 0xa0)만 비OK, 나머지는 완전일치/표기차 OK)",
+   "found_by": "reused",
+   "guard": "\"offset\": \"0x370\", \"name\": \"comeback_pick_success_count\""
+  },
+  {
+   "path": "/specs[108]/mem[100]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조(`tcxaudit.py` 2026-09-14 전량 실행: 이 함수 108 행 중 오귀속 1(0x180, 위에서 정정)·부분일치 2(0xe0 힙원소·DebugFrameData 0xa0)만 비OK, 나머지는 완전일치/표기차 OK)",
+   "found_by": "reused",
+   "guard": "\"offset\": \"0x0\", \"name\": \"plan@tag\""
+  }
+ ],
+ "brief_errors": [
+  "§4 「이 배치 몫 미해소 = 0건」은 거짓이다. `specgate.py --only 108` 실측 = G12 31건 + G18 1건 = 32건. 원인 = mkdossier.gate_split()/건수 집계가 `s[1:3]`·`x[3:5]` 로 두 자리 함수 번호만 파싱한다 — `[108]` 은 `10` 으로 읽혀 담당 구간(108~108) 밖으로 버려진다. 100번대 함수(specs[100] 이상) 전부 §4 가 비어 나온다.",
+  "§1 「ev≥4(미실행) 169」·「오라클로 내려라」— 이 함수는 internal(fastcc) 이고 8인자(PlayerState 2528B·dyn game vtable·bumpalo)라 오라클 진입이 사실상 불가하며, 지시 프롬프트 자체가 「internal 은 IR 독해로」라 했다. 도시에 §1 문구와 프롬프트가 서로 다른 지시를 준다. (참고: pub 래퍼 = TeamPlan::update_objective(m09.ll:25654) = sanitize_rule_scope → update_steal → 이 함수 tail call — 오라클을 쓴다면 이 진입점)",
+  "§4-b 「callees 의 ev4 행 = 판정 보류」— 108 의 callees 111행 중 game_view::… (ClientData::team · DbEditAppearanceTarget::kind · nightmare::tick_per_second) 와 Staff/Athlete/Contract::serialize::push · PatchSetting::is_empty · DataTable::clear · TeamRosterPlanningContext::position 등은 game_ai 크레이트가 의존할 수 없는 크레이트/모듈이라 보류가 아니라 명백한 오후보다. mkspec3 harvest→fnlookup 에 「후보 crate ∈ spec crate 의 의존 폐포」 필터를 넣으면 기계적으로 걸러진다(파생 필드라 patch 로는 못 고침)."
+ ]
+}

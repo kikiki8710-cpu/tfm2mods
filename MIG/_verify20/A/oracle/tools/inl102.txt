@@ -1,0 +1,40 @@
+as_index                                      entity.rs              battle.rs:430
+cap                                           raw_vec.rs             vec.rs:1428
+closure$0                                     battle.rs              iterator.rs:2893 option.rs:661
+closure$1                                     battle.rs              filter.rs:86
+closure$10                                    battle.rs              iterator.rs:2893
+closure$2                                     battle.rs              iterator.rs:2893
+closure$3                                     battle.rs              function.rs:298
+closure$4                                     battle.rs              filter.rs:138
+closure$5                                     battle.rs              filter.rs:138
+closure$6                                     battle.rs              option.rs:1543
+closure$7                                     battle.rs              iterator.rs:2893
+closure$8                                     battle.rs              iterator.rs:2893
+closure$9                                     battle.rs              iterator.rs:2893
+current_focus                                 battle.rs              battle.rs:431 battle.rs:550
+distance_sq                                   entity.rs              battle.rs:409 battle.rs:462 battle.rs:497 battle.rs:518 battle.rs:521 battle.rs:526 battle.rs:576 battle.rs:708
+distance_sq                                   utils.rs               battle.rs:605 battle.rs:621 battle.rs:640 battle.rs:676 entity.rs:2158
+engage_dir                                    battle.rs              battle.rs:452
+engage_pair_range                             battle.rs              battle.rs:461
+eq                                            battle.rs              battle.rs:716 cmp.rs:264
+eq                                            entity.rs              fight_model.rs:755
+eq                                            team_plan.rs           battle.rs:579 battle.rs:602 battle.rs:618
+extend                                        vec.rs                 vec.rs:607
+focus                                         battle.rs              battle.rs:359
+in_battle                                     blackboard.rs          battle.rs:729
+infallible_reserve_internal                   raw_vec.rs             raw_vec.rs:430
+is_blue_side                                  map_regions.rs         map_regions.rs:0
+is_enemy_side                                 map_regions.rs         battle.rs:607 battle.rs:623
+is_ignored_battle_enemy                       fight_model.rs         battle.rs:458
+is_ignored_well_enemy                         fight_model.rs         battle.rs:514 battle.rs:574 battle.rs:709 fight_model.rs:0 fight_model.rs:900 fight_model.rs:902
+is_visible                                    data.rs                entity.rs:1483
+is_visible_from                               entity.rs              battle.rs:573
+iter_champions                                simulation.rs          battle.rs:408 battle.rs:453 battle.rs:511 battle.rs:573 battle.rs:708
+len                                           vec.rs                 battle.rs:528
+new_in                                        vec.rs                 battle.rs:532 vec.rs:606
+no_enemy_idle_watchdog                        battle.rs              battle.rs:440
+player_team                                   entity.rs              entity.rs:1482
+ptr                                           raw_vec.rs             vec.rs:1432
+push                                          vec.rs                 vec.rs:2156
+reserve                                       raw_vec.rs             vec.rs:738
+reserve                                       vec.rs                 vec.rs:1429

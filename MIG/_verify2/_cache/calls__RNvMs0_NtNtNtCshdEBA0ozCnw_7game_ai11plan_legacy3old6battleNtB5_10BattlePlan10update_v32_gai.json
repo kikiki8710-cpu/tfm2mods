@@ -1,0 +1,1 @@
+[{"corpus": "gai", "file": "m10.ll", "line": 26665, "text": "call fastcc void @_RNvMs0_NtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old6battleNtB5_10BattlePlan10update_v32(ptr noalias noundef align 8 dereferenceable(280) %0, i64 noundef %1332, ptr noalias noundef align 16 dereference"}]
