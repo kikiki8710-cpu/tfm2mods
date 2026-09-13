@@ -222,5 +222,21 @@
   "line": 0,
   "from": "invoke fastcc noundef i64 @_RNvNtCshdEBA0ozCnw_7game_ai9goal_data28check_epic_kill_time_with_hp(",
   "to": "invoke noundef i64 @_RNvNtCshdEBA0ozCnw_7game_ai9goal_data28check_epic_kill_time_with_hp("
+ },
+ {
+  "raw": true,
+  "note": "r9 #74(i69) try_engage_dive 노출(2026-09-13 밤): internal fastcc → external ccc. sret 280B Option<BattlePlan>(SRET_FORCE+SRET_STRUCT) · self(%1) 는 읽기/참조 전달만(store 0) · %3 StdRng · %8 DebugFrameData.",
+  "file": "plan_legacy/handler/engage.rs",
+  "line": 0,
+  "from": "define internal fastcc void @_RNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy7handler6engageNtB4_17LegacyPlanHandler15try_engage_dive(",
+  "to": "define void @_RNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy7handler6engageNtB4_17LegacyPlanHandler15try_engage_dive("
+ },
+ {
+  "raw": true,
+  "note": "위 define 의 invoke 사이트 3곳(m13.ll).",
+  "file": "plan_legacy/handler/engage.rs",
+  "line": 0,
+  "from": "invoke fastcc void @_RNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy7handler6engageNtB4_17LegacyPlanHandler15try_engage_dive(",
+  "to": "invoke void @_RNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy7handler6engageNtB4_17LegacyPlanHandler15try_engage_dive("
  }
 ]

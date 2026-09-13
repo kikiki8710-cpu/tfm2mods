@@ -576,6 +576,13 @@ ENUM_LIVE = {
 SRET_VEC = {
     41: {"ptr": 0x0, "len": 0x18, "esz": 24, "elem_live": [(0, 8, []), (8, 8, []), (16, 1, [])]},
 }
+# ★★sret 버퍼가 **구조체(Option<구조체> 포함)** 인 함수(09-13 밤 · r9 #74 i69 `try_engage_dive` → `Option<BattlePlan>` 280B).
+#   structlive 잎(패딩·Vec 삼중항 제외 · 열거형 필드는 variant 조건부 · notin/hib 지원 = enumlive 와 같은 `_cond_rs`)으로 비교하고,
+#   외곽 Option 은 `none` = (오프셋, 길이, 값) — 그 자리가 그 값이면 None(양쪽 None 이면 같음 · 한쪽만이면 갈림 · 둘 다 Some 이면 잎 비교).
+#   값 = {spec idx: {"type": 구조체 전체이름, "none": (off, len, value) | None}}
+SRET_STRUCT = {
+    69: {"type": "game_ai::plan_legacy::old::battle::BattlePlan", "none": (0x0, 8, -1)},   # support_target Option<usize> 태그 자리의 -1 = 외곽 None(IR m13.ll `store i64 -1, ptr %0` ×3)
+}
 SRET_ENUM = {
     56: "game_ai::plan_legacy::sub_plan::SubPlan",
 }
@@ -755,12 +762,13 @@ SRET_LIVE = {
 
 MUT_OK_ARG = {35: {13: "DebugFrameData"}, 49: {8: "DebugFrameData"}, 56: {7: "DebugFrameData"}, 41: {11: "DebugFrameData"},
               # r9(09-13 저녁) · IR 마지막 인자 dereferenceable(224) = &mut DebugFrameData
-              67: {6: "DebugFrameData"}, 74: {5: "DebugFrameData"}, 75: {6: "DebugFrameData"},
+              67: {6: "DebugFrameData"}, 74: {5: "DebugFrameData"}, 75: {6: "DebugFrameData"}, 69: {8: "DebugFrameData", 1: "LegacyPlanHandler"},
               u"resolve_fight_uncached": {3: "GameContext", 12: "DebugFrameData"}}   # #49 a8 = &mut DebugFrameData(224B · IR %8 dereferenceable(224))
 # ★internal 함수는 define 에 `sret([N x i8])` 속성이 없다(LLVM 이 내부 호출규약에서 생략) — 파서가 「반환 void + 가변 a0」로 읽는다.
 #   `resolve_fight_uncached`(a0 = dereferenceable(64) 출력 버퍼) 실사고(09-13). 여기 적은 idx 는 a0 을 sret N 바이트로 강제한다.
-SRET_FORCE = {u"resolve_fight_uncached": 64, u"resolve_fight_full": 64, 40: 24}   # #45(i40) v3_assign_anchor: internal 이라 sret 속성이 빠져 「void」로 읽힘 · 실제 = Option<(u64,u64)> 24B   # {spec idx: {IR 인자 idx: tcx 타입명}} — 위 MUT_OK_TCX 판정을 인덱스로 적용
+SRET_FORCE = {u"resolve_fight_uncached": 64, u"resolve_fight_full": 64, 40: 24, 69: 280}   # #45(i40) v3_assign_anchor: internal 이라 sret 속성이 빠져 「void」로 읽힘 · 실제 = Option<(u64,u64)> 24B   # {spec idx: {IR 인자 idx: tcx 타입명}} — 위 MUT_OK_TCX 판정을 인덱스로 적용
 MUT_OK_TCX = {
+    "LegacyPlanHandler": u"#74 try_engage_dive 의 self(%1 · readonly 속성 없음) — IR 실측 store 0(last_dive_abandon_tick 읽기 · positioning_score/team_plan 참조 전달만)",
     "DebugFrameData": u"디버그 싱크 — IR 실측상 본문이 역참조하지 않고 넘기기만 한다"
                                  u"(클로저 내부 쓰기는 미확인 ⟹ 중복 기록 가능 · 반환 대조엔 무관)",
 }
@@ -1024,7 +1032,8 @@ def main():
         live = _byname(SRET_LIVE, i, sp) if g["sret"] else None
         sret_enum = _byname(SRET_ENUM, i, sp) if g["sret"] else None
         sret_vec = _byname(SRET_VEC, i, sp) if g["sret"] else None
-        if g["sret"] and live is None and sret_enum is None and sret_vec is None:
+        sret_struct = _byname(SRET_STRUCT, i, sp) if g["sret"] else None
+        if g["sret"] and live is None and sret_enum is None and sret_vec is None and sret_struct is None:
             why.append(u"sret 반환 = **버퍼 전체 바이트 비교가 부당**(LTO 가 죽인 dead store 자리가 갈린다 — "
                        u"`#00` 실측 DIFF 20,406/20,415, 의미 워드는 전부 일치). "
                        u"`SRET_LIVE` 에 살아있는 바이트 범위를 주면 편입된다")
@@ -1129,7 +1138,7 @@ def main():
         _abi = EXE_ABI.get(i)
         if _abi:
             rngs = [_abi[j] for j in rngs if isinstance(_abi[j], int)]
-        rows.append(dict(sret_n=sret_n, live=live, sret_enum=sret_enum, sret_vec=sret_vec, sites=sites,
+        rows.append(dict(sret_n=sret_n, live=live, sret_enum=sret_enum, sret_vec=sret_vec, sret_struct=sret_struct, sites=sites,
                          extra=(i >= len(D) - len(EXTRA_SWEEP)),
                          selfr=(None if SELF_RESTORE_OFF else self_restore_of(i, nm)),
                          idx=didx, name=nm, sym=sym, rva=rva, args=g["args"], rty=rty,
@@ -1458,6 +1467,23 @@ def main():
             w(u"        _ => None,   // 단위 variant(페이로드 0B)")
             w(u"    }")
             w(u"}")
+    # ★sret 구조체 비교기(09-13 밤): structlive.build(type) 잎 전수 · 조건은 _cond_rs(direct/notin/hib) · Vec 삼중항·패딩 제외.
+    for r in rows:
+        st = r.get("sret_struct")
+        if not st:
+            continue
+        leaves = _SL.build(st["type"])
+        leaves = leaves[0] if isinstance(leaves, tuple) else leaves   # build() = (잎 목록, 경고)
+        w(u"/// `#%02d` sret `%s` — structlive 잎 %d개 live 비교(자동 생성)." % (r["idx"], st["type"].split("::")[-1], len(leaves)))
+        w(u"pub unsafe fn structlive_cmp_%d(gb: usize, mb: usize) -> Option<String> {" % r["idx"])
+        for (o, n, conds) in leaves:
+            cond, hibeq = _cond_rs(conds)
+            if hibeq is not None:
+                w(u"    if %s { if (rd_le(gb + %#x, 8) >> 63) != (rd_le(mb + %#x, 8) >> 63) { return Some(format!(\"+{:#x}.opt\", %#x)); } }" % (cond, hibeq, hibeq, hibeq))
+            else:
+                w(u"    if %s { for j in %#x..%#x { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!(\"+{:#x}: g={:02x} m={:02x}\", j, gv, mv)); } } }" % (cond, o, o + n))
+        w(u"    None")
+        w(u"}")
     w(u"")
     for k, r in enumerate(rows):
         tys = [RMAP[a[0]] for a in r["args"]]          # IR 기준 타입(내 사본이 기대하는 것)
@@ -1853,6 +1879,16 @@ def main():
             w(u"                    for &(o, l, tg) in EL { if !tg.is_empty() && !tg.contains(&tag) { continue; } for j in o..o + l { let (gv, mv) = (*((eb + j) as *const u8), *((fb + j) as *const u8)); if gv != mv { return Some(format!(\"vec[{}]+{}: g={:02x} m={:02x}\", e, j, gv, mv)); } } } } None })() } else { None };")
             w(u"            if let Some(d) = d { note(%d, format!(\"#%02d %s 대조#{} 갈림(sret bump Vec len={}): {} | %s\", n, gl, d, %s)); } }"
               % (k, r["idx"], r["name"], " ".join(fmt[1:]), ", ".join(vals[1:])))
+        elif sn and r.get("sret_struct"):
+            st = r["sret_struct"]; nn = st.get("none")
+            if nn:
+                no, nl, nv = nn
+                w(u"        Ok(_) => { let (gn, mn) = (rd_le(gb.as_ptr() as usize + %#x, %d) as i64 == %d, rd_le(mb.as_ptr() as usize + %#x, %d) as i64 == %d);" % (no, nl, nv, no, nl, nv))
+                w(u"            let d = if gn != mn { Some(format!(\"outer g={} m={}\", if gn { \"None\" } else { \"Some\" }, if mn { \"None\" } else { \"Some\" })) } else if gn { None } else { structlive_cmp_%d(gb.as_ptr() as usize, mb.as_ptr() as usize) };" % r["idx"])
+            else:
+                w(u"        Ok(_) => { let d = structlive_cmp_%d(gb.as_ptr() as usize, mb.as_ptr() as usize);" % r["idx"])
+            w(u"            if let Some(d) = d { note(%d, format!(\"#%02d %s 대조#{} 갈림(sret 구조체 %dB): {} | g={:02x?} m={:02x?} | %s\", n, d, &gb[..%d], &mb[..%d], %s)); } }"
+              % (k, r["idx"], r["name"], sn, " ".join(fmt[1:]), min(8, (sn + 7) // 8), min(8, (sn + 7) // 8), ", ".join(vals[1:])))
         elif sn and r.get("sret_enum"):
             # ★sret 열거형 — 태그(8B@0) 가 다르면 갈림, 같으면 variant 조건부 페이로드(enumlive · structlive 자동 생성)만 비교.
             w(u"        Ok(_) => { let (gt, mt) = (gb[0], mb[0]);")
