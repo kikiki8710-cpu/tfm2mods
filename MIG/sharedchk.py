@@ -70,7 +70,10 @@ def norm_name(n):
     #   0x0/0x8/0x10 세 자리가 전부 같은 이름이 되고 R2 가 오탐을 낸다(실측 1건).
     n = re.split(u"(?<!:):(?!:)|：", n)[0]
     n = re.sub(u"[（(].*", u" ", n)                   # 설명 괄호
-    n = re.sub(u"\\[[^\\]]*\\]", u"[]", n)            # 첨자는 유지하되 값은 무시
+    # ★09-13(18차 D): 숫자 리터럴 첨자는 **보존**한다 — `region_dist[a][2]` 와 `[a][7]` 은 다른 자리다(R2 오탐). 변수 첨자만 `[]`.
+    #   단 `nexus[2]`·`bushes[0][0]` 처럼 **숫자만 있는** 첨자는 배열 크기/예시 인덱스 주석이라 `[]` 로(같은 자리). 보존은 **변수 첨자와 섞인 이름**에서만.
+    _mixed = bool(re.search(u"\\[[^\\]\\d][^\\]]*\\]", n))
+    n = re.sub(u"\\[[^\\]]*\\]", lambda m: m.group(0) if (_mixed and re.fullmatch(u"\\[\\d+\\]", m.group(0))) else u"[]", n)
     n = u" ".join(w for w in n.split() if not _HANG.search(w))
     return re.sub(u"\\s+", u" ", n).strip()
 
@@ -205,8 +208,19 @@ def check(D):
             w = re.sub(u"\\s+", u" ", (r.get("what") or u"")).strip().lower()
             if w:
                 g[w].append((i, j, r))
+    def _extent(r):
+        u"""★09-13(18차 C): `v>1` 과 `v<2` 는 같은 외연(임계 2)이다 — where 의 icmp 술어에서 임계로 환산. 못 읽으면 None."""
+        w = (r.get("where") or u"") + u" " + (r.get("effect") or u"")
+        m = re.search(u"icmp\\s+(?:samesign\\s+)?(ugt|sgt|uge|sge|ult|slt|ule|sle)\\s+i\\d+\\s+%[\\w.]+,\\s*(-?\\d+)", w)
+        if not m:
+            return None
+        op, k = m.group(1), int(m.group(2))
+        return {"ugt": k + 1, "sgt": k + 1, "uge": k, "sge": k, "ult": k, "slt": k, "ule": k + 1, "sle": k + 1}[op]
     for k, v in sorted(g.items()):
         vals = sorted(set(json.dumps(r.get("value"), ensure_ascii=False) for (_, _, r) in v))
+        exts = [_extent(r) for (_, _, r) in v]
+        if len(vals) > 1 and all(e is not None for e in exts) and len(set(exts)) == 1:
+            continue   # 값 표기는 달라도 술어 외연이 같다(예: version `>1` vs `<2`)
         if len(vals) > 1 and len(set(x[0] for x in v)) > 1:
             err.append((u"R4", k,
                         [(i, json.dumps(r.get("value"), ensure_ascii=False), u"")
@@ -221,7 +235,13 @@ def check_all(specs):
     err, _ = check(specs)
     out = []
     for (rule, key, rows, why) in err:
+        # ★09-13(18차 C): 대표 명세 = **다수결 밖 이름을 쓴 행**(결함이 있는 쪽). 「최저 index」는 정본 쪽 명세에 결함을 배정했다(#71↔#74).
         i = rows[0][0]
+        if rule == u"R1" and len(rows) > 2:
+            cnt = collections.Counter(b for (_, b, _) in rows)
+            odd = [a for (a, b, _) in rows if cnt[b] == 1]
+            if odd:
+                i = max(odd)   # 여러 명세가 각자 1표면 가장 최근(큰 index) 명세가 관습을 깬 쪽
         out.append((i, u"[%s] %s — %s" % (rule, u" ".join(str(x) for x in key), why),
                     u" · ".join(u"[%02d]%s" % (a, b) for a, b, _ in rows[:8])))
     return out

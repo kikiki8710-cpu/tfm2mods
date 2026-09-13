@@ -51,8 +51,9 @@ _ATTR = r"(?:(?:noundef|zeroext|signext|immarg|nonnull|inreg|returned|range\([^)
 
 def litpat(val):
     u"""7차 화이트리스트(타입 접두 · 쉼표 뒤) + **인자 속성 끼임 허용**. phi 인입은 `PHIIN` 이 본다."""
-    return re.compile(r"(?:\b" + _TY + r"\s+" + _ATTR + r"|,\s*)"
-                      + re.escape(str(val)) + r"(?![\w.])")
+    # ★09-13(17차 D·18차 A): 소스 `level-1`·`x-5` 는 IR 에서 `add … -1`/`-5` 로 접힌다 — 양수 값 검사 때 `-` 접두를 허용한다.
+    return re.compile(r"(?:\b" + _TY + r"\s+" + _ATTR + r"|,\s*)-?"
+                      + re.escape(str(val).lstrip("-")) + r"(?![\w.])")
 
 
 CONT = re.compile(r"^to\s+label\b")

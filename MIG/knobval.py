@@ -182,14 +182,17 @@ def src_anchors(sp, where):
     except Exception:
         return []
     out = []
-    for k in range(int(a) - 1, min(int(b), len(src))):
-        m = SL.DBG.search(src[k])
-        if not m:
-            continue
-        for (fn, ln) in SL.chain(meta, m.group(1)):
-            if (fn, ln) in want:
-                out.append((f[:-3] if f.endswith(".ll") else f, k + 1))
-                break
+    # ★09-13(18차 A·C): 노브 리터럴이 클로저/이터레이터 조각(`ir.aux`)에만 있는 경우가 있다(#59 knobs[6] · #70 knobs[5/6]) — aux 도 같은 파일이면 훑는다.
+    rngs = [(f, int(a), int(b))] + [(x.get("file"), int(x.get("frm") or 0), int(x.get("to") or 0)) for x in (ir.get("aux") or []) if x.get("file") == f]
+    for (ff, a2, b2) in rngs:
+        for k in range(a2 - 1, min(b2, len(src))):
+            m = SL.DBG.search(src[k])
+            if not m:
+                continue
+            for (fn, ln) in SL.chain(meta, m.group(1)):
+                if (fn, ln) in want:
+                    out.append((f[:-3] if f.endswith(".ll") else f, k + 1))
+                    break
     return out
 
 

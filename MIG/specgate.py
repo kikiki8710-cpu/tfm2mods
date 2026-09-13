@@ -116,8 +116,16 @@ def gate1(i, sp):
         #     ⟹ 단어가 아니라 **구조**로 판정한다.
         if re.search(re.escape(myfile) + r":?\s*%d\b" % sl, mean) or (u"%d" % sl) in mean:
             continue
+        # ★09-13(18차 C): 같은 파일이라도 **이 함수 본문 밖 줄**(인라인된 이웃 함수 · 예 dive_rejoin_cd:973 ← try_engage_dive:112)은 모순이 아니다.
+        try:
+            import rvaverify as _RV
+            _rng = _RV.ir_body_range(sp) if (sp.get("ir") or {}).get("file") else None
+        except Exception:
+            _rng = None
         for m in re.finditer(re.escape(myfile) + r":(\d{2,6})", mean):
             if int(m.group(1)) != sl:
+                if _rng and not (_rng[0] <= int(m.group(1)) <= _rng[1]):
+                    continue
                 flag("G1", i, u"constants[%d] src_line=%s 인데 meaning 은 같은 파일 %s:%s 를 가리킨다"
                      % (j, sl, myfile, m.group(1)), mean[:130])
                 break

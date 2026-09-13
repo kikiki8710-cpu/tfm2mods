@@ -293,6 +293,24 @@ def main():
             #   실측: `#14 update`(주소 정답 · jac 1.00) 의 줄 = [43,43,44,274,304] / 범위 [39,62].
             #     274·304 는 인라인된 것이고, 43·44 가 **범위 안에 있다** ⟹ 지지 있음 = 통과해야 한다.
             inside = [l for l in lines if lo <= l <= hi]
+            # ★09-13(18차 C): 같은 파일의 **인라인 콜리 줄**(예 item_v26_affordable:1692 ← should_recall_to_shop:1664)도 exe 함수 안에 물리적으로 있다.
+            #   본문 IR 의 !dbg 사슬(inlinedAt 포함)에 그 줄이 있으면 지지 관측이다.
+            if not inside:
+                try:
+                    _src, _loc, _nf, _ns = _meta(sp["ir"]["file"])
+                    _myfile = None
+                    for _k in range(sp["ir"]["frm"] - 1, min(sp["ir"]["frm"] + 8, len(_src))):
+                        if _src[_k].lstrip().startswith("define"):
+                            _m = _DBGREF.search(_src[_k]); _myfile = _fileof(_m.group(1), _nf, _ns) if _m else None; break
+                    _all = set()
+                    for _k in range(sp["ir"]["frm"] - 1, min(sp["ir"]["to"], len(_src))):
+                        for _n in _DBGREF.findall(_src[_k]):
+                            _e = _loc.get(_n)
+                            if _e and _e[0] > 0 and (_myfile is None or _fileof(_e[1], _nf, _ns) == _myfile):
+                                _all.add(_e[0])
+                    inside = [l for l in lines if l in _all]
+                except Exception:
+                    pass
             if not inside:
                 dist = min(min(abs(l - lo), abs(l - hi)) for l in lines)
                 strong.append(u"S1 줄 %s 중 IR 본문범위 [%d,%d] **안에 드는 것이 0개**(최소거리 %d)"

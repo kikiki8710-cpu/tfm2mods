@@ -11,7 +11,7 @@
       "tab_support": "Support",
       "summary_default": "Pick a position",
       "summary_fmt": "{pos}",
-      "hint": "Pick a position from the tabs, then click champions to allow or disallow them for that position. A champion you assign can ONLY play the positions you assigned it to - to let it play elsewhere, assign it there too. Positions you leave empty accept any champion that is not assigned somewhere else. If every position has a list, champions assigned nowhere are DISABLED (never picked, greyed out in the draft).",
+      "hint": "Pick a position from the tabs, then click champions to allow or disallow them for that position. A champion you assign can ONLY play the positions you assigned it to - to let it play elsewhere, assign it there too. Positions you leave empty accept any champion that is not assigned somewhere else.",
       "clear_pos": "Clear this position (allow all)",
       "select_all_pos": "Select all for this position",
       "cancel": "Cancel",
@@ -41,10 +41,7 @@
       "status_active_shared": "✔ Limit active - pool {pool} >= minimum {need}  ·  FYI: {count} overlapping positions share a pool, {want} recommended in total (currently {have}) - does not change whether the limit applies",
       "warn_min_tail_stale": " · {n} champions not in the current roster are excluded from the count",
       "warn_shared": "⚠ {count} overlapping positions share a champion pool - {want} needed in total (currently {have})",
-      "count_label_pool": "Selected: {n}  (pool {pool})",
-      "block_msg": "This position is no longer available: {pos}",
-      "block_msg_plain": "This position is no longer available",
-      "block_disabled": "Disabled: not assigned to any position (Position Lock settings)"
+      "count_label_pool": "Selected: {n}  (pool {pool} = {n} named + unassigned)"
     }
   },
   "ko": {
@@ -59,7 +56,7 @@
       "tab_support": "서폿",
       "summary_default": "포지션을 고르세요",
       "summary_fmt": "{pos} 포지션",
-      "hint": "탭에서 포지션을 고르고, 그 포지션에 쓸 챔피언을 클릭해 켜고 끕니다. 지정한 챔피언은 지정한 포지션에만 갈 수 있습니다 - 다른 포지션에도 쓰려면 거기서도 똑같이 골라 주세요. 비워 둔 포지션은 어디에도 지정되지 않은 챔피언을 전부 쓸 수 있습니다. 모든 포지션에 목록이 있으면, 어디에도 지정되지 않은 챔피언은 비활성(픽 불가·밴픽 화면에서 회색)입니다.",
+      "hint": "탭에서 포지션을 고르고, 그 포지션에 쓸 챔피언을 클릭해 켜고 끕니다. 지정한 챔피언은 지정한 포지션에만 갈 수 있습니다 - 다른 포지션에도 쓰려면 거기서도 똑같이 골라 주세요. 비워 둔 포지션은 어디에도 지정되지 않은 챔피언을 전부 쓸 수 있습니다.",
       "clear_pos": "이 포지션 비우기(전체 허용)",
       "select_all_pos": "이 포지션에 전체 선택",
       "cancel": "취소",
@@ -89,10 +86,7 @@
       "status_active_shared": "✔ 제한 적용 중 - 판정 풀 {pool} ≥ 최소 {need}  ·  참고: 겹친 {count}개 포지션이 풀을 공유 - 합쳐서 {want}개 권장(현재 {have}) · 적용 여부에는 영향 없음",
       "warn_min_tail_stale": " · 지금 로스터에 없는 챔프 {n}개는 제외하고 셉니다",
       "warn_shared": "⚠ 겹친 {count}개 포지션이 챔프풀 공유 - 합쳐서 최소 {want}개 필요 (현재 {have})",
-      "count_label_pool": "현재 선택 수: {n}  (판정 풀 {pool})",
-      "block_msg": "해당 포지션은 더이상 선택할 수 없습니다: {pos}",
-      "block_msg_plain": "해당 포지션은 더이상 선택할 수 없습니다",
-      "block_disabled": "비활성 챔피언: 어느 포지션에도 지정되지 않음 (포지션 제한 설정)"
+      "count_label_pool": "현재 선택 수: {n}  (판정 풀 {pool} = 지정 {n} + 미지정)"
     }
   }
 }

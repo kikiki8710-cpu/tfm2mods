@@ -15,19 +15,6 @@ use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{OnceLock, RwLock};
 
 pub const MASK_ALL: u8 = 0b11111;
-/// ★[2026-09-13] **비활성 챔프** — 어느 포지션에도 지정되지 않았는데 5포지션이 전부 제한 중이면
-///   그 챔프는 **어디에도 못 간다 = 사용 안 함**. (유저 의도: "포지션 제한 설정에서 선택 안 한
-///   챔피언 = 비활성화". ~~구 규칙 ③은 이 경우를 `MASK_ALL`(무제한) fail-open 으로 정규화해,
-///   어느 포지션 풀이 마르는 순간 AI/코치가 미지정(=비활성) 챔프를 ㄱㄴㄷ순으로 집었다~~.)
-///   소비처 규칙: 게이트는 이 마스크를 **veto**, 대체 탐색은 **스킵**, UI 는 **상시 회색**,
-///   pinned 집계에서는 제외(`is_pinned`) — 슬롯은 차지하되 라인은 못 채우는 픽.
-///   유일한 예외 = 활성 챔프가 하나도 안 남았을 때(총 고갈)만 fail-open.
-pub const MASK_NONE: u8 = 0;
-/// 라인 매칭(pinned)에 넣을 마스크인가 — 무제한(MASK_ALL)·비활성(MASK_NONE)은 라인을 제약하지 않는다.
-#[inline]
-pub fn is_pinned(m: u8) -> bool {
-    m != MASK_ALL && m != MASK_NONE
-}
 pub const POS_NAMES: [&str; 5] = ["top", "jungle", "mid", "bottom", "support"];
 /// 한국어/약칭 → 포지션 인덱스
 pub fn pos_index(tok: &str) -> Option<usize> {
@@ -114,15 +101,29 @@ impl PosState {
     }
 
     pub fn live_count(&self, p: usize) -> usize {
-        // ★★[2026-09-13 정정] 판정 풀 = **명시 지정 수만**.
-        //   ~~구: `named + unassigned`(2026-08-27) — 미지정 챔프가 `MASK_ALL` 로 어디든 갈 수 있던
-        //   시절의 셈법~~. 2026-09-04 규칙 반전(미지정은 목록 있는 자리 불가) 이후로는 미지정 챔프가
-        //   **활성 포지션의 풀에 들어올 수 없으므로** 더하면 풀이 부풀어 "제한 활성인데 쓸 챔프는
-        //   지정 수뿐" 인 상태가 된다(포지션 풀이 즉시 말라 자유 슬롯·fail-open 으로 비활성 챔프가
-        //   새어 나옴 = 2026-09-13 유저 보고의 한 축).
-        //   ⚠결과: 지정 수 < 최소 선택 수인 포지션은 **제한 없음 취급**(08-23 규칙 그대로) —
-        //   그 포지션엔 미지정 챔프도 들어온다. 화면 경고(`warn_min`)가 그 상태를 알려 준다.
-        self.named_count(p)
+        let g = ROSTER.read().unwrap_or_else(|e| e.into_inner());
+        let named = match g.as_ref() {
+            Some(set) => self.allowed[p].iter().filter(|c| set.contains(*c)).count(),
+            None => self.allowed[p].len(), // 로스터 미캡처 → 보수적으로 전부 인정
+        };
+        // 명시 지정이 0 = 그 포지션엔 제한을 안 건 것 ⟹ 기존대로 0(=비활성).
+        if named == 0 {
+            return 0;
+        }
+        // ★★미지정 챔프도 이 포지션에서 쓸 수 있다(mask_of 가 MASK_ALL 로 정규화) ⟹ 풀에 포함.
+        //   (2026-08-27) 이걸 빼면 "밴카드 5장+하드피어리스 → 포지션당 최소 20개" 같은 조건에서
+        //   실제로는 쓸 챔프가 충분한데도 `pos_active=false` 가 되어 **제한이 통째로 꺼진다**
+        //   (유저 제보: 밴카드 5장으로 바꾸니 제한이 안 걸림 — 지정 14 < 최소 20 이었다).
+        // ⚠guard 를 여기서 재사용한다 — `ROSTER.read()` 를 중첩으로 잡으면
+        //   같은 스레드 재귀 read 로 데드락 가능(std RwLock).
+        let unassigned = match g.as_ref() {
+            Some(set) => set
+                .iter()
+                .filter(|id| !(0..5).any(|q| self.allowed[q].iter().any(|x| x == *id)))
+                .count(),
+            None => 0,
+        };
+        named + unassigned
     }
     /// 이 포지션의 제한이 **실제로 적용되나**.
     ///   ★빈 화이트리스트 = 전체 허용. 그리고 **최소 선택 수 미달도 전체 허용으로 취급**한다
@@ -142,8 +143,9 @@ impl PosState {
     ///   새 규칙:
     ///     ① 어느 활성 포지션에든 지정됨 → **지정된 포지션 비트만** (다른 데는 못 감)
     ///     ② 어디에도 지정 안 됨      → **비활성(목록 없는) 포지션만** (목록 있는 자리엔 못 감)
-    ///     ③ ②인데 전 포지션이 활성   → ~~`MASK_ALL` fail-open~~ → **`MASK_NONE`(비활성, 2026-09-13)**
-    ///        (구 우려 "아예 못 뽑게 하면 드래프트 불성립"은 소비처별 총고갈 안전망으로 대체.)
+    ///     ③ ②인데 전 포지션이 활성   → `MASK_ALL` fail-open
+    ///        (그 챔프를 아예 못 뽑게 만들면 드래프트가 성립하지 않는다. 2026-08-27 사고와 같은 이유:
+    ///         `helps(pinned, 0)` 이 항상 false 라 전부 회색 처리된다.)
     pub fn mask_of(&self, lower: &str) -> u8 {
         let mut designated = 0u8;
         let mut free = 0u8;
@@ -160,12 +162,7 @@ impl PosState {
         if free != 0 {
             return free; // ②목록 있는 자리엔 못 감
         }
-        // ③전 포지션 활성인데 어디에도 없음 → **비활성**(2026-09-13 · 유저 의도).
-        //   ~~구: `MASK_ALL` fail-open — "아예 못 뽑게 하면 드래프트가 성립하지 않는다"는 우려~~
-        //   → 총 고갈 안전망은 각 소비처(score_pick / finalize / UI)가 "활성 챔프가 하나도 안
-        //   남았을 때만" 개별로 fail-open 한다. 여기서 무제한으로 풀면 풀이 마르는 순간
-        //   비활성 챔프가 ㄱㄴㄷ순으로 뽑힌다(실측 `fzfilt#0 … pref=73→0(fighter)`).
-        MASK_NONE
+        MASK_ALL // ③전 포지션 활성인데 어디에도 없음 → fail-open
     }
     /// 제한이 하나라도 걸렸나(전부 빈/최소미달이면 모드 무효과).
     pub fn any_restricted(&self) -> bool {
@@ -318,7 +315,7 @@ pub fn pos_count(pos: usize) -> usize {
     // ★현재 로스터에 실제로 있는 것만 센다(없어진 챔프 id 는 UI 에서도 안 보이므로 세면 혼란).
     with_state(|st| st.named_count(pos))   // ★UI 표시용 = 실제로 켠 개수(풀 크기는 pos_pool)
 }
-/// 제한 판정에 실제로 쓰이는 **풀 크기**(~~명시 지정 + 미지정 챔프~~ → 2026-09-13부터 명시 지정만·`live_count` 참조).
+/// 제한 판정에 실제로 쓰이는 **풀 크기**(명시 지정 + 미지정 챔프).
 /// `pos_active` 가 최소 선택 수와 비교하는 값이 이것이다 — 화면에도 같이 보여 줘야
 /// "21개만 켰는데 왜 최소 20을 넘지?" 가 설명된다.
 pub fn pos_pool(pos: usize) -> usize {

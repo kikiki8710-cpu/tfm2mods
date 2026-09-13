@@ -1,3 +1,6 @@
+// ★함정 ⑦(2026-09-13 18차 A 실측 · 4,032 케이스 오염): 세팅 헬퍼를 `fn set_pos(e: &Entity, ..)` 처럼 **공유참조 인자**로 받아 raw store 하면
+//   LLVM 이 `readonly noalias` 계약으로 그 store 를 지운다(volatile 로 읽어도 옛 값). 엔티티/구조체를 고칠 땐 **`*const T`/`*mut T` 포인터 인자**로 받아라.
+//   증상 = 예측이 「초기값」과만 맞고 케이스별로 안 변한다.
 #![allow(unused, dead_code, non_snake_case)]
 //! ★★SDK 실행 오라클 **정본 템플릿** (2026-09-11 확립) — 새 프로브는 이걸 복사해서 시작하라.
 //!
