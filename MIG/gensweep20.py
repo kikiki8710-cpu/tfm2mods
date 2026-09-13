@@ -241,6 +241,19 @@ EXTRA_SWEEP = [
      "tcx": "fn(usize /*version*/, &PlayerState, &OperationData, &mut TeamPlan) -> bool",
      "evidence": "bisect2(#18 true 갈래 ②) · rlib external ccc = 패치 불요 · a3 = **가변** TeamPlan "
                  "⟹ `SELF_RESTORE[\"v3_serpen_contest_clear_win\"]` · dllmatch jac 1.0"},
+
+    # ★#40 resolve_fight_stake DIFF 3/648,750(09-13 09:22) 규명 — `resolve_fight_full` = TLS `RefCell<ResolveFightCache>` 메모
+    #   래퍼(m10.ll:39915 · 키 = allies/enemies id·version·champ·… + (seed,tick) · 히트면 캐시값). 게임 캐시는 **다른 13개 호출부**
+    #   (tower_dive·siege_stance·join_stake·roster…)가 먼저 채우므로 링크사본(내 TLS)이 그 이력을 못 본다 ⟹ 순수 코어
+    #   `resolve_fight_uncached`(exe 0xe083c0 8841B · fnprobe 09-13 · full 의 콜리 유일) 를 직접 sweep 해 로직을 증명한다.
+    #   IR 15인자(sret 64 + 14) = exe 레지스터 4 + 스택 11(fnprobe 0x60~0xb0) 일치. %12 = &mut DebugFrameData 추정(MUT_OK_ARG).
+    {"name": "resolve_fight_uncached",
+     "sym": "_RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old11fight_model22resolve_fight_uncached",
+     "addr": "e083c0", "bytes": 8841, "module": "fight_model",
+     "src": "game-ai\\src\\plan_legacy\\old\\fight_model.rs",
+     "ir_file": "m10.ll", "ir_frm": 43974,
+     "tcx": "fn(usize, &AbstractGameWithCache, &GameContext, &Entity, *const &Entity, usize, *const &Entity, usize, i8, Option<&Entity>, usize, &mut DebugFrameData, usize, usize) -> FightPrediction /*sret 64B*/",
+     "evidence": "#40 DIFF 3 규명(09-13) · fnprobe 0xe05450 콜리 = 0xe083c0 유일 · rlib internal fastcc → patches.json 노출"},
 ]
 
 EXE_ABI = {
@@ -568,6 +581,13 @@ SRET_LIVE = {
         (0x20, 8, []), (0x28, 8, [(0x20, 8, [1])]),
         (0x30, 8, []), (0x38, 1, []), (0x39, 1, []),
     ],
+    # 명세 밖 이분 #45(i=44) resolve_fight_uncached → FightPrediction 64B (i35 와 동일 레이아웃)
+    44: [
+        (0x00, 8, []), (0x08, 8, [(0x00, 8, [1])]),
+        (0x10, 8, []), (0x18, 8, [(0x10, 8, [1])]),
+        (0x20, 8, []), (0x28, 8, [(0x20, 8, [1])]),
+        (0x30, 8, []), (0x38, 1, []), (0x39, 1, []),
+    ],
     0: [
         (0x00, 8, []),                                          # Input 판별자
         (0x08, 8, [(0x00, 8, [0])]),                            # Move.x
@@ -578,7 +598,10 @@ SRET_LIVE = {
     ],
 }
 
-MUT_OK_ARG = {35: {13: "DebugFrameData"}}   # {spec idx: {IR 인자 idx: tcx 타입명}} — 위 MUT_OK_TCX 판정을 인덱스로 적용
+MUT_OK_ARG = {35: {13: "DebugFrameData"}, 44: {3: "GameContext", 12: "DebugFrameData"}}
+# ★internal 함수는 define 에 `sret([N x i8])` 속성이 없다(LLVM 이 내부 호출규약에서 생략) — 파서가 「반환 void + 가변 a0」로 읽는다.
+#   `resolve_fight_uncached`(a0 = dereferenceable(64) 출력 버퍼) 실사고(09-13). 여기 적은 idx 는 a0 을 sret N 바이트로 강제한다.
+SRET_FORCE = {44: 64}   # {spec idx: {IR 인자 idx: tcx 타입명}} — 위 MUT_OK_TCX 판정을 인덱스로 적용
 MUT_OK_TCX = {
     "DebugFrameData": u"디버그 싱크 — IR 실측상 본문이 역참조하지 않고 넘기기만 한다"
                                  u"(클로저 내부 쓰기는 미확인 ⟹ 중복 기록 가능 · 반환 대조엔 무관)",
@@ -814,6 +837,9 @@ def main():
         #   값은 a0 가 가리키는 N 바이트에 있다 ⟹ **그 버퍼를 비교하면 된다.**
         #   래퍼 = 게임은 **호출자 버퍼**에 쓰게 두고(게임 진행은 게임 값으로),
         #        내 사본은 **스크래치 버퍼**에 쓰게 한 뒤 N 바이트를 대조한다.
+        if i in SRET_FORCE and not g["sret"]:
+            g["sret"] = True
+            g["args"][0] = ("ptr", SRET_FORCE[i], True)
         sret_n = g["args"][0][1] if g["sret"] else 0
         if g["sret"] and sret_n <= 0:
             why.append(u"sret 인데 출력 크기(dereferenceable)를 못 읽었다 — 비교 범위 미상")

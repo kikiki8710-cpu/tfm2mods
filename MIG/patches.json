@@ -102,5 +102,21 @@
   "line": 0,
   "from": "call fastcc noundef zeroext i1 @_RNvMNtNtCshdEBA0ozCnw_7game_ai11plan_legacy7handlerNtB2_17LegacyPlanHandler19v2_obj_restore_safe(",
   "to": "call noundef zeroext i1 @_RNvMNtNtCshdEBA0ozCnw_7game_ai11plan_legacy7handlerNtB2_17LegacyPlanHandler19v2_obj_restore_safe("
+ },
+ {
+  "raw": true,
+  "note": "#40 resolve_fight_stake DIFF 3 규명용(2026-09-13): `resolve_fight_full` 은 TLS ResolveFightCache 메모 래퍼라 링크사본이 게임 캐시 이력을 못 본다 → 순수 코어 `resolve_fight_uncached`(exe 0xe083c0 · 8841B) 를 직접 sweep 한다. internal fastcc 제거(#05/#06/#18/#38 와 동일).",
+  "file": "plan_legacy/old/fight_model.rs",
+  "line": 0,
+  "from": "define internal fastcc void @_RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old11fight_model22resolve_fight_uncached(",
+  "to": "define void @_RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old11fight_model22resolve_fight_uncached("
+ },
+ {
+  "raw": true,
+  "note": "위 define 의 invoke 사이트 2곳(m10.ll · resolve_fight_full 안).",
+  "file": "plan_legacy/old/fight_model.rs",
+  "line": 0,
+  "from": "invoke fastcc void @_RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old11fight_model22resolve_fight_uncached(",
+  "to": "invoke void @_RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old11fight_model22resolve_fight_uncached("
  }
 ]
