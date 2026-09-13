@@ -1101,19 +1101,39 @@ fn drain_pending(m: &mut HashMap<(String, u8), u8>) {
     let mut pend = SEL_PENDING.lock().unwrap_or_else(|e| e.into_inner());
     if pend.is_empty() { return; }
     for e in pend.iter_mut() { e.2 = normalize_token(&e.2); } // 레지스트리 준비됨 → 숫자를 key 로 고정
-    pend.retain(|(champ, slot, tok)| match token_to_opt_index(tok) {
-        Some(idx) if idx >= 1 => { m.insert((champ.clone(), *slot), idx); false }
-        Some(_) => false,
-        None => true, // 여전히 해석 불가(예: 그 모드가 비활성) → 원문 보존
+    pend.retain(|(champ, slot, tok)| {
+        // ★그 칸에 이미 (유저가 나중에 만든) 지정이 있으면 옛 원문은 폐기 — 흡수하면 새 지정을 덮는다
+        //   (롤아이템모드 재활성 시 `radiant_*` 가 바닐라 지정을 되덮던 구멍, 2026-09-13).
+        if m.contains_key(&(champ.clone(), *slot)) { return false; }
+        match token_to_opt_index(tok) {
+            Some(idx) if idx >= 1 => { m.insert((champ.clone(), *slot), idx); false }
+            Some(_) => false,
+            None => true, // 여전히 해석 불가(예: 그 모드가 비활성) → 원문 보존
+        }
     });
     SEL_PENDING_ANY.store(!pend.is_empty(), Ordering::Relaxed);
+}
+// ★유저가 그 칸을 직접 바꿨으면(지정/Auto 모두) 해석 못 한 옛 원문(pending)은 버린다(2026-09-13).
+//   안 버리면 save_sel 이 **m 의 새 행 + pending 의 옛 행을 같은 (챔프,슬롯)에 둘 다** 기록하고,
+//   적용 모드(tfm2_item_build)는 뒤 행(정렬상 `radiant_*` 같은 key 문자열이 숫자 뒤)을 읽어
+//   해석 불가 → 유저 지정이 조용히 무시된다(롤아이템모드 OFF 실사고 — 03_시행착오).
+fn sel_forget_pending(champ_key: &str, slot: u8) {
+    let mut pend = SEL_PENDING.lock().unwrap_or_else(|e| e.into_inner());
+    let before = pend.len();
+    pend.retain(|(c, s, _)| !(c == champ_key && *s == slot));
+    if pend.len() != before { SEL_PENDING_ANY.store(!pend.is_empty(), Ordering::Relaxed); }
 }
 fn save_sel(m: &HashMap<(String, u8), u8>) {
     let mut rows: Vec<(String, u8, String)> = m.iter()
         .filter_map(|((champ, slot), &idx)| opt_index_to_token(idx).map(|t| (champ.clone(), *slot, t)))
         .collect();
     // 아직 해석 못 한 항목도 원문 그대로 유지 → 유실 방지.
-    rows.extend(SEL_PENDING.lock().unwrap_or_else(|e| e.into_inner()).iter().cloned());
+    //   ★단 m 에 같은 (챔프,슬롯) 행이 있으면 pending 쪽은 쓰지 않는다 — 한 칸에 행 하나(중복 파일 자가 치유).
+    rows.extend(
+        SEL_PENDING.lock().unwrap_or_else(|e| e.into_inner()).iter()
+            .filter(|(c, s, _)| !m.contains_key(&(c.clone(), *s)))
+            .cloned(),
+    );
     rows.sort();
     let mut s = String::new();
     for (champ, slot, tok) in rows { s.push_str(&format!("{} {} {}\n", champ, slot, tok)); }
@@ -1953,6 +1973,7 @@ fn handle_comptest_screen(ui: &GameUI) {
                     //   **명시 Auto(SEL_AUTO)** 를 기록해 폴백을 끊는다(일반 키는 건드리지 않음).
                     with_sel(|m| {
                         let k = (scoped_key(scope, &c), si as u8);
+                        sel_forget_pending(&k.0, k.1); // ★유저 조작 = 해석 못 한 옛 지정 폐기
                         if cur == 0 {
                             if m.contains_key(&(c.clone(), si as u8)) { m.insert(k, SEL_AUTO); } else { m.remove(&k); }
                         } else { m.insert(k, cur as u8); }
@@ -2093,7 +2114,10 @@ fn handle_tactics_screen(ui: &GameUI) {
                     if cur as i64 != last[k] {
                         last[k] = cur as i64;
                         // cur 0(맡김) = 엔트리 제거 → delegate 폴백. ≥1 = 유저 오버라이드 저장.
-                        with_sel(|m| { if cur == 0 { m.remove(&(champ.clone(), si as u8)); } else { m.insert((champ.clone(), si as u8), cur as u8); } });
+                        with_sel(|m| {
+                            sel_forget_pending(&champ, si as u8); // ★유저 조작 = 해석 못 한 옛 지정 폐기
+                            if cur == 0 { m.remove(&(champ.clone(), si as u8)); } else { m.insert((champ.clone(), si as u8), cur as u8); }
+                        });
                         SEL_DIRTY.store(true, Ordering::Relaxed); // ★지정챔프 스냅샷 무효화(다음 buy에서 재빌드)
                         changed = true;
                         let label = opts.get(cur).cloned().unwrap_or_else(|| format!("idx{}", cur));
