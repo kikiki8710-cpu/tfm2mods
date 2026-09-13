@@ -24,7 +24,7 @@ BR2 = re.compile(r'^\s*br i1 (%\d+|true|false), label %(\S+), label %(\S+)')
 BR1 = re.compile(r'^\s*br label %(\S+)')
 SW = re.compile(r'^\s*switch (\w+) (%\d+|\d+), label %(\S+) \[(.*?)\]')
 SWCASE = re.compile(r'\w+ (-?\d+), label %(\S+)')
-INVOKE = re.compile(r'to label %(\S+) unwind label %(\S+)')
+INVOKE = re.compile(r'to label %([\w.]+) unwind label %([\w.]+)')   # 09-14 21차: `\S+` 가 `%4214,` 의 쉼표까지 먹어 20블록을 사장으로 오판
 CALLSYM = re.compile(r'(?:call|invoke)\b[^@]*@([^\s(]+)')
 CMPEQ = re.compile(r'^\s*(%\d+) = icmp (eq|ne) i64 (%\d+), (-?\d+)')
 CMPRNG = re.compile(r'^\s*(%\d+) = icmp (ult|ugt|ule|uge|slt|sgt|sle|sge) i64 (%\d+), (-?\d+)')

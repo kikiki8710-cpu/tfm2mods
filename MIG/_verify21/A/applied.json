@@ -1,0 +1,13 @@
+{
+ "round": "21",
+ "batch": "A",
+ "errors_applied": 0,
+ "ev_applied": 1,
+ "failed": 3,
+ "stamps": {
+  "/specs[111]/logic": "a2ce99d6d1075926",
+  "/specs[111]/open[2]": "fc99faf1178bc6bf",
+  "/specs[111]/open[3]": "fc99faf1178bc6bf"
+ },
+ "restamped": true
+}

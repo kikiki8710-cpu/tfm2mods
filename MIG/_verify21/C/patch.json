@@ -1,0 +1,1105 @@
+{
+ "round": 21,
+ "batch": "C",
+ "errors": [
+  {
+   "path": "/specs[111]/consts[46]/src_line",
+   "kind": "실오류",
+   "old": 1013,
+   "new": 1126,
+   "evidence": "m13.ll:22991 `%3269 = icmp ult i64 %3268, 132, !dbg !32004`(→ prof.rs:185 < mod.rs:825 < handler.rs:1126) · 23109/23169 도 동일(루트 1130). L1013 의 drop(21939~21961)엔 132 리터럴이 없다 — phase 가 %2785∈{68,69,70} 상수라 bounds check 가 접혀 `gep PHASE_NANOS, i64 %2785`(21944) 직접 접근",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[111]/consts[46]/meaning",
+   "kind": "보강",
+   "old": "PHASE_NANOS/PHASE_CALLS 배열 길이(bounds check) — 판정 아님",
+   "new": "PHASE_NANOS/PHASE_CALLS 배열 길이(bounds check) — 판정 아님. L1126(22991)·L1130(23109·23169) 의 ProfTimer drop(phase 76/74 가 런타임 값). L1013 의 drop 은 phase∈{68,69,70} 상수라 검사가 접혀 132 리터럴 없음(21944 gep 직접)",
+   "evidence": "m13.ll:22991/23109/23169 vs 21944",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[111]/consts[64]/src_line",
+   "kind": "실오류",
+   "old": 1133,
+   "new": 716,
+   "evidence": "L1133 의 유일한 명령 = m13.ll:23871 `br i1 %1800, label %3675, label %3671, !dbg !32020`(루트 handler.rs:1133) — 리터럴 없음. %1800 은 m13.ll:19418 `%1800 = icmp ne i32 %1799, 1, !dbg !29444`(루트 handler.rs:716, 배치 B) 를 GVN 재사용. 1 리터럴의 !dbg 사슬 루트는 716",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[111]/consts[64]/meaning",
+   "kind": "보강",
+   "old": "Position 태그 1 = Jungle (player.info.position != 1 이면 갱크 결과 트레이스 생략)",
+   "new": "Position 태그 1 = Jungle (player.info.position != 1 이면 갱크 결과 트레이스 생략 — L1133(23871) 은 L716 의 `%1800 = icmp ne i32 %1799, 1`(19418) 을 GVN 재사용하므로 리터럴은 716 에만 있음)",
+   "evidence": "m13.ll:23871 ↔ 19418",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[111]/mem[177]/value",
+   "kind": "실오류",
+   "old": "&mut self.team_plan, &self.positioning_score, debug)",
+   "new": "&self.team_plan, &self.positioning_score, debug)",
+   "evidence": "tcx sig: BigPlan::update(types.rs:198)·BigPlan::is_end(types.rs:276)·BattlePlan::update(battle.rs:427) 모두 `&TeamPlan`. IR define(m02.ll:6887 %6 / m02.ll:6663 %6 / m10.ll:23429 %6)에 readonly·noalias 가 없는 것은 TeamPlan 이 non-Freeze 이기 때문 — tcxdict TeamPlan: 0x3f8/0x400/0x408 V54Counter = std::sync::atomic::Atomic<usize>. 호출부 21906/22761/23083 `ptr noundef nonnull align 8 %1652` 동일",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[111]/mem[178]/name",
+   "kind": "실오류",
+   "old": "team_plan (&mut TeamPlan 1064B)",
+   "new": "team_plan (&TeamPlan 1064B — tcx `&`; IR readonly 부재는 V54Counter Atomic<usize> 3개(+0x3f8/+0x400/+0x408) 탓)",
+   "evidence": "tcx sig: BigPlan::update(types.rs:198)·BigPlan::is_end(types.rs:276)·BattlePlan::update(battle.rs:427) 모두 `&TeamPlan`. IR define(m02.ll:6887 %6 / m02.ll:6663 %6 / m10.ll:23429 %6)에 readonly·noalias 가 없는 것은 TeamPlan 이 non-Freeze 이기 때문 — tcxdict TeamPlan: 0x3f8/0x400/0x408 V54Counter = std::sync::atomic::Atomic<usize>. 호출부 21906/22761/23083 `ptr noundef nonnull align 8 %1652` 동일",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[111]/mem[178]/value",
+   "kind": "실오류",
+   "old": "에 &mut 전달",
+   "new": "에 `&TeamPlan` 전달(tcx 시그니처 3건 모두 `&`)",
+   "evidence": "tcx sig: BigPlan::update(types.rs:198)·BigPlan::is_end(types.rs:276)·BattlePlan::update(battle.rs:427) 모두 `&TeamPlan`. IR define(m02.ll:6887 %6 / m02.ll:6663 %6 / m10.ll:23429 %6)에 readonly·noalias 가 없는 것은 TeamPlan 이 non-Freeze 이기 때문 — tcxdict TeamPlan: 0x3f8/0x400/0x408 V54Counter = std::sync::atomic::Atomic<usize>. 호출부 21906/22761/23083 `ptr noundef nonnull align 8 %1652` 동일",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[111]/mem[178]/note",
+   "kind": "실오류",
+   "old": "내부 쓰기 미탐색",
+   "new": "콜리가 `&TeamPlan` 로 쓸 수 있는 self 바이트 = Atomic 3개(self+0x4f0/0x4f8/0x500)뿐 — 나머지 team_plan 필드는 불변(런타임 sweep 의 team_plan 변화는 L703 TeamPlan::update(&mut)·L1191/1192/1216 직접 쓰기에서만)",
+   "evidence": "tcx sig: BigPlan::update(types.rs:198)·BigPlan::is_end(types.rs:276)·BattlePlan::update(battle.rs:427) 모두 `&TeamPlan`. IR define(m02.ll:6887 %6 / m02.ll:6663 %6 / m10.ll:23429 %6)에 readonly·noalias 가 없는 것은 TeamPlan 이 non-Freeze 이기 때문 — tcxdict TeamPlan: 0x3f8/0x400/0x408 V54Counter = std::sync::atomic::Atomic<usize>. 호출부 21906/22761/23083 `ptr noundef nonnull align 8 %1652` 동일",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[111]/logic",
+   "kind": "실오류",
+   "old": "&self.data(0x0), &mut self.team_plan(0xf8), &self.positioning_score(0x990), debug)",
+   "new": "&self.data(0x0), &self.team_plan(0xf8) /*tcx `&TeamPlan` — Atomic 3개 외 불변*/, &self.positioning_score(0x990), debug)",
+   "evidence": "tcx sig: BigPlan::update(types.rs:198)·BigPlan::is_end(types.rs:276)·BattlePlan::update(battle.rs:427) 모두 `&TeamPlan`. IR define(m02.ll:6887 %6 / m02.ll:6663 %6 / m10.ll:23429 %6)에 readonly·noalias 가 없는 것은 TeamPlan 이 non-Freeze 이기 때문 — tcxdict TeamPlan: 0x3f8/0x400/0x408 V54Counter = std::sync::atomic::Atomic<usize>. 호출부 21906/22761/23083 `ptr noundef nonnull align 8 %1652` 동일",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[111]/logic",
+   "kind": "실오류",
+   "old": "battle.update(version, rnd, player, data, &self.positioning_score, &mut self.team_plan, debug)",
+   "new": "battle.update(version, rnd, player, data, &self.positioning_score, &self.team_plan /*tcx `&`*/, debug)",
+   "evidence": "tcx sig: BigPlan::update(types.rs:198)·BigPlan::is_end(types.rs:276)·BattlePlan::update(battle.rs:427) 모두 `&TeamPlan`. IR define(m02.ll:6887 %6 / m02.ll:6663 %6 / m10.ll:23429 %6)에 readonly·noalias 가 없는 것은 TeamPlan 이 non-Freeze 이기 때문 — tcxdict TeamPlan: 0x3f8/0x400/0x408 V54Counter = std::sync::atomic::Atomic<usize>. 호출부 21906/22761/23083 `ptr noundef nonnull align 8 %1652` 동일",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[111]/logic",
+   "kind": "실오류",
+   "old": "self.plan.is_end(version, rnd, player, data, &self.data, &mut self.team_plan, debug)",
+   "new": "self.plan.is_end(version, rnd, player, data, &self.data, &self.team_plan /*tcx `&`*/, debug)",
+   "evidence": "tcx sig: BigPlan::update(types.rs:198)·BigPlan::is_end(types.rs:276)·BattlePlan::update(battle.rs:427) 모두 `&TeamPlan`. IR define(m02.ll:6887 %6 / m02.ll:6663 %6 / m10.ll:23429 %6)에 readonly·noalias 가 없는 것은 TeamPlan 이 non-Freeze 이기 때문 — tcxdict TeamPlan: 0x3f8/0x400/0x408 V54Counter = std::sync::atomic::Atomic<usize>. 호출부 21906/22761/23083 `ptr noundef nonnull align 8 %1652` 동일",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[111]/logic",
+   "kind": "실오류",
+   "old": "BattlePlan::new(version, &Some(focus_id), data, player)",
+   "new": "BattlePlan::new(version, BattlePlanGoal::Support(focus_id) /*24B by-ptr %25: store i64 1(+0)=Support 태그, +8=focus_id(22743~22744) — tcxdict --enum BattlePlanGoal: 0 TryKill·1 Support·2 Response·3 Avoid*/, data, player)",
+   "evidence": "tcx sig BattlePlan::new(usize, BattlePlanGoal, &OperationData, &PlayerState)(battle.rs:196) · m13.ll:22743 `store i64 %3173, ptr %3189`(%25+8) · 22744 `store i64 1, ptr %25` · tcxdict --enum BattlePlanGoal 태그1=Support(1필드 usize @+8). `&Some(focus_id)` 는 Option 이 아니라 BattlePlanGoal 이다",
+   "behavior_change": true,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[111]/mem[198]/note",
+   "kind": "실오류",
+   "old": "(배치 C) L1240·L1246 (및 L988)",
+   "new": "(배치 C) L988·L1246 v2_apply_assign_commit(&mut self, m13.ll:11530 %0 captures(none) dereferenceable(6168)) — ⚠L1240 passive_plan 은 tcx `&self`(handler.rs:1855)라 self 쓰기 계약 없음(m13.ll:6495 %1 에 readonly 가 없는 것은 LegacyPlanHandler 가 non-Freeze 이기 때문)",
+   "evidence": "tcx sig passive_plan: fn(&LegacyPlanHandler, usize, &mut StdRng, &PlayerState, &OperationData, &mut DebugFrameData) -> (BigPlan, u8) · m13.ll:24126 호출 · 6495 define",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[111]/logic",
+   "kind": "보강",
+   "old": "let (new, src) = self.passive_plan(version, rnd, player, data, debug)   // sret 392 = BigPlan 384 + u8",
+   "new": "let (new, src) = self.passive_plan(version, rnd, player, data, debug)   // sret 392 = BigPlan 384 + u8 · tcx `&self`(self 쓰기 없음)",
+   "evidence": "tcx sig passive_plan(handler.rs:1855) `&self`",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[111]/logic",
+   "kind": "보강",
+   "old": "L1118: else if let BigPlan::Battle(b)",
+   "new": "L1118: if let BigPlan::Battle(b) /*별도 if — PassiveLine 블록 끝 %3125 가 %3032 로 가서 태그를 다시 읽는다(22590·22406). 태그가 배타라 else-if 와 외연 동일*/",
+   "evidence": "m13.ll:22590 `%3128 = load i64, ptr %1930`(루트 1118) → 22591 `br label %3032` · 22405 `3032: ; preds = %3125, %2921`",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[111]/logic",
+   "kind": "보강",
+   "old": "self.v3_dest = self.v3_plan_dest(player.team, context, &new)   // sret 24 · 내부 미탐색",
+   "new": "self.v3_dest = self.v3_plan_dest(player, data, &new)   // tcx (&self, &PlayerState, &OperationData, &BigPlan) → fastcc 판(m13.ll:9990)은 self 제거·player→info.team(i64)·data→context 로 인자승격되어 (sret 24, team, &GameContext, &BigPlan) · 내부 미탐색",
+   "evidence": "tcx sig v3_plan_dest(handler.rs:1824) fn(&LegacyPlanHandler, &PlayerState, &OperationData, &BigPlan) -> Option<(u64,u64)> · m13.ll:21764 호출 (ptr %168, i64 %2727, ptr %1639, ptr %172)",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[111]/logic",
+   "kind": "보강",
+   "old": "self.sanitize_rule_scope(cache, context)   // internal fastcc m13.ll:11163~11383 · 내부 미탐색",
+   "new": "self.sanitize_rule_scope(data)   // tcx (&mut self, &OperationData)(handler.rs:571) → fastcc 판(m13.ll:11163)은 data→(cache, context) 인자승격 · 내부 미탐색",
+   "evidence": "tcx sig sanitize_rule_scope fn(&mut LegacyPlanHandler, &OperationData) · m13.ll:22638 호출 (ptr %0, ptr %211, ptr %1639)",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[111]/mem[11]/name",
+   "kind": "보강",
+   "old": "plan 페이로드(+8) — chats() 오프셋 1520/1544/1624/1760",
+   "new": "plan+8 (페이로드) — chats() 오프셋 1520/1544/1624/1760",
+   "evidence": "sharedchk R2: LegacyPlanHandler `plan` 이 0x5e8/0x5f0 두 자리 — 0x5f0 은 페이로드(tcxdict 0x5e8 = plan@tag, 0x5f0 = plan@<variant>.0 …). norm_name 이 `(` 이후·한글을 버려 `plan` 으로 읽던 행",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[111]/mem[210]/name",
+   "kind": "보강",
+   "old": "mf_ret25_src[min(src,31)]",
+   "new": "mf_ret25_src[0..32]",
+   "evidence": "tcxdict LegacyPlanHandler 0x1658 = mf_ret25_src[0] (--deep: mf_ret25_src[0..32], usize×32). 첨자식이 이름에 있어 tcxaudit 이 오귀속으로 읽음",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[111]/mem[210]/value",
+   "kind": "보강",
+   "old": "+= 1",
+   "new": "[min(src,31)] += 1 (24292 umin.i8 31 → 24295 gep i64 idx → 24298 store)",
+   "evidence": "m13.ll:24292~24298",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[111]/consts[66]/meaning",
+   "kind": "보강",
+   "old": "(tag-9) <u 2 ⟺ tag ∈ {9 Battle, 10 LineGanker}",
+   "new": "오프셋가감 — (tag-9) <u 2 ⟺ tag ∈ {9 Battle, 10 LineGanker} (24063 `add i64 %3747, -9` → 24064 `icmp ult .., 2`)",
+   "evidence": "m13.ll:24063~24064 add/icmp ult 범위검사 접힘",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[111]/consts[71]/meaning",
+   "kind": "보강",
+   "old": "(exit_src-11) <u 4 ⟺ exit_src ∈ {11,12,13,14}",
+   "new": "오프셋가감 — (exit_src-11) <u 4 ⟺ exit_src ∈ {11,12,13,14} (24147 `add i8 %3796, -11` → 24148 `icmp ult .., 4`)",
+   "evidence": "m13.ll:24147~24148",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[111]/open[16]",
+   "kind": "실오류",
+   "old": "is_end·BattlePlan::update 는 &mut team_plan 을 받아 쓸 수 있음",
+   "new": "is_end·BattlePlan::update·BigPlan::update 는 tcx 상 `&TeamPlan` — V54Counter Atomic 3개(team_plan+0x3f8/0x400/0x408) 외 team_plan 쓰기 불가(IR readonly 부재 = non-Freeze 탓)",
+   "evidence": "tcx sig: BigPlan::update(types.rs:198)·BigPlan::is_end(types.rs:276)·BattlePlan::update(battle.rs:427) 모두 `&TeamPlan`. IR define(m02.ll:6887 %6 / m02.ll:6663 %6 / m10.ll:23429 %6)에 readonly·noalias 가 없는 것은 TeamPlan 이 non-Freeze 이기 때문 — tcxdict TeamPlan: 0x3f8/0x400/0x408 V54Counter = std::sync::atomic::Atomic<usize>. 호출부 21906/22761/23083 `ptr noundef nonnull align 8 %1652` 동일",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[111]/open[17]",
+   "kind": "실오류",
+   "old": "소스에서 인자였다가 접혔는지 불명(표기 불가)",
+   "new": "tcx 시그니처 fn(&mut self, usize, usize, bool, u8)(dive_episode.rs:125)에 usize 2개가 있어 소스 인자(tick·tps)가 fastcc 판(m13.ll:28946 define = (self, i1, i8) 3인자)에서 dead-arg 제거된 것으로 확정 — 닫힘(사실 서술)",
+   "evidence": "callees[127] tcx sig · m13.ll:28946 define · 호출 23653/23856 (ptr %0, i1, i8)",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[111]/open[25]",
+   "kind": "실오류",
+   "old": "그 블록 정체(unreachable/패닉)는 배치 A 몫",
+   "new": "그 블록 = m13.ll:19242~19243 `1736: … unreachable`(패닉 호출 없음 — sub_goal 태그 0..=7 외는 UB 로 봉인, preds 11곳의 공용 unreachable) — 닫힘(사실 서술)",
+   "evidence": "m13.ll:19242 `1736: ; preds = %5261, %4950, %4278, %4243, %3939, %3937, %3384, %2061, %2059, %1755, %1728` · 19243 `unreachable`",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[111]/open[13]",
+   "kind": "보강",
+   "old": "인자 (team, &GameContext, &BigPlan)) 내부 — 미탐색",
+   "new": "인자 (team, &GameContext, &BigPlan) — tcx 소스 시그니처 fn(&self, &PlayerState, &OperationData, &BigPlan)(handler.rs:1824)의 인자승격판) 내부 — 미탐색",
+   "evidence": "callees[123] tcx sig · m13.ll:9990 define (sret, i64, ptr readonly, ptr)",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[111]/open[14]",
+   "kind": "보강",
+   "old": "(&mut self, &cache, &context)) 내부 — 미탐색",
+   "new": "(&mut self, &cache, &context) — tcx 소스 시그니처 fn(&mut self, &OperationData)(handler.rs:571)의 인자승격판) 내부 — 미탐색",
+   "evidence": "callees[86] tcx sig · m13.ll:11163 define",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "op": "insert",
+   "path": "/specs[111]/mem",
+   "at": 241,
+   "guard": "plan+8 chats.len (태그별 chats Vec: +0x0/+0x18/+0x68/+0xf8 → len=Vec+0x10 = 0x600/0x618/0x668/0x6f0)",
+   "guard_key": "name",
+   "new": {
+    "base": "LegacyPlanHandler",
+    "offset": "0x5f0",
+    "name": "plan+8 chats.len (태그별 chats Vec: +0x0/+0x18/+0x68/+0xf8 → len=Vec+0x10 = 0x600/0x618/0x668/0x6f0)",
+    "value": "Vec<Chat>::drain(..) → len=0 (콜리 안에서 self.len=0 저장)",
+    "note": "L1016 (22003 `drain(sret %165, ptr %2822)`, %2822 = self+{1520,1544,1624,1760}) — 플랜 페이로드 chats 비움 · self 바이트 쓰기(런타임 sweep 대상) · 배치 B 759/785 도 동일 형태"
+   },
+   "kind": "보강",
+   "evidence": "L1016 (22003 `drain(sret %165, ptr %2822)`, %2822 = self+{1520,1544,1624,1760}) — 플랜 페이로드 chats 비움 · self 바이트 쓰기(런타임 sweep 대상) · 배치 B 759/785 도 동일 형태",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "op": "insert",
+   "path": "/specs[111]/mem",
+   "at": 242,
+   "guard": "plan@PassiveLine.0.v46_pending.trigger_ticks.len",
+   "guard_key": "name",
+   "new": {
+    "base": "LegacyPlanHandler",
+    "offset": "0x660",
+    "name": "plan@PassiveLine.0.v46_pending.trigger_ticks.len",
+    "value": "= 0 (append 뒤 소스 비움)",
+    "note": "L1100 (22416 `store i64 0, ptr %3019`, %3019 = self+1632) · tcxdict 0x660 = plan@PassiveLine.0.v46_pending.trigger_ticks.len"
+   },
+   "kind": "보강",
+   "evidence": "L1100 (22416 `store i64 0, ptr %3019`, %3019 = self+1632) · tcxdict 0x660 = plan@PassiveLine.0.v46_pending.trigger_ticks.len",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "op": "insert",
+   "path": "/specs[111]/mem",
+   "at": 243,
+   "guard": "plan@PassiveLine.0.v46_pending.flee_episodes.len",
+   "guard_key": "name",
+   "new": {
+    "base": "LegacyPlanHandler",
+    "offset": "0x678",
+    "name": "plan@PassiveLine.0.v46_pending.flee_episodes.len",
+    "value": "= 0 (append 뒤 소스 비움)",
+    "note": "L1115 (22589 `store i64 0, ptr %3112`, %3112 = self+1656) · tcxdict 0x678 = plan@PassiveLine.0.v46_pending.flee_episodes.len"
+   },
+   "kind": "보강",
+   "evidence": "L1115 (22589 `store i64 0, ptr %3112`, %3112 = self+1656) · tcxdict 0x678 = plan@PassiveLine.0.v46_pending.flee_episodes.len",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "op": "insert",
+   "path": "/specs[111]/mem",
+   "at": 244,
+   "guard": "plan@Battle.0.v54_reentry_ticks.len",
+   "guard_key": "name",
+   "new": {
+    "base": "LegacyPlanHandler",
+    "offset": "0x680",
+    "name": "plan@Battle.0.v54_reentry_ticks.len",
+    "value": "= 0 (append 뒤 소스 비움)",
+    "note": "L1119 (22645 `store i64 0, ptr %3133`, %3133 = self+1664) · tcxdict 0x680 = plan@Battle.0.v54_reentry_ticks.len"
+   },
+   "kind": "보강",
+   "evidence": "L1119 (22645 `store i64 0, ptr %3133`, %3133 = self+1664) · tcxdict 0x680 = plan@Battle.0.v54_reentry_ticks.len",
+   "behavior_change": false,
+   "found_by": "new"
+  }
+ ],
+ "ev_up": [
+  {
+   "path": "/specs[111]/mem[60]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조: tcxdict LegacyPlanHandler --deep 0x5f0 = plan@Battle.0.support_target@tag 등 variant 페이로드 시작",
+   "found_by": "reused",
+   "guard": "plan@PassiveLine.0 / plan@Battle.0 등 페이로드 시작"
+  },
+  {
+   "path": "/specs[111]/mem[61]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조: tcxdict LegacyPlanHandler --deep 0x768 = sub_plan@tag",
+   "found_by": "reused",
+   "guard": "sub_plan@tag"
+  },
+  {
+   "path": "/specs[111]/mem[62]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조: tcxdict LegacyPlanHandler --deep 0x790 = sub_plan@Battle.0.v48_claim_hold_until",
+   "found_by": "reused",
+   "guard": "sub_plan@Battle.0.v48_claim_hold_until"
+  },
+  {
+   "path": "/specs[111]/mem[63]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조: tcxdict LegacyPlanHandler --deep 0x79b = sub_plan@Battle.0.v48_dodge_claim",
+   "found_by": "reused",
+   "guard": "sub_plan@Battle.0.v48_dodge_claim"
+  },
+  {
+   "path": "/specs[111]/mem[64]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조: tcxdict LegacyPlanHandler --deep 0x517 = team_plan.objective@tag",
+   "found_by": "reused",
+   "guard": "team_plan.objective (Option<MainObjective> 3B)"
+  },
+  {
+   "path": "/specs[111]/mem[65]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조: tcxdict LegacyPlanHandler --deep 0x570 = v50_dive_ep_live@tag(niche, =prev_holder_hp@tag)",
+   "found_by": "reused",
+   "guard": "v50_dive_ep_live@tag"
+  },
+  {
+   "path": "/specs[111]/mem[66]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조: tcxdict LegacyPlanHandler --deep 0x5e1 = v50_dive_ep_live@Some.0.tower@tag",
+   "found_by": "reused",
+   "guard": "v50_dive_ep_live@Some.0.tower"
+  },
+  {
+   "path": "/specs[111]/mem[67]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조: tcxdict LegacyPlanHandler --deep 0x5e2 = v50_dive_ep_live@Some.0.start_model",
+   "found_by": "reused",
+   "guard": "v50_dive_ep_live@Some.0.start_model"
+  },
+  {
+   "path": "/specs[111]/mem[68]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조: tcxdict LegacyPlanHandler --deep 0x5c0 = v50_dive_ep_live@Some.0.gap_ticks",
+   "found_by": "reused",
+   "guard": "v50_dive_ep_live@Some.0.gap_ticks"
+  },
+  {
+   "path": "/specs[111]/mem[69]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조: tcxdict LegacyPlanHandler --deep 0x7c8 = chats.buf.inner.cap",
+   "found_by": "reused",
+   "guard": "chats (Vec<Chat>)"
+  },
+  {
+   "path": "/specs[111]/mem[70]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조: tcxdict LegacyPlanHandler --deep 0x810 = gank_periods.buf.inner.cap (ptr 0x818·len 0x820)",
+   "found_by": "reused",
+   "guard": "gank_periods (Vec<(usize,usize)>) ptr 0x818·len 0x820"
+  },
+  {
+   "path": "/specs[111]/mem[71]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조: tcxdict LegacyPlanHandler --deep 0x1550 = v48_claim_until_tick",
+   "found_by": "reused",
+   "guard": "v48_claim_until_tick"
+  },
+  {
+   "path": "/specs[111]/mem[72]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조: tcxdict LegacyPlanHandler --deep 0x1558 = v48_last_non_target_hit",
+   "found_by": "reused",
+   "guard": "v48_last_non_target_hit"
+  },
+  {
+   "path": "/specs[111]/mem[73]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조: tcxdict LegacyPlanHandler --deep 0x1814 = v48_last_cast_state",
+   "found_by": "reused",
+   "guard": "v48_last_cast_state"
+  },
+  {
+   "path": "/specs[111]/mem[74]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조: tcxdict LegacyPlanHandler --deep 0x0 = data(GoalData) 선두",
+   "found_by": "reused",
+   "guard": "data (GoalData 248B)"
+  },
+  {
+   "path": "/specs[111]/mem[75]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조: tcxdict LegacyPlanHandler --deep 0x990 = positioning_score 선두",
+   "found_by": "reused",
+   "guard": "positioning_score (2760B)"
+  },
+  {
+   "path": "/specs[111]/mem[173]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조: tcxdict LegacyPlanHandler --deep 0x548 = v3_dest@tag",
+   "found_by": "reused",
+   "guard": "v3_dest (Option<(u64,u64)> 24B)"
+  },
+  {
+   "path": "/specs[111]/mem[174]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조: tcxdict LegacyPlanHandler --deep 0x180e = v3_dest_obj@tag",
+   "found_by": "reused",
+   "guard": "v3_dest_obj (Option<MainObjective> 3B)"
+  },
+  {
+   "path": "/specs[111]/mem[175]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조: tcxdict LegacyPlanHandler --deep 0x5f0 = plan@PassiveLine.0 선두",
+   "found_by": "reused",
+   "guard": "plan@PassiveLine.0 (구 플랜 페이로드)"
+  },
+  {
+   "path": "/specs[111]/mem[178]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조: tcxdict LegacyPlanHandler --deep 0xf8 = team_plan 선두",
+   "found_by": "reused",
+   "guard": "team_plan (&TeamPlan 1064B"
+  },
+  {
+   "path": "/specs[111]/mem[179]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조: tcxdict LegacyPlanHandler --deep 0x7c8 = chats.buf.inner.cap",
+   "found_by": "reused",
+   "guard": "chats (Vec<Chat>) ★HEAP grow"
+  },
+  {
+   "path": "/specs[111]/mem[180]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조: tcxdict LegacyPlanHandler --deep 0x1550 = v48_claim_until_tick",
+   "found_by": "reused",
+   "guard": "v48_claim_until_tick"
+  },
+  {
+   "path": "/specs[111]/mem[181]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조: tcxdict LegacyPlanHandler --deep 0x1560 = v48_claim_window_ticks",
+   "found_by": "reused",
+   "guard": "v48_claim_window_ticks"
+  },
+  {
+   "path": "/specs[111]/mem[182]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조: tcxdict LegacyPlanHandler --deep 0x1568 = v48_claim_window_hits",
+   "found_by": "reused",
+   "guard": "v48_claim_window_hits"
+  },
+  {
+   "path": "/specs[111]/mem[183]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조: tcxdict LegacyPlanHandler --deep 0x1578 = v48_claim_hit_locked",
+   "found_by": "reused",
+   "guard": "v48_claim_hit_locked"
+  },
+  {
+   "path": "/specs[111]/mem[184]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조: tcxdict LegacyPlanHandler --deep 0x1580 = v48_claim_hit_moving",
+   "found_by": "reused",
+   "guard": "v48_claim_hit_moving"
+  },
+  {
+   "path": "/specs[111]/mem[185]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조: tcxdict LegacyPlanHandler --deep 0x1588 = v48_claim_hit_idle",
+   "found_by": "reused",
+   "guard": "v48_claim_hit_idle"
+  },
+  {
+   "path": "/specs[111]/mem[186]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조: tcxdict LegacyPlanHandler --deep 0x1570 = v48_other_hits",
+   "found_by": "reused",
+   "guard": "v48_other_hits"
+  },
+  {
+   "path": "/specs[111]/mem[187]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조: tcxdict LegacyPlanHandler --deep 0x1558 = v48_last_non_target_hit",
+   "found_by": "reused",
+   "guard": "v48_last_non_target_hit"
+  },
+  {
+   "path": "/specs[111]/mem[188]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조: tcxdict LegacyPlanHandler --deep 0x1590 = v48_cast_cc",
+   "found_by": "reused",
+   "guard": "v48_cast_cc"
+  },
+  {
+   "path": "/specs[111]/mem[189]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조: tcxdict LegacyPlanHandler --deep 0x1598 = v48_cast_locked",
+   "found_by": "reused",
+   "guard": "v48_cast_locked"
+  },
+  {
+   "path": "/specs[111]/mem[190]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조: tcxdict LegacyPlanHandler --deep 0x15a0 = v48_cast_free_near",
+   "found_by": "reused",
+   "guard": "v48_cast_free_near"
+  },
+  {
+   "path": "/specs[111]/mem[191]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조: tcxdict LegacyPlanHandler --deep 0x15a8 = v48_cast_free_far",
+   "found_by": "reused",
+   "guard": "v48_cast_free_far"
+  },
+  {
+   "path": "/specs[111]/mem[192]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조: tcxdict LegacyPlanHandler --deep 0x1814 = v48_last_cast_state",
+   "found_by": "reused",
+   "guard": "v48_last_cast_state"
+  },
+  {
+   "path": "/specs[111]/mem[193]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조: tcxdict LegacyPlanHandler --deep 0x870 = v46_lane_recall_trigger_ticks.buf.inner.cap",
+   "found_by": "reused",
+   "guard": "v46_lane_recall_trigger_ticks (Vec<(usize,LineType)>) ★HEAP grow"
+  },
+  {
+   "path": "/specs[111]/mem[194]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조: tcxdict LegacyPlanHandler --deep 0x14d0 = v46_lane_recall_danger_ticks … 0x1538 v46_lane_flee_nohit_episodes",
+   "found_by": "reused",
+   "guard": "v46_lane_recall_danger_ticks … 0x1538 v46_lane_flee_nohit_episodes (14개 usize)"
+  },
+  {
+   "path": "/specs[111]/mem[195]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조: tcxdict LegacyPlanHandler --deep 0x680 = plan@PassiveLine.0.v46_pending.danger_ticks … 0x6e0 flee_hold_cover_ticks",
+   "found_by": "reused",
+   "guard": "plan@PassiveLine.0.v46_pending 카운터 14 (0x680~0x6e8)"
+  },
+  {
+   "path": "/specs[111]/mem[196]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조: tcxdict LegacyPlanHandler --deep 0x8a0 = v46_lane_flee_episodes.buf.inner.cap",
+   "found_by": "reused",
+   "guard": "v46_lane_flee_episodes (Vec<(usize,LineType,u8)>) ★HEAP grow"
+  },
+  {
+   "path": "/specs[111]/mem[197]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조: tcxdict LegacyPlanHandler --deep 0x900 = v54_reentry_ticks.buf.inner.cap",
+   "found_by": "reused",
+   "guard": "v54_reentry_ticks (Vec<usize>) ★HEAP grow"
+  },
+  {
+   "path": "/specs[111]/mem[200]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조: tcxdict LegacyPlanHandler --deep 0x818 = gank_periods.buf.inner.ptr",
+   "found_by": "reused",
+   "guard": "gank_periods[len-1].1 (힙 원소, in-place)"
+  },
+  {
+   "path": "/specs[111]/mem[201]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조: tcxdict LegacyPlanHandler --deep 0x858 = pending_trace_events.buf.inner.cap",
+   "found_by": "reused",
+   "guard": "pending_trace_events (Vec<PendingTraceEvent 184B>) ★HEAP grow"
+  },
+  {
+   "path": "/specs[111]/mem[202]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조: tcxdict LegacyPlanHandler --deep 0x1470 = gank_cancel_tick",
+   "found_by": "reused",
+   "guard": "gank_cancel_tick"
+  },
+  {
+   "path": "/specs[111]/mem[203]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조: tcxdict LegacyPlanHandler --deep 0x308 = team_plan.mf_obj_clear.0 / 0x310 .1",
+   "found_by": "reused",
+   "guard": "team_plan.mf_obj_clear.0 / 0x310 .1"
+  },
+  {
+   "path": "/specs[111]/mem[204]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조: tcxdict LegacyPlanHandler --deep 0x1480 = last_dive_abandon_tick",
+   "found_by": "reused",
+   "guard": "last_dive_abandon_tick"
+  },
+  {
+   "path": "/specs[111]/mem[205]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조: tcxdict LegacyPlanHandler --deep 0x1488 = last_response_bail_tick",
+   "found_by": "reused",
+   "guard": "last_response_bail_tick"
+  },
+  {
+   "path": "/specs[111]/mem[206]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조: tcxdict LegacyPlanHandler --deep 0x320 = team_plan.last_resolver_bail_tick",
+   "found_by": "reused",
+   "guard": "team_plan.last_resolver_bail_tick"
+  },
+  {
+   "path": "/specs[111]/mem[207]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조: tcxdict LegacyPlanHandler --deep 0x1490 = last_lost_fight.0 / 0x1498 .1",
+   "found_by": "reused",
+   "guard": "last_lost_fight (.0 0x1490, .1 0x1498)"
+  },
+  {
+   "path": "/specs[111]/mem[208]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조: tcxdict LegacyPlanHandler --deep 0x15f8 = ff_battle_exit.2 / 0x1600 .0 / 0x1601 .1 / 0x1602 .3 / 0x1603 .4",
+   "found_by": "reused",
+   "guard": "ff_battle_exit (.2 tick 0x15f8 · .0 exit_src 0x1600 · .1 entry_src 0x1601 · .3 exit_sub 0x1602 · .4 ff_wave_obs_open 0x1603)"
+  },
+  {
+   "path": "/specs[111]/mem[209]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조: tcxdict LegacyPlanHandler --deep 0x1608 = ff_battle_exit_latch.0 … 0x160f .7",
+   "found_by": "reused",
+   "guard": "ff_battle_exit_latch (u8×8 0x1608~0x160f)"
+  },
+  {
+   "path": "/specs[111]/mem[210]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조: tcxdict LegacyPlanHandler --deep 0x1658 = mf_ret25_src[0..32]",
+   "found_by": "reused",
+   "guard": "mf_ret25_src[0..32]"
+  },
+  {
+   "path": "/specs[111]/mem[211]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조: tcxdict LegacyPlanHandler --deep 0x1610 = mf_swap.0 / 0x1618 mf_swap.1",
+   "found_by": "reused",
+   "guard": "mf_swap"
+  },
+  {
+   "path": "/specs[111]/mem[213]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조: tcxdict LegacyPlanHandler --deep 0x570 = v50_dive_ep_live@Some.0 (0x570~0x5e5: prev_holder_hp@tag·.0 0x578·start_tick 0x580·last_tick 0x588·ep_ticks 0x590·in_range_ticks 0x598·holder_ticks 0x5a0·team_holder_ticks 0x5a8·minion_cover_ticks 0x5b0·soaked_hp 0x5b8·gap_ticks 0x5c0·max_catch_break 0x5c8·uncatch_total 0x5d0·target_pos@tag 0x5d8·start_race_adv 0x5dc·start_in_range 0x5e0·tower@tag 0x5e1·start_model 0x5e2·start_na 0x5e3·start_ne 0x5e4·start_tgt_hp 0x5e5)",
+   "found_by": "reused",
+   "guard": "v50_dive_ep_live 신규 Some (0x570~0x5e5 전 필드)"
+  },
+  {
+   "path": "/specs[111]/mem[214]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조: tcxdict LegacyPlanHandler --deep 0x5c0 = v50_dive_ep_live@Some.0.gap_ticks",
+   "found_by": "reused",
+   "guard": "v50_dive_ep_live.gap_ticks"
+  },
+  {
+   "path": "/specs[111]/mem[215]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조: tcxdict LegacyPlanHandler --deep 0x5c8 = v50_dive_ep_live@Some.0.max_catch_break",
+   "found_by": "reused",
+   "guard": "v50_dive_ep_live.max_catch_break"
+  },
+  {
+   "path": "/specs[111]/mem[216]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조: tcxdict LegacyPlanHandler --deep 0x5d0 = v50_dive_ep_live@Some.0.uncatch_total",
+   "found_by": "reused",
+   "guard": "v50_dive_ep_live.uncatch_total"
+  },
+  {
+   "path": "/specs[111]/mem[217]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조: tcxdict LegacyPlanHandler --deep 0x5e2 = v50_dive_ep_live@Some.0.start_model / 0x5dc start_race_adv / 0x5e3 start_na / 0x5e4 start_ne",
+   "found_by": "reused",
+   "guard": "v50_dive_ep_live.start_model / 0x5dc start_race_adv / 0x5e3 start_na / 0x5e4 start_ne"
+  },
+  {
+   "path": "/specs[111]/mem[218]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조: tcxdict LegacyPlanHandler --deep 0x588 = v50_dive_ep_live@Some.0.last_tick",
+   "found_by": "reused",
+   "guard": "v50_dive_ep_live.last_tick"
+  },
+  {
+   "path": "/specs[111]/mem[219]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조: tcxdict LegacyPlanHandler --deep 0x590 = v50_dive_ep_live@Some.0.ep_ticks",
+   "found_by": "reused",
+   "guard": "v50_dive_ep_live.ep_ticks"
+  },
+  {
+   "path": "/specs[111]/mem[220]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조: tcxdict LegacyPlanHandler --deep 0x598 = v50_dive_ep_live@Some.0.in_range_ticks",
+   "found_by": "reused",
+   "guard": "v50_dive_ep_live.in_range_ticks"
+  },
+  {
+   "path": "/specs[111]/mem[221]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조: tcxdict LegacyPlanHandler --deep 0x5a8 = v50_dive_ep_live@Some.0.team_holder_ticks",
+   "found_by": "reused",
+   "guard": "v50_dive_ep_live.team_holder_ticks"
+  },
+  {
+   "path": "/specs[111]/mem[222]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조: tcxdict LegacyPlanHandler --deep 0x5b0 = v50_dive_ep_live@Some.0.minion_cover_ticks",
+   "found_by": "reused",
+   "guard": "v50_dive_ep_live.minion_cover_ticks"
+  },
+  {
+   "path": "/specs[111]/mem[223]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조: tcxdict LegacyPlanHandler --deep 0x5a0 = v50_dive_ep_live@Some.0.holder_ticks",
+   "found_by": "reused",
+   "guard": "v50_dive_ep_live.holder_ticks"
+  },
+  {
+   "path": "/specs[111]/mem[224]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조: tcxdict LegacyPlanHandler --deep 0x5b8 = v50_dive_ep_live@Some.0.soaked_hp",
+   "found_by": "reused",
+   "guard": "v50_dive_ep_live.soaked_hp"
+  },
+  {
+   "path": "/specs[111]/mem[225]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조: tcxdict LegacyPlanHandler --deep 0x570 = v50_dive_ep_live@Some.0.prev_holder_hp@tag (0x578 @Some.0)",
+   "found_by": "reused",
+   "guard": "v50_dive_ep_live.prev_holder_hp"
+  },
+  {
+   "path": "/specs[111]/mem[226]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조: tcxdict LegacyPlanHandler --deep 0x1811 = v50_dive_ep_abort_src",
+   "found_by": "reused",
+   "guard": "v50_dive_ep_abort_src"
+  },
+  {
+   "path": "/specs[111]/mem[76]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조: tcxdict PlayerState 0x9c0 = info.position@tag",
+   "found_by": "reused",
+   "guard": "info.position@tag (i32)"
+  },
+  {
+   "path": "/specs[111]/mem[77]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조: tcxdict PlayerState 0x678 = info.statistics.non_target_hit",
+   "found_by": "reused",
+   "guard": "info.statistics.non_target_hit"
+  },
+  {
+   "path": "/specs[111]/mem[78]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조: tcxdict OperationData 0x0 = cache",
+   "found_by": "reused",
+   "guard": "cache (&AbstractGameWithCache)"
+  },
+  {
+   "path": "/specs[111]/mem[80]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조: tcxdict AbstractGameWithCache 0x1e0 = player_champion[0][0]@tag(=Option<&Entity> null)",
+   "found_by": "reused",
+   "guard": "player_champion[team][pos]"
+  },
+  {
+   "path": "/specs[111]/mem[81]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조: tcxdict GameContext 0x8 = setting",
+   "found_by": "reused",
+   "guard": "setting (&GameSetting)"
+  },
+  {
+   "path": "/specs[111]/mem[82]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조: tcxdict GameContext 0x39 = trace_level@tag",
+   "found_by": "reused",
+   "guard": "trace_level (TraceLevel 1B)"
+  },
+  {
+   "path": "/specs[111]/mem[83]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조: tcxdict GameContext 0x3b = debug",
+   "found_by": "reused",
+   "guard": "debug (bool)"
+  },
+  {
+   "path": "/specs[111]/mem[84]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조: tcxdict GameSetting 0x12f8 = tick_per_second",
+   "found_by": "reused",
+   "guard": "tick_per_second"
+  },
+  {
+   "path": "/specs[111]/mem[85]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조: tcxdict DebugFrameData 0xa0 = infos",
+   "found_by": "reused",
+   "guard": "infos (HashMap<usize, Vec<String>>)"
+  },
+  {
+   "path": "/specs[111]/mem[86]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조: tcxdict Entity 0x0 = team@tag",
+   "found_by": "reused",
+   "guard": "team@tag (0=Player)"
+  },
+  {
+   "path": "/specs[111]/mem[87]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조: tcxdict Entity 0x8 = team@Player.0",
+   "found_by": "reused",
+   "guard": "team@Player.0"
+  },
+  {
+   "path": "/specs[111]/mem[88]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조: tcxdict Entity 0x38 = visible_state[0]@tag",
+   "found_by": "reused",
+   "guard": "visible_state[team]@tag (stride 16)"
+  },
+  {
+   "path": "/specs[111]/mem[89]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조: tcxdict Entity 0x68 = ty@tag",
+   "found_by": "reused",
+   "guard": "ty@tag (EntityType)"
+  },
+  {
+   "path": "/specs[111]/mem[90]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조: tcxdict Entity 0x70 = ty@Champion.0.action_state@tag",
+   "found_by": "reused",
+   "guard": "ty@Champion.0.action_state@tag"
+  },
+  {
+   "path": "/specs[111]/mem[91]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조: tcxdict Entity 0x88 = ty@Tower.info.nearest_enemy@tag",
+   "found_by": "reused",
+   "guard": "ty@Tower.info.nearest_enemy@tag"
+  },
+  {
+   "path": "/specs[111]/mem[92]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조: tcxdict Entity 0x98 = ty@Tower.info.nearest_enemy@Some.0.1",
+   "found_by": "reused",
+   "guard": "ty@Tower.info.nearest_enemy@Some.0.1 (entity id)"
+  },
+  {
+   "path": "/specs[111]/mem[93]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조: tcxdict Entity 0x438 = stat_buff_cached.range",
+   "found_by": "reused",
+   "guard": "stat_buff_cached.range"
+  },
+  {
+   "path": "/specs[111]/mem[94]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조: tcxdict Entity 0x470 = stat_buff_cached.radius_mult",
+   "found_by": "reused",
+   "guard": "stat_buff_cached.radius_mult (i32)"
+  },
+  {
+   "path": "/specs[111]/mem[95]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조: tcxdict Entity 0x490 = attack_effect@Some.0 (0x4a0 range·0x4a8 growth_range·0x4c0 casting@tag=attack_effect@tag)",
+   "found_by": "reused",
+   "guard": "attack_effect@Some.0 (Effect) — range 0x4a0 · growth_range 0x4a8 · casting@tag 0x4c0(-1=None)"
+  },
+  {
+   "path": "/specs[111]/mem[96]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조: tcxdict Entity 0x4c8 = skill_effect@Some.0 (0x4d8 range·0x4e0 growth_range·0x4e8 start_timing·0x4f8 casting@tag)",
+   "found_by": "reused",
+   "guard": "skill_effect@Some.0 (Effect) — range 0x4d8 · growth 0x4e0 · start_timing 0x4e8 · casting@tag 0x4f8"
+  },
+  {
+   "path": "/specs[111]/mem[97]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조: tcxdict Entity 0x500 = skill2_effect@Some.0 (0x530 casting@tag)",
+   "found_by": "reused",
+   "guard": "skill2_effect@Some.0 — casting@tag 0x530"
+  },
+  {
+   "path": "/specs[111]/mem[98]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조: tcxdict Entity 0x538 = ult_effect@Some.0 (0x568 casting@tag)",
+   "found_by": "reused",
+   "guard": "ult_effect@Some.0 — casting@tag 0x568"
+  },
+  {
+   "path": "/specs[111]/mem[99]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조: tcxdict Entity 0x5c0 = id",
+   "found_by": "reused",
+   "guard": "id"
+  },
+  {
+   "path": "/specs[111]/mem[100]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조: tcxdict Entity 0x5c8 = level",
+   "found_by": "reused",
+   "guard": "level"
+  },
+  {
+   "path": "/specs[111]/mem[101]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조: tcxdict Entity 0x628 = stat_cached.hp",
+   "found_by": "reused",
+   "guard": "stat_cached.hp (max hp)"
+  },
+  {
+   "path": "/specs[111]/mem[102]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조: tcxdict Entity 0x660 = x",
+   "found_by": "reused",
+   "guard": "x"
+  },
+  {
+   "path": "/specs[111]/mem[103]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조: tcxdict Entity 0x668 = y",
+   "found_by": "reused",
+   "guard": "y"
+  },
+  {
+   "path": "/specs[111]/mem[104]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조: tcxdict Entity 0x670 = hp",
+   "found_by": "reused",
+   "guard": "hp"
+  },
+  {
+   "path": "/specs[111]/mem[105]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조: tcxdict Entity 0x680 = radius",
+   "found_by": "reused",
+   "guard": "radius"
+  },
+  {
+   "path": "/specs[111]/mem[106]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조: tcxdict Effect 0x10 = range (0x18 growth_range·0x20 start_timing·0x30 casting@tag)",
+   "found_by": "reused",
+   "guard": "range"
+  },
+  {
+   "path": "/specs[111]/mem[107]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조: tcxdict KillLog 0x0 = assist.buf.inner.cap (0x18 tick·0x20 killer_team·0x28 killer_position@tag·0x2c killed_position@tag)",
+   "found_by": "reused",
+   "guard": "assist(Vec<Position>) · 0x18 tick · 0x20 killer_team · 0x28 killer_position · 0x2c killed_position"
+  },
+  {
+   "path": "/specs[111]/mem[227]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcx 정본 대조: tcxdict DebugFrameData 0xa0 = infos",
+   "found_by": "reused",
+   "guard": "infos HashMap ★HEAP(외부)"
+  }
+ ],
+ "brief_errors": [
+  "§4 G12 consts[64] 의 「실제 후보 [477…689]」 는 리터럴 1 을 가진 줄의 최내측 handler.rs 프레임(613/615 = L1125 인라인 내부)이나 무관 줄이라 오도한다 — 진짜 답 716 은 후보에 없다(GVN 재사용은 게이트가 못 본다). 게이트에 「같은 SSA 를 다른 루트 줄이 재사용」 케이스를 후보로 넣어야 한다",
+  "§5 스키마 예시엔 `op:insert` 항목에 `kind`/`evidence`/`behavior_change` 가 필요한지가 없다(errors[] 공통 키를 그대로 두었다) — dry-run 이 받아주는지로 확인해야 했다",
+  "지시문 초점의 「callees 계약(sret 크기·&mut)」는 tcx 시그니처와 IR 속성이 정반대로 읽히는 함정(non-Freeze 타입은 `&T` 인자에도 readonly/noalias 가 안 붙는다)을 경고하지 않는다 — 배치 B 의 mem[4] 「&mut 추정: 속성 없음」·logic 765 next_plan `&mut self.team_plan` 도 같은 오독(tcx next_plan 은 `&TeamPlan`)",
+  "「4배치가 같은 `logic` 문자열을 부분치환으로 고친다」는 충돌 위험을 지시문이 언급하지 않는다 — applypatch 는 부분문자열 치환이라 겹치지 않으면 안전하지만, 같은 문면(예 `&mut self.team_plan, debug)` 3곳)을 두 배치가 고치면 뒤 배치가 `old 없음` 으로 거부된다. 본 배치는 자기 범위 줄의 고유 문면만 old 로 썼다"
+ ]
+}

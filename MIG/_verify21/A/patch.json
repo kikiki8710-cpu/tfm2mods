@@ -1,0 +1,77 @@
+{
+ "round": 21,
+ "batch": "A",
+ "errors": [
+  {
+   "path": "/specs[111]/logic",
+   "kind": "보강",
+   "old": "// L694: else if tag == 1 (GameMode::SingleLane) → 블록 %680 … (L695)   // get_game_mode() 재호출 %676(m13.ll:16483)",
+   "new": "// L690: return;  → 블록 %674 `br label %679`(m13.ll:16480) → %679 `ret void`(m13.ll:16489) = 조기 반환 · L691: `}`  (rmeta_srcmap handler.rs L690=13자 `      return;` · L691=5자 `    }` · 파일은 2칸 들여쓰기)\n// L694: if tag == 1 (GameMode::SingleLane) → 블록 %680 … (L695)   // ★L688 과 별개의 `if`(else-if 아님 — L691 이 `    }` 단독 줄) · get_game_mode() 재호출 %676(m13.ll:16483) · L696 `return;`(블록 %1626 `br label %679`, m13.ll:18969) · L697 `}`",
+   "evidence": "rmeta_srcmap game_ai plan_legacy\\handler.rs 685~699: L688=76B/L689=65B/L690=14B/L691=6B/L694=76B/L695=66B/L696=14B/L697=6B(LF 포함 · 빈 줄 L1673=1B 로 LF 포함 확인) ⟹ 텍스트 75/64/13/5/75/65/13/5자. 64 = 6칸+`self.update_deathmatch(version, rnd, player, data, debug);`(58) · 65 = 6칸+`self.update_single_lane(…)`(59) · 13 = `      return;` · 5 = `    }`. IR: m13.ll:16480 `br label %679, !dbg !27501`(블록 %674 = update_deathmatch 인라인 끝) · 18969 `br label %679`(블록 %1626) · 16489 `ret void`(%679, preds %5362/%1626/%674) — 두 인라인 끝이 Moba 본류(%1627)가 아니라 ret 로 직행 = `return;`",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[111]/logic",
+   "kind": "실오류",
+   "old": "블록 220~674 전부 사장(내 236블록 중 233 사장)",
+   "new": "블록 220~674 전부 사장(배치 A 236블록(220~674 85·675·679·680~1626 149) 중 234 사장 = 85+149)",
+   "evidence": "reach.py _next/reach/update_e4c5c0.ll --const %1714=0 --const %255=0 --const %3917=1 --const %460=0 --const %219=0 --const %678=0 --json 재실행: 사장 254(원본 e4c5c0.reach.txt 와 동일) = 220~674 라벨 85개 전부 + 680~1626 라벨 149개 전부 + 범위 밖 20개(4214·4216·4708·4710·4748·4750·4763·4765·4788·4790·4803·4805·4828·4830·4850·4852·4875·4877·4889·4891 — 전부 EH cleanuppad, reach.py INVOKE 정규식 결함으로 오사장 · 산문 보고 참조). 라벨 수는 m13.ll 14467~28943 의 `^\\d+:` 전수(1226)에서 셈",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[111]/logic",
+   "kind": "보강",
+   "old": "블록 %1640 cleanuppad(m13.ll 주석본 L3939)",
+   "new": "블록 %1640 cleanuppad(m13.ll:18998~19001 — `%1641 = phi i1 [...]` · `%1642 = cleanuppad within none []` · `br i1 %1641, label %5376, label %5375`)",
+   "evidence": "m13.ll:18998 `1640: ; preds = %5374, %5373, %2002, …(31)` · 18999 `%1641 = phi i1 [ false, %5374 ], [ false, %5373 ], [ false, %2002 ], [ false, %1983 ], [ false, %1985 ], [ true, %1973 ] …` · 19000 `%1642 = cleanuppad within none []` · 19001 `br i1 %1641, label %5376, label %5375, !dbg !27504`. 인용 줄번호 규약 = 원문 .ll 줄(주석본 줄은 irann 재생성마다 밀린다)",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[111]/logic",
+   "kind": "보강",
+   "old": "모든 invoke 의 unwind → 블록 %1640 cleanuppad",
+   "new": "살아있는 invoke 318개의 unwind(목표 64종: %3303 62·%2270 28·%4122 27·%2216 26·%1640 24 …)는 직접 또는 중간 cleanuppad 의 `cleanupret … unwind label` 사슬을 거쳐 **전부** 블록 %1640 cleanuppad 로 합류(살아있는 `unwind to caller` 는 %5375 하나뿐 — 사장 영역의 %571·%771·%946·%1570·%1589·%1609 은 DeathMatch/SingleLane 인라인 내부)",
+   "evidence": "m13.ll 14467~28943 에서 reach 사장 블록 제외 후 invoke `to label/unwind label` 318건 수집 · unwind 목표 64종 각각에서 cleanupret unwind label·invoke 계속/unwind·br 간선을 BFS: 도달한 `unwind to caller` = {%5375: 54종}, 나머지 10종(%4214·%4708·%4748·%4763·%4788·%4803·%4828·%4850·%4875·%4889)은 reach.py 가 오사장한 EH 블록(`to label %4217 unwind label %4214, !!33386` 의 `\\S+` 가 `4214,` 를 잡음)이라 계산에서 빠졌을 뿐 실제로는 %4122/%3303 → %1640 사슬임(m13.ll:25260~25266 `%4215 = cleanuppad` → invoke drop_glue → `cleanupret from %4215 unwind label %4122`). `unwind to caller` 전수 grep: 16248(%571)·16712(%771)·17165(%946)·18826(%1570)·18879(%1589)·18938(%1609) 은 전부 사장 블록, 28938(%5375)만 살아있음",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[111]/open[2]",
+   "kind": "실오류",
+   "old": "IR 은 두 번 호출(%217·%676)하므로 전자로 읽히나 소스 표기는 미확정(column 없음·MIR 없음). 동작 차이 없음.",
+   "new": "★해소(21차 A · rmeta_srcmap 줄 길이): **둘 다 아니다** — 서로 독립한 `if` 블록 2개(L688~691 · L694~697)이고 각각 `return;` 으로 조기 반환한다. L688=75자·L689=64자(6칸+`self.update_deathmatch(version, rnd, player, data, debug);`)·L690=13자(`      return;`)·L691=5자(`    }`) / L694=75자·L695=65자·L696=13자·L697=5자 (파일은 2칸 들여쓰기: L685=147자·L1672=3자 `  }`). IR 정합: 블록 %674 → `br label %679`(m13.ll:16480) · %1626 → %679(18969) · %679 = `ret void`(16489) — 인라인 끝이 Moba 본류 %1627 로 이어지지 않는다. `else if` 였다면 L691 이 `    }` 단독 줄로 존재할 수 없다. 조건식의 정확한 표기는 후보 하나로 못 좁힘(`if matches!(data.cache.game.get_game_mode(), GameMode::DeathMatch(_)) {` 가 75자로 정합 · `if let GameMode::DeathMatch(_) = …` 는 70자로 부정합) — 동작 차이 없음.",
+   "evidence": "python -X utf8 rmeta_srcmap.py game_ai \"plan_legacy\\\\handler.rs\" 683 699 → L685 148B/L688 76B/L689 65B/L690 14B/L691 6B/L694 76B/L695 66B/L696 14B/L697 6B(LF 포함; L1673 빈 줄=1B) · L1672 4B(`  }`). IR m13.ll:16480 `br label %679, !dbg !27501` · 18969 `br label %679, !dbg !27501` · 16488~16489 `679: ; preds = %5362, %1626, %674` / `ret void, !dbg !27504`",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[111]/open[3]",
+   "kind": "실오류",
+   "old": "L685 소스 줄 길이 148자(rmeta_srcmap) vs 표준 서식 추정 149자 — 1자 차이의 원인(타입 표기 등) 미확정.",
+   "new": "★해소(21차 A): rmeta_srcmap 의 148 은 LF 포함 값(줄 시작 오프셋 델타 · 빈 줄 L1673 = 1B)이라 텍스트는 147자이고, 이는 **2칸 들여쓰기**의 표준 시그니처 `  pub fn update(&mut self, version: usize, rnd: &mut StdRng, player: &PlayerState, data: &OperationData, debug: &mut DebugFrameData, lapse: bool) {` 와 정확히 일치한다(4칸이면 149 · 차이 2 = 들여쓰기). 교차검증: L1672 `  }`=3자 · L689 64자 = 6칸+`self.update_deathmatch(version, rnd, player, data, debug);`(58자, 인자 5개 순서까지 정합) · L690 `      return;`=13자 · L691 `    }`=5자.",
+   "evidence": "python -X utf8 rmeta_srcmap.py game_ai \"plan_legacy\\\\handler.rs\" 683 699 · 1670 1674: L685 bytes=148 chars=148 mb=0 · L1672 bytes=4 · L1673 bytes=1(빈 줄 = LF 만) ⟹ 길이는 LF 포함. `len(\"  pub fn update(&mut self, version: usize, rnd: &mut StdRng, player: &PlayerState, data: &OperationData, debug: &mut DebugFrameData, lapse: bool) {\")` = 147. 인자 이름·타입은 DI !23525~!23531(m13.ll:92082~92088) 그대로",
+   "behavior_change": false,
+   "found_by": "new"
+  }
+ ],
+ "ev_up": [
+  {
+   "path": "/specs[111]/mem[2]",
+   "from": 4,
+   "to": 3,
+   "evidence": "tcxdict AbstractGameWithCache: 0x0 game = `&dyn AbstractGame`(16B) — &dyn 팻포인터 ABI = (data@+0, vtable@+8). IR m13.ll:15208~15212 `%213 = gep %211, 8` → `%214 = load` → `%215 = gep %214, 64` → `%216 = load(!invariant.load)` → `call {i64,ptr} %216(%212)` 로 +8 절반이 vtable 임을 관측 · divtable AbstractGame 0x40 = get_game_mode(m04.ll·m15.ll 전역, 일치율 98%) 로 슬롯 정합",
+   "found_by": "reused"
+  }
+ ],
+ "brief_errors": [
+  "v21_prompt_A.txt 의 경로가 이스케이프로 깨져 있다: `C:\\tfm2mods` → `C:<TAB>fm2mods`(\\t) · `_next\\reach\\e4c5c0.reach.txt` → `_nexteach\\e4c5c0.reach.txt`(\\r). 실제 = `C:\\tfm2mods\\MIG\\_next\\reach\\e4c5c0.reach.txt`. 지시문을 문자열 리터럴에 넣을 때 백슬래시를 이스케이프하거나 raw 로 써야 한다.",
+  "§4 「이 배치 몫 = 5건」(G12 consts[30]/[46]/[64]/[93]/[96])은 전부 배치 A 의 줄 범위(685~695) 밖(698/1013/1133/1349/1453)이다 — 도시에가 함수 단위로 게이트를 나누는데 21차는 줄 범위로 4분할했으므로 mkdossier 가 src_line 으로 다시 갈라 줘야 한다. 배치 A 범위의 게이트 미해소 = 0건.",
+  "§1/명세 머리 `exe e4c5c0 (None) · None바이트 · None명령` — exe 크기·명령수 조인이 실패한 채 None 이 그대로 찍힌다(exe.callers/callees 도 []). mkdossier 가 None 을 「조인 실패」로 표기해야 한다.",
+  "mkspec3.DONE_MARK 의 `확정(` 이 `미확정(` 에도 매치한다 — 111 closed[0](「…소스 표기는 미확정(column 없음…」)이 그 때문에 **거짓 닫힘**이었다(is_closed → 「본문에 해소 표기가 있다」). 실제로는 열린 물음이었고 이번에 줄 길이로 해소했다. 수정 = `(?<!미)확정\\(` 부정 후방탐색.",
+  "mkspec3 callees `pick`: `indir` 가 **함수 전체**에 간접호출이 하나라도 있으면 참이라, 인라인돼 call 심볼이 없는 콜리(111 callees[118] update_deathmatch·[120] update_single_lane — !DISubprogram modes.rs:56/13 inlinedAt 사슬로 517/1060 명령 존재)까지 「⚠간접호출(vtable) — 망글링 심볼이 원래 없다」로 찍힌다. 판정을 행 단위로: leaf 가 함수 !dbg 사슬의 DISubprogram name 에 있으면 「인라인(N 명령 · 정의처)」, 아니면 기존 규칙.",
+  "reach.py INVOKE 정규식 `to label %(\\S+) unwind label %(\\S+)` 가 주석본의 `unwind label %4214, !!33386` 에서 `4214,` 를 잡아 EH 블록 20개(4214·4216·4708·4710·4748·4750·4763·4765·4788·4790·4803·4805·4828·4830·4850·4852·4875·4877·4889·4891)를 오사장한다 — e4c5c0.reach.txt 「사장 254」중 20 은 실제로 살아있는 cleanuppad. `%([\\w.]+)` 로 고칠 것. 정상 경로 판정(220~674·680~1626)에는 영향 없음."
+ ]
+}

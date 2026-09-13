@@ -191,26 +191,29 @@
 //!     bit99 = 0x8000000000000000000000000  TeamPlan::update_steal           (1단계 발화 22,446,517회)
 //!               ⚠caveat: a0: &mut 게임 상태(1064B) — 게임 호출 전 상태로 되돌려 내 사본을 부르고 게임 상태로 복구한다. Vec 은 빈 것으로 바꿔 **게임 버퍼를 건드리지 않는다**
 //!               ⚠호출수 22,446,517 = 대조가 그 함수의 실행을 **2배**로 만든다 → 프레임 지연 각오.
-//!     bit100 = 0x10000000000000000000000000  TeamPlan::update                 (1단계 발화 25,238,388회)
+//!     bit100 = 0x10000000000000000000000000  LegacyPlanHandler::update        (1단계 발화 23,031,577회)
+//!               ⚠caveat: a0: &mut 게임 상태(6168B) — 게임 호출 전 상태로 되돌려 내 사본을 부르고 게임 상태로 복구한다. Vec 은 빈 것으로 바꿔 **게임 버퍼를 건드리지 않는다** / a5: 가변이지만 편입 — tcx `&mut DebugFrameData(224B)` = 디버그 싱크 — IR 실측상 본문이 역참조하지 않고 넘기기만 한다(클로저 내부 쓰기는 미확인 ⟹ 중복 기록 가능 · 반환 대조엔 무관)
+//!               ⚠호출수 23,031,577 = 대조가 그 함수의 실행을 **2배**로 만든다 → 프레임 지연 각오.
+//!     bit101 = 0x20000000000000000000000000  TeamPlan::update                 (1단계 발화 25,238,388회)
 //!               ⚠caveat: a0: &mut 게임 상태(1064B) — 게임 호출 전 상태로 되돌려 내 사본을 부르고 게임 상태로 복구한다. Vec 은 빈 것으로 바꿔 **게임 버퍼를 건드리지 않는다**
 //!               ⚠호출수 25,238,388 = 대조가 그 함수의 실행을 **2배**로 만든다 → 프레임 지연 각오.
-//!     bit101 = 0x20000000000000000000000000  is_wave_priority_start_line      (1단계 발화 33,717,543회)
+//!     bit102 = 0x40000000000000000000000000  is_wave_priority_start_line      (1단계 발화 33,717,543회)
 //!               ⚠호출수 33,717,543 = 대조가 그 함수의 실행을 **2배**로 만든다 → 프레임 지연 각오.
-//!     bit102 = 0x40000000000000000000000000  GoalData::update                 (1단계 발화 40,076,571회)
+//!     bit103 = 0x80000000000000000000000000  GoalData::update                 (1단계 발화 40,076,571회)
 //!               ⚠caveat: a0: &mut 게임 상태(248B) — 게임 호출 전 상태로 되돌려 내 사본을 부르고 게임 상태로 복구한다. Vec 은 빈 것으로 바꿔 **게임 버퍼를 건드리지 않는다** / a5: 가변이지만 편입 — tcx `&mut DebugFrameData(224B)` = 디버그 싱크 — IR 실측상 본문이 역참조하지 않고 넘기기만 한다(클로저 내부 쓰기는 미확인 ⟹ 중복 기록 가능 · 반환 대조엔 무관)
 //!               ⚠호출수 40,076,571 = 대조가 그 함수의 실행을 **2배**로 만든다 → 프레임 지연 각오.
-//!     bit103 = 0x80000000000000000000000000  SerpenStanceData::update_plan    (1단계 발화 40,076,571회)
+//!     bit104 = 0x100000000000000000000000000  SerpenStanceData::update_plan    (1단계 발화 40,076,571회)
 //!               ⚠caveat: a0: &mut 게임 상태(56B) — 게임 호출 전 상태로 되돌려 내 사본을 부르고 게임 상태로 복구한다. Vec 은 빈 것으로 바꿔 **게임 버퍼를 건드리지 않는다** / a6: 가변이지만 편입 — tcx `&mut DebugFrameData(224B)` = 디버그 싱크 — IR 실측상 본문이 역참조하지 않고 넘기기만 한다(클로저 내부 쓰기는 미확인 ⟹ 중복 기록 가능 · 반환 대조엔 무관)
 //!               ⚠호출수 40,076,571 = 대조가 그 함수의 실행을 **2배**로 만든다 → 프레임 지연 각오.
-//!     bit104 = 0x100000000000000000000000000  EpicStanceData::update_plan      (1단계 발화 40,076,571회)
+//!     bit105 = 0x200000000000000000000000000  EpicStanceData::update_plan      (1단계 발화 40,076,571회)
 //!               ⚠caveat: a0: &mut 게임 상태(56B) — 게임 호출 전 상태로 되돌려 내 사본을 부르고 게임 상태로 복구한다. Vec 은 빈 것으로 바꿔 **게임 버퍼를 건드리지 않는다**
 //!               ⚠호출수 40,076,571 = 대조가 그 함수의 실행을 **2배**로 만든다 → 프레임 지연 각오.
-//!     bit105 = 0x200000000000000000000000000  handle_line_defense              (1단계 발화 54,660,390회)
+//!     bit106 = 0x400000000000000000000000000  handle_line_defense              (1단계 발화 54,660,390회)
 //!               ⚠호출수 54,660,390 = 대조가 그 함수의 실행을 **2배**로 만든다 → 프레임 지연 각오.
-//!     bit106 = 0x400000000000000000000000000  check_epic_kill_time_with_hp     (1단계 발화 55,212,426회)
+//!     bit107 = 0x800000000000000000000000000  check_epic_kill_time_with_hp     (1단계 발화 55,212,426회)
 //!               ⚠caveat: a0: IR readonly 표기 없음 · tcx `&OperationData → 인자승격되어 IR %0 = data.con` = 공유참조(쓰기 관측 0) 근거로 편입
 //!               ⚠호출수 55,212,426 = 대조가 그 함수의 실행을 **2배**로 만든다 → 프레임 지연 각오.
-//!     bit107 = 0x800000000000000000000000000  can_tower_focused                (1단계 발화 173,781,504회)
+//!     bit108 = 0x1000000000000000000000000000  can_tower_focused                (1단계 발화 173,781,504회)
 //!               ⚠호출수 173,781,504 = 대조가 그 함수의 실행을 **2배**로 만든다 → 프레임 지연 각오.
 //!   ⚠전체를 한 번에 켜지 마라 — 선례(ai_adjust `fn_bisect` 비트2)에 **게임 즉사**가 있다.
 //!     권장 순서 = 위에서 아래로(호출수 적은 것부터. 이유 = 사고 노출·성능 충격이 작다).
@@ -231,24 +234,24 @@ use std::sync::Mutex;
 
 // ── 내 링크사본 직접 호출(rlib 의 Rust 망글 심볼). llvm-nm 으로 `T`(외부노출) 확인분만 있다 ──
 extern "Rust" {
-    /// #112 v3_epic_group_line — fn(usize, &game_core::PlayerState, &game_core::OperationData) -> i8
+    /// #113 v3_epic_group_line — fn(usize, &game_core::PlayerState, &game_core::OperationData) -> i8
     #[link_name = "_RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old4epic18v3_epic_group_line"]
-    fn my_112(a0: i64, a1: *const u8, a2: *const u8) -> u8;
-    /// #113 v3_epicops_repair_need — fn(usize, *const AbstractGameWithCache /*널 허용*/, &Plan384) -> u8 /*range 0..3*/
-    #[link_name = "_RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old4epic22v3_epicops_repair_need"]
     fn my_113(a0: i64, a1: *const u8, a2: *const u8) -> u8;
-    /// #114 is_object_being_taken_by_enemy — fn(&PlayerState, &OperationData, &GoalData248, &TeamPlan, bool) -> bool
+    /// #114 v3_epicops_repair_need — fn(usize, *const AbstractGameWithCache /*널 허용*/, &Plan384) -> u8 /*range 0..3*/
+    #[link_name = "_RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old4epic22v3_epicops_repair_need"]
+    fn my_114(a0: i64, a1: *const u8, a2: *const u8) -> u8;
+    /// #115 is_object_being_taken_by_enemy — fn(&PlayerState, &OperationData, &GoalData248, &TeamPlan, bool) -> bool
     #[link_name = "_RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy9team_plan17objective_helpers30is_object_being_taken_by_enemy"]
-    fn my_114(a0: *const u8, a1: *const u8, a2: *const u8, a3: *const u8, a4: u8) -> bool;
-    /// #115 v3_serpen_contest_clear_win — fn(usize /*version*/, &PlayerState, &OperationData, &mut TeamPlan) -> bool
+    fn my_115(a0: *const u8, a1: *const u8, a2: *const u8, a3: *const u8, a4: u8) -> bool;
+    /// #116 v3_serpen_contest_clear_win — fn(usize /*version*/, &PlayerState, &OperationData, &mut TeamPlan) -> bool
     #[link_name = "_RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old6serpen27v3_serpen_contest_clear_win"]
-    fn my_115(a0: i64, a1: *const u8, a2: *const u8, a3: *const u8) -> bool;
-    /// #116 resolve_fight_uncached — fn(usize, &AbstractGameWithCache, &GameContext, &Entity, *const &Entity, usize, *const &Entity, usize, i8, Option<&Entity>, usize, &mut DebugFrameData, usize, u
+    fn my_116(a0: i64, a1: *const u8, a2: *const u8, a3: *const u8) -> bool;
+    /// #117 resolve_fight_uncached — fn(usize, &AbstractGameWithCache, &GameContext, &Entity, *const &Entity, usize, *const &Entity, usize, i8, Option<&Entity>, usize, &mut DebugFrameData, usize, u
     #[link_name = "_RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old11fight_model22resolve_fight_uncached"]
-    fn my_116(a0: *const u8, a1: i64, a2: *const u8, a3: *const u8, a4: *const u8, a5: *const u8, a6: i64, a7: *const u8, a8: i64, a9: u8, a10: *const u8, a11: i64, a12: *const u8, a13: i64, a14: i64);
-    /// #117 resolve_fight_full — fn(usize, &OperationData, &Entity, *const &Entity, usize, *const &Entity, usize, i8, Option<&Entity>, usize, *const u8, usize, usize) -> FightPrediction /*sret 
+    fn my_117(a0: *const u8, a1: i64, a2: *const u8, a3: *const u8, a4: *const u8, a5: *const u8, a6: i64, a7: *const u8, a8: i64, a9: u8, a10: *const u8, a11: i64, a12: *const u8, a13: i64, a14: i64);
+    /// #118 resolve_fight_full — fn(usize, &OperationData, &Entity, *const &Entity, usize, *const &Entity, usize, i8, Option<&Entity>, usize, *const u8, usize, usize) -> FightPrediction /*sret 
     #[link_name = "_RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old11fight_model18resolve_fight_full"]
-    fn my_117(a0: *const u8, a1: i64, a2: *const u8, a3: *const u8, a4: *const u8, a5: i64, a6: *const u8, a7: i64, a8: u8, a9: *const u8, a10: i64, a11: *const u8, a12: i64, a13: i64);
+    fn my_118(a0: *const u8, a1: i64, a2: *const u8, a3: *const u8, a4: *const u8, a5: i64, a6: *const u8, a7: i64, a8: u8, a9: *const u8, a10: i64, a11: *const u8, a12: i64, a13: i64);
     /// #30 objective_is_damaged — fn(&game_core::OperationData, game_core::JungleType) -> bool
     #[link_name = "_RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy9team_plan17objective_helpers20objective_is_damaged"]
     fn my_30(a0: *const u8, a1: u8) -> bool;
@@ -531,6 +534,9 @@ extern "Rust" {
     /// #100 TeamPlan::update_steal — fn(&mut game_ai::plan_legacy::team_plan::TeamPlan, usize, &game_core::PlayerState, &game_core::OperationData, &game_ai::GoalData, &game_ai::plan_legacy::types::
     #[link_name = "_RNvMs1_NtNtCshdEBA0ozCnw_7game_ai11plan_legacy9team_planNtB5_8TeamPlan12update_steal"]
     fn my_100(a0: *const u8, a1: i64, a2: *const u8, a3: *const u8, a4: *const u8, a5: *const u8);
+    /// #111 LegacyPlanHandler::update — fn(&mut game_ai::plan_legacy::handler::LegacyPlanHandler, usize, &mut rand::rngs::std::StdRng, &game_core::PlayerState, &game_core::OperationData, &mut game_cor
+    #[link_name = "_RNvMNtNtCshdEBA0ozCnw_7game_ai11plan_legacy7handlerNtB2_17LegacyPlanHandler6update"]
+    fn my_111(a0: *const u8, a1: i64, a2: *const u8, a3: *const u8, a4: *const u8, a5: *const u8, a6: u8);
     /// #54 TeamPlan::update — fn(&mut game_ai::plan_legacy::team_plan::TeamPlan, usize, &mut rand::rngs::std::StdRng, &game_core::PlayerState, &game_core::OperationData, &mut game_core::Debu
     #[link_name = "_RNvMs1_NtNtCshdEBA0ozCnw_7game_ai11plan_legacy9team_planNtB5_8TeamPlan6update"]
     fn my_54(a0: *const u8, a1: i64, a2: *const u8, a3: *const u8, a4: *const u8, a5: *const u8);
@@ -575,13 +581,13 @@ macro_rules! sl { ($b:expr, $i:expr, $n:expr, $s:expr, $r:expr, $p:expr, $c:expr
            calls: AtomicU64::new(0), cmp: AtomicU64::new(0), diff: AtomicU64::new(0),
            pan: AtomicU64::new(0), skip: AtomicU64::new(0), base_cmp: AtomicU64::new(0), base_diff: AtomicU64::new(0),
            orig: AtomicUsize::new(0) } } }
-pub static S: [Slot; 108] = [
-    sl!(0, 112, "v3_epic_group_line", "game-ai\\src\\plan_legacy\\old\\epic.rs", 0xdea4a0, &[0x56, 0x57, 0x53, 0x48, 0x83, 0xec, 0x20, 0x83, 0xe9, 0x05, 0xb8, 0x02, 0x00, 0x00, 0x00], u64::MAX, &[], "", &[]),
-    sl!(1, 113, "v3_epicops_repair_need", "game-ai\\src\\plan_legacy\\old\\epic.rs", 0xdeaa70, &[0x56, 0x57, 0x53, 0x48, 0x83, 0xec, 0x50, 0x0f, 0x29, 0x74, 0x24, 0x40], u64::MAX, &[], "", &[]),
-    sl!(2, 114, "is_object_being_taken_by_enemy", "game-ai\\src\\plan_legacy\\team_plan\\objective_helpers.rs", 0xec9bf0, &[0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x55, 0x53], u64::MAX, &[], "", &[]),
-    sl!(3, 115, "v3_serpen_contest_clear_win", "game-ai\\src\\plan_legacy\\old\\serpen.rs", 0xd666c0, &[0x55, 0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x53], u64::MAX, &[], "a3: &mut 게임 상태(1064B) — 게임 호출 전 상태로 되돌려 내 사본을 부르고 게임 상태로 복구한다. Vec 은 빈 것으로 바꿔 **게임 버퍼를 건드리지 않는다**", &[]),
-    sl!(4, 116, "resolve_fight_uncached", "game-ai\\src\\plan_legacy\\old\\fight_model.rs", 0xe083c0, &[0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x55, 0x53], u64::MAX, &[], "a3: 가변이지만 편입 — tcx `GameContext` = 디버그 싱크(인덱스 직접 허용)", &[]),
-    sl!(5, 117, "resolve_fight_full", "game-ai\\src\\plan_legacy\\old\\fight_model.rs", 0xe05450, &[0x55, 0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x53], u64::MAX, &[], "", &[]),
+pub static S: [Slot; 109] = [
+    sl!(0, 113, "v3_epic_group_line", "game-ai\\src\\plan_legacy\\old\\epic.rs", 0xdea4a0, &[0x56, 0x57, 0x53, 0x48, 0x83, 0xec, 0x20, 0x83, 0xe9, 0x05, 0xb8, 0x02, 0x00, 0x00, 0x00], u64::MAX, &[], "", &[]),
+    sl!(1, 114, "v3_epicops_repair_need", "game-ai\\src\\plan_legacy\\old\\epic.rs", 0xdeaa70, &[0x56, 0x57, 0x53, 0x48, 0x83, 0xec, 0x50, 0x0f, 0x29, 0x74, 0x24, 0x40], u64::MAX, &[], "", &[]),
+    sl!(2, 115, "is_object_being_taken_by_enemy", "game-ai\\src\\plan_legacy\\team_plan\\objective_helpers.rs", 0xec9bf0, &[0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x55, 0x53], u64::MAX, &[], "", &[]),
+    sl!(3, 116, "v3_serpen_contest_clear_win", "game-ai\\src\\plan_legacy\\old\\serpen.rs", 0xd666c0, &[0x55, 0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x53], u64::MAX, &[], "a3: &mut 게임 상태(1064B) — 게임 호출 전 상태로 되돌려 내 사본을 부르고 게임 상태로 복구한다. Vec 은 빈 것으로 바꿔 **게임 버퍼를 건드리지 않는다**", &[]),
+    sl!(4, 117, "resolve_fight_uncached", "game-ai\\src\\plan_legacy\\old\\fight_model.rs", 0xe083c0, &[0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x55, 0x53], u64::MAX, &[], "a3: 가변이지만 편입 — tcx `GameContext` = 디버그 싱크(인덱스 직접 허용)", &[]),
+    sl!(5, 118, "resolve_fight_full", "game-ai\\src\\plan_legacy\\old\\fight_model.rs", 0xe05450, &[0x55, 0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x53], u64::MAX, &[], "", &[]),
     sl!(6, 30, "objective_is_damaged", "game-ai\\src\\plan_legacy\\team_plan\\objective_helpers.rs", 0xec8af0, &[], 2, &[], "호출부 리다이렉트로 설치한다(진입부 12B 불가) — 사이트 2곳은 1단계가 exe 로 검산한 것(전수·간접호출 0). 한 사이트라도 빠지면 표본은 **하한선**이다", &[0xddbd6d, 0xdddf0d]),
     sl!(7, 69, "try_engage_dive", "game-ai\\src\\plan_legacy\\handler\\engage.rs", 0xe5d300, &[0x55, 0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x53], 460, &[3], "a1: 가변이지만 편입 — tcx `&LegacyPlanHandler` = #74 try_engage_dive 의 self(%1 · readonly 속성 없음) — IR 실측 store 0(last_dive_abandon_tick 읽기 · positioning_score/team_plan 참조 전달만) / a8: 가변이지만 편입 — tcx `&mut DebugFrameData` = 디버그 싱크 — IR 실측상 본문이 역참조하지 않고 넘기기만 한다(클로저 내부 쓰기는 미확인 ⟹ 중복 기록 가능 · 반환 대조엔 무관)", &[]),
     sl!(8, 32, "serpen_giveup_chat_reason", "game-ai\\src\\plan_legacy\\old\\serpen.rs", 0xd665e0, &[0x41, 0x56, 0x56, 0x57, 0x53, 0x48, 0x83, 0xec, 0x28, 0x48, 0x8b, 0x42, 0x08], 2110, &[], "", &[]),
@@ -676,14 +682,15 @@ pub static S: [Slot; 108] = [
     sl!(97, 108, "TeamPlan::update_objective_after_steal", "game-ai\\src\\plan_legacy\\team_plan.rs", 0xdda220, &[0x55, 0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x53], 20422392, &[2], "a0: &mut 게임 상태(1064B) — 게임 호출 전 상태로 되돌려 내 사본을 부르고 게임 상태로 복구한다. Vec 은 빈 것으로 바꿔 **게임 버퍼를 건드리지 않는다** / a6: &mut 게임 상태(384B) — ARG_SNAP 복원 + HEAP_SUBST arg 힙 치환 · ③′ 비교(게임 후 s6 vs 내 사본 후) / a7: 가변이지만 편입 — tcx `&mut DebugFrameData(224B)` = 디버그 싱크 — IR 실측상 본문이 역참조하지 않고 넘기기만 한다(클로저 내부 쓰기는 미확인 ⟹ 중복 기록 가능 · 반환 대조엔 무관)", &[]),
     sl!(98, 79, "engage::can_battle_triggered_filtered", "game-ai\\src\\plan_legacy\\handler\\engage.rs", 0xe38c90, &[0x55, 0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x53], 21281385, &[], "", &[]),
     sl!(99, 100, "TeamPlan::update_steal", "game-ai\\src\\plan_legacy\\team_plan.rs", 0xdd90c0, &[0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x55, 0x53], 22446517, &[], "a0: &mut 게임 상태(1064B) — 게임 호출 전 상태로 되돌려 내 사본을 부르고 게임 상태로 복구한다. Vec 은 빈 것으로 바꿔 **게임 버퍼를 건드리지 않는다**", &[]),
-    sl!(100, 54, "TeamPlan::update", "game-ai\\src\\plan_legacy\\team_plan.rs", 0xde0770, &[0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x55, 0x53], 25238388, &[2], "a0: &mut 게임 상태(1064B) — 게임 호출 전 상태로 되돌려 내 사본을 부르고 게임 상태로 복구한다. Vec 은 빈 것으로 바꿔 **게임 버퍼를 건드리지 않는다**", &[]),
-    sl!(101, 39, "is_wave_priority_start_line", "game-ai\\src\\plan_legacy\\team_plan\\objective_helpers.rs", 0xec9400, &[0x41, 0x57, 0x41, 0x56, 0x41, 0x54, 0x56, 0x57, 0x55, 0x53, 0x48, 0x83, 0xec, 0x20], 33717543, &[], "", &[]),
-    sl!(102, 74, "GoalData::update", "game-ai\\src\\goal_data.rs", 0xdccc60, &[0x55, 0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x53], 40076571, &[2], "a0: &mut 게임 상태(248B) — 게임 호출 전 상태로 되돌려 내 사본을 부르고 게임 상태로 복구한다. Vec 은 빈 것으로 바꿔 **게임 버퍼를 건드리지 않는다** / a5: 가변이지만 편입 — tcx `&mut DebugFrameData(224B)` = 디버그 싱크 — IR 실측상 본문이 역참조하지 않고 넘기기만 한다(클로저 내부 쓰기는 미확인 ⟹ 중복 기록 가능 · 반환 대조엔 무관)", &[]),
-    sl!(103, 75, "SerpenStanceData::update_plan", "game-ai\\src\\goal_data.rs", 0xdd73b0, &[0x55, 0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x53], 40076571, &[], "a0: &mut 게임 상태(56B) — 게임 호출 전 상태로 되돌려 내 사본을 부르고 게임 상태로 복구한다. Vec 은 빈 것으로 바꿔 **게임 버퍼를 건드리지 않는다** / a6: 가변이지만 편입 — tcx `&mut DebugFrameData(224B)` = 디버그 싱크 — IR 실측상 본문이 역참조하지 않고 넘기기만 한다(클로저 내부 쓰기는 미확인 ⟹ 중복 기록 가능 · 반환 대조엔 무관)", &[]),
-    sl!(104, 76, "EpicStanceData::update_plan", "game-ai\\src\\goal_data.rs", 0xde1ee0, &[0x55, 0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x53], 40076571, &[], "a0: &mut 게임 상태(56B) — 게임 호출 전 상태로 되돌려 내 사본을 부르고 게임 상태로 복구한다. Vec 은 빈 것으로 바꿔 **게임 버퍼를 건드리지 않는다**", &[]),
-    sl!(105, 4, "handle_line_defense", "game-ai\\src\\plan_legacy\\old\\defense_nexus.rs", 0xd3cfa0, &[0x55, 0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x53], 54660390, &[1], "", &[]),
-    sl!(106, 65, "check_epic_kill_time_with_hp", "game-ai\\src\\goal_data.rs", 0xde3d90, &[0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x55, 0x53], 55212426, &[], "a0: IR readonly 표기 없음 · tcx `&OperationData → 인자승격되어 IR %0 = data.con` = 공유참조(쓰기 관측 0) 근거로 편입", &[]),
-    sl!(107, 22, "can_tower_focused", "game-ai\\src\\tower_discipline.rs", 0xd97300, &[0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x55, 0x53], 173781504, &[], "", &[]),
+    sl!(100, 111, "LegacyPlanHandler::update", "game-ai\\src\\plan_legacy\\handler.rs", 0xe4c5c0, &[0x55, 0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x53], 23031577, &[2], "a0: &mut 게임 상태(6168B) — 게임 호출 전 상태로 되돌려 내 사본을 부르고 게임 상태로 복구한다. Vec 은 빈 것으로 바꿔 **게임 버퍼를 건드리지 않는다** / a5: 가변이지만 편입 — tcx `&mut DebugFrameData(224B)` = 디버그 싱크 — IR 실측상 본문이 역참조하지 않고 넘기기만 한다(클로저 내부 쓰기는 미확인 ⟹ 중복 기록 가능 · 반환 대조엔 무관)", &[]),
+    sl!(101, 54, "TeamPlan::update", "game-ai\\src\\plan_legacy\\team_plan.rs", 0xde0770, &[0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x55, 0x53], 25238388, &[2], "a0: &mut 게임 상태(1064B) — 게임 호출 전 상태로 되돌려 내 사본을 부르고 게임 상태로 복구한다. Vec 은 빈 것으로 바꿔 **게임 버퍼를 건드리지 않는다**", &[]),
+    sl!(102, 39, "is_wave_priority_start_line", "game-ai\\src\\plan_legacy\\team_plan\\objective_helpers.rs", 0xec9400, &[0x41, 0x57, 0x41, 0x56, 0x41, 0x54, 0x56, 0x57, 0x55, 0x53, 0x48, 0x83, 0xec, 0x20], 33717543, &[], "", &[]),
+    sl!(103, 74, "GoalData::update", "game-ai\\src\\goal_data.rs", 0xdccc60, &[0x55, 0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x53], 40076571, &[2], "a0: &mut 게임 상태(248B) — 게임 호출 전 상태로 되돌려 내 사본을 부르고 게임 상태로 복구한다. Vec 은 빈 것으로 바꿔 **게임 버퍼를 건드리지 않는다** / a5: 가변이지만 편입 — tcx `&mut DebugFrameData(224B)` = 디버그 싱크 — IR 실측상 본문이 역참조하지 않고 넘기기만 한다(클로저 내부 쓰기는 미확인 ⟹ 중복 기록 가능 · 반환 대조엔 무관)", &[]),
+    sl!(104, 75, "SerpenStanceData::update_plan", "game-ai\\src\\goal_data.rs", 0xdd73b0, &[0x55, 0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x53], 40076571, &[], "a0: &mut 게임 상태(56B) — 게임 호출 전 상태로 되돌려 내 사본을 부르고 게임 상태로 복구한다. Vec 은 빈 것으로 바꿔 **게임 버퍼를 건드리지 않는다** / a6: 가변이지만 편입 — tcx `&mut DebugFrameData(224B)` = 디버그 싱크 — IR 실측상 본문이 역참조하지 않고 넘기기만 한다(클로저 내부 쓰기는 미확인 ⟹ 중복 기록 가능 · 반환 대조엔 무관)", &[]),
+    sl!(105, 76, "EpicStanceData::update_plan", "game-ai\\src\\goal_data.rs", 0xde1ee0, &[0x55, 0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x53], 40076571, &[], "a0: &mut 게임 상태(56B) — 게임 호출 전 상태로 되돌려 내 사본을 부르고 게임 상태로 복구한다. Vec 은 빈 것으로 바꿔 **게임 버퍼를 건드리지 않는다**", &[]),
+    sl!(106, 4, "handle_line_defense", "game-ai\\src\\plan_legacy\\old\\defense_nexus.rs", 0xd3cfa0, &[0x55, 0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x53], 54660390, &[1], "", &[]),
+    sl!(107, 65, "check_epic_kill_time_with_hp", "game-ai\\src\\goal_data.rs", 0xde3d90, &[0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x55, 0x53], 55212426, &[], "a0: IR readonly 표기 없음 · tcx `&OperationData → 인자승격되어 IR %0 = data.con` = 공유참조(쓰기 관측 0) 근거로 편입", &[]),
+    sl!(108, 22, "can_tower_focused", "game-ai\\src\\tower_discipline.rs", 0xd97300, &[0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x55, 0x53], 173781504, &[], "", &[]),
 ];
 
 /// ★대조에서 **빠진** 명세 함수와 그 사유. 「빠진 것을 모르는 상태」를 만들지 않는다.
@@ -703,7 +710,15 @@ pub static EXCLUDED: &[(u8, &str, &str, &str)] = &[
 /// 첫 DIFF 덤프(슬롯당 1건 + 전체 상한). detour 문맥에서 잡으므로 poison-safe 하게 연다.
 static FIRST: Mutex<Vec<(usize, String)>> = Mutex::new(Vec::new());
 const FIRST_MAX: usize = 64;
-thread_local! { static D: [std::cell::Cell<u32>; 108] = [const { std::cell::Cell::new(0) }; 108]; }
+/// 상태 diff 갈림 오프셋 히스토그램 (idx, self 오프셋, 횟수) — 대조 1건당 run 시작 8개까지 · 서로 다른 오프셋 상한 DOFF_MAX
+static DOFF: Mutex<Vec<(usize, usize, u32)>> = Mutex::new(Vec::new());
+const DOFF_MAX: usize = 96;
+fn doff(i: usize, off: usize) {
+    let mut g = DOFF.lock().unwrap_or_else(|e| e.into_inner());
+    if let Some(e) = g.iter_mut().find(|e| e.0 == i && e.1 == off) { e.2 += 1; }
+    else if g.len() < DOFF_MAX { g.push((i, off, 1)); }
+}
+thread_local! { static D: [std::cell::Cell<u32>; 109] = [const { std::cell::Cell::new(0) }; 109]; }
 /// 재진입 깊이. 최상위 호출에서만 대조한다(내 사본이 같은 함수를 재귀 호출해도 2중 대조 안 함).
 #[inline] fn top(i: usize) -> bool { D.with(|d| { let v = d[i].get(); d[i].set(v + 1); v == 0 }) }
 #[inline] fn pop(i: usize) { D.with(|d| d[i].set(d[i].get().saturating_sub(1))); }
@@ -743,8 +758,8 @@ unsafe fn live_eq(g: *const u8, m: *const u8, sp: &[Span]) -> Option<usize> {
     }
     None
 }
-/// `#116 resolve_fight_uncached` 의 살아있는 구간(생성기 `SRET_LIVE` 에서 자동 생성).
-static LIVE_116: &[Span] = &[
+/// `#117 resolve_fight_uncached` 의 살아있는 구간(생성기 `SRET_LIVE` 에서 자동 생성).
+static LIVE_117: &[Span] = &[
     Span { off: 0x0, len: 8, c: [NOC, NOC] },
     Span { off: 0x8, len: 8, c: [Cond { off: 0x0, len: 8, mask: 0x2 }, NOC] },
     Span { off: 0x10, len: 8, c: [NOC, NOC] },
@@ -755,8 +770,8 @@ static LIVE_116: &[Span] = &[
     Span { off: 0x38, len: 1, c: [NOC, NOC] },
     Span { off: 0x39, len: 1, c: [NOC, NOC] },
 ];
-/// `#117 resolve_fight_full` 의 살아있는 구간(생성기 `SRET_LIVE` 에서 자동 생성).
-static LIVE_117: &[Span] = &[
+/// `#118 resolve_fight_full` 의 살아있는 구간(생성기 `SRET_LIVE` 에서 자동 생성).
+static LIVE_118: &[Span] = &[
     Span { off: 0x0, len: 8, c: [NOC, NOC] },
     Span { off: 0x8, len: 8, c: [Cond { off: 0x0, len: 8, mask: 0x2 }, NOC] },
     Span { off: 0x10, len: 8, c: [NOC, NOC] },
@@ -902,11 +917,11 @@ fn note(i: usize, s: String) {
 #[repr(align(16))] struct A16([u8; 320]);
 
 thread_local! {
-    /// `#115` 의 **게임 호출 전** self 스냅샷(1064B). 스레드당 1개 — 재진입은 `top()` 이 막는다.
+    /// `#116` 의 **게임 호출 전** self 스냅샷(1064B). 스레드당 1개 — 재진입은 `top()` 이 막는다.
     static SV3: core::cell::UnsafeCell<[u8; 1064]> = core::cell::UnsafeCell::new([0u8; 1064]);
-    /// `#115` 의 **게임 호출 후** self 스냅샷(1064B).
+    /// `#116` 의 **게임 호출 후** self 스냅샷(1064B).
     static SP3: core::cell::UnsafeCell<[u8; 1064]> = core::cell::UnsafeCell::new([0u8; 1064]);
-    /// `#115` 의 `Vec` 사본 버퍼(용량 512개) + 게임과 같은 len.
+    /// `#116` 의 `Vec` 사본 버퍼(용량 512개) + 게임과 같은 len.
     /// `.2` = 이번 호출이 내 버퍼에 **들어갔나**. 안 들어갔으면 비교를 건너뛴다(거짓 DIFF 방지).
     static VB3: core::cell::UnsafeCell<([u8; 12288], usize, bool)> = core::cell::UnsafeCell::new(([0u8; 12288], 0, false));
 }
@@ -1144,48 +1159,71 @@ thread_local! {
     static VB99: core::cell::UnsafeCell<([u8; 12288], usize, bool)> = core::cell::UnsafeCell::new(([0u8; 12288], 0, false));
 }
 thread_local! {
-    /// `#54` 의 **게임 호출 전** self 스냅샷(1064B). 스레드당 1개 — 재진입은 `top()` 이 막는다.
-    static SV100: core::cell::UnsafeCell<[u8; 1064]> = core::cell::UnsafeCell::new([0u8; 1064]);
-    /// `#54` 의 **게임 호출 후** self 스냅샷(1064B).
-    static SP100: core::cell::UnsafeCell<[u8; 1064]> = core::cell::UnsafeCell::new([0u8; 1064]);
-    /// `#54` 의 **내 사본 호출 후** self 스냅샷(1064B) — 반환값이 죽은 슬롯의 판정 재료.
-    static SQ100: core::cell::UnsafeCell<[u8; 1064]> = core::cell::UnsafeCell::new([0u8; 1064]);
-    /// `#54` 의 `Vec` 사본 버퍼(용량 512개) + 게임과 같은 len.
+    /// `#111` 의 **게임 호출 전** self 스냅샷(6168B). 스레드당 1개 — 재진입은 `top()` 이 막는다.
+    static SV100: core::cell::UnsafeCell<[u8; 6168]> = core::cell::UnsafeCell::new([0u8; 6168]);
+    /// `#111` 의 **게임 호출 후** self 스냅샷(6168B).
+    static SP100: core::cell::UnsafeCell<[u8; 6168]> = core::cell::UnsafeCell::new([0u8; 6168]);
+    /// `#111` 의 **내 사본 호출 후** self 스냅샷(6168B) — 반환값이 죽은 슬롯의 판정 재료.
+    static SQ100: core::cell::UnsafeCell<[u8; 6168]> = core::cell::UnsafeCell::new([0u8; 6168]);
+    /// `#111` 명세 0 소유 Vec 의 **게임 호출 전** 내용(32KB) + (cap,len,esz)×4 + 개수 + 수용 여부.
+    ///   ⚠게임 호출이 그 버퍼를 **해제/재할당**했을 수 있어 호출 뒤에 읽으면 freelist 잔재다.
+    static PV100_0: core::cell::UnsafeCell<([u8; 32768], [(usize, usize, usize); 8], usize, bool)> = core::cell::UnsafeCell::new(([0u8; 32768], [(0, 0, 0); 8], 0, false));
+    /// `#111` 명세 1 소유 Vec 의 **게임 호출 전** 내용(32KB) + (cap,len,esz)×4 + 개수 + 수용 여부.
+    ///   ⚠게임 호출이 그 버퍼를 **해제/재할당**했을 수 있어 호출 뒤에 읽으면 freelist 잔재다.
+    static PV100_1: core::cell::UnsafeCell<([u8; 32768], [(usize, usize, usize); 8], usize, bool)> = core::cell::UnsafeCell::new(([0u8; 32768], [(0, 0, 0); 8], 0, false));
+    /// `#111` 명세 2 소유 Vec 의 **게임 호출 전** 내용(32KB) + (cap,len,esz)×4 + 개수 + 수용 여부.
+    ///   ⚠게임 호출이 그 버퍼를 **해제/재할당**했을 수 있어 호출 뒤에 읽으면 freelist 잔재다.
+    static PV100_2: core::cell::UnsafeCell<([u8; 32768], [(usize, usize, usize); 8], usize, bool)> = core::cell::UnsafeCell::new(([0u8; 32768], [(0, 0, 0); 8], 0, false));
+    /// `#111` 명세 3 소유 Vec 의 **게임 호출 전** 내용(32KB) + (cap,len,esz)×4 + 개수 + 수용 여부.
+    ///   ⚠게임 호출이 그 버퍼를 **해제/재할당**했을 수 있어 호출 뒤에 읽으면 freelist 잔재다.
+    static PV100_3: core::cell::UnsafeCell<([u8; 32768], [(usize, usize, usize); 8], usize, bool)> = core::cell::UnsafeCell::new(([0u8; 32768], [(0, 0, 0); 8], 0, false));
+    /// `#111` 의 `Vec` 사본 버퍼(용량 1536개) + 게임과 같은 len.
     /// `.2` = 이번 호출이 내 버퍼에 **들어갔나**. 안 들어갔으면 비교를 건너뛴다(거짓 DIFF 방지).
     static VB100: core::cell::UnsafeCell<([u8; 12288], usize, bool)> = core::cell::UnsafeCell::new(([0u8; 12288], 0, false));
 }
 thread_local! {
-    /// `#74` 의 **게임 호출 전** self 스냅샷(248B). 스레드당 1개 — 재진입은 `top()` 이 막는다.
-    static SV102: core::cell::UnsafeCell<[u8; 248]> = core::cell::UnsafeCell::new([0u8; 248]);
-    /// `#74` 의 **게임 호출 후** self 스냅샷(248B).
-    static SP102: core::cell::UnsafeCell<[u8; 248]> = core::cell::UnsafeCell::new([0u8; 248]);
-    /// `#74` 의 **내 사본 호출 후** self 스냅샷(248B) — 반환값이 죽은 슬롯의 판정 재료.
-    static SQ102: core::cell::UnsafeCell<[u8; 248]> = core::cell::UnsafeCell::new([0u8; 248]);
-    /// `#74` 의 `Vec` 사본 버퍼(용량 1536개) + 게임과 같은 len.
+    /// `#54` 의 **게임 호출 전** self 스냅샷(1064B). 스레드당 1개 — 재진입은 `top()` 이 막는다.
+    static SV101: core::cell::UnsafeCell<[u8; 1064]> = core::cell::UnsafeCell::new([0u8; 1064]);
+    /// `#54` 의 **게임 호출 후** self 스냅샷(1064B).
+    static SP101: core::cell::UnsafeCell<[u8; 1064]> = core::cell::UnsafeCell::new([0u8; 1064]);
+    /// `#54` 의 **내 사본 호출 후** self 스냅샷(1064B) — 반환값이 죽은 슬롯의 판정 재료.
+    static SQ101: core::cell::UnsafeCell<[u8; 1064]> = core::cell::UnsafeCell::new([0u8; 1064]);
+    /// `#54` 의 `Vec` 사본 버퍼(용량 512개) + 게임과 같은 len.
     /// `.2` = 이번 호출이 내 버퍼에 **들어갔나**. 안 들어갔으면 비교를 건너뛴다(거짓 DIFF 방지).
-    static VB102: core::cell::UnsafeCell<([u8; 12288], usize, bool)> = core::cell::UnsafeCell::new(([0u8; 12288], 0, false));
+    static VB101: core::cell::UnsafeCell<([u8; 12288], usize, bool)> = core::cell::UnsafeCell::new(([0u8; 12288], 0, false));
 }
 thread_local! {
-    /// `#75` 의 **게임 호출 전** self 스냅샷(56B). 스레드당 1개 — 재진입은 `top()` 이 막는다.
-    static SV103: core::cell::UnsafeCell<[u8; 56]> = core::cell::UnsafeCell::new([0u8; 56]);
-    /// `#75` 의 **게임 호출 후** self 스냅샷(56B).
-    static SP103: core::cell::UnsafeCell<[u8; 56]> = core::cell::UnsafeCell::new([0u8; 56]);
-    /// `#75` 의 **내 사본 호출 후** self 스냅샷(56B) — 반환값이 죽은 슬롯의 판정 재료.
-    static SQ103: core::cell::UnsafeCell<[u8; 56]> = core::cell::UnsafeCell::new([0u8; 56]);
-    /// `#75` 의 `Vec` 사본 버퍼(용량 1536개) + 게임과 같은 len.
+    /// `#74` 의 **게임 호출 전** self 스냅샷(248B). 스레드당 1개 — 재진입은 `top()` 이 막는다.
+    static SV103: core::cell::UnsafeCell<[u8; 248]> = core::cell::UnsafeCell::new([0u8; 248]);
+    /// `#74` 의 **게임 호출 후** self 스냅샷(248B).
+    static SP103: core::cell::UnsafeCell<[u8; 248]> = core::cell::UnsafeCell::new([0u8; 248]);
+    /// `#74` 의 **내 사본 호출 후** self 스냅샷(248B) — 반환값이 죽은 슬롯의 판정 재료.
+    static SQ103: core::cell::UnsafeCell<[u8; 248]> = core::cell::UnsafeCell::new([0u8; 248]);
+    /// `#74` 의 `Vec` 사본 버퍼(용량 1536개) + 게임과 같은 len.
     /// `.2` = 이번 호출이 내 버퍼에 **들어갔나**. 안 들어갔으면 비교를 건너뛴다(거짓 DIFF 방지).
     static VB103: core::cell::UnsafeCell<([u8; 12288], usize, bool)> = core::cell::UnsafeCell::new(([0u8; 12288], 0, false));
 }
 thread_local! {
-    /// `#76` 의 **게임 호출 전** self 스냅샷(56B). 스레드당 1개 — 재진입은 `top()` 이 막는다.
+    /// `#75` 의 **게임 호출 전** self 스냅샷(56B). 스레드당 1개 — 재진입은 `top()` 이 막는다.
     static SV104: core::cell::UnsafeCell<[u8; 56]> = core::cell::UnsafeCell::new([0u8; 56]);
-    /// `#76` 의 **게임 호출 후** self 스냅샷(56B).
+    /// `#75` 의 **게임 호출 후** self 스냅샷(56B).
     static SP104: core::cell::UnsafeCell<[u8; 56]> = core::cell::UnsafeCell::new([0u8; 56]);
-    /// `#76` 의 **내 사본 호출 후** self 스냅샷(56B) — 반환값이 죽은 슬롯의 판정 재료.
+    /// `#75` 의 **내 사본 호출 후** self 스냅샷(56B) — 반환값이 죽은 슬롯의 판정 재료.
     static SQ104: core::cell::UnsafeCell<[u8; 56]> = core::cell::UnsafeCell::new([0u8; 56]);
-    /// `#76` 의 `Vec` 사본 버퍼(용량 1536개) + 게임과 같은 len.
+    /// `#75` 의 `Vec` 사본 버퍼(용량 1536개) + 게임과 같은 len.
     /// `.2` = 이번 호출이 내 버퍼에 **들어갔나**. 안 들어갔으면 비교를 건너뛴다(거짓 DIFF 방지).
     static VB104: core::cell::UnsafeCell<([u8; 12288], usize, bool)> = core::cell::UnsafeCell::new(([0u8; 12288], 0, false));
+}
+thread_local! {
+    /// `#76` 의 **게임 호출 전** self 스냅샷(56B). 스레드당 1개 — 재진입은 `top()` 이 막는다.
+    static SV105: core::cell::UnsafeCell<[u8; 56]> = core::cell::UnsafeCell::new([0u8; 56]);
+    /// `#76` 의 **게임 호출 후** self 스냅샷(56B).
+    static SP105: core::cell::UnsafeCell<[u8; 56]> = core::cell::UnsafeCell::new([0u8; 56]);
+    /// `#76` 의 **내 사본 호출 후** self 스냅샷(56B) — 반환값이 죽은 슬롯의 판정 재료.
+    static SQ105: core::cell::UnsafeCell<[u8; 56]> = core::cell::UnsafeCell::new([0u8; 56]);
+    /// `#76` 의 `Vec` 사본 버퍼(용량 1536개) + 게임과 같은 len.
+    /// `.2` = 이번 호출이 내 버퍼에 **들어갔나**. 안 들어갔으면 비교를 건너뛴다(거짓 DIFF 방지).
+    static VB105: core::cell::UnsafeCell<([u8; 12288], usize, bool)> = core::cell::UnsafeCell::new(([0u8; 12288], 0, false));
 }
 /// Vec 요소 비교 — `lid` 가 가리키는 ELEM_LIVE 명세로 **살아있는 바이트**만 본다(0 = 전 바이트).
 unsafe fn elem_cmp(lid: u8, esz: usize, gb: usize, mb: usize) -> Option<String> {
@@ -1209,13 +1247,53 @@ unsafe fn elem_cmp(lid: u8, esz: usize, gb: usize, mb: usize) -> Option<String> 
             None
         }
         2 => {
+            if true { for j in 0..98 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8));
+                if gv != mv { return Some(format!("(tag {:#x})+{}: g={:02x} m={:02x}", tag, j, gv, mv)); } } }
+            None
+        }
+        3 => {
+            if true { for j in 0..12 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8));
+                if gv != mv { return Some(format!("(tag {:#x})+{}: g={:02x} m={:02x}", tag, j, gv, mv)); } } }
+            if true { for j in 16..24 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8));
+                if gv != mv { return Some(format!("(tag {:#x})+{}: g={:02x} m={:02x}", tag, j, gv, mv)); } } }
+            None
+        }
+        4 => {
             if true { for j in 0..4 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8));
                 if gv != mv { return Some(format!("(tag {:#x})+{}: g={:02x} m={:02x}", tag, j, gv, mv)); } } }
             if true { for j in 4..5 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8));
                 if gv != mv { return Some(format!("(tag {:#x})+{}: g={:02x} m={:02x}", tag, j, gv, mv)); } } }
             None
         }
-        3 => {
+        5 => {
+            if true { for j in 0..1 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8));
+                if gv != mv { return Some(format!("(tag {:#x})+{}: g={:02x} m={:02x}", tag, j, gv, mv)); } } }
+            if true { for j in 8..16 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8));
+                if gv != mv { return Some(format!("(tag {:#x})+{}: g={:02x} m={:02x}", tag, j, gv, mv)); } } }
+            None
+        }
+        6 => {
+            if true { for j in 0..1 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8));
+                if gv != mv { return Some(format!("(tag {:#x})+{}: g={:02x} m={:02x}", tag, j, gv, mv)); } } }
+            if tag == 0x02 || tag == 0x05 || tag == 0x07 || tag == 0x08 || tag == 0x09 || tag == 0x0a || tag == 0x0b || tag == 0x0c || tag == 0x0d || tag == 0x0e || tag == 0x11 || tag == 0x12 || tag == 0x14 || tag == 0x15 || tag == 0x16 || tag == 0x1f || tag == 0x20 || tag == 0x29 || tag == 0x2a || tag == 0x2c || tag == 0x2d || tag == 0x2e || tag == 0x2f || tag == 0x30 || tag == 0x31 || tag == 0x32 || tag == 0x33 || tag == 0x34 || tag == 0x35 || tag == 0x36 || tag == 0x37 || tag == 0x38 { for j in 1..2 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8));
+                if gv != mv { return Some(format!("(tag {:#x})+{}: g={:02x} m={:02x}", tag, j, gv, mv)); } } }
+            if tag == 0x2f || tag == 0x30 || tag == 0x31 || tag == 0x32 || tag == 0x37 { for j in 2..3 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8));
+                if gv != mv { return Some(format!("(tag {:#x})+{}: g={:02x} m={:02x}", tag, j, gv, mv)); } } }
+            if tag == 0x31 { for j in 3..4 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8));
+                if gv != mv { return Some(format!("(tag {:#x})+{}: g={:02x} m={:02x}", tag, j, gv, mv)); } } }
+            if tag == 0x01 { for j in 4..8 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8));
+                if gv != mv { return Some(format!("(tag {:#x})+{}: g={:02x} m={:02x}", tag, j, gv, mv)); } } }
+            if tag == 0x00 || tag == 0x01 || tag == 0x02 || tag == 0x03 || tag == 0x04 || tag == 0x05 || tag == 0x06 || tag == 0x08 || tag == 0x09 || tag == 0x0a || tag == 0x0b || tag == 0x0c || tag == 0x0d || tag == 0x0e || tag == 0x0f || tag == 0x10 || tag == 0x12 || tag == 0x13 || tag == 0x14 || tag == 0x15 || tag == 0x16 || tag == 0x17 || tag == 0x18 || tag == 0x19 || tag == 0x1a || tag == 0x1b || tag == 0x1c || tag == 0x1d || tag == 0x1e || tag == 0x21 || tag == 0x22 || tag == 0x23 || tag == 0x24 || tag == 0x25 || tag == 0x26 || tag == 0x27 || tag == 0x2a || tag == 0x2b || tag == 0x2c || tag == 0x2d || tag == 0x2e || tag == 0x2f || tag == 0x30 || tag == 0x31 || tag == 0x32 || tag == 0x33 || tag == 0x34 || tag == 0x35 || tag == 0x36 || tag == 0x37 || tag == 0x38 { for j in 8..16 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8));
+                if gv != mv { return Some(format!("(tag {:#x})+{}: g={:02x} m={:02x}", tag, j, gv, mv)); } } }
+            if tag == 0x03 || tag == 0x04 || tag == 0x06 || tag == 0x18 || tag == 0x21 { for j in 16..24 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8));
+                if gv != mv { return Some(format!("(tag {:#x})+{}: g={:02x} m={:02x}", tag, j, gv, mv)); } } }
+            if true { for j in 24..32 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8));
+                if gv != mv { return Some(format!("(tag {:#x})+{}: g={:02x} m={:02x}", tag, j, gv, mv)); } } }
+            if true { for j in 32..36 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8));
+                if gv != mv { return Some(format!("(tag {:#x})+{}: g={:02x} m={:02x}", tag, j, gv, mv)); } } }
+            None
+        }
+        7 => {
             if true { for j in 0..8 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8));
                 if gv != mv { return Some(format!("(tag {:#x})+{}: g={:02x} m={:02x}", tag, j, gv, mv)); } } }
             if tag == 0x0f { for j in 128..133 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8));
@@ -1269,7 +1347,7 @@ unsafe fn elem_cmp(lid: u8, esz: usize, gb: usize, mb: usize) -> Option<String> 
             }
             None
         }
-        4 => {
+        8 => {
             if true { for j in 0..8 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8));
                 if gv != mv { return Some(format!("(tag {:#x})+{}: g={:02x} m={:02x}", tag, j, gv, mv)); } } }
             if true { for j in 8..16 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8));
@@ -1280,8 +1358,39 @@ unsafe fn elem_cmp(lid: u8, esz: usize, gb: usize, mb: usize) -> Option<String> 
                 if gv != mv { return Some(format!("(tag {:#x})+{}: g={:02x} m={:02x}", tag, j, gv, mv)); } } }
             None
         }
-        5 => {
+        9 => {
             if true { for j in 0..10 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8));
+                if gv != mv { return Some(format!("(tag {:#x})+{}: g={:02x} m={:02x}", tag, j, gv, mv)); } } }
+            None
+        }
+        10 => {
+            if true { for j in 0..9 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8));
+                if gv != mv { return Some(format!("(tag {:#x})+{}: g={:02x} m={:02x}", tag, j, gv, mv)); } } }
+            None
+        }
+        11 => {
+            if true { for j in 0..8 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8));
+                if gv != mv { return Some(format!("(tag {:#x})+{}: g={:02x} m={:02x}", tag, j, gv, mv)); } } }
+            if true { for j in 8..11 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8));
+                if gv != mv { return Some(format!("(tag {:#x})+{}: g={:02x} m={:02x}", tag, j, gv, mv)); } } }
+            None
+        }
+        12 => {
+            if true { for j in 0..1 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8));
+                if gv != mv { return Some(format!("(tag {:#x})+{}: g={:02x} m={:02x}", tag, j, gv, mv)); } } }
+            if tag == 0x02 || tag == 0x05 || tag == 0x07 || tag == 0x08 || tag == 0x09 || tag == 0x0a || tag == 0x0b || tag == 0x0c || tag == 0x0d || tag == 0x0e || tag == 0x11 || tag == 0x12 || tag == 0x14 || tag == 0x15 || tag == 0x16 || tag == 0x1f || tag == 0x20 || tag == 0x29 || tag == 0x2a || tag == 0x2c || tag == 0x2d || tag == 0x2e || tag == 0x2f || tag == 0x30 || tag == 0x31 || tag == 0x32 || tag == 0x33 || tag == 0x34 || tag == 0x35 || tag == 0x36 || tag == 0x37 || tag == 0x38 { for j in 1..2 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8));
+                if gv != mv { return Some(format!("(tag {:#x})+{}: g={:02x} m={:02x}", tag, j, gv, mv)); } } }
+            if tag == 0x2f || tag == 0x30 || tag == 0x31 || tag == 0x32 || tag == 0x37 { for j in 2..3 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8));
+                if gv != mv { return Some(format!("(tag {:#x})+{}: g={:02x} m={:02x}", tag, j, gv, mv)); } } }
+            if tag == 0x31 { for j in 3..4 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8));
+                if gv != mv { return Some(format!("(tag {:#x})+{}: g={:02x} m={:02x}", tag, j, gv, mv)); } } }
+            if tag == 0x01 { for j in 4..8 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8));
+                if gv != mv { return Some(format!("(tag {:#x})+{}: g={:02x} m={:02x}", tag, j, gv, mv)); } } }
+            if tag == 0x00 || tag == 0x01 || tag == 0x02 || tag == 0x03 || tag == 0x04 || tag == 0x05 || tag == 0x06 || tag == 0x08 || tag == 0x09 || tag == 0x0a || tag == 0x0b || tag == 0x0c || tag == 0x0d || tag == 0x0e || tag == 0x0f || tag == 0x10 || tag == 0x12 || tag == 0x13 || tag == 0x14 || tag == 0x15 || tag == 0x16 || tag == 0x17 || tag == 0x18 || tag == 0x19 || tag == 0x1a || tag == 0x1b || tag == 0x1c || tag == 0x1d || tag == 0x1e || tag == 0x21 || tag == 0x22 || tag == 0x23 || tag == 0x24 || tag == 0x25 || tag == 0x26 || tag == 0x27 || tag == 0x2a || tag == 0x2b || tag == 0x2c || tag == 0x2d || tag == 0x2e || tag == 0x2f || tag == 0x30 || tag == 0x31 || tag == 0x32 || tag == 0x33 || tag == 0x34 || tag == 0x35 || tag == 0x36 || tag == 0x37 || tag == 0x38 { for j in 8..16 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8));
+                if gv != mv { return Some(format!("(tag {:#x})+{}: g={:02x} m={:02x}", tag, j, gv, mv)); } } }
+            if tag == 0x03 || tag == 0x04 || tag == 0x06 || tag == 0x18 || tag == 0x21 { for j in 16..24 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8));
+                if gv != mv { return Some(format!("(tag {:#x})+{}: g={:02x} m={:02x}", tag, j, gv, mv)); } } }
+            if true { for j in 24..32 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8));
                 if gv != mv { return Some(format!("(tag {:#x})+{}: g={:02x} m={:02x}", tag, j, gv, mv)); } } }
             None
         }
@@ -1293,7 +1402,7 @@ unsafe fn elem_cmp(lid: u8, esz: usize, gb: usize, mb: usize) -> Option<String> 
 unsafe fn elem_free_str(lid: u8, mb: usize) {
     let tag = *(mb as *const u8);
     match lid {
-        3 => {
+        7 => {
             if tag == 0x0f { let (c, p) = (*((mb + 0x8) as *const usize), *((mb + 0x8 + 8) as *const usize));
                 if c > 0 && c < (1 << 24) && p > 0x1000 { if let Ok(l) = std::alloc::Layout::from_size_align(c, 1) { std::alloc::dealloc(p as *mut u8, l); } } }
             if tag == 0x0f { let (c, p) = (*((mb + 0x20) as *const usize), *((mb + 0x20 + 8) as *const usize));
@@ -1311,7 +1420,7 @@ unsafe fn elem_free_str(lid: u8, mb: usize) {
 /// `#11` 명세 0 — self+0x5e8 의 메모리태그 → 소유 Vec 목록(off, 요소 크기, live id).
 fn hs_vecs_11_0(tag: u64) -> &'static [(usize, usize, u8)] {
     match tag {
-        3 => &[(0x20, 24, 1), (0x38, 8, 0), (0x50, 8, 0), (0x68, 16, 5), (0x80, 16, 5)],
+        3 => &[(0x20, 24, 1), (0x38, 8, 0), (0x50, 8, 0), (0x68, 16, 10), (0x80, 16, 9)],
         4 => &[(0x8, 24, 1)],
         5 => &[(0x70, 24, 1)],
         7 => &[(0x8, 24, 1), (0x20, 16, 5)],
@@ -1333,7 +1442,7 @@ fn hs_vecs_97_0(tag: u64) -> &'static [(usize, usize, u8)] {
 /// `#104` 명세 0 — self+0x5e8 의 메모리태그 → 소유 Vec 목록(off, 요소 크기, live id).
 fn hs_vecs_104_0(tag: u64) -> &'static [(usize, usize, u8)] {
     match tag {
-        3 => &[(0x20, 24, 1), (0x38, 8, 0), (0x50, 8, 0), (0x68, 16, 5), (0x80, 16, 5)],
+        3 => &[(0x20, 24, 1), (0x38, 8, 0), (0x50, 8, 0), (0x68, 16, 10), (0x80, 16, 9)],
         4 => &[(0x8, 24, 1)],
         5 => &[(0x70, 24, 1)],
         7 => &[(0x8, 24, 1), (0x20, 16, 5)],
@@ -1361,7 +1470,7 @@ fn hs_vecs_83_0(tag: u64) -> &'static [(usize, usize, u8)] {
 /// `#12` 명세 0 — self+0x5e8 의 메모리태그 → 소유 Vec 목록(off, 요소 크기, live id).
 fn hs_vecs_12_0(tag: u64) -> &'static [(usize, usize, u8)] {
     match tag {
-        3 => &[(0x20, 24, 1), (0x38, 8, 0), (0x50, 8, 0), (0x68, 16, 5), (0x80, 16, 5)],
+        3 => &[(0x20, 24, 1), (0x38, 8, 0), (0x50, 8, 0), (0x68, 16, 10), (0x80, 16, 9)],
         4 => &[(0x8, 24, 1)],
         5 => &[(0x70, 24, 1)],
         7 => &[(0x8, 24, 1), (0x20, 16, 5)],
@@ -1377,13 +1486,13 @@ fn hs_vecs_12_0(tag: u64) -> &'static [(usize, usize, u8)] {
 /// `#12` 명세 1 — self+0x0 의 평면 필드(태그 무관) → 소유 Vec 목록(off, 요소 크기, live id).
 fn hs_vecs_12_1(tag: u64) -> &'static [(usize, usize, u8)] {
     match tag {
-        _ => &[(0x7c8, 24, 1), (0x858, 184, 3)],
+        _ => &[(0x7c8, 24, 1), (0x858, 184, 7)],
     }
 }
 /// `#88` 명세 0 — self+0x0 의 메모리태그 → 소유 Vec 목록(off, 요소 크기, live id).
 fn hs_vecs_88_0(tag: u64) -> &'static [(usize, usize, u8)] {
     match tag {
-        3 => &[(0x20, 24, 1), (0x38, 8, 0), (0x50, 8, 0), (0x68, 16, 5), (0x80, 16, 5)],
+        3 => &[(0x20, 24, 1), (0x38, 8, 0), (0x50, 8, 0), (0x68, 16, 10), (0x80, 16, 9)],
         4 => &[(0x8, 24, 1)],
         5 => &[(0x70, 24, 1)],
         7 => &[(0x8, 24, 1), (0x20, 16, 5)],
@@ -1411,13 +1520,13 @@ fn hs_vecs_102_0(tag: u64) -> &'static [(usize, usize, u8)] {
 /// `#107` 명세 0 — self+0x0 의 평면 필드(태그 무관) → 소유 Vec 목록(off, 요소 크기, live id).
 fn hs_vecs_107_0(tag: u64) -> &'static [(usize, usize, u8)] {
     match tag {
-        _ => &[(0xc0, 24, 1), (0xd8, 8, 2)],
+        _ => &[(0xc0, 24, 1), (0xd8, 8, 4)],
     }
 }
 /// `#107` 명세 1 — self+0x0 의 메모리태그 → 소유 Vec 목록(off, 요소 크기, live id).
 fn hs_vecs_107_1(tag: u64) -> &'static [(usize, usize, u8)] {
     match tag {
-        3 => &[(0x20, 24, 1), (0x38, 8, 0), (0x50, 8, 0), (0x68, 16, 5), (0x80, 16, 5)],
+        3 => &[(0x20, 24, 1), (0x38, 8, 0), (0x50, 8, 0), (0x68, 16, 10), (0x80, 16, 9)],
         4 => &[(0x8, 24, 1)],
         5 => &[(0x70, 24, 1)],
         7 => &[(0x8, 24, 1), (0x20, 16, 5)],
@@ -1433,7 +1542,7 @@ fn hs_vecs_107_1(tag: u64) -> &'static [(usize, usize, u8)] {
 /// `#110` 명세 0 — self+0x5e8 의 메모리태그 → 소유 Vec 목록(off, 요소 크기, live id).
 fn hs_vecs_110_0(tag: u64) -> &'static [(usize, usize, u8)] {
     match tag {
-        3 => &[(0x20, 24, 1), (0x38, 8, 0), (0x50, 8, 0), (0x68, 16, 5), (0x80, 16, 5)],
+        3 => &[(0x20, 24, 1), (0x38, 8, 0), (0x50, 8, 0), (0x68, 16, 10), (0x80, 16, 9)],
         4 => &[(0x8, 24, 1)],
         5 => &[(0x70, 24, 1)],
         7 => &[(0x8, 24, 1), (0x20, 16, 5)],
@@ -1455,13 +1564,13 @@ fn hs_vecs_110_1(tag: u64) -> &'static [(usize, usize, u8)] {
 /// `#108` 명세 0 — self+0x0 의 평면 필드(태그 무관) → 소유 Vec 목록(off, 요소 크기, live id).
 fn hs_vecs_108_0(tag: u64) -> &'static [(usize, usize, u8)] {
     match tag {
-        _ => &[(0xc0, 24, 1), (0xd8, 8, 2)],
+        _ => &[(0xc0, 24, 1), (0xd8, 8, 4)],
     }
 }
 /// `#108` 명세 1 — self+0x0 의 메모리태그 → 소유 Vec 목록(off, 요소 크기, live id).
 fn hs_vecs_108_1(tag: u64) -> &'static [(usize, usize, u8)] {
     match tag {
-        3 => &[(0x20, 24, 1), (0x38, 8, 0), (0x50, 8, 0), (0x68, 16, 5), (0x80, 16, 5)],
+        3 => &[(0x20, 24, 1), (0x38, 8, 0), (0x50, 8, 0), (0x68, 16, 10), (0x80, 16, 9)],
         4 => &[(0x8, 24, 1)],
         5 => &[(0x70, 24, 1)],
         7 => &[(0x8, 24, 1), (0x20, 16, 5)],
@@ -1477,7 +1586,41 @@ fn hs_vecs_108_1(tag: u64) -> &'static [(usize, usize, u8)] {
 /// `#100` 명세 0 — self+0x0 의 평면 필드(태그 무관) → 소유 Vec 목록(off, 요소 크기, live id).
 fn hs_vecs_100_0(tag: u64) -> &'static [(usize, usize, u8)] {
     match tag {
-        _ => &[(0xc0, 24, 1), (0xf0, 112, 4)],
+        _ => &[(0xc0, 24, 1), (0xf0, 112, 8)],
+    }
+}
+/// `#111` 명세 0 — self+0x5e8 의 메모리태그 → 소유 Vec 목록(off, 요소 크기, live id).
+fn hs_vecs_111_0(tag: u64) -> &'static [(usize, usize, u8)] {
+    match tag {
+        3 => &[(0x20, 24, 1), (0x38, 8, 0), (0x50, 8, 0), (0x68, 16, 10), (0x80, 16, 9)],
+        4 => &[(0x8, 24, 1)],
+        5 => &[(0x70, 24, 1)],
+        7 => &[(0x8, 24, 1), (0x20, 16, 5)],
+        9 => &[(0x70, 24, 1), (0x88, 8, 0)],
+        10 => &[(0x8, 24, 1)],
+        11 => &[(0x8, 24, 1)],
+        12 => &[(0x8, 8, 0)],
+        14 => &[(0x8, 8, 0)],
+        t if !(2..=17).contains(&t) => &[(0xf8, 24, 1)],
+        _ => &[],   // 단위 variant 등 소유 없음
+    }
+}
+/// `#111` 명세 1 — self+0x0 의 평면 필드(태그 무관) → 소유 Vec 목록(off, 요소 크기, live id).
+fn hs_vecs_111_1(tag: u64) -> &'static [(usize, usize, u8)] {
+    match tag {
+        _ => &[(0x1b8, 24, 1), (0x1d0, 8, 4), (0x1e8, 112, 8), (0x7b0, 40, 6), (0x7c8, 24, 1), (0x7e0, 32, 12), (0x7f8, 40, 6), (0x810, 16, 0)],
+    }
+}
+/// `#111` 명세 2 — self+0x0 의 평면 필드(태그 무관) → 소유 Vec 목록(off, 요소 크기, live id).
+fn hs_vecs_111_2(tag: u64) -> &'static [(usize, usize, u8)] {
+    match tag {
+        _ => &[(0x828, 24, 3), (0x858, 184, 7), (0x870, 16, 10), (0x888, 104, 2), (0x8a0, 16, 9), (0x8b8, 16, 11), (0x8d0, 16, 11)],
+    }
+}
+/// `#111` 명세 3 — self+0x0 의 평면 필드(태그 무관) → 소유 Vec 목록(off, 요소 크기, live id).
+fn hs_vecs_111_3(tag: u64) -> &'static [(usize, usize, u8)] {
+    match tag {
+        _ => &[(0x8e8, 8, 0), (0x900, 8, 0)],
     }
 }
 #[inline(always)] unsafe fn rd_le(p: usize, n: usize) -> u64 { let mut v = 0u64; for j in 0..n { v |= (*((p + j) as *const u8) as u64) << (8 * j); } v }
@@ -3088,6 +3231,414 @@ pub unsafe fn enumlive_cmp_110_0(tag: u64, gb: usize, mb: usize) -> Option<Strin
             if !matches!(rd_le(gb + 0x17b, 1), 255) && rd_le(gb + 0x17b, 1) == 0 { for j in 0x17d..0x17e { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
             if !matches!(rd_le(gb + 0x17b, 1), 255) && rd_le(gb + 0x17b, 1) == 1 { for j in 0x17d..0x17e { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
             if true { for j in 0x17e..0x17f { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            None
+        }
+        _ => None,   // 단위 variant(페이로드 0B)
+    }
+}
+/// `#111` self+0x5e8 `BigPlan` — variant 별 페이로드 live 비교(structlive.py 자동 생성 · variant 14개 · 태그 2..=17 · 밖 = untagged).
+/// variant 히스토그램 — [0] = untagged(범위 밖) · [t] = 메모리태그 t (대조 1건당 1증가 · 단위 variant 포함).
+pub static EH_111_0: [AtomicU64; 32] = [const { AtomicU64::new(0) }; 32];
+pub static EH_111_0_NAMES: &[(u64, &str)] = &[(2, "ForcePassive"), (3, "PassiveLine"), (4, "SinglePlanLine"), (5, "SinglePlanBattle"), (7, "PassiveJungle"), (8, "ActiveRecall"), (9, "Battle"), (10, "LineGanker"), (11, "LineGankCover"), (12, "EpicHuntAndPoke"), (13, "EpicHuntAndBattle"), (14, "SerpenHuntAndPoke"), (15, "SerpenHuntAndBattle"), (16, "AttackNexus"), (17, "DefenseNexus"), (0, "DeathMatchBattle")];
+pub unsafe fn enumlive_cmp_111_0(tag: u64, gb: usize, mb: usize) -> Option<String> {
+    EH_111_0[if (2..=17).contains(&tag) { tag as usize } else { 0 }].fetch_add(1, Ordering::Relaxed);
+    match tag {
+        3 => {   // PassiveLinePlan · 잎 26
+            if true { for j in 0x8..0x10 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if rd_le(gb + 0x8, 8) == 1 { for j in 0x10..0x18 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if rd_le(gb + 0x8, 8) == 1 { for j in 0x18..0x19 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0x98..0xa0 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0xa0..0xa8 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0xa8..0xb0 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0xb0..0xb8 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0xb8..0xc0 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0xc0..0xc8 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0xc8..0xd0 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0xd0..0xd8 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0xd8..0xe0 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0xe0..0xe8 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0xe8..0xf0 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0xf0..0xf8 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0xf8..0x100 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0x100..0x108 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0x108..0x110 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0x110..0x118 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0x118..0x119 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0x119..0x11a { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0x11a..0x11b { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0x11b..0x11c { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0x11c..0x11d { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0x11d..0x11e { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0x11e..0x11f { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            None
+        }
+        4 => {   // SinglePlanLine · 잎 2
+            if true { for j in 0x20..0x21 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0x21..0x22 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            None
+        }
+        5 => {   // SinglePlanBattle · 잎 41
+            if true { for j in 0x8..0x10 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if rd_le(gb + 0x8, 8) == 1 { for j in 0x10..0x18 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0x18..0x20 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if rd_le(gb + 0x18, 8) == 1 { for j in 0x20..0x28 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if rd_le(gb + 0x18, 8) == 1 { for j in 0x28..0x30 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if rd_le(gb + 0x18, 8) == 1 { for j in 0x30..0x38 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0x38..0x40 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if rd_le(gb + 0x38, 8) == 1 { for j in 0x40..0x48 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0x48..0x50 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if rd_le(gb + 0x48, 8) == 1 { for j in 0x50..0x58 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if rd_le(gb + 0x48, 8) == 0 { for j in 0x50..0x58 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if rd_le(gb + 0x48, 8) == 0 { for j in 0x58..0x60 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0x60..0x68 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if rd_le(gb + 0x60, 8) == 5 { for j in 0x68..0x70 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if rd_le(gb + 0x60, 8) == 6 { for j in 0x68..0x70 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if rd_le(gb + 0x60, 8) == 2 { for j in 0x68..0x70 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if rd_le(gb + 0x60, 8) == 3 { for j in 0x68..0x70 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if rd_le(gb + 0x60, 8) == 1 { for j in 0x68..0x70 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if rd_le(gb + 0x60, 8) == 0 { for j in 0x68..0x70 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0x88..0x90 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0x90..0x91 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0x91..0x92 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0x92..0x93 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0x93..0x94 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if !matches!(rd_le(gb + 0x94, 1), 255) { for j in 0x94..0x95 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0x94..0x95 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if !matches!(rd_le(gb + 0x95, 1), 255) { for j in 0x95..0x96 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0x95..0x96 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if !matches!(rd_le(gb + 0x95, 1), 255) && rd_le(gb + 0x95, 1) == 11 { for j in 0x96..0x97 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if !matches!(rd_le(gb + 0x95, 1), 255) && rd_le(gb + 0x95, 1) == 3 { for j in 0x96..0x97 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if !matches!(rd_le(gb + 0x95, 1), 255) && rd_le(gb + 0x95, 1) == 9 { for j in 0x96..0x97 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if !matches!(rd_le(gb + 0x95, 1), 255) && rd_le(gb + 0x95, 1) == 8 { for j in 0x96..0x97 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if !matches!(rd_le(gb + 0x95, 1), 255) && rd_le(gb + 0x95, 1) == 0 { for j in 0x96..0x97 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if !matches!(rd_le(gb + 0x95, 1), 255) && rd_le(gb + 0x95, 1) == 4 { for j in 0x96..0x97 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if !matches!(rd_le(gb + 0x95, 1), 255) && rd_le(gb + 0x95, 1) == 5 { for j in 0x96..0x97 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if !matches!(rd_le(gb + 0x95, 1), 255) && rd_le(gb + 0x95, 1) == 10 { for j in 0x96..0x97 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if !matches!(rd_le(gb + 0x95, 1), 255) && rd_le(gb + 0x95, 1) == 1 { for j in 0x96..0x97 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if !matches!(rd_le(gb + 0x95, 1), 255) && rd_le(gb + 0x95, 1) == 6 { for j in 0x96..0x97 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if !matches!(rd_le(gb + 0x95, 1), 255) && rd_le(gb + 0x95, 1) == 11 { for j in 0x97..0x98 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if !matches!(rd_le(gb + 0x95, 1), 255) && rd_le(gb + 0x95, 1) == 0 { for j in 0x97..0x98 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if !matches!(rd_le(gb + 0x95, 1), 255) && rd_le(gb + 0x95, 1) == 1 { for j in 0x97..0x98 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            None
+        }
+        7 => {   // PassiveJunglePlan · 잎 8
+            if true { if (rd_le(gb + 0x20, 8) >> 63) != (rd_le(mb + 0x20, 8) >> 63) { return Some(format!("+{:#x}.opt g={} m={}", 0x20, if rd_le(gb + 0x20, 8) >> 63 != 0 { "None" } else { "Some" }, if rd_le(mb + 0x20, 8) >> 63 != 0 { "None" } else { "Some" })); } }
+            if ((rd_le(gb + 0x20, 8) >> 63) == 0) == true { for j in 0x38..0x40 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if ((rd_le(gb + 0x20, 8) >> 63) == 0) == true { for j in 0x40..0x48 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if ((rd_le(gb + 0x20, 8) >> 63) == 0) == true { for j in 0x48..0x49 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0x50..0x58 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0x58..0x60 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0x60..0x68 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0x68..0x69 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            None
+        }
+        9 => {   // BattlePlan · 잎 75
+            if true { for j in 0x8..0x10 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if rd_le(gb + 0x8, 8) == 1 { for j in 0x10..0x18 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0x18..0x20 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if rd_le(gb + 0x18, 8) == 1 { for j in 0x20..0x28 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if rd_le(gb + 0x18, 8) == 1 { for j in 0x28..0x30 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if rd_le(gb + 0x18, 8) == 1 { for j in 0x30..0x38 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0x38..0x40 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if rd_le(gb + 0x38, 8) == 1 { for j in 0x40..0x48 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0x48..0x50 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if rd_le(gb + 0x48, 8) == 1 { for j in 0x50..0x58 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if rd_le(gb + 0x48, 8) == 0 { for j in 0x50..0x58 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if rd_le(gb + 0x48, 8) == 0 { for j in 0x58..0x60 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0x60..0x68 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if rd_le(gb + 0x60, 8) == 5 { for j in 0x68..0x70 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if rd_le(gb + 0x60, 8) == 6 { for j in 0x68..0x70 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if rd_le(gb + 0x60, 8) == 2 { for j in 0x68..0x70 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if rd_le(gb + 0x60, 8) == 3 { for j in 0x68..0x70 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if rd_le(gb + 0x60, 8) == 1 { for j in 0x68..0x70 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if rd_le(gb + 0x60, 8) == 0 { for j in 0x68..0x70 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0xa0..0xa8 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0xa8..0xb0 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0xb0..0xb8 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0xb8..0xc0 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0xc0..0xc8 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0xc8..0xd0 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0xd0..0xd8 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0xd8..0xe0 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0xe0..0xe8 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0xe8..0xf0 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0xf0..0xf8 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0xf8..0xfc { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if !matches!(rd_le(gb + 0xfc, 1), 2) { for j in 0xfc..0xfd { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0xfc..0xfd { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if !matches!(rd_le(gb + 0xfc, 1), 2) { for j in 0xfd..0xfe { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0xfe..0xff { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0xff..0x100 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0x100..0x101 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0x101..0x102 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0x102..0x103 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0x103..0x104 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0x104..0x105 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0x105..0x106 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if !matches!(rd_le(gb + 0x106, 1), 255) { for j in 0x106..0x107 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0x106..0x107 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if !matches!(rd_le(gb + 0x107, 1), 255) { for j in 0x107..0x108 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0x107..0x108 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if !matches!(rd_le(gb + 0x107, 1), 255) && rd_le(gb + 0x107, 1) == 11 { for j in 0x108..0x109 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if !matches!(rd_le(gb + 0x107, 1), 255) && rd_le(gb + 0x107, 1) == 3 { for j in 0x108..0x109 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if !matches!(rd_le(gb + 0x107, 1), 255) && rd_le(gb + 0x107, 1) == 9 { for j in 0x108..0x109 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if !matches!(rd_le(gb + 0x107, 1), 255) && rd_le(gb + 0x107, 1) == 8 { for j in 0x108..0x109 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if !matches!(rd_le(gb + 0x107, 1), 255) && rd_le(gb + 0x107, 1) == 0 { for j in 0x108..0x109 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if !matches!(rd_le(gb + 0x107, 1), 255) && rd_le(gb + 0x107, 1) == 4 { for j in 0x108..0x109 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if !matches!(rd_le(gb + 0x107, 1), 255) && rd_le(gb + 0x107, 1) == 5 { for j in 0x108..0x109 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if !matches!(rd_le(gb + 0x107, 1), 255) && rd_le(gb + 0x107, 1) == 10 { for j in 0x108..0x109 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if !matches!(rd_le(gb + 0x107, 1), 255) && rd_le(gb + 0x107, 1) == 1 { for j in 0x108..0x109 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if !matches!(rd_le(gb + 0x107, 1), 255) && rd_le(gb + 0x107, 1) == 6 { for j in 0x108..0x109 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if !matches!(rd_le(gb + 0x107, 1), 255) && rd_le(gb + 0x107, 1) == 11 { for j in 0x109..0x10a { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if !matches!(rd_le(gb + 0x107, 1), 255) && rd_le(gb + 0x107, 1) == 0 { for j in 0x109..0x10a { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if !matches!(rd_le(gb + 0x107, 1), 255) && rd_le(gb + 0x107, 1) == 1 { for j in 0x109..0x10a { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0x10a..0x10b { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0x10b..0x10c { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0x10c..0x10d { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0x10d..0x10e { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0x10e..0x10f { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0x10f..0x110 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0x110..0x111 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0x111..0x112 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0x112..0x113 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0x113..0x114 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0x114..0x115 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0x115..0x116 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0x116..0x117 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0x117..0x118 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0x118..0x119 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0x119..0x11a { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            None
+        }
+        10 => {   // LineGankerPlan · 잎 5
+            if true { for j in 0x20..0x28 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0x28..0x30 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0x30..0x31 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if !matches!(rd_le(gb + 0x31, 1), 6 | 7 | 8) { for j in 0x31..0x32 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0x31..0x32 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            None
+        }
+        11 => {   // LineGankCoverPlan · 잎 2
+            if true { for j in 0x20..0x28 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0x28..0x29 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            None
+        }
+        12 => {   // EpicHuntAndPokePlan · 잎 3
+            if true { for j in 0x20..0x21 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0x21..0x22 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0x22..0x23 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            None
+        }
+        13 => {   // EpicHuntAndBattlePlan · 잎 2
+            if true { for j in 0x8..0x10 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if rd_le(gb + 0x8, 8) == 1 { for j in 0x10..0x18 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            None
+        }
+        14 => {   // SerpenHuntAndPokePlan · 잎 3
+            if true { for j in 0x20..0x21 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0x21..0x22 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0x22..0x23 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            None
+        }
+        15 => {   // SerpenHuntAndBattlePlan · 잎 2
+            if true { for j in 0x8..0x10 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if rd_le(gb + 0x8, 8) == 1 { for j in 0x10..0x18 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            None
+        }
+        16 => {   // AttackNexusPlan · 잎 2
+            if true { for j in 0x8..0x10 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0x10..0x11 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            None
+        }
+        17 => {   // DefenseNexusPlan · 잎 1
+            if true { for j in 0x8..0x10 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            None
+        }
+        t if !(2..=17).contains(&t) => {   // DeathMatchBattle · 잎 77 · untagged(페이로드 base 0)
+            if true { for j in 0x0..0x8 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if rd_le(gb + 0x0, 8) == 1 { for j in 0x8..0x10 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0x10..0x18 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if rd_le(gb + 0x10, 8) == 1 { for j in 0x18..0x20 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if rd_le(gb + 0x10, 8) == 1 { for j in 0x20..0x28 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if rd_le(gb + 0x10, 8) == 1 { for j in 0x28..0x30 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0x30..0x38 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if rd_le(gb + 0x30, 8) == 1 { for j in 0x38..0x40 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0x40..0x48 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if rd_le(gb + 0x40, 8) == 1 { for j in 0x48..0x50 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0x50..0x58 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if rd_le(gb + 0x50, 8) == 1 { for j in 0x58..0x60 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if rd_le(gb + 0x50, 8) == 1 { for j in 0x60..0x68 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if rd_le(gb + 0x50, 8) == 1 { for j in 0x68..0x70 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0x70..0x78 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if rd_le(gb + 0x70, 8) == 1 { for j in 0x78..0x80 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if rd_le(gb + 0x70, 8) == 1 { for j in 0x80..0x88 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if rd_le(gb + 0x70, 8) == 1 { for j in 0x88..0x90 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0x90..0x98 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if rd_le(gb + 0x90, 8) == 1 { for j in 0x98..0xa0 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if rd_le(gb + 0x90, 8) == 1 { for j in 0xa0..0xa8 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0xa8..0xb0 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if rd_le(gb + 0xa8, 8) == 1 { for j in 0xb0..0xb8 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if rd_le(gb + 0xa8, 8) == 1 { for j in 0xb8..0xc0 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0xc0..0xc8 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if rd_le(gb + 0xc0, 8) == 1 { for j in 0xc8..0xd0 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0xd0..0xd8 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if rd_le(gb + 0xd0, 8) == 1 { for j in 0xd8..0xe0 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if rd_le(gb + 0xd0, 8) == 0 { for j in 0xd8..0xe0 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if rd_le(gb + 0xd0, 8) == 0 { for j in 0xe0..0xe8 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0xe8..0xf0 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if rd_le(gb + 0xe8, 8) == 5 { for j in 0xf0..0xf8 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if rd_le(gb + 0xe8, 8) == 6 { for j in 0xf0..0xf8 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if rd_le(gb + 0xe8, 8) == 2 { for j in 0xf0..0xf8 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if rd_le(gb + 0xe8, 8) == 3 { for j in 0xf0..0xf8 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if rd_le(gb + 0xe8, 8) == 1 { for j in 0xf0..0xf8 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if rd_le(gb + 0xe8, 8) == 0 { for j in 0xf0..0xf8 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0x110..0x118 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0x118..0x120 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0x120..0x128 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0x128..0x130 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0x130..0x138 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0x138..0x140 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0x140..0x148 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0x148..0x150 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0x150..0x158 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0x158..0x160 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0x160..0x168 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0x168..0x170 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0x170..0x171 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0x171..0x172 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0x172..0x173 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0x173..0x174 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0x174..0x175 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0x175..0x176 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0x176..0x177 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0x177..0x178 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0x178..0x179 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0x179..0x17a { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if !matches!(rd_le(gb + 0x17a, 1), 255) { for j in 0x17a..0x17b { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0x17a..0x17b { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if !matches!(rd_le(gb + 0x17b, 1), 255) { for j in 0x17b..0x17c { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0x17b..0x17c { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if !matches!(rd_le(gb + 0x17b, 1), 255) && rd_le(gb + 0x17b, 1) == 11 { for j in 0x17c..0x17d { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if !matches!(rd_le(gb + 0x17b, 1), 255) && rd_le(gb + 0x17b, 1) == 3 { for j in 0x17c..0x17d { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if !matches!(rd_le(gb + 0x17b, 1), 255) && rd_le(gb + 0x17b, 1) == 9 { for j in 0x17c..0x17d { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if !matches!(rd_le(gb + 0x17b, 1), 255) && rd_le(gb + 0x17b, 1) == 8 { for j in 0x17c..0x17d { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if !matches!(rd_le(gb + 0x17b, 1), 255) && rd_le(gb + 0x17b, 1) == 0 { for j in 0x17c..0x17d { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if !matches!(rd_le(gb + 0x17b, 1), 255) && rd_le(gb + 0x17b, 1) == 4 { for j in 0x17c..0x17d { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if !matches!(rd_le(gb + 0x17b, 1), 255) && rd_le(gb + 0x17b, 1) == 5 { for j in 0x17c..0x17d { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if !matches!(rd_le(gb + 0x17b, 1), 255) && rd_le(gb + 0x17b, 1) == 10 { for j in 0x17c..0x17d { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if !matches!(rd_le(gb + 0x17b, 1), 255) && rd_le(gb + 0x17b, 1) == 1 { for j in 0x17c..0x17d { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if !matches!(rd_le(gb + 0x17b, 1), 255) && rd_le(gb + 0x17b, 1) == 6 { for j in 0x17c..0x17d { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if !matches!(rd_le(gb + 0x17b, 1), 255) && rd_le(gb + 0x17b, 1) == 11 { for j in 0x17d..0x17e { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if !matches!(rd_le(gb + 0x17b, 1), 255) && rd_le(gb + 0x17b, 1) == 0 { for j in 0x17d..0x17e { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if !matches!(rd_le(gb + 0x17b, 1), 255) && rd_le(gb + 0x17b, 1) == 1 { for j in 0x17d..0x17e { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0x17e..0x17f { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            None
+        }
+        _ => None,   // 단위 variant(페이로드 0B)
+    }
+}
+/// `#111` self+0x768 `SubPlan` — variant 별 페이로드 live 비교(structlive.py 자동 생성 · variant 13개 · 태그 2..=18 · 밖 = untagged).
+/// variant 히스토그램 — [0] = untagged(범위 밖) · [t] = 메모리태그 t (대조 1건당 1증가 · 단위 variant 포함).
+pub static EH_111_1: [AtomicU64; 32] = [const { AtomicU64::new(0) }; 32];
+pub static EH_111_1_NAMES: &[(u64, &str)] = &[(2, "LineDefense"), (3, "LineSafe"), (4, "LineWait"), (5, "Recall"), (6, "Jungle"), (7, "Battle"), (9, "Hide"), (10, "EpicCheck"), (11, "EpicHunt"), (12, "EpicPoke"), (13, "SerpenCheck"), (14, "SerpenHunt"), (15, "SerpenPoke"), (16, "AttackNexus"), (17, "DefenseNexus"), (18, "Steal"), (0, "DeathBattle")];
+pub unsafe fn enumlive_cmp_111_1(tag: u64, gb: usize, mb: usize) -> Option<String> {
+    EH_111_1[if (2..=18).contains(&tag) { tag as usize } else { 0 }].fetch_add(1, Ordering::Relaxed);
+    match tag {
+        2 => {   // LineDefenseSubPlan · 잎 3
+            if true { for j in 0x8..0x9 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0x9..0xa { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0xa..0xb { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            None
+        }
+        3 => {   // LineSafeSubPlan · 잎 1
+            if true { for j in 0x8..0x9 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            None
+        }
+        4 => {   // LineWaitSubPlan · 잎 1
+            if true { for j in 0x8..0x9 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            None
+        }
+        6 => {   // JungleSubPlan · 잎 3
+            if true { for j in 0x8..0x10 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0x10..0x11 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0x11..0x12 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            None
+        }
+        7 => {   // BattleSubPlan · 잎 16
+            if true { for j in 0x8..0x10 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if rd_le(gb + 0x8, 8) == 1 { for j in 0x10..0x18 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0x18..0x20 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if rd_le(gb + 0x18, 8) == 5 { for j in 0x20..0x28 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if rd_le(gb + 0x18, 8) == 6 { for j in 0x20..0x28 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if rd_le(gb + 0x18, 8) == 2 { for j in 0x20..0x28 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if rd_le(gb + 0x18, 8) == 3 { for j in 0x20..0x28 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if rd_le(gb + 0x18, 8) == 1 { for j in 0x20..0x28 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if rd_le(gb + 0x18, 8) == 0 { for j in 0x20..0x28 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0x28..0x30 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0x30..0x31 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0x31..0x32 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0x32..0x33 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0x33..0x34 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0x34..0x35 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0x35..0x36 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            None
+        }
+        9 => {   // HideSubPlan · 잎 4
+            if true { for j in 0x8..0x10 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0x10..0x11 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0x11..0x12 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0x12..0x13 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            None
+        }
+        10 => {   // EpicCheckSubPlan · 잎 1
+            if true { for j in 0x8..0x9 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            None
+        }
+        11 => {   // EpicHuntSubPlan · 잎 1
+            if true { for j in 0x8..0x9 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            None
+        }
+        13 => {   // SerpenCheckSubPlan · 잎 1
+            if true { for j in 0x8..0x9 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            None
+        }
+        14 => {   // SerpenHuntSubPlan · 잎 1
+            if true { for j in 0x8..0x9 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            None
+        }
+        17 => {   // DefenseNexusSubPlan · 잎 3
+            if true { for j in 0x8..0x10 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if rd_le(gb + 0x8, 8) == 1 { for j in 0x10..0x18 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0x18..0x19 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            None
+        }
+        18 => {   // StealSubPlan · 잎 4
+            if true { for j in 0x8..0x10 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if !matches!(rd_le(gb + 0x10, 1), 2) { for j in 0x10..0x11 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0x10..0x11 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0x11..0x12 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            None
+        }
+        t if !(2..=18).contains(&t) => {   // DeathBattleSubPlan · 잎 19 · untagged(페이로드 base 0)
+            if true { for j in 0x0..0x8 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if rd_le(gb + 0x0, 8) == 1 { for j in 0x8..0x10 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0x10..0x18 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if rd_le(gb + 0x10, 8) == 1 { for j in 0x18..0x20 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if rd_le(gb + 0x10, 8) == 1 { for j in 0x20..0x28 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0x28..0x30 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if rd_le(gb + 0x28, 8) == 5 { for j in 0x30..0x38 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if rd_le(gb + 0x28, 8) == 6 { for j in 0x30..0x38 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if rd_le(gb + 0x28, 8) == 2 { for j in 0x30..0x38 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if rd_le(gb + 0x28, 8) == 3 { for j in 0x30..0x38 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if rd_le(gb + 0x28, 8) == 1 { for j in 0x30..0x38 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if rd_le(gb + 0x28, 8) == 0 { for j in 0x30..0x38 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0x38..0x40 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0x40..0x41 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0x41..0x42 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0x42..0x43 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0x43..0x44 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0x44..0x45 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0x45..0x46 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
             None
         }
         _ => None,   // 단위 variant(페이로드 0B)
@@ -5744,52 +6295,52 @@ pub unsafe fn structlive_cmp_106(gb: usize, mb: usize) -> Option<String> {
     None
 }
 
-unsafe fn w_112(a0: i64, a1: *const u8, a2: *const u8) -> u8 {
+unsafe fn w_113(a0: i64, a1: *const u8, a2: *const u8) -> u8 {
     S[0].calls.fetch_add(1, Ordering::Relaxed);
     let f: unsafe fn(i64, *const u8, *const u8) -> u8 = core::mem::transmute(S[0].orig.load(Ordering::Relaxed));
     let t = top(0);
     let g = f(a0, a1, a2);
     if !t { pop(0); return g; }
     let n = S[0].cmp.fetch_add(1, Ordering::Relaxed) + 1;
-    let m = catch_unwind(AssertUnwindSafe(|| my_112(a0, a1, a2)));
+    let m = catch_unwind(AssertUnwindSafe(|| my_113(a0, a1, a2)));
     match m {
-        Ok(m) => { if m != g { note(0, format!("#112 v3_epic_group_line 대조#{} 갈림: g={:?} m={:?} | a0={} a1={:#x} a2={:#x}", n, g, m, a0, a1 as usize, a2 as usize)); } }
+        Ok(m) => { if m != g { note(0, format!("#113 v3_epic_group_line 대조#{} 갈림: g={:?} m={:?} | a0={} a1={:#x} a2={:#x}", n, g, m, a0, a1 as usize, a2 as usize)); } }
         Err(_) => { S[0].pan.fetch_add(1, Ordering::Relaxed); }
     }
     pop(0);
     g
 }
-unsafe fn w_113(a0: i64, a1: *const u8, a2: *const u8) -> u8 {
+unsafe fn w_114(a0: i64, a1: *const u8, a2: *const u8) -> u8 {
     S[1].calls.fetch_add(1, Ordering::Relaxed);
     let f: unsafe fn(i64, *const u8, *const u8) -> u8 = core::mem::transmute(S[1].orig.load(Ordering::Relaxed));
     let t = top(1);
     let g = f(a0, a1, a2);
     if !t { pop(1); return g; }
     let n = S[1].cmp.fetch_add(1, Ordering::Relaxed) + 1;
-    let m = catch_unwind(AssertUnwindSafe(|| my_113(a0, a1, a2)));
+    let m = catch_unwind(AssertUnwindSafe(|| my_114(a0, a1, a2)));
     match m {
-        Ok(m) => { if m != g { note(1, format!("#113 v3_epicops_repair_need 대조#{} 갈림: g={:?} m={:?} | a0={} a1={:#x} a2={:#x}", n, g, m, a0, a1 as usize, a2 as usize)); } }
+        Ok(m) => { if m != g { note(1, format!("#114 v3_epicops_repair_need 대조#{} 갈림: g={:?} m={:?} | a0={} a1={:#x} a2={:#x}", n, g, m, a0, a1 as usize, a2 as usize)); } }
         Err(_) => { S[1].pan.fetch_add(1, Ordering::Relaxed); }
     }
     pop(1);
     g
 }
-unsafe fn w_114(a0: *const u8, a1: *const u8, a2: *const u8, a3: *const u8, a4: u8) -> bool {
+unsafe fn w_115(a0: *const u8, a1: *const u8, a2: *const u8, a3: *const u8, a4: u8) -> bool {
     S[2].calls.fetch_add(1, Ordering::Relaxed);
     let f: unsafe fn(*const u8, *const u8, *const u8, *const u8, u8) -> bool = core::mem::transmute(S[2].orig.load(Ordering::Relaxed));
     let t = top(2);
     let g = f(a0, a1, a2, a3, a4);
     if !t { pop(2); return g; }
     let n = S[2].cmp.fetch_add(1, Ordering::Relaxed) + 1;
-    let m = catch_unwind(AssertUnwindSafe(|| my_114(a0, a1, a2, a3, a4)));
+    let m = catch_unwind(AssertUnwindSafe(|| my_115(a0, a1, a2, a3, a4)));
     match m {
-        Ok(m) => { if m != g { note(2, format!("#114 is_object_being_taken_by_enemy 대조#{} 갈림: g={:?} m={:?} | a0={:#x} a1={:#x} a2={:#x} a3={:#x} a4={}", n, g, m, a0 as usize, a1 as usize, a2 as usize, a3 as usize, a4)); } }
+        Ok(m) => { if m != g { note(2, format!("#115 is_object_being_taken_by_enemy 대조#{} 갈림: g={:?} m={:?} | a0={:#x} a1={:#x} a2={:#x} a3={:#x} a4={}", n, g, m, a0 as usize, a1 as usize, a2 as usize, a3 as usize, a4)); } }
         Err(_) => { S[2].pan.fetch_add(1, Ordering::Relaxed); }
     }
     pop(2);
     g
 }
-unsafe fn w_115(a0: i64, a1: *const u8, a2: *const u8, a3: *const u8) -> bool {
+unsafe fn w_116(a0: i64, a1: *const u8, a2: *const u8, a3: *const u8) -> bool {
     S[3].calls.fetch_add(1, Ordering::Relaxed);
     let f: unsafe fn(i64, *const u8, *const u8, *const u8) -> bool = core::mem::transmute(S[3].orig.load(Ordering::Relaxed));
     let t = top(3);
@@ -5825,7 +6376,7 @@ unsafe fn w_115(a0: i64, a1: *const u8, a2: *const u8, a3: *const u8) -> bool {
         core::ptr::write_unaligned((a3 as usize + 0xc8) as *mut usize, vb.0.as_ptr() as usize); // ptr = 내 버퍼
         core::ptr::write_unaligned((a3 as usize + 0xd0) as *mut usize, vb.1);  // len = 게임과 **같은** 개수
     });
-    let m = catch_unwind(AssertUnwindSafe(|| my_115(a0, a1, a2, a3)));
+    let m = catch_unwind(AssertUnwindSafe(|| my_116(a0, a1, a2, a3)));
     // ★내 사본이 할당한 것을 해제한다(안 하면 호출당 누수). rlib 은 내 DLL 안에 링크돼 있어 알로케이터가 같다.
     { let c = core::ptr::read_unaligned((a3 as usize + 0xc0) as *const usize);
       let pz = core::ptr::read_unaligned((a3 as usize + 0xc8) as *const usize);
@@ -5836,13 +6387,13 @@ unsafe fn w_115(a0: i64, a1: *const u8, a2: *const u8, a3: *const u8) -> bool {
     SP3.with(|c| { let sp = &*c.get();
         core::ptr::copy_nonoverlapping(sp.as_ptr(), a3 as *mut u8, 1064); }); // 게임 호출 후 상태로 복구
     match m {
-        Ok(m) => { if m != g { note(3, format!("#115 v3_serpen_contest_clear_win 대조#{} 갈림: g={:?} m={:?} | a0={} a1={:#x} a2={:#x} a3={:#x}", n, g, m, a0, a1 as usize, a2 as usize, a3 as usize)); } }
+        Ok(m) => { if m != g { note(3, format!("#116 v3_serpen_contest_clear_win 대조#{} 갈림: g={:?} m={:?} | a0={} a1={:#x} a2={:#x} a3={:#x}", n, g, m, a0, a1 as usize, a2 as usize, a3 as usize)); } }
         Err(_) => { S[3].pan.fetch_add(1, Ordering::Relaxed); }
     }
     pop(3);
     g
 }
-unsafe fn w_116(a0: *const u8, a1: i64, a2: *const u8, a3: *const u8, a4: *const u8, a5: *const u8, a6: i64, a7: *const u8, a8: i64, a9: u8, a10: *const u8, a11: i64, a12: *const u8, a13: i64, a14: i64) {
+unsafe fn w_117(a0: *const u8, a1: i64, a2: *const u8, a3: *const u8, a4: *const u8, a5: *const u8, a6: i64, a7: *const u8, a8: i64, a9: u8, a10: *const u8, a11: i64, a12: *const u8, a13: i64, a14: i64) {
     S[4].calls.fetch_add(1, Ordering::Relaxed);
     let f: unsafe fn(*const u8, i64, *const u8, *const u8, *const u8, *const u8, i64, *const u8, i64, u8, *const u8, i64, *const u8, i64, i64) = core::mem::transmute(S[4].orig.load(Ordering::Relaxed));
     let t = top(4);
@@ -5851,16 +6402,16 @@ unsafe fn w_116(a0: *const u8, a1: i64, a2: *const u8, a3: *const u8, a4: *const
     let n = S[4].cmp.fetch_add(1, Ordering::Relaxed) + 1;
     let mut gb = [0u64; 8]; core::ptr::copy_nonoverlapping(a0, gb.as_mut_ptr() as *mut u8, 64); // 게임 출력 사본
     let mut mb = [0u64; 8];                                                   // 내 사본 전용 출력 버퍼
-    let m = catch_unwind(AssertUnwindSafe(|| my_116(mb.as_mut_ptr() as *const u8, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14)));
+    let m = catch_unwind(AssertUnwindSafe(|| my_117(mb.as_mut_ptr() as *const u8, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14)));
     match m {
-        Ok(_) => { if let Some(off) = live_eq(a0, mb.as_ptr() as *const u8, LIVE_116) {
-            note(4, format!("#116 resolve_fight_uncached 대조#{} 갈림(sret 64B · +{:#x}): g={:02x?} m={:02x?} | a1={} a2={:#x} a3={:#x} a4={:#x} a5={:#x} a6={} a7={:#x} a8={} a9={} a10={:#x} a11={} a12={:#x} a13={} a14={}", n, off, &gb[..8], &mb[..8], a1, a2 as usize, a3 as usize, a4 as usize, a5 as usize, a6, a7 as usize, a8, a9, a10 as usize, a11, a12 as usize, a13, a14)); } }
+        Ok(_) => { if let Some(off) = live_eq(a0, mb.as_ptr() as *const u8, LIVE_117) {
+            note(4, format!("#117 resolve_fight_uncached 대조#{} 갈림(sret 64B · +{:#x}): g={:02x?} m={:02x?} | a1={} a2={:#x} a3={:#x} a4={:#x} a5={:#x} a6={} a7={:#x} a8={} a9={} a10={:#x} a11={} a12={:#x} a13={} a14={}", n, off, &gb[..8], &mb[..8], a1, a2 as usize, a3 as usize, a4 as usize, a5 as usize, a6, a7 as usize, a8, a9, a10 as usize, a11, a12 as usize, a13, a14)); } }
         Err(_) => { S[4].pan.fetch_add(1, Ordering::Relaxed); }
     }
     pop(4);
     g
 }
-unsafe fn w_117(a0: *const u8, a1: i64, a2: *const u8, a3: *const u8, a4: *const u8, a5: i64, a6: *const u8, a7: i64, a8: u8, a9: *const u8, a10: i64, a11: *const u8, a12: i64, a13: i64) {
+unsafe fn w_118(a0: *const u8, a1: i64, a2: *const u8, a3: *const u8, a4: *const u8, a5: i64, a6: *const u8, a7: i64, a8: u8, a9: *const u8, a10: i64, a11: *const u8, a12: i64, a13: i64) {
     S[5].calls.fetch_add(1, Ordering::Relaxed);
     let f: unsafe fn(*const u8, i64, *const u8, *const u8, *const u8, i64, *const u8, i64, u8, *const u8, i64, *const u8, i64, i64) = core::mem::transmute(S[5].orig.load(Ordering::Relaxed));
     let t = top(5);
@@ -5869,10 +6420,10 @@ unsafe fn w_117(a0: *const u8, a1: i64, a2: *const u8, a3: *const u8, a4: *const
     let n = S[5].cmp.fetch_add(1, Ordering::Relaxed) + 1;
     let mut gb = [0u64; 8]; core::ptr::copy_nonoverlapping(a0, gb.as_mut_ptr() as *mut u8, 64); // 게임 출력 사본
     let mut mb = [0u64; 8];                                                   // 내 사본 전용 출력 버퍼
-    let m = catch_unwind(AssertUnwindSafe(|| my_117(mb.as_mut_ptr() as *const u8, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13)));
+    let m = catch_unwind(AssertUnwindSafe(|| my_118(mb.as_mut_ptr() as *const u8, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13)));
     match m {
-        Ok(_) => { if let Some(off) = live_eq(a0, mb.as_ptr() as *const u8, LIVE_117) {
-            note(5, format!("#117 resolve_fight_full 대조#{} 갈림(sret 64B · +{:#x}): g={:02x?} m={:02x?} | a1={} a2={:#x} a3={:#x} a4={:#x} a5={} a6={:#x} a7={} a8={} a9={:#x} a10={} a11={:#x} a12={} a13={}", n, off, &gb[..8], &mb[..8], a1, a2 as usize, a3 as usize, a4 as usize, a5, a6 as usize, a7, a8, a9 as usize, a10, a11 as usize, a12, a13)); } }
+        Ok(_) => { if let Some(off) = live_eq(a0, mb.as_ptr() as *const u8, LIVE_118) {
+            note(5, format!("#118 resolve_fight_full 대조#{} 갈림(sret 64B · +{:#x}): g={:02x?} m={:02x?} | a1={} a2={:#x} a3={:#x} a4={:#x} a5={} a6={:#x} a7={} a8={} a9={:#x} a10={} a11={:#x} a12={} a13={}", n, off, &gb[..8], &mb[..8], a1, a2 as usize, a3 as usize, a4 as usize, a5, a6 as usize, a7, a8, a9 as usize, a10, a11 as usize, a12, a13)); } }
         Err(_) => { S[5].pan.fetch_add(1, Ordering::Relaxed); }
     }
     pop(5);
@@ -5978,12 +6529,15 @@ unsafe fn w_5(a0: *const u8, a1: u8, a2: u8) {
         core::ptr::copy_nonoverlapping(a0, sq.as_mut_ptr(), 6168); });
     let sd: Option<String> = SP9.with(|c| { let sp = &*c.get(); SQ9.with(|c2| { let sq = &*c2.get();
         // ① 본체 바이트(설계상 다른 구간은 제외)
+        let (mut first, mut inrun, mut nrun): (Option<String>, bool, u32) = (None, false, 0);
         for off in 0..6168usize {
             if off >= 0x888 && off < 0x8a0 { continue; }
             if sp[off] != sq[off] {
-                return Some(format!("self+{:#x}: g={:02x} m={:02x}", off, sp[off], sq[off]));
-            }
+                if first.is_none() { first = Some(format!("self+{:#x}: g={:02x} m={:02x}", off, sp[off], sq[off])); }
+                if !inrun { inrun = true; if nrun < 8 { doff(9, off); nrun += 1; } }
+            } else { inrun = false; }
         }
+        if first.is_some() { return first; }
         // ② Vec 의 len (cap/ptr 은 버퍼가 달라 비교 대상이 아니다)
         let g_ptr = core::ptr::read_unaligned(sp.as_ptr().add(0x890) as *const usize);
         let g_len = core::ptr::read_unaligned(sp.as_ptr().add(0x898) as *const usize);
@@ -6139,14 +6693,17 @@ unsafe fn w_11(a0: *const u8, a1: i64, a2: *const u8, a3: *const u8, a4: *const 
         // ★소유 Vec 삼중항(cap/ptr/len 24B)은 **동적 skip**(게임 것 vs 내 할당) — len·내용은 ②′에서 비교
         let gtag_0: u64 = core::ptr::read_unaligned(sp.as_ptr().add(0x5e8) as *const u64);
         let dyn_0: &[(usize, usize, u8)] = hs_vecs_11_0(gtag_0);
+        let (mut first, mut inrun, mut nrun): (Option<String>, bool, u32) = (None, false, 0);
         for off in 0..6168usize {
             if off >= 0x5f0 && off < 0x768 { continue; }
             if off >= 0x770 && off < 0x7b0 { continue; }
             if dyn_0.iter().any(|&(o, _, _)| off >= 0x5e8 + o && off < 0x5e8 + o + 24) { continue; }
             if sp[off] != sq[off] {
-                return Some(format!("self+{:#x}: g={:02x} m={:02x}", off, sp[off], sq[off]));
-            }
+                if first.is_none() { first = Some(format!("self+{:#x}: g={:02x} m={:02x}", off, sp[off], sq[off])); }
+                if !inrun { inrun = true; if nrun < 8 { doff(11, off); nrun += 1; } }
+            } else { inrun = false; }
         }
+        if first.is_some() { return first; }
         // ①′ 열거형 필드 self+0x5e8 `BigPlan` 페이로드 — 타입 기반 live 맵(structlive)으로 variant 조건부 비교
         { let t = core::ptr::read_unaligned(sp.as_ptr().add(0x5e8) as *const u64);
           if let Some(d) = enumlive_cmp_11_0(t, sp.as_ptr() as usize + 0x5e8, sq.as_ptr() as usize + 0x5e8) {
@@ -6438,12 +6995,15 @@ unsafe fn w_14(a0: *const u8, a1: i64, a2: *const u8, a3: *const u8, a4: *const 
         core::ptr::copy_nonoverlapping(a0, sq.as_mut_ptr(), 48); });
     let sd: Option<String> = SP22.with(|c| { let sp = &*c.get(); SQ22.with(|c2| { let sq = &*c2.get();
         // ① 본체 바이트(설계상 다른 구간은 제외)
+        let (mut first, mut inrun, mut nrun): (Option<String>, bool, u32) = (None, false, 0);
         for off in 0..48usize {
             if off >= 0x0 && off < 0x18 { continue; }
             if sp[off] != sq[off] {
-                return Some(format!("self+{:#x}: g={:02x} m={:02x}", off, sp[off], sq[off]));
-            }
+                if first.is_none() { first = Some(format!("self+{:#x}: g={:02x} m={:02x}", off, sp[off], sq[off])); }
+                if !inrun { inrun = true; if nrun < 8 { doff(22, off); nrun += 1; } }
+            } else { inrun = false; }
         }
+        if first.is_some() { return first; }
         // ② Vec 의 len (cap/ptr 은 버퍼가 달라 비교 대상이 아니다)
         let g_ptr = core::ptr::read_unaligned(sp.as_ptr().add(0x8) as *const usize);
         let g_len = core::ptr::read_unaligned(sp.as_ptr().add(0x10) as *const usize);
@@ -6950,12 +7510,15 @@ unsafe fn w_97(a0: *const u8, a1: *const u8, a2: i64, a3: *const u8, a4: *const 
         // ★소유 Vec 삼중항(cap/ptr/len 24B)은 **동적 skip**(게임 것 vs 내 할당) — len·내용은 ②′에서 비교
         let gtag_0: u64 = 0;
         let dyn_0: &[(usize, usize, u8)] = hs_vecs_97_0(gtag_0);
+        let (mut first, mut inrun, mut nrun): (Option<String>, bool, u32) = (None, false, 0);
         for off in 0..32usize {
             if dyn_0.iter().any(|&(o, _, _)| off >= 0x0 + o && off < 0x0 + o + 24) { continue; }
             if sp[off] != sq[off] {
-                return Some(format!("self+{:#x}: g={:02x} m={:02x}", off, sp[off], sq[off]));
-            }
+                if first.is_none() { first = Some(format!("self+{:#x}: g={:02x} m={:02x}", off, sp[off], sq[off])); }
+                if !inrun { inrun = true; if nrun < 8 { doff(44, off); nrun += 1; } }
+            } else { inrun = false; }
         }
+        if first.is_some() { return first; }
         // ②′ 명세 0 소유 Vec 의 len·내용 — 요소는 ELEM_LIVE(live id)로 살아있는 바이트만
         for &(o, esz, lid) in dyn_0 {
             let (gb, mb) = (sp.as_ptr().add(0x0 + o), sq.as_ptr().add(0x0 + o));
@@ -7050,12 +7613,15 @@ unsafe fn w_44(a0: *const u8, a1: i64, a2: i32, a3: *const u8) -> bool {
         core::ptr::copy_nonoverlapping(a0, sq.as_mut_ptr(), 6168); });
     let sd: Option<String> = SP45.with(|c| { let sp = &*c.get(); SQ45.with(|c2| { let sq = &*c2.get();
         // ① 본체 바이트(설계상 다른 구간은 제외)
+        let (mut first, mut inrun, mut nrun): (Option<String>, bool, u32) = (None, false, 0);
         for off in 0..6168usize {
             if off >= 0x7b0 && off < 0x7c8 { continue; }
             if sp[off] != sq[off] {
-                return Some(format!("self+{:#x}: g={:02x} m={:02x}", off, sp[off], sq[off]));
-            }
+                if first.is_none() { first = Some(format!("self+{:#x}: g={:02x} m={:02x}", off, sp[off], sq[off])); }
+                if !inrun { inrun = true; if nrun < 8 { doff(45, off); nrun += 1; } }
+            } else { inrun = false; }
         }
+        if first.is_some() { return first; }
         // ② Vec 의 len (cap/ptr 은 버퍼가 달라 비교 대상이 아니다)
         let g_ptr = core::ptr::read_unaligned(sp.as_ptr().add(0x7b8) as *const usize);
         let g_len = core::ptr::read_unaligned(sp.as_ptr().add(0x7c0) as *const usize);
@@ -7307,15 +7873,18 @@ unsafe fn w_104(a0: *const u8, a1: i64, a2: *const u8, a3: *const u8, a4: *const
         let dyn_0: &[(usize, usize, u8)] = hs_vecs_104_0(gtag_0);
         let gtag_1: u64 = 0;
         let dyn_1: &[(usize, usize, u8)] = hs_vecs_104_1(gtag_1);
+        let (mut first, mut inrun, mut nrun): (Option<String>, bool, u32) = (None, false, 0);
         for off in 0..6168usize {
             if off >= 0x5f0 && off < 0x768 { continue; }
             if off >= 0x4f0 && off < 0x508 { continue; }
             if dyn_0.iter().any(|&(o, _, _)| off >= 0x5e8 + o && off < 0x5e8 + o + 24) { continue; }
             if dyn_1.iter().any(|&(o, _, _)| off >= 0x0 + o && off < 0x0 + o + 24) { continue; }
             if sp[off] != sq[off] {
-                return Some(format!("self+{:#x}: g={:02x} m={:02x}", off, sp[off], sq[off]));
-            }
+                if first.is_none() { first = Some(format!("self+{:#x}: g={:02x} m={:02x}", off, sp[off], sq[off])); }
+                if !inrun { inrun = true; if nrun < 8 { doff(50, off); nrun += 1; } }
+            } else { inrun = false; }
         }
+        if first.is_some() { return first; }
         // ①′ 열거형 필드 self+0x5e8 `BigPlan` 페이로드 — 타입 기반 live 맵(structlive)으로 variant 조건부 비교
         { let t = core::ptr::read_unaligned(sp.as_ptr().add(0x5e8) as *const u64);
           if let Some(d) = enumlive_cmp_104_0(t, sp.as_ptr() as usize + 0x5e8, sq.as_ptr() as usize + 0x5e8) {
@@ -7533,12 +8102,15 @@ unsafe fn w_83(a0: *const u8, a1: *const u8, a2: i64, a3: *const u8, a4: *const 
         // ★소유 Vec 삼중항(cap/ptr/len 24B)은 **동적 skip**(게임 것 vs 내 할당) — len·내용은 ②′에서 비교
         let gtag_0: u64 = 0;
         let dyn_0: &[(usize, usize, u8)] = hs_vecs_83_0(gtag_0);
+        let (mut first, mut inrun, mut nrun): (Option<String>, bool, u32) = (None, false, 0);
         for off in 0..32usize {
             if dyn_0.iter().any(|&(o, _, _)| off >= 0x0 + o && off < 0x0 + o + 24) { continue; }
             if sp[off] != sq[off] {
-                return Some(format!("self+{:#x}: g={:02x} m={:02x}", off, sp[off], sq[off]));
-            }
+                if first.is_none() { first = Some(format!("self+{:#x}: g={:02x} m={:02x}", off, sp[off], sq[off])); }
+                if !inrun { inrun = true; if nrun < 8 { doff(54, off); nrun += 1; } }
+            } else { inrun = false; }
         }
+        if first.is_some() { return first; }
         // ②′ 명세 0 소유 Vec 의 len·내용 — 요소는 ELEM_LIVE(live id)로 살아있는 바이트만
         for &(o, esz, lid) in dyn_0 {
             let (gb, mb) = (sp.as_ptr().add(0x0 + o), sq.as_ptr().add(0x0 + o));
@@ -7673,12 +8245,15 @@ unsafe fn w_18(a0: *const u8, a1: i64, a2: *const u8, a3: *const u8, a4: *const 
         core::ptr::copy_nonoverlapping(a0, sq.as_mut_ptr(), 1064); });
     let sd: Option<String> = SP57.with(|c| { let sp = &*c.get(); SQ57.with(|c2| { let sq = &*c2.get();
         // ① 본체 바이트(설계상 다른 구간은 제외)
+        let (mut first, mut inrun, mut nrun): (Option<String>, bool, u32) = (None, false, 0);
         for off in 0..1064usize {
             if off >= 0xc0 && off < 0xd8 { continue; }
             if sp[off] != sq[off] {
-                return Some(format!("self+{:#x}: g={:02x} m={:02x}", off, sp[off], sq[off]));
-            }
+                if first.is_none() { first = Some(format!("self+{:#x}: g={:02x} m={:02x}", off, sp[off], sq[off])); }
+                if !inrun { inrun = true; if nrun < 8 { doff(57, off); nrun += 1; } }
+            } else { inrun = false; }
         }
+        if first.is_some() { return first; }
         // ② Vec 의 len (cap/ptr 은 버퍼가 달라 비교 대상이 아니다)
         let g_ptr = core::ptr::read_unaligned(sp.as_ptr().add(0xc8) as *const usize);
         let g_len = core::ptr::read_unaligned(sp.as_ptr().add(0xd0) as *const usize);
@@ -7896,14 +8471,17 @@ unsafe fn w_12(a0: *const u8, a1: i64, a2: *const u8, a3: *const u8, a4: *const 
         let dyn_0: &[(usize, usize, u8)] = hs_vecs_12_0(gtag_0);
         let gtag_1: u64 = 0;
         let dyn_1: &[(usize, usize, u8)] = hs_vecs_12_1(gtag_1);
+        let (mut first, mut inrun, mut nrun): (Option<String>, bool, u32) = (None, false, 0);
         for off in 0..6168usize {
             if off >= 0x5f0 && off < 0x768 { continue; }
             if dyn_0.iter().any(|&(o, _, _)| off >= 0x5e8 + o && off < 0x5e8 + o + 24) { continue; }
             if dyn_1.iter().any(|&(o, _, _)| off >= 0x0 + o && off < 0x0 + o + 24) { continue; }
             if sp[off] != sq[off] {
-                return Some(format!("self+{:#x}: g={:02x} m={:02x}", off, sp[off], sq[off]));
-            }
+                if first.is_none() { first = Some(format!("self+{:#x}: g={:02x} m={:02x}", off, sp[off], sq[off])); }
+                if !inrun { inrun = true; if nrun < 8 { doff(59, off); nrun += 1; } }
+            } else { inrun = false; }
         }
+        if first.is_some() { return first; }
         // ①′ 열거형 필드 self+0x5e8 `BigPlan` 페이로드 — 타입 기반 live 맵(structlive)으로 variant 조건부 비교
         { let t = core::ptr::read_unaligned(sp.as_ptr().add(0x5e8) as *const u64);
           if let Some(d) = enumlive_cmp_12_0(t, sp.as_ptr() as usize + 0x5e8, sq.as_ptr() as usize + 0x5e8) {
@@ -8251,13 +8829,16 @@ unsafe fn w_88(a0: *const u8, a1: i64, a2: *const u8, a3: *const u8, a4: *const 
     let sd: Option<String> = SP70.with(|c| { let sp = &*c.get(); SQ70.with(|c2| { let sq = &*c2.get();
         // ① 본체 바이트(설계상 다른 구간은 제외)
         // ★소유 Vec 삼중항(cap/ptr/len 24B)은 **동적 skip**(게임 것 vs 내 할당) — len·내용은 ②′에서 비교
+        let (mut first, mut inrun, mut nrun): (Option<String>, bool, u32) = (None, false, 0);
         for off in 0..6168usize {
             if off >= 0x5f0 && off < 0x768 { continue; }
             if off >= 0x4f0 && off < 0x508 { continue; }
             if sp[off] != sq[off] {
-                return Some(format!("self+{:#x}: g={:02x} m={:02x}", off, sp[off], sq[off]));
-            }
+                if first.is_none() { first = Some(format!("self+{:#x}: g={:02x} m={:02x}", off, sp[off], sq[off])); }
+                if !inrun { inrun = true; if nrun < 8 { doff(70, off); nrun += 1; } }
+            } else { inrun = false; }
         }
+        if first.is_some() { return first; }
         // ①′ 열거형 필드 self+0x5e8 `BigPlan` 페이로드 — 타입 기반 live 맵(structlive)으로 variant 조건부 비교
         { let t = core::ptr::read_unaligned(sp.as_ptr().add(0x5e8) as *const u64);
           if let Some(d) = enumlive_cmp_88_0(t, sp.as_ptr() as usize + 0x5e8, sq.as_ptr() as usize + 0x5e8) {
@@ -8422,12 +9003,15 @@ unsafe fn w_109(a0: *const u8, a1: i64, a2: *const u8, a3: *const u8, a4: *const
         // ★소유 Vec 삼중항(cap/ptr/len 24B)은 **동적 skip**(게임 것 vs 내 할당) — len·내용은 ②′에서 비교
         let gtag_0: u64 = 0;
         let dyn_0: &[(usize, usize, u8)] = hs_vecs_109_0(gtag_0);
+        let (mut first, mut inrun, mut nrun): (Option<String>, bool, u32) = (None, false, 0);
         for off in 0..280usize {
             if dyn_0.iter().any(|&(o, _, _)| off >= 0x0 + o && off < 0x0 + o + 24) { continue; }
             if sp[off] != sq[off] {
-                return Some(format!("self+{:#x}: g={:02x} m={:02x}", off, sp[off], sq[off]));
-            }
+                if first.is_none() { first = Some(format!("self+{:#x}: g={:02x} m={:02x}", off, sp[off], sq[off])); }
+                if !inrun { inrun = true; if nrun < 8 { doff(72, off); nrun += 1; } }
+            } else { inrun = false; }
         }
+        if first.is_some() { return first; }
         // ②′ 명세 0 소유 Vec 의 len·내용 — 요소는 ELEM_LIVE(live id)로 살아있는 바이트만
         for &(o, esz, lid) in dyn_0 {
             let (gb, mb) = (sp.as_ptr().add(0x0 + o), sq.as_ptr().add(0x0 + o));
@@ -8562,12 +9146,15 @@ unsafe fn w_102(a0: *const u8, a1: i64, a2: *const u8, a3: *const u8, a4: *const
         // ★소유 Vec 삼중항(cap/ptr/len 24B)은 **동적 skip**(게임 것 vs 내 할당) — len·내용은 ②′에서 비교
         let gtag_0: u64 = 0;
         let dyn_0: &[(usize, usize, u8)] = hs_vecs_102_0(gtag_0);
+        let (mut first, mut inrun, mut nrun): (Option<String>, bool, u32) = (None, false, 0);
         for off in 0..280usize {
             if dyn_0.iter().any(|&(o, _, _)| off >= 0x0 + o && off < 0x0 + o + 24) { continue; }
             if sp[off] != sq[off] {
-                return Some(format!("self+{:#x}: g={:02x} m={:02x}", off, sp[off], sq[off]));
-            }
+                if first.is_none() { first = Some(format!("self+{:#x}: g={:02x} m={:02x}", off, sp[off], sq[off])); }
+                if !inrun { inrun = true; if nrun < 8 { doff(73, off); nrun += 1; } }
+            } else { inrun = false; }
         }
+        if first.is_some() { return first; }
         // ②′ 명세 0 소유 Vec 의 len·내용 — 요소는 ELEM_LIVE(live id)로 살아있는 바이트만
         for &(o, esz, lid) in dyn_0 {
             let (gb, mb) = (sp.as_ptr().add(0x0 + o), sq.as_ptr().add(0x0 + o));
@@ -9055,13 +9642,16 @@ unsafe fn w_107(a0: *const u8, a1: i64, a2: *const u8, a3: *const u8, a4: *const
         // ★소유 Vec 삼중항(cap/ptr/len 24B)은 **동적 skip**(게임 것 vs 내 할당) — len·내용은 ②′에서 비교
         let gtag_0: u64 = 0;
         let dyn_0: &[(usize, usize, u8)] = hs_vecs_107_0(gtag_0);
+        let (mut first, mut inrun, mut nrun): (Option<String>, bool, u32) = (None, false, 0);
         for off in 0..1064usize {
             if off >= 0x3f8 && off < 0x410 { continue; }
             if dyn_0.iter().any(|&(o, _, _)| off >= 0x0 + o && off < 0x0 + o + 24) { continue; }
             if sp[off] != sq[off] {
-                return Some(format!("self+{:#x}: g={:02x} m={:02x}", off, sp[off], sq[off]));
-            }
+                if first.is_none() { first = Some(format!("self+{:#x}: g={:02x} m={:02x}", off, sp[off], sq[off])); }
+                if !inrun { inrun = true; if nrun < 8 { doff(90, off); nrun += 1; } }
+            } else { inrun = false; }
         }
+        if first.is_some() { return first; }
         // ②′ 명세 0 소유 Vec 의 len·내용 — 요소는 ELEM_LIVE(live id)로 살아있는 바이트만
         for &(o, esz, lid) in dyn_0 {
             let (gb, mb) = (sp.as_ptr().add(0x0 + o), sq.as_ptr().add(0x0 + o));
@@ -9369,15 +9959,18 @@ unsafe fn w_110(a0: *const u8, a1: i64, a2: *const u8, a3: *const u8, a4: *const
         let dyn_0: &[(usize, usize, u8)] = hs_vecs_110_0(gtag_0);
         let gtag_1: u64 = 0;
         let dyn_1: &[(usize, usize, u8)] = hs_vecs_110_1(gtag_1);
+        let (mut first, mut inrun, mut nrun): (Option<String>, bool, u32) = (None, false, 0);
         for off in 0..6168usize {
             if off >= 0x5f0 && off < 0x768 { continue; }
             if off >= 0x4f0 && off < 0x508 { continue; }
             if dyn_0.iter().any(|&(o, _, _)| off >= 0x5e8 + o && off < 0x5e8 + o + 24) { continue; }
             if dyn_1.iter().any(|&(o, _, _)| off >= 0x0 + o && off < 0x0 + o + 24) { continue; }
             if sp[off] != sq[off] {
-                return Some(format!("self+{:#x}: g={:02x} m={:02x}", off, sp[off], sq[off]));
-            }
+                if first.is_none() { first = Some(format!("self+{:#x}: g={:02x} m={:02x}", off, sp[off], sq[off])); }
+                if !inrun { inrun = true; if nrun < 8 { doff(96, off); nrun += 1; } }
+            } else { inrun = false; }
         }
+        if first.is_some() { return first; }
         // ①′ 열거형 필드 self+0x5e8 `BigPlan` 페이로드 — 타입 기반 live 맵(structlive)으로 variant 조건부 비교
         { let t = core::ptr::read_unaligned(sp.as_ptr().add(0x5e8) as *const u64);
           if let Some(d) = enumlive_cmp_110_0(t, sp.as_ptr() as usize + 0x5e8, sq.as_ptr() as usize + 0x5e8) {
@@ -9603,13 +10196,16 @@ unsafe fn w_108(a0: *const u8, a1: i64, a2: *const u8, a3: *const u8, a4: *const
         // ★소유 Vec 삼중항(cap/ptr/len 24B)은 **동적 skip**(게임 것 vs 내 할당) — len·내용은 ②′에서 비교
         let gtag_0: u64 = 0;
         let dyn_0: &[(usize, usize, u8)] = hs_vecs_108_0(gtag_0);
+        let (mut first, mut inrun, mut nrun): (Option<String>, bool, u32) = (None, false, 0);
         for off in 0..1064usize {
             if off >= 0x3f8 && off < 0x410 { continue; }
             if dyn_0.iter().any(|&(o, _, _)| off >= 0x0 + o && off < 0x0 + o + 24) { continue; }
             if sp[off] != sq[off] {
-                return Some(format!("self+{:#x}: g={:02x} m={:02x}", off, sp[off], sq[off]));
-            }
+                if first.is_none() { first = Some(format!("self+{:#x}: g={:02x} m={:02x}", off, sp[off], sq[off])); }
+                if !inrun { inrun = true; if nrun < 8 { doff(97, off); nrun += 1; } }
+            } else { inrun = false; }
         }
+        if first.is_some() { return first; }
         // ②′ 명세 0 소유 Vec 의 len·내용 — 요소는 ELEM_LIVE(live id)로 살아있는 바이트만
         for &(o, esz, lid) in dyn_0 {
             let (gb, mb) = (sp.as_ptr().add(0x0 + o), sq.as_ptr().add(0x0 + o));
@@ -9785,15 +10381,18 @@ unsafe fn w_100(a0: *const u8, a1: i64, a2: *const u8, a3: *const u8, a4: *const
         // ★소유 Vec 삼중항(cap/ptr/len 24B)은 **동적 skip**(게임 것 vs 내 할당) — len·내용은 ②′에서 비교
         let gtag_0: u64 = 0;
         let dyn_0: &[(usize, usize, u8)] = hs_vecs_100_0(gtag_0);
+        let (mut first, mut inrun, mut nrun): (Option<String>, bool, u32) = (None, false, 0);
         for off in 0..1064usize {
             if off >= 0x3f8 && off < 0x410 { continue; }
             if off >= 0x419 && off < 0x41a { continue; }
             if off >= 0x41b && off < 0x41c { continue; }
             if dyn_0.iter().any(|&(o, _, _)| off >= 0x0 + o && off < 0x0 + o + 24) { continue; }
             if sp[off] != sq[off] {
-                return Some(format!("self+{:#x}: g={:02x} m={:02x}", off, sp[off], sq[off]));
-            }
+                if first.is_none() { first = Some(format!("self+{:#x}: g={:02x} m={:02x}", off, sp[off], sq[off])); }
+                if !inrun { inrun = true; if nrun < 8 { doff(99, off); nrun += 1; } }
+            } else { inrun = false; }
         }
+        if first.is_some() { return first; }
         // ②′ 명세 0 소유 Vec 의 len·내용 — 요소는 ELEM_LIVE(live id)로 살아있는 바이트만
         for &(o, esz, lid) in dyn_0 {
             let (gb, mb) = (sp.as_ptr().add(0x0 + o), sq.as_ptr().add(0x0 + o));
@@ -9840,18 +10439,424 @@ unsafe fn w_100(a0: *const u8, a1: i64, a2: *const u8, a3: *const u8, a4: *const
     pop(99);
     g
 }
-unsafe fn w_54(a0: *const u8, a1: i64, a2: *const u8, a3: *const u8, a4: *const u8, a5: *const u8) {
+unsafe fn w_111(a0: *const u8, a1: i64, a2: *const u8, a3: *const u8, a4: *const u8, a5: *const u8, a6: u8) {
     S[100].calls.fetch_add(1, Ordering::Relaxed);
-    let f: unsafe fn(*const u8, i64, *const u8, *const u8, *const u8, *const u8) = core::mem::transmute(S[100].orig.load(Ordering::Relaxed));
+    let f: unsafe fn(*const u8, i64, *const u8, *const u8, *const u8, *const u8, u8) = core::mem::transmute(S[100].orig.load(Ordering::Relaxed));
     let t = top(100);
+    // ★★&mut 게임 상태(6168B) — **게임 호출 전** 상태를 떠 두지 않으면 내 사본은
+    //   게임이 바꿔놓은 입력을 보게 돼 **거짓 DIFF** 가 난다(이 함수는 self 를 읽고도 쓴다).
+    // ★★**스택이 아니라 thread_local 힙**에 둔다 — 6168B × 2 를 스택에 잡으면
+    //   rayon 워커의 **소스택 + 게임 sim 재귀**에서 STATUS_STACK_OVERFLOW 로 죽는다
+    //   (2026-09-12 실사고: 스택 배열로 두던 판이 배경 sim 시작 직후 패닉로그 없이 즉사).
+    SV100.with(|c| { let sv = &mut *c.get();
+        if t { core::ptr::copy_nonoverlapping(a0, sv.as_mut_ptr(), 6168); } });
+    VB100.with(|c| { (&mut *c.get()).2 = true; });   // 치환할 Vec 이 없다 = 항상 표본
+    // ★명세 0: a0+0x5e8 의 소유 Vec **내용을 게임 호출 전에** 떠 둔다 — 게임이 해제/재할당할 수 있다.
+    PV100_0.with(|c| { let pv = &mut *c.get(); pv.2 = 0; pv.3 = true; if t {
+        let tg = core::ptr::read_unaligned((a0 as usize + 0x5e8) as *const u64);
+        let mut used = 0usize;
+        for (i, &(off, esz, _)) in hs_vecs_111_0(tg).iter().enumerate() {
+            if i >= 8 { pv.3 = false; break; }
+            let b = a0 as usize + 0x5e8 + off;
+            let (cap, ptr, len) = (core::ptr::read_unaligned(b as *const usize),
+                                   core::ptr::read_unaligned((b + 8) as *const usize),
+                                   core::ptr::read_unaligned((b + 16) as *const usize));
+            pv.2 = i + 1;
+            if ptr > 0x1000 && len <= cap && cap < (1 << 20) {
+                if used + len * esz > 32768 { pv.3 = false; break; }
+                if len > 0 { core::ptr::copy_nonoverlapping(ptr as *const u8, pv.0.as_mut_ptr().add(used), len * esz); }
+                pv.1[i] = (cap, len, esz); used += len * esz;
+            } else { pv.1[i] = (0, 0, esz); }   // 비정상 삼중항 = 치환 안 함
+        }
+    } });
+    // ★명세 1: a0+0x0 의 소유 Vec **내용을 게임 호출 전에** 떠 둔다 — 게임이 해제/재할당할 수 있다.
+    PV100_1.with(|c| { let pv = &mut *c.get(); pv.2 = 0; pv.3 = true; if t {
+        let tg = 0u64;
+        let mut used = 0usize;
+        for (i, &(off, esz, _)) in hs_vecs_111_1(tg).iter().enumerate() {
+            if i >= 8 { pv.3 = false; break; }
+            let b = a0 as usize + 0x0 + off;
+            let (cap, ptr, len) = (core::ptr::read_unaligned(b as *const usize),
+                                   core::ptr::read_unaligned((b + 8) as *const usize),
+                                   core::ptr::read_unaligned((b + 16) as *const usize));
+            pv.2 = i + 1;
+            if ptr > 0x1000 && len <= cap && cap < (1 << 20) {
+                if used + len * esz > 32768 { pv.3 = false; break; }
+                if len > 0 { core::ptr::copy_nonoverlapping(ptr as *const u8, pv.0.as_mut_ptr().add(used), len * esz); }
+                pv.1[i] = (cap, len, esz); used += len * esz;
+            } else { pv.1[i] = (0, 0, esz); }   // 비정상 삼중항 = 치환 안 함
+        }
+    } });
+    // ★명세 2: a0+0x0 의 소유 Vec **내용을 게임 호출 전에** 떠 둔다 — 게임이 해제/재할당할 수 있다.
+    PV100_2.with(|c| { let pv = &mut *c.get(); pv.2 = 0; pv.3 = true; if t {
+        let tg = 0u64;
+        let mut used = 0usize;
+        for (i, &(off, esz, _)) in hs_vecs_111_2(tg).iter().enumerate() {
+            if i >= 8 { pv.3 = false; break; }
+            let b = a0 as usize + 0x0 + off;
+            let (cap, ptr, len) = (core::ptr::read_unaligned(b as *const usize),
+                                   core::ptr::read_unaligned((b + 8) as *const usize),
+                                   core::ptr::read_unaligned((b + 16) as *const usize));
+            pv.2 = i + 1;
+            if ptr > 0x1000 && len <= cap && cap < (1 << 20) {
+                if used + len * esz > 32768 { pv.3 = false; break; }
+                if len > 0 { core::ptr::copy_nonoverlapping(ptr as *const u8, pv.0.as_mut_ptr().add(used), len * esz); }
+                pv.1[i] = (cap, len, esz); used += len * esz;
+            } else { pv.1[i] = (0, 0, esz); }   // 비정상 삼중항 = 치환 안 함
+        }
+    } });
+    // ★명세 3: a0+0x0 의 소유 Vec **내용을 게임 호출 전에** 떠 둔다 — 게임이 해제/재할당할 수 있다.
+    PV100_3.with(|c| { let pv = &mut *c.get(); pv.2 = 0; pv.3 = true; if t {
+        let tg = 0u64;
+        let mut used = 0usize;
+        for (i, &(off, esz, _)) in hs_vecs_111_3(tg).iter().enumerate() {
+            if i >= 8 { pv.3 = false; break; }
+            let b = a0 as usize + 0x0 + off;
+            let (cap, ptr, len) = (core::ptr::read_unaligned(b as *const usize),
+                                   core::ptr::read_unaligned((b + 8) as *const usize),
+                                   core::ptr::read_unaligned((b + 16) as *const usize));
+            pv.2 = i + 1;
+            if ptr > 0x1000 && len <= cap && cap < (1 << 20) {
+                if used + len * esz > 32768 { pv.3 = false; break; }
+                if len > 0 { core::ptr::copy_nonoverlapping(ptr as *const u8, pv.0.as_mut_ptr().add(used), len * esz); }
+                pv.1[i] = (cap, len, esz); used += len * esz;
+            } else { pv.1[i] = (0, 0, esz); }   // 비정상 삼중항 = 치환 안 함
+        }
+    } });
+    // ★StdRng(320B) — 게임 호출이 난수열을 소비하므로 **먼저 떠 둔다**(안 그러면 거짓 DIFF).
+    let mut r2 = [0u8; 320]; if t { core::ptr::copy_nonoverlapping(a2, r2.as_mut_ptr(), 320); }
+    let g = f(a0, a1, a2, a3, a4, a5, a6);
+    if !t { pop(100); return g; }
+    // ★내 Vec 사본 버퍼에 안 들어간 호출은 **표본에서 뺀다** — 예전엔 `len=0` 으로
+    //   떨어뜨려 **입력이 어긋난 채 비교**했고 그게 거짓 DIFF 였다(2026-09-12 차단).
+    if !VB100.with(|c| (&*c.get()).2) { S[100].skip.fetch_add(1, Ordering::Relaxed); pop(100); return g; }
+    let n = S[100].cmp.fetch_add(1, Ordering::Relaxed) + 1;
+    let mut p2 = [0u8; 320]; core::ptr::copy_nonoverlapping(a2, p2.as_mut_ptr(), 320); // 게임 호출 후 상태
+    core::ptr::copy_nonoverlapping(r2.as_ptr(), a2 as *mut u8, 320);                    // 내 사본 호출 전 = 호출 전 상태로
+    SP100.with(|c| { let sp = &mut *c.get();
+        core::ptr::copy_nonoverlapping(a0, sp.as_mut_ptr(), 6168); });   // 게임 호출 후 상태
+    SV100.with(|c| { let sv = &*c.get();
+        core::ptr::copy_nonoverlapping(sv.as_ptr(), a0 as *mut u8, 6168); }); // 내 사본 호출 전 = 호출 전 상태로
+    // ★★★힙 인식 스냅샷 — self 소유 Vec 들을 **내 힙 할당**으로 바꿔치기(내 사본의 drop/realloc 이 내 것에만 닿게).
+    let ptag_0: u64 = core::ptr::read_unaligned((a0 as usize + 0x5e8) as *const u64);
+    if !PV100_0.with(|c| (&*c.get()).3) {   // 스크래치에 안 들어갔다 = 표본 제외
+        S[100].skip.fetch_add(1, Ordering::Relaxed);
+        SP100.with(|c| { let sp = &*c.get(); core::ptr::copy_nonoverlapping(sp.as_ptr(), a0 as *mut u8, 6168); });
+        core::ptr::copy_nonoverlapping(p2.as_ptr(), a2 as *mut u8, 320);   // RNG = 게임 호출 후
+        pop(100); return g;
+    }
+    PV100_0.with(|c| { let pv = &*c.get(); let mut used = 0usize;
+        for (i, &(off, esz, _)) in hs_vecs_111_0(ptag_0).iter().enumerate() {
+            if i >= pv.2 { break; }
+            let (cap, len, _) = pv.1[i];
+            let b = a0 as usize + 0x5e8 + off;
+            if cap > 0 && len <= cap {
+                // 여유를 둔다 — 내 사본이 push 해도 realloc 없이 들어가게(realloc 도 합법이지만 덜 흔들리게)
+                let ncap = cap.max(len + 64);
+                if let Ok(l) = std::alloc::Layout::from_size_align(ncap * esz, 8) {
+                    let blk = std::alloc::alloc(l);
+                    if !blk.is_null() {
+                        if len > 0 { core::ptr::copy_nonoverlapping(pv.0.as_ptr().add(used), blk, len * esz); }   // ★게임 호출 전 내용
+                        core::ptr::write_unaligned(b as *mut usize, ncap);
+                        core::ptr::write_unaligned((b + 8) as *mut usize, blk as usize);
+                        core::ptr::write_unaligned((b + 16) as *mut usize, len);
+                    }
+                }
+                used += len * esz;
+            } else if cap == 0 {
+                // 빈 Vec(cap 0) — 게임 것도 댕글링이라 그대로 둬도 free 는 안 나지만, push 가 alloc 을 부르면
+                // 그 결과는 내 것이다(아래 해제가 처리). 그대로 둔다.
+            }
+        }
+    });
+    let ptag_1: u64 = 0;
+    if !PV100_1.with(|c| (&*c.get()).3) {   // 스크래치에 안 들어갔다 = 표본 제외
+        S[100].skip.fetch_add(1, Ordering::Relaxed);
+        SP100.with(|c| { let sp = &*c.get(); core::ptr::copy_nonoverlapping(sp.as_ptr(), a0 as *mut u8, 6168); });
+        core::ptr::copy_nonoverlapping(p2.as_ptr(), a2 as *mut u8, 320);   // RNG = 게임 호출 후
+        pop(100); return g;
+    }
+    PV100_1.with(|c| { let pv = &*c.get(); let mut used = 0usize;
+        for (i, &(off, esz, _)) in hs_vecs_111_1(ptag_1).iter().enumerate() {
+            if i >= pv.2 { break; }
+            let (cap, len, _) = pv.1[i];
+            let b = a0 as usize + 0x0 + off;
+            if cap > 0 && len <= cap {
+                // 여유를 둔다 — 내 사본이 push 해도 realloc 없이 들어가게(realloc 도 합법이지만 덜 흔들리게)
+                let ncap = cap.max(len + 64);
+                if let Ok(l) = std::alloc::Layout::from_size_align(ncap * esz, 8) {
+                    let blk = std::alloc::alloc(l);
+                    if !blk.is_null() {
+                        if len > 0 { core::ptr::copy_nonoverlapping(pv.0.as_ptr().add(used), blk, len * esz); }   // ★게임 호출 전 내용
+                        core::ptr::write_unaligned(b as *mut usize, ncap);
+                        core::ptr::write_unaligned((b + 8) as *mut usize, blk as usize);
+                        core::ptr::write_unaligned((b + 16) as *mut usize, len);
+                    }
+                }
+                used += len * esz;
+            } else if cap == 0 {
+                // 빈 Vec(cap 0) — 게임 것도 댕글링이라 그대로 둬도 free 는 안 나지만, push 가 alloc 을 부르면
+                // 그 결과는 내 것이다(아래 해제가 처리). 그대로 둔다.
+            }
+        }
+    });
+    let ptag_2: u64 = 0;
+    if !PV100_2.with(|c| (&*c.get()).3) {   // 스크래치에 안 들어갔다 = 표본 제외
+        S[100].skip.fetch_add(1, Ordering::Relaxed);
+        SP100.with(|c| { let sp = &*c.get(); core::ptr::copy_nonoverlapping(sp.as_ptr(), a0 as *mut u8, 6168); });
+        core::ptr::copy_nonoverlapping(p2.as_ptr(), a2 as *mut u8, 320);   // RNG = 게임 호출 후
+        pop(100); return g;
+    }
+    PV100_2.with(|c| { let pv = &*c.get(); let mut used = 0usize;
+        for (i, &(off, esz, _)) in hs_vecs_111_2(ptag_2).iter().enumerate() {
+            if i >= pv.2 { break; }
+            let (cap, len, _) = pv.1[i];
+            let b = a0 as usize + 0x0 + off;
+            if cap > 0 && len <= cap {
+                // 여유를 둔다 — 내 사본이 push 해도 realloc 없이 들어가게(realloc 도 합법이지만 덜 흔들리게)
+                let ncap = cap.max(len + 64);
+                if let Ok(l) = std::alloc::Layout::from_size_align(ncap * esz, 8) {
+                    let blk = std::alloc::alloc(l);
+                    if !blk.is_null() {
+                        if len > 0 { core::ptr::copy_nonoverlapping(pv.0.as_ptr().add(used), blk, len * esz); }   // ★게임 호출 전 내용
+                        core::ptr::write_unaligned(b as *mut usize, ncap);
+                        core::ptr::write_unaligned((b + 8) as *mut usize, blk as usize);
+                        core::ptr::write_unaligned((b + 16) as *mut usize, len);
+                    }
+                }
+                used += len * esz;
+            } else if cap == 0 {
+                // 빈 Vec(cap 0) — 게임 것도 댕글링이라 그대로 둬도 free 는 안 나지만, push 가 alloc 을 부르면
+                // 그 결과는 내 것이다(아래 해제가 처리). 그대로 둔다.
+            }
+        }
+    });
+    let ptag_3: u64 = 0;
+    if !PV100_3.with(|c| (&*c.get()).3) {   // 스크래치에 안 들어갔다 = 표본 제외
+        S[100].skip.fetch_add(1, Ordering::Relaxed);
+        SP100.with(|c| { let sp = &*c.get(); core::ptr::copy_nonoverlapping(sp.as_ptr(), a0 as *mut u8, 6168); });
+        core::ptr::copy_nonoverlapping(p2.as_ptr(), a2 as *mut u8, 320);   // RNG = 게임 호출 후
+        pop(100); return g;
+    }
+    PV100_3.with(|c| { let pv = &*c.get(); let mut used = 0usize;
+        for (i, &(off, esz, _)) in hs_vecs_111_3(ptag_3).iter().enumerate() {
+            if i >= pv.2 { break; }
+            let (cap, len, _) = pv.1[i];
+            let b = a0 as usize + 0x0 + off;
+            if cap > 0 && len <= cap {
+                // 여유를 둔다 — 내 사본이 push 해도 realloc 없이 들어가게(realloc 도 합법이지만 덜 흔들리게)
+                let ncap = cap.max(len + 64);
+                if let Ok(l) = std::alloc::Layout::from_size_align(ncap * esz, 8) {
+                    let blk = std::alloc::alloc(l);
+                    if !blk.is_null() {
+                        if len > 0 { core::ptr::copy_nonoverlapping(pv.0.as_ptr().add(used), blk, len * esz); }   // ★게임 호출 전 내용
+                        core::ptr::write_unaligned(b as *mut usize, ncap);
+                        core::ptr::write_unaligned((b + 8) as *mut usize, blk as usize);
+                        core::ptr::write_unaligned((b + 16) as *mut usize, len);
+                    }
+                }
+                used += len * esz;
+            } else if cap == 0 {
+                // 빈 Vec(cap 0) — 게임 것도 댕글링이라 그대로 둬도 free 는 안 나지만, push 가 alloc 을 부르면
+                // 그 결과는 내 것이다(아래 해제가 처리). 그대로 둔다.
+            }
+        }
+    });
+    let m = catch_unwind(AssertUnwindSafe(|| my_111(a0, a1, a2, a3, a4, a5, a6)));
+    // ★★★상태 diff — 이 함수는 **반환이 void** 다. ABI 상 반환이 없는 것이지
+    //   **출력이 없는 게 아니다** — 출력은 `&mut self` 에 있다 ⟹ 그걸 비교한다.
+    //   ⚠되돌리기·해제 **전에** 떠서 비교한다 — 내 사본이 재할당했으면 해제 후엔 못 읽는다.
+    SQ100.with(|c| { let sq = &mut *c.get();
+        core::ptr::copy_nonoverlapping(a0, sq.as_mut_ptr(), 6168); });
+    let sd: Option<String> = SP100.with(|c| { let sp = &*c.get(); SQ100.with(|c2| { let sq = &*c2.get();
+        // ① 본체 바이트(설계상 다른 구간은 제외)
+        // ★소유 Vec 삼중항(cap/ptr/len 24B)은 **동적 skip**(게임 것 vs 내 할당) — len·내용은 ②′에서 비교
+        let gtag_0: u64 = core::ptr::read_unaligned(sp.as_ptr().add(0x5e8) as *const u64);
+        let dyn_0: &[(usize, usize, u8)] = hs_vecs_111_0(gtag_0);
+        let gtag_1: u64 = 0;
+        let dyn_1: &[(usize, usize, u8)] = hs_vecs_111_1(gtag_1);
+        let gtag_2: u64 = 0;
+        let dyn_2: &[(usize, usize, u8)] = hs_vecs_111_2(gtag_2);
+        let gtag_3: u64 = 0;
+        let dyn_3: &[(usize, usize, u8)] = hs_vecs_111_3(gtag_3);
+        let (mut first, mut inrun, mut nrun): (Option<String>, bool, u32) = (None, false, 0);
+        for off in 0..6168usize {
+            if off >= 0x5f0 && off < 0x768 { continue; }
+            if off >= 0x770 && off < 0x7b0 { continue; }
+            if off >= 0x4f0 && off < 0x508 { continue; }
+            if off >= 0x511 && off < 0x512 { continue; }
+            if off >= 0x513 && off < 0x514 { continue; }
+            if off >= 0x550 && off < 0x560 && u64::from_le_bytes([sp[0x548], sp[0x549], sp[0x54a], sp[0x54b], sp[0x54c], sp[0x54d], sp[0x54e], sp[0x54f]]) == 0u64 { continue; }   // cond_skip(태그 조건부 · undef 페이로드)
+            if dyn_0.iter().any(|&(o, _, _)| off >= 0x5e8 + o && off < 0x5e8 + o + 24) { continue; }
+            if dyn_1.iter().any(|&(o, _, _)| off >= 0x0 + o && off < 0x0 + o + 24) { continue; }
+            if dyn_2.iter().any(|&(o, _, _)| off >= 0x0 + o && off < 0x0 + o + 24) { continue; }
+            if dyn_3.iter().any(|&(o, _, _)| off >= 0x0 + o && off < 0x0 + o + 24) { continue; }
+            if sp[off] != sq[off] {
+                if first.is_none() { first = Some(format!("self+{:#x}: g={:02x} m={:02x}", off, sp[off], sq[off])); }
+                if !inrun { inrun = true; if nrun < 8 { doff(100, off); nrun += 1; } }
+            } else { inrun = false; }
+        }
+        if first.is_some() { return first; }
+        // ①′ 열거형 필드 self+0x5e8 `BigPlan` 페이로드 — 타입 기반 live 맵(structlive)으로 variant 조건부 비교
+        { let t = core::ptr::read_unaligned(sp.as_ptr().add(0x5e8) as *const u64);
+          if let Some(d) = enumlive_cmp_111_0(t, sp.as_ptr() as usize + 0x5e8, sq.as_ptr() as usize + 0x5e8) {
+              return Some(format!("self+{:#x}(tag {}){}", 0x5e8, t, d)); } }
+        // ①′ 열거형 필드 self+0x768 `SubPlan` 페이로드 — 타입 기반 live 맵(structlive)으로 variant 조건부 비교
+        { let t = core::ptr::read_unaligned(sp.as_ptr().add(0x768) as *const u64);
+          if let Some(d) = enumlive_cmp_111_1(t, sp.as_ptr() as usize + 0x768, sq.as_ptr() as usize + 0x768) {
+              return Some(format!("self+{:#x}(tag {}){}", 0x768, t, d)); } }
+        // ②′ 명세 0 소유 Vec 의 len·내용 — 요소는 ELEM_LIVE(live id)로 살아있는 바이트만
+        for &(o, esz, lid) in dyn_0 {
+            let (gb, mb) = (sp.as_ptr().add(0x5e8 + o), sq.as_ptr().add(0x5e8 + o));
+            // ★`Option<Vec>` 은 cap 을 니치로 쓴다(상위비트 = None). 그 경우 len/ptr 은 미초기화 — 읽지 않는다.
+            let (gc, mc) = (core::ptr::read_unaligned(gb as *const usize), core::ptr::read_unaligned(mb as *const usize));
+            let (gn, mn) = (gc >> 63 != 0, mc >> 63 != 0);
+            if gn != mn { return Some(format!("self+{:#x}.opt: g={} m={}", 0x5e8 + o, if gn { "None" } else { "Some" }, if mn { "None" } else { "Some" })); }
+            if gn { continue; }
+            let (gp, gl) = (core::ptr::read_unaligned(gb.add(8) as *const usize), core::ptr::read_unaligned(gb.add(16) as *const usize));
+            let (mp, ml) = (core::ptr::read_unaligned(mb.add(8) as *const usize), core::ptr::read_unaligned(mb.add(16) as *const usize));
+            if gl != ml { return Some(format!("self+{:#x}.len: g={} m={}", 0x5e8 + o, gl, ml)); }
+            if gl > 0 && gl < 4096 && gp > 0x1000 && mp > 0x1000 && gp != mp {
+                for e in 0..gl {
+                    if let Some(d) = elem_cmp(lid, esz, gp + e * esz, mp + e * esz) {
+                        return Some(format!("self+{:#x}[{}]{}", 0x5e8 + o, e, d));
+                    }
+                }
+            }
+        }
+        // ②′ 명세 1 소유 Vec 의 len·내용 — 요소는 ELEM_LIVE(live id)로 살아있는 바이트만
+        for &(o, esz, lid) in dyn_1 {
+            let (gb, mb) = (sp.as_ptr().add(0x0 + o), sq.as_ptr().add(0x0 + o));
+            // ★`Option<Vec>` 은 cap 을 니치로 쓴다(상위비트 = None). 그 경우 len/ptr 은 미초기화 — 읽지 않는다.
+            let (gc, mc) = (core::ptr::read_unaligned(gb as *const usize), core::ptr::read_unaligned(mb as *const usize));
+            let (gn, mn) = (gc >> 63 != 0, mc >> 63 != 0);
+            if gn != mn { return Some(format!("self+{:#x}.opt: g={} m={}", 0x0 + o, if gn { "None" } else { "Some" }, if mn { "None" } else { "Some" })); }
+            if gn { continue; }
+            let (gp, gl) = (core::ptr::read_unaligned(gb.add(8) as *const usize), core::ptr::read_unaligned(gb.add(16) as *const usize));
+            let (mp, ml) = (core::ptr::read_unaligned(mb.add(8) as *const usize), core::ptr::read_unaligned(mb.add(16) as *const usize));
+            if gl != ml { return Some(format!("self+{:#x}.len: g={} m={}", 0x0 + o, gl, ml)); }
+            if gl > 0 && gl < 4096 && gp > 0x1000 && mp > 0x1000 && gp != mp {
+                for e in 0..gl {
+                    if let Some(d) = elem_cmp(lid, esz, gp + e * esz, mp + e * esz) {
+                        return Some(format!("self+{:#x}[{}]{}", 0x0 + o, e, d));
+                    }
+                }
+            }
+        }
+        // ②′ 명세 2 소유 Vec 의 len·내용 — 요소는 ELEM_LIVE(live id)로 살아있는 바이트만
+        for &(o, esz, lid) in dyn_2 {
+            let (gb, mb) = (sp.as_ptr().add(0x0 + o), sq.as_ptr().add(0x0 + o));
+            // ★`Option<Vec>` 은 cap 을 니치로 쓴다(상위비트 = None). 그 경우 len/ptr 은 미초기화 — 읽지 않는다.
+            let (gc, mc) = (core::ptr::read_unaligned(gb as *const usize), core::ptr::read_unaligned(mb as *const usize));
+            let (gn, mn) = (gc >> 63 != 0, mc >> 63 != 0);
+            if gn != mn { return Some(format!("self+{:#x}.opt: g={} m={}", 0x0 + o, if gn { "None" } else { "Some" }, if mn { "None" } else { "Some" })); }
+            if gn { continue; }
+            let (gp, gl) = (core::ptr::read_unaligned(gb.add(8) as *const usize), core::ptr::read_unaligned(gb.add(16) as *const usize));
+            let (mp, ml) = (core::ptr::read_unaligned(mb.add(8) as *const usize), core::ptr::read_unaligned(mb.add(16) as *const usize));
+            if gl != ml { return Some(format!("self+{:#x}.len: g={} m={}", 0x0 + o, gl, ml)); }
+            if gl > 0 && gl < 4096 && gp > 0x1000 && mp > 0x1000 && gp != mp {
+                for e in 0..gl {
+                    if let Some(d) = elem_cmp(lid, esz, gp + e * esz, mp + e * esz) {
+                        return Some(format!("self+{:#x}[{}]{}", 0x0 + o, e, d));
+                    }
+                }
+            }
+        }
+        // ②′ 명세 3 소유 Vec 의 len·내용 — 요소는 ELEM_LIVE(live id)로 살아있는 바이트만
+        for &(o, esz, lid) in dyn_3 {
+            let (gb, mb) = (sp.as_ptr().add(0x0 + o), sq.as_ptr().add(0x0 + o));
+            // ★`Option<Vec>` 은 cap 을 니치로 쓴다(상위비트 = None). 그 경우 len/ptr 은 미초기화 — 읽지 않는다.
+            let (gc, mc) = (core::ptr::read_unaligned(gb as *const usize), core::ptr::read_unaligned(mb as *const usize));
+            let (gn, mn) = (gc >> 63 != 0, mc >> 63 != 0);
+            if gn != mn { return Some(format!("self+{:#x}.opt: g={} m={}", 0x0 + o, if gn { "None" } else { "Some" }, if mn { "None" } else { "Some" })); }
+            if gn { continue; }
+            let (gp, gl) = (core::ptr::read_unaligned(gb.add(8) as *const usize), core::ptr::read_unaligned(gb.add(16) as *const usize));
+            let (mp, ml) = (core::ptr::read_unaligned(mb.add(8) as *const usize), core::ptr::read_unaligned(mb.add(16) as *const usize));
+            if gl != ml { return Some(format!("self+{:#x}.len: g={} m={}", 0x0 + o, gl, ml)); }
+            if gl > 0 && gl < 4096 && gp > 0x1000 && mp > 0x1000 && gp != mp {
+                for e in 0..gl {
+                    if let Some(d) = elem_cmp(lid, esz, gp + e * esz, mp + e * esz) {
+                        return Some(format!("self+{:#x}[{}]{}", 0x0 + o, e, d));
+                    }
+                }
+            }
+        }
+        None
+    }) });
+    // ★내 사본이 남긴 소유 Vec 을 해제한다 — 이 시점에 그 포인터는 **전부 내 것**이다
+    //   (게임 것은 위에서 내 할당으로 바꿔치기됐고, 새로 만든 것은 내 사본이 할당했다).
+    //   ⚠먼저 **내 사본이 새로 push 한 요소**의 String(ELEM_LIVE.str)을 해제한다 — pre-call len 미만은 게임 버퍼의 복사본.
+    { let t2: u64 = core::ptr::read_unaligned((a0 as usize + 0x5e8) as *const u64);
+      PV100_0.with(|c| { let pv = &*c.get();
+      for (i, &(off, esz, lid)) in hs_vecs_111_0(t2).iter().enumerate() {
+          let b = a0 as usize + 0x5e8 + off;
+          let (cap, ptr, len) = (core::ptr::read_unaligned(b as *const usize), core::ptr::read_unaligned((b + 8) as *const usize),
+                                 core::ptr::read_unaligned((b + 16) as *const usize));
+          if cap > 0 && cap < (1 << 20) && ptr > 0x1000 {
+              let pre = if i < pv.2 { pv.1[i].1 } else { 0 };
+              if BISECT_NO_STRFREE == 0 && lid != 0 && len > pre && len < 4096 { for e in pre..len { elem_free_str(lid, ptr + e * esz); } }
+              if let Ok(l) = std::alloc::Layout::from_size_align(cap * esz, 8) { std::alloc::dealloc(ptr as *mut u8, l); }
+          }
+      } }); }
+    { let t2: u64 = 0;
+      PV100_1.with(|c| { let pv = &*c.get();
+      for (i, &(off, esz, lid)) in hs_vecs_111_1(t2).iter().enumerate() {
+          let b = a0 as usize + 0x0 + off;
+          let (cap, ptr, len) = (core::ptr::read_unaligned(b as *const usize), core::ptr::read_unaligned((b + 8) as *const usize),
+                                 core::ptr::read_unaligned((b + 16) as *const usize));
+          if cap > 0 && cap < (1 << 20) && ptr > 0x1000 {
+              let pre = if i < pv.2 { pv.1[i].1 } else { 0 };
+              if BISECT_NO_STRFREE == 0 && lid != 0 && len > pre && len < 4096 { for e in pre..len { elem_free_str(lid, ptr + e * esz); } }
+              if let Ok(l) = std::alloc::Layout::from_size_align(cap * esz, 8) { std::alloc::dealloc(ptr as *mut u8, l); }
+          }
+      } }); }
+    { let t2: u64 = 0;
+      PV100_2.with(|c| { let pv = &*c.get();
+      for (i, &(off, esz, lid)) in hs_vecs_111_2(t2).iter().enumerate() {
+          let b = a0 as usize + 0x0 + off;
+          let (cap, ptr, len) = (core::ptr::read_unaligned(b as *const usize), core::ptr::read_unaligned((b + 8) as *const usize),
+                                 core::ptr::read_unaligned((b + 16) as *const usize));
+          if cap > 0 && cap < (1 << 20) && ptr > 0x1000 {
+              let pre = if i < pv.2 { pv.1[i].1 } else { 0 };
+              if BISECT_NO_STRFREE == 0 && lid != 0 && len > pre && len < 4096 { for e in pre..len { elem_free_str(lid, ptr + e * esz); } }
+              if let Ok(l) = std::alloc::Layout::from_size_align(cap * esz, 8) { std::alloc::dealloc(ptr as *mut u8, l); }
+          }
+      } }); }
+    { let t2: u64 = 0;
+      PV100_3.with(|c| { let pv = &*c.get();
+      for (i, &(off, esz, lid)) in hs_vecs_111_3(t2).iter().enumerate() {
+          let b = a0 as usize + 0x0 + off;
+          let (cap, ptr, len) = (core::ptr::read_unaligned(b as *const usize), core::ptr::read_unaligned((b + 8) as *const usize),
+                                 core::ptr::read_unaligned((b + 16) as *const usize));
+          if cap > 0 && cap < (1 << 20) && ptr > 0x1000 {
+              let pre = if i < pv.2 { pv.1[i].1 } else { 0 };
+              if BISECT_NO_STRFREE == 0 && lid != 0 && len > pre && len < 4096 { for e in pre..len { elem_free_str(lid, ptr + e * esz); } }
+              if let Ok(l) = std::alloc::Layout::from_size_align(cap * esz, 8) { std::alloc::dealloc(ptr as *mut u8, l); }
+          }
+      } }); }
+    SP100.with(|c| { let sp = &*c.get();
+        core::ptr::copy_nonoverlapping(sp.as_ptr(), a0 as *mut u8, 6168); }); // 게임 호출 후 상태로 복구
+    core::ptr::copy_nonoverlapping(p2.as_ptr(), a2 as *mut u8, 320);                    // 게임 호출 후 상태로 복구(게임 진행은 게임 값으로)
+    match m {
+        Ok(_) => { if let Some(d) = sd {
+            note(100, format!("#111 LegacyPlanHandler::update 대조#{} **상태갈림**: {} | (반환 void — 출력은 &mut self 다) | a0={:#x} a1={} a2={:#x} a3={:#x} a4={:#x} a5={:#x} a6={}", n, d, a0 as usize, a1, a2 as usize, a3 as usize, a4 as usize, a5 as usize, a6)); } }
+        Err(_) => { S[100].pan.fetch_add(1, Ordering::Relaxed); }
+    }
+    pop(100);
+    g
+}
+unsafe fn w_54(a0: *const u8, a1: i64, a2: *const u8, a3: *const u8, a4: *const u8, a5: *const u8) {
+    S[101].calls.fetch_add(1, Ordering::Relaxed);
+    let f: unsafe fn(*const u8, i64, *const u8, *const u8, *const u8, *const u8) = core::mem::transmute(S[101].orig.load(Ordering::Relaxed));
+    let t = top(101);
     // ★★&mut 게임 상태(1064B) — **게임 호출 전** 상태를 떠 두지 않으면 내 사본은
     //   게임이 바꿔놓은 입력을 보게 돼 **거짓 DIFF** 가 난다(이 함수는 self 를 읽고도 쓴다).
     // ★★**스택이 아니라 thread_local 힙**에 둔다 — 1064B × 2 를 스택에 잡으면
     //   rayon 워커의 **소스택 + 게임 sim 재귀**에서 STATUS_STACK_OVERFLOW 로 죽는다
     //   (2026-09-12 실사고: 스택 배열로 두던 판이 배경 sim 시작 직후 패닉로그 없이 즉사).
-    SV100.with(|c| { let sv = &mut *c.get();
+    SV101.with(|c| { let sv = &mut *c.get();
         if t { core::ptr::copy_nonoverlapping(a0, sv.as_mut_ptr(), 1064); } });
-    VB100.with(|c| { let vb = &mut *c.get(); if t {
+    VB101.with(|c| { let vb = &mut *c.get(); if t {
         let ln = core::ptr::read_unaligned((a0 as usize + 0xd0) as *const usize);
         let pz = core::ptr::read_unaligned((a0 as usize + 0xc8) as *const usize);
         vb.1 = ln; vb.2 = ln + 2 <= 512;
@@ -9862,20 +10867,20 @@ unsafe fn w_54(a0: *const u8, a1: i64, a2: *const u8, a3: *const u8, a4: *const 
     // ★StdRng(320B) — 게임 호출이 난수열을 소비하므로 **먼저 떠 둔다**(안 그러면 거짓 DIFF).
     let mut r2 = [0u8; 320]; if t { core::ptr::copy_nonoverlapping(a2, r2.as_mut_ptr(), 320); }
     let g = f(a0, a1, a2, a3, a4, a5);
-    if !t { pop(100); return g; }
+    if !t { pop(101); return g; }
     // ★내 Vec 사본 버퍼에 안 들어간 호출은 **표본에서 뺀다** — 예전엔 `len=0` 으로
     //   떨어뜨려 **입력이 어긋난 채 비교**했고 그게 거짓 DIFF 였다(2026-09-12 차단).
-    if !VB100.with(|c| (&*c.get()).2) { S[100].skip.fetch_add(1, Ordering::Relaxed); pop(100); return g; }
-    let n = S[100].cmp.fetch_add(1, Ordering::Relaxed) + 1;
+    if !VB101.with(|c| (&*c.get()).2) { S[101].skip.fetch_add(1, Ordering::Relaxed); pop(101); return g; }
+    let n = S[101].cmp.fetch_add(1, Ordering::Relaxed) + 1;
     let mut p2 = [0u8; 320]; core::ptr::copy_nonoverlapping(a2, p2.as_mut_ptr(), 320); // 게임 호출 후 상태
     core::ptr::copy_nonoverlapping(r2.as_ptr(), a2 as *mut u8, 320);                    // 내 사본 호출 전 = 호출 전 상태로
-    SP100.with(|c| { let sp = &mut *c.get();
+    SP101.with(|c| { let sp = &mut *c.get();
         core::ptr::copy_nonoverlapping(a0, sp.as_mut_ptr(), 1064); });   // 게임 호출 후 상태
-    SV100.with(|c| { let sv = &*c.get();
+    SV101.with(|c| { let sv = &*c.get();
         core::ptr::copy_nonoverlapping(sv.as_ptr(), a0 as *mut u8, 1064); }); // 내 사본 호출 전 = 호출 전 상태로
     // ★Vec 을 **빈 것**으로 — cap=0 이면 push 가 realloc 이 아니라 alloc 을 하므로
     //   **게임의 버퍼를 절대 해제하지 않는다**(순서는 IR 실측: cap@0xc0 · ptr@0xc8 · len@0xd0).
-    VB100.with(|c| { let vb = &*c.get();
+    VB101.with(|c| { let vb = &*c.get();
         core::ptr::write_unaligned((a0 as usize + 0xc0) as *mut usize, 512);  // cap = 내 버퍼 용량
         core::ptr::write_unaligned((a0 as usize + 0xc8) as *mut usize, vb.0.as_ptr() as usize); // ptr = 내 버퍼
         core::ptr::write_unaligned((a0 as usize + 0xd0) as *mut usize, vb.1);  // len = 게임과 **같은** 개수
@@ -9886,16 +10891,19 @@ unsafe fn w_54(a0: *const u8, a1: i64, a2: *const u8, a3: *const u8, a4: *const 
     //   ⚠되돌리기·해제 **전에** 떠서 비교한다 — 내 사본이 재할당했으면 해제 후엔 못 읽는다.
     let (m_ptr, m_len) = (core::ptr::read_unaligned((a0 as usize + 0xc8) as *const usize),
                           core::ptr::read_unaligned((a0 as usize + 0xd0) as *const usize));
-    SQ100.with(|c| { let sq = &mut *c.get();
+    SQ101.with(|c| { let sq = &mut *c.get();
         core::ptr::copy_nonoverlapping(a0, sq.as_mut_ptr(), 1064); });
-    let sd: Option<String> = SP100.with(|c| { let sp = &*c.get(); SQ100.with(|c2| { let sq = &*c2.get();
+    let sd: Option<String> = SP101.with(|c| { let sp = &*c.get(); SQ101.with(|c2| { let sq = &*c2.get();
         // ① 본체 바이트(설계상 다른 구간은 제외)
+        let (mut first, mut inrun, mut nrun): (Option<String>, bool, u32) = (None, false, 0);
         for off in 0..1064usize {
             if off >= 0xc0 && off < 0xd8 { continue; }
             if sp[off] != sq[off] {
-                return Some(format!("self+{:#x}: g={:02x} m={:02x}", off, sp[off], sq[off]));
-            }
+                if first.is_none() { first = Some(format!("self+{:#x}: g={:02x} m={:02x}", off, sp[off], sq[off])); }
+                if !inrun { inrun = true; if nrun < 8 { doff(101, off); nrun += 1; } }
+            } else { inrun = false; }
         }
+        if first.is_some() { return first; }
         // ② Vec 의 len (cap/ptr 은 버퍼가 달라 비교 대상이 아니다)
         let g_ptr = core::ptr::read_unaligned(sp.as_ptr().add(0xc8) as *const usize);
         let g_len = core::ptr::read_unaligned(sp.as_ptr().add(0xd0) as *const usize);
@@ -9927,136 +10935,92 @@ unsafe fn w_54(a0: *const u8, a1: i64, a2: *const u8, a3: *const u8, a4: *const 
     // ★내 사본이 할당한 것을 해제한다(안 하면 호출당 누수). rlib 은 내 DLL 안에 링크돼 있어 알로케이터가 같다.
     { let c = core::ptr::read_unaligned((a0 as usize + 0xc0) as *const usize);
       let pz = core::ptr::read_unaligned((a0 as usize + 0xc8) as *const usize);
-      let mine = VB100.with(|c2| (&*c2.get()).0.as_ptr() as usize);
+      let mine = VB101.with(|c2| (&*c2.get()).0.as_ptr() as usize);
       // ★내 버퍼면 해제하면 안 된다(thread_local 정적) — 재할당된 경우에만 해제.
       if c > 0 && pz > 0x1000 && pz != mine { if let Ok(l) = std::alloc::Layout::from_size_align(c * 24, 8) {
           std::alloc::dealloc(pz as *mut u8, l); } } }
-    SP100.with(|c| { let sp = &*c.get();
+    SP101.with(|c| { let sp = &*c.get();
         core::ptr::copy_nonoverlapping(sp.as_ptr(), a0 as *mut u8, 1064); }); // 게임 호출 후 상태로 복구
     core::ptr::copy_nonoverlapping(p2.as_ptr(), a2 as *mut u8, 320);                    // 게임 호출 후 상태로 복구(게임 진행은 게임 값으로)
     match m {
         Ok(_) => { if let Some(d) = sd {
-            note(100, format!("#54 TeamPlan::update 대조#{} **상태갈림**: {} | (반환 void — 출력은 &mut self 다) | a0={:#x} a1={} a2={:#x} a3={:#x} a4={:#x} a5={:#x}", n, d, a0 as usize, a1, a2 as usize, a3 as usize, a4 as usize, a5 as usize)); } }
-        Err(_) => { S[100].pan.fetch_add(1, Ordering::Relaxed); }
-    }
-    pop(100);
-    g
-}
-unsafe fn w_39(a0: *const u8, a1: *const u8, a2: u8) -> bool {
-    S[101].calls.fetch_add(1, Ordering::Relaxed);
-    let f: unsafe fn(*const u8, *const u8, u8) -> bool = core::mem::transmute(S[101].orig.load(Ordering::Relaxed));
-    let t = top(101);
-    let g = f(a0, a1, a2);
-    if !t { pop(101); return g; }
-    let n = S[101].cmp.fetch_add(1, Ordering::Relaxed) + 1;
-    let m = catch_unwind(AssertUnwindSafe(|| my_39(a0, a1, a2)));
-    match m {
-        Ok(m) => { if m != g { note(101, format!("#39 is_wave_priority_start_line 대조#{} 갈림: g={:?} m={:?} | a0={:#x} a1={:#x} a2={}", n, g, m, a0 as usize, a1 as usize, a2)); } }
+            note(101, format!("#54 TeamPlan::update 대조#{} **상태갈림**: {} | (반환 void — 출력은 &mut self 다) | a0={:#x} a1={} a2={:#x} a3={:#x} a4={:#x} a5={:#x}", n, d, a0 as usize, a1, a2 as usize, a3 as usize, a4 as usize, a5 as usize)); } }
         Err(_) => { S[101].pan.fetch_add(1, Ordering::Relaxed); }
     }
     pop(101);
     g
 }
-unsafe fn w_74(a0: *const u8, a1: i64, a2: *const u8, a3: *const u8, a4: *const u8, a5: *const u8) {
+unsafe fn w_39(a0: *const u8, a1: *const u8, a2: u8) -> bool {
     S[102].calls.fetch_add(1, Ordering::Relaxed);
-    let f: unsafe fn(*const u8, i64, *const u8, *const u8, *const u8, *const u8) = core::mem::transmute(S[102].orig.load(Ordering::Relaxed));
+    let f: unsafe fn(*const u8, *const u8, u8) -> bool = core::mem::transmute(S[102].orig.load(Ordering::Relaxed));
     let t = top(102);
-    // ★★&mut 게임 상태(248B) — **게임 호출 전** 상태를 떠 두지 않으면 내 사본은
-    //   게임이 바꿔놓은 입력을 보게 돼 **거짓 DIFF** 가 난다(이 함수는 self 를 읽고도 쓴다).
-    // ★★**스택이 아니라 thread_local 힙**에 둔다 — 248B × 2 를 스택에 잡으면
-    //   rayon 워커의 **소스택 + 게임 sim 재귀**에서 STATUS_STACK_OVERFLOW 로 죽는다
-    //   (2026-09-12 실사고: 스택 배열로 두던 판이 배경 sim 시작 직후 패닉로그 없이 즉사).
-    SV102.with(|c| { let sv = &mut *c.get();
-        if t { core::ptr::copy_nonoverlapping(a0, sv.as_mut_ptr(), 248); } });
-    VB102.with(|c| { (&mut *c.get()).2 = true; });   // 치환할 Vec 이 없다 = 항상 표본
-    // ★StdRng(320B) — 게임 호출이 난수열을 소비하므로 **먼저 떠 둔다**(안 그러면 거짓 DIFF).
-    let mut r2 = [0u8; 320]; if t { core::ptr::copy_nonoverlapping(a2, r2.as_mut_ptr(), 320); }
-    let g = f(a0, a1, a2, a3, a4, a5);
+    let g = f(a0, a1, a2);
     if !t { pop(102); return g; }
-    // ★내 Vec 사본 버퍼에 안 들어간 호출은 **표본에서 뺀다** — 예전엔 `len=0` 으로
-    //   떨어뜨려 **입력이 어긋난 채 비교**했고 그게 거짓 DIFF 였다(2026-09-12 차단).
-    if !VB102.with(|c| (&*c.get()).2) { S[102].skip.fetch_add(1, Ordering::Relaxed); pop(102); return g; }
     let n = S[102].cmp.fetch_add(1, Ordering::Relaxed) + 1;
-    let mut p2 = [0u8; 320]; core::ptr::copy_nonoverlapping(a2, p2.as_mut_ptr(), 320); // 게임 호출 후 상태
-    core::ptr::copy_nonoverlapping(r2.as_ptr(), a2 as *mut u8, 320);                    // 내 사본 호출 전 = 호출 전 상태로
-    SP102.with(|c| { let sp = &mut *c.get();
-        core::ptr::copy_nonoverlapping(a0, sp.as_mut_ptr(), 248); });   // 게임 호출 후 상태
-    SV102.with(|c| { let sv = &*c.get();
-        core::ptr::copy_nonoverlapping(sv.as_ptr(), a0 as *mut u8, 248); }); // 내 사본 호출 전 = 호출 전 상태로
-    let m = catch_unwind(AssertUnwindSafe(|| my_74(a0, a1, a2, a3, a4, a5)));
-    // ★★★상태 diff — 이 함수는 **반환이 void** 다. ABI 상 반환이 없는 것이지
-    //   **출력이 없는 게 아니다** — 출력은 `&mut self` 에 있다 ⟹ 그걸 비교한다.
-    //   ⚠되돌리기·해제 **전에** 떠서 비교한다 — 내 사본이 재할당했으면 해제 후엔 못 읽는다.
-    SQ102.with(|c| { let sq = &mut *c.get();
-        core::ptr::copy_nonoverlapping(a0, sq.as_mut_ptr(), 248); });
-    let sd: Option<String> = SP102.with(|c| { let sp = &*c.get(); SQ102.with(|c2| { let sq = &*c2.get();
-        // ① 본체 바이트(설계상 다른 구간은 제외)
-        for off in 0..248usize {
-            if sp[off] != sq[off] {
-                return Some(format!("self+{:#x}: g={:02x} m={:02x}", off, sp[off], sq[off]));
-            }
-        }
-        None
-    }) });
-    SP102.with(|c| { let sp = &*c.get();
-        core::ptr::copy_nonoverlapping(sp.as_ptr(), a0 as *mut u8, 248); }); // 게임 호출 후 상태로 복구
-    core::ptr::copy_nonoverlapping(p2.as_ptr(), a2 as *mut u8, 320);                    // 게임 호출 후 상태로 복구(게임 진행은 게임 값으로)
+    let m = catch_unwind(AssertUnwindSafe(|| my_39(a0, a1, a2)));
     match m {
-        Ok(_) => { if let Some(d) = sd {
-            note(102, format!("#74 GoalData::update 대조#{} **상태갈림**: {} | (반환 void — 출력은 &mut self 다) | a0={:#x} a1={} a2={:#x} a3={:#x} a4={:#x} a5={:#x}", n, d, a0 as usize, a1, a2 as usize, a3 as usize, a4 as usize, a5 as usize)); } }
+        Ok(m) => { if m != g { note(102, format!("#39 is_wave_priority_start_line 대조#{} 갈림: g={:?} m={:?} | a0={:#x} a1={:#x} a2={}", n, g, m, a0 as usize, a1 as usize, a2)); } }
         Err(_) => { S[102].pan.fetch_add(1, Ordering::Relaxed); }
     }
     pop(102);
     g
 }
-unsafe fn w_75(a0: *const u8, a1: i64, a2: *const u8, a3: *const u8, a4: *const u8, a5: *const u8, a6: *const u8) {
+unsafe fn w_74(a0: *const u8, a1: i64, a2: *const u8, a3: *const u8, a4: *const u8, a5: *const u8) {
     S[103].calls.fetch_add(1, Ordering::Relaxed);
-    let f: unsafe fn(*const u8, i64, *const u8, *const u8, *const u8, *const u8, *const u8) = core::mem::transmute(S[103].orig.load(Ordering::Relaxed));
+    let f: unsafe fn(*const u8, i64, *const u8, *const u8, *const u8, *const u8) = core::mem::transmute(S[103].orig.load(Ordering::Relaxed));
     let t = top(103);
-    // ★★&mut 게임 상태(56B) — **게임 호출 전** 상태를 떠 두지 않으면 내 사본은
+    // ★★&mut 게임 상태(248B) — **게임 호출 전** 상태를 떠 두지 않으면 내 사본은
     //   게임이 바꿔놓은 입력을 보게 돼 **거짓 DIFF** 가 난다(이 함수는 self 를 읽고도 쓴다).
-    // ★★**스택이 아니라 thread_local 힙**에 둔다 — 56B × 2 를 스택에 잡으면
+    // ★★**스택이 아니라 thread_local 힙**에 둔다 — 248B × 2 를 스택에 잡으면
     //   rayon 워커의 **소스택 + 게임 sim 재귀**에서 STATUS_STACK_OVERFLOW 로 죽는다
     //   (2026-09-12 실사고: 스택 배열로 두던 판이 배경 sim 시작 직후 패닉로그 없이 즉사).
     SV103.with(|c| { let sv = &mut *c.get();
-        if t { core::ptr::copy_nonoverlapping(a0, sv.as_mut_ptr(), 56); } });
+        if t { core::ptr::copy_nonoverlapping(a0, sv.as_mut_ptr(), 248); } });
     VB103.with(|c| { (&mut *c.get()).2 = true; });   // 치환할 Vec 이 없다 = 항상 표본
-    let g = f(a0, a1, a2, a3, a4, a5, a6);
+    // ★StdRng(320B) — 게임 호출이 난수열을 소비하므로 **먼저 떠 둔다**(안 그러면 거짓 DIFF).
+    let mut r2 = [0u8; 320]; if t { core::ptr::copy_nonoverlapping(a2, r2.as_mut_ptr(), 320); }
+    let g = f(a0, a1, a2, a3, a4, a5);
     if !t { pop(103); return g; }
     // ★내 Vec 사본 버퍼에 안 들어간 호출은 **표본에서 뺀다** — 예전엔 `len=0` 으로
     //   떨어뜨려 **입력이 어긋난 채 비교**했고 그게 거짓 DIFF 였다(2026-09-12 차단).
     if !VB103.with(|c| (&*c.get()).2) { S[103].skip.fetch_add(1, Ordering::Relaxed); pop(103); return g; }
     let n = S[103].cmp.fetch_add(1, Ordering::Relaxed) + 1;
+    let mut p2 = [0u8; 320]; core::ptr::copy_nonoverlapping(a2, p2.as_mut_ptr(), 320); // 게임 호출 후 상태
+    core::ptr::copy_nonoverlapping(r2.as_ptr(), a2 as *mut u8, 320);                    // 내 사본 호출 전 = 호출 전 상태로
     SP103.with(|c| { let sp = &mut *c.get();
-        core::ptr::copy_nonoverlapping(a0, sp.as_mut_ptr(), 56); });   // 게임 호출 후 상태
+        core::ptr::copy_nonoverlapping(a0, sp.as_mut_ptr(), 248); });   // 게임 호출 후 상태
     SV103.with(|c| { let sv = &*c.get();
-        core::ptr::copy_nonoverlapping(sv.as_ptr(), a0 as *mut u8, 56); }); // 내 사본 호출 전 = 호출 전 상태로
-    let m = catch_unwind(AssertUnwindSafe(|| my_75(a0, a1, a2, a3, a4, a5, a6)));
+        core::ptr::copy_nonoverlapping(sv.as_ptr(), a0 as *mut u8, 248); }); // 내 사본 호출 전 = 호출 전 상태로
+    let m = catch_unwind(AssertUnwindSafe(|| my_74(a0, a1, a2, a3, a4, a5)));
     // ★★★상태 diff — 이 함수는 **반환이 void** 다. ABI 상 반환이 없는 것이지
     //   **출력이 없는 게 아니다** — 출력은 `&mut self` 에 있다 ⟹ 그걸 비교한다.
     //   ⚠되돌리기·해제 **전에** 떠서 비교한다 — 내 사본이 재할당했으면 해제 후엔 못 읽는다.
     SQ103.with(|c| { let sq = &mut *c.get();
-        core::ptr::copy_nonoverlapping(a0, sq.as_mut_ptr(), 56); });
+        core::ptr::copy_nonoverlapping(a0, sq.as_mut_ptr(), 248); });
     let sd: Option<String> = SP103.with(|c| { let sp = &*c.get(); SQ103.with(|c2| { let sq = &*c2.get();
         // ① 본체 바이트(설계상 다른 구간은 제외)
-        for off in 0..56usize {
+        let (mut first, mut inrun, mut nrun): (Option<String>, bool, u32) = (None, false, 0);
+        for off in 0..248usize {
             if sp[off] != sq[off] {
-                return Some(format!("self+{:#x}: g={:02x} m={:02x}", off, sp[off], sq[off]));
-            }
+                if first.is_none() { first = Some(format!("self+{:#x}: g={:02x} m={:02x}", off, sp[off], sq[off])); }
+                if !inrun { inrun = true; if nrun < 8 { doff(103, off); nrun += 1; } }
+            } else { inrun = false; }
         }
+        if first.is_some() { return first; }
         None
     }) });
     SP103.with(|c| { let sp = &*c.get();
-        core::ptr::copy_nonoverlapping(sp.as_ptr(), a0 as *mut u8, 56); }); // 게임 호출 후 상태로 복구
+        core::ptr::copy_nonoverlapping(sp.as_ptr(), a0 as *mut u8, 248); }); // 게임 호출 후 상태로 복구
+    core::ptr::copy_nonoverlapping(p2.as_ptr(), a2 as *mut u8, 320);                    // 게임 호출 후 상태로 복구(게임 진행은 게임 값으로)
     match m {
         Ok(_) => { if let Some(d) = sd {
-            note(103, format!("#75 SerpenStanceData::update_plan 대조#{} **상태갈림**: {} | (반환 void — 출력은 &mut self 다) | a0={:#x} a1={} a2={:#x} a3={:#x} a4={:#x} a5={:#x} a6={:#x}", n, d, a0 as usize, a1, a2 as usize, a3 as usize, a4 as usize, a5 as usize, a6 as usize)); } }
+            note(103, format!("#74 GoalData::update 대조#{} **상태갈림**: {} | (반환 void — 출력은 &mut self 다) | a0={:#x} a1={} a2={:#x} a3={:#x} a4={:#x} a5={:#x}", n, d, a0 as usize, a1, a2 as usize, a3 as usize, a4 as usize, a5 as usize)); } }
         Err(_) => { S[103].pan.fetch_add(1, Ordering::Relaxed); }
     }
     pop(103);
     g
 }
-unsafe fn w_76(a0: *const u8, a1: i64, a2: *const u8, a3: *const u8, a4: *const u8, a5: *const u8, a6: *const u8) {
+unsafe fn w_75(a0: *const u8, a1: i64, a2: *const u8, a3: *const u8, a4: *const u8, a5: *const u8, a6: *const u8) {
     S[104].calls.fetch_add(1, Ordering::Relaxed);
     let f: unsafe fn(*const u8, i64, *const u8, *const u8, *const u8, *const u8, *const u8) = core::mem::transmute(S[104].orig.load(Ordering::Relaxed));
     let t = top(104);
@@ -10078,7 +11042,7 @@ unsafe fn w_76(a0: *const u8, a1: i64, a2: *const u8, a3: *const u8, a4: *const 
         core::ptr::copy_nonoverlapping(a0, sp.as_mut_ptr(), 56); });   // 게임 호출 후 상태
     SV104.with(|c| { let sv = &*c.get();
         core::ptr::copy_nonoverlapping(sv.as_ptr(), a0 as *mut u8, 56); }); // 내 사본 호출 전 = 호출 전 상태로
-    let m = catch_unwind(AssertUnwindSafe(|| my_76(a0, a1, a2, a3, a4, a5, a6)));
+    let m = catch_unwind(AssertUnwindSafe(|| my_75(a0, a1, a2, a3, a4, a5, a6)));
     // ★★★상태 diff — 이 함수는 **반환이 void** 다. ABI 상 반환이 없는 것이지
     //   **출력이 없는 게 아니다** — 출력은 `&mut self` 에 있다 ⟹ 그걸 비교한다.
     //   ⚠되돌리기·해제 **전에** 떠서 비교한다 — 내 사본이 재할당했으면 해제 후엔 못 읽는다.
@@ -10086,71 +11050,124 @@ unsafe fn w_76(a0: *const u8, a1: i64, a2: *const u8, a3: *const u8, a4: *const 
         core::ptr::copy_nonoverlapping(a0, sq.as_mut_ptr(), 56); });
     let sd: Option<String> = SP104.with(|c| { let sp = &*c.get(); SQ104.with(|c2| { let sq = &*c2.get();
         // ① 본체 바이트(설계상 다른 구간은 제외)
+        let (mut first, mut inrun, mut nrun): (Option<String>, bool, u32) = (None, false, 0);
         for off in 0..56usize {
             if sp[off] != sq[off] {
-                return Some(format!("self+{:#x}: g={:02x} m={:02x}", off, sp[off], sq[off]));
-            }
+                if first.is_none() { first = Some(format!("self+{:#x}: g={:02x} m={:02x}", off, sp[off], sq[off])); }
+                if !inrun { inrun = true; if nrun < 8 { doff(104, off); nrun += 1; } }
+            } else { inrun = false; }
         }
+        if first.is_some() { return first; }
         None
     }) });
     SP104.with(|c| { let sp = &*c.get();
         core::ptr::copy_nonoverlapping(sp.as_ptr(), a0 as *mut u8, 56); }); // 게임 호출 후 상태로 복구
     match m {
         Ok(_) => { if let Some(d) = sd {
-            note(104, format!("#76 EpicStanceData::update_plan 대조#{} **상태갈림**: {} | (반환 void — 출력은 &mut self 다) | a0={:#x} a1={} a2={:#x} a3={:#x} a4={:#x} a5={:#x} a6={:#x}", n, d, a0 as usize, a1, a2 as usize, a3 as usize, a4 as usize, a5 as usize, a6 as usize)); } }
+            note(104, format!("#75 SerpenStanceData::update_plan 대조#{} **상태갈림**: {} | (반환 void — 출력은 &mut self 다) | a0={:#x} a1={} a2={:#x} a3={:#x} a4={:#x} a5={:#x} a6={:#x}", n, d, a0 as usize, a1, a2 as usize, a3 as usize, a4 as usize, a5 as usize, a6 as usize)); } }
         Err(_) => { S[104].pan.fetch_add(1, Ordering::Relaxed); }
     }
     pop(104);
     g
 }
-unsafe fn w_4(a0: i64, a1: *const u8, a2: *const u8, a3: *const u8, a4: u8, a5: *const u8) -> bool {
+unsafe fn w_76(a0: *const u8, a1: i64, a2: *const u8, a3: *const u8, a4: *const u8, a5: *const u8, a6: *const u8) {
     S[105].calls.fetch_add(1, Ordering::Relaxed);
-    let f: unsafe fn(i64, *const u8, *const u8, *const u8, u8, *const u8) -> bool = core::mem::transmute(S[105].orig.load(Ordering::Relaxed));
+    let f: unsafe fn(*const u8, i64, *const u8, *const u8, *const u8, *const u8, *const u8) = core::mem::transmute(S[105].orig.load(Ordering::Relaxed));
     let t = top(105);
-    // ★StdRng(320B) — 게임 호출이 난수열을 소비하므로 **먼저 떠 둔다**(안 그러면 거짓 DIFF).
-    let mut r1 = [0u8; 320]; if t { core::ptr::copy_nonoverlapping(a1, r1.as_mut_ptr(), 320); }
-    let g = f(a0, a1, a2, a3, a4, a5);
+    // ★★&mut 게임 상태(56B) — **게임 호출 전** 상태를 떠 두지 않으면 내 사본은
+    //   게임이 바꿔놓은 입력을 보게 돼 **거짓 DIFF** 가 난다(이 함수는 self 를 읽고도 쓴다).
+    // ★★**스택이 아니라 thread_local 힙**에 둔다 — 56B × 2 를 스택에 잡으면
+    //   rayon 워커의 **소스택 + 게임 sim 재귀**에서 STATUS_STACK_OVERFLOW 로 죽는다
+    //   (2026-09-12 실사고: 스택 배열로 두던 판이 배경 sim 시작 직후 패닉로그 없이 즉사).
+    SV105.with(|c| { let sv = &mut *c.get();
+        if t { core::ptr::copy_nonoverlapping(a0, sv.as_mut_ptr(), 56); } });
+    VB105.with(|c| { (&mut *c.get()).2 = true; });   // 치환할 Vec 이 없다 = 항상 표본
+    let g = f(a0, a1, a2, a3, a4, a5, a6);
     if !t { pop(105); return g; }
+    // ★내 Vec 사본 버퍼에 안 들어간 호출은 **표본에서 뺀다** — 예전엔 `len=0` 으로
+    //   떨어뜨려 **입력이 어긋난 채 비교**했고 그게 거짓 DIFF 였다(2026-09-12 차단).
+    if !VB105.with(|c| (&*c.get()).2) { S[105].skip.fetch_add(1, Ordering::Relaxed); pop(105); return g; }
     let n = S[105].cmp.fetch_add(1, Ordering::Relaxed) + 1;
-    let mut p1 = [0u8; 320]; core::ptr::copy_nonoverlapping(a1, p1.as_mut_ptr(), 320); // 게임 호출 후 상태
-    core::ptr::copy_nonoverlapping(r1.as_ptr(), a1 as *mut u8, 320);                    // 내 사본 호출 전 = 호출 전 상태로
-    let m = catch_unwind(AssertUnwindSafe(|| my_4(a0, a1, a2, a3, a4, a5)));
-    core::ptr::copy_nonoverlapping(p1.as_ptr(), a1 as *mut u8, 320);                    // 게임 호출 후 상태로 복구(게임 진행은 게임 값으로)
+    SP105.with(|c| { let sp = &mut *c.get();
+        core::ptr::copy_nonoverlapping(a0, sp.as_mut_ptr(), 56); });   // 게임 호출 후 상태
+    SV105.with(|c| { let sv = &*c.get();
+        core::ptr::copy_nonoverlapping(sv.as_ptr(), a0 as *mut u8, 56); }); // 내 사본 호출 전 = 호출 전 상태로
+    let m = catch_unwind(AssertUnwindSafe(|| my_76(a0, a1, a2, a3, a4, a5, a6)));
+    // ★★★상태 diff — 이 함수는 **반환이 void** 다. ABI 상 반환이 없는 것이지
+    //   **출력이 없는 게 아니다** — 출력은 `&mut self` 에 있다 ⟹ 그걸 비교한다.
+    //   ⚠되돌리기·해제 **전에** 떠서 비교한다 — 내 사본이 재할당했으면 해제 후엔 못 읽는다.
+    SQ105.with(|c| { let sq = &mut *c.get();
+        core::ptr::copy_nonoverlapping(a0, sq.as_mut_ptr(), 56); });
+    let sd: Option<String> = SP105.with(|c| { let sp = &*c.get(); SQ105.with(|c2| { let sq = &*c2.get();
+        // ① 본체 바이트(설계상 다른 구간은 제외)
+        let (mut first, mut inrun, mut nrun): (Option<String>, bool, u32) = (None, false, 0);
+        for off in 0..56usize {
+            if sp[off] != sq[off] {
+                if first.is_none() { first = Some(format!("self+{:#x}: g={:02x} m={:02x}", off, sp[off], sq[off])); }
+                if !inrun { inrun = true; if nrun < 8 { doff(105, off); nrun += 1; } }
+            } else { inrun = false; }
+        }
+        if first.is_some() { return first; }
+        None
+    }) });
+    SP105.with(|c| { let sp = &*c.get();
+        core::ptr::copy_nonoverlapping(sp.as_ptr(), a0 as *mut u8, 56); }); // 게임 호출 후 상태로 복구
     match m {
-        Ok(m) => { if m != g { note(105, format!("#04 handle_line_defense 대조#{} 갈림: g={:?} m={:?} | a0={} a1={:#x} a2={:#x} a3={:#x} a4={} a5={:#x}", n, g, m, a0, a1 as usize, a2 as usize, a3 as usize, a4, a5 as usize)); } }
+        Ok(_) => { if let Some(d) = sd {
+            note(105, format!("#76 EpicStanceData::update_plan 대조#{} **상태갈림**: {} | (반환 void — 출력은 &mut self 다) | a0={:#x} a1={} a2={:#x} a3={:#x} a4={:#x} a5={:#x} a6={:#x}", n, d, a0 as usize, a1, a2 as usize, a3 as usize, a4 as usize, a5 as usize, a6 as usize)); } }
         Err(_) => { S[105].pan.fetch_add(1, Ordering::Relaxed); }
     }
     pop(105);
     g
 }
-unsafe fn w_65(a0: *const u8, a1: *const u8, a2: i64, a3: *const u8, a4: i64) -> i64 {
+unsafe fn w_4(a0: i64, a1: *const u8, a2: *const u8, a3: *const u8, a4: u8, a5: *const u8) -> bool {
     S[106].calls.fetch_add(1, Ordering::Relaxed);
-    let f: unsafe fn(*const u8, *const u8, i64, *const u8, i64) -> i64 = core::mem::transmute(S[106].orig.load(Ordering::Relaxed));
+    let f: unsafe fn(i64, *const u8, *const u8, *const u8, u8, *const u8) -> bool = core::mem::transmute(S[106].orig.load(Ordering::Relaxed));
     let t = top(106);
-    let g = f(a0, a1, a2, a3, a4);
+    // ★StdRng(320B) — 게임 호출이 난수열을 소비하므로 **먼저 떠 둔다**(안 그러면 거짓 DIFF).
+    let mut r1 = [0u8; 320]; if t { core::ptr::copy_nonoverlapping(a1, r1.as_mut_ptr(), 320); }
+    let g = f(a0, a1, a2, a3, a4, a5);
     if !t { pop(106); return g; }
     let n = S[106].cmp.fetch_add(1, Ordering::Relaxed) + 1;
-    let m = catch_unwind(AssertUnwindSafe(|| my_65(a0, a1, a2, a3, a4)));
+    let mut p1 = [0u8; 320]; core::ptr::copy_nonoverlapping(a1, p1.as_mut_ptr(), 320); // 게임 호출 후 상태
+    core::ptr::copy_nonoverlapping(r1.as_ptr(), a1 as *mut u8, 320);                    // 내 사본 호출 전 = 호출 전 상태로
+    let m = catch_unwind(AssertUnwindSafe(|| my_4(a0, a1, a2, a3, a4, a5)));
+    core::ptr::copy_nonoverlapping(p1.as_ptr(), a1 as *mut u8, 320);                    // 게임 호출 후 상태로 복구(게임 진행은 게임 값으로)
     match m {
-        Ok(m) => { if m != g { note(106, format!("#65 check_epic_kill_time_with_hp 대조#{} 갈림: g={:?} m={:?} | a0={:#x} a1={:#x} a2={} a3={:#x} a4={}", n, g, m, a0 as usize, a1 as usize, a2, a3 as usize, a4)); } }
+        Ok(m) => { if m != g { note(106, format!("#04 handle_line_defense 대조#{} 갈림: g={:?} m={:?} | a0={} a1={:#x} a2={:#x} a3={:#x} a4={} a5={:#x}", n, g, m, a0, a1 as usize, a2 as usize, a3 as usize, a4, a5 as usize)); } }
         Err(_) => { S[106].pan.fetch_add(1, Ordering::Relaxed); }
     }
     pop(106);
     g
 }
-unsafe fn w_22(a0: *const u8, a1: *const u8, a2: *const u8, a3: i64, a4: i64) -> bool {
+unsafe fn w_65(a0: *const u8, a1: *const u8, a2: i64, a3: *const u8, a4: i64) -> i64 {
     S[107].calls.fetch_add(1, Ordering::Relaxed);
-    let f: unsafe fn(*const u8, *const u8, *const u8, i64, i64) -> bool = core::mem::transmute(S[107].orig.load(Ordering::Relaxed));
+    let f: unsafe fn(*const u8, *const u8, i64, *const u8, i64) -> i64 = core::mem::transmute(S[107].orig.load(Ordering::Relaxed));
     let t = top(107);
     let g = f(a0, a1, a2, a3, a4);
     if !t { pop(107); return g; }
     let n = S[107].cmp.fetch_add(1, Ordering::Relaxed) + 1;
-    let m = catch_unwind(AssertUnwindSafe(|| my_22(a0, a1, a2, a3, a4)));
+    let m = catch_unwind(AssertUnwindSafe(|| my_65(a0, a1, a2, a3, a4)));
     match m {
-        Ok(m) => { if m != g { note(107, format!("#22 can_tower_focused 대조#{} 갈림: g={:?} m={:?} | a0={:#x} a1={:#x} a2={:#x} a3={} a4={}", n, g, m, a0 as usize, a1 as usize, a2 as usize, a3, a4)); } }
+        Ok(m) => { if m != g { note(107, format!("#65 check_epic_kill_time_with_hp 대조#{} 갈림: g={:?} m={:?} | a0={:#x} a1={:#x} a2={} a3={:#x} a4={}", n, g, m, a0 as usize, a1 as usize, a2, a3 as usize, a4)); } }
         Err(_) => { S[107].pan.fetch_add(1, Ordering::Relaxed); }
     }
     pop(107);
+    g
+}
+unsafe fn w_22(a0: *const u8, a1: *const u8, a2: *const u8, a3: i64, a4: i64) -> bool {
+    S[108].calls.fetch_add(1, Ordering::Relaxed);
+    let f: unsafe fn(*const u8, *const u8, *const u8, i64, i64) -> bool = core::mem::transmute(S[108].orig.load(Ordering::Relaxed));
+    let t = top(108);
+    let g = f(a0, a1, a2, a3, a4);
+    if !t { pop(108); return g; }
+    let n = S[108].cmp.fetch_add(1, Ordering::Relaxed) + 1;
+    let m = catch_unwind(AssertUnwindSafe(|| my_22(a0, a1, a2, a3, a4)));
+    match m {
+        Ok(m) => { if m != g { note(108, format!("#22 can_tower_focused 대조#{} 갈림: g={:?} m={:?} | a0={:#x} a1={:#x} a2={:#x} a3={} a4={}", n, g, m, a0 as usize, a1 as usize, a2 as usize, a3, a4)); } }
+        Err(_) => { S[108].pan.fetch_add(1, Ordering::Relaxed); }
+    }
+    pop(108);
     g
 }
 
@@ -10173,7 +11190,7 @@ pub unsafe fn install(mask: u128, log: &mut String) -> (usize, usize) {
         // 「빠진 것을 모르는 상태」를 만들지 않는다 — 슬롯이 없는 비트를 켜면 조용히 무시되는 게 아니라 말한다.
         log.push_str(&format!("[sweep] ⚠mask 의 미지 비트 {:#x} 는 슬롯이 없어 무시했다(슬롯 {}개)\n", unknown, S.len()));
     }
-    let w: [usize; 108] = [w_112 as usize, w_113 as usize, w_114 as usize, w_115 as usize, w_116 as usize, w_117 as usize, w_30 as usize, w_69 as usize, w_32 as usize, w_5 as usize, w_66 as usize, w_11 as usize, w_3 as usize, w_64 as usize, w_61 as usize, w_49 as usize, w_84 as usize, w_0 as usize, w_80 as usize, w_78 as usize, w_6 as usize, w_13 as usize, w_14 as usize, w_70 as usize, w_40 as usize, w_58 as usize, w_90 as usize, w_85 as usize, w_73 as usize, w_68 as usize, w_96 as usize, w_9 as usize, w_33 as usize, w_37 as usize, w_36 as usize, w_72 as usize, w_63 as usize, w_35 as usize, w_1 as usize, w_43 as usize, w_94 as usize, w_28 as usize, w_82 as usize, w_62 as usize, w_97 as usize, w_44 as usize, w_89 as usize, w_27 as usize, w_77 as usize, w_26 as usize, w_104 as usize, w_50 as usize, w_103 as usize, w_24 as usize, w_83 as usize, w_93 as usize, w_8 as usize, w_18 as usize, w_41 as usize, w_12 as usize, w_91 as usize, w_52 as usize, w_81 as usize, w_48 as usize, w_19 as usize, w_34 as usize, w_29 as usize, w_67 as usize, w_31 as usize, w_20 as usize, w_88 as usize, w_86 as usize, w_109 as usize, w_102 as usize, w_106 as usize, w_92 as usize, w_99 as usize, w_25 as usize, w_56 as usize, w_51 as usize, w_16 as usize, w_45 as usize, w_53 as usize, w_60 as usize, w_101 as usize, w_23 as usize, w_46 as usize, w_21 as usize, w_95 as usize, w_71 as usize, w_107 as usize, w_87 as usize, w_105 as usize, w_55 as usize, w_38 as usize, w_59 as usize, w_110 as usize, w_108 as usize, w_79 as usize, w_100 as usize, w_54 as usize, w_39 as usize, w_74 as usize, w_75 as usize, w_76 as usize, w_4 as usize, w_65 as usize, w_22 as usize];
+    let w: [usize; 109] = [w_113 as usize, w_114 as usize, w_115 as usize, w_116 as usize, w_117 as usize, w_118 as usize, w_30 as usize, w_69 as usize, w_32 as usize, w_5 as usize, w_66 as usize, w_11 as usize, w_3 as usize, w_64 as usize, w_61 as usize, w_49 as usize, w_84 as usize, w_0 as usize, w_80 as usize, w_78 as usize, w_6 as usize, w_13 as usize, w_14 as usize, w_70 as usize, w_40 as usize, w_58 as usize, w_90 as usize, w_85 as usize, w_73 as usize, w_68 as usize, w_96 as usize, w_9 as usize, w_33 as usize, w_37 as usize, w_36 as usize, w_72 as usize, w_63 as usize, w_35 as usize, w_1 as usize, w_43 as usize, w_94 as usize, w_28 as usize, w_82 as usize, w_62 as usize, w_97 as usize, w_44 as usize, w_89 as usize, w_27 as usize, w_77 as usize, w_26 as usize, w_104 as usize, w_50 as usize, w_103 as usize, w_24 as usize, w_83 as usize, w_93 as usize, w_8 as usize, w_18 as usize, w_41 as usize, w_12 as usize, w_91 as usize, w_52 as usize, w_81 as usize, w_48 as usize, w_19 as usize, w_34 as usize, w_29 as usize, w_67 as usize, w_31 as usize, w_20 as usize, w_88 as usize, w_86 as usize, w_109 as usize, w_102 as usize, w_106 as usize, w_92 as usize, w_99 as usize, w_25 as usize, w_56 as usize, w_51 as usize, w_16 as usize, w_45 as usize, w_53 as usize, w_60 as usize, w_101 as usize, w_23 as usize, w_46 as usize, w_21 as usize, w_95 as usize, w_71 as usize, w_107 as usize, w_87 as usize, w_105 as usize, w_55 as usize, w_38 as usize, w_59 as usize, w_110 as usize, w_108 as usize, w_79 as usize, w_100 as usize, w_111 as usize, w_54 as usize, w_39 as usize, w_74 as usize, w_75 as usize, w_76 as usize, w_4 as usize, w_65 as usize, w_22 as usize];
     let (mut ok, mut tried) = (0usize, 0usize);
     for i in 0..S.len() {
         if mask & (1u128 << i) == 0 { continue; }
@@ -10228,6 +11245,9 @@ pub fn report(header: &str, gate: &str, inst: &str) -> String {
     s.push_str(&format!("--- 첫 DIFF 덤프 {}건 (슬롯당 1건 · 상한 {})\n", g.len(), FIRST_MAX));
     if g.is_empty() { s.push_str("    (없음)\n"); }
     for (_, l) in g.iter() { s.push_str("    "); s.push_str(l); s.push('\n'); }
+    { let mut d = DOFF.lock().unwrap_or_else(|e| e.into_inner()).clone(); d.sort_by(|a, b| (a.0, b.2).cmp(&(b.0, a.2)));
+      if !d.is_empty() { s.push_str(&format!("--- 상태 diff 갈림 오프셋 히스토그램 {}종 (대조 1건당 run 시작 8개까지 · 상한 {})\n", d.len(), DOFF_MAX));
+        for &(i, off, c) in d.iter() { s.push_str(&format!("    slot{} self+{:#x} ×{}\n", i, off, c)); } } }
     s.push_str("\n--- ENUM_LIVE variant 히스토그램 (페이로드 정밀 비교가 실제로 어느 variant 에 적용됐나 · 대조 1건 = 1)\n");
     { let tot: u64 = EH_11_0.iter().map(|a| a.load(Ordering::Relaxed)).sum();
       s.push_str(&format!("    #11 self+0x5e8 BigPlan: 총 {} — ", tot));
@@ -10258,6 +11278,16 @@ pub fn report(header: &str, gate: &str, inst: &str) -> String {
       s.push_str(&format!("    #110 self+0x5e8 BigPlan: 총 {} — ", tot));
       for &(t, nm) in EH_110_0_NAMES.iter() { let c = EH_110_0[t as usize].load(Ordering::Relaxed); if c > 0 { s.push_str(&format!("{}({})={} ", nm, if t == 0 { "untagged".to_string() } else { t.to_string() }, c)); } }
       let seen: Vec<&str> = EH_110_0_NAMES.iter().filter(|(t, _)| EH_110_0[*t as usize].load(Ordering::Relaxed) == 0).map(|(_, n)| *n).collect();
+      s.push_str(&format!("\n        미출현 {}: {}\n", seen.len(), seen.join(" "))); }
+    { let tot: u64 = EH_111_0.iter().map(|a| a.load(Ordering::Relaxed)).sum();
+      s.push_str(&format!("    #111 self+0x5e8 BigPlan: 총 {} — ", tot));
+      for &(t, nm) in EH_111_0_NAMES.iter() { let c = EH_111_0[t as usize].load(Ordering::Relaxed); if c > 0 { s.push_str(&format!("{}({})={} ", nm, if t == 0 { "untagged".to_string() } else { t.to_string() }, c)); } }
+      let seen: Vec<&str> = EH_111_0_NAMES.iter().filter(|(t, _)| EH_111_0[*t as usize].load(Ordering::Relaxed) == 0).map(|(_, n)| *n).collect();
+      s.push_str(&format!("\n        미출현 {}: {}\n", seen.len(), seen.join(" "))); }
+    { let tot: u64 = EH_111_1.iter().map(|a| a.load(Ordering::Relaxed)).sum();
+      s.push_str(&format!("    #111 self+0x768 SubPlan: 총 {} — ", tot));
+      for &(t, nm) in EH_111_1_NAMES.iter() { let c = EH_111_1[t as usize].load(Ordering::Relaxed); if c > 0 { s.push_str(&format!("{}({})={} ", nm, if t == 0 { "untagged".to_string() } else { t.to_string() }, c)); } }
+      let seen: Vec<&str> = EH_111_1_NAMES.iter().filter(|(t, _)| EH_111_1[*t as usize].load(Ordering::Relaxed) == 0).map(|(_, n)| *n).collect();
       s.push_str(&format!("\n        미출현 {}: {}\n", seen.len(), seen.join(" "))); }
     { let tot: u64 = EH_2_0.iter().map(|a| a.load(Ordering::Relaxed)).sum();
       s.push_str(&format!("    #02 self+0x0 SubPlan: 총 {} — ", tot));

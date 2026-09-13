@@ -268,13 +268,24 @@ def _scan(f, a, b):
 _cov_cache = {}
 
 
+import bisect
+
+
 def _index(tbl):
-    u"""`{root: [(base, width)]}` — `covers` 를 선형탐색에서 루트 버킷으로 낮춘다."""
+    u"""`{root: ([base 정렬], [그 base 까지의 최대 끝])}` — `covers` 를 bisect 로(09-14: update 14k줄에서 선형 버킷이 30분+ 걸렸다)."""
     k = id(tbl)
     if k not in _cov_cache:
         d = {}
+        tmp = {}
         for (r, bo), ws in tbl.items():
-            d.setdefault(r, []).append((bo, max(ws)))
+            tmp.setdefault(r, []).append((bo, bo + max(max(ws), 1)))
+        for r, lst in tmp.items():
+            lst.sort()
+            bases = [b for (b, _e) in lst]
+            ends = []; mx = 0
+            for (_b, e) in lst:
+                mx = max(mx, e); ends.append(mx)      # 접두 최대 끝 — 구간이 겹쳐도 한 번의 bisect 로 판정
+            d[r] = (bases, ends)
         _cov_cache[k] = d
     return _cov_cache[k]
 
@@ -284,11 +295,14 @@ def covers(tbl, root, o):
     `memcpy 24B` 로 통째 쓰는 sret 슬롯의 `+0x8`(specs[0] mem[27]) 이나
     `store i64` 한 방에 들어가는 하위 필드가 「없음」으로 오탐되는 것을 막는다."""
     d = _index(tbl)
-    buckets = [d.get(root, ())] if root is not None else d.values()
-    for lst in buckets:
-        for (base, w) in lst:
-            if base <= o < base + max(w, 1):
-                return True
+    buckets = [d.get(root)] if root is not None else d.values()
+    for be in buckets:
+        if not be:
+            continue
+        bases, ends = be
+        i = bisect.bisect_right(bases, o)
+        if i > 0 and ends[i - 1] > o:
+            return True
     return False
 
 
@@ -320,37 +334,44 @@ def base_anchors_for(sp, j, base, reads, writes, held_r, held_rw):
     (변이 시험 실측: 자격 시프트 전부 220/448 · 최선+0 **238/448**).
     ⚠이 동정은 **구제와 증인 자격 부여에만** 쓴다 — 동정 자체로 명세를 기각하지 않는다."""
     mem = sp.get("mem") or []
-    sb = []
-    for j2, m2 in enumerate(mem):
-        if j2 == j or m2.get("base") != base:
-            continue
-        d2, o2 = (m2.get("dir") or "").strip(), off_of(m2)
-        if d2 in ("r", "w") and o2 is not None:
-            sb.append((d2, o2))
-    if not sb:
-        return set()
-
-    def ok_on(root, ao, d):
-        return covers(reads if d == "r" else writes, root, ao)
-
-    allkeys = set(reads) | set(writes) | set(held_r) | set(held_rw)
-    cands = {}
-    for (r, bo) in allkeys:
-        c = cands.setdefault(r, set())
-        c.add(0)
-        for (_d2, o2) in sb:
-            c.add(bo - o2)
-    best = {}
-    for r, ss in cands.items():
-        for sh in ss:
-            n = sum(1 for (d2, o2) in sb if ok_on(r, o2 + sh, d2))
-            if n < (1 if sh == 0 else 2):
+    # ★09-14 성능 정정: base 별 「(root, shift) → 들어맞는 행 인덱스 집합」 을 **한 번만** 만들고 행 j 는 자기 기여만 뺀다(의미 동일).
+    #   전엔 행마다 후보 시프트(allkeys × 같은 base 행) 전부를 covers 로 다시 세어 update(mem 241·LegacyPlanHandler 100+행)에서 30분+.
+    ck = (id(sp), id(reads), base)
+    if ck not in _anch_cache:
+        rows = []
+        for j2, m2 in enumerate(mem):
+            if m2.get("base") != base:
                 continue
-            cur = best.setdefault(r, {})
-            if sh == 0:
-                cur[0] = n
-            if n > cur.get("top", (0, 0))[0]:
-                cur["top"] = (n, sh)
+            d2, o2 = (m2.get("dir") or "").strip(), off_of(m2)
+            if d2 in ("r", "w") and o2 is not None:
+                rows.append((j2, d2, o2))
+        M = {}
+        if rows:
+            allkeys = set(reads) | set(writes) | set(held_r) | set(held_rw)
+            shifts = {}
+            for (r, bo) in allkeys:
+                c = shifts.setdefault(r, set()); c.add(0)
+                for (_j2, _d2, o2) in rows:
+                    c.add(bo - o2)
+            for r, ss in shifts.items():
+                for sh in ss:
+                    hit = set(j2 for (j2, d2, o2) in rows if covers(reads if d2 == "r" else writes, r, o2 + sh))
+                    if hit:
+                        M[(r, sh)] = hit
+        _anch_cache[ck] = (rows, M)
+    rows, M = _anch_cache[ck]
+    if len(rows) <= 1:
+        return set()
+    best = {}
+    for (r, sh), hit in M.items():
+        n = len(hit) - (1 if j in hit else 0)
+        if n < (1 if sh == 0 else 2):
+            continue
+        cur = best.setdefault(r, {})
+        if sh == 0:
+            cur[0] = n
+        if n > cur.get("top", (0, 0))[0]:
+            cur["top"] = (n, sh)
     res = set()
     for r, cur in best.items():
         if 0 in cur:
@@ -358,6 +379,9 @@ def base_anchors_for(sp, j, base, reads, writes, held_r, held_rw):
         if "top" in cur:
             res.add((r, cur["top"][1]))
     return res
+
+
+_anch_cache = {}
 
 
 def check_spec(sp):

@@ -1,0 +1,1152 @@
+{
+ "name": "LegacyPlanHandler::update",
+ "sym": "_RNvMNtNtCshdEBA0ozCnw_7game_ai11plan_legacy7handlerNtB2_17LegacyPlanHandler6update",
+ "src": "game-ai\\src\\plan_legacy\\handler.rs",
+ "src_line": 685,
+ "ir_file": "m13.ll",
+ "ir_from": 14467,
+ "ir_to": 28943,
+ "aux": [
+  {
+   "ir_file": "m13.ll",
+   "ir_from": 5116,
+   "ir_to": 5281,
+   "note": "L1075~1076 iter_champions(enemy).filter(closure$11 is_visible_from).min_by_key(closure$12 distance_sq) 본체(필터·키 인라인)"
+  },
+  {
+   "ir_file": "m12.ll",
+   "ir_from": 9171,
+   "ir_to": 9379,
+   "note": "위 min_by_key 의 fold 후속(같은 필터·키 반복, 새 상수 없음)"
+  },
+  {
+   "ir_file": "m13.ll",
+   "ir_from": 60762,
+   "ir_to": 60914,
+   "note": "L1147~1151 kill_logs.iter().filter(closure sb_0).count() — kills 술어"
+  },
+  {
+   "ir_file": "m13.ll",
+   "ir_from": 60917,
+   "ir_to": 61059,
+   "note": "L1153~1157 kill_logs.iter().filter(closure sc_0).count() — deaths 술어"
+  }
+ ],
+ "batch": "r12 C — handler.rs 루트 줄 977~1251 만 (IR m13.ll 21508~24342 · 라벨 %2683~%3896)",
+ "one_line": "[배치C] v3 목적지 도착 게이트→새 플랜 커밋/교체→plan.update→채팅 회수·v48/v46/v54 계측 접기→라인 백파이트 진입→plan_ended 처리(갱크 결과 트레이스·이탈 계측·passive_plan 교체)→v50 다이브 에피소드 추적",
+ "signature": {
+  "params": [
+   {
+    "i": 1,
+    "name": "self",
+    "type": "&mut LegacyPlanHandler(6168B)",
+    "note": "IR %0 · noalias align 8 · readonly 없음 = &mut"
+   },
+   {
+    "i": 2,
+    "name": "version",
+    "type": "usize",
+    "note": "IR %1 · 본 범위에선 %210(alloca 8B 복사본) 로드 후 콜리에 전달만 (L988·L1010·L1129·L1240·L1246·L1251/36) — 본 범위 자체 분기 없음"
+   },
+   {
+    "i": 3,
+    "name": "rnd",
+    "type": "&mut StdRng(320B)",
+    "note": "IR %2 · 콜리 전달만(v2_apply_assign_commit·BigPlan::update·is_end·BattlePlan::update·passive_plan)"
+   },
+   {
+    "i": 4,
+    "name": "player",
+    "type": "&PlayerState(2528B)",
+    "note": "IR %3 · readonly · info.team(0x930)·info.position@tag(0x9c0)·statistics.non_target_hit(0x678) 읽음"
+   },
+   {
+    "i": 5,
+    "name": "data",
+    "type": "&OperationData(24B)",
+    "note": "IR %4 · cache(+0)·context(+8) 읽음"
+   },
+   {
+    "i": 6,
+    "name": "debug",
+    "type": "&mut DebugFrameData(224B)",
+    "note": "IR %5 · L1125(626~627) infos(+0xa0) HashMap entry.or_insert().push(String)"
+   },
+   {
+    "i": 7,
+    "name": "lapse",
+    "type": "bool",
+    "note": "IR %6 · DI 이름 `lapse`(!23531, arg 7) = 인지 공백(_docs game_ai.txt:398 — v3+에서만 참, 새 개전·목표 발행·배정 재선정만 막음). 본 범위 안 직접 분기 없음. ⚠배치 B 의 L960 `br i1 %6` 이 true 면 L960~1002 를 건너뛰고 본 범위 L1005(%2768) 로 진입한다(m13.ll:21510)"
+   }
+  ],
+  "returns": "void (본 범위는 반환 지점 없음 — L1251 끝에서 %3897(L1253, 배치 D)으로 이어짐)"
+ },
+ "reads": [
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x5e8",
+   "name": "plan@tag",
+   "note": "BigPlan 판별자(니치 tag = idx+2, DeathMatchBattle 암묵). L979·991·1005·1015·1098·1118·1125(599)·1129·1134·1179·1189·1200·1251(39) 에서 switch/eq"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x5f0",
+   "name": "plan@PassiveLine.0 / plan@Battle.0 등 페이로드 시작",
+   "note": "PassiveLine: +0x18 chats(0x608) · +0x60 v46_pending(0x650 trigger_ticks · 0x668 flee_episodes · 0x680~0x6e8 카운터 14) · +0x116 line(0x706). Battle: +0x68 chats(0x658) · +0x80 v54_reentry_ticks(0x670) · +0x98 dive_catch_break_ticks(0x688) · +0xf0 dive_last_race_adv(0x6e0) · +0xf6 with_dive(0x6e6) · +0xf7 dive_entered(0x6e7) · +0xfa dive_abandoned(0x6ea) · +0xfe dive_tower(0x6ee) · +0x40 main_goal@tag(0x630)·+0x48 payload(0x638) · +0x58 sub_goal@tag(0x648)·+0x60 focus(0x650) · +0x103 dive_abort_src(0x6f3) · +0x104~0x106 dive_last_model/na/ne(0x6f4~0x6f6) · +0x107 entry_src(0x6f7) · +0x108 exit_src(0x6f8) · +0x109~0x111 ff_wave_*·ff_exit1_cls·exit_sub(0x6f9~0x701). PassiveJungle: +0x48 team(0x638)·+0x50 player_team(0x640). LineGanker: +0x28 line(0x618)"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x768",
+   "name": "sub_plan@tag",
+   "note": "L1023 == 7(Battle)"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x790",
+   "name": "sub_plan@Battle.0.v48_claim_hold_until",
+   "note": "L1025"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x79b",
+   "name": "sub_plan@Battle.0.v48_dodge_claim",
+   "note": "L1023 bool"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x517",
+   "name": "team_plan.objective (Option<MainObjective> 3B)",
+   "note": "L1125(616) BattlePlan.main_objective 로 복사 · L1190 tag&!1==8 (Gank8|Dive9)"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x548",
+   "name": "v3_dest@tag",
+   "note": "배치B L976 에서 Some 확정 후 본 범위 L977 (dx,dy)=0x550/0x558 사용(로드는 B, 21629~21633)"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x570",
+   "name": "v50_dive_ep_live@tag",
+   "note": "L1251(65·68·108) -1=None"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x5e1",
+   "name": "v50_dive_ep_live@Some.0.tower",
+   "note": "L1251(65) live.tower != active.tower_ty → fold"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x5e2",
+   "name": "v50_dive_ep_live@Some.0.start_model",
+   "note": "L1251(73) ==0 이면 스냅샷 채움"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x5c0",
+   "name": "v50_dive_ep_live@Some.0.gap_ticks",
+   "note": "L1251(110) < tps"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x7c8",
+   "name": "chats (Vec<Chat>)",
+   "note": "L1016 extend 대상(&mut)"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x810",
+   "name": "gank_periods (Vec<(usize,usize)>) ptr 0x818·len 0x820",
+   "note": "L1135 last_mut()"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x1550",
+   "name": "v48_claim_until_tick",
+   "note": "L1025 max · L1030 now > 이면 claim 창 밖"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x1558",
+   "name": "v48_last_non_target_hit",
+   "note": "L1034 nth > last"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x1618",
+   "name": "mf_swap.1",
+   "note": "L997 != tick 이면 mf_note_swap"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x1814",
+   "name": "v48_last_cast_state",
+   "note": "L1067 cur == last 이면 계측 생략"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x0",
+   "name": "data (GoalData 248B)",
+   "note": "L1010 BigPlan::update 에 &GoalData(readonly) 로 전달 · L1129 is_end 에도"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x990",
+   "name": "positioning_score (2760B)",
+   "note": "L1010·L1125(617) readonly 전달"
+  },
+  {
+   "base": "PlayerState",
+   "offset": "0x930",
+   "name": "info.team",
+   "note": "L977·1039·1059·1075(1-team)·1251(44·55) — 전부 `<2` bounds check 동반"
+  },
+  {
+   "base": "PlayerState",
+   "offset": "0x9c0",
+   "name": "info.position@tag (i32)",
+   "note": "as_index → player_champion[team][pos] · L1133 !=1(Jungle) 이면 갱크 결과 트레이스 생략"
+  },
+  {
+   "base": "PlayerState",
+   "offset": "0x678",
+   "name": "info.statistics.non_target_hit",
+   "note": "L1033 nth"
+  },
+  {
+   "base": "OperationData",
+   "offset": "0x0",
+   "name": "cache (&AbstractGameWithCache)",
+   "note": "%211"
+  },
+  {
+   "base": "OperationData",
+   "offset": "0x8",
+   "name": "context (&GameContext)",
+   "note": "%1639"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x0",
+   "name": "game.data_ptr / game.vtable_ptr(+0x8)",
+   "note": "vtable 슬롯 0x28 tick · 0x130 kill_logs · 0x1f0 get_entity_by_id (divtable AbstractGame)"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x1e0",
+   "name": "player_champion[team][pos]",
+   "note": "gep 480 + team*40 + pos*8 (Option<&Entity>, null=None)"
+  },
+  {
+   "base": "GameContext",
+   "offset": "0x8",
+   "name": "setting (&GameSetting)",
+   "note": "L1251(66·110·118) setting.tick_per_second(0x12f8)"
+  },
+  {
+   "base": "GameContext",
+   "offset": "0x39",
+   "name": "trace_level (TraceLevel 1B)",
+   "note": "L1141 is_enabled = !=0(Off)"
+  },
+  {
+   "base": "GameContext",
+   "offset": "0x3b",
+   "name": "debug (bool)",
+   "note": "L1125(624) 디버그 문자열 기록 게이트"
+  },
+  {
+   "base": "GameSetting",
+   "offset": "0x12f8",
+   "name": "tick_per_second",
+   "note": "L1251(110) gap_ticks < tps"
+  },
+  {
+   "base": "DebugFrameData",
+   "offset": "0xa0",
+   "name": "infos (HashMap<usize, Vec<String>>)",
+   "note": "L1125(626) entry(champ.id).or_insert(Vec::new()).push(format!(..))"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x0",
+   "name": "team@tag (0=Player)",
+   "note": "L1251(44·55) · aux is_visible_from"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x8",
+   "name": "team@Player.0",
+   "note": "L1251(44) == 1-team(적) · (55) == team(아군)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x38",
+   "name": "visible_state[team]@tag (stride 16)",
+   "note": "aux closure$11 is_visible_from: tag==0 이면 가시"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x68",
+   "name": "ty@tag (EntityType)",
+   "note": "13=Champion(L1040·1060·1251/55) · 2=Tower(L1251/53)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x70",
+   "name": "ty@Champion.0.action_state@tag",
+   "note": "L1041 {2 Move,3 Attack,4 Skill,5 Skill2,6 Ult} · L1061 {4,5,6}"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x88",
+   "name": "ty@Tower.info.nearest_enemy@tag",
+   "note": "L1251(54)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x98",
+   "name": "ty@Tower.info.nearest_enemy@Some.0.1 (entity id)",
+   "note": "L1251(54~56) 타워 표적 id"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x438",
+   "name": "stat_buff_cached.range",
+   "note": "Effect::range 인라인(effect.rs:26) L1083·L1251(51)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x470",
+   "name": "stat_buff_cached.radius_mult (i32)",
+   "note": "Entity::radius 인라인(entity.rs:1511~1515) L1251(51)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x490",
+   "name": "attack_effect@Some.0 (Effect) — range 0x4a0 · growth_range 0x4a8 · casting@tag 0x4c0(-1=None)",
+   "note": "L1251(50~51) 타워 공격 이펙트"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x4c8",
+   "name": "skill_effect@Some.0 (Effect) — range 0x4d8 · growth 0x4e0 · start_timing 0x4e8 · casting@tag 0x4f8",
+   "note": "L1069"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x500",
+   "name": "skill2_effect@Some.0 — casting@tag 0x530",
+   "note": "L1070 skill2_effect(): level>2 이면 &self.skill2_effect 아니면 정적 None(@anon.76 = FF FF FF FF)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x538",
+   "name": "ult_effect@Some.0 — casting@tag 0x568",
+   "note": "L1071 ult_effect(): level>4 조건"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x5c0",
+   "name": "id",
+   "note": "L1125(626) 디버그 키 · L1251(45·56)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x5c8",
+   "name": "level",
+   "note": "L1070/1071 스킬 해금 · Effect::range 의 (level-1)*growth"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x628",
+   "name": "stat_cached.hp (max hp)",
+   "note": "L1251(58) tgt_hp_pct 분모 max(.,1)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x660",
+   "name": "x",
+   "note": "L978 · aux distance_sq"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x668",
+   "name": "y",
+   "note": ""
+  },
+  {
+   "base": "Entity",
+   "offset": "0x670",
+   "name": "hp",
+   "note": "L1251(58·59)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x680",
+   "name": "radius",
+   "note": "L1251(51)"
+  },
+  {
+   "base": "Effect",
+   "offset": "0x10",
+   "name": "range",
+   "note": "+0x18 growth_range · +0x20 start_timing(L1078 windup) · +0x30 casting(CastingType: 1 Position·2 Direction = is_nontarget)"
+  },
+  {
+   "base": "KillLog",
+   "offset": "0x0",
+   "name": "assist(Vec<Position>) · 0x18 tick · 0x20 killer_team · 0x28 killer_position · 0x2c killed_position",
+   "note": "aux sb_0/sc_0 (stride 48)"
+  }
+ ],
+ "writes": [
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x548",
+   "name": "v3_dest (Option<(u64,u64)> 24B)",
+   "value": "v3_plan_dest(player.team, context, &new_plan) 결과 memcpy 24",
+   "note": "L982 (m13.ll:21768) · sret %168"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x180e",
+   "name": "v3_dest_obj (Option<MainObjective> 3B)",
+   "value": "obj(=배치B L970 에서 복사한 team_plan.objective %169)",
+   "note": "L983 (21770)"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x5f0",
+   "name": "plan@PassiveLine.0 (구 플랜 페이로드)",
+   "value": "PassiveLinePlan::v46_carry_over(&mut new.0, &mut old.0) — old 쪽 인자 captures(none)·readonly 없음 = &mut, 쓰기 내용은 콜리(m04.ll:18821) 몫",
+   "note": "L993 (21824) · new 쪽은 initializes((273,274)) = +0x111 v46_commit·+0x112 v46_flee"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x1610",
+   "name": "mf_swap.0",
+   "value": "src(u8 %171, passive_plan 이 준 교체 사유)",
+   "note": "L998 mf_note_swap 인라인(handler.rs:410) — mf_swap.1 != tick 일 때만"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x1618",
+   "name": "mf_swap.1",
+   "value": "game.tick()",
+   "note": "L998 · L1247 에서는 (25, tick)"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x5e8",
+   "name": "plan (BigPlan 384B) ★교체 ①",
+   "value": "new_plan(%172) — memcpy →%167, drop_glue(old), memcpy 384 → self.plan",
+   "note": "L1000 (21838~21857) · HEAP: 구 플랜 drop"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x5e8",
+   "name": "plan (&mut)",
+   "value": "BigPlan::update(&mut plan, version, rnd, player, data, &self.data, &mut self.team_plan, &self.positioning_score, debug)",
+   "note": "L1010 (21906) · 내부 쓰기는 콜리 몫(자식 명세 없음 — m02.ll:6887 미탐색)"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0xf8",
+   "name": "team_plan (&mut TeamPlan 1064B)",
+   "value": "BigPlan::update(L1010)·BigPlan::is_end(L1129)·BattlePlan::update(L1125/617) 에 &mut 전달",
+   "note": "내부 쓰기 미탐색"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x7c8",
+   "name": "chats (Vec<Chat>) ★HEAP grow",
+   "value": "extend(plan.chats().drain(..)) — Vec<Chat>::extend_trusted(Drain)",
+   "note": "L1016 (22003~22020) · 소스 = 플랜 페이로드 chats(태그별 0x608/0x5f0/0x658/0x6e0)"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x1550",
+   "name": "v48_claim_until_tick",
+   "value": "max(self, sub_plan.Battle.v48_claim_hold_until)",
+   "note": "L1025 — sub_plan 이 Battle 이고 v48_dodge_claim 일 때"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x1560",
+   "name": "v48_claim_window_ticks",
+   "value": "+= 1",
+   "note": "L1031 (now <= claim_until)"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x1568",
+   "name": "v48_claim_window_hits",
+   "value": "+= d (nth - last)",
+   "note": "L1037"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x1578",
+   "name": "v48_claim_hit_locked",
+   "value": "+= d",
+   "note": "L1043 action_state ∈ {Attack,Skill,Skill2,Ult}"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x1580",
+   "name": "v48_claim_hit_moving",
+   "value": "+= d",
+   "note": "L1044 action_state == Move"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x1588",
+   "name": "v48_claim_hit_idle",
+   "value": "+= d",
+   "note": "L1045 그 외(Idle/Return)"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x1570",
+   "name": "v48_other_hits",
+   "value": "+= d",
+   "note": "L1050 (now > claim_until)"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x1558",
+   "name": "v48_last_non_target_hit",
+   "value": "nth",
+   "note": "L1053 (양 분기 공통, phi %2864/%2865)"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x1590",
+   "name": "v48_cast_cc",
+   "value": "+= 1",
+   "note": "L1079 nearest.block_move()"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x1598",
+   "name": "v48_cast_locked",
+   "value": "+= 1",
+   "note": "L1081 !(remain_action_time < windup)"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x15a0",
+   "name": "v48_cast_free_near",
+   "value": "+= 1",
+   "note": "L1083 dist*2 < max(effect.range(champ),1)"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x15a8",
+   "name": "v48_cast_free_far",
+   "value": "+= 1",
+   "note": "L1083 else"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x1814",
+   "name": "v48_last_cast_state",
+   "value": "cur (0=없음,1 Skill,2 Skill2,3 Ult)",
+   "note": "L1092 (22253) — Champion 이면 항상 저장"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x870",
+   "name": "v46_lane_recall_trigger_ticks (Vec<(usize,LineType)>) ★HEAP grow",
+   "value": "append(&mut plan.PassiveLine.v46_pending.trigger_ticks) — reserve(len)+memcpy(len*16)+len+=; 소스 len=0",
+   "note": "L1100 (22380~22416) · 소스 Vec 0x650(ptr 0x658·len 0x660)"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x14d0",
+   "name": "v46_lane_recall_danger_ticks … 0x1538 v46_lane_flee_nohit_episodes (14개 usize)",
+   "value": "+= mem::take(plan.PassiveLine.v46_pending.<동명 카운터>) (0x680~0x6e8 → 0 으로)",
+   "note": "L1101~1114 순서: danger_ticks·veto_wave·veto_crash·veto_heal·stage2_saves·commit_clears·wave_enemy_half·wave_my_half·flee_triggers·flee_hold_ticks·flee_hold_acute·flee_hold_refuge·flee_hold_cover·flee_nohit_episodes"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x680",
+   "name": "plan@PassiveLine.0.v46_pending 카운터 14 (0x680~0x6e8)",
+   "value": "0 (take)",
+   "note": "L1101~1114"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x8a0",
+   "name": "v46_lane_flee_episodes (Vec<(usize,LineType,u8)>) ★HEAP grow",
+   "value": "append(&mut plan.PassiveLine.v46_pending.flee_episodes 0x668)",
+   "note": "L1115 (22560~22589)"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x900",
+   "name": "v54_reentry_ticks (Vec<usize>) ★HEAP grow",
+   "value": "append(&mut plan.Battle.v54_reentry_ticks 0x670)",
+   "note": "L1119 (22612~22645) · 소스 len 0x680 → 0"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x0",
+   "name": "self 전체 (&mut)",
+   "value": "sanitize_rule_scope(&mut self, cache, context)",
+   "note": "L1121 (22638) · 내부 쓰기 미탐색(m13.ll:11163~11383)"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x5e8",
+   "name": "plan ★교체 ② (enter_line_backfight_support)",
+   "value": "drop_glue(old); tag=9(Battle); memcpy 280 battle → 0x5f0",
+   "note": "L1125(631) (22841·22936~22937) · HEAP: 구 플랜 drop · battle.chats 는 이동 전 len=0(618)"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x818",
+   "name": "gank_periods[len-1].1 (힙 원소, in-place)",
+   "value": "now",
+   "note": "L1139 (23921) · grow 없음"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x858",
+   "name": "pending_trace_events (Vec<PendingTraceEvent 184B>) ★HEAP grow",
+   "value": "push(PendingTraceEvent{ event: GankResult{kills, deaths, duration, line, success}, tick: now })",
+   "note": "L1162 (24024~24042) · 태그 -9223372036854775805 = GankResult"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x1470",
+   "name": "gank_cancel_tick",
+   "value": "game.tick()",
+   "note": "L1181"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x308",
+   "name": "team_plan.mf_obj_clear.0 / 0x310 .1",
+   "value": "(42, tick)",
+   "note": "L1191 mf_note_obj_clear 인라인(team_plan.rs:197)"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x517",
+   "name": "team_plan.objective",
+   "value": "None (0xff)",
+   "note": "L1192"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x1480",
+   "name": "last_dive_abandon_tick",
+   "value": "tick",
+   "note": "L1205 (24140~24141 gep 5248)"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x1488",
+   "name": "last_response_bail_tick",
+   "value": "tick",
+   "note": "L1212 (24162~24163 gep 5256)"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x320",
+   "name": "team_plan.last_resolver_bail_tick",
+   "value": "tick",
+   "note": "L1216 exit_src==11"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x1490",
+   "name": "last_lost_fight (.0 0x1490, .1 0x1498)",
+   "value": "(main_goal.0 또는 focus, tick)",
+   "note": "L1227 / L1231"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x15f8",
+   "name": "ff_battle_exit (.2 tick 0x15f8 · .0 exit_src 0x1600 · .1 entry_src 0x1601 · .3 exit_sub 0x1602 · .4 ff_wave_obs_open 0x1603)",
+   "value": "(b.exit_src, b.entry_src, tick, b.exit_sub, b.ff_wave_obs_open)",
+   "note": "L1235 (24233~24242)"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x1608",
+   "name": "ff_battle_exit_latch (u8×8 0x1608~0x160f)",
+   "value": "(ff_exit1_cls, ff_wave_open_hp, ff_wave_open_pct, ff_wave_fire_hp, ff_wave_fire_pct, ff_wave_open_danger, ff_wave_fire_danger, dive_abort_src)",
+   "note": "L1236~1237 (24259~24274)"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x1658",
+   "name": "mf_ret25_src[min(src,31)]",
+   "value": "+= 1",
+   "note": "L1241 (24292~24298)"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x0",
+   "name": "self 전체 (&mut)",
+   "value": "passive_plan(sret 392, &mut self, ...) · v2_apply_assign_commit(&mut self, ..., &mut new, &src, debug)",
+   "note": "L1240·L1246 (및 L988) · 내부 쓰기는 자식 명세 몫"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x1610",
+   "name": "mf_swap",
+   "value": "(25, tick)",
+   "note": "L1247"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x5e8",
+   "name": "plan ★교체 ③",
+   "value": "passive_plan 결과(%155) — memcpy→%152, drop_glue(old), memcpy 384",
+   "note": "L1248 (24316~24326) · HEAP"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x570",
+   "name": "v50_dive_ep_live 신규 Some (0x570~0x5e5 전 필드)",
+   "value": "V50DiveEpLive{prev_holder_hp: holder?Some(hp):None(tag 0x570·값 0x578), start_tick 0x580=tick, last_tick 0x588=tick, ep_ticks 0x590=1, in_range_ticks 0x598=in_range, holder_ticks 0x5a0=holder, team_holder_ticks 0x5a8=team_holder, minion_cover_ticks 0x5b0=in_range&&!tower_on_champ, soaked_hp 0x5b8=0, gap_ticks 0x5c0=0, max_catch_break 0x5c8=catch_break, uncatch_total 0x5d0=(catch_break!=0), target_pos 0x5d8, start_race_adv 0x5dc, start_in_range 0x5e0, tower 0x5e1, start_model 0x5e2, start_na 0x5e3, start_ne 0x5e4, start_tgt_hp 0x5e5}",
+   "note": "L1251(91~92) (23696~23733)"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x5c0",
+   "name": "v50_dive_ep_live.gap_ticks",
+   "value": "0 (L70) / +=1 (L111)",
+   "note": "L1251"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x5c8",
+   "name": "v50_dive_ep_live.max_catch_break",
+   "value": "max(catch_break, old)",
+   "note": "L1251(71)"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x5d0",
+   "name": "v50_dive_ep_live.uncatch_total",
+   "value": "+= (catch_break != 0)",
+   "note": "L1251(72)"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x5e2",
+   "name": "v50_dive_ep_live.start_model / 0x5dc start_race_adv / 0x5e3 start_na / 0x5e4 start_ne",
+   "value": "snap 값",
+   "note": "L1251(75~76) start_model==0 && model!=0 일 때만"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x588",
+   "name": "v50_dive_ep_live.last_tick",
+   "value": "tick",
+   "note": "L1251(78·113)"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x590",
+   "name": "v50_dive_ep_live.ep_ticks",
+   "value": "+= 1",
+   "note": "L1251(79·112)"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x598",
+   "name": "v50_dive_ep_live.in_range_ticks",
+   "value": "+= 1 (in_range)",
+   "note": "L1251(80)"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x5a8",
+   "name": "v50_dive_ep_live.team_holder_ticks",
+   "value": "+= 1 (team_holder)",
+   "note": "L1251(81)"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x5b0",
+   "name": "v50_dive_ep_live.minion_cover_ticks",
+   "value": "+= 1 (in_range && !tower_on_champ)",
+   "note": "L1251(82)"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x5a0",
+   "name": "v50_dive_ep_live.holder_ticks",
+   "value": "+= 1 (holder)",
+   "note": "L1251(84)"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x5b8",
+   "name": "v50_dive_ep_live.soaked_hp",
+   "value": "+= prev_holder_hp.saturating_sub(hp)",
+   "note": "L1251(85) prev_holder_hp 가 Some 일 때"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x570",
+   "name": "v50_dive_ep_live.prev_holder_hp",
+   "value": "Some(hp) (L86: tag 1 + 0x578=hp) / None (L88: tag 0)",
+   "note": "L1251(83~88)"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x1811",
+   "name": "v50_dive_ep_abort_src",
+   "value": "plan 이 Battle 이면 b.dive_abort_src 아니면 0",
+   "note": "L1251(117)"
+  },
+  {
+   "base": "LegacyPlanHandler",
+   "offset": "0x0",
+   "name": "self 전체 (&mut)",
+   "value": "v50_fold_dive_episode(&mut self, dive_abandoned: bool, reason: u8)",
+   "note": "L1251(66: (false,0) · 118: (dive_abandoned, reason)) · 자식 명세 있음 — 계약만"
+  },
+  {
+   "base": "DebugFrameData",
+   "offset": "0xa0",
+   "name": "infos HashMap ★HEAP(외부)",
+   "value": "entry(champ.id).or_insert(Vec::new()).push(format!(\"!v26 line backfight support: line {:?}, ally {}, focus {}\", line, ally_id, focus_id))",
+   "note": "L1125(626~627) context.debug 일 때만 · self 아님"
+  }
+ ],
+ "constants": [
+  {
+   "value": 4096000001,
+   "src_line": 978,
+   "meaning": "64000²+1 — v3 목적지 도착 판정: dist_sq < 64000²+1 ⟺ 거리 ≤ 64000(=2셀). arrived (21741)"
+  },
+  {
+   "value": 2,
+   "src_line": 977,
+   "meaning": "player.info.team < 2 bounds check(panic_bounds_check) — L977·1039·1059 및 aux"
+  },
+  {
+   "value": 1,
+   "src_line": 979,
+   "meaning": "closure$9(BigPlan 논리 idx) = {1 PassiveLine, 2 SinglePlanLine, 5 PassiveJungle} — switch case (21706~21708·21755~21757). 메모리 태그 3·4·7 (shl 시프트량 아님 — 태그/열거/카운트 값)"
+  },
+  {
+   "value": 5,
+   "src_line": 979,
+   "meaning": "위 closure$9 의 idx 5 = PassiveJungle"
+  },
+  {
+   "value": 3,
+   "src_line": 991,
+   "meaning": "BigPlan 메모리 태그 3 = PassiveLine (idx 1). L991·1098·1125(599)·1129 에서 eq (shl 시프트량 아님 — 태그/열거/카운트 값)"
+  },
+  {
+   "value": 6,
+   "src_line": 1005,
+   "meaning": "llvm.assume(tag != 6) — BigPlan 니치 인코딩상 6 은 불가 값(untagged DeathMatchBattle 자리). 판정 아님"
+  },
+  {
+   "value": 7,
+   "src_line": 1005,
+   "meaning": "BigPlan 논리 idx 7 = Battle → prof 페이즈 68 / idx 1(PassiveLine) → 69 / 그 외 70 (21882~21885)"
+  },
+  {
+   "value": 68,
+   "src_line": 1005,
+   "meaning": "ProfTimer 페이즈 코드(Battle 플랜 update). 이름 미확인(PHASE_NANOS[132] 인덱스)"
+  },
+  {
+   "value": 69,
+   "src_line": 1005,
+   "meaning": "ProfTimer 페이즈 코드(PassiveLine 플랜 update)"
+  },
+  {
+   "value": 70,
+   "src_line": 1005,
+   "meaning": "ProfTimer 페이즈 코드(그 외 플랜 update)"
+  },
+  {
+   "value": 76,
+   "src_line": 1124,
+   "meaning": "ProfTimer 페이즈 코드(enter_line_backfight_support 구간)"
+  },
+  {
+   "value": 74,
+   "src_line": 1128,
+   "meaning": "ProfTimer 페이즈 코드(is_passive/is_end 구간)"
+  },
+  {
+   "value": 132,
+   "src_line": 1013,
+   "meaning": "PHASE_NANOS/PHASE_CALLS 배열 길이(bounds check) — 판정 아님"
+  },
+  {
+   "value": 1000000000,
+   "src_line": 1013,
+   "meaning": "Duration::as_nanos (초×1e9) — 프로파일링 전용"
+  },
+  {
+   "value": 8,
+   "src_line": 1023,
+   "meaning": "llvm.assume(sub_plan tag != 8) — SubPlan 니치 불가 값. 판정 아님"
+  },
+  {
+   "value": 7,
+   "src_line": 1023,
+   "meaning": "SubPlan 메모리 태그 7 = Battle (idx 5) — v48 claim 창 연장 조건"
+  },
+  {
+   "value": 13,
+   "src_line": 1040,
+   "meaning": "EntityType 태그 13 = Champion (L1040·1060·1251/55)"
+  },
+  {
+   "value": 2,
+   "src_line": 1041,
+   "meaning": "ChampionActionState 태그 2 = Move → v48_claim_hit_moving"
+  },
+  {
+   "value": 3,
+   "src_line": 1041,
+   "meaning": "ChampionActionState 3 Attack·4 Skill·5 Skill2·6 Ult → v48_claim_hit_locked (shl 시프트량 아님 — 태그/열거/카운트 값)"
+  },
+  {
+   "value": 4,
+   "src_line": 1061,
+   "meaning": "ChampionActionState 4 Skill→cur=1 · 5 Skill2→cur=2 · 6 Ult→cur=3 (L1061~1067) (shl 시프트량 아님 — 태그/열거/카운트 값)"
+  },
+  {
+   "value": -1,
+   "src_line": 1069,
+   "meaning": "Option<Effect> 니치 None (casting@tag == -1) — L1069~1071·L1251(50)·v50_dive_ep_live tag"
+  },
+  {
+   "value": 1,
+   "src_line": 1074,
+   "meaning": "CastingType is_nontarget: (casting-1) <u 2 ⟺ casting ∈ {1 Position, 2 Direction} (22282~22283) (shl 시프트량 아님 — 태그/열거/카운트 값)"
+  },
+  {
+   "value": 1,
+   "src_line": 1083,
+   "folded_from": 2,
+   "meaning": "`shl i64 %dist, 1` = dist*2 < max(range,1) → v48_cast_free_near (근접 판정 = 사거리의 절반 이내). shl 로 접힘 (22355)"
+  },
+  {
+   "value": 1,
+   "src_line": 1083,
+   "meaning": "max(effect.range(champ), 1) 하한 (umax) (shl 시프트량 아님 — 태그/열거/카운트 값)"
+  },
+  {
+   "value": 9,
+   "src_line": 1118,
+   "meaning": "BigPlan 메모리 태그 9 = Battle (idx 7) — L1118·1200·1251(39·115)·L631 store"
+  },
+  {
+   "value": 576460752303423488,
+   "src_line": 1100,
+   "meaning": "Vec<(usize,LineType)> len 상한 assume(isize::MAX/16) — 판정 아님"
+  },
+  {
+   "value": 1152921504606846976,
+   "src_line": 1119,
+   "meaning": "Vec<usize> len 상한 assume — 판정 아님"
+  },
+  {
+   "value": 6,
+   "src_line": 1125,
+   "meaning": "handler.rs:614 battle.entry_src = 6 (라인 백파이트 지원 진입 사유 코드) (22751)"
+  },
+  {
+   "value": 4,
+   "src_line": 1125,
+   "meaning": "handler.rs:620 battle.sub_goal 태그 4 RunAway · 7 End → 진입 취소(battle drop) (22773~22775) (shl 시프트량 아님 — 태그/열거/카운트 값)"
+  },
+  {
+   "value": 10,
+   "src_line": 1134,
+   "meaning": "BigPlan 메모리 태그 10 = LineGanker (idx 8) — L1134·1179"
+  },
+  {
+   "value": 1,
+   "src_line": 1133,
+   "meaning": "Position 태그 1 = Jungle (player.info.position != 1 이면 갱크 결과 트레이스 생략) · aux 킬로그 술어의 killer/killed_position==1 (shl 시프트량 아님 — 태그/열거/카운트 값)"
+  },
+  {
+   "value": -9223372036854775805,
+   "src_line": 1162,
+   "meaning": "TraceEventType 니치 태그 9223372036854775811 = GankResult (idx 3) (24031)"
+  },
+  {
+   "value": -9,
+   "src_line": 1189,
+   "meaning": "(tag-9) <u 2 ⟺ tag ∈ {9 Battle, 10 LineGanker}"
+  },
+  {
+   "value": -2,
+   "src_line": 1190,
+   "meaning": "team_plan.objective tag & !1 == 8 ⟺ tag ∈ {8 Gank, 9 Dive} (MainObjective)"
+  },
+  {
+   "value": 8,
+   "src_line": 1190,
+   "meaning": "MainObjective 태그 8 Gank / 9 Dive — 플랜 종료 시 팀 목표 해제 대상"
+  },
+  {
+   "value": 42,
+   "src_line": 1191,
+   "meaning": "team_plan.mf_note_obj_clear(src=42, tick) — 목표 해제 사유 코드"
+  },
+  {
+   "value": 2,
+   "src_line": 1211,
+   "meaning": "BattlePlanGoal 태그 2 = Response (main_goal) — last_response_bail_tick 조건"
+  },
+  {
+   "value": -11,
+   "src_line": 1211,
+   "meaning": "(exit_src-11) <u 4 ⟺ exit_src ∈ {11,12,13,14} (battle.rs [ff 계측] 코드표 — 본 범위 밖)"
+  },
+  {
+   "value": 11,
+   "src_line": 1215,
+   "meaning": "exit_src == 11 → team_plan.last_resolver_bail_tick = tick"
+  },
+  {
+   "value": 2,
+   "src_line": 1225,
+   "meaning": "(exit_src-11) <u 2 ⟺ exit_src ∈ {11,12} → last_lost_fight 갱신"
+  },
+  {
+   "value": 25,
+   "src_line": 1247,
+   "meaning": "mf_note_swap(src=25) — _docs: 25=교체불명(플랜 종료 후 passive_plan 교체 경로)"
+  },
+  {
+   "value": 31,
+   "src_line": 1241,
+   "meaning": "mf_ret25_src[min(src,31)] — 32칸 배열 상한 클램프"
+  },
+  {
+   "value": 100,
+   "src_line": 1251,
+   "meaning": "dive_episode.rs:58 tgt_hp_pct = hp*100/max(max_hp,1) · entity.rs:1515 radius*(mult+100)/100"
+  },
+  {
+   "value": 255,
+   "src_line": 1251,
+   "meaning": "dive_episode.rs:58 tgt_hp_pct 를 u8 로 클램프 (umin 255)"
+  },
+  {
+   "value": 2,
+   "src_line": 1251,
+   "meaning": "dive_episode.rs:53 EntityType 태그 2 = Tower (타워 표적 nearest_enemy 읽기 조건)"
+  },
+  {
+   "value": 4,
+   "src_line": 1251,
+   "meaning": "dive_episode.rs:110 reason ∈ {4 (focus None), 6 (target 이 적 챔피언 아님/플레이어 없음)} 이면 gap_ticks < tps 동안 에피소드 유지 (shl 시프트량 아님 — 태그/열거/카운트 값)"
+  },
+  {
+   "value": 8,
+   "src_line": 1251,
+   "meaning": "closure$0 reason 코드: 8 = 내 챔피언 없음 · 1 = 플랜이 Battle 아님 · 2 = !with_dive · 3 = dive_tower None · 4 = focus None · 5 = 표적 엔티티 없음 · 6 = 표적이 적 Player 팀 아님/player_by_champion_id None · 7 = 같은 종류 타워 없음/타워 attack_effect None (23531·23538)"
+  }
+ ],
+ "calls": [
+  "game_ai::plan_legacy::handler::LegacyPlanHandler::v3_plan_dest",
+  "game_ai::plan_legacy::handler::LegacyPlanHandler::v2_apply_assign_commit",
+  "game_ai::plan_legacy::old::passive_line::PassiveLinePlan::v46_carry_over",
+  "game_ai::plan_legacy::types::BigPlan::update",
+  "game_ai::plan_legacy::types::BigPlan::is_end",
+  "game_ai::plan_legacy::types::BigPlan::is_cancel",
+  "game_ai::plan_legacy::handler::LegacyPlanHandler::sanitize_rule_scope",
+  "game_ai::utils::line_backfight_support_focus",
+  "game_ai::plan_legacy::old::fight_model::is_ignored_battle_enemy",
+  "game_ai::plan_legacy::old::battle::BattlePlan::new",
+  "game_ai::plan_legacy::old::battle::BattlePlan::update",
+  "game_ai::plan_legacy::handler::LegacyPlanHandler::passive_plan",
+  "game_ai::plan_legacy::handler::dive_episode::LegacyPlanHandler::v50_fold_dive_episode",
+  "game_core::simulation::AbstractGameWithCache::player_by_champion_id",
+  "game_core::simulation::AbstractGameWithCache::iter_towers_without_nexus",
+  "game_core::simulation::entity::Entity::block_move",
+  "game_core::simulation::entity::Entity::remain_action_time",
+  "game_core::simulation::entity::Entity::distance",
+  "std::time::Instant::now",
+  "std::time::Instant::elapsed",
+  "alloc::vec::Vec::reserve",
+  "alloc::vec::Vec::extend_trusted",
+  "alloc::vec::Vec::push_mut",
+  "alloc::vec::Vec::drain",
+  "hashbrown::map::HashMap::rustc_entry",
+  "std::collections::hash::map::Entry::or_insert",
+  "alloc::fmt::format::format_inner",
+  "core::ptr::drop_glue",
+  "core::panicking::panic_bounds_check",
+  "core::iter::traits::iterator::Iterator::min_by_key",
+  "core::iter::traits::iterator::Iterator::count",
+  "game_core::simulation::entity::Position::slice_contains"
+ ],
+ "logic": "// handler.rs:977~1251 (배치 C)\n// 진입 ①: 배치B L976 `v3_armed && v3_dest_obj == team_plan.objective && v3_dest.is_some()` → L977(%2683). ②: L976 거짓/`arrived` 경로 → L982(%2725). ③: L969 v3_armed 거짓 → L988(%2671, 배치B 21622). ④: 배치B L948(plan!=SinglePlanLine)·L960(`lapse`==true 또는 !passive) → L1005(%2768) 직행(새 플랜 계산·커밋 전부 생략).\n// vtable: game.tick = vtable+0x28 · get_entity_by_id = +0x1f0 · kill_logs = +0x130 (divtable AbstractGame). champ = cache.player_champion[player.team][player.position] (0x1e0+team*40+pos*8, team<2 bounds check).\n\n// ── L977~1002: v3 목적지 게이트 + 새 플랜 커밋 (new=%172 384B, src=%171 u8: 배치B L961 passive_plan 결과)\nL977: let (dx,dy) = self.v3_dest.unwrap()  // 값은 B 에서 로드(0x550/0x558)\nL978: arrived = champ.is_some_and(|x| (|x.x-dx|² + |x.y-dy|²) < 64000²+1)   // Entity 0x660/0x668 · 4096000001\nL979: if !arrived && closure$9(&self.plan) && closure$9(&new) {  // closure$9(L974, 배치B) = idx ∈ {PassiveLine, SinglePlanLine, PassiveJungle}\nL985:   drop(new); → L1002 → L1005   // 목적지로 이동 중 + 구/신 모두 소극 플랜 = 교체 생략(구 플랜 유지). ⚠ champ 가 None 이면 arrived=false 로 취급(21694)\n}\nL982: self.v3_dest = self.v3_plan_dest(player.team, context, &new)   // sret 24 · 내부 미탐색\nL983: self.v3_dest_obj = obj   // %169 (B L970 에서 team_plan.objective 복사)\nL988: self.v2_apply_assign_commit(version, rnd, player, data, &mut new, &src, debug)   // 진입③ 합류점 %2671\nL991: if self.plan is PassiveLine(3) && new is PassiveLine(3) {\nL992:   if old.line(0x706) == new.line(+0x11e) {\nL993:     new.0.v46_carry_over(&mut old.0)   // PassiveLinePlan::v46_carry_over(&mut new, &mut old)\n}}\nL997: if self.mf_swap.1(0x1618) != game.tick() {\nL998:   self.mf_note_swap(src, game.tick())   // mf_swap = (src, tick) (handler.rs:410 인라인)\n}\nL1000: self.plan = new   // HEAP: 구 플랜 drop_glue 후 memcpy 384 (언와인드 시 원복 memcpy)\nL1002: (스코프 끝 — 언와인드 경로 %2680: new drop)\n\n// ── L1005~1013: 플랜 update (진입④ 합류점 %2768)\nL1005: phase = match self.plan idx { Battle(7)→68, PassiveLine(1)→69, _→70 }; timer = ProfTimer::start(phase)  // prof::ENABLED 원자 로드 0 이면 None\nL1010: self.plan.update(version, rnd, player, data, &self.data(0x0), &mut self.team_plan(0xf8), &self.positioning_score(0x990), debug)   // BigPlan::update m02.ll:6887 — 자식 명세 없음, 내부 미탐색\nL1013: drop(timer)  // PHASE_NANOS[phase] += elapsed, PHASE_CALLS[phase] += 1 (원자)\n\n// ── L1015~1016: 플랜 채팅 회수\nL1015: if let Some(chats) = self.plan.chats() {   // types.rs:185~189: PassiveLine→+0x18(0x608) · SinglePlanLine/PassiveJungle/LineGanker/LineGankCover→+0x0(0x5f0) · SinglePlanBattle/Battle→+0x68(0x658) · DeathMatchBattle→+0xf8(0x6e0) · 그 외(ForcePassive·ActiveRecall·Epic*/Serpen*/AttackNexus/DefenseNexus) None\nL1016:   self.chats(0x7c8).extend(chats.drain(..))   // HEAP grow\n}\n\n// ── L1023~1053: v48 회피 claim 창 계측\nL1023: if let SubPlan::Battle(sb) = &self.sub_plan(0x768 tag 7) && sb.v48_dodge_claim(0x79b) {\nL1025:   self.v48_claim_until_tick = max(self.v48_claim_until_tick, sb.v48_claim_hold_until(0x790))\n}\nL1029: now = game.tick()\nL1030: if now > self.v48_claim_until_tick {\nL1033:   nth = player.info.statistics.non_target_hit(0x678)\nL1034:   if nth > self.v48_last_non_target_hit { L1035: d = nth-last; L1050: self.v48_other_hits += d }\n} else {\nL1031:   self.v48_claim_window_ticks += 1\nL1033:   nth = …\nL1034:   if nth > last { L1035: d = nth-last; L1037: self.v48_claim_window_hits += d\nL1039:     if let Some(c) = champ { L1040: if c.ty is Champion(13) {\nL1041:       match c.action_state@tag(0x70) { Move(2) → L1044 v48_claim_hit_moving += d ; Attack(3)|Skill(4)|Skill2(5)|Ult(6) → L1043 v48_claim_hit_locked += d ; _(Idle/Return) → L1045 v48_claim_hit_idle += d }\n}}}}\nL1053: self.v48_last_non_target_hit = nth   // 양 분기 공통(phi)\n\n// ── L1059~1092: v48 시전 분포 계측 (자기 논타겟 스킬 시전 시 가장 가까운 적의 상태)\nL1059: if let Some(c) = champ { L1060: if c.ty is Champion {\nL1061:   cur = match action_state { Skill(4)→1, Skill2(5)→2, Ult(6)→3, _→0 }   // 0 이면 L1092 로\nL1067:   if cur != 0 && cur != self.v48_last_cast_state(0x1814) {\nL1069~1071: effect = match cur { 1 → c.skill_effect.as_ref()(tag 0x4f8) ; 2 → c.skill2_effect().as_ref() [level(0x5c8)>2 ? &skill2_effect(0x500) : &NONE] ; 3 → c.ult_effect().as_ref() [level>4 ? &ult_effect(0x538) : &NONE] }\nL1074:   if let Some(e) = effect && e.casting(+0x30).is_nontarget() [casting ∈ {Position 1, Direction 2}] {\nL1075:     nearest = cache.iter_champions(1-team).filter(|x| x.is_visible_from(c)).min_by_key(|x| distance_sq(x, c))   // aux m13.ll:5116 · is_visible_from(entity.rs:1482): c.team 이 Player 아니면 true, 아니면 x.visible_state[c.team]@tag(0x38+16*team)==0\nL1077:     if let Some(t) = nearest {\nL1078:       windup = e.start_timing(+0x20)\nL1079:       if t.block_move() { self.v48_cast_cc += 1 }\nL1081:       else if !(t.remain_action_time() < windup) { self.v48_cast_locked += 1 }   // 극성: remain < windup 이면 아래로, 아니면 locked (22332~22333)\nL1083:       else { d = t.distance(c); r = max(e.range(c), 1) [range + (level-1)*growth + c.stat_buff_cached.range(0x438)]; if d*2 < r { v48_cast_free_near += 1 } else { v48_cast_free_far += 1 } }\n}}}\nL1092:   self.v48_last_cast_state = cur   // Champion 이면 항상(cur 가 0 이어도) 저장\n}}\n\n// ── L1098~1115: PassiveLine v46 계측 접기 (플랜 → 핸들러 누적)\nL1098: if let BigPlan::PassiveLine(p) = &mut self.plan {\nL1100:   self.v46_lane_recall_trigger_ticks(0x870).append(&mut p.v46_pending.trigger_ticks(0x650))   // HEAP: reserve+memcpy, 소스 len=0\nL1101~1114: self.v46_lane_recall_{danger_ticks,veto_wave,veto_crash,veto_heal,stage2_saves,commit_clears,wave_enemy_half,wave_my_half} / v46_lane_flee_{triggers,hold_ticks,hold_acute_ticks,hold_refuge_ticks,hold_cover_ticks,nohit_episodes} (0x14d0~0x1538) += mem::take(&mut p.v46_pending.<동명>) (0x680~0x6e8 → 0)\nL1115:   self.v46_lane_flee_episodes(0x8a0).append(&mut p.v46_pending.flee_episodes(0x668))\n}\n// ── L1118~1119\nL1118: else if let BigPlan::Battle(b) = &mut self.plan { L1119: self.v54_reentry_ticks(0x900).append(&mut b.v54_reentry_ticks(0x670)) }\n// ── L1121\nL1121: self.sanitize_rule_scope(cache, context)   // internal fastcc m13.ll:11163~11383 · 내부 미탐색\n\n// ── L1124~1126: 라인 백파이트 지원 진입 (enter_line_backfight_support, handler.rs:599~633 인라인)\nL1124: timer = ProfTimer::start(76)\nL1125: {\n  599: if let BigPlan::PassiveLine(p) = &self.plan {\n  600:   line = p.line(0x706)\n  603:   if let Some((ally_id, focus_id)) = utils::line_backfight_support_focus(version, player, data, line) {   // sret 24 · m04.ll:53979 미탐색\n  606:     if let Some(focus) = game.get_entity_by_id(focus_id) {\n  609:       if !fight_model::is_ignored_battle_enemy(version, player, data, focus, false) {\n  613:         let mut battle = BattlePlan::new(version, &Some(focus_id), data, player)\n  614:         battle.entry_src(+0x107) = 6\n  615:         battle.support_target(+0x0) = Some(focus_id)\n  616:         battle.set_main_objective(self.team_plan.objective(0x517))  // → +0xff\n  617:         battle.update(version, rnd, player, data, &self.positioning_score, &mut self.team_plan, debug)\n  618:         battle.chats.clear()   // +0x78 len=0\n  620:         if battle.sub_goal(+0x58)@tag ∈ {RunAway 4, End 7} { drop(battle); → 633 }   // 진입 취소\n  624:         else { if context.debug(0x3b) { 625: if let Some(c) = champ { 626~627: debug.infos(+0xa0).entry(c.id).or_insert(vec![]).push(format!(\"!v26 line backfight support: line {:?}, ally {}, focus {}\", line, ally_id, focus_id)) } }\n  631:           self.plan = BigPlan::Battle(battle)   // HEAP: 구 플랜 drop · tag 9 + memcpy 280 → 0x5f0\n  }}}}}\n}\nL1126: drop(timer)\n\n// ── L1128~1131: 종료 판정\nL1128: timer = ProfTimer::start(74)\nL1129: plan_ended = !self.plan.is_passive() && self.plan.is_end(version, rnd, player, data, &self.data, &mut self.team_plan, debug)\n       // is_passive(types.rs:254~257): PassiveLine(idx1)·SinglePlanLine(idx2) → true ; PassiveJungle(idx5) → !is_counter_jungle = (team(0x638) == player_team(0x640)) ; 그 외 false\nL1130: drop(timer)\nL1131: if !plan_ended → L1251\n\n// ── L1133~1173: (plan_ended) 정글러 갱크 결과 트레이스\nL1133: if player.position(0x9c0) == Jungle(1) && self.plan is LineGanker(10) {\nL1135:   if let Some(last) = self.gank_periods(0x810).last_mut() {   // (start,end) 16B, len 0x820\nL1136:     if last.1 == 0 {\nL1137:       start = last.0 ; L1138: now = game.tick() ; L1139: last.1 = now   // 힙 원소 in-place\nL1141:       if context.trace_level(0x39) != Off(0) {\nL1143:         duration = now.saturating_sub(start)\nL1144:         line = gank_plan.line(0x618)\nL1147~1151:    kills = game.kill_logs().iter().filter(|k| start <= k.tick(+0x18) <= now && k.killer_team(+0x20) == player.team && (k.killer_position(+0x28) == Jungle || k.assist(+0x0).contains(&Jungle))).count()   // aux m13.ll:60762\nL1153~1157:    deaths = kill_logs().iter().filter(|k| start <= k.tick <= now && k.killer_team != player.team && k.killed_position(+0x2c) == Jungle).count()   // aux m13.ll:60917\nL1159:         success = kills != 0\nL1162:         self.pending_trace_events(0x858).push(PendingTraceEvent{ event: GankResult{kills, deaths, duration, line, success}, tick: now })   // HEAP\n}}}}\n// ── L1178~1192\nL1178: if self.plan.is_cancel() { L1179: if self.plan is LineGanker(10) { L1181: self.gank_cancel_tick(0x1470) = game.tick() } }\nL1189: if self.plan tag ∈ {Battle 9, LineGanker 10} {\nL1190:   if self.team_plan.objective(0x517) tag ∈ {Gank 8, Dive 9} {\nL1191:     self.team_plan.mf_note_obj_clear(42, game.tick())   // (0x308,0x310) = (42, tick)\nL1192:     self.team_plan.objective = None (0xff)\n}}\n// ── L1200~1237: Battle 이탈 계측\nL1200: if let BigPlan::Battle(b) = &self.plan {\nL1204:   if (b.dive_abandoned(0x6ea) || b.with_dive(0x6e6)) && !b.dive_entered(0x6e7) { L1205: self.last_dive_abandon_tick(0x1480) = tick }   // 극성: !(…) || dive_entered 이면 건너뜀 (24115~24121)\nL1211:   if b.main_goal(0x630)@tag == Response(2) && b.exit_src(0x6f8) ∈ 11..=14 { L1212: self.last_response_bail_tick(0x1488) = tick }\nL1215:   if b.exit_src == 11 { L1216: self.team_plan.last_resolver_bail_tick(0x320) = tick }\nL1225:   if b.exit_src ∈ {11,12} {\nL1226:     if b.main_goal@tag < 2 (TryKill 0 | Support 1) { t = main_goal.0(0x638); L1227: self.last_lost_fight(0x1490) = (t, tick) }\nL1228:     else if let Some(focus) = b.focus() [sub_goal@tag(0x648) ∈ {0,1,2,3,5,6} → 0x650] { L1231: self.last_lost_fight = (focus, tick) }\n  }\nL1235:   self.ff_battle_exit(0x15f8) = (b.exit_src, b.entry_src(0x6f7), tick, b.exit_sub(0x701), b.ff_wave_obs_open(0x6f9))\nL1236~1237: self.ff_battle_exit_latch(0x1608..) = (b.ff_exit1_cls(0x700), ff_wave_open_hp(0x6fa), ff_wave_open_pct(0x6fb), ff_wave_fire_hp(0x6fc), ff_wave_fire_pct(0x6fd), ff_wave_open_danger(0x6fe), ff_wave_fire_danger(0x6ff), dive_abort_src(0x6f3))\n}\n// ── L1240~1249: 종료 플랜 교체\nL1240: let (new, src) = self.passive_plan(version, rnd, player, data, debug)   // sret 392 = BigPlan 384 + u8\nL1241: self.mf_ret25_src(0x1658)[min(src,31)] += 1\nL1246: self.v2_apply_assign_commit(version, rnd, player, data, &mut new, &src, debug)\nL1247: self.mf_note_swap(25, game.tick())   // mf_swap = (25, tick) — L997 의 tick 동일성 검사 없이 무조건\nL1248: self.plan = new   // HEAP: 구 플랜 drop · 언와인드 시 원복\nL1249: (언와인드 %3873: new drop)\n\n// ── L1251: self.v50_track_dive_episode(version, player, data)  (dive_episode.rs:36~118 인라인 · 346 IR줄)\n  36: tick = game.tick()\n  37~59: snap = closure$0() → Ok(active) | Err(reason):\n    38: champ = cache.player_champion[team][pos] else Err(8)\n    39: b = self.plan as Battle(9) else Err(1)\n    40: b.with_dive(0x6e6) else Err(2)\n    41: tower_ty = b.dive_tower(0x6ee) (Some) else Err(3)\n    42: focus = b.focus() [sub_goal 0x648 tag ∈ {0,1,2,3,5,6} → 0x650] else Err(4)   // ⚠ tag 기본(default) 케이스는 %1736(L711, 배치A 의 unreachable/패닉 블록)로 점프\n    43: target = game.get_entity_by_id(focus) else Err(5)\n    44: target.team(0x0 tag 0 Player, 0x8 == 1-team) 아니면 Err(6)\n    45: tp = cache.player_by_champion_id(target.id(0x5c0)) else Err(6)\n    46: target_pos = tp.info.position@tag(0x9c0)\n    47~49: tower = cache.iter_towers_without_nexus(1-team).filter(|t| t.tower_type == tower_ty).min_by_key(closure s_0)  else Err(7)   // 필터·키 본체 = dive_episode 소유 별도 define(m13.ll:4340~4531 `v50_track_dive_episode` 클로저) — 본 배치 범위 밖·미탐색\n    50: atk = tower.attack_effect.as_ref()(tag 0x4c0 != -1) else Err(7)\n    51: reach = atk.range(tower) [range(0x4a0) + (tower.level(0x5c8)-1)*growth(0x4a8) + tower.stat_buff_cached.range(0x438)] + champ.radius() + tower.radius()   // radius(entity.rs:1511~1515): mult=radius_mult(0x470); mult==0 ? radius(0x680) : radius*(mult+100)/100\n    52: in_range = tower.distance(champ) <= reach\n    53~56: if tower.ty is Tower(2) && let Some((_, id)) = tower.info.nearest_enemy(0x88 tag, 0x98 id) { tgt = get_entity_by_id(id); holder = (id == champ.id); tower_on_champ = tgt.is_some_and(|e| e.ty is Champion(13)); team_holder = tower_on_champ && e.team == Player(team) } else { holder=false, team_holder=false, tower_on_champ=false }\n    58: tgt_hp_pct = min(target.hp(0x670)*100 / max(target.stat_cached.hp(0x628),1), 255) as u8\n    59: Ok(active{ hp: champ.hp, catch_break: b.dive_catch_break_ticks(0x688), target_pos, in_range, holder, team_holder, tower_on_champ, tower_ty, snap: (race_adv: b.dive_last_race_adv(0x6e0), model 0x6f4, na 0x6f5, ne 0x6f6, tgt_hp_pct) })\n  Ok(active):\n    65: if let Some(live) = &self.v50_dive_ep_live(0x570) && live.tower(0x5e1) != active.tower_ty { 66: self.v50_fold_dive_episode(false, 0) }   // tps(0x12f8) 로드는 dead\n    68: if let Some(live) = self.v50_dive_ep_live.as_mut() {\n      70: live.gap_ticks = 0 ; 71: live.max_catch_break = max(catch_break, live.max_catch_break) ; 72: live.uncatch_total += (catch_break != 0)\n      73: if live.start_model == 0 && snap.model != 0 { 75: live.start_model = model; live.start_race_adv = race_adv; 76: live.start_na = na; live.start_ne = ne }\n      78: live.last_tick = tick ; 79: live.ep_ticks += 1\n      80: if in_range { live.in_range_ticks += 1 }\n      81: if team_holder { live.team_holder_ticks += 1 }\n      82: if in_range && !tower_on_champ { live.minion_cover_ticks += 1 }   // 23755~23777 분기 재구성\n      83: if holder { 84: live.holder_ticks += 1 ; 85: if let Some(ph) = live.prev_holder_hp { live.soaked_hp += ph.saturating_sub(hp) } ; 86: live.prev_holder_hp = Some(hp) } else { 88: live.prev_holder_hp = None }\n    } else { 91~92: self.v50_dive_ep_live = Some(V50DiveEpLive{…}) (writes 참조) }\n  Err(reason):\n    108: if let Some(live) = self.v50_dive_ep_live.as_mut() {\n      110: if reason ∈ {4,6} && live.gap_ticks < setting.tick_per_second(0x12f8) { 111: live.gap_ticks += 1; 112: live.ep_ticks += 1; 113: live.last_tick = tick }\n      else { 115: dive_abandoned = self.plan is Battle && b.dive_abandoned(0x6ea) ; 116: abort_src = Battle ? b.dive_abort_src(0x6f3) : 0 ; 117: self.v50_dive_ep_abort_src(0x1811) = abort_src ; 118: self.v50_fold_dive_episode(dive_abandoned, reason) }\n    }\n  → 모든 경로 %3897 = L1253 (배치 D)\n\n// ── 다른 배치로 넘어가는 지점\n// %2725/%2683 ← 배치B L976 · %2671 ← 배치B L969 · %2768 ← 배치B L948/L960(lapse) · %1736 ← dive_episode.rs:42 focus() default → 배치A L711 · 언와인드 %2270→L769(배치B) · %3303→L1672(배치E) · 정상 종료 %3897 → L1253(배치D)",
+ "knobs": [
+  {
+   "what": "v3 목적지 도착 반경",
+   "where": "handler.rs:978 (m13.ll:21741)",
+   "value": 4096000001,
+   "effect": "64000²+1. 올리면 더 멀리서도 '도착'으로 보고 새 소극 플랜으로 교체를 허용, 내리면 목적지까지 더 가까이 가야 교체됨(그 전엔 구 소극 플랜 유지)"
+  },
+  {
+   "what": "v48 근접/원거리 시전 구분",
+   "where": "handler.rs:1083 (m13.ll:22355~22357)",
+   "value": "dist*2 < max(range,1)",
+   "effect": "계측 전용(v48_cast_free_near/far 카운터). 판단에 영향 없음"
+  },
+  {
+   "what": "라인 백파이트 진입 취소 조건",
+   "where": "handler.rs:620 (m13.ll:22773)",
+   "value": "sub_goal ∈ {RunAway, End}",
+   "effect": "여기 케이스를 줄이면 update 직후 이미 도망/종료 상태인 BattlePlan 으로도 교체됨"
+  },
+  {
+   "what": "백파이트 진입 entry_src 코드",
+   "where": "handler.rs:614",
+   "value": 6,
+   "effect": "계측 코드(ff_battle_exit.1 로 나중에 기록). 판단 영향 없음"
+  },
+  {
+   "what": "다이브 에피소드 공백 허용",
+   "where": "dive_episode.rs:110 (m13.ll:23834)",
+   "value": "gap_ticks < tick_per_second (=1초)",
+   "effect": "올리면 focus 부재(4)/표적 비적(6) 상태가 더 오래 이어져도 에피소드가 접히지 않음. 계측 전용"
+  },
+  {
+   "what": "플랜 종료 시 팀 목표 해제 대상",
+   "where": "handler.rs:1190",
+   "value": "objective ∈ {Gank, Dive}",
+   "effect": "Battle/LineGanker 종료 시 이 목표만 None 으로 해제. 대상을 넓히면 다른 팀 목표도 종료마다 초기화됨(판단 영향 있음)"
+  }
+ ],
+ "unknown": [
+  "v3_plan_dest(m13.ll:9990~10109, internal fastcc, sret 24 Option<(u64,u64)>, 인자 (team, &GameContext, &BigPlan)) 내부 — 미탐색(자식 명세 목록에 없음). 본 범위는 결과를 self.v3_dest 에 저장할 뿐",
+  "sanitize_rule_scope(m13.ll:11163~11383, (&mut self, &cache, &context)) 내부 — 미탐색. self 쓰기 가능(&mut)",
+  "utils::line_backfight_support_focus(m04.ll:53979, sret 24 Option<(ally_id, focus_id)>, (version, &player, &data, line:u8 range 0..=3)) 내부 — 미탐색",
+  "BigPlan::update(m02.ll:6887) / BigPlan::is_end(m02.ll:6663) / BigPlan::is_cancel(m02.ll:8498) / BattlePlan::new(m10.ll:23214) / BattlePlan::update(m10.ll:23429) / is_ignored_battle_enemy(m10.ll:47629) 내부 — 본 배치 범위 밖(계약만). is_end·BattlePlan::update 는 &mut team_plan 을 받아 쓸 수 있음",
+  "v50_fold_dive_episode(m13.ll:28946~, (&mut self, dive_abandoned: bool, reason: u8)) — 자식 명세 있음(계약만). L66 호출 직전 setting.tick_per_second 로드(%3552)가 사용처 없이 남아 있음 — 소스에서 인자였다가 접혔는지 불명(표기 불가)",
+  "dive_episode.rs:47~49 타워 필터/키 클로저 본체 = m13.ll:4340~4531 (Chain<Flatten<...>>::min_by_key, `v50_track_dive_episode` 소유 closure$0/s_0) — 본 범위 밖이라 aux 미선언·미탐색. 필터가 tower_ty(%18) 를 캡처하는 것만 확인(23343)",
+  "ProfTimer 페이즈 코드 68/69/70/74/76 의 이름 — game_core::simulation::prof PHASE_NANOS[132] 는 external global 이고 이름표를 _gaibc/_gcbc 에서 못 찾음(재료 부재: 탐색 범위 = _gaibc m13 · _gcbc g06/g08/g09 grep). 판단에 무관한 프로파일링",
+  "exit_src 코드 11~14 / entry_src 6 / mf_swap src 25 / mf_obj_clear src 42 / v50 reason 1~8 의 의미 이름표 — battle.rs [ff 계측] 코드표·시뮬레이터 FF_BAIL_NAMES(_docs game_ai.txt:650~656 언급)는 본 범위 밖. 25=교체불명 만 _docs 확인",
+  "L993 v46_carry_over 가 구 플랜(old) 쪽에 무엇을 쓰는지 — 콜리 m04.ll:18821 미탐색 (new 쪽은 initializes((273,274)) = +0x111/+0x112 확정)",
+  "L979 closure$9 의 정의 줄은 974(배치 B) — 본 범위에는 인라인 사본(21697~21709·21745~21758)만 있어 idx {1,2,5} 집합만 확정, 소스 이름 불명",
+  "L1005 phase 선택의 소스 표기(match vs if-chain) — select 2단으로 접혀 표기 불가(동작은 확정)",
+  "L1081 `t.remain_action_time() < windup` 의 소스 표기(<= 대칭) — 표기 불가, 동작(ult → free 경로 / 아니면 locked)은 확정",
+  "L1251 dive_episode.rs:42 b.focus() 의 sub_goal 태그 default 케이스가 %1736(L711 루트, 배치 A)로 점프 — 그 블록 정체(unreachable/패닉)는 배치 A 몫"
+ ]
+}

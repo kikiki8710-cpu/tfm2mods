@@ -1,0 +1,295 @@
+{
+ "name": "LegacyPlanHandler::update",
+ "sym": "_RNvMNtNtCshdEBA0ozCnw_7game_ai11plan_legacy7handlerNtB2_17LegacyPlanHandler6update",
+ "src": "game-ai\\src\\plan_legacy\\handler.rs",
+ "src_line": 685,
+ "ir_file": "m13.ll",
+ "ir_from": 14467,
+ "ir_to": 28943,
+ "aux": [
+  {
+   "ir_file": "m06.ll",
+   "ir_from": 2048,
+   "ir_to": 2181,
+   "note": "Vec<(usize,Position,Chat)>::retain<update 클로저>(본체) · 본체 직접 호출 · 루트 handler.rs:735(배치 B) · live · sym=_RINvMs_NtCs9LexZzt9XJB_5alloc3vecINtB5_3VecTjNtNtNtCs97f5S1uJLkH_9game_core10simulation6e…"
+  },
+  {
+   "ir_file": "m06.ll",
+   "ir_from": 2184,
+   "ir_to": 2317,
+   "note": "Vec<(usize,Position,Chat)>::retain<update 클로저>(본체) · 본체 직접 호출 · 루트 handler.rs:742(배치 B) · live · sym=_RINvMs_NtCs9LexZzt9XJB_5alloc3vecINtB5_3VecTjNtNtNtCs97f5S1uJLkH_9game_core10simulation6e…"
+  },
+  {
+   "ir_file": "m06.ll",
+   "ir_from": 2727,
+   "ir_to": 2860,
+   "note": "Vec<Chat>::retain<update 클로저>(본체) · 본체 직접 호출 · 루트 handler.rs:754(배치 B) · live · sym=_RINvMs_NtCs9LexZzt9XJB_5alloc3vecINtB5_3VecTjNtNtNtNtCs97f5S1uJLkH_9game_core10simulation…"
+  },
+  {
+   "ir_file": "m11.ll",
+   "ir_from": 31704,
+   "ir_to": 31756,
+   "note": "Copied<Iter<&Entity>>::try_fold(find · update 클로저 술어)(본체) · 본체 직접 호출 없음 — 다른 조각 안에서 호출(간접) · sym=_RINvXs_NtNtNtCsjihNppCmMEE_4core4iter8adapters6copiedINtB5_6CopiedINtNtNtBb_5slice4iter4I…"
+  },
+  {
+   "ir_file": "m11.ll",
+   "ir_from": 31759,
+   "ir_to": 31811,
+   "note": "Copied<Iter<&Entity>>::try_fold(find · update 클로저 술어)(본체) · 본체 직접 호출 없음 — 다른 조각 안에서 호출(간접) · sym=_RINvXs_NtNtNtCsjihNppCmMEE_4core4iter8adapters6copiedINtB5_6CopiedINtNtNtBb_5slice4iter4I…"
+  },
+  {
+   "ir_file": "m01.ll",
+   "ir_from": 43191,
+   "ir_to": 43500,
+   "note": "bumpalo Vec<&Entity>::from_iter_in(filter 체인 · update 클로저 술어)(이터레이터) · 본체 직접 호출 · 루트 handler.rs:1588(배치 E) · live · sym=_RINvMNtNtCshWfHDMLkPaX_7bumpalo11collections3vecINtB3_3VecRNtNtNtCs97f5S1uJLkH_9game_core…"
+  },
+  {
+   "ir_file": "m01.ll",
+   "ir_from": 43503,
+   "ir_to": 43812,
+   "note": "bumpalo Vec<&Entity>::from_iter_in(filter 체인 · update 클로저 술어)(이터레이터) · 본체 직접 호출 · 루트 handler.rs:1650(배치 E) · live · sym=_RINvMNtNtCshWfHDMLkPaX_7bumpalo11collections3vecINtB3_3VecRNtNtNtCs97f5S1uJLkH_9game_core…"
+  },
+  {
+   "ir_file": "m12.ll",
+   "ir_from": 9171,
+   "ir_to": 9379,
+   "note": "Iterator::min_by_key(update 클로저 키)(이터레이터) · 본체 직접 호출 없음 — 다른 조각 안에서 호출(간접) · sym=_RINvXs0_NtNtNtCsjihNppCmMEE_4core4iter8adapters3mapINtB6_3MapINtNtB8_6filter6FilterINtNtB…"
+  },
+  {
+   "ir_file": "m06.ll",
+   "ir_from": 21079,
+   "ir_to": 21272,
+   "note": "min_by_key map_fold 심(update 클로저 키)(이터레이터) · 본체 직접 호출 없음 — 다른 조각 안에서 호출(간접) · sym=_RINvXs_NtNtNtCsjihNppCmMEE_4core4iter8adapters5chainINtB5_5ChainINtNtB7_7flatten7FlattenI…"
+  },
+  {
+   "ir_file": "m13.ll",
+   "ir_from": 59967,
+   "ir_to": 60159,
+   "note": "Filter<..>::count(update 클로저 술어)(이터레이터) · 본체 직접 호출 · 루트 handler.rs:1367(배치 D) · live · sym=_RNvXs1_NtNtNtCsjihNppCmMEE_4core4iter8adapters6filterINtB5_6FilterINtNtNtBb_3ops5range5Ra…"
+  },
+  {
+   "ir_file": "m13.ll",
+   "ir_from": 4340,
+   "ir_to": 4531,
+   "note": "Iterator::min_by_key(update 클로저 키)(이터레이터) · 본체 직접 호출 · 루트 handler.rs:1594(배치 E) · live · sym=_RINvYINtNtNtNtCsjihNppCmMEE_4core4iter8adapters5chain5ChainINtNtB8_7flatten7FlattenINtNtN…"
+  },
+  {
+   "ir_file": "m13.ll",
+   "ir_from": 58941,
+   "ir_to": 59127,
+   "note": "Filter<..>::count(update 클로저 술어)(이터레이터) · 본체 직접 호출 · 루트 handler.rs:1372(배치 D) · live · sym=_RNvXs1_NtNtNtCsjihNppCmMEE_4core4iter8adapters6filterINtB5_6FilterINtNtB7_10filter_map9Fi…"
+  },
+  {
+   "ir_file": "m01.ll",
+   "ir_from": 31729,
+   "ir_to": 31904,
+   "note": "bumpalo Vec<&Entity>::from_iter_in(filter 체인 · update 클로저 술어)(이터레이터) · 본체 직접 호출 · 루트 handler.rs:1578(배치 E) · live · sym=_RINvMNtNtCshWfHDMLkPaX_7bumpalo11collections3vecINtB3_3VecRNtNtNtCs97f5S1uJLkH_9game_core…"
+  },
+  {
+   "ir_file": "m01.ll",
+   "ir_from": 31907,
+   "ir_to": 32082,
+   "note": "bumpalo Vec<&Entity>::from_iter_in(filter 체인 · update 클로저 술어)(이터레이터) · 본체 직접 호출 · 루트 handler.rs:1632(배치 E) · live · sym=_RINvMNtNtCshWfHDMLkPaX_7bumpalo11collections3vecINtB3_3VecRNtNtNtCs97f5S1uJLkH_9game_core…"
+  },
+  {
+   "ir_file": "m13.ll",
+   "ir_from": 5116,
+   "ir_to": 5281,
+   "note": "Iterator::min_by_key(update 클로저 키)(이터레이터) · 본체 직접 호출 · 루트 handler.rs:1076(배치 C) · live · sym=_RINvYINtNtNtNtCsjihNppCmMEE_4core4iter8adapters6filter6FilterINtNtB8_10filter_map9FilterM…"
+  },
+  {
+   "ir_file": "m13.ll",
+   "ir_from": 60162,
+   "ir_to": 60314,
+   "note": "Filter<..>::count(update 클로저 술어)(이터레이터) · 본체 직접 호출 · 루트 handler.rs:822(배치 B) · live · sym=_RNvXs1_NtNtNtCsjihNppCmMEE_4core4iter8adapters6filterINtB5_6FilterINtNtNtBb_5slice4iter4I…"
+  },
+  {
+   "ir_file": "m13.ll",
+   "ir_from": 60462,
+   "ir_to": 60614,
+   "note": "Filter<..>::count(update 클로저 술어)(이터레이터) · 본체 직접 호출 · 루트 handler.rs:886(배치 B) · live · sym=_RNvXs1_NtNtNtCsjihNppCmMEE_4core4iter8adapters6filterINtB5_6FilterINtNtNtBb_5slice4iter4I…"
+  },
+  {
+   "ir_file": "m13.ll",
+   "ir_from": 60762,
+   "ir_to": 60914,
+   "note": "Filter<..>::count(update 클로저 술어)(이터레이터) · 본체 직접 호출 · 루트 handler.rs:1151(배치 C) · live · sym=_RNvXs1_NtNtNtCsjihNppCmMEE_4core4iter8adapters6filterINtB5_6FilterINtNtNtBb_5slice4iter4I…"
+  },
+  {
+   "ir_file": "m11.ll",
+   "ir_from": 15319,
+   "ir_to": 15465,
+   "note": "min_by_key map_fold 심(update 클로저 키)(이터레이터) · 본체 직접 호출 없음 — 다른 조각 안에서 호출(간접) · sym=_RINvXs_NtNtNtCsjihNppCmMEE_4core4iter8adapters6copiedINtB5_6CopiedINtNtNtBb_5slice4iter4I…"
+  },
+  {
+   "ir_file": "m13.ll",
+   "ir_from": 60317,
+   "ir_to": 60459,
+   "note": "Filter<..>::count(update 클로저 술어)(이터레이터) · 본체 직접 호출 · 루트 handler.rs:828(배치 B) · live · sym=_RNvXs1_NtNtNtCsjihNppCmMEE_4core4iter8adapters6filterINtB5_6FilterINtNtNtBb_5slice4iter4I…"
+  },
+  {
+   "ir_file": "m13.ll",
+   "ir_from": 60617,
+   "ir_to": 60759,
+   "note": "Filter<..>::count(update 클로저 술어)(이터레이터) · 본체 직접 호출 · 루트 handler.rs:892(배치 B) · live · sym=_RNvXs1_NtNtNtCsjihNppCmMEE_4core4iter8adapters6filterINtB5_6FilterINtNtNtBb_5slice4iter4I…"
+  },
+  {
+   "ir_file": "m13.ll",
+   "ir_from": 60917,
+   "ir_to": 61059,
+   "note": "Filter<..>::count(update 클로저 술어)(이터레이터) · 본체 직접 호출 · 루트 handler.rs:1157(배치 C) · live · sym=_RNvXs1_NtNtNtCsjihNppCmMEE_4core4iter8adapters6filterINtB5_6FilterINtNtNtBb_5slice4iter4I…"
+  },
+  {
+   "ir_file": "m12.ll",
+   "ir_from": 26623,
+   "ir_to": 26763,
+   "note": "Iterator::min_by_key(update 클로저 키)(이터레이터) · 본체 직접 호출 · 루트 handler.rs:1639(배치 E) · live · sym=_RINvXs0_NtNtNtCsjihNppCmMEE_4core4iter8adapters3mapINtB6_3MapINtNtNtBc_5slice4iter4IterRN…"
+  },
+  {
+   "ir_file": "m13.ll",
+   "ir_from": 58288,
+   "ir_to": 58374,
+   "note": "update 클로저 call_mut 심(FnMut(&&Entity)) — filter 술어 본체(call_mut) · 본체 직접 호출 없음 — 다른 조각 안에서 호출(간접) · sym=_RNvXs1_NtNtNtCsjihNppCmMEE_4core3ops8function5implsQNCNvMNtNtCshdEBA0ozCnw_7game_ai11plan…"
+  },
+  {
+   "ir_file": "m13.ll",
+   "ir_from": 58443,
+   "ir_to": 58529,
+   "note": "update 클로저 call_mut 심(FnMut(&&Entity)) — filter 술어 본체(call_mut) · 본체 직접 호출 없음 — 다른 조각 안에서 호출(간접) · sym=_RNvXs1_NtNtNtCsjihNppCmMEE_4core3ops8function5implsQNCNvMNtNtCshdEBA0ozCnw_7game_ai11plan…"
+  },
+  {
+   "ir_file": "m12.ll",
+   "ir_from": 38349,
+   "ir_to": 38426,
+   "note": "update 클로저 call_mut 심(FnMut(&&Entity)) — filter 술어 본체(call_mut) · 본체 직접 호출 없음 — 다른 조각 안에서 호출(간접) · sym=_RNvXs1_NtNtNtCsjihNppCmMEE_4core3ops8function5implsQNCINvNtNtNtBb_4iter8adapters3map8map_…"
+  },
+  {
+   "ir_file": "m13.ll",
+   "ir_from": 58774,
+   "ir_to": 58842,
+   "note": "update 클로저 call_mut 심(FnMut(&&Entity)) — filter 술어 본체(call_mut) · 본체 직접 호출 없음 — 다른 조각 안에서 호출(간접) · sym=_RNvXs1_NtNtNtCsjihNppCmMEE_4core3ops8function5implsQQNCNvMNtNtCshdEBA0ozCnw_7game_ai11pla…"
+  },
+  {
+   "ir_file": "m13.ll",
+   "ir_from": 58845,
+   "ir_to": 58913,
+   "note": "update 클로저 call_mut 심(FnMut(&&Entity)) — filter 술어 본체(call_mut) · 본체 직접 호출 없음 — 다른 조각 안에서 호출(간접) · sym=_RNvXs1_NtNtNtCsjihNppCmMEE_4core3ops8function5implsQQNCNvMNtNtCshdEBA0ozCnw_7game_ai11pla…"
+  },
+  {
+   "ir_file": "m13.ll",
+   "ir_from": 58377,
+   "ir_to": 58440,
+   "note": "update 클로저 call_mut 심(FnMut(&&Entity)) — filter 술어 본체(call_mut) · 본체 직접 호출 없음 — 다른 조각 안에서 호출(간접) · sym=_RNvXs1_NtNtNtCsjihNppCmMEE_4core3ops8function5implsQNCNvMNtNtCshdEBA0ozCnw_7game_ai11plan…"
+  },
+  {
+   "ir_file": "m13.ll",
+   "ir_from": 58532,
+   "ir_to": 58595,
+   "note": "update 클로저 call_mut 심(FnMut(&&Entity)) — filter 술어 본체(call_mut) · 본체 직접 호출 없음 — 다른 조각 안에서 호출(간접) · sym=_RNvXs1_NtNtNtCsjihNppCmMEE_4core3ops8function5implsQNCNvMNtNtCshdEBA0ozCnw_7game_ai11plan…"
+  },
+  {
+   "ir_file": "m12.ll",
+   "ir_from": 6853,
+   "ir_to": 6866,
+   "note": "Iterator::min_by_key(update 클로저 키)(이터레이터) · 본체 직접 호출 없음 — 다른 조각 안에서 호출(간접) · sym=_RINvXs0_NtNtNtCsjihNppCmMEE_4core4iter8adapters3mapINtB6_3MapINtNtB8_5chain5ChainINtNtB8_…"
+  }
+ ],
+ "one_line": "AI 플랜 계층 최상위 틱 진입점 — 게임모드 분기(DeathMatch/SingleLane 전용 경로는 Moba 에서 사장) 뒤 Moba 본류: 룰스코프 정화·팀플랜/GoalData 갱신·채팅 수신/발신·플랜 전환(페이즈게이트 handle_interact_battle·패시브·전투 BattlePlan)·서브플랜 병합·계측 기록",
+ "signature": {
+  "params": [
+   {
+    "i": 1,
+    "name": "self",
+    "type": "&mut LegacyPlanHandler(6168B)",
+    "note": "IR %0 · `noalias align 8 dereferenceable(6168)` · readonly 없음 = 가변. 배치 A 살아있는 범위(L685·688·694)에서는 self 쓰기 0건(사장 689/695 내부 쓰기는 NA 미등재). 근거 m13.ll:14467"
+   },
+   {
+    "i": 2,
+    "name": "version",
+    "type": "usize",
+    "note": "IR %1 (i64). L685 에서 스택 스필 `store i64 %1, ptr %210`(m13.ll:14711) — 이후 배치 B~E 가 %210 을 23회 재로드(`load i64, ptr %210`)해 version 으로 씀(주석본 ;; version = i64 %N). ⚠reach.py 의 --version 접기는 br 직접 피연산자만 접으므로 `or` 로 합쳐진 version<2 비교(예 L947 인라인 1724 `%2111 = icmp ult %2078, 2`)는 안 접힘 — 해당 배치가 손으로 사장 처리할 것. 배치 A 살아있는 범위에선 version 분기 없음"
+   },
+   {
+    "i": 3,
+    "name": "rnd",
+    "type": "&mut StdRng(320B)",
+    "note": "IR %2 · `noalias align 16 dereferenceable(320)` · readonly 없음 = 가변. DI !23527 ref_mut$<rand::rngs::std::StdRng>. 배치 A 살아있는 범위에선 미사용"
+   },
+   {
+    "i": 4,
+    "name": "player",
+    "type": "&PlayerState(2528B)",
+    "note": "IR %3 · `readonly captures(address, read_provenance)` = 불변. DI !23528. 배치 A 살아있는 범위에선 미사용(사장 689 의 update_deathmatch 가 +0x5f8 info.statistics.death 를 읽음 — NA)"
+   },
+   {
+    "i": 5,
+    "name": "data",
+    "type": "&OperationData(24B)",
+    "note": "IR %4 · `readonly` = 불변. DI !23529. L688/L694 에서 data.cache(+0x0) → cache.game(&dyn AbstractGame, +0x0 data_ptr/+0x8 vtable_ptr) → vtable+0x40 get_game_mode() 호출에 사용"
+   },
+   {
+    "i": 6,
+    "name": "debug",
+    "type": "&mut DebugFrameData(224B)",
+    "note": "IR %5 · `noalias align 8 dereferenceable(224)` · readonly 없음 = 가변. DI !23530 ref_mut$<DebugFrameData>. 배치 A 살아있는 범위에선 미사용"
+   },
+   {
+    "i": 7,
+    "name": "lapse",
+    "type": "bool",
+    "note": "IR %6 (i1 zeroext) · DI !23531 name \"lapse\" (m13.ll:92088) = 인지 공백(집중/멘탈 lapse, _docs game_ai.txt:398 「v3+에서만 참 · 새로 시작·새로 인지하는 것만 막고 진행 중 플랜의 유지·종료·전환은 항상 돈다」). 본체 사용처 4곳 전부 뒤 배치: `br i1 %6` at L728 · L947(인라인 1714·1727) · L960. 사장 689/695(update_deathmatch/update_single_lane)에는 전달되지 않음(%6 참조 0)"
+   }
+  ],
+  "returns": "() — 반환값 없음(void). 효과는 &mut self·rnd·debug 부작용"
+ },
+ "reads": [
+  {
+   "base": "OperationData",
+   "offset": "0x0",
+   "name": "cache",
+   "note": "L688·L694 `%211 = load ptr, ptr %4`(m13.ll:15200) — &AbstractGameWithCache. tcxdict OperationData 0x0 cache"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x0",
+   "name": "game.data_ptr",
+   "note": "L688 `%212 = load ptr, ptr %211`(m13.ll:15207) — &dyn AbstractGame 팻포인터 데이터 절반. tcxdict AbstractGameWithCache 0x0 game(16B)"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x8",
+   "name": "game.vtable_ptr",
+   "note": "L688 `%213 = gep %211, 8 ; %214 = load`(m13.ll:15208~15209) — 팻포인터 vtable 절반"
+  },
+  {
+   "base": "AbstractGame vtable",
+   "offset": "0x40",
+   "name": "get_game_mode",
+   "note": "L688 `%215 = gep %214, 64 ; %216 = load(invariant)`(m13.ll:15210~15211) → `%217 = call {i64,ptr} %216(%212)`(15212) · divtable AbstractGame 0x40 = get_game_mode · 반환 GameMode(16B: +0 태그 i64 Direct, +8 &Mode). L694 는 같은 %216/%212 로 재호출(%676, m13.ll:16483) = 소스에서 get_game_mode() 를 두 번 부름"
+  }
+ ],
+ "writes": [],
+ "constants": [
+  {
+   "value": 2,
+   "src_line": 688,
+   "meaning": "GameMode::DeathMatch 메모리태그(tcxdict --enum GameMode: idx2·discr2·태그2 · 인코딩 Direct). `%219 = icmp eq i64 %218, 2`(m13.ll:15214) 참 → L689 update_deathmatch 인라인. ★reach(version=2·gamemode=Moba) 접힘 @entry %219→0 = 사장"
+  },
+  {
+   "value": 1,
+   "src_line": 694,
+   "meaning": "GameMode::SingleLane 메모리태그(tcxdict --enum GameMode: 태그1). `%678 = icmp eq i64 %677, 1`(m13.ll:16485) 참 → L695 update_single_lane 인라인. ★reach 접힘 @675 %678→0 = 사장. (qcspec 경고 사유: 이 1 은 `icmp eq` 의 비교값=열거형 태그이지 shl 시프트량이 아님 — folded_from 해당 없음)"
+  }
+ ],
+ "calls": [],
+ "logic": "// handler.rs:685~695 (배치 A)\n// L685: fn update(&mut self, version, rnd, player, data, debug, lapse) — 진입. version 을 스택 %210 에 스필(store, m13.ll:14711) 외 명령 없음(alloca 200여 개는 함수 전체 지역변수).\n// L688: mode = data.cache.game.get_game_mode()  // vtable+0x40 간접호출, {tag,ptr}\n//   if tag == 2 (GameMode::DeathMatch) → 블록 %220 … (L689)\n// L689: self.update_deathmatch(version, rnd, player, data, debug)  // modes.rs 인라인 517줄(주석본 L220~L674)\n//   // NA(gamemode≠Moba 전용: DeathMatch) — reach version=2·gamemode=Moba 접힘 @entry %219→0 · 블록 220~674 전부 사장(내 236블록 중 233 사장) · reads/writes/consts 미등재\n// L694: else if tag == 1 (GameMode::SingleLane) → 블록 %680 … (L695)   // get_game_mode() 재호출 %676(m13.ll:16483)\n// L695: self.update_single_lane(version, rnd, player, data, debug)  // modes.rs 인라인 1,060줄(주석본 L680~L1626)\n//   // NA(gamemode≠Moba 전용: SingleLane) — reach 접힘 @675 %678→0 · 블록 680~1626 전부 사장 · reads/writes/consts 미등재\n// else → 블록 %1627 = Moba 본류 → 배치 B(줄 698, `_t_head` ProfTimer 시작)\n//\n// self writes(살아있는 범위): 0건. HEAP 재료(살아있는 범위): 0건. rnd/debug 부작용: 0건.\n// 함수 공용 EH: 모든 invoke 의 unwind → 블록 %1640 cleanuppad(m13.ll 주석본 L3939) → phi %1641 참이면 %5376 에서 drop_glue<Option<ProfTimer>>(%209 = L698 `_t_head`) 후 %5375 `cleanupret unwind to caller`(m13.ll:28938, L685 귀속) — 패닉 전파 경로에서 self 쓰기 없음.\n// 함수 공용 스필: %210 = version(i64) 스택 사본 · 배치 B~E 의 `load i64, ptr %210` 23곳이 전부 version.",
+ "knobs": [],
+ "unknown": [
+  "L689 update_deathmatch·L695 update_single_lane 내부(합 1,577 IR 줄)는 NA 봉인으로 **미독해**(적용 범위: gamemode=Moba 상수 접기 기준 사장. DeathMatch/SingleLane 모드에서는 살아있으므로 그 모드를 다룰 땐 별도 독해 필요 — 「원리적 불가」가 아니라 미탐색). 골격만: 689 = sanitize_rule_scope(L57)→…→TeamPlan::update/GoalData::update(L130~132)→dm_bounded_reach/dm_ally_engaged→BigPlan::update(L159)→DeathMatchBattle::new(L151/154)→decide_deathmatch(L165)→sub_plan/SubPlan::merge(L184)→sanitize_rule_scope(L189); 695 = sanitize_rule_scope(L14)→TeamPlan::update/GoalData::update(L16~18)→(L26 인라인: check_kill·max_range_cached·champions·can_near_enemies_range·single_try_engage)→(L29 인라인: is_ignored_well_enemy·aggressive_ratio·check_favorable_engage_formation)→BigPlan::update(L32)→is_end(L37)→sub_plan/merge(L43)→sanitize_rule_scope(L49).",
+  "페이즈게이트(objective=min(C*A/1000,100)·threshold=objective*9+min(B,100)*2+100·roll<threshold→handle_interact_battle)는 배치 A 의 살아있는 범위에 없음 — handle_interact_battle 호출은 L947(배치 B) 에 있고 reach 상 live=1 dead=0. 재확인은 배치 B 몫.",
+  "L688/L694 가 `if let … else if let …`(get_game_mode 2회 호출과 정합)인지 `match`(1회 호출이 보통)인지 — IR 은 두 번 호출(%217·%676)하므로 전자로 읽히나 소스 표기는 미확정(column 없음·MIR 없음). 동작 차이 없음.",
+  "L685 소스 줄 길이 148자(rmeta_srcmap) vs 표준 서식 추정 149자 — 1자 차이의 원인(타입 표기 등) 미확정. 인자 이름·타입은 DI(!23525~!23531)로 확정이므로 명세에는 영향 없음.",
+  "calls 가 빈 이유: 살아있는 범위의 유일한 호출 get_game_mode 는 vtable 간접호출(`call {i64,ptr} %216`)이라 심볼 호출이 아님. 사장 689/695 의 직접 호출 46건은 규칙대로 미등재(reach 사장 호출부 절 그대로).",
+  "aux 31개 조각은 전부 update 소유(심볼에 LegacyPlanHandler::update 클로저 성분)이나 호출 지점은 모두 배치 B~E(handler.rs 735~1650) — 배치 A 범위에서 쓰는 조각은 없음. note 의 종류 표기는 심볼 성분에서 읽은 것이고 내부는 미독해."
+ ]
+}

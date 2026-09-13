@@ -183,7 +183,8 @@ def is_closed(i, txt, resolved_blob):
     `get_input_target 내부는 안 봄`·`base_sub_goal 내부`·`single_tower_dive_is_viable` 같은
     **진짜 미탐색까지 닫았다.** 과하게 열어두면 3차가 재확인만 하고 넘어가지만,
     과하게 닫으면 3차가 그것을 '새 발견'으로 또 집는다 — 없애려는 게 정확히 그것이다."""
-    if any(m in txt for m in DONE_MARK):
+    # 09-14 21차: `확정(` 이 「미확정(」 에도 걸려 거짓 닫힘 — 부정 접두 「미」 를 뺀다.
+    if any((m in txt) if m != u"확정(" else bool(re.search(u"(?<!미)확정\(", txt)) for m in DONE_MARK):
         return True, u"본문에 해소 표기가 있다"
     why = CL.closed_reason(i, txt)
     if why:

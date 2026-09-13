@@ -1,0 +1,258 @@
+{
+ "round": 21,
+ "batch": "B",
+ "errors": [
+  {
+   "path": "/specs[111]/consts[30]/src_line",
+   "kind": "실오류",
+   "old": 698,
+   "new": 763,
+   "evidence": "1000000000 을 쓰는 IR 은 전부 ProfTimer drop(prof.rs:185) 인라인이고 루트 줄은 704·709·763·767·947(1717/1750)·1013·1126·1130·1291·1672 뿐 — 698(start) 에는 없다. `_t_head`(%209, 698 시작) 의 drop 은 763: m13.ll:19955 `%1992 = mul i64 %1990, 1000000000, !dbg !29802`(time.rs:632 < prof.rs:185 < mod.rs:825 < mod.rs:1004 < handler.rs:763) · 19956 `icmp ult i32 %1991, 1000000000`. 같은 drop 사이트의 132 bounds check 가 consts[22](763) 이므로 763 으로 정렬",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[111]/consts[30]/meaning",
+   "kind": "보강",
+   "old": "Duration::as_nanos 변환(계측 전용)",
+   "new": "Duration::as_nanos 변환(계측 전용) — ProfTimer drop 인라인(prof.rs:185)마다 나타남: 본 범위 704·709·763(_t_head)·767·947(1717/1750)",
+   "evidence": "m13.ll:19066/19157/19955/20050/20268/20395 `mul i64 %, 1000000000` 루트 줄",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[111]/logic",
+   "kind": "실오류",
+   "old": "728 if !lapse && (!self.received_chats.is_empty() || !self.misunderstood_received_chats.is_empty()) {",
+   "new": "728 if !lapse && (!self.received_chats.is_empty() || !self.misunderstood_received_chats.is_empty()) {   // ★lapse 게이트는 745 블록까지 덮는다: lapse=true 면 %1802 `br i1 %6, %1929, %1832`(m13.ll:19423) 로 758(%1929) 직행 — 745 의 chats_wait 검사(%1923)는 preds %1910(742 뒤)·%1838(수신 둘 다 빔)뿐",
+   "evidence": "m13.ll:19423 `br i1 %6, label %1929, label %1832, !dbg !29445`(handler.rs:728) · 19754 `1923: ; preds = %1910, %1838`(745 검사 블록) · 19761 `br i1 %1928, label %1929, label %1939`(745) · %1929 = 758 블록(19764 `%1930 = gep %0, 1512` types.rs:185<758). lapse=true 경로에서 745~754 로 가는 간선이 없다",
+   "behavior_change": true,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[111]/logic",
+   "kind": "실오류",
+   "old": "745 if !self.chats_wait.is_empty() {",
+   "new": "745 if !self.chats_wait.is_empty() {   // ← 728 과 같은 `!lapse` 블록 안(위 주석). lapse=true 면 이 블록 통째 생략(chats_wait 발행·retain 둘 다)",
+   "evidence": "m13.ll:19423·19754·19761 (위 항목과 동일 CFG)",
+   "behavior_change": true,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[111]/sig/params[6]/role",
+   "kind": "실오류",
+   "old": "본 범위 게이트: 728(콜 수신 처리 생략)",
+   "new": "본 범위 게이트: 728(콜 수신 처리 생략)·745(대기 채팅 발행·정리 생략 — 728 과 같은 `!lapse` 블록: lapse=true 면 %1802→%1929(758) 직행, m13.ll:19423)",
+   "evidence": "m13.ll:19423 `br i1 %6, label %1929, label %1832` · 19754 `1923: ; preds = %1910, %1838`",
+   "behavior_change": true,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[111]/logic",
+   "kind": "실오류",
+   "old": "765 next: Option<BigPlan> = self.plan.next_plan(version, rnd, player, data, &self.data, &self.positioning_score, &mut self.team_plan, debug)   // sret 384B",
+   "new": "765 next: Option<BigPlan> = self.plan.next_plan(version, rnd, player, data, &self.data, &self.positioning_score, &self.team_plan, debug)   // sret 384B · &mut 는 self.plan(%1930) 뿐, team_plan 은 `&TeamPlan`(tcx callees[69]). ⚠IR 인자 %1652 에 noalias/readonly/dereferenceable 이 없는 사유는 미탐색(정의 m02.ll:8528 %8 도 동일 — 본체는 %8 을 PassiveJungle/LineGanker/LineGankCover ::next_plan 에 넘길 뿐)",
+   "evidence": "_tcx\\game_ai.json BigPlan::next_plan sig = fn(&mut BigPlan, usize, &mut StdRng, &PlayerState, &OperationData, &GoalData, &PositioningScoreData, &TeamPlan, &mut DebugFrameData) · m13.ll:19990 invoke 인자 8 `ptr noundef nonnull align 8 %1652`(=%0+248) · m02.ll:8528 define 의 %8 사용 = #dbg_value + 콜리 3곳 전달뿐",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[111]/mem[4]/note",
+   "kind": "실오류",
+   "old": "765 next_plan 에 ptr(&mut 추정: 속성 없음)",
+   "new": "765 next_plan 에 `&TeamPlan`(tcx callees[69] 정본 — &mut 아님; IR %1652 에 noalias/readonly 속성이 없는 사유는 미탐색)",
+   "evidence": "_tcx\\game_ai.json BigPlan::next_plan sig 8번째 인자 `&'_ game_ai::plan_legacy::team_plan::TeamPlan`",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[111]/logic",
+   "kind": "실오류",
+   "old": "950 self.v2_apply_assign_commit(version, rnd, player, data, &mf_p, &mf_src, debug)   // 자식 명세(계약만)",
+   "new": "950 self.v2_apply_assign_commit(version, rnd, player, data, &mut mf_p, &mut mf_src, debug)   // 자식 명세(계약만) · ★둘 다 &mut(tcx): 952/953 의 mf_src 와 955 의 mf_p 는 커밋 뒤 값(IR %175 재로드 21542 · %176 → %173 memcpy 21548)",
+   "evidence": "_tcx sig v2_apply_assign_commit = fn(&mut LegacyPlanHandler, usize, &mut StdRng, &PlayerState, &OperationData, &mut BigPlan, &mut u8, &mut DebugFrameData) · m13.ll:21521 인자 `ptr noalias noundef align 8 dereferenceable(384) %176, ptr noalias noundef dereferenceable(1) %175`(readonly 없음) · 21542 `%2628 = load i8, ptr %175`(953) · 21548 memcpy %173 ← %176(955)",
+   "behavior_change": true,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[111]/logic",
+   "kind": "보강",
+   "old": "699 self.sanitize_rule_scope(data.cache, ctx)           // 콜리 계약만(&mut self, &cache, &ctx)",
+   "new": "699 self.sanitize_rule_scope(data)           // 콜리 계약(tcx callees[86]) = (&mut self, &OperationData). IR 의 3인자 (self, cache=%211, ctx=%1639) 는 internal fastcc 함수의 &OperationData 인자가 필드로 갈라진 것(ArgPromotion, 추정 — define m13.ll:11163 인자 %1 `readonly captures(address_is_null)` %2 `captures(address, read_provenance)`). 714·761 도 동일 · &mut self = 본 범위 self 쓰기 재료(내부 미탐색)",
+   "evidence": "_tcx sanitize_rule_scope sig = fn(&mut LegacyPlanHandler, &OperationData) · m13.ll:18995/19409/19900 invoke (self %0, %211, %1639)",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[111]/mem[198]/value",
+   "kind": "보강",
+   "old": "sanitize_rule_scope(&mut self, cache, context)",
+   "new": "sanitize_rule_scope(&mut self, data: &OperationData) — IR 3인자(self, cache, ctx)는 ArgPromotion 추정",
+   "evidence": "_tcx sig · m13.ll:11163 define",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[111]/mem[198]/note",
+   "kind": "보강",
+   "old": "L1121 (22638) · 내부 쓰기 미탐색(m13.ll:11163~11383)",
+   "new": "(배치 B) 699·714·761 (m13.ll:18995·19409·19900) · L1121 (22638) · 내부 쓰기 미탐색(m13.ll:11163~11383)",
+   "evidence": "m13.ll:18995/19409/19900 invoke @sanitize_rule_scope(ptr … dereferenceable(6168) %0, …) 루트 handler.rs:699/714/761",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[111]/logic",
+   "kind": "보강",
+   "old": "2280 my_line = rule_scope::fallback_line(ctx, my_line, default=Bottom)   // 인라인 rule_scope.rs:29~34:",
+   "new": "2280 my_line = rule_scope::fallback_line(ctx, my_line)   // 2인자(tcx callees[20]) — 「default Bottom」은 인자가 아니라 본체 rule_scope.rs:34(JungleOnly → %1749 → Bottom=2, m13.ll:19315/19318). 879 의 아웃오브라인 call 과 같은 함수 · 인라인 rule_scope.rs:29~34:",
+   "evidence": "_tcx rule_scope::fallback_line sig = fn(&GameContext, LineType) -> LineType · m13.ll:19255 `i8 6, label %1749` · 19315 `br label %1750, !dbg !29419`(rule_scope.rs:34) · 19318 phi `[ 2, %1749 ]` · 21182 call fallback_line(%1639, i8 %2485) 2인자",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[111]/logic",
+   "kind": "실오류",
+   "old": "1763 goal = self.plan.goal()   // sret %31 24B — 소비처는 배치 C(948 이후)",
+   "new": "1763 goal = self.plan.goal()   // sret %31 24B — ★소비처 없음: %31 은 20510 호출 직후 21494 lifetime.end 뿐(로드 0건). 결과 미사용 호출(BigPlan::goal 은 &self 순수 accessor)",
+   "evidence": "m13.ll 전 함수에서 `%31` 사용 = 14491 alloca · 20509 lifetime.start · 20510 invoke goal(sret %31) · 21494 lifetime.end — 그 외 0건",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[111]/logic",
+   "kind": "보강",
+   "old": "1724 r2_saved: Option<BigPlan> = if version < 2 || !was_battle { None } else { Some(self.plan.clone()) }",
+   "new": "1724 r2_saved: Option<BigPlan> = if version < 2 || !was_battle { None } else { Some(self.plan.clone()) }   // ★HEAP: BigPlan::clone(m13.ll:20310) = 페이로드 소유 Vec 복제(alloc) · 1753 이동 또는 1755 drop",
+   "evidence": "m13.ll:20310 invoke @<BigPlan as Clone>::clone(sret %36, %1930) · 20480/20484 drop_glue",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[111]/logic",
+   "kind": "보강",
+   "old": "1738 before_plan = self.plan.clone();",
+   "new": "1738 before_plan = self.plan.clone() /*★HEAP clone(m13.ll:20364) · 1744 이동 또는 1747 drop*/;",
+   "evidence": "m13.ll:20364 invoke @<BigPlan as Clone>::clone(sret %34, %1930) · 20443/20540 drop_glue",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[111]/mem[11]/name",
+   "kind": "보강",
+   "old": "plan 페이로드(+8) — chats() 오프셋 1520/1544/1624/1760",
+   "new": "plan+8 (BigPlan 페이로드 시작 — chats() 오프셋 1520/1544/1624/1760)",
+   "evidence": "G20 R2: `plan` 이 0x5e8(태그)·0x5f0(페이로드) 두 자리 — sharedchk.norm_name 이 한글 꼬리를 벗겨 `plan` 으로 읽는다. m13.ll:19890 phi `[ 1760, %1938 ], [ 1544, %1929 ], [ 1520, %1936 ], [ 1624, %1937 ]` 는 %0 기준 오프셋",
+   "behavior_change": false,
+   "found_by": "reused"
+  },
+  {
+   "path": "/specs[111]/consts[14]/meaning",
+   "kind": "보강",
+   "old": "force_plan_update:1758 ff_battle_exit.0 = 22 (플랜 교체 이탈 exit_src)",
+   "new": "force_plan_update:1758 ff_battle_exit.0 = 22 (플랜 교체 이탈 exit_src). ★NA(version=2 사장): 1724 `version<2 || !was_battle` 의 `or`(m13.ll:20294) 는 reach.py 가 못 접지만 version=2 면 r2_saved = was_battle 이라 1751~1753 이 Battle 을 복원 → 1756 `was_battle && tag!=Battle` 은 항상 거짓(블록 %2196·%2202 도달 불가) — version<2 전용",
+   "evidence": "m13.ll:20293 `%2111 = icmp ult i64 %2078, 2` · 20294 `%2112 = or i1 %2111, %2108` · 20477 `br i1 %2108, label %2195, label %2191`(1756) · 20506 `br i1 %2194, label %2195, label %2196`(1757) — %2191 은 %2108=0(was_battle) 에서만, 그때 r2_saved=Some 이라 2185/2190 뒤 tag==9",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[111]/mem[172]/note",
+   "kind": "보강",
+   "old": "force_plan_update:1759",
+   "new": "force_plan_update:1759 — ★NA(version=2 사장: 1756 게이트 도달 불가, mem ff_battle_exit 행·consts 22 참조)",
+   "evidence": "m13.ll:20533 store i64 -1 @%0+5640 은 블록 %2202 — 위 사장 논증",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[111]/open[11]/q",
+   "kind": "보강",
+   "old": "본 범위에 NA 봉인 대상 없음",
+   "new": "본 범위에 reach 접힘 기준 NA 봉인 대상 없음 — 단 reach 가 못 접는 `or` 병합 1건: force_plan_update 1756~1759(블록 %2196·%2202)는 version=2 에서 도달 불가(consts 22·mem ff_battle_exit/latch 행에 표기)",
+   "evidence": "m13.ll:20294 `or i1 %2111, %2108` · 20477 · 20506",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "path": "/specs[111]/mem[74]/note",
+   "kind": "보강",
+   "old": "L1010 BigPlan::update 에 &GoalData(readonly) 로 전달 · L1129 is_end 에도",
+   "new": "(배치 B) 765 next_plan 에 &GoalData(readonly, m13.ll:19990 `%0` dereferenceable(248)) · L1010 BigPlan::update 에 &GoalData(readonly) 로 전달 · L1129 is_end 에도",
+   "evidence": "m13.ll:19990 인자 6 `ptr noalias noundef nonnull readonly … dereferenceable(248) %0`",
+   "behavior_change": false,
+   "found_by": "new"
+  },
+  {
+   "op": "insert",
+   "path": "/specs[111]/mem",
+   "at": 241,
+   "guard": "self 전체 (&mut) — 배치 B 콜리 부작용",
+   "guard_key": "name",
+   "new": {
+    "base": "LegacyPlanHandler",
+    "offset": "0x0",
+    "name": "self 전체 (&mut) — 배치 B 콜리 부작용",
+    "value": "handle_chat(&mut self, version, rnd, player, data, from, c, misunderstood, debug)(739) · handle_interact_battle(&mut self, version, rnd, player, data, debug)(force_plan_update:1715, !lapse 일 때) · v2_apply_assign_commit(&mut self, …, &mut mf_p, &mut mf_src, debug)(950)",
+    "note": "739 (m13.ll:19723 invoke handle_chat, %0 `noalias … dereferenceable(6168)` readonly 없음) · 1715<947 (20242 invoke handle_interact_battle, %0 동일) · 950 (21521 invoke v2_apply_assign_commit, %0 동일). tcx sig 전부 `&mut LegacyPlanHandler`(callees[35]·[36]·[122]). 내부 쓰기는 자식 명세 몫 — 6168B self 스윕 재료로 등재",
+    "dir": "w"
+   },
+   "kind": "보강",
+   "found_by": "new",
+   "behavior_change": false,
+   "evidence": "739 (m13.ll:19723 invoke handle_chat, %0 `noalias … dereferenceable(6168)` readonly 없음) · 1715<947 (20242 invoke handle_interact_battle, %0 동일) · 950 (21521 invoke v2_apply_assign_commit, %0 동일). tcx sig 전부 `&mut LegacyPlanHandler`(callees[35]·[36]·[122]). 내부 쓰기는 자식 명세 몫 — 6168B self 스윕 재료로 등재"
+  },
+  {
+   "op": "insert",
+   "path": "/specs[111]/mem",
+   "at": 242,
+   "guard": "plan (&mut) — next_plan 콜리 부작용",
+   "guard_key": "name",
+   "new": {
+    "base": "LegacyPlanHandler",
+    "offset": "0x5e8",
+    "name": "plan (&mut) — next_plan 콜리 부작용",
+    "value": "BigPlan::next_plan(&mut self.plan, version, rnd, player, data, &self.data, &self.positioning_score, &self.team_plan, debug) -> Option<BigPlan>(sret 384)",
+    "note": "765 (m13.ll:19990 invoke, 인자 2 `ptr noalias noundef nonnull align 8 dereferenceable(384) %1930`=%0+1512, readonly 없음 · tcx callees[69] `&mut BigPlan`). 현재 플랜 자체가 next 계산 중 바뀔 수 있음(내부 m02.ll:8528 미탐색) — 교체 6곳(mem plan ★HEAP 행)과 별개의 쓰기 경로",
+    "dir": "w"
+   },
+   "kind": "보강",
+   "found_by": "new",
+   "behavior_change": false,
+   "evidence": "765 (m13.ll:19990 invoke, 인자 2 `ptr noalias noundef nonnull align 8 dereferenceable(384) %1930`=%0+1512, readonly 없음 · tcx callees[69] `&mut BigPlan`). 현재 플랜 자체가 next 계산 중 바뀔 수 있음(내부 m02.ll:8528 미탐색) — 교체 6곳(mem plan ★HEAP 행)과 별개의 쓰기 경로"
+  },
+  {
+   "op": "insert",
+   "path": "/specs[111]/mem",
+   "at": 243,
+   "guard": "plan+8.chats.len (Vec<Chat>.len — 태그별 0x600/0x618/0x668/0x6f0)",
+   "guard_key": "name",
+   "new": {
+    "base": "LegacyPlanHandler",
+    "offset": "0x600",
+    "name": "plan+8.chats.len (Vec<Chat>.len — 태그별 0x600/0x618/0x668/0x6f0)",
+    "value": "0 — Vec<Chat>::drain(..) 이 생성 시 set_len(0) (extend 소스)",
+    "note": "758 (m13.ll:19896 invoke Vec<Chat>::drain(sret %196, ptr %1972=%0+{1520|1544|1624|1760})) · 784 (20694, %0+{1520|1544|1624|1760}). 페이로드 Vec {cap,ptr,len} 의 len=+0x10 → SinglePlanLine/PassiveJungle/LineGanker/LineGankCover 0x600 · PassiveLine 0x618 · SinglePlanBattle/Battle 0x668 · DeathMatchBattle 0x6f0. team_plan.chats(0x1b8) 의 705 drain 과 같은 성질 — 이미 0 이면 값 불변이나 store 는 발생(콜리 내부)",
+    "dir": "w"
+   },
+   "kind": "보강",
+   "found_by": "new",
+   "behavior_change": false,
+   "evidence": "758 (m13.ll:19896 invoke Vec<Chat>::drain(sret %196, ptr %1972=%0+{1520|1544|1624|1760})) · 784 (20694, %0+{1520|1544|1624|1760}). 페이로드 Vec {cap,ptr,len} 의 len=+0x10 → SinglePlanLine/PassiveJungle/LineGanker/LineGankCover 0x600 · PassiveLine 0x618 · SinglePlanBattle/Battle 0x668 · DeathMatchBattle 0x6f0. team_plan.chats(0x1b8) 의 705 drain 과 같은 성질 — 이미 0 이면 값 불변이나 store 는 발생(콜리 내부)"
+  }
+ ],
+ "ev_up": [
+  {
+   "path": "/specs[111]/mem[4]",
+   "from": 5,
+   "to": 3,
+   "evidence": "tcxdict LegacyPlanHandler 0xf8 team_plan(1064B) · next_plan 인자형 &TeamPlan 은 _tcx sig",
+   "found_by": "new"
+  }
+ ],
+ "brief_errors": [
+  "§4 「이 배치 몫 = 5건」— G12 5건 중 배치 B 줄범위(696~976)에 드는 것은 consts[30](698) 하나뿐이다. consts[46](1013)·[64](1133) 은 배치 C, [93](1349)·[96](1453) 은 배치 D 범위. 함수 단위로 세어 배치에 넘겼다.",
+  "지시문(v21_prompt_B.txt) 의 사장 판정 파일 경로 `_nexteach\\e4c5c0.reach.txt` 는 없다 — 실제 = `MIG\\_next\\reach\\e4c5c0.reach.txt`.",
+  "지시문이 「specs[111] 의 plan 행 중 0x5f0 은 … plan@Some.0…/plan+8 로 가르라」고 했는데, 0x5f0 행 3개(mem[11]·[60]·[175]) 중 sharedchk.norm_name 이 `plan` 으로 읽는 것은 mem[11] 하나뿐이다([60]·[175]는 이미 `plan@PassiveLine.0` 류). 가를 대상은 1행.",
+  "G12 consts[46](132 @1013, 배치 C 몫) 은 「줄이 틀린」 게 아니라 그 줄에 132 자체가 없다: 1005 의 phase 가 68/69/70 상수 phi 라 bounds check 가 접혔고, 132 는 763·767·1126·1130·1672 의 다른 타이머 drop 에만 남는다 — 후보 목록으로 옮기면 다른 행과 중복. 배치 C 에 「행 삭제 또는 1013 의 consts[47](1e9) 로 흡수」를 권고."
+ ]
+}

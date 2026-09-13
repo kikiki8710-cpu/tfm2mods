@@ -1,9 +1,9 @@
 {
  "round": "20",
  "batch": "C",
- "errors_applied": 86,
+ "errors_applied": 33,
  "ev_applied": 93,
- "failed": 0,
+ "failed": 38,
  "stamps": {
   "/specs[108]/consts[3]/src_line": "a5ccb1c538e34663",
   "/specs[108]/consts[3]/meaning": "e084434ccb49f964",
@@ -79,5 +79,6 @@
   "/specs[108]/mem[42]/name": "4b1e758f2758cdd0",
   "/specs[108]/mem[42]/note": "744e1ff5f5ad98d0",
   "/specs[108]/logic": "7f931ffa7a2bbec1"
- }
+ },
+ "restamped": true
 }

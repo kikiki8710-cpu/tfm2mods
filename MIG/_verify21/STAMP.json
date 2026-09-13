@@ -1,0 +1,50 @@
+{
+ "A": {
+  "dossier": "37be9a244ef85e4b",
+  "specs": [
+   "spec_111_LegacyPlanHandler__update.md"
+  ],
+  "spec_hashes": {
+   "spec_111_LegacyPlanHandler__update.md": "5aa46448097f7a95"
+  },
+  "mkdossier": "802add3b146ab88e",
+  "v3": "700ce7bc2a56894c",
+  "built": "2026-09-14 05:06:16"
+ },
+ "B": {
+  "dossier": "8eafe29385aa81eb",
+  "specs": [
+   "spec_111_LegacyPlanHandler__update.md"
+  ],
+  "spec_hashes": {
+   "spec_111_LegacyPlanHandler__update.md": "5aa46448097f7a95"
+  },
+  "mkdossier": "802add3b146ab88e",
+  "v3": "700ce7bc2a56894c",
+  "built": "2026-09-14 05:06:16"
+ },
+ "C": {
+  "dossier": "05b3cb25aeac81cc",
+  "specs": [
+   "spec_111_LegacyPlanHandler__update.md"
+  ],
+  "spec_hashes": {
+   "spec_111_LegacyPlanHandler__update.md": "5aa46448097f7a95"
+  },
+  "mkdossier": "802add3b146ab88e",
+  "v3": "700ce7bc2a56894c",
+  "built": "2026-09-14 05:06:16"
+ },
+ "D": {
+  "dossier": "9280b1cc1be9b9f3",
+  "specs": [
+   "spec_111_LegacyPlanHandler__update.md"
+  ],
+  "spec_hashes": {
+   "spec_111_LegacyPlanHandler__update.md": "5aa46448097f7a95"
+  },
+  "mkdossier": "802add3b146ab88e",
+  "v3": "700ce7bc2a56894c",
+  "built": "2026-09-14 05:06:17"
+ }
+}

@@ -1,9 +1,9 @@
 {
  "round": "20",
  "batch": "A",
- "errors_applied": 23,
+ "errors_applied": 3,
  "ev_applied": 10,
- "failed": 0,
+ "failed": 5,
  "stamps": {
   "/specs[102]/sig/params[0]/role": "74234e98afe7498f",
   "/specs[102]/sig/params[2]/role": "74234e98afe7498f",
@@ -18,5 +18,6 @@
   "/specs[104]/mem[72]/name": "cbf83e027cfd409f",
   "/specs[104]/knobs[3]/value": "ddd69b8bbf30b3ad",
   "/specs[104]/mem[4]/note": "1f9fa8027461aa65"
- }
+ },
+ "restamped": true
 }

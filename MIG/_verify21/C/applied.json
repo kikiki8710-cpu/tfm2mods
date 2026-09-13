@@ -1,0 +1,30 @@
+{
+ "round": "21",
+ "batch": "C",
+ "errors_applied": 4,
+ "ev_applied": 47,
+ "failed": 65,
+ "stamps": {
+  "/specs[111]/consts[46]/src_line": "5817ae4948371f9b",
+  "/specs[111]/consts[46]/meaning": "def3816d16a0ebae",
+  "/specs[111]/consts[64]/src_line": "2e00b312b0a9681b",
+  "/specs[111]/consts[64]/meaning": "5a2b50e92cddcf3d",
+  "/specs[111]/mem[177]/value": "16142a09b98f6ae1",
+  "/specs[111]/mem[178]/name": "fd8a20cfe12bc460",
+  "/specs[111]/mem[178]/value": "36a43c16b1dfc443",
+  "/specs[111]/mem[178]/note": "ecb2f8647fca23c3",
+  "/specs[111]/logic": "a2ce99d6d1075926",
+  "/specs[111]/mem[198]/note": "5aae207548f9ff5c",
+  "/specs[111]/mem[11]/name": "48199b26c2ea2656",
+  "/specs[111]/mem[210]/name": "e8d11c81eb8a19fa",
+  "/specs[111]/mem[210]/value": "78aa7ff62981e811",
+  "/specs[111]/consts[66]/meaning": "784f3deaea885f60",
+  "/specs[111]/consts[71]/meaning": "f6f2c22a8eb3de1c",
+  "/specs[111]/open[16]": "fc99faf1178bc6bf",
+  "/specs[111]/open[17]": "fc99faf1178bc6bf",
+  "/specs[111]/open[25]": "fc99faf1178bc6bf",
+  "/specs[111]/open[13]": "fc99faf1178bc6bf",
+  "/specs[111]/open[14]": "fc99faf1178bc6bf"
+ },
+ "restamped": true
+}

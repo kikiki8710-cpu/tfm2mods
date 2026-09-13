@@ -94,7 +94,9 @@ FIRED = {4: 54660390, 16: 6940762, 19: 2806126, 12: 1808301, 18: 1672540,
          81: 2204031, 91: 2049868, 93: 1545233, 83: 1478961, 77: 1085206, 89: 978193, 97: 949945, 82: 882437, 94: 814713, 96: 421923,
          85: 353082, 90: 318313, 78: 106981, 80: 103599, 84: 97615, 98: 37200,
          # ★r11(i=102~110 · 거대 9) · 2026-09-14 02:0x 판 1(설치 110/110 · 9/9 발화 · 리플레이 + 배경 일정 sim 누적 1863s 스냅샷 · 원문 _r11_probe1\probe20_r11_run1.txt).
-         108: 20422392, 110: 19901309, 105: 16643998, 107: 14407556, 106: 4256793, 102: 4252554, 109: 4056185, 103: 1360977, 104: 1210647}
+         108: 20422392, 110: 19901309, 105: 16643998, 107: 14407556, 106: 4256793, 102: 4252554, 109: 4056185, 103: 1360977, 104: 1210647,
+         # ★r12(i=111 · update 본체) · 2026-09-14 05:1x 판 1(설치 111/111 · 556.9s 판 종료 1회 · _r12_probe1\probe20_r12_run1.txt)
+         111: 23031577}
 #   `#02` 는 MISSING20(인라인)이라 여기 없다. 그 호스트 `BigPlan::sub_plan`(AUX[90] @0xcaf9f0 · ~~AUX[20]~~ 09-13 이동)의
 #   재측정치 = **27,416,789**(probe20.txt 참조) — 명세 함수가 아니므로 이 표에 넣지 않는다.
 # ★★**이 함수들의 1단계 발화수는 무효다** — 그때 잰 주소가 **다른 함수**였다(2026-09-12 ghidra 확정).
@@ -298,6 +300,7 @@ BISECT_NO_STRFREE = 0   # ★임시 이분 스위치(2026-09-13) — 0 으로 �
 BISECT_SKIP_MY = 0      # 이분 스위치(2026-09-13 원인 규명 완료 — 중첩 Vec 누락) — 0 유지
 
 SELF_RESTORE = {
+    111: (0, 6168, [], 8),   # #120 LegacyPlanHandler::update — 최상위 진입점 · 힙 표면 = heapsurf(depth 5) 20 필드 + plan(HEAP_SUBST 3 명세)
     88: (0, 6168, [], 8),    # #93 v2_apply_assign_commit — self 쓰기 = 0x1800~0x1803 래치뿐(힙 없음) · plan 은 a5 별도
     100: (0, 1064, [], 8),   # #105 update_steal — TeamPlan(chats·completed_steal_sessions 는 HEAP_SUBST)
     # ★r11 거대 9(09-14): 전부 힙 치환은 HEAP_SUBST(static VB 금지 — Vec drop/교체 함수들).
@@ -416,6 +419,11 @@ SELF_DIFF = {
     102: {"skip": []}, 109: {"skip": []}, 107: {"skip": [(0x3f8, 24)]}, 108: {"skip": [(0x3f8, 24)]},
     # #93: self.plan(0x5e8..)은 이 함수가 안 건드리지만 안쪽 sweep 이 바꿀 수 있어 ENUM_LIVE 로 · V54Counter skip
     88: {"skip": [(0x5e8 + 0x8, 384 - 8), (0xf8 + 0x3f8, 24)]},
+    # #120 update: plan 페이로드 → ENUM_LIVE · sub_plan@0x768(72B) → ENUM_LIVE · V54Counter skip · battle_start_state String 2 는 HEAP_SUBST 동적 skip
+    111: {"skip": [(0x5e8 + 0x8, 384 - 8), (0x768 + 0x8, 72 - 8), (0xf8 + 0x3f8, 24), (0xf8 + 0x419, 1), (0xf8 + 0x41b, 1)],
+          # cond_skip = (조건 오프셋, 조건 길이, 조건 값, skip 오프셋, skip 길이): 게임 스냅샷의 그 자리가 값과 같을 때만 skip.
+          #   v3_dest@0x548 Option<(u64,u64)> — v3_plan_dest None 경로(m13.ll 10105~10108)는 tag 0 만 store · 페이로드 undef(판 4 self+0x558 ×3953)
+          "cond_skip": [(0x548, 8, 0, 0x550, 16)]},   # +0x419/0x41b = team_plan steal_action None 페이로드(IR undef · #100 과 동일)
     # #105: steal_action/prev None 의 페이로드(0x419/0x41b)는 IR undef(19차 D) · V54Counter skip
     100: {"skip": [(0x3f8, 24), (0x419, 1), (0x41b, 1)]},
     104: {"skip": [(0x5e8 + 0x8, 384 - 8), (0xf8 + 0x3f8, 24)]}, 110: {"skip": [(0x5e8 + 0x8, 384 - 8), (0xf8 + 0x3f8, 24)]},
@@ -534,6 +542,15 @@ ELEM_LIVE = {
     # `(usize, LineType)`·`(JungleType, usize)`·`(usize, LineType, u8)` 16B 튜플 — rustc 가 정렬 내림차순으로 재배치해
     # usize@0 · 소형 필드 @8(·@9) · 나머지 패딩. 패딩은 스택/힙 잔재라 비교하지 않는다.
     "tup16": {"live": [(0, 10, [])], "str": []},
+    # r12 update(09-14): `(usize, Position, Chat)` 40B(received/misunderstood_received_chats) = Chat@0(24) · usize@24 · Position@32(4B · 판별자 4B Direct) ·
+    #   `(usize, Chat)` 32B(chats_wait) = Chat@0 · usize@24 · `(i32, usize, usize)` 24B(gank_score_attempts) = usize@0·i32@8·(패딩 12..16)·usize@16 ·
+    #   `(usize, u8, u8, u8)` 16B(flee_ring/flee_death_retrospects) = usize@0 · u8@8/9/10. Chat 태그는 원소 +0 이라 chat 맵 그대로.
+    "pchat": None, "wchat": None,   # 아래서 chat 맵으로 채운다
+    "i32u2": {"live": [(0x0, 12, []), (0x10, 8, [])], "str": []},   # (i32, usize, usize) = IR `{ i64, i32, [1 x i32], i64 }`(m13.ll:21420) — i64@0 · i32@8 · 패딩@12 · i64@16 (09-14 판 5 실측 self+0x828[3]+12)
+    "tup9": {"live": [(0, 9, [])], "str": []},
+    "jt16": {"live": [(0, 1, []), (8, 8, [])], "str": []},   # (JungleType, usize) = IR `{ i8, [7 x i8], i64 }`(m04.ll:28477) — 소형이 **앞** · +1..8 패딩 (09-14 판 7 실측 self+0x608[0]+1)
+    "dive104": {"live": [(0, 0x62, [])], "str": []},   # V50DiveEpisode 104B — 0x62..0x68 패딩(tcxdict 필드 22 · 09-14 판 6 실측 self+0x888[0]+98)   # (usize, LineType) 16B — +9..16 패딩(09-14 판 4 실측: 0x870 v46_lane_recall_trigger_ticks)
+    "u8x3": {"live": [(0x0, 8, []), (0x8, 3, [])], "str": []},
     "pte": {"live": [(0x00, 8, []), (0x80, 5, [0x0f]), (0xb0, 8, [])],
             "str": [(0x08, [0x0f]), (0x20, [0x0f]), (0x38, [0x0f]), (0x50, [0x0f]), (0x68, [0x0f])]},
 }
@@ -544,10 +561,10 @@ _BIGPLAN_VECS = {
     #   `counter_jungle_route@Some.route`@0x18, 요소 16B · **Option 니치 = cap 상위비트**).
     #   ②요소를 원시 바이트로 비교해 `Chat` 의 죽은 칸(+2)에서 거짓 DIFF 1건 — 요소에 ELEM_LIVE 를 붙인다.
     #   (off, esz, live): "chat" = Chat 24B 열거형 · "tup16" = (usize, 1~2B) 튜플 16B(usize@0 · 소형@8..10 · 나머지 패딩).
-    3:  [(0x08 + 0x18, 24, "chat"), (0x08 + 0x30, 8), (0x08 + 0x48, 8), (0x08 + 0x60, 16, "tup16"), (0x08 + 0x78, 16, "tup16")],  # PassiveLinePlan
+    3:  [(0x08 + 0x18, 24, "chat"), (0x08 + 0x30, 8), (0x08 + 0x48, 8), (0x08 + 0x60, 16, "tup9"), (0x08 + 0x78, 16, "tup16")],  # PassiveLinePlan (trigger_ticks (usize,LineType) → tup9 · flee_episodes (usize,LineType,u8) → tup16)
     4:  [(0x08 + 0x00, 24, "chat")],                                       # SinglePlanLine: chats
     5:  [(0x08 + 0x68, 24, "chat")],                                       # SinglePlanBattle: chats
-    7:  [(0x08 + 0x00, 24, "chat"), (0x08 + 0x18, 16, "tup16")],           # PassiveJunglePlan: chats · counter_jungle_route.route
+    7:  [(0x08 + 0x00, 24, "chat"), (0x08 + 0x18, 16, "jt16")],            # PassiveJunglePlan: chats · counter_jungle_route.route (JungleType, usize) — ★i8 가 앞(tup16 은 오기 · 09-14 판 7)
     9:  [(0x08 + 0x68, 24, "chat"), (0x08 + 0x80, 8)],                     # BattlePlan: chats·v54_reentry_ticks
     10: [(0x08 + 0x00, 24, "chat")],                                       # LineGankerPlan: chats
     11: [(0x08 + 0x00, 24, "chat")],                                       # LineGankCoverPlan: chats
@@ -568,6 +585,12 @@ _BIGPLAN_SPEC = {"off": 0x5e8, "tags": (2, 17), "vecs": _BIGPLAN_VECS}
 #   전제(IR 실측으로 확인) = ①그 경로에서 self 소유 힙을 건드리는 곳이 **여기 적은 필드뿐** ②요소가 힙을 안 갖거나(평면)
 #        가지면 `ELEM_LIVE.str` 로 다룬다. ③착수 전 검사 = `heapsurf.py`(grow_one/drop 대상을 %0 오프셋으로 역추적).
 HEAP_SUBST = {
+    # #120 update(09-14 · heapsurf depth 5 + tcxdict): PV 스크래치가 명세당 Vec 8개 상한이라 3 명세로 나눈다.
+    111: [_BIGPLAN_SPEC,
+          {"off": 0, "tags": None, "vecs": [(0xf8 + 0xc0, 24, "chat"), (0xf8 + 0xd8, 8, "i32u8"), (0xf8 + 0xf0, 112, "steal"),   # team_plan 3
+                                             (0x7b0, 40, "pchat"), (0x7c8, 24, "chat"), (0x7e0, 32, "wchat"), (0x7f8, 40, "pchat"), (0x810, 16)]},
+          {"off": 0, "tags": None, "vecs": [(0x828, 24, "i32u2"), (0x858, 184, "pte"), (0x870, 16, "tup9"), (0x888, 104, "dive104"), (0x8a0, 16, "tup16"), (0x8b8, 16, "u8x3"), (0x8d0, 16, "u8x3")]},
+          {"off": 0, "tags": None, "vecs": [(0x8e8, 8), (0x900, 8)]}],   # BISECT-1: String 3(0x840·0x918·0x930) 제외   # 0x918/0x930 = battle_start_state 의 String 2(cap 니치 = None 이면 치환 안 됨)
     # 후순위 2(09-14): #93 a5 스택 BigPlan(arg=5) · #105 TeamPlan chats@0xc0 + completed_steal_sessions@0xf0(StealSession 112B · ELEM_LIVE "steal")
     88: [{"off": 0, "tags": (2, 17), "vecs": _BIGPLAN_VECS, "arg": 5}],
     100: [{"off": 0, "tags": None, "vecs": [(0xc0, 24, "chat"), (0xf0, 112, "steal")]}],
@@ -608,6 +631,8 @@ def heap_specs(i):
     return out
 
 
+ELEM_LIVE["pchat"] = {"live": list(ELEM_LIVE["chat"]["live"]) + [(24, 8, []), (32, 4, [])], "str": []}
+ELEM_LIVE["wchat"] = {"live": list(ELEM_LIVE["chat"]["live"]) + [(24, 8, [])], "str": []}
 LIVE_IDS = {nm: n + 1 for n, nm in enumerate(sorted(ELEM_LIVE))}   # 0 = raw bytes
 
 
@@ -631,6 +656,7 @@ ARG_ENUM_LIVE = {
 }
 
 ENUM_LIVE = {
+    111: [(0x5e8, "game_ai::plan_legacy::types::BigPlan"), (0x768, "game_ai::plan_legacy::sub_plan::SubPlan")],
     88: [(0x5e8, "game_ai::plan_legacy::types::BigPlan")],    # #93 self.plan(안쪽 sweep 영향 대비)
     104: [(0x5e8, "game_ai::plan_legacy::types::BigPlan")],   # r11 handle_chat_inner(#12 와 동일)
     110: [(0x5e8, "game_ai::plan_legacy::types::BigPlan")],   # r11 handle_interact_battle
@@ -879,7 +905,7 @@ MUT_OK_ARG = {35: {13: "DebugFrameData"}, 49: {8: "DebugFrameData"}, 56: {7: "De
               82: {8: "DebugFrameData"}, 96: {8: "DebugFrameData"}, 86: {6: "DebugFrameData"}, 87: {6: "DebugFrameData"},
               81: {7: "DebugFrameData"}, 94: {7: "DebugFrameData"}, 95: {5: "DebugFrameData"}, 80: {7: "DebugFrameData", 1: "LegacyPlanHandler"},
               # r11(09-14): 마지막 인자 &224 DebugFrameData · passive_plan self = &self(유일 쓰기 atomicrmw eo_cover_picks 카운터 · 19차/r11 B) · update_v32 %5 team_plan = &(store 0)
-              88: {7: "DebugFrameData"}, 102: {7: "DebugFrameData"}, 104: {8: "DebugFrameData"}, 105: {1: "LegacyPlanHandler", 6: "DebugFrameData"},
+              111: {5: "DebugFrameData"}, 88: {7: "DebugFrameData"}, 102: {7: "DebugFrameData"}, 104: {8: "DebugFrameData"}, 105: {1: "LegacyPlanHandler", 6: "DebugFrameData"},
               107: {7: "DebugFrameData"}, 108: {7: "DebugFrameData"}, 109: {5: "LegacyPlanHandler", 6: "DebugFrameData"}, 110: {5: "DebugFrameData"}}   # #49 a8 = &mut DebugFrameData(224B · IR %8 dereferenceable(224))
 # ★internal 함수는 define 에 `sret([N x i8])` 속성이 없다(LLVM 이 내부 호출규약에서 생략) — 파서가 「반환 void + 가변 a0」로 읽는다.
 #   `resolve_fight_uncached`(a0 = dereferenceable(64) 출력 버퍼) 실사고(09-13). 여기 적은 idx 는 a0 을 sret N 바이트로 강제한다.
@@ -1386,6 +1412,14 @@ def main():
     w(u"/// 첫 DIFF 덤프(슬롯당 1건 + 전체 상한). detour 문맥에서 잡으므로 poison-safe 하게 연다.")
     w(u"static FIRST: Mutex<Vec<(usize, String)>> = Mutex::new(Vec::new());")
     w(u"const FIRST_MAX: usize = 64;")
+    w(u"/// 상태 diff 갈림 오프셋 히스토그램 (idx, self 오프셋, 횟수) — 대조 1건당 run 시작 8개까지 · 서로 다른 오프셋 상한 DOFF_MAX")
+    w(u"static DOFF: Mutex<Vec<(usize, usize, u32)>> = Mutex::new(Vec::new());")
+    w(u"const DOFF_MAX: usize = 96;")
+    w(u"fn doff(i: usize, off: usize) {")
+    w(u"    let mut g = DOFF.lock().unwrap_or_else(|e| e.into_inner());")
+    w(u"    if let Some(e) = g.iter_mut().find(|e| e.0 == i && e.1 == off) { e.2 += 1; }")
+    w(u"    else if g.len() < DOFF_MAX { g.push((i, off, 1)); }")
+    w(u"}")
     w(u"thread_local! { static D: [std::cell::Cell<u32>; %d] = [const { std::cell::Cell::new(0) }; %d]; }" % (N, N))
     w(u"/// 재진입 깊이. 최상위 호출에서만 대조한다(내 사본이 같은 함수를 재귀 호출해도 2중 대조 안 함).")
     w(u"#[inline] fn top(i: usize) -> bool { D.with(|d| { let v = d[i].get(); d[i].set(v + 1); v == 0 }) }")
@@ -1835,17 +1869,25 @@ def main():
                         continue
                     w(u"        let gtag_%d: u64 = %s;" % (si, (u"core::ptr::read_unaligned(sp.as_ptr().add(%#x) as *const u64)" % boff) if tags else u"0"))
                     w(u"        let dyn_%d: &[(usize, usize, u8)] = hs_vecs_%d_%d(gtag_%d);" % (si, r["idx"], si, si))
+            w(u"        let (mut first, mut inrun, mut nrun): (Option<String>, bool, u32) = (None, false, 0);")
             w(u"        for off in 0..%dusize {" % sz)
             for (so, sl) in skips:
                 w(u"            if off >= %#x && off < %#x { continue; }" % (so, so + sl))
+            for (co, cl, cv, so, sl) in (sdf.get("cond_skip") or []):
+                rd = {1: u"sp[%#x] as u64" % co, 2: u"u16::from_le_bytes([sp[%#x], sp[%#x]]) as u64" % (co, co + 1),
+                      4: u"u32::from_le_bytes([sp[%#x], sp[%#x], sp[%#x], sp[%#x]]) as u64" % (co, co + 1, co + 2, co + 3),
+                      8: u"u64::from_le_bytes([sp[%#x], sp[%#x], sp[%#x], sp[%#x], sp[%#x], sp[%#x], sp[%#x], sp[%#x]])" % tuple(co + q for q in range(8))}[cl]
+                w(u"            if off >= %#x && off < %#x && %s == %du64 { continue; }   // cond_skip(태그 조건부 · undef 페이로드)" % (so, so + sl, rd, cv))
             for si, (boff, tags, vecs, harg) in enumerate(hs):
                 if harg is not None:
                     continue
                 w(u"            if dyn_%d.iter().any(|&(o, _, _)| off >= %#x + o && off < %#x + o + 24) { continue; }" % (si, boff, boff))
             w(u"            if sp[off] != sq[off] {")
-            w(u"                return Some(format!(\"self+{:#x}: g={:02x} m={:02x}\", off, sp[off], sq[off]));")
-            w(u"            }")
+            w(u"                if first.is_none() { first = Some(format!(\"self+{:#x}: g={:02x} m={:02x}\", off, sp[off], sq[off])); }")
+            w(u"                if !inrun { inrun = true; if nrun < 8 { doff(%d, off); nrun += 1; } }" % k)
+            w(u"            } else { inrun = false; }")
             w(u"        }")
+            w(u"        if first.is_some() { return first; }")
             for ei, (eoff, ety) in enumerate(ENUM_LIVE.get(r["idx"], [])):
                 w(u"        // ①′ 열거형 필드 self+%#x `%s` 페이로드 — 타입 기반 live 맵(structlive)으로 variant 조건부 비교" % (eoff, ety.split("::")[-1]))
                 w(u"        { let t = core::ptr::read_unaligned(sp.as_ptr().add(%#x) as *const u64);" % eoff)
@@ -2201,6 +2243,9 @@ def main():
     w(u"    s.push_str(&format!(\"--- 첫 DIFF 덤프 {}건 (슬롯당 1건 · 상한 {})\\n\", g.len(), FIRST_MAX));")
     w(u"    if g.is_empty() { s.push_str(\"    (없음)\\n\"); }")
     w(u"    for (_, l) in g.iter() { s.push_str(\"    \"); s.push_str(l); s.push('\\n'); }")
+    w(u"    { let mut d = DOFF.lock().unwrap_or_else(|e| e.into_inner()).clone(); d.sort_by(|a, b| (a.0, b.2).cmp(&(b.0, a.2)));")
+    w(u"      if !d.is_empty() { s.push_str(&format!(\"--- 상태 diff 갈림 오프셋 히스토그램 {}종 (대조 1건당 run 시작 8개까지 · 상한 {})\\n\", d.len(), DOFF_MAX));")
+    w(u"        for &(i, off, c) in d.iter() { s.push_str(&format!(\"    slot{} self+{:#x} ×{}\\n\", i, off, c)); } } }")
     eh = [(r["idx"], ei, eoff, ety) for r in rows if r.get("selfr") for ei, (eoff, ety) in enumerate(ENUM_LIVE.get(r["idx"], []))]
     eh += [(slot, ei, eoff, ety) for slot, lst in sorted(PIN_ENUM_LIVE.items()) for ei, (eoff, ety) in enumerate(lst)]
     eh += [(r["idx"], 0, 0, r["sret_enum"]) for r in rows if r.get("sret_enum")]   # sret 열거형 히스토그램(09-13 · 첫 판은 미출력이었다)
