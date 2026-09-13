@@ -113,7 +113,10 @@ RMAP = {"ptr": "*const u8", "i64": "i64", "i32": "i32", "i8": "u8",
         #   (`bool` 로 받으면 상위 비트 쓰레기가 UB — 반환 처리와 같은 이유).
         #   2026-09-12: 이게 없어서 `is_object_being_taken_by_enemy`(전 인자 readonly =
         #   부작용 0 인 순수 술어)가 「인자 i1 미지원」으로 잘려 있었다.
-        "i1": "u8"}
+        "i1": "u8",
+        # ★i24(09-13 r8 #53 v25_scoped_battle_objective): `Option<MainObjective>` 류 3B 스칼라. x64 에서 edx 등 32비트 레지스터로
+        #   오가고 **상위 8비트는 정의되지 않는다**(define 에 zeroext 없음) ⟹ u32 로 받고 비교는 `& 0xffffff`.
+        "i24": "u32"}
 
 # ★★가변 포인터인데 **대조 판정에 영향이 없다고 보는** tcx 타입. (2026-09-12 신설)
 #   기본 규칙은 「가변 포인터 = 두 번 호출하면 상태가 두 번 변한다 = 제외」다. 그런데 그 규칙이
@@ -271,6 +274,7 @@ BISECT_SKIP_MY = 0      # 이분 스위치(2026-09-13 원인 규명 완료 — �
 
 SELF_RESTORE = {
     18: (0, 1064, [(0xc0, 0xc8, 0xd0)], 24),   # a0 = &mut TeamPlan(1064B) · chats: Vec<Chat>(24B)
+    54: (0, 1064, [(0xc0, 0xc8, 0xd0)], 24),   # #59 TeamPlan::update — 같은 self(09-13 r8)
     # ★#14 `LineGankerPlan::update` — a0 = &mut LineGankerPlan(**48B**).
     #   tcx 실측: `chats: Vec<Chat>` @0x0(24B) · `setup_limit`@0x18 · `wait_limit`@0x20 ·
     #            `line`@0x28 · `phase`@0x29 ⟹ **힙 소유 필드는 `chats` 하나뿐**이라
@@ -351,6 +355,19 @@ SELF_DIFF = {
     #     · `phase` — `store i8 8, self+41`
     #   ⚠`#18` 은 같은 `Chat` 인데 `+0`/`+8` 을 썼다 — **variant 마다 페이로드 위치가 다르다**
     #     ⟹ `elem_live` 는 **슬롯별**이어야 한다(이 표가 이름/idx 키인 이유).
+    # ★#59(i54) `TeamPlan::update`(09-13 r8) — 반환 void · a0 = &mut TeamPlan(1064B · #18 과 같은 구조체 · chats Vec @0xc0).
+    #   IR 실측(m09.ll:38805/38913/39266): push 3곳 = MorgardPrepare(33)·SerpenPrepare(24) = `+0 tag`·`+8 i64`·`+16 i64 0` /
+    #   Mia(1) = `+0 tag`·`+4 i32 position`·`+8 i64 0`. exe ABI = 6인자 전부 유지(r9=player · [rsp+0x200]=data · fnprobe 09-13).
+    54: {
+        "skip": [(0xc0, 24)],
+        "elem_live": [
+            (0, 1, []),                  # tag — 항상
+            (4, 4, [0x01]),              # Mia 의 position(i32)
+            (8, 8, []),                  # payload u64 — 세 variant 모두
+            # ~~(16, 8, [0x21, 0x18])~~ MorgardPrepare/SerpenPrepare 의 두 번째 u64 — IR 은 `store i64 0` 이지만 exe 는 **dead store 제거**
+            #   (판 09-13 16:14 첫 갈림 `vec[0]+16: g=f8 m=00` = 재사용 버퍼 잔재 · #18 의 +16 과 같은 부류). 아무도 안 읽는 칸이라 비교 제외.
+        ],
+    },
     14: {
         "skip": [(0x0, 24)],             # chats 의 cap@0x0 · ptr@0x8 · len@0x10
         "elem_live": [
@@ -511,6 +528,20 @@ ENUM_LIVE = {
 }
 # ★midpin 슬롯용 — 명세 행(rows)이 아니라 `pin02.rs` 같은 손 훅이 부르는 비교 fn 도 같은 기계로 방출한다.
 #   값 = {slot: [(기준 off, 열거형 타입)]} · 방출명 `enumlive_cmp_{slot}_{ei}`(pub) · 히스토그램 `EH_{slot}_{ei}`.
+# ★★sret 버퍼가 **열거형**인 함수(09-13 r8 #61 i56 `PassiveLinePlan::sub_plan` → `SubPlan` 72B). SRET_LIVE 의 평면 span 으로는
+#   variant 별 페이로드를 못 적으므로 pin02 와 같은 `enumlive_cmp_{idx}_0`(structlive 자동 생성)로 태그@0(8B) + variant 조건부 페이로드를 비교한다.
+#   값 = {spec idx(또는 이름): 열거형 타입 전체이름}. `SRET_LIVE` 와 동시에 쓰지 않는다.
+# ★★sret 버퍼가 **bumpalo Vec**(ptr@0 · &Bump@8 · cap@0x10 · len@0x18 · 32B)인 함수(09-13 r8 #46 i41 `fight_participants` →
+#   `Vec<(&Entity, i64, bool), &Bump>` · 원소 24B = ptr@0 · i64@8 · bool@16 · IR m10.ll:39582~39586). ptr/bump/cap 은 게임·내 사본이
+#   같은 Bump 에서 **따로** 할당하니 다르고, 판정은 **len + 원소 live 바이트**다(원소의 &Entity 는 게임 엔티티 주소라 양쪽 같다).
+#   부작용 = 내 사본이 같은 Bump 에 한 번 더 할당한다(아레나는 틱마다 리셋 · 게임 값엔 영향 없음).
+#   값 = {spec idx: {"ptr": off, "len": off, "esz": 원소 크기, "elem_live": [(off, len, [tags])]}}
+SRET_VEC = {
+    41: {"ptr": 0x0, "len": 0x18, "esz": 24, "elem_live": [(0, 8, []), (8, 8, []), (16, 1, [])]},
+}
+SRET_ENUM = {
+    56: "game_ai::plan_legacy::sub_plan::SubPlan",
+}
 PIN_ENUM_LIVE = {
     2: [(0x0, "game_ai::plan_legacy::sub_plan::SubPlan")],   # `#02` 인라인 arm 의 sret(SubPlan 72B) — pin02.rs
 }
@@ -668,7 +699,7 @@ SRET_LIVE = {
     ],
 }
 
-MUT_OK_ARG = {35: {13: "DebugFrameData"}, 49: {8: "DebugFrameData"}, u"resolve_fight_uncached": {3: "GameContext", 12: "DebugFrameData"}}   # #49 a8 = &mut DebugFrameData(224B · IR %8 dereferenceable(224))
+MUT_OK_ARG = {35: {13: "DebugFrameData"}, 49: {8: "DebugFrameData"}, 56: {7: "DebugFrameData"}, 41: {11: "DebugFrameData"}, u"resolve_fight_uncached": {3: "GameContext", 12: "DebugFrameData"}}   # #49 a8 = &mut DebugFrameData(224B · IR %8 dereferenceable(224))
 # ★internal 함수는 define 에 `sret([N x i8])` 속성이 없다(LLVM 이 내부 호출규약에서 생략) — 파서가 「반환 void + 가변 a0」로 읽는다.
 #   `resolve_fight_uncached`(a0 = dereferenceable(64) 출력 버퍼) 실사고(09-13). 여기 적은 idx 는 a0 을 sret N 바이트로 강제한다.
 SRET_FORCE = {u"resolve_fight_uncached": 64}   # {spec idx: {IR 인자 idx: tcx 타입명}} — 위 MUT_OK_TCX 판정을 인덱스로 적용
@@ -934,7 +965,9 @@ def main():
         #     — `tcxdict` 레이아웃에서 뽑아 `SRET_LIVE[idx] = [(off,len),…]` 로 주면 이 게이트가 열린다.
         #   ⚠**그때까지는 제외한다.** 「DIFF 2만건」을 재현 실패로 기록하면 그게 더 비싼 오류다.
         live = _byname(SRET_LIVE, i, sp) if g["sret"] else None
-        if g["sret"] and live is None:
+        sret_enum = _byname(SRET_ENUM, i, sp) if g["sret"] else None
+        sret_vec = _byname(SRET_VEC, i, sp) if g["sret"] else None
+        if g["sret"] and live is None and sret_enum is None and sret_vec is None:
             why.append(u"sret 반환 = **버퍼 전체 바이트 비교가 부당**(LTO 가 죽인 dead store 자리가 갈린다 — "
                        u"`#00` 실측 DIFF 20,406/20,415, 의미 워드는 전부 일치). "
                        u"`SRET_LIVE` 에 살아있는 바이트 범위를 주면 편입된다")
@@ -945,6 +978,8 @@ def main():
         rty = ("i64" if re.fullmatch(r"i64", g["ret"]) else
                "bool" if re.fullmatch(r"i1", g["ret"]) else
                "u8" if re.fullmatch(r"i8", g["ret"]) else
+               # ★i24 반환(09-13): eax 하위 24비트만 비교(`U24` = Rust u32 · 상위 8비트 미정의).
+               "U24" if re.fullmatch(r"i24", g["ret"]) else
                # ⚠IR 에서 `bool` 은 **`i1`** 이다(`i8` 이 아니다). ABI 상 스칼라 폭은 1바이트라
                #   Rust 쪽은 `u8` 로 받는다(`bool` 로 받으면 상위 비트 쓰레기가 **UB** 가 된다).
                "P8" if re.fullmatch(r"\{ i[18], i[18] \}", g["ret"]) else
@@ -1037,7 +1072,7 @@ def main():
         _abi = EXE_ABI.get(i)
         if _abi:
             rngs = [_abi[j] for j in rngs if isinstance(_abi[j], int)]
-        rows.append(dict(sret_n=sret_n, live=live, sites=sites,
+        rows.append(dict(sret_n=sret_n, live=live, sret_enum=sret_enum, sret_vec=sret_vec, sites=sites,
                          extra=(i >= len(D) - len(EXTRA_SWEEP)),
                          selfr=(None if SELF_RESTORE_OFF else self_restore_of(i, nm)),
                          idx=didx, name=nm, sym=sym, rva=rva, args=g["args"], rty=rty,
@@ -1102,7 +1137,7 @@ def main():
     w(u"extern \"Rust\" {")
     for k, r in enumerate(rows):
         sig = ", ".join("a%d: %s" % (j, RMAP[a[0]]) for j, a in enumerate(r["args"]))
-        rr = "" if r["rty"] == "()" else " -> %s" % r["rty"]
+        rr = "" if r["rty"] == "()" else " -> %s" % ("u32" if r["rty"] == "U24" else r["rty"])
         w(u"    /// #%02d %s — %s" % (r["idx"], r["name"], r["tcx"][:160]))
         w(u"    #[link_name = \"%s\"]" % r["sym"])
         w(u"    fn my_%d(%s)%s;" % (r["idx"], sig, rr))
@@ -1335,6 +1370,7 @@ def main():
         return (u" && ".join(cs) if cs else u"true"), hibeq
     _el_items = [(r["idx"], ei, eoff, ety) for r in rows if r.get("selfr") for ei, (eoff, ety) in enumerate(ENUM_LIVE.get(r["idx"], []))]
     _el_items += [(slot, ei, eoff, ety) for slot, lst in sorted(PIN_ENUM_LIVE.items()) for ei, (eoff, ety) in enumerate(lst)]
+    _el_items += [(r["idx"], 0, 0, r["sret_enum"]) for r in rows if r.get("sret_enum")]   # sret 열거형(09-13)
     for (_idx, ei, eoff, ety) in _el_items:
         r = {"idx": _idx}
         if True:
@@ -1385,7 +1421,7 @@ def main():
             sig = ", ".join("a%d: %s" % (j, t) for j, t in enumerate(tys))
             call = ", ".join("a%d" % j for j in range(len(tys)))
             mycall = call
-        rr = "" if r["rty"] == "()" else " -> %s" % r["rty"]
+        rr = "" if r["rty"] == "()" else " -> %s" % ("u32" if r["rty"] == "U24" else r["rty"])
         # ★DIFF 덤프에 찍을 인자도 **래퍼가 실제로 받은 것**(exe 서명)이어야 한다 —
         #   IR 기준으로 만들면 없는 `a6` 를 참조해 컴파일이 깨진다(2026-09-12 실측).
         fmt, vals = [], []
@@ -1661,7 +1697,9 @@ def main():
                         w(u"                        }")
                         w(u"                    }")
                         w(u"                }")
-                else:
+                elif not el:
+                    # ★09-13 정정: 옛 `else` 는 `if es:` 의 짝이라 elem_live 가 있어도 **전 바이트 루프가 한 번 더** 붙었다
+                    #   (#54 TeamPlan::update 가 live 에서 뺀 +16 잔재로 계속 갈림). #14/#18 은 그 엄격 비교를 통과했으니 판정 유효.
                     w(u"                for j in 0..%d {" % esz)
                     w(u"                    let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8));")
                     w(u"                    if gv != mv {")
@@ -1741,6 +1779,25 @@ def main():
             else:
                 w(u"            note(%d, format!(\"#%02d %s 대조#{} **상태갈림**: {} | (%s) | %s\", n, d, g, %s)); } }"
                   % (k, r["idx"], r["name"], _why, " ".join(fmt), ", ".join(vals)))
+        elif sn and r.get("sret_vec"):
+            sv = r["sret_vec"]
+            el = ", ".join("(%d, %d, &[%s])" % (o, l, ", ".join("0x%02x" % t for t in tg)) for (o, l, tg) in sv["elem_live"])
+            w(u"        Ok(_) => { let (gl, ml) = (gb[%d] as usize, mb[%d] as usize); let (gp, mp) = (gb[%d] as usize, mb[%d] as usize);"
+              % (sv["len"] // 8, sv["len"] // 8, sv["ptr"] // 8, sv["ptr"] // 8))
+            w(u"            const EL: &[(usize, usize, &[u8])] = &[%s];" % el)
+            w(u"            let d: Option<String> = if gl != ml { Some(format!(\"len g={} m={}\", gl, ml)) }")
+            w(u"                else if gl > 0 && gl < 4096 && gp > 0x1000 && mp > 0x1000 { (|| { for e in 0..gl { let (eb, fb) = (gp + e * %d, mp + e * %d); let tag = *(eb as *const u8);"
+              % (sv["esz"], sv["esz"]))
+            w(u"                    for &(o, l, tg) in EL { if !tg.is_empty() && !tg.contains(&tag) { continue; } for j in o..o + l { let (gv, mv) = (*((eb + j) as *const u8), *((fb + j) as *const u8)); if gv != mv { return Some(format!(\"vec[{}]+{}: g={:02x} m={:02x}\", e, j, gv, mv)); } } } } None })() } else { None };")
+            w(u"            if let Some(d) = d { note(%d, format!(\"#%02d %s 대조#{} 갈림(sret bump Vec len={}): {} | %s\", n, gl, d, %s)); } }"
+              % (k, r["idx"], r["name"], " ".join(fmt[1:]), ", ".join(vals[1:])))
+        elif sn and r.get("sret_enum"):
+            # ★sret 열거형 — 태그(8B@0) 가 다르면 갈림, 같으면 variant 조건부 페이로드(enumlive · structlive 자동 생성)만 비교.
+            w(u"        Ok(_) => { let (gt, mt) = (gb[0], mb[0]);")
+            w(u"            let d = if gt != mt { Some(format!(\"tag g={} m={}\", gt, mt)) } else { enumlive_cmp_%d_0(gt, gb.as_ptr() as usize, mb.as_ptr() as usize).map(|x| format!(\"(tag {}){}\", gt, x)) };"
+              % r["idx"])
+            w(u"            if let Some(d) = d { note(%d, format!(\"#%02d %s 대조#{} 갈림(sret 열거형 %dB): {} | g={:02x?} m={:02x?} | %s\", n, d, &gb[..%d], &mb[..%d], %s)); } }"
+              % (k, r["idx"], r["name"], sn, " ".join(fmt[1:]), (sn + 7) // 8, (sn + 7) // 8, ", ".join(vals[1:])))
         elif sn:
             # ★전 바이트가 아니라 **살아있는 구간만** 비교한다. 갈린 구간의 오프셋을 함께 남긴다.
             w(u"        Ok(_) => { if let Some(off) = live_eq(a0, mb.as_ptr() as *const u8, LIVE_%d) {"
@@ -1753,6 +1810,10 @@ def main():
             arms = u" | ".join(str(t) for t in RET_LIVE[r["idx"]])
             w(u"        Ok(m) => { let bad = m.a != g.a || (matches!(g.a, %s) && m.b != g.b);" % arms)
             w(u"            if bad { note(%d, format!(\"#%02d %s 대조#{} 갈림: g={:?} m={:?} | %s\", n, g, m, %s)); } }"
+              % (k, r["idx"], r["name"], " ".join(fmt), ", ".join(vals)))
+        elif r["rty"] == "U24":
+            # ★i24: 상위 8비트는 ABI 상 미정의 — 하위 24비트만 대조한다.
+            w(u"        Ok(m) => { if (m & 0xffffff) != (g & 0xffffff) { note(%d, format!(\"#%02d %s 대조#{} 갈림(i24): g={:#x} m={:#x} | %s\", n, g & 0xffffff, m & 0xffffff, %s)); } }"
               % (k, r["idx"], r["name"], " ".join(fmt), ", ".join(vals)))
         else:
             w(u"        Ok(m) => { if m != g { note(%d, format!(\"#%02d %s 대조#{} 갈림: g={:?} m={:?} | %s\", n, g, m, %s)); } }"
@@ -1845,6 +1906,7 @@ def main():
     w(u"    for (_, l) in g.iter() { s.push_str(\"    \"); s.push_str(l); s.push('\\n'); }")
     eh = [(r["idx"], ei, eoff, ety) for r in rows if r.get("selfr") for ei, (eoff, ety) in enumerate(ENUM_LIVE.get(r["idx"], []))]
     eh += [(slot, ei, eoff, ety) for slot, lst in sorted(PIN_ENUM_LIVE.items()) for ei, (eoff, ety) in enumerate(lst)]
+    eh += [(r["idx"], 0, 0, r["sret_enum"]) for r in rows if r.get("sret_enum")]   # sret 열거형 히스토그램(09-13 · 첫 판은 미출력이었다)
     if eh:
         w(u"    s.push_str(\"\\n--- ENUM_LIVE variant 히스토그램 (페이로드 정밀 비교가 실제로 어느 variant 에 적용됐나 · 대조 1건 = 1)\\n\");")
         for (idx, ei, eoff, ety) in eh:

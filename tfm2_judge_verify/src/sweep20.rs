@@ -68,36 +68,44 @@
 //!               ⚠caveat: a5: IR readonly 표기 없음 · tcx `&TeamPlan(1064B)` = 공유참조(쓰기 관측 0) 근거로 편입
 //!     bit28 = 0x10000000  v3_epicops_buff_window           (1단계 발화 1,672,540회)
 //!               ⚠caveat: a0: &mut 게임 상태(1064B) — 게임 호출 전 상태로 되돌려 내 사본을 부르고 게임 상태로 복구한다. Vec 은 빈 것으로 바꿔 **게임 버퍼를 건드리지 않는다**
-//!     bit29 = 0x20000000  handle_chat                      (1단계 발화 1,808,301회)
+//!     bit29 = 0x20000000  fight_participants               (1단계 발화 1,785,206회)
+//!               ⚠caveat: a11: 가변이지만 편입 — tcx `DebugFrameData` = 디버그 싱크 — IR 실측상 본문이 역참조하지 않고 넘기기만 한다(클로저 내부 쓰기는 미확인 ⟹ 중복 기록 가능 · 반환 대조엔 무관)
+//!     bit30 = 0x40000000  handle_chat                      (1단계 발화 1,808,301회)
 //!               ⚠caveat: a0: &mut 게임 상태(6168B) — 게임 호출 전 상태로 되돌려 내 사본을 부르고 게임 상태로 복구한다. Vec 은 빈 것으로 바꿔 **게임 버퍼를 건드리지 않는다** / a8: 가변이지만 편입 — tcx `&mut DebugFrameData(224B)` = 디버그 싱크 — IR 실측상 본문이 역참조하지 않고 넘기기만 한다(클로저 내부 쓰기는 미확인 ⟹ 중복 기록 가능 · 반환 대조엔 무관)
-//!     bit30 = 0x40000000  v25_objective_far_split_pressure (1단계 발화 2,105,201회)
-//!     bit31 = 0x80000000  best_jungle_goal                 (1단계 발화 2,806,126회)
+//!     bit31 = 0x80000000  v25_objective_far_split_pressure (1단계 발화 2,105,201회)
+//!     bit32 = 0x100000000  v25_scoped_battle_objective      (1단계 발화 2,777,647회)
+//!     bit33 = 0x200000000  best_jungle_goal                 (1단계 발화 2,806,126회)
 //!               ⚠caveat: a4: IR readonly 표기 없음 · tcx `&TeamPlan` = 공유참조(쓰기 관측 0) 근거로 편입 / a6: 가변이지만 편입 — tcx `&mut DebugFrameData(224B)` = 디버그 싱크 — IR 실측상 본문이 역참조하지 않고 넘기기만 한다(클로저 내부 쓰기는 미확인 ⟹ 중복 기록 가능 · 반환 대조엔 무관)
-//!     bit32 = 0x100000000  has_line_defense_threat          (1단계 발화 2,818,679회)
-//!     bit33 = 0x200000000  v23_recent_visible_enemies_near_ (1단계 발화 3,055,211회)
-//!     bit34 = 0x400000000  v3_epic_formation_role           (1단계 발화 3,144,357회)
-//!     bit35 = 0x800000000  v27_active_objective_discipline  (1단계 발화 3,158,080회)
-//!     bit36 = 0x1000000000  v22_visible_enemy_is_runaway_thr (1단계 발화 5,660,210회)
-//!     bit37 = 0x2000000000  check_press_tower_opportunity    (1단계 발화 6,807,462회)
-//!     bit38 = 0x4000000000  max_range_nearly_can_use         (1단계 발화 6,940,762회)
-//!     bit39 = 0x8000000000  can_recall                       (1단계 발화 7,564,211회)
-//!     bit40 = 0x10000000000  check_epic_setup                 (1단계 발화 8,012,325회)
+//!     bit34 = 0x400000000  has_line_defense_threat          (1단계 발화 2,818,679회)
+//!     bit35 = 0x800000000  v23_recent_visible_enemies_near_ (1단계 발화 3,055,211회)
+//!     bit36 = 0x1000000000  v3_epic_formation_role           (1단계 발화 3,144,357회)
+//!     bit37 = 0x2000000000  v27_active_objective_discipline  (1단계 발화 3,158,080회)
+//!     bit38 = 0x4000000000  v22_visible_enemy_is_runaway_thr (1단계 발화 5,660,210회)
+//!     bit39 = 0x8000000000  PassiveLinePlan::sub_plan        (1단계 발화 6,570,780회)
+//!               ⚠caveat: a6: 가변이지만 편입 — tcx `&mut DebugFrameData(224B)` = 디버그 싱크 — IR 실측상 본문이 역참조하지 않고 넘기기만 한다(클로저 내부 쓰기는 미확인 ⟹ 중복 기록 가능 · 반환 대조엔 무관) / a7: 가변이지만 편입 — tcx `DebugFrameData` = 디버그 싱크 — IR 실측상 본문이 역참조하지 않고 넘기기만 한다(클로저 내부 쓰기는 미확인 ⟹ 중복 기록 가능 · 반환 대조엔 무관)
+//!     bit40 = 0x10000000000  check_press_tower_opportunity    (1단계 발화 6,807,462회)
+//!     bit41 = 0x20000000000  max_range_nearly_can_use         (1단계 발화 6,940,762회)
+//!     bit42 = 0x40000000000  can_recall                       (1단계 발화 7,564,211회)
+//!     bit43 = 0x80000000000  check_epic_setup                 (1단계 발화 8,012,325회)
 //!               ⚠caveat: a5: 가변이지만 편입 — tcx `&mut DebugFrameData(224B)` = 디버그 싱크 — IR 실측상 본문이 역참조하지 않고 넘기기만 한다(클로저 내부 쓰기는 미확인 ⟹ 중복 기록 가능 · 반환 대조엔 무관)
-//!     bit41 = 0x20000000000  buy_item                         (1단계 발화 10,295,069회)
+//!     bit44 = 0x100000000000  buy_item                         (1단계 발화 10,295,069회)
 //!               ⚠호출수 10,295,069 = 대조가 그 함수의 실행을 **2배**로 만든다 → 프레임 지연 각오.
-//!     bit42 = 0x40000000000  need_defense_nexus               (1단계 발화 10,990,018회)
+//!     bit45 = 0x200000000000  need_defense_nexus               (1단계 발화 10,990,018회)
 //!               ⚠호출수 10,990,018 = 대조가 그 함수의 실행을 **2배**로 만든다 → 프레임 지연 각오.
-//!     bit43 = 0x80000000000  upgrade_item                     (1단계 발화 11,686,232회)
+//!     bit46 = 0x400000000000  upgrade_item                     (1단계 발화 11,686,232회)
 //!               ⚠호출수 11,686,232 = 대조가 그 함수의 실행을 **2배**로 만든다 → 프레임 지연 각오.
-//!     bit44 = 0x100000000000  EntityPositioningCache::new      (1단계 발화 18,749,665회)
+//!     bit47 = 0x800000000000  EntityPositioningCache::new      (1단계 발화 18,749,665회)
 //!               ⚠호출수 18,749,665 = 대조가 그 함수의 실행을 **2배**로 만든다 → 프레임 지연 각오.
-//!     bit45 = 0x200000000000  can_tower_focused_when_battle    (1단계 발화 18,769,014회)
+//!     bit48 = 0x1000000000000  can_tower_focused_when_battle    (1단계 발화 18,769,014회)
 //!               ⚠호출수 18,769,014 = 대조가 그 함수의 실행을 **2배**로 만든다 → 프레임 지연 각오.
-//!     bit46 = 0x400000000000  is_wave_priority_start_line      (1단계 발화 33,717,543회)
+//!     bit49 = 0x2000000000000  TeamPlan::update                 (1단계 발화 25,238,388회)
+//!               ⚠caveat: a0: &mut 게임 상태(1064B) — 게임 호출 전 상태로 되돌려 내 사본을 부르고 게임 상태로 복구한다. Vec 은 빈 것으로 바꿔 **게임 버퍼를 건드리지 않는다**
+//!               ⚠호출수 25,238,388 = 대조가 그 함수의 실행을 **2배**로 만든다 → 프레임 지연 각오.
+//!     bit50 = 0x4000000000000  is_wave_priority_start_line      (1단계 발화 33,717,543회)
 //!               ⚠호출수 33,717,543 = 대조가 그 함수의 실행을 **2배**로 만든다 → 프레임 지연 각오.
-//!     bit47 = 0x800000000000  handle_line_defense              (1단계 발화 54,660,390회)
+//!     bit51 = 0x8000000000000  handle_line_defense              (1단계 발화 54,660,390회)
 //!               ⚠호출수 54,660,390 = 대조가 그 함수의 실행을 **2배**로 만든다 → 프레임 지연 각오.
-//!     bit48 = 0x1000000000000  can_tower_focused                (1단계 발화 173,781,504회)
+//!     bit52 = 0x10000000000000  can_tower_focused                (1단계 발화 173,781,504회)
 //!               ⚠호출수 173,781,504 = 대조가 그 함수의 실행을 **2배**로 만든다 → 프레임 지연 각오.
 //!   ⚠전체를 한 번에 켜지 마라 — 선례(ai_adjust `fn_bisect` 비트2)에 **게임 즉사**가 있다.
 //!     권장 순서 = 위에서 아래로(호출수 적은 것부터. 이유 = 사고 노출·성능 충격이 작다).
@@ -205,12 +213,18 @@ extern "Rust" {
     /// #18 v3_epicops_buff_window — fn(&mut game_ai::plan_legacy::team_plan::TeamPlan, usize, &mut rand::rngs::std::StdRng, &game_core::PlayerState, &game_core::OperationData, &game_ai::GoalData, 
     #[link_name = "_RNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old4epicNtNtB6_9team_plan8TeamPlan22v3_epicops_buff_window"]
     fn my_18(a0: *const u8, a1: i64, a2: *const u8, a3: *const u8, a4: *const u8, a5: *const u8, a6: *const u8) -> bool;
+    /// #41 fight_participants — fn(usize, &mut rand::rngs::std::StdRng, &game_core::OperationData, &game_core::PlayerState, &game_core::Entity, &[&game_core::Entity], &[&game_core::Entity], &g
+    #[link_name = "_RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old11fight_model18fight_participants"]
+    fn my_41(a0: *const u8, a1: i64, a2: *const u8, a3: *const u8, a4: *const u8, a5: *const u8, a6: *const u8, a7: i64, a8: *const u8, a9: i64, a10: *const u8, a11: *const u8);
     /// #12 handle_chat — fn(&mut game_ai::plan_legacy::handler::LegacyPlanHandler, usize, &mut rand::rngs::std::StdRng, &game_core::PlayerState, &game_core::OperationData, game_core::Po
     #[link_name = "_RNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy7handler4chatNtB4_17LegacyPlanHandler11handle_chat"]
     fn my_12(a0: *const u8, a1: i64, a2: *const u8, a3: *const u8, a4: *const u8, a5: i32, a6: *const u8, a7: u8, a8: *const u8);
     /// #52 v25_objective_far_split_pressure — fn(&game_core::PlayerState, &game_core::OperationData, game_core::JungleType) -> bool
     #[link_name = "_RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy9team_plan17objective_helpers32v25_objective_far_split_pressure"]
     fn my_52(a0: *const u8, a1: *const u8, a2: u8) -> bool;
+    /// #48 v25_scoped_battle_objective — fn(usize, std::option::Option<game_ai::plan_legacy::team_plan::MainObjective>, &game_core::PlayerState, &game_core::OperationData, std::option::Option<usize>) -
+    #[link_name = "_RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old11fight_model27v25_scoped_battle_objective"]
+    fn my_48(a0: i64, a1: u32, a2: *const u8, a3: *const u8, a4: i64, a5: i64) -> u32;
     /// #19 best_jungle_goal — fn(usize, &mut rand::rngs::std::StdRng, &game_core::PlayerState, &game_core::OperationData, &game_ai::plan_legacy::team_plan::TeamPlan, std::option::Option<game
     #[link_name = "_RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old14passive_jungle16best_jungle_goal"]
     fn my_19(a0: i64, a1: *const u8, a2: *const u8, a3: *const u8, a4: *const u8, a5: u8, a6: *const u8) -> u8;
@@ -229,6 +243,9 @@ extern "Rust" {
     /// #25 v22_visible_enemy_is_runaway_threat — fn(usize, &game_core::PlayerState, &game_core::OperationData, &game_core::Entity, &game_core::Entity) -> bool
     #[link_name = "_RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old11fight_model35v22_visible_enemy_is_runaway_threat"]
     fn my_25(a0: i64, a1: *const u8, a2: *const u8, a3: *const u8, a4: *const u8) -> bool;
+    /// #56 PassiveLinePlan::sub_plan — fn(&game_ai::plan_legacy::old::PassiveLinePlan, usize, &mut rand::rngs::std::StdRng, &game_core::PlayerState, &game_core::OperationData, &game_ai::plan_legacy::
+    #[link_name = "_RNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old12passive_lineNtB2_15PassiveLinePlan8sub_plan"]
+    fn my_56(a0: *const u8, a1: *const u8, a2: i64, a3: *const u8, a4: *const u8, a5: *const u8, a6: *const u8, a7: *const u8);
     /// #51 check_press_tower_opportunity — fn(usize, &mut rand::rngs::std::StdRng, &game_core::PlayerState, &game_core::OperationData, &game_ai::plan_legacy::team_plan::TeamPlan, std::option::Option<game
     #[link_name = "_RNvNtNtCshdEBA0ozCnw_7game_ai11plan_legacy9team_plan29check_press_tower_opportunity"]
     fn my_51(a0: i64, a1: *const u8, a2: *const u8, a3: *const u8, a4: *const u8, a5: u8, a6: *const u8) -> u8;
@@ -256,6 +273,9 @@ extern "Rust" {
     /// #38 can_tower_focused_when_battle — fn(&game_core::GameContext, &game_core::AbstractGameWithCache, &game_core::PlayerState, u64, u64, u64) -> bool
     #[link_name = "_RNvNtCshdEBA0ozCnw_7game_ai16tower_discipline29can_tower_focused_when_battle"]
     fn my_38(a0: *const u8, a1: *const u8, a2: *const u8, a3: i64, a4: i64, a5: i64) -> bool;
+    /// #54 TeamPlan::update — fn(&mut game_ai::plan_legacy::team_plan::TeamPlan, usize, &mut rand::rngs::std::StdRng, &game_core::PlayerState, &game_core::OperationData, &mut game_core::Debu
+    #[link_name = "_RNvMs1_NtNtCshdEBA0ozCnw_7game_ai11plan_legacy9team_planNtB5_8TeamPlan6update"]
+    fn my_54(a0: *const u8, a1: i64, a2: *const u8, a3: *const u8, a4: *const u8, a5: *const u8);
     /// #39 is_wave_priority_start_line — fn(&game_core::PlayerState, &game_core::OperationData, game_core::LineType) -> bool
     #[link_name = "_RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy9team_plan17objective_helpers27is_wave_priority_start_line"]
     fn my_39(a0: *const u8, a1: *const u8, a2: u8) -> bool;
@@ -285,7 +305,7 @@ macro_rules! sl { ($b:expr, $i:expr, $n:expr, $s:expr, $r:expr, $p:expr, $c:expr
            calls: AtomicU64::new(0), cmp: AtomicU64::new(0), diff: AtomicU64::new(0),
            pan: AtomicU64::new(0), skip: AtomicU64::new(0), base_cmp: AtomicU64::new(0), base_diff: AtomicU64::new(0),
            orig: AtomicUsize::new(0) } } }
-pub static S: [Slot; 49] = [
+pub static S: [Slot; 53] = [
     sl!(0, 58, "v3_epic_group_line", "game-ai\\src\\plan_legacy\\old\\epic.rs", 0xdea4a0, &[0x56, 0x57, 0x53, 0x48, 0x83, 0xec, 0x20, 0x83, 0xe9, 0x05, 0xb8, 0x02, 0x00, 0x00, 0x00], u64::MAX, &[], "", &[]),
     sl!(1, 59, "v3_epicops_repair_need", "game-ai\\src\\plan_legacy\\old\\epic.rs", 0xdeaa70, &[0x56, 0x57, 0x53, 0x48, 0x83, 0xec, 0x50, 0x0f, 0x29, 0x74, 0x24, 0x40], u64::MAX, &[], "", &[]),
     sl!(2, 60, "is_object_being_taken_by_enemy", "game-ai\\src\\plan_legacy\\team_plan\\objective_helpers.rs", 0xec9bf0, &[0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x55, 0x53], u64::MAX, &[], "", &[]),
@@ -315,26 +335,30 @@ pub static S: [Slot; 49] = [
     sl!(26, 24, "v23_healthy_allies_near_point", "game-ai\\src\\plan_legacy\\team_plan\\objective_helpers.rs", 0xec9840, &[0x56, 0x57, 0x53, 0x48, 0x83, 0xec, 0x20, 0x48, 0x8b, 0x89, 0x30, 0x09, 0x00, 0x00], 1370692, &[], "", &[]),
     sl!(27, 8, "is_end", "game-ai\\src\\plan_legacy\\old\\epic\\hunt_and_poke.rs", 0xdefa20, &[0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x55, 0x53], 1554463, &[2], "a5: IR readonly 표기 없음 · tcx `&TeamPlan(1064B)` = 공유참조(쓰기 관측 0) 근거로 편입", &[]),
     sl!(28, 18, "v3_epicops_buff_window", "game-ai\\src\\plan_legacy\\old\\epic.rs", 0xdce220, &[0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x55, 0x53], 1672540, &[], "a0: &mut 게임 상태(1064B) — 게임 호출 전 상태로 되돌려 내 사본을 부르고 게임 상태로 복구한다. Vec 은 빈 것으로 바꿔 **게임 버퍼를 건드리지 않는다**", &[]),
-    sl!(29, 12, "handle_chat", "game-ai\\src\\plan_legacy\\handler\\chat.rs", 0xe595b0, &[0x55, 0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x53], 1808301, &[2], "a0: &mut 게임 상태(6168B) — 게임 호출 전 상태로 되돌려 내 사본을 부르고 게임 상태로 복구한다. Vec 은 빈 것으로 바꿔 **게임 버퍼를 건드리지 않는다** / a8: 가변이지만 편입 — tcx `&mut DebugFrameData(224B)` = 디버그 싱크 — IR 실측상 본문이 역참조하지 않고 넘기기만 한다(클로저 내부 쓰기는 미확인 ⟹ 중복 기록 가능 · 반환 대조엔 무관)", &[]),
-    sl!(30, 52, "v25_objective_far_split_pressure", "game-ai\\src\\plan_legacy\\team_plan\\objective_helpers.rs", 0xeca430, &[0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x55, 0x53], 2105201, &[], "", &[]),
-    sl!(31, 19, "best_jungle_goal", "game-ai\\src\\plan_legacy\\old\\passive_jungle.rs", 0xd40b20, &[0x55, 0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x53], 2806126, &[1], "a4: IR readonly 표기 없음 · tcx `&TeamPlan` = 공유참조(쓰기 관측 0) 근거로 편입 / a6: 가변이지만 편입 — tcx `&mut DebugFrameData(224B)` = 디버그 싱크 — IR 실측상 본문이 역참조하지 않고 넘기기만 한다(클로저 내부 쓰기는 미확인 ⟹ 중복 기록 가능 · 반환 대조엔 무관)", &[]),
-    sl!(32, 34, "has_line_defense_threat", "game-ai\\src\\plan_legacy\\old\\defense_nexus.rs", 0xd3e4b0, &[0x55, 0x41, 0x57, 0x41, 0x56, 0x41, 0x54, 0x56, 0x57, 0x53, 0x48, 0x83, 0xec, 0x50], 2818679, &[], "", &[]),
-    sl!(33, 29, "v23_recent_visible_enemies_near_point", "game-ai\\src\\plan_legacy\\team_plan\\objective_helpers.rs", 0xecacc0, &[0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x55, 0x53], 3055211, &[], "", &[]),
-    sl!(34, 31, "v3_epic_formation_role", "game-ai\\src\\plan_legacy\\old\\epic.rs", 0xdea800, &[0x41, 0x56, 0x56, 0x57, 0x55, 0x53, 0x48, 0x83, 0xec, 0x20, 0x4c, 0x89, 0xcb], 3144357, &[], "", &[]),
-    sl!(35, 20, "v27_active_objective_discipline", "game-ai\\src\\plan_legacy\\team_plan\\objective_discipline.rs", 0xdd50e0, &[0x41, 0x57, 0x41, 0x56, 0x56, 0x57, 0x55, 0x53, 0x48, 0x83, 0xec, 0x48], 3158080, &[], "", &[]),
-    sl!(36, 25, "v22_visible_enemy_is_runaway_threat", "game-ai\\src\\plan_legacy\\old\\fight_model.rs", 0xe0c310, &[0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x55, 0x53], 5660210, &[], "", &[]),
-    sl!(37, 51, "check_press_tower_opportunity", "game-ai\\src\\plan_legacy\\team_plan.rs", 0xde40c0, &[0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x55, 0x53], 6807462, &[], "", &[]),
-    sl!(38, 16, "max_range_nearly_can_use", "game-ai\\src\\plan_legacy\\old\\battle.rs", 0xe0daa0, &[0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x55, 0x53], 6940762, &[], "", &[]),
-    sl!(39, 45, "can_recall", "game-ai\\src\\utils.rs", 0xd36480, &[0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x55, 0x53], 7564211, &[0], "", &[]),
-    sl!(40, 53, "check_epic_setup", "game-ai\\src\\plan_legacy\\old\\epic.rs", 0xde6ce0, &[0x55, 0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x53], 8012325, &[], "a5: 가변이지만 편입 — tcx `&mut DebugFrameData(224B)` = 디버그 싱크 — IR 실측상 본문이 역참조하지 않고 넘기기만 한다(클로저 내부 쓰기는 미확인 ⟹ 중복 기록 가능 · 반환 대조엔 무관)", &[]),
-    sl!(41, 23, "buy_item", "game-ai\\src\\lib.rs", 0xe7b640, &[0x55, 0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x53], 10295069, &[1], "", &[]),
-    sl!(42, 46, "need_defense_nexus", "game-ai\\src\\plan_legacy\\old\\defense_nexus.rs", 0xd3c700, &[0x55, 0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x53], 10990018, &[1], "", &[]),
-    sl!(43, 21, "upgrade_item", "game-ai\\src\\lib.rs", 0xe7a8c0, &[0x55, 0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x53], 11686232, &[2], "", &[]),
-    sl!(44, 55, "EntityPositioningCache::new", "game-ai\\src\\score_parameter.rs", 0xd815e0, &[0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x55, 0x53], 18749665, &[], "", &[]),
-    sl!(45, 38, "can_tower_focused_when_battle", "game-ai\\src\\tower_discipline.rs", 0xd988d0, &[0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x55, 0x53], 18769014, &[], "", &[]),
-    sl!(46, 39, "is_wave_priority_start_line", "game-ai\\src\\plan_legacy\\team_plan\\objective_helpers.rs", 0xec9400, &[0x41, 0x57, 0x41, 0x56, 0x41, 0x54, 0x56, 0x57, 0x55, 0x53, 0x48, 0x83, 0xec, 0x20], 33717543, &[], "", &[]),
-    sl!(47, 4, "handle_line_defense", "game-ai\\src\\plan_legacy\\old\\defense_nexus.rs", 0xd3cfa0, &[0x55, 0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x53], 54660390, &[1], "", &[]),
-    sl!(48, 22, "can_tower_focused", "game-ai\\src\\tower_discipline.rs", 0xd97300, &[0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x55, 0x53], 173781504, &[], "", &[]),
+    sl!(29, 41, "fight_participants", "game-ai\\src\\plan_legacy\\old\\fight_model.rs", 0xe04f50, &[0x55, 0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x53], 1785206, &[2], "a11: 가변이지만 편입 — tcx `DebugFrameData` = 디버그 싱크 — IR 실측상 본문이 역참조하지 않고 넘기기만 한다(클로저 내부 쓰기는 미확인 ⟹ 중복 기록 가능 · 반환 대조엔 무관)", &[]),
+    sl!(30, 12, "handle_chat", "game-ai\\src\\plan_legacy\\handler\\chat.rs", 0xe595b0, &[0x55, 0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x53], 1808301, &[2], "a0: &mut 게임 상태(6168B) — 게임 호출 전 상태로 되돌려 내 사본을 부르고 게임 상태로 복구한다. Vec 은 빈 것으로 바꿔 **게임 버퍼를 건드리지 않는다** / a8: 가변이지만 편입 — tcx `&mut DebugFrameData(224B)` = 디버그 싱크 — IR 실측상 본문이 역참조하지 않고 넘기기만 한다(클로저 내부 쓰기는 미확인 ⟹ 중복 기록 가능 · 반환 대조엔 무관)", &[]),
+    sl!(31, 52, "v25_objective_far_split_pressure", "game-ai\\src\\plan_legacy\\team_plan\\objective_helpers.rs", 0xeca430, &[0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x55, 0x53], 2105201, &[], "", &[]),
+    sl!(32, 48, "v25_scoped_battle_objective", "game-ai\\src\\plan_legacy\\old\\fight_model.rs", 0xe0b730, &[0x41, 0x57, 0x41, 0x56, 0x41, 0x54, 0x56, 0x57, 0x55, 0x53, 0x48, 0x83, 0xec, 0x60], 2777647, &[], "", &[]),
+    sl!(33, 19, "best_jungle_goal", "game-ai\\src\\plan_legacy\\old\\passive_jungle.rs", 0xd40b20, &[0x55, 0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x53], 2806126, &[1], "a4: IR readonly 표기 없음 · tcx `&TeamPlan` = 공유참조(쓰기 관측 0) 근거로 편입 / a6: 가변이지만 편입 — tcx `&mut DebugFrameData(224B)` = 디버그 싱크 — IR 실측상 본문이 역참조하지 않고 넘기기만 한다(클로저 내부 쓰기는 미확인 ⟹ 중복 기록 가능 · 반환 대조엔 무관)", &[]),
+    sl!(34, 34, "has_line_defense_threat", "game-ai\\src\\plan_legacy\\old\\defense_nexus.rs", 0xd3e4b0, &[0x55, 0x41, 0x57, 0x41, 0x56, 0x41, 0x54, 0x56, 0x57, 0x53, 0x48, 0x83, 0xec, 0x50], 2818679, &[], "", &[]),
+    sl!(35, 29, "v23_recent_visible_enemies_near_point", "game-ai\\src\\plan_legacy\\team_plan\\objective_helpers.rs", 0xecacc0, &[0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x55, 0x53], 3055211, &[], "", &[]),
+    sl!(36, 31, "v3_epic_formation_role", "game-ai\\src\\plan_legacy\\old\\epic.rs", 0xdea800, &[0x41, 0x56, 0x56, 0x57, 0x55, 0x53, 0x48, 0x83, 0xec, 0x20, 0x4c, 0x89, 0xcb], 3144357, &[], "", &[]),
+    sl!(37, 20, "v27_active_objective_discipline", "game-ai\\src\\plan_legacy\\team_plan\\objective_discipline.rs", 0xdd50e0, &[0x41, 0x57, 0x41, 0x56, 0x56, 0x57, 0x55, 0x53, 0x48, 0x83, 0xec, 0x48], 3158080, &[], "", &[]),
+    sl!(38, 25, "v22_visible_enemy_is_runaway_threat", "game-ai\\src\\plan_legacy\\old\\fight_model.rs", 0xe0c310, &[0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x55, 0x53], 5660210, &[], "", &[]),
+    sl!(39, 56, "PassiveLinePlan::sub_plan", "game-ai\\src\\plan_legacy\\old\\passive_line.rs", 0xd2c5d0, &[0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x55, 0x53], 6570780, &[3], "a6: 가변이지만 편입 — tcx `&mut DebugFrameData(224B)` = 디버그 싱크 — IR 실측상 본문이 역참조하지 않고 넘기기만 한다(클로저 내부 쓰기는 미확인 ⟹ 중복 기록 가능 · 반환 대조엔 무관) / a7: 가변이지만 편입 — tcx `DebugFrameData` = 디버그 싱크 — IR 실측상 본문이 역참조하지 않고 넘기기만 한다(클로저 내부 쓰기는 미확인 ⟹ 중복 기록 가능 · 반환 대조엔 무관)", &[]),
+    sl!(40, 51, "check_press_tower_opportunity", "game-ai\\src\\plan_legacy\\team_plan.rs", 0xde40c0, &[0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x55, 0x53], 6807462, &[], "", &[]),
+    sl!(41, 16, "max_range_nearly_can_use", "game-ai\\src\\plan_legacy\\old\\battle.rs", 0xe0daa0, &[0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x55, 0x53], 6940762, &[], "", &[]),
+    sl!(42, 45, "can_recall", "game-ai\\src\\utils.rs", 0xd36480, &[0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x55, 0x53], 7564211, &[0], "", &[]),
+    sl!(43, 53, "check_epic_setup", "game-ai\\src\\plan_legacy\\old\\epic.rs", 0xde6ce0, &[0x55, 0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x53], 8012325, &[], "a5: 가변이지만 편입 — tcx `&mut DebugFrameData(224B)` = 디버그 싱크 — IR 실측상 본문이 역참조하지 않고 넘기기만 한다(클로저 내부 쓰기는 미확인 ⟹ 중복 기록 가능 · 반환 대조엔 무관)", &[]),
+    sl!(44, 23, "buy_item", "game-ai\\src\\lib.rs", 0xe7b640, &[0x55, 0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x53], 10295069, &[1], "", &[]),
+    sl!(45, 46, "need_defense_nexus", "game-ai\\src\\plan_legacy\\old\\defense_nexus.rs", 0xd3c700, &[0x55, 0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x53], 10990018, &[1], "", &[]),
+    sl!(46, 21, "upgrade_item", "game-ai\\src\\lib.rs", 0xe7a8c0, &[0x55, 0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x53], 11686232, &[2], "", &[]),
+    sl!(47, 55, "EntityPositioningCache::new", "game-ai\\src\\score_parameter.rs", 0xd815e0, &[0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x55, 0x53], 18749665, &[], "", &[]),
+    sl!(48, 38, "can_tower_focused_when_battle", "game-ai\\src\\tower_discipline.rs", 0xd988d0, &[0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x55, 0x53], 18769014, &[], "", &[]),
+    sl!(49, 54, "TeamPlan::update", "game-ai\\src\\plan_legacy\\team_plan.rs", 0xde0770, &[0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x55, 0x53], 25238388, &[2], "a0: &mut 게임 상태(1064B) — 게임 호출 전 상태로 되돌려 내 사본을 부르고 게임 상태로 복구한다. Vec 은 빈 것으로 바꿔 **게임 버퍼를 건드리지 않는다**", &[]),
+    sl!(50, 39, "is_wave_priority_start_line", "game-ai\\src\\plan_legacy\\team_plan\\objective_helpers.rs", 0xec9400, &[0x41, 0x57, 0x41, 0x56, 0x41, 0x54, 0x56, 0x57, 0x55, 0x53, 0x48, 0x83, 0xec, 0x20], 33717543, &[], "", &[]),
+    sl!(51, 4, "handle_line_defense", "game-ai\\src\\plan_legacy\\old\\defense_nexus.rs", 0xd3cfa0, &[0x55, 0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x53], 54660390, &[1], "", &[]),
+    sl!(52, 22, "can_tower_focused", "game-ai\\src\\tower_discipline.rs", 0xd97300, &[0x41, 0x57, 0x41, 0x56, 0x41, 0x55, 0x41, 0x54, 0x56, 0x57, 0x55, 0x53], 173781504, &[], "", &[]),
 ];
 
 /// ★대조에서 **빠진** 명세 함수와 그 사유. 「빠진 것을 모르는 상태」를 만들지 않는다.
@@ -346,19 +370,15 @@ pub static EXCLUDED: &[(u8, &str, &str, &str)] = &[
     (15, "single_try_engage", "0", "미발화(재측정 확정치 0회 — 정정된 주소 0xe5c1f0 에서) — ★프로브는 유지(뜰 때까지 계속 본다)"),
     (17, "new", "?", "probe20_tbl.rs 에 RVA 가 없다(= 1단계에서도 측정 안 됨. MISSING20 참조) — `SPEC_RVA_OVERRIDE` 에 주소를 보충하면 열린다"),
     (40, "v3_assign_anchor", "248,491", "rlib 심볼 internal('t') = 링크 불가(llvm-nm 실측 · IR internal) · fastcc = 호출규약 비호환 · 반환 void = **비교할 값이 없다** — `SELF_DIFF` 에 비교 대상을 등록하면 열린다"),
-    (41, "fight_participants", "1,785,206", "sret 반환 = **버퍼 전체 바이트 비교가 부당**(LTO 가 죽인 dead store 자리가 갈린다 — `#00` 실측 DIFF 20,406/20,415, 의미 워드는 전부 일치). `SRET_LIVE` 에 살아있는 바이트 범위를 주면 편입된다 · 가변 포인터 인자 a11(224B · tcx 파라미터 확인 불가) = 두 번 호출하면 상태가 두 번 변한다(스냅샷 복원도 불가 — 내부 Vec/Box 재할당)"),
     (42, "SinglePlanBattle::with_runaway", "0", "미발화(SinglePlanBattle = SingleLane 전용 · MOBA NA · 09-13 r8 판1 0회) — ★프로브는 유지(뜰 때까지 계속 본다)"),
     (44, "LegacyPlanHandler::take_misunderstood_received_chat", "966,291", "rlib 심볼 internal('t') = 링크 불가(llvm-nm 실측 · IR internal) · fastcc = 호출규약 비호환 · 가변 포인터 인자 a0(6168B · tcx `&mut LegacyPlanHandler(6168B)`) = 두 번 호출하면 상태가 두 번 변한다(스냅샷 복원도 불가 — 내부 Vec/Box 재할당)"),
     (47, "TeamPlan::handle_epic_line_change", "0", "미발화(handle_epic_line_change · 09-13 r8 판1 0회 — 이 리플레이 한정) — ★프로브는 유지(뜰 때까지 계속 본다)"),
-    (48, "v25_scoped_battle_objective", "2,777,647", "반환 `i24` 미지원(전용 래퍼 필요) · 인자 i24 미지원"),
-    (54, "TeamPlan::update", "25,238,388", "반환 void = **비교할 값이 없다** — `SELF_DIFF` 에 비교 대상을 등록하면 열린다 · 가변 포인터 인자 a0(1064B · tcx `&mut TeamPlan(1064B)`) = 두 번 호출하면 상태가 두 번 변한다(스냅샷 복원도 불가 — 내부 Vec/Box 재할당)"),
-    (56, "PassiveLinePlan::sub_plan", "6,570,780", "sret 반환 = **버퍼 전체 바이트 비교가 부당**(LTO 가 죽인 dead store 자리가 갈린다 — `#00` 실측 DIFF 20,406/20,415, 의미 워드는 전부 일치). `SRET_LIVE` 에 살아있는 바이트 범위를 주면 편입된다 · 가변 포인터 인자 a7(224B · tcx 파라미터 확인 불가) = 두 번 호출하면 상태가 두 번 변한다(스냅샷 복원도 불가 — 내부 Vec/Box 재할당)"),
 ];
 
 /// 첫 DIFF 덤프(슬롯당 1건 + 전체 상한). detour 문맥에서 잡으므로 poison-safe 하게 연다.
 static FIRST: Mutex<Vec<(usize, String)>> = Mutex::new(Vec::new());
 const FIRST_MAX: usize = 64;
-thread_local! { static D: [std::cell::Cell<u32>; 49] = [const { std::cell::Cell::new(0) }; 49]; }
+thread_local! { static D: [std::cell::Cell<u32>; 53] = [const { std::cell::Cell::new(0) }; 53]; }
 /// 재진입 깊이. 최상위 호출에서만 대조한다(내 사본이 같은 함수를 재귀 호출해도 2중 대조 안 함).
 #[inline] fn top(i: usize) -> bool { D.with(|d| { let v = d[i].get(); d[i].set(v + 1); v == 0 }) }
 #[inline] fn pop(i: usize) { D.with(|d| d[i].set(d[i].get().saturating_sub(1))); }
@@ -586,20 +606,31 @@ thread_local! {
 }
 thread_local! {
     /// `#12` 의 **게임 호출 전** self 스냅샷(6168B). 스레드당 1개 — 재진입은 `top()` 이 막는다.
-    static SV29: core::cell::UnsafeCell<[u8; 6168]> = core::cell::UnsafeCell::new([0u8; 6168]);
+    static SV30: core::cell::UnsafeCell<[u8; 6168]> = core::cell::UnsafeCell::new([0u8; 6168]);
     /// `#12` 의 **게임 호출 후** self 스냅샷(6168B).
-    static SP29: core::cell::UnsafeCell<[u8; 6168]> = core::cell::UnsafeCell::new([0u8; 6168]);
+    static SP30: core::cell::UnsafeCell<[u8; 6168]> = core::cell::UnsafeCell::new([0u8; 6168]);
     /// `#12` 의 **내 사본 호출 후** self 스냅샷(6168B) — 반환값이 죽은 슬롯의 판정 재료.
-    static SQ29: core::cell::UnsafeCell<[u8; 6168]> = core::cell::UnsafeCell::new([0u8; 6168]);
+    static SQ30: core::cell::UnsafeCell<[u8; 6168]> = core::cell::UnsafeCell::new([0u8; 6168]);
     /// `#12` 명세 0 소유 Vec 의 **게임 호출 전** 내용(32KB) + (cap,len,esz)×4 + 개수 + 수용 여부.
     ///   ⚠게임 호출이 그 버퍼를 **해제/재할당**했을 수 있어 호출 뒤에 읽으면 freelist 잔재다.
-    static PV29_0: core::cell::UnsafeCell<([u8; 32768], [(usize, usize, usize); 8], usize, bool)> = core::cell::UnsafeCell::new(([0u8; 32768], [(0, 0, 0); 8], 0, false));
+    static PV30_0: core::cell::UnsafeCell<([u8; 32768], [(usize, usize, usize); 8], usize, bool)> = core::cell::UnsafeCell::new(([0u8; 32768], [(0, 0, 0); 8], 0, false));
     /// `#12` 명세 1 소유 Vec 의 **게임 호출 전** 내용(32KB) + (cap,len,esz)×4 + 개수 + 수용 여부.
     ///   ⚠게임 호출이 그 버퍼를 **해제/재할당**했을 수 있어 호출 뒤에 읽으면 freelist 잔재다.
-    static PV29_1: core::cell::UnsafeCell<([u8; 32768], [(usize, usize, usize); 8], usize, bool)> = core::cell::UnsafeCell::new(([0u8; 32768], [(0, 0, 0); 8], 0, false));
+    static PV30_1: core::cell::UnsafeCell<([u8; 32768], [(usize, usize, usize); 8], usize, bool)> = core::cell::UnsafeCell::new(([0u8; 32768], [(0, 0, 0); 8], 0, false));
     /// `#12` 의 `Vec` 사본 버퍼(용량 1536개) + 게임과 같은 len.
     /// `.2` = 이번 호출이 내 버퍼에 **들어갔나**. 안 들어갔으면 비교를 건너뛴다(거짓 DIFF 방지).
-    static VB29: core::cell::UnsafeCell<([u8; 12288], usize, bool)> = core::cell::UnsafeCell::new(([0u8; 12288], 0, false));
+    static VB30: core::cell::UnsafeCell<([u8; 12288], usize, bool)> = core::cell::UnsafeCell::new(([0u8; 12288], 0, false));
+}
+thread_local! {
+    /// `#54` 의 **게임 호출 전** self 스냅샷(1064B). 스레드당 1개 — 재진입은 `top()` 이 막는다.
+    static SV49: core::cell::UnsafeCell<[u8; 1064]> = core::cell::UnsafeCell::new([0u8; 1064]);
+    /// `#54` 의 **게임 호출 후** self 스냅샷(1064B).
+    static SP49: core::cell::UnsafeCell<[u8; 1064]> = core::cell::UnsafeCell::new([0u8; 1064]);
+    /// `#54` 의 **내 사본 호출 후** self 스냅샷(1064B) — 반환값이 죽은 슬롯의 판정 재료.
+    static SQ49: core::cell::UnsafeCell<[u8; 1064]> = core::cell::UnsafeCell::new([0u8; 1064]);
+    /// `#54` 의 `Vec` 사본 버퍼(용량 512개) + 게임과 같은 len.
+    /// `.2` = 이번 호출이 내 버퍼에 **들어갔나**. 안 들어갔으면 비교를 건너뛴다(거짓 DIFF 방지).
+    static VB49: core::cell::UnsafeCell<([u8; 12288], usize, bool)> = core::cell::UnsafeCell::new(([0u8; 12288], 0, false));
 }
 /// Vec 요소 비교 — `lid` 가 가리키는 ELEM_LIVE 명세로 **살아있는 바이트**만 본다(0 = 전 바이트).
 unsafe fn elem_cmp(lid: u8, esz: usize, gb: usize, mb: usize) -> Option<String> {
@@ -1559,6 +1590,113 @@ pub unsafe fn enumlive_cmp_2_0(tag: u64, gb: usize, mb: usize) -> Option<String>
         _ => None,   // 단위 variant(페이로드 0B)
     }
 }
+/// `#56` self+0x0 `SubPlan` — variant 별 페이로드 live 비교(structlive.py 자동 생성 · variant 13개 · 태그 2..=18 · 밖 = untagged).
+/// variant 히스토그램 — [0] = untagged(범위 밖) · [t] = 메모리태그 t (대조 1건당 1증가 · 단위 variant 포함).
+pub static EH_56_0: [AtomicU64; 32] = [const { AtomicU64::new(0) }; 32];
+pub static EH_56_0_NAMES: &[(u64, &str)] = &[(2, "LineDefense"), (3, "LineSafe"), (4, "LineWait"), (5, "Recall"), (6, "Jungle"), (7, "Battle"), (9, "Hide"), (10, "EpicCheck"), (11, "EpicHunt"), (12, "EpicPoke"), (13, "SerpenCheck"), (14, "SerpenHunt"), (15, "SerpenPoke"), (16, "AttackNexus"), (17, "DefenseNexus"), (18, "Steal"), (0, "DeathBattle")];
+pub unsafe fn enumlive_cmp_56_0(tag: u64, gb: usize, mb: usize) -> Option<String> {
+    EH_56_0[if (2..=18).contains(&tag) { tag as usize } else { 0 }].fetch_add(1, Ordering::Relaxed);
+    match tag {
+        2 => {   // LineDefenseSubPlan · 잎 3
+            if true { for j in 0x8..0x9 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0x9..0xa { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0xa..0xb { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            None
+        }
+        3 => {   // LineSafeSubPlan · 잎 1
+            if true { for j in 0x8..0x9 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            None
+        }
+        4 => {   // LineWaitSubPlan · 잎 1
+            if true { for j in 0x8..0x9 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            None
+        }
+        6 => {   // JungleSubPlan · 잎 3
+            if true { for j in 0x8..0x10 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0x10..0x11 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0x11..0x12 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            None
+        }
+        7 => {   // BattleSubPlan · 잎 16
+            if true { for j in 0x8..0x10 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if rd_le(gb + 0x8, 8) == 1 { for j in 0x10..0x18 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0x18..0x20 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if rd_le(gb + 0x18, 8) == 5 { for j in 0x20..0x28 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if rd_le(gb + 0x18, 8) == 6 { for j in 0x20..0x28 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if rd_le(gb + 0x18, 8) == 2 { for j in 0x20..0x28 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if rd_le(gb + 0x18, 8) == 3 { for j in 0x20..0x28 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if rd_le(gb + 0x18, 8) == 1 { for j in 0x20..0x28 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if rd_le(gb + 0x18, 8) == 0 { for j in 0x20..0x28 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0x28..0x30 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0x30..0x31 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0x31..0x32 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0x32..0x33 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0x33..0x34 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0x34..0x35 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0x35..0x36 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            None
+        }
+        9 => {   // HideSubPlan · 잎 4
+            if true { for j in 0x8..0x10 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0x10..0x11 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0x11..0x12 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0x12..0x13 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            None
+        }
+        10 => {   // EpicCheckSubPlan · 잎 1
+            if true { for j in 0x8..0x9 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            None
+        }
+        11 => {   // EpicHuntSubPlan · 잎 1
+            if true { for j in 0x8..0x9 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            None
+        }
+        13 => {   // SerpenCheckSubPlan · 잎 1
+            if true { for j in 0x8..0x9 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            None
+        }
+        14 => {   // SerpenHuntSubPlan · 잎 1
+            if true { for j in 0x8..0x9 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            None
+        }
+        17 => {   // DefenseNexusSubPlan · 잎 3
+            if true { for j in 0x8..0x10 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if rd_le(gb + 0x8, 8) == 1 { for j in 0x10..0x18 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0x18..0x19 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            None
+        }
+        18 => {   // StealSubPlan · 잎 4
+            if true { for j in 0x8..0x10 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if !matches!(rd_le(gb + 0x10, 1), 2) { for j in 0x10..0x11 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0x10..0x11 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0x11..0x12 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            None
+        }
+        t if !(2..=18).contains(&t) => {   // DeathBattleSubPlan · 잎 19 · untagged(페이로드 base 0)
+            if true { for j in 0x0..0x8 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if rd_le(gb + 0x0, 8) == 1 { for j in 0x8..0x10 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0x10..0x18 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if rd_le(gb + 0x10, 8) == 1 { for j in 0x18..0x20 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if rd_le(gb + 0x10, 8) == 1 { for j in 0x20..0x28 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0x28..0x30 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if rd_le(gb + 0x28, 8) == 5 { for j in 0x30..0x38 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if rd_le(gb + 0x28, 8) == 6 { for j in 0x30..0x38 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if rd_le(gb + 0x28, 8) == 2 { for j in 0x30..0x38 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if rd_le(gb + 0x28, 8) == 3 { for j in 0x30..0x38 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if rd_le(gb + 0x28, 8) == 1 { for j in 0x30..0x38 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if rd_le(gb + 0x28, 8) == 0 { for j in 0x30..0x38 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0x38..0x40 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0x40..0x41 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0x41..0x42 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0x42..0x43 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0x43..0x44 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0x44..0x45 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            if true { for j in 0x45..0x46 { let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8)); if gv != mv { return Some(format!("+{:#x}: g={:02x} m={:02x}", j, gv, mv)); } } }
+            None
+        }
+        _ => None,   // 단위 variant(페이로드 0B)
+    }
+}
 
 unsafe fn w_58(a0: i64, a1: *const u8, a2: *const u8) -> u8 {
     S[0].calls.fetch_add(1, Ordering::Relaxed);
@@ -1780,12 +1918,6 @@ unsafe fn w_5(a0: *const u8, a1: u8, a2: u8) {
                         if gv != mv {
                             return Some(format!("vec[{}](tag {:#x})+{}: g={:02x} m={:02x}", e, tag, j, gv, mv));
                         }
-                    }
-                }
-                for j in 0..104 {
-                    let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8));
-                    if gv != mv {
-                        return Some(format!("vec[{}]+{}: g={:02x} m={:02x}", e, j, gv, mv));
                     }
                 }
             }
@@ -2141,12 +2273,6 @@ unsafe fn w_14(a0: *const u8, a1: i64, a2: *const u8, a3: *const u8, a4: *const 
                         }
                     }
                 }
-                for j in 0..24 {
-                    let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8));
-                    if gv != mv {
-                        return Some(format!("vec[{}]+{}: g={:02x} m={:02x}", e, j, gv, mv));
-                    }
-                }
             }
         }
         None
@@ -2463,12 +2589,6 @@ unsafe fn w_18(a0: *const u8, a1: i64, a2: *const u8, a3: *const u8, a4: *const 
                         }
                     }
                 }
-                for j in 0..24 {
-                    let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8));
-                    if gv != mv {
-                        return Some(format!("vec[{}]+{}: g={:02x} m={:02x}", e, j, gv, mv));
-                    }
-                }
             }
         }
         None
@@ -2490,20 +2610,47 @@ unsafe fn w_18(a0: *const u8, a1: i64, a2: *const u8, a3: *const u8, a4: *const 
     pop(28);
     g
 }
-unsafe fn w_12(a0: *const u8, a1: i64, a2: *const u8, a3: *const u8, a4: *const u8, a5: i32, a6: *const u8, a7: u8, a8: *const u8) {
+unsafe fn w_41(a0: *const u8, a1: i64, a2: *const u8, a3: *const u8, a4: *const u8, a5: *const u8, a6: *const u8, a7: i64, a8: *const u8, a9: i64, a10: *const u8, a11: *const u8) {
     S[29].calls.fetch_add(1, Ordering::Relaxed);
-    let f: unsafe fn(*const u8, i64, *const u8, *const u8, *const u8, i32, *const u8, u8, *const u8) = core::mem::transmute(S[29].orig.load(Ordering::Relaxed));
+    let f: unsafe fn(*const u8, i64, *const u8, *const u8, *const u8, *const u8, *const u8, i64, *const u8, i64, *const u8, *const u8) = core::mem::transmute(S[29].orig.load(Ordering::Relaxed));
     let t = top(29);
+    // ★StdRng(320B) — 게임 호출이 난수열을 소비하므로 **먼저 떠 둔다**(안 그러면 거짓 DIFF).
+    let mut r2 = [0u8; 320]; if t { core::ptr::copy_nonoverlapping(a2, r2.as_mut_ptr(), 320); }
+    let g = f(a0, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11);
+    if !t { pop(29); return g; }
+    let n = S[29].cmp.fetch_add(1, Ordering::Relaxed) + 1;
+    let mut p2 = [0u8; 320]; core::ptr::copy_nonoverlapping(a2, p2.as_mut_ptr(), 320); // 게임 호출 후 상태
+    core::ptr::copy_nonoverlapping(r2.as_ptr(), a2 as *mut u8, 320);                    // 내 사본 호출 전 = 호출 전 상태로
+    let mut gb = [0u64; 4]; core::ptr::copy_nonoverlapping(a0, gb.as_mut_ptr() as *mut u8, 32); // 게임 출력 사본
+    let mut mb = [0u64; 4];                                                   // 내 사본 전용 출력 버퍼
+    let m = catch_unwind(AssertUnwindSafe(|| my_41(mb.as_mut_ptr() as *const u8, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11)));
+    core::ptr::copy_nonoverlapping(p2.as_ptr(), a2 as *mut u8, 320);                    // 게임 호출 후 상태로 복구(게임 진행은 게임 값으로)
+    match m {
+        Ok(_) => { let (gl, ml) = (gb[3] as usize, mb[3] as usize); let (gp, mp) = (gb[0] as usize, mb[0] as usize);
+            const EL: &[(usize, usize, &[u8])] = &[(0, 8, &[]), (8, 8, &[]), (16, 1, &[])];
+            let d: Option<String> = if gl != ml { Some(format!("len g={} m={}", gl, ml)) }
+                else if gl > 0 && gl < 4096 && gp > 0x1000 && mp > 0x1000 { (|| { for e in 0..gl { let (eb, fb) = (gp + e * 24, mp + e * 24); let tag = *(eb as *const u8);
+                    for &(o, l, tg) in EL { if !tg.is_empty() && !tg.contains(&tag) { continue; } for j in o..o + l { let (gv, mv) = (*((eb + j) as *const u8), *((fb + j) as *const u8)); if gv != mv { return Some(format!("vec[{}]+{}: g={:02x} m={:02x}", e, j, gv, mv)); } } } } None })() } else { None };
+            if let Some(d) = d { note(29, format!("#41 fight_participants 대조#{} 갈림(sret bump Vec len={}): {} | a1={} a2={:#x} a3={:#x} a4={:#x} a5={:#x} a6={:#x} a7={} a8={:#x} a9={} a10={:#x} a11={:#x}", n, gl, d, a1, a2 as usize, a3 as usize, a4 as usize, a5 as usize, a6 as usize, a7, a8 as usize, a9, a10 as usize, a11 as usize)); } }
+        Err(_) => { S[29].pan.fetch_add(1, Ordering::Relaxed); }
+    }
+    pop(29);
+    g
+}
+unsafe fn w_12(a0: *const u8, a1: i64, a2: *const u8, a3: *const u8, a4: *const u8, a5: i32, a6: *const u8, a7: u8, a8: *const u8) {
+    S[30].calls.fetch_add(1, Ordering::Relaxed);
+    let f: unsafe fn(*const u8, i64, *const u8, *const u8, *const u8, i32, *const u8, u8, *const u8) = core::mem::transmute(S[30].orig.load(Ordering::Relaxed));
+    let t = top(30);
     // ★★&mut 게임 상태(6168B) — **게임 호출 전** 상태를 떠 두지 않으면 내 사본은
     //   게임이 바꿔놓은 입력을 보게 돼 **거짓 DIFF** 가 난다(이 함수는 self 를 읽고도 쓴다).
     // ★★**스택이 아니라 thread_local 힙**에 둔다 — 6168B × 2 를 스택에 잡으면
     //   rayon 워커의 **소스택 + 게임 sim 재귀**에서 STATUS_STACK_OVERFLOW 로 죽는다
     //   (2026-09-12 실사고: 스택 배열로 두던 판이 배경 sim 시작 직후 패닉로그 없이 즉사).
-    SV29.with(|c| { let sv = &mut *c.get();
+    SV30.with(|c| { let sv = &mut *c.get();
         if t { core::ptr::copy_nonoverlapping(a0, sv.as_mut_ptr(), 6168); } });
-    VB29.with(|c| { (&mut *c.get()).2 = true; });   // 치환할 Vec 이 없다 = 항상 표본
+    VB30.with(|c| { (&mut *c.get()).2 = true; });   // 치환할 Vec 이 없다 = 항상 표본
     // ★명세 0: self+0x5e8 의 소유 Vec **내용을 게임 호출 전에** 떠 둔다 — 게임이 해제/재할당할 수 있다.
-    PV29_0.with(|c| { let pv = &mut *c.get(); pv.2 = 0; pv.3 = true; if t {
+    PV30_0.with(|c| { let pv = &mut *c.get(); pv.2 = 0; pv.3 = true; if t {
         let tg = core::ptr::read_unaligned((a0 as usize + 0x5e8) as *const u64);
         let mut used = 0usize;
         for (i, &(off, esz, _)) in hs_vecs_12_0(tg).iter().enumerate() {
@@ -2521,7 +2668,7 @@ unsafe fn w_12(a0: *const u8, a1: i64, a2: *const u8, a3: *const u8, a4: *const 
         }
     } });
     // ★명세 1: self+0x0 의 소유 Vec **내용을 게임 호출 전에** 떠 둔다 — 게임이 해제/재할당할 수 있다.
-    PV29_1.with(|c| { let pv = &mut *c.get(); pv.2 = 0; pv.3 = true; if t {
+    PV30_1.with(|c| { let pv = &mut *c.get(); pv.2 = 0; pv.3 = true; if t {
         let tg = 0u64;
         let mut used = 0usize;
         for (i, &(off, esz, _)) in hs_vecs_12_1(tg).iter().enumerate() {
@@ -2544,29 +2691,29 @@ unsafe fn w_12(a0: *const u8, a1: i64, a2: *const u8, a3: *const u8, a4: *const 
     //   게임 호출이 먼저 훼손하면 내 사본이 다른 입력을 받는다 ⟹ StdRng 과 같은 이유로 되돌린다.
     let mut q6 = [0u8; 24]; if t { core::ptr::copy_nonoverlapping(a6, q6.as_mut_ptr(), 24); }
     let g = f(a0, a1, a2, a3, a4, a5, a6, a7, a8);
-    if !t { pop(29); return g; }
+    if !t { pop(30); return g; }
     // ★내 Vec 사본 버퍼에 안 들어간 호출은 **표본에서 뺀다** — 예전엔 `len=0` 으로
     //   떨어뜨려 **입력이 어긋난 채 비교**했고 그게 거짓 DIFF 였다(2026-09-12 차단).
-    if !VB29.with(|c| (&*c.get()).2) { S[29].skip.fetch_add(1, Ordering::Relaxed); pop(29); return g; }
-    let n = S[29].cmp.fetch_add(1, Ordering::Relaxed) + 1;
+    if !VB30.with(|c| (&*c.get()).2) { S[30].skip.fetch_add(1, Ordering::Relaxed); pop(30); return g; }
+    let n = S[30].cmp.fetch_add(1, Ordering::Relaxed) + 1;
     let mut p2 = [0u8; 320]; core::ptr::copy_nonoverlapping(a2, p2.as_mut_ptr(), 320); // 게임 호출 후 상태
     core::ptr::copy_nonoverlapping(r2.as_ptr(), a2 as *mut u8, 320);                    // 내 사본 호출 전 = 호출 전 상태로
     let mut s6 = [0u8; 24]; core::ptr::copy_nonoverlapping(a6, s6.as_mut_ptr(), 24); // 게임 호출 후
     core::ptr::copy_nonoverlapping(q6.as_ptr(), a6 as *mut u8, 24);                    // 내 사본 호출 전 = 호출 전 상태로
-    SP29.with(|c| { let sp = &mut *c.get();
+    SP30.with(|c| { let sp = &mut *c.get();
         core::ptr::copy_nonoverlapping(a0, sp.as_mut_ptr(), 6168); });   // 게임 호출 후 상태
-    SV29.with(|c| { let sv = &*c.get();
+    SV30.with(|c| { let sv = &*c.get();
         core::ptr::copy_nonoverlapping(sv.as_ptr(), a0 as *mut u8, 6168); }); // 내 사본 호출 전 = 호출 전 상태로
     // ★★★힙 인식 스냅샷 — self 소유 Vec 들을 **내 힙 할당**으로 바꿔치기(내 사본의 drop/realloc 이 내 것에만 닿게).
     let ptag_0: u64 = core::ptr::read_unaligned((a0 as usize + 0x5e8) as *const u64);
-    if !PV29_0.with(|c| (&*c.get()).3) {   // 스크래치에 안 들어갔다 = 표본 제외
-        S[29].skip.fetch_add(1, Ordering::Relaxed);
-        SP29.with(|c| { let sp = &*c.get(); core::ptr::copy_nonoverlapping(sp.as_ptr(), a0 as *mut u8, 6168); });
+    if !PV30_0.with(|c| (&*c.get()).3) {   // 스크래치에 안 들어갔다 = 표본 제외
+        S[30].skip.fetch_add(1, Ordering::Relaxed);
+        SP30.with(|c| { let sp = &*c.get(); core::ptr::copy_nonoverlapping(sp.as_ptr(), a0 as *mut u8, 6168); });
         core::ptr::copy_nonoverlapping(p2.as_ptr(), a2 as *mut u8, 320);   // RNG = 게임 호출 후
         core::ptr::copy_nonoverlapping(s6.as_ptr(), a6 as *mut u8, 24);
-        pop(29); return g;
+        pop(30); return g;
     }
-    PV29_0.with(|c| { let pv = &*c.get(); let mut used = 0usize;
+    PV30_0.with(|c| { let pv = &*c.get(); let mut used = 0usize;
         for (i, &(off, esz, _)) in hs_vecs_12_0(ptag_0).iter().enumerate() {
             if i >= pv.2 { break; }
             let (cap, len, _) = pv.1[i];
@@ -2591,14 +2738,14 @@ unsafe fn w_12(a0: *const u8, a1: i64, a2: *const u8, a3: *const u8, a4: *const 
         }
     });
     let ptag_1: u64 = 0;
-    if !PV29_1.with(|c| (&*c.get()).3) {   // 스크래치에 안 들어갔다 = 표본 제외
-        S[29].skip.fetch_add(1, Ordering::Relaxed);
-        SP29.with(|c| { let sp = &*c.get(); core::ptr::copy_nonoverlapping(sp.as_ptr(), a0 as *mut u8, 6168); });
+    if !PV30_1.with(|c| (&*c.get()).3) {   // 스크래치에 안 들어갔다 = 표본 제외
+        S[30].skip.fetch_add(1, Ordering::Relaxed);
+        SP30.with(|c| { let sp = &*c.get(); core::ptr::copy_nonoverlapping(sp.as_ptr(), a0 as *mut u8, 6168); });
         core::ptr::copy_nonoverlapping(p2.as_ptr(), a2 as *mut u8, 320);   // RNG = 게임 호출 후
         core::ptr::copy_nonoverlapping(s6.as_ptr(), a6 as *mut u8, 24);
-        pop(29); return g;
+        pop(30); return g;
     }
-    PV29_1.with(|c| { let pv = &*c.get(); let mut used = 0usize;
+    PV30_1.with(|c| { let pv = &*c.get(); let mut used = 0usize;
         for (i, &(off, esz, _)) in hs_vecs_12_1(ptag_1).iter().enumerate() {
             if i >= pv.2 { break; }
             let (cap, len, _) = pv.1[i];
@@ -2626,9 +2773,9 @@ unsafe fn w_12(a0: *const u8, a1: i64, a2: *const u8, a3: *const u8, a4: *const 
     // ★★★상태 diff — 이 함수는 **반환이 void** 다. ABI 상 반환이 없는 것이지
     //   **출력이 없는 게 아니다** — 출력은 `&mut self` 에 있다 ⟹ 그걸 비교한다.
     //   ⚠되돌리기·해제 **전에** 떠서 비교한다 — 내 사본이 재할당했으면 해제 후엔 못 읽는다.
-    SQ29.with(|c| { let sq = &mut *c.get();
+    SQ30.with(|c| { let sq = &mut *c.get();
         core::ptr::copy_nonoverlapping(a0, sq.as_mut_ptr(), 6168); });
-    let sd: Option<String> = SP29.with(|c| { let sp = &*c.get(); SQ29.with(|c2| { let sq = &*c2.get();
+    let sd: Option<String> = SP30.with(|c| { let sp = &*c.get(); SQ30.with(|c2| { let sq = &*c2.get();
         // ① 본체 바이트(설계상 다른 구간은 제외)
         // ★소유 Vec 삼중항(cap/ptr/len 24B)은 **동적 skip**(게임 것 vs 내 할당) — len·내용은 ②′에서 비교
         let gtag_0: u64 = core::ptr::read_unaligned(sp.as_ptr().add(0x5e8) as *const u64);
@@ -2691,7 +2838,7 @@ unsafe fn w_12(a0: *const u8, a1: i64, a2: *const u8, a3: *const u8, a4: *const 
     //   (게임 것은 위에서 내 할당으로 바꿔치기됐고, 새로 만든 것은 내 사본이 할당했다).
     //   ⚠먼저 **내 사본이 새로 push 한 요소**의 String(ELEM_LIVE.str)을 해제한다 — pre-call len 미만은 게임 버퍼의 복사본.
     { let t2: u64 = core::ptr::read_unaligned((a0 as usize + 0x5e8) as *const u64);
-      PV29_0.with(|c| { let pv = &*c.get();
+      PV30_0.with(|c| { let pv = &*c.get();
       for (i, &(off, esz, lid)) in hs_vecs_12_0(t2).iter().enumerate() {
           let b = a0 as usize + 0x5e8 + off;
           let (cap, ptr, len) = (core::ptr::read_unaligned(b as *const usize), core::ptr::read_unaligned((b + 8) as *const usize),
@@ -2703,7 +2850,7 @@ unsafe fn w_12(a0: *const u8, a1: i64, a2: *const u8, a3: *const u8, a4: *const 
           }
       } }); }
     { let t2: u64 = 0;
-      PV29_1.with(|c| { let pv = &*c.get();
+      PV30_1.with(|c| { let pv = &*c.get();
       for (i, &(off, esz, lid)) in hs_vecs_12_1(t2).iter().enumerate() {
           let b = a0 as usize + 0x0 + off;
           let (cap, ptr, len) = (core::ptr::read_unaligned(b as *const usize), core::ptr::read_unaligned((b + 8) as *const usize),
@@ -2714,245 +2861,284 @@ unsafe fn w_12(a0: *const u8, a1: i64, a2: *const u8, a3: *const u8, a4: *const 
               if let Ok(l) = std::alloc::Layout::from_size_align(cap * esz, 8) { std::alloc::dealloc(ptr as *mut u8, l); }
           }
       } }); }
-    SP29.with(|c| { let sp = &*c.get();
+    SP30.with(|c| { let sp = &*c.get();
         core::ptr::copy_nonoverlapping(sp.as_ptr(), a0 as *mut u8, 6168); }); // 게임 호출 후 상태로 복구
     core::ptr::copy_nonoverlapping(p2.as_ptr(), a2 as *mut u8, 320);                    // 게임 호출 후 상태로 복구(게임 진행은 게임 값으로)
     core::ptr::copy_nonoverlapping(s6.as_ptr(), a6 as *mut u8, 24);                    // 게임 호출 후 상태로 복구
     match m {
         Ok(_) => { if let Some(d) = sd {
-            note(29, format!("#12 handle_chat 대조#{} **상태갈림**: {} | (반환 void — 출력은 &mut self 다) | a0={:#x} a1={} a2={:#x} a3={:#x} a4={:#x} a5={} a6={:#x} a7={} a8={:#x}", n, d, a0 as usize, a1, a2 as usize, a3 as usize, a4 as usize, a5, a6 as usize, a7, a8 as usize)); } }
-        Err(_) => { S[29].pan.fetch_add(1, Ordering::Relaxed); }
-    }
-    pop(29);
-    g
-}
-unsafe fn w_52(a0: *const u8, a1: *const u8, a2: u8) -> bool {
-    S[30].calls.fetch_add(1, Ordering::Relaxed);
-    let f: unsafe fn(*const u8, *const u8, u8) -> bool = core::mem::transmute(S[30].orig.load(Ordering::Relaxed));
-    let t = top(30);
-    let g = f(a0, a1, a2);
-    if !t { pop(30); return g; }
-    let n = S[30].cmp.fetch_add(1, Ordering::Relaxed) + 1;
-    let m = catch_unwind(AssertUnwindSafe(|| my_52(a0, a1, a2)));
-    match m {
-        Ok(m) => { if m != g { note(30, format!("#52 v25_objective_far_split_pressure 대조#{} 갈림: g={:?} m={:?} | a0={:#x} a1={:#x} a2={}", n, g, m, a0 as usize, a1 as usize, a2)); } }
+            note(30, format!("#12 handle_chat 대조#{} **상태갈림**: {} | (반환 void — 출력은 &mut self 다) | a0={:#x} a1={} a2={:#x} a3={:#x} a4={:#x} a5={} a6={:#x} a7={} a8={:#x}", n, d, a0 as usize, a1, a2 as usize, a3 as usize, a4 as usize, a5, a6 as usize, a7, a8 as usize)); } }
         Err(_) => { S[30].pan.fetch_add(1, Ordering::Relaxed); }
     }
     pop(30);
     g
 }
-unsafe fn w_19(a0: i64, a1: *const u8, a2: *const u8, a3: *const u8, a4: *const u8, a5: u8, a6: *const u8) -> u8 {
+unsafe fn w_52(a0: *const u8, a1: *const u8, a2: u8) -> bool {
     S[31].calls.fetch_add(1, Ordering::Relaxed);
-    let f: unsafe fn(i64, *const u8, *const u8, *const u8, *const u8, u8, *const u8) -> u8 = core::mem::transmute(S[31].orig.load(Ordering::Relaxed));
+    let f: unsafe fn(*const u8, *const u8, u8) -> bool = core::mem::transmute(S[31].orig.load(Ordering::Relaxed));
     let t = top(31);
-    // ★StdRng(320B) — 게임 호출이 난수열을 소비하므로 **먼저 떠 둔다**(안 그러면 거짓 DIFF).
-    let mut r1 = [0u8; 320]; if t { core::ptr::copy_nonoverlapping(a1, r1.as_mut_ptr(), 320); }
-    let g = f(a0, a1, a2, a3, a4, a5, a6);
+    let g = f(a0, a1, a2);
     if !t { pop(31); return g; }
     let n = S[31].cmp.fetch_add(1, Ordering::Relaxed) + 1;
-    let mut p1 = [0u8; 320]; core::ptr::copy_nonoverlapping(a1, p1.as_mut_ptr(), 320); // 게임 호출 후 상태
-    core::ptr::copy_nonoverlapping(r1.as_ptr(), a1 as *mut u8, 320);                    // 내 사본 호출 전 = 호출 전 상태로
-    let m = catch_unwind(AssertUnwindSafe(|| my_19(a0, a1, a2, a3, a4, a5, a6)));
-    core::ptr::copy_nonoverlapping(p1.as_ptr(), a1 as *mut u8, 320);                    // 게임 호출 후 상태로 복구(게임 진행은 게임 값으로)
+    let m = catch_unwind(AssertUnwindSafe(|| my_52(a0, a1, a2)));
     match m {
-        Ok(m) => { if m != g { note(31, format!("#19 best_jungle_goal 대조#{} 갈림: g={:?} m={:?} | a0={} a1={:#x} a2={:#x} a3={:#x} a4={:#x} a5={} a6={:#x}", n, g, m, a0, a1 as usize, a2 as usize, a3 as usize, a4 as usize, a5, a6 as usize)); } }
+        Ok(m) => { if m != g { note(31, format!("#52 v25_objective_far_split_pressure 대조#{} 갈림: g={:?} m={:?} | a0={:#x} a1={:#x} a2={}", n, g, m, a0 as usize, a1 as usize, a2)); } }
         Err(_) => { S[31].pan.fetch_add(1, Ordering::Relaxed); }
     }
     pop(31);
     g
 }
-unsafe fn w_34(a0: *const u8, a1: *const u8, a2: u8, a3: i64) -> bool {
+unsafe fn w_48(a0: i64, a1: u32, a2: *const u8, a3: *const u8, a4: i64, a5: i64) -> u32 {
     S[32].calls.fetch_add(1, Ordering::Relaxed);
-    let f: unsafe fn(*const u8, *const u8, u8, i64) -> bool = core::mem::transmute(S[32].orig.load(Ordering::Relaxed));
+    let f: unsafe fn(i64, u32, *const u8, *const u8, i64, i64) -> u32 = core::mem::transmute(S[32].orig.load(Ordering::Relaxed));
     let t = top(32);
-    let g = f(a0, a1, a2, a3);
+    let g = f(a0, a1, a2, a3, a4, a5);
     if !t { pop(32); return g; }
     let n = S[32].cmp.fetch_add(1, Ordering::Relaxed) + 1;
-    let m = catch_unwind(AssertUnwindSafe(|| my_34(a0, a1, a2, a3)));
+    let m = catch_unwind(AssertUnwindSafe(|| my_48(a0, a1, a2, a3, a4, a5)));
     match m {
-        Ok(m) => { if m != g { note(32, format!("#34 has_line_defense_threat 대조#{} 갈림: g={:?} m={:?} | a0={:#x} a1={:#x} a2={} a3={}", n, g, m, a0 as usize, a1 as usize, a2, a3)); } }
+        Ok(m) => { if (m & 0xffffff) != (g & 0xffffff) { note(32, format!("#48 v25_scoped_battle_objective 대조#{} 갈림(i24): g={:#x} m={:#x} | a0={} a1={} a2={:#x} a3={:#x} a4={} a5={}", n, g & 0xffffff, m & 0xffffff, a0, a1, a2 as usize, a3 as usize, a4, a5)); } }
         Err(_) => { S[32].pan.fetch_add(1, Ordering::Relaxed); }
     }
     pop(32);
     g
 }
-unsafe fn w_29(a0: *const u8, a1: *const u8, a2: i64, a3: i64, a4: i64, a5: i64) -> i64 {
+unsafe fn w_19(a0: i64, a1: *const u8, a2: *const u8, a3: *const u8, a4: *const u8, a5: u8, a6: *const u8) -> u8 {
     S[33].calls.fetch_add(1, Ordering::Relaxed);
-    let f: unsafe fn(*const u8, *const u8, i64, i64, i64, i64) -> i64 = core::mem::transmute(S[33].orig.load(Ordering::Relaxed));
+    let f: unsafe fn(i64, *const u8, *const u8, *const u8, *const u8, u8, *const u8) -> u8 = core::mem::transmute(S[33].orig.load(Ordering::Relaxed));
     let t = top(33);
-    let g = f(a0, a1, a2, a3, a4, a5);
+    // ★StdRng(320B) — 게임 호출이 난수열을 소비하므로 **먼저 떠 둔다**(안 그러면 거짓 DIFF).
+    let mut r1 = [0u8; 320]; if t { core::ptr::copy_nonoverlapping(a1, r1.as_mut_ptr(), 320); }
+    let g = f(a0, a1, a2, a3, a4, a5, a6);
     if !t { pop(33); return g; }
     let n = S[33].cmp.fetch_add(1, Ordering::Relaxed) + 1;
-    let m = catch_unwind(AssertUnwindSafe(|| my_29(a0, a1, a2, a3, a4, a5)));
+    let mut p1 = [0u8; 320]; core::ptr::copy_nonoverlapping(a1, p1.as_mut_ptr(), 320); // 게임 호출 후 상태
+    core::ptr::copy_nonoverlapping(r1.as_ptr(), a1 as *mut u8, 320);                    // 내 사본 호출 전 = 호출 전 상태로
+    let m = catch_unwind(AssertUnwindSafe(|| my_19(a0, a1, a2, a3, a4, a5, a6)));
+    core::ptr::copy_nonoverlapping(p1.as_ptr(), a1 as *mut u8, 320);                    // 게임 호출 후 상태로 복구(게임 진행은 게임 값으로)
     match m {
-        Ok(m) => { if m != g { note(33, format!("#29 v23_recent_visible_enemies_near_point 대조#{} 갈림: g={:?} m={:?} | a0={:#x} a1={:#x} a2={} a3={} a4={} a5={}", n, g, m, a0 as usize, a1 as usize, a2, a3, a4, a5)); } }
+        Ok(m) => { if m != g { note(33, format!("#19 best_jungle_goal 대조#{} 갈림: g={:?} m={:?} | a0={} a1={:#x} a2={:#x} a3={:#x} a4={:#x} a5={} a6={:#x}", n, g, m, a0, a1 as usize, a2 as usize, a3 as usize, a4 as usize, a5, a6 as usize)); } }
         Err(_) => { S[33].pan.fetch_add(1, Ordering::Relaxed); }
     }
     pop(33);
     g
 }
-unsafe fn w_31(a0: i64, a1: i32, a2: *const u8, a3: *const u8) -> P8 {
+unsafe fn w_34(a0: *const u8, a1: *const u8, a2: u8, a3: i64) -> bool {
     S[34].calls.fetch_add(1, Ordering::Relaxed);
-    let f: unsafe fn(i64, i32, *const u8, *const u8) -> P8 = core::mem::transmute(S[34].orig.load(Ordering::Relaxed));
+    let f: unsafe fn(*const u8, *const u8, u8, i64) -> bool = core::mem::transmute(S[34].orig.load(Ordering::Relaxed));
     let t = top(34);
     let g = f(a0, a1, a2, a3);
     if !t { pop(34); return g; }
     let n = S[34].cmp.fetch_add(1, Ordering::Relaxed) + 1;
-    let m = catch_unwind(AssertUnwindSafe(|| my_31(a0, a1, a2, a3)));
+    let m = catch_unwind(AssertUnwindSafe(|| my_34(a0, a1, a2, a3)));
     match m {
-        Ok(m) => { if m != g { note(34, format!("#31 v3_epic_formation_role 대조#{} 갈림: g={:?} m={:?} | a0={} a1={} a2={:#x} a3={:#x}", n, g, m, a0, a1, a2 as usize, a3 as usize)); } }
+        Ok(m) => { if m != g { note(34, format!("#34 has_line_defense_threat 대조#{} 갈림: g={:?} m={:?} | a0={:#x} a1={:#x} a2={} a3={}", n, g, m, a0 as usize, a1 as usize, a2, a3)); } }
         Err(_) => { S[34].pan.fetch_add(1, Ordering::Relaxed); }
     }
     pop(34);
     g
 }
-unsafe fn w_20(a0: *const u8, a1: *const u8, a2: i64, a3: *const u8, a4: u8) {
+unsafe fn w_29(a0: *const u8, a1: *const u8, a2: i64, a3: i64, a4: i64, a5: i64) -> i64 {
     S[35].calls.fetch_add(1, Ordering::Relaxed);
-    let f: unsafe fn(*const u8, *const u8, i64, *const u8, u8) = core::mem::transmute(S[35].orig.load(Ordering::Relaxed));
+    let f: unsafe fn(*const u8, *const u8, i64, i64, i64, i64) -> i64 = core::mem::transmute(S[35].orig.load(Ordering::Relaxed));
     let t = top(35);
-    let g = f(a0, a1, a2, a3, a4);
+    let g = f(a0, a1, a2, a3, a4, a5);
     if !t { pop(35); return g; }
     let n = S[35].cmp.fetch_add(1, Ordering::Relaxed) + 1;
-    let mut gb = [0u64; 4]; core::ptr::copy_nonoverlapping(a0, gb.as_mut_ptr() as *mut u8, 32); // 게임 출력 사본
-    let mut mb = [0u64; 4];                                                   // 내 사본 전용 출력 버퍼
-    let m = catch_unwind(AssertUnwindSafe(|| my_20(mb.as_mut_ptr() as *const u8, a1, a2, a3, a4)));
+    let m = catch_unwind(AssertUnwindSafe(|| my_29(a0, a1, a2, a3, a4, a5)));
     match m {
-        Ok(_) => { if let Some(off) = live_eq(a0, mb.as_ptr() as *const u8, LIVE_20) {
-            note(35, format!("#20 v27_active_objective_discipline 대조#{} 갈림(sret 32B · +{:#x}): g={:02x?} m={:02x?} | a1={:#x} a2={} a3={:#x} a4={}", n, off, &gb[..4], &mb[..4], a1 as usize, a2, a3 as usize, a4)); } }
+        Ok(m) => { if m != g { note(35, format!("#29 v23_recent_visible_enemies_near_point 대조#{} 갈림: g={:?} m={:?} | a0={:#x} a1={:#x} a2={} a3={} a4={} a5={}", n, g, m, a0 as usize, a1 as usize, a2, a3, a4, a5)); } }
         Err(_) => { S[35].pan.fetch_add(1, Ordering::Relaxed); }
     }
     pop(35);
     g
 }
-unsafe fn w_25(a0: i64, a1: *const u8, a2: *const u8, a3: *const u8, a4: *const u8) -> bool {
+unsafe fn w_31(a0: i64, a1: i32, a2: *const u8, a3: *const u8) -> P8 {
     S[36].calls.fetch_add(1, Ordering::Relaxed);
-    let f: unsafe fn(i64, *const u8, *const u8, *const u8, *const u8) -> bool = core::mem::transmute(S[36].orig.load(Ordering::Relaxed));
+    let f: unsafe fn(i64, i32, *const u8, *const u8) -> P8 = core::mem::transmute(S[36].orig.load(Ordering::Relaxed));
     let t = top(36);
-    let g = f(a0, a1, a2, a3, a4);
+    let g = f(a0, a1, a2, a3);
     if !t { pop(36); return g; }
     let n = S[36].cmp.fetch_add(1, Ordering::Relaxed) + 1;
-    let m = catch_unwind(AssertUnwindSafe(|| my_25(a0, a1, a2, a3, a4)));
+    let m = catch_unwind(AssertUnwindSafe(|| my_31(a0, a1, a2, a3)));
     match m {
-        Ok(m) => { if m != g { note(36, format!("#25 v22_visible_enemy_is_runaway_threat 대조#{} 갈림: g={:?} m={:?} | a0={} a1={:#x} a2={:#x} a3={:#x} a4={:#x}", n, g, m, a0, a1 as usize, a2 as usize, a3 as usize, a4 as usize)); } }
+        Ok(m) => { if m != g { note(36, format!("#31 v3_epic_formation_role 대조#{} 갈림: g={:?} m={:?} | a0={} a1={} a2={:#x} a3={:#x}", n, g, m, a0, a1, a2 as usize, a3 as usize)); } }
         Err(_) => { S[36].pan.fetch_add(1, Ordering::Relaxed); }
     }
     pop(36);
     g
 }
-unsafe fn w_51(a0: i64, a1: *const u8, a2: *const u8, a3: *const u8, a4: *const u8, a5: u8, a6: *const u8) -> u8 {
+unsafe fn w_20(a0: *const u8, a1: *const u8, a2: i64, a3: *const u8, a4: u8) {
     S[37].calls.fetch_add(1, Ordering::Relaxed);
-    let f: unsafe fn(i64, *const u8, *const u8, *const u8, *const u8, u8, *const u8) -> u8 = core::mem::transmute(S[37].orig.load(Ordering::Relaxed));
+    let f: unsafe fn(*const u8, *const u8, i64, *const u8, u8) = core::mem::transmute(S[37].orig.load(Ordering::Relaxed));
     let t = top(37);
-    let g = f(a0, a1, a2, a3, a4, a5, a6);
+    let g = f(a0, a1, a2, a3, a4);
     if !t { pop(37); return g; }
     let n = S[37].cmp.fetch_add(1, Ordering::Relaxed) + 1;
-    let m = catch_unwind(AssertUnwindSafe(|| my_51(a0, a1, a2, a3, a4, a5, a6)));
+    let mut gb = [0u64; 4]; core::ptr::copy_nonoverlapping(a0, gb.as_mut_ptr() as *mut u8, 32); // 게임 출력 사본
+    let mut mb = [0u64; 4];                                                   // 내 사본 전용 출력 버퍼
+    let m = catch_unwind(AssertUnwindSafe(|| my_20(mb.as_mut_ptr() as *const u8, a1, a2, a3, a4)));
     match m {
-        Ok(m) => { if m != g { note(37, format!("#51 check_press_tower_opportunity 대조#{} 갈림: g={:?} m={:?} | a0={} a1={:#x} a2={:#x} a3={:#x} a4={:#x} a5={} a6={:#x}", n, g, m, a0, a1 as usize, a2 as usize, a3 as usize, a4 as usize, a5, a6 as usize)); } }
+        Ok(_) => { if let Some(off) = live_eq(a0, mb.as_ptr() as *const u8, LIVE_20) {
+            note(37, format!("#20 v27_active_objective_discipline 대조#{} 갈림(sret 32B · +{:#x}): g={:02x?} m={:02x?} | a1={:#x} a2={} a3={:#x} a4={}", n, off, &gb[..4], &mb[..4], a1 as usize, a2, a3 as usize, a4)); } }
         Err(_) => { S[37].pan.fetch_add(1, Ordering::Relaxed); }
     }
     pop(37);
     g
 }
-unsafe fn w_16(a0: *const u8, a1: *const u8, a2: i64) -> i64 {
+unsafe fn w_25(a0: i64, a1: *const u8, a2: *const u8, a3: *const u8, a4: *const u8) -> bool {
     S[38].calls.fetch_add(1, Ordering::Relaxed);
-    let f: unsafe fn(*const u8, *const u8, i64) -> i64 = core::mem::transmute(S[38].orig.load(Ordering::Relaxed));
+    let f: unsafe fn(i64, *const u8, *const u8, *const u8, *const u8) -> bool = core::mem::transmute(S[38].orig.load(Ordering::Relaxed));
     let t = top(38);
-    let g = f(a0, a1, a2);
+    let g = f(a0, a1, a2, a3, a4);
     if !t { pop(38); return g; }
     let n = S[38].cmp.fetch_add(1, Ordering::Relaxed) + 1;
-    let m = catch_unwind(AssertUnwindSafe(|| my_16(a0, a1, a2)));
+    let m = catch_unwind(AssertUnwindSafe(|| my_25(a0, a1, a2, a3, a4)));
     match m {
-        Ok(m) => { if m != g { note(38, format!("#16 max_range_nearly_can_use 대조#{} 갈림: g={:?} m={:?} | a0={:#x} a1={:#x} a2={}", n, g, m, a0 as usize, a1 as usize, a2)); } }
+        Ok(m) => { if m != g { note(38, format!("#25 v22_visible_enemy_is_runaway_threat 대조#{} 갈림: g={:?} m={:?} | a0={} a1={:#x} a2={:#x} a3={:#x} a4={:#x}", n, g, m, a0, a1 as usize, a2 as usize, a3 as usize, a4 as usize)); } }
         Err(_) => { S[38].pan.fetch_add(1, Ordering::Relaxed); }
     }
     pop(38);
     g
 }
-unsafe fn w_45(a0: *const u8, a1: *const u8, a2: *const u8) -> bool {
+unsafe fn w_56(a0: *const u8, a1: *const u8, a2: i64, a3: *const u8, a4: *const u8, a5: *const u8, a6: *const u8, a7: *const u8) {
     S[39].calls.fetch_add(1, Ordering::Relaxed);
-    let f: unsafe fn(*const u8, *const u8, *const u8) -> bool = core::mem::transmute(S[39].orig.load(Ordering::Relaxed));
+    let f: unsafe fn(*const u8, *const u8, i64, *const u8, *const u8, *const u8, *const u8, *const u8) = core::mem::transmute(S[39].orig.load(Ordering::Relaxed));
     let t = top(39);
     // ★StdRng(320B) — 게임 호출이 난수열을 소비하므로 **먼저 떠 둔다**(안 그러면 거짓 DIFF).
-    let mut r0 = [0u8; 320]; if t { core::ptr::copy_nonoverlapping(a0, r0.as_mut_ptr(), 320); }
-    let g = f(a0, a1, a2);
+    let mut r3 = [0u8; 320]; if t { core::ptr::copy_nonoverlapping(a3, r3.as_mut_ptr(), 320); }
+    let g = f(a0, a1, a2, a3, a4, a5, a6, a7);
     if !t { pop(39); return g; }
     let n = S[39].cmp.fetch_add(1, Ordering::Relaxed) + 1;
-    let mut p0 = [0u8; 320]; core::ptr::copy_nonoverlapping(a0, p0.as_mut_ptr(), 320); // 게임 호출 후 상태
-    core::ptr::copy_nonoverlapping(r0.as_ptr(), a0 as *mut u8, 320);                    // 내 사본 호출 전 = 호출 전 상태로
-    let m = catch_unwind(AssertUnwindSafe(|| my_45(a0, a1, a2)));
-    core::ptr::copy_nonoverlapping(p0.as_ptr(), a0 as *mut u8, 320);                    // 게임 호출 후 상태로 복구(게임 진행은 게임 값으로)
+    let mut p3 = [0u8; 320]; core::ptr::copy_nonoverlapping(a3, p3.as_mut_ptr(), 320); // 게임 호출 후 상태
+    core::ptr::copy_nonoverlapping(r3.as_ptr(), a3 as *mut u8, 320);                    // 내 사본 호출 전 = 호출 전 상태로
+    let mut gb = [0u64; 9]; core::ptr::copy_nonoverlapping(a0, gb.as_mut_ptr() as *mut u8, 72); // 게임 출력 사본
+    let mut mb = [0u64; 9];                                                   // 내 사본 전용 출력 버퍼
+    let m = catch_unwind(AssertUnwindSafe(|| my_56(mb.as_mut_ptr() as *const u8, a1, a2, a3, a4, a5, a6, a7)));
+    core::ptr::copy_nonoverlapping(p3.as_ptr(), a3 as *mut u8, 320);                    // 게임 호출 후 상태로 복구(게임 진행은 게임 값으로)
     match m {
-        Ok(m) => { if m != g { note(39, format!("#45 can_recall 대조#{} 갈림: g={:?} m={:?} | a0={:#x} a1={:#x} a2={:#x}", n, g, m, a0 as usize, a1 as usize, a2 as usize)); } }
+        Ok(_) => { let (gt, mt) = (gb[0], mb[0]);
+            let d = if gt != mt { Some(format!("tag g={} m={}", gt, mt)) } else { enumlive_cmp_56_0(gt, gb.as_ptr() as usize, mb.as_ptr() as usize).map(|x| format!("(tag {}){}", gt, x)) };
+            if let Some(d) = d { note(39, format!("#56 PassiveLinePlan::sub_plan 대조#{} 갈림(sret 열거형 72B): {} | g={:02x?} m={:02x?} | a1={:#x} a2={} a3={:#x} a4={:#x} a5={:#x} a6={:#x} a7={:#x}", n, d, &gb[..9], &mb[..9], a1 as usize, a2, a3 as usize, a4 as usize, a5 as usize, a6 as usize, a7 as usize)); } }
         Err(_) => { S[39].pan.fetch_add(1, Ordering::Relaxed); }
     }
     pop(39);
     g
 }
-unsafe fn w_53(a0: i64, a1: *const u8, a2: *const u8, a3: *const u8, a4: *const u8, a5: *const u8) -> bool {
+unsafe fn w_51(a0: i64, a1: *const u8, a2: *const u8, a3: *const u8, a4: *const u8, a5: u8, a6: *const u8) -> u8 {
     S[40].calls.fetch_add(1, Ordering::Relaxed);
-    let f: unsafe fn(i64, *const u8, *const u8, *const u8, *const u8, *const u8) -> bool = core::mem::transmute(S[40].orig.load(Ordering::Relaxed));
+    let f: unsafe fn(i64, *const u8, *const u8, *const u8, *const u8, u8, *const u8) -> u8 = core::mem::transmute(S[40].orig.load(Ordering::Relaxed));
     let t = top(40);
-    let g = f(a0, a1, a2, a3, a4, a5);
+    let g = f(a0, a1, a2, a3, a4, a5, a6);
     if !t { pop(40); return g; }
     let n = S[40].cmp.fetch_add(1, Ordering::Relaxed) + 1;
-    let m = catch_unwind(AssertUnwindSafe(|| my_53(a0, a1, a2, a3, a4, a5)));
+    let m = catch_unwind(AssertUnwindSafe(|| my_51(a0, a1, a2, a3, a4, a5, a6)));
     match m {
-        Ok(m) => { if m != g { note(40, format!("#53 check_epic_setup 대조#{} 갈림: g={:?} m={:?} | a0={} a1={:#x} a2={:#x} a3={:#x} a4={:#x} a5={:#x}", n, g, m, a0, a1 as usize, a2 as usize, a3 as usize, a4 as usize, a5 as usize)); } }
+        Ok(m) => { if m != g { note(40, format!("#51 check_press_tower_opportunity 대조#{} 갈림: g={:?} m={:?} | a0={} a1={:#x} a2={:#x} a3={:#x} a4={:#x} a5={} a6={:#x}", n, g, m, a0, a1 as usize, a2 as usize, a3 as usize, a4 as usize, a5, a6 as usize)); } }
         Err(_) => { S[40].pan.fetch_add(1, Ordering::Relaxed); }
     }
     pop(40);
     g
 }
-unsafe fn w_23(a0: i64, a1: *const u8, a2: *const u8, a3: *const u8, a4: *const u8, a5: *const u8) -> P64 {
+unsafe fn w_16(a0: *const u8, a1: *const u8, a2: i64) -> i64 {
     S[41].calls.fetch_add(1, Ordering::Relaxed);
-    let f: unsafe fn(i64, *const u8, *const u8, *const u8, *const u8, *const u8) -> P64 = core::mem::transmute(S[41].orig.load(Ordering::Relaxed));
+    let f: unsafe fn(*const u8, *const u8, i64) -> i64 = core::mem::transmute(S[41].orig.load(Ordering::Relaxed));
     let t = top(41);
-    // ★StdRng(320B) — 게임 호출이 난수열을 소비하므로 **먼저 떠 둔다**(안 그러면 거짓 DIFF).
-    let mut r1 = [0u8; 320]; if t { core::ptr::copy_nonoverlapping(a1, r1.as_mut_ptr(), 320); }
-    let g = f(a0, a1, a2, a3, a4, a5);
+    let g = f(a0, a1, a2);
     if !t { pop(41); return g; }
     let n = S[41].cmp.fetch_add(1, Ordering::Relaxed) + 1;
-    let mut p1 = [0u8; 320]; core::ptr::copy_nonoverlapping(a1, p1.as_mut_ptr(), 320); // 게임 호출 후 상태
-    core::ptr::copy_nonoverlapping(r1.as_ptr(), a1 as *mut u8, 320);                    // 내 사본 호출 전 = 호출 전 상태로
-    let m = catch_unwind(AssertUnwindSafe(|| my_23(a0, a1, a2, a3, a4, a5)));
-    core::ptr::copy_nonoverlapping(p1.as_ptr(), a1 as *mut u8, 320);                    // 게임 호출 후 상태로 복구(게임 진행은 게임 값으로)
+    let m = catch_unwind(AssertUnwindSafe(|| my_16(a0, a1, a2)));
     match m {
-        Ok(m) => { if m != g { note(41, format!("#23 buy_item 대조#{} 갈림: g={:?} m={:?} | a0={} a1={:#x} a2={:#x} a3={:#x} a4={:#x} a5={:#x}", n, g, m, a0, a1 as usize, a2 as usize, a3 as usize, a4 as usize, a5 as usize)); } }
+        Ok(m) => { if m != g { note(41, format!("#16 max_range_nearly_can_use 대조#{} 갈림: g={:?} m={:?} | a0={:#x} a1={:#x} a2={}", n, g, m, a0 as usize, a1 as usize, a2)); } }
         Err(_) => { S[41].pan.fetch_add(1, Ordering::Relaxed); }
     }
     pop(41);
     g
 }
-unsafe fn w_46(a0: i64, a1: *const u8, a2: *const u8, a3: *const u8, a4: *const u8) -> bool {
+unsafe fn w_45(a0: *const u8, a1: *const u8, a2: *const u8) -> bool {
     S[42].calls.fetch_add(1, Ordering::Relaxed);
-    let f: unsafe fn(i64, *const u8, *const u8, *const u8, *const u8) -> bool = core::mem::transmute(S[42].orig.load(Ordering::Relaxed));
+    let f: unsafe fn(*const u8, *const u8, *const u8) -> bool = core::mem::transmute(S[42].orig.load(Ordering::Relaxed));
     let t = top(42);
     // ★StdRng(320B) — 게임 호출이 난수열을 소비하므로 **먼저 떠 둔다**(안 그러면 거짓 DIFF).
-    let mut r1 = [0u8; 320]; if t { core::ptr::copy_nonoverlapping(a1, r1.as_mut_ptr(), 320); }
-    let g = f(a0, a1, a2, a3, a4);
+    let mut r0 = [0u8; 320]; if t { core::ptr::copy_nonoverlapping(a0, r0.as_mut_ptr(), 320); }
+    let g = f(a0, a1, a2);
     if !t { pop(42); return g; }
     let n = S[42].cmp.fetch_add(1, Ordering::Relaxed) + 1;
-    let mut p1 = [0u8; 320]; core::ptr::copy_nonoverlapping(a1, p1.as_mut_ptr(), 320); // 게임 호출 후 상태
-    core::ptr::copy_nonoverlapping(r1.as_ptr(), a1 as *mut u8, 320);                    // 내 사본 호출 전 = 호출 전 상태로
-    let m = catch_unwind(AssertUnwindSafe(|| my_46(a0, a1, a2, a3, a4)));
-    core::ptr::copy_nonoverlapping(p1.as_ptr(), a1 as *mut u8, 320);                    // 게임 호출 후 상태로 복구(게임 진행은 게임 값으로)
+    let mut p0 = [0u8; 320]; core::ptr::copy_nonoverlapping(a0, p0.as_mut_ptr(), 320); // 게임 호출 후 상태
+    core::ptr::copy_nonoverlapping(r0.as_ptr(), a0 as *mut u8, 320);                    // 내 사본 호출 전 = 호출 전 상태로
+    let m = catch_unwind(AssertUnwindSafe(|| my_45(a0, a1, a2)));
+    core::ptr::copy_nonoverlapping(p0.as_ptr(), a0 as *mut u8, 320);                    // 게임 호출 후 상태로 복구(게임 진행은 게임 값으로)
     match m {
-        Ok(m) => { if m != g { note(42, format!("#46 need_defense_nexus 대조#{} 갈림: g={:?} m={:?} | a0={} a1={:#x} a2={:#x} a3={:#x} a4={:#x}", n, g, m, a0, a1 as usize, a2 as usize, a3 as usize, a4 as usize)); } }
+        Ok(m) => { if m != g { note(42, format!("#45 can_recall 대조#{} 갈림: g={:?} m={:?} | a0={:#x} a1={:#x} a2={:#x}", n, g, m, a0 as usize, a1 as usize, a2 as usize)); } }
         Err(_) => { S[42].pan.fetch_add(1, Ordering::Relaxed); }
     }
     pop(42);
     g
 }
-unsafe fn w_21(a0: *const u8, a1: i64, a2: *const u8, a3: *const u8, a4: *const u8, a5: *const u8, a6: *const u8) {
+unsafe fn w_53(a0: i64, a1: *const u8, a2: *const u8, a3: *const u8, a4: *const u8, a5: *const u8) -> bool {
     S[43].calls.fetch_add(1, Ordering::Relaxed);
-    let f: unsafe fn(*const u8, i64, *const u8, *const u8, *const u8, *const u8, *const u8) = core::mem::transmute(S[43].orig.load(Ordering::Relaxed));
+    let f: unsafe fn(i64, *const u8, *const u8, *const u8, *const u8, *const u8) -> bool = core::mem::transmute(S[43].orig.load(Ordering::Relaxed));
     let t = top(43);
+    let g = f(a0, a1, a2, a3, a4, a5);
+    if !t { pop(43); return g; }
+    let n = S[43].cmp.fetch_add(1, Ordering::Relaxed) + 1;
+    let m = catch_unwind(AssertUnwindSafe(|| my_53(a0, a1, a2, a3, a4, a5)));
+    match m {
+        Ok(m) => { if m != g { note(43, format!("#53 check_epic_setup 대조#{} 갈림: g={:?} m={:?} | a0={} a1={:#x} a2={:#x} a3={:#x} a4={:#x} a5={:#x}", n, g, m, a0, a1 as usize, a2 as usize, a3 as usize, a4 as usize, a5 as usize)); } }
+        Err(_) => { S[43].pan.fetch_add(1, Ordering::Relaxed); }
+    }
+    pop(43);
+    g
+}
+unsafe fn w_23(a0: i64, a1: *const u8, a2: *const u8, a3: *const u8, a4: *const u8, a5: *const u8) -> P64 {
+    S[44].calls.fetch_add(1, Ordering::Relaxed);
+    let f: unsafe fn(i64, *const u8, *const u8, *const u8, *const u8, *const u8) -> P64 = core::mem::transmute(S[44].orig.load(Ordering::Relaxed));
+    let t = top(44);
+    // ★StdRng(320B) — 게임 호출이 난수열을 소비하므로 **먼저 떠 둔다**(안 그러면 거짓 DIFF).
+    let mut r1 = [0u8; 320]; if t { core::ptr::copy_nonoverlapping(a1, r1.as_mut_ptr(), 320); }
+    let g = f(a0, a1, a2, a3, a4, a5);
+    if !t { pop(44); return g; }
+    let n = S[44].cmp.fetch_add(1, Ordering::Relaxed) + 1;
+    let mut p1 = [0u8; 320]; core::ptr::copy_nonoverlapping(a1, p1.as_mut_ptr(), 320); // 게임 호출 후 상태
+    core::ptr::copy_nonoverlapping(r1.as_ptr(), a1 as *mut u8, 320);                    // 내 사본 호출 전 = 호출 전 상태로
+    let m = catch_unwind(AssertUnwindSafe(|| my_23(a0, a1, a2, a3, a4, a5)));
+    core::ptr::copy_nonoverlapping(p1.as_ptr(), a1 as *mut u8, 320);                    // 게임 호출 후 상태로 복구(게임 진행은 게임 값으로)
+    match m {
+        Ok(m) => { if m != g { note(44, format!("#23 buy_item 대조#{} 갈림: g={:?} m={:?} | a0={} a1={:#x} a2={:#x} a3={:#x} a4={:#x} a5={:#x}", n, g, m, a0, a1 as usize, a2 as usize, a3 as usize, a4 as usize, a5 as usize)); } }
+        Err(_) => { S[44].pan.fetch_add(1, Ordering::Relaxed); }
+    }
+    pop(44);
+    g
+}
+unsafe fn w_46(a0: i64, a1: *const u8, a2: *const u8, a3: *const u8, a4: *const u8) -> bool {
+    S[45].calls.fetch_add(1, Ordering::Relaxed);
+    let f: unsafe fn(i64, *const u8, *const u8, *const u8, *const u8) -> bool = core::mem::transmute(S[45].orig.load(Ordering::Relaxed));
+    let t = top(45);
+    // ★StdRng(320B) — 게임 호출이 난수열을 소비하므로 **먼저 떠 둔다**(안 그러면 거짓 DIFF).
+    let mut r1 = [0u8; 320]; if t { core::ptr::copy_nonoverlapping(a1, r1.as_mut_ptr(), 320); }
+    let g = f(a0, a1, a2, a3, a4);
+    if !t { pop(45); return g; }
+    let n = S[45].cmp.fetch_add(1, Ordering::Relaxed) + 1;
+    let mut p1 = [0u8; 320]; core::ptr::copy_nonoverlapping(a1, p1.as_mut_ptr(), 320); // 게임 호출 후 상태
+    core::ptr::copy_nonoverlapping(r1.as_ptr(), a1 as *mut u8, 320);                    // 내 사본 호출 전 = 호출 전 상태로
+    let m = catch_unwind(AssertUnwindSafe(|| my_46(a0, a1, a2, a3, a4)));
+    core::ptr::copy_nonoverlapping(p1.as_ptr(), a1 as *mut u8, 320);                    // 게임 호출 후 상태로 복구(게임 진행은 게임 값으로)
+    match m {
+        Ok(m) => { if m != g { note(45, format!("#46 need_defense_nexus 대조#{} 갈림: g={:?} m={:?} | a0={} a1={:#x} a2={:#x} a3={:#x} a4={:#x}", n, g, m, a0, a1 as usize, a2 as usize, a3 as usize, a4 as usize)); } }
+        Err(_) => { S[45].pan.fetch_add(1, Ordering::Relaxed); }
+    }
+    pop(45);
+    g
+}
+unsafe fn w_21(a0: *const u8, a1: i64, a2: *const u8, a3: *const u8, a4: *const u8, a5: *const u8, a6: *const u8) {
+    S[46].calls.fetch_add(1, Ordering::Relaxed);
+    let f: unsafe fn(*const u8, i64, *const u8, *const u8, *const u8, *const u8, *const u8) = core::mem::transmute(S[46].orig.load(Ordering::Relaxed));
+    let t = top(46);
     // ★StdRng(320B) — 게임 호출이 난수열을 소비하므로 **먼저 떠 둔다**(안 그러면 거짓 DIFF).
     let mut r2 = [0u8; 320]; if t { core::ptr::copy_nonoverlapping(a2, r2.as_mut_ptr(), 320); }
     let g = f(a0, a1, a2, a3, a4, a5, a6);
-    if !t { pop(43); return g; }
-    let n = S[43].cmp.fetch_add(1, Ordering::Relaxed) + 1;
+    if !t { pop(46); return g; }
+    let n = S[46].cmp.fetch_add(1, Ordering::Relaxed) + 1;
     let mut p2 = [0u8; 320]; core::ptr::copy_nonoverlapping(a2, p2.as_mut_ptr(), 320); // 게임 호출 후 상태
     core::ptr::copy_nonoverlapping(r2.as_ptr(), a2 as *mut u8, 320);                    // 내 사본 호출 전 = 호출 전 상태로
     let mut gb = [0u64; 3]; core::ptr::copy_nonoverlapping(a0, gb.as_mut_ptr() as *mut u8, 24); // 게임 출력 사본
@@ -2961,93 +3147,195 @@ unsafe fn w_21(a0: *const u8, a1: i64, a2: *const u8, a3: *const u8, a4: *const 
     core::ptr::copy_nonoverlapping(p2.as_ptr(), a2 as *mut u8, 320);                    // 게임 호출 후 상태로 복구(게임 진행은 게임 값으로)
     match m {
         Ok(_) => { if let Some(off) = live_eq(a0, mb.as_ptr() as *const u8, LIVE_21) {
-            note(43, format!("#21 upgrade_item 대조#{} 갈림(sret 24B · +{:#x}): g={:02x?} m={:02x?} | a1={} a2={:#x} a3={:#x} a4={:#x} a5={:#x} a6={:#x}", n, off, &gb[..3], &mb[..3], a1, a2 as usize, a3 as usize, a4 as usize, a5 as usize, a6 as usize)); } }
-        Err(_) => { S[43].pan.fetch_add(1, Ordering::Relaxed); }
-    }
-    pop(43);
-    g
-}
-unsafe fn w_55(a0: *const u8, a1: i64, a2: *const u8, a3: *const u8, a4: *const u8, a5: *const u8, a6: *const u8, a7: *const u8, a8: u8) {
-    S[44].calls.fetch_add(1, Ordering::Relaxed);
-    let f: unsafe fn(*const u8, i64, *const u8, *const u8, *const u8, *const u8, *const u8, *const u8, u8) = core::mem::transmute(S[44].orig.load(Ordering::Relaxed));
-    let t = top(44);
-    let g = f(a0, a1, a2, a3, a4, a5, a6, a7, a8);
-    if !t { pop(44); return g; }
-    let n = S[44].cmp.fetch_add(1, Ordering::Relaxed) + 1;
-    let mut gb = [0u64; 53]; core::ptr::copy_nonoverlapping(a0, gb.as_mut_ptr() as *mut u8, 424); // 게임 출력 사본
-    let mut mb = [0u64; 53];                                                   // 내 사본 전용 출력 버퍼
-    let m = catch_unwind(AssertUnwindSafe(|| my_55(mb.as_mut_ptr() as *const u8, a1, a2, a3, a4, a5, a6, a7, a8)));
-    match m {
-        Ok(_) => { if let Some(off) = live_eq(a0, mb.as_ptr() as *const u8, LIVE_55) {
-            note(44, format!("#55 EntityPositioningCache::new 대조#{} 갈림(sret 424B · +{:#x}): g={:02x?} m={:02x?} | a1={} a2={:#x} a3={:#x} a4={:#x} a5={:#x} a6={:#x} a7={:#x} a8={}", n, off, &gb[..53], &mb[..53], a1, a2 as usize, a3 as usize, a4 as usize, a5 as usize, a6 as usize, a7 as usize, a8)); } }
-        Err(_) => { S[44].pan.fetch_add(1, Ordering::Relaxed); }
-    }
-    pop(44);
-    g
-}
-unsafe fn w_38(a0: *const u8, a1: *const u8, a2: *const u8, a3: i64, a4: i64, a5: i64) -> bool {
-    S[45].calls.fetch_add(1, Ordering::Relaxed);
-    let f: unsafe fn(*const u8, *const u8, *const u8, i64, i64, i64) -> bool = core::mem::transmute(S[45].orig.load(Ordering::Relaxed));
-    let t = top(45);
-    let g = f(a0, a1, a2, a3, a4, a5);
-    if !t { pop(45); return g; }
-    let n = S[45].cmp.fetch_add(1, Ordering::Relaxed) + 1;
-    let m = catch_unwind(AssertUnwindSafe(|| my_38(a0, a1, a2, a3, a4, a5)));
-    match m {
-        Ok(m) => { if m != g { note(45, format!("#38 can_tower_focused_when_battle 대조#{} 갈림: g={:?} m={:?} | a0={:#x} a1={:#x} a2={:#x} a3={} a4={} a5={}", n, g, m, a0 as usize, a1 as usize, a2 as usize, a3, a4, a5)); } }
-        Err(_) => { S[45].pan.fetch_add(1, Ordering::Relaxed); }
-    }
-    pop(45);
-    g
-}
-unsafe fn w_39(a0: *const u8, a1: *const u8, a2: u8) -> bool {
-    S[46].calls.fetch_add(1, Ordering::Relaxed);
-    let f: unsafe fn(*const u8, *const u8, u8) -> bool = core::mem::transmute(S[46].orig.load(Ordering::Relaxed));
-    let t = top(46);
-    let g = f(a0, a1, a2);
-    if !t { pop(46); return g; }
-    let n = S[46].cmp.fetch_add(1, Ordering::Relaxed) + 1;
-    let m = catch_unwind(AssertUnwindSafe(|| my_39(a0, a1, a2)));
-    match m {
-        Ok(m) => { if m != g { note(46, format!("#39 is_wave_priority_start_line 대조#{} 갈림: g={:?} m={:?} | a0={:#x} a1={:#x} a2={}", n, g, m, a0 as usize, a1 as usize, a2)); } }
+            note(46, format!("#21 upgrade_item 대조#{} 갈림(sret 24B · +{:#x}): g={:02x?} m={:02x?} | a1={} a2={:#x} a3={:#x} a4={:#x} a5={:#x} a6={:#x}", n, off, &gb[..3], &mb[..3], a1, a2 as usize, a3 as usize, a4 as usize, a5 as usize, a6 as usize)); } }
         Err(_) => { S[46].pan.fetch_add(1, Ordering::Relaxed); }
     }
     pop(46);
     g
 }
-unsafe fn w_4(a0: i64, a1: *const u8, a2: *const u8, a3: *const u8, a4: u8, a5: *const u8) -> bool {
+unsafe fn w_55(a0: *const u8, a1: i64, a2: *const u8, a3: *const u8, a4: *const u8, a5: *const u8, a6: *const u8, a7: *const u8, a8: u8) {
     S[47].calls.fetch_add(1, Ordering::Relaxed);
-    let f: unsafe fn(i64, *const u8, *const u8, *const u8, u8, *const u8) -> bool = core::mem::transmute(S[47].orig.load(Ordering::Relaxed));
+    let f: unsafe fn(*const u8, i64, *const u8, *const u8, *const u8, *const u8, *const u8, *const u8, u8) = core::mem::transmute(S[47].orig.load(Ordering::Relaxed));
     let t = top(47);
-    // ★StdRng(320B) — 게임 호출이 난수열을 소비하므로 **먼저 떠 둔다**(안 그러면 거짓 DIFF).
-    let mut r1 = [0u8; 320]; if t { core::ptr::copy_nonoverlapping(a1, r1.as_mut_ptr(), 320); }
-    let g = f(a0, a1, a2, a3, a4, a5);
+    let g = f(a0, a1, a2, a3, a4, a5, a6, a7, a8);
     if !t { pop(47); return g; }
     let n = S[47].cmp.fetch_add(1, Ordering::Relaxed) + 1;
-    let mut p1 = [0u8; 320]; core::ptr::copy_nonoverlapping(a1, p1.as_mut_ptr(), 320); // 게임 호출 후 상태
-    core::ptr::copy_nonoverlapping(r1.as_ptr(), a1 as *mut u8, 320);                    // 내 사본 호출 전 = 호출 전 상태로
-    let m = catch_unwind(AssertUnwindSafe(|| my_4(a0, a1, a2, a3, a4, a5)));
-    core::ptr::copy_nonoverlapping(p1.as_ptr(), a1 as *mut u8, 320);                    // 게임 호출 후 상태로 복구(게임 진행은 게임 값으로)
+    let mut gb = [0u64; 53]; core::ptr::copy_nonoverlapping(a0, gb.as_mut_ptr() as *mut u8, 424); // 게임 출력 사본
+    let mut mb = [0u64; 53];                                                   // 내 사본 전용 출력 버퍼
+    let m = catch_unwind(AssertUnwindSafe(|| my_55(mb.as_mut_ptr() as *const u8, a1, a2, a3, a4, a5, a6, a7, a8)));
     match m {
-        Ok(m) => { if m != g { note(47, format!("#04 handle_line_defense 대조#{} 갈림: g={:?} m={:?} | a0={} a1={:#x} a2={:#x} a3={:#x} a4={} a5={:#x}", n, g, m, a0, a1 as usize, a2 as usize, a3 as usize, a4, a5 as usize)); } }
+        Ok(_) => { if let Some(off) = live_eq(a0, mb.as_ptr() as *const u8, LIVE_55) {
+            note(47, format!("#55 EntityPositioningCache::new 대조#{} 갈림(sret 424B · +{:#x}): g={:02x?} m={:02x?} | a1={} a2={:#x} a3={:#x} a4={:#x} a5={:#x} a6={:#x} a7={:#x} a8={}", n, off, &gb[..53], &mb[..53], a1, a2 as usize, a3 as usize, a4 as usize, a5 as usize, a6 as usize, a7 as usize, a8)); } }
         Err(_) => { S[47].pan.fetch_add(1, Ordering::Relaxed); }
     }
     pop(47);
     g
 }
-unsafe fn w_22(a0: *const u8, a1: *const u8, a2: *const u8, a3: i64, a4: i64) -> bool {
+unsafe fn w_38(a0: *const u8, a1: *const u8, a2: *const u8, a3: i64, a4: i64, a5: i64) -> bool {
     S[48].calls.fetch_add(1, Ordering::Relaxed);
-    let f: unsafe fn(*const u8, *const u8, *const u8, i64, i64) -> bool = core::mem::transmute(S[48].orig.load(Ordering::Relaxed));
+    let f: unsafe fn(*const u8, *const u8, *const u8, i64, i64, i64) -> bool = core::mem::transmute(S[48].orig.load(Ordering::Relaxed));
     let t = top(48);
-    let g = f(a0, a1, a2, a3, a4);
+    let g = f(a0, a1, a2, a3, a4, a5);
     if !t { pop(48); return g; }
     let n = S[48].cmp.fetch_add(1, Ordering::Relaxed) + 1;
-    let m = catch_unwind(AssertUnwindSafe(|| my_22(a0, a1, a2, a3, a4)));
+    let m = catch_unwind(AssertUnwindSafe(|| my_38(a0, a1, a2, a3, a4, a5)));
     match m {
-        Ok(m) => { if m != g { note(48, format!("#22 can_tower_focused 대조#{} 갈림: g={:?} m={:?} | a0={:#x} a1={:#x} a2={:#x} a3={} a4={}", n, g, m, a0 as usize, a1 as usize, a2 as usize, a3, a4)); } }
+        Ok(m) => { if m != g { note(48, format!("#38 can_tower_focused_when_battle 대조#{} 갈림: g={:?} m={:?} | a0={:#x} a1={:#x} a2={:#x} a3={} a4={} a5={}", n, g, m, a0 as usize, a1 as usize, a2 as usize, a3, a4, a5)); } }
         Err(_) => { S[48].pan.fetch_add(1, Ordering::Relaxed); }
     }
     pop(48);
+    g
+}
+unsafe fn w_54(a0: *const u8, a1: i64, a2: *const u8, a3: *const u8, a4: *const u8, a5: *const u8) {
+    S[49].calls.fetch_add(1, Ordering::Relaxed);
+    let f: unsafe fn(*const u8, i64, *const u8, *const u8, *const u8, *const u8) = core::mem::transmute(S[49].orig.load(Ordering::Relaxed));
+    let t = top(49);
+    // ★★&mut 게임 상태(1064B) — **게임 호출 전** 상태를 떠 두지 않으면 내 사본은
+    //   게임이 바꿔놓은 입력을 보게 돼 **거짓 DIFF** 가 난다(이 함수는 self 를 읽고도 쓴다).
+    // ★★**스택이 아니라 thread_local 힙**에 둔다 — 1064B × 2 를 스택에 잡으면
+    //   rayon 워커의 **소스택 + 게임 sim 재귀**에서 STATUS_STACK_OVERFLOW 로 죽는다
+    //   (2026-09-12 실사고: 스택 배열로 두던 판이 배경 sim 시작 직후 패닉로그 없이 즉사).
+    SV49.with(|c| { let sv = &mut *c.get();
+        if t { core::ptr::copy_nonoverlapping(a0, sv.as_mut_ptr(), 1064); } });
+    VB49.with(|c| { let vb = &mut *c.get(); if t {
+        let ln = core::ptr::read_unaligned((a0 as usize + 0xd0) as *const usize);
+        let pz = core::ptr::read_unaligned((a0 as usize + 0xc8) as *const usize);
+        vb.1 = ln; vb.2 = ln + 2 <= 512;
+        if ln > 0 && ln + 2 <= 512 && pz > 0x1000 {
+            core::ptr::copy_nonoverlapping(pz as *const u8, vb.0.as_mut_ptr(), ln * 24);
+        } else { vb.1 = ln; vb.2 = ln + 2 <= 512; }
+    } });
+    // ★StdRng(320B) — 게임 호출이 난수열을 소비하므로 **먼저 떠 둔다**(안 그러면 거짓 DIFF).
+    let mut r2 = [0u8; 320]; if t { core::ptr::copy_nonoverlapping(a2, r2.as_mut_ptr(), 320); }
+    let g = f(a0, a1, a2, a3, a4, a5);
+    if !t { pop(49); return g; }
+    // ★내 Vec 사본 버퍼에 안 들어간 호출은 **표본에서 뺀다** — 예전엔 `len=0` 으로
+    //   떨어뜨려 **입력이 어긋난 채 비교**했고 그게 거짓 DIFF 였다(2026-09-12 차단).
+    if !VB49.with(|c| (&*c.get()).2) { S[49].skip.fetch_add(1, Ordering::Relaxed); pop(49); return g; }
+    let n = S[49].cmp.fetch_add(1, Ordering::Relaxed) + 1;
+    let mut p2 = [0u8; 320]; core::ptr::copy_nonoverlapping(a2, p2.as_mut_ptr(), 320); // 게임 호출 후 상태
+    core::ptr::copy_nonoverlapping(r2.as_ptr(), a2 as *mut u8, 320);                    // 내 사본 호출 전 = 호출 전 상태로
+    SP49.with(|c| { let sp = &mut *c.get();
+        core::ptr::copy_nonoverlapping(a0, sp.as_mut_ptr(), 1064); });   // 게임 호출 후 상태
+    SV49.with(|c| { let sv = &*c.get();
+        core::ptr::copy_nonoverlapping(sv.as_ptr(), a0 as *mut u8, 1064); }); // 내 사본 호출 전 = 호출 전 상태로
+    // ★Vec 을 **빈 것**으로 — cap=0 이면 push 가 realloc 이 아니라 alloc 을 하므로
+    //   **게임의 버퍼를 절대 해제하지 않는다**(순서는 IR 실측: cap@0xc0 · ptr@0xc8 · len@0xd0).
+    VB49.with(|c| { let vb = &*c.get();
+        core::ptr::write_unaligned((a0 as usize + 0xc0) as *mut usize, 512);  // cap = 내 버퍼 용량
+        core::ptr::write_unaligned((a0 as usize + 0xc8) as *mut usize, vb.0.as_ptr() as usize); // ptr = 내 버퍼
+        core::ptr::write_unaligned((a0 as usize + 0xd0) as *mut usize, vb.1);  // len = 게임과 **같은** 개수
+    });
+    let m = catch_unwind(AssertUnwindSafe(|| my_54(a0, a1, a2, a3, a4, a5)));
+    // ★★★상태 diff — 이 함수는 **반환이 void** 다. ABI 상 반환이 없는 것이지
+    //   **출력이 없는 게 아니다** — 출력은 `&mut self` 에 있다 ⟹ 그걸 비교한다.
+    //   ⚠되돌리기·해제 **전에** 떠서 비교한다 — 내 사본이 재할당했으면 해제 후엔 못 읽는다.
+    let (m_ptr, m_len) = (core::ptr::read_unaligned((a0 as usize + 0xc8) as *const usize),
+                          core::ptr::read_unaligned((a0 as usize + 0xd0) as *const usize));
+    SQ49.with(|c| { let sq = &mut *c.get();
+        core::ptr::copy_nonoverlapping(a0, sq.as_mut_ptr(), 1064); });
+    let sd: Option<String> = SP49.with(|c| { let sp = &*c.get(); SQ49.with(|c2| { let sq = &*c2.get();
+        // ① 본체 바이트(설계상 다른 구간은 제외)
+        for off in 0..1064usize {
+            if off >= 0xc0 && off < 0xd8 { continue; }
+            if sp[off] != sq[off] {
+                return Some(format!("self+{:#x}: g={:02x} m={:02x}", off, sp[off], sq[off]));
+            }
+        }
+        // ② Vec 의 len (cap/ptr 은 버퍼가 달라 비교 대상이 아니다)
+        let g_ptr = core::ptr::read_unaligned(sp.as_ptr().add(0xc8) as *const usize);
+        let g_len = core::ptr::read_unaligned(sp.as_ptr().add(0xd0) as *const usize);
+        if g_len != m_len {
+            return Some(format!("vec.len: g={} m={}", g_len, m_len));
+        }
+        // ③ Vec 의 **내용** (요소 24B)
+        //   ★요소는 열거형이라 **variant 별로 쓰는 칸이 다르다** — 안 쓰는 칸은
+        //   **재사용된 버퍼의 잔재**라 양쪽이 다른 게 정상이다(IR 실측 기반 live 범위만 본다).
+        //   (off, len, 이 tag 들에서만 live · 빈 것 = 항상)
+        const EL: &[(usize, usize, &[u8])] = &[(0, 1, &[]), (4, 4, &[0x01]), (8, 8, &[])];
+        if g_len > 0 && g_len < 4096 && g_ptr > 0x1000 && m_ptr > 0x1000 {
+            for e in 0..g_len {
+                let (gb, mb) = (g_ptr + e * 24, m_ptr + e * 24);
+                let tag = *(gb as *const u8);
+                for &(o, l, tg) in EL {
+                    if !tg.is_empty() && !tg.contains(&tag) { continue; }
+                    for j in o..o + l {
+                        let (gv, mv) = (*((gb + j) as *const u8), *((mb + j) as *const u8));
+                        if gv != mv {
+                            return Some(format!("vec[{}](tag {:#x})+{}: g={:02x} m={:02x}", e, tag, j, gv, mv));
+                        }
+                    }
+                }
+            }
+        }
+        None
+    }) });
+    // ★내 사본이 할당한 것을 해제한다(안 하면 호출당 누수). rlib 은 내 DLL 안에 링크돼 있어 알로케이터가 같다.
+    { let c = core::ptr::read_unaligned((a0 as usize + 0xc0) as *const usize);
+      let pz = core::ptr::read_unaligned((a0 as usize + 0xc8) as *const usize);
+      let mine = VB49.with(|c2| (&*c2.get()).0.as_ptr() as usize);
+      // ★내 버퍼면 해제하면 안 된다(thread_local 정적) — 재할당된 경우에만 해제.
+      if c > 0 && pz > 0x1000 && pz != mine { if let Ok(l) = std::alloc::Layout::from_size_align(c * 24, 8) {
+          std::alloc::dealloc(pz as *mut u8, l); } } }
+    SP49.with(|c| { let sp = &*c.get();
+        core::ptr::copy_nonoverlapping(sp.as_ptr(), a0 as *mut u8, 1064); }); // 게임 호출 후 상태로 복구
+    core::ptr::copy_nonoverlapping(p2.as_ptr(), a2 as *mut u8, 320);                    // 게임 호출 후 상태로 복구(게임 진행은 게임 값으로)
+    match m {
+        Ok(_) => { if let Some(d) = sd {
+            note(49, format!("#54 TeamPlan::update 대조#{} **상태갈림**: {} | (반환 void — 출력은 &mut self 다) | a0={:#x} a1={} a2={:#x} a3={:#x} a4={:#x} a5={:#x}", n, d, a0 as usize, a1, a2 as usize, a3 as usize, a4 as usize, a5 as usize)); } }
+        Err(_) => { S[49].pan.fetch_add(1, Ordering::Relaxed); }
+    }
+    pop(49);
+    g
+}
+unsafe fn w_39(a0: *const u8, a1: *const u8, a2: u8) -> bool {
+    S[50].calls.fetch_add(1, Ordering::Relaxed);
+    let f: unsafe fn(*const u8, *const u8, u8) -> bool = core::mem::transmute(S[50].orig.load(Ordering::Relaxed));
+    let t = top(50);
+    let g = f(a0, a1, a2);
+    if !t { pop(50); return g; }
+    let n = S[50].cmp.fetch_add(1, Ordering::Relaxed) + 1;
+    let m = catch_unwind(AssertUnwindSafe(|| my_39(a0, a1, a2)));
+    match m {
+        Ok(m) => { if m != g { note(50, format!("#39 is_wave_priority_start_line 대조#{} 갈림: g={:?} m={:?} | a0={:#x} a1={:#x} a2={}", n, g, m, a0 as usize, a1 as usize, a2)); } }
+        Err(_) => { S[50].pan.fetch_add(1, Ordering::Relaxed); }
+    }
+    pop(50);
+    g
+}
+unsafe fn w_4(a0: i64, a1: *const u8, a2: *const u8, a3: *const u8, a4: u8, a5: *const u8) -> bool {
+    S[51].calls.fetch_add(1, Ordering::Relaxed);
+    let f: unsafe fn(i64, *const u8, *const u8, *const u8, u8, *const u8) -> bool = core::mem::transmute(S[51].orig.load(Ordering::Relaxed));
+    let t = top(51);
+    // ★StdRng(320B) — 게임 호출이 난수열을 소비하므로 **먼저 떠 둔다**(안 그러면 거짓 DIFF).
+    let mut r1 = [0u8; 320]; if t { core::ptr::copy_nonoverlapping(a1, r1.as_mut_ptr(), 320); }
+    let g = f(a0, a1, a2, a3, a4, a5);
+    if !t { pop(51); return g; }
+    let n = S[51].cmp.fetch_add(1, Ordering::Relaxed) + 1;
+    let mut p1 = [0u8; 320]; core::ptr::copy_nonoverlapping(a1, p1.as_mut_ptr(), 320); // 게임 호출 후 상태
+    core::ptr::copy_nonoverlapping(r1.as_ptr(), a1 as *mut u8, 320);                    // 내 사본 호출 전 = 호출 전 상태로
+    let m = catch_unwind(AssertUnwindSafe(|| my_4(a0, a1, a2, a3, a4, a5)));
+    core::ptr::copy_nonoverlapping(p1.as_ptr(), a1 as *mut u8, 320);                    // 게임 호출 후 상태로 복구(게임 진행은 게임 값으로)
+    match m {
+        Ok(m) => { if m != g { note(51, format!("#04 handle_line_defense 대조#{} 갈림: g={:?} m={:?} | a0={} a1={:#x} a2={:#x} a3={:#x} a4={} a5={:#x}", n, g, m, a0, a1 as usize, a2 as usize, a3 as usize, a4, a5 as usize)); } }
+        Err(_) => { S[51].pan.fetch_add(1, Ordering::Relaxed); }
+    }
+    pop(51);
+    g
+}
+unsafe fn w_22(a0: *const u8, a1: *const u8, a2: *const u8, a3: i64, a4: i64) -> bool {
+    S[52].calls.fetch_add(1, Ordering::Relaxed);
+    let f: unsafe fn(*const u8, *const u8, *const u8, i64, i64) -> bool = core::mem::transmute(S[52].orig.load(Ordering::Relaxed));
+    let t = top(52);
+    let g = f(a0, a1, a2, a3, a4);
+    if !t { pop(52); return g; }
+    let n = S[52].cmp.fetch_add(1, Ordering::Relaxed) + 1;
+    let m = catch_unwind(AssertUnwindSafe(|| my_22(a0, a1, a2, a3, a4)));
+    match m {
+        Ok(m) => { if m != g { note(52, format!("#22 can_tower_focused 대조#{} 갈림: g={:?} m={:?} | a0={:#x} a1={:#x} a2={:#x} a3={} a4={}", n, g, m, a0 as usize, a1 as usize, a2 as usize, a3, a4)); } }
+        Err(_) => { S[52].pan.fetch_add(1, Ordering::Relaxed); }
+    }
+    pop(52);
     g
 }
 
@@ -3070,7 +3358,7 @@ pub unsafe fn install(mask: u64, log: &mut String) -> (usize, usize) {
         // 「빠진 것을 모르는 상태」를 만들지 않는다 — 슬롯이 없는 비트를 켜면 조용히 무시되는 게 아니라 말한다.
         log.push_str(&format!("[sweep] ⚠mask 의 미지 비트 {:#x} 는 슬롯이 없어 무시했다(슬롯 {}개)\n", unknown, S.len()));
     }
-    let w: [usize; 49] = [w_58 as usize, w_59 as usize, w_60 as usize, w_61 as usize, w_62 as usize, w_30 as usize, w_32 as usize, w_5 as usize, w_11 as usize, w_3 as usize, w_49 as usize, w_0 as usize, w_6 as usize, w_13 as usize, w_14 as usize, w_9 as usize, w_33 as usize, w_37 as usize, w_36 as usize, w_35 as usize, w_1 as usize, w_43 as usize, w_28 as usize, w_27 as usize, w_26 as usize, w_50 as usize, w_24 as usize, w_8 as usize, w_18 as usize, w_12 as usize, w_52 as usize, w_19 as usize, w_34 as usize, w_29 as usize, w_31 as usize, w_20 as usize, w_25 as usize, w_51 as usize, w_16 as usize, w_45 as usize, w_53 as usize, w_23 as usize, w_46 as usize, w_21 as usize, w_55 as usize, w_38 as usize, w_39 as usize, w_4 as usize, w_22 as usize];
+    let w: [usize; 53] = [w_58 as usize, w_59 as usize, w_60 as usize, w_61 as usize, w_62 as usize, w_30 as usize, w_32 as usize, w_5 as usize, w_11 as usize, w_3 as usize, w_49 as usize, w_0 as usize, w_6 as usize, w_13 as usize, w_14 as usize, w_9 as usize, w_33 as usize, w_37 as usize, w_36 as usize, w_35 as usize, w_1 as usize, w_43 as usize, w_28 as usize, w_27 as usize, w_26 as usize, w_50 as usize, w_24 as usize, w_8 as usize, w_18 as usize, w_41 as usize, w_12 as usize, w_52 as usize, w_48 as usize, w_19 as usize, w_34 as usize, w_29 as usize, w_31 as usize, w_20 as usize, w_25 as usize, w_56 as usize, w_51 as usize, w_16 as usize, w_45 as usize, w_53 as usize, w_23 as usize, w_46 as usize, w_21 as usize, w_55 as usize, w_38 as usize, w_54 as usize, w_39 as usize, w_4 as usize, w_22 as usize];
     let (mut ok, mut tried) = (0usize, 0usize);
     for i in 0..S.len() {
         if mask & (1u64 << i) == 0 { continue; }
@@ -3145,6 +3433,11 @@ pub fn report(header: &str, gate: &str, inst: &str) -> String {
       s.push_str(&format!("    #02 self+0x0 SubPlan: 총 {} — ", tot));
       for &(t, nm) in EH_2_0_NAMES.iter() { let c = EH_2_0[t as usize].load(Ordering::Relaxed); if c > 0 { s.push_str(&format!("{}({})={} ", nm, if t == 0 { "untagged".to_string() } else { t.to_string() }, c)); } }
       let seen: Vec<&str> = EH_2_0_NAMES.iter().filter(|(t, _)| EH_2_0[*t as usize].load(Ordering::Relaxed) == 0).map(|(_, n)| *n).collect();
+      s.push_str(&format!("\n        미출현 {}: {}\n", seen.len(), seen.join(" "))); }
+    { let tot: u64 = EH_56_0.iter().map(|a| a.load(Ordering::Relaxed)).sum();
+      s.push_str(&format!("    #56 self+0x0 SubPlan: 총 {} — ", tot));
+      for &(t, nm) in EH_56_0_NAMES.iter() { let c = EH_56_0[t as usize].load(Ordering::Relaxed); if c > 0 { s.push_str(&format!("{}({})={} ", nm, if t == 0 { "untagged".to_string() } else { t.to_string() }, c)); } }
+      let seen: Vec<&str> = EH_56_0_NAMES.iter().filter(|(t, _)| EH_56_0[*t as usize].load(Ordering::Relaxed) == 0).map(|(_, n)| *n).collect();
       s.push_str(&format!("\n        미출현 {}: {}\n", seen.len(), seen.join(" "))); }
     s.push_str("\n--- ★대조에서 빠진 명세 함수와 사유 (1단계 프로브는 그대로 유지된다)\n");
     for (i, nm, c, why) in EXCLUDED.iter() {
