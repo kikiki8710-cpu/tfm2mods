@@ -12,7 +12,7 @@
 | `SPEC_GUIDE.md` | 명세를 쓰는 에이전트 | JSON 규격, 함정, 자체검사 |
 | `SPEC_RUNBOOK.md` | 배치를 굴리는 메인 세션 | 라운드 수·수렴 판정·병합·저장 |
 | ★`REPORT\tfm2_judge_verify\00_상태원장.md` | **이어받는 세션(맨 먼저)** | 20함수별 **현재 상태**(RVA·bit·ev1·기구·잔여) + 정본 위치 지도 — 2026-09-13 신설 |
-| `REPORT\tfm2_judge_verify\04_분석방법_정리.md` | 파이프라인 전체를 보는 사람 | 이해(명세)·재현(rlib)·검증(ev1) 3축 · 정적 S0~S7 · 런타임 R0~R6 · **ev1 기구 결정트리** |
+| `REPORT\tfm2_judge_verify\04_분석방법_정리.md` | 파이프라인 전체를 보는 사람 | **v2(09-14 · r7~r12 91함수 반영)** 이해(명세)·재현(rlib)·검증(ev1) 3축 · 정적 S0~S7 · 런타임 R0~R6 · ev1 기구 결정트리 §4-A · **DIFF≠0 트리아지 §4-B** · 착수 절차 §8 · gensweep 키워드 사전 §9 |
 | `MIG\whatsdone.py <키워드|#NN>` | 착수 전 누구나 | §7 「전에 했나」 grep 을 기록처 8곳에 한 번에 |
 
 ---
@@ -43,7 +43,14 @@
 | ★**미명명 exe 함수의 이름**(dllmatch 미연결·오매칭 의심) | **`namebyline.py`**(패닉 Location 줄지문) + **`namebycaller.py`**(호출자 exe 콜리↔IR 콜리 차집합) ①⑦ — 바이트↔IR 줄수 비까지 세 축 일치 | `dllmatch.py`(jaccard ≥0.9 만) | Ghidra 진입부 대조 ⑧ |
 | ★**exe 함수 하나의 정체 판정(Ghidra 없이)**(「이 RVA 가 무슨 함수냐」 · 지도 주소 의심) | **`fnprobe.py <RVA>`**(capstone 프로파일: 크기·call·상수·Location) ↔ **`irprobe.py <define>`**(IR 짝: 인자·call 집계·줄 집합) + **`locfind.py <파일:줄>`**(패닉 Location → IR define 역추적 · `@anon.<hash>.N` 대응) ①⑧ — 09-13 Ghidra 다운 중 6/6 판정·재확인 6/6 유지 | `namebyline.py`/`namebycaller.py`(위 행) | Ghidra 디컴+xref ⑧ — ⚠**「인라인 여부」만은 xref 로**(주소 기각 ≠ 인라인 · ANA 감사도구 §22-85) |
 
-★**도구가 115개다. 이름을 외우지 말고 이 표와 `TOOLS.md` 를 봐라.**
+| ★**ev1 DIFF≠0 의 정체**(런타임 대조가 갈릴 때) | **`04_분석방법_정리.md §4-B` 트리아지 표**(undef 페이로드 · 패딩 · 계측 카운터 · Vec 삼중항 · 죽은 슬롯 · extra) + `sweep20.txt` 첫 DIFF 덤프·갈림 오프셋 히스토그램 ⑧ | `tcxdict --deep/--enum` ⑦ | 재현 오류 의심은 표 전부 기각한 뒤 |
+| ★**튜플/구조체 원소의 패딩·레이아웃**(ELEM_LIVE 등록) | **IR `getelementptr inbounds nuw { … }` 타입**(그 Vec 의 push 사이트 grep) ① — 소형 필드가 앞일 수 있다 | `tcxdict <타입> --deep`(구조체만 · 튜플은 안 준다) ⑦ | 런타임 갈림 오프셋 ⑧ |
+| ★**exe 인자 배치가 IR define 과 같나**(internal · sweep 편입 전) | **`argscan.py 0x<RVA> [--caller]`**(진입 스택 슬롯 전수) ⑧ | `abiagree.py` ① | ghidra-re 대응표 — ArgumentPromotion 이면 `EXE_ABI_UNRECOVERABLE`(간접 검증) |
+| ★**`&mut self` 함수의 힙 쓰기 표면**(HEAP_SUBST 명세) | **`heapsurf.py <rva> --depth 5`**(전이적 · 루트 절대 오프셋) ① + `tcxdict --deep`(중첩 Vec·Option<Vec> 니치) ⑦ | IR drop_in_place/grow_one grep ① | ⚠String 필드는 치환 금지(03 §37) |
+| ★**거대 함수(≥5k IR줄) 명세 분책** | 루트 줄 지도(`!dbg`→`inlinedAt` 최상위 · 소스 줄별 IR 수 · `_next\upd_blocks.json` 방식) → 배치별 소스 줄 범위 → **`mergespec.py`** 합본 | `dloc.py`/`inlsites.py` ① | — |
+| ★**exe RVA 목록 → IR 실명 일괄** | **`rvaname.py`**(패닉 Location 줄지문 다중 일치) ①⑧ | `namebyline`/`namebycaller` | ghidra-re |
+
+★**도구가 157개다(09-14 mktools). 이름을 외우지 말고 이 표와 `TOOLS.md` 를 봐라.**
 `TOOLS.md` = *무엇이 있는가*(자동 생성, 분류별) / 이 표 = *어떤 상황에 무엇을 집는가*.
 ⚠도구를 만들면 **첫 docstring 줄을 쓰고 `python -X utf8 mktools.py`** 를 돌려라 —
 안 하면 다음 세션이 그 도구를 못 찾고 **같은 걸 다시 만든다**(6차에 네 배치가 `mkpatch.py` 를 각자 만들었다).
