@@ -5249,7 +5249,8 @@ fn install_replace_4th() {
     }
 }
 
-// owned 3-캡 패치: run_tick_ext 내 `cmp qword[rax+0x3d0], 3`(보유>3 스탯적용 스킵)의 imm8 3→4.
+// owned 3-캡 패치: sim tick(0.5.8 FUN_141879080) 내 buy 확정 직후 `cmp qword[rsi+0x4a8], 3 ; ja skip`(보유>3 이면 구매 확정 차단)의 imm8 3→4.
+//   ★라벨 정정(2026-09-13 RE): "스탯적용 스킵"이 아니라 **구매 확정 게이트**다(REPORT\RE6-09-13_gate3_0.5.8_재핀.md §4).
 //   4번째 아이템 스탯이 적용되게. (0.4.14+핫픽스 RVA, [[tfm2-item-slot-count]] 패치①)
 unsafe fn patch_owned_cap() -> String {
     let base = exe_base_addr();
