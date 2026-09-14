@@ -297,6 +297,11 @@ EXTRA_SWEEP = [
 
 EXE_ABI = {
     18: [0, 1, "RNG", 2, 3, 4, 5],
+    # ★r13 #138(i129) should_add_self_etc_buff_action(09-14): 소스 `&Effect` → IR (%3 Arc data, %4 vtable ptr) → exe 는 %4 를
+    #   `*(vtable+0x10)`(align · [entry+0x20]) · `*(vtable+0x90)`(etc_buff fn · [entry+0x28]) 두 스칼라로 **재승격**(22차 B·C·D 대응표 일치 ·
+    #   디컴 `(*param_6)(param_4 + ((param_5-1)&~15) + 0x10)`). IR 사본은 vtable 에서 그 두 로드만 하므로(m15.ll 34643~34651)
+    #   래퍼가 **가짜 vtable**(thread_local 0xa0B · +0x10 = a4 · +0x90 = a5)을 조립해 %4 로 넘긴다 — 원 포인터 복원이 아니라 재구성.
+    129: [0, 1, 2, 3, ("VTABLE", [(0x10, 4, "u64"), (0x90, 5, "*const u8")])],
 }
 
 SELF_RESTORE_OFF = 0
@@ -751,9 +756,7 @@ SPEC_RVA_OVERRIDE = {
 #   ⚠교훈: internal 함수는 `try_engage_dive`(#74)·`try_engage`(#85)·`v3_assign_anchor`(#45) 처럼 승격이 없을 때만 sweep 이 성립 —
 #      1단계 발화 카운트는 인자를 안 보므로 이를 잡지 못한다. 편입 전에 **ghidra 로 exe 스택 인자 개수 = IR 인자 개수** 를 확인할 것.
 EXE_ABI_UNRECOVERABLE = {
-    # r13(09-14): should_add_self_etc_buff_action — IR 5 인자(소스 &Effect 56B → %3 Arc data + %4 vtable 승격) vs exe 6(argscan: 스택 arg6 이 `call [rsp+0x188]`).
-    #   exe 측 승격이 IR 과 다르다(#103 유형). 진입부 detour 재호출 방식 한정 불가 · 호출자 2(지도)로 간접 검증. 22차 배치 D 대응표 후 재판정.
-    129: u"exe 0xebcbd0 = 6 인자(IR 5 · argscan 스택 arg6 함수포인터) — LTO ArgumentPromotion 이 exe 와 IR 에서 다르게 적용. 진입부 detour 방식 한정 불가 · 호출자 대조로 간접(22차 D 대응표 대기)",
+    # ~~129 should_add_self_etc_buff_action~~ → 09-14 EXE_ABI VTABLE(가짜 vtable 재구성)으로 편입 — 「복원 불가」는 원 포인터를 못 만들 때만.
     98: u"exe 0xd9bce0 = sret+13 인자(IR sret+11) — LTO ArgumentPromotion(%1 2528B→i64 · %3→팀idx/ctx/world · %2 널검사→bool) 로 원 포인터 복원 불가. "
         u"진입부 detour 재호출 방식 한정 불가 · 호출자 #104 should_steal_now(pub) 대조로 간접 검증(09-13 판 2 AV 0xd9c012 · ghidra-re 대응표)",
 }
@@ -1516,6 +1519,11 @@ def main():
         w(u"#[repr(align(16))] struct A16([u8; 320]);")
         w(u"")
     for k, r in enumerate(rows):
+        if EXE_ABI.get(r["idx"]) and any(isinstance(s, tuple) and s[0] == "VTABLE" for s in EXE_ABI[r["idx"]]):
+            w(u"thread_local! {")
+            w(u"    /// `#%02d` — exe 가 vtable 포인터를 로드값 스칼라로 승격해 넘기므로 IR 사본용 **가짜 vtable**(0xa0B · 채우는 칸만 유효)." % r["idx"])
+            w(u"    static VT%d: core::cell::UnsafeCell<[u64; 20]> = core::cell::UnsafeCell::new([0u64; 20]);" % k)
+            w(u"}")
         if EXE_ABI.get(r["idx"]) and any(s == "RNG" for s in EXE_ABI[r["idx"]]):
             w(u"thread_local! {")
             w(u"    /// `#%02d` — exe 가 **버린** `&mut StdRng` 자리에 넘길 더미(320B)." % r["idx"])
@@ -1680,16 +1688,26 @@ def main():
         # ★★exe ABI 가 IR 과 다르면 **래퍼는 exe 순서**로 받고 **내 사본은 IR 순서**로 부른다.
         abi = EXE_ABI.get(r["idx"])
         if abi:
-            nexe = max(x for x in abi if isinstance(x, int)) + 1
+            _ex = [x for x in abi if isinstance(x, int)] + [ei for x in abi if isinstance(x, tuple) and x[0] == "VTABLE" for (_o, ei, _t) in x[1]]
+            nexe = max(_ex) + 1
             etys = [None] * nexe
             for ir_i, src in enumerate(abi):
                 if isinstance(src, int):
                     etys[src] = tys[ir_i]
+                elif isinstance(src, tuple) and src[0] == "VTABLE":
+                    for (_o, ei, ty) in src[1]:
+                        etys[ei] = ty
             etys = [x or "*const u8" for x in etys]
             sig = ", ".join("a%d: %s" % (j, ty) for j, ty in enumerate(etys))
             call = ", ".join("a%d" % j for j in range(nexe))        # 게임 원본 = exe 순서 그대로
-            mycall = ", ".join(("RNG%d.with(|c| c.get() as *const u8)" % k) if s == "RNG"
-                               else ("a%d" % s) for s in abi)        # 내 사본 = IR 순서
+            def _my(s):
+                if s == "RNG":
+                    return "RNG%d.with(|c| c.get() as *const u8)" % k
+                if isinstance(s, tuple) and s[0] == "VTABLE":
+                    sets = " ".join("v[%d] = a%d as u64;" % (o // 8, ei) for (o, ei, _t) in s[1])
+                    return "VT%d.with(|c| { let v = &mut *c.get(); %s v.as_ptr() as *const u8 })" % (k, sets)
+                return "a%d" % s
+            mycall = ", ".join(_my(s) for s in abi)        # 내 사본 = IR 순서
         else:
             sig = ", ".join("a%d: %s" % (j, t) for j, t in enumerate(tys))
             call = ", ".join("a%d" % j for j in range(len(tys)))

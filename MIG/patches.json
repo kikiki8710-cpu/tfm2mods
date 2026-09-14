@@ -430,5 +430,21 @@
   "line": 0,
   "from": "call fastcc noundef i64 @_RNvNtCshdEBA0ozCnw_7game_ai12lane_economy28line_recall_pressure_penalty(",
   "to": "call noundef i64 @_RNvNtCshdEBA0ozCnw_7game_ai12lane_economy28line_recall_pressure_penalty("
+ },
+ {
+  "raw": true,
+  "note": "r13 #138 should_add_self_etc_buff_action 노출(2026-09-14): internal fastcc → external ccc. exe 는 vtable 을 (align, etc_buff fn) 2스칼라로 승격 → gensweep EXE_ABI VTABLE 래퍼.",
+  "file": "r13",
+  "line": 0,
+  "from": "define internal fastcc noundef zeroext i1 @_RNvNtCshdEBA0ozCnw_7game_ai11fight_check31should_add_self_etc_buff_action(",
+  "to": "define noundef zeroext i1 @_RNvNtCshdEBA0ozCnw_7game_ai11fight_check31should_add_self_etc_buff_action("
+ },
+ {
+  "raw": true,
+  "note": "위 define 의 invoke 사이트 4곳(m15.ll).",
+  "file": "r13",
+  "line": 0,
+  "from": "invoke fastcc noundef zeroext i1 @_RNvNtCshdEBA0ozCnw_7game_ai11fight_check31should_add_self_etc_buff_action(",
+  "to": "invoke noundef zeroext i1 @_RNvNtCshdEBA0ozCnw_7game_ai11fight_check31should_add_self_etc_buff_action("
  }
 ]
