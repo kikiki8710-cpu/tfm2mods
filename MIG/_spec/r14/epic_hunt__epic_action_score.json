@@ -1,0 +1,396 @@
+{
+ "name": "epic_action_score",
+ "sym": "_RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy8sub_plan9epic_hunt17epic_action_score",
+ "src": "game-ai\\src\\plan_legacy\\sub_plan\\epic_hunt.rs",
+ "src_line": 848,
+ "ir_file": "m15.ll",
+ "ir_from": 50121,
+ "ir_to": 50585,
+ "aux": [],
+ "one_line": "에픽 사냥 행동 점수 = interaction_score + 행동별 보정(RunAway: 위험옵션 시 근접 아군 없으면 -10 · Trace: 에픽(Morgard) 캠프가 사거리 밖이면 -99999 · Attack/Skill/Skill2: calculate_epic_action_score, 대상 없으면 -99999) · 에픽 대상 공격류는 최소 1",
+ "signature": {
+  "abi": "일반 Rust ABI(define noundef i64, personality CxxFrameHandler3 — bumpalo Vec drop 언와인드). exe 0xec7c90 · 인자 7(version, rnd, player, data, parameter, action, debug) = tcx i=3513 sig 1:1. serpen_action_score(m02.ll:64597) 와 구조 동일(정규화 diff: camp 5→4 · 콜리 · Serpen 태그 6→Epic 5 · Vec drop 외부호출 만 다름)",
+  "params": [
+   {
+    "i": 1,
+    "name": "version",
+    "type": "usize",
+    "note": "interaction_score 전달만"
+   },
+   {
+    "i": 2,
+    "name": "rnd",
+    "type": "&mut StdRng(320B)",
+    "note": "interaction_score 전달만 — 이 함수 자체 write 0건. calculate_epic_action_score 에는 전달 안 됨(DeadArg 제거)"
+   },
+   {
+    "i": 3,
+    "name": "player",
+    "type": "&PlayerState(2528B)",
+    "note": "info.team(+0x930)·info.position 태그(+0x9c0) ; calculate_* 에 전달"
+   },
+   {
+    "i": 4,
+    "name": "data",
+    "type": "&OperationData(24B)",
+    "note": "cache→player_champion·champions·game.get_entity_by_id ; context→pool(+0)·map(+0x20)"
+   },
+   {
+    "i": 5,
+    "name": "parameter",
+    "type": "&ScoreParameter(5384B)",
+    "note": "player.risk_epic_damage(+0x9a0) 읽음 ; interaction_score 전달"
+   },
+   {
+    "i": 6,
+    "name": "action",
+    "type": "&SmallActionPlay(184B)",
+    "note": "get_action() 인라인(태그 +0xb1) · target_id(+0x8)"
+   },
+   {
+    "i": 7,
+    "name": "debug",
+    "type": "&mut DebugFrameData(224B)",
+    "note": "interaction_score 전달만 — 이 함수 자체 write 0건"
+   }
+  ],
+  "returns": "i64 — base(interaction_score) + 행동별 보정. Attack/Skill/Skill2 의 대상이 Epic(EntityType 태그 5)이면 max(score, 1) (L913)"
+ },
+ "reads": [
+  {
+   "base": "PlayerState",
+   "offset": "0x930",
+   "name": "info.team",
+   "note": "m15.ll:50132"
+  },
+  {
+   "base": "PlayerState",
+   "offset": "0x9c0",
+   "name": "info.position@tag",
+   "note": "m15.ll:50143"
+  },
+  {
+   "base": "OperationData",
+   "offset": "0x0",
+   "name": "cache",
+   "note": "m15.ll:50146"
+  },
+  {
+   "base": "OperationData",
+   "offset": "0x8",
+   "name": "context",
+   "note": "m15.ll:50204, 50266"
+  },
+  {
+   "base": "GameContext",
+   "offset": "0x0",
+   "name": "pool (&Bump)",
+   "note": "m15.ll:50268 → champions() 할당자"
+  },
+  {
+   "base": "GameContext",
+   "offset": "0x20",
+   "name": "map (&MapDef)",
+   "note": "m15.ll:50206 → camp_pos"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x1e0",
+   "name": "player_champion[team][pos]",
+   "note": "m15.ll:50147~50150 None→unwrap_failed(50194)"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x0",
+   "name": "game.data_ptr",
+   "note": "m15.ll:50225 등"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x8",
+   "name": "game.vtable_ptr",
+   "note": "m15.ll:50226 등"
+  },
+  {
+   "base": "vtable(AbstractGame)",
+   "offset": "0x1f0",
+   "name": "get_entity_by_id",
+   "note": "m15.ll:50228~50230, 50243~50245, 50258~50260, 50561~50563"
+  },
+  {
+   "base": "ScoreParameter",
+   "offset": "0x9a0",
+   "name": "player.risk_epic_damage",
+   "note": "m15.ll:50198 — 0 이면 RunAway 보정 생략 (tcxdict ScoreParameter 0x9a0)"
+  },
+  {
+   "base": "SmallActionPlay",
+   "offset": "0xb1",
+   "name": "@tag (니치)",
+   "note": "m15.ll:50163"
+  },
+  {
+   "base": "SmallActionPlay",
+   "offset": "0x8",
+   "name": "target_id (Attack cast.rs:94 / Skill :160 / Skill2 :222)",
+   "note": "m15.ll:50222, 50237, 50252, 50410"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x660",
+   "name": "x",
+   "note": "champ(50300, 50460)·아군 x(50318)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x668",
+   "name": "y",
+   "note": "champ(50302, 50464)·아군(50322)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x670",
+   "name": "hp",
+   "note": "champ(50304)·아군(50347) — 아군.hp < champ.hp 면 제외"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x4c0",
+   "name": "attack_effect@tag (i32, -1=None)",
+   "note": "champ m15.ll:50214(Trace), 50496(Attack)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x490",
+   "name": "attack_effect@Some.0 (&Effect)",
+   "note": "champ m15.ll:50502 → calculate_epic_action_score"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x4a0",
+   "name": "attack_effect.range",
+   "note": "m15.ll:50417 Effect::range 인라인(effect.rs:26)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x4a8",
+   "name": "attack_effect.growth_range",
+   "note": "m15.ll:50419"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x5c8",
+   "name": "level",
+   "note": "m15.ll:50421 (range 성장 (level-1)*growth) · 50533 (skill2_effect: level>2)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x438",
+   "name": "stat_buff_cached.range",
+   "note": "m15.ll:50425"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x470",
+   "name": "stat_buff_cached.radius_mult (i32)",
+   "note": "m15.ll:50427 Entity::radius 인라인(entity.rs:1511)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x680",
+   "name": "radius",
+   "note": "m15.ll:50439, 50446"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x4f8",
+   "name": "skill_effect@tag",
+   "note": "champ m15.ll:50515"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x4c8",
+   "name": "skill_effect@Some.0",
+   "note": "champ m15.ll:50521"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x500",
+   "name": "skill2_effect@Some.0 (level>2 아니면 정적 None 상수 @anon…19)",
+   "note": "champ m15.ll:50536~50537"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x30",
+   "name": "(Option<Effect>+0x30 = Entity+0x530) skill2_effect@tag",
+   "note": "m15.ll:50539~50541 — %246(+0x500 또는 정적 None)+48 로 계산돼 1328 리터럴은 본문에 없음"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x68",
+   "name": "ty@tag (EntityType)",
+   "note": "대상 t m15.ll:50570 == 5 Epic (entity.rs:1370 is_epic)"
+  },
+  {
+   "base": "bumpalo Vec<&Entity>(sret 32B 로컬)",
+   "offset": "0x0",
+   "name": "ptr",
+   "note": "m15.ll:50272"
+  },
+  {
+   "base": "bumpalo Vec<&Entity>(sret 32B 로컬)",
+   "offset": "0x18",
+   "name": "len",
+   "note": "m15.ll:50274 (drop 은 Vec::drop 외부 호출 50364/50375 — 세르펜판과 달리 인라인 안 됨)"
+  }
+ ],
+ "writes": [],
+ "constants": [
+  {
+   "value": 40000000000,
+   "src_line": 857,
+   "meaning": "200000² — RunAway 보정: 아군 챔피언 distance_sq > 이것이면 '근접 아님' (m15.ll:50343)"
+  },
+  {
+   "value": -10,
+   "src_line": 857,
+   "meaning": "RunAway(RunAway·Recall·AroundRunAway) 인데 200k 내 hp>=내hp 아군이 없으면 -10 (m15.ll:50362 phi)"
+  },
+  {
+   "value": 4,
+   "src_line": 890,
+   "meaning": "JungleType::Morgard(태그 4, tcxdict --enum JungleType) — camp_pos(map, Morgard, true) (m15.ll:50208). dbg 변수명 epic_camp_pos"
+  },
+  {
+   "value": 30000,
+   "src_line": 891,
+   "meaning": "Effect::range 인라인(effect.rs:26): range + 30000 + caster.stat_range + (level-1)*growth + caster.radius() (m15.ll:50455)"
+  },
+  {
+   "value": 100,
+   "src_line": 891,
+   "meaning": "Entity::radius(entity.rs:1515): radius*(radius_mult+100)/100 (radius_mult!=0 일 때) (m15.ll:50448, 50450)"
+  },
+  {
+   "value": -99999,
+   "src_line": 892,
+   "meaning": "Trace: champ↔에픽캠프 distance_sq >= attack_dist² 면 -99999 (50487) · Attack/Skill/Skill2 대상 None 이면 -99999 (50380, 50387, 50394)"
+  },
+  {
+   "value": 5,
+   "src_line": 904,
+   "meaning": "EntityType::Epic 태그 — is_epic (m15.ll:50572)"
+  },
+  {
+   "value": 1,
+   "src_line": 913,
+   "meaning": "에픽 대상 Attack/Skill/Skill2 는 score = max(score, 1) (llvm.smax m15.ll:50579)"
+  },
+  {
+   "value": 2,
+   "src_line": 882,
+   "meaning": "skill2_effect(): level > 2 게이트 (m15.ll:50535). ⚠50134 의 2 는 팀 경계검사"
+  },
+  {
+   "value": 0,
+   "src_line": 854,
+   "meaning": "parameter.player.risk_epic_damage == 0 → RunAway 보정 생략(50200) · Trace 사거리 내 0(50487) · 근접 아군 존재 0(50362)"
+  },
+  {
+   "value": 12,
+   "src_line": 901,
+   "meaning": "Play idx-12 <u 3 ⇔ idx 12·13·14 (Attack·Skill·Skill2) — get_action target_id 추출 (m15.ll:50405~50406)"
+  },
+  {
+   "value": 3,
+   "src_line": 901,
+   "meaning": "위 범위 폭 3 (50406). ⚠50167 의 3 은 니치 시작(idx=tag-3) · 50284 의 `shl 3` 은 포인터 stride 8(=8B 원소) 접힘이지 이 상수와 무관"
+  },
+  {
+   "value": -1,
+   "src_line": 868,
+   "meaning": "Option<Effect> None 니치값(i32) → unwrap_failed (50216, 50498, 50517, 50541)"
+  },
+  {
+   "value": 10,
+   "src_line": 852,
+   "meaning": "llvm.assume(tag != 10) (m15.ll:50165)"
+  }
+ ],
+ "calls": [
+  "game_ai::action_score::interaction_score",
+  "game_ai::plan_legacy::sub_plan::epic_hunt::calculate_epic_action_score",
+  "game_core::simulation::map_def::MapDef::camp_pos",
+  "game_core::simulation::AbstractGameWithCache::champions",
+  "bumpalo::collections::vec::Vec<&Entity>::drop",
+  "core::panicking::panic_bounds_check",
+  "core::option::unwrap_failed",
+  "llvm.smax.i64",
+  "llvm.assume"
+ ],
+ "logic": "fn epic_action_score(version, rnd, player, data, parameter, action, debug) -> i64   // epic_hunt.rs:848\n  let champ = data.cache.player_champion[player.info.team][player.info.position].unwrap();   // L849\n  let base = interaction_score(version, rnd, player, data, parameter, action, debug);          // L850\n  let mut score = base + match action.get_action() {   // L852\n    SmallAction::RunAway /*Play 0·1·5*/ => {                                                  // L854\n      if parameter.player.risk_epic_damage == 0 { return base }   // 50200 → %269(base)  ⚠match 값이 아니라 조기 반환(L901 검사 안 거침 — 결과 동일)\n      let champions = data.cache.champions(player.info.team, ctx.pool);                       // L856 (bumpalo Vec<&Entity>, 아군 팀 챔피언)\n      let near = champions.iter().any(|x| x.distance_sq(champ) <= 40000000000 && x.hp >= champ.hp);   // L857 (50330~50350: dist²>2e11 → 다음, x.hp<champ.hp → 다음)\n      drop(champions);                                                                        // 50364 Vec::drop 외부 호출(세르펜판은 인라인)\n      if near { 0 } else { -10 }                                                              // 50362 phi\n    }\n    SmallAction::Trace{..} /*Play 11*/ => {                                                   // L890\n      let camp = map.camp_pos(JungleType::Morgard /*4*/, true);                                // L890 (dbg 이름 epic_camp_pos)\n      let attack_dist = champ.attack_effect.unwrap().range(champ);                             // L891 = eff.range + 30000 + champ.stat_buff_cached.range + (champ.level-1)*eff.growth_range + champ.radius()  [radius() = radius_mult==0 ? radius : radius*(mult+100)/100]\n      if champ.distance_sq(camp) < attack_dist² { 0 } else { -99999 }                         // L892 (50486~50487) → 반환(L901 검사 없음)\n    }\n    SmallAction::Attack{target_id} /*Play 12*/ => match game.get_entity_by_id(target_id) { None => -99999, Some(t) => calculate_epic_action_score(player, data, champ.attack_effect.as_ref().unwrap() /*+0x490*/, t) }   // L867~868\n    SmallAction::Skill{target_id}  /*Play 13*/ => … calculate_epic_action_score(player, data, champ.skill_effect.unwrap() /*+0x4c8*/, t)   // L874~875\n    SmallAction::Skill2{target_id} /*Play 14*/ => … calculate_epic_action_score(player, data, champ.skill2_effect().unwrap() /*level>2 ? +0x500 : None→패닉*/, t)   // L881~882\n    SmallAction::Around{..}(Play 2·3·10) | Ult(15) | Stop(16) => 0                            // 50401 phi 0\n    SmallAction::Positioning|AroundPosition (Play 4·6·7·8·9) => return base                   // 50583 phi %24 (조기반환, 결과 동일)\n  };\n  // L901~913: if let Some(target_id) = action.target_id() /*Attack·Skill·Skill2 만*/ { if let Some(t) = game.get_entity_by_id(target_id) { if t.ty.is_epic() /*태그 5*/ { score = max(score, 1) } } }\n  score   // L917",
+ "knobs": [
+  {
+   "what": "도주 시 근접 아군 부재 감점",
+   "where": "epic_hunt.rs:857 (m15.ll:50362)",
+   "value": -10,
+   "effect": "더 음수로 하면 위험옵션(risk_epic_damage≠0) 에픽 사냥 중 아군 없이 도주하는 행동 억제 강화"
+  },
+  {
+   "what": "근접 아군 거리 게이트",
+   "where": "epic_hunt.rs:857 (m15.ll:50343)",
+   "value": 40000000000,
+   "effect": "200000². 올리면 더 먼 아군도 '근접'으로 인정돼 -10 이 덜 붙음"
+  },
+  {
+   "what": "Trace 사거리 밖 배제값",
+   "where": "epic_hunt.rs:892 (m15.ll:50487)",
+   "value": -99999,
+   "effect": "에픽 캠프가 공격 사거리(range+30000+…) 밖이면 Trace 사실상 배제. 완화하면 원거리 Trace 허용"
+  },
+  {
+   "what": "에픽 대상 공격 최소 점수",
+   "where": "epic_hunt.rs:913 (m15.ll:50579)",
+   "value": 1,
+   "effect": "올리면 에픽을 때리는 Attack/Skill/Skill2 가 음수 base 여도 그 값 이상 보장"
+  }
+ ],
+ "callee_contracts": [
+  {
+   "name": "game_ai::action_score::interaction_score (action_score.rs:616)",
+   "sig": "fn(version, rnd, player, data, parameter, action, debug) -> i64",
+   "note": "내부 안 팜"
+  },
+  {
+   "name": "serpen_hunt::calculate_serpen_action_score (epic_hunt.rs:919, m15.ll:65168, internal fastcc)",
+   "sig": "IR: fn(player:&PlayerState, data:&OperationData, effect:&Effect(56B), target:&Entity) -> i64 range[-2^63,206). 소스 sig 는 (rnd, player, data, parameter, action:&Box<dyn Action>, effect, target) — rnd·parameter·action 이 DeadArgElim 으로 제거됨",
+   "note": "같은 배치 #8 명세"
+  },
+  {
+   "name": "game_core::MapDef::camp_pos (map_def.rs:207)",
+   "sig": "fn(&MapDef, JungleType(i8), bool) -> (u64,u64) ScalarPair {i64,i64}",
+   "note": "game_core 경계. 여기선 (Morgard=4, true)"
+  },
+  {
+   "name": "game_core::AbstractGameWithCache::champions (simulation.rs:1896)",
+   "sig": "fn(&self, team:usize, pool:&Bump) -> bumpalo::Vec<&Entity> (sret 32B: ptr@0, bump@8, cap@16, len@24)",
+   "note": "game_core 경계. 자기 자신 포함 여부는 안 팜(unknown)"
+  },
+  {
+   "name": "Effect::range (effect.rs:25, xinl) / Entity::radius (entity.rs:1511)",
+   "sig": "fn(&Effect,&Entity)->u64 / fn(&Entity)->usize",
+   "note": "인라인 — 본문 산식으로 복원(L891)"
+  },
+  {
+   "name": "dyn AbstractGame::get_entity_by_id (vtable 0x1f0)",
+   "sig": "fn(&self, usize) -> Option<&Entity>",
+   "note": ""
+  }
+ ],
+ "unknown": [
+  "champions() 결과에 자기 자신(champ)이 포함되는지 — 포함되면 L857 술어가 자기 자신(dist 0, hp==hp)으로 항상 true 가 되어 -10 이 사장됨. game_core 경계라 안 팜(미탐색 = _gcbc g15.ll:109887 define)",
+  "L854 risk_epic_damage==0 과 Positioning/AroundPosition 팔이 '조기 return base' 로 컴파일된 것이 소스의 `return` 인지 match 값 0 + 최적화인지 — 표기 불가(결과는 동일하게 base)",
+  "camp_pos 의 bool 인자 true 의 의미(blue/red side 선택으로 추정 — _docs game_core.txt:1288 '캠프 한 기의 배치 (blue side / red side 좌표)') — 안 팜",
+  "Effect::range 의 소스가 `+30000` 리터럴인지 상수명인지 — 표기 불가"
+ ]
+}

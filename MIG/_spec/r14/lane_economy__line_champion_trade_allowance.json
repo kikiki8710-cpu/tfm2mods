@@ -1,0 +1,60 @@
+{
+ "name": "line_champion_trade_allowance",
+ "sym": "_RNvNtCshdEBA0ozCnw_7game_ai12lane_economy29line_champion_trade_allowance",
+ "src": "game-ai\\src\\lane_economy.rs",
+ "src_line": 221,
+ "ir_file": "m11.ll",
+ "ir_from": 51196,
+ "ir_to": 51337,
+ "aux": [],
+ "one_line": "라인 챔피언 대상 공격/스킬의 '교환 허용치'(allowance) — 예상피해·near_enemies 위험치·대상 hp 가치로 환산한 i64 점수",
+ "signature": {
+  "abi": "internal fastcc (m11.ll:51196). 인자 승격 흔적 없음 — 5 인자 전부 소스 참조 그대로 ptr(readonly · captures(address,read_provenance)) · 팻포인터 분해 없음 · 반환 i64 스칼라",
+  "params": [
+   {"i": 1, "name": "data", "type": "&OperationData(24B)", "note": "+0x8 context 만 읽음(expected_damage_target 인자). 51204~51205"},
+   {"i": 2, "name": "parameter", "type": "&ScoreParameter(5384B)", "note": "near_enemies(bumpalo Vec<ChampionScoreParameter>, ptr +0x14d8 · len +0x14f0 · 원소 216B) 순회. 51210~51223"},
+   {"i": 3, "name": "champ", "type": "&Entity(1728B)", "note": "expected_damage_target 의 caster(&dyn, vtable=@anon.…29) 로만 전달. 본문 직접 필드 읽기 없음"},
+   {"i": 4, "name": "target", "type": "&Entity(1728B)", "note": "+0x5c0 id(near_enemies 매칭 키) · +0x670 hp(분모·비교)"},
+   {"i": 5, "name": "effect", "type": "&Effect(56B)", "note": "expected_damage_target 의 self 로만 전달"}
+  ],
+  "returns": "i64 allowance — 클수록 이 교환(공격)이 허용됨. 호출자(line_action_economy_adjustment L60)가 `recall_penalty + risk_score − allowance` 로 씀. 항상 값 반환(None 경로 없음 · 나눗셈 오버플로 패닉 가드 51287/51335 만)"
+ },
+ "reads": [
+  {"base": "OperationData", "offset": "0x8", "name": "context", "note": "51204 — expected_damage_target 의 ctx 인자"},
+  {"base": "ScoreParameter", "offset": "0x14d8", "name": "near_enemies.buf.ptr", "note": "51210 (gep 5336)"},
+  {"base": "ScoreParameter", "offset": "0x14f0", "name": "near_enemies.len", "note": "51213 (gep 5360) · 끝 포인터 = ptr + len*216 (51223, 원소 216B 는 getelementptr 타입에서 · stride 216 = 51244 gep)"},
+  {"base": "ChampionScoreParameter", "offset": "0x58", "name": "id", "note": "51248 — target.id 와 비교(find 술어)"},
+  {"base": "ChampionScoreParameter", "offset": "0x80", "name": "risk_damage", "note": "51260 — /2 로 total_damage 에 합산"},
+  {"base": "Entity", "offset": "0x5c0", "name": "id", "note": "51229 target.id (루프 전 1회 로드)"},
+  {"base": "Entity", "offset": "0x670", "name": "hp", "note": "51270 / 51319 target.hp"}
+ ],
+ "writes": [],
+ "constants": [
+  {"value": 1, "src_line": 226, "meaning": "hp_value = champion_hp_value(..).max(1) (smax · 51258) · 분모 target.hp.max(1) (umax · 51280/51329)"},
+  {"value": 2, "src_line": 227, "meaning": "risk_damage / 2 (sdiv · 51262)"},
+  {"value": 75, "src_line": 227, "meaning": "possible_risk(p, data, 75) 의 셋째 인자(확률/비율 파라미터 · 51263) — 내부 의미는 possible_risk 명세 소관"},
+  {"value": 4, "src_line": 227, "meaning": "possible_risk(..)/4 (sdiv · 51264)"},
+  {"value": 100, "src_line": 231, "meaning": "hp_value.min(100) 상한 (umin · 51297/51305) · 못 찾은 경로의 expected_damage*100 (51318)"},
+  {"value": 3, "src_line": 233, "meaning": "min(hp_value,100)*3/4 — 곱 3 (51306) · /4 는 lshr 2 로 접힘(51307)"},
+  {"value": 2, "folded_from": 4, "src_line": 233, "meaning": "lshr 2 = /4 (51307). min(hp_value,100)*3/4 의 나눗셈"}
+ ],
+ "calls": [
+  "game_core::simulation::effect::Effect::expected_damage_target",
+  "game_ai::utils::champion_hp_value",
+  "game_ai::score_parameter::ChampionScoreParameter::possible_risk"
+ ],
+ "logic": "L222: expected_damage = effect.expected_damage_target(data.context, champ as &dyn(vtable @anon.29), target)  (51206)\nL223: p = parameter.near_enemies.iter().find(|p| p.id == target.id)   (루프 51233~51251 · 첫 일치 원소)\n  ── 못 찾음 (51317, L224):\n     allowance = expected_damage * 100 / target.hp.max(1)   (sdiv · 51330)  → return (L236)\n  ── 찾음 (51253~, L226~L233):\n     hp_value     = champion_hp_value(data, parameter, p).max(1)                       (L226)\n     total_damage = p.risk_damage/2 + expected_damage + p.possible_risk(data, 75)/4    (L227~228 · 덧셈 순서 = (risk/2 + expected) + risk75/4)\n     allowance    = total_damage * hp_value / target.hp.max(1)                          (L229 · sdiv)\n     if expected_damage >= target.hp  (51283 slt 의 false 방향, L230):\n         allowance += hp_value.min(100)                                                 (L231)\n     else if total_damage >= target.hp (51291 slt 의 false 방향, L232):\n         allowance += hp_value.min(100) * 3 / 4                                         (L233)\n     (else 그대로)\nL236: return allowance\n※ 나눗셈은 i64 sdiv, 분모는 usize umax(…,1) — 분모 -1 & 분자 i64::MIN 조합만 panic_const_div_overflow 가드(51286/51334, 도달 불가 방어)",
+ "knobs": [
+  {"what": "possible_risk 비율 인자", "where": "lane_economy.rs:227", "value": 75, "effect": "possible_risk 의 위험 추정 파라미터. 올리면 total_damage 가 커져 allowance 증가(대상이 더 죽을 것 같다고 봄)"},
+  {"what": "위험치 축소 계수 /2·/4", "where": "lane_economy.rs:227", "value": "2, 4", "effect": "risk_damage/2 · possible_risk/4. 분모를 줄이면 총피해 추정↑ → allowance↑ → 공격 경제 페널티 감소"},
+  {"what": "킬 확정 보너스 상한", "where": "lane_economy.rs:231", "value": 100, "effect": "expected_damage 만으로 죽는 대상이면 hp_value.min(100) 가산. 올리면 고가치 대상 킬 시 보너스 상승"},
+  {"what": "총피해 킬 보너스 비율", "where": "lane_economy.rs:233", "value": "3/4", "effect": "total_damage 로 죽을 대상이면 min(hp_value,100)*3/4 가산"},
+  {"what": "미매칭 폴백 배율", "where": "lane_economy.rs:224", "value": 100, "effect": "near_enemies 에 없는 대상은 expected_damage*100/hp 만 — 예상피해 비율(%) 그대로"}
+ ],
+ "unknown": [
+  "champ(%2)는 본문에서 필드를 읽지 않고 expected_damage_target 의 &dyn 인자로만 넘어간다 — vtable @anon.dfa1f8a0e3a880d1d1859ec099fe0b0f.29 가 어느 트레이트 impl 인지는 확인하지 않음(game_core 경계)",
+  "possible_risk(p, data, 75) 내부 및 champion_hp_value(캐시 래퍼, m04.ll:49583) 내부는 계약만(같은 r14/타 배치 소관)",
+  "L230/L232 비교는 `expected_damage < target.hp` 의 false 방향을 `>=` 로 읽음 — 소스가 `>=` 인지 `>` 의 뒤집힘인지는 외연 동일이라 표기 불가",
+  "hp_value 의 umin(…,100)은 i64 smax(…,1) 결과에 unsigned min 을 적용 — 소스가 `as usize` 캐스팅인지 usize 타입인지 표기 불가(양수라 동작 동일)"
+ ]
+}

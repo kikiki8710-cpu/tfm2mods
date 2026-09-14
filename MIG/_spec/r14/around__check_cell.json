@@ -1,0 +1,65 @@
+{
+ "name": "around::check_cell",
+ "sym": "_RNvNtNtCshdEBA0ozCnw_7game_ai12small_action6around10check_cell",
+ "src": "game-ai\\src\\small_action\\around.rs",
+ "src_line": 1256,
+ "ir_file": "m08.ll",
+ "ir_from": 112301,
+ "ir_to": 112665,
+ "aux": [],
+ "one_line": "수풀 주변대기 경로 셀 판정 — out_line 모드별 지역(region) 규칙으로 Soft, 통과 시 타워 회피 판정으로 Allow/Danger",
+ "signature": {
+  "abi": "define hidden { i32, i32 } — ScalarPair 반환(PathVerdict 8B: tag i32 @+0x0 · Priced 페이로드 u32 @+0x4). 비 internal, 인자 승격 없음",
+  "params": [
+   {"i": 1, "name": "version", "type": "usize", "note": "본문 분기 없음. dodge_tower_cell_with_context 에 그대로 전달(112656)"},
+   {"i": 2, "name": "player", "type": "&PlayerState(2528B, readonly)", "note": "본문에서 읽지 않음. 콜리에 전달만"},
+   {"i": 3, "name": "positioning_score", "type": "&PositioningScoreData(2760B, readonly)", "note": "본문에서 읽지 않음. 콜리에 전달만"},
+   {"i": 4, "name": "data", "type": "&OperationData(24B, readonly)", "note": "+0x8 context → GameContext(+0x8 setting · +0x20 map) 만 읽음"},
+   {"i": 5, "name": "tower_dodge", "type": "&TowerDodgeContext(416B)", "note": "IR 속성에 readonly/noalias 없음 = 내부 Cell 필드(memo_s_key +0x10 · memo_inside_mask +0x198) 때문(tcxdict). 이 함수 자신은 읽기·쓰기 0, 콜리에 전달만"},
+   {"i": 6, "name": "out_line", "type": "AroundBushOutlineType(i8, range 0..3)", "note": "태그 0=None 1=Outline 2=Inline (tcxdict --enum, Direct 인코딩). switch 112316"},
+   {"i": 7, "name": "sx", "type": "usize", "note": "시작 셀 x (regions 열 인덱스, <30 아니면 panic_bounds_check)"},
+   {"i": 8, "name": "sy", "type": "usize", "note": "시작 셀 y (regions 행 인덱스)"},
+   {"i": 9, "name": "nx", "type": "usize", "note": "판정 대상(다음) 셀 x"},
+   {"i": 10, "name": "ny", "type": "usize", "note": "판정 대상(다음) 셀 y"},
+   {"i": 11, "name": "tx", "type": "usize", "note": "목표 셀 x — Outline/Inline 경로에서만 사용(None 경로에선 미사용)"},
+   {"i": 12, "name": "ty", "type": "usize", "note": "목표 셀 y — 위와 같음"}
+  ],
+  "returns": "PathVerdict — { i32 tag, i32 payload }. 살아있는 바이트 = tag 4B(+0x0)만: 값 0=Allow · 1=Soft · 2=Danger (112661 phi / 112657 select). payload(+0x4, Priced 의 u32)는 `insertvalue … i32 undef, 1`(112663) 로 항상 undef — Priced(4)·Deadly(3) 는 이 함수가 만들지 않는다"
+ },
+ "reads": [
+  {"base": "OperationData", "offset": "0x8", "name": "context", "note": "&GameContext (112343·112582)"},
+  {"base": "GameContext", "offset": "0x20", "name": "map", "note": "&MapDef (112346·112584)"},
+  {"base": "GameContext", "offset": "0x8", "name": "setting", "note": "&GameSetting — is_top_side 인라인(map_regions.rs:22) 안에서 (112402~112403)"},
+  {"base": "GameSetting", "offset": "0x12c0", "name": "height", "note": "맵 세로 크기(월드 단위). ry = height-16000 - y*32000 (112402~112405)"},
+  {"base": "MapDef", "offset": "0x38b8", "name": "regions[30][30]", "note": "regions[y][x] usize — start/end/nxt 지역 id (112347~112353, 112372~112373, 112391~112393, Inline 경로 112582~112629)"},
+  {"base": "MapDef", "offset": "0x6db0", "name": "is_line_region[27]", "note": "bool 배열, MapDef::is_line_region(map_def.rs:266) 인라인. 인덱스 nxt_region <27 아니면 panic (112434·112556·112640)"}
+ ],
+ "writes": [],
+ "constants": [
+  {"value": 32000, "src_line": 1264, "meaning": "셀→월드 좌표 변환(셀 크기). x = sx*32000+16000, y 항은 -32000*sy (좌표 변환, 임계 아님)"},
+  {"value": 16000, "src_line": 1264, "meaning": "셀 중심 오프셋. is_top_side: ry = (height - 16000) - sy*32000 (112406 `add i64 %55, -16000`)"},
+  {"value": -32000, "src_line": 1264, "meaning": "y 축 반전 셀 변환(`mul nsw i64 %7, -32000`, 112397~112398·112409)"},
+  {"value": -16000, "src_line": 1264, "meaning": "height - 16000 (112406). 16000 의 부호 반전 표현"},
+  {"value": 1, "src_line": 1276, "meaning": "lane_seq(map, LineType tag 1=Mid, team 1) 의 두 인자 모두 1 (112446). 또한 PathVerdict::Soft 태그값 1 (112661 phi)"},
+  {"value": 0, "src_line": 1300, "meaning": "PathVerdict::Allow 태그 0 (112657 select true 측)"},
+  {"value": 2, "src_line": 1300, "meaning": "PathVerdict::Danger 태그 2 (112657 select false 측). AroundBushOutlineType::Inline 태그도 2 (switch 112316)"}
+ ],
+ "calls": [
+  "game_core::simulation::map_def::MapDef::lane_seq",
+  "game_ai::path_finder::dodge_tower_cell_with_context",
+  "core::panicking::panic_bounds_check"
+ ],
+ "logic": "check_cell(version, player, ps, data, tower_dodge, out_line, sx,sy, nx,ny, tx,ty) -> PathVerdict   [around.rs:1256]\n map = data.context.map ; setting = data.context.setting\n match out_line (L1257, switch 112316):\n  None(0)    → goto FINAL\n  Outline(1) →                                                                   (L1260~1277)\n     start_region = map.regions[sy][sx]     (L1260, 각 인덱스 <30 아니면 panic_bounds_check)\n     end_region   = map.regions[ty][tx]     (L1261)\n     nxt_region   = map.regions[ny][nx]     (L1262)\n     start_in_top = is_top_side(ctx, sx*32000+16000, sy)   (L1264 · 인라인 map_regions.rs:22~24)\n                  = ((setting.height - 16000) - sy*32000) >= (sx*32000+16000)      [112402~112407 icmp uge]\n     end_in_top   = ((setting.height - 16000) - ty*32000) >= (tx*32000+16000)      (L1265; IR 는 부정형 `icmp ult` 112418)\n     if start_in_top == end_in_top:                          (L1267; `xor %58,%63` 112419 = start_in_top ^ !end_in_top)\n        # 같은 쪽(대각선 기준)                                 (L1268, 블록 %106)\n        ok = (nxt_region == end_region) || (nxt_region == start_region) || !map.is_line_region[nxt_region]\n        if ok → goto FINAL  else → return Soft(1)\n     else:                                                    (L1276, 블록 %69)\n        if !map.is_line_region[nxt_region] → goto FINAL\n        seq = map.lane_seq(LineType::Mid(1), team=1)   # [usize;7] sret 56B (112446)\n        if seq[0..7] 중 어느 것 == nxt_region → goto FINAL   (112465~112540, 7개 select 체인)\n        if nxt_region == start_region || nxt_region == end_region → goto FINAL   (L1277)\n        return Soft(1)\n  Inline(2) →                                                                    (L1284~1288, 블록 %120~%149)\n     start_region = regions[sy][sx]; end_region = regions[ty][tx]; nxt_region = regions[ny][nx]\n     ok = (nxt_region == start_region) || map.is_line_region[nxt_region] || (nxt_region == end_region)\n     if ok → goto FINAL  else → return Soft(1)\n FINAL: (L1300, 블록 %159)\n   if dodge_tower_cell_with_context(version, player, data, ps, tower_dodge, sx, sy, nx, ny) → return Allow(0)\n   else → return Danger(2)\n return 시 payload i32 = undef (L1305)\n\n요지: Outline 은 '라인 지역을 피해 돌아가라'(같은 쪽이면 라인 지역 진입 = Soft, 대각선을 넘을 땐 미드(팀1 시퀀스) 라인 지역만 허용), Inline 은 '라인 지역 안에서만 움직여라'(비라인 지역 = Soft). 시작·목표 지역은 항상 면제. 통과한 셀은 타워 회피 판정이 최종 Allow/Danger 를 정한다.",
+ "knobs": [
+  {"what": "Outline 대각선 횡단 시 허용되는 라인 시퀀스(lane_seq 의 LineType/team 인자)", "where": "around.rs:1276 (IR 112446 `i8 1, i64 1`)", "value": "Mid(1), team 1", "effect": "다른 라인/팀으로 바꾸면 횡단 시 통과 허용되는 라인 지역 집합이 바뀐다(현재는 팀1 미드 시퀀스 7지역 고정 — 호출 선수 팀과 무관)"},
+  {"what": "라인 지역 위반 시 판정 등급", "where": "around.rs:1268/1277/1288 (phi 112661 상수 1)", "value": "Soft(1)", "effect": "Danger(2)/Deadly(3)로 올리면 경로탐색이 그 셀을 더 강하게 기피(가격은 호출측 path_field 규칙)"},
+  {"what": "타워 회피 실패 등급", "where": "around.rs:1300 (select 112657)", "value": "Danger(2)", "effect": "Soft 로 내리면 타워 사거리 셀을 완전 차단이 아닌 감점으로 취급"}
+ ],
+ "unknown": [
+  "lane_seq 인자 `team=1` 이 소스에서 리터럴 1 인지 상수 접힘된 식인지 — IR 엔 `i64 1` 리터럴만 있고 player 팀 필드 읽기가 없어 리터럴로 판단(적용 범위: 이 IR 본문 한정)",
+  "dodge_tower_cell_with_context(path_finder.rs:1322) 내부 — 같은 라운드 경계(중간 콜리) 규칙대로 시그니처만 기록: fn(version:usize, &PlayerState, &OperationData, &PositioningScoreData, &TowerDodgeContext, sx,sy,nx,ny:usize)->bool (true=통과 가능→Allow)",
+  "MapDef::lane_seq(map_def.rs:250) 내부 — game_core 경계: fn(&MapDef, LineType, usize team)->[usize;7] (56B sret). 7원소가 전부 유효 지역 id 인지(패딩/센티넬 여부)는 미확인",
+  "is_top_side 의 정확한 소스 표현(`>=` vs `>`) — IR `icmp uge`(start) / `icmp ult` 부정(end) 로 동작은 확정, 소스 표기만 미확정",
+  "`out_line` 값 3 이상은 `unreachable`(112323) — switch default. 호출자가 보장"
+ ]
+}

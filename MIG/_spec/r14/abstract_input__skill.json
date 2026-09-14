@@ -1,0 +1,88 @@
+{
+ "name": "abstract_input::skill",
+ "sym": "_RNvNtCshdEBA0ozCnw_7game_ai14abstract_input5skill",
+ "src": "game-ai\\src\\abstract_input.rs",
+ "src_line": 199,
+ "ir_file": "m04.ll",
+ "ir_from": 44368,
+ "ir_to": 44654,
+ "aux": [],
+ "one_line": "스킬1 추상 입력: 시전 가능·대상 유효하면 get_input_target 로 Skill 입력, 아니면 사거리-여유(2k/15k) 지점으로 접근 이동",
+ "signature": {
+  "abi": "define void, sret([32 x i8]) writeonly — 비-internal(fastcc 아님) · 인자 승격 없음. rnd 는 `&mut`(align 16, readonly 없음) 이나 본문에서 직접 읽지도 쓰지도 않고 get_input_target 에 전달만",
+  "params": [
+   {"i": 0, "name": "(sret)", "type": "Option<Input>(32B)", "note": "반환 슬롯"},
+   {"i": 1, "name": "version", "type": "usize", "note": "본문 분기 없음 — get_input_target·safe_move 에 전달만"},
+   {"i": 2, "name": "rnd", "type": "&mut StdRng(320B)", "note": "get_input_target 에 전달만"},
+   {"i": 3, "name": "player", "type": "&PlayerState(2528B)", "note": "info.team(+0x930)·info.position(+0x9c0)"},
+   {"i": 4, "name": "data", "type": "&OperationData(24B)", "note": "+0x0 cache(player_champion) · +0x8 context(map·setting → adjust_position)"},
+   {"i": 5, "name": "positioning_score", "type": "&PositioningScoreData(2760B)", "note": "get_input_target 에 전달만"},
+   {"i": 6, "name": "target", "type": "&Entity(1728B)", "note": "스킬 대상. team/visible_state/ty/x/y/radius 읽음"}
+  ],
+  "returns": "sret Option<Input>(32B). 살아있는 바이트: +0x0 i64 태그(-1 None · 3 Skill · 그 외는 콜리 safe_move 가 채움). ①None 경로(챔피언 없음/can_skill 아님/skill_effect 없음/CastingTarget::check 실패) = +0x0 8B 만 기록(m04.ll:44411·44418·44436·44440) ②Some(Skill) 경로 = +0x0=3, +0x8~+0x1f 24B 는 get_input_target 의 sret(Option<InputTarget> 24B: +0x8 i32 태그 0 Target/1 Dir/2 Pos/3 None, +0xc 4B 패딩(콜리 writeonly sret 의 바이트 그대로 memcpy), +0x10/+0x18 페이로드 — Target 이면 +0x10 target_id 만 live, None(3) 이면 +0x10~ 미기록) ③접근 경로 = safe_move_avoiding_enemy_well 의 sret 32B 그대로"
+ },
+ "reads": [
+  {"base": "PlayerState", "offset": "0x930", "name": "info.team", "note": "≥2 → panic_bounds_check (m04.ll:44381~44385)"},
+  {"base": "PlayerState", "offset": "0x9c0", "name": "info.position@tag", "note": "i32 → zext 인덱스 (m04.ll:44392~44394)"},
+  {"base": "OperationData", "offset": "0x0", "name": "cache", "note": "&AbstractGameWithCache (m04.ll:44395)"},
+  {"base": "OperationData", "offset": "0x8", "name": "context", "note": "&GameContext → +0x20 map(&MapDef 28112B)·+0x8 setting(&GameSetting 5432B) 를 adjust_position 에 (m04.ll:44637~44643)"},
+  {"base": "AbstractGameWithCache", "offset": "0x1e0", "name": "player_champion[team][position]", "note": "None → return None (m04.ll:44396~44401, `?` option.rs:2775)"},
+  {"base": "Entity", "offset": "0x4f8", "name": "skill_effect@tag / Some.0.casting", "note": "-1 → None(m04.ll:44424~44426). 같은 4B 가 CastingType(0 Targeting) — effect_range_with_radii 에서 ==0 이면 caster 반지름 가산 (m04.ll:44533~44534)"},
+  {"base": "Entity", "offset": "0x4c8", "name": "skill_effect@Some.0", "note": "&Effect(56B) → get_input_target·range_adjust 인자 (m04.ll:44423)"},
+  {"base": "Entity", "offset": "0x4f0", "name": "skill_effect@Some.0.target", "note": "CastingTarget(4B) → CastingTarget::check(&target_kind, champ, target) (m04.ll:44431~44432)"},
+  {"base": "Entity", "offset": "0x4d8", "name": "skill_effect@Some.0.range", "note": "effect_range_with_radii (m04.ll:44562)"},
+  {"base": "Entity", "offset": "0x4e0", "name": "skill_effect@Some.0.growth_range", "note": "× (level-1) (m04.ll:44564)"},
+  {"base": "Entity", "offset": "0x5c8", "name": "level", "note": "champ.level (m04.ll:44566)"},
+  {"base": "Entity", "offset": "0x438", "name": "stat_buff_cached.range", "note": "champ 사거리 버프 (m04.ll:44568)"},
+  {"base": "Entity", "offset": "0x470", "name": "stat_buff_cached.radius_mult", "note": "champ(m04.ll:44538)·target(44571) Entity::radius 인라인 entity.rs:1511~1515"},
+  {"base": "Entity", "offset": "0x680", "name": "radius", "note": "champ·target 반지름"},
+  {"base": "Entity", "offset": "0x0", "name": "team@tag", "note": "champ.team: 1=Neutral 이면 player_team()=None → is_visible_from 항상 true (m04.ll:44459~44460, entity.rs:1136)"},
+  {"base": "Entity", "offset": "0x8", "name": "team@Player.0", "note": "champ 팀 인덱스 → target.visible_state[team] (m04.ll:44468~44470)"},
+  {"base": "Entity", "offset": "0x38", "name": "visible_state[team]@tag", "note": "target 의 팀별 VisibleState(24B stride) 태그 0=Visible (m04.ll:44477~44480, data.rs:122 is_visible)"},
+  {"base": "Entity", "offset": "0x68", "name": "ty@tag", "note": "target.ty & 14 == 2 ⟺ Tower(2)|Nexus(3) → margin 2000 (m04.ll:44514~44518)"},
+  {"base": "Entity", "offset": "0x660", "name": "x", "note": "champ.x - target.x = dx (L217) · target.x 접근 기준점 (L228·L234)"},
+  {"base": "Entity", "offset": "0x668", "name": "y", "note": "dy (L218) · target.y"}
+ ],
+ "writes": [
+  {"base": "(sret)", "offset": "0x0", "name": "Option<Input>@tag", "value": "-1 (None)", "note": "L200 챔피언 없음(m04.ll:44411) · L202 !can_skill(44418) · L205 skill_effect 없음(44436) · L208 CastingTarget::check 실패(44440). 8B 만"},
+  {"base": "(sret)", "offset": "0x0", "name": "Option<Input>@tag", "value": "3 (Some(Input::Skill))", "note": "L214 · m04.ll:44454"},
+  {"base": "(sret)", "offset": "0x8", "name": "Input::Skill.target (InputTarget 24B)", "value": "get_input_target 의 sret 24B memcpy", "note": "L213~214 · m04.ll:44453 (llvm.memcpy 24B) — InputTarget 태그 i32 +0x8, 페이로드 +0x10/+0x18"},
+  {"base": "(sret)", "offset": "0x0", "name": "Option<Input> 전체", "value": "safe_move_avoiding_enemy_well 이 채움", "note": "L234(m04.ll:44492 · 대상 비가시) / L232(m04.ll:44648 · 접근 지점)"}
+ ],
+ "constants": [
+  {"value": -1, "src_line": 200, "meaning": "Option<Input>::None 니치 태그(store i64 -1 ×4: m04.ll:44411·44418·44436·44440). 같은 -1 이 Entity.skill_effect None(i32, 44426)·get_input_target 결과 Option<InputTarget>::None(i32, 44448)·level-1(add -1, 44594) 에도"},
+  {"value": 2, "src_line": 200, "meaning": "team 인덱스 bounds(len 2). 같은 2 가 L222 `(ty & 14) == 2`(Tower) 비교값(44517)"},
+  {"value": 3, "src_line": 214, "meaning": "Input::Skill 메모리태그 3 (m04.ll:44454)"},
+  {"value": 14, "src_line": 222, "meaning": "target.ty 태그 마스크 0b1110: `tag & 14 == 2` ⟺ tag ∈ {2 Tower, 3 Nexus} — 구조물 판별이 접힘 (m04.ll:44516~44517)"},
+  {"value": 2000, "src_line": 222, "meaning": "구조물(타워/넥서스) 대상일 때 사거리 여유 margin (m04.ll:44518 select). 사거리에서 이만큼 안쪽 지점으로 접근"},
+  {"value": 15000, "src_line": 222, "meaning": "비구조물 대상일 때 사거리 여유 margin(≈0.47셀) (m04.ll:44518 select)"},
+  {"value": 0, "src_line": 216, "meaning": "VisibleState::Visible 태그 0 (44480) · CastingType::Targeting 태그 0(L191 effect_range_with_radii, 44534: Targeting 이면 caster_r=champ.radius() 아니면 0) · isqrt==0 → div_by_zero 패닉(44615)"},
+  {"value": 100, "src_line": 227, "meaning": "Entity::radius 인라인(entity.rs:1515): radius*(radius_mult+100)/100 — champ(44555~44556)·target(44588~44589) 두 번"},
+  {"value": 1, "src_line": 227, "meaning": "growth_range*(level-1): `add i64 %106, -1` (m04.ll:44594) — 상수 1 리터럴 없음, -1 가산으로 접힘"}
+ ],
+ "calls": [
+  "game_core::simulation::entity::Entity::can_skill",
+  "game_core::simulation::effect::type::CastingTarget::check",
+  "game_core::simulation::entity::Entity::cooldown_reduce",
+  "game_ai::abstract_input::get_input_target",
+  "game_core::utils::isqrt",
+  "game_core::simulation::effect::Effect::range_adjust",
+  "game_core::simulation::game::Game::adjust_position",
+  "game_ai::abstract_input::safe_move_avoiding_enemy_well",
+  "core::panicking::panic_bounds_check",
+  "core::panicking::panic_const::panic_const_div_by_zero",
+  "core::panicking::panic_const::panic_const_div_overflow"
+ ],
+ "logic": "fn skill(version, rnd, player, data, positioning_score, target) -> Option<Input>   [abstract_input.rs:199~237]\n  L200: champ = data.cache.player_champion[player.team][player.position]?      // None → None\n  L201: if !champ.can_skill() { L202: return None }\n  L205: effect = champ.skill_effect.as_ref()?                                   // None → None\n  L207: if !effect.target.check(champ, target) { L208: return None }            // CastingTarget::check (game_core)\n  L211: input_target = get_input_target(version, rnd, player, data, positioning_score, target, effect, champ.cooldown_reduce(false))   // Option<InputTarget> 24B\n  L213: if let Some(t) = input_target { L214: return Some(Input::Skill(t)) }    // sret +0x0=3, +0x8..=memcpy 24B\n  L216: if target.is_visible_from(champ) {   // 인라인 entity.rs:1482~1483: champ.player_team()==None(Neutral) || target.visible_state[champ_team]==Visible\n  L217:   dx = champ.x - target.x;  L218: dy = champ.y - target.y;  L219: sz = isqrt(dx²+dy²)\n  L222:   margin = if matches!(target.ty, Tower|Nexus) { 2000 } else { 15000 }      // (tag & 14) == 2\n  L227:   from_distance = effect_range_with_radii(effect, champ, target).saturating_sub(margin)\n          //  effect_range_with_radii(abstract_input.rs:191~192, 인라인) =\n          //    (effect.casting==Targeting ? champ.radius() : 0)\n          //    + effect.range + champ.stat_buff_cached.range + effect.growth_range*(champ.level-1)   // Effect::range 인라인 effect.rs:26\n          //    + effect.range_adjust(champ, target) + target.radius()\n  L228:   x = target.x + (from_distance as i64 * dx) / sz      // sdiv · sz==0 → 패닉(div_by_zero) · i64::MIN/-1 → 패닉(div_overflow)\n  L229:   y = target.y + (from_distance as i64 * dy) / sz\n  L230:   (x, y) = Game::adjust_position(ctx.map, ctx.setting, x, y)\n  L232:   return safe_move_avoiding_enemy_well(version, player, data, champ, x, y)\n        } else {\n  L234:   return safe_move_avoiding_enemy_well(version, player, data, champ, target.x, target.y)   // 비가시 대상: 대상 좌표로\n        }",
+ "knobs": [
+  {"what": "구조물 대상 접근 사거리 여유", "where": "abstract_input.rs:222", "value": 2000, "effect": "올리면 타워/넥서스에 더 안쪽까지 붙어서 시전 지점을 잡는다(사거리 끝에서 margin 만큼 안쪽)"},
+  {"what": "일반 대상 접근 사거리 여유", "where": "abstract_input.rs:222", "value": 15000, "effect": "올리면 대상에 더 가까이 접근한 뒤 시전(스킬 사거리 - 15k 지점). 내리면 사거리 끝에서 시전 시도 → 빗나감/캔슬 증가 가능"}
+ ],
+ "unknown": [
+  "get_input_target(sret Option<InputTarget> 24B, version, &mut StdRng, &PlayerState, &OperationData, &PositioningScoreData, &Entity target, &Effect, cooldown_reduce: u64) — internal fastcc(m04.ll:33111) · 이 배치 담당 아님. 시그니처·반환(태그 i32 -1=None) 만",
+  "safe_move_avoiding_enemy_well(sret 32B, version, &PlayerState, &OperationData, &Entity champ, x, y) — 잎(계약만): 호출 m04.ll:44492·44648",
+  "CastingTarget::check(&CastingTarget(4B), &Entity caster, &Entity target)->bool · Entity::can_skill(&Entity)->bool · Entity::cooldown_reduce(&Entity, bool)->u64(range 1..2^31) · Effect::range_adjust(&Effect,&Entity,&Entity)->u64 · utils::isqrt(u64)->u64 · Game::adjust_position(&MapDef,&GameSetting,x,y)->(x,y) — game_core 경계, 시그니처만",
+  "L216 is_visible_from 의 Neutral 분기가 실제 도달 가능한지(챔피언 team 은 항상 Player 로 추정) — 이 함수 범위 밖",
+  "L228 `from_distance as i64 * dx` 의 소스 캐스팅 위치(usize→i64) — 값 동일(표기 불가)"
+ ]
+}

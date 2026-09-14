@@ -1,0 +1,423 @@
+
+====================================================================================================
+## 명세 완결 조건 검사 (게임 0.5.8)
+   G1 자기모순=0  G10 class 오분류=1  G11 ev 지시 미반영=0  G12 src_line 대조=16  G13 knobs.where 대조=0  G14 mem.dir 방향=0  G15 consts.kind 관측=4  G16 params.role 대조=9  G17 history 전파=0  G18 logic↔표 상호참조=1  G19 knobs.value 값=6  G2 호출부 전수=0  G20 명세간 공유사실=120  G3 형제 함수=0  G4 술어 시그니처=0  G5 sig 정본 대조=4  G6 logic 미반영=0  G7 과열림=7  G8 표에 옛 값=0  G9 callees 오염=0
+====================================================================================================
+
+### [G10 class 오분류] 1건
+  [74] GoalData::update                                class=미탐색 인데 문면이 **사실 서술**로 끝난다 — 다음 라운드가 이걸 또 판다
+         코드 0/26 의 의미 — 팀별 본진 리전으로 추정되나 MapDef.regions 값표를 안 읽어 미확정(미탐색: MapDef 데이터 덤프 / region_centers[0],[26] 좌표 대조)
+
+### [G12 src_line 대조] 16건
+  [47] TeamPlan::handle_epic_line_change               consts[12] src_line=697 인데 IR 사슬에 그 줄이 없다
+        실제 후보 = [691, 693, 694, 702, 706, 707, 711, 712]
+  [110] LegacyPlanHandler::handle_interact_battle       consts[23] src_line=447 인데 IR 사슬에 그 줄이 없다
+        실제 후보 = [193, 217, 234, 245, 258, 270, 311, 320]
+  [121] safe_move_avoiding_enemy_well                   consts[8] src_line=102 인데 IR 사슬에 그 줄이 없다
+        실제 후보 = [111, 143]
+  [126] v55_banish_penalty                              consts[5] src_line=598 인데 IR 사슬에 그 줄이 없다
+        실제 후보 = [601]
+  [132] champion_hp_value_uncached                      consts[2] src_line=934 인데 IR 사슬에 그 줄이 없다
+        실제 후보 = [885, 977, 985]
+  [140] SmallActionAroundBush::new_with_target          consts[4] src_line=1180 인데 IR 사슬에 그 줄이 없다
+        실제 후보 = [1181]
+  [165] action_eval::evaluate_action                    consts[5] src_line=112 인데 IR 사슬에 그 줄이 없다
+        실제 후보 = [78, 81, 110]
+  [169] calculate_serpen_action_score                   consts[2] src_line=933 인데 IR 사슬에 그 줄이 없다
+        실제 후보 = [939, 945]
+  [170] calculate_epic_action_score                     consts[2] src_line=939 인데 IR 사슬에 그 줄이 없다
+        실제 후보 = [945, 951]
+  [171] line_projected_punish_damage_at                 consts[4] src_line=132 인데 IR 사슬에 그 줄이 없다
+        실제 후보 = [116, 119, 141]
+  [171] line_projected_punish_damage_at                 consts[6] src_line=131 인데 IR 사슬에 그 줄이 없다
+        실제 후보 = [134]
+  [171] line_projected_punish_damage_at                 consts[7] src_line=113 인데 IR 사슬에 그 줄이 없다
+        실제 후보 = [119, 141]
+  [173] SmallActionAroundHide::get_input                consts[7] src_line=347 인데 IR 사슬에 그 줄이 없다
+        실제 후보 = [325, 327, 333, 334, 353, 362, 364, 368]
+  [174] EpicPokeSubPlan::action_candidates_old          consts[3] src_line=437 인데 IR 사슬에 그 줄이 없다
+        실제 후보 = [450, 460, 462, 465, 472, 474, 480, 483]
+  [175] SerpenPokeSubPlan::action_candidates_old        consts[3] src_line=429 인데 IR 사슬에 그 줄이 없다
+        실제 후보 = [442, 453, 460, 462, 467, 470, 477, 481]
+  [175] SerpenPokeSubPlan::action_candidates_old        consts[4] src_line=431 인데 IR 사슬에 그 줄이 없다
+        실제 후보 = [451]
+
+### [G15 consts.kind 관측] 4건
+  [129] should_add_self_etc_buff_action                 consts[7] kind=길이 강
+        kind=길이 를 지지하는 관측이 **0건**. 실관측 = CMP_ORD@34737
+  [151] SmallActionSkill::get_input                     consts[1] kind=임계 NEG
+        `meaning` 이 「team 인덱스 bounds(len 2) — 임계 아님」라 적었는데 kind=임계
+  [153] SmallActionSkill2::get_input                    consts[1] kind=임계 NEG
+        `meaning` 이 「team 인덱스 bounds(len 2) — 임계 아님. 같은 2 가 L204 `」라 적었는데 kind=임계
+  [154] SmallActionUlt::get_input                       consts[1] kind=임계 NEG
+        `meaning` 이 「team 인덱스 bounds(len 2) — 임계 아님」라 적었는데 kind=임계
+
+### [G16 params.role 대조] 9건
+  [109] BattlePlan::update_v32                          sig.params[6] P4 role 이 주장한 IR 속성이 `define` 에 없다
+        p[6] team_plan `readonly` — IR %5 = ptr noundef nonnull align 8 %5
+  [109] BattlePlan::update_v32                          sig.params[6] P4 role 이 주장한 IR 속성이 `define` 에 없다
+        p[6] team_plan `noalias` — IR %5 = ptr noundef nonnull align 8 %5
+  [136] v23_should_break_objective_hunt_anchor          sig.params[0] P1 정렬 불변식 깨짐(SROA 인자 승격 미기재)
+        IR 인자 6개(sret보정 -0) > params 5개인데 role 이 `%k` 로 승격 대응을 전부 적지 않았다(적은 것 p[4], 덮은 레지스터 ['%4', '%5']). 자리 매핑 보류
+  [155] LineGankerPlan::make_gank_battle                sig.params[0] P1 정렬 불변식 깨짐(소거 주장 수 불일치)
+        IR 인자 10개(sret보정 -0) vs params 11개 ⟹ 소거 1개가 필요한데 role 이 소거를 주장한 것은 0개(p[]). 자리 매핑 보류
+  [167] SmallActionLaneMinionPosition::get_input        sig.params[0] P4 role 이 주장한 IR 속성이 `define` 에 없다
+        p[0] (sret) `sret` — IR %0 = ptr dead_on_unwind noalias noundef nonnull writable align 8 captures(none) dereferenceable(32) %0
+  [169] calculate_serpen_action_score                   sig.params[0] P1 정렬 불변식 깨짐(소거 주장 수 불일치)
+        IR 인자 4개(sret보정 -0) vs params 7개 ⟹ 소거 3개가 필요한데 role 이 소거를 주장한 것은 0개(p[]). 자리 매핑 보류
+  [169] calculate_serpen_action_score                   sig.params[0] P3 `i` 번호 규약 위반
+        `sig.tcx` 소스 인자 7개 ⟹ i 는 [1, 2, 3, 4, 5, 6, 7] 여야 한다(sret=0, 소스 1..n). 현재 [2, 3, 6, 7, 1, 4, 5]. 규약 정본 = 07·15
+  [170] calculate_epic_action_score                     sig.params[0] P1 정렬 불변식 깨짐(소거 주장 수 불일치)
+        IR 인자 4개(sret보정 -0) vs params 7개 ⟹ 소거 3개가 필요한데 role 이 소거를 주장한 것은 0개(p[]). 자리 매핑 보류
+  [170] calculate_epic_action_score                     sig.params[0] P3 `i` 번호 규약 위반
+        `sig.tcx` 소스 인자 7개 ⟹ i 는 [1, 2, 3, 4, 5, 6, 7] 여야 한다(sret=0, 소스 1..n). 현재 [2, 3, 6, 7, 1, 4, 5]. 규약 정본 = 07·15
+
+### [G18 logic↔표 상호참조] 1건
+  [116] can_tower_focused_when_attack                   logic/P1 logic 이 `+0x10` 를 인용하는데 mem 표에 그 오프셋이 없다
+        순회 = iter_minions(team) = top_minions[team](cache+0x10 · simulation.rs:1848).chain(mid_minions[team](+0x50 · L
+
+### [G19 knobs.value 값] 6건
+  [110] LegacyPlanHandler::handle_interact_battle       knobs[10] 주장한 값을 IR 관측에서 못 찾는다
+        value=14400000000 · 관측(창)=[-24, -16, -8, -1, 0, 1, 2, 3, 4, 5]
+  [110] LegacyPlanHandler::handle_interact_battle       knobs[15] 주장한 값을 IR 관측에서 못 찾는다
+        value=40000000000 · 관측(창)=[0, 1, 2, 3, 4, 5, 8, 16, 24, 32]
+  [110] LegacyPlanHandler::handle_interact_battle       knobs[16] 주장한 값을 IR 관측에서 못 찾는다
+        value=22500000000 · 관측(창)=[0, 6, 328, 1632, 1640, 14400000001]
+  [143] LineDefenseSubPlan::score                       knobs[1] 주장한 값을 IR 관측에서 못 찾는다
+        value=100 · 관측(창)=[13]
+  [143] LineDefenseSubPlan::score                       knobs[2] 주장한 값을 IR 관측에서 못 찾는다
+        value=5 · 관측(창)=[1168]
+  [172] SmallActionPositioning::get_input               knobs[0] 주장한 값을 IR 관측에서 못 찾는다
+        value=5000 / 96000 · 관측(창)=[-9216000000, -9190999999, -1, 8, 16, 1632, 1640]
+
+### [G20 명세간 공유사실] 120건
+  [00] ult                                             [R1] AbstractGameWithCache 0x1e0 — 같은 (base,offset) 을 5가지 이름으로 부른다: [][] / iter_champions / player_champion / player_champion[][] / player_champion[][]@Some.0
+        [00]`player_champion` · [01]`player_champion` · [02]`player_champion` · [03]`player_champion` · [06]`player_champion` · [07]`player_champion` · [08]`p
+  [00] ult                                             [R1] Effect 0x30 — 같은 (base,offset) 을 3가지 이름으로 부른다: Option / casting / casting@tag
+        [00]`casting@tag` · [03]`casting@tag` · [16]`casting@tag` · [37]`casting@tag` · [119]`casting@tag` · [122]`casting` · [174]`casting@tag/Option` · [175
+  [00] ult                                             [R1] Effect 0x8 — 같은 (base,offset) 을 3가지 이름으로 부른다: ty / ty vtable_ptr / ty.vtable
+        [00]`ty` · [55]`ty.vtable` · [119]`ty.vtable` · [122]`ty vtable_ptr` · [124]`ty.vtable` · [126]`ty.vtable` · [130]`ty.vtable`
+  [00] ult                                             [R1] Entity 0x38 — 같은 (base,offset) 을 3가지 이름으로 부른다: visible_state / visible_state[] / visible_state[]@tag
+        [00]`visible_state` · [54]`visible_state` · [56]`visible_state` · [79]`visible_state` · [85]`visible_state` · [87]`visible_state` · [92]`visible_state
+  [00] ult                                             [R1] Entity 0x538 — 같은 (base,offset) 을 3가지 이름으로 부른다: ult_effect / ult_effect@Some.0 / ult_effect@Some.0 — casting@tag 0x568
+        [00]`ult_effect` · [03]`ult_effect` · [16]`ult_effect` · [37]`ult_effect` · [55]`ult_effect` · [103]`ult_effect@Some.0` · [104]`ult_effect` · [111]`ul
+  [00] ult                                             [R1] GameContext 0x8 — 같은 (base,offset) 을 2가지 이름으로 부른다: setting / setting → tick_per_second
+        [00]`setting` · [03]`setting` · [04]`setting` · [06]`setting` · [07]`setting` · [08]`setting` · [09]`setting` · [13]`setting` · [14]`setting` · [22]`s
+  [00] ult                                             [R1] OperationData 0x0 — 같은 (base,offset) 을 2가지 이름으로 부른다: cache / cache → game.data_ptr
+        [00]`cache` · [01]`cache` · [02]`cache` · [03]`cache` · [04]`cache` · [06]`cache` · [07]`cache` · [08]`cache` · [09]`cache` · [10]`cache` · [11]`cache
+  [00] ult                                             [R1] Option<Input> 0x0 — 같은 (base,offset) 을 3가지 이름으로 부른다: 32B / tag / tag/Input
+        [00]`` · [00]`32B` · [121]`tag` · [157]`tag` · [168]`tag/Input` · [172]`tag/Input` · [173]`tag/Input`
+  [00] ult                                             [R1] PlayerState 0x930 — 같은 (base,offset) 을 3가지 이름으로 부른다: eplayer.team / info.team / team
+        [00]`info.team` · [01]`info.team` · [02]`info.team` · [03]`info.team` · [04]`info.team` · [06]`info.team` · [07]`info.team` · [08]`info.team` · [09]`i
+  [00] ult                                             [R1] PlayerState 0x9c0 — 같은 (base,offset) 을 6가지 이름으로 부른다: eplayer.position / info.position / info.position@tag / info.position@tag → as_index / info.position@tag@tag / position
+        [00]`info.position@tag` · [01]`info.position@tag` · [02]`info.position@tag` · [06]`info.position@tag` · [07]`info.position@tag` · [09]`info.position@t
+  [00] ult                                             [R2] Effect ty — 같은 이름이 오프셋 0x0 / 0x8 에 동시에 있다 — **값이 틀렸거나, 이름이 두 자리를 구별하지 못한다**(후자면 이름을 갈라라)
+        [00]`0x0` · [00]`0x8` · [122]`0x0`
+  [01] calculate_jungle_action_score                   [R1] Entity 0x68 — 같은 (base,offset) 을 3가지 이름으로 부른다: ty@tag / ty@tag == 13 / ty@tag == 2
+        [01]`ty@tag` · [03]`ty@tag` · [13]`ty@tag` · [14]`ty@tag` · [15]`ty@tag` · [16]`ty@tag` · [22]`ty@tag` · [27]`ty@tag` · [34]`ty@tag` · [36]`ty@tag` · 
+  [01] calculate_jungle_action_score                   [R1] Entity 0x98 — 같은 (base,offset) 을 5가지 이름으로 부른다: ty.Jungle.info.camp_type.__0 / ty.Tower.info.nearest_enemy.Some.1 / ty@Tower.info.nearest_enemy.1 / ty@Tower.info.nearest_enemy@Some.0.1 / ty@Tower.info.nearest_enemy@Some.1
+        [01]`ty.Jungle.info.camp_type.__0` · [22]`ty.Tower.info.nearest_enemy.Some.1` · [108]`ty@Tower.info.nearest_enemy.1` · [109]`ty@Tower.info.nearest_ene
+  [02] sub_plan                                        [R1] SubPlan 0x8 — 같은 (base,offset) 을 13가지 이름으로 부른다: DefenseNexus.focus@tag / EpicCheck.move_check / EpicHunt.__0.need_recall / EpicHunt.need_recall / Hide.__0.bush / Jungle.team / LineDefense.style / LineDefenseSubPlan.style / LineSafe.line / LineWait.line / SerpenCheck.move_check / SerpenHunt.need_recall / Steal.last_vision_tick
+        [02]`LineDefenseSubPlan.style` · [07]`EpicHunt.__0.need_recall` · [07]`Hide.__0.bush` · [56]`LineSafe.line/LineWait.line/LineDefense.style` · [77]`Def
+  [03] defensive_crisis                                [R1] AbstractGameWithCache 0x0 — 같은 (base,offset) 을 7가지 이름으로 부른다: +0x8 vtable_ptr / game / game data ptr / game.data_ptr / game.vtable / game.vtable_ptr / vtable_ptr
+        [03]`game.data_ptr` · [04]`game.data_ptr` · [06]`game.data_ptr` · [07]`game.data_ptr` · [08]`game.data_ptr` · [10]`game.data_ptr` · [11]`game.data_ptr
+  [03] defensive_crisis                                [R1] AbstractGameWithCache 0x8 — 같은 (base,offset) 을 3가지 이름으로 부른다: game vtable / game vtable ptr / game.vtable_ptr
+        [03]`game.vtable_ptr` · [04]`game.vtable_ptr` · [08]`game.vtable_ptr` · [10]`game.vtable_ptr` · [11]`game.vtable_ptr` · [12]`game.vtable_ptr` · [15]`g
+  [03] defensive_crisis                                [R1] Entity 0x4c8 — 같은 (base,offset) 을 3가지 이름으로 부른다: +8 ty.vtable) / skill_effect / skill_effect@Some.0
+        [03]`skill_effect` · [16]`skill_effect` · [37]`skill_effect` · [55]`skill_effect` · [65]`skill_effect` · [91]`skill_effect@Some.0` · [103]`skill_effec
+  [03] defensive_crisis                                [R1] Entity 0x500 — 같은 (base,offset) 을 3가지 이름으로 부른다: skill2_effect / skill2_effect@Some.0 / skill2_effect@Some.0 — casting@tag 0x530
+        [03]`skill2_effect` · [16]`skill2_effect` · [37]`skill2_effect` · [55]`skill2_effect` · [65]`skill2_effect` · [91]`skill2_effect@Some.0` · [103]`skill
+  [03] defensive_crisis                                [R1] Entity 0xb8 — 같은 (base,offset) 을 4가지 이름으로 부른다: ty.Champion.0.skill_cooldown / ty.Minion.info.attack_cooldown / ty@Champion.0.skill_cooldown / ty@Minion.info.attack_cooldown
+        [03]`ty.Champion.0.skill_cooldown` · [16]`ty.Champion.0.skill_cooldown/ty.Minion.info.attack_cooldown` · [86]`ty@Champion.0.skill_cooldown` · [87]`ty@
+  [03] defensive_crisis                                [R1] Entity 0xc0 — 같은 (base,offset) 을 2가지 이름으로 부른다: ty.Champion.0.skill2_cooldown / ty@Champion.0.skill2_cooldown
+        [03]`ty.Champion.0.skill2_cooldown` · [16]`ty.Champion.0.skill2_cooldown` · [86]`ty@Champion.0.skill2_cooldown` · [87]`ty@Champion.0.skill2_cooldown` 
+  [03] defensive_crisis                                [R1] Entity 0xc8 — 같은 (base,offset) 을 4가지 이름으로 부른다: ty.Bear.info.attack_cooldown / ty.Champion.0.ult_cooldown / ty@Bear.info.attack_cooldown / ty@Champion.0.ult_cooldown
+        [03]`ty.Champion.0.ult_cooldown` · [16]`ty.Champion.0.ult_cooldown/ty.Bear.info.attack_cooldown` · [84]`ty@Champion.0.ult_cooldown` · [103]`ty@Champio
+  [04] handle_line_defense                             [R1] AbstractGameWithCache 0x180 — 같은 (base,offset) 을 7가지 이름으로 부른다: +0x1a0 mid_tower / +0x1c0 bottom_tower / bottom_tower / bottom_tower 0x1c0) / mid_tower / top_tower[] / top_tower[]/top_tower2[]
+        [04]`top_tower[]` · [13]`top_tower[]` · [14]`top_tower[]` · [39]`top_tower[]/mid_tower/bottom_tower` · [46]`top_tower[]` · [47]`top_tower[]` · [51]`to
+  [04] handle_line_defense                             [R1] AbstractGameWithCache 0x1a0 — 같은 (base,offset) 을 2가지 이름으로 부른다: mid_tower/mid_tower2 / mid_tower[]
+        [04]`mid_tower[]` · [13]`mid_tower[]` · [47]`mid_tower[]` · [57]`mid_tower[]` · [105]`mid_tower/mid_tower2` · [107]`mid_tower[]` · [108]`mid_tower[]`
+  [04] handle_line_defense                             [R1] AbstractGameWithCache 0x1c0 — 같은 (base,offset) 을 2가지 이름으로 부른다: bottom_tower/bottom_tower2 / bottom_tower[]
+        [04]`bottom_tower[]` · [13]`bottom_tower[]` · [47]`bottom_tower[]` · [57]`bottom_tower[]` · [105]`bottom_tower/bottom_tower2` · [107]`bottom_tower[]` 
+  [04] handle_line_defense                             [R1] Blackboard 0x0 — 같은 (base,offset) 을 8가지 이름으로 부른다: +0x28 mid / +0x50 bottom / +0x50 bottom_minion_state / bottom / mid / top/mid/bottom_minion_state / top_minion_state / top_minion_state.front_minion
+        [04]`top_minion_state` · [26]`top_minion_state` · [34]`top_minion_state` · [51]`top_minion_state/+0x28 mid/+0x50 bottom` · [52]`top_minion_state/+0x50
+  [05] v50_fold_dive_episode                           [R1] LegacyPlanHandler 0x570 — 같은 (base,offset) 을 4가지 이름으로 부른다: v50_dive_ep_live / v50_dive_ep_live Some / v50_dive_ep_live.prev_holder_hp / v50_dive_ep_live@tag
+        [05]`v50_dive_ep_live` · [111]`v50_dive_ep_live Some` · [111]`v50_dive_ep_live.prev_holder_hp` · [111]`v50_dive_ep_live@tag`
+  [05] v50_fold_dive_episode                           [R1] LegacyPlanHandler 0x5e1 — 같은 (base,offset) 을 2가지 이름으로 부른다: v50_dive_ep_live.tower / v50_dive_ep_live@Some.0.tower
+        [05]`v50_dive_ep_live.tower` · [111]`v50_dive_ep_live@Some.0.tower`
+  [05] v50_fold_dive_episode                           [R1] LegacyPlanHandler 0x5e2 — 같은 (base,offset) 을 5가지 이름으로 부른다: 0x5dc start_race_adv / 0x5e3 start_na / 0x5e4 start_ne / v50_dive_ep_live.start_model / v50_dive_ep_live@Some.0.start_model
+        [05]`v50_dive_ep_live.start_model` · [111]`v50_dive_ep_live.start_model/0x5dc start_race_adv/0x5e3 start_na/0x5e4 start_ne` · [111]`v50_dive_ep_live@S
+  [05] v50_fold_dive_episode                           [R1] LegacyPlanHandler 0x5e8 — 같은 (base,offset) 을 4가지 이름으로 부른다: plan / plan ② / plan ③ / plan@tag
+        [05]`plan` · [11]`plan` · [12]`plan` · [40]`plan` · [104]`plan` · [105]`plan` · [110]`plan` · [111]`plan` · [111]`plan ②` · [111]`plan ③` · [111]`plan
+  [06] v2_response_retreat_stance                      [R4] a i   버 전   게 이 트 — 같은 노브가 값 "version > 1" / 2 를 동시에 갖는다
+        [06]`2` · [121]`"version > 1"`
+  [07] sub_plan                                        [R1] MobaMode 0x1a0 — 같은 (base,offset) 을 3가지 이름으로 부른다: jungle_runner.epic.live_list.buf.inner.ptr / jungle_runner.epic.live_list.buf.ptr / jungle_runner.epic.live_list.ptr
+        [07]`jungle_runner.epic.live_list.ptr` · [08]`jungle_runner.epic.live_list.ptr` · [10]`jungle_runner.epic.live_list.ptr` · [20]`jungle_runner.epic.liv
+  [07] sub_plan                                        [R4] 귀 환   h p   임 계 — 같은 노브가 값 "61 (%)" / 51 를 동시에 갖는다
+        [07]`51` · [107]`"61 (%)"`
+  [08] is_end                                          [R1] TeamPlan 0x420 — 같은 (base,offset) 을 16가지 이름으로 부른다: .line / Dive.line / Serpen.phase / objective.Gank.line / objective.Morgard.phase / objective.Serpen.phase / objective.payload+1 / objective.phase / objective@Morgard.phase / objective@PressEpic.0 / objective@Serpen.phase / objective@Some.0.line / objective@Some.0@Morgard.phase / objective@Some.0@Serpen.phase / objective@Some.0@Serpen.phase@tag / objective@Some.0@{Morgard,Serpen}.phase
+        [08]`objective.Morgard.phase` · [18]`objective.Serpen.phase` · [47]`objective@PressEpic.0` · [50]`objective@Morgard.phase` · [56]`objective.Gank.line/
+  [10] should_end_object_finish_kill_priority_battle   [R1] MobaMode 0x1d0 — 같은 (base,offset) 을 3가지 이름으로 부른다: jungle_runner.serpen.live_list.buf.inner.ptr / jungle_runner.serpen.live_list.buf.ptr / jungle_runner.serpen.live_list.ptr
+        [10]`jungle_runner.serpen.live_list.ptr` · [20]`jungle_runner.serpen.live_list.ptr` · [30]`jungle_runner.serpen.live_list.ptr` · [56]`jungle_runner.se
+  [11] v3_fall_back_to_passive                         [R1] BigPlan 0x0 — 같은 (base,offset) 을 5가지 이름으로 부른다: *plan = ActiveRecall / *plan = ForcePassive / @tag / plan@tag / tag
+        [11]`tag` · [88]`@tag` · [100]`@tag` · [107]`*plan = ActiveRecall` · [107]`*plan = ForcePassive` · [107]`@tag` · [108]`plan@tag`
+  [11] v3_fall_back_to_passive                         [R1] LegacyPlanHandler 0x0 — 같은 (base,offset) 을 2가지 이름으로 부른다: data / self
+        [11]`data` · [111]`data` · [111]`self`
+  [11] v3_fall_back_to_passive                         [R1] LegacyPlanHandler 0x768 — 같은 (base,offset) 을 2가지 이름으로 부른다: sub_plan / sub_plan@tag
+        [11]`sub_plan` · [111]`sub_plan` · [111]`sub_plan@tag`
+  [11] v3_fall_back_to_passive                         [R1] LegacyPlanHandler 0xf8 — 같은 (base,offset) 을 3가지 이름으로 부른다: team_plan / team_plan.ally_battle_stop_tick[] / team_plan.ally_battle_stop_tick[]@tag
+        [11]`team_plan` · [15]`team_plan` · [69]`team_plan` · [80]`team_plan` · [104]`team_plan.ally_battle_stop_tick[]` · [110]`team_plan` · [110]`team_plan.
+  [12] handle_chat                                     [R1] LegacyPlanHandler 0x517 — 같은 (base,offset) 을 2가지 이름으로 부른다: team_plan.objective / team_plan.objective@tag
+        [12]`team_plan.objective` · [69]`team_plan.objective` · [80]`team_plan.objective` · [88]`team_plan.objective` · [104]`team_plan.objective` · [105]`tea
+  [12] handle_chat                                     [R1] LegacyPlanHandler 0x858 — 같은 (base,offset) 을 3가지 이름으로 부른다: pending_trace_events / pending_trace_events — ★HEAP / pending_trace_events.cap
+        [12]`pending_trace_events.cap` · [111]`pending_trace_events` · [111]`pending_trace_events — ★HEAP`
+  [13] target_bush_v30                                 [R1] Entity 0x70 — 같은 (base,offset) 을 5가지 이름으로 부른다: ty.Champion.action_state@tag / ty.Tower.info / ty@Champion.0.action_state@tag / ty@Champion.0.action_state@tag == 1 / ty@Champion.action_state@tag
+        [13]`ty.Tower.info` · [14]`ty.Tower.info` · [56]`ty.Champion.action_state@tag` · [101]`ty@Champion.0.action_state@tag` · [102]`ty@Champion.0.action_st
+  [13] target_bush_v30                                 [R1] Entity 0x88 — 같은 (base,offset) 을 6가지 이름으로 부른다: ty.Tower.info.nearest_enemy@tag / ty@Epic.info.focused@tag / ty@Jungle.info.focused@tag / ty@Jungle|Epic.info.focused@tag / ty@Minion.info.nearest_enemy@tag / ty@Tower.info.nearest_enemy@tag
+        [13]`ty@Tower.info.nearest_enemy@tag` · [14]`ty@Tower.info.nearest_enemy@tag` · [22]`ty@Tower.info.nearest_enemy@tag` · [27]`ty@Minion.info.nearest_en
+  [15] single_try_engage                               [R1] BattlePlanGoal 0x0 — 같은 (base,offset) 을 4가지 이름으로 부른다: +0x10 %8 / +0x8 .0=target / tag / tag=0 TryKill
+        [15]`tag` · [17]`tag` · [68]`tag` · [69]`tag` · [155]`tag=0 TryKill/+0x8 .0=target/+0x10 %8`
+  [16] max_range_nearly_can_use                        [R1] Entity 0x110 — 같은 (base,offset) 을 2가지 이름으로 부른다: ty.Tower.info.attack_cooldown / ty@Tower.info.attack_cooldown
+        [16]`ty.Tower.info.attack_cooldown` · [171]`ty@Tower.info.attack_cooldown`
+  [16] max_range_nearly_can_use                        [R1] Entity 0x1f0 — 같은 (base,offset) 을 3가지 이름으로 부른다: ty.Epic.info.attack_cooldown / ty.Serpen.info.attack_cooldown / ty@Epic/Serpen.info.attack_cooldown
+        [16]`ty.Epic.info.attack_cooldown/ty.Serpen.info.attack_cooldown` · [171]`ty@Epic/Serpen.info.attack_cooldown`
+  [16] max_range_nearly_can_use                        [R1] Entity 0x490 — 같은 (base,offset) 을 2가지 이름으로 부른다: attack_effect / attack_effect@Some.0
+        [16]`attack_effect@Some.0` · [22]`attack_effect@Some.0` · [37]`attack_effect@Some.0` · [55]`attack_effect@Some.0` · [65]`attack_effect@Some.0` · [75]`
+  [16] max_range_nearly_can_use                        [R1] Entity 0x4a0 — 같은 (base,offset) 을 3가지 이름으로 부른다: attack_effect.range / attack_effect@Some.0.range / attack_effect@Some.range
+        [16]`attack_effect.range` · [22]`attack_effect.range` · [38]`attack_effect.range` · [41]`attack_effect.range` · [49]`attack_effect.range` · [55]`attac
+  [16] max_range_nearly_can_use                        [R1] Entity 0x4a8 — 같은 (base,offset) 을 3가지 이름으로 부른다: attack_effect.growth_range / attack_effect@Some.0.growth_range / attack_effect@Some.growth_range
+        [16]`attack_effect.growth_range` · [22]`attack_effect.growth_range` · [38]`attack_effect.growth_range` · [41]`attack_effect.growth_range` · [49]`attac
+  [16] max_range_nearly_can_use                        [R1] Entity 0x4b8 — 같은 (base,offset) 을 2가지 이름으로 부른다: attack_effect.target / attack_effect@Some.0.target
+        [16]`attack_effect.target` · [125]`attack_effect@Some.0.target`
+  [16] max_range_nearly_can_use                        [R1] Entity 0x4d8 — 같은 (base,offset) 을 2가지 이름으로 부른다: skill_effect.range / skill_effect@Some.0.range
+        [16]`skill_effect.range` · [103]`skill_effect@Some.0.range` · [114]`skill_effect@Some.0.range` · [128]`skill_effect@Some.0.range` · [158]`skill_effect
+  [16] max_range_nearly_can_use                        [R1] Entity 0x4e0 — 같은 (base,offset) 을 2가지 이름으로 부른다: skill_effect.growth_range / skill_effect@Some.0.growth_range
+        [16]`skill_effect.growth_range` · [103]`skill_effect@Some.0.growth_range` · [114]`skill_effect@Some.0.growth_range` · [128]`skill_effect@Some.0.growth
+  [16] max_range_nearly_can_use                        [R1] Entity 0x4f0 — 같은 (base,offset) 을 2가지 이름으로 부른다: skill_effect.target / skill_effect@Some.0.target
+        [16]`skill_effect.target` · [65]`skill_effect.target` · [114]`skill_effect@Some.0.target` · [127]`skill_effect@Some.0.target` · [128]`skill_effect@Som
+  [16] max_range_nearly_can_use                        [R1] Entity 0xb0 — 같은 (base,offset) 을 4가지 이름으로 부른다: SmallJiangshi.info.attack_cooldown / ty.Champion.0.attack_cooldown / ty.SmallJiangshi.info.attack_cooldown / ty@Champion.0.attack_cooldown
+        [16]`ty.Champion.0.attack_cooldown/ty.SmallJiangshi.info.attack_cooldown` · [87]`ty@Champion.0.attack_cooldown` · [92]`ty@Champion.0.attack_cooldown` 
+  [16] max_range_nearly_can_use                        [R1] Entity 0xd0 — 같은 (base,offset) 을 2가지 이름으로 부른다: ty.Illusion.info.attack_cooldown / ty@Illusion.info.attack_cooldown
+        [16]`ty.Illusion.info.attack_cooldown` · [171]`ty@Illusion.info.attack_cooldown`
+  [16] max_range_nearly_can_use                        [R1] Entity 0xd8 — 같은 (base,offset) 을 2가지 이름으로 부른다: ty.Revenant.info.attack_cooldown / ty@Revenant.info.attack_cooldown
+        [16]`ty.Revenant.info.attack_cooldown` · [171]`ty@Revenant.info.attack_cooldown`
+  [16] max_range_nearly_can_use                        [R1] Entity 0xe8 — 같은 (base,offset) 을 3가지 이름으로 부른다: ty.Ghoul.info.attack_cooldown / ty.Jungle.info.attack_cooldown / ty@Jungle/Ghoul.info.attack_cooldown
+        [16]`ty.Jungle.info.attack_cooldown/ty.Ghoul.info.attack_cooldown` · [171]`ty@Jungle/Ghoul.info.attack_cooldown`
+  [16] max_range_nearly_can_use                        [R1] Entity 0xf0 — 같은 (base,offset) 을 2가지 이름으로 부른다: ty.Eagle.info.attack_cooldown / ty@Eagle.info.attack_cooldown
+        [16]`ty.Eagle.info.attack_cooldown` · [171]`ty@Eagle.info.attack_cooldown`
+  [18] v3_epicops_buff_window                          [R1] TeamPlan 0x421 — 같은 (base,offset) 을 4가지 이름으로 부른다: ComebackPick.ready / objective.Serpen.with_battle / objective.payload+2 / objective.with_battle
+        [18]`objective.Serpen.with_battle` · [107]`objective.payload+2` · [108]`objective.with_battle/ComebackPick.ready`
+  [18] v3_epicops_buff_window                          [R1] TeamPlan 0xc0 — 같은 (base,offset) 을 4가지 이름으로 부른다: chats.buf.cap / chats.buf.inner.cap.0 / chats.cap / chats.push
+        [18]`chats.cap` · [47]`chats.cap` · [54]`chats.cap` · [54]`chats.push` · [57]`chats.cap` · [100]`chats.buf.inner.cap.0` · [107]`chats.buf.cap` · [108]
+  [18] v3_epicops_buff_window                          [R1] TeamPlan 0xc8 — 같은 (base,offset) 을 4가지 이름으로 부른다: chats.buf.inner.ptr[] / chats.buf.ptr / chats.ptr / chats[]
+        [18]`chats.ptr` · [47]`chats.ptr` · [57]`chats.ptr` · [57]`chats[]` · [100]`chats.buf.inner.ptr[]` · [107]`chats.buf.ptr` · [108]`chats.ptr`
+  [20] v27_active_objective_discipline                 [R1] GameMode 0x0 — 같은 (base,offset) 을 2가지 이름으로 부른다: @tag / tag
+        [20]`tag` · [30]`` · [31]`` · [32]`` · [47]`tag` · [50]`tag` · [53]`tag` · [57]`tag` · [71]`tag` · [72]`tag` · [78]`tag` · [91]`tag` · [95]`@tag` · [1
+  [20] v27_active_objective_discipline                 [R1] TeamPlan 0x130 — 같은 (base,offset) 을 2가지 이름으로 부른다: objective_discipline.wait_pos.0 / objective_discipline@Some.0.wait_pos.0
+        [20]`objective_discipline@Some.0.wait_pos.0` · [108]`objective_discipline.wait_pos.0`
+  [21] upgrade_item                                    [R1] Option< > 0x10 — 같은 (base,offset) 을 3가지 이름으로 부른다: Some.1 / Some.1 = enemy.id / Some.1 = item_list
+        [21]`Some.1 = item_list` · [87]`Some.1` · [101]`Some.1 = enemy.id`
+  [21] upgrade_item                                    [R1] Option< > 0x8 — 같은 (base,offset) 을 3가지 이름으로 부른다: Some.0 / Some.0 = ally.id / Some.0 = i
+        [21]`Some.0 = i` · [87]`Some.0` · [101]`Some.0 = ally.id`
+  [27] nexus_under_direct_attack                       [R1] Entity 0x90 — 같은 (base,offset) 을 3가지 이름으로 부른다: ty@Jungle.info.focused@Some.0 / ty@Jungle|Epic.info.focused@Some.0 / ty@Minion.info.nearest_enemy@Some.0
+        [27]`ty@Minion.info.nearest_enemy@Some.0` · [34]`ty@Minion.info.nearest_enemy@Some.0` · [36]`ty@Minion.info.nearest_enemy@Some.0` · [37]`ty@Minion.inf
+  [32] serpen_giveup_chat_reason                       [R1] MobaMode 0x260 — 같은 (base,offset) 을 3가지 이름으로 부른다: [] / serpen_count / serpen_count []
+        [32]`serpen_count []` · [93]`serpen_count/[]` · [100]`serpen_count`
+  [40] v3_assign_anchor                                [R1] LegacyPlanHandler 0x650 — 같은 (base,offset) 을 3가지 이름으로 부른다: plan@Battle.0.sub_goal@Trace.focus / plan@Battle.sub_goal.focus / plan@PassiveJungle.0.jungle
+        [40]`plan@PassiveJungle.0.jungle` · [104]`plan@Battle.0.sub_goal@Trace.focus` · [105]`plan@PassiveJungle.0.jungle` · [111]`plan@Battle.sub_goal.focus`
+  [41] fight_participants                              [R1] Blackboard 0x100 — 같은 (base,offset) 을 2가지 이름으로 부른다: big_goal[].1@Battle.focus@tag / big_goal[].1@Some.0@Battle.focus@tag
+        [41]`big_goal[].1@Battle.focus@tag` · [49]`big_goal[].1@Battle.focus@tag` · [79]`big_goal[].1@Some.0@Battle.focus@tag` · [81]`big_goal[].1@Battle.focu
+  [43] BattlePlan::with_runaway                        [R1] BattlePlan 0x40 — 같은 (base,offset) 을 2가지 이름으로 부른다: main_goal@tag / main_goal@tag@tag
+        [43]`main_goal@tag` · [80]`main_goal@tag@tag` · [102]`main_goal@tag` · [109]`main_goal@tag`
+  [43] BattlePlan::with_runaway                        [R1] BattlePlan 0xff — 같은 (base,offset) 을 2가지 이름으로 부른다: main_objective / main_objective@tag
+        [43]`main_objective@tag` · [69]`main_objective@tag` · [80]`main_objective@tag` · [102]`main_objective@tag` · [109]`main_objective@tag` · [110]`main_ob
+  [49] resolve_join_stake                              [R4] v e r s i o n   게 이 트 — 같은 노브가 값 1 / 2 를 동시에 갖는다
+        [49]`2` · [70]`1` · [77]`1` · [135]`2`
+  [50] check_epic_giveup                               [R4] 캠 프   근 처   반 경 — 같은 노브가 값 14400000001 / 150000 를 동시에 갖는다
+        [50]`150000` · [94]`14400000001`
+  [53] check_epic_setup                                [R1] Blackboard 0x20 — 같은 (base,offset) 을 3가지 이름으로 부른다: *_minion_state.minion_count / top_minion_state.minion_count / {top,mid,bottom}_minion_state.minion_count
+        [53]`top_minion_state.minion_count` · [54]`top_minion_state.minion_count` · [57]`top_minion_state.minion_count` · [82]`top_minion_state.minion_count` 
+  [53] check_epic_setup                                [R1] DebugFrameData 0xa0 — 같은 (base,offset) 을 7가지 이름으로 부른다: HashMap<usize / HashMap<usize,Vec<String>> entry / HashMap[] Vec<String> / infos / infos HashMap ★HEAP / infos[] / infos[].push
+        [53]`infos` · [53]`infos[]` · [67]`infos` · [74]`HashMap<usize` · [75]`HashMap[] Vec<String>` · [81]`infos` · [87]`infos` · [95]`infos` · [102]`infos`
+  [54] TeamPlan::update                                [R1] TeamPlan 0x378 — 같은 (base,offset) 을 2가지 이름으로 부른다: next_respawn_tick[][] / next_respawn_tick[][] · [][]
+        [54]`next_respawn_tick[][]` · [54]`next_respawn_tick[][] · [][]` · [115]`next_respawn_tick[][]`
+  [54] TeamPlan::update                                [R2] Blackboard big_goal[].1 — 같은 이름이 오프셋 (참고, 본문 밖) 0xf8 / 0xf0 에 동시에 있다 — **값이 틀렸거나, 이름이 두 자리를 구별하지 못한다**(후자면 이름을 갈라라)
+        [54]`0xf0` · [66]`(참고, 본문 밖) 0xf8`
+  [54] TeamPlan::update                                [R2] TeamPlan chats.push — 같은 이름이 오프셋 0xc0 / 0xc0 -> chats.ptr[len] 에 동시에 있다 — **값이 틀렸거나, 이름이 두 자리를 구별하지 못한다**(후자면 이름을 갈라라)
+        [54]`0xc0` · [107]`0xc0 -> chats.ptr[len]`
+  [65] check_epic_kill_time_with_hp                    [R1] Entity 0x528 — 같은 (base,offset) 을 2가지 이름으로 부른다: skill2_effect.target / skill2_effect@Some.0.target
+        [65]`skill2_effect@Some.0.target` · [114]`skill2_effect@Some.0.target` · [128]`skill2_effect@Some.0.target` · [158]`skill2_effect.target` · [164]`skil
+  [65] check_epic_kill_time_with_hp                    [R2] Entity skill2_effect@tag — 같은 이름이 오프셋 0x30 / 0x530 에 동시에 있다 — **값이 틀렸거나, 이름이 두 자리를 구별하지 못한다**(후자면 이름을 갈라라)
+        [65]`0x530` · [114]`0x530` · [123]`0x530` · [128]`0x530` · [143]`0x530` · [153]`0x530` · [158]`0x530` · [159]`0x30` · [160]`0x30` · [164]`0x530` · [16
+  [69] try_engage_dive                                 [R1] BattlePlan 0xfe — 같은 (base,offset) 을 2가지 이름으로 부른다: dive_tower / dive_tower@tag
+        [69]`dive_tower` · [80]`dive_tower` · [102]`dive_tower` · [104]`dive_tower` · [109]`dive_tower` · [110]`dive_tower@tag`
+  [82] epic_passive_plan                               [R1] Option<BigPlan> 0x0 — 같은 (base,offset) 을 2가지 이름으로 부른다: @tag / tag
+        [82]`tag` · [96]`@tag` · [155]`tag`
+  [82] epic_passive_plan                               [R1] Strategy 0x0 — 같은 (base,offset) 을 2가지 이름으로 부른다: object_buildup / object_buildup@tag
+        [82]`object_buildup@tag` · [83]`object_buildup` · [96]`object_buildup@tag` · [97]`object_buildup`
+  [84] battle_check_with_list                          [R1] AbstractGameWithCache 0xf0 — 같은 (base,offset) 을 5가지 이름으로 부른다: +0x18 len / +24 len / others[] / others[].buf.ptr / others[].ptr
+        [84]`others[]` · [103]`others[].ptr` · [114]`others[].buf.ptr` · [127]`others[].buf.ptr/+0x18 len` · [129]`others[].buf.ptr/+24 len` · [160]`others[].
+  [88] v2_apply_assign_commit                          [R1] LegacyPlanHandler 0x518 — 같은 (base,offset) 을 6가지 이름으로 부른다: line) / team_plan.objective +1 / team_plan.objective@Some.0 / team_plan.objective@Some.0.line/phase / team_plan.objective@Some.0@Gank.line / team_plan.objective@Some.0@Morgard.phase
+        [88]`team_plan.objective@Some.0@Morgard.phase` · [104]`team_plan.objective@Some.0.line/phase` · [104]`team_plan.objective@Some.0@Gank.line/team_plan.o
+  [99] steal::should_steal_now                         [R1] TeamPlan 0x1ba — 같은 (base,offset) 을 2가지 이름으로 부른다: current_steal_session@Some.0.enemy_jungler_alive_at_start / current_steal_session@tag
+        [99]`current_steal_session@tag` · [100]`current_steal_session@Some.0.enemy_jungler_alive_at_start` · [100]`current_steal_session@tag`
+  [99] steal::should_steal_now                         [R1] TeamPlan 0x58 — 같은 (base,offset) 을 2가지 이름으로 부른다: obj_spawn.epic_giveup_tick.0 / obj_spawn.epic_giveup_tick@Some.0
+        [99]`obj_spawn.epic_giveup_tick@Some.0` · [108]`obj_spawn.epic_giveup_tick.0`
+  [99] steal::should_steal_now                         [R1] TeamPlan 0x68 — 같은 (base,offset) 을 2가지 이름으로 부른다: obj_spawn.serpen_giveup_tick.0 / obj_spawn.serpen_giveup_tick@Some.0
+        [99]`obj_spawn.serpen_giveup_tick@Some.0` · [108]`obj_spawn.serpen_giveup_tick.0`
+  [100] TeamPlan::update_steal                          [R1] Entity 0x28 — 같은 (base,offset) 을 2가지 이름으로 부른다: last_attacked_from@tag / skill2_effect.target
+        [100]`last_attacked_from@tag` · [142]`last_attacked_from@tag` · [159]`skill2_effect.target` · [176]`last_attacked_from@tag`
+  [100] TeamPlan::update_steal                          [R1] Entity 0x30 — 같은 (base,offset) 을 2가지 이름으로 부른다: last_attacked_from@Some.0 / skill2_effect@tag
+        [100]`last_attacked_from@Some.0` · [142]`last_attacked_from@Some.0` · [148]`` · [149]`` · [159]`skill2_effect@tag` · [160]`skill2_effect@tag` · [176]`
+  [102] BattlePlan::update                              [R1] BattlePlan 0x0 — 같은 (base,offset) 을 2가지 이름으로 부른다: support_target / support_target@tag
+        [102]`support_target@tag` · [104]`support_target@tag` · [109]`support_target` · [109]`support_target@tag` · [110]`support_target` · [155]``
+  [102] BattlePlan::update                              [R1] ObjectiveDisciplineState 0x19 — 같은 (base,offset) 을 2가지 이름으로 부른다: kind / kind@tag
+        [102]`kind` · [156]`kind@tag`
+  [103] position_risk_all_zero_near                     [R1] AbstractGameWithCache 0xd0 — 같은 (base,offset) 을 3가지 이름으로 부른다: +0xe8 len / jungles.buf.ptr / jungles.ptr
+        [103]`jungles.ptr` · [127]`jungles.buf.ptr` · [129]`jungles.buf.ptr/+0xe8 len`
+  [103] position_risk_all_zero_near                     [R1] Projectile 0x0 — 같은 (base,offset) 을 2가지 이름으로 부른다: team / team@tag
+        [103]`team` · [121]`team@tag` · [127]`team@tag`
+  [103] position_risk_all_zero_near                     [R1] Projectile 0x18 — 같은 (base,offset) 을 3가지 이름으로 부른다: shape / shape@*.0 / width)
+        [103]`shape@*.0/width)` · [121]`shape`
+  [103] position_risk_all_zero_near                     [R1] Projectile 0x20 — 같은 (base,offset) 을 3가지 이름으로 부른다: shape@1.from_x / shape@2.height / shape@Rect.height
+        [103]`shape@1.from_x/shape@2.height` · [121]`shape@Rect.height`
+  [103] position_risk_all_zero_near                     [R1] Projectile 0x68 — 같은 (base,offset) 을 2가지 이름으로 부른다: move_type@LinearDist.target_x / move_type@Periodic.period
+        [103]`move_type@LinearDist.target_x` · [121]`move_type@LinearDist.target_x` · [127]`move_type@Periodic.period`
+  [103] position_risk_all_zero_near                     [R1] Projectile 0x70 — 같은 (base,offset) 을 2가지 이름으로 부른다: move_type@LinearDist.target_y / move_type@Periodic.cool
+        [103]`move_type@LinearDist.target_y` · [121]`move_type@LinearDist.target_y` · [127]`move_type@Periodic.cool`
+  [104] handle_chat_inner                               [R1] LegacyPlanHandler 0x148 — 같은 (base,offset) 을 2가지 이름으로 부른다: team_plan.obj_spawn.epic_giveup_tick / team_plan.obj_spawn.epic_giveup_tick@tag
+        [104]`team_plan.obj_spawn.epic_giveup_tick` · [105]`team_plan.obj_spawn.epic_giveup_tick@tag`
+  [104] handle_chat_inner                               [R1] LegacyPlanHandler 0x1d8 — 같은 (base,offset) 을 3가지 이름으로 부른다: team_plan.comeback_pick_outcomes.buf.ptr / team_plan.comeback_pick_outcomes.last / team_plan.comeback_pick_outcomes[].1
+        [104]`team_plan.comeback_pick_outcomes.buf.ptr` · [104]`team_plan.comeback_pick_outcomes[].1` · [111]`team_plan.comeback_pick_outcomes.last`
+  [104] handle_chat_inner                               [R1] LegacyPlanHandler 0x519 — 같은 (base,offset) 을 4가지 이름으로 부른다: ready) / team_plan.objective +2 / team_plan.objective@Some.0@ComebackPick.ready / team_plan.objective@Some.0@Morgard.with_battle
+        [104]`team_plan.objective@Some.0@Morgard.with_battle/team_plan.objective@Some.0@ComebackPick.ready` · [110]`team_plan.objective +2/ready)`
+  [104] handle_chat_inner                               [R1] LegacyPlanHandler 0x5f0 — 같은 (base,offset) 을 7가지 이름으로 부른다: plan+8 / plan+8 chats.len / plan@Battle.0 / plan@Battle.0.support_target@tag / plan@LineGanker.0.chats / plan@PassiveJungle.0 / plan@PassiveLine.0
+        [104]`plan@Battle.0` · [104]`plan@Battle.0.support_target@tag` · [104]`plan@LineGanker.0.chats` · [105]`plan@PassiveJungle.0` · [110]`plan@Battle.0` ·
+  [104] handle_chat_inner                               [R1] LegacyPlanHandler 0x7d0 — 같은 (base,offset) 을 2가지 이름으로 부른다: chats.buf.ptr / chats.ptr[]
+        [104]`chats.buf.ptr` · [110]`chats.ptr[]`
+  [105] passive_plan                                    [R1] Blackboard 0x10 — 같은 (base,offset) 을 2가지 이름으로 부른다: *_minion_state.from_mid / {top,mid,bottom}_minion_state.from_mid
+        [105]`*_minion_state.from_mid` · [111]`{top,mid,bottom}_minion_state.from_mid`
+  [107] TeamPlan::handle_none_or_gank_objective         [R1] TeamPlan 0xe0 — 같은 (base,offset) 을 2가지 이름으로 부른다: comeback_pick_outcomes.buf.ptr / comeback_pick_outcomes.ptr
+        [107]`comeback_pick_outcomes.buf.ptr` · [108]`comeback_pick_outcomes.ptr`
+  [109] BattlePlan::update_v32                          [R1] Entity 0x78 — 같은 (base,offset) 을 3가지 이름으로 부른다: ty@Champion.0.action_state@Return.time / ty@Champion.0.action_state@{Attack,Skill,Skill2,Ult}.time / ty@Champion.action_state@Move.x
+        [109]`ty@Champion.action_state@Move.x` · [112]`ty@Champion.0.action_state@{Attack,Skill,Skill2,Ult}.time` · [127]`ty@Champion.0.action_state@Return.ti
+  [110] LegacyPlanHandler::handle_interact_battle       [R1] AbstractGame vtable 0x40 — 같은 (base,offset) 을 2가지 이름으로 부른다: as_moba / get_game_mode
+        [110]`as_moba` · [111]`get_game_mode`
+  [114] attack_summon_action                            [R1] Entity 0x510 — 같은 (base,offset) 을 2가지 이름으로 부른다: skill2_effect.range / skill2_effect@Some.0.range
+        [114]`skill2_effect@Some.0.range` · [128]`skill2_effect@Some.0.range` · [158]`skill2_effect.range` · [164]`skill2_effect@Some.0.range`
+  [114] attack_summon_action                            [R1] Entity 0x518 — 같은 (base,offset) 을 2가지 이름으로 부른다: skill2_effect.growth_range / skill2_effect@Some.0.growth_range
+        [114]`skill2_effect@Some.0.growth_range` · [128]`skill2_effect@Some.0.growth_range` · [158]`skill2_effect.growth_range` · [164]`skill2_effect@Some.0.g
+  [114] attack_summon_action                            [R2] AbstractGameWithCache others[].len — 같은 이름이 오프셋 0x108 / 0x18 에 동시에 있다 — **값이 틀렸거나, 이름이 두 자리를 구별하지 못한다**(후자면 이름을 갈라라)
+        [114]`0x108` · [162]`0x18`
+  [123] attack_structure_skill_action                   [R2] Entity skill — 같은 이름이 오프셋 0x580 / 0x588 에 동시에 있다 — **값이 틀렸거나, 이름이 두 자리를 구별하지 못한다**(후자면 이름을 갈라라)
+        [123]`0x580` · [123]`0x588` · [143]`0x580`
+  [138] EpicPokeSubPlan::score                          [R1] SmallActionPlay 0x10 — 같은 (base,offset) 을 4가지 이름으로 부른다: AroundPositionBush y / AroundRegion x / goal_y · Around/AroundHide/LaneMinionPosition.goal_x / variant goal_y · Around/AroundHide/LaneMinionPosition.goal_x
+        [138]`AroundRegion x/AroundPositionBush y` · [139]`AroundRegion x/AroundPositionBush y` · [141]`goal_y · Around/AroundHide/LaneMinionPosition.goal_x` 
+  [139] SerpenPokeSubPlan::score                        [R4] 보 너 스   적 용   거 리   게 이 트 — 같은 노브가 값 22500000001 / 39999999999 를 동시에 갖는다
+        [139]`22500000001` · [143]`39999999999`
+  [141] SmallActionPlay::get_input                      [R1] Input 0x0 — 같은 (base,offset) 을 2가지 이름으로 부른다: @tag / tag
+        [141]`@tag` · [179]`tag`
+  [143] LineDefenseSubPlan::score                       [R1] ActionContext 0x10 — 같은 (base,offset) 을 2가지 이름으로 부른다: anchor@tag / anchor@tag = 1
+        [143]`anchor@tag = 1` · [165]`anchor@tag`
+  [143] LineDefenseSubPlan::score                       [R1] ActionContext 0x11 — 같은 (base,offset) 을 2가지 이름으로 부른다: anchor@Lane.line / anchor@Lane.line = self.line
+        [143]`anchor@Lane.line = self.line` · [165]`anchor@Lane.line`
+  [158] line_minion_action_candidates                   [R2] Entity skill2_effect.growth_range — 같은 이름이 오프셋 0x18 / 0x518 에 동시에 있다 — **값이 틀렸거나, 이름이 두 자리를 구별하지 못한다**(후자면 이름을 갈라라)
+        [158]`0x518` · [159]`0x18`
+  [158] line_minion_action_candidates                   [R2] Entity skill2_effect.range — 같은 이름이 오프셋 0x10 / 0x510 에 동시에 있다 — **값이 틀렸거나, 이름이 두 자리를 구별하지 못한다**(후자면 이름을 갈라라)
+        [158]`0x510` · [159]`0x10`
+  [158] line_minion_action_candidates                   [R2] Entity skill2_effect.target — 같은 이름이 오프셋 0x28 / 0x528 에 동시에 있다 — **값이 틀렸거나, 이름이 두 자리를 구별하지 못한다**(후자면 이름을 갈라라)
+        [158]`0x528` · [159]`0x28`
+  [172] SmallActionPositioning::get_input               [R1] bumpalo Vec 0x0 — 같은 (base,offset) 을 2가지 이름으로 부른다: candidates / candidates ptr/+0x8 bump/+0x10 cap/+0x18 len
+        [172]`candidates ptr/+0x8 bump/+0x10 cap/+0x18 len` · [173]`candidates`
+  [177] SmallActionAroundRegion::get_input              [R1] 후보 튜플 0x10 — 같은 (base,offset) 을 2가지 이름으로 부른다: .4 = key = score*10000 + d/1000 / .4 = score
+        [177]`.4 = score` · [179]`.4 = key = score*10000 + d/1000`
+
+### [G5 sig 정본 대조] 4건
+  [169] calculate_serpen_action_score                   params[2](player) 의 가변성이 tcx 와 다르다 — 명세 `&PlayerState(2528B)` / tcx `&mut rand::rngs::std::StdRng`
+  [169] calculate_serpen_action_score                   params[1](rnd) 의 가변성이 tcx 와 다르다 — 명세 `&mut StdRng` / tcx `&std::boxed::Box<dyn [Binder { value: Trait(game_core::Actio`
+  [170] calculate_epic_action_score                     params[2](player) 의 가변성이 tcx 와 다르다 — 명세 `&PlayerState(2528B)` / tcx `&mut rand::rngs::std::StdRng`
+  [170] calculate_epic_action_score                     params[1](rnd) 의 가변성이 tcx 와 다르다 — 명세 `&mut StdRng` / tcx `&std::boxed::Box<dyn [Binder { value: Trait(game_core::Actio`
+
+### [G7 과열림] 7건
+  [70] tower_dive_is_viable                            ★open 이 `shared.is_recent_visible` 를 부르는데 그 항목은 **확정**이다 — 과열림
+        「미탐색」이다: check_kill_die_tick · resolve_fight_stake 내부 · max_range_cached · is_enemy_well_danger · is_unreasonable_tower_
+  [101] line_backfight_support_focus                    ★open 이 `shared.is_recent_visible` 를 부르는데 그 항목은 **확정**이다 — 과열림
+        「미탐색」이다(19차 D 로 범위 축소): `is_near_line`(**g09.ll:157890** define · 상수 192001/704000/95999/63999/64000)·`distance`(g06.ll:
+  [106] TeamPlan::v25_objective_posture                 ★open 이 `shared.is_recent_visible` 를 부르는데 그 항목은 **확정**이다 — 과열림
+        camp_possible_enemy 클로저(closure#8, L248~257) 내부 줄 배정 — IR 태그가 전부 fold 루트 258 이고 exe 패닉 Location 249:12 로 hp 식만 L249 확정. 
+  [150] v22_lane_tower_pressure_attack_allowed          ★open 이 `shared.is_recent_visible` 를 부르는데 그 항목은 **확정**이다 — 과열림
+        Blackboard::is_recent_visible(&Blackboard(744B), &dyn AbstractGame, &PlayerState, &Entity)->bool 내부(_gcbc/g07.ll:157005)
+  [156] v27_objective_discipline_action                 ★open 이 `shared.is_recent_visible` 를 부르는데 그 항목은 **확정**이다 — 과열림
+        is_ignored_well_enemy(usize,&PlayerState,&Entity)->bool (fight_model.rs:754) · Blackboard::is_recent_visible · new_with_
+  [162] v57_summon_command_score                        ★open 이 `shared.is_recent_visible` 를 부르는데 그 항목은 **확정**이다 — 과열림
+        Effect::expected_damage_target / Entity::attack_cooltime / Blackboard::is_recent_visible 내부는 game_core 경계 — 시그니처만 기록(tcx
+  [171] line_projected_punish_damage_at                 ★open 이 `shared.is_recent_visible` 를 부르는데 그 항목은 **확정**이다 — 과열림
+        Blackboard::is_recent_visible(_gcbc g07.ll:157005) 계약: (&Blackboard 744B, game data ptr, vtable ptr(816B), &PlayerState,
+
+### [참고 — 결함 아님, 건수에 안 들어감] 32건
+  (G9) [10] should_end_object_finish_kill_priority_bat  손확인 1개 — logic 이 필드처럼 적었고 tcx 에 동명 함수가 있다. **동명 필드가 실재하면 정상**이다(결함 아님)
+        position(동명 필드 있음)
+  (G9) [21] upgrade_item                                손확인 1개 — logic 이 필드처럼 적었고 tcx 에 동명 함수가 있다. **동명 필드가 실재하면 정상**이다(결함 아님)
+        candidate ★함수만
+  (G9) [23] buy_item                                    손확인 1개 — logic 이 필드처럼 적었고 tcx 에 동명 함수가 있다. **동명 필드가 실재하면 정상**이다(결함 아님)
+        candidate ★함수만
+  (G9) [25] v22_visible_enemy_is_runaway_threat         손확인 1개 — logic 이 필드처럼 적었고 tcx 에 동명 함수가 있다. **동명 필드가 실재하면 정상**이다(결함 아님)
+        position(동명 필드 있음)
+  (G9) [29] v23_recent_visible_enemies_near_point       손확인 1개 — logic 이 필드처럼 적었고 tcx 에 동명 함수가 있다. **동명 필드가 실재하면 정상**이다(결함 아님)
+        position(동명 필드 있음)
+  (G9) [40] v3_assign_anchor                            손확인 1개 — logic 이 필드처럼 적었고 tcx 에 동명 함수가 있다. **동명 필드가 실재하면 정상**이다(결함 아님)
+        position(동명 필드 있음)
+  (G9) [50] check_epic_giveup                           손확인 1개 — logic 이 필드처럼 적었고 tcx 에 동명 함수가 있다. **동명 필드가 실재하면 정상**이다(결함 아님)
+        max_hp(동명 필드 있음)
+  (G9) [51] check_press_tower_opportunity               손확인 3개 — logic 이 필드처럼 적었고 tcx 에 동명 함수가 있다. **동명 필드가 실재하면 정상**이다(결함 아님)
+        max_hp(동명 필드 있음), minion_state ★함수만, tower(동명 필드 있음)
+  (G9) [52] v25_objective_far_split_pressure            손확인 1개 — logic 이 필드처럼 적었고 tcx 에 동명 함수가 있다. **동명 필드가 실재하면 정상**이다(결함 아님)
+        max_hp(동명 필드 있음)
+  (G9) [67] v24_objective_setup_lane_pressure_ready     손확인 1개 — logic 이 필드처럼 적었고 tcx 에 동명 함수가 있다. **동명 필드가 실재하면 정상**이다(결함 아님)
+        max_hp(동명 필드 있음)
+  (G9) [75] SerpenStanceData::update_plan               손확인 1개 — logic 이 필드처럼 적었고 tcx 에 동명 함수가 있다. **동명 필드가 실재하면 정상**이다(결함 아님)
+        max_hp(동명 필드 있음)
+  (G9) [76] EpicStanceData::update_plan                 손확인 1개 — logic 이 필드처럼 적었고 tcx 에 동명 함수가 있다. **동명 필드가 실재하면 정상**이다(결함 아님)
+        max_hp(동명 필드 있음)
+  (G9) [77] DefenseNexusPlan::sub_plan                  손확인 1개 — logic 이 필드처럼 적었고 tcx 에 동명 함수가 있다. **동명 필드가 실재하면 정상**이다(결함 아님)
+        max_hp(동명 필드 있음)
+  (G9) [81] check_epic_hunt                             손확인 1개 — logic 이 필드처럼 적었고 tcx 에 동명 함수가 있다. **동명 필드가 실재하면 정상**이다(결함 아님)
+        max_hp(동명 필드 있음)
+  (G9) [82] epic_passive_plan                           손확인 1개 — logic 이 필드처럼 적었고 tcx 에 동명 함수가 있다. **동명 필드가 실재하면 정상**이다(결함 아님)
+        max_hp(동명 필드 있음)
+  (G9) [83] EpicHuntAndPokePlan::sub_plan               손확인 1개 — logic 이 필드처럼 적었고 tcx 에 동명 함수가 있다. **동명 필드가 실재하면 정상**이다(결함 아님)
+        max_hp(동명 필드 있음)
+  (G9) [85] should_disengage_object_hunt                손확인 1개 — logic 이 필드처럼 적었고 tcx 에 동명 함수가 있다. **동명 필드가 실재하면 정상**이다(결함 아님)
+        max_hp(동명 필드 있음)
+  (G9) [87] check_kill                                  손확인 1개 — logic 이 필드처럼 적었고 tcx 에 동명 함수가 있다. **동명 필드가 실재하면 정상**이다(결함 아님)
+        max_hp(동명 필드 있음)
+  (G9) [92] v46_flee_gate_check                         손확인 4개 — logic 이 필드처럼 적었고 tcx 에 동명 함수가 있다. **동명 필드가 실재하면 정상**이다(결함 아님)
+        attack(동명 필드 있음), max_hp(동명 필드 있음), skill(동명 필드 있음), skill2(동명 필드 있음)
+  (G9) [93] check_serpen_giveup                         손확인 1개 — logic 이 필드처럼 적었고 tcx 에 동명 함수가 있다. **동명 필드가 실재하면 정상**이다(결함 아님)
+        max_hp(동명 필드 있음)
+  (G9) [94] check_serpen_hunt                           손확인 1개 — logic 이 필드처럼 적었고 tcx 에 동명 함수가 있다. **동명 필드가 실재하면 정상**이다(결함 아님)
+        max_hp(동명 필드 있음)
+  (G9) [96] serpen_passive_plan                         손확인 2개 — logic 이 필드처럼 적었고 tcx 에 동명 함수가 있다. **동명 필드가 실재하면 정상**이다(결함 아님)
+        default ★함수만, max_hp(동명 필드 있음)
+  (G9) [97] SerpenHuntAndPokePlan::sub_plan             손확인 1개 — logic 이 필드처럼 적었고 tcx 에 동명 함수가 있다. **동명 필드가 실재하면 정상**이다(결함 아님)
+        max_hp(동명 필드 있음)
+  (G9) [98] steal::evaluate_steal_for_target            손확인 1개 — logic 이 필드처럼 적었고 tcx 에 동명 함수가 있다. **동명 필드가 실재하면 정상**이다(결함 아님)
+        max_hp(동명 필드 있음)
+  (G9) [103] position_risk_all_zero_near                 손확인 1개 — logic 이 필드처럼 적었고 tcx 에 동명 함수가 있다. **동명 필드가 실재하면 정상**이다(결함 아님)
+        stat(동명 필드 있음)
+  (G9) [105] passive_plan                                손확인 1개 — logic 이 필드처럼 적었고 tcx 에 동명 함수가 있다. **동명 필드가 실재하면 정상**이다(결함 아님)
+        line(동명 필드 있음)
+  (G9) [109] BattlePlan::update_v32                      손확인 1개 — logic 이 필드처럼 적었고 tcx 에 동명 함수가 있다. **동명 필드가 실재하면 정상**이다(결함 아님)
+        max_hp(동명 필드 있음)
+  (G9) [112] nontarget_windup_perceived                  손확인 1개 — logic 이 필드처럼 적었고 tcx 에 동명 함수가 있다. **동명 필드가 실재하면 정상**이다(결함 아님)
+        position(동명 필드 있음)
+  (G9) [142] path_needs_tower_escape                     손확인 1개 — logic 이 필드처럼 적었고 tcx 에 동명 함수가 있다. **동명 필드가 실재하면 정상**이다(결함 아님)
+        tower(동명 필드 있음)
+  (G9) [177] SmallActionAroundRegion::get_input          손확인 1개 — logic 이 필드처럼 적었고 tcx 에 동명 함수가 있다. **동명 필드가 실재하면 정상**이다(결함 아님)
+        goal(동명 필드 있음)
+  (G9) [178] SmallActionAroundPosition::get_input        손확인 1개 — logic 이 필드처럼 적었고 tcx 에 동명 함수가 있다. **동명 필드가 실재하면 정상**이다(결함 아님)
+        goal(동명 필드 있음)
+  (G9) [179] SmallActionAround::get_input                손확인 1개 — logic 이 필드처럼 적었고 tcx 에 동명 함수가 있다. **동명 필드가 실재하면 정상**이다(결함 아님)
+        goal(동명 필드 있음)
+
+총 168건

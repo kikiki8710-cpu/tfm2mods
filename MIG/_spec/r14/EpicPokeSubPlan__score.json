@@ -1,0 +1,90 @@
+{
+ "name": "EpicPokeSubPlan::score",
+ "sym": "_RNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy8sub_plan9epic_pokeNtB2_15EpicPokeSubPlan5score",
+ "src": "game-ai\\src\\plan_legacy\\sub_plan\\epic_poke.rs",
+ "src_line": 521,
+ "ir_file": "m02.ll",
+ "ir_from": 46765,
+ "ir_to": 47098,
+ "aux": [],
+ "one_line": "에픽 포킹 서브플랜 행동 점수 = interaction_score ± (에픽 미가시·도주계열이면 /2) + 에픽 지향 보너스 5",
+ "signature": {
+  "abi": "일반 Rust ABI(define noundef i64, hidden 아님·internal 아님). exe 0xccaa10 · 인자 8(self, version, parameter, rnd, player, data, action, debug) 이 tcx sig(i=2965 류와 동형, SerpenPoke/LineDefense 와 같은 SubPlan::score 시그니처)와 1:1",
+  "params": [
+   {"i": 1, "name": "self", "type": "&EpicPokeSubPlan", "note": "captures(none) — 본문에서 안 읽음"},
+   {"i": 2, "name": "version", "type": "usize", "note": "interaction_score 로 전달만. 이 함수 안 분기 없음"},
+   {"i": 3, "name": "parameter", "type": "&ScoreParameter(5384B)", "note": "interaction_score 로 전달만"},
+   {"i": 4, "name": "rnd", "type": "&mut StdRng(320B)", "note": "interaction_score 로 전달만 — 이 함수 자체의 write 0건(호출 안에서의 소비는 콜리 몫)"},
+   {"i": 5, "name": "player", "type": "&PlayerState(2528B)", "note": "info.team(+0x930)·info.position 태그(+0x9c0) 로 내 챔피언 조회"},
+   {"i": 6, "name": "data", "type": "&OperationData(24B)", "note": "cache(+0)→player_champion / game.get_game_mode·get_entity_by_id ; context(+8)→map(+0x20)→regions"},
+   {"i": 7, "name": "action", "type": "&SmallActionPlay(184B)", "note": "get_action()(small_action.rs:309 인라인, 태그 +0xb1 니치) 로 SmallAction 변환해 매칭"},
+   {"i": 8, "name": "debug", "type": "&mut DebugFrameData(224B)", "note": "interaction_score 로 전달만 — 이 함수 자체의 write 0건"}
+  ],
+  "returns": "i64 — objective_score + bonus. objective_score = s 또는 s/2(sdiv, 0방향 절사) · bonus ∈ {0,5}"
+ },
+ "reads": [
+  {"base": "PlayerState", "offset": "0x930", "name": "info.team", "note": "m02.ll:46783 (<2 경계검사 46785)"},
+  {"base": "PlayerState", "offset": "0x9c0", "name": "info.position@tag", "note": "m02.ll:46794 i32 zext → player_champion 2차 인덱스"},
+  {"base": "OperationData", "offset": "0x0", "name": "cache", "note": "m02.ll:46797"},
+  {"base": "OperationData", "offset": "0x8", "name": "context", "note": "m02.ll:46878"},
+  {"base": "AbstractGameWithCache", "offset": "0x1e0", "name": "player_champion[team][pos]", "note": "m02.ll:46798~46801 Option<&Entity>, None 이면 unwrap_failed(46821)"},
+  {"base": "AbstractGameWithCache", "offset": "0x0", "name": "game.data_ptr", "note": "m02.ll:46808"},
+  {"base": "AbstractGameWithCache", "offset": "0x8", "name": "game.vtable_ptr", "note": "m02.ll:46810"},
+  {"base": "vtable(AbstractGame)", "offset": "0x40", "name": "get_game_mode", "note": "m02.ll:46811~46813, 46950 → GameMode{tag i64, ptr} (divtable AbstractGame 0x40). 2회 호출(L525, L534)"},
+  {"base": "vtable(AbstractGame)", "offset": "0x1f0", "name": "get_entity_by_id", "note": "m02.ll:46851~46855 fn(id)->Option<&Entity> (divtable AbstractGame 0x1f0)"},
+  {"base": "GameMode", "offset": "0x0", "name": "tag", "note": "0=Moba 만 허용, 그 외 unwrap_failed (m02.ll:46817, 46954)"},
+  {"base": "GameMode", "offset": "0x8", "name": "Moba.0 (&MobaMode)", "note": "extractvalue 1 (m02.ll:46825)"},
+  {"base": "MobaMode", "offset": "0x1a0", "name": "jungle_runner.epic.live_list.buf.ptr", "note": "m02.ll:46843, 47003 (tcxdict MobaMode 0x1a0)"},
+  {"base": "MobaMode", "offset": "0x1a8", "name": "jungle_runner.epic.live_list.len", "note": "m02.ll:46833, 46993 — 0 이면 epic=None / target 비교 0"},
+  {"base": "Entity", "offset": "0x660", "name": "x", "note": "champ (m02.ll:46871)"},
+  {"base": "Entity", "offset": "0x668", "name": "y", "note": "champ (m02.ll:46864)"},
+  {"base": "Entity", "offset": "0x0", "name": "team@tag", "note": "champ, is_visible_from→player_team (m02.ll:47024) 0=Player 1=Neutral (tcxdict TeamType)"},
+  {"base": "Entity", "offset": "0x8", "name": "team@Player.0", "note": "champ 팀 번호 (m02.ll:47025)"},
+  {"base": "Entity", "offset": "0x38", "name": "visible_state[team]@tag", "note": "epic, stride 24B (gepS m02.ll:47048) 0=Visible/1=Invisible/2=Unknown (tcxdict VisibleState)"},
+  {"base": "GameContext", "offset": "0x20", "name": "map (&MapDef)", "note": "m02.ll:46880"},
+  {"base": "MapDef", "offset": "0x38b8", "name": "regions[30][30] (usize)", "note": "m02.ll:46882 [y/32000][x/32000], 각 축 min(…,29). 값은 RegionName 인덱스(7=Epic)"},
+  {"base": "SmallActionPlay", "offset": "0xb1", "name": "@tag (니치)", "note": "m02.ll:46892, 47055 — tag>2 ? tag-3 : 7 = 논리 idx (untagged AroundPosition=idx7)"},
+  {"base": "SmallActionPlay", "offset": "0x8", "name": "Around/AroundHide/LaneMinionPosition.target_id (get_action→SmallAction::Around{target_id})", "note": "m02.ll:46945"},
+  {"base": "SmallActionPlay", "offset": "0x10", "name": "AroundRegion x (idx4) / AroundPositionBush y (idx8)", "note": "m02.ll:46958~46963 phi 오프셋 쌍: idx4→(16,24) idx7→(48,56) idx8→(8,16) idx9→(24,32)"},
+  {"base": "SmallActionPlay", "offset": "0x18", "name": "AroundRegion y / AroundBush x", "note": "get_action→SmallAction::AroundPosition{x,y}"},
+  {"base": "SmallActionPlay", "offset": "0x20", "name": "AroundBush y", "note": ""},
+  {"base": "SmallActionPlay", "offset": "0x30", "name": "AroundPosition x", "note": ""},
+  {"base": "SmallActionPlay", "offset": "0x38", "name": "AroundPosition y", "note": ""}
+ ],
+ "writes": [],
+ "constants": [
+  {"value": 7, "src_line": 528, "meaning": "RegionName::Epic 의 usize 인덱스(tcxdict --enum game_core::RegionName idx7). champ_region==7 → bonus 0 (m02.ll:46887) / 목표 region==7 → +5 (m02.ll:46980). ⚠m02.ll:46898·47061 의 7 은 니치 untagged idx(AroundPosition) — 다른 뜻"},
+  {"value": 5, "src_line": 534, "meaning": "에픽 지향 보너스(L534 target_id==epic id / L542 목표 지점 region==Epic) (m02.ll:46981, 47015)"},
+  {"value": 2, "src_line": 557, "meaning": "objective_score = s / 2 (sdiv, L557) — 에픽 미가시 ∧ RunAway 계열 (m02.ll:47086). ⚠46785·47038 의 2 는 팀 배열 경계검사"},
+  {"value": 32000, "src_line": 526, "meaning": "셀 크기 — 좌표→regions 인덱스 변환 (m02.ll:46866, 46873, 46966, 46971)"},
+  {"value": 29, "src_line": 526, "meaning": "regions 인덱스 상한 clamp(min(…,29), 30x30 격자) (m02.ll:46870 등)"},
+  {"value": 0, "src_line": 525, "meaning": "GameMode 태그 0=Moba(m02.ll:46817) · live_list.len==0 (46839) · visible_state 태그 0=Visible(47050) · bonus 기본 0"},
+  {"value": 3, "src_line": 532, "meaning": "SmallActionPlay 니치 시작(niche_start=3): idx = tag-3 (m02.ll:46896) — get_action 인라인 아티팩트"},
+  {"value": 10, "src_line": 532, "meaning": "llvm.assume(tag != 10): 태그 10 은 SmallActionPlay 에 없는 값(idx7 은 untagged) (m02.ll:46894)"}
+ ],
+ "calls": [
+  "game_ai::action_score::interaction_score",
+  "core::panicking::panic_bounds_check",
+  "core::option::unwrap_failed",
+  "llvm.umin.i64",
+  "llvm.assume"
+ ],
+ "logic": "fn score(&self, version, parameter, rnd, player, data, action, debug) -> i64   // epic_poke.rs:521\n  let s = interaction_score(version, rnd, player, data, parameter, action, debug);   // L522 (m02.ll:46781)\n  let champ = data.cache.player_champion[player.info.team][player.info.position].unwrap();   // L524\n  // L525: let epic = match data.cache.game.get_game_mode() { Moba(m) => m.jungle_runner.epic.live_list.first().and_then(|id| game.get_entity_by_id(*id)), _ => unwrap_failed(패닉) }\n  //   live_list.len==0 → None (46839) ; 아니면 get_entity_by_id(live_list[0]) (46855, Option<&Entity> — null=None)\n  let champ_region = map.regions[min(champ.y/32000,29)][min(champ.x/32000,29)];   // L526 (46866~46885)\n  let bonus = if champ_region == 7 /*Epic*/ { 0 }   // L528 — 이미 에픽 지역이면 보너스 없음\n    else match action.get_action() {                 // L532 (small_action.rs:309 인라인, 니치 태그→idx)\n      SmallAction::Around{target_id} /*Play idx 2 Around·3 AroundHide·10 LaneMinionPosition*/ => {   // L534\n         // get_game_mode() 재호출(46950) → Moba 아니면 패닉 ; live_list.first() == Some(&target_id) ? 5 : 0 (47013~47015; len==0 이면 0)\n      }\n      SmallAction::AroundPosition{x,y} /*Play idx 4 AroundRegion(x@16,y@24)·7 AroundPosition(48,56)·8 AroundPositionBush(8,16)·9 AroundBush(24,32)*/ => {   // L541\n         let region = map.regions[min(y/32000,29)][min(x/32000,29)]; if region == 7 {5} else {0}   // L541~542 (46966~46981)\n      }\n      _ /*RunAway·Recall·AroundRunAway·Positioning·Trace·Attack·Skill·Skill2·Ult·Stop*/ => 0\n    };\n  // L556: let visible = epic.is_some_and(|e| e.is_visible_from(champ))\n  //   is_visible_from(entity.rs:1482) = match champ.player_team() { None(team 태그 Neutral=1, 47033) => true, Some(t) => e.visible_state[t] is Visible(태그 0, data.rs:122, 47050) }\n  let objective_score = if visible { s }                                       // 47089 phi: %115(Neutral)·%123(Visible) → s\n    else if matches!(action.get_action(), SmallAction::RunAway) /*Play idx 0 RunAway·1 Recall·5 AroundRunAway*/ { s / 2 }   // L557 (47086 sdiv)\n    else { s };\n  objective_score + bonus   // L568~569 (47092)",
+ "knobs": [
+  {"what": "에픽 지향 보너스", "where": "epic_poke.rs:534 / :542 (m02.ll:47015, 46981)", "value": 5, "effect": "올리면 에픽을 목표로 하는 Around·AroundPosition(에픽 region) 행동이 다른 행동보다 더 자주 선택됨. 챔피언이 이미 Epic region 안이면 무효"},
+  {"what": "에픽 미가시 시 도주계열 감점 비율", "where": "epic_poke.rs:557 (m02.ll:47086)", "value": 2, "effect": "s/2 → 나눗수를 키우면 에픽이 안 보일 때 RunAway·Recall·AroundRunAway 를 더 강하게 억제(음수 s 면 반대로 완화됨 — sdiv 0방향 절사)"},
+  {"what": "에픽 region 코드", "where": "epic_poke.rs:528 / :542", "value": 7, "effect": "RegionName::Epic 인덱스 — 바꾸면 다른 지역을 '에픽 지역'으로 취급(맵 정의 종속, 노브로 부적합)"}
+ ],
+ "callee_contracts": [
+  {"name": "game_ai::action_score::interaction_score (action_score.rs:616, define m05.ll:34861)", "sig": "fn(version:usize, rnd:&mut StdRng, player:&PlayerState, data:&OperationData, parameter:&ScoreParameter, action:&SmallActionPlay, debug:&mut DebugFrameData) -> i64", "note": "행동 기본 점수 s. r14 중간/다른 배치 — 내부 안 팜. rnd·debug 의 &mut 소비는 이 콜리 안"},
+  {"name": "dyn AbstractGame::get_game_mode (vtable 0x40)", "sig": "fn(&self) -> GameMode {tag:i64 @0, &MobaMode/&SingleLaneMode/&DeathMatchMode @8} (ScalarPair {i64,ptr})", "note": "game_core 경계. 이 함수는 Moba 외 태그면 unwrap_failed 패닉"},
+  {"name": "dyn AbstractGame::get_entity_by_id (vtable 0x1f0)", "sig": "fn(&self, id:usize) -> Option<&Entity> (ptr, null=None)", "note": "game_core 경계"},
+  {"name": "SmallActionPlay::get_action (small_action.rs:308, mir=1 xinl=1)", "sig": "fn(&self) -> game_core::SmallAction(24B)", "note": "인라인됨 — Play idx→SmallAction 매핑은 본문 switch 로 관측(2·3·10→Around, 4·7·8·9→AroundPosition, 0·1·5→RunAway)"}
+ ],
+ "unknown": [
+  "get_game_mode 가 Moba 가 아닐 때 unwrap_failed(m02.ll:47096·47019)로 가는 소스 표기(`unwrap()` vs `expect`/`let else` — 표기 불가, 패닉 동작은 확정)",
+  "L556 `is_some_and` 클로저(closure$1)와 L525 `and_then` 클로저(closure$0)는 전부 인라인(fnparts 별도 define 없음) — 본문 관측으로 복원",
+  "bonus 계산(L532 match)에서 SmallAction::Positioning{x,y}(Play idx6) 이 AroundPosition 과 달리 0 으로 가는 것은 switch 관측(m02.ll:46906) — get_action 의 Positioning 매핑이 SmallAction::Positioning 이라 match 팔에 없기 때문으로 추정(get_action MIR 미열람)",
+  "self(EpicPokeSubPlan) 필드는 본문에서 전혀 안 읽힘(captures(none)) — 의도인지 여부는 소스 없이는 불명"
+ ]
+}

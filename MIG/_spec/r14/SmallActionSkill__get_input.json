@@ -1,0 +1,68 @@
+{
+ "name": "SmallActionSkill::get_input",
+ "sym": "_RNvMs1_NtNtCshdEBA0ozCnw_7game_ai12small_action4castNtB5_16SmallActionSkill9get_input",
+ "src": "game-ai\\src\\small_action\\cast.rs",
+ "src_line": 133,
+ "ir_file": "m07.ll",
+ "ir_from": 11808,
+ "ir_to": 11934,
+ "aux": [],
+ "one_line": "소액션 '스킬1 시전': 대상 존재·적 우물 위험·논타겟 검사 후 abstract_input::skill 로 입력 생성, Skill 이면 is_act 세움",
+ "signature": {
+  "abi": "define hidden void, sret([32 x i8]) — 비-internal(fastcc 아님) · 인자 승격 없음. self 는 `&mut`(IR: `ptr noalias align 8 captures(none) dereferenceable(24)` — readonly 속성 없음 → 가변)",
+  "params": [
+   {"i": 0, "name": "(sret)", "type": "Option<Input>(32B)", "note": "반환 슬롯. 아래 returns 참조"},
+   {"i": 1, "name": "&mut self", "type": "&mut SmallActionSkill(24B)", "note": "+0x8 target(usize 엔티티 id) 읽기 · +0x10 is_act 쓰기. +0x0 start_tick 은 안 씀"},
+   {"i": 2, "name": "version", "type": "usize", "note": "본문 분기 없음 — is_enemy_well_danger·safe_move·skill 에 전달만"},
+   {"i": 3, "name": "rnd", "type": "&mut StdRng(320B)", "note": "check_nontarget·abstract_input::skill 에 전달만(본문에서 직접 안 읽음)"},
+   {"i": 4, "name": "player", "type": "&PlayerState(2528B)", "note": "readonly. info.team(+0x930)·info.position(+0x9c0)"},
+   {"i": 5, "name": "data", "type": "&OperationData(24B)", "note": "readonly. +0x0 cache → game(dyn) get_entity_by_id · player_champion"},
+   {"i": 6, "name": "positioning_score", "type": "&PositioningScoreData(2760B)", "note": "abstract_input::skill 에 전달만"}
+  ],
+  "returns": "sret Option<Input>(32B). 살아있는 바이트: +0x0 i64 태그(-1=None · 0 Move · 1 Return · 2 Attack · 3 Skill · 4 Skill2 · 5 Ult — tcxdict --enum game_core::Input, None 은 니치 -1 관측 m07.ll:11837 `store i64 -1`). 이 함수가 직접 쓰는 경로(L152 대상 없음·L138 우물 위험)는 +0x0 8B 만 기록, +0x8~0x1f 미기록. 나머지 경로는 콜리 sret(abstract_input::skill / safe_move_avoiding_enemy_well) 이 채운 바이트 그대로 — Move 면 +0x8 x,+0x10 y(+0x18 미기록) · Skill 이면 +0x8 InputTarget 태그(4B, +0xc 패딩) +0x10/+0x18 페이로드(Target: +0x10 target_id 만 · None(3): +0x10~ 미기록)"
+ },
+ "reads": [
+  {"base": "SmallActionSkill", "offset": "0x8", "name": "target", "note": "대상 엔티티 id → game.get_entity_by_id (m07.ll:11821~11825)"},
+  {"base": "OperationData", "offset": "0x0", "name": "cache", "note": "&AbstractGameWithCache (m07.ll:11817)"},
+  {"base": "AbstractGameWithCache", "offset": "0x0", "name": "game", "note": "&dyn AbstractGame: data ptr +0x0, vtable +0x8 → 슬롯 +0x1f0 get_entity_by_id (m07.ll:11818~11826)"},
+  {"base": "AbstractGameWithCache", "offset": "0x1e0", "name": "player_champion[team][position]", "note": "None → unwrap_failed 패닉 (m07.ll:11849~11854)"},
+  {"base": "PlayerState", "offset": "0x930", "name": "info.team", "note": "≥2 → panic_bounds_check"},
+  {"base": "PlayerState", "offset": "0x9c0", "name": "info.position@tag", "note": "i32 → zext 인덱스"},
+  {"base": "Entity", "offset": "0x0", "name": "team@tag", "note": "target.team: 0=Player (L136 인라인 entity.rs:1127)"},
+  {"base": "Entity", "offset": "0x8", "name": "team@Player.0", "note": "== 1 - my team 이면 적 (m07.ll:11871~11880)"},
+  {"base": "Entity", "offset": "0x660", "name": "x", "note": "target.x → is_enemy_well_danger / safe_move (L137·L142)"},
+  {"base": "Entity", "offset": "0x668", "name": "y", "note": "target.y"},
+  {"base": "Entity", "offset": "0x4f8", "name": "skill_effect@tag", "note": "champ.skill_effect None(-1) → unwrap_failed 패닉 (m07.ll:11885~11887)"},
+  {"base": "Entity", "offset": "0x4c8", "name": "skill_effect@Some.0", "note": "&Effect(56B) → check_nontarget 인자 (m07.ll:11903~11905)"}
+ ],
+ "writes": [
+  {"base": "SmallActionSkill", "offset": "0x10", "name": "is_act", "value": "1 (true, i8)", "note": "L147 · m07.ll:11932 — abstract_input::skill 결과 태그가 3(Some(Input::Skill)) 일 때만. 그 외 경로는 self 무변경"},
+  {"base": "(sret)", "offset": "0x0", "name": "Option<Input>@tag", "value": "-1 (None)", "note": "L152 대상 없음(m07.ll:11837) · L138 적 우물 위험(m07.ll:11899). 8B 만 기록"},
+  {"base": "(sret)", "offset": "0x0", "name": "Option<Input> 전체", "value": "콜리가 채움", "note": "L142 safe_move_avoiding_enemy_well(sret) / L145 abstract_input::skill(sret) — 32B 중 live 는 콜리 규약"}
+ ],
+ "constants": [
+  {"value": -1, "src_line": 152, "meaning": "Option<Input>::None 니치 태그(store i64 -1, m07.ll:11837·11899). 같은 -1 이 Entity.skill_effect None 태그(i32) 비교(L141, m07.ll:11887)에도"},
+  {"value": 2, "src_line": 135, "meaning": "team 인덱스 bounds(len 2) — 임계 아님"},
+  {"value": 0, "src_line": 136, "meaning": "TeamType::Player 메모리태그 0 — target.team 이 Player 인지 (m07.ll:11863)"},
+  {"value": 1, "src_line": 136, "meaning": "`1 - team` = 적 팀 (m07.ll:11872)"},
+  {"value": 3, "src_line": 146, "meaning": "Input::Skill 메모리태그 3 — abstract_input::skill 결과가 Some(Skill) 인지 (m07.ll:11924)"}
+ ],
+ "calls": [
+  "game_ai::path_finder::is_enemy_well_danger",
+  "game_ai::small_action::cast::check_nontarget",
+  "game_ai::abstract_input::safe_move_avoiding_enemy_well",
+  "game_ai::abstract_input::skill",
+  "core::option::unwrap_failed",
+  "core::panicking::panic_bounds_check"
+ ],
+ "logic": "fn get_input(&mut self, version, rnd, player, data, positioning_score) -> Option<Input>   [cast.rs:133~154]\n  L134: target = data.cache.game.get_entity_by_id(self.target)   // vtable+0x1f0\n        None → L152: return None (sret +0x0 = -1)\n  L135: champ = data.cache.player_champion[player.team][player.position].unwrap()   // None 이면 패닉(unwrap_failed)\n  L136: if target.team == TeamType::Player(1 - player.team) {           // 적 소속이면\n  L137:   if path_finder::is_enemy_well_danger(version, player, target.x, target.y) {\n  L138:     return None } }\n  L141: skill = champ.skill_effect.as_ref().unwrap()                  // None 이면 패닉\n        if check_nontarget(rnd, player, data.cache, skill, target) {   // 잎: true = 논타겟 검사 통과(시전 가능)\n  L145:   input = abstract_input::skill(version, rnd, player, data, positioning_score, target)\n  L146:   if input.tag == 3 (Some(Input::Skill)) { L147: self.is_act = true }\n          return input\n        } else {\n  L142:   return safe_move_avoiding_enemy_well(version, player, data, champ, target.x, target.y)   // 잎 sret\n        }",
+ "knobs": [],
+ "unknown": [
+  "is_enemy_well_danger(version, &PlayerState, x, y)->bool (m03.ll:144500) 내부는 안 봄 — 잎 22 아님, 시그니처만",
+  "check_nontarget(&mut StdRng, &PlayerState, cache: ptr(nullable · internal fastcc 라 원 인자 &OperationData 에서 cache 필드만 승격된 흔적), &Effect(56B), &Entity)->bool — 잎(계약만): 호출 지점 m07.ll:11905, true 면 스킬 입력 생성 경로",
+  "safe_move_avoiding_enemy_well(sret Option<Input> 32B, version, &PlayerState, &OperationData, &Entity champ, x, y) — 잎(계약만): 호출 m07.ll:11918",
+  "abstract_input::skill(sret 32B, version, &mut StdRng, &PlayerState, &OperationData, &PositioningScoreData, &Entity target) — 같은 r14 배치(별도 명세 abstract_input__skill.json)",
+  "self.start_tick(+0x0) 은 이 함수에서 읽지도 쓰지도 않음",
+  "knobs 없음 — 이 함수 자체엔 조정 가능한 수치가 없다(전부 콜리 안)"
+ ]
+}

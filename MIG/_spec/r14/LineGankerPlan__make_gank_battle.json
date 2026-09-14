@@ -1,0 +1,259 @@
+{
+ "name": "LineGankerPlan::make_gank_battle",
+ "sym": "_RNvMNtNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old9line_gank6gankerNtB2_14LineGankerPlan16make_gank_battle",
+ "src": "game-ai\\src\\plan_legacy\\old\\line_gank\\ganker.rs",
+ "src_line": 76,
+ "ir_file": "m08.ll",
+ "ir_from": 94354,
+ "ir_to": 94516,
+ "aux": [],
+ "one_line": "갱 대상에 대한 TryKill BattlePlan 을 만들어 BigPlan::Battle 로 반환 — v2+ 는 추격 가망 없음(open_chase_race_hopeless) 또는 첫 update 후 sub_goal 이 KitingBack/RunAway/End 면 None",
+ "signature": {
+  "abi": "★`define internal fastcc void` — 인자 승격/제거 흔적: tcx 시그니처 1번째 `&self(&LineGankerPlan)` 가 IR 에 **없다**(DeadArgElim — 본문이 self 를 안 읽음). 반환 Option<BigPlan>(384B) 은 sret %0 로. 나머지 9인자는 스칼라/포인터 그대로(팻포인터 분해 없음). exe 측 ABI 는 이 IR 과 같다는 보장 없음(argscan 필요, EXE_ABI_UNRECOVERABLE 후보)",
+  "params": [
+   {
+    "i": 0,
+    "name": "(sret)",
+    "type": "*mut Option<BigPlan>(384B)",
+    "note": "writes 참조"
+   },
+   {
+    "i": 1,
+    "name": "self",
+    "type": "&LineGankerPlan",
+    "note": "★IR 에서 제거됨(미사용)"
+   },
+   {
+    "i": 2,
+    "name": "version",
+    "type": "usize (IR %1)",
+    "note": "분기 1곳: `version > 1` (94368). BattlePlan::new/update·open_chase_race_hopeless 에 전달"
+   },
+   {
+    "i": 3,
+    "name": "rnd",
+    "type": "&mut StdRng(320B) (IR %2)",
+    "note": "★&mut — 본문 직접 store 0. BattlePlan::update 에만 전달(v2+ 경로)"
+   },
+   {
+    "i": 4,
+    "name": "player",
+    "type": "&PlayerState(2528B, readonly) (IR %3)",
+    "note": "+0x930 team · +0x9c0 position (v2+)"
+   },
+   {
+    "i": 5,
+    "name": "data",
+    "type": "&OperationData(24B, readonly) (IR %4)",
+    "note": "+0x0 cache → player_champion · game 팻포인터(get_entity_by_id)"
+   },
+   {
+    "i": 6,
+    "name": "positioning_score",
+    "type": "&PositioningScoreData(2760B, readonly) (IR %5)",
+    "note": "본문 읽기 0. update 에 전달"
+   },
+   {
+    "i": 7,
+    "name": "team_plan",
+    "type": "&TeamPlan(1064B) (IR %6, readonly 속성 없음)",
+    "note": "+0x41f objective(Option<MainObjective> 3B) 읽어 BattlePlan.main_objective 에 복사. update 에 전달. 이 함수는 쓰지 않음"
+   },
+   {
+    "i": 8,
+    "name": "target",
+    "type": "usize (IR %7)",
+    "note": "갱 대상 엔티티 id — BattlePlanGoal::TryKill.0 · get_entity_by_id 인자"
+   },
+   {
+    "i": 9,
+    "name": "(usize)",
+    "type": "usize (IR %8)",
+    "note": "BattlePlanGoal::TryKill.1 에 그대로 저장(94377·94447). 이름은 재료 부재(dbg 없음) — TryKill 2번째 필드"
+   },
+   {
+    "i": 10,
+    "name": "debug",
+    "type": "&mut DebugFrameData(224B) (IR %9)",
+    "note": "★&mut — 본문 직접 store 0. BattlePlan::update 에만 전달"
+   }
+  ],
+  "returns": "Option<BigPlan> 384B sret. None(94430·94472): +0x0 = i64 -1 만 기록, 나머지 376B 미기록. Some(94392~94394): +0x0 = 9(BigPlan::Battle 니치 태그, idx 7) · +0x8~+0x11f = BattlePlan 280B memcpy(그 안의 live 바이트는 BattlePlan::new/update 소관 — new 의 sret 에 `initializes` 속성 없음, 미탐색; 0x112~0x117 은 구조체 패딩) · +0x120~+0x17f(96B) 미기록"
+ },
+ "reads": [
+  {
+   "base": "PlayerState",
+   "offset": "0x930",
+   "name": "info.team",
+   "note": "94387 (v2+), <2 아니면 panic_bounds_check 94399"
+  },
+  {
+   "base": "PlayerState",
+   "offset": "0x9c0",
+   "name": "info.position@tag",
+   "note": "94405"
+  },
+  {
+   "base": "OperationData",
+   "offset": "0x0",
+   "name": "cache",
+   "note": "94407"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x1e0",
+   "name": "player_champion[2][5]",
+   "note": "Option<&Entity>, null=None (94408~94411)"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x0",
+   "name": "game.data_ptr / +0x8 vtable_ptr",
+   "note": "94412~94414"
+  },
+  {
+   "base": "AbstractGame vtable",
+   "offset": "0x1f0",
+   "name": "get_entity_by_id",
+   "note": "(game, target) → Option<&Entity> (94415~94417, divtable 정적 vtable 기준)"
+  },
+  {
+   "base": "TeamPlan",
+   "offset": "0x41f",
+   "name": "objective (Option<MainObjective> 3B: 태그·페이로드)",
+   "note": "i24 로드 94454 → BattlePlan+0xff 에 저장"
+  },
+  {
+   "base": "BattlePlan(지역 %12)",
+   "offset": "0x58",
+   "name": "sub_goal@tag",
+   "note": "update 뒤 로드 94464 → switch 3/4/7"
+  }
+ ],
+ "writes": [
+  {
+   "base": "Option<BigPlan>(sret)",
+   "offset": "0x0",
+   "name": "tag",
+   "value": "9 = BigPlan::Battle (94394) / -1 = None (94430·94472)",
+   "note": ""
+  },
+  {
+   "base": "Option<BigPlan>(sret)",
+   "offset": "0x8",
+   "name": "Battle.0 (BattlePlan 280B)",
+   "value": "지역 plan memcpy (94393)",
+   "note": "Some 경로만"
+  },
+  {
+   "base": "BattlePlanGoal(지역 %11, 24B)",
+   "offset": "0x0",
+   "name": "tag=0 TryKill / +0x8 .0=target / +0x10 .1=인자 %8",
+   "value": "94374~94378 (v≤1) · 94444~94448 (v2+)",
+   "note": "BattlePlan::new 2번째 인자(값 전달, 포인터로)"
+  },
+  {
+   "base": "BattlePlan(지역 %12)",
+   "offset": "0x107",
+   "name": "entry_src",
+   "value": "7",
+   "note": "94382·94452 — BattlePlan::new 직후 덮어씀(진입귀속 코드 7 = 이 함수(LineGanker 갱 전투) 진입)"
+  },
+  {
+   "base": "BattlePlan(지역 %12)",
+   "offset": "0xff",
+   "name": "main_objective (3B)",
+   "value": "team_plan.objective 그대로 복사(i24 store 94458)",
+   "note": "v2+ 경로만, update 호출 전"
+  },
+  {
+   "base": "BattlePlan(지역 %12)",
+   "offset": "0x0",
+   "name": "(전체) BattlePlan::update(&mut) 내부 갱신",
+   "value": "콜리 소관",
+   "note": "v2+ 경로. 이후 sub_goal 태그로 판정"
+  },
+  {
+   "base": "StdRng(rnd)/DebugFrameData(debug)",
+   "offset": "0x0",
+   "name": "콜리 update 경유 쓰기",
+   "value": "미탐색(plan_legacy battle 계층)",
+   "note": "본문 직접 store 없음"
+  }
+ ],
+ "constants": [
+  {
+   "value": 1,
+   "src_line": 79,
+   "meaning": "`version > 1` 분기(94368): v≤1 = 옛 경로(update 없이 즉시 Battle), v2+ = 가망 검사 + update + sub_goal 검사"
+  },
+  {
+   "value": 0,
+   "src_line": 87,
+   "meaning": "BattlePlanGoal::TryKill 태그 0 (94378·94448)"
+  },
+  {
+   "value": 7,
+   "src_line": 88,
+   "meaning": "entry_src = 7 (94382·94452, L88). 또한 BattleSubPlanGoal::End 태그 7 (switch 94468, L92~93)"
+  },
+  {
+   "value": 9,
+   "src_line": 96,
+   "meaning": "BigPlan::Battle 메모리 태그 9(니치, 논리 idx 7) (94394)"
+  },
+  {
+   "value": -1,
+   "src_line": 83,
+   "meaning": "Option<BigPlan>::None 태그 (94430 L83 · 94472 L93)"
+  },
+  {
+   "value": 3,
+   "src_line": 93,
+   "meaning": "BattleSubPlanGoal::KitingBack 태그 3 → None (switch 94466)"
+  },
+  {
+   "value": 4,
+   "src_line": 93,
+   "meaning": "BattleSubPlanGoal::RunAway 태그 4 → None (94467)"
+  }
+ ],
+ "calls": [
+  "game_ai::plan_legacy::old::battle::BattlePlan::new",
+  "game_ai::plan_legacy::old::battle::BattlePlan::update",
+  "game_ai::plan_legacy::old::fight_model::open_chase_race_hopeless",
+  "core::panicking::panic_bounds_check",
+  "core::ptr::drop_glue",
+  "core::ops::drop::Drop::drop"
+ ],
+ "logic": "LineGankerPlan::make_gank_battle(&self /*IR 에서 제거*/, version, rnd, player, data, ps, team_plan, target, arg8, debug) -> Option<BigPlan>   [ganker.rs:76]\n if version > 1:                                                        (L79, 94368)\n     me  = data.cache.player_champion[player.team][player.position]     (L80, 94404~94411)\n     tgt = game.get_entity_by_id(target)                                (L81, 94412~94417, vtable+0x1f0)\n     if me.is_some() && tgt.is_some() && open_chase_race_hopeless(version, data, player, me, tgt):   (L82, 94418~94427)\n         return None                                                    (L83, 94430)   # 추격 경주 가망 없음\n plan = BattlePlan::new(version, BattlePlanGoal::TryKill(target, arg8), data, player)   (L87, 94379/94449)\n plan.entry_src = 7                                                     (L88, 94382/94452)\n if version > 1:                                                        (L89~91 — IR 은 L79 분기 결과로 블록 분리)\n     plan.set_main_objective(team_plan.objective)   # battle.rs:350 인라인, Option<MainObjective> 3B 복사   (L90, 94453~94458)\n     plan.update(version, rnd, player, data, ps, team_plan, debug)      (L92, 94459)\n     if plan.sub_goal is KitingBack(3) | RunAway(4) | End(7):           (L92~93, switch 94465~94469)\n         drop(plan) ; return None                                       (L93, 94472~94513: chats Vec<Chat> +0x68 · v54_reentry_ticks Vec<usize> +0x80 drop)\n return Some(BigPlan::Battle(plan))                                     (L96, 94392~94394)\n\n요지: 갱 대상에 TryKill 전투플랜을 세우되, v2+ 에선 (a) 추격 경주가 가망 없으면 세우지 않고 (b) 한 틱 update 를 돌려 플랜이 즉시 후퇴/종료로 판정되면 폐기한다. `me`/`tgt` 가 None 이면 (a) 검사를 건너뛰고 플랜을 세운다(94421 → %49).",
+ "knobs": [
+  {
+   "what": "갱 전투 진입 차단 sub_goal 집합",
+   "where": "ganker.rs:92~93 (switch 94465~94469)",
+   "value": "{KitingBack, RunAway, End}",
+   "effect": "Kiting(2) 을 추가하면 카이팅 판정된 갱도 폐기 — 갱 개시 빈도↓. 집합을 비우면 update 결과와 무관하게 항상 개전"
+  },
+  {
+   "what": "v2+ 사전 가망 검사",
+   "where": "ganker.rs:82 (94426)",
+   "value": "open_chase_race_hopeless(version, data, player, me, tgt) (fight_model.rs, 이 배치 밖 콜리)",
+   "effect": "끄면 도망치는 대상에도 갱 전투플랜을 세워 헛추격↑"
+  },
+  {
+   "what": "entry_src 코드",
+   "where": "ganker.rs:88 (94382·94452)",
+   "value": "7",
+   "effect": "계측 라벨(진입귀속 코드표) — 판정 영향 없음, 바꾸면 통계 분류만 바뀜"
+  }
+ ],
+ "unknown": [
+  "L89·L91 의 정확한 텍스트(두 번째 `if version > 1` 인지 블록 구조인지) — IR 이 L79 분기로 두 경로를 통째 분리해 재구성 불가(column 부재). 동작은 확정",
+  "인자 %8(usize, TryKill.1)의 이름/의미 — dbg_value 없음(internal fastcc 로 이름 소실). BattlePlanGoal::TryKill 2번째 필드 의미는 battle.rs 소관",
+  "entry_src=7 이 '진입귀속 코드표'에서 어떤 라벨인지 — _docs 에 표 본문 없음(코드표 위치 미탐색: battle.rs 주석 또는 계측 문서)",
+  "BattlePlan::new(m10.ll:23214) 이 280B 중 어느 바이트를 초기화하는지(sret 에 initializes 없음) — 사용자가 sweep 비교 시 Battle 페이로드 live 범위는 battle 계층 명세 참조",
+  "exe 측 인자 배치 — internal fastcc + DeadArgElim(self 제거) 이라 exe 의 실제 레지스터/스택 배치는 argscan 으로 확인 필요(이 배치 범위 밖)",
+  "open_chase_race_hopeless / BattlePlan::update 내부 — 같은 r14 중간·battle 계층, 시그니처만 기록",
+  "BattlePlan::set_main_objective(battle.rs:350) 은 인라인돼 call 이 없다(94454~94458 i24 복사가 그 본문). calls 엔 미등록"
+ ]
+}

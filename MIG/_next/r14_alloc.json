@@ -1,0 +1,186 @@
+{
+ "dc8550": [
+  "A",
+  "around__check_cell"
+ ],
+ "d98420": [
+  "G",
+  "tower_discipline__v3_lethal_tower_position"
+ ],
+ "ecb300": [
+  "H",
+  "objective_helpers__v23_should_break_objective_hunt_anchor"
+ ],
+ "cd0480": [
+  "E",
+  "battle__v48_on_cast_line"
+ ],
+ "ccaa10": [
+  "E",
+  "EpicPokeSubPlan__score"
+ ],
+ "e81390": [
+  "E",
+  "SerpenPokeSubPlan__score"
+ ],
+ "dc2550": [
+  "A",
+  "SmallActionAroundBush__new_with_target"
+ ],
+ "e23fa0": [
+  "C",
+  "SmallActionPlay__get_input"
+ ],
+ "e29520": [
+  "C",
+  "small_action__path_needs_tower_escape"
+ ],
+ "e8b200": [
+  "E",
+  "LineDefenseSubPlan__score"
+ ],
+ "e266e0": [
+  "C",
+  "SmallActionLaneMinionPosition__has_current_explicit_minion_action"
+ ],
+ "e23170": [
+  "C",
+  "SmallActionPlay__evaluation_position"
+ ],
+ "dc27a0": [
+  "A",
+  "SmallActionAroundBush__new_with_out_line"
+ ],
+ "e28410": [
+  "C",
+  "lane_economy__line_action_economy_adjustment"
+ ],
+ "ccf670": [
+  "E",
+  "serpen_hunt__serpen_action_score"
+ ],
+ "ec7c90": [
+  "E",
+  "epic_hunt__epic_action_score"
+ ],
+ "d99030": [
+  "G",
+  "tower_discipline__v22_lane_tower_pressure_attack_allowed"
+ ],
+ "d845e0": [
+  "G",
+  "SmallActionSkill__get_input"
+ ],
+ "e281f0": [
+  "C",
+  "lane_economy__line_champion_trade_allowance"
+ ],
+ "d84800": [
+  "G",
+  "SmallActionSkill2__get_input"
+ ],
+ "d84a30": [
+  "G",
+  "SmallActionUlt__get_input"
+ ],
+ "db8e60": [
+  "A",
+  "LineGankerPlan__make_gank_battle"
+ ],
+ "dd5270": [
+  "H",
+  "TeamPlan__v27_objective_discipline_action"
+ ],
+ "dc2070": [
+  "A",
+  "SmallActionAroundPositionBush__get_input"
+ ],
+ "e2ac00": [
+  "D",
+  "lane_minion__line_minion_action_candidates"
+ ],
+ "eb77a0": [
+  "H",
+  "fight_check__battle_ally_action"
+ ],
+ "de3630": [
+  "H",
+  "goal_data__get_die_tick_player"
+ ],
+ "e2a830": [
+  "D",
+  "lane_minion__lane_minion_position_action"
+ ],
+ "e04400": [
+  "H",
+  "buff_value__v57_summon_command_score"
+ ],
+ "d35930": [
+  "G",
+  "abstract_input__skill"
+ ],
+ "d360a0": [
+  "G",
+  "abstract_input__skill2"
+ ],
+ "e29b40": [
+  "C",
+  "action_eval__evaluate_action"
+ ],
+ "d3ab40": [
+  "G",
+  "utils__can1v1win"
+ ],
+ "e26c40": [
+  "D",
+  "SmallActionLaneMinionPosition__get_input"
+ ],
+ "dc2960": [
+  "A",
+  "SmallActionAroundBush__get_input"
+ ],
+ "ccfbc0": [
+  "E",
+  "serpen_hunt__calculate_serpen_action_score"
+ ],
+ "ec81e0": [
+  "E",
+  "epic_hunt__calculate_epic_action_score"
+ ],
+ "e288c0": [
+  "D",
+  "lane_economy__line_projected_punish_damage_at"
+ ],
+ "dbf680": [
+  "A",
+  "SmallActionPositioning__get_input"
+ ],
+ "dc6ec0": [
+  "A",
+  "SmallActionAroundHide__get_input"
+ ],
+ "cc9740": [
+  "F",
+  "EpicPokeSubPlan__action_candidates_old"
+ ],
+ "e80070": [
+  "F",
+  "SerpenPokeSubPlan__action_candidates_old"
+ ],
+ "cce210": [
+  "H",
+  "SmallActionTrace__get_input"
+ ],
+ "dbbd60": [
+  "B",
+  "SmallActionAroundRegion__get_input"
+ ],
+ "dc0800": [
+  "B",
+  "SmallActionAroundPosition__get_input"
+ ],
+ "db6ff0": [
+  "B",
+  "SmallActionAround__get_input"
+ ]
+}

@@ -1,0 +1,101 @@
+{
+ "name": "line_projected_punish_damage_at",
+ "sym": "_RNvNtCshdEBA0ozCnw_7game_ai12lane_economy31line_projected_punish_damage_at",
+ "src": "game-ai\\src\\lane_economy.rs",
+ "src_line": 130,
+ "ir_file": "m11.ll",
+ "ir_from": 51728,
+ "ir_to": 52661,
+ "aux": [],
+ "one_line": "위치 (x,y) 에서 window 틱 동안 맞을 예상 응징 피해 = 최근가시 적 챔프 5명(평타/스킬/스킬2) + 적 미니언 웨이브 + 사거리 안 최근접 적 타워 의 합",
+ "signature": {
+  "abi": "★internal fastcc, 반환 i64 (exe 0xe288c0 · 호출자 1 = line_action_economy_adjustment 51657). 승격 흔적: 소스 5번째 인자 `target: &Entity`(DWARF !74639 ref$<Entity>) 가 **ArgumentPromotion 으로 `i64 %4`(noundef 없음) = target.ty@tag(+0x68) 로 대체**됨 — 본문은 `%4 == 13`(Champion) 만 검사(52060)하고 호출자는 `load i64 (entity+104)`(51656) 를 넘긴다. 나머지 7 인자는 그대로(팻포인터 분해 없음)",
+  "params": [
+   {"i": 1, "name": "version", "type": "usize", "note": "본 함수 분기 없음. enemy_minion_line_action_danger_damage_at 에 전달(52063)"},
+   {"i": 2, "name": "player", "type": "&PlayerState (2528B)", "note": "readonly. info.team(0x930) → 적 팀 = 1-team. is_recent_visible·can_tower_focused 에 전달"},
+   {"i": 3, "name": "data", "type": "&OperationData (24B)", "note": "readonly. cache(+0)·context(+8)·blackboard(+0x10) 전부 사용"},
+   {"i": 4, "name": "champ", "type": "&Entity (1728B)", "note": "readonly. 피해를 받는 쪽(내 챔피언). radius(0x680/0x470) 만 직접 읽고 콜리에 target 으로 전달"},
+   {"i": 5, "name": "target (승격: target.ty@tag)", "type": "&Entity → i64 (EntityType 태그)", "note": "==13(Champion) 만 사용 → enemy_minion_line_action_danger_damage_at 의 7번째 bool(target_is_champion 추정) 인자(52060~52063)"},
+   {"i": 6, "name": "x", "type": "u64", "note": "평가 위치 x. 콜리 전달 + 타워 거리 계산(스택 %12 경유 · 52068)"},
+   {"i": 7, "name": "y", "type": "u64", "note": "평가 위치 y(스택 %11 · 52069)"},
+   {"i": 8, "name": "window", "type": "usize", "note": "예측 창(틱). 콜리 전달 + 타워 hits = max(window/interval,1)(52645~52648)"}
+  ],
+  "returns": "i64 = champion_damage(52055 루프 합) + minion_wave_damage(52063) + tower_damage(52654 phi) · 52658~52660. sret/ScalarPair 아님, 니치 없음(전 64bit 유효)"
+ },
+ "reads": [
+  {"base": "PlayerState", "offset": "0x930", "name": "info.team", "note": "51766. enemy_team = 1-team(51768), bounds<2(51770)"},
+  {"base": "OperationData", "offset": "0x0", "name": "cache", "note": "51774"},
+  {"base": "OperationData", "offset": "0x8", "name": "context (&GameContext)", "note": "51855/51857 → line_effect_punish_damage·can_tower_focused·expected_damage_target 의 ctx"},
+  {"base": "OperationData", "offset": "0x10", "name": "blackboard (&[Blackboard;2])", "note": "51791~51792 → [enemy_team](51856, stride 744B) 를 is_recent_visible 의 self 로"},
+  {"base": "AbstractGameWithCache", "offset": "0x1e0", "name": "player_champion[enemy_team][0..5]", "note": "51776~51777 → 루프 51861~52055(i=0..5, null 스킵 51873)"},
+  {"base": "AbstractGameWithCache", "offset": "0x0", "name": "game data ptr", "note": "51788(game) → is_recent_visible 2번째 인자 / tick() 수신자(52075)"},
+  {"base": "AbstractGameWithCache", "offset": "0x8", "name": "game vtable", "note": "51789~51790 → is_recent_visible 3번째 인자 / vtable+0x28 = AbstractGame::tick(52076~52080 간접호출)"},
+  {"base": "GameContext", "offset": "0x8", "name": "setting (&GameSetting)", "note": "52083"},
+  {"base": "GameSetting", "offset": "0x13f8", "name": "tower_attack_disable_tick", "note": "52085. tick < 이 값일 때만 타워 응징 계산(52087)"},
+  {"base": "Entity", "offset": "0x4c0", "name": "attack_effect@tag (enemy/tower, -1=None)", "note": "51913·52261·52439·52574"},
+  {"base": "Entity", "offset": "0x490", "name": "attack_effect (Effect 56B)", "note": "51912 enemy → line_effect_punish_damage / 52580 tower → expected_damage_target"},
+  {"base": "Entity", "offset": "0x68", "name": "ty@tag (enemy/tower)", "note": "51920·51994·52025·52585 — attack_cooldown 오프셋 switch(entity.rs:1748~1760) 및 ==13 Champion 검사"},
+  {"base": "Entity", "offset": "0xb0", "name": "ty@Champion.0.attack_cooldown / SmallJiangshi.info.attack_cooldown", "note": "switch 51922/52587 case 13·8 → 176"},
+  {"base": "Entity", "offset": "0xb8", "name": "ty@Minion.info.attack_cooldown (case1→184) / ty@Champion.0.skill_cooldown", "note": "51997 (skill ready_tick, Champion 만)"},
+  {"base": "Entity", "offset": "0xc0", "name": "ty@Champion.0.skill2_cooldown", "note": "52028 (skill2 ready_tick, Champion 만)"},
+  {"base": "Entity", "offset": "0x110", "name": "ty@Tower.info.attack_cooldown", "note": "switch case 2 → 272"},
+  {"base": "Entity", "offset": "0xe8", "name": "ty@Jungle/Ghoul.info.attack_cooldown", "note": "switch case 4·7 → 232"},
+  {"base": "Entity", "offset": "0x1f0", "name": "ty@Epic/Serpen.info.attack_cooldown", "note": "switch case 5·6 → 496"},
+  {"base": "Entity", "offset": "0xc8", "name": "ty@Bear.info.attack_cooldown", "note": "case 9 → 200"},
+  {"base": "Entity", "offset": "0xf0", "name": "ty@Eagle.info.attack_cooldown", "note": "case 10 → 240"},
+  {"base": "Entity", "offset": "0xd8", "name": "ty@Revenant.info.attack_cooldown", "note": "case 11 → 216"},
+  {"base": "Entity", "offset": "0xd0", "name": "ty@Illusion.info.attack_cooldown", "note": "case 12 → 208. None(0)/Nexus(3) 은 쿨다운 없음(ready=act_tick / interval=1)"},
+  {"base": "Entity", "offset": "0x4f8", "name": "skill_effect@tag (enemy)", "note": "51943"},
+  {"base": "Entity", "offset": "0x4c8", "name": "skill_effect (Effect 56B)", "note": "51992"},
+  {"base": "Entity", "offset": "0x5c8", "name": "level (enemy·tower)", "note": "52012 (>2 → skill2 유효) / 52274·52452 (타워 사거리 growth)"},
+  {"base": "Entity", "offset": "0x500", "name": "skill2_effect (level>2 아니면 @anon.38 정적 None)", "note": "52015~52016, 태그 +48(=0x530) 52019~52020"},
+  {"base": "Entity", "offset": "0x470", "name": "stat_buff_cached.radius_mult (champ·tower)", "note": "52203/52405 champ · 52281/52459 tower"},
+  {"base": "Entity", "offset": "0x680", "name": "radius (champ·tower)", "note": "52204/52406 champ · 52288·52295/52466·52473 tower — Entity::radius() 인라인"},
+  {"base": "Entity", "offset": "0x4a0", "name": "attack_effect.range (tower)", "note": "52270/52448"},
+  {"base": "Entity", "offset": "0x4a8", "name": "attack_effect.growth_range (tower)", "note": "52272/52450"},
+  {"base": "Entity", "offset": "0x438", "name": "stat_buff_cached.range (tower)", "note": "52278/52456"},
+  {"base": "Entity", "offset": "0x660", "name": "x (tower)", "note": "52314/52492"},
+  {"base": "Entity", "offset": "0x668", "name": "y (tower)", "note": "52318/52496"}
+ ],
+ "writes": [
+  {"base": "-", "offset": "-", "name": "없음", "value": "-", "note": "인자 전부 readonly(&) · 힙/전역 쓰기 0. 스택 임시(x,y 사본 %12/%11 · 타워 이터레이터 %9/%10) 만"}
+ ],
+ "constants": [
+  {"value": 13, "src_line": 135, "meaning": "EntityType 태그 13 = Champion. ①target(승격 인자)==13 → minion 함수 bool(52060) ②enemy.ty==13 일 때만 skill/skill2 쿨다운 반영(51996·52027) ③attack_cooldown switch case"},
+  {"value": 2, "src_line": 157, "meaning": "enemy.level > 2 이어야 skill2_effect 유효(entity.rs:1693 인라인) · 52014"},
+  {"value": 1, "src_line": 125, "meaning": "interval = max(tower.attack_cooldown, 1)(52637), hits = max(window/interval, 1)(52648) — 0 나눗셈·0회 방지. 쿨다운 없는 타입(None/Nexus) 은 interval=1(52641 phi)"},
+  {"value": -1, "src_line": 149, "meaning": "Option<Effect> None 니치 태그(i32) · 51915·51945·52020·52263·52441·52576 / 타워 이터레이터 소진 표식(i64, 52141 검사·52350 store)"},
+  {"value": 0, "src_line": 132, "meaning": "damage/acc 초기값(51862 phi). is_recent_visible false 또는 null 슬롯이면 0 가산"},
+  {"value": 100, "src_line": 116, "meaning": "Entity::radius() 인라인 radius*(radius_mult+100)/100(entity.rs:1515) · 52211·52299·52413·52477"},
+  {"value": 5, "src_line": 131, "meaning": "player_champion[team] 슬롯 수(루프 상한 52055) — 배열 길이"},
+  {"value": 6, "src_line": 113, "meaning": "iter_towers_without_nexus 앞부분 [Option<&Entity>;6] 배열 길이(52233 assume) — 배열 길이"}
+ ],
+ "calls": [
+  "game_core::simulation::game::blackboard::Blackboard::is_recent_visible",
+  "game_core::simulation::entity::Entity::remain_action_time",
+  "game_ai::lane_economy::line_effect_punish_damage",
+  "game_ai::minion_wave_risk::enemy_minion_line_action_danger_damage_at",
+  "game_ai::tower_discipline::can_tower_focused",
+  "game_core::simulation::AbstractGameWithCache::iter_towers_without_nexus",
+  "game_core::simulation::effect::Effect::expected_damage_target",
+  "core::iter::adapters::map::Map::fold",
+  "core::option::unwrap_failed",
+  "core::panicking::panic_bounds_check"
+ ],
+ "logic": "fn line_projected_punish_damage_at(version, player, data, champ, target[승격→ty@tag], x, y, window) -> i64\n[L131] enemy_team = 1 - player.info.team (bounds<2)\n       enemies = data.cache.player_champion[enemy_team]            ; [Option<&Entity>;5]\n[L132] champion_damage = enemies.iter().flatten()                     ; null 스킵(51876)\n         .filter(|e| Blackboard::is_recent_visible(&data.blackboard[enemy_team], data.cache.game(data,vtable), player, e))   ; 51885 · ⚠blackboard 인덱스가 enemy_team(51856)\n[L133]   .map(|enemy| 헬퍼(lane_economy.rs:146~160 인라인)：\n   [L146]   act_tick = enemy.remain_action_time()\n   [L149]   damage = 0; if enemy.attack_effect.is_some() {\n   [L150]     ready_tick = match enemy.attack_cooldown() { Some(cd) => max(cd, act_tick), None(None/Nexus) => act_tick }   ; entity.rs:1748 switch(51922) 타입별 오프셋(reads 참조)\n   [L151]     damage = line_effect_punish_damage(data.context, enemy, champ, &enemy.attack_effect, x, y, ready_tick, window) }   ; 51987\n   [L153]   if enemy.skill_effect.is_some() {\n   [L154]     ready_tick = if enemy.ty is Champion { max(enemy.ty.Champion.skill_cooldown(0xb8), act_tick) } else { act_tick }   ; 51996~52001\n   [L155]     damage += line_effect_punish_damage(ctx, enemy, champ, &skill_effect, x, y, ready_tick, window) }   ; 52004\n   [L157]   skill2 = if enemy.level > 2 { &enemy.skill2_effect } else { &None }; if skill2.is_some() {\n   [L158]     ready_tick = if Champion { max(skill2_cooldown(0xc0), act_tick) } else { act_tick }   ; 52027~52032\n   [L159]     damage += line_effect_punish_damage(ctx, enemy, champ, skill2, x, y, ready_tick, window) }   ; 52035\n           damage )\n[L134]   .sum()                                                             ; 52050·52055\n[L135] minion_wave_damage = enemy_minion_line_action_danger_damage_at(version, data, champ, x, y, window, target.ty==Champion, false)   ; 52063\n[L141] tower_damage = 헬퍼 line_enemy_tower_punish_damage_at(lane_economy.rs:105~128 인라인):\n   [L107]  if !(data.cache.game.tick() < data.context.setting.tower_attack_disable_tick) { 0 }   ; 52080~52087\n   [L110]  else if !tower_discipline::can_tower_focused(data.context, data.cache, player, x, y) { 0 }   ; 52095\n   [L113]  else { tower = data.cache.iter_towers_without_nexus(enemy_team)          ; 52100, 120B: [Option<&Entity>;6] Flatten + Copied<slice> Chain\n   [L115]      .filter(|t| t.attack_effect.is_some()\n   [L116]              && { range = t.atk.range + Entity::radius(champ) + t.stat_buff_cached.range + (t.level-1)*t.atk.growth_range + Entity::radius(t);\n   [L117]                   dist_sq((x,y), (t.x,t.y)) <= range*range })\n   [L119]      .map(|t| (dist_sq, t)).min_by_key(|(d,_)| *d)                         ; 첫 원소 인라인(52170~52350) + Map::fold(52562)\n   [L120]      ?(None → 0)                                                          ; 52567\n   [L123]    atk = tower.attack_effect.as_ref().unwrap()                            ; 52576(unwrap_failed 도달 불가: 필터 통과)\n   [L124]    per_hit = Effect::expected_damage_target(atk, data.context, tower, @anon.29(정적 옵션 88B), champ)   ; 52583\n   [L125]    interval = max(tower.attack_cooldown().unwrap_or(1), 1)                ; 52587 switch · 52637·52641\n   [L126]    hits = max(window / interval, 1)                                       ; 52645·52648\n   [L127]    hits * per_hit }                                                        ; 52650\n[L142] champion_damage + minion_wave_damage + tower_damage                          ; 52658~52659\n[L143] return\n",
+ "knobs": [
+  {"what": "타워 응징 계산 활성 구간", "where": "GameSetting.tower_attack_disable_tick(+0x13f8) · lane_economy.rs:107 (IR 52087)", "value": "setting", "effect": "tick 이 이 값 이상이면 타워 피해 0 으로 취급(응징 예측에서 타워 제외). 설정값이라 코드 노브가 아닌 데이터 노브"},
+  {"what": "타워 최소 타격 수", "where": "lane_economy.rs:126 (IR 52648)", "value": 1, "effect": "window 가 쿨다운보다 짧아도 최소 1방은 맞는 것으로 계산. 0 으로 바꾸면 짧은 창에서 타워 피해 0"},
+  {"what": "skill2 반영 레벨", "where": "entity.rs:1693 인라인 (IR 52014)", "value": 2, "effect": "level>2 인 적만 skill2 피해 합산(game_core 규칙)"}
+ ],
+ "unknown": [
+  "line_effect_punish_damage 내부(m11.ll:50778~, internal fastcc, r14 중간·이 배치 밖). 계약: (ctx:&GameContext, caster:&Entity, target:&Entity, effect:&Effect(56B), x, y, ready_tick, window) -> i64(range 0..2^63)",
+  "enemy_minion_line_action_danger_damage_at(m07.ll:48226, 잎 아님) 계약: (version, data, champ, x, y, window, bool(target.ty==Champion), bool false) -> i64. 두 bool 의 이름 미확인(승격 인자 유래로 7번째는 '대상이 챔피언인가' 추정)",
+  "can_tower_focused(m07.ll:48968) 계약: (&GameContext(64B), &AbstractGameWithCache, &PlayerState, x, y) -> bool(true=타워 피해 계산 진행). 잎 22 의 can_tower_focused_when_attack 과 다른 함수(tower_discipline 모듈) — 내부 안 팜",
+  "Blackboard::is_recent_visible(_gcbc g07.ll:157005) 계약: (&Blackboard 744B, game data ptr, vtable ptr(816B), &PlayerState, &Entity) -> bool. self 가 data.blackboard[enemy_team] 인 이유(적 팀 판 vs 내 팀 판)는 콜리 의미 미확인 — IR 사실만 기록",
+  "Effect::expected_damage_target(_gcbc g06.ll:52355) 계약: (&Effect, &GameContext, caster:&Entity, opts:&(88B 정적 @anon.29), target:&Entity) -> i64. @anon.29 의 내용(함수포인터 9개 구조 = vtable 또는 옵션 테이블) 미확인",
+  "iter_towers_without_nexus(_gcbc g15.ll:108971) 120B 이터레이터 구조: +0 상태(i64, -1=종료), +8/+16 배열 인덱스 범위, +24 [Option<&Entity>;6], +104/+112 슬라이스 cur/end — 6개 배열이 라인 타워, 슬라이스가 추가 타워인지는 미확인",
+  "Entity::attack_cooldown()(entity.rs:1748) 의 값이 '남은 쿨다운' 인지 '주기' 인지 — 챔프 구간은 ready_tick(남은 시간) 으로, 타워 구간은 interval(주기) 로 쓰여 명칭이 갈린다. 필드 이름 attack_cooldown 만 확정",
+  "L133 클로저와 L141 타워 헬퍼의 실제 함수 이름 — 심볼 조각 `line_enemy_tower_punish_damage_at`(52562 망글) 로 타워 헬퍼 이름은 확정, 챔프 헬퍼(146~160) 이름은 define 없음"
+ ]
+}

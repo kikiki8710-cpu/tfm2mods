@@ -1,0 +1,381 @@
+{
+ "name": "get_die_tick_player",
+ "sym": "_RNvNtCshdEBA0ozCnw_7game_ai9goal_data19get_die_tick_player",
+ "src": "game-ai\\src\\goal_data.rs",
+ "src_line": 577,
+ "ir_file": "m09.ll",
+ "ir_from": 52061,
+ "ir_to": 52663,
+ "aux": [
+  {
+   "ir_file": "m01.ll",
+   "ir_from": 50863,
+   "ir_to": 51883
+  },
+  {
+   "ir_file": "m12.ll",
+   "ir_from": 18848,
+   "ir_to": 18954
+  },
+  {
+   "ir_file": "m09.ll",
+   "ir_from": 65639,
+   "ir_to": 65650
+  }
+ ],
+ "one_line": "적 챔피언(공/Q/W 도달틱별 dps)·타워·적 기타 엔티티의 dps 를 도달 시각순으로 누적해 내 챔피언이 죽는 틱을 계산",
+ "signature": {
+  "abi": "define hidden(비-internal) · 반환 i64(u64) 스칼라 · champ_team/champ 는 usize 스칼라, enemies 는 &bumpalo Vec<usize>(32B) 포인터, tower 는 Option<&Entity> = nullable ptr(dereferenceable_or_null), action 은 Option<SmallAction>(24B) 값 인자를 dead_on_return 포인터로 전달",
+  "params": [
+   {
+    "i": 1,
+    "name": "data",
+    "type": "&OperationData(24B)",
+    "note": "+0 cache → player_champion/player_champion_cache/others · +8 context → setting.tick_per_second, pool(bump 할당자)"
+   },
+   {
+    "i": 2,
+    "name": "champ_team",
+    "type": "usize",
+    "note": "내 팀(0/1). 스택 슬롯 %13 에 저장돼 클로저가 참조로 캡처(52070·52121). 적 팀 = 1-champ_team"
+   },
+   {
+    "i": 3,
+    "name": "champ",
+    "type": "usize",
+    "note": "내 포지션 인덱스(0..5). %12 에 저장, 캡처"
+   },
+   {
+    "i": 4,
+    "name": "enemies",
+    "type": "&bumpalo::Vec<usize>(32B: +0 ptr / +0x18 len)",
+    "note": "적 챔피언 포지션 인덱스 목록. flat_map 의 원 이터레이터(52085~52097)"
+   },
+   {
+    "i": 5,
+    "name": "tower",
+    "type": "Option<&Entity>",
+    "note": "null=None(52168). Some 이면 dps_list 에 (0, 타워dps) 추가"
+   },
+   {
+    "i": 6,
+    "name": "action",
+    "type": "Option<SmallAction>(24B, +0 태그 8B)",
+    "note": "클로저가 캡처(52125). 태그==0(Some(RunAway), SmallAction Direct 태그 0=RunAway) 이면 적 이속에서 내 이속을 뺀다(aux m01.ll:51602~51604·51714~51717)"
+   }
+  ],
+  "returns": "u64 죽는 틱(현재 기준 상대 틱). hp 소진 시 `tick + (hp*100 - total)/max(dps,1)`; 소진 안 되면 마지막 원소 시각 = 센티넬 9999999999 (빈 목록이면 0→9999999999 로 치환, 52615~52616)"
+ },
+ "reads": [
+  {
+   "base": "OperationData",
+   "offset": "0x0",
+   "name": "cache",
+   "note": "52102"
+  },
+  {
+   "base": "OperationData",
+   "offset": "0x8",
+   "name": "context",
+   "note": "52126~52127; context+0 = pool(52128, from_iter_in 할당자) · context+8 = setting"
+  },
+  {
+   "base": "GameContext",
+   "offset": "0x8",
+   "name": "setting",
+   "note": "52201~52202 · 52289"
+  },
+  {
+   "base": "GameSetting",
+   "offset": "0x12f8",
+   "name": "tick_per_second",
+   "note": "dps = dmg*tps/cooltime (52203~52205 · 52364~52366)"
+  },
+  {
+   "base": "bumpalo Vec<usize>(enemies)",
+   "offset": "0x18",
+   "name": "len",
+   "note": "52087~52088 (ptr 는 +0)"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x1e0",
+   "name": "player_champion[team][pos]",
+   "note": "52153~52156 (내 챔피언 unwrap, 52172 unwrap_failed) · 클로저 51259~51277 (내/적 챔피언 unwrap)"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0xf0",
+   "name": "others[1-champ_team].buf.ptr",
+   "note": "52270~52274 stride 32, len +0x18(52276~52277)"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x280",
+   "name": "player_champion_cache[1-champ_team][e]",
+   "note": "클로저 51227~51228 (ChampionCache 800B, 팀당 5)"
+  },
+  {
+   "base": "ChampionCache",
+   "offset": "0x190",
+   "name": "attack_per_sec[champ]",
+   "note": "클로저 51229~51231 attack_dps"
+  },
+  {
+   "base": "ChampionCache",
+   "offset": "0x1b8",
+   "name": "skill_per_sec[champ]",
+   "note": "클로저 51233~51235 skill_dps"
+  },
+  {
+   "base": "ChampionCache",
+   "offset": "0x1e0",
+   "name": "skill2_per_sec[champ]",
+   "note": "클로저 51237~51239 skill2_dps"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x4c0",
+   "name": "attack_effect@tag",
+   "note": "i32 -1=None. 타워 52178~52180(None 이면 unwrap_failed 52197) · others 52321~52323 · 클로저 51286~51288"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x490",
+   "name": "attack_effect@Some.0 (Effect)",
+   "note": "expected_damage_target self · range_adjust self (52190 · 52320 · 51298)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x4a0",
+   "name": "attack_effect.range",
+   "note": "Effect::range 인라인(effect.rs:26): range + growth_range*(level-1) + stat_buff_cached.range (52377~52384)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x4a8",
+   "name": "attack_effect.growth_range",
+   "note": "52379~52380"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x4f8",
+   "name": "skill_effect@tag",
+   "note": "클로저 51391~51394 (-1=None)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x4c8",
+   "name": "skill_effect@Some.0 (Effect)",
+   "note": "클로저 51397; range +0x4d8(1240)·growth +0x4e0(1248) = 51412~51416"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x500",
+   "name": "skill2_effect@Some.0 (Effect)",
+   "note": "클로저 51491: Entity::skill2_effect(entity.rs:1693) 인라인 — level>2 면 &self.skill2_effect 아니면 정적 None(@anon…32, 태그 -1)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x30",
+   "name": "skill2_effect@tag (선택된 Effect ptr+0x30 · 절대 0x530)",
+   "note": "51494~51496 (선택된 ptr+48)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x5c8",
+   "name": "level",
+   "note": "growth_range*(level-1) (52381) · skill2_effect 게이트 level>2 (51488~51490)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x438",
+   "name": "stat_buff_cached.range",
+   "note": "Effect::range 가산항 (52383)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x470",
+   "name": "stat_buff_cached.radius_mult",
+   "note": "Entity::radius 인라인(entity.rs:1511~1515): mult==0 → radius, 아니면 radius*(mult+100)/100 (52391~52409)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x680",
+   "name": "radius",
+   "note": "52398 · 52405"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x640",
+   "name": "stat_cached.move_speed",
+   "note": "적 이속(52449~52450 · 51596~51597) · RunAway 시 내 이속 차감(51714~51715)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x670",
+   "name": "hp",
+   "note": "내 챔피언 hp*100 (52560~52562)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x2c8",
+   "name": "cc.buf.ptr",
+   "note": "클로저 51615~51616 CCState 40B 배열"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x2d0",
+   "name": "cc.len",
+   "note": "51617~51618"
+  },
+  {
+   "base": "CCState",
+   "offset": "0x0",
+   "name": "tag(i32)",
+   "note": "block_input 인라인(entity.rs:521): (tag-6) as u32 < 0xFFFFFFFC ⟺ tag ∉ {2 Bind,3 BlockAttack,4 BlockSkill,5 BlockMoveSkill} (m09.ll:65646~65648 · m12.ll:18909~18911)"
+  },
+  {
+   "base": "CCState",
+   "offset": "0x8",
+   "name": "tick(비 Animation)",
+   "note": "CCState::tick 인라인(entity.rs:546): 태그 10(Animation)이면 +0x20, 아니면 +0x8 (m12.ll:18921~18924 · m01.ll:51701~51705)"
+  },
+  {
+   "base": "Option<SmallAction>(action)",
+   "offset": "0x0",
+   "name": "tag",
+   "note": "클로저 51602~51603: ==0 → Some(RunAway)"
+  }
+ ],
+ "writes": [],
+ "constants": [
+  {
+   "value": 2,
+   "src_line": 607,
+   "meaning": "팀 인덱스 bounds(2). 클로저 51200 도 동일. 또 skill2_effect 게이트 level > 2 (51490, entity.rs:1693)"
+  },
+  {
+   "value": 5,
+   "src_line": 607,
+   "meaning": "포지션 인덱스 bounds(5)"
+  },
+  {
+   "value": 100,
+   "src_line": 633,
+   "meaning": "hp = champ.hp*100 (백분 스케일) · add_max = dps*100*dt/60 · Entity::radius 의 (mult+100)/100"
+  },
+  {
+   "value": 60,
+   "src_line": 641,
+   "meaning": "add_max = dps*100*dt/60 — dt(틱)를 초로 환산하는 하드코딩 tps=60 (setting.tick_per_second 를 안 씀 — dps 계산에서는 tps 를 썼음)"
+  },
+  {
+   "value": 9999999999,
+   "src_line": 630,
+   "meaning": "센티넬 (9999999999, 0) 을 dps_list 끝에 push(52515~52517) — 정렬 후 마지막; 죽지 않으면 이 값이 반환. 또 빈 목록(tick==0)일 때 반환값(52616)"
+  },
+  {
+   "value": 0,
+   "src_line": 614,
+   "meaning": "타워 dps 는 도달 틱 0 으로 push(52256). 루프 초기 tick/dps/total 0 · attack_range unwrap_or(0)(51387)·skill 0(51485)·skill2 0(51585)·cc_tick unwrap_or(0)(51778)"
+  },
+  {
+   "value": 1,
+   "src_line": 621,
+   "meaning": "umax(attack_cooltime,1)(52374) · umax(move_speed,1)(52455·51779) · umax(dps,1)(52648) — 0 나눗셈 가드. 타워 경로(52210)는 가드 없이 cooltime==0 → panic_const_div_by_zero"
+  },
+  {
+   "value": 21,
+   "src_line": 632,
+   "meaning": "sort_by_key 의 삽입정렬/드리프트정렬 분기(len<21 → insertion_sort_shift_left, 표준 라이브러리 내부) — 판정 아님"
+  },
+  {
+   "value": -6,
+   "src_line": 598,
+   "meaning": "CCState::block_input 인라인: tag-6 (aux m09.ll:65647 · m12.ll:18910)"
+  },
+  {
+   "value": -4,
+   "src_line": 598,
+   "meaning": "CCState::block_input: (tag-6) as u32 < (u32)-4 → tag ∉ {2,3,4,5} = Bind/BlockAttack/BlockSkill/BlockMoveSkill 는 입력차단 아님, 그 외(Airborne/Stun/ForceMove/Taunt/Fear/Charm/Animation) 는 차단"
+  },
+  {
+   "value": 10,
+   "src_line": 598,
+   "meaning": "CCState 태그 10 = Animation → tick 필드가 +0x20(32), 그 외 +0x8 (aux m12.ll:18921~18923 · m01.ll:51702~51703)"
+  },
+  {
+   "value": 3,
+   "src_line": 578,
+   "meaning": "flat_map 클로저가 원소당 [(도달틱,dps);3] 배열(공격/스킬/스킬2)을 돌려줌 — 배열 길이 3 (aux m01.ll:50969 size_hint ×3 · 51092·51096)"
+  },
+  {
+   "value": -1,
+   "src_line": 585,
+   "meaning": "Option<Effect> 니치 태그 i32 -1 = None (attack/skill/skill2 전부) · level-1 (growth_range 배수)"
+  }
+ ],
+ "calls": [
+  "bumpalo::collections::vec::from_iter_in",
+  "game_core::simulation::effect::Effect::expected_damage_target",
+  "game_core::simulation::entity::Entity::attack_cooltime",
+  "game_core::simulation::effect::Effect::range_adjust",
+  "game_core::simulation::entity::Entity::distance",
+  "bumpalo::collections::raw_vec::RawVec::reserve_internal_or_panic",
+  "core::slice::sort::stable::driftsort_main",
+  "core::slice::sort::shared::smallsort::insertion_sort_shift_left",
+  "core::ops::drop::Drop::drop",
+  "core::ptr::drop_glue",
+  "core::option::unwrap_failed",
+  "core::panicking::panic_bounds_check",
+  "core::panicking::panic_const::panic_const_div_by_zero",
+  "llvm.umax.i64",
+  "llvm.usub.sat.i64",
+  "_RNvXs1_NtNtNtCsjihNppCmMEE_4core3ops8function5implsQNCNCNvNtCshdEBA0ozCnw_7game_ai9goal_data19get_die_tick_player0s1_0INtB7_5FnMutTRRNtNtNtCs97f5S1uJLkH_9game_core10simulation6entity7CCStateEE8call_mutBW_",
+  "_RINvXs0_NtNtNtCsjihNppCmMEE_4core4iter8adapters3mapINtB6_3MapINtNtB8_6filter6FilterINtNtNtBc_5slice4iter4IterNtNtNtCs97f5S1uJLkH_9game_core10simulation6entity7CCStateENCNCNvNtCshdEBA0ozCnw_7game_ai9goal_data19get_die_tick_player0s1_0ENCB2H_s2_0ENtNtNtBa_6traits8iterator8Iterator4foldyNCINvNvB3V_6max_by4foldyNvYyNtNtBc_3cmp3Ord3cmpE0EB2N_"
+ ],
+ "logic": "fn get_die_tick_player(data, champ_team, champ, enemies:&Vec<usize>, tower:Option<&Entity>, action:Option<SmallAction>) -> u64\n// L578~605: dps_list: bumpalo Vec<(u64 arrive_tick, u64 dps)> = enemies.iter().flat_map(|&e| closure#0).collect_in(ctx.pool)   [aux m01.ll:50863~51883]\n//   closure#0(e):\n//     enemy = 1 - champ_team (bounds 2), e<5, champ<5 (bounds)\n//     cc = cache.player_champion_cache[enemy][e]                         // L579\n//     attack_dps = cc.attack_per_sec[champ]; skill_dps = cc.skill_per_sec[champ]; skill2_dps = cc.skill2_per_sec[champ]   // L579~581\n//     champ_e = cache.player_champion[champ_team][champ].unwrap()       // L583\n//     e_e     = cache.player_champion[enemy][e].unwrap()                // L584\n//     range_of(ef) = ef.range(e_e) /*= ef.range + ef.growth_range*(e_e.level-1) + e_e.stat_buff_cached.range*/ + ef.range_adjust(e_e, champ_e) + e_e.radius() + champ_e.radius()\n//     attack_range = e_e.attack_effect.map(range_of).unwrap_or(0)       // L585\n//     skill_range  = e_e.skill_effect.map(range_of).unwrap_or(0)        // L586\n//     skill2_range = e_e.skill2_effect()/*level>2 만*/.map(range_of).unwrap_or(0)   // L587\n//     dist = e_e.distance(champ_e)                                       // L589\n//     move_speed = e_e.stat_cached.move_speed                            // L590\n//     if action == Some(RunAway) { move_speed = move_speed.saturating_sub(champ_e.stat_cached.move_speed) }   // L592~593 (태그 0)\n//     move_speed = max(move_speed, 1)                                    // L596\n//     cc_tick = e_e.cc.iter().filter(|c| c.block_input()).map(|c| c.tick()).max().unwrap_or(0)   // L598 [aux m12.ll:18848 fold + m09.ll:65639 shim]\n//     ceil_div(a,b) = (a + b - 1)/b\n//     [(ceil_div(dist.sat_sub(attack_range), move_speed) + cc_tick, attack_dps),   // L602\n//      (ceil_div(dist.sat_sub(skill_range),  move_speed) + cc_tick, skill_dps),    // L603\n//      (ceil_div(dist.sat_sub(skill2_range), move_speed) + cc_tick, skill2_dps)]   // L604\n// L607\nchamp_e = cache.player_champion[champ_team][champ].unwrap()\n// L610~614\nif let Some(t) = tower {\n    dps = t.attack_effect.unwrap().expected_damage_target(ctx, t as &dyn AbstractEntity, champ_e) * setting.tick_per_second / t.attack_cooltime()   // cooltime 0 → panic(div by zero, 가드 없음)\n    dps_list.push((0, dps))\n}\n// L618~626\nfor e in cache.others[1-champ_team].iter() {\n    if let Some(atk) = e.attack_effect {\n        dps = atk.expected_damage_target(ctx, e, champ_e) * tps / max(e.attack_cooltime(), 1)           // L620~621\n        attack_range = atk.range(e) + atk.range_adjust(e, champ_e) + e.radius() + champ_e.radius()        // L622\n        dist = e.distance(champ_e)                                                                        // L623\n        arrive_tick = dist.saturating_sub(attack_range) / max(e.stat_cached.move_speed, 1)               // L624~625 (floor, cc 무시)\n        dps_list.push((arrive_tick, dps))                                                                 // L626\n    }\n}\ndps_list.push((9999999999, 0))                 // L630 센티넬\ndps_list.sort_by_key(|x| x.0)                  // L632 (도달 틱 오름차순, stable)\nhp = champ_e.hp * 100                          // L633\n(tick, dps, total) = (0, 0, 0)\nfor (t, add_dps) in dps_list {                 // L639\n    dt = t - tick                              // L640\n    add_max = dps * 100 * dt / 60              // L641\n    if total + add_max >= hp {                 // L642 (icmp ult total+add_max, hp 의 부정)\n        remain_hp = hp - total                 // L643 (add_max 더하기 전)\n        return tick + remain_hp / max(dps, 1)  // L644~645\n    }\n    total += add_max; dps += add_dps; tick = t // L649\n}\nreturn if tick == 0 { 9999999999 } else { tick }   // L653/637 — 정상 경로에선 센티넬 9999999999",
+ "knobs": [
+  {
+   "what": "죽음 지평 센티넬",
+   "where": "goal_data.rs:630 (m09.ll:52515)",
+   "value": 9999999999,
+   "effect": "반환 상한. 호출자가 '지평 안에 안 죽음' 판정에 쓰는 값(변경 시 호출자 비교 기준도 같이)"
+  },
+  {
+   "what": "누적 피해 틱→초 환산 계수",
+   "where": "goal_data.rs:641 (m09.ll:52599)",
+   "value": 60,
+   "effect": "내리면 같은 dt 에 더 많은 피해가 누적돼 죽는 틱이 앞당겨짐(tps≠60 이면 dps 계산과 단위 불일치)"
+  },
+  {
+   "what": "hp 스케일",
+   "where": "goal_data.rs:633 (m09.ll:52562)",
+   "value": 100,
+   "effect": "add_max 의 *100 과 짝. 마지막 remain_hp/dps 는 이 스케일이 그대로 남아 잔여 틱이 (hp*100)/dps 단위 — 계수 변경 시 잔여 계산도 같이 바뀜"
+  },
+  {
+   "what": "스킬2 사거리 포함 레벨 게이트",
+   "where": "entity.rs:1693 (aux m01.ll:51490)",
+   "value": 2,
+   "effect": "level>2 에서만 skill2 도달틱 산정 — game_core 소관"
+  },
+  {
+   "what": "입력차단 CC 판정 집합",
+   "where": "entity.rs:521 block_input (aux m09.ll:65647~65648)",
+   "value": -4,
+   "effect": "Bind/BlockAttack/BlockSkill/BlockMoveSkill 제외. game_core 소관 — 게임 AI 쪽 노브 아님"
+  }
+ ],
+ "unknown": [
+  "Option<SmallAction> 의 None 태그 — tcxdict 에 Option 인스턴스 없음. SmallAction 이 Direct 8B 태그 0..10 이라 니치 규칙상 None=11 이고, 클로저의 `tag==0` 비교는 Some(RunAway) 로 읽었다(추정 · 검증법: 호출자 m08.ll:97515/m10.ll:12961 의 action 인자 구성 추적)",
+  "L602~604 의 ceil 나눗셈이 소스에서 `div_ceil` 인지 `(a+b-1)/b` 인지 — 외연 동일(표기 불가). 본체 L625 는 floor 나눗셈(52456)으로 다름",
+  "L637/653 의 반환 표기 — `if tick==0 {9999999999} else {tick}` 로 접힘(52615~52616). 센티넬이 항상 push 되므로 정상 경로에선 tick==0 이 될 수 없음(빈 목록 불가) — 죽은 분기 가능성",
+  "L644 remain_hp/dps 단위: remain_hp 는 hp*100 스케일, dps 는 초당(틱 환산 없음) — 의도된 근사인지 버그인지 소스 주석 없음(rmetadocs 0건). IR 그대로 기록",
+  "타워 경로(L611) attack_cooltime()==0 이면 panic_const_div_by_zero(52266) — others 경로는 max(..,1) 가드. 비대칭은 IR 사실",
+  "expected_damage_target(&Effect,&GameContext,&dyn AbstractEntity,&Entity)->usize / range_adjust(&Effect,&Entity,&Entity)->u64 / attack_cooltime(&Entity)->usize / distance(&Entity,&Entity)->u64 는 game_core 경계 — 시그니처만(tcx)",
+  "calls 마지막 두 항목은 aux 조각 자체의 심볼(call_mut 심·max_by fold) — qcspec 매칭용 망글 표기",
+  "정렬 알고리즘 조각(m03/m04/m05/m10/m12 의 quicksort/drift/merge/median3 등 9개 인스턴스)은 표준 라이브러리 sort_by_key 본체 — 키가 `.0`(도달틱) 임만 insertion_sort_shift_left(m03.ll:118684~118690, 원소+0 비교)로 확인"
+ ]
+}

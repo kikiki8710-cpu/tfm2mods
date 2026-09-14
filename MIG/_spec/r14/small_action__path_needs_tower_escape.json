@@ -1,0 +1,77 @@
+{
+ "name": "path_needs_tower_escape",
+ "sym": "_RNvNtCshdEBA0ozCnw_7game_ai12small_action23path_needs_tower_escape",
+ "src": "game-ai\\src\\small_action.rs",
+ "src_line": 109,
+ "ir_file": "m11.ll",
+ "ir_from": 52695,
+ "ir_to": 52915,
+ "aux": [
+  {"ir_file": "m06.ll", "ir_from": 34847, "ir_to": 35008, "note": "Chain<Flatten<IntoIter<Option<&Entity>,6>>,Copied<Iter<&Entity>>>::try_fold<any::check<closure#0>> — L121~124 클로저 `|t| t.is_tower && t.tower.nearest_enemy.1 == champ.id` 의 앞쪽 절반(배열 6칸) 인스턴스"},
+  {"ir_file": "m11.ll", "ir_from": 30996, "ir_to": 31084, "note": "Copied<Iter<&Entity>>::try_fold<any::check<closure#0>> — 같은 클로저의 뒤쪽 절반(슬라이스) 인스턴스 · m06 조각이 호출"}
+ ],
+ "one_line": "v38 타워 회피 후퇴 필요 판정 — 현재 경로의 다음 웨이포인트가 '불필요한 적 타워 위치'면 true (HP비율·타워 표적·최근 타워 피격 게이트)",
+ "signature": {
+  "abi": "hidden(비-internal) · 반환 i1 zeroext",
+  "params": [
+   {"i": 1, "name": "version", "type": "usize", "note": "본문 분기 없음 — is_unnecessary_enemy_tower_position 첫 인자로만 전달(52759/52909)"},
+   {"i": 2, "name": "player", "type": "&PlayerState(2528B)", "note": "+0x930 team · +0x9c0 position 태그 · path_finder 콜리 인자"},
+   {"i": 3, "name": "data", "type": "&OperationData(24B)", "note": "+0x0 cache 만(player_champion · iter_towers_without_nexus · game.get_entity_by_id)"},
+   {"i": 4, "name": "path_finder", "type": "&PathFinder(72B)", "note": "captures(none) readonly. +0x10 path_len · +0x18 index · +0x28 path(Box<[(u64,u64);70]>)"}
+  ],
+  "returns": "bool — true = 경로 다음 지점(또는 현 지점)이 불필요한 적 타워 사거리 위치라 회피 후퇴 필요. path_len==0/champ 없음/게이트 미충족/현 위치가 이미 불필요 타워 위치 → false"
+ },
+ "reads": [
+  {"base": "PathFinder", "offset": "0x10", "name": "path_len", "note": "52703 (gep 16) == 0 → false · 52840 path_len-1 상한"},
+  {"base": "PathFinder", "offset": "0x18", "name": "index", "note": "52838 (gep 24) → min(index, path_len-1)"},
+  {"base": "PathFinder", "offset": "0x28", "name": "path", "note": "52853 (gep 40) Box<[(u64,u64);70]> · 원소 16B(gepS {i64,i64}) · bounds 70 (52884/52913)"},
+  {"base": "PlayerState", "offset": "0x930", "name": "info.team", "note": "52709 (gep 2352) · bounds 2 · 적 팀 = 1-team (52764)"},
+  {"base": "PlayerState", "offset": "0x9c0", "name": "info.position@tag", "note": "52724 (gep 2496)"},
+  {"base": "OperationData", "offset": "0x0", "name": "cache", "note": "52727"},
+  {"base": "AbstractGameWithCache", "offset": "0x1e0", "name": "player_champion[team][position]", "note": "52728~52731 · null → false"},
+  {"base": "AbstractGameWithCache", "offset": "0x0", "name": "game.data_ptr", "note": "52791"},
+  {"base": "AbstractGameWithCache", "offset": "0x8", "name": "game.vtable_ptr", "note": "52789 · vtable+0x1f0(496) get_entity_by_id (52798~52800)"},
+  {"base": "Entity", "offset": "0x670", "name": "hp", "note": "52737 champ.hp"},
+  {"base": "Entity", "offset": "0x628", "name": "stat_cached.hp", "note": "52739 (gep 1576) 최대 HP · max(…,1)"},
+  {"base": "Entity", "offset": "0x660", "name": "x", "note": "52751 champ.x"},
+  {"base": "Entity", "offset": "0x668", "name": "y", "note": "52755 champ.y"},
+  {"base": "Entity", "offset": "0x640", "name": "stat_cached.move_speed", "note": "52850 (gep 1600) — 도달 판정 반경 (move_speed*10)²"},
+  {"base": "Entity", "offset": "0x28", "name": "last_attacked_from@tag", "note": "52778 (gep 40) trunc→i1 Some 판정 (option.rs:1542 and_then 인라인)"},
+  {"base": "Entity", "offset": "0x30", "name": "last_attacked_from@Some.0", "note": "52793 (gep 48) 공격자 id → get_entity_by_id"},
+  {"base": "Entity", "offset": "0x0", "name": "team@tag", "note": "52811 공격자 e.team 태그 == 0 Player"},
+  {"base": "Entity", "offset": "0x8", "name": "team@Player.0", "note": "52824 == 1-team (적 팀)"},
+  {"base": "Entity", "offset": "0x68", "name": "ty@tag", "note": "52830 e.is_tower(entity.rs:1386) == 2 Tower · aux 클로저 31039/34952 t.ty == 2"},
+  {"base": "Entity", "offset": "0x5c0", "name": "id", "note": "aux 31020/34909 champ.id (클로저 캡처) ↔ 타워 nearest_enemy.1"},
+  {"base": "Entity", "offset": "0x88", "name": "ty@Tower.info.nearest_enemy@tag", "note": "aux 31043/34956 (gep 136) trunc→i1 Some"},
+  {"base": "Entity", "offset": "0x98", "name": "ty@Tower.info.nearest_enemy@Some.0.1", "note": "aux 31056/34969 (gep 152) == champ.id"}
+ ],
+ "writes": [],
+ "constants": [
+  {"value": 0, "src_line": 110, "meaning": "path_len == 0 → false (52705) · 공격자 team 태그 0 Player (52813)"},
+  {"value": 2, "src_line": 114, "meaning": "player_champion bounds team<2 (52711) · EntityType 태그 2 Tower (52832 · aux 31041)"},
+  {"value": 100, "src_line": 119, "meaning": "hp_ratio = hp*100/max_hp (52744)"},
+  {"value": 1, "src_line": 119, "meaning": "max_hp.max(1) 분모 가드(52743) · 적 팀 = 1-team (52764) · next_index = index+1 (52888)"},
+  {"value": 45, "src_line": 120, "meaning": "hp_ratio > 45 이면 타워 표적/최근 타워 피격 게이트를 거침. 45 이하면 게이트 없이 바로 경로 검사 (52747 ugt)"},
+  {"value": 66, "src_line": 130, "meaning": "hp_ratio < 66 일 때만 '최근 타워 피격' 경로로 게이트 통과 가능 (52774 ult)"},
+  {"value": 10, "src_line": 146, "meaning": "도달 반경 = move_speed*10 (52878) — 제곱비교 dist² < (move_speed*10)²"},
+  {"value": 70, "src_line": 145, "meaning": "path 배열 길이 [(u64,u64);70] bounds (52846/52894)"},
+  {"value": -1, "src_line": 121, "meaning": "aux m06 34852 — Chain 어댑터 a-side 소진 니치 태그(핵심 판정 아님)"}
+ ],
+ "calls": [
+  "game_core::simulation::AbstractGameWithCache::iter_towers_without_nexus",
+  "core::iter::adapters::chain::Chain::try_fold",
+  "game_ai::path_finder::is_unnecessary_enemy_tower_position"
+ ],
+ "logic": "L110: if path_finder.path_len == 0 → false\nL114: champ = data.cache.player_champion[team][position] ; None → false\nL119: hp_ratio = champ.hp * 100 / champ.stat_cached.hp.max(1)\nL120: if hp_ratio > 45 {\n  L121~122: tower_targets_champ = data.cache.iter_towers_without_nexus(1-team)   [sret 120B Chain 이터레이터]\n                 .any(|t| t.ty==Tower(2) && t.tower.nearest_enemy.is_some() && nearest_enemy.1 == champ.id)   [aux 클로저 L123~124]\n  L129: if !tower_targets_champ {\n    L130~133: recent_tower_hit = hp_ratio < 66\n                 && champ.last_attacked_from.and_then(|id| game.get_entity_by_id(id))                       [L131]\n                       .is_some_and(|e| e.team == Player(1-team) && e.is_tower())                          [L132]\n    if !recent_tower_hit → false\n  }\n}\nL139: if is_unnecessary_enemy_tower_position(version, player, data, champ.x, champ.y) → false   (이미 그 위치면 회피 불필요)\nL143: move_speed = champ.stat_cached.move_speed\nL144: index = path_finder.index.min(path_len-1)\nL145: (x,y) = path[index]\nL146: if distance_sq((x,y),(champ.x,champ.y)) < (move_speed*10)² {   [abs_diff² 합]\n  L147: next_index = (index+1).min(path_len-1)\n  L151: (x,y) = path[next_index]\n}\nL152: return is_unnecessary_enemy_tower_position(version, player, data, x, y)",
+ "knobs": [
+  {"what": "게이트 면제 HP%", "where": "small_action.rs:120", "value": 45, "effect": "hp_ratio ≤ 45 면 타워표적/피격 조건 없이 항상 경로 검사. 올리면 더 건강한 챔프도 무조건 타워 회피를 검사(후퇴 빈도↑)"},
+  {"what": "최근 타워 피격 인정 HP%", "where": "small_action.rs:130", "value": 66, "effect": "45<hp<66 구간에서만 '적 타워에게 마지막 피격' 으로 게이트 통과. 올리면 고HP 에서도 피격 이력으로 회피 검사"},
+  {"what": "웨이포인트 도달 반경 배율", "where": "small_action.rs:146", "value": 10, "effect": "move_speed*10 안이면 다음 웨이포인트를 검사. 올리면 더 일찍 다음 지점의 타워 위험을 봄"}
+ ],
+ "unknown": [
+  "L120~133 의 정확한 소스 중첩 형태(if/&&/|| 조합) — IR 흐름(hp>45 → any → hp<66&&recent)만 확정, 소스 표기는 외연 동일 후보 다수라 표기 불가",
+  "iter_towers_without_nexus(cache, team) sret 120B = Chain<Flatten<IntoIter<Option<&Entity>,6>>,Copied<Iter<&Entity>>> — 앞 6칸 고정 배열 + 슬라이스 의 정체(어느 타워 집합인지)는 game_core 경계로 미탐색",
+  "is_unnecessary_enemy_tower_position(m03.ll:146255 · (version,player,data,x,y)->bool) 내부 미탐색(경로 계층)",
+  "closure_env$1/$2(and_then · is_some_and)는 본문에 인라인(fnparts: DWARF 33 vs define 3) — 별도 define 없음"
+ ]
+}

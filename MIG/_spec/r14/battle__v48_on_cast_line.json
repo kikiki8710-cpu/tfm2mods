@@ -1,0 +1,181 @@
+{
+ "name": "v48_on_cast_line",
+ "sym": "_RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy8sub_plan6battle16v48_on_cast_line",
+ "src": "game-ai\\src\\plan_legacy\\sub_plan\\battle.rs",
+ "src_line": 1057,
+ "ir_file": "m02.ll",
+ "ir_from": 66030,
+ "ir_to": 66193,
+ "aux": [],
+ "one_line": "점(px,py)이 현재 시전 중인 논타겟 빔(원/선분) 폭 안에 있는가 — 빔 중 하나라도 dist <= champ_r+15000+halfwidth 이면 true",
+ "signature": {
+  "abi": "internal fastcc (m02.ll:66030 `define internal fastcc noundef zeroext i1`). 인자 5개가 dbg_value 이름(player·data·champ_r·px·py, m02.ll:66038~66042)과 1:1 이라 ArgumentPromotion 흔적 없음(포인터→스칼라 승격·팻포인터 분해 없음). exe 0xcd0480 은 fastcc 라 Rust ABI 와 레지스터 배치가 다를 수 있음(argscan 미실시).",
+  "params": [
+   {
+    "i": 1,
+    "name": "player",
+    "type": "&PlayerState(2528B)",
+    "note": "info.id(+0x928) 만 읽음 — TLS 캐시 키(pid)"
+   },
+   {
+    "i": 2,
+    "name": "data",
+    "type": "&OperationData(24B)",
+    "note": "cache(+0x0)→game(dyn AbstractGame) 의 seed/tick 슬롯 호출 — TLS 캐시 키. 클로저에도 전달"
+   },
+   {
+    "i": 3,
+    "name": "champ_r",
+    "type": "usize",
+    "note": "챔피언 반경. 판정 반경 = champ_r + 15000 + beam.halfwidth"
+   },
+   {
+    "i": 4,
+    "name": "px",
+    "type": "usize",
+    "note": "검사 점 x"
+   },
+   {
+    "i": 5,
+    "name": "py",
+    "type": "usize",
+    "note": "검사 점 y"
+   }
+  ],
+  "returns": "bool(i1 zeroext) — true = 어떤 빔의 (원: 중심거리 / 선분: 선분거리) <= champ_r+15000+halfwidth. 빔 0개면 false"
+ },
+ "reads": [
+  {
+   "base": "PlayerState",
+   "offset": "0x928",
+   "name": "info.id",
+   "note": "m02.ll:66070 — TLS 캐시 키 pid (tcxdict PlayerState 0x928)"
+  },
+  {
+   "base": "OperationData",
+   "offset": "0x0",
+   "name": "cache",
+   "note": "m02.ll:66056 → &AbstractGameWithCache"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x0",
+   "name": "game.data_ptr",
+   "note": "m02.ll:66057 dyn AbstractGame 데이터 포인터"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x8",
+   "name": "game.vtable_ptr",
+   "note": "m02.ll:66059"
+  },
+  {
+   "base": "vtable(AbstractGame)",
+   "offset": "0x20",
+   "name": "seed",
+   "note": "m02.ll:66060~66062 `seed()` → i64 (divtable AbstractGame 0x20)"
+  },
+  {
+   "base": "vtable(AbstractGame)",
+   "offset": "0x28",
+   "name": "tick",
+   "note": "m02.ll:66065~66067 `tick()` → i64 (divtable AbstractGame 0x28)"
+  },
+  {
+   "base": "Beam(48B, 로컬 [Beam;6] 원소)",
+   "offset": "0x0",
+   "name": "x1",
+   "note": "m02.ll:66147"
+  },
+  {
+   "base": "Beam(48B, 로컬 [Beam;6] 원소)",
+   "offset": "0x8",
+   "name": "y1",
+   "note": "m02.ll:66150"
+  },
+  {
+   "base": "Beam(48B, 로컬 [Beam;6] 원소)",
+   "offset": "0x10",
+   "name": "x2",
+   "note": "m02.ll:66171 — kind!=0 일 때만 읽음"
+  },
+  {
+   "base": "Beam(48B, 로컬 [Beam;6] 원소)",
+   "offset": "0x18",
+   "name": "y2",
+   "note": "m02.ll:66168 — kind!=0 일 때만 읽음"
+  },
+  {
+   "base": "Beam(48B, 로컬 [Beam;6] 원소)",
+   "offset": "0x20",
+   "name": "kind",
+   "note": "m02.ll:66145 i8. 0=점/원(중심 x1,y1) · 그 외(클로저가 1 을 store, m00.ll:93748)=선분(x1,y1)-(x2,y2)"
+  },
+  {
+   "base": "Beam(48B, 로컬 [Beam;6] 원소)",
+   "offset": "0x28",
+   "name": "halfwidth",
+   "note": "m02.ll:66155 빔 반폭"
+  }
+ ],
+ "writes": [],
+ "constants": [
+  {
+   "value": 15000,
+   "src_line": 1059,
+   "meaning": "판정 여유 반경(≈0.47셀). 임계 = champ_r + 15000 + halfwidth (m02.ll:66133, 66162, 66174)"
+  },
+  {
+   "value": 0,
+   "src_line": 1060,
+   "meaning": "beam.kind == 0 → 원(점거리) 판정 분기 (m02.ll:66157)"
+  },
+  {
+   "value": 7,
+   "src_line": 1059,
+   "meaning": "`beams[..n]` 슬라이스 경계검사 n<7 (n<=6, 배열 용량 6). 판정 상수 아님 (m02.ll:66109)"
+  },
+  {
+   "value": 6,
+   "src_line": 1059,
+   "meaning": "빔 배열 용량 [Beam;6] — slice_index_fail 인자 (m02.ll:66137). 판정 상수 아님"
+  }
+ ],
+ "calls": [
+  "std::thread::local::LocalKey<RefCell<...>>::with<v48_cast_beams::{closure#0}>",
+  "game_core::utils::distance",
+  "game_core::utils::dist_to_line_segment",
+  "core::slice::index::slice_index_fail"
+ ],
+ "logic": "fn v48_on_cast_line(player, data, champ_r, px, py) -> bool  // battle.rs:1057\n  // L1058: let (n, beams) = v48_cast_beams(player, data)  — 인라인: TLS 캐시(with) 호출\n  //   키 = (seed = data.cache.game.seed()  [L999], tick = data.cache.game.tick() [L1000], pid = player.info.id [L1001])\n  //   클로저 env {&seed,&tick,&pid,data,player} 40B 를 LocalKey::with 에 넘김 (m02.ll:66074~66083) → sret 296B\n  //   sret 296B 살아있는 바이트: +0 n:usize, +8.. [Beam;6] 중 앞 n개(Beam 48B: x1@0,y1@8,x2@16,y2@24,kind@32(i8, 33..39 패딩),halfwidth@40)\n  let beams = &beams[..n]        // L1059, n>=7 이면 slice_index_fail 패닉 (m02.ll:66109/66137)\n  let r = champ_r + 15000        // m02.ll:66133 (L1059 문맥)\n  for b in beams {               // n==0 이면 즉시 false (m02.ll:66129)\n     if b.kind == 0 {            // L1060\n        if distance(px,py,b.x1,b.y1) <= r + b.halfwidth { return true }   // L1061 (icmp ugt → 초과면 다음 빔)\n     } else {\n        if dist_to_line_segment(px,py,b.x1,b.y1,b.x2,b.y2) <= r + b.halfwidth { return true }  // L1064\n     }\n  }\n  false                          // L1069 (phi m02.ll:66190: %31·%61 → false, %49·%53 → true)",
+ "knobs": [
+  {
+   "what": "빔 판정 여유 반경",
+   "where": "battle.rs:1059 (m02.ll:66133)",
+   "value": 15000,
+   "effect": "올리면 더 먼 점도 '시전선 위'로 판정(회피 스텝이 더 자주/넓게 발동), 내리면 빔 폭에 바짝 붙어야만 true"
+  }
+ ],
+ "callee_contracts": [
+  {
+   "name": "v48_cast_beams (battle.rs:998, LocalKey::with 클로저 본체 = m00.ll:93237~93786)",
+   "sig": "fn(player:&PlayerState, data:&OperationData) -> (usize, [(u8,i64,i64,i64,i64,u64);6])  sret 296B (tcx i=3128, battle.rs:998)",
+   "note": "TLS RefCell 캐시 — (seed,tick,pid) 키가 같으면 캐시 재생. iter_champions 로 시전 중 챔피언의 논타겟 투사체를 빔으로 수집(최대 6). kind 0 = 원(m00.ll:93651 L1033) / kind 1 = 선분(m00.ll:93748 L1049). 내부는 안 팜(지도 외 콜리 규칙)"
+  },
+  {
+   "name": "game_core::utils::distance",
+   "sig": "fn(x1,y1,x2,y2: i64) -> i64 (유클리드 거리, 정수)",
+   "note": "game_core 경계 — 내부 안 팜"
+  },
+  {
+   "name": "game_core::utils::dist_to_line_segment",
+   "sig": "fn(px,py,x1,y1,x2,y2: i64) -> i64 (점-선분 거리)",
+   "note": "game_core 경계 — 내부 안 팜"
+  }
+ ],
+ "unknown": [
+  "Beam 원소 타입 = tcx sig `(u8, i64, i64, i64, i64, u64)`(v48_cast_beams 반환 `(usize, [(u8,i64,i64,i64,i64,u64);6])`, _tcx game_ai.json i=3128). 메모리 배치는 rustc 재배열: i64 x1@0,y1@8,x2@16,y2@24, u8 kind@32(+33..39 패딩), u64 halfwidth@40 — 필드 이름은 dbg_value 이름(m02.ll:66146~66156). 열거형이 아니라 u8 이며 클로저가 0/1 만 store(m00.ll:93651·93748). 남는 unknown: 소스에서 u8 값 0/1 의 상수명(표기 불가 — IR 리터럴)",
+  "15000 이 소스에서 리터럴인지 상수명인지(표기 불가 — IR 에 리터럴로 접힘). 값·위치(L1059 문맥, r=champ_r+15000 이 루프 전 계산)는 확정",
+  "exe 0xcd0480 의 fastcc 레지스터 배치(argscan 미실시) — IR 인자 5개는 소스 인자와 1:1 이라 승격 없음은 확정"
+ ]
+}

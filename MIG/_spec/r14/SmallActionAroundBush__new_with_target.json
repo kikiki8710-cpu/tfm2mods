@@ -1,0 +1,225 @@
+{
+ "name": "SmallActionAroundBush::new_with_target",
+ "sym": "_RNvMs6_NtNtCshdEBA0ozCnw_7game_ai12small_action6aroundNtB5_21SmallActionAroundBush15new_with_target",
+ "src": "game-ai\\src\\small_action\\around.rs",
+ "src_line": 1178,
+ "ir_file": "m08.ll",
+ "ir_from": 104917,
+ "ir_to": 105128,
+ "aux": [
+  {
+   "ir_file": "m08.ll",
+   "ir_from": 113374,
+   "ir_to": 113416,
+   "note": "필터 술어 call_mut 심 — map.bushes[y][x] == *bush"
+  },
+  {
+   "ir_file": "m06.ll",
+   "ir_from": 44095,
+   "ir_to": 44454,
+   "note": "Vec::from_iter(IntoIter<[(usize,usize);71]>.filter(pred)) 모노모픽 본체(std Vec, cap 4 시작)"
+  },
+  {
+   "ir_file": "m12.ll",
+   "ir_from": 32541,
+   "ir_to": 32683,
+   "note": "min_by_key fold — 키 = 대상 (x,y) ↔ 셀 중심 제곱거리"
+  }
+ ],
+ "one_line": "수풀 id 에 속한 하드코딩 71셀 중 대상 엔티티에 가장 가까운 셀을 골라 SmallActionAroundBush 를 생성",
+ "signature": {
+  "abi": "define void (sret 120B) — 비 internal, 인자 승격 없음. sret = SmallActionAroundBush(120B)",
+  "params": [
+   {
+    "i": 0,
+    "name": "(sret)",
+    "type": "*mut SmallActionAroundBush(120B)",
+    "note": "writes 참조. live 바이트만 기록됨"
+   },
+   {
+    "i": 1,
+    "name": "data",
+    "type": "&OperationData(24B, readonly)",
+    "note": "+0x0 cache(&AbstractGameWithCache → +0x0 game &dyn AbstractGame 팻포인터: data_ptr +0 / vtable_ptr +8) · +0x8 context → map"
+   },
+   {
+    "i": 2,
+    "name": "target",
+    "type": "&Entity(1728B, readonly)",
+    "note": "+0x660 x · +0x668 y 만 읽음(min_by_key 키). 소유권 아님(참조)"
+   },
+   {
+    "i": 3,
+    "name": "bush",
+    "type": "usize",
+    "note": "수풀 id. 필터 술어에서 map.bushes[y][x] 와 비교, 그대로 self.bush 에 저장"
+   },
+   {
+    "i": 4,
+    "name": "out_line",
+    "type": "AroundBushOutlineType(i8 0..3)",
+    "note": "그대로 self.out_line(+0x70) 에 저장. 분기 없음"
+   }
+  ],
+  "returns": "void(sret). SmallActionAroundBush 120B 중 **살아있는 바이트** = +0x0 start_tick(8) · +0x8 change_tick(8) · +0x10 bush(8) · +0x18 target_x(8) · +0x20 target_y(8) · +0x6d path_finder Option 니치 태그 = 2(None, 1B) · +0x70 out_line 태그(1B). **미기록** = +0x28~+0x6c(Option<PathFinder> None 페이로드 69B) · +0x6e~+0x6f · +0x71~+0x77(패딩) — sweep 비교 시 제외 대상"
+ },
+ "reads": [
+  {
+   "base": "OperationData",
+   "offset": "0x8",
+   "name": "context",
+   "note": "105-? IR 104937 (`gep %1, 8`)"
+  },
+  {
+   "base": "GameContext",
+   "offset": "0x20",
+   "name": "map",
+   "note": "&MapDef — 필터 클로저 환경 [0] (104939)"
+  },
+  {
+   "base": "OperationData",
+   "offset": "0x0",
+   "name": "cache",
+   "note": "&AbstractGameWithCache (105071 `load ptr, ptr %1`)"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x0",
+   "name": "game.data_ptr",
+   "note": "&dyn AbstractGame 팻포인터 데이터 (105072 `load ptr, ptr %59`)"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x8",
+   "name": "game.vtable_ptr",
+   "note": "105074~105076; vtable+0x28 = AbstractGame::tick (divtable) — 2회 호출(L1185·L1186)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x660",
+   "name": "x",
+   "note": "target.x — 본체 첫 원소(105020) + fold 조각(m12 32616)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x668",
+   "name": "y",
+   "note": "target.y (105024 / m12 32620)"
+  },
+  {
+   "base": "MapDef",
+   "offset": "0x1c98",
+   "name": "bushes[30][30]",
+   "note": "aux call_mut 심 113407 `gep %4, 7320` → bushes[y][x] == bush"
+  }
+ ],
+ "writes": [
+  {
+   "base": "SmallActionAroundBush(sret)",
+   "offset": "0x0",
+   "name": "start_tick",
+   "value": "game.tick() (1회차 vtable 호출 105077, L1185)",
+   "note": "105099"
+  },
+  {
+   "base": "SmallActionAroundBush(sret)",
+   "offset": "0x8",
+   "name": "change_tick",
+   "value": "game.tick() (2회차 호출 105088, L1186 — 같은 값)",
+   "note": "105101"
+  },
+  {
+   "base": "SmallActionAroundBush(sret)",
+   "offset": "0x10",
+   "name": "bush",
+   "value": "인자 bush 그대로",
+   "note": "105104"
+  },
+  {
+   "base": "SmallActionAroundBush(sret)",
+   "offset": "0x18",
+   "name": "target_x",
+   "value": "best.x*32000+16000 (선택 셀 중심, L1188)",
+   "note": "105106"
+  },
+  {
+   "base": "SmallActionAroundBush(sret)",
+   "offset": "0x20",
+   "name": "target_y",
+   "value": "best.y*32000+16000 (L1189)",
+   "note": "105108"
+  },
+  {
+   "base": "SmallActionAroundBush(sret)",
+   "offset": "0x6d",
+   "name": "path_finder@tag",
+   "value": "2 = None (Option<PathFinder> 니치, bool unconstrained_fallback 자리)",
+   "note": "105110 `store i8 2`"
+  },
+  {
+   "base": "SmallActionAroundBush(sret)",
+   "offset": "0x70",
+   "name": "out_line",
+   "value": "인자 out_line 그대로",
+   "note": "105112"
+  }
+ ],
+ "constants": [
+  {
+   "value": 71,
+   "src_line": 1180,
+   "meaning": "하드코딩 후보 셀 표의 원소 수 — [(usize,usize);71] IntoIter 끝 인덱스 (104945, aux m06 44128). 표 내용은 @anon…94 (1136B=71×16): (0,0)(1,0)(2,0)(19,0)(20,0)(21,0)(0,1)(0,2)(7,4)(8,4)(9,4)(20,4)(20,5)(12,6)(4,7)(4,8)(29,8)(4,9)(14,9)(29,9)(29,10)(26,11)(6,12)(12,12)(13,12)(26,12)(12,13)(26,13)(9,14)(26,14)(20,15)(21,15)(17,16)(21,16)(16,17)(17,17)(25,18)(0,19)(25,19)(0,20)(4,20)(5,20)(15,20)(25,20)(0,21)(15,21)(16,21)(25,21)(25,22)(29,24)(18,25)(19,25)(20,25)(21,25)(22,25)(29,25)(11,26)(12,26)(13,26)(14,26)(29,26)(28,28)(29,28)(8,29)(9,29)(10,29)(24,29)(25,29)(26,29)(28,29)(29,29) — (x,y) 순"
+  },
+  {
+   "value": 32000,
+   "src_line": 1182,
+   "meaning": "셀→월드 좌표(셀 크기). 키 계산과 최종 target_x/y 저장 모두"
+  },
+  {
+   "value": 16000,
+   "src_line": 1182,
+   "meaning": "셀 중심 오프셋"
+  },
+  {
+   "value": 2,
+   "src_line": 1184,
+   "meaning": "Option<PathFinder>::None 의 니치 태그(105110). 판정값 아님(구조체 초기화)"
+  },
+  {
+   "value": 4,
+   "src_line": 1180,
+   "meaning": "aux from_iter: std Vec 초기 cap 4(원소 16B) — RawVecInner::try_allocate_in(4,false,8,16). 판정값 아님. ⚠본체 104968 `shl i64 %21, 4` 의 4 는 별개(len×16 = 원소 stride 접힘, 등록 대상 아님)"
+  }
+ ],
+ "calls": [
+  "alloc::vec::spec_from_iter_nested::from_iter",
+  "core::iter::adapters::map::Map::fold",
+  "core::ops::function::impls::call_mut",
+  "core::option::unwrap_failed",
+  "core::ops::drop::Drop::drop",
+  "core::ptr::drop_glue",
+  "alloc::raw_vec::RawVecInner::try_allocate_in",
+  "alloc::raw_vec::handle_error",
+  "core::ops::function::impls::call_once"
+ ],
+ "logic": "SmallActionAroundBush::new_with_target(data, target, bush, out_line) -> Self   [around.rs:1178]\n map = data.context.map\n candidates: Vec<(usize,usize)> = BUSH_CELLS(71개 하드코딩 (x,y), @anon…94)\n      .into_iter().filter(|(x,y)| map.bushes[*y][*x] == bush).collect()        (L1180; 술어 = aux m08 113374, y<30·x<30 아니면 panic)\n best = candidates.iter().min_by_key(|(x,y)| {                                (L1181~1182, fold = aux m12 32541)\n      dx = |target.x - (x*32000+16000)| ; dy = |target.y - (y*32000+16000)| ; dx*dx + dy*dy })\n   — 동률이면 앞 원소 유지(compare<=Equal → 기존 유지, 32663 `icmp slt %49, 1`)\n   — candidates 가 비면 first=None → `unwrap_failed` 패닉(L1182, 105081). 즉 bush id 에 해당하는 셀이 표에 없으면 패닉\n self = SmallActionAroundBush {                                                  (L1184)\n   start_tick:  data.game.tick(),          (L1185, vtable+0x28)\n   change_tick: data.game.tick(),          (L1186, 재호출 — 같은 틱)\n   bush,\n   target_x: best.x*32000+16000,           (L1188)\n   target_y: best.y*32000+16000,           (L1189)\n   path_finder: None,                      (+0x6d 니치 2)\n   out_line }\n drop(candidates)  (L1193)\n\n분기·판정은 없다(생성자). 유일한 실패 경로 = 후보 0개 → 패닉.",
+ "knobs": [
+  {
+   "what": "수풀 후보 셀 표(71개 하드코딩)",
+   "where": "around.rs:1180 (@anon…94, m08.ll:103)",
+   "value": "71 (x,y)",
+   "effect": "표에 없는 수풀 셀은 절대 후보가 안 된다 — 맵 수풀 배치를 바꾸면 이 표도 바꿔야 하며, 어긋나면 unwrap 패닉(후보 0개) 위험"
+  },
+  {
+   "what": "셀 선택 기준",
+   "where": "around.rs:1181~1182",
+   "value": "대상과의 제곱거리 최소",
+   "effect": "키를 바꾸면(예: 자기 위치 기준) 같은 수풀 안에서 다른 셀을 목표로 잡는다"
+  }
+ ],
+ "unknown": [
+  "change_tick 이 소스에서 `tick()` 재호출인지 `start_tick` 복사인지 — IR 은 vtable 슬롯을 2회 호출(105077·105088)하므로 재호출 확정. 같은 틱이라 값은 동일(순수 관측 함수 가정 — AbstractGame::tick 내부는 game_core 경계, 미탐색)",
+  "71셀 표가 어느 맵 기준인지(맵 1종 가정) — IR 엔 맵 id 분기가 없어 모든 맵에 같은 표 적용. 소스 상수명은 재료 부재(rmeta 에 소스 원문 없음)",
+  "AbstractGame::tick 의 정확한 콜리: divtable 이 `ExpectedGame::AbstractGame::tick` 로 슬롯 0x28 을 준다(정적 vtable 기준). 런타임 dyn 객체가 ExpectedGame 이 아닐 수 있으나 슬롯 의미(tick)는 트레이트 공통"
+ ]
+}

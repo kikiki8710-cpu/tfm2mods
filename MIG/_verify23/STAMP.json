@@ -1,0 +1,154 @@
+{
+ "A": {
+  "dossier": "efa6f515076aecb5",
+  "specs": [
+   "spec_134_around__check_cell.md",
+   "spec_135_v3_lethal_tower_position.md",
+   "spec_136_v23_should_break_objective_hunt_anchor.md",
+   "spec_137_v48_on_cast_line.md",
+   "spec_138_EpicPokeSubPlan__score.md",
+   "spec_139_SerpenPokeSubPlan__score.md",
+   "spec_140_SmallActionAroundBush__new_with_target.md",
+   "spec_141_SmallActionPlay__get_input.md"
+  ],
+  "spec_hashes": {
+   "spec_134_around__check_cell.md": "6b4dd0a59352d1e8",
+   "spec_135_v3_lethal_tower_position.md": "ede71525d6206ad7",
+   "spec_136_v23_should_break_objective_hunt_anchor.md": "9251000b24c62dc9",
+   "spec_137_v48_on_cast_line.md": "911dde40a810c3bf",
+   "spec_138_EpicPokeSubPlan__score.md": "3a13e1cbd7706f77",
+   "spec_139_SerpenPokeSubPlan__score.md": "82ee15683a56e1cd",
+   "spec_140_SmallActionAroundBush__new_with_target.md": "e1a764d847eed402",
+   "spec_141_SmallActionPlay__get_input.md": "c333398184fcee57"
+  },
+  "mkdossier": "802add3b146ab88e",
+  "v3": "112cf801b9634e1b",
+  "built": "2026-09-14 12:27:31"
+ },
+ "B": {
+  "dossier": "fe3b67e452eb56ac",
+  "specs": [
+   "spec_142_path_needs_tower_escape.md",
+   "spec_143_LineDefenseSubPlan__score.md",
+   "spec_144_SmallActionLaneMinionPosition__has_current_explicit_minion_action.md",
+   "spec_145_SmallActionPlay__evaluation_position.md",
+   "spec_146_SmallActionAroundBush__new_with_out_line.md",
+   "spec_147_line_action_economy_adjustment.md",
+   "spec_148_serpen_action_score.md",
+   "spec_149_epic_action_score.md"
+  ],
+  "spec_hashes": {
+   "spec_142_path_needs_tower_escape.md": "fd70f1aed225c124",
+   "spec_143_LineDefenseSubPlan__score.md": "94a5716731ee3601",
+   "spec_144_SmallActionLaneMinionPosition__has_current_explicit_minion_action.md": "94f320f172a72a96",
+   "spec_145_SmallActionPlay__evaluation_position.md": "bdd6c2c410187780",
+   "spec_146_SmallActionAroundBush__new_with_out_line.md": "310d487bca4f80c4",
+   "spec_147_line_action_economy_adjustment.md": "851cea1e19faf01b",
+   "spec_148_serpen_action_score.md": "0f01e0683582ab86",
+   "spec_149_epic_action_score.md": "d0db732b155d6198"
+  },
+  "mkdossier": "802add3b146ab88e",
+  "v3": "112cf801b9634e1b",
+  "built": "2026-09-14 12:27:31"
+ },
+ "C": {
+  "dossier": "297554d7efd25d7c",
+  "specs": [
+   "spec_150_v22_lane_tower_pressure_attack_allowed.md",
+   "spec_151_SmallActionSkill__get_input.md",
+   "spec_152_line_champion_trade_allowance.md",
+   "spec_153_SmallActionSkill2__get_input.md",
+   "spec_154_SmallActionUlt__get_input.md",
+   "spec_155_LineGankerPlan__make_gank_battle.md",
+   "spec_156_v27_objective_discipline_action.md",
+   "spec_157_SmallActionAroundPositionBush__get_input.md"
+  ],
+  "spec_hashes": {
+   "spec_150_v22_lane_tower_pressure_attack_allowed.md": "498583185e25dce2",
+   "spec_151_SmallActionSkill__get_input.md": "05e2e48c71a53ceb",
+   "spec_152_line_champion_trade_allowance.md": "38712179c756f89e",
+   "spec_153_SmallActionSkill2__get_input.md": "6041fa8c44dbe16d",
+   "spec_154_SmallActionUlt__get_input.md": "06487306cbaaffc7",
+   "spec_155_LineGankerPlan__make_gank_battle.md": "487b9ec17a5eddfc",
+   "spec_156_v27_objective_discipline_action.md": "9874c827f4080591",
+   "spec_157_SmallActionAroundPositionBush__get_input.md": "f34485bc3fd281b3"
+  },
+  "mkdossier": "802add3b146ab88e",
+  "v3": "112cf801b9634e1b",
+  "built": "2026-09-14 12:27:31"
+ },
+ "D": {
+  "dossier": "074ce1488a208bac",
+  "specs": [
+   "spec_158_line_minion_action_candidates.md",
+   "spec_159_battle_ally_action.md",
+   "spec_160_get_die_tick_player.md",
+   "spec_161_lane_minion_position_action.md",
+   "spec_162_v57_summon_command_score.md",
+   "spec_163_abstract_input__skill.md",
+   "spec_164_abstract_input__skill2.md"
+  ],
+  "spec_hashes": {
+   "spec_158_line_minion_action_candidates.md": "11e988913c933c92",
+   "spec_159_battle_ally_action.md": "a2902993f2e0a986",
+   "spec_160_get_die_tick_player.md": "07ffd48a1f8410fb",
+   "spec_161_lane_minion_position_action.md": "66d537aaa700ba42",
+   "spec_162_v57_summon_command_score.md": "6df830e8976e7b4f",
+   "spec_163_abstract_input__skill.md": "1a4a5a21b4bda599",
+   "spec_164_abstract_input__skill2.md": "b8b0a982931dfe35"
+  },
+  "mkdossier": "802add3b146ab88e",
+  "v3": "112cf801b9634e1b",
+  "built": "2026-09-14 12:27:31"
+ },
+ "E": {
+  "dossier": "04354cb31a8c4025",
+  "specs": [
+   "spec_165_action_eval__evaluate_action.md",
+   "spec_166_utils__can1v1win.md",
+   "spec_167_SmallActionLaneMinionPosition__get_input.md",
+   "spec_168_SmallActionAroundBush__get_input.md",
+   "spec_169_calculate_serpen_action_score.md",
+   "spec_170_calculate_epic_action_score.md",
+   "spec_171_line_projected_punish_damage_at.md"
+  ],
+  "spec_hashes": {
+   "spec_165_action_eval__evaluate_action.md": "a1def981b9a7aa64",
+   "spec_166_utils__can1v1win.md": "9f28d274bcb3760d",
+   "spec_167_SmallActionLaneMinionPosition__get_input.md": "57ff4702f505bcfa",
+   "spec_168_SmallActionAroundBush__get_input.md": "1f96dfd2c17b473e",
+   "spec_169_calculate_serpen_action_score.md": "0812c8305c3c9adb",
+   "spec_170_calculate_epic_action_score.md": "10c146c365d19e28",
+   "spec_171_line_projected_punish_damage_at.md": "9c4bca54034bf5b0"
+  },
+  "mkdossier": "802add3b146ab88e",
+  "v3": "112cf801b9634e1b",
+  "built": "2026-09-14 12:27:32"
+ },
+ "F": {
+  "dossier": "7ff74413ee18a331",
+  "specs": [
+   "spec_172_SmallActionPositioning__get_input.md",
+   "spec_173_SmallActionAroundHide__get_input.md",
+   "spec_174_EpicPokeSubPlan__action_candidates_old.md",
+   "spec_175_SerpenPokeSubPlan__action_candidates_old.md",
+   "spec_176_SmallActionTrace__get_input.md",
+   "spec_177_SmallActionAroundRegion__get_input.md",
+   "spec_178_SmallActionAroundPosition__get_input.md",
+   "spec_179_SmallActionAround__get_input.md"
+  ],
+  "spec_hashes": {
+   "spec_172_SmallActionPositioning__get_input.md": "e1d8bb412c87fe42",
+   "spec_173_SmallActionAroundHide__get_input.md": "871cad29e4fcd35d",
+   "spec_174_EpicPokeSubPlan__action_candidates_old.md": "9c8a57e1613eb525",
+   "spec_175_SerpenPokeSubPlan__action_candidates_old.md": "fc746515d7e48ba9",
+   "spec_176_SmallActionTrace__get_input.md": "b74e438ebd807fd5",
+   "spec_177_SmallActionAroundRegion__get_input.md": "9969318378e0a0b2",
+   "spec_178_SmallActionAroundPosition__get_input.md": "9203db028d876443",
+   "spec_179_SmallActionAround__get_input.md": "8eef3e45a0542a4c"
+  },
+  "mkdossier": "802add3b146ab88e",
+  "v3": "112cf801b9634e1b",
+  "built": "2026-09-14 12:27:32"
+ }
+}

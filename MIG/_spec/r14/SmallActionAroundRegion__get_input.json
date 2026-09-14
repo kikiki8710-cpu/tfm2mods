@@ -1,0 +1,144 @@
+{
+ "name": "SmallActionAroundRegion::get_input",
+ "sym": "_RNvMs0_NtNtCshdEBA0ozCnw_7game_ai12small_action6aroundNtB5_23SmallActionAroundRegion9get_input",
+ "src": "game-ai\\src\\small_action\\around.rs",
+ "src_line": 529,
+ "ir_file": "m08.ll",
+ "ir_from": 98610,
+ "ir_to": 99536,
+ "aux": [
+  {"ir_file": "m00.ll", "ir_from": 95979, "ir_to": 96046, "what": "closure#1 (around.rs:596) — PathFinder::new_target 에 넘기는 셀 판정 클로저 `dodge_danger_cell` 의 본체(define internal fastcc i32 · sym ...get_inputs_0Bb_)"},
+  {"ir_file": "m00.ll", "ir_from": 95909, "ir_to": 95976, "what": "closure#4 (around.rs:630) — PathFinder::update_path 에 넘기는 셀 판정 클로저 본체(sym ...get_inputs2_0Bb_). closure#1 과 줄번호만 다른 동일 코드"}
+ ],
+
+ "one_line": "지역(target_region) 배회: 7×7 셀 후보를 위험도로 정렬→창(window)에서 하나 골라 goal 을 갱신하고 PathFinder 로 이동 Input 을 만든다",
+
+ "signature": {
+   "abi": "define hidden void — sret([32 x i8]) 반환(Option<Input>). internal fastcc 아님(인자 승격 없음). 인자 7개 + sret",
+   "params": [
+     {"i": 0, "name": "(sret)", "type": "*mut Option<game_core::Input> (32B)", "note": "dead_on_unwind writeonly. None = `store i64 -1` 을 +0 에만(98729·99338 — tcx tg: Option<Input> Niche, None 태그 = 0xFFFFFFFFFFFFFFFF, +8..+32 는 미기록). Some = PathFinder::get_input 결과 32B memcpy(99373)"},
+     {"i": 1, "name": "self", "type": "&mut SmallActionAroundRegion (120B)", "note": "IR 속성 noalias·align 8·dereferenceable(120), readonly 없음 → &mut. writes 전수는 writes 항목"},
+     {"i": 2, "name": "version", "type": "usize", "note": "AI 버전. 스택 슬롯 %32(98648)에 저장돼 클로저 캡처(&version)로 전달. 본문 분기: `version > 1`(99146) 일 때만 v3_lethal_tower_hp 평가"},
+     {"i": 3, "name": "rnd", "type": "&mut StdRng (320B)", "note": "readonly 없음(&mut). 본문 직접 쓰기 0 — positioning_window_pick·PathFinder::new_target·update_path·is_safe_recall 에 그대로 전달(콜리가 소비)"},
+     {"i": 4, "name": "player", "type": "&PlayerState (2528B)", "note": "readonly"},
+     {"i": 5, "name": "data", "type": "&OperationData (24B)", "note": "readonly. cache(+0)·context(+8) 를 통해 map/bump/player_champion 접근"},
+     {"i": 6, "name": "positioning_score", "type": "&PositioningScoreData (2760B)", "note": "readonly. cx(+0xab8)/cy(+0xac0) 만 직접 읽고 나머지는 콜리에 전달"}
+   ],
+   "returns": "Option<game_core::Input> (32B sret). 살아있는 바이트: None 경로 = +0..+8 만(i64 -1), +8..+32 미기록(undef). Some 경로 = PathFinder::get_input 의 sret 32B 를 통째 memcpy — Input 태그 8B@+0(0 Move/1 Return/2 Attack/3 Skill/4 Skill2/5 Ult), Move 는 x@+8·y@+16 이고 +24..+32 는 패딩(콜리가 무엇을 썼는지 이 함수는 관여 안 함), Attack/Skill*/Ult 는 InputTarget 24B@+8(태그 4B@+8, 페이로드 @+16..+32). None 은 세 곳: champ 없음(98729), path_finder.as_mut() 가 None(99338 — 사실상 도달 불가: 595/616 에서 반드시 Some 이 됨)"
+ },
+
+ "reads": [
+   {"base": "PlayerState", "offset": "0x930", "name": "info.team", "note": "98674 · [2] 인덱스 — bounds 2 (98676)"},
+   {"base": "PlayerState", "offset": "0x9c0", "name": "info.position@tag (Position::as_index)", "note": "98685-98687 · i32 → usize"},
+   {"base": "PlayerState", "offset": "0x180", "name": "info.parameter (AthleteParameter)", "note": "98851 · positioning_min_range/max_range 의 self"},
+   {"base": "OperationData", "offset": "0x0", "name": "cache (&AbstractGameWithCache)", "note": "98688"},
+   {"base": "OperationData", "offset": "0x8", "name": "context (&GameContext)", "note": "98708"},
+   {"base": "AbstractGameWithCache", "offset": "0x1e0", "name": "player_champion[team][pos] (Option<&Entity>, [2][5], null=None)", "note": "98689-98694"},
+   {"base": "GameContext", "offset": "0x0", "name": "pool (&Bump)", "note": "98710 · candidates Vec 의 할당자"},
+   {"base": "GameContext", "offset": "0x20", "name": "map (&MapDef)", "note": "98721·98825·99432 · PathFinder 에는 &GameContext(%55) 자체를 넘김"},
+   {"base": "PositioningScoreData", "offset": "0xab8", "name": "cx", "note": "98699 · i32 로 trunc → 7×7 창 중심 셀 x"},
+   {"base": "PositioningScoreData", "offset": "0xac0", "name": "cy", "note": "98703"},
+   {"base": "MapDef", "offset": "0x78", "name": "walls[yb][xb] (usize [30][30])", "note": "99433-99436 · 0 이어야 후보"},
+   {"base": "MapDef", "offset": "0x38b8", "name": "regions[yb][xb] (usize [30][30])", "note": "99441-99446 · == self.target_region 이어야 후보"},
+   {"base": "MapDef", "offset": "0x6ba0", "name": "region_centers[region] ((u64,u64)[27], stride 16)", "note": "98827-98832 · 후보 0개일 때 goal (map_def.rs:262 region_center 인라인, bounds 27)"},
+   {"base": "SmallActionAroundRegion", "offset": "0x8", "name": "target_region", "note": "98771(region_center 인덱스)·99445(regions 비교)"},
+   {"base": "SmallActionAroundRegion", "offset": "0x10", "name": "goal_x", "note": "98929·99164·99308 — 이전 goal(히스테리시스·경로 재계산 입력)"},
+   {"base": "SmallActionAroundRegion", "offset": "0x18", "name": "goal_y", "note": "98931·99165·99309"},
+   {"base": "SmallActionAroundRegion", "offset": "0x75", "name": "path_finder@tag (== path_finder.unconstrained_fallback 바이트, 2=None)", "note": "99031-99033 is_none · 99135-99140 is_some_and(|pf| pf.unconstrained_fallback) — Some 이면 이 바이트가 그대로 bool"},
+   {"base": "SmallActionAroundRegion", "offset": "0x58", "name": "path_finder.path (Box<[(u64,u64);70]>, 1120B)", "note": "99085·99203 · 교체 시 drop_glue 가 dealloc"},
+   {"base": "SmallActionAroundRegion", "offset": "0x60", "name": "path_finder.planned_verdict (Box<[u8;70]>)", "note": "99087·99205"},
+   {"base": "Entity", "offset": "0x660", "name": "x (champ)", "note": "98964·99015"},
+   {"base": "Entity", "offset": "0x668", "name": "y (champ)", "note": "98968·99017"},
+   {"base": "PositioningScore", "offset": "0x0", "name": "risk", "note": "98936(pre_score)·98952(goal_risk)·99456(후보 점수) — positioning_score_at_position 의 sret .0"},
+   {"base": "PositioningScore", "offset": "0x30", "name": "on_trajectory", "note": "99457 (%64 = score_data+48)"},
+   {"base": "PositioningScore", "offset": "0x31", "name": "on_periodic_trajectory", "note": "99459 (%65 = +49) · `on_trajectory || on_periodic_trajectory` 가 positioning_risk_value 4번째 인자"},
+   {"base": "PathFinder(retry, 스택 %13)", "offset": "0x45", "name": "unconstrained_fallback", "note": "99190-99192 (gep 69)"},
+   {"base": "PathFinder(retry)", "offset": "0x28", "name": "path (Box)", "note": "99253 (gep 40) · retry 폐기 시 dealloc"},
+   {"base": "PathFinder(retry)", "offset": "0x30", "name": "planned_verdict (Box)", "note": "99255 (gep 48)"},
+   {"base": "후보 튜플 (i32 dx,i32 dy,i32 x,i32 y,i64 score) 24B", "offset": "0x8", "name": ".2 = x (셀 중심 좌표)", "note": "98940 — positioning_window_pick 반환 &T 의 +8"},
+   {"base": "후보 튜플", "offset": "0xc", "name": ".3 = y", "note": "98944 (+12)"},
+   {"base": "후보 튜플", "offset": "0x10", "name": ".4 = score (정렬 키)", "note": "aux 아님·m03.ll:117858-117866 insertion_sort 인스턴스에서 확인: 원소+16 i64 를 `icmp slt` 오름차순 — closure#0(563) = `|c| c.4` 상당"}
+ ],
+
+ "writes": [
+   {"base": "SmallActionAroundRegion", "offset": "0x10", "name": "goal_x", "value": "gx (region_center.0 | 창에서 고른 후보 x | 이전 goal_x 유지)", "note": "98842 (around.rs:586)"},
+   {"base": "SmallActionAroundRegion", "offset": "0x18", "name": "goal_y", "value": "gy", "note": "98844 (around.rs:587)"},
+   {"base": "SmallActionAroundRegion", "offset": "0x20", "name": "goal_risk", "value": "positioning_score_at_position(version,player,data,ps,gx_new,gy_new,Positioning).risk (새 후보 기준 — 이전 goal 을 유지해도 새 후보의 risk 가 기록됨)", "note": "98954 (around.rs:578). 후보 0개(region_center) 경로에서는 기록 안 됨"},
+   {"base": "SmallActionAroundRegion", "offset": "0x30", "name": "path_finder (Option<PathFinder> 72B, +0x30..+0x78)", "value": "Some(PathFinder::new_target(rnd,ctx,version,\"dodge_danger_cell\",champ.x,champ.y,gx,gy,closure#1)) — is_none 이었을 때", "note": "99037 memcpy 72B (around.rs:596). 직전 drop_glue(99080-99132)는 tag==2 라 dealloc 미실행"},
+   {"base": "SmallActionAroundRegion", "offset": "0x30", "name": "path_finder", "value": "Some(retry) = PathFinder::new_target(rnd,ctx,version,\"cross_only\",champ.x,champ.y,goal_x,goal_y,closure#3) — 기존 pf.unconstrained_fallback 이고 retry.unconstrained_fallback 이 false 일 때", "note": "99303 memcpy 72B (around.rs:624). 기존 Some 의 path(1120B)·planned_verdict(70B) Box 는 99227·99249 에서 __rust_dealloc"},
+   {"base": "SmallActionAroundRegion", "offset": "0x30", "name": "path_finder 내부 (PathFinder::update_path 경유)", "value": "콜리가 &mut PathFinder 로 갱신(path/index/verdict 등)", "note": "99334 (around.rs:630) · 99369 get_input 도 &mut self(PathFinder) — 내부 쓰기는 콜리 명세 소관"},
+   {"base": "StdRng(rnd)", "offset": "0x0", "name": "(콜리 경유)", "value": "positioning_window_pick·new_target·update_path·is_safe_recall 이 소비", "note": "본문 직접 store 없음"},
+   {"base": "sret Option<Input>", "offset": "0x0", "name": "tag / 전체", "value": "-1 (None, 98729·99338) 또는 PathFinder::get_input 결과 32B memcpy (99373)", "note": ""}
+ ],
+
+ "constants": [
+   {"value": 2, "src_line": 530, "meaning": "player_champion 1차원 bounds(팀 수 2) — 98676; 같은 리터럴 2 가 path_finder None 태그(99033·99041·99152·99199 `icmp eq i8 %, 2`)·`is_enemy_danger_cell(...,2)` 4번째 마지막 인자(aux 95954)·closure 반환 PathVerdict::Danger 태그(aux 95958)"},
+   {"value": 7, "src_line": 537, "meaning": "후보 창 한 변 = 7 셀 (dx,dy ∈ 0..7 → 중심 ±3)"},
+   {"value": -3, "src_line": 538, "meaning": "xb = cx-3+dx, yb = cy-3+dy — 창 반폭 3 셀"},
+   {"value": 32000, "src_line": 540, "meaning": "셀 크기(좌표 변환) x = xb*32000+16000"},
+   {"value": 16000, "src_line": 540, "meaning": "셀 중심 오프셋"},
+   {"value": 29, "src_line": 545, "meaning": "격자 최대 인덱스(30×30) — xb>29 || yb>29 → 후보 제외"},
+   {"value": 0, "src_line": 545, "meaning": "walls[yb][xb] == 0 이어야 후보(벽 아님)"},
+   {"value": 27, "src_line": 561, "meaning": "region_centers 배열 길이(bounds) — target_region ≥ 27 이면 panic"},
+   {"value": 1000, "src_line": 567, "meaning": "창 인덱스 per-mille: min_idx = min(len-1, len*min_range/1000), max_idx = clamp(len*max_range/1000, min_idx, len-1)"},
+   {"value": 1, "src_line": 572, "meaning": "take(max_idx-min_idx+1) 의 +1(98900) · `version > 1`(99146 icmp ugt 1) · SafeMoveWithSkill::Safe 태그 i8 1 (99369) · aux: Soft 태그 1·is_enemy_danger_cell 마지막 인자 1"},
+   {"value": 6, "src_line": 553, "meaning": "PositionEvalPurpose 메모리태그 6 = Positioning (tcxdict --enum: 니치, idx 4) — positioning_score_at_position 7번째 인자(98932·98948·99452)"},
+   {"value": 960000, "src_line": 579, "meaning": "= 30*32000 — goal 좌표 유효 상한(≥960000 이면 미설정 센티널로 보고 히스테리시스 불가)"},
+   {"value": 143999999, "src_line": 579, "meaning": "12000²-1 — distance_sq(champ, 이전 goal) > 143999999 (즉 ≥ 12000) 이고 pre_score ≥ new_risk 이면 이전 goal 유지"},
+   {"value": -1, "src_line": 530, "meaning": "Option<Input>::None 니치 태그(98729·99338). 98871·99396 의 -1 은 len-1"},
+   {"value": 17, "src_line": 596, "meaning": "PathFinder key &str 길이 — @anon...72 = \"dodge_danger_cell\"(17B)"},
+   {"value": 10, "src_line": 616, "meaning": "PathFinder key 길이 — @anon...41 = \"cross_only\"(10B)"},
+   {"value": 4096000000, "src_line": 601, "meaning": "(aux closure#1/#4) 64000² — 보이는 적 위치 대비 위험 셀 반경 제곱. is_enemy_danger_cell(nx,ny,goal,enemy_positions,visible_count, 4096000000, 2)"},
+   {"value": 6400000000, "src_line": 604, "meaning": "(aux) 80000² — 미관측 적 추정 위치 대비 위험 반경 제곱. is_enemy_danger_cell(..., unseen_positions, unseen_count, 6400000000, 1)"}
+ ],
+
+ "calls": [
+   "core::panicking::panic_bounds_check",
+   "game_core::AthleteParameter::positioning_min_range",
+   "game_core::AthleteParameter::positioning_max_range",
+   "game_ai::small_action::positioning_choice_window",
+   "game_ai::small_action::positioning_window_pick",
+   "game_ai::small_action::positioning_score_at_position",
+   "game_ai::small_action::positioning_risk_value",
+   "game_ai::path_finder::collect_visible_enemy_positions",
+   "game_ai::path_finder::collect_unseen_enemy_estimates",
+   "game_ai::path_finder::SafeCrossRoute::new",
+   "game_ai::path_finder::TowerDodgeContext::new_tower_avoid_v3",
+   "game_ai::path_finder::PathFinder::new_target",
+   "game_ai::path_finder::PathFinder::update_path",
+   "game_ai::path_finder::PathFinder::get_input",
+   "game_ai::tower_discipline::v3_lethal_tower_hp",
+   "game_ai::small_action::cast::is_safe_recall",
+   "core::slice::sort::stable::driftsort_main",
+   "core::slice::sort::shared::smallsort::insertion_sort_shift_left",
+   "bumpalo::collections::vec::from_iter_in",
+   "bumpalo::collections::raw_vec::reserve_internal_or_panic",
+   "core::ops::drop::Drop::drop",
+   "__rust_dealloc",
+   "game_ai::path_finder::dodge_tower_cell_with_context",
+   "game_ai::path_finder::is_enemy_danger_cell",
+   "game_ai::path_finder::SafeCrossRoute::blocks"
+ ],
+
+ "logic": "fn get_input(&mut self, version, rnd, player, data, ps) -> Option<Input>   [around.rs:529~647]\n// 530: champ = data.cache.player_champion[player.info.team][player.info.position.as_index()]?   (None → return None: 98729)\n// 532-533: xi = ps.cx as i32; yi = ps.cy as i32\n// 535: candidates: bumpalo Vec<(i32 dx,i32 dy,i32 x,i32 y,i64 score)> = Vec::new_in(data.context.pool)   (원소 24B)\n// 537-557: for dx in 0..7 { for dy in 0..7 {\n//     xb = xi-3+dx; yb = yi-3+dy; x = xb*32000+16000; y = yb*32000+16000            (98761-98763·99418-99421)\n//     545: if xb<0 || yb<0 || xb>29 || yb>29 → continue;  if map.walls[yb][xb] != 0 → continue   (99423-99438)\n//     549: if map.regions[yb][xb] != self.target_region → continue                         (99441-99447)\n//     553: sd = positioning_score_at_position(version, player, data, ps, x, y, Positioning(6))\n//     554-555: score = positioning_risk_value(version, player, sd.risk, sd.on_trajectory || sd.on_periodic_trajectory)\n//     556: candidates.push((dx, dy, x, y, score))\n// } }\n// 560: let (gx, gy) = if candidates.is_empty() {\n//     561: map.region_centers[self.target_region]            (bounds 27 · 98773-98833)\n// } else {\n//     563: candidates.sort_by_key(|c| c.4)                  (score 오름차순 = 위험 낮은 순 · m03.ll:117866 icmp slt 원소+16)\n//     564-566: (min_range, max_range) = positioning_choice_window(version, player, param.positioning_min_range(), param.positioning_max_range(), false)\n//     567: min_idx = min(len-1, len*min_range/1000)\n//     568: max_idx = clamp(len*max_range/1000, min_idx, len-1)\n//     570-572: candidates = candidates.into_iter().skip(min_idx).take(max_idx-min_idx+1).collect()   (from_iter_in 98909)\n//     574: pick = positioning_window_pick(version, rnd, player, data, &candidates)   → &(dx,dy,x,y,score); (x,y) = (pick.2, pick.3)\n//     576: pre_score = positioning_score_at_position(version, player, data, ps, self.goal_x, self.goal_y, Positioning).risk\n//     578: self.goal_risk = positioning_score_at_position(version, player, data, ps, x, y, Positioning).risk    (★새 후보 기준으로 기록)\n//     579: if pre_score >= self.goal_risk && self.goal_x < 960000 && self.goal_y < 960000 && distance_sq(champ.pos, self.goal) > 143999999 (≥12000)\n//            { (self.goal_x, self.goal_y) /*이전 goal 유지*/ } else { (x as u64, y as u64) }        (98956-98991)\n// };\n// 586-587: self.goal_x = gx; self.goal_y = gy\n// 590: (enemy_positions, visible_enemy_count) = collect_visible_enemy_positions(player, data)      ([(u64,u64);5], usize → 88B sret, 배열 80B + count)\n// 591: (unseen_positions, unseen_count) = collect_unseen_enemy_estimates(version, player, data)\n// 592: cross = SafeCrossRoute::new(version, player, data, champ.x, champ.y, gx, gy)\n// 593: tower_dodge = TowerDodgeContext::new_tower_avoid_v3(version, player, data, gx, gy)        (416B)\n// 595: if self.path_finder.is_none() {                       (tag 바이트 +0x75 == 2)\n//     596: self.path_finder = Some(PathFinder::new_target(rnd, data.context, version, \"dodge_danger_cell\", champ.x, champ.y, gx, gy,\n//              closure#1 |sx,sy,nx,ny| -> PathVerdict {                                              (aux m00.ll:95979)\n//                 597: if !dodge_tower_cell_with_context(version, player, data, ps, &tower_dodge, sx,sy,nx,ny) → Danger(2)\n//                 601: if is_enemy_danger_cell(nx,ny, self.goal_x, self.goal_y, &enemy_positions, visible_enemy_count, 4096000000 /*64000²*/, 2) → Soft(1)\n//                 604: if is_enemy_danger_cell(nx,ny, goal, &unseen_positions, unseen_count, 6400000000 /*80000²*/, 1) → Soft(1)\n//                 607: if cross.blocks(data, nx, ny) → Soft(1) else Allow(0)                          (zext i1 → 0/1)\n//              }))\n// }\n// 614: if self.path_finder.as_ref().is_some_and(|pf| pf.unconstrained_fallback) {      (closure#2 인라인 — +0x75 바이트 그대로 bool)\n//     615: lethal_tower = version > 1 && v3_lethal_tower_hp(data, player, champ)           (version<=1 이면 false, 호출 안 함)\n//     616: retry = PathFinder::new_target(rnd, data.context, version, \"cross_only\", champ.x, champ.y, self.goal_x, self.goal_y,\n//              closure#3 |sx,sy,nx,ny| {                       (별도 define 없음 — m03.ll:3634~7402 new_target<closure#3> 인스턴스에 인라인, 7242-7376)\n//                 618: if lethal_tower && !dodge_tower_cell_with_context(version, player, data, ps, &tower_dodge, sx,sy,nx,ny) → Danger(2)\n//                 621: if cross.blocks(data, nx, ny) → Soft(1) else Allow(0)\n//              })\n//     623: if !retry.unconstrained_fallback { 624: self.path_finder = Some(retry) /*기존 Box 2개 dealloc*/ } else { 626: drop(retry) }\n// }\n// 628: let p = self.path_finder.as_mut()?          (여기서 None 이면 return None — 99338; 실제로는 도달 불가)\n// 630: p.update_path(rnd, data.context, champ.x, champ.y, self.goal_x, self.goal_y, closure#4 /*closure#1 과 동일 본체, aux m00.ll:95909, 631-640*/)\n// 646: return Some(p.get_input(player, data, SafeMoveWithSkill::Safe(1), is_safe_recall(version, rnd, player, data, ps)))   (32B memcpy → sret)\n// 647: drop(candidates)",
+
+ "knobs": [
+   {"what": "후보 창 크기(7×7, 반폭 3)", "where": "around.rs:537-538 (7 · -3)", "value": 7, "effect": "키우면 더 먼 셀까지 배회 후보로 본다(positioning_score 호출 수 = 창 셀 수만큼 증가)"},
+   {"what": "이전 goal 유지 거리 임계 12000(143999999=12000²-1)", "where": "around.rs:579", "value": 143999999, "effect": "올리면 goal 근처(12000 이내)까지 와야 새 후보로 바꾼다 → 더 자주 재선택; 내리면 goal 에 거의 닿기 전엔 유지"},
+   {"what": "창 위치 per-mille 분모", "where": "around.rs:567-568", "value": 1000, "effect": "positioning_min/max_range(‰)를 후보 인덱스로 바꾸는 분모 — 값 자체보다 AthleteParameter 의 두 값이 실제 노브"},
+   {"what": "보이는 적 위험 반경 64000 (4096000000)", "where": "around.rs:601 (aux closure#1) / 634 (closure#4)", "value": 4096000000, "effect": "올리면 보이는 적에서 더 멀리 떨어진 셀도 Soft(우회 비용) 처리 → 더 우회"},
+   {"what": "미관측 적 추정 위험 반경 80000 (6400000000)", "where": "around.rs:604 / 637", "value": 6400000000, "effect": "올리면 추정 적 위치 주변을 더 넓게 피한다"},
+   {"what": "PositionEvalPurpose = Positioning(6) 고정", "where": "around.rs:553·576·578", "value": 6, "effect": "다른 목적(Around=5 등)으로 바꾸면 positioning_score_at_position 의 가중이 바뀐다(콜리 내부)"},
+   {"what": "v3_lethal_tower_hp 게이트 version>1", "where": "around.rs:615", "value": 1, "effect": "version 1 이하에서는 retry 클로저가 타워 위험을 전혀 안 본다"}
+ ],
+
+ "unknown": [
+   "closure#0(563:30..51) 정렬 키의 정확한 소스 표기 — insertion_sort 인스턴스(m03.ll:117858-117866)가 원소+16(i64 score)을 slt 비교하므로 `c.4` 오름차순임은 확정, 튜플 패턴 표기만 불명(표기 불가)",
+   "positioning_choice_window 5번째 bool 인자의 의미 — 이 함수는 항상 false 를 넘김(98860). 콜리 내부는 범위 밖",
+   "closure#3(616) 인라인 인스턴스(m03.ll:3634~)에서 dodge_tower_cell_with_context 에 version/data/ps 가 `poison` 으로 넘어감(7372) — LLVM 이 콜리에서 그 인자가 죽었다고 판정한 흔적(추정). dodge_tower_cell_with_context 가 실제로 version/data/ps 를 안 읽는다는 뜻이지만 콜리 내부는 범위 밖이라 미확인",
+   "578 에서 goal_risk 를 '새 후보' 기준으로 기록하면서 579 에서 이전 goal 을 유지할 수 있다 — 유지 시 self.goal_risk 는 goal 과 다른 좌표의 risk 다(소스 의도인지 버그인지는 소스 없이 판정 불가, IR 동작만 확정)",
+   "walls/regions 인덱스 순서 [yb][xb](99434-99435: [30 x i64] 를 yb 로, 원소를 xb 로) — MapDef 필드 선언이 [y][x] 인지 [row][col] 명명인지는 tcx 가 배열로만 보여 미확인. 동작은 확정",
+   "`&mut rnd`·PathFinder 내부(update_path/get_input) 의 힙·상태 쓰기 표면은 콜리 소관(path_finder 계층 = 시그니처만)",
+   "positioning_window_pick 가 제네릭(<T>)이라 후보 원소 타입에 대한 어떤 필드를 읽는지는 콜리 소관 — 이 함수는 반환 &T 의 +8/+12 만 읽음"
+ ]
+}

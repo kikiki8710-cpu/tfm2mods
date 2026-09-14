@@ -1,0 +1,88 @@
+{
+ "name": "line_action_economy_adjustment",
+ "sym": "_RNvNtCshdEBA0ozCnw_7game_ai12lane_economy30line_action_economy_adjustment",
+ "src": "game-ai\\src\\lane_economy.rs",
+ "src_line": 6,
+ "ir_file": "m11.ll",
+ "ir_from": 51340,
+ "ir_to": 51725,
+ "aux": [],
+ "one_line": "라인 공격/스킬 액션의 경제 보정치 — 적 챔피언/미니언 대상 공격이 받을 응징피해(punish) 대비 허용치(allowance)로 감점(음수)·챔피언 교환은 이득이면 가점",
+ "signature": {
+  "abi": "hidden(비-internal) · 반환 i64 스칼라",
+  "params": [
+   {"i": 1, "name": "version", "type": "usize", "note": "본문 분기 없음 — line_projected_punish_damage_at 첫 인자로만 전달(51657)"},
+   {"i": 2, "name": "player", "type": "&PlayerState(2528B)", "note": "+0x930 info.team(배열 인덱스, bounds 2) · +0x9c0 info.position 태그(i32→usize) · punish_damage_at 인자"},
+   {"i": 3, "name": "data", "type": "&OperationData(24B)", "note": "+0x0 cache(player_champion 조회 · dyn AbstractGame get_entity_by_id) · +0x8 context(minion_reward_allowance 첫 인자)"},
+   {"i": 4, "name": "parameter", "type": "&ScoreParameter(5384B)", "note": "+0x918 player(ChampionScoreParameter) 를 champion_hp_value 에 · trade/minion allowance 에 통째 전달"},
+   {"i": 5, "name": "action", "type": "&SmallActionPlay(184B)", "note": "captures(none) readonly. +0xb1 태그 · +0x8 target_id(Attack/Skill/Skill2/Ult 페이로드 공통)"},
+   {"i": 6, "name": "ty", "type": "MinionActionType(1B i8 range 0..3)", "note": "Pull0/Normal1/Push2 — 본문 분기 없음, line_minion_reward_allowance 인자(51704)로만"}
+  ],
+  "returns": "i64 보정치. 0 = 해당 없음/무보정(대부분의 조기 반환) · 음수 = trade_loss>0 일 때 −trade_loss(감점) · 챔피언 대상(ty==13)이면 trade_loss<=0 이어도 −trade_loss(= 양수 가점 또는 0)"
+ },
+ "reads": [
+  {"base": "PlayerState", "offset": "0x930", "name": "info.team", "note": "51348 (gep 2352) · player_champion[team] 인덱스, bounds_check 2 (51354)"},
+  {"base": "PlayerState", "offset": "0x9c0", "name": "info.position@tag", "note": "51359 (gep 2496, i32 zext) · player_champion[team][position]"},
+  {"base": "OperationData", "offset": "0x0", "name": "cache", "note": "51362 → AbstractGameWithCache"},
+  {"base": "OperationData", "offset": "0x8", "name": "context", "note": "51702 → line_minion_reward_allowance 첫 인자"},
+  {"base": "AbstractGameWithCache", "offset": "0x1e0", "name": "player_champion[team][position]", "note": "51363~51366 (gep 480 + [5 x ptr]*team + position) · Option<&Entity> 니치(null=None → return 0)"},
+  {"base": "AbstractGameWithCache", "offset": "0x0", "name": "game.data_ptr", "note": "51508 — &dyn AbstractGame 데이터 포인터"},
+  {"base": "AbstractGameWithCache", "offset": "0x8", "name": "game.vtable_ptr", "note": "51509~51513 — vtable+0x1f0(496) = get_entity_by_id(divtable)"},
+  {"base": "SmallActionPlay", "offset": "0xb1", "name": "@tag", "note": "51375 (gep 177) · 니치 태그: 15 Attack/16 Skill/17 Skill2/18 Ult 만 진행(switch 51382 는 idx=tag−3 기준 12~15)"},
+  {"base": "SmallActionPlay", "offset": "0x8", "name": "Attack/Skill/Skill2/Ult.0.target_id", "note": "51472/51518/51538/51557 (cast.rs:94/160/222/287 접근자)"},
+  {"base": "Entity", "offset": "0x4c0", "name": "attack_effect@tag", "note": "51414 i32 == -1 → None → return 0"},
+  {"base": "Entity", "offset": "0x490", "name": "attack_effect@Some.0", "note": "51474 effect 포인터(Attack)"},
+  {"base": "Entity", "offset": "0x4f8", "name": "skill_effect@tag", "note": "51428 == -1 → return 0"},
+  {"base": "Entity", "offset": "0x4c8", "name": "skill_effect@Some.0", "note": "51520 effect 포인터(Skill)"},
+  {"base": "Entity", "offset": "0x5c8", "name": "level", "note": "51441/51460 — level>2 면 &skill2_effect 아니면 정적 NONE(@anon.38) · level>4 면 &ult_effect (entity.rs:1693/1701 접근자 인라인)"},
+  {"base": "Entity", "offset": "0x500", "name": "skill2_effect", "note": "51444 (+0x530 태그 == -1 → return 0 · 51447 gep 48)"},
+  {"base": "Entity", "offset": "0x538", "name": "ult_effect", "note": "51463 (+0x568 태그 == -1 → return 0 · 51466 gep 48)"},
+  {"base": "Entity", "offset": "0x0", "name": "team@tag", "note": "51579/51582 target.team vs champ.team (TeamType PartialEq 인라인)"},
+  {"base": "Entity", "offset": "0x8", "name": "team@Player.0", "note": "51608/51609 — 둘 다 Player(태그0) 면 팀 번호 비교"},
+  {"base": "Entity", "offset": "0x68", "name": "ty@tag", "note": "51594 target.ty 태그: 1 Minion / 13 Champion 만 진행 · 13 이면 챔피언 교환 경로"},
+  {"base": "Entity", "offset": "0x670", "name": "hp", "note": "51670 champ.hp — risk_score 분모"},
+  {"base": "Effect", "offset": "0x28", "name": "target", "note": "51614 (gep 40) → CastingTarget::check(&effect.target, champ, target)"},
+  {"base": "Effect", "offset": "0x20", "name": "start_timing", "note": "51640 (gep 32) — window 계산"},
+  {"base": "ScoreParameter", "offset": "0x918", "name": "player", "note": "51663 (gep 2328) → champion_hp_value(data, parameter, &parameter.player)"}
+ ],
+ "writes": [],
+ "constants": [
+  {"value": 2, "src_line": 8, "meaning": "player_champion 1차원 bounds(team<2, 51350) · 및 level>2 (skill2 사용가능, entity.rs:1693 · 51443)"},
+  {"value": 4, "src_line": 26, "meaning": "level>4 → ult_effect 사용가능 (entity.rs:1701 · 51462)"},
+  {"value": -1, "src_line": 14, "meaning": "Option<Effect> 니치 태그 None (i32 -1 · 51416/51430/51449/51468)"},
+  {"value": 1, "src_line": 35, "meaning": "target.ty 태그 Minion (switch 51597) · 및 max(…,1) 분모 가드(51644/51667/51680)"},
+  {"value": 13, "src_line": 35, "meaning": "target.ty 태그 Champion (switch 51598 · 51685 챔피언 교환 분기)"},
+  {"value": 100, "src_line": 45, "meaning": "effect.start_timing*100/speed_mult — 시전 선딜을 배율(%)로 나눔 (51645)"},
+  {"value": 30, "src_line": 45, "meaning": "window 하한 틱: max(…+walk_tick, 30) (51653)"},
+  {"value": 45, "src_line": 45, "meaning": "window 가산 틱: +45 (51654) — 응징피해 투영 시간창"}
+ ],
+ "calls": [
+  "game_core::simulation::entity::Entity::attack_speed_mult",
+  "game_core::simulation::entity::Entity::attack_duration",
+  "game_core::simulation::entity::Entity::cooldown_reduce",
+  "game_core::simulation::entity::Entity::skill_duration",
+  "game_core::simulation::entity::Entity::skill2_duration",
+  "game_core::simulation::entity::Entity::ult_duration",
+  "game_core::simulation::effect::type::CastingTarget::check",
+  "game_ai::lane_economy::line_action_stance",
+  "game_ai::lane_economy::line_projected_punish_damage_at",
+  "game_ai::utils::champion_hp_value",
+  "game_ai::lane_economy::line_recall_pressure_penalty",
+  "game_ai::lane_economy::line_champion_trade_allowance",
+  "game_ai::lane_economy::line_minion_reward_allowance"
+ ],
+ "logic": "L8 : champ = data.cache.player_champion[player.info.team][player.info.position]  — None(null) → return 0\nL12: match action.tag (+0xb1):\n  Attack(15): effect=&champ.attack_effect (None→0) ; target_id=action+0x8 ; speed_mult=champ.attack_speed_mult() ; action_duration=champ.attack_duration()          (L14~16)\n  Skill (16): effect=&champ.skill_effect  (None→0) ; speed_mult=champ.cooldown_reduce(false) ; action_duration=champ.skill_duration()                                     (L18~20)\n  Skill2(17): effect=champ.skill2_effect()[level>2 ? &skill2_effect : &NONE] (None→0) ; cooldown_reduce(false) ; skill2_duration()                                        (L22~24)\n  Ult   (18): effect=champ.ult_effect()[level>4 ? &ult_effect : &NONE] (None→0) ; cooldown_reduce(true) ; ult_duration()                                                  (L26~28)\n  그 외 13종 → return 0                                                                                                                                                       (L309<12 switch)\nL32: target = data.cache.game.get_entity_by_id(target_id) (vtable +0x1f0) — None → 0\nL35: if target.team == champ.team → 0 ; if target.ty ∉ {Minion(1), Champion(13)} → 0\nL38: if !CastingTarget::check(&effect.target, champ, target) → 0\nL42: (stance_x, stance_y, walk_tick) = line_action_stance(data, champ, target, effect)?  — sret 32B Option<(u64,u64,u64)> (+0 태그 i64 trunc→i1, +8/+16/+24) · None → 0 (L43)\nL45: window = max( max(effect.start_timing*100 / speed_mult.max(1), action_duration) + walk_tick, 30 ) + 45\nL46: punish_damage = line_projected_punish_damage_at(version, player, data, champ, target.ty@tag, stance_x, stance_y, window)\nL47: if punish_damage < 1 → 0\nL51: hp_value = champion_hp_value(data, parameter, &parameter.player).max(1)\nL52: risk_score = hp_value * punish_damage / champ.hp.max(1)   (sdiv)\nL53: recall_penalty = line_recall_pressure_penalty(champ, punish_damage, hp_value)\nL54: if target.ty == Champion(13):\n  L55: allowance = line_champion_trade_allowance(data, parameter, champ, target, effect)\n  L60: trade_loss = recall_penalty + risk_score − allowance\n  L61: if trade_loss > 0 → return −trade_loss (L62)\n  L63~66: (챔피언) → return −trade_loss   (= 0 또는 양수 가점 · 51713)\nelse (Minion):\n  L57: allowance = line_minion_reward_allowance(data.context, parameter, champ, target, effect, speed_mult, ty, walk_tick)\n  L60: trade_loss = recall_penalty + risk_score − allowance\n  L61: if trade_loss > 0 → return −trade_loss ; else → return 0 (L70)",
+ "knobs": [
+  {"what": "window 하한", "where": "lane_economy.rs:45", "value": 30, "effect": "응징피해 투영 시간창 최소 틱. 올리면 짧은 액션도 긴 시간창으로 punish 를 계산해 감점 증가"},
+  {"what": "window 가산", "where": "lane_economy.rs:45", "value": 45, "effect": "모든 액션의 투영 시간창에 더하는 틱. 올리면 punish_damage↑ → risk_score/recall_penalty↑ → 공격 억제"},
+  {"what": "punish 무시 하한", "where": "lane_economy.rs:47", "value": 1, "effect": "punish_damage<1 이면 보정 0. 사실상 '응징 없음=무보정' 게이트"},
+  {"what": "skill2/ult 가용 레벨", "where": "entity.rs:1693/1701 (인라인)", "value": "level>2 / level>4", "effect": "game_core 접근자 — 이 함수에선 그 레벨 미만이면 효과 None 으로 즉시 0"}
+ ],
+ "unknown": [
+  "line_action_stance sret 32B 의 정확한 타입명(Option<(u64,u64,u64)> 추정 — +0 i64 를 trunc nuw i1 로 태그 판정, +8 stance_x/+16 stance_y/+24 walk_tick 은 dbg 이름으로 확정) — 내부는 r14 타 배치/미탐색",
+  "line_projected_punish_damage_at(internal fastcc · m11.ll:51728)·line_minion_reward_allowance(internal fastcc · m11.ll:51018 · 반환 range 0..41) 내부 미탐색(시그니처만)",
+  "L63~66 챔피언 분기의 정확한 소스 형태: IR 은 trade_loss<=0 인 챔피언 경로에서 L66 `0 − trade_loss` 를 반환 — `if target is champion { return −trade_loss }` 로 읽었으나 L63~65 의 조건식(다른 조건이 상수접힘됐는지)은 미확정",
+  "@anon.dfa1f8a0e3a880d1d1859ec099fe0b0f.38 = 정적 None Option<Effect>(skill2/ult 접근자의 레벨 미달 폴백)로 읽음 — 상수 내용 미확인",
+  "speed_mult 의 udiv(51646, unsigned) vs risk_score 의 sdiv(51681, signed) — 타입(usize vs i64) 혼재는 IR 관측 그대로이며 소스 캐스팅 위치는 표기 불가"
+ ]
+}

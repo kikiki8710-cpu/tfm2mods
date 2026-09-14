@@ -1,0 +1,66 @@
+{
+ "name": "utils::can1v1win",
+ "sym": "_RNvNtCshdEBA0ozCnw_7game_ai5utils9can1v1win",
+ "src": "game-ai\\src\\utils.rs",
+ "src_line": 398,
+ "ir_file": "m04.ll",
+ "ir_from": 54936,
+ "ir_to": 55242,
+ "aux": [],
+ "one_line": "1v1 승산: 양쪽 (평타+스킬1+스킬2) 기대 DPS 로 사망 틱을 계산해 내가 상대보다 60틱(1초) 넘게 늦게 죽으면 true",
+ "signature": {
+  "abi": "define noundef zeroext i1 — 비-internal · 인자 승격 없음. %0(_rnd) 은 `readnone`, %1(_player) 은 readonly 이나 본문 사용 0 (이름의 `_` 접두와 일치)",
+  "params": [
+   {"i": 1, "name": "_rnd", "type": "&mut StdRng(320B)", "note": "미사용 (IR readnone)"},
+   {"i": 2, "name": "_player", "type": "&PlayerState(2528B)", "note": "미사용 (본문 load 0)"},
+   {"i": 3, "name": "data", "type": "&OperationData(24B)", "note": "+0x8 context(&GameContext) 만 — expected_damage_target 인자"},
+   {"i": 4, "name": "champ", "type": "&Entity(1728B)", "note": "나. attack/skill/skill2 effect·level·hp·team"},
+   {"i": 5, "name": "enemy", "type": "&Entity(1728B)", "note": "상대. 같은 필드 + visible_state[my_team]"}
+  ],
+  "returns": "bool(i1 zeroext) — true = my_die_tick > enemy_die_tick + 60 (내가 1초 이상 더 오래 버팀 = 이긴다). ⚠양쪽 DPS 중 하나라도 0 이면 반환 없이 패닉(div_by_zero, m04.ll:55225·55240)"
+ },
+ "reads": [
+  {"base": "OperationData", "offset": "0x8", "name": "context", "note": "&GameContext → expected_damage_target 6회 (m04.ll:54973~54974 · 54990~54991)"},
+  {"base": "Entity", "offset": "0x4c0", "name": "attack_effect@tag", "note": "champ(m04.ll:54965~54967)·enemy(55059~55061) -1=None → 해당 대미지 0"},
+  {"base": "Entity", "offset": "0x490", "name": "attack_effect@Some.0", "note": "&Effect(56B) → expected_damage_target (54971 · 55065)"},
+  {"base": "Entity", "offset": "0x4f8", "name": "skill_effect@tag", "note": "champ(55005~55007)·enemy(55084~55086) -1=None → 0"},
+  {"base": "Entity", "offset": "0x4c8", "name": "skill_effect@Some.0", "note": "&Effect → expected_damage_target (55011 · 55090)"},
+  {"base": "Entity", "offset": "0x5c8", "name": "level", "note": "Entity::skill2_effect 인라인(entity.rs:1693): level > 2 ? &skill2_effect : &정적 None(@anon.16) — champ(55029~55033)·enemy(55108~55112)"},
+  {"base": "Entity", "offset": "0x500", "name": "skill2_effect@Some.0", "note": "&Effect(56B) — select 결과 포인터 (55032 · 55111)"},
+  {"base": "Entity", "offset": "0x530", "name": "skill2_effect@tag", "note": "select 된 eff+0x30 (i32, 55035~55037 · 55114~55116) -1=None → 0. 절대 gep 없음(상대 +48)"},
+  {"base": "Entity", "offset": "0x670", "name": "hp", "note": "my_hp = champ.hp (55167~55168) · enemy_hp (가시일 때, phi 1648 at 55200)"},
+  {"base": "Entity", "offset": "0x628", "name": "stat_cached.hp", "note": "enemy_hp = 최대 HP (비가시일 때, phi 1576 at 55200)"},
+  {"base": "Entity", "offset": "0x0", "name": "team@tag", "note": "champ.team: 1=Neutral → player_team()=None → is_visible_from true (55171~55172, entity.rs:1136/1482)"},
+  {"base": "Entity", "offset": "0x8", "name": "team@Player.0", "note": "champ 팀 인덱스 (55176~55178) ≥2 → panic_bounds_check"},
+  {"base": "Entity", "offset": "0x38", "name": "visible_state[team]@tag", "note": "enemy.visible_state[my_team] (24B stride, 55185~55188) 0=Visible → 현재 hp, 아니면 max hp"}
+ ],
+ "writes": [],
+ "constants": [
+  {"value": -1, "src_line": 399, "meaning": "Option<Effect> None 니치 태그(i32) — attack/skill/skill2 × champ/enemy 6곳 (54967·55007·55037·55061·55086·55116). None 이면 그 슬롯 대미지 0"},
+  {"value": 100000, "src_line": 419, "meaning": "DPS 고정소수 스케일: damage*100000/cooltime (6회, 54985 등) · die_tick = hp*100000/dps (55229·55230) — 나눗셈 정밀도 확보용, 임계 아님"},
+  {"value": 1, "src_line": 407, "meaning": "쿨타임 하한 `max(cooltime, 1)` (llvm.umax ×6, 55140~55165) — 0 나눗셈 방지"},
+  {"value": 2, "src_line": 401, "meaning": "`level > 2` — Entity::skill2_effect 인라인 스킬2 해금 게이트(55031 · 55110). 같은 2 가 team bounds(len 2, 55192)"},
+  {"value": 0, "src_line": 416, "meaning": "VisibleState::Visible 태그 0 (55188). L422/423 `dps == 0` 검사(55216·55221)는 0 이면 패닉으로 빠지는 나눗셈 가드"},
+  {"value": 60, "src_line": 426, "meaning": "승리 마진(틱) — my_die_tick > enemy_die_tick + 60 (55235~55236). tps 60 기준 1초. 리터럴 60 이라 tps 비례 아님"}
+ ],
+ "calls": [
+  "game_core::simulation::effect::Effect::expected_damage_target",
+  "game_core::simulation::entity::Entity::attack_cooltime",
+  "game_core::simulation::entity::Entity::skill_cooltime",
+  "game_core::simulation::entity::Entity::skill2_cooltime",
+  "core::panicking::panic_bounds_check",
+  "core::panicking::panic_const::panic_const_div_by_zero"
+ ],
+ "logic": "fn can1v1win(_rnd, _player, data, champ, enemy) -> bool   [utils.rs:398~427]\n  ctx = data.context\n  L399: my_attack_damage = champ.attack_effect.as_ref().map(|e| e.expected_damage_target(ctx, champ as dyn, enemy)).unwrap_or(0)\n  L400: my_skill_damage  = champ.skill_effect  … 동일\n  L401: my_skill2_damage = champ.skill2_effect() … (인라인: level>2 아니면 None → 0)\n  L403: target_attack_damage = enemy.attack_effect … expected_damage_target(ctx, enemy, champ)\n  L404: target_skill_damage  = enemy.skill_effect …\n  L405: target_skill2_damage = enemy.skill2_effect() …\n  L407~409: my_attack_cooltime = max(champ.attack_cooltime(),1); my_skill_cooltime = max(champ.skill_cooltime(),1); my_skill2_cooltime = max(champ.skill2_cooltime(),1)\n  L411~413: target_* 동일(enemy)\n  L415: my_hp = champ.hp\n  L416: enemy_hp = if enemy.is_visible_from(champ) { enemy.hp } else { enemy.stat_cached.hp(최대) }   // 인라인 entity.rs:1482~1483 · Neutral 이면 가시 취급\n  L419: my_dps    = my_attack_damage*100000/my_attack_cooltime + my_skill_damage*100000/my_skill_cooltime + my_skill2_damage*100000/my_skill2_cooltime   (udiv · IR 는 *100000 을 각 phi 전에 미리 곱함)\n  L420: enemy_dps = 같은 식(target_*)\n  L422: my_die_tick    = my_hp*100000 / enemy_dps        // enemy_dps==0 → 패닉(div_by_zero) — 검사 순서: enemy_dps 먼저(55216), 그다음 my_dps(55221)\n  L423: enemy_die_tick = enemy_hp*100000 / my_dps        // my_dps==0 → 패닉\n  L426: return my_die_tick > enemy_die_tick + 60\n  ※ ult 은 계산에 없음(평타·스킬1·스킬2 만). 궁·아이템 액티브·힐 미반영.",
+ "knobs": [
+  {"what": "1v1 승리 판정 마진(틱)", "where": "utils.rs:426", "value": 60, "effect": "올리면 더 확실히 유리할 때만 true(1v1 교전 개시 보수적) · 내리면(0) 사망 틱이 조금이라도 늦으면 true"},
+  {"what": "스킬2 포함 레벨 게이트(game_core 인라인)", "where": "entity.rs:1693 (Entity::skill2_effect, m04.ll:55031·55110)", "value": 2, "effect": "정보성 — 레벨 ≤2 챔피언은 skill2 대미지 0 으로 계산"}
+ ],
+ "unknown": [
+  "Effect::expected_damage_target(&Effect(56B), &GameContext(64B), caster &dyn(ptr, vtable @anon.6), target &Entity)->u64 내부 — game_core 경계, 시그니처만",
+  "Entity::attack_cooltime/skill_cooltime(&Entity)->u64(range ≥3) · skill2_cooltime(&Entity)->u64(range ≥1) — game_core 경계(_gcbc/g06.ll:66510·66405·66747). 반환값 범위 메타데이터상 0 이 될 수 없으므로 umax(…,1) 은 실효 없음(방어 코드)",
+  "enemy_dps==0(상대가 effect 전무·대미지 0) 이면 패닉 — 호출측이 어떻게 막는지는 이 함수 범위 밖",
+  "L419 소스가 `(a*100000/ca) + (b*100000/cb) + (c*100000/cc)` 인지 다른 결합인지 — IR 덧셈 순서 (skill+attack)+skill2 로 접혀 있고 값 동일(표기 불가)",
+  "_rnd/_player 가 인자로 남은 이유(과거 시그니처 호환으로 추정) — 본문 근거 없음"
+ ]
+}

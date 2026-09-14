@@ -1,0 +1,101 @@
+{
+ "name": "SmallActionLaneMinionPosition::get_input",
+ "sym": "_RNvMNtNtCshdEBA0ozCnw_7game_ai12small_action11lane_minionNtB2_29SmallActionLaneMinionPosition9get_input",
+ "src": "game-ai\\src\\small_action\\lane_minion.rs",
+ "src_line": 540,
+ "ir_file": "m11.ll",
+ "ir_from": 46067,
+ "ir_to": 46558,
+ "aux": [],
+ "one_line": "라인미니언 포지셔닝 소액션의 매틱 실행: 목표 재선정(choose_goal)→12000 초과 이동 시 경로 재생성→타워 탈출 필요면 RunAway, 아니면 PathFinder 입력",
+ "signature": {
+  "abi": "★internal fastcc (exe 0xe26c40 · 호출자 1). 승격 흔적: %0 은 소스상 반환 Option<Input>(32B) 의 out-포인터인데 `sret` 키워드가 벗겨져 `ptr dead_on_unwind writable dereferenceable(32)` 로만 남음(46067). 나머지 7 인자는 포인터/스칼라 그대로(팻포인터 분해·포인터→스칼라 승격 없음). version(i64 %2) 은 클로저 캡처용으로 스택 %15 에 재저장(46075)",
+  "params": [
+   {"i": 0, "name": "(sret)", "type": "Option<Input> (32B)", "note": "+0 tag i64: None = -1(DWARF variant0 DISCR_EXACT -1 · 46112 등 8곳), Some = Input 태그 0..5(Move/Return/Attack/Skill/Skill2/Ult · tcxdict --enum game_core::Input). None 경로 live 바이트 = [0x0,0x8) 뿐. Some 은 PathFinder::get_input(46537) 또는 SmallActionRunAway::get_input(46546) 이 sret 로 직접 채움 — 어느 바이트가 live 인지는 그 콜리 소관(미확인)"},
+   {"i": 1, "name": "&mut self", "type": "&mut SmallActionLaneMinionPosition (128B)", "note": "IR 속성 `noalias nonnull align 8 dereferenceable(128)` — readonly 없음 = &mut. writes 전수는 writes 항목"},
+   {"i": 2, "name": "version", "type": "usize", "note": "분기 2곳: <2(46226) / >1(46279). 콜리 8곳에 전달"},
+   {"i": 3, "name": "rnd", "type": "&mut StdRng (320B)", "note": "align 16 dereferenceable(320), readonly 없음. 본 함수 직접 접근 0 — new_target·update_path·is_safe_recall·RunAway::get_input 에 전달"},
+   {"i": 4, "name": "player", "type": "&PlayerState (2528B)", "note": "readonly. info.team(0x930)·info.position(0x9c0)"},
+   {"i": 5, "name": "data", "type": "&OperationData (24B)", "note": "readonly. cache(+0)·context(+8)"},
+   {"i": 6, "name": "positioning_score", "type": "&PositioningScoreData (2760B)", "note": "readonly. choose_goal·클로저 캡처·is_safe_recall·RunAway::get_input 에 전달"},
+   {"i": 7, "name": "debug", "type": "&mut DebugFrameData (224B)", "note": "align 8 dereferenceable(224), readonly 없음. 본 함수 직접 접근 0 — RunAway::get_input(46546) 에만 전달"}
+  ],
+  "returns": "sret Option<Input>. None 8곳: ①target 엔티티 없음(L541) ②champ 없음(L542) ③target.team==champ.team 또는 target 이 Minion 아님(L544) ④unseen && (version<2 || goal 미설정)(L554) ⑤position==Jungle(L562) ⑥chosen None && version<=1(L583) ⑦path_finder 생성 실패(L612 `?`) — 그 외 PathFinder::get_input / RunAway::get_input 의 결과 그대로"
+ },
+ "reads": [
+  {"base": "OperationData", "offset": "0x0", "name": "cache", "note": "46087"},
+  {"base": "OperationData", "offset": "0x8", "name": "context", "note": "46449/46470 → new_target·update_path 의 ctx 인자"},
+  {"base": "AbstractGameWithCache", "offset": "0x0", "name": "game data ptr", "note": "46088"},
+  {"base": "AbstractGameWithCache", "offset": "0x8", "name": "game vtable", "note": "46092 → vtable+0x1f0 = AbstractGame::get_entity_by_id(divtable) · 46096~46098 간접호출(self.target)"},
+  {"base": "AbstractGameWithCache", "offset": "0x1e0", "name": "player_champion[team][pos]", "note": "46123~46126"},
+  {"base": "PlayerState", "offset": "0x930", "name": "info.team", "note": "46106, bounds<2(46108)"},
+  {"base": "PlayerState", "offset": "0x9c0", "name": "info.position@tag", "note": "46120. switch(46217): 0 Top→line 0, 1 Jungle→None, 2 Mid→1, 3 Bottom/4 Support→2 · unseen 경로는 ==1 만 검사(46352)"},
+  {"base": "SmallActionLaneMinionPosition", "offset": "0x8", "name": "self.target (entity id)", "note": "46094"},
+  {"base": "SmallActionLaneMinionPosition", "offset": "0x10", "name": "self.goal_x", "note": "46227·46272·46287·46370"},
+  {"base": "SmallActionLaneMinionPosition", "offset": "0x18", "name": "self.goal_y", "note": "46231·46274·46290·46369"},
+  {"base": "SmallActionLaneMinionPosition", "offset": "0x20", "name": "self.goal_score", "note": "46256(choose_goal 인자)·46357"},
+  {"base": "SmallActionLaneMinionPosition", "offset": "0x78", "name": "self.position_eval_purpose", "note": "46258 → choose_goal"},
+  {"base": "SmallActionLaneMinionPosition", "offset": "0x75", "name": "self.path_finder@tag (bool 니치, 2=None)", "note": "46377·46436·46468(재검사)"},
+  {"base": "SmallActionLaneMinionPosition", "offset": "0x58", "name": "self.path_finder.path Box ptr", "note": "46384 (drop: dealloc 1120B=70*(u64,u64) · 46408)"},
+  {"base": "SmallActionLaneMinionPosition", "offset": "0x60", "name": "self.path_finder.planned_verdict Box ptr", "note": "46386 (drop: dealloc 70B · 46430)"},
+  {"base": "Entity", "offset": "0x0", "name": "team@tag (target·champ)", "note": "46140/46143 TeamType eq(entity.rs:1127 derive) · 46170 champ Neutral 판정"},
+  {"base": "Entity", "offset": "0x8", "name": "team@Player.0 (target·champ)", "note": "46141/46144 · 46191~46192 team 번호 비교 · 46174 visible_state 인덱스"},
+  {"base": "Entity", "offset": "0x68", "name": "ty@tag (target)", "note": "46155/46198 ==1 Minion (entity.rs:1261 is_minion 인라인)"},
+  {"base": "Entity", "offset": "0x38", "name": "visible_state[champ.team]@tag (target)", "note": "46205 + team*24 · ==0 Visible → unseen=false(46208~46210, dbg DW_OP_not)"},
+  {"base": "Entity", "offset": "0x660", "name": "x (target·champ)", "note": "46301 target(폴백 목표) / 46472·46504 champ(경로 시작점)"},
+  {"base": "Entity", "offset": "0x668", "name": "y (target·champ)", "note": "46306 / 46474·46506"}
+ ],
+ "writes": [
+  {"base": "SmallActionLaneMinionPosition(self)", "offset": "0x10", "name": "goal_x", "value": "새 목표 x (chosen 또는 폴백)", "note": "46371 — 옛 목표와 거리² > 144000000 일 때만(L586)"},
+  {"base": "SmallActionLaneMinionPosition(self)", "offset": "0x18", "name": "goal_y", "value": "새 목표 y", "note": "46372 — 같은 조건(L587)"},
+  {"base": "SmallActionLaneMinionPosition(self)", "offset": "0x20", "name": "goal_score", "value": "새 score", "note": "46374(먼 목표 경로, L588) / 46435(가까운 목표 경로, L591) — 두 경로 모두 항상 갱신"},
+  {"base": "SmallActionLaneMinionPosition(self)", "offset": "0x75", "name": "path_finder@tag", "value": "2 (None)", "note": "46454 — 먼 목표 경로에서 옛 PathFinder drop(Box 2개 dealloc 46408·46430) 후 None 으로(L589)"},
+  {"base": "SmallActionLaneMinionPosition(self)", "offset": "0x30..0x78", "name": "path_finder (Option<PathFinder> 72B)", "value": "PathFinder::new_target(...) 결과 memcpy 72B", "note": "46491 (self+48=0x30) — path_finder 가 None 일 때(L597~598). 이후 update_path(46520)·PathFinder::get_input(46537) 이 &mut 로 내부 갱신(콜리 소관)"},
+  {"base": "SmallActionLaneMinionPosition(self)", "offset": "0x0 / 0x8 / 0x28", "name": "start_tick / target / end_delay", "value": "변경 없음", "note": "읽기만(target) 또는 미접근"},
+  {"base": "rnd / debug", "offset": "-", "name": "-", "value": "본 함수 직접 쓰기 없음", "note": "&mut 로 콜리에 전달만"},
+  {"base": "sret", "offset": "0x0", "name": "Option<Input> tag", "value": "-1 (None)", "note": "46112·46150·46165·46241·46251(L562)·46283·46348·46527. Some 은 콜리 sret"}
+ ],
+ "constants": [
+  {"value": -1, "src_line": 541, "meaning": "Option<Input> None 태그(i64, DWARF DISCR_EXACT -1) · 46112 등 8곳"},
+  {"value": 1, "src_line": 543, "meaning": "EntityType 태그 1 = Minion(46157·46200) / L557 Position 태그 1 = Jungle(46352·switch 46217) / L631 SafeMoveWithSkill 태그 1 = Safe(46537 i8 1)"},
+  {"value": 0, "src_line": 543, "meaning": "TeamType 태그 0 = Player(46161) / VisibleState 0 = Visible(46208)"},
+  {"value": 2, "src_line": 553, "meaning": "version < 2 게이트(46226): v1 은 목표 미가시 시 즉시 None. 또한 Option<PathFinder> None 니치 태그 2(46379·46438·46454·46495)"},
+  {"value": 1987654321, "src_line": 553, "meaning": "goal_x/goal_y 미설정 센티널(new 에서 넣은 값) · 46229·46233·46289·46292"},
+  {"value": 144000000, "src_line": 585, "meaning": "12000^2 — 옛 목표↔새 목표 거리(제곱)가 이보다 크면 목표 좌표·경로 재생성, 이하면 score 만 갱신하고 옛 목표·경로 유지 · 46344"},
+  {"value": 20, "src_line": 598, "meaning": "PathFinder::new_target 의 key=\"lane_minion_position\"(anon.42, 20B) 문자열 길이(팻포인터 len) · 46488"},
+  {"value": 5, "src_line": 627, "meaning": "SmallActionRunAway::new_with_skill(data, player, 5, true) 의 3번째 인자(용도는 그 콜리 소관 — 미확인) · 46544"},
+  {"value": 1120, "src_line": 589, "meaning": "path Box<[(u64,u64);70]> 크기 = 70*16 (drop 인라인) · 46408"},
+  {"value": 70, "src_line": 589, "meaning": "planned_verdict Box<[u8;70]> 크기 / 경로 최대 길이 70 · 46430"}
+ ],
+ "calls": [
+  "game_ai::small_action::lane_minion::SmallActionLaneMinionPosition::choose_goal",
+  "game_ai::path_finder::TowerDodgeContext::new_unnecessary_tower_avoid",
+  "game_ai::path_finder::PathFinder::new_target",
+  "game_ai::path_finder::PathFinder::update_path",
+  "game_ai::path_finder::PathFinder::get_input",
+  "game_ai::small_action::path_needs_tower_escape",
+  "game_ai::small_action::cast::is_safe_recall",
+  "game_ai::small_action::move_actions::SmallActionRunAway::new_with_skill",
+  "game_ai::small_action::move_actions::SmallActionRunAway::get_input",
+  "__rustc::__rust_dealloc",
+  "core::panicking::panic_bounds_check"
+ ],
+ "logic": "fn get_input(&mut self, version, rnd:&mut StdRng, player, data, positioning_score, debug:&mut DebugFrameData) -> Option<Input>\n[L541] target = data.cache.game.get_entity_by_id(self.target)?            ; vtable+0x1f0 · null→None(46112)\n[L542] champ = data.cache.player_champion[player.info.team][player.info.position]?   ; 46150\n[L543] if target.team == champ.team || !target.is_minion() { [L544] return None }   ; TeamType derive-eq(둘 다 Neutral 도 '같음'), is_minion = ty@tag==1. 46146~46200 → 46165\n[L552] unseen = !(champ.team is Player(t) && target.visible_state[t]==Visible)      ; champ Neutral 이면 unseen=false 로 진행(46170→46217)\n[L553] if unseen && (version < 2 || self.goal_x == 1987654321 || self.goal_y == 1987654321) { [L554] return None }   ; 46226~46241\n[L557] line = match player.info.position { Top(0)=>Top(0), Jungle(1)=>[L562] return None, Mid(2)=>[L559] Mid(1), Bottom(3)|Support(4)=>[L560] Bottom(2) }   ; unseen 경로는 Jungle 검사만(46352→46251)\n[L570] chosen: Option<(x,y,score)> = if unseen { Some((self.goal_x, self.goal_y, self.goal_score)) }   ; 46357~46365\n[L572]   else { SmallActionLaneMinionPosition::choose_goal(self.goal_score, self.position_eval_purpose, version, player, data, champ, target, positioning_score, line) }   ; 46260, sret 32B(+0 tag 1=Some,+8 x,+16 y,+24 score)\n[L574] (gx, gy, gs) = match chosen {\n   Some(c) => c,                                                                  ; [L575] 46266~46270\n   None => { [L576] if version > 1 {\n              [L577] if self.goal_x==SENT || self.goal_y==SENT { [L578] (target.x, target.y, self.goal_score) }   ; 46301~46308\n                     else { (self.goal_x, self.goal_y, self.goal_score) } }\n            else { [L583] return None } } }                                         ; 46283\n[L585] if dist_sq((self.goal_x,self.goal_y),(gx,gy)) > 144000000 {                 ; 46344 (12000^2)\n   [L586~588] self.goal_x=gx; self.goal_y=gy; self.goal_score=gs                    ; 46371~46374\n   [L589] self.path_finder = None                                                   ; 옛 PathFinder drop(46408·46430) → 태그 2(46454)\n   [L596] tower_dodge = TowerDodgeContext::new_unnecessary_tower_avoid(version, player, data, gx, gy)   ; 46458, 416B\n } else {\n   [L591] self.goal_score = gs                                                       ; 46435 (좌표는 옛 것 유지)\n   [L596] tower_dodge = TowerDodgeContext::new_unnecessary_tower_avoid(version, player, data, self.goal_x, self.goal_y)   ; 46442\n }\n[L597] if self.path_finder.is_none() {                                              ; 46438 / 먼 목표 경로는 항상 진입\n   [L598] self.path_finder = PathFinder::new_target(rnd, data.context, version, \"lane_minion_position\", champ.x, champ.y, goal_x, goal_y, closure$0{version,player,data,positioning_score,&tower_dodge,champ})   ; 46488, sret 72B → self+0x30 memcpy(46491)\n }\n[L612] p = self.path_finder.as_mut()?                                               ; 태그 2 면 None(46495→46527)\n[L613] p.update_path(rnd, data.context, champ.x, champ.y, goal_x, goal_y, closure$s_0{같은 캡처})   ; 46520\n[L626] if path_needs_tower_escape(version, player, data, p) {                         ; 46523\n   [L627] runaway = SmallActionRunAway::new_with_skill(data, player, 5, true)        ; 46544, 136B\n   [L628] return runaway.get_input(version, rnd, player, data, positioning_score, debug)   ; 46546 → sret 직접 · [L629] drop(runaway)\n }\n[L631] return p.get_input(player, data, SafeMoveWithSkill::Safe(1), is_safe_recall(version, rnd, player, data, positioning_score))   ; 46536~46537\n",
+ "knobs": [
+  {"what": "목표 재생성 거리 임계(제곱)", "where": "lane_minion.rs:585 (IR 46344)", "value": 144000000, "effect": "12000(0.375셀). 올리면 목표가 더 많이 움직여도 옛 경로를 유지(재탐색 빈도↓, 추종 정확도↓). 내리면 미세 이동에도 path_finder 를 새로 만든다(비용↑)"},
+  {"what": "미가시 목표 허용 버전 게이트", "where": "lane_minion.rs:553 (IR 46226)", "value": 2, "effect": "version>=2 이면 목표가 안 보여도 기존 goal 좌표로 계속 이동. 1 이하는 즉시 None(소액션 종료)"},
+  {"what": "PathFinder::get_input 의 스킬 이동 모드", "where": "lane_minion.rs:631 (IR 46537 i8 1)", "value": 1, "effect": "SafeMoveWithSkill::Safe. Must(2)/MustWithUlt(3) 로 바꾸면 이동 스킬 사용 강제(의미는 path 계층 소관)"}
+ ],
+ "unknown": [
+  "closure$0(new_target 비용/위험 콜백)·closure$s_0(update_path 콜백) 의 본문 — 별도 define 없이 PathFinder 제네릭 인스턴스(m03.ll:112~3631 / 24887~25960, m08.ll 등) 안에 인라인. 캡처 = {&version, player, data, positioning_score, &tower_dodge(416B), champ}(46476~46486/46508~46518). 경로 계층이라 미탐색(지시 범위 밖)",
+  "PathFinder::new_target 계약(m03.ll:112): (sret Option<PathFinder> 72B, rnd:&mut StdRng, ctx:&GameContext, version, key:&str(\"lane_minion_position\"), from_x, from_y, to_x, to_y, closure) → 태그 +0x45(=self+0x75) 2=None. 내부 미탐색",
+  "PathFinder::update_path 계약: (&mut PathFinder, rnd, ctx, from_x, from_y, to_x, to_y, closure) → void. 내부 미탐색",
+  "PathFinder::get_input 계약(m03.ll:137276, path_finder.rs:856): (sret Option<Input>, &mut PathFinder, &PlayerState, &OperationData, SafeMoveWithSkill:i8, allow_recall:bool) — 마지막 bool 이 is_safe_recall 결과. 반환 바이트 미확인",
+  "TowerDodgeContext::new_unnecessary_tower_avoid 계약(m03.ll:1397): (sret 416B, version, player, data, goal_x, goal_y). 내부 미탐색",
+  "path_needs_tower_escape 계약(m11.ll:52695): (version, player, data, &PathFinder) -> bool(true=RunAway 로 전환). r14 중간 함수 — 내부 안 팜",
+  "is_safe_recall(잎 22, m07.ll:58406) 계약: (version, rnd:&mut StdRng[readnone], player, data, positioning_score) -> bool → PathFinder::get_input 의 allow_recall 인자",
+  "SmallActionRunAway::new_with_skill(m08.ll:92086) 계약: (sret 136B initializes (0,56),(125,126),(128,132), data, player, i64 5, bool true) / RunAway::get_input(m08.ll:106076): (sret Option<Input>, &mut self 136B, version, rnd, player, data, positioning_score, debug). 상수 5·true 의 의미 미확인",
+  "L543 한 줄 안 `team==` 과 `!is_minion` 의 소스 순서(column 부재) — 외연 동일",
+  "choose_goal 내부(43376~43887, r14 중간) — 계약은 lane_minion_position_action 명세와 동일"
+ ]
+}

@@ -1,0 +1,77 @@
+{
+ "name": "SmallActionPlay::evaluation_position",
+ "sym": "_RNvMNtCshdEBA0ozCnw_7game_ai12small_actionNtB2_15SmallActionPlay19evaluation_position",
+ "src": "game-ai\\src\\small_action.rs",
+ "src_line": 245,
+ "ir_file": "m11.ll",
+ "ir_from": 41846,
+ "ir_to": 42097,
+ "aux": [],
+ "one_line": "소액션의 '평가 위치' — 액션 종류별 목표점을 구해, 공격/스킬계는 착지점 그대로, 그 외는 그 목표를 향해 1초(move_speed×tps)만큼 이동한 좌표를 Option<(x,y)> 로",
+ "signature": {
+  "abi": "hidden(비-internal) · sret 24B",
+  "params": [
+   {"i": 0, "name": "(sret)", "type": "Option<(u64,u64)>(24B)", "note": "+0 태그 i64(0 None/1 Some) · +8 x · +16 y. writeonly"},
+   {"i": 1, "name": "self", "type": "&SmallActionPlay(184B)", "note": "+0xb1 태그 · 종류별 goal/target 좌표 필드 · Trace/Attack/Skill/Skill2/Ult 는 콜리에 통째 전달"},
+   {"i": 2, "name": "_version", "type": "usize", "note": "dbg 이름 없음(익명/미사용) — 본문에서 읽지 않음"},
+   {"i": 3, "name": "player", "type": "&PlayerState(2528B)", "note": "+0x930 team · +0x9c0 position 태그 · expected_goal_position 인자"},
+   {"i": 4, "name": "data", "type": "&OperationData(24B)", "note": "+0x0 cache(player_champion) · +0x8 context(setting/map_setting/map → move_to)"}
+  ],
+  "returns": "sret Option<(u64,u64)> — 살아있는 바이트: None 경로(41904/42048)는 +0 에 i64 0 만 기록(+8..+24 미기록=쓰레기) · Some 경로는 +0=1, +8=x, +16=y 전부 기록(42081~42085 / 42091~42095). 패딩 없음(3×8B)"
+ },
+ "reads": [
+  {"base": "PlayerState", "offset": "0x930", "name": "info.team", "note": "41861 (gep 2352) bounds 2"},
+  {"base": "PlayerState", "offset": "0x9c0", "name": "info.position@tag", "note": "41872 (gep 2496)"},
+  {"base": "OperationData", "offset": "0x0", "name": "cache", "note": "41875"},
+  {"base": "OperationData", "offset": "0x8", "name": "context", "note": "42060 → GameContext"},
+  {"base": "AbstractGameWithCache", "offset": "0x1e0", "name": "player_champion[team][position]", "note": "41876~41879 · null → None (option.rs:2790 `?`)"},
+  {"base": "GameContext", "offset": "0x8", "name": "setting", "note": "42062 → move_to 첫 인자 · +0x12f8 tick_per_second"},
+  {"base": "GameContext", "offset": "0x18", "name": "map_setting", "note": "42064 → move_to 둘째 인자"},
+  {"base": "GameContext", "offset": "0x20", "name": "map", "note": "42066 → move_to 셋째 인자"},
+  {"base": "GameSetting", "offset": "0x12f8", "name": "tick_per_second", "note": "42072 (gep 4856) × move_speed = 1초 이동량"},
+  {"base": "SmallActionPlay", "offset": "0xb1", "name": "@tag", "note": "41887 (gep 177) → idx = tag>2 ? tag-3 : 7(AroundPosition 암묵)"},
+  {"base": "SmallActionPlay", "offset": "0x8", "name": "RunAway/Positioning/AroundPosition.goal_x · AroundPositionBush.target_x", "note": "41936 phi 8 (target_position 인라인 small_action.rs:230~238)"},
+  {"base": "SmallActionPlay", "offset": "0x10", "name": "위 variant goal_y · Around/AroundHide/LaneMinionPosition.goal_x", "note": "41936/41937 phi 16"},
+  {"base": "SmallActionPlay", "offset": "0x18", "name": "Around/AroundHide/LaneMinionPosition.goal_y · AroundBush.target_x", "note": "phi 24"},
+  {"base": "SmallActionPlay", "offset": "0x20", "name": "AroundBush.target_y", "note": "phi 32"},
+  {"base": "SmallActionPlay", "offset": "0x50", "name": "Recall.goal_x", "note": "phi 80"},
+  {"base": "SmallActionPlay", "offset": "0x58", "name": "Recall.goal_y", "note": "phi 88"},
+  {"base": "SmallActionPlay", "offset": "0x68", "name": "Trace.goal_x", "note": "41977 (gep 104) — expected_goal_position 이 None 일 때 폴백(or_else 클로저)"},
+  {"base": "SmallActionPlay", "offset": "0x70", "name": "Trace.goal_y", "note": "41979 (gep 112)"},
+  {"base": "Entity", "offset": "0x660", "name": "x", "note": "42013/42040 champ.x (Stop 의 목표 · move_to 시작점)"},
+  {"base": "Entity", "offset": "0x668", "name": "y", "note": "42015/42042 champ.y"},
+  {"base": "Entity", "offset": "0x5c0", "name": "id", "note": "42068 → move_to id 인자"},
+  {"base": "Entity", "offset": "0x640", "name": "stat_cached.move_speed", "note": "42070 (gep 1600)"}
+ ],
+ "writes": [
+  {"base": "sret Option<(u64,u64)>", "offset": "0x0", "name": "tag", "value": "0 (41904 champ 없음 · 42048 target None) / 1 (42085 · 42095)", "note": "&mut 인자 없음 — 쓰기는 sret 뿐. move_to 의 &mut x/&mut y 는 지역 alloca(%8/%7)"},
+  {"base": "sret Option<(u64,u64)>", "offset": "0x8", "name": "x", "value": "42082 move_to 후 x / 42092 착지점 x", "note": "Some 경로만"},
+  {"base": "sret Option<(u64,u64)>", "offset": "0x10", "name": "y", "value": "42084 / 42094", "note": "Some 경로만"}
+ ],
+ "constants": [
+  {"value": 2, "src_line": 246, "meaning": "player_champion bounds team<2 (41863)"},
+  {"value": 12, "src_line": 257, "meaning": "idx & !3 == 12 ⇔ idx ∈ {12 Attack,13 Skill,14 Skill2,15 Ult} — 착지점을 그대로 반환하는 공격/스킬계 판정 (42035~42036, `and i8 -4`)"},
+  {"value": -4, "src_line": 257, "meaning": "idx & 0xFC 마스크 (42035) — 12..15 묶음 비교용"},
+  {"value": 7, "src_line": 247, "meaning": "니치 untagged variant AroundPosition 의 논리 idx(41893 select)"},
+  {"value": 10, "src_line": 247, "meaning": "태그 10 은 존재하지 않음(assume · 41889) — AroundPosition 은 암묵(태그 없음)"}
+ ],
+ "calls": [
+  "game_ai::small_action::trace::SmallActionTrace::expected_goal_position",
+  "game_ai::small_action::cast::SmallActionAttack::movement_landing_position",
+  "game_ai::small_action::cast::SmallActionSkill::movement_landing_position",
+  "game_ai::small_action::cast::SmallActionSkill2::movement_landing_position",
+  "game_ai::small_action::cast::SmallActionUlt::movement_landing_position",
+  "game_core::simulation::entity::Entity::move_to"
+ ],
+ "logic": "L246: champ = data.cache.player_champion[player.team][player.position]?   — None → return None\nL247: target: Option<(u64,u64)> = match self (idx=tag−3) {\n  L248 Trace(11):  self.expected_goal_position(player, data).or_else(|| Some((trace.goal_x, trace.goal_y)))   [잎22 · sret 24B Option<(u64,u64)> · None 이면 +0x68/+0x70 폴백]\n  L249 Attack(12): SmallActionAttack::movement_landing_position(self, champ, data)      [sret 24B Option<(u64,u64)>]\n  L250 Skill(13):  SmallActionSkill::movement_landing_position(self, champ, data)\n  L251 Skill2(14): SmallActionSkill2::movement_landing_position(self, champ, data)\n  L252 Ult(15):    SmallActionUlt::movement_landing_position(self, champ, data)\n  L253 Stop(16):   Some((champ.x, champ.y))   → L257 분기 없이 바로 move_to 경로(42020)\n  L254 그 외:      self.target_position()  [인라인 small_action.rs:230~238]\n      RunAway(0)/Positioning(6)/AroundPosition(7)/AroundPositionBush(8) → Some((+0x8, +0x10))\n      Recall(1)                                                          → Some((+0x50, +0x58))\n      Around(2)/AroundHide(3)/LaneMinionPosition(10)                    → Some((+0x10, +0x18))\n      AroundBush(9)                                                      → Some((+0x18, +0x20))\n      AroundRegion(4)/AroundRunAway(5)                                   → None\n}?   — None → return None (42048)\nL257: if idx ∈ {Attack,Skill,Skill2,Ult} (idx & !3 == 12) → return Some(target)   (L258 · 착지점 그대로)\nL260~261: x = champ.x ; y = champ.y\nL262~264: Entity::move_to(ctx.setting, ctx.map_setting, ctx.map, champ.id, &mut x, &mut y, champ.stat_cached.move_speed * setting.tick_per_second, target.x, target.y, &mut None(ptr null))\nL265: return Some((x, y))   — 1초 뒤 예상 위치",
+ "knobs": [
+  {"what": "이동 투영 시간", "where": "small_action.rs:263", "value": "move_speed × tick_per_second (=1초)", "effect": "리터럴 없음(tps 곱). 곱을 늘리면 더 먼 미래 위치로 평가 — 코드 변경 없이 노브 없음"}
+ ],
+ "unknown": [
+  "version(%2)은 dbg 이름이 없어 소스 인자명 미확정(`_version` 추정) — 본문 미사용은 확정",
+  "L253 Stop 경로는 target=(champ.x,champ.y) 로 move_to 를 호출한 뒤 Some 을 반환하는데, L257 의 Attack~Ult 조기반환 검사를 거치지 않고 42020 에서 직접 %86 으로 간다 — 소스가 match arm 안에서 별도 처리하는지 컴파일러 접힘인지 표기 불가(동작은 동일: 제자리 이동 = 현 좌표)",
+  "Entity::move_to(g06.ll:82444 · (setting, map_setting, map, id, &mut x, &mut y, speed, tx, ty, &mut Option<…>(8B)))의 마지막 &mut 인자 타입(ptr null 초기화 · 지역 %6)은 미확정 — game_core 경계",
+  "movement_landing_position 4종(m07.ll:7051/7567/11937/12452 · (self, champ, data) → sret Option<(u64,u64)>) 내부는 r14 타 배치/미탐색",
+  "expected_goal_position(잎22 · m02.ll:8995 · (self:&SmallActionTrace(152B), player, data) → sret 24B Option<(u64,u64)>) 계약만"
+ ]
+}

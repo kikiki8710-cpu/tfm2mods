@@ -1,0 +1,174 @@
+■ 0xd84db0  Location 2개: position_eval.rs:317:19 · position_eval.rs:319:7
+   [클로저/인스턴스만]
+   인스턴스 2  _RINvMs2_NtNtCs9ec1k27omRZ_3std6thread5localINtB6_8LocalKeyINtNtCsjihNppCmMEE_4core4cell7RefCellNtNtCshdEBA0oz  (m00.ll)
+■ 0xdc8550  Location 7개: map_def.rs:266:5 · around.rs:1260:26 · around.rs:1284:26
+   [확정]
+   본체 4/4  _RNvNtNtCshdEBA0ozCnw_7game_ai12small_action6around10check_cell  (m08.ll)
+■ 0xc87fe0  Location 1개: utils.rs:918:19
+   [클로저/인스턴스만]
+   인스턴스 1  _RINvMs2_NtNtCs9ec1k27omRZ_3std6thread5localINtB6_8LocalKeyINtNtCsjihNppCmMEE_4core4cell7RefCellTyjjINtNtNtNtB  (m00.ll)
+■ 0xd98420  Location 1개: tower_discipline.rs:286:21
+   [확정]
+   본체 1/1  _RNvNtCshdEBA0ozCnw_7game_ai16tower_discipline24v3_lethal_tower_position  (m07.ll)
+■ 0xecb300  Location 1개: objective_helpers.rs:60:6
+   [확정]
+   본체 1/1  _RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy9team_plan17objective_helpers38v23_should_break_objective_hunt_anchor  (m15.ll)
+■ 0xcd0480  Location 1개: battle.rs:1059:50
+   [후보 2(적중 1)]
+   본체 1/1  _RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy8sub_plan6battle16v48_on_cast_line  (m02.ll)
+   본체 1/1  _RNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy8sub_plan6battleNtB2_13BattleSubPlan17action_candidates  (m02.ll)
+■ 0xc7f0f0  Location 2개: position_eval.rs:135:19 · position_eval.rs:146:47
+   [클로저/인스턴스만]
+   인스턴스 2  _RINvMs2_NtNtCs9ec1k27omRZ_3std6thread5localINtB6_8LocalKeyINtNtCsjihNppCmMEE_4core4cell7RefCellNtNtCshdEBA0oz  (m00.ll)
+■ 0xccaa10  Location 5개: epic_poke.rs:525:58 · epic_poke.rs:524:95 · epic_poke.rs:534:76
+   [확정]
+   본체 4/4  _RNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy8sub_plan9epic_pokeNtB2_15EpicPokeSubPlan5score  (m02.ll)
+■ 0xe81390  Location 5개: serpen_poke.rs:512:60 · serpen_poke.rs:511:95 · serpen_poke.rs:524:76
+   [확정]
+   본체 4/4  _RNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy8sub_plan11serpen_pokeNtB2_17SerpenPokeSubPlan5score  (m14.ll)
+■ 0xdc2550  Location 1개: around.rs:1182:94
+   [확정]
+   본체 1/1  _RNvMs6_NtNtCshdEBA0ozCnw_7game_ai12small_action6aroundNtB5_21SmallActionAroundBush15new_with_target  (m08.ll)
+■ 0xe23fa0  Location 1개: small_action.rs:159:19
+   [확정]
+   본체 1/1  _RNvMNtCshdEBA0ozCnw_7game_ai12small_actionNtB2_15SmallActionPlay9get_input  (m11.ll)
+■ 0xe29520  Location 3개: small_action.rs:114:21 · small_action.rs:145:16 · small_action.rs:151:16
+   [확정]
+   본체 3/3  _RNvNtCshdEBA0ozCnw_7game_ai12small_action23path_needs_tower_escape  (m11.ll)
+■ 0xe8b200  Location 5개: line_defense.rs:944:95 · line_defense.rs:971:55 · line_defense.rs:955:55
+   [확정]
+   본체 4/4  _RNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy8sub_plan12line_defenseNtB2_18LineDefenseSubPlan5score  (m14.ll)
+■ 0xe266e0  Location 2개: lane_minion.rs:188:23 · entity.rs:1483:7
+   [확정]
+   본체 1/1  _RNvMNtNtCshdEBA0ozCnw_7game_ai12small_action11lane_minionNtB2_29SmallActionLaneMinionPosition34has_current_explicit_minion_action  (m11.ll)
+■ 0xe23170  Location 1개: small_action.rs:246:17
+   [확정]
+   본체 1/1  _RNvMNtCshdEBA0ozCnw_7game_ai12small_actionNtB2_15SmallActionPlay19evaluation_position  (m11.ll)
+■ 0xdc27a0  Location 1개: around.rs:1161:56
+   [확정]
+   본체 1/1  _RNvMs6_NtNtCshdEBA0ozCnw_7game_ai12small_action6aroundNtB5_21SmallActionAroundBush17new_with_out_line  (m08.ll)
+■ 0xe28410  Location 2개: lane_economy.rs:8:21 · lane_economy.rs:52:20
+   [확정]
+   본체 2/2  _RNvNtCshdEBA0ozCnw_7game_ai12lane_economy30line_action_economy_adjustment  (m11.ll)
+■ 0xccf670  Location 6개: serpen_hunt.rs:877:117 · serpen_hunt.rs:844:93 · serpen_hunt.rs:886:56
+   [확정]
+   본체 4/4  _RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy8sub_plan11serpen_hunt19serpen_action_score  (m02.ll)
+■ 0xec7c90  Location 6개: epic_hunt.rs:882:115 · epic_hunt.rs:849:93 · epic_hunt.rs:891:56
+   [확정]
+   본체 4/4  _RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy8sub_plan9epic_hunt17epic_action_score  (m15.ll)
+■ 0xd99030  Location 1개: tower_discipline.rs:395:21
+   [확정]
+   본체 1/1  _RNvNtCshdEBA0ozCnw_7game_ai16tower_discipline38v22_lane_tower_pressure_attack_allowed  (m07.ll)
+■ 0xd845e0  Location 3개: cast.rs:135:97 · cast.rs:141:85 · cast.rs:135:19
+   [확정]
+   본체 3/3  _RNvMs1_NtNtCshdEBA0ozCnw_7game_ai12small_action4castNtB5_16SmallActionSkill9get_input  (m07.ll)
+■ 0xe281f0  Location 2개: lane_economy.rs:224:12 · lane_economy.rs:229:23
+   [확정]
+   본체 2/2  _RNvNtCshdEBA0ozCnw_7game_ai12lane_economy29line_champion_trade_allowance  (m11.ll)
+■ 0xd84800  Location 3개: cast.rs:198:97 · cast.rs:204:86 · cast.rs:198:19
+   [확정]
+   본체 3/3  _RNvMs3_NtNtCshdEBA0ozCnw_7game_ai12small_action4castNtB5_17SmallActionSkill29get_input  (m07.ll)
+■ 0xd84a30  Location 3개: cast.rs:263:97 · cast.rs:269:83 · cast.rs:263:19
+   [확정]
+   본체 3/3  _RNvMs5_NtNtCshdEBA0ozCnw_7game_ai12small_action4castNtB5_14SmallActionUlt9get_input  (m07.ll)
+■ 0xdb8e60  Location 1개: ganker.rs:80:45
+   [확정]
+   본체 1/1  _RNvMNtNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old9line_gank6gankerNtB2_14LineGankerPlan16make_gank_battle  (m08.ll)
+■ 0xdd5270  Location 2개: objective_discipline.rs:508:17 · entity.rs:1483:7
+   [확정]
+   본체 1/1  _RNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy9team_plan20objective_disciplineNtB4_8TeamPlan31v27_objective_discipline_action  (m09.ll)
+■ 0xdc2070  Location 2개: around.rs:1087:95 · around.rs:1087:17
+   [확정]
+   본체 2/2  _RNvMs5_NtNtCshdEBA0ozCnw_7game_ai12small_action6aroundNtB5_29SmallActionAroundPositionBush9get_input  (m08.ll)
+■ 0xe2ac00  Location 4개: lane_minion.rs:104:34 · lane_minion.rs:126:33 · entity.rs:1483:7
+   [확정]
+   본체 3/3  _RNvNtNtCshdEBA0ozCnw_7game_ai12small_action11lane_minion29line_minion_action_candidates  (m11.ll)
+■ 0xeb77a0  Location 2개: fight_check.rs:1114:15 · fight_check.rs:1114:93
+   [확정]
+   본체 2/2  _RNvNtCshdEBA0ozCnw_7game_ai11fight_check18battle_ally_action  (m15.ll)
+■ 0xde3630  Location 4개: goal_data.rs:607:61 · goal_data.rs:611:42 · goal_data.rs:607:15
+   [확정]
+   본체 4/4  _RNvNtCshdEBA0ozCnw_7game_ai9goal_data19get_die_tick_player  (m09.ll)
+■ 0xe2a830  Location 1개: lane_minion.rs:27:15
+   [확정]
+   본체 1/1  _RNvNtNtCshdEBA0ozCnw_7game_ai12small_action11lane_minion27lane_minion_position_action  (m11.ll)
+■ 0xe04400  Location 1개: buff_value.rs:810:18
+   [확정]
+   본체 1/1  _RNvNtCshdEBA0ozCnw_7game_ai10buff_value24v57_summon_command_score  (m10.ll)
+■ 0xd35930  Location 3개: abstract_input.rs:200:15 · abstract_input.rs:228:33 · entity.rs:1483:7
+   [확정]
+   본체 2/2  _RNvNtCshdEBA0ozCnw_7game_ai14abstract_input5skill  (m04.ll)
+■ 0xd360a0  Location 3개: abstract_input.rs:240:15 · abstract_input.rs:268:33 · entity.rs:1483:7
+   [확정]
+   본체 2/2  _RNvNtCshdEBA0ozCnw_7game_ai14abstract_input6skill2  (m04.ll)
+■ 0xe29b40  Location 6개: action_eval.rs:98:93 · action_eval.rs:237:58 · entity.rs:1483:7
+   [확정]
+   본체 4/4  _RNvNtNtCshdEBA0ozCnw_7game_ai11plan_legacy11action_eval15evaluate_action  (m11.ll)
+■ 0xc89530  Location 3개: action_eval.rs:156:19 · entity.rs:1483:7 · simulation.rs:1848:5
+   [클로저/인스턴스만]
+   인스턴스 1  _RINvMs2_NtNtCs9ec1k27omRZ_3std6thread5localINtB6_8LocalKeyINtNtCsjihNppCmMEE_4core4cell7RefCellTyjjhjATyyyxjx  (m00.ll)
+■ 0xd3ab40  Location 3개: utils.rs:422:21 · utils.rs:423:24 · entity.rs:1483:7
+   [확정]
+   본체 2/2  _RNvNtCshdEBA0ozCnw_7game_ai5utils9can1v1win  (m04.ll)
+■ 0xe26c40  Location 2개: lane_minion.rs:542:17 · entity.rs:1483:7
+   [확정]
+   본체 1/1  _RNvMNtNtCshdEBA0ozCnw_7game_ai12small_action11lane_minionNtB2_29SmallActionLaneMinionPosition9get_input  (m11.ll)
+■ 0xdc2960  Location 3개: around.rs:1196:95 · around.rs:1196:17 · around.rs:1213:82
+   [확정]
+   본체 3/3  _RNvMs6_NtNtCshdEBA0ozCnw_7game_ai12small_action6aroundNtB5_21SmallActionAroundBush9get_input  (m08.ll)
+■ 0xd73c30  Location 2개: line_defense.rs:804:19 · simulation.rs:1905:5
+   [클로저/인스턴스만]
+   인스턴스 1  _RINvXs_NtNtNtCsjihNppCmMEE_4core4iter8adapters6copiedINtB5_6CopiedINtNtNtBb_5slice4iter4IterRNtNtNtCs97f5S1uJ  (m11.ll)
+   인스턴스 1  _RINvXs_NtNtNtCsjihNppCmMEE_4core4iter8adapters5chainINtB5_5ChainINtNtB7_7flatten7FlattenINtNtNtBb_5array4iter  (m06.ll)
+■ 0xccfbc0  Location 5개: serpen_hunt.rs:916:93 · serpen_hunt.rs:926:7 · serpen_hunt.rs:916:15
+   [확정]
+   본체 4/4  _RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy8sub_plan11serpen_hunt29calculate_serpen_action_score  (m02.ll)
+■ 0xec81e0  Location 5개: epic_hunt.rs:931:59 · epic_hunt.rs:922:93 · epic_hunt.rs:932:7
+   [확정]
+   본체 4/4  _RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy8sub_plan9epic_hunt27calculate_epic_action_score  (m15.ll)
+■ 0xc7f640  Location 2개: position_eval.rs:217:19 · position_eval.rs:223:22
+   [클로저/인스턴스만]
+   인스턴스 2  _RINvMs2_NtNtCs9ec1k27omRZ_3std6thread5localINtB6_8LocalKeyINtNtCsjihNppCmMEE_4core4cell7RefCellNtNtCshdEBA0oz  (m00.ll)
+■ 0xe288c0  Location 2개: lane_economy.rs:123:44 · simulation.rs:1905:5
+   [확정]
+   본체 1/1  _RNvNtCshdEBA0ozCnw_7game_ai12lane_economy31line_projected_punish_damage_at  (m11.ll)
+■ 0xdbf680  Location 4개: small_action.rs:75:28 · path_finder.rs:1168:15 · around.rs:702:17
+   [후보 3(적중 1)]
+   본체 1/4  _RNvMs_NtCshdEBA0ozCnw_7game_ai11path_finderNtB4_16PveHazardContext7verdict  (m03.ll)
+   본체 1/4  _RNvMs_NtCshdEBA0ozCnw_7game_ai11path_finderNtB4_16PveHazardContext16lethal_zone_goal  (m03.ll)
+   본체 1/4  _RNvMs1_NtNtCshdEBA0ozCnw_7game_ai12small_action6aroundNtB5_22SmallActionPositioning9get_input  (m08.ll)
+   인스턴스 2  _RINvNtCshdEBA0ozCnw_7game_ai12small_action23positioning_window_pickTyyxEEB4_  (m11.ll)
+   인스턴스 2  _RINvNtCshdEBA0ozCnw_7game_ai12small_action23positioning_window_pickTllxEEB4_  (m11.ll)
+■ 0xdc6ec0  Location 6개: small_action.rs:75:28 · utils.rs:80:14 · utils.rs:76:17
+   [확정]
+   본체 2/4  _RNvMs_NtNtCshdEBA0ozCnw_7game_ai12small_action6aroundNtB4_21SmallActionAroundHide9get_input  (m08.ll)
+   인스턴스 2  _RINvNtCshdEBA0ozCnw_7game_ai12small_action23positioning_window_pickTyyxEEB4_  (m11.ll)
+   인스턴스 2  _RINvNtCshdEBA0ozCnw_7game_ai12small_action23positioning_window_pickTllxEEB4_  (m11.ll)
+■ 0xcc9740  Location 8개: epic_poke.rs:437:68 · epic_poke.rs:439:62 · epic_poke.rs:435:59
+   [확정]
+   본체 4/4  _RNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy8sub_plan9epic_pokeNtB2_15EpicPokeSubPlan21action_candidates_old  (m02.ll)
+■ 0xe80070  Location 8개: serpen_poke.rs:429:68 · serpen_poke.rs:431:62 · serpen_poke.rs:427:59
+   [확정]
+   본체 4/4  _RNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy8sub_plan11serpen_pokeNtB2_17SerpenPokeSubPlan21action_candidates_old  (m14.ll)
+■ 0xcce210  Location 4개: trace.rs:170:58 · trace.rs:167:97 · trace.rs:167:19
+   [확정]
+   본체 3/3  _RNvMs_NtNtCshdEBA0ozCnw_7game_ai12small_action5traceNtB4_16SmallActionTrace9get_input  (m02.ll)
+■ 0xdbbd60  Location 4개: small_action.rs:75:28 · around.rs:530:17 · map_def.rs:262:5
+   [확정]
+   본체 1/3  _RNvMs0_NtNtCshdEBA0ozCnw_7game_ai12small_action6aroundNtB5_23SmallActionAroundRegion9get_input  (m08.ll)
+   인스턴스 2  _RINvNtCshdEBA0ozCnw_7game_ai12small_action23positioning_window_pickTyyxEEB4_  (m11.ll)
+   인스턴스 2  _RINvNtCshdEBA0ozCnw_7game_ai12small_action23positioning_window_pickTllxEEB4_  (m11.ll)
+■ 0xdc0800  Location 5개: small_action.rs:75:28 · path_finder.rs:1168:15 · around.rs:866:19
+   [확정]
+   본체 2/4  _RNvMs3_NtNtCshdEBA0ozCnw_7game_ai12small_action6aroundNtB5_25SmallActionAroundPosition9get_input  (m08.ll)
+   본체 1/4  _RNvMs_NtCshdEBA0ozCnw_7game_ai11path_finderNtB4_16PveHazardContext7verdict  (m03.ll)
+   본체 1/4  _RNvMs_NtCshdEBA0ozCnw_7game_ai11path_finderNtB4_16PveHazardContext16lethal_zone_goal  (m03.ll)
+   인스턴스 1  _RNCNvMs_NtNtCshdEBA0ozCnw_7game_ai12small_action12move_actionsNtB6_18SmallActionRunAway9get_inputsi_0Ba_  (m03.ll)
+   인스턴스 1  _RNCNvMs_NtNtCshdEBA0ozCnw_7game_ai12small_action12move_actionsNtB6_18SmallActionRunAway9get_inputsf_0Ba_  (m03.ll)
+■ 0xdb6ff0  Location 4개: small_action.rs:75:28 · path_finder.rs:1168:15 · around.rs:65:19
+   [후보 3(적중 1)]
+   본체 1/4  _RNvMs_NtCshdEBA0ozCnw_7game_ai11path_finderNtB4_16PveHazardContext7verdict  (m03.ll)
+   본체 1/4  _RNvMs_NtCshdEBA0ozCnw_7game_ai11path_finderNtB4_16PveHazardContext16lethal_zone_goal  (m03.ll)
+   본체 1/4  _RNvMNtNtCshdEBA0ozCnw_7game_ai12small_action6aroundNtB2_17SmallActionAround9get_input  (m08.ll)
+   인스턴스 2  _RINvNtCshdEBA0ozCnw_7game_ai12small_action23positioning_window_pickTyyxEEB4_  (m11.ll)
+   인스턴스 2  _RINvNtCshdEBA0ozCnw_7game_ai12small_action23positioning_window_pickTllxEEB4_  (m11.ll)

@@ -1,0 +1,226 @@
+{
+ "name": "SmallActionAroundBush::new_with_out_line",
+ "sym": "_RNvMs6_NtNtCshdEBA0ozCnw_7game_ai12small_action6aroundNtB5_21SmallActionAroundBush17new_with_out_line",
+ "src": "game-ai\\src\\small_action\\around.rs",
+ "src_line": 1154,
+ "ir_file": "m08.ll",
+ "ir_from": 105131,
+ "ir_to": 105277,
+ "aux": [
+  {
+   "ir_file": "m08.ll",
+   "ir_from": 113419,
+   "ir_to": 113461,
+   "note": "필터 술어 call_mut 심 — map.bushes[y][x] == *bush (new_with_target 술어와 동일 구조)"
+  },
+  {
+   "ir_file": "m06.ll",
+   "ir_from": 44457,
+   "ir_to": 44816,
+   "note": "Vec::from_iter(IntoIter<[(usize,usize);71]>.filter(pred)) 모노모픽 본체"
+  }
+ ],
+ "one_line": "수풀 id 에 속한 하드코딩 71셀 중 하나를 rng 로 무작위 선택해 SmallActionAroundBush 를 생성(후보 0이면 메시지 출력 후 패닉)",
+ "signature": {
+  "abi": "define void (sret 120B) — 비 internal, 인자 승격 없음. sret = SmallActionAroundBush(120B)",
+  "params": [
+   {
+    "i": 0,
+    "name": "(sret)",
+    "type": "*mut SmallActionAroundBush(120B)",
+    "note": "writes 참조"
+   },
+   {
+    "i": 1,
+    "name": "rnd",
+    "type": "&mut StdRng(320B, align 16)",
+    "note": "★&mut. 이 본문 직접 store 0건 — 쓰기는 콜리 SliceRandom::choose → StdRng::gen_range::<u32>(0..len) 1회(m12.ll:4092 choose 본문: len<2^32 이면 u32 경로)로 ChaCha 상태 전진. 후보 0개면 choose 가 gen_range 를 호출하지 않아 rng 무변경(그리고 직후 패닉)"
+   },
+   {
+    "i": 2,
+    "name": "data",
+    "type": "&OperationData(24B, readonly)",
+    "note": "+0x0 cache → +0x0 game 팻포인터(tick 호출) · +0x8 context → map"
+   },
+   {
+    "i": 3,
+    "name": "player",
+    "type": "&PlayerState (IR: `ptr noalias readonly captures(none) %3`, noundef 없음)",
+    "note": "★본문에서 전혀 읽지 않음(dead 인자). tcx 시그니처 3번째 = &PlayerState"
+   },
+   {
+    "i": 4,
+    "name": "bush",
+    "type": "usize",
+    "note": "수풀 id — 필터 비교 + self.bush 저장 + 후보 0 메시지의 Display 인자"
+   },
+   {
+    "i": 5,
+    "name": "out_line",
+    "type": "AroundBushOutlineType(i8 0..3)",
+    "note": "그대로 저장, 분기 없음"
+   }
+  ],
+  "returns": "void(sret). live 바이트 = +0x0 start_tick · +0x8 change_tick · +0x10 bush · +0x18 target_x · +0x20 target_y (각 8B) · +0x6d path_finder@tag=2(None 니치) · +0x70 out_line. 미기록 = +0x28~+0x6c · +0x6e~0x6f · +0x71~0x77 (new_with_target 과 동일 패턴)"
+ },
+ "reads": [
+  {
+   "base": "OperationData",
+   "offset": "0x8",
+   "name": "context",
+   "note": "105152"
+  },
+  {
+   "base": "GameContext",
+   "offset": "0x20",
+   "name": "map",
+   "note": "&MapDef → 필터 클로저 환경 (105154)"
+  },
+  {
+   "base": "OperationData",
+   "offset": "0x0",
+   "name": "cache",
+   "note": "&AbstractGameWithCache (105219)"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x0",
+   "name": "game.data_ptr / vtable_ptr(+0x8)",
+   "note": "105220~105225; vtable+0x28 = AbstractGame::tick, 2회 호출(L1166·L1167)"
+  },
+  {
+   "base": "MapDef",
+   "offset": "0x1c98",
+   "name": "bushes[30][30]",
+   "note": "aux 113452 `gep 7320` → bushes[y][x]"
+  },
+  {
+   "base": "Vec<(usize,usize)>(candidates, 지역)",
+   "offset": "0x10",
+   "name": "len",
+   "note": "105171 (+0x8 ptr 105202)"
+  }
+ ],
+ "writes": [
+  {
+   "base": "SmallActionAroundBush(sret)",
+   "offset": "0x0",
+   "name": "start_tick",
+   "value": "game.tick() (L1166)",
+   "note": "105248"
+  },
+  {
+   "base": "SmallActionAroundBush(sret)",
+   "offset": "0x8",
+   "name": "change_tick",
+   "value": "game.tick() (L1167, 재호출)",
+   "note": "105250"
+  },
+  {
+   "base": "SmallActionAroundBush(sret)",
+   "offset": "0x10",
+   "name": "bush",
+   "value": "인자 bush",
+   "note": "105253"
+  },
+  {
+   "base": "SmallActionAroundBush(sret)",
+   "offset": "0x18",
+   "name": "target_x",
+   "value": "chosen.x*32000+16000 (L1162)",
+   "note": "105255"
+  },
+  {
+   "base": "SmallActionAroundBush(sret)",
+   "offset": "0x20",
+   "name": "target_y",
+   "value": "chosen.y*32000+16000 (L1163)",
+   "note": "105257"
+  },
+  {
+   "base": "SmallActionAroundBush(sret)",
+   "offset": "0x6d",
+   "name": "path_finder@tag",
+   "value": "2 = None",
+   "note": "105259"
+  },
+  {
+   "base": "SmallActionAroundBush(sret)",
+   "offset": "0x70",
+   "name": "out_line",
+   "value": "인자 out_line",
+   "note": "105261"
+  },
+  {
+   "base": "StdRng(rnd, &mut)",
+   "offset": "0x0",
+   "name": "ChaCha12 상태(320B 전체 중 gen_range 가 건드리는 부분)",
+   "value": "gen_range::<u32>(0..len) 1회 소비",
+   "note": "콜리 choose(m12.ll:4092) 내부에서만 쓰기. 이 본문엔 store 없음. 정확한 바이트 범위는 rand 크레이트 경계 — 미탐색"
+  },
+  {
+   "base": "stdout",
+   "offset": "0x0",
+   "name": "(부작용) print!",
+   "value": "\"no candidates for bush: {bush}\\n\" (@anon…99, 105183)",
+   "note": "후보 0개일 때만. 오프셋 없음(서술)"
+  }
+ ],
+ "constants": [
+  {
+   "value": 71,
+   "src_line": 1155,
+   "meaning": "후보 셀 표 원소 수([(usize,usize);71], @anon…94 — 표 내용은 new_with_target 명세 constants 참조, 동일 전역)"
+  },
+  {
+   "value": 0,
+   "src_line": 1157,
+   "meaning": "candidates.len() == 0 → 경고 출력 분기 (105174)"
+  },
+  {
+   "value": 32000,
+   "src_line": 1162,
+   "meaning": "셀→월드 변환"
+  },
+  {
+   "value": 16000,
+   "src_line": 1162,
+   "meaning": "셀 중심 오프셋"
+  },
+  {
+   "value": 2,
+   "src_line": 1165,
+   "meaning": "Option<PathFinder>::None 니치 태그(105259)"
+  }
+ ],
+ "calls": [
+  "alloc::vec::spec_from_iter_nested::from_iter",
+  "_RNvNtNtCs9ec1k27omRZ_3std2io5stdio6__print",
+  "rand::seq::SliceRandom::choose",
+  "core::option::unwrap_failed",
+  "core::ops::drop::Drop::drop",
+  "core::ptr::drop_glue",
+  "core::ops::function::impls::call_mut"
+ ],
+ "logic": "SmallActionAroundBush::new_with_out_line(rnd, data, player, bush, out_line) -> Self   [around.rs:1154]\n map = data.context.map\n candidates: Vec<(usize,usize)> = BUSH_CELLS(71).into_iter().filter(|(x,y)| map.bushes[*y][*x] == bush).collect()   (L1155)\n if candidates.len() == 0:                                                       (L1157)\n     print!(\"no candidates for bush: {}\\n\", bush)      # stdout, @anon…99      (L1158)\n chosen = candidates.choose(rnd).unwrap()      # 비면 None → unwrap_failed 패닉     (L1161)\n     # choose: len==0 → None ; len<2^32 → &v[rnd.gen_range::<u32>(0..len)]\n target_x = chosen.x*32000+16000 ; target_y = chosen.y*32000+16000               (L1162~1163)\n self = { start_tick: game.tick() (L1166), change_tick: game.tick() (L1167), bush, target_x, target_y, path_finder: None, out_line }   (L1165)\n drop(candidates)                                                                  (L1176)\n\n`player` 인자는 미사용. 판정 없음(생성자). new_with_target 과의 차이 = 최근접 선택 → **rng 무작위 선택** + 후보 0 경고 출력.",
+ "knobs": [
+  {
+   "what": "수풀 후보 셀 표",
+   "where": "around.rs:1155 (@anon…94)",
+   "value": "71 (x,y)",
+   "effect": "new_with_target 과 공유. 표와 맵 bushes 가 어긋나면 후보 0 → 경고 후 패닉"
+  },
+  {
+   "what": "셀 선택 방식",
+   "where": "around.rs:1161",
+   "value": "rng 균등 무작위(choose)",
+   "effect": "결정적 선택(예: 최근접)으로 바꾸면 rng 소비가 1회 줄어 이후 시드 스트림이 전부 어긋난다(리플레이 비트동일 깨짐)"
+  }
+ ],
+ "unknown": [
+  "`player`(%3) 가 시그니처에 있으나 본문 사용 0건 — 소스에서 `_player` 인지, 향후 확장 자리인지 재료 부재(rmeta 에 소스 원문 없음)",
+  "StdRng::gen_range::<u32> 가 320B 상태 중 어느 바이트를 갱신하는지 — rand 크레이트 경계(ChaCha12 블록 버퍼/인덱스). 이 배치 범위 밖, 미탐색",
+  "calls 의 `_RNvNtNtCs9ec1k27omRZ_3std2io5stdio6__print` = std::io::stdio::_print (print! 매크로). 망글 표기인 이유: qcspec 의 v0 파서가 `_` 접두 식별자(`6__print`)를 `__prin` 으로 잘라 짧은 이름으로는 C2 를 못 통과(도구 한계, 사실 왜곡 아님)",
+  "@anon…100(unwrap_failed Location) = around.rs:1161 col 56 로 추정(바이트 `\\89\\04`=1161, `8`=56) — 패닉 위치 확인용, 판정과 무관"
+ ]
+}

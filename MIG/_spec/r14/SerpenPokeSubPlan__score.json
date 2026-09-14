@@ -1,0 +1,91 @@
+{
+ "name": "SerpenPokeSubPlan::score",
+ "sym": "_RNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy8sub_plan11serpen_pokeNtB2_17SerpenPokeSubPlan5score",
+ "src": "game-ai\\src\\plan_legacy\\sub_plan\\serpen_poke.rs",
+ "src_line": 508,
+ "ir_file": "m14.ll",
+ "ir_from": 18618,
+ "ir_to": 18963,
+ "aux": [],
+ "one_line": "세르펜 포킹 서브플랜 점수 = 세르펜 없으면 0 · 아니면 interaction_score(미가시·도주계열 /2) + 150k 밖에서 세르펜 지향 보너스 5",
+ "signature": {
+  "abi": "일반 Rust ABI(define noundef i64, internal 아님). exe 0xe81390 · 인자 8(self, version, parameter, rnd, player, data, action, debug) = tcx i=3820 sig 와 1:1",
+  "params": [
+   {"i": 1, "name": "self", "type": "&SerpenPokeSubPlan", "note": "captures(none) — 본문에서 안 읽음"},
+   {"i": 2, "name": "version", "type": "usize", "note": "interaction_score 전달만"},
+   {"i": 3, "name": "parameter", "type": "&ScoreParameter(5384B)", "note": "interaction_score 전달만"},
+   {"i": 4, "name": "rnd", "type": "&mut StdRng(320B)", "note": "interaction_score 전달만 — 이 함수 자체 write 0건"},
+   {"i": 5, "name": "player", "type": "&PlayerState(2528B)", "note": "info.team(+0x930)·info.position 태그(+0x9c0)"},
+   {"i": 6, "name": "data", "type": "&OperationData(24B)", "note": "cache→player_champion / game.get_game_mode·get_entity_by_id ; context→map.regions"},
+   {"i": 7, "name": "action", "type": "&SmallActionPlay(184B)", "note": "get_action() 인라인(태그 +0xb1 니치)"},
+   {"i": 8, "name": "debug", "type": "&mut DebugFrameData(224B)", "note": "interaction_score 전달만 — 이 함수 자체 write 0건"}
+  ],
+  "returns": "i64 — 세르펜 없음(live_list 비었거나 get_entity_by_id None)이면 0 (interaction_score 는 이미 호출됨=rnd 소비 후 버림) · 그 외 objective_score(s 또는 s/2) + bonus(0|5)"
+ },
+ "reads": [
+  {"base": "PlayerState", "offset": "0x930", "name": "info.team", "note": "m14.ll:18638"},
+  {"base": "PlayerState", "offset": "0x9c0", "name": "info.position@tag", "note": "m14.ll:18649"},
+  {"base": "OperationData", "offset": "0x0", "name": "cache", "note": "m14.ll:18652"},
+  {"base": "OperationData", "offset": "0x8", "name": "context", "note": "m14.ll:18835"},
+  {"base": "AbstractGameWithCache", "offset": "0x1e0", "name": "player_champion[team][pos]", "note": "m14.ll:18653~18656, None→unwrap_failed(18678)"},
+  {"base": "AbstractGameWithCache", "offset": "0x0", "name": "game.data_ptr", "note": "m14.ll:18665"},
+  {"base": "AbstractGameWithCache", "offset": "0x8", "name": "game.vtable_ptr", "note": "m14.ll:18667"},
+  {"base": "vtable(AbstractGame)", "offset": "0x40", "name": "get_game_mode", "note": "m14.ll:18668~18670, 18809 (2회: L512, L524)"},
+  {"base": "vtable(AbstractGame)", "offset": "0x1f0", "name": "get_entity_by_id", "note": "m14.ll:18708~18712"},
+  {"base": "GameMode", "offset": "0x0", "name": "tag", "note": "0=Moba 만, 아니면 unwrap_failed (m14.ll:18674, 18813)"},
+  {"base": "GameMode", "offset": "0x8", "name": "Moba.0 (&MobaMode)", "note": "m14.ll:18682"},
+  {"base": "MobaMode", "offset": "0x1d0", "name": "jungle_runner.serpen.live_list.buf.ptr", "note": "m14.ll:18700, 18867 (tcxdict MobaMode 0x1d0)"},
+  {"base": "MobaMode", "offset": "0x1d8", "name": "jungle_runner.serpen.live_list.len", "note": "m14.ll:18690, 18857 — 0 → return 0 / 보너스 0"},
+  {"base": "Entity", "offset": "0x660", "name": "x", "note": "champ·serpen (m14.ll:18724, 18732)"},
+  {"base": "Entity", "offset": "0x668", "name": "y", "note": "champ·serpen (m14.ll:18728, 18736)"},
+  {"base": "Entity", "offset": "0x0", "name": "team@tag", "note": "champ player_team (m14.ll:18890) 0=Player/1=Neutral"},
+  {"base": "Entity", "offset": "0x8", "name": "team@Player.0", "note": "m14.ll:18897"},
+  {"base": "Entity", "offset": "0x38", "name": "visible_state[team]@tag", "note": "serpen, stride 24B (gepS m14.ll:18905) 0=Visible"},
+  {"base": "GameContext", "offset": "0x20", "name": "map (&MapDef)", "note": "m14.ll:18837"},
+  {"base": "MapDef", "offset": "0x38b8", "name": "regions[30][30]", "note": "m14.ll:18839 [y/32000][x/32000] clamp 29"},
+  {"base": "SmallActionPlay", "offset": "0xb1", "name": "@tag (니치)", "note": "m14.ll:18758, 18916"},
+  {"base": "SmallActionPlay", "offset": "0x8", "name": "Around/AroundHide/LaneMinionPosition.target_id", "note": "m14.ll:18804"},
+  {"base": "SmallActionPlay", "offset": "0x10", "name": "AroundRegion x / AroundPositionBush y", "note": "m14.ll:18817~18822 phi 오프셋 쌍 idx4→(16,24) idx7→(48,56) idx8→(8,16) idx9→(24,32)"},
+  {"base": "SmallActionPlay", "offset": "0x18", "name": "AroundRegion y / AroundBush x", "note": ""},
+  {"base": "SmallActionPlay", "offset": "0x20", "name": "AroundBush y", "note": ""},
+  {"base": "SmallActionPlay", "offset": "0x30", "name": "AroundPosition x", "note": ""},
+  {"base": "SmallActionPlay", "offset": "0x38", "name": "AroundPosition y", "note": ""}
+ ],
+ "writes": [],
+ "constants": [
+  {"value": 22500000001, "src_line": 518, "meaning": "150000²+1 — champ↔serpen distance_sq < 이것(=거리 ≤150000) 이면 bonus=0(match 생략). 150k 밖에서만 세르펜 지향 보너스 (m14.ll:18753)"},
+  {"value": 7, "src_line": 532, "meaning": "목표 지점 regions 값 == 7 → +5 (m14.ll:18844). ⚠7 = RegionName::Epic(tcxdict --enum RegionName; Serpen 은 2). 세르펜 포크인데 에픽 region 을 본다 — IR 정본(epic_poke.rs:542 와 동일 코드). ⚠18764·18922 의 7 은 니치 untagged idx"},
+  {"value": 5, "src_line": 524, "meaning": "세르펜 지향 보너스(L524 target_id==serpen live_list[0] / L532 region==7) (m14.ll:18879, 18845)"},
+  {"value": 2, "src_line": 546, "meaning": "objective_score = s/2 (sdiv) — 세르펜 미가시 ∧ RunAway 계열 (m14.ll:18947). ⚠18640·18899 의 2 는 팀 경계검사"},
+  {"value": 32000, "src_line": 531, "meaning": "셀 크기 — 좌표→regions 인덱스 (m14.ll:18825, 18830)"},
+  {"value": 29, "src_line": 531, "meaning": "regions 인덱스 clamp 상한 (m14.ll:18829, 18834)"},
+  {"value": 0, "src_line": 513, "meaning": "GameMode 태그 0=Moba(18674) · live_list.len==0(18696) → return 0 · visible_state 태그 0=Visible(18907) · 반환 0(18957)"},
+  {"value": 3, "src_line": 522, "meaning": "SmallActionPlay 니치 시작: idx = tag-3 (m14.ll:18762) — get_action 인라인 아티팩트"},
+  {"value": 10, "src_line": 522, "meaning": "llvm.assume(tag != 10) (m14.ll:18760)"}
+ ],
+ "calls": [
+  "game_ai::action_score::interaction_score",
+  "core::panicking::panic_bounds_check",
+  "core::option::unwrap_failed",
+  "llvm.umin.i64",
+  "llvm.assume"
+ ],
+ "logic": "fn score(&self, version, parameter, rnd, player, data, action, debug) -> i64   // serpen_poke.rs:508\n  let s = interaction_score(version, rnd, player, data, parameter, action, debug);   // L509 (m14.ll:18636) — 세르펜 부재여도 먼저 호출됨\n  let champ = data.cache.player_champion[player.info.team][player.info.position].unwrap();   // L511\n  // L512: let serpen = match game.get_game_mode() { Moba(m) => m.jungle_runner.serpen.live_list.first().and_then(|id| game.get_entity_by_id(*id)), _ => 패닉 }\n  if serpen.is_none() { return 0 }     // L513 (18697 len==0 → 0 ; 18718 entity None → 0)\n  // L518: let bonus = if champ.distance_sq(serpen) < 22500000001 { 0 }   // 150000 이내면 보너스 없음 (entity.rs:2158 → utils.rs:9 dx²+dy², 18740~18754)\n    else match action.get_action() {    // L522 (small_action.rs:309 인라인)\n      SmallAction::Around{target_id} /*Play 2·3·10*/ => { get_game_mode() 재호출(18809, Moba 아니면 패닉); serpen.live_list.first()==Some(&target_id) ? 5 : 0 (18877~18879; len 0 → 0) }   // L524\n      SmallAction::AroundPosition{x,y} /*Play 4(16,24)·7(48,56)·8(8,16)·9(24,32)*/ => { map.regions[min(y/32000,29)][min(x/32000,29)] == 7 ? 5 : 0 }   // L531~532\n      _ => 0\n    };\n  // L545: let visible = serpen.is_visible_from(champ) = champ.team Neutral(태그1) ? true : serpen.visible_state[champ.team] is Visible(태그0)\n  let objective_score = if visible { s }                                      // 18950 phi: %120(Neutral)·%128(Visible) → s\n    else if matches!(action.get_action(), SmallAction::RunAway) /*Play 0 RunAway·1 Recall·5 AroundRunAway*/ { s / 2 }   // L546 (18947)\n    else { s };\n  objective_score + bonus   // L557~558 (18953)",
+ "knobs": [
+  {"what": "세르펜 지향 보너스", "where": "serpen_poke.rs:524 / :532 (m14.ll:18879, 18845)", "value": 5, "effect": "올리면 150k 밖에서 세르펜(또는 region 7 지점)을 향하는 Around/AroundPosition 행동이 더 자주 선택"},
+  {"what": "보너스 적용 거리 게이트", "where": "serpen_poke.rs:518 (m14.ll:18753)", "value": 22500000001, "effect": "150000² +1. 내리면 더 가까이서도 보너스 적용(세르펜 근처에서 접근 행동 과대), 올리면 더 멀리서만"},
+  {"what": "세르펜 미가시 도주계열 감점 나눗수", "where": "serpen_poke.rs:546 (m14.ll:18947)", "value": 2, "effect": "키우면 세르펜이 안 보일 때 RunAway·Recall·AroundRunAway 억제 강화(음수 s 면 완화)"}
+ ],
+ "callee_contracts": [
+  {"name": "game_ai::action_score::interaction_score (action_score.rs:616, define m05.ll:34861)", "sig": "fn(version, rnd:&mut StdRng, player, data, parameter, action:&SmallActionPlay, debug:&mut DebugFrameData) -> i64", "note": "내부 안 팜. 세르펜 부재 시에도 호출돼 rnd 스트림 소비 후 결과 버림(return 0)"},
+  {"name": "dyn AbstractGame::get_game_mode (vtable 0x40)", "sig": "fn(&self) -> GameMode {tag i64 @0, ptr @8}", "note": "Moba 외 태그면 unwrap_failed"},
+  {"name": "dyn AbstractGame::get_entity_by_id (vtable 0x1f0)", "sig": "fn(&self, usize) -> Option<&Entity>", "note": ""},
+  {"name": "Entity::distance_sq (entity.rs:2158 → utils::distance_sq utils.rs:9)", "sig": "fn(&self,&Entity)->u64 = |dx|²+|dy|²", "note": "인라인(m14.ll:18740~18752)"}
+ ],
+ "unknown": [
+  "L532 의 region==7(Epic) 이 의도인지 복붙 결함인지 — IR 정본은 7. RegionName 은 explicit discr(`{constant#0}`)라 regions 값↔RegionName 대응은 확실하나 소스 의도는 소스 없이 판정 불가",
+  "get_game_mode Moba 외 패닉의 소스 표기(unwrap/expect/let-else) — 표기 불가",
+  "self(SerpenPokeSubPlan) 필드 미사용(captures(none))",
+  "L513 early-return 0 에서 이미 호출된 interaction_score 의 부작용(rnd·debug write)은 콜리 명세 몫"
+ ]
+}

@@ -1,0 +1,1173 @@
+[
+ {
+  "rva": "d84db0",
+  "cls": "클로저",
+  "sym": "_RINvMs2_NtNtCs9ec1k27omRZ_3std6thread5localINtB6_8LocalKeyINtNtCsjihNppCmMEE_4core4cell7RefCellNtNtCshdEBA0oz",
+  "ir": "m00.ll",
+  "nloc": 2,
+  "locs": "position_eval.rs:317:19 · position_eval.rs:319:7",
+  "bytes": 841,
+  "callers": 32,
+  "label": "position_eval_at",
+  "mod": "position_eval",
+  "cands": []
+ },
+ {
+  "rva": "dc8550",
+  "cls": "확정",
+  "sym": "_RNvNtNtCshdEBA0ozCnw_7game_ai12small_action6around10check_cell",
+  "ir": "m08.ll",
+  "nloc": 7,
+  "locs": "map_def.rs:266:5 · around.rs:1260:26 · around.rs:1284:26",
+  "bytes": 1126,
+  "callers": 17,
+  "label": "?",
+  "mod": "around",
+  "cands": [
+   [
+    "4",
+    "_RNvNtNtCshdEBA0ozCnw_7game_ai12small_action6around10check_cell",
+    "m08.ll"
+   ]
+  ],
+  "def_line": 112301,
+  "def_end": 112665,
+  "sig": "} 인자 12",
+  "src": "1256"
+ },
+ {
+  "rva": "c87fe0",
+  "cls": "클로저",
+  "sym": "_RINvMs2_NtNtCs9ec1k27omRZ_3std6thread5localINtB6_8LocalKeyINtNtCsjihNppCmMEE_4core4cell7RefCellTyjjINtNtNtNtB",
+  "ir": "m00.ll",
+  "nloc": 1,
+  "locs": "utils.rs:918:19",
+  "bytes": 724,
+  "callers": 8,
+  "label": "can1v1win",
+  "mod": "utils",
+  "cands": []
+ },
+ {
+  "rva": "d98420",
+  "cls": "확정",
+  "sym": "_RNvNtCshdEBA0ozCnw_7game_ai16tower_discipline24v3_lethal_tower_position",
+  "ir": "m07.ll",
+  "nloc": 1,
+  "locs": "tower_discipline.rs:286:21",
+  "bytes": 475,
+  "callers": 4,
+  "label": "v3_lethal_tower_hp",
+  "mod": "tower_discipline",
+  "cands": [
+   [
+    "1",
+    "_RNvNtCshdEBA0ozCnw_7game_ai16tower_discipline24v3_lethal_tower_position",
+    "m07.ll"
+   ]
+  ],
+  "def_line": 50614,
+  "def_end": 50670,
+  "sig": "i1 인자 5",
+  "src": "282"
+ },
+ {
+  "rva": "ecb300",
+  "cls": "확정",
+  "sym": "_RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy9team_plan17objective_helpers38v23_should_break_objective_hunt_anchor",
+  "ir": "m15.ll",
+  "nloc": 1,
+  "locs": "objective_helpers.rs:60:6",
+  "bytes": 317,
+  "callers": 2,
+  "label": "v23_should_break_objective_hunt_anchor",
+  "mod": "objective_helpers",
+  "cands": [
+   [
+    "1",
+    "_RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy9team_plan17objective_helpers38v23_should_break_objective_hunt_anchor",
+    "m15.ll"
+   ]
+  ],
+  "def_line": 56682,
+  "def_end": 56738,
+  "sig": "i1 인자 6",
+  "src": "59"
+ },
+ {
+  "rva": "cd0480",
+  "cls": "다후보(2)",
+  "sym": "_RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy8sub_plan6battle16v48_on_cast_line",
+  "ir": "m02.ll",
+  "nloc": 1,
+  "locs": "battle.rs:1059:50",
+  "bytes": 353,
+  "callers": 2,
+  "label": "?",
+  "mod": "battle",
+  "cands": [
+   [
+    "1",
+    "_RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy8sub_plan6battle16v48_on_cast_line",
+    "m02.ll"
+   ],
+   [
+    "1",
+    "_RNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy8sub_plan6battleNtB2_13BattleSubPlan17action_candidates",
+    "m02.ll"
+   ]
+  ],
+  "def_line": 66030,
+  "def_end": 66193,
+  "sig": "i1 인자 5 **internal**",
+  "src": "1057"
+ },
+ {
+  "rva": "c7f0f0",
+  "cls": "클로저",
+  "sym": "_RINvMs2_NtNtCs9ec1k27omRZ_3std6thread5localINtB6_8LocalKeyINtNtCsjihNppCmMEE_4core4cell7RefCellNtNtCshdEBA0oz",
+  "ir": "m00.ll",
+  "nloc": 2,
+  "locs": "position_eval.rs:135:19 · position_eval.rs:146:47",
+  "bytes": 591,
+  "callers": 3,
+  "label": "cached_damage_against",
+  "mod": "position_eval",
+  "cands": []
+ },
+ {
+  "rva": "ccaa10",
+  "cls": "확정",
+  "sym": "_RNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy8sub_plan9epic_pokeNtB2_15EpicPokeSubPlan5score",
+  "ir": "m02.ll",
+  "nloc": 5,
+  "locs": "epic_poke.rs:525:58 · epic_poke.rs:524:95 · epic_poke.rs:534:76",
+  "bytes": 725,
+  "callers": 3,
+  "label": "score",
+  "mod": "epic_poke",
+  "cands": [
+   [
+    "4",
+    "_RNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy8sub_plan9epic_pokeNtB2_15EpicPokeSubPlan5score",
+    "m02.ll"
+   ]
+  ],
+  "def_line": 46765,
+  "def_end": 47098,
+  "sig": "i64 인자 8",
+  "src": "521"
+ },
+ {
+  "rva": "e81390",
+  "cls": "확정",
+  "sym": "_RNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy8sub_plan11serpen_pokeNtB2_17SerpenPokeSubPlan5score",
+  "ir": "m14.ll",
+  "nloc": 5,
+  "locs": "serpen_poke.rs:512:60 · serpen_poke.rs:511:95 · serpen_poke.rs:524:76",
+  "bytes": 747,
+  "callers": 3,
+  "label": "score",
+  "mod": "serpen_poke",
+  "cands": [
+   [
+    "4",
+    "_RNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy8sub_plan11serpen_pokeNtB2_17SerpenPokeSubPlan5score",
+    "m14.ll"
+   ]
+  ],
+  "def_line": 18618,
+  "def_end": 18963,
+  "sig": "i64 인자 8",
+  "src": "508"
+ },
+ {
+  "rva": "dc2550",
+  "cls": "확정",
+  "sym": "_RNvMs6_NtNtCshdEBA0ozCnw_7game_ai12small_action6aroundNtB5_21SmallActionAroundBush15new_with_target",
+  "ir": "m08.ll",
+  "nloc": 1,
+  "locs": "around.rs:1182:94",
+  "bytes": 527,
+  "callers": 2,
+  "label": "new_with_target",
+  "mod": "around",
+  "cands": [
+   [
+    "1",
+    "_RNvMs6_NtNtCshdEBA0ozCnw_7game_ai12small_action6aroundNtB5_21SmallActionAroundBush15new_with_target",
+    "m08.ll"
+   ]
+  ],
+  "def_line": 104917,
+  "def_end": 105128,
+  "sig": "void 인자 5 sret",
+  "src": "1178"
+ },
+ {
+  "rva": "e23fa0",
+  "cls": "확정",
+  "sym": "_RNvMNtCshdEBA0ozCnw_7game_ai12small_actionNtB2_15SmallActionPlay9get_input",
+  "ir": "m11.ll",
+  "nloc": 1,
+  "locs": "small_action.rs:159:19",
+  "bytes": 2318,
+  "callers": 8,
+  "label": "get_input",
+  "mod": "small_action",
+  "cands": [
+   [
+    "1",
+    "_RNvMNtCshdEBA0ozCnw_7game_ai12small_actionNtB2_15SmallActionPlay9get_input",
+    "m11.ll"
+   ]
+  ],
+  "def_line": 42814,
+  "def_end": 43329,
+  "sig": "void 인자 8 sret",
+  "src": "157"
+ },
+ {
+  "rva": "e29520",
+  "cls": "확정",
+  "sym": "_RNvNtCshdEBA0ozCnw_7game_ai12small_action23path_needs_tower_escape",
+  "ir": "m11.ll",
+  "nloc": 3,
+  "locs": "small_action.rs:114:21 · small_action.rs:145:16 · small_action.rs:151:16",
+  "bytes": 922,
+  "callers": 3,
+  "label": "path_needs_tower_escape",
+  "mod": "small_action",
+  "cands": [
+   [
+    "3",
+    "_RNvNtCshdEBA0ozCnw_7game_ai12small_action23path_needs_tower_escape",
+    "m11.ll"
+   ]
+  ],
+  "def_line": 52695,
+  "def_end": 52915,
+  "sig": "i1 인자 4",
+  "src": "109"
+ },
+ {
+  "rva": "e8b200",
+  "cls": "확정",
+  "sym": "_RNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy8sub_plan12line_defenseNtB2_18LineDefenseSubPlan5score",
+  "ir": "m14.ll",
+  "nloc": 5,
+  "locs": "line_defense.rs:944:95 · line_defense.rs:971:55 · line_defense.rs:955:55",
+  "bytes": 986,
+  "callers": 3,
+  "label": "score",
+  "mod": "line_defense",
+  "cands": [
+   [
+    "4",
+    "_RNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy8sub_plan12line_defenseNtB2_18LineDefenseSubPlan5score",
+    "m14.ll"
+   ]
+  ],
+  "def_line": 29906,
+  "def_end": 30234,
+  "sig": "i64 인자 8",
+  "src": "940"
+ },
+ {
+  "rva": "e266e0",
+  "cls": "확정",
+  "sym": "_RNvMNtNtCshdEBA0ozCnw_7game_ai12small_action11lane_minionNtB2_29SmallActionLaneMinionPosition34has_current_explicit_minion_action",
+  "ir": "m11.ll",
+  "nloc": 2,
+  "locs": "lane_minion.rs:188:23 · entity.rs:1483:7",
+  "bytes": 692,
+  "callers": 2,
+  "label": "has_current_explicit_minion_action",
+  "mod": "lane_minion",
+  "cands": [
+   [
+    "1",
+    "_RNvMNtNtCshdEBA0ozCnw_7game_ai12small_action11lane_minionNtB2_29SmallActionLaneMinionPosition34has_current_explicit_minion_action",
+    "m11.ll"
+   ]
+  ],
+  "def_line": 45591,
+  "def_end": 45768,
+  "sig": "i1 인자 5 **internal**",
+  "src": "187"
+ },
+ {
+  "rva": "e23170",
+  "cls": "확정",
+  "sym": "_RNvMNtCshdEBA0ozCnw_7game_ai12small_actionNtB2_15SmallActionPlay19evaluation_position",
+  "ir": "m11.ll",
+  "nloc": 1,
+  "locs": "small_action.rs:246:17",
+  "bytes": 729,
+  "callers": 2,
+  "label": "evaluation_position",
+  "mod": "small_action",
+  "cands": [
+   [
+    "1",
+    "_RNvMNtCshdEBA0ozCnw_7game_ai12small_actionNtB2_15SmallActionPlay19evaluation_position",
+    "m11.ll"
+   ]
+  ],
+  "def_line": 41846,
+  "def_end": 42097,
+  "sig": "void 인자 5 sret",
+  "src": "245"
+ },
+ {
+  "rva": "dc27a0",
+  "cls": "확정",
+  "sym": "_RNvMs6_NtNtCshdEBA0ozCnw_7game_ai12small_action6aroundNtB5_21SmallActionAroundBush17new_with_out_line",
+  "ir": "m08.ll",
+  "nloc": 1,
+  "locs": "around.rs:1161:56",
+  "bytes": 376,
+  "callers": 1,
+  "label": "new_with_out_line",
+  "mod": "around",
+  "cands": [
+   [
+    "1",
+    "_RNvMs6_NtNtCshdEBA0ozCnw_7game_ai12small_action6aroundNtB5_21SmallActionAroundBush17new_with_out_line",
+    "m08.ll"
+   ]
+  ],
+  "def_line": 105131,
+  "def_end": 105277,
+  "sig": "void 인자 6 sret",
+  "src": "1154"
+ },
+ {
+  "rva": "e28410",
+  "cls": "확정",
+  "sym": "_RNvNtCshdEBA0ozCnw_7game_ai12lane_economy30line_action_economy_adjustment",
+  "ir": "m11.ll",
+  "nloc": 2,
+  "locs": "lane_economy.rs:8:21 · lane_economy.rs:52:20",
+  "bytes": 1192,
+  "callers": 3,
+  "label": "line_action_economy_adjustment",
+  "mod": "lane_economy",
+  "cands": [
+   [
+    "2",
+    "_RNvNtCshdEBA0ozCnw_7game_ai12lane_economy30line_action_economy_adjustment",
+    "m11.ll"
+   ]
+  ],
+  "def_line": 51340,
+  "def_end": 51725,
+  "sig": "i64 인자 6",
+  "src": "6"
+ },
+ {
+  "rva": "ccf670",
+  "cls": "확정",
+  "sym": "_RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy8sub_plan11serpen_hunt19serpen_action_score",
+  "ir": "m02.ll",
+  "nloc": 6,
+  "locs": "serpen_hunt.rs:877:117 · serpen_hunt.rs:844:93 · serpen_hunt.rs:886:56",
+  "bytes": 1278,
+  "callers": 3,
+  "label": "serpen_action_score",
+  "mod": "serpen_hunt",
+  "cands": [
+   [
+    "4",
+    "_RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy8sub_plan11serpen_hunt19serpen_action_score",
+    "m02.ll"
+   ]
+  ],
+  "def_line": 64597,
+  "def_end": 65165,
+  "sig": "i64 인자 7",
+  "src": "843"
+ },
+ {
+  "rva": "ec7c90",
+  "cls": "확정",
+  "sym": "_RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy8sub_plan9epic_hunt17epic_action_score",
+  "ir": "m15.ll",
+  "nloc": 6,
+  "locs": "epic_hunt.rs:882:115 · epic_hunt.rs:849:93 · epic_hunt.rs:891:56",
+  "bytes": 1278,
+  "callers": 3,
+  "label": "epic_action_score",
+  "mod": "epic_hunt",
+  "cands": [
+   [
+    "4",
+    "_RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy8sub_plan9epic_hunt17epic_action_score",
+    "m15.ll"
+   ]
+  ],
+  "def_line": 50121,
+  "def_end": 50585,
+  "sig": "i64 인자 7",
+  "src": "848"
+ },
+ {
+  "rva": "d99030",
+  "cls": "확정",
+  "sym": "_RNvNtCshdEBA0ozCnw_7game_ai16tower_discipline38v22_lane_tower_pressure_attack_allowed",
+  "ir": "m07.ll",
+  "nloc": 1,
+  "locs": "tower_discipline.rs:395:21",
+  "bytes": 1942,
+  "callers": 4,
+  "label": "v22_lane_tower_pressure_attack_allowed",
+  "mod": "tower_discipline",
+  "cands": [
+   [
+    "1",
+    "_RNvNtCshdEBA0ozCnw_7game_ai16tower_discipline38v22_lane_tower_pressure_attack_allowed",
+    "m07.ll"
+   ]
+  ],
+  "def_line": 51763,
+  "def_end": 52386,
+  "sig": "i1 인자 4",
+  "src": "394"
+ },
+ {
+  "rva": "d845e0",
+  "cls": "확정",
+  "sym": "_RNvMs1_NtNtCshdEBA0ozCnw_7game_ai12small_action4castNtB5_16SmallActionSkill9get_input",
+  "ir": "m07.ll",
+  "nloc": 3,
+  "locs": "cast.rs:135:97 · cast.rs:141:85 · cast.rs:135:19",
+  "bytes": 532,
+  "callers": 1,
+  "label": "get_input",
+  "mod": "cast",
+  "cands": [
+   [
+    "3",
+    "_RNvMs1_NtNtCshdEBA0ozCnw_7game_ai12small_action4castNtB5_16SmallActionSkill9get_input",
+    "m07.ll"
+   ]
+  ],
+  "def_line": 11808,
+  "def_end": 11934,
+  "sig": "void 인자 7 sret",
+  "src": "133"
+ },
+ {
+  "rva": "e281f0",
+  "cls": "확정",
+  "sym": "_RNvNtCshdEBA0ozCnw_7game_ai12lane_economy29line_champion_trade_allowance",
+  "ir": "m11.ll",
+  "nloc": 2,
+  "locs": "lane_economy.rs:224:12 · lane_economy.rs:229:23",
+  "bytes": 535,
+  "callers": 1,
+  "label": "line_champion_trade_allowance",
+  "mod": "lane_economy",
+  "cands": [
+   [
+    "2",
+    "_RNvNtCshdEBA0ozCnw_7game_ai12lane_economy29line_champion_trade_allowance",
+    "m11.ll"
+   ]
+  ],
+  "def_line": 51196,
+  "def_end": 51337,
+  "sig": "i64 인자 5 **internal**",
+  "src": "221"
+ },
+ {
+  "rva": "d84800",
+  "cls": "확정",
+  "sym": "_RNvMs3_NtNtCshdEBA0ozCnw_7game_ai12small_action4castNtB5_17SmallActionSkill29get_input",
+  "ir": "m07.ll",
+  "nloc": 3,
+  "locs": "cast.rs:198:97 · cast.rs:204:86 · cast.rs:198:19",
+  "bytes": 548,
+  "callers": 1,
+  "label": "get_input",
+  "mod": "cast",
+  "cands": [
+   [
+    "3",
+    "_RNvMs3_NtNtCshdEBA0ozCnw_7game_ai12small_action4castNtB5_17SmallActionSkill29get_input",
+    "m07.ll"
+   ]
+  ],
+  "def_line": 12318,
+  "def_end": 12449,
+  "sig": "void 인자 7 sret",
+  "src": "196"
+ },
+ {
+  "rva": "d84a30",
+  "cls": "확정",
+  "sym": "_RNvMs5_NtNtCshdEBA0ozCnw_7game_ai12small_action4castNtB5_14SmallActionUlt9get_input",
+  "ir": "m07.ll",
+  "nloc": 3,
+  "locs": "cast.rs:263:97 · cast.rs:269:83 · cast.rs:263:19",
+  "bytes": 548,
+  "callers": 1,
+  "label": "get_input",
+  "mod": "cast",
+  "cands": [
+   [
+    "3",
+    "_RNvMs5_NtNtCshdEBA0ozCnw_7game_ai12small_action4castNtB5_14SmallActionUlt9get_input",
+    "m07.ll"
+   ]
+  ],
+  "def_line": 12657,
+  "def_end": 12788,
+  "sig": "void 인자 7 sret",
+  "src": "261"
+ },
+ {
+  "rva": "db8e60",
+  "cls": "확정",
+  "sym": "_RNvMNtNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old9line_gank6gankerNtB2_14LineGankerPlan16make_gank_battle",
+  "ir": "m08.ll",
+  "nloc": 1,
+  "locs": "ganker.rs:80:45",
+  "bytes": 577,
+  "callers": 1,
+  "label": "make_gank_battle",
+  "mod": "ganker",
+  "cands": [
+   [
+    "1",
+    "_RNvMNtNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy3old9line_gank6gankerNtB2_14LineGankerPlan16make_gank_battle",
+    "m08.ll"
+   ]
+  ],
+  "def_line": 94354,
+  "def_end": 94516,
+  "sig": "void 인자 10 **internal**",
+  "src": "76"
+ },
+ {
+  "rva": "dd5270",
+  "cls": "확정",
+  "sym": "_RNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy9team_plan20objective_disciplineNtB4_8TeamPlan31v27_objective_discipline_action",
+  "ir": "m09.ll",
+  "nloc": 2,
+  "locs": "objective_discipline.rs:508:17 · entity.rs:1483:7",
+  "bytes": 2740,
+  "callers": 4,
+  "label": "v27_objective_discipline_action",
+  "mod": "objective_discipline",
+  "cands": [
+   [
+    "1",
+    "_RNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy9team_plan20objective_disciplineNtB4_8TeamPlan31v27_objective_discipline_action",
+    "m09.ll"
+   ]
+  ],
+  "def_line": 19231,
+  "def_end": 19840,
+  "sig": "void 인자 7 sret",
+  "src": "505"
+ },
+ {
+  "rva": "dc2070",
+  "cls": "확정",
+  "sym": "_RNvMs5_NtNtCshdEBA0ozCnw_7game_ai12small_action6aroundNtB5_29SmallActionAroundPositionBush9get_input",
+  "ir": "m08.ll",
+  "nloc": 2,
+  "locs": "around.rs:1087:95 · around.rs:1087:17",
+  "bytes": 690,
+  "callers": 1,
+  "label": "get_input",
+  "mod": "around",
+  "cands": [
+   [
+    "2",
+    "_RNvMs5_NtNtCshdEBA0ozCnw_7game_ai12small_action6aroundNtB5_29SmallActionAroundPositionBush9get_input",
+    "m08.ll"
+   ]
+  ],
+  "def_line": 104592,
+  "def_end": 104737,
+  "sig": "void 인자 7 sret",
+  "src": "1086"
+ },
+ {
+  "rva": "e2ac00",
+  "cls": "확정",
+  "sym": "_RNvNtNtCshdEBA0ozCnw_7game_ai12small_action11lane_minion29line_minion_action_candidates",
+  "ir": "m11.ll",
+  "nloc": 4,
+  "locs": "lane_minion.rs:104:34 · lane_minion.rs:126:33 · entity.rs:1483:7",
+  "bytes": 2190,
+  "callers": 3,
+  "label": "line_minion_action_candidates",
+  "mod": "lane_minion",
+  "cands": [
+   [
+    "3",
+    "_RNvNtNtCshdEBA0ozCnw_7game_ai12small_action11lane_minion29line_minion_action_candidates",
+    "m11.ll"
+   ]
+  ],
+  "def_line": 54541,
+  "def_end": 55418,
+  "sig": "void 인자 5 sret",
+  "src": "72"
+ },
+ {
+  "rva": "eb77a0",
+  "cls": "확정",
+  "sym": "_RNvNtCshdEBA0ozCnw_7game_ai11fight_check18battle_ally_action",
+  "ir": "m15.ll",
+  "nloc": 2,
+  "locs": "fight_check.rs:1114:15 · fight_check.rs:1114:93",
+  "bytes": 2417,
+  "callers": 3,
+  "label": "battle_ally_action",
+  "mod": "fight_check",
+  "cands": [
+   [
+    "2",
+    "_RNvNtCshdEBA0ozCnw_7game_ai11fight_check18battle_ally_action",
+    "m15.ll"
+   ]
+  ],
+  "def_line": 25950,
+  "def_end": 26895,
+  "sig": "void 인자 6 sret",
+  "src": "1112"
+ },
+ {
+  "rva": "de3630",
+  "cls": "확정",
+  "sym": "_RNvNtCshdEBA0ozCnw_7game_ai9goal_data19get_die_tick_player",
+  "ir": "m09.ll",
+  "nloc": 4,
+  "locs": "goal_data.rs:607:61 · goal_data.rs:611:42 · goal_data.rs:607:15",
+  "bytes": 1786,
+  "callers": 2,
+  "label": "get_die_tick_player",
+  "mod": "goal_data",
+  "cands": [
+   [
+    "4",
+    "_RNvNtCshdEBA0ozCnw_7game_ai9goal_data19get_die_tick_player",
+    "m09.ll"
+   ]
+  ],
+  "def_line": 52061,
+  "def_end": 52663,
+  "sig": "i64 인자 6",
+  "src": "577"
+ },
+ {
+  "rva": "e2a830",
+  "cls": "확정",
+  "sym": "_RNvNtNtCshdEBA0ozCnw_7game_ai12small_action11lane_minion27lane_minion_position_action",
+  "ir": "m11.ll",
+  "nloc": 1,
+  "locs": "lane_minion.rs:27:15",
+  "bytes": 911,
+  "callers": 1,
+  "label": "lane_minion_position_action",
+  "mod": "lane_minion",
+  "cands": [
+   [
+    "1",
+    "_RNvNtNtCshdEBA0ozCnw_7game_ai12small_action11lane_minion27lane_minion_position_action",
+    "m11.ll"
+   ]
+  ],
+  "def_line": 54240,
+  "def_end": 54538,
+  "sig": "void 인자 10 sret",
+  "src": "20"
+ },
+ {
+  "rva": "e04400",
+  "cls": "확정",
+  "sym": "_RNvNtCshdEBA0ozCnw_7game_ai10buff_value24v57_summon_command_score",
+  "ir": "m10.ll",
+  "nloc": 1,
+  "locs": "buff_value.rs:810:18",
+  "bytes": 960,
+  "callers": 1,
+  "label": "v57_summon_command_score",
+  "mod": "buff_value",
+  "cands": [
+   [
+    "1",
+    "_RNvNtCshdEBA0ozCnw_7game_ai10buff_value24v57_summon_command_score",
+    "m10.ll"
+   ]
+  ],
+  "def_line": 38354,
+  "def_end": 38672,
+  "sig": "} 인자 5",
+  "src": "785"
+ },
+ {
+  "rva": "d35930",
+  "cls": "확정",
+  "sym": "_RNvNtCshdEBA0ozCnw_7game_ai14abstract_input5skill",
+  "ir": "m04.ll",
+  "nloc": 3,
+  "locs": "abstract_input.rs:200:15 · abstract_input.rs:228:33 · entity.rs:1483:7",
+  "bytes": 978,
+  "callers": 1,
+  "label": "skill",
+  "mod": "abstract_input",
+  "cands": [
+   [
+    "2",
+    "_RNvNtCshdEBA0ozCnw_7game_ai14abstract_input5skill",
+    "m04.ll"
+   ]
+  ],
+  "def_line": 44368,
+  "def_end": 44654,
+  "sig": "void 인자 7 sret",
+  "src": "199"
+ },
+ {
+  "rva": "d360a0",
+  "cls": "확정",
+  "sym": "_RNvNtCshdEBA0ozCnw_7game_ai14abstract_input6skill2",
+  "ir": "m04.ll",
+  "nloc": 3,
+  "locs": "abstract_input.rs:240:15 · abstract_input.rs:268:33 · entity.rs:1483:7",
+  "bytes": 981,
+  "callers": 1,
+  "label": "skill2",
+  "mod": "abstract_input",
+  "cands": [
+   [
+    "2",
+    "_RNvNtCshdEBA0ozCnw_7game_ai14abstract_input6skill2",
+    "m04.ll"
+   ]
+  ],
+  "def_line": 44934,
+  "def_end": 45224,
+  "sig": "void 인자 7 sret",
+  "src": "239"
+ },
+ {
+  "rva": "e29b40",
+  "cls": "확정",
+  "sym": "_RNvNtNtCshdEBA0ozCnw_7game_ai11plan_legacy11action_eval15evaluate_action",
+  "ir": "m11.ll",
+  "nloc": 6,
+  "locs": "action_eval.rs:98:93 · action_eval.rs:237:58 · entity.rs:1483:7",
+  "bytes": 3297,
+  "callers": 3,
+  "label": "evaluate_action",
+  "mod": "action_eval",
+  "cands": [
+   [
+    "4",
+    "_RNvNtNtCshdEBA0ozCnw_7game_ai11plan_legacy11action_eval15evaluate_action",
+    "m11.ll"
+   ]
+  ],
+  "def_line": 53179,
+  "def_end": 54237,
+  "sig": "} 인자 8",
+  "src": "67"
+ },
+ {
+  "rva": "c89530",
+  "cls": "클로저",
+  "sym": "_RINvMs2_NtNtCs9ec1k27omRZ_3std6thread5localINtB6_8LocalKeyINtNtCsjihNppCmMEE_4core4cell7RefCellTyjjhjATyyyxjx",
+  "ir": "m00.ll",
+  "nloc": 3,
+  "locs": "action_eval.rs:156:19 · entity.rs:1483:7 · simulation.rs:1848:5",
+  "bytes": 1307,
+  "callers": 1,
+  "label": "?",
+  "mod": "action_eval",
+  "cands": []
+ },
+ {
+  "rva": "d3ab40",
+  "cls": "확정",
+  "sym": "_RNvNtCshdEBA0ozCnw_7game_ai5utils9can1v1win",
+  "ir": "m04.ll",
+  "nloc": 3,
+  "locs": "utils.rs:422:21 · utils.rs:423:24 · entity.rs:1483:7",
+  "bytes": 1328,
+  "callers": 1,
+  "label": "dps_ratio",
+  "mod": "utils",
+  "cands": [
+   [
+    "2",
+    "_RNvNtCshdEBA0ozCnw_7game_ai5utils9can1v1win",
+    "m04.ll"
+   ]
+  ],
+  "def_line": 54936,
+  "def_end": 55242,
+  "sig": "i1 인자 5",
+  "src": "398"
+ },
+ {
+  "rva": "e26c40",
+  "cls": "확정",
+  "sym": "_RNvMNtNtCshdEBA0ozCnw_7game_ai12small_action11lane_minionNtB2_29SmallActionLaneMinionPosition9get_input",
+  "ir": "m11.ll",
+  "nloc": 2,
+  "locs": "lane_minion.rs:542:17 · entity.rs:1483:7",
+  "bytes": 1755,
+  "callers": 1,
+  "label": "get_input",
+  "mod": "lane_minion",
+  "cands": [
+   [
+    "1",
+    "_RNvMNtNtCshdEBA0ozCnw_7game_ai12small_action11lane_minionNtB2_29SmallActionLaneMinionPosition9get_input",
+    "m11.ll"
+   ]
+  ],
+  "def_line": 46067,
+  "def_end": 46558,
+  "sig": "void 인자 8 **internal**",
+  "src": "540"
+ },
+ {
+  "rva": "dc2960",
+  "cls": "확정",
+  "sym": "_RNvMs6_NtNtCshdEBA0ozCnw_7game_ai12small_action6aroundNtB5_21SmallActionAroundBush9get_input",
+  "ir": "m08.ll",
+  "nloc": 3,
+  "locs": "around.rs:1196:95 · around.rs:1196:17 · around.rs:1213:82",
+  "bytes": 1804,
+  "callers": 1,
+  "label": "get_input",
+  "mod": "around",
+  "cands": [
+   [
+    "3",
+    "_RNvMs6_NtNtCshdEBA0ozCnw_7game_ai12small_action6aroundNtB5_21SmallActionAroundBush9get_input",
+    "m08.ll"
+   ]
+  ],
+  "def_line": 105393,
+  "def_end": 105815,
+  "sig": "void 인자 8 sret",
+  "src": "1195"
+ },
+ {
+  "rva": "d73c30",
+  "cls": "클로저",
+  "sym": "_RINvXs_NtNtNtCsjihNppCmMEE_4core4iter8adapters6copiedINtB5_6CopiedINtNtNtBb_5slice4iter4IterRNtNtNtCs97f5S1uJ",
+  "ir": "m11.ll",
+  "nloc": 2,
+  "locs": "line_defense.rs:804:19 · simulation.rs:1905:5",
+  "bytes": 1999,
+  "callers": 1,
+  "label": "?",
+  "mod": "line_defense",
+  "cands": []
+ },
+ {
+  "rva": "ccfbc0",
+  "cls": "확정",
+  "sym": "_RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy8sub_plan11serpen_hunt29calculate_serpen_action_score",
+  "ir": "m02.ll",
+  "nloc": 5,
+  "locs": "serpen_hunt.rs:916:93 · serpen_hunt.rs:926:7 · serpen_hunt.rs:916:15",
+  "bytes": 2230,
+  "callers": 1,
+  "label": "calculate_serpen_action_score",
+  "mod": "serpen_hunt",
+  "cands": [
+   [
+    "4",
+    "_RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy8sub_plan11serpen_hunt29calculate_serpen_action_score",
+    "m02.ll"
+   ]
+  ],
+  "def_line": 65168,
+  "def_end": 66027,
+  "sig": "i64 인자 4 **internal**",
+  "src": "914"
+ },
+ {
+  "rva": "ec81e0",
+  "cls": "확정",
+  "sym": "_RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy8sub_plan9epic_hunt27calculate_epic_action_score",
+  "ir": "m15.ll",
+  "nloc": 5,
+  "locs": "epic_hunt.rs:931:59 · epic_hunt.rs:922:93 · epic_hunt.rs:932:7",
+  "bytes": 2313,
+  "callers": 1,
+  "label": "calculate_epic_action_score",
+  "mod": "epic_hunt",
+  "cands": [
+   [
+    "4",
+    "_RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy8sub_plan9epic_hunt27calculate_epic_action_score",
+    "m15.ll"
+   ]
+  ],
+  "def_line": 50588,
+  "def_end": 51620,
+  "sig": "i64 인자 4 **internal**",
+  "src": "920"
+ },
+ {
+  "rva": "c7f640",
+  "cls": "클로저",
+  "sym": "_RINvMs2_NtNtCs9ec1k27omRZ_3std6thread5localINtB6_8LocalKeyINtNtCsjihNppCmMEE_4core4cell7RefCellNtNtCshdEBA0oz",
+  "ir": "m00.ll",
+  "nloc": 2,
+  "locs": "position_eval.rs:217:19 · position_eval.rs:223:22",
+  "bytes": 2332,
+  "callers": 1,
+  "label": "score_parameter_cached",
+  "mod": "position_eval",
+  "cands": []
+ },
+ {
+  "rva": "e288c0",
+  "cls": "확정",
+  "sym": "_RNvNtCshdEBA0ozCnw_7game_ai12lane_economy31line_projected_punish_damage_at",
+  "ir": "m11.ll",
+  "nloc": 2,
+  "locs": "lane_economy.rs:123:44 · simulation.rs:1905:5",
+  "bytes": 3167,
+  "callers": 1,
+  "label": "line_projected_punish_damage_at",
+  "mod": "lane_economy",
+  "cands": [
+   [
+    "1",
+    "_RNvNtCshdEBA0ozCnw_7game_ai12lane_economy31line_projected_punish_damage_at",
+    "m11.ll"
+   ]
+  ],
+  "def_line": 51728,
+  "def_end": 52661,
+  "sig": "i64 인자 8 **internal**",
+  "src": "130"
+ },
+ {
+  "rva": "dbf680",
+  "cls": "확정(정정)",
+  "sym": "_RNvMs1_NtNtCshdEBA0ozCnw_7game_ai12small_action6aroundNtB5_22SmallActionPositioning9get_input",
+  "ir": "m08.ll",
+  "nloc": 4,
+  "locs": "small_action.rs:75:28 · path_finder.rs:1168:15 · around.rs:702:17",
+  "bytes": 3451,
+  "callers": 1,
+  "label": "?",
+  "mod": "small_action",
+  "cands": [
+   [
+    "1",
+    "_RNvMs_NtCshdEBA0ozCnw_7game_ai11path_finderNtB4_16PveHazardContext7verdict",
+    "m03.ll"
+   ],
+   [
+    "1",
+    "_RNvMs_NtCshdEBA0ozCnw_7game_ai11path_finderNtB4_16PveHazardContext16lethal_zone_goal",
+    "m03.ll"
+   ],
+   [
+    "1",
+    "_RNvMs1_NtNtCshdEBA0ozCnw_7game_ai12small_action6aroundNtB5_22SmallActionPositioning9get_input",
+    "m08.ll"
+   ]
+  ],
+  "def_line": 102521,
+  "def_end": 103100,
+  "sig": "void 인자 7 sret",
+  "src": "701"
+ },
+ {
+  "rva": "dc6ec0",
+  "cls": "확정",
+  "sym": "_RNvMs_NtNtCshdEBA0ozCnw_7game_ai12small_action6aroundNtB4_21SmallActionAroundHide9get_input",
+  "ir": "m08.ll",
+  "nloc": 6,
+  "locs": "small_action.rs:75:28 · utils.rs:80:14 · utils.rs:76:17",
+  "bytes": 3887,
+  "callers": 1,
+  "label": "is_end",
+  "mod": "small_action",
+  "cands": [
+   [
+    "2",
+    "_RNvMs_NtNtCshdEBA0ozCnw_7game_ai12small_action6aroundNtB4_21SmallActionAroundHide9get_input",
+    "m08.ll"
+   ]
+  ],
+  "def_line": 110434,
+  "def_end": 111202,
+  "sig": "void 인자 7 sret",
+  "src": "324"
+ },
+ {
+  "rva": "cc9740",
+  "cls": "확정",
+  "sym": "_RNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy8sub_plan9epic_pokeNtB2_15EpicPokeSubPlan21action_candidates_old",
+  "ir": "m02.ll",
+  "nloc": 8,
+  "locs": "epic_poke.rs:437:68 · epic_poke.rs:439:62 · epic_poke.rs:435:59",
+  "bytes": 4360,
+  "callers": 1,
+  "label": "?",
+  "mod": "epic_poke",
+  "cands": [
+   [
+    "4",
+    "_RNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy8sub_plan9epic_pokeNtB2_15EpicPokeSubPlan21action_candidates_old",
+    "m02.ll"
+   ]
+  ],
+  "def_line": 45073,
+  "def_end": 46762,
+  "sig": "void 인자 7 sret",
+  "src": "426"
+ },
+ {
+  "rva": "e80070",
+  "cls": "확정",
+  "sym": "_RNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy8sub_plan11serpen_pokeNtB2_17SerpenPokeSubPlan21action_candidates_old",
+  "ir": "m14.ll",
+  "nloc": 8,
+  "locs": "serpen_poke.rs:429:68 · serpen_poke.rs:431:62 · serpen_poke.rs:427:59",
+  "bytes": 4437,
+  "callers": 1,
+  "label": "?",
+  "mod": "serpen_poke",
+  "cands": [
+   [
+    "4",
+    "_RNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy8sub_plan11serpen_pokeNtB2_17SerpenPokeSubPlan21action_candidates_old",
+    "m14.ll"
+   ]
+  ],
+  "def_line": 16900,
+  "def_end": 18615,
+  "sig": "void 인자 7 sret",
+  "src": "418"
+ },
+ {
+  "rva": "cce210",
+  "cls": "확정",
+  "sym": "_RNvMs_NtNtCshdEBA0ozCnw_7game_ai12small_action5traceNtB4_16SmallActionTrace9get_input",
+  "ir": "m02.ll",
+  "nloc": 4,
+  "locs": "trace.rs:170:58 · trace.rs:167:97 · trace.rs:167:19",
+  "bytes": 4742,
+  "callers": 1,
+  "label": "get_input",
+  "mod": "trace",
+  "cands": [
+   [
+    "3",
+    "_RNvMs_NtNtCshdEBA0ozCnw_7game_ai12small_action5traceNtB4_16SmallActionTrace9get_input",
+    "m02.ll"
+   ]
+  ],
+  "def_line": 63325,
+  "def_end": 64494,
+  "sig": "void 인자 8 sret",
+  "src": "165"
+ },
+ {
+  "rva": "dbbd60",
+  "cls": "확정",
+  "sym": "_RNvMs0_NtNtCshdEBA0ozCnw_7game_ai12small_action6aroundNtB5_23SmallActionAroundRegion9get_input",
+  "ir": "m08.ll",
+  "nloc": 4,
+  "locs": "small_action.rs:75:28 · around.rs:530:17 · map_def.rs:262:5",
+  "bytes": 4947,
+  "callers": 1,
+  "label": "?",
+  "mod": "small_action",
+  "cands": [
+   [
+    "1",
+    "_RNvMs0_NtNtCshdEBA0ozCnw_7game_ai12small_action6aroundNtB5_23SmallActionAroundRegion9get_input",
+    "m08.ll"
+   ]
+  ],
+  "def_line": 98610,
+  "def_end": 99536,
+  "sig": "void 인자 7 sret",
+  "src": "529"
+ },
+ {
+  "rva": "dc0800",
+  "cls": "확정(정정)",
+  "sym": "_RNvMs3_NtNtCshdEBA0ozCnw_7game_ai12small_action6aroundNtB5_25SmallActionAroundPosition9get_input",
+  "ir": "m08.ll",
+  "nloc": 5,
+  "locs": "small_action.rs:75:28 · path_finder.rs:1168:15 · around.rs:866:19",
+  "bytes": 6137,
+  "callers": 1,
+  "label": "merge",
+  "mod": "small_action",
+  "cands": [
+   [
+    "2",
+    "_RNvMs3_NtNtCshdEBA0ozCnw_7game_ai12small_action6aroundNtB5_25SmallActionAroundPosition9get_input",
+    "m08.ll"
+   ],
+   [
+    "1",
+    "_RNvMs_NtCshdEBA0ozCnw_7game_ai11path_finderNtB4_16PveHazardContext7verdict",
+    "m03.ll"
+   ],
+   [
+    "1",
+    "_RNvMs_NtCshdEBA0ozCnw_7game_ai11path_finderNtB4_16PveHazardContext16lethal_zone_goal",
+    "m03.ll"
+   ]
+  ],
+  "def_line": 103480,
+  "def_end": 104548,
+  "sig": "void 인자 7 sret",
+  "src": "864"
+ },
+ {
+  "rva": "db6ff0",
+  "cls": "확정(정정)",
+  "sym": "_RNvMNtNtCshdEBA0ozCnw_7game_ai12small_action6aroundNtB2_17SmallActionAround9get_input",
+  "ir": "m08.ll",
+  "nloc": 4,
+  "locs": "small_action.rs:75:28 · path_finder.rs:1168:15 · around.rs:65:19",
+  "bytes": 6900,
+  "callers": 1,
+  "label": "clone",
+  "mod": "small_action",
+  "cands": [
+   [
+    "1",
+    "_RNvMs_NtCshdEBA0ozCnw_7game_ai11path_finderNtB4_16PveHazardContext7verdict",
+    "m03.ll"
+   ],
+   [
+    "1",
+    "_RNvMs_NtCshdEBA0ozCnw_7game_ai11path_finderNtB4_16PveHazardContext16lethal_zone_goal",
+    "m03.ll"
+   ],
+   [
+    "1",
+    "_RNvMNtNtCshdEBA0ozCnw_7game_ai12small_action6aroundNtB2_17SmallActionAround9get_input",
+    "m08.ll"
+   ]
+  ],
+  "def_line": 92628,
+  "def_end": 94133,
+  "sig": "void 인자 8 sret",
+  "src": "61"
+ }
+]

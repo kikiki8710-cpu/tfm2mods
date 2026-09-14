@@ -1,0 +1,67 @@
+{
+ "name": "v3_lethal_tower_position",
+ "sym": "_RNvNtCshdEBA0ozCnw_7game_ai16tower_discipline24v3_lethal_tower_position",
+ "src": "game-ai\\src\\tower_discipline.rs",
+ "src_line": 282,
+ "ir_file": "m07.ll",
+ "ir_from": 50614,
+ "ir_to": 50670,
+ "aux": [
+  {"ir_file": "m06.ll", "ir_from": 35158, "ir_to": 35386},
+  {"ir_file": "m11.ll", "ir_from": 31162, "ir_to": 31302}
+ ],
+ "one_line": "[v3 M1b] 치명 HP(타워 2샷)일 때 셀 (x,y)가 적 타워 사거리(+20k 여유) 안이면 true — 이동 후보 하드 스킵",
+ "signature": {
+  "abi": "define noundef zeroext i1 (non-internal · hidden 아님 · 인자 승격 없음 — x,y 는 i64 값으로 그대로 전달, 본문에서 alloca 에 store 후 클로저 env 로 참조)",
+  "params": [
+   {"i": 1, "name": "version", "type": "usize", "note": "AI 버전 게이트. `icmp ult %0, 2` — version<2 면 즉시 false (m07.ll:50625~50626, L283)"},
+   {"i": 2, "name": "player", "type": "&PlayerState(2528B)", "note": "readonly. info.team(+0x930)·info.position(+0x9c0) 만 읽음"},
+   {"i": 3, "name": "data", "type": "&OperationData(24B)", "note": "readonly. +0x0 cache(&AbstractGameWithCache) 만 사용. v3_lethal_tower_hp 에 그대로 전달"},
+   {"i": 4, "name": "x", "type": "u64", "note": "후보 셀 좌표 x(월드 단위). alloca %8 에 저장돼 클로저 env f[0..8] 로 캡처"},
+   {"i": 5, "name": "y", "type": "u64", "note": "후보 셀 좌표 y. alloca %7 → 클로저 env f[8..16]"}
+  ],
+  "returns": "bool(i1 zeroext) — true = 이 셀은 치명 밴드 안(후보에서 제외해야 함). false = version<2 / team 인덱스 ≥2 아님이지만 챔피언 없음(None) / 비치명 HP / 어느 타워 사거리+20k 안에도 없음. phi m07.ll:50668"
+ },
+ "reads": [
+  {"base": "PlayerState", "offset": "0x930", "name": "info.team", "note": "m07.ll:50629~50630 · 값 ≥2 면 panic_bounds_check(len 2)"},
+  {"base": "PlayerState", "offset": "0x9c0", "name": "info.position@tag", "note": "i32 → zext, player_champion[team][position] 인덱스 (m07.ll:50640~50642)"},
+  {"base": "OperationData", "offset": "0x0", "name": "cache", "note": "&AbstractGameWithCache (m07.ll:50643)"},
+  {"base": "AbstractGameWithCache", "offset": "0x1e0", "name": "player_champion[team][position]", "note": "Option<&Entity> 니치(null=None). None 이면 false (m07.ll:50644~50648)"},
+  {"base": "Entity", "offset": "0x4c0", "name": "attack_effect@tag", "note": "(aux 클로저) -1 = None → 사거리 0 취급. m06.ll:35270~35272"},
+  {"base": "Entity", "offset": "0x4a0", "name": "attack_effect.range", "note": "(aux) Effect::range 인라인, effect.rs:26"},
+  {"base": "Entity", "offset": "0x4a8", "name": "attack_effect.growth_range", "note": "(aux) × (level-1)"},
+  {"base": "Entity", "offset": "0x5c8", "name": "level", "note": "(aux) growth_range 곱셈"},
+  {"base": "Entity", "offset": "0x438", "name": "stat_buff_cached.range", "note": "(aux) 사거리 가산"},
+  {"base": "Entity", "offset": "0x470", "name": "stat_buff_cached.radius_mult", "note": "(aux) Entity::radius 인라인 entity.rs:1511~1515. 0 이면 radius 그대로"},
+  {"base": "Entity", "offset": "0x680", "name": "radius", "note": "(aux) 타워 반지름. mult≠0 이면 radius*(mult+100)/100"},
+  {"base": "Entity", "offset": "0x660", "name": "x", "note": "(aux) 타워 x"},
+  {"base": "Entity", "offset": "0x668", "name": "y", "note": "(aux) 타워 y"}
+ ],
+ "writes": [],
+ "constants": [
+  {"value": 2, "src_line": 283, "meaning": "version 게이트: `version < 2` 면 false (m07.ll:50625). 같은 2 가 team 인덱스 bounds(len 2) 에도 나온다(L286)"},
+  {"value": 1, "src_line": 292, "meaning": "`1 - player.team` = 적 팀 인덱스 (sub nuw nsw i64 1, %12 · m07.ll:50658)"},
+  {"value": 20000, "src_line": 294, "meaning": "타워 사거리 여유(+20k 월드단위 ≈ 0.625셀). attack_effect 가 None 이어도 20000 은 남는다(phi m06.ll:35299: [range+20000+buf+growth, 20000])"},
+  {"value": -1, "src_line": 294, "meaning": "Entity.attack_effect Option 니치 None 태그(i32 -1, tcxdict Entity 0x4c0). `icmp eq i32 %28, -1` m06.ll:35272"},
+  {"value": 100, "src_line": 294, "meaning": "Entity::radius(entity.rs:1515) 인라인: radius*(radius_mult+100)/100 — 퍼센트 배수. m06.ll:35316~35318"},
+  {"value": 6, "src_line": 292, "meaning": "iter_towers_without_nexus 의 앞부분 = [Option<&Entity>;6](top/top2/mid/mid2/bottom/bottom2) 배열 순회 상한(aux m06.ll:35241 `icmp ult i64 %20, 6`) — 임계값 아님, 배열 길이"}
+ ],
+ "calls": [
+  "game_ai::tower_discipline::v3_lethal_tower_hp",
+  "game_core::simulation::AbstractGameWithCache::iter_towers_without_nexus",
+  "core::iter::adapters::chain::Chain::try_fold",
+  "core::iter::adapters::copied::Copied::try_fold",
+  "core::panicking::panic_bounds_check"
+ ],
+ "logic": "fn v3_lethal_tower_position(version, player, data, x, y) -> bool  [tower_discipline.rs:282]\n  L283: if version < 2 { return false }\n  L286: team = player.info.team (+0x930); (team>=2 → panic_bounds_check)\n        champ = data.cache.player_champion[team][player.info.position(+0x9c0)]   // Option<&Entity>, null=None\n        if champ.is_none() { return false }\n  L289: if !v3_lethal_tower_hp(data, player, champ) { return false }   // 비치명 HP 면 항상 false (콜리 내부는 안 봄)\n  L292: towers = data.cache.iter_towers_without_nexus(1 - team)   // 적 팀: [top,top2,mid,mid2,bottom,bottom2] 6개 Option + twin_towers 슬라이스 (Chain)\n  L293~295: return towers.any(|t| {                                   // aux 클로저 m06(6개 배열 절)·m11(twin 슬라이스 절) — 동일 술어\n        // L294: r = t.attack_effect.as_ref().map(|e| e.range(t) + 20000).unwrap_or(20000) + t.radius()\n        //   Effect::range(effect.rs:26) = range(+0x4a0) + stat_buff_cached.range(+0x438) + growth_range(+0x4a8)*(level(+0x5c8)-1)\n        //   Entity::radius(entity.rs:1511~1515) = radius_mult(+0x470)==0 ? radius(+0x680) : radius*(mult+100)/100   (udiv)\n        // L295: dx=|t.x-x|, dy=|t.y-y| (sub nuw 절대값 select)\n        dx*dx + dy*dy <= r*r          // IR: `icmp ugt (dx²+dy²), r²` → true(ugt) 면 다음 타워, 아니면 any=true\n     })\n  극성: 어느 타워라도 (dist² <= (attack_range+20000+radius)²) 이면 true.\n  ※ can_target 필터 없음 — 무적 타워도 포함(iter_towers_without_nexus 는 Option 이 Some 인 타워 전부, 파괴된 타워는 cache 에 None 으로 들어 있는지는 game_core 경계라 미확인).",
+ "knobs": [
+  {"what": "version 게이트", "where": "tower_discipline.rs:283", "value": 2, "effect": "올리면 더 높은 버전까지 이 필터가 꺼진다(항상 false)"},
+  {"what": "타워 사거리 여유 폭", "where": "tower_discipline.rs:294 (aux m06.ll:35293 / m11.ll 동일)", "value": 20000, "effect": "올리면 타워에서 더 먼 셀까지 치명 밴드로 보고 이동 후보에서 뺀다 → 타워 근처 접근이 더 소극적. 내리면 밴드가 좁아져 사거리 경계 셀을 후보로 허용"}
+ ],
+ "unknown": [
+  "v3_lethal_tower_hp(data, player, champ)->bool 내부(치명 HP 판정)는 콜리 계약만 — m07.ll:49429~49614 · 별도 명세 대상",
+  "iter_towers_without_nexus(sret 120B Chain 이터레이터, &cache, team) 의 내부(파괴 타워 제외 여부·twin_towers 순서)는 game_core(_gcbc/g15.ll:108971) 경계라 안 봄. 관측: sret 120B = Chain<Flatten<IntoIter<Option<&Entity>,6>>, Copied<slice::Iter<&Entity>>> · +0x0 첫 이터 상태(-1=소진), +0x8/+0x10 배열 인덱스 범위, +0x18 [Option<&Entity>;6] 데이터, +0x68 두 번째 이터 데이터 ptr(null=None)",
+  "L294 의 소스 표기가 `.map(|e| e.range()+20000).unwrap_or(20000)` 인지 `.map_or(0,..)+20000` 인지 — IR 은 phi [range+…+20000, 20000] 로 접혀 외연 동일(표기 불가)",
+  "Effect::range 가 정확히 `range + buf.range + growth*(level-1)` 순서인지 — 덧셈 결합순서만 다르고 값 동일(표기 불가)"
+ ]
+}

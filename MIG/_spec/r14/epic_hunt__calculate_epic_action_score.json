@@ -1,0 +1,308 @@
+{
+ "name": "calculate_epic_action_score",
+ "sym": "_RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy8sub_plan9epic_hunt27calculate_epic_action_score",
+ "src": "game-ai\\src\\plan_legacy\\sub_plan\\epic_hunt.rs",
+ "src_line": 920,
+ "ir_file": "m15.ll",
+ "ir_from": 50588,
+ "ir_to": 51620,
+ "aux": [],
+ "one_line": "에픽 사냥 중 공격/스킬 대상 t 의 가치 = min(coef, coef*기대피해/t.hp) + (t 가 에픽 ∧ 캠프 근처 아군>적 ? 5 : 0), coef 는 대상 종류(넥서스 200·타워 80·에픽 0/20/200·미니언 -10·기타 0)",
+ "signature": {
+  "abi": "★internal fastcc (m15.ll:50588) · 반환 `range(i64 -2^63, 206)`. 소스 sig(tcx i=3515, epic_hunt.rs:920~921) = fn(rnd:&mut StdRng, player:&PlayerState, data:&OperationData, parameter:&ScoreParameter, action:&Box<dyn Action>, effect:&Effect, target:&Entity) -> i64 (7인자) 인데 IR define 은 4인자(player, data, effect, t) — rnd·parameter·action 이 본문 미사용으로 DeadArgElimination 제거됨(승격 흔적: 인자 3개 소실 · 팻포인터 분해·포인터→스칼라 승격은 없음). exe 0xec81e0 인자 배치는 argscan 미실시 — EXE_ABI 는 IR 4인자 기준으로 추정 · calculate_serpen_action_score(m02.ll:65168) 와 구조 동일(정규화 diff 차이: camp 5→4 · in_serpen→in_epic · Serpen 태그 6→Epic 5 · player_by_champion_id 외부호출 · 아군 루프 5회 언롤)",
+  "params": [
+   {
+    "i": 2,
+    "name": "player",
+    "type": "&PlayerState(2528B)",
+    "note": "IR %0. info.team(+0x930)·info.position 태그(+0x9c0) → 내 챔피언 ; is_recent_visible_big_action 인자"
+   },
+   {
+    "i": 3,
+    "name": "data",
+    "type": "&OperationData(24B)",
+    "note": "IR %1. cache(+0)→player_champion·player_state·game ; context(+8)→map(+0x20), expected_damage_target 인자 ; blackboard(+0x10)"
+   },
+   {
+    "i": 6,
+    "name": "effect",
+    "type": "&Effect(56B)",
+    "note": "IR %2. expected_damage_target 의 self 로만 전달(필드 직접 읽기 없음)"
+   },
+   {
+    "i": 7,
+    "name": "t",
+    "type": "&Entity(1728B)",
+    "note": "IR %3. 대상. hp(+0x670)·ty 태그(+0x68) 읽음 ; expected_damage_target 의 target"
+   },
+   {
+    "i": 1,
+    "name": "rnd",
+    "type": "&mut StdRng",
+    "note": "소스 인자 — IR 에서 제거됨(미사용). write 0건"
+   },
+   {
+    "i": 4,
+    "name": "parameter",
+    "type": "&ScoreParameter",
+    "note": "소스 인자 — IR 에서 제거됨(미사용)"
+   },
+   {
+    "i": 5,
+    "name": "action",
+    "type": "&Box<dyn Action>",
+    "note": "소스 인자 — IR 에서 제거됨(미사용)"
+   }
+  ],
+  "returns": "i64 ∈ [-2^63, 205] — min(coef, coef*value/hp) + base_score. t.hp==0 이면 div_by_zero 패닉, hp==-1 ∧ coef*value==i64::MIN 이면 div_overflow 패닉(51601, 51618)"
+ },
+ "reads": [
+  {
+   "base": "PlayerState",
+   "offset": "0x930",
+   "name": "info.team",
+   "note": "m15.ll:50609 (내) · 50954 (아군 player, 블랙보드 인덱스)"
+  },
+  {
+   "base": "PlayerState",
+   "offset": "0x9c0",
+   "name": "info.position@tag",
+   "note": "m15.ll:50621 (내) · 50962 (아군 player → in_epic(position))"
+  },
+  {
+   "base": "OperationData",
+   "offset": "0x0",
+   "name": "cache",
+   "note": "m15.ll:50624"
+  },
+  {
+   "base": "OperationData",
+   "offset": "0x8",
+   "name": "context",
+   "note": "m15.ll:50637 → expected_damage_target 인자·map"
+  },
+  {
+   "base": "OperationData",
+   "offset": "0x10",
+   "name": "blackboard (&[Blackboard;2], 원소 744B)",
+   "note": "m15.ll:50651 → [player.team](50960, 51219)"
+  },
+  {
+   "base": "GameContext",
+   "offset": "0x20",
+   "name": "map",
+   "note": "m15.ll:50644 → camp_pos"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x1e0",
+   "name": "player_champion[team][pos] / [team][0..5] / [1-team][0..5]",
+   "note": "m15.ll:50627~50630 (내 챔프, None→unwrap_failed 51558) · (player_by_champion_id 는 외부 fastcc 호출 50761·50858·50947·51036·51125 — 세르펜판과 달리 인라인 안 됨) · 51159 (적 iter_champions)"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x0",
+   "name": "game.data_ptr",
+   "note": "m15.ll:51160 → is_recent_visible_big_action"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x8",
+   "name": "game.vtable_ptr",
+   "note": "m15.ll:51162"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x670",
+   "name": "hp",
+   "note": "t (m15.ll:50641)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x68",
+   "name": "ty@tag (EntityType)",
+   "note": "t (m15.ll:51548) 3=Nexus 2=Tower 6=Serpen 1=Minion"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x660",
+   "name": "x",
+   "note": "아군·적 챔피언 (m15.ll:50819, 51241 등)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x668",
+   "name": "y",
+   "note": "m15.ll:50823, 51245 등"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x5c0",
+   "name": "id",
+   "note": "아군 챔피언 id(50751, 50848, 50937, 51026, 51115) → player_by_champion_id(cache, id) 인자"
+  }
+ ],
+ "writes": [],
+ "constants": [
+  {
+   "value": 4,
+   "src_line": 926,
+   "meaning": "JungleType::Morgard 태그(camp_pos 인자, m15.ll:50646)"
+  },
+  {
+   "value": 22500000000,
+   "src_line": 929,
+   "meaning": "150000² — 캠프 중심과의 distance_sq < 이것 = 150k 이내 챔피언만 근처로 셈 (아군 50844 · 적 51266 등 5회)"
+  },
+  {
+   "value": 200,
+   "src_line": 939,
+   "meaning": "coef: 넥서스(51562 phi ←%303) · 에픽인데 value>=hp(처치 가능)(51579, 51583)"
+  },
+  {
+   "value": 80,
+   "src_line": 941,
+   "meaning": "coef: 타워 (51570)"
+  },
+  {
+   "value": 20,
+   "src_line": 945,
+   "meaning": "coef: 에픽 ∧ 근처 아군 > 적 ∧ hp > value (51583)"
+  },
+  {
+   "value": 0,
+   "src_line": 951,
+   "meaning": "coef: 에픽 ∧ 아군 <= 적 ∧ hp > value (51579) · 기타 타입 0 (51591) · base_score 0"
+  },
+  {
+   "value": -10,
+   "src_line": 957,
+   "meaning": "coef: 미니언 (51587)"
+  },
+  {
+   "value": 3,
+   "src_line": 939,
+   "meaning": "EntityType::Nexus 태그 (switch 51551)"
+  },
+  {
+   "value": 2,
+   "src_line": 941,
+   "meaning": "EntityType::Tower 태그 (switch 51552). ⚠50612·50956 의 2 는 팀 경계검사"
+  },
+  {
+   "value": 1,
+   "src_line": 957,
+   "meaning": "EntityType::Minion 태그 (switch 51554) · 1-team (51157) · 루프 증분"
+  },
+  {
+   "value": -1,
+   "src_line": 969,
+   "meaning": "sdiv 오버플로 검사 hp==-1 (51595) — 컴파일러 삽입"
+  },
+  {
+   "value": -9223372036854775808,
+   "src_line": 969,
+   "meaning": "sdiv 오버플로 검사 i64::MIN (51596) — 컴파일러 삽입"
+  },
+  {
+   "value": 5,
+   "src_line": 963,
+   "meaning": "L963 base_score 5 (51608) · EntityType::Epic 태그(switch 51553, 51605)"
+  }
+ ],
+ "calls": [
+  "game_core::simulation::effect::Effect::expected_damage_target",
+  "game_core::simulation::map_def::MapDef::camp_pos",
+  "game_core::simulation::game::blackboard::Blackboard::in_epic",
+  "game_core::simulation::game::blackboard::Blackboard::is_recent_visible_big_action",
+  "core::panicking::panic_bounds_check",
+  "core::option::unwrap_failed",
+  "core::panicking::panic_const::panic_const_div_by_zero",
+  "core::panicking::panic_const::panic_const_div_overflow",
+  "llvm.smin.i64",
+  "game_core::simulation::AbstractGameWithCache::player_by_champion_id"
+ ],
+ "logic": "fn calculate_epic_action_score(_rnd, player, data, _parameter, _action, effect, t) -> i64   // epic_hunt.rs:920 (IR 는 player,data,effect,t 4인자)\n  let champ = data.cache.player_champion[player.info.team][player.info.position].unwrap();   // L922\n  let value = effect.expected_damage_target(data.context, champ as &dyn AbstractEntity /*vtable @anon.56*/, t);   // L923 (50639) 기대 피해\n  let hp = t.hp;                                                                                // L924\n  let camp_pos = data.context.map.camp_pos(JungleType::Morgard /*4*/, true);                     // L926 (50646)\n  // L930~932: near_camp_allys = cache.iter_champions(team).filter(|x| x.distance_sq(camp_pos) < 22500000000 /*closure$0 L929*/)\n  //             .filter(|x| { let p = cache.player_by_champion_id(x.id).unwrap(); data.blackboard[p.info.team].in_epic(p.info.position) } /*closure$1 L932*/).count()\n  //   (50795~51039: 5슬롯 루프 · player_by_champion_id 는 외부 fastcc 호출 · 못 찾으면 unwrap_failed)\n  // L936~937: near_camp_enemies = cache.iter_champions(1-team).filter(|x| x.distance_sq(camp_pos) < 22500000000)\n  //             .filter(|x| data.blackboard[team].is_recent_visible_big_action(cache.game, player, x) /*closure$2 L937*/).count()   (51155~51546, 5회 언롤)\n  let coef = if t.ty.is_nexus() { 200 }                          // L939 (switch 51550: 태그 3)\n    else if t.ty.is_tower() { 80 }                               // L941 (태그 2)\n    else if t.ty.is_epic() {                                   // L944 (태그 5)\n      if near_camp_allys > near_camp_enemies { if hp > value { 20 } else { 200 } }   // L945 (51574, 51583)\n      else { if hp > value { 0 } else { 200 } }                                       // L951 (51579)\n    }\n    else if t.ty.is_minion() { -10 }                             // L957 (태그 1)\n    else { 0 };\n  let base_score = if t.ty.is_epic() && near_camp_allys > near_camp_enemies { 5 } else { 0 };   // L963 (51605~51608)\n  min(coef, coef * value / hp) + base_score                      // L969~970 (51613~51615; hp==0 → div_by_zero 패닉)",
+ "knobs": [
+  {
+   "what": "넥서스 대상 계수",
+   "where": "epic_hunt.rs:939 (m15.ll:51562)",
+   "value": 200,
+   "effect": "올리면 에픽 사냥 중에도 넥서스 공격을 더 선호"
+  },
+  {
+   "what": "타워 대상 계수",
+   "where": "epic_hunt.rs:941 (m15.ll:51570)",
+   "value": 80,
+   "effect": "올리면 타워 공격 선호"
+  },
+  {
+   "what": "에픽 처치 가능(value>=hp) 계수",
+   "where": "epic_hunt.rs:945/945 (m15.ll:51579, 51583)",
+   "value": 200,
+   "effect": "막타 가능 시 에픽 타격 가치. 내리면 스틸/막타 적극성 저하"
+  },
+  {
+   "what": "에픽 우세(아군>적) 계수",
+   "where": "epic_hunt.rs:945 (m15.ll:51583)",
+   "value": 20,
+   "effect": "캠프 근처 아군이 적보다 많을 때 에픽을 때리는 가치. 0 이면 열세와 동일하게 안 때림"
+  },
+  {
+   "what": "미니언 대상 계수",
+   "where": "epic_hunt.rs:957 (m15.ll:51587)",
+   "value": -10,
+   "effect": "더 음수로 하면 에픽 사냥 중 미니언 공격을 더 억제"
+  },
+  {
+   "what": "에픽 우세 기본 가산",
+   "where": "epic_hunt.rs:963 (m15.ll:51608)",
+   "value": 5,
+   "effect": "올리면 우세 시 에픽 타격이 다른 대상보다 우선"
+  },
+  {
+   "what": "캠프 근처 판정 반경",
+   "where": "epic_hunt.rs:929/930 (m15.ll:50844, 51266)",
+   "value": 22500000000,
+   "effect": "150000². 올리면 더 먼 챔피언까지 아군/적 머릿수에 포함"
+  }
+ ],
+ "callee_contracts": [
+  {
+   "name": "game_core::Effect::expected_damage_target (effect.rs:91)",
+   "sig": "fn(&Effect, &GameContext, caster:&dyn AbstractEntity(팻포인터: champ, vtable @anon.94acafa22d01e083ca1cc62f01598c8f.54 = Entity as AbstractEntity, m15.ll:60), target:&Entity) -> usize",
+   "note": "game_core 경계 — 내부 안 팜"
+  },
+  {
+   "name": "game_core::MapDef::camp_pos (map_def.rs:207)",
+   "sig": "fn(&MapDef, JungleType, bool) -> (u64,u64)",
+   "note": "(Morgard=4, true)"
+  },
+  {
+   "name": "game_core::AbstractGameWithCache::iter_champions (simulation.rs:1904)",
+   "sig": "fn(&self, team) -> impl Iterator<&Entity> (player_champion[team] 5슬롯 flatten)",
+   "note": "인라인"
+  },
+  {
+   "name": "game_core::AbstractGameWithCache::player_by_champion_id (simulation.rs:1915, xinl)",
+   "sig": "fn(&self, id:usize) -> Option<&PlayerState> — player_champion[t][p].id==id 인 (t,p) 의 player_state[t][p]",
+   "note": "외부 fastcc 호출(m15.ll:50761·50858·50947·51036·51125) — 세르펜판(m02)에선 인라인. 내부 안 팜"
+  },
+  {
+   "name": "game_core::Blackboard::in_epic (blackboard.rs:183)",
+   "sig": "fn(&Blackboard, position:usize) -> bool",
+   "note": "game_core 경계 — 내부 안 팜"
+  },
+  {
+   "name": "game_core::Blackboard::is_recent_visible_big_action (blackboard.rs:367)",
+   "sig": "fn(&Blackboard, &dyn AbstractGame, &PlayerState, &Entity) -> bool",
+   "note": "game_core 경계 — 내부 안 팜"
+  }
+ ],
+ "unknown": [
+  "소스 인자 rnd·parameter·action 이 정말 본문 미사용인지는 IR(DeadArgElim 후)만으로 확정 — 소스에 `_` 접두인지 여부는 표기 불가. exe 0xec81e0 의 실제 인자 수는 argscan 미실시",
+  "value>=hp 판정이 `hp > value` 의 부정(icmp sgt, 51575)으로 컴파일됨 — 소스가 `value >= hp` 인지 `!(hp > value)` 인지 표기 불가(외연 동일)",
+  "is_nexus/is_tower/is_epic/is_minion 체인이 switch 로 접혀 L939/935/938/951 의 정확한 술어 이름은 dbg(1400 is_nexus 만 남음)로 부분 확인 — 태그값 기준 동작은 확정",
+  "in_epic·is_recent_visible_big_action 의 의미(블랙보드 에픽 참여 플래그 / 최근 가시 대행동)는 이름 기반 추정 — 콜리 내부 안 팜"
+ ]
+}

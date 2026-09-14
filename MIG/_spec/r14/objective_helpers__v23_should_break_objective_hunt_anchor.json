@@ -1,0 +1,57 @@
+{
+ "name": "v23_should_break_objective_hunt_anchor",
+ "sym": "_RNvNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy9team_plan17objective_helpers38v23_should_break_objective_hunt_anchor",
+ "src": "game-ai\\src\\plan_legacy\\team_plan\\objective_helpers.rs",
+ "src_line": 59,
+ "ir_file": "m15.ll",
+ "ir_from": 56682,
+ "ir_to": 56738,
+ "aux": [],
+ "one_line": "오브젝트 사냥 앵커를 풀어야 하는가 — 오브젝트 HP<21% 면 유지, 아니면 내 주변/캠프 주변 적 우세로 판정",
+ "signature": {
+  "abi": "define hidden(비-internal) · 일반 Rust ABI · 반환 zeroext i1 · (u64,u64) 튜플 camp_pos 가 스칼라 2개(%4,%5)로 분해돼 들어옴(ScalarPair 인자)",
+  "params": [
+   {"i": 1, "name": "player", "type": "&PlayerState(2528B)", "note": "본문에서 직접 읽지 않음 — 헬퍼 2종에 그대로 전달(m15.ll:56711·56713·56725·56727)"},
+   {"i": 2, "name": "data", "type": "&OperationData(24B: 0x0 cache/0x8 context/0x10 blackboard)", "note": "본문에서 직접 읽지 않음 — 헬퍼에 전달"},
+   {"i": 3, "name": "champ", "type": "&Entity(1728B)", "note": "내 챔피언. x/y 만 읽음(56707~56710)"},
+   {"i": 4, "name": "objective", "type": "&Entity(1728B)", "note": "사냥 대상 오브젝트. stat_cached.hp(max)·hp 만 읽음(56689~56696)"},
+   {"i": 5, "name": "camp_pos", "type": "(u64,u64)", "note": "IR 에선 %4=x, %5=y 두 스칼라(#dbg_value fragment 0..8 / 8..16, 56687~56688). 오브젝트 캠프 좌표"}
+  ],
+  "returns": "bool(i1) — true = 앵커를 깨야 한다(사냥 포기). phi(m15.ll:56736): 오브젝트 저혈(<21%) 경로=false / 개인 우세열세=true / 그 외=캠프 주변 과부하 판정값"
+ },
+ "reads": [
+  {"base": "Entity(objective)", "offset": "0x628", "name": "stat_cached.hp", "note": "최대 HP. 0 이면 udiv 0 패닉(panic_const_div_by_zero, 56703) — 가드 없음. objective_helpers.rs:60"},
+  {"base": "Entity(objective)", "offset": "0x670", "name": "hp", "note": "현재 HP. hp*100/max_hp 로 % 계산. objective_helpers.rs:60"},
+  {"base": "Entity(champ)", "offset": "0x660", "name": "x", "note": "내 좌표 x — 개인 반경 판정 중심. objective_helpers.rs:64"},
+  {"base": "Entity(champ)", "offset": "0x668", "name": "y", "note": "내 좌표 y. objective_helpers.rs:64"}
+ ],
+ "writes": [],
+ "constants": [
+  {"value": 100, "src_line": 60, "meaning": "hp*100/max_hp — 백분율 환산"},
+  {"value": 21, "src_line": 60, "meaning": "오브젝트 HP% 임계: `icmp ult %pct, 21` 이 true(=HP%<=20) 면 즉시 false(앵커 유지). 소스는 `< 21` 또는 `<= 20` — 외연 동일(표기 불가)"},
+  {"value": 180000, "src_line": 64, "meaning": "내 주변 건강한 아군 계수 반경(v23_healthy_allies_near_point 의 radius 인자). 캠프 주변(L54·55, v23_visible_objective_overload 인라인) 에서도 아군·적 둘 다 180000"},
+  {"value": 160000, "src_line": 65, "meaning": "내 주변 최근가시 적 계수 반경(v23_recent_visible_enemies_near_point radius). 아군 180000 보다 좁음"},
+  {"value": 40, "src_line": 64, "meaning": "헬퍼 4종 호출 전부의 마지막 인자(usize). 헬퍼 시그니처 fn(&PlayerState,&OperationData,u64,u64,u64,usize)->usize 의 6번째 — 이름상 '건강' 기준(HP% 하한 40)으로 추정, 헬퍼 내부는 이 배치 범위 밖"},
+  {"value": 1, "src_line": 66, "meaning": "개인 판정: personal_enemies > 1 (적 2명 이상) AND personal_enemies > personal_allies → true"},
+  {"value": 2, "src_line": 56, "meaning": "캠프 과부하(v23_visible_objective_overload 인라인, L56<70): enemies > 2 (적 3명 이상) AND enemies >= allies + 2 → true. `add nuw nsw %allies, 2`(56730) 의 2 와 `ugt %enemies, 2`(56729) 의 2 둘 다"}
+ ],
+ "calls": [
+  "game_ai::plan_legacy::team_plan::objective_helpers::v23_healthy_allies_near_point",
+  "game_ai::plan_legacy::team_plan::objective_helpers::v23_recent_visible_enemies_near_point",
+  "core::panicking::panic_const::panic_const_div_by_zero"
+ ],
+ "logic": "fn v23_should_break_objective_hunt_anchor(player, data, champ, objective, camp_pos:(x,y)) -> bool\n// L60\nmax = objective.stat_cached.hp (+0x628); hp = objective.hp (+0x670)\nif max == 0 { panic(div by zero) }            // 56691~56703, 가드 없음\nif hp*100/max < 21 { return false }           // 오브젝트가 거의 죽음(<=20%) → 앵커 유지\n// L64~66 개인 주변\npersonal_allies  = v23_healthy_allies_near_point(player, data, champ.x, champ.y, 180000, 40)\npersonal_enemies = v23_recent_visible_enemies_near_point(player, data, champ.x, champ.y, 160000, 40)\nif personal_enemies > 1 && personal_enemies > personal_allies { return true }   // 56715~56718\n// L70 → v23_visible_objective_overload(player, data, camp_pos) 인라인 (objective_helpers.rs:54~56)\nallies  = v23_healthy_allies_near_point(player, data, camp_x, camp_y, 180000, 40)\nenemies = v23_recent_visible_enemies_near_point(player, data, camp_x, camp_y, 180000, 40)\nreturn enemies > 2 && enemies >= allies + 2   // 56729~56732 select(%30, %32, false)\n\n분기 순서(줄번호 확정): L60 저혈 조기 false → L66 개인 우세열세 true → L70 캠프 과부하. 헬퍼 반환은 range(i64 0,6) = 0..=5 명 계수.",
+ "knobs": [
+  {"what": "오브젝트 저혈 앵커 유지 임계(HP%)", "where": "objective_helpers.rs:60 (m15.ll:56699)", "value": 21, "effect": "올리면 오브젝트 HP 가 더 높을 때부터 '끝까지 친다'(적이 몰려도 앵커 유지) — 내리면 더 낮은 HP 에서만 유지"},
+  {"what": "개인 주변 아군 계수 반경", "where": "objective_helpers.rs:64 (m15.ll:56711)", "value": 180000, "effect": "올리면 먼 아군도 세어 personal_allies 가 커져 앵커를 덜 깬다"},
+  {"what": "개인 주변 적 계수 반경", "where": "objective_helpers.rs:65 (m15.ll:56713)", "value": 160000, "effect": "올리면 더 먼 적까지 세어 앵커를 더 자주 깬다"},
+  {"what": "개인 판정 적 최소 수", "where": "objective_helpers.rs:66 (m15.ll:56715)", "value": 1, "effect": "적 > 1 (2명 이상). 0 으로 내리면 적 1명이 아군보다 많아도(내가 혼자면 아군 계수 포함 여부에 따라) 깸"},
+  {"what": "캠프 과부하 적 최소 수 / 아군 대비 마진", "where": "objective_helpers.rs:56 (m15.ll:56729~56731)", "value": 2, "effect": "enemies>2 && enemies>=allies+2. 마진을 내리면 캠프 주변 소폭 열세에도 앵커를 깬다"},
+  {"what": "헬퍼 HP% 하한(추정)", "where": "objective_helpers.rs:54·55·64·65 (마지막 인자 40)", "value": 40, "effect": "추정: 올리면 '건강한' 아군/적으로 세는 기준이 엄격해져 계수가 줄어든다 — 헬퍼 내부 미독"}
+ ],
+ "unknown": [
+  "헬퍼 v23_healthy_allies_near_point / v23_recent_visible_enemies_near_point 의 6번째 인자 40 의 정확한 의미(HP% 하한으로 추정) — 헬퍼 본체(m15.ll:53341·55548)는 이 배치 범위 밖(시그니처만 기록). 반환 range(i64 0,6) 으로 계수(0..=5)임은 확정",
+  "L60 `< 21` vs `<= 20` 표기 — 외연 동일(표기 불가)",
+  "player·data 는 본문에서 직접 읽지 않아 이 함수 자체의 reads 에 없음(헬퍼 경유)"
+ ]
+}

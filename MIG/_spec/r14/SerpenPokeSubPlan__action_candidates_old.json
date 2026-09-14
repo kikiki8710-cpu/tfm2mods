@@ -1,0 +1,147 @@
+{
+ "name": "SerpenPokeSubPlan::action_candidates_old",
+ "sym": "_RNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy8sub_plan11serpen_pokeNtB2_17SerpenPokeSubPlan21action_candidates_old",
+ "src": "game-ai\\src\\plan_legacy\\sub_plan\\serpen_poke.rs",
+ "src_line": 418,
+ "ir_file": "m14.ll",
+ "ir_from": 16900,
+ "ir_to": 18615,
+ "aux": [],
+
+ "one_line": "세르펜 견제 서브플랜의 행동 후보 목록 생성 — 논타겟 회피/궤적이면 도주 단일 후보, 아니면 세르펜 상태별(부재/비가시·원거리/치명사거리) 이동 후보 1개 + 근접 적 도주 + 전투/소환수 후보를 덧붙인다. EpicPokeSubPlan 판과 구조 동일, 차이 = region 게이트 없음·150000 거리 게이트·region 2·치명 시 Around(serpen)",
+
+ "signature": {
+   "abi": "define void, 외부 심볼(비-fastcc). 인자 승격 없음. self 는 `readnone captures(none)`(본문 미사용, ZST 0B). 인자 7개 형태·속성이 EpicPokeSubPlan::action_candidates_old(m02.ll:45073) 과 바이트 단위 동일.",
+   "params": [
+     {"i": 0, "name": "(sret)", "type": "bumpalo::collections::vec::Vec<SmallActionPlay> (32B, sret align 8)", "note": "0x0 ptr · 0x8 bump · 0x10 cap · 0x18 len — 32B 전부 live(L16948·16950 store, L16954 memset 16B, 마지막 memcpy 32B L18551/L18612)."},
+     {"i": 1, "name": "self", "type": "&mut SerpenPokeSubPlan (ZST 0B)", "note": "IR `readnone captures(none)` — 읽기·쓰기 0. writes 없음."},
+     {"i": 2, "name": "version", "type": "usize", "note": "본문 분기 0. 콜리(nontarget_windup_perceived·position_score_at_position·Around/AroundRegion::new·battle_action/battle_ally_action)에 전달만."},
+     {"i": 3, "name": "rnd", "type": "&mut StdRng (320B align 16)", "note": "`noalias align 16 dereferenceable(320)`(readonly 없음 = &mut). ★본문 store 0. 전달처 4곳(Around::new·AroundRegion::new·battle_action·battle_ally_action) 모두 `_rnd readnone`(m08.ll:98411/92385, m15.ll:23700/25950) ⟹ 이 경로에서 사실상 불변."},
+     {"i": 4, "name": "player", "type": "&PlayerState (2528B)", "note": "readonly. info.team(0x930)·info.position(0x9c0)."},
+     {"i": 5, "name": "data", "type": "&OperationData (24B)", "note": "readonly. cache(0x0)·context(0x8)."},
+     {"i": 6, "name": "parameter", "type": "&ScoreParameter (5384B)", "note": "readonly. +0x9f0 positioning_score 주소만 전달."}
+   ],
+   "returns": "sret Vec<SmallActionPlay>(32B 전부 live). 원소 184B · 태그 enum+0xb1(1B 니치, untagged=AroundPosition). 직접 push 원소 3종·원소 안 live 바이트: ①RunAway(태그 3) 136B — new/new_with_skill initializes((0,56),(125,126),(128,132)) = 0x0~0x37 start_tick..prog_best_tick · 0x7d path_finder@tag · 0x80~0x83 with_skill/with_ult/dodge_trajectory/goal_committed ②Around(태그 5) 136B — initializes((0,56),(125,126),(128,130)) = 0x0~0x37 · 0x7d · 0x80 purpose@tag·0x81 escape_mode ③AroundRegion(태그 7) 120B — new 본문 store(m08.ll:98411~98462): 0x0 start_tick·0x8 target_region·0x10 goal_x·0x18 goal_y·0x20 goal_risk(i64::MAX)·0x28 end_delay·0x75 path_finder@tag(=2 None). 나머지 바이트 undef. extend 로 붙는 battle_action/battle_ally_action/attack_summon_action 원소는 각 명세 참조."
+ },
+
+ "reads": [
+   {"base": "PlayerState", "offset": "0x930", "name": "info.team", "note": "`< 2` 바운즈 후 인덱스 (L16953~16961)"},
+   {"base": "PlayerState", "offset": "0x9c0", "name": "info.position", "note": "Position 태그(i32 0..4) → player_champion 2차 인덱스 (L16973~16981)"},
+   {"base": "OperationData", "offset": "0x0", "name": "cache", "note": "L16974"},
+   {"base": "OperationData", "offset": "0x8", "name": "context", "note": "L16944"},
+   {"base": "GameContext", "offset": "0x0", "name": "pool", "note": "&Bump — 결과 Vec 할당자 (L16946)"},
+   {"base": "AbstractGameWithCache", "offset": "0x0", "name": "game.data_ptr", "note": "L17212"},
+   {"base": "AbstractGameWithCache", "offset": "0x8", "name": "game.vtable_ptr", "note": "L17213~17214"},
+   {"base": "AbstractGameWithCache", "offset": "0x1e0", "name": "player_champion", "note": "[[Option<&Entity>;5];2] — [my][pos]=champ(unwrap) · [enemy][0..5] 순회 2회 (L16979~16985)"},
+   {"base": "vtable(AbstractGame)", "offset": "0x40", "name": "get_game_mode", "note": "{i64 tag, ptr} = GameMode, tag 0=Moba (L17215~17224)"},
+   {"base": "vtable(AbstractGame)", "offset": "0x1f0", "name": "get_entity_by_id", "note": "(self, id) → Option<&Entity> (L17254~17258)"},
+   {"base": "vtable(AbstractGame)", "offset": "0xf8", "name": "is_visible", "note": "(self, enemy_team, champ.id) → bool (L17592~17594)"},
+   {"base": "MobaMode", "offset": "0x1d8", "name": "jungle_runner.serpen.live_list.len", "note": "0 이면 세르펜 없음 (L17236~17238)"},
+   {"base": "MobaMode", "offset": "0x1d0", "name": "jungle_runner.serpen.live_list.buf.ptr", "note": "first() 의 usize id → get_entity_by_id (L17246~17258)"},
+   {"base": "ScoreParameter", "offset": "0x9f0", "name": "positioning_score", "note": "주소만 position_score_at_position 에 전달 (L17174)"},
+   {"base": "PositioningScore(sret 56B, 지역 %25)", "offset": "0x30", "name": "on_trajectory", "note": "L17191~17193"},
+   {"base": "PositioningScore(sret 56B, 지역 %25)", "offset": "0x31", "name": "on_periodic_trajectory", "note": "L17194~17196 (dbg 이름 on_trajectory 가 붙음)"},
+   {"base": "Entity(적 챔프 c, 클로저 L426~431)", "offset": "0x68", "name": "ty@tag", "note": "== 13 Champion (L17061~17063)"},
+   {"base": "Entity(적 챔프 c)", "offset": "0x70", "name": "ty@Champion.0.action_state@tag", "note": "4 Skill/5 Skill2/6 Ult 만 (L17088~17093)"},
+   {"base": "Entity(적 챔프 c)", "offset": "0x4f8", "name": "skill_effect@tag(casting 니치)", "note": "-1 None→패닉 · 1,2 통과 · 그 외 false (L17098~17103)"},
+   {"base": "Entity(적 챔프 c)", "offset": "0x4c8", "name": "skill_effect", "note": "&Effect → is_in_range self (L17115)"},
+   {"base": "Entity(적 챔프 c)", "offset": "0x5c8", "name": "level", "note": "skill2_effect(): level>2 / ult_effect(): level>4 아니면 정적 None (L17121~17125·17144~17148)"},
+   {"base": "Entity(적 챔프 c)", "offset": "0x500", "name": "skill2_effect", "note": "L17124"},
+   {"base": "Entity(적 챔프 c)", "offset": "0x538", "name": "ult_effect", "note": "L17147"},
+   {"base": "Effect(skill2/ult 선택 결과)", "offset": "0x30", "name": "casting@tag / Option 니치", "note": "L17127~17131 · 17150~17154"},
+   {"base": "Entity(champ %48)", "offset": "0x660", "name": "x", "note": "L17175 — position_score 좌표·거리 계산"},
+   {"base": "Entity(champ %48)", "offset": "0x668", "name": "y", "note": "L17181"},
+   {"base": "Entity(champ %48)", "offset": "0x0", "name": "team@tag", "note": "TeamType 0=Player/1=Neutral — is_visible_from(L17284) 및 L475 클로저의 team != (L17722)"},
+   {"base": "Entity(champ %48)", "offset": "0x8", "name": "team@Player.0", "note": "L17295~17297 · 17724"},
+   {"base": "Entity(champ %48)", "offset": "0x5c8", "name": "level", "note": "Effect::range(caster=champ) (L17366)"},
+   {"base": "Entity(champ %48)", "offset": "0x438", "name": "stat_buff_cached.range", "note": "L17370"},
+   {"base": "Entity(champ %48)", "offset": "0x470", "name": "stat_buff_cached.radius_mult", "note": "Entity::radius() (L17372)"},
+   {"base": "Entity(champ %48)", "offset": "0x680", "name": "radius", "note": "L17384·17391"},
+   {"base": "Entity(champ %48)", "offset": "0x670", "name": "hp", "note": "dmg*2 < hp (L17437~17439)"},
+   {"base": "Entity(champ %48)", "offset": "0x5c0", "name": "id", "note": "is_visible(enemy_team, champ.id) (L17590)"},
+   {"base": "Entity(serpen %142)", "offset": "0x68", "name": "ty@tag", "note": "== 6 Serpen (L17277~17279)"},
+   {"base": "Entity(serpen %142)", "offset": "0x38", "name": "visible_state[team]", "note": "[VisibleState;2] 24B stride, 0=Visible (L17304~17307)"},
+   {"base": "Entity(serpen %142)", "offset": "0x660", "name": "x", "note": "champ↔serpen 거리(L452 게이트·L458 사거리 비교 공용, L17323)"},
+   {"base": "Entity(serpen %142)", "offset": "0x668", "name": "y", "note": "L17329"},
+   {"base": "Entity(serpen %142)", "offset": "0x5c0", "name": "id", "note": "Around::new target (L17317·17459)"},
+   {"base": "Entity(serpen %142)", "offset": "0x490", "name": "attack_effect", "note": "as_ref().unwrap() → &Effect (L17353)"},
+   {"base": "Entity(serpen %142)", "offset": "0x4c0", "name": "attack_effect@tag(casting 니치)", "note": "-1 → unwrap 패닉 (L17354~17357)"},
+   {"base": "Entity(serpen %142)", "offset": "0x4a0", "name": "attack_effect.range", "note": "L17362"},
+   {"base": "Entity(serpen %142)", "offset": "0x4a8", "name": "attack_effect.growth_range", "note": "L17364"},
+   {"base": "Entity(serpen %142)", "offset": "0x470", "name": "stat_buff_cached.radius_mult", "note": "serpen.radius() (L17400)"},
+   {"base": "Entity(serpen %142)", "offset": "0x680", "name": "radius", "note": "L17407·17414"},
+   {"base": "Entity(적 챔프 c, 클로저 L475)", "offset": "0x0", "name": "team@tag", "note": "L17768"},
+   {"base": "Entity(적 챔프 c, 클로저 L475)", "offset": "0x8", "name": "team@Player.0", "note": "L17770"},
+   {"base": "Entity(적 챔프 c, 클로저 L475)", "offset": "0x660", "name": "x", "note": "L17783"},
+   {"base": "Entity(적 챔프 c, 클로저 L475)", "offset": "0x668", "name": "y", "note": "L17787"}
+ ],
+
+ "writes": [
+   {"base": "sret Vec(지역 %26 → memcpy 32B → %0)", "offset": "0x0", "name": "buf.ptr", "value": "8(dangling) → reserve 가 갱신", "note": "L16948"},
+   {"base": "sret Vec", "offset": "0x8", "name": "buf.a(bump)", "value": "data.context.pool", "note": "L16950"},
+   {"base": "sret Vec", "offset": "0x10", "name": "buf.cap", "value": "0 (memset 16B)", "note": "L16954"},
+   {"base": "sret Vec", "offset": "0x18", "name": "len", "value": "0 → push 마다 +1 (L17519·17583·17645·17697·18506·18610)", "note": "inline push 6곳 + Vec::push 호출 1곳(L17528) + extend 3곳(L18524·18535·18546)"},
+   {"base": "sret Vec 원소(184B)", "offset": "0xb1", "name": "SmallActionPlay@tag", "value": "3(RunAway: L17526·18461·18565) / 5(Around: L17474·17538) / 7(AroundRegion: L17600·17652)", "note": "지역 버퍼에 태그 store 후 184B memcpy"},
+   {"base": "self / rnd / player / data / parameter", "offset": "0x0", "name": "(없음)", "value": "-", "note": "★&mut 인자 self·rnd 에 store 0건(본문 store 전수 = Vec 4필드·원소 태그·len). rnd 콜리 4곳 모두 `_rnd readnone`."}
+ ],
+
+ "constants": [
+   {"value": 2, "src_line": 422, "meaning": "①player_champion 팀 바운즈(2) ②AroundRegion::new 의 target_region = 2(세르펜 둥지 region, L467·L470) ③CastingType::Direction 태그 ④skill2_effect() 의 `level > 2` ⑤visible_state[team] 바운즈"},
+   {"value": 13, "src_line": 426, "meaning": "EntityType::Champion 태그"},
+   {"value": 4, "src_line": 427, "meaning": "ChampionActionState::Skill 태그 · ult_effect() 의 `level > 4` 문턱"},
+   {"value": 5, "src_line": 429, "meaning": "①ChampionActionState::Skill2 태그 ②모든 후보 생성자 end_delay ③SmallActionPlay::Around 메모리태그"},
+   {"value": 6, "src_line": 431, "meaning": "①ChampionActionState::Ult 태그 ②EntityType::Serpen 태그(L451 `serpen.ty == Serpen`)"},
+   {"value": -1, "src_line": 427, "meaning": "Option<Effect> None 니치 — as_ref().unwrap() 패닉 값(skill/skill2/ult/serpen.attack_effect)"},
+   {"value": 1, "src_line": 427, "meaning": "CastingType::Position 태그(논타겟). ★L458 의 `shl i64 %236, 1` 은 dmg*2 — 아래 folded 항목", "folded_from": null},
+   {"value": 1, "src_line": 458, "folded_from": 2, "meaning": "dmg*2 가 `shl` 로 접힘 — 세르펜 평타 2방 이하로 죽는가(치명)"},
+   {"value": 11, "src_line": 438, "meaning": "PositionEvalPurpose::Objective 메모리태그(니치, idx9)"},
+   {"value": 0, "src_line": 452, "meaning": "①VisibleState::Visible ②TeamType::Player ③GameMode::Moba ④live_list.len==0 ⑤radius_mult==0"},
+   {"value": 22500000000, "src_line": 452, "meaning": "150000² — champ↔serpen 제곱거리가 이보다 크면(`ugt`) 원거리 → Around(serpen). Epic 판에는 없는 게이트"},
+   {"value": 20000, "src_line": 455, "meaning": "Effect::range(effect.rs:26) 고정 가산 여유"},
+   {"value": 100, "src_line": 455, "meaning": "Entity::radius(entity.rs:1515) 퍼센트 기준"},
+   {"value": 22500000001, "src_line": 475, "meaning": "150000²+1 — 적 챔프가 150000 이내면 has_near_enemy(`ult`)"},
+   {"value": 3, "src_line": 442, "meaning": "SmallActionPlay::RunAway 메모리태그 · CastingType::None(false 경로)"},
+   {"value": 7, "src_line": 467, "meaning": "SmallActionPlay::AroundRegion 메모리태그(0xb1 store L17600·17652). ⚠Epic 판과 달리 region 번호 7 은 이 함수에 없음(세르펜 region=2)"}
+ ],
+
+ "calls": [
+   "game_ai::utils::nontarget_windup_perceived",
+   "game_core::simulation::effect::Effect::is_in_range",
+   "game_ai::position_eval::position_score_at_position",
+   "game_ai::small_action::move_actions::SmallActionRunAway::new_with_skill",
+   "game_ai::small_action::move_actions::SmallActionRunAway::new",
+   "game_ai::small_action::around::SmallActionAround::new",
+   "game_ai::small_action::around::SmallActionAroundRegion::new",
+   "game_core::simulation::effect::Effect::expected_damage_target",
+   "game_ai::fight_check::battle_action",
+   "game_ai::fight_check::battle_ally_action",
+   "game_ai::fight_check::attack_summon_action",
+   "bumpalo::collections::vec::push",
+   "bumpalo::collections::vec::reserve_internal_or_panic",
+   "core::iter::traits::collect::extend",
+   "core::option::unwrap_failed",
+   "core::panicking::panic_bounds_check",
+   "core::ptr::drop_glue"
+ ],
+
+ "logic": "fn action_candidates_old(&mut self, version, rnd: &mut StdRng, player, data, parameter) -> Vec<SmallActionPlay>  // serpen_poke.rs:418\n  let bump = data.context.pool; let mut res = Vec::new_in(bump);   // L419\n  let champ = data.cache.player_champion[player.info.team][player.info.position as usize].unwrap();   // L422\n  let enemy_team = 1 - player.info.team;                          // L425\n  let has_non_target_action_range = data.cache.iter_champions(enemy_team).any(|c|   // L425~431 (Epic L433~439 와 동일)\n        nontarget_windup_perceived(version, player, data, c) && c.ty@tag == 13 /*Champion*/   // L426\n     && { let eff = match c.action_state@tag { 4 => c.skill_effect.as_ref().unwrap(),   // L427\n                                              5 => c.skill2_effect().as_ref().unwrap(),  // L429 (level>2 ? &skill2_effect : &NONE)\n                                              6 => c.ult_effect().as_ref().unwrap(),     // L431 (level>4 ? &ult_effect : &NONE)\n                                              _ => return false };\n          matches!(eff.casting@tag, 1 | 2) && eff.is_in_range(c, champ) });\n  let ps = position_score_at_position(version, player, data, &parameter.positioning_score, champ.x, champ.y, 11 /*Objective*/);   // L438~439\n  if ps.on_trajectory || (has_non_target_action_range || ps.on_periodic_trajectory) {   // L440 (줄 안 순서 표기 불가)\n      res.push(RunAway(SmallActionRunAway::new_with_skill(data, player, 5, true)));   // L442 (태그 3)\n      return res;                                                 // L443\n  }\n  let mut warn = false;                                           // phi %290\n  // L450: Moba 아니면 as_moba().unwrap() 패닉. ★Epic 판의 `region = map.regions[..]` 읽기가 여기엔 없다.\n  let serpen = data.cache.game.get_game_mode().as_moba().unwrap().jungle_runner.serpen.live_list.first()\n               .and_then(|id| data.cache.game.get_entity_by_id(*id));\n  match serpen {\n    None => res.push(AroundRegion(SmallActionAroundRegion::new(version, rnd, data, player, 2 /*region*/, 5))),   // L470 (태그 7)\n    Some(s) if s.ty@tag != 6 /*Serpen*/ => res.push(AroundRegion(…::new(version, rnd, data, player, 2, 5))),   // L467\n    Some(s) if !s.is_visible_from(champ) || dist_sq(champ, s) > 22500000000 /*150000²*/ =>   // L452 (is_visible_from: champ.team 이 Player(t) 이고 s.visible_state[t]@tag != 0 이면 안 보임; Neutral 이면 보임 취급. ★Epic 판의 `region != 7` 게이트 대신 거리 게이트)\n        res.push(Around(SmallActionAround::new(version, rnd, data, player, s.id, 5))),   // L453 (태그 5)\n    Some(s) => {\n        let eff = s.attack_effect.as_ref().unwrap();              // L455\n        let range = eff.range(champ) /*eff.range+20000+champ.stat_buff_cached.range+(champ.level-1)*eff.growth_range*/ + champ.radius() + s.radius();   // L455\n        let dmg = eff.expected_damage_target(data.context, s as &dyn AbstractEntity, champ);   // L456\n        if dmg*2 < champ.hp || range*range < dist_sq(champ, s) {   // L458 (dist_sq 는 L452 에서 계산한 dx/dy 재사용)\n            res.push(Around(SmallActionAround::new(version, rnd, data, player, s.id, 5)));   // L462 ★Epic 판은 여기서 AroundRegion(7)\n        } else { warn = true; res.push(RunAway(SmallActionRunAway::new(data, player, 5))); }   // L460\n    }\n  }\n  if data.cache.game.is_visible(enemy_team, champ.id) {           // L473\n      let has_near_enemy = data.cache.iter_champions(enemy_team).any(|c| c.team != champ.team && dist_sq(c, champ) < 22500000001);   // L475 (5칸 언롤·champ.team 태그별 2사본)\n      if has_near_enemy { res.push(RunAway(SmallActionRunAway::new(data, player, 5))); }   // L476~477\n      if !warn { res.extend(battle_action(version, rnd, player, data, 5)); }        // L480~481\n      else     { res.extend(battle_ally_action(version, rnd, player, data, 5)); }   // L483\n  }\n  res.extend(attack_summon_action(player, data));                 // L486\n  res                                                             // L488~489",
+
+ "knobs": [
+   {"what": "세르펜 둥지 region 번호(AroundRegion 목표)", "where": "serpen_poke.rs:467·470", "value": 2, "effect": "세르펜 부재/비-Serpen 엔티티일 때 배회할 region. MapDef.regions 값과 맞아야 함"},
+   {"what": "세르펜 접근 거리 게이트", "where": "serpen_poke.rs:452", "value": 22500000000, "effect": "제곱거리가 이보다 크면(150000 초과) Around(serpen) 로 접근만 한다. 내리면 더 가까이 가서야 사거리/치명 판정으로 넘어간다"},
+   {"what": "치명 판정 배수", "where": "serpen_poke.rs:458 (`shl 1`=×2)", "value": 2, "effect": "올리면 더 여유 있는 HP 에서도 치명으로 보고 RunAway(warn)·battle_ally_action 으로 빠진다"},
+   {"what": "근접 적 도주 반경", "where": "serpen_poke.rs:475", "value": 22500000001, "effect": "올리면 더 먼 적 챔프에도 RunAway 후보 추가"},
+   {"what": "Effect::range 고정 여유", "where": "effect.rs:26 (인라인)", "value": 20000, "effect": "올리면 세르펜 사거리를 넓게 봐 더 일찍 warn/RunAway"},
+   {"what": "후보 end_delay", "where": "serpen_poke.rs:442·453·460·462·467·470·477·481·483", "value": 5, "effect": "모든 후보의 종료 지연 틱"},
+   {"what": "position_score purpose", "where": "serpen_poke.rs:438", "value": 11, "effect": "Objective 용도 가중치 세트"}
+ ],
+
+ "unknown": [
+   "L440 한 줄 안의 `||` 3항 소스 순서 — column 없음(표기 불가; 동작은 IR 확정: 0x30 → (has_nt || 0x31)).",
+   "L458/460/462 의 소스 표기 방향(`if A||B {Around} else {warn;RunAway}` vs 반대) — 줄 순서(460 RunAway 가 462 보다 앞)로 후자 유력, 외연 동일(표기 불가).",
+   "L452 한 줄 안의 `!is_visible_from || dist>150k` 순서 — IR 은 가시성 검사 후 거리 검사이나 같은 줄이라 표기 순서는 미확정(외연 동일).",
+   "dbg 이름 `on_trajectory` 가 +0x31 로드에 붙은 이유 — 판정 무관.",
+   "콜리 내부 미독해(계약만): nontarget_windup_perceived(잎22) · attack_summon_action(잎22) · position_score_at_position · battle_action · battle_ally_action · SmallActionRunAway::new/new_with_skill · SmallActionAround::new · SmallActionAroundRegion::new · Effect::is_in_range/expected_damage_target(game_core) · vtable get_game_mode/get_entity_by_id/is_visible.",
+   "Epic 판(L456)의 MapDef.regions 읽기가 Serpen 판에 없는 이유(설계 의도)는 소스 부재로 알 수 없음 — IR 사실만 기록."
+ ]
+}

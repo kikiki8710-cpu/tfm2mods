@@ -1,0 +1,68 @@
+{
+ "name": "SmallActionLaneMinionPosition::has_current_explicit_minion_action",
+ "sym": "_RNvMNtNtCshdEBA0ozCnw_7game_ai12small_action11lane_minionNtB2_29SmallActionLaneMinionPosition34has_current_explicit_minion_action",
+ "src": "game-ai\\src\\small_action\\lane_minion.rs",
+ "src_line": 187,
+ "ir_file": "m11.ll",
+ "ir_from": 45591,
+ "ir_to": 45768,
+ "aux": [],
+ "one_line": "지금 위치에서 그 라인의 적 미니언(target)에게 평타/스킬/스킬2 중 하나를 '명시적으로' 쓸 수 있는가 — 라인 근접·우물/불필요 타워 위치·스탠스 위험 게이트 후 판정",
+ "signature": {
+  "abi": "internal fastcc (m11.ll:45591). 인자 승격 흔적: line 이 LineType(1B) 스칼라 i8 range(0,3) 로 전달(포인터 아님 — 소스 타입이 값 타입이라 승격이 아닌 원형일 수 있음) · 나머지 4개는 ptr 그대로 · 팻포인터 분해 없음 · self 없음(연관 함수)",
+  "params": [
+   {"i": 1, "name": "version", "type": "usize", "note": "본문 분기 없음. is_enemy_well_danger/is_unnecessary_enemy_tower_position 첫 인자로 전달. lane_stance_risk 에는 poison 전달(45721 — 콜리가 안 씀)"},
+   {"i": 2, "name": "data", "type": "&OperationData(24B)", "note": "+0x0 cache(player_champion) · +0x8 context(is_near_line)"},
+   {"i": 3, "name": "player", "type": "&PlayerState(2528B)", "note": "+0x930 team · +0x9c0 position 태그 · path_finder/lane_stance_risk 인자"},
+   {"i": 4, "name": "line", "type": "LineType(1B)", "note": "Top0/Mid1/Bottom2. target 미니언의 line 과 비교(45699) · is_near_line 인자"},
+   {"i": 5, "name": "target", "type": "&Entity(1728B)", "note": "+0x0/+0x8 team · +0x38 visible_state[team] · +0x68 ty · +0x11a Minion.info.line · can_use_minion_action_now 인자"}
+  ],
+  "returns": "bool — true = 평타(can_attack)·스킬(can_skill)·스킬2(can_skill2) 중 하나로 target 을 지금 명시적으로 칠 수 있음. 게이트 하나라도 실패하면 false"
+ },
+ "reads": [
+  {"base": "PlayerState", "offset": "0x930", "name": "info.team", "note": "45600 (gep 2352) · bounds 2 (45606)"},
+  {"base": "PlayerState", "offset": "0x9c0", "name": "info.position@tag", "note": "45611 (gep 2496)"},
+  {"base": "OperationData", "offset": "0x0", "name": "cache", "note": "45614"},
+  {"base": "OperationData", "offset": "0x8", "name": "context", "note": "45703 → is_near_line"},
+  {"base": "AbstractGameWithCache", "offset": "0x1e0", "name": "player_champion[team][position]", "note": "45615~45618 (gep 480, [5 x ptr] stride) · null → false"},
+  {"base": "Entity", "offset": "0x0", "name": "team@tag", "note": "45628(target)/45631(champ) — TeamType PartialEq(entity.rs:1127) 및 player_team(1136)"},
+  {"base": "Entity", "offset": "0x8", "name": "team@Player.0", "note": "45670/45671 팀 번호 비교 · 45647 champ 팀 번호 → visible_state 인덱스"},
+  {"base": "Entity", "offset": "0x38", "name": "visible_state[champ_team]@tag", "note": "45677~45679 (gep 56 + {i64,[2 x i64]}*team, stride 24) == 0 Visible — is_visible_from(entity.rs:1482~1483)"},
+  {"base": "Entity", "offset": "0x68", "name": "ty@tag", "note": "45658/45682 target.ty == 1 Minion (lane_minion_on_line lane_minion.rs:65)"},
+  {"base": "Entity", "offset": "0x11a", "name": "ty@Minion.info.line@tag", "note": "45695 (gep 282) == line (lane_minion.rs:66 · LineType eq player.rs:988)"},
+  {"base": "Entity", "offset": "0x660", "name": "x", "note": "45705 champ.x (gep 1632)"},
+  {"base": "Entity", "offset": "0x668", "name": "y", "note": "45707 champ.y (gep 1640)"},
+  {"base": "Entity", "offset": "0x4c0", "name": "attack_effect@tag", "note": "45731 i32 == -1 → None(null 전달)"},
+  {"base": "Entity", "offset": "0x490", "name": "attack_effect@Some.0", "note": "45734 → can_use_minion_action_now 둘째 인자"},
+  {"base": "Entity", "offset": "0x4f8", "name": "skill_effect@tag", "note": "45742 == -1 → null"},
+  {"base": "Entity", "offset": "0x4c8", "name": "skill_effect@Some.0", "note": "45745"},
+  {"base": "Entity", "offset": "0x5c8", "name": "level", "note": "45752 level>2 면 &skill2_effect(+0x500) 아니면 정적 NONE(@anon.38) (entity.rs:1693 접근자 인라인)"},
+  {"base": "Entity", "offset": "0x500", "name": "skill2_effect", "note": "45755 · +0x530 태그(gep 48, 45758) == -1 → null"}
+ ],
+ "writes": [],
+ "constants": [
+  {"value": 2, "src_line": 188, "meaning": "player_champion 1차원 bounds(team<2 · 45602) · visible_state bounds(45654) · level>2 skill2 가용(45754, entity.rs:1693)"},
+  {"value": 0, "src_line": 191, "meaning": "TeamType 태그 0 = Player(45643) · visible_state 태그 0 = Visible(45680)"},
+  {"value": 1, "src_line": 191, "meaning": "EntityType 태그 1 = Minion (45660/45683) · lane_stance_risk 반환 Option 태그 1 = Some (45725)"},
+  {"value": -1, "src_line": 203, "meaning": "Option<Effect> 니치 None (i32 -1 · 45733/45744/45760) → as_ref() null"}
+ ],
+ "calls": [
+  "game_core::simulation::map_regions::is_near_line",
+  "game_ai::path_finder::is_enemy_well_danger",
+  "game_ai::path_finder::is_unnecessary_enemy_tower_position",
+  "game_ai::small_action::lane_minion::SmallActionLaneMinionPosition::lane_stance_risk",
+  "game_core::simulation::entity::Entity::can_attack",
+  "game_core::simulation::entity::Entity::can_skill",
+  "game_core::simulation::entity::Entity::can_skill2",
+  "game_ai::small_action::lane_minion::SmallActionLaneMinionPosition::can_use_minion_action_now"
+ ],
+ "logic": "L188: champ = data.cache.player_champion[player.info.team][player.info.position]  — None → false\nL191: if !( target.team != champ.team\n           && target.is_visible_from(&champ.team)      [entity.rs:1482: champ.team.player_team()=Some(t) → target.visible_state[t]==Visible(0) ; Neutral → 무조건 통과]\n           && lane_minion_on_line(target, line) )       [lane_minion.rs:65~66: target.ty==Minion(1) && target.ty.Minion.info.line == line]\n        → false\nL194: if !is_near_line(data.context, champ.x, champ.y, line) → false\nL195: if is_enemy_well_danger(version, player, champ.x, champ.y) → false\nL196: if is_unnecessary_enemy_tower_position(version, player, data, champ.x, champ.y) → false\nL199: if lane_stance_risk(<version 미사용=poison>, player, data, champ, champ.x, champ.y).is_none() → false   (ScalarPair {tag,val}: tag==1 Some 만 통과 · 값은 안 씀)\nL203: if can_use_minion_action_now(champ.can_attack(), champ.attack_effect.as_ref(), champ, target) → true\nL204: if can_use_minion_action_now(champ.can_skill(),  champ.skill_effect.as_ref(),  champ, target) → true\nL205: return can_use_minion_action_now(champ.can_skill2(), champ.skill2_effect().as_ref() [level>2 ? &skill2_effect : &NONE], champ, target)\n(ult 은 검사하지 않음 — 45763 에서 바로 종료)",
+ "knobs": [],
+ "unknown": [
+  "L191 의 세 조건(team≠ · is_visible_from · lane_minion_on_line)의 소스 결합 순서 — column 정보 없음. IR 은 team 비교 → visible → ty/line 순으로 평가하나 이것이 소스 `&&` 순서와 같다고만 추정",
+  "lane_stance_risk 반환 { i64, i64 } 를 Option<i64>(is_none 인라인 option.rs:682/430)로 읽음 — 두 번째 i64 의 의미(위험 점수?)는 이 함수가 안 쓰므로 미확정",
+  "can_use_minion_action_now(internal fastcc m11.ll:45096 · 인자 (bool can, Option<&Effect>, &Entity champ, &Entity target)) 내부 미탐색",
+  "is_near_line(game_core g09.ll:157890 · (ctx, x, y, line)) · is_enemy_well_danger(m03.ll:144500) · is_unnecessary_enemy_tower_position(m03.ll:146255) 내부 미탐색(경로 계층 경계)",
+  "knobs 없음 — 이 함수 안에는 튜닝 가능한 수치 상수가 없다(태그·bounds 만)"
+ ]
+}

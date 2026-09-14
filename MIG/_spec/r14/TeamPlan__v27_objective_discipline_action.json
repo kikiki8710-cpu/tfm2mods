@@ -1,0 +1,74 @@
+{
+ "name": "v27_objective_discipline_action",
+ "sym": "_RNvMNtNtNtCshdEBA0ozCnw_7game_ai11plan_legacy9team_plan20objective_disciplineNtB4_8TeamPlan31v27_objective_discipline_action",
+ "src": "game-ai\\src\\plan_legacy\\team_plan\\objective_discipline.rs",
+ "src_line": 505,
+ "ir_file": "m09.ll",
+ "ir_from": 19231,
+ "ir_to": 19840,
+ "aux": [],
+ "one_line": "오브젝트 규율 상태(SafeWait/HardDisengage)와 근접 가시 적 유무로 대기위치 배회 / 스킬 도주 / 없음 중 하나의 소액션을 만든다",
+ "signature": {
+  "abi": "define hidden(비-internal) · sret 184B = Option<SmallActionPlay> · target(JungleType) 는 i8 range(0,6) 스칼라로 승격 · version 은 i64 스칼라(콜리 v27_active_objective_discipline 에 `i64 poison` 으로 전달 = 그 콜리에선 미사용, 19251)",
+  "params": [
+   {"i": 0, "name": "(sret)", "type": "Option<SmallActionPlay>(184B)", "note": "None = +0xb1(177) 에 i8 -1 저장(19276·19816·19824). RunAway 는 136B 페이로드를 +0 에 쓰고 +0xb1 에 태그 3(19836~19838). AroundPosition::new 는 sret 184B 를 통째로 채움(19828·19832)"},
+   {"i": 1, "name": "self", "type": "&TeamPlan", "note": "본문에서 직접 읽지 않음 — v27_active_objective_discipline 에 전달"},
+   {"i": 2, "name": "version", "type": "usize", "note": "is_ignored_well_enemy 1번째 인자로만 전달(19394 등 5회). 콜리 v27_active_objective_discipline 에는 poison"},
+   {"i": 3, "name": "rnd", "type": "&mut StdRng(320B)", "note": "본문에서 직접 읽지 않음 — SmallActionAroundPosition::new 에 &mut 전달(19828·19832). 이 함수 자체의 writes 없음(콜리 내부 rng 진행은 콜리 소관)"},
+   {"i": 4, "name": "player", "type": "&PlayerState(2528B)", "note": "info.team(+0x930)·info.position(+0x9c0) 읽음; is_ignored_well_enemy·is_recent_visible·new_with_skill 에 전달"},
+   {"i": 5, "name": "data", "type": "&OperationData(24B)", "note": "+0 cache(player_champion·game) / +0x10 blackboard"},
+   {"i": 6, "name": "target", "type": "JungleType(i8, 0..5)", "note": "v27_active_objective_discipline 에 그대로 전달. 본문 분기 없음"}
+  ],
+  "returns": "Option<SmallActionPlay> sret 184B. 살아있는 바이트: None 경로 = +0xb1 1B 만(나머지 183B 미기록). RunAway 경로 = +0..+0x88(136B, new_with_skill 이 채움) + +0xb1 태그 3; +0x88~+0xb0 및 +0xb2~+0xb7 미기록. AroundPosition 경로 = 콜리 new 가 184B 채움(untagged variant, +0xb1 은 콜리가 쓰는 값 = 니치 밖 값)"
+ },
+ "reads": [
+  {"base": "ObjectiveDisciplineState(Option, 32B 스택 %8)", "offset": "0x19", "name": "kind@tag", "note": "19252~19254: ==2 → None(Option 니치) → 반환 None. 0=SafeWait / 1=HardDisengage (19263 trunc → %16)"},
+  {"base": "ObjectiveDisciplineState", "offset": "0x0", "name": "wait_pos.0", "note": "19258 → AroundPosition x"},
+  {"base": "ObjectiveDisciplineState", "offset": "0x8", "name": "wait_pos.1", "note": "19259~19260 → AroundPosition y"},
+  {"base": "PlayerState", "offset": "0x930", "name": "info.team", "note": "19268~19270 bounds<2; 적 팀 = 1-team(19301)"},
+  {"base": "PlayerState", "offset": "0x9c0", "name": "info.position@tag", "note": "i32 → 내 챔피언 슬롯 인덱스(19285~19287)"},
+  {"base": "OperationData", "offset": "0x0", "name": "cache", "note": "19288"},
+  {"base": "OperationData", "offset": "0x10", "name": "blackboard", "note": "19309~19310 → blackboard[1-team](19342, Blackboard 744B stride)"},
+  {"base": "AbstractGameWithCache", "offset": "0x1e0", "name": "player_champion[team][position] / [1-team][0..5]", "note": "내 챔피언(19290~19293, null → None 반환 19814~19816) · 적 5칸 언롤(19345·…·19718, null 건너뜀)"},
+  {"base": "AbstractGameWithCache", "offset": "0x0", "name": "game(dyn AbstractGame 팻포인터 +0/+8)", "note": "19306~19308 → is_recent_visible 인자"},
+  {"base": "Entity(champ)", "offset": "0x0", "name": "team@tag", "note": "Entity::is_visible_from 인라인(entity.rs:1482): 태그 1(Neutral) 이면 가시 검사 생략(19369~19371)"},
+  {"base": "Entity(champ)", "offset": "0x8", "name": "team@Player.0", "note": "팀 idx(19375, bounds<2 → 19390 panic)"},
+  {"base": "Entity(enemy)", "offset": "0x38", "name": "visible_state[team]@tag", "note": "VisibleState 24B stride(gepS 19383): 태그 0=Visible 만 통과(data.rs:122 is_visible)"},
+  {"base": "Entity(enemy / champ)", "offset": "0x660", "name": "x", "note": "19403~19404 · 19411 거리"},
+  {"base": "Entity(enemy / champ)", "offset": "0x668", "name": "y", "note": "19407~19408 · 19414"}
+ ],
+ "writes": [
+  {"base": "sret Option<SmallActionPlay>", "offset": "0xb1", "value": "-1", "note": "None (19276 state None / 19816 champ None / 19824 SafeWait&무위협)"},
+  {"base": "sret Option<SmallActionPlay>", "offset": "0xb1", "value": "3", "note": "RunAway 태그(SmallActionPlay 니치 idx0→태그3), 19838. 페이로드 +0..136 은 new_with_skill 이 씀"}
+ ],
+ "constants": [
+  {"value": 2, "src_line": 507, "meaning": "Option<ObjectiveDisciplineState> None 니치 = kind 태그 2 (19254). 또 팀 bounds 2 (19270·19377)"},
+  {"value": -1, "src_line": 524, "meaning": "Option<SmallActionPlay> None 태그(+0xb1)"},
+  {"value": 3, "src_line": 516, "meaning": "SmallActionPlay::RunAway 메모리 태그(니치 start 3)"},
+  {"value": 25600000001, "src_line": 512, "meaning": "적 거리² < 160000²+1 ⟺ dist <= 160000 (5셀) — '근접 위협' 반경"},
+  {"value": 5, "src_line": 516, "meaning": "SmallActionRunAway::new_with_skill 의 3번째 usize 인자(19836) 및 SmallActionAroundPosition::new 의 5번째 usize 인자(19828·19832) — 액션 지속/우선 파라미터(이름은 콜리 시그니처에 없음)"},
+  {"value": 1, "src_line": 509, "meaning": "적 팀 = 1 - team (19301) · new_with_skill 마지막 bool true(19836)"},
+  {"value": 0, "src_line": 509, "meaning": "VisibleState::Visible 태그 0 (19385 · 19758)"}
+ ],
+ "calls": [
+  "game_ai::plan_legacy::team_plan::objective_discipline::TeamPlan::v27_active_objective_discipline",
+  "game_ai::plan_legacy::old::fight_model::is_ignored_well_enemy",
+  "game_core::simulation::game::blackboard::Blackboard::is_recent_visible",
+  "game_ai::small_action::around::SmallActionAroundPosition::new",
+  "game_ai::small_action::move_actions::SmallActionRunAway::new_with_skill",
+  "core::panicking::panic_bounds_check"
+ ],
+ "logic": "fn v27_objective_discipline_action(&self, version, rnd, player, data, target:JungleType) -> Option<SmallActionPlay>\n// L507\nstate = self.v27_active_objective_discipline(version /*poison*/, data, target)?   // None(kind 태그 2) → return None\n// state = ObjectiveDisciplineState { wait_pos:(x,y) +0/+8, until_tick +0x10(미사용), target +0x18(미사용), kind +0x19 }\nhard = (state.kind == HardDisengage /*1*/)\n// L508\nteam = player.info.team (bounds 2); champ = cache.player_champion[team][player.info.position]?   // None → return None\n// L509~512 (5칸 언롤, 첫 true 단락)\nhas_near_threat = cache.player_champion[1-team].iter().flatten().any(|enemy|\n       enemy.is_visible_from(champ)          // champ.team Neutral → true; Player t → enemy.visible_state[t] == Visible(0)\n    && !is_ignored_well_enemy(version, player, enemy)                     // L510\n    && blackboard[1-team].is_recent_visible(cache.game, player, enemy)    // L511\n    && (|dx|²+|dy|²) < 25600000001 )                                       // L512 dist<=160000\n// L514\nif hard {\n    if has_near_threat { Some(SmallActionPlay::RunAway(SmallActionRunAway::new_with_skill(data, player, 5, true))) }   // L516\n    else               { SmallActionAroundPosition::new(rnd, data, x, y, 5) /*sret 그대로 = Some(AroundPosition)*/ }   // L519\n} else /*SafeWait*/ {\n    if has_near_threat { SmallActionAroundPosition::new(rnd, data, x, y, 5) }   // L522\n    else               { None }                                                // L524\n}",
+ "knobs": [
+  {"what": "근접 위협 반경(제곱)", "where": "objective_discipline.rs:512 (m09.ll:19430)", "value": 25600000001, "effect": "올리면 더 먼 적도 위협으로 봐 HardDisengage 는 도주, SafeWait 는 배회로 더 자주 전환"},
+  {"what": "액션 파라미터 5 (RunAway/AroundPosition 공통 usize)", "where": "objective_discipline.rs:516·519·522 (m09.ll:19828·19832·19836)", "value": 5, "effect": "콜리 시그니처상 usize 1개 — 의미(지속틱/우선도)는 콜리 내부 소관이라 효과 미확정"},
+  {"what": "RunAway 스킬 허용 플래그", "where": "objective_discipline.rs:516 (m09.ll:19836 마지막 i1 true)", "value": 1, "effect": "false 로 바꾸면 스킬 없는 도주(문서 주석: '도주 입력(스킬 미사용)')"}
+ ],
+ "unknown": [
+  "AroundPosition 경로의 sret: SmallActionAroundPosition::new 의 tcx 반환형은 SmallActionAroundPosition(184B) 인데 IR 은 Option<SmallActionPlay>(184B) sret 을 그대로 넘긴다 — SmallActionPlay::AroundPosition 이 untagged(암묵) variant 라 레이아웃 동일해 접힌 것으로 읽음(tcxdict --enum SmallActionPlay: untagged=7 AroundPosition). +0xb1 이 니치 밖 값이라는 전제",
+  "state.until_tick(+0x10)·target(+0x18) 은 이 함수에서 안 읽음 — 콜리 v27_active_objective_discipline 소관(같은 r14 중간 · 내부 미독)",
+  "is_ignored_well_enemy(usize,&PlayerState,&Entity)->bool (fight_model.rs:754) · Blackboard::is_recent_visible · new_with_skill(&OperationData,&PlayerState,usize,bool)->SmallActionRunAway · SmallActionAroundPosition::new(&mut StdRng,&OperationData,u64,u64,usize) — 시그니처만",
+  "Entity::is_visible_from(&Entity,&Entity)->bool (entity.rs:1481, mir=1) 인라인 — Neutral 관측자는 항상 true 로 읽힘(19369~19371 분기 방향)",
+  "rnd(&mut StdRng) 는 본문에 직접 write 없음 — AroundPosition::new 내부 rng 소비 여부는 콜리 소관"
+ ]
+}

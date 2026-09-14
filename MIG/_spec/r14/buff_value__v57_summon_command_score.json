@@ -1,0 +1,336 @@
+{
+ "name": "v57_summon_command_score",
+ "sym": "_RNvNtCshdEBA0ozCnw_7game_ai10buff_value24v57_summon_command_score",
+ "src": "game-ai\\src\\buff_value.rs",
+ "src_line": 785,
+ "ir_file": "m10.ll",
+ "ir_from": 38354,
+ "ir_to": 38672,
+ "aux": [
+  {
+   "ir_file": "m10.ll",
+   "ir_from": 7228,
+   "ir_to": 7652
+  }
+ ],
+ "one_line": "소환수 명령 액션(환술사 궁/네크로맨서 Q·W·R) 4종의 점수 — 근처 가시 적 유무·대상 팀·구울 수로 0..90 산출, 그 외 액션은 None",
+ "signature": {
+  "abi": "define hidden(비-internal) · 반환 { i64, i64 } = Option<i64> ScalarPair(첫 i64 = 태그 0/1, 둘째 i64 = 값) · 클로저 closure#0(near_visible_enemy)는 internal fastcc, 캡처 구조체 24B(%10: +0 cache ptr / +8 blackboard ptr / +16 player ptr)를 포인터로 받고 인자 `around:&Entity` 포인터 1개 — 승격 흔적 없음(둘 다 ptr)",
+  "params": [
+   {
+    "i": 1,
+    "name": "data",
+    "type": "&OperationData(24B)",
+    "note": "+0 cache(&AbstractGameWithCache) → 캡처·others / +8 context(&GameContext) → expected_damage_target 인자 / +0x10 blackboard(&[Blackboard;2]) → 캡처"
+   },
+   {
+    "i": 2,
+    "name": "player",
+    "type": "&PlayerState(2528B)",
+    "note": "info.team(+0x930) 만 읽음(본체 38488 · 클로저 7241)"
+   },
+   {
+    "i": 3,
+    "name": "champ",
+    "type": "&Entity(1728B)",
+    "note": "내 챔피언. team(+0/+8) 비교 및 클로저 around 인자"
+   },
+   {
+    "i": 4,
+    "name": "action",
+    "type": "&Box<dyn Action>(16B 팻포인터: +0 data / +8 vtable)",
+    "note": "vtable+0x68 = Action::as_any → &dyn Any 팻포인터, 그 vtable+0x18 = Any::type_id(sret 16B TypeId). is::<T>() 4회"
+   },
+   {
+    "i": 5,
+    "name": "t",
+    "type": "&Entity(1728B)",
+    "note": "명령 대상 엔티티. team·attack_effect·attack_cooltime 읽음"
+   }
+  ],
+  "returns": "Option<i64> ScalarPair { i64 tag(0=None/1=Some), i64 value }. 살아있는 바이트: tag 8B 항상 / value 8B 는 Some 일 때만(None 경로 %53→%68 phi 에 `undef`, m10.ll:38499). 값 범위: -100 / 0 / 5 / 8 / 10..90(atk_power) / 25 / 30 / 18·ghouls(≤60) / 90"
+ },
+ "reads": [
+  {
+   "base": "OperationData",
+   "offset": "0x0",
+   "name": "cache",
+   "note": "&AbstractGameWithCache — 클로저 캡처 +0 및 others 접근 (38376·38507)"
+  },
+  {
+   "base": "OperationData",
+   "offset": "0x8",
+   "name": "context",
+   "note": "&GameContext — expected_damage_target 2번째 인자 (38643)"
+  },
+  {
+   "base": "OperationData",
+   "offset": "0x10",
+   "name": "blackboard",
+   "note": "&[Blackboard;2] — 클로저 캡처 +8 (38377)"
+  },
+  {
+   "base": "Box<dyn Action>",
+   "offset": "0x0",
+   "name": "data_ptr",
+   "note": "38384"
+  },
+  {
+   "base": "Box<dyn Action>",
+   "offset": "0x8",
+   "name": "vtable_ptr",
+   "note": "38385~38388; vtable+0x68(104) 슬롯 = as_any (divtable Action 0x68)"
+  },
+  {
+   "base": "vtable(dyn Any)",
+   "offset": "0x18",
+   "name": "type_id",
+   "note": "as_any() 결과 팻포인터의 vtable+24 → TypeId 16B sret (38397~38399 등 4회)"
+  },
+  {
+   "base": "Entity(t / champ)",
+   "offset": "0x0",
+   "name": "team@tag",
+   "note": "TeamType 판별자(0=Player,1=Neutral). t.team != champ.team 비교(L795·L813, entity.rs:1127 derive eq 인라인)"
+  },
+  {
+   "base": "Entity(t / champ)",
+   "offset": "0x8",
+   "name": "team@Player.0",
+   "note": "팀 인덱스 usize — 판별자 둘 다 Player 일 때만 비교"
+  },
+  {
+   "base": "Entity(t)",
+   "offset": "0x4c0",
+   "name": "attack_effect@tag",
+   "note": "Option<Effect> 니치 태그 i32: -1 = None (38635~38637, L796)"
+  },
+  {
+   "base": "Entity(t)",
+   "offset": "0x490",
+   "name": "attack_effect@Some.0",
+   "note": "&Effect 페이로드 시작 — expected_damage_target 의 self (38641)"
+  },
+  {
+   "base": "PlayerState",
+   "offset": "0x930",
+   "name": "info.team",
+   "note": "others[team] 인덱스(38488, 범위<2 아니면 bounds panic) · 클로저에선 1-team = 적 팀(7241~7243)"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0xf0",
+   "name": "others[team].buf.ptr",
+   "note": "bumpalo Vec<&Entity> 배열 [2], stride 32 (38507~38508: gep {{ptr,ptr,i64},i64} 인덱스 team)"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x18",
+   "name": "others[team].len (원소 base +0x18 · 절대 0x108)",
+   "note": "Vec+0x18 = len (38513~38514, 원소 순회 상한)"
+  },
+  {
+   "base": "Entity(others 원소)",
+   "offset": "0x68",
+   "name": "ty@tag",
+   "note": "EntityType 태그 == 7(Ghoul) 계수 (38552~38554, L811)"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x0",
+   "name": "game (dyn AbstractGame 팻포인터 +0 data/+8 vtable)",
+   "note": "클로저 7256~7258 — is_recent_visible 의 game 인자"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x1e0",
+   "name": "player_champion[enemy_team][0..5]",
+   "note": "클로저 7252~7253: [5 x ptr] 배열 stride 40, Option<&Entity> 니치(null=None, 7297)"
+  },
+  {
+   "base": "Entity(around / c)",
+   "offset": "0x660",
+   "name": "x",
+   "note": "클로저 거리 계산 (7287·7313)"
+  },
+  {
+   "base": "Entity(around / c)",
+   "offset": "0x668",
+   "name": "y",
+   "note": "클로저 거리 계산 (7288·7317)"
+  },
+  {
+   "base": "[Blackboard;2]",
+   "offset": "0x0",
+   "name": "blackboard[enemy_team]",
+   "note": "클로저 7342: Blackboard 744B stride 로 인덱스 1-team (bounds<2 검사 7245·7409) → is_recent_visible self"
+  }
+ ],
+ "writes": [],
+ "constants": [
+  {
+   "value": -141079226136965309619829630430687205697,
+   "src_line": 794,
+   "meaning": "TypeId::of::<game_core::setting::champion::illusionist::IllusionistUltAction>() (i128 상수, DISubprogram is<…IllusionistUltAction> 38406 스코프 !44006)"
+  },
+  {
+   "value": -134454233013580059629836840851528089863,
+   "src_line": 804,
+   "meaning": "TypeId::of::<NecromancerSkillAction>() (스코프 !44023)"
+  },
+  {
+   "value": 55786046490698026004615071578502304005,
+   "src_line": 809,
+   "meaning": "TypeId::of::<NecromancerSkill2Action>() (스코프 !44041)"
+  },
+  {
+   "value": 148968811538501754127421805951936454270,
+   "src_line": 818,
+   "meaning": "TypeId::of::<NecromancerUltAction>() (스코프 !44059)"
+  },
+  {
+   "value": 0,
+   "src_line": 795,
+   "meaning": "환술사 궁: t.team != champ.team → Some(0). 네크로 W(813): ghouls>0 이고 t.team == champ.team → Some(0). 판별자 0 = TeamType::Player"
+  },
+  {
+   "value": 1000,
+   "src_line": 797,
+   "meaning": "dps = expected_damage*1000/attack_cooltime — 밀리초 단위 초당 피해"
+  },
+  {
+   "value": 1,
+   "src_line": 797,
+   "meaning": "umax(attack_cooltime, 1) — 0 나눗셈 가드. 또 Option Some 태그"
+  },
+  {
+   "value": 40,
+   "src_line": 800,
+   "meaning": "atk_power = dps/40 (sdiv) 뒤 clamp — 피해 → 점수 환산 계수"
+  },
+  {
+   "value": 10,
+   "src_line": 800,
+   "meaning": "atk_power 하한(smax 10) 겸 attack_effect None 일 때 dps 기본값(unwrap_or 10, L798 → 10/40 clamp = 10)"
+  },
+  {
+   "value": 90,
+   "src_line": 800,
+   "meaning": "atk_power 상한(umin 90). 네크로 궁(819)의 '가시 적 있음' 점수 90 과 같은 값"
+  },
+  {
+   "value": 5,
+   "src_line": 800,
+   "meaning": "환술사 궁: 대상 t 근처(200000) 에 가시 적 없음 → 5 (있으면 atk_power)"
+  },
+  {
+   "value": 25,
+   "src_line": 805,
+   "meaning": "네크로 Q(SkillAction): 내 근처 가시 적 있음 → 25"
+  },
+  {
+   "value": 8,
+   "src_line": 805,
+   "meaning": "네크로 Q: 가시 적 없음 → 8"
+  },
+  {
+   "value": 2,
+   "src_line": 810,
+   "meaning": "others[team] 인덱스 bounds(팀 2). 클로저에서도 player_champion[1-team]·blackboard[1-team] bounds 2"
+  },
+  {
+   "value": 7,
+   "src_line": 811,
+   "meaning": "EntityType 메모리태그 7 = Ghoul (tcxdict --enum EntityType idx7=tag7) — others[team] 중 구울 수 계수"
+  },
+  {
+   "value": -100,
+   "src_line": 812,
+   "meaning": "네크로 W(Skill2Action): 아군 구울 0마리 → Some(-100) (강한 거부)"
+  },
+  {
+   "value": 18,
+   "src_line": 814,
+   "meaning": "네크로 W: 적 대상 → ghouls*18"
+  },
+  {
+   "value": 60,
+   "src_line": 814,
+   "meaning": "네크로 W: smin(ghouls*18, 60) 상한 (구울 4마리부터 포화)"
+  },
+  {
+   "value": 30,
+   "src_line": 819,
+   "meaning": "네크로 궁(UltAction): 내 근처 가시 적 없음 → 30 (있으면 90)"
+  },
+  {
+   "value": 40000000001,
+   "src_line": 789,
+   "meaning": "클로저: 거리² < 200000²+1 ⟺ dist <= 200000 (약 6.25셀) — 적 챔피언이 around 근처인지"
+  }
+ ],
+ "calls": [
+  "_RNCNvNtCshdEBA0ozCnw_7game_ai10buff_value24v57_summon_command_score0B5_",
+  "game_core::simulation::effect::Effect::expected_damage_target",
+  "game_core::simulation::entity::Entity::attack_cooltime",
+  "game_core::simulation::game::blackboard::Blackboard::is_recent_visible",
+  "core::panicking::panic_bounds_check",
+  "llvm.smin.i64",
+  "llvm.smax.i64",
+  "llvm.umin.i64",
+  "llvm.umax.i64"
+ ],
+ "logic": "fn v57_summon_command_score(data, player, champ, action:&Box<dyn Action>, t:&Entity) -> Option<i64>\n// L787~791 클로저 near_visible_enemy(around:&Entity) -> bool  [aux m10.ll:7228~7652]\n//   enemy = 1 - player.info.team (bounds<2)\n//   cache.player_champion[enemy].iter().flatten()   // 5칸, null=None 건너뜀\n//     .any(|c| (|c.x-around.x|² + |c.y-around.y|²) < 40000000001   // dist<=200000\n//              && blackboard[enemy].is_recent_visible(cache.game, player, c))\n//   (5칸이 완전 언롤: 7292~7638, 첫 true 에서 단락)\n\nany = action.as_any()   // vtable+0x68\n// L794\nif any.is::<IllusionistUltAction>() {\n    // L795\n    if t.team != champ.team { return Some(0) }   // TeamType eq: 태그 다름 → ne / 둘 다 Player 면 idx 비교 / 둘 다 Neutral 면 eq\n    // L796~798\n    dps = t.attack_effect.map(|eff| eff.expected_damage_target(data.context, t as &dyn AbstractEntity, t) * 1000 / max(t.attack_cooltime(), 1)).unwrap_or(10)\n    // L800\n    atk_power = clamp(dps / 40, 10, 90)     // None 경로는 상수 10 으로 접힘(phi 38667)\n    return Some(if near_visible_enemy(t) { atk_power } else { 5 })\n}\n// L804\nelse if any.is::<NecromancerSkillAction>() {\n    // L805\n    return Some(if near_visible_enemy(champ) { 25 } else { 8 })\n}\n// L809\nelse if any.is::<NecromancerSkill2Action>() {\n    // L810~811\n    ghouls = cache.others[player.info.team].iter().filter(|e| e.ty tag == 7 /*Ghoul*/).count()   // team>=2 → bounds panic\n    // L812\n    if ghouls == 0 { return Some(-100) }\n    // L813\n    if t.team == champ.team { return Some(0) }\n    // L814\n    return Some(min(ghouls * 18, 60))\n}\n// L818\nelse if any.is::<NecromancerUltAction>() {\n    // L819\n    return Some(if near_visible_enemy(champ) { 90 } else { 30 })\n}\n// L823\nelse { return None }   // 값 슬롯 undef\n\n분기 순서 = 소스 줄 794→804→809→818 (TypeId 검사 체인, 각 검사마다 as_any 재호출 38389·38409·38443·38468).",
+ "knobs": [
+  {
+   "what": "환술사 궁 대상 근처 적 없음 점수",
+   "where": "buff_value.rs:800 (m10.ll:38670)",
+   "value": 5,
+   "effect": "올리면 적이 안 보여도 환술사 궁(소환 명령)을 더 자주 씀"
+  },
+  {
+   "what": "환술사 궁 atk_power 환산 계수 / 하한 / 상한",
+   "where": "buff_value.rs:800 (m10.ll:38661~38663)",
+   "value": 40,
+   "effect": "계수 40 을 내리면 대상 dps 가 같아도 점수↑(상한 90 까지). 하한 10·상한 90"
+  },
+  {
+   "what": "네크로 Q 점수(적 가시 / 없음)",
+   "where": "buff_value.rs:805 (m10.ll:38464)",
+   "value": 25,
+   "effect": "25/8. 올리면 근처 적 있을 때 Q 우선순위↑"
+  },
+  {
+   "what": "네크로 W 구울 0마리 거부",
+   "where": "buff_value.rs:812 (m10.ll:38499 phi -100)",
+   "value": -100,
+   "effect": "덜 음수로 하면 구울 없이도 W 를 고려"
+  },
+  {
+   "what": "네크로 W 구울당 점수 / 상한",
+   "where": "buff_value.rs:814 (m10.ll:38599·38602)",
+   "value": 18,
+   "effect": "ghouls*18 을 60 에서 포화. 계수↑ → 적은 구울로도 최대점"
+  },
+  {
+   "what": "네크로 궁 점수(적 가시 / 없음)",
+   "where": "buff_value.rs:819 (m10.ll:38495)",
+   "value": 90,
+   "effect": "90/30. 없음 쪽 30 을 내리면 적 없을 때 궁 낭비 감소"
+  },
+  {
+   "what": "근처 가시 적 반경(제곱)",
+   "where": "buff_value.rs:789 (m10.ll:7338 클로저)",
+   "value": 40000000001,
+   "effect": "200000²+1. 올리면 더 먼 적도 '근처'로 봐 높은 점수 경로를 더 자주 탐"
+  }
+ ],
+ "unknown": [
+  "Action::as_any 슬롯 이름은 divtable 이 TargetAttackAction 구현체의 정적 vtable 기준으로 0x68=as_any 라고 답한 것 — 런타임 Box<dyn Action> 의 실제 구현체별 vtable 배치가 같다는 전제(트레이트 오브젝트 vtable 은 트레이트 기준이라 같아야 함)",
+  "L797 인라인 클로저(closure$1)가 map 으로 dps 를 만들 때 `expected_damage_target` 4번째 인자(target)에 t 자신(%4)을 넘긴다 — 소환수의 자기 자신 대상 기대피해로 '공격력 척도'를 잡는 의도로 읽히나 소스 주석 부재(rmetadocs 0건)",
+  "TypeId i128 상수 4개는 컴파일러 해시라 값 자체 의미 없음 — 타입 귀속은 DISubprogram is<T> 스코프(!44006·!44023·!44041·!44059)로 확정",
+  "L798 unwrap_or(10) 과 L800 clamp 의 정확한 소스 표기(`.map(..).unwrap_or(10)` 뒤 `(dps/40).clamp(10,90)` 으로 추정) — None 경로가 상수 10 으로 접혀 표기 불가(외연 동일)",
+  "Effect::expected_damage_target / Entity::attack_cooltime / Blackboard::is_recent_visible 내부는 game_core 경계 — 시그니처만 기록(tcx: fn(&Effect,&GameContext,&dyn AbstractEntity,&Entity)->usize / fn(&Entity)->usize / fn(&Blackboard,&dyn AbstractGame,&PlayerState,&Entity)->bool)",
+  "calls 첫 항목의 망글 심볼 = closure#0(near_visible_enemy, aux m10.ll:7228~7652) — qcspec 이 'closure#0' 표기를 못 잡아 심볼로 적음"
+ ]
+}

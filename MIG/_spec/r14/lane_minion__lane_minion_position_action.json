@@ -1,0 +1,92 @@
+{
+ "name": "lane_minion_position_action",
+ "sym": "_RNvNtNtCshdEBA0ozCnw_7game_ai12small_action11lane_minion27lane_minion_position_action",
+ "src": "game-ai\\src\\small_action\\lane_minion.rs",
+ "src_line": 20,
+ "ir_file": "m11.ll",
+ "ir_from": 54240,
+ "ir_to": 54538,
+ "aux": [
+  {"ir_file": "m11.ll", "ir_from": 40688, "ir_to": 40855, "note": "closure$0 = filter 술어(lane_minion.rs:32~45): 가시·Minion·같은 라인·follow_range 안"},
+  {"ir_file": "m11.ll", "ir_from": 14980, "ir_to": 15140, "note": "Filter→FilterMap→max_by_key 의 fold 인스턴스(슬라이스 1개분). filter_map 클로저 s_0(lane_minion.rs:46) 가 인라인: target_score(...).1 을 키로 max_by_key"},
+  {"ir_file": "m11.ll", "ir_from": 55475, "ir_to": 55508, "note": "s_0 클로저 call_mut 심(FnMut 경유용). 본체와 동일: Some((target, target_score(..).1))"}
+ ],
+ "one_line": "서포터 제외, 팔로우 사거리 안 적 라인 미니언 중 target_score 최대를 골라 LaneMinionPosition 소액션(목표는 choose_goal)을 만든다",
+ "signature": {
+  "abi": "define void (외부 심볼, fastcc 아님). exe 0xe2a830 · 호출자 1",
+  "params": [
+   {"i": 0, "name": "(sret)", "type": "Option<SmallActionPlay> (184B)", "note": "sret([184 x i8]) writeonly. 태그 = +0xb1(177): None = i8 -1(=0xff · 54283/54319/54438/54457/54499/54535 6곳), Some(LaneMinionPosition) = 13(54528). Some 일 때 live 바이트 = [0x0,0x80) SmallActionLaneMinionPosition 128B memcpy(54527) + 0xb1 태그. 128B 안 live: +0 start_tick, +8 target(id), +0x10 goal_x, +0x18 goal_y, +0x20 goal_score, +0x28 end_delay, +0x75 path_finder@tag(=2 None · 54486), +0x78 position_eval_purpose. [0x30,0x75)·0x76~0x77·[0x79,0x80) = alloca 잔류(path_finder None 페이로드·패딩 미기록). [0x80,0xb1)·[0xb2,0xb8) 미기록. None 이면 0xb1 외 전부 미기록"},
+   {"i": 1, "name": "version", "type": "usize", "note": "본 함수 분기 없음. has_current_explicit_minion_action·choose_goal 에 전달(스택 %20 경유 · 클로저 캡처 &version 은 target_score 가 안 읽어 poison 전달됨)"},
+   {"i": 2, "name": "rnd", "type": "&mut StdRng (320B)", "note": "IR 속성: noalias align 16 dereferenceable(320) — readonly 없음 = &mut. 본 함수는 직접 읽지도 쓰지도 않고 클로저(+72 캡처)→target_score 의 마지막 인자로만 전달. 본 함수 자체의 writes 0"},
+   {"i": 3, "name": "data", "type": "&OperationData (24B)", "note": "readonly. cache(+0) 만 직접 사용"},
+   {"i": 4, "name": "player", "type": "&PlayerState (2528B)", "note": "readonly. info.position(0x9c0)·info.team(0x930)"},
+   {"i": 5, "name": "line", "type": "LineType (i8 0..3)", "note": "필터 술어(캡처 &line)·has_current_explicit_minion_action·choose_goal 에 전달"},
+   {"i": 6, "name": "positioning_score", "type": "&PositioningScoreData (2760B)", "note": "readonly. choose_goal 에만 전달(54491~54492)"},
+   {"i": 7, "name": "wave_snapshot", "type": "Option<&MinionWaveSnapshot (2320B)>", "note": "dereferenceable_or_null · null=None. 클로저 캡처(+64 → 스택 %18)→ target_score 인자"},
+   {"i": 8, "name": "end_delay", "type": "usize", "note": "SmallActionLaneMinionPosition.end_delay(+0x28) 에 그대로 저장(54488)"},
+   {"i": 9, "name": "position_eval_purpose", "type": "PositionEvalPurpose (i8 0..13)", "note": "+0x78 저장(54490) + choose_goal 인자"}
+  ],
+  "returns": "sret Option<SmallActionPlay>. None 조건 6곳: ①position==Support(4) ②champ None ③attack_effect None ④필터 통과 미니언 0 ⑤has_current_explicit_minion_action==true ⑥choose_goal==None. Some = LaneMinionPosition{start_tick=game.tick(), target=best.id, goal=choose_goal 결과, goal_score, end_delay, path_finder=None, position_eval_purpose}"
+ },
+ "reads": [
+  {"base": "PlayerState", "offset": "0x9c0", "name": "info.position@tag", "note": "54275. ==4(Support) 면 None(54278). player_champion 2차 인덱스"},
+  {"base": "PlayerState", "offset": "0x930", "name": "info.team", "note": "54287, bounds<2(54289). 1-team 이 iter_minions 인자(54326)"},
+  {"base": "OperationData", "offset": "0x0", "name": "cache", "note": "54300"},
+  {"base": "AbstractGameWithCache", "offset": "0x1e0", "name": "player_champion[team][pos]", "note": "54301~54304. null → None"},
+  {"base": "AbstractGameWithCache", "offset": "0x0", "name": "game (&dyn AbstractGame data ptr)", "note": "54470"},
+  {"base": "AbstractGameWithCache", "offset": "0x8", "name": "game vtable ptr", "note": "54471 → vtable+0x28 = AbstractGame::tick (divtable) · 54473~54474 간접호출"},
+  {"base": "Entity", "offset": "0x4c0", "name": "attack_effect@tag (champ, 니치 -1=None)", "note": "54312. None → None 반환(54438)"},
+  {"base": "Entity", "offset": "0x490", "name": "attack_effect (Effect 56B 선두, champ)", "note": "54323 → 클로저 캡처 atk. 술어에서 +0x10 range(=0x4a0)·+0x18 growth_range(=0x4a8) 읽음(40754·40756)"},
+  {"base": "Entity", "offset": "0x5c0", "name": "id (best target)", "note": "54462 → action.target"},
+  {"base": "Entity", "offset": "0x0", "name": "team@tag (champ) [aux closure$0]", "note": "40701~40702(trunc). Neutral 이면 가시성 검사 생략"},
+  {"base": "Entity", "offset": "0x8", "name": "team@Player.0 (champ) [aux]", "note": "40706"},
+  {"base": "Entity", "offset": "0x38", "name": "visible_state[team]@tag (target) [aux]", "note": "40715 + team*24(gepS) · ==0 Visible(40718)"},
+  {"base": "Entity", "offset": "0x68", "name": "ty@tag (target) [aux]", "note": "40726, ==1 Minion(40728)"},
+  {"base": "Entity", "offset": "0x11a", "name": "ty@Minion.info.line@tag (target) [aux]", "note": "40742, == *line(40747)"},
+  {"base": "Entity", "offset": "0x5c8", "name": "level (champ) [aux]", "note": "40758 (level-1)*growth_range"},
+  {"base": "Entity", "offset": "0x438", "name": "stat_buff_cached.range (champ) [aux]", "note": "40762"},
+  {"base": "Entity", "offset": "0x470", "name": "stat_buff_cached.radius_mult (champ·target) [aux]", "note": "40766 / 40790"},
+  {"base": "Entity", "offset": "0x680", "name": "radius (champ·target) [aux]", "note": "40773·40780 / 40797·40804"},
+  {"base": "Entity", "offset": "0x660", "name": "x (target·champ) [aux]", "note": "40823 / 40831"},
+  {"base": "Entity", "offset": "0x668", "name": "y (target·champ) [aux]", "note": "40827 / 40835"}
+ ],
+ "writes": [
+  {"base": "sret", "offset": "0xb1", "name": "Option<SmallActionPlay> 태그", "value": "-1(None) / 13(LaneMinionPosition)", "note": "위 signature 참조"},
+  {"base": "sret", "offset": "0x0..0x80", "name": "SmallActionLaneMinionPosition", "value": "start_tick=tick(), target=id, goal_x/y=choose_goal, goal_score, end_delay, path_finder=None(+0x75=2), purpose", "note": "54476~54490 스택 %16 에 조립 → 54523~54525 goal 덮어쓰기 → 54527 memcpy 128B"},
+  {"base": "rnd(&mut StdRng)", "offset": "-", "name": "-", "value": "본 함수 직접 쓰기 없음", "note": "target_score(콜리) 가 &mut 로 받음 — 부작용은 그 명세 소관"}
+ ],
+ "constants": [
+  {"value": 4, "src_line": 23, "meaning": "Position 태그 4 = Support(tcxdict --enum Position). 서포터는 라인 미니언 포지셔닝 안 함 · 54278"},
+  {"value": -1, "src_line": 24, "meaning": "Option<SmallActionPlay> None 니치 태그(i8 0xff, +0xb1) · 54283 등 6곳"},
+  {"value": 13, "src_line": 61, "meaning": "SmallActionPlay 니치 태그 13 = LaneMinionPosition · 54528"},
+  {"value": 1987654321, "src_line": 54, "meaning": "goal_x/goal_y 초기 센티널(미설정 표식). choose_goal Some 이면 덮어씀 · 54480/54482"},
+  {"value": 2, "src_line": 54, "meaning": "Option<PathFinder> None 니치 태그(bool 니치, +0x75) · 54486"},
+  {"value": 64000, "src_line": 42, "meaning": "[aux closure$0] follow_range 여유 = 2셀(32000*2). IR 은 재결합으로 effect.rs:26 위치에 붙였으나(dloc 62398) 인라인 뿌리는 lane_minion.rs:42 · 40814"},
+  {"value": 100, "src_line": 42, "meaning": "[aux] Entity::radius() 인라인 radius*(mult+100)/100 · 40784/40808"},
+  {"value": 1, "src_line": 35, "meaning": "[aux] EntityType 태그 1 = Minion · 40728"},
+  {"value": 0, "src_line": 32, "meaning": "[aux] VisibleState 0 = Visible(40718) / TeamType 0 = Player(40701 trunc)"}
+ ],
+ "calls": [
+  "game_core::simulation::AbstractGameWithCache::iter_minions",
+  "game_ai::small_action::lane_minion::SmallActionLaneMinionPosition::has_current_explicit_minion_action",
+  "game_ai::small_action::lane_minion::SmallActionLaneMinionPosition::choose_goal",
+  "game_ai::small_action::lane_minion::SmallActionLaneMinionPosition::target_score",
+  "game_core::simulation::effect::Effect::range_adjust",
+  "core::iter::adapters::chain::Chain::try_fold",
+  "core::iter::adapters::map::Map::fold",
+  "core::panicking::panic_bounds_check"
+ ],
+ "logic": "fn lane_minion_position_action(version, rnd:&mut StdRng, data, player, line, positioning_score, wave_snapshot, end_delay, position_eval_purpose) -> Option<SmallActionPlay>\n[L23] if player.info.position == Support(4) { return None }              ; 54278\n[L27] champ = data.cache.player_champion[player.info.team][player.info.position]?   ; null → None(54319)\n[L28] atk = champ.attack_effect.as_ref()?                                 ; 태그 0x4c0 == -1 → None(54438)\n[L30] (target, target_score) = data.cache.iter_minions(1 - player.info.team)   ; 적 미니언 체인 이터레이터(56B)\n  [L32~45] .filter(|target| closure$0):                                   ; aux 40688~40855\n     L32: champ.team==Player(t) ⇒ target.visible_state[t]==Visible 아니면 false (Neutral 이면 통과)\n     L35: target.ty is Minion(1) 아니면 false\n     L38: target.ty.Minion.info.line == line 아니면 false\n     L42: follow_range = atk.range + 64000 + champ.stat_buff_cached.range + (champ.level-1)*atk.growth_range + atk.range_adjust(champ,target) + Entity::radius(champ)\n     L43: follow_range += Entity::radius(target)\n     L44: dist_sq(target,champ) <= follow_range^2\n  [L46] .filter_map(|target| Some((target, SmallActionLaneMinionPosition::target_score(version, data, player, champ, atk, target, wave_snapshot, rnd).1)))   ; 항상 Some(ptr 니치 non-null · 55505~55507). version·player 는 콜리가 안 읽어 poison\n  [L47] .max_by_key(|(_, score)| *score)                                     ; 동점이면 뒤 원소(compare>0 일 때만 앞 유지 · 15117~15118)\n  ?                                                                          ; 후보 0 → None(54457)\n[L50] if SmallActionLaneMinionPosition::has_current_explicit_minion_action(version, data, player, line, target) { [L51] return None }   ; 54450→54499\n[L54] action = SmallActionLaneMinionPosition::new(data, target.id, end_delay, target_score, position_eval_purpose)   ; lane_minion.rs:140 인라인: start_tick = data.cache.game.tick()(vtable+0x28), goal_x=goal_y=1987654321, goal_score=target_score, path_finder=None(+0x75=2)\n[L56] match SmallActionLaneMinionPosition::choose_goal(target_score, position_eval_purpose, version, player, data, champ, target, positioning_score, line) {   ; sret 32B Option<(x,y,score)>: +0 tag(1=Some), +8 x, +16 y, +24 score\n  Some((gx,gy,gs)) => { [L57] action.goal_x=gx; [L58] action.goal_y=gy; [L59] action.goal_score=gs; [L61] Some(SmallActionPlay::LaneMinionPosition(action)) }   ; 태그 13\n  None => None }                                                              ; 54535\n",
+ "knobs": [
+  {"what": "팔로우 사거리 여유(2셀)", "where": "lane_minion.rs:42 (IR 40814, aux closure$0)", "value": 64000, "effect": "올리면 사거리보다 더 먼 라인 미니언도 포지셔닝 대상 후보에 들어간다(대상 선정 폭 확대). 내리면 사거리 근접 미니언만"},
+  {"what": "서포터 제외", "where": "lane_minion.rs:23 (IR 54278)", "value": 4, "effect": "Position 태그 비교. 다른 값으로 바꾸면 그 포지션이 라인 미니언 포지셔닝을 안 하게 된다"}
+ ],
+ "unknown": [
+  "target_score 내부(43890~44235, 이 배치 밖 중간함수). 계약만: (version:i64 [미사용→poison], data:&OperationData, player:&PlayerState [미사용→poison], champ:&Entity, atk:&Effect(56B), target:&Entity, wave_snapshot:Option<&MinionWaveSnapshot>, rnd:&mut StdRng) -> (i64, i64) — .1 이 score(max_by_key 키). .0 의 의미 미확인",
+  "has_current_explicit_minion_action 내부(45591~45768, internal fastcc). 계약: (version, data, player, line, target:&Entity) -> bool(true=이미 명시적 미니언 행동이 있어 포지셔닝 None)",
+  "choose_goal 내부(43376~43887, internal fastcc). 계약: (sret Option<(u64,u64,i64)> 32B, target_score:i64, purpose:i8, version:i64, player, data, champ, target, positioning_score:&PositioningScoreData, line:i8). None 이면 소액션 전체가 None",
+  "iter_minions 56B 체인 구조(슬라이스 3개)의 의미 — 콜리 내부 안 팜",
+  "L30~48 한 문장 안의 `?` 위치(라인 30 귀속은 !dbg 의 2790<30 로 확정, 표기만)",
+  "PositioningScoreData(2760B)·MinionWaveSnapshot 을 본 함수는 안 읽음 — 콜리에 전달만"
+ ]
+}

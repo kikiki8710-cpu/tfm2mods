@@ -1,0 +1,327 @@
+{
+ "name": "SmallActionAroundBush::get_input",
+ "sym": "_RNvMs6_NtNtCshdEBA0ozCnw_7game_ai12small_action6aroundNtB5_21SmallActionAroundBush9get_input",
+ "src": "game-ai\\src\\small_action\\around.rs",
+ "src_line": 1195,
+ "ir_file": "m08.ll",
+ "ir_from": 105393,
+ "ir_to": 105815,
+ "aux": [],
+ "one_line": "수풀 목표 셀까지 check_cell(지역 규칙+타워 회피) 술어로 PathFinder 경로를 만들고/갱신해 이동 입력 생성, 디버그면 경로선·지역 로그 기록",
+ "signature": {
+  "abi": "define hidden void (sret 32B = Option<Input>) — 비 internal, 인자 승격 없음. 인자 7 + sret",
+  "params": [
+   {
+    "i": 0,
+    "name": "(sret)",
+    "type": "*mut Option<Input>(32B)",
+    "note": "None = i64 -1 @+0x0 · Some = Input 32B memcpy"
+   },
+   {
+    "i": 1,
+    "name": "self",
+    "type": "&mut SmallActionAroundBush(120B)",
+    "note": "★&mut. 읽기 +0x18 target_x · +0x20 target_y · +0x6d path_finder 태그 · +0x70 out_line(클로저 환경으로 &참조). 쓰기 = writes"
+   },
+   {
+    "i": 2,
+    "name": "version",
+    "type": "usize",
+    "note": "분기 없음. new_tower_avoid_v3 · new_target · 클로저 환경[0](&version → check_cell 1번째)"
+   },
+   {
+    "i": 3,
+    "name": "rnd",
+    "type": "&mut StdRng(320B)",
+    "note": "★&mut — 본문 직접 store 0. new_target/update_path 로 전달(소비량 path_finder 계층 미탐색)"
+   },
+   {
+    "i": 4,
+    "name": "player",
+    "type": "&PlayerState(2528B, readonly)",
+    "note": "+0x930 team · +0x9c0 position 태그. 클로저 환경[1]"
+   },
+   {
+    "i": 5,
+    "name": "data",
+    "type": "&OperationData(24B, readonly)",
+    "note": "+0x0 cache → player_champion · +0x8 context(+0x20 map · +0x3b debug). 클로저 환경[3]"
+   },
+   {
+    "i": 6,
+    "name": "positioning_score",
+    "type": "&PositioningScoreData(2760B, readonly)",
+    "note": "본문 읽기 0. 클로저 환경[2] → check_cell 3번째"
+   },
+   {
+    "i": 7,
+    "name": "debug",
+    "type": "&mut DebugFrameData(224B)",
+    "note": "★&mut — context.debug 이고 입력이 Move 일 때만 +0xa0 infos HashMap insert/push + add_line(lines Vec push). IR 속성 noalias·align 8 dereferenceable(224)"
+   }
+  ],
+  "returns": "Option<Input> 32B sret. None 경로(L1206·L1210): +0x0 = i64 -1 만 기록(105617·105631), 나머지 24B 미기록. Some 경로(L1218): PathFinder::get_input 의 32B 지역(%15)을 통째 memcpy(105642) — Input 태그 0..5 @+0x0, Move 페이로드 x +0x8 · y +0x10, +0x18~+0x1f 는 콜리가 채우지 않았으면 undef 복사"
+ },
+ "reads": [
+  {
+   "base": "PlayerState",
+   "offset": "0x930",
+   "name": "info.team",
+   "note": "105426, <2 아니면 panic"
+  },
+  {
+   "base": "PlayerState",
+   "offset": "0x9c0",
+   "name": "info.position@tag",
+   "note": "105437 (player.rs:581 인라인)"
+  },
+  {
+   "base": "OperationData",
+   "offset": "0x0",
+   "name": "cache",
+   "note": "105439"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x1e0",
+   "name": "player_champion[2][5]",
+   "note": "Option<&Entity> null=None → unwrap_failed (105484, L1196)"
+  },
+  {
+   "base": "SmallActionAroundBush",
+   "offset": "0x18",
+   "name": "target_x",
+   "note": "105452 (L1197) · 105496(재로드 L1206)"
+  },
+  {
+   "base": "SmallActionAroundBush",
+   "offset": "0x20",
+   "name": "target_y",
+   "note": "105461 (L1198)"
+  },
+  {
+   "base": "SmallActionAroundBush",
+   "offset": "0x6d",
+   "name": "path_finder@tag",
+   "note": "+0x28+0x45 Option<PathFinder> 니치, 2=None (105475·105530·105492·105613)"
+  },
+  {
+   "base": "SmallActionAroundBush",
+   "offset": "0x28",
+   "name": "path_finder 페이로드",
+   "note": "PathFinder 72B 선두 — update_path/get_input 에 &mut 로 전달 (105472 `gep %1, 40`)"
+  },
+  {
+   "base": "SmallActionAroundBush",
+   "offset": "0x50",
+   "name": "path_finder.path(Box ptr)",
+   "note": "+0x28+0x28. old 값 drop 경로에서만 로드(105558, 1120B dealloc)"
+  },
+  {
+   "base": "SmallActionAroundBush",
+   "offset": "0x58",
+   "name": "path_finder.planned_verdict(Box ptr)",
+   "note": "105537, 70B dealloc"
+  },
+  {
+   "base": "SmallActionAroundBush",
+   "offset": "0x70",
+   "name": "out_line",
+   "note": "주소만 클로저 환경[5] 에 저장(105509·105592) — 값 읽기는 콜리 인스턴스 안(m03 21147)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x660",
+   "name": "x",
+   "note": "내 위치 ex (105505·105588)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x668",
+   "name": "y",
+   "note": "ey"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x5c0",
+   "name": "id",
+   "note": "디버그 infos HashMap 키 (105655, L1213)"
+  },
+  {
+   "base": "OperationData",
+   "offset": "0x8",
+   "name": "context",
+   "note": "105480·105503"
+  },
+  {
+   "base": "GameContext",
+   "offset": "0x3b",
+   "name": "debug",
+   "note": "bool — 디버그 로그 게이트 (105623, L1211)"
+  },
+  {
+   "base": "GameContext",
+   "offset": "0x20",
+   "name": "map",
+   "note": "105749 → regions"
+  },
+  {
+   "base": "MapDef",
+   "offset": "0x38b8",
+   "name": "regions[30][30]",
+   "note": "regions[ey/32000][ex/32000] — 디버그 문자열 (105750, 인덱스 <30 아니면 panic)"
+  },
+  {
+   "base": "DebugFrameData",
+   "offset": "0xa0",
+   "name": "infos",
+   "note": "HashMap<usize, Vec<String>> — rustc_entry(105659)"
+  },
+  {
+   "base": "Input(지역 %15)",
+   "offset": "0x8",
+   "name": "Move.x / +0x10 Move.y",
+   "note": "105647~105651 (L1212) — add_line 끝점"
+  }
+ ],
+ "writes": [
+  {
+   "base": "SmallActionAroundBush(self)",
+   "offset": "0x28",
+   "name": "path_finder",
+   "value": "Some/None(PathFinder::new_target(rnd, ctx, version, \"around_bush\"(11B), ex, ey, target_x, target_y, closure#0)) 72B memcpy (105488, L1201)",
+   "note": "path_finder 가 None 일 때만. memcpy 직전 old 값이 Some 이면 Box 2개 dealloc(105558~105580 — 진입 조건상 사장 경로)"
+  },
+  {
+   "base": "SmallActionAroundBush(self)",
+   "offset": "0x28",
+   "name": "path_finder(콜리 경유)",
+   "value": "update_path(&mut)(105608) · get_input(&mut)(105621) 내부 갱신",
+   "note": "path_finder 계층 미탐색 — 갱신 오프셋 전수 불가(범위: 이 본문 한정)"
+  },
+  {
+   "base": "DebugFrameData(debug)",
+   "offset": "0xa0",
+   "name": "infos[entity.id]",
+   "value": "Vec<String> 없으면 빈 Vec 삽입(insert_no_grow 105695) 후 format!(\"region: {}\", map.regions[ey/32000][ex/32000]) push(grow_one 105782 · memcpy 105797 · len+1 105799)",
+   "note": "context.debug && input==Move 일 때만 (L1213)"
+  },
+  {
+   "base": "DebugFrameData(debug)",
+   "offset": "0x18",
+   "name": "lines",
+   "value": "add_line(ex, ey, move.x, move.y, Color{1.0,0.0,1.0,1.0}) (105808, L1214)",
+   "note": "콜리 DebugFrameData::add_line(game_core) 내부 push"
+  },
+  {
+   "base": "Option<Input>(sret)",
+   "offset": "0x0",
+   "name": "tag/Input",
+   "value": "-1 (105617·105631) 또는 32B memcpy (105642)",
+   "note": ""
+  },
+  {
+   "base": "StdRng(rnd)",
+   "offset": "0x0",
+   "name": "rng 상태",
+   "value": "new_target/update_path 내부",
+   "note": "본문 직접 store 없음"
+  }
+ ],
+ "constants": [
+  {
+   "value": 32000,
+   "src_line": 1197,
+   "meaning": "월드→셀: target_x/32000, target_y/32000 (105453·105462) · 디버그 ex/32000, ey/32000 (105734·105739)"
+  },
+  {
+   "value": 29,
+   "src_line": 1197,
+   "meaning": "셀 인덱스 상한 clamp: min(x/32000, 29) (105457·105466, `llvm.umin`) — 30×30 격자"
+  },
+  {
+   "value": 960000,
+   "src_line": 1213,
+   "meaning": "30×32000 — 디버그 regions 인덱스 범위 검사(ey<960000, ex<960000 아니면 panic_bounds_check 30) (105735·105740)"
+  },
+  {
+   "value": 2,
+   "src_line": 1200,
+   "meaning": "Option<PathFinder>::None 니치 태그 비교(105475 등 4곳). player_champion 팀 인덱스 상한 2 도 동일 리터럴(배열 크기)"
+  },
+  {
+   "value": -1,
+   "src_line": 1206,
+   "meaning": "Option<Input>::None 니치 태그(105617·105631)"
+  },
+  {
+   "value": 11,
+   "src_line": 1201,
+   "meaning": "&'static str \"around_bush\" 길이 — PathFinder::new_target 의 key (@anon…104, 105525)"
+  },
+  {
+   "value": 1,
+   "src_line": 1210,
+   "meaning": "SafeMoveWithSkill::Safe(1) — PathFinder::get_input 4번째 (105621); 5번째 bool=false"
+  },
+  {
+   "value": 0,
+   "src_line": 1211,
+   "meaning": "Input 태그 0 = Move 비교(105626 `icmp eq i64 %106, 0`) — 디버그 로그 게이트"
+  },
+  {
+   "value": 1120,
+   "src_line": 1201,
+   "meaning": "old PathFinder.path Box 크기 70×(u64,u64)=1120B dealloc (105558). 판정값 아님"
+  },
+  {
+   "value": 70,
+   "src_line": 1201,
+   "meaning": "old planned_verdict Box [u8;70] dealloc (105580). 판정값 아님"
+  }
+ ],
+ "calls": [
+  "core::panicking::panic_bounds_check",
+  "core::option::unwrap_failed",
+  "game_ai::path_finder::TowerDodgeContext::new_tower_avoid_v3",
+  "game_ai::path_finder::PathFinder::new_target",
+  "game_ai::path_finder::PathFinder::update_path",
+  "game_ai::path_finder::PathFinder::get_input",
+  "__rustc::__rust_dealloc",
+  "hashbrown::map::HashMap::rustc_entry",
+  "hashbrown::raw::RawTable::insert_no_grow",
+  "alloc::fmt::format::format_inner",
+  "alloc::raw_vec::RawVec::grow_one",
+  "core::ops::drop::Drop::drop",
+  "core::ptr::drop_glue",
+  "game_core::simulation::game::frame::DebugFrameData::add_line"
+ ],
+ "logic": "SmallActionAroundBush::get_input(&mut self, version, rnd, player, data, ps, debug) -> Option<Input>   [around.rs:1195]\n entity = data.cache.player_champion[player.team][player.position].unwrap()          (L1196)\n tcx = min(self.target_x/32000, 29) ; tcy = min(self.target_y/32000, 29)             (L1197~1198; 지역 변수, 클로저에 &참조)\n tower_dodge = TowerDodgeContext::new_tower_avoid_v3(version, player, data, self.target_x, self.target_y)   (L1199)\n if self.path_finder.is_none():                                                        (L1200)\n     self.path_finder = PathFinder::new_target(rnd, data.context, version, \"around_bush\", entity.x, entity.y, self.target_x, self.target_y,\n         |sx,sy,nx,ny| check_cell(version, player, ps, data, &tower_dodge, self.out_line, sx,sy,nx,ny, tcx, tcy))   (L1201; 클로저 환경 8칸: &version, player, ps, data, &tower_dodge, &self.out_line, &tcx, &tcy)\n     if self.path_finder.is_none(): return None                                        (L1206 — new_target 결과 None 가능, 105492)\n pf = self.path_finder.as_mut()  (Some 확정)\n pf.update_path(rnd, data.context, entity.x, entity.y, self.target_x, self.target_y, 같은 클로저(s_0))   (L1206)\n if self.path_finder.is_none(): return None                                            (L1210, 105613 — update_path 뒤 재검사)\n input = pf.get_input(player, data, SafeMoveWithSkill::Safe, false)                    (L1210)\n if data.context.debug && input is Move{x:mx, y:my}:                                    (L1211~1212)\n     debug.infos.entry(entity.id).or_insert(Vec::new()).push(format!(\"region: {}\", map.regions[entity.y/32000][entity.x/32000]))   (L1213; ex,ey ≥ 960000 이면 panic)\n     debug.add_line(entity.x, entity.y, mx, my, Color(1,0,1,1))                          (L1214)\n return Some(input)                                                                    (L1218)\n\n클로저 계약(관측, PathFinder 인스턴스 m03.ll 17819~21356 / 32437~33531 안 인라인): check_cell 12인자를 위 순서로 호출(m03 21150·32711), 반환 PathVerdict 태그로 switch(0 Allow → 계속 / 1 Soft / 2·3·4 → 위반 처리 — path_finder 계층). out_line 은 self.out_line 을 매 호출 로드.",
+ "knobs": [
+  {
+   "what": "PathFinder key",
+   "where": "around.rs:1201",
+   "value": "\"around_bush\"",
+   "effect": "pf_stats 통계·경로 캐시 구분 이름 — 판정 영향 없음(계측 키)"
+  },
+  {
+   "what": "이동 스킬 정책",
+   "where": "around.rs:1210",
+   "value": "Safe(1), false",
+   "effect": "Must 계열로 올리면 수풀 진입 시 이동 스킬을 더 적극 사용"
+  },
+  {
+   "what": "경로 셀 규칙",
+   "where": "check_cell 경유(self.out_line)",
+   "value": "생성자 인자 out_line",
+   "effect": "None 이면 타워 회피만, Outline/Inline 이면 라인 지역 규칙 추가(check_cell 명세)"
+  }
+ ],
+ "unknown": [
+  "new_target 결과의 None 가능성 — tcx 시그니처는 `-> PathFinder` 이나 IR 이 memcpy 뒤 니치 태그 2 를 두 번(105530·105492) 검사. 실제 None 반환 여부는 path_finder 계층 미탐색(PositionBush::get_input 과 같은 의문)",
+  "old path_finder drop 경로(105529~105580: 태그≠2 이면 Box dealloc) 는 진입 조건(태그==2)상 도달 불가로 보이나 컴파일러가 못 접었다 — 사장 여부는 reach 도구 미적용",
+  "PathFinder::get_input 5번째 bool(false) 의미 · update_path 가 self.path_finder 를 None 으로 되돌릴 수 있는지(L1210 재검사의 존재 이유) — path_finder 계층",
+  "rnd 소비량 — path_finder 계층",
+  "디버그 선 색 상수 `float 1.000000e+00`/`0.000000e+00`(105801~105807, Color{1,0,1,1} 마젠타)는 qcspec C1 이 정수만 대조해 constants 에 못 싣는다(도구 한계) — 판정값 아님, 여기 기록"
+ ]
+}

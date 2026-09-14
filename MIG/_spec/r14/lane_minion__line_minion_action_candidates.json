@@ -1,0 +1,101 @@
+{
+ "name": "line_minion_action_candidates",
+ "sym": "_RNvNtNtCshdEBA0ozCnw_7game_ai12small_action11lane_minion29line_minion_action_candidates",
+ "src": "game-ai\\src\\small_action\\lane_minion.rs",
+ "src_line": 72,
+ "ir_file": "m11.ll",
+ "ir_from": 54541,
+ "ir_to": 55418,
+ "aux": [],
+ "one_line": "적 미니언 전수 스캔 → 사거리(+이동 30틱 여유) 안이면 Attack/Skill/Skill2 후보를 bumpalo Vec 으로 모은다",
+ "signature": {
+  "abi": "define void (외부 심볼, fastcc 아님). exe 0xe2ac00 · 호출자 3",
+  "params": [
+   {"i": 0, "name": "(sret)", "type": "bumpalo::collections::Vec<SmallActionPlay> (32B)", "note": "sret([32 x i8]) writeonly. 레이아웃: +0x0 ptr(빈 Vec 은 dangling 8 · m11.ll:54592) / +0x8 &Bump(=data.context.pool · 54589~54590 로드, 54593~54594 store) / +0x10 cap / +0x18 len(둘 다 memset 0 · 54598). 원소 = SmallActionPlay 184B, 태그 = 원소+0xb1(1B, 니치 · tcxdict --enum SmallActionPlay): 15=Attack 16=Skill 17=Skill2. 원소 안 live 바이트 = [0x0,0x18) 페이로드(SmallActionAttack/Skill/Skill2 24B: +0 start_tick, +8 target, +0x10 is_act 1B — `::new` 의 sret 24B memcpy · 55147/55258/55369) + 0xb1 태그 1B. [0x18,0xb1)·[0xb2,0xb8)·0x11~0x17 은 alloca 잔류(미기록)"},
+   {"i": 1, "name": "version", "type": "usize", "note": "본 함수에선 분기 없음. should_suppress_direct_minion_attack 에 그대로 전달(55132)"},
+   {"i": 2, "name": "data", "type": "&OperationData (24B)", "note": "readonly. +0 cache(&AbstractGameWithCache 8840B), +8 context(&GameContext) → context+0 = pool(&Bump)"},
+   {"i": 3, "name": "player", "type": "&PlayerState (2528B)", "note": "readonly. info.team(0x930)·info.position(0x9c0) 만 읽음"},
+   {"i": 4, "name": "line", "type": "LineType (i8, range 0..3)", "note": "0=Top 1=Mid 2=Bottom (tcxdict --enum LineType). 스캔 반경 밖 미니언의 라인 필터(55077) + should_suppress 전달"}
+  ],
+  "returns": "sret bumpalo Vec<SmallActionPlay>: 후보 0..N 개. 챔피언 없음(player_champion[team][pos]==None) 이면 빈 Vec(54651 memcpy 32B). ProfTimer(phase 65) 계측 부작용: PHASE_NANOS[65]·PHASE_CALLS[65] atomic add(54997~54998, prof::ENABLED(54570) 일 때만)"
+ },
+ "reads": [
+  {"base": "PlayerState", "offset": "0x930", "name": "info.team", "note": "54597. bounds<2 (54600) 아니면 panic_bounds_check"},
+  {"base": "PlayerState", "offset": "0x9c0", "name": "info.position@tag", "note": "54618, i32 zext. player_champion 2차 인덱스"},
+  {"base": "OperationData", "offset": "0x0", "name": "cache", "note": "54621 → AbstractGameWithCache"},
+  {"base": "OperationData", "offset": "0x8", "name": "context", "note": "54589 → GameContext+0x0 pool(&Bump, 54590) 을 Vec 할당자로"},
+  {"base": "AbstractGameWithCache", "offset": "0x1e0", "name": "player_champion[team][pos]", "note": "54622~54625 [2][5] x 8B · null=None(54626) → 빈 Vec 반환"},
+  {"base": "Entity", "offset": "0x640", "name": "stat_cached.move_speed (champ)", "note": "54641. move_speed*30 이 사거리 여유로 가산(54839)"},
+  {"base": "Entity", "offset": "0x470", "name": "stat_buff_cached.radius_mult (champ·target)", "note": "54644 champ / 55100·55218·55329 target. Entity::radius() 인라인(entity.rs:1511~1515)"},
+  {"base": "Entity", "offset": "0x680", "name": "radius (champ·target)", "note": "54658·54665 champ / 55107·55114 등 target. mult!=0 이면 radius*(mult+100)/100"},
+  {"base": "Entity", "offset": "0x4c0", "name": "attack_effect@tag (니치 -1=None)", "note": "54687. None 이면 atk_base undef, can_attack 이면 unwrap_failed(55088)"},
+  {"base": "Entity", "offset": "0x4a0", "name": "attack_effect.range", "note": "54700"},
+  {"base": "Entity", "offset": "0x4a8", "name": "attack_effect.growth_range", "note": "54702. (level-1)*growth_range 가산"},
+  {"base": "Entity", "offset": "0x5c8", "name": "level (champ)", "note": "54704·54747·54769. skill2_effect 는 level>2 일 때만 Some(54771)"},
+  {"base": "Entity", "offset": "0x438", "name": "stat_buff_cached.range (champ)", "note": "54708·54751·54795. 기본 사거리에 가산"},
+  {"base": "Entity", "offset": "0x4f8", "name": "skill_effect@tag (니치 -1=None)", "note": "54730"},
+  {"base": "Entity", "offset": "0x4d8", "name": "skill_effect.range", "note": "54743"},
+  {"base": "Entity", "offset": "0x4e0", "name": "skill_effect.growth_range", "note": "54745"},
+  {"base": "Entity", "offset": "0x4f0", "name": "skill_effect.target (CastingTarget)", "note": "54843 → CastingTarget::check 의 self(55205)"},
+  {"base": "Entity", "offset": "0x500", "name": "skill2_effect (Option<Effect> 56B 선두)", "note": "54772. level>2 아니면 @anon.38(정적 None, 태그 -1) 로 대체(54773)"},
+  {"base": "Entity", "offset": "0x510", "name": "skill2_effect.range", "note": "54789 (%118+16)"},
+  {"base": "Entity", "offset": "0x518", "name": "skill2_effect.growth_range", "note": "54791 (%118+24)"},
+  {"base": "Entity", "offset": "0x528", "name": "skill2_effect.target (CastingTarget)", "note": "54846 (%118+40) → CastingTarget::check(55309)"},
+  {"base": "Entity", "offset": "0x530", "name": "skill2_effect@tag (니치 -1=None)", "note": "54776 (%118+48)"},
+  {"base": "Entity", "offset": "0x0", "name": "team@tag (champ, TeamType)", "note": "54975. 0=Player 1=Neutral. Neutral 이면 가시성 검사 생략"},
+  {"base": "Entity", "offset": "0x8", "name": "team@Player.0 (champ)", "note": "54836/55007. target.visible_state 인덱스(bounds<2 · 55009)"},
+  {"base": "Entity", "offset": "0x38", "name": "visible_state[team]@tag (target)", "note": "55014 + team*24(gep stride). 0=Visible 만 통과(55017)"},
+  {"base": "Entity", "offset": "0x660", "name": "x (champ·target)", "note": "54837 / 55033"},
+  {"base": "Entity", "offset": "0x668", "name": "y (champ·target)", "note": "54838 / 55036"},
+  {"base": "Entity", "offset": "0x68", "name": "ty@tag (target)", "note": "55061. ==1(Minion) 검사 — 스캔 반경 밖일 때만"},
+  {"base": "Entity", "offset": "0x11a", "name": "ty@Minion.info.line@tag (target)", "note": "55073. == line 인자(55077)"},
+  {"base": "Entity", "offset": "0x5c0", "name": "id (target)", "note": "55141·55252·55363 → SmallAction*::new 의 target"}
+ ],
+ "writes": [
+  {"base": "sret Vec", "offset": "0x0..0x20", "name": "res", "value": "빈 Vec 초기화(54592~54598) → push 시 +0x18 len 갱신(55193·55304·55415), 원소 memcpy 184B(55191·55302·55413) · 용량 부족 시 reserve_internal_or_panic(55170·55281·55392)", "note": "sret 외 힙 쓰기 없음. 인자 전부 readonly"},
+  {"base": "prof::PHASE_NANOS / PHASE_CALLS", "offset": "+520 (=65*8)", "name": "phase 65 계측", "value": "atomicrmw add nanos / +1", "note": "54997~54998. prof::ENABLED!=0 일 때만(54570~54571)"}
+ ],
+ "constants": [
+  {"value": 65, "src_line": 74, "meaning": "ProfTimer phase id(계측 전용, 판정 무관) · 54578"},
+  {"value": 100, "src_line": 81, "meaning": "Entity::radius() 인라인: radius*(radius_mult+100)/100 (entity.rs:1515) · 54667/54669 등 4곳"},
+  {"value": 2, "src_line": 89, "meaning": "level > 2 이어야 skill2_effect 유효(entity.rs:1693) · 54771"},
+  {"value": 30, "src_line": 92, "meaning": "★ 사거리 여유 = move_speed*30 (틱 단위 추정: 60tps 면 0.5초 이동분). Attack/Skill/Skill2 세 판정에 공통 가산 · 54839"},
+  {"value": 6400000000, "src_line": 98, "meaning": "80000^2 — near_default_scan 반경(제곱비교). 이 안이면 라인 무관하게 후보, 밖이면 `line` 라인 미니언만 · 55053"},
+  {"value": 1, "src_line": 99, "meaning": "EntityType 태그 1 = Minion (tcxdict --enum EntityType) · 55063"},
+  {"value": 0, "src_line": 93, "meaning": "VisibleState 태그 0 = Visible · 55017 / TeamType 태그 0 = Player(trunc→i1 · 54976)"},
+  {"value": 15, "src_line": 110, "meaning": "SmallActionPlay 니치 태그 15 = Attack(원소+0xb1) · 55148"},
+  {"value": 16, "src_line": 119, "meaning": "SmallActionPlay 니치 태그 16 = Skill · 55259"},
+  {"value": 17, "src_line": 129, "meaning": "SmallActionPlay 니치 태그 17 = Skill2 · 55370"}
+ ],
+ "calls": [
+  "game_core::simulation::entity::Entity::can_attack",
+  "game_core::simulation::entity::Entity::can_skill",
+  "game_core::simulation::entity::Entity::can_skill2",
+  "game_core::simulation::AbstractGameWithCache::iter_minions",
+  "game_core::simulation::effect::Effect::range_adjust",
+  "game_core::simulation::effect::type::CastingTarget::check",
+  "game_ai::small_action::lane_minion::SmallActionLaneMinionPosition::should_suppress_direct_minion_attack",
+  "game_ai::small_action::cast::SmallActionAttack::new",
+  "game_ai::small_action::cast::SmallActionSkill::new",
+  "game_ai::small_action::cast::SmallActionSkill2::new",
+  "bumpalo::collections::raw_vec::RawVec::reserve_internal_or_panic",
+  "std::time::Instant::now",
+  "std::time::Instant::elapsed",
+  "core::option::unwrap_failed",
+  "core::panicking::panic_bounds_check"
+ ],
+ "logic": "fn line_minion_action_candidates(version, data, player, line) -> Vec<SmallActionPlay, &Bump>\n[L74] _t = ProfTimer::new(65)  (prof::ENABLED 일 때만 Instant::now)\n[L75] res = Vec::new_in(data.context.pool)          ; 32B: ptr=8(dangling) bump cap=0 len=0\n[L76] champ = data.cache.player_champion[player.info.team][player.info.position]  ; team bounds<2\n[L77] if champ.is_none() { return res }              ; 빈 Vec(54651)\n[L79] move_speed = champ.stat_cached.move_speed (0x640)\n[L81] champ_radius = Entity::radius(champ) = if radius_mult==0 { radius } else { radius*(radius_mult+100)/100 }\n[L82] can_attack = champ.can_attack()\n[L84] atk_base: Option<i64> = champ.attack_effect.map(|e| e.range + champ_radius + champ.stat_buff_cached.range + (champ.level-1)*e.growth_range)   ; effect.rs:1162 헬퍼 인라인, None 이면 undef\n[L85] can_skill = champ.can_skill()\n[L87] skill_base = champ.skill_effect.map(같은 식 · 0x4d8/0x4e0)\n[L88] can_skill2 = champ.can_skill2()\n[L89] skill2_eff = if champ.level > 2 { &champ.skill2_effect } else { &None }   ; entity.rs:1693\n[L90] skill2_base = skill2_eff.map(같은 식 · +16/+24)\n[L92] for target in data.cache.iter_minions(1 - player.info.team)   ; 적 팀 미니언 · 56B 체인 이터레이터(슬라이스 3개 순차)\n  [L93]  if champ.team is Player(t) && target.visible_state[t] != Visible { continue }   ; entity.rs:1482 헬퍼 인라인. champ Neutral 이면 검사 생략\n  [L97]  dist_sq = |dx|^2 + |dy|^2  (champ.x/y vs target.x/y, 0x660/0x668)\n  [L98]  near_default_scan = dist_sq < 6400000000 (80000^2)\n  [L99]  if !near_default_scan && !(target.ty is Minion && target.ty.Minion.info.line == line) { continue }   ; lane_minion.rs:65 헬퍼 인라인\n  [L103] if can_attack {\n  [L104]   atk = champ.attack_effect.as_ref().unwrap()          ; None 이면 unwrap_failed 패닉\n  [L106]   max_dist = atk_base + move_speed*30 + atk.range_adjust(champ, target)\n  [L107]   max_dist += Entity::radius(target)\n  [L108]   if dist_sq <= max_dist*max_dist {\n  [L109]     if !SmallActionLaneMinionPosition::should_suppress_direct_minion_attack(version, data, player, line, target) {\n  [L110]       res.push(SmallActionPlay::Attack(SmallActionAttack::new(data, target.id)))   ; 태그 15\n  } } }\n  [L114] if can_skill && champ.skill_effect.is_some() {\n  [L115]   if CastingTarget::check(&skill.target, champ, target) {\n  [L116]     max_dist = skill_base + move_speed*30 + skill.range_adjust(champ, target)\n  [L117]     max_dist += Entity::radius(target)\n  [L118]     if dist_sq <= max_dist^2 {\n  [L119]       res.push(SmallActionPlay::Skill(SmallActionSkill::new(data, target.id)))   ; 태그 16\n  } } }\n  [L124] if can_skill2 && skill2_eff.is_some() {\n  [L125]   if CastingTarget::check(&skill2.target, champ, target) {\n  [L126]     max_dist = skill2_base + move_speed*30 + skill2_eff.unwrap().range_adjust(champ, target)   ; None 이면 unwrap_failed(도달 불가: is_some 확인 후)\n  [L127]     max_dist += Entity::radius(target)\n  [L128]     if dist_sq <= max_dist^2 {\n  [L129]       res.push(SmallActionPlay::Skill2(SmallActionSkill2::new(data, target.id)))   ; 태그 17\n  } } }\n}\n[L135] res(54981 memcpy 32B)   ; [L136] ProfTimer drop → PHASE_NANOS[65] += elapsed, PHASE_CALLS[65] += 1\n\n★공격 후보에만 should_suppress 게이트가 있고 Skill/Skill2 에는 없다. ★Skill/Skill2 는 is_some 을 먼저 보지만 Attack 은 can_attack 만 보고 unwrap 한다(attack_effect None+can_attack true 면 패닉 — 게임 데이터상 도달 여부 미확인).",
+ "knobs": [
+  {"what": "사거리 여유(이동분) 계수", "where": "lane_minion.rs:92 (IR 54839 `mul i64 %50, 30`)", "value": 30, "effect": "올리면 더 먼 미니언까지 Attack/Skill/Skill2 후보에 들어간다(세 판정 공통). 0 이면 순수 사거리+반지름만"},
+  {"what": "근접 스캔 반경(제곱)", "where": "lane_minion.rs:98 (IR 55053)", "value": 6400000000, "effect": "80000 이내 미니언은 라인과 무관하게 후보. 올리면 다른 라인 미니언도 근처면 후보에 포함, 내리면 담당 라인 미니언만 남는다"},
+  {"what": "skill2 해금 레벨", "where": "entity.rs:1693 인라인 (IR 54771)", "value": 2, "effect": "level > 2 조건. game_core 규칙이라 AI 쪽에서 바꿀 값이 아님(참고용)"}
+ ],
+ "unknown": [
+  "iter_minions 의 56B 반환 구조 — 슬라이스 3개(cur/end 쌍 3 + i64 상태) 체인으로 읽히나(54811~54833) 세 슬라이스가 라인별(Top/Mid/Bot)인지는 _gcbc 본문 미확인(콜리 내부 안 팜 · 지시 범위 밖)",
+  "should_suppress_direct_minion_attack 내부 — 잎 22, 계약만: (version:i64, data:&OperationData, player:&PlayerState, line:i8, target:&Entity) -> bool(true=Attack 후보 억제) · 55132",
+  "L84/87/90 의 사거리 합산 헬퍼가 effect.rs:1162 의 어떤 이름인지(인라인·define 없음). 식 자체는 IR 로 확정: range + champ_radius + stat_buff_cached.range + (level-1)*growth_range",
+  "상수 30 의 단위 — 틱이면 60tps 기준 0.5초. tps 나눗셈 없이 곧바로 곱하므로 '틱' 은 추정",
+  "SmallActionAttack/Skill/Skill2::new 가 24B 안에 무엇을 쓰는지(start_tick·target·is_act 로 tcxdict 확정, 값은 콜리 내부 · 안 팜)",
+  "entity.rs:1482 가시성 헬퍼의 이름(인라인). 동작은 IR 로 확정: champ.team==Player(t) 이면 target.visible_state[t]==Visible 요구"
+ ]
+}

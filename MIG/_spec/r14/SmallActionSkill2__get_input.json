@@ -1,0 +1,214 @@
+{
+ "name": "SmallActionSkill2::get_input",
+ "sym": "_RNvMs3_NtNtCshdEBA0ozCnw_7game_ai12small_action4castNtB5_17SmallActionSkill29get_input",
+ "src": "game-ai\\src\\small_action\\cast.rs",
+ "src_line": 196,
+ "ir_file": "m07.ll",
+ "ir_from": 12318,
+ "ir_to": 12449,
+ "aux": [],
+ "one_line": "소액션 '스킬2 시전': 대상 존재·적 우물 위험·레벨(>2)·논타겟 검사 후 abstract_input::skill2 로 입력 생성, Skill2 이면 is_act 세움",
+ "signature": {
+  "abi": "define hidden void, sret([32 x i8]) — 비-internal(fastcc 아님) · 인자 승격 없음. self 는 `&mut`(IR: `ptr noalias align 8 captures(none) dereferenceable(24)` — readonly 속성 없음 → 가변)",
+  "params": [
+   {
+    "i": 0,
+    "name": "(sret)",
+    "type": "Option<Input>(32B)",
+    "note": "반환 슬롯. 아래 returns 참조"
+   },
+   {
+    "i": 1,
+    "name": "&mut self",
+    "type": "&mut SmallActionSkill2(24B)",
+    "note": "+0x8 target(usize 엔티티 id) 읽기 · +0x10 is_act 쓰기. +0x0 start_tick 은 안 씀"
+   },
+   {
+    "i": 2,
+    "name": "version",
+    "type": "usize",
+    "note": "본문 분기 없음 — is_enemy_well_danger·safe_move·skill2 에 전달만"
+   },
+   {
+    "i": 3,
+    "name": "rnd",
+    "type": "&mut StdRng(320B)",
+    "note": "check_nontarget·abstract_input::skill2 에 전달만(본문에서 직접 안 읽음)"
+   },
+   {
+    "i": 4,
+    "name": "player",
+    "type": "&PlayerState(2528B)",
+    "note": "readonly. info.team(+0x930)·info.position(+0x9c0)"
+   },
+   {
+    "i": 5,
+    "name": "data",
+    "type": "&OperationData(24B)",
+    "note": "readonly. +0x0 cache → game(dyn) get_entity_by_id · player_champion"
+   },
+   {
+    "i": 6,
+    "name": "positioning_score",
+    "type": "&PositioningScoreData(2760B)",
+    "note": "abstract_input::skill2 에 전달만"
+   }
+  ],
+  "returns": "sret Option<Input>(32B). 살아있는 바이트: +0x0 i64 태그(-1=None · 0 Move · 1 Return · 2 Attack · 3 Skill · 4 Skill2 · 5 Ult — tcxdict --enum game_core::Input, None 은 니치 -1 관측 m07.ll:12347 `store i64 -1`). 이 함수가 직접 쓰는 경로(L215 대상 없음·L201 우물 위험)는 +0x0 8B 만 기록, +0x8~0x1f 미기록. 나머지 경로는 콜리 sret(abstract_input::skill2 / safe_move_avoiding_enemy_well) 이 채운 바이트 그대로 — Move 면 +0x8 x,+0x10 y(+0x18 미기록) · Skill2 이면 +0x8 InputTarget 태그(4B, +0xc 패딩) +0x10/+0x18 페이로드(Target: +0x10 target_id 만 · None(3): +0x10~ 미기록)"
+ },
+ "reads": [
+  {
+   "base": "SmallActionSkill2",
+   "offset": "0x8",
+   "name": "target",
+   "note": "대상 엔티티 id → game.get_entity_by_id (m07.ll:12331~12335)"
+  },
+  {
+   "base": "OperationData",
+   "offset": "0x0",
+   "name": "cache",
+   "note": "&AbstractGameWithCache (m07.ll:12327)"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x0",
+   "name": "game",
+   "note": "&dyn AbstractGame: data ptr +0x0, vtable +0x8 → 슬롯 +0x1f0 get_entity_by_id (m07.ll:12328~12336)"
+  },
+  {
+   "base": "AbstractGameWithCache",
+   "offset": "0x1e0",
+   "name": "player_champion[team][position]",
+   "note": "None → unwrap_failed 패닉 (m07.ll:12359~12364)"
+  },
+  {
+   "base": "PlayerState",
+   "offset": "0x930",
+   "name": "info.team",
+   "note": "≥2 → panic_bounds_check"
+  },
+  {
+   "base": "PlayerState",
+   "offset": "0x9c0",
+   "name": "info.position@tag",
+   "note": "i32 → zext 인덱스"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x0",
+   "name": "team@tag",
+   "note": "target.team: 0=Player (L199 인라인 entity.rs:1127)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x8",
+   "name": "team@Player.0",
+   "note": "== 1 - my team 이면 적 (m07.ll:12382~12390)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x660",
+   "name": "x",
+   "note": "target.x → is_enemy_well_danger / safe_move (L200·L205)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x668",
+   "name": "y",
+   "note": "target.y"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x530",
+   "name": "skill2_effect@tag",
+   "note": "champ.skill2_effect None(-1) → unwrap_failed 패닉 (m07.ll:12395~12403). 페이로드 선두+0x30 위치의 i32 태그"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x500",
+   "name": "skill2_effect@Some.0",
+   "note": "&Effect(56B) → check_nontarget 인자 (m07.ll:12398~12399 select — level 게이트 실패 시 @anon.31 정적 None 으로 대체)"
+  },
+  {
+   "base": "Entity",
+   "offset": "0x5c8",
+   "name": "level",
+   "note": "level(+0x5c8) > 2 여야 skill2_effect 를 봄(entity.rs:1693 인라인 Entity::skill2_effect) — 아니면 정적 None(@anon.31) 을 unwrap → 패닉 (m07.ll:12397)"
+  }
+ ],
+ "writes": [
+  {
+   "base": "SmallActionSkill2",
+   "offset": "0x10",
+   "name": "is_act",
+   "value": "1 (true, i8)",
+   "note": "L210 · m07.ll:12447 — abstract_input::skill2 결과 태그가 4(Some(Input::Skill2)) 일 때만. 그 외 경로는 self 무변경"
+  },
+  {
+   "base": "(sret)",
+   "offset": "0x0",
+   "name": "Option<Input>@tag",
+   "value": "-1 (None)",
+   "note": "L215 대상 없음(m07.ll:12347) · L201 적 우물 위험(m07.ll:12415). 8B 만 기록"
+  },
+  {
+   "base": "(sret)",
+   "offset": "0x0",
+   "name": "Option<Input> 전체",
+   "value": "콜리가 채움",
+   "note": "L205 safe_move_avoiding_enemy_well(sret) / L208 abstract_input::skill2(sret) — 32B 중 live 는 콜리 규약"
+  }
+ ],
+ "constants": [
+  {
+   "value": -1,
+   "src_line": 215,
+   "meaning": "Option<Input>::None 니치 태그(store i64 -1, m07.ll:12347·12415). 같은 -1 이 Entity.skill2_effect None 태그(i32) 비교(L204, m07.ll:12403)에도"
+  },
+  {
+   "value": 2,
+   "src_line": 198,
+   "meaning": "team 인덱스 bounds(len 2) — 임계 아님. 같은 2 가 L204 `level > 2` (Entity::skill2_effect 인라인, m07.ll:12397) 스킬2 해금 레벨 게이트"
+  },
+  {
+   "value": 0,
+   "src_line": 199,
+   "meaning": "TeamType::Player 메모리태그 0 — target.team 이 Player 인지 (m07.ll:12374)"
+  },
+  {
+   "value": 1,
+   "src_line": 199,
+   "meaning": "`1 - team` = 적 팀 (m07.ll:12383)"
+  },
+  {
+   "value": 4,
+   "src_line": 209,
+   "meaning": "Input::Skill2 메모리태그 4 — abstract_input::skill2 결과가 Some(Skill2) 인지 (m07.ll:12439)"
+  }
+ ],
+ "calls": [
+  "game_ai::path_finder::is_enemy_well_danger",
+  "game_ai::small_action::cast::check_nontarget",
+  "game_ai::abstract_input::safe_move_avoiding_enemy_well",
+  "game_ai::abstract_input::skill2",
+  "core::option::unwrap_failed",
+  "core::panicking::panic_bounds_check"
+ ],
+ "logic": "fn get_input(&mut self, version, rnd, player, data, positioning_score) -> Option<Input>   [cast.rs:196~217]\n  L197: target = data.cache.game.get_entity_by_id(self.target)   // vtable+0x1f0\n        None → L215: return None (sret +0x0 = -1)\n  L198: champ = data.cache.player_champion[player.team][player.position].unwrap()   // None 이면 패닉(unwrap_failed)\n  L199: if target.team == TeamType::Player(1 - player.team) {           // 적 소속이면\n  L200:   if path_finder::is_enemy_well_danger(version, player, target.x, target.y) {\n  L201:     return None } }\n  L204: eff = champ.skill2_effect().unwrap()      // 인라인: if champ.level > 2 { &champ.skill2_effect(+0x500) } else { &None(정적 @anon.31) } → None 이면 패닉\n        if check_nontarget(rnd, player, data.cache, eff, target) {   // 잎: true = 논타겟 검사 통과(시전 가능)\n  L208:   input = abstract_input::skill2(version, rnd, player, data, positioning_score, target)\n  L209:   if input.tag == 4 (Some(Input::Skill2)) { L210: self.is_act = true }\n          return input\n        } else {\n  L205:   return safe_move_avoiding_enemy_well(version, player, data, champ, target.x, target.y)   // 잎 sret\n        }",
+ "knobs": [
+  {
+   "what": "스킬2 해금 레벨(인라인된 game_core 게이트)",
+   "where": "entity.rs:1693 (Entity::skill2_effect, m07.ll:12397 인라인)",
+   "value": 2,
+   "effect": "game_core 상수 — 이 함수에선 미달 시 unwrap 패닉이므로 호출측이 먼저 걸러야 한다. 값 자체를 바꾸는 노브는 아님(정보성)"
+  }
+ ],
+ "unknown": [
+  "is_enemy_well_danger(version, &PlayerState, x, y)->bool (m03.ll:144500) 내부는 안 봄 — 잎 22 아님, 시그니처만",
+  "check_nontarget(&mut StdRng, &PlayerState, cache: ptr(nullable · internal fastcc 라 원 인자 &OperationData 에서 cache 필드만 승격된 흔적), &Effect(56B), &Entity)->bool — 잎(계약만): 호출 지점 m07.ll:12420",
+  "safe_move_avoiding_enemy_well(sret Option<Input> 32B, version, &PlayerState, &OperationData, &Entity champ, x, y) — 잎(계약만): 호출 m07.ll:12433",
+  "abstract_input::skill2(sret 32B, version, &mut StdRng, &PlayerState, &OperationData, &PositioningScoreData, &Entity target) — 같은 r14 배치(별도 명세 abstract_input__skill2.json) (호출 m07.ll:12437)",
+  "self.start_tick(+0x0) 은 이 함수에서 읽지도 쓰지도 않음",
+  "@anon.81aa2713ddfa9e15f7e3c0757f8f3b51.31 = 56B 정적 Option<Effect>::None(+0x30 에 FF FF FF FF) — 레벨 미달 시 unwrap 패닉 경로가 실제 도달 가능한지(호출측 게이트)는 이 함수 범위 밖"
+ ]
+}

@@ -1,0 +1,95 @@
+{
+ "name": "v22_lane_tower_pressure_attack_allowed",
+ "sym": "_RNvNtCshdEBA0ozCnw_7game_ai16tower_discipline38v22_lane_tower_pressure_attack_allowed",
+ "src": "game-ai\\src\\tower_discipline.rs",
+ "src_line": 394,
+ "ir_file": "m07.ll",
+ "ir_from": 51763,
+ "ir_to": 52386,
+ "aux": [
+  {"ir_file": "m07.ll", "ir_from": 2362, "ir_to": 2534},
+  {"ir_file": "m07.ll", "ir_from": 62029, "ir_to": 62042},
+  {"ir_file": "m11.ll", "ir_from": 33024, "ir_to": 33076}
+ ],
+ "one_line": "라인 타워를 직접 칠 수 있나 — v47 시즈 스탠스/커버, 미니언 커버 수, 라인전 페이즈, 마무리 가능성(1~2방), 적 챔피언 위협·타워 1방 감당 순으로 게이트",
+ "signature": {
+  "abi": "define noundef zeroext i1 (비-internal · 인자 승격 없음). 인자 4개 전부 값/포인터 그대로",
+  "params": [
+   {"i": 1, "name": "version", "type": "usize", "note": "본문에서 직접 분기 없음 — v47_siege_stance(version,…) 에 그대로 전달만 (m07.ll:51834)"},
+   {"i": 2, "name": "data", "type": "&OperationData(24B)", "note": "readonly. +0x0 cache · +0x8 context(GameContext) · +0x10 blackboard([Blackboard;2])"},
+   {"i": 3, "name": "player", "type": "&PlayerState(2528B)", "note": "readonly. info.team(+0x930)·info.position(+0x9c0) + is_recent_visible 인자로 전달"},
+   {"i": 4, "name": "tower", "type": "&Entity(1728B)", "note": "readonly. 공격 대상 적 라인 타워. ty(+0x68)==Tower(2) 일 때 Tower.nearest_enemy(+0x88 tag/+0x98 .1) 읽음"}
+  ],
+  "returns": "bool(i1 zeroext) — true = 이 타워를 지금 평타로 쳐도 됨(압박 공격 허용). false = 챔피언 없음/평타 없음/can_attack 아님/타워 평타 없음/커버 없이 라인전 아님/마무리 못 함/위협 있고 감당 못 함. phi m07.ll:51830(%36)·51825(%34)"
+ },
+ "reads": [
+  {"base": "PlayerState", "offset": "0x930", "name": "info.team", "note": "m07.ll:51787~51789 · ≥2 면 panic_bounds_check(len 2)"},
+  {"base": "PlayerState", "offset": "0x9c0", "name": "info.position@tag", "note": "player_champion[team][position] 인덱스 (m07.ll:51798~51800)"},
+  {"base": "OperationData", "offset": "0x0", "name": "cache", "note": "&AbstractGameWithCache (m07.ll:51801)"},
+  {"base": "OperationData", "offset": "0x8", "name": "context", "note": "&GameContext — expected_damage_target 인자, is_line_phase, tutorial (m07.ll:51899~51900 · 51929~51930)"},
+  {"base": "OperationData", "offset": "0x10", "name": "blackboard", "note": "&[Blackboard;2] — aux 이터레이터에서 [enemy_team] 인덱스(stride 744B) 로 is_recent_visible self (m07.ll:52288~52289 → aux 2431~2439)"},
+  {"base": "AbstractGameWithCache", "offset": "0x0", "name": "game", "note": "&dyn AbstractGame (data ptr +0x0, vtable +0x8) — tick(vtable+0x28)·get_entity_by_id(vtable+0x1f0) 호출 (m07.ll:51879~51886 · 52217~52223)"},
+  {"base": "AbstractGameWithCache", "offset": "0x1e0", "name": "player_champion[team][position]", "note": "Option<&Entity> 니치. None → false (m07.ll:51803~51807)"},
+  {"base": "Entity", "offset": "0x4c0", "name": "attack_effect@tag", "note": "champ(L398)·tower(L413)·target(L607 인라인) 세 곳. -1=None → false"},
+  {"base": "Entity", "offset": "0x490", "name": "attack_effect@Some.0", "note": "&Effect(56B) 페이로드 선두 — champ_attack / tower_attack 로 expected_damage_target·is_in_range 에 전달 (m07.ll:51813 · 51849)"},
+  {"base": "Entity", "offset": "0x5c0", "name": "id", "note": "champ.id(L408 소커 비교·L604 타겟 비교) · minion.id(L428 타워 타겟 비교)"},
+  {"base": "Entity", "offset": "0x68", "name": "ty@tag", "note": "tower.ty == 2(Tower) 확인 (L598 인라인·L417)"},
+  {"base": "Entity", "offset": "0x88", "name": "ty@Tower.info.nearest_enemy@tag", "note": "i64→trunc i1: Some 이면 타워가 타겟을 물고 있음 (L598·L417)"},
+  {"base": "Entity", "offset": "0x98", "name": "ty@Tower.info.nearest_enemy@Some.0.1", "note": "타워 타겟 엔티티 id 로 사용(get_entity_by_id 인자·minion.id 비교) — 튜플 .1 이 id 인 것은 사용처로 추정"},
+  {"base": "Entity", "offset": "0x670", "name": "hp", "note": "target.hp(L613) · tower.hp(L446·447) · minion.hp(L429) · champ.hp(L463)"},
+  {"base": "Entity", "offset": "0x628", "name": "stat_cached.hp", "note": "champ 최대 HP — hp_floor = >>2 (L462)"},
+  {"base": "Entity", "offset": "0x660", "name": "x", "note": "(aux 2362~) enemy/champ/tower 거리 계산"},
+  {"base": "Entity", "offset": "0x668", "name": "y", "note": "(aux) 거리 계산"},
+  {"base": "GameContext", "offset": "0x38", "name": "tutorial", "note": "TutorialType(1B) switch {0 None,5 MidBottom,7 Line,8 Total} — is_line_phase 인라인 (m07.ll:52225~52232)"},
+  {"base": "GameContext", "offset": "0x8", "name": "setting", "note": "&GameSetting (m07.ll:52235)"},
+  {"base": "GameSetting", "offset": "0x8a8", "name": "epic_jungle.first_spawn_tick", "note": "라인전 종료 기준 (setting.rs:703)"},
+  {"base": "GameSetting", "offset": "0x12f8", "name": "tick_per_second", "note": "×30 (setting.rs:704)"}
+ ],
+ "writes": [],
+ "constants": [
+  {"value": 2, "src_line": 395, "meaning": "team 인덱스 bounds(len 2) · 같은 2 가 EntityType::Tower 메모리태그(L598/L417 `icmp eq i64 %53, 2`) · L433 `tower_cover_count < 2` 에도 쓰임"},
+  {"value": -1, "src_line": 398, "meaning": "Entity.attack_effect Option 니치 None(i32 -1). champ(L398)·tower(L413)·target(L607) 모두 None → false/미커버"},
+  {"value": 1, "src_line": 452, "meaning": "`1 - team` = enemy_team (m07.ll:52275). 같은 1 이 L427 count+1 · L433/L469 `count == 1`(단일 커버) 비교에도. (본문의 `shl … 1` 은 이 상수가 아니라 아래 folded_from 2 항목)"},
+  {"value": 0, "src_line": 442, "meaning": "damage_to_tower == 0 → false (m07.ll:52255). L463 tower_damage == 0 → can_absorb_one_shot = true (m07.ll:52337)"},
+  {"value": 1, "folded_from": 2, "src_line": 447, "meaning": "finish_soon = damage_to_tower*2 >= tower.hp — `shl nuw i64 %199, 1`(m07.ll:52263) 로 접힘. 부호 오버플로(%206 slt 0) 면 포화 처리 → true"},
+  {"value": 2, "folded_from": 4, "src_line": 462, "meaning": "hp_floor = champ.stat_cached.hp / 4 — `lshr i64 %230, 2`(m07.ll:52347) 로 접힘"},
+  {"value": 30, "src_line": 437, "meaning": "is_line_phase(setting.rs:703~704 인라인): tick < saturating_sub(epic_jungle.first_spawn_tick, tps*30) — 에픽 첫 스폰 30초 전까지가 라인전 페이즈. tutorial ∈ {0,5,7,8} 에서만 검사, 그 외 튜토리얼은 항상 라인전"},
+  {"value": 5, "src_line": 437, "meaning": "switch case: TutorialType MidBottom(5) — 0 None/7 Line/8 Total 과 함께 is_line_phase 검사 대상 (m07.ll:52227~52232 switch)"},
+  {"value": 7, "src_line": 437, "meaning": "switch case: TutorialType Line(7)"},
+  {"value": 8, "src_line": 437, "meaning": "switch case: TutorialType Total(8)"},
+  {"value": 50000, "src_line": 456, "meaning": "(aux m07.ll:2454) threat_range = max(max_range(enemy,champ) + 50000, 120000) — 적 사거리 + 50k 여유(≈1.56셀)"},
+  {"value": 120000, "src_line": 456, "meaning": "(aux m07.ll:2457 umax) threat_range 하한 120k(3.75셀)"},
+  {"value": 32400000001, "src_line": 458, "meaning": "(aux m07.ll:2517) 180000² + 1 — 적 챔피언이 타워에서 180k(5.6셀) 이내면 위협 (dist² < 32400000001 ⟺ dist <= 180000)"}
+ ],
+ "calls": [
+  "game_core::simulation::entity::Entity::can_attack",
+  "game_ai::tower_discipline::v47_siege_stance",
+  "game_core::simulation::effect::Effect::expected_damage_target",
+  "game_core::simulation::AbstractGameWithCache::iter_minions",
+  "core::iter::adapters::copied::Copied::try_fold",
+  "core::slice::iter::Iter::try_fold",
+  "game_core::simulation::game::blackboard::Blackboard::is_recent_visible",
+  "game_ai::plan_legacy::old::battle::max_range",
+  "game_core::simulation::effect::Effect::is_in_range",
+  "core::panicking::panic_bounds_check"
+ ],
+ "logic": "fn v22_lane_tower_pressure_attack_allowed(version, data, player, tower) -> bool   [tower_discipline.rs:394~470]\n  L395: team = player.info.team; champ = data.cache.player_champion[team][player.info.position]; None → return false\n  L398: champ_attack = champ.attack_effect(+0x490, tag +0x4c0); None → return false\n  L401: if !champ.can_attack() → return false          (game_core 콜리)\n  L407: if let Some(soaker) = v47_siege_stance(version, data, player, tower) {      // {i64,i64} = Option<entity id>\n  L408:   if soaker == champ.id → return true                                          // 내가 소커\n          if v47_tower_covered_for_me(data, tower, champ.id) → return true            // 인라인(597~613):\n            //   tower.ty==Tower(2) && tower.nearest_enemy.is_some()(+0x88) 아니면 false\n            //   target_id = nearest_enemy.1(+0x98); target_id == my_id → false\n            //   target = game.get_entity_by_id(target_id)(vtable+0x1f0); None → false; tower.attack_effect None → false\n            //   return target.hp > expected_damage_target(tower_attack, ctx, tower as dyn, target)    // 커버가 한 방에 안 끊김\n        }\n  L413: tower_attack = tower.attack_effect; None → return false\n  L417: targeting = tower.ty==Tower && tower.nearest_enemy.is_some(); tower_target_id = nearest_enemy.1\n  L425: tower_cover_count = 0; focused_cover_will_die = false\n        for m in data.cache.iter_minions(team)   // 내 팀 top/mid/bottom 미니언 (Chain 56B, sret)\n                 .filter(|m| tower_attack.is_in_range(tower, m))  {      // aux s_0 (m07.ll:62029)\n  L427:   tower_cover_count += 1\n  L428:   if targeting && m.id == tower_target_id {\n  L429:     focused_cover_will_die = m.hp <= expected_damage_target(tower_attack, ctx, tower, m) } }\n        // targeting 이 false 면 카운트만 세는 루프(%101) — will_die 는 false 유지\n  L433: if !(tower_cover_count == 0 || (tower_cover_count == 1 && focused_cover_will_die)) → return true   // 커버가 서 있으면 허용\n        //  IR: %178 = count<2 && (count!=1 || will_die); br %178 → 계속, else → ret true (phi [true,%172])\n  L437: tick = game.tick()(vtable+0x28); if !ctx.is_line_phase(tick) → return false\n        //  is_line_phase(runner.rs:399→setting.rs:703~704): tutorial ∉ {None,MidBottom,Line,Total} → true; 아니면 tick < sat_sub(first_spawn_tick, tps*30)\n  L441: damage_to_tower = expected_damage_target(champ_attack, ctx, champ, tower)\n  L442: if damage_to_tower == 0 → return false\n  L446: finish_now  = damage_to_tower >= tower.hp        (IR 는 `ult` 를 계산해 dbg 에 DW_OP_not — 분기 방향으로 극성 확정)\n  L447: finish_soon = saturating(damage_to_tower*2) >= tower.hp\n  L459: if !finish_soon → return false\n  L452: enemy_team = 1 - team\n  L453~458: has_enemy_threat = data.cache.iter_champions(enemy_team)          // aux 2362~2534 (filter_map Some → filter s0_0 → any s1_0)\n        .filter(|e| data.blackboard[enemy_team].is_recent_visible(game, player, e))     // ★인덱스가 enemy_team(1-team) 임 — IR 관측\n        .any(|e| dist²(e, champ) <= max(max_range(e, champ)+50000, 120000)²  ||  dist²(e, tower) < 180000²+1)\n  L461: tower_damage = expected_damage_target(tower_attack, ctx, tower, champ)\n  L462: hp_floor = champ.stat_cached.hp >> 2\n  L463: can_absorb_one_shot = tower_damage == 0 || champ.hp > hp_floor + tower_damage\n  L465: if finish_now { L466: return can_absorb_one_shot || !has_enemy_threat }\n  L469: else          { return tower_cover_count == 1 && can_absorb_one_shot && !has_enemy_threat }   // 이 지점에서 count ∈ {0, 1(will_die)}\n  (phi 통합: %33/%34 = [true,%227 finish_now&tower_damage==0] [%245=can_absorb||!threat, %243] [!threat, %238] [false, %236/%240])",
+ "knobs": [
+  {"what": "적 챔피언 위협 사거리 여유", "where": "tower_discipline.rs:456 (aux m07.ll:2454)", "value": 50000, "effect": "올리면 더 먼 적도 위협으로 잡혀 타워 공격이 더 소극적(마무리 직전·감당 가능 아니면 false)"},
+  {"what": "위협 사거리 하한", "where": "tower_discipline.rs:456 (aux m07.ll:2456)", "value": 120000, "effect": "올리면 단거리 킷 적도 멀리서부터 위협으로 계산"},
+  {"what": "타워 주변 위협 반경(제곱)", "where": "tower_discipline.rs:458 (aux m07.ll:2517)", "value": 32400000001, "effect": "180k. 올리면 타워에서 더 먼 적까지 위협 → 압박 공격 감소"},
+  {"what": "라인전 페이즈 종료 마진(초)", "where": "setting.rs:704 (인라인, m07.ll:52243)", "value": 30, "effect": "올리면 에픽 스폰 더 이전에 커버 없는 타워 압박이 막힘(game_core 값이라 다른 사용처에도 영향)"},
+  {"what": "마무리 임박 배수", "where": "tower_discipline.rs:447 (shl 1)", "value": 2, "effect": "올리면(3방 이내 등) 더 이른 시점부터 커버 없는 타워 공격 허용"},
+  {"what": "타워 1방 감당 HP 바닥 분모", "where": "tower_discipline.rs:462 (lshr 2)", "value": 4, "effect": "분모를 올리면(바닥 낮아짐) 낮은 HP 로도 타워 한 방을 감당한다고 판단 → 더 공격적"}
+ ],
+ "unknown": [
+  "v47_siege_stance(version, data, player, tower) -> {i64,i64}(Option<usize> 소커 챔피언 id · tag 0/1) 내부는 m07.ll:48393(src 508) 별도 명세 대상 — 계약만",
+  "v47_tower_covered_for_me(data, tower, my_champion_id) (src 597~613) 는 별도 define 없이 인라인 — 위 logic 에 인라인 본문을 풀어 적음. 자체 시그니처는 IR 에 남지 않음",
+  "Blackboard::is_recent_visible(&Blackboard(744B), &dyn AbstractGame, &PlayerState, &Entity)->bool 내부(_gcbc/g07.ll:157005)는 안 봄. ★blackboard 인덱스가 enemy_team(=1-team, alloca %9 값) 인 것은 IR 관측 사실 — 의미(적 팀 블랙보드 기준 '최근 시야')는 미확인",
+  "max_range(&Entity enemy, &Entity champ)->u64 (m10.ll:52940) 내부는 안 봄 — 적 킷 최대 사거리로 추정(이름·용법)",
+  "Effect::expected_damage_target(&Effect, &GameContext, caster &dyn(ptr,vtable @anon.11=Entity vtable), target &Entity)->u64 · Effect::is_in_range(&Effect, &Entity caster, &Entity target)->bool · Entity::can_attack(&Entity)->bool 은 game_core 경계 — 시그니처만",
+  "iter_minions(sret 56B = Chain<Chain<Copied<Iter<&Entity>>,Copied<Iter>>,Copied<Iter>>, &cache, team): 관측 레이아웃 +0x0 i64 외곽 Option 태그, +0x8/+0x18/+0x28 각 슬라이스 ptr(null=None) — 어느 슬라이스가 top/mid/bottom 인지 순서는 game_core 경계라 미확인(카운트 합산이라 결과 무관)",
+  "Tower.nearest_enemy: Option<(usize,usize)> 의 .0 의미(거리로 추정) — 이 함수는 .1 만 쓴다",
+  "L446/L447 소스 표기가 `>=` 인지 `tower.hp <= dmg` 인지 — 외연 동일(표기 불가)"
+ ]
+}
